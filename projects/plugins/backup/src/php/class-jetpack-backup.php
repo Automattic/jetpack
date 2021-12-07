@@ -155,8 +155,17 @@ class Jetpack_Backup {
 			)
 		);
 
+		// Get information on site products.
+		register_rest_route(
+			'jetpack/v4',
+			'/site/products',
+			array(
+				'methods'             => WP_REST_Server::READABLE,
+				'callback'            => __CLASS__ . '::get_site_products',
+				'permission_callback' => __CLASS__ . '::backups_permissions_callback',
+			)
+		);
 	}
-
 	/**
 	 * The backup calls should only occur from a signed in admin user
 	 *
@@ -254,5 +263,41 @@ class Jetpack_Backup {
 	public static function plugin_deactivation() {
 		$manager = new Connection_Manager( 'jetpack-backup' );
 		$manager->remove_connection();
+	}
+
+	/**
+	 * Returns the result of `/sites/%d/products` endpoint call.
+	 *
+	 * @return array of site products.
+	 */
+	public static function get_site_products() {
+
+		$request  = sprintf( '/sites/%d/purchases', \Jetpack_Options::get_option( 'id' ) );
+		$response = Automattic\Jetpack\Connection\Client::wpcom_json_api_request_as_blog( $request, '1.1' );
+
+		// Bail if there was an error or malformed response.
+		if ( is_wp_error( $response ) || ! is_array( $response ) || ! isset( $response['body'] ) ) {
+			return self::get_failed_fetch_error();
+		}
+
+		if ( 200 !== (int) wp_remote_retrieve_response_code( $response ) ) {
+			return self::get_failed_fetch_error();
+		}
+
+		// Decode the results.
+		$results = json_decode( $response['body'], true );
+
+		// Bail if there were no results or purchase details returned.
+		if ( ! is_array( $results ) ) {
+			return self::get_failed_fetch_error();
+		}
+
+		return rest_ensure_response(
+			array(
+				'code'    => 'success',
+				'message' => esc_html__( 'Site purchases correctly received.', 'jetpack' ),
+				'data'    => wp_remote_retrieve_body( $response ),
+			)
+		);
 	}
 }

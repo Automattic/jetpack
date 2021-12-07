@@ -24,6 +24,9 @@ const Admin = () => {
 	const [ connectionLoaded, setConnectionLoaded ] = useState( false );
 	const [ capabilitiesLoaded, setCapabilitiesLoaded ] = useState( false );
 	const [ showHeaderFooter, setShowHeaderFooter ] = useState( true );
+	const [ siteProducts, setSiteProducts ] = useState( [] );
+	const [ siteProductsError, setSiteProductsError ] = useState( null );
+	const [ siteProductsLoaded, setSiteProductsLoaded ] = useState( false );
 
 	const domain = useSelect( select => select( STORE_ID ).getCalypsoSlug(), [] );
 
@@ -42,6 +45,19 @@ const Admin = () => {
 			() => {
 				setCapabilitiesLoaded( true );
 				setCapabilitiesError( 'Failed to fetch site capabilities' );
+			}
+		);
+	}, [] );
+
+	useEffect( () => {
+		apiFetch( { path: '/jetpack/v4/site/products' } ).then(
+			res => {
+				setSiteProducts( JSON.parse( res.data )[ 0 ] );
+				setSiteProductsLoaded( true );
+			},
+			() => {
+				setSiteProductsLoaded( true );
+				setSiteProductsError( 'Failed to fetch site products' );
 			}
 		);
 	}, [] );
@@ -67,7 +83,7 @@ const Admin = () => {
 							) }
 						</p>
 						<a
-							class="button"
+							className="button"
 							href={ getRedirectUrl( 'backup-plugin-upgrade-10gb', { site: domain } ) }
 							target="_blank"
 							rel="noreferrer"
@@ -75,7 +91,7 @@ const Admin = () => {
 							{ __( 'Upgrade now', 'jetpack-backup' ) }
 						</a>
 					</div>
-					<div class="lg-col-span-4 md-col-span-0 sm-col-span-0"></div>
+					<div className="lg-col-span-4 md-col-span-0 sm-col-span-0"></div>
 				</div>
 			</div>
 		);
@@ -94,7 +110,9 @@ const Admin = () => {
 			return (
 				<div className="jp-wrap">
 					<div className="jp-row">
-						<div class="lg-col-span-12 md-col-span-8 sm-col-span-4">{ renderConnectScreen() }</div>
+						<div className="lg-col-span-12 md-col-span-8 sm-col-span-4">
+							{ renderConnectScreen() }
+						</div>
 					</div>
 				</div>
 			);
@@ -146,7 +164,7 @@ const Admin = () => {
 			return (
 				<div className="jp-wrap">
 					<div className="jp-row">
-						<div class="lg-col-span-12 md-col-span-8 sm-col-span-4">
+						<div className="lg-col-span-12 md-col-span-8 sm-col-span-4">
 							<JetpackFooter
 								moduleName={ __( 'Jetpack Backup', 'jetpack-backup' ) }
 								a8cLogoHref="https://www.jetpack.com"
@@ -158,11 +176,36 @@ const Admin = () => {
 		}
 	};
 
+	const renderMyPlan = () => {
+		return (
+			<div className="jpb-my-plan-container">
+				<h3>{ __( 'My Plan', 'jetpack-backup' ) }</h3>
+				<p>{ __( 'The extra power you added to your Jetpack.', 'jetpack-backup' ) }</p>
+				{ siteProductsError && <div>{ siteProductsError }</div> }
+				{ siteProductsLoaded && ! siteProductsError && (
+					<>
+						<h4> { siteProducts.product_name } </h4>
+						<p> { siteProducts.expiry_message } </p>
+					</>
+				) }
+				<p>
+					<a
+						href={ getRedirectUrl( 'backup-plugin-my-plan', { site: domain } ) }
+						target="_blank"
+						rel="noreferrer"
+					>
+						{ __( 'Manage your plan', 'jetpack-backup' ) }
+					</a>
+				</p>
+			</div>
+		);
+	};
+
 	// Renders additional segments under the jp-hero area condition on having a backup plan
 	const renderBackupSegments = () => {
 		return (
 			<div className="jp-row">
-				<div class="lg-col-span-6 md-col-span-4 sm-col-span-4">
+				<div className="lg-col-span-6 md-col-span-4 sm-col-span-4">
 					<h2>{ __( 'Your cloud backups', 'jetpack-backup' ) }</h2>
 					<p>
 						{ __(
@@ -170,20 +213,22 @@ const Admin = () => {
 							'jetpack-backup'
 						) }
 					</p>
-					{ hasBackupPlan() && (
-						<p>
-							<a
-								href={ getRedirectUrl( 'jetpack-backup', { site: domain } ) }
-								target="_blank"
-								rel="noreferrer"
-							>
-								{ __( 'See all your backups', 'jetpack-backup' ) }
-							</a>
-						</p>
-					) }
+					{ hasBackupPlan() &&
+						( (
+							<p>
+								<a
+									href={ getRedirectUrl( 'jetpack-backup', { site: domain } ) }
+									target="_blank"
+									rel="noreferrer"
+								>
+									{ __( 'See all your backups', 'jetpack-backup' ) }
+								</a>
+							</p>
+						 ),
+						renderMyPlan() ) }
 				</div>
-				<div class="lg-col-span-1 md-col-span-1 sm-col-span-0"></div>
-				<div class="lg-col-span-5 md-col-span-3 sm-col-span-4">
+				<div className="lg-col-span-1 md-col-span-1 sm-col-span-0"></div>
+				<div className="lg-col-span-5 md-col-span-3 sm-col-span-4">
 					<h2>{ __( "Your site's heartbeat", 'jetpack-backup' ) }</h2>
 					<p>
 						{ __(
