@@ -81,6 +81,8 @@ class Defaults {
 		'jetpack_excluded_extensions',
 		'jetpack_mailchimp',
 		'jetpack_options',
+		'jetpack_partner_coupon',
+		'jetpack_partner_coupon_added',
 		'jetpack_portfolio',
 		'jetpack_portfolio_posts_per_page',
 		'jetpack_protect_global_whitelist',
