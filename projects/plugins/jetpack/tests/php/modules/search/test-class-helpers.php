@@ -1228,7 +1228,7 @@ class WP_Test_Jetpack_Search_Helpers extends WP_UnitTestCase {
 	/**
 	 * Helpers
 	 */
-	protected function fake_out_search_widget( $widgets ) {
+	public function fake_out_search_widget( $widgets ) {
 		$widgets['wp_inactive_widgets'][] = 'jetpack-search-filters-10';
 
 		foreach ( $widgets as $key => $sidebar ) {
