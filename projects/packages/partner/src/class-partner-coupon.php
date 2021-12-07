@@ -61,6 +61,7 @@ class Partner_Coupon {
 	 */
 	private static $supported_presets = array(
 		'IONA' => 'jetpack_backup_daily',
+		'IONB' => 'jetpack_backup_t1_yearly',
 	);
 
 	/**
