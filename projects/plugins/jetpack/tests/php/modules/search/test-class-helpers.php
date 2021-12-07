@@ -65,7 +65,6 @@ class WP_Test_Jetpack_Search_Helpers extends WP_UnitTestCase {
 		parent::tear_down();
 	}
 
-	function test_get_search_url_removes_page_when_no_query_s() {
 	public function test_get_search_url_removes_page_when_no_query_s() {
 		$_SERVER['REQUEST_URI'] = 'http://example.com/search/test/page/2/';
 		set_query_var( 's', 'test' );
