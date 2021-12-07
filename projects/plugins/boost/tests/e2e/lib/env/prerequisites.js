@@ -1,5 +1,5 @@
 import logger from 'jetpack-e2e-commons/logger.cjs';
-import { execWpCommand, buildPackage } from 'jetpack-e2e-commons/helpers/utils-helper.cjs';
+import { execWpCommand } from 'jetpack-e2e-commons/helpers/utils-helper.cjs';
 
 import { expect } from '@playwright/test';
 import { JetpackBoostPage } from '../pages/index.js';
@@ -9,7 +9,6 @@ export function boostPrerequisitesBuilder( page ) {
 		testPostTitles: [],
 		clean: undefined,
 		modules: { active: undefined, inactive: undefined },
-		packages: [],
 		connected: undefined,
 		jetpackDeactivated: undefined,
 	};
@@ -21,10 +20,6 @@ export function boostPrerequisitesBuilder( page ) {
 		},
 		withInactiveModules( modules = [] ) {
 			state.modules.inactive = modules;
-			return this;
-		},
-		withPackages( packages = [] ) {
-			state.packages = packages;
 			return this;
 		},
 		withConnection( shouldBeConnected ) {
@@ -48,7 +43,6 @@ export function boostPrerequisitesBuilder( page ) {
 async function buildPrerequisites( state, page ) {
 	const functions = {
 		modules: () => ensureModulesState( state.modules ),
-		packages: () => ensurePackages( state.packages ),
 		connected: () => ensureConnectedState( state.connected, page ),
 		testPostTitles: () => ensureTestPosts( state.testPostTitles ),
 		clean: () => ensureCleanState( state.clean ),
@@ -94,13 +88,6 @@ export async function deactivateModules( modules ) {
 		logger.prerequisites( `Deactivating module ${ module }` );
 		const result = await execWpCommand( `jetpack-boost module deactivate ${ module }` );
 		expect( result ).toMatch( new RegExp( `Success: .* has been deactivated.`, 'i' ) );
-	}
-}
-
-export async function ensurePackages( packages ) {
-	for ( const jetpackPackage of packages ) {
-		logger.prerequisites( `Installing package ${ jetpackPackage }` );
-		await buildPackage( jetpackPackage );
 	}
 }
 
