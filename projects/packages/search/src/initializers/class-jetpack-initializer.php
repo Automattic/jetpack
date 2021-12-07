@@ -76,9 +76,6 @@ class Jetpack_Initializer extends Initializer {
 	 * Check if search is supported by current plan.
 	 */
 	public static function is_search_supported() {
-		if ( method_exists( 'Jetpack_Plan', 'supports' ) ) {
-			return \Jetpack_Plan::supports( 'search' );
-		}
-		return false;
+		return ( new Plan() )->supports_search();
 	}
 }
