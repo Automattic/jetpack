@@ -291,7 +291,7 @@ class Critical_CSS extends Module {
 		$this->storage->store_css( $cache_key, $params['data'] );
 		$this->state->set_source_success( $cache_key );
 		self::clear_reset_reason();
-		self::clear_dismissed_recommendations();
+		Critical_CSS_Recommendation::clear_dismissed_recommendations();
 
 		// Set status to success to indicate the critical CSS data has been stored on the server.
 		return rest_ensure_response(
