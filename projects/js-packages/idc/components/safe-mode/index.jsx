@@ -15,6 +15,7 @@ import { Spinner } from '@automattic/jetpack-components';
  * Internal dependencies
  */
 import { STORE_ID } from '../../state/store';
+import trackAndBumpMCStats from '../../tools/tracking';
 import './style.scss';
 
 /**
@@ -62,6 +63,8 @@ const SafeMode = props => {
 		if ( ! isActionInProgress ) {
 			setIsStayingSafe( true );
 			setIsActionInProgress( true );
+
+			trackAndBumpMCStats( 'confirm_safe_mode' );
 
 			restApi
 				.confirmIDCSafeMode()
