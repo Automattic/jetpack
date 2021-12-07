@@ -54,4 +54,33 @@ class PersistentList {
 		fclose( $handle );
 		return $contents;
 	}
+
+	/**
+	 * Serializes the list into a JSON file.
+	 *
+	 * @param string $file_path JSON file path.
+	 * @param bool   $allow_empty Allow empty files.
+	 */
+	public function save_json( $file_path, $allow_empty = true ) {
+
+		if ( ! $allow_empty && empty( $this->items ) ) {
+			return '';
+		}
+
+		// phpcs:ignore WordPress.WP.AlternativeFunctions.file_system_read_file_put_contents
+		if ( ! file_exists( dirname( $file_path ) ) ) {
+			mkdir( dirname( $file_path ), 0777, true );
+		}
+		file_put_contents( // phpcs:ignore WordPress.WP.AlternativeFunctions.file_system_read_file_put_contents
+			$file_path,
+			json_encode( // phpcs:ignore WordPress.WP.AlternativeFunctions.json_encode_json_encode
+				array_map(
+					function ( $item ) {
+						return $item->to_map();
+					},
+					$this->items
+				)
+			)
+		);
+	}
 }
