@@ -1,5 +1,5 @@
 Significance: patch
 Type: added
-Comment: Reserving a coupon preset that is not using facing by default
+Comment: Reserving a coupon preset that is not user-facing by default so we can introduce it async from plugin release
 
 
