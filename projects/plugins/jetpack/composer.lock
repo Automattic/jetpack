@@ -1439,7 +1439,7 @@
             "dist": {
                 "type": "path",
                 "url": "../../packages/search",
-                "reference": "5dc357a61cf1d9f89bc23e1ccd7de5e1a62cc69e"
+                "reference": "fe395e97649361a7d3cadc0d2ad67c211a0fc696"
             },
             "require": {
                 "automattic/jetpack-assets": "^1.13",
