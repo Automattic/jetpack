@@ -26,11 +26,6 @@
 - Start an initial full sync if the site is connected when Jetpack is activated.
 - Start new Jetpack cycle 10.5-a.0
 - Switched Jetpack plugin to always use `s0.wp.com` and `i0.wp.com` for external resources
-- Updated package dependencies
-- Updated package dependencies.
-- Updated package dependencies.
-- Updated package dependencies.
-- Updated package dependencies.
 - Updated package dependencies.
 
 ## 10.4-beta - 2021-11-30
