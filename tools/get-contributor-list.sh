@@ -10,7 +10,7 @@ BASE=$(cd $(dirname "${BASH_SOURCE[0]}")/.. && pwd)
 
 function usage {
 	cat <<-EOH
-		usage: $0 [project] <version>
+		usage: $0 <project> [version]
 
 		Obtains the list of contributors for a major release.
 
