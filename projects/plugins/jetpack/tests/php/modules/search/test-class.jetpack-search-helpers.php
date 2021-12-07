@@ -1,15 +1,10 @@
-<?php // phpcs:ignore WordPress.Files.FileName.InvalidClassFileName
-/**
- * Helper class tests.
- *
- * @package automattic/jetpack
- */
+<?php
 
 use Automattic\Jetpack\Constants;
 use Automattic\Jetpack\Search\Helper as Jetpack_Search_Helpers;
 
-// Disables comment checks.
-// phpcs:disable Squiz.Commenting
+// TODO: Migrate this test to the Search package once class.jetpack-search.php has also been ported.
+require_jetpack_file( 'modules/search/class.jetpack-search.php' );
 
 class WP_Test_Jetpack_Search_Helpers_Customize {
 	public $previewing = false;
@@ -19,7 +14,15 @@ class WP_Test_Jetpack_Search_Helpers_Customize {
 	}
 }
 
+class WP_Test_Jetpack_Search_Helpers_Query {
+	public $searching = true;
+	public function is_search() {
+		return $this->searching;
+	}
+}
+
 class WP_Test_Jetpack_Search_Helpers extends WP_UnitTestCase {
+
 	protected $request_uri;
 	protected $get;
 	protected $post;
@@ -65,7 +68,7 @@ class WP_Test_Jetpack_Search_Helpers extends WP_UnitTestCase {
 		parent::tear_down();
 	}
 
-	public function test_get_search_url_removes_page_when_no_query_s() {
+	function test_get_search_url_removes_page_when_no_query_s() {
 		$_SERVER['REQUEST_URI'] = 'http://example.com/search/test/page/2/';
 		set_query_var( 's', 'test' );
 
@@ -76,7 +79,7 @@ class WP_Test_Jetpack_Search_Helpers extends WP_UnitTestCase {
 		$this->assertStringContainsString( 's=test', $url );
 	}
 
-	public function test_get_search_url_removes_page() {
+	function test_get_search_url_removes_page() {
 		$_SERVER['REQUEST_URI'] = 'http://example.com/page/2/?s=test';
 		$_GET['s']              = 'test';
 
@@ -86,7 +89,7 @@ class WP_Test_Jetpack_Search_Helpers extends WP_UnitTestCase {
 		$this->assertStringContainsString( 's=test', $url );
 	}
 
-	public function test_get_search_url_removes_paged_query_arg() {
+	function test_get_search_url_removes_paged_query_arg() {
 		$_SERVER['REQUEST_URI'] = 'http://example.com/page/2/?s=test&paged=2';
 		$_GET['s']              = 'test';
 		$_GET['paged']          = '2';
@@ -97,7 +100,7 @@ class WP_Test_Jetpack_Search_Helpers extends WP_UnitTestCase {
 		$this->assertStringContainsString( 's=test', $url );
 	}
 
-	public function test_add_query_arg_works_when_sending_array_of_args() {
+	function test_add_query_arg_works_when_sending_array_of_args() {
 		$_SERVER['REQUEST_URI'] = 'http://example.com/page/2/?s=test&post_type=page';
 		$_GET['s']              = 'test';
 
@@ -113,7 +116,7 @@ class WP_Test_Jetpack_Search_Helpers extends WP_UnitTestCase {
 		$this->assertStringContainsString( 'category=uncategorized', $url );
 	}
 
-	public function test_add_query_arg_does_not_persist_page() {
+	function test_add_query_arg_does_not_persist_page() {
 		$_SERVER['REQUEST_URI'] = 'http://example.com/page/2/?s=test&post_type=page';
 		$_GET['s']              = 'test';
 
@@ -123,7 +126,7 @@ class WP_Test_Jetpack_Search_Helpers extends WP_UnitTestCase {
 		$this->assertStringContainsString( 's=test', $url );
 	}
 
-	public function test_remove_query_arg_does_not_persist_page() {
+	function test_remove_query_arg_does_not_persist_page() {
 		$_SERVER['REQUEST_URI'] = 'http://example.com/page/2/?s=test';
 		$_GET['s']              = 'test';
 
@@ -134,7 +137,7 @@ class WP_Test_Jetpack_Search_Helpers extends WP_UnitTestCase {
 		$this->assertStringNotContainsString( 'post_type=', $url );
 	}
 
-	public function test_add_query_arg_respects_url_passed() {
+	function test_add_query_arg_respects_url_passed() {
 		$input_url              = 'http://example.com/page/2/?s=test';
 		$_SERVER['REQUEST_URI'] = $input_url;
 		$_GET['s']              = 'test';
@@ -143,7 +146,7 @@ class WP_Test_Jetpack_Search_Helpers extends WP_UnitTestCase {
 		$this->assertSame( 'http://example.com/page/2/?s=test&post_type=page', $url );
 	}
 
-	public function test_remove_query_arg_respects_url_passed() {
+	function test_remove_query_arg_respects_url_passed() {
 		$input_url              = 'http://example.com/page/2/?s=test&post_type=post,page';
 		$_SERVER['REQUEST_URI'] = $input_url;
 		$_GET['s']              = 'test';
@@ -153,15 +156,15 @@ class WP_Test_Jetpack_Search_Helpers extends WP_UnitTestCase {
 		$this->assertSame( 'http://example.com/page/2/?s=test', $url );
 	}
 
-	public function test_get_widget_option_name() {
+	function test_get_widget_option_name() {
 		$this->assertSame( 'widget_jetpack-search-filters', Jetpack_Search_Helpers::get_widget_option_name() );
 	}
 
-	public function test_get_widgets_from_option_empty_widget_option() {
+	function test_get_widgets_from_option_empty_widget_option() {
 		$this->assertSame( array(), Jetpack_Search_Helpers::get_widgets_from_option() );
 	}
 
-	public function test_get_widgets_from_option_with_widgets_saved() {
+	function test_get_widgets_from_option_with_widgets_saved() {
 		update_option( Jetpack_Search_Helpers::get_widget_option_name(), $this->get_sample_widgets_option() );
 
 		$filters = Jetpack_Search_Helpers::get_widgets_from_option();
@@ -171,22 +174,17 @@ class WP_Test_Jetpack_Search_Helpers extends WP_UnitTestCase {
 
 		$this->assertSame( $expected, $filters );
 	}
-
 	/**
-	 * Test building widget IDs.
-	 *
 	 * @dataProvider get_build_widget_id_data
 	 */
-	public function test_build_widget_id( $number, $expected ) {
+	function test_build_widget_id( $number, $expected ) {
 		$this->assertSame( $expected, Jetpack_Search_Helpers::build_widget_id( $number ) );
 	}
 
 	/**
-	 * Test checking active widget status.
-	 *
 	 * @dataProvider get_test_is_active_widget_data
 	 */
-	public function test_is_active_widget( $number, $expected ) {
+	function test_is_active_widget( $number, $expected ) {
 		$this->register_fake_widgets();
 
 		$widget_id = Jetpack_Search_Helpers::build_widget_id( $number );
@@ -195,7 +193,7 @@ class WP_Test_Jetpack_Search_Helpers extends WP_UnitTestCase {
 
 	}
 
-	public function test_get_filters_from_widgets() {
+	function test_get_filters_from_widgets() {
 		$raw_option         = $this->get_sample_widgets_option();
 		$filters            = $raw_option[22]['filters'];
 		$additional_filters = array(
@@ -330,11 +328,9 @@ class WP_Test_Jetpack_Search_Helpers extends WP_UnitTestCase {
 	}
 
 	/**
-	 * Test re-running search in Customizer previews.
-	 *
 	 * @dataProvider get_should_rerun_search_in_customizer_preview_data
 	 */
-	public function test_should_rerun_search_in_customizer_preview( $expected, $previewing = false, $post = false ) {
+	function test_should_rerun_search_in_customizer_preview( $expected, $previewing = false, $post = false ) {
 		if ( $previewing ) {
 			$GLOBALS['wp_customize']->previewing = true;
 		}
@@ -346,20 +342,16 @@ class WP_Test_Jetpack_Search_Helpers extends WP_UnitTestCase {
 	}
 
 	/**
-	 * Tests the array_diff function.
-	 *
 	 * @dataProvider get_array_diff_data
 	 */
-	public function test_array_diff( $expected, $array_1, $array_2 ) {
+	function test_array_diff( $expected, $array_1, $array_2 ) {
 		$this->assertSame( $expected, Jetpack_Search_Helpers::array_diff( $array_1, $array_2 ) );
 	}
 
 	/**
-	 * Tests the post_types_differ_searchable function.
-	 *
 	 * @dataProvider get_post_types_differ_searchable_data
 	 */
-	public function test_post_types_differ_searchable( $expected, $post_types = array() ) {
+	function test_post_types_differ_searchable( $expected, $post_types = array() ) {
 		$GLOBALS['wp_post_types'] = array(
 			'post'       => array(
 				'name'                => 'post',
@@ -378,45 +370,35 @@ class WP_Test_Jetpack_Search_Helpers extends WP_UnitTestCase {
 	}
 
 	/**
-	 * Tests the post_types_differ_query function.
-	 *
 	 * @dataProvider get_post_types_differ_query_data
 	 */
-	public function test_post_types_differ_query( $expected, $post_types = array(), $get = array() ) {
+	function test_post_types_differ_query( $expected, $post_types = array(), $get = array() ) {
 		$_GET = $get;
 		$this->assertSame( $expected, Jetpack_Search_Helpers::post_types_differ_query( $post_types ) );
 	}
 
 	/**
-	 * Tests the get_filter_properties_for_tracks function.
-	 *
 	 * @dataProvider get_filter_properties_for_tracks_data
 	 */
-	public function test_get_filter_properties_for_tracks( $expected, $filters ) {
+	function test_get_filter_properties_for_tracks( $expected, $filters ) {
 		$this->assertSame( $expected, Jetpack_Search_Helpers::get_filter_properties_for_tracks( $filters ) );
 	}
 
 	/**
-	 * Tests the get_widget_properties_for_tracks function.
-	 *
 	 * @dataProvider get_widget_properties_for_tracks_data
 	 */
-	public function test_get_widget_properties_for_tracks( $expected, $widget ) {
+	function test_get_widget_properties_for_tracks( $expected, $widget ) {
 		$this->assertSame( $expected, Jetpack_Search_Helpers::get_widget_properties_for_tracks( $widget ) );
 	}
 
 	/**
-	 * Tests the get_widget_tracks_value function.
-	 *
 	 * @dataProvider get_widget_tracks_value_data
 	 */
-	public function test_get_widget_tracks_value( $expected, $old_value, $new_value ) {
+	function test_get_widget_tracks_value( $expected, $old_value, $new_value ) {
 		$this->assertSame( $expected, Jetpack_Search_Helpers::get_widget_tracks_value( $old_value, $new_value ) );
 	}
 
 	/**
-	 * Tests the remove_active_from_post_type_buckets function.
-	 *
 	 * @dataProvider get_remove_active_from_post_type_buckets_data
 	 */
 	public function test_remove_active_from_post_type_buckets( $expected, $input ) {
@@ -427,11 +409,9 @@ class WP_Test_Jetpack_Search_Helpers extends WP_UnitTestCase {
 	}
 
 	/**
-	 * Tests the add_post_types_to_url function.
-	 *
 	 * @dataProvider get_add_post_types_to_url_data
 	 */
-	public function test_add_post_types_to_url( $expected, $url, $post_types ) {
+	function test_add_post_types_to_url( $expected, $url, $post_types ) {
 		$this->assertSame(
 			$expected,
 			Jetpack_Search_Helpers::add_post_types_to_url( $url, $post_types )
@@ -439,11 +419,9 @@ class WP_Test_Jetpack_Search_Helpers extends WP_UnitTestCase {
 	}
 
 	/**
-	 * Tests the ensure_post_types_on_remove_url function.
-	 *
 	 * @dataProvider get_ensure_post_types_on_remove_url_data
 	 */
-	public function test_ensure_post_types_on_remove_url( $expected, $filters, $post_types ) {
+	function test_ensure_post_types_on_remove_url( $expected, $filters, $post_types ) {
 		$this->assertSame(
 			$expected,
 			Jetpack_Search_Helpers::ensure_post_types_on_remove_url( $filters, $post_types )
@@ -451,8 +429,6 @@ class WP_Test_Jetpack_Search_Helpers extends WP_UnitTestCase {
 	}
 
 	/**
-	 * Tests the site_has_vip_index function.
-	 *
 	 * @dataProvider get_site_has_vip_index_data
 	 */
 	public function test_site_has_vip_index( $expected, $constant = null, $filter = false ) {
@@ -468,8 +444,6 @@ class WP_Test_Jetpack_Search_Helpers extends WP_UnitTestCase {
 	}
 
 	/**
-	 * Tests the get_max_posts_per_page function.
-	 *
 	 * @dataProvider get_max_posts_per_page_data
 	 */
 	public function test_get_max_posts_per_page( $expected, $has_vip_index ) {
@@ -478,8 +452,6 @@ class WP_Test_Jetpack_Search_Helpers extends WP_UnitTestCase {
 	}
 
 	/**
-	 * Tests the get_max_offset function.
-	 *
 	 * @dataProvider get_max_offset_data
 	 */
 	public function test_get_max_offset( $expected, $has_vip_index ) {
@@ -488,8 +460,6 @@ class WP_Test_Jetpack_Search_Helpers extends WP_UnitTestCase {
 	}
 
 	/**
-	 * Tests the get_date_filter_type_name function.
-	 *
 	 * @dataProvider get_date_filter_type_name_data
 	 */
 	public function test_get_date_filter_type_name( $expected, $type, $is_updated ) {
@@ -535,7 +505,7 @@ class WP_Test_Jetpack_Search_Helpers extends WP_UnitTestCase {
 	/**
 	 * Data providers
 	 */
-	public function get_build_widget_id_data() {
+	function get_build_widget_id_data() {
 		return array(
 			'jetpack-search-filters-22' => array(
 				22,
@@ -548,7 +518,7 @@ class WP_Test_Jetpack_Search_Helpers extends WP_UnitTestCase {
 		);
 	}
 
-	public function get_test_is_active_widget_data() {
+	function get_test_is_active_widget_data() {
 		return array(
 			'jetpack-search-filters-22' => array(
 				22,
@@ -561,7 +531,7 @@ class WP_Test_Jetpack_Search_Helpers extends WP_UnitTestCase {
 		);
 	}
 
-	public function get_should_rerun_search_in_customizer_preview_data() {
+	function get_should_rerun_search_in_customizer_preview_data() {
 		return array(
 			'not_previewing'                              => array(
 				false,
@@ -578,7 +548,7 @@ class WP_Test_Jetpack_Search_Helpers extends WP_UnitTestCase {
 		);
 	}
 
-	public function get_array_diff_data() {
+	function get_array_diff_data() {
 		return array(
 			'all_empty'                  => array(
 				array(),
@@ -608,7 +578,7 @@ class WP_Test_Jetpack_Search_Helpers extends WP_UnitTestCase {
 		);
 	}
 
-	public function get_post_types_differ_searchable_data() {
+	function get_post_types_differ_searchable_data() {
 		return array(
 			'no_post_types'                         => array(
 				false,
@@ -633,7 +603,7 @@ class WP_Test_Jetpack_Search_Helpers extends WP_UnitTestCase {
 		);
 	}
 
-	public function get_post_types_differ_query_data() {
+	function get_post_types_differ_query_data() {
 		return array(
 			'no_post_types_on_instance'                 => array(
 				false,
@@ -682,7 +652,7 @@ class WP_Test_Jetpack_Search_Helpers extends WP_UnitTestCase {
 		);
 	}
 
-	public function get_filter_properties_for_tracks_data() {
+	function get_filter_properties_for_tracks_data() {
 		return array(
 			'empty_filters'    => array(
 				array(),
@@ -712,7 +682,7 @@ class WP_Test_Jetpack_Search_Helpers extends WP_UnitTestCase {
 		);
 	}
 
-	public function get_widget_properties_for_tracks_data() {
+	function get_widget_properties_for_tracks_data() {
 		return array(
 			'empty_instance'                => array(
 				array(),
@@ -743,7 +713,7 @@ class WP_Test_Jetpack_Search_Helpers extends WP_UnitTestCase {
 		);
 	}
 
-	public function get_widget_tracks_value_data() {
+	function get_widget_tracks_value_data() {
 		$instance_with_filter_updated               = $this->get_sample_widget_instance();
 		$instance_with_filter_updated['filters'][1] = $this->get_tag_filter();
 
@@ -842,6 +812,7 @@ class WP_Test_Jetpack_Search_Helpers extends WP_UnitTestCase {
 					'action' => 'widget_updated',
 					'widget' => array(
 						'widget_title'                => 'Search',
+
 						'widget_search_box_enabled'   => 1,
 						'widget_filter_count'         => 2,
 						'widget_filter_type_taxonomy' => 2,
@@ -999,7 +970,7 @@ class WP_Test_Jetpack_Search_Helpers extends WP_UnitTestCase {
 		);
 	}
 
-	public function get_add_post_types_to_url_data() {
+	function get_add_post_types_to_url_data() {
 		return array(
 			'same_url_empty_post_types'     => array(
 				'http://jetpack.com?s=test',
@@ -1019,7 +990,7 @@ class WP_Test_Jetpack_Search_Helpers extends WP_UnitTestCase {
 		);
 	}
 
-	public function get_ensure_post_types_on_remove_url_data() {
+	function get_ensure_post_types_on_remove_url_data() {
 		return array(
 			'unmodified_if_no_post_types'            => array(
 				array(
@@ -1228,11 +1199,12 @@ class WP_Test_Jetpack_Search_Helpers extends WP_UnitTestCase {
 	/**
 	 * Helpers
 	 */
-	public function fake_out_search_widget( $widgets ) {
+	function _fake_out_search_widget( $widgets ) {
 		$widgets['wp_inactive_widgets'][] = 'jetpack-search-filters-10';
 
+		$override = array();
 		foreach ( $widgets as $key => $sidebar ) {
-			if ( 'wp_inactive_widgets' === $key ) {
+			if ( 'wp_inactive_widgets' == $key ) {
 				continue;
 			}
 
@@ -1243,8 +1215,8 @@ class WP_Test_Jetpack_Search_Helpers extends WP_UnitTestCase {
 		return $widgets;
 	}
 
-	protected function register_fake_widgets() {
-		add_filter( 'sidebars_widgets', array( $this, 'fake_out_search_widget' ) );
+	function register_fake_widgets() {
+		add_filter( 'sidebars_widgets', array( $this, '_fake_out_search_widget' ) );
 
 		$widget_ids = array(
 			'jetpack-search-filters-10',
@@ -1258,7 +1230,7 @@ class WP_Test_Jetpack_Search_Helpers extends WP_UnitTestCase {
 		}
 	}
 
-	protected function get_sample_widgets_option() {
+	function get_sample_widgets_option() {
 		return array(
 			'15'           => array(
 				'title'              => 'Search',
@@ -1277,7 +1249,7 @@ class WP_Test_Jetpack_Search_Helpers extends WP_UnitTestCase {
 		);
 	}
 
-	protected function get_sample_filters( $count_filters = 2, $count_cat = 4 ) {
+	function get_sample_filters( $count_filters = 2, $count_cat = 4 ) {
 		$filters = array();
 
 		if ( $count_filters > 0 ) {
@@ -1291,7 +1263,7 @@ class WP_Test_Jetpack_Search_Helpers extends WP_UnitTestCase {
 		return $filters;
 	}
 
-	protected function get_sample_widget_instance( $count_filters = 2, $count_cat = 4 ) {
+	function get_sample_widget_instance( $count_filters = 2, $count_cat = 4 ) {
 		$instance = array(
 			'title'              => 'Search',
 			'search_box_enabled' => 1,
@@ -1304,7 +1276,7 @@ class WP_Test_Jetpack_Search_Helpers extends WP_UnitTestCase {
 		return $instance;
 	}
 
-	protected function get_cat_filter( $count = 4 ) {
+	function get_cat_filter( $count = 4 ) {
 		return array(
 			'name'     => 'Categories',
 			'type'     => 'taxonomy',
@@ -1313,7 +1285,7 @@ class WP_Test_Jetpack_Search_Helpers extends WP_UnitTestCase {
 		);
 	}
 
-	protected function get_tag_filter() {
+	function get_tag_filter() {
 		return array(
 			'name'     => 'Tags',
 			'type'     => 'taxonomy',
@@ -1322,7 +1294,7 @@ class WP_Test_Jetpack_Search_Helpers extends WP_UnitTestCase {
 		);
 	}
 
-	protected function get_post_type_filter() {
+	function get_post_type_filter() {
 		return array(
 			'name'  => 'Post Type',
 			'type'  => 'post_type',
@@ -1330,7 +1302,7 @@ class WP_Test_Jetpack_Search_Helpers extends WP_UnitTestCase {
 		);
 	}
 
-	protected function get_date_histogram_posts_by_month_filter() {
+	function get_date_histogram_posts_by_month_filter() {
 		return array(
 			'type'     => 'date_histogram',
 			'field'    => 'post_date',
@@ -1339,7 +1311,7 @@ class WP_Test_Jetpack_Search_Helpers extends WP_UnitTestCase {
 		);
 	}
 
-	protected function get_date_histogram_posts_by_year_filter() {
+	function get_date_histogram_posts_by_year_filter() {
 		return array(
 			'type'     => 'date_histogram',
 			'field'    => 'post_date',
@@ -1348,7 +1320,7 @@ class WP_Test_Jetpack_Search_Helpers extends WP_UnitTestCase {
 		);
 	}
 
-	protected function get_date_histogram_posts_modified_by_month_filter() {
+	function get_date_histogram_posts_modified_by_month_filter() {
 		return array(
 			'type'     => 'date_histogram',
 			'field'    => 'post_modified',
@@ -1357,7 +1329,7 @@ class WP_Test_Jetpack_Search_Helpers extends WP_UnitTestCase {
 		);
 	}
 
-	protected function get_date_histogram_posts_modified_by_year_filter() {
+	function get_date_histogram_posts_modified_by_year_filter() {
 		return array(
 			'type'     => 'date_histogram',
 			'field'    => 'post_modified',
@@ -1366,7 +1338,7 @@ class WP_Test_Jetpack_Search_Helpers extends WP_UnitTestCase {
 		);
 	}
 
-	protected function get_date_histogram_posts_by_month_gmt__filter() {
+	function get_date_histogram_posts_by_month_gmt__filter() {
 		return array(
 			'type'     => 'date_histogram',
 			'field'    => 'post_date_gmt',
@@ -1375,7 +1347,7 @@ class WP_Test_Jetpack_Search_Helpers extends WP_UnitTestCase {
 		);
 	}
 
-	protected function get_date_histogram_posts_by_year_gmt__filter() {
+	function get_date_histogram_posts_by_year_gmt__filter() {
 		return array(
 			'type'     => 'date_histogram',
 			'field'    => 'post_date_gmt',
@@ -1384,7 +1356,7 @@ class WP_Test_Jetpack_Search_Helpers extends WP_UnitTestCase {
 		);
 	}
 
-	protected function get_date_histogram_posts_modified_by_month_gmt_filter() {
+	function get_date_histogram_posts_modified_by_month_gmt_filter() {
 		return array(
 			'type'     => 'date_histogram',
 			'field'    => 'post_modified_gmt',
@@ -1393,7 +1365,7 @@ class WP_Test_Jetpack_Search_Helpers extends WP_UnitTestCase {
 		);
 	}
 
-	protected function get_date_histogram_posts_modified_by_year_gmt_filter() {
+	function get_date_histogram_posts_modified_by_year_gmt_filter() {
 		return array(
 			'type'     => 'date_histogram',
 			'field'    => 'post_modified_gmt',
