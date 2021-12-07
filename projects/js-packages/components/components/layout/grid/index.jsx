@@ -18,21 +18,27 @@ import styles from './style.module.scss';
  */
 const Grid = props => {
 	const { children, sm, md, lg } = props;
-	const minimum = [ sm, md, lg ].reduce( ( prev, curr ) => ( curr < prev ? curr : prev ) );
+	const small = Number.isInteger( sm ) ? sm : 0;
+	const medium = Number.isInteger( md ) ? md : 0;
+	const large = Number.isInteger( lg ) ? lg : 0;
+	const minimum = [ small, medium, large ].reduce( ( prev, curr ) =>
+		curr > 0 && curr < prev ? curr : prev
+	);
+
 	const className = classnames(
-		typeof sm !== 'undefined' ? styles[ 'sm-col-span-' + sm ] : styles[ 'sm-col-span-' + minimum ],
-		typeof md !== 'undefined' ? styles[ 'md-col-span-' + md ] : styles[ 'md-col-span-' + minimum ],
-		typeof lg !== 'undefined' ? styles[ 'lg-col-span-' + lg ] : styles[ 'lg-col-span-' + minimum ]
+		small > 0 ? styles[ 'sm-col-span-' + small ] : styles[ 'sm-col-span-' + minimum ],
+		medium > 0 ? styles[ 'md-col-span-' + medium ] : styles[ 'md-col-span-' + minimum ],
+		large > 0 ? styles[ 'lg-col-span-' + large ] : styles[ 'lg-col-span-' + minimum ]
 	);
 	return <div className={ className }>{ children }</div>;
 };
 
 Grid.proptypes = {
-	/** Colspan for small viewport. Defaults to the smallest colspan informed. */
+	/** Colspan for small viewport. Needs to be an integer. Defaults to the smallest colspan informed. */
 	sm: PropTypes.number,
-	/** Colspan for medium viewport. Defaults to the smallest colspan informed. */
+	/** Colspan for medium viewport. Needs to be an integer. Defaults to the smallest colspan informed. */
 	md: PropTypes.number,
-	/** Colspan for large viewport. Defaults to the smallest colspan informed. */
+	/** Colspan for large viewport. Needs to be an integer. Defaults to the smallest colspan informed. */
 	lg: PropTypes.number,
 };
 
