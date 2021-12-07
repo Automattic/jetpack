@@ -161,7 +161,7 @@ class Critical_CSS extends Module {
 		add_filter( 'jetpack_boost_js_constants', array( $this, 'add_critical_css_constants' ) );
 
 		if ( is_admin() ) {
-			$this->recommendation->init();
+			$this->recommendation->on_initialize();
 			add_action( 'wp_ajax_boost_proxy_css', array( $this, 'handle_css_proxy' ) );
 		}
 
@@ -490,7 +490,6 @@ class Critical_CSS extends Module {
 	public function add_critical_css_constants( $constants ) {
 		// Information about the current status of Critical CSS / generation.
 		$constants['criticalCssStatus']                   = $this->get_local_critical_css_generation_info();
-		$constants['criticalCssDismissedRecommendations'] = \get_option( Critical_CSS_Recommendation::DISMISSED_RECOMMENDATIONS_STORAGE_KEY, array() );
 
 		return $constants;
 	}

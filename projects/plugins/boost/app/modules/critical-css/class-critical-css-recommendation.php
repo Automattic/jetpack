@@ -1,12 +1,4 @@
 <?php
-/**
- * Critical CSS recommendations.
- *
- * @link       https://automattic.com
- * @since      1.0.0
- * @package    automattic/jetpack-boost
- */
-
 namespace Automattic\Jetpack_Boost\Modules\Critical_CSS;
 
 /**
@@ -16,20 +8,15 @@ class Critical_CSS_Recommendation {
 	const DISMISSED_RECOMMENDATIONS_STORAGE_KEY = 'jb-critical-css-dismissed-recommendations';
 	const DISMISS_CSS_RECOMMENDATIONS_NONCE     = 'dismiss_notice';
 
-	/**
-	 * Constructor.
-	 */
 	public function __construct() {
 		add_filter( 'jetpack_boost_js_constants', array( $this, 'always_add_critical_css_constants' ) );
 	}
 
-	/**
-	 * Constructor.
-	 */
-	public function init() {
+	public function on_initialize() {
 
 		add_action( 'wp_ajax_dismiss_recommendations', array( $this, 'dismiss_recommendations' ) );
 		add_action( 'wp_ajax_reset_dismissed_recommendations', array( $this, 'reset_dismissed_recommendations' ) );
+		add_filter( 'jetpack_boost_js_constants', array( $this, 'add_critical_css_constants' ) );
 	}
 
 	/**
@@ -37,6 +24,12 @@ class Critical_CSS_Recommendation {
 	 */
 	public static function on_uninstall() {
 		self::clear_dismissed_recommendations();
+	}
+
+	public function add_critical_css_constants( $constants ) {
+		$constants['criticalCssDismissedRecommendations'] = \get_option( self::DISMISSED_RECOMMENDATIONS_STORAGE_KEY, array() );
+
+		return $constants;
 	}
 
 	/**
