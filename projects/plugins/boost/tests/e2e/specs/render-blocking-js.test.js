@@ -1,6 +1,6 @@
-import { test, expect } from '../../fixtures/base-test.js';
-import { boostPrerequisitesBuilder } from '../../lib/env/prerequisites.js';
-import { TestContentPage } from '../../lib/pages/index.js';
+import { test, expect } from '../fixtures/base-test.js';
+import { boostPrerequisitesBuilder } from '../lib/env/prerequisites.js';
+import { TestContentPage } from '../lib/pages/index.js';
 
 const testPostTitle = 'Hello World with JavaScript';
 

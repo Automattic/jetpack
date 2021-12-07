@@ -1,6 +1,6 @@
-import { boostPrerequisitesBuilder } from '../../lib/env/prerequisites.js';
-import { test, expect } from '../../fixtures/base-test.js';
-import { JetpackBoostPage } from '../../lib/pages/index.js';
+import { boostPrerequisitesBuilder } from '../lib/env/prerequisites.js';
+import { test, expect } from '../fixtures/base-test.js';
+import { JetpackBoostPage } from '../lib/pages/index.js';
 
 const modules = [
 	// ['MODULE_NAME', 'DEFAULT STATE'],
