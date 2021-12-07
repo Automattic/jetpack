@@ -30,6 +30,7 @@ module.exports = {
 		alias: {
 			...jetpackWebpackConfig.resolve.alias,
 			fs: false,
+			react: path.resolve( __dirname, '../node_modules/react' ),
 		},
 		modules: [ path.resolve( __dirname, '../src/dashboard' ), 'node_modules' ],
 	},
