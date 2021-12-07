@@ -72,16 +72,6 @@ class Jetpack_Notifications {
 	 * @return void
 	 */
 	public function action_init() {
-		// syncing must wait until after init so
-		// post types that support comments.
-		$filt_post_types = array();
-		$all_post_types  = get_post_types();
-		foreach ( $all_post_types as $post_type ) {
-			if ( post_type_supports( $post_type, 'comments' ) ) {
-				$filt_post_types[] = $post_type;
-			}
-		}
-
 		if ( defined( 'DOING_AJAX' ) && DOING_AJAX ) {
 			return;
 		}
