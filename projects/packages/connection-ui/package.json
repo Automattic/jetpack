@@ -18,7 +18,7 @@
 	"dependencies": {
 		"@automattic/jetpack-api": "workspace:^0.8.0",
 		"@automattic/jetpack-connection": "workspace:^0.11.2",
-		"@automattic/jetpack-idc": "workspace:^0.6.0",
+		"@automattic/jetpack-idc": "workspace:^0.6.1-alpha",
 		"@wordpress/data": "6.1.4"
 	},
 	"devDependencies": {
