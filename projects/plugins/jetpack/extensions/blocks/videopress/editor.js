@@ -24,6 +24,8 @@ import { isAtomicSite, isSimpleSite } from '../../shared/site-type-utils';
 import withHasWarningIsInteractiveClassNames from '../../shared/with-has-warning-is-interactive-class-names';
 import './editor.scss';
 
+import videoPressBlockExampleImage from './videopress-block-example-image.jpg';
+
 const videoPressNoPlanMediaPlaceholder = createHigherOrderComponent(
 	OriginalPlaceholder => props => {
 		const { name } = useBlockEditContext();
@@ -145,9 +147,9 @@ const addVideoPressSupport = ( settings, name ) => {
 			'jetpack'
 		);
 		settings.example.attributes = {
-			caption: __( 'Upload or embed videos with VideoPress', 'jetpack' ),
+			caption: '',
 			isVideoPressExample: true,
-			src: 'https://videopress2.files.wordpress.com/2021/11/videopress-devices.jpg',
+			src: videoPressBlockExampleImage,
 		};
 	}
 
