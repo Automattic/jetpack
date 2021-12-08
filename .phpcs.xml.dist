@@ -44,6 +44,8 @@
 	</rule>
 
 	<rule ref="PSR12">
+		<exclude name="Generic.WhiteSpace.DisallowTabIndent.TabsUsed" />
+		<exclude name="PSR2.Classes.ClassDeclaration.OpenBraceNewLine" />
 		<include-pattern>/projects/packages/analyzer/*</include-pattern>
 	</rule>
 
