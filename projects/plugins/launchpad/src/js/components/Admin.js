@@ -22,6 +22,8 @@ import { STORE_ID } from '../store';
 import ConnectRight from './assets/connect-right.png';
 import './admin-style.scss';
 
+const connectionIsLoaded = connectionStatus => Object.keys( connectionStatus ).length >= 1;
+
 const Admin = () => {
 	const APINonce = useSelect( select => select( STORE_ID ).getAPINonce(), [] );
 	const APIRoot = useSelect( select => select( STORE_ID ).getAPIRoot(), [] );
@@ -32,12 +34,12 @@ const Admin = () => {
 		select => select( CONNECTION_STORE_ID ).getConnectionStatus(),
 		[]
 	);
-	const [ connectionLoaded, setConnectionLoaded ] = useState( false );
+	const [ connectionLoaded, setConnectionLoaded ] = useState(
+		connectionIsLoaded( connectionStatus )
+	);
 
 	useEffect( () => {
-		if ( 0 < Object.keys( connectionStatus ).length ) {
-			setConnectionLoaded( true );
-		}
+		setConnectionLoaded( connectionIsLoaded( connectionStatus ) );
 	}, [ connectionStatus ] );
 
 	const isFullyConnected = () => connectionLoaded && connectionStatus.isUserConnected && connectionStatus.isRegistered;
