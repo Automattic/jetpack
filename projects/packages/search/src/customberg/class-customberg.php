@@ -114,7 +114,6 @@ class Customberg {
 	public function load_assets() {
 		if ( defined( 'JETPACK_SEARCH_PLUGIN_DIRECTORY' ) ) {
 			$this->load_assets_with_parameters(
-				'jetpack-search/build/customberg',
 				constant( 'JETPACK_SEARCH_PLUGIN_DIRECTORY' )
 			);
 		}
@@ -123,60 +122,22 @@ class Customberg {
 	/**
 	 * Loads script and style assets according to parameters provided.
 	 *
-	 * @param string $path_prefix - Path prefix for built assets.
 	 * @param string $plugin_base_path - Base path for plugin files.
 	 */
-	public function load_assets_with_parameters( $path_prefix, $plugin_base_path ) {
-		//
-		// Load styles.
-		wp_enqueue_style(
-			'jp-search-configure',
-			plugins_url( $path_prefix . '/jp-search-configure.css', $plugin_base_path ),
-			array(
-				'wp-components',
-				'wp-block-editor',
-			),
-			JETPACK__VERSION
-		);
-
-		//
-		// Load manifest.
-		$manifest_path       = $plugin_base_path . '/build/customberg/jp-search-configure.asset.php';
-		$script_dependencies = array();
-		try {
-			$asset_manifest      = include $manifest_path;
-			$script_dependencies = $asset_manifest['dependencies'];
-		} catch ( \Exception $e ) { // phpcs:ignore
-			// If the manifest can't be read, use fallback dependencies instead.
-			$script_dependencies = array(
-				'lodash',
-				'react',
-				'react-dom',
-				'wp-block-editor',
-				'wp-components',
-				'wp-core-data',
-				'wp-data',
-				'wp-element',
-				'wp-i18n',
-				'wp-polyfill',
-				'wp-primitives',
-				'wp-url',
-				'wp-viewport',
-			);
-		}
-
-		//
-		// Load scripts.
+	public function load_assets_with_parameters( $plugin_base_path ) {
 		Tracking::register_tracks_functions_scripts( true );
 
 		Assets::register_script(
 			'jp-search-configure',
-			$path_prefix . '/jp-search-configure.js',
-			$plugin_base_path,
+			'build/customberg/jp-search-configure.js',
+			$plugin_base_path . '/src', // A full path to a file or a directory inside a plugin.
 			array(
-				'dependencies' => $script_dependencies,
-				'in_footer'    => true,
-				'textdomain'   => 'jetpack',
+				'css_dependencies' => array(
+					'wp-components',
+					'wp-block-editor',
+				),
+				'in_footer'        => true,
+				'textdomain'       => 'jetpack',
 			)
 		);
 		Assets::enqueue_script( 'jp-search-configure' );

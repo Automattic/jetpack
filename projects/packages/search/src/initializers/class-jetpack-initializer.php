@@ -39,7 +39,7 @@ class Jetpack_Initializer extends Initializer {
 		require_once JETPACK__PLUGIN_DIR . 'modules/widgets/search.php';
 
 		/**
-		 * Location of built instant search assets, does not include trailing slash.
+		 * Location of built Jetpack Search assets, does not include trailing slash.
 		 */
 		define( 'JETPACK_SEARCH_PLUGIN_DIRECTORY', dirname( dirname( __DIR__ ) ) );
 
