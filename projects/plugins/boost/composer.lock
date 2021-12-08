@@ -267,7 +267,7 @@
             "dist": {
                 "type": "path",
                 "url": "../../packages/connection",
-                "reference": "514280c982cc91a84217eb795bd35204815ba108"
+                "reference": "5dc2155ba0bc6dd3f7106bb9febf3210b09f72d5"
             },
             "require": {
                 "automattic/jetpack-a8c-mc-stats": "^1.4",

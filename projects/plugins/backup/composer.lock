@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "b3e9824a71e87c811edf0626fcf4ec16",
+    "content-hash": "c7bf10c48c7e6145eff1931623919beb",
     "packages": [
         {
             "name": "automattic/jetpack-a8c-mc-stats",
@@ -231,7 +231,7 @@
             "dist": {
                 "type": "path",
                 "url": "../../packages/backup",
-                "reference": "4ac8499981bc55b4db90d4b6e2834a6f02f5244c"
+                "reference": "776794a0123d918e6b668a60fee916865b247181"
             },
             "require": {
                 "automattic/jetpack-connection": "^1.33",
@@ -331,7 +331,7 @@
             "dist": {
                 "type": "path",
                 "url": "../../packages/connection",
-                "reference": "514280c982cc91a84217eb795bd35204815ba108"
+                "reference": "5dc2155ba0bc6dd3f7106bb9febf3210b09f72d5"
             },
             "require": {
                 "automattic/jetpack-a8c-mc-stats": "^1.4",
@@ -401,7 +401,7 @@
             "dist": {
                 "type": "path",
                 "url": "../../packages/connection-ui",
-                "reference": "d6351c545058a8b927c9483c8beaa87e6c425de3"
+                "reference": "83b712b43e18d676b2cbd9028682a1cf405f596b"
             },
             "require": {
                 "automattic/jetpack-assets": "^1.13",
@@ -599,7 +599,7 @@
             "dist": {
                 "type": "path",
                 "url": "../../packages/identity-crisis",
-                "reference": "45ea8995a1ecf54478392ca01b80fc77362b16b2"
+                "reference": "7b9ecff83267056a21777f16e862b4dfb2c81f5f"
             },
             "require": {
                 "automattic/jetpack-connection": "^1.33",
@@ -1037,7 +1037,7 @@
             "dist": {
                 "type": "path",
                 "url": "../../packages/sync",
-                "reference": "fc18442c3a8021ddeb49e866ce371763e5d01cee"
+                "reference": "a1d120dc8f22a9e8c10a517dab73ca85da86321d"
             },
             "require": {
                 "automattic/jetpack-connection": "^1.33",
