@@ -684,7 +684,7 @@ export default createHigherOrderComponent(
 				seekbarColor,
 				seekbarLoadingColor,
 				seekbarPlayedColor,
-				useAverageColor,
+				useAverageColor
 			} );
 			const preview = !! url && getEmbedPreview( url );
 
