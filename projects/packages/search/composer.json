@@ -1,12 +1,15 @@
 {
 	"name": "automattic/jetpack-search",
 	"description": "Tools to assist with enabling cloud search for Jetpack sites.",
-	"type": "library",
+	"type": "jetpack-library",
 	"license": "GPL-2.0-or-later",
-	"require": {},
+	"require": {
+		"automattic/jetpack-connection": "^1.32"
+	},
 	"require-dev": {
 		"automattic/jetpack-changelogger": "^3.0",
-		"yoast/phpunit-polyfills": "1.0.2"
+		"yoast/phpunit-polyfills": "1.0.2",
+		"automattic/wordbless": "0.3.1"
 	},
 	"autoload": {
 		"classmap": [

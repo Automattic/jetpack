@@ -11,13 +11,17 @@ if ( ! defined( 'ABSPATH' ) ) {
 
 use Automattic\Jetpack\Admin_UI\Admin_Menu;
 use Automattic\Jetpack\Assets;
+use Automattic\Jetpack\Connection\Initial_State as Connection_Initial_State;
 use Automattic\Jetpack\Connection\Manager as Connection_Manager;
 use Automattic\Jetpack\Connection\Rest_Authentication as Connection_Rest_Authentication;
+use Automattic\Jetpack\My_Jetpack\Initializer as My_Jetpack_Initializer;
+use Automattic\Jetpack\Status;
 
 /**
  * Class Jetpack_Backup
  */
 class Jetpack_Backup {
+
 	/**
 	 * Constructor.
 	 */
@@ -70,6 +74,8 @@ class Jetpack_Backup {
 				return $actions;
 			}
 		);
+
+		My_Jetpack_Initializer::init();
 	}
 
 	/**
@@ -83,6 +89,9 @@ class Jetpack_Backup {
 	 * Enqueue plugin admin scripts and styles.
 	 */
 	public function enqueue_admin_scripts() {
+		$status  = new Status();
+		$manager = new Connection_Manager( 'jetpack-backup' );
+
 		Assets::register_script(
 			'jetpack-backup',
 			'build/index.js',
@@ -95,6 +104,12 @@ class Jetpack_Backup {
 		Assets::enqueue_script( 'jetpack-backup' );
 		// Initial JS state including JP Connection data.
 		wp_add_inline_script( 'jetpack-backup', $this->get_initial_state(), 'before' );
+		wp_add_inline_script( 'jetpack-backup', Connection_Initial_State::render(), 'before' );
+
+		// Load script for analytics.
+		if ( ! $status->is_offline_mode() && $manager->is_connected() ) {
+			wp_enqueue_script( 'jp-tracks', '//stats.wp.com/w.js', array(), gmdate( 'YW' ), true );
+		}
 	}
 
 	/**

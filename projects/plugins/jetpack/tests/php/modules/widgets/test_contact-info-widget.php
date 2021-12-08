@@ -31,7 +31,7 @@ class WP_Test_Contact_Info_Widget extends WP_UnitTestCase {
 		$output_string = ob_get_clean();
 
 		$apikey_field_displayed = false === strpos( $output_string, '<input type="hidden" id="widget-widget_contact_info' );
-		$this->assertEquals( true, $apikey_field_displayed );
+		$this->assertTrue( $apikey_field_displayed );
 	}
 
 	/**
@@ -44,7 +44,7 @@ class WP_Test_Contact_Info_Widget extends WP_UnitTestCase {
 
 		add_filter(
 			'jetpack_google_maps_api_key',
-			function() {
+			function () {
 				return self::TEST_API_KEY;
 			}
 		);
@@ -54,7 +54,7 @@ class WP_Test_Contact_Info_Widget extends WP_UnitTestCase {
 		$output_string = ob_get_clean();
 
 		$apikey_field_displayed = false === strpos( $output_string, '<input type="hidden" id="widget-widget_contact_info' );
-		$this->assertEquals( false, $apikey_field_displayed );
+		$this->assertFalse( $apikey_field_displayed );
 	}
 
 	/**
@@ -67,7 +67,7 @@ class WP_Test_Contact_Info_Widget extends WP_UnitTestCase {
 
 		add_filter(
 			'jetpack_google_maps_api_key',
-			function( $value ) {
+			function ( $value ) {
 				return $value;
 			}
 		);
@@ -77,6 +77,6 @@ class WP_Test_Contact_Info_Widget extends WP_UnitTestCase {
 		$output_string = ob_get_clean();
 
 		$apikey_field_displayed = false === strpos( $output_string, '<input type="hidden" id="widget-widget_contact_info' );
-		$this->assertEquals( true, $apikey_field_displayed );
+		$this->assertTrue( $apikey_field_displayed );
 	}
 }

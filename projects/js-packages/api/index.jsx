@@ -162,6 +162,11 @@ function JetpackRestApiClient( root, nonce ) {
 				.then( checkStatus )
 				.then( parseJsonResponse ),
 
+		setHasSeenWCConnectionModal: () =>
+			postRequest( `${ apiRoot }jetpack/v4/seen-wc-connection-modal`, postParams )
+				.then( checkStatus )
+				.then( parseJsonResponse ),
+
 		fetchModules: () =>
 			getRequest( `${ apiRoot }jetpack/v4/module/all`, getParams )
 				.then( checkStatus )
@@ -456,6 +461,20 @@ function JetpackRestApiClient( root, nonce ) {
 		attachLicenses: licenses =>
 			postRequest( `${ apiRoot }jetpack/v4/licensing/attach-licenses`, postParams, {
 				body: JSON.stringify( { licenses } ),
+			} )
+				.then( checkStatus )
+				.then( parseJsonResponse ),
+		fetchSearchPlanInfo: () =>
+			getRequest( `${ apiRoot }jetpack/v4/search/plan`, getParams )
+				.then( checkStatus )
+				.then( parseJsonResponse ),
+		fetchSearchSettings: () =>
+			getRequest( `${ apiRoot }jetpack/v4/search/settings`, getParams )
+				.then( checkStatus )
+				.then( parseJsonResponse ),
+		updateSearchSettings: newSettings =>
+			postRequest( `${ apiRoot }jetpack/v4/search/settings`, postParams, {
+				body: JSON.stringify( newSettings ),
 			} )
 				.then( checkStatus )
 				.then( parseJsonResponse ),

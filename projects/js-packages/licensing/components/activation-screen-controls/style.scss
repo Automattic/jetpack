@@ -24,116 +24,94 @@
 	@media screen and (min-width: 780px) {
 		padding: 64px;
 	}
-}
 
-.jp-license-activation-screen-controls--license-field,
-.jp-license-activation-screen-controls--license-field-with-error {
-	label {
+
+	.jp-license-activation-screen-controls--license-field,
+	.jp-license-activation-screen-controls--license-field-with-error {
+		label {
+			font-weight: 600;
+			font-size: var(--font-body);
+		}
+
+		input.components-text-control__input {
+			border-radius: var(--jp-border-radius);
+			font-size: 18px;
+			line-height: 24px;
+			margin: 0;
+			min-height: 48px;
+		}
+	}
+
+	.jp-license-activation-screen-controls--license-field {
+		input.components-text-control__input {
+			border: 1px solid var( --jp-gray-40 );
+		}
+	}
+
+	.jp-license-activation-screen-controls--license-field-with-error {
+		input.components-text-control__input {
+			border: 1px solid var(--jp-red);
+		}
+	}
+
+	.jp-license-activation-screen-controls--license-field-error {
+		display: flex;
+		flex-direction: row;
+		align-items: start;
+		color: var(--jp-red);
+
+		svg {
+			margin-right: 4px;
+			fill: var(--jp-red);
+			min-width: 24px;
+		}
+
+		span {
+			font-size: var(--font-body);
+		}
+	}
+
+	.jp-license-activation-screen-controls--button,
+	.jp-license-activation-screen-controls--button:active {
+		background-color: var( --jp-black );
+		border-radius: 4px;
+		color: var( --jp-white );
+		display: flex;
+		font-size: 16px;
+		font-size: var(--font-body);
+		font-style: normal;
 		font-weight: 600;
-		font-size: var(--font-body);
-	}
-
-	input.components-text-control__input {
-		border-radius: var(--jp-border-radius);
-		border: 1px solid #787c82;
-		font-size: 18px;
+		justify-content: center;
 		line-height: 24px;
-		margin: 0;
+		margin-top: 24px;
 		min-height: 48px;
-	}
-}
+		min-width: 158px;
+		padding: 13.5px 45px 13.5px 45px;
+		width: 100%;
 
-.jp-license-activation-screen-controls--license-field {
-	input.components-text-control__input {
-		border: 1px solid #787c82;
-	}
-}
+		@media screen and (min-width: 480px) {
+			width: auto;
+		}
 
-.jp-license-activation-screen-controls--license-field-with-error {
-	input.components-text-control__input {
-		border: 1px solid var(--jp-red);
-	}
-}
+		&:hover {
+			background-color: var( --jp-black-80 );
+			color: var( --jp-white );
+		}
 
-.jp-license-activation-screen-controls--license-field-error {
-	display: flex;
-	flex-direction: row;
-	align-items: center;
-	color: var(--jp-red);
+		&:focus {
+			background-color: var( --jp-black-80 );
+			border: 1px solid var( --jp-white );
+			color: var( --jp-white );
+		}
 
-	svg {
-		margin-right: 4px;
-		fill: var(--jp-red);
-	}
+		&[disabled],
+		&:disabled {
+			background-color: var( --jp-gray );
+			color: var( --jp-gray-20 );;
+		}
 
-	span {
-		font-size: var(--font-body);
-	}
-}
-
-.jp-license-activation-screen-controls--button {
-	font-size: var(--font-body);
-
-	background-color: var(--jp-green-primary);
-	border-color: var(--jp-green-primary);
-	border-radius: var(--jp-border-radius);
-	color: var(--jp-white);
-
-	padding: 13.5px 45px 13.5px 45px;
-	min-height: 48px;
-
-	margin-top: 24px;
-
-	display: flex;
-	justify-content: center;
-	width: 100%;
-
-	@media screen and (min-width: 480px) {
-		justify-content: flex-start;
-		width: auto;
-	}
-
-	&:hover {
-		background-color: var(--jp-green-60);
-		border-color: var(--jp-green-60);
-		color: var(--jp-white);
-	}
-
-	&:focus {
-		background-color: var(--jp-green-70);
-		border-color: var(--jp-white);
-		box-shadow: 0 0 0 1px var(--jp-green-70);
-		color: var(--jp-white);
-	}
-
-	&:active {
-		background: var(--jp-green-60);
-		border-color: var(--jp-green-60);
-		color: var(--jp-white);
-	}
-
-	&[disabled],
-	&:disabled {
-		background: var(--jp-gray);
-		color: #a7aaad;
-		border-color: var(--jp-gray);
-	}
-
-	&.is-busy,
-	&.is-busy:disabled,
-	&.is-busy[aria-disabled='true'] {
-		color: var(--jp-white);
-		background-size: 100px 100%;
-		// Disable reason: This function call looks nicer when each argument is on its own line.
-		/* stylelint-disable */
-		background-image: linear-gradient(
-			-45deg,
-			var(--jp-green-60) 33%,
-			var(--jp-green-80) 33%,
-			var(--jp-green-80) 70%,
-			var(--jp-green-60) 70%
-		);
-		/* stylelint-enable */
-		border-color: var(--jp-green);
+		.jp-components-spinner {
+			width: 100%;
+		}
 	}
 }

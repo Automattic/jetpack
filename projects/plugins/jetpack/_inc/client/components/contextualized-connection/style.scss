@@ -1,0 +1,121 @@
+@import '@wordpress/base-styles/breakpoints';
+@import '@wordpress/base-styles/mixins';
+@import '~@automattic/jetpack-base-styles/style';
+
+.jp-contextualized-connection {
+	display: flex;
+	flex-direction: column;
+	background: var( --jp-white );
+	box-shadow: 0 0 40px rgba(0, 0, 0, 0.08);
+	border-radius: var( --jp-border-radius );
+
+	&__content {
+		display: flex;
+		flex-direction: column;
+		align-items: center;
+		width: 100%;
+		max-width: 860px;
+		margin: auto;
+		padding: 2rem;
+		text-align: center;
+
+		@include break-medium {
+			padding: 4rem;
+		}
+
+		h2 {
+			font-size: var( --font-title-large );
+			margin-bottom: 1.5rem;
+		}
+
+		p {
+			font-size: var( --font-body );
+			margin-bottom: 2rem;
+		}
+	}
+
+	&__logo img {
+		max-width: 100%;
+	}
+
+	&__tos {
+		max-width: 400px;
+		margin-top: 2rem;
+		color: var( --jp-gray-40 );
+		font-size: 14px;
+
+		a {
+			color: var( --jp-gray-40 );
+			font-weight: bold;
+			text-decoration: underline;
+		}
+	}
+
+	& .jp-action-button--button.is-primary,
+	.jp-contextualized-connection__button.is-primary {
+		// It doesn't have display: flex, but `.components-button` does
+		// so the content in this button is centered
+		justify-content: center;
+		background-color: var( --jp-black );
+
+		&:hover:not(:disabled),
+		&:active:not(:disabled) {
+			background: var( --jp-black-80 );
+			color: var( --jp-white );
+		}
+
+		&:focus:not(:disabled) {
+			box-shadow: 0 0 0 1px var( --jp-white ) inset, 0 0 0 2px var( --jp-black );
+		}
+
+		&:disabled,
+		&.disabled {
+			background: var( --jp-gray );
+			pointer-events: none;
+		}
+	}
+
+	&__footer {
+		width: 100%;
+		padding: 4rem;
+		background-color: var( --jp-white-off );
+		font-size: var( --font-body );
+
+		&-row {
+			display: grid;
+			grid-gap: 4rem;
+			grid-template-columns: auto;
+
+			@include break-medium {
+				grid-template-columns: repeat(3, 1fr);
+				grid-gap: 3rem;
+			}
+		}
+
+		&-column {
+			h3 {
+				margin-top: 0;
+			}
+		}
+
+		&-bottom-title {
+			margin-top: 4rem;
+			color: var( --jp-black );
+			font-size: 20px;
+			text-align: center;
+		}
+	}
+
+	&__feature-list {
+		list-style-type: none;
+		padding: 0;
+
+		li {
+			background: url(data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAADAAAAAwCAMAAABg3Am1AAAANlBMVEVHcEwFnwUInggGnggGnggHnAcAnwUFnQcAnwcGnwkFnQgGnQgFnwcGnQYFnQcFnAcGnQkDnwdhiL0pAAAAEnRSTlMAMF//f2Aw7yBQ3+9gcIBgcED+HDbkAAAAZklEQVR4Ae3LNwICARDDQC0+cv7/Y8mwV9odSfWIcf/+VegnGkIvDaGXKvTTn/Gz+Uf5xTL0K1XotS7fs5H6GHvvaO8d7c3j7rdgHne/A/PYt/cO+R42oYdN6OEQetiFHo4A//6dAXqtBEkmtWutAAAAAElFTkSuQmCC) no-repeat;
+			background-size: 24px;
+			padding-left: 30px;
+			margin-bottom: 9px;
+			color: var( --jp-black );
+		}
+	}
+}
