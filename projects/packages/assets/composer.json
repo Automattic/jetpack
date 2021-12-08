@@ -1,7 +1,7 @@
 {
 	"name": "automattic/jetpack-assets",
 	"description": "Asset management utilities for Jetpack ecosystem packages",
-	"type": "library",
+	"type": "jetpack-library",
 	"license": "GPL-2.0-or-later",
 	"require": {
 		"automattic/jetpack-constants": "^1.6"

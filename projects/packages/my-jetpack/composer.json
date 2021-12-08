@@ -1,7 +1,7 @@
 {
 	"name": "automattic/jetpack-my-jetpack",
 	"description": "WP Admin page with information and configuration shared among all Jetpack stand-alone plugins",
-	"type": "library",
+	"type": "jetpack-library",
 	"license": "GPL-2.0-or-later",
 	"require": {
 		"automattic/jetpack-admin-ui": "^0.1",
