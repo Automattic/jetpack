@@ -49,7 +49,7 @@ class Scripts {
 		$warnings = new Warnings();
 		$warnings->generate( $invocations, $differences );
 		$warnings->output();
-		$warnings->save( dirname( __DIR__ ) . '/output/warnings/' . basename( $folder_name ) . '.json', false );
+		$warnings->save_json( dirname( __DIR__ ) . '/output/warnings/' . basename( $folder_name ) . '.json', false );
 	}
 }
 

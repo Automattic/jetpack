@@ -5,7 +5,7 @@ namespace Automattic\Jetpack\Analyzer;
 class Status_Controller extends Controller {
 
 	public function get() {
-		return 'Status_Controller get';
+		return $this->model->get_status();
 	}
 
 	public function post() {

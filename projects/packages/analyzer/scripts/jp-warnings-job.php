@@ -18,6 +18,5 @@ $jetpack_old_path = $slurper_path . '/jetpack-production';
 $differences      = Automattic\Jetpack\Analyzer\Scripts::get_differences( $jetpack_new_path, $jetpack_old_path );
 
 Automattic\Jetpack\Analyzer\Scripts::get_warnings( $folder_name, $differences, $excludes );
-echo 'Done with ' . basename( $folder_name ) . "\n";
 
 // phpcs:enable
