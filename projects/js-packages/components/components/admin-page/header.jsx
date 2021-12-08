@@ -21,7 +21,7 @@ const AdminPageHeader = () => (
 	<div className={ styles[ 'jp-admin-page-section' ] }>
 		<Wrap>
 			<Row>
-				<Grid lg="12" md="8" sm="4">
+				<Grid lg={ 12 } md={ 8 } sm={ 4 }>
 					<JetpackLogo />
 				</Grid>
 			</Row>

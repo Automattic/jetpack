@@ -27,7 +27,7 @@ const AdminPageFooter = props => {
 		<div className={ styles[ 'jp-admin-page-section' ] }>
 			<Wrap>
 				<Row>
-					<Grid lg="12" md="8" sm="4">
+					<Grid lg={ 12 } md={ 8 } sm={ 4 }>
 						<JetpackFooter moduleName={ moduleName } a8cLogoHref={ a8cLogoHref } />
 					</Grid>
 				</Row>
