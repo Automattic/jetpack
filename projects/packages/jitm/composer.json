@@ -1,7 +1,7 @@
 {
 	"name": "automattic/jetpack-jitm",
 	"description": "Just in time messages for Jetpack",
-	"type": "library",
+	"type": "jetpack-library",
 	"license": "GPL-2.0-or-later",
 	"require": {
 		"automattic/jetpack-a8c-mc-stats": "^1.4",
