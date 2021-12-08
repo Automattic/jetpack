@@ -107,12 +107,6 @@ class Critical_CSS extends Module {
 	 */
 	protected $state;
 
-	/**
-	 * Critical CSS Recommendation class instance.
-	 *
-	 * @var Critical_CSS_Recommendation
-	 */
-
 	protected $recommendation;
 
 	/**
