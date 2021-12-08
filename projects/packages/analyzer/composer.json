@@ -1,7 +1,7 @@
 {
 	"name": "automattic/jetpack-analyzer",
 	"description": "Analyze differences between Jetpack versions",
-	"type": "library",
+	"type": "jetpack-library",
 	"license": "GPL-2.0-or-later",
 	"require": {
 		"nikic/php-parser": "^4.2"
