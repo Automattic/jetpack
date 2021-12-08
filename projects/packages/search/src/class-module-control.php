@@ -175,7 +175,7 @@ class Module_Control {
 	 */
 	public function enable_instant_search() {
 		if ( ! $this->is_active() ) {
-			return new WP_Error( 'search_module_inactive', __( 'You will need to activate search module before enabling instant search.', 'jetpack' ) );
+			return new WP_Error( 'search_module_inactive', __( 'Search module needs to be activated before enabling instant search.', 'jetpack' ) );
 		}
 		return update_option( self::SEARCH_MODULE_INSTANT_SEARCH_OPTION_KEY, true );
 	}
