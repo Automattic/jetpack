@@ -264,10 +264,16 @@ class WPcom_Admin_Menu extends Admin_Menu {
 	 * @return array
 	 */
 	private function get_current_product() {
+		// Declare array variable if it does not exist.
 		$current_blog_id = get_current_blog_id();
-		if ( ! isset( $this->cached_product[ $current_blog_id ] ) && class_exists( 'WPCOM_Store_API' ) ) {
+		if ( ! isset( $this->cached_product[ $current_blog_id ] ) ) {
+			$this->cached_product[ $current_blog_id ] = null;
+		}
+
+		if ( null === $this->cached_product[ $current_blog_id ] && class_exists( 'WPCOM_Store_API' ) ) {
 			$this->cached_product[ $current_blog_id ] = \WPCOM_Store_API::get_current_plan( get_current_blog_id() );
 		}
+
 		return $this->cached_product[ $current_blog_id ];
 	}
 
