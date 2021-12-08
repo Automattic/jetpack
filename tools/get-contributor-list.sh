@@ -41,7 +41,7 @@ function join {
 IFS='.' read -r -a VERSION <<< "$CURRENT_VERSION"
 if [[ ${VERSION[2]} ]]; then
 	unset "VERSION[2]"
-	MAJOR_VERSION=$( join . ${VERSION[@]} )
+	MAJOR_VERSION="$( IFS=.; echo "${VERSION[*]}" )"
 	MAJOR_VERSION=$(echo "$MAJOR_VERSION - .1" | bc )
 	PREVIOUS_VERSION=$MAJOR_VERSION.0
 else 
