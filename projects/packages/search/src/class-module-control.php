@@ -173,8 +173,8 @@ class Module_Control {
 	 * Enable Instant Search Experience
 	 */
 	public function enable_instant_search() {
-		if ( ! $this->is_active() || $this->is_instant_search_enabled() ) {
-			return true;
+		if ( ! $this->is_active() ) {
+			return false;
 		}
 		return update_option( self::SEARCH_MODULE_INSTANT_SEARCH_OPTION_KEY, true );
 	}
