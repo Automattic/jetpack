@@ -5,7 +5,7 @@ import { __ } from '@wordpress/i18n';
 import {
 	isJetpackBackup,
 	isJetpackBundle,
-	//isJetpackLegacyPlan,
+	isJetpackLegacyPlan,
 } from '../../../../jetpack/_inc/client/lib/plans/constants';
 
 // TODO:
@@ -37,7 +37,11 @@ const MyPlan = props => {
 function getBackupPurchasesList( purchases ) {
 	const backupPurchasesList = [];
 	purchases.forEach( purchase => {
-		if ( isJetpackBackup( purchase.product_slug ) || isJetpackBundle( purchase.product_slug ) ) {
+		if (
+			isJetpackBackup( purchase.product_slug ) ||
+			isJetpackBundle( purchase.product_slug ) ||
+			isJetpackLegacyPlan( purchase.product_slug )
+		) {
 			backupPurchasesList.push(
 				<>
 					<h4> { purchase.product_name } </h4>
