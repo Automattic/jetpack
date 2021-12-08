@@ -121,7 +121,7 @@ class Critical_CSS extends Module {
 	public function __construct() {
 		parent::__construct();
 
-		$this->recommendation = new Critical_CSS_Recommendation();
+		$this->recommendation = new Recommendations();
 	}
 
 	/**
@@ -488,7 +488,7 @@ class Critical_CSS extends Module {
 	 */
 	public function add_critical_css_constants( $constants ) {
 		// Information about the current status of Critical CSS / generation.
-		$constants['criticalCssStatus']                   = $this->get_local_critical_css_generation_info();
+		$constants['criticalCssStatus'] = $this->get_local_critical_css_generation_info();
 
 		return $constants;
 	}
