@@ -34,7 +34,7 @@ const Admin = props => {
 
 	const { connectionStatus } = props;
 
-	const { tracksUserData, tracksEventData } = window.CUI_INITIAL_STATE;
+	const { tracksUserData, tracksEventData, canManageConnection } = window.CUI_INITIAL_STATE;
 
 	useEffect( () => {
 		restApi.setApiRoot( APIRoot );
@@ -51,6 +51,7 @@ const Admin = props => {
 				redirectUri={ IDCData.redirectUri }
 				tracksUserData={ tracksUserData }
 				tracksEventData={ tracksEventData }
+				isAdmin={ IDCData.isAdmin }
 			/>
 		);
 	}
@@ -59,7 +60,7 @@ const Admin = props => {
 		<React.Fragment>
 			<Header />
 
-			{ connectionStatus.isRegistered && (
+			{ canManageConnection && connectionStatus.isRegistered && (
 				<ConnectionStatusCard
 					isRegistered={ connectionStatus.isRegistered }
 					isUserConnected={ connectionStatus.isUserConnected }
@@ -69,7 +70,7 @@ const Admin = props => {
 				/>
 			) }
 
-			{ ! connectionStatus.isRegistered && (
+			{ canManageConnection && ! connectionStatus.isRegistered && (
 				<ConnectScreenRequiredPlan
 					connectionStatus={ connectionStatus }
 					apiRoot={ APIRoot }
@@ -99,6 +100,8 @@ const Admin = props => {
 					</ul>
 				</ConnectScreenRequiredPlan>
 			) }
+
+			{ ! canManageConnection && <p>You need to be an admin to access this page.</p> }
 		</React.Fragment>
 	);
 };
