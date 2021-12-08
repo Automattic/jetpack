@@ -17,7 +17,7 @@ class Notifications {
 	 * Get all the notifications.
 	 */
 	public function get() {
-		return \get_option( self::NOTIFICATIONS_KEY, array() );
+		return \get_option( static::NOTIFICATIONS_KEY, array() );
 	}
 
 	/**
@@ -26,11 +26,11 @@ class Notifications {
 	 * @param string $notification_key Notification key.
 	 */
 	public function add( $notification_key ) {
-		$all_notifications = \get_option( self::NOTIFICATIONS_KEY, array() );
+		$all_notifications = \get_option( static::NOTIFICATIONS_KEY, array() );
 
 		if ( ! in_array( $notification_key, $all_notifications, true ) ) {
 			$all_notifications[] = $notification_key;
-			\update_option( self::NOTIFICATIONS_KEY, $all_notifications );
+			\update_option( static::NOTIFICATIONS_KEY, $all_notifications );
 		}
 	}
 
@@ -38,6 +38,6 @@ class Notifications {
 	 * Clear all the notifications.
 	 */
 	public function clear() {
-		\delete_option( self::NOTIFICATIONS_KEY );
+		\delete_option( static::NOTIFICATIONS_KEY );
 	}
 }
