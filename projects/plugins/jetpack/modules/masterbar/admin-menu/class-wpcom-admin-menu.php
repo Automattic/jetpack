@@ -47,7 +47,7 @@ class WPcom_Admin_Menu extends Admin_Menu {
 			$this->add_new_site_link();
 		}
 
-		if ( $this->current_product_is_business_or_higher() ) {
+		if ( $this->current_product_can_install_woocommerce() ) {
 			$this->add_woocommerce_installation_menu();
 		}
 
@@ -255,27 +255,28 @@ class WPcom_Admin_Menu extends Admin_Menu {
 	/**
 	 * Holds the current product, set by get_current_product().
 	 *
-	 * @var string
+	 * @var array
 	 */
-	private $cached_product = null;
+	private $cached_product = array();
 	/**
 	 * Gets the current product and stores it in $cached_product so the database is only called once per request.
 	 *
 	 * @return array
 	 */
 	private function get_current_product() {
-		if ( null === $this->cached_product && class_exists( 'WPCOM_Store_API' ) ) {
-			$this->cached_product = \WPCOM_Store_API::get_current_plan( get_current_blog_id() );
+		$current_blog_id = get_current_blog_id();
+		if ( ! isset( $this->cached_product[ $current_blog_id ] ) && class_exists( 'WPCOM_Store_API' ) ) {
+			$this->cached_product[ $current_blog_id ] = \WPCOM_Store_API::get_current_plan( get_current_blog_id() );
 		}
-		return $this->cached_product;
+		return $this->cached_product[ $current_blog_id ];
 	}
 
 	/**
-	 * Is the current product a business plan or higher? Used to by WooCommerce Installation menu item.
+	 * Checks if the current product supports WooCommerce installation.
 	 *
 	 * @return bool
 	 */
-	private function current_product_is_business_or_higher() {
+	private function current_product_can_install_woocommerce() {
 		if ( class_exists( 'WPCOM_Store' ) ) {
 			$products = \WPCOM_Store::get_wpcom_business_and_higher_plans();
 			$product  = $this->get_current_product();
