@@ -22,6 +22,7 @@ class Recommendations extends Notifications {
 	public function __construct() {
 		add_action( 'rest_api_init', array( $this, 'register_rest_routes' ) );
 		add_filter( 'jetpack_boost_js_constants', array( $this, 'always_add_recommendations_constants' ) );
+		add_action( 'jetpack_boost_uninstall', array( $this, 'clear' ) );
 	}
 
 	/**
@@ -67,7 +68,7 @@ class Recommendations extends Notifications {
 	 * @return array
 	 */
 	public function add_dismissed_recommendations_constants( $constants ) {
-		$constants['criticalCssDismissedRecommendations'] = \get_option( self::NOTIFICATIONS_KEY, array() );
+		$constants['criticalCssDismissedRecommendations'] = $this->get();
 
 		return $constants;
 	}

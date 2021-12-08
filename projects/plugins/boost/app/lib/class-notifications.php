@@ -14,6 +14,13 @@ class Notifications {
 	const NOTIFICATIONS_KEY = 'jb-notifications';
 
 	/**
+	 * Get all the notifications.
+	 */
+	public function get() {
+		return \get_option( self::NOTIFICATIONS_KEY, array() );
+	}
+
+	/**
 	 * Add notifications by notification_key.
 	 *
 	 * @param string $notification_key Notification key.
