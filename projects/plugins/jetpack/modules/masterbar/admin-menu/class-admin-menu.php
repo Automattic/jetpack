@@ -116,7 +116,7 @@ class Admin_Menu extends Base_Admin_Menu {
 		$dismiss_button = '';
 		if ( $nudge['dismissible'] ) {
 			$dismiss_button = '<svg xmlns="http://www.w3.org/2000/svg" data-feature_class="%1$s" data-feature_id="%2$s" viewBox="0 0 24 24" class="gridicon gridicons-cross dismissible-card__close-icon" height="24" width="24"><g><path d="M18.36 19.78L12 13.41l-6.36 6.37-1.42-1.42L10.59 12 4.22 5.64l1.42-1.42L12 10.59l6.36-6.36 1.41 1.41L13.41 12l6.36 6.36z"></path></g></svg>';
-			$dismiss_button = sprintf( $dismiss_button, wp_kses( $nudge['feature_class'], array() ), wp_kses( $nudge['id'], array() ) );
+			$dismiss_button = sprintf( $dismiss_button, esc_attr( $nudge['feature_class'] ), esc_attr( $nudge['id'] ) );
 		}
 
 		$message = '
