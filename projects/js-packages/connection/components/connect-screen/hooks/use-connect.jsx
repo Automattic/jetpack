@@ -2,7 +2,7 @@
  * External dependencies
  */
 import { useEffect } from 'react';
-import { useSelect, useDispatch, resolveSelect } from '@wordpress/data';
+import { useSelect, useDispatch } from '@wordpress/data';
 import restApi from '@automattic/jetpack-api';
 
 /**
@@ -11,19 +11,16 @@ import restApi from '@automattic/jetpack-api';
 import { STORE_ID } from '../../../state/store';
 
 export default ( { registrationNonce, redirectUri, apiRoot, apiNonce, autoTrigger, from } ) => {
-	const getAuthorizationUrl = resolveSelect( STORE_ID ).getAuthorizationUrl;
 	const { registerSite, connectUser } = useDispatch( STORE_ID );
-	const {
-		getSiteIsRegistering,
-		getUserIsConnecting,
-		getRegistrationError,
-		getConnectionStatus,
-	} = useSelect( STORE_ID );
 
-	const { isRegistered, isUserConnected } = getConnectionStatus();
-	const siteIsRegistering = getSiteIsRegistering();
-	const userIsConnecting = getUserIsConnecting();
-	const registrationError = getRegistrationError();
+	const registrationError = useSelect( select => select( STORE_ID ).getRegistrationError() );
+	const { siteIsRegistering, userIsConnecting, isRegistered, isUserConnected } = useSelect(
+		select => ( {
+			siteIsRegistering: select( STORE_ID ).getSiteIsRegistering(),
+			userIsConnecting: select( STORE_ID ).getUserIsConnecting(),
+			...select( STORE_ID ).getConnectionStatus(),
+		} )
+	);
 
 	/**
 	 * Initialize the site registration process.
@@ -33,11 +30,13 @@ export default ( { registrationNonce, redirectUri, apiRoot, apiNonce, autoTrigge
 	const handleRegisterSite = e => {
 		e && e.preventDefault();
 
-		const action = isRegistered
-			? getAuthorizationUrl()
-			: registerSite( { registrationNonce, redirectUri } );
-
-		action.then( () => connectUser( { from } ) );
+		if ( isRegistered ) {
+			connectUser( { from } );
+		} else {
+			registerSite( { registrationNonce, redirectUri } ).then( () => {
+				connectUser( { from } );
+			} );
+		}
 	};
 
 	/**
