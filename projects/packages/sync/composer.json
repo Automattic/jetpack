@@ -1,7 +1,7 @@
 {
 	"name": "automattic/jetpack-sync",
 	"description": "Everything needed to allow syncing to the WP.com infrastructure.",
-	"type": "library",
+	"type": "jetpack-library",
 	"license": "GPL-2.0-or-later",
 	"require": {
 		"automattic/jetpack-connection": "^1.32",

@@ -46,6 +46,9 @@
 /extensions/**/*.svg                                     production-exclude
 /extensions/**/test/**                                   production-exclude
 /gulpfile.babel.js                                       production-exclude
+/jetpack_vendor/automattic/**/README.md                  production-exclude
+/jetpack_vendor/automattic/**/src/css/*.scss             production-exclude
+/jetpack_vendor/automattic/**/composer.json              production-exclude
 /modules/**/test/**                                      production-exclude
 /modules/calypsoify/*.css.map                            production-exclude
 /modules/calypsoify/*.scss                               production-exclude
@@ -68,4 +71,5 @@
 /vendor/automattic/**/composer.json                      production-exclude
 /vendor/automattic/jetpack-autoloader/**                 production-exclude
 /vendor/automattic/jetpack-changelogger/**               production-exclude
+/vendor/automattic/jetpack-composer-plugin/**            production-exclude
 /wp-cli-templates/**                                     production-exclude

@@ -70,13 +70,13 @@
             "dist": {
                 "type": "path",
                 "url": "../../packages/logo",
-                "reference": "5f8c92293d5dbac172809957f0c1bf1e6be058ac"
+                "reference": "c8e44578d45745e1c9d0ab3afe1052bb33c6fde9"
             },
             "require-dev": {
                 "automattic/jetpack-changelogger": "^3.0",
                 "yoast/phpunit-polyfills": "1.0.2"
             },
-            "type": "library",
+            "type": "jetpack-library",
             "extra": {
                 "autotagger": true,
                 "mirror-repo": "Automattic/jetpack-logo",
