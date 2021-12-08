@@ -7,7 +7,7 @@ import React from 'react';
  * Internal dependencies
  */
 import styles from './style.module.scss';
-import Wrap from '../../layout/wrap';
+import Container from '../../layout/container';
 
 /**
  * The wrapper component for a Hero Section to be used in admin pages.
@@ -19,7 +19,7 @@ const AdminSectionHero = props => {
 	const { children } = props;
 	return (
 		<div className={ styles[ 'jp-admin-section-hero' ] }>
-			<Wrap>{ children }</Wrap>
+			<Container>{ children }</Container>
 		</div>
 	);
 };

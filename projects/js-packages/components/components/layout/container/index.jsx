@@ -9,14 +9,14 @@ import React from 'react';
 import styles from './style.module.scss';
 
 /**
- * JP Wrap
+ * JP Container
  *
  * @param {object} props - Component properties.
- * @returns {React.Component} Wrap component.
+ * @returns {React.Component} Container component.
  */
-const Wrap = props => {
+const Container = props => {
 	const { children } = props;
-	return <div className={ styles[ 'jp-wrap' ] }>{ children }</div>;
+	return <div className={ styles[ 'jp-container' ] }>{ children }</div>;
 };
 
-export default Wrap;
+export default Container;

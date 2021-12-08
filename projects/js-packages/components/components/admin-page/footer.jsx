@@ -11,7 +11,7 @@ import PropTypes from 'prop-types';
 import styles from './style.module.scss';
 import JetpackFooter from '../jetpack-footer';
 import Row from '../layout/row';
-import Wrap from '../layout/wrap';
+import Container from '../layout/container';
 import Grid from '../layout/grid';
 
 /**
@@ -25,13 +25,13 @@ const AdminPageFooter = props => {
 
 	return (
 		<div className={ styles[ 'jp-admin-page-section' ] }>
-			<Wrap>
+			<Container>
 				<Row>
 					<Grid lg={ 12 } md={ 8 } sm={ 4 }>
 						<JetpackFooter moduleName={ moduleName } a8cLogoHref={ a8cLogoHref } />
 					</Grid>
 				</Row>
-			</Wrap>
+			</Container>
 		</div>
 	);
 };

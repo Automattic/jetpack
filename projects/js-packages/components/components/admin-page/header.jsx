@@ -9,7 +9,7 @@ import React from 'react';
 import styles from './style.module.scss';
 import JetpackLogo from '../jetpack-logo';
 import Row from '../layout/row';
-import Wrap from '../layout/wrap';
+import Container from '../layout/container';
 import Grid from '../layout/grid';
 
 /**
@@ -19,13 +19,13 @@ import Grid from '../layout/grid';
  */
 const AdminPageHeader = () => (
 	<div className={ styles[ 'jp-admin-page-section' ] }>
-		<Wrap>
+		<Container>
 			<Row>
 				<Grid lg={ 12 } md={ 8 } sm={ 4 }>
 					<JetpackLogo />
 				</Grid>
 			</Row>
-		</Wrap>
+		</Container>
 	</div>
 );
 

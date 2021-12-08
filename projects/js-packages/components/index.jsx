@@ -26,5 +26,5 @@ export { default as AdminSectionHero } from './components/admin-section/hero';
 export { default as AdminPage } from './components/admin-page';
 export { default as DecorativeCard } from './components/decorative-card';
 export { default as Grid } from './components/layout/grid';
-export { default as Wrap } from './components/layout/wrap';
+export { default as Container } from './components/layout/container';
 export { default as Row } from './components/layout/row';
