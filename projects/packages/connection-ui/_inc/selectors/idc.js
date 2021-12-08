@@ -1,5 +1,5 @@
 const IDC = {
-	getIDCData: state => state.IDC || {},
+	getHasIDC: state => state.IDC.hasIDC || false,
 };
 
 export default IDC;

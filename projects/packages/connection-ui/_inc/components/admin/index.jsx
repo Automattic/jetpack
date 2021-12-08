@@ -10,7 +10,6 @@ import {
 	ConnectScreenRequiredPlan,
 	CONNECTION_STORE_ID,
 } from '@automattic/jetpack-connection';
-import { IDCScreen } from '@automattic/jetpack-idc';
 
 /**
  * Internal dependencies
@@ -30,16 +29,19 @@ const Admin = props => {
 	const APINonce = useSelect( select => select( STORE_ID ).getAPINonce(), [] );
 	const APIRoot = useSelect( select => select( STORE_ID ).getAPIRoot(), [] );
 	const registrationNonce = useSelect( select => select( STORE_ID ).getRegistrationNonce(), [] );
-	const IDCData = useSelect( select => select( STORE_ID ).getIDCData(), [] );
+	const hasIDC = useSelect( select => select( STORE_ID ).getHasIDC(), [] );
 
 	const { connectionStatus } = props;
-
-	const { tracksUserData, tracksEventData, canManageConnection } = window.CUI_INITIAL_STATE;
 
 	useEffect( () => {
 		restApi.setApiRoot( APIRoot );
 		restApi.setApiNonce( APINonce );
 	}, [ APIRoot, APINonce ] );
+
+
+	if ( hasIDC ) {
+		return null;
+	}
 
 	return (
 		<React.Fragment>
