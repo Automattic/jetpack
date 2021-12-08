@@ -24,7 +24,7 @@ class Plan {
 	 *
 	 * @var boolean
 	 */
-	protected static $hooks_inited = false;
+	protected static $update_plan_hook_initialized = false;
 
 	/**
 	 * Init hooks for updating plan info
@@ -32,9 +32,9 @@ class Plan {
 	public function init_hooks() {
 		// Update plan info from WPCOM on Jetpack heartbeat.
 		// TODO: implement heartbeart for search.
-		if ( ! static::$hooks_inited ) {
+		if ( ! static::$update_plan_hook_initialized ) {
 			add_action( 'jetpack_heartbeat', array( $this, 'get_plan_info_from_wpcom' ) );
-			static::$hooks_inited = true;
+			static::$update_plan_hook_initialized = true;
 		}
 	}
 
