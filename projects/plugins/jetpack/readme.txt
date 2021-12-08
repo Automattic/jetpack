@@ -1,7 +1,7 @@
 === Jetpack - WP Security, Backup, Speed, & Growth ===
 Contributors: automattic, adamkheckler, adrianmoldovanwp, aduth, akirk, allendav, alternatekev, andy, annamcphee, annezazu, apeatling, arcangelini, azaozz, batmoo, barry, beaulebens, biskobe, blobaugh, bjorsch, brbrr, cainm, cena, cfinke, chaselivingston, chellycat, clickysteve, csonnek, danielbachhuber, davoraltman, daniloercoli, delawski, designsimply, dllh, drawmyface, dsmart, dzver, ebinnion, egregor, eliorivero, enej, eoigal, erania-pinnera, ethitter, fgiannar, gcorne, georgestephanis, gibrown, goldsounds, hew, hugobaeta, hypertextranch, iammattthomas, iandunn, jblz, jasmussen, jeffgolenski, jeherve, jenhooks, jenia, jessefriedman, jgs, jkudish, jmdodd, joanrho, johnjamesjacoby, jshreve, kbrownkd, keoshi, koke, kraftbj, lancewillett, leogermani, lschuyler, macmanx, martinremy, matt, matveb, mattwiebe, maverick3x6, mcsf, mdawaffe, mdbitz, MichaelArestad, migueluy, mikeyarce, mkaz, nancythanki, nickmomrik, obenland, oskosk, pento, professor44, rachelsquirrel, rdcoll, ryancowles, richardmuscat, richardmtl, robertbpugh, roccotripaldi, samhotchkiss, samiff, scarstocea, scottsweb, sdixon194, sdquirk, sermitr, simison, stephdau, tmoorewp, tyxla, Viper007Bond, westi, yoavf, zinigor
 Tags: Security, backup, Woo, malware, scan, spam, CDN, search, social
-Stable tag: 10.3
+Stable tag: 10.4
 Requires at least: 5.7
 Requires PHP: 5.6
 Tested up to: 5.8
@@ -242,43 +242,18 @@ Jetpack Backup can do a full website migration to a new host, migrate theme file
 4. Promote your newest posts, pages, and products across your social media channels.
 
 == Changelog ==
-### 10.4-beta - 2021-11-30
+### 10.5-a.1 - 2021-12-07
 #### Enhancements
-- Connection: additional messaging for both connection and disconnection flows.
-- Dashboard: add option to add a license key via the Jetpack dashboard.
-- Likes: refactor Likes in posts to improve performance and avoid loading additional libraries.
-- Podcast Player block: add 'jetpack_podcast_helper_tracks_quantity' filter to control number of tracks fetched. Deprecate the 'jetpack_podcast_helper_list_quantity' filter.
-- Publicize: always add an Open Graph image alt text if an Open Graph image is present.
-- Publicize: enable the RePublicize UI in the block editor.
-- Publicize: update the interface and include a profile picture for each service.
-- Verification tools: remove old interface in the Tools menu, in favor of the newer settings in the Jetpack dashboard.
-- VideoPress: add handles to resize the Video Block in the editor.
-- VideoPress: add captions and subtitle support.
-- VideoPress: do not display thumbnails in the media library in the WordPress.com dashboard.
+- Sharing: hide sharing buttons when printing a post or page.
+- VideoPress Block: add adaptive progress bar color settings
 
 #### Improved compatibility
-- Contact Info and Map widget: hide widget from the block inserter and Legacy widget block drop-down menu.
+- Twitter Timeline widget: Hide widget from the block inserter and Legacy widget block drop-down menu (WPCOM)
 
 #### Bug fixes
-- Block Editor: avoid issues when searching for free Pexels images via Jetpack's External Media feature.
-- Contact Form: prevent multiple button clicks from submitting multiple form submissions.
-- Custom CSS: disable CSSTidy shorthand optimizations to prevent block validation issues.
-- Dashboard: ensure plan information is properly displayed when using Backup and Security plans.
-- Dashboard: fix some layout and display issues in the Recommendations panel.
-- Image CDN: ensure that Wikipedia URLs are not served via our image CDN.
-- Instant Search: restore filter query string functionality.
-- Publicize: make the default publicize social media message blank.
-- Search: avoid fatal errors when the feature is inactive, but Extra Sidebar Widgets are active.
-- Sharing: ask search engines to not index pages with sharing query string.
-- SSO: fix button content alignment for small screens
-- Stats: remove ASCII art from the tracking pixel's alt attribute, to improve accessibility.
-- VideoPress: display "File Name" in the Media Library.
-- VideoPress: display all video meta immediately after upload. A page refresh is no longer needed to view VideoPress-specific fields.
-- VideoPress: fix various validation errors.
-- VideoPress: fix VideoPress load for old videos in Gutenberg
-- VideoPress: no longer play videos in the background when the Media Item modal is closed in the media library.
-- VideoPress: reload block when updating video rating in the editor, and ensure rating meta data is updated.
-- Widgets: allow customizer preview to show widget visibility rules properly.
+- Dashboard: hide licensing interface from users who did not link their account to WordPress.com yet, or who are not the main Jetpack connection owner.
+- VideoPress: avoid errors when copying and pasting empty video blocks.
+- VideoPress Block: maintain the state of different settings panels when reloading the video preview.
 
 --------
 
