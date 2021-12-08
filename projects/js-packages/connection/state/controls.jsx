@@ -21,17 +21,31 @@ const FETCH_CONNECTION_STATUS = () => {
 const REGISTER_SITE = ( { registrationNonce, redirectUri } ) =>
 	restApi.registerSite( registrationNonce, redirectUri );
 
-const CONNECT_USER = createRegistryControl( ( { select } ) => ( { from, redirectFunc } = {} ) => {
-	const authorizationUrl = select( STORE_ID ).getAuthorizationUrl() || '';
-	const redirect = redirectFunc || ( url => window.location.assign( url ) );
+const CONNECT_USER = createRegistryControl(
+	( { resolveSelect } ) => ( { from, redirectFunc } = {} ) => {
+		return new Promise( ( resolve, reject ) => {
+			resolveSelect( STORE_ID )
+				.getAuthorizationUrl()
+				.then( authorizationUrl => {
+					const redirect = redirectFunc || ( url => window.location.assign( url ) );
 
-	redirect(
-		authorizationUrl +
-			( from
-				? ( authorizationUrl.includes( '?' ) ? '&' : '?' ) + 'from=' + encodeURIComponent( from )
-				: '' )
-	);
-} );
+					redirect(
+						authorizationUrl +
+							( from
+								? ( authorizationUrl.includes( '?' ) ? '&' : '?' ) +
+								  'from=' +
+								  encodeURIComponent( from )
+								: '' )
+					);
+
+					resolve( authorizationUrl );
+				} )
+				.catch( error => {
+					reject( error );
+				} );
+		} );
+	}
+);
 
 const FETCH_AUTHORIZATION_URL = ( { redirectUri } ) => restApi.fetchAuthorizationUrl( redirectUri );
 
