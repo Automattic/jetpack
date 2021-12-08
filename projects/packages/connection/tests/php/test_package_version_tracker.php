@@ -4,6 +4,7 @@ namespace Automattic\Jetpack\Connection;
 
 use Automattic\Jetpack\Constants;
 use PHPUnit\Framework\TestCase;
+use WorDBless\Options as WorDBless_Options;
 
 /**
  * Unit tests for the Package_Version_Tracker class.
@@ -55,6 +56,7 @@ class Test_Package_Version_Tracker extends TestCase {
 	public function tear_down() {
 		$this->http_request_attempted = false;
 		Constants::clear_constants();
+		WorDBless_Options::init()->clear_options();
 	}
 
 	/**
@@ -256,6 +258,34 @@ class Test_Package_Version_Tracker extends TestCase {
 		$this->assertTrue( $this->http_request_attempted );
 
 		$this->assertSame( self::CHANGED_VERSIONS, get_option( Package_Version_Tracker::PACKAGE_VERSION_OPTION ) );
+	}
+
+	/**
+	 * Tests the maybe_update_package_versions method when the site is not connected.
+	 */
+	public function test_maybe_update_package_versions_not_connected() {
+		add_filter( 'pre_http_request', array( $this, 'intercept_http_request_failure' ) );
+
+		update_option( Package_Version_Tracker::PACKAGE_VERSION_OPTION, self::PACKAGE_VERSIONS );
+
+		add_filter(
+			'jetpack_package_versions',
+			function () {
+				return self::CHANGED_VERSIONS;
+			}
+		);
+
+		( new Package_Version_Tracker() )->maybe_update_package_versions();
+
+		remove_filter( 'pre_http_request', array( $this, 'intercept_http_request_failure' ) );
+
+		$this->assertFalse( $this->http_request_attempted );
+
+		$this->assertSame( self::PACKAGE_VERSIONS, get_option( Package_Version_Tracker::PACKAGE_VERSION_OPTION ) );
+
+		$failed_request_cached = get_transient( Package_Version_Tracker::CACHED_FAILED_REQUEST_KEY );
+
+		$this->assertFalse( $failed_request_cached );
 	}
 
 	/**
