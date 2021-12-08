@@ -138,12 +138,34 @@ class REST_Controller {
 			$module_active = true;
 		}
 
+		$errors = array();
 		if ( ! is_null( $module_active ) ) {
-			$this->search_module->update_status( $module_active );
+			$module_active_updated = $this->search_module->update_status( $module_active );
+			if ( is_wp_error( $module_active_updated ) ) {
+				$errors['module_active'] = $module_active_updated;
+			}
 		}
 
 		if ( ! is_null( $instant_search_enabled ) ) {
-			$this->search_module->update_instant_search_status( $instant_search_enabled );
+			$instant_search_enabled_updated = $this->search_module->update_instant_search_status( $instant_search_enabled );
+			if ( is_wp_error( $instant_search_enabled_updated ) ) {
+				$errors['instant_search_enabled'] = $instant_search_enabled_updated;
+			}
+		}
+
+		if ( ! empty( $errors ) ) {
+			return new WP_Error(
+				'some_updated',
+				sprintf(
+					/* translators: %s are the setting name that not updated. */
+					__( 'Some settings ( %s ) not updated.', 'jetpack' ),
+					implode(
+						',',
+						array_keys( $errors )
+					)
+				),
+				array( 'status' => 400 )
+			);
 		}
 
 		return $this->get_settings();

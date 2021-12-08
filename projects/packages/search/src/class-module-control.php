@@ -9,6 +9,7 @@ namespace Automattic\Jetpack\Search;
 
 use Automattic\Jetpack\Status;
 use Jetpack_Options;
+use WP_Error;
 
 /**
  * To get and set Searh module settings
@@ -77,11 +78,11 @@ class Module_Control {
 		// Not available for offline mode.
 		$is_offline_mode = ( new Status() )->is_offline_mode();
 		if ( $is_offline_mode ) {
-			return false;
+			return new WP_Error( 'offline_mode', __( 'Search module can not be activated in offline mode.', 'jetpack' ) );
 		}
 		// Return false if no plan supports search.
 		if ( ! $this->plan->supports_search() ) {
-			return false;
+			return new WP_Error( 'not_supported', __( 'Your plan does not support Jetpack Search.', 'jetpack' ) );
 		}
 
 		$active_modules   = $this->get_active_modules();
@@ -174,7 +175,7 @@ class Module_Control {
 	 */
 	public function enable_instant_search() {
 		if ( ! $this->is_active() ) {
-			return false;
+			return new WP_Error( 'search_module_inactive', __( 'You will need to activate search module before enabling instant search.', 'jetpack' ) );
 		}
 		return update_option( self::SEARCH_MODULE_INSTANT_SEARCH_OPTION_KEY, true );
 	}
