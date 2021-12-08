@@ -22,6 +22,8 @@ export default ( { registrationNonce, redirectUri, apiRoot, apiNonce, autoTrigge
 		} )
 	);
 
+	const callConnectUser = () => connectUser( { from } );
+
 	/**
 	 * Initialize the site registration process.
 	 *
@@ -31,10 +33,10 @@ export default ( { registrationNonce, redirectUri, apiRoot, apiNonce, autoTrigge
 		e && e.preventDefault();
 
 		if ( isRegistered ) {
-			connectUser( { from } );
+			callConnectUser();
 		} else {
 			registerSite( { registrationNonce, redirectUri } ).then( () => {
-				connectUser( { from } );
+				callConnectUser();
 			} );
 		}
 	};
