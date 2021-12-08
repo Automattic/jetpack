@@ -238,7 +238,7 @@ class Jetpack_Backup {
 		);
 	}
 
-  /**
+	/**
 	 * Gets information about the currently promoted backup product.
 	 *
 	 * @return string|WP_Error A JSON object of the current backup product being promoted if the request was successful, or a WP_Error otherwise.
@@ -260,13 +260,13 @@ class Jetpack_Backup {
 					'request' => $wpcom_request,
 				)
 			);
-    }
-  }
-  
-  /**
-   * Redirects to plugin page when the plugin is activated
-   *
-   * @access public
+		}
+	}
+
+	/**
+	 * Redirects to plugin page when the plugin is activated
+	 *
+	 * @access public
 	 * @static
 	 *
 	 * @param string $plugin Path to the plugin file relative to the plugins directory.
