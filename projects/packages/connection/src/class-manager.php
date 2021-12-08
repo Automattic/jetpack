@@ -1062,6 +1062,7 @@ class Manager {
 			? $stats_options['blog_id']
 			: null;
 
+		/* This action is documented in src/class-package-version-tracker.php */
 		$package_versions = apply_filters( 'jetpack_package_versions', array() );
 
 		/**
