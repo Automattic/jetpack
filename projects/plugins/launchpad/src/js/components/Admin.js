@@ -42,9 +42,9 @@ const Admin = () => {
 		setConnectionLoaded( connectionIsLoaded( connectionStatus ) );
 	}, [ connectionStatus ] );
 
-	const isFullyConnected = () => connectionLoaded && connectionStatus.isUserConnected && connectionStatus.isRegistered;
+	const isFullyConnected = connectionLoaded && connectionStatus.isUserConnected && connectionStatus.isRegistered;
 
-	if ( ! isFullyConnected() ) {
+	if ( ! isFullyConnected ) {
 		return (
 			<div className="jp-wrap">
 				<div className="jp-row">
