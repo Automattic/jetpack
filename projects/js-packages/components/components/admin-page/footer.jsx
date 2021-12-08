@@ -12,7 +12,7 @@ import styles from './style.module.scss';
 import JetpackFooter from '../jetpack-footer';
 import Row from '../layout/row';
 import Container from '../layout/container';
-import Grid from '../layout/grid';
+import Col from '../layout/col';
 
 /**
  * Footer for the AdminPage component
@@ -27,9 +27,9 @@ const AdminPageFooter = props => {
 		<div className={ styles[ 'jp-admin-page-section' ] }>
 			<Container>
 				<Row>
-					<Grid lg={ 12 } md={ 8 } sm={ 4 }>
+					<Col lg={ 12 } md={ 8 } sm={ 4 }>
 						<JetpackFooter moduleName={ moduleName } a8cLogoHref={ a8cLogoHref } />
-					</Grid>
+					</Col>
 				</Row>
 			</Container>
 		</div>

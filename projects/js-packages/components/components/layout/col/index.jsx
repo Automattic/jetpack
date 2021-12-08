@@ -11,12 +11,12 @@ import PropTypes from 'prop-types';
 import styles from './style.module.scss';
 
 /**
- * The basic Grid component.
+ * The basic Col component.
  *
  * @param {object} props - Component properties.
- * @returns {React.Component} Grid component.
+ * @returns {React.Component} Col component.
  */
-const Grid = props => {
+const Col = props => {
 	const { children, sm, md, lg } = props;
 	const small = Number.isInteger( sm ) ? sm : 0;
 	const medium = Number.isInteger( md ) ? md : 0;
@@ -33,7 +33,7 @@ const Grid = props => {
 	return <div className={ className }>{ children }</div>;
 };
 
-Grid.proptypes = {
+Col.proptypes = {
 	/** Colspan for small viewport. Needs to be an integer. Defaults to the smallest colspan informed. */
 	sm: PropTypes.number,
 	/** Colspan for medium viewport. Needs to be an integer. Defaults to the smallest colspan informed. */
@@ -42,4 +42,4 @@ Grid.proptypes = {
 	lg: PropTypes.number,
 };
 
-export default Grid;
+export default Col;

@@ -10,7 +10,7 @@ import styles from './style.module.scss';
 import JetpackLogo from '../jetpack-logo';
 import Row from '../layout/row';
 import Container from '../layout/container';
-import Grid from '../layout/grid';
+import Col from '../layout/col';
 
 /**
  * Header for the AdminPage component
@@ -21,9 +21,9 @@ const AdminPageHeader = () => (
 	<div className={ styles[ 'jp-admin-page-section' ] }>
 		<Container>
 			<Row>
-				<Grid lg={ 12 } md={ 8 } sm={ 4 }>
+				<Col lg={ 12 } md={ 8 } sm={ 4 }>
 					<JetpackLogo />
-				</Grid>
+				</Col>
 			</Row>
 		</Container>
 	</div>

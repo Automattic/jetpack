@@ -7,7 +7,7 @@ import {
 	AdminSectionHero,
 	AdminPage,
 	Row,
-	Grid,
+	Col,
 } from '@automattic/jetpack-components';
 
 import './style.scss';
@@ -23,17 +23,17 @@ export default function MyJetpackScreen() {
 			<AdminPage>
 				<AdminSectionHero>
 					<Row>
-						<Grid lg={ 12 } md={ 8 } sm={ 4 }>
+						<Col lg={ 12 } md={ 8 } sm={ 4 }>
 							Lorem Ipsum
-						</Grid>
+						</Col>
 					</Row>
 				</AdminSectionHero>
 
 				<AdminSection>
 					<Row>
-						<Grid lg={ 12 } md={ 8 } sm={ 4 }>
+						<Col lg={ 12 } md={ 8 } sm={ 4 }>
 							Lorem Ipsum
-						</Grid>
+						</Col>
 					</Row>
 				</AdminSection>
 			</AdminPage>
