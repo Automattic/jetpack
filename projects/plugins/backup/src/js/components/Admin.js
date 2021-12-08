@@ -11,6 +11,7 @@ import { JetpackFooter, JetpackLogo, getRedirectUrl } from '@automattic/jetpack-
  * Internal dependencies
  */
 import Backups from './Backups';
+import MyPlan from './MyPlan';
 import useConnection from '../hooks/useConnection';
 import './admin-style.scss';
 import './masthead/masthead-style.scss';
@@ -24,9 +25,9 @@ const Admin = () => {
 	const [ connectionLoaded, setConnectionLoaded ] = useState( false );
 	const [ capabilitiesLoaded, setCapabilitiesLoaded ] = useState( false );
 	const [ showHeaderFooter, setShowHeaderFooter ] = useState( true );
-	const [ siteProducts, setSiteProducts ] = useState( [] );
-	const [ siteProductsError, setSiteProductsError ] = useState( null );
-	const [ siteProductsLoaded, setSiteProductsLoaded ] = useState( false );
+	const [ sitePurchases, setSitePurchases ] = useState( [] );
+	const [ sitePurchasesError, setSitePurchasesError ] = useState( null );
+	const [ sitePurchasesLoaded, setSitePurchasesLoaded ] = useState( false );
 
 	const domain = useSelect( select => select( STORE_ID ).getCalypsoSlug(), [] );
 
@@ -50,14 +51,14 @@ const Admin = () => {
 	}, [] );
 
 	useEffect( () => {
-		apiFetch( { path: '/jetpack/v4/site/products' } ).then(
+		apiFetch( { path: '/jetpack/v4/site/purchases' } ).then(
 			res => {
-				setSiteProducts( JSON.parse( res.data )[ 0 ] );
-				setSiteProductsLoaded( true );
+				setSitePurchases( JSON.parse( res.data ) );
+				setSitePurchasesLoaded( true );
 			},
 			() => {
-				setSiteProductsLoaded( true );
-				setSiteProductsError( 'Failed to fetch site products' );
+				setSitePurchasesLoaded( true );
+				setSitePurchasesError( 'Failed to fetch site purchases' );
 			}
 		);
 	}, [] );
@@ -176,31 +177,6 @@ const Admin = () => {
 		}
 	};
 
-	const renderMyPlan = () => {
-		return (
-			<div className="jpb-my-plan-container">
-				<h3>{ __( 'My Plan', 'jetpack-backup' ) }</h3>
-				<p>{ __( 'The extra power you added to your Jetpack.', 'jetpack-backup' ) }</p>
-				{ siteProductsError && <div>{ siteProductsError }</div> }
-				{ siteProductsLoaded && ! siteProductsError && (
-					<>
-						<h4> { siteProducts.product_name } </h4>
-						<p> { siteProducts.expiry_message } </p>
-					</>
-				) }
-				<p>
-					<a
-						href={ getRedirectUrl( 'backup-plugin-my-plan', { site: domain } ) }
-						target="_blank"
-						rel="noreferrer"
-					>
-						{ __( 'Manage your plan', 'jetpack-backup' ) }
-					</a>
-				</p>
-			</div>
-		);
-	};
-
 	// Renders additional segments under the jp-hero area condition on having a backup plan
 	const renderBackupSegments = () => {
 		return (
@@ -213,8 +189,8 @@ const Admin = () => {
 							'jetpack-backup'
 						) }
 					</p>
-					{ hasBackupPlan() &&
-						( (
+					{ hasBackupPlan() && sitePurchases && (
+						<>
 							<p>
 								<a
 									href={ getRedirectUrl( 'jetpack-backup', { site: domain } ) }
@@ -224,8 +200,14 @@ const Admin = () => {
 									{ __( 'See all your backups', 'jetpack-backup' ) }
 								</a>
 							</p>
-						 ),
-						renderMyPlan() ) }
+							<MyPlan
+								loaded={ sitePurchasesLoaded }
+								error={ sitePurchasesError }
+								purchases={ sitePurchases }
+								redirectUrl={ getRedirectUrl( 'backup-plugin-my-plan', { site: domain } ) }
+							/>
+						</>
+					) }
 				</div>
 				<div className="lg-col-span-1 md-col-span-1 sm-col-span-0"></div>
 				<div className="lg-col-span-5 md-col-span-3 sm-col-span-4">

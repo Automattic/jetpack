@@ -158,10 +158,10 @@ class Jetpack_Backup {
 		// Get information on site products.
 		register_rest_route(
 			'jetpack/v4',
-			'/site/products',
+			'/site/purchases',
 			array(
 				'methods'             => WP_REST_Server::READABLE,
-				'callback'            => __CLASS__ . '::get_site_products',
+				'callback'            => __CLASS__ . '::get_site_purchases',
 				'permission_callback' => __CLASS__ . '::backups_permissions_callback',
 			)
 		);
@@ -266,11 +266,11 @@ class Jetpack_Backup {
 	}
 
 	/**
-	 * Returns the result of `/sites/%d/products` endpoint call.
+	 * Returns the result of `/sites/%d/purchases` endpoint call.
 	 *
-	 * @return array of site products.
+	 * @return array of site purchases.
 	 */
-	public static function get_site_products() {
+	public static function get_site_purchases() {
 
 		$request  = sprintf( '/sites/%d/purchases', \Jetpack_Options::get_option( 'id' ) );
 		$response = Automattic\Jetpack\Connection\Client::wpcom_json_api_request_as_blog( $request, '1.1' );
