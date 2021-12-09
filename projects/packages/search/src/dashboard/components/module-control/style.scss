@@ -175,3 +175,10 @@ p.jp-form-search-settings-group__toggle-explanation {
 		transition: transform 0.15s ease-out;
 	}
 }
+
+.jp-search-dashboard-row .form-toggle__switch-container.sm-col-span-1 {
+	display: flex;
+	justify-content: center;
+
+	padding-top: 4px;
+}
