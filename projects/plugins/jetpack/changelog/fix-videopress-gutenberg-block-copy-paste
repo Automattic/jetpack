@@ -1,4 +1,0 @@
-Significance: patch
-Type: bugfix
-
-VideoPress: fix copy/paste of empty video blocks not containing the proper attribute set.

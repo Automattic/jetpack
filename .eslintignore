@@ -42,6 +42,7 @@ projects/plugins/boost/wordpress/**
 projects/plugins/jetpack/extensions/**/test/
 
 ### Other projects
+projects/*/*/jetpack_vendor
 projects/*/*/vendor
 projects/github-actions/*/dist
 projects/js-packages/babel-plugin-replace-textdomain/tests/fixtures/

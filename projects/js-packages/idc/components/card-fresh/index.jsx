@@ -14,6 +14,7 @@ import { Spinner } from '@automattic/jetpack-components';
  */
 import { STORE_ID } from '../../state/store';
 import extractHostname from '../../tools/extract-hostname';
+import customContentShape from '../../tools/custom-content-shape';
 
 /**
  * The "start fresh" card.
@@ -22,7 +23,7 @@ import extractHostname from '../../tools/extract-hostname';
  * @returns {React.Component} The `ConnectScreen` component.
  */
 const CardFresh = props => {
-	const { isStartingFresh, startFreshCallback } = props;
+	const { isStartingFresh, startFreshCallback, customContent } = props;
 
 	const wpcomHostName = extractHostname( props.wpcomHomeUrl );
 	const currentHostName = extractHostname( props.currentUrl );
@@ -34,23 +35,27 @@ const CardFresh = props => {
 	return (
 		<div className="jp-idc__idc-screen__card-action-base">
 			<div className="jp-idc__idc-screen__card-action-top">
-				<h4>{ __( 'Treat each site as independent sites', 'jetpack' ) }</h4>
+				<h4>
+					{ customContent.startFreshCardTitle ||
+						__( 'Treat each site as independent sites', 'jetpack' ) }
+				</h4>
 
 				<p>
-					{ createInterpolateElement(
-						sprintf(
-							/* translators: %1$s: The current site domain name. %2$s: The original site domain name. */
-							__(
-								'<hostname>%1$s</hostname> settings, stats, and subscribers will start fresh. <hostname>%2$s</hostname> will keep its data as is.',
-								'jetpack'
+					{ customContent.startFreshCardBodyText ||
+						createInterpolateElement(
+							sprintf(
+								/* translators: %1$s: The current site domain name. %2$s: The original site domain name. */
+								__(
+									'<hostname>%1$s</hostname> settings, stats, and subscribers will start fresh. <hostname>%2$s</hostname> will keep its data as is.',
+									'jetpack'
+								),
+								currentHostName,
+								wpcomHostName
 							),
-							currentHostName,
-							wpcomHostName
-						),
-						{
-							hostname: <strong />,
-						}
-					) }
+							{
+								hostname: <strong />,
+							}
+						) }
 				</p>
 			</div>
 
@@ -81,11 +86,14 @@ CardFresh.propTypes = {
 	isStartingFresh: PropTypes.bool.isRequired,
 	/** "Start Fresh" callback. */
 	startFreshCallback: PropTypes.func.isRequired,
+	/** Custom text content. */
+	customContent: PropTypes.shape( customContentShape ),
 };
 
 CardFresh.defaultProps = {
 	isStartingFresh: false,
 	startFreshCallback: () => {},
+	customContent: {},
 };
 
 export default CardFresh;
