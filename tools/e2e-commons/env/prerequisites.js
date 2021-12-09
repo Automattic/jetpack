@@ -207,6 +207,11 @@ export async function deactivateModules( modulesList ) {
 }
 
 export async function ensurePluginsState( plugins ) {
+	if ( ! isLocalSite() ) {
+		logger.prerequisites( 'Site is not local, skipping plugins setup.' );
+		return;
+	}
+
 	if ( plugins.active ) {
 		await activatePlugins( plugins.active );
 	} else {
