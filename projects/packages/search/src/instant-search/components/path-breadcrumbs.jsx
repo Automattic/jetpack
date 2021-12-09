@@ -5,6 +5,12 @@ import React from 'react';
 
 import './path-breadcrumbs.scss';
 
+/**
+ * Splits URL by slashes for rendering breadcrumbs.
+ *
+ * @param {string} path - String URL.
+ * @returns {string[]} - Array of strings.
+ */
 function splitDomainPath( path ) {
 	const splits = path.split( '/' ).filter( piece => piece.length > 0 );
 	splits.shift(); // Removes domain name from splits; e.g. 'jetpack.com'

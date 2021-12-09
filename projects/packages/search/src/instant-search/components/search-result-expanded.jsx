@@ -12,6 +12,12 @@ import SearchResultComments from './search-result-comments';
 import { fixDateFormat } from './search-filter';
 import './search-result-expanded.scss';
 
+/**
+ * Functional component for expanded search results.
+ *
+ * @param {object} props - Comenont props
+ * @returns {Element} - Expanded search result component.
+ */
 export default function SearchResultExpanded( props ) {
 	const { isMultiSite, locale = 'en-US' } = props;
 	const { result_type, fields, highlight } = props.result;

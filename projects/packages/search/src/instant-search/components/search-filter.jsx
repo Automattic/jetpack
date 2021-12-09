@@ -11,6 +11,12 @@ import uniqueId from 'lodash/uniqueId';
  */
 import { getCheckedInputNames } from '../lib/dom';
 
+/**
+ * Get date options given an interval.
+ *
+ * @param {string} interval - Duration interval.
+ * @returns {object} - Object containing date options.
+ */
 function getDateOptions( interval ) {
 	switch ( interval ) {
 		case 'day':
