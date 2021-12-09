@@ -2,7 +2,13 @@
  * External dependencies
  */
 import React from 'react';
-import { AdminSection, AdminSectionHero, AdminPage } from '@automattic/jetpack-components';
+import {
+	AdminSection,
+	AdminSectionHero,
+	AdminPage,
+	Row,
+	Col,
+} from '@automattic/jetpack-components';
 
 import './style.scss';
 
@@ -15,9 +21,21 @@ export default function MyJetpackScreen() {
 	return (
 		<div className="jp-my-jetpack-screen">
 			<AdminPage>
-				<AdminSectionHero>Lorem Ipsum</AdminSectionHero>
+				<AdminSectionHero>
+					<Row>
+						<Col lg={ 12 } md={ 8 } sm={ 4 }>
+							Lorem Ipsum
+						</Col>
+					</Row>
+				</AdminSectionHero>
 
-				<AdminSection>Lorem Ipsum</AdminSection>
+				<AdminSection>
+					<Row>
+						<Col lg={ 12 } md={ 8 } sm={ 4 }>
+							Lorem Ipsum
+						</Col>
+					</Row>
+				</AdminSection>
 			</AdminPage>
 		</div>
 	);
