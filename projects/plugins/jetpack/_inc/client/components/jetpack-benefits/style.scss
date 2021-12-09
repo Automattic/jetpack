@@ -10,4 +10,9 @@
 	width: 100%;
 	padding-left: 1.25rem;
 	font-size: 1rem;
+
+	// Improves distinguishability of links from surrounding text since contrast of link color to body text color is less than 3:1
+	a.jetpack-benefits__general-benefits-link {
+		text-decoration: underline;
+	}
 }

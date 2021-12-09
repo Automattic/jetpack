@@ -16,8 +16,11 @@
 	text-align: left;
 
 	&__group {
+		margin: 0;
+		padding: 0;
 		margin-bottom: 1rem;
 		max-width: 100%;
+		list-style: none;
 	}
 
 	&__card-content {

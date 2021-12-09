@@ -34,14 +34,14 @@
 		font: inherit;
 		padding: 0;
 
-		&:hover {
+		&:hover,
+		&:focus {
 			color: var( --jp-black );
 			text-decoration-thickness: var( --jp-underline-thickness );
 		}
 
 		&:focus {
-			color: var( --jp-black );
-			box-shadow: none !important;
+			outline: 1px solid
 		}
 
 		&--bold {
@@ -53,6 +53,18 @@
 		height: 40px;
 		font-size: var( --font-body-small );
 		border-radius: 4px;
+
+		// Link variant of buttons
+		&.is-link {
+			font-weight: bold;
+			color: var( --jp-black );
+
+			&:hover,
+			&:focus {
+				color: var( --jp-black );
+				text-decoration-thickness: var( --jp-underline-thickness );
+			}
+		}
 	}
 
 	.components-modal{
@@ -115,17 +127,49 @@
 	}
 
 	&__btn-dismiss,
-	&__btn-dismiss.components-button{ // override the components-button class
-		background: var( --jp-black ) !important;
+	.jp-connection__disconnect-dialog__btn-dismiss.components-button{ // override the components-button class
+		background: var( --jp-black );
 		margin-right: 10px;
+		transition: 0.25s background;
+
+		&:disabled {
+			background: var( --jp-black );
+		}
+
+		&:hover:not(:disabled),
+		&:focus {
+			background: var( --jp-black-80 );
+		}
 	}
 
-	&__btn-disconnect{
-		background: var( --jp-red ) !important;
+	&__btn-disconnect,
+	.jp-connection__disconnect-dialog__btn-disconnect.components-button{
+		background: var( --jp-red );
+		transition: 0.25s background;
+
+		&:disabled {
+			background: var( --jp-red );
+		}
+
+		&:hover:not(:disabled),
+		&:focus {
+			background: var( --jp-red-60 );
+		}
 	}
 
-	&__btn-back-to-wp{
-		background: var( --jp-black ) !important;
+	&__btn-back-to-wp,
+	.jp-connection__disconnect-dialog__btn-back-to-wp.components-button{
+		background: var( --jp-black );
+		transition: 0.25s background;
+
+		&:disabled {
+			background: var( --jp-black );
+		}
+
+		&:hover:not(:disabled),
+		&:focus {
+			background: var( --jp-black-80 );
+		}
 	}
 
 	&__button-wrap{
@@ -141,8 +185,11 @@
 	}
 
 	&__survey {
+		margin: 0;
+		padding: 0;
 		margin-bottom: 1.5rem;
 		max-width: 100%;
+		list-style: none;
 	}
 
 	// Limit the copy width on the steps.

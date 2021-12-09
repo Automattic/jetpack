@@ -1,15 +1,19 @@
 /* eslint-disable jsx-a11y/no-noninteractive-tabindex */
+/* eslint-disable jsx-a11y/no-static-element-interactions */
 
 /**
  * External Dependencies
  */
-import React from 'react';
+import React, { useCallback } from 'react';
 import PropTypes from 'prop-types';
 
 /**
  * Internal Dependencies
  */
 import { __ } from '@wordpress/i18n';
+import { focus } from '@wordpress/dom';
+import { TAB } from '@wordpress/keycodes';
+import { Button } from '@wordpress/components';
 import '../../disconnect-survey/_jp-connect_disconnect-survey-card.scss';
 import DisconnectSurvey from '../../disconnect-survey';
 
@@ -21,10 +25,49 @@ import DisconnectSurvey from '../../disconnect-survey';
  */
 const StepSurvey = props => {
 	const { onExit, onFeedBackProvided, isSubmittingFeedback } = props;
+	const surveyStepRef = React.createRef();
+
+	/**
+	 * Handle keydown events on the survey step to prevent loss of focus outside the modal/
+	 * This logic is similar to what is used in the @wordpress/useConstrainedTabbing hook.
+	 * Normally, the modal component handles this on its own.
+	 * This additional check is needed here for now to fix a bug when using a radio group in the modal.
+	 */
+	const handleKeyDown = useCallback(
+		e => {
+			const { target, keyCode, shiftKey } = e;
+
+			// bug only happens when tabbing backwards
+			if ( TAB !== keyCode ) {
+				return;
+			}
+
+			// We are tabbing backwards.
+			// If the next element that is focusable is a radio button with the same name as the current target,
+			// then we should trap focus back at the bottom of the panel content.
+			if ( shiftKey && 'radio' === target.type ) {
+				const previous = focus.tabbable.findPrevious( target );
+				if ( 'radio' === previous.type && previous.name === target.name ) {
+					const trap = document.createElement( 'div' );
+					trap.tabIndex = -1;
+					surveyStepRef.current.append( trap );
+					trap.focus();
+					// create a timing hiccup to allow focus to move around
+					setTimeout( () => surveyStepRef.current.removeChild( trap ) );
+				}
+			}
+		},
+		[ surveyStepRef ]
+	);
 
 	return (
-		<div className="jp-connection__disconnect-dialog__content">
-			<h1>{ __( 'Before you go, help us improve Jetpack', 'jetpack' ) }</h1>
+		<div
+			className="jp-connection__disconnect-dialog__content"
+			aria-live="polite"
+			onKeyDown={ handleKeyDown }
+			ref={ surveyStepRef }
+		>
+			<h1>{ __( 'Before you go, help us improve Jetpack' , 'jetpack' ) }</h1>
 			<p className="jp-connection__disconnect-dialog__large-text">
 				{ __( 'Let us know what didn‘t work for you', 'jetpack' ) }
 			</p>
@@ -32,13 +75,9 @@ const StepSurvey = props => {
 				onSubmit={ onFeedBackProvided }
 				isSubmittingFeedback={ isSubmittingFeedback }
 			/>
-			<a
-				className="jp-connection__disconnect-dialog__link jp-connection__disconnect-dialog__link--bold"
-				href="#"
-				onClick={ onExit }
-			>
+			<Button variant="link" onClick={ onExit }>
 				{ __( 'Skip for now', 'jetpack' ) }
-			</a>
+			</Button>
 		</div>
 	);
 };

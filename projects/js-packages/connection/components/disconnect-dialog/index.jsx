@@ -291,6 +291,27 @@ const DisconnectDialog = props => {
 	);
 
 	/**
+	 * Handles a request to close the modal
+	 * This allows the modal to be closed in a variety of ways (esc, close button)
+	 * Control what happens based on what step in the flow we are on
+	 */
+	const handleModalClose = useCallback(
+		e => {
+			e && e.preventDefault();
+
+			// Site is still connected, just close the modal in place
+			if ( ! isDisconnected ) {
+				onClose();
+				return;
+			}
+
+			// Site is already disconnected
+			backToWordpress();
+		},
+		[ isDisconnected, onClose, backToWordpress ]
+	);
+
+	/**
 	 * Update the local state to show the survey step.
 	 */
 	const handleProvideFeedback = useCallback(
@@ -349,15 +370,10 @@ const DisconnectDialog = props => {
 		<>
 			{ isOpen && (
 				<Modal
-					title=""
-					contentLabel={ title }
-					aria={ {
-						labelledby: 'jp-connection__disconnect-dialog__heading',
-					} }
-					onRequestClose={ onClose }
-					shouldCloseOnClickOutside={ false }
-					shouldCloseOnEsc={ false }
-					isDismissible={ false }
+					shouldCloseOnEsc={ ! isDisconnecting }
+					shouldCloseOnClickOutside={ ! isDisconnecting }
+					contentLabel={ __( 'Disconnect Jetpack', 'jetpack' ) }
+					onRequestClose={ handleModalClose }
 					className={
 						'jp-connection__disconnect-dialog' +
 						( isDisconnected ? ' jp-connection__disconnect-dialog__success' : '' )

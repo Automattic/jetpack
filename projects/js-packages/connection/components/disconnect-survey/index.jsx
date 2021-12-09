@@ -59,6 +59,17 @@ const DisconnectSurvey = props => {
 	}, [ onSubmit, customOption.id, customResponse, selectedAnswer ] );
 
 	/**
+	 * Prevent any default submission of the form element
+	 * Response is sent by clicking on the "Submit Feedback" button
+	 *
+	 * @param {object} e - onSubmit event from teh form
+	 */
+	const handleFormSubmit = useCallback( e => {
+		e.preventDefault();
+		return false;
+	}, [] );
+
+	/**
 	 * Handle input into the custom response field.
 	 *
 	 * @param {object} e - onChange event for the custom input
@@ -68,9 +79,30 @@ const DisconnectSurvey = props => {
 			const value = e.target.value;
 			e.stopPropagation();
 			setCustomResponse( value );
+			if ( selectedAnswer !== customOption.id ) {
+				setSelectedAnswer( customOption.id );
+			}
 		},
-		[ setCustomResponse ]
+		[ setCustomResponse, customOption.id, selectedAnswer ]
 	);
+
+	/**
+	 * Set the selected answer to the custom option.
+	 * This is set as its own callback function here to avoid using binding in props
+	 */
+	const setCustomOptionAsSelected = useCallback( () => {
+		setSelectedAnswer( customOption.id );
+	}, [ setSelectedAnswer, customOption.id ] );
+
+	/**
+	 * Checks to see if the passed optionId is the currently selected option.
+	 *
+	 * @param {string} optionId - the optionId to check
+	 * @returns {boolean} - true if the passed optionId is the currently selected option
+	 */
+	const isSelected = optionId => {
+		return optionId === selectedAnswer;
+	};
 
 	/**
 	 * Checks to see if an option is the currently selected option, returns a css class name if it matches.
@@ -79,7 +111,7 @@ const DisconnectSurvey = props => {
 	 * @returns {string} - The "selected" class if this option is currently selected.
 	 */
 	const selectedClass = optionId => {
-		if ( optionId === selectedAnswer ) {
+		if ( isSelected( optionId ) ) {
 			return 'jp-connect__disconnect-survey-card--selected';
 		}
 
@@ -99,6 +131,7 @@ const DisconnectSurvey = props => {
 				case 'Space':
 				case 'Spacebar':
 				case ' ':
+					e.preventDefault(); // Don't submit the form when selecting an answer by pressing enter.
 					setSelectedAnswer( answerId );
 					break;
 			}
@@ -116,12 +149,13 @@ const DisconnectSurvey = props => {
 			return (
 				<SurveyChoice
 					id={ option.id }
-					onClick={ setSelectedAnswer }
+					onChange={ setSelectedAnswer }
 					onKeyDown={ handleAnswerKeyDown }
-					className={ 'card jp-connect__disconnect-survey-card ' + selectedClass( option.id ) }
-				>
-					<p className="jp-connect__disconnect-survey-card__answer">{ option.answerText }</p>
-				</SurveyChoice>
+					className={ selectedClass( option.id ) }
+					isSelected={ isSelected( option.id ) }
+					surveyName="jp-disconnect-survey"
+					label={ option.answerText }
+				/>
 			);
 		} );
 	};
@@ -136,18 +170,30 @@ const DisconnectSurvey = props => {
 		return (
 			<SurveyChoice
 				id={ customOption.id }
-				onClick={ setSelectedAnswer }
+				onChange={ setSelectedAnswer }
 				onKeyDown={ handleAnswerKeyDown }
-				className={ 'card jp-connect__disconnect-survey-card ' + selectedClass( customOption.id ) }
+				className={
+					'jp-connect__disconnect-survey-card--custom ' + selectedClass( customOption.id )
+				}
+				isSelected={ isSelected( customOption.id ) }
+				surveyName="jp-disconnect-survey"
+				label={ __( 'Other:', 'jetpack' ) }
 			>
-				<p className="jp-connect__disconnect-survey-card__answer">
-					{ __( 'Other:', 'jetpack' ) }{ ' ' }
+				<p className="jp-connect__disconnect-survey-card__custom-response">
+					<label
+						className="jp-connect__disconnect-survey-card__custom-response-label"
+						htmlFor="jp-feedback-custom-response"
+					>
+						{ __( 'Custom Feedback:', 'jetpack' ) }{ ' ' }
+					</label>
 					<input
+						id="jp-feedback-custom-response"
 						placeholder={ __( 'share your experience', 'jetpack' ) }
 						className="jp-connect__disconnect-survey-card__input"
 						type="text"
 						value={ customResponse }
 						onChange={ handleCustomResponse }
+						onClick={ setCustomOptionAsSelected }
 						maxLength={ 1000 } // Limit response length.
 					/>
 				</p>
@@ -156,13 +202,18 @@ const DisconnectSurvey = props => {
 	};
 
 	return (
-		<React.Fragment>
+		<form
+			onSubmit={ handleFormSubmit }
+			aria-label={ __( 'Jetpack disconnection feedback form', 'jetpack' ) }
+			style={ { maxWidth: '100%' } }
+		>
 			<div className="jp-connection__disconnect-dialog__survey">
 				{ renderOptions() }
 				{ renderCustomOption() }
 			</div>
 			<p>
 				<Button
+					type="submit"
 					disabled={ ! selectedAnswer || isSubmittingFeedback }
 					isPrimary
 					onClick={ handleSurveySubmit }
@@ -173,7 +224,7 @@ const DisconnectSurvey = props => {
 						: __( 'Submit Feedback', 'jetpack', /* dummy arg to avoid bad minification */ 0 ) }
 				</Button>
 			</p>
-		</React.Fragment>
+		</form>
 	);
 };
 

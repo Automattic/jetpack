@@ -23,7 +23,7 @@ const StepThankYou = props => {
 	const { onExit } = props;
 
 	return (
-		<div className="jp-connection__disconnect-dialog__content">
+		<div className="jp-connection__disconnect-dialog__content" aria-live="polite">
 			<DecorativeCard format="vertical" imageUrl={ disconnectImage } />
 
 			<div className="jp-connection__disconnect-dialog__copy">

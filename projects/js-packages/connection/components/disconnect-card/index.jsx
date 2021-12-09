@@ -20,7 +20,7 @@ const DisconnectCard = props => {
 	const { title, value, description } = props;
 
 	return (
-		<div className="jp-connection__disconnect-card card">
+		<li className="jp-connection__disconnect-card card">
 			<div className="jp-connection__disconnect-card__card-content">
 				<p className="jp-connection__disconnect-card__card-headline">{ title }</p>
 				{ ( value || description ) && (
@@ -30,7 +30,7 @@ const DisconnectCard = props => {
 					</div>
 				) }
 			</div>
-		</div>
+		</li>
 	);
 };
 

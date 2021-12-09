@@ -35,11 +35,11 @@ const JetpackBenefits = props => {
 							) }
 						</p>
 					</div>
-					<div className="jp-connection__disconnect-card__group">
+					<ul className="jp-connection__disconnect-card__group">
 						{ siteBenefits.map( ( { value, description, title } ) => (
 							<DisconnectCard title={ title } value={ value } description={ description } />
 						) ) }
-					</div>
+					</ul>
 				</React.Fragment>
 			) }
 			{ siteBenefits.length <= 2 && (
@@ -63,6 +63,7 @@ const JetpackBenefits = props => {
 											href={ getRedirectUrl( 'jetpack-features-design-content-delivery-network' ) }
 											rel="noopener noreferrer"
 											target="_blank"
+											className="jetpack-benefits__general-benefits-link"
 										></ExternalLink>
 									),
 								}
@@ -80,6 +81,7 @@ const JetpackBenefits = props => {
 											href={ getRedirectUrl( 'jetpack-features-security' ) }
 											rel="noopener noreferrer"
 											target="_blank"
+											className="jetpack-benefits__general-benefits-link"
 										></ExternalLink>
 									),
 								}
@@ -97,6 +99,7 @@ const JetpackBenefits = props => {
 											href={ getRedirectUrl( 'jetpack-support-social' ) }
 											rel="noopener noreferrer"
 											target="_blank"
+											className="jetpack-benefits__general-benefits-link"
 										></ExternalLink>
 									),
 								}

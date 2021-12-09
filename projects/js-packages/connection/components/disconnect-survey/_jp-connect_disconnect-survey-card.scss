@@ -8,12 +8,22 @@
 	margin-right: auto;
 	border-radius: 4px;
 	text-align: left;
-	padding: 1rem;
+	padding: 0;
 	position: relative;
 	box-shadow: 0 0 15px var( --jp-gray-off );
+	overflow: hidden;
+
+	&.card {
+		padding: 0;
+	}
 
 	&--selected {
 		border-color: var( --jp-black );
+	}
+
+	&:hover,
+	&:focus-within {
+		cursor: pointer;
 		background: var( --jp-gray-off );
 	}
 
@@ -30,20 +40,32 @@
 		transform: translateY( -50% ) rotate( 45deg );
 	}
 
-	&:hover {
-		cursor: pointer;
+	&__radio,
+	input.jp-connect__disconnect-survey-card__radio {
+		position: absolute;
+		opacity: 0; // can't see me :)
+		transform: translateX( -100px ); // out of the card
 	}
 
-	&:hover,
-	&:focus {
-		&:not( .jp-disconnect-survey-card--selected ) {
-			border-color: var( --jp-black-80 )
-		}
-	}
-
-	&__answer {
+	&__label {
+		font-size: 16px;
 		font-weight: bold;
+		display: block;
+		padding: 1rem;
+	}
+
+	// Custom response
+	&__custom-response {
+		flex-grow: 1;
 		margin: 0;
+	}
+
+	&__custom-response-label {
+		position: absolute;
+		text-indent: -9999px;
+	}
+
+	&--custom {
 		display: flex;
 		align-items: center;
 	}
@@ -52,9 +74,13 @@
 input.jp-connect__disconnect-survey-card__input {
 	-webkit-appearance: none;
 	border: none;
+	border-radius: 0;
 	background-color: transparent;
 	color: var( --jp-black-80 );
-	flex-grow: 1;
+	display: block;
+	width: 100%;
+	padding-left: 0;
 	padding-right: 40px;
 	max-width: calc( 100% - 40px );
+	font-weight: bold;
 }
