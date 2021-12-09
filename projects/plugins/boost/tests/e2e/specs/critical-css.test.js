@@ -1,8 +1,7 @@
 import { test, expect } from '../fixtures/base-test.js';
 import { boostPrerequisitesBuilder } from '../lib/env/prerequisites.js';
-import { JetpackBoostPage, TestContentPage } from '../lib/pages/index.js';
-
-const testPostTitle = 'Hello World!';
+import { JetpackBoostPage } from '../lib/pages/index.js';
+import { PostFrontendPage } from 'jetpack-e2e-commons/pages/index.js';
 
 test.describe.serial( 'Critical CSS module', () => {
 	let page;
@@ -20,7 +19,7 @@ test.describe.serial( 'Critical CSS module', () => {
 
 	test( 'No Critical CSS should available on the frontend when the module is inactive', async () => {
 		await boostPrerequisitesBuilder( page ).withInactiveModules( [ 'critical-css' ] ).build();
-		await TestContentPage.visitByTitle( testPostTitle, page );
+		await PostFrontendPage.visit( page );
 		expect(
 			await page.locator( '#jetpack-boost-critical-css' ).count( {
 				timeout: 5 * 1000,
@@ -48,7 +47,7 @@ test.describe.serial( 'Critical CSS module', () => {
 	} );
 
 	test( 'Critical CSS should be available on the frontend when the module is active', async () => {
-		await TestContentPage.visitByTitle( testPostTitle, page );
+		await PostFrontendPage.visit( page );
 		const criticalCss = await page.locator( '#jetpack-boost-critical-css' ).innerText();
 		expect( criticalCss.length ).toBeGreaterThan( 100 );
 	} );

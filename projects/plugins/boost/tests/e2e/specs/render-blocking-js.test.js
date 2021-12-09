@@ -1,6 +1,6 @@
 import { test, expect } from '../fixtures/base-test.js';
 import { boostPrerequisitesBuilder } from '../lib/env/prerequisites.js';
-import { TestContentPage } from '../lib/pages/index.js';
+import { PostFrontendPage } from 'jetpack-e2e-commons/pages/index.js';
 
 const testPostTitle = 'Hello World with JavaScript';
 
@@ -14,7 +14,8 @@ test.describe.serial( 'Render Blocking JS module', () => {
 
 	test( 'JavaScript on a post should be at its original position in the document when the module is inactive', async () => {
 		await boostPrerequisitesBuilder( page ).withInactiveModules( [ 'render-blocking-js' ] ).build();
-		await TestContentPage.visitByTitle( testPostTitle, page );
+		const frontend = await PostFrontendPage.visit( page );
+		await frontend.click( `text=${ testPostTitle }` );
 		// For this test we are checking if the JavaScript from the test content is still inside its original parent element
 		// which has the "render-blocking-js" class.
 		const script = await page.locator( '#blockingScript' );
@@ -32,7 +33,8 @@ test.describe.serial( 'Render Blocking JS module', () => {
 		// For this test we are checking if the JavaScript from the test content is not anymore in its parent element.
 		// which has the "render-blocking-js" class.
 		await boostPrerequisitesBuilder( page ).withActiveModules( [ 'render-blocking-js' ] ).build();
-		await TestContentPage.visitByTitle( testPostTitle, page );
+		const frontend = await PostFrontendPage.visit( page );
+		await frontend.click( `text=${ testPostTitle }` );
 		const script = await page.locator( '#blockingScript' );
 		expect(
 			await script.evaluate( element =>
