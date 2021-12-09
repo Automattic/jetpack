@@ -5,7 +5,7 @@
 	"license": "GPL-2.0-or-later",
 	"require": {
 		"automattic/jetpack-admin-ui": "^0.1",
-		"automattic/jetpack-assets": "^1.13"
+		"automattic/jetpack-assets": "^1.14"
 	},
 	"require-dev": {
 		"yoast/phpunit-polyfills": "1.0.2",
