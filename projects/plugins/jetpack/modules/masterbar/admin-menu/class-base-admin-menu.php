@@ -665,7 +665,7 @@ abstract class Base_Admin_Menu {
 	 * @return string
 	 */
 	public function admin_body_class( $admin_body_classes ) {
-		return " nav-unification-enabled $admin_body_classes ";
+		return " is-nav-unification $admin_body_classes ";
 	}
 
 	/**
