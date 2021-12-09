@@ -51,8 +51,9 @@ class Initial_State {
 	 */
 	private function get_idc_data() {
 		$return_data = array(
-			'hasIDC'  => Identity_Crisis::has_identity_crisis(),
-			'isAdmin' => current_user_can( 'jetpack_disconnect' ),
+			'hasIDC'              => Identity_Crisis::has_identity_crisis(),
+			'isAdmin'             => current_user_can( 'jetpack_disconnect' ),
+			'isSafeModeConfirmed' => Identity_Crisis::safe_mode_is_confirmed(),
 		);
 
 		if ( ! $return_data['hasIDC'] || ! $return_data['isAdmin'] ) {

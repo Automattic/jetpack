@@ -41,26 +41,24 @@ const Admin = props => {
 		restApi.setApiNonce( APINonce );
 	}, [ APIRoot, APINonce ] );
 
-	if ( IDCData.hasIDC ) {
-		return (
-			<IDCScreen
-				wpcomHomeUrl={ IDCData.wpcomHomeUrl }
-				currentUrl={ IDCData.currentUrl }
-				apiRoot={ APIRoot }
-				apiNonce={ APINonce }
-				redirectUri={ IDCData.redirectUri }
-				tracksUserData={ tracksUserData }
-				tracksEventData={ tracksEventData }
-				isAdmin={ IDCData.isAdmin }
-			/>
-		);
-	}
-
 	return (
 		<React.Fragment>
 			<Header />
 
-			{ canManageConnection && connectionStatus.isRegistered && (
+			{ IDCData.hasIDC && (
+				<IDCScreen
+					wpcomHomeUrl={ IDCData.wpcomHomeUrl }
+					currentUrl={ IDCData.currentUrl }
+					apiRoot={ APIRoot }
+					apiNonce={ APINonce }
+					redirectUri={ IDCData.redirectUri }
+					tracksUserData={ tracksUserData }
+					tracksEventData={ tracksEventData }
+					isAdmin={ IDCData.isAdmin }
+				/>
+			) }
+
+			{ ! IDCData.hasIDC && canManageConnection && connectionStatus.isRegistered && (
 				<ConnectionStatusCard
 					isRegistered={ connectionStatus.isRegistered }
 					isUserConnected={ connectionStatus.isUserConnected }
@@ -70,7 +68,7 @@ const Admin = props => {
 				/>
 			) }
 
-			{ canManageConnection && ! connectionStatus.isRegistered && (
+			{ ! IDCData.hasIDC && canManageConnection && ! connectionStatus.isRegistered && (
 				<ConnectScreenRequiredPlan
 					connectionStatus={ connectionStatus }
 					apiRoot={ APIRoot }
@@ -101,7 +99,9 @@ const Admin = props => {
 				</ConnectScreenRequiredPlan>
 			) }
 
-			{ ! canManageConnection && <p>You need to be an admin to access this page.</p> }
+			{ ( ! IDCData.hasIDC || IDCData.isSafeModeConfirmed ) && ! canManageConnection && (
+				<p>You need to be an admin to access this page.</p>
+			) }
 		</React.Fragment>
 	);
 };
