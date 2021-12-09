@@ -116,7 +116,7 @@ importers:
       react-dom: 17.0.2
       react-test-renderer: 17.0.2
     dependencies:
-      '@automattic/format-currency': 1.0.0-alpha.0
+      '@automattic/format-currency': 1.0.0-alpha.0_react@17.0.2
       '@wordpress/browserslist-config': 4.1.0
       '@wordpress/components': 19.1.1_react-dom@17.0.2+react@17.0.2
       '@wordpress/i18n': 4.2.4
@@ -579,11 +579,14 @@ importers:
     specifiers:
       '@automattic/jetpack-base-styles': workspace:^0.1.2-alpha
       '@automattic/jetpack-components': workspace:^0.9.0-alpha
+      '@automattic/jetpack-connection': workspace:^0.11.3-alpha
       '@automattic/jetpack-webpack-config': workspace:^0.4.0
       '@babel/core': 7.16.0
       '@babel/preset-env': 7.16.4
       '@babel/register': 7.16.0
       '@babel/runtime': 7.16.3
+      '@wordpress/data': 6.1.4
+      '@wordpress/i18n': 4.2.4
       enzyme: 3.11.0
       jest: 27.3.1
       react: 17.0.2
@@ -593,6 +596,9 @@ importers:
       webpack: 5.64.1
     dependencies:
       '@automattic/jetpack-components': link:../../js-packages/components
+      '@automattic/jetpack-connection': link:../../js-packages/connection
+      '@wordpress/data': 6.1.4_react@17.0.2
+      '@wordpress/i18n': 4.2.4
     devDependencies:
       '@automattic/jetpack-base-styles': link:../../js-packages/base-styles
       '@automattic/jetpack-webpack-config': link:../../js-packages/webpack-config
@@ -972,7 +978,7 @@ importers:
     dependencies:
       '@automattic/calypso-color-schemes': 2.1.1
       '@automattic/components': 1.0.0-alpha.3_react-dom@17.0.2+react@17.0.2
-      '@automattic/format-currency': 1.0.0-alpha.0
+      '@automattic/format-currency': 1.0.0-alpha.0_react@17.0.2
       '@automattic/jetpack-analytics': link:../../js-packages/analytics
       '@automattic/jetpack-api': link:../../js-packages/api
       '@automattic/jetpack-components': link:../../js-packages/components
@@ -1321,16 +1327,17 @@ packages:
       react-modal: 3.14.3_react-dom@17.0.2+react@17.0.2
     dev: false
 
-  /@automattic/format-currency/1.0.0-alpha.0:
+  /@automattic/format-currency/1.0.0-alpha.0_react@17.0.2:
     resolution: {integrity: sha512-Y5An5nsNtskdLN3mbh5UWKvsS3C5PHbOcBU5D58dmjc96z5WAa99gSNYkN87FjqrJKGM4J2JhE5d1gIadYU++A==}
     dependencies:
-      i18n-calypso: 4.1.0
+      i18n-calypso: 5.0.0_react@17.0.2
     transitivePeerDependencies:
       - '@types/react'
+      - react
       - supports-color
     dev: false
 
-  /@automattic/interpolate-components/1.2.0_react@16.14.0:
+  /@automattic/interpolate-components/1.2.0_react@17.0.2:
     resolution: {integrity: sha512-qpprRrFddOnGEgLy74Eyno0tz9sHyTE+6grtKuTsasjOnfzzNlKv57sFlJU/1WlfQ7kDncRgaxM1iH247EBfyQ==}
     peerDependencies:
       '@types/react': '>=16.1.0'
@@ -1339,7 +1346,7 @@ packages:
       '@types/react':
         optional: true
     dependencies:
-      react: 16.14.0
+      react: 17.0.2
     dev: false
 
   /@automattic/popup-monitor/1.0.0:
@@ -7518,26 +7525,6 @@ packages:
       - redux
     dev: false
 
-  /@wordpress/compose/3.25.3_react@16.14.0:
-    resolution: {integrity: sha512-tCO2EnJCkCH548OqA0uU8V1k/1skz2QwBlHs8ZQSpimqUS4OWWsAlndCEFe4U4vDTqFt2ow7tzAir+05Cw8MAg==}
-    dependencies:
-      '@babel/runtime': 7.16.3
-      '@wordpress/deprecated': 2.12.3
-      '@wordpress/dom': 2.18.0
-      '@wordpress/element': 2.20.3
-      '@wordpress/is-shallow-equal': 3.1.3
-      '@wordpress/keycodes': 2.19.3
-      '@wordpress/priority-queue': 1.11.2
-      clipboard: 2.0.8
-      lodash: 4.17.21
-      memize: 1.1.0
-      mousetrap: 1.6.5
-      react-resize-aware: 3.1.1_react@16.14.0
-      use-memo-one: 1.1.2_react@16.14.0
-    transitivePeerDependencies:
-      - react
-    dev: false
-
   /@wordpress/compose/3.25.3_react@17.0.2:
     resolution: {integrity: sha512-tCO2EnJCkCH548OqA0uU8V1k/1skz2QwBlHs8ZQSpimqUS4OWWsAlndCEFe4U4vDTqFt2ow7tzAir+05Cw8MAg==}
     dependencies:
@@ -7818,7 +7805,7 @@ packages:
       webpack: ^4.8.3 || ^5.0.0
     dependencies:
       json2php: 0.0.4
-      webpack: 5.64.1_webpack-cli@4.8.0
+      webpack: 5.64.1
       webpack-sources: 2.3.1
 
   /@wordpress/deprecated/2.12.3:
@@ -14278,20 +14265,23 @@ packages:
       which-pm-runs: 1.0.0
     dev: true
 
-  /i18n-calypso/4.1.0:
-    resolution: {integrity: sha512-ynS9sLdpN0TgZ2Zb3GI1psI06yrvV6u/7EOiJDySEgUDmugbUmy9TgAmFnLo0vNWyGEcBtji1zRk5ZJuNiXmhQ==}
+  /i18n-calypso/5.0.0_react@17.0.2:
+    resolution: {integrity: sha512-YgqLgshNiBOiifWxr4s33ODWQ4JIaHoBPWtgFyqcRy0+WGMX2CmTDbXaeZHkHxuIjzsGP+YrVTPNp7lfbiot4g==}
+    peerDependencies:
+      react: ^16.8
     dependencies:
+      '@babel/runtime': 7.16.3
       '@tannin/sprintf': 1.2.0
-      '@wordpress/compose': 3.25.3_react@16.14.0
+      '@wordpress/compose': 3.25.3_react@17.0.2
       debug: 4.3.2
       events: 3.3.0
       hash.js: 1.1.7
-      interpolate-components: /@automattic/interpolate-components/1.2.0_react@16.14.0
+      interpolate-components: /@automattic/interpolate-components/1.2.0_react@17.0.2
       lodash: 4.17.21
       lru: 3.1.0
-      react: 16.14.0
+      react: 17.0.2
       tannin: 1.2.0
-      use-subscription: 1.5.1_react@16.14.0
+      use-subscription: 1.5.1_react@17.0.2
     transitivePeerDependencies:
       - '@types/react'
       - supports-color
@@ -22270,13 +22260,13 @@ packages:
     dependencies:
       react: 17.0.2
 
-  /use-subscription/1.5.1_react@16.14.0:
+  /use-subscription/1.5.1_react@17.0.2:
     resolution: {integrity: sha512-Xv2a1P/yReAjAbhylMfFplFKj9GssgTwN7RlcTxBujFQcloStWNDQdc4g4NRWH9xS4i/FDk04vQBptAXoF3VcA==}
     peerDependencies:
       react: ^16.8.0 || ^17.0.0
     dependencies:
       object-assign: 4.1.1
-      react: 16.14.0
+      react: 17.0.2
     dev: false
 
   /use/3.1.1:

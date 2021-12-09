@@ -138,4 +138,37 @@ class Admin_Menu {
 		return 'jetpack_page_' . $menu_slug;
 	}
 
+	/**
+	 * Gets the slug for the first item under the Jetpack top level menu
+	 *
+	 * @return string|null
+	 */
+	public static function get_top_level_menu_item_slug() {
+		global $submenu;
+		if ( ! empty( $submenu['jetpack'] ) ) {
+			$item = reset( $submenu['jetpack'] );
+			if ( isset( $item[2] ) ) {
+				return $item[2];
+			}
+		}
+	}
+
+	/**
+	 * Gets the URL for the first item under the Jetpack top level menu
+	 *
+	 * @param string $fallback If Jetpack menu is not there or no children is found, return this fallback instead. Default to admin_url().
+	 * @return string
+	 */
+	public static function get_top_level_menu_item_url( $fallback = false ) {
+		$slug = self::get_top_level_menu_item_slug();
+
+		if ( $slug ) {
+			$url = menu_page_url( $slug, false );
+			return $url;
+		}
+
+		$url = $fallback ? $fallback : admin_url();
+		return $url;
+	}
+
 }
