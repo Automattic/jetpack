@@ -3,18 +3,18 @@
  */
 import React, { useEffect, useState, useCallback } from 'react';
 import PropTypes from 'prop-types';
-import { __ } from '@wordpress/i18n';
 import analytics from '@automattic/jetpack-analytics';
 import restApi from '@automattic/jetpack-api';
-import { JetpackLogo } from '@automattic/jetpack-components';
 
 /**
  * Internal dependencies
  */
-import ScreenMain from './screen-main';
-import ScreenMigrated from './screen-migrated';
+import IDCScreenVisual from './visual';
 import trackAndBumpMCStats from '../../tools/tracking';
-import './style.scss';
+import useMigration from '../../hooks/use-migration';
+import useMigrationFinished from '../../hooks/use-migration-finished';
+import useStartFresh from '../../hooks/use-start-fresh';
+import customContentShape from '../../tools/custom-content-shape';
 
 /**
  * The IDC screen component.
@@ -25,7 +25,7 @@ import './style.scss';
 const IDCScreen = props => {
 	const {
 		logo,
-		headerText,
+		customContent,
 		wpcomHomeUrl,
 		currentUrl,
 		apiNonce,
@@ -37,9 +37,14 @@ const IDCScreen = props => {
 
 	const [ isMigrated, setIsMigrated ] = useState( false );
 
-	const onMigrated = useCallback( () => {
-		setIsMigrated( true );
-	}, [ setIsMigrated ] );
+	const { isMigrating, migrateCallback } = useMigration(
+		useCallback( () => {
+			setIsMigrated( true );
+		}, [ setIsMigrated ] )
+	);
+
+	const { isStartingFresh, startFreshCallback } = useStartFresh( redirectUri );
+	const { isFinishingMigration, finishMigrationCallback } = useMigrationFinished();
 
 	/**
 	 * Initialize the REST API and analytics.
@@ -70,31 +75,28 @@ const IDCScreen = props => {
 	}, [ apiRoot, apiNonce, tracksUserData, tracksEventData ] );
 
 	return (
-		<div className={ 'jp-idc__idc-screen' + ( isMigrated ? ' jp-idc__idc-screen__success' : '' ) }>
-			<div className="jp-idc__idc-screen__header">
-				<div className="jp-idc__idc-screen__logo">{ logo }</div>
-				<div className="jp-idc__idc-screen__logo-label">{ headerText }</div>
-			</div>
-
-			{ isMigrated ? (
-				<ScreenMigrated wpcomHomeUrl={ wpcomHomeUrl } currentUrl={ currentUrl } />
-			) : (
-				<ScreenMain
-					wpcomHomeUrl={ wpcomHomeUrl }
-					currentUrl={ currentUrl }
-					onMigrated={ onMigrated }
-					redirectUri={ redirectUri }
-				/>
-			) }
-		</div>
+		<IDCScreenVisual
+			logo={ logo }
+			customContent={ customContent }
+			wpcomHomeUrl={ wpcomHomeUrl }
+			currentUrl={ currentUrl }
+			redirectUri={ redirectUri }
+			isMigrating={ isMigrating }
+			migrateCallback={ migrateCallback }
+			isMigrated={ isMigrated }
+			finishMigrationCallback={ finishMigrationCallback }
+			isFinishingMigration={ isFinishingMigration }
+			isStartingFresh={ isStartingFresh }
+			startFreshCallback={ startFreshCallback }
+		/>
 	);
 };
 
 IDCScreen.propTypes = {
 	/** The screen logo. */
-	logo: PropTypes.object.isRequired,
-	/** The header text. */
-	headerText: PropTypes.string.isRequired,
+	logo: PropTypes.object,
+	/** Custom text content. */
+	customContent: PropTypes.shape( customContentShape ),
 	/** The original site URL. */
 	wpcomHomeUrl: PropTypes.string.isRequired,
 	/** The current site URL. */
@@ -112,8 +114,7 @@ IDCScreen.propTypes = {
 };
 
 IDCScreen.defaultProps = {
-	logo: <JetpackLogo height={ 24 } />,
-	headerText: __( 'Safe Mode', 'jetpack' ),
+	customContent: {},
 };
 
 export default IDCScreen;

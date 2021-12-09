@@ -52,10 +52,10 @@ if ( ! class_exists( 'Jetpack_Contact_Info_Widget' ) ) {
 		}
 
 		/**
-		 * Remove "Contact info and Map" widget from Legacy Widget block.
+		 * Remove the "Contact info and Map" widget from the Legacy Widget block
 		 *
-		 * @param array $widget_types Widget type data.
-		 * This only applies to new blocks being added.
+		 * @param array $widget_types List of widgets that are currently removed from the Legacy Widget block.
+		 * @return array $widget_types New list of widgets that will be removed.
 		 */
 		public function hide_widget_in_block_editor( $widget_types ) {
 			$widget_types[] = 'widget_contact_info';

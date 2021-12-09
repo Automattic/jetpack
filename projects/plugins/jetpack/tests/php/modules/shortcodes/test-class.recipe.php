@@ -47,7 +47,7 @@ class WP_Test_Jetpack_Shortcodes_Recipe extends WP_UnitTestCase {
 	public function test_add_scripts() {
 		global $posts;
 
-		$post = new stdClass();
+		$post               = new stdClass();
 		$post->post_content = '[recipe]';
 		$posts              = array( $post );
 		$this->instance->add_scripts();
@@ -66,7 +66,7 @@ class WP_Test_Jetpack_Shortcodes_Recipe extends WP_UnitTestCase {
 		global $posts;
 
 		add_filter( 'jetpack_is_amp_request', '__return_true' );
-		$post = new stdClass();
+		$post               = new stdClass();
 		$post->post_content = '[recipe]';
 		$posts              = array( $post );
 		$this->instance->add_scripts();

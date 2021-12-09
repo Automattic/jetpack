@@ -51,7 +51,8 @@ class Utils {
 				. '->' . self::maybe_stringify( $node->name->name );
 		} elseif ( $node instanceof Node\Expr\ArrayDimFetch ) {
 
-			$dim_val = '';
+			$dim_val = null;
+			$var_val = null;
 			if ( $node->dim instanceof Node\Expr\Variable ) {
 				$dim_val = '[$' . self::maybe_stringify( $node->dim->name ) . ']';
 			} elseif ( $node->dim instanceof Node\Expr\PropertyFetch ) {
@@ -61,7 +62,19 @@ class Utils {
 			} else {
 				$dim_val = '[' . self::maybe_stringify( $node->dim->value ) . ']';
 			}
-			$class_name = '$' . self::maybe_stringify( $node->var->name ) . $dim_val;
+			if ( $node->var instanceof Node\Expr\ArrayDimFetch ) {
+				$var_val = self::maybe_stringify( $node->var->var->name );
+
+				if ( $node->var->dim instanceof Node\Expr\Variable ) {
+					$var_val = $var_val . '[$' . self::maybe_stringify( $node->var->dim->name ) . ']';
+				} else {
+					$var_val = $var_val . '["' . self::maybe_stringify( $node->var->dim->value ) . '"]';
+				}
+			} else {
+				$var_val = self::maybe_stringify( $node->var->name );
+			}
+
+			$class_name = '$' . $var_val . $dim_val;
 		} else {
 			if ( method_exists( $node, 'toCodeString' ) ) {
 				$class_name = $node->toCodeString();
