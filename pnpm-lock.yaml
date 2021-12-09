@@ -223,12 +223,10 @@ importers:
       debug: ^4.3.2
       jest: 27.3.1
       md5-es: ^1.8.2
-      schema-utils: ^3.1.1
       webpack: 5.64.1
     dependencies:
       debug: 4.3.2
       md5-es: 1.8.2
-      schema-utils: 3.1.1
     devDependencies:
       '@wordpress/dependency-extraction-webpack-plugin': 3.2.1_webpack@5.64.1
       '@wordpress/i18n': 4.2.4
@@ -320,11 +318,9 @@ importers:
     specifiers:
       debug: ^4.3.2
       jest: 27.3.1
-      schema-utils: 3.1.1
       webpack: 5.64.1
     dependencies:
       debug: 4.3.2
-      schema-utils: 3.1.1
     devDependencies:
       jest: 27.3.1
       webpack: 5.64.1
@@ -430,7 +426,6 @@ importers:
       css-minimizer-webpack-plugin: 3.1.4
       duplicate-package-checker-webpack-plugin: 3.0.0
       mini-css-extract-plugin: 2.4.5
-      schema-utils: 3.1.1
       terser-webpack-plugin: 5.2.5
       thread-loader: 3.0.4
       webpack: 5.64.1
@@ -453,7 +448,6 @@ importers:
       css-minimizer-webpack-plugin: 3.1.4_webpack@5.64.1
       duplicate-package-checker-webpack-plugin: 3.0.0
       mini-css-extract-plugin: 2.4.5_webpack@5.64.1
-      schema-utils: 3.1.1
       terser-webpack-plugin: 5.2.5_webpack@5.64.1
       thread-loader: 3.0.4_webpack@5.64.1
     devDependencies:

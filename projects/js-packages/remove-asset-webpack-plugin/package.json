@@ -17,8 +17,7 @@
 		"test-coverage": "jest tests --coverage --collectCoverageFrom='src/**/*.js' --coverageDirectory=\"$COVERAGE_DIR\" --coverageReporters=clover"
 	},
 	"dependencies": {
-		"debug": "^4.3.2",
-		"schema-utils": "3.1.1"
+		"debug": "^4.3.2"
 	},
 	"devDependencies": {
 		"jest": "27.3.1",
