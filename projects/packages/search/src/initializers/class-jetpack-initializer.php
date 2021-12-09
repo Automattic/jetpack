@@ -8,8 +8,7 @@
 namespace Automattic\Jetpack\Search;
 
 /**
- * Initializer for the main Jetpack plugin.
- * Instantiate this initializer to enable Jetpack Search functionality.
+ * Initializer for the main Jetpack plugin. Instantiate to enable Jetpack Search functionality.
  */
 class Jetpack_Initializer extends Initializer {
 	/**

@@ -738,7 +738,8 @@ class Classic_Search {
 	 * @module search
 	 */
 	public function action__widgets_init() {
-		// TODO: Migrate this to WPCOM! This class doesn't exist in the package.
+		// NOTE: This module only exists on WPCOM.
+		// TODO: Migrate this function to WPCOM!
 		require_once __DIR__ . '/class.jetpack-search-widget-filters.php';
 
 		register_widget( 'Jetpack_Search_Widget_Filters' );

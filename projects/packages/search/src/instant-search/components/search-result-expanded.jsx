@@ -15,7 +15,7 @@ import './search-result-expanded.scss';
 /**
  * Functional component for expanded search results.
  *
- * @param {object} props - Comenont props
+ * @param {object} props - Component properties.
  * @returns {Element} - Expanded search result component.
  */
 export default function SearchResultExpanded( props ) {

@@ -19,7 +19,7 @@ function extractHexCode( input ) {
 }
 
 /**
- * Generates a constrasting color given a string input with a color hex code.
+ * Generates a constrasting color hex code given a color hex code.
  *
  * @param {string} input - String containing a hex color code.
  * @returns {string} - Hex code for a contrasting color.
