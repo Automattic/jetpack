@@ -444,6 +444,8 @@ class WP_Test_WPCOM_REST_API_V2_Endpoint_Admin_Menu extends WP_Test_Jetpack_REST
 	 * @return \string[][]
 	 */
 	public function menu_item_url_data() {
+		$plugin_slug = defined( 'IS_WPCOM' ) && IS_WPCOM ? 'akismet/akismet.png' : 'jetpack/jetpack.php';
+
 		return array(
 			// Calypso URL.
 			array(
@@ -524,6 +526,12 @@ class WP_Test_WPCOM_REST_API_V2_Endpoint_Admin_Menu extends WP_Test_Jetpack_REST
 				'',
 				null,
 				'',
+			),
+			array(
+				$plugin_slug,
+				'',
+				null,
+				admin_url( 'admin.php?page=' . $plugin_slug ),
 			),
 		);
 	}
