@@ -220,7 +220,7 @@ export async function ensurePluginsState( plugins ) {
 	}
 }
 
-export async function activatePlugins( pluginsList ) {
+async function activatePlugins( pluginsList ) {
 	const activatedPlugins = [];
 	for ( const plugin of pluginsList ) {
 		logger.prerequisites( `Activating plugin ${ plugin }` );
@@ -236,7 +236,7 @@ export async function activatePlugins( pluginsList ) {
 	assert.equal( pluginsList.length, activatedPlugins.length );
 }
 
-export async function deactivatePlugins( pluginsList ) {
+async function deactivatePlugins( pluginsList ) {
 	const deactivatedPlugins = [];
 	for ( const plugin of pluginsList ) {
 		logger.prerequisites( `Deactivating module ${ plugin }` );
