@@ -78,6 +78,7 @@ class Critical_CSS extends Module {
 		$this->recommendation = new Recommendations();
 		$this->recommendation->on_prepare();
 
+
 	}
 
 	/**
@@ -93,26 +94,31 @@ class Critical_CSS extends Module {
 		$this->storage   = new Critical_CSS_Storage();
 		$this->generator = new Generator( $this->providers );
 
-		$this->rest_api = new REST_API( $this->storage, $this->recommendation, $this->generator, $this->providers );
 
+		// Critically Bad: Start
+		$this->rest_api = new REST_API( $this->storage, $this->recommendation, $this->generator, $this->providers );
 		$this->rest_api->on_initialize();
+		// Critically Bad: End
 
 
 		// Update ready flag used to indicate Boost optimizations are warmed up in metatag.
 		add_filter( 'jetpack_boost_url_ready', array( $this, 'is_ready_filter' ), 10, 1 );
 
+		// Critically Bad: Start
 		if ( ! is_admin() ) {
 			$critical_css = $this;
 			add_action( 'wp', function() use ( $critical_css ) {
 				Display_Critical_CSS::please( $critical_css->get_critical_css() );
 			} );
 		}
+		// Critically Bad: End
 
 
 		if ( Generator::is_generating_critical_css() ) {
 			add_action( 'wp_head', array( $this, 'display_generate_meta' ), 0 );
 			$this->force_logged_out_render();
 		}
+		// Critically Bad: End
 
 		add_action( 'handle_theme_change', array( $this, 'clear_critical_css' ) );
 		add_action( 'jetpack_boost_clear_cache', array( $this, 'clear_critical_css' ) );
