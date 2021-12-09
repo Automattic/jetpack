@@ -10,7 +10,7 @@ test.describe.serial( 'Settings Page Connection', () => {
 		await prerequisitesBuilder().withConnection( true ).build();
 		await boostPrerequisitesBuilder().withConnection( false ).build();
 		const jetpackBoostPage = await JetpackBoostPage.visit( page );
-		expect( await jetpackBoostPage.isFreshlyConnected() ).toEqual( true );
+		expect( await jetpackBoostPage.isFreshlyConnected() ).toBeTruthy();
 	} );
 
 	test( 'Should connect to WP.com on a fresh install with Jetpack plugin activated', async ( {
@@ -18,7 +18,7 @@ test.describe.serial( 'Settings Page Connection', () => {
 	} ) => {
 		await boostPrerequisitesBuilder( page ).withCleanEnv( true ).withConnection( false ).build();
 		const jetpackBoostPage = await JetpackBoostPage.visit( page );
-		expect( await jetpackBoostPage.isFreshlyConnected() ).toEqual( true );
+		expect( await jetpackBoostPage.isFreshlyConnected() ).toBeTruthy();
 	} );
 
 	test( 'Should connect to WP.com on a fresh install without Jetpack plugin activated', async ( {
@@ -27,6 +27,6 @@ test.describe.serial( 'Settings Page Connection', () => {
 		await prerequisitesBuilder().withInactivePlugins( [ 'jetpack' ] ).build();
 		await boostPrerequisitesBuilder( page ).withCleanEnv( true ).withConnection( false ).build();
 		const jetpackBoostPage = await JetpackBoostPage.visit( page );
-		expect( await jetpackBoostPage.isFreshlyConnected() ).toEqual( true );
+		expect( await jetpackBoostPage.isFreshlyConnected() ).toBeTruthy();
 	} );
 } );
