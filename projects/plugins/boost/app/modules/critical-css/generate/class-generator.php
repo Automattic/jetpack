@@ -24,7 +24,6 @@ class Generator {
 
 	public $state;
 
-
 	public function __construct( $providers ) {
 		$this->state     = new Critical_CSS_State();
 		$this->providers = $providers;
@@ -158,6 +157,45 @@ class Generator {
 	}
 	// phpcs:enable WordPress.Security.NonceVerification.Recommended
 
+	/**
+	 * AJAX handler to handle proxying of external CSS resources.
+	 */
+	public function handle_css_proxy() {
+		// Verify valid nonce.
+		if ( empty( $_POST['nonce'] ) || ! wp_verify_nonce( sanitize_key( $_POST['nonce'] ), self::GENERATE_PROXY_NONCE ) ) {
+			wp_die( '', 400 );
+		}
+
+		// Make sure currently logged in as admin.
+		if ( ! current_user_can( 'manage_options')) {
+			wp_die( '', 400 );
+		}
+
+		// Reject any request made when not generating.
+		if ( ! $this->state->is_pending() ) {
+			wp_die( '', 400 );
+		}
+
+		// Validate URL and fetch.
+		$proxy_url = filter_var( wp_unslash( $_POST['proxy_url'] ), FILTER_VALIDATE_URL );
+		if ( ! wp_http_validate_url( $proxy_url ) ) {
+			die( 'Invalid URL' );
+		}
+
+		$response = wp_remote_get( $proxy_url );
+		if ( is_wp_error( $response ) ) {
+			// TODO: Nicer error handling.
+			die( 'error' );
+		}
+
+		header( 'Content-type: text/css' );
+
+		// Outputting proxied CSS contents unescaped.
+		// phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
+		echo wp_strip_all_tags( $response['body'] );
+
+		die();
+	}
 
 
 }
