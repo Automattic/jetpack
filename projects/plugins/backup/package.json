@@ -19,7 +19,7 @@
 		"build-production-concurrently": "pnpm run clean-all && pnpm run install-if-deps-outdated && pnpx concurrently 'pnpm:build-production-php' 'NODE_ENV=production BABEL_ENV=production pnpm run build-client' && pnpm run validate",
 		"build-production-php": "COMPOSER_MIRROR_PATH_REPOS=1 COMPOSER_ROOT_VERSION=dev-master composer install -o --no-dev --classmap-authoritative --prefer-dist",
 		"clean": "rm -rf build/",
-		"clean-all": "rm -rf build/ node_modules/ vendor/",
+		"clean-all": "rm -rf build/ node_modules/ vendor/ jetpack_vendor/ ",
 		"install-if-deps-outdated": "pnpm install --no-prod --frozen-lockfile",
 		"validate": "pnpm exec validate-es build/",
 		"watch": "pnpm run build && pnpx webpack watch"
@@ -29,8 +29,8 @@
 	],
 	"dependencies": {
 		"@automattic/jetpack-api": "workspace:^0.8.0",
-		"@automattic/jetpack-components": "workspace:^0.7.0",
-		"@automattic/jetpack-connection": "workspace:^0.11.0",
+		"@automattic/jetpack-components": "workspace:^0.9.0-alpha",
+		"@automattic/jetpack-connection": "workspace:^0.11.3-alpha",
 		"@wordpress/api-fetch": "5.2.6",
 		"@wordpress/data": "6.1.4",
 		"@wordpress/element": "4.0.4",
@@ -40,7 +40,7 @@
 		"react-dom": "17.0.2"
 	},
 	"devDependencies": {
-		"@automattic/jetpack-base-styles": "workspace:^0.1.0",
+		"@automattic/jetpack-base-styles": "workspace:^0.1.2-alpha",
 		"@automattic/jetpack-webpack-config": "workspace:^0.4.0",
 		"@babel/core": "7.16.0",
 		"@babel/preset-env": "7.16.4",

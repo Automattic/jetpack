@@ -25,6 +25,16 @@
 	display: none;
 }
 
+.seekbar-color-settings__panel {
+	.components-panel__body.is-opened {
+		padding: 0;
+	}
+
+	.components-panel__body {
+		border-top: none;
+	}
+}
+
 .videopress-block-tracks-editor > .components-popover__content {
 	width: 360px;
 }

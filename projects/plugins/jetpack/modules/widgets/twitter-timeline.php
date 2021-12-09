@@ -41,6 +41,18 @@ class Jetpack_Twitter_Timeline_Widget extends WP_Widget {
 		}
 
 		add_action( 'admin_enqueue_scripts', array( $this, 'admin_scripts' ) );
+		add_filter( 'widget_types_to_hide_from_legacy_widget_block', array( $this, 'hide_widget_in_block_editor' ) );
+	}
+
+	/**
+	 * Remove the "Twitter Timeline" widget from the Legacy Widget block
+	 *
+	 * @param array $widget_types List of widgets that are currently removed from the Legacy Widget block.
+	 * @return array $widget_types New list of widgets that will be removed.
+	 */
+	public function hide_widget_in_block_editor( $widget_types ) {
+		$widget_types[] = 'twitter_timeline';
+		return $widget_types;
 	}
 
 	/**
