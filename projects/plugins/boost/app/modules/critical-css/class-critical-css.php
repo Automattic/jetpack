@@ -10,6 +10,7 @@
 namespace Automattic\Jetpack_Boost\Modules\Critical_CSS;
 
 use Automattic\Jetpack_Boost\Lib\Nonce;
+use Automattic\Jetpack_Boost\Modules\Critical_CSS\Generate\Generator;
 use Automattic\Jetpack_Boost\Modules\Critical_CSS\Providers\Archive_Provider;
 use Automattic\Jetpack_Boost\Modules\Critical_CSS\Providers\Post_ID_Provider;
 use Automattic\Jetpack_Boost\Modules\Critical_CSS\Providers\Provider;
@@ -24,8 +25,6 @@ use Automattic\Jetpack_Boost\Modules\Module;
 class Critical_CSS extends Module {
 
 	const MODULE_SLUG              = 'critical-css';
-	const GENERATE_QUERY_ACTION    = 'jb-generate-critical-css';
-	const GENERATE_PROXY_NONCE     = 'jb-generate-proxy-nonce';
 	const CSS_CALLBACK_ACTION      = 'jb-critical-css-callback';
 	const RESET_REASON_STORAGE_KEY = 'jb-generate-critical-css-reset-reason';
 
@@ -50,17 +49,6 @@ class Critical_CSS extends Module {
 		),
 	);
 
-	/**
-	 * Provider keys which are present in "core" WordPress. If any of these fail to generate,
-	 * the whole process should be considered broken.
-	 */
-	const CORE_PROVIDER_KEYS = array(
-		'core_front_page',
-		'core_posts_page',
-		'singular_page',
-		'singular_post',
-		'singular_product',
-	);
 
 	/**
 	 * List of all the Critical CSS Types.
@@ -109,6 +97,12 @@ class Critical_CSS extends Module {
 
 	protected $recommendation;
 
+
+	/**
+	 * @var Generator $generator
+	 */
+	protected $generator;
+
 	/**
 	 * Prepare module. This is run irrespective of the module activation status.
 	 */
@@ -127,11 +121,9 @@ class Critical_CSS extends Module {
 		// This should instantiate a new Post_Type_Storage class,
 		// so that Critical_CSS class is responsible
 		// for setting up the storage.
-		$this->storage = new Critical_CSS_Storage();
-		$this->state   = new Critical_CSS_State();
-		if ( $this->state->is_empty() && ! wp_doing_ajax() && ! wp_doing_cron() ) {
-			$this->state->create_request( $this->providers );
-		}
+		$this->storage   = new Critical_CSS_Storage();
+		$this->generator = new Generator( $this->providers );
+
 
 		// Update ready flag used to indicate Boost optimizations are warmed up in metatag.
 		add_filter( 'jetpack_boost_url_ready', array( $this, 'is_ready_filter' ), 10, 1 );
@@ -144,7 +136,7 @@ class Critical_CSS extends Module {
 			add_action( 'wp_footer', array( $this, 'onload_flip_stylesheets' ) );
 		}
 
-		if ( $this->is_generating_critical_css() ) {
+		if ( $this->generator->is_generating_critical_css() ) {
 			add_action( 'wp_head', array( $this, 'display_generate_meta' ), 0 );
 			$this->force_logged_out_render();
 		}
@@ -155,7 +147,6 @@ class Critical_CSS extends Module {
 
 		if ( is_admin() ) {
 			$this->recommendation->on_initialize();
-			add_action( 'wp_ajax_boost_proxy_css', array( $this, 'handle_css_proxy' ) );
 		}
 
 		return true;
@@ -168,239 +159,8 @@ class Critical_CSS extends Module {
 		self::clear_reset_reason();
 	}
 
-	/**
-	 * Register the Critical CSS related REST routes.
-	 *
-	 * @return bool
-	 */
-	public function register_rest_routes() {
-		/**
-		 * Store and retrieve critical css status.
-		 */
-		register_rest_route(
-			JETPACK_BOOST_REST_NAMESPACE,
-			JETPACK_BOOST_REST_PREFIX . '/critical-css/status',
-			array(
-				array(
-					'methods'             => \WP_REST_Server::READABLE,
-					'callback'            => array( $this, 'api_get_critical_css_status' ),
-					'permission_callback' => array( $this, 'current_user_can_modify_critical_css' ),
-				),
-			)
-		);
 
-		// Register Critical CSS generate route.
-		register_rest_route(
-			JETPACK_BOOST_REST_NAMESPACE,
-			JETPACK_BOOST_REST_PREFIX . '/critical-css/request-generate',
-			array(
-				'methods'             => \WP_REST_Server::EDITABLE,
-				'callback'            => array( $this, 'critical_css_request_generate_handler' ),
-				'permission_callback' => array( $this, 'current_user_can_modify_critical_css' ),
-			)
-		);
 
-		// Register Critical CSS success callback route.
-		register_rest_route(
-			JETPACK_BOOST_REST_NAMESPACE,
-			JETPACK_BOOST_REST_PREFIX . '/critical-css/(?P<cacheKey>.+)/success',
-			array(
-				'methods'             => \WP_REST_Server::EDITABLE,
-				'callback'            => array( $this, 'generate_success_handler' ),
-				'permission_callback' => '__return_true',
-			)
-		);
-
-		// Register Critical CSS error callback route.
-		register_rest_route(
-			JETPACK_BOOST_REST_NAMESPACE,
-			JETPACK_BOOST_REST_PREFIX . '/critical-css/(?P<cacheKey>.+)/error',
-			array(
-				'methods'             => \WP_REST_Server::EDITABLE,
-				'callback'            => array( $this, 'generate_error_handler' ),
-				'permission_callback' => '__return_true',
-			)
-		);
-
-		return true;
-	}
-
-	/**
-	 * Handler for PUT '/critical-css/(?P<cacheKey>.+)/success'.
-	 *
-	 * @param \WP_REST_Request $request The request object.
-	 *
-	 * @return \WP_REST_Response|\WP_Error The response.
-	 * @todo: Figure out what to do in the JavaScript when responding with the error status.
-	 */
-	public function generate_success_handler( $request ) {
-		$this->ensure_module_initialized();
-
-		$cache_key = $request['cacheKey'];
-
-		if ( ! $cache_key ) {
-			// Set status to error, because the data is invalid.
-			return rest_ensure_response(
-				array(
-					'status' => 'error',
-					'code'   => 'missing_cache_key',
-				)
-			);
-		}
-
-		$params = $request->get_params();
-
-		if ( empty( $params['passthrough'] ) || empty( $params['passthrough']['_nonce'] ) ) {
-			return rest_ensure_response(
-				array(
-					'status' => 'error',
-					'code'   => 'missing_nonce',
-				)
-			);
-		}
-
-		$cache_key_nonce = $params['passthrough']['_nonce'];
-
-		if ( ! Nonce::verify( $cache_key_nonce, self::CSS_CALLBACK_ACTION ) ) {
-			return rest_ensure_response(
-				array(
-					'status' => 'error',
-					'code'   => 'invalid_nonce',
-				)
-			);
-		}
-
-		if ( ! isset( $params['data'] ) ) {
-			// Set status to error, because the data is invalid.
-			return rest_ensure_response(
-				array(
-					'status' => 'error',
-					'code'   => 'invalid_data',
-				)
-			);
-		}
-
-		$this->storage->store_css( $cache_key, $params['data'] );
-		$this->state->set_source_success( $cache_key );
-		$this->recommendation->clear();
-		self::clear_reset_reason();
-
-		// Set status to success to indicate the critical CSS data has been stored on the server.
-		return rest_ensure_response(
-			array(
-				'status'        => 'success',
-				'code'          => 'processed',
-				'status_update' => $this->get_critical_css_status(),
-			)
-		);
-	}
-
-	/**
-	 * Handler for PUT '/critical-css/(?P<cacheKey>.+)/error'.
-	 *
-	 * @param \WP_REST_Request $request The request object.
-	 *
-	 * @return \WP_REST_Response|\WP_Error The response.
-	 * @todo: Figure out what to do in the JavaScript when responding with the error status.
-	 */
-	public function generate_error_handler( $request ) {
-		$this->ensure_module_initialized();
-
-		$cache_key = $request['cacheKey'];
-		$params    = $request->get_params();
-
-		if ( empty( $params['passthrough'] ) || empty( $params['passthrough']['_nonce'] ) ) {
-			return rest_ensure_response(
-				array(
-					'status' => 'error',
-					'code'   => 'missing_nonce',
-				)
-			);
-		}
-
-		$cache_key_nonce = $params['passthrough']['_nonce'];
-
-		if ( ! Nonce::verify( $cache_key_nonce, self::CSS_CALLBACK_ACTION ) ) {
-			return rest_ensure_response(
-				array(
-					'status' => 'error',
-					'code'   => 'invalid_nonce',
-				)
-			);
-		}
-
-		if ( ! isset( $params['data'] ) ) {
-			// Set status to error, because the data is missing.
-			return rest_ensure_response(
-				array(
-					'status' => 'error',
-					'code'   => 'missing_data',
-				)
-			);
-		}
-
-		$data = $params['data'];
-
-		if ( ! isset( $data['show_stopper'] ) ) {
-			// Set status to error, because the data is invalid.
-			return rest_ensure_response(
-				array(
-					'status' => 'error',
-					'code'   => 'invalid_data',
-				)
-			);
-		}
-
-		// TODO: Log errors to a remote service.
-
-		if ( true === $data['show_stopper'] ) {
-			// TODO: Review it seems a bit cumbersome the validation of the data structure here.
-			if ( ! isset( $data['error'] ) ) {
-				// Set status to error, because the data is invalid.
-				return rest_ensure_response(
-					array(
-						'status' => 'error',
-						'code'   => 'invalid_data',
-					)
-				);
-			}
-
-			$this->state->set_as_failed( $data['error'] );
-			$this->storage->clear();
-		} else {
-			// TODO: Review it seems a bit cumbersome the validation of the data structure here.
-			if ( ! isset( $data['urls'] ) ) {
-				// Set status to error, because the data is invalid.
-				return rest_ensure_response(
-					array(
-						'status' => 'error',
-						'code'   => 'invalid_data',
-					)
-				);
-			}
-
-			// otherwise, store the error at the provider level, allowing the UI to display them with all details.
-			$this->state->set_source_error( $cache_key, $data['urls'] );
-		}
-
-		// Set status to success to indicate the critical CSS error has been stored on the server.
-		return rest_ensure_response(
-			array(
-				'status'        => 'success',
-				'code'          => 'processed',
-				'status_update' => $this->get_critical_css_status(),
-			)
-		);
-	}
-
-	/**
-	 * Check that user can modify Critical CSS.
-	 *
-	 * @return bool
-	 */
-	public function current_user_can_modify_critical_css() {
-		return $this->rest_is_module_available() && current_user_can( 'manage_options' );
-	}
 
 	/**
 	 * Get all critical CSS storage keys that are available for the current request.
@@ -409,8 +169,8 @@ class Critical_CSS extends Module {
 	 * @return array
 	 */
 	public function get_current_request_css_keys() {
-		static $keys = null;
-		if ( null !== $keys ) {
+		static $keys = NULL;
+		if ( NULL !== $keys ) {
 			return $keys;
 		}
 
@@ -432,45 +192,11 @@ class Critical_CSS extends Module {
 	 */
 	public function display_generate_meta() {
 		?>
-		<meta name="jb-generate-critical-css" content="true" />
+		<meta name="jb-generate-critical-css" content="true"/>
 		<?php
 	}
 
-	/**
-	 * Returns true if this pageload is generating Critical CSS, based on GET
-	 * parameters and headers.
-	 *
-	 * phpcs:disable WordPress.Security.NonceVerification.Recommended
-	 */
-	public function is_generating_critical_css() {
-		static $is_generating = null;
-		if ( null !== $is_generating ) {
-			return $is_generating;
-		}
 
-		// Accept nonce via HTTP headers or GET parameters.
-		$generate_nonce = null;
-		if ( ! empty( $_GET[ self::GENERATE_QUERY_ACTION ] ) ) {
-			$generate_nonce = sanitize_key(
-				$_GET[ self::GENERATE_QUERY_ACTION ]
-			);
-		} elseif ( ! empty( $_SERVER['HTTP_X_GENERATE_CRITICAL_CSS'] ) ) {
-			$generate_nonce = sanitize_key(
-				$_SERVER['HTTP_X_GENERATE_CRITICAL_CSS']
-			);
-		}
-
-		// If GET parameter or header set, we are trying to generate.
-		$is_generating = ! empty( $generate_nonce );
-
-		// Die if the nonce is invalid.
-		if ( $is_generating && ! Nonce::verify( $generate_nonce, self::GENERATE_QUERY_ACTION ) ) {
-			die();
-		}
-
-		return $is_generating;
-	}
-	// phpcs:enable WordPress.Security.NonceVerification.Recommended
 
 	/**
 	 * Add Critical CSS related constants to be passed to JavaScript only if the module is enabled.
@@ -492,16 +218,16 @@ class Critical_CSS extends Module {
 	 * such as in response to a request-generate API call or during page initialization.
 	 */
 	private function get_local_critical_css_generation_info() {
-		$status = $this->get_critical_css_status();
+		$status = $this->generator->get_critical_css_status();
 
 		// Add viewport sizes.
 		$status['viewports'] = self::VIEWPORT_SIZES;
 
 		// Add a userless nonce to use when requesting pages for Critical CSS generation (i.e.: To turn off admin features).
-		$status['generation_nonce'] = Nonce::create( self::GENERATE_QUERY_ACTION );
+		$status['generation_nonce'] = Nonce::create( Generator::GENERATE_QUERY_ACTION );
 
 		// Add a user-bound nonce to use when proxying CSS for Critical CSS generation.
-		$status['proxy_nonce'] = wp_create_nonce( self::GENERATE_PROXY_NONCE );
+		$status['proxy_nonce'] = wp_create_nonce( Generator::GENERATE_PROXY_NONCE );
 
 		// Add a passthrough block to include in all response callbacks.
 		$status['callback_passthrough'] = array(
@@ -511,85 +237,8 @@ class Critical_CSS extends Module {
 		return $status;
 	}
 
-	/**
-	 * Get Critical CSS status.
-	 */
-	public function get_critical_css_status() {
-		if ( $this->state->is_empty() ) {
-			return array( 'status' => Critical_CSS_State::NOT_GENERATED );
-		}
 
-		if ( $this->state->is_pending() ) {
-			return array(
-				'status'                 => Critical_CSS_State::REQUESTING,
-				'percent_complete'       => $this->state->get_percent_complete(),
-				'success_count'          => $this->state->get_providers_success_count(),
-				'pending_provider_keys'  => $this->state->get_provider_urls(),
-				'provider_success_ratio' => $this->state->get_provider_success_ratios(),
-			);
-		}
 
-		if ( $this->state->is_fatal_error() ) {
-			return array(
-				'status'       => Critical_CSS_State::FAIL,
-				'status_error' => $this->state->get_state_error(),
-			);
-		}
-
-		$providers_errors    = $this->state->get_providers_errors();
-		$provider_key_labels = array_combine(
-			array_keys( $providers_errors ),
-			array_map( array( $this, 'describe_provider_key' ), array_keys( $providers_errors ) )
-		);
-
-		return array(
-			'status'                => Critical_CSS_State::SUCCESS,
-			'success_count'         => $this->state->get_providers_success_count(),
-			'core_providers'        => self::CORE_PROVIDER_KEYS,
-			'core_providers_status' => $this->state->get_core_providers_status( self::CORE_PROVIDER_KEYS ),
-			'providers_errors'      => $providers_errors,
-			'provider_key_labels'   => $provider_key_labels,
-			'created'               => $this->state->get_created_time(),
-		);
-	}
-
-	/**
-	 * REST API endpoint to get local critical css status.
-	 *
-	 * @return \WP_Error|\WP_HTTP_Response|\WP_REST_Response
-	 */
-	public function api_get_critical_css_status() {
-		return rest_ensure_response( $this->get_critical_css_status() );
-	}
-
-	/**
-	 * Request generate Critical CSS.
-	 *
-	 * @param \WP_REST_Request $request The request object.
-	 *
-	 * @return \WP_Error|\WP_HTTP_Response|\WP_REST_Response
-	 */
-	public function critical_css_request_generate_handler( $request ) {
-		$reset = ! empty( $request['reset'] );
-
-		$this->ensure_module_initialized();
-
-		$cleared_critical_css_reason = \get_option( self::RESET_REASON_STORAGE_KEY );
-		if ( $reset || $cleared_critical_css_reason ) {
-			// Create a new Critical CSS Request block to track creation request.
-			$this->storage->clear();
-			$this->state->create_request( $this->providers );
-			$this->recommendation->clear();
-			self::clear_reset_reason();
-		}
-
-		return rest_ensure_response(
-			array(
-				'status'        => 'success',
-				'status_update' => $this->get_local_critical_css_generation_info(),
-			)
-		);
-	}
 
 	/**
 	 * Clear Critical CSS.
@@ -597,7 +246,7 @@ class Critical_CSS extends Module {
 	public function clear_critical_css() {
 		// Mass invalidate all cached values.
 		$this->storage->clear();
-		$this->state->reset();
+		$this->generator->state->reset();
 	}
 
 	/**
@@ -606,7 +255,7 @@ class Critical_CSS extends Module {
 	 * @return string|false
 	 */
 	public function get_critical_css() {
-		if ( null !== $this->request_cached_css ) {
+		if ( NULL !== $this->request_cached_css ) {
 			return $this->request_cached_css;
 		}
 
@@ -661,10 +310,10 @@ class Critical_CSS extends Module {
 		 * Stylesheet loading is instant and the process blocks the page rendering.
 		 *     Eg: add_filter( 'jetpack_boost_async_style', '__return_false' );
 		 *
-		 * @see onload_flip_stylesheets for how stylesheets loading is deferred.
-		 *
 		 * @param string $handle The style's registered handle.
 		 * @param string $media  The stylesheet's media attribute.
+		 *
+		 * @see   onload_flip_stylesheets for how stylesheets loading is deferred.
 		 *
 		 * @todo  Retrieve settings from database, either via auto-configuration or UI option.
 		 */
@@ -690,7 +339,7 @@ class Critical_CSS extends Module {
 	 */
 	public function should_display_critical_css() {
 		// Don't display Critical CSS when generating Critical CSS.
-		if ( $this->is_generating_critical_css() ) {
+		if ( $this->generator->is_generating_critical_css() ) {
 			return false;
 		}
 
@@ -765,45 +414,7 @@ class Critical_CSS extends Module {
 		}
 	}
 
-	/**
-	 * AJAX handler to handle proxying of external CSS resources.
-	 */
-	public function handle_css_proxy() {
-		// Verify valid nonce.
-		if ( empty( $_POST['nonce'] ) || ! wp_verify_nonce( sanitize_key( $_POST['nonce'] ), self::GENERATE_PROXY_NONCE ) ) {
-			wp_die( '', 400 );
-		}
 
-		// Make sure currently logged in as admin.
-		if ( ! $this->current_user_can_modify_critical_css() ) {
-			wp_die( '', 400 );
-		}
-
-		// Reject any request made when not generating.
-		if ( ! $this->state->is_pending() ) {
-			wp_die( '', 400 );
-		}
-
-		// Validate URL and fetch.
-		$proxy_url = filter_var( wp_unslash( $_POST['proxy_url'] ), FILTER_VALIDATE_URL );
-		if ( ! wp_http_validate_url( $proxy_url ) ) {
-			die( 'Invalid URL' );
-		}
-
-		$response = wp_remote_get( $proxy_url );
-		if ( is_wp_error( $response ) ) {
-			// TODO: Nicer error handling.
-			die( 'error' );
-		}
-
-		header( 'Content-type: text/css' );
-
-		// Outputting proxied CSS contents unescaped.
-		// phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
-		echo wp_strip_all_tags( $response['body'] );
-
-		die();
-	}
 
 	/**
 	 * API helper for ensuring this module is enabled before allowing an API
@@ -852,11 +463,11 @@ class Critical_CSS extends Module {
 
 		// Minified version of footer script. See above comment for unminified version.
 		?>
-		<script>window.addEventListener('load', function() {
-				document.querySelectorAll('link').forEach(function(e) {'not all' === e.media && e.dataset.media && (e.media=e.dataset.media,delete e.dataset.media)});
-				var e = document.getElementById('jetpack-boost-critical-css');
-				e && (e.media = 'not all');
-			});</script>
+		<script>window.addEventListener( 'load', function() {
+				document.querySelectorAll( 'link' ).forEach( function( e ) {'not all' === e.media && e.dataset.media && ( e.media = e.dataset.media, delete e.dataset.media );} );
+				var e = document.getElementById( 'jetpack-boost-critical-css' );
+				e && ( e.media = 'not all' );
+			} );</script>
 		<?php
 	}
 
@@ -869,7 +480,7 @@ class Critical_CSS extends Module {
 		$reason = \get_option( self::RESET_REASON_STORAGE_KEY );
 
 		if ( ! $reason ) {
-			return null;
+			return NULL;
 		}
 
 		return array( new Regenerate_Admin_Notice( $reason ) );
@@ -883,42 +494,279 @@ class Critical_CSS extends Module {
 	}
 
 	/**
-	 * Given a provider key, find the provider which owns the key. Returns false
-	 * if no Provider is found.
+	 * Request generate Critical CSS.
 	 *
-	 * @param string $provider_key Provider key.
+	 * @param \WP_REST_Request $request The request object.
 	 *
-	 * @return Provider|false|string
+	 * @return \WP_Error|\WP_HTTP_Response|\WP_REST_Response
 	 */
-	public function find_provider_for( $provider_key ) {
-		foreach ( $this->providers as $provider ) {
-			if ( $provider::owns_key( $provider_key ) ) {
-				return $provider;
-			}
+	public function critical_css_request_generate_handler( $request ) {
+		$reset = ! empty( $request['reset'] );
+
+		$this->ensure_module_initialized();
+
+		$cleared_critical_css_reason = \get_option( self::RESET_REASON_STORAGE_KEY );
+		if ( $reset || $cleared_critical_css_reason ) {
+			// Create a new Critical CSS Request block to track creation request.
+			$this->storage->clear();
+			$this->generator->state->create_request( $this->providers );
+			$this->recommendation->clear();
+			self::clear_reset_reason();
 		}
 
-		return false;
+		return rest_ensure_response(
+			array(
+				'status'        => 'success',
+				'status_update' => $this->get_local_critical_css_generation_info(),
+			)
+		);
 	}
 
 	/**
-	 * Returns a descriptive label for a provider key, or the raw provider key
-	 * if none found.
+	 * REST API endpoint to get local critical css status.
 	 *
-	 * @param string $provider_key Provider key.
-	 *
-	 * @return mixed
+	 * @return \WP_Error|\WP_HTTP_Response|\WP_REST_Response
 	 */
-	public function describe_provider_key( $provider_key ) {
-		$provider = $this->find_provider_for( $provider_key );
-		if ( ! $provider ) {
-			return $provider_key;
+	public function api_get_critical_css_status() {
+		return rest_ensure_response( $this->generator->get_critical_css_status() );
+	}
+
+	/**
+	 * Handler for PUT '/critical-css/(?P<cacheKey>.+)/error'.
+	 *
+	 * @param \WP_REST_Request $request The request object.
+	 *
+	 * @return \WP_REST_Response|\WP_Error The response.
+	 * @todo: Figure out what to do in the JavaScript when responding with the error status.
+	 */
+	public function generate_error_handler( $request ) {
+		$this->ensure_module_initialized();
+
+		$cache_key = $request['cacheKey'];
+		$params    = $request->get_params();
+
+		if ( empty( $params['passthrough'] ) || empty( $params['passthrough']['_nonce'] ) ) {
+			return rest_ensure_response(
+				array(
+					'status' => 'error',
+					'code'   => 'missing_nonce',
+				)
+			);
 		}
 
-		/**
-		 * Provider key.
-		 *
-		 * @param string $provider_key
-		 */
-		return $provider::describe_key( $provider_key );
+		$cache_key_nonce = $params['passthrough']['_nonce'];
+
+		if ( ! Nonce::verify( $cache_key_nonce, self::CSS_CALLBACK_ACTION ) ) {
+			return rest_ensure_response(
+				array(
+					'status' => 'error',
+					'code'   => 'invalid_nonce',
+				)
+			);
+		}
+
+		if ( ! isset( $params['data'] ) ) {
+			// Set status to error, because the data is missing.
+			return rest_ensure_response(
+				array(
+					'status' => 'error',
+					'code'   => 'missing_data',
+				)
+			);
+		}
+
+		$data = $params['data'];
+
+		if ( ! isset( $data['show_stopper'] ) ) {
+			// Set status to error, because the data is invalid.
+			return rest_ensure_response(
+				array(
+					'status' => 'error',
+					'code'   => 'invalid_data',
+				)
+			);
+		}
+
+		// TODO: Log errors to a remote service.
+
+		if ( true === $data['show_stopper'] ) {
+			// TODO: Review it seems a bit cumbersome the validation of the data structure here.
+			if ( ! isset( $data['error'] ) ) {
+				// Set status to error, because the data is invalid.
+				return rest_ensure_response(
+					array(
+						'status' => 'error',
+						'code'   => 'invalid_data',
+					)
+				);
+			}
+
+			$this->generator->state->set_as_failed( $data['error'] );
+			$this->storage->clear();
+		} else {
+			// TODO: Review it seems a bit cumbersome the validation of the data structure here.
+			if ( ! isset( $data['urls'] ) ) {
+				// Set status to error, because the data is invalid.
+				return rest_ensure_response(
+					array(
+						'status' => 'error',
+						'code'   => 'invalid_data',
+					)
+				);
+			}
+
+			// otherwise, store the error at the provider level, allowing the UI to display them with all details.
+			$this->generator->state->set_source_error( $cache_key, $data['urls'] );
+		}
+
+		// Set status to success to indicate the critical CSS error has been stored on the server.
+		return rest_ensure_response(
+			array(
+				'status'        => 'success',
+				'code'          => 'processed',
+				'status_update' => $this->generator->get_critical_css_status(),
+			)
+		);
 	}
+
+	/**
+	 * Handler for PUT '/critical-css/(?P<cacheKey>.+)/success'.
+	 *
+	 * @param \WP_REST_Request $request The request object.
+	 *
+	 * @return \WP_REST_Response|\WP_Error The response.
+	 * @todo: Figure out what to do in the JavaScript when responding with the error status.
+	 */
+	public function generate_success_handler( $request ) {
+		$this->ensure_module_initialized();
+
+		$cache_key = $request['cacheKey'];
+
+		if ( ! $cache_key ) {
+			// Set status to error, because the data is invalid.
+			return rest_ensure_response(
+				array(
+					'status' => 'error',
+					'code'   => 'missing_cache_key',
+				)
+			);
+		}
+
+		$params = $request->get_params();
+
+		if ( empty( $params['passthrough'] ) || empty( $params['passthrough']['_nonce'] ) ) {
+			return rest_ensure_response(
+				array(
+					'status' => 'error',
+					'code'   => 'missing_nonce',
+				)
+			);
+		}
+
+		$cache_key_nonce = $params['passthrough']['_nonce'];
+
+		if ( ! Nonce::verify( $cache_key_nonce, self::CSS_CALLBACK_ACTION ) ) {
+			return rest_ensure_response(
+				array(
+					'status' => 'error',
+					'code'   => 'invalid_nonce',
+				)
+			);
+		}
+
+		if ( ! isset( $params['data'] ) ) {
+			// Set status to error, because the data is invalid.
+			return rest_ensure_response(
+				array(
+					'status' => 'error',
+					'code'   => 'invalid_data',
+				)
+			);
+		}
+
+		$this->storage->store_css( $cache_key, $params['data'] );
+		$this->generator->state->set_source_success( $cache_key );
+		$this->recommendation->clear();
+		self::clear_reset_reason();
+
+		// Set status to success to indicate the critical CSS data has been stored on the server.
+		return rest_ensure_response(
+			array(
+				'status'        => 'success',
+				'code'          => 'processed',
+				'status_update' => $this->generator->get_critical_css_status(),
+			)
+		);
+	}
+
+
+	/**
+	 * Register the Critical CSS related REST routes.
+	 *
+	 * @return bool
+	 */
+	public function register_rest_routes() {
+		/**
+		 * Store and retrieve critical css status.
+		 */
+		register_rest_route(
+			JETPACK_BOOST_REST_NAMESPACE,
+			JETPACK_BOOST_REST_PREFIX . '/critical-css/status',
+			array(
+				array(
+					'methods'             => \WP_REST_Server::READABLE,
+					'callback'            => array( $this, 'api_get_critical_css_status' ),
+					'permission_callback' => array( $this, 'current_user_can_modify_critical_css' ),
+				),
+			)
+		);
+
+		// Register Critical CSS generate route.
+		register_rest_route(
+			JETPACK_BOOST_REST_NAMESPACE,
+			JETPACK_BOOST_REST_PREFIX . '/critical-css/request-generate',
+			array(
+				'methods'             => \WP_REST_Server::EDITABLE,
+				'callback'            => array( $this, 'critical_css_request_generate_handler' ),
+				'permission_callback' => array( $this, 'current_user_can_modify_critical_css' ),
+			)
+		);
+
+		// Register Critical CSS success callback route.
+		register_rest_route(
+			JETPACK_BOOST_REST_NAMESPACE,
+			JETPACK_BOOST_REST_PREFIX . '/critical-css/(?P<cacheKey>.+)/success',
+			array(
+				'methods'             => \WP_REST_Server::EDITABLE,
+				'callback'            => array( $this, 'generate_success_handler' ),
+				'permission_callback' => '__return_true',
+			)
+		);
+
+		// Register Critical CSS error callback route.
+		register_rest_route(
+			JETPACK_BOOST_REST_NAMESPACE,
+			JETPACK_BOOST_REST_PREFIX . '/critical-css/(?P<cacheKey>.+)/error',
+			array(
+				'methods'             => \WP_REST_Server::EDITABLE,
+				'callback'            => array( $this, 'generate_error_handler' ),
+				'permission_callback' => '__return_true',
+			)
+		);
+
+		return true;
+	}
+
+	/**
+	 * Check that user can modify Critical CSS.
+	 *
+	 * @return bool
+	 */
+	public function current_user_can_modify_critical_css() {
+		// @TODO: We shouldn't need to do these kinds of checks:
+		// rest_is_module_available()
+		return $this->rest_is_module_available() && current_user_can( 'manage_options' );
+	}
+
+
 }
