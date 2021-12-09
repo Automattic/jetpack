@@ -22,7 +22,7 @@ export default ( { registrationNonce, redirectUri, apiRoot, apiNonce, autoTrigge
 		} )
 	);
 
-	const callConnectUser = () => connectUser( { from } );
+	const handleConnectUser = () => connectUser( { from } );
 
 	/**
 	 * Initialize the site registration process.
@@ -33,10 +33,10 @@ export default ( { registrationNonce, redirectUri, apiRoot, apiNonce, autoTrigge
 		e && e.preventDefault();
 
 		if ( isRegistered ) {
-			callConnectUser();
+			handleConnectUser();
 		} else {
 			registerSite( { registrationNonce, redirectUri } ).then( () => {
-				callConnectUser();
+				handleConnectUser();
 			} );
 		}
 	};
@@ -60,6 +60,7 @@ export default ( { registrationNonce, redirectUri, apiRoot, apiNonce, autoTrigge
 
 	return {
 		handleRegisterSite,
+		handleConnectUser,
 		isRegistered,
 		isUserConnected,
 		siteIsRegistering,
