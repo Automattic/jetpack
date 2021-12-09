@@ -51,10 +51,11 @@ pnpm add -D @playwright/test
 Create a test file `specs/quick-start.test.js`, with recommended content:
 
 ```js
+import { test } from '@playwright/test';
 import { Sidebar, DashboardPage } from 'jetpack-e2e-commons/pages/wp-admin/index.js';
 import { prerequisitesBuilder } from 'jetpack-e2e-commons/env/prerequisites.js';
 
-beforeEach( async () => {
+test.beforeEach( async () => {
     await prerequisitesBuilder()
 		.withLoggedIn( true )
 		.build();
