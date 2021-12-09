@@ -78,6 +78,7 @@ abstract class Base_Admin_Menu {
 			add_action( 'admin_head', array( $this, 'set_site_icon_inline_styles' ) );
 			add_filter( 'screen_settings', array( $this, 'register_dashboard_switcher' ), 99999 );
 			add_action( 'admin_menu', array( $this, 'handle_preferred_view' ), 99997 );
+			add_filter( 'admin_body_class', array( $this, 'admin_body_class' ) );
 		}
 	}
 
@@ -654,6 +655,17 @@ abstract class Base_Admin_Menu {
 			exit;
 		}
 		// phpcs:enable WordPress.Security.NonceVerification
+	}
+
+	/**
+	 * Adds the necessary CSS class to the admin body class.
+	 *
+	 * @param string $admin_body_classes Contains all the admin body classes.
+	 *
+	 * @return string
+	 */
+	public function admin_body_class( $admin_body_classes ) {
+		return " is-nav-unification $admin_body_classes ";
 	}
 
 	/**
