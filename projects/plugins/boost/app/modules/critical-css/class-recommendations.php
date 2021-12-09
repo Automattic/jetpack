@@ -7,19 +7,28 @@
 
 namespace Automattic\Jetpack_Boost\Modules\Critical_CSS;
 
-use Automattic\Jetpack_Boost\Lib\Notifications;
+use Automattic\Jetpack_Boost\Lib\Options_Array;
 
 /**
  * Recommendations.
  */
-class Recommendations extends Notifications {
-	const NOTIFICATIONS_KEY   = 'jb-critical-css-dismissed-recommendations';
-	const NOTIFICATIONS_NONCE = 'dismiss_notice';
+class Recommendations {
+	const RECOMMENDATION_KEY   = 'jb-critical-css-dismissed-recommendations';
+	const RECOMMENDATION_NONCE = 'dismiss_notice';
+
+	/**
+	 * OptionsArray class instance.
+	 *
+	 * @var Options_Array
+	 */
+	protected $options;
 
 	/**
 	 * Constructor.
 	 */
 	public function on_prepare() {
+		$this->options = new Options_Array( self::RECOMMENDATION_KEY );
+
 		add_action( 'rest_api_init', array( $this, 'register_rest_routes' ) );
 		add_filter( 'jetpack_boost_js_constants', array( $this, 'always_add_recommendations_constants' ) );
 		add_action( 'jetpack_boost_uninstall', array( $this, 'clear' ) );
@@ -30,6 +39,13 @@ class Recommendations extends Notifications {
 	 */
 	public function on_initialize() {
 		add_filter( 'jetpack_boost_js_constants', array( $this, 'add_dismissed_recommendations_constants' ) );
+	}
+
+	/**
+	 * Clear all the recommendations.
+	 */
+	public function clear() {
+		$this->options->delete();
 	}
 
 	/**
@@ -68,7 +84,7 @@ class Recommendations extends Notifications {
 	 * @return array
 	 */
 	public function add_dismissed_recommendations_constants( $constants ) {
-		$constants['criticalCssDismissedRecommendations'] = $this->get();
+		$constants['criticalCssDismissedRecommendations'] = $this->options->get();
 
 		return $constants;
 	}
@@ -80,7 +96,7 @@ class Recommendations extends Notifications {
 	 * @return array
 	 */
 	public function always_add_recommendations_constants( $constants ) {
-		$constants['criticalCssDismissRecommendationsNonce'] = wp_create_nonce( self::NOTIFICATIONS_NONCE );
+		$constants['criticalCssDismissRecommendationsNonce'] = wp_create_nonce( self::RECOMMENDATION_NONCE );
 
 		return $constants;
 	}
@@ -92,7 +108,7 @@ class Recommendations extends Notifications {
 	 * @return bool
 	 */
 	public function current_user_can_manage_notifications( $request ) {
-		return ( wp_verify_nonce( $request['nonce'], self::NOTIFICATIONS_NONCE ) && current_user_can( 'manage_options' ) );
+		return ( wp_verify_nonce( $request['nonce'], self::RECOMMENDATION_NONCE ) && current_user_can( 'manage_options' ) );
 	}
 
 	/**
@@ -106,7 +122,7 @@ class Recommendations extends Notifications {
 			wp_send_json_error();
 		}
 
-		$this->add( $provider_key );
+		$this->options->add( $provider_key );
 		wp_send_json_success();
 	}
 
