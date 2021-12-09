@@ -8,8 +8,11 @@ import PropTypes from 'prop-types';
 /**
  * Internal dependencies
  */
-import './style.scss';
+import styles from './style.module.scss';
 import JetpackFooter from '../jetpack-footer';
+import Row from '../layout/row';
+import Container from '../layout/container';
+import Col from '../layout/col';
 
 /**
  * Footer for the AdminPage component
@@ -21,14 +24,14 @@ const AdminPageFooter = props => {
 	const { moduleName, a8cLogoHref } = props;
 
 	return (
-		<div className="jp-admin-page-section">
-			<div className="jp-wrap">
-				<div class="jp-row">
-					<div class="lg-col-span-12 md-col-span-8 sm-col-span-4">
+		<div className={ styles[ 'jp-admin-page-section' ] }>
+			<Container>
+				<Row>
+					<Col lg={ 12 } md={ 8 } sm={ 4 }>
 						<JetpackFooter moduleName={ moduleName } a8cLogoHref={ a8cLogoHref } />
-					</div>
-				</div>
-			</div>
+					</Col>
+				</Row>
+			</Container>
 		</div>
 	);
 };
