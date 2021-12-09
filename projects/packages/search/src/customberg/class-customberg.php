@@ -112,9 +112,9 @@ class Customberg {
 	 * Loads assets for the customization experience.
 	 */
 	public function load_assets() {
-		if ( defined( 'JETPACK_SEARCH_PLUGIN_DIRECTORY' ) ) {
+		if ( defined( 'JETPACK_SEARCH_PACKAGE_DIRECTORY' ) ) {
 			$this->load_assets_with_parameters(
-				constant( 'JETPACK_SEARCH_PLUGIN_DIRECTORY' )
+				constant( 'JETPACK_SEARCH_PACKAGE_DIRECTORY' )
 			);
 		}
 	}
@@ -122,15 +122,15 @@ class Customberg {
 	/**
 	 * Loads script and style assets according to parameters provided.
 	 *
-	 * @param string $plugin_base_path - Base path for plugin files.
+	 * @param string $package_base_path - Base path for the search package.
 	 */
-	public function load_assets_with_parameters( $plugin_base_path ) {
+	public function load_assets_with_parameters( $package_base_path ) {
 		Tracking::register_tracks_functions_scripts( true );
 
 		Assets::register_script(
 			'jp-search-configure',
 			'build/customberg/jp-search-configure.js',
-			$plugin_base_path . '/src', // A full path to a file or a directory inside a plugin.
+			$package_base_path . '/src', // A full path to a file or a directory inside a plugin.
 			array(
 				'css_dependencies' => array(
 					'wp-components',

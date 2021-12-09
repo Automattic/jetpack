@@ -71,9 +71,9 @@ class Instant_Search extends Classic_Search {
 	 * Loads assets for Jetpack Instant Search Prototype featuring Search As You Type experience.
 	 */
 	public function load_assets() {
-		if ( defined( 'JETPACK_SEARCH_PLUGIN_DIRECTORY' ) ) {
+		if ( defined( 'JETPACK_SEARCH_PACKAGE_DIRECTORY' ) ) {
 			$this->load_assets_with_parameters(
-				constant( 'JETPACK_SEARCH_PLUGIN_DIRECTORY' )
+				constant( 'JETPACK_SEARCH_PACKAGE_DIRECTORY' )
 			);
 		}
 	}
@@ -81,13 +81,13 @@ class Instant_Search extends Classic_Search {
 	/**
 	 * Loads assets according to parameters provided.
 	 *
-	 * @param string $plugin_path - Plugin path, which is usually the build folder within this package.
+	 * @param string $package_base_path - Base path for the search package.
 	 */
-	public function load_assets_with_parameters( $plugin_path ) {
+	public function load_assets_with_parameters( $package_base_path ) {
 		Assets::register_script(
 			'jetpack-instant-search',
 			'build/instant-search/jp-search.js',
-			$plugin_path . '/src', // A full path to a file or a directory inside a plugin.
+			$package_base_path . '/src', // A full path to a file or a directory inside a plugin.
 			array(
 				'dependencies' => array( 'wp-i18n' ),
 				'in_footer'    => true,
@@ -100,7 +100,7 @@ class Instant_Search extends Classic_Search {
 
 		// It only inlines the translations for the script, but does not actually load the script.
 		$this->inject_translation_for_script(
-			plugins_url( 'build/instant-search/jp-search.chunk-main-payload.js', $plugin_path . '/src' )
+			plugins_url( 'build/instant-search/jp-search.chunk-main-payload.js', $package_base_path . '/src' )
 		);
 	}
 

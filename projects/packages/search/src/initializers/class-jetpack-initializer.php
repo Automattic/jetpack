@@ -40,7 +40,7 @@ class Jetpack_Initializer extends Initializer {
 		/**
 		 * Location of built Jetpack Search assets, does not include trailing slash.
 		 */
-		define( 'JETPACK_SEARCH_PLUGIN_DIRECTORY', dirname( dirname( __DIR__ ) ) );
+		define( 'JETPACK_SEARCH_PACKAGE_DIRECTORY', dirname( dirname( __DIR__ ) ) );
 
 		if ( Options::is_instant_enabled() ) {
 			// Enable the instant search experience.
