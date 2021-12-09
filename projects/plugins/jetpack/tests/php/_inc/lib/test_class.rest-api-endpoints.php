@@ -8,7 +8,7 @@
 
 use Automattic\Jetpack\Connection\REST_Connector;
 
-require_once( dirname( __FILE__ ) . '/../../../../modules/widgets/milestone.php' );
+require_once __DIR__ . '/../../../../modules/widgets/milestone.php';
 
 class WP_Test_Jetpack_REST_API_endpoints extends WP_UnitTestCase {
 
@@ -31,7 +31,8 @@ class WP_Test_Jetpack_REST_API_endpoints extends WP_UnitTestCase {
 		parent::set_up();
 
 		global $wp_rest_server;
-		$this->server = $wp_rest_server = new WP_REST_Server;
+		$wp_rest_server = new WP_REST_Server();
+		$this->server   = $wp_rest_server;
 		do_action( 'rest_api_init' );
 	}
 
@@ -53,7 +54,7 @@ class WP_Test_Jetpack_REST_API_endpoints extends WP_UnitTestCase {
 	 * @since 4.4.0
 	 */
 	protected function load_rest_endpoints_direct() {
-		require_once dirname( __FILE__ ) . '/../../../../_inc/lib/class.core-rest-api-endpoints.php';
+		require_once __DIR__ . '/../../../../_inc/lib/class.core-rest-api-endpoints.php';
 	}
 
 	/**
@@ -78,9 +79,11 @@ class WP_Test_Jetpack_REST_API_endpoints extends WP_UnitTestCase {
 	 * @return WP_User
 	 */
 	protected function create_and_get_user( $role = '' ) {
-		return $this->factory->user->create_and_get( array(
-			'role' => empty( $role ) ? 'subscriber' : $role,
-		) );
+		return $this->factory->user->create_and_get(
+			array(
+				'role' => empty( $role ) ? 'subscriber' : $role,
+			)
+		);
 	}
 
 	/**
@@ -98,7 +101,7 @@ class WP_Test_Jetpack_REST_API_endpoints extends WP_UnitTestCase {
 	protected function create_and_get_request( $route = '', $json_params = array(), $method = 'GET', $params = array() ) {
 		$request = new WP_REST_Request( $method, "/jetpack/v4/$route" );
 
-		if ( 'GET' !== $method && !empty( $json_params ) ) {
+		if ( 'GET' !== $method && ! empty( $json_params ) ) {
 			$request->set_header( 'content-type', 'application/json' );
 		}
 		if ( ! empty( $json_params ) ) {
@@ -167,10 +170,10 @@ class WP_Test_Jetpack_REST_API_endpoints extends WP_UnitTestCase {
 		$response_data = $response->get_data();
 		$tested_data   = array();
 		foreach ( $data as $key => $value ) {
-			if ( isset( $response_data[$key] ) ) {
-				$tested_data[$key] = $response_data[$key];
+			if ( isset( $response_data[ $key ] ) ) {
+				$tested_data[ $key ] = $response_data[ $key ];
 			} else {
-				$tested_data[$key] = null;
+				$tested_data[ $key ] = null;
 			}
 		}
 		$this->assertEquals( $data, $tested_data );
@@ -417,17 +420,20 @@ class WP_Test_Jetpack_REST_API_endpoints extends WP_UnitTestCase {
 
 		// Success, connected site.
 		$this->assertResponseStatus( 200, $response );
-		$this->assertResponseData( array(
-			'isActive'    => true,
-			'isStaging'   => false,
-			'offlineMode' => array(
-				'isActive'        => false,
-				'constant'        => false,
-				'url'             => false,
-				'filter'          => false,
-				'wpLocalConstant' => false,
+		$this->assertResponseData(
+			array(
+				'isActive'    => true,
+				'isStaging'   => false,
+				'offlineMode' => array(
+					'isActive'        => false,
+					'constant'        => false,
+					'url'             => false,
+					'filter'          => false,
+					'wpLocalConstant' => false,
+				),
 			),
-		), $response );
+			$response
+		);
 	}
 
 	/**
@@ -447,17 +453,20 @@ class WP_Test_Jetpack_REST_API_endpoints extends WP_UnitTestCase {
 
 		// Success, connected site.
 		$this->assertResponseStatus( 200, $response );
-		$this->assertResponseData( array(
-			'isActive'    => true,
-			'isStaging'   => true,
-			'offlineMode' => array(
-				'isActive'        => false,
-				'constant'        => false,
-				'url'             => false,
-				'filter'          => false,
-				'wpLocalConstant' => false,
+		$this->assertResponseData(
+			array(
+				'isActive'    => true,
+				'isStaging'   => true,
+				'offlineMode' => array(
+					'isActive'        => false,
+					'constant'        => false,
+					'url'             => false,
+					'filter'          => false,
+					'wpLocalConstant' => false,
+				),
 			),
-		), $response );
+			$response
+		);
 
 		remove_filter( 'jetpack_is_staging_site', '__return_true' );
 	}
@@ -480,17 +489,20 @@ class WP_Test_Jetpack_REST_API_endpoints extends WP_UnitTestCase {
 
 		// Success, authenticated user and connected site
 		$this->assertResponseStatus( 200, $response );
-		$this->assertResponseData( array(
-			'isActive'    => false,
-			'isStaging'   => false,
-			'offlineMode' => array(
-				'isActive'        => true,
-				'constant'        => false,
-				'url'             => false,
-				'filter'          => true,
-				'wpLocalConstant' => false,
+		$this->assertResponseData(
+			array(
+				'isActive'    => false,
+				'isStaging'   => false,
+				'offlineMode' => array(
+					'isActive'        => true,
+					'constant'        => false,
+					'url'             => false,
+					'filter'          => true,
+					'wpLocalConstant' => false,
+				),
 			),
-		), $response );
+			$response
+		);
 
 		remove_filter( 'jetpack_offline_mode', '__return_true' );
 	}
@@ -575,10 +587,11 @@ class WP_Test_Jetpack_REST_API_endpoints extends WP_UnitTestCase {
 				'path'   => '/wp-admin/admin.php',
 				'query'  =>
 					array(
-						'page'     => 'jetpack',
-						'action'   => 'register',
-					)
-			), $response
+						'page'   => 'jetpack',
+						'action' => 'register',
+					),
+			),
+			$response
 		);
 	}
 
@@ -594,7 +607,7 @@ class WP_Test_Jetpack_REST_API_endpoints extends WP_UnitTestCase {
 
 		$this->assertTrue( Jetpack_Options::is_valid( array( 'onboarding' ) ) );
 		$this->assertTrue( ctype_alnum( Jetpack_Options::get_option( 'onboarding' ) ) );
-		$this->assertTrue( in_array( 'onboarding', Jetpack_Options::get_option_names( 'network' ) ) );
+		$this->assertContains( 'onboarding', Jetpack_Options::get_option_names( 'network' ) );
 	}
 
 	/**
@@ -630,8 +643,9 @@ class WP_Test_Jetpack_REST_API_endpoints extends WP_UnitTestCase {
 			array(
 				'scheme' => 'http',
 				'host'   => 'example.org',
-				'path'   => '/wp-admin/admin.php'
-			), $response
+				'path'   => '/wp-admin/admin.php',
+			),
+			$response
 		);
 	}
 
@@ -762,7 +776,7 @@ class WP_Test_Jetpack_REST_API_endpoints extends WP_UnitTestCase {
 		$this->assertResponseStatus( 200, $response );
 
 		// It should also work correctly with a POST body that is not JSON encoded
-		$response = $this->create_and_get_request( 'settings', array(), 'POST',  array( 'show' => 'post' ) );
+		$response = $this->create_and_get_request( 'settings', array(), 'POST', array( 'show' => 'post' ) );
 		$this->assertResponseStatus( 400, $response );
 
 		$response = $this->create_and_get_request( 'settings', array(), 'POST', array( 'show' => array( 'post', 'page' ) ) );
@@ -787,7 +801,7 @@ class WP_Test_Jetpack_REST_API_endpoints extends WP_UnitTestCase {
 		Jetpack::update_active_modules( array( 'carousel' ) );
 		update_option( 'carousel_background_color', 'white' );
 
-		$response = $this->create_and_get_request( 'settings', array(), 'GET' );
+		$response      = $this->create_and_get_request( 'settings', array(), 'GET' );
 		$response_data = $response->get_data();
 
 		$this->assertResponseStatus( 200, $response );
@@ -811,33 +825,33 @@ class WP_Test_Jetpack_REST_API_endpoints extends WP_UnitTestCase {
 
 		$widget_instances = array(
 			3 => array(
-				'title' => 'Ouou',
-				'event' => 'The Biog Day',
-				'unit' => 'years',
-				'type' => 'until',
+				'title'   => 'Ouou',
+				'event'   => 'The Biog Day',
+				'unit'    => 'years',
+				'type'    => 'until',
 				'message' => 'The big day is here.',
-				'year' => date( 'Y' ) + 10,
-				'month' => date( 'm' ),
-				'hour' => '0',
-				'min' => '00',
-				'day' => date( 'd' )
-			)
+				'year'    => gmdate( 'Y' ) + 10,
+				'month'   => gmdate( 'm' ),
+				'hour'    => '0',
+				'min'     => '00',
+				'day'     => gmdate( 'd' ),
+			),
 		);
 
 		update_option( 'widget_milestone_widget', $widget_instances );
 
 		$sidebars = wp_get_sidebars_widgets();
-		foreach( $sidebars as $key => $sidebar ) {
+		foreach ( $sidebars as $key => $sidebar ) {
 			$sidebars[ $key ][] = 'milestone_widget-3';
 		}
 		$_wp_sidebars_widgets = $sidebars;
 		wp_set_sidebars_widgets( $sidebars );
 
 		$wp_registered_widgets['milestone_widget-3'] = array(
-			'name' => 'Milestone Widget',
-			'id' => 'milestone_widget-3',
+			'name'     => 'Milestone Widget',
+			'id'       => 'milestone_widget-3',
 			'callback' => array( 'Milestone_Widget', 'widget' ),
-			'params' => array()
+			'params'   => array(),
 		);
 
 		$response = $this->create_and_get_request( 'widgets/milestone_widget-3', array(), 'GET' );
@@ -846,7 +860,7 @@ class WP_Test_Jetpack_REST_API_endpoints extends WP_UnitTestCase {
 		$this->assertResponseStatus( 200, $response );
 		$this->assertResponseData(
 			array(
-				'message' => '<div class="milestone-countdown"><span class="difference">10</span> <span class="label">years to go.</span></div>'
+				'message' => '<div class="milestone-countdown"><span class="difference">10</span> <span class="label">years to go.</span></div>',
 			),
 			$response
 		);
@@ -864,14 +878,14 @@ class WP_Test_Jetpack_REST_API_endpoints extends WP_UnitTestCase {
 		$this->assertResponseStatus( 200, $response );
 		$this->assertResponseData(
 			array(
-				'message' => '<div class="milestone-countdown"><span class="difference">12</span> <span class="label">months to go.</span></div>'
+				'message' => '<div class="milestone-countdown"><span class="difference">12</span> <span class="label">months to go.</span></div>',
 			),
 			$response
 		);
 
 		// Cleaning up the sidebars
 		$sidebars = wp_get_sidebars_widgets();
-		foreach( $sidebars as $key => $sidebar ) {
+		foreach ( $sidebars as $key => $sidebar ) {
 			$sidebars[ $key ] = array_diff( $sidebar, array( 'milestone_widget-3' ) );
 		}
 		$_wp_sidebars_widgets = $sidebars;
@@ -922,11 +936,11 @@ class WP_Test_Jetpack_REST_API_endpoints extends WP_UnitTestCase {
 				3 => array(
 					'title' => 'Ouou',
 					'event' => 'The Biog Day',
-				)
+				),
 			)
 		);
 
-		foreach( wp_get_sidebars_widgets() as $sidebar ) {
+		foreach ( wp_get_sidebars_widgets() as $sidebar ) {
 			$this->assertFalse( array_search( 'milestone_widget-3', $sidebar ) );
 		}
 
@@ -1010,7 +1024,7 @@ class WP_Test_Jetpack_REST_API_endpoints extends WP_UnitTestCase {
 		$request  = new WP_REST_Request( 'GET', '/jetpack/v4/licensing/error' );
 		$response = $this->server->dispatch( $request );
 		$this->assertResponseStatus( 200, $response );
-		$this->assertEquals( '', $response->get_data() );
+		$this->assertSame( '', $response->get_data() );
 
 		// Should accept updates.
 		$response = $this->create_and_get_request(
@@ -1021,7 +1035,7 @@ class WP_Test_Jetpack_REST_API_endpoints extends WP_UnitTestCase {
 			'POST'
 		);
 		$this->assertResponseStatus( 200, $response );
-		$this->assertEquals( true, $response->get_data() );
+		$this->assertTrue( $response->get_data() );
 
 		// Should return updated value.
 		$request  = new WP_REST_Request( 'GET', '/jetpack/v4/licensing/error' );

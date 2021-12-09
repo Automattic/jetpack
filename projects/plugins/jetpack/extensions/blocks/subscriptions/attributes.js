@@ -77,4 +77,11 @@ export default {
 	spacing: {
 		type: 'number',
 	},
+	successMessage: {
+		type: 'string',
+		default: __(
+			"Success! An email was just sent to confirm your subscription. Please find the email now and click 'Confirm Follow' to start subscribing.",
+			'jetpack'
+		),
+	},
 };
