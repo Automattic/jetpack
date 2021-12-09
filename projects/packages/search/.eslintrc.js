@@ -3,6 +3,7 @@ module.exports = {
 	// JavaScript files inside this folder are meant to be transpiled by Webpack.
 	root: true,
 	extends: [ '../../../.eslintrc.react.js' ],
+	ignorePatterns: [ '**/external/*.js' ],
 	parserOptions: {
 		babelOptions: {
 			configFile: require.resolve( './babel.config.js' ),

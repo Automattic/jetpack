@@ -1,3 +1,10 @@
+/**
+ * Finds the overlay between two arrays.
+ *
+ * @param {any[]} a1 - First array.
+ * @param {any[]} a2 - Second array.
+ * @returns {any[]} Array containing only overlays/intersections.
+ */
 export default function arrayOverlap( a1, a2 ) {
 	if ( ! Array.isArray( a1 ) ) {
 		a1 = [ a1 ];
