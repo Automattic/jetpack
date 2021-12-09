@@ -386,5 +386,15 @@ class REST_API {
 		return $constants;
 	}
 
+	/**
+	 * REST API endpoint to get local critical css status.
+	 *
+	 * @return \WP_Error|\WP_HTTP_Response|\WP_REST_Response
+	 */
+	public function api_get_critical_css_status() {
+		return rest_ensure_response( $this->generator->get_critical_css_status() );
+	}
+
+
 
 }
