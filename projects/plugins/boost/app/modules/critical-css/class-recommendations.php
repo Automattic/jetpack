@@ -37,9 +37,6 @@ class Recommendations {
 	/**
 	 * On initialize.
 	 */
-	public function on_initialize() {
-		add_filter( 'jetpack_boost_js_constants', array( $this, 'add_dismissed_recommendations_constants' ) );
-	}
 
 	/**
 	 * Clear all the recommendations.

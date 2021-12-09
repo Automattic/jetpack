@@ -105,20 +105,6 @@ abstract class Module {
 	}
 
 	/**
-	 * Check if this module should be enabled in the REST API.
-	 *
-	 * @used-by register_rest_route() permission_callback hook
-	 * @return bool|\WP_Error
-	 */
-	final public function rest_is_module_available() {
-		if ( false === $this->is_initialized() ) {
-			return new \WP_Error( __( 'Sorry, this module is not active', 'jetpack-boost' ) );
-		}
-
-		return true;
-	}
-
-	/**
 	 * Overrideable method for fetching an array of admin notices to display.
 	 * Each admin notice should be a child class of Admin_Notice.
 	 *

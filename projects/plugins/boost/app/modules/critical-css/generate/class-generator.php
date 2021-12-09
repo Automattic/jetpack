@@ -128,7 +128,7 @@ class Generator {
 	 *
 	 * phpcs:disable WordPress.Security.NonceVerification.Recommended
 	 */
-	public function is_generating_critical_css() {
+	public static function is_generating_critical_css() {
 		static $is_generating = NULL;
 		if ( NULL !== $is_generating ) {
 			return $is_generating;
