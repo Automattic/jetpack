@@ -48,4 +48,9 @@ export default class PluginsPage extends WpPage {
 		await this.waitForElementToBeVisible( isUpdatingMessage );
 		await this.waitForElementToBeVisible( updatedMessage, 5 * 30000 );
 	}
+
+	async clickOnJetpackBoostSettingsLink() {
+		const selector = "tr[data-slug='jetpack-boost'] .row-actions a[href*='=jetpack-boost']";
+		return await this.page.click( selector );
+	}
 }

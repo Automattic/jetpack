@@ -13,8 +13,8 @@ test.describe.serial( 'Critical CSS module', () => {
 
 	test( 'No Critical CSS meta information should show on the admin when the module is inactive', async () => {
 		await boostPrerequisitesBuilder( page ).withInactiveModules( [ 'critical-css' ] ).build();
-		await JetpackBoostPage.visit( page );
-		expect( await page.locator( '.jb-critical-css__meta' ).isHidden() ).toBeTruthy();
+		const jetpackBoostPage = await JetpackBoostPage.visit( page );
+		expect( await jetpackBoostPage.isTheCriticalCssMetaInformationVisible() ).toBeFalsy();
 	} );
 
 	test( 'No Critical CSS should available on the frontend when the module is inactive', async () => {
@@ -27,23 +27,21 @@ test.describe.serial( 'Critical CSS module', () => {
 		).toBe( 0 );
 	} );
 
-	// The order of the following tests is important as we are making reuse of the generated Critical CSS which is an lengthy tasks in a test.
+	// The order of the following tests is important as we are making reuse of the generated Critical CSS which is a lengthy tasks in a test.
 	test( 'Critical CSS should be generated when the module is active', async () => {
 		await boostPrerequisitesBuilder( page ).withActiveModules( [ 'critical-css' ] ).build();
-		await JetpackBoostPage.visit( page );
-		await expect( await page.locator( 'text=Generating Critical CSS…' ) ).toBeVisible();
-		await expect( await page.locator( '.jb-critical-css__meta' ) ).toBeVisible( {
-			timeout: 3 * 60 * 1000,
-		} );
+		const jetpackBoostPage = await JetpackBoostPage.visit( page );
+		expect(
+			await jetpackBoostPage.WaitForTheCriticalCssGeneratingProgressInformationToBeVisible()
+		).toBeTruthy();
+		expect( await jetpackBoostPage.waitForTheCriticalCssMetaInformationToBeVisible() ).toBeTruthy();
 	} );
 
 	test( 'Critical CSS meta information should show on the admin when the module is re-activated', async () => {
 		await boostPrerequisitesBuilder( page ).withInactiveModules( [ 'critical-css' ] ).build();
 		await boostPrerequisitesBuilder( page ).withActiveModules( [ 'critical-css' ] ).build();
-		await JetpackBoostPage.visit( page );
-		await expect( await page.locator( '.jb-critical-css__meta' ) ).toBeVisible( {
-			timeout: 3 * 60 * 1000,
-		} );
+		const jetpackBoostPage = await JetpackBoostPage.visit( page );
+		expect( await jetpackBoostPage.waitForTheCriticalCssMetaInformationToBeVisible() ).toBeTruthy();
 	} );
 
 	test( 'Critical CSS should be available on the frontend when the module is active', async () => {

@@ -62,4 +62,19 @@ export default class JetpackBoostPage extends WpPage {
 		} );
 		return Number( await speedBar.$eval( '.jb-score-bar__score', e => e.textContent ) );
 	}
+
+	async isTheCriticalCssMetaInformationVisible() {
+		const selector = '.jb-critical-css__meta';
+		return this.page.isVisible( selector );
+	}
+
+	async waitForTheCriticalCssMetaInformationToBeVisible() {
+		const selector = '.jb-critical-css__meta';
+		return this.waitForElementToBeVisible( selector, 3 * 60 * 1000 );
+	}
+
+	async WaitForTheCriticalCssGeneratingProgressInformationToBeVisible() {
+		const selector = '.jb-critical-css-progress';
+		return this.waitForElementToBeVisible( selector );
+	}
 }

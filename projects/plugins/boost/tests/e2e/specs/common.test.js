@@ -16,9 +16,7 @@ test.afterAll( async ( { browser } ) => {
 test( 'Click on the plugins page should navigate to Boost settings page', async ( { page } ) => {
 	await DashboardPage.visit( page );
 	await ( await Sidebar.init( page ) ).selectInstalledPlugins();
-	const pluginsPage = await PluginsPage.init( page );
-	const selector = "tr[data-slug='jetpack-boost'] .row-actions a[href*='=jetpack-boost']";
-	await pluginsPage.click( selector );
+	await ( await PluginsPage.init( page ) ).clickOnJetpackBoostSettingsLink();
 	expect( await page.url() ).toContain( 'page=jetpack-boost' );
 } );
 
@@ -36,14 +34,14 @@ test( 'Deactivating the plugin should clear Critical CSS and Dismissed Recommend
 	// Generate Critical CSS to ensure that on plugin deactivation it is cleared.
 	// TODO: Also should make sure that a Critical CSS recommendation is dismissed to check that the options does not exist after deactivation of the plugin.
 	await boostPrerequisitesBuilder( page ).withActiveModules( [ 'critical-css' ] ).build();
-	await JetpackBoostPage.visit( page );
-	await expect( await page.locator( '.jb-critical-css__meta' ) ).toBeVisible( {
-		timeout: 3 * 60 * 1000,
-	} );
+	const jetpackBoostPage = await JetpackBoostPage.visit( page );
+	expect(
+		await jetpackBoostPage.WaitForTheCriticalCssGeneratingProgressInformationToBeVisible()
+	).toBeTruthy();
+	expect( await jetpackBoostPage.waitForTheCriticalCssMetaInformationToBeVisible() ).toBeTruthy();
 	await DashboardPage.visit( page );
 	await ( await Sidebar.init( page ) ).selectInstalledPlugins();
-	const pluginsPage = await PluginsPage.init( page );
-	await pluginsPage.deactivatePlugin( 'jetpack-boost' );
+	await ( await PluginsPage.init( page ) ).deactivatePlugin( 'jetpack-boost' );
 	let result;
 	result = await execWpCommand(
 		'db query \'SELECT ID FROM wp_posts WHERE post_type LIKE "%jb_store_%"\' --skip-column-names'
