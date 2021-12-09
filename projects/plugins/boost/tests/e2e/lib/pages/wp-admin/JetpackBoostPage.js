@@ -28,8 +28,8 @@ export default class JetpackBoostPage extends WpPage {
 	}
 
 	async isSiteScoreLoading() {
-		const scoreSiteContainer = await this.page.$( '.jb-site-score' );
-		const classNames = await scoreSiteContainer.getAttribute( 'class' );
+		const selector = await this.waitForElementToBeVisible( '.jb-site-score' );
+		const classNames = await selector.getAttribute( 'class' );
 		return classNames.includes( 'loading' );
 	}
 
