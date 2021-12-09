@@ -239,7 +239,7 @@ async function activatePlugins( pluginsList ) {
 async function deactivatePlugins( pluginsList ) {
 	const deactivatedPlugins = [];
 	for ( const plugin of pluginsList ) {
-		logger.prerequisites( `Deactivating module ${ plugin }` );
+		logger.prerequisites( `Deactivating plugin ${ plugin }` );
 		const result = await execWpCommand( `plugin deactivate ${ plugin }` );
 		const txt = result.toString();
 		if (
