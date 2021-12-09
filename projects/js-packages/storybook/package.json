@@ -26,9 +26,9 @@
 		"storybook:dev": "concurrently \"pnpm run dev:packages\" \"start-storybook -c ./storybook -p 50240 -s ./public\""
 	},
 	"devDependencies": {
-		"@automattic/jetpack-components": "workspace:^0.8.0",
-		"@automattic/jetpack-connection": "workspace:^0.11.2",
-		"@automattic/jetpack-base-styles": "workspace:^0.1.1",
+		"@automattic/jetpack-components": "workspace:^0.9.0-alpha",
+		"@automattic/jetpack-connection": "workspace:^0.11.3-alpha",
+		"@automattic/jetpack-base-styles": "workspace:^0.1.2-alpha",
 		"@automattic/jetpack-idc": "workspace:^0.6.1-alpha",
 		"@babel/core": "7.16.0",
 		"@babel/plugin-syntax-jsx": "7.16.0",
