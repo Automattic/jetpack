@@ -37,16 +37,7 @@ export const ToS = createInterpolateElement(
  * @returns {React.Component} The `ConnectScreenRequiredPlanVisual` component.
  */
 const ConnectScreenVisual = props => {
-	const {
-		title,
-		buttonLabel,
-		images,
-		children,
-		assetBaseUrl,
-		autoTrigger,
-		isLoading,
-		renderConnectBtn,
-	} = props;
+	const { title, images, children, assetBaseUrl, isLoading } = props;
 
 	return (
 		<ConnectScreenLayout
@@ -61,8 +52,6 @@ const ConnectScreenVisual = props => {
 			<div className="jp-connection__connect-screen__content">
 				{ children }
 
-				{ renderConnectBtn( buttonLabel, autoTrigger ) }
-
 				<div className="jp-connection__connect-screen__tos">{ ToS }</div>
 			</div>
 		</ConnectScreenLayout>
@@ -72,18 +61,12 @@ const ConnectScreenVisual = props => {
 ConnectScreenVisual.propTypes = {
 	/** The Title. */
 	title: PropTypes.string,
-	/** The Connect Button label. */
-	buttonLabel: PropTypes.string,
+	/** Images to display on the right side. */
+	images: PropTypes.arrayOf( PropTypes.string ),
+	/** The assets base URL. */
+	assetBaseUrl: PropTypes.string,
 	/** Whether the connection status is still loading. */
 	isLoading: PropTypes.bool.isRequired,
-	/** Whether to initiate the connection process automatically upon rendering the component. */
-	autoTrigger: PropTypes.bool,
-	/** Connect button render function */
-	renderConnectBtn: PropTypes.func.isRequired,
-};
-
-ConnectScreenVisual.defaultProps = {
-	autoTrigger: false,
 };
 
 export default ConnectScreenVisual;
