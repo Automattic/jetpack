@@ -10,6 +10,7 @@ test.afterAll( async ( { browser } ) => {
 
 	await prerequisitesBuilder( page ).withActivePlugins( [ 'boost' ] ).build();
 	await boostPrerequisitesBuilder( page ).withConnection( true ).build();
+	await page.close();
 } );
 
 test( 'Click on the plugins page should navigate to Boost settings page', async ( { page } ) => {
