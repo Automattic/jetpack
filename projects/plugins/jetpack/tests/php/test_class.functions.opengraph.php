@@ -14,7 +14,7 @@ class WP_Test_Functions_OpenGraph extends Jetpack_Attachment_Test_Case {
 	public function set_up() {
 		parent::set_up();
 
-		$this->icon_id = self::_create_upload_object( dirname( __FILE__ ) . '/jetpack-icon.jpg', 0, true ); // 500 x 500
+		$this->icon_id = self::_create_upload_object( __DIR__ . '/jetpack-icon.jpg', 0, true ); // 500 x 500
 		require_once JETPACK__PLUGIN_DIR . 'functions.opengraph.php';
 	}
 
@@ -61,8 +61,8 @@ class WP_Test_Functions_OpenGraph extends Jetpack_Attachment_Test_Case {
 
 		// Test Valid-sized Jetpack's Site Logo
 		$image_url = jetpack_og_get_image( 200, 200 );
-		$image_id = jetpack_get_site_logo( 'id' );
-		$logo = wp_get_attachment_image_src( $image_id, 'full' );
+		$image_id  = jetpack_get_site_logo( 'id' );
+		$logo      = wp_get_attachment_image_src( $image_id, 'full' );
 		$this->assertEquals( $logo[0], $image_url['src'] );
 
 		delete_option( 'site_logo' );
@@ -70,8 +70,8 @@ class WP_Test_Functions_OpenGraph extends Jetpack_Attachment_Test_Case {
 
 		// Test Valid-sized core's Site Icon
 		$image_url = jetpack_og_get_image( 200, 200 );
-		$image_id = get_option( 'site_icon' );
-		$icon = wp_get_attachment_image_src( $image_id, 'full' );
+		$image_id  = get_option( 'site_icon' );
+		$icon      = wp_get_attachment_image_src( $image_id, 'full' );
 		$this->assertEquals( $icon[0], $image_url['src'] );
 
 		delete_option( 'site_icon' );
@@ -89,7 +89,7 @@ class WP_Test_Functions_OpenGraph extends Jetpack_Attachment_Test_Case {
 		// A test shortcode that should be removed from descriptions.
 		add_shortcode(
 			'foo',
-			function() {
+			function () {
 				return 'bar';
 			}
 		);

@@ -11,14 +11,13 @@ import { JetpackLogo } from '@automattic/jetpack-components';
  */
 import ScreenMain from './screen-main';
 import ScreenMigrated from './screen-migrated';
+import customContentShape from '../../tools/custom-content-shape';
 import './style.scss';
 
 const IDCScreenVisual = props => {
 	const {
 		logo,
-		headerText,
-		title,
-		mainBodyText,
+		customContent,
 		wpcomHomeUrl,
 		currentUrl,
 		redirectUri,
@@ -35,7 +34,9 @@ const IDCScreenVisual = props => {
 		<div className={ 'jp-idc__idc-screen' + ( isMigrated ? ' jp-idc__idc-screen__success' : '' ) }>
 			<div className="jp-idc__idc-screen__header">
 				<div className="jp-idc__idc-screen__logo">{ logo }</div>
-				<div className="jp-idc__idc-screen__logo-label">{ headerText }</div>
+				<div className="jp-idc__idc-screen__logo-label">
+					{ customContent.headerText || __( 'Safe Mode', 'jetpack' ) }
+				</div>
 			</div>
 
 			{ isMigrated ? (
@@ -44,14 +45,14 @@ const IDCScreenVisual = props => {
 					currentUrl={ currentUrl }
 					finishCallback={ finishMigrationCallback }
 					isFinishing={ isFinishingMigration }
+					customContent={ customContent }
 				/>
 			) : (
 				<ScreenMain
 					wpcomHomeUrl={ wpcomHomeUrl }
 					currentUrl={ currentUrl }
 					redirectUri={ redirectUri }
-					title={ title }
-					mainBodyText={ mainBodyText }
+					customContent={ customContent }
 					isMigrating={ isMigrating }
 					migrateCallback={ migrateCallback }
 					isStartingFresh={ isStartingFresh }
@@ -64,19 +65,15 @@ const IDCScreenVisual = props => {
 
 IDCScreenVisual.propTypes = {
 	/** The screen logo, Jetpack by default. */
-	logo: PropTypes.object,
-	/** The header text, 'Safe Mode' by default. */
-	headerText: PropTypes.string,
+	logo: PropTypes.object.isRequired,
+	/** Custom text content. */
+	customContent: PropTypes.shape( customContentShape ),
 	/** The original site URL. */
 	wpcomHomeUrl: PropTypes.string.isRequired,
 	/** The current site URL. */
 	currentUrl: PropTypes.string.isRequired,
 	/** The redirect URI to redirect users back to after connecting. */
 	redirectUri: PropTypes.string.isRequired,
-	/** The main screen title. */
-	title: PropTypes.string,
-	/** The main screen body text. */
-	mainBodyText: PropTypes.string,
 	/** Whether the migration is in progress. */
 	isMigrating: PropTypes.bool.isRequired,
 	/** Migration callback. */
@@ -95,11 +92,11 @@ IDCScreenVisual.propTypes = {
 
 IDCScreenVisual.defaultProps = {
 	logo: <JetpackLogo height={ 24 } />,
-	headerText: __( 'Safe Mode', 'jetpack' ),
 	isMigrated: false,
 	isFinishingMigration: false,
 	isMigrating: false,
 	isStartingFresh: false,
+	customContent: {},
 };
 
 export default IDCScreenVisual;
