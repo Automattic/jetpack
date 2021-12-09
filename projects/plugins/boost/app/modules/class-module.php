@@ -33,14 +33,25 @@ abstract class Module {
 	 * Modules extending this class will auto-register routes
 	 * using `register_rest_routes` method if it's available.
 	 */
-	public function __construct() {
-		if ( $this->has_rest_routes() ) {
-			add_action( 'rest_api_init', array( $this, 'register_rest_routes' ) );
+	public static function prepare() {
+		$module = new static();
+
+		if ( $module->has_rest_routes() ) {
+			add_action( 'rest_api_init', array( $module, 'register_rest_routes' ) );
 		}
 
-		add_action( 'jetpack_boost_deactivate', array( $this, 'on_deactivate' ) );
-		add_action( 'jetpack_boost_uninstall', array( $this, 'on_uninstall' ) );
+		add_action( 'jetpack_boost_deactivate', array( $module, 'on_deactivate' ) );
+		add_action( 'jetpack_boost_uninstall', array( $module, 'on_uninstall' ) );
+
+		$module->on_prepare();
+
+		return $module;
 	}
+
+	/**
+	 * Prepare the module such as add actions and filters.
+	 */
+	public function on_prepare() {}
 
 	/**
 	 * Initialize the module and track its state.

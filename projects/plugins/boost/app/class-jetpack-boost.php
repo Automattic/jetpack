@@ -235,7 +235,7 @@ class Jetpack_Boost {
 				continue;
 			}
 
-			$module                        = new $module_class();
+			$module                        = $module_class::prepare();
 			$this->modules[ $module_slug ] = $module;
 		}
 

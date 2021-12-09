@@ -116,12 +116,11 @@ class Critical_CSS extends Module {
 	protected $recommendation;
 
 	/**
-	 * Constructor.
+	 * Prepare module. This is run irrespective of the module activation status.
 	 */
-	public function __construct() {
-		parent::__construct();
-
+	public function on_prepare() {
 		$this->recommendation = new Recommendations();
+		$this->recommendation->on_prepare();
 	}
 
 	/**

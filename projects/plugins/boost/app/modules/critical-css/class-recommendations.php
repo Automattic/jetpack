@@ -19,7 +19,7 @@ class Recommendations extends Notifications {
 	/**
 	 * Constructor.
 	 */
-	public function __construct() {
+	public function on_prepare() {
 		add_action( 'rest_api_init', array( $this, 'register_rest_routes' ) );
 		add_filter( 'jetpack_boost_js_constants', array( $this, 'always_add_recommendations_constants' ) );
 		add_action( 'jetpack_boost_uninstall', array( $this, 'clear' ) );

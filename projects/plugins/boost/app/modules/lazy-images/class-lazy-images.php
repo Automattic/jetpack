@@ -30,9 +30,7 @@ class Lazy_Images extends Module {
 	/**
 	 * Constructor.
 	 */
-	public function __construct() {
-		parent::__construct();
-
+	public function on_prepare() {
 		add_action( 'jetpack_boost_loaded', array( $this, 'set_jetpack_boost_plugin_instance' ), 10, 1 );
 		add_action( 'jetpack_loaded', array( $this, 'enable_jetpack_lazy_images_module' ) );
 		add_filter( 'jetpack_boost_module_enabled', array( $this, 'set_default_module_status' ), 10, 2 );
