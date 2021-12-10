@@ -47,9 +47,7 @@ class WPcom_Admin_Menu extends Admin_Menu {
 			$this->add_new_site_link();
 		}
 
-		if ( $this->current_product_can_install_woocommerce() ) {
-			$this->add_woocommerce_installation_menu();
-		}
+		$this->add_woocommerce_installation_menu( $this->get_current_product() );
 
 		ksort( $GLOBALS['menu'] );
 	}
@@ -275,20 +273,6 @@ class WPcom_Admin_Menu extends Admin_Menu {
 		}
 
 		return $this->cached_product[ $current_blog_id ];
-	}
-
-	/**
-	 * Checks if the current product supports WooCommerce installation.
-	 *
-	 * @return bool
-	 */
-	private function current_product_can_install_woocommerce() {
-		if ( class_exists( 'WPCOM_Store' ) ) {
-			$products = \WPCOM_Store::get_wpcom_business_and_higher_plans();
-			$product  = $this->get_current_product();
-			return in_array( $product['product_id'], $products, true );
-		}
-		return false;
 	}
 
 	/**
