@@ -20,7 +20,6 @@ import analytics from 'lib/analytics';
 import Button from 'components/button';
 import {
 	getSiteConnectionStatus as _getSiteConnectionStatus,
-	disconnectSite,
 	isDisconnectingSite as _isDisconnectingSite,
 	isFetchingConnectUrl as _isFetchingConnectUrl,
 	getConnectUrl as _getConnectUrl,
@@ -29,12 +28,26 @@ import {
 	isCurrentUserLinked as _isCurrentUserLinked,
 	isUnlinkingUser as _isUnlinkingUser,
 	isConnectingUser as _isConnectingUser,
+	fetchSiteConnectionStatus,
+	fetchConnectUrl,
 } from 'state/connection';
-import { getSiteRawUrl, isSafari, doNotUseConnectionIframe } from 'state/initial-state';
+import {
+	getSiteRawUrl,
+	isSafari,
+	doNotUseConnectionIframe,
+	getApiNonce,
+	getApiRootUrl,
+	getInitialStateConnectedPlugins,
+	getInitialStateJetpackBenefits,
+	getPluginBaseUrl,
+	getUserWpComLogin,
+	getUserWpComId,
+	getSiteId,
+} from 'state/initial-state';
 import onKeyDownCallback from 'utils/onkeydown-callback';
-import JetpackDisconnectModal from 'components/jetpack-termination-dialog/disconnect-modal';
-
 import './style.scss';
+import { DisconnectDialog } from '@automattic/jetpack-connection';
+import JetpackBenefits from '../jetpack-benefits';
 
 export class ConnectButton extends React.Component {
 	static displayName = 'ConnectButton';
@@ -71,9 +84,9 @@ export class ConnectButton extends React.Component {
 		this.toggleVisibility();
 	};
 
-	disconnectSite = () => {
-		this.toggleVisibility();
-		this.props.disconnectSite();
+	handleDisconnected = () => {
+		this.props.fetchConnectUrl();
+		this.props.fetchSiteConnectionStatus();
 	};
 
 	toggleVisibility = () => {
@@ -224,10 +237,20 @@ export class ConnectButton extends React.Component {
 				) }
 				{ this.renderContent() }
 				{ this.props.children }
-				<JetpackDisconnectModal
-					show={ this.state.showModal }
-					showSurvey={ false }
-					toggleModal={ this.toggleVisibility }
+				<DisconnectDialog
+					apiNonce={ this.props.apiNonce }
+					apiRoot={ this.props.apiRoot }
+					connectedPlugins={ this.props.connectedPlugins }
+					connectedUser={ {
+						ID: this.props.userWpComId,
+						login: this.props.userWpComLogin,
+					} }
+					connectedSiteId={ this.props.connectedSiteId }
+					disconnectStepComponent={ <JetpackBenefits siteBenefits={ this.props.siteBenefits } /> }
+					onDisconnected={ this.handleDisconnected } // On disconnect, need to update the connection status in the app state.
+					isOpen={ this.state.showModal }
+					onClose={ this.toggleVisibility }
+					context={ 'jetpack' }
 				/>
 			</div>
 		);
@@ -247,12 +270,23 @@ export default connect(
 			isAuthorizing: _isConnectingUser( state ),
 			isSafari: isSafari( state ),
 			doNotUseConnectionIframe: doNotUseConnectionIframe( state ),
+			apiNonce: getApiNonce( state ),
+			apiRoot: getApiRootUrl( state ),
+			connectedPlugins: getInitialStateConnectedPlugins( state ),
+			siteBenefits: getInitialStateJetpackBenefits( state ),
+			pluginUrl: getPluginBaseUrl( state ),
+			userWpComLogin: getUserWpComLogin( state ),
+			userWpComId: getUserWpComId( state ),
+			connectedSiteId: getSiteId( state ),
 		};
 	},
 	dispatch => {
 		return {
-			disconnectSite: () => {
-				return dispatch( disconnectSite() );
+			fetchConnectUrl: () => {
+				return dispatch( fetchConnectUrl() );
+			},
+			fetchSiteConnectionStatus: () => {
+				return dispatch( fetchSiteConnectionStatus() );
 			},
 			unlinkUser: () => {
 				return dispatch( unlinkUser() );

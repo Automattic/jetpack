@@ -7,6 +7,7 @@ export default class SearchHomepage extends WpPage {
 	constructor( page ) {
 		const url = `${ resolveSiteUrl() }/?result_format=expanded`;
 		super( page, { expectedSelectors: [ '.site-title' ], url } );
+		this.timeout = 30000; // 30s.
 	}
 
 	async focusSearchInput() {

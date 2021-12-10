@@ -133,37 +133,37 @@ class WP_Test_Jetpack_Plan extends WP_UnitTestCase {
 
 	private function get_free_plan() {
 		return array(
-			'product_id' => 2002,
-			'product_slug' => 'jetpack_free',
+			'product_id'         => 2002,
+			'product_slug'       => 'jetpack_free',
 			'product_name_short' => 'Free',
-			'expired' => false,
-			'user_is_owner' => false,
-			'is_free' => true,
-			'features' => array(
-				'active' => array(
+			'expired'            => false,
+			'user_is_owner'      => false,
+			'is_free'            => true,
+			'features'           => array(
+				'active'    => array(
 					'akismet',
 					'support',
 				),
 				'available' => array(
-					'akismet' => array(
+					'akismet'                       => array(
 						'jetpack_premium',
 						'jetpack_business',
 						'jetpack_premium_monthly',
 						'jetpack_business_monthly',
 					),
-					'vaultpress-backups' => array(
+					'vaultpress-backups'            => array(
 						'jetpack_premium',
 						'jetpack_business',
 						'jetpack_premium_monthly',
 						'jetpack_business_monthly',
 					),
-					'vaultpress-backup-archive' => array(
+					'vaultpress-backup-archive'     => array(
 						'jetpack_premium',
 						'jetpack_business',
 						'jetpack_premium_monthly',
 						'jetpack_business_monthly',
 					),
-					'vaultpress-storage-space' => array(
+					'vaultpress-storage-space'      => array(
 						'jetpack_premium',
 						'jetpack_business',
 						'jetpack_premium_monthly',
@@ -175,13 +175,13 @@ class WP_Test_Jetpack_Plan extends WP_UnitTestCase {
 						'jetpack_premium_monthly',
 						'jetpack_business_monthly',
 					),
-					'simple-payments' => array(
+					'simple-payments'               => array(
 						'jetpack_premium',
 						'jetpack_business',
 						'jetpack_premium_monthly',
 						'jetpack_business_monthly',
 					),
-					'support' => array(
+					'support'                       => array(
 						'jetpack_premium',
 						'jetpack_business',
 						'jetpack_personal',
@@ -189,15 +189,15 @@ class WP_Test_Jetpack_Plan extends WP_UnitTestCase {
 						'jetpack_business_monthly',
 						'jetpack_personal_monthly',
 					),
-					'premium-themes' => array(
+					'premium-themes'                => array(
 						'jetpack_business',
 						'jetpack_business_monthly',
 					),
-					'vaultpress-security-scanning' => array(
+					'vaultpress-security-scanning'  => array(
 						'jetpack_business',
 						'jetpack_business_monthly',
 					),
-					'polldaddy' => array(
+					'polldaddy'                     => array(
 						'jetpack_business',
 						'jetpack_business_monthly',
 					),
@@ -215,25 +215,25 @@ class WP_Test_Jetpack_Plan extends WP_UnitTestCase {
 
 	private function get_personal_plan() {
 		return array(
-			'product_id' => 2005,
-			'product_slug' => 'jetpack_personal',
+			'product_id'         => 2005,
+			'product_slug'       => 'jetpack_personal',
 			'product_name_short' => 'Personal',
-			'expired' => false,
-			'user_is_owner' => false,
-			'is_free' => false,
-			'features' => array(
-				'active' => array(
+			'expired'            => false,
+			'user_is_owner'      => false,
+			'is_free'            => false,
+			'features'           => array(
+				'active'    => array(
 					'support',
 				),
 				'available' => array(
-					'akismet' => array(
+					'akismet'                       => array(
 						'jetpack_free',
 						'jetpack_premium',
 						'jetpack_business',
 						'jetpack_premium_monthly',
 						'jetpack_business_monthly',
 					),
-					'support' => array(
+					'support'                       => array(
 						'jetpack_free',
 						'jetpack_premium',
 						'jetpack_business',
@@ -241,19 +241,19 @@ class WP_Test_Jetpack_Plan extends WP_UnitTestCase {
 						'jetpack_business_monthly',
 						'jetpack_personal_monthly',
 					),
-					'vaultpress-backups' => array(
+					'vaultpress-backups'            => array(
 						'jetpack_premium',
 						'jetpack_business',
 						'jetpack_premium_monthly',
 						'jetpack_business_monthly',
 					),
-					'vaultpress-backup-archive' => array(
+					'vaultpress-backup-archive'     => array(
 						'jetpack_premium',
 						'jetpack_business',
 						'jetpack_premium_monthly',
 						'jetpack_business_monthly',
 					),
-					'vaultpress-storage-space' => array(
+					'vaultpress-storage-space'      => array(
 						'jetpack_premium',
 						'jetpack_business',
 						'jetpack_premium_monthly',
@@ -265,21 +265,21 @@ class WP_Test_Jetpack_Plan extends WP_UnitTestCase {
 						'jetpack_premium_monthly',
 						'jetpack_business_monthly',
 					),
-					'simple-payments' => array(
+					'simple-payments'               => array(
 						'jetpack_premium',
 						'jetpack_business',
 						'jetpack_premium_monthly',
 						'jetpack_business_monthly',
 					),
-					'premium-themes' => array(
+					'premium-themes'                => array(
 						'jetpack_business',
 						'jetpack_business_monthly',
 					),
-					'vaultpress-security-scanning' => array(
+					'vaultpress-security-scanning'  => array(
 						'jetpack_business',
 						'jetpack_business_monthly',
 					),
-					'polldaddy' => array(
+					'polldaddy'                     => array(
 						'jetpack_business',
 						'jetpack_business_monthly',
 					),

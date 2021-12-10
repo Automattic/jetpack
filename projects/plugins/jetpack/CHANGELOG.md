@@ -2,6 +2,71 @@
 
 ### This is a list detailing changes for all Jetpack releases.
 
+## 10.5-a.1 - 2021-12-07
+### Enhancements
+- Sharing: hide sharing buttons when printing a post or page.
+- VideoPress Block: add adaptive progress bar color settings
+
+### Improved compatibility
+- Twitter Timeline widget: Hide widget from the block inserter and Legacy widget block drop-down menu (WPCOM)
+
+### Bug fixes
+- Dashboard: hide licensing interface from users who did not link their account to WordPress.com yet, or who are not the main Jetpack connection owner.
+- VideoPress: avoid errors when copying and pasting empty video blocks.
+- VideoPress Block: maintain the state of different settings panels when reloading the video preview.
+
+### Other changes <!-- Non-user-facing changes go here. This section will not be copied to readme.txt. -->
+- Added Jetpack Installer package.
+- Atomic Menu: prevent notice for users without access to the plugins menu item.
+- Blog Subscription widget: Fix the comment block on the `hide_widget_in_block_editor()` to follow the DocBlock standards
+- Build modules with Webpack, so they benefit from our toolchain improvements.
+- DIFM: Conditionally hide admin menu and expose is_difm_lite_in_progress in the get site API
+- Fix the comment block on the `hide_widget_in_block_editor()` to follow the DocBlock standards
+- Rewrote tracks-events.js without jQuery.
+- Start an initial full sync if the site is connected when Jetpack is activated.
+- Start new Jetpack cycle 10.5-a.0
+- Switched Jetpack plugin to always use `s0.wp.com` and `i0.wp.com` for external resources
+- Updated package dependencies.
+
+## 10.4 - 2021-12-07
+### Enhancements
+- Connection: additional messaging for both connection and disconnection flows.
+- Dashboard: add option to add Jetpack product using a license key.
+- Publicize: enable the RePublicize UI in the block editor.
+- VideoPress: add captions and subtitle support.
+
+### Bug fixes
+- Custom CSS: disable CSSTidy shorthand optimizations to prevent block validation issues.
+- Dashboard: hide license activation route if user is not linked and connection owner.
+- Search: avoid fatal errors when the feature is inactive, but Extra Sidebar Widgets are active.
+- Sharing: ask search engines to not index pages with sharing query string.
+- VideoPress: fix various validation errors.
+- VideoPress: keep expanded/collapsed state of settings panel when reloading video preview.
+- Widgets: allow customizer preview to show widget visibility rules properly.
+
+### Other changes <!-- Non-user-facing changes go here. This section will not be copied to readme.txt. -->
+- Avoid generating unused assets in the static-site-generator builds.
+- Build: remove obsolete package gulp task.
+- Bump stat on plugin installs.
+- Colors: update Jetpack Primary color reference to match latest brand book.
+- E2E tests: Migrate from Jest to Playwright test runner.
+- Expose site intent from get site API to show different content in the future.
+- Fixed an issue with the mobile nav unification menu caused by fixing the collapse.
+- Fixed nav-unification on lower resolutions for wp-admin.
+- Fixes the URL of JITMs rendered in the unified sidebar when an absolute URL is given. This only affects WP.com sites.
+- JITM: Add ability to sideload Jetpack Boost and Backup plugins.
+- Made admin menu API tests compatible with WPCOM environment.
+- Refresh the site's modules and settings after successful product activation.
+- Search: forward wpcom/v2/search request to search package rest controller.
+- Search: Migrate more helper classes to package.
+- Search: update jetpack-search and search package versions
+- Sharing: update to use Recaptcha's modern key names.
+- Switched external media API tests to short-circuit API calls before they're being dispatched.
+- Updated package dependencies.
+- Update filenames of Webpack-built files.
+- Use correct user capability for the Inbox menu item in Nav Unification
+- Uses the Connection Initial State for the React app
+
 ## 10.4-a.9 - 2021-11-23
 ### Enhancements
 - Dashboard: add option to add a license key via the Jetpack dashboard.

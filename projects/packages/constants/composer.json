@@ -1,7 +1,7 @@
 {
 	"name": "automattic/jetpack-constants",
 	"description": "A wrapper for defining constants in a more testable way.",
-	"type": "library",
+	"type": "jetpack-library",
 	"license": "GPL-2.0-or-later",
 	"require": {},
 	"require-dev": {

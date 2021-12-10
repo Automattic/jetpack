@@ -1,11 +1,11 @@
 {
 	"name": "automattic/jetpack-lazy-images",
 	"description": "Speed up your site and create a smoother viewing experience by loading images as visitors scroll down the screen, instead of all at once.",
-	"type": "library",
+	"type": "jetpack-library",
 	"license": "GPL-2.0-or-later",
 	"require": {
 		"automattic/jetpack-constants": "^1.6",
-		"automattic/jetpack-assets": "^1.13"
+		"automattic/jetpack-assets": "^1.14"
 	},
 	"require-dev": {
 		"automattic/wordbless": "dev-master",

@@ -22,6 +22,7 @@ class WPcom_Admin_Menu extends Admin_Menu {
 		parent::__construct();
 
 		add_action( 'wp_ajax_sidebar_state', array( $this, 'ajax_sidebar_state' ) );
+		add_action( 'wp_ajax_jitm_dismiss', array( $this, 'wp_ajax_jitm_dismiss' ) );
 		add_action( 'admin_init', array( $this, 'sync_sidebar_collapsed_state' ) );
 		add_action( 'admin_menu', array( $this, 'remove_submenus' ), 140 ); // After hookpress hook at 130.
 	}
@@ -225,6 +226,9 @@ class WPcom_Admin_Menu extends Admin_Menu {
 				'tracks_impression_cta_name'   => $message->tracks['display']['props']['cta_name'],
 				'tracks_click_event_name'      => $message->tracks['click']['name'],
 				'tracks_click_cta_name'        => $message->tracks['click']['props']['cta_name'],
+				'dismissible'                  => $message->is_dismissible,
+				'feature_class'                => $message->feature_class,
+				'id'                           => $message->id,
 			);
 		}
 	}
@@ -380,6 +384,16 @@ class WPcom_Admin_Menu extends Admin_Menu {
 		update_user_attribute( $user_id, 'calypso_preferences', $value );
 
 		die();
+	}
+
+	/**
+	 * Handle ajax requests to dismiss a just-in-time-message
+	 */
+	public function wp_ajax_jitm_dismiss() {
+		check_ajax_referer( 'jitm_dismiss' );
+		require_lib( 'jetpack-jitm/jitm-engine' );
+		JITM\Engine::dismiss( $_REQUEST['id'], $_REQUEST['feature_class'] );
+		wp_die();
 	}
 
 	/**

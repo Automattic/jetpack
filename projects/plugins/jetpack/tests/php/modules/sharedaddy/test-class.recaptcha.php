@@ -95,7 +95,7 @@ class WP_Test_Jetpack_ReCaptcha extends WP_UnitTestCase {
 
 	public function test_get_recaptcha_html() {
 		$config = $this->recaptcha->get_default_config();
-		$html = $this->recaptcha->get_recaptcha_html();
+		$html   = $this->recaptcha->get_recaptcha_html();
 
 		// Make sure div tag appears with expected attributes.
 		$this->assertStringContainsString( '<div', $html );
@@ -153,10 +153,12 @@ class WP_Test_Jetpack_ReCaptcha extends WP_UnitTestCase {
 
 	protected function http_response_with_error_code( $first_error_code ) {
 		return array(
-			'body' => json_encode( array(
-				'success'     => false,
-				'error-codes' => array( $first_error_code ),
-			) ),
+			'body' => wp_json_encode(
+				array(
+					'success'     => false,
+					'error-codes' => array( $first_error_code ),
+				)
+			),
 		);
 	}
 }
