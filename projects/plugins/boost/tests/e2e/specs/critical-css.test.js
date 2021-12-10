@@ -27,7 +27,8 @@ test.describe.serial( 'Critical CSS module', () => {
 		).toBe( 0 );
 	} );
 
-	// The order of the following tests is important as we are making reuse of the generated Critical CSS which is a lengthy tasks in a test.
+	// The order of the following tests is important as we are making reuse of the generated Critical CSS
+	// which is an onerous task in a test.
 	test( 'Critical CSS should be generated when the module is active', async () => {
 		await boostPrerequisitesBuilder( page ).withActiveModules( [ 'critical-css' ] ).build();
 		const jetpackBoostPage = await JetpackBoostPage.visit( page );
