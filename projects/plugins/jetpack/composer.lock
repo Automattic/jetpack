@@ -1497,11 +1497,11 @@
             "dist": {
                 "type": "path",
                 "url": "../../packages/search",
-                "reference": "c7102d656f84766fb655dd7075908cf3341a276b"
+                "reference": "c2ad5f20cb098b25a5255bee5a41659912abcdb6"
             },
             "require": {
-                "automattic/jetpack-assets": "^1.13",
-                "automattic/jetpack-connection": "^1.32",
+                "automattic/jetpack-assets": "^1.14",
+                "automattic/jetpack-connection": "^1.33",
                 "automattic/jetpack-constants": "^1.6",
                 "automattic/jetpack-options": "^1.14",
                 "automattic/jetpack-status": "^1.9",
