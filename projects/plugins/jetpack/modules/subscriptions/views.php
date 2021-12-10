@@ -64,10 +64,10 @@ class Jetpack_Subscriptions_Widget extends WP_Widget {
 	}
 
 	/**
-	 * Remove Social Icons widget from Legacy Widget block.
+	 * Remove the "Blog Subscription" widget from the Legacy Widget block
 	 *
-	 * @param array $widget_types Widget type data.
-	 * This only applies to new blocks being added.
+	 * @param array $widget_types List of widgets that are currently removed from the Legacy Widget block.
+	 * @return array $widget_types New list of widgets that will be removed.
 	 */
 	public function hide_widget_in_block_editor( $widget_types ) {
 		$widget_types[] = self::ID_BASE;
@@ -808,6 +808,7 @@ function jetpack_do_subscription_form( $instance ) {
 	$submit_button_styles         = '';
 	$submit_button_wrapper_styles = '';
 	$email_field_styles           = '';
+	$success_message              = '';
 
 	if ( isset( $instance['custom_background_button_color'] ) && 'undefined' !== $instance['custom_background_button_color'] ) {
 		$submit_button_styles .= 'background: ' . $instance['custom_background_button_color'] . '; ';
@@ -876,6 +877,9 @@ function jetpack_do_subscription_form( $instance ) {
 		$submit_button_styles .= $style;
 		$email_field_styles   .= $style;
 	}
+	if ( isset( $instance['success_message'] ) && 'undefined' !== $instance['success_message'] ) {
+		$success_message = wp_kses( stripslashes( $instance['success_message'] ), array() );
+	}
 
 	$instance = shortcode_atts(
 		Jetpack_Subscriptions_Widget::defaults(),
@@ -901,6 +905,9 @@ function jetpack_do_subscription_form( $instance ) {
 	}
 	if ( ! empty( $email_field_styles ) ) {
 		$instance['email_field_styles'] = trim( $email_field_styles );
+	}
+	if ( ! empty( $success_message ) ) {
+		$instance['success_message'] = trim( $success_message );
 	}
 
 	$args = array(
