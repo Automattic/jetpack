@@ -302,8 +302,8 @@ class Jetpack_Top_Posts_Widget extends WP_Widget {
 		$types = isset( $instance['types'] ) ? (array) $instance['types'] : array( 'post', 'page' );
 
 		// 'likes' are not available in Jetpack
-		$ordering = isset( $instance['ordering'] ) && 'likes' === $instance['ordering'] ?
-			'likes'
+		$ordering = isset( $instance['ordering'] ) && 'likes' === $instance['ordering']
+			? 'likes'
 			: 'views';
 
 		if (
