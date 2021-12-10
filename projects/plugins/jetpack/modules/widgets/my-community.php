@@ -74,8 +74,8 @@ class Jetpack_My_Community_Widget extends WP_Widget {
 			$title = $this->default_title;
 		}
 
-		$number = isset( $instance['number'] ) ? $instance['number'] : 10;
-		if ( ! in_array( $number, array( 10, 50 ) ) ) { // phpcs:ignore WordPress.PHP.StrictInArray.MissingTrueStrict
+		$number = isset( $instance['number'] ) ? (int) $instance['number'] : 10;
+		if ( ! in_array( $number, array( 10, 50 ), true ) ) {
 			$number = 10;
 		}
 
