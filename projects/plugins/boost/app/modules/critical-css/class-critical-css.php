@@ -9,6 +9,7 @@
 
 namespace Automattic\Jetpack_Boost\Modules\Critical_CSS;
 
+use Automattic\Jetpack_Boost\Modules\Critical_CSS\API\Status;
 use Automattic\Jetpack_Boost\Modules\Critical_CSS\Generate\Generator;
 use Automattic\Jetpack_Boost\Modules\Critical_CSS\Path_Providers\Paths;
 use Automattic\Jetpack_Boost\Modules\Module;
@@ -34,6 +35,8 @@ class Critical_CSS extends Module {
 		$this->paths    = new Paths();
 		$this->rest_api = new REST_API();
 
+
+
 	}
 
 	/**
@@ -46,7 +49,7 @@ class Critical_CSS extends Module {
 		// for setting up the storage.
 
 		$this->rest_api->on_initialize();
-
+		Status::register();
 		// Update ready flag used to indicate Boost optimizations are warmed up in metatag.
 		add_filter( 'jetpack_boost_url_ready', array( $this, 'is_ready_filter' ), 10, 1 );
 
@@ -74,6 +77,8 @@ class Critical_CSS extends Module {
 
 	public function register_rest_routes() {
 		$this->rest_api->register_rest_routes();
+
+
 	}
 
 

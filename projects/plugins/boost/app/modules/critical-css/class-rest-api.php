@@ -29,18 +29,6 @@ class REST_API {
 
 
 	public function register_rest_routes() {
-
-		// Store and retrieve critical css status.
-		register_rest_route(
-			JETPACK_BOOST_REST_NAMESPACE,
-			JETPACK_BOOST_REST_PREFIX . '/critical-css/status',
-			array(
-				'methods'             => \WP_REST_Server::READABLE,
-				'callback'            => array( $this, 'api_get_critical_css_status' ),
-				'permission_callback' => array( $this, 'current_user_can_modify_critical_css' ),
-			),
-		);
-
 		// Register Critical CSS generate route.
 		register_rest_route(
 			JETPACK_BOOST_REST_NAMESPACE,
@@ -345,14 +333,4 @@ class REST_API {
 
 		return $constants;
 	}
-
-	/**
-	 * REST API endpoint to get local critical css status.
-	 *
-	 * @return \WP_Error|\WP_HTTP_Response|\WP_REST_Response
-	 */
-	public function api_get_critical_css_status() {
-		return rest_ensure_response( $this->generator->get_critical_css_status() );
-	}
-
 }
