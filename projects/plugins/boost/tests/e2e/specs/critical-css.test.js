@@ -17,7 +17,7 @@ test.describe.serial( 'Critical CSS module', () => {
 		expect( await jetpackBoostPage.isTheCriticalCssMetaInformationVisible() ).toBeFalsy();
 	} );
 
-	test( 'No Critical CSS should available on the frontend when the module is inactive', async () => {
+	test( 'No Critical CSS should be available on the frontend when the module is inactive', async () => {
 		await boostPrerequisitesBuilder( page ).withInactiveModules( [ 'critical-css' ] ).build();
 		await PostFrontendPage.visit( page );
 		expect(
