@@ -31,7 +31,7 @@ class Options_Array {
 	 * Get all the items stored in the options.
 	 */
 	public function get() {
-		return \get_option( $this->key, array() );
+		return get_option( $this->key, array() );
 	}
 
 	/**
@@ -40,11 +40,11 @@ class Options_Array {
 	 * @param string $item Item to add.
 	 */
 	public function add( $item ) {
-		$all_items = \get_option( $this->key, array() );
+		$all_items = get_option( $this->key, array() );
 
 		if ( ! in_array( $item, $all_items, true ) ) {
 			$all_items[] = $item;
-			\update_option( $this->key, $all_items );
+			update_option( $this->key, $all_items );
 		}
 	}
 
@@ -52,6 +52,6 @@ class Options_Array {
 	 * Delete all the items in the list.
 	 */
 	public function delete() {
-		\delete_option( $this->key );
+		delete_option( $this->key );
 	}
 }
