@@ -77,4 +77,22 @@ export default class JetpackBoostPage extends WpPage {
 		const selector = '.jb-critical-css-progress';
 		return this.waitForElementToBeVisible( selector );
 	}
+
+	async isTheCriticalCssFailureMessageVisible() {
+		const selector = '.jb-critical-css__meta .failures';
+		return this.page.isVisible( selector );
+	}
+
+	async navigateToCriticalCSSAdvancedRecommendations() {
+		await this.page.click( 'text=Advanced Recommendations' );
+	}
+
+	async isTheCriticalCSSAdvancedRecommendationsSectionVisible() {
+		const selector = '.jb-critical-css__advanced';
+		return this.waitForElementToBeVisible( selector );
+	}
+
+	async navigateToMainSettingsPage() {
+		await this.page.click( 'text=Go back' );
+	}
 }

@@ -77,4 +77,40 @@ test.describe.serial( 'Critical CSS module', () => {
 		).toBeTruthy();
 		expect( await jetpackBoostPage.waitForTheCriticalCssMetaInformationToBeVisible() ).toBeTruthy();
 	} );
+
+	test( 'Critical CSS should be generated with an error (advanced recommendations)', async () => {
+		await boostPrerequisitesBuilder( page )
+			.withCleanEnv( true )
+			.withActiveModules( [ 'critical-css' ] )
+			.build();
+
+		// Purposely fail some page requests so Critical CSS will be generated with an error, and we can
+		// test scenarios around advanced recommendations.
+		await page.route( '**/*', route => {
+			const url = route.request().url();
+			if ( url.includes( 'page_id' ) ) {
+				return route.abort();
+			}
+			return route.continue();
+		} );
+
+		const jetpackBoostPage = await JetpackBoostPage.visit( page );
+		expect(
+			await jetpackBoostPage.WaitForTheCriticalCssGeneratingProgressInformationToBeVisible()
+		).toBeTruthy();
+		expect( await jetpackBoostPage.waitForTheCriticalCssMetaInformationToBeVisible() ).toBeTruthy();
+		expect( await jetpackBoostPage.isTheCriticalCssFailureMessageVisible() ).toBeTruthy();
+	} );
+
+	test( 'User can access the Critical advanced recommendations and go back to settings page', async () => {
+		await boostPrerequisitesBuilder( page ).withActiveModules( [ 'critical-css' ] ).build();
+
+		const jetpackBoostPage = await JetpackBoostPage.visit( page );
+		await jetpackBoostPage.navigateToCriticalCSSAdvancedRecommendations();
+		expect(
+			await jetpackBoostPage.isTheCriticalCSSAdvancedRecommendationsSectionVisible()
+		).toBeTruthy();
+		await jetpackBoostPage.navigateToMainSettingsPage();
+		expect( await jetpackBoostPage.isTheCriticalCssMetaInformationVisible() ).toBeTruthy();
+	} );
 } );
