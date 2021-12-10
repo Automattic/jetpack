@@ -72,7 +72,16 @@ class Server_Sandbox {
 					1
 				);
 
-				if ( defined( 'JETPACK__SANDBOX_PROFILE' ) && JETPACK__SANDBOX_PROFILE ) {
+				/**
+				 * Whether to add the X Debug query parameter to the request made to the Sandbox
+				 *
+				 * @since $$next-version$$
+				 *
+				 * @param bool   $add_parameter Whether to add the parameter to the request or not. Default is to false.
+				 * @param string $url The URL of the request being made.
+				 * @param string $host The host of the request being made.
+				*/
+				if ( apply_filters( 'jetpack_sandbox_add_profile_parameter', false, $url, $host ) ) {
 					$query = wp_parse_url( $url, PHP_URL_QUERY );
 
 					// The parse_url function returns a string if the URL has parameters or NULL if not.
