@@ -17,37 +17,6 @@ class Display_Critical_CSS {
 		$this->css = $css;
 	}
 
-
-	/**
-	 * Returns true if the current page render should try to display Critical CSS.
-	 */
-	public function should_display_critical_css() {
-		// Don't display Critical CSS when generating Critical CSS.
-		if ( Generator::is_generating_critical_css() ) {
-			return false;
-		}
-
-		// Don't show Critical CSS in customizer previews.
-		if ( is_customize_preview() ) {
-			return false;
-		}
-
-		return true;
-	}
-
-
-	public static function please( $css ) {
-		$display = new static( $css );
-
-		if ( $display->should_display_critical_css() ) {
-			Admin_Bar_Css_Compat::init();
-
-			add_action( 'wp_head', array( $display, 'display_critical_css' ), 0 );
-			add_filter( 'style_loader_tag', array( $display, 'asynchronize_stylesheets' ), 10, 4 );
-			add_action( 'wp_footer', array( $display, 'onload_flip_stylesheets' ) );
-		}
-	}
-
 	/**
 	 * Converts existing screen CSS to be asynchronously loaded.
 	 *

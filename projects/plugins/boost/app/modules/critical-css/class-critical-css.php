@@ -104,14 +104,7 @@ class Critical_CSS extends Module {
 		// Update ready flag used to indicate Boost optimizations are warmed up in metatag.
 		add_filter( 'jetpack_boost_url_ready', array( $this, 'is_ready_filter' ), 10, 1 );
 
-		// Critically Bad: Start
-		if ( ! is_admin() ) {
-			$critical_css = $this;
-			add_action( 'wp', function() use ( $critical_css ) {
-				Display_Critical_CSS::please( $critical_css->get_current_request_css() );
-			} );
-		}
-		// Critically Bad: End
+		add_action( 'wp', array( $this, 'display_critical_css' ) );
 
 
 		if ( Generator::is_generating_critical_css() ) {
@@ -172,6 +165,34 @@ class Critical_CSS extends Module {
 		?>
 		<meta name="jb-generate-critical-css" content="true"/>
 		<?php
+	}
+
+	public function display_critical_css() {
+
+		// Don't look for Critical CSS in the dashboard
+		if ( ! is_admin() ) {
+			return false;
+		}
+		// Don't display Critical CSS when generating Critical CSS.
+		if ( Generator::is_generating_critical_css() ) {
+			return false;
+		}
+
+		// Don't show Critical CSS in customizer previews.
+		if ( is_customize_preview() ) {
+			return false;
+		}
+
+		$critical_css = $this->get_current_request_css();
+
+		if ( ! $critical_css ) {
+			return false;
+		}
+
+		$display = new Display_Critical_CSS( $critical_css );
+		add_action( 'wp_head', array( $display, 'display_critical_css' ), 0 );
+		add_filter( 'style_loader_tag', array( $display, 'asynchronize_stylesheets' ), 10, 4 );
+		add_action( 'wp_footer', array( $display, 'onload_flip_stylesheets' ) );
 	}
 
 
