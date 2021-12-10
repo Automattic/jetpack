@@ -67,76 +67,16 @@ class Jetpack_Notifications {
 	}
 
 	/**
-	 * Return the major version of Internet Explorer the viewer is using or false if it's not IE
-	 */
-	public static function get_internet_explorer_version() {
-		static $version;
-		if ( isset( $version ) ) {
-			return $version;
-		}
-
-		$user_agent = isset( $_SERVER['HTTP_USER_AGENT'] ) ? $_SERVER['HTTP_USER_AGENT'] : '';
-
-		preg_match( '/MSIE (\d+)/', $user_agent, $matches );
-		$version = empty( $matches[1] ) ? null : $matches[1];
-		if ( empty( $version ) || ! $version ) {
-			return false;
-		}
-		return $version;
-	}
-
-	/**
-	 * Checks if the current browser is supported, e.g. over IE 8.
-	 *
-	 * @return bool|mixed
-	 */
-	public static function current_browser_is_supported() {
-		static $supported;
-
-		if ( isset( $supported ) ) {
-			return $supported;
-		}
-
-		$ie_version = self::get_internet_explorer_version();
-		if ( false === $ie_version ) {
-			$supported = true;
-			return $supported;
-		}
-
-		if ( $ie_version < 8 ) { // @todo: Do we care to keep this?
-			$supported = false;
-			return $supported;
-		}
-		$supported = true;
-
-		return $supported;
-	}
-
-	/**
 	 * Init the notifications admin bar.
 	 *
 	 * @return void
 	 */
 	public function action_init() {
-		// syncing must wait until after init so
-		// post types that support comments.
-		$filt_post_types = array();
-		$all_post_types  = get_post_types();
-		foreach ( $all_post_types as $post_type ) {
-			if ( post_type_supports( $post_type, 'comments' ) ) {
-				$filt_post_types[] = $post_type;
-			}
-		}
-
 		if ( defined( 'DOING_AJAX' ) && DOING_AJAX ) {
 			return;
 		}
 
 		if ( ! has_filter( 'show_admin_bar', '__return_true' ) && ! is_user_logged_in() ) {
-			return;
-		}
-
-		if ( ! self::current_browser_is_supported() ) {
 			return;
 		}
 
