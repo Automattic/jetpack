@@ -9,6 +9,7 @@ namespace Automattic\Jetpack\Search;
 
 use Automattic\Jetpack\Status;
 use Jetpack_Options;
+use WP_Error;
 
 /**
  * To get and set Searh module settings
@@ -77,11 +78,11 @@ class Module_Control {
 		// Not available for offline mode.
 		$is_offline_mode = ( new Status() )->is_offline_mode();
 		if ( $is_offline_mode ) {
-			return false;
+			return new WP_Error( 'offline_mode', __( 'Search module can not be activated in offline mode.', 'jetpack' ) );
 		}
 		// Return false if no plan supports search.
 		if ( ! $this->plan->supports_search() ) {
-			return false;
+			return new WP_Error( 'not_supported', __( 'Your plan does not support Jetpack Search.', 'jetpack' ) );
 		}
 
 		$active_modules   = $this->get_active_modules();
@@ -148,7 +149,18 @@ class Module_Control {
 		 */
 		do_action( 'jetpack_deactivate_module_' . self::JETPACK_SEARCH_MODULE_SLUG );
 
+		$this->disable_instant_search();
+
 		return $success;
+	}
+
+	/**
+	 * Update module status
+	 *
+	 * @param boolean $active - true to activate, false to deactivate.
+	 */
+	public function update_status( $active ) {
+		return $active ? $this->activate() : $this->deactivate();
 	}
 
 	/**
@@ -162,7 +174,19 @@ class Module_Control {
 	 * Enable Instant Search Experience
 	 */
 	public function enable_instant_search() {
+		if ( ! $this->is_active() ) {
+			return new WP_Error( 'search_module_inactive', __( 'Search module needs to be activated before enabling instant search.', 'jetpack' ) );
+		}
 		return update_option( self::SEARCH_MODULE_INSTANT_SEARCH_OPTION_KEY, true );
+	}
+
+	/**
+	 * Update instant search status
+	 *
+	 * @param boolean $enabled - true to enable, false to disable.
+	 */
+	public function update_instant_search_status( $enabled ) {
+		return $enabled ? $this->enable_instant_search() : $this->disable_instant_search();
 	}
 
 	/**
