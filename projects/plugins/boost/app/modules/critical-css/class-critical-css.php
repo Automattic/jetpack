@@ -65,7 +65,6 @@ class Critical_CSS extends Module {
 
 	protected $recommendation;
 
-
 	/**
 	 * @var Generator $generator
 	 */
@@ -77,7 +76,6 @@ class Critical_CSS extends Module {
 	public function on_prepare() {
 		$this->recommendation = new Recommendations();
 		$this->recommendation->on_prepare();
-
 
 	}
 
@@ -94,18 +92,15 @@ class Critical_CSS extends Module {
 		$this->storage   = new Critical_CSS_Storage();
 		$this->generator = new Generator( $this->providers );
 
-
 		// Critically Bad: Start
 		$this->rest_api = new REST_API( $this->storage, $this->recommendation, $this->generator, $this->providers );
 		$this->rest_api->on_initialize();
 		// Critically Bad: End
 
-
 		// Update ready flag used to indicate Boost optimizations are warmed up in metatag.
 		add_filter( 'jetpack_boost_url_ready', array( $this, 'is_ready_filter' ), 10, 1 );
 
 		add_action( 'wp', array( $this, 'display_critical_css' ) );
-
 
 		if ( Generator::is_generating_critical_css() ) {
 			add_action( 'wp_head', array( $this, 'display_generate_meta' ), 0 );
@@ -131,8 +126,6 @@ class Critical_CSS extends Module {
 		$this->rest_api->register_rest_routes();
 	}
 
-
-
 	/**
 	 * Get all critical CSS storage keys that are available for the current request.
 	 * Caches the result.
@@ -140,8 +133,8 @@ class Critical_CSS extends Module {
 	 * @return array
 	 */
 	public function get_current_request_css_keys() {
-		static $keys = NULL;
-		if ( NULL !== $keys ) {
+		static $keys = null;
+		if ( null !== $keys ) {
 			return $keys;
 		}
 
@@ -183,11 +176,6 @@ class Critical_CSS extends Module {
 			return;
 		}
 
-		// If is AMP, do not alter the stylesheet loading.
-		if ( function_exists( 'is_amp_endpoint' ) && is_amp_endpoint() ) {
-			return;
-		}
-
 		// Get the Critical CSS to show
 		$critical_css = $this->get_current_request_css();
 		if ( ! $critical_css ) {
@@ -199,7 +187,6 @@ class Critical_CSS extends Module {
 		add_filter( 'style_loader_tag', array( $display, 'asynchronize_stylesheets' ), 10, 4 );
 		add_action( 'wp_footer', array( $display, 'onload_flip_stylesheets' ) );
 	}
-
 
 	/**
 	 * Clear Critical CSS.
@@ -216,7 +203,7 @@ class Critical_CSS extends Module {
 	 * @return string|false
 	 */
 	public function get_current_request_css() {
-		if ( NULL !== $this->request_cached_css ) {
+		if ( null !== $this->request_cached_css ) {
 			return $this->request_cached_css;
 		}
 
@@ -230,9 +217,6 @@ class Critical_CSS extends Module {
 
 		return $this->request_cached_css;
 	}
-
-
-
 
 	/**
 	 * Check if the current URL is warmed up. For this module, "warmed up" means that
@@ -274,9 +258,6 @@ class Critical_CSS extends Module {
 		}
 	}
 
-
-
-
 	/**
 	 * Override; returns an admin notice to show if there was a reset reason.
 	 *
@@ -286,7 +267,7 @@ class Critical_CSS extends Module {
 		$reason = \get_option( REST_API::RESET_REASON_STORAGE_KEY );
 
 		if ( ! $reason ) {
-			return NULL;
+			return null;
 		}
 
 		return array( new Regenerate_Admin_Notice( $reason ) );
@@ -298,8 +279,5 @@ class Critical_CSS extends Module {
 	public static function clear_reset_reason() {
 		\delete_option( REST_API::RESET_REASON_STORAGE_KEY );
 	}
-
-
-
 
 }
