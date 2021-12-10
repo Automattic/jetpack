@@ -8,7 +8,7 @@ import PropTypes from 'prop-types';
 /**
  * Internal dependencies
  */
-import './style.scss';
+import styles from './style.module.scss';
 import AdminPageHeader from './header';
 import AdminPageFooter from './footer';
 
@@ -21,13 +21,13 @@ import AdminPageFooter from './footer';
  * @returns {React.Component} AdminPage component.
  */
 const AdminPage = props => {
-	const { children, moduleName, a8cLogoHref } = props;
+	const { children, moduleName, a8cLogoHref, showHeader, showFooter } = props;
 
 	return (
-		<div class="jp-admin-page">
-			<AdminPageHeader />
+		<div className={ styles[ 'jp-admin-page' ] }>
+			{ showHeader && <AdminPageHeader /> }
 			{ children }
-			<AdminPageFooter moduleName={ moduleName } a8cLogoHref={ a8cLogoHref } />
+			{ showFooter && <AdminPageFooter moduleName={ moduleName } a8cLogoHref={ a8cLogoHref } /> }
 		</div>
 	);
 };
@@ -35,6 +35,8 @@ const AdminPage = props => {
 AdminPage.defaultProps = {
 	a8cLogoHref: 'https://jetpack.com',
 	moduleName: __( 'Jetpack', 'jetpack' ),
+	showHeader: true,
+	showFooter: true,
 };
 
 AdminPage.propTypes = {
@@ -42,6 +44,10 @@ AdminPage.propTypes = {
 	a8cLogoHref: PropTypes.string,
 	/** Name of the module, e.g. 'Jetpack Search' that will be displayed in the footer. */
 	moduleName: PropTypes.string,
+	/** Whether or not to display the Header */
+	showHeader: PropTypes.bool,
+	/** Whether or not to display the Footer */
+	showFooter: PropTypes.bool,
 };
 
 export default AdminPage;
