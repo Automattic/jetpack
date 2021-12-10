@@ -7,47 +7,13 @@ use Automattic\Jetpack_Boost\Modules\Critical_CSS\Generate\Generator;
 
 class REST_API {
 
-	/**
-	 * Critical CSS storage class instance.
-	 *
-	 * @var Critical_CSS_Storage
-	 */
 	protected $storage;
-
 	protected $recommendations;
-
-	/**
-	 * @var Generator $generator
-	 */
 	protected $generator;
-
-	const CSS_CALLBACK_ACTION = 'jb-critical-css-callback';
-
 	protected $is_initialized = false;
 
+	const CSS_CALLBACK_ACTION      = 'jb-critical-css-callback';
 	const RESET_REASON_STORAGE_KEY = 'jb-generate-critical-css-reset-reason';
-
-
-	/**
-	 * Viewport sizes for this module.
-	 */
-	const VIEWPORT_SIZES = array(
-		0 => array(
-			'type'   => 'phone',
-			'width'  => 414,
-			'height' => 896,
-		),
-		1 => array(
-			'type'   => 'tablet',
-			'width'  => 1200,
-			'height' => 800,
-		),
-		2 => array(
-			'type'   => 'desktop',
-			'width'  => 1920,
-			'height' => 1080,
-		),
-	);
 
 	public function __construct() {
 		$this->storage         = new Critical_CSS_Storage();
@@ -61,11 +27,7 @@ class REST_API {
 		$this->is_initialized = true;
 	}
 
-	/**
-	 * Register the Critical CSS related REST routes.
-	 *
-	 * @return bool
-	 */
+
 	public function register_rest_routes() {
 
 		// Store and retrieve critical css status.
@@ -340,7 +302,23 @@ class REST_API {
 		$status = $this->generator->get_critical_css_status();
 
 		// Add viewport sizes.
-		$status['viewports'] = self::VIEWPORT_SIZES;
+		$status['viewports'] = array(
+			0 => array(
+				'type'   => 'phone',
+				'width'  => 414,
+				'height' => 896,
+			),
+			1 => array(
+				'type'   => 'tablet',
+				'width'  => 1200,
+				'height' => 800,
+			),
+			2 => array(
+				'type'   => 'desktop',
+				'width'  => 1920,
+				'height' => 1080,
+			),
+		);;
 
 		// Add a userless nonce to use when requesting pages for Critical CSS generation (i.e.: To turn off admin features).
 		$status['generation_nonce'] = Nonce::create( Generator::GENERATE_QUERY_ACTION );
