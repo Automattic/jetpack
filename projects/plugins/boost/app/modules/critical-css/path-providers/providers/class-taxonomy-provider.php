@@ -5,7 +5,7 @@
  * @package automattic/jetpack-boost
  */
 
-namespace Automattic\Jetpack_Boost\Modules\Critical_CSS\Providers;
+namespace Automattic\Jetpack_Boost\Modules\Critical_CSS\Path_Providers\Providers;
 
 /**
  * Class Taxonomy_Provider

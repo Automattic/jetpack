@@ -10,12 +10,6 @@
 namespace Automattic\Jetpack_Boost\Modules\Critical_CSS;
 
 use Automattic\Jetpack_Boost\Modules\Critical_CSS\Generate\Generator;
-use Automattic\Jetpack_Boost\Modules\Critical_CSS\Providers\Archive_Provider;
-use Automattic\Jetpack_Boost\Modules\Critical_CSS\Providers\Post_ID_Provider;
-use Automattic\Jetpack_Boost\Modules\Critical_CSS\Providers\Provider;
-use Automattic\Jetpack_Boost\Modules\Critical_CSS\Providers\Singular_Post_Provider;
-use Automattic\Jetpack_Boost\Modules\Critical_CSS\Providers\Taxonomy_Provider;
-use Automattic\Jetpack_Boost\Modules\Critical_CSS\Providers\WP_Core_Provider;
 use Automattic\Jetpack_Boost\Modules\Module;
 
 /**
@@ -25,21 +19,7 @@ class Critical_CSS extends Module {
 
 	const MODULE_SLUG = 'critical-css';
 
-	/**
-	 * List of all the Critical CSS Types.
-	 *
-	 * The order is important because searching for critical CSS will stop as soon as a value is found.
-	 * So finding Critical CSS by post ID is attempted before searching for a common Singular Post critical CSS.
-	 *
-	 * @var Provider[]
-	 */
-	protected $providers = array(
-		Post_ID_Provider::class,
-		WP_Core_Provider::class,
-		Singular_Post_Provider::class,
-		Archive_Provider::class,
-		Taxonomy_Provider::class,
-	);
+
 	/**
 	 * Stores the Critical CSS key used for rendering the current page if any.
 	 *
@@ -106,7 +86,6 @@ class Critical_CSS extends Module {
 			add_action( 'wp_head', array( $this, 'display_generate_meta' ), 0 );
 			$this->force_logged_out_render();
 		}
-		// Critically Bad: End
 
 		add_action( 'handle_theme_change', array( $this, 'clear_critical_css' ) );
 		add_action( 'jetpack_boost_clear_cache', array( $this, 'clear_critical_css' ) );
