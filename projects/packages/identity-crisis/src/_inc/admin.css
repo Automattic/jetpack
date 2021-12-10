@@ -3545,24 +3545,24 @@ https://github.com/thoughtbot/bourbon
   margin-top: 32px;
   text-align: center; }
 
-.jp-recommendations__app-badge {
+.apps-badge {
   display: flex;
   max-width: 135px;
   max-height: 40px;
   overflow: hidden;
   margin: 0; }
-  .jp-recommendations__app-badge:first-child {
+  .apps-badge:first-child {
     margin-right: 8px; }
-  .jp-recommendations__app-badge img {
+  .apps-badge img {
     max-width: 100%; }
-  .jp-recommendations__app-badge.android-app-badge img {
+  .apps-badge.android-app-badge img {
     transform: scale(1.13) translate(-7px, -5.1px);
     transform-origin: left; }
 
 .jp-recommendations-sidebar-card__apps-badge {
   display: flex;
   margin-top: 32px; }
-  .jp-recommendations-sidebar-card__apps-badge .jp-recommendations__app-badge {
+  .jp-recommendations-sidebar-card__apps-badge .apps-badge {
     width: 50%; }
 
 @charset "UTF-8";

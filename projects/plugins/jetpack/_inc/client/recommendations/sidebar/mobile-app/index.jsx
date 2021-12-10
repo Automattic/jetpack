@@ -8,7 +8,7 @@ import React, { useCallback, useEffect } from 'react';
 /**
  * Internal dependencies
  */
-import AppsBadge from './apps-badge';
+import AppsBadge from 'components/apps-badge';
 import { Layout } from '../layout';
 import Gridicon from 'components/gridicon';
 import { imagePath } from 'constants/urls';
