@@ -9,7 +9,7 @@
  * Register the widget.
  */
 function jetpack_rss_links_widget_init() {
-	register_widget( 'Jetpack_RSS_Links_Widget' );
+	register_widget( Jetpack_RSS_Links_Widget::class );
 }
 add_action( 'widgets_init', 'jetpack_rss_links_widget_init' );
 
