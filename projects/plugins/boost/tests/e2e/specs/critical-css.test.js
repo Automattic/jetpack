@@ -20,6 +20,9 @@ test.describe.serial( 'Critical CSS module', () => {
 		await page.close();
 	} );
 
+	// NOTE: The order of the following tests is important as we are making reuse of the generated Critical CSS
+	// which is an onerous task in a test.
+
 	test( 'No Critical CSS meta information should show on the admin when the module is inactive', async () => {
 		await boostPrerequisitesBuilder( page ).withInactiveModules( [ 'critical-css' ] ).build();
 		const jetpackBoostPage = await JetpackBoostPage.visit( page );
@@ -36,8 +39,6 @@ test.describe.serial( 'Critical CSS module', () => {
 		).toBe( 0 );
 	} );
 
-	// The order of the following tests is important as we are making reuse of the generated Critical CSS
-	// which is an onerous task in a test.
 	test( 'Critical CSS should be generated when the module is active', async () => {
 		await boostPrerequisitesBuilder( page ).withActiveModules( [ 'critical-css' ] ).build();
 		const jetpackBoostPage = await JetpackBoostPage.visit( page );
