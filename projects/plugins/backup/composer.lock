@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "942f5f58e0f9a368197afd54aedb0517",
+    "content-hash": "925044dd00ea7fdcdfb628ab5cc08fda",
     "packages": [
         {
             "name": "automattic/jetpack-a8c-mc-stats",
@@ -62,7 +62,7 @@
             "dist": {
                 "type": "path",
                 "url": "../../packages/admin-ui",
-                "reference": "28dbf72455634f17f98326db4de2a2575c56d04d"
+                "reference": "eda6e9f2a28a1b20f9622f06cd604e72e7591af3"
             },
             "require-dev": {
                 "automattic/jetpack-changelogger": "^3.0",
@@ -77,7 +77,7 @@
                     "link-template": "https://github.com/Automattic/jetpack-admin-ui/compare/${old}...${new}"
                 },
                 "branch-alias": {
-                    "dev-master": "0.1.x-dev"
+                    "dev-master": "0.2.x-dev"
                 },
                 "version-constants": {
                     "::PACKAGE_VERSION": "src/class-admin-menu.php"
@@ -725,11 +725,12 @@
             "dist": {
                 "type": "path",
                 "url": "../../packages/my-jetpack",
-                "reference": "4ff3bd578db2c0620325f0d007130827372a553b"
+                "reference": "d077b46589bfd12437fe9963e6492179a32c8278"
             },
             "require": {
-                "automattic/jetpack-admin-ui": "^0.1",
-                "automattic/jetpack-assets": "^1.14"
+                "automattic/jetpack-admin-ui": "^0.2",
+                "automattic/jetpack-assets": "^1.14",
+                "automattic/jetpack-connection": "^1.33"
             },
             "require-dev": {
                 "automattic/jetpack-changelogger": "^3.0",
@@ -743,7 +744,7 @@
                     "link-template": "https://github.com/Automattic/jetpack-my-jetpack/compare/${old}...${new}"
                 },
                 "branch-alias": {
-                    "dev-master": "0.1.x-dev"
+                    "dev-master": "0.2.x-dev"
                 }
             },
             "autoload": {
