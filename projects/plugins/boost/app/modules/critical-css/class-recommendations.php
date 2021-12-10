@@ -9,45 +9,28 @@ namespace Automattic\Jetpack_Boost\Modules\Critical_CSS;
 
 use Automattic\Jetpack_Boost\Lib\Options_Array;
 
-/**
- * Recommendations.
- */
+
 class Recommendations {
+
 	const RECOMMENDATION_KEY   = 'jb-critical-css-dismissed-recommendations';
 	const RECOMMENDATION_NONCE = 'dismiss_notice';
 
-	/**
-	 * OptionsArray class instance.
-	 *
-	 * @var Options_Array
-	 */
 	protected $options;
 
-	/**
-	 * Constructor.
-	 */
-	public function on_prepare() {
+	public function __construct() {
 		$this->options = new Options_Array( self::RECOMMENDATION_KEY );
-
-		add_action( 'rest_api_init', array( $this, 'register_rest_routes' ) );
-		add_filter( 'jetpack_boost_js_constants', array( $this, 'always_add_recommendations_constants' ) );
-		add_action( 'jetpack_boost_uninstall', array( $this, 'clear' ) );
 	}
 
-	/**
-	 * On initialize.
-	 */
+	public function on_prepare() {
+		add_action( 'rest_api_init', array( $this, 'register_rest_routes' ) );
+		add_filter( 'jetpack_boost_js_constants', array( $this, 'always_add_recommendations_constants' ) );
+		add_action( 'jetpack_boost_uninstall', array( $this, 'delete_all' ) );
+	}
 
-	/**
-	 * Clear all the recommendations.
-	 */
-	public function clear() {
+	public function delete_all() {
 		$this->options->delete();
 	}
 
-	/**
-	 * Register the Recommendations REST routes.
-	 */
 	public function register_rest_routes() {
 		register_rest_route(
 			JETPACK_BOOST_REST_NAMESPACE,
@@ -77,7 +60,8 @@ class Recommendations {
 	/**
 	 * Add all Critical CSS dismissed recommendations constants.
 	 *
-	 * @param  array $constants Jetpack Boost JS constants.
+	 * @param array $constants Jetpack Boost JS constants.
+	 *
 	 * @return array
 	 */
 	public function add_dismissed_recommendations_constants( $constants ) {
@@ -90,6 +74,7 @@ class Recommendations {
 	 * Add Critical CSS related constants to be passed to JavaScript whether or not the module is enabled.
 	 *
 	 * @param array $constants Constants to be passed to JavaScript.
+	 *
 	 * @return array
 	 */
 	public function always_add_recommendations_constants( $constants ) {
@@ -102,6 +87,7 @@ class Recommendations {
 	 * Check if user can manage notifications.
 	 *
 	 * @param \WP_REST_Request $request The request object.
+	 *
 	 * @return bool
 	 */
 	public function current_user_can_manage_notifications( $request ) {
@@ -127,7 +113,8 @@ class Recommendations {
 	 * Reset recommendations.
 	 */
 	public function reset_recommendations() {
-		$this->clear();
+		$this->delete_all();
 		wp_send_json_success();
 	}
+	
 }

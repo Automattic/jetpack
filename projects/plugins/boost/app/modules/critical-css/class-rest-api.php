@@ -132,7 +132,7 @@ class REST_API {
 			// Create a new Critical CSS Request block to track creation request.
 			$this->storage->clear();
 			$this->generator->make_generation_request();
-			$this->recommendations->clear();
+			$this->recommendations->delete_all();
 			Critical_CSS::clear_reset_reason();
 		}
 
@@ -299,7 +299,7 @@ class REST_API {
 
 		$this->storage->store_css( $cache_key, $params['data'] );
 		$this->generator->state->set_source_success( $cache_key );
-		$this->recommendations->clear();
+		$this->recommendations->delete_all();
 		Critical_CSS::clear_reset_reason();
 
 		// Set status to success to indicate the critical CSS data has been stored on the server.
