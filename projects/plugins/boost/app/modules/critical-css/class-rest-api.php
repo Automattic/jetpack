@@ -32,11 +32,10 @@ class REST_API {
 	 * @param                      $recommendation
 	 * @param Generator            $generator
 	 */
-	public function __construct( $recommendation,$providers ) {
+	public function __construct( $recommendation ) {
 		$this->storage        = new Critical_CSS_Storage();
 		$this->recommendation = $recommendation;
 		$this->generator      = new Generator();
-		$this->providers      = $providers;
 	}
 
 	/**
@@ -132,7 +131,7 @@ class REST_API {
 		if ( $reset || $cleared_critical_css_reason ) {
 			// Create a new Critical CSS Request block to track creation request.
 			$this->storage->clear();
-			$this->generator->state->create_request( $this->providers );
+			$this->generator->make_generation_request();
 			$this->recommendation->clear();
 			Critical_CSS::clear_reset_reason();
 		}

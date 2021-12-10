@@ -4,6 +4,7 @@ namespace Automattic\Jetpack_Boost\Modules\Critical_CSS\Generate;
 
 
 use Automattic\Jetpack_Boost\Lib\Nonce;
+use Automattic\Jetpack_Boost\Modules\Critical_CSS\Critical_CSS;
 use Automattic\Jetpack_Boost\Modules\Critical_CSS\Critical_CSS_State;
 use Automattic\Jetpack_Boost\Modules\Critical_CSS\Path_Providers\Paths;
 use Automattic\Jetpack_Boost\Modules\Critical_CSS\Path_Providers\Providers\Provider;
@@ -198,5 +199,9 @@ class Generator {
 		die();
 	}
 
+
+	public function make_generation_request() {
+		$this->state->create_request( $this->paths->get_providers() );
+	}
 
 }
