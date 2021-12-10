@@ -322,11 +322,34 @@ class WPCOM_REST_API_V2_Endpoint_Admin_Menu extends WP_REST_Controller {
 			if ( 0 === strpos( $icon, 'data:image/svg+xml' ) ) {
 				$img = $icon;
 			} elseif ( 0 === strpos( $icon, 'dashicons-' ) ) {
-				$img = sanitize_html_class( $icon );
+				$icon = $this->prepare_dashicon( $icon );
+				$img  = sanitize_html_class( $icon );
 			}
 		}
 
 		return $img;
+	}
+
+	/**
+	 * Prepares the dashicon for consumption by Calypso. If the dashicon isn't found in a list of known icons
+	 * we will return the default dashicon.
+	 *
+	 * @param string $icon The dashicon string to check.
+	 *
+	 * @return string If the dashicon exists in core we return the dashicon, otherwise we return the default dashicon.
+	 */
+	private function prepare_dashicon( $icon ) {
+		if ( defined( 'IS_WPCOM' ) && IS_WPCOM ) {
+			$dashicon_list = include WP_CONTENT_DIR . '/mu-plugins/masterbar/admin-menu/dashicon-set.php';
+		} else {
+			$dashicon_list = include JETPACK__PLUGIN_DIR . '/modules/masterbar/admin-menu/dashicon-set.php';
+		}
+
+		if ( isset( $dashicon_list[ $icon ] ) ) {
+			return $icon;
+		}
+
+		return 'dashicons-admin-generic';
 	}
 
 	/**
