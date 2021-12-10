@@ -94,6 +94,19 @@ importers:
       jetpack-js-test-runner: link:../../../tools/js-test-runner
       nyc: 15.1.0
 
+  projects/js-packages/babel-plugin-replace-textdomain:
+    specifiers:
+      '@babel/core': 7.16.0
+      babel-plugin-tester: 10.1.0
+      debug: ^4.3.2
+      jest: 27.3.1
+    dependencies:
+      debug: 4.3.2
+    devDependencies:
+      '@babel/core': 7.16.0
+      babel-plugin-tester: 10.1.0_@babel+core@7.16.0
+      jest: 27.3.1
+
   projects/js-packages/base-styles:
     specifiers:
       '@wordpress/base-styles': 4.0.4
@@ -408,6 +421,7 @@ importers:
   projects/js-packages/webpack-config:
     specifiers:
       '@automattic/babel-plugin-preserve-i18n': 1.0.0
+      '@automattic/babel-plugin-replace-textdomain': workspace:^0.1.0-alpha
       '@automattic/webpack-rtl-plugin': 5.1.0
       '@babel/compat-data': 7.16.4
       '@babel/core': 7.16.0
@@ -432,6 +446,7 @@ importers:
       webpack-cli: 4.8.0
     dependencies:
       '@automattic/babel-plugin-preserve-i18n': 1.0.0
+      '@automattic/babel-plugin-replace-textdomain': link:../babel-plugin-replace-textdomain
       '@automattic/webpack-rtl-plugin': 5.1.0_webpack@5.64.1
       '@babel/compat-data': 7.16.4
       '@babel/helper-compilation-targets': 7.16.3_@babel+core@7.16.0
@@ -464,7 +479,7 @@ importers:
       '@automattic/jetpack-api': workspace:^0.8.0
       '@automattic/jetpack-connection': workspace:^0.11.3-alpha
       '@automattic/jetpack-idc': workspace:^0.6.1-alpha
-      '@automattic/jetpack-webpack-config': workspace:^0.4.1-alpha
+      '@automattic/jetpack-webpack-config': workspace:^0.5.0-alpha
       '@babel/core': 7.16.0
       '@babel/preset-env': 7.16.4
       '@babel/register': 7.16.0
@@ -504,7 +519,7 @@ importers:
 
   projects/packages/identity-crisis:
     specifiers:
-      '@automattic/jetpack-webpack-config': workspace:^0.4.1-alpha
+      '@automattic/jetpack-webpack-config': workspace:^0.5.0-alpha
       '@babel/core': 7.16.0
       '@babel/preset-env': 7.16.4
       '@babel/register': 7.16.0
@@ -543,7 +558,7 @@ importers:
 
   projects/packages/jitm:
     specifiers:
-      '@automattic/jetpack-webpack-config': workspace:^0.4.1-alpha
+      '@automattic/jetpack-webpack-config': workspace:^0.5.0-alpha
       '@wordpress/browserslist-config': 4.1.0
       sass: 1.43.3
       sass-loader: 12.2.0
@@ -559,7 +574,7 @@ importers:
 
   projects/packages/lazy-images:
     specifiers:
-      '@automattic/jetpack-webpack-config': workspace:^0.4.1-alpha
+      '@automattic/jetpack-webpack-config': workspace:^0.5.0-alpha
       copy-webpack-plugin: 9.0.1
       intersection-observer: 0.12.0
       webpack: 5.64.1
@@ -574,7 +589,7 @@ importers:
       '@automattic/jetpack-base-styles': workspace:^0.1.2-alpha
       '@automattic/jetpack-components': workspace:^0.9.0-alpha
       '@automattic/jetpack-connection': workspace:^0.11.3-alpha
-      '@automattic/jetpack-webpack-config': workspace:^0.4.1-alpha
+      '@automattic/jetpack-webpack-config': workspace:^0.5.0-alpha
       '@babel/core': 7.16.0
       '@babel/preset-env': 7.16.4
       '@babel/register': 7.16.0
@@ -615,7 +630,7 @@ importers:
       '@automattic/jetpack-analytics': workspace:^0.1.3
       '@automattic/jetpack-api': workspace:^0.8.0
       '@automattic/jetpack-components': workspace:^0.9.0-alpha
-      '@automattic/jetpack-webpack-config': workspace:^0.4.1-alpha
+      '@automattic/jetpack-webpack-config': workspace:^0.5.0-alpha
       '@babel/core': 7.16.0
       '@babel/plugin-proposal-nullish-coalescing-operator': 7.16.0
       '@babel/preset-env': 7.16.4
@@ -707,7 +722,7 @@ importers:
       '@automattic/jetpack-base-styles': workspace:^0.1.2-alpha
       '@automattic/jetpack-components': workspace:^0.9.0-alpha
       '@automattic/jetpack-connection': workspace:^0.11.3-alpha
-      '@automattic/jetpack-webpack-config': workspace:^0.4.1-alpha
+      '@automattic/jetpack-webpack-config': workspace:^0.5.0-alpha
       '@babel/core': 7.16.0
       '@babel/preset-env': 7.16.4
       '@babel/register': 7.16.0
@@ -834,7 +849,7 @@ importers:
       '@automattic/jetpack-connection': workspace:^0.11.3-alpha
       '@automattic/jetpack-licensing': workspace:^0.3.2-alpha
       '@automattic/jetpack-partner-coupon': workspace:^0.1.2-alpha
-      '@automattic/jetpack-webpack-config': workspace:^0.4.1-alpha
+      '@automattic/jetpack-webpack-config': workspace:^0.5.0-alpha
       '@automattic/popup-monitor': 1.0.0
       '@automattic/remove-asset-webpack-plugin': workspace:^0.1.1-alpha
       '@automattic/request-external-access': 1.0.0
@@ -6090,6 +6105,13 @@ packages:
     resolution: {integrity: sha512-HnYpAE1Y6kRyKM/XkEuiRQhTHvkzMBurTHnpFLYLBGPIylZNPs9jJcuOOYWxPLJCSEtmZT0Y8rHDokKN7rRTig==}
     dev: true
 
+  /@types/babel-plugin-tester/9.0.4:
+    resolution: {integrity: sha512-s7SxUNtUWO/bWZZqJbFqY/tbqJFoYnW/M2zPkTHl406PAPoWVSaVyYElo/O3GcRAQ5CV/pLPTFV4tQYTpMDWEQ==}
+    dependencies:
+      '@types/babel__core': 7.1.16
+      '@types/prettier': 2.4.1
+    dev: true
+
   /@types/babel__core/7.1.16:
     resolution: {integrity: sha512-EAEHtisTMM+KaKwfWdC3oyllIqswlznXCIVCt7/oRNrh+DhgT4UEBNC/jlADNjvw7UnfbcdkGQcPVZ1xYiLcrQ==}
     dependencies:
@@ -9525,6 +9547,19 @@ packages:
 
   /babel-plugin-syntax-jsx/6.18.0:
     resolution: {integrity: sha1-CvMqmm4Tyno/1QaeYtew9Y0NiUY=}
+
+  /babel-plugin-tester/10.1.0_@babel+core@7.16.0:
+    resolution: {integrity: sha512-4P2tNaM/Mtg6ytA9YAqmgONnMYqWvdbGDuwRTpIIC9yFZGQrEHoyvDPCx+X1QALAufVb5DKieOPGj5dffiEiNg==}
+    engines: {node: '>=10.13', npm: '>=6'}
+    peerDependencies:
+      '@babel/core': ^7.11.6
+    dependencies:
+      '@babel/core': 7.16.0
+      '@types/babel-plugin-tester': 9.0.4
+      lodash.mergewith: 4.6.2
+      prettier: 2.2.1
+      strip-indent: 3.0.0
+    dev: true
 
   /babel-preset-current-node-syntax/1.0.1_@babel+core@7.16.0:
     resolution: {integrity: sha512-M7LQ0bxarkxQoN+vz5aJPsLBn77n8QgTFmo8WK0/44auK2xlCXrYcUxHFxgU7qW5Yzw/CjmLRK2uJzaCd7LvqQ==}
@@ -16152,6 +16187,10 @@ packages:
 
   /lodash.merge/4.6.2:
     resolution: {integrity: sha512-0KpjqXRVvrYyCsX1swR/XTK0va6VQkQM6MNo7PqW77ByjAhoARA8EfrP1N4+KlKj8YS0ZUCtRT/YUuhyYDujIQ==}
+
+  /lodash.mergewith/4.6.2:
+    resolution: {integrity: sha512-GK3g5RPZWTRSeLSpgP8Xhra+pnjBC56q9FZYe1d5RN3TJ35dbkGy3YqBSMbyCrlbi+CM9Z3Jk5yTL7RCsqboyQ==}
+    dev: true
 
   /lodash.pick/4.4.0:
     resolution: {integrity: sha1-UvBWEP/53tQiYRRB7R/BI6AwAbM=}
