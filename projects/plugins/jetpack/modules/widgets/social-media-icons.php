@@ -218,7 +218,7 @@ class WPCOM_social_media_icons_widget extends WP_Widget {
 		ksort( $html );
 		$html = '<ul><li>' . join( '</li><li>', $html ) . '</li></ul>';
 		if ( ! empty( $instance['title'] ) ) {
-			$html = $args['before_title'] . esc_html( $instance['title'] ) . $args['after_title'] . $html;
+			$html = $args['before_title'] . $instance['title'] . $args['after_title'] . $html;
 		}
 		$html = $args['before_widget'] . $html . $args['after_widget'];
 
