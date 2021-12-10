@@ -22,7 +22,7 @@ import cloudImageUrl from './cloud.svg';
 import shieldImageUrl from './shield.svg';
 import removeBugImageUrl from './remove-bug.svg';
 import { getProductDescriptionUrl } from 'product-descriptions/utils';
-import { hasActiveSecurityPurchase as getHasActiveSecurityPurchase } from 'state/site';
+import { getIsFetchingSitePurchases, hasActiveSecurityPurchase as getHasActiveSecurityPurchase } from 'state/site';
 
 /**
  * Style dependencies
@@ -73,9 +73,9 @@ class DashSecurityBundle extends Component {
 	}
 
 	render() {
-		const { hasActiveSecurityPurchase } = this.props;
+		const { hasActiveSecurityPurchase, isFetchingSitePurchases } = this.props;
 
-		if ( hasActiveSecurityPurchase ) {
+		if ( hasActiveSecurityPurchase || isFetchingSitePurchases ) {
 			return null;
 		}
 
@@ -125,6 +125,7 @@ class DashSecurityBundle extends Component {
 }
 
 export default connect( state => ( {
-	productDescriptionUrl: getProductDescriptionUrl( state, 'security' ),
 	hasActiveSecurityPurchase: getHasActiveSecurityPurchase( state ),
+	isFetchingSitePurchases: getIsFetchingSitePurchases( state ),
+	productDescriptionUrl: getProductDescriptionUrl( state, 'security' ),
 } ) )( DashSecurityBundle );
