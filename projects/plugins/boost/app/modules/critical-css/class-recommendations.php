@@ -65,7 +65,11 @@ class Recommendations {
 	 * @return array
 	 */
 	public function add_boost_js_constants( $constants ) {
-		$constants['criticalCssDismissedRecommendations']    = $this->options->get();
+		$constants['criticalCssDismissedRecommendations'] = $this->options->get();
+
+		// @TODO: This currently is a regression - a bug
+		// Nonces aren't created if the module is deactivated,
+		// So you can't dismiss the recommendation if you don't reload the page.
 		$constants['criticalCssDismissRecommendationsNonce'] = wp_create_nonce( self::RECOMMENDATION_NONCE );
 
 		return $constants;
