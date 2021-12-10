@@ -7,7 +7,7 @@
 
 namespace Automattic\Jetpack_Boost\Modules\Critical_CSS;
 
-use Automattic\Jetpack_Boost\Lib\Options_Array;
+use Automattic\Jetpack_Boost\Lib\Options;
 
 
 class Recommendations {
@@ -18,12 +18,12 @@ class Recommendations {
 	protected $options;
 
 	public function __construct() {
-		$this->options = new Options_Array( self::RECOMMENDATION_KEY );
+		$this->options = new Options( self::RECOMMENDATION_KEY );
 	}
 
 	public function on_prepare() {
 		add_action( 'rest_api_init', array( $this, 'register_rest_routes' ) );
-		add_filter( 'jetpack_boost_js_constants', array( $this, 'always_add_recommendations_constants' ) );
+		add_filter( 'jetpack_boost_js_constants', array( $this, 'add_boost_js_constants' ) );
 		add_action( 'jetpack_boost_uninstall', array( $this, 'delete_all' ) );
 	}
 
@@ -58,26 +58,14 @@ class Recommendations {
 	}
 
 	/**
-	 * Add all Critical CSS dismissed recommendations constants.
-	 *
-	 * @param array $constants Jetpack Boost JS constants.
-	 *
-	 * @return array
-	 */
-	public function add_dismissed_recommendations_constants( $constants ) {
-		$constants['criticalCssDismissedRecommendations'] = $this->options->get();
-
-		return $constants;
-	}
-
-	/**
 	 * Add Critical CSS related constants to be passed to JavaScript whether or not the module is enabled.
 	 *
 	 * @param array $constants Constants to be passed to JavaScript.
 	 *
 	 * @return array
 	 */
-	public function always_add_recommendations_constants( $constants ) {
+	public function add_boost_js_constants( $constants ) {
+		$constants['criticalCssDismissedRecommendations']    = $this->options->get();
 		$constants['criticalCssDismissRecommendationsNonce'] = wp_create_nonce( self::RECOMMENDATION_NONCE );
 
 		return $constants;
@@ -105,7 +93,7 @@ class Recommendations {
 			wp_send_json_error();
 		}
 
-		$this->options->add( $provider_key );
+		$this->options->append( $provider_key );
 		wp_send_json_success();
 	}
 
@@ -116,5 +104,5 @@ class Recommendations {
 		$this->delete_all();
 		wp_send_json_success();
 	}
-	
+
 }

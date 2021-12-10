@@ -1,18 +1,20 @@
 <?php
+
 namespace Automattic\Jetpack_Boost\Lib;
 
-class Options_Array {
+class Options {
 
 	private $key;
 
 	public function __construct( $key ) {
 		$this->key = $key;
 	}
+
 	public function get() {
 		return get_option( $this->key, array() );
 	}
 
-	public function add( $item ) {
+	public function append( $item ) {
 		$all_items = get_option( $this->key, array() );
 
 		if ( ! in_array( $item, $all_items, true ) ) {
