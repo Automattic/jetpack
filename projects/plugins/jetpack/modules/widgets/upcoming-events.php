@@ -11,7 +11,7 @@
  * Register the widget.
  */
 function upcoming_events_register_widgets() {
-	register_widget( 'Jetpack_Upcoming_Events_Widget' );
+	register_widget( Jetpack_Upcoming_Events_Widget::class );
 }
 add_action( 'widgets_init', 'upcoming_events_register_widgets' );
 
