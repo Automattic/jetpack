@@ -105,6 +105,7 @@ class Jetpack {
 		'jetpack-simple-payments-widget-style',
 		'jetpack-widget-social-icons-styles',
 		'wpcom_instagram_widget',
+		'milestone-widget',
 	);
 
 	/**
