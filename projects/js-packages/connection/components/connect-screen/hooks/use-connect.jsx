@@ -11,15 +11,18 @@ import restApi from '@automattic/jetpack-api';
 import { STORE_ID } from '../../../state/store';
 
 export default ( { registrationNonce, redirectUri, apiRoot, apiNonce, autoTrigger, from } ) => {
-	const { fetchAuthorizationUrl, registerSite, connectUser } = useDispatch( STORE_ID );
-	const siteIsRegistering = useSelect( select => select( STORE_ID ).getSiteIsRegistering(), [] );
-	const userIsConnecting = useSelect( select => select( STORE_ID ).getUserIsConnecting(), [] );
-	const registrationError = useSelect( select => select( STORE_ID ).getRegistrationError(), [] );
-	const authorizationUrl = useSelect( select => select( STORE_ID ).getAuthorizationUrl(), [] );
-	const { isRegistered, isUserConnected } = useSelect(
-		select => select( STORE_ID ).getConnectionStatus(),
-		[]
+	const { registerSite, connectUser } = useDispatch( STORE_ID );
+
+	const registrationError = useSelect( select => select( STORE_ID ).getRegistrationError() );
+	const { siteIsRegistering, userIsConnecting, isRegistered, isUserConnected } = useSelect(
+		select => ( {
+			siteIsRegistering: select( STORE_ID ).getSiteIsRegistering(),
+			userIsConnecting: select( STORE_ID ).getUserIsConnecting(),
+			...select( STORE_ID ).getConnectionStatus(),
+		} )
 	);
+
+	const handleConnectUser = () => connectUser( { from } );
 
 	/**
 	 * Initialize the site registration process.
@@ -29,11 +32,13 @@ export default ( { registrationNonce, redirectUri, apiRoot, apiNonce, autoTrigge
 	const handleRegisterSite = e => {
 		e && e.preventDefault();
 
-		const action = isRegistered
-			? fetchAuthorizationUrl( redirectUri )
-			: registerSite( { registrationNonce, redirectUri } );
-
-		action.then( () => connectUser( { from } ) );
+		if ( isRegistered ) {
+			handleConnectUser();
+		} else {
+			registerSite( { registrationNonce, redirectUri } ).then( () => {
+				handleConnectUser();
+			} );
+		}
 	};
 
 	/**
@@ -55,11 +60,11 @@ export default ( { registrationNonce, redirectUri, apiRoot, apiNonce, autoTrigge
 
 	return {
 		handleRegisterSite,
+		handleConnectUser,
 		isRegistered,
 		isUserConnected,
 		siteIsRegistering,
 		userIsConnecting,
 		registrationError,
-		authorizationUrl,
 	};
 };

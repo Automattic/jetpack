@@ -42,22 +42,9 @@ const setAuthorizationUrl = authorizationUrl => {
 	return { type: SET_AUTHORIZATION_URL, authorizationUrl };
 };
 
-/**
- * Fetch authorization url to use at user connection
- *
- * @param {string} redirectUri - URI to be used into authorization url fetch
- * @yields {object} Action object that will be yielded
- * @returns {Promise} Resolved or rejected based on fetch
- */
-function* fetchAuthorizationUrl( redirectUri ) {
-	try {
-		const response = yield { type: FETCH_AUTHORIZATION_URL, redirectUri };
-		yield setAuthorizationUrl( response.authorizeUrl );
-		return Promise.resolve();
-	} catch {
-		return Promise.reject();
-	}
-}
+const fetchAuthorizationUrl = redirectUri => {
+	return { type: FETCH_AUTHORIZATION_URL, redirectUri };
+};
 
 /**
  * Connect site with wp.com user
@@ -88,13 +75,13 @@ function* registerSite( { registrationNonce, redirectUri } ) {
 
 	try {
 		const response = yield { type: REGISTER_SITE, registrationNonce, redirectUri };
-		yield setSiteIsRegistering( false );
 		yield setConnectionStatus( { isRegistered: true } );
 		yield setAuthorizationUrl( response.authorizeUrl );
+		yield setSiteIsRegistering( false );
 		return Promise.resolve( response );
 	} catch ( error ) {
-		yield setSiteIsRegistering( false );
 		yield setRegistrationError( error );
+		yield setSiteIsRegistering( false );
 		return Promise.reject( error );
 	}
 }

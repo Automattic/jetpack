@@ -14,19 +14,11 @@ import ConnectScreenVisual from '../visual';
 export default {
 	title: 'Connection/Connect Screen',
 	component: ConnectScreenVisual,
-	argTypes: {
-		// renderConnectBtn is the property we want to remove from the UI
-		renderConnectBtn: {
-			table: {
-				disable: true,
-			},
-		},
-	},
 };
 
 // Export additional stories using pre-defined values
-const Template = args => (
-	<ConnectScreenVisual { ...args }>
+const Template = ( { buttonLabel, displayError, isLoading, ...props } ) => (
+	<ConnectScreenVisual { ...props }>
 		<p>Secure and speed up your site for free with Jetpack's powerful WordPress tools</p>
 
 		<ul>
@@ -36,23 +28,25 @@ const Template = args => (
 			<li>Get notifications if your site goes offline</li>
 			<li>Enhance your site with dozens of other features</li>
 		</ul>
+
+		<ActionButton
+			label={ buttonLabel }
+			onClick={ action( 'onButtonClick' ) }
+			displayError={ displayError }
+			isLoading={ isLoading }
+		/>
 	</ConnectScreenVisual>
 );
 
 const DefaultArgs = {
-	title: 'Over 5 million WordPress sites are faster and more secure',
+	// action button props
 	isLoading: false,
 	buttonLabel: 'Set up Jetpack',
+	displayError: false,
+	// connect screen props
+	title: 'Over 5 million WordPress sites are faster and more secure',
 	assetBaseUrl: '/',
 	images: [ 'connect-right.png' ],
-	renderConnectBtn: ( label, autoTrigger ) => (
-		<ActionButton
-			label={ label }
-			onClick={ action( 'onButtonClick' ) }
-			displayError={ false }
-			isLoading={ autoTrigger }
-		/>
-	),
 };
 
 export const _default = Template.bind( {} );
@@ -61,25 +55,11 @@ _default.args = DefaultArgs;
 export const Connecting = Template.bind( {} );
 Connecting.args = {
 	...DefaultArgs,
-	renderConnectBtn: label => (
-		<ActionButton
-			label={ label }
-			onClick={ action( 'onButtonClick' ) }
-			displayError={ false }
-			isLoading={ true }
-		/>
-	),
+	isLoading: true,
 };
 
 export const Errored = Template.bind( {} );
 Errored.args = {
 	...DefaultArgs,
-	renderConnectBtn: label => (
-		<ActionButton
-			label={ label }
-			onClick={ action( 'onButtonClick' ) }
-			displayError={ true }
-			isLoading={ false }
-		/>
-	),
+	displayError: true,
 };

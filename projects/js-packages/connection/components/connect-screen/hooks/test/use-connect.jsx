@@ -13,14 +13,16 @@ import { expect } from 'chai';
 import { STORE_ID } from '../../../../state/store';
 import useConnect from '../use-connect';
 
-let spySetApiRoot,
-	spyRegisterSite,
-	spySetUserIsConnecting,
-	spySetApiNonce,
-	storeSelect,
-	stubGetSiteIsRegistering,
-	stubGetUserIsConnecting,
-	stubGetConnectionStatus;
+let storeSelect;
+
+let spySetApiRoot;
+let spySetApiNonce;
+
+let stubConnectUser;
+let stubRegisterSite;
+let stubGetSiteIsRegistering;
+let stubGetUserIsConnecting;
+let stubGetConnectionStatus;
 
 describe( 'useConnect', () => {
 	before( () => {
@@ -28,13 +30,13 @@ describe( 'useConnect', () => {
 		renderHook( () => useSelect( select => ( storeSelect = select( STORE_ID ) ) ) );
 
 		// stubs
+		stubRegisterSite = sinon.stub( dispatch.current, 'registerSite' );
+		stubConnectUser = sinon.stub( dispatch.current, 'connectUser' );
 		stubGetSiteIsRegistering = sinon.stub( storeSelect, 'getSiteIsRegistering' );
 		stubGetUserIsConnecting = sinon.stub( storeSelect, 'getUserIsConnecting' );
 		stubGetConnectionStatus = sinon.stub( storeSelect, 'getConnectionStatus' );
 
 		// spies
-		spyRegisterSite = sinon.spy( dispatch.current, 'registerSite' );
-		spySetUserIsConnecting = sinon.spy( dispatch.current, 'setUserIsConnecting' );
 		spySetApiRoot = sinon.spy( restApi, 'setApiRoot' );
 		spySetApiNonce = sinon.spy( restApi, 'setApiNonce' );
 	} );
@@ -50,9 +52,13 @@ describe( 'useConnect', () => {
 		stubGetConnectionStatus.reset();
 		stubGetConnectionStatus.returns( {} );
 
+		stubRegisterSite.reset();
+		stubRegisterSite.resolves();
+
+		stubConnectUser.reset();
+		stubConnectUser.returns();
+
 		// spies
-		spyRegisterSite.resetHistory();
-		spySetUserIsConnecting.resetHistory();
 		spySetApiRoot.resetHistory();
 		spySetApiNonce.resetHistory();
 	} );
@@ -65,34 +71,61 @@ describe( 'useConnect', () => {
 		expect( spySetApiNonce.calledOnce ).to.be.true;
 	} );
 
-	it( 'calls registerSite automatically based on autoTrigger with correct params', () => {
-		const initialProps = { autoTrigger: true, registrationNonce: 'REGISTRATION', redirectUri: 'REDIRECT' };
+	it( 'calls registerSite automatically', () => {
+		const initialProps = {
+			autoTrigger: true,
+			registrationNonce: 'REGISTRATION',
+			redirectUri: 'REDIRECT',
+		};
 		const { rerender } = renderHook( props => useConnect( props ), { initialProps } );
-		expect( spyRegisterSite.calledOnceWith( 'REGISTRATION', 'REDIRECT' ) ).to.be.true;
-		spyRegisterSite.resetHistory();
+		expect(
+			stubRegisterSite.calledOnceWith( {
+				registrationNonce: 'REGISTRATION',
+				redirectUri: 'REDIRECT',
+			} )
+		).to.be.true;
+		stubRegisterSite.resetHistory();
 		rerender( { autoTrigger: false } );
-		expect( spyRegisterSite.called ).to.be.false;
+		expect( stubRegisterSite.called ).to.be.false;
 	} );
 
-	it( 'does not call handleRegisterSite if siteIsRegistering is true', () => {
+	it( "doesn't call registerSite if site is registering", () => {
 		stubGetSiteIsRegistering.returns( true );
 		const initialProps = { autoTrigger: true };
 		renderHook( props => useConnect( props ), { initialProps } );
-		expect( spyRegisterSite.called ).to.be.false;
+		expect( stubRegisterSite.called ).to.be.false;
 	} );
 
-	it( 'does not call handleRegisterSite if userIsConnecting is true', () => {
+	it( "doesn't call registerSite if user is connecting", () => {
 		stubGetUserIsConnecting.returns( true );
 		const initialProps = { autoTrigger: true };
 		renderHook( props => useConnect( props ), { initialProps } );
-		expect( spyRegisterSite.called ).to.be.false;
+		expect( stubRegisterSite.called ).to.be.false;
 	} );
 
-	it( 'set user is connecting to true and do not call registerSite', () => {
-		stubGetConnectionStatus.returns( { isRegistered: true } );
-		const { result } = renderHook( props => useConnect( props ), { initialProps: {} } );
+	it( 'calls connectUser after register site', done => {
+		const initialProps = {
+			registrationNonce: 'REGISTRATION',
+			redirectUri: 'REDIRECT',
+			from: 'JETPACK',
+		};
+		const { result } = renderHook( props => useConnect( props ), { initialProps } );
+
 		result.current.handleRegisterSite();
-		expect( spySetUserIsConnecting.calledOnce ).to.be.true;
-		expect( spyRegisterSite.calledOnce ).to.be.false;
+
+		setTimeout( () => {
+			expect( stubConnectUser.calledOnceWith( { from: 'JETPACK' } ) ).to.be.true;
+			done();
+		}, 100 );
+	} );
+
+	it( 'calls only connectUser if site is registered', () => {
+		stubGetConnectionStatus.returns( { isRegistered: true } );
+		const { result } = renderHook( props => useConnect( props ), {
+			initialProps: { from: 'JETPACK' },
+		} );
+		result.current.handleRegisterSite();
+		expect( stubRegisterSite.called ).to.be.false;
+		expect( stubConnectUser.calledOnceWith( { from: 'JETPACK' } ) ).to.be.true;
 	} );
 } );
