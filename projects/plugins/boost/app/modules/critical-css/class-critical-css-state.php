@@ -382,7 +382,7 @@ class Critical_CSS_State {
 	/**
 	 * Reset the Critical CSS state.
 	 */
-	public function reset() {
+	public static function reset() {
 		Transient::delete( self::KEY );
 	}
 

@@ -19,7 +19,7 @@ use Automattic\Jetpack_Boost\Modules\Module;
 class Critical_CSS extends Module {
 
 	const MODULE_SLUG = 'critical-css';
-	
+
 	/**
 	 * Critical CSS storage class instance.
 	 *
@@ -28,12 +28,6 @@ class Critical_CSS extends Module {
 	protected $storage;
 
 	protected $recommendation;
-
-
-	/**
-	 * @var Generator $generator
-	 */
-	protected $generator;
 
 	/**
 	 * Prepare module. This is run irrespective of the module activation status.
@@ -56,12 +50,10 @@ class Critical_CSS extends Module {
 		// This should instantiate a new Post_Type_Storage class,
 		// so that Critical_CSS class is responsible
 		// for setting up the storage.
-		$this->storage   = new Critical_CSS_Storage();
-		$this->generator = new Generator( $this->paths->get_providers() );
-
+		$this->storage = new Critical_CSS_Storage();
 
 		// Critically Bad: Start
-		$this->rest_api = new REST_API( $this->storage, $this->recommendation, $this->generator, $this->paths->get_providers() );
+		$this->rest_api = new REST_API( $this->recommendation, $this->paths->get_providers() );
 		$this->rest_api->on_initialize();
 		// Critically Bad: End
 
@@ -94,7 +86,6 @@ class Critical_CSS extends Module {
 	public function register_rest_routes() {
 		$this->rest_api->register_rest_routes();
 	}
-
 
 
 
@@ -143,7 +134,7 @@ class Critical_CSS extends Module {
 	public function clear_critical_css() {
 		// Mass invalidate all cached values.
 		$this->storage->clear();
-		$this->generator->state->reset();
+		Critical_CSS_State::reset();
 	}
 
 

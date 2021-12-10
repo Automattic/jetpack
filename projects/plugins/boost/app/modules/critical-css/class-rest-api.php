@@ -32,10 +32,10 @@ class REST_API {
 	 * @param                      $recommendation
 	 * @param Generator            $generator
 	 */
-	public function __construct( Critical_CSS_Storage $storage, $recommendation, Generator $generator, $providers ) {
-		$this->storage        = $storage;
+	public function __construct( $recommendation,$providers ) {
+		$this->storage        = new Critical_CSS_Storage();
 		$this->recommendation = $recommendation;
-		$this->generator      = $generator;
+		$this->generator      = new Generator();
 		$this->providers      = $providers;
 	}
 
