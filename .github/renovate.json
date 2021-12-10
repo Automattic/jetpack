@@ -12,6 +12,7 @@
 			"matchPackageNames": [
 				"@automattic/eslint-changed",
 				"@automattic/eslint-config-target-es",
+				"@automattic/i18n-loader-webpack-plugin",
 				"@automattic/jetpack-analytics",
 				"@automattic/jetpack-api",
 				"@automattic/jetpack-base-styles",
@@ -20,6 +21,7 @@
 				"@automattic/jetpack-connection",
 				"@automattic/jetpack-idc",
 				"@automattic/jetpack-licensing",
+				"@automattic/jetpack-partner-coupon",
 				"@automattic/jetpack-storybook",
 				"@automattic/jetpack-webpack-config",
 				"@automattic/remove-asset-webpack-plugin",
@@ -34,6 +36,7 @@
 				"automattic/jetpack-changelogger",
 				"automattic/jetpack-codesniffer",
 				"automattic/jetpack-compat",
+				"automattic/jetpack-composer-plugin",
 				"automattic/jetpack-config",
 				"automattic/jetpack-connection",
 				"automattic/jetpack-connection-ui",

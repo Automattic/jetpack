@@ -1,0 +1,4 @@
+Significance: patch
+Type: changed
+
+Search package: add new methods and update timing for `Plan` class

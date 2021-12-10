@@ -388,6 +388,19 @@ abstract class Sharing_Source {
 		do_action( 'sharing_bump_stats', array( 'service' => $this, 'post' => $post ) );
 	}
 
+	/**
+	 * Redirect to an external social network site to finish sharing.
+	 *
+	 * @param string $url Sharing URL for a given service.
+	 */
+	public function redirect_request( $url ) {
+		wp_redirect( $url ); // phpcs:ignore WordPress.Security.SafeRedirect.wp_redirect_wp_redirect -- We allow external redirects here; we define them ourselves.
+
+		// We set up this custom header to indicate to search engines not to index this page.
+		header( 'X-Robots-Tag: noindex, nofollow' );
+		die();
+	}
+
 	public function js_dialog( $name, $params = array() ) {
 		if ( true !== $this->open_link_in_new ) {
 			return;
@@ -911,9 +924,7 @@ class Share_Twitter extends Sharing_Source {
 			'https://twitter.com/intent/tweet'
 		);
 
-		// Redirect to Twitter
-		wp_redirect( $twitter_url );
-		die();
+		parent::redirect_request( $twitter_url );
 	}
 
 	public function has_custom_button_style() {
@@ -976,9 +987,7 @@ class Share_Reddit extends Sharing_Source {
 		// Record stats
 		parent::process_request( $post, $post_data );
 
-		// Redirect to Reddit
-		wp_redirect( $reddit_url );
-		die();
+		parent::redirect_request( $reddit_url );
 	}
 }
 
@@ -1034,9 +1043,7 @@ class Share_LinkedIn extends Sharing_Source {
 		// Record stats
 		parent::process_request( $post, $post_data );
 
-		// Redirect to LinkedIn
-		wp_redirect( $linkedin_url );
-		die();
+		parent::redirect_request( $linkedin_url );
 	}
 
 	public function display_footer() {
@@ -1194,9 +1201,7 @@ class Share_Facebook extends Sharing_Source {
 		// Record stats
 		parent::process_request( $post, $post_data );
 
-		// Redirect to Facebook
-		wp_redirect( $fb_url );
-		die();
+		parent::redirect_request( $fb_url );
 	}
 
 	public function display_footer() {
@@ -1326,9 +1331,7 @@ class Share_PressThis extends Sharing_Source {
 		// Record stats
 		parent::process_request( $post, $post_data );
 
-		// Redirect to Press This
-		wp_redirect( $url );
-		die();
+		parent::redirect_request( $url );
 	}
 
 	public function get_display( $post ) {
@@ -1446,9 +1449,7 @@ class Share_Custom extends Sharing_Advanced_Source {
 		// Record stats
 		parent::process_request( $post, $post_data );
 
-		// Redirect
-		wp_redirect( $url );
-		die();
+		parent::redirect_request( $url );
 	}
 
 	public function display_options() {
@@ -1605,8 +1606,8 @@ class Share_Tumblr extends Sharing_Source {
 
 		// Redirect to Tumblr's sharing endpoint (a la their bookmarklet)
 		$url = 'https://www.tumblr.com/share?v=3&u=' . rawurlencode( $this->get_share_url( $post->ID ) ) . '&t=' . rawurlencode( $this->get_share_title( $post->ID ) ) . '&s=';
-		wp_redirect( $url );
-		die();
+
+		parent::redirect_request( $url );
 	}
 
 	public function display_footer() {
@@ -1712,11 +1713,11 @@ class Share_Pinterest extends Sharing_Source {
 		// If we're triggering the multi-select panel, then we don't need to redirect to Pinterest
 		if ( ! isset( $_GET['js_only'] ) ) {
 			$pinterest_url = esc_url_raw( $this->get_external_url( $post ) );
-			wp_redirect( $pinterest_url );
+			parent::redirect_request( $pinterest_url );
 		} else {
 			echo '// share count bumped';
+			die();
 		}
-		die();
 	}
 
 	public function display_footer() {
@@ -1824,8 +1825,8 @@ class Share_Pocket extends Sharing_Source {
 		parent::process_request( $post, $post_data );
 
 		$pocket_url = esc_url_raw( 'https://getpocket.com/save/?url=' . rawurlencode( $this->get_share_url( $post->ID ) ) . '&title=' . rawurlencode( $this->get_share_title( $post->ID ) ) );
-		wp_redirect( $pocket_url );
-		exit;
+
+		parent::redirect_request( $pocket_url );
 	}
 
 	public function get_display( $post ) {
@@ -1903,9 +1904,10 @@ class Share_Telegram extends Sharing_Source {
 	public function process_request( $post, array $post_data ) {
 		// Record stats
 		parent::process_request( $post, $post_data );
+
 		$telegram_url = esc_url_raw( 'https://telegram.me/share/url?url=' . rawurlencode( $this->get_share_url( $post->ID ) ) . '&text=' . rawurlencode( $this->get_share_title( $post->ID ) ) );
-		wp_redirect( $telegram_url );
-		exit;
+
+		parent::redirect_request( $telegram_url );
 	}
 
 	public function get_display( $post ) {
@@ -1970,8 +1972,8 @@ class Jetpack_Share_WhatsApp extends Sharing_Source {
 		}
 
 		$url .= rawurlencode( $this->get_share_title( $post->ID ) . ' ' . $this->get_share_url( $post->ID ) );
-		wp_redirect( $url );
-		exit;
+
+		parent::redirect_request( $url );
 	}
 }
 
@@ -2044,9 +2046,7 @@ class Share_Skype extends Sharing_Source {
 		// Record stats
 		parent::process_request( $post, $post_data );
 
-		// Redirect to Skype
-		wp_redirect( $skype_url );
-		die();
+		parent::redirect_request( $skype_url );
 	}
 
 	public function display_footer() {

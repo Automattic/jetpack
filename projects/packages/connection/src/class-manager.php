@@ -1062,6 +1062,9 @@ class Manager {
 			? $stats_options['blog_id']
 			: null;
 
+		/* This action is documented in src/class-package-version-tracker.php */
+		$package_versions = apply_filters( 'jetpack_package_versions', array() );
+
 		/**
 		 * Filters the request body for additional property addition.
 		 *
@@ -1091,6 +1094,7 @@ class Manager {
 					'ABSPATH'            => Constants::get_constant( 'ABSPATH' ),
 					'current_user_email' => wp_get_current_user()->user_email,
 					'connect_plugin'     => $this->get_plugin() ? $this->get_plugin()->get_slug() : null,
+					'package_versions'   => $package_versions,
 				),
 				self::$extra_register_params
 			)
@@ -1147,6 +1151,8 @@ class Manager {
 				'public' => $jetpack_public,
 			)
 		);
+
+		update_option( Package_Version_Tracker::PACKAGE_VERSION_OPTION, $package_versions );
 
 		$this->get_tokens()->update_blog_token( (string) $registration_details->jetpack_secret );
 
