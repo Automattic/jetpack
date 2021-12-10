@@ -32,11 +32,6 @@ class Display_Critical_CSS {
 		$href,
 		$media
 	) {
-		// If is AMP, do not alter the stylesheet loading.
-		if ( function_exists( 'is_amp_endpoint' ) && is_amp_endpoint() ) {
-			return $html;
-		}
-
 		// If there is no critical CSS, do not alter the stylesheet loading.
 		if ( false === $this->css ) {
 			return $html;
@@ -88,10 +83,6 @@ class Display_Critical_CSS {
 	 * Prints the critical CSS to the page.
 	 */
 	public function display_critical_css() {
-		if ( function_exists( 'is_amp_endpoint' ) && is_amp_endpoint() ) {
-			return false;
-		}
-
 		$critical_css = $this->css;
 
 		if ( false === $critical_css ) {

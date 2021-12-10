@@ -171,22 +171,27 @@ class Critical_CSS extends Module {
 
 		// Don't look for Critical CSS in the dashboard
 		if ( is_admin() ) {
-			return false;
+			return;
 		}
 		// Don't display Critical CSS when generating Critical CSS.
 		if ( Generator::is_generating_critical_css() ) {
-			return false;
+			return;
 		}
 
 		// Don't show Critical CSS in customizer previews.
 		if ( is_customize_preview() ) {
-			return false;
+			return;
 		}
 
-		$critical_css = $this->get_current_request_css();
+		// If is AMP, do not alter the stylesheet loading.
+		if ( function_exists( 'is_amp_endpoint' ) && is_amp_endpoint() ) {
+			return;
+		}
 
+		// Get the Critical CSS to show
+		$critical_css = $this->get_current_request_css();
 		if ( ! $critical_css ) {
-			return false;
+			return;
 		}
 
 		$display = new Display_Critical_CSS( $critical_css );
