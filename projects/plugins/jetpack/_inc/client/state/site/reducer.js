@@ -14,7 +14,7 @@ import {
 	isJetpackBackup,
 	isJetpackScan,
 	isJetpackSearch,
-	isJetpackBundle,
+	isJetpackSecurityBundle,
 	isJetpackVideoPress,
 } from 'lib/plans/constants';
 import {
@@ -342,7 +342,7 @@ export function hasActiveScanPurchase( state ) {
  */
 export function getActiveSecurityPurchase( state ) {
 	return find( getActiveSitePurchases( state ), purchase =>
-		isJetpackBundle( purchase.product_slug )
+		isJetpackSecurityBundle( purchase.product_slug )
 	);
 }
 
