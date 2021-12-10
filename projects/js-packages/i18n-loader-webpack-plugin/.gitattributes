@@ -1,0 +1,4 @@
+# Files to exclude from the mirror repo
+.gitattributes    production-exclude
+/changelog/**     production-exclude
+/tests/**         production-exclude
