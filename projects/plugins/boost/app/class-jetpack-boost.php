@@ -249,6 +249,7 @@ class Jetpack_Boost {
 		foreach ( $this->modules as $module_slug => $module ) {
 			if ( true === $this->get_module_status( $module_slug ) ) {
 				$module->initialize();
+				do_action( "jetpack_boost_{$module_slug}_initialized", $module );
 			}
 		}
 	}

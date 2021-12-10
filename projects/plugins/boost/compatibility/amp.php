@@ -7,24 +7,20 @@
 
 namespace Automattic\Jetpack_Boost\Compatibility\Amp;
 
-/**
- * Disable stylesheet loading method update for AMP pages.
- *
- * @param array $method Loading method for stylesheets.
- */
-function disable_amp_asynchronize_stylesheets( $method ) {
-	return amp_is_request() ? false : $method;
-}
-
-add_filter( 'jetpack_boost_async_style', __NAMESPACE__ . '\disable_amp_asynchronize_stylesheets' );
+use Automattic\Jetpack_Boost\Modules\Critical_CSS\Critical_CSS;
 
 /**
- * Disable Critical CSS printing on AMP pages.
+ * Init AMP compatibility actions after modules are initialized.
  *
- * @return bool
+ * @param Critical_CSS $module Critical_CSS Module instance.
  */
-function disable_amp_critical_css() {
-	return ! amp_is_request();
+function init_amp_compatibility( $module ) {
+	// Todo: Temporary. Find a way to remove `display_critical_css` action after amp_is_request() is available.
+	add_action( 'wp', function() use ( $module ) {
+		if ( amp_is_request() ) {
+			remove_action( 'wp', array( $module, 'display_critical_css' ) );
+		}
+	}, 0 );
 }
 
-add_filter( 'display_critical_css', __NAMESPACE__ . '\disable_amp_critical_css' );
+add_action( 'jetpack_boost_critical-css_initialized', __NAMESPACE__ . '\init_amp_compatibility' );

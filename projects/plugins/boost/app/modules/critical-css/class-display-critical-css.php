@@ -81,10 +81,9 @@ class Display_Critical_CSS {
 	 * Prints the critical CSS to the page.
 	 */
 	public function display_critical_css() {
-		$should_display = apply_filters( 'display_critical_css', true );
-		$critical_css   = $this->css;
+		$critical_css = $this->css;
 
-		if ( false === $critical_css || false === $should_display ) {
+		if ( false === $critical_css ) {
 			return false;
 		}
 

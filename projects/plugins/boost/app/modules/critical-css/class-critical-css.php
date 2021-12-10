@@ -124,11 +124,6 @@ class Critical_CSS extends Module {
 			return;
 		}
 
-		// If is AMP, do not alter the stylesheet loading.
-		if ( function_exists( 'is_amp_endpoint' ) && is_amp_endpoint() ) {
-			return;
-		}
-
 		// Get the Critical CSS to show
 		$critical_css = $this->paths->get_current_request_css();
 		if ( ! $critical_css ) {
