@@ -10,7 +10,6 @@
 namespace Automattic\Jetpack_Boost\Modules\Critical_CSS;
 
 use Automattic\Jetpack_Boost\Lib\Transient;
-use Automattic\Jetpack_Boost\Modules\Critical_CSS\Providers\Provider;
 
 /**
  * Critical CSS State
@@ -203,11 +202,6 @@ class Critical_CSS_State {
 	protected function get_provider_sources( $providers ) {
 		$sources = array();
 
-		/**
-		 * Provider.
-		 *
-		 * @var $provider Provider
-		 */
 		foreach ( $providers as $provider ) {
 			$provider_name = $provider::get_provider_name();
 

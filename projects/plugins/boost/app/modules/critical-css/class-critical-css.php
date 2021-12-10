@@ -13,9 +13,7 @@ use Automattic\Jetpack_Boost\Modules\Critical_CSS\Generate\Generator;
 use Automattic\Jetpack_Boost\Modules\Critical_CSS\Path_Providers\Paths;
 use Automattic\Jetpack_Boost\Modules\Module;
 
-/**
- * Class Critical_CSS.
- */
+
 class Critical_CSS extends Module {
 
 	const MODULE_SLUG = 'critical-css';
@@ -40,8 +38,6 @@ class Critical_CSS extends Module {
 
 	/**
 	 * This is only run if Critical CSS module has been activated.
-	 *
-	 * @return bool
 	 */
 	protected function on_initialize() {
 		// Touch to set-up the post type. This is a temporary hack.
