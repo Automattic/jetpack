@@ -41,6 +41,13 @@ export default class Sidebar extends WpPage {
 		return await this._selectMenuItem( mainSelector, itemSelector );
 	}
 
+	async selectThemes() {
+		const pluginsSelector = '#menu-appearance';
+		const itemSelector = '#menu-appearance a[href*="themes.php"]';
+
+		return await this._selectMenuItem( pluginsSelector, itemSelector );
+	}
+
 	async _selectMenuItem( menuSelector, menuItemSelector ) {
 		const menuElement = await this.waitForElementToBeVisible( menuSelector );
 		const classes = await this.page.$eval( menuSelector, e => e.getAttribute( 'class' ) );
