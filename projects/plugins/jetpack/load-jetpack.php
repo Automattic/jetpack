@@ -58,7 +58,7 @@ require_once JETPACK__PLUGIN_DIR . 'class.jetpack-connection-banner.php';
 require_once JETPACK__PLUGIN_DIR . 'class.jetpack-plan.php';
 // Used by the API endpoints.
 require_once JETPACK__PLUGIN_DIR . 'modules/seo-tools/jetpack-seo-utils.php';
-require_once JETPACK__PLUGIN_DIR . 'modules/seo-tools/jetpack-seo-titles.php';
+require_once JETPACK__PLUGIN_DIR . 'modules/seo-tools/class-jetpack-seo-titles.php';
 require_once JETPACK__PLUGIN_DIR . 'modules/seo-tools/class-jetpack-seo-posts.php';
 require_once JETPACK__PLUGIN_DIR . 'modules/verification-tools/verification-tools-utils.php';
 
