@@ -30,7 +30,7 @@ export default function MyJetpackScreen() {
 
 	const redirectAfterDisconnect = useCallback( () => {
 		window.location = myJetpackInitialState.topJetpackMenuItemUrl;
-	} );
+	}, [] );
 
 	return (
 		<div className="jp-my-jetpack-screen">
