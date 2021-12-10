@@ -88,4 +88,5 @@ By default the development build above will run once and if you change any of th
 jetpack watch
 ```
 
+That's all! 
 
