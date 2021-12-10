@@ -4,12 +4,12 @@ namespace Automattic\Jetpack_Boost\Modules\Critical_CSS\Generate;
 
 
 use Automattic\Jetpack_Boost\Lib\Nonce;
-use Automattic\Jetpack_Boost\Modules\Critical_CSS\Critical_CSS;
 use Automattic\Jetpack_Boost\Modules\Critical_CSS\Critical_CSS_State;
 use Automattic\Jetpack_Boost\Modules\Critical_CSS\Path_Providers\Paths;
 use Automattic\Jetpack_Boost\Modules\Critical_CSS\Path_Providers\Providers\Provider;
 
 class Generator {
+
 	const GENERATE_QUERY_ACTION = 'jb-generate-critical-css';
 	const GENERATE_PROXY_NONCE  = 'jb-generate-proxy-nonce';
 	/**
