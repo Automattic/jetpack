@@ -22,7 +22,7 @@ import cloudImageUrl from './cloud.svg';
 import shieldImageUrl from './shield.svg';
 import removeBugImageUrl from './remove-bug.svg';
 import { getProductDescriptionUrl } from 'product-descriptions/utils';
-import { getIsFetchingSitePurchases, hasActiveSecurityPurchase as getHasActiveSecurityPurchase } from 'state/site';
+import { isFetchingSitePurchases as getIsFetchingSitePurchases, hasActiveSecurityPurchase as getHasActiveSecurityPurchase } from 'state/site';
 
 /**
  * Style dependencies
