@@ -35,12 +35,10 @@ class REST_API {
 			JETPACK_BOOST_REST_NAMESPACE,
 			JETPACK_BOOST_REST_PREFIX . '/critical-css/status',
 			array(
-				array(
-					'methods'             => \WP_REST_Server::READABLE,
-					'callback'            => array( $this, 'api_get_critical_css_status' ),
-					'permission_callback' => array( $this, 'current_user_can_modify_critical_css' ),
-				),
-			)
+				'methods'             => \WP_REST_Server::READABLE,
+				'callback'            => array( $this, 'api_get_critical_css_status' ),
+				'permission_callback' => array( $this, 'current_user_can_modify_critical_css' ),
+			),
 		);
 
 		// Register Critical CSS generate route.
@@ -318,7 +316,7 @@ class REST_API {
 				'width'  => 1920,
 				'height' => 1080,
 			),
-		);;
+		);
 
 		// Add a userless nonce to use when requesting pages for Critical CSS generation (i.e.: To turn off admin features).
 		$status['generation_nonce'] = Nonce::create( Generator::GENERATE_QUERY_ACTION );
