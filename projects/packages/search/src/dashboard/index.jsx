@@ -1,7 +1,6 @@
 /**
  * External dependencies
  */
-// TODO: See if we could use @wordpress/element.
 import ReactDOM from 'react-dom';
 import React from 'react';
 
