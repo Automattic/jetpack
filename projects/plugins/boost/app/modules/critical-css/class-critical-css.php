@@ -170,7 +170,7 @@ class Critical_CSS extends Module {
 	public function display_critical_css() {
 
 		// Don't look for Critical CSS in the dashboard
-		if ( ! is_admin() ) {
+		if ( is_admin() ) {
 			return false;
 		}
 		// Don't display Critical CSS when generating Critical CSS.

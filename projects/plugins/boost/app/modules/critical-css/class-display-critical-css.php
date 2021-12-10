@@ -2,8 +2,6 @@
 
 namespace Automattic\Jetpack_Boost\Modules\Critical_CSS;
 
-use Automattic\Jetpack_Boost\Modules\Critical_CSS\Generate\Generator;
-
 class Display_Critical_CSS {
 
 
