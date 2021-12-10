@@ -66,12 +66,12 @@ class Jetpack_SEO_Posts {
 	 */
 	public static function register_post_meta() {
 		$args = array(
-			'type' => 'string',
-			'description' => __( 'Custom post description to be used in HTML <meta /> tag.', 'jetpack' ),
-			'single' => true,
-			'default' => '',
+			'type'         => 'string',
+			'description'  => __( 'Custom post description to be used in HTML <meta /> tag.', 'jetpack' ),
+			'single'       => true,
+			'default'      => '',
 			'show_in_rest' => array(
-				'name' => self::DESCRIPTION_META_KEY
+				'name' => self::DESCRIPTION_META_KEY,
 			),
 		);
 

@@ -69,7 +69,7 @@ class Jetpack_SEO {
 		}
 
 		$post_custom_description = Jetpack_SEO_Posts::get_post_custom_description( get_post() );
-		$front_page_meta = Jetpack_SEO_Utils::get_front_page_meta_description();
+		$front_page_meta         = Jetpack_SEO_Utils::get_front_page_meta_description();
 
 		if ( is_front_page() && ! empty( $front_page_meta ) ) {
 			$tags['og:description'] = $front_page_meta;
@@ -155,7 +155,7 @@ class Jetpack_SEO {
 			}
 		} elseif ( is_date() ) {
 			if ( is_year() ) {
-				$period   = get_query_var( 'year' );
+				$period = get_query_var( 'year' );
 
 				$template = _nx(
 					'%1$s post published by %2$l in the year %3$s', // singular
@@ -165,7 +165,7 @@ class Jetpack_SEO {
 					'jetpack'
 				);
 			} elseif ( is_month() ) {
-				$period   = date( 'F Y', mktime( 0, 0, 0, get_query_var( 'monthnum' ), 1, get_query_var( 'year' ) ) );
+				$period = date( 'F Y', mktime( 0, 0, 0, get_query_var( 'monthnum' ), 1, get_query_var( 'year' ) ) );
 
 				$template = _nx(
 					'%1$s post published by %2$l during %3$s', // singular
@@ -175,7 +175,7 @@ class Jetpack_SEO {
 					'jetpack'
 				);
 			} elseif ( is_day() ) {
-				$period   = date(
+				$period = date(
 					'F j, Y',
 					mktime( 0, 0, 0, get_query_var( 'monthnum' ), get_query_var( 'day' ), get_query_var( 'year' ) )
 				);
