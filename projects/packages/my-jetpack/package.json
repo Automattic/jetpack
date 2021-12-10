@@ -21,7 +21,7 @@
 		"watch": "pnpm run build && pnpm webpack watch"
 	},
 	"dependencies": {
-		"@automattic/jetpack-components": "workspace:^0.9.1-alpha"
+		"@automattic/jetpack-components": "workspace:^0.9.0-alpha"
 	},
 	"sideEffects": [
 		"*.css",
