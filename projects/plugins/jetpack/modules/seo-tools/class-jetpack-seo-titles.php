@@ -1,4 +1,9 @@
 <?php
+/**
+ * Class containing utility static methods for managing SEO custom title formats.
+ *
+ * @package automattic/jetpack
+ */
 
 /*
  * Each title format is an array of arrays containing two values:
@@ -103,7 +108,7 @@ class Jetpack_SEO_Titles {
 		$format_array = $title_formats[ $page_type ];
 
 		foreach ( $format_array as $item ) {
-			if ( 'token' == $item['type'] ) {
+			if ( 'token' === $item['type'] ) {
 				$custom_title .= self::get_token_value( $item['value'] );
 			} else {
 				$custom_title .= $item['value'];
@@ -233,7 +238,7 @@ class Jetpack_SEO_Titles {
 	/**
 	 * Checks if a given format conforms to predefined SEO title templates.
 	 *
-	 * Every format type and token must be specifically allowed..
+	 * Every format type and token must be specifically allowed.
 	 *
 	 * @see get_allowed_tokens()
 	 *
@@ -249,7 +254,7 @@ class Jetpack_SEO_Titles {
 		}
 
 		foreach ( $title_formats as $format_type => $format_array ) {
-			if ( ! in_array( $format_type, array_keys( $allowed_tokens ) ) ) {
+			if ( ! array_key_exists( $format_type, array_keys( $allowed_tokens ) ) ) {
 				return false;
 			}
 
@@ -266,8 +271,8 @@ class Jetpack_SEO_Titles {
 					return false;
 				}
 
-				if ( 'token' == $item['type'] ) {
-					if ( ! in_array( $item['value'], $allowed_tokens[ $format_type ] ) ) {
+				if ( 'token' === $item['type'] ) {
+					if ( ! in_array( $item['value'], $allowed_tokens[ $format_type ], true ) ) {
 						return false;
 					}
 				}
