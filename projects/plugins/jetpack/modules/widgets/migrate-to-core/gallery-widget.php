@@ -182,7 +182,7 @@ function jetpack_migrate_gallery_widget_upgrade_widget( $widget ) {
  */
 function jetpack_migrate_gallery_widget_update_sidebars( $sidebars_widgets, $id, $new_id ) {
 	foreach ( $sidebars_widgets as $sidebar => $widgets ) {
-		$key = array_search( "gallery-{$id}", $widgets, true );
+		$key = is_array( $widgets ) ? array_search( "gallery-{$id}", $widgets, true ) : false;
 
 		if (
 			is_array( $widgets )
