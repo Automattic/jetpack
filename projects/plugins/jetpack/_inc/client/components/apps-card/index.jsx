@@ -79,14 +79,14 @@ class AppsCard extends React.Component {
 							<AppsBadge
 								altText={ __( 'Download the Jetpack Android mobile app.', 'jetpack' ) }
 								titleText={ __( 'Download the Jetpack Android mobile app.', 'jetpack' ) }
-								storeName={ 'android' }
+								storeName="android"
 								storeLink="https://play.google.com/store/apps/details?id=com.jetpack.android&utm_source=jpdash&utm_medium=cta&utm_campaign=getappscard"
 								onBadgeClick={ this.trackDownloadClick }
 							/>
 							<AppsBadge
 								altText={ __( 'Download the Jetpack iOS mobile app.', 'jetpack' ) }
 								titleText={ __( 'Download the Jetpack iOS mobile app.', 'jetpack' ) }
-								storeName={ 'ios' }
+								storeName="ios"
 								storeLink="https://apps.apple.com/us/app/jetpack-wp-security-speed/id1565481562?pt=299112ct=jpdash&mt=8"
 								onBadgeClick={ this.trackDownloadClick }
 							/>
