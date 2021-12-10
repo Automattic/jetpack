@@ -27,20 +27,34 @@ class REST_API {
 
 	const RESET_REASON_STORAGE_KEY = 'jb-generate-critical-css-reset-reason';
 
+
 	/**
-	 * @param Critical_CSS_Storage $storage
-	 * @param                      $recommendation
-	 * @param Generator            $generator
+	 * Viewport sizes for this module.
 	 */
+	const VIEWPORT_SIZES = array(
+		0 => array(
+			'type'   => 'phone',
+			'width'  => 414,
+			'height' => 896,
+		),
+		1 => array(
+			'type'   => 'tablet',
+			'width'  => 1200,
+			'height' => 800,
+		),
+		2 => array(
+			'type'   => 'desktop',
+			'width'  => 1920,
+			'height' => 1080,
+		),
+	);
+
 	public function __construct() {
 		$this->storage         = new Critical_CSS_Storage();
 		$this->recommendations = new Recommendations();
 		$this->generator       = new Generator();
 	}
 
-	/**
-	 * Initialize.
-	 */
 	public function on_initialize() {
 		add_action( 'rest_api_init', array( $this, 'register_rest_routes' ) );
 		$this->recommendations->on_prepare();
@@ -53,9 +67,8 @@ class REST_API {
 	 * @return bool
 	 */
 	public function register_rest_routes() {
-		/**
-		 * Store and retrieve critical css status.
-		 */
+
+		// Store and retrieve critical css status.
 		register_rest_route(
 			JETPACK_BOOST_REST_NAMESPACE,
 			JETPACK_BOOST_REST_PREFIX . '/critical-css/status',
@@ -104,11 +117,7 @@ class REST_API {
 		return true;
 	}
 
-	/**
-	 * Check that user can modify Critical CSS.
-	 *
-	 * @return bool
-	 */
+
 	public function current_user_can_modify_critical_css() {
 		// @TODO: We shouldn't need to do these kinds of checks:
 		// $this->rest_is_module_available()
@@ -199,8 +208,6 @@ class REST_API {
 				)
 			);
 		}
-
-		// TODO: Log errors to a remote service.
 
 		if ( true === $data['show_stopper'] ) {
 			// TODO: Review it seems a bit cumbersome the validation of the data structure here.
@@ -323,26 +330,6 @@ class REST_API {
 		}
 	}
 
-	/**
-	 * Viewport sizes for this module.
-	 */
-	const VIEWPORT_SIZES = array(
-		0 => array(
-			'type'   => 'phone',
-			'width'  => 414,
-			'height' => 896,
-		),
-		1 => array(
-			'type'   => 'tablet',
-			'width'  => 1200,
-			'height' => 800,
-		),
-		2 => array(
-			'type'   => 'desktop',
-			'width'  => 1920,
-			'height' => 1080,
-		),
-	);
 
 	/**
 	 * Get a Critical CSS status block, adding in local generation nonces (if applicable).
