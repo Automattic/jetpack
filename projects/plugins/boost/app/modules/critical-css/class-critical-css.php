@@ -10,6 +10,7 @@
 namespace Automattic\Jetpack_Boost\Modules\Critical_CSS;
 
 use Automattic\Jetpack_Boost\Modules\Critical_CSS\Generate\Generator;
+use Automattic\Jetpack_Boost\Modules\Critical_CSS\Path_Providers\Paths;
 use Automattic\Jetpack_Boost\Modules\Module;
 
 /**
@@ -18,24 +19,7 @@ use Automattic\Jetpack_Boost\Modules\Module;
 class Critical_CSS extends Module {
 
 	const MODULE_SLUG = 'critical-css';
-
-
-	/**
-	 * Stores the Critical CSS key used for rendering the current page if any.
-	 *
-	 * @var null|string
-	 */
-	protected $current_critical_css_key;
-
-	/**
-	 * Variable used to cache the CSS string during the page request.
-	 * This is here because `get_critical_css` is called multiple
-	 * times in `style_loader_tag` hook (on each CSS file).
-	 *
-	 * @var null|false|string
-	 */
-	protected $request_cached_css;
-
+	
 	/**
 	 * Critical CSS storage class instance.
 	 *
@@ -44,6 +28,7 @@ class Critical_CSS extends Module {
 	protected $storage;
 
 	protected $recommendation;
+
 
 	/**
 	 * @var Generator $generator
@@ -56,6 +41,8 @@ class Critical_CSS extends Module {
 	public function on_prepare() {
 		$this->recommendation = new Recommendations();
 		$this->recommendation->on_prepare();
+		$this->paths = new Paths();
+
 
 	}
 
@@ -70,17 +57,20 @@ class Critical_CSS extends Module {
 		// so that Critical_CSS class is responsible
 		// for setting up the storage.
 		$this->storage   = new Critical_CSS_Storage();
-		$this->generator = new Generator( $this->providers );
+		$this->generator = new Generator( $this->paths->get_providers() );
+
 
 		// Critically Bad: Start
-		$this->rest_api = new REST_API( $this->storage, $this->recommendation, $this->generator, $this->providers );
+		$this->rest_api = new REST_API( $this->storage, $this->recommendation, $this->generator, $this->paths->get_providers() );
 		$this->rest_api->on_initialize();
 		// Critically Bad: End
+
 
 		// Update ready flag used to indicate Boost optimizations are warmed up in metatag.
 		add_filter( 'jetpack_boost_url_ready', array( $this, 'is_ready_filter' ), 10, 1 );
 
 		add_action( 'wp', array( $this, 'display_critical_css' ) );
+
 
 		if ( Generator::is_generating_critical_css() ) {
 			add_action( 'wp_head', array( $this, 'display_generate_meta' ), 0 );
@@ -105,30 +95,9 @@ class Critical_CSS extends Module {
 		$this->rest_api->register_rest_routes();
 	}
 
-	/**
-	 * Get all critical CSS storage keys that are available for the current request.
-	 * Caches the result.
-	 *
-	 * @return array
-	 */
-	public function get_current_request_css_keys() {
-		static $keys = null;
-		if ( null !== $keys ) {
-			return $keys;
-		}
 
-		$keys = array();
 
-		foreach ( $this->providers as $provider ) {
-			$provider_keys = $provider::get_current_storage_keys();
-			if ( empty( $provider_keys ) ) {
-				continue;
-			}
-			$keys = array_merge( $keys, $provider_keys );
-		}
 
-		return $keys;
-	}
 
 	/**
 	 * Renders a <meta> tag used to verify this is a valid page to generate Critical CSS with.
@@ -155,8 +124,13 @@ class Critical_CSS extends Module {
 			return;
 		}
 
+		// If is AMP, do not alter the stylesheet loading.
+		if ( function_exists( 'is_amp_endpoint' ) && is_amp_endpoint() ) {
+			return;
+		}
+
 		// Get the Critical CSS to show
-		$critical_css = $this->get_current_request_css();
+		$critical_css = $this->paths->get_current_request_css();
 		if ( ! $critical_css ) {
 			return;
 		}
@@ -167,6 +141,7 @@ class Critical_CSS extends Module {
 		add_action( 'wp_footer', array( $display, 'onload_flip_stylesheets' ) );
 	}
 
+
 	/**
 	 * Clear Critical CSS.
 	 */
@@ -176,26 +151,7 @@ class Critical_CSS extends Module {
 		$this->generator->state->reset();
 	}
 
-	/**
-	 * Get critical CSS for the current request.
-	 *
-	 * @return string|false
-	 */
-	public function get_current_request_css() {
-		if ( null !== $this->request_cached_css ) {
-			return $this->request_cached_css;
-		}
 
-		$data = $this->storage->get_css( $this->get_current_request_css_keys() );
-		if ( false === $data ) {
-			return false;
-		}
-
-		$this->request_cached_css       = $data['css'];
-		$this->current_critical_css_key = $data['key'];
-
-		return $this->request_cached_css;
-	}
 
 	/**
 	 * Check if the current URL is warmed up. For this module, "warmed up" means that
@@ -212,13 +168,13 @@ class Critical_CSS extends Module {
 		}
 
 		// If this page has no provider keys, it is ineligible for Critical CSS.
-		$keys = $this->get_current_request_css_keys();
+		$keys = $this->paths->get_current_request_css_keys();
 		if ( count( $keys ) === 0 ) {
 			return true;
 		}
 
 		// Return "ready" if Critical CSS has been generated.
-		return ! empty( $this->get_current_request_css() );
+		return ! empty( $this->paths->get_current_request_css() );
 	}
 
 	/**
@@ -237,6 +193,9 @@ class Critical_CSS extends Module {
 		}
 	}
 
+
+
+
 	/**
 	 * Override; returns an admin notice to show if there was a reset reason.
 	 *
@@ -246,7 +205,7 @@ class Critical_CSS extends Module {
 		$reason = \get_option( REST_API::RESET_REASON_STORAGE_KEY );
 
 		if ( ! $reason ) {
-			return null;
+			return NULL;
 		}
 
 		return array( new Regenerate_Admin_Notice( $reason ) );
@@ -258,5 +217,8 @@ class Critical_CSS extends Module {
 	public static function clear_reset_reason() {
 		\delete_option( REST_API::RESET_REASON_STORAGE_KEY );
 	}
+
+
+
 
 }
