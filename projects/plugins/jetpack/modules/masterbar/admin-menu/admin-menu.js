@@ -1,4 +1,4 @@
-/* global ajaxurl */
+/* global ajaxurl, jetpackAdminMenu */
 
 ( function () {
 	function init() {
@@ -56,6 +56,31 @@
 					setTimeout( function () {
 						saveSidebarIsExpanded( event.target.parentNode.ariaExpanded );
 					}, 50 );
+				} );
+			}
+
+			const jitmDismissButton = adminMenu.querySelector( '.dismissible-card__close-icon' );
+			if ( jitmDismissButton ) {
+				jitmDismissButton.addEventListener( 'click', function ( event ) {
+					event.preventDefault();
+
+					const siteNotice = document.getElementById( 'toplevel_page_site-notices' );
+					if ( siteNotice ) {
+						siteNotice.style.display = 'none';
+					}
+
+					makeAjaxRequest(
+						'POST',
+						ajaxurl,
+						'application/x-www-form-urlencoded; charset=UTF-8',
+						'id=' +
+							encodeURIComponent( jitmDismissButton.dataset.feature_id ) +
+							'&feature_class=' +
+							encodeURIComponent( jitmDismissButton.dataset.feature_class ) +
+							'&action=jitm_dismiss' +
+							'&_ajax_nonce=' +
+							jetpackAdminMenu.jitmDismissNonce
+					);
 				} );
 			}
 		}

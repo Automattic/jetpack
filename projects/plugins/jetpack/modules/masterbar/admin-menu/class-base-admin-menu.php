@@ -275,6 +275,12 @@ abstract class Base_Admin_Menu {
 			JETPACK__VERSION,
 			true
 		);
+
+		wp_localize_script(
+			'jetpack-admin-menu',
+			'jetpackAdminMenu',
+			array( 'jitmDismissNonce' => wp_create_nonce( 'jitm_dismiss' ) )
+		);
 	}
 
 	/**
