@@ -60,7 +60,7 @@ test.describe.serial( 'Critical CSS module', () => {
 		expect( criticalCss.length ).toBeGreaterThan( 100 );
 	} );
 
-	test( 'Critical CSS Admin message should show the theme is changed', async () => {
+	test( 'Critical CSS Admin message should show when the theme is changed', async () => {
 		await boostPrerequisitesBuilder( page ).withActiveModules( [ 'critical-css' ] ).build();
 		await DashboardPage.visit( page );
 		await ( await Sidebar.init( page ) ).selectThemes();
