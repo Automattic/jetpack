@@ -162,7 +162,7 @@ class Jetpack_Top_Posts_Widget extends WP_Widget {
 						<input
 							value="<?php echo esc_attr( $type ); ?>"
 							name="<?php echo esc_attr( $this->get_field_name( 'types' ) ); ?>[]"
-							id="<?php echo esc_attr( $this->get_field_id( 'types' ) ); ?>-<?php echo esc_attr( $type ); ?>"
+							id="<?php echo esc_attr( $this->get_field_id( 'types' ) . '-' . $type ); ?>"
 							type="checkbox"
 							<?php echo $checked; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?>
 						>
