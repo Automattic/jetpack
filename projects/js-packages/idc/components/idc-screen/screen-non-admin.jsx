@@ -29,7 +29,7 @@ const ScreenNonAdmin = props => {
 				{ customContent.nonAdminBodyText ||
 					createInterpolateElement(
 						__(
-							'Your site is in Safe Mode because you have 2 Jetpack-powered sites that appear to be duplicates. ' +
+							'This site is in Safe Mode because there are 2 Jetpack-powered sites that appear to be duplicates. ' +
 								'2 sites that are telling Jetpack they’re the same site. <safeModeLink>Learn more about safe mode.</safeModeLink>',
 							'jetpack'
 						),
