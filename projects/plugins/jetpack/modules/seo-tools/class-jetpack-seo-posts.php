@@ -1,7 +1,12 @@
 <?php
-
 /**
  * Class containing utility static methods for managing SEO custom descriptions for Posts and Pages.
+ *
+ * @package automattic/jetpack
+ */
+
+/**
+ * Provides static utility methods for managing SEO custom descriptions for Posts and Pages.
  */
 class Jetpack_SEO_Posts {
 	/**
@@ -25,7 +30,7 @@ class Jetpack_SEO_Posts {
 			return '';
 		}
 
-		// Business users can overwrite the description
+		// Business users can overwrite the description.
 		$custom_description = self::get_post_custom_description( $post );
 
 		if ( ! empty( $custom_description ) ) {
@@ -43,7 +48,7 @@ class Jetpack_SEO_Posts {
 	 * Returns post's custom meta description if it is set, and if
 	 * SEO tools are enabled for current blog.
 	 *
-	 * @param WP_Post $post Source of data for custom description
+	 * @param WP_Post $post Source of data for custom description.
 	 *
 	 * @return string Custom description or empty string
 	 */
