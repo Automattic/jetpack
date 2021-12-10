@@ -214,6 +214,7 @@ function wp_cache_serve_cache_file() {
 
 			// don't try to match modified dates if using dynamic code.
 			if ( $wp_cache_mfunc_enabled == 0 && $wp_supercache_304 ) {
+				wp_cache_debug( 'wp_cache_serve_cache_file: checking age of cached vs served files.' );
 				$headers         = apache_request_headers();
 				$remote_mod_time = isset ( $headers['If-Modified-Since'] ) ? $headers['If-Modified-Since'] : null;
 
@@ -223,8 +224,11 @@ function wp_cache_serve_cache_file() {
 
 				$local_mod_time = gmdate("D, d M Y H:i:s",filemtime( $file )).' GMT';
 				if ( ! is_null( $remote_mod_time ) && $remote_mod_time == $local_mod_time ) {
+					wp_cache_debug( 'wp_cache_serve_cache_file: Send 304 Not Modified header.' );
 					header( $_SERVER[ 'SERVER_PROTOCOL' ] . " 304 Not Modified" );
 					exit();
+				} else {
+					wp_cache_debug( 'wp_cache_serve_cache_file: 304 browser caching not possible as timestamps differ.' );
 				}
 				header( 'Last-Modified: ' . $local_mod_time );
 			}
