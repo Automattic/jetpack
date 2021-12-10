@@ -28,7 +28,7 @@
 		"*.scss"
 	],
 	"devDependencies": {
-		"@automattic/jetpack-webpack-config": "workspace:^0.4.0",
+		"@automattic/jetpack-webpack-config": "workspace:^0.4.1-alpha",
 		"@automattic/jetpack-base-styles": "workspace:^0.1.2-alpha",
 		"@babel/core": "7.16.0",
 		"@babel/preset-env": "7.16.4",
