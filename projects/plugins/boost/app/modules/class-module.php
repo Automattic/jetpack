@@ -13,32 +13,12 @@ namespace Automattic\Jetpack_Boost\Modules;
  * Class Module
  */
 abstract class Module {
-
-	/**
-	 * Keep track of whether or not the current Module has been initialized
-	 *
-	 * @var bool
-	 */
-	protected $is_initialized = false;
-
-	/**
-	 * Action(s) to perform when module is activated.
-	 * Required for modules that extend this class.
-	 *
-	 * @return bool
-	 */
-	abstract protected function on_initialize();
-
 	/**
 	 * Modules extending this class will auto-register routes
 	 * using `register_rest_routes` method if it's available.
 	 */
 	public static function prepare() {
 		$module = new static();
-
-		if ( $module->has_rest_routes() ) {
-			add_action( 'rest_api_init', array( $module, 'register_rest_routes' ) );
-		}
 
 		add_action( 'jetpack_boost_deactivate', array( $module, 'on_deactivate' ) );
 		add_action( 'jetpack_boost_uninstall', array( $module, 'on_uninstall' ) );
@@ -57,18 +37,16 @@ abstract class Module {
 	 * Initialize the module and track its state.
 	 */
 	final public function initialize() {
-		// Assume initialization has succeeded unless `false` is returned.
-		$this->is_initialized = ( false !== $this->on_initialize() );
+		$this->on_initialize();
 	}
 
 	/**
-	 * Check if this module has been activated.
+	 * Action(s) to perform when module is activated.
+	 * Required for modules that extend this class.
 	 *
 	 * @return bool
 	 */
-	final public function is_initialized() {
-		return $this->is_initialized;
-	}
+	abstract protected function on_initialize();
 
 	/**
 	 * Run actions on plugin deactivation.
@@ -91,18 +69,6 @@ abstract class Module {
 	 * @see Jetpack_Boost::uninstall()
 	 */
 	public function on_uninstall() {}
-
-	/**
-	 * Check if the module extending this class is registering routes.
-	 *
-	 * If `register_rest_routes` method exists, it will automatically
-	 * be called on `rest_api_init` action
-	 *
-	 * @return bool
-	 */
-	final public function has_rest_routes() {
-		return method_exists( $this, 'register_rest_routes' );
-	}
 
 	/**
 	 * Overrideable method for fetching an array of admin notices to display.

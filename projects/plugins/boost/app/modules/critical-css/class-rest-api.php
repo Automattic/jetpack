@@ -2,7 +2,6 @@
 
 namespace Automattic\Jetpack_Boost\Modules\Critical_CSS;
 
-
 use Automattic\Jetpack_Boost\Lib\Nonce;
 use Automattic\Jetpack_Boost\Modules\Critical_CSS\Generate\Generator;
 
@@ -16,7 +15,6 @@ class REST_API {
 	protected $storage;
 
 	protected $recommendation;
-
 
 	/**
 	 * @var Generator $generator
@@ -41,6 +39,14 @@ class REST_API {
 		$this->providers      = $providers;
 	}
 
+	/**
+	 * Initialize.
+	 */
+	public function on_initialize() {
+		add_action( 'rest_api_init', array( $this, 'register_rest_routes' ) );
+
+		$this->is_initialized = true;
+	}
 
 	/**
 	 * Register the Critical CSS related REST routes.
@@ -99,7 +105,6 @@ class REST_API {
 		return true;
 	}
 
-
 	/**
 	 * Check that user can modify Critical CSS.
 	 *
@@ -108,7 +113,7 @@ class REST_API {
 	public function current_user_can_modify_critical_css() {
 		// @TODO: We shouldn't need to do these kinds of checks:
 		// $this->rest_is_module_available()
-		return  $this->is_initialized && current_user_can( 'manage_options' );
+		return $this->is_initialized && current_user_can( 'manage_options' );
 	}
 
 	/**
@@ -238,7 +243,6 @@ class REST_API {
 		);
 	}
 
-
 	/**
 	 * Handler for PUT '/critical-css/(?P<cacheKey>.+)/success'.
 	 *
@@ -309,10 +313,6 @@ class REST_API {
 		);
 	}
 
-	public function on_initialize() {
-		$this->is_initialized = true;
-	}
-
 	/**
 	 * API helper for ensuring this module is enabled before allowing an API
 	 * endpoint to continue. Will die if this module is not initialized, with
@@ -345,7 +345,6 @@ class REST_API {
 		),
 	);
 
-
 	/**
 	 * Get a Critical CSS status block, adding in local generation nonces (if applicable).
 	 * i.e.: Call this method to supply enough Critical CSS status to kick off local generation,
@@ -365,12 +364,11 @@ class REST_API {
 
 		// Add a passthrough block to include in all response callbacks.
 		$status['callback_passthrough'] = array(
-			'_nonce' => Nonce::create( REST_API::CSS_CALLBACK_ACTION ),
+			'_nonce' => Nonce::create( self::CSS_CALLBACK_ACTION ),
 		);
 
 		return $status;
 	}
-
 
 	/**
 	 * Add Critical CSS related constants to be passed to JavaScript only if the module is enabled.
@@ -394,7 +392,5 @@ class REST_API {
 	public function api_get_critical_css_status() {
 		return rest_ensure_response( $this->generator->get_critical_css_status() );
 	}
-
-
 
 }
