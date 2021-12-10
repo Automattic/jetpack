@@ -234,6 +234,8 @@ class WP_Test_WPCOM_REST_API_V2_Endpoint_Admin_Menu extends WP_Test_Jetpack_REST
 	 * @return \string[][][]
 	 */
 	public function submenu_item_data() {
+		$plugin_slug = defined( 'IS_WPCOM' ) && IS_WPCOM ? 'akismet/akismet.png' : 'jetpack/jetpack.php';
+
 		return array(
 			// User doesn't have necessary permissions.
 			array(
@@ -272,6 +274,30 @@ class WP_Test_WPCOM_REST_API_V2_Endpoint_Admin_Menu extends WP_Test_Jetpack_REST
 				array( 'Hidden', 'read', 'hidden', 'Hidden', 'hide-if-js' ),
 				array( 'My Plugin', 'read', 'my-plugin', 'My Plugin', '', '', '' ),
 				array(),
+			),
+			array(
+				array(
+					0 => 'MYML',
+					1 => 'read',
+					2 => $plugin_slug,
+					3 => 'MYML',
+					4 => 'menu-top toplevel_page_my-multilingual-cms/menu/languages',
+					5 => 'toplevel_page_my-multilingual-cms/menu/languages',
+					6 => 'https://example.org/wp-content/plugins/my-multilingual-cms/icon16.png',
+				),
+				array(
+					0 => 'Troubleshooting',
+					1 => 'read',
+					2 => $plugin_slug,
+					3 => 'Troubleshooting',
+				),
+				array(
+					'parent' => sanitize_title_with_dashes( $plugin_slug ),
+					'slug'   => sanitize_title_with_dashes( $plugin_slug ),
+					'title'  => 'MYML',
+					'type'   => 'submenu-item',
+					'url'    => admin_url( 'admin.php?page=' . $plugin_slug ),
+				),
 			),
 		);
 	}
@@ -418,6 +444,8 @@ class WP_Test_WPCOM_REST_API_V2_Endpoint_Admin_Menu extends WP_Test_Jetpack_REST
 	 * @return \string[][]
 	 */
 	public function menu_item_url_data() {
+		$plugin_slug = defined( 'IS_WPCOM' ) && IS_WPCOM ? 'akismet/akismet.png' : 'jetpack/jetpack.php';
+
 		return array(
 			// Calypso URL.
 			array(
@@ -498,6 +526,12 @@ class WP_Test_WPCOM_REST_API_V2_Endpoint_Admin_Menu extends WP_Test_Jetpack_REST
 				'',
 				null,
 				'',
+			),
+			array(
+				$plugin_slug,
+				'',
+				null,
+				admin_url( 'admin.php?page=' . $plugin_slug ),
 			),
 		);
 	}
