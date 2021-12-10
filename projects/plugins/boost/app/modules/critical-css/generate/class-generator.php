@@ -6,6 +6,7 @@ namespace Automattic\Jetpack_Boost\Modules\Critical_CSS\Generate;
 use Automattic\Jetpack_Boost\Lib\Nonce;
 use Automattic\Jetpack_Boost\Modules\Critical_CSS\Critical_CSS_State;
 use Automattic\Jetpack_Boost\Modules\Critical_CSS\Path_Providers\Paths;
+use Automattic\Jetpack_Boost\Modules\Critical_CSS\Path_Providers\Providers\Provider;
 
 class Generator {
 	const GENERATE_QUERY_ACTION = 'jb-generate-critical-css';
@@ -28,7 +29,7 @@ class Generator {
 		$this->state = new Critical_CSS_State();
 		$this->paths = new Paths();
 		if ( $this->state->is_empty() && ! wp_doing_ajax() && ! wp_doing_cron() ) {
-			$this->state->create_request( $providers );
+			$this->state->create_request( $this->paths->get_providers() );
 		}
 
 		if ( is_admin() ) {
@@ -89,7 +90,7 @@ class Generator {
 	 * @return Provider|false|string
 	 */
 	public function find_provider_for( $provider_key ) {
-		foreach ( $this->paths as $provider ) {
+		foreach ( $this->paths->get_providers() as $provider ) {
 			if ( $provider::owns_key( $provider_key ) ) {
 				return $provider;
 			}
