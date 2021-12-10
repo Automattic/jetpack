@@ -1180,7 +1180,7 @@
             "dist": {
                 "type": "path",
                 "url": "../../packages/my-jetpack",
-                "reference": "4ff3bd578db2c0620325f0d007130827372a553b"
+                "reference": "769378531a7cb936e4f201d869306056ac558620"
             },
             "require": {
                 "automattic/jetpack-admin-ui": "^0.1",
@@ -1225,6 +1225,10 @@
                 "build-production": [
                     "Composer\\Config::disableProcessTimeout",
                     "pnpm run build"
+                ],
+                "watch": [
+                    "Composer\\Config::disableProcessTimeout",
+                    "pnpm run watch"
                 ]
             },
             "license": [

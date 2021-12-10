@@ -33,6 +33,10 @@
 		"build-production": [
 			"Composer\\Config::disableProcessTimeout",
 			"pnpm run build-production-concurrently"
+		],
+		"watch": [
+			"Composer\\Config::disableProcessTimeout",
+			"pnpm run watch"
 		]
 	},
 	"repositories": [
