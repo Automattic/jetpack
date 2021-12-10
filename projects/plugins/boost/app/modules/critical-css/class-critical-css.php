@@ -108,7 +108,7 @@ class Critical_CSS extends Module {
 		if ( ! is_admin() ) {
 			$critical_css = $this;
 			add_action( 'wp', function() use ( $critical_css ) {
-				Display_Critical_CSS::please( $critical_css->get_critical_css() );
+				Display_Critical_CSS::please( $critical_css->get_current_request_css() );
 			} );
 		}
 		// Critically Bad: End
@@ -189,7 +189,7 @@ class Critical_CSS extends Module {
 	 *
 	 * @return string|false
 	 */
-	public function get_critical_css() {
+	public function get_current_request_css() {
 		if ( NULL !== $this->request_cached_css ) {
 			return $this->request_cached_css;
 		}
@@ -229,7 +229,7 @@ class Critical_CSS extends Module {
 		}
 
 		// Return "ready" if Critical CSS has been generated.
-		return ! empty( $this->get_critical_css() );
+		return ! empty( $this->get_current_request_css() );
 	}
 
 	/**
