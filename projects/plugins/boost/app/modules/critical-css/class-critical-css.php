@@ -27,16 +27,14 @@ class Critical_CSS extends Module {
 	 */
 	protected $storage;
 
-	protected $recommendation;
-
 	/**
 	 * Prepare module. This is run irrespective of the module activation status.
 	 */
 	public function on_prepare() {
-		$this->recommendation = new Recommendations();
-		$this->recommendation->on_prepare();
-		$this->paths = new Paths();
 
+		$this->storage  = new Critical_CSS_Storage();
+		$this->paths    = new Paths();
+		$this->rest_api = new REST_API();
 
 	}
 
@@ -50,13 +48,8 @@ class Critical_CSS extends Module {
 		// This should instantiate a new Post_Type_Storage class,
 		// so that Critical_CSS class is responsible
 		// for setting up the storage.
-		$this->storage = new Critical_CSS_Storage();
 
-		// Critically Bad: Start
-		$this->rest_api = new REST_API( $this->recommendation, $this->paths->get_providers() );
 		$this->rest_api->on_initialize();
-		// Critically Bad: End
-
 
 		// Update ready flag used to indicate Boost optimizations are warmed up in metatag.
 		add_filter( 'jetpack_boost_url_ready', array( $this, 'is_ready_filter' ), 10, 1 );
@@ -133,6 +126,7 @@ class Critical_CSS extends Module {
 	 */
 	public function clear_critical_css() {
 		// Mass invalidate all cached values.
+		// ^^ Not true anymore. Mass invalidate __some__ cached values.
 		$this->storage->clear();
 		Critical_CSS_State::reset();
 	}

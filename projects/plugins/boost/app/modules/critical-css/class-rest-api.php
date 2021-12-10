@@ -14,7 +14,7 @@ class REST_API {
 	 */
 	protected $storage;
 
-	protected $recommendation;
+	protected $recommendations;
 
 	/**
 	 * @var Generator $generator
@@ -32,10 +32,10 @@ class REST_API {
 	 * @param                      $recommendation
 	 * @param Generator            $generator
 	 */
-	public function __construct( $recommendation ) {
-		$this->storage        = new Critical_CSS_Storage();
-		$this->recommendation = $recommendation;
-		$this->generator      = new Generator();
+	public function __construct() {
+		$this->storage         = new Critical_CSS_Storage();
+		$this->recommendations = new Recommendations();
+		$this->generator       = new Generator();
 	}
 
 	/**
@@ -43,7 +43,7 @@ class REST_API {
 	 */
 	public function on_initialize() {
 		add_action( 'rest_api_init', array( $this, 'register_rest_routes' ) );
-
+		$this->recommendations->on_prepare();
 		$this->is_initialized = true;
 	}
 
@@ -132,7 +132,7 @@ class REST_API {
 			// Create a new Critical CSS Request block to track creation request.
 			$this->storage->clear();
 			$this->generator->make_generation_request();
-			$this->recommendation->clear();
+			$this->recommendations->clear();
 			Critical_CSS::clear_reset_reason();
 		}
 
@@ -299,7 +299,7 @@ class REST_API {
 
 		$this->storage->store_css( $cache_key, $params['data'] );
 		$this->generator->state->set_source_success( $cache_key );
-		$this->recommendation->clear();
+		$this->recommendations->clear();
 		Critical_CSS::clear_reset_reason();
 
 		// Set status to success to indicate the critical CSS data has been stored on the server.
