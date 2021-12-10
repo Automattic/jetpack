@@ -24,6 +24,13 @@ if ( defined( 'DISABLE_SUPERCACHE' ) ) {
 
 require WPCACHEHOME . 'wp-cache-base.php';
 
+if ( '/' === $cache_path || empty( $cache_path ) ) {
+	define( 'WPSCSHUTDOWNMESSAGE', 'WARNING! Caching disabled. Configuration corrupted. Reset configuration on Advanced Settings page.' );
+	add_action( 'wp_footer', 'wpsc_shutdown_message' );
+	define( 'DONOTCACHEPAGE', 1 );
+	return;
+}
+
 if ( $blogcacheid != '' ) {
 	$blog_cache_dir = str_replace( '//', '/', $cache_path . 'blogs/' . $blogcacheid . '/' );
 } else {
