@@ -139,7 +139,7 @@ class Jetpack_My_Community_Widget extends WP_Widget {
 		}
 
 		$instance['number'] = (int) $new_instance['number'];
-		if ( ! in_array( $instance['number'], array( 10, 50 ) ) ) { // phpcs:ignore WordPress.PHP.StrictInArray.MissingTrueStrict
+		if ( ! in_array( $instance['number'], array( 10, 50 ), true ) ) {
 			$instance['number'] = 10;
 		}
 
