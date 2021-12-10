@@ -94,6 +94,19 @@ importers:
       jetpack-js-test-runner: link:../../../tools/js-test-runner
       nyc: 15.1.0
 
+  projects/js-packages/babel-plugin-replace-textdomain:
+    specifiers:
+      '@babel/core': 7.16.0
+      babel-plugin-tester: 10.1.0
+      debug: ^4.3.2
+      jest: 27.3.1
+    dependencies:
+      debug: 4.3.2
+    devDependencies:
+      '@babel/core': 7.16.0
+      babel-plugin-tester: 10.1.0_@babel+core@7.16.0
+      jest: 27.3.1
+
   projects/js-packages/base-styles:
     specifiers:
       '@wordpress/base-styles': 4.0.4
@@ -103,7 +116,7 @@ importers:
   projects/js-packages/components:
     specifiers:
       '@automattic/format-currency': 1.0.0-alpha.0
-      '@automattic/jetpack-base-styles': workspace:^0.1.1
+      '@automattic/jetpack-base-styles': workspace:^0.1.2-alpha
       '@wordpress/browserslist-config': 4.1.0
       '@wordpress/components': 19.1.1
       '@wordpress/i18n': 4.2.4
@@ -116,7 +129,7 @@ importers:
       react-dom: 17.0.2
       react-test-renderer: 17.0.2
     dependencies:
-      '@automattic/format-currency': 1.0.0-alpha.0
+      '@automattic/format-currency': 1.0.0-alpha.0_react@17.0.2
       '@wordpress/browserslist-config': 4.1.0
       '@wordpress/components': 19.1.1_react-dom@17.0.2+react@17.0.2
       '@wordpress/i18n': 4.2.4
@@ -141,8 +154,8 @@ importers:
     specifiers:
       '@automattic/jetpack-analytics': workspace:^0.1.3
       '@automattic/jetpack-api': workspace:^0.8.0
-      '@automattic/jetpack-base-styles': workspace:^0.1.1
-      '@automattic/jetpack-components': workspace:^0.8.0
+      '@automattic/jetpack-base-styles': workspace:^0.1.2-alpha
+      '@automattic/jetpack-components': workspace:^0.9.0-alpha
       '@automattic/jetpack-config': workspace:^0.1.0
       '@wordpress/base-styles': 4.0.4
       '@wordpress/browserslist-config': 4.1.0
@@ -216,11 +229,28 @@ importers:
       eslint-plugin-es: 4.1.0_eslint@7.32.0
       jest: 27.3.1
 
+  projects/js-packages/i18n-loader-webpack-plugin:
+    specifiers:
+      '@wordpress/dependency-extraction-webpack-plugin': 3.2.1
+      '@wordpress/i18n': 4.2.4
+      debug: ^4.3.2
+      jest: 27.3.1
+      md5-es: ^1.8.2
+      webpack: 5.64.1
+    dependencies:
+      debug: 4.3.2
+      md5-es: 1.8.2
+    devDependencies:
+      '@wordpress/dependency-extraction-webpack-plugin': 3.2.1_webpack@5.64.1
+      '@wordpress/i18n': 4.2.4
+      jest: 27.3.1
+      webpack: 5.64.1
+
   projects/js-packages/idc:
     specifiers:
       '@automattic/jetpack-analytics': workspace:^0.1.3
       '@automattic/jetpack-api': workspace:^0.8.0
-      '@automattic/jetpack-components': workspace:^0.8.0
+      '@automattic/jetpack-components': workspace:^0.9.0-alpha
       '@wordpress/base-styles': 4.0.4
       '@wordpress/components': 19.1.1
       '@wordpress/compose': 5.0.6
@@ -254,8 +284,8 @@ importers:
   projects/js-packages/licensing:
     specifiers:
       '@automattic/jetpack-api': workspace:^0.8.0
-      '@automattic/jetpack-base-styles': workspace:^0.1.1
-      '@automattic/jetpack-components': workspace:^0.8.0
+      '@automattic/jetpack-base-styles': workspace:^0.1.2-alpha
+      '@automattic/jetpack-components': workspace:^0.9.0-alpha
       '@wordpress/components': 19.1.1
       '@wordpress/element': 4.0.4
       '@wordpress/i18n': 4.2.4
@@ -280,8 +310,8 @@ importers:
 
   projects/js-packages/partner-coupon:
     specifiers:
-      '@automattic/jetpack-components': workspace:^0.8.0
-      '@automattic/jetpack-connection': workspace:^0.11.2
+      '@automattic/jetpack-components': workspace:^0.9.0-alpha
+      '@automattic/jetpack-connection': workspace:^0.11.3-alpha
       '@wordpress/i18n': 4.2.4
       classnames: 2.3.1
       jetpack-js-test-runner: workspace:*
@@ -301,20 +331,18 @@ importers:
     specifiers:
       debug: ^4.3.2
       jest: 27.3.1
-      schema-utils: 3.1.1
       webpack: 5.64.1
     dependencies:
       debug: 4.3.2
-      schema-utils: 3.1.1
     devDependencies:
       jest: 27.3.1
       webpack: 5.64.1
 
   projects/js-packages/storybook:
     specifiers:
-      '@automattic/jetpack-base-styles': workspace:^0.1.1
-      '@automattic/jetpack-components': workspace:^0.8.0
-      '@automattic/jetpack-connection': workspace:^0.11.2
+      '@automattic/jetpack-base-styles': workspace:^0.1.2-alpha
+      '@automattic/jetpack-components': workspace:^0.9.0-alpha
+      '@automattic/jetpack-connection': workspace:^0.11.3-alpha
       '@automattic/jetpack-idc': workspace:^0.6.1-alpha
       '@babel/core': 7.16.0
       '@babel/plugin-syntax-jsx': 7.16.0
@@ -393,6 +421,7 @@ importers:
   projects/js-packages/webpack-config:
     specifiers:
       '@automattic/babel-plugin-preserve-i18n': 1.0.0
+      '@automattic/babel-plugin-replace-textdomain': workspace:^0.1.0-alpha
       '@automattic/webpack-rtl-plugin': 5.1.0
       '@babel/compat-data': 7.16.4
       '@babel/core': 7.16.0
@@ -411,13 +440,13 @@ importers:
       css-minimizer-webpack-plugin: 3.1.4
       duplicate-package-checker-webpack-plugin: 3.0.0
       mini-css-extract-plugin: 2.4.5
-      schema-utils: 3.1.1
       terser-webpack-plugin: 5.2.5
       thread-loader: 3.0.4
       webpack: 5.64.1
       webpack-cli: 4.8.0
     dependencies:
       '@automattic/babel-plugin-preserve-i18n': 1.0.0
+      '@automattic/babel-plugin-replace-textdomain': link:../babel-plugin-replace-textdomain
       '@automattic/webpack-rtl-plugin': 5.1.0_webpack@5.64.1
       '@babel/compat-data': 7.16.4
       '@babel/helper-compilation-targets': 7.16.3_@babel+core@7.16.0
@@ -434,7 +463,6 @@ importers:
       css-minimizer-webpack-plugin: 3.1.4_webpack@5.64.1
       duplicate-package-checker-webpack-plugin: 3.0.0
       mini-css-extract-plugin: 2.4.5_webpack@5.64.1
-      schema-utils: 3.1.1
       terser-webpack-plugin: 5.2.5_webpack@5.64.1
       thread-loader: 3.0.4_webpack@5.64.1
     devDependencies:
@@ -449,9 +477,9 @@ importers:
   projects/packages/connection-ui:
     specifiers:
       '@automattic/jetpack-api': workspace:^0.8.0
-      '@automattic/jetpack-connection': workspace:^0.11.2
+      '@automattic/jetpack-connection': workspace:^0.11.3-alpha
       '@automattic/jetpack-idc': workspace:^0.6.1-alpha
-      '@automattic/jetpack-webpack-config': workspace:^0.4.0
+      '@automattic/jetpack-webpack-config': workspace:^0.5.0-alpha
       '@babel/core': 7.16.0
       '@babel/preset-env': 7.16.4
       '@babel/register': 7.16.0
@@ -491,7 +519,7 @@ importers:
 
   projects/packages/identity-crisis:
     specifiers:
-      '@automattic/jetpack-webpack-config': workspace:^0.4.0
+      '@automattic/jetpack-webpack-config': workspace:^0.5.0-alpha
       '@babel/core': 7.16.0
       '@babel/preset-env': 7.16.4
       '@babel/register': 7.16.0
@@ -530,7 +558,7 @@ importers:
 
   projects/packages/jitm:
     specifiers:
-      '@automattic/jetpack-webpack-config': workspace:^0.4.0
+      '@automattic/jetpack-webpack-config': workspace:^0.5.0-alpha
       '@wordpress/browserslist-config': 4.1.0
       sass: 1.43.3
       sass-loader: 12.2.0
@@ -546,7 +574,7 @@ importers:
 
   projects/packages/lazy-images:
     specifiers:
-      '@automattic/jetpack-webpack-config': workspace:^0.4.0
+      '@automattic/jetpack-webpack-config': workspace:^0.5.0-alpha
       copy-webpack-plugin: 9.0.1
       intersection-observer: 0.12.0
       webpack: 5.64.1
@@ -558,13 +586,16 @@ importers:
 
   projects/packages/my-jetpack:
     specifiers:
-      '@automattic/jetpack-base-styles': workspace:^0.1.1
-      '@automattic/jetpack-components': workspace:^0.8.0
-      '@automattic/jetpack-webpack-config': workspace:^0.4.0
+      '@automattic/jetpack-base-styles': workspace:^0.1.2-alpha
+      '@automattic/jetpack-components': workspace:^0.9.0-alpha
+      '@automattic/jetpack-connection': workspace:^0.11.3-alpha
+      '@automattic/jetpack-webpack-config': workspace:^0.5.0-alpha
       '@babel/core': 7.16.0
       '@babel/preset-env': 7.16.4
       '@babel/register': 7.16.0
       '@babel/runtime': 7.16.3
+      '@wordpress/data': 6.1.4
+      '@wordpress/i18n': 4.2.4
       enzyme: 3.11.0
       jest: 27.3.1
       react: 17.0.2
@@ -574,6 +605,9 @@ importers:
       webpack: 5.64.1
     dependencies:
       '@automattic/jetpack-components': link:../../js-packages/components
+      '@automattic/jetpack-connection': link:../../js-packages/connection
+      '@wordpress/data': 6.1.4_react@17.0.2
+      '@wordpress/i18n': 4.2.4
     devDependencies:
       '@automattic/jetpack-base-styles': link:../../js-packages/base-styles
       '@automattic/jetpack-webpack-config': link:../../js-packages/webpack-config
@@ -595,8 +629,8 @@ importers:
       '@automattic/color-studio': 2.5.0
       '@automattic/jetpack-analytics': workspace:^0.1.3
       '@automattic/jetpack-api': workspace:^0.8.0
-      '@automattic/jetpack-components': workspace:^0.8.0
-      '@automattic/jetpack-webpack-config': workspace:^0.4.0
+      '@automattic/jetpack-components': workspace:^0.9.0-alpha
+      '@automattic/jetpack-webpack-config': workspace:^0.5.0-alpha
       '@babel/core': 7.16.0
       '@babel/plugin-proposal-nullish-coalescing-operator': 7.16.0
       '@babel/preset-env': 7.16.4
@@ -685,10 +719,10 @@ importers:
   projects/plugins/backup:
     specifiers:
       '@automattic/jetpack-api': workspace:^0.8.0
-      '@automattic/jetpack-base-styles': workspace:^0.1.1
-      '@automattic/jetpack-components': workspace:^0.8.0
-      '@automattic/jetpack-connection': workspace:^0.11.2
-      '@automattic/jetpack-webpack-config': workspace:^0.4.0
+      '@automattic/jetpack-base-styles': workspace:^0.1.2-alpha
+      '@automattic/jetpack-components': workspace:^0.9.0-alpha
+      '@automattic/jetpack-connection': workspace:^0.11.3-alpha
+      '@automattic/jetpack-webpack-config': workspace:^0.5.0-alpha
       '@babel/core': 7.16.0
       '@babel/preset-env': 7.16.4
       '@babel/register': 7.16.0
@@ -810,14 +844,14 @@ importers:
       '@automattic/format-currency': 1.0.0-alpha.0
       '@automattic/jetpack-analytics': workspace:^0.1.3
       '@automattic/jetpack-api': workspace:^0.8.0
-      '@automattic/jetpack-base-styles': workspace:^0.1.1
-      '@automattic/jetpack-components': workspace:^0.8.0
-      '@automattic/jetpack-connection': workspace:^0.11.2
-      '@automattic/jetpack-licensing': workspace:^0.3.1
-      '@automattic/jetpack-partner-coupon': workspace:^0.1.1
-      '@automattic/jetpack-webpack-config': workspace:^0.4.0
+      '@automattic/jetpack-base-styles': workspace:^0.1.2-alpha
+      '@automattic/jetpack-components': workspace:^0.9.0-alpha
+      '@automattic/jetpack-connection': workspace:^0.11.3-alpha
+      '@automattic/jetpack-licensing': workspace:^0.3.2-alpha
+      '@automattic/jetpack-partner-coupon': workspace:^0.1.2-alpha
+      '@automattic/jetpack-webpack-config': workspace:^0.5.0-alpha
       '@automattic/popup-monitor': 1.0.0
-      '@automattic/remove-asset-webpack-plugin': workspace:^0.1.0
+      '@automattic/remove-asset-webpack-plugin': workspace:^0.1.1-alpha
       '@automattic/request-external-access': 1.0.0
       '@automattic/social-previews': 1.1.1
       '@automattic/viewport': 1.0.0
@@ -953,7 +987,7 @@ importers:
     dependencies:
       '@automattic/calypso-color-schemes': 2.1.1
       '@automattic/components': 1.0.0-alpha.3_react-dom@17.0.2+react@17.0.2
-      '@automattic/format-currency': 1.0.0-alpha.0
+      '@automattic/format-currency': 1.0.0-alpha.0_react@17.0.2
       '@automattic/jetpack-analytics': link:../../js-packages/analytics
       '@automattic/jetpack-api': link:../../js-packages/api
       '@automattic/jetpack-components': link:../../js-packages/components
@@ -1207,7 +1241,7 @@ importers:
       eslint-plugin-jsx-a11y: 6.5.1
       eslint-plugin-lodash: 7.3.0
       eslint-plugin-prettier: 3.4.1
-      eslint-plugin-react: 7.27.0
+      eslint-plugin-react: 7.27.1
       eslint-plugin-react-hooks: 4.3.0
       eslint-plugin-wpcalypso: 5.0.0
       glob: 7.1.6
@@ -1240,7 +1274,7 @@ importers:
       eslint-plugin-jsx-a11y: 6.5.1_eslint@7.32.0
       eslint-plugin-lodash: 7.3.0_eslint@7.32.0
       eslint-plugin-prettier: 3.4.1_b003eb7dfbbe32a2afc96a18053e1e13
-      eslint-plugin-react: 7.27.0_eslint@7.32.0
+      eslint-plugin-react: 7.27.1_eslint@7.32.0
       eslint-plugin-react-hooks: 4.3.0_eslint@7.32.0
       eslint-plugin-wpcalypso: 5.0.0_eslint@7.32.0
       glob: 7.1.6
@@ -1302,16 +1336,17 @@ packages:
       react-modal: 3.14.3_react-dom@17.0.2+react@17.0.2
     dev: false
 
-  /@automattic/format-currency/1.0.0-alpha.0:
+  /@automattic/format-currency/1.0.0-alpha.0_react@17.0.2:
     resolution: {integrity: sha512-Y5An5nsNtskdLN3mbh5UWKvsS3C5PHbOcBU5D58dmjc96z5WAa99gSNYkN87FjqrJKGM4J2JhE5d1gIadYU++A==}
     dependencies:
-      i18n-calypso: 4.1.0
+      i18n-calypso: 5.0.0_react@17.0.2
     transitivePeerDependencies:
       - '@types/react'
+      - react
       - supports-color
     dev: false
 
-  /@automattic/interpolate-components/1.2.0_react@16.14.0:
+  /@automattic/interpolate-components/1.2.0_react@17.0.2:
     resolution: {integrity: sha512-qpprRrFddOnGEgLy74Eyno0tz9sHyTE+6grtKuTsasjOnfzzNlKv57sFlJU/1WlfQ7kDncRgaxM1iH247EBfyQ==}
     peerDependencies:
       '@types/react': '>=16.1.0'
@@ -1320,7 +1355,7 @@ packages:
       '@types/react':
         optional: true
     dependencies:
-      react: 16.14.0
+      react: 17.0.2
     dev: false
 
   /@automattic/popup-monitor/1.0.0:
@@ -3595,7 +3630,7 @@ packages:
       '@types/istanbul-reports': 3.0.1
       '@types/node': 16.11.7
       '@types/yargs': 15.0.14
-      chalk: 4.1.1
+      chalk: 4.1.2
     dev: true
 
   /@jest/types/27.2.5:
@@ -6070,6 +6105,13 @@ packages:
     resolution: {integrity: sha512-HnYpAE1Y6kRyKM/XkEuiRQhTHvkzMBurTHnpFLYLBGPIylZNPs9jJcuOOYWxPLJCSEtmZT0Y8rHDokKN7rRTig==}
     dev: true
 
+  /@types/babel-plugin-tester/9.0.4:
+    resolution: {integrity: sha512-s7SxUNtUWO/bWZZqJbFqY/tbqJFoYnW/M2zPkTHl406PAPoWVSaVyYElo/O3GcRAQ5CV/pLPTFV4tQYTpMDWEQ==}
+    dependencies:
+      '@types/babel__core': 7.1.16
+      '@types/prettier': 2.4.1
+    dev: true
+
   /@types/babel__core/7.1.16:
     resolution: {integrity: sha512-EAEHtisTMM+KaKwfWdC3oyllIqswlznXCIVCt7/oRNrh+DhgT4UEBNC/jlADNjvw7UnfbcdkGQcPVZ1xYiLcrQ==}
     dependencies:
@@ -7499,26 +7541,6 @@ packages:
       - redux
     dev: false
 
-  /@wordpress/compose/3.25.3_react@16.14.0:
-    resolution: {integrity: sha512-tCO2EnJCkCH548OqA0uU8V1k/1skz2QwBlHs8ZQSpimqUS4OWWsAlndCEFe4U4vDTqFt2ow7tzAir+05Cw8MAg==}
-    dependencies:
-      '@babel/runtime': 7.16.3
-      '@wordpress/deprecated': 2.12.3
-      '@wordpress/dom': 2.18.0
-      '@wordpress/element': 2.20.3
-      '@wordpress/is-shallow-equal': 3.1.3
-      '@wordpress/keycodes': 2.19.3
-      '@wordpress/priority-queue': 1.11.2
-      clipboard: 2.0.8
-      lodash: 4.17.21
-      memize: 1.1.0
-      mousetrap: 1.6.5
-      react-resize-aware: 3.1.1_react@16.14.0
-      use-memo-one: 1.1.2_react@16.14.0
-    transitivePeerDependencies:
-      - react
-    dev: false
-
   /@wordpress/compose/3.25.3_react@17.0.2:
     resolution: {integrity: sha512-tCO2EnJCkCH548OqA0uU8V1k/1skz2QwBlHs8ZQSpimqUS4OWWsAlndCEFe4U4vDTqFt2ow7tzAir+05Cw8MAg==}
     dependencies:
@@ -7799,7 +7821,7 @@ packages:
       webpack: ^4.8.3 || ^5.0.0
     dependencies:
       json2php: 0.0.4
-      webpack: 5.64.1_webpack-cli@4.8.0
+      webpack: 5.64.1
       webpack-sources: 2.3.1
 
   /@wordpress/deprecated/2.12.3:
@@ -9525,6 +9547,19 @@ packages:
 
   /babel-plugin-syntax-jsx/6.18.0:
     resolution: {integrity: sha1-CvMqmm4Tyno/1QaeYtew9Y0NiUY=}
+
+  /babel-plugin-tester/10.1.0_@babel+core@7.16.0:
+    resolution: {integrity: sha512-4P2tNaM/Mtg6ytA9YAqmgONnMYqWvdbGDuwRTpIIC9yFZGQrEHoyvDPCx+X1QALAufVb5DKieOPGj5dffiEiNg==}
+    engines: {node: '>=10.13', npm: '>=6'}
+    peerDependencies:
+      '@babel/core': ^7.11.6
+    dependencies:
+      '@babel/core': 7.16.0
+      '@types/babel-plugin-tester': 9.0.4
+      lodash.mergewith: 4.6.2
+      prettier: 2.2.1
+      strip-indent: 3.0.0
+    dev: true
 
   /babel-preset-current-node-syntax/1.0.1_@babel+core@7.16.0:
     resolution: {integrity: sha512-M7LQ0bxarkxQoN+vz5aJPsLBn77n8QgTFmo8WK0/44auK2xlCXrYcUxHFxgU7qW5Yzw/CjmLRK2uJzaCd7LvqQ==}
@@ -12287,6 +12322,29 @@ packages:
       string.prototype.matchall: 4.0.6
     dev: true
 
+  /eslint-plugin-react/7.27.1_eslint@7.32.0:
+    resolution: {integrity: sha512-meyunDjMMYeWr/4EBLTV1op3iSG3mjT/pz5gti38UzfM4OPpNc2m0t2xvKCOMU5D6FSdd34BIMFOvQbW+i8GAA==}
+    engines: {node: '>=4'}
+    peerDependencies:
+      eslint: ^3 || ^4 || ^5 || ^6 || ^7 || ^8
+    dependencies:
+      array-includes: 3.1.4
+      array.prototype.flatmap: 1.2.5
+      doctrine: 2.1.0
+      eslint: 7.32.0
+      estraverse: 5.3.0
+      jsx-ast-utils: 3.2.1
+      minimatch: 3.0.4
+      object.entries: 1.1.5
+      object.fromentries: 2.0.5
+      object.hasown: 1.1.0
+      object.values: 1.1.5
+      prop-types: 15.7.2
+      resolve: 2.0.0-next.3
+      semver: 6.3.0
+      string.prototype.matchall: 4.0.6
+    dev: true
+
   /eslint-plugin-svelte3/3.2.1_svelte@3.42.4:
     resolution: {integrity: sha512-YoBR9mLoKCjGghJ/gvpnFZKaMEu/VRcuxpSRS8KuozuEo7CdBH7bmBHa6FmMm0i4kJnOyx+PVsaptz96K6H/4Q==}
     engines: {node: '>=10'}
@@ -14259,20 +14317,23 @@ packages:
       which-pm-runs: 1.0.0
     dev: true
 
-  /i18n-calypso/4.1.0:
-    resolution: {integrity: sha512-ynS9sLdpN0TgZ2Zb3GI1psI06yrvV6u/7EOiJDySEgUDmugbUmy9TgAmFnLo0vNWyGEcBtji1zRk5ZJuNiXmhQ==}
+  /i18n-calypso/5.0.0_react@17.0.2:
+    resolution: {integrity: sha512-YgqLgshNiBOiifWxr4s33ODWQ4JIaHoBPWtgFyqcRy0+WGMX2CmTDbXaeZHkHxuIjzsGP+YrVTPNp7lfbiot4g==}
+    peerDependencies:
+      react: ^16.8
     dependencies:
+      '@babel/runtime': 7.16.3
       '@tannin/sprintf': 1.2.0
-      '@wordpress/compose': 3.25.3_react@16.14.0
+      '@wordpress/compose': 3.25.3_react@17.0.2
       debug: 4.3.2
       events: 3.3.0
       hash.js: 1.1.7
-      interpolate-components: /@automattic/interpolate-components/1.2.0_react@16.14.0
+      interpolate-components: /@automattic/interpolate-components/1.2.0_react@17.0.2
       lodash: 4.17.21
       lru: 3.1.0
-      react: 16.14.0
+      react: 17.0.2
       tannin: 1.2.0
-      use-subscription: 1.5.1_react@16.14.0
+      use-subscription: 1.5.1_react@17.0.2
     transitivePeerDependencies:
       - '@types/react'
       - supports-color
@@ -15449,7 +15510,7 @@ packages:
     dependencies:
       '@jest/types': 26.6.2
       '@types/node': 16.11.7
-      chalk: 4.1.1
+      chalk: 4.1.2
       graceful-fs: 4.2.8
       is-ci: 2.0.0
       micromatch: 4.0.4
@@ -16127,6 +16188,10 @@ packages:
   /lodash.merge/4.6.2:
     resolution: {integrity: sha512-0KpjqXRVvrYyCsX1swR/XTK0va6VQkQM6MNo7PqW77ByjAhoARA8EfrP1N4+KlKj8YS0ZUCtRT/YUuhyYDujIQ==}
 
+  /lodash.mergewith/4.6.2:
+    resolution: {integrity: sha512-GK3g5RPZWTRSeLSpgP8Xhra+pnjBC56q9FZYe1d5RN3TJ35dbkGy3YqBSMbyCrlbi+CM9Z3Jk5yTL7RCsqboyQ==}
+    dev: true
+
   /lodash.pick/4.4.0:
     resolution: {integrity: sha1-UvBWEP/53tQiYRRB7R/BI6AwAbM=}
     dev: false
@@ -16337,6 +16402,10 @@ packages:
       micromatch: 3.1.10
       resolve: 1.20.0
       stack-trace: 0.0.10
+
+  /md5-es/1.8.2:
+    resolution: {integrity: sha512-LKq5jmKMhJYhsBFUh2w+J3C4bMiC5uQie/UYJ429UATmMnFr6iANO2uQq5HXAZSIupGp0WO2mH3sNfxR4XO40Q==}
+    dev: false
 
   /md5.js/1.3.5:
     resolution: {integrity: sha512-xitP+WxNPcTTOgnTJcrhM0xvdPepipPSf3I8EIpGKeFLjt3PlJLIDG3u8EX53ZIubkb+5U2+3rELYpEhHhzdkg==}
@@ -22247,13 +22316,13 @@ packages:
     dependencies:
       react: 17.0.2
 
-  /use-subscription/1.5.1_react@16.14.0:
+  /use-subscription/1.5.1_react@17.0.2:
     resolution: {integrity: sha512-Xv2a1P/yReAjAbhylMfFplFKj9GssgTwN7RlcTxBujFQcloStWNDQdc4g4NRWH9xS4i/FDk04vQBptAXoF3VcA==}
     peerDependencies:
       react: ^16.8.0 || ^17.0.0
     dependencies:
       object-assign: 4.1.1
-      react: 16.14.0
+      react: 17.0.2
     dev: false
 
   /use/3.1.1:
