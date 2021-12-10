@@ -109,7 +109,6 @@ class Test_Module_Control extends TestCase {
 	 * Test static::$search_module->enable_instant_search()
 	 */
 	public function test_enable_instant_search() {
-		add_filter( 'jetpack_options', array( $this, 'return_search_active_array' ) );
 		delete_option( Module_Control::SEARCH_MODULE_INSTANT_SEARCH_OPTION_KEY );
 		static::$search_module->enable_instant_search();
 		// plan doesn't support instant search.
@@ -127,8 +126,8 @@ class Test_Module_Control extends TestCase {
 		add_filter( 'jetpack_options', '__return_false' );
 		delete_option( Module_Control::SEARCH_MODULE_INSTANT_SEARCH_OPTION_KEY );
 		static::$search_module->enable_instant_search();
-		remove_filter( 'jetpack_options', '__return_false' );
 		$this->assertFalse( get_option( Module_Control::SEARCH_MODULE_INSTANT_SEARCH_OPTION_KEY ) );
+		remove_filter( 'jetpack_options', '__return_false' );
 	}
 
 	/**
