@@ -106,7 +106,43 @@ class UI {
 				'currentScreen' => $current_screen ? $current_screen->id : false,
 			),
 			'isSafeModeConfirmed' => Identity_Crisis::$is_safe_mode_confirmed,
+			'consumerData'        => static::get_consumer_data(),
 		);
+	}
+
+	/**
+	 * Get the package consumer data.
+	 *
+	 * @return array
+	 */
+	private static function get_consumer_data() {
+		$consumers = apply_filters( 'jetpack_idc_consumers', array() );
+
+		if ( ! $consumers ) {
+			return array();
+		}
+
+		usort(
+			$consumers,
+			function ( $c1, $c2 ) {
+				$priority1 = ( array_key_exists( 'priority', $c1 ) && (int) $c1['priority'] ) ? (int) $c1['priority'] : 10;
+				$priority2 = ( array_key_exists( 'priority', $c2 ) && (int) $c2['priority'] ) ? (int) $c2['priority'] : 10;
+
+				return $priority1 > $priority2 ? 1 : -1;
+			}
+		);
+
+		foreach ( $consumers as $consumer ) {
+			if ( ! array_key_exists( 'admin_page', $consumer ) || ! is_string( $consumer['admin_page'] ) ) {
+				continue;
+			}
+
+			if ( 0 === strpos( $_SERVER['REQUEST_URI'], $consumer['admin_page'] ) ) {
+				return $consumer;
+			}
+		}
+
+		return array_shift( $consumers );
 	}
 
 }
