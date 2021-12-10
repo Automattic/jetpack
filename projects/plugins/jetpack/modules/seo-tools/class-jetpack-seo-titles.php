@@ -254,7 +254,7 @@ class Jetpack_SEO_Titles {
 		}
 
 		foreach ( $title_formats as $format_type => $format_array ) {
-			if ( ! array_key_exists( $format_type, array_keys( $allowed_tokens ) ) ) {
+			if ( ! array_key_exists( $format_type, $allowed_tokens ) ) {
 				return false;
 			}
 
