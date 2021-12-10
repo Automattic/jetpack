@@ -1,0 +1,4 @@
+Significance: patch
+Type: changed
+
+Use Webpack's provided `validateSchema` instead of requiring `schema-utils` ourself.
