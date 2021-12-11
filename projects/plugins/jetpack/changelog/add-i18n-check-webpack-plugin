@@ -1,0 +1,4 @@
+Significance: patch
+Type: bugfix
+
+I18n: Ensure many strings in JavaScript UIs are marked for translation.
