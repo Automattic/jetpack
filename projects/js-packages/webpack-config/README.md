@@ -287,6 +287,8 @@ The options and corresponding components are:
   - `targets`: Set to your browserslist config if available, otherwise set to [@wordpress/browserslist-config](https://www.npmjs.com/package/@wordpress/browserslist-config).
 - `presetReact`: Corresponds to [@babel/preset-react](https://www.npmjs.com/package/@babel/preset-react).
 - `presetTypescript`: Corresponds to [@babel/preset-typescript](https://www.npmjs.com/package/@babel/preset-typescript).
+- `pluginReplaceTextdomain`: Corresponds to [@automattic/babel-plugin-replace-textdomain](https://www.npmjs.com/package/@automattic/babel-plugin-replace-textdomain).
+  Note this plugin is only included if this option is set, as the plugin requires a `textdomain` option be set.
 - `pluginProposalClassProperties`: Corresponds to [@babel/plugin-proposal-class-properties](https://www.npmjs.com/package/@babel/plugin-proposal-class-properties).
 - `pluginTransformRuntime`: Corresponds to [@babel/plugin-transform-runtime](https://www.npmjs.com/package/@babel/plugin-transform-runtime).
 
