@@ -228,17 +228,17 @@ class GettextExtractor {
 					}
 
 					// None of the rest of the fields prevent it from being processed, the invalid value is just stringified.
-					if ( dolint ) {
-						if ( entryData.domain === '' ) {
-							const loc = filename + node.loc.start.line + ':' + ( node.loc.start.column + 1 );
-							const str = path.getSource();
-							lintlogger( `${ loc }: domain is empty: ${ str }` );
-						}
-						for ( const k of [ 'plural', 'context', 'domain' ] ) {
-							if (
-								typeof entryData[ k ] !== 'string' &&
-								this.#functions[ callee.name ].indexOf( k ) >= 0
-							) {
+					if ( entryData.domain === '' && dolint ) {
+						const loc = filename + node.loc.start.line + ':' + ( node.loc.start.column + 1 );
+						const str = path.getSource();
+						lintlogger( `${ loc }: domain is empty: ${ str }` );
+					}
+					for ( const k of [ 'plural', 'context', 'domain' ] ) {
+						if (
+							typeof entryData[ k ] !== 'string' &&
+							this.#functions[ callee.name ].indexOf( k ) >= 0
+						) {
+							if ( dolint ) {
 								const loc = filename + node.loc.start.line + ':' + ( node.loc.start.column + 1 );
 								const str = path.getSource();
 								const idx = this.#functions[ callee.name ].indexOf( k );
@@ -249,17 +249,17 @@ class GettextExtractor {
 										`${ loc }: ${ k } argument (index ${ idx + 1 }) is missing: ${ str }`
 									);
 								}
-								if ( entryData[ k ] === true ) {
-									entryData[ k ] = '1';
-								} else if (
-									entryData[ k ] === false ||
-									entryData[ k ] === null ||
-									typeof entryData[ k ] === 'undefined'
-								) {
-									delete entryData[ k ];
-								} else {
-									entryData[ k ] = entryData[ k ].toString();
-								}
+							}
+							if ( entryData[ k ] === true ) {
+								entryData[ k ] = '1';
+							} else if (
+								entryData[ k ] === false ||
+								entryData[ k ] === null ||
+								typeof entryData[ k ] === 'undefined'
+							) {
+								delete entryData[ k ];
+							} else {
+								entryData[ k ] = entryData[ k ].toString();
 							}
 						}
 					}
