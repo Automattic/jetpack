@@ -404,7 +404,7 @@
             "dist": {
                 "type": "path",
                 "url": "../../packages/connection-ui",
-                "reference": "f640616a4351f4aebedca66cbf85f17bfdd732eb"
+                "reference": "3f058c5e7345edc3df7caba351d9bf13da0c96c2"
             },
             "require": {
                 "automattic/jetpack-assets": "^1.14",
@@ -439,7 +439,7 @@
                 ],
                 "build-production": [
                     "Composer\\Config::disableProcessTimeout",
-                    "pnpm run build"
+                    "NODE_ENV=production pnpm run build"
                 ],
                 "watch": [
                     "Composer\\Config::disableProcessTimeout",
@@ -725,7 +725,7 @@
             "dist": {
                 "type": "path",
                 "url": "../../packages/my-jetpack",
-                "reference": "197fc96bfb4801abcd0f5985377bbd28a9213e41"
+                "reference": "ee2aa1d10634d764536a53ca1aa2fb5b39fefafe"
             },
             "require": {
                 "automattic/jetpack-admin-ui": "^0.2",
@@ -770,7 +770,7 @@
                 ],
                 "build-production": [
                     "Composer\\Config::disableProcessTimeout",
-                    "pnpm run build"
+                    "NODE_ENV=production pnpm run build"
                 ],
                 "watch": [
                     "Composer\\Config::disableProcessTimeout",
