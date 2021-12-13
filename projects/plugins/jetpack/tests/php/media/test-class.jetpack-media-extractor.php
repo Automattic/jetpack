@@ -578,4 +578,76 @@ EOT;
 		$this->assertEquals( $expected, $result );
 	}
 
+	/**
+	 * Verify alt_text is extracted
+	 *
+	 * @author mdbitz
+	 * @covers Jetpack_Media_Meta_Extractor::extract
+	 * @since 3.2
+	 */
+	public function test_mediaextractor_alt_text() {
+		$post_id = $this->factory->post->create(
+			array(
+				'post_author'           => '23314024',
+				'post_date'             => '2013-10-25 16:43:34',
+				'post_date_gmt'         => '2013-10-25 16:43:34',
+				'post_content'          => 'Sed dapibus ut mauris imperdiet volutpat. <img src="https://example.org/assets/test.jpg" alt="red green" /><img src="https://example.org/assets/test2.jpg" />Nullam in dolor vel nulla pulvinar accumsan facilisis quis lorem.
+			',
+				'post_title'            => 'Sed dapibus ut mauris imperdiet volutpat http vimeo...',
+				'post_excerpt'          => '',
+				'post_status'           => 'publish',
+				'comment_status'        => 'open',
+				'ping_status'           => 'open',
+				'post_password'         => '',
+				'post_name'             => 'sed-dapibus-ut-mauris-imperdiet-volutpat-http-vimeo',
+				'to_ping'               => '',
+				'pinged'                => '
+			http://vimeo.com/77120044/',
+				'post_modified'         => '2013-10-28 22:54:50',
+				'post_modified_gmt'     => '2013-10-28 22:54:50',
+				'post_content_filtered' => '',
+				'post_parent'           => 0,
+				'guid'                  => 'http://breakmyblog.wordpress.com/2013/10/25/sed-dapibus-ut-mauris-imperdiet-volutpat-http-vimeo/',
+				'menu_order'            => 0,
+				'post_type'             => 'post',
+				'post_mime_type'        => '',
+				'comment_count'         => '0',
+				'filter'                => 'raw',
+			)
+		);
+
+		$expected = array(
+			'has'   => array(
+				'image'   => 2,
+				'gallery' => 0,
+				'link'    => 2,
+			),
+			'image' => array(
+				array(
+					'url'      => 'https://example.org/assets/test.jpg',
+					'alt_text' => 'red green',
+				),
+				array(
+					'url' => 'https://example.org/assets/test2.jpg',
+				),
+			),
+			'link'  => array(
+				array(
+					'url'           => 'example.org/assets/test.jpg',
+					'host_reversed' => 'org.example',
+					'host'          => 'example.org',
+				),
+				array(
+					'url'           => 'example.org/assets/test2.jpg',
+					'host_reversed' => 'org.example',
+					'host'          => 'example.org',
+				),
+			),
+		);
+
+		$result = Jetpack_Media_Meta_Extractor::extract( get_current_blog_id(), $post_id, Jetpack_Media_Meta_Extractor::ALL, true );
+
+		$this->assertEquals( $expected, $result );
+	}
+
 }
