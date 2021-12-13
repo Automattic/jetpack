@@ -1,4 +1,3 @@
-const { validate } = require( 'schema-utils' );
 const path = require( 'path' );
 const webpack = require( 'webpack' );
 const { RuntimeGlobals } = webpack;
@@ -73,7 +72,7 @@ const schema = {
  */
 class I18nLoaderPlugin {
 	constructor( options = {} ) {
-		validate( schema, options, {
+		webpack.validateSchema( schema, options, {
 			name: PLUGIN_NAME,
 			baseDataPath: 'options',
 		} );

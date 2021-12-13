@@ -1,0 +1,4 @@
+Significance: minor
+Type: added
+
+Added `@automattic/babel-plugin-replace-textdomain` as an option for the Babel preset.
