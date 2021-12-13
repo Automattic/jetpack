@@ -46,16 +46,17 @@ class Server_Sandbox {
 	 * @param array  $headers Headers of request about to be made.
 	 * @param string $method The method of request about to be made.
 	 *
-	 * @return array [ 'url' => new URL, 'host' => new Host ]
+	 * @return array [ 'url' => new URL, 'host' => new Host, 'new_signature => New signature if url was changed ]
 	 */
-	public function server_sandbox_request_parameters( $sandbox, $url, $headers, $method ) {
+	public function server_sandbox_request_parameters( $sandbox, $url, $headers, $method = 'GET' ) {
 		$host          = '';
 		$new_signature = '';
 
 		if ( ! is_string( $sandbox ) || ! is_string( $url ) ) {
 			return array(
-				'url'  => $url,
-				'host' => $host,
+				'url'           => $url,
+				'host'          => $host,
+				'new_signature' => $new_signature,
 			);
 		}
 
@@ -191,7 +192,7 @@ class Server_Sandbox {
 	 * @param string       $type Type of request about to be made.
 	 * @return void
 	 */
-	public function server_sandbox( &$url, &$headers, &$data, &$type ) {
+	public function server_sandbox( &$url, &$headers, &$data = null, &$type = null ) {
 		if ( ! Constants::get_constant( 'JETPACK__SANDBOX_DOMAIN' ) ) {
 			return;
 		}

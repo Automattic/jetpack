@@ -79,8 +79,9 @@ class Test_Server_Sandbox extends BaseTestCase {
 					'Host' => 'example.com',
 				),
 				'output'  => array(
-					'url'  => 'https://public-api.wordpress.com/test',
-					'host' => '',
+					'url'           => 'https://public-api.wordpress.com/test',
+					'host'          => '',
+					'new_signature' => '',
 				),
 			),
 			'url not a string'                       => array(
@@ -90,8 +91,9 @@ class Test_Server_Sandbox extends BaseTestCase {
 					'Host' => 'example.com',
 				),
 				'output'  => array(
-					'url'  => 123,
-					'host' => '',
+					'url'           => 123,
+					'host'          => '',
+					'new_signature' => '',
 				),
 			),
 			'sandbox, url valid, no host in headers' => array(
@@ -99,8 +101,9 @@ class Test_Server_Sandbox extends BaseTestCase {
 				'url'     => 'https://public-api.wordpress.com/test',
 				'headers' => array(),
 				'output'  => array(
-					'url'  => 'https://example.com/test',
-					'host' => 'public-api.wordpress.com',
+					'url'           => 'https://example.com/test',
+					'host'          => 'public-api.wordpress.com',
+					'new_signature' => '',
 				),
 			),
 			'sandbox, url valid, host in headers'    => array(
@@ -110,8 +113,9 @@ class Test_Server_Sandbox extends BaseTestCase {
 					'Host' => 'example.com',
 				),
 				'output'  => array(
-					'url'  => 'https://example.com/test',
-					'host' => 'example.com',
+					'url'           => 'https://example.com/test',
+					'host'          => 'example.com',
+					'new_signature' => '',
 				),
 			),
 			'sandbox, url valid, host not wpcom'     => array(
@@ -119,8 +123,9 @@ class Test_Server_Sandbox extends BaseTestCase {
 				'url'     => 'https://wordpress.org/test',
 				'headers' => array(),
 				'output'  => array(
-					'url'  => 'https://wordpress.org/test',
-					'host' => '',
+					'url'           => 'https://wordpress.org/test',
+					'host'          => '',
+					'new_signature' => '',
 				),
 			),
 		);
@@ -140,7 +145,7 @@ class Test_Server_Sandbox extends BaseTestCase {
 		Constants::set_constant( 'JETPACK__SANDBOX_DOMAIN', $sandbox_constant );
 		$headers = array();
 
-		( new Server_Sandbox() )->server_sandbox( $url, $headers, null, 'GET' );
+		( new Server_Sandbox() )->server_sandbox( $url, $headers );
 
 		$this->assertSame( $expected_url, $url );
 		$this->assertSame( $expected_headers, $headers );
