@@ -1,0 +1,4 @@
+Significance: minor
+Type: changed
+
+Allow non-adimin access to the Connection Manager for proper IDC screen review.
