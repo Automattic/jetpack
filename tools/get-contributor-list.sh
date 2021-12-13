@@ -10,7 +10,7 @@ BASE=$(cd $(dirname "${BASH_SOURCE[0]}")/.. && pwd)
 
 function usage {
 	cat <<-EOH
-		usage: $0 [project] <version>
+		usage: $0 <project> [version]
 
 		Obtains the list of contributors for a major release.
 
@@ -26,7 +26,7 @@ fi
 
 if [[ -z $2 ]]; then
 	info "What version do you want to get contributors for?"
-	read CURRENT_VERSION
+	read -r CURRENT_VERSION
 else 
 	CURRENT_VERSION="$2"
 fi
@@ -41,7 +41,7 @@ function join {
 IFS='.' read -r -a VERSION <<< "$CURRENT_VERSION"
 if [[ ${VERSION[2]} ]]; then
 	unset "VERSION[2]"
-	MAJOR_VERSION=$( join . ${VERSION[@]} )
+	MAJOR_VERSION="$( IFS=.; echo "${VERSION[*]}" )"
 	MAJOR_VERSION=$(echo "$MAJOR_VERSION - .1" | bc )
 	PREVIOUS_VERSION=$MAJOR_VERSION.0
 else 
