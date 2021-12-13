@@ -18,7 +18,7 @@ The Jetpack Monorepo requires the following to be installed on your machine:
 	- You can switch versions of node using nvm: `nvm ls` to list installed versions of node, `nvm use [version number]` to switch.
 - PNPM (a Node.js package manager): `npm install -g pnpm`
 - Composer (our PHP package manager): `brew install composer`
-- PHP (the language at the core of the WordPress ecosystem): Should be included with MacOS, [other methods of installation here](https://www.php.net/manual/en/install.php).
+- PHP (the language at the core of the WordPress ecosystem): `brew install php@8.0`
 - Once the pre-requisites are installed, you can clone the GitHub repo:
 	- `git clone https://github.com/Automattic/jetpack.git`
 	- If you're not an Automattician, you can [fork the repo following the instructions here](https://docs.github.com/en/get-started/quickstart/contributing-to-projects).
