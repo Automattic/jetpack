@@ -58,6 +58,7 @@ jobs:
           pnpm install
           pnpm config:decrypt
           pnpm tunnel:on
+          pnpm env:start
 
       - name: Run performance base test
         working-directory: tools/e2e-commons

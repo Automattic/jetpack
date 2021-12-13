@@ -4,6 +4,7 @@ import { execSyncShellCommand, execWpCommand, resolveSiteUrl } from '../helpers/
 global.siteUrl = resolveSiteUrl();
 
 function envReset() {
+	console.log( execSyncShellCommand( 'pwd' ) );
 	execSyncShellCommand( 'pnpm env:reset' );
 	execSyncShellCommand( 'pnpm tunnel:reset' );
 }
