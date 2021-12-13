@@ -64,15 +64,17 @@ const ConnectScreenVisual = props => {
 				{ children }
 
 				{ showConnectButton && (
-					<ActionButton
-						label={ buttonLabel }
-						onClick={ handleButtonClick }
-						displayError={ displayButtonError }
-						isLoading={ buttonIsLoading }
-					/>
-				) }
+					<>
+						<ActionButton
+							label={ buttonLabel }
+							onClick={ handleButtonClick }
+							displayError={ displayButtonError }
+							isLoading={ buttonIsLoading }
+						/>
 
-				<div className="jp-connection__connect-screen__tos">{ ToS }</div>
+						<div className="jp-connection__connect-screen__tos">{ ToS }</div>
+					</>
+				) }
 			</div>
 		</ConnectScreenLayout>
 	);
