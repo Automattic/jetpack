@@ -165,15 +165,15 @@ class Server_Sandbox {
 	 * @param array $headers The headers of the request about to be made.
 	 * @return array|null
 	 */
-	private function extract_authorization_headers( $headers ) {
-		if ( ! empty( $headers['Authorization'] ) ) {
+	public function extract_authorization_headers( $headers ) {
+		if ( ! empty( $headers['Authorization'] ) && is_string( $headers['Authorization'] ) ) {
 			$header = str_replace( 'X_JETPACK ', '', $headers['Authorization'] );
 			$vars   = explode( ' ', $header );
 			$result = array();
 			foreach ( $vars as $var ) {
-				$elements = explode( '=', $var );
-				if ( count( $elements ) === 2 ) {
-					$result[ $elements[0] ] = substr( $elements[1], 1, strlen( $elements[1] ) - 2 );
+				$elements = explode( '"', $var );
+				if ( count( $elements ) === 3 ) {
+					$result[ substr( $elements[0], 0, -1 ) ] = $elements[1];
 				}
 			}
 			return $result;
