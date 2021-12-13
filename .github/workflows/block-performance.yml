@@ -11,7 +11,7 @@ jobs:
   block-performance:
     name: "Performance tests"
     runs-on: ubuntu-latest
-    timeout-minutes: 25  # 2021-10-7: Successful runs seem to take 15 minutes
+    timeout-minutes: 50  # 2021-10-7: Successful runs seem to take 15 minutes
     steps:
       - uses: actions/checkout@v2
 
