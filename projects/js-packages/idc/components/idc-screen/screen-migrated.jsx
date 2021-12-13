@@ -12,6 +12,7 @@ import { Spinner } from '@automattic/jetpack-components';
  * Internal dependencies
  */
 import extractHostname from '../../tools/extract-hostname';
+import customContentShape from '../../tools/custom-content-shape';
 
 /**
  * Retrieve the migrated screen body.
@@ -20,7 +21,7 @@ import extractHostname from '../../tools/extract-hostname';
  * @returns {React.Component} The ScreenMigrated component.
  */
 const ScreenMigrated = props => {
-	const { finishCallback, isFinishing } = props;
+	const { finishCallback, isFinishing, customContent } = props;
 
 	const wpcomHostName = extractHostname( props.wpcomHomeUrl );
 	const currentHostName = extractHostname( props.currentUrl );
@@ -29,22 +30,26 @@ const ScreenMigrated = props => {
 
 	return (
 		<React.Fragment>
-			<h2>{ __( 'Your Jetpack settings have migrated successfully', 'jetpack' ) }</h2>
+			<h2>
+				{ customContent.migratedTitle ||
+					__( 'Your Jetpack settings have migrated successfully', 'jetpack' ) }
+			</h2>
 
 			<p>
-				{ createInterpolateElement(
-					sprintf(
-						/* translators: %1$s: The current site domain name. */
-						__(
-							'Safe Mode has been switched off for <hostname>%1$s</hostname> website and Jetpack is fully functional.',
-							'jetpack'
+				{ customContent.migratedBodyText ||
+					createInterpolateElement(
+						sprintf(
+							/* translators: %1$s: The current site domain name. */
+							__(
+								'Safe Mode has been switched off for <hostname>%1$s</hostname> website and Jetpack is fully functional.',
+								'jetpack'
+							),
+							currentHostName
 						),
-						currentHostName
-					),
-					{
-						hostname: <strong />,
-					}
-				) }
+						{
+							hostname: <strong />,
+						}
+					) }
 			</p>
 
 			<div className="jp-idc__idc-screen__card-migrated">
@@ -79,11 +84,14 @@ ScreenMigrated.propTypes = {
 	finishCallback: PropTypes.func,
 	/** Whether the migration finishing process is in progress. */
 	isFinishing: PropTypes.bool.isRequired,
+	/** Custom text content. */
+	customContent: PropTypes.shape( customContentShape ),
 };
 
 ScreenMigrated.defaultProps = {
 	finishCallback: () => {},
 	isFinishing: false,
+	customContent: {},
 };
 
 export default ScreenMigrated;

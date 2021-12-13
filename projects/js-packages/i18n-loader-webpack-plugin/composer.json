@@ -1,0 +1,41 @@
+{
+	"name": "automattic/i18n-loader-webpack-plugin",
+	"description": "A Webpack plugin to load WordPress i18n when Webpack lazy-loads a bundle.",
+	"type": "library",
+	"license": "GPL-2.0-or-later",
+	"require": {},
+	"require-dev": {
+		"automattic/jetpack-changelogger": "^3.0"
+	},
+	"scripts": {
+		"test-js": [
+			"Composer\\Config::disableProcessTimeout",
+			"pnpm install",
+			"pnpm run test"
+		],
+		"test-coverage": [
+			"Composer\\Config::disableProcessTimeout",
+			"pnpm install",
+			"pnpm run test-coverage"
+		]
+	},
+	"repositories": [
+		{
+			"type": "path",
+			"url": "../../packages/*",
+			"options": {
+				"monorepo": true
+			}
+		}
+	],
+	"minimum-stability": "dev",
+	"prefer-stable": true,
+	"extra": {
+		"autotagger": true,
+		"npmjs-autopublish": true,
+		"mirror-repo": "Automattic/i18n-loader-webpack-plugin",
+		"changelogger": {
+			"link-template": "https://github.com/Automattic/i18n-loader-webpack-plugin/compare/v${old}...v${new}"
+		}
+	}
+}

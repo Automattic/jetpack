@@ -124,9 +124,60 @@ class REST_Controller {
 	public function update_settings( $request ) {
 		$request_body = $request->get_json_params();
 
-		$module_active          = isset( $request_body['module_active'] ) ? $request_body['module_active'] : null;
-		$instant_search_enabled = isset( $request_body['instant_search_enabled'] ) ? $request_body['instant_search_enabled'] : null;
+		$module_active          = isset( $request_body['module_active'] ) ? (bool) $request_body['module_active'] : null;
+		$instant_search_enabled = isset( $request_body['instant_search_enabled'] ) ? (bool) $request_body['instant_search_enabled'] : null;
 
+		$error = $this->validate_search_settings( $module_active, $instant_search_enabled );
+
+		if ( is_wp_error( $error ) ) {
+			return $error;
+		}
+
+		// Enabling instant search should enable the module too.
+		if ( true === $instant_search_enabled && true !== $module_active ) {
+			$module_active = true;
+		}
+
+		$errors = array();
+		if ( ! is_null( $module_active ) ) {
+			$module_active_updated = $this->search_module->update_status( $module_active );
+			if ( is_wp_error( $module_active_updated ) ) {
+				$errors['module_active'] = $module_active_updated;
+			}
+		}
+
+		if ( ! is_null( $instant_search_enabled ) ) {
+			$instant_search_enabled_updated = $this->search_module->update_instant_search_status( $instant_search_enabled );
+			if ( is_wp_error( $instant_search_enabled_updated ) ) {
+				$errors['instant_search_enabled'] = $instant_search_enabled_updated;
+			}
+		}
+
+		if ( ! empty( $errors ) ) {
+			return new WP_Error(
+				'some_updated',
+				sprintf(
+					/* translators: %s are the setting name that not updated. */
+					__( 'Some settings ( %s ) not updated.', 'jetpack' ),
+					implode(
+						',',
+						array_keys( $errors )
+					)
+				),
+				array( 'status' => 400 )
+			);
+		}
+
+		return $this->get_settings();
+	}
+
+	/**
+	 * Validate $module_active and $instant_search_enabled. Returns an WP_Error instance if invalid.
+	 *
+	 * @param boolean $module_active - Module status.
+	 * @param boolean $instant_search_enabled - Instant Search status.
+	 */
+	protected function validate_search_settings( $module_active, $instant_search_enabled ) {
 		if ( ( true === $instant_search_enabled && false === $module_active ) || ( is_null( $module_active ) && is_null( $instant_search_enabled ) ) ) {
 			return new WP_Error(
 				'rest_invalid_arguments',
@@ -134,30 +185,7 @@ class REST_Controller {
 				array( 'status' => 400 )
 			);
 		}
-
-		if ( false === $module_active ) {
-			$instant_search_enabled = false;
-		} elseif ( true === $instant_search_enabled ) {
-			$module_active = true;
-		}
-
-		if ( ! is_null( $module_active ) && $this->search_module->is_active() !== $module_active ) {
-			if ( $module_active ) {
-				$this->search_module->activate();
-			} else {
-				$this->search_module->deactivate();
-			}
-		}
-
-		if ( ! is_null( $instant_search_enabled ) && $this->search_module->is_instant_search_enabled() !== $instant_search_enabled ) {
-			if ( $instant_search_enabled && $this->search_module->is_active() ) {
-				$this->search_module->enable_instant_search();
-			} else {
-				$this->search_module->disable_instant_search();
-			}
-		}
-
-		return $this->get_settings();
+		return true;
 	}
 
 	/**

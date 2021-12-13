@@ -1,4 +1,0 @@
-Significance: patch
-Type: bugfix
-
-Hide license activation route if user not linked and connection owner.
