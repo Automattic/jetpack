@@ -23,14 +23,11 @@ async function envSetup( type ) {
 }
 
 function runTests( type ) {
-	console.log( execSyncShellCommand( `ls ../../` ) );
-
-	execSyncShellCommand( `
-	export WP_BASE_URL=${ global.siteUrl } &&
+	execSyncShellCommand( `export WP_BASE_URL=${ global.siteUrl } &&
 	cd ../../gutenberg &&
-	npm run test-performance packages/e2e-tests/specs/performance/post-editor.test.js &&
-	mv packages/e2e-tests/specs/performance/post-editor.test.results.json ../tools/e2e-commons/results/${ type }.test.results.json
-	` );
+	echo $WP_BASE_URL &&
+	WP_BASE_URL=${ global.siteUrl } npm run test-performance packages/e2e-tests/specs/performance/post-editor.test.js &&
+	mv packages/e2e-tests/specs/performance/post-editor.test.results.json ../tools/e2e-commons/results/${ type }.test.results.json` );
 }
 
 async function main() {
