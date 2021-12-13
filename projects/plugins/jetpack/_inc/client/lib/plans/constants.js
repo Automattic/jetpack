@@ -272,7 +272,12 @@ export function isJetpackProduct( product ) {
 export function isJetpackBundle( product ) {
 	return JETPACK_BUNDLES.includes( product );
 }
-
+/**
+ * Determine if the given product is a Security Bundle.
+ *
+ * @param {number} product - productId to check
+ * @returns {boolean} if the given product is a Security Bundle
+ */
 export function isJetpackSecurityBundle( product ) {
 	return JETPACK_SECURITY_BUNDLES.includes( product );
 }
