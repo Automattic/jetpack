@@ -177,7 +177,7 @@
             "dist": {
                 "type": "path",
                 "url": "../../packages/assets",
-                "reference": "79f3118db7691394547c3b21105a6e34efb919f0"
+                "reference": "797d4d5fef1d5a70f8ae3f5f29544deb07ac4004"
             },
             "require": {
                 "automattic/jetpack-constants": "^1.6"
@@ -185,6 +185,7 @@
             "require-dev": {
                 "automattic/jetpack-changelogger": "^3.0",
                 "brain/monkey": "2.6.1",
+                "wikimedia/testing-access-wrapper": "^1.0 | ^2.0",
                 "yoast/phpunit-polyfills": "1.0.2"
             },
             "type": "jetpack-library",
