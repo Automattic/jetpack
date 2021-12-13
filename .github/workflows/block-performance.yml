@@ -60,15 +60,10 @@ jobs:
           pnpm tunnel:on
           pnpm env:start
 
-      - name: Run performance base test
+      - name: Run performance tests
         working-directory: tools/e2e-commons
         run: |
-          node ./bin/performance.js base
-
-      - name: Run performance Jetpack test
-        working-directory: tools/e2e-commons
-        run: |
-          node ./bin/performance.js jetpack
+          node ./bin/performance.js
 
       - name: Environment tear-down
         if: ${{ always() }}
