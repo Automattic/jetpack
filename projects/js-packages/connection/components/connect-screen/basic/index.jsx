@@ -11,7 +11,7 @@ import { __ } from '@wordpress/i18n';
  */
 import ConnectScreenVisual from './visual';
 import { STORE_ID } from '../../../state/store';
-import useConnect from '../hooks/use-connect';
+import useConnection from '../../use-connection';
 
 /**
  * The Connection Screen component.
@@ -41,7 +41,7 @@ const ConnectScreen = props => {
 		siteIsRegistering,
 		userIsConnecting,
 		registrationError,
-	} = useConnect( {
+	} = useConnection( {
 		registrationNonce,
 		redirectUri,
 		apiRoot,

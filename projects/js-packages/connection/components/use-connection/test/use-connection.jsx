@@ -10,8 +10,8 @@ import { expect } from 'chai';
 /**
  * Internal dependencies
  */
-import { STORE_ID } from '../../../../state/store';
-import useConnect from '../use-connect';
+import { STORE_ID } from '../../../state/store';
+import useConnection from '../';
 
 let storeSelect;
 
@@ -65,7 +65,7 @@ describe( 'useConnect', () => {
 
 	it( 'set api root and nonce on start', () => {
 		const initialProps = { apiRoot: 'API_ROOT', apiNonce: 'API_NONCE' };
-		const { result } = renderHook( props => useConnect( props ), { initialProps } );
+		const { result } = renderHook( props => useConnection( props ), { initialProps } );
 		result.current.handleRegisterSite();
 		expect( spySetApiRoot.calledOnce ).to.be.true;
 		expect( spySetApiNonce.calledOnce ).to.be.true;
@@ -77,7 +77,7 @@ describe( 'useConnect', () => {
 			registrationNonce: 'REGISTRATION',
 			redirectUri: 'REDIRECT',
 		};
-		const { rerender } = renderHook( props => useConnect( props ), { initialProps } );
+		const { rerender } = renderHook( props => useConnection( props ), { initialProps } );
 		expect(
 			stubRegisterSite.calledOnceWith( {
 				registrationNonce: 'REGISTRATION',
@@ -92,14 +92,14 @@ describe( 'useConnect', () => {
 	it( "doesn't call registerSite if site is registering", () => {
 		stubGetSiteIsRegistering.returns( true );
 		const initialProps = { autoTrigger: true };
-		renderHook( props => useConnect( props ), { initialProps } );
+		renderHook( props => useConnection( props ), { initialProps } );
 		expect( stubRegisterSite.called ).to.be.false;
 	} );
 
 	it( "doesn't call registerSite if user is connecting", () => {
 		stubGetUserIsConnecting.returns( true );
 		const initialProps = { autoTrigger: true };
-		renderHook( props => useConnect( props ), { initialProps } );
+		renderHook( props => useConnection( props ), { initialProps } );
 		expect( stubRegisterSite.called ).to.be.false;
 	} );
 
@@ -109,7 +109,7 @@ describe( 'useConnect', () => {
 			redirectUri: 'REDIRECT',
 			from: 'JETPACK',
 		};
-		const { result } = renderHook( props => useConnect( props ), { initialProps } );
+		const { result } = renderHook( props => useConnection( props ), { initialProps } );
 
 		result.current.handleRegisterSite();
 
@@ -121,7 +121,7 @@ describe( 'useConnect', () => {
 
 	it( 'calls only connectUser if site is registered', () => {
 		stubGetConnectionStatus.returns( { isRegistered: true } );
-		const { result } = renderHook( props => useConnect( props ), {
+		const { result } = renderHook( props => useConnection( props ), {
 			initialProps: { from: 'JETPACK' },
 		} );
 		result.current.handleRegisterSite();

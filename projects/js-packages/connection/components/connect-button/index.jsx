@@ -9,7 +9,7 @@ import { ActionButton } from '@automattic/jetpack-components';
 /**
  * Internal dependencies
  */
-import useConnect from '../connect-screen/hooks/use-connect';
+import useConnection from '../use-connection';
 
 /**
  * The RNA connection component.
@@ -35,7 +35,7 @@ const ConnectButton = props => {
 		siteIsRegistering,
 		userIsConnecting,
 		registrationError,
-	} = useConnect( {
+	} = useConnection( {
 		registrationNonce,
 		redirectUri,
 		apiRoot,

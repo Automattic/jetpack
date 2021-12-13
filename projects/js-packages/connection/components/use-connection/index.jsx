@@ -8,7 +8,7 @@ import restApi from '@automattic/jetpack-api';
 /**
  * Internal dependencies
  */
-import { STORE_ID } from '../../../state/store';
+import { STORE_ID } from '../../state/store';
 
 export default ( { registrationNonce, redirectUri, apiRoot, apiNonce, autoTrigger, from } ) => {
 	const { registerSite, connectUser } = useDispatch( STORE_ID );
