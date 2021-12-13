@@ -54,40 +54,16 @@ jobs:
           mkdir results
           pnpm install
           pnpm config:decrypt
-          pnpm env:start
-
-          pnpm tunnel:on
-          pnpx jetpack docker --type e2e --name t1 wp plugin deactivate jetpack
-          pnpx jetpack docker --type e2e --name t1 wp -- user create admin admin@example.com --role=administrator --user_pass=password
 
       - name: Run performance base test
-        working-directory: gutenberg
-        run: |
-          export WP_BASE_URL=$(cat ../tools/e2e-commons/config/tmp/e2e-tunnels.txt)
-
-          npm run test-performance packages/e2e-tests/specs/performance/post-editor.test.js
-          mv packages/e2e-tests/specs/performance/post-editor.test.results.json ../tools/e2e-commons/results/base.test.results.json
-
-      - name: Environment reset
         working-directory: tools/e2e-commons
         run: |
-          pnpm env:reset
-          pnpm tunnel:reset
-
-      - name: Set up Jetpack connection
-        working-directory: tools/e2e-commons
-        run: |
-          pnpm jetpack-connect
-          pnpx jetpack docker --type e2e --name t1 wp jetpack module deactivate sso
-          pnpx jetpack docker --type e2e --name t1 wp -- user create admin admin@example.com --role=administrator --user_pass=password
+          node ./bin/performance.js base
 
       - name: Run performance Jetpack test
-        working-directory: gutenberg
+        working-directory: tools/e2e-commons
         run: |
-          export WP_BASE_URL=$(cat ../tools/e2e-commons/config/tmp/e2e-tunnels.txt)
-
-          npm run test-performance packages/e2e-tests/specs/performance/post-editor.test.js
-          mv packages/e2e-tests/specs/performance/post-editor.test.results.json ../tools/e2e-commons/results/jetpack.test.results.json
+          node ./bin/performance.js jetpack
 
       - name: Environment tear-down
         if: ${{ always() }}
