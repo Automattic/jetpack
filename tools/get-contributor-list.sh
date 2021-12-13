@@ -37,7 +37,7 @@ function join {
 }
 
 # Get the branch prefix.
-BRANCH_PREFIX=$(jq -r '.extra["release-branch-prefix"]' projects/$1/composer.json)
+PREFIX=$(jq -r '.extra["release-branch-prefix"]' projects/$1/composer.json)
 
 # Some branches use x.y.x, like boost/branch-1.2.0
 PREVIOUS_VERSION=
@@ -50,6 +50,13 @@ done < <( sed -n -E -e 's/^## \[?([0-9.]+)\]? - .*$/\1/p' "projects/$1/CHANGELOG
 [[ -n "$PREVIOUS_VERSION" ]] || die "Version $CURRENT_VERSION was not found or was the first version."
 
 # Display the list.
+TMP="$( git log --format='%an' --no-merges "origin/$PREFIX/branch-$PREVIOUS_VERSION..origin/$PREFIX/branch-$CURRENT_VERSION" | sort -u | grep -v 'renovate\[bot\]' )"
+mapfile -t NAMESARR <<<"$TMP"
+printf -v NAMES '%s, ' "${NAMESARR[@]}"
+NAMES="${NAMES%, }"
 info "Contributors for $1 $CURRENT_VERSION are:"
-git log --format='%an' --no-merges "origin/$BRANCH_PREFIX/branch-$PREVIOUS_VERSION..origin/$BRANCH_PREFIX/branch-$CURRENT_VERSION" | sort | uniq | sed -e ':a' -e 'N' -e '$!ba' -e 's/\n/, /g' | sed 's/renovate\[bot\], //' | tee >(pbcopy)
-info "Above contributors have been copied to your clipboard!"
+echo "$NAMES"
+if command -v pbcopy &>/dev/null; then
+    pbcopy <<<"$NAMES"
+    info "Above contributors have been copied to your clipboard!"
+fi
