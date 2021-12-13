@@ -370,8 +370,14 @@ class WPCOM_REST_API_V2_Endpoint_Admin_Menu extends WP_REST_Controller {
 				! file_exists( ABSPATH . "/wp-admin/$menu_file" )
 			)
 		) {
+			$admin_is_parent = false;
+			if ( ! empty( $parent_slug ) ) {
+				$menu_hook       = get_plugin_page_hook( $parent_slug, 'admin.php' );
+				$admin_is_parent = ! empty( $menu_hook ) || ( ( 'index.php' !== $parent_slug ) && file_exists( WP_PLUGIN_DIR . "/$parent_file" ) && ! file_exists( ABSPATH . "/wp-admin/$parent_file" ) );
+			}
+
 			if (
-				( 'admin.php' !== $parent_file && file_exists( WP_PLUGIN_DIR . "/$parent_file" ) && ! is_dir( WP_PLUGIN_DIR . "/$parent_file" ) ) ||
+				( false === $admin_is_parent && file_exists( WP_PLUGIN_DIR . "/$parent_file" ) && ! is_dir( WP_PLUGIN_DIR . "/$parent_file" ) ) ||
 				( file_exists( ABSPATH . "/wp-admin/$parent_file" ) && ! is_dir( ABSPATH . "/wp-admin/$parent_file" ) )
 			) {
 				$url = add_query_arg( array( 'page' => $url ), admin_url( $parent_slug ) );

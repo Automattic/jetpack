@@ -8,7 +8,7 @@ export function buildInitialState() {
 						"slug": "jetpack_backup_daily",
 						"description": "Never lose a word, image, page, or time worrying about your site with automated backups & one-click restores.",
 						"show_promotion": true,
-						"discount_percent": 40,
+						"discount_percent": 50,
 						"included_in_plans": [
 							"security"
 						],
@@ -24,7 +24,7 @@ export function buildInitialState() {
 						"slug": "jetpack_scan",
 						"description": "Automatic scanning and one-click fixes keep your site one step ahead of security threats and malware.",
 						"show_promotion": true,
-						"discount_percent": 40,
+						"discount_percent": 50,
 						"included_in_plans": [
 							"security"
 						],
@@ -39,7 +39,7 @@ export function buildInitialState() {
 						"slug": "jetpack_search",
 						"description": "Help your site visitors find answers instantly so they keep reading and buying. Great for sites with a lot of content.",
 						"show_promotion": true,
-						"discount_percent": 40,
+						"discount_percent": 50,
 						"included_in_plans": [],
 						"features": [
 							"Instant search and indexing",
@@ -53,7 +53,7 @@ export function buildInitialState() {
 						"slug": "jetpack_anti_spam",
 						"description": "Save time and get better responses by automatically blocking spam from your comments and forms.",
 						"show_promotion": true,
-						"discount_percent": 40,
+						"discount_percent": 50,
 						"included_in_plans": [
 							"security"
 						],
@@ -69,7 +69,7 @@ export function buildInitialState() {
 						"slug": "jetpack_security_daily",
 						"description": "Comprehensive site security, including Backup, Scan, and Anti-spam.",
 						"show_promotion": true,
-						"discount_percent": 40,
+						"discount_percent": 50,
 						"included_in_plans": [],
 						"features": [
 							"Real-time cloud backups with 10GB storage",
