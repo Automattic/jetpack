@@ -12,6 +12,7 @@ This is the Jetpack Monorepo. It contains source code for the Jetpack plugin, th
 ## Developing from the Monorepo
 
 If you're interested in developing with the Jetpack monorepo, you can check out the [Quick Start Guide here](./docs/quick-start.md).
+
 ### Installation From Git Monorepo
 
 To run the Jetpack plugin from the monorepo, you'll first need to build the JS and CSS. To do so, [follow the instructions here](./docs/development-environment.md).
