@@ -18,7 +18,7 @@ class ConnectionBanner extends Banner {
 		title: PropTypes.string.isRequired,
 		className: PropTypes.string,
 		description: PropTypes.node,
-		icon: PropTypes.string,
+		icon: PropTypes.oneOfType( [ PropTypes.element, PropTypes.string ] ),
 		connectUser: PropTypes.bool,
 		from: PropTypes.string,
 		asLink: PropTypes.bool,
@@ -28,6 +28,9 @@ class ConnectionBanner extends Banner {
 	getIcon() {
 		const icon = this.props.icon;
 
+		if ( icon && 'object' === typeof icon ) {
+			return <div className="jp-connection-banner__icon">{ icon }</div>;
+		}
 		return (
 			<div className="dops-banner__icons">
 				<div className="dops-banner__icon">
