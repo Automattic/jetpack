@@ -36,6 +36,9 @@ function join {
 	echo "$*"
 }
 
+#Get the branch prefix.
+BRANCH_PREFIX=$(jq -r '.extra["release-branch-prefix"]' projects/$1/composer.json)
+
 # Some branches use x.y.x, like boost/branch-1.2.0
 PREVIOUS_VERSION=
 while IFS= read -r VER; do
@@ -43,10 +46,10 @@ while IFS= read -r VER; do
 		read -r PREVIOUS_VERSION 
 		break 
 	fi 
-done < <( sed -n -E -e 's/^## \[?([0-9.]+)\]? - .*$/\1/p' "projects/plugins/$1/CHANGELOG.md" )
+done < <( sed -n -E -e 's/^## \[?([0-9.]+)\]? - .*$/\1/p' "projects/$1/CHANGELOG.md" )
 [[ -n "$PREVIOUS_VERSION" ]] || die "Version $CURRENT_VERSION was not found or was the first version."
 
 # Display the list.
 info "Contributors for $1 $CURRENT_VERSION are:"
-git log --format='%an' --no-merges origin/$1/branch-$PREVIOUS_VERSION..origin/$1/branch-$CURRENT_VERSION | sort | uniq | sed -e ':a' -e 'N' -e '$!ba' -e 's/\n/, /g' | sed 's/renovate\[bot\], //' | tee >(pbcopy)
+git log --format='%an' --no-merges origin/$BRANCH_PREFIX/branch-$PREVIOUS_VERSION..origin/$BRANCH_PREFIX/branch-$CURRENT_VERSION | sort | uniq | sed -e ':a' -e 'N' -e '$!ba' -e 's/\n/, /g' | sed 's/renovate\[bot\], //' | tee >(pbcopy)
 info "Above contributors have been copied to your clipboard!"
