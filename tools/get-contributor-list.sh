@@ -36,7 +36,7 @@ function join {
 	echo "$*"
 }
 
-#Get the branch prefix.
+# Get the branch prefix.
 BRANCH_PREFIX=$(jq -r '.extra["release-branch-prefix"]' projects/$1/composer.json)
 
 # Some branches use x.y.x, like boost/branch-1.2.0
