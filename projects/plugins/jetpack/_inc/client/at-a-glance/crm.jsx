@@ -15,10 +15,9 @@ const CRM_PLUGIN_SLUG = 'zero-bs-crm';
 import PluginDashItem from 'components/plugin-dash-item';
 
 class DashCRM extends Component {
-
 	static propTypes = {
 		siteRawUrl: PropTypes.string.isRequired,
-	}
+	};
 
 	render() {
 		return (
@@ -26,12 +25,11 @@ class DashCRM extends Component {
 				pluginName={ __( 'CRM', 'jetpack' ) }
 				pluginFile={ CRM_PLUGIN_FILE }
 				pluginSlug={ CRM_PLUGIN_SLUG }
-				installOrActivatePrompt={
-					createInterpolateElement(
-						__(
-							'Sell more and get more leads with the Jetpack CRM plugin built specifically for WordPress.<br /><a>Learn more</a>',
-							'jetpack'
-						),
+				installOrActivatePrompt={ createInterpolateElement(
+					__(
+						'Sell more and get more leads with the Jetpack CRM plugin built specifically for WordPress.<br /><a>Learn more</a>',
+						'jetpack'
+					),
 					{
 						a: (
 							<a

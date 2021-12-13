@@ -15,10 +15,9 @@ const BOOST_PLUGIN_SLUG = 'jetpack-boost';
 import PluginDashItem from 'components/plugin-dash-item';
 
 class DashBoost extends Component {
-
 	static propTypes = {
 		siteRawUrl: PropTypes.string.isRequired,
-	}
+	};
 
 	render() {
 		return (
@@ -26,12 +25,11 @@ class DashBoost extends Component {
 				pluginName={ __( 'Boost', 'jetpack' ) }
 				pluginFile={ BOOST_PLUGIN_FILE }
 				pluginSlug={ BOOST_PLUGIN_SLUG }
-				installOrActivatePrompt={
-					createInterpolateElement(
-						__(
-							'Improve your site’s performance and SEO in a few clicks with the free Jetpack Boost plugin.<br /><a>Learn more.</a>',
-							'jetpack'
-						),
+				installOrActivatePrompt={ createInterpolateElement(
+					__(
+						'Improve your site’s performance and SEO in a few clicks with the free Jetpack Boost plugin.<br /><a>Learn more.</a>',
+						'jetpack'
+					),
 					{
 						a: (
 							<a
