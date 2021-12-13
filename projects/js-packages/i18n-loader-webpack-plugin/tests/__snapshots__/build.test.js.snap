@@ -1,0 +1,1545 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`Webpack \`basic-test\` Build results: Webpack build error 1`] = `null`;
+
+exports[`Webpack \`basic-test\` Build results: Webpack build files 1`] = `
+Object {
+  "bar.asset.php": Object {},
+  "bar.js": Object {
+    "jpI18nState": null,
+    "loader": null,
+    "wpI18n": null,
+  },
+  "baz.asset.php": Object {},
+  "baz.js": Object {
+    "jpI18nState": null,
+    "loader": null,
+    "wpI18n": null,
+  },
+  "hasI18n.js": Object {
+    "jpI18nState": null,
+    "loader": null,
+    "wpI18n": null,
+  },
+  "main.asset.php": Object {},
+  "main.js": Object {
+    "jpI18nState": "/***/ \\"@wordpress/jp-i18n-state\\":
+/*!*************************************!*\\\\
+  !*** external [\\"wp\\",\\"jpI18nState\\"] ***!
+  \\\\*************************************/
+/***/ ((module) => {
+
+\\"use strict\\";
+module.exports = window[\\"wp\\"][\\"jpI18nState\\"];
+",
+    "loader": "/******/ 	/* webpack/runtime/loading @automattic/i18n-loader-webpack-plugin */
+/******/ 	(() => {
+/******/ 		var textdomain = \\"basic-test\\";
+/******/ 		var chunkInfo = {
+/******/ 			\\"hasI18n\\": [ /* dist/hasI18n.js */ \\"c7c3968298452ee95564fb9c05e2de50\\", \\"\\" ]
+/******/ 		};
+/******/ 		
+/******/ 		var loadI18n = (info) => {
+/******/ 			var i18n = __webpack_require__(/*! @wordpress/i18n */ \\"@wordpress/i18n\\");
+/******/ 			var state = __webpack_require__(/*! @wordpress/jp-i18n-state */ \\"@wordpress/jp-i18n-state\\");
+/******/ 			if ( ! state ) return Promise.reject( new Error( \\"I18n state is not available. Check that WordPress is exporting wp.jpI18nState.\\" ) );
+/******/ 			if ( state.locale === \\"en_US\\" ) return Promise.resolve();
+/******/ 			if ( typeof fetch === \\"undefined\\" ) return Promise.reject( new Error( \\"Fetch API is not available.\\" ) );
+/******/ 			return fetch(
+/******/ 				state.baseUrl + ( state.domainMap[textdomain] || ( \\"plugins/\\" + textdomain ) ) + \\"-\\" + state.locale + \\"-\\" + info[0] + \\".json\\" + info[1]
+/******/ 			).then( (res) => {
+/******/ 				if ( ! res.ok ) throw new Error( \\"HTTP request failed: \\" + res.status + \\" \\" + res.statusText );
+/******/ 				return res.json();
+/******/ 			} ).then( (data) => {
+/******/ 				var data2 = data.locale_data;
+/******/ 				var localeData = data2[ textdomain ] || data2.messages;
+/******/ 				localeData[\\"\\"].domain = textdomain;
+/******/ 				i18n.setLocaleData( localeData, textdomain );
+/******/ 			} );
+/******/ 		};
+/******/ 		
+/******/ 		var installedChunks = {};
+/******/ 		__webpack_require__.f.wpI18n = (chunkId, promises) => {
+/******/ 			if ( installedChunks[chunkId] ) {
+/******/ 				promises.push( installedChunks[chunkId] );
+/******/ 			} else if ( installedChunks[chunkId] !== 0 && chunkInfo[chunkId] ) {
+/******/ 				promises.push( installedChunks[chunkId] = loadI18n( chunkInfo[chunkId] ).then(
+/******/ 					() => {
+/******/ 						installedChunks[chunkId] = 0;
+/******/ 					},
+/******/ 					(e) => {
+/******/ 						delete installedChunks[chunkId];
+/******/ 						// Log only, we don't want i18n failure to break the entire page.
+/******/ 						console.error( \\"Failed to fetch i18n data:\\", e );
+/******/ 					}
+/******/ 				) );
+/******/ 			}
+/******/ 		};
+/******/ 	})();",
+    "wpI18n": "/***/ \\"@wordpress/i18n\\":
+/*!******************************!*\\\\
+  !*** external [\\"wp\\",\\"i18n\\"] ***!
+  \\\\******************************/
+/***/ ((module) => {
+
+\\"use strict\\";
+module.exports = window[\\"wp\\"][\\"i18n\\"];
+",
+  },
+  "noI18n.js": Object {
+    "jpI18nState": null,
+    "loader": null,
+    "wpI18n": null,
+  },
+}
+`;
+
+exports[`Webpack \`basic-test\` Build results: Webpack build stats 1`] = `
+Object {
+  "errors": Array [],
+  "warnings": Array [],
+}
+`;
+
+exports[`Webpack \`fetch-failures\` Build results: Webpack build error 1`] = `null`;
+
+exports[`Webpack \`fetch-failures\` Build results: Webpack build files 1`] = `
+Object {
+  "a.asset.php": Object {},
+  "a.js": Object {
+    "jpI18nState": "/***/ \\"@wordpress/jp-i18n-state\\":
+/*!*************************************!*\\\\
+  !*** external [\\"wp\\",\\"jpI18nState\\"] ***!
+  \\\\*************************************/
+/***/ ((module) => {
+
+\\"use strict\\";
+module.exports = window[\\"wp\\"][\\"jpI18nState\\"];
+",
+    "loader": "/******/ 	/* webpack/runtime/loading @automattic/i18n-loader-webpack-plugin */
+/******/ 	(() => {
+/******/ 		var textdomain = \\"fetch-failures\\";
+/******/ 		var chunkInfo = {
+/******/ 			\\"hasI18n\\": [ /* dist/hasI18n.js */ \\"c7c3968298452ee95564fb9c05e2de50\\", \\"\\" ]
+/******/ 		};
+/******/ 		
+/******/ 		var loadI18n = (info) => {
+/******/ 			var i18n = __webpack_require__(/*! @wordpress/i18n */ \\"@wordpress/i18n\\");
+/******/ 			var state = __webpack_require__(/*! @wordpress/jp-i18n-state */ \\"@wordpress/jp-i18n-state\\");
+/******/ 			if ( ! state ) return Promise.reject( new Error( \\"I18n state is not available. Check that WordPress is exporting wp.jpI18nState.\\" ) );
+/******/ 			if ( state.locale === \\"en_US\\" ) return Promise.resolve();
+/******/ 			if ( typeof fetch === \\"undefined\\" ) return Promise.reject( new Error( \\"Fetch API is not available.\\" ) );
+/******/ 			return fetch(
+/******/ 				state.baseUrl + ( state.domainMap[textdomain] || ( \\"plugins/\\" + textdomain ) ) + \\"-\\" + state.locale + \\"-\\" + info[0] + \\".json\\" + info[1]
+/******/ 			).then( (res) => {
+/******/ 				if ( ! res.ok ) throw new Error( \\"HTTP request failed: \\" + res.status + \\" \\" + res.statusText );
+/******/ 				return res.json();
+/******/ 			} ).then( (data) => {
+/******/ 				var data2 = data.locale_data;
+/******/ 				var localeData = data2[ textdomain ] || data2.messages;
+/******/ 				localeData[\\"\\"].domain = textdomain;
+/******/ 				i18n.setLocaleData( localeData, textdomain );
+/******/ 			} );
+/******/ 		};
+/******/ 		
+/******/ 		var installedChunks = {};
+/******/ 		__webpack_require__.f.wpI18n = (chunkId, promises) => {
+/******/ 			if ( installedChunks[chunkId] ) {
+/******/ 				promises.push( installedChunks[chunkId] );
+/******/ 			} else if ( installedChunks[chunkId] !== 0 && chunkInfo[chunkId] ) {
+/******/ 				promises.push( installedChunks[chunkId] = loadI18n( chunkInfo[chunkId] ).then(
+/******/ 					() => {
+/******/ 						installedChunks[chunkId] = 0;
+/******/ 					},
+/******/ 					(e) => {
+/******/ 						delete installedChunks[chunkId];
+/******/ 						// Log only, we don't want i18n failure to break the entire page.
+/******/ 						console.error( \\"Failed to fetch i18n data:\\", e );
+/******/ 					}
+/******/ 				) );
+/******/ 			}
+/******/ 		};
+/******/ 	})();",
+    "wpI18n": "/***/ \\"@wordpress/i18n\\":
+/*!******************************!*\\\\
+  !*** external [\\"wp\\",\\"i18n\\"] ***!
+  \\\\******************************/
+/***/ ((module) => {
+
+\\"use strict\\";
+module.exports = window[\\"wp\\"][\\"i18n\\"];
+",
+  },
+  "hasI18n.js": Object {
+    "jpI18nState": null,
+    "loader": null,
+    "wpI18n": null,
+  },
+}
+`;
+
+exports[`Webpack \`fetch-failures\` Build results: Webpack build stats 1`] = `
+Object {
+  "errors": Array [],
+  "warnings": Array [],
+}
+`;
+
+exports[`Webpack \`ignore-modules\` Build results: Webpack build error 1`] = `null`;
+
+exports[`Webpack \`ignore-modules\` Build results: Webpack build files 1`] = `
+Object {
+  "array/hasI18n.js": Object {
+    "jpI18nState": null,
+    "loader": null,
+    "wpI18n": null,
+  },
+  "array/hasI18n2.js": Object {
+    "jpI18nState": null,
+    "loader": null,
+    "wpI18n": null,
+  },
+  "array/main.asset.php": Object {},
+  "array/main.js": Object {
+    "jpI18nState": null,
+    "loader": null,
+    "wpI18n": "/***/ \\"@wordpress/i18n\\":
+/*!******************************!*\\\\
+  !*** external [\\"wp\\",\\"i18n\\"] ***!
+  \\\\******************************/
+/***/ ((module) => {
+
+\\"use strict\\";
+module.exports = window[\\"wp\\"][\\"i18n\\"];
+",
+  },
+  "array/main2.asset.php": Object {},
+  "array/main2.js": Object {
+    "jpI18nState": "/***/ \\"@wordpress/jp-i18n-state\\":
+/*!*************************************!*\\\\
+  !*** external [\\"wp\\",\\"jpI18nState\\"] ***!
+  \\\\*************************************/
+/***/ ((module) => {
+
+\\"use strict\\";
+module.exports = window[\\"wp\\"][\\"jpI18nState\\"];
+",
+    "loader": "/******/ 	/* webpack/runtime/loading @automattic/i18n-loader-webpack-plugin */
+/******/ 	(() => {
+/******/ 		var textdomain = \\"ignore-modules\\";
+/******/ 		var chunkInfo = {
+/******/ 			\\"hasI18n2\\": [ /* dist/array/hasI18n2.js */ \\"e4f47276932fd5fd64de200952c28fa0\\", \\"\\" ]
+/******/ 		};
+/******/ 		
+/******/ 		var loadI18n = (info) => {
+/******/ 			var i18n = __webpack_require__(/*! @wordpress/i18n */ \\"@wordpress/i18n\\");
+/******/ 			var state = __webpack_require__(/*! @wordpress/jp-i18n-state */ \\"@wordpress/jp-i18n-state\\");
+/******/ 			if ( ! state ) return Promise.reject( new Error( \\"I18n state is not available. Check that WordPress is exporting wp.jpI18nState.\\" ) );
+/******/ 			if ( state.locale === \\"en_US\\" ) return Promise.resolve();
+/******/ 			if ( typeof fetch === \\"undefined\\" ) return Promise.reject( new Error( \\"Fetch API is not available.\\" ) );
+/******/ 			return fetch(
+/******/ 				state.baseUrl + ( state.domainMap[textdomain] || ( \\"plugins/\\" + textdomain ) ) + \\"-\\" + state.locale + \\"-\\" + info[0] + \\".json\\" + info[1]
+/******/ 			).then( (res) => {
+/******/ 				if ( ! res.ok ) throw new Error( \\"HTTP request failed: \\" + res.status + \\" \\" + res.statusText );
+/******/ 				return res.json();
+/******/ 			} ).then( (data) => {
+/******/ 				var data2 = data.locale_data;
+/******/ 				var localeData = data2[ textdomain ] || data2.messages;
+/******/ 				localeData[\\"\\"].domain = textdomain;
+/******/ 				i18n.setLocaleData( localeData, textdomain );
+/******/ 			} );
+/******/ 		};
+/******/ 		
+/******/ 		var installedChunks = {};
+/******/ 		__webpack_require__.f.wpI18n = (chunkId, promises) => {
+/******/ 			if ( installedChunks[chunkId] ) {
+/******/ 				promises.push( installedChunks[chunkId] );
+/******/ 			} else if ( installedChunks[chunkId] !== 0 && chunkInfo[chunkId] ) {
+/******/ 				promises.push( installedChunks[chunkId] = loadI18n( chunkInfo[chunkId] ).then(
+/******/ 					() => {
+/******/ 						installedChunks[chunkId] = 0;
+/******/ 					},
+/******/ 					(e) => {
+/******/ 						delete installedChunks[chunkId];
+/******/ 						// Log only, we don't want i18n failure to break the entire page.
+/******/ 						console.error( \\"Failed to fetch i18n data:\\", e );
+/******/ 					}
+/******/ 				) );
+/******/ 			}
+/******/ 		};
+/******/ 	})();",
+    "wpI18n": "/***/ \\"@wordpress/i18n\\":
+/*!******************************!*\\\\
+  !*** external [\\"wp\\",\\"i18n\\"] ***!
+  \\\\******************************/
+/***/ ((module) => {
+
+\\"use strict\\";
+module.exports = window[\\"wp\\"][\\"i18n\\"];
+",
+  },
+  "array/md5.js": Object {
+    "jpI18nState": null,
+    "loader": null,
+    "wpI18n": null,
+  },
+  "array/noI18n.js": Object {
+    "jpI18nState": null,
+    "loader": null,
+    "wpI18n": null,
+  },
+  "function/hasI18n.js": Object {
+    "jpI18nState": null,
+    "loader": null,
+    "wpI18n": null,
+  },
+  "function/hasI18n2.js": Object {
+    "jpI18nState": null,
+    "loader": null,
+    "wpI18n": null,
+  },
+  "function/main.asset.php": Object {},
+  "function/main.js": Object {
+    "jpI18nState": null,
+    "loader": null,
+    "wpI18n": "/***/ \\"@wordpress/i18n\\":
+/*!******************************!*\\\\
+  !*** external [\\"wp\\",\\"i18n\\"] ***!
+  \\\\******************************/
+/***/ ((module) => {
+
+\\"use strict\\";
+module.exports = window[\\"wp\\"][\\"i18n\\"];
+",
+  },
+  "function/main2.asset.php": Object {},
+  "function/main2.js": Object {
+    "jpI18nState": "/***/ \\"@wordpress/jp-i18n-state\\":
+/*!*************************************!*\\\\
+  !*** external [\\"wp\\",\\"jpI18nState\\"] ***!
+  \\\\*************************************/
+/***/ ((module) => {
+
+\\"use strict\\";
+module.exports = window[\\"wp\\"][\\"jpI18nState\\"];
+",
+    "loader": "/******/ 	/* webpack/runtime/loading @automattic/i18n-loader-webpack-plugin */
+/******/ 	(() => {
+/******/ 		var textdomain = \\"ignore-modules\\";
+/******/ 		var chunkInfo = {
+/******/ 			\\"hasI18n2\\": [ /* dist/function/hasI18n2.js */ \\"2f34b700832755e4f97db2c8639d355f\\", \\"\\" ]
+/******/ 		};
+/******/ 		
+/******/ 		var loadI18n = (info) => {
+/******/ 			var i18n = __webpack_require__(/*! @wordpress/i18n */ \\"@wordpress/i18n\\");
+/******/ 			var state = __webpack_require__(/*! @wordpress/jp-i18n-state */ \\"@wordpress/jp-i18n-state\\");
+/******/ 			if ( ! state ) return Promise.reject( new Error( \\"I18n state is not available. Check that WordPress is exporting wp.jpI18nState.\\" ) );
+/******/ 			if ( state.locale === \\"en_US\\" ) return Promise.resolve();
+/******/ 			if ( typeof fetch === \\"undefined\\" ) return Promise.reject( new Error( \\"Fetch API is not available.\\" ) );
+/******/ 			return fetch(
+/******/ 				state.baseUrl + ( state.domainMap[textdomain] || ( \\"plugins/\\" + textdomain ) ) + \\"-\\" + state.locale + \\"-\\" + info[0] + \\".json\\" + info[1]
+/******/ 			).then( (res) => {
+/******/ 				if ( ! res.ok ) throw new Error( \\"HTTP request failed: \\" + res.status + \\" \\" + res.statusText );
+/******/ 				return res.json();
+/******/ 			} ).then( (data) => {
+/******/ 				var data2 = data.locale_data;
+/******/ 				var localeData = data2[ textdomain ] || data2.messages;
+/******/ 				localeData[\\"\\"].domain = textdomain;
+/******/ 				i18n.setLocaleData( localeData, textdomain );
+/******/ 			} );
+/******/ 		};
+/******/ 		
+/******/ 		var installedChunks = {};
+/******/ 		__webpack_require__.f.wpI18n = (chunkId, promises) => {
+/******/ 			if ( installedChunks[chunkId] ) {
+/******/ 				promises.push( installedChunks[chunkId] );
+/******/ 			} else if ( installedChunks[chunkId] !== 0 && chunkInfo[chunkId] ) {
+/******/ 				promises.push( installedChunks[chunkId] = loadI18n( chunkInfo[chunkId] ).then(
+/******/ 					() => {
+/******/ 						installedChunks[chunkId] = 0;
+/******/ 					},
+/******/ 					(e) => {
+/******/ 						delete installedChunks[chunkId];
+/******/ 						// Log only, we don't want i18n failure to break the entire page.
+/******/ 						console.error( \\"Failed to fetch i18n data:\\", e );
+/******/ 					}
+/******/ 				) );
+/******/ 			}
+/******/ 		};
+/******/ 	})();",
+    "wpI18n": "/***/ \\"@wordpress/i18n\\":
+/*!******************************!*\\\\
+  !*** external [\\"wp\\",\\"i18n\\"] ***!
+  \\\\******************************/
+/***/ ((module) => {
+
+\\"use strict\\";
+module.exports = window[\\"wp\\"][\\"i18n\\"];
+",
+  },
+  "function/md5.js": Object {
+    "jpI18nState": null,
+    "loader": null,
+    "wpI18n": null,
+  },
+  "function/noI18n.js": Object {
+    "jpI18nState": null,
+    "loader": null,
+    "wpI18n": null,
+  },
+  "regex/hasI18n.js": Object {
+    "jpI18nState": null,
+    "loader": null,
+    "wpI18n": null,
+  },
+  "regex/hasI18n2.js": Object {
+    "jpI18nState": null,
+    "loader": null,
+    "wpI18n": null,
+  },
+  "regex/main.asset.php": Object {},
+  "regex/main.js": Object {
+    "jpI18nState": null,
+    "loader": null,
+    "wpI18n": "/***/ \\"@wordpress/i18n\\":
+/*!******************************!*\\\\
+  !*** external [\\"wp\\",\\"i18n\\"] ***!
+  \\\\******************************/
+/***/ ((module) => {
+
+\\"use strict\\";
+module.exports = window[\\"wp\\"][\\"i18n\\"];
+",
+  },
+  "regex/main2.asset.php": Object {},
+  "regex/main2.js": Object {
+    "jpI18nState": "/***/ \\"@wordpress/jp-i18n-state\\":
+/*!*************************************!*\\\\
+  !*** external [\\"wp\\",\\"jpI18nState\\"] ***!
+  \\\\*************************************/
+/***/ ((module) => {
+
+\\"use strict\\";
+module.exports = window[\\"wp\\"][\\"jpI18nState\\"];
+",
+    "loader": "/******/ 	/* webpack/runtime/loading @automattic/i18n-loader-webpack-plugin */
+/******/ 	(() => {
+/******/ 		var textdomain = \\"ignore-modules\\";
+/******/ 		var chunkInfo = {
+/******/ 			\\"hasI18n2\\": [ /* dist/regex/hasI18n2.js */ \\"b9b66de4c25a21524d7efa38f93bbf38\\", \\"\\" ]
+/******/ 		};
+/******/ 		
+/******/ 		var loadI18n = (info) => {
+/******/ 			var i18n = __webpack_require__(/*! @wordpress/i18n */ \\"@wordpress/i18n\\");
+/******/ 			var state = __webpack_require__(/*! @wordpress/jp-i18n-state */ \\"@wordpress/jp-i18n-state\\");
+/******/ 			if ( ! state ) return Promise.reject( new Error( \\"I18n state is not available. Check that WordPress is exporting wp.jpI18nState.\\" ) );
+/******/ 			if ( state.locale === \\"en_US\\" ) return Promise.resolve();
+/******/ 			if ( typeof fetch === \\"undefined\\" ) return Promise.reject( new Error( \\"Fetch API is not available.\\" ) );
+/******/ 			return fetch(
+/******/ 				state.baseUrl + ( state.domainMap[textdomain] || ( \\"plugins/\\" + textdomain ) ) + \\"-\\" + state.locale + \\"-\\" + info[0] + \\".json\\" + info[1]
+/******/ 			).then( (res) => {
+/******/ 				if ( ! res.ok ) throw new Error( \\"HTTP request failed: \\" + res.status + \\" \\" + res.statusText );
+/******/ 				return res.json();
+/******/ 			} ).then( (data) => {
+/******/ 				var data2 = data.locale_data;
+/******/ 				var localeData = data2[ textdomain ] || data2.messages;
+/******/ 				localeData[\\"\\"].domain = textdomain;
+/******/ 				i18n.setLocaleData( localeData, textdomain );
+/******/ 			} );
+/******/ 		};
+/******/ 		
+/******/ 		var installedChunks = {};
+/******/ 		__webpack_require__.f.wpI18n = (chunkId, promises) => {
+/******/ 			if ( installedChunks[chunkId] ) {
+/******/ 				promises.push( installedChunks[chunkId] );
+/******/ 			} else if ( installedChunks[chunkId] !== 0 && chunkInfo[chunkId] ) {
+/******/ 				promises.push( installedChunks[chunkId] = loadI18n( chunkInfo[chunkId] ).then(
+/******/ 					() => {
+/******/ 						installedChunks[chunkId] = 0;
+/******/ 					},
+/******/ 					(e) => {
+/******/ 						delete installedChunks[chunkId];
+/******/ 						// Log only, we don't want i18n failure to break the entire page.
+/******/ 						console.error( \\"Failed to fetch i18n data:\\", e );
+/******/ 					}
+/******/ 				) );
+/******/ 			}
+/******/ 		};
+/******/ 	})();",
+    "wpI18n": "/***/ \\"@wordpress/i18n\\":
+/*!******************************!*\\\\
+  !*** external [\\"wp\\",\\"i18n\\"] ***!
+  \\\\******************************/
+/***/ ((module) => {
+
+\\"use strict\\";
+module.exports = window[\\"wp\\"][\\"i18n\\"];
+",
+  },
+  "regex/md5.js": Object {
+    "jpI18nState": null,
+    "loader": null,
+    "wpI18n": null,
+  },
+  "regex/noI18n.js": Object {
+    "jpI18nState": null,
+    "loader": null,
+    "wpI18n": null,
+  },
+  "string/hasI18n.js": Object {
+    "jpI18nState": null,
+    "loader": null,
+    "wpI18n": null,
+  },
+  "string/hasI18n2.js": Object {
+    "jpI18nState": null,
+    "loader": null,
+    "wpI18n": null,
+  },
+  "string/main.asset.php": Object {},
+  "string/main.js": Object {
+    "jpI18nState": null,
+    "loader": null,
+    "wpI18n": "/***/ \\"@wordpress/i18n\\":
+/*!******************************!*\\\\
+  !*** external [\\"wp\\",\\"i18n\\"] ***!
+  \\\\******************************/
+/***/ ((module) => {
+
+\\"use strict\\";
+module.exports = window[\\"wp\\"][\\"i18n\\"];
+",
+  },
+  "string/main2.asset.php": Object {},
+  "string/main2.js": Object {
+    "jpI18nState": "/***/ \\"@wordpress/jp-i18n-state\\":
+/*!*************************************!*\\\\
+  !*** external [\\"wp\\",\\"jpI18nState\\"] ***!
+  \\\\*************************************/
+/***/ ((module) => {
+
+\\"use strict\\";
+module.exports = window[\\"wp\\"][\\"jpI18nState\\"];
+",
+    "loader": "/******/ 	/* webpack/runtime/loading @automattic/i18n-loader-webpack-plugin */
+/******/ 	(() => {
+/******/ 		var textdomain = \\"ignore-modules\\";
+/******/ 		var chunkInfo = {
+/******/ 			\\"hasI18n2\\": [ /* dist/string/hasI18n2.js */ \\"8ccd788351d9b86e5ae5a8a7bb8acd02\\", \\"\\" ]
+/******/ 		};
+/******/ 		
+/******/ 		var loadI18n = (info) => {
+/******/ 			var i18n = __webpack_require__(/*! @wordpress/i18n */ \\"@wordpress/i18n\\");
+/******/ 			var state = __webpack_require__(/*! @wordpress/jp-i18n-state */ \\"@wordpress/jp-i18n-state\\");
+/******/ 			if ( ! state ) return Promise.reject( new Error( \\"I18n state is not available. Check that WordPress is exporting wp.jpI18nState.\\" ) );
+/******/ 			if ( state.locale === \\"en_US\\" ) return Promise.resolve();
+/******/ 			if ( typeof fetch === \\"undefined\\" ) return Promise.reject( new Error( \\"Fetch API is not available.\\" ) );
+/******/ 			return fetch(
+/******/ 				state.baseUrl + ( state.domainMap[textdomain] || ( \\"plugins/\\" + textdomain ) ) + \\"-\\" + state.locale + \\"-\\" + info[0] + \\".json\\" + info[1]
+/******/ 			).then( (res) => {
+/******/ 				if ( ! res.ok ) throw new Error( \\"HTTP request failed: \\" + res.status + \\" \\" + res.statusText );
+/******/ 				return res.json();
+/******/ 			} ).then( (data) => {
+/******/ 				var data2 = data.locale_data;
+/******/ 				var localeData = data2[ textdomain ] || data2.messages;
+/******/ 				localeData[\\"\\"].domain = textdomain;
+/******/ 				i18n.setLocaleData( localeData, textdomain );
+/******/ 			} );
+/******/ 		};
+/******/ 		
+/******/ 		var installedChunks = {};
+/******/ 		__webpack_require__.f.wpI18n = (chunkId, promises) => {
+/******/ 			if ( installedChunks[chunkId] ) {
+/******/ 				promises.push( installedChunks[chunkId] );
+/******/ 			} else if ( installedChunks[chunkId] !== 0 && chunkInfo[chunkId] ) {
+/******/ 				promises.push( installedChunks[chunkId] = loadI18n( chunkInfo[chunkId] ).then(
+/******/ 					() => {
+/******/ 						installedChunks[chunkId] = 0;
+/******/ 					},
+/******/ 					(e) => {
+/******/ 						delete installedChunks[chunkId];
+/******/ 						// Log only, we don't want i18n failure to break the entire page.
+/******/ 						console.error( \\"Failed to fetch i18n data:\\", e );
+/******/ 					}
+/******/ 				) );
+/******/ 			}
+/******/ 		};
+/******/ 	})();",
+    "wpI18n": "/***/ \\"@wordpress/i18n\\":
+/*!******************************!*\\\\
+  !*** external [\\"wp\\",\\"i18n\\"] ***!
+  \\\\******************************/
+/***/ ((module) => {
+
+\\"use strict\\";
+module.exports = window[\\"wp\\"][\\"i18n\\"];
+",
+  },
+  "string/md5.js": Object {
+    "jpI18nState": null,
+    "loader": null,
+    "wpI18n": null,
+  },
+  "string/noI18n.js": Object {
+    "jpI18nState": null,
+    "loader": null,
+    "wpI18n": null,
+  },
+}
+`;
+
+exports[`Webpack \`ignore-modules\` Build results: Webpack build stats 1`] = `
+Object {
+  "children": Array [
+    Object {
+      "errors": Array [],
+      "name": undefined,
+      "warnings": Array [],
+    },
+    Object {
+      "errors": Array [],
+      "name": undefined,
+      "warnings": Array [],
+    },
+    Object {
+      "errors": Array [],
+      "name": undefined,
+      "warnings": Array [],
+    },
+    Object {
+      "errors": Array [],
+      "name": undefined,
+      "warnings": Array [],
+    },
+  ],
+  "errors": Array [],
+  "warnings": Array [],
+}
+`;
+
+exports[`Webpack \`manual-externals\` Build results: Webpack build error 1`] = `null`;
+
+exports[`Webpack \`manual-externals\` Build results: Webpack build files 1`] = `
+Object {
+  "hasI18n.js": Object {
+    "jpI18nState": null,
+    "loader": null,
+    "wpI18n": null,
+  },
+  "main.js": Object {
+    "jpI18nState": "/***/ \\"@wordpress/jp-i18n-state\\":
+/*!******************************!*\\\\
+  !*** external \\"jpI18nState\\" ***!
+  \\\\******************************/
+/***/ ((module) => {
+
+\\"use strict\\";
+module.exports = global[\\"jpI18nState\\"];
+",
+    "loader": "/******/ 	/* webpack/runtime/loading @automattic/i18n-loader-webpack-plugin */
+/******/ 	(() => {
+/******/ 		var textdomain = \\"manual-externals\\";
+/******/ 		var chunkInfo = {
+/******/ 			\\"hasI18n\\": [ /* dist/hasI18n.js */ \\"c7c3968298452ee95564fb9c05e2de50\\", \\"\\" ]
+/******/ 		};
+/******/ 		
+/******/ 		var loadI18n = (info) => {
+/******/ 			var i18n = __webpack_require__(/*! @wordpress/i18n */ \\"@wordpress/i18n\\");
+/******/ 			var state = __webpack_require__(/*! @wordpress/jp-i18n-state */ \\"@wordpress/jp-i18n-state\\");
+/******/ 			if ( ! state ) return Promise.reject( new Error( \\"I18n state is not available. Check that WordPress is exporting wp.jpI18nState.\\" ) );
+/******/ 			if ( state.locale === \\"en_US\\" ) return Promise.resolve();
+/******/ 			if ( typeof fetch === \\"undefined\\" ) return Promise.reject( new Error( \\"Fetch API is not available.\\" ) );
+/******/ 			return fetch(
+/******/ 				state.baseUrl + ( state.domainMap[textdomain] || ( \\"plugins/\\" + textdomain ) ) + \\"-\\" + state.locale + \\"-\\" + info[0] + \\".json\\" + info[1]
+/******/ 			).then( (res) => {
+/******/ 				if ( ! res.ok ) throw new Error( \\"HTTP request failed: \\" + res.status + \\" \\" + res.statusText );
+/******/ 				return res.json();
+/******/ 			} ).then( (data) => {
+/******/ 				var data2 = data.locale_data;
+/******/ 				var localeData = data2[ textdomain ] || data2.messages;
+/******/ 				localeData[\\"\\"].domain = textdomain;
+/******/ 				i18n.setLocaleData( localeData, textdomain );
+/******/ 			} );
+/******/ 		};
+/******/ 		
+/******/ 		var installedChunks = {};
+/******/ 		__webpack_require__.f.wpI18n = (chunkId, promises) => {
+/******/ 			if ( installedChunks[chunkId] ) {
+/******/ 				promises.push( installedChunks[chunkId] );
+/******/ 			} else if ( installedChunks[chunkId] !== 0 && chunkInfo[chunkId] ) {
+/******/ 				promises.push( installedChunks[chunkId] = loadI18n( chunkInfo[chunkId] ).then(
+/******/ 					() => {
+/******/ 						installedChunks[chunkId] = 0;
+/******/ 					},
+/******/ 					(e) => {
+/******/ 						delete installedChunks[chunkId];
+/******/ 						// Log only, we don't want i18n failure to break the entire page.
+/******/ 						console.error( \\"Failed to fetch i18n data:\\", e );
+/******/ 					}
+/******/ 				) );
+/******/ 			}
+/******/ 		};
+/******/ 	})();",
+    "wpI18n": "/***/ \\"@wordpress/i18n\\":
+/*!*************************!*\\\\
+  !*** external \\"wpI18n\\" ***!
+  \\\\*************************/
+/***/ ((module) => {
+
+\\"use strict\\";
+module.exports = global[\\"wpI18n\\"];
+",
+  },
+  "main2.js": Object {
+    "jpI18nState": "/***/ \\"@wordpress/jp-i18n-state\\":
+/*!**********************************************************************************************!*\\\\
+  !*** external \\"{\\\\\\"baseUrl\\\\\\":\\\\\\"http://example.org/\\\\\\",\\\\\\"locale\\\\\\":\\\\\\"en_US\\\\\\",\\\\\\"domainMap\\\\\\":{}}\\" ***!
+  \\\\**********************************************************************************************/
+/***/ ((module) => {
+
+\\"use strict\\";
+if(typeof {\\"baseUrl\\":\\"http://example.org/\\",\\"locale\\":\\"en_US\\",\\"domainMap\\":{}} === 'undefined') { var e = new Error(\\"Cannot find module '{\\\\\\"baseUrl\\\\\\":\\\\\\"http://example.org/\\\\\\",\\\\\\"locale\\\\\\":\\\\\\"en_US\\\\\\",\\\\\\"domainMap\\\\\\":{}}'\\"); e.code = 'MODULE_NOT_FOUND'; throw e; }
+
+module.exports = {\\"baseUrl\\":\\"http://example.org/\\",\\"locale\\":\\"en_US\\",\\"domainMap\\":{}};
+",
+    "loader": "/******/ 	/* webpack/runtime/loading @automattic/i18n-loader-webpack-plugin */
+/******/ 	(() => {
+/******/ 		var textdomain = \\"manual-externals\\";
+/******/ 		var chunkInfo = {
+/******/ 			\\"hasI18n\\": [ /* dist/hasI18n.js */ \\"c7c3968298452ee95564fb9c05e2de50\\", \\"\\" ]
+/******/ 		};
+/******/ 		
+/******/ 		var loadI18n = (info) => {
+/******/ 			var i18n = __webpack_require__(/*! @wordpress/i18n */ \\"@wordpress/i18n\\");
+/******/ 			var state = __webpack_require__(/*! @wordpress/jp-i18n-state */ \\"@wordpress/jp-i18n-state\\");
+/******/ 			if ( ! state ) return Promise.reject( new Error( \\"I18n state is not available. Check that WordPress is exporting wp.jpI18nState.\\" ) );
+/******/ 			if ( state.locale === \\"en_US\\" ) return Promise.resolve();
+/******/ 			if ( typeof fetch === \\"undefined\\" ) return Promise.reject( new Error( \\"Fetch API is not available.\\" ) );
+/******/ 			return fetch(
+/******/ 				state.baseUrl + ( state.domainMap[textdomain] || ( \\"plugins/\\" + textdomain ) ) + \\"-\\" + state.locale + \\"-\\" + info[0] + \\".json\\" + info[1]
+/******/ 			).then( (res) => {
+/******/ 				if ( ! res.ok ) throw new Error( \\"HTTP request failed: \\" + res.status + \\" \\" + res.statusText );
+/******/ 				return res.json();
+/******/ 			} ).then( (data) => {
+/******/ 				var data2 = data.locale_data;
+/******/ 				var localeData = data2[ textdomain ] || data2.messages;
+/******/ 				localeData[\\"\\"].domain = textdomain;
+/******/ 				i18n.setLocaleData( localeData, textdomain );
+/******/ 			} );
+/******/ 		};
+/******/ 		
+/******/ 		var installedChunks = {};
+/******/ 		__webpack_require__.f.wpI18n = (chunkId, promises) => {
+/******/ 			if ( installedChunks[chunkId] ) {
+/******/ 				promises.push( installedChunks[chunkId] );
+/******/ 			} else if ( installedChunks[chunkId] !== 0 && chunkInfo[chunkId] ) {
+/******/ 				promises.push( installedChunks[chunkId] = loadI18n( chunkInfo[chunkId] ).then(
+/******/ 					() => {
+/******/ 						installedChunks[chunkId] = 0;
+/******/ 					},
+/******/ 					(e) => {
+/******/ 						delete installedChunks[chunkId];
+/******/ 						// Log only, we don't want i18n failure to break the entire page.
+/******/ 						console.error( \\"Failed to fetch i18n data:\\", e );
+/******/ 					}
+/******/ 				) );
+/******/ 			}
+/******/ 		};
+/******/ 	})();",
+    "wpI18n": "/***/ \\"@wordpress/i18n\\":
+/*!*************************!*\\\\
+  !*** external \\"wpI18n\\" ***!
+  \\\\*************************/
+/***/ ((module) => {
+
+\\"use strict\\";
+module.exports = global[\\"wpI18n\\"];
+",
+  },
+  "main3.js": Object {
+    "jpI18nState": "/***/ \\"@wordpress/jp-i18n-state\\":
+/*!**************************************************************************************************************************************!*\\\\
+  !*** external \\"{\\\\\\"baseUrl\\\\\\":\\\\\\"http://example.org/\\\\\\",\\\\\\"locale\\\\\\":\\\\\\"en_us\\\\\\",\\\\\\"domainMap\\\\\\":{\\\\\\"manual-externals\\\\\\":\\\\\\"themes/remapped\\\\\\"}}\\" ***!
+  \\\\**************************************************************************************************************************************/
+/***/ ((module) => {
+
+\\"use strict\\";
+if(typeof {\\"baseUrl\\":\\"http://example.org/\\",\\"locale\\":\\"en_us\\",\\"domainMap\\":{\\"manual-externals\\":\\"themes/remapped\\"}} === 'undefined') { var e = new Error(\\"Cannot find module '{\\\\\\"baseUrl\\\\\\":\\\\\\"http://example.org/\\\\\\",\\\\\\"locale\\\\\\":\\\\\\"en_us\\\\\\",\\\\\\"domainMap\\\\\\":{\\\\\\"manual-externals\\\\\\":\\\\\\"themes/remapped\\\\\\"}}'\\"); e.code = 'MODULE_NOT_FOUND'; throw e; }
+
+module.exports = {\\"baseUrl\\":\\"http://example.org/\\",\\"locale\\":\\"en_us\\",\\"domainMap\\":{\\"manual-externals\\":\\"themes/remapped\\"}};
+",
+    "loader": "/******/ 	/* webpack/runtime/loading @automattic/i18n-loader-webpack-plugin */
+/******/ 	(() => {
+/******/ 		var textdomain = \\"manual-externals\\";
+/******/ 		var chunkInfo = {
+/******/ 			\\"hasI18n\\": [ /* dist/hasI18n.js */ \\"c7c3968298452ee95564fb9c05e2de50\\", \\"\\" ]
+/******/ 		};
+/******/ 		
+/******/ 		var loadI18n = (info) => {
+/******/ 			var i18n = __webpack_require__(/*! @wordpress/i18n */ \\"@wordpress/i18n\\");
+/******/ 			var state = __webpack_require__(/*! @wordpress/jp-i18n-state */ \\"@wordpress/jp-i18n-state\\");
+/******/ 			if ( ! state ) return Promise.reject( new Error( \\"I18n state is not available. Check that WordPress is exporting wp.jpI18nState.\\" ) );
+/******/ 			if ( state.locale === \\"en_US\\" ) return Promise.resolve();
+/******/ 			if ( typeof fetch === \\"undefined\\" ) return Promise.reject( new Error( \\"Fetch API is not available.\\" ) );
+/******/ 			return fetch(
+/******/ 				state.baseUrl + ( state.domainMap[textdomain] || ( \\"plugins/\\" + textdomain ) ) + \\"-\\" + state.locale + \\"-\\" + info[0] + \\".json\\" + info[1]
+/******/ 			).then( (res) => {
+/******/ 				if ( ! res.ok ) throw new Error( \\"HTTP request failed: \\" + res.status + \\" \\" + res.statusText );
+/******/ 				return res.json();
+/******/ 			} ).then( (data) => {
+/******/ 				var data2 = data.locale_data;
+/******/ 				var localeData = data2[ textdomain ] || data2.messages;
+/******/ 				localeData[\\"\\"].domain = textdomain;
+/******/ 				i18n.setLocaleData( localeData, textdomain );
+/******/ 			} );
+/******/ 		};
+/******/ 		
+/******/ 		var installedChunks = {};
+/******/ 		__webpack_require__.f.wpI18n = (chunkId, promises) => {
+/******/ 			if ( installedChunks[chunkId] ) {
+/******/ 				promises.push( installedChunks[chunkId] );
+/******/ 			} else if ( installedChunks[chunkId] !== 0 && chunkInfo[chunkId] ) {
+/******/ 				promises.push( installedChunks[chunkId] = loadI18n( chunkInfo[chunkId] ).then(
+/******/ 					() => {
+/******/ 						installedChunks[chunkId] = 0;
+/******/ 					},
+/******/ 					(e) => {
+/******/ 						delete installedChunks[chunkId];
+/******/ 						// Log only, we don't want i18n failure to break the entire page.
+/******/ 						console.error( \\"Failed to fetch i18n data:\\", e );
+/******/ 					}
+/******/ 				) );
+/******/ 			}
+/******/ 		};
+/******/ 	})();",
+    "wpI18n": "/***/ \\"@wordpress/i18n\\":
+/*!*************************!*\\\\
+  !*** external \\"wpI18n\\" ***!
+  \\\\*************************/
+/***/ ((module) => {
+
+\\"use strict\\";
+module.exports = global[\\"wpI18n\\"];
+",
+  },
+}
+`;
+
+exports[`Webpack \`manual-externals\` Build results: Webpack build stats 1`] = `
+Object {
+  "children": Array [
+    Object {
+      "errors": Array [],
+      "name": undefined,
+      "warnings": Array [],
+    },
+    Object {
+      "errors": Array [],
+      "name": undefined,
+      "warnings": Array [],
+    },
+    Object {
+      "errors": Array [],
+      "name": undefined,
+      "warnings": Array [],
+    },
+  ],
+  "errors": Array [],
+  "warnings": Array [],
+}
+`;
+
+exports[`Webpack \`missing-externals\` Build results: Webpack build error 1`] = `null`;
+
+exports[`Webpack \`missing-externals\` Build results: Webpack build stats 1`] = `
+Object {
+  "errors": Array [
+    Object {
+      "message": "@automattic/i18n-loader-webpack-plugin:
+Failed to add state module @wordpress/jp-i18n-state to the build.
+You'll need to add @wordpress/dependency-extraction-webpack-plugin or an appropriate externals directive to your Webpack config.",
+    },
+  ],
+  "warnings": Array [
+    Object {
+      "loc": "",
+      "message": "Module not found: Error: Can't resolve '@wordpress/jp-i18n-state' in '/path/to/i18n-loader-webpack-plugin/tests/fixtures/missing-externals'",
+    },
+  ],
+}
+`;
+
+exports[`Webpack \`multiple-runtime\` Build results: Webpack build error 1`] = `null`;
+
+exports[`Webpack \`multiple-runtime\` Build results: Webpack build files 1`] = `
+Object {
+  "bar.js": Object {
+    "jpI18nState": null,
+    "loader": null,
+    "wpI18n": null,
+  },
+  "baz.js": Object {
+    "jpI18nState": null,
+    "loader": null,
+    "wpI18n": null,
+  },
+  "hasI18n.js": Object {
+    "jpI18nState": null,
+    "loader": null,
+    "wpI18n": null,
+  },
+  "hasI18n2.js": Object {
+    "jpI18nState": null,
+    "loader": null,
+    "wpI18n": null,
+  },
+  "main.js": Object {
+    "jpI18nState": null,
+    "loader": null,
+    "wpI18n": null,
+  },
+  "main2.js": Object {
+    "jpI18nState": null,
+    "loader": null,
+    "wpI18n": null,
+  },
+  "noI18n.js": Object {
+    "jpI18nState": null,
+    "loader": null,
+    "wpI18n": null,
+  },
+  "runtime~bar.asset.php": Object {},
+  "runtime~bar.js": Object {
+    "jpI18nState": null,
+    "loader": null,
+    "wpI18n": null,
+  },
+  "runtime~baz.asset.php": Object {},
+  "runtime~baz.js": Object {
+    "jpI18nState": null,
+    "loader": null,
+    "wpI18n": null,
+  },
+  "runtime~main.asset.php": Object {},
+  "runtime~main.js": Object {
+    "jpI18nState": "/***/ \\"@wordpress/jp-i18n-state\\":
+/*!*************************************!*\\\\
+  !*** external [\\"wp\\",\\"jpI18nState\\"] ***!
+  \\\\*************************************/
+/***/ ((module) => {
+
+module.exports = window[\\"wp\\"][\\"jpI18nState\\"];
+",
+    "loader": "/******/ 	/* webpack/runtime/loading @automattic/i18n-loader-webpack-plugin */
+/******/ 	(() => {
+/******/ 		var textdomain = \\"multiple-runtime\\";
+/******/ 		var chunkInfo = {
+/******/ 			\\"hasI18n\\": [ /* dist/hasI18n.js */ \\"c7c3968298452ee95564fb9c05e2de50\\", \\"\\" ]
+/******/ 		};
+/******/ 		
+/******/ 		var loadI18n = (info) => {
+/******/ 			var i18n = __webpack_require__(/*! @wordpress/i18n */ \\"@wordpress/i18n\\");
+/******/ 			var state = __webpack_require__(/*! @wordpress/jp-i18n-state */ \\"@wordpress/jp-i18n-state\\");
+/******/ 			if ( ! state ) return Promise.reject( new Error( \\"I18n state is not available. Check that WordPress is exporting wp.jpI18nState.\\" ) );
+/******/ 			if ( state.locale === \\"en_US\\" ) return Promise.resolve();
+/******/ 			if ( typeof fetch === \\"undefined\\" ) return Promise.reject( new Error( \\"Fetch API is not available.\\" ) );
+/******/ 			return fetch(
+/******/ 				state.baseUrl + ( state.domainMap[textdomain] || ( \\"plugins/\\" + textdomain ) ) + \\"-\\" + state.locale + \\"-\\" + info[0] + \\".json\\" + info[1]
+/******/ 			).then( (res) => {
+/******/ 				if ( ! res.ok ) throw new Error( \\"HTTP request failed: \\" + res.status + \\" \\" + res.statusText );
+/******/ 				return res.json();
+/******/ 			} ).then( (data) => {
+/******/ 				var data2 = data.locale_data;
+/******/ 				var localeData = data2[ textdomain ] || data2.messages;
+/******/ 				localeData[\\"\\"].domain = textdomain;
+/******/ 				i18n.setLocaleData( localeData, textdomain );
+/******/ 			} );
+/******/ 		};
+/******/ 		
+/******/ 		var installedChunks = {};
+/******/ 		__webpack_require__.f.wpI18n = (chunkId, promises) => {
+/******/ 			if ( installedChunks[chunkId] ) {
+/******/ 				promises.push( installedChunks[chunkId] );
+/******/ 			} else if ( installedChunks[chunkId] !== 0 && chunkInfo[chunkId] ) {
+/******/ 				promises.push( installedChunks[chunkId] = loadI18n( chunkInfo[chunkId] ).then(
+/******/ 					() => {
+/******/ 						installedChunks[chunkId] = 0;
+/******/ 					},
+/******/ 					(e) => {
+/******/ 						delete installedChunks[chunkId];
+/******/ 						// Log only, we don't want i18n failure to break the entire page.
+/******/ 						console.error( \\"Failed to fetch i18n data:\\", e );
+/******/ 					}
+/******/ 				) );
+/******/ 			}
+/******/ 		};
+/******/ 	})();",
+    "wpI18n": "/***/ \\"@wordpress/i18n\\":
+/*!******************************!*\\\\
+  !*** external [\\"wp\\",\\"i18n\\"] ***!
+  \\\\******************************/
+/***/ ((module) => {
+
+module.exports = window[\\"wp\\"][\\"i18n\\"];
+",
+  },
+  "runtime~main2.asset.php": Object {},
+  "runtime~main2.js": Object {
+    "jpI18nState": "/***/ \\"@wordpress/jp-i18n-state\\":
+/*!*************************************!*\\\\
+  !*** external [\\"wp\\",\\"jpI18nState\\"] ***!
+  \\\\*************************************/
+/***/ ((module) => {
+
+module.exports = window[\\"wp\\"][\\"jpI18nState\\"];
+",
+    "loader": "/******/ 	/* webpack/runtime/loading @automattic/i18n-loader-webpack-plugin */
+/******/ 	(() => {
+/******/ 		var textdomain = \\"multiple-runtime\\";
+/******/ 		var chunkInfo = {
+/******/ 			\\"hasI18n\\": [ /* dist/hasI18n.js */ \\"c7c3968298452ee95564fb9c05e2de50\\", \\"\\" ],
+/******/ 			\\"hasI18n2\\": [ /* dist/hasI18n2.js */ \\"71d7bd53fc0961d2785c69cde5d9fead\\", \\"\\" ]
+/******/ 		};
+/******/ 		
+/******/ 		var loadI18n = (info) => {
+/******/ 			var i18n = __webpack_require__(/*! @wordpress/i18n */ \\"@wordpress/i18n\\");
+/******/ 			var state = __webpack_require__(/*! @wordpress/jp-i18n-state */ \\"@wordpress/jp-i18n-state\\");
+/******/ 			if ( ! state ) return Promise.reject( new Error( \\"I18n state is not available. Check that WordPress is exporting wp.jpI18nState.\\" ) );
+/******/ 			if ( state.locale === \\"en_US\\" ) return Promise.resolve();
+/******/ 			if ( typeof fetch === \\"undefined\\" ) return Promise.reject( new Error( \\"Fetch API is not available.\\" ) );
+/******/ 			return fetch(
+/******/ 				state.baseUrl + ( state.domainMap[textdomain] || ( \\"plugins/\\" + textdomain ) ) + \\"-\\" + state.locale + \\"-\\" + info[0] + \\".json\\" + info[1]
+/******/ 			).then( (res) => {
+/******/ 				if ( ! res.ok ) throw new Error( \\"HTTP request failed: \\" + res.status + \\" \\" + res.statusText );
+/******/ 				return res.json();
+/******/ 			} ).then( (data) => {
+/******/ 				var data2 = data.locale_data;
+/******/ 				var localeData = data2[ textdomain ] || data2.messages;
+/******/ 				localeData[\\"\\"].domain = textdomain;
+/******/ 				i18n.setLocaleData( localeData, textdomain );
+/******/ 			} );
+/******/ 		};
+/******/ 		
+/******/ 		var installedChunks = {};
+/******/ 		__webpack_require__.f.wpI18n = (chunkId, promises) => {
+/******/ 			if ( installedChunks[chunkId] ) {
+/******/ 				promises.push( installedChunks[chunkId] );
+/******/ 			} else if ( installedChunks[chunkId] !== 0 && chunkInfo[chunkId] ) {
+/******/ 				promises.push( installedChunks[chunkId] = loadI18n( chunkInfo[chunkId] ).then(
+/******/ 					() => {
+/******/ 						installedChunks[chunkId] = 0;
+/******/ 					},
+/******/ 					(e) => {
+/******/ 						delete installedChunks[chunkId];
+/******/ 						// Log only, we don't want i18n failure to break the entire page.
+/******/ 						console.error( \\"Failed to fetch i18n data:\\", e );
+/******/ 					}
+/******/ 				) );
+/******/ 			}
+/******/ 		};
+/******/ 	})();",
+    "wpI18n": "/***/ \\"@wordpress/i18n\\":
+/*!******************************!*\\\\
+  !*** external [\\"wp\\",\\"i18n\\"] ***!
+  \\\\******************************/
+/***/ ((module) => {
+
+module.exports = window[\\"wp\\"][\\"i18n\\"];
+",
+  },
+}
+`;
+
+exports[`Webpack \`multiple-runtime\` Build results: Webpack build stats 1`] = `
+Object {
+  "errors": Array [],
+  "warnings": Array [],
+}
+`;
+
+exports[`Webpack \`nested-includes\` Build results: Webpack build error 1`] = `null`;
+
+exports[`Webpack \`nested-includes\` Build results: Webpack build files 1`] = `
+Object {
+  "hasI18n.js": Object {
+    "jpI18nState": null,
+    "loader": null,
+    "wpI18n": null,
+  },
+  "indirect1.js": Object {
+    "jpI18nState": null,
+    "loader": null,
+    "wpI18n": null,
+  },
+  "indirect2.js": Object {
+    "jpI18nState": null,
+    "loader": null,
+    "wpI18n": null,
+  },
+  "main.asset.php": Object {},
+  "main.js": Object {
+    "jpI18nState": "/***/ \\"@wordpress/jp-i18n-state\\":
+/*!*************************************!*\\\\
+  !*** external [\\"wp\\",\\"jpI18nState\\"] ***!
+  \\\\*************************************/
+/***/ ((module) => {
+
+\\"use strict\\";
+module.exports = window[\\"wp\\"][\\"jpI18nState\\"];
+",
+    "loader": "/******/ 	/* webpack/runtime/loading @automattic/i18n-loader-webpack-plugin */
+/******/ 	(() => {
+/******/ 		var textdomain = \\"nested-includes\\";
+/******/ 		var chunkInfo = {
+/******/ 			\\"hasI18n\\": [ /* dist/hasI18n.js */ \\"c7c3968298452ee95564fb9c05e2de50\\", \\"\\" ]
+/******/ 		};
+/******/ 		
+/******/ 		var loadI18n = (info) => {
+/******/ 			var i18n = __webpack_require__(/*! @wordpress/i18n */ \\"@wordpress/i18n\\");
+/******/ 			var state = __webpack_require__(/*! @wordpress/jp-i18n-state */ \\"@wordpress/jp-i18n-state\\");
+/******/ 			if ( ! state ) return Promise.reject( new Error( \\"I18n state is not available. Check that WordPress is exporting wp.jpI18nState.\\" ) );
+/******/ 			if ( state.locale === \\"en_US\\" ) return Promise.resolve();
+/******/ 			if ( typeof fetch === \\"undefined\\" ) return Promise.reject( new Error( \\"Fetch API is not available.\\" ) );
+/******/ 			return fetch(
+/******/ 				state.baseUrl + ( state.domainMap[textdomain] || ( \\"plugins/\\" + textdomain ) ) + \\"-\\" + state.locale + \\"-\\" + info[0] + \\".json\\" + info[1]
+/******/ 			).then( (res) => {
+/******/ 				if ( ! res.ok ) throw new Error( \\"HTTP request failed: \\" + res.status + \\" \\" + res.statusText );
+/******/ 				return res.json();
+/******/ 			} ).then( (data) => {
+/******/ 				var data2 = data.locale_data;
+/******/ 				var localeData = data2[ textdomain ] || data2.messages;
+/******/ 				localeData[\\"\\"].domain = textdomain;
+/******/ 				i18n.setLocaleData( localeData, textdomain );
+/******/ 			} );
+/******/ 		};
+/******/ 		
+/******/ 		var installedChunks = {};
+/******/ 		__webpack_require__.f.wpI18n = (chunkId, promises) => {
+/******/ 			if ( installedChunks[chunkId] ) {
+/******/ 				promises.push( installedChunks[chunkId] );
+/******/ 			} else if ( installedChunks[chunkId] !== 0 && chunkInfo[chunkId] ) {
+/******/ 				promises.push( installedChunks[chunkId] = loadI18n( chunkInfo[chunkId] ).then(
+/******/ 					() => {
+/******/ 						installedChunks[chunkId] = 0;
+/******/ 					},
+/******/ 					(e) => {
+/******/ 						delete installedChunks[chunkId];
+/******/ 						// Log only, we don't want i18n failure to break the entire page.
+/******/ 						console.error( \\"Failed to fetch i18n data:\\", e );
+/******/ 					}
+/******/ 				) );
+/******/ 			}
+/******/ 		};
+/******/ 	})();",
+    "wpI18n": "/***/ \\"@wordpress/i18n\\":
+/*!******************************!*\\\\
+  !*** external [\\"wp\\",\\"i18n\\"] ***!
+  \\\\******************************/
+/***/ ((module) => {
+
+\\"use strict\\";
+module.exports = window[\\"wp\\"][\\"i18n\\"];
+",
+  },
+}
+`;
+
+exports[`Webpack \`nested-includes\` Build results: Webpack build stats 1`] = `
+Object {
+  "errors": Array [],
+  "warnings": Array [],
+}
+`;
+
+exports[`Webpack \`no-textdomain\` Build results: Webpack build error 1`] = `null`;
+
+exports[`Webpack \`no-textdomain\` Build results: Webpack build stats 1`] = `
+Object {
+  "errors": Array [
+    Object {
+      "message": "Chunk dist/main.js has submodules using @wordpress/i18n, but no textdomain was passed to @automattic/i18n-loader-webpack-plugin. Please fix your Webpack configuration.",
+      "moduleIdentifier": "webpack/runtime/loading @automattic/i18n-loader-webpack-plugin",
+      "moduleName": "webpack/runtime/loading @automattic/i18n-loader-webpack-plugin",
+    },
+  ],
+  "warnings": Array [],
+}
+`;
+
+exports[`Webpack \`no-textdomain-no-i18n\` Build results: Webpack build error 1`] = `null`;
+
+exports[`Webpack \`no-textdomain-no-i18n\` Build results: Webpack build files 1`] = `
+Object {
+  "bar.asset.php": Object {},
+  "bar.js": Object {
+    "jpI18nState": null,
+    "loader": null,
+    "wpI18n": null,
+  },
+  "baz.asset.php": Object {},
+  "baz.js": Object {
+    "jpI18nState": null,
+    "loader": null,
+    "wpI18n": null,
+  },
+  "noI18n.js": Object {
+    "jpI18nState": null,
+    "loader": null,
+    "wpI18n": null,
+  },
+}
+`;
+
+exports[`Webpack \`no-textdomain-no-i18n\` Build results: Webpack build stats 1`] = `
+Object {
+  "errors": Array [],
+  "warnings": Array [],
+}
+`;
+
+exports[`Webpack \`options\` Build results: Webpack build error 1`] = `null`;
+
+exports[`Webpack \`options\` Build results: Webpack build files 1`] = `
+Object {
+  "hasI18n.js": Object {
+    "jpI18nState": null,
+    "loader": null,
+    "wpI18n": null,
+  },
+  "main.js": Object {
+    "jpI18nState": null,
+    "loader": "/******/ 	/* webpack/runtime/loading @automattic/i18n-loader-webpack-plugin */
+/******/ 	(() => {
+/******/ 		var textdomain = \\"options\\";
+/******/ 		var chunkInfo = {
+/******/ 			\\"hasI18n\\": [ /* jetpack_vendor/automattic/jetpack-foobar/dist/hasI18n.js */ \\"e54fa518d005a9d82f46a567822e8600\\", \\"\\" ]
+/******/ 		};
+/******/ 		
+/******/ 		var loadI18n = (info) => {
+/******/ 			var i18n = __webpack_require__(/*! @wordpress/i18n */ \\"@wordpress/i18n\\");
+/******/ 			var state = __webpack_require__(/*! state */ \\"state\\");
+/******/ 			if ( ! state ) return Promise.reject( new Error( \\"I18n state is not available. Check that WordPress is exporting state.\\" ) );
+/******/ 			if ( state.locale === \\"en_US\\" ) return Promise.resolve();
+/******/ 			if ( typeof fetch === \\"undefined\\" ) return Promise.reject( new Error( \\"Fetch API is not available.\\" ) );
+/******/ 			return fetch(
+/******/ 				state.baseUrl + ( state.domainMap[textdomain] || ( textdomain ) ) + \\"-\\" + state.locale + \\"-\\" + info[0] + \\".json\\" + info[1]
+/******/ 			).then( (res) => {
+/******/ 				if ( ! res.ok ) throw new Error( \\"HTTP request failed: \\" + res.status + \\" \\" + res.statusText );
+/******/ 				return res.json();
+/******/ 			} ).then( (data) => {
+/******/ 				var data2 = data.locale_data;
+/******/ 				var localeData = data2[ textdomain ] || data2.messages;
+/******/ 				localeData[\\"\\"].domain = textdomain;
+/******/ 				i18n.setLocaleData( localeData, textdomain );
+/******/ 			} );
+/******/ 		};
+/******/ 		
+/******/ 		var installedChunks = {};
+/******/ 		__webpack_require__.f.wpI18n = (chunkId, promises) => {
+/******/ 			if ( installedChunks[chunkId] ) {
+/******/ 				promises.push( installedChunks[chunkId] );
+/******/ 			} else if ( installedChunks[chunkId] !== 0 && chunkInfo[chunkId] ) {
+/******/ 				promises.push( installedChunks[chunkId] = loadI18n( chunkInfo[chunkId] ).then(
+/******/ 					() => {
+/******/ 						installedChunks[chunkId] = 0;
+/******/ 					},
+/******/ 					(e) => {
+/******/ 						delete installedChunks[chunkId];
+/******/ 						// Log only, we don't want i18n failure to break the entire page.
+/******/ 						console.error( \\"Failed to fetch i18n data:\\", e );
+/******/ 					}
+/******/ 				) );
+/******/ 			}
+/******/ 		};
+/******/ 	})();",
+    "wpI18n": "/***/ \\"@wordpress/i18n\\":
+/*!*************************!*\\\\
+  !*** external \\"wpI18n\\" ***!
+  \\\\*************************/
+/***/ ((module) => {
+
+\\"use strict\\";
+module.exports = global[\\"wpI18n\\"];
+",
+  },
+}
+`;
+
+exports[`Webpack \`options\` Build results: Webpack build stats 1`] = `
+Object {
+  "errors": Array [],
+  "warnings": Array [],
+}
+`;
+
+exports[`Webpack \`single-runtime\` Build results: Webpack build error 1`] = `null`;
+
+exports[`Webpack \`single-runtime\` Build results: Webpack build files 1`] = `
+Object {
+  "bar.js": Object {
+    "jpI18nState": null,
+    "loader": null,
+    "wpI18n": null,
+  },
+  "baz.js": Object {
+    "jpI18nState": null,
+    "loader": null,
+    "wpI18n": null,
+  },
+  "hasI18n.js": Object {
+    "jpI18nState": null,
+    "loader": null,
+    "wpI18n": null,
+  },
+  "hasI18n2.js": Object {
+    "jpI18nState": null,
+    "loader": null,
+    "wpI18n": null,
+  },
+  "main.js": Object {
+    "jpI18nState": null,
+    "loader": null,
+    "wpI18n": null,
+  },
+  "main2.js": Object {
+    "jpI18nState": null,
+    "loader": null,
+    "wpI18n": null,
+  },
+  "noI18n.js": Object {
+    "jpI18nState": null,
+    "loader": null,
+    "wpI18n": null,
+  },
+  "runtime.asset.php": Object {},
+  "runtime.js": Object {
+    "jpI18nState": "/***/ \\"@wordpress/jp-i18n-state\\":
+/*!*************************************!*\\\\
+  !*** external [\\"wp\\",\\"jpI18nState\\"] ***!
+  \\\\*************************************/
+/***/ ((module) => {
+
+module.exports = window[\\"wp\\"][\\"jpI18nState\\"];
+",
+    "loader": "/******/ 	/* webpack/runtime/loading @automattic/i18n-loader-webpack-plugin */
+/******/ 	(() => {
+/******/ 		var textdomain = \\"single-runtime\\";
+/******/ 		var chunkInfo = {
+/******/ 			\\"hasI18n\\": [ /* dist/hasI18n.js */ \\"c7c3968298452ee95564fb9c05e2de50\\", \\"\\" ],
+/******/ 			\\"hasI18n2\\": [ /* dist/hasI18n2.js */ \\"71d7bd53fc0961d2785c69cde5d9fead\\", \\"\\" ]
+/******/ 		};
+/******/ 		
+/******/ 		var loadI18n = (info) => {
+/******/ 			var i18n = __webpack_require__(/*! @wordpress/i18n */ \\"@wordpress/i18n\\");
+/******/ 			var state = __webpack_require__(/*! @wordpress/jp-i18n-state */ \\"@wordpress/jp-i18n-state\\");
+/******/ 			if ( ! state ) return Promise.reject( new Error( \\"I18n state is not available. Check that WordPress is exporting wp.jpI18nState.\\" ) );
+/******/ 			if ( state.locale === \\"en_US\\" ) return Promise.resolve();
+/******/ 			if ( typeof fetch === \\"undefined\\" ) return Promise.reject( new Error( \\"Fetch API is not available.\\" ) );
+/******/ 			return fetch(
+/******/ 				state.baseUrl + ( state.domainMap[textdomain] || ( \\"plugins/\\" + textdomain ) ) + \\"-\\" + state.locale + \\"-\\" + info[0] + \\".json\\" + info[1]
+/******/ 			).then( (res) => {
+/******/ 				if ( ! res.ok ) throw new Error( \\"HTTP request failed: \\" + res.status + \\" \\" + res.statusText );
+/******/ 				return res.json();
+/******/ 			} ).then( (data) => {
+/******/ 				var data2 = data.locale_data;
+/******/ 				var localeData = data2[ textdomain ] || data2.messages;
+/******/ 				localeData[\\"\\"].domain = textdomain;
+/******/ 				i18n.setLocaleData( localeData, textdomain );
+/******/ 			} );
+/******/ 		};
+/******/ 		
+/******/ 		var installedChunks = {};
+/******/ 		__webpack_require__.f.wpI18n = (chunkId, promises) => {
+/******/ 			if ( installedChunks[chunkId] ) {
+/******/ 				promises.push( installedChunks[chunkId] );
+/******/ 			} else if ( installedChunks[chunkId] !== 0 && chunkInfo[chunkId] ) {
+/******/ 				promises.push( installedChunks[chunkId] = loadI18n( chunkInfo[chunkId] ).then(
+/******/ 					() => {
+/******/ 						installedChunks[chunkId] = 0;
+/******/ 					},
+/******/ 					(e) => {
+/******/ 						delete installedChunks[chunkId];
+/******/ 						// Log only, we don't want i18n failure to break the entire page.
+/******/ 						console.error( \\"Failed to fetch i18n data:\\", e );
+/******/ 					}
+/******/ 				) );
+/******/ 			}
+/******/ 		};
+/******/ 	})();",
+    "wpI18n": "/***/ \\"@wordpress/i18n\\":
+/*!******************************!*\\\\
+  !*** external [\\"wp\\",\\"i18n\\"] ***!
+  \\\\******************************/
+/***/ ((module) => {
+
+module.exports = window[\\"wp\\"][\\"i18n\\"];
+",
+  },
+}
+`;
+
+exports[`Webpack \`single-runtime\` Build results: Webpack build stats 1`] = `
+Object {
+  "errors": Array [],
+  "warnings": Array [],
+}
+`;
+
+exports[`Webpack \`splitting\` Build results: Webpack build error 1`] = `null`;
+
+exports[`Webpack \`splitting\` Build results: Webpack build files 1`] = `
+Object {
+  "indirect1.js": Object {
+    "jpI18nState": null,
+    "loader": null,
+    "wpI18n": null,
+  },
+  "indirect2.js": Object {
+    "jpI18nState": null,
+    "loader": null,
+    "wpI18n": null,
+  },
+  "main.asset.php": Object {},
+  "main.js": Object {
+    "jpI18nState": "/***/ \\"@wordpress/jp-i18n-state\\":
+/*!*************************************!*\\\\
+  !*** external [\\"wp\\",\\"jpI18nState\\"] ***!
+  \\\\*************************************/
+/***/ ((module) => {
+
+\\"use strict\\";
+module.exports = window[\\"wp\\"][\\"jpI18nState\\"];
+",
+    "loader": "/******/ 	/* webpack/runtime/loading @automattic/i18n-loader-webpack-plugin */
+/******/ 	(() => {
+/******/ 		var textdomain = \\"splitting\\";
+/******/ 		var chunkInfo = {
+/******/ 			\\"src_hasI18n_js-src_hasI18n2_js\\": [ /* dist/src_hasI18n_js-src_hasI18n2_js.js */ \\"ec0e6fc1bae1bb5c76db79838b127a36\\", \\"\\" ]
+/******/ 		};
+/******/ 		
+/******/ 		var loadI18n = (info) => {
+/******/ 			var i18n = __webpack_require__(/*! @wordpress/i18n */ \\"@wordpress/i18n\\");
+/******/ 			var state = __webpack_require__(/*! @wordpress/jp-i18n-state */ \\"@wordpress/jp-i18n-state\\");
+/******/ 			if ( ! state ) return Promise.reject( new Error( \\"I18n state is not available. Check that WordPress is exporting wp.jpI18nState.\\" ) );
+/******/ 			if ( state.locale === \\"en_US\\" ) return Promise.resolve();
+/******/ 			if ( typeof fetch === \\"undefined\\" ) return Promise.reject( new Error( \\"Fetch API is not available.\\" ) );
+/******/ 			return fetch(
+/******/ 				state.baseUrl + ( state.domainMap[textdomain] || ( \\"plugins/\\" + textdomain ) ) + \\"-\\" + state.locale + \\"-\\" + info[0] + \\".json\\" + info[1]
+/******/ 			).then( (res) => {
+/******/ 				if ( ! res.ok ) throw new Error( \\"HTTP request failed: \\" + res.status + \\" \\" + res.statusText );
+/******/ 				return res.json();
+/******/ 			} ).then( (data) => {
+/******/ 				var data2 = data.locale_data;
+/******/ 				var localeData = data2[ textdomain ] || data2.messages;
+/******/ 				localeData[\\"\\"].domain = textdomain;
+/******/ 				i18n.setLocaleData( localeData, textdomain );
+/******/ 			} );
+/******/ 		};
+/******/ 		
+/******/ 		var installedChunks = {};
+/******/ 		__webpack_require__.f.wpI18n = (chunkId, promises) => {
+/******/ 			if ( installedChunks[chunkId] ) {
+/******/ 				promises.push( installedChunks[chunkId] );
+/******/ 			} else if ( installedChunks[chunkId] !== 0 && chunkInfo[chunkId] ) {
+/******/ 				promises.push( installedChunks[chunkId] = loadI18n( chunkInfo[chunkId] ).then(
+/******/ 					() => {
+/******/ 						installedChunks[chunkId] = 0;
+/******/ 					},
+/******/ 					(e) => {
+/******/ 						delete installedChunks[chunkId];
+/******/ 						// Log only, we don't want i18n failure to break the entire page.
+/******/ 						console.error( \\"Failed to fetch i18n data:\\", e );
+/******/ 					}
+/******/ 				) );
+/******/ 			}
+/******/ 		};
+/******/ 	})();",
+    "wpI18n": "/***/ \\"@wordpress/i18n\\":
+/*!******************************!*\\\\
+  !*** external [\\"wp\\",\\"i18n\\"] ***!
+  \\\\******************************/
+/***/ ((module) => {
+
+\\"use strict\\";
+module.exports = window[\\"wp\\"][\\"i18n\\"];
+",
+  },
+  "main2.asset.php": Object {},
+  "main2.js": Object {
+    "jpI18nState": "/***/ \\"@wordpress/jp-i18n-state\\":
+/*!*************************************!*\\\\
+  !*** external [\\"wp\\",\\"jpI18nState\\"] ***!
+  \\\\*************************************/
+/***/ ((module) => {
+
+\\"use strict\\";
+module.exports = window[\\"wp\\"][\\"jpI18nState\\"];
+",
+    "loader": "/******/ 	/* webpack/runtime/loading @automattic/i18n-loader-webpack-plugin */
+/******/ 	(() => {
+/******/ 		var textdomain = \\"splitting\\";
+/******/ 		var chunkInfo = {
+/******/ 			\\"src_hasI18n_js-src_hasI18n2_js\\": [ /* dist/src_hasI18n_js-src_hasI18n2_js.js */ \\"ec0e6fc1bae1bb5c76db79838b127a36\\", \\"\\" ]
+/******/ 		};
+/******/ 		
+/******/ 		var loadI18n = (info) => {
+/******/ 			var i18n = __webpack_require__(/*! @wordpress/i18n */ \\"@wordpress/i18n\\");
+/******/ 			var state = __webpack_require__(/*! @wordpress/jp-i18n-state */ \\"@wordpress/jp-i18n-state\\");
+/******/ 			if ( ! state ) return Promise.reject( new Error( \\"I18n state is not available. Check that WordPress is exporting wp.jpI18nState.\\" ) );
+/******/ 			if ( state.locale === \\"en_US\\" ) return Promise.resolve();
+/******/ 			if ( typeof fetch === \\"undefined\\" ) return Promise.reject( new Error( \\"Fetch API is not available.\\" ) );
+/******/ 			return fetch(
+/******/ 				state.baseUrl + ( state.domainMap[textdomain] || ( \\"plugins/\\" + textdomain ) ) + \\"-\\" + state.locale + \\"-\\" + info[0] + \\".json\\" + info[1]
+/******/ 			).then( (res) => {
+/******/ 				if ( ! res.ok ) throw new Error( \\"HTTP request failed: \\" + res.status + \\" \\" + res.statusText );
+/******/ 				return res.json();
+/******/ 			} ).then( (data) => {
+/******/ 				var data2 = data.locale_data;
+/******/ 				var localeData = data2[ textdomain ] || data2.messages;
+/******/ 				localeData[\\"\\"].domain = textdomain;
+/******/ 				i18n.setLocaleData( localeData, textdomain );
+/******/ 			} );
+/******/ 		};
+/******/ 		
+/******/ 		var installedChunks = {};
+/******/ 		__webpack_require__.f.wpI18n = (chunkId, promises) => {
+/******/ 			if ( installedChunks[chunkId] ) {
+/******/ 				promises.push( installedChunks[chunkId] );
+/******/ 			} else if ( installedChunks[chunkId] !== 0 && chunkInfo[chunkId] ) {
+/******/ 				promises.push( installedChunks[chunkId] = loadI18n( chunkInfo[chunkId] ).then(
+/******/ 					() => {
+/******/ 						installedChunks[chunkId] = 0;
+/******/ 					},
+/******/ 					(e) => {
+/******/ 						delete installedChunks[chunkId];
+/******/ 						// Log only, we don't want i18n failure to break the entire page.
+/******/ 						console.error( \\"Failed to fetch i18n data:\\", e );
+/******/ 					}
+/******/ 				) );
+/******/ 			}
+/******/ 		};
+/******/ 	})();",
+    "wpI18n": "/***/ \\"@wordpress/i18n\\":
+/*!******************************!*\\\\
+  !*** external [\\"wp\\",\\"i18n\\"] ***!
+  \\\\******************************/
+/***/ ((module) => {
+
+\\"use strict\\";
+module.exports = window[\\"wp\\"][\\"i18n\\"];
+",
+  },
+  "src_hasI18n_js-src_hasI18n2_js.js": Object {
+    "jpI18nState": null,
+    "loader": null,
+    "wpI18n": null,
+  },
+}
+`;
+
+exports[`Webpack \`splitting\` Build results: Webpack build stats 1`] = `
+Object {
+  "errors": Array [],
+  "warnings": Array [],
+}
+`;

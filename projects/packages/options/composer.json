@@ -1,7 +1,7 @@
 {
 	"name": "automattic/jetpack-options",
 	"description": "A wrapper for wp-options to manage specific Jetpack options.",
-	"type": "library",
+	"type": "jetpack-library",
 	"license": "GPL-2.0-or-later",
 	"require": {
 		"automattic/jetpack-constants": "^1.6"

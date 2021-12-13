@@ -52,6 +52,7 @@ export const frontendCSSSeparateFilesList = [
 	'modules/widgets/search/css/search-widget-frontend.css',
 	'modules/widgets/simple-payments/style.css',
 	'modules/widgets/social-icons/social-icons.css',
+	'modules/widgets/milestone/milestone-widget.css',
 ];
 
 /**
