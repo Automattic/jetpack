@@ -91,8 +91,8 @@ In production mode we choose no devtool, mainly because we don't currently distr
 
 This is an object suited for spreading some default values into Webpack's `output` configuration object. We currently set two of the settings:
 
-- `filename`: `[name].min.js`. The `.min.js` bit is required to avoid a broken auto-minifier on WordPress.com infrastructure.
-- `chunkFilename`: `[name]-[id].H[contenthash:20].min.js`. The content hash serves as a cache buster; while Webpack would accept something like `[name]-[id].min.js?ver=[contenthash]`, [some of the modules we use do not](https://github.com/Automattic/jetpack/issues/21349#issuecomment-940191828).
+- `filename`: `[name].js`.
+- `chunkFilename`: `[name].js?minify=false&ver=[contenthash]`. The content hash serves as a cache buster, while `minify=false` avoids a broken minifier in the WordPress.com environment.
 
 #### `optimization`
 
@@ -235,7 +235,7 @@ Note we intentionally don't supply [sass-loader](https://www.npmjs.com/package/s
 Options are:
 - `extensions`: Array of extensions to handle. Default is to only handle `css`.
   You'll likely need to set this if you use `extraLoaders` to include [sass-loader](https://www.npmjs.com/package/sass-loader) or something like that.
-- `MiniCssExtractLoader`: Options for `mini-css-extract-plugin`'s loader.
+- `MiniCssExtractLoader`: Options for `mini-css-extract-plugin`'s loader. The default options set `chunkFilename` to `[name].css?minify=false&ver=[contenthash]` as a cache buster.
 - `CssLoader`: Options for `css-loader`. Note its `importLoaders` option is handled automatically based on the length of `extraLoaders`.
 - `extraLoaders`: An array of additional loaders, to run before the provided loaders.
 
@@ -281,6 +281,8 @@ The options and corresponding components are:
   - `targets`: Set to your browserslist config if available, otherwise set to [@wordpress/browserslist-config](https://www.npmjs.com/package/@wordpress/browserslist-config).
 - `presetReact`: Corresponds to [@babel/preset-react](https://www.npmjs.com/package/@babel/preset-react).
 - `presetTypescript`: Corresponds to [@babel/preset-typescript](https://www.npmjs.com/package/@babel/preset-typescript).
+- `pluginReplaceTextdomain`: Corresponds to [@automattic/babel-plugin-replace-textdomain](https://www.npmjs.com/package/@automattic/babel-plugin-replace-textdomain).
+  Note this plugin is only included if this option is set, as the plugin requires a `textdomain` option be set.
 - `pluginProposalClassProperties`: Corresponds to [@babel/plugin-proposal-class-properties](https://www.npmjs.com/package/@babel/plugin-proposal-class-properties).
 - `pluginTransformRuntime`: Corresponds to [@babel/plugin-transform-runtime](https://www.npmjs.com/package/@babel/plugin-transform-runtime).
 
