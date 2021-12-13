@@ -2,7 +2,7 @@
 
 ## Overview
 
-This guide is designed to get you up and running working with the Jetpack Monorepo quickly following recommended and supported guidelines. For more detailed information, including alternate local dev environments, running unit tests, best coding practices, and more, you can the [full Development Environment guide here](https://github.com/Automattic/jetpack/blob/master/docs/development-environment.md#clone-the-repository). 
+This guide is designed to get you up and running working with the Jetpack Monorepo quickly following recommended and supported guidelines. For more detailed information, including alternate local dev environments, running unit tests, best coding practices, and more, you can the [full Development Environment guide here](docs/development-environment.md#clone-the-repository). 
 
 ## Installation
 
