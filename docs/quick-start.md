@@ -60,7 +60,7 @@ Let’s assume somebody with WP.com username david uses the URL https://spaceman
 - Set your subdomain: `jetpack docker jt-config subdomain [your-subdomain-here e.g. spaceman]` 
 - Now, you can start your site with `jetpack docker jt-up`
 
-Note: This is for Automattician use only. For other methods, check out [ngrok](https://github.com/Automattic/jetpack/blob/master/tools/docker/README.md#using-ngrok-with-jetpack), or [another similar service](https://alternativeto.net/software/ngrok/).
+Note: This is for Automattician use only. For other methods, check out [ngrok](https://github.com/Automattic/jetpack/blob/master/tools/docker/README.md#using-ngrok-with-jetpack) or [another similar service](https://alternativeto.net/software/ngrok/).
 
 ### Check if your environment is ready for Jetpack development
 
