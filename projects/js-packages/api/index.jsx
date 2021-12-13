@@ -265,20 +265,6 @@ function JetpackRestApiClient( root, nonce ) {
 				.then( checkStatus )
 				.then( parseJsonResponse ),
 
-		activateJetpackBoost: () =>
-			postRequest( `${ apiRoot }jetpack/v4/plugins`, postParams, {
-				body: JSON.stringify( { slug: 'jetpack-boost', status: 'active' } ),
-			} )
-				.then( checkStatus )
-				.then( parseJsonResponse ),
-
-		activateJetpackCRM: () =>
-			postRequest( `${ apiRoot }jetpack/v4/plugins`, postParams, {
-				body: JSON.stringify( { slug: 'jetpack-crm', status: 'active' } ),
-			} )
-				.then( checkStatus )
-				.then( parseJsonResponse ),
-
 		fetchStatsData: range =>
 			getRequest( statsDataUrl( range ), getParams )
 				.then( checkStatus )
