@@ -354,7 +354,7 @@ class WPCOM_REST_API_V2_Endpoint_Admin_Menu extends WP_REST_Controller {
 			}
 		}
 
-		if ( isset( $this->dashicon_list[ $icon ] ) ) {
+		if ( isset( $this->dashicon_list[ $icon ] ) && $this->dashicon_list[ $icon ] ) {
 			return $icon;
 		}
 
