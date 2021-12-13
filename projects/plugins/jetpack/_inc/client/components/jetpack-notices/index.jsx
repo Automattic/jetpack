@@ -5,6 +5,7 @@ import PropTypes from 'prop-types';
 import React from 'react';
 import { connect } from 'react-redux';
 import { withRouter } from 'react-router-dom';
+import SocialLogo from 'social-logos';
 
 /**
  * WordPress dependencies
@@ -194,7 +195,7 @@ export class UserUnlinked extends React.Component {
 						) }
 						callToAction={ __( 'Create account', 'jetpack' ) }
 						href={ `${ this.props.connectUrl }&from=unlinked-user-connect` }
-						icon="my-sites"
+						icon={ <SocialLogo icon="wordpress" size={ 24 } /> }
 						className="is-jetpack-info"
 						from="unlinked-user-connect"
 						connectUser={ true }
