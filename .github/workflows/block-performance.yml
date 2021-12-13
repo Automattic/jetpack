@@ -57,6 +57,7 @@ jobs:
           mkdir results
           pnpm install
           pnpm config:decrypt
+          pnpm tunnel:on
 
       - name: Run performance base test
         working-directory: tools/e2e-commons
