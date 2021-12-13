@@ -51,5 +51,5 @@ done < <( sed -n -E -e 's/^## \[?([0-9.]+)\]? - .*$/\1/p' "projects/$1/CHANGELOG
 
 # Display the list.
 info "Contributors for $1 $CURRENT_VERSION are:"
-git log --format='%an' --no-merges origin/$BRANCH_PREFIX/branch-$PREVIOUS_VERSION..origin/$BRANCH_PREFIX/branch-$CURRENT_VERSION | sort | uniq | sed -e ':a' -e 'N' -e '$!ba' -e 's/\n/, /g' | sed 's/renovate\[bot\], //' | tee >(pbcopy)
+git log --format='%an' --no-merges "origin/$BRANCH_PREFIX/branch-$PREVIOUS_VERSION..origin/$BRANCH_PREFIX/branch-$CURRENT_VERSION" | sort | uniq | sed -e ':a' -e 'N' -e '$!ba' -e 's/\n/, /g' | sed 's/renovate\[bot\], //' | tee >(pbcopy)
 info "Above contributors have been copied to your clipboard!"
