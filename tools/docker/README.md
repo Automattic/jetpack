@@ -504,3 +504,25 @@ In your browser's Xdebug Helper preferences, look for the IDE Key setting:
 - Refresh the page at localhost
 
 For more context on remote debugging PHP with VSCode, see [this article](https://medium.com/@jasonterando/debugging-with-visual-studio-code-xdebug-and-docker-on-windows-b63a10b0dec).
+
+### Profiling requests in your Sandbox using XDEBUG
+
+If you want to profile requests to your Sandbox using XDEBUG (See PCYsg-21A-p2), you'll need to hook into the `jetpack_sandbox_add_profile_parameter` filter to add the `XDEBUG_PROFILE` parameter to the requests:
+
+```PHP
+add_filter( 'jetpack_sandbox_add_profile_parameter', '__return_true' );
+```
+
+The above will add the parameter to every request. If you want, you can narrow it down and add it only to certain requests:
+
+```PHP
+add_filter( 'jetpack_sandbox_add_profile_parameter', 'my_plugin_add_profile_parameter', 10, 3 );
+
+function my_plugin_add_profile_parameter( $should_add, $url, $host ) {
+	// parse the $url and $host the way you want
+	if ( $meets_my_criteria ) {
+		return true;
+	}
+	return $should_add;
+}
+```
