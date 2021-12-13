@@ -26,6 +26,14 @@ class WPCOM_REST_API_V2_Endpoint_Admin_Menu extends WP_REST_Controller {
 	public $rest_base = 'admin-menu';
 
 	/**
+	 *
+	 * Set of core dashicons.
+	 *
+	 * @var array
+	 */
+	private $dashicon_list;
+
+	/**
 	 * WPCOM_REST_API_V2_Endpoint_Admin_Menu constructor.
 	 */
 	public function __construct() {
@@ -322,8 +330,7 @@ class WPCOM_REST_API_V2_Endpoint_Admin_Menu extends WP_REST_Controller {
 			if ( 0 === strpos( $icon, 'data:image/svg+xml' ) ) {
 				$img = $icon;
 			} elseif ( 0 === strpos( $icon, 'dashicons-' ) ) {
-				$icon = $this->prepare_dashicon( $icon );
-				$img  = sanitize_html_class( $icon );
+				$img = $this->prepare_dashicon( $icon );
 			}
 		}
 
@@ -339,13 +346,15 @@ class WPCOM_REST_API_V2_Endpoint_Admin_Menu extends WP_REST_Controller {
 	 * @return string If the dashicon exists in core we return the dashicon, otherwise we return the default dashicon.
 	 */
 	private function prepare_dashicon( $icon ) {
-		if ( defined( 'IS_WPCOM' ) && IS_WPCOM ) {
-			$dashicon_list = include WP_CONTENT_DIR . '/mu-plugins/masterbar/admin-menu/dashicon-set.php';
-		} else {
-			$dashicon_list = include JETPACK__PLUGIN_DIR . '/modules/masterbar/admin-menu/dashicon-set.php';
+		if ( empty( $this->dashicon_set ) ) {
+			if ( defined( 'IS_WPCOM' ) && IS_WPCOM ) {
+				$this->dashicon_list = include WP_CONTENT_DIR . '/mu-plugins/masterbar/admin-menu/dashicon-set.php';
+			} else {
+				$this->dashicon_list = include JETPACK__PLUGIN_DIR . '/modules/masterbar/admin-menu/dashicon-set.php';
+			}
 		}
 
-		if ( isset( $dashicon_list[ $icon ] ) ) {
+		if ( isset( $this->dashicon_list[ $icon ] ) ) {
 			return $icon;
 		}
 
