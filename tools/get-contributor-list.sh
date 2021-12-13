@@ -20,7 +20,6 @@ function usage {
 
 if [[ -z $1 ]]; then
     usage
-    exit 1
 fi
 
 
@@ -57,5 +56,3 @@ git fetch origin $1/branch-$CURRENT_VERSION:$1/branch-$CURRENT_VERSION
 info "Contributors for $1 $CURRENT_VERSION are:"
 git log --format='%an' --no-merges $1/branch-$PREVIOUS_VERSION..$1/branch-$CURRENT_VERSION | sort | uniq | sed -e ':a' -e 'N' -e '$!ba' -e 's/\n/, /g' | sed 's/renovate\[bot\], //' | tee >(pbcopy)
 info "Above contributors have been copied to your clipboard!"
-
-exit
