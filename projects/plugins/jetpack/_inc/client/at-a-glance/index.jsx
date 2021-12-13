@@ -16,7 +16,6 @@ import DashActivity from './activity';
 import DashBoost from './boost';
 import DashCRM from './crm';
 import DashStats from './stats/index.jsx';
-import DashSecurityBundle from './security-bundle';
 import DashProtect from './protect';
 import DashMonitor from './monitor';
 import DashScan from './scan';
@@ -43,7 +42,6 @@ import { getScanStatus, isFetchingScanStatus } from 'state/scan';
 const renderPairs = layout =>
 	layout.map( ( item, layoutIndex ) => [
 		item.header,
-		item.pinnedBundle ? item.pinnedBundle : null,
 		chunk( item.cards, 2 ).map( ( [ left, right ], cardIndex ) => (
 			<div className="jp-at-a-glance__item-grid" key={ `card-${ layoutIndex }-${ cardIndex }` }>
 				<div className="jp-at-a-glance__left">{ left }</div>
@@ -154,11 +152,6 @@ class AtAGlance extends Component {
 				},
 			];
 
-			if ( ! this.props.multisite ) {
-				pairs[0].pinnedBundle = <DashSecurityBundle />;
-			}
-
-
 			const performanceCards = [];
 			if ( 'inactive' !== this.props.getModuleOverride( 'photon' ) ) {
 				performanceCards.push( <DashPhoton { ...settingsProps } /> );
@@ -181,13 +174,17 @@ class AtAGlance extends Component {
 			}
 
 			performanceCards.push(
-				<DashBoost siteRawUrl={ this.props.siteRawUrl } />, <DashCRM siteRawUrl={ this.props.siteRawUrl }  />
+				<DashBoost siteRawUrl={ this.props.siteRawUrl } />,
+				<DashCRM siteRawUrl={ this.props.siteRawUrl } />
 			);
 
 			if ( performanceCards.length ) {
 				pairs.push( {
 					header: (
-						<DashSectionHeader key="performanceHeader" label={ __( 'Performance and Growth', 'jetpack' ) } />
+						<DashSectionHeader
+							key="performanceHeader"
+							label={ __( 'Performance and Growth', 'jetpack' ) }
+						/>
 					),
 					cards: performanceCards,
 				} );
