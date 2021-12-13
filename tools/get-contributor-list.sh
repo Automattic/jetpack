@@ -37,22 +37,16 @@ function join {
 }
 
 # Some branches use x.y.x, like boost/branch-1.2.0
-IFS='.' read -r -a VERSION <<< "$CURRENT_VERSION"
-if [[ ${VERSION[2]} ]]; then
-	unset "VERSION[2]"
-	MAJOR_VERSION="$( IFS=.; echo "${VERSION[*]}" )"
-	MAJOR_VERSION=$(echo "$MAJOR_VERSION - .1" | bc )
-	PREVIOUS_VERSION=$MAJOR_VERSION.0
-else 
-	PREVIOUS_VERSION=$(echo "$CURRENT_VERSION - .1" | bc )
-fi
-
-# Fetch the branches we need to obtain contributor list from
-info 'Fetching relevant branches...'.
-git fetch origin $1/branch-$PREVIOUS_VERSION:$1/branch-$PREVIOUS_VERSION
-git fetch origin $1/branch-$CURRENT_VERSION:$1/branch-$CURRENT_VERSION
+PREVIOUS_VERSION=
+while IFS= read -r VER; do
+	if [[ "$VER" == "$CURRENT_VERSION" ]]; then
+		read -r PREVIOUS_VERSION 
+		break 
+	fi 
+done < <( sed -n -E -e 's/^## \[?([0-9.]+)\]? - .*$/\1/p' "projects/plugins/$1/CHANGELOG.md" )
+[[ -n "$PREVIOUS_VERSION" ]] || die "Version $CURRENT_VERSION was not found or was the first version."
 
 # Display the list.
 info "Contributors for $1 $CURRENT_VERSION are:"
-git log --format='%an' --no-merges $1/branch-$PREVIOUS_VERSION..$1/branch-$CURRENT_VERSION | sort | uniq | sed -e ':a' -e 'N' -e '$!ba' -e 's/\n/, /g' | sed 's/renovate\[bot\], //' | tee >(pbcopy)
+git log --format='%an' --no-merges origin/$1/branch-$PREVIOUS_VERSION..origin/$1/branch-$CURRENT_VERSION | sort | uniq | sed -e ':a' -e 'N' -e '$!ba' -e 's/\n/, /g' | sed 's/renovate\[bot\], //' | tee >(pbcopy)
 info "Above contributors have been copied to your clipboard!"
