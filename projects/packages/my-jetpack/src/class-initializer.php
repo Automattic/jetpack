@@ -9,6 +9,7 @@ namespace Automattic\Jetpack\My_Jetpack;
 
 use Automattic\Jetpack\Admin_UI\Admin_Menu;
 use Automattic\Jetpack\Assets;
+use Automattic\Jetpack\Connection\Initial_State as Connection_Initial_State;
 
 /**
  * The main Initializer class that registers the admin menu and eneuque the assets.
@@ -74,6 +75,19 @@ class Initializer {
 				'textdomain' => 'jetpack',
 			)
 		);
+		wp_localize_script(
+			'my_jetpack_main_app',
+			'myJetpackInitialState',
+			array(
+				'apiRoot'               => esc_url_raw( rest_url() ),
+				'apiNonce'              => wp_create_nonce( 'wp_rest' ),
+				'redirectUrl'           => admin_url( '?page=my-jetpack' ),
+				'topJetpackMenuItemUrl' => Admin_Menu::get_top_level_menu_item_url(),
+			)
+		);
+
+		// Connection Initial State.
+		wp_add_inline_script( 'my_jetpack_main_app', Connection_Initial_State::render(), 'before' );
 	}
 
 	/**

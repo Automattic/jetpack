@@ -13,7 +13,7 @@ namespace Automattic\Jetpack\Admin_UI;
  */
 class Admin_Menu {
 
-	const PACKAGE_VERSION = '0.1.2-alpha';
+	const PACKAGE_VERSION = '0.2.0-alpha';
 
 	/**
 	 * Whether this class has been initialized
@@ -136,6 +136,39 @@ class Admin_Menu {
 		 * Using get_plugin_page_hookname here won't work because the top level page is not registered yet.
 		 */
 		return 'jetpack_page_' . $menu_slug;
+	}
+
+	/**
+	 * Gets the slug for the first item under the Jetpack top level menu
+	 *
+	 * @return string|null
+	 */
+	public static function get_top_level_menu_item_slug() {
+		global $submenu;
+		if ( ! empty( $submenu['jetpack'] ) ) {
+			$item = reset( $submenu['jetpack'] );
+			if ( isset( $item[2] ) ) {
+				return $item[2];
+			}
+		}
+	}
+
+	/**
+	 * Gets the URL for the first item under the Jetpack top level menu
+	 *
+	 * @param string $fallback If Jetpack menu is not there or no children is found, return this fallback instead. Default to admin_url().
+	 * @return string
+	 */
+	public static function get_top_level_menu_item_url( $fallback = false ) {
+		$slug = self::get_top_level_menu_item_slug();
+
+		if ( $slug ) {
+			$url = menu_page_url( $slug, false );
+			return $url;
+		}
+
+		$url = $fallback ? $fallback : admin_url();
+		return $url;
 	}
 
 }
