@@ -68,11 +68,15 @@ jobs:
           npm run test-performance packages/e2e-tests/specs/performance/post-editor.test.js
           mv packages/e2e-tests/specs/performance/post-editor.test.results.json ../tools/e2e-commons/results/base.test.results.json
 
-      - name: Set up Jetpack connection
+      - name: Environment reset
         working-directory: tools/e2e-commons
         run: |
           pnpm env:reset
           pnpm tunnel:reset
+
+      - name: Set up Jetpack connection
+        working-directory: tools/e2e-commons
+        run: |
           pnpm jetpack-connect
           pnpx jetpack docker --type e2e --name t1 wp jetpack module deactivate sso
           pnpx jetpack docker --type e2e --name t1 wp -- user create admin admin@example.com --role=administrator --user_pass=password
@@ -90,7 +94,7 @@ jobs:
         working-directory: tools/e2e-commons
         continue-on-error: true
         run: |
-          pnpm run tunnel-off
+          pnpm run tunnel:off
 
       - name: Upload test artifacts
         if: ${{ always() }}

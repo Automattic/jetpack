@@ -1,0 +1,4 @@
+Significance: minor
+Type: enhancement
+
+SSO: added filters for the error text when a local user cannot be found for a given WP.com account and for when SSO is disallowed when on a staging site.

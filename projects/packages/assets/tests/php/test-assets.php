@@ -32,20 +32,21 @@ class AssetsTest extends TestCase {
 
 		Functions\stubs(
 			array(
-				'wp_parse_url'  => 'parse_url',
-				'__'            => function ( $text ) {
+				'wp_parse_url'   => 'parse_url',
+				'wp_json_encode' => 'json_encode',
+				'__'             => function ( $text ) {
 					return $text;
 				},
-				'esc_html'      => function ( $text ) {
+				'esc_html'       => function ( $text ) {
 					return htmlspecialchars( $text, ENT_QUOTES );
 				},
-				'add_query_arg' => function ( ...$args ) {
+				'add_query_arg'  => function ( ...$args ) {
 					$this->assertCount( 3, $args );
 					list( $k, $v, $url ) = $args;
 					$url .= ( strpos( $url, '?' ) === false ? '?' : '&' ) . "$k=$v";
 					return $url;
 				},
-				'plugins_url'   => function ( $path, $plugin_path ) use ( $plugin_dir ) {
+				'plugins_url'    => function ( $path, $plugin_path ) use ( $plugin_dir ) {
 					$plugin_path = dirname( $plugin_path );
 					$this->stringStartsWith( $plugin_dir, $plugin_path );
 					return 'http://www.example.com/wp-content/plugins/jetpack/' . substr( $plugin_path, strlen( $plugin_dir ) ) . '/' . $path;
@@ -61,6 +62,7 @@ class AssetsTest extends TestCase {
 	 */
 	public function tear_down() {
 		Monkey\tearDown();
+		Jetpack_Constants::clear_constants();
 
 		// Clear the instance.
 		$rc = new \ReflectionClass( Assets::class );
@@ -622,4 +624,154 @@ class AssetsTest extends TestCase {
 			),
 		);
 	}
+
+	/**
+	 * Test wp_default_scripts_hook.
+	 *
+	 * @dataProvider provide_wp_default_scripts_hook
+	 * @param array  $expect_filter Expected filter.
+	 * @param string $expect_js Expected JS.
+	 * @param array  $options Options for the test.
+	 */
+	public function test_wp_default_scripts_hook( $expect_filter, $expect_js, $options = array() ) {
+		$options += array(
+			'constants' => array(),
+			'locale'    => 'en_US',
+		);
+
+		$constants = $options['constants'] + array(
+			'ABSPATH'     => '/path/to/wordpress/',
+			'WP_LANG_DIR' => '/path/to/wordpress/wp-content/languages',
+		);
+		foreach ( $constants as $k => $v ) {
+			Jetpack_Constants::set_constant( $k, $v );
+		}
+
+		Functions\expect( 'determine_locale' )->andReturn( $options['locale'] );
+		Functions\expect( 'site_url' )->andReturnUsing(
+			function ( $v ) {
+				return "http://example.com$v";
+			}
+		);
+
+		$obj = Filters\expectApplied( 'jetpack_i18n_state' )->once()->with( $expect_filter );
+		if ( array_key_exists( 'filter', $options ) ) {
+			$obj->andReturn( $options['filter'] );
+		}
+
+		$mock = $this->getMockBuilder( stdClass::class )
+			->setMethods( array( 'add', 'add_inline_script' ) )
+			->getMock();
+		$mock->expects( $this->once() )->method( 'add' )
+			->with( 'wp-jp-i18n-state', null, array( 'wp-i18n' ) );
+		$mock->expects( $this->once() )->method( 'add_inline_script' )
+			->with( 'wp-jp-i18n-state', $expect_js, 'before' );
+
+		Assets::wp_default_scripts_hook( $mock );
+	}
+
+	/** Data provider for test_wp_default_scripts_hook. */
+	public function provide_wp_default_scripts_hook() {
+		$expect_filter = array(
+			'baseUrl'   => 'http://example.com/wp-content/languages/',
+			'locale'    => 'en_US',
+			'domainMap' => array(),
+		);
+
+		return array(
+			'Basic test'                       => array(
+				$expect_filter,
+				'wp.jpI18nState = {"baseUrl":"http://example.com/wp-content/languages/","locale":"en_US","domainMap":{}};',
+			),
+			'Basic test (2)'                   => array(
+				array(
+					'baseUrl'   => 'http://example.com/wp-includes/languages/',
+					'locale'    => 'de_DE',
+					'domainMap' => array(),
+				),
+				'wp.jpI18nState = {"baseUrl":"http://example.com/wp-includes/languages/","locale":"de_DE","domainMap":{}};',
+				array(
+					'constants' => array( 'WP_LANG_DIR' => '/path/to/wordpress/wp-includes/languages' ),
+					'locale'    => 'de_DE',
+				),
+			),
+			'Bad WP_LANG_DIR'                  => array(
+				array( 'baseUrl' => false ) + $expect_filter,
+				'console.warn( "Failed to determine languages base URL. Is WP_LANG_DIR in the WordPress root?" );',
+				array(
+					'constants' => array( 'WP_LANG_DIR' => '/not/path/to/wordpress/wp-content/languages' ),
+				),
+			),
+			'Filter'                           => array(
+				array( 'baseUrl' => false ) + $expect_filter,
+				'wp.jpI18nState = {"baseUrl":"http://example.org/languages/","locale":"klingon","domainMap":{"foo":"plugins/bar"}};',
+				array(
+					'constants' => array( 'WP_LANG_DIR' => '/not/path/to/wordpress/wp-content/languages' ),
+					'filter'    => array(
+						'baseUrl'   => 'http://example.org/languages/',
+						'locale'    => 'klingon',
+						'domainMap' => array( 'foo' => 'plugins/bar' ),
+					),
+				),
+			),
+			'Bad filter: not array'            => array(
+				$expect_filter,
+				'console.warn( "I18n state deleted by jetpack_i18n_state hook" );',
+				array( 'filter' => null ),
+			),
+			'Bad filter: baseUrl is not set'   => array(
+				$expect_filter,
+				'console.warn( "I18n state deleted by jetpack_i18n_state hook" );',
+				array(
+					'filter' => array(
+						'locale'    => 'en_US',
+						'domainMap' => array(),
+					),
+				),
+			),
+			'Bad filter: locale is not set'    => array(
+				$expect_filter,
+				'console.warn( "I18n state deleted by jetpack_i18n_state hook" );',
+				array(
+					'filter' => array(
+						'baseUrl'   => 'http://example.com/wp-content/languages/',
+						'domainMap' => array(),
+					),
+				),
+			),
+			'Bad filter: locale is bad'        => array(
+				$expect_filter,
+				'console.warn( "I18n state deleted by jetpack_i18n_state hook" );',
+				array(
+					'filter' => array(
+						'baseUrl'   => 'http://example.com/wp-content/languages/',
+						'locale'    => false,
+						'domainMap' => array(),
+					),
+				),
+			),
+			'Bad filter: domainMap is not set' => array(
+				$expect_filter,
+				'console.warn( "I18n state deleted by jetpack_i18n_state hook" );',
+				array(
+					'filter' => array(
+						'baseUrl' => 'http://example.com/wp-content/languages/',
+						'locale'  => 'en_US',
+					),
+				),
+			),
+			'Bad filter: domainMap is bad'     => array(
+				$expect_filter,
+				'console.warn( "I18n state deleted by jetpack_i18n_state hook" );',
+				array(
+					'filter' => array(
+						'baseUrl'   => 'http://example.com/wp-content/languages/',
+						'locale'    => 'en_US',
+						'domainMap' => (object) array(),
+					),
+				),
+			),
+		);
+	}
+
 }
