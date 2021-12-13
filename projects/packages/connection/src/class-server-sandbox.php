@@ -26,7 +26,7 @@ class Server_Sandbox {
 			return;
 		}
 
-		add_action( 'requests-requests.before_request', array( $this, 'server_sandbox' ), 10, 2 );
+		add_action( 'requests-requests.before_request', array( $this, 'server_sandbox' ), 10, 4 );
 		add_action( 'admin_bar_menu', array( $this, 'admin_bar_add_sandbox_item' ), 999 );
 
 		/**
@@ -44,11 +44,13 @@ class Server_Sandbox {
 	 * @param string $sandbox Sandbox domain.
 	 * @param string $url URL of request about to be made.
 	 * @param array  $headers Headers of request about to be made.
+	 * @param string $method The method of request about to be made.
 	 *
 	 * @return array [ 'url' => new URL, 'host' => new Host ]
 	 */
-	public function server_sandbox_request_parameters( $sandbox, $url, $headers ) {
-		$host = '';
+	public function server_sandbox_request_parameters( $sandbox, $url, $headers, $method ) {
+		$host          = '';
+		$new_signature = '';
 
 		if ( ! is_string( $sandbox ) || ! is_string( $url ) ) {
 			return array(
@@ -64,8 +66,9 @@ class Server_Sandbox {
 			case 'jetpack.wordpress.com':
 			case 'jetpack.com':
 			case 'dashboard.wordpress.com':
-				$host = isset( $headers['Host'] ) ? $headers['Host'] : $url_host;
-				$url  = preg_replace(
+				$host         = isset( $headers['Host'] ) ? $headers['Host'] : $url_host;
+				$original_url = $url;
+				$url          = preg_replace(
 					'@^(https?://)' . preg_quote( $url_host, '@' ) . '(?=[/?#].*|$)@',
 					'${1}' . $sandbox,
 					$url,
@@ -83,10 +86,97 @@ class Server_Sandbox {
 				*/
 				if ( apply_filters( 'jetpack_sandbox_add_profile_parameter', false, $url, $host ) ) {
 					$url = add_query_arg( 'XDEBUG_PROFILE', 1, $url );
+
+					// URL has been modified since the signature was created. We'll need a new one.
+					$original_url  = add_query_arg( 'XDEBUG_PROFILE', 1, $original_url );
+					$new_signature = $this->get_new_signature( $original_url, $headers, $method );
+
 				}
 		}
 
-		return compact( 'url', 'host' );
+		return compact( 'url', 'host', 'new_signature' );
+	}
+
+	/**
+	 * Gets a new signature for the request
+	 *
+	 * @param string $url The new URL to be signed.
+	 * @param array  $headers The headers of the request about to be made.
+	 * @param string $method The method of the request about to be made.
+	 * @return string|null
+	 */
+	private function get_new_signature( $url, $headers, $method ) {
+
+		if ( ! empty( $headers['Authorization'] ) ) {
+			$a_headers = $this->extract_authorization_headers( $headers );
+			if ( ! empty( $a_headers ) ) {
+				$token_details = explode( ':', $a_headers['token'] );
+
+				if ( count( $token_details ) === 3 ) {
+					$user_id           = $token_details[2];
+					$token             = ( new Tokens() )->get_access_token( $user_id );
+					$time_diff         = (int) \Jetpack_Options::get_option( 'time_diff' );
+					$jetpack_signature = new \Jetpack_Signature( $token->secret, $time_diff );
+
+					$signature = $jetpack_signature->sign_request(
+						$a_headers['token'],
+						$a_headers['timestamp'],
+						$a_headers['nonce'],
+						$a_headers['body-hash'],
+						$method,
+						$url,
+						null,
+						false
+					);
+
+					if ( $signature && ! is_wp_error( $signature ) ) {
+						return $signature;
+					} elseif ( is_wp_error( $signature ) ) {
+						$this->log_new_signature_error( $signature->get_error_message() );
+					}
+				} else {
+					$this->log_new_signature_error( 'Malformed token on Authorization Header' );
+				}
+			} else {
+				$this->log_new_signature_error( 'Error extracting Authorization Header' );
+			}
+		} else {
+			$this->log_new_signature_error( 'Empty Authorization Header' );
+		}
+
+	}
+
+	/**
+	 * Logs error if the attempt to create a new signature fails
+	 *
+	 * @param string $message The error message.
+	 * @return void
+	 */
+	private function log_new_signature_error( $message ) {
+		if ( defined( 'WP_DEBUG' ) && WP_DEBUG ) {
+			error_log( sprintf( "SANDBOXING: Error re-signing the request. '%s'", $message ) ); // phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_error_log
+		}
+	}
+
+	/**
+	 * Extract the values in the Authorization header into an array
+	 *
+	 * @param array $headers The headers of the request about to be made.
+	 * @return array|null
+	 */
+	private function extract_authorization_headers( $headers ) {
+		if ( ! empty( $headers['Authorization'] ) ) {
+			$header = str_replace( 'X_JETPACK ', '', $headers['Authorization'] );
+			$vars   = explode( ' ', $header );
+			$result = array();
+			foreach ( $vars as $var ) {
+				$elements = explode( '=', $var );
+				if ( count( $elements ) === 2 ) {
+					$result[ $elements[0] ] = substr( $elements[1], 1, strlen( $elements[1] ) - 2 );
+				}
+			}
+			return $result;
+		}
 	}
 
 	/**
@@ -95,23 +185,29 @@ class Server_Sandbox {
 	 *
 	 * Attached to the `requests-requests.before_request` filter.
 	 *
-	 * @param string $url URL of request about to be made.
-	 * @param array  $headers Headers of request about to be made.
+	 * @param string       $url URL of request about to be made.
+	 * @param array        $headers Headers of request about to be made.
+	 * @param array|string $data Data of request about to be made.
+	 * @param string       $type Type of request about to be made.
 	 * @return void
 	 */
-	public function server_sandbox( &$url, &$headers ) {
+	public function server_sandbox( &$url, &$headers, &$data, &$type ) {
 		if ( ! Constants::get_constant( 'JETPACK__SANDBOX_DOMAIN' ) ) {
 			return;
 		}
 
 		$original_url = $url;
 
-		$request_parameters = $this->server_sandbox_request_parameters( Constants::get_constant( 'JETPACK__SANDBOX_DOMAIN' ), $url, $headers );
+		$request_parameters = $this->server_sandbox_request_parameters( Constants::get_constant( 'JETPACK__SANDBOX_DOMAIN' ), $url, $headers, $type );
 
 		$url = $request_parameters['url'];
 
 		if ( $request_parameters['host'] ) {
 			$headers['Host'] = $request_parameters['host'];
+
+			if ( $request_parameters['new_signature'] ) {
+				$headers['Authorization'] = preg_replace( '/signature=\"[^\"]+\"/', 'signature="' . $request_parameters['new_signature'] . '"', $headers['Authorization'] );
+			}
 
 			if ( defined( 'WP_DEBUG' ) && WP_DEBUG ) {
 				error_log( sprintf( "SANDBOXING via '%s': '%s'", Constants::get_constant( 'JETPACK__SANDBOX_DOMAIN' ), $original_url ) ); // phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_error_log
