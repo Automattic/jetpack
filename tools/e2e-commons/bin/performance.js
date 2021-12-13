@@ -37,4 +37,4 @@ async function main() {
 	runTests( process.argv[ 2 ] );
 }
 
-main();
+main().then( () => console.log( 'Done!' ) );
