@@ -30,12 +30,6 @@ else
 	CURRENT_VERSION="$2"
 fi
 
-function join {
-	local IFS='.'
-	shift
-	echo "$*"
-}
-
 # Get the branch prefix.
 PREFIX=$(jq -r '.extra["release-branch-prefix"]' projects/$1/composer.json)
 
@@ -46,7 +40,7 @@ while IFS= read -r VER; do
 		read -r PREVIOUS_VERSION 
 		break 
 	fi 
-done < <( sed -n -E -e 's/^## \[?([0-9.]+)\]? - .*$/\1/p' "projects/$1/CHANGELOG.md" )
+done < <( sed -n -E -e 's/^## \[?([0-9]+.[0-9]+(.0)?)]? - .*$/\1/p' "projects/$1/CHANGELOG.md" )
 [[ -n "$PREVIOUS_VERSION" ]] || die "Version $CURRENT_VERSION was not found or was the first version."
 
 # Display the list.
