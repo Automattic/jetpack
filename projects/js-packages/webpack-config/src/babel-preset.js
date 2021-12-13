@@ -34,6 +34,12 @@ module.exports = ( api, opts = {} ) => {
 		ret.presets.push( [ require.resolve( '@babel/preset-typescript' ), opts.presetTypescript ] );
 	}
 
+	if ( opts.pluginReplaceTextdomain ) {
+		ret.plugins.push( [
+			require.resolve( '@automattic/babel-plugin-replace-textdomain' ),
+			opts.pluginReplaceTextdomain,
+		] );
+	}
 	if ( opts.pluginProposalClassProperties !== false ) {
 		ret.plugins.push( [
 			require.resolve( '@babel/plugin-proposal-class-properties' ),
