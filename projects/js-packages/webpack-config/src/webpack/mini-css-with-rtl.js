@@ -5,7 +5,6 @@
  *
  * Forked from @automattic/calypso-build v9.0.0, then significantly cleaned up.
  */
-const { validate } = require( 'schema-utils' );
 const webpack = require( 'webpack' );
 const PLUGIN_NAME = 'MiniCSSWithRTL';
 
@@ -55,7 +54,7 @@ class MiniCSSWithRTLModule extends webpack.RuntimeModule {
 
 module.exports = class MiniCSSWithRTLPlugin {
 	constructor( options = {} ) {
-		validate( schema, options, {
+		webpack.validateSchema( schema, options, {
 			name: 'MiniCSSWithRTL plugin',
 			baseDataPath: 'options',
 		} );
