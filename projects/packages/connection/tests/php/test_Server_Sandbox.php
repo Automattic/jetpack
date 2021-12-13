@@ -140,7 +140,7 @@ class Test_Server_Sandbox extends BaseTestCase {
 		Constants::set_constant( 'JETPACK__SANDBOX_DOMAIN', $sandbox_constant );
 		$headers = array();
 
-		( new Server_Sandbox() )->server_sandbox( $url, $headers );
+		( new Server_Sandbox() )->server_sandbox( $url, $headers, null, 'GET' );
 
 		$this->assertSame( $expected_url, $url );
 		$this->assertSame( $expected_headers, $headers );
