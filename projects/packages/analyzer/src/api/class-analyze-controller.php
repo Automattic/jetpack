@@ -8,9 +8,7 @@ class Analyze_Controller extends Controller {
 		} catch ( \Throwable $th ) {
 			// TODO: extend default Exception class, and use instance_of instead.
 			if ( 'Locked already' === $th->getMessage() ) {
-				return array(
-					'status' => 'locked',
-				);
+				return $this->model->get_status();
 			}
 		}
 
@@ -25,10 +23,10 @@ class Analyze_Controller extends Controller {
 		proc_open( $cmd, $descriptor_spec, $pipes );
 
 		$this->model->reset();
+		 $this->model->toggle_status();
 
-		return array(
-			'status' => 'started',
-		);
+		return $this->model->get_status();
+
 	}
 
 	public function post() {

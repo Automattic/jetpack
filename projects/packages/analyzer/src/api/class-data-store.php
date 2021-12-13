@@ -15,7 +15,13 @@ class Model {
 	}
 
 	public function toggle_status() {
-
+		$this->load();
+		if ($this->content['status'] === 'finished') {
+			$this->content['status'] = 'in_progress';
+		} else {
+			$this->content['status'] = 'finished';
+		}
+		$this->persist();
 	}
 
 	public function get() {
@@ -55,7 +61,7 @@ class Model {
 
 				$this->content['result'] = array_map(
 					function ( $file ) use ( $warn_folder ) {
-						return json_decode( file_get_contents( $warn_folder . $file ) );
+						return json_decode( file_get_contents( $warn_folder . '/' . $file ) );
 					},
 					$warnings
 				);
