@@ -23,13 +23,14 @@ async function envSetup( type ) {
 }
 
 function runTests( type ) {
+	console.log( execSyncShellCommand( `ls ../../` ) );
+
 	execSyncShellCommand( `
 	export WP_BASE_URL=${ global.siteUrl } &&
-	cd ../../../gutenberg &&
+	cd ../../gutenberg &&
 	npm run test-performance packages/e2e-tests/specs/performance/post-editor.test.js &&
 	mv packages/e2e-tests/specs/performance/post-editor.test.results.json ../tools/e2e-commons/results/${ type }.test.results.json
 	` );
-	console.log( execSyncShellCommand( `ls ../../../gutenberg` ) );
 }
 
 async function main() {
