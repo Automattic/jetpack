@@ -4,7 +4,6 @@
  */
 import React from 'react';
 import { action } from '@storybook/addon-actions';
-import { ActionButton } from '@automattic/jetpack-components';
 
 /**
  * Internal dependencies
@@ -17,7 +16,7 @@ export default {
 };
 
 // Export additional stories using pre-defined values
-const Template = ( { buttonLabel, displayError, isLoading, ...props } ) => (
+const Template = props => (
 	<ConnectScreenVisual { ...props }>
 		<p>Secure and speed up your site for free with Jetpack's powerful WordPress tools</p>
 
@@ -28,21 +27,16 @@ const Template = ( { buttonLabel, displayError, isLoading, ...props } ) => (
 			<li>Get notifications if your site goes offline</li>
 			<li>Enhance your site with dozens of other features</li>
 		</ul>
-
-		<ActionButton
-			label={ buttonLabel }
-			onClick={ action( 'onButtonClick' ) }
-			displayError={ displayError }
-			isLoading={ isLoading }
-		/>
 	</ConnectScreenVisual>
 );
 
 const DefaultArgs = {
 	// action button props
-	isLoading: false,
+	buttonIsLoading: false,
 	buttonLabel: 'Set up Jetpack',
-	displayError: false,
+	displayButtonError: false,
+	showConnectButton: true,
+	handleButtonClick: action( 'onButtonClick' ),
 	// connect screen props
 	title: 'Over 5 million WordPress sites are faster and more secure',
 	assetBaseUrl: '/',
@@ -55,11 +49,11 @@ _default.args = DefaultArgs;
 export const Connecting = Template.bind( {} );
 Connecting.args = {
 	...DefaultArgs,
-	isLoading: true,
+	buttonIsLoading: true,
 };
 
 export const Errored = Template.bind( {} );
 Errored.args = {
 	...DefaultArgs,
-	displayError: true,
+	displayButtonError: true,
 };

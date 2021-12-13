@@ -4,7 +4,7 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 import { __ } from '@wordpress/i18n';
-import { getRedirectUrl } from '@automattic/jetpack-components';
+import { getRedirectUrl, ActionButton } from '@automattic/jetpack-components';
 import { createInterpolateElement } from '@wordpress/element';
 
 /**
@@ -37,7 +37,18 @@ export const ToS = createInterpolateElement(
  * @returns {React.Component} The `ConnectScreenRequiredPlanVisual` component.
  */
 const ConnectScreenVisual = props => {
-	const { title, images, children, assetBaseUrl, isLoading } = props;
+	const {
+		title,
+		images,
+		children,
+		assetBaseUrl,
+		isLoading,
+		showConnectButton,
+		buttonLabel,
+		handleButtonClick,
+		displayButtonError,
+		buttonIsLoading,
+	} = props;
 
 	return (
 		<ConnectScreenLayout
@@ -51,6 +62,15 @@ const ConnectScreenVisual = props => {
 		>
 			<div className="jp-connection__connect-screen__content">
 				{ children }
+
+				{ showConnectButton && (
+					<ActionButton
+						label={ buttonLabel }
+						onClick={ handleButtonClick }
+						displayError={ displayButtonError }
+						isLoading={ buttonIsLoading }
+					/>
+				) }
 
 				<div className="jp-connection__connect-screen__tos">{ ToS }</div>
 			</div>
@@ -67,6 +87,20 @@ ConnectScreenVisual.propTypes = {
 	assetBaseUrl: PropTypes.string,
 	/** Whether the connection status is still loading. */
 	isLoading: PropTypes.bool.isRequired,
+	/** Whether the connection button appears or not. */
+	showConnectButton: PropTypes.bool,
+	/** Text label to be used into button. */
+	buttonLabel: PropTypes.string.isRequired,
+	/** Callback to be called on button click. */
+	handleButtonClick: PropTypes.func.isRequired,
+	/** Whether the error message appears or not. */
+	displayButtonError: PropTypes.bool,
+	/** Whether the button is loading or not. */
+	buttonIsLoading: PropTypes.bool.isRequired,
+};
+
+ConnectScreenVisual.propTypes = {
+	showConnectButton: true,
 };
 
 export default ConnectScreenVisual;

@@ -5,7 +5,6 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import { useSelect } from '@wordpress/data';
 import { __ } from '@wordpress/i18n';
-import { ActionButton } from '@automattic/jetpack-components';
 
 /**
  * Internal dependencies
@@ -64,16 +63,13 @@ const ConnectScreen = props => {
 			images={ images }
 			assetBaseUrl={ assetBaseUrl }
 			isLoading={ connectionStatusIsFetching }
+			showConnectButton={ showConnectButton }
+			buttonLabel={ buttonLabel }
+			handleButtonClick={ handleRegisterSite }
+			displayButtonError={ displayButtonError }
+			buttonIsLoading={ buttonIsLoading }
 		>
 			{ children }
-			{ showConnectButton && (
-				<ActionButton
-					label={ buttonLabel }
-					onClick={ handleRegisterSite }
-					displayError={ displayButtonError }
-					isLoading={ buttonIsLoading }
-				/>
-			) }
 		</ConnectScreenVisual>
 	);
 };
