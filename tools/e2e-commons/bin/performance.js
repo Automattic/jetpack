@@ -1,8 +1,6 @@
 import { prerequisitesBuilder } from '../env/prerequisites.js';
 import { execSyncShellCommand, execWpCommand, resolveSiteUrl } from '../helpers/utils-helper.cjs';
 
-global.siteUrl = resolveSiteUrl();
-
 function envReset() {
 	console.log( execSyncShellCommand( 'pwd' ) );
 	execSyncShellCommand( 'pnpm env:reset' );
@@ -23,10 +21,12 @@ async function envSetup( type ) {
 }
 
 function runTests( type ) {
-	execSyncShellCommand( `export WP_BASE_URL=${ global.siteUrl } &&
+	const siteUrl = resolveSiteUrl();
+
+	execSyncShellCommand( `export WP_BASE_URL=${ siteUrl } &&
 	cd ../../gutenberg &&
 	echo $WP_BASE_URL &&
-	WP_BASE_URL=${ global.siteUrl } npm run test-performance packages/e2e-tests/specs/performance/post-editor.test.js &&
+	WP_BASE_URL=${ siteUrl } npm run test-performance packages/e2e-tests/specs/performance/post-editor.test.js &&
 	mv packages/e2e-tests/specs/performance/post-editor.test.results.json ../tools/e2e-commons/results/${ type }.test.results.json` );
 }
 
