@@ -43,8 +43,8 @@ For more in depth docker instructions, follow the [Docker environment for Jetpac
 To test network related features of Jetpack, you'll need a test site that can create local HTTP tunnels. If you're an Automattician, we recommend using Jurassic Tube:
 
 - Add a subdomain on [jurassic.tube](https://jurassic.tube/)
-- Make sure Docker is running `jetpack docker up -d`
 - Make sure you've run `pnpm install && pnpm cli-link`
+- Make sure Docker is running `jetpack docker up -d`
 - Stand on the monorepo root in your terminal and run `mkdir tools/docker/bin/jt`
 - Run the installation script: `chmod +x tools/docker/bin/jt/installer.sh && tools/docker/bin/jt/installer.sh`
 - Use `jetpack docker jt-up your-username custom-subdomain` to start the site.
