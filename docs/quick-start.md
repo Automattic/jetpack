@@ -17,14 +17,13 @@ The Jetpack Monorepo requires the following to be installed on your machine:
 
 - Start by cloning the GitHub repo:
 	- `git clone https://github.com/Automattic/jetpack.git`
-	- If you're not an Automattician, you can [fork the repo following the instructions here](https://docs.github.com/en/
+	- If you're not an Automattician, you can [fork the repo following the instructions here](https://docs.github.com/en/get-started/quickstart/contributing-to-projects).
 - Bash (will need to be updated from default Mac version): `brew install bash`
 - jq (JSON processor used in scripts): `brew install jq` 
 - Node.js (used for build process and our CLI): `nvm install && nvm use`
 - PNPM (a Node.js package manager): `npm install -g pnpm`
 - Composer (our PHP package manager): `brew install composer`
 - PHP (the language at the core of the WordPress ecosystem): `source .github/versions.sh && brew install php@$PHP_VERSION`
-get-started/quickstart/contributing-to-projects).
 - Jetpack CLI (an internal tool that assists with development): `pnpm install && pnpm cli-setup`
 	- [You can read more about using the CLI here](https://github.com/Automattic/jetpack/blob/master/tools/cli/README.md).
 
