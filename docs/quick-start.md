@@ -73,6 +73,10 @@ Running the script will tell you if you have your environment already set up and
 - Red `NO` messages mean something is wrong or missing, and a link will be provided to help you with a fix.
 - Yellow messages indicate something optional is broken or missing.
 
+#### Running Tests
+
+To run tests, you can use the Jetpack CLI: `jetpack test` and then choose the project and type of test you'd like to run.
+
 # Development workflow
 
 Once you have a local copy of Jetpack and all development tools installed, you can start developing.
