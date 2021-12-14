@@ -24,7 +24,7 @@ let stubGetSiteIsRegistering;
 let stubGetUserIsConnecting;
 let stubGetConnectionStatus;
 
-describe( 'useConnect', () => {
+describe( 'useConnection', () => {
 	before( () => {
 		const { result: dispatch } = renderHook( () => useDispatch( STORE_ID ) );
 		renderHook( () => useSelect( select => ( storeSelect = select( STORE_ID ) ) ) );
