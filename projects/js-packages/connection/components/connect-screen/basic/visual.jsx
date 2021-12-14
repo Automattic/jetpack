@@ -101,7 +101,7 @@ ConnectScreenVisual.propTypes = {
 	buttonIsLoading: PropTypes.bool.isRequired,
 };
 
-ConnectScreenVisual.propTypes = {
+ConnectScreenVisual.defaultProps = {
 	showConnectButton: true,
 };
 
