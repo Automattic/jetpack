@@ -167,9 +167,6 @@ class Module_Control {
 	 * Disable Instant Search Experience
 	 */
 	public function disable_instant_search() {
-		if ( ! $this->is_instant_search_enabled() ) {
-			return true;
-		}
 		return update_option( self::SEARCH_MODULE_INSTANT_SEARCH_OPTION_KEY, false );
 	}
 
