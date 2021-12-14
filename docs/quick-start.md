@@ -62,9 +62,11 @@ We provide a script to help you in assessing if everything's ready on your syste
 tools/check-development-environment.sh
 ```
 
-Running the script will tell you if you have your environment already set up and what you need to do in order to get it ready for Jetpack development.
+Running the script will tell you if you have your environment already set up and what you need to do in order to get it ready for Jetpack development:
 
-If you're ready to start, you should see all green `SUCCESS` messages. If the script detect issues, you will see a a red `FAILED` note and a link that will help you figure out what you need to change/fix to address the issue.
+- All green `YES` or `OK` messages mean you're ready to start
+- Red `NO` messages mean something is wrong or missing, and a link will be provided to help you with a fix.
+- Yellow messages indicate something optional is broken or missing.
 
 # Development workflow
 
