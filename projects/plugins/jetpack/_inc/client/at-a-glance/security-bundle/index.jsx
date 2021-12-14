@@ -95,7 +95,7 @@ class DashSecurityBundle extends Component {
 				</div>
 				<div className="dash-security-bundle--content">
 					<div className="dash-security-bundle--content-info">
-						<h2>{ __( 'Comprehensive Site Security', 'jetpack' ) }</h2>
+						<h3>{ __( 'Comprehensive Site Security', 'jetpack' ) }</h3>
 
 						<p>
 							{ createInterpolateElement(
