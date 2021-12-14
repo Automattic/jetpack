@@ -120,17 +120,6 @@ class Test_Module_Control extends TestCase {
 	}
 
 	/**
-	 * Test static::$search_module->enable_instant_search()
-	 */
-	public function test_enable_instant_search_failed() {
-		add_filter( 'jetpack_options', '__return_false' );
-		delete_option( Module_Control::SEARCH_MODULE_INSTANT_SEARCH_OPTION_KEY );
-		static::$search_module->enable_instant_search();
-		$this->assertFalse( get_option( Module_Control::SEARCH_MODULE_INSTANT_SEARCH_OPTION_KEY ) );
-		remove_filter( 'jetpack_options', '__return_false' );
-	}
-
-	/**
 	 * Test static::$search_module->disable_instant_search()
 	 */
 	public function test_disable_instant_search() {
