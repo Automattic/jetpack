@@ -1196,6 +1196,7 @@ importers:
       '@testing-library/user-event': 12.8.3
       '@wojtekmaj/enzyme-adapter-react-17': 0.6.3
       chai: 4.3.4
+      chai-dom: 1.11.0
       commander: 7.2.0
       enzyme: 3.11.0
       glob: 7.1.6
@@ -1218,6 +1219,7 @@ importers:
       '@testing-library/user-event': 12.8.3_@testing-library+dom@8.11.1
       '@wojtekmaj/enzyme-adapter-react-17': 0.6.3_enzyme@3.11.0
       chai: 4.3.4
+      chai-dom: 1.11.0_chai@4.3.4+mocha@8.4.0
       commander: 7.2.0
       enzyme: 3.11.0
       glob: 7.1.6
@@ -10068,6 +10070,17 @@ packages:
   /ccount/1.1.0:
     resolution: {integrity: sha512-vlNK021QdI7PNeiUh/lKkC/mNHHfV0m/Ad5JoI0TYtlBnJAslM/JIkm/tGC88bkLIwO6OQ5uV6ztS6kVAtCDlg==}
     dev: true
+
+  /chai-dom/1.11.0_chai@4.3.4+mocha@8.4.0:
+    resolution: {integrity: sha512-ZzGlEfk1UhHH5+N0t9bDqstOxPEXmn3EyXvtsok5rfXVDOFDJbHVy12rED6ZwkJAUDs2w7/Da4Hlq2LB63kltg==}
+    engines: {node: '>= 0.12.0'}
+    peerDependencies:
+      chai: '>= 3'
+      mocha: '>= 2'
+    dependencies:
+      chai: 4.3.4
+      mocha: 8.4.0
+    dev: false
 
   /chai-fetch-mock/3.0.0_fetch-mock@9.11.0:
     resolution: {integrity: sha512-k/wZojMrNAlPEb7XvnxgIF0Xwgl+MbYOrLNp25VXaVZNkM4hITNaxGKrJFW0DXHew0fE1o/Gao/7j0690mzXQQ==}
