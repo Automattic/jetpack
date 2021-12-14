@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "925044dd00ea7fdcdfb628ab5cc08fda",
+    "content-hash": "fa38a8c879a0d2b449d25d78c78bd87a",
     "packages": [
         {
             "name": "automattic/jetpack-a8c-mc-stats",
@@ -293,6 +293,61 @@
             }
         },
         {
+            "name": "automattic/jetpack-composer-plugin",
+            "version": "dev-master",
+            "dist": {
+                "type": "path",
+                "url": "../../packages/composer-plugin",
+                "reference": "31302c1993ebdbdc6a3b3f23ab296a108a71aaa4"
+            },
+            "require": {
+                "composer-plugin-api": "^2.1.0"
+            },
+            "require-dev": {
+                "automattic/jetpack-changelogger": "^3.0",
+                "composer/composer": "^2.1",
+                "yoast/phpunit-polyfills": "1.0.2"
+            },
+            "type": "composer-plugin",
+            "extra": {
+                "class": "Automattic\\Jetpack\\Composer\\Plugin",
+                "mirror-repo": "Automattic/jetpack-composer-plugin",
+                "changelogger": {
+                    "link-template": "https://github.com/Automattic/jetpack-composer-plugin/compare/v${old}...v${new}"
+                },
+                "autotagger": true,
+                "branch-alias": {
+                    "dev-master": "0.1.x-dev"
+                }
+            },
+            "autoload": {
+                "classmap": [
+                    "src/"
+                ]
+            },
+            "scripts": {
+                "phpunit": [
+                    "./vendor/phpunit/phpunit/phpunit --colors=always"
+                ],
+                "test-coverage": [
+                    "@composer install",
+                    "phpdbg -d memory_limit=2048M -d max_execution_time=900 -qrr ./vendor/bin/phpunit --coverage-clover \"$COVERAGE_DIR/clover.xml\""
+                ],
+                "test-php": [
+                    "@composer install",
+                    "@composer phpunit"
+                ]
+            },
+            "license": [
+                "GPL-2.0-or-later"
+            ],
+            "description": "A custom installer plugin for Composer to move Jetpack packages out of `vendor/` so WordPress's translation infrastructure will find their strings.",
+            "transport-options": {
+                "monorepo": true,
+                "relative": true
+            }
+        },
+        {
             "name": "automattic/jetpack-config",
             "version": "dev-master",
             "dist": {
@@ -404,14 +459,14 @@
             "dist": {
                 "type": "path",
                 "url": "../../packages/connection-ui",
-                "reference": "f640616a4351f4aebedca66cbf85f17bfdd732eb"
+                "reference": "7e66dcb91fc171d2c6dd32ea7577383f46c9713a"
             },
             "require": {
                 "automattic/jetpack-assets": "^1.14",
                 "automattic/jetpack-connection": "^1.33",
                 "automattic/jetpack-constants": "^1.6",
                 "automattic/jetpack-device-detection": "^1.4",
-                "automattic/jetpack-identity-crisis": "^0.4"
+                "automattic/jetpack-identity-crisis": "^0.5"
             },
             "require-dev": {
                 "automattic/jetpack-changelogger": "^3.0"
@@ -424,7 +479,7 @@
                     "link-template": "https://github.com/Automattic/jetpack-connection-ui/compare/v${old}...v${new}"
                 },
                 "branch-alias": {
-                    "dev-master": "2.1.x-dev"
+                    "dev-master": "2.2.x-dev"
                 }
             },
             "autoload": {
@@ -439,7 +494,7 @@
                 ],
                 "build-production": [
                     "Composer\\Config::disableProcessTimeout",
-                    "pnpm run build"
+                    "NODE_ENV=production pnpm run build"
                 ],
                 "watch": [
                     "Composer\\Config::disableProcessTimeout",
@@ -602,7 +657,7 @@
             "dist": {
                 "type": "path",
                 "url": "../../packages/identity-crisis",
-                "reference": "7b9ecff83267056a21777f16e862b4dfb2c81f5f"
+                "reference": "9634e64b317f9e08553f79fdb416d94e846fe0ac"
             },
             "require": {
                 "automattic/jetpack-connection": "^1.33",
@@ -628,7 +683,7 @@
                     "link-template": "https://github.com/Automattic/jetpack-identity-crisis/compare/v${old}...v${new}"
                 },
                 "branch-alias": {
-                    "dev-master": "0.4.x-dev"
+                    "dev-master": "0.5.x-dev"
                 }
             },
             "autoload": {
@@ -725,7 +780,7 @@
             "dist": {
                 "type": "path",
                 "url": "../../packages/my-jetpack",
-                "reference": "197fc96bfb4801abcd0f5985377bbd28a9213e41"
+                "reference": "ee2aa1d10634d764536a53ca1aa2fb5b39fefafe"
             },
             "require": {
                 "automattic/jetpack-admin-ui": "^0.2",
@@ -770,7 +825,7 @@
                 ],
                 "build-production": [
                     "Composer\\Config::disableProcessTimeout",
-                    "pnpm run build"
+                    "NODE_ENV=production pnpm run build"
                 ],
                 "watch": [
                     "Composer\\Config::disableProcessTimeout",
@@ -1045,13 +1100,13 @@
             "dist": {
                 "type": "path",
                 "url": "../../packages/sync",
-                "reference": "a1d120dc8f22a9e8c10a517dab73ca85da86321d"
+                "reference": "643bc80828a9140df5b925742fd97d9b0fb84428"
             },
             "require": {
                 "automattic/jetpack-connection": "^1.33",
                 "automattic/jetpack-constants": "^1.6",
                 "automattic/jetpack-heartbeat": "^1.3",
-                "automattic/jetpack-identity-crisis": "^0.4",
+                "automattic/jetpack-identity-crisis": "^0.5",
                 "automattic/jetpack-options": "^1.14",
                 "automattic/jetpack-password-checker": "^0.1",
                 "automattic/jetpack-roles": "^1.4",
@@ -4365,6 +4420,7 @@
         "automattic/jetpack-admin-ui": 20,
         "automattic/jetpack-autoloader": 20,
         "automattic/jetpack-backup": 20,
+        "automattic/jetpack-composer-plugin": 20,
         "automattic/jetpack-config": 20,
         "automattic/jetpack-connection": 20,
         "automattic/jetpack-connection-ui": 20,
