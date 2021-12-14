@@ -8,7 +8,7 @@ import { getRedirectUrl } from '@automattic/jetpack-components';
 /**
  * WordPress dependencies
  */
-import { __ } from '@wordpress/i18n';
+import { __, _x } from '@wordpress/i18n';
 import { createInterpolateElement } from '@wordpress/element';
 
 /**
@@ -22,7 +22,10 @@ import cloudImageUrl from './cloud.svg';
 import shieldImageUrl from './shield.svg';
 import removeBugImageUrl from './remove-bug.svg';
 import { getProductDescriptionUrl } from 'product-descriptions/utils';
-import { isFetchingSitePurchases as getIsFetchingSitePurchases, hasActiveSecurityPurchase as getHasActiveSecurityPurchase } from 'state/site';
+import {
+	isFetchingSitePurchases as getIsFetchingSitePurchases,
+	hasActiveSecurityPurchase as getHasActiveSecurityPurchase,
+} from 'state/site';
 
 /**
  * Style dependencies
@@ -43,13 +46,13 @@ class DashSecurityBundle extends Component {
 			{
 				id: 'backup',
 				imageUrl: cloudImageUrl,
-				text: __( 'Backup', 'jetpack' ),
+				text: _x( 'Backup', 'jetpack', 'jetpack' ),
 				imgAlt: __( 'A cloud representing Jetpack Backup', 'jetpack' ),
 			},
 			{
 				id: 'scan',
 				imageUrl: shieldImageUrl,
-				text: __( 'Scan', 'jetpack' ),
+				text: _x( 'Scan', 'jetpack', 'jetpack' ),
 				imgAlt: __( 'A shield representing Jetpack Scan', 'jetpack' ),
 			},
 			{
@@ -82,7 +85,13 @@ class DashSecurityBundle extends Component {
 		return (
 			<Card className="dash-security-bundle">
 				<div className="dash-security-bundle--icon">
-					<img src={ bundleImageUrl } alt={ __( 'A shield and check mark representing the Jetpack Security Bundle', 'jetpack' ) } />
+					<img
+						src={ bundleImageUrl }
+						alt={ __(
+							'A shield and check mark representing the Jetpack Security Bundle',
+							'jetpack'
+						) }
+					/>
 				</div>
 				<div className="dash-security-bundle--content">
 					<div className="dash-security-bundle--content-info">
