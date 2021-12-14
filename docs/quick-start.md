@@ -13,9 +13,9 @@ Prior to installation, we recommend using [`Homebrew`](https://brew.sh/) to mana
 
 The Jetpack Monorepo requires the following to be installed on your machine:
 
-- Node.js (used for build process and our CLI): `nvm install`
-	- You can see the current latest supported version of Node.js in the monorepo root's [`package.json`](https://github.com/Automattic/jetpack/blob/master/package.json) under `engines`
-	- You can switch versions of node using nvm: `nvm ls` to list installed versions of node, `nvm use [version number]` to switch.
+- Bash: `brew install bash`
+- jq (JSON processor used in scripts): `brew install jq` 
+- Node.js (used for build process and our CLI): `nvm install && nvm use`
 - PNPM (a Node.js package manager): `npm install -g pnpm`
 - Composer (our PHP package manager): `brew install composer`
 - PHP (the language at the core of the WordPress ecosystem): `brew install php@8.0`
