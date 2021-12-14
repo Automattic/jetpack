@@ -242,18 +242,21 @@ Jetpack Backup can do a full website migration to a new host, migrate theme file
 4. Promote your newest posts, pages, and products across your social media channels.
 
 == Changelog ==
-### 10.5-a.1 - 2021-12-07
+### 10.5-a.3 - 2021-12-14
 #### Enhancements
-- Sharing: hide sharing buttons when printing a post or page.
-- VideoPress Block: add adaptive progress bar color settings
+- JITM: allow sidebar JITMs marked as dismissible to be dismissed.
+- SSO: add filters for the error text when a local user cannot be found for a given WP.com account and for when SSO is disallowed when on a staging site.
 
 #### Improved compatibility
-- Twitter Timeline widget: Hide widget from the block inserter and Legacy widget block drop-down menu (WPCOM)
+- Cleanup jetpack version option on plugin deactivation.
+- Notifications: remove legacy code supporting IE versions older than 9.
+- Pay with PayPal Widget: hide widget from Legacy Widget block.
+- Subscription Block: add 'Success Message Text' to the block settings.
 
 #### Bug fixes
-- Dashboard: hide licensing interface from users who did not link their account to WordPress.com yet, or who are not the main Jetpack connection owner.
-- VideoPress: avoid errors when copying and pasting empty video blocks.
-- VideoPress Block: maintain the state of different settings panels when reloading the video preview.
+- Admin Menu: add support for WPML menu structure.
+- I18n: ensure various strings in JavaScript UIs are marked for translation.
+- Milestone widget: fix issue that prevented styles from loading until the widget is saved.
 
 --------
 
