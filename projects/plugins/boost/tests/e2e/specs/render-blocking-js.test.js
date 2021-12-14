@@ -29,7 +29,7 @@ test.describe.serial( 'Render Blocking JS module', () => {
 	} );
 
 	test( 'JavaScript on a post should be pushed at the bottom of the document when the module is active', async () => {
-		// Since the render blocking js module grab all JavaScrip from a document and pushed it at the bottom of the DOM
+		// Since the render blocking js module grab all JavaScript from a document and pushed it at the bottom of the DOM.
 		// For this test we are checking if the JavaScript from the test content is not anymore in its parent element.
 		// which has the "render-blocking-js" class.
 		await boostPrerequisitesBuilder( page ).withActiveModules( [ 'render-blocking-js' ] ).build();
