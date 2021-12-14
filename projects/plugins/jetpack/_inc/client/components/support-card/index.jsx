@@ -106,7 +106,8 @@ class SupportCard extends React.Component {
 								  )
 								: __(
 										'Your paid plan gives you access to prioritized Jetpack support.',
-										'jetpack'
+										'jetpack',
+										/* dummy arg to avoid bad minification */ 0
 								  ) }
 						</p>
 						<p className="jp-support-card__description">

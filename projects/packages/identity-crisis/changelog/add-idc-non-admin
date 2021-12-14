@@ -1,0 +1,4 @@
+Significance: minor
+Type: added
+
+Add a method to determine the safe mode status.
