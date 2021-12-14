@@ -2,7 +2,9 @@
 
 ## Overview
 
-This guide is designed to get you up and running working with the Jetpack Monorepo quickly following recommended and supported guidelines. For more detailed information, including alternate local dev environments, running unit tests, best coding practices, and more, you can the [full Development Environment guide here](docs/development-environment.md#clone-the-repository). 
+This guide is designed to get you up and running working with the Jetpack Monorepo quickly following recommended and supported guidelines.
+
+This guide assumes you are using MacOS or a Linux machine and are an Automattician. For more detailed information, including alternate local dev environments, running unit tests, best coding practices, and more, you can use the [full Development Environment guide here](development-environment.md#clone-the-repository). 
 
 ## Installation
 
@@ -13,15 +15,16 @@ Prior to installation, we recommend using [`Homebrew`](https://brew.sh/) to mana
 
 The Jetpack Monorepo requires the following to be installed on your machine:
 
+- Start by cloning the GitHub repo:
+	- `git clone https://github.com/Automattic/jetpack.git`
+	- If you're not an Automattician, you can [fork the repo following the instructions here](https://docs.github.com/en/
 - Bash: `brew install bash`
 - jq (JSON processor used in scripts): `brew install jq` 
 - Node.js (used for build process and our CLI): `nvm install && nvm use`
 - PNPM (a Node.js package manager): `npm install -g pnpm`
 - Composer (our PHP package manager): `brew install composer`
 - PHP (the language at the core of the WordPress ecosystem): `brew install php@8.0`
-- Once the pre-requisites are installed, you can clone the GitHub repo:
-	- `git clone https://github.com/Automattic/jetpack.git`
-	- If you're not an Automattician, you can [fork the repo following the instructions here](https://docs.github.com/en/get-started/quickstart/contributing-to-projects).
+get-started/quickstart/contributing-to-projects).
 - Jetpack CLI (an internal tool that assists with development): `pnpm install && pnpm cli-setup`
 	- [You can read more about using the CLI here](https://github.com/Automattic/jetpack/blob/master/tools/cli/README.md).
 
@@ -30,13 +33,15 @@ The Jetpack Monorepo requires the following to be installed on your machine:
 After everything is installed, you're ready to run Jetpack locally! While there are other supported methods of doing this, we recommend and support using Docker containers. 
 
 To setup Docker:
-- Run `brew install --cask docker` or [download the latest version here](https://www.docker.com/products/docker-desktop). 
-- Copy the settings file so you can modify passwords and other configurations: `cp tools/docker/default.env tools/docker/.env`
+- Install Docker:
+	- Mac: `brew install --cask docker`
+	- Linux: `brew install docker` 
+- Copy the settings file and modify the site password and any other configuration you'd like: `cp tools/docker/default.env tools/docker/.env`
 - Start the Docker container using `jetpack docker up`
 - Install WordPress in your Docker container using `jetpack docker install` 
 - Open up http://localhost to see your site!
 
-For more in depth docker instructions, follow the [Docker environment for Jetpack Development guide](../tools/docker/README.md).
+For more in depth Docker instructions, follow the [Docker environment for Jetpack Development guide](../tools/docker/README.md).
 
 ### Setting up Jurassic Tube
 
