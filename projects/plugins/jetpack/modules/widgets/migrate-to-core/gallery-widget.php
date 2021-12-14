@@ -184,10 +184,7 @@ function jetpack_migrate_gallery_widget_update_sidebars( $sidebars_widgets, $id,
 	foreach ( $sidebars_widgets as $sidebar => $widgets ) {
 		$key = is_array( $widgets ) ? array_search( "gallery-{$id}", $widgets, true ) : false;
 
-		if (
-			is_array( $widgets )
-			&& false !== $key
-		) {
+		if ( false !== $key ) {
 			$sidebars_widgets[ $sidebar ][ $key ] = "media_gallery-{$new_id}";
 
 			/*
