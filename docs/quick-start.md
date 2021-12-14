@@ -46,19 +46,11 @@ To test network related features of Jetpack, you'll need a test site that can cr
 - Make sure you've run `pnpm install && pnpm cli-link`
 - Make sure Docker is running `jetpack docker up -d`
 - Stand on the monorepo root in your terminal and run `mkdir tools/docker/bin/jt`
-- Run the installation script: `chmod +x tools/docker/bin/jt/installer.sh && tools/docker/bin/jt/installer.sh`
-- Use `jetpack docker jt-up your-username custom-subdomain` to start the site.
-- Your site should be avalable at `https://custom-subdomain.jurassic.tube`
-
-*Optional*
-
-To make things easier, you can configure Jurassic Tube to remember your username and subdomain.
-
-Let’s assume somebody with WP.com username david uses the URL https://spaceman.jurassic.tube:
-
+- Download and run the installation script: `curl "https://jurassic.tube/get-installer.php?env=jetpack" -o tools/docker/bin/jt/installer.sh && chmod +x tools/docker/bin/jt/installer.sh && tools/docker/bin/jt/installer.sh`
 - Set your username: `jetpack docker jt-config username [your-username-here e.g david]`
 - Set your subdomain: `jetpack docker jt-config subdomain [your-subdomain-here e.g. spaceman]` 
 - Now, you can start your site with `jetpack docker jt-up`
+- Your site should be avalable at `https://custom-subdomain.jurassic.tube`
 
 Note: This is for Automattician use only. For other methods, check out [ngrok](https://github.com/Automattic/jetpack/blob/master/tools/docker/README.md#using-ngrok-with-jetpack) or [another similar service](https://alternativeto.net/software/ngrok/).
 
