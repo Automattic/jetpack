@@ -44,16 +44,16 @@ test.describe.serial( 'Critical CSS module', () => {
 		await boostPrerequisitesBuilder( page ).withActiveModules( [ 'critical-css' ] ).build();
 		const jetpackBoostPage = await JetpackBoostPage.visit( page );
 		expect(
-			await jetpackBoostPage.WaitForTheCriticalCssGeneratingProgressInformationToBeVisible()
+			await jetpackBoostPage.waitForCriticalCssGenerationProgressUIVisibility()
 		).toBeTruthy();
-		expect( await jetpackBoostPage.waitForTheCriticalCssMetaInformationToBeVisible() ).toBeTruthy();
+		expect( await jetpackBoostPage.waitForCriticalCssMetaInfoVisibility() ).toBeTruthy();
 	} );
 
 	test( 'Critical CSS meta information should show on the admin when the module is re-activated', async () => {
 		await boostPrerequisitesBuilder( page ).withInactiveModules( [ 'critical-css' ] ).build();
 		await boostPrerequisitesBuilder( page ).withActiveModules( [ 'critical-css' ] ).build();
 		const jetpackBoostPage = await JetpackBoostPage.visit( page );
-		expect( await jetpackBoostPage.waitForTheCriticalCssMetaInformationToBeVisible() ).toBeTruthy();
+		expect( await jetpackBoostPage.waitForCriticalCssMetaInfoVisibility() ).toBeTruthy();
 	} );
 
 	test( 'Critical CSS should be available on the frontend when the module is active', async () => {
@@ -74,9 +74,9 @@ test.describe.serial( 'Critical CSS module', () => {
 		);
 		const jetpackBoostPage = await JetpackBoostPage.init( page );
 		expect(
-			await jetpackBoostPage.WaitForTheCriticalCssGeneratingProgressInformationToBeVisible()
+			await jetpackBoostPage.waitForCriticalCssGenerationProgressUIVisibility()
 		).toBeTruthy();
-		expect( await jetpackBoostPage.waitForTheCriticalCssMetaInformationToBeVisible() ).toBeTruthy();
+		expect( await jetpackBoostPage.waitForCriticalCssMetaInfoVisibility() ).toBeTruthy();
 	} );
 
 	test( 'Critical CSS should be generated with an error (advanced recommendations)', async () => {
@@ -97,9 +97,9 @@ test.describe.serial( 'Critical CSS module', () => {
 
 		const jetpackBoostPage = await JetpackBoostPage.visit( page );
 		expect(
-			await jetpackBoostPage.WaitForTheCriticalCssGeneratingProgressInformationToBeVisible()
+			await jetpackBoostPage.waitForCriticalCssGenerationProgressUIVisibility()
 		).toBeTruthy();
-		expect( await jetpackBoostPage.waitForTheCriticalCssMetaInformationToBeVisible() ).toBeTruthy();
+		expect( await jetpackBoostPage.waitForCriticalCssMetaInfoVisibility() ).toBeTruthy();
 		expect( await jetpackBoostPage.isTheCriticalCssFailureMessageVisible() ).toBeTruthy();
 	} );
 
@@ -108,9 +108,7 @@ test.describe.serial( 'Critical CSS module', () => {
 
 		const jetpackBoostPage = await JetpackBoostPage.visit( page );
 		await jetpackBoostPage.navigateToCriticalCSSAdvancedRecommendations();
-		expect(
-			await jetpackBoostPage.isTheCriticalCSSAdvancedRecommendationsSectionVisible()
-		).toBeTruthy();
+		expect( await jetpackBoostPage.isCriticalCSSAdvancedRecommendationsVisible() ).toBeTruthy();
 		await jetpackBoostPage.navigateToMainSettingsPage();
 		expect( await jetpackBoostPage.isTheCriticalCssMetaInformationVisible() ).toBeTruthy();
 	} );

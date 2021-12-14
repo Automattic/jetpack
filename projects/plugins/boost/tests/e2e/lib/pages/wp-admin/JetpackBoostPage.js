@@ -68,12 +68,12 @@ export default class JetpackBoostPage extends WpPage {
 		return this.page.isVisible( selector );
 	}
 
-	async waitForTheCriticalCssMetaInformationToBeVisible() {
+	async waitForCriticalCssMetaInfoVisibility() {
 		const selector = '.jb-critical-css__meta';
 		return this.waitForElementToBeVisible( selector, 3 * 60 * 1000 );
 	}
 
-	async WaitForTheCriticalCssGeneratingProgressInformationToBeVisible() {
+	async waitForCriticalCssGenerationProgressUIVisibility() {
 		const selector = '.jb-critical-css-progress';
 		return this.waitForElementToBeVisible( selector );
 	}
@@ -87,7 +87,7 @@ export default class JetpackBoostPage extends WpPage {
 		await this.page.click( 'text=Advanced Recommendations' );
 	}
 
-	async isTheCriticalCSSAdvancedRecommendationsSectionVisible() {
+	async isCriticalCSSAdvancedRecommendationsVisible() {
 		const selector = '.jb-critical-css__advanced';
 		return this.waitForElementToBeVisible( selector );
 	}
