@@ -535,6 +535,25 @@ class Assets {
 	}
 
 	/**
+	 * Register textdomain aliases from a mapping file.
+	 *
+	 * The mapping file is simply a PHP file that returns an array
+	 * with the following properties:
+	 *  - 'domain': String, `$to`
+	 *  - 'type': String, `$totype`
+	 *  - 'packages': Array, mapping `$from` to `$ver`.
+	 *
+	 * @since $$next-version$$
+	 * @param string $file Mapping file.
+	 */
+	public static function alias_textdomains_from_file( $file ) {
+		$data = require $file;
+		foreach ( $data['packages'] as $from => $ver ) {
+			self::alias_textdomain( $from, $data['domain'], $data['type'], $ver );
+		}
+	}
+
+	/**
 	 * Register the hooks for textdomain aliasing.
 	 *
 	 * @param string $domain Domain to alias.

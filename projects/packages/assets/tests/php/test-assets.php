@@ -820,6 +820,18 @@ class AssetsTest extends TestCase {
 		Assets::alias_textdomain( 'foo', 'one', 'bogus', '1.2.5' );
 	}
 
+	/** Test alias_textdomains_from_file */
+	public function test_alias_textdomains_from_file() {
+		Assets::alias_textdomains_from_file( __DIR__ . '/test-assets-files/i18n-map.php' );
+		$this->assertEquals(
+			array(
+				'foo' => array( 'target', 'plugins', '1.2.3' ),
+				'bar' => array( 'target', 'plugins', '4.5.6' ),
+			),
+			TestingAccessWrapper::newFromClass( Assets::class )->domain_map
+		);
+	}
+
 	/** Test textdomain aliasing called after wp_default_scripts. */
 	public function test_alias_textdomain__after_wp_default_scripts() {
 		do_action( 'wp_default_scripts' );
