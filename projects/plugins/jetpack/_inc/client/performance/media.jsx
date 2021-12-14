@@ -71,7 +71,8 @@ class Media extends React.Component {
 				  )
 				: __(
 						'You have used your free video. Upgrade now to unlock more videos and 1TB of storage.',
-						'jetpack'
+						'jetpack',
+						/* dummy arg to avoid bad minification */ 0
 				  );
 
 		const videoPressSettings = (

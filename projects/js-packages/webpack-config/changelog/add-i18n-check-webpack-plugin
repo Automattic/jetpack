@@ -1,0 +1,4 @@
+Significance: major
+Type: added
+
+Include `@automattic/i18n-check-webpack-plugin` in default configuration in production mode.
