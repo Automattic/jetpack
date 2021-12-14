@@ -10,6 +10,7 @@ import { getRedirectUrl } from '@automattic/jetpack-components';
  */
 import { __, _x } from '@wordpress/i18n';
 import { createInterpolateElement } from '@wordpress/element';
+import { ExternalLink } from '@wordpress/components';
 
 /**
  * Internal dependencies
@@ -100,16 +101,16 @@ class DashSecurityBundle extends Component {
 						<p>
 							{ createInterpolateElement(
 								__(
-									'Total protection for your site, including Backup, Scan, and Anti-spam. <a>Learn More.</a>',
+									'Total protection for your site, including Backup, Scan, and Anti-spam. <ExternalLink>Learn More.</ExternalLink>',
 									'jetpack'
 								),
 								{
-									a: (
-										<a
+									ExternalLink: (
+										<ExternalLink
 											href={ getRedirectUrl( 'jetpack-features-security' ) }
 											rel="noopener noreferrer"
 											target="_blank"
-										></a>
+										></ExternalLink>
 									),
 								}
 							) }
