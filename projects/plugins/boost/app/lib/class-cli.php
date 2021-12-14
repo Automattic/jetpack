@@ -172,7 +172,7 @@ class CLI {
 	 *
 	 * ## EXAMPLE
 	 *
-	 * wp jetpack-boost reet
+	 * wp jetpack-boost reset
 	 */
 	public function reset() {
 		$this->jetpack_boost->deactivate();
