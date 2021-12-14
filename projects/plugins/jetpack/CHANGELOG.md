@@ -2,6 +2,10 @@
 
 ### This is a list detailing changes for all Jetpack releases.
 
+## 10.5-a.5 - 2021-12-14
+### Enhancements
+- Media Extractor : add support for alt_text in extract
+
 ## 10.5-a.3 - 2021-12-14
 ### Enhancements
 - Allow sidebar JITMs marked as dismissible to be dismissed
