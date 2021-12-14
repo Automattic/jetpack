@@ -1,0 +1,4 @@
+Significance: patch
+Type: bugfix
+
+Contact Form: avoid PHP notices in submitted forms in some cases.
