@@ -244,18 +244,16 @@ Jetpack Backup can do a full website migration to a new host, migrate theme file
 == Changelog ==
 ### 10.5-a.3 - 2021-12-14
 #### Enhancements
-- JITM: allow sidebar JITMs marked as dismissible to be dismissed.
-- SSO: add filters for the error text when a local user cannot be found for a given WP.com account and for when SSO is disallowed when on a staging site.
-
-#### Improved compatibility
-- Cleanup Jetpack version option on plugin deactivation.
-- Notifications: remove legacy code supporting IE versions older than 9.
-- Pay with PayPal Widget: hide widget from Legacy Widget block.
+- Secure Sign On: add filters for the error text when a local user cannot be found for a given WP.com account and for when SSO is disallowed when on a staging site.
 - Subscription Block: add 'Success Message Text' to the block settings.
 
+#### Improved compatibility
+- General: ensure Jetpack options are properly deleted when the plugin is deactivated.
+- Notifications: remove legacy code supporting IE versions older than 9.
+- Pay with PayPal Widget: hide widget from Legacy Widget block.
+
 #### Bug fixes
-- Admin Menu: add support for WPML menu structure.
-- I18n: ensure various strings in JavaScript UIs are marked for translation.
+- Internationalization: ensure that all text, including text added via JavaScript, can be translated.
 - Milestone widget: fix issue that prevented styles from loading until the widget is saved.
 
 --------
