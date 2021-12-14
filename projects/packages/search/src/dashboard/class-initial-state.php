@@ -64,8 +64,6 @@ class Initial_State {
 				/**
 				 * Whether promotions are visible or not.
 				 *
-				 * @since 4.8.0
-				 *
 				 * @param bool $are_promotions_active Status of promotions visibility. True by default.
 				 */
 				'showPromotions'    => apply_filters( 'jetpack_show_promotions', true ),
@@ -86,8 +84,6 @@ class Initial_State {
 
 	/**
 	 * Gather data about the current user.
-	 *
-	 * @since 4.1.0
 	 *
 	 * @return array
 	 */
@@ -141,7 +137,6 @@ class Initial_State {
 	 * Gets a purchase token that is used for Jetpack logged out visitor checkout.
 	 * The purchase token should be appended to all CTA url's that lead to checkout.
 	 *
-	 * @since 9.8.0
 	 * @return string|boolean
 	 */
 	protected function get_purchase_token() {
@@ -162,7 +157,6 @@ class Initial_State {
 	/**
 	 * Generates a purchase token that is used for Jetpack logged out visitor checkout.
 	 *
-	 * @since 9.8.0
 	 * @return string
 	 */
 	protected function generate_purchase_token() {
