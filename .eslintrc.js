@@ -102,7 +102,14 @@ module.exports = {
 		'jsdoc/check-types': 1, // Recommended
 		'jsdoc/implements-on-classes': 1, // Recommended
 		'jsdoc/newline-after-description': 1, // Recommended
-		'jsdoc/no-undefined-types': 1, // Recommended
+		'jsdoc/no-undefined-types': [
+			1,
+			{
+				definedTypes: [
+					'Iterable', // https://github.com/jsdoc/jsdoc/issues/1009 and https://github.com/gajus/eslint-plugin-jsdoc/issues/280
+				],
+			},
+		],
 		'jsdoc/require-description': 1,
 		'jsdoc/require-hyphen-before-param-description': 1,
 		'jsdoc/require-jsdoc': 1, // Recommended
