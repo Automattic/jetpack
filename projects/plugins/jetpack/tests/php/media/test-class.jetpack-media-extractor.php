@@ -621,7 +621,10 @@ EOT;
 			),
 		);
 
+		// We are not concerned with minimum dimensions.
+		add_filter( 'jetpack_postimages_ignore_minimum_dimensions', '__return_true', 66 );
 		$result = Jetpack_Media_Meta_Extractor::extract( get_current_blog_id(), $post_id, Jetpack_Media_Meta_Extractor::ALL, true );
+		remove_filter( 'jetpack_postimages_ignore_minimum_dimensions', '__return_true', 66 );
 
 		$this->assertEquals( $expected, $result );
 	}
