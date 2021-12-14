@@ -26,6 +26,7 @@ class Atomic_Admin_Menu extends Admin_Menu {
 		add_action( 'wp_enqueue_scripts', array( $this, 'dequeue_scripts' ), 20 );
 		add_action( 'admin_enqueue_scripts', array( $this, 'dequeue_scripts' ), 20 );
 		add_action( 'wp_ajax_sidebar_state', array( $this, 'ajax_sidebar_state' ) );
+		add_action( 'wp_ajax_jitm_dismiss', array( $this, 'wp_ajax_jitm_dismiss' ) );
 
 		if ( ! $this->is_api_request ) {
 			add_filter( 'submenu_file', array( $this, 'override_the_theme_installer' ), 10, 2 );
@@ -275,6 +276,9 @@ class Atomic_Admin_Menu extends Admin_Menu {
 				'tracks_impression_cta_name'   => $message->tracks->display->props->cta_name,
 				'tracks_click_event_name'      => $message->tracks->click->name,
 				'tracks_click_cta_name'        => $message->tracks->click->props->cta_name,
+				'dismissible'                  => $message->is_dismissible,
+				'feature_class'                => $message->feature_class,
+				'id'                           => $message->id,
 			);
 		}
 	}
@@ -397,6 +401,16 @@ class Atomic_Admin_Menu extends Admin_Menu {
 			'wpcom'
 		);
 
+		wp_die();
+	}
+
+	/**
+	 * Handle ajax requests to dismiss a just-in-time-message
+	 */
+	public function wp_ajax_jitm_dismiss() {
+		check_ajax_referer( 'jitm_dismiss' );
+		$jitm = \Automattic\Jetpack\JITMS\JITM::get_instance();
+		$jitm->dismiss( $_REQUEST['id'], $_REQUEST['feature_class'] );
 		wp_die();
 	}
 

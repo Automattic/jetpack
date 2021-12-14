@@ -149,9 +149,10 @@ class Test_Admin_Menu extends WP_UnitTestCase {
 	public function test_add_upsell_nudge() {
 		global $menu;
 		$nudge = array(
-			'content' => 'Free domain with an <a href="somehref">annual plan</a>',
-			'cta'     => '<b>Upgrade</b>',
-			'link'    => '/plans/example.com?addDomainFlow=true',
+			'content'     => 'Free domain with an <a href="somehref">annual plan</a>',
+			'cta'         => '<b>Upgrade</b>',
+			'link'        => '/plans/example.com?addDomainFlow=true',
+			'dismissible' => false,
 		);
 		static::$admin_menu->add_upsell_nudge( $nudge );
 
@@ -173,12 +174,28 @@ class Test_Admin_Menu extends WP_UnitTestCase {
 		$menu = static::$menu_data;
 
 		$nudge = array(
-			'content' => 'Some content',
-			'cta'     => '<b>CTA</b>',
-			'link'    => 'https://wordpress.org',
+			'content'     => 'Some content',
+			'cta'         => '<b>CTA</b>',
+			'link'        => 'https://wordpress.org',
+			'dismissible' => false,
 		);
 		static::$admin_menu->add_upsell_nudge( $nudge );
 		$this->assertSame( 'https://wordpress.org', $menu[1][2] );
+
+		// Reset.
+		$menu = static::$menu_data;
+
+		$nudge = array(
+			'content'       => 'Some content',
+			'cta'           => '<b>CTA</b>',
+			'link'          => 'https://wordpress.org',
+			'dismissible'   => true,
+			'id'            => 'an_identifier',
+			'feature_class' => 'the_feature_class',
+		);
+		static::$admin_menu->add_upsell_nudge( $nudge );
+
+		$this->assertStringContainsString( '<svg xmlns="http://www.w3.org/2000/svg" data-feature_class="the_feature_class" data-feature_id="an_identifier"', $menu[1][0] );
 	}
 
 	/**
