@@ -254,6 +254,7 @@ Jetpack Backup can do a full website migration to a new host, migrate theme file
 - Pay with PayPal Widget: hide widget from Legacy Widget block.
 
 #### Bug fixes
+- Contact Form: avoid PHP notices in submitted forms in some cases.
 - Internationalization: ensure that all text, including text added via JavaScript, can be translated.
 - Milestone widget: fix issue that prevented styles from loading until the widget is saved.
 
