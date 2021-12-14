@@ -8,6 +8,7 @@ const MiniCssExtractPlugin = require( 'mini-css-extract-plugin' );
 const MiniCSSWithRTLPlugin = require( './webpack/mini-css-with-rtl' );
 const WebpackRTLPlugin = require( '@automattic/webpack-rtl-plugin' );
 const I18nLoaderWebpackPlugin = require( '@automattic/i18n-loader-webpack-plugin' );
+const I18nCheckWebpackPlugin = require( '@automattic/i18n-check-webpack-plugin' );
 
 const MyCssMinimizerPlugin = options => new CssMinimizerPlugin( options );
 
@@ -25,6 +26,7 @@ const optimization = {
 	minimize: isProduction,
 	minimizer: [ TerserPlugin(), MyCssMinimizerPlugin() ],
 	concatenateModules: false,
+	emitOnErrors: true,
 };
 const resolve = {
 	extensions: [ '.js', '.jsx', '.ts', '.tsx', '...' ],
@@ -67,7 +69,23 @@ const DependencyExtractionPlugin = options => [ new DependencyExtractionWebpackP
 
 const I18nLoaderPlugin = options => [ new I18nLoaderWebpackPlugin( options ) ];
 
+const i18nFilterFunction = file => {
+	if ( ! /\.(?:jsx?|tsx?|cjs|mjs|svelte)$/.test( file ) ) {
+		return false;
+	}
+	const i = file.lastIndexOf( '/node_modules/' ) + 14;
+	return i < 14 || file.startsWith( '@automattic/', i );
+};
+const I18nCheckPlugin = options => [
+	new I18nCheckWebpackPlugin( { filter: i18nFilterFunction, ...options } ),
+];
+I18nCheckPlugin.defaultFilter = i18nFilterFunction;
+
 const StandardPlugins = ( options = {} ) => {
+	if ( typeof options.I18nCheckPlugin === 'undefined' && isDevelopment ) {
+		options.I18nCheckPlugin = false;
+	}
+
 	return [
 		...( options.DefinePlugin === false ? [] : DefinePlugin( options.DefinePlugin ) ),
 		...( options.MomentLocaleIgnorePlugin === false
@@ -87,6 +105,7 @@ const StandardPlugins = ( options = {} ) => {
 			? []
 			: DependencyExtractionPlugin( options.DependencyExtractionPlugin ) ),
 		...( options.I18nLoaderPlugin === false ? [] : I18nLoaderPlugin( options.I18nLoaderPlugin ) ),
+		...( options.I18nCheckPlugin === false ? [] : I18nCheckPlugin( options.I18nCheckPlugin ) ),
 	];
 };
 

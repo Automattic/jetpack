@@ -30,7 +30,6 @@ const sharedWebpackConfig = {
 	plugins: [
 		...jetpackWebpackConfig.StandardPlugins( {
 			DependencyExtractionPlugin: false,
-			I18nLoaderPlugin: false,
 		} ),
 	],
 	externals: {
@@ -47,9 +46,9 @@ const sharedWebpackConfig = {
 				exclude: /node_modules\//,
 			} ),
 
-			// Transpile @automattic/jetpack-* in node_modules too.
+			// Transpile @automattic/* in node_modules too.
 			jetpackWebpackConfig.TranspileRule( {
-				includeNodeModules: [ '@automattic/jetpack-', 'debug/' ],
+				includeNodeModules: [ '@automattic/', 'debug/' ],
 			} ),
 
 			// Handle CSS.
@@ -131,7 +130,6 @@ module.exports = [
 		plugins: [
 			...sharedWebpackConfig.plugins,
 			...jetpackWebpackConfig.DependencyExtractionPlugin(),
-			...jetpackWebpackConfig.I18nLoaderPlugin( { textdomain: 'jetpack' } ),
 		],
 		output: {
 			...sharedWebpackConfig.output,
@@ -156,7 +154,6 @@ module.exports = [
 		plugins: [
 			...sharedWebpackConfig.plugins,
 			...jetpackWebpackConfig.DependencyExtractionPlugin( { injectPolyfill: true } ),
-			...jetpackWebpackConfig.I18nLoaderPlugin( { textdomain: 'jetpack' } ),
 			new NodePolyfillPlugin(),
 		],
 		externals: {
@@ -174,7 +171,11 @@ module.exports = [
 			libraryTarget: 'commonjs2',
 		},
 		plugins: [
-			...sharedWebpackConfig.plugins,
+			...jetpackWebpackConfig.StandardPlugins( {
+				DependencyExtractionPlugin: false,
+				I18nLoaderPlugin: false,
+				I18nCheckPlugin: false,
+			} ),
 			new StaticSiteGeneratorPlugin( {
 				globals: {
 					window: {
