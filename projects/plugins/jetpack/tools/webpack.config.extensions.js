@@ -119,7 +119,7 @@ const sharedWebpackConfig = {
 	node: {},
 	plugins: [
 		...jetpackWebpackConfig.StandardPlugins( {
-			DependencyExtractionPlugin: false,
+			DependencyExtractionPlugin: { injectPolyfill: true },
 		} ),
 	],
 	module: {
@@ -130,10 +130,10 @@ const sharedWebpackConfig = {
 				exclude: /node_modules\//,
 			} ),
 
-			// Transpile @automattic/jetpack-* in node_modules too.
+			// Transpile @automattic/* in node_modules too.
 			jetpackWebpackConfig.TranspileRule( {
 				includeNodeModules: [
-					'@automattic/jetpack-',
+					'@automattic/',
 					'debug/',
 					'gridicons/',
 					'punycode/',
@@ -177,7 +177,6 @@ module.exports = [
 		},
 		plugins: [
 			...sharedWebpackConfig.plugins,
-			...jetpackWebpackConfig.DependencyExtractionPlugin( { injectPolyfill: true } ),
 			new CopyWebpackPlugin( {
 				patterns: [
 					{
@@ -199,7 +198,10 @@ module.exports = [
 			libraryTarget: 'commonjs2',
 		},
 		plugins: [
-			...sharedWebpackConfig.plugins,
+			...jetpackWebpackConfig.StandardPlugins( {
+				DependencyExtractionPlugin: false,
+				I18nCheckPlugin: false,
+			} ),
 			new webpack.NormalModuleReplacementPlugin(
 				/^@wordpress\/i18n$/,
 				// We want to exclude extensions/shared/i18n-to-php so we can import and re-export
