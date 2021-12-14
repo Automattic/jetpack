@@ -67,8 +67,19 @@ function wp_super_cache_init() {
 
 	$cache_filename = $file_prefix . $key . '.php';
 	$meta_file = $file_prefix . $key . '.php';
-	$cache_file = wpsc_get_realpath( $blog_cache_dir ) . '/' . $cache_filename;
-	$meta_pathname = wpsc_get_realpath( $blog_cache_dir . 'meta/' ) . '/' . $meta_file;
+
+	$cache_file = wpsc_get_realpath( $blog_cache_dir );
+
+	if ( $cache_file ) {
+		$cache_file .= '/' . $cache_filename;
+	}
+
+	$meta_pathname = wpsc_get_realpath( $blog_cache_dir . 'meta/' );
+
+	if ( $meta_pathname ) {
+		$meta_pathname .= '/' . $meta_file;
+	}
+
 	return compact( 'key', 'cache_filename', 'meta_file', 'cache_file', 'meta_pathname' );
 }
 
@@ -107,6 +118,11 @@ function wp_cache_serve_cache_file() {
 		} elseif ( !file_exists( $cache_file ) ) {
 			wp_cache_debug( 'wp_cache_serve_cache_file: found cache file but then it disappeared!' );
 			return false;
+		}
+
+		if ( ! $meta_pathname ) {
+			wp_cache_debug( 'wp_cache_serve_cache_file: meta pathname is empty. Could not load wp-cache meta file.' );
+			return true;
 		}
 
 		wp_cache_debug( "wp-cache file exists: $cache_file", 5 );
@@ -736,6 +752,7 @@ function wpsc_rebuild_files( $dir ) {
 // realpath() doesn't always remove the trailing slash
 function wpsc_get_realpath( $directory ) {
 	if ( $directory == '/' ) {
+		wp_cache_debug( "wpsc_get_realpath: cannot get realpath of '/'" );
 		return false;
 	}
 
