@@ -44,11 +44,12 @@ class Server_Sandbox {
 	 * @param string $sandbox Sandbox domain.
 	 * @param string $url URL of request about to be made.
 	 * @param array  $headers Headers of request about to be made.
+	 * @param string $data The body of request about to be made.
 	 * @param string $method The method of request about to be made.
 	 *
 	 * @return array [ 'url' => new URL, 'host' => new Host, 'new_signature => New signature if url was changed ]
 	 */
-	public function server_sandbox_request_parameters( $sandbox, $url, $headers, $method = 'GET' ) {
+	public function server_sandbox_request_parameters( $sandbox, $url, $headers, $data = null, $method = 'GET' ) {
 		$host          = '';
 		$new_signature = '';
 
@@ -90,7 +91,7 @@ class Server_Sandbox {
 
 					// URL has been modified since the signature was created. We'll need a new one.
 					$original_url  = add_query_arg( 'XDEBUG_PROFILE', 1, $original_url );
-					$new_signature = $this->get_new_signature( $original_url, $headers, $method );
+					$new_signature = $this->get_new_signature( $original_url, $headers, $data, $method );
 
 				}
 		}
@@ -103,10 +104,11 @@ class Server_Sandbox {
 	 *
 	 * @param string $url The new URL to be signed.
 	 * @param array  $headers The headers of the request about to be made.
+	 * @param string $data The body of request about to be made.
 	 * @param string $method The method of the request about to be made.
 	 * @return string|null
 	 */
-	private function get_new_signature( $url, $headers, $method ) {
+	private function get_new_signature( $url, $headers, $data, $method ) {
 
 		if ( ! empty( $headers['Authorization'] ) ) {
 			$a_headers = $this->extract_authorization_headers( $headers );
@@ -126,7 +128,7 @@ class Server_Sandbox {
 						$a_headers['body-hash'],
 						$method,
 						$url,
-						null,
+						$data,
 						false
 					);
 
@@ -199,7 +201,7 @@ class Server_Sandbox {
 
 		$original_url = $url;
 
-		$request_parameters = $this->server_sandbox_request_parameters( Constants::get_constant( 'JETPACK__SANDBOX_DOMAIN' ), $url, $headers, $type );
+		$request_parameters = $this->server_sandbox_request_parameters( Constants::get_constant( 'JETPACK__SANDBOX_DOMAIN' ), $url, $headers, $data, $type );
 
 		$url = $request_parameters['url'];
 

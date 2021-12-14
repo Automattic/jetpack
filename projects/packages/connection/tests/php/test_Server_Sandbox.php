@@ -197,11 +197,12 @@ class Test_Server_Sandbox extends BaseTestCase {
 		Constants::set_constant( 'JETPACK__SANDBOX_DOMAIN', 'example.com' );
 		( new Tokens() )->update_blog_token( 'asdasd.qweqwe' );
 
-		$body      = '';
+		$body      = 'bbooddyy';
+		$body_hash = base64_encode( sha1( $body, true ) ); // phpcs:ignore WordPress.PHP.DiscouragedPHPFunctions.obfuscation_base64_encode
 		$method    = 'GET';
 		$timestamp = time();
 		$headers   = array(
-			'Authorization' => 'X_JETPACK signature="$ignature#" token="asdasd:1:0" timestamp="' . $timestamp . '" nonce="qweasd" body-hash=""',
+			'Authorization' => 'X_JETPACK signature="$ignature#" token="asdasd:1:0" timestamp="' . $timestamp . '" nonce="qweasd" body-hash="' . $body_hash . '"',
 		);
 
 		if ( $add_filter ) {
