@@ -1,0 +1,304 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`@automattic/babel-plugin-replace-textdomain Custom functions list: Custom functions list 1`] = `
+
+__( 'foo', 'srcdomain' );
+_x( 'foo', 'context', 'srcdomain' );
+_n( 'foo', 'foos', n, 'srcdomain' );
+_nx( 'foo', 'foos', n, 'context', 'srcdomain' );
+
+i18n.__( 'foo', 'srcdomain' );
+i18n._x( 'foo', 'context', 'srcdomain' );
+i18n._n( 'foo', 'foos', n, 'srcdomain' );
+i18n._nx( 'foo', 'foos', n, 'context', 'srcdomain' );
+
+_not( 'foo', 'foos', n, 'srcdomain' );
+i18n._not( 'foo', 'foos', n, 'srcdomain' );
+__.not( 'foo', 'srcdomain' );
+
+      ↓ ↓ ↓ ↓ ↓ ↓
+
+__('foo', 'srcdomain');
+
+_x('foo', 'context', 'srcdomain');
+
+_n('foo', 'foos', n, 'srcdomain');
+
+_nx('foo', 'foos', n, 'context', 'srcdomain');
+
+i18n.__('foo', 'srcdomain');
+
+i18n._x('foo', 'context', 'srcdomain');
+
+i18n._n('foo', 'foos', n, 'srcdomain');
+
+i18n._nx('foo', 'foos', n, 'context', 'srcdomain');
+
+_not('foo', 'foos', n, 'new-domain');
+
+i18n._not('foo', 'foos', n, 'new-domain');
+
+__.not('foo', 'srcdomain');
+
+
+`;
+
+exports[`@automattic/babel-plugin-replace-textdomain Custom functions list: debug calls 1`] = `Array []`;
+
+exports[`@automattic/babel-plugin-replace-textdomain Handling of calls with bad args: Handling of calls with bad args 1`] = `
+
+__( 'No domain' );
+__( 'Non-literal domain', domain );
+__( 'Template-string domain', \`domain\` );
+__( 'Expression domain', 'domain' + 'x' );
+
+      ↓ ↓ ↓ ↓ ↓ ↓
+
+__('No domain');
+
+__('Non-literal domain', domain);
+
+__('Template-string domain', \`domain\`);
+
+__('Expression domain', 'domain' + 'x');
+
+
+`;
+
+exports[`@automattic/babel-plugin-replace-textdomain Handling of calls with bad args: debug calls 1`] = `
+Array [
+  Array [
+    Domain argument (index 2) is missing
+> 1 | __( 'No domain' );
+    | ^^^^^^^^^^^^^^^^^
+  2 | __( 'Non-literal domain', domain );
+  3 | __( 'Template-string domain', \`domain\` );
+  4 | __( 'Expression domain', 'domain' + 'x' );,
+  ],
+  Array [
+    Domain argument should be a StringLiteral, not Identifier
+  1 | __( 'No domain' );
+> 2 | __( 'Non-literal domain', domain );
+    |                           ^^^^^^
+  3 | __( 'Template-string domain', \`domain\` );
+  4 | __( 'Expression domain', 'domain' + 'x' );,
+  ],
+  Array [
+    Domain argument should be a StringLiteral, not TemplateLiteral
+  1 | __( 'No domain' );
+  2 | __( 'Non-literal domain', domain );
+> 3 | __( 'Template-string domain', \`domain\` );
+    |                               ^^^^^^^^
+  4 | __( 'Expression domain', 'domain' + 'x' );,
+  ],
+  Array [
+    Domain argument should be a StringLiteral, not BinaryExpression
+  2 | __( 'Non-literal domain', domain );
+  3 | __( 'Template-string domain', \`domain\` );
+> 4 | __( 'Expression domain', 'domain' + 'x' );
+    |                          ^^^^^^^^^^^^^^,
+  ],
+]
+`;
+
+exports[`@automattic/babel-plugin-replace-textdomain Multiple domains, constant mapping: Multiple domains, constant mapping 1`] = `
+
+__( 'foo', 'a' );
+_x( 'foo', 'context', 'b' );
+_n( 'foo', 'foos', n, 'c' );
+_nx( 'foo', 'foos', n, 'context', 'd' );
+
+i18n.__( 'foo', 'a' );
+i18n._x( 'foo', 'context', 'b' );
+i18n._n( 'foo', 'foos', n, 'c' );
+i18n._nx( 'foo', 'foos', n, 'context', 'd' );
+
+_not( 'foo', 'foos', n, 'a' );
+i18n._not( 'foo', 'foos', n, 'b' );
+__.not( 'foo', 'c' );
+
+      ↓ ↓ ↓ ↓ ↓ ↓
+
+__('foo', 'new-domain');
+
+_x('foo', 'context', 'new-domain');
+
+_n('foo', 'foos', n, 'new-domain');
+
+_nx('foo', 'foos', n, 'context', 'new-domain');
+
+i18n.__('foo', 'new-domain');
+
+i18n._x('foo', 'context', 'new-domain');
+
+i18n._n('foo', 'foos', n, 'new-domain');
+
+i18n._nx('foo', 'foos', n, 'context', 'new-domain');
+
+_not('foo', 'foos', n, 'a');
+
+i18n._not('foo', 'foos', n, 'b');
+
+__.not('foo', 'c');
+
+
+`;
+
+exports[`@automattic/babel-plugin-replace-textdomain Multiple domains, constant mapping: debug calls 1`] = `Array []`;
+
+exports[`@automattic/babel-plugin-replace-textdomain Multiple domains, function mapping: Multiple domains, function mapping 1`] = `
+
+__( 'foo', 'a' );
+_x( 'foo', 'context', 'b' );
+_n( 'foo', 'foos', n, 'c' );
+_nx( 'foo', 'foos', n, 'context', 'd' );
+
+i18n.__( 'foo', 'a' );
+i18n._x( 'foo', 'context', 'b' );
+i18n._n( 'foo', 'foos', n, 'c' );
+i18n._nx( 'foo', 'foos', n, 'context', 'd' );
+
+_not( 'foo', 'foos', n, 'a' );
+i18n._not( 'foo', 'foos', n, 'b' );
+__.not( 'foo', 'c' );
+
+      ↓ ↓ ↓ ↓ ↓ ↓
+
+__('foo', 'A');
+
+_x('foo', 'context', 'B');
+
+_n('foo', 'foos', n, 'C');
+
+_nx('foo', 'foos', n, 'context', 'D');
+
+i18n.__('foo', 'A');
+
+i18n._x('foo', 'context', 'B');
+
+i18n._n('foo', 'foos', n, 'C');
+
+i18n._nx('foo', 'foos', n, 'context', 'D');
+
+_not('foo', 'foos', n, 'a');
+
+i18n._not('foo', 'foos', n, 'b');
+
+__.not('foo', 'c');
+
+
+`;
+
+exports[`@automattic/babel-plugin-replace-textdomain Multiple domains, function mapping: debug calls 1`] = `Array []`;
+
+exports[`@automattic/babel-plugin-replace-textdomain Multiple domains, object mapping: Multiple domains, object mapping 1`] = `
+
+__( 'foo', 'a' );
+_x( 'foo', 'context', 'b' );
+_n( 'foo', 'foos', n, 'c' );
+_nx( 'foo', 'foos', n, 'context', 'd' );
+
+i18n.__( 'foo', 'a' );
+i18n._x( 'foo', 'context', 'b' );
+i18n._n( 'foo', 'foos', n, 'c' );
+i18n._nx( 'foo', 'foos', n, 'context', 'd' );
+
+_not( 'foo', 'foos', n, 'a' );
+i18n._not( 'foo', 'foos', n, 'b' );
+__.not( 'foo', 'c' );
+
+      ↓ ↓ ↓ ↓ ↓ ↓
+
+__('foo', 'AAA');
+
+_x('foo', 'context', 'b');
+
+_n('foo', 'foos', n, 'CCC');
+
+_nx('foo', 'foos', n, 'context', 'd');
+
+i18n.__('foo', 'AAA');
+
+i18n._x('foo', 'context', 'b');
+
+i18n._n('foo', 'foos', n, 'CCC');
+
+i18n._nx('foo', 'foos', n, 'context', 'd');
+
+_not('foo', 'foos', n, 'a');
+
+i18n._not('foo', 'foos', n, 'b');
+
+__.not('foo', 'c');
+
+
+`;
+
+exports[`@automattic/babel-plugin-replace-textdomain Multiple domains, object mapping: debug calls 1`] = `
+Array [
+  Array [
+    No mapping for textdomain b (first instance)
+  1 | __( 'foo', 'a' );
+> 2 | _x( 'foo', 'context', 'b' );
+    |                       ^^^
+  3 | _n( 'foo', 'foos', n, 'c' );
+  4 | _nx( 'foo', 'foos', n, 'context', 'd' );
+  5 |,
+  ],
+  Array [
+    No mapping for textdomain d (first instance)
+  2 | _x( 'foo', 'context', 'b' );
+  3 | _n( 'foo', 'foos', n, 'c' );
+> 4 | _nx( 'foo', 'foos', n, 'context', 'd' );
+    |                                   ^^^
+  5 |
+  6 | i18n.__( 'foo', 'a' );
+  7 | i18n._x( 'foo', 'context', 'b' );,
+  ],
+]
+`;
+
+exports[`@automattic/babel-plugin-replace-textdomain Simple test: Simple test 1`] = `
+
+__( 'foo', 'srcdomain' );
+_x( 'foo', 'context', 'srcdomain' );
+_n( 'foo', 'foos', n, 'srcdomain' );
+_nx( 'foo', 'foos', n, 'context', 'srcdomain' );
+
+i18n.__( 'foo', 'srcdomain' );
+i18n._x( 'foo', 'context', 'srcdomain' );
+i18n._n( 'foo', 'foos', n, 'srcdomain' );
+i18n._nx( 'foo', 'foos', n, 'context', 'srcdomain' );
+
+_not( 'foo', 'foos', n, 'srcdomain' );
+i18n._not( 'foo', 'foos', n, 'srcdomain' );
+__.not( 'foo', 'srcdomain' );
+
+      ↓ ↓ ↓ ↓ ↓ ↓
+
+__('foo', 'new-domain');
+
+_x('foo', 'context', 'new-domain');
+
+_n('foo', 'foos', n, 'new-domain');
+
+_nx('foo', 'foos', n, 'context', 'new-domain');
+
+i18n.__('foo', 'new-domain');
+
+i18n._x('foo', 'context', 'new-domain');
+
+i18n._n('foo', 'foos', n, 'new-domain');
+
+i18n._nx('foo', 'foos', n, 'context', 'new-domain');
+
+_not('foo', 'foos', n, 'srcdomain');
+
+i18n._not('foo', 'foos', n, 'srcdomain');
+
+__.not('foo', 'srcdomain');
+
+
+`;
+
+exports[`@automattic/babel-plugin-replace-textdomain Simple test: debug calls 1`] = `Array []`;

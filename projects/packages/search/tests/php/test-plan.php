@@ -25,6 +25,7 @@ class Test_Plan extends Search_Test_Case {
 	 */
 	public static function set_up_before_class() {
 		static::$plan = new Plan();
+		static::$plan->init_hooks();
 	}
 
 	/**
@@ -94,6 +95,37 @@ class Test_Plan extends Search_Test_Case {
 		static::$plan->update_search_plan_info( $response );
 		$this->assertEquals( json_decode( $response['body'], true ), static::$plan->get_plan_info() );
 		$this->assertFalse( static::$plan->has_jetpack_search_product() );
+	}
+
+	/**
+	 * Test `ever_supported_search`
+	 */
+	public function test_ever_supported_search() {
+		$this->assertTrue( static::$plan->ever_supported_search() );
+
+		add_filter( 'option_' . Plan::JETPACK_SEARCH_EVER_SUPPORTED_SEARCH, '__return_false' );
+		add_filter( 'option_has_jetpack_search_product', '__return_false' );
+		add_filter( 'option_' . Plan::JETPACK_SEARCH_PLAN_INFO_OPTION_KEY, '__return_false' );
+		$this->assertFalse( static::$plan->ever_supported_search() );
+		remove_filter( 'option_' . Plan::JETPACK_SEARCH_EVER_SUPPORTED_SEARCH, '__return_false' );
+		remove_filter( 'option_has_jetpack_search_product', '__return_false' );
+		remove_filter( 'option_' . Plan::JETPACK_SEARCH_PLAN_INFO_OPTION_KEY, '__return_false' );
+
+		add_filter( 'option_' . Plan::JETPACK_SEARCH_EVER_SUPPORTED_SEARCH, '__return_false' );
+		add_filter( 'option_has_jetpack_search_product', '__return_false' );
+		$this->assertTrue( static::$plan->ever_supported_search() );
+		remove_filter( 'option_' . Plan::JETPACK_SEARCH_EVER_SUPPORTED_SEARCH, '__return_false' );
+		remove_filter( 'option_has_jetpack_search_product', '__return_false' );
+	}
+
+	/**
+	 * Test update data on heartbeat
+	 */
+	public function test_update_data_on_heartbeat() {
+		delete_option( Plan::JETPACK_SEARCH_PLAN_INFO_OPTION_KEY );
+		$this->assertEmpty( get_option( Plan::JETPACK_SEARCH_PLAN_INFO_OPTION_KEY ) );
+		do_action( 'jetpack_heartbeat' );
+		$this->assertNotEmpty( get_option( Plan::JETPACK_SEARCH_PLAN_INFO_OPTION_KEY ) );
 	}
 
 }
