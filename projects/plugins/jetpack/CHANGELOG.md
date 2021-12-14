@@ -15,7 +15,7 @@
 
 ### Bug fixes
 - Admin Menu: add support for WPML menu structure.
-- I18n: ensure various strings in JavaScript UIs are marked for translation.
+- Internationalization: ensure that all text, including text added via JavaScript, can be translated.
 - Milestone widget: fix issue that prevented styles from loading until the widget is saved.
 
 ### Other changes <!-- Non-user-facing changes go here. This section will not be copied to readme.txt. -->
