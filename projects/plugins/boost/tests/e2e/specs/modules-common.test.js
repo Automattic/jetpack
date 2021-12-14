@@ -1,6 +1,7 @@
 import { boostPrerequisitesBuilder } from '../lib/env/prerequisites.js';
 import { test, expect } from '../fixtures/base-test.js';
 import { JetpackBoostPage } from '../lib/pages/index.js';
+import playwrightConfig from 'jetpack-e2e-commons/playwright.config.cjs';
 
 const modules = [
 	// ['MODULE_NAME', 'DEFAULT STATE'],
@@ -14,7 +15,7 @@ test.describe.serial( 'Modules', () => {
 	let jetpackBoostPage;
 
 	test.beforeAll( async ( { browser } ) => {
-		page = await browser.newPage();
+		page = await browser.newPage( playwrightConfig.use );
 
 		await boostPrerequisitesBuilder( page )
 			.withConnection( true )

@@ -1,6 +1,7 @@
 import { test, expect } from '../fixtures/base-test.js';
 import { boostPrerequisitesBuilder } from '../lib/env/prerequisites.js';
 import { PostFrontendPage } from 'jetpack-e2e-commons/pages/index.js';
+import playwrightConfig from 'jetpack-e2e-commons/playwright.config.cjs';
 
 const testPostTitle = 'Hello World with JavaScript';
 
@@ -8,7 +9,7 @@ test.describe.serial( 'Render Blocking JS module', () => {
 	let page;
 
 	test.beforeAll( async ( { browser } ) => {
-		page = await browser.newPage();
+		page = await browser.newPage( playwrightConfig.use );
 		await boostPrerequisitesBuilder( page ).withTestContent( [ testPostTitle ] ).build();
 	} );
 

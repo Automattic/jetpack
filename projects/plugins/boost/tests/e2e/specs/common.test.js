@@ -4,9 +4,10 @@ import { execWpCommand } from 'jetpack-e2e-commons/helpers/utils-helper.cjs';
 import { boostPrerequisitesBuilder } from '../lib/env/prerequisites.js';
 import { prerequisitesBuilder } from 'jetpack-e2e-commons/env/prerequisites.js';
 import { JetpackBoostPage } from '../lib/pages/index.js';
+import playwrightConfig from 'jetpack-e2e-commons/playwright.config.cjs';
 
 test.afterAll( async ( { browser } ) => {
-	const page = await browser.newPage();
+	const page = await browser.newPage( playwrightConfig.use );
 
 	await prerequisitesBuilder( page ).withActivePlugins( [ 'boost' ] ).build();
 	await boostPrerequisitesBuilder( page ).withConnection( true ).build();
