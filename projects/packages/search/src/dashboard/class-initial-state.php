@@ -93,40 +93,14 @@ class Initial_State {
 		$is_master_user    = $is_user_connected && (int) $current_user->ID && (int) Jetpack_Options::get_option( 'master_user' ) === (int) $current_user->ID;
 		$dotcom_data       = $this->connection_manager->get_connected_user_data();
 
-		// Add connected user gravatar to the returned dotcom_data.
-		$dotcom_data['avatar'] = ( ! empty( $dotcom_data['email'] ) ?
-		get_avatar_url(
-			$dotcom_data['email'],
-			array(
-				'size'    => 64,
-				'default' => 'mysteryman',
-			)
-		)
-		: false );
-
 		$current_user_data = array(
 			'isConnected' => $is_user_connected,
 			'isMaster'    => $is_master_user,
 			'username'    => $current_user->user_login,
 			'id'          => $current_user->ID,
 			'wpcomUser'   => $dotcom_data,
-			'gravatar'    => get_avatar_url( $current_user->ID, 64, 'mm', '', array( 'force_display' => true ) ),
 			'permissions' => array(
-				'admin_page'         => current_user_can( 'jetpack_admin_page' ),
-				'connect'            => current_user_can( 'jetpack_connect' ),
-				'connect_user'       => current_user_can( 'jetpack_connect_user' ),
-				'disconnect'         => current_user_can( 'jetpack_disconnect' ),
-				'manage_modules'     => current_user_can( 'jetpack_manage_modules' ),
-				'network_admin'      => current_user_can( 'jetpack_network_admin_page' ),
-				'network_sites_page' => current_user_can( 'jetpack_network_sites_page' ),
-				'edit_posts'         => current_user_can( 'edit_posts' ),
-				'publish_posts'      => current_user_can( 'publish_posts' ),
-				'manage_options'     => current_user_can( 'manage_options' ),
-				'view_stats'         => current_user_can( 'view_stats' ),
-				'manage_plugins'     => current_user_can( 'install_plugins' )
-										&& current_user_can( 'activate_plugins' )
-										&& current_user_can( 'update_plugins' )
-										&& current_user_can( 'delete_plugins' ),
+				'manage_options' => current_user_can( 'manage_options' ),
 			),
 		);
 
