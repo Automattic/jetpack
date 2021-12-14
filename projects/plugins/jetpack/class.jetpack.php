@@ -105,6 +105,7 @@ class Jetpack {
 		'jetpack-simple-payments-widget-style',
 		'jetpack-widget-social-icons-styles',
 		'wpcom_instagram_widget',
+		'milestone-widget',
 	);
 
 	/**
@@ -340,6 +341,7 @@ class Jetpack {
 	 * @var array Plugins that conflict with Twitter cards.
 	 */
 	private $twitter_cards_conflicting_plugins = array(
+		// phpcs:ignore Squiz.PHP.CommentedOutCode.Found
 		// 'twitter/twitter.php',                       // The official one handles this on its own.
 		// https://github.com/twitter/wordpress/blob/master/src/Twitter/WordPress/Cards/Compatibility.php
 			'eewee-twitter-card/index.php',              // Eewee Twitter Card.
@@ -384,20 +386,30 @@ class Jetpack {
 
 	/**
 	 * Jetpack_Sync object
+	 *
+	 * @todo This is also seemingly unused.
+	 *
+	 * @var object
 	 */
 	public $sync;
 
 	/**
 	 * Verified data for JSON authorization request
+	 *
+	 * @var array
 	 */
 	public $json_api_authorization_request = array();
 
 	/**
+	 * Connection manager.
+	 *
 	 * @var Automattic\Jetpack\Connection\Manager
 	 */
 	protected $connection_manager;
 
 	/**
+	 * Plugin lock key.
+	 *
 	 * @var string Transient key used to prevent multiple simultaneous plugin upgrades
 	 */
 	public static $plugin_upgrade_lock_key = 'jetpack_upgrade_lock';
@@ -570,7 +582,7 @@ class Jetpack {
 	 * Saves all the currently active modules to options.
 	 * Also fires Action hooks for each newly activated and deactivated module.
 	 *
-	 * @param $modules Array Array of active modules to be saved in options.
+	 * @param array $modules Array of active modules to be saved in options.
 	 *
 	 * @return $success bool true for success, false for failure.
 	 */
@@ -628,6 +640,11 @@ class Jetpack {
 		return $success;
 	}
 
+	/**
+	 * Remove all active modules.
+	 *
+	 * @return void
+	 */
 	static function delete_active_modules() {
 		self::update_active_modules( array() );
 	}
@@ -948,7 +965,8 @@ class Jetpack {
 	 * Return $domains, with 'wordpress.com' appended.
 	 * This is ported over from the manage module, which has been deprecated and baked in here.
 	 *
-	 * @param $domains
+	 * @param array $domains Array of domains allowed for redirect.
+	 *
 	 * @return array
 	 */
 	function allow_wpcom_domain( $domains ) {
@@ -959,6 +977,14 @@ class Jetpack {
 		return array_unique( $domains );
 	}
 
+	/**
+	 * Redirect edit post links to Calypso.
+	 *
+	 * @param string $default_url Post edit URL.
+	 * @param int    $post_id Post ID.
+	 *
+	 * @return string
+	 */
 	function point_edit_post_links_to_calypso( $default_url, $post_id ) {
 		$post = get_post( $post_id );
 
@@ -989,6 +1015,13 @@ class Jetpack {
 		);
 	}
 
+	/**
+	 * Redirect edit comment links to Calypso.
+	 *
+	 * @param string $url Comment edit URL.
+	 *
+	 * @return string
+	 */
 	function point_edit_comment_links_to_calypso( $url ) {
 		// Take the `query` key value from the URL, and parse its parts to the $query_args. `amp;c` matches the comment ID.
 		wp_parse_str( wp_parse_url( $url, PHP_URL_QUERY ), $query_args );
@@ -1273,16 +1306,15 @@ class Jetpack {
 	/**
 	 * Return the network_site_url so that .com knows what network this site is a part of.
 	 *
-	 * @param  bool $option
 	 * @return string
 	 */
-	public function jetpack_main_network_site_option( $option ) {
+	public function jetpack_main_network_site_option() {
 		return network_site_url();
 	}
 	/**
 	 * Network Name.
 	 */
-	static function network_name( $option = null ) {
+	public static function network_name() {
 		global $current_site;
 		return $current_site->site_name;
 	}
@@ -1291,7 +1323,7 @@ class Jetpack {
 	 *
 	 * @return string
 	 */
-	static function network_allow_new_registrations( $option = null ) {
+	public static function network_allow_new_registrations() {
 		return ( in_array( get_site_option( 'registration' ), array( 'none', 'user', 'blog', 'all' ) ) ? get_site_option( 'registration' ) : 'none' );
 	}
 	/**
@@ -1299,7 +1331,7 @@ class Jetpack {
 	 *
 	 * @return boolian
 	 */
-	static function network_add_new_users( $option = null ) {
+	public static function network_add_new_users() {
 		return (bool) get_site_option( 'add_new_users' );
 	}
 	/**
@@ -1308,7 +1340,7 @@ class Jetpack {
 	 *
 	 * @return number
 	 */
-	static function network_site_upload_space( $option = null ) {
+	public static function network_site_upload_space() {
 		// value in MB.
 		return ( get_site_option( 'upload_space_check_disabled' ) ? -1 : get_space_allowed() );
 	}
@@ -1318,7 +1350,7 @@ class Jetpack {
 	 *
 	 * @return string
 	 */
-	static function network_upload_file_types( $option = null ) {
+	public static function network_upload_file_types() {
 		return get_site_option( 'upload_filetypes', 'jpg jpeg png gif' );
 	}
 
@@ -1327,7 +1359,7 @@ class Jetpack {
 	 *
 	 * @return number
 	 */
-	static function network_max_upload_file_size( $option = null ) {
+	public static function network_max_upload_file_size() {
 		// value in KB.
 		return get_site_option( 'fileupload_maxk', 300 );
 	}
@@ -1337,7 +1369,7 @@ class Jetpack {
 	 *
 	 * @return array
 	 */
-	static function network_enable_administration_menus( $option = null ) {
+	public static function network_enable_administration_menus() {
 		return get_site_option( 'menu_items' );
 	}
 
@@ -1405,11 +1437,9 @@ class Jetpack {
 	 * the rest the get_option( 'jetpack_is_multi_network' ); to return the value that is set in the
 	 * database which could be set to anything as opposed to what this function returns.
 	 *
-	 * @param  bool $option
-	 *
 	 * @return boolean
 	 */
-	public function is_main_network_option( $option ) {
+	public function is_main_network_option() {
 		// returns either an '1' or an empty string.
 		return (string) (bool) self::is_multi_network();
 	}
@@ -1417,10 +1447,9 @@ class Jetpack {
 	/**
 	 * Return true if we are with multi-site or multi-network false if we are dealing with single site.
 	 *
-	 * @param  string $option
-	 * @return boolean
+	 * @return string
 	 */
-	public function is_multisite( $option ) {
+	public function is_multisite() {
 		return (string) (bool) is_multisite();
 	}
 
@@ -1490,7 +1519,9 @@ class Jetpack {
 
 // phpcs:disable WordPress.WP.CapitalPDangit.Misspelled
 	/**
-	 * jetpack_updates is saved in the following schema:
+	 * Gets updates and stores in jetpack_updates.
+	 *
+	 * The jetpack_updates option is saved in the following schema:
 	 *
 	 * array (
 	 *      'plugins'                       => (int) Number of plugin updates available.
@@ -1522,6 +1553,11 @@ class Jetpack {
 	}
 	// phpcs:enable
 
+	/**
+	 * Get update details for core, plugins, and themes.
+	 *
+	 * @return array
+	 */
 	public static function get_update_details() {
 		$update_details = array(
 			'update_core'    => get_site_transient( 'update_core' ),
@@ -1693,6 +1729,8 @@ class Jetpack {
 
 	/**
 	 * Is a given user (or the current user if none is specified) linked to a WordPress.com user?
+	 *
+	 * @param int $user_id User ID or will use get_current_user_id if false/not provided.
 	 */
 	public static function is_user_connected( $user_id = false ) {
 		_deprecated_function( __METHOD__, 'jetpack-9.5', 'Automattic\\Jetpack\\Connection\\Manager\\is_user_connected' );
@@ -1701,6 +1739,8 @@ class Jetpack {
 
 	/**
 	 * Get the wpcom user data of the current|specified connected user.
+	 *
+	 * @param null|int $user_id User ID or will use get_current_user_id if null.
 	 */
 	public static function get_connected_user_data( $user_id = null ) {
 		_deprecated_function( __METHOD__, 'jetpack-9.5', 'Automattic\\Jetpack\\Connection\\Manager\\get_connected_user_data' );
@@ -1709,6 +1749,8 @@ class Jetpack {
 
 	/**
 	 * Get the wpcom email of the current|specified connected user.
+	 *
+	 * @param null|int $user_id User ID or will use get_current_user_id if null.
 	 */
 	public static function get_connected_user_email( $user_id = null ) {
 		if ( ! $user_id ) {
@@ -1976,6 +2018,8 @@ class Jetpack {
 	 *
 	 * We don't want to store these in a static variable, in case
 	 * there are switch_to_blog() calls involved.
+	 *
+	 * @param string $plugin Plugin to check in 'folder/file.php` format.
 	 */
 	public static function is_plugin_active( $plugin = 'jetpack/jetpack.php' ) {
 		return in_array( $plugin, self::get_active_plugins() );
@@ -2053,6 +2097,8 @@ class Jetpack {
 	/* Jetpack Options API */
 
 	/**
+	 * Gets the option names from Jetpack_Options.
+	 *
 	 * @param string $type Jetpack option type.
 	 *
 	 * @return array
@@ -2062,7 +2108,9 @@ class Jetpack {
 	}
 
 	/**
-	 * Returns the requested option.  Looks in jetpack_options or jetpack_$name as appropriate.
+	 * Returns the requested option.
+	 *
+	 * Looks in jetpack_options or jetpack_$name as appropriate.
 	 *
 	 * @param string $name    Option name.
 	 * @param mixed  $default Default value.
@@ -2108,6 +2156,13 @@ class Jetpack {
 		return $files;
 	}
 
+	/**
+	 * Activate new modules.
+	 *
+	 * @param bool $redirect Should this function redirect after activation.
+	 *
+	 * @return void
+	 */
 	public static function activate_new_modules( $redirect = false ) {
 		if ( ! self::is_connection_ready() && ! ( new Status() )->is_offline_mode() ) {
 			return;
@@ -2258,7 +2313,7 @@ class Jetpack {
 	/**
 	 * Get default modules loaded on activation.
 	 *
-	 * @param bool|string $min_version Onlu return modules introduced in this version or later. Default is false, do not filter.
+	 * @param bool|string $min_version Only return modules introduced in this version or later. Default is false, do not filter.
 	 * @param bool|string $max_version Only return modules introduced before this version. Default is false, do not filter.
 	 * @param bool|null   $requires_connection Pass a boolean value to only return modules that require (or do not require) a connection.
 	 * @param bool|null   $requires_user_connection Pass a boolean value to only return modules that require (or do not require) a user connection.
@@ -2382,6 +2437,10 @@ class Jetpack {
 
 	/**
 	 * Extract a module's slug from its full path.
+	 *
+	 * @param string $file Full path to a file.
+	 *
+	 * @return string Module slug.
 	 */
 	public static function get_module_slug( $file ) {
 		return str_replace( '.php', '', basename( $file ) );
@@ -2389,6 +2448,8 @@ class Jetpack {
 
 	/**
 	 * Generate a module's path from its slug.
+	 *
+	 * @param string $slug Module slug.
 	 */
 	public static function get_module_path( $slug ) {
 		/**
@@ -2505,6 +2566,9 @@ class Jetpack {
 
 	/**
 	 * Like core's get_file_data implementation, but caches the result.
+	 *
+	 * @param string $file Absolute path to the file.
+	 * @param array  $headers List of headers, in the format array( 'HeaderKey' => 'Header Name' ).
 	 */
 	public static function get_file_data( $file, $headers ) {
 		// Get just the filename from $file (i.e. exclude full path) so that a consistent hash is generated.
@@ -2622,6 +2686,13 @@ class Jetpack {
 		return in_array( $module, self::get_active_modules() );
 	}
 
+	/**
+	 * Is slug a valid module.
+	 *
+	 * @param string $module Module slug.
+	 *
+	 * @return bool
+	 */
 	public static function is_module( $module ) {
 		return ! empty( $module ) && ! validate_file( $module, self::get_available_modules() );
 	}
@@ -2672,6 +2743,19 @@ class Jetpack {
 		return $string;
 	}
 
+	/**
+	 * Activates default Jetpack modules.
+	 *
+	 * @param null|string $min_version Only return modules introduced in this version or later. Default is false, do not filter.
+	 * @param null|string $max_version Only return modules introduced before this version. Default is false, do not filter.
+	 * @param array       $other_modules Other modules to activate.
+	 * @param null|bool   $redirect Should there be a redirection after activation.
+	 * @param bool        $send_state_messages If a state message should be sent.
+	 * @param bool|null   $requires_connection Pass a boolean value to only return modules that require (or do not require) a connection.
+	 * @param bool|null   $requires_user_connection Pass a boolean value to only return modules that require (or do not require) a user connection.
+	 *
+	 * @return void
+	 */
 	public static function activate_default_modules(
 		$min_version = false,
 		$max_version = false,
@@ -2845,6 +2929,15 @@ class Jetpack {
 		do_action( 'jetpack_activate_default_modules', $min_version, $max_version, $other_modules, $requires_connection, $requires_user_connection );
 	}
 
+	/**
+	 * Activate a module.
+	 *
+	 * @param string $module Module slug.
+	 * @param bool   $exit Should exit be called after deactivation.
+	 * @param bool   $redirect Should there be a redirection after activation.
+	 *
+	 * @return bool|void
+	 */
 	public static function activate_module( $module, $exit = true, $redirect = true ) {
 		/**
 		 * Fires before a module is activated.
@@ -2939,6 +3032,13 @@ class Jetpack {
 		return true;
 	}
 
+	/**
+	 * Deactivate module.
+	 *
+	 * @param string $module Module slug.
+	 *
+	 * @return bool
+	 */
 	public static function deactivate_module( $module ) {
 		/**
 		 * Fires when a module is deactivated.
@@ -2957,6 +3057,13 @@ class Jetpack {
 		return self::update_active_modules( $new );
 	}
 
+	/**
+	 * Enable a configuable module.
+	 *
+	 * @param string $module Module slug.
+	 *
+	 * @return void
+	 */
 	public static function enable_module_configurable( $module ) {
 		$module = self::get_module_slug( $module );
 		add_filter( 'jetpack_module_configurable_' . $module, '__return_true' );
@@ -2985,6 +3092,14 @@ class Jetpack {
 	}
 
 	/* Installation */
+	/**
+	 * Bail on activation if there is an issue.
+	 *
+	 * @param string $message Error message.
+	 * @param bool   $deactivate Deactivate Jetpack or not.
+	 *
+	 * @return void
+	 */
 	public static function bail_on_activation( $message, $deactivate = true ) {
 		?>
 <!doctype html>
@@ -3029,12 +3144,13 @@ p {
 	/**
 	 * Attached to activate_{ plugin_basename( __FILES__ ) } by register_activation_hook()
 	 *
-	 * @static
+	 * @param bool $network_wide Network-wide activation.
 	 */
 	public static function plugin_activation( $network_wide ) {
 		Jetpack_Options::update_option( 'activated', 1 );
 
 		if ( version_compare( $GLOBALS['wp_version'], JETPACK__MINIMUM_WP_VERSION, '<' ) ) {
+			/* translator: Jetpack version number. */
 			self::bail_on_activation( sprintf( __( 'Jetpack requires WordPress version %s or later.', 'jetpack' ), JETPACK__MINIMUM_WP_VERSION ) );
 		}
 
@@ -3056,8 +3172,14 @@ p {
 		self::plugin_initialize();
 	}
 
+	/**
+	 * Returns the activation source.
+	 *
+	 * @param string $referer_url URL.
+	 *
+	 * @return array source_type, source_query.
+	 */
 	public static function get_activation_source( $referer_url ) {
-
 		if ( defined( 'WP_CLI' ) && WP_CLI ) {
 			return array( 'wp-cli', null );
 		}
@@ -3180,7 +3302,7 @@ p {
 		} else {
 			add_filter( 'jetpack_update_activated_state_on_disconnect', '__return_false' );
 			self::disconnect();
-			// Jetpack_Heartbeat::init()->deactivate();
+			Jetpack_Options::delete_option( 'version' );
 		}
 	}
 
@@ -3284,6 +3406,9 @@ p {
 	 * Tracking an internal event log. Try not to put too much chaff in here.
 	 *
 	 * [Everyone Loves a Log!](https://www.youtube.com/watch?v=2C7mNr5WMjA)
+	 *
+	 * @param mixed $code Error code to log.
+	 * @param mixed $data Data to log.
 	 */
 	public static function log( $code, $data = null ) {
 		// only grab the latest 200 entries.
@@ -3373,6 +3498,10 @@ p {
 
 	/**
 	 * Log modification of important settings.
+	 *
+	 * @param string $option Option name.
+	 * @param string $old_value Old value of option.
+	 * @param string $value New value of option.
 	 */
 	public static function log_settings_change( $option, $old_value, $value ) {
 		switch ( $option ) {
@@ -3383,7 +3512,12 @@ p {
 	}
 
 	/**
-	 * Return stat data for WPCOM sync
+	 * Return stat data for WPCOM sync.
+	 *
+	 * @param bool $encode JSON encode the result.
+	 * @param bool $extended Adds additional stats data.
+	 *
+	 * @return array|string Stats data. Array if $encode is false. JSON-encoded string is $encode is true.
 	 */
 	public static function get_stat_data( $encode = true, $extended = true ) {
 		$data = Jetpack_Heartbeat::generate_stats_array();
@@ -3402,6 +3536,10 @@ p {
 
 	/**
 	 * Get additional stat data to sync to WPCOM
+	 *
+	 * @param string $prefix Stats prefix.
+	 *
+	 * @return array stats values.
 	 */
 	public static function get_additional_stat_data( $prefix = '' ) {
 		$return[ "{$prefix}themes" ]        = self::get_parsed_theme_data();
@@ -3415,6 +3553,11 @@ p {
 		return $return;
 	}
 
+	/**
+	 * Get current site's user count.
+	 *
+	 * @return int|string|null Number of users on the site. -1 for a large network.
+	 */
 	private static function get_site_user_count() {
 		global $wpdb;
 
@@ -3433,6 +3576,13 @@ p {
 
 	/* Admin Pages */
 
+	/**
+	 * Admin init function.
+	 *
+	 * Runs on admin_init hook.
+	 *
+	 * @return void
+	 */
 	function admin_init() {
 		// If the plugin is not connected, display a connect message.
 		if (
@@ -3489,6 +3639,13 @@ p {
 		add_action( 'admin_print_styles', array( $this, 'jetpack_user_col_style' ) );
 	}
 
+	/**
+	 * Adds body classes.
+	 *
+	 * @param string $admin_body_class Body classes.
+	 *
+	 * @return string
+	 */
 	function admin_body_class( $admin_body_class = '' ) {
 		$classes = explode( ' ', trim( $admin_body_class ) );
 
@@ -3498,6 +3655,13 @@ p {
 		return " $admin_body_class ";
 	}
 
+	/**
+	 * Adds Jetpack Page styles by appending class to the admin body class.
+	 *
+	 * @param string $admin_body_class Existing admin body class string.
+	 *
+	 * @return string
+	 */
 	static function add_jetpack_pagestyles( $admin_body_class = '' ) {
 		return $admin_body_class . ' jetpack-pagestyles ';
 	}
@@ -3528,6 +3692,7 @@ p {
 			}
 
 			if ( $throw ) {
+				/* translators: Plugin name to deactivate. */
 				trigger_error( sprintf( __( 'Jetpack contains the most recent version of the old &#8220;%1$s&#8221; plugin.', 'jetpack' ), 'WordPress.com Stats' ), E_USER_ERROR );
 			}
 		}
@@ -3541,10 +3706,23 @@ p {
 		self::state( 'message' );
 	}
 
+	/**
+	 * Adds the intercept action to the check_admin_referer hook.
+	 *
+	 * @return void
+	 */
 	function intercept_plugin_error_scrape_init() {
 		add_action( 'check_admin_referer', array( $this, 'intercept_plugin_error_scrape' ), 10, 2 );
 	}
 
+	/**
+	 * Detect if conflicting plugin is being deactivated.
+	 *
+	 * @param string   $action The nonce action.
+	 * @param bool|int $result False if the nonce is invalid, 1 if the nonce is valid and generated between 0-12 hours ago, 2 if the nonce is valid and generated between 12-24 hours ago.
+	 *
+	 * @return void
+	 */
 	function intercept_plugin_error_scrape( $action, $result ) {
 		if ( ! $result ) {
 			return;
@@ -3552,6 +3730,7 @@ p {
 
 		foreach ( $this->plugins_to_deactivate as $deactivate_me ) {
 			if ( "plugin-activation-error_{$deactivate_me[0]}" == $action ) {
+				/* translators: Plugin name to deactivate. */
 				self::bail_on_activation( sprintf( __( 'Jetpack contains the most recent version of the old &#8220;%1$s&#8221; plugin.', 'jetpack' ), $deactivate_me[1] ), false );
 			}
 		}
@@ -3823,14 +4002,33 @@ p {
 		);
 	}
 
+	/**
+	 * Enqueues the jetpack-icons style.
+	 *
+	 * @return void
+	 */
 	function admin_menu_css() {
 		wp_enqueue_style( 'jetpack-icons' );
 	}
 
+	/**
+	 * Returns true.
+	 *
+	 * @todo This is seemingly unused.
+	 *
+	 * @return bool
+	 */
 	function admin_menu_order() {
 		return true;
 	}
 
+	/**
+	 * Sorts the order of wp-admin menu items.
+	 *
+	 * @param array $menu_order Existing menu order.
+	 *
+	 * @return array
+	 */
 	function jetpack_menu_order( $menu_order ) {
 		$jp_menu_order = array();
 
@@ -3847,6 +4045,11 @@ p {
 		return $jp_menu_order;
 	}
 
+	/**
+	 * Registers/enqueues Jetpack banner styles.
+	 *
+	 * @return void
+	 */
 	function admin_banner_styles() {
 		$min = ( defined( 'SCRIPT_DEBUG' ) && SCRIPT_DEBUG ) ? '' : '.min';
 
@@ -3869,6 +4072,13 @@ p {
 		wp_style_add_data( 'jetpack', 'suffix', $min );
 	}
 
+	/**
+	 * Add action links for the Jetpack plugin.
+	 *
+	 * @param array $actions Plugin actions.
+	 *
+	 * @return array
+	 */
 	function plugin_action_links( $actions ) {
 
 		$jetpack_home = array( 'jetpack-home' => sprintf( '<a href="%s">%s</a>', self::admin_url( 'page=jetpack' ), __( 'My Jetpack', 'jetpack' ) ) );
@@ -4164,6 +4374,7 @@ p {
 					check_admin_referer( "jetpack_activate-$module" );
 					self::log( 'activate', $module );
 					if ( ! self::activate_module( $module ) ) {
+						/* translators: module/feature name */
 						self::state( 'error', sprintf( __( 'Could not activate %s', 'jetpack' ), $module ) );
 					}
 					// The following two lines will rarely happen, as Jetpack::activate_module normally exits at the end.
@@ -4331,6 +4542,11 @@ p {
 		add_filter( 'jetpack_short_module_description', 'wptexturize' );
 	}
 
+	/**
+	 * Display admin notice upon error.
+	 *
+	 * @return void
+	 */
 	function admin_notices() {
 
 		if ( $this->error ) {
@@ -4423,6 +4639,7 @@ p {
 
 			echo wp_kses(
 				sprintf(
+						/* translators: URL to deactivate Jetpack features. */
 					_nx(
 						'If your site is not publicly accessible, consider <a href="%1$s" title="%2$s">deactivating this feature</a>.',
 						'If your site is not publicly accessible, consider <a href="%1$s" title="%2$s">deactivating these features</a>.',
@@ -4499,6 +4716,9 @@ endif;
 
 	/**
 	 * Record a stat for later output.  This will only currently output in the admin_footer.
+	 *
+	 * @param string $group Stats group.
+	 * @param string $detail Stats detail.
 	 */
 	function stat( $group, $detail ) {
 		$this->initialize_stats();
@@ -6898,7 +7118,7 @@ endif;
 			'slug'              => 'jetpack_backup_t1_yearly',
 			'description'       => __( 'Never lose a word, image, page, or time worrying about your site with automated backups & one-click restores.', 'jetpack' ),
 			'show_promotion'    => true,
-			'discount_percent'  => 40,
+			'discount_percent'  => 50,
 			'included_in_plans' => array( 'security' ),
 			'features'          => array(
 				_x( 'Real-time cloud backups', 'Backup Product Feature', 'jetpack' ),
@@ -6913,7 +7133,7 @@ endif;
 			'slug'              => 'jetpack_scan',
 			'description'       => __( 'Automatic scanning and one-click fixes keep your site one step ahead of security threats and malware.', 'jetpack' ),
 			'show_promotion'    => true,
-			'discount_percent'  => 40,
+			'discount_percent'  => 50,
 			'included_in_plans' => array( 'security' ),
 			'features'          => array(
 				_x( 'Automated daily scanning', 'Scan Product Feature', 'jetpack' ),
@@ -6927,7 +7147,7 @@ endif;
 			'slug'              => 'jetpack_search',
 			'description'       => __( 'Help your site visitors find answers instantly so they keep reading and buying. Great for sites with a lot of content.', 'jetpack' ),
 			'show_promotion'    => true,
-			'discount_percent'  => 40,
+			'discount_percent'  => 50,
 			'included_in_plans' => array(),
 			'features'          => array(
 				_x( 'Instant search and indexing', 'Search Product Feature', 'jetpack' ),
@@ -6942,7 +7162,7 @@ endif;
 			'slug'              => 'jetpack_anti_spam',
 			'description'       => __( 'Save time and get better responses by automatically blocking spam from your comments and forms.', 'jetpack' ),
 			'show_promotion'    => true,
-			'discount_percent'  => 40,
+			'discount_percent'  => 50,
 			'included_in_plans' => array( 'security' ),
 			'features'          => array(
 				_x( 'Comment and form spam protection', 'Anti-Spam Product Feature', 'jetpack' ),
@@ -6957,7 +7177,7 @@ endif;
 			'slug'              => 'jetpack_security_t1_yearly',
 			'description'       => __( 'Comprehensive site security, including Backup, Scan, and Anti-spam.', 'jetpack' ),
 			'show_promotion'    => true,
-			'discount_percent'  => 40,
+			'discount_percent'  => 50,
 			'included_in_plans' => array(),
 			'features'          => array(
 				_x( 'Real-time cloud backups with 10GB storage', 'Security Tier 1 Feature', 'jetpack' ),
@@ -6972,7 +7192,7 @@ endif;
 			'slug'              => 'jetpack_videopress',
 			'description'       => __( 'High-quality, ad-free video built specifically for WordPress.', 'jetpack' ),
 			'show_promotion'    => true,
-			'discount_percent'  => 40,
+			'discount_percent'  => 50,
 			'included_in_plans' => array(),
 			'features'          => array(
 				_x( '1TB of storage', 'VideoPress Product Feature', 'jetpack' ),

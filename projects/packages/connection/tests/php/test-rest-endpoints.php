@@ -2,6 +2,7 @@
 
 namespace Automattic\Jetpack\Connection;
 
+use Automattic\Jetpack\Connection\Package_Version_Tracker as Connection_Package_Version_Tracker;
 use Automattic\Jetpack\Connection\Plugin as Connection_Plugin;
 use Automattic\Jetpack\Connection\Plugin_Storage as Connection_Plugin_Storage;
 use Automattic\Jetpack\Connection\Rest_Authentication as Connection_Rest_Authentication;
@@ -381,6 +382,9 @@ class Test_REST_Endpoints extends TestCase {
 
 		$this->assertEquals( 200, $response->get_status() );
 		$this->assertSame( 0, strpos( $data['authorizeUrl'], 'https://jetpack.wordpress.com/jetpack.authorize/' ) );
+
+		// Asserts that package_versions option will be populated on successful response.
+		$this->assertNotFalse( get_option( Connection_Package_Version_Tracker::PACKAGE_VERSION_OPTION ) );
 
 		// Asserts jetpack_register_site_rest_response filter is being properly hooked to add data from wpcom register endpoint response.
 		$this->assertFalse( $data['allowInplaceAuthorization'] );

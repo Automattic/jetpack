@@ -43,7 +43,7 @@ const CardMigrate = props => {
 							sprintf(
 								/* translators: %1$s: The current site domain name. %2$s: The original site domain name. */
 								__(
-									'Move all your settings, stats and subscribers to your other <hostname>%1$s</hostname>. <hostname>%2$s</hostname> will be disconnected from Jetpack.',
+									'Move all your settings, stats and subscribers to your other URL, <hostname>%1$s</hostname>. <hostname>%2$s</hostname> will be disconnected from Jetpack.',
 									'jetpack'
 								),
 								currentHostName,
