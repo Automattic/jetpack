@@ -35,7 +35,7 @@
 		],
 		"build-production": [
 			"Composer\\Config::disableProcessTimeout",
-			"pnpm run build"
+			"NODE_ENV=production pnpm run build"
 		],
 		"watch": [
 			"Composer\\Config::disableProcessTimeout",

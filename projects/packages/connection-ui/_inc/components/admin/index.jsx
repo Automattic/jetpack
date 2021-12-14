@@ -34,32 +34,31 @@ const Admin = props => {
 
 	const { connectionStatus } = props;
 
-	const { tracksUserData, tracksEventData } = window.CUI_INITIAL_STATE;
+	const { tracksUserData, tracksEventData, canManageConnection } = window.CUI_INITIAL_STATE;
 
 	useEffect( () => {
 		restApi.setApiRoot( APIRoot );
 		restApi.setApiNonce( APINonce );
 	}, [ APIRoot, APINonce ] );
 
-	if ( IDCData.hasIDC ) {
-		return (
-			<IDCScreen
-				wpcomHomeUrl={ IDCData.wpcomHomeUrl }
-				currentUrl={ IDCData.currentUrl }
-				apiRoot={ APIRoot }
-				apiNonce={ APINonce }
-				redirectUri={ IDCData.redirectUri }
-				tracksUserData={ tracksUserData }
-				tracksEventData={ tracksEventData }
-			/>
-		);
-	}
-
 	return (
 		<React.Fragment>
 			<Header />
 
-			{ connectionStatus.isRegistered && (
+			{ IDCData.hasIDC && (
+				<IDCScreen
+					wpcomHomeUrl={ IDCData.wpcomHomeUrl }
+					currentUrl={ IDCData.currentUrl }
+					apiRoot={ APIRoot }
+					apiNonce={ APINonce }
+					redirectUri={ IDCData.redirectUri }
+					tracksUserData={ tracksUserData }
+					tracksEventData={ tracksEventData }
+					isAdmin={ IDCData.isAdmin }
+				/>
+			) }
+
+			{ ! IDCData.hasIDC && canManageConnection && connectionStatus.isRegistered && (
 				<ConnectionStatusCard
 					isRegistered={ connectionStatus.isRegistered }
 					isUserConnected={ connectionStatus.isUserConnected }
@@ -69,7 +68,7 @@ const Admin = props => {
 				/>
 			) }
 
-			{ ! connectionStatus.isRegistered && (
+			{ ! IDCData.hasIDC && canManageConnection && ! connectionStatus.isRegistered && (
 				<ConnectScreenRequiredPlan
 					connectionStatus={ connectionStatus }
 					apiRoot={ APIRoot }
@@ -98,6 +97,10 @@ const Admin = props => {
 						<li>{ __( 'Enhance your site with dozens of other features', 'jetpack' ) }</li>
 					</ul>
 				</ConnectScreenRequiredPlan>
+			) }
+
+			{ ( ! IDCData.hasIDC || IDCData.isSafeModeConfirmed ) && ! canManageConnection && (
+				<p>You need to be an admin to access this page.</p>
 			) }
 		</React.Fragment>
 	);

@@ -48,43 +48,56 @@ module.exports = ( babel, opts ) => {
 				const funcName = t.isMemberExpression( path.node.callee )
 					? path.node.callee.property.name
 					: path.node.callee.name;
-				const idx = functions[ funcName ];
-				if ( typeof idx === 'undefined' ) {
+				if ( ! functions.hasOwnProperty( funcName ) ) {
 					return;
 				}
+				const idx = functions[ funcName ];
 
-				const arg = path.node.arguments[ idx ];
-				if ( ! t.isStringLiteral( arg ) ) {
-					if ( arg ) {
-						debug(
-							path
-								.get( `arguments.${ idx }` )
-								.buildCodeFrameError(
-									`Domain argument should be a StringLiteral, not ${ arg.type }`,
-									Error
-								).message
-						);
-					} else {
-						debug(
-							path.buildCodeFrameError( `Domain argument (index ${ idx + 1 }) is missing`, Error )
-								.message
-						);
+				// If the domain argument is not set, maybe inject one.
+				if ( ! path.node.arguments[ idx ] ) {
+					debug(
+						path.buildCodeFrameError( `Domain argument (index ${ idx + 1 }) is missing`, Error )
+							.message
+					);
+					const newdomain = replacementDomain( '' );
+					if ( typeof newdomain === 'string' ) {
+						for ( let i = path.node.arguments.length; i < idx; i++ ) {
+							path.pushContainer( 'arguments', t.identifier( 'undefined' ) );
+						}
+						path.pushContainer( 'arguments', t.stringLiteral( newdomain ) );
 					}
 					return;
 				}
 
-				const newdomain = replacementDomain( arg.value );
-				if ( typeof newdomain === 'string' ) {
-					arg.value = newdomain;
-				} else if ( ! seenDomains[ arg.value ] ) {
-					seenDomains[ arg.value ] = true;
+				// Determine the old domain.
+				const argpath = path.get( `arguments.${ idx }` );
+				const argnode = argpath.node;
+				let olddomain;
+				if ( t.isStringLiteral( argnode ) ) {
+					olddomain = argnode.value;
+				} else if ( t.isTemplateLiteral( argnode ) && argnode.expressions.length === 0 ) {
+					olddomain = argnode.quasis[ 0 ].value.cooked;
+				} else {
 					debug(
-						path
-							.get( `arguments.${ idx }` )
-							.buildCodeFrameError(
-								`No mapping for textdomain ${ arg.value } (first instance)`,
-								Error
-							).message
+						argpath.buildCodeFrameError(
+							`Domain argument should be a StringLiteral, not ${ argnode.type }`,
+							Error
+						).message
+					);
+					return;
+				}
+
+				// Replace it, if appropriate.
+				const newdomain = replacementDomain( olddomain );
+				if ( typeof newdomain === 'string' ) {
+					argpath.replaceWith( t.stringLiteral( newdomain ) );
+				} else if ( ! seenDomains[ olddomain ] ) {
+					seenDomains[ olddomain ] = true;
+					debug(
+						argpath.buildCodeFrameError(
+							`No mapping for textdomain ${ olddomain } (first instance)`,
+							Error
+						).message
 					);
 				}
 			},
