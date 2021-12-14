@@ -1,4 +1,0 @@
-Significance: patch
-Type: other
-
-Use `automattic/jetpack-composer-plugin` to move Jetpack libraries from `vendor/` to `jetpack_vendor/` for i18n. 

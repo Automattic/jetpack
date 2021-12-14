@@ -448,7 +448,11 @@ const VideoPressEdit = CoreVideoEdit =>
 											>
 												{ ! poster
 													? __( 'Select Poster Image', 'jetpack' )
-													: __( 'Replace image', 'jetpack' ) }
+													: __(
+															'Replace image',
+															'jetpack',
+															/* dummy arg to avoid bad minification */ 0
+													  ) }
 											</Button>
 										) }
 									/>
@@ -531,7 +535,11 @@ const VideoPressEdit = CoreVideoEdit =>
 								text={
 									isUploading
 										? __( 'Uploading…', 'jetpack' )
-										: __( 'Generating preview…', 'jetpack' )
+										: __(
+												'Generating preview…',
+												'jetpack',
+												/* dummy arg to avoid bad minification */ 0
+										  )
 								}
 							/>
 						</div>
@@ -684,7 +692,7 @@ export default createHigherOrderComponent(
 				seekbarColor,
 				seekbarLoadingColor,
 				seekbarPlayedColor,
-				useAverageColor
+				useAverageColor,
 			} );
 			const preview = !! url && getEmbedPreview( url );
 
