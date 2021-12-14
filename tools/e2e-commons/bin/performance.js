@@ -29,8 +29,7 @@ function runTests( type, id ) {
 
 	execSyncShellCommand( `export WP_BASE_URL=${ siteUrl } &&
 	cd ../../gutenberg &&
-	echo $WP_BASE_URL &&
-	WP_BASE_URL=${ siteUrl } npm run test-performance packages/e2e-tests/specs/performance/post-editor.test.js &&
+	npm run test-performance packages/e2e-tests/specs/performance/post-editor.test.js &&
 	mv packages/e2e-tests/specs/performance/post-editor.test.results.json ../tools/e2e-commons/results/${ type }.${ id }.test.results.json` );
 }
 
