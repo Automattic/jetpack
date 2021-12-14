@@ -49,8 +49,8 @@ while IFS= read -r VER; do
 done < <( sed -n -E -e 's/^## \[?([0-9.]+)\]? - .*$/\1/p' "projects/$1/CHANGELOG.md" )
 [[ -n "$PREVIOUS_VERSION" ]] || die "Version $CURRENT_VERSION was not found or was the first version."
 
-echo "$CURRENT_VERSION"
-echo "$PREVIOUS_VERSION"
+echo "Getting contributors from $PREVIOUS_VERSION to $CURRENT_VERSION..."
+
 # Display the list.
 TMP="$( git log --format='%an' --no-merges "origin/$PREFIX/branch-$PREVIOUS_VERSION..origin/$PREFIX/branch-$CURRENT_VERSION" | sort -u | grep -v 'renovate\[bot\]' )"
 mapfile -t NAMESARR <<<"$TMP"
