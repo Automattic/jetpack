@@ -50,5 +50,8 @@ add_action( 'activated_plugin', array( 'Jetpack_Social', 'plugin_activation' ) )
 register_deactivation_hook( __FILE__, array( 'Jetpack_Social', 'plugin_deactivation' ) );
 
 require_once __DIR__ . '/src/php/publicize.php';
+require_once __DIR__ . '/src/php/endpoints/class.jetpack-core-api-site-endpoints.php';
+require_once __DIR__ . '/src/php/endpoints/publicize-connections.php';
+require_once __DIR__ . '/src/php/endpoints/publicize-connection-test-results.php';
 
 new Jetpack_Social();
