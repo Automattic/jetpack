@@ -249,6 +249,7 @@ Jetpack Backup can do a full website migration to a new host, migrate theme file
 
 #### Improved compatibility
 - General: ensure Jetpack options are properly deleted when the plugin is deactivated.
+- Media Extractor: add support for alt_text in extract.
 - Notifications: remove legacy code supporting IE versions older than 9.
 - Pay with PayPal Widget: hide widget from Legacy Widget block.
 
