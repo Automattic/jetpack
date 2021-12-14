@@ -25,7 +25,7 @@ In your Babel config, you might include the plugin something like this:
 
 Plugin options are:
 
-- `textdomain`: Specify the replacement text domain. The value may be a string, which will replace all domains; an object, to map specific domains (leaving any others untouched); or a function, which will be passed the existing domain and is expected to return the new domain (or null).
+- `textdomain`: Specify the replacement text domain. The value may be a string, which will replace all domains; an object, to map specific domains (leaving any others untouched); or a function, which will be passed the existing domain (empty string if the domain is missing entirely) and is expected to return the new domain (or null).
 - `functions`: Specify the functions that take domain arguments. This is an object mapping function names to the (zero-based) index of the domain argument.
 
   The default function list handles the `__`, `_x`, `_n`, and `_nx` functions provided by [@wordpress/i18n]. This list may be accessed as `require( '@automattic/babel-plugin-replace-textdomain' ).defaultFunctions`.

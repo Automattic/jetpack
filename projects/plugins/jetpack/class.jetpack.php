@@ -3302,6 +3302,7 @@ p {
 		} else {
 			add_filter( 'jetpack_update_activated_state_on_disconnect', '__return_false' );
 			self::disconnect();
+			Jetpack_Options::delete_option( 'version' );
 		}
 	}
 

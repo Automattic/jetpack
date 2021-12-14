@@ -87,7 +87,12 @@ export function TimestampControl( {
 					label={
 						shortLabel
 							? _x( 'Hour', 'hour (short form)', 'jetpack' )
-							: _x( 'Hour', 'hour (long form)', 'jetpack' )
+							: _x(
+									'Hour',
+									'hour (long form)',
+									'jetpack',
+									/* dummy arg to avoid bad minification */ 0
+							  )
 					}
 					value={ smh[ 0 ] }
 					min={ 0 }

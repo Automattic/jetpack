@@ -229,6 +229,19 @@ importers:
       eslint-plugin-es: 4.1.0_eslint@7.32.0
       jest: 27.3.1
 
+  projects/js-packages/i18n-check-webpack-plugin:
+    specifiers:
+      '@babel/core': 7.16.0
+      debug: ^4.3.2
+      jest: 27.3.1
+      webpack: 5.64.1
+    dependencies:
+      debug: 4.3.2
+    devDependencies:
+      '@babel/core': 7.16.0
+      jest: 27.3.1
+      webpack: 5.64.1
+
   projects/js-packages/i18n-loader-webpack-plugin:
     specifiers:
       '@wordpress/dependency-extraction-webpack-plugin': 3.2.1
@@ -343,7 +356,7 @@ importers:
       '@automattic/jetpack-base-styles': workspace:^0.1.2-alpha
       '@automattic/jetpack-components': workspace:^0.9.0-alpha
       '@automattic/jetpack-connection': workspace:^0.11.3-alpha
-      '@automattic/jetpack-idc': workspace:^0.6.1-alpha
+      '@automattic/jetpack-idc': workspace:^0.7.0-alpha
       '@babel/core': 7.16.0
       '@babel/plugin-syntax-jsx': 7.16.0
       '@babel/runtime-corejs3': 7.16.3
@@ -422,6 +435,7 @@ importers:
     specifiers:
       '@automattic/babel-plugin-preserve-i18n': 1.0.0
       '@automattic/babel-plugin-replace-textdomain': workspace:^0.1.0-alpha
+      '@automattic/i18n-check-webpack-plugin': workspace:^0.1.0-alpha
       '@automattic/webpack-rtl-plugin': 5.1.0
       '@babel/compat-data': 7.16.4
       '@babel/core': 7.16.0
@@ -447,6 +461,7 @@ importers:
     dependencies:
       '@automattic/babel-plugin-preserve-i18n': 1.0.0
       '@automattic/babel-plugin-replace-textdomain': link:../babel-plugin-replace-textdomain
+      '@automattic/i18n-check-webpack-plugin': link:../i18n-check-webpack-plugin
       '@automattic/webpack-rtl-plugin': 5.1.0_webpack@5.64.1
       '@babel/compat-data': 7.16.4
       '@babel/helper-compilation-targets': 7.16.3_@babel+core@7.16.0
@@ -478,7 +493,7 @@ importers:
     specifiers:
       '@automattic/jetpack-api': workspace:^0.8.0
       '@automattic/jetpack-connection': workspace:^0.11.3-alpha
-      '@automattic/jetpack-idc': workspace:^0.6.1-alpha
+      '@automattic/jetpack-idc': workspace:^0.7.0-alpha
       '@automattic/jetpack-webpack-config': workspace:^0.5.0-alpha
       '@babel/core': 7.16.0
       '@babel/preset-env': 7.16.4
