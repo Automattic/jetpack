@@ -8,7 +8,7 @@
 - SSO: add filters for the error text when a local user cannot be found for a given WP.com account and for when SSO is disallowed when on a staging site.
 
 ### Improved compatibility
-- Cleanup jetpack version option on plugin deactivation.
+- General: ensure Jetpack options are properly deleted when the plugin is deactivated.
 - Notifications: remove legacy code supporting IE versions older than 9.
 - Pay with PayPal Widget: hide widget from Legacy Widget block.
 - Subscription Block: add 'Success Message Text' to the block settings.
