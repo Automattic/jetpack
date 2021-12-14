@@ -5,6 +5,14 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## 0.5.0 - 2021-12-14
+### Added
+- Added `@automattic/babel-plugin-replace-textdomain` as an option for the Babel preset.
+- Include `@automattic/i18n-check-webpack-plugin` in default configuration in production mode.
+
+### Changed
+- Use Webpack's provided `validateSchema` instead of requiring `schema-utils` ourself.
+
 ## 0.4.0 - 2021-11-30
 ### Changed
 - Change default output filenames: remove `.min`, move hashes to chunk query strings, and add `minify=false` to chunk query strings.

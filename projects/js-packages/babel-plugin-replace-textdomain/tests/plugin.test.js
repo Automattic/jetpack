@@ -68,10 +68,84 @@ pluginTester( {
 				},
 			},
 		},
+
 		{
-			title: 'Handling of calls with bad args',
+			title: 'Missing domain parameter',
 			setup,
-			fixture: 'fixtures/bad-args.js',
+			code: `__( 'No domain' );`,
+			pluginOptions: {
+				textdomain: 'new-domain',
+			},
+		},
+		{
+			title: 'Missing domain parameter, no replacement',
+			setup,
+			code: `__( 'No domain' );`,
+			pluginOptions: {
+				textdomain: () => null,
+			},
+		},
+		{
+			title: 'Missing context and domain parameters',
+			setup,
+			code: `_x( 'No domain' );`,
+			pluginOptions: {
+				textdomain: 'new-domain',
+			},
+		},
+		{
+			title: 'Missing context and domain parameters, no replacement',
+			setup,
+			code: `_x( 'No domain' );`,
+			pluginOptions: {
+				textdomain: () => null,
+			},
+		},
+		{
+			title: 'Non-literal domain',
+			setup,
+			code: `__( 'Non-literal domain', domain );`,
+			pluginOptions: {
+				textdomain: 'new-domain',
+			},
+		},
+		{
+			title: 'Template-string domain',
+			setup,
+			code: "__( 'Template-string domain', `domain` );",
+			pluginOptions: {
+				textdomain: 'new-domain',
+			},
+		},
+		{
+			title: 'Template-string domain, no replacement',
+			setup,
+			code: "__( 'Template-string domain', `domain` );",
+			pluginOptions: {
+				textdomain: () => null,
+			},
+		},
+		{
+			title: 'Template-string domain with expression',
+			setup,
+			code: "__( 'Template-string domain', `domain ${ x }` );",
+			pluginOptions: {
+				textdomain: 'new-domain',
+			},
+		},
+		{
+			title: 'Expression domain',
+			setup,
+			code: `__( 'Expression', 'dom' + 'ain' );`,
+			pluginOptions: {
+				textdomain: 'new-domain',
+			},
+		},
+
+		{
+			title: "Doesn't try to handle `toString()` or the like",
+			setup,
+			code: `x.toString();`,
 			pluginOptions: {
 				textdomain: 'new-domain',
 			},

@@ -10,6 +10,7 @@ import { JetpackLogo } from '@automattic/jetpack-components';
  * Internal dependencies
  */
 import ScreenMain from './screen-main';
+import ScreenNonAdmin from './screen-non-admin';
 import ScreenMigrated from './screen-migrated';
 import customContentShape from '../../tools/custom-content-shape';
 import './style.scss';
@@ -28,7 +29,35 @@ const IDCScreenVisual = props => {
 		isFinishingMigration,
 		isStartingFresh,
 		startFreshCallback,
+		isAdmin,
 	} = props;
+
+	const nonAdminBody = ! isAdmin ? <ScreenNonAdmin customContent={ customContent } /> : '';
+
+	let adminBody = '';
+
+	if ( isAdmin ) {
+		adminBody = isMigrated ? (
+			<ScreenMigrated
+				wpcomHomeUrl={ wpcomHomeUrl }
+				currentUrl={ currentUrl }
+				finishCallback={ finishMigrationCallback }
+				isFinishing={ isFinishingMigration }
+				customContent={ customContent }
+			/>
+		) : (
+			<ScreenMain
+				wpcomHomeUrl={ wpcomHomeUrl }
+				currentUrl={ currentUrl }
+				redirectUri={ redirectUri }
+				customContent={ customContent }
+				isMigrating={ isMigrating }
+				migrateCallback={ migrateCallback }
+				isStartingFresh={ isStartingFresh }
+				startFreshCallback={ startFreshCallback }
+			/>
+		);
+	}
 
 	return (
 		<div className={ 'jp-idc__idc-screen' + ( isMigrated ? ' jp-idc__idc-screen__success' : '' ) }>
@@ -39,26 +68,9 @@ const IDCScreenVisual = props => {
 				</div>
 			</div>
 
-			{ isMigrated ? (
-				<ScreenMigrated
-					wpcomHomeUrl={ wpcomHomeUrl }
-					currentUrl={ currentUrl }
-					finishCallback={ finishMigrationCallback }
-					isFinishing={ isFinishingMigration }
-					customContent={ customContent }
-				/>
-			) : (
-				<ScreenMain
-					wpcomHomeUrl={ wpcomHomeUrl }
-					currentUrl={ currentUrl }
-					redirectUri={ redirectUri }
-					customContent={ customContent }
-					isMigrating={ isMigrating }
-					migrateCallback={ migrateCallback }
-					isStartingFresh={ isStartingFresh }
-					startFreshCallback={ startFreshCallback }
-				/>
-			) }
+			{ nonAdminBody }
+
+			{ adminBody }
 		</div>
 	);
 };
@@ -88,6 +100,8 @@ IDCScreenVisual.propTypes = {
 	isStartingFresh: PropTypes.bool.isRequired,
 	/** "Start Fresh" callback. */
 	startFreshCallback: PropTypes.func,
+	/** Whether to display the "admin" or "non-admin" screen. */
+	isAdmin: PropTypes.bool.isRequired,
 };
 
 IDCScreenVisual.defaultProps = {
