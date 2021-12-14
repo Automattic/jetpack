@@ -46,7 +46,7 @@ export function* updateJetpackSettings( settings ) {
 			'instant_search_enabled',
 		] );
 		yield setJetpackSettings( oldSettings );
-		return errorNotice( __( 'Error Update settings…', 'jetpack' ) );
+		return errorNotice( __( 'Error Updating settings…', 'jetpack' ) );
 	} finally {
 		yield removeUpdatingNotice();
 		yield setUpdatingJetpackSettingsDone();
