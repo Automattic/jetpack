@@ -1,7 +1,7 @@
 /**
  * External dependencies
  */
-// eslint-disable-next-line lodash/import-scope
+/*eslint lodash/import-scope: [2, "member"]*/
 import { pick } from 'lodash';
 import { select } from '@wordpress/data';
 import { __ } from '@wordpress/i18n';
