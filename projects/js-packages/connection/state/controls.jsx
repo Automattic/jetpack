@@ -29,16 +29,15 @@ const CONNECT_USER = createRegistryControl(
 				.then( authorizationUrl => {
 					const redirect = redirectFunc || ( url => window.location.assign( url ) );
 
-					redirect(
-						authorizationUrl +
-							( from
-								? ( authorizationUrl.includes( '?' ) ? '&' : '?' ) +
-								  'from=' +
-								  encodeURIComponent( from )
-								: '' )
-					);
+					const url = new URL( authorizationUrl );
 
-					resolve( authorizationUrl );
+					if ( from ) {
+						url.searchParams.set( 'from', encodeURIComponent( from ) );
+					}
+
+					const finalUrl = url.toString();
+					redirect( finalUrl );
+					resolve( finalUrl );
 				} )
 				.catch( error => {
 					reject( error );

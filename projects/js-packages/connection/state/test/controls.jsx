@@ -76,40 +76,62 @@ describe( 'controls', () => {
 	} );
 
 	describe( 'CONNECT_USER', () => {
+		const generateUrls = () => {
+			const authorizeUrl = new URL( 'https://authorize.url' );
+
+			const authorizeUrlWithFrom = new URL( authorizeUrl );
+			authorizeUrlWithFrom.searchParams.set( 'from', 'jetpack' );
+
+			const authorizeUrlWithParam = new URL( authorizeUrl );
+			authorizeUrlWithParam.searchParams.set( 'param', 'fake' );
+
+			const authorizeUrlWithParamAndFrom = new URL( authorizeUrlWithParam );
+			authorizeUrlWithParamAndFrom.searchParams.set( 'from', 'jetpack' );
+
+			return {
+				authorizeUrl: authorizeUrl.toString(),
+				authorizeUrlWithParam: authorizeUrlWithParam.toString(),
+				authorizeUrlWithFrom: authorizeUrlWithFrom.toString(),
+				authorizeUrlWithParamAndFrom: authorizeUrlWithParamAndFrom.toString(),
+			};
+		};
+
 		it( 'redirects with assign', async () => {
-			const URL = 'https://authorize.url';
-			getAuthorizationUrl.resolves( URL );
+			const { authorizeUrl } = generateUrls();
+			getAuthorizationUrl.resolves( authorizeUrl );
 
 			const url = await connectUser( { resolveSelect } )();
-			expect( stubAssign.calledWith( URL ) ).to.be.true;
-			expect( url ).to.be.equal( URL );
+			expect( stubAssign.calledWith( authorizeUrl ) ).to.be.true;
+			expect( url ).to.be.equal( authorizeUrl );
 		} );
 
 		it( 'redirects adding from', async () => {
-			const URL = 'https://authorize.url';
-			const URL_WITH_PARAM = `${ URL }?param=fake`;
+			const {
+				authorizeUrl,
+				authorizeUrlWithFrom,
+				authorizeUrlWithParam,
+				authorizeUrlWithParamAndFrom,
+			} = generateUrls();
 
 			// url without param
-			getAuthorizationUrl.resolves( URL );
-			const noParamWithFrom = `${ URL }?from=jetpack`;
-			// const noParam = await connectUser( { resolveSelect } )( { from: 'jetpack' } );
-			expect( stubAssign.calledWith( noParamWithFrom ) ).to.be.true;
-			// expect( noParam ).to.be.equal( noParamWithFrom );
+			getAuthorizationUrl.resolves( authorizeUrl );
+			const noParam = await connectUser( { resolveSelect } )( { from: 'jetpack' } );
+			expect( stubAssign.calledWith( authorizeUrlWithFrom ) ).to.be.true;
+			expect( noParam ).to.be.equal( authorizeUrlWithFrom );
 
 			// url with param
-			getAuthorizationUrl.resolves( URL_WITH_PARAM );
-			const paramWithFrom = `${ URL_WITH_PARAM }&from=jetpack`;
-			// const param = await connectUser( { resolveSelect } )( { from: 'jetpack' } );
-			expect( stubAssign.calledWith( paramWithFrom ) ).to.be.true;
-			// expect( param ).to.be.equal( paramWithFrom );
+			getAuthorizationUrl.resolves( authorizeUrlWithParam );
+			const param = await connectUser( { resolveSelect } )( { from: 'jetpack' } );
+			expect( stubAssign.calledWith( authorizeUrlWithParamAndFrom ) ).to.be.true;
+			expect( param ).to.be.equal( authorizeUrlWithParamAndFrom );
 		} );
 
 		it( 'redirects with custom func', async () => {
 			const redirectFunc = sinon.stub();
-			const URL = 'https://authorize.url';
-			getAuthorizationUrl.resolves( URL );
+			const { authorizeUrl } = generateUrls();
+			getAuthorizationUrl.resolves( authorizeUrl );
 			await connectUser( { resolveSelect } )( { redirectFunc } );
-			expect( redirectFunc.calledWith( URL ) ).to.be.true;
+			expect( redirectFunc.calledWith( authorizeUrl ) ).to.be.true;
 		} );
 
 		it( 'rejects with error', done => {
