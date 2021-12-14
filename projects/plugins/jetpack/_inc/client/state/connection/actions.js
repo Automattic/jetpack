@@ -2,6 +2,8 @@
  * External dependencies
  */
 import { __, sprintf } from '@wordpress/i18n';
+import { CONNECTION_STORE_ID } from '@automattic/jetpack-connection';
+import { dispatch as wp_dispatch } from '@wordpress/data';
 
 /**
  * Internal dependencies
@@ -254,6 +256,12 @@ export const reconnectSite = () => {
 			.then( connectionStatusData => {
 				const status = connectionStatusData.status;
 				const authorizeUrl = connectionStatusData.authorizeUrl;
+
+				// Update the main connection package store.
+				if ( 'in_progress' === status && authorizeUrl ) {
+					wp_dispatch( CONNECTION_STORE_ID ).setConnectionStatus( { isUserConnected: false } );
+				}
+
 				// status: in_progress, aka user needs to re-connect their WP.com account.
 				if ( 'in_progress' === status ) {
 					// Redirect user to authorize WP.com if in-place connection is restricted.
