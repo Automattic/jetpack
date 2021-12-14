@@ -66,6 +66,10 @@ class Dashboard {
 		if ( ! $this->should_add_search_submenu() ) {
 			return;
 		}
+
+		// Check if the site plan changed and deactivate module accordingly.
+		add_action( 'current_screen', array( $this, 'check_plan_deactivate_search_module' ) );
+
 		// Attach page specific actions in addition to the above.
 		$hook = add_submenu_page(
 			'jetpack',
@@ -98,25 +102,14 @@ class Dashboard {
 	 * @return {boolean} Show search sub menu or not.
 	 */
 	protected function should_add_search_submenu() {
-		$is_offline_mode = ( new Status() )->is_offline_mode();
-
-		// If user is not an admin and site is in Offline Mode or not connected yet then don't do anything.
-		if ( ! current_user_can( 'manage_options' ) && ( $is_offline_mode || ! $this->connection_manager->is_connected() ) ) {
+		if ( ! current_user_can( 'manage_options' ) ) {
 			return false;
 		}
 
-		// Is Jetpack not connected and not offline?
-		// True means that Jetpack is NOT connected and NOT in offline mode.
-		// If Jetpack is connected OR in offline mode, this will be false.
-		$connectable = ! $this->connection_manager->is_connected() && ! $is_offline_mode;
-
-		// Don't add in the modules page unless modules are available!
-		if ( $connectable ) {
+		// If site is in Offline Mode or not connected yet.
+		if ( ( new Status() )->is_offline_mode() || ! $this->connection_manager->is_connected() ) {
 			return false;
 		}
-
-		// Check if the site plan changed and deactivate module accordingly.
-		add_action( 'current_screen', array( $this, 'check_plan_deactivate_search_module' ) );
 
 		return $this->plan->ever_supported_search();
 	}
