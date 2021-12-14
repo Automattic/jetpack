@@ -179,8 +179,21 @@ if ( ! class_exists( 'Jetpack_EU_Cookie_Law_Widget' ) ) {
 				$classes['hide'] = 'hide-on-button';
 			}
 
+			/**
+			 * Check if widget is loaded in widgets.php.
+			 *
+			 * @return string widget Static version of the widget for better preview.
+			 */
+			global $pagenow;
+			if ( 'widgets.php' === $pagenow ) {
+				echo '<div id="eu-cookie-law" style="padding: 0;margin: 5px">';
+				require_once __DIR__ . '/eu-cookie-law/widget.php';
+				echo '</div>';
+				return;
+			}
+
 			echo $args['before_widget'];
-			require( dirname( __FILE__ ) . '/eu-cookie-law/widget.php' );
+			require_once __DIR__ . '/eu-cookie-law/widget.php';
 			echo $args['after_widget'];
 			/** This action is already documented in modules/widgets/gravatar-profile.php */
 			do_action( 'jetpack_stats_extra', 'widget_view', 'eu_cookie_law' );
