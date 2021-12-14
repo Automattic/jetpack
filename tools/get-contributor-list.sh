@@ -33,16 +33,24 @@ fi
 # Get the branch prefix.
 PREFIX=$(jq -r '.extra["release-branch-prefix"]' projects/$1/composer.json)
 
-# Some branches use x.y.x, like boost/branch-1.2.0
+# Get the previous version that we want to compare against.
 PREVIOUS_VERSION=
 while IFS= read -r VER; do
-	if [[ "$VER" == "$CURRENT_VERSION" ]]; then
-		read -r PREVIOUS_VERSION 
-		break 
-	fi 
-done < <( sed -n -E -e 's/^## \[?([0-9]+.[0-9]+(.0)?)]? - .*$/\1/p' "projects/$1/CHANGELOG.md" )
+    if [[ "$VER" == "$CURRENT_VERSION" ]]; then
+		while IFS= read -r VER; do
+			# Find the previous version we have a release branch for. 
+			if git rev-parse --verify "origin/$PREFIX/branch-$VER" &>/dev/null; then
+				PREVIOUS_VERSION="$VER"
+				break 2
+			fi
+		done
+		die "Could not find an existing branch for a version prior to $CURRENT_VERSION"
+    fi
+done < <( sed -n -E -e 's/^## \[?([0-9.]+)\]? - .*$/\1/p' "projects/$1/CHANGELOG.md" )
 [[ -n "$PREVIOUS_VERSION" ]] || die "Version $CURRENT_VERSION was not found or was the first version."
 
+echo "$CURRENT_VERSION"
+echo "$PREVIOUS_VERSION"
 # Display the list.
 TMP="$( git log --format='%an' --no-merges "origin/$PREFIX/branch-$PREVIOUS_VERSION..origin/$PREFIX/branch-$CURRENT_VERSION" | sort -u | grep -v 'renovate\[bot\]' )"
 mapfile -t NAMESARR <<<"$TMP"
