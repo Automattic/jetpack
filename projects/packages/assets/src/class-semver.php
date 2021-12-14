@@ -2,6 +2,14 @@
 /**
  * Simple semver version handling.
  *
+ * We use this instead of something like `composer/semver` to avoid
+ * plugins needing to include yet-another dependency package. The
+ * amount of code we need here is pretty small.
+ *
+ * We use this instead of PHP's `version_compare()` because that doesn't
+ * handle prerelease versions in the way anyone other than PHP devs would
+ * expect, and silently breaks on various unexpected input.
+ *
  * @package automattic/jetpack-assets
  */
 
