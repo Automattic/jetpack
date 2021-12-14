@@ -19,11 +19,10 @@ jobs:
 
     steps:
       # Jetpack Boost: Push to Boost Maintenance Board if labelled "[Plugin] Boost"
-      - uses: leonsteinhaeuser/project-beta-automations@v1.0.2
+      - uses: thingalon/project-beta-automations@v1.0.3
         if: contains(github.event.issue.labels.*.name, '[Plugin] Boost')
         with:
           gh_token: ${{ secrets.PUSH_ISSUES_TO_PROJECT_TOKEN }}
           organization: 'automattic'
           project_id: 322
           resource_node_id: ${{ github.event.issue.node_id }}
-          status_value: 'Inbox'

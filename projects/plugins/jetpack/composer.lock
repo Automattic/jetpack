@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "69de3a89653cc3887ceb1b9dc1ecde9b",
+    "content-hash": "7202f2201caddfbea5f6e11b164c9cdc",
     "packages": [
         {
             "name": "automattic/jetpack-a8c-mc-stats",
@@ -611,14 +611,14 @@
             "dist": {
                 "type": "path",
                 "url": "../../packages/connection-ui",
-                "reference": "3f058c5e7345edc3df7caba351d9bf13da0c96c2"
+                "reference": "7e66dcb91fc171d2c6dd32ea7577383f46c9713a"
             },
             "require": {
                 "automattic/jetpack-assets": "^1.14",
                 "automattic/jetpack-connection": "^1.33",
                 "automattic/jetpack-constants": "^1.6",
                 "automattic/jetpack-device-detection": "^1.4",
-                "automattic/jetpack-identity-crisis": "^0.4"
+                "automattic/jetpack-identity-crisis": "^0.5"
             },
             "require-dev": {
                 "automattic/jetpack-changelogger": "^3.0"
@@ -631,7 +631,7 @@
                     "link-template": "https://github.com/Automattic/jetpack-connection-ui/compare/v${old}...v${new}"
                 },
                 "branch-alias": {
-                    "dev-master": "2.1.x-dev"
+                    "dev-master": "2.2.x-dev"
                 }
             },
             "autoload": {
@@ -859,7 +859,7 @@
             "dist": {
                 "type": "path",
                 "url": "../../packages/identity-crisis",
-                "reference": "7b9ecff83267056a21777f16e862b4dfb2c81f5f"
+                "reference": "9634e64b317f9e08553f79fdb416d94e846fe0ac"
             },
             "require": {
                 "automattic/jetpack-connection": "^1.33",
@@ -885,7 +885,7 @@
                     "link-template": "https://github.com/Automattic/jetpack-identity-crisis/compare/v${old}...v${new}"
                 },
                 "branch-alias": {
-                    "dev-master": "0.4.x-dev"
+                    "dev-master": "0.5.x-dev"
                 }
             },
             "autoload": {
@@ -1625,13 +1625,13 @@
             "dist": {
                 "type": "path",
                 "url": "../../packages/sync",
-                "reference": "a1d120dc8f22a9e8c10a517dab73ca85da86321d"
+                "reference": "643bc80828a9140df5b925742fd97d9b0fb84428"
             },
             "require": {
                 "automattic/jetpack-connection": "^1.33",
                 "automattic/jetpack-constants": "^1.6",
                 "automattic/jetpack-heartbeat": "^1.3",
-                "automattic/jetpack-identity-crisis": "^0.4",
+                "automattic/jetpack-identity-crisis": "^0.5",
                 "automattic/jetpack-options": "^1.14",
                 "automattic/jetpack-password-checker": "^0.1",
                 "automattic/jetpack-roles": "^1.4",
