@@ -258,13 +258,17 @@ export default function withMedia() {
 
 				const title = isCopying
 					? __( 'Inserting media', 'jetpack' )
-					: __( 'Select media', 'jetpack' );
+					: __( 'Select media', 'jetpack', /* dummy arg to avoid bad minification */ 0 );
 				const description = isCopying
 					? __(
 							'When the media is finished copying and inserting, you will be returned to the editor.',
 							'jetpack'
 					  )
-					: __( 'Select the media you would like to insert into the editor.', 'jetpack' );
+					: __(
+							'Select the media you would like to insert into the editor.',
+							'jetpack',
+							/* dummy arg to avoid bad minification */ 0
+					  );
 
 				const describedby = 'jetpack-external-media-browser__description';
 				const classes = classnames( {

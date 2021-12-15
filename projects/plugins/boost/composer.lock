@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "ec24a03797a38a5028ed51f0ed8a2201",
+    "content-hash": "2ea9ac8b2cdfcbefc7e8388868a7e178",
     "packages": [
         {
             "name": "automattic/jetpack-a8c-mc-stats",
@@ -62,7 +62,7 @@
             "dist": {
                 "type": "path",
                 "url": "../../packages/admin-ui",
-                "reference": "28dbf72455634f17f98326db4de2a2575c56d04d"
+                "reference": "eda6e9f2a28a1b20f9622f06cd604e72e7591af3"
             },
             "require-dev": {
                 "automattic/jetpack-changelogger": "^3.0",
@@ -77,7 +77,7 @@
                     "link-template": "https://github.com/Automattic/jetpack-admin-ui/compare/${old}...${new}"
                 },
                 "branch-alias": {
-                    "dev-master": "0.1.x-dev"
+                    "dev-master": "0.2.x-dev"
                 },
                 "version-constants": {
                     "::PACKAGE_VERSION": "src/class-admin-menu.php"
@@ -119,7 +119,7 @@
             "dist": {
                 "type": "path",
                 "url": "../../packages/assets",
-                "reference": "aec06d5a1d91bcca146382363909478d70d1be9d"
+                "reference": "79f3118db7691394547c3b21105a6e34efb919f0"
             },
             "require": {
                 "automattic/jetpack-constants": "^1.6"
@@ -137,10 +137,13 @@
                     "link-template": "https://github.com/Automattic/jetpack-assets/compare/v${old}...v${new}"
                 },
                 "branch-alias": {
-                    "dev-master": "1.13.x-dev"
+                    "dev-master": "1.14.x-dev"
                 }
             },
             "autoload": {
+                "files": [
+                    "actions.php"
+                ],
                 "classmap": [
                     "src/"
                 ]
@@ -220,6 +223,61 @@
                 "GPL-2.0-or-later"
             ],
             "description": "Creates a custom autoloader for a plugin or theme.",
+            "transport-options": {
+                "monorepo": true,
+                "relative": true
+            }
+        },
+        {
+            "name": "automattic/jetpack-composer-plugin",
+            "version": "dev-master",
+            "dist": {
+                "type": "path",
+                "url": "../../packages/composer-plugin",
+                "reference": "31302c1993ebdbdc6a3b3f23ab296a108a71aaa4"
+            },
+            "require": {
+                "composer-plugin-api": "^2.1.0"
+            },
+            "require-dev": {
+                "automattic/jetpack-changelogger": "^3.0",
+                "composer/composer": "^2.1",
+                "yoast/phpunit-polyfills": "1.0.2"
+            },
+            "type": "composer-plugin",
+            "extra": {
+                "class": "Automattic\\Jetpack\\Composer\\Plugin",
+                "mirror-repo": "Automattic/jetpack-composer-plugin",
+                "changelogger": {
+                    "link-template": "https://github.com/Automattic/jetpack-composer-plugin/compare/v${old}...v${new}"
+                },
+                "autotagger": true,
+                "branch-alias": {
+                    "dev-master": "0.1.x-dev"
+                }
+            },
+            "autoload": {
+                "classmap": [
+                    "src/"
+                ]
+            },
+            "scripts": {
+                "phpunit": [
+                    "./vendor/phpunit/phpunit/phpunit --colors=always"
+                ],
+                "test-coverage": [
+                    "@composer install",
+                    "phpdbg -d memory_limit=2048M -d max_execution_time=900 -qrr ./vendor/bin/phpunit --coverage-clover \"$COVERAGE_DIR/clover.xml\""
+                ],
+                "test-php": [
+                    "@composer install",
+                    "@composer phpunit"
+                ]
+            },
+            "license": [
+                "GPL-2.0-or-later"
+            ],
+            "description": "A custom installer plugin for Composer to move Jetpack packages out of `vendor/` so WordPress's translation infrastructure will find their strings.",
             "transport-options": {
                 "monorepo": true,
                 "relative": true
@@ -478,10 +536,10 @@
             "dist": {
                 "type": "path",
                 "url": "../../packages/lazy-images",
-                "reference": "846776653bcb61b97ccbc9b40ac67dad057204cf"
+                "reference": "8ad70d0affc48b1fac679e0784bcf1c8d672b966"
             },
             "require": {
-                "automattic/jetpack-assets": "^1.13",
+                "automattic/jetpack-assets": "^1.14",
                 "automattic/jetpack-constants": "^1.6"
             },
             "require-dev": {
@@ -798,10 +856,10 @@
             "dist": {
                 "type": "path",
                 "url": "../../packages/tracking",
-                "reference": "5f510754224ac5477409960fa9f82f6d52cfb3e6"
+                "reference": "6ca70d07e77418303bb798c4cd430906af03509e"
             },
             "require": {
-                "automattic/jetpack-assets": "^1.13",
+                "automattic/jetpack-assets": "^1.14",
                 "automattic/jetpack-options": "^1.14",
                 "automattic/jetpack-status": "^1.9",
                 "automattic/jetpack-terms-of-service": "^1.9"
@@ -4453,6 +4511,7 @@
     "stability-flags": {
         "automattic/jetpack-admin-ui": 20,
         "automattic/jetpack-autoloader": 20,
+        "automattic/jetpack-composer-plugin": 20,
         "automattic/jetpack-config": 20,
         "automattic/jetpack-connection": 20,
         "automattic/jetpack-device-detection": 20,
