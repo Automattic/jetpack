@@ -47,7 +47,7 @@ For more in depth Docker instructions, follow the [Docker environment for Jetpac
 
 ### Setting up Jurassic Tube
 
-To test network related features of Jetpack, you'll need a test site that can create local HTTP tunnels. If you're an Automattician, we recommend using Jurassic Tube:
+In order to test features that require a WordPress.com connection and other network related Jetpack features, you'll need a test site that can create local HTTP tunnels. If you're an Automattician, we recommend using Jurassic Tube:
 
 - Add a subdomain on [jurassic.tube](https://jurassic.tube/)
 - Make sure you've run `pnpm install && pnpm cli-link`
@@ -77,9 +77,9 @@ Running the script will tell you if you have your environment already set up and
 
 #### Running Tests
 
-To run tests, you can use the Jetpack CLI: `jetpack test` and then choose the project and type of test you'd like to run.
+To run PHP, JS, and coverage tests, you can use the Jetpack CLI: `jetpack test` and then choose the project and type of test you'd like to run.
 
-# Development workflow
+# Development Workflow
 
 Once you have a local copy of Jetpack and all development tools installed, you can start developing.
 
