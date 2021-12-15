@@ -7,6 +7,7 @@ const DuplicatePackageCheckerWebpackPlugin = require( 'duplicate-package-checker
 const MiniCssExtractPlugin = require( 'mini-css-extract-plugin' );
 const MiniCSSWithRTLPlugin = require( './webpack/mini-css-with-rtl' );
 const WebpackRTLPlugin = require( '@automattic/webpack-rtl-plugin' );
+const I18nLoaderWebpackPlugin = require( '@automattic/i18n-loader-webpack-plugin' );
 const I18nCheckWebpackPlugin = require( '@automattic/i18n-check-webpack-plugin' );
 
 const MyCssMinimizerPlugin = options => new CssMinimizerPlugin( options );
@@ -66,6 +67,8 @@ const DuplicatePackageCheckerPlugin = options => [
 
 const DependencyExtractionPlugin = options => [ new DependencyExtractionWebpackPlugin( options ) ];
 
+const I18nLoaderPlugin = options => [ new I18nLoaderWebpackPlugin( options ) ];
+
 const i18nFilterFunction = file => {
 	if ( ! /\.(?:jsx?|tsx?|cjs|mjs|svelte)$/.test( file ) ) {
 		return false;
@@ -101,6 +104,7 @@ const StandardPlugins = ( options = {} ) => {
 		...( options.DependencyExtractionPlugin === false
 			? []
 			: DependencyExtractionPlugin( options.DependencyExtractionPlugin ) ),
+		...( options.I18nLoaderPlugin === false ? [] : I18nLoaderPlugin( options.I18nLoaderPlugin ) ),
 		...( options.I18nCheckPlugin === false ? [] : I18nCheckPlugin( options.I18nCheckPlugin ) ),
 	];
 };
@@ -135,6 +139,7 @@ module.exports = {
 	WebpackRtlPlugin: MyWebpackRtlPlugin,
 	DependencyExtractionPlugin,
 	DuplicatePackageCheckerPlugin,
+	I18nLoaderPlugin,
 	// Module rules and loaders.
 	TranspileRule,
 	CssRule,
