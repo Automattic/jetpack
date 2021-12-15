@@ -40,6 +40,13 @@ const MobileApp = () => {
 		} );
 	}, [] );
 
+	const onAppBadgeClick = useCallback( storeName => {
+		analytics.tracks.recordEvent( 'jetpack_recommendations_summary_sidebar_click', {
+			type: 'mobile_app_badge',
+			store: storeName,
+		} );
+	}, [] );
+
 	return (
 		<Layout
 			illustrationPath={ imagePath + '/recommendations/mobile-app.svg' }
@@ -74,8 +81,16 @@ const MobileApp = () => {
 						) ) }
 					</ul>
 					<div className="jp-recommendations-sidebar-card__apps-badge">
-						<AppsBadge storeName={ 'ios' } utm_source={ 'jetpack-plugin-recommendations' } />
-						<AppsBadge storeName={ 'android' } utm_source={ 'jetpack-plugin-recommendations' } />
+						<AppsBadge
+							onBadgeClick={ onAppBadgeClick }
+							storeName={ 'ios' }
+							utm_source={ 'jetpack-plugin-recommendations' }
+						/>
+						<AppsBadge
+							onBadgeClick={ onAppBadgeClick }
+							storeName={ 'android' }
+							utm_source={ 'jetpack-plugin-recommendations' }
+						/>
 					</div>
 				</div>
 			}

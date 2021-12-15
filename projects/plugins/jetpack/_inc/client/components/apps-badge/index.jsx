@@ -13,7 +13,6 @@ import { __ } from '@wordpress/i18n';
  */
 import { getUserLocale as getLocaleSlug } from 'lib/locale';
 import { imagePath } from 'constants/urls';
-import analytics from 'lib/analytics';
 
 /**
  * Style dependencies
@@ -117,16 +116,7 @@ class AppsBadge extends PureComponent {
 	};
 
 	onLinkClick = () => {
-		if ( this.props.onBadgeClick ) {
-			return this.props.onBadgeClick( this.props.storeName );
-		}
-
-		analytics.tracks.record;
-		const { storeName } = this.props;
-		analytics.tracks.recordEvent( 'jetpack_recommendations_summary_sidebar_click', {
-			type: 'mobile_app_badge',
-			store: storeName,
-		} );
+		this.props.onBadgeClick( this.props.storeName );
 	};
 
 	render() {
