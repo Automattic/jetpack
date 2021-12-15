@@ -15,8 +15,10 @@ jobs:
     steps:
       - uses: actions/checkout@v2
 
-      - name: Setup tools
+      - name: Setup tools for G
         uses: ./.github/actions/tool-setup
+        with:
+          node: 14
 
       - uses: actions/checkout@v2
         with:
@@ -35,6 +37,9 @@ jobs:
           key: ${{ runner.os }}-node-${{ hashFiles('gutenberg/**/package-lock.json') }}
           restore-keys: |
             ${{ runner.os }}-node-
+
+      - name: Setup tools for J
+        uses: ./.github/actions/tool-setup
 
       - name: Build Production Jetpack
         run: |
