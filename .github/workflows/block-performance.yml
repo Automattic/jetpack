@@ -17,8 +17,6 @@ jobs:
 
       - name: Setup tools
         uses: ./.github/actions/tool-setup
-        with:
-          node: 14
 
       - uses: actions/checkout@v2
         with:
