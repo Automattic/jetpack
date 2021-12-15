@@ -90,7 +90,7 @@ class PluginDashItem extends Component {
 		if ( isFetchingPluginsData ) {
 			return (
 				<Card className="plugin-dash-item__content">
-					<p>{ 'Loading...' }</p>
+					<p>{ __( 'Loading…', 'jetpack' ) }</p>
 				</Card>
 			);
 		} else if ( isInstalling ) {
@@ -146,7 +146,7 @@ class PluginDashItem extends Component {
 		}
 		return (
 			<Card className="plugin-dash-item__content">
-				<p>{ 'Plugin is installed & active.' }</p>
+				<p>{ __( 'Plugin is installed & active.', 'jetpack' ) }</p>
 			</Card>
 		);
 	}

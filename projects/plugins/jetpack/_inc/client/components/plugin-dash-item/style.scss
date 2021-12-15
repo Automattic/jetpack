@@ -1,14 +1,26 @@
+@import '~@automattic/jetpack-base-styles/style';
+
 .plugin-dash-item {
 
-	.plugin-dash-item__section-header,
-	.plugin-dash-item__content {
-		width: 100%;
-		margin-bottom: 0;
+	p {
+		font-size: var( --font-body-small );
 	}
 
+	.plugin-dash-item__section-header,
+	.plugin-dash-item__content,
 	.dops-banner {
 		width: 100%;
 		margin-bottom: 0;
 	}
 
+	.plugin-dash-item__content {
+		display: flex;
+		flex-direction: row;
+		align-items: center;
+
+		.components-spinner {
+			margin-top: 0;
+		}
+	}
+	
 }
