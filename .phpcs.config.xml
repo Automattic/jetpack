@@ -44,5 +44,6 @@
 
 	<!-- Ignore test fixture files -->
 	<exclude-pattern>/projects/packages/assets/tests/php/test-assets-files/*</exclude-pattern>
+	<exclude-pattern>/projects/packages/phpcs-filter/tests/fixtures/*</exclude-pattern>
 
 </ruleset>
