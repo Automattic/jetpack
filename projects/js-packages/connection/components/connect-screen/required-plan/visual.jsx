@@ -125,9 +125,9 @@ ConnectScreenRequiredPlanVisual.propTypes = {
 	/** The Pricing Card Icon. */
 	pricingIcon: PropTypes.string,
 	/** Whether the connection status is still loading. */
-	isLoading: PropTypes.bool.isRequired,
+	isLoading: PropTypes.bool,
 	/** Callback that is applied into click for all buttons. */
-	handleButtonClick: PropTypes.func.isRequired,
+	handleButtonClick: PropTypes.func,
 	/** Whether the connection button is enable or not. */
 	showConnectButton: PropTypes.bool,
 	/** Whether the button error is active or not. */
@@ -138,6 +138,11 @@ ConnectScreenRequiredPlanVisual.propTypes = {
 
 ConnectScreenRequiredPlanVisual.defaultProps = {
 	pricingCurrencyCode: 'USD',
+	showConnectButton: true,
+	isLoading: false,
+	buttonIsLoading: false,
+	displayButtonError: false,
+	handleButtonClick: () => {},
 };
 
 export default ConnectScreenRequiredPlanVisual;
