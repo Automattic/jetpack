@@ -19,7 +19,7 @@ You'll need `node` and `pnpm` installed, and if you're planning to run the tests
 The following test specific tools are used:
 
 - [Playwright](https://playwright.dev) for browser automation
-- [Jest](https://jestjs.io) for test management and test runner
+- [Playwright test](https://playwright.dev) for test management and test runner
 - [Allure](https://docs.qameta.io/allure/) as test reporter
 
 ## Getting started
@@ -40,38 +40,10 @@ Optionally, you can also add a `preinstall` script to install this project.
 "preinstall": "pnpm --prefix path/to/tools/e2e-commons install"
 ```
 
-Add Jest and Babel dependencies
+Add Playwright
 
 ```shell
-pnpm add -D jest @babel/core @babel/preset-env babel-jest
-```
-
-Add a `jest.config.js`
-
-```js
-module.exports = {
-    testEnvironment: require.resolve( 'jetpack-e2e-commons/env/playwright-environment.js' ),
-    globalSetup: require.resolve( 'jetpack-e2e-commons/env/global-setup.cjs' ),
-    globalTeardown: require.resolve( 'jetpack-e2e-commons/env/global-teardown.cjs' ),
-    setupFilesAfterEnv: [ require.resolve( 'jetpack-e2e-commons/jest.setup.js' ), ],
-};
-```
-
-Add a `babel.config.js`
-
-```js
-module.exports = {
-    presets: [
-        [
-            '@babel/preset-env',
-            {
-                targets: {
-                    node: 'current',
-                },
-            },
-        ],
-    ],
-};
+pnpm add -D @playwright/test
 ```
 
 ### Create a simple test
@@ -79,20 +51,19 @@ module.exports = {
 Create a test file `specs/quick-start.test.js`, with recommended content:
 
 ```js
-import { Sidebar, DashboardPage } from 'jetpack-e2e-commons/pages/wp-admin';
-import { prerequisitesBuilder } from 'jetpack-e2e-commons/env';
+import { test } from '@playwright/test';
+import { Sidebar, DashboardPage } from 'jetpack-e2e-commons/pages/wp-admin/index.js';
+import { prerequisitesBuilder } from 'jetpack-e2e-commons/env/prerequisites.js';
 
-describe( 'Quick start test suite', () => {
-    beforeEach( async () => {
-        await prerequisitesBuilder()
-            .withLoggedIn( true )
-            .build();
-    } );
+test.beforeEach( async () => {
+    await prerequisitesBuilder()
+		.withLoggedIn( true )
+		.build();
+} );
 
-    it( 'Visit Jetpack page', async () => {
-        await DashboardPage.visit( page )
-        await ( await Sidebar.init( page ) ).selectJetpack();
-    } );
+test( 'Visit Jetpack page', async () => {
+    await DashboardPage.visit( page )
+	await ( await Sidebar.init( page ) ).selectJetpack();
 } );
 ``` 
 
@@ -104,9 +75,9 @@ Create the `config/default.cjs` and `playwright.config.cjs` files.
 
 ```shell
 mkdir config
-echo "module.exports = require( 'jetpack-e2e-commons/config/default' );" > config/default.cjs
+echo "module.exports = require( 'jetpack-e2e-commons/config/default.cjs' );" > config/default.cjs
 
-echo "module.exports = require( 'jetpack-e2e-commons/config/playwright.config.default' );" > playwright.config.cjs
+echo "module.exports = require( 'jetpack-e2e-commons/config/playwright.config.default.cjs' );" > playwright.config.cjs
 ```
 
 ### Run the tests
@@ -149,7 +120,7 @@ The tunnel url will be stored in a file in the config folder of your tests, so t
 #### 1.4. Run the tests
 
 ```shell
-NODE_CONFIG_DIR='./config' pnpm jest
+NODE_CONFIG_DIR='./config' pnpm playwright test
 ```
 
 ### 2. Use a remote preconfigured site
@@ -172,7 +143,7 @@ mySite: {
 Set the `TEST_SITE` environment variable with the name of the previously defined configuration object.
 
 ```shell
-TEST_SITE=mySite NODE_CONFIG_DIR='./config' pnpm jest
+TEST_SITE=mySite NODE_CONFIG_DIR='./config' pnpm playwright test
 ```
 
 ## Functionality plugins
@@ -206,6 +177,16 @@ constructor( page ) {
 
 ## Test reports
 
+A few [reporters](https://playwright.dev/docs/test-reporters) are configured by default, check `config/playwright.config.default.cjs` for details.
+
+### Allure reporter
+
+To use allure reporter, you'll need to install a dependency.
+
+```shell
+npm i -D allure-playwright
+```
+
 Allure results are generated in the allure-results folder. You can use these results to generate a full report, but the Allure cli tool is needed for that.
 
 1. [Install Allure cli](https://docs.qameta.io/allure/#_installing_a_commandline)
@@ -214,19 +195,4 @@ Allure results are generated in the allure-results folder. You can use these res
 ```shell
 # Run this in the path where `allure-results` folder is
 allure serve
-```
-
-### Update the result path
-
-All test output (logs, screenshots, video files) is configured to be written in `output` folder, so it's recommended to have the allure results in the same place, especially if in CI you're using the [Jetpack e2e reports tools](https://github.com/Automattic/jetpack-e2e-reports/), which expects the allure results to be inside `output/allure-results` when generating the report.
-
-Update your jest.config.js file to configure the result path: 
-
-```js
-module.exports = {    
-    [...]
-    testEnvironmentOptions: {
-        resultsDir: 'output/allure-results',
-    }
-};
 ```

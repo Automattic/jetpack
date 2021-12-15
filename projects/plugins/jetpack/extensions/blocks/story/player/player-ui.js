@@ -156,7 +156,9 @@ export default function PlayerUI( { id, slides, metadata, disabled } ) {
 	if ( fullscreen ) {
 		label = [
 			__( 'You are currently playing a story.', 'jetpack' ),
-			playing ? __( 'Press space to pause.', 'jetpack' ) : __( 'Press space to play.', 'jetpack' ),
+			playing
+				? __( 'Press space to pause.', 'jetpack' )
+				: __( 'Press space to play.', 'jetpack', /* dummy arg to avoid bad minification */ 0 ),
 			__( 'Press escape to exit.', 'jetpack' ),
 		].join( ' ' );
 	} else {

@@ -1,4 +1,0 @@
-Significance: patch
-Type: bugfix
-
-Milestone widget: Fix an issue that prevented styles from loading until the widget is saved
