@@ -42,6 +42,7 @@ import { getScanStatus, isFetchingScanStatus } from 'state/scan';
 const renderPairs = layout =>
 	layout.map( ( item, layoutIndex ) => [
 		item.header,
+		item.pinnedBundle,
 		chunk( item.cards, 2 ).map( ( [ left, right ], cardIndex ) => (
 			<div className="jp-at-a-glance__item-grid" key={ `card-${ layoutIndex }-${ cardIndex }` }>
 				<div className="jp-at-a-glance__left">{ left }</div>
