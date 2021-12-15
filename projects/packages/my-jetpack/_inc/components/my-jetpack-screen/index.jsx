@@ -46,7 +46,7 @@ export default function MyJetpackScreen() {
 				<AdminSection>
 					<Row>
 						<Col lg={ 6 } sm={ 4 }>
-							<h1>{ __( 'My Plan' ) }</h1>
+							<h1>{ __( 'My Plan', 'jetpack' ) }</h1>
 						</Col>
 						<Col lg={ 6 } sm={ 4 }>
 							<ConnectionStatusCard

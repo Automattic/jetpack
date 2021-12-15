@@ -33,6 +33,7 @@ const IDCScreen = props => {
 		redirectUri,
 		tracksUserData,
 		tracksEventData,
+		isAdmin,
 	} = props;
 
 	const [ isMigrated, setIsMigrated ] = useState( false );
@@ -88,6 +89,7 @@ const IDCScreen = props => {
 			isFinishingMigration={ isFinishingMigration }
 			isStartingFresh={ isStartingFresh }
 			startFreshCallback={ startFreshCallback }
+			isAdmin={ isAdmin }
 		/>
 	);
 };
@@ -111,6 +113,8 @@ IDCScreen.propTypes = {
 	tracksUserData: PropTypes.object,
 	/** WordPress.com event tracking information. */
 	tracksEventData: PropTypes.object,
+	/** Whether to display the "admin" or "non-admin" screen. */
+	isAdmin: PropTypes.bool.isRequired,
 };
 
 IDCScreen.defaultProps = {

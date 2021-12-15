@@ -20,7 +20,9 @@ export default function SocialPreviewsUpgrade() {
 
 	const [ href, autosaveAndRedirect, isRedirecting ] = useUpgradeFlow( plan, trackClickEvent );
 
-	const buttonText = isRedirecting ? __( 'Redirecting…', 'jetpack' ) : __( 'Upgrade', 'jetpack' );
+	const buttonText = isRedirecting
+		? __( 'Redirecting…', 'jetpack' )
+		: __( 'Upgrade', 'jetpack', /* dummy arg to avoid bad minification */ 0 );
 
 	return (
 		<div className="jetpack-social-previews__modal-upgrade">
