@@ -7,16 +7,14 @@ export default class PluginsPage extends WpPage {
 
 	async deactivatePlugin( pluginSlug ) {
 		const selector = `tr[data-slug='${ pluginSlug }'] a[href*='=deactivate']`;
-		const navigationPromise = this.waitForLoad();
 		await this.click( selector );
-		await navigationPromise;
+		await this.waitForLoad();
 	}
 
 	async activatePlugin( pluginSlug ) {
 		const selector = `tr[data-slug='${ pluginSlug }'] a[href*='=activate']`;
-		const navigationPromise = this.waitForLoad();
 		await this.click( selector );
-		await navigationPromise;
+		await this.waitForLoad();
 	}
 
 	async isFullScreenPopupShown() {

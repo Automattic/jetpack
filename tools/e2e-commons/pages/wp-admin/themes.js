@@ -7,8 +7,7 @@ export default class ThemesPage extends WpPage {
 
 	async activateTheme( themeSlug ) {
 		const selector = `div[data-slug='${ themeSlug }'] a[href*='=activate']`;
-		const navigationPromise = this.waitForLoad();
 		await this.click( selector );
-		await navigationPromise;
+		await this.waitForLoad();
 	}
 }
