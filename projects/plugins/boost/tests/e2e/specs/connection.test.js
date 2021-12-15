@@ -7,7 +7,7 @@ test.describe.serial( 'Settings Page Connection', () => {
 	test( 'Should connect to WP.com on a fresh install with Jetpack plugin activated and Jetpack already connected', async ( {
 		page,
 	} ) => {
-		await prerequisitesBuilder().withConnection( true ).build();
+		await prerequisitesBuilder().withActivePlugins( [ 'jetpack' ] ).withConnection( true ).build();
 		await boostPrerequisitesBuilder().withConnection( false ).build();
 		const jetpackBoostPage = await JetpackBoostPage.visit( page );
 		expect( await jetpackBoostPage.isFreshlyConnected() ).toBeTruthy();
