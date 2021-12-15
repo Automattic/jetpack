@@ -183,7 +183,7 @@ class Plugin_Storage {
 		// Note: Since this options is synced to wpcom, if you change its structure, you have to update the sanitizer at wpcom side.
 		update_option( self::ACTIVE_PLUGINS_OPTION_NAME, self::$plugins );
 
-		if ( ! class_exists( 'Automattic\Jetpack\Sync\Settings' ) || ! Automattic\Jetpack\Sync\Settings::is_sync_enabled() ) {
+		if ( ! class_exists( 'Automattic\Jetpack\Sync\Settings' ) || ! \Automattic\Jetpack\Sync\Settings::is_sync_enabled() ) {
 			self::update_active_plugins_wpcom_no_sync_fallback();
 		}
 	}
