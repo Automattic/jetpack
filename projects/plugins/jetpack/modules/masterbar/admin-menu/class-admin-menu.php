@@ -496,6 +496,7 @@ class Admin_Menu extends Base_Admin_Menu {
 		 * @module masterbar
 		 * @since 10.3.0
 		 * @param bool $jetpack_show_wpcom_woocommerce_installation_menu Load the WordPress.com WooCommerce Installation menu item. Default to false.
+		 * @param array $current_product Data about the current site's product.
 		 */
 		if ( apply_filters( 'jetpack_show_wpcom_woocommerce_installation_menu', false, $current_product ) ) {
 			$this->add_admin_menu_separator( 54, 'activate_plugins' );

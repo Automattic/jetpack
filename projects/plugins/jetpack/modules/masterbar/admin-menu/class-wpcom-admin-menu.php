@@ -16,6 +16,13 @@ require_once __DIR__ . '/class-admin-menu.php';
  */
 class WPcom_Admin_Menu extends Admin_Menu {
 	/**
+	 * Holds the current product, set by get_current_product().
+	 *
+	 * @var array
+	 */
+	private $cached_product = array();
+
+	/**
 	 * WPcom_Admin_Menu constructor.
 	 */
 	protected function __construct() {
@@ -251,12 +258,6 @@ class WPcom_Admin_Menu extends Admin_Menu {
 	}
 
 	/**
-	 * Holds the current product, set by get_current_product().
-	 *
-	 * @var array
-	 */
-	private $cached_product = array();
-	/**
 	 * Gets the current product and stores it in $cached_product so the database is only called once per request.
 	 *
 	 * @return array
@@ -282,7 +283,7 @@ class WPcom_Admin_Menu extends Admin_Menu {
 	 */
 	public function add_upgrades_menu( $plan = null ) {
 		$product = $this->get_current_product();
-		if ( is_array( $product ) && array_key_exists( 'product_name_short', $product ) ) {
+		if ( ! empty( $product['product_name_short'] ) ) {
 			$plan = $product['product_name_short'];
 		}
 
