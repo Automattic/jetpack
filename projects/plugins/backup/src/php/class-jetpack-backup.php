@@ -14,6 +14,7 @@ use Automattic\Jetpack\Assets;
 use Automattic\Jetpack\Connection\Initial_State as Connection_Initial_State;
 use Automattic\Jetpack\Connection\Manager as Connection_Manager;
 use Automattic\Jetpack\Connection\Rest_Authentication as Connection_Rest_Authentication;
+use Automattic\Jetpack\My_Jetpack\Initializer as My_Jetpack_Initializer;
 use Automattic\Jetpack\Status;
 
 /**
@@ -73,6 +74,8 @@ class Jetpack_Backup {
 				return $actions;
 			}
 		);
+
+		My_Jetpack_Initializer::init();
 	}
 
 	/**

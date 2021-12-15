@@ -168,7 +168,7 @@ function TrackList( { tracks, onChange, guid } ) {
 						>
 							{ isDeletingTrackIndex === index
 								? __( 'Deleting', 'jetpack' )
-								: __( 'Delete', 'jetpack' ) }
+								: __( 'Delete', 'jetpack', /* dummy arg to avoid bad minification */ 0 ) }
 						</Button>
 					</div>
 				</div>
@@ -273,7 +273,11 @@ function SingleTrackEditor( { track, guid, onChange, onClose, onCancel, trackExi
 										>
 											{ '' === fileName
 												? __( 'Select track', 'jetpack' )
-												: __( 'Change track', 'jetpack' ) }
+												: __(
+														'Change track',
+														'jetpack',
+														/* dummy arg to avoid bad minification */ 0
+												  ) }
 										</Button>
 									);
 								} }
@@ -318,8 +322,10 @@ function SingleTrackEditor( { track, guid, onChange, onClose, onCancel, trackExi
 					className="videopress-block-tracks-editor__single-track-editor-kind-select"
 					options={ KIND_OPTIONS }
 					value={ kind }
-					/* translators: %s: The kind of video text track e.g: "Subtitles, Captions" */
-					label={ __( 'Kind', 'jetpack' ) }
+					label={
+						/* translators: %s: The kind of video text track e.g: "Subtitles, Captions" */
+						__( 'Kind', 'jetpack' )
+					}
 					onChange={ newKind => {
 						onChange( {
 							...track,

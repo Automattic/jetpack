@@ -122,7 +122,7 @@ class WPCOM_Widget_Facebook_LikeBox extends WP_Widget {
 		if ( ! empty( $title ) ) :
 			echo $before_title; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
 
-			$likebox_widget_title = '<a href="' . esc_url( $page_url ) . '">' . esc_html( $title ) . '</a>';
+			$likebox_widget_title = '<a href="' . esc_url( $page_url ) . '">' . $title . '</a>';
 			/**
 			 * Filter Facebook Likebox's widget title.
 			 *

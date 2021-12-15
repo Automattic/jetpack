@@ -174,6 +174,9 @@ for SLUG in "${SLUGS[@]}"; do
 	fi
 done
 
+debug "  Updating pnpm.lock..."
+pnpm install --silent
+
 cat <<-EOM
 
 	You can examine the changelogs with

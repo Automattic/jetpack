@@ -1,4 +1,0 @@
-Significance: patch
-Type: other
-
-Build modules with Webpack, so they benefit from our toolchain improvements.

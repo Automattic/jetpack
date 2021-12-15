@@ -1,12 +1,12 @@
 {
 	"name": "automattic/jetpack-jitm",
 	"description": "Just in time messages for Jetpack",
-	"type": "library",
+	"type": "jetpack-library",
 	"license": "GPL-2.0-or-later",
 	"require": {
 		"automattic/jetpack-a8c-mc-stats": "^1.4",
-		"automattic/jetpack-assets": "^1.13",
-		"automattic/jetpack-connection": "^1.32",
+		"automattic/jetpack-assets": "^1.15",
+		"automattic/jetpack-connection": "^1.33",
 		"automattic/jetpack-device-detection": "^1.4",
 		"automattic/jetpack-logo": "^1.5",
 		"automattic/jetpack-options": "^1.14",

@@ -1,4 +1,4 @@
-<?php
+<?php // phpcs:ignore WordPress.Files.FileName.InvalidClassFileName
 
 use Automattic\Jetpack\Redirect;
 
@@ -21,21 +21,21 @@ class Jetpack_My_Community_Widget extends WP_Widget {
 	 *
 	 * @var int $expiration
 	 */
-	static $expiration = 600;
+	public static $expiration = 600;
 
 	/**
 	 * Default widget title.
 	 *
 	 * @var string $default_title
 	 */
-	var $default_title;
+	public $default_title;
 
 	/**
 	 * Registers the widget with WordPress.
 	 */
-	function __construct() {
+	public function __construct() {
 		parent::__construct(
-			'jetpack_my_community', // Base ID
+			'jetpack_my_community', // Base ID.
 			/** This filter is documented in modules/widgets/facebook-likebox.php */
 			apply_filters( 'jetpack_widget_name', esc_html__( 'My Community', 'jetpack' ) ),
 			array(
@@ -54,7 +54,7 @@ class Jetpack_My_Community_Widget extends WP_Widget {
 	/**
 	 * Enqueue stylesheet for grid layout.
 	 */
-	function enqueue_style() {
+	public function enqueue_style() {
 		wp_register_style( 'jetpack-my-community-widget', plugins_url( 'my-community/style.css', __FILE__ ), array(), '20160129' );
 		wp_enqueue_style( 'jetpack-my-community-widget' );
 	}
@@ -68,14 +68,14 @@ class Jetpack_My_Community_Widget extends WP_Widget {
 	 *
 	 * @return string|void
 	 */
-	function form( $instance ) {
+	public function form( $instance ) {
 		$title = isset( $instance['title'] ) ? $instance['title'] : false;
 		if ( false === $title ) {
 			$title = $this->default_title;
 		}
 
-		$number = isset( $instance['number'] ) ? $instance['number'] : 10;
-		if ( ! in_array( $number, array( 10, 50 ) ) ) {
+		$number = isset( $instance['number'] ) ? (int) $instance['number'] : 10;
+		if ( ! in_array( $number, array( 10, 50 ), true ) ) {
 			$number = 10;
 		}
 
@@ -85,35 +85,35 @@ class Jetpack_My_Community_Widget extends WP_Widget {
 		?>
 
 		<p>
-			<label for="<?php echo $this->get_field_id( 'title' ); ?>"><?php esc_html_e( 'Title:', 'jetpack' ); ?></label>
-			<input class="widefat" id="<?php echo $this->get_field_id( 'title' ); ?>" name="<?php echo $this->get_field_name( 'title' ); ?>" type="text" value="<?php echo esc_attr( $title ); ?>" />
+			<label for="<?php echo esc_attr( $this->get_field_id( 'title' ) ); ?>"><?php esc_html_e( 'Title:', 'jetpack' ); ?></label>
+			<input class="widefat" id="<?php echo esc_attr( $this->get_field_id( 'title' ) ); ?>" name="<?php echo esc_attr( $this->get_field_name( 'title' ) ); ?>" type="text" value="<?php echo esc_attr( $title ); ?>" />
 		</p>
 
 		<p>
 			<label><?php esc_html_e( 'Show a maximum of', 'jetpack' ); ?></label>
 		</p>
 		<ul>
-			<li><label><input id="<?php echo $this->get_field_id( 'number' ); ?>-few"  name="<?php echo $this->get_field_name( 'number' ); ?>" type="radio" value="10" <?php checked( '10', $number ); ?> /> <?php esc_html_e( '10 community members', 'jetpack' ); ?></label></li>
-			<li><label><input id="<?php echo $this->get_field_id( 'number' ); ?>-lots" name="<?php echo $this->get_field_name( 'number' ); ?>" type="radio" value="50" <?php checked( '50', $number ); ?> /> <?php esc_html_e( '50 community members', 'jetpack' ); ?></label></li>
+			<li><label><input id="<?php echo esc_attr( $this->get_field_id( 'number' ) ); ?>-few"  name="<?php echo esc_attr( $this->get_field_name( 'number' ) ); ?>" type="radio" value="10" <?php checked( '10', $number ); ?> /> <?php esc_html_e( '10 community members', 'jetpack' ); ?></label></li>
+			<li><label><input id="<?php echo esc_attr( $this->get_field_id( 'number' ) ); ?>-lots" name="<?php echo esc_attr( $this->get_field_name( 'number' ) ); ?>" type="radio" value="50" <?php checked( '50', $number ); ?> /> <?php esc_html_e( '50 community members', 'jetpack' ); ?></label></li>
 		</ul>
 
 		<p>
-			<label for="<?php echo $this->get_field_id( 'include_likers' ); ?>">
-				<input type="checkbox" class="checkbox"  id="<?php echo $this->get_field_id( 'include_likers' ); ?>" name="<?php echo $this->get_field_name( 'include_likers' ); ?>" value="1" <?php checked( $include_likers, 1 ); ?> />
+			<label for="<?php echo esc_attr( $this->get_field_id( 'include_likers' ) ); ?>">
+				<input type="checkbox" class="checkbox"  id="<?php echo esc_attr( $this->get_field_id( 'include_likers' ) ); ?>" name="<?php echo esc_attr( $this->get_field_name( 'include_likers' ) ); ?>" value="1" <?php checked( $include_likers, 1 ); ?> />
 				<?php esc_html_e( 'Include activity from likers', 'jetpack' ); ?>
 			</label>
 		</p>
 
 		<p>
-			<label for="<?php echo $this->get_field_id( 'include_followers' ); ?>">
-				<input type="checkbox" class="checkbox"  id="<?php echo $this->get_field_id( 'include_followers' ); ?>" name="<?php echo $this->get_field_name( 'include_followers' ); ?>" value="1" <?php checked( $include_followers, 1 ); ?> />
+			<label for="<?php echo esc_attr( $this->get_field_id( 'include_followers' ) ); ?>">
+				<input type="checkbox" class="checkbox"  id="<?php echo esc_attr( $this->get_field_id( 'include_followers' ) ); ?>" name="<?php echo esc_attr( $this->get_field_name( 'include_followers' ) ); ?>" value="1" <?php checked( $include_followers, 1 ); ?> />
 				<?php esc_html_e( 'Include activity from followers', 'jetpack' ); ?>
 			</label>
 		</p>
 
 		<p>
-			<label for="<?php echo $this->get_field_id( 'include_commenters' ); ?>">
-				<input type="checkbox" class="checkbox"  id="<?php echo $this->get_field_id( 'include_commenters' ); ?>" name="<?php echo $this->get_field_name( 'include_commenters' ); ?>" value="1" <?php checked( $include_commenters, 1 ); ?> />
+			<label for="<?php echo esc_attr( $this->get_field_id( 'include_commenters' ) ); ?>">
+				<input type="checkbox" class="checkbox"  id="<?php echo esc_attr( $this->get_field_id( 'include_commenters' ) ); ?>" name="<?php echo esc_attr( $this->get_field_name( 'include_commenters' ) ); ?>" value="1" <?php checked( $include_commenters, 1 ); ?> />
 				<?php esc_html_e( 'Include activity from commenters', 'jetpack' ); ?>
 			</label>
 		</p>
@@ -131,15 +131,15 @@ class Jetpack_My_Community_Widget extends WP_Widget {
 	 *
 	 * @return array Updated safe values to be saved.
 	 */
-	function update( $new_instance, $old_instance ) {
+	public function update( $new_instance, $old_instance ) { // phpcs:ignore VariableAnalysis.CodeAnalysis.VariableAnalysis.UnusedVariable
 		$instance          = array();
 		$instance['title'] = wp_kses( $new_instance['title'], array() );
 		if ( $instance['title'] === $this->default_title ) {
-			$instance['title'] = false; // Store as false in case of language change
+			$instance['title'] = false; // Store as false in case of language change.
 		}
 
 		$instance['number'] = (int) $new_instance['number'];
-		if ( ! in_array( $instance['number'], array( 10, 50 ) ) ) {
+		if ( ! in_array( $instance['number'], array( 10, 50 ), true ) ) {
 			$instance['number'] = 10;
 		}
 
@@ -160,9 +160,10 @@ class Jetpack_My_Community_Widget extends WP_Widget {
 	 * @param array $args     Widget arguments.
 	 * @param array $instance Saved values from database.
 	 */
-	function widget( $args, $instance ) {
+	public function widget( $args, $instance ) {
 		$instance = wp_parse_args(
-			$instance, array(
+			$instance,
+			array(
 				'title'              => false,
 				'number'             => true,
 				'include_likers'     => true,
@@ -177,13 +178,12 @@ class Jetpack_My_Community_Widget extends WP_Widget {
 			$title = $this->default_title;
 		}
 
+		echo $args['before_widget']; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
+
 		/** This filter is documented in wp-includes/widgets/class-wp-widget-pages.php */
 		$title = apply_filters( 'widget_title', $title );
-
-		echo $args['before_widget'];
-
 		if ( ! empty( $title ) ) {
-			echo $args['before_title'] . $title . $args['after_title'];
+			echo $args['before_title'] . $title . $args['after_title']; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
 		}
 
 		$transient_name = "$this->id-v2-{$instance['number']}" . (int) $instance['include_likers'] . (int) $instance['include_followers'] . (int) $instance['include_commenters'];
@@ -196,9 +196,9 @@ class Jetpack_My_Community_Widget extends WP_Widget {
 			set_transient( $transient_name, $my_community, self::$expiration );
 		}
 
-		echo $my_community;
+		echo $my_community; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
 
-		echo $args['after_widget'];
+		echo $args['after_widget']; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
 
 		/** This action is documented in modules/widgets/gravatar-profile.php */
 		do_action( 'jetpack_stats_extra', 'widget_view', 'my_community' );
@@ -209,11 +209,11 @@ class Jetpack_My_Community_Widget extends WP_Widget {
 	 *
 	 * @since 4.0
 	 *
-	 * @param array $query
+	 * @param array $query Saved widget values from database.
 	 *
 	 * @return string
 	 */
-	function get_community( $query ) {
+	private function get_community( $query ) {
 		$members = $this->fetch_remote_community( $query );
 
 		if ( ! empty( $members ) ) {
@@ -223,10 +223,10 @@ class Jetpack_My_Community_Widget extends WP_Widget {
 			foreach ( $members as $member ) {
 				$my_community .= sprintf(
 					'<li><a href="%s" title="%s"><img alt="%s" src="%s" class="avatar avatar-48" height="48" width="48"></a></li>',
-					esc_url( $member->profile_URL ),
+					esc_url( $member->profile_URL ), // phpcs:ignore WordPress.NamingConventions.ValidVariableName.UsedPropertyNotSnakeCase
 					esc_attr( $member->name ),
 					esc_attr( $member->name ),
-					esc_url( $member->avatar_URL )
+					esc_url( $member->avatar_URL ) // phpcs:ignore WordPress.NamingConventions.ValidVariableName.UsedPropertyNotSnakeCase
 				);
 			}
 
@@ -236,10 +236,12 @@ class Jetpack_My_Community_Widget extends WP_Widget {
 			if ( current_user_can( 'edit_theme_options' ) ) {
 				$my_community = '<p>' . wp_kses(
 					sprintf(
+						/* Translators: 1. link to the widgets settings screen. 2. link to support document. */
 						__( 'There are no users to display in this <a href="%1$s">My Community widget</a>. <a href="%2$s">Want more traffic?</a>', 'jetpack' ),
 						admin_url( 'widgets.php' ),
 						esc_url( Redirect::get_url( 'jetpack-support-getting-more-views-and-traffic' ) )
-					), array( 'a' => array( 'href' => true ) )
+					),
+					array( 'a' => array( 'href' => true ) )
 				) . '</p>';
 			} else {
 				$my_community = '<p>' . esc_html__( "I'm just starting out; leave me a comment or a like :)", 'jetpack' ) . '</p>';
@@ -254,11 +256,11 @@ class Jetpack_My_Community_Widget extends WP_Widget {
 	 *
 	 * @since 4.0
 	 *
-	 * @param $query
+	 * @param array $query Saved widget values from database.
 	 *
 	 * @return array
 	 */
-	function fetch_remote_community( $query ) {
+	private function fetch_remote_community( $query ) {
 		$jetpack_blog_id = Jetpack_Options::get_option( 'id' );
 		$url             = add_query_arg(
 			array(
@@ -296,5 +298,4 @@ function jetpack_my_community_init() {
 		register_widget( 'Jetpack_My_Community_Widget' );
 	}
 }
-
 add_action( 'widgets_init', 'jetpack_my_community_init' );
