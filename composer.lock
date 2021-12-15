@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "a73eb7045bf8cc0ae3fa9b2b7df56f6e",
+    "content-hash": "d92fd89002ac854e06dee8840344b0c5",
     "packages": [],
     "packages-dev": [
         {
@@ -690,13 +690,13 @@
             "version": "3.6.1",
             "source": {
                 "type": "git",
-                "url": "https://github.com/squizlabs/PHP_CodeSniffer.git",
-                "reference": "f268ca40d54617c6e06757f83f699775c9b3ff2e"
+                "url": "https://github.com/Automattic/PHP_CodeSniffer.git",
+                "reference": "09266605d869c78dc5d997fa4ed76c0bb73b33fd"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/squizlabs/PHP_CodeSniffer/zipball/f268ca40d54617c6e06757f83f699775c9b3ff2e",
-                "reference": "f268ca40d54617c6e06757f83f699775c9b3ff2e",
+                "url": "https://api.github.com/repos/Automattic/PHP_CodeSniffer/zipball/09266605d869c78dc5d997fa4ed76c0bb73b33fd",
+                "reference": "09266605d869c78dc5d997fa4ed76c0bb73b33fd",
                 "shasum": ""
             },
             "require": {
@@ -718,7 +718,6 @@
                     "dev-master": "3.x-dev"
                 }
             },
-            "notification-url": "https://packagist.org/downloads/",
             "license": [
                 "BSD-3-Clause"
             ],
@@ -736,10 +735,10 @@
             ],
             "support": {
                 "issues": "https://github.com/squizlabs/PHP_CodeSniffer/issues",
-                "source": "https://github.com/squizlabs/PHP_CodeSniffer",
-                "wiki": "https://github.com/squizlabs/PHP_CodeSniffer/wiki"
+                "wiki": "https://github.com/squizlabs/PHP_CodeSniffer/wiki",
+                "source": "https://github.com/squizlabs/PHP_CodeSniffer"
             },
-            "time": "2021-10-11T04:00:11+00:00"
+            "time": "2021-12-15T15:28:53+00:00"
         },
         {
             "name": "wp-coding-standards/wpcs",
