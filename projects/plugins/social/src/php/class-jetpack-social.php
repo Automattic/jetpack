@@ -41,6 +41,7 @@ class Jetpack_Social {
 			'plugins_loaded',
 			function () {
 				$config = new Automattic\Jetpack\Config();
+
 				// Connection package.
 				$config->ensure(
 					'connection',
@@ -50,6 +51,12 @@ class Jetpack_Social {
 						'url_info' => JETPACK_SOCIAL_PLUGIN_URI,
 					)
 				);
+
+				// Sync package.
+				$config->ensure( 'sync' );
+
+				// Identity crisis package.
+				$config->ensure( 'identity_crisis' );
 			},
 			1
 		);

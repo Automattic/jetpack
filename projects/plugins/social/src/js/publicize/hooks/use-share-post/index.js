@@ -74,6 +74,10 @@ export default function useSharePost( postId ) {
 
 	const [ data, setData ] = useState( { data: [], error: {} } );
 
+	useEffect( () => {
+		console.log( data );
+	}, [ data ] );
+
 	const doPublicize = useCallback(
 		function () {
 			const initialState = {
