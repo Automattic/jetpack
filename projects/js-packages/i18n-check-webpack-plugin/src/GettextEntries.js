@@ -1,4 +1,4 @@
-const assert = require( 'assert/strict' );
+const assert = require( 'assert' ).strict;
 const GettextEntry = require( './GettextEntry' );
 const PROJECT_NAME = require( './plugin-name.js' );
 
