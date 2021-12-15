@@ -15,7 +15,7 @@ module.exports = {
 	},
 	output: {
 		...jetpackWebpackConfig.output,
-		path: path.join( __dirname, '../build/instant-search' ),
+		path: path.join( __dirname, '../build/dashboard' ),
 	},
 	optimization: {
 		...jetpackWebpackConfig.optimization,
@@ -34,9 +34,6 @@ module.exports = {
 		modules: [ path.resolve( __dirname, '../src/dashboard' ), 'node_modules' ],
 	},
 	plugins: [
-		...jetpackWebpackConfig.StandardPlugins( {
-			DependencyExtractionPlugin: false,
-		} ),
 		...jetpackWebpackConfig.StandardPlugins( {
 			DependencyExtractionPlugin: {
 				injectPolyfill: true,
