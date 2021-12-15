@@ -141,7 +141,8 @@ class AtAGlance extends Component {
 
 		// If user can manage modules, we're in an admin view, otherwise it's a non-admin view.
 		if ( this.props.userCanManageModules ) {
-			const canDisplaybundleCard = ! this.props.multisite && ! this.props.isOfflineMode;
+			const canDisplaybundleCard =
+				! this.props.multisite && ! this.props.isOfflineMode && this.props.hasConnectedOwner;
 			const pairs = [
 				{
 					header: securityHeader,
