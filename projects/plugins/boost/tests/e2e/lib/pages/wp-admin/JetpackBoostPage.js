@@ -3,6 +3,8 @@ import { resolveSiteUrl } from 'jetpack-e2e-commons/helpers/utils-helper.cjs';
 
 const apiEndpointsRegex = {
 	'critical-css-status': /jetpack-boost\/v1\/module\/critical-css\/status/,
+	'lazy-images-status': /jetpack-boost\/v1\/module\/lazy-images\/status/,
+	'render-blocking-js-status': /jetpack-boost\/v1\/module\/render-blocking-js\/status/,
 	'speed-scores-update': /jetpack-boost\/v1\/speed-scores\/\w*\/update/,
 };
 
