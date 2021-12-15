@@ -47,13 +47,17 @@ class DashSecurityBundle extends Component {
 			{
 				id: 'backup',
 				imageUrl: cloudImageUrl,
-				text: _x( 'Backup', 'jetpack', 'jetpack' ),
+				text: _x(
+					'Backup',
+					'The Jetpack Backup product name, without the Jetpack prefix',
+					'jetpack'
+				),
 				imgAlt: __( 'A cloud representing Jetpack Backup', 'jetpack' ),
 			},
 			{
 				id: 'scan',
 				imageUrl: shieldImageUrl,
-				text: _x( 'Scan', 'jetpack', 'jetpack' ),
+				text: _x( 'Scan', 'The Jetpack Scan product name, without the Jetpack prefix', 'jetpack' ),
 				imgAlt: __( 'A shield representing Jetpack Scan', 'jetpack' ),
 			},
 			{
