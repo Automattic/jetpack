@@ -33,7 +33,6 @@ class PluginDashItem extends Component {
 		pluginFile: PropTypes.string.isRequired,
 		pluginSlug: PropTypes.string.isRequired,
 		pluginLink: PropTypes.string.isRequired,
-		icon: PropTypes.string.isRequired,
 		installOrActivatePrompt: PropTypes.element.isRequired,
 
 		// connected properties

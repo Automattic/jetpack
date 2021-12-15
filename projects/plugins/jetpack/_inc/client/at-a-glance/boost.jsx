@@ -5,6 +5,7 @@ import React, { Component } from 'react';
 import { __ } from '@wordpress/i18n';
 import PropTypes from 'prop-types';
 import { createInterpolateElement } from '@wordpress/element';
+import { ExternalLink } from '@wordpress/components';
 
 const BOOST_PLUGIN_FILE = 'jetpack-boost/jetpack-boost.php';
 const BOOST_PLUGIN_SLUG = 'jetpack-boost';
@@ -29,12 +30,12 @@ class DashBoost extends Component {
 				pluginLink={ BOOST_PLUGIN_DASH }
 				installOrActivatePrompt={ createInterpolateElement(
 					__(
-						'Improve your site’s performance and SEO in a few clicks with the free Jetpack Boost plugin.<br /><a>Learn more.</a>',
+						'Improve your site’s performance and SEO in a few clicks with the free Jetpack Boost plugin.<br /><ExternalLink>Learn more.</ExternalLink>',
 						'jetpack'
 					),
 					{
-						a: (
-							<a
+						ExternalLink: (
+							<ExternalLink
 								href={
 									'https://jetpack.com/redirect/?source=stats-nudges-boost-learn&site=' +
 									this.props.siteRawUrl
