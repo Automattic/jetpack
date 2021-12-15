@@ -600,7 +600,7 @@ class Test_Admin_Menu extends WP_UnitTestCase {
 		$this->assertSame( 'WooCommerce', $menu[55][3] );
 		$this->assertSame( $woo_icon, $menu[55][6] );
 
-		remove_filter( 'jetpack_show_wpcom_woocommerce_installation_menu', '__return_true' );
+		remove_all_filters( 'jetpack_show_wpcom_woocommerce_installation_menu' );
 
 		// Reset the menu array.
 		$menu = self::$menu_data;
@@ -612,7 +612,26 @@ class Test_Admin_Menu extends WP_UnitTestCase {
 		$this->assertArrayNotHasKey( 54, $menu );
 		$this->assertArrayNotHasKey( 55, $menu );
 
-		remove_filter( 'jetpack_show_wpcom_woocommerce_installation_menu', '__return_false' );
+		remove_all_filters( 'jetpack_show_wpcom_woocommerce_installation_menu' );
+
+		// Reset the menu array.
+		$menu = self::$menu_data;
+
+		// Test filter signature with $current_plan passed in.
+		add_filter(
+			'jetpack_show_wpcom_woocommerce_installation_menu',
+			function ( $should_show, $current_plan ) {
+				return $current_plan['test'];
+			},
+			10,
+			2
+		);
+		static::$admin_menu->add_woocommerce_installation_menu( array( 'test' => true ) );
+
+		$this->assertArrayHasKey( 54, $menu );
+		$this->assertArrayHasKey( 55, $menu );
+
+		remove_all_filters( 'jetpack_show_wpcom_woocommerce_installation_menu' );
 	}
 
 	/**
