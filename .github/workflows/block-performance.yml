@@ -54,7 +54,6 @@ jobs:
           mkdir results
           pnpm install
           pnpm config:decrypt
-          pnpm tunnel:on
           pnpm env:start
 
       - name: Run performance tests
