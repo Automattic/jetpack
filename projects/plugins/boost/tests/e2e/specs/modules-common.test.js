@@ -10,7 +10,7 @@ const modules = [
 	[ 'render-blocking-js', 'disabled' ],
 ];
 
-test.describe( 'Modules', () => {
+test.describe.serial( 'Modules', () => {
 	let page;
 	let jetpackBoostPage;
 
