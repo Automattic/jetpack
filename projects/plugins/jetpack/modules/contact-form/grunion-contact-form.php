@@ -2382,6 +2382,11 @@ class Grunion_Contact_Form extends Crunion_Contact_Form_Shortcode {
 					$value         = trim( $value );
 				}
 
+				// If we still do not have any value, bail.
+				if ( empty( $value ) ) {
+					continue;
+				}
+
 				$field_index                   = array_search( $field_ids[ $type ], $field_ids['all'] );
 				$compiled_form[ $field_index ] = sprintf(
 					'<b>%1$s:</b> %2$s<br /><br />',

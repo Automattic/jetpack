@@ -65,13 +65,8 @@ class Jetpack_Search_Customberg {
 			array( $this, 'jetpack_search_admin_page' )
 		);
 
-		// Only load assets if Customberg is supported.
-		if ( $this->wp_supports_customberg() ) {
-			add_action( "admin_print_scripts-$hook", array( $this, 'load_assets' ) );
-			add_action( 'admin_footer', array( 'Automattic\Jetpack\Search\Helper', 'print_instant_search_sidebar' ) );
-		} else {
-			add_action( "admin_print_scripts-$hook", array( $this, 'add_redirect_if_necessary' ) );
-		}
+		add_action( "admin_print_scripts-$hook", array( $this, 'load_assets' ) );
+		add_action( 'admin_footer', array( 'Automattic\Jetpack\Search\Helper', 'print_instant_search_sidebar' ) );
 	}
 
 	/**
@@ -92,20 +87,6 @@ class Jetpack_Search_Customberg {
 				<div class="hide-if-js"><?php esc_html_e( 'Your Search customization page requires JavaScript to function properly.', 'jetpack' ); ?></div>
 			</div>
 		<?php
-	}
-
-	/**
-	 * Redirects to the Customizer if Customberg is not supported by the current host.
-	 */
-	public function add_redirect_if_necessary() {
-		// Add a JS redirect if Customberg is not supported.
-		if ( ! $this->wp_supports_customberg() ) {
-			?>
-				<script>
-					window.location.href="<?php echo esc_url( admin_url( 'customize.php?autofocus[section]=jetpack_search' ) ); ?>";
-				</script>
-			<?php
-		}
 	}
 
 	/**
@@ -142,17 +123,6 @@ class Jetpack_Search_Customberg {
 			'jp-search-configure',
 			"window.jetpackSearchConfigureInit( 'jp-search-configure' )"
 		);
-	}
-
-	/**
-	 * Determine if the current version of WordPress supports Customberg.
-	 *
-	 * @return boolean
-	 */
-	protected function wp_supports_customberg() {
-		// Must be WP 5.8 or greater.
-		global $wp_version;
-		return version_compare( $wp_version, '5.8', '>=' );
 	}
 
 	/**

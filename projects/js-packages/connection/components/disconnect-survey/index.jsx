@@ -170,7 +170,7 @@ const DisconnectSurvey = props => {
 				>
 					{ isSubmittingFeedback
 						? __( 'Submitting…', 'jetpack' )
-						: __( 'Submit Feedback', 'jetpack' ) }
+						: __( 'Submit Feedback', 'jetpack', /* dummy arg to avoid bad minification */ 0 ) }
 				</Button>
 			</p>
 		</React.Fragment>
