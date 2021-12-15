@@ -42,11 +42,15 @@ projects/plugins/boost/wordpress/**
 projects/plugins/jetpack/extensions/**/test/
 
 ### Other projects
+projects/*/*/jetpack_vendor
 projects/*/*/vendor
 projects/github-actions/*/dist
+projects/js-packages/babel-plugin-replace-textdomain/tests/fixtures/
+projects/js-packages/i18n-check-webpack-plugin/tests/fixtures/
 projects/packages/*/wordpress
 projects/packages/connection-ui/build
 projects/packages/identity-crisis/build
+projects/packages/jitm/build
 projects/packages/jitm/src/js/jetpack-jitm.js
 projects/packages/lazy-images/dist
 projects/plugins/backup/build

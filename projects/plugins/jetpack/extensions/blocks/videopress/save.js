@@ -28,6 +28,7 @@ const VideoPressSave = CoreVideoSave => props => {
 			seekbarColor,
 			seekbarPlayedColor,
 			seekbarLoadingColor,
+			useAverageColor,
 			maxWidth,
 		} = {},
 	} = props;
@@ -62,10 +63,11 @@ const VideoPressSave = CoreVideoSave => props => {
 		seekbarColor,
 		seekbarPlayedColor,
 		seekbarLoadingColor,
+		useAverageColor,
 	} );
 
 	let embedWrapperStyle = {};
-	if ( maxWidth.length > 0 && '100%' !== maxWidth ) {
+	if ( maxWidth && maxWidth.length > 0 && '100%' !== maxWidth ) {
 		embedWrapperStyle = {
 			maxWidth,
 			margin: 'auto',

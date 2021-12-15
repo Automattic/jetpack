@@ -82,6 +82,7 @@ export function SubscriptionEdit( props ) {
 		subscribePlaceholder,
 		showSubscribersTotal,
 		buttonOnNewLine,
+		successMessage,
 	} = validatedAttributes;
 
 	const [ subscriberCountString, setSubscriberCountString ] = useState( '' );
@@ -224,6 +225,7 @@ export function SubscriptionEdit( props ) {
 					subscriberCount={ subscriberCount }
 					textColor={ textColor }
 					buttonWidth={ buttonWidth }
+					successMessage={ successMessage }
 				/>
 			</InspectorControls>
 

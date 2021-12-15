@@ -1,4 +1,3 @@
-const path = require( 'path' );
 const webpack = require( 'webpack' );
 
 const CssMinimizerPlugin = require( 'css-minimizer-webpack-plugin' );
@@ -8,6 +7,7 @@ const DuplicatePackageCheckerWebpackPlugin = require( 'duplicate-package-checker
 const MiniCssExtractPlugin = require( 'mini-css-extract-plugin' );
 const MiniCSSWithRTLPlugin = require( './webpack/mini-css-with-rtl' );
 const WebpackRTLPlugin = require( '@automattic/webpack-rtl-plugin' );
+const I18nCheckWebpackPlugin = require( '@automattic/i18n-check-webpack-plugin' );
 
 const MyCssMinimizerPlugin = options => new CssMinimizerPlugin( options );
 
@@ -18,13 +18,14 @@ const isDevelopment = ! isProduction;
 const mode = isProduction ? 'production' : 'development';
 const devtool = isProduction ? false : 'eval-cheap-module-source-map';
 const output = {
-	filename: '[name].min.js',
-	chunkFilename: '[name]-[id].H[contenthash:20].min.js',
+	filename: '[name].js',
+	chunkFilename: '[name].js?minify=false&ver=[contenthash]',
 };
 const optimization = {
 	minimize: isProduction,
 	minimizer: [ TerserPlugin(), MyCssMinimizerPlugin() ],
 	concatenateModules: false,
+	emitOnErrors: true,
 };
 const resolve = {
 	extensions: [ '.js', '.jsx', '.ts', '.tsx', '...' ],
@@ -47,7 +48,13 @@ const MomentLocaleIgnorePlugin = () => [
 	} ),
 ];
 
-const MyMiniCssExtractPlugin = options => [ new MiniCssExtractPlugin( options ) ];
+const MyMiniCssExtractPlugin = options => [
+	new MiniCssExtractPlugin( {
+		filename: '[name].css',
+		chunkFilename: '[name].css?minify=false&ver=[contenthash]',
+		...options,
+	} ),
+];
 
 const MyMiniCssWithRtlPlugin = options => [ new MiniCSSWithRTLPlugin( options ) ];
 
@@ -59,7 +66,23 @@ const DuplicatePackageCheckerPlugin = options => [
 
 const DependencyExtractionPlugin = options => [ new DependencyExtractionWebpackPlugin( options ) ];
 
+const i18nFilterFunction = file => {
+	if ( ! /\.(?:jsx?|tsx?|cjs|mjs|svelte)$/.test( file ) ) {
+		return false;
+	}
+	const i = file.lastIndexOf( '/node_modules/' ) + 14;
+	return i < 14 || file.startsWith( '@automattic/', i );
+};
+const I18nCheckPlugin = options => [
+	new I18nCheckWebpackPlugin( { filter: i18nFilterFunction, ...options } ),
+];
+I18nCheckPlugin.defaultFilter = i18nFilterFunction;
+
 const StandardPlugins = ( options = {} ) => {
+	if ( typeof options.I18nCheckPlugin === 'undefined' && isDevelopment ) {
+		options.I18nCheckPlugin = false;
+	}
+
 	return [
 		...( options.DefinePlugin === false ? [] : DefinePlugin( options.DefinePlugin ) ),
 		...( options.MomentLocaleIgnorePlugin === false
@@ -78,32 +101,15 @@ const StandardPlugins = ( options = {} ) => {
 		...( options.DependencyExtractionPlugin === false
 			? []
 			: DependencyExtractionPlugin( options.DependencyExtractionPlugin ) ),
+		...( options.I18nCheckPlugin === false ? [] : I18nCheckPlugin( options.I18nCheckPlugin ) ),
 	];
 };
 
-/****** Module rules and loaders ******/
+/****** Module rules ******/
 
 const TranspileRule = require( './webpack/transpile-rule' );
+const CssRule = require( './webpack/css-rule' );
 const FileRule = require( './webpack/file-rule' );
-const MiniCssExtractLoader = options => ( {
-	loader: MiniCssExtractPlugin.loader,
-	options: options,
-} );
-const CssLoader = options => ( {
-	loader: require.resolve( 'css-loader' ),
-	options: {
-		// By default we do not want css-loader to try to handle absolute paths.
-		url: { filter: urlpath => ! urlpath.startsWith( '/' ) },
-		...options,
-	},
-} );
-const CssCacheLoader = options => ( {
-	loader: require.resolve( 'cache-loader' ),
-	options: {
-		cacheDirectory: path.resolve( '.cache/css-loader' ),
-		...options,
-	},
-} );
 
 // Note: For this cjs module to be used with named exports in an mjs context, modules.exports
 // needs to contain only simple variables like `a` or `a: b`. Define anything more complex
@@ -131,8 +137,6 @@ module.exports = {
 	DuplicatePackageCheckerPlugin,
 	// Module rules and loaders.
 	TranspileRule,
+	CssRule,
 	FileRule,
-	MiniCssExtractLoader,
-	CssLoader,
-	CssCacheLoader,
 };
