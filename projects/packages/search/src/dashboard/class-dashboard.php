@@ -142,7 +142,7 @@ class Dashboard {
 
 		Assets::register_script(
 			'jp-search-dashboard',
-			'../../build/instant-search/jp-search-dashboard.js',
+			'../../build/dashboard/jp-search-dashboard.js',
 			__FILE__,
 			array(
 				'in_footer'  => true,

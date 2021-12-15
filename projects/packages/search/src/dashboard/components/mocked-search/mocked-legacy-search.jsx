@@ -7,7 +7,7 @@ import React from 'react';
  * Internal dependencies
  */
 // TODO change to our own gridicon component, when instant search is migrated.
-const Gridicon = React.lazy( () => import( 'gridicons' ) );
+import Gridicon from 'gridicons';
 import TextRowPlaceHolder from './placeholder';
 import './mocked-legacy-search.scss';
 

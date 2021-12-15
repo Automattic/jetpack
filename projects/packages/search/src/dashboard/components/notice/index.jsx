@@ -11,7 +11,7 @@ import noop from 'lodash/noop';
  * Internal dependencies
  */
 // TODO change to our own gridicon component, when instant search is migrated.
-const Gridicon = React.lazy( () => import( 'gridicons' ) );
+import Gridicon from 'gridicons';
 import './style.scss';
 
 export default class SimpleNotice extends React.Component {
