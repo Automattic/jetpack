@@ -33,10 +33,7 @@ export default class Mosaic extends Component {
 							const columnImages = renderedImages.slice( cursor, cursor + colSize );
 							cursor += colSize;
 							return (
-								<Column
-									key={ colIndex }
-									width={ columnWidths ? columnWidths[ rowIndex ][ colIndex ] : undefined }
-								>
+								<Column key={ colIndex } width={ columnWidths?.[ rowIndex ]?.[ colIndex ] }>
 									{ columnImages }
 								</Column>
 							);

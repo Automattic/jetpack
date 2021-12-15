@@ -61,10 +61,10 @@ class Jetpack_Widget_Social_Icons extends WP_Widget {
 	}
 
 	/**
-	 * Remove Social Icons widget from Legacy Widget block.
+	 * Remove the "Social Icons" widget from the Legacy Widget block
 	 *
-	 * @param array $widget_types Widget type data.
-	 * This only applies to new blocks being added.
+	 * @param array $widget_types List of widgets that are currently removed from the Legacy Widget block.
+	 * @return array $widget_types New list of widgets that will be removed.
 	 */
 	public function hide_widget_in_block_editor( $widget_types ) {
 		$widget_types[] = self::ID_BASE;
@@ -143,7 +143,7 @@ class Jetpack_Widget_Social_Icons extends WP_Widget {
 		echo $args['before_widget']; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
 
 		if ( ! empty( $title ) ) {
-			echo $args['before_title'] . esc_html( $title ) . $args['after_title']; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
+			echo $args['before_title'] . $title . $args['after_title']; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
 		}
 
 		if ( ! empty( $instance['icons'] ) ) :

@@ -18,6 +18,7 @@
 	<!-- Ignore external libraries -->
 	<exclude-pattern>/node_modules/*</exclude-pattern>
 	<exclude-pattern>/vendor/*</exclude-pattern>
+	<exclude-pattern>/jetpack_vendor/*</exclude-pattern>
 
 	<!-- Ignore WordPress and such checked out for Docker -->
 	<exclude-pattern>/tools/docker/data/*</exclude-pattern>

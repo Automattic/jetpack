@@ -1,5 +1,6 @@
 @import '@wordpress/base-styles/breakpoints';
 @import '@wordpress/base-styles/mixins';
+@import '~@automattic/jetpack-base-styles/style';
 
 .jp-connection__connect-screen-layout {
 	background: var( --jp-white );
@@ -99,18 +100,21 @@
 	}
 
 	&__two-columns {
+		display: flex;
+    	flex-wrap: wrap;
+
 		.jp-connection__connect-screen-layout__left {
-			float: left;
-			width: 100%;
+			flex-grow: 1;
+			flex-basis: 100%;
 
 			@include break-xlarge {
-				width: 52%;
+				flex-basis: 52%;
 			}
 		}
 
 		.jp-connection__connect-screen-layout__right {
-			float: right;
-			width: 47%;
+			flex-grow: 1;
+			flex-basis: 47%;
 			background: #F9F9F6;
 			display: none;
 
@@ -118,9 +122,5 @@
 				display: block;
 			}
 		}
-	}
-
-	&__clearfix {
-		clear: both;
 	}
 }

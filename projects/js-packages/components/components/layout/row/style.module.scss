@@ -1,0 +1,20 @@
+@import '~@automattic/jetpack-base-styles/style';
+
+.jp-row {
+	display: grid;
+	grid-gap: 24px;
+	grid-template-columns: repeat( 4, 1fr );
+	width: 100%;
+	margin: 0 16px;
+
+	@include for-phone-up {
+		grid-template-columns: repeat( 8, 1fr );
+		margin: 0 18px;
+	}
+
+	@include for-tablet-up {
+		grid-template-columns: repeat( 12, 1fr );
+		max-width: 1128px;
+		margin: 0 24px;
+	}
+}

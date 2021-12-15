@@ -55,7 +55,6 @@ class WP_Test_Jetpack_Options extends WP_UnitTestCase {
 		$this->assertEquals( 'cached_value', get_option( 'test_option' ) );
 	}
 
-
 	function test_raw_option_with_constant_does_not_by_pass_wp_cache_filters() {
 		$this->setup_option_cache();
 
@@ -92,7 +91,7 @@ class WP_Test_Jetpack_Options extends WP_UnitTestCase {
 
 		update_option( 'test_option', 'cached_value' );
 		Jetpack_Options::update_raw_option( 'test_option', 'updated_value' );
-		$this->assertEquals( 'cached_value', get_option( 'test_option') );
+		$this->assertEquals( 'cached_value', get_option( 'test_option' ) );
 		$this->assertEquals( 'updated_value', Jetpack_Options::get_raw_option( 'test_option' ) );
 	}
 
@@ -101,7 +100,7 @@ class WP_Test_Jetpack_Options extends WP_UnitTestCase {
 
 		update_option( 'test_option', 'cached_value' );
 		Jetpack_Options::delete_raw_option( 'test_option' );
-		$this->assertEquals( 'cached_value', get_option( 'test_option') );
+		$this->assertEquals( 'cached_value', get_option( 'test_option' ) );
 		$this->assertNull( Jetpack_Options::get_raw_option( 'test_option' ) );
 	}
 

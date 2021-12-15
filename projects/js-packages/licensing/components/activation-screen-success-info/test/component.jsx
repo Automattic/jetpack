@@ -3,25 +3,33 @@
  */
 import React from 'react';
 import { expect } from 'chai';
-import { shallow } from 'enzyme';
+import { mount } from 'enzyme';
 
 /**
  * Internal dependencies
  */
 import ActivationSuccessInfo from '..';
-import { JetpackBackupDailyProductDetails } from '../product-details';
+import JetpackProductDetails from '../product-details';
 
 describe( 'ActivationSuccessInfo', () => {
 	const testProps = {
 		productId: 2100,
-		dashboardUrl: 'jetpack.com',
+		siteRawUrl: 'http://test-site.jurassic.ninja',
 	};
 
 	describe( 'Render the ActivationSuccessInfo component', () => {
-		const wrapper = shallow( <ActivationSuccessInfo { ...testProps } /> );
+		const wrapper = mount( <ActivationSuccessInfo { ...testProps } /> );
+
+		const jetpackProductDetailsComponent = wrapper.find( JetpackProductDetails );
 
 		it( 'correct product class is used', () => {
-			expect( wrapper.find( JetpackBackupDailyProductDetails ) ).to.have.lengthOf( 1 );
+			expect( jetpackProductDetailsComponent ).to.have.lengthOf( 1 );
+		} );
+
+		it( 'shows the correct product name', () => {
+			expect( jetpackProductDetailsComponent.text() ).to.contain(
+				'Your Jetpack Backup is active!'
+			);
 		} );
 	} );
 } );
