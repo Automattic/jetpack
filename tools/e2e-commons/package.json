@@ -21,14 +21,14 @@
 		"jetpack-connect": "node bin/e2e-jetpack-connector.js"
 	},
 	"devDependencies": {
-		"@playwright/test": "1.16.3",
-		"@slack/web-api": "6.4.0",
+		"@playwright/test": "1.17.1",
+		"@slack/web-api": "6.5.1",
 		"@wordpress/eslint-plugin": "9.3.0",
 		"allure-playwright": "2.0.0-beta.14",
 		"axios": "0.24.0",
-		"chalk": "4.1.2",
+		"chalk": "5.0.0",
 		"config": "3.3.6",
-		"eslint": "7.32.0",
+		"eslint": "8.4.1",
 		"eslint-plugin-playwright": "0.6.0",
 		"jetpack-cli": "link:../cli",
 		"localtunnel": "2.0.2",
@@ -37,7 +37,7 @@
 		"shell-escape": "0.2.0",
 		"winston": "3.3.3",
 		"wpapi": "1.2.2",
-		"yargs": "17.2.1"
+		"yargs": "17.3.0"
 	},
 	"engines": {
 		"node": "^14.17.6 || ^16.7.0",
