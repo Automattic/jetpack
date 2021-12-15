@@ -2,6 +2,31 @@
 
 ### This is a list detailing changes for all Jetpack releases.
 
+## 10.5-a.3 - 2021-12-14
+### Enhancements
+- Secure Sign On: add filters for the error text when a local user cannot be found for a given WP.com account and for when SSO is disallowed when on a staging site.
+- Subscription Block: add 'Success Message Text' to the block settings.
+
+### Improved compatibility
+- General: ensure Jetpack options are properly deleted when the plugin is deactivated.
+- Media Extractor: add support for alt_text in extract.
+- Notifications: remove legacy code supporting IE versions older than 9.
+- Pay with PayPal Widget: hide widget from Legacy Widget block.
+
+### Bug fixes
+- Contact Form: avoid PHP notices in submitted forms in some cases.
+- Internationalization: ensure that all text, including text added via JavaScript, can be translated.
+- Milestone widget: fix issue that prevented styles from loading until the widget is saved.
+
+### Other changes <!-- Non-user-facing changes go here. This section will not be copied to readme.txt. -->
+- Admin Menu: add support for WPML menu structure.
+- ConnectionBanner: allow "icon" prop type to be an element.
+- JITM: allow sidebar JITMs marked as dismissible to be dismissed.
+- Nav-unification: add a CSS class to the HTML body when nav-unification is enabled.
+- Update introductory discount percentages from 40% to 50%, to reflect new pricing structure..
+- Use `automattic/jetpack-composer-plugin` to move Jetpack libraries from `vendor/` to `jetpack_vendor/` for i18n.
+- [WP.com sites only) Exposes the My Home menu item to all roles
+
 ## 10.5-a.1 - 2021-12-07
 ### Enhancements
 - Sharing: hide sharing buttons when printing a post or page.
