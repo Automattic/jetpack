@@ -66,7 +66,7 @@ class SearchResults extends Component {
 				return __( 'Loading popular results…', 'jetpack' );
 			}
 
-			return __( 'Searching…', 'jetpack' );
+			return __( 'Searching…', 'jetpack', /* dummy arg to avoid bad minification */ 0 );
 		}
 
 		if ( total === 0 || this.props.hasError ) {
