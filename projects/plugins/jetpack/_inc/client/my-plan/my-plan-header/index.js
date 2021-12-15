@@ -94,7 +94,11 @@ class MyPlanHeader extends React.Component {
 					details: expiration,
 					tagLine: displayBackups
 						? __( 'Daily backups, spam filtering, and priority support.', 'jetpack' )
-						: __( 'Spam filtering and priority support.', 'jetpack' ),
+						: __(
+								'Spam filtering and priority support.',
+								'jetpack',
+								/* dummy arg to avoid bad minification */ 0
+						  ),
 					title: __( 'Jetpack Personal', 'jetpack' ),
 				};
 

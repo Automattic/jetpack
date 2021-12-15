@@ -1,0 +1,4 @@
+Significance: patch
+Type: bugfix
+
+We now identify admin menu dashicons that won't be rendered in Calypso, and provide a default icon for them.
