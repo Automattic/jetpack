@@ -145,9 +145,9 @@ class Test_REST_Controller extends Search_Test_Case {
 		$this->assertEquals( 400, $response->get_status() );
 	}
 
-		/**
-		 * Testing the `POST /jetpack/v4/search/settings` endpoint with an admin user.
-		 */
+	/**
+	 * Testing the `POST /jetpack/v4/search/settings` endpoint with an admin user.
+	 */
 	public function test_update_search_settings_invalid_request_2() {
 		wp_set_current_user( $this->admin_id );
 		$new_settings = array();
