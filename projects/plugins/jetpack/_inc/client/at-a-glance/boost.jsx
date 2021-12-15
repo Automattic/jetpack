@@ -8,6 +8,7 @@ import { createInterpolateElement } from '@wordpress/element';
 
 const BOOST_PLUGIN_FILE = 'jetpack-boost/jetpack-boost.php';
 const BOOST_PLUGIN_SLUG = 'jetpack-boost';
+const BOOST_PLUGIN_DASH = '/wp-admin/admin.php?page=jetpack-boost';
 
 /**
  * Internal dependencies
@@ -25,6 +26,7 @@ class DashBoost extends Component {
 				pluginName={ __( 'Boost', 'jetpack' ) }
 				pluginFile={ BOOST_PLUGIN_FILE }
 				pluginSlug={ BOOST_PLUGIN_SLUG }
+				pluginLink={ BOOST_PLUGIN_DASH }
 				installOrActivatePrompt={ createInterpolateElement(
 					__(
 						'Improve your site’s performance and SEO in a few clicks with the free Jetpack Boost plugin.<br /><a>Learn more.</a>',

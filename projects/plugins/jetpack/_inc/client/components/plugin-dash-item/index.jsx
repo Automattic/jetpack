@@ -32,6 +32,7 @@ class PluginDashItem extends Component {
 		pluginName: PropTypes.string.isRequired,
 		pluginFile: PropTypes.string.isRequired,
 		pluginSlug: PropTypes.string.isRequired,
+		pluginLink: PropTypes.string.isRequired,
 		icon: PropTypes.string.isRequired,
 		installOrActivatePrompt: PropTypes.element.isRequired,
 
@@ -80,6 +81,7 @@ class PluginDashItem extends Component {
 	renderContent() {
 		const {
 			isFetchingPluginsData,
+			pluginLink,
 			pluginName,
 			pluginIsActive,
 			pluginIsInstalled,
@@ -147,9 +149,16 @@ class PluginDashItem extends Component {
 			);
 		}
 		return (
-			<Card className="plugin-dash-item__content">
-				<p>{ __( 'Plugin is installed & active.', 'jetpack' ) }</p>
-			</Card>
+			<JetpackBanner
+				callToAction={ sprintf(
+					/* translators: "%s" is the name of the plugin. i.e. Boost, CRM, etc. */
+					__( 'Manage %s', 'jetpack' ),
+					pluginName
+				) }
+				icon="plugins"
+				title={ __( 'Plugin is installed & active.', 'jetpack' ) }
+				href={ pluginLink }
+			/>
 		);
 	}
 

@@ -8,6 +8,7 @@ import { createInterpolateElement } from '@wordpress/element';
 
 const CRM_PLUGIN_FILE = 'zero-bs-crm/ZeroBSCRM.php';
 const CRM_PLUGIN_SLUG = 'zero-bs-crm';
+const CRM_PLUGIN_DASH = '/wp-admin/admin.php?page=zerobscrm-dash';
 
 /**
  * Internal dependencies
@@ -25,6 +26,7 @@ class DashCRM extends Component {
 				pluginName={ __( 'CRM', 'jetpack' ) }
 				pluginFile={ CRM_PLUGIN_FILE }
 				pluginSlug={ CRM_PLUGIN_SLUG }
+				pluginLink={ CRM_PLUGIN_DASH }
 				installOrActivatePrompt={ createInterpolateElement(
 					__(
 						'Sell more and get more leads with the Jetpack CRM plugin built specifically for WordPress.<br /><a>Learn more</a>',
