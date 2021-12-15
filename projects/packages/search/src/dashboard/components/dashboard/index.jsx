@@ -32,14 +32,16 @@ export default function SearchDashboard() {
 	useSelect( select => select( STORE_ID ).getSearchPlanInfo(), [] );
 	useSelect( select => select( STORE_ID ).getSearchModuleStatus(), [] );
 
-	const siteAdminUrl = syncSelect( STORE_ID ).getSiteAdminUrl();
+	const siteAdminUrl = useSelect( select => select( STORE_ID ).getSiteAdminUrl() );
 	const aboutPageUrl = siteAdminUrl + 'admin.php?page=jetpack_about';
 
 	const updateOptions = useDispatch( STORE_ID ).updateJetpackSettings;
-	const isInstantSearchPromotionActive = syncSelect( STORE_ID ).isInstantSearchPromotionActive();
+	const isInstantSearchPromotionActive = useSelect( select =>
+		select( STORE_ID ).isInstantSearchPromotionActive()
+	);
 
-	const domain = syncSelect( STORE_ID ).getCalypsoSlug();
-	const upgradeBillPeriod = syncSelect( STORE_ID ).getUpgradeBillPeriod();
+	const domain = useSelect( select => select( STORE_ID ).getCalypsoSlug() );
+	const upgradeBillPeriod = useSelect( select => select( STORE_ID ).getUpgradeBillPeriod() );
 
 	const supportsOnlyClassicSearch = useSelect(
 		select => select( STORE_ID ).supportsOnlyClassicSearch
