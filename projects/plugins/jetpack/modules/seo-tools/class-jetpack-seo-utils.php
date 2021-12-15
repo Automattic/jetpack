@@ -1,4 +1,9 @@
 <?php
+/**
+ * Class containing utility static methods that other SEO tools are relying on.
+ *
+ * @package automattic/jetpack
+ */
 
 /**
  * Class containing utility static methods that other SEO tools are relying on.
