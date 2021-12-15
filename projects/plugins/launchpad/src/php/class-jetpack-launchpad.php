@@ -27,8 +27,6 @@ class Jetpack_Launchpad {
 		// Set up the REST authentication hooks.
 		Connection_Rest_Authentication::init();
 
-		add_action( 'rest_api_init', array( $this, 'register_rest_routes' ) );
-
 		$page_suffix = Admin_Menu::add_menu(
 			__( 'Jetpack Launchpad', 'jetpack-launchpad' ),
 			_x( 'Launchpad', 'The Jetpack Launchpad product name, without the Jetpack prefix', 'jetpack-launchpad' ),
