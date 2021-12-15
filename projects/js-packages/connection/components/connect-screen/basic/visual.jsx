@@ -88,21 +88,25 @@ ConnectScreenVisual.propTypes = {
 	/** The assets base URL. */
 	assetBaseUrl: PropTypes.string,
 	/** Whether the connection status is still loading. */
-	isLoading: PropTypes.bool.isRequired,
+	isLoading: PropTypes.bool,
 	/** Whether the connection button appears or not. */
 	showConnectButton: PropTypes.bool,
 	/** Text label to be used into button. */
 	buttonLabel: PropTypes.string.isRequired,
 	/** Callback to be called on button click. */
-	handleButtonClick: PropTypes.func.isRequired,
+	handleButtonClick: PropTypes.func,
 	/** Whether the error message appears or not. */
 	displayButtonError: PropTypes.bool,
 	/** Whether the button is loading or not. */
-	buttonIsLoading: PropTypes.bool.isRequired,
+	buttonIsLoading: PropTypes.bool,
 };
 
 ConnectScreenVisual.defaultProps = {
 	showConnectButton: true,
+	isLoading: false,
+	buttonIsLoading: false,
+	displayButtonError: false,
+	handleButtonClick: () => {},
 };
 
 export default ConnectScreenVisual;
