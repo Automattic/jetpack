@@ -153,7 +153,7 @@ const Admin = () => {
 						</a>
 					) }
 				</Col>
-				<Col lg={ 1 } md={ 2 } sm={ 0 } />
+				<Col lg={ 1 } md={ 1 } sm={ 0 } />
 				<Col lg={ 5 } md={ 3 } sm={ 4 }>
 					<h2>{ __( "Your site's heartbeat", 'jetpack-backup' ) }</h2>
 					<p>
