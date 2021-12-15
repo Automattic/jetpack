@@ -108,7 +108,7 @@ if ( ! class_exists( 'Jetpack_Contact_Info_Widget' ) ) {
 			echo $args['before_widget']; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
 
 			if ( '' !== $instance['title'] ) {
-				echo $args['before_title'] . esc_html( $instance['title'] ) . $args['after_title']; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
+				echo $args['before_title'] . $instance['title'] . $args['after_title']; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
 			}
 
 			/**

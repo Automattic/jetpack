@@ -107,7 +107,7 @@ class Jetpack_Gallery_Widget extends WP_Widget {
 		$title = apply_filters( 'widget_title', $instance['title'] );
 
 		if ( $title ) {
-			echo $before_title . esc_html( $title ) . $after_title . "\n"; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
+			echo $before_title . $title . $after_title . "\n"; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
 		}
 
 		echo '<div class="' . esc_attr( $classes ) . '">' . "\n";
