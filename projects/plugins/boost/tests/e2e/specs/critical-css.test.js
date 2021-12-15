@@ -5,7 +5,7 @@ import { PostFrontendPage } from 'jetpack-e2e-commons/pages/index.js';
 import { DashboardPage, ThemesPage, Sidebar } from 'jetpack-e2e-commons/pages/wp-admin/index.js';
 import playwrightConfig from 'jetpack-e2e-commons/playwright.config.cjs';
 
-test.describe.serial( 'Critical CSS module', () => {
+test.describe( 'Critical CSS module', () => {
 	let page;
 
 	test.beforeAll( async ( { browser } ) => {

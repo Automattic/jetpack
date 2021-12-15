@@ -5,7 +5,7 @@ import playwrightConfig from 'jetpack-e2e-commons/playwright.config.cjs';
 
 const testPostTitle = 'Hello World with JavaScript';
 
-test.describe.serial( 'Render Blocking JS module', () => {
+test.describe( 'Render Blocking JS module', () => {
 	let page;
 
 	test.beforeAll( async ( { browser } ) => {

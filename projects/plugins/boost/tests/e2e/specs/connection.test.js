@@ -3,7 +3,7 @@ import { test, expect } from '../fixtures/base-test.js';
 import { JetpackBoostPage } from '../lib/pages/index.js';
 import { boostPrerequisitesBuilder } from '../lib/env/prerequisites.js';
 
-test.describe.serial( 'Settings Page Connection', () => {
+test.describe( 'Settings Page Connection', () => {
 	test( 'Should connect to WP.com on a fresh install with Jetpack plugin activated and Jetpack already connected', async ( {
 		page,
 	} ) => {

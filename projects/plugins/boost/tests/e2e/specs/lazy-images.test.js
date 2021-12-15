@@ -7,7 +7,7 @@ import playwrightConfig from 'jetpack-e2e-commons/playwright.config.cjs';
 
 const testPostTitle = 'Hello World with image';
 
-test.describe.serial( 'Lazy Images module', () => {
+test.describe( 'Lazy Images module', () => {
 	let page;
 
 	test.beforeAll( async ( { browser } ) => {
