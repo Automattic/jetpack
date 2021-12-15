@@ -33,10 +33,13 @@ After everything is installed, you're ready to run Jetpack locally! While there 
 
 To setup Docker:
 - Install Docker:
-	- Mac: `brew install --cask docker`
+	- Mac: `brew install --cask docker` (This will take a while!)
 	- Linux: `brew install docker` 
-- Copy the settings file and modify the site password and any other configuration you'd like: `cp tools/docker/default.env tools/docker/.env`
-- Start the Docker container using `jetpack docker up`
+	- `open -a Docker` (or open the app from your Applications folder) to open the GUI application. You will likely need to enter your device password and accept their terms for a first time setup.
+- Copy the settings file: `cp tools/docker/default.env tools/docker/.env`
+- Open `tools/docker/.env` and make any modifications you'd like.	
+	- It's strongly recommend you at least change `WP_ADMIN_PASSWORD` to something more secure.
+- Start the Docker container using `jetpack docker up` (this may take some time for the first setup)
 - Install WordPress in your Docker container using `jetpack docker install` 
 - Open up http://localhost to see your site!
 
