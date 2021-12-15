@@ -409,7 +409,7 @@ class Assets {
 	 * This registers the `wp-jp-i18n-state` script for use by Webpack bundles built with
 	 * `@automattic/i18n-loader-webpack-plugin`.
 	 *
-	 * @since $$next-version$$
+	 * @since 1.14.0
 	 * @param \WP_Scripts $wp_scripts WP_Scripts instance.
 	 */
 	public static function wp_default_scripts_hook( $wp_scripts ) {
@@ -430,7 +430,7 @@ class Assets {
 		 * Filters the i18n state data for use by Webpack bundles built with
 		 * `@automattic/i18n-loader-webpack-plugin`.
 		 *
-		 * @since $$next-version$$
+		 * @since 1.14.0
 		 * @package assets
 		 * @param array $data The state data to generate. Expected fields are:
 		 *  - `baseUrl`: (string|false) The URL to the languages directory. False if no URL could be determined.
