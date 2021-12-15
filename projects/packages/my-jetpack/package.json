@@ -32,7 +32,7 @@
 	],
 	"devDependencies": {
 		"@automattic/jetpack-base-styles": "workspace:^0.1.2",
-		"@automattic/jetpack-webpack-config": "workspace:^0.5.0",
+		"@automattic/jetpack-webpack-config": "workspace:^0.5.1-alpha",
 		"@babel/core": "7.16.0",
 		"@babel/preset-env": "7.16.4",
 		"@babel/register": "7.16.0",
