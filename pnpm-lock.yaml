@@ -882,6 +882,7 @@ importers:
       '@babel/register': 7.16.0
       '@babel/runtime': 7.16.3
       '@size-limit/preset-app': 4.10.2
+      '@testing-library/dom': 7.31.2
       '@testing-library/jest-dom': 5.14.1
       '@testing-library/preact': 2.0.1
       '@testing-library/react': 11.2.7
@@ -1107,11 +1108,12 @@ importers:
       '@babel/register': 7.16.0_@babel+core@7.16.0
       '@babel/runtime': 7.16.3
       '@size-limit/preset-app': 4.10.2_size-limit@5.0.3
+      '@testing-library/dom': 7.31.2
       '@testing-library/jest-dom': 5.14.1
       '@testing-library/preact': 2.0.1_preact@10.5.15
       '@testing-library/react': 11.2.7_react-dom@17.0.2+react@17.0.2
       '@testing-library/react-hooks': 4.0.1_509016fd322278d497c1e58f6164ce1d
-      '@testing-library/user-event': 12.8.3
+      '@testing-library/user-event': 12.8.3_@testing-library+dom@7.31.2
       '@wordpress/babel-plugin-import-jsx-pragma': 3.1.0_@babel+core@7.16.0
       '@wordpress/components': 19.1.1_595f56c80e7e5fab2a648c0f724c83ea
       '@wordpress/core-data': 4.0.8_react@17.0.2+redux@4.0.5
@@ -6137,13 +6139,14 @@ packages:
       react-dom: 17.0.2_react@17.0.2
     dev: true
 
-  /@testing-library/user-event/12.8.3:
+  /@testing-library/user-event/12.8.3_@testing-library+dom@7.31.2:
     resolution: {integrity: sha512-IR0iWbFkgd56Bu5ZI/ej8yQwrkCv8Qydx6RzwbKz9faXazR/+5tvYKsZQgyXJiwgpcva127YO6JcWy7YlCfofQ==}
     engines: {node: '>=10', npm: '>=6'}
     peerDependencies:
       '@testing-library/dom': '>=7.21.4'
     dependencies:
       '@babel/runtime': 7.16.3
+      '@testing-library/dom': 7.31.2
     dev: true
 
   /@testing-library/user-event/12.8.3_@testing-library+dom@8.11.1:
@@ -7882,7 +7885,7 @@ packages:
       webpack: ^4.8.3 || ^5.0.0
     dependencies:
       json2php: 0.0.4
-      webpack: 5.64.1
+      webpack: 5.64.1_webpack-cli@4.8.0
       webpack-sources: 2.3.1
 
   /@wordpress/deprecated/2.12.3:
@@ -10744,7 +10747,7 @@ packages:
       p-limit: 3.1.0
       schema-utils: 3.1.1
       serialize-javascript: 6.0.0
-      webpack: 5.64.1
+      webpack: 5.64.1_webpack-cli@4.8.0
 
   /core-js-compat/3.19.1:
     resolution: {integrity: sha512-Q/VJ7jAF/y68+aUsQJ/afPOewdsGkDtcMb40J8MbuWKlK3Y+wtHq8bTHKPj2WKWLIqmS5JhHs4CzHtz6pT2W6g==}
@@ -17919,7 +17922,7 @@ packages:
       klona: 2.0.5
       postcss: 8.3.11
       semver: 7.3.5
-      webpack: 5.64.1
+      webpack: 5.64.1_webpack-cli@4.8.0
     dev: true
 
   /postcss-merge-longhand/5.0.3_postcss@8.3.11:
@@ -19450,7 +19453,7 @@ packages:
     dependencies:
       array.prototype.flat: 1.2.5
       global-cache: 1.2.1
-      react-with-styles: 3.2.3
+      react-with-styles: 3.2.3_react-dom@17.0.2+react@17.0.2
 
   /react-with-styles/3.2.3:
     resolution: {integrity: sha512-MTI1UOvMHABRLj5M4WpODfwnveHaip6X7QUMI2x6zovinJiBXxzhA9AJP7MZNaKqg1JRFtHPXZdroUC8KcXwlQ==}
@@ -21415,7 +21418,7 @@ packages:
     dependencies:
       loader-utils: 2.0.2
       schema-utils: 3.1.1
-      webpack: 5.64.1
+      webpack: 5.64.1_webpack-cli@4.8.0
     dev: true
 
   /style-to-object/0.3.0:
@@ -21700,7 +21703,7 @@ packages:
       serialize-javascript: 6.0.0
       source-map: 0.6.1
       terser: 5.9.0
-      webpack: 5.64.1
+      webpack: 5.64.1_webpack-cli@4.8.0
 
   /terser/5.9.0:
     resolution: {integrity: sha512-h5hxa23sCdpzcye/7b8YqbE5OwKca/ni0RQz1uRX3tGh8haaGHqcuSqbGRybuAKNdntZ0mDgFNXPJ48xQ2RXKQ==}
