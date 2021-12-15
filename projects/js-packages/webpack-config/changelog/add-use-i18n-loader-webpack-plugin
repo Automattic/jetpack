@@ -1,0 +1,4 @@
+Significance: major
+Type: added
+
+Add `@automattic/i18n-loader-webpack-plugin`. This may break some builds.
