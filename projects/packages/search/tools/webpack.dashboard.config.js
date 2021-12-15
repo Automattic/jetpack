@@ -2,9 +2,6 @@
  * External dependencies
  */
 const jetpackWebpackConfig = require( '@automattic/jetpack-webpack-config/webpack' );
-const {
-	defaultRequestToHandle,
-} = require( '@wordpress/dependency-extraction-webpack-plugin/lib/util' );
 const path = require( 'path' );
 
 module.exports = {
@@ -37,8 +34,6 @@ module.exports = {
 		...jetpackWebpackConfig.StandardPlugins( {
 			DependencyExtractionPlugin: {
 				injectPolyfill: true,
-				useDefaults: false,
-				requestToHandle: defaultRequestToHandle,
 			},
 		} ),
 	],
