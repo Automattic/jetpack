@@ -1,7 +1,6 @@
 /**
  * Webpack plugin to avoid emitting certain assets.
  */
-const { validate } = require( 'schema-utils' );
 const webpack = require( 'webpack' );
 const PLUGIN_NAME = 'RemoveAsset';
 
@@ -50,7 +49,7 @@ const schema = {
 
 module.exports = class RemoveAssetPlugin {
 	constructor( options = {} ) {
-		validate( schema, options, {
+		webpack.validateSchema( schema, options, {
 			name: 'RemoveAsset plugin',
 			baseDataPath: 'options',
 		} );
