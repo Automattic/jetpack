@@ -177,18 +177,28 @@ function Edit( props ) {
 	function getPlanDescription( plan ) {
 		const amount = formatCurrency( parseFloat( plan.price ), plan.currency );
 		if ( plan.interval === '1 month' ) {
-			// translators: %s: amount
-			return sprintf( __( '%s / month', 'jetpack' ), amount );
+			return sprintf(
+				// translators: %s: amount
+				__( '%s / month', 'jetpack' ),
+				amount
+			);
 		}
 		if ( plan.interval === '1 year' ) {
-			// translators: %s: amount
-			return sprintf( __( '%s / year', 'jetpack' ), amount );
+			return sprintf(
+				// translators: %s: amount
+				__( '%s / year', 'jetpack' ),
+				amount
+			);
 		}
 		if ( plan.interval === 'one-time' ) {
 			return amount;
 		}
-		// translators: %s: amount, plan interval
-		return sprintf( __( '%1$s / %2$s', 'jetpack' ), amount, plan.interval );
+		return sprintf(
+			// translators: %s: amount, plan interval
+			__( '%1$s / %2$s', 'jetpack' ),
+			amount,
+			plan.interval
+		);
 	}
 
 	/**
