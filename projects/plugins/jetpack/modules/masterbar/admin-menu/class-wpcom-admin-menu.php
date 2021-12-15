@@ -16,11 +16,11 @@ require_once __DIR__ . '/class-admin-menu.php';
  */
 class WPcom_Admin_Menu extends Admin_Menu {
 	/**
-	 * Holds the current product, set by get_current_product().
+	 * Holds the current plan, set by get_current_plan().
 	 *
-	 * @var array
+	 * @var ?array
 	 */
-	private $cached_product = array();
+	private $current_plan = null;
 
 	/**
 	 * WPcom_Admin_Menu constructor.
@@ -54,7 +54,7 @@ class WPcom_Admin_Menu extends Admin_Menu {
 			$this->add_new_site_link();
 		}
 
-		$this->add_woocommerce_installation_menu( $this->get_current_product() );
+		$this->add_woocommerce_installation_menu( $this->get_current_plan() );
 
 		ksort( $GLOBALS['menu'] );
 	}
@@ -258,22 +258,15 @@ class WPcom_Admin_Menu extends Admin_Menu {
 	}
 
 	/**
-	 * Gets the current product and stores it in $cached_product so the database is only called once per request.
+	 * Gets the current plan and stores it in $this->current_plan so the database is only called once per request.
 	 *
 	 * @return array
 	 */
-	private function get_current_product() {
-		// Declare array variable if it does not exist.
-		$current_blog_id = get_current_blog_id();
-		if ( ! isset( $this->cached_product[ $current_blog_id ] ) ) {
-			$this->cached_product[ $current_blog_id ] = null;
+	private function get_current_plan() {
+		if ( null === $this->current_plan && class_exists( 'WPCOM_Store_API' ) ) {
+			$this->current_plan = \WPCOM_Store_API::get_current_plan( get_current_blog_id() );
 		}
-
-		if ( null === $this->cached_product[ $current_blog_id ] && class_exists( 'WPCOM_Store_API' ) ) {
-			$this->cached_product[ $current_blog_id ] = \WPCOM_Store_API::get_current_plan( get_current_blog_id() );
-		}
-
-		return $this->cached_product[ $current_blog_id ];
+		return $this->current_plan;
 	}
 
 	/**
@@ -282,9 +275,9 @@ class WPcom_Admin_Menu extends Admin_Menu {
 	 * @param string $plan The current WPCOM plan of the blog.
 	 */
 	public function add_upgrades_menu( $plan = null ) {
-		$product = $this->get_current_product();
-		if ( ! empty( $product['product_name_short'] ) ) {
-			$plan = $product['product_name_short'];
+		$current_plan = $this->get_current_plan();
+		if ( ! empty( $current_plan['product_name_short'] ) ) {
+			$plan = $current_plan['product_name_short'];
 		}
 
 		parent::add_upgrades_menu( $plan );
