@@ -403,4 +403,59 @@ class Assets {
 		}
 	}
 
+	/**
+	 * 'wp_default_scripts' action handler.
+	 *
+	 * This registers the `wp-jp-i18n-state` script for use by Webpack bundles built with
+	 * `@automattic/i18n-loader-webpack-plugin`.
+	 *
+	 * @since 1.14.0
+	 * @param \WP_Scripts $wp_scripts WP_Scripts instance.
+	 */
+	public static function wp_default_scripts_hook( $wp_scripts ) {
+		$data = array(
+			'baseUrl'   => false,
+			'locale'    => determine_locale(),
+			'domainMap' => array(),
+		);
+
+		$lang_dir = Jetpack_Constants::get_constant( 'WP_LANG_DIR' );
+		$abspath  = Jetpack_Constants::get_constant( 'ABSPATH' );
+
+		if ( strpos( $lang_dir, $abspath ) === 0 ) {
+			$data['baseUrl'] = site_url( substr( trailingslashit( $lang_dir ), strlen( untrailingslashit( $abspath ) ) ) );
+		}
+
+		/**
+		 * Filters the i18n state data for use by Webpack bundles built with
+		 * `@automattic/i18n-loader-webpack-plugin`.
+		 *
+		 * @since 1.14.0
+		 * @package assets
+		 * @param array $data The state data to generate. Expected fields are:
+		 *  - `baseUrl`: (string|false) The URL to the languages directory. False if no URL could be determined.
+		 *  - `locale`: (string) The locale for the page.
+		 *  - `domainMap`: (string[]) A mapping from Composer package textdomains to the corresponding
+		 *    `plugins/textdomain` or `themes/textdomain` (or core `textdomain`, but that's unlikely).
+		 */
+		$data = apply_filters( 'jetpack_i18n_state', $data );
+
+		if ( ! is_array( $data ) ||
+			! isset( $data['baseUrl'] ) || ! ( is_string( $data['baseUrl'] ) || false === $data['baseUrl'] ) ||
+			! isset( $data['locale'] ) || ! is_string( $data['locale'] ) ||
+			! isset( $data['domainMap'] ) || ! is_array( $data['domainMap'] )
+		) {
+			$js = 'console.warn( "I18n state deleted by jetpack_i18n_state hook" );';
+		} elseif ( ! $data['baseUrl'] ) {
+			$js = 'console.warn( "Failed to determine languages base URL. Is WP_LANG_DIR in the WordPress root?" );';
+		} else {
+			$data['domainMap'] = (object) $data['domainMap']; // Ensure it becomes a json object.
+			$js                = 'wp.jpI18nState = ' . wp_json_encode( $data, JSON_UNESCAPED_SLASHES ) . ';';
+		}
+
+		// Depend on wp-i18n to ensure global `wp` exists and because anything needing this will need that too.
+		$wp_scripts->add( 'wp-jp-i18n-state', null, array( 'wp-i18n' ) );
+		$wp_scripts->add_inline_script( 'wp-jp-i18n-state', $js, 'before' );
+	}
+
 }

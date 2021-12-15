@@ -2,6 +2,10 @@
 
 ### This is a list detailing changes for the Jetpack RNA Connection Component releases.
 
+## 0.11.3 - 2021-12-14
+### Fixed
+- Fix JavaScript i18n strings.
+
 ## 0.11.2 - 2021-12-07
 ### Changed
 - Updated package dependencies.

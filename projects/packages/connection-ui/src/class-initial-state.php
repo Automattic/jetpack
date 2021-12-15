@@ -26,20 +26,21 @@ class Initial_State {
 		$current_screen = get_current_screen();
 
 		return array(
-			'API'             => array(
+			'API'                 => array(
 				'WP_API_root'       => esc_url_raw( rest_url() ),
 				'WP_API_nonce'      => wp_create_nonce( 'wp_rest' ),
 				'registrationNonce' => wp_create_nonce( 'jetpack-registration-nonce' ),
 			),
-			'assets'          => array(
+			'assets'              => array(
 				'buildUrl' => plugins_url( 'build/', __DIR__ ),
 			),
-			'IDC'             => $this->get_idc_data(),
-			'tracksUserData'  => Jetpack_Tracks_Client::get_connected_user_tracks_identity(),
-			'tracksEventData' => array(
+			'IDC'                 => $this->get_idc_data(),
+			'tracksUserData'      => Jetpack_Tracks_Client::get_connected_user_tracks_identity(),
+			'tracksEventData'     => array(
 				'isAdmin'       => current_user_can( 'jetpack_disconnect' ),
 				'currentScreen' => $current_screen ? $current_screen->id : false,
 			),
+			'canManageConnection' => current_user_can( 'jetpack_disconnect' ),
 		);
 	}
 
@@ -49,14 +50,13 @@ class Initial_State {
 	 * @return array
 	 */
 	private function get_idc_data() {
-		$has_idc = Identity_Crisis::has_identity_crisis();
-
 		$return_data = array(
-			'hasIDC' => $has_idc,
+			'hasIDC'              => Identity_Crisis::has_identity_crisis(),
+			'isAdmin'             => current_user_can( 'jetpack_disconnect' ),
+			'isSafeModeConfirmed' => Identity_Crisis::safe_mode_is_confirmed(),
 		);
 
-		// TODO: replace the `jetpack_disconnect` check with a non-admin IDC screen.
-		if ( ! $has_idc || ! current_user_can( 'jetpack_disconnect' ) ) {
+		if ( ! $return_data['hasIDC'] || ! $return_data['isAdmin'] ) {
 			return $return_data;
 		}
 
