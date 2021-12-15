@@ -4,13 +4,14 @@
 import PropTypes from 'prop-types';
 import React from 'react';
 import classnames from 'classnames';
-import { noop } from 'lodash';
+/*eslint lodash/import-scope: [2, "method"]*/
+import noop from 'lodash/noop';
 
 /**
  * Internal dependencies
  */
 // TODO change to our own gridicon component, when instant search is migrated.
-import Gridicon from 'gridicons';
+const Gridicon = React.lazy( () => import( 'gridicons' ) );
 import './style.scss';
 
 export default class SimpleNotice extends React.Component {
