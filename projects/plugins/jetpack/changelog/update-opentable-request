@@ -1,0 +1,4 @@
+Significance: patch
+Type: compat
+
+OpenTable Block: update restaurant search feature to be compatible with OpenTable's API updates.
