@@ -18,9 +18,9 @@ class WPcom_Admin_Menu extends Admin_Menu {
 	/**
 	 * Holds the current plan, set by get_current_plan().
 	 *
-	 * @var ?array
+	 * @var array
 	 */
-	private $current_plan = null;
+	private $current_plan = array();
 
 	/**
 	 * WPcom_Admin_Menu constructor.
@@ -263,7 +263,7 @@ class WPcom_Admin_Menu extends Admin_Menu {
 	 * @return array
 	 */
 	private function get_current_plan() {
-		if ( null === $this->current_plan && class_exists( 'WPCOM_Store_API' ) ) {
+		if ( empty( $this->current_plan ) && class_exists( 'WPCOM_Store_API' ) ) {
 			$this->current_plan = \WPCOM_Store_API::get_current_plan( get_current_blog_id() );
 		}
 		return $this->current_plan;
