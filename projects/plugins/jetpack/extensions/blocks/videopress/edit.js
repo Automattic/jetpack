@@ -56,7 +56,7 @@ const VideoPressEdit = CoreVideoEdit =>
 				isUpdatingRating: false,
 			};
 			this.posterImageButton = createRef();
-			this.timerID = null;
+			this.previewCacheReloadTimer = null;
 			this.previewFailuresCount = 0;
 		}
 
@@ -150,11 +150,11 @@ const VideoPressEdit = CoreVideoEdit =>
 
 		schedulePreviewCacheReload = () => {
 			const { invalidateCachedEmbedPreview, url } = this.props;
-			if ( null === this.timerID && this.previewFailuresCount < 5 ) {
+			if ( null === this.previewCacheReloadTimer && this.previewFailuresCount < 5 ) {
 				this.previewFailuresCount++;
-				this.timerID = setTimeout( () => {
+				this.previewCacheReloadTimer = setTimeout( () => {
 					invalidateCachedEmbedPreview( url );
-					this.timerID = null;
+					this.previewCacheReloadTimer = null;
 				}, this.previewFailuresCount * 2000 );
 			}
 		};
@@ -712,7 +712,7 @@ export default createHigherOrderComponent(
 				seekbarColor,
 				seekbarLoadingColor,
 				seekbarPlayedColor,
-				useAverageColor
+				useAverageColor,
 			} );
 			const preview = !! url && getEmbedPreview( url );
 
