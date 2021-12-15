@@ -13,6 +13,22 @@
 		margin-bottom: 0;
 	}
 
+	.dops-banner.dops-card {
+		border-left-color: #3895ba; // $studio-wordpress-blue-30
+		.dops-banner__icons {
+			.dops-banner__icon-circle{
+				background-color: #3895ba; // $studio-wordpress-blue-30
+				.gridicon {
+					margin-bottom: 0;
+
+					g {
+						transform: none;
+					}
+				}
+			}
+		} 
+	}
+
 	.plugin-dash-item__content {
 		display: flex;
 		flex-direction: row;
@@ -22,5 +38,5 @@
 			margin-top: 0;
 		}
 	}
-	
+
 }

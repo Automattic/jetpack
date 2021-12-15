@@ -127,6 +127,7 @@ class PluginDashItem extends Component {
 						__( 'Install %s', 'jetpack' ),
 						pluginName
 					) }
+					icon="plugins"
 					title={ installOrActivatePrompt }
 					onClick={ this.activateOrInstallPlugin }
 				/>
@@ -139,6 +140,7 @@ class PluginDashItem extends Component {
 						__( 'Activate %s', 'jetpack' ),
 						pluginName
 					) }
+					icon="plugins"
 					title={ installOrActivatePrompt }
 					onClick={ this.activateOrInstallPlugin }
 				/>
