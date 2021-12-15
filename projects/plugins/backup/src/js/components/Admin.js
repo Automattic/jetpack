@@ -120,7 +120,13 @@ const Admin = () => {
 
 		// Render an error state, this shouldn't occurr since we've passed userConnected checks
 		if ( capabilitiesError ) {
-			return <div>{ capabilitiesError }</div>;
+			return (
+				<Row>
+					<Col lg={ 12 } md={ 8 } sm={ 4 }>
+						{ capabilitiesError }
+					</Col>
+				</Row>
+			);
 		}
 
 		return renderNoBackupCapabilities();
