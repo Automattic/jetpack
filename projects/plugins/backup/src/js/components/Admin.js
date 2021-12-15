@@ -5,7 +5,14 @@ import { useState, useEffect } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 import apiFetch from '@wordpress/api-fetch';
 import { useSelect } from '@wordpress/data';
-import { JetpackFooter, JetpackLogo, getRedirectUrl } from '@automattic/jetpack-components';
+import {
+	AdminPage,
+	AdminSection,
+	AdminSectionHero,
+	Row,
+	Col,
+	getRedirectUrl,
+} from '@automattic/jetpack-components';
 
 /**
  * Internal dependencies
@@ -56,28 +63,26 @@ const Admin = () => {
 
 	const renderNoBackupCapabilities = () => {
 		return (
-			<div className="jp-wrap">
-				<div className="jp-row">
-					<div class="lg-col-span-8 md-col-span-8 sm-col-span-4">
-						<h1>{ __( 'Your site does not have backups', 'jetpack-backup' ) }</h1>
-						<p>
-							{ __(
-								'Get peace of mind knowing your work will be saved, add backups today.',
-								'jetpack-backup'
-							) }
-						</p>
-						<a
-							class="button"
-							href={ getRedirectUrl( 'backup-plugin-upgrade-10gb', { site: domain } ) }
-							target="_blank"
-							rel="noreferrer"
-						>
-							{ __( 'Upgrade now', 'jetpack-backup' ) }
-						</a>
-					</div>
-					<div class="lg-col-span-4 md-col-span-0 sm-col-span-0"></div>
-				</div>
-			</div>
+			<Row>
+				<Col lg={ 8 } md={ 8 } sm={ 4 }>
+					<h1>{ __( 'Your site does not have backups', 'jetpack-backup' ) }</h1>
+					<p>
+						{ __(
+							'Get peace of mind knowing your work will be saved, add backups today.',
+							'jetpack-backup'
+						) }
+					</p>
+					<a
+						class="button"
+						href={ getRedirectUrl( 'backup-plugin-upgrade-10gb', { site: domain } ) }
+						target="_blank"
+						rel="noreferrer"
+					>
+						{ __( 'Upgrade now', 'jetpack-backup' ) }
+					</a>
+				</Col>
+				<Col lg={ 4 } md={ 0 } sm={ 0 } />
+			</Row>
 		);
 	};
 
@@ -92,11 +97,11 @@ const Admin = () => {
 			}
 
 			return (
-				<div className="jp-wrap">
-					<div className="jp-row">
-						<div class="lg-col-span-12 md-col-span-8 sm-col-span-4">{ renderConnectScreen() }</div>
-					</div>
-				</div>
+				<Row>
+					<Col lg={ 12 } md={ 8 } sm={ 4 }>
+						{ renderConnectScreen() }
+					</Col>
+				</Row>
 			);
 		}
 
@@ -115,54 +120,23 @@ const Admin = () => {
 
 		// Render an error state, this shouldn't occurr since we've passed userConnected checks
 		if ( capabilitiesError ) {
-			return <div>{ capabilitiesError }</div>;
+			return (
+				<Row>
+					<Col lg={ 12 } md={ 8 } sm={ 4 }>
+						{ capabilitiesError }
+					</Col>
+				</Row>
+			);
 		}
 
 		return renderNoBackupCapabilities();
 	};
 
-	const renderHeader = () => {
-		if ( showHeaderFooter ) {
-			return (
-				<div className="jp-wrap">
-					<div className="jp-row">
-						<div class="lg-col-span-12 md-col-span-8 sm-col-span-4">
-							<div className="jp-masthead">
-								<div className="jp-masthead__inside-container">
-									<div className="jp-masthead__logo-container">
-										<JetpackLogo className="jetpack-logo__masthead" />
-									</div>
-								</div>
-							</div>
-						</div>
-					</div>
-				</div>
-			);
-		}
-	};
-
-	const renderFooter = () => {
-		if ( showHeaderFooter ) {
-			return (
-				<div className="jp-wrap">
-					<div className="jp-row">
-						<div class="lg-col-span-12 md-col-span-8 sm-col-span-4">
-							<JetpackFooter
-								moduleName={ __( 'Jetpack Backup', 'jetpack-backup' ) }
-								a8cLogoHref="https://www.jetpack.com"
-							/>
-						</div>
-					</div>
-				</div>
-			);
-		}
-	};
-
 	// Renders additional segments under the jp-hero area condition on having a backup plan
 	const renderBackupSegments = () => {
 		return (
-			<div className="jp-row">
-				<div class="lg-col-span-6 md-col-span-4 sm-col-span-4">
+			<Row>
+				<Col lg={ 6 } md={ 4 }>
 					<h2>{ __( 'Where are my backups stored?', 'jetpack-backup' ) }</h2>
 					<p>
 						{ __(
@@ -184,9 +158,9 @@ const Admin = () => {
 							<span>{ __( 'Consider upgrading to real-time protection', 'jetpack-backup' ) }</span>
 						</a>
 					) }
-				</div>
-				<div class="lg-col-span-1 md-col-span-1 sm-col-span-0"></div>
-				<div class="lg-col-span-5 md-col-span-3 sm-col-span-4">
+				</Col>
+				<Col lg={ 1 } md={ 1 } sm={ 0 } />
+				<Col lg={ 5 } md={ 3 } sm={ 4 }>
 					<h2>{ __( "Your site's heartbeat", 'jetpack-backup' ) }</h2>
 					<p>
 						{ __(
@@ -207,28 +181,31 @@ const Admin = () => {
 					) }
 
 					{ renderConnectionStatusCard() }
-				</div>
-			</div>
+				</Col>
+			</Row>
 		);
 	};
 
 	const renderContent = () => {
 		return (
 			<div className="content">
-				<div className="jp-hero">{ renderLoadedState() }</div>
-				<div className="jp-section">
-					<div className="jp-wrap">{ isFullyConnected() && renderBackupSegments() }</div>
-				</div>
+				<AdminSectionHero>{ renderLoadedState() }</AdminSectionHero>
+				<AdminSection>{ isFullyConnected() && renderBackupSegments() }</AdminSection>
 			</div>
 		);
 	};
 
 	return (
-		<div id="jetpack-backup-admin-container" className="jp-content">
-			{ renderHeader() }
-			{ renderContent() }
-			{ renderFooter() }
-		</div>
+		<AdminPage
+			withHeader={ showHeaderFooter }
+			withFooter={ showHeaderFooter }
+			moduleName={ __( 'Jetpack Backup', 'jetpack-backup' ) }
+			a8cLogoHref="https://www.jetpack.com"
+		>
+			<div id="jetpack-backup-admin-container" className="jp-content">
+				{ renderContent() }
+			</div>
+		</AdminPage>
 	);
 };
 
