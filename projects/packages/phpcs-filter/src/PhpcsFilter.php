@@ -1,11 +1,9 @@
-<?php // phpcs:ignore WordPress.Files.FileName
+<?php
 /**
  * A filter for PHP CodeSniffer to add support for .phpcsignore files and per-directory configuration files.
  *
  * @package automattic/jetpack-phpcs-filter
  */
-
-// phpcs:disable WordPress.NamingConventions.ValidVariableName, WordPress.WP.AlternativeFunctions, WordPress.Security.EscapeOutput.OutputNotEscaped
 
 namespace Automattic\Jetpack;
 

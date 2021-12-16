@@ -1,11 +1,9 @@
-<?php // phpcs:ignore WordPress.Files.FileName
+<?php
 /**
  * Tests for PhpcsFilter.php.
  *
  * @package automattic/jetpack-phpcs-filter
  */
-
-// phpcs:disable WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase, WordPress.WP.AlternativeFunctions
 
 namespace Automattic\Jetpack\PhpcsFilter\Tests;
 

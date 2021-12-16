@@ -1,11 +1,9 @@
-<?php // phpcs:ignore WordPress.Files.FileName
+<?php
 /**
  * Implementation of the gitignore "spec".
  *
  * @package automattic/ignorefile
  */
-
-// phpcs:disable WordPress.NamingConventions.ValidVariableName, WordPress.NamingConventions.ValidFunctionName
 
 namespace Automattic;
 

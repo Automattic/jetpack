@@ -1,11 +1,9 @@
-<?php // phpcs:ignore WordPress.Files.FileName
+<?php
 /**
  * Tests for IgnoreFile.
  *
  * @package automattic/ignorefile
  */
-
-// phpcs:disable WordPress.NamingConventions.ValidVariableName, WordPress.WP.AlternativeFunctions, WordPress.PHP.DiscouragedPHPFunctions
 
 namespace Automattic\IgnoreFile\Tests;
 

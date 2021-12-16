@@ -1,4 +1,4 @@
-<?php // phpcs:ignore WordPress.Files.FileName
+<?php
 /**
  * Exception thrown by IgnoreFile when given an invalid pattern.
  *
