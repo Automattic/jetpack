@@ -25,7 +25,7 @@
 			"phpcs-changed -s --git"
 		],
 		"phpcs:compatibility": [
-			"@phpcs:lint --standard=./.phpcs.config.xml,PHPCompatibilityWP"
+			"@phpcs:lint --standard=./.phpcs.config.xml,PHPCompatibilityWP --runtime-set jetpack-filter-perdir-file .phpcs.dir.phpcompatibility.xml"
 		],
 		"phpcs:fix": [
 			"Composer\\Config::disableProcessTimeout",
