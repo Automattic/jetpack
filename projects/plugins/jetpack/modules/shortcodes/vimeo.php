@@ -282,7 +282,7 @@ function wpcom_vimeo_embed_url( $matches, $attr, $url ) {
  * @uses wpcom_vimeo_embed_url
  */
 function wpcom_vimeo_embed_url_init() {
-	wp_embed_register_handler( 'wpcom_vimeo_embed_url', '#https?:\/\/(?:.+\.)?vimeo\.com\/(?:(?:album\/)(?<album_id>\d+)\/)?(?:video\/)?(?<video_id>\d+)(?:\/.*)?\/?$#i', 'wpcom_vimeo_embed_url' );
+	wp_embed_register_handler( 'wpcom_vimeo_embed_url', '#https?://(?:[^/]+\.)?vimeo\.com/(?:album/(?<album_id>\d+)/)?(?:video/)?(?<video_id>\d+)(?:/.*)?$#i', 'wpcom_vimeo_embed_url' );
 }
 
 /*
