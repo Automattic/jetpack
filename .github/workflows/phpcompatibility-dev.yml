@@ -10,6 +10,9 @@ concurrency:
   group: phpcompatibility-dev-${{ github.event_name }}-${{ github.ref }}
   cancel-in-progress: true
 
+env:
+  COMPOSER_ROOT_VERSION: "dev-master"
+
 jobs:
   changed_files:
     name: detect changed files
