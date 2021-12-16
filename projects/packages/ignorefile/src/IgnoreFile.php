@@ -83,7 +83,7 @@ class IgnoreFile {
 			// A prefix "!" negates the pattern.
 			$negate = '!' === $pat[0];
 			if ( $negate ) {
-				$pat = substr( $pat, 1 );
+				$pat = (string) substr( $pat, 1 );
 				if ( '' === $pat ) {
 					throw new InvalidPatternException( "Pattern at index $idx consists of only `!`" );
 				}
@@ -181,7 +181,7 @@ class IgnoreFile {
 				if ( substr( $path, 0, $l ) !== $pat['prefix'] ) {
 					continue;
 				}
-				$p = substr( $path, $l );
+				$p = (string) substr( $path, $l );
 			}
 
 			if ( preg_match( $pat['regex'], $p ) ) {
@@ -241,12 +241,12 @@ class IgnoreFile {
 		// A leading "/**/" is the same.
 		if ( substr( $pat, 0, 3 ) === '**/' || substr( $pat, 0, 4 ) === '/**/' ) {
 			$re .= '(?:^|/)';
-			$pat = substr( $pat, '/' === $pat[0] ? 4 : 3 );
+			$pat = (string) substr( $pat, '/' === $pat[0] ? 4 : 3 );
 		} else {
 			$re .= '^';
 			// Ignore a leading "/".
 			if ( '/' === $pat[0] ) {
-				$pat = substr( $pat, 1 );
+				$pat = (string) substr( $pat, 1 );
 			}
 		}
 
@@ -267,7 +267,7 @@ class IgnoreFile {
 				if ( substr( $re, -11 ) !== '(?:[^/]+/)*' ) {
 					$re .= ( $noBT ? ')' : '' ) . ( $atDir ? '' : '/' ) . '(?:[^/]+/)*';
 				}
-				$pat   = substr( $pat, 4 );
+				$pat   = (string) substr( $pat, 4 );
 				$atDir = true;
 				$noBT  = false;
 				continue;
@@ -287,7 +287,7 @@ class IgnoreFile {
 					}
 					$re .= '[^/]*';
 				}
-				$pat   = substr( $pat, 1 );
+				$pat   = (string) substr( $pat, 1 );
 				$atDir = false;
 				continue;
 			}
@@ -299,14 +299,14 @@ class IgnoreFile {
 					$noBT = true;
 				}
 				$re   .= '[^/]';
-				$pat   = substr( $pat, 1 );
+				$pat   = (string) substr( $pat, 1 );
 				$atDir = false;
 				continue;
 			}
 
 			// Probably a bracket expression. Complex.
 			if ( '[' === $pat[0] ) {
-				$pat           = substr( $pat, 1 );
+				$pat           = (string) substr( $pat, 1 );
 				$savedPat      = $pat;
 				$cre           = '';
 				$needLookahead = false;
@@ -315,7 +315,7 @@ class IgnoreFile {
 				// Note use of '^' as the negator is unspecified behavior.
 				if ( '' !== $pat && ( '!' === $pat[0] || '^' === $pat[0] ) ) {
 					$cre .= '^/';
-					$pat  = substr( $pat, 1 );
+					$pat  = (string) substr( $pat, 1 );
 				}
 
 				$first = true;
@@ -335,7 +335,7 @@ class IgnoreFile {
 							throw new InvalidPatternException( "Invalid character class in bracket expression near `$pat` (in pattern at index $idx)" );
 						}
 						$class = substr( $pat, 0, $pos + 2 );
-						$pat   = substr( $pat, $pos + 2 );
+						$pat   = (string) substr( $pat, $pos + 2 );
 						switch ( $class ) {
 							case '[:alnum:]': // @codeCoverageIgnore
 							case '[:alpha:]': // @codeCoverageIgnore
@@ -434,7 +434,7 @@ class IgnoreFile {
 					$re .= '(?!/)';
 				}
 				$re   .= "[$cre]";
-				$pat   = substr( $pat, 1 ); // Remove the trailing ']'.
+				$pat   = (string) substr( $pat, 1 ); // Remove the trailing ']'.
 				$atDir = false;
 				continue;
 			}
@@ -446,7 +446,7 @@ class IgnoreFile {
 			if ( '\\' === $pat[0] ) {
 				if ( '/' === $pat[1] ) {
 					// Special case this becuase of so much other special "/" handling.
-					$pat = substr( $pat, 1 );
+					$pat = (string) substr( $pat, 1 );
 					continue;
 				}
 				if ( $atDir && ! $noBT ) {
@@ -462,7 +462,7 @@ class IgnoreFile {
 			// "/" separates path components.
 			if ( '/' === $pat[0] ) {
 				$re   .= ( $noBT ? ')' : '' ) . ( $atDir ? '' : '/' );
-				$pat   = substr( $pat, 1 );
+				$pat   = (string) substr( $pat, 1 );
 				$atDir = true;
 				$noBT  = false;
 				continue;

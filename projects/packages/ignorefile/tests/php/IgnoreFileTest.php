@@ -10,9 +10,11 @@ namespace Automattic\IgnoreFile\Tests;
 use ArrayIterator;
 use Automattic\IgnoreFile;
 use Automattic\IgnoreFile\InvalidPatternException;
+use Exception;
 use InvalidArgumentException;
 use PHPUnit\Framework\ExpectationFailedException;
 use PHPUnit\Framework\TestCase;
+use PHPUnit_Framework_ExpectationFailedException;
 use RecursiveDirectoryIterator;
 use RecursiveIteratorIterator;
 use RuntimeException;
@@ -138,7 +140,7 @@ class IgnoreFileTest extends TestCase {
 	 * @param string[]        $pathmap Paths to test.
 	 * @param bool            $skip Skip, if git does not handle the pattern according to its own docs.
 	 * @throws RuntimeException If subprocess spawning fails.
-	 * @throws ExpectationFailedException If a PHPUnit exception fails 🙄 .
+	 * @throws Exception If a PHPUnit exception fails 🙄 .
 	 */
 	public function testCasesGit( $patterns, $pathmap, $skip = false ) {
 		$tmpdir = $this->mktempdir();
@@ -183,8 +185,8 @@ class IgnoreFileTest extends TestCase {
 			if ( $skip ) {
 				$this->addWarning( 'This test is marked as "nogit" but passes. Maybe the "nogit" can be removed?' );
 			}
-		} catch ( ExpectationFailedException $ex ) {
-			if ( $skip ) {
+		} catch ( Exception $ex ) {
+			if ( $skip && ( $ex instanceof PHPUnit_Framework_ExpectationFailedException || $ex instanceof ExpectationFailedException ) ) {
 				$this->markTestSkipped( 'Git doesn\'t match its own docs' );
 			} else {
 				throw $ex;
@@ -329,20 +331,22 @@ class IgnoreFileTest extends TestCase {
 
 			$ignore = new IgnoreFile();
 			$ignore->add( 'skip' );
+			$files = array_keys(
+				iterator_to_array(
+					new RecursiveIteratorIterator(
+						$ignore->filterIterator(
+							new RecursiveDirectoryIterator( $tmpdir, RecursiveDirectoryIterator::SKIP_DOTS )
+						)
+					)
+				)
+			);
+			sort( $files );
 			$this->assertSame(
 				array(
 					"$tmpdir/a/b/ok",
 					"$tmpdir/ok",
 				),
-				array_keys(
-					iterator_to_array(
-						new RecursiveIteratorIterator(
-							$ignore->filterIterator(
-								new RecursiveDirectoryIterator( $tmpdir, RecursiveDirectoryIterator::SKIP_DOTS )
-							)
-						)
-					)
-				)
+				$files
 			);
 		} finally {
 			chdir( $cwd );
