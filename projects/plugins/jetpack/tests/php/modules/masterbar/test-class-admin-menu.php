@@ -69,8 +69,8 @@ class Test_Admin_Menu extends WP_UnitTestCase {
 	/**
 	 * Set up data.
 	 */
-	public function setUp() {
-		parent::setUp();
+	public function set_up() {
+		parent::set_up();
 		global $menu, $submenu;
 
 		// Initialize in setUp so it registers hooks for every test.
@@ -94,29 +94,11 @@ class Test_Admin_Menu extends WP_UnitTestCase {
 
 		$this->assertSame(
 			array_keys( $menu ),
-			array( 2, '3.86682', 4, 5, 10, 15, 20, 25, 30, 50, 51, 59, 60, 61, 65, 70, 75, 80 ),
+			array( 2, '3.86682', 4, 5, 10, 15, 20, 25, 30, 50, 51, 58, 59, 60, 65, 70, 75, 80 ),
 			'Admin menu should not have unexpected top menu items.'
 		);
 
 		$this->assertEquals( static::$submenu_data[''], $submenu[''], 'Submenu items without parent should stay the same.' );
-	}
-
-	/**
-	 * Shim wpcomsh fallback site icon.
-	 *
-	 * @return string
-	 */
-	public function wpcomsh_site_icon_url() {
-		return 'https://s0.wp.com/i/webclip.png';
-	}
-
-	/**
-	 * Custom site icon.
-	 *
-	 * @return string
-	 */
-	public function custom_site_icon_url() {
-		return 'https://s0.wp.com/i/jetpack.png';
 	}
 
 	/**
@@ -167,9 +149,10 @@ class Test_Admin_Menu extends WP_UnitTestCase {
 	public function test_add_upsell_nudge() {
 		global $menu;
 		$nudge = array(
-			'content' => 'Free domain with an <a href="somehref">annual plan</a>',
-			'cta'     => '<b>Upgrade</b>',
-			'link'    => '/plans/example.com?addDomainFlow=true',
+			'content'     => 'Free domain with an <a href="somehref">annual plan</a>',
+			'cta'         => '<b>Upgrade</b>',
+			'link'        => '/plans/example.com?addDomainFlow=true',
+			'dismissible' => false,
 		);
 		static::$admin_menu->add_upsell_nudge( $nudge );
 
@@ -186,6 +169,33 @@ class Test_Admin_Menu extends WP_UnitTestCase {
 
 		$this->assertSame( $markup, $menu[1][0] );
 		$this->assertSame( $link, $menu[1][2] );
+
+		// Reset.
+		$menu = static::$menu_data;
+
+		$nudge = array(
+			'content'     => 'Some content',
+			'cta'         => '<b>CTA</b>',
+			'link'        => 'https://wordpress.org',
+			'dismissible' => false,
+		);
+		static::$admin_menu->add_upsell_nudge( $nudge );
+		$this->assertSame( 'https://wordpress.org', $menu[1][2] );
+
+		// Reset.
+		$menu = static::$menu_data;
+
+		$nudge = array(
+			'content'       => 'Some content',
+			'cta'           => '<b>CTA</b>',
+			'link'          => 'https://wordpress.org',
+			'dismissible'   => true,
+			'id'            => 'an_identifier',
+			'feature_class' => 'the_feature_class',
+		);
+		static::$admin_menu->add_upsell_nudge( $nudge );
+
+		$this->assertStringContainsString( '<svg xmlns="http://www.w3.org/2000/svg" data-feature_class="the_feature_class" data-feature_id="an_identifier"', $menu[1][0] );
 	}
 
 	/**
@@ -212,7 +222,7 @@ class Test_Admin_Menu extends WP_UnitTestCase {
 		static::$admin_menu->add_upgrades_menu( 'Test Plan' );
 
 		$this->assertSame( 'Upgrades<span class="inline-text" style="display:none">Test Plan</span>', $submenu['paid-upgrades.php'][0][0] );
-		$this->assertSame( 'https://wordpress.com/plans/my-plan/' . static::$domain, $submenu['paid-upgrades.php'][1][2] );
+		$this->assertSame( 'https://wordpress.com/plans/' . static::$domain, $submenu['paid-upgrades.php'][1][2] );
 		$this->assertSame( 'https://wordpress.com/purchases/subscriptions/' . static::$domain, $submenu['paid-upgrades.php'][2][2] );
 	}
 
@@ -227,7 +237,7 @@ class Test_Admin_Menu extends WP_UnitTestCase {
 		static::$admin_menu->add_posts_menu();
 
 		$this->assertSame( 'https://wordpress.com/posts/' . static::$domain, $submenu['edit.php'][0][2] );
-		$this->assertSame( 'https://wordpress.com/post/' . static::$domain, $submenu['edit.php'][1][2] );
+		$this->assertSame( 'https://wordpress.com/post/' . static::$domain, $submenu['edit.php'][2][2] );
 	}
 
 	/**
@@ -255,7 +265,7 @@ class Test_Admin_Menu extends WP_UnitTestCase {
 		static::$admin_menu->add_page_menu();
 
 		$this->assertSame( 'https://wordpress.com/pages/' . static::$domain, $submenu['edit.php?post_type=page'][0][2] );
-		$this->assertSame( 'https://wordpress.com/page/' . static::$domain, $submenu['edit.php?post_type=page'][1][2] );
+		$this->assertSame( 'https://wordpress.com/page/' . static::$domain, $submenu['edit.php?post_type=page'][2][2] );
 	}
 
 	/**
@@ -287,8 +297,8 @@ class Test_Admin_Menu extends WP_UnitTestCase {
 		// Clean up.
 		unregister_post_type( 'custom_test_type' );
 
-		$this->assertSame( 'https://wordpress.com/types/custom_test_type/' . static::$domain, array_shift( $submenu['edit.php?post_type=custom_test_type'] )[2] );
-		$this->assertSame( 'https://wordpress.com/edit/custom_test_type/' . static::$domain, array_shift( $submenu['edit.php?post_type=custom_test_type'] )[2] );
+		$this->assertSame( 'https://wordpress.com/types/custom_test_type/' . static::$domain, $submenu['edit.php?post_type=custom_test_type'][0][2] );
+		$this->assertSame( 'https://wordpress.com/edit/custom_test_type/' . static::$domain, $submenu['edit.php?post_type=custom_test_type'][2][2] );
 	}
 
 	/**
@@ -316,9 +326,6 @@ class Test_Admin_Menu extends WP_UnitTestCase {
 		static::$admin_menu->add_appearance_menu();
 
 		$this->assertSame( 'https://wordpress.com/themes/' . static::$domain, array_shift( $submenu['themes.php'] )[2] );
-		$this->assertSame( 'https://wordpress.com/customize/' . static::$domain, array_shift( $submenu['themes.php'] )[2] );
-		$this->assertSame( 'https://wordpress.com/customize/' . static::$domain . '?autofocus%5Bpanel%5D=nav_menus', array_shift( $submenu['themes.php'] )[2] );
-		$this->assertSame( 'https://wordpress.com/customize/' . static::$domain . '?autofocus%5Bpanel%5D=widgets', array_shift( $submenu['themes.php'] )[2] );
 	}
 
 	/**
@@ -333,16 +340,6 @@ class Test_Admin_Menu extends WP_UnitTestCase {
 
 		$this->assertSame( 'https://wordpress.com/plugins/' . static::$domain, $menu[65][2] );
 		$this->assertFalse( self::$admin_menu->has_visible_items( $submenu['plugins.php'] ) );
-
-		// Reset.
-		$menu    = static::$menu_data;
-		$submenu = static::$submenu_data;
-
-		// Check submenu are kept when using WP Admin links.
-		static::$admin_menu->set_preferred_view( 'plugins.php', 'classic' );
-		static::$admin_menu->add_plugins_menu();
-		$this->assertSame( 'plugins.php', $menu[65][2] );
-		$this->assertTrue( self::$admin_menu->has_visible_items( $submenu['plugins.php'] ) );
 	}
 
 	/**
@@ -384,12 +381,19 @@ class Test_Admin_Menu extends WP_UnitTestCase {
 
 		// On multisite the administrator is not allowed to create users.
 		grant_super_admin( self::$user_id );
+		$account_key = 5;
+
 		static::$admin_menu->add_users_menu();
 
+		// On WP.com users can only invite other users, not create them (missing create_users cap).
+		if ( ! defined( 'IS_WPCOM' ) || ! IS_WPCOM ) {
+			$this->assertSame( 'https://wordpress.com/people/new/' . static::$domain, $submenu['users.php'][2][2] );
+			$account_key = 6;
+		}
+
 		$this->assertSame( 'https://wordpress.com/people/team/' . static::$domain, $submenu['users.php'][0][2] );
-		$this->assertSame( 'https://wordpress.com/people/new/' . static::$domain, $submenu['users.php'][1][2] );
-		$this->assertSame( 'https://wordpress.com/me', $submenu['users.php'][2][2] );
-		$this->assertSame( 'https://wordpress.com/me/account', $submenu['users.php'][6][2] );
+		$this->assertSame( 'https://wordpress.com/me', $submenu['users.php'][3][2] );
+		$this->assertSame( 'https://wordpress.com/me/account', $submenu['users.php'][ $account_key ][2] );
 	}
 
 	/**
@@ -404,8 +408,8 @@ class Test_Admin_Menu extends WP_UnitTestCase {
 
 		$this->assertSame( 'https://wordpress.com/marketing/tools/' . static::$domain, $submenu['tools.php'][0][2] );
 		$this->assertSame( 'https://wordpress.com/earn/' . static::$domain, $submenu['tools.php'][1][2] );
-		$this->assertSame( 'https://wordpress.com/import/' . static::$domain, $submenu['tools.php'][3][2] );
-		$this->assertSame( 'https://wordpress.com/export/' . static::$domain, $submenu['tools.php'][4][2] );
+		$this->assertSame( 'https://wordpress.com/import/' . static::$domain, $submenu['tools.php'][4][2] );
+		$this->assertSame( 'https://wordpress.com/export/' . static::$domain, $submenu['tools.php'][5][2] );
 	}
 
 	/**
@@ -448,19 +452,19 @@ class Test_Admin_Menu extends WP_UnitTestCase {
 
 		// FSE is no longer where it was put by default.
 		$this->assertArrayNotHasKey( 100, $menu );
-		$this->assertArrayHasKey( 61, $menu );
+		$this->assertArrayHasKey( 59, $menu );
 
 		$fse_link = 'https://wordpress.com/site-editor/' . static::$domain;
 		$fse_menu = array(
-			'Site Editor',
+			'Site Editor <span class="awaiting-mod">beta</span>',
 			'edit_theme_options',
 			$fse_link,
-			'Site Editor',
-			'menu-top toplevel_page_' . $fse_link,
-			'toplevel_page_' . $fse_link,
+			'Site Editor (beta)',
+			'menu-top toplevel_page_gutenberg-edit-site',
+			'toplevel_page_gutenberg-edit-site',
 			'dashicons-layout',
 		);
-		$this->assertSame( $menu[61], $fse_menu );
+		$this->assertSame( $menu[59], $fse_menu );
 	}
 
 	/**
@@ -586,7 +590,7 @@ class Test_Admin_Menu extends WP_UnitTestCase {
 				'<div id="dashboard-switcher"><h5>%s</h5><p class="dashboard-switcher-text">%s</p><a class="button button-primary dashboard-switcher-button" href="%s">%s</a></div>',
 				__( 'Screen features', 'jetpack' ),
 				__( 'Currently you are seeing the classic WP-Admin view of this page. Would you like to see the default WordPress.com view?', 'jetpack' ),
-				$mapping . static::$domain,
+				'?preferred-view=default',
 				__( 'Use WordPress.com view', 'jetpack' )
 			);
 

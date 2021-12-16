@@ -23,7 +23,7 @@ describe( 'projectHelpers', function () {
 	} );
 	it( 'dirs should output number of subfolders for the given path', function () {
 		// The repo-root projects dir.
-		chai.expect( dirs( 'projects' ) ).to.have.lengthOf( 4 );
+		chai.expect( dirs( 'projects' ) ).to.have.lengthOf( 5 );
 	} );
 	it( 'dirs should output a subfolder of given path', function () {
 		chai.expect( dirs( 'projects/plugins' ) ).to.have.contains( 'jetpack' );

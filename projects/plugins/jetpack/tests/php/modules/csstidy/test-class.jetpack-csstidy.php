@@ -24,8 +24,8 @@ class WP_Test_Jetpack_CSSTidy extends WP_UnitTestCase {
 	 *
 	 * @inheritDoc
 	 */
-	public function setUp() {
-		parent::setUp();
+	public function set_up() {
+		parent::set_up();
 		$this->instance = new csstidy();
 		$this->instance->set_cfg( 'optimise_shorthands', 0 );
 	}

@@ -6,7 +6,7 @@ import {
 	JETPACK_PLUGINS_DATA_FETCH_RECEIVE,
 	JETPACK_PLUGINS_DATA_FETCH_FAIL,
 } from 'state/action-types';
-import restApi from 'rest-api';
+import restApi from '@automattic/jetpack-api';
 
 export const fetchPluginsData = () => {
 	return dispatch => {

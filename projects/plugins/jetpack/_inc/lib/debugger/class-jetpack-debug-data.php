@@ -344,7 +344,7 @@ class Jetpack_Debug_Data {
 		);
 		$debug_info['idc_optin']        = array(
 			'label'   => 'IDC Opt-in',
-			'value'   => Identity_Crisis::sync_idc_optin(),
+			'value'   => Identity_Crisis::should_handle_idc(),
 			'private' => false,
 		);
 

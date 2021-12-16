@@ -15,7 +15,7 @@ import {
 	USER_TRACKING_SETTINGS_UPDATE_FAIL,
 	USER_TRACKING_SETTINGS_UPDATE_SUCCESS,
 } from 'state/action-types';
-import restApi from 'rest-api';
+import restApi from '@automattic/jetpack-api';
 
 export const fetchTrackingSettings = () => {
 	return dispatch => {

@@ -86,6 +86,18 @@ function jetpack_vr_viewer_get_html( $url_params ) {
 	$maxwidth = ( isset( $content_width ) ) ? $content_width : 720;
 	$view     = ( isset( $url_params['view'] ) ) ? $url_params['view'] : 'cinema';
 
+	// If the shortcode is displayed in a WPCOM notification, display a simple link only.
+	if ( defined( 'IS_WPCOM' ) && IS_WPCOM ) {
+		require_once WP_CONTENT_DIR . '/lib/display-context.php';
+		$context = A8C\Display_Context\get_current_context();
+		if ( A8C\Display_Context\NOTIFICATIONS === $context ) {
+			return sprintf(
+				'<a href="%1$s" target="_blank" rel="noopener noreferrer">%1$s</a>',
+				esc_url( $iframe )
+			);
+		}
+	}
+
 	$rtn  = '<div style="position: relative; max-width: ' . $maxwidth . 'px; margin-left: auto; margin-right: auto; overflow: hidden; margin-bottom: 1em;">';
 	$rtn .= '<div style="padding-top: ' . jetpack_vr_viewer_iframe_padding( $view ) . ';"></div>';
 	$rtn .= '<iframe style="position: absolute; top: 0; right: 0; bottom: 0; left: 0; height: 100%" allowfullscreen="true" frameborder="0" width="100%" height="300" src="' . esc_url( $iframe ) . '">';

@@ -13,8 +13,11 @@ class WP_Test_Jetpack_Sync_Terms extends WP_Test_Jetpack_Sync_Base {
 	protected $taxonomy;
 	protected $terms_module;
 
-	public function setUp() {
-		parent::setUp();
+	/**
+	 * Set up.
+	 */
+	public function set_up() {
+		parent::set_up();
 		$this->sender->reset_data();
 
 		$this->terms_module = Modules::get_module( "terms" );
@@ -37,8 +40,11 @@ class WP_Test_Jetpack_Sync_Terms extends WP_Test_Jetpack_Sync_Base {
 		$this->sender->do_sync();
 	}
 
-	public function tearDown() {
-		parent::tearDown();
+	/**
+	 * Tear down.
+	 */
+	public function tear_down() {
+		parent::tear_down();
 		$this->terms_module->set_defaults();
 	}
 

@@ -785,6 +785,9 @@ class Jetpack_Subscriptions {
 		}
 
 		$comment = get_comment( $comment_id );
+		if ( ! $comment ) {
+			return;
+		}
 
 		// Set cookies for this post/comment
 		$this->set_cookies( isset( $_REQUEST['subscribe_comments'] ), $comment->comment_post_ID, isset( $_REQUEST['subscribe_blog'] ) );

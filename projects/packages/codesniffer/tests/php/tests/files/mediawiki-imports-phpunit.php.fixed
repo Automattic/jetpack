@@ -32,8 +32,8 @@ class Dummy_Test extends TestCase {
 		$this->assertSame( '123.45', $u->var );
 
 		// MediaWiki.PHPUnit.AssertionOrder.
-		$this->assertEquals( $u->var, 1 );
-		$this->assertSame( $u->var, 1 );
+		$this->assertSame( 1, $u->var );
+		$this->assertSame( 1, $u->var );
 
 		// MediaWiki.PHPUnit.SpecificAssertions.
 		$this->assertArrayHasKey( 'foo', $u->var );

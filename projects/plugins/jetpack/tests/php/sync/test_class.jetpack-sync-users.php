@@ -10,8 +10,11 @@ use Automattic\Jetpack\Sync\Modules;
 class WP_Test_Jetpack_Sync_Users extends WP_Test_Jetpack_Sync_Base {
 	protected $user_id;
 
-	public function setUp() {
-		parent::setUp();
+	/**
+	 * Set up.
+	 */
+	public function set_up() {
+		parent::set_up();
 
 		// create a user
 		$this->user_id = $this->factory->user->create();

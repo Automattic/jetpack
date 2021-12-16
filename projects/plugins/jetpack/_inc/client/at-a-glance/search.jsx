@@ -11,6 +11,7 @@ import { noop } from 'lodash';
  */
 import { createInterpolateElement } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
+import { getRedirectUrl } from '@automattic/jetpack-components';
 
 /**
  * Internal dependencies
@@ -23,10 +24,9 @@ import {
 	getJetpackProductUpsellByFeature,
 	FEATURE_SEARCH_JETPACK,
 } from 'lib/plans/constants';
-import getRedirectUrl from 'lib/jp-redirect';
 import { getSitePlan, hasActiveSearchPurchase, isFetchingSitePurchases } from 'state/site';
-import { getUpgradeUrl } from 'state/initial-state';
-import { getConnectUrl, hasConnectedOwner, isOfflineMode } from 'state/connection';
+import { getProductDescriptionUrl } from 'product-descriptions/utils';
+import { hasConnectedOwner, isOfflineMode, connectUser } from 'state/connection';
 import JetpackBanner from 'components/jetpack-banner';
 
 const SEARCH_DESCRIPTION = __(
@@ -63,16 +63,17 @@ const renderCard = props => (
 class DashSearch extends Component {
 	static propTypes = {
 		getOptionValue: PropTypes.func.isRequired,
+		trackUpgradeBanner: PropTypes.func,
 
 		// Connected props
 		isOfflineMode: PropTypes.bool.isRequired,
-		connectUrl: PropTypes.string.isRequired,
 		hasConnectedOwner: PropTypes.string.isRequired,
 	};
 
 	static defaultProps = {
 		getOptionValue: noop,
 		isOfflineMode: false,
+		trackUpgradeBanner: noop,
 	};
 
 	trackSearchLink() {
@@ -122,6 +123,7 @@ class DashSearch extends Component {
 						path="dashboard"
 						plan={ getJetpackProductUpsellByFeature( FEATURE_SEARCH_JETPACK ) }
 						icon="search"
+						trackBannerDisplay={ this.props.trackUpgradeButtonView }
 					/>
 				) : (
 					<JetpackBanner
@@ -131,7 +133,7 @@ class DashSearch extends Component {
 							'jetpack'
 						) }
 						disableHref="false"
-						href={ this.props.connectUrl }
+						onClick={ this.props.connectUser }
 						eventFeature="search"
 						path="dashboard"
 						plan={ getJetpackProductUpsellByFeature( FEATURE_SEARCH_JETPACK ) }
@@ -163,7 +165,7 @@ class DashSearch extends Component {
 						<Card
 							compact
 							className="jp-search-config-aag"
-							href="customize.php?autofocus[section]=jetpack_search"
+							href="admin.php?page=jetpack-search-configure"
 						>
 							{ SEARCH_CUSTOMIZE_CTA }
 						</Card>
@@ -196,14 +198,20 @@ class DashSearch extends Component {
 	}
 }
 
-export default connect( state => {
-	return {
-		isBusinessPlan: 'is-business-plan' === getPlanClass( getSitePlan( state ).product_slug ),
-		isOfflineMode: isOfflineMode( state ),
-		isFetching: isFetchingSitePurchases( state ),
-		hasSearchProduct: hasActiveSearchPurchase( state ),
-		upgradeUrl: getUpgradeUrl( state, 'aag-search' ),
-		connectUrl: getConnectUrl( state ),
-		hasConnectedOwner: hasConnectedOwner( state ),
-	};
-} )( DashSearch );
+export default connect(
+	state => {
+		return {
+			isBusinessPlan: 'is-business-plan' === getPlanClass( getSitePlan( state ).product_slug ),
+			isOfflineMode: isOfflineMode( state ),
+			isFetching: isFetchingSitePurchases( state ),
+			hasSearchProduct: hasActiveSearchPurchase( state ),
+			upgradeUrl: getProductDescriptionUrl( state, 'search' ),
+			hasConnectedOwner: hasConnectedOwner( state ),
+		};
+	},
+	dispatch => ( {
+		connectUser: () => {
+			return dispatch( connectUser() );
+		},
+	} )
+)( DashSearch );

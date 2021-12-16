@@ -463,7 +463,6 @@ async function changedProjects() {
  *
  * @param {string} fileName - what we want to name the file.
  * @param {Array} needChangelog - projects that need changelog.
- *
  * @returns {argv}.
  */
 function doesFilenameExist( fileName, needChangelog ) {
@@ -508,10 +507,6 @@ export async function validateProject( argv ) {
 function validatePath( argv, dir ) {
 	if ( ! fs.existsSync( dir ) ) {
 		throw new Error( chalk.red( `Project doesn't exist! Typo?` ) );
-	}
-	if ( argv.project === 'packages/changelogger' ) {
-		argv.cmdPath = 'bin/changelogger';
-		return;
 	}
 	if ( fs.existsSync( dir + `/vendor/bin/changelogger` ) ) {
 		argv.cmdPath = 'vendor/bin/changelogger';
@@ -669,7 +664,6 @@ async function promptChangelog( argv, needChangelog ) {
  * @param {object} argv - the arguments passed.
  * @param {Array} needChangelog - files that need changelogs.
  * @param {Array} uniqueProjects - projects with unique changelog types.
- *
  * @returns {argv}.
  */
 async function changelogAddPrompt( argv, needChangelog, uniqueProjects ) {

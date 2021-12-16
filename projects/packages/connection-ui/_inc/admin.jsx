@@ -3,7 +3,7 @@
  */
 import ReactDOM from 'react-dom';
 import React from 'react';
-import { registerStore } from '@wordpress/data';
+import { createReduxStore, register } from '@wordpress/data';
 
 /**
  * Internal dependencies
@@ -11,7 +11,8 @@ import { registerStore } from '@wordpress/data';
 import Admin from './components/admin';
 import { STORE_ID, storeConfig } from './store';
 
-registerStore( STORE_ID, storeConfig );
+const store = createReduxStore( STORE_ID, storeConfig );
+register( store );
 
 /**
  * The initial renderer function.

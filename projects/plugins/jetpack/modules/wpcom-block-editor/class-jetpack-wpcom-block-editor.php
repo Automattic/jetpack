@@ -8,6 +8,8 @@
  */
 
 use Automattic\Jetpack\Connection\Tokens;
+use Automattic\Jetpack\Status\Host;
+
 /**
  * WordPress.com Block editor for Jetpack
  */
@@ -64,11 +66,11 @@ class Jetpack_WPCOM_Block_Editor {
 
 		require_once __DIR__ . '/functions.editor-type.php';
 		add_action( 'edit_form_top', 'Jetpack\EditorType\remember_classic_editor' );
-		add_filter( 'block_editor_settings', 'Jetpack\EditorType\remember_block_editor', 10, 2 );
 		add_action( 'login_init', array( $this, 'allow_block_editor_login' ), 1 );
 		add_action( 'enqueue_block_editor_assets', array( $this, 'enqueue_block_editor_assets' ), 9 );
 		add_action( 'enqueue_block_assets', array( $this, 'enqueue_block_assets' ) );
 		add_filter( 'mce_external_plugins', array( $this, 'add_tinymce_plugins' ) );
+		add_filter( 'block_editor_settings_all', 'Jetpack\EditorType\remember_block_editor', 10, 2 );
 
 		$this->enable_cross_site_auth_cookies();
 	}
@@ -151,7 +153,7 @@ class Jetpack_WPCOM_Block_Editor {
 			// If SSO is active, we'll let WordPress.com handle authentication...
 			if ( Jetpack::is_module_active( 'sso' ) ) {
 				// ...but only if it's not an Atomic site. They already do that.
-				if ( ! jetpack_is_atomic_site() ) {
+				if ( ! ( new Host() )->is_woa_site() ) {
 					add_filter( 'jetpack_sso_bypass_login_forward_wpcom', '__return_true' );
 				}
 			} else {
@@ -304,6 +306,13 @@ class Jetpack_WPCOM_Block_Editor {
 	 * Enqueues the WordPress.com block editor integration assets for the editor.
 	 */
 	public function enqueue_block_editor_assets() {
+		global $pagenow;
+
+		// Bail if we're not in the post editor, but on the widget settings screen.
+		if ( is_customize_preview() || 'widgets.php' === $pagenow ) {
+			return;
+		}
+
 		$debug   = defined( 'SCRIPT_DEBUG' ) && SCRIPT_DEBUG;
 		$version = gmdate( 'Ymd' );
 
@@ -337,7 +346,7 @@ class Jetpack_WPCOM_Block_Editor {
 			)
 		);
 
-		if ( jetpack_is_atomic_site() ) {
+		if ( ( new Host() )->is_woa_site() ) {
 			wp_enqueue_script(
 				'wpcom-block-editor-wpcom-editor-script',
 				$debug

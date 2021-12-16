@@ -8,6 +8,7 @@
 use Automattic\Jetpack\Connection\Client;
 use Automattic\Jetpack\Connection\Manager as Connection_Manager;
 use Automattic\Jetpack\Status;
+use Automattic\Jetpack\Status\Host;
 
 /**
  * Contains utilities related to the Jetpack Recommendations.
@@ -33,7 +34,7 @@ class Jetpack_Recommendations {
 		}
 
 		// No recommendations for Atomic sites, they already get onboarded in Calypso.
-		if ( jetpack_is_atomic_site() ) {
+		if ( ( new Host() )->is_woa_site() ) {
 			return false;
 		}
 

@@ -7,7 +7,6 @@ import { __experimentalGetSettings } from '@wordpress/date';
  * Clean up WP locale so it matches the format expected by browsers.
  *
  * @param {string} locale - Locale given by WordPress.
- *
  * @returns {string} Browser-formatted locale.
  */
 export const cleanLocale = locale => {

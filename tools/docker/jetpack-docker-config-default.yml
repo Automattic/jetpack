@@ -1,0 +1,58 @@
+# Default configuration. May be overridden for specific environments by sections below.
+default:
+  # Volumes to mount inside the environment. Keys are the local paths, which may be absolute
+  # or relative to the monorepo root. Values are the paths inside the Docker environment, and
+  # must be absolute.
+  volumeMappings:
+    tools/docker/wordpress: /var/www/html
+    .: /usr/local/src/jetpack-monorepo
+    tools/docker/mu-plugins: /var/www/html/wp-content/mu-plugins
+
+  # Extra configuration (none by default). Anything set under this key will be written out as
+  # an extra docker-compose configuration file.
+  extras:
+
+# Dev environment overrides. None by default.
+# Note all objects and arrays in the overrides are deep-merged.
+dev:
+  extras:
+    services:
+      phpmyadmin:
+        image: phpmyadmin/phpmyadmin:latest
+        links:
+          - db:mysql
+        ports:
+          - 8181:80
+        environment:
+          MYSQL_USERNAME: '${MYSQL_USER:-wordpress}'
+          MYSQL_ROOT_PASSWORD: '${MYSQL_ROOT_PASSWORD:-wordpress}'
+
+      ## SMTP Server + Web Interface for viewing and testing emails during development.
+      ## http://maildev.github.io/maildev/
+      maildev:
+        image: maildev/maildev
+        ports:
+          - '${PORT_MAILDEV:-1080}:80'
+          - '${PORT_SMTP:-25}:25'
+
+      ## SFTP server running at localhost:1022
+      sftp:
+        image: atmoz/sftp
+        volumes:
+          ## WordPress and its plugins and themes should be defined in volumeMappings in jetpack-docker-config-default.yml or jetpack-docker-config.yml, not here!
+          ## That avoids having to define them both here and in the "wordpress" service.
+          - dockerdirectory:/usr/local/src/jetpack-monorepo/tools/docker
+          - ./data/ssh.keys:/home/wordpress/.ssh/keys:ro
+        ports:
+          - '${PORT_SFTP:-1022}:22'
+        env_file:
+          - ./default.env
+          - ./.env
+
+# E2E environment overrides.
+# Note all objects and arrays in the overrides are deep-merged.
+e2e:
+  # Volumes to mount inside the environment, as above. Merged with those above.
+  volumeMappings:
+    tools/e2e-commons/plugins/e2e-plugin-updater.php: /var/www/html/wp-content/plugins/e2e-plugin-updater.php
+    tools/e2e-commons/plugins/e2e-plan-data-interceptor.php: /var/www/html/wp-content/plugins/e2e-plan-data-interceptor.php

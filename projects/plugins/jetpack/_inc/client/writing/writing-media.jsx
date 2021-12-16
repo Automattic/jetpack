@@ -5,13 +5,13 @@
 import React from 'react';
 import { connect } from 'react-redux';
 import { __ } from '@wordpress/i18n';
+import { getRedirectUrl } from '@automattic/jetpack-components';
 
 /**
  * Internal dependencies
  */
 import CompactFormToggle from 'components/form/form-toggle/compact';
 import { FormFieldset, FormLegend, FormLabel, FormSelect } from 'components/forms';
-import getRedirectUrl from 'lib/jp-redirect';
 import { ModuleToggle } from 'components/module-toggle';
 import { withModuleSettingsFormHelpers } from 'components/module-settings/with-module-settings-form-helpers';
 import SettingsCard from 'components/settings-card';
@@ -23,7 +23,6 @@ import { isModuleFound as _isModuleFound } from 'state/search';
  * Renders controls to activate the carousel and additional settings.
  *
  * @param {object} props - Component properties.
- *
  * @returns {object} - Controls for carousel.
  */
 function WritingMedia( props ) {
@@ -52,7 +51,6 @@ function WritingMedia( props ) {
 	 * @param {string} optionName - Name of the option that the toggle state will be saved to.
 	 * @param {Function} onChangeHandler - Method to call when the toggle is clicked.
 	 * @param {string} label - Description for the toggle.
-	 *
 	 * @returns {object} A compact toggle component.
 	 */
 	const renderToggle = ( checked, optionName, onChangeHandler, label ) => (

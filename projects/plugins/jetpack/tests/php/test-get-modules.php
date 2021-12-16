@@ -20,7 +20,8 @@ class WP_Test_Get_Modules extends WP_UnitTestCase {
 	/**
 	 * This is an expensive operation so let's make it only once
 	 */
-	public static function setUpBeforeClass() {
+	public static function set_up_before_class() {
+		parent::set_up_before_class();
 		self::$all_modules = Jetpack::get_available_modules();
 	}
 
@@ -212,4 +213,35 @@ class WP_Test_Get_Modules extends WP_UnitTestCase {
 		$this->assertSame( '', Jetpack_Admin::get_module_unavailable_reason( $dummy_module ) );
 	}
 
+	/**
+	 * Test get_module with a valid module name that has module info.
+	 */
+	public function test_get_module_valid_module() {
+		$module_info = array(
+			'name'                      => 'Secure Sign On',
+			'description'               => 'Allow users to log in to this site using WordPress.com accounts',
+			'sort'                      => 30,
+			'recommendation_order'      => 5,
+			'introduced'                => '2.6',
+			'changed'                   => '',
+			'deactivate'                => true,
+			'free'                      => true,
+			'requires_connection'       => true,
+			'requires_user_connection'  => true,
+			'auto_activate'             => 'No',
+			'module_tags'               => array( 'Developers' ),
+			'feature'                   => array( 'Security' ),
+			'additional_search_queries' => 'sso, single sign on, login, log in, 2fa, two-factor',
+			'plan_classes'              => array( 'free' ),
+		);
+
+		$this->assertSame( $module_info, Jetpack::get_module( 'sso' ) );
+	}
+
+	/**
+	 * Test get_module with a module slug that doesn't have module info.
+	 */
+	public function test_get_module_module_no_info() {
+		$this->assertFalse( Jetpack::get_module( 'module-extras' ) );
+	}
 }

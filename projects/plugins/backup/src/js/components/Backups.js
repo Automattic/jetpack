@@ -4,8 +4,9 @@
 import { getDate, date, dateI18n } from '@wordpress/date';
 import { __ } from '@wordpress/i18n';
 import apiFetch from '@wordpress/api-fetch';
-import { createInterpolateElement } from '@wordpress/element';
+import { createInterpolateElement, useState, useEffect } from '@wordpress/element';
 import { useSelect } from '@wordpress/data';
+import { getRedirectUrl } from '@automattic/jetpack-components';
 
 /**
  * Internal dependencies
@@ -15,6 +16,7 @@ import StatBlock from './StatBlock';
 import './backups-style.scss';
 import PostsIcon from './icons/posts.svg';
 import CloudIcon from './icons/cloud.svg';
+import CloudAlertIcon from './icons/cloud-alert.svg';
 import UploadsIcon from './icons/uploads.svg';
 import PluginsIcon from './icons/plugins.svg';
 import ThemesIcon from './icons/themes.svg';
@@ -22,14 +24,13 @@ import BackupAnim1 from './icons/backup-animation-1.svg';
 import BackupAnim2 from './icons/backup-animation-2.svg';
 import BackupAnim3 from './icons/backup-animation-3.svg';
 
-/* global wp */
 /* eslint react/react-in-jsx-scope: 0 */
 const Backups = () => {
 	// State information
-	const [ progress, setProgress ] = wp.element.useState( null );
-	const [ trackProgress, setTrackProgress ] = wp.element.useState( 0 );
-	const [ latestTime, setLatestTime ] = wp.element.useState( '' );
-	const [ stats, setStats ] = wp.element.useState( {
+	const [ progress, setProgress ] = useState( 0 );
+	const [ trackProgress, setTrackProgress ] = useState( 0 );
+	const [ latestTime, setLatestTime ] = useState( '' );
+	const [ stats, setStats ] = useState( {
 		posts: 0,
 		uploads: 0,
 		plugins: 0,
@@ -41,89 +42,93 @@ const Backups = () => {
 		LOADING: 0,
 		IN_PROGRESS: 1,
 		NO_BACKUPS: 2,
-		COMPLETE: 3,
+		NO_BACKUPS_RETRY: 3,
+		NO_GOOD_BACKUPS: 4,
+		COMPLETE: 5,
 	};
-
-	const [ backupState, setBackupState ] = wp.element.useState( BACKUP_STATE.LOADING );
+	const [ backupState, setBackupState ] = useState( BACKUP_STATE.LOADING );
 
 	const progressInterval = 1 * 1000; // How often to poll for backup progress updates.
 
 	// Loads data on startup and whenever trackProgress updates.
-	wp.element.useEffect( () => {
+	useEffect( () => {
 		apiFetch( { path: '/jetpack/v4/backups' } ).then(
 			res => {
 				// If we have no backups don't load up stats.
-				if ( res.length === 0 ) {
-					return;
-				}
-
 				let latestBackup = null;
+				if ( res.length === 0 ) {
+					setBackupState( BACKUP_STATE.NO_BACKUPS );
+				} else if ( res.length === 1 && 'error-will-retry' === res[ 0 ].status ) {
+					setBackupState( BACKUP_STATE.NO_BACKUPS_RETRY );
+				} else {
+					// Check for the first completed backups.
+					res.forEach( backup => {
+						if ( null !== latestBackup ) {
+							return;
+						}
 
-				// Check for the first completed backups.
-				res.forEach( backup => {
-					if ( null !== latestBackup ) {
+						if ( 'finished' === backup.status && backup.stats ) {
+							latestBackup = backup;
+							setBackupState( BACKUP_STATE.COMPLETE );
+						}
+					} );
+
+					// Only the first backup can be in progress.
+					if ( null === latestBackup && 'started' === res[ 0 ].status ) {
+						latestBackup = res[ 0 ];
+						setProgress( latestBackup.percent );
+						setBackupState( BACKUP_STATE.IN_PROGRESS );
+					}
+
+					// No complete or in progress backups.
+					if ( ! latestBackup ) {
+						setBackupState( BACKUP_STATE.NO_GOOD_BACKUPS );
 						return;
 					}
 
-					if ( 'finished' === backup.status ) {
-						latestBackup = backup;
-						setBackupState( BACKUP_STATE.COMPLETE );
+					// Setup data for COMPLETE state.
+					if ( 'finished' === latestBackup.status ) {
+						const postsTable = latestBackup.stats.prefix + 'posts';
+						setStats( {
+							plugins: latestBackup.stats.plugins.count,
+							themes: latestBackup.stats.themes.count,
+							uploads: latestBackup.stats.uploads.count,
+							posts: latestBackup.stats.tables[ postsTable ].post_published,
+						} );
+						setLatestTime( date( 'c', latestBackup.last_updated + '+00:00' ) );
 					}
-				} );
-
-				// Only the first backup can be in progress.
-				if ( 0 === res.length && 'started' === res[ 0 ].status ) {
-					latestBackup = res[ 0 ];
-					setBackupState( BACKUP_STATE.IN_PROGRESS );
 				}
 
-				// No complete or in progress backups.
-				if ( ! latestBackup ) {
-					setBackupState( BACKUP_STATE.NO_BACKUPS );
-					return;
-				}
-
-				// Setup data for COMPLETE state.
-				if ( 'finished' === latestBackup.status ) {
-					const postsTable = latestBackup.stats.prefix + 'posts';
-					setStats( {
-						plugins: latestBackup.stats.plugins.count,
-						themes: latestBackup.stats.themes.count,
-						uploads: latestBackup.stats.uploads.count,
-						posts: latestBackup.stats.tables[ postsTable ].post_published,
-					} );
-					setLatestTime( date( 'c', latestBackup.last_updated + '+00:00' ) );
-				}
-
-				// Setup data for IN_PROGRESS.
-				if ( 'started' === latestBackup.status ) {
+				// Repeat query for NO_BACKUPS (before first) and IN_PROGRESS
+				if ( res.length === 0 || 'started' === latestBackup.status ) {
 					// Grab progress and update every progressInterval until complete.
-					setProgress( latestBackup.percent );
 					setTimeout( () => {
 						setTrackProgress( trackProgress + 1 );
 					}, progressInterval );
 				}
 			},
 			() => {
-				setBackupState( BACKUP_STATE.NO_BACKUPS );
+				setBackupState( BACKUP_STATE.NO_GOOD_BACKUPS );
 			}
 		);
 		// eslint-disable-next-line react-hooks/exhaustive-deps
 	}, [ trackProgress ] );
 
-	const renderInProgressBackup = () => {
+	const renderInProgressBackup = ( showProgressBar = true ) => {
 		return (
 			<div class="jp-row">
-				<div class="lg-col-span-5 md-col-span-4 sm-col-span-4">
-					<div class="backup__progress">
-						<div class="backup__progress-info">
-							<p>{ __( 'Backing up Your Groovy Site…', 'jetpack-backup' ) }</p>
-							<p class="backup__progress-info-percentage">{ progress }%</p>
+				<div class="lg-col-span-5 md-col-span-8 sm-col-span-4">
+					{ showProgressBar && (
+						<div class="backup__progress">
+							<div class="backup__progress-info">
+								<p>{ __( 'Backing up Your Groovy Site…', 'jetpack-backup' ) }</p>
+								<p class="backup__progress-info-percentage">{ progress }%</p>
+							</div>
+							<div class="backup__progress-bar">
+								<div class="backup__progress-bar-actual" style={ { width: progress + '%' } }></div>
+							</div>
 						</div>
-						<div class="backup__progress-bar">
-							<div class="backup__progress-bar-actual" style={ { width: progress + '%' } }></div>
-						</div>
-					</div>
+					) }
 					<h1>{ __( 'Your first cloud backup will be ready soon', 'jetpack-backup' ) }</h1>
 					<p>
 						{ __(
@@ -140,7 +145,7 @@ const Backups = () => {
 							{
 								a: (
 									<a
-										href={ `https://cloud.jetpack.com/backup/${ domain }` }
+										href={ getRedirectUrl( 'jetpack-backup', { site: domain } ) }
 										target="_blank"
 										rel="noreferrer"
 									/>
@@ -182,7 +187,7 @@ const Backups = () => {
 					<h1>{ formatDateString( latestTime ) }</h1>
 					<a
 						class="button is-full-width"
-						href={ `https://cloud.jetpack.com/backup/${ domain }` }
+						href={ getRedirectUrl( 'jetpack-backup', { site: domain } ) }
 						target="_blank"
 						rel="noreferrer"
 					>
@@ -222,38 +227,23 @@ const Backups = () => {
 		);
 	};
 
-	const renderNoBackups = () => {
+	const renderNoGoodBackups = () => {
 		return (
 			<div class="jp-row">
 				<div class="lg-col-span-5 md-col-span-4 sm-col-span-4">
+					<img src={ CloudAlertIcon } alt="" />
 					<h1>{ __( "We're having trouble backing up your site", 'jetpack-backup' ) }</h1>
 					<p>
 						{ createInterpolateElement(
 							__(
-								'Check that your Jetpack Connection is healthy with the <a>Jetpack Debugger</a>.',
+								' <a>Get in touch with us</a> to get your site backups going again.',
 								'jetpack-backup'
 							),
 							{
 								a: (
 									<a
-										href={ `https://tools.jetpack.com/debug/?url=${ domain }` }
-										target="_blank"
-										rel="noreferrer"
-									/>
-								),
-							}
-						) }
-					</p>
-					<p>
-						{ createInterpolateElement(
-							__(
-								'You can also find more information in your <a>backup management on Jetpack.com</a>.',
-								'jetpack-backup'
-							),
-							{
-								a: (
-									<a
-										href={ `https://cloud.jetpack.com/backup/${ domain }` }
+										//TODO: we may want to add a specific redirect for Backup plugin related issues
+										href={ getRedirectUrl( 'jetpack-contact-support', { site: domain } ) }
 										target="_blank"
 										rel="noreferrer"
 									/>
@@ -275,9 +265,11 @@ const Backups = () => {
 	return (
 		<div className="jp-wrap">
 			{ BACKUP_STATE.LOADING === backupState && renderLoading() }
+			{ BACKUP_STATE.NO_BACKUPS === backupState && renderInProgressBackup() }
+			{ BACKUP_STATE.NO_BACKUPS_RETRY === backupState && renderInProgressBackup( false ) }
 			{ BACKUP_STATE.IN_PROGRESS === backupState && renderInProgressBackup() }
 			{ BACKUP_STATE.COMPLETE === backupState && renderCompleteBackup() }
-			{ BACKUP_STATE.NO_BACKUPS === backupState && renderNoBackups() }
+			{ BACKUP_STATE.NO_GOOD_BACKUPS === backupState && renderNoGoodBackups() }
 		</div>
 	);
 };

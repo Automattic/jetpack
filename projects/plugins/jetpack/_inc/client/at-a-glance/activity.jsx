@@ -6,13 +6,13 @@ import PropTypes from 'prop-types';
 import { connect } from 'react-redux';
 import classNames from 'classnames';
 import { __ } from '@wordpress/i18n';
+import { getRedirectUrl } from '@automattic/jetpack-components';
 
 /**
  * Internal dependencies
  */
 import Card from 'components/card';
 import DashItem from 'components/dash-item';
-import getRedirectUrl from 'lib/jp-redirect';
 import { getSitePlan } from 'state/site';
 import { isOfflineMode } from 'state/connection';
 //import { PLAN_JETPACK_BUSINESS, PLAN_JETPACK_BUSINESS_MONTHLY, PLAN_VIP } from 'lib/plans/constants';

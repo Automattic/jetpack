@@ -6,12 +6,12 @@ import PropTypes from 'prop-types';
 import { connect } from 'react-redux';
 import { withRouter } from 'react-router-dom';
 import { _x } from '@wordpress/i18n';
+import { getRedirectUrl } from '@automattic/jetpack-components';
 
 /**
  * Internal dependencies
  */
 import analytics from 'lib/analytics';
-import getRedirectUrl from 'lib/jp-redirect';
 import { hasConnectedOwner, isCurrentUserLinked, isOfflineMode } from 'state/connection';
 import { isModuleActivated as _isModuleActivated } from 'state/modules';
 import NavTabs from 'components/section-nav/tabs';
@@ -127,7 +127,7 @@ export class Navigation extends React.Component {
 
 Navigation.propTypes = {
 	routeName: PropTypes.string.isRequired,
-	isOfflineMode: PropTypes.bool.isRequired,
+	isOfflineMode: PropTypes.bool,
 };
 
 export default connect( state => {

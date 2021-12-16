@@ -1,10 +1,18 @@
 #!/usr/bin/env node
 
+// React <17.1 is broken on Node 16 when jsdom is used. This hacks around the bug.
+// See https://github.com/facebook/react/issues/20756#issuecomment-780927519
+// (but note the package they recommend there is itself broken, sigh)
+// @todo Remove this when we update to React 17.1.
+delete global.MessageChannel;
+
 // No-op various extensions that things might be trying to load but we can't test.
 const noop = () => false;
 require.extensions[ '.css' ] = noop;
 require.extensions[ '.scss' ] = noop;
 require.extensions[ '.svg' ] = noop;
+require.extensions[ '.jpg' ] = noop;
+require.extensions[ '.png' ] = noop;
 
 const path = require( 'path' );
 const basepath = path.dirname( path.dirname( __dirname ) );
@@ -62,14 +70,16 @@ mocha.suite.afterAll( function () {
 
 if ( options.jsdom ) {
 	// Define a dom so we can have window and all else
-	require( 'jsdom-global' )();
+	require( 'global-jsdom' )();
 
-	window.Initial_State = {
-		userData: {},
-		dismissedNotices: {},
-		locale: '{}',
-		licensing: { error: '' },
-	};
+	// Mock CSS Object Model, used in @wordpress/components (not even via `window`) without first testing that it exists.
+	// https://developer.mozilla.org/en-US/docs/Web/API/CSS
+	if ( ! global.CSS ) {
+		global.CSS = {
+			escape: () => false,
+			supports: () => false,
+		};
+	}
 }
 
 if ( options.initfile ) {
@@ -87,7 +97,7 @@ if ( program.args.length ) {
 		}
 	} );
 } else {
-	glob.sync( './!(node_modules)/**/test/*.{js,jsx,cjs}' ).forEach( file => {
+	glob.sync( './!(node_modules)/**/test/*.{js,jsx,cjs,mjs,ts,tsx}' ).forEach( file => {
 		mocha.addFile( file );
 	} );
 }

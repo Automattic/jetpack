@@ -21,6 +21,8 @@ import DashAkismet from './akismet';
 import DashBackups from './backups';
 import DashPhoton from './photon';
 import DashSearch from './search';
+import DashSecurityBundle from './security-bundle';
+import DashVideoPress from './videopress';
 import DashConnections from './connections';
 import QuerySitePlugins from 'components/data/query-site-plugins';
 import QuerySite from 'components/data/query-site';
@@ -38,6 +40,7 @@ import { getScanStatus, isFetchingScanStatus } from 'state/scan';
 const renderPairs = layout =>
 	layout.map( ( item, layoutIndex ) => [
 		item.header,
+		item.pinnedBundle,
 		chunk( item.cards, 2 ).map( ( [ left, right ], cardIndex ) => (
 			<div className="jp-at-a-glance__item-grid" key={ `card-${ layoutIndex }-${ cardIndex }` }>
 				<div className="jp-at-a-glance__left">{ left }</div>
@@ -48,6 +51,10 @@ const renderPairs = layout =>
 
 class AtAGlance extends Component {
 	trackSecurityClick = () => analytics.tracks.recordJetpackClick( 'aag_manage_security_wpcom' );
+
+	trackUpgradeButtonView = ( feature = '' ) => {
+		return () => analytics.tracks.recordEvent( `jetpack_wpa_aag_upgrade_button_view`, { feature } );
+	};
 
 	render() {
 		const settingsProps = {
@@ -85,13 +92,20 @@ class AtAGlance extends Component {
 		);
 		// Status can be unavailable, active, provisioning, awaiting_credentials
 		const rewindStatus = get( this.props.rewindStatus, [ 'state' ], '' );
+		const rewindStatusReason = get( this.props.rewindStatus, [ 'reason' ], '' );
 		const securityCards = [];
 
 		// Backup won't work with multi-sites, but Scan does if VaultPress is enabled
 		const hasVaultPressScanning =
 			! this.props.fetchingScanStatus && this.props.scanStatus?.reason === 'vp_active_on_site';
 		if ( ! this.props.multisite || hasVaultPressScanning ) {
-			securityCards.push( <DashScan { ...settingsProps } { ...urls } /> );
+			securityCards.push(
+				<DashScan
+					{ ...settingsProps }
+					{ ...urls }
+					trackUpgradeButtonView={ this.trackUpgradeButtonView( 'scan' ) }
+				/>
+			);
 		}
 
 		if ( ! this.props.multisite ) {
@@ -100,10 +114,17 @@ class AtAGlance extends Component {
 					{ ...settingsProps }
 					siteRawUrl={ this.props.siteRawUrl }
 					rewindStatus={ rewindStatus }
+					rewindStatusReason={ rewindStatusReason }
+					trackUpgradeButtonView={ this.trackUpgradeButtonView( 'backups' ) }
 				/>
 			);
 		}
-		securityCards.push( <DashAkismet { ...urls } /> );
+		securityCards.push(
+			<DashAkismet
+				{ ...urls }
+				trackUpgradeButtonView={ this.trackUpgradeButtonView( 'akismet' ) }
+			/>
+		);
 
 		if ( 'inactive' !== this.props.getModuleOverride( 'protect' ) ) {
 			securityCards.push( <DashProtect { ...settingsProps } /> );
@@ -120,10 +141,13 @@ class AtAGlance extends Component {
 
 		// If user can manage modules, we're in an admin view, otherwise it's a non-admin view.
 		if ( this.props.userCanManageModules ) {
+			const canDisplaybundleCard =
+				! this.props.multisite && ! this.props.isOfflineMode && this.props.hasConnectedOwner;
 			const pairs = [
 				{
 					header: securityHeader,
 					cards: securityCards,
+					pinnedBundle: canDisplaybundleCard ? <DashSecurityBundle /> : null,
 				},
 			];
 
@@ -132,7 +156,20 @@ class AtAGlance extends Component {
 				performanceCards.push( <DashPhoton { ...settingsProps } /> );
 			}
 			if ( 'inactive' !== this.props.getModuleOverride( 'search' ) ) {
-				performanceCards.push( <DashSearch { ...settingsProps } /> );
+				performanceCards.push(
+					<DashSearch
+						{ ...settingsProps }
+						trackUpgradeButtonView={ this.trackUpgradeButtonView( 'search' ) }
+					/>
+				);
+			}
+			if ( 'inactive' !== this.props.getModuleOverride( 'videopress' ) ) {
+				performanceCards.push(
+					<DashVideoPress
+						{ ...settingsProps }
+						trackUpgradeButtonView={ this.trackUpgradeButtonView( 'videopress' ) }
+					/>
+				);
 			}
 			if ( performanceCards.length ) {
 				pairs.push( {

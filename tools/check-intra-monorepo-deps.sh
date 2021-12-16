@@ -6,16 +6,25 @@ cd $(dirname "${BASH_SOURCE[0]}")/..
 BASE=$PWD
 . "$BASE/tools/includes/check-osx-bash-version.sh"
 . "$BASE/tools/includes/chalk-lite.sh"
+. "$BASE/tools/includes/alpha-tag.sh"
 
 # Print help and exit.
 function usage {
 	cat <<-EOH
-		usage: $0 [-u] [-v]
+		usage: $0 [-a] [-v] [-U|-u] [<slug> ...]
 
 		Check that all composer and pnpm dependencies between monorepo projects are up to date.
 
 		If \`-u\` is passed, update any that aren't and add changelogger change files
 		for the updates.
+
+		If \`-U\` is passed, update any that aren't but do not create a change file.
+
+		If <slug> is passed, only that project is checked.
+
+		Other options:
+		 -a: Pass --filename-auto-suffix to changelogger (avoids "file already exists" errors).
+		 -v: Output debug information.
 	EOH
 	exit 1
 }
@@ -23,10 +32,19 @@ function usage {
 # Sets options.
 UPDATE=false
 VERBOSE=false
-while getopts ":uvh" opt; do
+DOCL_EVER=true
+AUTO_SUFFIX=false
+while getopts ":uUvha" opt; do
 	case ${opt} in
 		u)
 			UPDATE=true
+			;;
+		U)
+			UPDATE=true
+			DOCL_EVER=false
+			;;
+		a)
+			AUTO_SUFFIX=true
 			;;
 		v)
 			VERBOSE=true
@@ -47,57 +65,81 @@ done
 shift "$(($OPTIND -1))"
 
 if ! $VERBOSE; then
+	. "$BASE/tools/includes/spin.sh"
 	function debug {
 		:
 	}
-elif [[ -n "$CI" ]]; then
-	function debug {
-		# Grey doesn't work well in GH's output.
-		blue "$@"
-	}
+else
+	. "$BASE/tools/includes/nospin.sh"
+	if [[ -n "$CI" ]]; then
+		function debug {
+			# Grey doesn't work well in GH's output.
+			blue "$@"
+		}
+	fi
 fi
 
 function get_packages {
-	PACKAGES1=$(jq -nc 'reduce inputs as $in ({}; .[$in.name] |= if $in.extra["branch-alias"]["dev-master"] then [ $in.extra["branch-alias"]["dev-master"], ( $in.extra["branch-alias"]["dev-master"] | sub( "^(?<v>\\d+\\.\\d+)\\.x-dev$"; "^\(.v)" ) ) ] else [ "@dev" ] end )' "$BASE"/projects/packages/*/composer.json)
-	PACKAGES2=$(jq -c '( .[][0] | select( . != "@dev" ) ) |= empty' <<<"$PACKAGES1")
-	JSPACKAGES=$(jq -nc 'reduce inputs as $in ({}; if $in.name then .[$in.name] |= [ "workspace:^\($in.version)", "workspace:\($in.version)" ] else . end )' "$BASE"/projects/js-packages/*/package.json)
+	PACKAGES_DEV=$(jq -nc 'reduce inputs as $in ({}; .[$in.name] |= if $in.extra["branch-alias"]["dev-master"] then [ $in.extra["branch-alias"]["dev-master"], ( $in.extra["branch-alias"]["dev-master"] | sub( "^(?<v>\\d+\\.\\d+)\\.x-dev$"; "^\(.v)" ) ) ] else [ "@dev" ] end )' "$BASE"/projects/packages/*/composer.json)
+	PACKAGES_NODEV=$(jq -c '( .[][0] | select( . != "@dev" ) ) |= empty' <<<"$PACKAGES_DEV")
+	PACKAGES_STAR=$(jq -c '.[] |= [ "@dev" ]' <<<"$PACKAGES_DEV")
+	JSPACKAGES_PROJ=$(jq -nc 'reduce inputs as $in ({}; if $in.name then .[$in.name] |= [ "workspace:^\($in.version)", "workspace:\($in.version)" ] else . end )' "$BASE"/projects/js-packages/*/package.json)
+	JSPACKAGES_STAR=$(jq -c '.[] |= [ "workspace:*" ]' <<<"$JSPACKAGES_PROJ")
 }
 
 get_packages
 
-# Use a temp variable so pipefail works
-TMP="$(tools/get-build-order.php 2>/dev/null)"
-TMP=monorepo$'\n'"$TMP"
+DO_PNPM_LOCK=true
 SLUGS=()
-mapfile -t SLUGS <<<"$TMP"
+if [[ $# -le 0 ]]; then
+	# Use a temp variable so pipefail works
+	TMP="$(tools/get-build-order.php 2>/dev/null)"
+	mapfile -t SLUGS <<<"$TMP"
+	SLUGS+=( 'monorepo' )
+	TMP="$(git ls-files '**/composer.json' '**/package.json' | sed -E -n -e '\!^projects/[^/]*/[^/]*/(composer|package)\.json$! d' -e 's!/(composer|package)\.json$!!' -e 's/^/nonproject:/p' | sort -u)"
+	mapfile -t -O ${#SLUGS[@]} SLUGS <<<"$TMP"
+else
+	SLUGS=( "$@" )
+	DO_PNPM_LOCK=false
+fi
 
 if $UPDATE; then
-	debug "Making sure changelogger is runnable"
-	(cd projects/packages/changelogger && composer update --quiet)
+	DID_CL_INSTALL=false
 	CL="$BASE/projects/packages/changelogger/bin/changelogger"
 
 	function changelogger {
 		local SLUG="$1"
-		local ARGS
 
-		ARGS=()
-		ARGS=( add --no-interaction --significance=patch )
-		if [[ "$SLUG" == "plugins/jetpack" ]]; then
-			ARGS+=( --type=other )
-		else
-			ARGS+=( --type=changed )
+		if ! $DID_CL_INSTALL; then
+			debug "Making sure changelogger is runnable"
+			(cd "$BASE/projects/packages/changelogger" && composer update --quiet)
+			DID_CL_INSTALL=true
 		fi
-		ARGS+=( --entry="$2" --comment="$3" )
 
 		local OLDDIR=$PWD
 		cd "$BASE/projects/$SLUG"
+
+		local ARGS=()
+		ARGS=( add --no-interaction --significance=patch )
+		local CLTYPE="$(jq -r '.extra["changelogger-default-type"] // "changed"' composer.json)"
+		if [[ -n "$CLTYPE" ]]; then
+			ARGS+=( "--type=$CLTYPE" )
+		fi
+
+		if $AUTO_SUFFIX; then
+			ARGS+=( --filename-auto-suffix )
+		fi
+
+		ARGS+=( --entry="$2" --comment="$3" )
+
 		local CHANGES_DIR="$(jq -r '.extra.changelogger["changes-dir"] // "changelog"' composer.json)"
 		if [[ -d "$CHANGES_DIR" && "$(ls -- "$CHANGES_DIR")" ]]; then
 			"$CL" "${ARGS[@]}"
 		else
 			"$CL" "${ARGS[@]}"
 			info "Updating version for $SLUG"
-			VER=$("$CL" version next --default-first-version --prerelease=alpha) || { error "$VER"; EXIT=1; cd "$OLDDIR"; return; }
+			local PRERELEASE=$(alpha_tag "$CL" composer.json 0)
+			local VER=$("$CL" version next --default-first-version --prerelease=$PRERELEASE) || { error "$VER"; EXIT=1; cd "$OLDDIR"; return; }
 			"$BASE/tools/project-version.sh" -v -u "$VER" "$SLUG"
 			get_packages
 		fi
@@ -106,41 +148,58 @@ if $UPDATE; then
 fi
 
 EXIT=0
+ANYJS=false
 for SLUG in "${SLUGS[@]}"; do
+	spin
 	debug "Checking dependencies of $SLUG"
-	if [[ "$SLUG" == packages/* ]]; then
-		PACKAGES="$PACKAGES2"
-	else
-		PACKAGES="$PACKAGES1"
-	fi
 	if [[ "$SLUG" == monorepo ]]; then
+		PACKAGES="$PACKAGES_DEV"
+		JSPACKAGES="$JSPACKAGES_PROJ"
 		DOCL=false
 		DIR=.
-		PHPFILE=composer.json
-		JSFILE=package.json
+	elif [[ "$SLUG" == nonproject:* ]]; then
+		PACKAGES="$PACKAGES_STAR"
+		JSPACKAGES="$JSPACKAGES_STAR"
+		if [[ "$SLUG" == nonproject:tools/cli/skeletons/* ]]; then
+			PACKAGES="$PACKAGES_DEV"
+			JSPACKAGES="$JSPACKAGES_PROJ"
+			if [[ "$SLUG" == "nonproject:tools/cli/skeletons/packages" ]]; then
+				PACKAGES="$PACKAGES_NODEV"
+			fi
+		fi
+		DOCL=false
+		DIR="${SLUG#nonproject:}"
 	else
-		DOCL=true
+		PACKAGES="$PACKAGES_DEV"
+		JSPACKAGES="$JSPACKAGES_PROJ"
+		if [[ "$SLUG" == packages/* ]]; then
+			PACKAGES="$PACKAGES_NODEV"
+		fi
+		DOCL=$DOCL_EVER
 		DIR="projects/$SLUG"
-		PHPFILE="projects/$SLUG/composer.json"
-		JSFILE="projects/$SLUG/package.json"
 	fi
+	PHPFILE="$DIR/composer.json"
+	JSFILE="$DIR/package.json"
 	if $UPDATE; then
-		JSON=$(jq --argjson packages "$PACKAGES" -r 'def ver(e): if $packages[e.key] then if e.value[0:1] == "^" then $packages[e.key][1] else null end // $packages[e.key][0] else e.value end; if .require then .require |= with_entries( .value = ver(.) ) else . end | if .["require-dev"] then .["require-dev"] |= with_entries( .value = ver(.) ) else . end' "$PHPFILE" | tools/prettier --parser=json-stringify)
-		if [[ "$JSON" != "$(<"$PHPFILE")" ]]; then
-			info "PHP dependencies of $SLUG changed!"
-			echo "$JSON" > "$PHPFILE"
+		if [[ -e "$PHPFILE" ]]; then
+			JSON=$(jq --tab --argjson packages "$PACKAGES" -r 'def ver(e): if $packages[e.key] then if e.value[0:1] == "^" then $packages[e.key][1] else null end // $packages[e.key][0] else e.value end; if .require then .require |= with_entries( .value = ver(.) ) else . end | if .["require-dev"] then .["require-dev"] |= with_entries( .value = ver(.) ) else . end' "$PHPFILE")
+			if [[ "$JSON" != "$(<"$PHPFILE")" ]]; then
+				info "PHP dependencies of $SLUG changed!"
+				echo "$JSON" > "$PHPFILE"
 
-			if $DOCL; then
-				info "Creating changelog entry for $SLUG"
-				changelogger "$SLUG" 'Updated package dependencies.'
-				DOCL=false
+				if $DOCL; then
+					info "Creating changelog entry for $SLUG"
+					changelogger "$SLUG" 'Updated package dependencies.'
+					DOCL=false
+				fi
 			fi
 		fi
 		if [[ -e "$JSFILE" ]]; then
-			JSON=$(jq --argjson packages "$JSPACKAGES" -r 'def ver(e): if $packages[e.key] then if e.value[0:1] == "^" then $packages[e.key][1] else null end // $packages[e.key][0] else e.value end; def proc(k): if .[k] then .[k] |= with_entries( .value = ver(.) ) else . end; proc("dependencies") | proc("devDependencies") | proc("peerDependencies") | proc("optionalDependencies")' "$JSFILE" | tools/prettier --parser=json-stringify)
+			JSON=$(jq --tab --argjson packages "$JSPACKAGES" -r 'def ver(e): if $packages[e.key] then if e.value[0:1] == "^" then $packages[e.key][1] else null end // $packages[e.key][0] else e.value end; def proc(k): if .[k] then .[k] |= with_entries( .value = ver(.) ) else . end; proc("dependencies") | proc("devDependencies") | proc("peerDependencies") | proc("optionalDependencies")' "$JSFILE")
 			if [[ "$JSON" != "$(<"$JSFILE")" ]]; then
 				info "JS dependencies of $SLUG changed!"
 				echo "$JSON" > "$JSFILE"
+				ANYJS=true
 
 				if $DOCL; then
 					info "Creating changelog entry for $SLUG"
@@ -176,7 +235,9 @@ for SLUG in "${SLUGS[@]}"; do
 				error "$M: Must depend on monorepo package $PKG version $VER"
 			fi
 		done < <(
-			jq --argjson packages "$PACKAGES" -r '.require // {}, .["require-dev"] // {} | to_entries[] | select( $packages[.key] as $vals | $vals and ( [ .value ] | inside( $vals ) | not ) ) | [ input_filename, .key, ( $packages[.key] | join( " or " ) ) ] | @tsv' "$PHPFILE"
+			if [[ -e "$PHPFILE" ]]; then
+				jq --argjson packages "$PACKAGES" -r '.require // {}, .["require-dev"] // {} | to_entries[] | select( $packages[.key] as $vals | $vals and ( [ .value ] | inside( $vals ) | not ) ) | [ input_filename, .key, ( $packages[.key] | join( " or " ) ) ] | @tsv' "$PHPFILE"
+			fi
 			if [[ -e "$JSFILE" ]]; then
 				jq --argjson packages "$JSPACKAGES" -r '.dependencies // {}, .devDependencies // {}, .peerDependencies // {}, .optionalDependencies // {} | to_entries[] | select( $packages[.key] as $vals | $vals and ( [ .value ] | inside( $vals ) | not ) ) | [ input_filename, .key, ( $packages[.key] | join( " or " ) ) ] | @tsv' "$JSFILE"
 			fi
@@ -184,10 +245,21 @@ for SLUG in "${SLUGS[@]}"; do
 	fi
 done
 
-if $UPDATE; then
-	debug "Updating pnpm-lock.yaml"
-	pnpm install --silent
+if $ANYJS; then
+	if $DO_PNPM_LOCK; then
+		spin
+		debug "Updating pnpm-lock.yaml"
+		if [[ -n "$CI" ]]; then
+			pnpm install --no-frozen-lockfile
+		else
+			pnpm install --silent
+		fi
+	else
+		debug "Skipping pnpm-lock.yaml update because we were passed a list of packages"
+	fi
 fi
+
+spinclear
 
 if ! $UPDATE && [[ "$EXIT" != "0" ]]; then
 	jetpackGreen 'You might use `tools/check-intra-monorepo-deps.sh -u` to fix these errors.'

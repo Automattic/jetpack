@@ -52,6 +52,7 @@
 }
 
 .dops-select-dropdown__header {
+	box-sizing: content-box;
 	padding: 11px 44px 11px 16px; // 44 = padding (16) + arrow width (20) + arrow margin (8)
 	border-style: solid;
 	border-color: lighten( $gray, 20% );

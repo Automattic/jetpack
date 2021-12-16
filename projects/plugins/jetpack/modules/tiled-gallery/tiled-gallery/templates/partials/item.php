@@ -1,4 +1,5 @@
 <?php
+$item     = $context['item']; // phpcs:ignore VariableAnalysis.CodeAnalysis.VariableAnalysis.UndefinedVariable
 $add_link = 'none' !== $this->link;
 
 // We do this for accessibility.  Titles without alt's break screen readers.

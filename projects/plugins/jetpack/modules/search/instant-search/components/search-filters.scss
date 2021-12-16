@@ -35,7 +35,7 @@
 
 	> div {
 		display: flex;
-		align-items: center;
+		align-items: baseline;
 		margin-top: 8px;
 	}
 
@@ -43,13 +43,14 @@
 	// Extra specific to override in some themes
 	.widget_search .jetpack-instant-search__search-filter-list-input {
 		cursor: pointer;
-		top: 0; // Ensures align-items: center; works as expected.
+		top: 1px; // Ensures align-items: baseline; works as expected.
 
 		// Remove any custom checkbox styling
 		appearance: checkbox;
 		background: none;
 		border: none;
 		height: initial;
+		margin: 0;
 		width: initial;
 		&::after,
 		&::before {
@@ -60,6 +61,7 @@
 	.jetpack-instant-search__search-filter-list-label,
 	// Extra specific to override in some themes
 	.widget_search .jetpack-instant-search__search-filter-list-label {
+		color: inherit;
 		cursor: pointer;
 		display: inline-block;
 		font-weight: normal;

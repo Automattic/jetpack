@@ -78,7 +78,7 @@ abstract class Base_Admin_Menu {
 			add_action( 'admin_head', array( $this, 'set_site_icon_inline_styles' ) );
 			add_filter( 'screen_settings', array( $this, 'register_dashboard_switcher' ), 99999 );
 			add_action( 'admin_menu', array( $this, 'handle_preferred_view' ), 99997 );
-			add_action( 'wp_ajax_set_preferred_view', array( $this, 'handle_preferred_view' ) );
+			add_filter( 'admin_body_class', array( $this, 'admin_body_class' ) );
 		}
 	}
 
@@ -88,7 +88,7 @@ abstract class Base_Admin_Menu {
 	 * @return Admin_Menu
 	 */
 	public static function get_instance() {
-		$class = get_called_class();
+		$class = static::class;
 
 		if ( empty( static::$instances[ $class ] ) ) {
 			static::$instances[ $class ] = new $class();
@@ -218,7 +218,7 @@ abstract class Base_Admin_Menu {
 				isset( $submenu_item[1] ) ? $submenu_item[1] : 'read',
 				$submenus_to_update[ $submenu_item[2] ],
 				'',
-				$i
+				0 === $i ? 0 : $i + 1
 			);
 		}
 	}
@@ -278,10 +278,8 @@ abstract class Base_Admin_Menu {
 
 		wp_localize_script(
 			'jetpack-admin-menu',
-			'jpAdminMenu',
-			array(
-				'screen' => $this->get_current_screen(),
-			)
+			'jetpackAdminMenu',
+			array( 'jitmDismissNonce' => wp_create_nonce( 'jitm_dismiss' ) )
 		);
 	}
 
@@ -612,7 +610,7 @@ abstract class Base_Admin_Menu {
 		if ( isset( $_GET['page'] ) ) {
 			$screen = add_query_arg( 'page', $_GET['page'], $screen );
 		}
-		return $screen;
+		return sanitize_text_field( wp_unslash( $screen ) );
 		// phpcs:enable WordPress.Security.NonceVerification
 	}
 
@@ -621,17 +619,59 @@ abstract class Base_Admin_Menu {
 	 */
 	public function handle_preferred_view() {
 		// phpcs:disable WordPress.Security.NonceVerification
-		if (
-			! isset( $_GET['preferred-view'] ) ||
-			! in_array( $_GET['preferred-view'], array( self::DEFAULT_VIEW, self::CLASSIC_VIEW ), true )
-		) {
+		if ( ! isset( $_GET['preferred-view'] ) ) {
 			return;
 		}
-		$this->set_preferred_view( $this->get_current_screen(), $_GET['preferred-view'] );
-		if ( wp_doing_ajax() ) {
-			wp_die();
+
+		// phpcs:disable WordPress.Security.NonceVerification
+		$preferred_view = $_GET['preferred-view'];
+
+		if ( ! in_array( $preferred_view, array( self::DEFAULT_VIEW, self::CLASSIC_VIEW ), true ) ) {
+			return;
+		}
+
+		$current_screen = $this->get_current_screen();
+
+		$this->set_preferred_view( $current_screen, $preferred_view );
+
+		/**
+		 * Dashboard Quick switcher action triggered when a user switches to a different view.
+		 *
+		 * @module masterbar
+		 *
+		 * @since 9.9.1
+		 *
+		 * @param string The current screen of the user.
+		 * @param string The preferred view the user selected.
+		 */
+		\do_action( 'jetpack_dashboard_switcher_changed_view', $current_screen, $preferred_view );
+
+		if ( self::DEFAULT_VIEW === $preferred_view ) {
+			// Redirect to default view if that's the newly preferred view.
+			$menu_mappings = require __DIR__ . '/menu-mappings.php';
+			if ( isset( $menu_mappings[ $current_screen ] ) ) {
+				// Using `wp_redirect` intentionally because we're redirecting to Calypso.
+				wp_redirect( $menu_mappings[ $current_screen ] . $this->domain ); // phpcs:ignore WordPress.Security.SafeRedirect
+				exit;
+			}
+		} elseif ( self::CLASSIC_VIEW === $preferred_view ) {
+			// Removes the `preferred-view` param from the URL to avoid issues with
+			// screens that don't expect this param to be present in the URL.
+			wp_safe_redirect( remove_query_arg( 'preferred-view' ) );
+			exit;
 		}
 		// phpcs:enable WordPress.Security.NonceVerification
+	}
+
+	/**
+	 * Adds the necessary CSS class to the admin body class.
+	 *
+	 * @param string $admin_body_classes Contains all the admin body classes.
+	 *
+	 * @return string
+	 */
+	public function admin_body_class( $admin_body_classes ) {
+		return " is-nav-unification $admin_body_classes ";
 	}
 
 	/**

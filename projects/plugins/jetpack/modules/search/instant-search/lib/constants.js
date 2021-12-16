@@ -14,6 +14,7 @@ export const RESULT_FORMAT_MINIMAL = 'minimal';
 export const RESULT_FORMAT_PRODUCT = 'product';
 export const MINUTE_IN_MILLISECONDS = 60 * 1000;
 export const RELEVANCE_SORT_KEY = 'relevance';
+export const DEBOUNCED_TIME_TO_SET_QUERY_MILLISECONDS = 1000;
 // @todo extract this to a function that uses SORT_OPTIONS and PRODUCT_SORT_OPTIONS to avoid duplication
 export const VALID_SORT_KEYS = [
 	'newest',

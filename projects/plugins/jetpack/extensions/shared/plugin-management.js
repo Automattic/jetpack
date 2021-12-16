@@ -33,7 +33,6 @@ export async function getPlugins() {
  * Install and activate a plugin from the WordPress.org plugin directory.
  *
  * @param {string} slug - The slug of the plugin we want to activate.
- *
  * @returns {Promise} Resolves to true if the plugin has been successfully activated, or reject.
  */
 export async function installAndActivatePlugin( slug ) {
@@ -62,7 +61,6 @@ export async function installAndActivatePlugin( slug ) {
  * Activate a plugin from the WordPress.org plugin directory.
  *
  * @param {string} pluginFile - The plugin long slug (slug/index-file, without the .php suffix) we want to activate.
- *
  * @returns {Promise} Resolves to true if the plugin has been successfully activated, or reject.
  */
 export async function activatePlugin( pluginFile ) {

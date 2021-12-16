@@ -341,7 +341,7 @@ class Jetpack_Signature {
 	 * It will analyze the current request, as well as some Jetpack constants, to return the string
 	 * to be concatenated in the URL representing the port of the current request.
 	 *
-	 * @since 9.2.0
+	 * @since 1.8.4
 	 *
 	 * @return string The port to be used in the signature
 	 */
@@ -382,7 +382,7 @@ class Jetpack_Signature {
 	/**
 	 * Sanitizes a variable checking if it's a valid port number, which can be an integer or a numeric string
 	 *
-	 * @since 9.2.0
+	 * @since 1.8.4
 	 *
 	 * @param mixed $port_number Variable representing a port number.
 	 * @return string Always a string with a valid port number, or an empty string if input is invalid

@@ -3,6 +3,24 @@
 //
 // Mixins
 //
+
+// @breakpoint is a string prefixed with < or > followed by a breakpoint size.
+// (e.g. ">sm" or "<large").
+@mixin break( $breakpoint-string ) {
+	$breakpoint: map-get( $breakpoints, to-lower-case( str-slice( $breakpoint-string, 2 ) ) );
+
+	$predicate: max-width;
+	@if str-slice( $breakpoint-string, 1, 1 ) == '>' {
+		$predicate: min-width;
+	} @else {
+		$breakpoint: $breakpoint - 0.02px;
+	}
+
+	@media ( $predicate: #{ $breakpoint } ) {
+		@content;
+	}
+}
+
 @mixin break-small-up() {
 	@media ( min-width: #{ ( $break-sm ) } ) {
 		@content;
@@ -41,20 +59,27 @@
 		@content;
 	}
 }
-@mixin break-xlarge-down() {
-	@media ( max-width: #{ ( $break-xl - .02px ) } ) {
-		@content;
-	}
-}
 
 @mixin break-xxlarge-up() {
 	@media ( min-width: #{ ( $break-xxl ) } ) {
 		@content;
 	}
 }
-@mixin break-xxlarge-down() {
-	@media ( max-width: #{ ( $break-xxl - .02px ) } ) {
+
+$customberg-container-selector: '.jp-search-configure-app-wrapper' !default;
+
+// NOTE: Only works if first breakpoint is more restrictive than the customberg breakpoint.
+//       E.g. multiple-breaks-for-customberg( '<l', '<xl' );
+//            multiple-breaks-for-customberg( '>l', '>m' );
+@mixin multiple-breaks-for-customberg( $breakpoint-string, $customberg-breakpoint-string ) {
+	@include break( $breakpoint-string ) {
 		@content;
+	}
+
+	#{$customberg-container-selector} & {
+		@include break( $customberg-breakpoint-string ) {
+			@content;
+		}
 	}
 }
 
@@ -62,10 +87,12 @@
 	appearance: none;
 	background: none;
 	border: none;
+	box-shadow: none;
 	margin: 0;
 	outline: none;
 	padding: 0;
 	text-decoration: none;
+	text-shadow: none;
 	text-transform: none;
 
 	&:hover,

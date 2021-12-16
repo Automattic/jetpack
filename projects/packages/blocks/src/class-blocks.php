@@ -1,7 +1,7 @@
 <?php
 /** Blocks package.
  *
- * @since 9.0.0
+ * @since 1.1.0
  *
  * This package lifts elements from Jetpack's Jetpack_Gutenberg class.
  * It is now an standalone package reusable outside Jetpack.
@@ -16,7 +16,7 @@ use Jetpack_Gutenberg;
 /**
  * Register and manage blocks within a plugin. Used to manage block registration, enqueues, and more.
  *
- * @since 9.0.0
+ * @since 1.1.0
  */
 class Blocks {
 	/**
@@ -25,7 +25,7 @@ class Blocks {
 	 * @see register_block_type
 	 * @see Automattic\Jetpack\Blocks::is_gutenberg_version_available
 	 *
-	 * @since 9.0.0
+	 * @since 1.1.0
 	 *
 	 * @param string $slug Slug of the block.
 	 * @param array  $args {
@@ -105,7 +105,7 @@ class Blocks {
 	/**
 	 * Check if an extension/block is already registered
 	 *
-	 * @since 9.0.0
+	 * @since 1.1.0
 	 *
 	 * @param string $slug Name of extension/block to check.
 	 *
@@ -118,7 +118,7 @@ class Blocks {
 	/**
 	 * Remove the 'jetpack/' or jetpack-' prefix from an extension name
 	 *
-	 * @since 9.0.0
+	 * @since 1.1.0
 	 *
 	 * @param string $extension_name The extension name.
 	 *
@@ -136,7 +136,7 @@ class Blocks {
 	 * php if the Gutenberg plugin is not installed, if we know which minimum WP release has the required version we can
 	 * optionally fall back to that.
 	 *
-	 * @since 9.0.0
+	 * @since 1.1.0
 	 *
 	 * @param array  $version_requirements {
 	 *     An array containing the required Gutenberg version and, if known, the WordPress version that was released with this minimum version.
@@ -195,7 +195,7 @@ class Blocks {
 	/**
 	 * Get CSS classes for a block.
 	 *
-	 * @since 9.0.0
+	 * @since 1.1.0
 	 *
 	 * @param string $slug  Block slug.
 	 * @param array  $attr  Block attributes.
@@ -237,7 +237,7 @@ class Blocks {
 	/**
 	 * Does the page return AMP content.
 	 *
-	 * @since 9.0.0
+	 * @since 1.1.0
 	 *
 	 * @return bool $is_amp_request Are we on an AMP view.
 	 */
@@ -251,7 +251,7 @@ class Blocks {
 	/**
 	 * Is the current theme an FSE/Site Editor theme.
 	 *
-	 * @since 9.8.0
+	 * @since 1.4.0
 	 *
 	 * @return bool True if the current theme is an FSE/Site Editor theme.
 	 */
@@ -261,7 +261,7 @@ class Blocks {
 		/**
 		 * Returns true if the current theme is an FSE/Site Editor theme.
 		 *
-		 * @since 9.8.0
+		 * @since 1.4.0
 		 *
 		 * @param boolean $is_fse_theme Is the theme an FSE theme.
 		 */
@@ -272,7 +272,7 @@ class Blocks {
 	 * Check whether or the block being registered is a standalone block,
 	 * running in a context outside of the Jetpack plugin.
 	 *
-	 * @since 9.6.0
+	 * @since 1.3.0
 	 *
 	 * @return bool
 	 */
@@ -282,7 +282,7 @@ class Blocks {
 		/**
 		 * Returns true if the block is not being registered within a Jetpack plugin context.
 		 *
-		 * @since 9.6.0
+		 * @since 1.3.0
 		 *
 		 * @param boolean $is_standalone_block Is the block running standalone versus as part of the Jetpack plugin.
 		 */

@@ -6,7 +6,6 @@
  * cannot be determined.
  *
  * @param {WebhookPayloadPushCommit} commit - Commit object.
- *
  * @returns {number?} Pull request number, or null if it cannot be determined.
  */
 function getAssociatedPullRequest( commit ) {

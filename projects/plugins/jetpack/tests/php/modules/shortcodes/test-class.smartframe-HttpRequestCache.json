@@ -1,0 +1,77 @@
+{
+	"https://oembed.smartframe.io/?maxwidth=500&maxheight=750&url=https%3A%2F%2Fimagecards.smartframe.io%2F6ae67829d1264ee0ea6071a788940eae%2Fmantymetsa_1630927773870&dnt=1&caller=example.org&format=json": [
+		{
+			"args": {
+				"body": null,
+				"method": "GET"
+			},
+			"response": {
+				"body": "{\"type\":\"rich\",\"version\":\"1.0\",\"html\":\"<script data-image-id='mantymetsa_1630927773870' src='https://embed.smartframe.io/6ae67829d1264ee0ea6071a788940eae.js' data-width='500' data-height='354\"></script>\",\"width\":500,\"height\":354,\"thumbnail_url\":\"https://thumbs.smartframe.io/6ae67829d1264ee0ea6071a788940eae/d9cb5f3e6787557531b960586f59388d/mantymetsa.jpg\",\"thumbnail_width\":400,\"thumbnail_height\":283,\"author_name\":\"\"}",
+				"response": {
+					"code": 200,
+					"message": "OK"
+				}
+			}
+		}
+	],
+	"https://oembed.smartframe.io/?maxwidth=640&maxheight=960&url=https%3A%2F%2Fimagecards.smartframe.io%2F6ae67829d1264ee0ea6071a788940eae%2Fmantymetsa_1630927773870&dnt=1&caller=example.org": [
+		{
+			"args": {
+				"body": null,
+				"method": "GET"
+			},
+			"response": {
+				"body": "{\"type\":\"rich\",\"version\":\"1.0\",\"html\":\"<script data-image-id='mantymetsa_1630927773870' src='https://embed.smartframe.io/6ae67829d1264ee0ea6071a788940eae.js' data-width='640' data-height='453'></script>\",\"width\":640,\"height\":453,\"thumbnail_url\":\"https://thumbs.smartframe.io/6ae67829d1264ee0ea6071a788940eae/d9cb5f3e6787557531b960586f59388d/mantymetsa.jpg\",\"thumbnail_width\":400,\"thumbnail_height\":283,\"author_name\":\"\"}",
+				"response": {
+					"code": 200,
+					"message": "OK"
+				}
+			}
+		}
+	],
+	"https://oembed.smartframe.io/?maxwidth=640&maxheight=960&url=https%3A%2F%2Fimagecards.smartframe.io%2F6ae67829d1264ee0ea6071a788940eae%2Fmantymetsa_1630927773870&dnt=1&caller=example.org&format=json": [
+		{
+			"args": {
+				"body": null,
+				"method": "GET"
+			},
+			"response": {
+				"body": "{\"type\":\"rich\",\"version\":\"1.0\",\"html\":\"<script data-image-id='mantymetsa_1630927773870' src='https://embed.smartframe.io/6ae67829d1264ee0ea6071a788940eae.js' data-width='640' data-height='453'></script>\",\"width\":640,\"height\":453,\"thumbnail_url\":\"https://thumbs.smartframe.io/6ae67829d1264ee0ea6071a788940eae/d9cb5f3e6787557531b960586f59388d/mantymetsa.jpg\",\"thumbnail_width\":400,\"thumbnail_height\":283,\"author_name\":\"\"}",
+				"response": {
+					"code": 200,
+					"message": "OK"
+				}
+			}
+		}
+	],
+	"https://oembed.smartframe.io/?maxwidth=640&maxheight=960&url=https%3A%2F%2Fimagecards.smartframe.io%2F6ae67829d1264ee0ea6071a788940eae%2Fmantymetsa_1630927773870&dnt=1&format=json": [
+		{
+			"args": {
+				"body": null,
+				"method": "GET"
+			},
+			"response": {
+				"body": "{\"type\":\"rich\",\"version\":\"1.0\",\"html\":\"<script data-image-id='mantymetsa_1630927773870' src='https://embed.smartframe.io/6ae67829d1264ee0ea6071a788940eae.js' data-width='640' data-height='453'></script>\",\"width\":640,\"height\":453,\"thumbnail_url\":\"https://thumbs.smartframe.io/6ae67829d1264ee0ea6071a788940eae/d9cb5f3e6787557531b960586f59388d/mantymetsa.jpg\",\"thumbnail_width\":400,\"thumbnail_height\":283,\"author_name\":\"\"}",
+				"response": {
+					"code": 200,
+					"message": "OK"
+				}
+			}
+		}
+	],
+	"https://oembed.smartframe.io/?maxwidth=640&maxheight=960&url=https%3A%2F%2Fimagecards.smartframe.io%2F6ae67829d1264ee0ea6071a788940eae%2Fmantymetsa_1630927773870&dnt=1F                                                                  2 / 2 (100%)omarhttps://oembed.smartframe.io/?maxwidth=640&maxheight=960&url=https%3A%2F%2Fimagecards.smartframe.io%2F6ae67829d1264ee0ea6071a788940eae%2Fmantymetsa_1630927773870&dnt=1": [
+		{
+			"args": {
+				"body": null,
+				"method": "GET"
+			},
+			"response": {
+				"body": "{\"type\":\"rich\",\"version\":\"1.0\",\"html\":\"<script data-image-id='mantymetsa_1630927773870' src='https://embed.smartframe.io/6ae67829d1264ee0ea6071a788940eae.js' data-width='640' data-height='453'></script>\",\"width\":640,\"height\":453,\"thumbnail_url\":\"https://thumbs.smartframe.io/6ae67829d1264ee0ea6071a788940eae/d9cb5f3e6787557531b960586f59388d/mantymetsa.jpg\",\"thumbnail_width\":400,\"thumbnail_height\":283,\"author_name\":\"\"}",
+				"response": {
+					"code": 200,
+					"message": "OK"
+				}
+			}
+		}
+	]
+}

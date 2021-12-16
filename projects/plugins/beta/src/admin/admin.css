@@ -46,6 +46,10 @@ html {
 	border-left: 3px solid #f0b849;
 }
 
+.jetpack-beta__update-needed .dops-card.is-error {
+	border-left: 3px solid #f04949;
+}
+
 .jetpack-beta__master-head span {
 	font-weight: 300;
 	display: inline-block;
@@ -339,6 +343,22 @@ html {
 	color: white;
 }
 
+.dops-button.is-error {
+	background: #dc0000;
+	border-color: #be0000;
+}
+
+.dops-button.is-error:hover,
+.dops-button.is-error:focus {
+	border-color: #820000;
+}
+
+.dops-button.is-error[disabled],
+.dops-button.is-error:disabled {
+	background: #fdbcbc;
+	border-color: #e28c8c;
+}
+
 @keyframes appear {
 	0% {
 		opacity: 0;
@@ -511,8 +531,8 @@ button.dops-foldable-card__action {
 	display: flex;
 	-ms-flex-align: center;
 	align-items: center;
-	-ms-flex: 1 1;
-	flex: 1 1;
+	-ms-flex: 0 1;
+	flex: 0 1;
 	-ms-flex-pack: end;
 	justify-content: flex-end;
 }
@@ -1216,4 +1236,38 @@ button.dops-foldable-card__action {
 	.dops-section-nav .dops-search.is-pinned {
 		height: 46px;
 	}
+}
+
+.jpbeta-file-list {
+	display: inline-block;
+	white-space: nowrap;
+}
+
+.jpbeta-file-list > li > .container {
+	width: 100%;
+	box-sizing: border-box;
+	display: -ms-flexbox;
+	display: flex;
+	-ms-flex-align: center;
+	align-items: center;
+	-ms-flex-pack: justify;
+	justify-content: space-between;
+}
+
+.jpbeta-file-list > li > .container > span {
+	-ms-flex: 0 0 auto;
+	flex: 0 0 auto;
+}
+
+.branch-card.branch-card-hide {
+	display: none;
+}
+.branch-card.branch-card-active.branch-card-hide {
+	display: block;
+}
+.branch-card-active .activate-branch {
+	display: none;
+}
+.branch-card-active .dops-foldable-card__secondary .dops-foldable-card__summary::before {
+	content: attr( data-active );
 }

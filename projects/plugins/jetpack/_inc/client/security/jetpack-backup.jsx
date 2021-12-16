@@ -5,12 +5,12 @@ import React, { Component } from 'react';
 import PropTypes from 'prop-types';
 import { get } from 'lodash';
 import { __, _x } from '@wordpress/i18n';
+import { getRedirectUrl } from '@automattic/jetpack-components';
 
 /**
  * Internal dependencies
  */
 import Banner from 'components/banner';
-import getRedirectUrl from 'lib/jp-redirect';
 import SettingsCard from 'components/settings-card';
 import SettingsGroup from 'components/settings-group';
 import { FEATURE_SITE_BACKUPS_JETPACK } from 'lib/plans/constants';

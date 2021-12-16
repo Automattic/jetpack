@@ -16,6 +16,7 @@ use Automattic\Jetpack\Connection\Manager;
 use Automattic\Jetpack\Connection\Plugin;
 use Automattic\Jetpack\JITM as JITM;
 use Automattic\Jetpack\JITMS\JITM as JITMS_JITM;
+use Automattic\Jetpack\Post_List\Post_List as Post_List;
 use Automattic\Jetpack\Sync\Main as Sync_Main;
 
 /**
@@ -33,9 +34,11 @@ class Config {
 	 * @var Array
 	 */
 	protected $config = array(
-		'jitm'       => false,
-		'connection' => false,
-		'sync'       => false,
+		'jitm'            => false,
+		'connection'      => false,
+		'sync'            => false,
+		'post_list'       => false,
+		'identity_crisis' => false,
 	);
 
 	/**
@@ -92,6 +95,16 @@ class Config {
 			( $this->ensure_class( 'Automattic\Jetpack\JITMS\JITM', false )
 				|| $this->ensure_class( 'Automattic\Jetpack\JITM' ) )
 			&& $this->ensure_feature( 'jitm' );
+		}
+
+		if ( $this->config['post_list'] ) {
+			$this->ensure_class( 'Automattic\Jetpack\Post_List\Post_List' )
+				&& $this->ensure_feature( 'post_list' );
+		}
+
+		if ( $this->config['identity_crisis'] ) {
+			$this->ensure_class( 'Automattic\Jetpack\Identity_Crisis' )
+				&& $this->ensure_feature( 'identity_crisis' );
 		}
 	}
 
@@ -151,7 +164,7 @@ class Config {
 		/**
 		 * Fires when a specific Jetpack package feature is initalized using the Config package.
 		 *
-		 * @since 8.2.0
+		 * @since 1.1.0
 		 */
 		do_action( 'jetpack_feature_' . $feature . '_enabled' );
 
@@ -173,6 +186,15 @@ class Config {
 	}
 
 	/**
+	 * Enables the Post_List feature.
+	 */
+	protected function enable_post_list() {
+		Post_List::configure();
+
+		return true;
+	}
+
+	/**
 	 * Enables the Sync feature.
 	 */
 	protected function enable_sync() {
@@ -188,6 +210,13 @@ class Config {
 		Manager::configure();
 
 		return true;
+	}
+
+	/**
+	 * Enables the identity-crisis feature.
+	 */
+	protected function enable_identity_crisis() {
+		Identity_Crisis::init();
 	}
 
 	/**

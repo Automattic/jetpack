@@ -3,6 +3,11 @@
  */
 import React, { Component, createRef } from 'react';
 
+/**
+ * Internal dependencies
+ */
+import './widget-area-container.scss';
+
 // NOTE:
 //
 // We use Preact.Component instead of a Hooks based component because

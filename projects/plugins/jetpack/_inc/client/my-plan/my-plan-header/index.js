@@ -4,13 +4,15 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 import { connect } from 'react-redux';
+import classnames from 'classnames';
 import { find, isEmpty } from 'lodash';
 
 /**
  * WordPress dependencies
  */
 import { createInterpolateElement } from '@wordpress/element';
-import { __, _x } from '@wordpress/i18n';
+import { __, _n, _x, sprintf } from '@wordpress/i18n';
+import { getRedirectUrl } from '@automattic/jetpack-components';
 
 /**
  * Internal dependencies
@@ -18,6 +20,7 @@ import { __, _x } from '@wordpress/i18n';
 import analytics from 'lib/analytics';
 import Button from 'components/button';
 import Card from 'components/card';
+import ExternalLink from 'components/external-link';
 import ProductExpiration from 'components/product-expiration';
 import UpgradeLink from 'components/upgrade-link';
 import { getPlanClass } from 'lib/plans/constants';
@@ -28,8 +31,12 @@ import {
 	showRecommendations,
 	showLicensingUi,
 } from 'state/initial-state';
+import { getDetachedLicensesCount } from 'state/licensing';
 import License from './license';
 import MyPlanCard from '../my-plan-card';
+
+const TIER_1_BACKUP_STORAGE_GB = 10;
+const TIER_2_BACKUP_STORAGE_TB = 1;
 
 class MyPlanHeader extends React.Component {
 	getProductProps( productSlug ) {
@@ -87,7 +94,11 @@ class MyPlanHeader extends React.Component {
 					details: expiration,
 					tagLine: displayBackups
 						? __( 'Daily backups, spam filtering, and priority support.', 'jetpack' )
-						: __( 'Spam filtering and priority support.', 'jetpack' ),
+						: __(
+								'Spam filtering and priority support.',
+								'jetpack',
+								/* dummy arg to avoid bad minification */ 0
+						  ),
 					title: __( 'Jetpack Personal', 'jetpack' ),
 				};
 
@@ -113,26 +124,44 @@ class MyPlanHeader extends React.Component {
 					title: __( 'Jetpack Professional', 'jetpack' ),
 				};
 
-			case 'is-daily-security-plan':
+			case 'is-security-t1-plan':
 				return {
 					...productProps,
 					details: expiration,
-					tagLine: __(
-						'Enjoy the peace of mind of complete site protection. Great for brochure sites, restaurants, blogs, and resume sites.',
-						'jetpack'
+					tagLine: createInterpolateElement(
+						sprintf(
+							/* translators: %1$d is the number of gigabytes of storage space the site has. */
+							_n(
+								'Enjoy the peace of mind of complete site protection. You have <strong>%1$dGB</strong> of storage space.',
+								'Enjoy the peace of mind of complete site protection. You have <strong>%1$dGB</strong> of storage space.',
+								TIER_1_BACKUP_STORAGE_GB,
+								'jetpack'
+							),
+							TIER_1_BACKUP_STORAGE_GB
+						),
+						{ strong: <strong /> }
 					),
-					title: __( 'Jetpack Security Daily', 'jetpack' ),
+					title: __( 'Jetpack Security', 'jetpack' ),
 				};
 
-			case 'is-realtime-security-plan':
+			case 'is-security-t2-plan':
 				return {
 					...productProps,
 					details: expiration,
-					tagLine: __(
-						'Additional security for sites with 24/7 activity. Recommended for eCommerce stores, news organizations, and online forums.',
-						'jetpack'
+					tagLine: createInterpolateElement(
+						sprintf(
+							/* translators: %1$d is the number of gigabytes of storage space the site has. */
+							_n(
+								'Enjoy the peace of mind of complete site protection. You have <strong>%1$dTB</strong> of storage space.',
+								'Enjoy the peace of mind of complete site protection. You have <strong>%1$dTB</strong> of storage space.',
+								TIER_2_BACKUP_STORAGE_TB,
+								'jetpack'
+							),
+							TIER_2_BACKUP_STORAGE_TB
+						),
+						{ strong: <strong /> }
 					),
-					title: __( 'Jetpack Security Real-Time', 'jetpack' ),
+					title: __( 'Jetpack Security', 'jetpack' ),
 				};
 
 			case 'is-complete-plan':
@@ -146,27 +175,44 @@ class MyPlanHeader extends React.Component {
 					title: __( 'Jetpack Complete', 'jetpack' ),
 				};
 
-			case 'is-daily-backup-plan':
+			case 'is-backup-t1-plan':
 				return {
 					...productProps,
 					details: expiration,
-					tagLine: __(
-						'Your data is being securely backed up every day with a 30-day archive.',
-						'jetpack'
+					tagLine: createInterpolateElement(
+						sprintf(
+							/* translators: %1$d is the number of gigabytes of storage space the site has. */
+							_n(
+								'Your data is being securely backed up as you edit. You have <strong>%1$dGB</strong> of storage space.',
+								'Your data is being securely backed up as you edit. You have <strong>%1$dGB</strong> of storage space.',
+								TIER_1_BACKUP_STORAGE_GB,
+								'jetpack'
+							),
+							TIER_1_BACKUP_STORAGE_GB
+						),
+						{ strong: <strong /> }
 					),
-					title: createInterpolateElement( __( 'Jetpack Backup <em>Daily</em>', 'jetpack' ), {
-						em: <em />,
-					} ),
+					title: __( 'Jetpack Backup', 'jetpack' ),
 				};
 
-			case 'is-realtime-backup-plan':
+			case 'is-backup-t2-plan':
 				return {
 					...productProps,
 					details: expiration,
-					tagLine: __( 'Your data is being securely backed up as you edit.', 'jetpack' ),
-					title: createInterpolateElement( __( 'Jetpack Backup <em>Real-Time</em>', 'jetpack' ), {
-						em: <em />,
-					} ),
+					tagLine: createInterpolateElement(
+						sprintf(
+							/* translators: %1$d is the number of terabytes of storage space the site has. */
+							_n(
+								'Your data is being securely backed up as you edit. You have <strong>%1$dTB</strong> of storage space.',
+								'Your data is being securely backed up as you edit. You have <strong>%1$dTB</strong> of storage space.',
+								TIER_2_BACKUP_STORAGE_TB,
+								'jetpack'
+							),
+							TIER_2_BACKUP_STORAGE_TB
+						),
+						{ strong: <strong /> }
+					),
+					title: __( 'Jetpack Backup', 'jetpack' ),
 				};
 
 			case 'is-search-plan':
@@ -199,6 +245,58 @@ class MyPlanHeader extends React.Component {
 						'jetpack'
 					),
 					title: __( 'Jetpack Anti-Spam', 'jetpack' ),
+				};
+
+			// DEPRECATED: Daily and Real-time variations will soon be retired.
+			// Remove after all customers are migrated to new products.
+			case 'is-daily-security-plan':
+				return {
+					...productProps,
+					details: expiration,
+					tagLine: __(
+						'Enjoy the peace of mind of complete site protection. Great for brochure sites, restaurants, blogs, and resume sites.',
+						'jetpack'
+					),
+					title: __( 'Jetpack Security Daily', 'jetpack' ),
+				};
+			case 'is-realtime-security-plan':
+				return {
+					...productProps,
+					details: expiration,
+					tagLine: __(
+						'Additional security for sites with 24/7 activity. Recommended for eCommerce stores, news organizations, and online forums.',
+						'jetpack'
+					),
+					title: __( 'Jetpack Security Real-Time', 'jetpack' ),
+				};
+			case 'is-daily-backup-plan':
+				return {
+					...productProps,
+					details: expiration,
+					tagLine: __(
+						'Your data is being securely backed up every day with a 30-day archive.',
+						'jetpack'
+					),
+					title: createInterpolateElement( __( 'Jetpack Backup <em>Daily</em>', 'jetpack' ), {
+						em: <em />,
+					} ),
+				};
+			case 'is-realtime-backup-plan':
+				return {
+					...productProps,
+					details: expiration,
+					tagLine: __( 'Your data is being securely backed up as you edit.', 'jetpack' ),
+					title: createInterpolateElement( __( 'Jetpack Backup <em>Real-Time</em>', 'jetpack' ), {
+						em: <em />,
+					} ),
+				};
+
+			case 'is-videopress-plan':
+				return {
+					...productProps,
+					details: expiration,
+					tagLine: __( 'High-quality, ad-free video built specifically for WordPress.', 'jetpack' ),
+					title: __( 'Jetpack VideoPress', 'jetpack' ),
 				};
 
 			default:
@@ -237,6 +335,19 @@ class MyPlanHeader extends React.Component {
 		return <h3 className="jp-landing__card-header">{ title }</h3>;
 	}
 
+	trackAllPurchasesClick = () => {
+		analytics.tracks.recordJetpackClick( {
+			target: 'calypso_purchases_link',
+			page: 'my-plan',
+		} );
+	};
+	trackLicenseActivationClick = () => {
+		analytics.tracks.recordJetpackClick( {
+			target: 'licensing_activation_button',
+			path: 'licensing/activation',
+			page: 'my-plan',
+		} );
+	};
 	trackRecommendationsClick = () => {
 		analytics.tracks.recordJetpackClick( {
 			target: 'recommendations-button',
@@ -244,24 +355,71 @@ class MyPlanHeader extends React.Component {
 		} );
 	};
 
-	render() {
+	renderFooter() {
+		const {
+			showRecommendations: showRecommendationsButton,
+			hasDetachedUserLicenses,
+			siteAdminUrl,
+			purchases,
+		} = this.props;
+		// 'showRecommendationsButton' will be false if Jetpack is not active or we are in offline mode or if this is an Atomic site.
+		if ( ! showRecommendationsButton ) {
+			return null;
+		}
+
+		const showPurchasesLink = !! purchases?.length || hasDetachedUserLicenses;
 		return (
-			<div className="jp-landing__plans">
-				{ this.renderPlan() }
-				{ this.renderProducts() }
-				{ this.props.showRecommendations && (
-					<Card compact>
-						<div className="jp-landing__plan-features-header-recommendations-cta-container">
+			<Card compact>
+				<div className="jp-landing__card-footer">
+					{ hasDetachedUserLicenses && (
+						<span>{ __( 'Got a license key? Activate it here.', 'jetpack' ) }</span>
+					) }
+					<div
+						className={ classnames( 'jp-landing__card-footer-item', {
+							'no-licenses': ! hasDetachedUserLicenses,
+							'no-purchases': ! showPurchasesLink,
+						} ) }
+					>
+						{ showPurchasesLink && (
+							<ExternalLink
+								className="all-purchases__link"
+								href={ getRedirectUrl( 'calypso-purchases' ) }
+								onClick={ this.trackAllPurchasesClick }
+								target="_blank"
+								icon={ true }
+							>
+								{ __( 'View all purchases', 'jetpack' ) }
+							</ExternalLink>
+						) }
+						{ hasDetachedUserLicenses ? (
 							<Button
-								href={ this.props.siteAdminUrl + 'admin.php?page=jetpack#/recommendations' }
+								href={ siteAdminUrl + 'admin.php?page=jetpack#/license/activation' }
+								onClick={ this.trackLicenseActivationClick }
+								primary
+							>
+								{ _x( 'Activate a Product', 'Navigation item.', 'jetpack' ) }
+							</Button>
+						) : (
+							<Button
+								href={ siteAdminUrl + 'admin.php?page=jetpack#/recommendations' }
 								onClick={ this.trackRecommendationsClick }
 								primary
 							>
 								{ _x( 'Recommendations', 'Navigation item.', 'jetpack' ) }
 							</Button>
-						</div>
-					</Card>
-				) }
+						) }
+					</div>
+				</div>
+			</Card>
+		);
+	}
+
+	render() {
+		return (
+			<div className="jp-landing__plans">
+				{ this.renderPlan() }
+				{ this.renderProducts() }
+				{ this.renderFooter() }
 				{ this.props.showLicensingUi && (
 					<Card compact>
 						<License />
@@ -292,5 +450,6 @@ export default connect( state => {
 		plansMainTopUpgradeUrl: getUpgradeUrl( state, 'plans-main-top' ),
 		showRecommendations: showRecommendations( state ),
 		showLicensingUi: showLicensingUi( state ),
+		hasDetachedUserLicenses: !! getDetachedLicensesCount( state ),
 	};
 } )( MyPlanHeader );

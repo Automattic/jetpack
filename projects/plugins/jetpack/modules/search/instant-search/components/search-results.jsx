@@ -66,7 +66,7 @@ class SearchResults extends Component {
 				return __( 'Loading popular results…', 'jetpack' );
 			}
 
-			return __( 'Searching…', 'jetpack' );
+			return __( 'Searching…', 'jetpack', /* dummy arg to avoid bad minification */ 0 );
 		}
 
 		if ( total === 0 || this.props.hasError ) {
@@ -117,7 +117,7 @@ class SearchResults extends Component {
 					dangerouslySetInnerHTML={ {
 						__html: `
 							.jetpack-instant-search *::selection,
-							.jetpack-instant-search .jetpack-instant-search__search-results .jetpack-instant-search__search-results-primary mark {
+							.jetpack-instant-search .jetpack-instant-search__search-results .jetpack-instant-search__search-results-primary .jetpack-instant-search__search-result mark {
 								color: ${ textColor };
 								background-color: ${ highlightColor };
 							}

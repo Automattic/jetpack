@@ -8,7 +8,6 @@ import { readComposerJson } from './json';
  *
  * @param {string} project - Project slug.
  * @param {boolean} production - If a production build is requested.
- *
  * @returns {string} Build command, empty if none.
  */
 export default function projectBuildCommand( project, production ) {

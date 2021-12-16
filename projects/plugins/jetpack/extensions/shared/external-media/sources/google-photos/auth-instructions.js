@@ -10,12 +10,7 @@ function AuthInstructions() {
 	return (
 		<Fragment>
 			<GooglePhotosLogo />
-			<p>
-				{ __(
-					'To show your Google Photos library you need to connect your Google account.',
-					'jetpack'
-				) }
-			</p>
+			<p>{ __( 'To get started, connect your site to your Google Photos library.', 'jetpack' ) }</p>
 			<p>{ __( 'You can remove the connection in either of these places:', 'jetpack' ) }</p>
 			<ul>
 				<li>

@@ -38,6 +38,7 @@ class WPCOM_JSON_API_GET_Site_Endpoint extends WPCOM_JSON_API_Endpoint {
 		'jetpack'                     => '(bool) Whether the site is a Jetpack site or not',
 		'jetpack_connection'          => '(bool) Whether the site is connected to WP.com via `jetpack-connection`',
 		'is_multisite'                => '(bool) Whether the site is a Multisite site or not. Always true for WP.com sites.',
+		'site_owner'                  => '(int) User ID of the site owner',
 		'post_count'                  => '(int) The number of posts the site has',
 		'subscribers_count'           => '(int) The number of subscribers the site has',
 		'lang'                        => '(string) Primary language code of the site',
@@ -156,6 +157,8 @@ class WPCOM_JSON_API_GET_Site_Endpoint extends WPCOM_JSON_API_Endpoint {
 		'is_cloud_eligible',
 		'selected_features',
 		'anchor_podcast',
+		'is_difm_lite_in_progress',
+		'site_intent',
 	);
 
 	protected static $jetpack_response_field_additions = array(
@@ -398,7 +401,9 @@ class WPCOM_JSON_API_GET_Site_Endpoint extends WPCOM_JSON_API_Endpoint {
 			case 'is_multisite' :
 				$response[ $key ] = $this->site->is_multisite();
 				break;
-
+			case 'site_owner':
+				$response[ $key ] = $this->site->get_site_owner();
+				break;
 			case 'organization_id':
 				$response[ $key ] = $this->site->get_p2_organization_id();
 				break;
@@ -666,6 +671,12 @@ class WPCOM_JSON_API_GET_Site_Endpoint extends WPCOM_JSON_API_Endpoint {
 				case 'anchor_podcast':
 					$options[ $key ] = $site->get_anchor_podcast();
 					break;
+				case 'is_difm_lite_in_progress':
+					$options[ $key ] = $site->is_difm_lite_in_progress();
+					break;
+				case 'site_intent':
+					$options[ $key ] = $site->get_site_intent();
+					break;
 			}
 		}
 
@@ -719,6 +730,7 @@ class WPCOM_JSON_API_GET_Site_Endpoint extends WPCOM_JSON_API_Endpoint {
 			unset( $response->lang );
 			unset( $response->user_can_manage );
 			unset( $response->is_multisite );
+			unset( $response->site_owner );
 			unset( $response->plan );
 			unset( $response->products );
 			unset( $response->zendesk_site_meta );

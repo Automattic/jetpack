@@ -138,7 +138,6 @@ export function player( state = defaultPlayerState, action ) {
  *
  * @param {Object} state  - Current state.
  * @param {Object} action - Dispatched action.
- *
  * @returns {Object} Updated state.
  */
 export default function ( state = {}, action ) {

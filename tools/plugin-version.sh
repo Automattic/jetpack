@@ -17,19 +17,15 @@ function usage {
 		  the name of a directory in projects/plugins/, or a path to a plugin
 		  directorty or file.
 
-		usage: $0 -v version <plugin>
-
-		  Update the version of the specified plugin. The following version
-		  numbers are updated:
-		   - Version in the WordPress plugin header.
-		   - Version in composer.json, if any.
-		   - Version in package.json, if any.
-		   - Any constants defined in composer.json's .extras.version-constants.
-
 		usage: $0 -n [count] -v version
 
 		  Normalizes the passed version number. Set a count to specify the minimum
 		  number of components in the normalized version number.
+
+		usage: $0 -v version <plugin>
+
+		  Update the version of the specified plugin. See tools/project-version.sh
+		  for details.
 	EOH
 	exit 1
 }

@@ -172,7 +172,7 @@ function latex_more_info() {
 		'LaTeX is a powerful markup language for writing complex mathematical equations and formulas.
 		Jetpack combines the power of LaTeX and the simplicity of WordPress to give you the ultimate
 		in math blogging platforms. Use $latex your latex code here$ or [latex]your latex code here[/latex]
-		to include  in your posts and comments. Enjoy all sorts of options and embrace your inner nerd.',
+		to include in your posts and comments. Enjoy all sorts of options and embrace your inner nerd.',
 		'jetpack'
 	);
 }

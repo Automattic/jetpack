@@ -7,29 +7,54 @@ also known as Gutenberg, [that was introduced in WordPress 5.0](https://wordpres
 
 We define different types of block editor extensions:
 
-- Blocks are available in the editor itself.
-- Plugins are available in the Jetpack sidebar that appears on the right side of the block editor.
+### Blocks
+Blocks are available in the editor itself.
+Located in the `./blocks` folder.
+
+### Extended blocks
+Blocks, usually core blocks, extended by Jetpack plugin.
+Located in the `./extended-blocks` folder.
+
+### Plugins
+Core Editor [plugins](https://developer.wordpress.org/block-editor/reference-guides/packages/packages-plugins/), 
+registered by Jetpack to extend the application UI via [Slot&Fill](https://developer.wordpress.org/block-editor/reference-guides/slotfills/) components.
 
 ## Extension Structure
 
-Extensions in the `extensions/blocks` folder loosely follow this structure:
+Extensions in the `extensions/` folder loosely follow this structure:
 
-```
+```txt
 .
-└── block-or-plugin-name/
-	├── block-or-plugin-name.php ← PHP file where the block and its assets are registered.
-	├── editor.js                ← script loaded only in the editor
-	├── editor.scss              ← styles loaded only in the editor
-	├── view.js                  ← script loaded on the frontend
-	└── view.scss                ← styles loaded on the frontend
+├── blocks/
+│   └── block-name/
+│		├── editor.js                ← script loaded only in the editor
+│		├── editor.scss              ← styles loaded only in the editor
+│		├── view.js                  ← script loaded on the frontend
+│		└── view.scss                ← styles loaded on the frontend
+│
+├── extended-blocks/
+│   └── block-name/
+│		├── index.js                 ← entry point to extend.
+│		└── ...
+│
+├── plugins/
+│   └── plugin-name/
+│		├── index.js                 ← plugin registration
+│		└── ...
+│
+└── store/
+	└── store-name/
+		├── index.js                 ← plugin definition
+		└── ...
 ```
 
 If your block depends on another block, place them all in extensions folder:
 
-```
+```txt
 .
-├── block-name/
-└── sub-blockname/
+└── blocks/
+	├── block-name/
+	└── sub-blockname/
 ```
 
 ## Developing block editor extensions in Jetpack
@@ -38,7 +63,7 @@ If your block depends on another block, place them all in extensions folder:
 
 1. Use the [Jetpack Docker environment](https://github.com/Automattic/jetpack/tree/master/docker#readme).
 1. Start a new branch.
-1. Add your new extension's source files to the extensions/blocks directory.
+1. Add your new extension's source files to the extensions directory.
 And add your extensions' slug to the beta array in `extensions/index.json`. You can use Jetpack-CLI command to scaffold the block (see below).
 By keeping your extension in the beta array, it's safe to do small PRs and merge frequently.
 1. Or modify existing extensions in the same folder.
@@ -217,7 +242,6 @@ An example of this pattern is provided below:
 
 ```jsx
 const extensionName = 'my-extension-name';
-
 
 /*
  * Register the main "social-previews" extension if the feature is available

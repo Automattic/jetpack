@@ -12,7 +12,6 @@ const getLabels = require( './get-labels' );
  * @param {string} owner   - Repository owner.
  * @param {string} repo    - Repository name.
  * @param {string} number  - PR / Issue number.
- *
  * @returns {Promise<Array>} Promise resolving to an array of all the plugins touched by that PR.
  */
 async function getPluginNames( octokit, owner, repo, number ) {

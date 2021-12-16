@@ -7,10 +7,15 @@
 
 namespace Automattic\JetpackBeta;
 
+use Composer\Semver\Comparator as Semver;
 use WP_Error;
 
 /**
  * Allow the Jetpack Beta plugin to autoupdate itself.
+ *
+ * This registers some hooks in its constructor to point WordPress's plugin
+ * upgrader to the GitHub repository for the plugin, as this plugin isn't in
+ * the WordPress Plugin Directory to be updated normally.
  */
 class AutoupdateSelf {
 
@@ -19,9 +24,14 @@ class AutoupdateSelf {
 	 *
 	 * @var static
 	 */
-	protected static $instance = null;
+	private static $instance = null;
 
-	const TRANSIENT_NAME = 'JETPACK_BETA_LATEST_TAG';
+	/**
+	 * Configuration.
+	 *
+	 * @var array
+	 */
+	private $config;
 
 	/**
 	 * Main Instance
@@ -37,11 +47,7 @@ class AutoupdateSelf {
 	/**
 	 * Constructor
 	 */
-	public function __construct() {
-		if ( ! empty( self::$instance ) ) {
-			return;
-		}
-
+	private function __construct() {
 		$this->config = array(
 			'plugin_file'        => JPBETA__PLUGIN_FOLDER . '/jetpack-beta.php',
 			'slug'               => JPBETA__PLUGIN_FOLDER,
@@ -55,26 +61,33 @@ class AutoupdateSelf {
 		add_filter( 'pre_set_site_transient_update_plugins', array( $this, 'api_check' ) );
 		add_filter( 'plugins_api', array( $this, 'get_plugin_info' ), 10, 3 );
 		add_filter( 'upgrader_source_selection', array( $this, 'upgrader_source_selection' ), 10, 3 );
-
 	}
 
-	/** Set update arguments */
-	public function set_update_args() {
-		$plugin_data                  = $this->get_plugin_data();
+	/**
+	 * Set update arguments in `$this->config`.
+	 */
+	private function set_update_args() {
+		$plugin_data = get_plugin_data( WP_PLUGIN_DIR . '/' . $this->config['plugin_file'] );
+		$github_data = $this->get_github_data();
+
 		$this->config['plugin_name']  = $plugin_data['Name'];
 		$this->config['version']      = $plugin_data['Version'];
 		$this->config['author']       = $plugin_data['Author'];
 		$this->config['homepage']     = $plugin_data['PluginURI'];
 		$this->config['new_version']  = $this->get_latest_prerelease();
-		$this->config['last_updated'] = $this->get_date();
-		$this->config['description']  = $this->get_description();
+		$this->config['last_updated'] = empty( $github_data->updated_at ) ? false : gmdate( 'Y-m-d', strtotime( $github_data->updated_at ) );
+		$this->config['description']  = empty( $github_data->description ) ? false : $github_data->description;
 		$this->config['zip_url']      = 'https://github.com/Automattic/jetpack-beta/zipball/' . $this->config['new_version'];
 	}
 
-	/** Check for latest pre-release plugin every six hours and update */
-	public function get_latest_prerelease() {
-		$tagged_version = get_site_transient( self::TRANSIENT_NAME );
-		if ( $this->overrule_transients() || empty( $tagged_version ) ) {
+	/**
+	 * Check for latest pre-release plugin every six hours and update.
+	 *
+	 * @return string|false Prerelease version, or false on failure.
+	 */
+	private function get_latest_prerelease() {
+		$tagged_version = get_site_transient( 'jetpack_beta_latest_tag' );
+		if ( $this->overrule_transients() || ! $tagged_version ) {
 			$raw_response = wp_remote_get( trailingslashit( $this->config['api_url'] ) . 'releases' );
 			if ( is_wp_error( $raw_response ) ) {
 				return false;
@@ -85,75 +98,71 @@ class AutoupdateSelf {
 				foreach ( $releases as $release ) {
 					// Since 2.2, so that we don't have to maker the Jetpack Beta 2.0.3 as prerelease.
 					if ( ! $release->prerelease ) {
-						$tagged_version = $release->tag_name;
+						$tagged_version = ltrim( $release->tag_name, 'v' );
 						break;
 					}
 				}
 			}
 			// Refresh every 6 hours.
-			if ( ! empty( $tagged_version ) ) {
-				set_site_transient( self::TRANSIENT_NAME, $tagged_version, 60 * 60 * 6 );
+			if ( $tagged_version ) {
+				set_site_transient( 'jetpack_beta_latest_tag', $tagged_version, 60 * 60 * 6 );
 			}
 		}
 		return $tagged_version;
 	}
 
-	/** Override transients to force update */
-	public function overrule_transients() {
+	/**
+	 * Whether to override transients to force update.
+	 *
+	 * @return bool
+	 */
+	private function overrule_transients() {
 		return ( defined( 'Jetpack_Beta_FORCE_UPDATE' ) && Jetpack_Beta_FORCE_UPDATE );
 	}
 
-	/** Get update data from Github */
-	public function get_github_data() {
-		if ( ! empty( $this->github_data ) ) {
-			$github_data = $this->github_data;
-		} else {
-			$github_data = get_site_transient( md5( $this->config['slug'] ) . '_github_data' );
-			if ( $this->overrule_transients() || ( ! isset( $github_data ) || ! $github_data || '' === $github_data ) ) {
-				$github_data = wp_remote_get( $this->config['api_url'] );
-				if ( is_wp_error( $github_data ) ) {
-					return false;
-				}
-				$github_data = json_decode( $github_data['body'] );
-				// Refresh every 6 hours.
-				set_site_transient( md5( $this->config['slug'] ) . '_github_data', $github_data, 60 * 60 * 6 );
+	/**
+	 * Get update data from Github.
+	 *
+	 * @return object|false Data from GitHub's API, or false on error.
+	 */
+	private function get_github_data() {
+		$github_data = get_site_transient( 'jetpack_beta_autoupdate_github_data' );
+		if ( $this->overrule_transients() || ! $github_data ) {
+			$github_data = wp_remote_get( $this->config['api_url'] );
+			if ( is_wp_error( $github_data ) ) {
+				return false;
 			}
-			// Store the data in this class instance for future calls.
-			$this->github_data = $github_data;
+			$github_data = json_decode( $github_data['body'] );
+			// Refresh every 6 hours.
+			set_site_transient( 'jetpack_beta_autoupdate_github_data', $github_data, 60 * 60 * 6 );
 		}
 		return $github_data;
 	}
 
-	/** Get date of update in GMT*/
-	public function get_date() {
-		$_date = $this->get_github_data();
-		return ! empty( $_date->updated_at ) ? gmdate( 'Y-m-d', strtotime( $_date->updated_at ) ) : false;
-	}
-
-	/** Get latest update's description */
-	public function get_description() {
-		$_description = $this->get_github_data();
-		return ! empty( $_description->description ) ? $_description->description : false;
-	}
-
-	/** Get plugin update data */
-	public function get_plugin_data() {
-		return get_plugin_data( WP_PLUGIN_DIR . '/' . $this->config['plugin_file'] );
-	}
-
-	/** Check if there's a newer version */
-	public function has_never_version() {
+	/**
+	 * Check if there's a newer version.
+	 *
+	 * @return bool
+	 */
+	public function has_newer_version() {
 		if ( ! isset( $this->config['new_version'] ) ) {
 			$this->set_update_args();
 		}
-		return version_compare( $this->config['new_version'], $this->config['version'], '>' );
 
+		return Semver::greaterThan( $this->config['new_version'], $this->config['version'] );
 	}
 
 	/**
-	 * Check the latest transient data and update if necessary.
+	 * Filter: Check the latest transient data and update if necessary.
 	 *
-	 * @param string $transient - the transient we're checking.
+	 * Filter for `pre_set_site_transient_update_plugins`.
+	 *
+	 * We need to somehow inject ourself into the list of plugins needing update
+	 * when an update is available. This is the way: catch the setting of the relevant
+	 * transient and add ourself in.
+	 *
+	 * @param object $transient The transient we're checking.
+	 * @return object $transient
 	 */
 	public function api_check( $transient ) {
 		// Check if the transient contains the 'checked' information.
@@ -162,59 +171,69 @@ class AutoupdateSelf {
 			return $transient;
 		}
 		// Get the latest version.
-		delete_site_transient( self::TRANSIENT_NAME );
+		delete_site_transient( 'jetpack_beta_latest_tag' );
 
-		if ( $this->has_never_version() ) {
-			$response = (object) array(
+		if ( $this->has_newer_version() ) {
+			$transient->response[ $this->config['plugin_file'] ] = (object) array(
 				'plugin'      => $this->config['slug'],
 				'new_version' => $this->config['new_version'],
 				'slug'        => $this->config['slug'],
 				'url'         => $this->config['github_url'],
 				'package'     => $this->config['zip_url'],
 			);
-			// If response is false, don't alter the transient.
-			if ( false !== $response ) {
-				$transient->response[ $this->config['plugin_file'] ] = $response;
-			}
 		}
 		return $transient;
 	}
 
 	/**
-	 * Get latest plugin information
+	 * Filter: Get latest plugin information.
 	 *
-	 * @param string $false Result from plugins_api.
-	 * @param string $action The type of information being requested from the Plugin Installation API.
-	 * @param object $response The response from plugins_api.
+	 * Filter for `plugins_api`.
+	 *
+	 * As the plugin isn't in the WordPress Plugin Directory, we need to fake
+	 * up a record for it so the upgrader will know how to upgrade it.
+	 *
+	 * @param false|object|array $result Result from plugins_api.
+	 * @param string             $action The type of information being requested from the Plugin Installation API.
+	 * @param object             $args Plugin API arguments.
+	 * @return false|object|array $result
 	 */
-	public function get_plugin_info( $false, $action, $response ) {
-		// Check if this call API is for the right plugin.
-		if ( ! isset( $response->slug ) || $response->slug !== $this->config['slug'] ) {
-			return false;
+	public function get_plugin_info( $result, $action, $args ) {
+		// Check if this is a 'plugin_information' request for this plugin.
+		if ( 'plugin_information' !== $action || $args->slug !== $this->config['slug'] ) {
+			return $result;
 		}
+
 		// Update tags.
 		$this->set_update_args();
-		$response->slug          = $this->config['slug'];
-		$response->plugin        = $this->config['slug'];
-		$response->name          = $this->config['plugin_name'];
-		$response->plugin_name   = $this->config['plugin_name'];
-		$response->version       = $this->config['new_version'];
-		$response->author        = $this->config['author'];
-		$response->homepage      = $this->config['homepage'];
-		$response->requires      = $this->config['requires'];
-		$response->tested        = $this->config['tested'];
-		$response->downloaded    = 0;
-		$response->last_updated  = $this->config['last_updated'];
-		$response->sections      = array( 'description' => $this->config['description'] );
-		$response->download_link = $this->config['zip_url'];
-		return $response;
+		return (object) array(
+			'slug'          => $this->config['slug'],
+			'plugin'        => $this->config['slug'],
+			'name'          => $this->config['plugin_name'],
+			'plugin_name'   => $this->config['plugin_name'],
+			'version'       => $this->config['new_version'],
+			'author'        => $this->config['author'],
+			'homepage'      => $this->config['homepage'],
+			'requires'      => $this->config['requires'],
+			'tested'        => $this->config['tested'],
+			'downloaded'    => 0,
+			'last_updated'  => $this->config['last_updated'],
+			'sections'      => array( 'description' => $this->config['description'] ),
+			'download_link' => $this->config['zip_url'],
+		);
 	}
 
 	/**
-	 * Updates the source file location for the upgrade package.
+	 * Filter: Updates the source file location for the upgrade package.
 	 *
-	 * @param string $source - File source location..
-	 * @param string $remote_source - Remote file source location.
+	 * Filter for `upgrader_source_selection`.
+	 *
+	 * The download from GitHub will produce a directory named like "Automattic-jetpack-beta-xxxxxxx".
+	 * We need to correct that so it will overwrite the current instance of the plugin.
+	 *
+	 * @param string $source File source location. Something like "/path/to/workdir/Automattic-jetpack-beta-xxxxxxx/".
+	 * @param string $remote_source Remote file source location. Something like "/path/to/workdir/".
+	 * @return string $source
 	 */
 	public function upgrader_source_selection( $source, $remote_source ) {
 		global $wp_filesystem;

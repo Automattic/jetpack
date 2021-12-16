@@ -4,11 +4,15 @@
  * Testing sync of values for SSO.
  */
 class WP_Test_Jetpack_Sync_SSO extends WP_Test_Jetpack_Sync_Base {
-	public function setUp() {
-		parent::setUp();
+	/**
+	 * Set up.
+	 */
+	public function set_up() {
+		parent::set_up();
+		$this->sender->do_sync();
 		$this->resetCallableAndConstantTimeouts();
 	}
-	
+
 	function test_sync_sso_is_two_step_required_filter_true() {
 		add_filter( 'jetpack_sso_require_two_step', '__return_true' );
 		$this->sender->do_sync();

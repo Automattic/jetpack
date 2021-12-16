@@ -145,6 +145,7 @@ class Changelog implements JsonSerializable {
 	 *
 	 * @return array
 	 */
+	#[\ReturnTypeWillChange]
 	public function jsonSerialize() {
 		return array(
 			'__class__' => static::class,

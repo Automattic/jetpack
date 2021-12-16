@@ -6,7 +6,7 @@ import {
 	JETPACK_PRODUCTS_FETCH_FAIL,
 	JETPACK_PRODUCTS_FETCH_RECEIVE,
 } from 'state/action-types';
-import restApi from 'rest-api';
+import restApi from '@automattic/jetpack-api';
 
 export const fetchProducts = () => {
 	return dispatch => {

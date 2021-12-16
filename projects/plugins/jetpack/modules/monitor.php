@@ -1,4 +1,4 @@
-<?php
+<?php // phpcs:ignore WordPress.Files.FileName.InvalidClassFileName
 /**
  * Module Name: Monitor
  * Module Description: Jetpack’s downtime monitoring will continuously watch your site and alert you the moment that downtime is detected.
@@ -11,6 +11,8 @@
  * Module Tags: Recommended
  * Feature: Security
  * Additional Search Queries: monitor, uptime, downtime, monitoring, maintenance, maintenance mode, offline, site is down, site down, down, repair, error
+ *
+ * @package automattic/jetpack
  */
 
 use Automattic\Jetpack\Connection\Manager as Connection_Manager;
@@ -20,41 +22,39 @@ use Automattic\Jetpack\Connection\Manager as Connection_Manager;
  */
 class Jetpack_Monitor {
 
+	/**
+	 * Name of the module.
+	 *
+	 * @var string Name of module.
+	 */
 	public $module = 'monitor';
 
-	function __construct() {
+	/**
+	 * Constructor.
+	 */
+	public function __construct() {
 		add_action( 'jetpack_modules_loaded', array( $this, 'jetpack_modules_loaded' ) );
 		add_action( 'jetpack_activate_module_monitor', array( $this, 'activate_module' ) );
 	}
 
+	/**
+	 * Runs upon module activation.
+	 *
+	 * @return void
+	 */
 	public function activate_module() {
 		if ( ( new Connection_Manager( 'jetpack' ) )->is_user_connected() ) {
 			self::update_option_receive_jetpack_monitor_notification( true );
 		}
 	}
 
+	/**
+	 * Runs on the jetpack_modules_loaded hook to enable configuation.
+	 *
+	 * @return void
+	 */
 	public function jetpack_modules_loaded() {
 		Jetpack::enable_module_configurable( $this->module );
-	}
-
-	/**
-	 * Send an API request to check if the monitor is active.
-	 *
-	 * @return mixed
-	 *
-	 * @deprecated 8.9.0 The method is not being used since Jetpack 4.2.0, to be removed.
-	 */
-	public function is_active() {
-		_deprecated_function( __METHOD__, 'jetpack-8.9.0' );
-
-		$xml = new Jetpack_IXR_Client( array(
-			'user_id' => get_current_user_id()
-		) );
-		$xml->query( 'jetpack.monitor.isActive' );
-		if ( $xml->isError() ) {
-			wp_die( sprintf( '%s: %s', $xml->getErrorCode(), $xml->getErrorMessage() ) );
-		}
-		return $xml->getResponse();
 	}
 
 	/**
@@ -65,13 +65,15 @@ class Jetpack_Monitor {
 	 * @return bool
 	 */
 	public function update_option_receive_jetpack_monitor_notification( $value ) {
-		$xml = new Jetpack_IXR_Client( array(
-			'user_id' => get_current_user_id()
-		) );
+		$xml = new Jetpack_IXR_Client(
+			array(
+				'user_id' => get_current_user_id(),
+			)
+		);
 		$xml->query( 'jetpack.monitor.setNotifications', (bool) $value );
 
 		if ( $xml->isError() ) {
-			wp_die( sprintf( '%s: %s', $xml->getErrorCode(), $xml->getErrorMessage() ) );
+			wp_die( sprintf( '%s: %s', esc_html( $xml->getErrorCode() ), esc_html( $xml->getErrorMessage() ) ) );
 		}
 
 		// To be used only in Jetpack_Core_Json_Api_Endpoints::get_remote_value.
@@ -90,15 +92,17 @@ class Jetpack_Monitor {
 	 *
 	 * @return boolean|WP_Error
 	 */
-	static function user_receives_notifications( $die_on_error = true ) {
-		$xml = new Jetpack_IXR_Client( array(
-			'user_id' => get_current_user_id()
-		) );
+	public static function user_receives_notifications( $die_on_error = true ) {
+		$xml = new Jetpack_IXR_Client(
+			array(
+				'user_id' => get_current_user_id(),
+			)
+		);
 		$xml->query( 'jetpack.monitor.isUserInNotifications' );
 
 		if ( $xml->isError() ) {
 			if ( $die_on_error ) {
-				wp_die( sprintf( '%s: %s', $xml->getErrorCode(), $xml->getErrorMessage() ) );
+				wp_die( sprintf( '%s: %s', esc_html( $xml->getErrorCode() ), esc_html( $xml->getErrorMessage() ) ), 400 );
 			} else {
 				return new WP_Error( $xml->getErrorCode(), $xml->getErrorMessage(), array( 'status' => 400 ) );
 			}
@@ -107,50 +111,6 @@ class Jetpack_Monitor {
 	}
 
 	/**
-	 * Send an API request to activate the monitor.
-	 *
-	 * @return bool
-	 *
-	 * @deprecated 8.9.0 The method is not being used since Jetpack 4.2.0, to be removed.
-	 */
-	public function activate_monitor() {
-		_deprecated_function( __METHOD__, 'jetpack-8.9.0' );
-
-		$xml = new Jetpack_IXR_Client( array(
-			'user_id' => get_current_user_id()
-		) );
-
-		$xml->query( 'jetpack.monitor.activate' );
-
-		if ( $xml->isError() ) {
-			wp_die( sprintf( '%s: %s', $xml->getErrorCode(), $xml->getErrorMessage() ) );
-		}
-		return true;
-	}
-
-	/**
-	 * Send an API request to deactivate the monitor.
-	 *
-	 * @return bool
-	 *
-	 * @deprecated 8.9.0 The method is not being used since Jetpack 4.2.0, to be removed.
-	 */
-	public function deactivate_monitor() {
-		_deprecated_function( __METHOD__, 'jetpack-8.9.0' );
-
-		$xml = new Jetpack_IXR_Client( array(
-			'user_id' => get_current_user_id()
-		) );
-
-		$xml->query( 'jetpack.monitor.deactivate' );
-
-		if ( $xml->isError() ) {
-			wp_die( sprintf( '%s: %s', $xml->getErrorCode(), $xml->getErrorMessage() ) );
-		}
-		return true;
-	}
-
-	/*
 	 * Returns date of the last downtime.
 	 *
 	 * @since 4.0.0
@@ -172,4 +132,4 @@ class Jetpack_Monitor {
 
 }
 
-new Jetpack_Monitor;
+new Jetpack_Monitor();

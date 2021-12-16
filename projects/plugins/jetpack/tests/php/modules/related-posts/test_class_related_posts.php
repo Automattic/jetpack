@@ -1,11 +1,14 @@
 <?php
 
-require dirname( __FILE__ ) . '/../../../../modules/related-posts.php';
+require __DIR__ . '/../../../../modules/related-posts.php';
 
 class WP_Test_Jetpack_RelatedPosts extends WP_UnitTestCase {
 
-	public function setUp() {
-		parent::setUp();
+	/**
+	 * Set up.
+	 */
+	public function set_up() {
+		parent::set_up();
 
 		Jetpack_RelatedPosts_Module::instance()->action_on_load();
 		add_filter( 'jetpack_relatedposts_filter_options', '__return_null' );
@@ -71,15 +74,25 @@ class WP_Test_Jetpack_RelatedPosts extends WP_UnitTestCase {
 			'size'            => null,
 		);
 
-		$this->assertEquals( $options_after_parse, Jetpack_RelatedPosts::init()->parse_options( array(
-			'enabled'   => false,
-			'show_date' => true,
-		) ) );
+		$this->assertEquals(
+			$options_after_parse,
+			Jetpack_RelatedPosts::init()->parse_options(
+				array(
+					'enabled'   => false,
+					'show_date' => true,
+				)
+			)
+		);
 
 		$options_after_parse['show_date'] = false;
-		$this->assertEquals( $options_after_parse, Jetpack_RelatedPosts::init()->parse_options( array(
-			'show_date' => false,
-		) ) );
+		$this->assertEquals(
+			$options_after_parse,
+			Jetpack_RelatedPosts::init()->parse_options(
+				array(
+					'show_date' => false,
+				)
+			)
+		);
 	}
 
 	/**

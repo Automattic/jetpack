@@ -7,6 +7,7 @@
 
 namespace Automattic\Jetpack\Connection;
 
+use Automattic\Jetpack\Constants;
 use Automattic\Jetpack\Redirect;
 use Automattic\Jetpack\Status;
 use Jetpack_XMLRPC_Server;
@@ -57,6 +58,8 @@ class REST_Connector {
 			'jetpack'
 		);
 
+		$jp_version = Constants::get_constant( 'JETPACK__VERSION' );
+
 		if ( ! $this->connection->has_connected_owner() ) {
 			// Register a site.
 			register_rest_route(
@@ -91,6 +94,50 @@ class REST_Connector {
 				'permission_callback' => '__return_true',
 			)
 		);
+
+		// Disconnect site.
+		register_rest_route(
+			'jetpack/v4',
+			'/connection',
+			array(
+				'methods'             => WP_REST_Server::EDITABLE,
+				'callback'            => __CLASS__ . '::disconnect_site',
+				'permission_callback' => __CLASS__ . '::disconnect_site_permission_check',
+				'args'                => array(
+					'isActive' => array(
+						'description'       => __( 'Set to false will trigger the site to disconnect.', 'jetpack' ),
+						'validate_callback' => function ( $value ) {
+							if ( false !== $value ) {
+								return new WP_Error(
+									'rest_invalid_param',
+									__( 'The isActive argument should be set to false.', 'jetpack' ),
+									array( 'status' => 400 )
+								);
+							}
+
+							return true;
+						},
+						'required'          => true,
+					),
+				),
+			)
+		);
+
+		// We are only registering this route if Jetpack-the-plugin is not active or it's version is ge 10.0-alpha.
+		// The reason for doing so is to avoid conflicts between the Connection package and
+		// older versions of Jetpack, registering the same route twice.
+		if ( empty( $jp_version ) || version_compare( $jp_version, '10.0-alpha', '>=' ) ) {
+			// Get current user connection data.
+			register_rest_route(
+				'jetpack/v4',
+				'/connection/data',
+				array(
+					'methods'             => WP_REST_Server::READABLE,
+					'callback'            => __CLASS__ . '::get_user_connection_data',
+					'permission_callback' => __CLASS__ . '::user_connection_data_permission_check',
+				)
+			);
+		}
 
 		// Get list of plugins that use the Jetpack connection.
 		register_rest_route(
@@ -140,6 +187,10 @@ class REST_Connector {
 						'description' => __( 'URI of the admin page where the user should be redirected after connection flow', 'jetpack' ),
 						'type'        => 'string',
 					),
+					'plugin_slug'        => array(
+						'description' => __( 'Indicates from what plugin the request is coming from', 'jetpack' ),
+						'type'        => 'string',
+					),
 				),
 			)
 		);
@@ -151,7 +202,7 @@ class REST_Connector {
 			array(
 				'methods'             => WP_REST_Server::READABLE,
 				'callback'            => array( $this, 'connection_authorize_url' ),
-				'permission_callback' => __CLASS__ . '::jetpack_register_permission_check',
+				'permission_callback' => __CLASS__ . '::user_connection_data_permission_check',
 				'args'                => array(
 					'no_iframe'    => array(
 						'description' => __( 'Disable In-Place connection flow and go straight to Calypso', 'jetpack' ),
@@ -210,7 +261,8 @@ class REST_Connector {
 	/**
 	 * Handles verification that a site is registered.
 	 *
-	 * @since 5.4.0
+	 * @since 1.7.0
+	 * @since-jetpack 5.4.0
 	 *
 	 * @param WP_REST_Request $request The request sent to the WP REST API.
 	 *
@@ -225,7 +277,8 @@ class REST_Connector {
 	/**
 	 * Handles verification that a site is registered
 	 *
-	 * @since 5.4.0
+	 * @since 1.7.0
+	 * @since-jetpack 5.4.0
 	 *
 	 * @param WP_REST_Request $request The request sent to the WP REST API.
 	 *
@@ -245,7 +298,8 @@ class REST_Connector {
 	/**
 	 * Get connection status for this Jetpack site.
 	 *
-	 * @since 4.3.0
+	 * @since 1.7.0
+	 * @since-jetpack 4.3.0
 	 *
 	 * @param bool $rest_response Should we return a rest response or a simple array. Default to rest response.
 	 *
@@ -275,7 +329,7 @@ class REST_Connector {
 		/**
 		 * Filters the connection status data.
 		 *
-		 * @since 9.6.0
+		 * @since 1.25.0
 		 *
 		 * @param array An array containing the connection status data.
 		 */
@@ -293,7 +347,7 @@ class REST_Connector {
 	/**
 	 * Get plugins connected to the Jetpack.
 	 *
-	 * @since 8.6.0
+	 * @since 1.13.1
 	 *
 	 * @return WP_REST_Response|WP_Error Response or error object, depending on the request result.
 	 */
@@ -317,7 +371,7 @@ class REST_Connector {
 	/**
 	 * Verify that user can view Jetpack admin page and can activate plugins.
 	 *
-	 * @since 8.8.0
+	 * @since 1.15.0
 	 *
 	 * @return bool|WP_Error Whether user has the capability 'activate_plugins'.
 	 */
@@ -344,6 +398,110 @@ class REST_Connector {
 		}
 
 		return new WP_Error( 'invalid_user_permission_activate_plugins', self::get_user_permissions_error_msg(), array( 'status' => rest_authorization_required_code() ) );
+
+	}
+
+	/**
+	 * Permission check for the disconnect site endpoint.
+	 *
+	 * @since 1.30.1
+	 *
+	 * @return bool|WP_Error True if user is able to disconnect the site.
+	 */
+	public static function disconnect_site_permission_check() {
+		if ( current_user_can( 'jetpack_disconnect' ) ) {
+			return true;
+		}
+
+		return new WP_Error(
+			'invalid_user_permission_jetpack_disconnect',
+			self::get_user_permissions_error_msg(),
+			array( 'status' => rest_authorization_required_code() )
+		);
+	}
+
+	/**
+	 * Get miscellaneous user data related to the connection. Similar data available in old "My Jetpack".
+	 * Information about the master/primary user.
+	 * Information about the current user.
+	 *
+	 * @since 1.30.1
+	 *
+	 * @return \WP_REST_Response
+	 */
+	public static function get_user_connection_data() {
+		$connection = new Manager();
+
+		$current_user     = wp_get_current_user();
+		$connection_owner = $connection->get_connection_owner();
+
+		$owner_display_name = false === $connection_owner ? null : $connection_owner->display_name;
+
+		$is_user_connected = $connection->is_user_connected();
+		$is_master_user    = false === $connection_owner ? false : ( $current_user->ID === $connection_owner->ID );
+		$wpcom_user_data   = $connection->get_connected_user_data();
+
+		// Add connected user gravatar to the returned wpcom_user_data.
+		// Probably we shouldn't do this when $wpcom_user_data is false, but we have been since 2016 so
+		// clients probably expect that by now.
+		if ( false === $wpcom_user_data ) {
+			$wpcom_user_data = array();
+		}
+		$wpcom_user_data['avatar'] = ( ! empty( $wpcom_user_data['email'] ) ?
+		get_avatar_url(
+			$wpcom_user_data['email'],
+			array(
+				'size'    => 64,
+				'default' => 'mysteryman',
+			)
+		)
+		: false );
+
+		$current_user_connection_data = array(
+			'isConnected' => $is_user_connected,
+			'isMaster'    => $is_master_user,
+			'username'    => $current_user->user_login,
+			'id'          => $current_user->ID,
+			'wpcomUser'   => $wpcom_user_data,
+			'gravatar'    => get_avatar_url( $current_user->ID, 64, 'mm', '', array( 'force_display' => true ) ),
+			'permissions' => array(
+				'connect'      => current_user_can( 'jetpack_connect' ),
+				'connect_user' => current_user_can( 'jetpack_connect_user' ),
+				'disconnect'   => current_user_can( 'jetpack_disconnect' ),
+			),
+		);
+
+		/**
+		 * Filters the current user connection data.
+		 *
+		 * @since 1.30.1
+		 *
+		 * @param array An array containing the current user connection data.
+		 */
+		$current_user_connection_data = apply_filters( 'jetpack_current_user_connection_data', $current_user_connection_data );
+
+		$response = array(
+			'currentUser'     => $current_user_connection_data,
+			'connectionOwner' => $owner_display_name,
+		);
+		return rest_ensure_response( $response );
+	}
+
+	/**
+	 * Permission check for the connection/data endpoint
+	 *
+	 * @return bool|WP_Error
+	 */
+	public static function user_connection_data_permission_check() {
+		if ( current_user_can( 'jetpack_connect_user' ) ) {
+			return true;
+		}
+
+		return new WP_Error(
+			'invalid_user_permission_user_connection_data',
+			self::get_user_permissions_error_msg(),
+			array( 'status' => rest_authorization_required_code() )
+		);
 
 	}
 
@@ -394,7 +552,7 @@ class REST_Connector {
 	/**
 	 * Verify that user is allowed to disconnect Jetpack.
 	 *
-	 * @since 8.8.0
+	 * @since 1.15.0
 	 *
 	 * @return bool|WP_Error Whether user has the capability 'jetpack_disconnect'.
 	 */
@@ -418,7 +576,7 @@ class REST_Connector {
 	/**
 	 * The endpoint tried to partially or fully reconnect the website to WP.com.
 	 *
-	 * @since 8.8.0
+	 * @since 1.15.0
 	 *
 	 * @return \WP_REST_Response|WP_Error
 	 */
@@ -447,7 +605,7 @@ class REST_Connector {
 				/**
 				 * Action fired when reconnection has completed successfully.
 				 *
-				 * @since 9.0.0
+				 * @since 1.18.1
 				 */
 				do_action( 'jetpack_reconnection_completed' );
 				break;
@@ -462,7 +620,7 @@ class REST_Connector {
 	/**
 	 * Verify that user is allowed to connect Jetpack.
 	 *
-	 * @since 9.7.0
+	 * @since 1.26.0
 	 *
 	 * @return bool|WP_Error Whether user has the capability 'jetpack_connect'.
 	 */
@@ -477,7 +635,8 @@ class REST_Connector {
 	/**
 	 * The endpoint tried to partially or fully reconnect the website to WP.com.
 	 *
-	 * @since 7.7.0
+	 * @since 1.7.0
+	 * @since-jetpack 7.7.0
 	 *
 	 * @param \WP_REST_Request $request The request sent to the WP REST API.
 	 *
@@ -491,6 +650,15 @@ class REST_Connector {
 		if ( isset( $request['from'] ) ) {
 			$this->connection->add_register_request_param( 'from', (string) $request['from'] );
 		}
+
+		if ( ! empty( $request['plugin_slug'] ) ) {
+			// If `plugin_slug` matches a plugin using the connection, let's inform the plugin that is establishing the connection.
+			$connected_plugin = Plugin_Storage::get_one( (string) $request['plugin_slug'] );
+			if ( ! is_wp_error( $connected_plugin ) && ! empty( $connected_plugin ) ) {
+				$this->connection->set_plugin_instance( new Plugin( (string) $request['plugin_slug'] ) );
+			}
+		}
+
 		$result = $this->connection->try_registration();
 
 		if ( is_wp_error( $result ) ) {
@@ -517,7 +685,7 @@ class REST_Connector {
 		 * Filters the response of jetpack/v4/connection/register endpoint
 		 *
 		 * @param array $response Array response
-		 * @since 9.8.0
+		 * @since 1.27.0
 		 */
 		$response_body = apply_filters(
 			'jetpack_register_site_rest_response',
@@ -536,7 +704,7 @@ class REST_Connector {
 	/**
 	 * Get the authorization URL.
 	 *
-	 * @since 9.8.0
+	 * @since 1.27.0
 	 *
 	 * @param \WP_REST_Request $request The request sent to the WP REST API.
 	 *
@@ -565,7 +733,7 @@ class REST_Connector {
 	/**
 	 * The endpoint tried to partially or fully reconnect the website to WP.com.
 	 *
-	 * @since 9.9.0
+	 * @since 1.29.0
 	 *
 	 * @param \WP_REST_Request $request The request sent to the WP REST API.
 	 *
@@ -599,7 +767,7 @@ class REST_Connector {
 		/**
 		 * Fires when the user token gets successfully replaced.
 		 *
-		 * @since 9.9.0
+		 * @since 1.29.0
 		 *
 		 * @param int $user_id User ID.
 		 * @param string $token New user token.
@@ -614,9 +782,31 @@ class REST_Connector {
 	}
 
 	/**
+	 * Disconnects Jetpack from the WordPress.com Servers
+	 *
+	 * @since 1.30.1
+	 *
+	 * @return bool|WP_Error True if Jetpack successfully disconnected.
+	 */
+	public static function disconnect_site() {
+		$connection = new Manager();
+
+		if ( $connection->is_connected() ) {
+			$connection->disconnect_site();
+			return rest_ensure_response( array( 'code' => 'success' ) );
+		}
+
+		return new WP_Error(
+			'disconnect_failed',
+			esc_html__( 'Failed to disconnect the site as it appears already disconnected.', 'jetpack' ),
+			array( 'status' => 400 )
+		);
+	}
+
+	/**
 	 * Verify that the API client is allowed to replace user token.
 	 *
-	 * @since 9.9.0
+	 * @since 1.29.0
 	 *
 	 * @return bool|WP_Error.
 	 */
@@ -629,7 +819,7 @@ class REST_Connector {
 	/**
 	 * Change the connection owner.
 	 *
-	 * @since 9.9.0
+	 * @since 1.29.0
 	 *
 	 * @param WP_REST_Request $request The request sent to the WP REST API.
 	 *
@@ -654,8 +844,9 @@ class REST_Connector {
 	/**
 	 * Check that user has permission to change the master user.
 	 *
-	 * @since 6.2.0
-	 * @since 7.7.0 Update so that any user with jetpack_disconnect privs can set owner.
+	 * @since 1.7.0
+	 * @since-jetpack 6.2.0
+	 * @since-jetpack 7.7.0 Update so that any user with jetpack_disconnect privs can set owner.
 	 *
 	 * @return bool|WP_Error True if user is able to change master user.
 	 */

@@ -406,19 +406,6 @@ describe( 'bin/eslint-changed.js', () => {
 			);
 		} );
 
-		it( 'Fails gracefully without ESLint', async () => {
-			const proc = await runEslintChanged( [ '--format=json', '--git' ], {
-				cwd: tmpdir,
-				env: { GIT: 'true', ESLINT: 'this-command-really-should-not-exist-either' },
-			} );
-			const data = await awaitExit( proc );
-			assert.strictEqual( data.exitCode, 1, 'Exit code is 1' );
-			assert.strictEqual(
-				data.stderr,
-				'error: failed to execute ESLint as `this-command-really-should-not-exist-either`. Use environment variable `ESLINT` to override.\n'
-			);
-		} );
-
 		it( 'Works in git mode, --git-staged is the default', async () => {
 			await mktmpdirgit( ...standardRepo );
 
@@ -449,6 +436,7 @@ describe( 'bin/eslint-changed.js', () => {
 						},
 					],
 					errorCount: 1,
+					fatalErrorCount: 0,
 					warningCount: 0,
 					fixableErrorCount: 1,
 					fixableWarningCount: 0,
@@ -491,6 +479,7 @@ describe( 'bin/eslint-changed.js', () => {
 						},
 					],
 					errorCount: 1,
+					fatalErrorCount: 0,
 					warningCount: 0,
 					fixableErrorCount: 1,
 					fixableWarningCount: 0,
@@ -533,6 +522,7 @@ describe( 'bin/eslint-changed.js', () => {
 						},
 					],
 					errorCount: 1,
+					fatalErrorCount: 0,
 					warningCount: 0,
 					fixableErrorCount: 1,
 					fixableWarningCount: 0,
@@ -571,6 +561,7 @@ describe( 'bin/eslint-changed.js', () => {
 						},
 					],
 					errorCount: 1,
+					fatalErrorCount: 0,
 					warningCount: 0,
 					fixableErrorCount: 0,
 					fixableWarningCount: 0,
@@ -623,6 +614,7 @@ describe( 'bin/eslint-changed.js', () => {
 						},
 					],
 					errorCount: 1,
+					fatalErrorCount: 0,
 					warningCount: 0,
 					fixableErrorCount: 0,
 					fixableWarningCount: 0,
@@ -649,6 +641,7 @@ describe( 'bin/eslint-changed.js', () => {
 						},
 					],
 					errorCount: 1,
+					fatalErrorCount: 0,
 					warningCount: 0,
 					fixableErrorCount: 1,
 					fixableWarningCount: 0,
@@ -690,6 +683,7 @@ describe( 'bin/eslint-changed.js', () => {
 					filePath: path.join( tmpdir, '1.js' ),
 					messages: [],
 					errorCount: 0,
+					fatalErrorCount: 0,
 					warningCount: 0,
 					fixableErrorCount: 0,
 					fixableWarningCount: 0,
@@ -723,6 +717,7 @@ describe( 'bin/eslint-changed.js', () => {
 						},
 					],
 					errorCount: 2,
+					fatalErrorCount: 0,
 					warningCount: 0,
 					fixableErrorCount: 0,
 					fixableWarningCount: 0,
@@ -779,6 +774,7 @@ describe( 'bin/eslint-changed.js', () => {
 						},
 					],
 					errorCount: 1,
+					fatalErrorCount: 0,
 					warningCount: 0,
 					fixableErrorCount: 0,
 					fixableWarningCount: 0,

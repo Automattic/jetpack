@@ -13,7 +13,6 @@ const log = console.log;
  * @param {string} project - The project's name.
  * @param {string} packageManager - Which package manager.
  * @param {boolean} output - Should an information message be outputted.
- *
  * @returns {object} JS object of the json data.
  */
 function readJson( project, packageManager, output ) {
@@ -37,7 +36,6 @@ function readJson( project, packageManager, output ) {
  * @param {object} json - JSON to write.
  * @param {string} pkgDir - The project's directory.
  * @param {boolean} output - Should an information message be outputted.
- *
  */
 function writeJson( project, packageManager, json, pkgDir, output ) {
 	const file = packageManager + '.json';
@@ -54,7 +52,6 @@ function writeJson( project, packageManager, json, pkgDir, output ) {
  *
  * @param {string} project - The project's name.
  * @param {boolean} output - Should an information message be outputted.
- *
  * @returns {object} Composer.json as a JS object.
  */
 export function readComposerJson( project, output = true ) {
@@ -66,7 +63,6 @@ export function readComposerJson( project, output = true ) {
  *
  * @param {string} project - The project's name.
  * @param {boolean} output - Should an information message be outputted.
- *
  * @returns {object} Package.json as a JS object.
  */
 export function readPackageJson( project, output = true ) {
@@ -80,7 +76,6 @@ export function readPackageJson( project, output = true ) {
  * @param {object} json - Object to convert.
  * @param {string} pkgDir - The project's directory.
  * @param {boolean} output - Should an information message be outputted.
- *
  * @returns {void}
  */
 export function writeComposerJson( project, json, pkgDir, output = true ) {
@@ -94,7 +89,6 @@ export function writeComposerJson( project, json, pkgDir, output = true ) {
  * @param {object} json - Object to convert.
  * @param {string} pkgDir - The project's directory.
  * @param {boolean} output - Should an information message be outputted.
- *
  * @returns {void}
  */
 export function writePackageJson( project, json, pkgDir, output = true ) {
@@ -106,7 +100,6 @@ export function writePackageJson( project, json, pkgDir, output = true ) {
  *
  * @param {string} data - string of JSON data.
  * @param {boolean }output - should the console output a message if it can't parse the JSON.
- *
  * @returns {object|undefined} JSON Object or undefined if unable to read.
  */
 function parseJSON( data, output = false ) {
@@ -125,7 +118,6 @@ function parseJSON( data, output = false ) {
  *
  * @param {object} data - data object.
  * @param {boolean} output - should the console output a message if it can't parse the JSON.
- *
  * @returns {string|undefined} JSON string or undefined if unable to read.
  */
 function createJSON( data, output = false ) {

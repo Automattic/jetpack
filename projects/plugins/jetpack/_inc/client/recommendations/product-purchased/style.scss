@@ -1,0 +1,40 @@
+@import '_inc/client/scss/variables/_colors.scss';
+@import '../../scss/mixin_breakpoint.scss';
+@import '../../scss/functions/rem';
+
+.jp-recommendations-product-purchased {
+	display: flex;
+	flex-direction: column;
+
+	margin: 0 16px 32px;
+
+	height: 100%;
+
+	@include breakpoint( '>480px' ) {
+		margin-left: 32px;
+		margin-right: 32px;
+	}
+}
+
+.jp-recommendations-product-purchased__features {
+	margin: 0 0 32px;
+}
+
+.jp-recommendations-product-purchased__feature {
+	display: flex;
+	align-items: center;
+}
+
+.jp-recommendations-product-purchased svg {
+	margin-right: 10px;
+
+	fill: $color-plan;
+}
+
+.jp-recommendations-product-purchased__next {
+	align-self: center;
+
+	@include breakpoint( '>480px' ) {
+		margin-top: auto;
+	}
+}

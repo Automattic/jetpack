@@ -41,7 +41,6 @@ export function hideApp( unhiddenElement ) {
  * Determines if the passed element should not be hidden from screen readers.
  *
  * @param {HTMLElement} element  - The element that should be checked.
- *
  * @returns {boolean} Whether the element should not be hidden from screen-readers.
  */
 export function elementShouldBeHidden( element ) {

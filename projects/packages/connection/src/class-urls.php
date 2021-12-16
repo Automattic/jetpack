@@ -148,7 +148,8 @@ class Urls {
 		/**
 		 * Allows overriding of the home_url value that is synced back to WordPress.com.
 		 *
-		 * @since 5.2.0
+		 * @since 1.7.0
+		 * @since-jetpack 5.2.0
 		 *
 		 * @param string $home_url
 		 */
@@ -166,7 +167,8 @@ class Urls {
 		/**
 		 * Allows overriding of the site_url value that is synced back to WordPress.com.
 		 *
-		 * @since 5.2.0
+		 * @since 1.7.0
+		 * @since-jetpack 5.2.0
 		 *
 		 * @param string $site_url
 		 */

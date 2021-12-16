@@ -7,6 +7,7 @@ import classNames from 'classnames';
 import { connect } from 'react-redux';
 import { includes } from 'lodash';
 import { __, _x } from '@wordpress/i18n';
+import { getRedirectUrl } from '@automattic/jetpack-components';
 
 /**
  * Internal dependencies
@@ -15,7 +16,6 @@ import analytics from 'lib/analytics';
 import Button from 'components/button';
 import Card from 'components/card';
 import { getModule as _getModule } from 'state/modules';
-import getRedirectUrl from 'lib/jp-redirect';
 import { getSiteRawUrl, getSiteAdminUrl, userCanManageModules } from 'state/initial-state';
 import { isOfflineMode } from 'state/connection';
 import { ModuleToggle } from 'components/module-toggle';

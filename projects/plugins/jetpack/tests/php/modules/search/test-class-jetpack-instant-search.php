@@ -10,8 +10,6 @@ if ( defined( 'IS_WPCOM' ) && IS_WPCOM ) {
 }
 
 require_jetpack_file( 'modules/search/class.jetpack-search.php' );
-require_jetpack_file( 'modules/search/class.jetpack-search-helpers.php' );
-require_jetpack_file( 'modules/search/class-jetpack-search-options.php' );
 require_jetpack_file( 'modules/search/class-jetpack-instant-search.php' );
 
 /**
@@ -31,8 +29,8 @@ class WP_Test_Jetpack_Instant_Search extends WP_UnitTestCase {
 	/**
 	 * Setup test instance
 	 */
-	public function setUp() {
-		parent::setUp();
+	public function set_up() {
+		parent::set_up();
 		static::$instant_search = Jetpack_Instant_Search::instance();
 	}
 

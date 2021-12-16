@@ -10,14 +10,14 @@ import { connect } from 'react-redux';
  */
 import { createInterpolateElement } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
+import { getRedirectUrl } from '@automattic/jetpack-components';
 
 /**
  * Internal dependencies
  */
 import DashItem from 'components/dash-item';
 import { getProtectCount } from 'state/at-a-glance';
-import getRedirectUrl from 'lib/jp-redirect';
-import { isOfflineMode, hasConnectedOwner, authorizeUserInPlace } from 'state/connection';
+import { isOfflineMode, hasConnectedOwner, connectUser } from 'state/connection';
 import { isModuleAvailable } from 'state/modules';
 import { numberFormat } from 'components/number-format';
 import QueryProtectCount from 'components/data/query-dash-protect';
@@ -28,12 +28,12 @@ class DashProtect extends Component {
 		protectCount: PropTypes.any.isRequired,
 		isModuleAvailable: PropTypes.bool.isRequired,
 		hasConnectedOwner: PropTypes.bool.isRequired,
-		authorizeUserInPlace: PropTypes.func.isRequired,
+		connectUser: PropTypes.func.isRequired,
 	};
 
 	activateProtect = () => this.props.updateOptions( { protect: true } );
 
-	connect = () => this.props.authorizeUserInPlace();
+	connect = () => this.props.connectUser();
 
 	getContent() {
 		const labelName = __( 'Protect', 'jetpack' );
@@ -142,8 +142,8 @@ export default connect(
 		hasConnectedOwner: hasConnectedOwner( state ),
 	} ),
 	dispatch => ( {
-		authorizeUserInPlace: () => {
-			return dispatch( authorizeUserInPlace() );
+		connectUser: () => {
+			return dispatch( connectUser() );
 		},
 	} )
 )( DashProtect );

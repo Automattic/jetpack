@@ -11,15 +11,17 @@ class WP_Test_Jetpack_AMP_Support extends WP_UnitTestCase {
 	/**
 	 * Setup tests.
 	 */
-	public function setUp() {
+	public function set_up() {
+		parent::set_up();
 		add_filter( 'jetpack_is_amp_request', '__return_true' );
 	}
 
 	/**
 	 * Clean up tests.
 	 */
-	public function tearDown() {
+	public function tear_down() {
 		remove_filter( 'jetpack_is_amp_request', '__return_true' );
+		parent::tear_down();
 	}
 
 	/**

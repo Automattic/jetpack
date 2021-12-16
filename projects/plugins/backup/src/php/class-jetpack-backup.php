@@ -9,12 +9,19 @@ if ( ! defined( 'ABSPATH' ) ) {
 	exit;
 }
 
+use Automattic\Jetpack\Admin_UI\Admin_Menu;
+use Automattic\Jetpack\Assets;
+use Automattic\Jetpack\Connection\Initial_State as Connection_Initial_State;
+use Automattic\Jetpack\Connection\Manager as Connection_Manager;
 use Automattic\Jetpack\Connection\Rest_Authentication as Connection_Rest_Authentication;
+use Automattic\Jetpack\My_Jetpack\Initializer as My_Jetpack_Initializer;
+use Automattic\Jetpack\Status;
 
 /**
  * Class Jetpack_Backup
  */
 class Jetpack_Backup {
+
 	/**
 	 * Constructor.
 	 */
@@ -24,13 +31,15 @@ class Jetpack_Backup {
 
 		add_action( 'rest_api_init', array( $this, 'register_rest_routes' ) );
 
-		add_action(
-			'admin_menu',
-			function () {
-				$page_suffix = $this->admin_menu();
-				add_action( 'load-' . $page_suffix, array( $this, 'admin_init' ) );
-			}
+		$page_suffix = Admin_Menu::add_menu(
+			__( 'Jetpack Backup', 'jetpack-backup' ),
+			_x( 'Backup', 'The Jetpack Backup product name, without the Jetpack prefix', 'jetpack-backup' ),
+			'manage_options',
+			'jetpack-backup',
+			array( $this, 'plugin_settings_page' ),
+			99
 		);
+		add_action( 'load-' . $page_suffix, array( $this, 'admin_init' ) );
 
 		// Init Jetpack packages and ConnectionUI.
 		add_action(
@@ -49,11 +58,24 @@ class Jetpack_Backup {
 				// Sync package.
 				$config->ensure( 'sync' );
 
-				// Connection Manager UI.
-				Automattic\Jetpack\ConnectionUI\Admin::init();
+				// Identity crisis package.
+				$config->ensure( 'identity_crisis' );
 			},
 			1
 		);
+
+		// Add "Settings" link to plugins page.
+		add_filter(
+			'plugin_action_links_' . JETPACK_BACKUP_PLUGIN_FOLDER . '/jetpack-backup.php',
+			function ( $actions ) {
+				$settings_link = '<a href="' . esc_url( admin_url( 'admin.php?page=jetpack-backup' ) ) . '">' . __( 'Settings', 'jetpack-backup' ) . '</a>';
+				array_unshift( $actions, $settings_link );
+
+				return $actions;
+			}
+		);
+
+		My_Jetpack_Initializer::init();
 	}
 
 	/**
@@ -67,53 +89,27 @@ class Jetpack_Backup {
 	 * Enqueue plugin admin scripts and styles.
 	 */
 	public function enqueue_admin_scripts() {
-		$build_assets = require_once JETPACK_BACKUP_PLUGIN_DIR . '/build/index.asset.php';
+		$status  = new Status();
+		$manager = new Connection_Manager( 'jetpack-backup' );
 
-		// Main JS file.
-		wp_register_script(
-			'jetpack-backup-script',
-			plugins_url( 'build/index.js', JETPACK_BACKUP_PLUGIN_ROOT_FILE ),
-			$build_assets['dependencies'],
-			$build_assets['version'],
-			true
-		);
-		wp_enqueue_script( 'jetpack-backup-script' );
-		// Initial JS state including JP Connection data.
-		wp_add_inline_script( 'jetpack-backup-script', $this->get_initial_state(), 'before' );
-
-		// Translation assets.
-		wp_set_script_translations( 'jetpack-backup-script-translations', 'jetpack-backup' );
-
-		// Main CSS file.
-		wp_enqueue_style(
-			'jetpack-backup-style',
-			plugins_url( 'build/index.css', JETPACK_BACKUP_PLUGIN_ROOT_FILE ),
-			array( 'wp-components' ),
-			$build_assets['version']
-		);
-		// RTL CSS file.
-		wp_style_add_data(
-			'jetpack-backup-style',
-			'rtl',
-			plugins_url( 'build/index.rtl.css', JETPACK_BACKUP_PLUGIN_ROOT_FILE )
-		);
-	}
-
-	/**
-	 * Plugin admin menu setup.
-	 *
-	 * @return string The toplevel plugin admin page hook_suffix.
-	 */
-	public function admin_menu() {
-		return add_menu_page(
-			__( 'Jetpack Backup', 'jetpack-backup' ),
-			__( 'Backup', 'jetpack-backup' ),
-			'manage_options',
+		Assets::register_script(
 			'jetpack-backup',
-			array( $this, 'plugin_settings_page' ),
-			'dashicons-image-rotate',
-			99
+			'build/index.js',
+			JETPACK_BACKUP_PLUGIN_ROOT_FILE,
+			array(
+				'in_footer'  => true,
+				'textdomain' => 'jetpack-backup',
+			)
 		);
+		Assets::enqueue_script( 'jetpack-backup' );
+		// Initial JS state including JP Connection data.
+		wp_add_inline_script( 'jetpack-backup', $this->get_initial_state(), 'before' );
+		wp_add_inline_script( 'jetpack-backup', Connection_Initial_State::render(), 'before' );
+
+		// Load script for analytics.
+		if ( ! $status->is_offline_mode() && $manager->is_connected() ) {
+			wp_enqueue_script( 'jp-tracks', '//stats.wp.com/w.js', array(), gmdate( 'YW' ), true );
+		}
 	}
 
 	/**
@@ -234,5 +230,32 @@ class Jetpack_Backup {
 		return rest_ensure_response(
 			json_decode( $response['body'], true )
 		);
+	}
+
+	/**
+	 * Redirects to plugin page when the plugin is activated
+	 *
+	 * @access public
+	 * @static
+	 *
+	 * @param string $plugin Path to the plugin file relative to the plugins directory.
+	 */
+	public static function plugin_activation( $plugin ) {
+		if ( JETPACK_BACKUP_PLUGIN_ROOT_FILE_RELATIVE_PATH === $plugin ) {
+			wp_safe_redirect( esc_url( admin_url( 'admin.php?page=jetpack-backup' ) ) );
+			exit;
+		}
+	}
+
+	/**
+	 * Removes plugin from the connection manager
+	 * If it's the last plugin using the connection, the site will be disconnected.
+	 *
+	 * @access public
+	 * @static
+	 */
+	public static function plugin_deactivation() {
+		$manager = new Connection_Manager( 'jetpack-backup' );
+		$manager->remove_connection();
 	}
 }

@@ -22,5 +22,7 @@
 	.mapboxgl-ctrl-group button {
 		// Prevents theme styles adding a border radius to all buttons affecting the Map block controls too.
 		border-radius: 0;
+		// Prevents theme styles from affecting the background color of the button.
+		background-color: transparent !important;
 	}
 }

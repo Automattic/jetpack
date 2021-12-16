@@ -14,7 +14,6 @@ const getAssociatedPullRequest = require( '../../get-associated-pull-request' );
  * @param {string} owner   - Repository owner.
  * @param {string} repo    - Repository name.
  * @param {string} number  - PR number.
- *
  * @returns {Promise<string>} Promise resolving to a string.
  */
 async function getMatticBotComment( octokit, owner, repo, number ) {
@@ -47,7 +46,6 @@ async function getMatticBotComment( octokit, owner, repo, number ) {
  * @param {string} owner   - Repository owner.
  * @param {string} repo    - Repository name.
  * @param {string} number  - PR number.
- *
  * @returns {Promise<boolean>} Promise resolving to boolean.
  */
 async function hasReminderComment( octokit, owner, repo, number ) {

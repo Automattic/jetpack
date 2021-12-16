@@ -18,7 +18,6 @@ import apiFetch from '@wordpress/api-fetch';
  *     .then( () => setAttributes( url ) )
  *     .catch( () => setErrorNotice() );
  * };
- *
  * @param {string} url - The URL to test.
  * @param {Function} [setIsResolvingUrl=noop] - An optional function to track the resolving state. Typically used to update the calling component's state.
  * @returns {Promise} Resolve if the URL is valid, reject otherwise.

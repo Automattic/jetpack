@@ -35,7 +35,7 @@ class Constants {
 
 	/**
 	 * Checks if a "constant" has been set in constants Manager
-	 * and has the value of true
+	 * and has a truthy value (e.g. not null, not false, not 0, any string).
 	 *
 	 * @param string $name The name of the constant.
 	 *
@@ -80,7 +80,7 @@ class Constants {
 		/**
 		 * Filters the value of the constant.
 		 *
-		 * @since 8.5.0
+		 * @since 1.2.0
 		 *
 		 * @param null The constant value to be filtered. The default is null.
 		 * @param String $name The constant name.

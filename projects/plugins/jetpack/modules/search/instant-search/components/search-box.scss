@@ -50,6 +50,7 @@ input.jetpack-instant-search__box-input.search-field {
 	justify-content: center;
 	height: 60px;
 	width: 60px;
+	flex-shrink: 0;
 
 	svg {
 		fill: $color-text-lighter;
@@ -79,7 +80,6 @@ input.jetpack-instant-search__box-input.search-field {
 	}
 }
 
-/* apply to all the inputs to try and pick up any theme styling */
 .jetpack-instant-search__box input[type='search'].jetpack-instant-search__box-input {
 	width: 100%;
 	height: 52px;
@@ -97,13 +97,13 @@ input.jetpack-instant-search__box-input.search-field {
 
 	&::-webkit-search-results-button,
 	&::-webkit-search-results-decoration {
+		appearance: none;
 		display: initial;
-		-webkit-appearance: searchfield;
+		-webkit-appearance: none;
 	}
 
-	&::-webkit-search-decoration,
 	&::-webkit-search-cancel-button {
-		-webkit-appearance: none;
+		display: none;
 	}
 
 	&::-ms-clear,

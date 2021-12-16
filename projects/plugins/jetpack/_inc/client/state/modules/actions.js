@@ -26,7 +26,7 @@ import {
 	JETPACK_MODULE_UPDATE_OPTIONS_SUCCESS,
 } from 'state/action-types';
 import { getModule } from 'state/modules/reducer';
-import restApi from 'rest-api';
+import restApi from '@automattic/jetpack-api';
 
 export const fetchModules = () => {
 	return dispatch => {

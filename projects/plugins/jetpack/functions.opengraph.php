@@ -20,20 +20,6 @@ add_action( 'web_stories_story_head', 'jetpack_og_tags' );
 function jetpack_og_tags() {
 	global $post;
 	$data = $post; // so that we don't accidentally explode the global.
-	/**
-	 * Allow Jetpack to output Open Graph Meta Tags.
-	 *
-	 * @module sharedaddy, publicize
-	 *
-	 * @since 2.0.0
-	 * @deprecated 2.0.3 Duplicative filter. Use `jetpack_enable_open_graph`.
-	 *
-	 * @param bool true Should Jetpack's Open Graph Meta Tags be enabled. Default to true.
-	 */
-	if ( false === apply_filters( 'jetpack_enable_opengraph', true ) ) {
-		_deprecated_function( 'jetpack_enable_opengraph', '2.0.3', 'jetpack_enable_open_graph' );
-		return;
-	}
 
 	$is_amp_response = ( class_exists( 'Jetpack_AMP_Support' ) && Jetpack_AMP_Support::is_amp_request() );
 
@@ -196,7 +182,8 @@ function jetpack_og_tags() {
 		if ( ! empty( $image_info['height'] ) ) {
 			$tags['og:image:height'] = (int) $image_info['height'];
 		}
-		if ( ! empty( $image_info['alt_text'] ) ) {
+		// If we have an image, add the alt text even if it's empty.
+		if ( ! empty( $image_info['src'] ) && isset( $image_info['alt_text'] ) ) {
 			$tags['og:image:alt'] = esc_attr( $image_info['alt_text'] );
 		}
 	}
@@ -246,14 +233,18 @@ function jetpack_og_tags() {
 	unset( $tags['og:image:secure_url'] );
 	$secure_image_num = 0;
 
+	$allowed_empty_tags = array(
+		'og:image:alt',
+	);
+
 	foreach ( (array) $tags as $tag_property => $tag_content ) {
 		// to accommodate multiple images.
 		$tag_content = (array) $tag_content;
 		$tag_content = array_unique( $tag_content );
 
 		foreach ( $tag_content as $tag_content_single ) {
-			if ( empty( $tag_content_single ) ) {
-				continue; // Don't ever output empty tags.
+			if ( empty( $tag_content_single ) && ! in_array( $tag_property, $allowed_empty_tags, true ) ) {
+				continue; // Only allow certain empty tags.
 			}
 
 			switch ( $tag_property ) {
@@ -322,14 +313,15 @@ function jetpack_og_tags() {
  */
 function jetpack_og_get_image( $width = 200, $height = 200, $deprecated = null ) {
 	if ( ! empty( $deprecated ) ) {
-		_deprecated_argument( __FUNCTION__, '6.6.0' );
+		_deprecated_argument( __FUNCTION__, 'jetpack-6.6.0' );
 	}
 	$image = array();
 
 	if ( is_singular() && ! is_home() ) {
 		// Grab obvious image if post is an attachment page for an image.
 		if ( is_attachment( get_the_ID() ) && 'image' === substr( get_post_mime_type(), 0, 5 ) ) {
-			$image['src'] = wp_get_attachment_url( get_the_ID() );
+			$image['src']      = wp_get_attachment_url( get_the_ID() );
+			$image['alt_text'] = Jetpack_PostImages::get_alt_text( get_the_ID() );
 		}
 
 		// Attempt to find something good for this post using our generalized PostImages code.
@@ -355,12 +347,13 @@ function jetpack_og_get_image( $width = 200, $height = 200, $deprecated = null )
 	} elseif ( is_author() ) {
 		$author = get_queried_object();
 		if ( is_a( $author, 'WP_User' ) ) {
-			$image['src'] = get_avatar_url(
+			$image['src']      = get_avatar_url(
 				$author->user_email,
 				array(
 					'size' => $width,
 				)
 			);
+			$image['alt_text'] = $author->display_name;
 		}
 	}
 
@@ -382,9 +375,10 @@ function jetpack_og_get_image( $width = 200, $height = 200, $deprecated = null )
 			isset( $logo[0], $logo[1], $logo[2] )
 			&& ( _jetpack_og_get_image_validate_size( $logo[1], $logo[2], $width, $height ) )
 		) {
-			$image['src']    = $logo[0];
-			$image['width']  = $logo[1];
-			$image['height'] = $logo[2];
+			$image['src']      = $logo[0];
+			$image['width']    = $logo[1];
+			$image['height']   = $logo[2];
+			$image['alt_text'] = Jetpack_PostImages::get_alt_text( $image_id );
 		}
 	}
 
@@ -396,9 +390,10 @@ function jetpack_og_get_image( $width = 200, $height = 200, $deprecated = null )
 			isset( $icon[0], $icon[1], $icon[2] )
 			&& ( _jetpack_og_get_image_validate_size( $icon[1], $icon[2], $width, $height ) )
 		) {
-			$image['src']    = $icon[0];
-			$image['width']  = $icon[1];
-			$image['height'] = $icon[2];
+			$image['src']      = $icon[0];
+			$image['width']    = $icon[1];
+			$image['height']   = $icon[2];
+			$image['alt_text'] = Jetpack_PostImages::get_alt_text( $image_id );
 		}
 	}
 
@@ -412,6 +407,18 @@ function jetpack_og_get_image( $width = 200, $height = 200, $deprecated = null )
 		 * @param string $str Default Image URL.
 		 */
 		$image['src'] = apply_filters( 'jetpack_open_graph_image_default', 'https://s0.wp.com/i/blank.jpg' );
+	}
+
+	// If we didn't get an explicit alt tag from the image, set a default.
+	if ( empty( $image['alt_text'] ) ) {
+		/**
+		 * Filter the default Open Graph image alt text, used when the Open Graph image from the post does not have an alt text.
+		 *
+		 * @since 10.4
+		 *
+		 * @param string $str Default Open Graph image alt text.
+		 */
+		$image['alt_text'] = apply_filters( 'jetpack_open_graph_image_default_alt_text', '' );
 	}
 
 	return $image;

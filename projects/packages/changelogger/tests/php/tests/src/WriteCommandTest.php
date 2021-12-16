@@ -932,7 +932,7 @@ class WriteCommandTest extends CommandTestCase {
 				WriteCommand::FATAL_EXIT,
 				array( '{^Failed to determine new version: Invalid prerelease data$}m' ),
 			),
-			'Version in changelog valid'                   => array(
+			'Version in changelog invalid'                 => array(
 				array(),
 				array(
 					'changelog' => "## 2.0 - 2021-02-24\n\nThis is the \"problem in the future\" that comes of ignoring the warning about an invalid --use-version...\n",
@@ -941,7 +941,7 @@ class WriteCommandTest extends CommandTestCase {
 				WriteCommand::FATAL_EXIT,
 				array( '{^Changelog file contains invalid version 2\.0! Use --use-version to specify the new version\.$}m' ),
 			),
-			'Version in changelog valid, amending'         => array(
+			'Version in changelog invalid, amending'       => array(
 				array( '--amend' => true ),
 				array(
 					'changelog' => "## 2.0 - 2021-02-24\n\nThis is the \"problem in the future\" that comes of ignoring the warning about an invalid --use-version...\n\n## 1.0.0 - 2021-02-23\n\n- Initial release.\n",
@@ -1013,6 +1013,40 @@ class WriteCommandTest extends CommandTestCase {
 				array( '{^$}' ),
 				true,
 				'changelog' => "# Changelog\n\n## 1.0.1 - $date\n### Fixed\n- Fixed a thing.\n\n## 1.0 - 2021-02-24\n\n- Initial release\n",
+			),
+
+			'Writing a new prerelease based on an old one' => array(
+				array( '--prerelease' => 'beta.2' ),
+				array(
+					'changelog' => "# Changelog\n\n## 1.0.1-beta - 2021-10-12\n\n- Beta\n\n## 1.0.0 - 2021-02-24\n\n- Initial release\n",
+				),
+				array(),
+				0,
+				array( '{^$}' ),
+				true,
+				'changelog' => "# Changelog\n\n## 1.0.1-beta.2 - $date\n### Fixed\n- Fixed a thing.\n\n## 1.0.1-beta - 2021-10-12\n\n- Beta\n\n## 1.0.0 - 2021-02-24\n\n- Initial release\n",
+			),
+			'Writing a new prerelease based on an old one (2)' => array(
+				array( '--prerelease' => 'beta.2' ),
+				array(
+					'changelog' => "# Changelog\n\n## 2.0.0-beta - 2021-10-12\n\n- Beta\n\n## 1.0.0 - 2021-02-24\n\n- Initial release\n",
+				),
+				array(),
+				0,
+				array( '{^$}' ),
+				true,
+				'changelog' => "# Changelog\n\n## 2.0.0-beta.2 - $date\n### Fixed\n- Fixed a thing.\n\n## 2.0.0-beta - 2021-10-12\n\n- Beta\n\n## 1.0.0 - 2021-02-24\n\n- Initial release\n",
+			),
+			'Writing a new prerelease based on an old one (3)' => array(
+				array( '--prerelease' => 'alpha' ),
+				array(
+					'changelog' => "# Changelog\n\n## 1.0.1-beta - 2021-10-12\n\n- Beta\n\n## 1.0.0 - 2021-02-24\n\n- Initial release\n",
+				),
+				array(),
+				0,
+				array( '{^$}' ),
+				true,
+				'changelog' => "# Changelog\n\n## 1.0.2-alpha - $date\n### Fixed\n- Fixed a thing.\n\n## 1.0.1-beta - 2021-10-12\n\n- Beta\n\n## 1.0.0 - 2021-02-24\n\n- Initial release\n",
 			),
 		);
 	}

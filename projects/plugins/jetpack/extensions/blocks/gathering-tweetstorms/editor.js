@@ -2,7 +2,7 @@
  * External dependencies
  */
 import { addFilter } from '@wordpress/hooks';
-import { BlockControls } from '@wordpress/editor';
+import { BlockControls } from '@wordpress/block-editor';
 import {
 	withNotices,
 	ToolbarButton,
@@ -24,7 +24,6 @@ import './editor.scss';
  * to import the tweetstorm.
  *
  * @param {object} blockSettings - The settings of the block being registered.
- *
  * @returns {object} The blockSettings, with our extra functionality inserted.
  */
 const addTweetstormToTweets = blockSettings => {

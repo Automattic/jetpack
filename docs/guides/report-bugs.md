@@ -24,7 +24,7 @@ Not mentioned in any of those places? Not caused by a conflict with another plug
 
 ### 3. Submit a detailed, precise bug report
 
-The more specific your ticket is, the easier it will be for someone to zap the bug. Log in to GitHub, [open a new issue](https://github.com/Automattic/jetpack/issues/new), and be sure to fill out all the relevant details: a concise summary and a clear description are key. If it's been mentioned by someone else, like on the [Jetpack Support Forums](http://wordpress.org/support/plugin/jetpack), include a link.
+The more specific your ticket is, the easier it will be for someone to zap the bug. Log in to GitHub, [open a new issue](https://github.com/Automattic/jetpack/issues/new?assignees=&labels=%5BType%5D+Bug&template=bug-report.yml), and be sure to fill out all the relevant details: a concise summary and a clear description are key. If it's been mentioned by someone else, like on the [Jetpack Support Forums](http://wordpress.org/support/plugin/jetpack), include a link.
 
 Here's a sample of what a helpful summary looks like:
 

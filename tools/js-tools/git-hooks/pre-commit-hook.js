@@ -1,6 +1,7 @@
 #!/usr/bin/env node
 
 /* eslint-disable no-console, no-process-exit */
+const isJetpackDraftMode = require( './jetpack-draft' );
 const execSync = require( 'child_process' ).execSync;
 const spawnSync = require( 'child_process' ).spawnSync;
 const chalk = require( 'chalk' );
@@ -47,7 +48,8 @@ function loadEslintExcludeList() {
 function parseGitDiffToPathArray( command ) {
 	return execSync( command, { encoding: 'utf8' } )
 		.split( '\n' )
-		.map( name => name.trim() );
+		.map( name => name.trim() )
+		.filter( file => file !== '' );
 }
 
 /**
@@ -71,7 +73,9 @@ function phpcsFilesToFilter( file ) {
  * @returns {boolean} If the file matches the requirelist.
  */
 function filterJsFiles( file ) {
-	return [ '.js', '.json', '.jsx', '.cjs' ].some( extension => file.endsWith( extension ) );
+	return [ '.js', '.json', '.jsx', '.cjs', '.mjs', '.ts', '.tsx', '.svelte' ].some( extension =>
+		file.endsWith( extension )
+	);
 }
 
 /**
@@ -145,7 +149,24 @@ function checkFileAgainstDirtyList( file, filesList ) {
  */
 function capturePreCommitTreeHash() {
 	if ( exitCode === 0 ) {
-		fs.writeFileSync( '.git/last-commit-tree', execSync( 'git write-tree' ) );
+		// .git folder location varies if this repo is used a submodule. Also, remove trailing new-line.
+		const gitFolderPath = execSync( 'git rev-parse --git-dir' ).toString().trim();
+		fs.writeFileSync( `${ gitFolderPath }/last-commit-tree`, execSync( 'git write-tree' ) );
+	}
+}
+
+/**
+ * Run `prettier` over a list of files.
+ *
+ * @param {Array} toPrettify - List of files to prettify.
+ */
+function runPrettier( toPrettify ) {
+	if ( toPrettify.length > 0 ) {
+		execSync(
+			`pnpx prettier --config .prettierrc.js --ignore-path .eslintignore --write ${ toPrettify.join(
+				' '
+			) }`
+		);
 	}
 }
 
@@ -167,9 +188,11 @@ function runEslint( toLintFiles ) {
 		return;
 	}
 
+	const maxWarnings = isJetpackDraftMode() ? 100 : 0;
+
 	const eslintResult = spawnSync(
 		'pnpm',
-		[ 'run', 'lint-file', '--', '--max-warnings=0', ...toLintFiles ],
+		[ 'run', 'lint-file', '--', `--max-warnings=${ maxWarnings }`, ...toLintFiles ],
 		{
 			shell: true,
 			stdio: 'inherit',
@@ -184,6 +207,34 @@ function runEslint( toLintFiles ) {
 }
 
 /**
+ * Runs `eslint --fix` against checked JS files.
+ *
+ * @param {Array} toFixFiles - List of files to fix.
+ */
+function runEslintFix( toFixFiles ) {
+	if ( toFixFiles.length === 0 ) {
+		return;
+	}
+
+	spawnSync( 'pnpm', [ 'run', 'lint-file', '--', '--fix', ...toFixFiles ], {
+		shell: true,
+		stdio: 'inherit',
+	} );
+
+	// Unlike phpcbf, eslint seems to give no indication as to whether it did anything.
+	// It doesn't even print a summary of what it fixed. Sigh.
+	const newDirty = parseGitDiffToPathArray(
+		'git -c core.quotepath=off diff --name-only --diff-filter=ACMR'
+	).filter( file => checkFileAgainstDirtyList( file, dirtyFiles ) );
+	if ( newDirty.length > 0 ) {
+		// Re-prettify, just in case eslint unprettified.
+		runPrettier( newDirty );
+		spawnSync( 'git', [ 'add', '-v', '--', ...newDirty ], { shell: true, stdio: 'inherit' } );
+		console.log( chalk.yellow( 'JS issues detected and automatically fixed via eslint.' ) );
+	}
+}
+
+/**
  * Run eslint-changed
  *
  * @param {Array} toLintFiles - List of files to lint
@@ -193,17 +244,26 @@ function runEslintChanged( toLintFiles ) {
 		return;
 	}
 
+	// Apply .eslintignore.
+	const ignore = require( 'ignore' )();
+	ignore.add( fs.readFileSync( __dirname + '/../../../.eslintignore', 'utf8' ) );
+	toLintFiles = ignore.filter( toLintFiles );
+	if ( ! toLintFiles.length ) {
+		return;
+	}
+
 	const eslintResult = spawnSync( 'pnpm', [ 'run', 'lint-changed', '--', ...toLintFiles ], {
 		shell: true,
 		stdio: 'inherit',
 	} );
 
-	if ( eslintResult && eslintResult.status ) {
+	if ( eslintResult && eslintResult.status && ! isJetpackDraftMode() ) {
 		checkFailed();
 	}
 }
 
-/** Run php:lint
+/**
+ * Run php:lint
  *
  * @param {Array} toLintFiles - List of files to lint
  */
@@ -217,7 +277,7 @@ function runPHPLinter( toLintFiles ) {
 		stdio: 'inherit',
 	} );
 
-	if ( phpLintResult && phpLintResult.status ) {
+	if ( phpLintResult && phpLintResult.status && ! isJetpackDraftMode() ) {
 		checkFailed( 'PHP found linting/syntax errors!\n' );
 		exit( exitCode );
 	}
@@ -232,7 +292,7 @@ function runPHPCS() {
 		stdio: 'inherit',
 	} );
 
-	if ( phpcsResult && phpcsResult.status ) {
+	if ( phpcsResult && phpcsResult.status && ! isJetpackDraftMode() ) {
 		const phpcsStatus =
 			2 === phpcsResult.status
 				? 'PHPCS reported some problems and could not automatically fix them since there are unstaged changes in the file.\n'
@@ -293,7 +353,7 @@ function runPHPCSChanged( phpFilesToCheck ) {
 			}
 		} );
 
-		if ( phpChangedFail ) {
+		if ( phpChangedFail && ! isJetpackDraftMode() ) {
 			checkFailed();
 		}
 	}
@@ -313,14 +373,14 @@ function runCheckCopiedFiles() {
 }
 
 /**
- * Check that renovate's ignore list is up to date.
+ * Check that renovate's ignore list is up to date. Runs in draft mode but does not block commit.
  */
 function runCheckRenovateIgnoreList() {
 	const result = spawnSync( './tools/js-tools/check-renovate-ignore-list.js', [], {
 		shell: true,
 		stdio: 'inherit',
 	} );
-	if ( result && result.status ) {
+	if ( result && result.status && ! isJetpackDraftMode() ) {
 		checkFailed( '' );
 	}
 }
@@ -376,18 +436,21 @@ dirtyFiles.forEach( file =>
 
 // Start JS work—linting, prettify, etc.
 
+const jsOnlyFiles = jsFiles.filter( file => ! file.endsWith( '.json' ) );
+const eslintFiles = jsOnlyFiles.filter( filterEslintFiles );
+const eslintFixFiles = eslintFiles.filter( file => checkFileAgainstDirtyList( file, dirtyFiles ) );
+
 const toPrettify = jsFiles.filter( file => checkFileAgainstDirtyList( file, dirtyFiles ) );
 toPrettify.forEach( file => console.log( `Prettier formatting staged file: ${ file }` ) );
 
 if ( toPrettify.length ) {
-	execSync( `tools/prettier --ignore-path .eslintignore --write ${ toPrettify.join( ' ' ) }` );
+	runPrettier( toPrettify );
 	execSync( `git add ${ toPrettify.join( ' ' ) }` );
 }
 
 // linting should happen after formatting
-const jsOnlyFiles = jsFiles.filter( file => ! file.endsWith( '.json' ) );
-const eslintFiles = jsOnlyFiles.filter( filterEslintFiles );
 if ( eslintFiles.length > 0 ) {
+	runEslintFix( eslintFixFiles );
 	runEslint( eslintFiles );
 }
 if ( jsOnlyFiles.length > 0 ) {

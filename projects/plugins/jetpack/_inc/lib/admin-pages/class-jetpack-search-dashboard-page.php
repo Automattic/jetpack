@@ -5,6 +5,9 @@
  * @package automattic/jetpack
  */
 
+use Automattic\Jetpack\Assets;
+use Automattic\Jetpack\Status;
+
 /**
  * Requires files needed.
  */
@@ -42,7 +45,7 @@ class Jetpack_Search_Dashboard_Page extends Jetpack_Admin_Page {
 		return add_submenu_page(
 			'jetpack',
 			__( 'Search Settings', 'jetpack' ),
-			__( 'Search', 'jetpack' ),
+			_x( 'Search', 'product name shown in menu', 'jetpack' ),
 			'manage_options',
 			'jetpack-search',
 			array( $this, 'render' ),
@@ -54,7 +57,6 @@ class Jetpack_Search_Dashboard_Page extends Jetpack_Admin_Page {
 	 * Enqueue and localize page specific scripts
 	 */
 	public function page_admin_scripts() {
-		$this->load_admin_styles();
 		$this->load_admin_scripts();
 	}
 
@@ -82,9 +84,7 @@ class Jetpack_Search_Dashboard_Page extends Jetpack_Admin_Page {
 	 * @return {boolean} Show search sub menu or not.
 	 */
 	protected function should_add_sub_menu() {
-		// TODO: temporary flag for testing. Will be removed on the last PR merge.
-		// phpcs:ignore WordPress.Security.NonceVerification.Recommended
-		return Jetpack_Plan::supports( 'search' ) && array_key_exists( 'a8ctest', $_GET );
+		return method_exists( 'Jetpack_Plan', 'supports' ) && Jetpack_Plan::supports( 'search' );
 	}
 
 	/**
@@ -101,34 +101,30 @@ class Jetpack_Search_Dashboard_Page extends Jetpack_Admin_Page {
 	 * Enqueue admin styles.
 	 */
 	public function load_admin_styles() {
-		\Jetpack_Admin_Page::load_wrapper_styles();
-
-		wp_enqueue_style(
-			'jp-search-dashboard',
-			plugins_url( '_inc/build/search-dashboard.css', JETPACK__PLUGIN_FILE ),
-			array(),
-			JETPACK__VERSION
-		);
+		$this->load_admin_scripts();
 	}
 
 	/**
 	 * Enqueue admin scripts.
 	 */
 	public function load_admin_scripts() {
-		$script_deps_path    = JETPACK__PLUGIN_DIR . '_inc/build/search-dashboard.asset.php';
-		$script_dependencies = array( 'react', 'react-dom', 'wp-polyfill' );
-		if ( file_exists( $script_deps_path ) ) {
-			$asset_manifest      = include $script_deps_path;
-			$script_dependencies = $asset_manifest['dependencies'];
+		\Jetpack_Admin_Page::load_wrapper_styles();
+
+		if ( ! ( new Status() )->is_offline_mode() && Jetpack::is_connection_ready() ) {
+			// Required for Analytics.
+			Automattic\Jetpack\Tracking::register_tracks_functions_scripts( true );
 		}
 
-		wp_enqueue_script(
+		Assets::register_script(
 			'jp-search-dashboard',
-			plugins_url( '_inc/build/search-dashboard.js', JETPACK__PLUGIN_FILE ),
-			$script_dependencies,
-			JETPACK__VERSION,
-			true
+			'_inc/build/search-dashboard.js',
+			JETPACK__PLUGIN_FILE,
+			array(
+				'in_footer'  => true,
+				'textdomain' => 'jetpack',
+			)
 		);
+		Assets::enqueue_script( 'jp-search-dashboard' );
 
 		// Add objects to be passed to the initial state of the app.
 		// Use wp_add_inline_script instead of wp_localize_script, see https://core.trac.wordpress.org/ticket/25280.

@@ -84,7 +84,7 @@ $icon-background-color: #fff;
 // Banner height minus half the toolbar padding to center it.
 .block-editor-block-list__layout .jetpack-upgrade-plan-banner {
 	position: relative;
-	top: $banner-height - ( $grid-unit-15 / 2 );
+	top: $banner-height - ( $grid-unit-15 * 0.5 );
 	z-index: 10;
 }
 

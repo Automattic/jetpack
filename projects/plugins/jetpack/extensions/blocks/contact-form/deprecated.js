@@ -83,6 +83,6 @@ export default [
 
 			return false;
 		},
-		save: InnerBlocks.Content,
+		save: () => <InnerBlocks.Content />,
 	},
 ];

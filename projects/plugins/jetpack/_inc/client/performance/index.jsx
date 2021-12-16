@@ -12,7 +12,7 @@ import { __ } from '@wordpress/i18n';
  * Internal dependencies
  */
 import { getModule, getModuleOverride } from 'state/modules';
-import { isUnavailableInOfflineMode } from 'state/connection';
+import { isUnavailableInOfflineMode, hasConnectedOwner } from 'state/connection';
 import { isModuleFound } from 'state/search';
 import Card from 'components/card';
 import QuerySite from 'components/data/query-site';
@@ -27,6 +27,7 @@ class Performance extends Component {
 			isUnavailableInOfflineMode: this.props.isUnavailableInOfflineMode,
 			isModuleFound: this.props.isModuleFound,
 			getModuleOverride: this.props.getModuleOverride,
+			hasConnectedOwner: this.props.hasConnectedOwner,
 		};
 
 		const found = [ 'photon', 'videopress', 'lazy-images', 'photon-cdn', 'search' ].some(
@@ -69,5 +70,6 @@ export default connect( state => {
 		isUnavailableInOfflineMode: module_name => isUnavailableInOfflineMode( state, module_name ),
 		isModuleFound: module_name => isModuleFound( state, module_name ),
 		getModuleOverride: module_name => getModuleOverride( state, module_name ),
+		hasConnectedOwner: hasConnectedOwner( state ),
 	};
 } )( Performance );

@@ -38,14 +38,14 @@ namespace Automattic\Jetpack\Connection;
  * * positive integer for user tokens
  * * 'invalid' for malformed tokens
  *
- * @since 8.7.0
+ * @since 1.14.2
  */
 class Error_Handler {
 
 	/**
 	 * The name of the option that stores the errors
 	 *
-	 * @since 8.7.0
+	 * @since 1.14.2
 	 *
 	 * @var string
 	 */
@@ -54,7 +54,7 @@ class Error_Handler {
 	/**
 	 * The name of the option that stores the errors
 	 *
-	 * @since 8.7.0
+	 * @since 1.14.2
 	 *
 	 * @var string
 	 */
@@ -63,7 +63,7 @@ class Error_Handler {
 	/**
 	 * The prefix of the transient that controls the gate for each error code
 	 *
-	 * @since 8.7.0
+	 * @since 1.14.2
 	 *
 	 * @var string
 	 */
@@ -72,7 +72,7 @@ class Error_Handler {
 	/**
 	 * Time in seconds a test should live in the database before being discarded
 	 *
-	 * @since 8.7.0
+	 * @since 1.14.2
 	 */
 	const ERROR_LIFE_TIME = DAY_IN_SECONDS;
 
@@ -87,7 +87,7 @@ class Error_Handler {
 	/**
 	 * List of known errors. Only error codes in this list will be handled
 	 *
-	 * @since 8.7.0
+	 * @since 1.14.2
 	 *
 	 * @var array
 	 */
@@ -119,7 +119,7 @@ class Error_Handler {
 	/**
 	 * Holds the instance of this singleton class
 	 *
-	 * @since 8.7.0
+	 * @since 1.14.2
 	 *
 	 * @var Error_Handler $instance
 	 */
@@ -128,7 +128,7 @@ class Error_Handler {
 	/**
 	 * Initialize instance, hookds and load verified errors handlers
 	 *
-	 * @since 8.7.0
+	 * @since 1.14.2
 	 */
 	private function __construct() {
 		defined( 'JETPACK__ERRORS_PUBLIC_KEY' ) || define( 'JETPACK__ERRORS_PUBLIC_KEY', 'KdZY80axKX+nWzfrOcizf0jqiFHnrWCl9X8yuaClKgM=' );
@@ -149,7 +149,7 @@ class Error_Handler {
 	/**
 	 * Gets the list of verified errors and act upon them
 	 *
-	 * @since 8.7.0
+	 * @since 1.14.2
 	 *
 	 * @return void
 	 */
@@ -183,7 +183,7 @@ class Error_Handler {
 	/**
 	 * Gets the instance of this singleton class
 	 *
-	 * @since 8.7.0
+	 * @since 1.14.2
 	 *
 	 * @return Error_Handler $instance
 	 */
@@ -197,7 +197,7 @@ class Error_Handler {
 	/**
 	 * Keep track of a connection error that was encountered
 	 *
-	 * @since 8.7.0
+	 * @since 1.14.2
 	 *
 	 * @param \WP_Error $error the error object.
 	 * @param boolean   $force Force the report, even if should_report_error is false.
@@ -217,7 +217,7 @@ class Error_Handler {
 	 *
 	 * This protects the site (and WPCOM) against over loads.
 	 *
-	 * @since 8.7.0
+	 * @since 1.14.2
 	 *
 	 * @param \WP_Error $error the error object.
 	 * @return boolean $should_report True if gate is open and the error should be reported.
@@ -236,7 +236,7 @@ class Error_Handler {
 		 *
 		 * This filter is useful for unit testing
 		 *
-		 * @since 8.7.0
+		 * @since 1.14.2
 		 *
 		 * @param boolean $bypass_gate whether to bypass the gate. Default is false, do not bypass.
 		 */
@@ -258,7 +258,7 @@ class Error_Handler {
 	/**
 	 * Stores the error in the database so we know there is an issue and can inform the user
 	 *
-	 * @since 8.7.0
+	 * @since 1.14.2
 	 *
 	 * @param \WP_Error $error the error object.
 	 * @return boolean|array False if stored errors were not updated and the error array if it was successfully stored.
@@ -294,7 +294,7 @@ class Error_Handler {
 	/**
 	 * Converts a WP_Error object in the array representation we store in the database
 	 *
-	 * @since 8.7.0
+	 * @since 1.14.2
 	 *
 	 * @param \WP_Error $error the error object.
 	 * @return boolean|array False if error is invalid or the error array
@@ -331,7 +331,7 @@ class Error_Handler {
 	/**
 	 * Sends the error to WP.com to be verified
 	 *
-	 * @since 8.7.0
+	 * @since 1.14.2
 	 *
 	 * @param array $error_array The array representation of the error as it is stored in the database.
 	 * @return bool
@@ -360,7 +360,7 @@ class Error_Handler {
 	/**
 	 * Encrypt data to be sent over to WP.com
 	 *
-	 * @since 8.7.0
+	 * @since 1.14.2
 	 *
 	 * @param array|string $data the data to be encoded.
 	 * @return boolean|string The encoded string on success, false on failure
@@ -385,7 +385,7 @@ class Error_Handler {
 	/**
 	 * Extracts the user ID from a token
 	 *
-	 * @since 8.7.0
+	 * @since 1.14.2
 	 *
 	 * @param string $token the token used to make the xml-rpc request.
 	 * @return string $the user id or `invalid` if user id not present.
@@ -406,7 +406,7 @@ class Error_Handler {
 	/**
 	 * Gets the reported errors stored in the database
 	 *
-	 * @since 8.7.0
+	 * @since 1.14.2
 	 *
 	 * @return array $errors
 	 */
@@ -426,7 +426,7 @@ class Error_Handler {
 	/**
 	 * Gets the verified errors stored in the database
 	 *
-	 * @since 8.7.0
+	 * @since 1.14.2
 	 *
 	 * @return array $errors
 	 */
@@ -450,7 +450,7 @@ class Error_Handler {
 	 * Whenever a new error is stored to the database or verified, this will be triggered and the
 	 * expired error will be permantently removed from the database
 	 *
-	 * @since 8.7.0
+	 * @since 1.14.2
 	 *
 	 * @param array $errors array of errors as stored in the database.
 	 * @return array
@@ -476,7 +476,7 @@ class Error_Handler {
 	/**
 	 * Delete all stored and verified errors from the database
 	 *
-	 * @since 8.7.0
+	 * @since 1.14.2
 	 *
 	 * @return void
 	 */
@@ -503,7 +503,7 @@ class Error_Handler {
 	/**
 	 * Delete the reported errors stored in the database
 	 *
-	 * @since 8.7.0
+	 * @since 1.14.2
 	 *
 	 * @return boolean True, if option is successfully deleted. False on failure.
 	 */
@@ -514,7 +514,7 @@ class Error_Handler {
 	/**
 	 * Delete the verified errors stored in the database
 	 *
-	 * @since 8.7.0
+	 * @since 1.14.2
 	 *
 	 * @return boolean True, if option is successfully deleted. False on failure.
 	 */
@@ -527,7 +527,7 @@ class Error_Handler {
 	 *
 	 * Receives a nonce and finds the related error.
 	 *
-	 * @since 8.7.0
+	 * @since 1.14.2
 	 *
 	 * @param string $nonce The nonce created for the error we want to get.
 	 * @return null|array Returns the error array representation or null if error not found.
@@ -547,7 +547,7 @@ class Error_Handler {
 	/**
 	 * Adds an error to the verified error list
 	 *
-	 * @since 8.7.0
+	 * @since 1.14.2
 	 *
 	 * @param array $error The error array, as it was saved in the unverified errors list.
 	 * @return void
@@ -571,7 +571,7 @@ class Error_Handler {
 	/**
 	 * Register REST API end point for error hanlding.
 	 *
-	 * @since 8.7.0
+	 * @since 1.14.2
 	 *
 	 * @return void
 	 */
@@ -596,7 +596,7 @@ class Error_Handler {
 	/**
 	 * Handles verification that a xml rpc error is legit and came from WordPres.com
 	 *
-	 * @since 8.7.0
+	 * @since 1.14.2
 	 *
 	 * @param \WP_REST_Request $request The request sent to the WP REST API.
 	 *
