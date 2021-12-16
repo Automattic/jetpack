@@ -9,7 +9,6 @@
 namespace Automattic\Jetpack\Search;
 
 use Automattic\Jetpack\Connection\Client;
-use Jetpack_Instant_Search;
 use Jetpack_Options;
 use WP_Error;
 use WP_REST_Request;
@@ -252,8 +251,11 @@ class REST_Controller {
 		if ( is_wp_error( $ret ) ) {
 			return $ret;
 		}
+		// TODO change to use `Automattic\Jetpack\Search\Instant_Search`.
 		// Automatically configure necessary settings for instant search.
-		Jetpack_Instant_Search::instance()->auto_config_search();
+		if ( class_exists( '\Jetpack_Instant_Search' ) ) {
+			Jetpack_Instant_Search::instance()->auto_config_search();
+		}
 		return true;
 	}
 
