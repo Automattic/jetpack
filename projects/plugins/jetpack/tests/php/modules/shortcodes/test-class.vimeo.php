@@ -141,13 +141,41 @@ class WP_Test_Jetpack_Shortcodes_Vimeo extends WP_UnitTestCase {
 	}
 
 	/**
+	 * Get different possible vimeo URL formats, and the expected URL.
+	 */
+	public function get_vimeo_urls() {
+		return array(
+			'simple id'               => array(
+				'https://vimeo.com/6342264',
+				'6342264',
+			),
+			'unlisted video'          => array(
+				'https://vimeo.com/289091934/cd1f466bcc',
+				'289091934',
+			),
+			'video within a playlist' => array(
+				'https://vimeo.com/album/2838732/video/6342264',
+				'6342264',
+			),
+			'player URL'              => array(
+				'http://player.vimeo.com/video/18427511',
+				'18427511',
+			),
+		);
+	}
+
+	/**
 	 * Test processing of vimeo URLs in post content.
 	 *
-	 * @author Toro_Unit
+	 * @dataProvider get_vimeo_urls
+	 *
 	 * @covers ::vimeo_shortcode
 	 * @since 3.9
+	 *
+	 * @param string $url      The URL to test.
+	 * @param string $video_id The expected video ID.
 	 */
-	public function test_replace_url_with_iframe_in_the_content() {
+	public function test_replace_url_with_iframe_in_the_content( $url, $video_id ) {
 		if ( defined( 'IS_WPCOM' ) && IS_WPCOM ) {
 			self::markTestSkipped( 'Embeds are handled by core on WordPress.com. See D27860-code' );
 			return;
@@ -155,9 +183,7 @@ class WP_Test_Jetpack_Shortcodes_Vimeo extends WP_UnitTestCase {
 
 		global $post;
 
-		$video_id = '141358';
-		$url      = 'http://vimeo.com/' . $video_id;
-		$post     = $this->factory->post->create_and_get( array( 'post_content' => $url ) );
+		$post = $this->factory->post->create_and_get( array( 'post_content' => $url ) );
 
 		do_action( 'init' );
 		setup_postdata( $post );
