@@ -32,8 +32,18 @@
 			"@composer install",
 			"@composer phpunit"
 		],
-		"build-production": "echo 'Add your build step to composer.json, please!'",
-		"build-development": "echo 'Add your build step to composer.json, please!'"
+		"build-production": [
+			"Composer\\Config::disableProcessTimeout",
+			"pnpm run build-production-concurrently"
+		],
+		"build-development": [
+			"Composer\\Config::disableProcessTimeout",
+			"pnpm run build-concurrently"
+		],
+		"watch": [
+			"Composer\\Config::disableProcessTimeout",
+			"pnpm run watch"
+		]
 	},
 	"repositories": [
 		{
