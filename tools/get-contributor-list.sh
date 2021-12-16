@@ -46,7 +46,7 @@ while IFS= read -r VER; do
 		done
 		die "Could not find an existing branch for a version prior to $CURRENT_VERSION"
     fi
-done < <( sed -n -E -e 's/^## \[?([0-9.]+)\]? - .*$/\1/p' "projects/$1/CHANGELOG.md" )
+done < <( sed -n -E -e 's/^## \[?([0-9.]+)(-beta)?\]? - .*$/\1/p' "projects/$1/CHANGELOG.md" )
 [[ -n "$PREVIOUS_VERSION" ]] || die "Version $CURRENT_VERSION was not found or was the first version."
 
 echo "Getting contributors from $PREVIOUS_VERSION to $CURRENT_VERSION..."
