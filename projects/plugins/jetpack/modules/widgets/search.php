@@ -15,6 +15,9 @@ use Automattic\Jetpack\Tracking;
 
 add_action( 'widgets_init', 'jetpack_search_widget_init' );
 
+/**
+ * Register the widget if Jetpack Search is available and enabled.
+ */
 function jetpack_search_widget_init() {
 	if (
 		! Jetpack::is_connection_ready()
@@ -64,6 +67,8 @@ class Jetpack_Search_Widget extends WP_Widget {
 	 * Jetpack_Search_Widget constructor.
 	 *
 	 * @since 5.0.0
+	 *
+	 * @param string $name Widget name.
 	 */
 	public function __construct( $name = null ) {
 		if ( empty( $name ) ) {
@@ -124,7 +129,12 @@ class Jetpack_Search_Widget extends WP_Widget {
 	 * @since 5.7.0
 	 */
 	public function widget_admin_setup() {
-		wp_enqueue_style( 'widget-jetpack-search-filters', plugins_url( 'search/css/search-widget-admin-ui.css', __FILE__ ) );
+		wp_enqueue_style(
+			'widget-jetpack-search-filters',
+			plugins_url( 'search/css/search-widget-admin-ui.css', __FILE__ ),
+			array(),
+			JETPACK__VERSION
+		);
 
 		// Register jp-tracks and jp-tracks-functions.
 		Tracking::register_tracks_functions_scripts();
@@ -133,7 +143,8 @@ class Jetpack_Search_Widget extends WP_Widget {
 			'jetpack-search-widget-admin',
 			plugins_url( 'search/js/search-widget-admin.js', __FILE__ ),
 			array( 'jquery', 'jquery-ui-sortable', 'jp-tracks-functions' ),
-			JETPACK__VERSION
+			JETPACK__VERSION,
+			false
 		);
 
 		wp_localize_script(
@@ -175,7 +186,12 @@ class Jetpack_Search_Widget extends WP_Widget {
 			true
 		);
 
-		wp_enqueue_style( 'jetpack-search-widget', plugins_url( 'search/css/search-widget-frontend.css', __FILE__ ) );
+		wp_enqueue_style(
+			'jetpack-search-widget',
+			plugins_url( 'search/css/search-widget-frontend.css', __FILE__ ),
+			array(),
+			JETPACK__VERSION
+		);
 	}
 
 	/**
@@ -204,8 +220,8 @@ class Jetpack_Search_Widget extends WP_Widget {
 	 *
 	 * @return bool Whether the current filter item is for the current widget.
 	 */
-	function is_for_current_widget( $item ) {
-		return isset( $item['widget_id'] ) && $this->id == $item['widget_id'];
+	public function is_for_current_widget( $item ) {
+		return isset( $item['widget_id'] ) && $this->id == $item['widget_id']; // phpcs:ignore WordPress.PHP.StrictComparisons.LooseComparison
 	}
 
 	/**
@@ -221,12 +237,12 @@ class Jetpack_Search_Widget extends WP_Widget {
 	public function should_display_sitewide_filters() {
 		$filter_widgets = get_option( 'widget_jetpack-search-filters' );
 
-		// This shouldn't be empty, but just for sanity
+		// This shouldn't be empty, but just for sanity.
 		if ( empty( $filter_widgets ) ) {
 			return false;
 		}
 
-		// If any widget has any filters, return false
+		// If any widget has any filters, return false.
 		foreach ( $filter_widgets as $number => $widget ) {
 			$widget_id = sprintf( '%s-%d', $this->id_base, $number );
 			if ( ! empty( $widget['filters'] ) && is_active_widget( false, $widget_id, $this->id_base ) ) {
@@ -237,6 +253,11 @@ class Jetpack_Search_Widget extends WP_Widget {
 		return true;
 	}
 
+	/**
+	 * Widget defaults.
+	 *
+	 *  @param array $instance Previously saved values from database.
+	 */
 	public function jetpack_search_populate_defaults( $instance ) {
 		$instance = wp_parse_args(
 			(array) $instance,
@@ -601,6 +622,7 @@ class Jetpack_Search_Widget extends WP_Widget {
 	 * @return array Order by and order.
 	 */
 	private function sorting_to_wp_query_param( $sort ) {
+		// phpcs:disable WordPress.Security.NonceVerification.Recommended
 		$parts   = explode( '|', $sort );
 		$orderby = isset( $_GET['orderby'] )
 			? $_GET['orderby']
@@ -609,6 +631,8 @@ class Jetpack_Search_Widget extends WP_Widget {
 		$order = isset( $_GET['order'] )
 			? strtoupper( $_GET['order'] )
 			: ( ( isset( $parts[1] ) && 'ASC' === strtoupper( $parts[1] ) ) ? 'ASC' : 'DESC' );
+
+		// phpcs:enable WordPress.Security.NonceVerification.Recommended
 
 		return array( $orderby, $order );
 	}
@@ -623,7 +647,7 @@ class Jetpack_Search_Widget extends WP_Widget {
 	 *
 	 * @return array Settings to save.
 	 */
-	public function update( $new_instance, $old_instance ) {
+	public function update( $new_instance, $old_instance ) { // phpcs:ignore VariableAnalysis.CodeAnalysis.VariableAnalysis.UnusedVariable
 		$new_instance = $this->maybe_reformat_widget( $new_instance );
 		$instance     = array();
 
@@ -718,7 +742,7 @@ class Jetpack_Search_Widget extends WP_Widget {
 
 		$instance = $this->jetpack_search_populate_defaults( $instance );
 
-		$title = strip_tags( $instance['title'] );
+		$title = wp_strip_all_tags( $instance['title'] );
 
 		$hide_filters = Helper::are_filters_by_widget_disabled();
 
@@ -776,7 +800,7 @@ class Jetpack_Search_Widget extends WP_Widget {
 							type="checkbox"
 							value="<?php echo esc_attr( $post_type->name ); ?>"
 							name="<?php echo esc_attr( $this->get_field_name( 'post_types' ) ); ?>[]"
-							<?php checked( empty( $instance['post_types'] ) || in_array( $post_type->name, $instance['post_types'] ) ); ?>
+							<?php checked( empty( $instance['post_types'] ) || in_array( $post_type->name, $instance['post_types'], true ) ); ?>
 						/>&nbsp;
 						<?php echo esc_html( $post_type->label ); ?>
 					</label>
@@ -800,7 +824,9 @@ class Jetpack_Search_Widget extends WP_Widget {
 
 			<?php if ( ! $hide_filters ) : ?>
 				<script class="jetpack-search-filters-widget__filter-template" type="text/template">
-					<?php echo $this->render_widget_edit_filter( array(), true ); ?>
+					<?php
+					echo $this->render_widget_edit_filter( array(), true ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
+					?>
 				</script>
 				<div class="jetpack-search-filters-widget__filters">
 					<?php foreach ( (array) $instance['filters'] as $filter ) : ?>
@@ -893,7 +919,7 @@ class Jetpack_Search_Widget extends WP_Widget {
 	 * @param bool   $is_template Whether this is for an Underscore template or not.
 	 */
 	private function render_widget_attr( $name, $value, $is_template ) {
-		echo $is_template ? "<%= $name %>" : esc_attr( $value );
+		echo $is_template ? "<%= $name %>" : esc_attr( $value ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
 	}
 
 	/**
@@ -910,7 +936,7 @@ class Jetpack_Search_Widget extends WP_Widget {
 	 */
 	private function render_widget_option_selected( $name, $value, $compare, $is_template ) {
 		$compare_js = rawurlencode( $compare );
-		echo $is_template ? "<%= decodeURIComponent( '$compare_js' ) === $name ? 'selected=\"selected\"' : '' %>" : selected( $value, $compare );
+		echo $is_template ? "<%= decodeURIComponent( '$compare_js' ) === $name ? 'selected=\"selected\"' : '' %>" : selected( $value, $compare ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
 	}
 
 	/**
@@ -968,7 +994,7 @@ class Jetpack_Search_Widget extends WP_Widget {
 						<?php foreach ( get_taxonomies( array( 'public' => true ), 'objects' ) as $taxonomy ) : ?>
 							<option value="<?php echo esc_attr( $taxonomy->name ); ?>" <?php $this->render_widget_option_selected( 'taxonomy', $args['taxonomy'], $taxonomy->name, $is_template ); ?>>
 								<?php
-									$label = in_array( $taxonomy->label, $seen_taxonomy_labels )
+									$label = in_array( $taxonomy->label, $seen_taxonomy_labels, true )
 										? sprintf(
 											/* translators: %1$s is the taxonomy name, %2s is the name of its type to help distinguish between several taxonomies with the same name, e.g. category and tag. */
 											_x( '%1$s (%2$s)', 'A label for a taxonomy selector option', 'jetpack' ),

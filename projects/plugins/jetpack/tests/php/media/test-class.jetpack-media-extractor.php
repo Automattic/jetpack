@@ -578,4 +578,55 @@ EOT;
 		$this->assertEquals( $expected, $result );
 	}
 
+	/**
+	 * Verify alt_text is extracted.
+	 *
+	 * @author mdbitz
+	 * @covers Jetpack_Media_Meta_Extractor::extract
+	 * @since 3.2
+	 */
+	public function test_mediaextractor_alt_text() {
+		$post_id = $this->factory->post->create(
+			array(
+				'post_content' => 'Sed dapibus ut mauris imperdiet volutpat. <img src="https://example.org/assets/test.jpg" alt="red green" /> yellow <img src="https://example.org/assets/test2.jpg" />Nullam in dolor vel nulla pulvinar accumsan facilisis quis lorem.',
+			)
+		);
+
+		$expected = array(
+			'has'   => array(
+				'image'   => 2,
+				'gallery' => 0,
+				'link'    => 2,
+			),
+			'image' => array(
+				array(
+					'url'      => 'https://example.org/assets/test.jpg',
+					'alt_text' => 'red green',
+				),
+				array(
+					'url' => 'https://example.org/assets/test2.jpg',
+				),
+			),
+			'link'  => array(
+				array(
+					'url'           => 'example.org/assets/test.jpg',
+					'host_reversed' => 'org.example',
+					'host'          => 'example.org',
+				),
+				array(
+					'url'           => 'example.org/assets/test2.jpg',
+					'host_reversed' => 'org.example',
+					'host'          => 'example.org',
+				),
+			),
+		);
+
+		// We are not concerned with minimum dimensions.
+		add_filter( 'jetpack_postimages_ignore_minimum_dimensions', '__return_true', 66 );
+		$result = Jetpack_Media_Meta_Extractor::extract( get_current_blog_id(), $post_id, Jetpack_Media_Meta_Extractor::ALL, true );
+		remove_filter( 'jetpack_postimages_ignore_minimum_dimensions', '__return_true', 66 );
+
+		$this->assertEquals( $expected, $result );
+	}
+
 }
