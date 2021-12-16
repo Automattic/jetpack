@@ -28,14 +28,14 @@ class Initial_State {
 				'WP_API_nonce'      => wp_create_nonce( 'wp_rest' ),
 				'registrationNonce' => wp_create_nonce( 'jetpack-registration-nonce' ),
 			),
-
 			'assets' => array(
 				'buildUrl' => plugins_url( 'build/', __DIR__ ),
 			),
 			'IDC'    => array(
-				'hasIDC' => Identity_Crisis::has_identity_crisis(),
+				'hasIDC'              => Identity_Crisis::has_identity_crisis(),
+				'isSafeModeConfirmed' => Identity_Crisis::safe_mode_is_confirmed(),
+				'canManageConnection' => current_user_can( 'jetpack_disconnect' ),
 			),
-			'canManageConnection' => current_user_can( 'jetpack_disconnect' ),
 		);
 	}
 

@@ -880,6 +880,15 @@ class Jetpack {
 			)
 		);
 
+		// Identity crisis package.
+		$config->ensure(
+			'identity_crisis',
+			array(
+				'slug'       => 'jetpack',
+				'admin_page' => '/wp-admin/admin.php?page=jetpack',
+			)
+		);
+
 		if ( ! $this->connection_manager ) {
 			$this->connection_manager = new Connection_Manager( 'jetpack' );
 		}

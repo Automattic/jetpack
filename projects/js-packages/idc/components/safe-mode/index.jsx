@@ -69,6 +69,7 @@ const SafeMode = props => {
 			restApi
 				.confirmIDCSafeMode()
 				.then( () => {
+					// TODO: remove `jetpack_idc_clear_confirmation` before reloading.
 					window.location.reload();
 				} )
 				.catch( error => {

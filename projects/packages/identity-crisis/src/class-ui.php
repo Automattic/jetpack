@@ -34,9 +34,7 @@ class UI {
 
 		$idc_data = Identity_Crisis::check_identity_crisis();
 
-		// TODO: replace the `jetpack_disconnect` check with a non-admin IDC screen.
-		// Blocked by https://github.com/Automattic/jetpack/pull/22050.
-		if ( false === $idc_data || ! current_user_can( 'jetpack_disconnect' ) ) {
+		if ( false === $idc_data ) {
 			return;
 		}
 
@@ -92,6 +90,7 @@ class UI {
 	private static function get_initial_state_data() {
 		$idc_urls       = Identity_Crisis::get_mismatched_urls();
 		$current_screen = get_current_screen();
+		$is_admin       = current_user_can( 'jetpack_disconnect' );
 
 		return array(
 			'WP_API_root'         => esc_url_raw( rest_url() ),
@@ -102,11 +101,12 @@ class UI {
 			'redirectUri'         => str_replace( '/wp-admin/', '/', $_SERVER['REQUEST_URI'] ),
 			'tracksUserData'      => Jetpack_Tracks_Client::get_connected_user_tracks_identity(),
 			'tracksEventData'     => array(
-				'isAdmin'       => current_user_can( 'jetpack_disconnect' ),
+				'isAdmin'       => $is_admin,
 				'currentScreen' => $current_screen ? $current_screen->id : false,
 			),
 			'isSafeModeConfirmed' => Identity_Crisis::$is_safe_mode_confirmed,
 			'consumerData'        => static::get_consumer_data(),
+			'isAdmin'             => $is_admin,
 		);
 	}
 
@@ -132,17 +132,20 @@ class UI {
 			}
 		);
 
+		$consumer_chosen     = null;
+		$consumer_url_length = 0;
+
 		foreach ( $consumers as $consumer ) {
 			if ( ! array_key_exists( 'admin_page', $consumer ) || ! is_string( $consumer['admin_page'] ) ) {
 				continue;
 			}
 
-			if ( 0 === strpos( $_SERVER['REQUEST_URI'], $consumer['admin_page'] ) ) {
-				return $consumer;
+			if ( 0 === strpos( $_SERVER['REQUEST_URI'], $consumer['admin_page'] ) && strlen( $consumer['admin_page'] ) > $consumer_url_length ) {
+				$consumer_chosen = $consumer;
 			}
 		}
 
-		return array_shift( $consumers );
+		return $consumer_chosen ? $consumer_chosen : array_shift( $consumers );
 	}
 
 }

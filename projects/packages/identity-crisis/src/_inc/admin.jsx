@@ -30,6 +30,8 @@ function render() {
 		tracksUserData,
 		tracksEventData,
 		isSafeModeConfirmed,
+		consumerData,
+		isAdmin,
 	} = window.JP_IDENTITY_CRISIS__INITIAL_STATE;
 
 	if ( ! isSafeModeConfirmed ) {
@@ -42,6 +44,10 @@ function render() {
 				redirectUri={ redirectUri }
 				tracksUserData={ tracksUserData }
 				tracksEventData={ tracksEventData }
+				customContent={
+					consumerData.hasOwnProperty( 'customContent' ) ? consumerData.customContent : {}
+				}
+				isAdmin={ isAdmin }
 			/>,
 			container
 		);
