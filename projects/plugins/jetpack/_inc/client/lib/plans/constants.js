@@ -97,6 +97,21 @@ export const JETPACK_BUNDLES = [
 	PLAN_JETPACK_SECURITY_REALTIME_MONTHLY,
 ];
 
+// while this is currently a identical set to JETPACK_BUNDLES above it may eventually not be
+export const JETPACK_SECURITY_BUNDLES = [
+	PLAN_JETPACK_SECURITY_T1_YEARLY,
+	PLAN_JETPACK_SECURITY_T1_MONTHLY,
+	PLAN_JETPACK_SECURITY_T2_YEARLY,
+	PLAN_JETPACK_SECURITY_T2_MONTHLY,
+
+	// DEPRECATED: Daily and Real-time variations will soon be retired.
+	// Remove after all customers are migrated to new products.
+	PLAN_JETPACK_SECURITY_DAILY,
+	PLAN_JETPACK_SECURITY_DAILY_MONTHLY,
+	PLAN_JETPACK_SECURITY_REALTIME,
+	PLAN_JETPACK_SECURITY_REALTIME_MONTHLY,
+];
+
 export const JETPACK_BACKUP_PRODUCTS = [
 	PLAN_JETPACK_BACKUP_T1_YEARLY,
 	PLAN_JETPACK_BACKUP_T1_MONTHLY,
@@ -256,6 +271,15 @@ export function isJetpackProduct( product ) {
 
 export function isJetpackBundle( product ) {
 	return JETPACK_BUNDLES.includes( product );
+}
+/**
+ * Determine if the given product is a Security Bundle.
+ *
+ * @param {number} product - productId to check
+ * @returns {boolean} if the given product is a Security Bundle
+ */
+export function isJetpackSecurityBundle( product ) {
+	return JETPACK_SECURITY_BUNDLES.includes( product );
 }
 
 export function isJetpackLegacyPlan( product ) {

@@ -212,7 +212,7 @@ class Milestone_Widget extends WP_Widget {
 		/** This filter is documented in wp-includes/widgets/class-wp-widget-pages.php */
 		$title = apply_filters( 'widget_title', $instance['title'] );
 		if ( ! empty( $title ) ) {
-			echo $args['before_title'] . esc_html( $title ) . $args['after_title']; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
+			echo $args['before_title'] . $title . $args['after_title']; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
 		}
 
 		$widget_id = ! empty( $args['widget_id'] ) ? $args['widget_id'] : 'milestone_widget';

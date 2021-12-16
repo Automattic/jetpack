@@ -1,0 +1,4 @@
+Significance: patch
+Type: other
+
+Fix a legacy sync test in PHPUnit 9.5.
