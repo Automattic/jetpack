@@ -43,6 +43,7 @@ class Test_REST_Controller extends Search_Test_Case {
 
 		$plan = $this->createMock( Plan::class );
 		$plan->method( 'supports_search' )->willReturn( true );
+		$plan->method( 'supports_instant_search' )->willReturn( true );
 
 		$this->rest_controller = new REST_Controller( false, new Module_Control( $plan ) );
 

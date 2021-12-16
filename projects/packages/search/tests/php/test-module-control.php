@@ -28,6 +28,7 @@ class Test_Module_Control extends TestCase {
 
 		$plan = $this->createMock( Plan::class );
 		$plan->method( 'supports_search' )->willReturn( true );
+		$plan->method( 'supports_instant_search' )->willReturn( true );
 
 		static::$search_module = new Module_Control( $plan );
 	}
