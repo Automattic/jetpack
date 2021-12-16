@@ -1,0 +1,4 @@
+Significance: patch
+Type: other
+
+Vimeo: tweak the regex used to fetch the Vimeo videos.

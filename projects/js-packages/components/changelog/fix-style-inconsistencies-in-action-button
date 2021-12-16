@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Fix styling conflict that occurs for ActionButton when Gutenberg plugin is used
