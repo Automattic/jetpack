@@ -1,4 +1,4 @@
-#!/usr/bin/php -d memory_limit=2048M
+#!/usr/bin/env php -d memory_limit=2048M
 <?php
 /**
  * A script to scan the entire WordPress.org plugins directory for breaking changes between
@@ -28,6 +28,8 @@
  * After running this script you'll get a csv file in the `scipts` folder for every plugin that is
  * affected by the changes.
  */
+
+ini_set( 'memory_limit', '2048M' ); // phpcs:ignore WordPress.PHP.IniSet.memory_limit_Blacklisted
 
 require dirname( __DIR__ ) . '/vendor/autoload.php';
 
