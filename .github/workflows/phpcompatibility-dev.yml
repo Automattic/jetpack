@@ -34,7 +34,10 @@ jobs:
               # If composer or phpcs config changed, there may be a new standard.
               - 'composer.json'
               - 'composer.lock'
+              - '.phpcs.config.xml'
               - '.phpcs.xml.dist'
+              - '.phpcsignore'
+              - '**/.phpcsignore'
               # If other files used by this workflow changed, run it to test those changes.
               - '.github/files/phpcompatibility-dev-phpcs.xml'
               - '.github/matchers/phpcs-problem-matcher.json'
