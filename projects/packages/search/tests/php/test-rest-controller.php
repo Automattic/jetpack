@@ -285,4 +285,80 @@ class Test_REST_Controller extends Search_Test_Case {
 		$this->assertEquals( 6, $response->get_data()['total'] );
 	}
 
+	/**
+	 * Testing the `POST /jetpack/v4/search/plan/activate` endpoint with no user.
+	 */
+	public function test_activate_plan_authorized() {
+		wp_set_current_user( 0 );
+
+		$request = new WP_REST_Request( 'POST', '/jetpack/v4/search/plan/activate' );
+		$request->set_header( 'content-type', 'application/json' );
+		$response = $this->server->dispatch( $request );
+		$this->assertEquals( 401, $response->get_status() );
+	}
+
+	/**
+	 * Testing the `POST /jetpack/v4/search/plan/activate` endpoint with admin user.
+	 */
+	public function test_activate_plan_admin() {
+		wp_set_current_user( $this->admin_id );
+
+		$request = new WP_REST_Request( 'POST', '/jetpack/v4/search/plan/activate' );
+		$request->set_header( 'content-type', 'application/json' );
+		$response = $this->server->dispatch( $request );
+		$this->assertEquals( 200, $response->get_status() );
+		$this->assertTrue( get_option( Module_Control::SEARCH_MODULE_INSTANT_SEARCH_OPTION_KEY ) );
+		$this->assertTrue( $response->get_data() );
+	}
+
+	/**
+	 * Testing the `POST /jetpack/v4/search/plan/activate` endpoint with editor user.
+	 */
+	public function test_activate_plan_editor() {
+		wp_set_current_user( $this->editor_id );
+
+		$request = new WP_REST_Request( 'POST', '/jetpack/v4/search/plan/activate' );
+		$request->set_header( 'content-type', 'application/json' );
+		$response = $this->server->dispatch( $request );
+		$this->assertEquals( 403, $response->get_status() );
+	}
+
+	/**
+	 * Testing the `POST /jetpack/v4/search/plan/deactivate` endpoint with no user.
+	 */
+	public function test_deactivate_plan_authorized() {
+		wp_set_current_user( 0 );
+
+		$request = new WP_REST_Request( 'POST', '/jetpack/v4/search/plan/deactivate' );
+		$request->set_header( 'content-type', 'application/json' );
+		$response = $this->server->dispatch( $request );
+		$this->assertEquals( 401, $response->get_status() );
+	}
+
+	/**
+	 * Testing the `POST /jetpack/v4/search/plan/deactivate` endpoint with admin user.
+	 */
+	public function test_deactivate_plan_admin() {
+		wp_set_current_user( $this->admin_id );
+
+		$request = new WP_REST_Request( 'POST', '/jetpack/v4/search/plan/deactivate' );
+		$request->set_header( 'content-type', 'application/json' );
+		$response = $this->server->dispatch( $request );
+		$this->assertEquals( 200, $response->get_status() );
+		$this->assertFalse( get_option( Module_Control::SEARCH_MODULE_INSTANT_SEARCH_OPTION_KEY ) );
+		$this->assertTrue( $response->get_data() );
+	}
+
+	/**
+	 * Testing the `POST /jetpack/v4/search/plan/deactivate` endpoint with editor user.
+	 */
+	public function test_deactivate_plan_editor() {
+		wp_set_current_user( $this->editor_id );
+
+		$request = new WP_REST_Request( 'POST', '/jetpack/v4/search/plan/deactivate' );
+		$request->set_header( 'content-type', 'application/json' );
+		$response = $this->server->dispatch( $request );
+		$this->assertEquals( 403, $response->get_status() );
+	}
+
 }

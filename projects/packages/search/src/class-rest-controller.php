@@ -254,7 +254,7 @@ class REST_Controller {
 		// TODO change to use `Automattic\Jetpack\Search\Instant_Search`.
 		// Automatically configure necessary settings for instant search.
 		if ( class_exists( '\Jetpack_Instant_Search' ) ) {
-			Jetpack_Instant_Search::instance()->auto_config_search();
+			\Jetpack_Instant_Search::instance()->auto_config_search();
 		}
 		return true;
 	}
