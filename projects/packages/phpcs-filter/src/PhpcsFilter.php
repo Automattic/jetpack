@@ -91,7 +91,7 @@ class PhpcsFilter extends Filter {
 		parent::__construct( $iterator, $basedir, $config, $ruleset );
 
 		if ( $copyFrom ) {
-			if ( $this->ruleset === $ruleset ) {
+			if ( $this->ruleset === $copyFrom->ruleset ) {
 				// Only copy these if the ruleset is the same. If it changed, these need to be regenerated.
 				$this->ignoreDirPatterns  = $copyFrom->ignoreDirPatterns;
 				$this->ignoreFilePatterns = $copyFrom->ignoreFilePatterns;
