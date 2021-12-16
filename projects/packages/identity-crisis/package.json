@@ -1,6 +1,6 @@
 {
 	"name": "jetpack-identity-crisis",
-	"version": "0.5.0",
+	"version": "0.5.1-alpha",
 	"description": "Jetpack Identity Crisis",
 	"main": "_inc/admin.jsx",
 	"repository": "https://github.com/Automattic/jetpack-identity-crisis",
@@ -19,7 +19,7 @@
 		"@wordpress/data": "6.1.4"
 	},
 	"devDependencies": {
-		"@automattic/jetpack-webpack-config": "workspace:^0.5.0",
+		"@automattic/jetpack-webpack-config": "workspace:^0.6.0-alpha",
 		"@babel/core": "7.16.0",
 		"@babel/preset-env": "7.16.4",
 		"@babel/register": "7.16.0",
@@ -38,7 +38,7 @@
 	},
 	"engines": {
 		"node": "^14.17.6 || ^16.7.0",
-		"pnpm": "^6.5.0",
+		"pnpm": "^6.23.6",
 		"yarn": "use pnpm instead - see docs/yarn-upgrade.md"
 	}
 }
