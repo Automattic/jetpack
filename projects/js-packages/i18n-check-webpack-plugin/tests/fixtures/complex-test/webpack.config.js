@@ -16,7 +16,9 @@ module.exports = {
 	},
 	resolve: jetpackWebpackConfig.resolve,
 	node: false,
-	plugins: jetpackWebpackConfig.StandardPlugins(),
+	plugins: jetpackWebpackConfig.StandardPlugins( {
+		I18nLoaderPlugin: { textdomain: 'domain' },
+	} ),
 	module: {
 		strictExportPresence: true,
 		rules: [

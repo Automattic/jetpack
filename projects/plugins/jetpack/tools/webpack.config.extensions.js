@@ -200,6 +200,7 @@ module.exports = [
 		plugins: [
 			...jetpackWebpackConfig.StandardPlugins( {
 				DependencyExtractionPlugin: false,
+				I18nLoaderPlugin: false,
 				I18nCheckPlugin: false,
 			} ),
 			new webpack.NormalModuleReplacementPlugin(
