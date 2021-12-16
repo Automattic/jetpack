@@ -2,13 +2,13 @@
 /**
  * Plugin Name: WordPress.com Site Helper
  * Description: A helper for connecting WordPress.com sites to external host infrastructure.
- * Version: 2.8.56
+ * Version: 2.8.57
  * Author: Automattic
  * Author URI: http://automattic.com/
  */
 
 // Increase version number if you change something in wpcomsh.
-define( 'WPCOMSH_VERSION', '2.8.56' );
+define( 'WPCOMSH_VERSION', '2.8.57' );
 
 // If true, Typekit fonts will be available in addition to Google fonts
 add_filter( 'jetpack_fonts_enable_typekit', '__return_true' );
@@ -446,6 +446,8 @@ function wpcomsh_managed_plugins_action_links() {
 				10,
 				2
 			);
+		} else {
+			add_action( "after_plugin_row_{$plugin}", 'wpcomsh_show_unmanaged_plugin_separator', PHP_INT_MAX );
 		}
 	}
 
@@ -457,6 +459,8 @@ function wpcomsh_managed_plugins_action_links() {
 				10,
 				2
 			);
+		} else {
+			add_action( "after_plugin_row_{$plugin}", 'wpcomsh_show_unmanaged_plugin_separator', PHP_INT_MAX );
 		}
 	}
 }
@@ -564,6 +568,20 @@ function wpcomsh_show_plugin_auto_managed_notice( $file, $plugin_data ) {
 				'</div>' .
 			'</td>' .
 		'</tr>';
+}
+
+/**
+ * Renders a separator row for plugins that are managed by WordPress.com but the user has currently
+ * removed it and added an unmanaged version.
+ *
+ * @param $file string Plugin file name.
+ */
+function wpcomsh_show_unmanaged_plugin_separator( $file ) {
+	$active = is_plugin_active( $file ) ? 'active' : '';
+
+	echo "<tr class=\"$active\">" .
+	        '<th colspan="4" scope="row" class="check-column"></th>' .
+	     '</tr>';
 }
 
 function wpcomsh_register_theme_hooks() {
