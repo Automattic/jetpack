@@ -7,6 +7,7 @@
 
 namespace Automattic\Jetpack\Search;
 
+use Automattic\Jetpack\Admin_UI\Admin_Menu;
 use Automattic\Jetpack\Assets;
 use Automattic\Jetpack\Connection\Manager as Connection_Manager;
 use Automattic\Jetpack\Status;
@@ -70,18 +71,16 @@ class Dashboard {
 		// Check if the site plan changed and deactivate module accordingly.
 		add_action( 'current_screen', array( $this, 'check_plan_deactivate_search_module' ) );
 
-		// Attach page specific actions in addition to the above.
-		$hook = add_submenu_page(
-			'jetpack',
+		$page_suffix = Admin_Menu::add_menu(
 			__( 'Search Settings', 'jetpack' ),
 			_x( 'Search', 'product name shown in menu', 'jetpack' ),
 			'manage_options',
 			'jetpack-search',
 			array( $this, 'render' ),
-			$this->get_link_offset()
+			100
 		);
 
-		add_action( "admin_print_scripts-$hook", array( $this, 'load_admin_scripts' ) );
+		add_action( 'load-' . $page_suffix, array( $this, 'admin_init' ) );
 	}
 
 	/**
@@ -114,13 +113,10 @@ class Dashboard {
 	}
 
 	/**
-	 * Place the Jetpack Search menu item at the bottom of the Jetpack submenu.
-	 *
-	 * @return int Menu offset.
+	 * Initialize the admin resources.
 	 */
-	private function get_link_offset() {
-		global $submenu;
-		return count( $submenu['jetpack'] );
+	public function admin_init() {
+		add_action( 'admin_enqueue_scripts', array( $this, 'load_admin_scripts' ) );
 	}
 
 	/**
