@@ -1,5 +1,14 @@
 # Changelog
 
+## 3.1.0 - 2021-12-08
+### Added
+- Added an action to auto-create a GitHub release when a version is tagged.
+- Improved exception handling when network access to a8c servers is impaired.
+
+### Changed
+- Updated Beta release instructions to avoid extra MacOS files in the ZIP.
+- Updated package dependencies
+
 ## 3.0.3 - 2021-10-06
 ### Changed
 - Updated package dependencies.

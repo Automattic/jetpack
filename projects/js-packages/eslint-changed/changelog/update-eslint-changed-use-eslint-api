@@ -1,4 +1,0 @@
-Significance: major
-Type: changed
-
-Run ESLint via its node API rather than shelling out, mainly because they dropped the static `getFormatter()` from the API in 8.0. This drops support for ESLint < 7.0.0.

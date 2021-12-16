@@ -109,10 +109,18 @@ jobs:
             misc_js:
               # If package or eslint config changed, there may be new checks
               - 'package.json'
+              - 'tools/js-tools/package.json'
               - 'pnpm-lock.yaml'
               - '.eslintignore'
               - '.eslintrc'
               - '**/.eslintrc'
+              # Also changes to the E2E workspace package.json and pnpm lock have caused linting problems.
+              - 'projects/plugins/boost/tests/e2e/package.json'
+              - 'projects/plugins/boost/tests/e2e/pnpm-lock.yaml'
+              - 'projects/plugins/jetpack/tests/e2e/package.json'
+              - 'projects/plugins/jetpack/tests/e2e/pnpm-lock.yaml'
+              - 'tools/e2e-commons/package.json'
+              - 'tools/e2e-commons/pnpm-lock.yaml'
               # If the excludelist changed, run to ensure newly non-excluded files pass.
               - 'tools/eslint-excludelist.json'
             misc_excludelist:

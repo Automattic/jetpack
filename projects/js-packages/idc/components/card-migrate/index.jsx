@@ -14,6 +14,7 @@ import { Spinner } from '@automattic/jetpack-components';
  */
 import { STORE_ID } from '../../state/store';
 import extractHostname from '../../tools/extract-hostname';
+import customContentShape from '../../tools/custom-content-shape';
 
 /**
  * The "migrate" card.
@@ -27,30 +28,31 @@ const CardMigrate = props => {
 
 	const isActionInProgress = useSelect( select => select( STORE_ID ).getIsActionInProgress(), [] );
 
-	const { isMigrating, migrateCallback } = props;
+	const { isMigrating, migrateCallback, customContent } = props;
 
 	const buttonLabel = __( 'Move your settings', 'jetpack' );
 
 	return (
 		<div className="jp-idc__idc-screen__card-action-base">
 			<div className="jp-idc__idc-screen__card-action-top">
-				<h4>{ __( 'Move Jetpack data', 'jetpack' ) }</h4>
+				<h4>{ customContent.migrateCardTitle || __( 'Move Jetpack data', 'jetpack' ) }</h4>
 
 				<p>
-					{ createInterpolateElement(
-						sprintf(
-							/* translators: %1$s: The current site domain name. %2$s: The original site domain name. */
-							__(
-								'Move all your settings, stats and subscribers to your other <hostname>%1$s</hostname>. <hostname>%2$s</hostname> will be disconnected from Jetpack.',
-								'jetpack'
+					{ customContent.migrateCardBodyText ||
+						createInterpolateElement(
+							sprintf(
+								/* translators: %1$s: The current site domain name. %2$s: The original site domain name. */
+								__(
+									'Move all your settings, stats and subscribers to your other URL, <hostname>%1$s</hostname>. <hostname>%2$s</hostname> will be disconnected from Jetpack.',
+									'jetpack'
+								),
+								currentHostName,
+								wpcomHostName
 							),
-							currentHostName,
-							wpcomHostName
-						),
-						{
-							hostname: <strong />,
-						}
-					) }
+							{
+								hostname: <strong />,
+							}
+						) }
 				</p>
 			</div>
 
@@ -81,11 +83,14 @@ CardMigrate.propTypes = {
 	isMigrating: PropTypes.bool.isRequired,
 	/** Migration callback. */
 	migrateCallback: PropTypes.func.isRequired,
+	/** Custom text content. */
+	customContent: PropTypes.shape( customContentShape ),
 };
 
 CardMigrate.defaultProps = {
 	isMigrating: false,
 	migrateCallback: () => {},
+	customContent: {},
 };
 
 export default CardMigrate;

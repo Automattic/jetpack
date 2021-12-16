@@ -1,10 +1,10 @@
 === Jetpack - WP Security, Backup, Speed, & Growth ===
 Contributors: automattic, adamkheckler, adrianmoldovanwp, aduth, akirk, allendav, alternatekev, andy, annamcphee, annezazu, apeatling, arcangelini, azaozz, batmoo, barry, beaulebens, biskobe, blobaugh, bjorsch, brbrr, cainm, cena, cfinke, chaselivingston, chellycat, clickysteve, csonnek, danielbachhuber, davoraltman, daniloercoli, delawski, designsimply, dllh, drawmyface, dsmart, dzver, ebinnion, egregor, eliorivero, enej, eoigal, erania-pinnera, ethitter, fgiannar, gcorne, georgestephanis, gibrown, goldsounds, hew, hugobaeta, hypertextranch, iammattthomas, iandunn, jblz, jasmussen, jeffgolenski, jeherve, jenhooks, jenia, jessefriedman, jgs, jkudish, jmdodd, joanrho, johnjamesjacoby, jshreve, kbrownkd, keoshi, koke, kraftbj, lancewillett, leogermani, lschuyler, macmanx, martinremy, matt, matveb, mattwiebe, maverick3x6, mcsf, mdawaffe, mdbitz, MichaelArestad, migueluy, mikeyarce, mkaz, nancythanki, nickmomrik, obenland, oskosk, pento, professor44, rachelsquirrel, rdcoll, ryancowles, richardmuscat, richardmtl, robertbpugh, roccotripaldi, samhotchkiss, samiff, scarstocea, scottsweb, sdixon194, sdquirk, sermitr, simison, stephdau, tmoorewp, tyxla, Viper007Bond, westi, yoavf, zinigor
 Tags: Security, backup, Woo, malware, scan, spam, CDN, search, social
-Stable tag: 10.3
-Requires at least: 5.7
+Stable tag: 10.4
+Requires at least: 5.8
 Requires PHP: 5.6
-Tested up to: 5.8
+Tested up to: 5.9
 
 Improve your WP security with powerful one-click tools like backup and malware scan. Get essential free tools including stats, CDN and social sharing.
 
@@ -242,43 +242,21 @@ Jetpack Backup can do a full website migration to a new host, migrate theme file
 4. Promote your newest posts, pages, and products across your social media channels.
 
 == Changelog ==
-### 10.4-beta - 2021-11-30
+### 10.5-a.3 - 2021-12-14
 #### Enhancements
-- Connection: additional messaging for both connection and disconnection flows.
-- Dashboard: add option to add a license key via the Jetpack dashboard.
-- Likes: refactor Likes in posts to improve performance and avoid loading additional libraries.
-- Podcast Player block: add 'jetpack_podcast_helper_tracks_quantity' filter to control number of tracks fetched. Deprecate the 'jetpack_podcast_helper_list_quantity' filter.
-- Publicize: always add an Open Graph image alt text if an Open Graph image is present.
-- Publicize: enable the RePublicize UI in the block editor.
-- Publicize: update the interface and include a profile picture for each service.
-- Verification tools: remove old interface in the Tools menu, in favor of the newer settings in the Jetpack dashboard.
-- VideoPress: add handles to resize the Video Block in the editor.
-- VideoPress: add captions and subtitle support.
-- VideoPress: do not display thumbnails in the media library in the WordPress.com dashboard.
+- Secure Sign On: add filters for the error text when a local user cannot be found for a given WP.com account and for when SSO is disallowed when on a staging site.
+- Subscription Block: add 'Success Message Text' to the block settings.
 
 #### Improved compatibility
-- Contact Info and Map widget: hide widget from the block inserter and Legacy widget block drop-down menu.
+- General: ensure Jetpack options are properly deleted when the plugin is deactivated.
+- Media Extractor: add support for alt_text in extract.
+- Notifications: remove legacy code supporting IE versions older than 9.
+- Pay with PayPal Widget: hide widget from Legacy Widget block.
 
 #### Bug fixes
-- Block Editor: avoid issues when searching for free Pexels images via Jetpack's External Media feature.
-- Contact Form: prevent multiple button clicks from submitting multiple form submissions.
-- Custom CSS: disable CSSTidy shorthand optimizations to prevent block validation issues.
-- Dashboard: ensure plan information is properly displayed when using Backup and Security plans.
-- Dashboard: fix some layout and display issues in the Recommendations panel.
-- Image CDN: ensure that Wikipedia URLs are not served via our image CDN.
-- Instant Search: restore filter query string functionality.
-- Publicize: make the default publicize social media message blank.
-- Search: avoid fatal errors when the feature is inactive, but Extra Sidebar Widgets are active.
-- Sharing: ask search engines to not index pages with sharing query string.
-- SSO: fix button content alignment for small screens
-- Stats: remove ASCII art from the tracking pixel's alt attribute, to improve accessibility.
-- VideoPress: display "File Name" in the Media Library.
-- VideoPress: display all video meta immediately after upload. A page refresh is no longer needed to view VideoPress-specific fields.
-- VideoPress: fix various validation errors.
-- VideoPress: fix VideoPress load for old videos in Gutenberg
-- VideoPress: no longer play videos in the background when the Media Item modal is closed in the media library.
-- VideoPress: reload block when updating video rating in the editor, and ensure rating meta data is updated.
-- Widgets: allow customizer preview to show widget visibility rules properly.
+- Contact Form: avoid PHP notices in submitted forms in some cases.
+- Internationalization: ensure that all text, including text added via JavaScript, can be translated.
+- Milestone widget: fix issue that prevented styles from loading until the widget is saved.
 
 --------
 
