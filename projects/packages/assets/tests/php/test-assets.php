@@ -11,7 +11,9 @@ use Automattic\Jetpack\Constants as Jetpack_Constants;
 use Brain\Monkey;
 use Brain\Monkey\Filters;
 use Brain\Monkey\Functions;
+use InvalidArgumentException;
 use PHPUnit\Framework\TestCase;
+use Wikimedia\TestingAccessWrapper;
 
 /**
  * Assets test suite.
@@ -34,10 +36,10 @@ class AssetsTest extends TestCase {
 			array(
 				'wp_parse_url'   => 'parse_url',
 				'wp_json_encode' => 'json_encode',
-				'__'             => function ( $text ) {
-					return $text;
-				},
 				'esc_html'       => function ( $text ) {
+					return htmlspecialchars( $text, ENT_QUOTES );
+				},
+				'esc_html__'     => function ( $text ) {
 					return htmlspecialchars( $text, ENT_QUOTES );
 				},
 				'add_query_arg'  => function ( ...$args ) {
@@ -65,10 +67,9 @@ class AssetsTest extends TestCase {
 		Jetpack_Constants::clear_constants();
 
 		// Clear the instance.
-		$rc = new \ReflectionClass( Assets::class );
-		$rp = $rc->getProperty( 'instance' );
-		$rp->setAccessible( true );
-		$rp->setValue( null );
+		$wrap             = TestingAccessWrapper::newFromClass( Assets::class );
+		$wrap->instance   = null;
+		$wrap->domain_map = array();
 	}
 
 	/**
@@ -325,6 +326,9 @@ class AssetsTest extends TestCase {
 	public function test_register_script( $args, $expect, $extra = array() ) {
 		Functions\stubs(
 			array(
+				'__'          => function ( $v ) {
+					return $v;
+				},
 				'filemtime'   => function ( $v ) {
 					return crc32( basename( $v ) );
 				},
@@ -359,12 +363,9 @@ class AssetsTest extends TestCase {
 		Assets::register_script( ...$args );
 
 		// Check whether $options['async'] was honored.
-		$rc = new \ReflectionClass( Assets::instance() );
-		$rp = $rc->getProperty( 'defer_script_handles' );
-		$rp->setAccessible( true );
 		$this->assertSame(
 			isset( $extra['async'] ) ? $extra['async'] : array(),
-			$rp->getValue( Assets::instance() )
+			TestingAccessWrapper::newFromObject( Assets::instance() )->defer_script_handles
 		);
 	}
 
@@ -597,12 +598,12 @@ class AssetsTest extends TestCase {
 			'Bad path'                                  => array(
 				array( 'single-file', 'test-assets-files/single-js-file.jsx', __FILE__ ),
 				array(),
-				array( 'exception' => new \InvalidArgumentException( '$path must end in ".js"' ) ),
+				array( 'exception' => new InvalidArgumentException( '$path must end in ".js"' ) ),
 			),
 			'Bad css_path'                              => array(
 				array( 'single-file', 'test-assets-files/single-js-file.js', __FILE__, array( 'css_path' => 'foo.js' ) ),
 				array(),
-				array( 'exception' => new \InvalidArgumentException( '$options[\'css_path\'] must end in ".css"' ) ),
+				array( 'exception' => new InvalidArgumentException( '$options[\'css_path\'] must end in ".css"' ) ),
 			),
 			'wp-i18n without textdomain'                => array(
 				array( 'everything', 'test-assets-files/everything.js', __FILE__, array() ),
@@ -635,8 +636,9 @@ class AssetsTest extends TestCase {
 	 */
 	public function test_wp_default_scripts_hook( $expect_filter, $expect_js, $options = array() ) {
 		$options += array(
-			'constants' => array(),
-			'locale'    => 'en_US',
+			'constants'  => array(),
+			'locale'     => 'en_US',
+			'domain_map' => array(),
 		);
 
 		$constants = $options['constants'] + array(
@@ -646,6 +648,8 @@ class AssetsTest extends TestCase {
 		foreach ( $constants as $k => $v ) {
 			Jetpack_Constants::set_constant( $k, $v );
 		}
+
+		TestingAccessWrapper::newFromClass( Assets::class )->domain_map = $options['domain_map'];
 
 		Functions\expect( 'determine_locale' )->andReturn( $options['locale'] );
 		Functions\expect( 'site_url' )->andReturnUsing(
@@ -687,12 +691,21 @@ class AssetsTest extends TestCase {
 				array(
 					'baseUrl'   => 'http://example.com/wp-includes/languages/',
 					'locale'    => 'de_DE',
-					'domainMap' => array(),
+					'domainMap' => array(
+						'jetpack-foo' => 'plugins/jetpack',
+						'jetpack-bar' => 'themes/sometheme',
+						'core'        => 'default',
+					),
 				),
-				'wp.jpI18nState = {"baseUrl":"http://example.com/wp-includes/languages/","locale":"de_DE","domainMap":{}};',
+				'wp.jpI18nState = {"baseUrl":"http://example.com/wp-includes/languages/","locale":"de_DE","domainMap":{"jetpack-foo":"plugins/jetpack","jetpack-bar":"themes/sometheme","core":"default"}};',
 				array(
-					'constants' => array( 'WP_LANG_DIR' => '/path/to/wordpress/wp-includes/languages' ),
-					'locale'    => 'de_DE',
+					'constants'  => array( 'WP_LANG_DIR' => '/path/to/wordpress/wp-includes/languages' ),
+					'locale'     => 'de_DE',
+					'domain_map' => array(
+						'jetpack-foo' => array( 'jetpack', 'plugins', '1.2.3' ),
+						'jetpack-bar' => array( 'sometheme', 'themes', '1.2.3' ),
+						'core'        => array( 'default', 'core', '1.2.3' ),
+					),
 				),
 			),
 			'Bad WP_LANG_DIR'                  => array(
@@ -770,6 +783,189 @@ class AssetsTest extends TestCase {
 						'domainMap' => (object) array(),
 					),
 				),
+			),
+		);
+	}
+
+	/** Test textdomain aliasing and hook adding. */
+	public function test_alias_textdomain() {
+		Filters\expectAdded( 'gettext_foo' )->once()->with( array( Assets::class, 'filter_gettext' ), 10, 3 );
+		Filters\expectAdded( 'ngettext_foo' )->once()->with( array( Assets::class, 'filter_ngettext' ), 10, 5 );
+		Filters\expectAdded( 'gettext_with_context_foo' )->once()->with( array( Assets::class, 'filter_gettext_with_context' ), 10, 4 );
+		Filters\expectAdded( 'ngettext_with_context_foo' )->once()->with( array( Assets::class, 'filter_ngettext_with_context' ), 10, 6 );
+		Filters\expectAdded( 'gettext_bar' )->once()->with( array( Assets::class, 'filter_gettext' ), 10, 3 );
+		Filters\expectAdded( 'ngettext_bar' )->once()->with( array( Assets::class, 'filter_ngettext' ), 10, 5 );
+		Filters\expectAdded( 'gettext_with_context_bar' )->once()->with( array( Assets::class, 'filter_gettext_with_context' ), 10, 4 );
+		Filters\expectAdded( 'ngettext_with_context_bar' )->once()->with( array( Assets::class, 'filter_ngettext_with_context' ), 10, 6 );
+		Filters\expectAdded( 'load_script_translation_file' )->once()->with( array( Assets::class, 'filter_load_script_translation_file' ), 10, 3 );
+
+		Assets::alias_textdomain( 'foo', 'one', 'plugins', '1.2.3' );
+		Assets::alias_textdomain( 'foo', 'two', 'plugins', '1.2.4' );
+		Assets::alias_textdomain( 'bar', 'one', 'themes', '1.2.3' );
+		Assets::alias_textdomain( 'bar', 'two', 'themes', '1.2.2' );
+
+		$this->assertEquals(
+			array(
+				'foo' => array( 'two', 'plugins', '1.2.4' ),
+				'bar' => array( 'one', 'themes', '1.2.3' ),
+			),
+			TestingAccessWrapper::newFromClass( Assets::class )->domain_map
+		);
+	}
+
+	/** Test textdomain aliasing with bad type. */
+	public function test_alias_textdomain__bad_type() {
+		$this->expectException( InvalidArgumentException::class );
+		$this->expectExceptionMessage( 'Type must be "plugins", "themes", or "core"' );
+		Assets::alias_textdomain( 'foo', 'one', 'bogus', '1.2.5' );
+	}
+
+	/** Test alias_textdomains_from_file */
+	public function test_alias_textdomains_from_file() {
+		Assets::alias_textdomains_from_file( __DIR__ . '/test-assets-files/i18n-map.php' );
+		$this->assertEquals(
+			array(
+				'foo' => array( 'target', 'plugins', '1.2.3' ),
+				'bar' => array( 'target', 'plugins', '4.5.6' ),
+			),
+			TestingAccessWrapper::newFromClass( Assets::class )->domain_map
+		);
+	}
+
+	/** Test textdomain aliasing called after wp_default_scripts. */
+	public function test_alias_textdomain__after_wp_default_scripts() {
+		do_action( 'wp_default_scripts' );
+		Functions\expect( '_doing_it_wrong' )->once()->with(
+			Assets::class . '::alias_textdomain',
+			'Textdomain aliases should be registered before the <code>wp_default_scripts</code> hook. This notice was triggered by the <code>foo</code> domain.',
+			''
+		);
+		Assets::alias_textdomain( 'foo', 'one', 'plugins', '1.2.5' );
+	}
+
+	/** Test filter_gettext. */
+	public function test_filter_gettext() {
+		TestingAccessWrapper::newFromClass( Assets::class )->domain_map = array( 'olddomain' => array( 'newdomain', 'plugins', '1.2.3' ) );
+
+		Functions\expect( '__' )->once()->with( 'foo', 'newdomain' )->andReturn( 'oo-fay' );
+		Functions\expect( '__' )->never()->with( 'bar', 'newdomain' );
+
+		$this->assertEquals( 'oo-fay', Assets::filter_gettext( 'foo', 'foo', 'olddomain' ) );
+		$this->assertEquals( 'foo', Assets::filter_gettext( 'foo', 'bar', 'olddomain' ) );
+		$this->assertEquals( 'bar', Assets::filter_gettext( 'bar', 'foo', 'olddomain' ) );
+	}
+
+	/** Test filter_ngettext. */
+	public function test_filter_ngettext() {
+		TestingAccessWrapper::newFromClass( Assets::class )->domain_map = array( 'olddomain' => array( 'newdomain', 'plugins', '1.2.3' ) );
+
+		Functions\expect( '_n' )->once()->with( 'foo', 'foos', 10, 'newdomain' )->andReturn( 'oos-fay' );
+		Functions\expect( '_n' )->never()->with( 'bar', 'bars', 42, 'newdomain' );
+
+		$this->assertEquals( 'oos-fay', Assets::filter_ngettext( 'foo', 'foo', 'foos', 10, 'olddomain' ) );
+		$this->assertEquals( 'foo', Assets::filter_ngettext( 'foo', 'bar', 'bars', 10, 'olddomain' ) );
+		$this->assertEquals( 'bar', Assets::filter_ngettext( 'bar', 'foo', 'foos', 10, 'olddomain' ) );
+	}
+
+	/** Test filter_gettext_with_context. */
+	public function test_filter_gettext_with_context() {
+		TestingAccessWrapper::newFromClass( Assets::class )->domain_map = array( 'olddomain' => array( 'newdomain', 'plugins', '1.2.3' ) );
+
+		Functions\expect( '_x' )->once()->with( 'foo', 'context', 'newdomain' )->andReturn( 'oo-fay' );
+		Functions\expect( '_x' )->never()->with( 'bar', 'context', 'newdomain' );
+
+		$this->assertEquals( 'oo-fay', Assets::filter_gettext_with_context( 'foo', 'foo', 'context', 'olddomain' ) );
+		$this->assertEquals( 'foo', Assets::filter_gettext_with_context( 'foo', 'bar', 'context', 'olddomain' ) );
+		$this->assertEquals( 'bar', Assets::filter_gettext_with_context( 'bar', 'foo', 'context', 'olddomain' ) );
+	}
+
+	/** Test filter_ngettext_with_context. */
+	public function test_filter_ngettext_with_context() {
+		TestingAccessWrapper::newFromClass( Assets::class )->domain_map = array( 'olddomain' => array( 'newdomain', 'plugins', '1.2.3' ) );
+
+		Functions\expect( '_nx' )->once()->with( 'foo', 'foos', 10, 'context', 'newdomain' )->andReturn( 'oos-fay' );
+		Functions\expect( '_nx' )->never()->with( 'bar', 'bars', 42, 'context', 'newdomain' );
+
+		$this->assertEquals( 'oos-fay', Assets::filter_ngettext_with_context( 'foo', 'foo', 'foos', 10, 'context', 'olddomain' ) );
+		$this->assertEquals( 'foo', Assets::filter_ngettext_with_context( 'foo', 'bar', 'bars', 10, 'context', 'olddomain' ) );
+		$this->assertEquals( 'bar', Assets::filter_ngettext_with_context( 'bar', 'foo', 'foos', 10, 'context', 'olddomain' ) );
+	}
+
+	/**
+	 * Test filter_load_script_translation_file.
+	 *
+	 * @dataProvider provide_filter_load_script_translation_file
+	 * @param array  $args Arguments to the filter.
+	 * @param array  $is_readable Expected files passed to `is_readable()` and the corresponding return values.
+	 * @param string $expect Expected return value.
+	 */
+	public function test_filter_load_script_translation_file( $args, $is_readable, $expect ) {
+		Jetpack_Constants::set_constant( 'WP_LANG_DIR', '/path/to/wordpress/wp-content/languages' );
+		TestingAccessWrapper::newFromClass( Assets::class )->domain_map = array(
+			'one'   => array( 'new1', 'plugins', '1.2.3' ),
+			'two'   => array( 'new2', 'themes', '1.2.3' ),
+			'three' => array( 'new3', 'core', '1.2.3' ),
+		);
+		Functions\when( 'is_readable' )->alias(
+			function ( $file ) use ( $is_readable ) {
+				if ( isset( $is_readable[ $file ] ) ) {
+					return $is_readable[ $file ];
+				}
+				throw new InvalidArgumentException( "Unexpected call to is_readable( $file )" );
+			}
+		);
+
+		$this->assertSame( $expect, Assets::filter_load_script_translation_file( ...$args ) );
+	}
+
+	/** Data provider for test_filter_load_script_translation_file. */
+	public function provide_filter_load_script_translation_file() {
+		return array(
+			'Passed false'                 => array(
+				array( false, 'handle', 'one' ),
+				array(),
+				false,
+			),
+			'Unmapped domain'              => array(
+				array( '/path/to/wherever/one-en_piglatin-abcdefhash.json', 'handle', 'four' ),
+				array(),
+				'/path/to/wherever/one-en_piglatin-abcdefhash.json',
+			),
+			'Requested file exists'        => array(
+				array( '/path/to/wherever/one-en_piglatin-abcdefhash.json', 'handle', 'one' ),
+				array( '/path/to/wherever/one-en_piglatin-abcdefhash.json' => true ),
+				'/path/to/wherever/one-en_piglatin-abcdefhash.json',
+			),
+			'Mapped file exists'           => array(
+				array( '/path/to/wherever/one-en_piglatin-abcdefhash.json', 'handle', 'one' ),
+				array(
+					'/path/to/wherever/one-en_piglatin-abcdefhash.json' => false,
+					'/path/to/wordpress/wp-content/languages/plugins/new1-en_piglatin-abcdefhash.json' => true,
+				),
+				'/path/to/wordpress/wp-content/languages/plugins/new1-en_piglatin-abcdefhash.json',
+			),
+			'Mapped file is missing'       => array(
+				array( '/path/to/wherever/two-en_piglatin-abcdefhash.json', 'handle', 'two' ),
+				array(
+					'/path/to/wherever/two-en_piglatin-abcdefhash.json' => false,
+					'/path/to/wordpress/wp-content/languages/themes/new2-en_piglatin-abcdefhash.json' => false,
+				),
+				'/path/to/wherever/two-en_piglatin-abcdefhash.json',
+			),
+			'Mapped to core'               => array(
+				array( '/path/to/wherever/three-en_piglatin-abcdefhash.json', 'handle', 'three' ),
+				array(
+					'/path/to/wherever/three-en_piglatin-abcdefhash.json' => false,
+					'/path/to/wordpress/wp-content/languages/new3-en_piglatin-abcdefhash.json' => true,
+				),
+				'/path/to/wordpress/wp-content/languages/new3-en_piglatin-abcdefhash.json',
+			),
+			'Domain not in requested file' => array(
+				array( '/path/to/wherever/something-en_piglatin-abcdefhash.json', 'handle', 'two' ),
+				array(
+					'/path/to/wherever/something-en_piglatin-abcdefhash.json' => false,
+				),
+				'/path/to/wherever/something-en_piglatin-abcdefhash.json',
 			),
 		);
 	}
