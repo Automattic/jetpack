@@ -1,0 +1,4 @@
+Significance: minor
+Type: added
+
+Generate an i18n mapping file for the installed libraries.

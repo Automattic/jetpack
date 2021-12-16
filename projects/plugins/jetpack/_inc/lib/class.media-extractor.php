@@ -44,13 +44,14 @@ class Jetpack_Media_Meta_Extractor {
 	 * Gets the specified media and meta info from the given post.
 	 * NOTE: If you have the post's HTML content already and don't need image data, use extract_from_content() instead.
 	 *
-	 * @param int $blog_id The ID of the blog.
-	 * @param int $post_id The ID of the post.
-	 * @param int $what_to_extract A mask of things to extract, e.g. Jetpack_Media_Meta_Extractor::IMAGES | Jetpack_Media_Meta_Extractor::MENTIONS.
+	 * @param int     $blog_id The ID of the blog.
+	 * @param int     $post_id The ID of the post.
+	 * @param int     $what_to_extract A mask of things to extract, e.g. Jetpack_Media_Meta_Extractor::IMAGES | Jetpack_Media_Meta_Extractor::MENTIONS.
+	 * @param boolean $extract_alt_text Should alt_text be extracted, defaults to false.
 	 *
 	 * @return array|WP_Error a structure containing metadata about the embedded things, or empty array if nothing found, or WP_Error on error.
 	 */
-	public static function extract( $blog_id, $post_id, $what_to_extract = self::ALL ) {
+	public static function extract( $blog_id, $post_id, $what_to_extract = self::ALL, $extract_alt_text = false ) {
 
 		// multisite?
 		if ( function_exists( 'switch_to_blog' ) ) {
@@ -76,7 +77,7 @@ class Jetpack_Media_Meta_Extractor {
 
 		// Get images first, we need the full post for that.
 		if ( self::IMAGES & $what_to_extract ) {
-			$extracted = self::get_image_fields( $post );
+			$extracted = self::get_image_fields( $post, array(), $extract_alt_text );
 
 			// Turn off images so we can safely call extract_from_content() below.
 			$what_to_extract = $what_to_extract - self::IMAGES;
@@ -377,10 +378,11 @@ class Jetpack_Media_Meta_Extractor {
 	 *
 	 * @param WP_Post $post A post object.
 	 * @param array   $args Optional args, see defaults list for details.
+	 * @param boolean $extract_alt_text Should alt_text be extracted, defaults to false.
 	 *
 	 * @return array Returns an array of all images meeting the specified criteria in $args.
 	 */
-	private static function get_image_fields( $post, $args = array() ) {
+	private static function get_image_fields( $post, $args = array(), $extract_alt_text = false ) {
 
 		if ( ! $post instanceof WP_Post ) {
 			return array();
@@ -399,27 +401,65 @@ class Jetpack_Media_Meta_Extractor {
 
 		$from_featured_image = Jetpack_PostImages::from_thumbnail( $post->ID, $args['width'], $args['height'] );
 		if ( ! empty( $from_featured_image ) ) {
-			$srcs       = wp_list_pluck( $from_featured_image, 'src' );
-			$image_list = array_merge( $image_list, $srcs );
+			if ( $extract_alt_text ) {
+				$image_list = array_merge( $image_list, self::reduce_extracted_images( $from_featured_image ) );
+			} else {
+				$srcs       = wp_list_pluck( $from_featured_image, 'src' );
+				$image_list = array_merge( $image_list, $srcs );
+			}
 		}
 
 		$from_slideshow = Jetpack_PostImages::from_slideshow( $post->ID, $args['width'], $args['height'] );
 		if ( ! empty( $from_slideshow ) ) {
-			$srcs       = wp_list_pluck( $from_slideshow, 'src' );
-			$image_list = array_merge( $image_list, $srcs );
+			if ( $extract_alt_text ) {
+				$image_list = array_merge( $image_list, self::reduce_extracted_images( $from_slideshow ) );
+			} else {
+				$srcs       = wp_list_pluck( $from_slideshow, 'src' );
+				$image_list = array_merge( $image_list, $srcs );
+			}
 		}
 
 		$from_gallery = Jetpack_PostImages::from_gallery( $post->ID );
 		if ( ! empty( $from_gallery ) ) {
-			$srcs       = wp_list_pluck( $from_gallery, 'src' );
-			$image_list = array_merge( $image_list, $srcs );
+			if ( $extract_alt_text ) {
+				$image_list = array_merge( $image_list, self::reduce_extracted_images( $from_gallery ) );
+			} else {
+				$srcs       = wp_list_pluck( $from_gallery, 'src' );
+				$image_list = array_merge( $image_list, $srcs );
+			}
 			$image_booleans['gallery']++; // @todo This count isn't correct, will only every count 1
 		}
 
 		// @todo Can we check width/height of these efficiently?  Could maybe use query args at least, before we strip them out
-		$image_list = self::get_images_from_html( $post->post_content, $image_list );
+		$image_list = self::get_images_from_html( $post->post_content, $image_list, $extract_alt_text );
 
 		return self::build_image_struct( $image_list, $image_booleans );
+	}
+
+	/**
+	 * Given an extracted image array reduce to src and alt_text.
+	 *
+	 * @param array $images extracted image array.
+	 *
+	 * @return array reduced image array
+	 */
+	protected static function reduce_extracted_images( $images ) {
+		$ret_images = array();
+		foreach ( $images as $image ) {
+			// skip if src isn't set.
+			if ( empty( $image['src'] ) ) {
+				continue;
+			}
+			if ( ! empty( $image['alt_text'] ) ) {
+				$ret_images[] = array(
+					'url'      => $image['src'],
+					'alt_text' => $image['alt_text'],
+				);
+			} else {
+				$ret_images[] = $image['src'];
+			}
+		}
+		return $ret_images;
 	}
 
 	/**
@@ -446,9 +486,13 @@ class Jetpack_Media_Meta_Extractor {
 	public static function build_image_struct( $image_list, $image_booleans ) {
 		if ( ! empty( $image_list ) ) {
 			$retval     = array( 'image' => array() );
-			$image_list = array_unique( $image_list );
+			$image_list = array_unique( $image_list, SORT_REGULAR );
 			foreach ( $image_list as $img ) {
-				$retval['image'][] = array( 'url' => $img );
+				if ( is_string( $img ) ) {
+					$retval['image'][] = array( 'url' => $img );
+				} else {
+					$retval['image'][] = $img;
+				}
 			}
 			$image_booleans['image'] = count( $retval['image'] );
 			if ( ! empty( $image_booleans ) ) {
@@ -463,37 +507,48 @@ class Jetpack_Media_Meta_Extractor {
 	/**
 	 * Extracts images from html.
 	 *
-	 * @param string $html Some markup, possibly containing image tags.
-	 * @param array  $images_already_extracted (just an array of image URLs without query strings, no special structure), used for de-duplication.
+	 * @param string  $html Some markup, possibly containing image tags.
+	 * @param array   $images_already_extracted (just an array of image URLs without query strings, no special structure), used for de-duplication.
+	 * @param boolean $extract_alt_text Should alt_text be extracted, defaults to false.
 	 *
 	 * @return array Image URLs extracted from the HTML, stripped of query params and de-duped
 	 */
-	public static function get_images_from_html( $html, $images_already_extracted ) {
+	public static function get_images_from_html( $html, $images_already_extracted, $extract_alt_text = false ) {
 		$image_list = $images_already_extracted;
 		$from_html  = Jetpack_PostImages::from_html( $html );
-		if ( ! empty( $from_html ) ) {
-			$srcs = wp_list_pluck( $from_html, 'src' );
-			foreach ( $srcs as $image_url ) {
-				$length = strpos( $image_url, '?' );
-				$src    = wp_parse_url( $image_url );
+		// early return if no image in html.
+		if ( empty( $from_html ) ) {
+			return $image_list;
+		}
+		// process images.
+		foreach ( $from_html as $extracted_image ) {
+			$image_url = $extracted_image['src'];
+			$length    = strpos( $image_url, '?' );
+			$src       = wp_parse_url( $image_url );
 
-				if ( $src && isset( $src['scheme'], $src['host'], $src['path'] ) ) {
-					// Rebuild the URL without the query string.
-					$queryless = $src['scheme'] . '://' . $src['host'] . $src['path'];
-				} elseif ( $length ) {
-					// If wp_parse_url() didn't work, strip off the query string the old fashioned way.
-					$queryless = substr( $image_url, 0, $length );
+			if ( $src && isset( $src['scheme'], $src['host'], $src['path'] ) ) {
+				// Rebuild the URL without the query string.
+				$queryless = $src['scheme'] . '://' . $src['host'] . $src['path'];
+			} elseif ( $length ) {
+				// If wp_parse_url() didn't work, strip off the query string the old fashioned way.
+				$queryless = substr( $image_url, 0, $length );
+			} else {
+				// Failing that, there was no spoon! Err ... query string!
+				$queryless = $image_url;
+			}
+
+			// Discard URLs that are longer then 4KB, these are likely data URIs or malformed HTML.
+			if ( 4096 < strlen( $queryless ) ) {
+				continue;
+			}
+
+			if ( ! in_array( $queryless, $image_list, true ) ) {
+				if ( $extract_alt_text && ! empty( $extracted_image['alt_text'] ) ) {
+					$image_list[] = array(
+						'url'      => $queryless,
+						'alt_text' => $extracted_image['alt_text'],
+					);
 				} else {
-					// Failing that, there was no spoon! Err ... query string!
-					$queryless = $image_url;
-				}
-
-				// Discard URLs that are longer then 4KB, these are likely data URIs or malformed HTML.
-				if ( 4096 < strlen( $queryless ) ) {
-					continue;
-				}
-
-				if ( ! in_array( $queryless, $image_list, true ) ) {
 					$image_list[] = $queryless;
 				}
 			}
