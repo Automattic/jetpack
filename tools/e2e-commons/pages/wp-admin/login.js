@@ -20,9 +20,8 @@ export default class WPLoginPage extends WpPage {
 		await this.fill( '#user_login', credentials.username );
 		await this.fill( '#user_pass', credentials.password );
 
-		const navigationPromise = this.waitForDomContentLoaded();
 		await this.click( '#wp-submit' );
-		await navigationPromise;
+		await this.waitForDomContentLoaded();
 
 		try {
 			await this.waitForElementToBeHidden( this.selectors[ 0 ] );

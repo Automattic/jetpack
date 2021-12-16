@@ -26,9 +26,9 @@
 		"@wordpress/eslint-plugin": "9.3.0",
 		"allure-playwright": "2.0.0-beta.14",
 		"axios": "0.24.0",
-		"chalk": "5.0.0",
+		"chalk": "4.1.2",
 		"config": "3.3.6",
-		"eslint": "8.4.1",
+		"eslint": "7.32.0",
 		"eslint-plugin-playwright": "0.6.0",
 		"jetpack-cli": "link:../cli",
 		"localtunnel": "2.0.2",
@@ -41,7 +41,7 @@
 	},
 	"engines": {
 		"node": "^14.17.6 || ^16.7.0",
-		"pnpm": "^6.5.0",
+		"pnpm": "^6.23.6",
 		"yarn": "use pnpm instead - see docs/yarn-upgrade.md"
 	},
 	"browserslist": [],
