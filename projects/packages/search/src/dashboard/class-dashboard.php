@@ -81,7 +81,6 @@ class Dashboard {
 			$this->get_link_offset()
 		);
 
-		add_action( "admin_print_styles-$hook", array( $this, 'load_admin_styles' ) );
 		add_action( "admin_print_scripts-$hook", array( $this, 'load_admin_scripts' ) );
 	}
 
@@ -122,13 +121,6 @@ class Dashboard {
 	private function get_link_offset() {
 		global $submenu;
 		return count( $submenu['jetpack'] );
-	}
-
-	/**
-	 * Enqueue admin styles.
-	 */
-	public function load_admin_styles() {
-		$this->load_admin_scripts();
 	}
 
 	/**
