@@ -1,11 +1,15 @@
 /**
  * External dependencies
  */
+import { connect } from 'react-redux';
 import PropTypes from 'prop-types';
 import React, { Component } from 'react';
-import { connect } from 'react-redux';
-import { __, sprintf } from '@wordpress/i18n';
 import restApi from '@automattic/jetpack-api';
+
+/**
+ * WordPress dependencies
+ */
+import { __, sprintf } from '@wordpress/i18n';
 import { Spinner } from '@wordpress/components';
 
 /**
@@ -17,6 +21,7 @@ import {
 	isPluginInstalled,
 	isFetchingPluginsData as getIsFetchingPluginsData,
 } from 'state/site/plugins';
+import analytics from 'lib/analytics';
 import Card from 'components/card';
 import JetpackBanner from 'components/jetpack-banner';
 import SectionHeader from 'components/section-header';
@@ -57,6 +62,12 @@ export class PluginDashItem extends Component {
 			// do not try to do anything to an installed, active plugin
 			return Promise.resolve();
 		}
+
+		analytics.tracks.recordJetpackClick( {
+			target: 'plugin_dash_item',
+			type: pluginIsInstalled ? 'install' : 'activate',
+			feature: pluginSlug,
+		} );
 
 		return restApi
 			.installPlugin( pluginSlug, 'active' )
