@@ -38,6 +38,7 @@ export class PluginDashItem extends Component {
 		pluginSlug: PropTypes.string.isRequired,
 		pluginLink: PropTypes.string.isRequired,
 		installOrActivatePrompt: PropTypes.element.isRequired,
+		iconAlt: PropTypes.string,
 		iconSrc: PropTypes.string,
 
 		// connected properties
@@ -84,6 +85,7 @@ export class PluginDashItem extends Component {
 
 	renderContent() {
 		const {
+			iconAlt,
 			iconSrc,
 			isFetchingPluginsData,
 			pluginLink,
@@ -135,7 +137,8 @@ export class PluginDashItem extends Component {
 						pluginName
 					) }
 					icon={ iconSrc ? undefined : 'plugins' }
-					iconSrc={ iconSrc ?? undefined }
+					iconAlt={ iconAlt }
+					iconSrc={ iconSrc }
 					title={ installOrActivatePrompt }
 					onClick={ this.activateOrInstallPlugin }
 				/>
@@ -149,7 +152,8 @@ export class PluginDashItem extends Component {
 						pluginName
 					) }
 					icon={ iconSrc ? undefined : 'plugins' }
-					iconSrc={ iconSrc ?? undefined }
+					iconAlt={ iconAlt }
+					iconSrc={ iconSrc }
 					title={ installOrActivatePrompt }
 					onClick={ this.activateOrInstallPlugin }
 				/>
@@ -163,7 +167,8 @@ export class PluginDashItem extends Component {
 					pluginName
 				) }
 				icon={ iconSrc ? undefined : 'plugins' }
-				iconSrc={ iconSrc ?? undefined }
+				iconAlt={ iconAlt }
+				iconSrc={ iconSrc }
 				title={ __( 'Plugin is installed & active.', 'jetpack' ) }
 				href={ pluginLink }
 			/>
