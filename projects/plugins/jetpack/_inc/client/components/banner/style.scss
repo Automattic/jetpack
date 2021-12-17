@@ -106,6 +106,10 @@
 		padding: 3px 4px 4px 3px;
 	}
 
+	.dops-banner__icon-circle-svg {
+		translate: 1px 1px;
+	}
+
 	@include breakpoint( '>480px' ) {
 		align-items: center;
 

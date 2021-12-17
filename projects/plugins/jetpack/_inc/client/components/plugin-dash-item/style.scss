@@ -1,4 +1,5 @@
 @import '~@automattic/jetpack-base-styles/style';
+@import '../../scss/mixin_breakpoint.scss';
 
 .plugin-dash-item {
 
@@ -17,14 +18,28 @@
 		border-left-color: #3895ba; // $studio-wordpress-blue-30
 		height: 100%;
 		.dops-banner__icons {
+
 			.dops-banner__icon-circle{
 				background-color: #3895ba; // $studio-wordpress-blue-30
+				height: 32px;
+				width: 32px;
+
 				.gridicon {
 					margin-bottom: 0;
 
 					g {
 						transform: none;
 					}
+				}
+			}
+
+			@include breakpoint( '<480px' ) {
+		
+				.dops-banner__icon {
+					display: none;
+				}
+				.dops-banner__icon-circle {
+					display: block;
 				}
 			}
 		} 
@@ -34,6 +49,7 @@
 		display: flex;
 		flex-direction: row;
 		align-items: center;
+		height: 100%;
 
 		.components-spinner {
 			margin-top: 0;

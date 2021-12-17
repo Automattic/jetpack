@@ -7,16 +7,17 @@ import PropTypes from 'prop-types';
 import { createInterpolateElement } from '@wordpress/element';
 import { ExternalLink } from '@wordpress/components';
 
-const CRM_PLUGIN_FILE = 'zero-bs-crm/ZeroBSCRM.php';
-const CRM_PLUGIN_SLUG = 'zero-bs-crm';
-const CRM_PLUGIN_DASH = '/wp-admin/admin.php?page=zerobscrm-dash';
-
 /**
  * Internal dependencies
  */
+import boostSvgUrl from './boost.svg'; 
 import PluginDashItem from 'components/plugin-dash-item';
 
-class DashCRM extends Component {
+const BOOST_PLUGIN_DASH = '/wp-admin/admin.php?page=jetpack-boost';
+const BOOST_PLUGIN_FILE = 'jetpack-boost/jetpack-boost.php';
+const BOOST_PLUGIN_SLUG = 'jetpack-boost';
+
+class DashBoost extends Component {
 	static propTypes = {
 		siteRawUrl: PropTypes.string.isRequired,
 	};
@@ -24,20 +25,21 @@ class DashCRM extends Component {
 	render() {
 		return (
 			<PluginDashItem
-				pluginName={ __( 'CRM', 'jetpack' ) }
-				pluginFile={ CRM_PLUGIN_FILE }
-				pluginSlug={ CRM_PLUGIN_SLUG }
-				pluginLink={ CRM_PLUGIN_DASH }
+				iconSrc={ boostSvgUrl }
+				pluginName={ __( 'Boost', 'jetpack' ) }
+				pluginFile={ BOOST_PLUGIN_FILE }
+				pluginSlug={ BOOST_PLUGIN_SLUG }
+				pluginLink={ BOOST_PLUGIN_DASH }
 				installOrActivatePrompt={ createInterpolateElement(
 					__(
-						'Sell more and get more leads with the Jetpack CRM plugin built specifically for WordPress.<br /><ExternalLink>Learn more</ExternalLink>',
+						'Improve your site’s performance and SEO in a few clicks with the free Jetpack Boost plugin.<br /><ExternalLink>Learn more.</ExternalLink>',
 						'jetpack'
 					),
 					{
 						ExternalLink: (
 							<ExternalLink
 								href={
-									'https://jetpack.com/redirect/?source=stats-nudges-crm-learn&site=' +
+									'https://jetpack.com/redirect/?source=stats-nudges-boost-learn&site=' +
 									this.props.siteRawUrl
 								}
 							/>
@@ -50,4 +52,4 @@ class DashCRM extends Component {
 	}
 }
 
-export default DashCRM;
+export default DashBoost;

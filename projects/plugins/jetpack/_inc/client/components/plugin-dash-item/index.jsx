@@ -11,22 +11,16 @@ import { Spinner } from '@wordpress/components';
 /**
  * Internal dependencies
  */
+import { fetchPluginsData as dispatchFetchPluginsData, isPluginActive, isPluginInstalled, isFetchingPluginsData as getIsFetchingPluginsData, } from 'state/site/plugins';
+import { getSiteAdminUrl } from 'state/initial-state';
 import Card from 'components/card';
-import {
-	fetchPluginsData as dispatchFetchPluginsData,
-	isPluginActive,
-	isPluginInstalled,
-	isFetchingPluginsData as getIsFetchingPluginsData,
-} from 'state/site/plugins';
 import JetpackBanner from 'components/jetpack-banner';
 import SectionHeader from 'components/section-header';
-import { getSiteAdminUrl } from 'state/initial-state';
 
 /**
  * Style dependencies
  */
 import './style.scss';
-
 class PluginDashItem extends Component {
 	static propTypes = {
 		pluginName: PropTypes.string.isRequired,
@@ -34,6 +28,7 @@ class PluginDashItem extends Component {
 		pluginSlug: PropTypes.string.isRequired,
 		pluginLink: PropTypes.string.isRequired,
 		installOrActivatePrompt: PropTypes.element.isRequired,
+		iconSrc: PropTypes.string,
 
 		// connected properties
 		pluginIsActive: PropTypes.bool,
@@ -66,19 +61,20 @@ class PluginDashItem extends Component {
 				status: 'active',
 			},
 		} )
-			.then( () => {
-				return fetchPluginsData();
-			} )
-			.finally( () => {
-				this.setState( {
-					isActivating: false,
-					isInstalling: false,
-				} );
+		.then( () => {
+			return fetchPluginsData();
+		} )
+		.finally( () => {
+			this.setState( {
+				isActivating: false,
+				isInstalling: false,
 			} );
+		} );
 	};
 
 	renderContent() {
 		const {
+			iconSrc,
 			isFetchingPluginsData,
 			pluginLink,
 			pluginName,
@@ -128,7 +124,8 @@ class PluginDashItem extends Component {
 						__( 'Install %s', 'jetpack' ),
 						pluginName
 					) }
-					icon="plugins"
+					icon={ iconSrc ? undefined : 'plugins' }
+					iconSrc={ iconSrc ?? undefined }
 					title={ installOrActivatePrompt }
 					onClick={ this.activateOrInstallPlugin }
 				/>
@@ -141,7 +138,8 @@ class PluginDashItem extends Component {
 						__( 'Activate %s', 'jetpack' ),
 						pluginName
 					) }
-					icon="plugins"
+					icon={ iconSrc ? undefined : 'plugins' }
+					iconSrc={ iconSrc ?? undefined }
 					title={ installOrActivatePrompt }
 					onClick={ this.activateOrInstallPlugin }
 				/>
@@ -154,7 +152,8 @@ class PluginDashItem extends Component {
 					__( 'Manage %s', 'jetpack' ),
 					pluginName
 				) }
-				icon="plugins"
+				icon={ iconSrc ? undefined : 'plugins' }
+				iconSrc={ iconSrc ?? undefined }
 				title={ __( 'Plugin is installed & active.', 'jetpack' ) }
 				href={ pluginLink }
 			/>
