@@ -1,4 +1,4 @@
-Significance: major
-Type: added
+Significance: patch
+Type: changed
 
-Initial commit.
+Updated package dependencies.
