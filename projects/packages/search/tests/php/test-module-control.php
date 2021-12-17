@@ -19,6 +19,13 @@ class Test_Module_Control extends TestCase {
 	protected static $search_module;
 
 	/**
+	 * Module_Control object which doesn't support instant search
+	 *
+	 * @var Module_Control
+	 */
+	protected static $search_module_no_instant;
+
+	/**
 	 * Setting up the test.
 	 *
 	 * @before
@@ -31,6 +38,12 @@ class Test_Module_Control extends TestCase {
 		$plan->method( 'supports_instant_search' )->willReturn( true );
 
 		static::$search_module = new Module_Control( $plan );
+
+		$plan = $this->createMock( Plan::class );
+		$plan->method( 'supports_search' )->willReturn( true );
+		$plan->method( 'supports_instant_search' )->willReturn( false );
+
+		static::$search_module_no_instant = new Module_Control( $plan );
 	}
 
 	/**
@@ -112,12 +125,22 @@ class Test_Module_Control extends TestCase {
 	public function test_enable_instant_search() {
 		delete_option( Module_Control::SEARCH_MODULE_INSTANT_SEARCH_OPTION_KEY );
 		static::$search_module->enable_instant_search();
-		// plan doesn't support instant search.
+		// plan doesn't support search.
 		$this->assertFalse( get_option( Module_Control::SEARCH_MODULE_INSTANT_SEARCH_OPTION_KEY ) );
 		add_filter( 'jetpack_options', array( $this, 'return_search_active_array' ) );
 		static::$search_module->enable_instant_search();
 		$this->assertTrue( get_option( Module_Control::SEARCH_MODULE_INSTANT_SEARCH_OPTION_KEY ) );
 		remove_filter( 'jetpack_options', array( $this, 'return_search_active_array' ) );
+	}
+
+	/**
+	 * Test static::$search_module->enable_instant_search()
+	 */
+	public function test_enable_instant_search_not_supported() {
+		delete_option( Module_Control::SEARCH_MODULE_INSTANT_SEARCH_OPTION_KEY );
+		static::$search_module_no_instant->enable_instant_search();
+		// plan doesn't support instant search.
+		$this->assertFalse( get_option( Module_Control::SEARCH_MODULE_INSTANT_SEARCH_OPTION_KEY ) );
 	}
 
 	/**
