@@ -1,0 +1,4 @@
+Significance: patch
+Type: bugfix
+
+Dashboard: fix logic that blocked one from enabling searchable features from the Jetpack settings.
