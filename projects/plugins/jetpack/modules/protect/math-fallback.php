@@ -147,7 +147,7 @@ if ( ! class_exists( 'Jetpack_Protect_Math_Authenticate' ) ) {
 			$salted_ans  = hash_hmac( 'sha1', $ans, $salt . $time_window );
 			?>
 			<div style="margin: 5px 0 20px;">
-				<p class="message">
+				<p style="font-size: 14px;">
 					<?php esc_html_e( 'Prove your humanity', 'jetpack' ); ?>
 				</p>
 				<br/>
