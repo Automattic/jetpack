@@ -12,4 +12,12 @@ test.describe( 'Speed Score feature', () => {
 		expect( await jetpackBoostPage.getSpeedScore( 'mobile' ) ).toBeGreaterThan( 0 );
 		expect( await jetpackBoostPage.getSpeedScore( 'desktop' ) ).toBeGreaterThan( 0 );
 	} );
+
+	test( 'The Speed Scores should start refreshing immidiately if refresh is clicked', async () => {
+		await jetpackBoostPage.waitForScoreLoadingToFinish();
+		await jetpackBoostPage.clickRefreshSpeedScore();
+		expect( await jetpackBoostPage.isLoading() ).toBeTruthy();
+		expect( await jetpackBoostPage.isScorebarLoading( 'mobile' ) ).toBeTruthy();
+		expect( await jetpackBoostPage.isScorebarLoading( 'desktop' ) ).toBeTruthy();
+	} );
 } );

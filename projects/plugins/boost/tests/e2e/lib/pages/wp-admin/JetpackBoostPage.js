@@ -65,6 +65,11 @@ export default class JetpackBoostPage extends WpPage {
 		return Number( await speedBar.$eval( '.jb-score-bar__score', e => e.textContent ) );
 	}
 
+	async isScorebarLoading( platform ) {
+		const selector = `div.jb-score-bar--${ platform }  .jb-score-bar__loading`;
+		return this.page.isVisible( selector );
+	}
+
 	async isTheCriticalCssMetaInformationVisible() {
 		const selector = '.jb-critical-css__meta';
 		return this.page.isVisible( selector );
@@ -96,5 +101,20 @@ export default class JetpackBoostPage extends WpPage {
 
 	async navigateToMainSettingsPage() {
 		await this.page.click( 'text=Go back' );
+	}
+
+	async clickRefreshSpeedScore() {
+		const selector = '.jb-site-score__top >> text=Refresh';
+		await this.page.click( selector );
+	}
+
+	async isLoading() {
+		const selector = '.jb-site-score__top h2:text("Loading…")';
+		return this.page.isVisible( selector );
+	}
+
+	async waitForScoreLoadingToFinish() {
+		const selector = '.jb-site-score__top h2:text("Loading…")';
+		return this.waitForElementToBeDetached( selector, 60000 );
 	}
 }
