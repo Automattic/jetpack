@@ -189,6 +189,7 @@ class Jetpack_Network {
 			 */
 			if ( ! in_array( 'jetpack/jetpack.php', $active_plugins, true ) ) {
 				Jetpack::disconnect();
+				Jetpack_Options::delete_option( 'version' );
 			}
 			restore_current_blog();
 		}

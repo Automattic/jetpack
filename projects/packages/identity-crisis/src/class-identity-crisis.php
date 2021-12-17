@@ -28,7 +28,7 @@ class Identity_Crisis {
 	/**
 	 * Package Version
 	 */
-	const PACKAGE_VERSION = '0.4.0';
+	const PACKAGE_VERSION = '0.5.1-alpha';
 
 	/**
 	 * Instance of the object.
@@ -46,6 +46,7 @@ class Identity_Crisis {
 
 	/**
 	 * Has safe mode been confirmed?
+	 * Beware, it never contains `true` for non-admins, so doesn't always reflect the actual value.
 	 *
 	 * @var bool
 	 */
@@ -1215,6 +1216,16 @@ class Identity_Crisis {
 	}
 
 	/**
+	 * Whether an admin has confirmed safe mode.
+	 * Unlike `static::$is_safe_mode_confirmed` this function always returns the actual flag value.
+	 *
+	 * @return bool
+	 */
+	public static function safe_mode_is_confirmed() {
+		return Jetpack_Options::get_option( 'safe_mode_confirmed' );
+	}
+
+	/**
 	 * Returns the mismatched URLs.
 	 *
 	 * @return array|bool The mismatched urls, or false if the site is not connected, offline, in safe mode, or the IDC error is not valid.
@@ -1226,7 +1237,14 @@ class Identity_Crisis {
 
 		$data = static::check_identity_crisis();
 
-		if ( ! $data ) {
+		if ( ! $data ||
+			! isset( $data['error_code'] ) ||
+			! isset( $data['wpcom_home'] ) ||
+			! isset( $data['home'] ) ||
+			! isset( $data['wpcom_siteurl'] ) ||
+			! isset( $data['siteurl'] )
+			) {
+			// The jetpack_sync_error_idc option is missing a key.
 			return false;
 		}
 

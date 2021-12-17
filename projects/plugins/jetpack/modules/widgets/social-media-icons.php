@@ -1,23 +1,24 @@
-<?php
-/*
-Plugin Name: Social Media Icons Widget
-Description: A simple widget that displays social media icons
-Author: Automattic Inc.
-
-This widget is now deprecated.
-Any new features should go into modules/widgets/social-icons.php instead.
-@see https://github.com/Automattic/jetpack/pull/8498
-
-*/
-
+<?php // phpcs:ignore WordPress.Files.FileName.InvalidClassFileName.php
+/**
+ * Social Media Icons Widget
+ *
+ * This widget is now deprecated.
+ * Any new features should go into modules/widgets/social-icons.php instead.
+ *
+ * @see https://github.com/Automattic/jetpack/pull/8498
+ *
+ * @package automattic/jetpack
+ */
 
 /**
  * WPCOM_social_media_icons_widget class.
  *
  * @extends WP_Widget
+ *
+ * phpcs:disable PEAR.NamingConventions.ValidClassName.Invalid
  */
 class WPCOM_social_media_icons_widget extends WP_Widget {
-
+	// phpcs:enable PEAR.NamingConventions.ValidClassName.Invalid
 	/**
 	 * Defaults
 	 *
@@ -33,7 +34,6 @@ class WPCOM_social_media_icons_widget extends WP_Widget {
 	 * @access private
 	 */
 	private $services;
-
 
 	/**
 	 * __construct function.
@@ -129,32 +129,37 @@ class WPCOM_social_media_icons_widget extends WP_Widget {
 		if ( ! $this->check_genericons() ) {
 			wp_enqueue_style( 'genericons' );
 		}
-		$index    = 10;
-		$html     = array();
+		$index = 10;
+		$html  = array();
+		/* Translators: 1. Username. 2. Service name. */
 		$alt_text = esc_attr__( 'View %1$s&#8217;s profile on %2$s', 'jetpack' );
 		foreach ( $this->services as $service => $data ) {
 			list( $service_name, $url ) = $data;
 			if ( ! isset( $instance[ $service . '_username' ] ) ) {
 				continue;
 			}
-			$username = $link_username = $instance[ $service . '_username' ];
+			$link_username = $instance[ $service . '_username' ];
+			$username      = $link_username;
 			if ( empty( $username ) ) {
 				continue;
 			}
 			$index         += 10;
 			$predefined_url = false;
 
-			/** Check if full URL entered in configuration, use it instead of tinkering **/
+			/** Check if full URL entered in configuration, use it instead of tinkering */
 			if (
 				in_array(
 					wp_parse_url( $username, PHP_URL_SCHEME ),
-					array( 'http', 'https' )
+					array( 'http', 'https' ),
+					true
 				)
 			) {
 				$predefined_url = $username;
 
-				// In case of a predefined link we only display the service name
-				// for screen readers
+				/*
+				 * In case of a predefined link we only display the service name
+				 * for screen readers
+				 */
 				$alt_text = '%2$s';
 			}
 
@@ -213,7 +218,7 @@ class WPCOM_social_media_icons_widget extends WP_Widget {
 		ksort( $html );
 		$html = '<ul><li>' . join( '</li><li>', $html ) . '</li></ul>';
 		if ( ! empty( $instance['title'] ) ) {
-			$html = $args['before_title'] . esc_html( $instance['title'] ) . $args['after_title'] . $html;
+			$html = $args['before_title'] . $instance['title'] . $args['after_title'] . $html;
 		}
 		$html = $args['before_widget'] . $html . $args['after_widget'];
 
@@ -229,7 +234,7 @@ class WPCOM_social_media_icons_widget extends WP_Widget {
 		 *
 		 * @param string $html Social Media Icons widget html output.
 		 */
-		echo apply_filters( 'jetpack_social_media_icons_widget_output', $html );
+		echo apply_filters( 'jetpack_social_media_icons_widget_output', $html ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
 	}
 
 	/**
@@ -254,13 +259,16 @@ class WPCOM_social_media_icons_widget extends WP_Widget {
 			</p>
 		<?php
 		foreach ( $this->services as $service => $data ) {
-			list( $service_name, $url ) = $data;
+			list( $service_name, $url ) = $data; // phpcs:ignore VariableAnalysis.CodeAnalysis.VariableAnalysis.UnusedVariable
 			?>
 				<p>
 					<label for="<?php echo esc_attr( $this->get_field_id( $service . '_username' ) ); ?>">
 					<?php
-						/* translators: %s is a social network name, e.g. Facebook. */
-						printf( __( '%s username:', 'jetpack' ), $service_name );
+						printf(
+							/* translators: %s is a social network name, e.g. Facebook. */
+							esc_html__( '%s username:', 'jetpack' ),
+							esc_html( $service_name )
+						);
 					?>
 				</label>
 				<input

@@ -176,7 +176,7 @@ info "Updating trunk"
 svn commit -m "Updating trunk to version $TAG"
 success "Done!"
 info "Tagging $TAG"
-svn cp ^/$WPSLUG/trunk ^/$WPSLUG/tags/$TAG
+svn cp ^/$WPSLUG/trunk ^/$WPSLUG/tags/$TAG -m "Creating the $TAG tag"
 success "Done!"
 if [[ "$TAG" =~ ^[0-9]+(\.[0-9]+)+$ ]]; then
 	info "Updating stable tag in readme.txt in SVN tags/$TAG"

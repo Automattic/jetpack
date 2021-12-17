@@ -14,6 +14,7 @@ import {
 	isJetpackBackup,
 	isJetpackScan,
 	isJetpackSearch,
+	isJetpackSecurityBundle,
 	isJetpackVideoPress,
 } from 'lib/plans/constants';
 import {
@@ -331,6 +332,31 @@ export function getActiveScanPurchase( state ) {
 
 export function hasActiveScanPurchase( state ) {
 	return !! getActiveScanPurchase( state );
+}
+
+/**
+ * Return any active security bundles on the site
+ *
+ * @param {*} state - Global state tree
+ * @returns {object} A active security bundle on the site, undefined otherwise
+ */
+export function getActiveSecurityPurchase( state ) {
+	return find( getActiveSitePurchases( state ), purchase =>
+		isJetpackSecurityBundle( purchase.product_slug )
+	);
+}
+
+/**
+ * Determines if the site has an active security or complete plan
+ *
+ * @param {*} state - Global state tree
+ * @returns {boolean} True if the site has an active security or complete plan, false otherwise.
+ */
+export function hasActiveSecurityPurchase( state ) {
+	return (
+		!! getActiveSecurityPurchase( state ) ||
+		'is-complete-plan' === getPlanClass( getSitePlan( state ).product_slug )
+	);
 }
 
 export function getActiveSearchPurchase( state ) {

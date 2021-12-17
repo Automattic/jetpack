@@ -5,6 +5,43 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [2.2.0] - 2021-12-14
+### Changed
+- Allow non-adimin access to the Connection Manager for proper IDC screen review.
+
+### Fixed
+- Build minimized JS for the production build.
+
+## [2.1.4] - 2021-12-07
+### Added
+- Pass tracking data into the RNA IDC package.
+
+### Changed
+- Updated package dependencies.
+
+## [2.1.3] - 2021-11-30
+### Changed
+- Remove now-redundant `output.filename` from Webpack config.
+
+## [2.1.2] - 2021-11-23
+### Changed
+- Updated package dependencies.
+
+## [2.1.1] - 2021-11-17
+### Changed
+- Updated package dependencies.
+
+## [2.1.0] - 2021-11-16
+### Added
+- Use monorepo `validate-es` script to validate Webpack builds.
+
+### Changed
+- Replace the withConnectionStatus HOC with withSelect HOC.
+- Updated package dependencies
+
+### Removed
+- Remove use of `gulp` in build, all it was doing was wrapping `webpack`.
+
 ## [2.0.0] - 2021-11-09
 ### Added
 - Initialize IDC package, properly display the RNA IDC screen.
@@ -118,6 +155,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - Connection UI: Building the Framework
 
+[2.2.0]: https://github.com/Automattic/jetpack-connection-ui/compare/v2.1.4...v2.2.0
+[2.1.4]: https://github.com/Automattic/jetpack-connection-ui/compare/v2.1.3...v2.1.4
+[2.1.3]: https://github.com/Automattic/jetpack-connection-ui/compare/v2.1.2...v2.1.3
+[2.1.2]: https://github.com/Automattic/jetpack-connection-ui/compare/v2.1.1...v2.1.2
+[2.1.1]: https://github.com/Automattic/jetpack-connection-ui/compare/v2.1.0...v2.1.1
+[2.1.0]: https://github.com/Automattic/jetpack-connection-ui/compare/v2.0.0...v2.1.0
 [2.0.0]: https://github.com/Automattic/jetpack-connection-ui/compare/v1.6.0...v2.0.0
 [1.6.0]: https://github.com/Automattic/jetpack-connection-ui/compare/v1.5.3...v1.6.0
 [1.5.3]: https://github.com/Automattic/jetpack-connection-ui/compare/v1.5.2...v1.5.3

@@ -102,24 +102,6 @@ class Test_Admin_Menu extends WP_UnitTestCase {
 	}
 
 	/**
-	 * Shim wpcomsh fallback site icon.
-	 *
-	 * @return string
-	 */
-	public function wpcomsh_site_icon_url() {
-		return 'https://s0.wp.com/i/webclip.png';
-	}
-
-	/**
-	 * Custom site icon.
-	 *
-	 * @return string
-	 */
-	public function custom_site_icon_url() {
-		return 'https://s0.wp.com/i/jetpack.png';
-	}
-
-	/**
 	 * Tests get_preferred_view
 	 *
 	 * @covers ::get_preferred_view
@@ -167,9 +149,10 @@ class Test_Admin_Menu extends WP_UnitTestCase {
 	public function test_add_upsell_nudge() {
 		global $menu;
 		$nudge = array(
-			'content' => 'Free domain with an <a href="somehref">annual plan</a>',
-			'cta'     => '<b>Upgrade</b>',
-			'link'    => '/plans/example.com?addDomainFlow=true',
+			'content'     => 'Free domain with an <a href="somehref">annual plan</a>',
+			'cta'         => '<b>Upgrade</b>',
+			'link'        => '/plans/example.com?addDomainFlow=true',
+			'dismissible' => false,
 		);
 		static::$admin_menu->add_upsell_nudge( $nudge );
 
@@ -186,6 +169,33 @@ class Test_Admin_Menu extends WP_UnitTestCase {
 
 		$this->assertSame( $markup, $menu[1][0] );
 		$this->assertSame( $link, $menu[1][2] );
+
+		// Reset.
+		$menu = static::$menu_data;
+
+		$nudge = array(
+			'content'     => 'Some content',
+			'cta'         => '<b>CTA</b>',
+			'link'        => 'https://wordpress.org',
+			'dismissible' => false,
+		);
+		static::$admin_menu->add_upsell_nudge( $nudge );
+		$this->assertSame( 'https://wordpress.org', $menu[1][2] );
+
+		// Reset.
+		$menu = static::$menu_data;
+
+		$nudge = array(
+			'content'       => 'Some content',
+			'cta'           => '<b>CTA</b>',
+			'link'          => 'https://wordpress.org',
+			'dismissible'   => true,
+			'id'            => 'an_identifier',
+			'feature_class' => 'the_feature_class',
+		);
+		static::$admin_menu->add_upsell_nudge( $nudge );
+
+		$this->assertStringContainsString( '<svg xmlns="http://www.w3.org/2000/svg" data-feature_class="the_feature_class" data-feature_id="an_identifier"', $menu[1][0] );
 	}
 
 	/**
@@ -371,12 +381,19 @@ class Test_Admin_Menu extends WP_UnitTestCase {
 
 		// On multisite the administrator is not allowed to create users.
 		grant_super_admin( self::$user_id );
+		$account_key = 5;
+
 		static::$admin_menu->add_users_menu();
 
+		// On WP.com users can only invite other users, not create them (missing create_users cap).
+		if ( ! defined( 'IS_WPCOM' ) || ! IS_WPCOM ) {
+			$this->assertSame( 'https://wordpress.com/people/new/' . static::$domain, $submenu['users.php'][2][2] );
+			$account_key = 6;
+		}
+
 		$this->assertSame( 'https://wordpress.com/people/team/' . static::$domain, $submenu['users.php'][0][2] );
-		$this->assertSame( 'https://wordpress.com/people/new/' . static::$domain, $submenu['users.php'][2][2] );
 		$this->assertSame( 'https://wordpress.com/me', $submenu['users.php'][3][2] );
-		$this->assertSame( 'https://wordpress.com/me/account', $submenu['users.php'][6][2] );
+		$this->assertSame( 'https://wordpress.com/me/account', $submenu['users.php'][ $account_key ][2] );
 	}
 
 	/**

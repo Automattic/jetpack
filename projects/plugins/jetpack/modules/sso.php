@@ -892,7 +892,7 @@ class Jetpack_SSO {
 			: 'jetpack-sso button';
 
 		return sprintf(
-			'<a rel="nofollow" href="%1$s" class="%2$s"><span>%3$s %4$s</span></a>',
+			'<a rel="nofollow" href="%1$s" class="%2$s">%3$s %4$s</a>',
 			esc_url( $url ),
 			$classes,
 			'<span class="genericon genericon-wordpress"></span>',

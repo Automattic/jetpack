@@ -2,6 +2,54 @@
 
 ### This is a list detailing changes for the Jetpack RNA Connection Component releases.
 
+## 0.11.3 - 2021-12-14
+### Fixed
+- Fix JavaScript i18n strings.
+
+## 0.11.2 - 2021-12-07
+### Changed
+- Updated package dependencies.
+
+## 0.11.1 - 2021-12-06
+### Fixed
+- Style updates to improve disconnect flow appearance when Gutenberg plugin is active
+
+## 0.11.0 - 2021-11-30
+### Added
+- Added a ContextualizedConnection component to display a connection screen that can be used to give context to the user why Jetpack would benefit them.
+- Fetches the initial state from the global variable provided by the connection package
+
+### Changed
+- Extend functionality of the disconnect modal to allow it to be used in more contexts
+- moved the registerSite logic into the store
+- Updated package dependencies.
+
+### Fixed
+- ConnectScreen: Fix custom grid and background color.
+- ConnectScreen: make button full width on small viewports
+
+## 0.10.2 - 2021-11-23
+### Changed
+- Import RNA styles from base styles package.
+- Updated package dependencies
+
+### Fixed
+- revert button width change in favor of the fix in the visual element
+
+## 0.10.1 - 2021-11-17
+### Changed
+- Updated package dependencies.
+
+## 0.10.0 - 2021-11-16
+### Added
+- Remove the withConnectionStatus HOC, export the store.
+
+### Changed
+- Updated package dependencies
+
+### Fixed
+- Button styles: ensure the button can accomodate longer text.
+
 ## 0.9.1 - 2021-11-09
 ### Changed
 - Updated package dependencies.

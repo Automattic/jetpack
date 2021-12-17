@@ -1,22 +1,16 @@
-const path = require( 'path' );
 const webpack = require( 'webpack' );
 
-const CalypsoMinify = require( '@automattic/calypso-build/webpack/minify' );
+const CssMinimizerPlugin = require( 'css-minimizer-webpack-plugin' );
+const TerserPlugin = require( './webpack/terser' );
 const DependencyExtractionWebpackPlugin = require( '@wordpress/dependency-extraction-webpack-plugin' );
 const DuplicatePackageCheckerWebpackPlugin = require( 'duplicate-package-checker-webpack-plugin' );
 const MiniCssExtractPlugin = require( 'mini-css-extract-plugin' );
-const MiniCSSWithRTLPlugin = require( '@automattic/calypso-build/webpack/mini-css-with-rtl' );
+const MiniCSSWithRTLPlugin = require( './webpack/mini-css-with-rtl' );
 const WebpackRTLPlugin = require( '@automattic/webpack-rtl-plugin' );
+const I18nLoaderWebpackPlugin = require( '@automattic/i18n-loader-webpack-plugin' );
+const I18nCheckWebpackPlugin = require( '@automattic/i18n-check-webpack-plugin' );
 
-// Calypso's Minify doesn't default to preserving the WordPress i18n functions. Sigh.
-const Minify = options =>
-	CalypsoMinify( {
-		...options,
-		terserOptions: {
-			mangle: { reserved: [ '__', '_n', '_nx', '_x' ] },
-			...options?.terserOptions,
-		},
-	} );
+const MyCssMinimizerPlugin = options => new CssMinimizerPlugin( options );
 
 // See README.md for explanations of all these settings.
 // If you change something here, you'll probably need to update README.md to match.
@@ -25,13 +19,14 @@ const isDevelopment = ! isProduction;
 const mode = isProduction ? 'production' : 'development';
 const devtool = isProduction ? false : 'eval-cheap-module-source-map';
 const output = {
-	filename: '[name].min.js',
-	chunkFilename: '[name]-[id].H[contenthash:20].min.js',
+	filename: '[name].js',
+	chunkFilename: '[name].js?minify=false&ver=[contenthash]',
 };
 const optimization = {
 	minimize: isProduction,
-	minimizer: Minify(),
+	minimizer: [ TerserPlugin(), MyCssMinimizerPlugin() ],
 	concatenateModules: false,
+	emitOnErrors: true,
 };
 const resolve = {
 	extensions: [ '.js', '.jsx', '.ts', '.tsx', '...' ],
@@ -54,12 +49,17 @@ const MomentLocaleIgnorePlugin = () => [
 	} ),
 ];
 
-const MyMiniCssExtractPlugin = options => [ new MiniCssExtractPlugin( options ) ];
-
-const RtlCssPlugins = options => [
-	new MiniCSSWithRTLPlugin( options?.miniCssWithRtlOpts ),
-	new WebpackRTLPlugin( options?.webpackRtlPluginOpts ),
+const MyMiniCssExtractPlugin = options => [
+	new MiniCssExtractPlugin( {
+		filename: '[name].css',
+		chunkFilename: '[name].css?minify=false&ver=[contenthash]',
+		...options,
+	} ),
 ];
+
+const MyMiniCssWithRtlPlugin = options => [ new MiniCSSWithRTLPlugin( options ) ];
+
+const MyWebpackRtlPlugin = options => [ new WebpackRTLPlugin( options ) ];
 
 const DuplicatePackageCheckerPlugin = options => [
 	new DuplicatePackageCheckerWebpackPlugin( options ),
@@ -67,7 +67,25 @@ const DuplicatePackageCheckerPlugin = options => [
 
 const DependencyExtractionPlugin = options => [ new DependencyExtractionWebpackPlugin( options ) ];
 
+const I18nLoaderPlugin = options => [ new I18nLoaderWebpackPlugin( options ) ];
+
+const i18nFilterFunction = file => {
+	if ( ! /\.(?:jsx?|tsx?|cjs|mjs|svelte)$/.test( file ) ) {
+		return false;
+	}
+	const i = file.lastIndexOf( '/node_modules/' ) + 14;
+	return i < 14 || file.startsWith( '@automattic/', i );
+};
+const I18nCheckPlugin = options => [
+	new I18nCheckWebpackPlugin( { filter: i18nFilterFunction, ...options } ),
+];
+I18nCheckPlugin.defaultFilter = i18nFilterFunction;
+
 const StandardPlugins = ( options = {} ) => {
+	if ( typeof options.I18nCheckPlugin === 'undefined' && isDevelopment ) {
+		options.I18nCheckPlugin = false;
+	}
+
 	return [
 		...( options.DefinePlugin === false ? [] : DefinePlugin( options.DefinePlugin ) ),
 		...( options.MomentLocaleIgnorePlugin === false
@@ -76,41 +94,26 @@ const StandardPlugins = ( options = {} ) => {
 		...( options.MiniCssExtractPlugin === false
 			? []
 			: MyMiniCssExtractPlugin( options.MiniCssExtractPlugin ) ),
-		...( options.RtlCssPlugins === false ? [] : RtlCssPlugins( options.RtlCssPlugins ) ),
+		...( options.MiniCssWithRtlPlugin === false
+			? []
+			: MyMiniCssWithRtlPlugin( options.MiniCssWithRtlPlugin ) ),
+		...( options.WebpackRtlPlugin === false ? [] : MyWebpackRtlPlugin( options.WebpackRtlPlugin ) ),
 		...( options.DuplicatePackageCheckerPlugin === false
 			? []
 			: DuplicatePackageCheckerPlugin( options.DuplicatePackageCheckerPlugin ) ),
 		...( options.DependencyExtractionPlugin === false
 			? []
 			: DependencyExtractionPlugin( options.DependencyExtractionPlugin ) ),
+		...( options.I18nLoaderPlugin === false ? [] : I18nLoaderPlugin( options.I18nLoaderPlugin ) ),
+		...( options.I18nCheckPlugin === false ? [] : I18nCheckPlugin( options.I18nCheckPlugin ) ),
 	];
 };
 
-/****** Module rules and loaders ******/
+/****** Module rules ******/
 
 const TranspileRule = require( './webpack/transpile-rule' );
+const CssRule = require( './webpack/css-rule' );
 const FileRule = require( './webpack/file-rule' );
-const MiniCssExtractLoader = options => ( {
-	loader: MiniCssExtractPlugin.loader,
-	options: options,
-} );
-const CssLoader = options => ( {
-	loader: require.resolve( 'css-loader' ),
-	options: {
-		// By default we do not want css-loader to try to handle absolute paths.
-		url: { filter: urlpath => ! urlpath.startsWith( '/' ) },
-		...options,
-	},
-} );
-const CssCacheLoader = options => ( {
-	loader: require.resolve( 'cache-loader' ),
-	options: {
-		cacheDirectory: path.resolve( '.cache/css-loader' ),
-		...options,
-	},
-} );
-
-// TODO: SASS loader and CSS loaders
 
 // Note: For this cjs module to be used with named exports in an mjs context, modules.exports
 // needs to contain only simple variables like `a` or `a: b`. Define anything more complex
@@ -124,20 +127,21 @@ module.exports = {
 	devtool,
 	output,
 	optimization,
-	Minify,
+	TerserPlugin,
+	CssMinimizerPlugin: MyCssMinimizerPlugin,
 	resolve,
 	// Plugins.
 	StandardPlugins,
 	DefinePlugin,
 	MomentLocaleIgnorePlugin,
 	MiniCssExtractPlugin: MyMiniCssExtractPlugin,
-	RtlCssPlugins,
+	MiniCssWithRtlPlugin: MyMiniCssWithRtlPlugin,
+	WebpackRtlPlugin: MyWebpackRtlPlugin,
 	DependencyExtractionPlugin,
 	DuplicatePackageCheckerPlugin,
+	I18nLoaderPlugin,
 	// Module rules and loaders.
 	TranspileRule,
+	CssRule,
 	FileRule,
-	MiniCssExtractLoader,
-	CssLoader,
-	CssCacheLoader,
 };

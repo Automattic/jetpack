@@ -485,7 +485,7 @@ class Actions {
 	 * @return bool|null False if sync is not allowed.
 	 */
 	public static function do_initial_sync() {
-		// Lets not sync if we are not suppose to.
+		// Let's not sync if we are not supposed to.
 		if ( ! self::sync_allowed() ) {
 			return false;
 		}
@@ -505,6 +505,20 @@ class Actions {
 		);
 
 		self::do_full_sync( $initial_sync_config );
+	}
+
+	/**
+	 * Do an initial full sync only if one has not already been started.
+	 *
+	 * @return bool|null False if the initial full sync was already started, otherwise null.
+	 */
+	public static function do_only_first_initial_sync() {
+		$full_sync_module = Modules::get_module( 'full-sync' );
+		if ( $full_sync_module && $full_sync_module->is_started() ) {
+			return false;
+		}
+
+		static::do_initial_sync();
 	}
 
 	/**

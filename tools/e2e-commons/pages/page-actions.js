@@ -1,11 +1,7 @@
-import logger from '../logger';
-import fs from 'fs';
+import logger from '../logger.cjs';
 import chalk from 'chalk';
 import config from 'config';
-import path from 'path';
-const pwConfig = require( `${ path.resolve(
-	process.env.NODE_CONFIG_DIR ? process.env.NODE_CONFIG_DIR : 'config'
-) }/playwright.config` );
+import pwConfig from '../playwright.config.cjs';
 
 /**
  * This is an abstraction for most important page actions
@@ -16,7 +12,7 @@ export default class PageActions {
 		this.page = page;
 		this.selectors = selectors;
 		this.pageName = pageName ? pageName : this.constructor.name;
-		this.timeout = timeoutOverride ? timeoutOverride : pwConfig.pwBrowserOptions.timeout;
+		this.timeout = timeoutOverride ? timeoutOverride : pwConfig.use.actionTimeout;
 	}
 
 	// region page functions
@@ -122,8 +118,8 @@ export default class PageActions {
 	 * @return {Promise<void>}
 	 */
 	async saveCurrentStorageState() {
-		const storage = await this.page.context().storageState();
-		fs.writeFileSync( config.get( 'temp.storage' ), JSON.stringify( storage ) );
+		await this.page.context().storageState( { path: config.get( 'temp.storage' ) } );
+		// fs.writeFileSync( config.get( 'temp.storage' ), JSON.stringify( storage ) );
 	}
 
 	/**
@@ -167,7 +163,6 @@ export default class PageActions {
 	 * Clicks on the element which will open up a new page and waits for that page to load and returns a new page object
 	 *
 	 * @param {string} selector CSS selector of the element to be clicked
-	 * @return {page} New instance of the opened page.
 	 */
 	async clickAndWaitForNewPage( selector ) {
 		const [ newPage ] = await Promise.all( [
@@ -189,7 +184,7 @@ export default class PageActions {
 	 */
 	async clear( selector ) {
 		logger.action( `Clearing text value for element ${ selector }` );
-		await page.press( selector, 'Control+ArrowRight' );
+		await this.page.press( selector, 'Control+ArrowRight' );
 	}
 
 	/**

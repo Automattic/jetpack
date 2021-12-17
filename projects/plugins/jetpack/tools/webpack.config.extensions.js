@@ -11,6 +11,7 @@ const jetpackWebpackConfig = require( '@automattic/jetpack-webpack-config/webpac
 const path = require( 'path' );
 const webpack = jetpackWebpackConfig.webpack;
 const StaticSiteGeneratorPlugin = require( 'static-site-generator-webpack-plugin' );
+const RemoveAssetWebpackPlugin = require( '@automattic/remove-asset-webpack-plugin' );
 const jsdom = require( 'jsdom' );
 
 /**
@@ -107,8 +108,6 @@ const sharedWebpackConfig = {
 	devtool: jetpackWebpackConfig.devtool,
 	output: {
 		...jetpackWebpackConfig.output,
-		filename: '[name].min.js',
-		chunkFilename: '[name].[contenthash].js',
 		path: path.join( __dirname, '../_inc/blocks' ),
 	},
 	optimization: {
@@ -120,8 +119,7 @@ const sharedWebpackConfig = {
 	node: {},
 	plugins: [
 		...jetpackWebpackConfig.StandardPlugins( {
-			MiniCssExtractPlugin: false, // Needs different configs, sigh.
-			DependencyExtractionPlugin: false,
+			DependencyExtractionPlugin: { injectPolyfill: true },
 		} ),
 	],
 	module: {
@@ -132,10 +130,10 @@ const sharedWebpackConfig = {
 				exclude: /node_modules\//,
 			} ),
 
-			// Transpile @automattic/jetpack-* in node_modules too.
+			// Transpile @automattic/* in node_modules too.
 			jetpackWebpackConfig.TranspileRule( {
 				includeNodeModules: [
-					'@automattic/jetpack-',
+					'@automattic/',
 					'debug/',
 					'gridicons/',
 					'punycode/',
@@ -146,14 +144,9 @@ const sharedWebpackConfig = {
 			} ),
 
 			// Handle CSS.
-			{
-				test: /\.(?:css|s[ac]ss)$/,
-				use: [
-					jetpackWebpackConfig.MiniCssExtractLoader(),
-					jetpackWebpackConfig.CssCacheLoader(),
-					jetpackWebpackConfig.CssLoader( {
-						importLoaders: 2, // Set to the number of loaders after this one in the array, e.g. 2 if you use both postcss-loader and sass-loader.
-					} ),
+			jetpackWebpackConfig.CssRule( {
+				extensions: [ 'css', 'sass', 'scss' ],
+				extraLoaders: [
 					{
 						loader: 'postcss-loader',
 						options: {
@@ -162,7 +155,7 @@ const sharedWebpackConfig = {
 					},
 					'sass-loader',
 				],
-			},
+			} ),
 
 			// Handle images.
 			jetpackWebpackConfig.FileRule(),
@@ -184,11 +177,6 @@ module.exports = [
 		},
 		plugins: [
 			...sharedWebpackConfig.plugins,
-			...jetpackWebpackConfig.MiniCssExtractPlugin( {
-				filename: '[name].min.css',
-				chunkFilename: '[name].[contenthash].css',
-			} ),
-			...jetpackWebpackConfig.DependencyExtractionPlugin( { injectPolyfill: true } ),
 			new CopyWebpackPlugin( {
 				patterns: [
 					{
@@ -207,16 +195,13 @@ module.exports = [
 		},
 		output: {
 			...sharedWebpackConfig.output,
-			filename: '[name].js',
-			chunkFilename: '[name].[contenthash].js',
-			pathinfo: true,
 			libraryTarget: 'commonjs2',
 		},
 		plugins: [
-			...sharedWebpackConfig.plugins,
-			...jetpackWebpackConfig.MiniCssExtractPlugin( {
-				filename: '[name].css',
-				chunkFilename: '[name].[contenthash].css',
+			...jetpackWebpackConfig.StandardPlugins( {
+				DependencyExtractionPlugin: false,
+				I18nLoaderPlugin: false,
+				I18nCheckPlugin: false,
 			} ),
 			new webpack.NormalModuleReplacementPlugin(
 				/^@wordpress\/i18n$/,
@@ -269,6 +254,9 @@ module.exports = [
 						supports: () => false,
 					},
 				},
+			} ),
+			new RemoveAssetWebpackPlugin( {
+				assets: [ 'components.js', 'components.js.map' ],
 			} ),
 		],
 	},

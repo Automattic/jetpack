@@ -157,7 +157,9 @@ export class FormButton extends React.Component {
 	};
 
 	getDefaultButtonAction = () => {
-		return this.props.isSubmitting ? __( 'Saving…', 'jetpack' ) : __( 'Save Settings', 'jetpack' );
+		return this.props.isSubmitting
+			? __( 'Saving…', 'jetpack' )
+			: __( 'Save Settings', 'jetpack', /* dummy arg to avoid bad minification */ 0 );
 	};
 
 	render() {

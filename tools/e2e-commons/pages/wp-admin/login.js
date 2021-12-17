@@ -1,12 +1,12 @@
-import { WpPage } from '..';
-import logger from '../../logger';
-import { takeScreenshot } from '../../reporters';
-import PageActions from '../page-actions';
-import { getSiteCredentials } from '../../helpers/utils-helper';
+import WpPage from '../wp-page.js';
+import logger from '../../logger.cjs';
+import { takeScreenshot } from '../../reporters/index.js';
+import PageActions from '../page-actions.js';
+import { getSiteCredentials, resolveSiteUrl } from '../../helpers/utils-helper.cjs';
 
 export default class WPLoginPage extends WpPage {
 	constructor( page ) {
-		const url = `${ siteUrl }/wp-login.php`;
+		const url = `${ resolveSiteUrl() }/wp-login.php`;
 		super( page, { expectedSelectors: [ '.login' ], url } );
 	}
 
@@ -20,9 +20,8 @@ export default class WPLoginPage extends WpPage {
 		await this.fill( '#user_login', credentials.username );
 		await this.fill( '#user_pass', credentials.password );
 
-		const navigationPromise = this.waitForDomContentLoaded();
 		await this.click( '#wp-submit' );
-		await navigationPromise;
+		await this.waitForDomContentLoaded();
 
 		try {
 			await this.waitForElementToBeHidden( this.selectors[ 0 ] );

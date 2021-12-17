@@ -1,11 +1,11 @@
 {
 	"name": "automattic/jetpack-roles",
 	"description": "Utilities, related with user roles and capabilities.",
-	"type": "library",
+	"type": "jetpack-library",
 	"license": "GPL-2.0-or-later",
 	"require": {},
 	"require-dev": {
-		"brain/monkey": "2.6.0",
+		"brain/monkey": "2.6.1",
 		"yoast/phpunit-polyfills": "1.0.2",
 		"automattic/jetpack-changelogger": "^3.0"
 	},

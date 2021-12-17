@@ -5,6 +5,7 @@ import PropTypes from 'prop-types';
 import React from 'react';
 import { connect } from 'react-redux';
 import { withRouter } from 'react-router-dom';
+import SocialLogo from 'social-logos';
 
 /**
  * WordPress dependencies
@@ -18,6 +19,7 @@ import { getRedirectUrl } from '@automattic/jetpack-components';
  */
 import ConnectionBanner from 'components/connection-banner';
 import DismissableNotices from './dismissable';
+import UserLicenseActivationNotice from './user-license-activation';
 import {
 	getSiteConnectionStatus,
 	getSiteOfflineMode,
@@ -29,6 +31,7 @@ import {
 	hasConnectedOwner,
 } from 'state/connection';
 import {
+	isAtomicSite,
 	isDevVersion,
 	userCanConnectAccount,
 	userCanConnectSite,
@@ -192,7 +195,7 @@ export class UserUnlinked extends React.Component {
 						) }
 						callToAction={ __( 'Create account', 'jetpack' ) }
 						href={ `${ this.props.connectUrl }&from=unlinked-user-connect` }
-						icon="my-sites"
+						icon={ <SocialLogo icon="wordpress" size={ 24 } /> }
 						className="is-jetpack-info"
 						from="unlinked-user-connect"
 						connectUser={ true }
@@ -219,6 +222,7 @@ class JetpackNotices extends React.Component {
 		);
 
 		const isUserConnectScreen = '/connect-user' === this.props.location.pathname;
+		const isUserLicenseActivationScreen = this.props.location.pathname.startsWith( '/license' );
 
 		return (
 			<div aria-live="polite">
@@ -276,6 +280,9 @@ class JetpackNotices extends React.Component {
 						onDismissClick={ this.props.clearLicensingError }
 					/>
 				) }
+				{ ! isUserLicenseActivationScreen && ! this.props.isAtomicSite && (
+					<UserLicenseActivationNotice pathname={ this.props.location.pathname } />
+				) }
 			</div>
 		);
 	}
@@ -291,6 +298,7 @@ export default connect(
 			userIsSubscriber: userIsSubscriber( state ),
 			isLinked: isCurrentUserLinked( state ),
 			isDevVersion: isDevVersion( state ),
+			isAtomicSite: isAtomicSite( state ),
 			siteOfflineMode: getSiteOfflineMode( state ),
 			isStaging: isStaging( state ),
 			isInIdentityCrisis: isInIdentityCrisis( state ),
