@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "860b0aebba916d5196d652f088b38a18",
+    "content-hash": "372ad6a5db5ca40d1f5294d36ffe5dd6",
     "packages": [
         {
             "name": "automattic/jetpack-a8c-mc-stats",
@@ -506,7 +506,7 @@
             "dist": {
                 "type": "path",
                 "url": "../../packages/config",
-                "reference": "a4dfba6a9d6855d65c29c5793713243eff5fc907"
+                "reference": "5e6ac4be1a8cd9eeadf778a30dd3653105d62462"
             },
             "require-dev": {
                 "automattic/jetpack-changelogger": "^3.0"
@@ -519,7 +519,7 @@
                     "link-template": "https://github.com/Automattic/jetpack-config/compare/v${old}...v${new}"
                 },
                 "branch-alias": {
-                    "dev-master": "1.5.x-dev"
+                    "dev-master": "1.6.x-dev"
                 }
             },
             "autoload": {
@@ -612,14 +612,14 @@
             "dist": {
                 "type": "path",
                 "url": "../../packages/connection-ui",
-                "reference": "324391767bedf3f55344993e8fca80248882dac6"
+                "reference": "bf3ccc1d700791b8c4baa34af2a6042ab845c4dc"
             },
             "require": {
                 "automattic/jetpack-assets": "^1.15",
                 "automattic/jetpack-connection": "^1.33",
                 "automattic/jetpack-constants": "^1.6",
                 "automattic/jetpack-device-detection": "^1.4",
-                "automattic/jetpack-identity-crisis": "^0.5"
+                "automattic/jetpack-identity-crisis": "^0.6"
             },
             "require-dev": {
                 "automattic/jetpack-changelogger": "^3.0"
@@ -632,7 +632,7 @@
                     "link-template": "https://github.com/Automattic/jetpack-connection-ui/compare/v${old}...v${new}"
                 },
                 "branch-alias": {
-                    "dev-master": "2.2.x-dev"
+                    "dev-master": "2.3.x-dev"
                 }
             },
             "autoload": {
@@ -860,9 +860,10 @@
             "dist": {
                 "type": "path",
                 "url": "../../packages/identity-crisis",
-                "reference": "9634e64b317f9e08553f79fdb416d94e846fe0ac"
+                "reference": "e7813f634535828421816f8d97701f19ceb2729d"
             },
             "require": {
+                "automattic/jetpack-assets": "^1.15",
                 "automattic/jetpack-connection": "^1.33",
                 "automattic/jetpack-constants": "^1.6",
                 "automattic/jetpack-logo": "^1.5",
@@ -886,7 +887,7 @@
                     "link-template": "https://github.com/Automattic/jetpack-identity-crisis/compare/v${old}...v${new}"
                 },
                 "branch-alias": {
-                    "dev-master": "0.5.x-dev"
+                    "dev-master": "0.6.x-dev"
                 }
             },
             "autoload": {
@@ -916,6 +917,10 @@
                 ],
                 "post-update-cmd": [
                     "php -r \"copy('vendor/automattic/wordbless/src/dbless-wpdb.php', 'wordpress/wp-content/db.php');\""
+                ],
+                "watch": [
+                    "Composer\\Config::disableProcessTimeout",
+                    "pnpm run watch"
                 ]
             },
             "license": [
@@ -1626,13 +1631,13 @@
             "dist": {
                 "type": "path",
                 "url": "../../packages/sync",
-                "reference": "643bc80828a9140df5b925742fd97d9b0fb84428"
+                "reference": "e67f40fe33fa86275bcd85668fe409e3a42591b9"
             },
             "require": {
                 "automattic/jetpack-connection": "^1.33",
                 "automattic/jetpack-constants": "^1.6",
                 "automattic/jetpack-heartbeat": "^1.3",
-                "automattic/jetpack-identity-crisis": "^0.5",
+                "automattic/jetpack-identity-crisis": "^0.6",
                 "automattic/jetpack-options": "^1.14",
                 "automattic/jetpack-password-checker": "^0.1",
                 "automattic/jetpack-roles": "^1.4",
