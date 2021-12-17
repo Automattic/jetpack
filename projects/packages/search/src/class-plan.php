@@ -122,19 +122,33 @@ class Plan {
 		$body        = json_decode( wp_remote_retrieve_body( $response ), true );
 		$status_code = wp_remote_retrieve_response_code( $response );
 
-		if ( 200 !== $status_code || ! isset( $body['supports_instant_search'] ) ) {
+		if ( 200 !== $status_code ) {
+			return null;
+		}
+
+		return $this->set_plan_options( $body );
+	}
+
+	/**
+	 * Set plan info to options table
+	 *
+	 * @param array $plan_info - the decoded plan info array.
+	 */
+	public function set_plan_options( $plan_info ) {
+		if ( ! isset( $plan_info['supports_instant_search'] ) ) {
 			return null;
 		}
 		// set option whether has Jetpack Search plan for capability reason.
-		if ( get_option( 'has_jetpack_search_product' ) !== (bool) $body['supports_instant_search'] ) {
-			update_option( 'has_jetpack_search_product', (bool) $body['supports_instant_search'] );
+		if ( get_option( 'has_jetpack_search_product' ) !== (bool) $plan_info['supports_instant_search'] ) {
+			update_option( 'has_jetpack_search_product', (bool) $plan_info['supports_instant_search'] );
 		}
 		// We use this option to determine the visibility of search submenu.
 		// If the site ever had search subscription, then we record it and show the menu after.
-		if ( $body['supports_instant_search'] ) {
+		if ( $plan_info['supports_instant_search'] ) {
 			update_option( self::JETPACK_SEARCH_EVER_SUPPORTED_SEARCH, true, false );
 		}
-		update_option( self::JETPACK_SEARCH_PLAN_INFO_OPTION_KEY, $body );
+		update_option( self::JETPACK_SEARCH_PLAN_INFO_OPTION_KEY, $plan_info );
+		return true;
 	}
 
 }

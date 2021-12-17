@@ -94,7 +94,7 @@ class REST_Controller {
 			array(
 				'methods'             => WP_REST_Server::EDITABLE,
 				'callback'            => array( $this, 'activate_plan' ),
-				'permission_callback' => array( $this, 'search_permissions_callback' ),
+				'permission_callback' => 'is_user_logged_in',
 			)
 		);
 		register_rest_route(
@@ -103,7 +103,7 @@ class REST_Controller {
 			array(
 				'methods'             => WP_REST_Server::EDITABLE,
 				'callback'            => array( $this, 'deactivate_plan' ),
-				'permission_callback' => array( $this, 'search_permissions_callback' ),
+				'permission_callback' => 'is_user_logged_in',
 			)
 		);
 	}
@@ -237,11 +237,20 @@ class REST_Controller {
 	}
 
 	/**
-	 * Activate plan and do initial configuration
+	 * Activate plan: activate the search module, instant search and do initial configuration.
+	 * Typically called from WPCOM.
+	 *
+	 * POST `jetpack/v4/search/plan/activate`
+	 *
+	 * @param WP_REST_Request $request - REST request.
 	 */
-	public function activate_plan() {
-		// Update plan data.
-		$this->plan->get_plan_info_from_wpcom();
+	public function activate_plan( $request ) {
+		// Update plan data, plan info is in the request body.
+		// We do this to avoid another call to WPCOM and reduce latency.
+		$plan_info = $request->get_json_params();
+		if ( ! $this->plan->set_plan_options( $plan_info ) ) {
+			return new WP_Error( 'invalid_request', esc_html__( 'Plan info does not exist in request', 'jetpack' ), array( 'status' => 400 ) );
+		}
 		// Activate module.
 		$ret = $this->search_module->activate();
 		if ( is_wp_error( $ret ) ) {
@@ -256,18 +265,24 @@ class REST_Controller {
 		if ( class_exists( '\Jetpack_Instant_Search' ) ) {
 			\Jetpack_Instant_Search::instance()->auto_config_search();
 		}
-		return true;
+		return array(
+			'code' => 'success',
+		);
 	}
 
 	/**
-	 * Deactivate plan and turn off module
+	 * Deactivate plan: turn off search module and instant search.
+	 * If the plan is still valid then the function would simply deactivate the search module.
+	 * Typically called from WPCOM.
+	 *
+	 * POST `jetpack/v4/search/plan/deactivate`
 	 */
 	public function deactivate_plan() {
-		// Update plan data.
-		$this->plan->get_plan_info_from_wpcom();
 		// Instant Search would be disabled along with search module.
 		$this->search_module->deactivate();
-		return true;
+		return array(
+			'code' => 'success',
+		);
 	}
 
 	/**

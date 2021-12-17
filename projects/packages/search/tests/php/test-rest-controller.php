@@ -293,22 +293,9 @@ class Test_REST_Controller extends Search_Test_Case {
 
 		$request = new WP_REST_Request( 'POST', '/jetpack/v4/search/plan/activate' );
 		$request->set_header( 'content-type', 'application/json' );
+		$request->set_body( Search_Test_Case::PLAN_INFO_FIXTURE );
 		$response = $this->server->dispatch( $request );
 		$this->assertEquals( 401, $response->get_status() );
-	}
-
-	/**
-	 * Testing the `POST /jetpack/v4/search/plan/activate` endpoint with admin user.
-	 */
-	public function test_activate_plan_admin() {
-		wp_set_current_user( $this->admin_id );
-
-		$request = new WP_REST_Request( 'POST', '/jetpack/v4/search/plan/activate' );
-		$request->set_header( 'content-type', 'application/json' );
-		$response = $this->server->dispatch( $request );
-		$this->assertEquals( 200, $response->get_status() );
-		$this->assertTrue( get_option( Module_Control::SEARCH_MODULE_INSTANT_SEARCH_OPTION_KEY ) );
-		$this->assertTrue( $response->get_data() );
 	}
 
 	/**
@@ -319,8 +306,10 @@ class Test_REST_Controller extends Search_Test_Case {
 
 		$request = new WP_REST_Request( 'POST', '/jetpack/v4/search/plan/activate' );
 		$request->set_header( 'content-type', 'application/json' );
+		$request->set_body( Search_Test_Case::PLAN_INFO_FIXTURE );
 		$response = $this->server->dispatch( $request );
-		$this->assertEquals( 403, $response->get_status() );
+		$this->assertEquals( 200, $response->get_status() );
+		$this->assertEquals( array( 'code' => 'success' ), $response->get_data() );
 	}
 
 	/**
@@ -336,20 +325,6 @@ class Test_REST_Controller extends Search_Test_Case {
 	}
 
 	/**
-	 * Testing the `POST /jetpack/v4/search/plan/deactivate` endpoint with admin user.
-	 */
-	public function test_deactivate_plan_admin() {
-		wp_set_current_user( $this->admin_id );
-
-		$request = new WP_REST_Request( 'POST', '/jetpack/v4/search/plan/deactivate' );
-		$request->set_header( 'content-type', 'application/json' );
-		$response = $this->server->dispatch( $request );
-		$this->assertEquals( 200, $response->get_status() );
-		$this->assertFalse( get_option( Module_Control::SEARCH_MODULE_INSTANT_SEARCH_OPTION_KEY ) );
-		$this->assertTrue( $response->get_data() );
-	}
-
-	/**
 	 * Testing the `POST /jetpack/v4/search/plan/deactivate` endpoint with editor user.
 	 */
 	public function test_deactivate_plan_editor() {
@@ -358,7 +333,8 @@ class Test_REST_Controller extends Search_Test_Case {
 		$request = new WP_REST_Request( 'POST', '/jetpack/v4/search/plan/deactivate' );
 		$request->set_header( 'content-type', 'application/json' );
 		$response = $this->server->dispatch( $request );
-		$this->assertEquals( 403, $response->get_status() );
+		$this->assertEquals( 200, $response->get_status() );
+		$this->assertEquals( array( 'code' => 'success' ), $response->get_data() );
 	}
 
 }
