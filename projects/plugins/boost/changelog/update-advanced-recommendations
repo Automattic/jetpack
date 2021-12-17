@@ -1,0 +1,4 @@
+Significance: patch
+Type: changed
+
+Refactored Critical CSS advanced recommendation to a separate class for maintainability.
