@@ -104,10 +104,6 @@
 		color: white;
 		display: none;
 		padding: 3px 4px 4px 3px;
-
-		.gridicon {
-			margin-bottom: -7px;
-		}
 	}
 
 	@include breakpoint( '>480px' ) {

@@ -26,9 +26,24 @@ To decrypt the config file (a8c only):
 
 Typically, the workflow is the same as the one described in the Jetpack E2E [documentation](../../../jetpack/tests/e2e/README.md). You can follow the same workflow but running the commands inside the Jetpack Boost E2E tests folder.
 
-However, Boost has some shortcuts to get the environment started and run all the tests by running the following commands from the root of the Jetpack Boost repository:
+However,below is a quick reminder of the critical steps to run the tests.
 
-- `pnpm test-e2e:start` - This will command will start the e2e testing environment and the tunnel.
+From the root of the repo (this has to be done only once or when pulling new changes):
+
+1. run `pnpm install` - This command will install the monorepo NPM dependencies. 
+2. run `jetpack build plugins/jetpack` - This command will install Jetpack NPM and Composer dependencies as well as building the asset files.
+3. run `jetpack build plugins/boost` - This command will install Jetpack Boost NPM and Composer dependencies as well as building the asset files.
+
+From the `projects/plugins/boost/tests/e2e` folder:
+
+4. run `pnpm install` - This will install the Jetpack Boost E2E tests NPM dependencies.
+5. run `pnpm run test-decrypt-config` - This command will decrypt the config and create/overwrite the local test config file . 
+6. run `pnpm run env-start && pnpm run tunnel-on` - This command will start the e2e testing environment and the tunnel. 
+7. run `pnpm run test-e2e` - This command will run the e2e tests.
+
+However, Boost has some shortcuts to get the environment started and run all the tests by running the following commands from the root of the Jetpack Boost folder:
+
+- `pnpm test-e2e:decrypt-config` - This command will decrypt the config and create/overwrite the local test config file .
+- `pnpm test-e2e:start` - This command will start the e2e testing environment and the tunnel.
 - `pnpm test-e2e:run` - This command will run the e2e tests.
 - `pnpm test-e2e:stop` - This command will stop the e2e testing environment.
-- `pnpm test-e2e:decrypt-config` - This command will decrypt the config and create/overwrite the local test config file .

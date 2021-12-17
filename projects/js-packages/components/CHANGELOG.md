@@ -2,6 +2,17 @@
 
 ### This is a list detailing changes for the Jetpack RNA Components package releases.
 
+## 0.9.0 - 2021-12-14
+### Added
+- Created Layout components.
+
+## 0.8.0 - 2021-12-07
+### Added
+- Added JetpackAdminPage and JetpackAdminSection components
+
+### Changed
+- Updated package dependencies.
+
 ## 0.7.0 - 2021-11-30
 ### Changed
 - Add a new DecorativeCard component to the components package.
