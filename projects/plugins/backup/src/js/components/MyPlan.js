@@ -1,24 +1,42 @@
 /**
  * Internal dependencies
  */
+import { useState, useEffect } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
+import apiFetch from '@wordpress/api-fetch';
 import {
 	isJetpackBackup,
 	isJetpackBundle,
 	isJetpackLegacyPlan,
 } from '../../../../jetpack/_inc/client/lib/plans/constants';
 
-// TODO:
-// Do JP Legacy plans include backups?
 /* eslint react/react-in-jsx-scope: 0 */
 const MyPlan = props => {
-	const backupPurchasesList = getBackupPurchasesList( props.purchases );
+	const [ sitePurchases, setSitePurchases ] = useState( [] );
+	const [ sitePurchasesError, setSitePurchasesError ] = useState( null );
+	const [ sitePurchasesLoaded, setSitePurchasesLoaded ] = useState( false );
+
+	// API call to get all site purchases
+	useEffect( () => {
+		apiFetch( { path: '/jetpack/v4/site/purchases' } ).then(
+			res => {
+				setSitePurchases( JSON.parse( res.data ) );
+				setSitePurchasesLoaded( true );
+			},
+			() => {
+				setSitePurchasesLoaded( true );
+				setSitePurchasesError( 'Failed to fetch site purchases' );
+			}
+		);
+	}, [] );
+
+	const purchasesList = getPurchasesList( sitePurchases, props.purchaseType );
 	return (
 		<div className="jpb-my-plan-container">
 			<h3>{ __( 'My Plan', 'jetpack-backup' ) }</h3>
 			<p>{ __( 'The extra power you added to your Jetpack.', 'jetpack-backup' ) }</p>
-			{ props.loaded && props.error && <div> { props.error } </div> }
-			{ backupPurchasesList }
+			{ sitePurchasesLoaded && sitePurchasesError && <div> { sitePurchasesError } </div> }
+			{ purchasesList }
 			<p>
 				<a href={ props.redirectUrl } target="_blank" rel="noreferrer">
 					{ __( 'Manage your plan', 'jetpack-backup' ) }
@@ -29,28 +47,31 @@ const MyPlan = props => {
 };
 
 /**
- * Look for the backup related purchases and return them formatted on html
+ * Look for the types related purchases and return them formatted on html
  *
  * @param {Array} purchases - array of objects containing the site's purchases
- * @returns {Array} a html list of backup plans and expiry dates
+ * @param {string} purchaseType - the type of plans to filter and display
+ * @returns {Array} a html list of the specified type plans and expiry dates
  */
-function getBackupPurchasesList( purchases ) {
-	const backupPurchasesList = [];
+function getPurchasesList( purchases, purchaseType ) {
+	const purchasesList = [];
 	purchases.forEach( purchase => {
-		if (
-			isJetpackBackup( purchase.product_slug ) ||
-			isJetpackBundle( purchase.product_slug ) ||
-			isJetpackLegacyPlan( purchase.product_slug )
-		) {
-			backupPurchasesList.push(
-				<>
-					<h4> { purchase.product_name } </h4>
-					<p> { purchase.expiry_message } </p>
-				</>
-			);
+		if ( purchaseType === 'backup' ) {
+			if (
+				isJetpackBackup( purchase.product_slug ) ||
+				isJetpackBundle( purchase.product_slug ) ||
+				isJetpackLegacyPlan( purchase.product_slug )
+			) {
+				purchasesList.push(
+					<>
+						<h4> { purchase.product_name } </h4>
+						<p> { purchase.expiry_message } </p>
+					</>
+				);
+			}
 		}
 	} );
-	return backupPurchasesList;
+	return purchasesList;
 }
 
 export default MyPlan;

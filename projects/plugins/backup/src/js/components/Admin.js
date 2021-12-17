@@ -32,9 +32,6 @@ const Admin = () => {
 	const [ connectionLoaded, setConnectionLoaded ] = useState( false );
 	const [ capabilitiesLoaded, setCapabilitiesLoaded ] = useState( false );
 	const [ showHeaderFooter, setShowHeaderFooter ] = useState( true );
-	const [ sitePurchases, setSitePurchases ] = useState( [] );
-	const [ sitePurchasesError, setSitePurchasesError ] = useState( null );
-	const [ sitePurchasesLoaded, setSitePurchasesLoaded ] = useState( false );
 
 	const domain = useSelect( select => select( STORE_ID ).getCalypsoSlug(), [] );
 
@@ -53,19 +50,6 @@ const Admin = () => {
 			() => {
 				setCapabilitiesLoaded( true );
 				setCapabilitiesError( 'Failed to fetch site capabilities' );
-			}
-		);
-	}, [] );
-
-	useEffect( () => {
-		apiFetch( { path: '/jetpack/v4/site/purchases' } ).then(
-			res => {
-				setSitePurchases( JSON.parse( res.data ) );
-				setSitePurchasesLoaded( true );
-			},
-			() => {
-				setSitePurchasesLoaded( true );
-				setSitePurchasesError( 'Failed to fetch site purchases' );
 			}
 		);
 	}, [] );
@@ -161,7 +145,7 @@ const Admin = () => {
 							'jetpack-backup'
 						) }
 					</p>
-					{ hasBackupPlan() && sitePurchases && (
+					{ hasBackupPlan() && (
 						<>
 							<p>
 								<a
@@ -173,9 +157,7 @@ const Admin = () => {
 								</a>
 							</p>
 							<MyPlan
-								loaded={ sitePurchasesLoaded }
-								error={ sitePurchasesError }
-								purchases={ sitePurchases }
+								purchaseType={ 'backup' }
 								redirectUrl={ getRedirectUrl( 'backup-plugin-my-plan', { site: domain } ) }
 							/>
 						</>
