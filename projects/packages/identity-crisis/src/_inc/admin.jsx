@@ -48,6 +48,7 @@ function render() {
 					consumerData.hasOwnProperty( 'customContent' ) ? consumerData.customContent : {}
 				}
 				isAdmin={ isAdmin }
+				logo={ consumerData.hasOwnProperty( 'logo' ) ? consumerData.logo : undefined }
 			/>,
 			container
 		);
