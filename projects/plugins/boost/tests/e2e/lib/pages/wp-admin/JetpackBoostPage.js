@@ -108,13 +108,18 @@ export default class JetpackBoostPage extends WpPage {
 		await this.page.click( selector );
 	}
 
-	async isLoading() {
-		const selector = '.jb-site-score__top h2:text("Loading…")';
-		return this.page.isVisible( selector );
+	async currentPageTitleIs( expected ) {
+		const actualTitle = await this.page.evaluate( () => {
+			const selector = '.jb-site-score__top h2';
+			return document.querySelector( selector ).textContent;
+		} );
+
+		return actualTitle.match( expected );
 	}
 
 	async waitForScoreLoadingToFinish() {
 		const selector = '.jb-site-score__top h2:text("Loading…")';
-		return this.waitForElementToBeDetached( selector, 60000 );
+		/* It needs a large timeout because speed score updates take time */
+		return this.waitForElementToBeDetached( selector, 180000 ); // 3 minutes
 	}
 }
