@@ -60,14 +60,6 @@ class SupportCard extends React.Component {
 		return nextProps.sitePlan.product_slug !== this.props.sitePlan.product_slug;
 	}
 
-	trackAskQuestionClick = () => {
-		analytics.tracks.recordJetpackClick( {
-			target: 'support-card',
-			button: 'support-ask',
-			page: this.props.path,
-		} );
-	};
-
 	trackSearchClick = () => {
 		analytics.tracks.recordJetpackClick( {
 			target: 'support-card',
@@ -89,10 +81,6 @@ class SupportCard extends React.Component {
 				'undefined' === typeof this.props.sitePlan.product_slug ||
 				'jetpack_free' === this.props.sitePlan.product_slug;
 
-		const jetpackSupportURl = this.props.isDevVersion
-			? JETPACK_CONTACT_BETA_SUPPORT
-			: JETPACK_CONTACT_SUPPORT;
-
 		return (
 			<div className={ classes }>
 				<Card className="jp-support-card__happiness">
@@ -111,16 +99,6 @@ class SupportCard extends React.Component {
 								  ) }
 						</p>
 						<p className="jp-support-card__description">
-							<Button
-								onClick={ this.trackAskQuestionClick }
-								href={
-									this.props.isAtomicSite
-										? getRedirectUrl( 'calypso-help-contact' )
-										: jetpackSupportURl
-								}
-							>
-								{ __( 'Ask a question', 'jetpack' ) }
-							</Button>
 							<Button
 								onClick={ this.trackSearchClick }
 								href={

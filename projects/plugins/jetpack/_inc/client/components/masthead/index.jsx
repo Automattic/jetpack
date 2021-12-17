@@ -9,7 +9,6 @@ import { JetpackLogo } from '@automattic/jetpack-components';
  * Internal dependencies
  */
 import analytics from 'lib/analytics';
-import { HeaderNav } from './header-nav';
 import {
 	getSiteConnectionStatus,
 	getSandboxDomain,
@@ -57,7 +56,6 @@ export class Masthead extends React.Component {
 						{ offlineNotice }
 						{ sandboxedBadge }
 					</div>
-					<HeaderNav location={ this.props.location } />
 				</div>
 			</div>
 		);
