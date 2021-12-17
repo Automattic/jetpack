@@ -1,4 +1,4 @@
-const assert = require( 'assert/strict' );
+const assert = require( 'assert' ).strict;
 
 class StringSet extends Set {
 	add( v ) {

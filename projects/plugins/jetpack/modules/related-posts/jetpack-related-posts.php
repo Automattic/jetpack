@@ -5,7 +5,7 @@ use Automattic\Jetpack\Blocks;
 use Automattic\Jetpack\Sync\Settings;
 
 class Jetpack_RelatedPosts {
-	const VERSION   = '20210930';
+	const VERSION   = '20211209';
 	const SHORTCODE = 'jetpack-related-posts';
 
 	private static $instance     = null;
