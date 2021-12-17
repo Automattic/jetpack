@@ -24,7 +24,6 @@ import {
 } from 'state/connection';
 import { isAtomicSite, isDevVersion as _isDevVersion, getUpgradeUrl } from 'state/initial-state';
 import JetpackBanner from 'components/jetpack-banner';
-import { JETPACK_CONTACT_SUPPORT, JETPACK_CONTACT_BETA_SUPPORT } from 'constants/urls';
 import {
 	getJetpackProductUpsellByFeature,
 	FEATURE_PRIORITY_SUPPORT_JETPACK,
