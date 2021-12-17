@@ -20,6 +20,7 @@ The Jetpack Monorepo requires the following to be installed on your machine:
 	- If you're not an Automattician, you can [fork the repo following the instructions here](https://docs.github.com/en/get-started/quickstart/contributing-to-projects).
 - Bash (will need to be updated from default Mac version): `brew install bash`
 - jq (JSON processor used in scripts): `brew install jq` 
+- cd into the Jetpack directory that was created when cloning the repo: `cd jetpack`
 - Node.js (used for build process and our CLI): `nvm install && nvm use`
 - PNPM (a Node.js package manager): `npm install -g pnpm`
 - Composer (our PHP package manager): `brew install composer`
