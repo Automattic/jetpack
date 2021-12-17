@@ -225,7 +225,7 @@ class Template_Tags {
 				?>
 				<li>
 				<?php // TODO: Figure out how to properly escape $data_str below. ?>
-				<a href="#" class="jetpack-search-filter__link" <?php echo $data_str; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?>> 
+				<a href="#" class="jetpack-search-filter__link" <?php echo $data_str; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?>>
 						<?php
 							echo esc_html( $item['name'] );
 							echo '&nbsp;';
@@ -253,8 +253,8 @@ class Template_Tags {
 	 * @param string $after_title  The HTML tag to display after the title.
 	 */
 	public static function render_widget_title( $title, $before_title, $after_title ) {
-		// TODO: figure out how to properly escape this.
-		echo $before_title . esc_html( $title ) . $after_title; //phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
+		// This doesn't need to be escaped because it's provided by WP and goes through filters, where it is not escaped.
+		echo $before_title . $title . $after_title; //phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
 	}
 
 	/**

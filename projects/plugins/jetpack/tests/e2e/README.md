@@ -81,10 +81,10 @@ Once your target WP environment is running on `localhost:8889` you can run the t
 
 Run all tests: `pnpm test-e2e`
 
-Playwright runs headless by default (i.e. browser is not visible). However, sometimes it's useful to observe the browser while running tests. To see the browser window, and the running tests you can pass `HEADLESS=false` as follows:
+Playwright runs headless by default (i.e. browser is not visible). However, sometimes it's useful to observe the browser while running tests. To see the browser window, and the running tests you can use the `--headed` flag:
 
 ```bash
-HEADLESS=false pnpm test-e2e
+pnpm test-e2e -- --headed
 ```
 
 To run an individual test, use the direct path to the spec. For example:
@@ -93,36 +93,28 @@ To run an individual test, use the direct path to the spec. For example:
 pnpm test-e2e -- ./specs/dummy.test.js
 ```
 
-For the best experience while debugging and/or writing new tests `E2E_DEBUG` constant is recommended to use.
+To run in debug mode, use the `--debug` flag. Debug mode uses a headed browser and opens the [Playwright inspector](https://playwright.dev/docs/inspector/).
 
 ```bash
-E2E_DEBUG=true pnpm test-e2e -- ./specs/some.test.js -t 'Test name'
+pnpm test-e2e -- --debug
 ```
 
 ### Selecting tests to run
 
 ```bash
-# One spec (test file)
+# One test file
 pnpm test-e2e -- ./specs/some.test.js
 
-# One test from a test file
-pnpm test-e2e -- ./specs/some.test.js -t 'Test name'
-
 # All tests having 'blocks' in their name
-pnpm test-e2e -- --testNamePattern=blocks
+pnpm test-e2e blocks
 
-# All tests except the updater one(s)
-pnpm test-e2e -- --testPathIgnorePatterns=updater
+# Run only run tests matching a regular expression.
+pnpm test-e2e --grep "mailchimp"
+pnpm test-e2e -g "mailchimp"
 
-# Filter by groups - run all tests in 'post-connection' group
-pnpm test-e2e -- --group=post-connection
+# Run only run tests NOT matching a regular expression.
+pnpm test-e2e --grep-invert "mailchimp"
 ```
-
-### Environment variables
-
-- `HEADLESS` - default `true`. Whether to run tests in a headless mode or not.
-- `E2E_DEBUG` - default `false`. Will log debug information into console. Also forces browser headfull mode, any value for the above `HEADLESS` var will be ignored.
-- `PAUSE_ON_FAILURE` - default `false`. Combined with `E2E_DEBUG=true` will pause the test execution when an error occurs and will open Playwright Inspector.
 
 ## Tests Architecture
 
@@ -131,8 +123,8 @@ pnpm test-e2e -- --group=post-connection
 Tests are kept in `/specs` folder. Every file represents a test suite, which is designed around specific feature under test.
 Every test suite is responsible for setting up the environment configuration for the suite. [e2e-commons' prerequisites APIs](../../../../../tools/e2e-commons/env/prerequisites.js) provide an abstraction to set up the site the way is needed.
 
-Some specs require an active Jetpack connection
-Its logic can be found in the [`jetpack-connect.js`](../../../../../tools/e2e-commons/flows/jetpack-connect.js).
+Some specs require an active Jetpack connection.
+Its logic can be found in the [jetpack-connect.js](../../../../../tools/e2e-commons/flows/jetpack-connect.js).
 
 ### Pages
 

@@ -116,7 +116,7 @@ class Jetpack_Widget_Authors extends WP_Widget {
 		echo $args['before_widget'];
 		/** This filter is documented in core/src/wp-includes/default-widgets.php */
 		$title = apply_filters( 'widget_title', $instance['title'] );
-		echo $args['before_title'] . esc_html( $title ) . $args['after_title'];
+		echo $args['before_title'] . $title . $args['after_title']; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
 		echo '<ul>';
 
 		$default_post_type = 'post';
