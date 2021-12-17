@@ -442,7 +442,6 @@
 	"projects/plugins/jetpack/tests/php/modules/shortcodes/test-class.tweet.php",
 	"projects/plugins/jetpack/tests/php/modules/shortcodes/test-class.twitter-timeline.php",
 	"projects/plugins/jetpack/tests/php/modules/shortcodes/test-class.ustream.php",
-	"projects/plugins/jetpack/tests/php/modules/shortcodes/test-class.vimeo.php",
 	"projects/plugins/jetpack/tests/php/modules/shortcodes/test-class.vine.php",
 	"projects/plugins/jetpack/tests/php/modules/shortcodes/test-class.vr.php",
 	"projects/plugins/jetpack/tests/php/modules/shortcodes/test-class.youtube.php",
