@@ -5,14 +5,18 @@ import PropTypes from 'prop-types';
 import React, { Component } from 'react';
 import { connect } from 'react-redux';
 import { __, sprintf } from '@wordpress/i18n';
-import apiFetch from '@wordpress/api-fetch';
+import restApi from '@automattic/jetpack-api';
 import { Spinner } from '@wordpress/components';
 
 /**
  * Internal dependencies
  */
-import { fetchPluginsData as dispatchFetchPluginsData, isPluginActive, isPluginInstalled, isFetchingPluginsData as getIsFetchingPluginsData, } from 'state/site/plugins';
-import { getSiteAdminUrl } from 'state/initial-state';
+import {
+	fetchPluginsData as dispatchFetchPluginsData,
+	isPluginActive,
+	isPluginInstalled,
+	isFetchingPluginsData as getIsFetchingPluginsData,
+} from 'state/site/plugins';
 import Card from 'components/card';
 import JetpackBanner from 'components/jetpack-banner';
 import SectionHeader from 'components/section-header';
@@ -21,7 +25,8 @@ import SectionHeader from 'components/section-header';
  * Style dependencies
  */
 import './style.scss';
-class PluginDashItem extends Component {
+
+export class PluginDashItem extends Component {
 	static propTypes = {
 		pluginName: PropTypes.string.isRequired,
 		pluginFile: PropTypes.string.isRequired,
@@ -31,9 +36,9 @@ class PluginDashItem extends Component {
 		iconSrc: PropTypes.string,
 
 		// connected properties
+		isFetchingPluginsData: PropTypes.bool,
 		pluginIsActive: PropTypes.bool,
 		pluginIsInstalled: PropTypes.bool,
-		siteAdminUrl: PropTypes.string,
 	};
 
 	state = {
@@ -53,23 +58,17 @@ class PluginDashItem extends Component {
 			return Promise.resolve();
 		}
 
-		return apiFetch( {
-			path: '/jetpack/v4/plugins',
-			method: 'POST',
-			data: {
-				slug: pluginSlug,
-				status: 'active',
-			},
-		} )
-		.then( () => {
-			return fetchPluginsData();
-		} )
-		.finally( () => {
-			this.setState( {
-				isActivating: false,
-				isInstalling: false,
+		return restApi
+			.installPlugin( pluginSlug, 'active' )
+			.then( () => {
+				return fetchPluginsData();
+			} )
+			.finally( () => {
+				this.setState( {
+					isActivating: false,
+					isInstalling: false,
+				} );
 			} );
-		} );
 	};
 
 	renderContent() {
@@ -177,7 +176,6 @@ export default connect(
 		isFetchingPluginsData: getIsFetchingPluginsData( state ),
 		pluginIsInstalled: isPluginInstalled( state, ownProps.pluginFile ),
 		pluginIsActive: isPluginActive( state, ownProps.pluginFile ),
-		siteAdminUrl: getSiteAdminUrl( state ),
 	} ),
 	dispatch => ( { fetchPluginsData: () => dispatch( dispatchFetchPluginsData() ) } )
 )( PluginDashItem );
