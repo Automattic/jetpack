@@ -21,6 +21,7 @@ class JetpackBanner extends Banner {
 		feature: PropTypes.string,
 		href: PropTypes.string,
 		icon: PropTypes.string,
+		iconAlt: PropTypes.string,
 		iconSrc: PropTypes.string,
 		list: PropTypes.arrayOf( PropTypes.string ),
 		onClick: PropTypes.func,

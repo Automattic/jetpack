@@ -36,6 +36,7 @@ class Banner extends Component {
 		feature: PropTypes.string, // PropTypes.oneOf( getValidFeatureKeys() ),
 		href: PropTypes.string,
 		icon: PropTypes.string,
+		iconAlt: PropTypes.string,
 		iconSrc: PropTypes.string,
 		list: PropTypes.arrayOf( PropTypes.string ),
 		onClick: PropTypes.func,
@@ -86,7 +87,7 @@ class Banner extends Component {
 	};
 
 	getIcon() {
-		const { icon, iconSrc, plan } = this.props;
+		const { icon, iconAlt, iconSrc, plan } = this.props;
 
 		if ( plan && ( ! icon || ! iconSrc ) ) {
 			return (
@@ -100,12 +101,15 @@ class Banner extends Component {
 			<div className="dops-banner__icons">
 				<div className="dops-banner__icon">
 					{ icon && <Gridicon icon={ icon || 'info-outline' } size={ 18 } /> }
-					{ iconSrc && <img className="dops-banner__icon-circle-svg" src={ iconSrc } /> }
-
+					{ iconSrc && (
+						<img className="dops-banner__icon-circle-svg" src={ iconSrc } alt={ iconAlt } />
+					) }
 				</div>
 				<div className="dops-banner__icon-circle">
 					{ icon && <Gridicon icon={ icon || 'info-outline' } size={ 18 } /> }
-					{ iconSrc && <img className="dops-banner__icon-circle-svg" src={ iconSrc } /> }
+					{ iconSrc && (
+						<img className="dops-banner__icon-circle-svg" src={ iconSrc } alt={ iconAlt } />
+					) }
 				</div>
 			</div>
 		);

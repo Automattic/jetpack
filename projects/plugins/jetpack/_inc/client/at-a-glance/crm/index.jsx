@@ -25,6 +25,7 @@ class DashCRM extends Component {
 	render() {
 		return (
 			<PluginDashItem
+				iconAlt={ __( 'Plugin icon', 'jetpack' ) }
 				iconSrc={ peopleSvgUrl }
 				pluginName={ __( 'CRM', 'jetpack' ) }
 				pluginFile={ CRM_PLUGIN_FILE }

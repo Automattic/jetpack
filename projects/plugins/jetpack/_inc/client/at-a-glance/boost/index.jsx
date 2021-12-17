@@ -10,7 +10,7 @@ import { ExternalLink } from '@wordpress/components';
 /**
  * Internal dependencies
  */
-import boostSvgUrl from './boost.svg'; 
+import boostSvgUrl from './boost.svg';
 import PluginDashItem from 'components/plugin-dash-item';
 
 const BOOST_PLUGIN_DASH = '/wp-admin/admin.php?page=jetpack-boost';
@@ -25,6 +25,7 @@ class DashBoost extends Component {
 	render() {
 		return (
 			<PluginDashItem
+				iconAlt={ __( 'Plugin icon', 'jetpack' ) }
 				iconSrc={ boostSvgUrl }
 				pluginName={ __( 'Boost', 'jetpack' ) }
 				pluginFile={ BOOST_PLUGIN_FILE }
