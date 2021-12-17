@@ -2,10 +2,6 @@
 /**
  * Template tags class used primarily for rendering widget-related HTML.
  *
- * Currently, this package can only run in the Jetpack plugin due to its usage of Jetpack_Search.
- * Once Jetpack_Search has been migrated to the package as Classic_Search,
- * this library will be independent from the Jetpack plugin.
- *
  * @package    automattic/jetpack-search
  */
 
