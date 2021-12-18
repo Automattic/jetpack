@@ -12,6 +12,7 @@ gulpfile.babel.js export-ignore
 /build/**           production-include
 
 # Files to exclude from the mirror repo
+.phpcs.dir.xml    production-exclude
 .gitignore        production-exclude
 _inc/**           production-exclude
 changelog/**      production-exclude
