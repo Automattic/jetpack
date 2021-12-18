@@ -7,6 +7,7 @@
 		"nikic/php-parser": "^4.2"
 	},
 	"require-dev": {
+		"php": "^8.0",
 		"automattic/jetpack-changelogger": "^3.0"
 	},
 	"autoload": {
@@ -45,11 +46,6 @@
 		},
 		"branch-alias": {
 			"dev-master": "1.6.x-dev"
-		}
-	},
-	"config": {
-		"platform": {
-			"php": "8.0.0"
 		}
 	}
 }
