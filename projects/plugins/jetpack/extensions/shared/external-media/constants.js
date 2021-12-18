@@ -8,6 +8,7 @@ import { map, range } from 'lodash';
 
 export const SOURCE_WORDPRESS = 'wordpress';
 export const SOURCE_GOOGLE_PHOTOS = 'google_photos';
+export const SOURCE_OPENVERSE = 'openverse';
 export const SOURCE_PEXELS = 'pexels';
 export const PATH_RECENT = 'recent';
 export const PATH_ROOT = '/';

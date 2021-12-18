@@ -216,7 +216,7 @@ $grid-size: 8px;
 }
 
 /**
- * The specific wrappers for Google and Pexels.
+ * The specific wrappers for Google, Openverse, and Pexels.
  */
 
 .jetpack-external-media-header__view {
@@ -333,6 +333,7 @@ $grid-size: 8px;
 	}
 }
 
+.jetpack-external-media-header__openverse,
 .jetpack-external-media-header__pexels {
 	display: flex;
 	margin-bottom: 48px;
