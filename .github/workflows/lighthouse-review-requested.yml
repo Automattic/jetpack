@@ -1,0 +1,54 @@
+name: Lighthouse Review Requested
+
+on:
+  pull_request:
+    types: [review_requested]
+
+env:
+    PR_NUMBER: ${{ github.event.pull_request.number }}
+    API_TOKEN_GITHUB: ${{ secrets.API_TOKEN_GITHUB }}
+    REPO: ${{ github.repository }}
+    USER_LOGIN: ${{ github.event.pull_request.user.login }}
+    API_TOKEN_BOARD: ${{ secrets.PUSH_ISSUES_TO_PROJECT_TOKEN }}
+    PR_ID: ${{ github.event.pull_request.id }}
+
+jobs:
+  add_review_label:
+    runs-on: ubuntu-latest
+    name: Add P2 labels and project
+    steps:
+      - name: Remove label "In Progress"
+        if: ${{ contains(github.event.pull_request.requested_teams.*.name, 'Lighthouse') }}
+        run: |
+          curl --request DELETE \
+          --url 'https://api.github.com/repos/${REPO}/issues/${PR_NUMBER}/labels/[Status]%20In%20Progress' \
+          --header 'Authorization: token ${API_TOKEN_GITHUB}' \
+          --header 'Accept: application/vnd.github.v3+json'
+
+      - name: Add label "Needs Review"
+        if: ${{ contains(github.event.pull_request.requested_teams.*.name, 'Lighthouse') }}
+        run: |
+          curl --request POST \
+          --url 'https://api.github.com/repos/${REPO}/issues/${PR_NUMBER}/labels' \
+          --header 'Authorization: token ${API_TOKEN_GITHUB}' \
+          --header 'Accept: application/vnd.github.v3+json' \
+          --data-raw '{"labels":["[Status] Needs Review"]}'
+
+      - name: Add author as assignee      
+        if: ${{ contains(github.event.pull_request.requested_teams.*.name, 'Lighthouse') }}
+        run: |
+          curl --request PATCH \
+          --url 'https://api.github.com/repos/${REPO}/issues/${PR_NUMBER}' \
+          --header 'Authorization: token ${API_TOKEN_GITHUB}' \
+          --header 'Accept: application/vnd.github.v3+json' \
+          --data-raw '{"assignees": [ "${USER_LOGIN}" ]}'
+
+      - name: Add to P2 project board
+        if: ${{ contains(github.event.pull_request.requested_teams.*.name, 'Lighthouse') }}
+        run: |
+          curl --request POST \
+            --url 'https://api.github.com/projects/columns/8374542/cards' \
+            --header 'Accept: application/vnd.github.inertia-preview+json' \
+            --header 'Authorization: token ${API_TOKEN_BOARD}' \
+            --header 'Content-Type: application/json; charset=utf-8' \
+            --data-raw '{"content_type": "PullRequest", "content_id": ${PR_ID}}'
