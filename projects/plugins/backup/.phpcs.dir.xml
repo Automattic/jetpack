@@ -3,7 +3,9 @@
 
 	<rule ref="WordPress.WP.I18n">
 		<properties>
-			<property name="text_domain">jetpack-backup</property>
+			<property name="text_domain" type="array">
+				<element value="jetpack-backup" />
+			</property>
 		</properties>
 	</rule>
 
