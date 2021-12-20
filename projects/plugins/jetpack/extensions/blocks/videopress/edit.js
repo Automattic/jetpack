@@ -348,16 +348,7 @@ const VideoPressEdit = CoreVideoEdit =>
 			} = attributes;
 
 			if ( isVideoPressExample && src ) {
-				return (
-					<Fragment>
-						<div>
-							<img src={ src } alt={ caption } />
-						</div>
-						{ ! RichText.isEmpty( caption ) && (
-							<RichText.Content tagName="figcaption" value={ caption } />
-						) }
-					</Fragment>
-				);
+				return <img src={ src } alt={ caption } />;
 			}
 
 			const videoPosterDescription = `video-block__poster-image-description-${ instanceId }`;
