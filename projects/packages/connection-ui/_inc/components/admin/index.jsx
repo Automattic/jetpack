@@ -60,8 +60,6 @@ const Admin = props => {
 
 			{ ! IDCData.hasIDC && canManageConnection && connectionStatus.isRegistered && (
 				<ConnectionStatusCard
-					isRegistered={ connectionStatus.isRegistered }
-					isUserConnected={ connectionStatus.isUserConnected }
 					apiRoot={ APIRoot }
 					apiNonce={ APINonce }
 					redirectUri="tools.php?page=wpcom-connection-manager"
