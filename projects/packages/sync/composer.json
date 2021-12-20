@@ -51,6 +51,7 @@
 	"extra": {
 		"autotagger": true,
 		"mirror-repo": "Automattic/jetpack-sync",
+		"textdomain": "jetpack-sync",
 		"version-constants": {
 			"::PACKAGE_VERSION": "src/class-package-version.php"
 		},

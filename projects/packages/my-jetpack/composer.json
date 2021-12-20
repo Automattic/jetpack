@@ -56,6 +56,7 @@
 	"extra": {
 		"autotagger": true,
 		"mirror-repo": "Automattic/jetpack-my-jetpack",
+		"textdomain": "jetpack-my-jetpack",
 		"changelogger": {
 			"link-template": "https://github.com/Automattic/jetpack-my-jetpack/compare/${old}...${new}"
 		},

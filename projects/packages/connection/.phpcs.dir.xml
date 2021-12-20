@@ -3,17 +3,18 @@
 
 	<rule ref="WordPress.WP.I18n">
 		<properties>
-			<!-- TODO: Change this to something aliasable. -->
 			<property name="text_domain" type="array">
-				<element value="jetpack" />
+				<element value="jetpack-connection" />
 			</property>
 		</properties>
 	</rule>
 
 	<rule ref="WordPress.Utils.I18nTextDomainFixer">
 		<properties>
-			<property name="old_text_domain" type="array" />
-			<property name="new_text_domain" value="jetpack" />
+			<property name="old_text_domain" type="array">
+				<element value="jetpack"/>
+			</property>
+			<property name="new_text_domain" value="jetpack-connection" />
 		</properties>
 	</rule>
 
