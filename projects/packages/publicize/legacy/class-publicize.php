@@ -184,7 +184,6 @@ class Publicize extends Publicize_Base {
 		return $connections;
 	}
 
-
 	/**
 	 * Get connections for a specific service.
 	 *
@@ -249,33 +248,53 @@ class Publicize extends Publicize_Base {
 	 * @return string
 	 */
 	public function get_connection_id( $connection ) {
-		var_dump( $connection );
 		return $connection['connection_data']['id'];
 	}
 
+	/**
+	 * Get the unique ID of a connection.
+	 *
+	 * @param array $connection The connection.
+	 * @return string
+	 */
 	public function get_connection_unique_id( $connection ) {
 		return $connection['connection_data']['token_id'];
 	}
 
+	/**
+	 * Get the meta of a connection.
+	 *
+	 * @param array $connection The connection.
+	 * @return array
+	 */
 	public function get_connection_meta( $connection ) {
 		$connection['user_id'] = $connection['connection_data']['user_id']; // Allows for shared connections.
 		return $connection;
 	}
 
+	/**
+	 * Show error on settings page if applicable.
+	 */
 	public function admin_page_load() {
-		if ( isset( $_GET['action'] ) && 'error' === $_GET['action'] ) {
-					add_action( 'pre_admin_screen_sharing', array( $this, 'display_connection_error' ), 9 );
+		if ( filter_input( INPUT_GET, 'action', FILTER_SANITIZE_STRING ) === 'error' ) {
+			add_action( 'pre_admin_screen_sharing', array( $this, 'display_connection_error' ), 9 );
 		}
 	}
 
+	/**
+	 * Display an error message.
+	 */
 	public function display_connection_error() {
-		$code = false;
-		if ( isset( $_GET['service'] ) ) {
-			$service_name = $_GET['service'];
-			$error        = sprintf( __( 'There was a problem connecting to %s to create an authorized connection. Please try again in a moment.', 'jetpack' ), Publicize::get_service_label( $service_name ) );
+		$code            = false;
+		$service         = filter_input( INPUT_GET, 'service', FILTER_SANITIZE_STRING );
+		$publicize_error = filter_input( INPUT_GET, 'publicize_error', FILTER_SANITIZE_STRING );
+
+		if ( isset( $service ) ) {
+			/* translators: %s is the name of the Publicize service (e.g. Facebook, Twitter) */
+			$error = sprintf( __( 'There was a problem connecting to %s to create an authorized connection. Please try again in a moment.', 'jetpack' ), self::get_service_label( $service ) );
 		} else {
-			if ( isset( $_GET['publicize_error'] ) ) {
-				$code = strtolower( $_GET['publicize_error'] );
+			if ( isset( $publicize_error ) ) {
+				$code = strtolower( $publicize_error );
 				switch ( $code ) {
 					case '400':
 						$error = __( 'An invalid request was made. This normally means that something intercepted or corrupted the request from your server to the Jetpack Server. Try again and see if it works this time.', 'jetpack' );
@@ -287,6 +306,7 @@ class Publicize extends Publicize_Base {
 						$error = __( 'No blog_id was included in your request. Please try disconnecting Jetpack from WordPress.com and then reconnecting it. Once you have done that, try connecting Publicize again.', 'jetpack' );
 						break;
 					case 'empty_state':
+						/* translators: %s is the URL of the Jetpack admin page */
 						$error = sprintf( __( 'No user information was included in your request. Please make sure that your user account has connected to Jetpack. Connect your user account by going to the <a href="%s">Jetpack page</a> within wp-admin.', 'jetpack' ), Jetpack::admin_url() );
 						break;
 					default:
@@ -297,32 +317,49 @@ class Publicize extends Publicize_Base {
 				$error = __( 'There was a problem connecting with Publicize. Please try again in a moment.', 'jetpack' );
 			}
 		}
-		// Using the same formatting/style as Jetpack::admin_notices() error
+		// Using the same formatting/style as Jetpack::admin_notices() error.
 		?>
 		<div id="message" class="jetpack-message jetpack-err">
 			<div class="squeezer">
-				<h2><?php echo wp_kses( $error, array( 'a'      => array( 'href' => true ),
-				                                       'code'   => true,
-				                                       'strong' => true,
-				                                       'br'     => true,
-				                                       'b'      => true
-					) ); ?></h2>
+				<h2>
+					<?php
+						echo wp_kses(
+							$error,
+							array(
+								'a'      => array(
+									'href' => true,
+								),
+								'code'   => true,
+								'strong' => true,
+								'br'     => true,
+								'b'      => true,
+							)
+						);
+					?>
+				</h2>
 				<?php if ( $code ) : ?>
-					<p><?php printf( __( 'Error code: %s', 'jetpack' ), esc_html( stripslashes( $code ) ) ); ?></p>
+					<?php /* translators: %s is the name of the error */ ?>
+					<p><?php printf( esc_html__( 'Error code: %s', 'jetpack' ), stripslashes( $code ) ); ?></p>
 				<?php endif; ?>
 			</div>
 		</div>
 		<?php
 	}
 
+	/**
+	 * Show a message that the connection has been removed.
+	 */
 	public function display_disconnected() {
 		echo "<div class='updated'>\n";
 		echo '<p>' . esc_html( __( 'That connection has been removed.', 'jetpack' ) ) . "</p>\n";
 		echo "</div>\n\n";
 	}
 
+	/**
+	 * If applicable, globalize a connection.
+	 */
 	public function globalization() {
-		if ( 'on' == $_REQUEST['global'] ) {
+		if ( 'on' === $_REQUEST['global'] ) {
 			$globalize_connection = $_REQUEST['connection'];
 			if ( ! current_user_can( $this->GLOBAL_CAP ) ) {
 				return;
@@ -332,6 +369,9 @@ class Publicize extends Publicize_Base {
 		}
 	}
 
+	/**
+	 * Globalize a connection.
+	 */
 	public function globalize_connection( $connection_id ) {
 		$xml = new Jetpack_IXR_Client();
 		$xml->query( 'jetpack.globalizePublicizeConnection', $connection_id, 'globalize' );
@@ -397,14 +437,35 @@ class Publicize extends Publicize_Base {
 		set_transient( self::CONNECTION_REFRESH_WAIT_TRANSIENT, microtime( true ), $wait_time );
 	}
 
+	/**
+	 * Get the Publicize connect URL from Keyring.
+	 *
+	 * @param string $service_name Name of the service to get connect URL for.
+	 * @param string $for What the URL is for. Default 'publicize'.
+	 * @return string
+	 */
 	public function connect_url( $service_name, $for = 'publicize' ) {
 		return Jetpack_Keyring_Service_Helper::connect_url( $service_name, $for );
 	}
 
+	/**
+	 * Get the Publicize refresh URL from Keyring.
+	 *
+	 * @param string $service_name Name of the service to get refresh URL for.
+	 * @param string $for What the URL is for. Default 'publicize'.
+	 * @return string
+	 */
 	public function refresh_url( $service_name, $for = 'publicize' ) {
 		return Jetpack_Keyring_Service_Helper::refresh_url( $service_name, $for );
 	}
 
+	/**
+	 * Get the Publicize disconnect URL from Keyring.
+	 *
+	 * @param string $service_name Name of the service to get disconnect URL for.
+	 * @param mixed  $id ID of the conenction to disconnect.
+	 * @return string
+	 */
 	public function disconnect_url( $service_name, $id ) {
 		return Jetpack_Keyring_Service_Helper::disconnect_url( $service_name, $id );
 	}
@@ -415,42 +476,53 @@ class Publicize extends Publicize_Base {
 	 * @since 2.0.0
 	 * @since 6.6.0 Removed Path. Service closed October 2018.
 	 *
-	 * @param string $filter Select the list of services that will be returned. Defaults to 'all', accepts 'connected'.
-	 *
+	 * @param string    $filter Select the list of services that will be returned. Defaults to 'all', accepts 'connected'.
+	 * @param false|int $_blog_id Get services for a specific blog by ID, or set to false for current blog. Default false.
+	 * @param false|int $_user_id Get services for a specific user by ID, or set to false for current user. Default false.
 	 * @return array List of social networks.
 	 */
 	public function get_services( $filter = 'all', $_blog_id = false, $_user_id = false ) {
 		$services = array(
-			'facebook'    => array(),
-			'twitter'     => array(),
-			'linkedin'    => array(),
-			'tumblr'      => array(),
+			'facebook' => array(),
+			'twitter'  => array(),
+			'linkedin' => array(),
+			'tumblr'   => array(),
 		);
 
-		if ( 'all' == $filter ) {
+		if ( 'all' === $filter ) {
 			return $services;
-		} else {
-			$connected_services = array();
-			foreach ( $services as $service_name => $empty ) {
-				$connections = $this->get_connections( $service_name, $_blog_id, $_user_id );
-				if ( $connections ) {
-					$connected_services[ $service_name ] = $connections;
-				}
-			}
-			return $connected_services;
 		}
+
+		$connected_services = array();
+		foreach ( $services as $service_name => $empty ) {
+			$connections = $this->get_connections( $service_name, $_blog_id, $_user_id );
+			if ( $connections ) {
+				$connected_services[ $service_name ] = $connections;
+			}
+		}
+		return $connected_services;
 	}
 
-	public function get_connection( $service_name, $id, $_blog_id = false, $_user_id = false ) {
-		// Stub
+	/**
+	 * Get a specific connection. Stub.
+	 */
+	public function get_connection() {
+		// Stub.
 	}
 
+	/**
+	 * Flag a post for Publicize after publishing.
+	 *
+	 * @param string  $new_status New status of the post.
+	 * @param string  $old_status Old status of the post.
+	 * @param WP_Post $post Post object.
+	 */
 	public function flag_post_for_publicize( $new_status, $old_status, $post ) {
 		if ( ! $this->post_type_is_publicizeable( $post->post_type ) ) {
 			return;
 		}
 
-		if ( 'publish' == $new_status && 'publish' != $old_status ) {
+		if ( 'publish' === $new_status && 'publish' !== $old_status ) {
 			/**
 			 * Determines whether a post being published gets publicized.
 			 *
@@ -472,13 +544,12 @@ class Publicize extends Publicize_Base {
 	}
 
 	public function test_connection( $service_name, $connection ) {
-
 		$id = $this->get_connection_id( $connection );
 
 		$xml = new Jetpack_IXR_Client();
 		$xml->query( 'jetpack.testPublicizeConnection', $id );
 
-		// Bail if all is well
+		// Bail if all is well.
 		if ( ! $xml->isError() ) {
 			return true;
 		}
@@ -486,10 +557,10 @@ class Publicize extends Publicize_Base {
 		$xml_response            = $xml->getResponse();
 		$connection_test_message = $xml_response['faultString'];
 
-		// Set up refresh if the user can
+		// Set up refresh if the user can.
 		$user_can_refresh = current_user_can( $this->GLOBAL_CAP );
 		if ( $user_can_refresh ) {
-			$nonce        = wp_create_nonce( "keyring-request-" . $service_name );
+			/* translators: %s is the name of a social media service */
 			$refresh_text = sprintf( _x( 'Refresh connection with %s', 'Refresh connection with {social media service}', 'jetpack' ), $this->get_service_label( $service_name ) );
 			$refresh_url  = $this->refresh_url( $service_name );
 		}
@@ -497,7 +568,7 @@ class Publicize extends Publicize_Base {
 		$error_data = array(
 			'user_can_refresh' => $user_can_refresh,
 			'refresh_text'     => $refresh_text,
-			'refresh_url'      => $refresh_url
+			'refresh_url'      => $refresh_url,
 		);
 
 		return new WP_Error( 'pub_conn_test_failed', $connection_test_message, $error_data );
@@ -523,7 +594,7 @@ class Publicize extends Publicize_Base {
 			return false;
 		}
 
-		return 'publish' == $post->post_status || get_post_meta( $post->ID, $this->POST_DONE . 'all', true );
+		return 'publish' === $post->post_status || get_post_meta( $post->ID, $this->POST_DONE . 'all', true );
 	}
 
 	/**
@@ -534,7 +605,7 @@ class Publicize extends Publicize_Base {
 		if ( is_null( $post ) ) {
 			return;
 		}
-		// Only do this when a post transitions to being published
+		// Only do this when a post transitions to being published.
 		if ( get_post_meta( $post->ID, $this->PENDING ) && $this->post_type_is_publicizeable( $post->post_type ) ) {
 			delete_post_meta( $post->ID, $this->PENDING );
 			update_post_meta( $post->ID, $this->POST_DONE . 'all', true );
@@ -562,24 +633,20 @@ class Publicize extends Publicize_Base {
 		return $flags;
 	}
 
-	/**
-	 * Options Code
-	 */
-
 	public function options_page_facebook() {
 		$connected_services = $this->get_all_connections();
 		$connection         = $connected_services['facebook'][ $_REQUEST['connection'] ];
 		$options_to_show    = ( ! empty( $connection['connection_data']['meta']['options_responses'] ) ? $connection['connection_data']['meta']['options_responses'] : false );
 
-		// Nonce check
+		// Nonce check.
 		check_admin_referer( 'options_page_facebook_' . $_REQUEST['connection'] );
 
 		$pages = ( ! empty( $options_to_show[1]['data'] ) ? $options_to_show[1]['data'] : false );
 
-		$page_selected   = false;
+		$page_selected = false;
 		if ( ! empty( $connection['connection_data']['meta']['facebook_page'] ) ) {
 			$found = false;
-			if ( $pages && isset( $pages->data ) && is_array( $pages->data )  ) {
+			if ( $pages && isset( $pages->data ) && is_array( $pages->data ) ) {
 				foreach ( $pages->data as $page ) {
 					if ( $page->id == $connection['connection_data']['meta']['facebook_page'] ) {
 						$found = true;
@@ -589,7 +656,7 @@ class Publicize extends Publicize_Base {
 			}
 
 			if ( $found ) {
-				$page_selected   = $connection['connection_data']['meta']['facebook_page'];
+				$page_selected = $connection['connection_data']['meta']['facebook_page'];
 			}
 		}
 
@@ -641,10 +708,10 @@ class Publicize extends Publicize_Base {
 
 				<?php Publicize_UI::global_checkbox( 'facebook', $_REQUEST['connection'] ); ?>
 				<p style="text-align: center;">
-					<input type="submit" value="<?php esc_attr_e( 'OK', 'jetpack' ) ?>"
-					       class="button fb-options save-options" name="save"
-					       data-connection="<?php echo esc_attr( $_REQUEST['connection'] ); ?>"
-					       rel="<?php echo wp_create_nonce( 'save_fb_token_' . $_REQUEST['connection'] ) ?>"/>
+					<input type="submit" value="<?php esc_attr_e( 'OK', 'jetpack' ); ?>"
+						class="button fb-options save-options" name="save"
+						data-connection="<?php echo esc_attr( $_REQUEST['connection'] ); ?>"
+						rel="<?php echo esc_attr( wp_create_nonce( 'save_fb_token_' . $_REQUEST['connection'] ) ); ?>"/>
 				</p><br/>
 				<p><?php echo $page_info_message; ?></p>
 			<?php else: ?>
@@ -778,30 +845,49 @@ class Publicize extends Publicize_Base {
 		}
 	}
 
+	/**
+	 * Render the options page for Twitter.
+	 */
 	public function options_page_twitter() {
 		Publicize_UI::options_page_other( 'twitter' );
 	}
 
+	/**
+	 * Render the options page for LinkedIn.
+	 */
 	public function options_page_linkedin() {
 		Publicize_UI::options_page_other( 'linkedin' );
 	}
 
+	/**
+	 * Save the options page for Twitter.
+	 */
 	public function options_save_twitter() {
 		$this->options_save_other( 'twitter' );
 	}
 
+	/**
+	 * Save the options page for LinkedIn.
+	 */
 	public function options_save_linkedin() {
 		$this->options_save_other( 'linkedin' );
 	}
 
+	/**
+	 * Save the options page for a service.
+	 *
+	 * @param string $service_name Name of the service to save options for.
+	 */
 	public function options_save_other( $service_name ) {
-		// Nonce check
+		// Nonce check.
 		check_admin_referer( 'save_' . $service_name . '_token_' . $_REQUEST['connection'] );
 		$this->globalization();
 	}
 
 	/**
 	 * If there's only one shared connection to Twitter set it as twitter:site tag.
+	 *
+	 * @param string $tag Tag.
 	 */
 	public function enhaced_twitter_cards_site_tag( $tag ) {
 		$custom_site_tag = get_option( 'jetpack-twitter-cards-site-tag' );
@@ -814,8 +900,8 @@ class Publicize extends Publicize_Base {
 		$connections = $this->get_connections( 'twitter' );
 		foreach ( $connections as $connection ) {
 			$connection_meta = $this->get_connection_meta( $connection );
-			if ( 0 == $connection_meta['connection_data']['user_id'] ) {
-				// If the connection is shared
+			if ( 0 === (int) $connection_meta['connection_data']['user_id'] ) {
+				// If the connection is shared.
 				return $this->get_display_name( 'twitter', $connection );
 			}
 		}
@@ -824,10 +910,10 @@ class Publicize extends Publicize_Base {
 	}
 
 	public function save_publicized_twitter_account( $submit_post, $post_id, $service_name, $connection ) {
-		if ( 'twitter' == $service_name && $submit_post ) {
+		if ( 'twitter' === $service_name && $submit_post ) {
 			$connection_meta        = $this->get_connection_meta( $connection );
 			$publicize_twitter_user = get_post_meta( $post_id, '_publicize_twitter_user' );
-			if ( empty( $publicize_twitter_user ) || 0 != $connection_meta['connection_data']['user_id'] ) {
+			if ( empty( $publicize_twitter_user ) || 0 !== (int) $connection_meta['connection_data']['user_id'] ) {
 				update_post_meta( $post_id, '_publicize_twitter_user', $this->get_display_name( 'twitter', $connection ) );
 			}
 		}
@@ -851,9 +937,9 @@ class Publicize extends Publicize_Base {
 	 */
 	public function save_publicized_facebook_account( $submit_post, $post_id, $service_name, $connection ) {
 		$connection_meta = $this->get_connection_meta( $connection );
-		if ( 'facebook' == $service_name && isset( $connection_meta['connection_data']['meta']['facebook_profile'] ) && $submit_post ) {
+		if ( 'facebook' === $service_name && isset( $connection_meta['connection_data']['meta']['facebook_profile'] ) && $submit_post ) {
 			$publicize_facebook_user = get_post_meta( $post_id, '_publicize_facebook_user' );
-			if ( empty( $publicize_facebook_user ) || 0 != $connection_meta['connection_data']['user_id'] ) {
+			if ( empty( $publicize_facebook_user ) || 0 !== (int) $connection_meta['connection_data']['user_id'] ) {
 				$profile_link = $this->get_profile_link( 'facebook', $connection );
 
 				if ( false !== $profile_link ) {
