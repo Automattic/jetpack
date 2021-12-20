@@ -270,6 +270,7 @@ importers:
       '@wordpress/data': 6.1.4
       '@wordpress/element': 4.0.4
       '@wordpress/i18n': 4.2.4
+      '@wordpress/url': 3.3.1
       jetpack-js-test-runner: workspace:*
       nyc: 15.1.0
       prop-types: ^15.7.2
@@ -286,6 +287,7 @@ importers:
       '@wordpress/data': 6.1.4_react@17.0.2
       '@wordpress/element': 4.0.4
       '@wordpress/i18n': 4.2.4
+      '@wordpress/url': 3.3.1
       prop-types: 15.7.2
     devDependencies:
       jetpack-js-test-runner: link:../../../tools/js-test-runner
