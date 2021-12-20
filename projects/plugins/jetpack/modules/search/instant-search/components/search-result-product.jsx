@@ -2,7 +2,7 @@
  * External dependencies
  */
 import React, { Component } from 'react';
-import { __, sprintf } from '@wordpress/i18n';
+import { __ } from '@wordpress/i18n';
 
 /**
  * Internal dependencies
@@ -109,11 +109,13 @@ class SearchResultProduct extends Component {
 						<mark>
 							<Gridicon icon="search" style={ {} } title={ false } />
 							<span>
-								{ sprintf(
-									/* Translators: the placeholder can be "content" or "comments". */
-									__( 'Matches %s', 'jetpack' ),
-									'comment' in highlight ? __( 'comments', 'jetpack' ) : __( 'content', 'jetpack' )
-								) }
+								{ 'comment' in highlight
+									? __( 'Matches comments', 'jetpack' )
+									: __(
+											'Matches content',
+											'jetpack',
+											/* dummy arg to avoid bad minification */ 0
+									  ) }
 							</span>
 						</mark>
 					</div>

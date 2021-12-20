@@ -22,4 +22,8 @@ export default {
 	startFreshCardTitle: PropTypes.string,
 	/** The "start fresh" card body. */
 	startFreshCardBodyText: PropTypes.string,
+	/** The "non admin" screen title. */
+	nonAdminTitle: PropTypes.string,
+	/** The "non admin" screen body text. */
+	nonAdminBodyText: PropTypes.string,
 };

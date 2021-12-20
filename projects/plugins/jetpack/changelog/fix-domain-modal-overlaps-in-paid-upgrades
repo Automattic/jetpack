@@ -1,4 +1,0 @@
-Significance: patch
-Type: bugfix
-
-We now add a CSS class to the HTML body when nav-unification is enabled.

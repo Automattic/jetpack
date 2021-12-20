@@ -44,7 +44,6 @@ class Jetpack_Copy_Post {
 	 * @return void
 	 */
 	public function update_post_data( $target_post_id, $post, $update ) {
-		global $wp_version;
 		// This `$update` check avoids infinite loops of trying to update our updated post.
 		if ( $update ) {
 			return;
@@ -70,15 +69,8 @@ class Jetpack_Copy_Post {
 		add_filter( 'default_content', array( $this, 'filter_content' ), 10, 2 );
 		add_filter( 'default_excerpt', array( $this, 'filter_excerpt' ), 10, 2 );
 
-		/*
-		 * Required to avoid the block editor from adding default blocks according to post format.
-		 * @todo: simplify once WordPress 5.8 is the minimum required version.
-		 */
-		if ( version_compare( $wp_version, '5.8', '>=' ) ) {
-			add_filter( 'block_editor_settings_all', array( $this, 'remove_post_format_template' ) );
-		} else {
-			add_filter( 'block_editor_settings', array( $this, 'remove_post_format_template' ) );
-		}
+		// Required to avoid the block editor from adding default blocks according to post format.
+		add_filter( 'block_editor_settings_all', array( $this, 'remove_post_format_template' ) );
 
 		/**
 		 * Fires after all updates have been performed, and default content filters have been added.

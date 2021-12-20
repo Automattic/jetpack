@@ -2,6 +2,10 @@
 
 ### This is a list detailing changes for the Jetpack RNA IDC package releases.
 
+## 0.7.0 - 2021-12-14
+### Added
+- Add the non-admin IDC screen.
+
 ## 0.6.0 - 2021-12-07
 ### Added
 - Add event tracking.

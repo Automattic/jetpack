@@ -22,6 +22,7 @@
 .eslintrc.js                                             production-exclude
 /.gitattributes                                          production-exclude
 /.gitignore                                              production-exclude
+/.phpcs.dir.xml                                          production-exclude
 /.sass-cache/**                                          production-exclude
 /.size-limit.js                                          production-exclude
 /.wp-env.json                                            production-exclude

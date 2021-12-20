@@ -49,7 +49,7 @@ class Admin {
 			'tools.php',
 			__( 'Connection Manager', 'jetpack' ),
 			__( 'Connection Manager', 'jetpack' ),
-			'manage_options',
+			'read',
 			'wpcom-connection-manager',
 			array( $this, 'render_ui' ),
 			4
