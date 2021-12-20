@@ -97,7 +97,6 @@ class UI {
 			'WP_API_nonce'        => wp_create_nonce( 'wp_rest' ),
 			'wpcomHomeUrl'        => $idc_urls['wpcom_url'],
 			'currentUrl'          => $idc_urls['current_url'],
-			// TODO: find a better way to get the redirect URL.
 			'redirectUri'         => str_replace( '/wp-admin/', '/', $_SERVER['REQUEST_URI'] ),
 			'tracksUserData'      => Jetpack_Tracks_Client::get_connected_user_tracks_identity(),
 			'tracksEventData'     => array(
