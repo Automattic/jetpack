@@ -32,10 +32,10 @@ export function* updateJetpackSettings( settings, oldSettings ) {
 		yield updateJetpackSettingsControl( settings );
 		const updatedSettings = yield fetchJetpackSettings();
 		yield setJetpackSettings( updatedSettings );
-		return successNotice( __( 'Updated settings.' ) );
+		return successNotice( __( 'Updated settings.', 'jetpack' ) );
 	} catch ( e ) {
 		yield setJetpackSettings( oldSettings );
-		return errorNotice( __( 'Error Update settings…' ) );
+		return errorNotice( __( 'Error Update settings…', 'jetpack' ) );
 	} finally {
 		yield removeUpdatingNotice();
 		yield setUpdatingJetpackSettingsDone();
