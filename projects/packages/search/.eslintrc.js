@@ -1,8 +1,11 @@
+const loadIgnorePatterns = require( '../../../tools/js-tools/load-eslint-ignore.js' );
+
 module.exports = {
 	// Use root level ESlint configuration.
 	// JavaScript files inside this folder are meant to be transpiled by Webpack.
 	root: true,
 	extends: [ '../../../.eslintrc.react.js' ],
+	ignorePatterns: loadIgnorePatterns( __dirname ),
 	parserOptions: {
 		babelOptions: {
 			configFile: require.resolve( './babel.config.js' ),

@@ -172,7 +172,16 @@ The following environment variables are avaliable for all tests:
 We use eslint and phpcs to lint JavaScript and PHP code. Projects should comply with the [coding standards](development-environment.md#coding-standards) enforced by these tools.
 
 * Projects may include `.eslintrc.js` to adjust eslint configuration as necessary, but try to keep to the spirit of it.
-* As eslint does not support per-directory `.eslintignore`, any necessary ignore rules should be added to the file in the root of the monorepo.
+
+  Note we're using something of a hack to get eslint to read ignore rules from `.gitignore` and per-directory `.eslintignore` files.
+  Any eslintrc that does `root: true` or an `extends` that extends from an eslintrc that includes the hack will have to do like
+  ```js
+  const loadIgnorePatterns = require( '../../../tools/js-tools/load-eslint-ignore.js' );
+  module.exports = {
+  	// Whatever stuff, including `root: true` or `extends`.
+  	ignorePatterns: loadIgnorePatterns( __dirname ),
+  };
+  ```
 * We're using a fork of phpcs and a custom filter that adds support for per-directory configuration (`.phpcs.dir.xml`) and use of `.gitignore` and `.phpcsignore` files. Again, try to keep to the spirit of things.
 
 ### PHP tests

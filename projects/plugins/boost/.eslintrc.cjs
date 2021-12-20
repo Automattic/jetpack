@@ -1,12 +1,15 @@
+const loadIgnorePatterns = require( '../../../tools/js-tools/load-eslint-ignore.js' );
+
 module.exports = {
 	root: true,
 	parser: '@typescript-eslint/parser',
 	extends: [
 		'@sveltejs',
-		'../../../.eslintrc.js',
+		'../../../.eslintrc.normal.js',
 		'plugin:@typescript-eslint/recommended',
 		'plugin:@wordpress/eslint-plugin/recommended',
 	],
+	ignorePatterns: loadIgnorePatterns( __dirname ),
 	parserOptions: {
 		babelOptions: {
 			configFile: require.resolve( './babel.config.js' ),
@@ -19,9 +22,15 @@ module.exports = {
 	},
 	overrides: [
 		{
-			files: [ '*.js' ],
+			files: [ '*.js', '*.cjs' ],
 			parser: '@babel/eslint-parser',
 			extends: [ '../../../.eslintrc.js' ],
+		},
+		{
+			files: [ '*.cjs' ],
+			rules: {
+				'@typescript-eslint/no-var-requires': 0,
+			},
 		},
 		{
 			files: [ '*.svelte' ],
