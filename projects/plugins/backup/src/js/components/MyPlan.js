@@ -25,7 +25,7 @@ const MyPlan = props => {
 			},
 			() => {
 				setSitePurchasesLoaded( true );
-				setSitePurchasesError( 'Failed to fetch site purchases' );
+				setSitePurchasesError( __( 'Failed to fetch site purchases', 'jetpack-backup' ) );
 			}
 		);
 	}, [] );
@@ -54,24 +54,37 @@ const MyPlan = props => {
  * @returns {Array} a html list of the specified type plans and expiry dates
  */
 function getPurchasesList( purchases, purchaseType ) {
+	let filteredPurchases = [];
 	const purchasesList = [];
-	purchases.forEach( purchase => {
-		if ( purchaseType === 'backup' ) {
+
+	if ( purchaseType === 'backup' ) {
+		purchases.forEach( purchase => {
 			if (
 				isJetpackBackup( purchase.product_slug ) ||
 				isJetpackBundle( purchase.product_slug ) ||
 				isJetpackLegacyPlan( purchase.product_slug )
 			) {
-				purchasesList.push(
-					<>
-						<h4> { purchase.product_name } </h4>
-						<p> { purchase.expiry_message } </p>
-					</>
-				);
+				filteredPurchases.push( purchase );
 			}
-		}
+		} );
+	} else {
+		filteredPurchases = purchases;
+	}
+
+	filteredPurchases.forEach( purchase => {
+		purchasesList.push(
+			<>
+				<h4> { purchase.product_name } </h4>
+				<p> { purchase.expiry_message } </p>
+			</>
+		);
 	} );
+
 	return purchasesList;
 }
+
+MyPlan.defaultProps = {
+	purchaseType: 'all',
+};
 
 export default MyPlan;
