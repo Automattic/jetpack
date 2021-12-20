@@ -46,8 +46,8 @@ class Admin {
 	public function register_submenu_page() {
 		add_submenu_page(
 			'tools.php',
-			__( 'Connection Manager', 'jetpack' ),
-			__( 'Connection Manager', 'jetpack' ),
+			__( 'Connection Manager', 'jetpack-connection-ui' ),
+			__( 'Connection Manager', 'jetpack-connection-ui' ),
 			'read',
 			'wpcom-connection-manager',
 			array( $this, 'render_ui' ),
