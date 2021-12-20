@@ -1,0 +1,1194 @@
+// JSON file with single-line comments.
+// You should be able to parse it with a standard JSON parser by removing any line where the first non-whitespace characters are "//".
+
+{
+	//////////////////////
+	// Cases copied from https://github.com/kaelzhang/node-ignore/blob/7cc95d22ea9a647442c06f4383a73e7a439a48d6/test/fixtures/cases.js
+	// Assuming this is original enough to attract copyright in the first place, this data is under the terms of that project's MIT license.
+	// @see https://github.com/kaelzhang/node-ignore/blob/7cc95d22ea9a647442c06f4383a73e7a439a48d6/LICENSE-MIT
+	//////////////////////
+
+	"#59 and more cases about range notation (1)": {
+		"rules": [
+			"src/\\[foo\\]",
+			"src/\\[bar]",
+			"src/[e\\\\]",
+			"s/[f\\\\\\\\]",
+			"s/[a-z0-9]",
+			// node-ignore claims "The following special cases are not described in gitignore manual". But they are via reference to fnmatch.
+			"src/[q",
+			"src/\\[u",
+			"src/[x\\]"
+		],
+		"expects": {
+			"src/[foo]": "ignored",
+			"src/[bar]": "ignored",
+			"src/e": "ignored",
+			"s/f": "ignored",
+			"s/a": "ignored",
+			"s/0": "ignored",
+			"src/[u": "ignored",
+			"src/[x": "nomatch",
+			"src/x": "nomatch"
+		}
+	},
+	"#59 and more cases about range notation (2)": {
+		"rules": [
+			"src/\\[foo\\]",
+			"src/\\[bar]",
+			"src/[e\\\\]",
+			"s/[f\\\\\\\\]",
+			"s/[a-z0-9]",
+			// node-ignore claims "The following special cases are not described in gitignore manual". But they are via reference to fnmatch.
+			"src/[q",
+			"src/\\[u",
+			"src/[x\\]"
+		],
+		"expects": {
+			// node-ignore has these wrong.
+			"src/[q": "ignored",
+			"src/[x]": "ignored"
+		},
+		// Git's matcher fails instead of interpreting as a literal.
+		"nogit": true
+	},
+	"gitignore 2.22.1 example": {
+		"rules": [
+			"doc/frotz/"
+		],
+		"expects": {
+			"doc/frotz/": "ignored",
+			"a/doc/frotz/": "nomatch"
+		}
+	},
+	"#56": {
+		"rules": [
+			"/*/",
+			"!/foo/"
+		],
+		"expects": {
+			"foo/bar.js": "nomatch"
+		}
+	},
+	"a and a/": {
+		"rules": [
+			"a",
+			"a2",
+			"b/",
+			"b2/"
+		],
+		"expects": {
+			"a": "ignored",
+			"a2/": "ignored",
+			"b": "nomatch",
+			"b2/": "ignored"
+		}
+	},
+	"ending question mark": {
+		"rules": [
+			"*.web?"
+		],
+		"expects": {
+			"a.webp": "ignored",
+			"a.webm": "ignored",
+			// only match one characters
+			"a.webam": "nomatch",
+			"a.png": "nomatch",
+			// Additional test not in node-ignore.
+			"a.web": "nomatch"
+		}
+	},
+	"intermediate question mark": {
+		"rules": [
+			"a?c"
+		],
+		"expects": {
+			"abc": "ignored",
+			"acc": "ignored",
+			"ac": "nomatch",
+			"abbc": "nomatch"
+		}
+	},
+	"multiple question marks": {
+		"rules": [
+			"a?b??"
+		],
+		"expects": {
+			"acbdd": "ignored",
+			"acbddd": "nomatch"
+		}
+	},
+	"normal *.[oa]": {
+		"rules": [
+			"*.[oa]"
+		],
+		"expects": {
+			"a.js": "nomatch",
+			"a.a": "ignored",
+			// test ending
+			"a.aa": "nomatch",
+			"a.o": "ignored",
+			"a.0": "nomatch"
+		}
+	},
+	"multiple brackets": {
+		"rules": [
+			"*.[ab][cd][ef]"
+		],
+		"expects": {
+			"a.ace": "ignored",
+			"a.bdf": "ignored",
+			"a.bce": "ignored",
+			"a.abc": "nomatch",
+			"a.aceg": "nomatch"
+		}
+	},
+	"special case: []": {
+		"rules": [
+			"*.[]"
+		],
+		"expects": {
+			// node-ignore has this one wrong.
+			"a.[]": "ignored",
+			"a.[]a": "nomatch"
+		},
+		// Git's matcher fails instead of interpreting as a literal.
+		"nogit": true
+	},
+	"mixed with numbers, characters and symbols: *.[0a_]": {
+		"rules": [
+			"*.[0a_]"
+		],
+		"expects": {
+			"a.0": "ignored",
+			"a.1": "nomatch",
+			"a.a": "ignored",
+			"a.b": "nomatch",
+			"a._": "ignored",
+			"a.=": "nomatch"
+		}
+	},
+	"range: [a-z]": {
+		"rules": [
+			"*.pn[a-z]"
+		],
+		"expects": {
+			"a.pn1": "nomatch",
+			"a.pn2": "nomatch",
+			"a.png": "ignored",
+			"a.pna": "ignored"
+		}
+	},
+	"range: [0-9]": {
+		"rules": [
+			"*.pn[0-9]"
+		],
+		"expects": {
+			"a.pn1": "ignored",
+			"a.pn2": "ignored",
+			"a.png": "nomatch",
+			"a.pna": "nomatch"
+		}
+	},
+	"multiple ranges: [0-9a-z]": {
+		"rules": [
+			"*.pn[0-9a-z]"
+		],
+		"expects": {
+			"a.pn1": "ignored",
+			"a.pn2": "ignored",
+			"a.png": "ignored",
+			"a.pna": "ignored",
+			"a.pn-": "nomatch"
+		}
+	},
+	// Node-ignore claims "[0-z] represents 0-0A-Za-z". It includes the other digits and certain punctuation too.
+	"special range: [0-z]": {
+		"rules": [
+			"*.[0-z]"
+		],
+		"expects": {
+			"a.0": "ignored",
+			"a.9": "ignored",
+			"a.00": "nomatch",
+			"a.a": "ignored",
+			"a.z": "ignored",
+			"a.zz": "nomatch",
+
+			// Additional test cases beyond what node-ignore has.
+			"a..": "nomatch",
+			"a.:": "ignored",
+			"a._": "ignored",
+			"a.{": "nomatch"
+		}
+	},
+	// If range is out of order, then omitted
+	"special case: range out of order: [a-9]": {
+		"rules": [
+			"*.[a-9]"
+		],
+		"expects": {
+			"a.0": "nomatch",
+			"a.-": "nomatch",
+			"a.9": "nomatch"
+		}
+	},
+	// Just treat it as normal character set
+	"special case: range-like character set": {
+		"rules": [
+			"*.[a-]"
+		],
+		"expects": {
+			"a.a": "ignored",
+			"a.-": "ignored",
+			"a.b": "nomatch"
+		}
+	},
+	"special case: the combination of range and set": {
+		"rules": [
+			"*.[a-z01]"
+		],
+		"expects": {
+			"a.a": "ignored",
+			"a.b": "ignored",
+			"a.z": "ignored",
+			"a.0": "ignored",
+			"a.1": "ignored",
+			"a.2": "nomatch"
+		}
+	},
+	"special case: 1 step range": {
+		"rules": [
+			"*.[0-0]"
+		],
+		"expects": {
+			"a.0": "ignored",
+			"a.1": "nomatch",
+			"a.-": "nomatch"
+		}
+	},
+	"special case: similar, but not a character set": {
+		"rules": [
+			"*.[a-"
+		],
+		"expects": {
+			"a.": "nomatch",
+			"a.[": "nomatch",
+			"a.a": "nomatch",
+			"a.-": "nomatch"
+		}
+	},
+	"related to #38": {
+		"rules": [
+			"*",
+			"!abc*"
+		],
+		"expects": {
+			"a": "ignored",
+			"abc": "unignored",
+			"abcd": "unignored"
+		}
+	},
+	"#38": {
+		"rules": [
+			"*",
+			"!*/",
+			"!foo/bar"
+		],
+		"expects": {
+			"a": "ignored",
+			"b/c": "ignored",
+			"foo/bar": "unignored",
+			"foo/e": "ignored"
+		}
+	},
+	"intermediate `\\ ` should be unescaped to ` `": {
+		"rules": [
+			"abc\\ d",
+			"abc e",
+			"a\\ b\\ c"
+		],
+		"expects": {
+			"abc d": "ignored",
+			"abc e": "ignored",
+			"abc/abc d": "ignored",
+			"abc/abc e": "ignored",
+			"abc/a b c": "ignored"
+		}
+	},
+	"#25": {
+		"rules": [
+			".git/*",
+			"!.git/config",
+			".ftpconfig"
+		],
+		"expects": {
+			".ftpconfig": "ignored",
+			".git/config": "unignored",
+			".git/description": "ignored"
+		}
+	},
+	"#26: .gitignore man page sample": {
+		"rules": [
+			"# exclude everything except directory foo/bar",
+			"/*",
+			"!/foo",
+			"/foo/*",
+			"!/foo/bar"
+		],
+		"expects": {
+			"no.js": "ignored",
+			"foo/no.js": "ignored",
+			"foo/bar/yes.js": "nomatch",
+			"foo/bar/baz/yes.js": "nomatch",
+			"boo/no.js": "ignored"
+		}
+	},
+	"wildcard: special case, escaped wildcard": {
+		"rules": [
+			"*.html",
+			"!a/b/\\*/index.html"
+		],
+		"expects": {
+			"a/b/*/index.html": "unignored",
+			"a/b/index.html": "ignored"
+		}
+	},
+	"wildcard: treated as a shell glob suitable for consumption by fnmatch(3)": {
+		"rules": [
+			"*.html",
+			"!b/\\*/index.html"
+		],
+		"expects": {
+			"a/b/*/index.html": "ignored",
+			"a/b/index.html": "ignored"
+		}
+	},
+	"wildcard: with no escape": {
+		"rules": [
+			"*.html",
+			"!a/b/*/index.html"
+		],
+		"expects": {
+			"a/b/*/index.html": "unignored",
+			"a/b/index.html": "ignored"
+		}
+	},
+	"#24: a negative pattern without a trailing wildcard": {
+		"rules": [
+			"/node_modules/*",
+			"!/node_modules",
+			"!/node_modules/package"
+		],
+		"expects": {
+			"node_modules/a/a.js": "ignored",
+			"node_modules/package/a.js": "nomatch"
+		}
+	},
+	"#21: unignore with 1 globstar, reversed order": {
+		"rules": [
+			"!foo/bar.js",
+			"foo/*"
+		],
+		"expects": {
+			"foo/bar.js": "ignored",
+			"foo/bar2.js": "ignored",
+			"foo/bar/bar.js": "ignored"
+		}
+	},
+
+	"#21: unignore with 2 globstars, reversed order": {
+		"rules": [
+			"!foo/bar.js",
+			"foo/**"
+		],
+		"expects": {
+			"foo/bar.js": "ignored",
+			"foo/bar2.js": "ignored",
+			"foo/bar/bar.js": "ignored"
+		}
+	},
+
+	"#21: unignore with several groups of 2 globstars, reversed order": {
+		"rules": [
+			"!foo/bar.js",
+			"foo/**/**"
+		],
+		"expects": {
+			"foo/bar.js": "ignored",
+			"foo/bar2.js": "ignored",
+			"foo/bar/bar.js": "ignored"
+		}
+	},
+
+	"#21: unignore with 1 globstar": {
+		"rules": [
+			"foo/*",
+			"!foo/bar.js"
+		],
+		"expects": {
+			"foo/bar.js": "unignored",
+			"foo/bar2.js": "ignored",
+			"foo/bar/bar.js": "ignored"
+		}
+	},
+
+	"#21: unignore with 2 globstars": {
+		"rules": [
+			"foo/**",
+			"!foo/bar.js"
+		],
+		"expects": {
+			"foo/bar.js": "unignored",
+			"foo/bar2.js": "ignored",
+			"foo/bar/bar.js": "ignored"
+		}
+	},
+
+	"related to #21: several groups of 2 globstars": {
+		"rules": [
+			"foo/**/**",
+			"!foo/bar.js"
+		],
+		"expects": {
+			"foo/bar.js": "unignored",
+			"foo/bar2.js": "ignored",
+			"foo/bar/bar.js": "ignored"
+		}
+	},
+
+	"ignore dot files": {
+		"rules": [
+			".*"
+		],
+		"expects": {
+			".a": "ignored",
+			".gitignore": "ignored"
+		}
+	},
+
+	"#14, README example broken in `3.0.3`": {
+		"rules": [
+			".abc/*",
+			"!.abc/d/"
+		],
+		"expects": {
+			".abc/a.js": "ignored",
+			".abc/d/e.js": "nomatch"
+		}
+	},
+
+	"#14, README example broken in `3.0.3`, not negate parent folder": {
+		"rules": [
+			".abc/*",
+			// .abc/d will be ignored
+			"!.abc/d/*"
+		],
+		"expects": {
+			".abc/a.js": "ignored",
+			// so '.abc/d/e.js' will be ignored
+			".abc/d/e.js": "ignored"
+		}
+	},
+
+	"A blank line matches no files": {
+		"rules": [
+			""
+		],
+		"expects": {
+			"a": "nomatch",
+			"a/b/c": "nomatch"
+		}
+	},
+	"A line starting with # serves as a comment.": {
+		"rules": [
+			"#abc"
+		],
+		"expects": {
+			"#abc": "nomatch"
+		}
+	},
+	"Put a backslash (`\\`) in front of the first hash for patterns that begin with a hash.": {
+		"rules": [
+			"\\#abc"
+		],
+		"expects": {
+			"#abc": "ignored"
+		}
+	},
+	"Trailing spaces are ignored unless they are quoted with backslash (`\\`)": {
+		"rules": [
+			// only one space left -> (abc )
+			"abc\\  ",
+			// no space left -> (bcd)
+			"bcd  ",
+			// two spaces -> (cde  )
+			"cde \\ "
+		],
+		"expects": {
+			// nothing to do with backslashes
+			"abc\\  ": "nomatch",
+			"abc  ": "nomatch",
+			"abc ": "ignored",
+			"abc   ": "nomatch",
+			"bcd": "ignored",
+			"bcd ": "nomatch",
+			"bcd  ": "nomatch",
+			"cde  ": "ignored",
+			"cde ": "nomatch",
+			"cde   ": "nomatch"
+		}
+	},
+	"An optional prefix `!` which negates the pattern; any matching file excluded by a previous pattern will become included again": {
+		"rules": [
+			"abc",
+			"!abc"
+		],
+		"expects": {
+			// the parent folder is included again
+			"abc/a.js": "nomatch",
+			"abc/": "unignored_gitnomatch"
+		}
+	},
+	"issue #10: It is not possible to re-include a file if a parent directory of that file is excluded": {
+		"rules": [
+			"/abc/",
+			"!/abc/a.js"
+		],
+		"expects": {
+			"abc/a.js": "ignored",
+			"abc/d/e.js": "ignored"
+		}
+	},
+	"we did not know whether the rule is a dir first": {
+		"rules": [
+			"abc",
+			"!bcd/abc/a.js"
+		],
+		"expects": {
+			"abc/a.js": "ignored",
+			"bcd/abc/a.js": "ignored"
+		}
+	},
+	"Put a backslash (`\\`) in front of the first `!` for patterns that begin with a literal `!`": {
+		"rules": [
+			"\\!abc",
+			"\\!important!.txt"
+		],
+		"expects": {
+			"!abc": "ignored",
+			"abc": "nomatch",
+			"b/!important!.txt": "ignored",
+			"!important!.txt": "ignored"
+		}
+	},
+
+	"If the pattern ends with a slash, it is removed for the purpose of the following description, but it would only find a match with a directory": {
+		"rules": [
+			"abc/"
+		],
+		"expects": {
+			"abc": "nomatch",
+			"abc/": "ignored",
+			// Actually, if there is only a trailing slash, git also treats it as a shell glob pattern
+			// 'abc/' should make 'bcd/abc/' ignored.
+			"bcd/abc/": "ignored"
+		}
+	},
+
+	"If the pattern does not contain a slash /, Git treats it as a shell glob pattern": {
+		"rules": [
+			"a.js",
+			"f/"
+		],
+		"expects": {
+			"a.js": "ignored",
+			"b/a/a.js": "ignored",
+			"a/a.js": "ignored",
+			"b/a.jsa": "nomatch",
+			"f/": "ignored",
+			"g/f/": "ignored"
+		}
+	},
+	"Otherwise, Git treats the pattern as a shell glob suitable for consumption by fnmatch(3) with the FNM_PATHNAME flag": {
+		"rules": [
+			"a/a.js"
+		],
+		"expects": {
+			"a/a.js": "ignored",
+			"a/a.jsa": "nomatch",
+			"b/a/a.js": "nomatch",
+			"c/a/a.js": "nomatch"
+		}
+	},
+
+	"wildcards in the pattern will not match a / in the pathname.": {
+		"rules": [
+			"Documentation/*.html"
+		],
+		"expects": {
+			"Documentation/git.html": "ignored",
+			"Documentation/ppc/ppc.html": "nomatch",
+			"tools/perf/Documentation/perf.html": "nomatch"
+		}
+	},
+
+	"A leading slash matches the beginning of the pathname": {
+		"rules": [
+			"/*.c"
+		],
+		"expects": {
+			"cat-file.c": "ignored",
+			"mozilla-sha1/sha1.c": "nomatch"
+		}
+	},
+
+	"A leading `**` followed by a slash means match in all directories": {
+		"rules": [
+			"**/foo"
+		],
+		"expects": {
+			"foo": "ignored",
+			"a/foo": "ignored",
+			"foo/a": "ignored",
+			"a/foo/a": "ignored",
+			"a/b/c/foo/a": "ignored"
+		}
+	},
+
+	"`**/foo/bar` matches file or directory `bar` anywhere that is directly under directory `foo`": {
+		"rules": [
+			"**/foo/bar"
+		],
+		"expects": {
+			"foo/bar": "ignored",
+			"abc/foo/bar": "ignored",
+			"abc/foo/bar/": "ignored"
+		}
+	},
+
+	"A trailing `/**` matches everything inside": {
+		"rules": [
+			"abc/**"
+		],
+		"expects": {
+			"abc/a/": "ignored",
+			"abc/b": "ignored",
+			"abc/d/e/f/g": "ignored",
+			"bcd/abc/a": "nomatch",
+			"abc": "nomatch"
+		}
+	},
+
+	"A slash followed by two consecutive asterisks then a slash matches zero or more directories": {
+		"rules": [
+			"a/**/b"
+		],
+		"expects": {
+			"a/b": "ignored",
+			"a/x/b": "ignored",
+			"a/x/y/b": "ignored",
+			"b/a/b": "nomatch"
+		}
+	},
+
+	"add a file content": {
+		"rules": "abc\n!abc/b\n#e\n\\#f\n",
+		"expects": {
+			"abc/a.js": "ignored",
+			"abc/b/b.js": "ignored",
+			"#e": "nomatch",
+			"#f": "ignored"
+		}
+	},
+
+	// old test cases
+	"should excape metacharacters of regular expressions": {
+		"rules": [
+			"*.js",
+			"!\\*.js",
+			"!a#b.js",
+			"!?.js",
+
+			// comments
+			"#abc",
+
+			"\\#abc"
+		],
+		"expects": {
+			"*.js": "unignored",
+			"abc.js": "ignored",
+			"a#b.js": "unignored",
+			"abc": "nomatch",
+			"#abc": "ignored",
+			"?.js": "unignored"
+		}
+	},
+
+	"issue #2: question mark should not break all things": {
+		"rules": "# git-ls-files --others --exclude-from=.git/info/exclude\n# Lines that start with '#' are comments.\n# For a project mostly in C, the following would be a good set of\n# exclude patterns (uncomment them if you want to use them):\n# *.[oa]\n# *~\n\n/.project\n\n# The same type as `'/.project'`\n# /.settings\n\n/sharedTools/external/*\n\nthumbs.db\n\n/packs\n\n*.pyc\n\n# /.cache\n\n# /bigtxt\n.metadata/*\n\n*~\n\n/sharedTools/jsApiLua.lua\n\n._*\n\n.DS_Store\n\n# /DISABLED\n\n# /.pydevproject\n\n# /testbox\n\n*.swp\n\n/packs/packagesTree\n\n/packs/*.ini\n\n# .buildpath\n\n# The same type as `'/sharedTools/external/*'`\n# /resources/hooks/*\n\n# .idea\n\n.idea/*\n\n# /tags\n\n**.iml\n\n.sonar/*\n\n.*.sw?\n",
+		"expects": {
+			".project": "ignored",
+			// remain
+			"abc/.project": "nomatch",
+			".a.sw": "nomatch",
+			".a.sw?": "ignored",
+			"thumbs.db": "ignored"
+		}
+	},
+	"dir ended with `*`": {
+		"rules": [
+			"abc/*"
+		],
+		"expects": {
+			"abc": "nomatch"
+		}
+	},
+	"file ended with `*`": {
+		"rules": [
+			"abc.js*"
+		],
+		"expects": {
+			"abc.js/": "ignored",
+			"abc.js/abc": "ignored",
+			"abc.jsa/": "ignored",
+			"abc.jsa/abc": "ignored"
+		}
+	},
+	"wildcard as filename": {
+		"rules": [
+			"*.b"
+		],
+		"expects": {
+			"b/a.b": "ignored",
+			"b/.b": "ignored",
+			"b/.ba": "nomatch",
+			"b/c/a.b": "ignored"
+		}
+	},
+	"slash at the beginning and come with a wildcard": {
+		"rules": [
+			"/*.c"
+		],
+		"expects": {
+			".c": "ignored",
+			"c.c": "ignored",
+			"c/c.c": "nomatch",
+			"c/d": "nomatch"
+		}
+	},
+	"dot file": {
+		"rules": [
+			".d"
+		],
+		"expects": {
+			".d": "ignored",
+			".dd": "nomatch",
+			"d.d": "nomatch",
+			"d/.d": "ignored",
+			"d/d.d": "nomatch",
+			"d/e": "nomatch"
+		}
+	},
+	"dot dir": {
+		"rules": [
+			".e"
+		],
+		"expects": {
+			".e/": "ignored",
+			".ee/": "nomatch",
+			"e.e/": "nomatch",
+			".e/e": "ignored",
+			"e/.e": "ignored",
+			"e/e.e": "nomatch",
+			"e/f": "nomatch"
+		}
+	},
+	"node modules: once": {
+		"rules": [
+			"node_modules/"
+		],
+		"expects": {
+			"node_modules/gulp/node_modules/abc.md": "ignored",
+			"node_modules/gulp/node_modules/abc.json": "ignored"
+		}
+	},
+	"node modules: sub directories": {
+		"rules": [
+			"node_modules"
+		],
+		"expects": {
+			"a/b/node_modules/abc.md": "ignored"
+		}
+	},
+	"node modules: twice": {
+		"rules": [
+			"node_modules/",
+			"node_modules/"
+		],
+		"expects": {
+			"node_modules/gulp/node_modules/abc.md": "ignored",
+			"node_modules/gulp/node_modules/abc.json": "ignored"
+		}
+	},
+	"unicode characters in windows paths": {
+		"rules": [
+			"test"
+		],
+		"expects": {
+			"some/path/to/test/ignored.js": "ignored",
+			"some/special/path/to/目录/test/ignored.js": "ignored"
+		}
+	},
+	"linux: back slashes on paths": {
+		"rules": [
+			"a",
+			"b\\\\c"
+		],
+		"expects": {
+			"b\\c/a.md": "ignored",
+			"a\\b/a.js": "nomatch",
+			"a\\b/a": "ignored",
+			"a/a.js": "ignored"
+		}
+	},
+	"#59: test cases for linux only": {
+		"rules": [
+			"src/\\[foo\\]",
+			"src/\\[foo2\\\\]",
+			"src/\\[foo3\\\\\\]",
+			"src/\\[foo4\\\\\\\\]",
+			"src/\\[foo5\\\\\\\\\\]",
+			"src/\\[foo6\\\\\\\\\\\\]",
+
+			"src/\\[bar]",
+
+			"src/[e\\\\]",
+			"s/[f\\\\\\\\]",
+
+			"s/[a-z0-9]"
+		],
+		"expects": {
+			"src/[foo]": "ignored",
+			"src/[foo2\\]": "ignored",
+
+			// Seems the followings are side-effects,
+			// however, we will implement these
+			"src/[foo3\\]": "ignored",
+			"src/[foo4\\\\]": "ignored",
+			"src/[foo5\\\\]": "ignored",
+			"src/[foo6\\\\\\]": "ignored",
+
+			"src/[bar]": "ignored",
+
+			"src/e": "ignored",
+			"src/\\": "ignored",
+			"s/f": "ignored",
+			"s/\\": "ignored",
+
+			"s/a": "ignored",
+
+			"s/0": "ignored"
+		}
+	},
+
+	//////////////////////
+	// Additional tests not from node-ignore.
+	// Assuming this is original enough to attract copyright in the first place, this data is released under the CC0 Public Domain Dedication.
+	// @see https://creativecommons.org/publicdomain/zero/1.0/
+	//////////////////////
+
+	"#57 Handling of `**folder`": {
+		// https://github.com/kaelzhang/node-ignore/issues/57
+		"rules": [
+			"**folder",
+			"!folder/folder/testFile.txt"
+		],
+		"expects": {
+			"folder/folder/testFile.txt": "ignored",
+			"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaafolde": "nomatch"
+		}
+	},
+
+	"Multiple separate /**/": {
+		"rules": [
+			"a/**/b/**/c"
+		],
+		"expects": {
+			"a/a/a/a/b/b/b/b/c": "ignored",
+			"a/a/a/a/b/b/b/b/b": "nomatch"
+		}
+	},
+
+	"Star and question mark do not match `/`": {
+		"rules": [
+			"a*b",
+			"a?b"
+		],
+		"expects": {
+			"a/b": "nomatch"
+		}
+	},
+
+	"Backslash slash": {
+		"rules": [
+			"a\\/b",
+			"c\\/**/d"
+		],
+		"expects": {
+			"a/b": "ignored",
+			"c/x/x/x/d": "ignored"
+		}
+	},
+
+	"Negated bracket expressions": {
+		"rules": [
+			"a[!x]b"
+		],
+		"expects": {
+			"awb": "ignored",
+			"axb": "nomatch",
+			"ayb": "ignored",
+			"a/b": "nomatch"
+		}
+	},
+
+	"Range across `/`": {
+		"rules": [
+			"a[,-9]b",
+			"c[.-0]d"
+		],
+		"expects": {
+			"a.b": "ignored",
+			"a/b": "nomatch",
+			"a0b": "ignored",
+			"c.d": "ignored",
+			"c/d": "nomatch",
+			"c0d": "ignored"
+		}
+	},
+
+	"Escaped dash in (non-)range": {
+		"rules": [
+			"a[a\\-z]b"
+		],
+		"expects": {
+			"aab": "ignored",
+			"abb": "nomatch",
+			"ayb": "nomatch",
+			"azb": "ignored",
+			"a-b": "ignored",
+			"a\\b": "nomatch"
+		}
+	},
+	"Escaped range endpoints": {
+		"rules": [
+			"a[\\[-\\]]b"
+		],
+		"expects": {
+			"a[b": "ignored",
+			"a\\b": "ignored",
+			"a]b": "ignored"
+		}
+	},
+
+	"Dash as endpoint of a range": {
+		"rules": [
+			"a[--9]b",
+			"c[+--]d",
+			"e[---]f"
+		],
+		"expects": {
+			"a,b": "nomatch",
+			"a-b": "ignored",
+			"a.b": "ignored",
+			"c,d": "ignored",
+			"c-d": "ignored",
+			"c.d": "nomatch",
+			"e,f": "nomatch",
+			"e-f": "ignored",
+			"e.f": "nomatch"
+		}
+	},
+
+	"Character classes": {
+		"rules": [
+			"a.[[:alnum:]]",
+			"b.[[:digit:].]",
+			"gra[[:graph:]]ph",
+			"pri[[:print:]]nt",
+			"pun[[:punct:]]ct"
+		],
+		"expects": {
+			"a.x": "ignored",
+			"a._": "nomatch",
+			"b.a": "nomatch",
+			"b.1": "ignored",
+			"b..": "ignored",
+			"gra.ph": "ignored",
+			"gra/ph": "nomatch",
+			"pri.nt": "ignored",
+			"pri/nt": "nomatch",
+			"pun.ct": "ignored",
+			"pun/ct": "nomatch"
+		}
+	},
+
+	"Unspecified (and probably unsupported in git or elsewhere) behavior: Unicode": {
+		"rules": [
+			"a.[[:alnum:]]",
+			"b.[🙄]",
+			"c.?",
+			"d.????"
+		],
+		"expects": {
+			"a.á": "ignored",
+			"b.🙄": "ignored",
+			"c.🙂": "ignored",
+			"d.🙄": "nomatch",
+			"d.🙄🙄": "nomatch",
+			"d.🙄🙄🙄": "nomatch",
+			"d.🙄🙄🙄🙂": "ignored"
+		},
+		// Git uses single-byte-encoding semantics in its matcher.
+		"nogit": true
+	},
+
+	"Literal Unicode and matching with `*` should work anywhere though": {
+		"rules": [
+			"a.🙂",
+			"b.*",
+			"c*d"
+		],
+		"expects": {
+			"a.🙂": "ignored",
+			"b.🙂": "ignored",
+			"c🙂d": "ignored"
+		}
+	},
+
+	"Unspecified behavior: a.[^x]": {
+		"rules": [
+			"a.[^x]"
+		],
+		"expects": {
+			"a.^": "ignored",
+			"a.x": "nomatch",
+			"a.b": "ignored"
+		}
+	},
+
+	"Unspecified behavior: a.[a-m-o]": {
+		"rules": [
+			"a.[a-m-o]"
+		],
+		"expects": {
+			"a.a": "ignored",
+			"a.l": "ignored",
+			"a.m": "ignored",
+			"a.n": "nomatch",
+			"a.o": "ignored",
+			"a.p": "nomatch",
+			"a.-": "ignored"
+		}
+	},
+
+	"fnmatch does not follow 2.13.3 for FNM_PATHNAME: a[b/c]d": {
+		"rules": [
+			"a[b/c]d",
+			"e[,-/]f",
+			"g[/-9]h"
+		],
+		"expects": {
+			"a[b/c]d": "nomatch",
+			"abd": "ignored",
+			"a/d": "nomatch",
+			"e.f": "ignored",
+			"e/f": "nomatch",
+			"e0f": "nomatch",
+			"g.h": "nomatch",
+			"g/h": "nomatch",
+			"g0h": "ignored"
+		}
+	},
+
+	"fnmatch uses backslashes for escapes, even in bracket expressions (2.13.1 overrides 9.3.5?): a.[\\]": {
+		"rules": [
+			"a.[\\]"
+		],
+		"expects": {
+			"a.\\": "nomatch",
+			"a.[": "nomatch",
+			"a.[\\]": "nomatch",
+			"a.]": "nomatch"
+		}
+	},
+	"fnmatch uses backslashes for escapes, even in bracket expressions (2.13.1 overrides 9.3.5?): a.[\\] (2)": {
+		"rules": [
+			"a.[\\]"
+		],
+		"expects": {
+			"a.[]": "ignored"
+		},
+		// Git's matcher fails instead of interpreting as a literal
+		"nogit": true
+	},
+	"fnmatch uses backslashes for escapes, even in bracket expressions (2.13.1 overrides 9.3.5?): a.[b\\]c]": {
+		"rules": [
+			"a.[b\\]c]"
+		],
+		"expects": {
+			"a.bc]": "nomatch",
+			"a.\\c]": "nomatch",
+			"a.b": "ignored",
+			"a.\\": "nomatch",
+			"a.]": "ignored",
+			"a.c": "ignored"
+		}
+	},
+
+	"Various cases where git doesn't match its own docs: a.[": {
+		"rules": [
+			"a.["
+		],
+		"expects": {
+			"a.[": "ignored"
+		},
+		// Git's matcher fails instead of interpreting as a literal.
+		"nogit": true
+	},
+	"Various cases where git doesn't match its own docs: a.[!]": {
+		"rules": [
+			"a.[!]"
+		],
+		"expects": {
+			"a.[!]": "ignored",
+			"a.!": "nomatch"
+		},
+		// Git's matcher fails instead of interpreting as a literal.
+		"nogit": true
+	},
+	"Various cases where git doesn't match its own docs: a.[z-a]": {
+		"rules": [
+			"a.[z-a]",
+			"b.[z-a@]",
+			"c.[@z-a]"
+		],
+		"expects": {
+			"a.a": "nomatch",
+			"a.x": "nomatch",
+			"a.z": "nomatch",
+			"a.@": "nomatch",
+			"b.a": "nomatch",
+			"b.x": "nomatch",
+			"b.z": "nomatch",
+			"b.@": "ignored",
+			"c.a": "nomatch",
+			"c.x": "nomatch",
+			"c.z": "nomatch",
+			"c.@": "ignored"
+		},
+		// Git's matcher matches "a.z" for some reason.
+		"nogit": true
+	}
+}
