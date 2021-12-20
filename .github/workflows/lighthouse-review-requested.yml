@@ -25,14 +25,14 @@ jobs:
           --header 'Authorization: token ${API_TOKEN_GITHUB}' \
           --header 'Accept: application/vnd.github.v3+json'
 
-      - name: Add label "Needs Review"
+      - name: Add label "Needs Team Review"
         if: ${{ contains(github.event.pull_request.requested_teams.*.name, 'Lighthouse') }}
         run: |
           curl --request POST \
           --url 'https://api.github.com/repos/${REPO}/issues/${PR_NUMBER}/labels' \
           --header 'Authorization: token ${API_TOKEN_GITHUB}' \
           --header 'Accept: application/vnd.github.v3+json' \
-          --data-raw '{"labels":["[Status] Needs Review"]}'
+          --data-raw '{"labels":["[Status] Needs Team Review"]}'
 
       - name: Add author as assignee      
         if: ${{ contains(github.event.pull_request.requested_teams.*.name, 'Lighthouse') }}
