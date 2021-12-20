@@ -62,7 +62,7 @@ cd "$OLDDIR"
 
 info "Creating POT file"
 mkdir "$TMPDIR/pot"
-php -d memory_limit=2G $(command -v wp) --allow-root --debug i18n make-pot "$TMPDIR/plugin/" "$TMPDIR/pot/$DOMAIN.pot"
+php -d memory_limit=2G $(command -v wp) --allow-root --debug i18n make-pot --slug="$DOMAIN" --ignore-domain "$TMPDIR/plugin/" "$TMPDIR/pot/$DOMAIN.pot"
 
 info "Making translations"
 cat <<EOF > "$TMPDIR/pot/en_piglatin.po"
