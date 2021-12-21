@@ -1,4 +1,4 @@
-name: E2E Tests on Atomic sites
+name: Jetpack E2E Tests on Atomic sites
 
 on:
   schedule:
@@ -30,7 +30,7 @@ jobs:
 
     - name: Run tests
       working-directory: projects/plugins/jetpack/tests/e2e
-      run: pnpm run test-e2e -- --group=atomic --testNamePattern='^(?!Paid blocks WordAds block).*$'
+      run: pnpm run test-e2e -- blocks --grep-invert wordads
 
     - name: Upload test artifacts
       if: ${{ always() }}
@@ -46,16 +46,6 @@ jobs:
         GITHUB_CONTEXT: ${{ toJson(github) }}
       working-directory: projects/plugins/jetpack/tests/e2e
       run: pnpm slack -- suite atomic --report atomic
-
-    - uses: testspace-com/setup-testspace@v1
-      with:
-        domain: ${{github.repository_owner}}
-      if: always()
-    - name: Publish to Testspace
-      working-directory: projects/plugins/jetpack/tests/e2e
-      run: |
-        testspace "[${GROUP}]output/reports/junit-*.xml"
-      if: always()
 
   slack-notification:
     name: "Slack notification"

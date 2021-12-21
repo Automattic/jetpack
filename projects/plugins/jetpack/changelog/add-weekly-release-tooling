@@ -1,4 +1,0 @@
-Significance: patch
-Type: other
-
-Flag for weekly Atomic releases ("dev-releases" in composer.json).

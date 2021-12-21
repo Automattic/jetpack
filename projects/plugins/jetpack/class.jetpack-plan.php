@@ -81,6 +81,7 @@ class Jetpack_Plan {
 				'simple-payments',
 				'vaultpress',
 				'videopress',
+				'republicize',
 			),
 		),
 		'security' => array(
@@ -102,7 +103,6 @@ class Jetpack_Plan {
 				'ecommerce-bundle',
 				'ecommerce-bundle-monthly',
 				'ecommerce-bundle-2y',
-				'vip',
 			),
 			'supports' => array(),
 		),
@@ -111,6 +111,7 @@ class Jetpack_Plan {
 			'plans'    => array(
 				'jetpack_complete',
 				'jetpack_complete_monthly',
+				'vip',
 			),
 			'supports' => array(),
 		),

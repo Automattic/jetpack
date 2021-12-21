@@ -1,0 +1,4 @@
+Significance: patch
+Type: other
+
+Instant Search: Add missing translator comments and use ordered placeholders in JS sprintf.

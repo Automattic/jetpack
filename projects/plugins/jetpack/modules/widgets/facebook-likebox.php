@@ -122,7 +122,7 @@ class WPCOM_Widget_Facebook_LikeBox extends WP_Widget {
 		if ( ! empty( $title ) ) :
 			echo $before_title; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
 
-			$likebox_widget_title = '<a href="' . esc_url( $page_url ) . '">' . esc_html( $title ) . '</a>';
+			$likebox_widget_title = '<a href="' . esc_url( $page_url ) . '">' . $title . '</a>';
 			/**
 			 * Filter Facebook Likebox's widget title.
 			 *
@@ -342,21 +342,5 @@ class WPCOM_Widget_Facebook_LikeBox extends WP_Widget {
 		}
 
 		return $value;
-	}
-
-	/**
-	 * @deprecated
-	 */
-	function guess_locale_from_lang( $lang ) {
-		_deprecated_function( __METHOD__, '4.0.0', 'Jetpack::guess_locale_from_lang()' );
-		Jetpack::$instance->guess_locale_from_lang( $lang );
-	}
-
-	/**
-	 * @deprecated
-	 */
-	function get_locale() {
-		_deprecated_function( __METHOD__, '4.0.0', 'Jetpack::get_locale()' );
-		Jetpack::$instance->get_locale();
 	}
 }

@@ -5,12 +5,4 @@
 .phpunit.result.cache
 .DS_Store
 .pnpm-debug.log
-/docker/boost-dev/wordpress/*
-!/docker/boost-dev/wordpress/.gitkeep
-/docker/boost-dev/db_data/*
-!/docker/boost-dev/db_data/.gitkeep
-/docker/boost-test/wordpress/*
-!/docker/boost-test/wordpress/.gitkeep
-/docker/boost-test/db_data/*
-!/docker/boost-test/db_data/.gitkeep
 /wordpress

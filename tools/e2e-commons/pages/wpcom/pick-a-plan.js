@@ -1,4 +1,5 @@
-import WpPage from '../wp-page';
+import WpPage from '../wp-page.js';
+import logger from '../../logger.cjs';
 
 export default class PickAPlanPage extends WpPage {
 	constructor( page ) {
@@ -10,7 +11,7 @@ export default class PickAPlanPage extends WpPage {
 
 	async waitForPage() {
 		await super.waitForPage();
-		await this.waitForElementToBeHidden( '.jetpack-product-card-alt__price-placeholder' );
+		await this.waitForElementToBeHidden( '.display-price__price-placeholder' );
 	}
 
 	async select( product = 'free' ) {
@@ -25,6 +26,8 @@ export default class PickAPlanPage extends WpPage {
 
 	async selectFreePlan() {
 		const freePlanButton = '[data-e2e-product-slug="free"] a';
+		const href = await this.page.getAttribute( freePlanButton, 'href' );
+		logger.debug( `Free plan button href: ${ href }` );
 		await this.waitForTimeout( 500 );
 		return await this.click( freePlanButton );
 	}

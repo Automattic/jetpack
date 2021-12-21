@@ -1,12 +1,4 @@
-@import 'rna-styles';
-
-#wpcontent {
-	padding-left: 0;
-}
-
-#wpwrap {
-	background-color: white;
-}
+@import '~@automattic/jetpack-base-styles/style';
 
 .jp-header,
 .jp-footer {

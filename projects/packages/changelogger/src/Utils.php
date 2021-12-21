@@ -1,11 +1,9 @@
-<?php // phpcs:ignore WordPress.Files.FileName
+<?php
 /**
  * Utilities for the changelogger tool.
  *
  * @package automattic/jetpack-changelogger
  */
-
-// phpcs:disable WordPress.NamingConventions.ValidFunctionName.MethodNameInvalid, WordPress.NamingConventions.ValidVariableName
 
 namespace Automattic\Jetpack\Changelogger;
 

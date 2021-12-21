@@ -14,9 +14,8 @@ class Label_Control extends WP_Customize_Control {
 	 * Enqueue styles related to this control.
 	 */
 	public function enqueue() {
-		require_once dirname( __DIR__ ) . '/class.jetpack-search-helpers.php';
 		$style_relative_path = 'modules/search/customize-controls/class-label-control.css';
-		$style_version       = Jetpack_Search_Helpers::get_asset_version( $style_relative_path );
+		$style_version       = Automattic\Jetpack\Search\Helper::get_asset_version( $style_relative_path );
 		$style_path          = plugins_url( $style_relative_path, JETPACK__PLUGIN_FILE );
 		wp_enqueue_style( 'jetpack-instant-search-customizer-label', $style_path, array( 'customize-controls' ), $style_version );
 	}

@@ -330,39 +330,34 @@ const buildExecCmd = argv => {
 	} else if ( cmd === 'db' ) {
 		opts.push( 'mysql', '--defaults-group-suffix=docker' );
 	} else if ( cmd === 'phpunit' ) {
-		// @todo: Fix this.
+		// @todo: Make this scale.
+		console.warn( chalk.yellow( 'This currently only run tests for the Jetpack plugin.' ) );
 		console.warn(
 			chalk.yellow(
-				"Due to recent changes to WordPress's test infrastructure, this command is currently broken."
-			)
-		);
-		console.warn(
-			chalk.yellow(
-				"You'll probably do better for the moment to do `jetpack docker sh` then run appropriate commands there."
+				'Other projects do not require a working database, so you can run them locally or directly within jetpadk docker sh'
 			)
 		);
 		const unitArgs = argv._.slice( 2 );
 
+		opts.splice( 1, 0, '-w', '/var/www/html/wp-content/plugins/jetpack' ); // Need to add this option to `exec` before the container name.
 		opts.push(
-			'phpunit',
+			'vendor/bin/phpunit',
 			'--configuration=/var/www/html/wp-content/plugins/jetpack/phpunit.xml.dist',
 			...unitArgs
 		);
 	} else if ( cmd === 'phpunit-multisite' ) {
-		// @todo: Fix this.
+		// @todo: Make this scale.
+		console.warn( chalk.yellow( 'This currently only run tests for the Jetpack plugin.' ) );
 		console.warn(
 			chalk.yellow(
-				"Due to recent changes to WordPress's test infrastructure, this command is currently broken."
-			)
-		);
-		console.warn(
-			chalk.yellow(
-				"You'll probably do better for the moment to do `jetpack docker sh` then run appropriate commands there."
+				'Other projects do not require a working database, so you can run them locally or directly within jetpadk docker sh'
 			)
 		);
 		const unitArgs = argv._.slice( 2 );
+
+		opts.splice( 1, 0, '-w', '/var/www/html/wp-content/plugins/jetpack' ); // Need to add this option to `exec` before the container name.
 		opts.push(
-			'phpunit',
+			'vendor/bin/phpunit',
 			'--configuration=/var/www/html/wp-content/plugins/jetpack/tests/php.multisite.xml',
 			...unitArgs
 		);
@@ -529,7 +524,7 @@ export function dockerDefine( yargs ) {
 					},
 				} )
 
-				// Wordpress exec commands
+				// WordPress exec commands
 				.command( {
 					command: 'exec',
 					description: 'Execute arbitrary shell command inside docker container',
@@ -557,7 +552,7 @@ export function dockerDefine( yargs ) {
 				} )
 				.command( {
 					command: 'sh',
-					description: 'Access shell on Wordpress container',
+					description: 'Access shell on WordPress container',
 					builder: yargExec => defaultOpts( yargExec ),
 					handler: argv => execDockerCmdHandler( argv ),
 				} )

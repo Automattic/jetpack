@@ -1,7 +1,3 @@
-/**
- * Internal dependencies
- */
-
 export function recordBoostEvent(
 	eventName: string,
 	eventType: string,

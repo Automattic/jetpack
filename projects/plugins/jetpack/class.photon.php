@@ -1238,18 +1238,6 @@ class Jetpack_Photon {
 	}
 
 	/**
-	 * Returns empty array.
-	 *
-	 * @deprecated 8.8.0 Use filter_photon_noresize_intermediate_sizes.
-	 *
-	 * @return array Empty array.
-	 */
-	public function noresize_intermediate_sizes() {
-		_deprecated_function( __METHOD__, 'jetpack-8.8.0', '::filter_photon_noresize_intermediate_sizes' );
-		return __return_empty_array();
-	}
-
-	/**
 	 * Enqueue Photon helper script
 	 *
 	 * @uses wp_enqueue_script, plugins_url

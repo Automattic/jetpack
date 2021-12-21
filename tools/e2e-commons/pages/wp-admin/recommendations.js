@@ -1,11 +1,9 @@
-/**
- * Internal dependencies
- */
-import WpPage from '../wp-page';
+import WpPage from '../wp-page.js';
+import { resolveSiteUrl } from '../../helpers/utils-helper.cjs';
 
 export default class RecommendationsPage extends WpPage {
 	constructor( page ) {
-		const url = `${ siteUrl }/wp-admin/admin.php?page=jetpack#/recommendations`;
+		const url = `${ resolveSiteUrl() }/wp-admin/admin.php?page=jetpack#/recommendations`;
 		super( page, { expectedSelectors: [ '[class^=jp-recommendations-]' ], url } );
 	}
 

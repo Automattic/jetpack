@@ -1,12 +1,12 @@
 /**
  * External dependencies
  */
-import api from '../api/api';
 import { derived, writable } from 'svelte/store';
 
 /**
  * Internal dependencies
  */
+import api from '../api/api';
 import type { JSONObject } from '../utils/json-types';
 import type { ProviderKeyUrls, ProvidersSuccessRatio } from '../utils/generate-critical-css';
 import type { Viewport } from '../utils/types';
@@ -17,41 +17,32 @@ export type CriticalCssErrorDetails = {
 	meta: JSONObject;
 };
 
+/* eslint-disable camelcase */
 export interface CriticalCssStatus {
 	generating: boolean;
 	progress: number;
-	// eslint-disable-next-line camelcase
 	retried_show_stopper: boolean;
-	// eslint-disable-next-line camelcase
 	callback_passthrough?: JSONObject;
-	// eslint-disable-next-line camelcase
 	generation_nonce?: string;
-	// eslint-disable-next-line camelcase
+	proxy_nonce?: string;
 	pending_provider_keys?: ProviderKeyUrls;
-	// eslint-disable-next-line camelcase
 	provider_success_ratio?: ProvidersSuccessRatio;
 	status: string;
-	// eslint-disable-next-line camelcase
 	core_providers?: string[];
-	// eslint-disable-next-line camelcase
 	core_providers_status?: string;
-	// eslint-disable-next-line camelcase
 	status_error?: Error | string;
-	// eslint-disable-next-line camelcase
 	providers_errors?: {
 		[ providerKey: string ]: {
 			[ url: string ]: CriticalCssErrorDetails;
 		};
 	};
-	// eslint-disable-next-line camelcase
 	provider_key_labels?: { [ name: string ]: string };
-	// eslint-disable-next-line camelcase
 	success_count?: number;
 	created?: number;
-	// eslint-disable-next-line camelcase
 	percent_complete?: number;
 	viewports?: Viewport[];
 }
+/* eslint-enable camelcase */
 
 const success = 'success';
 const fail = 'fail';

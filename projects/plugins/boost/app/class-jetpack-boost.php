@@ -122,8 +122,9 @@ class Jetpack_Boost {
 
 		$this->register_deactivation_hook();
 
-		if ( class_exists( 'WP_CLI' ) ) {
-			CLI::register( $this );
+		if ( defined( 'WP_CLI' ) && WP_CLI ) {
+			$cli_instance = new CLI( $this );
+			\WP_CLI::add_command( 'jetpack-boost', $cli_instance );
 		}
 
 		// Initialize the config module separately.

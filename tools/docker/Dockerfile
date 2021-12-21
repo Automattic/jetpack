@@ -1,4 +1,4 @@
-FROM ubuntu:focal
+FROM ubuntu:20.04
 
 VOLUME ["/var/www/html"]
 
@@ -21,6 +21,7 @@ RUN \
 		apache2 \
 		curl \
 		git \
+		jq \
 		less \
 		libsodium23 \
 		mysql-client \
@@ -49,7 +50,6 @@ RUN \
 		php${PHP_VERSION}-curl \
 		php${PHP_VERSION}-gd \
 		php${PHP_VERSION}-imagick \
-		php${PHP_VERSION}-json \
 		php${PHP_VERSION}-ldap \
 		php${PHP_VERSION}-mbstring \
 		php${PHP_VERSION}-mysql \

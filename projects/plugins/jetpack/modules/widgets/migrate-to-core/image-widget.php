@@ -11,38 +11,38 @@
  * Migrates all active instances of Jetpack's image widget to Core's media image widget.
  */
 function jetpack_migrate_image_widget() {
-	// Only trigger the migration from wp-admin
+	// Only trigger the migration from wp-admin.
 	if ( ! is_admin() ) {
 		return;
 	}
 
-	// Only migrate if the new widget is available and we haven't yet migrated
+	// Only migrate if the new widget is available and we haven't yet migrated.
 	if ( ! class_exists( 'WP_Widget_Media_Image' ) || Jetpack_Options::get_option( 'image_widget_migration' ) ) {
 		return;
 	}
 
 	$default_data = array(
-		'attachment_id' => 0,
-		'url' => '',
-		'title' => '',
-		'size' => 'custom',
-		'width' => 0,
-		'height' => 0,
-		'align' => 'none',
-		'caption' => '',
-		'alt' => '',
-		'link_type' => '',
-		'link_url' => '',
-		'image_classes' => '',
-		'link_classes' => '',
-		'link_rel' => '',
-		'image_title' => '',
+		'attachment_id'     => 0,
+		'url'               => '',
+		'title'             => '',
+		'size'              => 'custom',
+		'width'             => 0,
+		'height'            => 0,
+		'align'             => 'none',
+		'caption'           => '',
+		'alt'               => '',
+		'link_type'         => '',
+		'link_url'          => '',
+		'image_classes'     => '',
+		'link_classes'      => '',
+		'link_rel'          => '',
+		'image_title'       => '',
 		'link_target_blank' => false,
-		'conditions' => null,
+		'conditions'        => null,
 	);
 
-	$old_widgets = get_option( 'widget_image', array() );
-	$media_image = get_option( 'widget_media_image', array() );
+	$old_widgets      = get_option( 'widget_image', array() );
+	$media_image      = get_option( 'widget_media_image', array() );
 	$sidebars_widgets = wp_get_sidebars_widgets();
 
 	// Persist old and current widgets in backup table.
@@ -71,7 +71,7 @@ function jetpack_migrate_image_widget() {
 
 		// Ensure widget has no keys other than those expected.
 		// Not all widgets have conditions, so lets add it in.
-		$widget_copy = array_merge( array( 'conditions' => null ), $widget );
+		$widget_copy      = array_merge( array( 'conditions' => null ), $widget );
 		$non_allowed_keys = array_diff_key(
 			$widget_copy,
 			array(
@@ -90,30 +90,37 @@ function jetpack_migrate_image_widget() {
 		);
 
 		if ( count( $non_allowed_keys ) > 0 ) {
-			// skipping the widget in question
+			// skipping the widget in question.
 			continue;
 		}
 
-		$media_image[ $id ] = array_merge( $default_data, $widget, array(
-			'alt'         => $widget['alt_text'],
-			'height'      => $widget['img_height'],
-			'image_classes' => ! empty( $widget['align'] ) ? 'align' . $widget['align'] : '',
-			'image_title' => $widget['img_title'],
-			'link_url'    => $widget['link'],
-			'url'         => $widget['img_url'],
-			'width'       => $widget['img_width'],
-		) );
+		$media_image[ $id ] = array_merge(
+			$default_data,
+			$widget,
+			array(
+				'alt'           => $widget['alt_text'],
+				'height'        => $widget['img_height'],
+				'image_classes' => ! empty( $widget['align'] ) ? 'align' . $widget['align'] : '',
+				'image_title'   => $widget['img_title'],
+				'link_url'      => $widget['link'],
+				'url'           => $widget['img_url'],
+				'width'         => $widget['img_width'],
+			)
+		);
 
-		// Unsetting old widget fields
-		$media_image[ $id ] = array_diff_key( $media_image[ $id ], array(
-			'align' => false,
-			'alt_text' => false,
-			'img_height' => false,
-			'img_title' => false,
-			'img_url' => false,
-			'img_width' => false,
-			'link' => false,
-		) );
+		// Unsetting old widget fields.
+		$media_image[ $id ] = array_diff_key(
+			$media_image[ $id ],
+			array(
+				'align'      => false,
+				'alt_text'   => false,
+				'img_height' => false,
+				'img_title'  => false,
+				'img_url'    => false,
+				'img_width'  => false,
+				'link'       => false,
+			)
+		);
 
 		// Check if the image is in the media library.
 		$image_basename = basename( $widget['img_url'] );
@@ -122,32 +129,34 @@ function jetpack_migrate_image_widget() {
 			continue;
 		}
 
-		$attachment_ids = get_posts( array(
-			'fields'      => 'ids',
-			'meta_query'  => array(
-				array(
-					'value'   => basename( $image_basename ),
-					'compare' => 'LIKE',
-					'key'     => '_wp_attachment_metadata',
+		$attachment_ids = get_posts(
+			array(
+				'fields'           => 'ids',
+				'meta_query'       => array(
+					array(
+						'value'   => basename( $image_basename ),
+						'compare' => 'LIKE',
+						'key'     => '_wp_attachment_metadata',
+					),
 				),
-			),
-			'post_status' => 'inherit',
-			'post_type'   => 'attachment',
-			'suppress_filters' => false,
-		) );
+				'post_status'      => 'inherit',
+				'post_type'        => 'attachment',
+				'suppress_filters' => false,
+			)
+		);
 
 		foreach ( $attachment_ids as $attachment_id ) {
 			$image_meta = wp_get_attachment_metadata( $attachment_id );
 
 			// Is it a full size image?
 			$image_path_pieces = explode( '/', $image_meta['file'] );
-			if ( $image_basename === array_pop( $image_path_pieces ) ) {
+			if ( array_pop( $image_path_pieces ) === $image_basename ) {
 				$media_image[ $id ]['attachment_id'] = $attachment_id;
 
 				// Set correct size if dimensions fit.
 				if (
-					$media_image[ $id ]['width']  == $image_meta['width'] ||
-					$media_image[ $id ]['height'] == $image_meta['height']
+					$media_image[ $id ]['width'] == $image_meta['width'] || // phpcs:ignore WordPress.PHP.StrictComparisons.LooseComparison
+					$media_image[ $id ]['height'] == $image_meta['height'] // phpcs:ignore WordPress.PHP.StrictComparisons.LooseComparison
 				) {
 					$media_image[ $id ]['size'] = 'full';
 				}
@@ -156,13 +165,13 @@ function jetpack_migrate_image_widget() {
 
 			// Is it a down-sized image?
 			foreach ( $image_meta['sizes'] as $size => $image ) {
-				if ( false !== array_search( $image_basename, $image ) ) {
+				if ( false !== array_search( $image_basename, $image, true ) ) {
 					$media_image[ $id ]['attachment_id'] = $attachment_id;
 
 					// Set correct size if dimensions fit.
 					if (
-						$media_image[ $id ]['width']  == $image['width'] ||
-						$media_image[ $id ]['height'] == $image['height']
+						$media_image[ $id ]['width'] == $image['width'] || // phpcs:ignore WordPress.PHP.StrictComparisons.LooseComparison
+						$media_image[ $id ]['height'] == $image['height'] // phpcs:ignore WordPress.PHP.StrictComparisons.LooseComparison
 					) {
 						$media_image[ $id ]['size'] = $size;
 					}
@@ -176,10 +185,9 @@ function jetpack_migrate_image_widget() {
 		}
 
 		foreach ( $sidebars_widgets as $sidebar => $widgets ) {
-			if (
-				is_array( $widgets )
-				&& false !== ( $key = array_search( "image-{$id}", $widgets, true ) )
-			) {
+			$key = is_array( $widgets ) ? array_search( "image-{$id}", $widgets, true ) : false;
+
+			if ( false !== $key ) {
 				$sidebars_widgets[ $sidebar ][ $key ] = "media_image-{$id}";
 			}
 		}
@@ -215,6 +223,11 @@ function jetpack_migrate_image_widget() {
 }
 add_action( 'widgets_init', 'jetpack_migrate_image_widget' );
 
+/**
+ * Refresh the widgets page to save changes
+ *
+ * @param WP_Screen $current Current WP_Screen object.
+ */
 function jetpack_refresh_on_widget_page( $current ) {
 	if ( 'widgets' === $current->base ) {
 		wp_safe_redirect( admin_url( 'widgets.php' ) );

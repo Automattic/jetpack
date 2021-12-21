@@ -258,8 +258,8 @@ abstract class WPCOM_JSON_API_Endpoint {
 
 	// Get POST body data
 	function input( $return_default_values = true, $cast_and_filter = true ) {
-		$input        = trim( $this->api->post_body );
-		$content_type = $this->api->content_type;
+		$input        = trim( (string) $this->api->post_body );
+		$content_type = (string) $this->api->content_type;
 		if ( $content_type ) {
 			list ( $content_type ) = explode( ';', $content_type );
 		}
@@ -1170,7 +1170,7 @@ abstract class WPCOM_JSON_API_Endpoint {
 		$ip_address = isset( $author->comment_author_IP ) ? $author->comment_author_IP : '';
 
 		if ( isset( $author->comment_author_email ) ) {
-			$ID          = 0;
+			$id          = ( isset( $author->user_id ) && $author->user_id ) ? $author->user_id : 0;
 			$login       = '';
 			$email       = $author->comment_author_email;
 			$name        = $author->comment_author;
@@ -1210,7 +1210,7 @@ abstract class WPCOM_JSON_API_Endpoint {
 				$is_jetpack = true === apply_filters( 'is_jetpack_site', false, get_current_blog_id() );
 				$post_id    = $author->ID;
 				if ( $is_jetpack && ( defined( 'IS_WPCOM' ) && IS_WPCOM ) ) {
-					$ID         = get_post_meta( $post_id, '_jetpack_post_author_external_id', true );
+					$id         = get_post_meta( $post_id, '_jetpack_post_author_external_id', true );
 					$email      = get_post_meta( $post_id, '_jetpack_author_email', true );
 					$login      = '';
 					$name       = get_post_meta( $post_id, '_jetpack_author', true );
@@ -1223,14 +1223,14 @@ abstract class WPCOM_JSON_API_Endpoint {
 				}
 			}
 
-			if ( ! isset( $ID ) ) {
+			if ( ! isset( $id ) ) {
 				$user = get_user_by( 'id', $author );
 				if ( ! $user || is_wp_error( $user ) ) {
 					trigger_error( 'Unknown user', E_USER_WARNING );
 
 					return null;
 				}
-				$ID         = $user->ID;
+				$id         = $user->ID;
 				$email      = $user->user_email;
 				$login      = $user->user_login;
 				$name       = $user->display_name;
@@ -1240,7 +1240,7 @@ abstract class WPCOM_JSON_API_Endpoint {
 				$nice       = $user->user_nicename;
 			}
 			if ( defined( 'IS_WPCOM' ) && IS_WPCOM && ! $is_jetpack ) {
-				$active_blog = get_active_blog_for_user( $ID );
+				$active_blog = get_active_blog_for_user( $id );
 				$site_id     = $active_blog->blog_id;
 				if ( $site_id > -1 ) {
 					$site_visible = (
@@ -1266,7 +1266,7 @@ abstract class WPCOM_JSON_API_Endpoint {
 		}
 
 		$author = array(
-			'ID'          => (int) $ID,
+			'ID'          => (int) $id,
 			'login'       => (string) $login,
 			'email'       => $email, // (string|bool)
 			'name'        => (string) $name,

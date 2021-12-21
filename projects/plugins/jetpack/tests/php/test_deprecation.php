@@ -66,7 +66,7 @@ class WP_Test_Jetpack_Deprecation extends WP_UnitTestCase {
 			$this->setExpectedDeprecated( "$class::$method" );
 		}
 
-		$class = new ReflectionClass( $class );
+		$class  = new ReflectionClass( $class );
 		$method = $class->getMethod( $method );
 
 		// phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_set_error_handler
@@ -97,13 +97,7 @@ class WP_Test_Jetpack_Deprecation extends WP_UnitTestCase {
 	 *
 	 * @return array
 	 */
-	function provider_deprecated_file_paths() {
-		return array(
-			array(
-				'class.jetpack-ixr-client.php',
-				'',
-			),
-		);
+	public function provider_deprecated_file_paths() {
+		return array();
 	}
-
 }

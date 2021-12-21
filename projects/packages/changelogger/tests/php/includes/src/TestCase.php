@@ -1,11 +1,9 @@
-<?php // phpcs:ignore WordPress.Files.FileName.InvalidClassFileName
+<?php
 /**
  * Base test case for the changelogger tool.
  *
  * @package automattic/jetpack-changelogger
  */
-
-// phpcs:disable WordPress.WP.AlternativeFunctions, WordPress.PHP.DiscouragedPHPFunctions.runtime_configuration_putenv, WordPress.NamingConventions.ValidVariableName
 
 namespace Automattic\Jetpack\Changelogger\Tests;
 

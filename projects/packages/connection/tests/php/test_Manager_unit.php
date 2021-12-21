@@ -557,7 +557,7 @@ class ManagerTest extends TestCase {
 	/**
 	 * Test disconnecting the site will remove tracked package verions.
 	 *
-	 * @covers Automattic\Jetpack\Connection\Manager::test_disconnect_site
+	 * @covers Automattic\Jetpack\Connection\Manager::disconnect_site
 	 */
 	public function test_disconnect_site_will_remove_tracked_package_versions() {
 		$this->manager->method( 'disconnect_site_wpcom' )

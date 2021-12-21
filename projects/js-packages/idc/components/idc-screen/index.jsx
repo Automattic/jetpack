@@ -1,97 +1,124 @@
 /**
  * External dependencies
  */
-import React, { useEffect } from 'react';
+import React, { useEffect, useState, useCallback } from 'react';
 import PropTypes from 'prop-types';
-import { createInterpolateElement } from '@wordpress/element';
-import { __ } from '@wordpress/i18n';
+import analytics from '@automattic/jetpack-analytics';
 import restApi from '@automattic/jetpack-api';
-import { getRedirectUrl, JetpackLogo } from '@automattic/jetpack-components';
 
 /**
  * Internal dependencies
  */
-import CardMigrate from '../card-migrate';
-import CardFresh from '../card-fresh';
-import SafeMode from '../safe-mode';
-import './style.scss';
+import IDCScreenVisual from './visual';
+import trackAndBumpMCStats from '../../tools/tracking';
+import useMigration from '../../hooks/use-migration';
+import useMigrationFinished from '../../hooks/use-migration-finished';
+import useStartFresh from '../../hooks/use-start-fresh';
+import customContentShape from '../../tools/custom-content-shape';
 
 /**
  * The IDC screen component.
  *
  * @param {object} props - The properties.
- * @param {React.Component} props.logo - The screen logo, Jetpack by default.
- * @param {string} props.headerText - The header text, 'Safe Mode' by default.
- * @param {string} props.wpcomHomeUrl - The original site URL.
- * @param {string} props.currentUrl - The current site URL.
- * @param {string} props.apiRoot -- API root URL, required.
- * @param {string} props.apiNonce -- API Nonce, required.
  * @returns {React.Component} The `ConnectScreen` component.
  */
 const IDCScreen = props => {
-	const { logo, headerText, wpcomHomeUrl, currentUrl, apiNonce, apiRoot } = props;
+	const {
+		logo,
+		customContent,
+		wpcomHomeUrl,
+		currentUrl,
+		apiNonce,
+		apiRoot,
+		redirectUri,
+		tracksUserData,
+		tracksEventData,
+		isAdmin,
+	} = props;
+
+	const [ isMigrated, setIsMigrated ] = useState( false );
+
+	const { isMigrating, migrateCallback } = useMigration(
+		useCallback( () => {
+			setIsMigrated( true );
+		}, [ setIsMigrated ] )
+	);
+
+	const { isStartingFresh, startFreshCallback } = useStartFresh( redirectUri );
+	const { isFinishingMigration, finishMigrationCallback } = useMigrationFinished();
 
 	/**
-	 * Initialize the REST API.
+	 * Initialize the REST API and analytics.
 	 */
 	useEffect( () => {
 		restApi.setApiRoot( apiRoot );
 		restApi.setApiNonce( apiNonce );
-	}, [ apiRoot, apiNonce ] );
+
+		if (
+			tracksUserData &&
+			tracksUserData.hasOwnProperty( 'userid' ) &&
+			tracksUserData.hasOwnProperty( 'username' )
+		) {
+			analytics.initialize( tracksUserData.userid, tracksUserData.username );
+		}
+
+		if ( tracksEventData ) {
+			if ( tracksEventData.hasOwnProperty( 'isAdmin' ) && tracksEventData.isAdmin ) {
+				trackAndBumpMCStats( 'notice_view' );
+			} else {
+				trackAndBumpMCStats( 'non_admin_notice_view', {
+					page: tracksEventData.hasOwnProperty( 'currentScreen' )
+						? tracksEventData.currentScreen
+						: false,
+				} );
+			}
+		}
+	}, [ apiRoot, apiNonce, tracksUserData, tracksEventData ] );
 
 	return (
-		<div className="jp-idc-screen-base">
-			<div className="jp-idc-header">
-				<div className="jp-idc-logo">{ logo }</div>
-				<div className="jp-idc-logo-label">{ headerText }</div>
-			</div>
-
-			<h2>{ __( 'Safe Mode has been activated', 'jetpack' ) }</h2>
-
-			<p>
-				{ createInterpolateElement(
-					__(
-						'Your site is in Safe Mode because you have 2 Jetpack-powered sites that appear to be duplicates. ' +
-							'2 sites that are telling Jetpack they’re the same site. <safeModeLink>Learn more about safe mode.</safeModeLink>',
-						'jetpack'
-					),
-					{
-						safeModeLink: (
-							<a
-								href={ getRedirectUrl( 'jetpack-support-safe-mode' ) }
-								rel="noopener noreferrer"
-								target="_blank"
-							/>
-						),
-					}
-				) }
-			</p>
-
-			<h3>{ __( 'Please select an option', 'jetpack' ) }</h3>
-
-			<div className="jp-idc-cards">
-				<CardMigrate wpcomHomeUrl={ wpcomHomeUrl } currentUrl={ currentUrl } />
-				<div className="jp-idc-cards-separator">or</div>
-				<CardFresh wpcomHomeUrl={ wpcomHomeUrl } currentUrl={ currentUrl } />
-			</div>
-
-			<SafeMode />
-		</div>
+		<IDCScreenVisual
+			logo={ logo }
+			customContent={ customContent }
+			wpcomHomeUrl={ wpcomHomeUrl }
+			currentUrl={ currentUrl }
+			redirectUri={ redirectUri }
+			isMigrating={ isMigrating }
+			migrateCallback={ migrateCallback }
+			isMigrated={ isMigrated }
+			finishMigrationCallback={ finishMigrationCallback }
+			isFinishingMigration={ isFinishingMigration }
+			isStartingFresh={ isStartingFresh }
+			startFreshCallback={ startFreshCallback }
+			isAdmin={ isAdmin }
+		/>
 	);
 };
 
 IDCScreen.propTypes = {
-	logo: PropTypes.object.isRequired,
-	headerText: PropTypes.string.isRequired,
+	/** The screen logo. */
+	logo: PropTypes.object,
+	/** Custom text content. */
+	customContent: PropTypes.shape( customContentShape ),
+	/** The original site URL. */
 	wpcomHomeUrl: PropTypes.string.isRequired,
+	/** The current site URL. */
 	currentUrl: PropTypes.string.isRequired,
+	/** The redirect URI to redirect users back to after connecting. */
+	redirectUri: PropTypes.string.isRequired,
+	/** API root URL. */
 	apiRoot: PropTypes.string.isRequired,
+	/** API Nonce. */
 	apiNonce: PropTypes.string.isRequired,
+	/** WordPress.com user's Tracks identity. */
+	tracksUserData: PropTypes.object,
+	/** WordPress.com event tracking information. */
+	tracksEventData: PropTypes.object,
+	/** Whether to display the "admin" or "non-admin" screen. */
+	isAdmin: PropTypes.bool.isRequired,
 };
 
 IDCScreen.defaultProps = {
-	logo: <JetpackLogo height={ 24 } />,
-	headerText: __( 'Safe Mode', 'jetpack' ),
+	customContent: {},
 };
 
 export default IDCScreen;

@@ -70,7 +70,10 @@ jobs:
                 - '**.cjs'
                 - '**.js'
                 - '**.jsx'
+                - '**.mjs'
                 - '**.ts'
+                - '**.tsx'
+                - '**.svelte'
             excludelist:
               # If any PHP or JS file changed or was deleted, we need to check the excludelist.
               - modified|deleted:
@@ -96,6 +99,8 @@ jobs:
               - 'composer.lock'
               - '.phpcs.config.xml'
               - '.phpcs.xml.dist'
+              - '.phpcsignore'
+              - '**/.phpcsignore'
               # If the excludelist changed, run to ensure newly non-excluded files pass.
               - 'tools/phpcs-excludelist.json'
               # If other files used by this workflow changed, run it to test those changes.
@@ -106,10 +111,18 @@ jobs:
             misc_js:
               # If package or eslint config changed, there may be new checks
               - 'package.json'
+              - 'tools/js-tools/package.json'
               - 'pnpm-lock.yaml'
               - '.eslintignore'
               - '.eslintrc'
               - '**/.eslintrc'
+              # Also changes to the E2E workspace package.json and pnpm lock have caused linting problems.
+              - 'projects/plugins/boost/tests/e2e/package.json'
+              - 'projects/plugins/boost/tests/e2e/pnpm-lock.yaml'
+              - 'projects/plugins/jetpack/tests/e2e/package.json'
+              - 'projects/plugins/jetpack/tests/e2e/pnpm-lock.yaml'
+              - 'tools/e2e-commons/package.json'
+              - 'tools/e2e-commons/pnpm-lock.yaml'
               # If the excludelist changed, run to ensure newly non-excluded files pass.
               - 'tools/eslint-excludelist.json'
             misc_excludelist:
@@ -161,7 +174,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        php-versions: [ '5.6', '7.0', '7.4', '8.0' ]
+        php-versions: [ '5.6', '7.0', '7.4', '8.0', '8.1' ]
         experimental: [ false ]
 
     steps:
@@ -299,6 +312,9 @@ jobs:
       - name: Jetpack E2E tests pnpm install
         working-directory: projects/plugins/jetpack/tests/e2e
         run: pnpm install
+      - name: Jetpack Boost E2E tests pnpm install
+        working-directory: projects/plugins/boost/tests/e2e
+        run: pnpm install
       - run: pnpx jetpack install --all -v # Ensure there are no unresolved import errors.
       - run: pnpm run lint-required
 
@@ -330,6 +346,9 @@ jobs:
         run: pnpm install
       - name: Jetpack E2E tests pnpm install
         working-directory: projects/plugins/jetpack/tests/e2e
+        run: pnpm install
+      - name: Jetpack E2E tests pnpm install
+        working-directory: projects/plugins/boost/tests/e2e
         run: pnpm install
       - run: pnpx jetpack install --all -v # Ensure there are no unresolved import errors.
       - name: Run eslint-changed
@@ -436,7 +455,7 @@ jobs:
           node: false
 
       - name: Check change file validity
-        run: tools/changelogger-validate-all.sh --debug
+        run: tools/changelogger-validate-all.sh -vv
 
   ### Checks that lock files are up to date.
   # Local equivalent: .github/files/check-lock-files.sh

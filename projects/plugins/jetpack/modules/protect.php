@@ -857,19 +857,6 @@ class Jetpack_Protect_Module {
 		return get_transient( $transient );
 	}
 
-	/**
-	 * Get the API host.
-	 *
-	 * @return string
-	 *
-	 * @deprecated 9.1.0 Use constant `JETPACK_PROTECT__API_HOST` instead.
-	 */
-	function get_api_host() {
-		_deprecated_function( __METHOD__, 'jetpack-9.1.0' );
-
-		return JETPACK_PROTECT__API_HOST;
-	}
-
 	function get_local_host() {
 		if ( isset( $this->local_host ) ) {
 			return $this->local_host;

@@ -1,5 +1,5 @@
-import WpPage from '../wp-page';
-import logger from '../../logger';
+import WpPage from '../wp-page.js';
+import logger from '../../logger.cjs';
 
 export default class AuthorizePage extends WpPage {
 	constructor( page ) {

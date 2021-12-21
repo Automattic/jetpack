@@ -192,9 +192,14 @@ class WPCOM_JSON_API_Upload_Media_v1_1_Endpoint extends WPCOM_JSON_API_Endpoint 
 			$file['error'] = 'rest_upload_limited_space|' . sprintf( __( 'Not enough space to upload. %s KB needed.', 'default' ), number_format( ( $file_size - $space_left ) / KB_IN_BYTES ) );
 		}
 
-		if ( $file_size > ( KB_IN_BYTES * get_site_option( 'fileupload_maxk', 1500 ) ) ) {
+		$max_upload_size = KB_IN_BYTES * get_site_option( 'fileupload_maxk', 1500 );
+		if ( defined( 'IS_WPCOM' ) && IS_WPCOM && defined( 'WPCOM_MAX_UPLOAD_FILE_SIZE' ) ) {
+			$max_upload_size = WPCOM_MAX_UPLOAD_FILE_SIZE;
+		}
+
+		if ( $file_size > $max_upload_size ) {
 			/* translators: %s: Maximum allowed file size in kilobytes. */
-			$file['error'] = 'rest_upload_file_too_big|' . sprintf( __( 'This file is too big. Files must be less than %s KB in size.', 'default' ), get_site_option( 'fileupload_maxk', 1500 ) );
+			$file['error'] = 'rest_upload_file_too_big|' . sprintf( __( 'This file is too big. Files must be less than %s KB in size.', 'jetpack' ), $max_upload_size / KB_IN_BYTES );
 		}
 
 		if ( upload_is_user_over_quota( false ) ) {

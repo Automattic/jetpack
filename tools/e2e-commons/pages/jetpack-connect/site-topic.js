@@ -1,7 +1,4 @@
-/**
- * Internal dependencies
- */
-import WpPage from '../wp-page';
+import WpPage from '../wp-page.js';
 
 export default class JetpackSiteTopicPage extends WpPage {
 	constructor( page ) {

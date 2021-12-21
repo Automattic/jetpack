@@ -323,7 +323,7 @@ function createPackageJson( packageJson, answers ) {
 			test:
 				"NODE_ENV=test NODE_PATH=tests:. js-test-runner --jsdom --initfile=test-main.jsx 'glob:./!(node_modules)/**/test/*.@(jsx|js)'",
 		};
-		packageJson.dependencies = { 'jetpack-js-test-runner': 'workspace:*' };
+		packageJson.devDependencies = { 'jetpack-js-test-runner': 'workspace:*' };
 	}
 }
 
@@ -385,7 +385,6 @@ async function createComposerJson( composerJson, answers ) {
 			composerJson.type = 'wordpress-plugin';
 			break;
 		case 'js-package':
-			composerJson[ 'require-dev ' ] = { 'automattic/jetpack-changelogger': '^2.0' };
 			composerJson.scripts = {
 				'test-js': [ 'Composer\\Config::disableProcessTimeout', 'pnpm install', 'pnpm run test' ],
 				'test-coverage': [
@@ -555,9 +554,9 @@ function createReadMeTxt( answers ) {
 		`=== Jetpack ${ answers.name } ===\n` +
 		'Contributors: automattic,\n' +
 		'Tags: jetpack, stuff\n' +
-		'Requires at least: 5.7\n' +
+		'Requires at least: 5.8\n' +
 		'Requires PHP: 5.6\n' +
-		'Tested up to: 5.8\n' +
+		'Tested up to: 5.9\n' +
 		`Stable tag: ${ answers.version }\n` +
 		'License: GPLv2 or later\n' +
 		'License URI: http://www.gnu.org/licenses/gpl-2.0.html\n' +

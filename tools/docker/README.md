@@ -353,8 +353,18 @@ Jetpack Docker environment can be wonderful for developing your own plugins and 
 Since everything under `mu-plugins` and `wordpress/wp-content` is git-ignored, you'll want to keep those folders outside Jetpack repository folder and link them as volumes to your Docker instance.
 
 1. First ensure your containers are stopped (`jetpack docker stop`).
-2. Edit `tools/docker/compose-volumes.yml`. This file will be generated when running `jetpack docker up`, containing content from a sample file `tools/docker/compose-volumes.yml.sample`. But you can also copy it by hand. Changes to this file won't be tracked by git.
-3. Start containers and include your custom volumes by running:
+2. Edit `tools/docker/jetpack-docker-config.yml`. Changes to this file won't be tracked by git.
+3. To add a single custom plugin, you would for example have this in that file:
+    ```yml
+    default:
+      # Volumes to mount inside the environment. Keys are the local paths, which may be absolute
+      # or relative to the monorepo root. Values are the paths inside the Docker environment, and
+      # must be absolute.
+      volumeMappings:
+        ## Gutenberg
+        /Users/you/code/gutenberg: /var/www/html/wp-content/plugins/gutenberg
+   ```
+4. Start containers and include your custom volumes by running:
    ```bash
    jetpack docker up
    ```

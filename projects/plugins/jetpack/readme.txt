@@ -1,10 +1,10 @@
 === Jetpack - WP Security, Backup, Speed, & Growth ===
 Contributors: automattic, adamkheckler, adrianmoldovanwp, aduth, akirk, allendav, alternatekev, andy, annamcphee, annezazu, apeatling, arcangelini, azaozz, batmoo, barry, beaulebens, biskobe, blobaugh, bjorsch, brbrr, cainm, cena, cfinke, chaselivingston, chellycat, clickysteve, csonnek, danielbachhuber, davoraltman, daniloercoli, delawski, designsimply, dllh, drawmyface, dsmart, dzver, ebinnion, egregor, eliorivero, enej, eoigal, erania-pinnera, ethitter, fgiannar, gcorne, georgestephanis, gibrown, goldsounds, hew, hugobaeta, hypertextranch, iammattthomas, iandunn, jblz, jasmussen, jeffgolenski, jeherve, jenhooks, jenia, jessefriedman, jgs, jkudish, jmdodd, joanrho, johnjamesjacoby, jshreve, kbrownkd, keoshi, koke, kraftbj, lancewillett, leogermani, lschuyler, macmanx, martinremy, matt, matveb, mattwiebe, maverick3x6, mcsf, mdawaffe, mdbitz, MichaelArestad, migueluy, mikeyarce, mkaz, nancythanki, nickmomrik, obenland, oskosk, pento, professor44, rachelsquirrel, rdcoll, ryancowles, richardmuscat, richardmtl, robertbpugh, roccotripaldi, samhotchkiss, samiff, scarstocea, scottsweb, sdixon194, sdquirk, sermitr, simison, stephdau, tmoorewp, tyxla, Viper007Bond, westi, yoavf, zinigor
 Tags: Security, backup, Woo, malware, scan, spam, CDN, search, social
-Stable tag: 10.2
-Requires at least: 5.7
+Stable tag: 10.4
+Requires at least: 5.8
 Requires PHP: 5.6
-Tested up to: 5.8
+Tested up to: 5.9
 
 Improve your WP security with powerful one-click tools like backup and malware scan. Get essential free tools including stats, CDN and social sharing.
 
@@ -242,24 +242,21 @@ Jetpack Backup can do a full website migration to a new host, migrate theme file
 4. Promote your newest posts, pages, and products across your social media channels.
 
 == Changelog ==
-### 10.3-2110.1 - 2021-10-12
+### 10.5-a.3 - 2021-12-14
 #### Enhancements
-- Instant Search: always show the save button on the mobile view of the Search Settings dashboard.
-- Secure Sign On: add new filter allowing one to customize the explanation displayed next to the SSO button.
-- VideoPress: improve the display of upload errors in the Media Library and the block editor.
+- Secure Sign On: add filters for the error text when a local user cannot be found for a given WP.com account and for when SSO is disallowed when on a staging site.
+- Subscription Block: add 'Success Message Text' to the block settings.
 
 #### Improved compatibility
-- Jetpack Backup: improve the display of the different plugin menus when using both Jetpack and Jetpack Backup.
-- Social Icons Widget: deprecate widget and offer the option to transform into a Social Links block.
+- General: ensure Jetpack options are properly deleted when the plugin is deactivated.
+- Media Extractor: add support for alt_text in extract.
+- Notifications: remove legacy code supporting IE versions older than 9.
+- Pay with PayPal Widget: hide widget from Legacy Widget block.
 
 #### Bug fixes
-- Calendly block: fix the preview in the block inserter.
-- Eventbrite Block: improve the event URL detection and avoid errors when using links without an event ID.
-- General: avoid PHP notices that may happen when installing the plugin.
-- Instant Search: fix the display of filters when there are no results to display for a query.
-- Instant Search: fix the preview of the infinite scroll option in the Search Settings dashboard.
-- Instant Search: reduce browser history noise as search is being typed in the form.
-- Publicize: refresh connections only when the post publishes.
+- Contact Form: avoid PHP notices in submitted forms in some cases.
+- Internationalization: ensure that all text, including text added via JavaScript, can be translated.
+- Milestone widget: fix issue that prevented styles from loading until the widget is saved.
 
 --------
 

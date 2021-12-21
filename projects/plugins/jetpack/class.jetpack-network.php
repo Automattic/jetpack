@@ -106,19 +106,6 @@ class Jetpack_Network {
 	}
 
 	/**
-	 * Sets which modules get activated by default on subsite connection.
-	 * Modules can be set in Network Admin > Jetpack > Settings
-	 *
-	 * @since 2.9
-	 * @deprecated since 7.7.0
-	 *
-	 * @param array $modules List of modules.
-	 */
-	public function set_auto_activated_modules( $modules ) { // phpcs:ignore VariableAnalysis.CodeAnalysis.VariableAnalysis.UnusedVariable
-		_deprecated_function( __METHOD__, 'jetpack-7.7' );
-	}
-
-	/**
 	 * Registers new sites upon creation
 	 *
 	 * @since 2.9
@@ -202,6 +189,7 @@ class Jetpack_Network {
 			 */
 			if ( ! in_array( 'jetpack/jetpack.php', $active_plugins, true ) ) {
 				Jetpack::disconnect();
+				Jetpack_Options::delete_option( 'version' );
 			}
 			restore_current_blog();
 		}

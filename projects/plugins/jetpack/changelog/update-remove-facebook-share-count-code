@@ -1,0 +1,5 @@
+Significance: minor
+Type: bugfix
+
+Comment: The calls to facebook's graph API via SDK has stopped providing us with share counts, at least since 2019. The correct way to display share counts now is to rely on official buttons. 
+This change deals with removing the code that's in place to fetch share counts for non-official buttons. The code is being removed because it's not functional.

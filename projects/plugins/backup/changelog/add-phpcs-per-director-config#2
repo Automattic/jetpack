@@ -1,0 +1,5 @@
+Significance: patch
+Type: changed
+Comment: Added project-specific phpcs configuration (for i18n textdomain).
+
+

@@ -1,9 +1,10 @@
 /**
  * External dependencies
  */
-import React, { useState, useCallback } from 'react';
+import React from 'react';
 import PropTypes from 'prop-types';
 import { Button, Dashicon } from '@wordpress/components';
+import { useSelect } from '@wordpress/data';
 import { createInterpolateElement } from '@wordpress/element';
 import { __, sprintf } from '@wordpress/i18n';
 import { Spinner } from '@automattic/jetpack-components';
@@ -11,72 +12,65 @@ import { Spinner } from '@automattic/jetpack-components';
 /**
  * Internal dependencies
  */
+import { STORE_ID } from '../../state/store';
 import extractHostname from '../../tools/extract-hostname';
+import customContentShape from '../../tools/custom-content-shape';
 
 /**
- * The "migrate" card.
+ * The "start fresh" card.
  *
  * @param {object} props - The properties.
- * @param {string} props.wpcomHomeUrl - The original site URL.
- * @param {string} props.currentUrl - The current site URL.
  * @returns {React.Component} The `ConnectScreen` component.
  */
 const CardFresh = props => {
+	const { isStartingFresh, startFreshCallback, customContent } = props;
+
 	const wpcomHostName = extractHostname( props.wpcomHomeUrl );
 	const currentHostName = extractHostname( props.currentUrl );
 
+	const isActionInProgress = useSelect( select => select( STORE_ID ).getIsActionInProgress(), [] );
+
 	const buttonLabel = __( 'Create a fresh connection', 'jetpack' );
 
-	const [ isInProgress, setIsInProgress ] = useState( false );
-
-	/**
-	 * Initiate the migration.
-	 * Placeholder for now.
-	 *
-	 * @todo Add the actual migration functionality.
-	 */
-	const doStartFresh = useCallback( () => {
-		setIsInProgress( true );
-
-		setTimeout( () => {
-			setIsInProgress( false );
-		}, 3000 );
-	}, [ setIsInProgress ] );
-
 	return (
-		<div className="jp-idc-card-action-base">
-			<div className="jp-idc-card-action-top">
-				<h4>{ __( 'Treat each site as independent sites', 'jetpack' ) }</h4>
+		<div className="jp-idc__idc-screen__card-action-base">
+			<div className="jp-idc__idc-screen__card-action-top">
+				<h4>
+					{ customContent.startFreshCardTitle ||
+						__( 'Treat each site as independent sites', 'jetpack' ) }
+				</h4>
 
 				<p>
-					{ createInterpolateElement(
-						sprintf(
-							/* translators: %1$s: The current site domain name. %2$s: The original site domain name. */
-							__(
-								'<hostname>%1$s</hostname> settings, stats, and subscribers will start fresh. <hostname>%2$s</hostname> will keep its data as is.',
-								'jetpack'
+					{ customContent.startFreshCardBodyText ||
+						createInterpolateElement(
+							sprintf(
+								/* translators: %1$s: The current site domain name. %2$s: The original site domain name. */
+								__(
+									'<hostname>%1$s</hostname> settings, stats, and subscribers will start fresh. <hostname>%2$s</hostname> will keep its data as is.',
+									'jetpack'
+								),
+								currentHostName,
+								wpcomHostName
 							),
-							currentHostName,
-							wpcomHostName
-						),
-						{
-							hostname: <strong />,
-						}
-					) }
+							{
+								hostname: <strong />,
+							}
+						) }
 				</p>
 			</div>
 
-			<div className="jp-idc-card-action-bottom">
-				<div className="jp-idc-card-action-sitename">{ wpcomHostName }</div>
-				<Dashicon icon="minus" className="jp-idc-card-action-separator" />
-				<div className="jp-idc-card-action-sitename">{ currentHostName }</div>
+			<div className="jp-idc__idc-screen__card-action-bottom">
+				<div className="jp-idc__idc-screen__card-action-sitename">{ wpcomHostName }</div>
+				<Dashicon icon="minus" className="jp-idc__idc-screen__card-action-separator" />
+				<div className="jp-idc__idc-screen__card-action-sitename">{ currentHostName }</div>
 
 				<Button
-					className="jp-idc-card-action-button"
+					className="jp-idc__idc-screen__card-action-button"
 					label={ buttonLabel }
-					onClick={ doStartFresh }
+					onClick={ startFreshCallback }
+					disabled={ isActionInProgress }
 				>
-					{ isInProgress ? <Spinner /> : buttonLabel }
+					{ isStartingFresh ? <Spinner /> : buttonLabel }
 				</Button>
 			</div>
 		</div>
@@ -84,8 +78,22 @@ const CardFresh = props => {
 };
 
 CardFresh.propTypes = {
+	/** The original site URL. */
 	wpcomHomeUrl: PropTypes.string.isRequired,
+	/** The current site URL. */
 	currentUrl: PropTypes.string.isRequired,
+	/** Whether starting fresh is in progress. */
+	isStartingFresh: PropTypes.bool.isRequired,
+	/** "Start Fresh" callback. */
+	startFreshCallback: PropTypes.func.isRequired,
+	/** Custom text content. */
+	customContent: PropTypes.shape( customContentShape ),
+};
+
+CardFresh.defaultProps = {
+	isStartingFresh: false,
+	startFreshCallback: () => {},
+	customContent: {},
 };
 
 export default CardFresh;

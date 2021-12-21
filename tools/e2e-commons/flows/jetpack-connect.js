@@ -1,27 +1,32 @@
 import config from 'config';
-import Sidebar from '../pages/wp-admin/sidebar';
-import JetpackPage from '../pages/wp-admin/jetpack';
-import AuthorizePage from '../pages/wpcom/authorize';
-import PickAPlanPage from '../pages/wpcom/pick-a-plan';
-import CheckoutPage from '../pages/wpcom/checkout';
-import ThankYouPage from '../pages/wpcom/thank-you';
-import MyPlanPage from '../pages/wpcom/my-plan';
-import { execWpCommand } from '../helpers/utils-helper';
-import { persistPlanData, syncPlanData } from '../helpers/plan-helper';
-import logger from '../logger';
-import RecommendationsPage from '../pages/wp-admin/recommendations';
-import LoginPage from '../pages/wpcom/login';
+import { Sidebar, JetpackPage, RecommendationsPage } from '../pages/wp-admin/index.js';
+import {
+	AuthorizePage,
+	PickAPlanPage,
+	CheckoutPage,
+	ThankYouPage,
+	MyPlanPage,
+	LoginPage,
+} from '../pages/wpcom/index.js';
+import { execWpCommand } from '../helpers/utils-helper.cjs';
+import { persistPlanData, syncPlanData } from '../helpers/plan-helper.js';
+import logger from '../logger.cjs';
+import { expect } from '@playwright/test';
 
 const cardCredentials = config.get( 'testCardCredentials' );
 
 /**
  * Goes through connection flow via classic (calypso) flow
  *
+ * @param {Object}  page           page instance of Playwright page
  * @param {Object}  o              Optional object with params such as `plan` and `mockPlanData`
  * @param {string}  o.plan
  * @param {boolean} o.mockPlanData
  */
-export async function connectThroughWPAdmin( { plan = 'complete', mockPlanData = false } = {} ) {
+export async function connectThroughWPAdmin(
+	page,
+	{ plan = 'complete', mockPlanData = false } = {}
+) {
 	await ( await Sidebar.init( page ) ).selectJetpack();
 
 	const jetpackPage = await JetpackPage.init( page );
@@ -34,11 +39,11 @@ export async function connectThroughWPAdmin( { plan = 'complete', mockPlanData =
 		}
 	}
 
-	await doClassicConnection( mockPlanData );
-	await syncJetpackPlanData( plan, mockPlanData );
+	await doClassicConnection( page, mockPlanData );
+	await syncJetpackPlanData( page, plan, mockPlanData );
 }
 
-export async function doClassicConnection( mockPlanData ) {
+export async function doClassicConnection( page, mockPlanData ) {
 	const jetpackPage = await JetpackPage.init( page );
 	await jetpackPage.forceVariation( 'original' );
 	await jetpackPage.connect();
@@ -54,7 +59,7 @@ export async function doClassicConnection( mockPlanData ) {
 	return await ( await MyPlanPage.init( page ) ).returnToWPAdmin();
 }
 
-export async function doSiteLevelConnection() {
+export async function doSiteLevelConnection( page ) {
 	const jetpackPage = await JetpackPage.init( page );
 	await jetpackPage.forceVariation( 'original' );
 	await jetpackPage.connect();
@@ -68,7 +73,7 @@ export async function doSiteLevelConnection() {
 	await ( await Sidebar.init( page ) ).selectJetpack();
 }
 
-export async function syncJetpackPlanData( plan, mockPlanData = true ) {
+export async function syncJetpackPlanData( page, plan, mockPlanData = true ) {
 	logger.step( `Sync plan data. { plan: ${ plan }, mock: ${ mockPlanData } }` );
 	const planType = plan === 'free' ? 'jetpack_free' : 'jetpack_complete';
 	await persistPlanData( planType );
@@ -89,20 +94,4 @@ export async function syncJetpackPlanData( plan, mockPlanData = true ) {
 	if ( ! ( await jetpackPage.isPlan( plan ) ) ) {
 		throw new Error( `Site does not have ${ plan } plan` );
 	}
-}
-
-export async function isBlogTokenSet() {
-	const cliCmd = 'jetpack options get blog_token';
-	const result = await execWpCommand( cliCmd );
-	if ( typeof result !== 'object' ) {
-		return true;
-	}
-	const txt = result.toString();
-	if (
-		txt.includes( 'Error: Option not found or is empty' ) ||
-		txt.includes( "Error: 'jetpack' is not a registered wp command" )
-	) {
-		return false;
-	}
-	throw result;
 }

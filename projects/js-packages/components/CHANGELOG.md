@@ -2,6 +2,64 @@
 
 ### This is a list detailing changes for the Jetpack RNA Components package releases.
 
+## 0.9.0 - 2021-12-14
+### Added
+- Created Layout components.
+
+## 0.8.0 - 2021-12-07
+### Added
+- Added JetpackAdminPage and JetpackAdminSection components
+
+### Changed
+- Updated package dependencies.
+
+## 0.7.0 - 2021-11-30
+### Changed
+- Add a new DecorativeCard component to the components package.
+- Colors: update Jetpack Primary color to match latest brand book.
+
+## 0.6.3 - 2021-11-23
+### Changed
+- Import RNA styles from base styles package.
+- Updated package dependencies
+
+### Fixed
+- Action button supports larger labels
+
+## 0.6.2 - 2021-11-17
+### Fixed
+- Pricing Card: Fix case where price before and after match.
+
+## 0.6.1 - 2021-11-16
+### Changed
+- Updated package dependencies
+
+## 0.6.0 - 2021-11-09
+### Added
+- Add Spinner in RNA components.
+
+## 0.5.0 - 2021-11-02
+### Added
+- Added docs and tests
+
+### Changed
+- Update PricingCard to accept children.
+
+## 0.4.0 - 2021-10-26
+### Added
+- Add PricingCard in RNA components.
+- New ActionButton component added
+
+### Changed
+- Updated package dependencies
+
+### Removed
+- Removing knobs from Storybook and using propTypes in components instead
+
+## 0.3.2 - 2021-10-13
+### Changed
+- Updated package dependencies.
+
 ## 0.3.1 - 2021-09-28
 ### Added
 - Set 'exports' in package.json.

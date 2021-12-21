@@ -8,6 +8,8 @@
  */
 
 use Automattic\Jetpack\Connection\Tokens;
+use Automattic\Jetpack\Status\Host;
+
 /**
  * WordPress.com Block editor for Jetpack
  */
@@ -51,7 +53,6 @@ class Jetpack_WPCOM_Block_Editor {
 	 * Add in all hooks.
 	 */
 	public function init_actions() {
-		global $wp_version;
 		// Bail early if Jetpack's block editor extensions are disabled on the site.
 		/* This filter is documented in class.jetpack-gutenberg.php */
 		if ( ! apply_filters( 'jetpack_gutenberg', true ) ) {
@@ -69,12 +70,7 @@ class Jetpack_WPCOM_Block_Editor {
 		add_action( 'enqueue_block_editor_assets', array( $this, 'enqueue_block_editor_assets' ), 9 );
 		add_action( 'enqueue_block_assets', array( $this, 'enqueue_block_assets' ) );
 		add_filter( 'mce_external_plugins', array( $this, 'add_tinymce_plugins' ) );
-		// @todo simplify once 5.8 is the minimum supported version.
-		if ( version_compare( $wp_version, '5.8', '>=' ) ) {
-			add_filter( 'block_editor_settings_all', 'Jetpack\EditorType\remember_block_editor', 10, 2 );
-		} else {
-			add_filter( 'block_editor_settings', 'Jetpack\EditorType\remember_block_editor', 10, 2 );
-		}
+		add_filter( 'block_editor_settings_all', 'Jetpack\EditorType\remember_block_editor', 10, 2 );
 
 		$this->enable_cross_site_auth_cookies();
 	}
@@ -157,7 +153,7 @@ class Jetpack_WPCOM_Block_Editor {
 			// If SSO is active, we'll let WordPress.com handle authentication...
 			if ( Jetpack::is_module_active( 'sso' ) ) {
 				// ...but only if it's not an Atomic site. They already do that.
-				if ( ! jetpack_is_atomic_site() ) {
+				if ( ! ( new Host() )->is_woa_site() ) {
 					add_filter( 'jetpack_sso_bypass_login_forward_wpcom', '__return_true' );
 				}
 			} else {
@@ -350,7 +346,7 @@ class Jetpack_WPCOM_Block_Editor {
 			)
 		);
 
-		if ( jetpack_is_atomic_site() ) {
+		if ( ( new Host() )->is_woa_site() ) {
 			wp_enqueue_script(
 				'wpcom-block-editor-wpcom-editor-script',
 				$debug

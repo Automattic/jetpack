@@ -65,14 +65,18 @@ done
 shift "$(($OPTIND -1))"
 
 if ! $VERBOSE; then
+	. "$BASE/tools/includes/spin.sh"
 	function debug {
 		:
 	}
-elif [[ -n "$CI" ]]; then
-	function debug {
-		# Grey doesn't work well in GH's output.
-		blue "$@"
-	}
+else
+	. "$BASE/tools/includes/nospin.sh"
+	if [[ -n "$CI" ]]; then
+		function debug {
+			# Grey doesn't work well in GH's output.
+			blue "$@"
+		}
+	fi
 fi
 
 function get_packages {
@@ -85,6 +89,7 @@ function get_packages {
 
 get_packages
 
+DO_PNPM_LOCK=true
 SLUGS=()
 if [[ $# -le 0 ]]; then
 	# Use a temp variable so pipefail works
@@ -95,6 +100,7 @@ if [[ $# -le 0 ]]; then
 	mapfile -t -O ${#SLUGS[@]} SLUGS <<<"$TMP"
 else
 	SLUGS=( "$@" )
+	DO_PNPM_LOCK=false
 fi
 
 if $UPDATE; then
@@ -144,6 +150,7 @@ fi
 EXIT=0
 ANYJS=false
 for SLUG in "${SLUGS[@]}"; do
+	spin
 	debug "Checking dependencies of $SLUG"
 	if [[ "$SLUG" == monorepo ]]; then
 		PACKAGES="$PACKAGES_DEV"
@@ -239,13 +246,20 @@ for SLUG in "${SLUGS[@]}"; do
 done
 
 if $ANYJS; then
-	debug "Updating pnpm-lock.yaml"
-	if [[ -n "$CI" ]]; then
-		pnpm install --no-frozen-lockfile
+	if $DO_PNPM_LOCK; then
+		spin
+		debug "Updating pnpm-lock.yaml"
+		if [[ -n "$CI" ]]; then
+			pnpm install --no-frozen-lockfile
+		else
+			pnpm install --silent
+		fi
 	else
-		pnpm install --silent
+		debug "Skipping pnpm-lock.yaml update because we were passed a list of packages"
 	fi
 fi
+
+spinclear
 
 if ! $UPDATE && [[ "$EXIT" != "0" ]]; then
 	jetpackGreen 'You might use `tools/check-intra-monorepo-deps.sh -u` to fix these errors.'

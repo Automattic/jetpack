@@ -2,6 +2,291 @@
 
 ### This is a list detailing changes for all Jetpack releases.
 
+## 10.5-a.3 - 2021-12-14
+### Enhancements
+- Secure Sign On: add filters for the error text when a local user cannot be found for a given WP.com account and for when SSO is disallowed when on a staging site.
+- Subscription Block: add 'Success Message Text' to the block settings.
+
+### Improved compatibility
+- General: ensure Jetpack options are properly deleted when the plugin is deactivated.
+- Media Extractor: add support for alt_text in extract.
+- Notifications: remove legacy code supporting IE versions older than 9.
+- Pay with PayPal Widget: hide widget from Legacy Widget block.
+
+### Bug fixes
+- Contact Form: avoid PHP notices in submitted forms in some cases.
+- Internationalization: ensure that all text, including text added via JavaScript, can be translated.
+- Milestone widget: fix issue that prevented styles from loading until the widget is saved.
+
+### Other changes <!-- Non-user-facing changes go here. This section will not be copied to readme.txt. -->
+- Admin Menu: add support for WPML menu structure.
+- ConnectionBanner: allow "icon" prop type to be an element.
+- JITM: allow sidebar JITMs marked as dismissible to be dismissed.
+- Nav-unification: add a CSS class to the HTML body when nav-unification is enabled.
+- Update introductory discount percentages from 40% to 50%, to reflect new pricing structure..
+- Use `automattic/jetpack-composer-plugin` to move Jetpack libraries from `vendor/` to `jetpack_vendor/` for i18n.
+- [WP.com sites only) Exposes the My Home menu item to all roles
+
+## 10.5-a.1 - 2021-12-07
+### Enhancements
+- Sharing: hide sharing buttons when printing a post or page.
+- VideoPress Block: add adaptive progress bar color settings
+
+### Improved compatibility
+- Twitter Timeline widget: Hide widget from the block inserter and Legacy widget block drop-down menu (WPCOM)
+
+### Bug fixes
+- Dashboard: hide licensing interface from users who did not link their account to WordPress.com yet, or who are not the main Jetpack connection owner.
+- VideoPress: avoid errors when copying and pasting empty video blocks.
+- VideoPress Block: maintain the state of different settings panels when reloading the video preview.
+
+### Other changes <!-- Non-user-facing changes go here. This section will not be copied to readme.txt. -->
+- Added Jetpack Installer package.
+- Atomic Menu: prevent notice for users without access to the plugins menu item.
+- Blog Subscription widget: Fix the comment block on the `hide_widget_in_block_editor()` to follow the DocBlock standards
+- Build modules with Webpack, so they benefit from our toolchain improvements.
+- DIFM: Conditionally hide admin menu and expose is_difm_lite_in_progress in the get site API
+- Fix the comment block on the `hide_widget_in_block_editor()` to follow the DocBlock standards
+- Rewrote tracks-events.js without jQuery.
+- Start an initial full sync if the site is connected when Jetpack is activated.
+- Start new Jetpack cycle 10.5-a.0
+- Switched Jetpack plugin to always use `s0.wp.com` and `i0.wp.com` for external resources
+- Updated package dependencies.
+
+## 10.4 - 2021-12-07
+### Enhancements
+- Connection: additional messaging for both connection and disconnection flows.
+- Dashboard: add option to add Jetpack product using a license key.
+- Publicize: enable the RePublicize UI in the block editor.
+- VideoPress: add captions and subtitle support.
+
+### Bug fixes
+- Custom CSS: disable CSSTidy shorthand optimizations to prevent block validation issues.
+- Dashboard: hide license activation route if user is not linked and connection owner.
+- Search: avoid fatal errors when the feature is inactive, but Extra Sidebar Widgets are active.
+- Sharing: ask search engines to not index pages with sharing query string.
+- VideoPress: fix various validation errors.
+- VideoPress: keep expanded/collapsed state of settings panel when reloading video preview.
+- Widgets: allow customizer preview to show widget visibility rules properly.
+
+### Other changes <!-- Non-user-facing changes go here. This section will not be copied to readme.txt. -->
+- Avoid generating unused assets in the static-site-generator builds.
+- Build: remove obsolete package gulp task.
+- Bump stat on plugin installs.
+- Colors: update Jetpack Primary color reference to match latest brand book.
+- E2E tests: Migrate from Jest to Playwright test runner.
+- Expose site intent from get site API to show different content in the future.
+- Fixed an issue with the mobile nav unification menu caused by fixing the collapse.
+- Fixed nav-unification on lower resolutions for wp-admin.
+- Fixes the URL of JITMs rendered in the unified sidebar when an absolute URL is given. This only affects WP.com sites.
+- JITM: Add ability to sideload Jetpack Boost and Backup plugins.
+- Made admin menu API tests compatible with WPCOM environment.
+- Refresh the site's modules and settings after successful product activation.
+- Search: forward wpcom/v2/search request to search package rest controller.
+- Search: Migrate more helper classes to package.
+- Search: update jetpack-search and search package versions
+- Sharing: update to use Recaptcha's modern key names.
+- Switched external media API tests to short-circuit API calls before they're being dispatched.
+- Updated package dependencies.
+- Update filenames of Webpack-built files.
+- Use correct user capability for the Inbox menu item in Nav Unification
+- Uses the Connection Initial State for the React app
+
+## 10.4-a.9 - 2021-11-23
+### Enhancements
+- Dashboard: add option to add a license key via the Jetpack dashboard.
+- Verification tools: remove old interface in the Tools menu, in favor of the newer settings in the Jetpack dashboard.
+
+### Bug fixes
+- Stats: remove ASCII art from the tracking pixel's alt attribute, to improve accessibility.
+
+### Other changes <!-- Non-user-facing changes go here. This section will not be copied to readme.txt. -->
+- Add consumer_slug config to webpack
+- Ensure that a new object references are created after the API request.
+- Fixed admin menu tests on WP.com
+- Gist unit tests: refactor to simplify and make future maintenance easier.
+- Manually dismiss license activation notice when license activated.
+- Remove the Connection UI activation.
+- REST API Return user ID for comment author if present
+- Skips redirect tests for admin menu in wpcom environment.
+- Updated package dependencies.
+
+## 10.4-a.7 - 2021-11-17
+### Enhancements
+- Podcast Player block: add 'jetpack_podcast_helper_tracks_quantity' filter to control number of tracks fetched. Deprecate the 'jetpack_podcast_helper_list_quantity' filter.
+
+### Bug fixes
+- VideoPress: fix VideoPress load for old videos in Gutenberg
+- SSO: fix button content alignment for small screens
+
+### Other changes <!-- Non-user-facing changes go here. This section will not be copied to readme.txt. -->
+- Adding My Jetpack
+- Update phpunit tests so they can be executed again on wpcom without fatal errors.
+
+## 10.4-a.5 - 2021-11-16
+### Enhancements
+- Dashboard: display a notice when you have unactivated product licence keys linked to your WordPress.com account.
+- Likes: refactor Likes in posts to improve performance and avoid loading additional libraries.
+- VideoPress: add handles to resize the Video Block in the editor.
+
+### Bug fixes
+- Dashboard: fix some layout and display issues in the Recommendations panel.
+- Dashboard: ensure plan information is properly displayed when using Backup and Security plans.
+- Instant Search: restore filter query string functionality.
+- VideoPress: reload block when updating video rating in the editor, and ensure rating meta data is updated.
+
+### Other changes <!-- Non-user-facing changes go here. This section will not be copied to readme.txt. -->
+- Allow /sites/$site/external-media/copy/pexels to insert post meta data
+- Change the way we interact with RNA Connection Screen.
+- Don't set Webpack's `output.pathinfo` in production builds.
+- Fix some code where the minifier loses the translator comments.
+- Nav Unification: map new Site Editor location from Gutenberg 11.9 to Calypso
+- Nav Unification: Display the stats sparkline on WP Admin for Atomic sites. This fix only affects WP.com sites.
+- Updated package dependencies.
+- Update link for Backup and Security product cards to point to checkout for new real-time products
+- Use monorepo `validate-es` script to validate Webpack builds.
+
+## 10.4-a.3 - 2021-11-09
+### Enhancements
+- Publicize: always add an Open Graph image alt text if an Open Graph image is present.
+- VideoPress: do not display thumbnails in the media library, in the WordPress.com dashboard.
+
+### Improved compatibility
+- Contact Info and Map widget: hide widget from the block inserter and Legacy widget block drop-down menu.
+
+### Bug fixes
+- Block Editor: avoid issues when searching for free Pexels images via Jetpack's External Media feature.
+- Contact Form: prevent multiple button clicks from submitting multiple form submissions.
+- VideoPress: display "File Name" in the Media Library.
+- VideoPress: display all video meta immediately after upload. A page refresh is no longer needed to view VideoPress-specific fields.
+- VideoPress: no longer play videos in the background when the Media Item modal is closed in the media library.
+
+### Other changes <!-- Non-user-facing changes go here. This section will not be copied to readme.txt. -->
+- Display Nav Unification Quick switcher in edit.php?post_type=post page for sites with Nav unification enabled.
+- E2E tests: cleaned up some unused dependencies
+- E2E tests: remove jest setup in favor of e2e-commons setup file
+- E2E tests: update docs
+- Fixed Jetpack Dashboard submenu highlight for the Settings page for sites with Nav unification enabled.
+- Fix PHP 8.1 deprecation warnings.
+- Nav Unification: Removes the `preferred-view` param from the URL after changing the preferred view. This fix only affects WP.com sites.
+- Nav Unification: Replaces the AJAX request for changing the preferred view with a direct server request to bypass security restrictions enforced by some browsers. This fix only affects WP.com sites.
+- P2: Hide Inbox admin menu link on all P2s.
+- Publicize: handle plan upgrade considering feature availability, whether the nudge is enable, and post status
+- Search: Migrate helper classes to Search package
+- Unit Tests : Update Full Sync tests to align with limitation on users that are synced.
+- Updated package dependencies
+- Update webpack build config.
+
+## 10.4-a.1 - 2021-11-02
+### Enhancements
+- Publicize: update the interface and include a profile picture for each service.
+
+### Bug fixes
+- Image CDN: ensure that Wikipedia URLs are not served via our image CDN.
+- Publicize: make the default publicize social media message blank.
+
+### Other changes <!-- Non-user-facing changes go here. This section will not be copied to readme.txt. -->
+- Allow /wp/v2/sites/1234/batch endpoint to process widget updates
+- E2E tests: update pnpm commands to use new tunnel wrapper script
+- Fix `@covers` directives in various tests.
+- Publicize: check feature chen hitting publicize endpoint
+- Publicize: show/hide main toggle control depending on post state (published)
+- Search: hide Calypso Jetpack Search menu item for Atomic sites.
+- Set `convertDeprecationsToExceptions` true in PHPUnit config.
+- Updated package dependencies.
+
+## 10.3 - 2021-11-02
+### Enhancements
+- Dashboard: add a new screen to provide more information about the VideoPress feature.
+- Dashboard: optimize the size of all product images displayed in the dashboard, to improve overall performance.
+- Instagram Widget: improve the connection flow when the widget has not been connected to WordPress.com yet.
+- Map Block: Add address attribute to the block.
+- Social Icons Widget: Added Strava icon to Social Icons Widget.
+- Stats: add information about the VideoPress feature at the bottom of the page.
+- VideoPress: add tooltips to video block settings in the block editor.
+- VideoPress: remove X-18 rating from the block settings.
+
+### Improved compatibility
+- Contact Info & Map widget: allow transforming this widget into a block in Block-based widget editor.
+- General: ensure that no notices are output when Jetpack is used alongside plugins that modify the output of core comments.
+- VideoPress: improve handling of Video files when using a third-party video player.
+
+### Bug fixes
+- Dashboard: ensure feature cards display the right information when the site uses Jetpack's Offline mode.
+- Dashboard: fix the display of currencies to be based on user WordPress.com preferences.
+- Markdown: add title attributes to footnotes to improve accessibility.
+- Publicize: fix visual issue when the panel shows in the pre publish step of the post.
+- Stats: remove extra request to WordPress.com that occurs when the stats feature is first activated.
+
+### Other changes <!-- Non-user-facing changes go here. This section will not be copied to readme.txt. -->
+- Add Tracks events when clicking or viewing upgrade buttons on the At a Glance page
+- Adjust test which relies on the "remoteRegister" XMLRPC method now being registered by the Connection package
+- Changed the class variable to a const
+- Deprecate `jetpack_is_atomic` for the new Automattic\Jetpack\Status\Host->is_woa_site() function.
+- Displays realtime backups in AAG for tiered backup products (Not yet user facing)
+- E2E tests: renamed test
+- Make the Backups only settings card show for tiered backup products (not yet user facing)
+- Moves Add New (plugin) submenu to the top (valid only for Atomic sites).
+- PHPUnit tests will now catch `exit` calls, instead of exiting PHPUnit.
+- Publicize: add useSharePost() hook
+- Publicize: clean and tidy code
+- Publicize: do not disable message text control when RePublicize is enabled
+- Publicize: Handle properly error handling when publizicing
+- Removed filters from Jetpack that were used to test the Inbox menu prior to its official release.
+- RePublicize: add Share Post button
+- RePublicize: enable/disable feature according to the site plan
+- Update "Appearance > Widgets" and "Appearance > Menus" links back to classic wp-admin destination for Atomic and Simple sites.
+- Updated package dependencies
+- Updates the display of Jetpack Backup storage amounts. (Not yet user facing.)
+
+## 10.3-a.3 - 2021-10-19
+### Enhancements
+- Dashboard: add a new view that shortly summarizes available Jetpack products and facilitates the purchase process.
+- Publicize editor settings: refactor, improve layout and wording in preparation for the addition of RePublicize.
+- Stats: remove some upgrade notifications.
+- Subscriptions: add an option to transform the Legacy Subscription Widget into a Subscription Block in the new block-based Widget editor.
+- WordAds: update handling and setting CCPA related cookies.
+
+### Improved compatibility
+- VideoPress: avoid video upload issues when other plugins modify WordPress' API fetching features in the block editor.
+
+### Bug fixes
+- Dashboard: fix the connection flow for non-admin users.
+- External Media block options: fix a bug where the external media modal collapsed on larger screens and did not leave enough whitespace.
+- Instant Search: fix translations not available for minified Instant Search Modal assets.
+- Widgets: fix styles of the Milestone widget fields.
+- VideoPress: add a "cover" option to the VideoPress iframe and shortcode to handle video resizing to its container.
+
+### Other changes <!-- Non-user-facing changes go here. This section will not be copied to readme.txt. -->
+- Blocks: update how block editor plugins are loaded.
+- Build: do not include Instant Search Settings raw files in production build
+- E2E tests: move search helpers from e2e-commons to plugin e2e checks project
+- E2E tests: named exports for pages
+- Fix spelling of 'deprecated' in pnpm tasks
+- Flag for weekly Atomic releases ("dev-releases" in composer.json).
+- General: remove numerous long-deprecated functions.
+- Improve e2e tooling for better support from other plugins making use of the Jetpack e2e framework
+- Masterbar: update default link in Upgrades > Plans to "Plans" instead of "My Plan".
+- Remove "download" mentions from the VideoPress share option
+- Sharing: hide sharing buttons on password protected posts unless password provided.
+- Updated package dependencies.
+- WordPress.com API: add site_owner to sites API endpoint.
+
+## 10.2.1 - 2021-10-19
+### Enhancements
+- VideoPress: improve the display of upload errors in the Media Library and the block editor.
+
+### Improved compatibility
+- VideoPress: avoid video upload issues when other plugins modify WordPress' API fetching features in the block editor.
+
+### Bug fixes
+- Dashboard: fix the connection flow for non-admin users.
+- Instant Search: fix translations not available for minified Instant Search Modal assets.
+
+### Other changes <!-- Non-user-facing changes go here. This section will not be copied to readme.txt. -->
+- Init the identity-crisis package using the Config package
+- Update Sync Unit Tests to reset settings modified during tests.
+
 ## 10.3-a.1 - 2021-10-12
 ### Enhancements
 - Instant Search: always show the save button on the mobile view of the Search Settings dashboard.

@@ -35,7 +35,7 @@ class Jetpack_Widget_Conditions {
 		// If action is posted and it's save-widget then it's relevant to widget conditions, otherwise it's something
 		// else and it's not worth registering hooks.
 		// phpcs:ignore WordPress.Security.NonceVerification.Missing
-		if ( isset( $_POST['action'] ) && ! in_array( $_POST['action'], array( 'save-widget', 'update-widget' ), true ) ) {
+		if ( isset( $_POST['action'] ) && ! isset( $_POST['customize_changeset_uuid'] ) && ! in_array( $_POST['action'], array( 'save-widget', 'update-widget' ), true ) ) {
 			return;
 		}
 
@@ -49,10 +49,13 @@ class Jetpack_Widget_Conditions {
 		$handle_widget_updates   = false;
 		$add_block_controls      = false;
 
+		// Check to see if using the customizer, but not using the preview. The preview should filter out widgets,
+		// the customizer controls in the sidebar should not (so they can be edited).
+		// phpcs:ignore WordPress.Security.NonceVerification.Recommended
+		$customizer_not_previewer = is_customize_preview() && ! isset( $_GET['customize_changeset_uuid'] );
 		$using_classic_experience = ( ! function_exists( 'wp_use_widgets_block_editor' ) || ! wp_use_widgets_block_editor() );
 		if ( $using_classic_experience &&
-			(
-				is_customize_preview() || 'widgets.php' === $pagenow ||
+			( $customizer_not_previewer || 'widgets.php' === $pagenow ||
 				// phpcs:ignore WordPress.Security.NonceVerification.Missing
 				( 'admin-ajax.php' === $pagenow && array_key_exists( 'action', $_POST ) && 'save-widget' === $_POST['action'] )
 			)
@@ -62,7 +65,7 @@ class Jetpack_Widget_Conditions {
 			$handle_widget_updates   = true;
 		} else {
 			// On a screen that is hosting the API in the gutenberg editing experience.
-			if ( is_customize_preview() || 'widgets.php' === $pagenow ) {
+			if ( $customizer_not_previewer || 'widgets.php' === $pagenow ) {
 				$add_data_assets_to_page = true;
 				$add_block_controls      = true;
 			}
@@ -74,7 +77,8 @@ class Jetpack_Widget_Conditions {
 			}
 
 			// Batch API is usually saving but could be anything.
-			if ( false !== strpos( $_SERVER['REQUEST_URI'], '/wp-json/batch/v1' ) ) {
+			$current_url = ! empty( $_SERVER['REQUEST_URI'] ) ? esc_url_raw( wp_unslash( $_SERVER['REQUEST_URI'] ) ) : '';
+			if ( false !== strpos( $current_url, '/wp-json/batch/v1' ) || 1 === preg_match( '/^\/wp\/v2\/sites\/\d+\/batch\/v1/', $current_url ) ) {
 				$handle_widget_updates = true;
 				$add_html_to_form      = true;
 			}
@@ -116,23 +120,16 @@ class Jetpack_Widget_Conditions {
 	 * Enqueue the block-based widget visibility scripts.
 	 */
 	public static function setup_block_controls() {
-		$manifest_path       = JETPACK__PLUGIN_DIR . '_inc/build/widget-visibility/editor/index.min.asset.php';
-		$script_path         = plugins_url( '_inc/build/widget-visibility/editor/index.min.js', JETPACK__PLUGIN_FILE );
-		$script_dependencies = array( 'wp-polyfill' );
-		if ( file_exists( $manifest_path ) ) {
-			$asset_manifest      = include $manifest_path;
-			$script_dependencies = $asset_manifest['dependencies'];
-		}
-
-		// Enqueue built script.
-		wp_enqueue_script(
+		Assets::register_script(
 			'widget-visibility-editor',
-			$script_path,
-			$script_dependencies,
-			JETPACK__VERSION,
-			true
+			'_inc/build/widget-visibility/editor/index.js',
+			JETPACK__PLUGIN_FILE,
+			array(
+				'in_footer'  => true,
+				'textdomain' => 'jetpack',
+			)
 		);
-		wp_set_script_translations( 'widget-visibility-editor', 'jetpack' );
+		Assets::enqueue_script( 'widget-visibility-editor' );
 	}
 
 	/**

@@ -7,7 +7,8 @@
 
 namespace Automattic\Jetpack\Dashboard_Customizations;
 
-use \Automattic\Jetpack\Status;
+use Automattic\Jetpack\Status;
+use Automattic\Jetpack\Status\Host;
 
 /**
  * The WP_Customize_Control core class is loaded only on customize_register.
@@ -23,7 +24,7 @@ function register_css_nudge_control( \WP_Customize_Manager $customize_manager ) 
 	if ( defined( 'IS_WPCOM' ) && IS_WPCOM ) {
 		require_once __DIR__ . '/additional-css/class-wpcom-additional-css-manager.php';
 		$manager = new WPCOM_Additional_CSS_Manager( $domain );
-	} elseif ( jetpack_is_atomic_site() ) {
+	} elseif ( ( new Host() )->is_woa_site() ) {
 		require_once __DIR__ . '/additional-css/class-atomic-additional-css-manager.php';
 		$manager = new Atomic_Additional_CSS_Manager( $domain );
 	}
