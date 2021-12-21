@@ -66,19 +66,19 @@ class SeekbarColorSettings extends Component {
 							value: seekbarColor,
 							onChange: this.handleChangeSeekbarColor,
 							label: __( 'Main', 'jetpack' ),
-							showTitle
+							showTitle,
 						},
 						{
 							value: seekbarLoadingColor,
 							onChange: this.handleChangeSeekbarLoadingColor,
 							label: __( 'Loaded', 'jetpack' ),
-							showTitle
+							showTitle,
 						},
 						{
 							value: seekbarPlayedColor,
 							onChange: this.handleChangeSeekbarPlayedColor,
 							label: __( 'Progress', 'jetpack' ),
-							showTitle
+							showTitle,
 						},
 					] }
 				>

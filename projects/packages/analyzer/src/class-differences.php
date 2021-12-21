@@ -72,10 +72,10 @@ class Differences extends PersistentList {
 			if ( $deprecated ) {
 				switch ( $new_declaration->type() ) {
 					case 'method':
-						$this->add( new Differences\Class_Method_Deprecated( $prev_declaration, $new_declaration ) );
+						$this->add( new Differences\Class_Method_Deprecated( $prev_declaration ) );
 						break;
 					case 'function':
-						$this->add( new Differences\Function_Deprecated( $prev_declaration, $new_declaration ) );
+						$this->add( new Differences\Function_Deprecated( $prev_declaration ) );
 						break;
 					default:
 						echo 'Unknown deprecated type ' . $new_declaration->type() . "\n";
@@ -138,6 +138,44 @@ class Differences extends PersistentList {
 		echo 'Missing: ' . $missing_total . "\n";
 		if ( $find_deprecated ) {
 			echo 'Deprecated: ' . $deprecated_total . "\n";
+		}
+	}
+
+	/**
+	 * Recreates list of differences from a passed JSON file
+	 *
+	 * @param string $file_path JSON file path.
+	 */
+	public function load( $file_path ) {
+		// phpcs:ignore
+		$contents = json_decode( file_get_contents( $file_path ) );
+
+		foreach ( $contents as $obj ) {
+			switch ( $obj->diff_type ) {
+				case 'function_missing':
+					$this->add( new Differences\Function_Missing( Declarations\Function_::from_map( $obj->old_declaration ) ) );
+					break;
+				case 'method_missing':
+					$this->add( new Differences\Class_Method_Missing( Declarations\Class_Method::from_map( $obj->old_declaration ) ) );
+					break;
+
+				case 'class_missing':
+					$this->add( new Differences\Class_Missing( Declarations\Class_::from_map( $obj->old_declaration ) ) );
+					break;
+
+				case 'class_const_missing':
+					$this->add( new Differences\Class_Const_Missing( Declarations\Class_Const::from_map( $obj->old_declaration ) ) );
+					break;
+
+				case 'property_missing':
+					$this->add( new Differences\Class_Property_Missing( Declarations\Class_Property::from_map( $obj->old_declaration ) ) );
+					break;
+
+				default:
+					// TODO: Implement handlers to other difference types.
+					echo $obj->diff_type . " not implemented!\n"; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
+					break;
+			}
 		}
 	}
 }

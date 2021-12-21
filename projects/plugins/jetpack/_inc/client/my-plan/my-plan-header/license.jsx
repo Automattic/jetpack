@@ -72,7 +72,12 @@ const License = ( { errorNotice, successNotice, updateUserLicensesCounts } ) => 
 			<Button primary compact onClick={ saveJetpackLicense }>
 				{ isSaving
 					? _x( 'Applying…', 'Button caption', 'jetpack' )
-					: _x( 'Apply license', 'Button caption', 'jetpack' ) }
+					: _x(
+							'Apply license',
+							'Button caption',
+							'jetpack',
+							/* dummy arg to avoid bad minification */ 0
+					  ) }
 			</Button>
 		</div>
 	);

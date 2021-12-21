@@ -2,6 +2,18 @@
 
 ### This is a list detailing changes for the Jetpack RNA Connection Component releases.
 
+## 0.11.3 - 2021-12-14
+### Fixed
+- Fix JavaScript i18n strings.
+
+## 0.11.2 - 2021-12-07
+### Changed
+- Updated package dependencies.
+
+## 0.11.1 - 2021-12-06
+### Fixed
+- Style updates to improve disconnect flow appearance when Gutenberg plugin is active
+
 ## 0.11.0 - 2021-11-30
 ### Added
 - Added a ContextualizedConnection component to display a connection screen that can be used to give context to the user why Jetpack would benefit them.

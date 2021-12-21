@@ -4,7 +4,6 @@
  */
 import React from 'react';
 import { action } from '@storybook/addon-actions';
-import { ActionButton } from '@automattic/jetpack-components';
 
 /**
  * Internal dependencies
@@ -14,14 +13,6 @@ import ConnectScreenRequiredPlanVisual from '../visual';
 export default {
 	title: 'Connection/Connect Screen with Required Plan',
 	component: ConnectScreenRequiredPlanVisual,
-	argTypes: {
-		// renderConnectBtn is the property we want to remove from the UI
-		renderConnectBtn: {
-			table: {
-				disable: true,
-			},
-		},
-	},
 };
 
 // Export additional stories using pre-defined values
@@ -48,14 +39,10 @@ const DefaultArgs = {
 	pricingTitle: 'Jetpack Backup',
 	buttonLabel: 'Get Jetpack Backup',
 	isLoading: false,
-	renderConnectBtn: ( label, autoTrigger ) => (
-		<ActionButton
-			label={ label }
-			onClick={ action( 'onButtonClick' ) }
-			displayError={ false }
-			isLoading={ autoTrigger }
-		/>
-	),
+	handleButtonClick: action( 'onButtonClick' ),
+	showConnectButton: true,
+	displayButtonError: false,
+	buttonIsLoading: false,
 };
 
 export const _default = Template.bind( {} );
@@ -64,25 +51,11 @@ _default.args = DefaultArgs;
 export const Connecting = Template.bind( {} );
 Connecting.args = {
 	...DefaultArgs,
-	renderConnectBtn: label => (
-		<ActionButton
-			label={ label }
-			onClick={ action( 'onButtonClick' ) }
-			displayError={ false }
-			isLoading={ true }
-		/>
-	),
+	buttonIsLoading: true,
 };
 
 export const Errored = Template.bind( {} );
 Errored.args = {
 	...DefaultArgs,
-	renderConnectBtn: label => (
-		<ActionButton
-			label={ label }
-			onClick={ action( 'onButtonClick' ) }
-			displayError={ true }
-			isLoading={ false }
-		/>
-	),
+	displayButtonError: true,
 };

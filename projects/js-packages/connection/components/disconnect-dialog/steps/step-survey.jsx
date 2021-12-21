@@ -24,7 +24,7 @@ const StepSurvey = props => {
 
 	return (
 		<div className="jp-connection__disconnect-dialog__content">
-			<h1>{ __( 'Before you go, help us improve Jetpack' ) }</h1>
+			<h1>{ __( 'Before you go, help us improve Jetpack', 'jetpack' ) }</h1>
 			<p className="jp-connection__disconnect-dialog__large-text">
 				{ __( 'Let us know what didn‘t work for you', 'jetpack' ) }
 			</p>
