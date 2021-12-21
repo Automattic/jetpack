@@ -13,4 +13,5 @@ gulpfile.babel.js export-ignore
 /changelog/**     production-exclude
 /.eslintrc.js     production-exclude
 .gitignore        production-exclude
+.phpcs.dir.xml    production-exclude
 _inc/**           production-exclude

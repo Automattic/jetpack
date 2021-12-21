@@ -1,0 +1,4 @@
+Significance: patch
+Type: other
+
+Add get_current_plan() to the WPcom_Admin_Menu.

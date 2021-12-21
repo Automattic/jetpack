@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "f4b3a2da0b7a9e7838307ad8a8531731",
+    "content-hash": "57de5a0c2e9bfa8c0e593b7a8ad974f3",
     "packages": [
         {
             "name": "automattic/jetpack-a8c-mc-stats",
@@ -4510,6 +4510,7 @@
     "aliases": [],
     "minimum-stability": "dev",
     "stability-flags": {
+        "automattic/jetpack-assets": 20,
         "automattic/jetpack-admin-ui": 20,
         "automattic/jetpack-autoloader": 20,
         "automattic/jetpack-composer-plugin": 20,

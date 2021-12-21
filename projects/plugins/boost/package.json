@@ -21,7 +21,6 @@
 		"@typescript-eslint/eslint-plugin": "4.33.0",
 		"@typescript-eslint/parser": "4.33.0",
 		"@wordpress/e2e-test-utils": "5.4.8",
-		"@wordpress/eslint-plugin": "9.3.0",
 		"@wordpress/i18n": "4.2.4",
 		"eslint-plugin-import": "2.25.3",
 		"eslint-plugin-svelte3": "3.2.1",
