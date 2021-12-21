@@ -16,7 +16,7 @@ This goes in the `plugins` section of your Webpack config, e.g.
 ```js
 {
 	plugins: [
-		new I18nLoaderWebpackPlugin(),
+		new I18nCheckWebpackPlugin(),
 	],
 };
 ```
