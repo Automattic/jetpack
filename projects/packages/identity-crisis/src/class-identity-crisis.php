@@ -285,7 +285,7 @@ class Identity_Crisis {
 	 * @return array|bool Array of options that are in a crisis, or false if everything is OK.
 	 */
 	public static function check_identity_crisis() {
-		$connection = new Connection_Manager( 'jetpack' );
+		$connection = new Connection_Manager();
 
 		if ( ! $connection->is_connected() || ( new Status() )->is_offline_mode() || ! self::validate_sync_error_idc_option() ) {
 			return false;

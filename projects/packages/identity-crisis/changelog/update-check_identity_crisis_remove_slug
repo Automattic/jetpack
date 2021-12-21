@@ -1,0 +1,5 @@
+Significance: patch
+Type: changed
+Comment: Remove the plugin slug from the Connection\Manager constructor call.
+
+
