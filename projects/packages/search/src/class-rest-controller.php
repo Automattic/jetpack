@@ -58,7 +58,7 @@ class REST_Controller {
 			array(
 				'methods'             => WP_REST_Server::READABLE,
 				'callback'            => array( $this, 'get_search_plan' ),
-				'permission_callback' => array( $this, 'search_permissions_callback' ),
+				'permission_callback' => array( $this, 'require_admin_privilege_callback' ),
 			)
 		);
 		register_rest_route(
@@ -67,7 +67,7 @@ class REST_Controller {
 			array(
 				'methods'             => WP_REST_Server::EDITABLE,
 				'callback'            => array( $this, 'update_settings' ),
-				'permission_callback' => array( $this, 'search_permissions_callback' ),
+				'permission_callback' => array( $this, 'require_admin_privilege_callback' ),
 			)
 		);
 		register_rest_route(
@@ -76,7 +76,7 @@ class REST_Controller {
 			array(
 				'methods'             => WP_REST_Server::READABLE,
 				'callback'            => array( $this, 'get_settings' ),
-				'permission_callback' => array( $this, 'search_permissions_callback' ),
+				'permission_callback' => array( $this, 'require_admin_privilege_callback' ),
 			)
 		);
 		register_rest_route(
@@ -94,7 +94,7 @@ class REST_Controller {
 			array(
 				'methods'             => WP_REST_Server::EDITABLE,
 				'callback'            => array( $this, 'activate_plan' ),
-				'permission_callback' => array( $this, 'search_permissions_callback' ),
+				'permission_callback' => array( $this, 'require_admin_privilege_callback' ),
 			)
 		);
 		register_rest_route(
@@ -103,7 +103,7 @@ class REST_Controller {
 			array(
 				'methods'             => WP_REST_Server::EDITABLE,
 				'callback'            => array( $this, 'deactivate_plan' ),
-				'permission_callback' => array( $this, 'search_permissions_callback' ),
+				'permission_callback' => array( $this, 'require_admin_privilege_callback' ),
 			)
 		);
 	}
@@ -113,7 +113,7 @@ class REST_Controller {
 	 *
 	 * @return bool|WP_Error True if a blog token was used to sign the request, WP_Error otherwise.
 	 */
-	public function search_permissions_callback() {
+	public function require_admin_privilege_callback() {
 		if ( current_user_can( 'manage_options' ) ) {
 			return true;
 		}
@@ -188,7 +188,7 @@ class REST_Controller {
 			);
 		}
 
-		return $this->get_settings();
+		return rest_ensure_response( $this->get_settings() );
 	}
 
 	/**
@@ -212,9 +212,11 @@ class REST_Controller {
 	 * GET `jetpack/v4/search/settings`
 	 */
 	public function get_settings() {
-		return array(
-			'module_active'          => $this->search_module->is_active(),
-			'instant_search_enabled' => $this->search_module->is_instant_search_enabled(),
+		return rest_ensure_response(
+			array(
+				'module_active'          => $this->search_module->is_active(),
+				'instant_search_enabled' => $this->search_module->is_instant_search_enabled(),
+			)
 		);
 	}
 
@@ -233,7 +235,7 @@ class REST_Controller {
 			sprintf( '/sites/%d/search', absint( $blog_id ) )
 		);
 		$response = Client::wpcom_json_api_request_as_user( $path, '1.3', array(), null, 'rest' );
-		return $this->make_proper_response( $response );
+		return rest_ensure_response( $this->make_proper_response( $response ) );
 	}
 
 	/**
@@ -265,8 +267,10 @@ class REST_Controller {
 		if ( class_exists( '\Jetpack_Instant_Search' ) ) {
 			\Jetpack_Instant_Search::instance()->auto_config_search();
 		}
-		return array(
-			'code' => 'success',
+		return rest_ensure_response(
+			array(
+				'code' => 'success',
+			)
 		);
 	}
 
@@ -280,8 +284,10 @@ class REST_Controller {
 	public function deactivate_plan() {
 		// Instant Search would be disabled along with search module.
 		$this->search_module->deactivate();
-		return array(
-			'code' => 'success',
+		return rest_ensure_response(
+			array(
+				'code' => 'success',
+			)
 		);
 	}
 
