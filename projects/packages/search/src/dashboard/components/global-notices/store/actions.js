@@ -46,7 +46,7 @@ export const successNotice = createNotice.bind( null, 'is-success' );
 export const errorNotice = createNotice.bind( null, 'is-error' );
 export const infoNotice = createNotice.bind( null, 'is-info' );
 export const warningNotice = createNotice.bind( null, 'is-warning' );
-export const updatingNotice = ( text = __( 'Updating settings…' ) ) =>
+export const updatingNotice = ( text = __( 'Updating settings…', 'jetpack' ) ) =>
 	createNotice( 'is-info', text, { duration: 30000, id: 'search-updating-settings' } );
 export const removeUpdatingNotice = () => removeNotice( 'search-updating-settings' );
 
