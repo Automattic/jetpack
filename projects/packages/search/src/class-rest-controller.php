@@ -249,7 +249,7 @@ class REST_Controller {
 		// We do this to avoid another call to WPCOM and reduce latency.
 		$plan_info = $request->get_json_params();
 		if ( ! $this->plan->set_plan_options( $plan_info ) ) {
-			return new WP_Error( 'invalid_request', esc_html__( 'Plan info does not exist in request', 'jetpack' ), array( 'status' => 400 ) );
+			return new WP_Error( 'invalid_request', esc_html__( 'Plan info could not be fetched from Jetpack.com', 'jetpack' ), array( 'status' => 400 ) );
 		}
 		// Activate module.
 		$ret = $this->search_module->activate();
