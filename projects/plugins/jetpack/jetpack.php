@@ -139,6 +139,7 @@ $jetpack_autoloader           = JETPACK__PLUGIN_DIR . 'vendor/autoload_packages.
 $jetpack_module_headings_file = JETPACK__PLUGIN_DIR . 'modules/module-headings.php'; // This file is loaded later in load-jetpack.php, but let's check here to pause before half-loading Jetpack.
 if ( is_readable( $jetpack_autoloader ) && is_readable( $jetpack_module_headings_file ) ) {
 	require_once $jetpack_autoloader;
+	\Automattic\Jetpack\Assets::alias_textdomains_from_file( JETPACK__PLUGIN_DIR . 'jetpack_vendor/i18n-map.php' );
 } else {
 	if ( defined( 'WP_DEBUG' ) && WP_DEBUG ) {
 		error_log( // phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_error_log
