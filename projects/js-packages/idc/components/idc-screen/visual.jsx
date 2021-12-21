@@ -43,8 +43,6 @@ const IDCScreenVisual = props => {
 
 	let adminBody = '';
 
-	const headerText = customContent.headerText || __( 'Safe Mode', 'jetpack' );
-
 	if ( isAdmin ) {
 		adminBody = isMigrated ? (
 			<ScreenMigrated
@@ -71,8 +69,12 @@ const IDCScreenVisual = props => {
 	return (
 		<div className={ 'jp-idc__idc-screen' + ( isMigrated ? ' jp-idc__idc-screen__success' : '' ) }>
 			<div className="jp-idc__idc-screen__header">
-				<div className="jp-idc__idc-screen__logo">{ renderLogoImage( logo, headerText ) }</div>
-				<div className="jp-idc__idc-screen__logo-label">{ headerText }</div>
+				<div className="jp-idc__idc-screen__logo">
+					{ renderLogoImage( logo, customContent.logoAlt || '' ) }
+				</div>
+				<div className="jp-idc__idc-screen__logo-label">
+					{ customContent.headerText || __( 'Safe Mode', 'jetpack' ) }
+				</div>
 			</div>
 
 			{ nonAdminBody }
