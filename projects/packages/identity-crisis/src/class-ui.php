@@ -135,12 +135,13 @@ class UI {
 		$consumer_url_length = 0;
 
 		foreach ( $consumers as $consumer ) {
-			if ( ! array_key_exists( 'admin_page', $consumer ) || ! is_string( $consumer['admin_page'] ) ) {
+			if ( empty( $consumer['admin_page'] ) || ! is_string( $consumer['admin_page'] ) ) {
 				continue;
 			}
 
 			if ( 0 === strpos( $_SERVER['REQUEST_URI'], $consumer['admin_page'] ) && strlen( $consumer['admin_page'] ) > $consumer_url_length ) {
-				$consumer_chosen = $consumer;
+				$consumer_chosen     = $consumer;
+				$consumer_url_length = strlen( $consumer['admin_page'] );
 			}
 		}
 
