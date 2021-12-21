@@ -95,8 +95,8 @@ class UI {
 		return array(
 			'WP_API_root'         => esc_url_raw( rest_url() ),
 			'WP_API_nonce'        => wp_create_nonce( 'wp_rest' ),
-			'wpcomHomeUrl'        => $idc_urls['wpcom_url'],
-			'currentUrl'          => $idc_urls['current_url'],
+			'wpcomHomeUrl'        => ( is_array( $idc_urls ) && array_key_exists( 'wpcom_url', $idc_urls ) ) ? $idc_urls['wpcom_url'] : null,
+			'currentUrl'          => ( is_array( $idc_urls ) && array_key_exists( 'current_url', $idc_urls ) ) ? $idc_urls['current_url'] : null,
 			'redirectUri'         => str_replace( '/wp-admin/', '/', $_SERVER['REQUEST_URI'] ),
 			'tracksUserData'      => Jetpack_Tracks_Client::get_connected_user_tracks_identity(),
 			'tracksEventData'     => array(
