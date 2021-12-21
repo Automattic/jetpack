@@ -142,8 +142,8 @@ class P2_Admin_Menu extends WPcom_Admin_Menu {
 		remove_menu_page( $this->tools_slug );
 		// Hide settings.
 		remove_submenu_page( 'options-general.php', 'options-reading.php' );
-		remove_submenu_page( 'options-writing.php', 'https://wordpress.com/settings/writing/' . $this->domain );
-		remove_submenu_page( 'options-discussion.php', 'https://wordpress.com/settings/discussion/' . $this->domain );
+		remove_submenu_page( 'options-general.php', 'options-writing.php' );
+		remove_submenu_page( 'options-general.php', 'options-discussion.php' );
 	}
 
 	/**
