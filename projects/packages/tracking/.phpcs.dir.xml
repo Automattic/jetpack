@@ -11,9 +11,7 @@
 
 	<rule ref="WordPress.Utils.I18nTextDomainFixer">
 		<properties>
-			<property name="old_text_domain" type="array">
-				<element value="jetpack"/>
-			</property>
+			<property name="old_text_domain" type="array" />
 			<property name="new_text_domain" value="jetpack-tracking" />
 		</properties>
 	</rule>
