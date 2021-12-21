@@ -24,7 +24,7 @@ export function* getSearchModuleStatus() {
 			return setJetpackSettings( settings );
 		}
 	} catch ( e ) {
-		return errorNotice( __( 'Error fetching settings…' ) );
+		return errorNotice( __( 'Error fetching settings…', 'jetpack' ) );
 	}
 }
 
@@ -41,7 +41,7 @@ export function* getSearchPlanInfo() {
 			return setSearchPlanInfo( planInfo );
 		}
 	} catch ( e ) {
-		return errorNotice( __( 'Error fetching search plan…' ) );
+		return errorNotice( __( 'Error fetching search plan…', 'jetpack' ) );
 	}
 }
 
