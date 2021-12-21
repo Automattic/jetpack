@@ -114,16 +114,17 @@ class Plan {
 	 * Update `has_jetpack_search_product` regarding the plan information
 	 *
 	 * @param array|WP_Error $response - Resopnse from WPCOM.
+	 * @return bool - true on success, false on failure.
 	 */
 	public function update_search_plan_info( $response ) {
 		if ( is_wp_error( $response ) ) {
-			return null;
+			return false;
 		}
 		$body        = json_decode( wp_remote_retrieve_body( $response ), true );
 		$status_code = wp_remote_retrieve_response_code( $response );
 
 		if ( 200 !== $status_code ) {
-			return null;
+			return false;
 		}
 
 		return $this->set_plan_options( $body );
@@ -136,7 +137,7 @@ class Plan {
 	 */
 	public function set_plan_options( $plan_info ) {
 		if ( ! isset( $plan_info['supports_instant_search'] ) ) {
-			return null;
+			return false;
 		}
 		// set option whether has Jetpack Search plan for capability reason.
 		if ( get_option( 'has_jetpack_search_product' ) !== (bool) $plan_info['supports_instant_search'] ) {
