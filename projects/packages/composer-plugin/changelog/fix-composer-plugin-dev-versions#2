@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Fix deletion of the i18n-map.php if the plugin isn't configured correctly.
