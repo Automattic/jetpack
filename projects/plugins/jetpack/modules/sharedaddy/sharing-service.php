@@ -59,6 +59,7 @@ class Sharing_Service {
 		// in bin/tests/api/suites/SharingTest.php
 		$services = array(
 			'print'            => 'Share_Print',
+			'copy-page-url'         => 'Share_Copy_Page_Url',
 			'facebook'         => 'Share_Facebook',
 			'linkedin'         => 'Share_LinkedIn',
 			'reddit'           => 'Share_Reddit',
@@ -861,7 +862,10 @@ function sharing_display( $text = '', $echo = false ) {
 					$klasses[] = 'share-deprecated';
 				}
 				// Individual HTML for sharing service.
+
 				$visible .= '<li class="' . implode( ' ', $klasses ) . '">' . $service->get_display( $post ) . '</li>';
+				
+
 			}
 
 			$parts   = array();

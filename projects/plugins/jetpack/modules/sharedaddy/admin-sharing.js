@@ -157,6 +157,7 @@
 							! $( this ).hasClass( 'preview-press-this' ) &&
 							! $( this ).hasClass( 'preview-email' ) &&
 							! $( this ).hasClass( 'preview-print' ) &&
+							! $( this ).hasClass( 'preview-copy-page-url' ) &&
 							! $( this ).hasClass( 'preview-telegram' ) &&
 							! $( this ).hasClass( 'preview-jetpack-whatsapp' ) &&
 							! $( this ).hasClass( 'share-custom' ) &&

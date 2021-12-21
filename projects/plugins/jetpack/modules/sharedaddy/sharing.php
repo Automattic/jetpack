@@ -107,6 +107,7 @@ class Sharing_Admin {
 	public function ajax_save_services() {
 		if ( isset( $_POST['_wpnonce'] ) && wp_verify_nonce( $_POST['_wpnonce'], 'sharing-options' ) && isset( $_POST['hidden'] ) && isset( $_POST['visible'] ) ) {
 			$sharer = new Sharing_Service();
+			error_log("heeere");
 
 			$sharer->set_blog_services( explode( ',', $_POST['visible'] ), explode( ',', $_POST['hidden'] ) );
 			die();

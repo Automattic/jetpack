@@ -1238,6 +1238,45 @@ class Share_Facebook extends Sharing_Source {
 	}
 }
 
+class Share_Copy_Page_Url extends Sharing_Source {
+	public $shortname = 'share-copy-page-url';
+	public $icon = '\f469';
+	public function __construct( $id, array $settings ) {
+		parent::__construct( $id, $settings );
+
+		if ( 'official' == $this->button_style ) {
+			$this->smart = true;
+		} else {
+			$this->smart = false;
+		}
+		$this->open_link_in_new = false;
+	}
+
+	public function get_name() {
+		return __( 'Copy Link', 'jetpack' );
+	}
+
+	public function get_display( $post ) {
+		$value = $this->get_link( $this->get_process_request_url( $post->ID ) , _x( 'Copy Link', 'share to', 'jetpack' ), __( 'Click to copy page url to the clipboard', 'jetpack' ) );
+		return $value;
+	}
+
+	/**
+	 * AMP display for Print.
+	 *
+	 * @param \WP_Post $post The current post being viewed.
+	 */
+	public function get_amp_display( $post ) {
+		return get_display( $post ) ;
+	}
+
+	public function display_footer(){
+		echo '<div id="share-copy-page-url-confirmation-toast">Copied to clipboard</div>'; 
+	}
+
+
+}
+
 class Share_Print extends Sharing_Source {
 	public $shortname = 'print';
 	public $icon = '\f469';
