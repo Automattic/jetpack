@@ -94,7 +94,7 @@ class REST_Controller {
 			array(
 				'methods'             => WP_REST_Server::EDITABLE,
 				'callback'            => array( $this, 'activate_plan' ),
-				'permission_callback' => 'is_user_logged_in',
+				'permission_callback' => array( $this, 'search_permissions_callback' ),
 			)
 		);
 		register_rest_route(
@@ -103,7 +103,7 @@ class REST_Controller {
 			array(
 				'methods'             => WP_REST_Server::EDITABLE,
 				'callback'            => array( $this, 'deactivate_plan' ),
-				'permission_callback' => 'is_user_logged_in',
+				'permission_callback' => array( $this, 'search_permissions_callback' ),
 			)
 		);
 	}

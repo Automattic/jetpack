@@ -308,8 +308,7 @@ class Test_REST_Controller extends Search_Test_Case {
 		$request->set_header( 'content-type', 'application/json' );
 		$request->set_body( Search_Test_Case::PLAN_INFO_FIXTURE );
 		$response = $this->server->dispatch( $request );
-		$this->assertEquals( 200, $response->get_status() );
-		$this->assertEquals( array( 'code' => 'success' ), $response->get_data() );
+		$this->assertEquals( 403, $response->get_status() );
 	}
 
 	/**
@@ -333,8 +332,7 @@ class Test_REST_Controller extends Search_Test_Case {
 		$request = new WP_REST_Request( 'POST', '/jetpack/v4/search/plan/deactivate' );
 		$request->set_header( 'content-type', 'application/json' );
 		$response = $this->server->dispatch( $request );
-		$this->assertEquals( 200, $response->get_status() );
-		$this->assertEquals( array( 'code' => 'success' ), $response->get_data() );
+		$this->assertEquals( 403, $response->get_status() );
 	}
 
 }
