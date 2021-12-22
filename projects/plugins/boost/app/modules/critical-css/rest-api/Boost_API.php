@@ -14,7 +14,6 @@ class Boost_API {
 	];
 
 	protected $routes           = [];
-	protected $public_routes    = [];
 	protected $protected_routes = [];
 
 	public function __construct() {
@@ -25,8 +24,6 @@ class Boost_API {
 
 			if ( $route instanceof Nonce_Protection ) {
 				$this->protected_routes[] = $route->name();
-			} else {
-				$this->public_routes[] = $route->name();
 			}
 
 		}
