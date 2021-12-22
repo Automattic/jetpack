@@ -1201,7 +1201,7 @@ importers:
 
   tools/js-test-runner:
     specifiers:
-      '@automattic/jetpack-webpack-config': workspace:0.6.0-alpha
+      '@automattic/jetpack-webpack-config': workspace:*
       '@babel/core': 7.16.0
       '@babel/plugin-transform-runtime': 7.16.4
       '@babel/preset-env': 7.16.4
@@ -7941,7 +7941,7 @@ packages:
       webpack: ^4.8.3 || ^5.0.0
     dependencies:
       json2php: 0.0.4
-      webpack: 5.64.1_webpack-cli@4.8.0
+      webpack: 5.64.1
       webpack-sources: 2.3.1
 
   /@wordpress/deprecated/2.12.3:
@@ -10827,7 +10827,7 @@ packages:
       p-limit: 3.1.0
       schema-utils: 3.1.1
       serialize-javascript: 6.0.0
-      webpack: 5.64.1_webpack-cli@4.8.0
+      webpack: 5.64.1
 
   /core-js-compat/3.19.1:
     resolution: {integrity: sha512-Q/VJ7jAF/y68+aUsQJ/afPOewdsGkDtcMb40J8MbuWKlK3Y+wtHq8bTHKPj2WKWLIqmS5JhHs4CzHtz6pT2W6g==}
@@ -18145,7 +18145,7 @@ packages:
       klona: 2.0.5
       postcss: 8.3.11
       semver: 7.3.5
-      webpack: 5.64.1_webpack-cli@4.8.0
+      webpack: 5.64.1
     dev: true
 
   /postcss-merge-longhand/5.0.3_postcss@8.3.11:
@@ -19683,7 +19683,7 @@ packages:
     dependencies:
       array.prototype.flat: 1.2.5
       global-cache: 1.2.1
-      react-with-styles: 3.2.3_react-dom@17.0.2+react@17.0.2
+      react-with-styles: 3.2.3
 
   /react-with-styles/3.2.3:
     resolution: {integrity: sha512-MTI1UOvMHABRLj5M4WpODfwnveHaip6X7QUMI2x6zovinJiBXxzhA9AJP7MZNaKqg1JRFtHPXZdroUC8KcXwlQ==}
@@ -21636,7 +21636,7 @@ packages:
     dependencies:
       loader-utils: 2.0.2
       schema-utils: 3.1.1
-      webpack: 5.64.1_webpack-cli@4.8.0
+      webpack: 5.64.1
     dev: true
 
   /style-to-object/0.3.0:
@@ -21919,7 +21919,7 @@ packages:
       serialize-javascript: 6.0.0
       source-map: 0.6.1
       terser: 5.9.0
-      webpack: 5.64.1_webpack-cli@4.8.0
+      webpack: 5.64.1
 
   /terser/5.9.0:
     resolution: {integrity: sha512-h5hxa23sCdpzcye/7b8YqbE5OwKca/ni0RQz1uRX3tGh8haaGHqcuSqbGRybuAKNdntZ0mDgFNXPJ48xQ2RXKQ==}

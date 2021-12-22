@@ -7,7 +7,7 @@
 		"js-test-runner": "js-test-runner.js"
 	},
 	"dependencies": {
-		"@automattic/jetpack-webpack-config": "workspace:0.6.0-alpha",
+		"@automattic/jetpack-webpack-config": "workspace:*",
 		"@babel/core": "7.16.0",
 		"@babel/plugin-transform-runtime": "7.16.4",
 		"@babel/preset-env": "7.16.4",
