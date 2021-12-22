@@ -8,7 +8,7 @@
 		"automattic/jetpack-admin-ui": "0.2.x-dev",
 		"automattic/jetpack-autoloader": "2.10.x-dev",
 		"automattic/jetpack-backup": "1.2.x-dev",
-		"automattic/jetpack-composer-plugin": "0.2.x-dev",
+		"automattic/jetpack-composer-plugin": "1.0.x-dev",
 		"automattic/jetpack-config": "1.6.x-dev",
 		"automattic/jetpack-connection": "1.34.x-dev",
 		"automattic/jetpack-connection-ui": "2.3.x-dev",
