@@ -56,6 +56,7 @@ class Settings {
 		'full_sync_send_duration'                => true,
 		'full_sync_limits'                       => true,
 		'checksum_disable'                       => true,
+		'dedicated_request_enable'               => true,
 	);
 
 	/**

@@ -194,6 +194,10 @@ class Actions {
 			return self::sync_via_cron_allowed();
 		}
 
+		if ( Settings::get_setting( 'dedicated_request_enable' ) ) {
+			return true;
+		}
+
 		if ( isset( $_SERVER['REQUEST_METHOD'] ) && 'POST' === $_SERVER['REQUEST_METHOD'] ) {
 			return true;
 		}

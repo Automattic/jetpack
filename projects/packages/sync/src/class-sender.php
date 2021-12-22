@@ -321,7 +321,40 @@ class Sender {
 	 * @return boolean|WP_Error True if this sync sending was successful, error object otherwise.
 	 */
 	public function do_sync() {
-		return $this->do_sync_and_set_delays( $this->sync_queue );
+		$do_sync_method = $this->get_do_sync_callback( $this->sync_queue );
+		return call_user_func( $do_sync_method, $this->sync_queue );
+	}
+
+	private function get_do_sync_callback( $queue ) {
+		// if (
+		// Settings::get_setting( 'dedicated_request_enable' ) &&
+		// wp_verify_nonce( $_POST['nonce'], 'jetpack_sync_dedicated_request_' . $queue->id ) &&
+		// $_POST['jetpack_dedicated_sync_request']
+		// ) {
+		// }
+		error_log( '----------- new request ----------' );
+		error_log( $_SERVER['REQUEST_URI'] );
+		error_log( 'do_sync called' );
+		if ( Settings::get_setting( 'dedicated_request_enable' ) && ! isset( $_POST['jetpack_dedicated_sync_request'] ) ) {
+			error_log( 'triggering a dedicated request' );
+			return array( $this, 'do_dedicated_sync' );
+		} else {
+			error_log( 'processing sync normally' );
+			return array( $this, 'do_sync_and_set_delays' );
+		}
+	}
+
+	public function do_dedicated_sync( $queue ) {
+		$args = array(
+			'body' => array(
+				'jetpack_dedicated_sync_request' => 1,
+				// 'nonce'                          => wp_create_nonce( 'jetpack_sync_dedicated_request_' . $queue->id ),
+			),
+			// 'cookies'                        => $_COOKIE,
+		);
+
+		return wp_remote_post( site_url(), $args );
+
 	}
 
 	/**
