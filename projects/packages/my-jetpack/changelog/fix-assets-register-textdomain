@@ -1,0 +1,5 @@
+Significance: patch
+Type: fixed
+Comment: Fixup for a just-merged PR: Fix the textdomain passed to Assets::register_script()
+
+

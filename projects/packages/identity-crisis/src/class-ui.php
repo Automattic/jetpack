@@ -54,7 +54,7 @@ class UI {
 				__FILE__,
 				array(
 					'in_footer'  => true,
-					'textdomain' => 'jetpack',
+					'textdomain' => 'jetpack-idc',
 				)
 			);
 			Assets::enqueue_script( 'jp_identity_crisis_banner' );

@@ -68,7 +68,7 @@ class Admin {
 				__FILE__,
 				array(
 					'in_footer'  => true,
-					'textdomain' => 'jetpack',
+					'textdomain' => 'jetpack-connection-ui',
 				)
 			);
 			Assets::enqueue_script( 'jetpack_connection_ui' );
