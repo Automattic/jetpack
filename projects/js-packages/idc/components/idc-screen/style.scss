@@ -24,6 +24,11 @@
 		display: flex;
 		align-items: center;
 
+		.jp-idc__idc-screen__logo-image {
+			max-width: 100px;
+			max-height: 100px;
+		}
+
 		.jp-idc__idc-screen__logo-label {
 			font-size: 14px;
 			line-height: 22px;

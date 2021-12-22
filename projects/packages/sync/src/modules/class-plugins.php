@@ -242,7 +242,7 @@ class Plugins extends Module {
 			if ( empty( $skin->result ) ) {
 				return array(
 					'code'    => 'unknown',
-					'message' => __( 'Unknown Plugin Update Failure', 'jetpack' ),
+					'message' => __( 'Unknown Plugin Update Failure', 'jetpack-sync' ),
 				);
 			}
 		}
