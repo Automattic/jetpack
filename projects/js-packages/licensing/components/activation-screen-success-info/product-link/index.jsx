@@ -49,7 +49,6 @@ const ProductLink = props => {
 	const productLink = productLinkMap[ productGroup ];
 	return (
 		<>
-			{ ' ' }
 			{ productLink && (
 				<ExternalLink
 					className="jp-license-activation-screen-success-info--external-link"
@@ -57,7 +56,7 @@ const ProductLink = props => {
 				>
 					{ productLink.text }
 				</ExternalLink>
-			) }{ ' ' }
+			) }
 		</>
 	);
 };
