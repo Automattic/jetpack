@@ -7,7 +7,7 @@ use Automattic\Jetpack_Boost\Modules\Critical_CSS\Critical_CSS_Storage;
 use Automattic\Jetpack_Boost\Modules\Critical_CSS\Generate\Generator;
 use Automattic\Jetpack_Boost\Modules\Critical_CSS\Recommendations;
 
-class Request_Generate extends Boost_API {
+class Generator_Request extends Boost_API {
 
 	public function methods() {
 		return \WP_REST_Server::EDITABLE;

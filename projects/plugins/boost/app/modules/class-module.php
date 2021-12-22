@@ -31,7 +31,7 @@ abstract class Module {
 	/**
 	 * Prepare the module such as add actions and filters.
 	 */
-	public function on_prepare() {}
+	public function on_prepare() { }
 
 	/**
 	 * Initialize the module and track its state.
@@ -57,7 +57,7 @@ abstract class Module {
 	 * @see Module::__construct()
 	 * @see Jetpack_Boost::deactivate()
 	 */
-	public function on_deactivate() {}
+	public function on_deactivate() { }
 
 	/**
 	 * Run actions on plugin uninstall.
@@ -68,7 +68,7 @@ abstract class Module {
 	 * @see Module::__construct()
 	 * @see Jetpack_Boost::uninstall()
 	 */
-	public function on_uninstall() {}
+	public function on_uninstall() { }
 
 	/**
 	 * Overrideable method for fetching an array of admin notices to display.
@@ -77,6 +77,6 @@ abstract class Module {
 	 * @return null|\Automattic\Jetpack_Boost\Admin\Admin_Notice[]
 	 */
 	public function get_admin_notices() {
-		return null;
+		return NULL;
 	}
 }

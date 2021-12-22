@@ -9,7 +9,9 @@
 
 namespace Automattic\Jetpack_Boost\Modules\Critical_CSS;
 
-use Automattic\Jetpack_Boost\Modules\Critical_CSS\API\Request_Generate;
+use Automattic\Jetpack_Boost\Modules\Critical_CSS\API\Generator_Error;
+use Automattic\Jetpack_Boost\Modules\Critical_CSS\API\Generator_Success;
+use Automattic\Jetpack_Boost\Modules\Critical_CSS\API\Generator_Request;
 use Automattic\Jetpack_Boost\Modules\Critical_CSS\API\Status;
 use Automattic\Jetpack_Boost\Modules\Critical_CSS\Generate\Generator;
 use Automattic\Jetpack_Boost\Modules\Critical_CSS\Path_Providers\Paths;
@@ -18,7 +20,7 @@ use Automattic\Jetpack_Boost\Modules\Module;
 
 class Critical_CSS extends Module {
 
-	const MODULE_SLUG = 'critical-css';
+	const MODULE_SLUG              = 'critical-css';
 	const RESET_REASON_STORAGE_KEY = 'jb-generate-critical-css-reset-reason';
 
 	/**
@@ -33,9 +35,8 @@ class Critical_CSS extends Module {
 	 */
 	public function on_prepare() {
 
-		$this->storage  = new Critical_CSS_Storage();
-		$this->paths    = new Paths();
-		$this->rest_api = new REST_API();
+		$this->storage = new Critical_CSS_Storage();
+		$this->paths   = new Paths();
 
 
 
@@ -49,9 +50,10 @@ class Critical_CSS extends Module {
 		// This should instantiate a new Post_Type_Storage class,
 		// so that Critical_CSS class is responsible
 		// for setting up the storage.
+		$recommendations = new Recommendations();
+		$recommendations->on_prepare();
 
-		$this->rest_api->on_initialize();
-		$this->register_routes();
+		add_action( 'rest_api_init', array( $this, 'register_rest_routes' ) );
 
 		// Update ready flag used to indicate Boost optimizations are warmed up in metatag.
 		add_filter( 'jetpack_boost_url_ready', array( $this, 'is_ready_filter' ), 10, 1 );
@@ -66,23 +68,9 @@ class Critical_CSS extends Module {
 
 		add_action( 'handle_theme_change', array( $this, 'clear_critical_css' ) );
 		add_action( 'jetpack_boost_clear_cache', array( $this, 'clear_critical_css' ) );
-		add_filter( 'jetpack_boost_js_constants', array( $this->rest_api, 'add_critical_css_constants' ) );
+		add_filter( 'jetpack_boost_js_constants', array( $this, 'add_critical_css_constants' ) );
 
 		return true;
-	}
-
-	public function register_routes() {
-		$registered_routes = [
-			'status'           => Status::class,
-			'request-generate' => Request_Generate::class,
-		];
-
-		$active_routes = [];
-		foreach ( $registered_routes as $name => $route ) {
-			$active_routes[ $name ] = new $route();
-			$active_routes[ $name ]->register();
-		}
-
 	}
 
 	/**
@@ -93,7 +81,18 @@ class Critical_CSS extends Module {
 	}
 
 	public function register_rest_routes() {
-		$this->rest_api->register_rest_routes();
+		$registered_routes = [
+			'status'           => Status::class,
+			'request-generate' => Generator_Request::class,
+			'generate-success' => Generator_Success::class,
+			'generate-error'   => Generator_Error::class,
+		];
+
+		$active_routes = [];
+		foreach ( $registered_routes as $name => $route ) {
+			$active_routes[ $name ] = new $route();
+			$active_routes[ $name ]->register();
+		}
 
 
 	}
@@ -216,6 +215,20 @@ class Critical_CSS extends Module {
 		\delete_option( Critical_CSS::RESET_REASON_STORAGE_KEY );
 	}
 
+	/**
+	 * Add Critical CSS related constants to be passed to JavaScript only if the module is enabled.
+	 *
+	 * @param array $constants Constants to be passed to JavaScript.
+	 *
+	 * @return array
+	 */
+	public function add_critical_css_constants( $constants ) {
+		// Information about the current status of Critical CSS / generation.
+		$generator                      = new Generator();
+		$constants['criticalCssStatus'] = $generator->get_local_critical_css_generation_info();
+
+		return $constants;
+	}
 
 
 
