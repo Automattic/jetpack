@@ -111,7 +111,10 @@ export default function SearchDashboard() {
 				<div className="jp-search-dashboard-row">
 					<div className="jp-search-dashboard-top__title lg-col-span-6 md-col-span-7 sm-col-span-4">
 						<h1>
-							{ __( "Help your visitors find exactly what they're looking for, fast", 'jetpack' ) }
+							{ __(
+								"Help your visitors find exactly what they're looking for, fast",
+								'jetpack-search-pkg'
+							) }
 						</h1>
 					</div>
 					<div className=" lg-col-span-6 md-col-span-1 sm-col-span-0"></div>
@@ -158,7 +161,7 @@ export default function SearchDashboard() {
 				<div className="jp-search-dashboard-row">
 					<JetpackFooter
 						a8cLogoHref={ aboutPageUrl }
-						moduleName={ __( 'Jetpack Search', 'jetpack' ) }
+						moduleName={ __( 'Jetpack Search', 'jetpack-search-pkg' ) }
 						className="lg-col-span-12 md-col-span-8 sm-col-span-4"
 					/>
 				</div>

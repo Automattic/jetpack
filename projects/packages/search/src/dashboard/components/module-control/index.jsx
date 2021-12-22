@@ -25,11 +25,11 @@ import './style.scss';
 
 const SEARCH_DESCRIPTION = __(
 	'Jetpack Search is an incredibly powerful and customizable replacement for the search capability built into WordPress that helps your visitors find the right content.',
-	'jetpack'
+	'jetpack-search-pkg'
 );
 const INSTANT_SEARCH_DESCRIPTION = __(
 	'Instant search will allow your visitors to get search results as soon as they start typing. If deactivated, Jetpack Search will still optimize your search results but visitors will have to submit a search query before seeing any results.',
-	'jetpack'
+	'jetpack-search-pkg'
 );
 const RETURN_PATH = 'admin.php?page=jetpack-search';
 const SEARCH_CUSTOMIZE_URL = 'admin.php?page=jetpack-search-configure';
@@ -116,7 +116,7 @@ export default function SearchModuleControl( {
 					}
 					disabled={ isInstantSearchCustomizeButtonDisabled }
 				>
-					<span>{ __( 'Customize search results', 'jetpack' ) }</span>
+					<span>{ __( 'Customize search results', 'jetpack-search-pkg' ) }</span>
 				</Button>
 				<div className="lg-col-span-0 md-col-span-1 sm-col-span-0"></div>
 
@@ -128,7 +128,7 @@ export default function SearchModuleControl( {
 					}
 					disabled={ isWidgetsEditorButtonDisabled }
 				>
-					<span>{ __( 'Edit sidebar widgets', 'jetpack' ) }</span>
+					<span>{ __( 'Edit sidebar widgets', 'jetpack-search-pkg' ) }</span>
 				</Button>
 				<div className="lg-col-span-2 md-col-span-1 sm-col-span-0"></div>
 			</div>
@@ -148,9 +148,9 @@ export default function SearchModuleControl( {
 						className="is-search-admin"
 						switchClassNames="lg-col-span-1 md-col-span-1 sm-col-span-1"
 						labelClassNames=" lg-col-span-7 md-col-span-5 sm-col-span-3"
-						aria-label={ __( 'Enable Jetpack Search', 'jetpack' ) }
+						aria-label={ __( 'Enable Jetpack Search', 'jetpack-search-pkg' ) }
 					>
-						{ __( 'Enable Jetpack Search', 'jetpack' ) }
+						{ __( 'Enable Jetpack Search', 'jetpack-search-pkg' ) }
 					</CompactFormToggle>
 					<div className="lg-col-span-2 md-col-span-1 sm-col-span-0"></div>
 				</div>
@@ -180,10 +180,16 @@ export default function SearchModuleControl( {
 						className="is-search-admin"
 						switchClassNames="lg-col-span-1 md-col-span-1 sm-col-span-1"
 						labelClassNames=" lg-col-span-7 md-col-span-5 sm-col-span-3"
-						aria-label={ __( 'Enable instant search experience (recommended)', 'jetpack' ) }
+						aria-label={ __(
+							'Enable instant search experience (recommended)',
+							'jetpack-search-pkg'
+						) }
 					>
 						{ createInterpolateElement(
-							__( 'Enable instant search experience <span>(recommended)</span>', 'jetpack' ),
+							__(
+								'Enable instant search experience <span>(recommended)</span>',
+								'jetpack-search-pkg'
+							),
 							{ span: <span /> }
 						) }
 					</CompactFormToggle>

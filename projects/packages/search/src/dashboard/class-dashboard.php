@@ -72,8 +72,8 @@ class Dashboard {
 		add_action( 'current_screen', array( $this, 'check_plan_deactivate_search_module' ) );
 
 		$page_suffix = Admin_Menu::add_menu(
-			__( 'Search Settings', 'jetpack' ),
-			_x( 'Search', 'product name shown in menu', 'jetpack' ),
+			__( 'Search Settings', 'jetpack-search-pkg' ),
+			_x( 'Search', 'product name shown in menu', 'jetpack-search-pkg' ),
 			'manage_options',
 			'jetpack-search',
 			array( $this, 'render' ),
@@ -89,7 +89,7 @@ class Dashboard {
 	public function render() {
 		?>
 		<div id="jp-search-dashboard" class="jp-search-dashboard">
-			<div class="hide-if-js"><?php esc_html_e( 'Your Search dashboard requires JavaScript to function properly.', 'jetpack' ); ?></div>
+			<div class="hide-if-js"><?php esc_html_e( 'Your Search dashboard requires JavaScript to function properly.', 'jetpack-search-pkg' ); ?></div>
 		</div>
 		<?php
 	}
@@ -134,7 +134,7 @@ class Dashboard {
 			__FILE__,
 			array(
 				'in_footer'  => true,
-				'textdomain' => 'jetpack',
+				'textdomain' => 'jetpack-search-pkg',
 			)
 		);
 		Assets::enqueue_script( 'jp-search-dashboard' );
