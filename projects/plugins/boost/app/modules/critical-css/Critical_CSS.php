@@ -1,12 +1,4 @@
 <?php
-/**
- * Implements the Critical CSS functionality.
- *
- * @link       https://automattic.com
- * @since      1.0.0
- * @package    automattic/jetpack-boost
- */
-
 namespace Automattic\Jetpack_Boost\Modules\Critical_CSS;
 
 use Automattic\Jetpack_Boost\Modules\Critical_CSS\REST_API\Boost_API;
@@ -27,7 +19,7 @@ class Critical_CSS extends Module {
 	 */
 	protected $storage;
 
-	private $nonces = [];
+	private $rest_api;
 
 	/**
 	 * Prepare module. This is run irrespective of the module activation status.
@@ -37,7 +29,7 @@ class Critical_CSS extends Module {
 		$this->storage  = new Critical_CSS_Storage();
 		$this->paths    = new Paths();
 		$this->rest_api = new Boost_API();
-
+		add_filter( 'jetpack_boost_js_constants', array( $this, 'boost_api_nonces' ) );
 
 
 	}
@@ -206,8 +198,13 @@ class Critical_CSS extends Module {
 		// Information about the current status of Critical CSS / generation.
 		$generator                      = new Generator();
 		$constants['criticalCssStatus'] = $generator->get_local_critical_css_generation_info();
-		$constants['nonces']            = $this->rest_api->get_nonces();
-		$constants['nonces']['goo'] = 'foobar';
+
+		return $constants;
+	}
+
+	public function boost_api_nonces( $constants ) {
+		$constants['nonces'] = $this->rest_api->get_nonces();
+
 		return $constants;
 	}
 

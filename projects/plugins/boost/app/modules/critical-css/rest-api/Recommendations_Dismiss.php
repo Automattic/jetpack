@@ -30,7 +30,4 @@ class Recommendations_Dismiss implements Boost_Endpoint, Nonce_Protection {
 		return 'recommendations/dismiss';
 	}
 
-	public function nonces_enabled() {
-		return true;
-	}
 }
