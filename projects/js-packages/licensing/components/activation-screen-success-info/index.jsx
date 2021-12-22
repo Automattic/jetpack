@@ -10,8 +10,8 @@ import React from 'react';
 /**
  * Internal dependencies
  */
-import { getJetpackProductDashboardUrl } from '../activation-screen/utils';
 import JetpackProductDetails from './product-details';
+import { ProductLink } from './product-link';
 
 /**
  * Style dependencies
@@ -28,7 +28,6 @@ import './style.scss';
  */
 const ActivationSuccessInfo = props => {
 	const { productId, siteRawUrl } = props;
-	const dashboardUrl = getJetpackProductDashboardUrl( productId, siteRawUrl );
 	return (
 		<div className="jp-license-activation-screen-success-info">
 			<div className="jp-license-activation-screen-success-info--content">
@@ -36,9 +35,13 @@ const ActivationSuccessInfo = props => {
 			</div>
 			<JetpackProductDetails siteRawUrl={ siteRawUrl } productId={ productId } />
 			<div>
-				<Button className="jp-license-activation-screen-success-info--button" href={ dashboardUrl }>
-					{ __( 'Go to Dashboard', 'jetpack' ) }
+				<Button
+					className="jp-license-activation-screen-success-info--button"
+					href={ '/wp-admin/admin.php?page=jetpack#/my-plan' }
+				>
+					{ __( 'View my plans', 'jetpack' ) }
 				</Button>
+				<ProductLink siteRawUrl={ siteRawUrl } productId={ productId } />
 			</div>
 		</div>
 	);
