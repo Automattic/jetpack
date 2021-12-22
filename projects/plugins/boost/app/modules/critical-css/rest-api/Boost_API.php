@@ -30,7 +30,7 @@ class Boost_API {
 	}
 
 	public function register_routes() {
-		foreach ( $this->routes as $name => $route ) {
+		foreach ( $this->routes as $route ) {
 			$this->register_route( $route );
 		}
 	}
@@ -40,6 +40,9 @@ class Boost_API {
 	}
 
 	public function register_route( Boost_Endpoint $route ) {
+
+		// Developer Mode:
+		// Make sure routes don't accidentally start with a slash
 		if ( defined( 'WP_DEBUG' ) && WP_DEBUG ) {
 			if ( '/' === substr( $route->name(), 0, 1 ) ) {
 				error_log( "Endpoint method shouldn't start with a slash" );
