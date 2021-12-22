@@ -6,23 +6,22 @@ abstract class Boost_API {
 
 	abstract public function methods();
 
-	abstract public function response();
+	abstract public function response( $request );
 
 	abstract public function perrmisions();
 
-	public static function register() {
+	abstract protected function endpoint();
 
-		$instance   = new static();
-		$class_name = ( new \ReflectionClass( $instance ) )->getShortName();
+	public function register() {
 
 		// Store and retrieve critical css status.
 		register_rest_route(
 			JETPACK_BOOST_REST_NAMESPACE,
-			JETPACK_BOOST_REST_PREFIX . '/critical-css/' . strtolower( $class_name ),
+			JETPACK_BOOST_REST_PREFIX . '/critical-css/' . $this->endpoint(),
 			array(
-				'methods'             => $instance->methods(),
-				'callback'            => array( $instance, 'response' ),
-				'permission_callback' => array( $instance, 'perrmisions' ),
+				'methods'             => $this->methods(),
+				'callback'            => array( $this, 'response' ),
+				'permission_callback' => array( $this, 'perrmisions' ),
 			)
 		);
 	}

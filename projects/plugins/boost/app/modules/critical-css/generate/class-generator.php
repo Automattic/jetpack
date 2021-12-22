@@ -12,6 +12,8 @@ class Generator {
 
 	const GENERATE_QUERY_ACTION = 'jb-generate-critical-css';
 	const GENERATE_PROXY_NONCE  = 'jb-generate-proxy-nonce';
+	const CSS_CALLBACK_ACTION   = 'jb-critical-css-callback';
+
 	/**
 	 * Provider keys which are present in "core" WordPress. If any of these fail to generate,
 	 * the whole process should be considered broken.
@@ -202,6 +204,47 @@ class Generator {
 
 	public function make_generation_request() {
 		$this->state->create_request( $this->paths->get_providers() );
+	}
+
+	/**
+	 * Get a Critical CSS status block, adding in local generation nonces (if applicable).
+	 * i.e.: Call this method to supply enough Critical CSS status to kick off local generation,
+	 * such as in response to a request-generate API call or during page initialization.
+	 */
+	public function get_local_critical_css_generation_info() {
+		$status = $this->get_critical_css_status();
+
+		// Add viewport sizes.
+		$status['viewports'] = array(
+			0 => array(
+				'type'   => 'phone',
+				'width'  => 414,
+				'height' => 896,
+			),
+			1 => array(
+				'type'   => 'tablet',
+				'width'  => 1200,
+				'height' => 800,
+			),
+			2 => array(
+				'type'   => 'desktop',
+				'width'  => 1920,
+				'height' => 1080,
+			),
+		);
+
+		// Add a userless nonce to use when requesting pages for Critical CSS generation (i.e.: To turn off admin features).
+		$status['generation_nonce'] = Nonce::create( Generator::GENERATE_QUERY_ACTION );
+
+		// Add a user-bound nonce to use when proxying CSS for Critical CSS generation.
+		$status['proxy_nonce'] = wp_create_nonce( Generator::GENERATE_PROXY_NONCE );
+
+		// Add a passthrough block to include in all response callbacks.
+		$status['callback_passthrough'] = array(
+			'_nonce' => Nonce::create( self::CSS_CALLBACK_ACTION ),
+		);
+
+		return $status;
 	}
 
 }

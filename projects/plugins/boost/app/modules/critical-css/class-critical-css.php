@@ -9,6 +9,7 @@
 
 namespace Automattic\Jetpack_Boost\Modules\Critical_CSS;
 
+use Automattic\Jetpack_Boost\Modules\Critical_CSS\API\Request_Generate;
 use Automattic\Jetpack_Boost\Modules\Critical_CSS\API\Status;
 use Automattic\Jetpack_Boost\Modules\Critical_CSS\Generate\Generator;
 use Automattic\Jetpack_Boost\Modules\Critical_CSS\Path_Providers\Paths;
@@ -18,6 +19,7 @@ use Automattic\Jetpack_Boost\Modules\Module;
 class Critical_CSS extends Module {
 
 	const MODULE_SLUG = 'critical-css';
+	const RESET_REASON_STORAGE_KEY = 'jb-generate-critical-css-reset-reason';
 
 	/**
 	 * Critical CSS storage class instance.
@@ -49,7 +51,8 @@ class Critical_CSS extends Module {
 		// for setting up the storage.
 
 		$this->rest_api->on_initialize();
-		Status::register();
+		$this->register_routes();
+
 		// Update ready flag used to indicate Boost optimizations are warmed up in metatag.
 		add_filter( 'jetpack_boost_url_ready', array( $this, 'is_ready_filter' ), 10, 1 );
 
@@ -66,6 +69,20 @@ class Critical_CSS extends Module {
 		add_filter( 'jetpack_boost_js_constants', array( $this->rest_api, 'add_critical_css_constants' ) );
 
 		return true;
+	}
+
+	public function register_routes() {
+		$registered_routes = [
+			'status'           => Status::class,
+			'request-generate' => Request_Generate::class,
+		];
+
+		$active_routes = [];
+		foreach ( $registered_routes as $name => $route ) {
+			$active_routes[ $name ] = new $route();
+			$active_routes[ $name ]->register();
+		}
+
 	}
 
 	/**
@@ -183,7 +200,7 @@ class Critical_CSS extends Module {
 	 * @return null|\Automattic\Jetpack_Boost\Admin\Admin_Notice[]
 	 */
 	public function get_admin_notices() {
-		$reason = \get_option( REST_API::RESET_REASON_STORAGE_KEY );
+		$reason = \get_option( Critical_CSS::RESET_REASON_STORAGE_KEY );
 
 		if ( ! $reason ) {
 			return NULL;
@@ -196,7 +213,7 @@ class Critical_CSS extends Module {
 	 * Clear Critical CSS reset reason option.
 	 */
 	public static function clear_reset_reason() {
-		\delete_option( REST_API::RESET_REASON_STORAGE_KEY );
+		\delete_option( Critical_CSS::RESET_REASON_STORAGE_KEY );
 	}
 
 

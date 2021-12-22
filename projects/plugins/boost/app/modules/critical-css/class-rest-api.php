@@ -12,9 +12,6 @@ class REST_API {
 	protected $generator;
 	protected $is_initialized = false;
 
-	const CSS_CALLBACK_ACTION      = 'jb-critical-css-callback';
-	const RESET_REASON_STORAGE_KEY = 'jb-generate-critical-css-reset-reason';
-
 	public function __construct() {
 		$this->storage         = new Critical_CSS_Storage();
 		$this->recommendations = new Recommendations();
@@ -29,16 +26,6 @@ class REST_API {
 
 
 	public function register_rest_routes() {
-		// Register Critical CSS generate route.
-		register_rest_route(
-			JETPACK_BOOST_REST_NAMESPACE,
-			JETPACK_BOOST_REST_PREFIX . '/critical-css/request-generate',
-			array(
-				'methods'             => \WP_REST_Server::EDITABLE,
-				'callback'            => array( $this, 'critical_css_request_generate_handler' ),
-				'permission_callback' => array( $this, 'current_user_can_modify_critical_css' ),
-			)
-		);
 
 		// Register Critical CSS success callback route.
 		register_rest_route(
@@ -70,35 +57,6 @@ class REST_API {
 		// @TODO: We shouldn't need to do these kinds of checks:
 		// $this->rest_is_module_available()
 		return $this->is_initialized && current_user_can( 'manage_options' );
-	}
-
-	/**
-	 * Request generate Critical CSS.
-	 *
-	 * @param \WP_REST_Request $request The request object.
-	 *
-	 * @return \WP_Error|\WP_HTTP_Response|\WP_REST_Response
-	 */
-	public function critical_css_request_generate_handler( $request ) {
-		$reset = ! empty( $request['reset'] );
-
-		$this->ensure_module_initialized();
-
-		$cleared_critical_css_reason = \get_option( self::RESET_REASON_STORAGE_KEY );
-		if ( $reset || $cleared_critical_css_reason ) {
-			// Create a new Critical CSS Request block to track creation request.
-			$this->storage->clear();
-			$this->generator->make_generation_request();
-			$this->recommendations->delete_all();
-			Critical_CSS::clear_reset_reason();
-		}
-
-		return rest_ensure_response(
-			array(
-				'status'        => 'success',
-				'status_update' => $this->get_local_critical_css_generation_info(),
-			)
-		);
 	}
 
 	/**
@@ -278,48 +236,6 @@ class REST_API {
 		}
 	}
 
-
-	/**
-	 * Get a Critical CSS status block, adding in local generation nonces (if applicable).
-	 * i.e.: Call this method to supply enough Critical CSS status to kick off local generation,
-	 * such as in response to a request-generate API call or during page initialization.
-	 */
-	private function get_local_critical_css_generation_info() {
-		$status = $this->generator->get_critical_css_status();
-
-		// Add viewport sizes.
-		$status['viewports'] = array(
-			0 => array(
-				'type'   => 'phone',
-				'width'  => 414,
-				'height' => 896,
-			),
-			1 => array(
-				'type'   => 'tablet',
-				'width'  => 1200,
-				'height' => 800,
-			),
-			2 => array(
-				'type'   => 'desktop',
-				'width'  => 1920,
-				'height' => 1080,
-			),
-		);
-
-		// Add a userless nonce to use when requesting pages for Critical CSS generation (i.e.: To turn off admin features).
-		$status['generation_nonce'] = Nonce::create( Generator::GENERATE_QUERY_ACTION );
-
-		// Add a user-bound nonce to use when proxying CSS for Critical CSS generation.
-		$status['proxy_nonce'] = wp_create_nonce( Generator::GENERATE_PROXY_NONCE );
-
-		// Add a passthrough block to include in all response callbacks.
-		$status['callback_passthrough'] = array(
-			'_nonce' => Nonce::create( self::CSS_CALLBACK_ACTION ),
-		);
-
-		return $status;
-	}
-
 	/**
 	 * Add Critical CSS related constants to be passed to JavaScript only if the module is enabled.
 	 *
@@ -329,7 +245,7 @@ class REST_API {
 	 */
 	public function add_critical_css_constants( $constants ) {
 		// Information about the current status of Critical CSS / generation.
-		$constants['criticalCssStatus'] = $this->get_local_critical_css_generation_info();
+		$constants['criticalCssStatus'] = $this->generator->get_local_critical_css_generation_info();
 
 		return $constants;
 	}

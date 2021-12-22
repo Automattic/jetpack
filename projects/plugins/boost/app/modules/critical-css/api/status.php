@@ -10,12 +10,16 @@ class Status extends Boost_API {
 		return \WP_REST_Server::READABLE;
 	}
 
-	public function response() {
+	public function response( $request ) {
 		$generator = new Generator();
 		return rest_ensure_response( $generator->get_critical_css_status() );
 	}
 
 	public function perrmisions() {
 		return current_user_can( 'manage_options' );
+	}
+
+	protected function endpoint() {
+		return 'status';
 	}
 }
