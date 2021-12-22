@@ -62,6 +62,7 @@ if ( ! defined( 'JETPACK__WPCOM_JSON_API_BASE' ) ) {
 $boost_packages_path = JETPACK_BOOST_DIR_PATH . '/vendor/autoload_packages.php';
 if ( is_readable( $boost_packages_path ) ) {
 	require_once $boost_packages_path;
+	\Automattic\Jetpack\Assets::alias_textdomains_from_file( JETPACK_BOOST_DIR_PATH . '/jetpack_vendor/i18n-map.php' );
 } else {
 	if ( defined( 'WP_DEBUG' ) && WP_DEBUG ) {
 		error_log( // phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_error_log

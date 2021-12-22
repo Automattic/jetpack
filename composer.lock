@@ -4,9 +4,60 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "a73eb7045bf8cc0ae3fa9b2b7df56f6e",
+    "content-hash": "bfee2f63170d9b3d349a210cc5f7a06d",
     "packages": [],
     "packages-dev": [
+        {
+            "name": "automattic/ignorefile",
+            "version": "dev-master",
+            "dist": {
+                "type": "path",
+                "url": "projects/packages/ignorefile",
+                "reference": "7e383a640adb5bf6bc823f7f829aa5bed4ceb879"
+            },
+            "require-dev": {
+                "automattic/jetpack-changelogger": "^3.0",
+                "wikimedia/at-ease": "^1.2 | ^2.0",
+                "yoast/phpunit-polyfills": "1.0.2"
+            },
+            "type": "library",
+            "extra": {
+                "mirror-repo": "Automattic/ignorefile",
+                "changelogger": {
+                    "link-template": "https://github.com/Automattic/ignorefile/compare/v${old}...v${new}"
+                },
+                "autotagger": true,
+                "branch-alias": {
+                    "dev-master": "0.1.x-dev"
+                }
+            },
+            "autoload": {
+                "classmap": [
+                    "src/"
+                ]
+            },
+            "scripts": {
+                "phpunit": [
+                    "./vendor/phpunit/phpunit/phpunit --colors=always"
+                ],
+                "test-coverage": [
+                    "@composer install",
+                    "phpdbg -d memory_limit=2048M -d max_execution_time=900 -qrr ./vendor/bin/phpunit --coverage-clover \"$COVERAGE_DIR/clover.xml\""
+                ],
+                "test-php": [
+                    "@composer install",
+                    "@composer phpunit"
+                ]
+            },
+            "license": [
+                "GPL-2.0-or-later"
+            ],
+            "description": "Handle .gitignore style files.",
+            "transport-options": {
+                "monorepo": true,
+                "relative": true
+            }
+        },
         {
             "name": "automattic/jetpack-codesniffer",
             "version": "dev-master",
@@ -61,6 +112,55 @@
                 "GPL-2.0-or-later"
             ],
             "description": "Jetpack Coding Standards. Based on the WordPress Coding Standards, with some additions.",
+            "transport-options": {
+                "monorepo": true,
+                "relative": true
+            }
+        },
+        {
+            "name": "automattic/jetpack-phpcs-filter",
+            "version": "dev-master",
+            "dist": {
+                "type": "path",
+                "url": "projects/packages/phpcs-filter",
+                "reference": "b181a57337c0b5834b8ddc249c750c9dcd71d072"
+            },
+            "require": {
+                "automattic/ignorefile": "^0.1",
+                "squizlabs/php_codesniffer": "^3.6.1"
+            },
+            "require-dev": {
+                "automattic/jetpack-changelogger": "^3.0",
+                "yoast/phpunit-polyfills": "1.0.2"
+            },
+            "type": "library",
+            "extra": {
+                "branch-alias": {
+                    "dev-master": "0.1.x-dev"
+                }
+            },
+            "autoload": {
+                "classmap": [
+                    "src/"
+                ]
+            },
+            "scripts": {
+                "phpunit": [
+                    "./vendor/phpunit/phpunit/phpunit --colors=always"
+                ],
+                "test-coverage": [
+                    "@composer install",
+                    "phpdbg -d memory_limit=2048M -d max_execution_time=900 -qrr ./vendor/bin/phpunit --coverage-clover \"$COVERAGE_DIR/clover.xml\""
+                ],
+                "test-php": [
+                    "@composer install",
+                    "@composer phpunit"
+                ]
+            },
+            "license": [
+                "GPL-2.0-or-later"
+            ],
+            "description": "A filter for PHP CodeSniffer to add support for .phpcsignore files and per-directory configuration files.",
             "transport-options": {
                 "monorepo": true,
                 "relative": true
@@ -690,13 +790,13 @@
             "version": "3.6.1",
             "source": {
                 "type": "git",
-                "url": "https://github.com/squizlabs/PHP_CodeSniffer.git",
-                "reference": "f268ca40d54617c6e06757f83f699775c9b3ff2e"
+                "url": "https://github.com/Automattic/PHP_CodeSniffer.git",
+                "reference": "3d743bd8b8e9e1b8a9c0a89f40e13420c9e9c8c2"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/squizlabs/PHP_CodeSniffer/zipball/f268ca40d54617c6e06757f83f699775c9b3ff2e",
-                "reference": "f268ca40d54617c6e06757f83f699775c9b3ff2e",
+                "url": "https://api.github.com/repos/Automattic/PHP_CodeSniffer/zipball/3d743bd8b8e9e1b8a9c0a89f40e13420c9e9c8c2",
+                "reference": "3d743bd8b8e9e1b8a9c0a89f40e13420c9e9c8c2",
                 "shasum": ""
             },
             "require": {
@@ -718,7 +818,6 @@
                     "dev-master": "3.x-dev"
                 }
             },
-            "notification-url": "https://packagist.org/downloads/",
             "license": [
                 "BSD-3-Clause"
             ],
@@ -736,10 +835,10 @@
             ],
             "support": {
                 "issues": "https://github.com/squizlabs/PHP_CodeSniffer/issues",
-                "source": "https://github.com/squizlabs/PHP_CodeSniffer",
-                "wiki": "https://github.com/squizlabs/PHP_CodeSniffer/wiki"
+                "wiki": "https://github.com/squizlabs/PHP_CodeSniffer/wiki",
+                "source": "https://github.com/squizlabs/PHP_CodeSniffer"
             },
-            "time": "2021-10-11T04:00:11+00:00"
+            "time": "2021-12-16T21:41:35+00:00"
         },
         {
             "name": "wp-coding-standards/wpcs",
@@ -796,7 +895,8 @@
     "aliases": [],
     "minimum-stability": "dev",
     "stability-flags": {
-        "automattic/jetpack-codesniffer": 20
+        "automattic/jetpack-codesniffer": 20,
+        "automattic/jetpack-phpcs-filter": 20
     },
     "prefer-stable": true,
     "prefer-lowest": false,

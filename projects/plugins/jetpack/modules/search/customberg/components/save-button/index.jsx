@@ -46,7 +46,9 @@ export default function SaveButton() {
 			isPrimary
 			onClick={ onClick }
 		>
-			{ isSaving ? __( 'Saving…', 'jetpack' ) : __( 'Save', 'jetpack' ) }
+			{ isSaving
+				? __( 'Saving…', 'jetpack' )
+				: __( 'Save', 'jetpack', /* dummy arg to avoid bad minification */ 0 ) }
 		</Button>
 	);
 }
