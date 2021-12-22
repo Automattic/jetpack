@@ -97,11 +97,11 @@ class Generator_Success extends Boost_API {
 		);
 	}
 
-	public function perrmisions() {
+	public function permissions() {
 		return true;
 	}
 
 	protected function endpoint() {
-		return '(?P<cacheKey>.+)/success';
+		return '/critical-css/(?P<cacheKey>.+)/success';
 	}
 }

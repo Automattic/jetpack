@@ -15,7 +15,7 @@ class Status extends Boost_API {
 		return rest_ensure_response( $generator->get_critical_css_status() );
 	}
 
-	public function perrmisions() {
+	public function permissions() {
 		return current_user_can( 'manage_options' );
 	}
 

@@ -39,11 +39,11 @@ class Generator_Request extends Boost_API {
 		);
 	}
 
-	public function perrmisions() {
+	public function permissions() {
 		return current_user_can( 'manage_options' );
 	}
 
 	protected function endpoint() {
-		return 'request-generate';
+		return 'critical-css/request-generate';
 	}
 }

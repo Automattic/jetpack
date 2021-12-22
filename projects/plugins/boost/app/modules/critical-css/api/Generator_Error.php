@@ -119,11 +119,11 @@ class Generator_Error extends Boost_API {
 		);
 	}
 
-	public function perrmisions() {
+	public function permissions() {
 		return true;
 	}
 
 	protected function endpoint() {
-		return '(?P<cacheKey>.+)/error';
+		return 'critical-css/(?P<cacheKey>.+)/error';
 	}
 }
