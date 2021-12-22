@@ -1,0 +1,4 @@
+Significance: patch
+Type: bugfix
+
+Do not display recommendations during identity crisis.

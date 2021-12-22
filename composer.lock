@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "bfee2f63170d9b3d349a210cc5f7a06d",
+    "content-hash": "49deada7b9027349f16d0be71667eb51",
     "packages": [],
     "packages-dev": [
         {
@@ -13,7 +13,7 @@
             "dist": {
                 "type": "path",
                 "url": "projects/packages/ignorefile",
-                "reference": "7e383a640adb5bf6bc823f7f829aa5bed4ceb879"
+                "reference": "020dd45a0381ed59e66f91eaf7277582b66f344b"
             },
             "require-dev": {
                 "automattic/jetpack-changelogger": "^3.0",
@@ -28,7 +28,7 @@
                 },
                 "autotagger": true,
                 "branch-alias": {
-                    "dev-master": "0.1.x-dev"
+                    "dev-master": "1.0.x-dev"
                 }
             },
             "autoload": {
@@ -123,10 +123,10 @@
             "dist": {
                 "type": "path",
                 "url": "projects/packages/phpcs-filter",
-                "reference": "b181a57337c0b5834b8ddc249c750c9dcd71d072"
+                "reference": "ffc6b53125ec3aa9c63bdbaf12117f0d9c677bb8"
             },
             "require": {
-                "automattic/ignorefile": "^0.1",
+                "automattic/ignorefile": "^1.0",
                 "squizlabs/php_codesniffer": "^3.6.1"
             },
             "require-dev": {
@@ -136,7 +136,7 @@
             "type": "library",
             "extra": {
                 "branch-alias": {
-                    "dev-master": "0.1.x-dev"
+                    "dev-master": "1.0.x-dev"
                 }
             },
             "autoload": {

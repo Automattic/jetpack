@@ -429,7 +429,7 @@ class ManagerTest extends TestCase {
 			)
 		);
 
-		$expected = new WP_Error( 'new_owner_not_admin', __( 'New owner is not admin', 'jetpack' ), array( 'status' => 400 ) );
+		$expected = new WP_Error( 'new_owner_not_admin', __( 'New owner is not admin', 'jetpack-connection' ), array( 'status' => 400 ) );
 
 		$result = $this->manager->update_connection_owner( $editor_id );
 
@@ -455,7 +455,7 @@ class ManagerTest extends TestCase {
 			->withAnyParameters()
 			->willReturn( $admin_id );
 
-		$expected = new WP_Error( 'new_owner_is_existing_owner', __( 'New owner is same as existing owner', 'jetpack' ), array( 'status' => 400 ) );
+		$expected = new WP_Error( 'new_owner_is_existing_owner', __( 'New owner is same as existing owner', 'jetpack-connection' ), array( 'status' => 400 ) );
 
 		$result = $this->manager->update_connection_owner( $admin_id );
 
@@ -477,7 +477,7 @@ class ManagerTest extends TestCase {
 			)
 		);
 
-		$expected = new WP_Error( 'new_owner_not_connected', __( 'New owner is not connected', 'jetpack' ), array( 'status' => 400 ) );
+		$expected = new WP_Error( 'new_owner_not_connected', __( 'New owner is not connected', 'jetpack-connection' ), array( 'status' => 400 ) );
 
 		$result = $this->manager->update_connection_owner( $admin_id );
 
@@ -513,7 +513,7 @@ class ManagerTest extends TestCase {
 		$this->manager->method( 'update_connection_owner_wpcom' )
 			->willReturn( false );
 
-		$expected = new WP_Error( 'error_setting_new_owner', __( 'Could not confirm new owner.', 'jetpack' ), array( 'status' => 500 ) );
+		$expected = new WP_Error( 'error_setting_new_owner', __( 'Could not confirm new owner.', 'jetpack-connection' ), array( 'status' => 500 ) );
 
 		$result = $this->manager->update_connection_owner( $admin_id );
 
