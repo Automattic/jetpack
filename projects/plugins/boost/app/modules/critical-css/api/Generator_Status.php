@@ -4,7 +4,7 @@ namespace Automattic\Jetpack_Boost\Modules\Critical_CSS\API;
 
 use Automattic\Jetpack_Boost\Modules\Critical_CSS\Generate\Generator;
 
-class Status extends Boost_API {
+class Generator_Status extends Boost_API {
 
 	public function methods() {
 		return \WP_REST_Server::READABLE;

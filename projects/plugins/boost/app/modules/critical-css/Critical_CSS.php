@@ -12,7 +12,7 @@ namespace Automattic\Jetpack_Boost\Modules\Critical_CSS;
 use Automattic\Jetpack_Boost\Modules\Critical_CSS\API\Generator_Error;
 use Automattic\Jetpack_Boost\Modules\Critical_CSS\API\Generator_Success;
 use Automattic\Jetpack_Boost\Modules\Critical_CSS\API\Generator_Request;
-use Automattic\Jetpack_Boost\Modules\Critical_CSS\API\Status;
+use Automattic\Jetpack_Boost\Modules\Critical_CSS\API\Generator_Status;
 use Automattic\Jetpack_Boost\Modules\Critical_CSS\Generate\Generator;
 use Automattic\Jetpack_Boost\Modules\Critical_CSS\Path_Providers\Paths;
 use Automattic\Jetpack_Boost\Modules\Module;
@@ -82,7 +82,7 @@ class Critical_CSS extends Module {
 
 	public function register_rest_routes() {
 		$registered_routes = [
-			'status'           => Status::class,
+			'status'           => Generator_Status::class,
 			'request-generate' => Generator_Request::class,
 			'generate-success' => Generator_Success::class,
 			'generate-error'   => Generator_Error::class,
