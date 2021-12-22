@@ -15,7 +15,7 @@ class Router {
 	}
 
 	public function handle_request() {
-		if ( str_contains( $_SERVER['REQUEST_URI'], '?status' ) ) {
+		if ( strpos($_SERVER['REQUEST_URI'], '?status' ) !== false ) {
 			return $this->status->process();
 		} elseif ( str_contains( $_SERVER['REQUEST_URI'], '?analyze' ) ) {
 			return $this->analyze->process();

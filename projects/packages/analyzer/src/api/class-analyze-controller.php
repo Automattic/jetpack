@@ -10,20 +10,22 @@ class Analyze_Controller extends Controller {
 			if ( 'Locked already' === $th->getMessage() ) {
 				return $this->model->get_status();
 			}
+			throw $th;
 		}
 
 		$cmd = 'php ' . dirname( __DIR__ ) . '/../scripts/jp-analyze-parallel.php';
 
 		$descriptor_spec = array(
-			0 => array( 'pipe', 'r' ),
+			0 => array( 'file', '/dev/null', 'r' ),
 			1 => array( 'file', 'output.txt', 'a' ),
 			2 => array( 'file', 'output.txt', 'a' ),
 		);
 
-		proc_open( $cmd, $descriptor_spec, $pipes );
 
 		$this->model->reset();
-		 $this->model->toggle_status();
+		$this->model->toggle_status();
+
+		proc_open( $cmd, $descriptor_spec, $pipes );
 
 		return $this->model->get_status();
 

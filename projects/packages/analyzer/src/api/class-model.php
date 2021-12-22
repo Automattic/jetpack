@@ -2,7 +2,7 @@
 namespace Automattic\Jetpack\Analyzer;
 
 class Model {
-	private $db_file = 'data-store.json';
+	private $db_file;
 	private $content;
 
 	public function __construct() {
@@ -55,9 +55,9 @@ class Model {
 	public function load_result() {
 		$this->load();
 		$warn_folder = dirname( dirname( __DIR__ ) ) . '/output/warnings';
-		$warnings    = scandir( $warn_folder );
-		unset( $warnings[0] );
-		unset( $warnings[1] );
+		$warnings    = array_diff(scandir( $warn_folder ), array('.', '..'));
+		// unset( $warnings[0] );
+		// unset( $warnings[1] );
 
 				$this->content['result'] = array_map(
 					function ( $file ) use ( $warn_folder ) {

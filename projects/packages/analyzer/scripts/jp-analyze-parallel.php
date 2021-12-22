@@ -31,21 +31,20 @@ class ScanManager {
 	}
 
 	public function start_proc( $folder_name ) {
-			$this->wait_for_procs();
-			echo 'Starting ' . basename( $folder_name ) . "\n";
-			$cmd = 'php ' . escapeshellarg( dirname( __DIR__ ) . '/scripts/jp-warnings-job.php' ) . ' ' . escapeshellarg( $folder_name );
-			$this->count++;
-			$process       = proc_open( $cmd, $this->descriptorspec, $pipes );
-			$this->procs[] = $process;
-			$this->pipez[] = $pipes;
+		$this->wait_for_procs();
+		echo 'Starting ' . basename( $folder_name ) . "\n";
+		$cmd = 'php ' . escapeshellarg( dirname( __DIR__ ) . '/scripts/jp-warnings-job.php' ) . ' ' . escapeshellarg( $folder_name );
+		$this->count++;
+		$process       = proc_open( $cmd, $this->descriptorspec, $pipes );
+		$this->procs[] = $process;
+		$this->pipez[] = $pipes;
 		$this->model->update_process( 0, basename( $folder_name ) );
-
 	}
 
 	public function check_procs() {
 		foreach ( $this->procs as $id => $proc ) {
 			$status = proc_get_status( $proc );
-			if ( $status['pid'] > 0 ) {
+			if ( ! $status['running'] ) {
 				echo stream_get_contents( $this->pipez[ $id ][1] );
 				$folder_name = explode( ' ', $status['command'] )[2];
 				$this->model->update_process( -1, null, basename( $folder_name ) );

@@ -58,11 +58,12 @@ class Locker {
 	public static $__lock_file = 'jp-analyzer.pid';
 
 	static function lock() {
-		if ( ! self::is_locked() ) {
-			file_put_contents( self::lock_file(), getmypid() );
-		} else {
+		$fp = fopen( self::lock_file(), 'x' );
+		if ( ! $fp ) {
 			throw new \Exception( 'Locked already' );
 		}
+		fwrite( $fp, (string) getmypid() );
+		fclose( $fp );
 	}
 	static function unlock() {
 		if ( self::is_locked() ) {
