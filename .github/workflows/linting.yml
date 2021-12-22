@@ -99,6 +99,8 @@ jobs:
               - 'composer.lock'
               - '.phpcs.config.xml'
               - '.phpcs.xml.dist'
+              - '.phpcsignore'
+              - '**/.phpcsignore'
               # If the excludelist changed, run to ensure newly non-excluded files pass.
               - 'tools/phpcs-excludelist.json'
               # If other files used by this workflow changed, run it to test those changes.
