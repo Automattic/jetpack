@@ -62,6 +62,7 @@
 	"extra": {
 		"autotagger": true,
 		"mirror-repo": "Automattic/jetpack-identity-crisis",
+		"textdomain": "jetpack-idc",
 		"version-constants": {
 			"::PACKAGE_VERSION": "src/class-identity-crisis.php"
 		},
