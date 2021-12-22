@@ -259,6 +259,7 @@ class REST_Controller {
 		if ( is_wp_error( $ret ) ) {
 			return $ret;
 		}
+		// Enable Instant Search.
 		// Eligibility is checked in `enable_instant_search` function.
 		$ret = $this->search_module->enable_instant_search();
 		if ( is_wp_error( $ret ) ) {
