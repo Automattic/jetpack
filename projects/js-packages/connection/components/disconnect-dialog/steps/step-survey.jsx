@@ -28,7 +28,7 @@ const StepSurvey = props => {
 	const surveyStepRef = React.createRef();
 
 	/**
-	 * Handle keydown events on the survey step to prevent loss of focus outside the modal/
+	 * Handle keydown events on the survey step to prevent loss of focus outside the modal.
 	 * This logic is similar to what is used in the @wordpress/useConstrainedTabbing hook.
 	 * Normally, the modal component handles this on its own.
 	 * This additional check is needed here for now to fix a bug when using a radio group in the modal.
@@ -67,7 +67,7 @@ const StepSurvey = props => {
 			onKeyDown={ handleKeyDown }
 			ref={ surveyStepRef }
 		>
-			<h1>{ __( 'Before you go, help us improve Jetpack' , 'jetpack' ) }</h1>
+			<h1>{ __( 'Before you go, help us improve Jetpack', 'jetpack' ) }</h1>
 			<p className="jp-connection__disconnect-dialog__large-text">
 				{ __( 'Let us know what didn‘t work for you', 'jetpack' ) }
 			</p>

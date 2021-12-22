@@ -62,7 +62,7 @@ const DisconnectSurvey = props => {
 	 * Prevent any default submission of the form element
 	 * Response is sent by clicking on the "Submit Feedback" button
 	 *
-	 * @param {object} e - onSubmit event from teh form
+	 * @param {object} e - onSubmit event from the form
 	 */
 	const handleFormSubmit = useCallback( e => {
 		e.preventDefault();
@@ -195,6 +195,7 @@ const DisconnectSurvey = props => {
 						onChange={ handleCustomResponse }
 						onClick={ setCustomOptionAsSelected }
 						maxLength={ 1000 } // Limit response length.
+						tabIndex={ isSelected( customOption.id ) ? 0 : -1 } // If this option is not the selected option, remove this input from the tab flow
 					/>
 				</p>
 			</SurveyChoice>

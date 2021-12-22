@@ -1,10 +1,11 @@
 /**
  * External dependencies
  */
-import React, { useMemo, useEffect, useCallback, useState } from 'react';
+import React, { useMemo, useEffect, useCallback, useState, useRef } from 'react';
 import PropTypes from 'prop-types';
 import { __ } from '@wordpress/i18n';
 import { Modal } from '@wordpress/components';
+import { focus } from '@wordpress/dom';
 import restApi from '@automattic/jetpack-api';
 import jetpackAnalytics from '@automattic/jetpack-analytics';
 import { jetpackConfigHas, jetpackConfigGet } from '@automattic/jetpack-config';
@@ -53,6 +54,8 @@ const DisconnectDialog = props => {
 		disconnectingPlugin = jetpackConfigGet( 'consumer_slug' );
 	}
 
+	// The modal is tracked with a ref so it can be re-focused on step changes
+	const modalRef = useRef();
 	const defaultTracksArgs = useMemo( () => {
 		return {
 			context: context,
@@ -88,7 +91,7 @@ const DisconnectDialog = props => {
 	}, [ isOpen, defaultTracksArgs ] );
 
 	/**
-	 * Keep track of the steps that are presented
+	 * Runs whenever the modal step is updated
 	 */
 	useEffect( () => {
 		// Don't do anything if the dialog is not open.
@@ -96,6 +99,16 @@ const DisconnectDialog = props => {
 			return;
 		}
 
+		// Focus on the first focusable element of the section when the modal interior changes
+		// Don't do this on the first step, however, it disrupts the screen reader experience.
+		if ( isDisconnected ) {
+			const focusable = focus.tabbable.find( modalRef.current );
+			if ( focusable.length > 0 ) {
+				focusable[ 0 ].focus();
+			}
+		}
+
+		// Keep track of the steps that are presented
 		if ( ! isDisconnected ) {
 			jetpackAnalytics.tracks.recordEvent(
 				'jetpack_disconnect_dialog_step',
@@ -370,6 +383,7 @@ const DisconnectDialog = props => {
 		<>
 			{ isOpen && (
 				<Modal
+					ref={ modalRef }
 					shouldCloseOnEsc={ ! isDisconnecting }
 					shouldCloseOnClickOutside={ ! isDisconnecting }
 					contentLabel={ __( 'Disconnect Jetpack', 'jetpack' ) }

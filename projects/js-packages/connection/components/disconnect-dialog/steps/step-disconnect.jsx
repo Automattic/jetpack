@@ -52,7 +52,7 @@ const StepDisconnect = props => {
 				disabled={ isDisconnecting }
 				onClick={ onDisconnect }
 				className="jp-connection__disconnect-dialog__btn-disconnect"
-				ariaLive="polite" // Announce "Disconnecting" when this button is pressed
+				ariaLive="assertive" // Announce "Disconnecting" when this button is pressed
 			>
 				{ buttonText }
 			</Button>

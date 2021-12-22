@@ -11,7 +11,7 @@
 	padding: 0;
 	position: relative;
 	box-shadow: 0 0 15px var( --jp-gray-off );
-	overflow: hidden;
+	overflow: hidden; // used to hide the radio controls, the labels are used to capture related clicks
 
 	&.card {
 		padding: 0;
