@@ -251,13 +251,15 @@ class REST_Controller {
 		// We do this to avoid another call to WPCOM and reduce latency.
 		$plan_info = $request->get_json_params();
 		if ( ! $this->plan->set_plan_options( $plan_info ) ) {
-			return new WP_Error( 'invalid_request', esc_html__( 'Plan info could not be fetched from Jetpack.com', 'jetpack' ), array( 'status' => 400 ) );
+			$this->plan->get_plan_info_from_wpcom();
 		}
 		// Activate module.
+		// Eligibility is checked in `activate` function.
 		$ret = $this->search_module->activate();
 		if ( is_wp_error( $ret ) ) {
 			return $ret;
 		}
+		// Eligibility is checked in `enable_instant_search` function.
 		$ret = $this->search_module->enable_instant_search();
 		if ( is_wp_error( $ret ) ) {
 			return $ret;
