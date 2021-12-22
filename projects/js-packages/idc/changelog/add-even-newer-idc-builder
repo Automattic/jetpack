@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Remove the jetpack_idc_clear_confirmation GET parameter before reloading the page to avoid the endless loop in the UI.
