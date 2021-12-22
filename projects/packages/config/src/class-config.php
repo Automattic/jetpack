@@ -243,6 +243,27 @@ class Config {
 	}
 
 	/**
+	 * Setup the Identity Crisis options.
+	 *
+	 * @return bool
+	 */
+	protected function ensure_options_identity_crisis() {
+		$options = $this->get_feature_options( 'identity_crisis' );
+
+		if ( is_array( $options ) && count( $options ) ) {
+			add_filter(
+				'jetpack_idc_consumers',
+				function ( $consumers ) use ( $options ) {
+					$consumers[] = $options;
+					return $consumers;
+				}
+			);
+		}
+
+		return true;
+	}
+
+	/**
 	 * Temporary save initialization options for a feature.
 	 *
 	 * @param string $feature The feature slug.

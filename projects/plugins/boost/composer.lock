@@ -2332,7 +2332,8 @@
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/WordPress/WordPress/zipball/refs/tags/5.8.1"
+                "url": "https://api.github.com/repos/WordPress/WordPress/zipball/refs/tags/5.8.1",
+                "reference": "5.8.1"
             },
             "require": {
                 "php": ">=5.3.2",
