@@ -57,7 +57,9 @@ jQuery( document ).ready( function ( $ ) {
 					envelope.activate_module +
 					'" type="button" class="jitm-button is-compact is-primary jptracks" data-jptracks-name="nudge_click" data-jptracks-prop="jitm-' +
 					envelope.id +
-					'-activate_module">' +
+					'-activate_module" data-jptracks-jitm-message-path="' +
+					envelope.message_path +
+					'">' +
 					window.jitm_config.activate_module_text +
 					'</a>';
 				html += '</div>';
@@ -84,7 +86,9 @@ jQuery( document ).ready( function ( $ ) {
 					ctaClasses +
 					'" data-jptracks-name="nudge_click" data-jptracks-prop="jitm-' +
 					envelope.id +
-					'" ' +
+					'" data-jptracks-jitm-message-path="' +
+					envelope.message_path +
+					'"' +
 					( ajaxAction ? 'data-ajax-action="' + ajaxAction + '"' : '' ) +
 					'>' +
 					envelope.CTA.message +

@@ -1,0 +1,4 @@
+Significance: minor
+Type: added
+
+Add the message_path as a property to JITM analytics events
