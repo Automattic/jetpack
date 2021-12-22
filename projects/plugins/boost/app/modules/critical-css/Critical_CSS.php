@@ -9,12 +9,7 @@
 
 namespace Automattic\Jetpack_Boost\Modules\Critical_CSS;
 
-use Automattic\Jetpack_Boost\Modules\Critical_CSS\REST_API\Generator_Error;
-use Automattic\Jetpack_Boost\Modules\Critical_CSS\REST_API\Generator_Success;
-use Automattic\Jetpack_Boost\Modules\Critical_CSS\REST_API\Generator_Request;
-use Automattic\Jetpack_Boost\Modules\Critical_CSS\REST_API\Generator_Status;
-use Automattic\Jetpack_Boost\Modules\Critical_CSS\REST_API\Recommendations_Dismiss;
-use Automattic\Jetpack_Boost\Modules\Critical_CSS\REST_API\Recommendations_Reset;
+use Automattic\Jetpack_Boost\Modules\Critical_CSS\REST_API\Boost_API;
 use Automattic\Jetpack_Boost\Modules\Critical_CSS\Generate\Generator;
 use Automattic\Jetpack_Boost\Modules\Critical_CSS\Path_Providers\Paths;
 use Automattic\Jetpack_Boost\Modules\Module;
@@ -32,13 +27,16 @@ class Critical_CSS extends Module {
 	 */
 	protected $storage;
 
+	private $nonces = [];
+
 	/**
 	 * Prepare module. This is run irrespective of the module activation status.
 	 */
 	public function on_prepare() {
 
-		$this->storage = new Critical_CSS_Storage();
-		$this->paths   = new Paths();
+		$this->storage  = new Critical_CSS_Storage();
+		$this->paths    = new Paths();
+		$this->rest_api = new Boost_API();
 
 
 
@@ -55,7 +53,7 @@ class Critical_CSS extends Module {
 		$recommendations = new Recommendations();
 		$recommendations->attach_hooks();
 
-		add_action( 'rest_api_init', array( $this, 'register_rest_routes' ) );
+		add_action( 'rest_api_init', array( $this->rest_api, 'register_routes' ) );
 
 		// Update ready flag used to indicate Boost optimizations are warmed up in metatag.
 		add_filter( 'jetpack_boost_url_ready', array( $this, 'is_ready_filter' ), 10, 1 );
@@ -81,28 +79,6 @@ class Critical_CSS extends Module {
 	public function on_uninstall() {
 		self::clear_reset_reason();
 	}
-
-	public function register_rest_routes() {
-		$registered_routes = [
-			'status'                  => Generator_Status::class,
-			'request-generate'        => Generator_Request::class,
-			'generate-success'        => Generator_Success::class,
-			'generate-error'          => Generator_Error::class,
-			'recommendations-dismiss' => Recommendations_Dismiss::class,
-			'recommendations-reset'   => Recommendations_Reset::class,
-		];
-
-		$active_routes = [];
-		foreach ( $registered_routes as $name => $route ) {
-			$active_routes[ $name ] = new $route();
-			$active_routes[ $name ]->register();
-		}
-
-
-	}
-
-
-
 
 	/**
 	 * Renders a <meta> tag used to verify this is a valid page to generate Critical CSS with.
@@ -230,7 +206,8 @@ class Critical_CSS extends Module {
 		// Information about the current status of Critical CSS / generation.
 		$generator                      = new Generator();
 		$constants['criticalCssStatus'] = $generator->get_local_critical_css_generation_info();
-
+		$constants['nonces']            = $this->rest_api->get_nonces();
+		$constants['nonces']['goo'] = 'foobar';
 		return $constants;
 	}
 

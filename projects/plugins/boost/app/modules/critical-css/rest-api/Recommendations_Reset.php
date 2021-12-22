@@ -3,9 +3,9 @@
 namespace Automattic\Jetpack_Boost\Modules\Critical_CSS\REST_API;
 use Automattic\Jetpack_Boost\Modules\Critical_CSS\Recommendations;
 
-class Recommendations_Reset extends Boost_API {
+class Recommendations_Reset implements Boost_Endpoint, Nonce_Protection {
 
-	public function methods() {
+	public function request_methods() {
 		return \WP_REST_Server::EDITABLE;
 	}
 
@@ -15,13 +15,11 @@ class Recommendations_Reset extends Boost_API {
 		wp_send_json_success();
 	}
 
-	public function permissions() {
-		// @TODO: Oh noes. Where did the nonce go?
-		// wp_verify_nonce( $request['nonce'], self::RECOMMENDATION_NONCE )
+	public function permission_callback( $request ) {
 		return current_user_can( 'manage_options' );
 	}
 
-	protected function endpoint() {
+	public function name() {
 		return 'recommendations/reset';
 	}
 }

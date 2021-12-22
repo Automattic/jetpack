@@ -6,9 +6,9 @@ use Automattic\Jetpack_Boost\Lib\Nonce;
 use Automattic\Jetpack_Boost\Modules\Critical_CSS\Critical_CSS_Storage;
 use Automattic\Jetpack_Boost\Modules\Critical_CSS\Generate\Generator;
 
-class Generator_Error extends Boost_API {
+class Generator_Error implements Boost_Endpoint {
 
-	public function methods() {
+	public function request_methods() {
 		return \WP_REST_Server::EDITABLE;
 	}
 
@@ -119,11 +119,11 @@ class Generator_Error extends Boost_API {
 		);
 	}
 
-	public function permissions() {
+	public function permission_callback( $request ) {
 		return true;
 	}
 
-	protected function endpoint() {
+	public function name() {
 		return 'critical-css/(?P<cacheKey>.+)/error';
 	}
 }

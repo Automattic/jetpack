@@ -35,7 +35,6 @@ declare global {
 		connection: ConnectionStatus;
 		criticalCssStatus?: CriticalCssStatus;
 		showRatingPromptNonce?: string;
-		criticalCssDismissRecommendationsNonce?: string;
 		criticalCssDismissedRecommendations: string[];
 		site: {
 			url: string;
@@ -44,6 +43,9 @@ declare global {
 		};
 		config: ModulesState;
 		shownAdminNoticeIds: string[];
+		nonces: {
+			[key: string]: string
+		};
 	};
 
 	// Critical CSS Generator library.

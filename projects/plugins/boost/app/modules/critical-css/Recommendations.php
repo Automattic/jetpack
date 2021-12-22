@@ -13,9 +13,8 @@ class Recommendations {
 	}
 
 	public function attach_hooks() {
-		add_action( 'rest_api_init', array( $this, 'register_rest_routes' ) );
 		add_filter( 'jetpack_boost_js_constants', array( $this, 'add_boost_js_constants' ) );
-		add_action( 'jetpack_boost_uninstall', array( $this, 'delete_all' ) );
+		add_action( 'jetpack_boost_uninstall', array( $this, 'reset' ) );
 	}
 
 	public function add_boost_js_constants( $constants ) {

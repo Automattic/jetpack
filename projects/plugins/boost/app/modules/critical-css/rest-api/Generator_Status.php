@@ -4,9 +4,9 @@ namespace Automattic\Jetpack_Boost\Modules\Critical_CSS\REST_API;
 
 use Automattic\Jetpack_Boost\Modules\Critical_CSS\Generate\Generator;
 
-class Generator_Status extends Boost_API {
+class Generator_Status implements Boost_Endpoint {
 
-	public function methods() {
+	public function request_methods() {
 		return \WP_REST_Server::READABLE;
 	}
 
@@ -15,11 +15,11 @@ class Generator_Status extends Boost_API {
 		return rest_ensure_response( $generator->get_critical_css_status() );
 	}
 
-	public function permissions() {
+	public function permission_callback( $request ) {
 		return current_user_can( 'manage_options' );
 	}
 
-	protected function endpoint() {
+	public function name() {
 		return 'status';
 	}
 }

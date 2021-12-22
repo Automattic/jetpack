@@ -120,7 +120,7 @@ export function setDismissalError( title: string, error: JSONObject ): void {
 export async function dismissRecommendation( key: string ): Promise< void > {
 	await api.post( '/recommendations/dismiss', {
 		providerKey: key,
-		nonce: Jetpack_Boost.criticalCssDismissRecommendationsNonce,
+		nonce: Jetpack_Boost.nonces['recommendations/dismiss'],
 	} );
 	dismissed.update( keys => [ ...keys, key ] );
 }
@@ -130,7 +130,7 @@ export async function dismissRecommendation( key: string ): Promise< void > {
  */
 export async function clearDismissedRecommendations(): Promise< void > {
 	await api.post( '/recommendations/reset', {
-		nonce: Jetpack_Boost.criticalCssDismissRecommendationsNonce,
+		nonce: Jetpack_Boost.nonces['recommendations/reset'],
 	} );
 	dismissed.set( [] );
 }

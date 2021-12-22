@@ -8,9 +8,9 @@ use Automattic\Jetpack_Boost\Modules\Critical_CSS\Critical_CSS_Storage;
 use Automattic\Jetpack_Boost\Modules\Critical_CSS\Generate\Generator;
 use Automattic\Jetpack_Boost\Modules\Critical_CSS\Recommendations;
 
-class Generator_Success extends Boost_API {
+class Generator_Success implements Boost_Endpoint {
 
-	public function methods() {
+	public function request_methods() {
 		return \WP_REST_Server::EDITABLE;
 	}
 
@@ -83,7 +83,7 @@ class Generator_Success extends Boost_API {
 
 		$storage->store_css( $cache_key, $params['data'] );
 		$generator->state->set_source_success( $cache_key );
-		$recommendations->delete_all();
+		$recommendations->reset();
 
 		Critical_CSS::clear_reset_reason();
 
@@ -97,11 +97,11 @@ class Generator_Success extends Boost_API {
 		);
 	}
 
-	public function permissions() {
+	public function permission_callback( $request ) {
 		return true;
 	}
 
-	protected function endpoint() {
+	public function name() {
 		return '/critical-css/(?P<cacheKey>.+)/success';
 	}
 }

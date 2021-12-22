@@ -7,9 +7,9 @@ use Automattic\Jetpack_Boost\Modules\Critical_CSS\Critical_CSS_Storage;
 use Automattic\Jetpack_Boost\Modules\Critical_CSS\Generate\Generator;
 use Automattic\Jetpack_Boost\Modules\Critical_CSS\Recommendations;
 
-class Generator_Request extends Boost_API {
+class Generator_Request implements Boost_Endpoint {
 
-	public function methods() {
+	public function request_methods() {
 		return \WP_REST_Server::EDITABLE;
 	}
 
@@ -27,7 +27,7 @@ class Generator_Request extends Boost_API {
 			// Create a new Critical CSS Request block to track creation request.
 			$storage->clear();
 			$generator->make_generation_request();
-			$recommendations->delete_all();
+			$recommendations->reset();
 			Critical_CSS::clear_reset_reason();
 		}
 
@@ -39,11 +39,11 @@ class Generator_Request extends Boost_API {
 		);
 	}
 
-	public function permissions() {
+	public function permission_callback( $request ) {
 		return current_user_can( 'manage_options' );
 	}
 
-	protected function endpoint() {
+	public function name() {
 		return 'critical-css/request-generate';
 	}
 }
