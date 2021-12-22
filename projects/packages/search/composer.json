@@ -61,6 +61,7 @@
 	"extra": {
 		"autotagger": true,
 		"mirror-repo": "Automattic/jetpack-search",
+		"textdomain": "jetpack-search-pkg",
 		"changelogger": {
 			"link-template": "https://github.com/Automattic/jetpack-search/compare/v${old}...v${new}"
 		},

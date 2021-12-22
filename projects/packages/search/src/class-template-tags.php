@@ -128,7 +128,7 @@ class Template_Tags {
 		<?php if ( $clear_url ) : ?>
 			<div class="jetpack-search-filters-widget__clear">
 				<a href="<?php echo esc_url( $clear_url ); ?>">
-					<?php esc_html_e( '< Clear Filters', 'jetpack' ); ?>
+					<?php esc_html_e( '< Clear Filters', 'jetpack-search-pkg' ); ?>
 				</a>
 			</div>
 		<?php endif; ?>
