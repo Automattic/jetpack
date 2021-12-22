@@ -13,6 +13,8 @@ use Automattic\Jetpack_Boost\Modules\Critical_CSS\API\Generator_Error;
 use Automattic\Jetpack_Boost\Modules\Critical_CSS\API\Generator_Success;
 use Automattic\Jetpack_Boost\Modules\Critical_CSS\API\Generator_Request;
 use Automattic\Jetpack_Boost\Modules\Critical_CSS\API\Generator_Status;
+use Automattic\Jetpack_Boost\Modules\Critical_CSS\API\Recommendations_Dismiss;
+use Automattic\Jetpack_Boost\Modules\Critical_CSS\API\Recommendations_Reset;
 use Automattic\Jetpack_Boost\Modules\Critical_CSS\Generate\Generator;
 use Automattic\Jetpack_Boost\Modules\Critical_CSS\Path_Providers\Paths;
 use Automattic\Jetpack_Boost\Modules\Module;
@@ -51,7 +53,7 @@ class Critical_CSS extends Module {
 		// so that Critical_CSS class is responsible
 		// for setting up the storage.
 		$recommendations = new Recommendations();
-		$recommendations->on_prepare();
+		$recommendations->attach_hooks();
 
 		add_action( 'rest_api_init', array( $this, 'register_rest_routes' ) );
 
@@ -82,10 +84,12 @@ class Critical_CSS extends Module {
 
 	public function register_rest_routes() {
 		$registered_routes = [
-			'status'           => Generator_Status::class,
-			'request-generate' => Generator_Request::class,
-			'generate-success' => Generator_Success::class,
-			'generate-error'   => Generator_Error::class,
+			'status'                  => Generator_Status::class,
+			'request-generate'        => Generator_Request::class,
+			'generate-success'        => Generator_Success::class,
+			'generate-error'          => Generator_Error::class,
+			'recommendations-dismiss' => Recommendations_Dismiss::class,
+			'recommendations-reset'   => Recommendations_Reset::class,
 		];
 
 		$active_routes = [];
