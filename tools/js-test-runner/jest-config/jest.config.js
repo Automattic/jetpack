@@ -16,6 +16,7 @@ module.exports = {
 			'./fileMock.js'
 		),
 		'\\.module\\.(css|less)$': 'identity-obj-proxy',
+		jetpackConfig: path.join( __dirname, './jetpack.config' ),
 	},
 	transform: {
 		'\\.[jt]sx?$': [
