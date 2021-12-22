@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Fixed initial configuration of lazy load behaving opposit to jetpack settings

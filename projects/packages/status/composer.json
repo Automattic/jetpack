@@ -1,7 +1,7 @@
 {
 	"name": "automattic/jetpack-status",
 	"description": "Used to retrieve information about the current status of Jetpack and the site overall.",
-	"type": "library",
+	"type": "jetpack-library",
 	"license": "GPL-2.0-or-later",
 	"require": {
 		"automattic/jetpack-constants": "^1.6"

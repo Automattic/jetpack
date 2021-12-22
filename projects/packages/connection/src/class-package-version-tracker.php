@@ -72,6 +72,11 @@ class Package_Version_Tracker {
 	 * @param array $package_versions The package versions.
 	 */
 	protected function update_package_versions_option( $package_versions ) {
+		$connection = new Manager();
+		if ( ! $connection->is_connected() ) {
+			return;
+		}
+
 		$site_id = \Jetpack_Options::get_option( 'id' );
 
 		$last_failed_attempt_within_hour = get_transient( self::CACHED_FAILED_REQUEST_KEY );

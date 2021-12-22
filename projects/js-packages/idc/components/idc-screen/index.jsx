@@ -3,81 +3,122 @@
  */
 import React, { useEffect, useState, useCallback } from 'react';
 import PropTypes from 'prop-types';
-import { __ } from '@wordpress/i18n';
+import analytics from '@automattic/jetpack-analytics';
 import restApi from '@automattic/jetpack-api';
-import { JetpackLogo } from '@automattic/jetpack-components';
 
 /**
  * Internal dependencies
  */
-import ScreenMain from './screen-main';
-import ScreenMigrated from './screen-migrated';
-import './style.scss';
+import IDCScreenVisual from './visual';
+import trackAndBumpMCStats from '../../tools/tracking';
+import useMigration from '../../hooks/use-migration';
+import useMigrationFinished from '../../hooks/use-migration-finished';
+import useStartFresh from '../../hooks/use-start-fresh';
+import customContentShape from '../../tools/custom-content-shape';
 
 /**
  * The IDC screen component.
  *
  * @param {object} props - The properties.
- * @param {React.Component} props.logo - The screen logo, Jetpack by default.
- * @param {string} props.headerText - The header text, 'Safe Mode' by default.
- * @param {string} props.wpcomHomeUrl - The original site URL.
- * @param {string} props.currentUrl - The current site URL.
- * @param {string} props.redirectUri - The redirect URI to redirect users back to after connecting.
- * @param {string} props.apiRoot - API root URL, required.
- * @param {string} props.apiNonce - API Nonce, required.
  * @returns {React.Component} The `ConnectScreen` component.
  */
 const IDCScreen = props => {
-	const { logo, headerText, wpcomHomeUrl, currentUrl, apiNonce, apiRoot, redirectUri } = props;
+	const {
+		logo,
+		customContent,
+		wpcomHomeUrl,
+		currentUrl,
+		apiNonce,
+		apiRoot,
+		redirectUri,
+		tracksUserData,
+		tracksEventData,
+		isAdmin,
+	} = props;
 
 	const [ isMigrated, setIsMigrated ] = useState( false );
 
-	const onMigrated = useCallback( () => {
-		setIsMigrated( true );
-	}, [ setIsMigrated ] );
+	const { isMigrating, migrateCallback } = useMigration(
+		useCallback( () => {
+			setIsMigrated( true );
+		}, [ setIsMigrated ] )
+	);
+
+	const { isStartingFresh, startFreshCallback } = useStartFresh( redirectUri );
+	const { isFinishingMigration, finishMigrationCallback } = useMigrationFinished();
 
 	/**
-	 * Initialize the REST API.
+	 * Initialize the REST API and analytics.
 	 */
 	useEffect( () => {
 		restApi.setApiRoot( apiRoot );
 		restApi.setApiNonce( apiNonce );
-	}, [ apiRoot, apiNonce ] );
+
+		if (
+			tracksUserData &&
+			tracksUserData.hasOwnProperty( 'userid' ) &&
+			tracksUserData.hasOwnProperty( 'username' )
+		) {
+			analytics.initialize( tracksUserData.userid, tracksUserData.username );
+		}
+
+		if ( tracksEventData ) {
+			if ( tracksEventData.hasOwnProperty( 'isAdmin' ) && tracksEventData.isAdmin ) {
+				trackAndBumpMCStats( 'notice_view' );
+			} else {
+				trackAndBumpMCStats( 'non_admin_notice_view', {
+					page: tracksEventData.hasOwnProperty( 'currentScreen' )
+						? tracksEventData.currentScreen
+						: false,
+				} );
+			}
+		}
+	}, [ apiRoot, apiNonce, tracksUserData, tracksEventData ] );
 
 	return (
-		<div className={ 'jp-idc__idc-screen' + ( isMigrated ? ' jp-idc__idc-screen__success' : '' ) }>
-			<div className="jp-idc__idc-screen__header">
-				<div className="jp-idc__idc-screen__logo">{ logo }</div>
-				<div className="jp-idc__idc-screen__logo-label">{ headerText }</div>
-			</div>
-
-			{ isMigrated ? (
-				<ScreenMigrated wpcomHomeUrl={ wpcomHomeUrl } currentUrl={ currentUrl } />
-			) : (
-				<ScreenMain
-					wpcomHomeUrl={ wpcomHomeUrl }
-					currentUrl={ currentUrl }
-					onMigrated={ onMigrated }
-					redirectUri={ redirectUri }
-				/>
-			) }
-		</div>
+		<IDCScreenVisual
+			logo={ logo }
+			customContent={ customContent }
+			wpcomHomeUrl={ wpcomHomeUrl }
+			currentUrl={ currentUrl }
+			redirectUri={ redirectUri }
+			isMigrating={ isMigrating }
+			migrateCallback={ migrateCallback }
+			isMigrated={ isMigrated }
+			finishMigrationCallback={ finishMigrationCallback }
+			isFinishingMigration={ isFinishingMigration }
+			isStartingFresh={ isStartingFresh }
+			startFreshCallback={ startFreshCallback }
+			isAdmin={ isAdmin }
+		/>
 	);
 };
 
 IDCScreen.propTypes = {
-	logo: PropTypes.object.isRequired,
-	headerText: PropTypes.string.isRequired,
+	/** The screen logo. */
+	logo: PropTypes.object,
+	/** Custom text content. */
+	customContent: PropTypes.shape( customContentShape ),
+	/** The original site URL. */
 	wpcomHomeUrl: PropTypes.string.isRequired,
+	/** The current site URL. */
 	currentUrl: PropTypes.string.isRequired,
+	/** The redirect URI to redirect users back to after connecting. */
 	redirectUri: PropTypes.string.isRequired,
+	/** API root URL. */
 	apiRoot: PropTypes.string.isRequired,
+	/** API Nonce. */
 	apiNonce: PropTypes.string.isRequired,
+	/** WordPress.com user's Tracks identity. */
+	tracksUserData: PropTypes.object,
+	/** WordPress.com event tracking information. */
+	tracksEventData: PropTypes.object,
+	/** Whether to display the "admin" or "non-admin" screen. */
+	isAdmin: PropTypes.bool.isRequired,
 };
 
 IDCScreen.defaultProps = {
-	logo: <JetpackLogo height={ 24 } />,
-	headerText: __( 'Safe Mode', 'jetpack' ),
+	customContent: {},
 };
 
 export default IDCScreen;

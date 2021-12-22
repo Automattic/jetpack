@@ -1,4 +1,4 @@
-import { WpPage } from '..';
+import WpPage from '../wp-page.js';
 
 export default class Sidebar extends WpPage {
 	constructor( page ) {
@@ -9,6 +9,13 @@ export default class Sidebar extends WpPage {
 		const jetpackMenuSelector = '#toplevel_page_jetpack';
 		const menuItemSelector =
 			'#toplevel_page_jetpack a[href$="jetpack#/dashboard"], #toplevel_page_jetpack a[href$="jetpack"]';
+
+		return await this._selectMenuItem( jetpackMenuSelector, menuItemSelector );
+	}
+
+	async selectJetpackBoost() {
+		const jetpackMenuSelector = '#toplevel_page_jetpack';
+		const menuItemSelector = '#toplevel_page_jetpack a[href$="jetpack-boost"]';
 
 		return await this._selectMenuItem( jetpackMenuSelector, menuItemSelector );
 	}
@@ -32,6 +39,13 @@ export default class Sidebar extends WpPage {
 		const itemSelector = '#menu-dashboard a[href*="index.php"]';
 
 		return await this._selectMenuItem( mainSelector, itemSelector );
+	}
+
+	async selectThemes() {
+		const pluginsSelector = '#menu-appearance';
+		const itemSelector = '#menu-appearance a[href*="themes.php"]';
+
+		return await this._selectMenuItem( pluginsSelector, itemSelector );
 	}
 
 	async _selectMenuItem( menuSelector, menuItemSelector ) {

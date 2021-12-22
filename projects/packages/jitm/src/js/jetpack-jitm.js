@@ -1,3 +1,5 @@
+import '../css/jetpack-admin-jitm.scss';
+
 jQuery( document ).ready( function ( $ ) {
 	var templates = {
 		default: function ( envelope ) {
