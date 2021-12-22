@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Fix handling of dev versions in i18n-map.php.
