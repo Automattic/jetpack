@@ -195,10 +195,6 @@ ConnectionStatusCard.propTypes = {
 	apiRoot: PropTypes.string.isRequired,
 	/** API Nonce, required. */
 	apiNonce: PropTypes.string.isRequired,
-	/** Whether a site level connection has already been established, required. If not, the component will not render. */
-	isRegistered: PropTypes.bool.isRequired,
-	/** Whether the current user has connected their WordPress.com account, required. */
-	isUserConnected: PropTypes.bool.isRequired,
 	/** The redirect admin URI after the user has connected their WordPress.com account. */
 	redirectUri: PropTypes.string.isRequired,
 	/** An object of the plugins currently using the Jetpack connection. */
