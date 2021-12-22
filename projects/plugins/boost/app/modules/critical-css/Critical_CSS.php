@@ -9,12 +9,12 @@
 
 namespace Automattic\Jetpack_Boost\Modules\Critical_CSS;
 
-use Automattic\Jetpack_Boost\Modules\Critical_CSS\API\Generator_Error;
-use Automattic\Jetpack_Boost\Modules\Critical_CSS\API\Generator_Success;
-use Automattic\Jetpack_Boost\Modules\Critical_CSS\API\Generator_Request;
-use Automattic\Jetpack_Boost\Modules\Critical_CSS\API\Generator_Status;
-use Automattic\Jetpack_Boost\Modules\Critical_CSS\API\Recommendations_Dismiss;
-use Automattic\Jetpack_Boost\Modules\Critical_CSS\API\Recommendations_Reset;
+use Automattic\Jetpack_Boost\Modules\Critical_CSS\REST_API\Generator_Error;
+use Automattic\Jetpack_Boost\Modules\Critical_CSS\REST_API\Generator_Success;
+use Automattic\Jetpack_Boost\Modules\Critical_CSS\REST_API\Generator_Request;
+use Automattic\Jetpack_Boost\Modules\Critical_CSS\REST_API\Generator_Status;
+use Automattic\Jetpack_Boost\Modules\Critical_CSS\REST_API\Recommendations_Dismiss;
+use Automattic\Jetpack_Boost\Modules\Critical_CSS\REST_API\Recommendations_Reset;
 use Automattic\Jetpack_Boost\Modules\Critical_CSS\Generate\Generator;
 use Automattic\Jetpack_Boost\Modules\Critical_CSS\Path_Providers\Paths;
 use Automattic\Jetpack_Boost\Modules\Module;

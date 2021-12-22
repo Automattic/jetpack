@@ -1,6 +1,6 @@
 <?php
 
-namespace Automattic\Jetpack_Boost\Modules\Critical_CSS\API;
+namespace Automattic\Jetpack_Boost\Modules\Critical_CSS\REST_API;
 
 abstract class Boost_API {
 

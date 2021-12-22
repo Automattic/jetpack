@@ -1,6 +1,6 @@
 <?php
 
-namespace Automattic\Jetpack_Boost\Modules\Critical_CSS\API;
+namespace Automattic\Jetpack_Boost\Modules\Critical_CSS\REST_API;
 use Automattic\Jetpack_Boost\Modules\Critical_CSS\Recommendations;
 
 class Recommendations_Dismiss extends Boost_API {
