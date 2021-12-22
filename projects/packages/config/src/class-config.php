@@ -126,7 +126,7 @@ class Config {
 					/* translators: %1$s is a PHP class name. */
 					esc_html__(
 						'Unable to load class %1$s. Please add the package that contains it using composer and make sure you are requiring the Jetpack autoloader',
-						'jetpack'
+						'jetpack-config'
 					),
 					esc_html( $classname )
 				),

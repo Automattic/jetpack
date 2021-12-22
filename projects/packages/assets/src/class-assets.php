@@ -384,7 +384,7 @@ class Assets {
 			_doing_it_wrong(
 				__METHOD__,
 				/* translators: %s is the script handle. */
-				esc_html( sprintf( __( 'Script "%s" depends on wp-i18n but does not specify "textdomain"', 'jetpack' ), $handle ) ),
+				esc_html( sprintf( __( 'Script "%s" depends on wp-i18n but does not specify "textdomain"', 'jetpack-assets' ), $handle ) ),
 				''
 			);
 		}
@@ -518,7 +518,7 @@ class Assets {
 				__METHOD__,
 				sprintf(
 					/* translators: 1: wp_default_scripts. 2: Name of the domain being aliased. */
-					esc_html__( 'Textdomain aliases should be registered before the %1$s hook. This notice was triggered by the %2$s domain.', 'jetpack' ),
+					esc_html__( 'Textdomain aliases should be registered before the %1$s hook. This notice was triggered by the %2$s domain.', 'jetpack-assets' ),
 					'<code>wp_default_scripts</code>',
 					'<code>' . esc_html( $from ) . '</code>'
 				),

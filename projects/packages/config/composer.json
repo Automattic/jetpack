@@ -25,6 +25,7 @@
 	"extra": {
 		"autotagger": true,
 		"mirror-repo": "Automattic/jetpack-config",
+		"textdomain": "jetpack-config",
 		"changelogger": {
 			"link-template": "https://github.com/Automattic/jetpack-config/compare/v${old}...v${new}"
 		},

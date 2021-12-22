@@ -38,7 +38,12 @@ export default function MyJetpackScreen() {
 				<AdminSectionHero>
 					<Row>
 						<Col lg={ 12 } md={ 8 } sm={ 4 }>
-							<h1>{ __( 'Manage your Jetpack plan and products all in one place', 'jetpack' ) }</h1>
+							<h1>
+								{ __(
+									'Manage your Jetpack plan and products all in one place',
+									'jetpack-my-jetpack'
+								) }
+							</h1>
 						</Col>
 					</Row>
 				</AdminSectionHero>
@@ -46,7 +51,7 @@ export default function MyJetpackScreen() {
 				<AdminSection>
 					<Row>
 						<Col lg={ 6 } sm={ 4 }>
-							<h1>{ __( 'My Plan', 'jetpack' ) }</h1>
+							<h1>{ __( 'My Plan', 'jetpack-my-jetpack' ) }</h1>
 						</Col>
 						<Col lg={ 6 } sm={ 4 }>
 							<ConnectionStatusCard

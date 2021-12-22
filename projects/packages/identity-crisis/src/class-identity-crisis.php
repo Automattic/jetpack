@@ -246,7 +246,7 @@ class Identity_Crisis {
 		$title = sprintf(
 			'<span class="jp-idc-admin-bar">%s %s</span>',
 			'<span class="dashicons dashicons-warning"></span>',
-			esc_html__( 'Jetpack Safe Mode', 'jetpack' )
+			esc_html__( 'Jetpack Safe Mode', 'jetpack-idc' )
 		);
 
 		$menu = array(
@@ -445,7 +445,7 @@ class Identity_Crisis {
 				'cannot_parse_url',
 				sprintf(
 				/* translators: %s: URL to parse. */
-					esc_html__( 'Cannot parse URL %s', 'jetpack' ),
+					esc_html__( 'Cannot parse URL %s', 'jetpack-idc' ),
 					$url
 				)
 			);
@@ -691,7 +691,7 @@ class Identity_Crisis {
 				?>
 			</div>
 			<p class="jp-idc-notice__header__text">
-				<?php esc_html_e( 'Jetpack Safe Mode', 'jetpack' ); ?>
+				<?php esc_html_e( 'Jetpack Safe Mode', 'jetpack-idc' ); ?>
 			</p>
 		</div>
 
@@ -715,12 +715,12 @@ class Identity_Crisis {
 			</svg>
 			<div class="dops-notice__content">
 				<span class="dops-notice__text">
-					<?php esc_html_e( 'Something went wrong:', 'jetpack' ); ?>
+					<?php esc_html_e( 'Something went wrong:', 'jetpack-idc' ); ?>
 					<span class="jp-idc-error__desc"></span>
 				</span>
 				<a class="dops-notice__action" href="javascript:void(0);">
 					<span id="jp-idc-error__action">
-						<?php esc_html_e( 'Try Again', 'jetpack' ); ?>
+						<?php esc_html_e( 'Try Again', 'jetpack-idc' ); ?>
 					</span>
 				</a>
 			</div>
@@ -824,7 +824,7 @@ class Identity_Crisis {
 		$html = wp_kses(
 			sprintf(
 			/* translators: %s: Safe mode docs URL and site URL. */
-				__( 'Jetpack has been placed into <a href="%1$s">Safe mode</a> because we noticed this is an exact copy of <a href="%2$s">%3$s</a>.', 'jetpack' ),
+				__( 'Jetpack has been placed into <a href="%1$s">Safe mode</a> because we noticed this is an exact copy of <a href="%2$s">%3$s</a>.', 'jetpack-idc' ),
 				esc_url( self::get_safe_mod_doc_url() ),
 				esc_url( self::$wpcom_home_url ),
 				self::prepare_url_for_display( esc_url_raw( self::$wpcom_home_url ) )
@@ -852,7 +852,7 @@ class Identity_Crisis {
 		$html = wp_kses(
 			sprintf(
 			/* translators: %s: Safe mode docs URL. */
-				__( 'Please confirm Safe Mode or fix the Jetpack connection. Select one of the options below or <a href="%1$s">learn more about Safe Mode</a>.', 'jetpack' ),
+				__( 'Please confirm Safe Mode or fix the Jetpack connection. Select one of the options below or <a href="%1$s">learn more about Safe Mode</a>.', 'jetpack-idc' ),
 				esc_url( self::get_safe_mod_doc_url() )
 			),
 			array( 'a' => array( 'href' => array() ) )
@@ -878,7 +878,7 @@ class Identity_Crisis {
 		$html = wp_kses(
 			sprintf(
 			/* translators: %s: Site URL. */
-				__( 'Is this website a temporary duplicate of <a href="%1$s">%2$s</a> for the purposes of testing, staging or development? If so, we recommend keeping it in Safe Mode.', 'jetpack' ),
+				__( 'Is this website a temporary duplicate of <a href="%1$s">%2$s</a> for the purposes of testing, staging or development? If so, we recommend keeping it in Safe Mode.', 'jetpack-idc' ),
 				esc_url( untrailingslashit( self::$wpcom_home_url ) ),
 				self::prepare_url_for_display( esc_url( self::$wpcom_home_url ) )
 			),
@@ -902,7 +902,7 @@ class Identity_Crisis {
 	 * @return string
 	 */
 	public function get_confirm_safe_mode_button_text() {
-		$string = esc_html__( 'Confirm Safe Mode', 'jetpack' );
+		$string = esc_html__( 'Confirm Safe Mode', 'jetpack-idc' );
 
 		/**
 		 * Allows overriding of the default text used for the confirm safe mode action button.
@@ -924,7 +924,7 @@ class Identity_Crisis {
 		$html = wp_kses(
 			sprintf(
 			/* translators: %s: Site URL. */
-				__( 'If this is a separate and new website, or the new home of <a href="%1$s">%2$s</a>, we recommend turning Safe Mode off, and re-establishing your connection to WordPress.com.', 'jetpack' ),
+				__( 'If this is a separate and new website, or the new home of <a href="%1$s">%2$s</a>, we recommend turning Safe Mode off, and re-establishing your connection to WordPress.com.', 'jetpack-idc' ),
 				esc_url( untrailingslashit( self::$wpcom_home_url ) ),
 				self::prepare_url_for_display( esc_url( self::$wpcom_home_url ) )
 			),
@@ -948,7 +948,7 @@ class Identity_Crisis {
 	 * @return string
 	 */
 	public function get_first_step_fix_connection_button_text() {
-		$string = esc_html__( "Fix Jetpack's Connection", 'jetpack' );
+		$string = esc_html__( "Fix Jetpack's Connection", 'jetpack-idc' );
 
 		/**
 		 * Allows overriding of the default text used for the fix Jetpack connection action button.
@@ -969,7 +969,7 @@ class Identity_Crisis {
 	public function get_second_step_header_lead() {
 		$string = sprintf(
 		/* translators: %s: Site URL. */
-			esc_html__( 'Is %1$s the new home of %2$s?', 'jetpack' ),
+			esc_html__( 'Is %1$s the new home of %2$s?', 'jetpack-idc' ),
 			untrailingslashit( self::normalize_url_protocol_agnostic( get_home_url() ) ),
 			untrailingslashit( self::normalize_url_protocol_agnostic( esc_url_raw( self::$wpcom_home_url ) ) )
 		);
@@ -994,7 +994,7 @@ class Identity_Crisis {
 		$html = wp_kses(
 			sprintf(
 			/* translators: %s: Site URL. */
-				__( 'Yes. <a href="%1$s">%2$s</a> is replacing <a href="%3$s">%4$s</a>. I would like to migrate my stats and subscribers from <a href="%3$s">%4$s</a> to <a href="%1$s">%2$s</a>.', 'jetpack' ),
+				__( 'Yes. <a href="%1$s">%2$s</a> is replacing <a href="%3$s">%4$s</a>. I would like to migrate my stats and subscribers from <a href="%3$s">%4$s</a> to <a href="%1$s">%2$s</a>.', 'jetpack-idc' ),
 				esc_url( get_home_url() ),
 				self::prepare_url_for_display( get_home_url() ),
 				esc_url( self::$wpcom_home_url ),
@@ -1020,7 +1020,7 @@ class Identity_Crisis {
 	 * @return string
 	 */
 	public function get_migrate_site_button_text() {
-		$string = esc_html__( 'Migrate Stats &amp; Subscribers', 'jetpack' );
+		$string = esc_html__( 'Migrate Stats &amp; Subscribers', 'jetpack-idc' );
 
 		/**
 		 * Allows overriding of the default text used for the migrate site action button.
@@ -1042,7 +1042,7 @@ class Identity_Crisis {
 		$html = wp_kses(
 			sprintf(
 			/* translators: %s: Site URL. */
-				__( 'No. <a href="%1$s">%2$s</a> is a new and different website that\'s separate from <a href="%3$s">%4$s</a>. It requires  a new connection to WordPress.com for new stats and subscribers.', 'jetpack' ),
+				__( 'No. <a href="%1$s">%2$s</a> is a new and different website that\'s separate from <a href="%3$s">%4$s</a>. It requires  a new connection to WordPress.com for new stats and subscribers.', 'jetpack-idc' ),
 				esc_url( get_home_url() ),
 				self::prepare_url_for_display( get_home_url() ),
 				esc_url( self::$wpcom_home_url ),
@@ -1068,7 +1068,7 @@ class Identity_Crisis {
 	 * @return string
 	 */
 	public function get_start_fresh_button_text() {
-		$string = esc_html__( 'Start Fresh &amp; Create New Connection', 'jetpack' );
+		$string = esc_html__( 'Start Fresh &amp; Create New Connection', 'jetpack-idc' );
 
 		/**
 		 * Allows overriding of the default text used for the start fresh action button.
@@ -1090,7 +1090,7 @@ class Identity_Crisis {
 		$html = wp_kses(
 			sprintf(
 			/* translators: %s: Safe mode docs URL. */
-				__( 'Unsure what to do? <a href="%1$s">Read more about Jetpack Safe Mode</a>', 'jetpack' ),
+				__( 'Unsure what to do? <a href="%1$s">Read more about Jetpack Safe Mode</a>', 'jetpack-idc' ),
 				esc_url( self::get_safe_mod_doc_url() )
 			),
 			array( 'a' => array( 'href' => array() ) )
@@ -1119,7 +1119,7 @@ class Identity_Crisis {
 		$html = wp_kses(
 			sprintf(
 			/* translators: %s: Safe mode docs URL. */
-				__( 'Jetpack has been placed into Safe Mode. Learn more about <a href="%1$s">Safe Mode</a>.', 'jetpack' ),
+				__( 'Jetpack has been placed into Safe Mode. Learn more about <a href="%1$s">Safe Mode</a>.', 'jetpack-idc' ),
 				esc_url( self::get_safe_mod_doc_url() )
 			),
 			array( 'a' => array( 'href' => array() ) )
@@ -1145,7 +1145,7 @@ class Identity_Crisis {
 	public function get_non_admin_contact_admin_text() {
 		_deprecated_function( __METHOD__, '0.5.0' );
 
-		$string = esc_html__( 'An administrator of this site can take Jetpack out of Safe Mode.', 'jetpack' );
+		$string = esc_html__( 'An administrator of this site can take Jetpack out of Safe Mode.', 'jetpack-idc' );
 
 		/**
 		 * Allows overriding of the default text that is displayed to non-admins prompting them to contact an admin.

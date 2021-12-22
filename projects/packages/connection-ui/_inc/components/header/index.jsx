@@ -17,7 +17,7 @@ import './style.scss';
 const Header = () => {
 	return (
 		<div className="jetpack-cui__header">
-			<h1>{ __( 'Connection Manager', 'jetpack' ) }</h1>
+			<h1>{ __( 'Connection Manager', 'jetpack-connection-ui' ) }</h1>
 		</div>
 	);
 };
