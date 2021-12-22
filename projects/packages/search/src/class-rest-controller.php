@@ -265,11 +265,12 @@ class REST_Controller {
 		if ( is_wp_error( $ret ) ) {
 			return $ret;
 		}
-		// TODO change to use `Automattic\Jetpack\Search\Instant_Search`.
+
+		// TODO: need to revist the logic here when Instant Search migration is finished.
+		// We will either to make sure the auto config process is idempotent or call it only once.
 		// Automatically configure necessary settings for instant search.
-		if ( class_exists( '\Jetpack_Instant_Search' ) ) {
-			\Jetpack_Instant_Search::instance()->auto_config_search();
-		}
+		// Automattic\Jetpack\Search\Instant_Search::instanace()->auto_config_search();.
+
 		return rest_ensure_response(
 			array(
 				'code' => 'success',
