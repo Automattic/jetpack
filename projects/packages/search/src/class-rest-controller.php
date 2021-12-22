@@ -269,7 +269,7 @@ class REST_Controller {
 		// TODO: need to revist the logic here when Instant Search migration is finished.
 		// We will either to make sure the auto config process is idempotent or call it only once.
 		// Automatically configure necessary settings for instant search.
-		// Automattic\Jetpack\Search\Instant_Search::instanace()->auto_config_search();.
+		// Automattic\Jetpack\Search\Instant_Search::instanace()->auto_config_search();//.
 
 		return rest_ensure_response(
 			array(
