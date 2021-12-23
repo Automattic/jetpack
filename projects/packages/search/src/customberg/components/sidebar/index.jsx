@@ -33,7 +33,7 @@ export default function Sidebar( props ) {
 				<Tabs enabledSidebarName={ enabledSidebarName } enableSidebar={ enableSidebar } />
 				<SaveButton />
 				<Button
-					aria-label={ __( 'Show preview', 'jetpack' ) }
+					aria-label={ __( 'Show preview', 'jetpack-search-pkg' ) }
 					className="jp-search-configure-sidebar__hide-settings-button"
 					isSecondary
 					onClick={ disableSidebar }

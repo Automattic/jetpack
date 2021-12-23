@@ -48,12 +48,12 @@ export default function ExcludedPostTypesControl( {
 	return (
 		<div className="jp-search-configure-excluded-post-types-control components-base-control">
 			<div className="jp-search-configure-excluded-post-types-control__label">
-				{ __( 'Excluded post types', 'jetpack' ) }
+				{ __( 'Excluded post types', 'jetpack-search-pkg' ) }
 			</div>
 			{ isLastUnchecked && (
 				<Notice isDismissible={ false } status="info">
 					{ /* translators: for excluded post types control; one post type must remain included. */ }
-					{ __( 'You must leave at least one post type unchecked.', 'jetpack' ) }
+					{ __( 'You must leave at least one post type unchecked.', 'jetpack-search-pkg' ) }
 				</Notice>
 			) }
 			{ validPostTypeNames.map( type => (

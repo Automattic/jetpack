@@ -66,42 +66,42 @@ export default function SidebarOptions() {
 				'jp-search-configure-sidebar-options--is-disabled': isDisabled,
 			} ) }
 		>
-			<PanelBody title={ __( 'Styling', 'jetpack' ) } initialOpen={ true }>
+			<PanelBody title={ __( 'Styling', 'jetpack-search-pkg' ) } initialOpen={ true }>
 				<ThemeControl disabled={ isDisabled } onChange={ setTheme } value={ theme } />
 				<RadioControl
 					className="jp-search-configure-result-format-radios"
-					label={ __( 'Result format', 'jetpack' ) }
+					label={ __( 'Result format', 'jetpack-search-pkg' ) }
 					selected={ resultFormat }
 					options={ [
-						{ label: __( 'Minimal', 'jetpack' ), value: 'minimal' },
-						{ label: __( 'Expanded (shows images)', 'jetpack' ), value: 'expanded' },
-						{ label: __( 'Product (for WooCommerce stores)', 'jetpack' ), value: 'product' },
+						{ label: __( 'Minimal', 'jetpack-search-pkg' ), value: 'minimal' },
+						{ label: __( 'Expanded (shows images)', 'jetpack-search-pkg' ), value: 'expanded' },
+						{ label: __( 'Product (for WooCommerce stores)', 'jetpack-search-pkg' ), value: 'product' },
 					] }
 					onChange={ setResultFormat }
 				/>
 				<ColorControl disabled={ isDisabled } onChange={ setColor } value={ color } />
 			</PanelBody>
 
-			<PanelBody title={ __( 'Search options', 'jetpack' ) } initialOpen={ true }>
+			<PanelBody title={ __( 'Search options', 'jetpack-search-pkg' ) } initialOpen={ true }>
 				<SelectControl
 					disabled={ isDisabled }
-					label={ __( 'Default sort', 'jetpack' ) }
+					label={ __( 'Default sort', 'jetpack-search-pkg' ) }
 					value={ sort }
 					options={ [
-						{ label: __( 'Relevance (recommended)', 'jetpack' ), value: 'relevance' },
-						{ label: __( 'Newest first', 'jetpack' ), value: 'newest' },
-						{ label: __( 'Oldest first', 'jetpack' ), value: 'oldest' },
+						{ label: __( 'Relevance (recommended)', 'jetpack-search-pkg' ), value: 'relevance' },
+						{ label: __( 'Newest first', 'jetpack-search-pkg' ), value: 'newest' },
+						{ label: __( 'Oldest first', 'jetpack-search-pkg' ), value: 'oldest' },
 					] }
 					onChange={ setSort }
 				/>
 				<SelectControl
 					disabled={ isDisabled }
-					label={ __( 'Overlay trigger', 'jetpack' ) }
+					label={ __( 'Overlay trigger', 'jetpack-search-pkg' ) }
 					value={ trigger }
 					options={ [
-						{ label: __( 'Open when the user starts typing', 'jetpack' ), value: 'immediate' },
-						{ label: __( 'Open when results are available', 'jetpack' ), value: 'results' },
-						{ label: __( 'Open when user submits the form', 'jetpack' ), value: 'submit' },
+						{ label: __( 'Open when the user starts typing', 'jetpack-search-pkg' ), value: 'immediate' },
+						{ label: __( 'Open when results are available', 'jetpack-search-pkg' ), value: 'results' },
+						{ label: __( 'Open when user submits the form', 'jetpack-search-pkg' ), value: 'submit' },
 					] }
 					onChange={ setTrigger }
 				/>
@@ -112,23 +112,23 @@ export default function SidebarOptions() {
 				/>
 			</PanelBody>
 
-			<PanelBody title={ __( 'Additional settings', 'jetpack' ) } initialOpen={ true }>
+			<PanelBody title={ __( 'Additional settings', 'jetpack-search-pkg' ) } initialOpen={ true }>
 				<ToggleControl
 					checked={ sortEnabled }
 					disabled={ isDisabled }
-					label={ __( 'Show sort selector', 'jetpack' ) }
+					label={ __( 'Show sort selector', 'jetpack-search-pkg' ) }
 					onChange={ setSortEnabled }
 				/>
 				<ToggleControl
 					checked={ infiniteScroll }
 					disabled={ isDisabled }
-					label={ __( 'Enable infinite scroll', 'jetpack' ) }
+					label={ __( 'Enable infinite scroll', 'jetpack-search-pkg' ) }
 					onChange={ setInfiniteScroll }
 				/>
 				<ToggleControl
 					checked={ showLogo }
 					disabled={ isDisabled }
-					label={ __( 'Show "Powered by Jetpack"', 'jetpack' ) }
+					label={ __( 'Show "Powered by Jetpack"', 'jetpack-search-pkg' ) }
 					onChange={ setShowLogo }
 				/>
 			</PanelBody>

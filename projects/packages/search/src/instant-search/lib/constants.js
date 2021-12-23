@@ -30,12 +30,12 @@ export const VALID_RESULT_FORMAT_KEYS = [
 	RESULT_FORMAT_PRODUCT,
 ];
 export const SORT_OPTIONS = new Map( [
-	[ RELEVANCE_SORT_KEY, __( 'Relevance', 'jetpack' ) ],
-	[ 'newest', __( 'Newest', 'jetpack' ) ],
-	[ 'oldest', __( 'Oldest', 'jetpack' ) ],
+	[ RELEVANCE_SORT_KEY, __( 'Relevance', 'jetpack-search-pkg' ) ],
+	[ 'newest', __( 'Newest', 'jetpack-search-pkg' ) ],
+	[ 'oldest', __( 'Oldest', 'jetpack-search-pkg' ) ],
 ] );
 export const PRODUCT_SORT_OPTIONS = new Map( [
-	[ 'price_asc', __( 'Price: low to high', 'jetpack' ) ],
-	[ 'price_desc', __( 'Price: high to low', 'jetpack' ) ],
-	[ 'rating_desc', __( 'Rating', 'jetpack' ) ],
+	[ 'price_asc', __( 'Price: low to high', 'jetpack-search-pkg' ) ],
+	[ 'price_desc', __( 'Price: high to low', 'jetpack-search-pkg' ) ],
+	[ 'rating_desc', __( 'Rating', 'jetpack-search-pkg' ) ],
 ] );

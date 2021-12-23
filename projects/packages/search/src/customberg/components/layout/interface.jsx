@@ -25,7 +25,7 @@ export default function Interface( props ) {
 			<div className="interface-interface-skeleton__editor">
 				<div
 					/* translators: accessibility text for the widgets screen top bar landmark region. */
-					aria-label={ __( 'Jetpack Search customization top bar', 'jetpack' ) }
+					aria-label={ __( 'Jetpack Search customization top bar', 'jetpack-search-pkg' ) }
 					className="interface-interface-skeleton__header"
 					role="region"
 					tabIndex="-1"
@@ -38,7 +38,7 @@ export default function Interface( props ) {
 					{ !! enabledSidebarName && (
 						<div
 							/* translators: accessibility text for the widgets screen settings landmark region. */
-							aria-label={ __( 'Jetpack Search customization settings', 'jetpack' ) }
+							aria-label={ __( 'Jetpack Search customization settings', 'jetpack-search-pkg' ) }
 							className="interface-interface-skeleton__sidebar"
 							role="region"
 							tabIndex="-1"

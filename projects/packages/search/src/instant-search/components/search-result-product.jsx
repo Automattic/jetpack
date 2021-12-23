@@ -31,7 +31,7 @@ class SearchResultProduct extends Component {
 		const title =
 			Array.isArray( highlight.title ) && highlight.title[ 0 ].length > 0
 				? highlight.title[ 0 ]
-				: __( 'No title', 'jetpack' );
+				: __( 'No title', 'jetpack-search-pkg' );
 
 		// TODO: Remove this check once checking result.highlight is more reliable.
 		const hasQuery =
@@ -73,7 +73,7 @@ class SearchResultProduct extends Component {
 								<Gridicon
 									icon="image"
 									style={ {} } // Mandatory. Overrides manual setting of height/width in Gridicon.
-									title={ __( 'Does not have an image', 'jetpack' ) }
+									title={ __( 'Does not have an image', 'jetpack-search-pkg' ) }
 								/>
 							</div>
 						) }
@@ -110,10 +110,10 @@ class SearchResultProduct extends Component {
 							<Gridicon icon="search" style={ {} } title={ false } />
 							<span>
 								{ 'comment' in highlight
-									? __( 'Matches comments', 'jetpack' )
+									? __( 'Matches comments', 'jetpack-search-pkg' )
 									: __(
 											'Matches content',
-											'jetpack',
+											'jetpack-search-pkg',
 											/* dummy arg to avoid bad minification */ 0
 									  ) }
 							</span>

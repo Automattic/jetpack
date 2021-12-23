@@ -24,11 +24,11 @@ export default function SidebarDescription() {
 				<p>
 					{ __(
 						'Jetpack Instant Search will allow your visitors to get search results as soon as they start typing. Customize this experience to offer better results that match your site.',
-						'jetpack'
+						'jetpack-search-pkg'
 					) }
 				</p>
 				<Button href={ 'widgets.php' } isTertiary>
-					{ __( 'Edit widgets', 'jetpack' ) }
+					{ __( 'Edit widgets', 'jetpack-search-pkg' ) }
 				</Button>
 				<Button
 					href={ addQueryArgs( 'customize.php', {
@@ -37,7 +37,7 @@ export default function SidebarDescription() {
 					} ) }
 					isTertiary
 				>
-					{ __( 'Configure in the Customizer', 'jetpack' ) }
+					{ __( 'Configure in the Customizer', 'jetpack-search-pkg' ) }
 				</Button>
 			</div>
 		</div>

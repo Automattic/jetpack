@@ -30,7 +30,7 @@ export default function Tabs( { enabledSidebarName, enableSidebar } ) {
 					enableSidebar={ enableSidebar }
 					identifier={ JP_SEARCH_TAB_IDENTIFIER }
 					isActive={ enabledSidebarName === JP_SEARCH_TAB_IDENTIFIER }
-					label={ __( 'Jetpack Search', 'jetpack' ) }
+					label={ __( 'Jetpack Search', 'jetpack-search-pkg' ) }
 				/>
 			</li>
 			<li>
@@ -38,7 +38,7 @@ export default function Tabs( { enabledSidebarName, enableSidebar } ) {
 					enableSidebar={ enableSidebar }
 					identifier={ OPTIONS_TAB_IDENTIFIER }
 					isActive={ enabledSidebarName === OPTIONS_TAB_IDENTIFIER }
-					label={ __( 'Options', 'jetpack' ) }
+					label={ __( 'Options', 'jetpack-search-pkg' ) }
 				/>
 			</li>
 		</ul>
@@ -57,7 +57,7 @@ export default function Tabs( { enabledSidebarName, enableSidebar } ) {
  */
 function Tab( { enableSidebar, identifier, label, isActive } ) {
 	// translators: %s: sidebar label e.g: "Options".
-	const ariaLabel = isActive ? sprintf( __( '%s (selected)', 'jetpack' ), label ) : label;
+	const ariaLabel = isActive ? sprintf( __( '%s (selected)', 'jetpack-search-pkg' ), label ) : label;
 	return (
 		<Button
 			// eslint-disable-next-line react/jsx-no-bind

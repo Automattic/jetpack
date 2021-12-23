@@ -38,7 +38,7 @@ export default function ProductRatings( { rating = 0, count = 0, permalink } ) {
 			>
 				{ sprintf(
 					/* Translators: the placeholder is the number of product reviews. */
-					_n( '%d review', '%d reviews', count, 'jetpack' ),
+					_n( '%d review', '%d reviews', count, 'jetpack-search-pkg' ),
 					count
 				) }
 			</a>
@@ -49,7 +49,7 @@ export default function ProductRatings( { rating = 0, count = 0, permalink } ) {
 						'Average rating of %1$d out of 5 from %2$d review.',
 						'Average rating of %1$d out of 5 from %2$d reviews.',
 						count,
-						'jetpack'
+						'jetpack-search-pkg'
 					),
 					Number( rating ).toFixed( 2 ),
 					count

@@ -47,8 +47,8 @@ export default function SaveButton() {
 			onClick={ onClick }
 		>
 			{ isSaving
-				? __( 'Saving…', 'jetpack' )
-				: __( 'Save', 'jetpack', /* dummy arg to avoid bad minification */ 0 ) }
+				? __( 'Saving…', 'jetpack-search-pkg' )
+				: __( 'Save', 'jetpack-search-pkg', /* dummy arg to avoid bad minification */ 0 ) }
 		</Button>
 	);
 }

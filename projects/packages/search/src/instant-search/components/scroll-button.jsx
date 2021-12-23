@@ -40,9 +40,9 @@ class ScrollButton extends Component {
 				onClick={ this.props.onLoadNextPage }
 			>
 				{ this.props.isLoading ? (
-					<span>{ __( 'Loading…', 'jetpack' ) }</span>
+					<span>{ __( 'Loading…', 'jetpack-search-pkg' ) }</span>
 				) : (
-					<span>{ __( 'Load more', 'jetpack' ) }</span>
+					<span>{ __( 'Load more', 'jetpack-search-pkg' ) }</span>
 				) }
 			</button>
 		);

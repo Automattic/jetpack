@@ -63,7 +63,7 @@ const JetpackColophon = props => {
 			>
 				{ svg }
 				<span className="jetpack-instant-search__jetpack-colophon-text">
-					{ __( 'Search powered by Jetpack', 'jetpack' ) }
+					{ __( 'Search powered by Jetpack', 'jetpack-search-pkg' ) }
 				</span>
 			</a>
 		</div>

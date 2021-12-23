@@ -76,7 +76,7 @@ export default function AppWrapper() {
 	return (
 		<div
 			/* translators: accessibility text for the widgets screen content landmark region. */
-			aria-label={ __( 'Jetpack Search customization preview', 'jetpack' ) }
+			aria-label={ __( 'Jetpack Search customization preview', 'jetpack-search-pkg' ) }
 			className="jp-search-configure-app-wrapper"
 			role="region"
 			tabIndex="-1"
@@ -86,7 +86,7 @@ export default function AppWrapper() {
 					className="jp-search-configure-loading-spinner"
 					width="32"
 					height="32"
-					alt={ __( 'Loading', 'jetpack' ) }
+					alt={ __( 'Loading', 'jetpack-search-pkg' ) }
 					src="//en.wordpress.com/i/loading/loading-64.gif"
 				/>
 			) : (

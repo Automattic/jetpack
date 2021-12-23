@@ -34,7 +34,7 @@ module.exports = {
 	plugins: [
 		...jetpackWebpackConfig.StandardPlugins( {
 			DependencyExtractionPlugin: { injectPolyfill: true },
-			I18nLoaderPlugin: { textdomain: 'jetpack' },
+			I18nLoaderPlugin: { textdomain: 'jetpack-search-pkg' },
 		} ),
 		definePaletteColorsAsStaticVariables(),
 	],

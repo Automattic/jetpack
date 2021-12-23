@@ -63,20 +63,20 @@ class SearchResults extends Component {
 
 		if ( this.props.isLoading ) {
 			if ( ! hasQuery ) {
-				return __( 'Loading popular results…', 'jetpack' );
+				return __( 'Loading popular results…', 'jetpack-search-pkg' );
 			}
 
-			return __( 'Searching…', 'jetpack', /* dummy arg to avoid bad minification */ 0 );
+			return __( 'Searching…', 'jetpack-search-pkg', /* dummy arg to avoid bad minification */ 0 );
 		}
 
 		if ( total === 0 || this.props.hasError ) {
-			return __( 'No results found', 'jetpack' );
+			return __( 'No results found', 'jetpack-search-pkg' );
 		}
 
 		if ( hasQuery && hasCorrectedQuery ) {
 			return sprintf(
 				/* translators: %1$s: number of results. %2$s: the corrected search query. */
-				_n( 'Found %1$s result for "%2$s"', 'Found %1$s results for "%2$s"', total, 'jetpack' ),
+				_n( 'Found %1$s result for "%2$s"', 'Found %1$s results for "%2$s"', total, 'jetpack-search-pkg' ),
 				num,
 				corrected_query
 			);
@@ -86,23 +86,23 @@ class SearchResults extends Component {
 				group.length === 1 && group[ 0 ].values
 					? group[ 0 ].values.filter( item => item.value !== MULTISITE_NO_GROUP_VALUE )
 					: {};
-			const p2Name = allP2[ 0 ]?.name ? allP2[ 0 ].name : __( 'All P2', 'jetpack' );
+			const p2Name = allP2[ 0 ]?.name ? allP2[ 0 ].name : __( 'All P2', 'jetpack-search-pkg' );
 			return sprintf(
 				/* translators: %1$s: number of results. - %2$s: site name. */
-				_n( 'Found %1$s result in %2$s', 'Found %1$s results in %2$s', total, 'jetpack' ),
+				_n( 'Found %1$s result in %2$s', 'Found %1$s results in %2$s', total, 'jetpack-search-pkg' ),
 				num,
 				p2Name
 			);
 		} else if ( hasQuery ) {
 			return sprintf(
 				/* translators: %s: number of results. */
-				_n( 'Found %s result', 'Found %s results', total, 'jetpack' ),
+				_n( 'Found %s result', 'Found %s results', total, 'jetpack-search-pkg' ),
 				num,
 				this.props.searchQuery
 			);
 		}
 
-		return __( 'Showing popular results', 'jetpack' );
+		return __( 'Showing popular results', 'jetpack-search-pkg' );
 	}
 
 	renderPrimarySection() {
@@ -134,20 +134,20 @@ class SearchResults extends Component {
 					<p className="jetpack-instant-search__search-results-unused-query">
 						{
 							/* translators: %s: Search query. */
-							sprintf( __( 'No results for "%s"', 'jetpack' ), searchQuery )
+							sprintf( __( 'No results for "%s"', 'jetpack-search-pkg' ), searchQuery )
 						}
 					</p>
 				) }
 				{ this.props.hasError && (
 					<Notice type="warning">
-						{ __( "It looks like you're offline. Please reconnect for results.", 'jetpack' ) }
+						{ __( "It looks like you're offline. Please reconnect for results.", 'jetpack-search-pkg' ) }
 					</Notice>
 				) }
 				{ hasResults && ! this.props.hasError && this.props.response._isOffline && (
 					<Notice type="warning">
 						{ __(
 							"It looks like you're offline. Please reconnect to load the latest results.",
-							'jetpack'
+							'jetpack-search-pkg'
 						) }
 					</Notice>
 				) }
@@ -229,7 +229,7 @@ class SearchResults extends Component {
 						onClick={ this.closeOverlay }
 						onKeyPress={ this.onKeyPressHandler }
 						tabIndex="0"
-						aria-label={ __( 'Close search results', 'jetpack' ) }
+						aria-label={ __( 'Close search results', 'jetpack-search-pkg' ) }
 					>
 						<Gridicon icon="cross" size="24" aria-hidden="true" focusable="false" />
 					</button>
@@ -249,17 +249,17 @@ class SearchResults extends Component {
 							tabIndex="0"
 							className="jetpack-instant-search__search-results-filter-button"
 						>
-							{ __( 'Filters', 'jetpack' ) }
+							{ __( 'Filters', 'jetpack-search-pkg' ) }
 							<Gridicon
 								icon="chevron-down"
 								size={ 16 }
-								alt={ __( 'Show search filters', 'jetpack' ) }
+								alt={ __( 'Show search filters', 'jetpack-search-pkg' ) }
 								aria-hidden="true"
 							/>
 							<span className="screen-reader-text assistive-text">
 								{ this.state.shouldShowMobileSecondary
-									? __( 'Hide filters', 'jetpack' )
-									: __( 'Show filters', 'jetpack' ) }
+									? __( 'Hide filters', 'jetpack-search-pkg' )
+									: __( 'Show filters', 'jetpack-search-pkg' ) }
 							</span>
 						</div>
 					) }

@@ -20,7 +20,7 @@ import './styles.scss';
  */
 function Header( { enableSidebar } ) {
 	// translators: Product name 'Jetpack Search' should not be translated
-	const title = __( 'Customize Jetpack Search', 'jetpack' );
+	const title = __( 'Customize Jetpack Search', 'jetpack-search-pkg' );
 
 	return (
 		<div className="jp-search-configure-header">
@@ -30,7 +30,7 @@ function Header( { enableSidebar } ) {
 			<div className="jp-search-configure-header__actions">
 				<SaveButton />
 				<Button
-					aria-label={ __( 'Show settings', 'jetpack' ) }
+					aria-label={ __( 'Show settings', 'jetpack-search-pkg' ) }
 					className="jp-search-configure-header__show-settings-button"
 					isSecondary
 					onClick={ () => enableSidebar() }

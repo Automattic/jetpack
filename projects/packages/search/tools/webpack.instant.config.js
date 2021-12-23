@@ -67,7 +67,7 @@ module.exports = {
 				requestToExternal,
 				requestToHandle: defaultRequestToHandle,
 			},
-			I18nLoaderPlugin: { textdomain: 'jetpack' },
+			I18nLoaderPlugin: { textdomain: 'jetpack-search-pkg' },
 		} ),
 		// Replace 'debug' module with a dummy implementation in production
 		...( jetpackWebpackConfig.isDevelopment

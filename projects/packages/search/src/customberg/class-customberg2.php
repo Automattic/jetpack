@@ -63,8 +63,8 @@ class Customberg2 {
 		// Intentionally omits adding a submenu via the first null argument.
 		$hook = add_submenu_page(
 			null,
-			__( 'Search Settings', 'jetpack' ),
-			__( 'Search', 'jetpack' ),
+			__( 'Search Settings', 'jetpack-search-pkg' ),
+			__( 'Search', 'jetpack-search-pkg' ),
 			'manage_options', // Must be an admin.
 			'jetpack-search-configure',
 			array( $this, 'jetpack_search_admin_page' )
@@ -83,13 +83,13 @@ class Customberg2 {
 		?>
 			<div id="jp-search-configure" class="jp-search-configure-dashboard" style="height: calc(100vh - 100px);">
 				<div class="hide-if-no-js" style="height: 100%;">
-					<img class="jp-search-loader" width="32" height="32" alt="<?php esc_attr_e( 'Loading&hellip;', 'jetpack' ); ?>" src="<?php echo esc_url( $static_url ); ?>" style="
+					<img class="jp-search-loader" width="32" height="32" alt="<?php esc_attr_e( 'Loading&hellip;', 'jetpack-search-pkg' ); ?>" src="<?php echo esc_url( $static_url ); ?>" style="
 						position: absolute;
 						left: 50%;
 						top: 50%;
 					"/>
 				</div>
-				<div class="hide-if-js"><?php esc_html_e( 'Your Search customization page requires JavaScript to function properly.', 'jetpack' ); ?></div>
+				<div class="hide-if-js"><?php esc_html_e( 'Your Search customization page requires JavaScript to function properly.', 'jetpack-search-pkg' ); ?></div>
 			</div>
 		<?php
 	}

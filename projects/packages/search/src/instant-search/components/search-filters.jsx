@@ -89,7 +89,7 @@ class SearchFilters extends Component {
 			<div className="jetpack-instant-search__search-filters">
 				{ this.props.showTitle && (
 					<div className="jetpack-instant-search__search-filters-title">
-						{ __( 'Filter options', 'jetpack' ) }
+						{ __( 'Filter options', 'jetpack-search-pkg' ) }
 					</div>
 				) }
 				{ this.props.showClearFiltersButton && this.hasActiveFilters() && (
@@ -101,7 +101,7 @@ class SearchFilters extends Component {
 						role="button"
 						tabIndex="0"
 					>
-						{ __( 'Clear filters', 'jetpack' ) }
+						{ __( 'Clear filters', 'jetpack-search-pkg' ) }
 					</a>
 				) }
 

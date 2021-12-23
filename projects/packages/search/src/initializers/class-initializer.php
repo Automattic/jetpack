@@ -20,7 +20,7 @@ abstract class Initializer {
 		return new WP_Error(
 			'invalid-method',
 			/* translators: %s: Method name. */
-			sprintf( __( "Method '%s' not implemented. Must be overridden in subclass.", 'jetpack' ), __METHOD__ ),
+			sprintf( __( "Method '%s' not implemented. Must be overridden in subclass.", 'jetpack-search-pkg' ), __METHOD__ ),
 			array( 'status' => 405 )
 		);
 	}

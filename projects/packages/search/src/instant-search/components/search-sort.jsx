@@ -41,7 +41,7 @@ export default class SearchSort extends Component {
 			return (
 				<div className="jetpack-instant-search__search-sort jetpack-instant-search__search-sort-with-select">
 					<label htmlFor="jetpack-instant-search__search-sort-select">
-						{ __( 'Sort:', 'jetpack' ) }
+						{ __( 'Sort:', 'jetpack-search-pkg' ) }
 					</label>
 					<select
 						id="jetpack-instant-search__search-sort-select"
@@ -64,7 +64,7 @@ export default class SearchSort extends Component {
 
 		return (
 			<div className="jetpack-instant-search__search-sort jetpack-instant-search__search-sort-with-links">
-				<div className="screen-reader-text">{ __( 'Sort by: ', 'jetpack' ) }</div>
+				<div className="screen-reader-text">{ __( 'Sort by: ', 'jetpack-search-pkg' ) }</div>
 				{ [ ...sortOptions.entries() ].map( ( [ sortKey, label ] ) => (
 					<a
 						className={ `jetpack-instant-search__search-sort-option ${

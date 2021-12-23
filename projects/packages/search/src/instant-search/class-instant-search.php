@@ -113,9 +113,9 @@ class Instant_Search extends Classic_Search {
 	 */
 	public function register_jetpack_instant_sidebar() {
 		$args = array(
-			'name'          => __( 'Jetpack Search Sidebar', 'jetpack' ),
+			'name'          => __( 'Jetpack Search Sidebar', 'jetpack-search-pkg' ),
 			'id'            => 'jetpack-instant-search-sidebar',
-			'description'   => __( 'Customize the sidebar inside the Jetpack Search overlay', 'jetpack' ),
+			'description'   => __( 'Customize the sidebar inside the Jetpack Search overlay', 'jetpack-search-pkg' ),
 			'class'         => '',
 			'before_widget' => '<div id="%1$s" class="widget %2$s">',
 			'after_widget'  => '</div>',
