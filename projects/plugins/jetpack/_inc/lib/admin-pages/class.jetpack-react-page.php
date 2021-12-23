@@ -55,7 +55,6 @@ class Jetpack_React_Page extends Jetpack_Admin_Page {
 		if ( ( new Status() )->is_offline_mode() || Jetpack::is_connection_ready() ) {
 			add_submenu_page( 'jetpack', __( 'Dashboard', 'jetpack' ), __( 'Dashboard', 'jetpack' ), 'jetpack_admin_page', 'jetpack#/dashboard', '__return_null' );
 			remove_submenu_page( 'jetpack', 'jetpack' );
-
 		}
 	}
 
