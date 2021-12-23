@@ -3,7 +3,9 @@
  */
 const path = require( 'path' );
 
-module.exports = {
+let config = {};
+
+const defaultConfig = {
 	preset: '@wordpress/jest-preset-default',
 	rootDir: process.cwd(),
 	testEnvironment: 'jsdom',
@@ -18,6 +20,14 @@ module.exports = {
 		'\\.module\\.(css|less)$': 'identity-obj-proxy',
 		jetpackConfig: path.join( __dirname, './jetpack.config' ),
 	},
+	coverageReporters: [ 'clover', 'lcov' ],
+	collectCoverageFrom: [
+		'**/*.{js,jsx}',
+		'!**/node_modules/**',
+		'!**/vendor/**',
+		'!**/__tests__/**',
+		'!test-main.{js,jsx}',
+	],
 	transform: {
 		'\\.[jt]sx?$': [
 			require.resolve( 'babel-jest' ),
@@ -25,3 +35,16 @@ module.exports = {
 		],
 	},
 };
+
+try {
+	// merge custom config with default, custom is prioritized
+	const customConfig = require( path.join( process.cwd(), './jest.config.js' ) );
+	config = {
+		...defaultConfig,
+		...customConfig,
+	};
+} catch {
+	config = defaultConfig;
+}
+
+module.exports = config;
