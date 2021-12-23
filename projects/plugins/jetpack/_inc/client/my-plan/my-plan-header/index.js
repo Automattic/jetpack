@@ -67,7 +67,7 @@ class MyPlanHeader extends React.Component {
 				/>
 			);
 
-			activation = <ProductActivated active={ purchase.active } />;
+			activation = purchase.active === '1' ? <ProductActivated /> : null;
 		}
 
 		switch ( getPlanClass( productSlug ) ) {

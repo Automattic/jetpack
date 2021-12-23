@@ -2,7 +2,6 @@
  * External dependencies
  */
 import React from 'react';
-import PropTypes from 'prop-types';
 import { __ } from '@wordpress/i18n';
 
 /**
@@ -15,12 +14,7 @@ import Gridicon from 'components/gridicon';
  */
 import './style.scss';
 
-const ProductActivated = ( { active } ) => {
-	// Don't display the label if product isn't active.
-	if ( active !== '1' ) {
-		return null;
-	}
-
+const ProductActivated = () => {
 	return (
 		<div className="jp-product-activated-label">
 			<Gridicon icon="checkmark" size={ 20 } />
@@ -28,14 +22,6 @@ const ProductActivated = ( { active } ) => {
 			<span className="jp-product-activated-label__text">{ __( 'Activated', 'jetpack' ) }</span>
 		</div>
 	);
-};
-
-ProductActivated.propTypes = {
-	active: PropTypes.string,
-};
-
-ProductActivated.defaultProps = {
-	active: '',
 };
 
 export { ProductActivated };
