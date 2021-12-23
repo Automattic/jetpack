@@ -509,7 +509,7 @@ class Jetpack_Lazy_Images {
 			'jetpack-lazy-images',
 			'jetpackLazyImagesL10n',
 			array(
-				'loading_warning' => __( 'Images are still loading. Please cancel your print and try again.', 'jetpack' ),
+				'loading_warning' => __( 'Images are still loading. Please cancel your print and try again.', 'jetpack-lazy-images' ),
 			)
 		);
 	}
