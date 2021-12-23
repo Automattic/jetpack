@@ -266,10 +266,10 @@ HTML;
 	/**
 	 * Creates a checkbox and a label for a video option.
 	 *
-	 * @param string $id the checkbox id
-	 * @param string $name the checkbox name
-	 * @param string $label the label text
-	 * @param bool $is_checked if the checkbox should be checked
+	 * @param string $id the checkbox id.
+	 * @param string $name the checkbox name.
+	 * @param string $label the label text.
+	 * @param bool   $is_checked if the checkbox should be checked.
 	 *
 	 * @return string the generated HTML
 	 */
@@ -300,7 +300,7 @@ HTML;
 	/**
 	 * Build HTML to display a form checkbox for the "allow download" video option
 	 *
-	 * @param object $info database row from the videos table
+	 * @param object $info database row from the videos table.
 	 * @return string input element of type checkbox with checked state matching the download preference
 	 */
 	protected function display_download_choice( $info ) {
