@@ -1,5 +1,5 @@
 module.exports = {
-	extends: [ '../.eslintrc.js', 'plugin:@wordpress/eslint-plugin/i18n', 'plugin:jest/recommended' ],
+	extends: [ '../.eslintrc.js', 'plugin:jest/recommended' ],
 	env: { jest: true },
 	rules: {
 		'react/forbid-elements': [
