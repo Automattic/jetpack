@@ -8,7 +8,7 @@ import {
 import { prerequisitesBuilder, Plans } from 'jetpack-e2e-commons/env/index.js';
 import playwrightConfig from '../../playwright.config.cjs';
 
-test.describe( 'Search', () => {
+test.describe( 'Customberg', () => {
 	let searchConfigure;
 
 	test.beforeAll( async ( { browser } ) => {
