@@ -1,0 +1,19 @@
+<?xml version="1.0"?>
+<ruleset>
+
+	<rule ref="WordPress.WP.I18n">
+		<properties>
+			<property name="text_domain" type="array">
+				<element value="jetpack-backup-pkg" />
+			</property>
+		</properties>
+	</rule>
+
+	<rule ref="WordPress.Utils.I18nTextDomainFixer">
+		<properties>
+			<property name="old_text_domain" type="array" />
+			<property name="new_text_domain" value="jetpack-backup-pkg" />
+		</properties>
+	</rule>
+
+</ruleset>

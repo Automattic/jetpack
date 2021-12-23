@@ -15,6 +15,13 @@ import ScreenMigrated from './screen-migrated';
 import customContentShape from '../../tools/custom-content-shape';
 import './style.scss';
 
+const renderLogoImage = ( logo, alt ) =>
+	typeof logo === 'string' || logo instanceof String ? (
+		<img src={ logo } alt={ alt } className="jp-idc__idc-screen__logo-image" />
+	) : (
+		logo
+	);
+
 const IDCScreenVisual = props => {
 	const {
 		logo,
@@ -62,7 +69,9 @@ const IDCScreenVisual = props => {
 	return (
 		<div className={ 'jp-idc__idc-screen' + ( isMigrated ? ' jp-idc__idc-screen__success' : '' ) }>
 			<div className="jp-idc__idc-screen__header">
-				<div className="jp-idc__idc-screen__logo">{ logo }</div>
+				<div className="jp-idc__idc-screen__logo">
+					{ renderLogoImage( logo, customContent.logoAlt || '' ) }
+				</div>
 				<div className="jp-idc__idc-screen__logo-label">
 					{ customContent.headerText || __( 'Safe Mode', 'jetpack' ) }
 				</div>

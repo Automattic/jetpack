@@ -3,6 +3,10 @@ All notable changes to this project will be documented in this file.
 
 This project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [3.0.4] - 2021-12-20
+### Changed
+- Reconfigure phpcs so we don't need so many `phpcs:ignore` comments.
+
 ## [3.0.3] - 2021-11-17
 ### Changed
 - Removed internal special case for Changelogger itself. Only applicable for development.
@@ -77,6 +81,7 @@ This project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.htm
 ### Added
 - Initial version.
 
+[3.0.4]: https://github.com/Automattic/jetpack-changelogger/compare/3.0.3...3.0.4
 [3.0.3]: https://github.com/Automattic/jetpack-changelogger/compare/3.0.2...3.0.3
 [3.0.2]: https://github.com/Automattic/jetpack-changelogger/compare/3.0.1...3.0.2
 [3.0.1]: https://github.com/Automattic/jetpack-changelogger/compare/3.0.0...3.0.1

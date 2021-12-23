@@ -12,7 +12,7 @@ namespace Automattic\Jetpack\Post_List;
  */
 class Post_List {
 
-	const PACKAGE_VERSION = '0.2.5-alpha';
+	const PACKAGE_VERSION = '0.3.0-alpha';
 
 	/**
 	 * The configuration method that is called from the jetpack-config package.
@@ -167,10 +167,10 @@ class Post_List {
 		}
 
 		$url   = add_query_arg( 'jetpackSidebarIsOpen', 'true', $edit_url );
-		$text  = _x( 'Share', 'Share the post on social networks', 'jetpack' );
+		$text  = _x( 'Share', 'Share the post on social networks', 'jetpack-post-list' );
 		$title = _draft_or_post_title( $post );
 		/* translators: post title */
-		$label                 = sprintf( __( 'Share &#8220;%s&#8221; via Publicize', 'jetpack' ), $title );
+		$label                 = sprintf( __( 'Share &#8220;%s&#8221; via Publicize', 'jetpack-post-list' ), $title );
 		$post_actions['share'] = sprintf( '<a href="%s" aria-label="%s">%s</a>', esc_url( $url ), esc_attr( $label ), esc_html( $text ) );
 		return $post_actions;
 	}
@@ -187,7 +187,7 @@ class Post_List {
 			return $columns;
 		}
 
-		$new_column = array( 'thumbnail' => '<span>' . __( 'Thumbnail', 'jetpack' ) . '</span>' );
+		$new_column = array( 'thumbnail' => '<span>' . __( 'Thumbnail', 'jetpack-post-list' ) . '</span>' );
 		$keys       = array_keys( $columns );
 		$position   = array_search( 'title', $keys, true );
 
