@@ -50,7 +50,13 @@ const CheckboxAnswerComponent = ( { answerKey, checked, info, title, updateCheck
 			tabIndex={ 0 }
 		>
 			<div className="jp-checkbox-answer__checkbox">
-				<input id={ answerKey } type="checkbox" defaultChecked={ checked } tabIndex={ -1 } />
+				<input
+					id={ answerKey }
+					class="jp-checkbox-answer__checkbox-input"
+					type="checkbox"
+					defaultChecked={ checked }
+					tabIndex={ -1 }
+				/>
 			</div>
 			<label htmlFor={ answerKey } className="jp-checkbox-answer__title">
 				{ title }

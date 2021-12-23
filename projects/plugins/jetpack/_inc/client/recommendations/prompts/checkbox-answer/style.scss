@@ -3,17 +3,19 @@
 
 .jp-checkbox-answer__container {
 	display: flex;
+	align-items: center;
+
+	padding: 0.875rem 1rem;
 
 	background: $white;
-	box-sizing: border-box;
 	border: 1px solid $gray-lighten-20;
 	border-radius: 4px;
+	box-sizing: border-box;
 
 	cursor: pointer;
 
 	&.checked {
-		background: #f8fbff;
-		border: 1px solid $blue-medium;
+		background: var( --jp-gray-0 );
 	}
 
 	@include breakpoint( '<480px' ) {
@@ -25,13 +27,18 @@
 	display: flex;
 	align-items: center;
 	width: 100%;
-	padding: 15px 0;
+	margin-left: 1rem;
 }
 
 .jp-checkbox-answer__checkbox {
-	margin: 18px 8px 14px 16px;
+	input[type=checkbox], input[type=radio], &-input {
+		width: 20px;
+		height: 20px;
+		border: 1px solid var( --jp-black );
+		border-radius: 2px;
+	}
 }
 
 .jp-checkbox-answer__info {
-	padding: 16px 16px 16px 0;
+	margin-left: 1rem;
 }

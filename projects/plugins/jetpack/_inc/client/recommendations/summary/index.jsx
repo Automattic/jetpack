@@ -65,10 +65,7 @@ const SummaryComponent = props => {
 				<h1>
 					{ sprintf(
 						/* translators: placeholder indicates the type of site, such as "personal site" or "store" */
-						__(
-							'Nice work! Let’s ensure the features you enabled are configured for your %s.',
-							'jetpack'
-						),
+						__( 'Nice work! Let’s recap what we enabled for %s.', 'jetpack' ),
 						siteTypeDisplayName
 					) }
 				</h1>
