@@ -55,8 +55,6 @@ export default function useConnection() {
 	const renderConnectionStatusCard = () => {
 		return (
 			<ConnectionStatusCard
-				isRegistered={ connectionStatus.isRegistered }
-				isUserConnected={ connectionStatus.isUserConnected }
 				apiRoot={ APIRoot }
 				apiNonce={ APINonce }
 				connectedPlugins={ connectedPlugins }
