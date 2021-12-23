@@ -34,7 +34,7 @@ const ActivationSuccessInfo = props => {
 				<JetpackLogo showText={ false } height={ 48 } />
 			</div>
 			<JetpackProductDetails siteRawUrl={ siteRawUrl } productId={ productId } />
-			<div>
+			<div className="jp-license-activation-screen-success-info--buttons">
 				<Button
 					className="jp-license-activation-screen-success-info--button"
 					href={ '/wp-admin/admin.php?page=jetpack#/my-plan' }

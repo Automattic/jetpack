@@ -25,6 +25,12 @@
 		padding: 64px;
 	}
 
+	.jp-license-activation-screen-success-info--buttons {
+		@media screen and (max-width: 480px) {
+			text-align: center;
+		}
+	}
+
 	.jp-license-activation-screen-success-info--button,
 	.jp-license-activation-screen-success-info--button:active,
 	.jp-license-activation-screen-success-info--button:visited {
