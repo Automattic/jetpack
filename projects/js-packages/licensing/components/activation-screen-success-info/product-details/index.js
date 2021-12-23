@@ -107,7 +107,7 @@ const JetpackProductDetails = props => {
 	return (
 		<div className="jp-license-activation-screen-success-info--product-details">
 			<h1>
-				{ productInfoMap[ productGroup ].title }{ ' ' }
+				{ productInfoMap[ productGroup ].title }&nbsp;
 				{ String.fromCodePoint( 0x1f389 ) /* Celebration emoji 🎉 */ }
 			</h1>
 			<p>{ productInfoMap[ productGroup ].text }</p>
