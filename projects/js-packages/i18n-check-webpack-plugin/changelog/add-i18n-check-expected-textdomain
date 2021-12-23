@@ -1,4 +1,0 @@
-Significance: minor
-Type: added
-
-Allow specifying the expected textdomain to be used in the output assets.

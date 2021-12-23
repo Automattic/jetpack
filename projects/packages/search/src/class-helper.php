@@ -200,14 +200,14 @@ class Helper {
 		switch ( $type ) {
 			case 'year':
 				$string = ( $is_updated )
-					? esc_html_x( 'Year Updated', 'label for filtering posts', 'jetpack' )
-					: esc_html_x( 'Year', 'label for filtering posts', 'jetpack' );
+					? esc_html_x( 'Year Updated', 'label for filtering posts', 'jetpack-search-pkg' )
+					: esc_html_x( 'Year', 'label for filtering posts', 'jetpack-search-pkg' );
 				break;
 			case 'month':
 			default:
 				$string = ( $is_updated )
-					? esc_html_x( 'Month Updated', 'label for filtering posts', 'jetpack' )
-					: esc_html_x( 'Month', 'label for filtering posts', 'jetpack' );
+					? esc_html_x( 'Month Updated', 'label for filtering posts', 'jetpack-search-pkg' )
+					: esc_html_x( 'Month', 'label for filtering posts', 'jetpack-search-pkg' );
 				break;
 		}
 
@@ -232,7 +232,7 @@ class Helper {
 
 		switch ( $widget_filter['type'] ) {
 			case 'post_type':
-				$name = _x( 'Post Types', 'label for filtering posts', 'jetpack' );
+				$name = _x( 'Post Types', 'label for filtering posts', 'jetpack-search-pkg' );
 				break;
 
 			case 'date_histogram':
