@@ -126,7 +126,7 @@ class Config {
 					/* translators: %1$s is a PHP class name. */
 					esc_html__(
 						'Unable to load class %1$s. Please add the package that contains it using composer and make sure you are requiring the Jetpack autoloader',
-						'jetpack'
+						'jetpack-config'
 					),
 					esc_html( $classname )
 				),
@@ -237,6 +237,27 @@ class Config {
 			}
 
 			( new Plugin( $slug ) )->add( $name, $options );
+		}
+
+		return true;
+	}
+
+	/**
+	 * Setup the Identity Crisis options.
+	 *
+	 * @return bool
+	 */
+	protected function ensure_options_identity_crisis() {
+		$options = $this->get_feature_options( 'identity_crisis' );
+
+		if ( is_array( $options ) && count( $options ) ) {
+			add_filter(
+				'jetpack_idc_consumers',
+				function ( $consumers ) use ( $options ) {
+					$consumers[] = $options;
+					return $consumers;
+				}
+			);
 		}
 
 		return true;

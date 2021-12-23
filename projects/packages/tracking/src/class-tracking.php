@@ -74,14 +74,14 @@ class Tracking {
 			|| ! wp_verify_nonce( $_REQUEST['tracksNonce'], 'jp-tracks-ajax-nonce' )
 		) {
 			wp_send_json_error(
-				__( 'You aren’t authorized to do that.', 'jetpack' ),
+				__( 'You aren’t authorized to do that.', 'jetpack-tracking' ),
 				403
 			);
 		}
 
 		if ( ! isset( $_REQUEST['tracksEventName'] ) || ! isset( $_REQUEST['tracksEventType'] ) ) {
 			wp_send_json_error(
-				__( 'No valid event name or type.', 'jetpack' ),
+				__( 'No valid event name or type.', 'jetpack-tracking' ),
 				403
 			);
 		}

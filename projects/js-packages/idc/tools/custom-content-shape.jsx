@@ -6,6 +6,8 @@ import PropTypes from 'prop-types';
 export default {
 	/** The header text, 'Safe Mode' by default. */
 	headerText: PropTypes.string,
+	/** Alt attribute for the custom logo image. */
+	logoAlt: PropTypes.string,
 	/** The main screen title. */
 	mainTitle: PropTypes.string,
 	/** The main screen body text. */
