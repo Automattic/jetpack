@@ -36,12 +36,13 @@
 		font-size: 1.25rem;
 		font-weight: 600;
 		margin-top: 0;
-		flex-shrink: 0;
+		flex-grow: 1;
 		margin-bottom: 0;
 
 		@media only screen and (min-width: 782px) {
 			font-size: 1.5rem;
 			margin-right: 1.5rem;
+			min-width: 50%;
 		}
 
 		// smaller screens
@@ -51,11 +52,17 @@
 				margin-top: 0.5rem;
 			}
 		}
+
+		// in some cases, there can be a link in the card title
+		a {
+			color: var( --jp-black );
+			text-decoration: underline;
+		}
 	}
 
 	&__card-stat-block {
 		display: flex;
-		align-items: baseline;
+		align-items: center;
 		flex-grow: 1;
 
 		@media only screen and (min-width: 782px) {

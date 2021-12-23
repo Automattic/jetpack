@@ -3,6 +3,7 @@
  */
 import React from 'react';
 import PropTypes from 'prop-types';
+import { numberFormat } from 'components/number-format';
 
 /**
  * Internal Dependencies
@@ -25,7 +26,9 @@ const DisconnectCard = props => {
 				<p className="jp-connection__disconnect-card__card-headline">{ title }</p>
 				{ ( value || description ) && (
 					<div className="jp-connection__disconnect-card__card-stat-block">
-						<span className="jp-connection__disconnect-card__card-stat">{ value }</span>
+						<span className="jp-connection__disconnect-card__card-stat">
+							{ 'number' === typeof value ? numberFormat( value ) : value }
+						</span>
 						<div className="jp-connection__disconnect-card__card-description">{ description }</div>
 					</div>
 				) }

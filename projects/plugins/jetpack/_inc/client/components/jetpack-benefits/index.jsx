@@ -22,6 +22,47 @@ import './style.scss';
  */
 const JetpackBenefits = props => {
 	const { siteBenefits } = props;
+	const generalBenefits = [
+		createInterpolateElement(
+			__( 'Speed up your site with <ExternalLink>our CDN</ExternalLink>', 'jetpack' ),
+			{
+				ExternalLink: (
+					<ExternalLink
+						href={ getRedirectUrl( 'jetpack-features-design-content-delivery-network' ) }
+						rel="noopener noreferrer"
+						target="_blank"
+					></ExternalLink>
+				),
+			}
+		),
+		createInterpolateElement(
+			__( 'Block <ExternalLink>brute force attacks</ExternalLink>', 'jetpack' ),
+			{
+				ExternalLink: (
+					<ExternalLink
+						href={ getRedirectUrl( 'jetpack-features-security' ) }
+						rel="noopener noreferrer"
+						target="_blank"
+					></ExternalLink>
+				),
+			}
+		),
+		createInterpolateElement(
+			__(
+				'Grow your traffic with automated social <ExternalLink>publishing and sharing</ExternalLink>',
+				'jetpack'
+			),
+			{
+				ExternalLink: (
+					<ExternalLink
+						href={ getRedirectUrl( 'jetpack-support-social' ) }
+						rel="noopener noreferrer"
+						target="_blank"
+					></ExternalLink>
+				),
+			}
+		),
+	];
 
 	return (
 		<React.Fragment>
@@ -36,8 +77,13 @@ const JetpackBenefits = props => {
 						</p>
 					</div>
 					<div className="jp-connection__disconnect-card__group">
-						{ siteBenefits.map( ( { value, description, title } ) => (
-							<DisconnectCard title={ title } value={ value } description={ description } />
+						{ siteBenefits.map( ( { value, description, title }, idx ) => (
+							<DisconnectCard
+								title={ title }
+								value={ value }
+								description={ description }
+								key={ idx }
+							/>
 						) ) }
 					</div>
 				</React.Fragment>
@@ -50,59 +96,11 @@ const JetpackBenefits = props => {
 							'jetpack'
 						) }
 					</p>
-					<ul className="jetpack-benefits__general-benefits-list">
-						<li key="reason-cdn">
-							{ createInterpolateElement(
-								__(
-									'Speed up your site and provide mobile-ready images with <ExternalLink>our CDN</ExternalLink>',
-									'jetpack'
-								),
-								{
-									ExternalLink: (
-										<ExternalLink
-											href={ getRedirectUrl( 'jetpack-features-design-content-delivery-network' ) }
-											rel="noopener noreferrer"
-											target="_blank"
-										></ExternalLink>
-									),
-								}
-							) }
-						</li>
-						<li key="reason-brute-force">
-							{ createInterpolateElement(
-								__(
-									'Block <ExternalLink>brute force attacks</ExternalLink> and get immediate notifications if your site is down',
-									'jetpack'
-								),
-								{
-									ExternalLink: (
-										<ExternalLink
-											href={ getRedirectUrl( 'jetpack-features-security' ) }
-											rel="noopener noreferrer"
-											target="_blank"
-										></ExternalLink>
-									),
-								}
-							) }
-						</li>
-						<li key="reason-social">
-							{ createInterpolateElement(
-								__(
-									'Grow your traffic with automated social <ExternalLink>publishing and sharing</ExternalLink>',
-									'jetpack'
-								),
-								{
-									ExternalLink: (
-										<ExternalLink
-											href={ getRedirectUrl( 'jetpack-support-social' ) }
-											rel="noopener noreferrer"
-											target="_blank"
-										></ExternalLink>
-									),
-								}
-							) }
-						</li>
-					</ul>
+					<div className="jp-connection__disconnect-card__group">
+						{ generalBenefits.map( ( el, idx ) => (
+							<DisconnectCard title={ el } key={ idx } />
+						) ) }
+					</div>
 				</div>
 			) }
 		</React.Fragment>
