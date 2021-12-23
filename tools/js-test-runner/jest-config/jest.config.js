@@ -26,7 +26,9 @@ const defaultConfig = {
 		'!**/node_modules/**',
 		'!**/vendor/**',
 		'!**/__tests__/**',
+		'!**/coverage/**',
 		'!test-main.{js,jsx}',
+		'!jest.setup.{js,jsx}',
 	],
 	transform: {
 		'\\.[jt]sx?$': [
