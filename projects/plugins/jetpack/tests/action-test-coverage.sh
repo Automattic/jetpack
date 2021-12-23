@@ -23,13 +23,13 @@ echo "::endgroup::"
 cd "$PLUGINDIR"
 
 echo "::group::Jetpack Backend coverage"
-phpdbg -qrr "$(command -v phpunit)" --coverage-clover "$COVERAGE_DIR/backend/clover.xml"
+phpunit --coverage-clover "$COVERAGE_DIR/backend/clover.xml"
 echo "::endgroup::"
 
 echo "::group::Jetpack Legacy full sync coverage"
-LEGACY_FULL_SYNC=1 phpdbg -qrr "$(command -v phpunit)" --group=legacy-full-sync --coverage-clover "$COVERAGE_DIR/legacy-sync/clover.xml"
+LEGACY_FULL_SYNC=1 phpunit --group=legacy-full-sync --coverage-clover "$COVERAGE_DIR/legacy-sync/clover.xml"
 echo "::endgroup::"
 
 echo "::group::Jetpack Multisite coverage"
-WP_MULTISITE=1 phpdbg -qrr "$(command -v phpunit)" -c tests/php.multisite.xml --coverage-clover "$COVERAGE_DIR/multisite/clover.xml"
+WP_MULTISITE=1 phpunit -c tests/php.multisite.xml --coverage-clover "$COVERAGE_DIR/multisite/clover.xml"
 echo "::endgroup::"

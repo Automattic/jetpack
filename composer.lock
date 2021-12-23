@@ -13,7 +13,7 @@
             "dist": {
                 "type": "path",
                 "url": "projects/packages/ignorefile",
-                "reference": "020dd45a0381ed59e66f91eaf7277582b66f344b"
+                "reference": "88182bf102c77fd2cd46867890fd802a92b7fcf4"
             },
             "require-dev": {
                 "automattic/jetpack-changelogger": "^3.0",
@@ -42,7 +42,7 @@
                 ],
                 "test-coverage": [
                     "@composer install",
-                    "phpdbg -d memory_limit=2048M -d max_execution_time=900 -qrr ./vendor/bin/phpunit --coverage-clover \"$COVERAGE_DIR/clover.xml\""
+                    "@composer phpunit -- --coverage-clover \"$COVERAGE_DIR/clover.xml\""
                 ],
                 "test-php": [
                     "@composer install",
@@ -64,7 +64,7 @@
             "dist": {
                 "type": "path",
                 "url": "projects/packages/codesniffer",
-                "reference": "17b0cebc2792db5d08bcc0f9028910463b8cfd80"
+                "reference": "a13e6bbd56d386af66f579871bfd3ba3c4c978a0"
             },
             "require": {
                 "dealerdirect/phpcodesniffer-composer-installer": "^0.7",
@@ -102,7 +102,7 @@
                 ],
                 "test-coverage": [
                     "@composer update",
-                    "phpdbg -d memory_limit=2048M -d max_execution_time=900 -qrr ./vendor/bin/phpunit --coverage-clover \"$COVERAGE_DIR/clover.xml\""
+                    "@composer phpunit -- --coverage-clover \"$COVERAGE_DIR/clover.xml\""
                 ],
                 "test-php": [
                     "./tests/action-test-php.sh"
@@ -123,7 +123,7 @@
             "dist": {
                 "type": "path",
                 "url": "projects/packages/phpcs-filter",
-                "reference": "ffc6b53125ec3aa9c63bdbaf12117f0d9c677bb8"
+                "reference": "e7f9de94b21f695737f0220a3e9767698276dff1"
             },
             "require": {
                 "automattic/ignorefile": "^1.0",
@@ -150,7 +150,7 @@
                 ],
                 "test-coverage": [
                     "@composer install",
-                    "phpdbg -d memory_limit=2048M -d max_execution_time=900 -qrr ./vendor/bin/phpunit --coverage-clover \"$COVERAGE_DIR/clover.xml\""
+                    "@composer phpunit -- --coverage-clover \"$COVERAGE_DIR/clover.xml\""
                 ],
                 "test-php": [
                     "@composer install",

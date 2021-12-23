@@ -12,7 +12,7 @@
             "dist": {
                 "type": "path",
                 "url": "../../packages/a8c-mc-stats",
-                "reference": "bbea9c55c383f3ae0872e0f3c28b6be498e10747"
+                "reference": "db6ca161233390a962e72955d2bdd314f44b61e2"
             },
             "require-dev": {
                 "automattic/jetpack-changelogger": "^3.0",
@@ -40,7 +40,7 @@
                 ],
                 "test-coverage": [
                     "@composer update",
-                    "phpdbg -d memory_limit=2048M -d max_execution_time=900 -qrr ./vendor/bin/phpunit --coverage-clover \"$COVERAGE_DIR/clover.xml\""
+                    "@composer phpunit -- --coverage-clover \"$COVERAGE_DIR/clover.xml\""
                 ],
                 "test-php": [
                     "@composer update",
@@ -62,7 +62,7 @@
             "dist": {
                 "type": "path",
                 "url": "../../packages/abtest",
-                "reference": "d4f69789a0180b5d5b9de6963b930baa70ebd037"
+                "reference": "30f3c14b8a7c47087642197599bb1c73d75be1b8"
             },
             "require": {
                 "automattic/jetpack-connection": "^1.34",
@@ -98,7 +98,7 @@
                 ],
                 "test-coverage": [
                     "@composer update",
-                    "phpdbg -d memory_limit=2048M -d max_execution_time=900 -qrr ./vendor/bin/phpunit --coverage-clover \"$COVERAGE_DIR/clover.xml\""
+                    "@composer phpunit -- --coverage-clover \"$COVERAGE_DIR/clover.xml\""
                 ],
                 "test-php": [
                     "@composer update",
@@ -120,7 +120,7 @@
             "dist": {
                 "type": "path",
                 "url": "../../packages/admin-ui",
-                "reference": "eda6e9f2a28a1b20f9622f06cd604e72e7591af3"
+                "reference": "7b138d12d4f517177edaf1dd2cfa878d2b62cf7a"
             },
             "require-dev": {
                 "automattic/jetpack-changelogger": "^3.0",
@@ -152,7 +152,7 @@
                 ],
                 "test-coverage": [
                     "@composer install",
-                    "phpdbg -d memory_limit=2048M -d max_execution_time=900 -qrr ./vendor/bin/phpunit --coverage-clover \"$COVERAGE_DIR/clover.xml\""
+                    "@composer phpunit -- --coverage-clover \"$COVERAGE_DIR/clover.xml\""
                 ],
                 "test-php": [
                     "@composer install",
@@ -177,7 +177,7 @@
             "dist": {
                 "type": "path",
                 "url": "../../packages/assets",
-                "reference": "8e44b620e990a828826518f062334db818fd91a6"
+                "reference": "a01d446c28574e7011c7b37426aafe0dbfb5fef7"
             },
             "require": {
                 "automattic/jetpack-constants": "^1.6"
@@ -214,7 +214,7 @@
                 ],
                 "test-coverage": [
                     "@composer update",
-                    "phpdbg -d memory_limit=2048M -d max_execution_time=900 -qrr ./vendor/bin/phpunit --coverage-clover \"$COVERAGE_DIR/clover.xml\""
+                    "@composer phpunit -- --coverage-clover \"$COVERAGE_DIR/clover.xml\""
                 ],
                 "test-php": [
                     "@composer update",
@@ -236,7 +236,7 @@
             "dist": {
                 "type": "path",
                 "url": "../../packages/autoloader",
-                "reference": "5498d51fdb8c0a7b50a818a52a419ef539c998fb"
+                "reference": "820e1b3b7ecdd18a5ed3d2507f75f08e81793977"
             },
             "require": {
                 "composer-plugin-api": "^1.1 || ^2.0"
@@ -271,7 +271,7 @@
                 ],
                 "test-coverage": [
                     "@composer update",
-                    "phpdbg -d memory_limit=2048M -d max_execution_time=900 -qrr ./vendor/bin/phpunit --coverage-php \"./tests/php/tmp/coverage-report.php\"",
+                    "@composer phpunit -- --coverage-php \"./tests/php/tmp/coverage-report.php\"",
                     "php ./tests/php/bin/test-coverage.php \"$COVERAGE_DIR/clover.xml\""
                 ],
                 "test-php": [
@@ -294,7 +294,7 @@
             "dist": {
                 "type": "path",
                 "url": "../../packages/backup",
-                "reference": "20314bc21305b97eee133ac3714e77c129754252"
+                "reference": "524ac81862854708040463cec4fc4201e139567b"
             },
             "require": {
                 "automattic/jetpack-connection": "^1.34",
@@ -334,7 +334,7 @@
                 ],
                 "test-coverage": [
                     "@composer install",
-                    "phpdbg -d memory_limit=2048M -d max_execution_time=900 -qrr ./vendor/bin/phpunit --coverage-clover \"$COVERAGE_DIR/clover.xml\""
+                    "@composer phpunit -- --coverage-clover \"$COVERAGE_DIR/clover.xml\""
                 ],
                 "test-php": [
                     "@composer install",
@@ -359,7 +359,7 @@
             "dist": {
                 "type": "path",
                 "url": "../../packages/blocks",
-                "reference": "11aaa0969036098ac9b27f7aa5e40c05ffe7bb36"
+                "reference": "a46ab07b58a4f03fc14ea6fd403e74686af03ee9"
             },
             "require-dev": {
                 "automattic/jetpack-changelogger": "^3.0",
@@ -392,7 +392,7 @@
                 ],
                 "test-coverage": [
                     "@composer update",
-                    "phpdbg -d memory_limit=2048M -d max_execution_time=900 -qrr ./vendor/bin/phpunit --coverage-clover \"$COVERAGE_DIR/clover.xml\""
+                    "@composer phpunit -- --coverage-clover \"$COVERAGE_DIR/clover.xml\""
                 ],
                 "test-php": [
                     "@composer update",
@@ -453,7 +453,7 @@
             "dist": {
                 "type": "path",
                 "url": "../../packages/composer-plugin",
-                "reference": "6fdd75c54dcd4e1bf63cd8011243e70eb2759269"
+                "reference": "a4ca8db4fdb862cad06165ff5cb5967ac3aaf177"
             },
             "require": {
                 "composer-plugin-api": "^2.1.0"
@@ -486,7 +486,7 @@
                 ],
                 "test-coverage": [
                     "@composer install",
-                    "phpdbg -d memory_limit=2048M -d max_execution_time=900 -qrr ./vendor/bin/phpunit --coverage-clover \"$COVERAGE_DIR/clover.xml\""
+                    "@composer phpunit -- --coverage-clover \"$COVERAGE_DIR/clover.xml\""
                 ],
                 "test-php": [
                     "@composer install",
@@ -545,7 +545,7 @@
             "dist": {
                 "type": "path",
                 "url": "../../packages/connection",
-                "reference": "006f693445b6b39215131900170300bfe689de09"
+                "reference": "865adac5aa376efde388baa388e94a83c06173c9"
             },
             "require": {
                 "automattic/jetpack-a8c-mc-stats": "^1.4",
@@ -594,7 +594,7 @@
                 ],
                 "test-coverage": [
                     "@composer update",
-                    "phpdbg -d memory_limit=2048M -d max_execution_time=900 -qrr ./vendor/bin/phpunit --coverage-clover \"$COVERAGE_DIR/clover.xml\""
+                    "@composer phpunit -- --coverage-clover \"$COVERAGE_DIR/clover.xml\""
                 ],
                 "test-php": [
                     "@composer update",
@@ -674,7 +674,7 @@
             "dist": {
                 "type": "path",
                 "url": "../../packages/constants",
-                "reference": "d7297c5bb15e2d6bef458303fe95fff52c21a5b7"
+                "reference": "c51812dd41b959d2db6ad23ac35b30c680117ab6"
             },
             "require-dev": {
                 "automattic/jetpack-changelogger": "^3.0",
@@ -703,7 +703,7 @@
                 ],
                 "test-coverage": [
                     "@composer update",
-                    "phpdbg -d memory_limit=2048M -d max_execution_time=900 -qrr ./vendor/bin/phpunit --coverage-clover \"$COVERAGE_DIR/clover.xml\""
+                    "@composer phpunit -- --coverage-clover \"$COVERAGE_DIR/clover.xml\""
                 ],
                 "test-php": [
                     "@composer update",
@@ -725,7 +725,7 @@
             "dist": {
                 "type": "path",
                 "url": "../../packages/device-detection",
-                "reference": "db0745fd050867ffd825984404aee7e507618951"
+                "reference": "8232f9527970815acde0333c931a611d9dcc7c8b"
             },
             "require-dev": {
                 "automattic/jetpack-changelogger": "^3.0",
@@ -753,7 +753,7 @@
                 ],
                 "test-coverage": [
                     "@composer update",
-                    "phpdbg -d memory_limit=2048M -d max_execution_time=900 -qrr ./vendor/bin/phpunit --coverage-clover \"$COVERAGE_DIR/clover.xml\""
+                    "@composer phpunit -- --coverage-clover \"$COVERAGE_DIR/clover.xml\""
                 ],
                 "test-php": [
                     "@composer update",
@@ -775,7 +775,7 @@
             "dist": {
                 "type": "path",
                 "url": "../../packages/error",
-                "reference": "831fa3a0c004d8965ab55a170497c41693751433"
+                "reference": "ad43ce785e41c7e957eddb9d0bfdb71a79dc8d2b"
             },
             "require-dev": {
                 "automattic/jetpack-changelogger": "^3.0",
@@ -803,7 +803,7 @@
                 ],
                 "test-coverage": [
                     "@composer update",
-                    "phpdbg -d memory_limit=2048M -d max_execution_time=900 -qrr ./vendor/bin/phpunit --coverage-clover \"$COVERAGE_DIR/clover.xml\""
+                    "@composer phpunit -- --coverage-clover \"$COVERAGE_DIR/clover.xml\""
                 ],
                 "test-php": [
                     "@composer update",
@@ -866,7 +866,7 @@
             "dist": {
                 "type": "path",
                 "url": "../../packages/identity-crisis",
-                "reference": "44b8fd1349d298b69f5fbc1a9ed48610030c0264"
+                "reference": "9b12e96d0c2474bd239197ff48791c212670104e"
             },
             "require": {
                 "automattic/jetpack-assets": "^1.16",
@@ -916,7 +916,7 @@
                 ],
                 "test-coverage": [
                     "@composer install",
-                    "phpdbg -d memory_limit=2048M -d max_execution_time=900 -qrr ./vendor/bin/phpunit --coverage-clover \"$COVERAGE_DIR/clover.xml\""
+                    "@composer phpunit -- --coverage-clover \"$COVERAGE_DIR/clover.xml\""
                 ],
                 "test-php": [
                     "@composer install",
@@ -945,7 +945,7 @@
             "dist": {
                 "type": "path",
                 "url": "../../packages/jitm",
-                "reference": "c67fafd4b657bc9c4a202bfbfdcf48e2842b1692"
+                "reference": "f3472a345708237dd003edcd09223da6d2e43326"
             },
             "require": {
                 "automattic/jetpack-a8c-mc-stats": "^1.4",
@@ -998,7 +998,7 @@
                 ],
                 "test-coverage": [
                     "@composer update",
-                    "phpdbg -d memory_limit=2048M -d max_execution_time=900 -qrr ./vendor/bin/phpunit --coverage-clover \"$COVERAGE_DIR/clover.xml\""
+                    "@composer phpunit -- --coverage-clover \"$COVERAGE_DIR/clover.xml\""
                 ],
                 "test-php": [
                     "@composer update",
@@ -1020,7 +1020,7 @@
             "dist": {
                 "type": "path",
                 "url": "../../packages/lazy-images",
-                "reference": "f8fca53c4ee70b242f80f366743bd91ccd58b375"
+                "reference": "8deee1ffa827144cf4af50c7eaa37a11f66378dc"
             },
             "require": {
                 "automattic/jetpack-assets": "^1.16",
@@ -1065,7 +1065,7 @@
                 ],
                 "test-coverage": [
                     "@composer update",
-                    "phpdbg -d memory_limit=2048M -d max_execution_time=900 -qrr ./vendor/bin/phpunit --coverage-clover \"$COVERAGE_DIR/clover.xml\""
+                    "@composer phpunit -- --coverage-clover \"$COVERAGE_DIR/clover.xml\""
                 ],
                 "test-php": [
                     "@composer update",
@@ -1087,7 +1087,7 @@
             "dist": {
                 "type": "path",
                 "url": "../../packages/licensing",
-                "reference": "b54c9b9faab5d7cb9c4a579c45fff45a245ce6e9"
+                "reference": "aa4db19cfd32caa1750c67abc8d5777b3532e563"
             },
             "require": {
                 "automattic/jetpack-connection": "^1.34",
@@ -1124,7 +1124,7 @@
                 ],
                 "test-coverage": [
                     "@composer update",
-                    "phpdbg -d memory_limit=2048M -d max_execution_time=900 -qrr ./vendor/bin/phpunit --coverage-clover \"$COVERAGE_DIR/clover.xml\""
+                    "@composer phpunit -- --coverage-clover \"$COVERAGE_DIR/clover.xml\""
                 ],
                 "test-php": [
                     "@composer update",
@@ -1146,7 +1146,7 @@
             "dist": {
                 "type": "path",
                 "url": "../../packages/logo",
-                "reference": "c8e44578d45745e1c9d0ab3afe1052bb33c6fde9"
+                "reference": "bc354a444311ab50ea4954d207aba5b420953b1b"
             },
             "require-dev": {
                 "automattic/jetpack-changelogger": "^3.0",
@@ -1174,7 +1174,7 @@
                 ],
                 "test-coverage": [
                     "@composer update",
-                    "phpdbg -d memory_limit=2048M -d max_execution_time=900 -qrr ./vendor/bin/phpunit --coverage-clover \"$COVERAGE_DIR/clover.xml\""
+                    "@composer phpunit -- --coverage-clover \"$COVERAGE_DIR/clover.xml\""
                 ],
                 "test-php": [
                     "@composer update",
@@ -1196,7 +1196,7 @@
             "dist": {
                 "type": "path",
                 "url": "../../packages/my-jetpack",
-                "reference": "6233fa7fdb8259c9d7ccc61f6afed1120b88a91a"
+                "reference": "f70281aeec0b9e05a46ae104fd74ed7e6ffb9700"
             },
             "require": {
                 "automattic/jetpack-admin-ui": "^0.2",
@@ -1230,7 +1230,7 @@
                 ],
                 "test-coverage": [
                     "@composer install",
-                    "phpdbg -d memory_limit=2048M -d max_execution_time=900 -qrr ./vendor/bin/phpunit --coverage-clover \"$COVERAGE_DIR/clover.xml\""
+                    "@composer phpunit -- --coverage-clover \"$COVERAGE_DIR/clover.xml\""
                 ],
                 "test-php": [
                     "@composer install",
@@ -1304,7 +1304,7 @@
             "dist": {
                 "type": "path",
                 "url": "../../packages/partner",
-                "reference": "bc87263ca3cb668f498b15dc7a61e7d84c147a34"
+                "reference": "004c504e9ef4e9babd1afea6d3bc63ea2ef77c97"
             },
             "require-dev": {
                 "automattic/jetpack-changelogger": "^3.0",
@@ -1338,7 +1338,7 @@
                 ],
                 "test-coverage": [
                     "@composer update",
-                    "phpdbg -d memory_limit=2048M -d max_execution_time=900 -qrr ./vendor/bin/phpunit --coverage-clover \"$COVERAGE_DIR/clover.xml\""
+                    "@composer phpunit -- --coverage-clover \"$COVERAGE_DIR/clover.xml\""
                 ],
                 "test-php": [
                     "@composer update",
@@ -1360,7 +1360,7 @@
             "dist": {
                 "type": "path",
                 "url": "../../packages/password-checker",
-                "reference": "44d9ecea0d270b2b197acffda49c61a40968a4ed"
+                "reference": "e79fb54d5a8d96ac720e2cee189df2caf18ddfb4"
             },
             "require-dev": {
                 "automattic/jetpack-changelogger": "^3.0",
@@ -1390,7 +1390,7 @@
                 ],
                 "test-coverage": [
                     "@composer update",
-                    "phpdbg -d memory_limit=2048M -d max_execution_time=900 -qrr ./vendor/bin/phpunit --coverage-clover \"$COVERAGE_DIR/clover.xml\""
+                    "@composer phpunit -- --coverage-clover \"$COVERAGE_DIR/clover.xml\""
                 ],
                 "test-php": [
                     "@composer update",
@@ -1415,7 +1415,7 @@
             "dist": {
                 "type": "path",
                 "url": "../../packages/redirect",
-                "reference": "f5b3b17f86739013e31061d4a7b3ed86bc2fedb0"
+                "reference": "cced79a24d7ab048782cd02b3714d7ded85debe3"
             },
             "require": {
                 "automattic/jetpack-status": "^1.9"
@@ -1447,7 +1447,7 @@
                 ],
                 "test-coverage": [
                     "@composer update",
-                    "phpdbg -d memory_limit=2048M -d max_execution_time=900 -qrr ./vendor/bin/phpunit --coverage-clover \"$COVERAGE_DIR/clover.xml\""
+                    "@composer phpunit -- --coverage-clover \"$COVERAGE_DIR/clover.xml\""
                 ],
                 "test-php": [
                     "@composer update",
@@ -1469,7 +1469,7 @@
             "dist": {
                 "type": "path",
                 "url": "../../packages/roles",
-                "reference": "b9f9dc04a1989cead8ced1d8e49dc011dfc6edbc"
+                "reference": "a5e5610b99c4624612d025e26e78ae92ba68a028"
             },
             "require-dev": {
                 "automattic/jetpack-changelogger": "^3.0",
@@ -1498,7 +1498,7 @@
                 ],
                 "test-coverage": [
                     "@composer update",
-                    "phpdbg -d memory_limit=2048M -d max_execution_time=900 -qrr ./vendor/bin/phpunit --coverage-clover \"$COVERAGE_DIR/clover.xml\""
+                    "@composer phpunit -- --coverage-clover \"$COVERAGE_DIR/clover.xml\""
                 ],
                 "test-php": [
                     "@composer update",
@@ -1520,7 +1520,7 @@
             "dist": {
                 "type": "path",
                 "url": "../../packages/search",
-                "reference": "c198ae4a087312d670127d8ef36077a87bc0d2b1"
+                "reference": "3ccd5a324946ddb37db73e97afac18656b609b65"
             },
             "require": {
                 "automattic/jetpack-connection": "^1.34"
@@ -1565,7 +1565,7 @@
                 ],
                 "test-coverage": [
                     "@composer install",
-                    "phpdbg -d memory_limit=2048M -d max_execution_time=900 -qrr ./vendor/bin/phpunit --coverage-clover \"$COVERAGE_DIR/clover.xml\""
+                    "@composer phpunit -- --coverage-clover \"$COVERAGE_DIR/clover.xml\""
                 ],
                 "test-php": [
                     "@composer install",
@@ -1590,7 +1590,7 @@
             "dist": {
                 "type": "path",
                 "url": "../../packages/status",
-                "reference": "5b06759038ff6bb74f330f1eb5ec09a643574242"
+                "reference": "e3b026dc1356e3f3caa6c84baf3fbf3af0b584a3"
             },
             "require": {
                 "automattic/jetpack-constants": "^1.6"
@@ -1622,7 +1622,7 @@
                 ],
                 "test-coverage": [
                     "@composer update",
-                    "phpdbg -d memory_limit=2048M -d max_execution_time=900 -qrr ./vendor/bin/phpunit --coverage-clover \"$COVERAGE_DIR/clover.xml\""
+                    "@composer phpunit -- --coverage-clover \"$COVERAGE_DIR/clover.xml\""
                 ],
                 "test-php": [
                     "@composer update",
@@ -1644,7 +1644,7 @@
             "dist": {
                 "type": "path",
                 "url": "../../packages/sync",
-                "reference": "606b84d0d972672f4744578a22c58b673329ee23"
+                "reference": "b729ce1513b19ddba1c4e92a46947f1c3139da22"
             },
             "require": {
                 "automattic/jetpack-connection": "^1.34",
@@ -1687,7 +1687,7 @@
                 ],
                 "test-coverage": [
                     "@composer install",
-                    "phpdbg -d memory_limit=2048M -d max_execution_time=900 -qrr ./vendor/bin/phpunit --coverage-clover \"$COVERAGE_DIR/clover.xml\""
+                    "@composer phpunit -- --coverage-clover \"$COVERAGE_DIR/clover.xml\""
                 ],
                 "test-php": [
                     "@composer install",
@@ -1712,7 +1712,7 @@
             "dist": {
                 "type": "path",
                 "url": "../../packages/terms-of-service",
-                "reference": "db81cc4045245eb03c85a2a6efe7dcdfde4be0ea"
+                "reference": "515d57f1a9df820503a31132dab4b177361ed809"
             },
             "require": {
                 "automattic/jetpack-options": "^1.14",
@@ -1745,7 +1745,7 @@
                 ],
                 "test-coverage": [
                     "@composer update",
-                    "phpdbg -d memory_limit=2048M -d max_execution_time=900 -qrr ./vendor/bin/phpunit --coverage-clover \"$COVERAGE_DIR/clover.xml\""
+                    "@composer phpunit -- --coverage-clover \"$COVERAGE_DIR/clover.xml\""
                 ],
                 "test-php": [
                     "@composer update",
@@ -1767,7 +1767,7 @@
             "dist": {
                 "type": "path",
                 "url": "../../packages/tracking",
-                "reference": "fe7331d4c0becbacde240f8b346fa7e0af70cd9a"
+                "reference": "f5ff27ac2637cf0a742eb05ccbe4aee6b7d1ee8d"
             },
             "require": {
                 "automattic/jetpack-assets": "^1.16",
@@ -1804,7 +1804,7 @@
                 ],
                 "test-coverage": [
                     "@composer update",
-                    "phpdbg -d memory_limit=2048M -d max_execution_time=900 -qrr ./vendor/bin/phpunit --coverage-clover \"$COVERAGE_DIR/clover.xml\""
+                    "@composer phpunit -- --coverage-clover \"$COVERAGE_DIR/clover.xml\""
                 ],
                 "test-php": [
                     "@composer update",
@@ -1946,7 +1946,7 @@
             "dist": {
                 "type": "path",
                 "url": "../../packages/changelogger",
-                "reference": "d219e673c8cb1b6b9ce85dac0f6df570a2af4af8"
+                "reference": "bbd7f25392dc05cee0142a5c4c3a3c8da5cb3514"
             },
             "require": {
                 "php": ">=5.6",
@@ -1993,7 +1993,7 @@
                 ],
                 "test-coverage": [
                     "@composer update",
-                    "phpdbg -d memory_limit=2048M -d max_execution_time=900 -qrr ./vendor/bin/phpunit --coverage-clover \"$COVERAGE_DIR/clover.xml\""
+                    "@composer phpunit -- --coverage-clover \"$COVERAGE_DIR/clover.xml\""
                 ],
                 "test-php": [
                     "@composer update",

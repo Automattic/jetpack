@@ -153,7 +153,7 @@ Tests for a project are only run for a PR if changes are made to the project or 
 * For Composer packages included in the monorepo, via `.require` and `.require-dev` in `composer.json`.
 * For any other dependencies, via `.extra.dependencies` in `composer.json`.
 
-The test environment will be set up with appropriate tools, including node, pnpm, php, phpdbg, and composer. Unless otherwise specified below, the versions of node and php will be those specified in `.github/versions.sh`. Other necessary tools may be pulled in via composer and pnpm.
+The test environment will be set up with appropriate tools, including node, pnpm, php (with pcov), and composer. Unless otherwise specified below, the versions of node and php will be those specified in `.github/versions.sh`. Other necessary tools may be pulled in via composer and pnpm.
 
 All test commands must return a shell failure status when tests fail and a success status if tests pass or are skipped; usually your testing framework will already do this for you, but if you write custom shell scripts you'll need to make sure any failure is propagated.
 
@@ -223,7 +223,7 @@ If a project contains PHP or JavaScript tests, it should also define `.scripts.t
 
 Output should be written to the path specified via the `COVERAGE_DIR` environment variable. Subdirectories of that path may be used as desired.
 
-For PHP tests, you'll probably run PHPUnit as `phpdbg -qrr "$(command -v phpunit)" --coverage-clover "$COVERAGE_DIR/clover.xml"`.
+For PHP tests, you'll probably run PHPUnit as `phpunit --coverage-clover "$COVERAGE_DIR/clover.xml"`.
 
 There's no need to be concerned about collisions with other projects' coverage files, a separate directory is used per project. The coverage files are also automatically copied to `ARTIFACTS_DIR`.
 
