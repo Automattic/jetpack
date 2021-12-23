@@ -4,7 +4,7 @@ import { enableInstantSearch, disableInstantSearch } from '../../helpers/search-
 import { prerequisitesBuilder, Plans } from 'jetpack-e2e-commons/env/index.js';
 import playwrightConfig from '../../playwright.config.cjs';
 
-test.describe( 'Search', () => {
+test.describe( 'Search Dashboard', () => {
 	let searchDashboard;
 
 	test.beforeAll( async ( { browser } ) => {

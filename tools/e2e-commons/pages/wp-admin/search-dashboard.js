@@ -39,14 +39,14 @@ export default class SearchDashboard extends WpPage {
 	async toggleSearchModule() {
 		const moduleToggleSelector = '.form-toggle__switch[aria-label="Enable Jetpack Search"]';
 		await this.click( moduleToggleSelector );
-		await this.waitForUpdateSearchSettingFinished();
+		await this.waitForToggling();
 	}
 
 	async toggleInstantSearch() {
 		const instantSearchToggleSelector =
 			'.form-toggle__switch[aria-label="Enable instant search experience (recommended)"]';
 		await this.click( instantSearchToggleSelector );
-		await this.waitForUpdateSearchSettingFinished();
+		await this.waitForToggling();
 	}
 
 	async isSearchModuleToggleOn() {
@@ -64,6 +64,12 @@ export default class SearchDashboard extends WpPage {
 			instantSearchToggleSelector,
 			e => e.getAttribute( 'aria-checked' ) === 'true'
 		);
+	}
+
+	async waitForToggling() {
+		await this.waitForUpdateSearchSettingFinished();
+		const moduleToggleSelector = 'span.form-toggle__switch:not([disabled])';
+		return await this.isElementVisible( moduleToggleSelector );
 	}
 
 	async waitForUpdateSearchSettingFinished() {
