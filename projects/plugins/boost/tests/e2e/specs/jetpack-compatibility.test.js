@@ -10,42 +10,48 @@ import {
 
 let jetpackBoostPage;
 
-test( 'The Jetpack lazy-image module activation reflects in Boost dashboard', async ( {
-	page,
-} ) => {
-	await prerequisitesBuilder( page ).withInactiveModules( [ 'lazy-images' ] ).build();
-	await activateModules( [ 'lazy-images' ] );
+test.describe( 'Jetpack compatibility', () => {
+	test.beforeAll( async () => {
+		await prerequisitesBuilder().withActivePlugins( [ 'jetpack' ] ).build();
+	} );
 
-	jetpackBoostPage = await JetpackBoostPage.visit( page );
-	expect( await jetpackBoostPage.isModuleEnabled( 'lazy-images' ) ).toEqual( true );
-} );
+	test( 'The Jetpack lazy-image module activation reflects in Boost dashboard', async ( {
+		page,
+	} ) => {
+		await prerequisitesBuilder( page ).withInactiveModules( [ 'lazy-images' ] ).build();
+		await activateModules( [ 'lazy-images' ] );
 
-test( 'The Jetpack lazy-image module deactivation reflects in Boost dashboard', async ( {
-	page,
-} ) => {
-	await prerequisitesBuilder( page ).withActiveModules( [ 'lazy-images' ] ).build();
-	await deactivateModules( [ 'lazy-images' ] );
+		jetpackBoostPage = await JetpackBoostPage.visit( page );
+		expect( await jetpackBoostPage.isModuleEnabled( 'lazy-images' ) ).toEqual( true );
+	} );
 
-	jetpackBoostPage = await JetpackBoostPage.visit( page );
-	expect( await jetpackBoostPage.isModuleEnabled( 'lazy-images' ) ).toEqual( false );
-} );
+	test( 'The Jetpack lazy-image module deactivation reflects in Boost dashboard', async ( {
+		page,
+	} ) => {
+		await prerequisitesBuilder( page ).withActiveModules( [ 'lazy-images' ] ).build();
+		await deactivateModules( [ 'lazy-images' ] );
 
-test( 'The Boost lazy-image module activation reflects in Jetpack dashboard', async ( {
-	page,
-} ) => {
-	await boostPrerequisitesBuilder( page ).withInactiveModules( [ 'lazy-images' ] ).build();
-	await activateBoostModules( [ 'lazy-images' ] );
+		jetpackBoostPage = await JetpackBoostPage.visit( page );
+		expect( await jetpackBoostPage.isModuleEnabled( 'lazy-images' ) ).toEqual( false );
+	} );
 
-	const isActive = await isModuleActive( 'lazy-images' );
-	expect( isActive ).toBe( true );
-} );
+	test( 'The Boost lazy-image module activation reflects in Jetpack dashboard', async ( {
+		page,
+	} ) => {
+		await boostPrerequisitesBuilder( page ).withInactiveModules( [ 'lazy-images' ] ).build();
+		await activateBoostModules( [ 'lazy-images' ] );
 
-test( 'The Boost lazy-image module deactivation reflects in Jetpack dashboard', async ( {
-	page,
-} ) => {
-	await boostPrerequisitesBuilder( page ).withActiveModules( [ 'lazy-images' ] ).build();
-	await deactivateBoostModules( [ 'lazy-images' ] );
+		const isActive = await isModuleActive( 'lazy-images' );
+		expect( isActive ).toBe( true );
+	} );
 
-	const isActive = await isModuleActive( 'lazy-images' );
-	expect( isActive ).toBe( false );
+	test( 'The Boost lazy-image module deactivation reflects in Jetpack dashboard', async ( {
+		page,
+	} ) => {
+		await boostPrerequisitesBuilder( page ).withActiveModules( [ 'lazy-images' ] ).build();
+		await deactivateBoostModules( [ 'lazy-images' ] );
+
+		const isActive = await isModuleActive( 'lazy-images' );
+		expect( isActive ).toBe( false );
+	} );
 } );
