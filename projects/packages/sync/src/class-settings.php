@@ -56,6 +56,10 @@ class Settings {
 		'full_sync_send_duration'                => true,
 		'full_sync_limits'                       => true,
 		'checksum_disable'                       => true,
+		/**
+		 * Didn't spend much time on what will be the best way to store the feature flag, using this just to explore.
+		 * You'll need to run Automattic\Jetpack\Sync\Settings::update_settings( [ 'dedicated_request_enable' => true ] )
+		 */
 		'dedicated_request_enable'               => true,
 	);
 

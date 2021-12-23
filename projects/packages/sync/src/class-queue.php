@@ -521,6 +521,15 @@ class Queue {
 	}
 
 	/**
+	 * Checks if the queue is locked.
+	 *
+	 * @return bool|int
+	 */
+	public function is_locked() {
+		return (bool) $this->get_checkout_id();
+	}
+
+	/**
 	 * This option is specifically chosen to, as much as possible, preserve time order
 	 * and minimise the possibility of collisions between multiple processes working
 	 * at the same time.

@@ -321,40 +321,62 @@ class Sender {
 	 * @return boolean|WP_Error True if this sync sending was successful, error object otherwise.
 	 */
 	public function do_sync() {
+		/**
+		 * This runs on shutdown. Let's see what action we want to trigger depending on the request.
+		 */
 		$do_sync_method = $this->get_do_sync_callback( $this->sync_queue );
 		return call_user_func( $do_sync_method, $this->sync_queue );
 	}
 
 	private function get_do_sync_callback( $queue ) {
-		// if (
-		// Settings::get_setting( 'dedicated_request_enable' ) &&
-		// wp_verify_nonce( $_POST['nonce'], 'jetpack_sync_dedicated_request_' . $queue->id ) &&
-		// $_POST['jetpack_dedicated_sync_request']
-		// ) {
-		// }
+		/**
+		 * A verbose error logs to help us watch what's going on.
+		 * Note that, because you might have more than one simultaneous request, the order of the events logged can be mixed.
+		 * We need to add the pid to the log to make it easier to look at it.
+		 */
 		error_log( '----------- new request ----------' );
 		error_log( $_SERVER['REQUEST_URI'] );
 		error_log( 'do_sync called' );
+		error_log( 'Current user ID: ' . get_current_user_id() );
 		if ( Settings::get_setting( 'dedicated_request_enable' ) && ! isset( $_POST['jetpack_dedicated_sync_request'] ) ) {
 			error_log( 'triggering a dedicated request' );
 			return array( $this, 'do_dedicated_sync' );
-		} else {
-			error_log( 'processing sync normally' );
+
+			// If the request is a stand-alone request to process sync, nonce must be valid.
+		} elseif (
+			Settings::get_setting( 'dedicated_request_enable' ) &&
+			wp_verify_nonce( $_POST['nonce'], 'jetpack_sync_dedicated_request_' . $queue->id ) &&
+			$_POST['jetpack_dedicated_sync_request']
+		) {
+			error_log( 'Valid dedicated request: processing sync normally' );
 			return array( $this, 'do_sync_and_set_delays' );
+
+			// If not dedicated request. Process sync normally.
+		} elseif ( ! Settings::get_setting( 'dedicated_request_enable' ) ) {
+			error_log( 'Not dedicated request: processing sync normally' );
+			return array( $this, 'do_sync_and_set_delays' );
+
+			// Log invalid dedicated requests.
+		} else {
+			error_log( 'Valid dedicated request: Not processing sync' );
+			error_log( 'Nonce verification: ' . json_encode( wp_verify_nonce( $_POST['nonce'], 'jetpack_sync_dedicated_request_' . $queue->id ) ) );
 		}
 	}
 
 	public function do_dedicated_sync( $queue ) {
 		$args = array(
-			'body' => array(
+			'cookies' => $_COOKIE,
+			'body'    => array(
 				'jetpack_dedicated_sync_request' => 1,
-				// 'nonce'                          => wp_create_nonce( 'jetpack_sync_dedicated_request_' . $queue->id ),
+				'nonce'                          => wp_create_nonce( 'jetpack_sync_dedicated_request_' . $queue->id ),
 			),
-			// 'cookies'                        => $_COOKIE,
 		);
 
-		return wp_remote_post( site_url(), $args );
-
+		if ( ! $queue->is_locked() && $queue->has_any_items() ) {
+			return wp_remote_post( site_url(), $args );
+		} else {
+			error_log( 'queue locked or empty. not triggering request' );
+		}
 	}
 
 	/**

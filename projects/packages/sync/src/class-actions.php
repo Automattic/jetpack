@@ -194,6 +194,9 @@ class Actions {
 			return self::sync_via_cron_allowed();
 		}
 
+		/**
+		 * For now, if the feature flag is enabled we will always initialize send, even for GET and unauthenticated requests.
+		 */
 		if ( Settings::get_setting( 'dedicated_request_enable' ) ) {
 			return true;
 		}
