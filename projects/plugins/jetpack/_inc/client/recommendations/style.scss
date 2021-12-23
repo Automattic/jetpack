@@ -8,7 +8,7 @@
 	border: 1px solid $gray-lighten-20;
 	background: var( --jp-white );
 
-	a:not([type="button"]) {
+	a:not( [type='button'] ) {
 		@include rna-link;
 	}
 }
