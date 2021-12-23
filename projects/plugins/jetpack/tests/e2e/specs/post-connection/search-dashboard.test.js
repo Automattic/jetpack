@@ -46,7 +46,7 @@ test.describe( 'Search', () => {
 		expect( await searchDashboard.isInstantSearchToggleOn() ).toBeFalsy();
 		expect( await searchDashboard.isCustomizeButtonDisabled() ).toBeTruthy();
 
-		// When toggling on instant search, search module is toggled off too.
+		// When toggling on instant search, search module is toggled on too.
 		await searchDashboard.toggleInstantSearch();
 		expect( await searchDashboard.isSearchModuleToggleOn() ).toBeTruthy();
 		expect( await searchDashboard.isInstantSearchToggleOn() ).toBeTruthy();
