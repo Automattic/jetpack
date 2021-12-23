@@ -22,7 +22,7 @@
 		],
 		"test-coverage": [
 			"@composer update",
-			"@composer phpunit -- --coverage-clover \"$COVERAGE_DIR/clover.xml\""
+			"php -dpcov.directory=. ./vendor/bin/phpunit --coverage-clover \"$COVERAGE_DIR/clover.xml\""
 		],
 		"test-php": [
 			"@composer update",

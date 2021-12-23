@@ -12,7 +12,7 @@
             "dist": {
                 "type": "path",
                 "url": "../../packages/autoloader",
-                "reference": "820e1b3b7ecdd18a5ed3d2507f75f08e81793977"
+                "reference": "0364d9a359da9ff0796ead02241074e70c4115f9"
             },
             "require": {
                 "composer-plugin-api": "^1.1 || ^2.0"
@@ -47,7 +47,7 @@
                 ],
                 "test-coverage": [
                     "@composer update",
-                    "@composer phpunit -- --coverage-php \"./tests/php/tmp/coverage-report.php\"",
+                    "php -dpcov.directory=. ./vendor/bin/phpunit --coverage-php \"./tests/php/tmp/coverage-report.php\"",
                     "php ./tests/php/bin/test-coverage.php \"$COVERAGE_DIR/clover.xml\""
                 ],
                 "test-php": [
@@ -70,7 +70,7 @@
             "dist": {
                 "type": "path",
                 "url": "../../packages/logo",
-                "reference": "bc354a444311ab50ea4954d207aba5b420953b1b"
+                "reference": "19e77419fe312ab0bbbe914c620eda9450e9ee58"
             },
             "require-dev": {
                 "automattic/jetpack-changelogger": "^3.0",
@@ -98,7 +98,7 @@
                 ],
                 "test-coverage": [
                     "@composer update",
-                    "@composer phpunit -- --coverage-clover \"$COVERAGE_DIR/clover.xml\""
+                    "php -dpcov.directory=. ./vendor/bin/phpunit --coverage-clover \"$COVERAGE_DIR/clover.xml\""
                 ],
                 "test-php": [
                     "@composer update",
@@ -122,7 +122,7 @@
             "dist": {
                 "type": "path",
                 "url": "../../packages/changelogger",
-                "reference": "bbd7f25392dc05cee0142a5c4c3a3c8da5cb3514"
+                "reference": "ed5842ee826136274b0926ea3aa2db22159cb5f8"
             },
             "require": {
                 "php": ">=5.6",
@@ -169,7 +169,7 @@
                 ],
                 "test-coverage": [
                     "@composer update",
-                    "@composer phpunit -- --coverage-clover \"$COVERAGE_DIR/clover.xml\""
+                    "php -dpcov.directory=. ./vendor/bin/phpunit --coverage-clover \"$COVERAGE_DIR/clover.xml\""
                 ],
                 "test-php": [
                     "@composer update",

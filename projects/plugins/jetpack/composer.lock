@@ -12,7 +12,7 @@
             "dist": {
                 "type": "path",
                 "url": "../../packages/a8c-mc-stats",
-                "reference": "db6ca161233390a962e72955d2bdd314f44b61e2"
+                "reference": "9f12441261373e9fd35e289ecc7a47c938515e03"
             },
             "require-dev": {
                 "automattic/jetpack-changelogger": "^3.0",
@@ -40,7 +40,7 @@
                 ],
                 "test-coverage": [
                     "@composer update",
-                    "@composer phpunit -- --coverage-clover \"$COVERAGE_DIR/clover.xml\""
+                    "php -dpcov.directory=. ./vendor/bin/phpunit --coverage-clover \"$COVERAGE_DIR/clover.xml\""
                 ],
                 "test-php": [
                     "@composer update",
@@ -62,7 +62,7 @@
             "dist": {
                 "type": "path",
                 "url": "../../packages/abtest",
-                "reference": "30f3c14b8a7c47087642197599bb1c73d75be1b8"
+                "reference": "cba4a352a8b95f98094abf7032638929f22a9db0"
             },
             "require": {
                 "automattic/jetpack-connection": "^1.34",
@@ -98,7 +98,7 @@
                 ],
                 "test-coverage": [
                     "@composer update",
-                    "@composer phpunit -- --coverage-clover \"$COVERAGE_DIR/clover.xml\""
+                    "php -dpcov.directory=. ./vendor/bin/phpunit --coverage-clover \"$COVERAGE_DIR/clover.xml\""
                 ],
                 "test-php": [
                     "@composer update",
@@ -120,7 +120,7 @@
             "dist": {
                 "type": "path",
                 "url": "../../packages/admin-ui",
-                "reference": "7b138d12d4f517177edaf1dd2cfa878d2b62cf7a"
+                "reference": "e30cfedc1dafa44bf50d0ce7db469a18b67cf835"
             },
             "require-dev": {
                 "automattic/jetpack-changelogger": "^3.0",
@@ -152,7 +152,7 @@
                 ],
                 "test-coverage": [
                     "@composer install",
-                    "@composer phpunit -- --coverage-clover \"$COVERAGE_DIR/clover.xml\""
+                    "php -dpcov.directory=. ./vendor/bin/phpunit --coverage-clover \"$COVERAGE_DIR/clover.xml\""
                 ],
                 "test-php": [
                     "@composer install",
@@ -177,7 +177,7 @@
             "dist": {
                 "type": "path",
                 "url": "../../packages/assets",
-                "reference": "a01d446c28574e7011c7b37426aafe0dbfb5fef7"
+                "reference": "fd4766788501a357500805f789b4c07daa865222"
             },
             "require": {
                 "automattic/jetpack-constants": "^1.6"
@@ -214,7 +214,7 @@
                 ],
                 "test-coverage": [
                     "@composer update",
-                    "@composer phpunit -- --coverage-clover \"$COVERAGE_DIR/clover.xml\""
+                    "php -dpcov.directory=. ./vendor/bin/phpunit --coverage-clover \"$COVERAGE_DIR/clover.xml\""
                 ],
                 "test-php": [
                     "@composer update",
@@ -236,7 +236,7 @@
             "dist": {
                 "type": "path",
                 "url": "../../packages/autoloader",
-                "reference": "820e1b3b7ecdd18a5ed3d2507f75f08e81793977"
+                "reference": "0364d9a359da9ff0796ead02241074e70c4115f9"
             },
             "require": {
                 "composer-plugin-api": "^1.1 || ^2.0"
@@ -271,7 +271,7 @@
                 ],
                 "test-coverage": [
                     "@composer update",
-                    "@composer phpunit -- --coverage-php \"./tests/php/tmp/coverage-report.php\"",
+                    "php -dpcov.directory=. ./vendor/bin/phpunit --coverage-php \"./tests/php/tmp/coverage-report.php\"",
                     "php ./tests/php/bin/test-coverage.php \"$COVERAGE_DIR/clover.xml\""
                 ],
                 "test-php": [
@@ -294,7 +294,7 @@
             "dist": {
                 "type": "path",
                 "url": "../../packages/backup",
-                "reference": "524ac81862854708040463cec4fc4201e139567b"
+                "reference": "f0313f3e43d952b9d2c0b0306a95f0f708bedc6b"
             },
             "require": {
                 "automattic/jetpack-connection": "^1.34",
@@ -334,7 +334,7 @@
                 ],
                 "test-coverage": [
                     "@composer install",
-                    "@composer phpunit -- --coverage-clover \"$COVERAGE_DIR/clover.xml\""
+                    "php -dpcov.directory=. ./vendor/bin/phpunit --coverage-clover \"$COVERAGE_DIR/clover.xml\""
                 ],
                 "test-php": [
                     "@composer install",
@@ -359,7 +359,7 @@
             "dist": {
                 "type": "path",
                 "url": "../../packages/blocks",
-                "reference": "a46ab07b58a4f03fc14ea6fd403e74686af03ee9"
+                "reference": "f50c46d1489f18b06a94262760401ba9b777f567"
             },
             "require-dev": {
                 "automattic/jetpack-changelogger": "^3.0",
@@ -392,7 +392,7 @@
                 ],
                 "test-coverage": [
                     "@composer update",
-                    "@composer phpunit -- --coverage-clover \"$COVERAGE_DIR/clover.xml\""
+                    "php -dpcov.directory=. ./vendor/bin/phpunit --coverage-clover \"$COVERAGE_DIR/clover.xml\""
                 ],
                 "test-php": [
                     "@composer update",
@@ -453,7 +453,7 @@
             "dist": {
                 "type": "path",
                 "url": "../../packages/composer-plugin",
-                "reference": "a4ca8db4fdb862cad06165ff5cb5967ac3aaf177"
+                "reference": "b3e07e78bf7efa9e715dc2de2d9a0e6ede2c0a93"
             },
             "require": {
                 "composer-plugin-api": "^2.1.0"
@@ -486,7 +486,7 @@
                 ],
                 "test-coverage": [
                     "@composer install",
-                    "@composer phpunit -- --coverage-clover \"$COVERAGE_DIR/clover.xml\""
+                    "php -dpcov.directory=. ./vendor/bin/phpunit --coverage-clover \"$COVERAGE_DIR/clover.xml\""
                 ],
                 "test-php": [
                     "@composer install",
@@ -545,7 +545,7 @@
             "dist": {
                 "type": "path",
                 "url": "../../packages/connection",
-                "reference": "865adac5aa376efde388baa388e94a83c06173c9"
+                "reference": "168aed5ce92b4b28bd76e0c5ae1327218688879d"
             },
             "require": {
                 "automattic/jetpack-a8c-mc-stats": "^1.4",
@@ -594,7 +594,7 @@
                 ],
                 "test-coverage": [
                     "@composer update",
-                    "@composer phpunit -- --coverage-clover \"$COVERAGE_DIR/clover.xml\""
+                    "php -dpcov.directory=. ./vendor/bin/phpunit --coverage-clover \"$COVERAGE_DIR/clover.xml\""
                 ],
                 "test-php": [
                     "@composer update",
@@ -674,7 +674,7 @@
             "dist": {
                 "type": "path",
                 "url": "../../packages/constants",
-                "reference": "c51812dd41b959d2db6ad23ac35b30c680117ab6"
+                "reference": "1ba81dfc3c69cd883ebda352c165b3548bacf857"
             },
             "require-dev": {
                 "automattic/jetpack-changelogger": "^3.0",
@@ -703,7 +703,7 @@
                 ],
                 "test-coverage": [
                     "@composer update",
-                    "@composer phpunit -- --coverage-clover \"$COVERAGE_DIR/clover.xml\""
+                    "php -dpcov.directory=. ./vendor/bin/phpunit --coverage-clover \"$COVERAGE_DIR/clover.xml\""
                 ],
                 "test-php": [
                     "@composer update",
@@ -725,7 +725,7 @@
             "dist": {
                 "type": "path",
                 "url": "../../packages/device-detection",
-                "reference": "8232f9527970815acde0333c931a611d9dcc7c8b"
+                "reference": "4d56251aa6965f36b5d64f34496bcad76879e270"
             },
             "require-dev": {
                 "automattic/jetpack-changelogger": "^3.0",
@@ -753,7 +753,7 @@
                 ],
                 "test-coverage": [
                     "@composer update",
-                    "@composer phpunit -- --coverage-clover \"$COVERAGE_DIR/clover.xml\""
+                    "php -dpcov.directory=. ./vendor/bin/phpunit --coverage-clover \"$COVERAGE_DIR/clover.xml\""
                 ],
                 "test-php": [
                     "@composer update",
@@ -775,7 +775,7 @@
             "dist": {
                 "type": "path",
                 "url": "../../packages/error",
-                "reference": "ad43ce785e41c7e957eddb9d0bfdb71a79dc8d2b"
+                "reference": "1b6bb2258dfad2f48c0df3e50964270f297746bc"
             },
             "require-dev": {
                 "automattic/jetpack-changelogger": "^3.0",
@@ -803,7 +803,7 @@
                 ],
                 "test-coverage": [
                     "@composer update",
-                    "@composer phpunit -- --coverage-clover \"$COVERAGE_DIR/clover.xml\""
+                    "php -dpcov.directory=. ./vendor/bin/phpunit --coverage-clover \"$COVERAGE_DIR/clover.xml\""
                 ],
                 "test-php": [
                     "@composer update",
@@ -866,7 +866,7 @@
             "dist": {
                 "type": "path",
                 "url": "../../packages/identity-crisis",
-                "reference": "9b12e96d0c2474bd239197ff48791c212670104e"
+                "reference": "1749188f9f1389fc2bd5373ee0cd8dad0086c501"
             },
             "require": {
                 "automattic/jetpack-assets": "^1.16",
@@ -916,7 +916,7 @@
                 ],
                 "test-coverage": [
                     "@composer install",
-                    "@composer phpunit -- --coverage-clover \"$COVERAGE_DIR/clover.xml\""
+                    "php -dpcov.directory=. ./vendor/bin/phpunit --coverage-clover \"$COVERAGE_DIR/clover.xml\""
                 ],
                 "test-php": [
                     "@composer install",
@@ -945,7 +945,7 @@
             "dist": {
                 "type": "path",
                 "url": "../../packages/jitm",
-                "reference": "f3472a345708237dd003edcd09223da6d2e43326"
+                "reference": "ff374948e6eb0d900867c1d883ae0b3dcc809d71"
             },
             "require": {
                 "automattic/jetpack-a8c-mc-stats": "^1.4",
@@ -998,7 +998,7 @@
                 ],
                 "test-coverage": [
                     "@composer update",
-                    "@composer phpunit -- --coverage-clover \"$COVERAGE_DIR/clover.xml\""
+                    "php -dpcov.directory=. ./vendor/bin/phpunit --coverage-clover \"$COVERAGE_DIR/clover.xml\""
                 ],
                 "test-php": [
                     "@composer update",
@@ -1020,7 +1020,7 @@
             "dist": {
                 "type": "path",
                 "url": "../../packages/lazy-images",
-                "reference": "8deee1ffa827144cf4af50c7eaa37a11f66378dc"
+                "reference": "8fd3321ad7db7eff7c87d52b13ce8488cbdde927"
             },
             "require": {
                 "automattic/jetpack-assets": "^1.16",
@@ -1065,7 +1065,7 @@
                 ],
                 "test-coverage": [
                     "@composer update",
-                    "@composer phpunit -- --coverage-clover \"$COVERAGE_DIR/clover.xml\""
+                    "php -dpcov.directory=. ./vendor/bin/phpunit --coverage-clover \"$COVERAGE_DIR/clover.xml\""
                 ],
                 "test-php": [
                     "@composer update",
@@ -1087,7 +1087,7 @@
             "dist": {
                 "type": "path",
                 "url": "../../packages/licensing",
-                "reference": "aa4db19cfd32caa1750c67abc8d5777b3532e563"
+                "reference": "4cda7c95eb883cba28ea01171f5c13a2fba4234e"
             },
             "require": {
                 "automattic/jetpack-connection": "^1.34",
@@ -1124,7 +1124,7 @@
                 ],
                 "test-coverage": [
                     "@composer update",
-                    "@composer phpunit -- --coverage-clover \"$COVERAGE_DIR/clover.xml\""
+                    "php -dpcov.directory=. ./vendor/bin/phpunit --coverage-clover \"$COVERAGE_DIR/clover.xml\""
                 ],
                 "test-php": [
                     "@composer update",
@@ -1146,7 +1146,7 @@
             "dist": {
                 "type": "path",
                 "url": "../../packages/logo",
-                "reference": "bc354a444311ab50ea4954d207aba5b420953b1b"
+                "reference": "19e77419fe312ab0bbbe914c620eda9450e9ee58"
             },
             "require-dev": {
                 "automattic/jetpack-changelogger": "^3.0",
@@ -1174,7 +1174,7 @@
                 ],
                 "test-coverage": [
                     "@composer update",
-                    "@composer phpunit -- --coverage-clover \"$COVERAGE_DIR/clover.xml\""
+                    "php -dpcov.directory=. ./vendor/bin/phpunit --coverage-clover \"$COVERAGE_DIR/clover.xml\""
                 ],
                 "test-php": [
                     "@composer update",
@@ -1196,7 +1196,7 @@
             "dist": {
                 "type": "path",
                 "url": "../../packages/my-jetpack",
-                "reference": "f70281aeec0b9e05a46ae104fd74ed7e6ffb9700"
+                "reference": "671a55b6382b98ae9d9a68444d5556a5e969363b"
             },
             "require": {
                 "automattic/jetpack-admin-ui": "^0.2",
@@ -1230,7 +1230,7 @@
                 ],
                 "test-coverage": [
                     "@composer install",
-                    "@composer phpunit -- --coverage-clover \"$COVERAGE_DIR/clover.xml\""
+                    "php -dpcov.directory=. ./vendor/bin/phpunit --coverage-clover \"$COVERAGE_DIR/clover.xml\""
                 ],
                 "test-php": [
                     "@composer install",
@@ -1304,7 +1304,7 @@
             "dist": {
                 "type": "path",
                 "url": "../../packages/partner",
-                "reference": "004c504e9ef4e9babd1afea6d3bc63ea2ef77c97"
+                "reference": "dcb88d2628087f93d31458120f4f6026f78edc3e"
             },
             "require-dev": {
                 "automattic/jetpack-changelogger": "^3.0",
@@ -1338,7 +1338,7 @@
                 ],
                 "test-coverage": [
                     "@composer update",
-                    "@composer phpunit -- --coverage-clover \"$COVERAGE_DIR/clover.xml\""
+                    "php -dpcov.directory=. ./vendor/bin/phpunit --coverage-clover \"$COVERAGE_DIR/clover.xml\""
                 ],
                 "test-php": [
                     "@composer update",
@@ -1360,7 +1360,7 @@
             "dist": {
                 "type": "path",
                 "url": "../../packages/password-checker",
-                "reference": "e79fb54d5a8d96ac720e2cee189df2caf18ddfb4"
+                "reference": "998fdabec0384a752bc33f39e02efe70ec289047"
             },
             "require-dev": {
                 "automattic/jetpack-changelogger": "^3.0",
@@ -1390,7 +1390,7 @@
                 ],
                 "test-coverage": [
                     "@composer update",
-                    "@composer phpunit -- --coverage-clover \"$COVERAGE_DIR/clover.xml\""
+                    "php -dpcov.directory=. ./vendor/bin/phpunit --coverage-clover \"$COVERAGE_DIR/clover.xml\""
                 ],
                 "test-php": [
                     "@composer update",
@@ -1415,7 +1415,7 @@
             "dist": {
                 "type": "path",
                 "url": "../../packages/redirect",
-                "reference": "cced79a24d7ab048782cd02b3714d7ded85debe3"
+                "reference": "de427b273925641527ec3370f52d2f3ca360fb96"
             },
             "require": {
                 "automattic/jetpack-status": "^1.9"
@@ -1447,7 +1447,7 @@
                 ],
                 "test-coverage": [
                     "@composer update",
-                    "@composer phpunit -- --coverage-clover \"$COVERAGE_DIR/clover.xml\""
+                    "php -dpcov.directory=. ./vendor/bin/phpunit --coverage-clover \"$COVERAGE_DIR/clover.xml\""
                 ],
                 "test-php": [
                     "@composer update",
@@ -1469,7 +1469,7 @@
             "dist": {
                 "type": "path",
                 "url": "../../packages/roles",
-                "reference": "a5e5610b99c4624612d025e26e78ae92ba68a028"
+                "reference": "84cce87bfef42de2b4217f9f80d97ec3f5fd5d4e"
             },
             "require-dev": {
                 "automattic/jetpack-changelogger": "^3.0",
@@ -1498,7 +1498,7 @@
                 ],
                 "test-coverage": [
                     "@composer update",
-                    "@composer phpunit -- --coverage-clover \"$COVERAGE_DIR/clover.xml\""
+                    "php -dpcov.directory=. ./vendor/bin/phpunit --coverage-clover \"$COVERAGE_DIR/clover.xml\""
                 ],
                 "test-php": [
                     "@composer update",
@@ -1520,7 +1520,7 @@
             "dist": {
                 "type": "path",
                 "url": "../../packages/search",
-                "reference": "3ccd5a324946ddb37db73e97afac18656b609b65"
+                "reference": "dc968f36613c781686a6004435af09704eee3049"
             },
             "require": {
                 "automattic/jetpack-connection": "^1.34"
@@ -1565,7 +1565,7 @@
                 ],
                 "test-coverage": [
                     "@composer install",
-                    "@composer phpunit -- --coverage-clover \"$COVERAGE_DIR/clover.xml\""
+                    "php -dpcov.directory=. ./vendor/bin/phpunit --coverage-clover \"$COVERAGE_DIR/clover.xml\""
                 ],
                 "test-php": [
                     "@composer install",
@@ -1590,7 +1590,7 @@
             "dist": {
                 "type": "path",
                 "url": "../../packages/status",
-                "reference": "e3b026dc1356e3f3caa6c84baf3fbf3af0b584a3"
+                "reference": "96de9218a8f6f4d752e71d58e2e9e6c0e81ca377"
             },
             "require": {
                 "automattic/jetpack-constants": "^1.6"
@@ -1622,7 +1622,7 @@
                 ],
                 "test-coverage": [
                     "@composer update",
-                    "@composer phpunit -- --coverage-clover \"$COVERAGE_DIR/clover.xml\""
+                    "php -dpcov.directory=. ./vendor/bin/phpunit --coverage-clover \"$COVERAGE_DIR/clover.xml\""
                 ],
                 "test-php": [
                     "@composer update",
@@ -1644,7 +1644,7 @@
             "dist": {
                 "type": "path",
                 "url": "../../packages/sync",
-                "reference": "b729ce1513b19ddba1c4e92a46947f1c3139da22"
+                "reference": "37106298584401e7eba9054c87a7c11f86eeea5d"
             },
             "require": {
                 "automattic/jetpack-connection": "^1.34",
@@ -1687,7 +1687,7 @@
                 ],
                 "test-coverage": [
                     "@composer install",
-                    "@composer phpunit -- --coverage-clover \"$COVERAGE_DIR/clover.xml\""
+                    "php -dpcov.directory=. ./vendor/bin/phpunit --coverage-clover \"$COVERAGE_DIR/clover.xml\""
                 ],
                 "test-php": [
                     "@composer install",
@@ -1712,7 +1712,7 @@
             "dist": {
                 "type": "path",
                 "url": "../../packages/terms-of-service",
-                "reference": "515d57f1a9df820503a31132dab4b177361ed809"
+                "reference": "ccde0a08dd89b551211a8081de37caec598ea862"
             },
             "require": {
                 "automattic/jetpack-options": "^1.14",
@@ -1745,7 +1745,7 @@
                 ],
                 "test-coverage": [
                     "@composer update",
-                    "@composer phpunit -- --coverage-clover \"$COVERAGE_DIR/clover.xml\""
+                    "php -dpcov.directory=. ./vendor/bin/phpunit --coverage-clover \"$COVERAGE_DIR/clover.xml\""
                 ],
                 "test-php": [
                     "@composer update",
@@ -1767,7 +1767,7 @@
             "dist": {
                 "type": "path",
                 "url": "../../packages/tracking",
-                "reference": "f5ff27ac2637cf0a742eb05ccbe4aee6b7d1ee8d"
+                "reference": "001399fd0304cd835150da4843a3d314f6207ca4"
             },
             "require": {
                 "automattic/jetpack-assets": "^1.16",
@@ -1804,7 +1804,7 @@
                 ],
                 "test-coverage": [
                     "@composer update",
-                    "@composer phpunit -- --coverage-clover \"$COVERAGE_DIR/clover.xml\""
+                    "php -dpcov.directory=. ./vendor/bin/phpunit --coverage-clover \"$COVERAGE_DIR/clover.xml\""
                 ],
                 "test-php": [
                     "@composer update",
@@ -1946,7 +1946,7 @@
             "dist": {
                 "type": "path",
                 "url": "../../packages/changelogger",
-                "reference": "bbd7f25392dc05cee0142a5c4c3a3c8da5cb3514"
+                "reference": "ed5842ee826136274b0926ea3aa2db22159cb5f8"
             },
             "require": {
                 "php": ">=5.6",
@@ -1993,7 +1993,7 @@
                 ],
                 "test-coverage": [
                     "@composer update",
-                    "@composer phpunit -- --coverage-clover \"$COVERAGE_DIR/clover.xml\""
+                    "php -dpcov.directory=. ./vendor/bin/phpunit --coverage-clover \"$COVERAGE_DIR/clover.xml\""
                 ],
                 "test-php": [
                     "@composer update",
