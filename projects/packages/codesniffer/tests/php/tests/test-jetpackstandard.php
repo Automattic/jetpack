@@ -36,7 +36,11 @@ class JetpackStandardTest extends TestCase {
 
 		$config = new Config();
 
-		$config->standards   = array( __DIR__ . '/../../../Jetpack/ruleset.xml' );
+		if ( file_exists( "$file.ruleset.xml" ) ) {
+			$config->standards = array( "$file.ruleset.xml" );
+		} else {
+			$config->standards = array( __DIR__ . '/files/default.xml' );
+		}
 		$config->files       = array( $file );
 		$config->encoding    = 'utf-8';
 		$config->reports     = array( 'full' => null );
@@ -50,7 +54,11 @@ class JetpackStandardTest extends TestCase {
 
 		$ruleset = new Ruleset( $config );
 		$dummy   = new DummyFile( $contents, $ruleset, $config );
-		$dummy->process();
+		try {
+			$dummy->process();
+		} catch ( \Exception $ex ) {
+			return get_class( $ex ) . ': ' . $ex->getMessage() . "\n";
+		}
 
 		if ( ! $fix ) {
 			$reporter = new Reporter( $config );
@@ -81,6 +89,7 @@ class JetpackStandardTest extends TestCase {
 	public function test_phpcs( $file, $fix ) {
 		$expect = file_get_contents( $fix ? "$file.fixed" : "$file.report" );
 		$this->assertIsString( $expect );
+		file_put_contents( $fix ? "$file.fixed" : "$file.report", $expect = $this->run_phpcs( $file, $fix ) );
 		$this->assertEquals( $expect, $this->run_phpcs( $file, $fix ) );
 	}
 
