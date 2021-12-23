@@ -1,4 +1,0 @@
-Significance: patch
-Type: added
-
-Set i18n-check-webpack-plugin's `expectDomain` based on composer.json.
