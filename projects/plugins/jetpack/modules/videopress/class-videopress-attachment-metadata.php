@@ -15,17 +15,18 @@ class Videopress_Attachment_Metadata {
 	/**
 	 * Persist the VideoPress metadata information, including rating and display_embed.
 	 *
-	 * @param string|int $post_id       The post id.
-	 * @param string     $guid          VideoPress Guid.
-	 * @param string     $post_title    The post title.
-	 * @param string     $caption       Video caption.
-	 * @param string     $post_excerpt  The post excerpt.
-	 * @param string     $rating        The rating.
-	 * @param int        $display_embed The display_embed.
+	 * @param string|int $post_id        The post id.
+	 * @param string     $guid           VideoPress Guid.
+	 * @param string     $post_title     The post title.
+	 * @param string     $caption        Video caption.
+	 * @param string     $post_excerpt   The post excerpt.
+	 * @param string     $rating         The rating.
+	 * @param int        $display_embed  The display_embed.
+	 * @param int        $allow_download Allow video downloads.
 	 *
 	 * @return bool|\WP_Error
 	 */
-	public static function persist_metadata( $post_id, $guid, $post_title, $caption, $post_excerpt, $rating, $display_embed ) {
+	public static function persist_metadata( $post_id, $guid, $post_title, $caption, $post_excerpt, $rating, $display_embed, $allow_download ) {
 		$post_id = absint( $post_id );
 
 		$args = array(
@@ -33,9 +34,10 @@ class Videopress_Attachment_Metadata {
 			'headers' => array( 'content-type' => 'application/json' ),
 		);
 
-		$display_embed = (int) $display_embed;
+		$display_embed  = (int) $display_embed;
+		$allow_download = (int) $allow_download;
 
-		$values         = self::build_wpcom_api_request_values( $post_title, $caption, $post_excerpt, $rating, $display_embed );
+		$values         = self::build_wpcom_api_request_values( $post_title, $caption, $post_excerpt, $rating, $display_embed, $allow_download );
 		$endpoint       = 'videos';
 		$values['guid'] = $guid;
 
@@ -55,6 +57,10 @@ class Videopress_Attachment_Metadata {
 
 		if ( self::is_display_embed_valid( $display_embed ) ) {
 			$meta['videopress']['display_embed'] = (bool) $values['display_embed']; // convert it to bool since that's how we store it on wp-admin side.
+		}
+
+		if ( isset( $values['allow_download'] ) ) {
+			$meta['videopress']['allow_download'] = (bool) $values['allow_download'];
 		}
 
 		if ( isset( $values['rating'] ) ) {
@@ -94,6 +100,16 @@ class Videopress_Attachment_Metadata {
 	}
 
 	/**
+	 * Check if allow_download has valid values
+	 *
+	 * @param mixed $allow_download
+	 * @return bool
+	 */
+	private static function is_allow_download_valid( $allow_download ) {
+		return 0 == $allow_download || 1 === $allow_download;
+	}
+
+	/**
 	 * Validate the response received from WPCOM.
 	 *
 	 * @param array|\WP_Error $result The result returned by the client.
@@ -129,10 +145,11 @@ class Videopress_Attachment_Metadata {
 	 * @param string $post_excerpt The except.
 	 * @param string $rating The video rating.
 	 * @param string $display_embed The video display_embed.
+	 * @param int    $allow_download The video allow_download.
 	 *
 	 * @return array
 	 */
-	private static function build_wpcom_api_request_values( $post_title, $caption, $post_excerpt, $rating, $display_embed ) {
+	private static function build_wpcom_api_request_values( $post_title, $caption, $post_excerpt, $rating, $display_embed, $allow_download ) {
 		$values = array();
 
 		// Add the video title & description in, so that we save it properly.
@@ -154,6 +171,10 @@ class Videopress_Attachment_Metadata {
 
 		if ( self::is_display_embed_valid( $display_embed ) ) {
 			$values['display_embed'] = $display_embed;
+		}
+
+		if ( self::is_allow_download_valid( $allow_download ) ) {
+			$values['allow_download'] = $allow_download;
 		}
 
 		return $values;
