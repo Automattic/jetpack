@@ -18,7 +18,7 @@
 	grid-template-columns: repeat( 2, 1fr );
 
 	@include breakpoint( '<660px' ) {
-		grid-template-columns: auto;
+		grid-template-columns: 100% 0%;
 		background: var( --jp-white );
 	}
 }
