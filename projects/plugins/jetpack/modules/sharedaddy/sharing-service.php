@@ -865,7 +865,6 @@ function sharing_display( $text = '', $echo = false ) {
 
 				$visible .= '<li class="' . implode( ' ', $klasses ) . '">' . $service->get_display( $post ) . '</li>';
 				
-
 			}
 
 			$parts   = array();
