@@ -481,6 +481,32 @@
 				} );
 			} );
 
+			// Print button
+			forEachNode(
+				group.querySelectorAll( 'a.share-copy-post-url' ),
+				function ( copyPageUrlButton ) {
+					copyPageUrlButton.addEventListener( 'click', function ( event ) {
+						event.preventDefault();
+						event.stopPropagation();
+
+						var link = copyPageUrlButton.getAttribute( 'href' );
+
+						navigator.clipboard.writeText( link ).then(
+							function () {
+								var x = document.getElementById( 'share-copy-post-url-confirmation-toast' );
+
+								x.className = 'show';
+
+								setTimeout( function () {
+									x.className = x.className.replace( 'show', '' );
+								}, 3000 );
+							},
+							function () {}
+						);
+					} );
+				}
+			);
+
 			// Press This button
 			forEachNode( group.querySelectorAll( 'a.share-press-this' ), function ( pressThisButton ) {
 				pressThisButton.addEventListener( 'click', function ( event ) {

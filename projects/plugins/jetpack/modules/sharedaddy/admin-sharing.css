@@ -124,6 +124,9 @@ li.service span:before {
 li.service.share-print span:before {
 	content: '\f469';
 }
+li.service.share-copy-post-url span:before {
+	content: '\f469';
+}
 li.service.share-digg span:before {
 	content: '\f221';
 }

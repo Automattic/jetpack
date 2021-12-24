@@ -5,7 +5,8 @@ use Automattic\Jetpack\Redirect;
 use Automattic\Jetpack\Status;
 use Automattic\Jetpack\Sync\Settings;
 
-include_once dirname( __FILE__ ) . '/sharing-sources.php';
+require_once __DIR__ . '/sharing-sources.php';
+require_once __DIR__ . '/sharing-sources/class-share-copy-page-url.php';
 
 define( 'WP_SHARING_PLUGIN_VERSION', JETPACK__VERSION );
 
@@ -69,12 +70,14 @@ class Sharing_Service {
 			'telegram'         => 'Share_Telegram',
 			'jetpack-whatsapp' => 'Jetpack_Share_WhatsApp',
 			'skype'            => 'Share_Skype',
+			'copy-post-url'    => 'Share_Copy_Page_Url',
 		);
 
 		/**
 		 * Filters if Email Sharing is enabled.
 		 *
 		 * E-Mail sharing is often problematic due to spam concerns, so this filter enables it to be quickly and simply toggled.
+		 *
 		 * @module sharedaddy
 		 *
 		 * @since 5.1.0
@@ -133,7 +136,8 @@ class Sharing_Service {
 
 			// Create a custom service and set the options for it
 			$service = new Share_Custom(
-				$service_id, array(
+				$service_id,
+				array(
 					'name' => $label,
 					'url'  => $url,
 					'icon' => $icon,
@@ -193,7 +197,8 @@ class Sharing_Service {
 		 * }
 		 */
 		do_action(
-			'sharing_get_services_state', array(
+			'sharing_get_services_state',
+			array(
 				'services'          => $services,
 				'available'         => $available,
 				'hidden'            => $hidden,
@@ -203,7 +208,8 @@ class Sharing_Service {
 		);
 
 		return update_option(
-			'sharing-services', array(
+			'sharing-services',
+			array(
 				'visible' => $visible,
 				'hidden'  => $hidden,
 			)
@@ -218,6 +224,7 @@ class Sharing_Service {
 		/**
 		 * Check if options exist and are well formatted.
 		 * This avoids issues on sites with corrupted options.
+		 *
 		 * @see https://github.com/Automattic/jetpack/issues/6121
 		 */
 		if ( ! is_array( $options ) || ! isset( $options['button_style'], $options['global'] ) ) {
@@ -446,7 +453,8 @@ class Sharing_Service {
 		 * }
 		 */
 		do_action(
-			'sharing_get_button_state', array(
+			'sharing_get_button_state',
+			array(
 				'id'      => $id,
 				'options' => $options,
 				'service' => $service,
