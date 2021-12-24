@@ -122,4 +122,9 @@ export default class JetpackBoostPage extends WpPage {
 		/* It needs a large timeout because speed score updates take time */
 		return this.waitForElementToBeDetached( selector, 180000 ); // 3 minutes
 	}
+
+	async isScoreDescriptionPopinVisible() {
+		const selector = '.jb-score-context__info-container';
+		return this.page.isVisible( selector );
+	}
 }

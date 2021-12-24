@@ -26,4 +26,10 @@ test.describe( 'Speed Score feature', () => {
 		expect( await jetpackBoostPage.getSpeedScore( 'desktop' ) ).toBeGreaterThan( 0 );
 		expect( await jetpackBoostPage.currentPageTitleIs( /Overall score: [A-Z]/ ) ).toBeTruthy();
 	} );
+
+	test( 'Should be able to hover info icon next to overall score and see the detailed overall score description popin', async () => {
+		await jetpackBoostPage.waitForScoreLoadingToFinish();
+		await jetpackBoostPage.page.hover( '.jb-score-context' );
+		expect( await jetpackBoostPage.isScoreDescriptionPopinVisible() ).toBeTruthy();
+	} );
 } );
