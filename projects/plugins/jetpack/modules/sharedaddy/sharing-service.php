@@ -59,7 +59,7 @@ class Sharing_Service {
 		// in bin/tests/api/suites/SharingTest.php
 		$services = array(
 			'print'            => 'Share_Print',
-			'copy-page-url'         => 'Share_Copy_Page_Url',
+			'copy-page-url'    => 'Share_Copy_Page_Url',
 			'facebook'         => 'Share_Facebook',
 			'linkedin'         => 'Share_LinkedIn',
 			'reddit'           => 'Share_Reddit',
@@ -76,6 +76,7 @@ class Sharing_Service {
 		 * Filters if Email Sharing is enabled.
 		 *
 		 * E-Mail sharing is often problematic due to spam concerns, so this filter enables it to be quickly and simply toggled.
+		 *
 		 * @module sharedaddy
 		 *
 		 * @since 5.1.0
@@ -134,7 +135,8 @@ class Sharing_Service {
 
 			// Create a custom service and set the options for it
 			$service = new Share_Custom(
-				$service_id, array(
+				$service_id,
+				array(
 					'name' => $label,
 					'url'  => $url,
 					'icon' => $icon,
@@ -194,7 +196,8 @@ class Sharing_Service {
 		 * }
 		 */
 		do_action(
-			'sharing_get_services_state', array(
+			'sharing_get_services_state',
+			array(
 				'services'          => $services,
 				'available'         => $available,
 				'hidden'            => $hidden,
@@ -204,7 +207,8 @@ class Sharing_Service {
 		);
 
 		return update_option(
-			'sharing-services', array(
+			'sharing-services',
+			array(
 				'visible' => $visible,
 				'hidden'  => $hidden,
 			)
@@ -219,6 +223,7 @@ class Sharing_Service {
 		/**
 		 * Check if options exist and are well formatted.
 		 * This avoids issues on sites with corrupted options.
+		 *
 		 * @see https://github.com/Automattic/jetpack/issues/6121
 		 */
 		if ( ! is_array( $options ) || ! isset( $options['button_style'], $options['global'] ) ) {
@@ -447,7 +452,8 @@ class Sharing_Service {
 		 * }
 		 */
 		do_action(
-			'sharing_get_button_state', array(
+			'sharing_get_button_state',
+			array(
 				'id'      => $id,
 				'options' => $options,
 				'service' => $service,
@@ -864,7 +870,7 @@ function sharing_display( $text = '', $echo = false ) {
 				// Individual HTML for sharing service.
 
 				$visible .= '<li class="' . implode( ' ', $klasses ) . '">' . $service->get_display( $post ) . '</li>';
-				
+
 			}
 
 			$parts   = array();
