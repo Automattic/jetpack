@@ -5,7 +5,6 @@
  */
 import React, { useCallback } from 'react';
 import { __ } from '@wordpress/i18n';
-import { useSelect } from '@wordpress/data';
 import {
 	AdminSection,
 	AdminSectionHero,
@@ -13,7 +12,7 @@ import {
 	Row,
 	Col,
 } from '@automattic/jetpack-components';
-import { ConnectionStatusCard, CONNECTION_STORE_ID } from '@automattic/jetpack-connection';
+import { ConnectionStatusCard } from '@automattic/jetpack-connection';
 
 import './style.scss';
 
@@ -23,11 +22,6 @@ import './style.scss';
  * @returns {object} The MyJetpackScreen component.
  */
 export default function MyJetpackScreen() {
-	const connectionStatus = useSelect(
-		select => select( CONNECTION_STORE_ID ).getConnectionStatus(),
-		[]
-	);
-
 	const redirectAfterDisconnect = useCallback( () => {
 		window.location = myJetpackInitialState.topJetpackMenuItemUrl;
 	}, [] );
@@ -57,8 +51,6 @@ export default function MyJetpackScreen() {
 							<ConnectionStatusCard
 								apiRoot={ myJetpackInitialState.apiRoot }
 								apiNonce={ myJetpackInitialState.apiNonce }
-								isRegistered={ connectionStatus.isRegistered }
-								isUserConnected={ connectionStatus.isUserConnected }
 								redirectUri={ myJetpackInitialState.redirectUri }
 								onDisconnected={ redirectAfterDisconnect }
 							/>
