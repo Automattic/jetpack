@@ -8,8 +8,6 @@ import {
 	deactivateModules as deactivateBoostModules,
 } from '../lib/env/prerequisites.js';
 
-let jetpackBoostPage;
-
 test.describe( 'Jetpack compatibility', () => {
 	test.beforeAll( async () => {
 		await prerequisitesBuilder().withActivePlugins( [ 'jetpack' ] ).build();
@@ -21,7 +19,7 @@ test.describe( 'Jetpack compatibility', () => {
 		await prerequisitesBuilder( page ).withInactiveModules( [ 'lazy-images' ] ).build();
 		await activateModules( [ 'lazy-images' ] );
 
-		jetpackBoostPage = await JetpackBoostPage.visit( page );
+		const jetpackBoostPage = await JetpackBoostPage.visit( page );
 		expect( await jetpackBoostPage.isModuleEnabled( 'lazy-images' ) ).toEqual( true );
 	} );
 
@@ -31,8 +29,8 @@ test.describe( 'Jetpack compatibility', () => {
 		await prerequisitesBuilder( page ).withActiveModules( [ 'lazy-images' ] ).build();
 		await deactivateModules( [ 'lazy-images' ] );
 
-		jetpackBoostPage = await JetpackBoostPage.visit( page );
-		expect( await jetpackBoostPage.isModuleEnabled( 'lazy-images' ) ).toEqual( false );
+		const jetpackBoostPage = await JetpackBoostPage.visit( page );
+		await expect( await jetpackBoostPage.isModuleEnabled( 'lazy-images' ) ).toEqual( false );
 	} );
 
 	test( 'The Boost lazy-image module activation reflects in Jetpack dashboard', async ( {
