@@ -30,7 +30,7 @@ test.describe( 'Jetpack compatibility', () => {
 		await deactivateModules( [ 'lazy-images' ] );
 
 		const jetpackBoostPage = await JetpackBoostPage.visit( page );
-		await expect( await jetpackBoostPage.isModuleEnabled( 'lazy-images' ) ).toEqual( false );
+		expect( await jetpackBoostPage.isModuleEnabled( 'lazy-images' ) ).toEqual( false );
 	} );
 
 	test( 'The Boost lazy-image module activation reflects in Jetpack dashboard', async ( {
