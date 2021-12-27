@@ -44,7 +44,7 @@ const Overlay = props => {
 			role="dialog"
 		>
 			<h1 id="jetpack-instant-search__overlay-title" className="screen-reader-text">
-				{ __( 'Search results', 'jetpack' ) }
+				{ __( 'Jetpack Search Results', 'jetpack' ) }
 			</h1>
 			{ children }
 		</div>

@@ -126,9 +126,7 @@ class SearchResults extends Component {
 						`,
 					} }
 				/>
-				<div className="jetpack-instant-search__search-results-title">
-					{ this.getSearchTitle() }
-				</div>
+				<h2 className="jetpack-instant-search__search-results-title">{ this.getSearchTitle() }</h2>
 
 				{ hasResults && hasCorrectedQuery && (
 					<p className="jetpack-instant-search__search-results-unused-query">
