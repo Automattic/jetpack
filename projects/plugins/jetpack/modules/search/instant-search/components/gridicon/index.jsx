@@ -56,7 +56,7 @@ class Gridicon extends Component {
 			case 'gridicons-comment':
 				return <title>{ __( 'Matching comment.', 'jetpack' ) }</title>;
 			case 'gridicons-cross':
-				return <title>{ __( 'Close search results', 'jetpack' ) }</title>;
+				return <title>{ __( 'Close search interface', 'jetpack' ) }</title>;
 			case 'gridicons-filter':
 				return <title>{ __( 'Toggle search filters.', 'jetpack' ) }</title>;
 			case 'gridicons-folder':
@@ -71,7 +71,7 @@ class Gridicon extends Component {
 				return <title>{ __( 'Post', 'jetpack' ) }</title>;
 			case 'gridicons-jetpack-search':
 			case 'gridicons-search':
-				return <title>{ __( 'Search', 'jetpack' ) }</title>;
+				return <title>{ __( 'Magnifying Glass', 'jetpack' ) }</title>;
 			case 'gridicons-tag':
 				return <title>{ __( 'Tag', 'jetpack' ) }</title>;
 			case 'gridicons-video':
