@@ -1,8 +1,10 @@
 import WpPage from './wp-page.js';
+import { resolveSiteUrl } from '../helpers/utils-helper.cjs';
 
 export default class PostFrontendPage extends WpPage {
 	constructor( page ) {
-		super( page, { expectedSelectors: [ '.post' ] } );
+		const url = resolveSiteUrl();
+		super( page, { expectedSelectors: [ '.post' ], url } );
 	}
 
 	/**

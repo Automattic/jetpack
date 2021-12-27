@@ -34,8 +34,8 @@
 		"preinstall": "pnpm --prefix ../../../../../tools/e2e-commons install"
 	},
 	"devDependencies": {
-		"@playwright/test": "1.16.3",
-		"@wordpress/eslint-plugin": "9.2.0",
+		"@playwright/test": "1.17.1",
+		"@wordpress/eslint-plugin": "9.3.0",
 		"allure-playwright": "2.0.0-beta.14",
 		"config": "3.3.6",
 		"eslint": "7.32.0",
@@ -45,7 +45,7 @@
 	},
 	"engines": {
 		"node": "^14.17.6 || ^16.7.0",
-		"pnpm": "^6.5.0",
+		"pnpm": "^6.23.6",
 		"yarn": "use pnpm instead - see docs/yarn-upgrade.md"
 	},
 	"browserslist": []

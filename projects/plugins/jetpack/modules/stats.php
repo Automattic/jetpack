@@ -1232,7 +1232,7 @@ function stats_dashboard_widget_content() {
 	}
 
 	$_width  = $width - 5;
-	$_height = $height - ( $GLOBALS['is_winIE'] ? 16 : 5 ); // Hack! @todo Remove WordPress 5.8 is minimum. IE should be fully deprecated.
+	$_height = $height - 5;
 
 	$options = stats_dashboard_widget_options();
 	$blog_id = Jetpack_Options::get_option( 'id' );

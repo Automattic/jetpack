@@ -12,4 +12,13 @@ module.exports = {
 			version: 26,
 		},
 	},
+	rules: {
+		// Enforce use of the correct textdomain.
+		'@wordpress/i18n-text-domain': [
+			'error',
+			{
+				allowedTextDomain: 'jetpack',
+			},
+		],
+	},
 };

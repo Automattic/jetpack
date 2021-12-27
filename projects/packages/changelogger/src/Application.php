@@ -1,4 +1,4 @@
-<?php // phpcs:ignore WordPress.Files.FileName.NotHyphenatedLowercase
+<?php
 /**
  * User interface for the changelogger tool.
  *
@@ -18,7 +18,7 @@ use Symfony\Component\Console\Question\ConfirmationQuestion;
  */
 class Application extends SymfonyApplication {
 
-	const VERSION = '3.0.3';
+	const VERSION = '3.0.5-alpha';
 
 	/**
 	 * Constructor.

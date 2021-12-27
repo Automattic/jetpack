@@ -1,0 +1,4 @@
+Significance: patch
+Type: other
+
+Sync some E2E deps with the rest of the monorepo to avoid breaking eslint tests.

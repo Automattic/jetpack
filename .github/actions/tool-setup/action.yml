@@ -3,6 +3,9 @@ description: "Setup needed versions of PHP, Node, and Pnpm."
 inputs:
   php:
     description: "Override the PHP version, or set 'false' to skip setting up PHP."
+  coverage:
+    description: "Set the coverage driver, e.g. 'none' or 'pcov'."
+    default: 'none'
   node:
     description: "Override the Node version, or set 'false' to skip setting up Node and Pnpm."
 runs:
@@ -37,7 +40,7 @@ runs:
         printf "\n\e[1mRemoving installed versions of disabled tools\e[0m\n"
         torm=()
         if [[ "$PHP" == "false" ]]; then
-          torm+=( php phpdbg composer )
+          torm+=( php composer )
         fi
         if [[ "$NODE" == "false" ]]; then
           torm+=( node npm pnpm )
@@ -59,7 +62,7 @@ runs:
         ini-values: error_reporting=E_ALL, display_errors=On, zend.assertions=1
         tools: composer:${{ steps.versions.outputs.composer-version }}
         extensions: mysql, imagick
-        coverage: none
+        coverage: ${{ inputs.coverage }}
 
     - run: printf "\n\e[1mSetup Node\e[0m\n"
       shell: bash
@@ -119,7 +122,6 @@ runs:
 
         printf "\n\e[1mInstalled tool versions\e[0m\n"
         docmd php --version
-        docmd phpdbg --version
         docmd composer --version
         docmd node --version
         docmd pnpm --version

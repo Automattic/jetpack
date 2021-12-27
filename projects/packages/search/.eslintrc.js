@@ -11,6 +11,14 @@ module.exports = {
 	rules: {
 		'jsdoc/check-tag-names': [ 1, { definedTags: [ 'jsx', 'jest-environment' ] } ],
 		'react/jsx-no-bind': 0,
+
+		// Enforce use of the correct textdomain.
+		'@wordpress/i18n-text-domain': [
+			'error',
+			{
+				allowedTextDomain: 'jetpack-search-pkg',
+			},
+		],
 	},
 	overrides: [
 		{

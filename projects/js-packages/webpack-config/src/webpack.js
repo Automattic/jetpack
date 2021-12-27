@@ -1,3 +1,5 @@
+const fs = require( 'fs' );
+const path = require( 'path' );
 const webpack = require( 'webpack' );
 
 const CssMinimizerPlugin = require( 'css-minimizer-webpack-plugin' );
@@ -7,6 +9,7 @@ const DuplicatePackageCheckerWebpackPlugin = require( 'duplicate-package-checker
 const MiniCssExtractPlugin = require( 'mini-css-extract-plugin' );
 const MiniCSSWithRTLPlugin = require( './webpack/mini-css-with-rtl' );
 const WebpackRTLPlugin = require( '@automattic/webpack-rtl-plugin' );
+const I18nLoaderWebpackPlugin = require( '@automattic/i18n-loader-webpack-plugin' );
 const I18nCheckWebpackPlugin = require( '@automattic/i18n-check-webpack-plugin' );
 
 const MyCssMinimizerPlugin = options => new CssMinimizerPlugin( options );
@@ -66,6 +69,8 @@ const DuplicatePackageCheckerPlugin = options => [
 
 const DependencyExtractionPlugin = options => [ new DependencyExtractionWebpackPlugin( options ) ];
 
+const I18nLoaderPlugin = options => [ new I18nLoaderWebpackPlugin( options ) ];
+
 const i18nFilterFunction = file => {
 	if ( ! /\.(?:jsx?|tsx?|cjs|mjs|svelte)$/.test( file ) ) {
 		return false;
@@ -73,9 +78,33 @@ const i18nFilterFunction = file => {
 	const i = file.lastIndexOf( '/node_modules/' ) + 14;
 	return i < 14 || file.startsWith( '@automattic/', i );
 };
-const I18nCheckPlugin = options => [
-	new I18nCheckWebpackPlugin( { filter: i18nFilterFunction, ...options } ),
-];
+const I18nCheckPlugin = options => {
+	const opts = { filter: i18nFilterFunction, ...options };
+	if ( typeof opts.expectDomain === 'undefined' ) {
+		let dir = process.cwd(),
+			olddir;
+		do {
+			const file = path.join( dir, 'composer.json' );
+			if ( fs.existsSync( file ) ) {
+				const cfg = JSON.parse( fs.readFileSync( file, { encoding: 'utf8' } ) );
+				if ( cfg.extra ) {
+					if ( cfg.extra.textdomain ) {
+						opts.expectDomain = cfg.extra.textdomain;
+					} else if ( cfg.extra[ 'wp-plugin-slug' ] ) {
+						opts.expectDomain = cfg.extra[ 'wp-plugin-slug' ];
+					} else if ( cfg.extra[ 'wp-theme-slug' ] ) {
+						opts.expectDomain = cfg.extra[ 'wp-theme-slug' ];
+					}
+				}
+				break;
+			}
+
+			olddir = dir;
+			dir = path.dirname( dir );
+		} while ( dir !== olddir );
+	}
+	return [ new I18nCheckWebpackPlugin( opts ) ];
+};
 I18nCheckPlugin.defaultFilter = i18nFilterFunction;
 
 const StandardPlugins = ( options = {} ) => {
@@ -101,6 +130,7 @@ const StandardPlugins = ( options = {} ) => {
 		...( options.DependencyExtractionPlugin === false
 			? []
 			: DependencyExtractionPlugin( options.DependencyExtractionPlugin ) ),
+		...( options.I18nLoaderPlugin === false ? [] : I18nLoaderPlugin( options.I18nLoaderPlugin ) ),
 		...( options.I18nCheckPlugin === false ? [] : I18nCheckPlugin( options.I18nCheckPlugin ) ),
 	];
 };
@@ -135,6 +165,7 @@ module.exports = {
 	WebpackRtlPlugin: MyWebpackRtlPlugin,
 	DependencyExtractionPlugin,
 	DuplicatePackageCheckerPlugin,
+	I18nLoaderPlugin,
 	// Module rules and loaders.
 	TranspileRule,
 	CssRule,
