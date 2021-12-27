@@ -212,11 +212,11 @@ class SearchResults extends Component {
 		return (
 			<div
 				aria-hidden={ this.props.isLoading === true }
-				aria-live="polite"
 				className="jetpack-instant-search__search-results"
 			>
-				<div className="jetpack-instant-search__search-results-controls">
+				<div className="jetpack-instant-search__search-results-controls" role="form">
 					<SearchForm
+						aria-controls="jetpack-instant-search__search-results-content"
 						className="jetpack-instant-search__search-results-search-form"
 						isVisible={ this.props.isVisible }
 						onChangeSearch={ this.props.onChangeSearch }
@@ -263,7 +263,11 @@ class SearchResults extends Component {
 					) }
 				</SearchControls>
 
-				<div className="jetpack-instant-search__search-results-content">
+				<div
+					aria-live="polite"
+					className="jetpack-instant-search__search-results-content"
+					id="jetpack-instant-search__search-results-content"
+				>
 					<div className="jetpack-instant-search__search-results-primary">
 						{ this.renderPrimarySection() }
 					</div>
