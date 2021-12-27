@@ -47,6 +47,11 @@ export default class JetpackBoostPage extends WpPage {
 		this.page.click( `#jb-feature-toggle-${ moduleName }` );
 	}
 
+	async toggleModuleAndWaitForResponse( moduleName ) {
+		await this.toggleModule( moduleName );
+		await this.waitForApiResponse( `${ moduleName }-status` );
+	}
+
 	async isModuleEnabled( moduleName ) {
 		const toggle = await this.page.waitForSelector( `#jb-feature-toggle-${ moduleName }` );
 		const toggleParent = await toggle.waitForSelector( 'xpath=..' );
@@ -126,5 +131,21 @@ export default class JetpackBoostPage extends WpPage {
 	async isScoreDescriptionPopinVisible() {
 		const selector = '.jb-score-context__info-container';
 		return this.page.isVisible( selector );
+	}
+
+	async isScoreLoading() {
+		return (
+			( await this.currentPageTitleIs( 'Loading…' ) ) &&
+			( await this.isScorebarLoading( 'desktop' ) ) &&
+			( await this.isScorebarLoading( 'mobile' ) )
+		);
+	}
+
+	async isScoreVisible() {
+		return (
+			( await this.getSpeedScore( 'mobile' ) ) > 0 &&
+			( await this.getSpeedScore( 'desktop' ) ) > 0 &&
+			( await this.currentPageTitleIs( /Overall score: [A-Z]/ ) )
+		);
 	}
 }

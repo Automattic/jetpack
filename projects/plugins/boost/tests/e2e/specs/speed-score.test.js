@@ -17,14 +17,9 @@ test.describe( 'Speed Score feature', () => {
 		await jetpackBoostPage.waitForScoreLoadingToFinish();
 		await jetpackBoostPage.clickRefreshSpeedScore();
 
-		expect( await jetpackBoostPage.currentPageTitleIs( 'Loading…' ) ).toBeTruthy();
-		expect( await jetpackBoostPage.isScorebarLoading( 'mobile' ) ).toBeTruthy();
-		expect( await jetpackBoostPage.isScorebarLoading( 'desktop' ) ).toBeTruthy();
-
+		expect( await jetpackBoostPage.isScoreLoading() ).toBeTruthy();
 		await jetpackBoostPage.waitForScoreLoadingToFinish();
-		expect( await jetpackBoostPage.getSpeedScore( 'mobile' ) ).toBeGreaterThan( 0 );
-		expect( await jetpackBoostPage.getSpeedScore( 'desktop' ) ).toBeGreaterThan( 0 );
-		expect( await jetpackBoostPage.currentPageTitleIs( /Overall score: [A-Z]/ ) ).toBeTruthy();
+		expect( await jetpackBoostPage.isScoreVisible() ).toBeTruthy();
 	} );
 
 	test( 'Should be able to hover info icon next to overall score and see the detailed overall score description popin', async () => {
