@@ -866,7 +866,6 @@ class Jetpack {
 			array(
 				'sync',
 				'jitm',
-				'identity_crisis',
 			)
 			as $feature
 		) {
@@ -878,6 +877,15 @@ class Jetpack {
 			array(
 				'slug' => 'jetpack',
 				'name' => 'Jetpack',
+			)
+		);
+
+		// Identity crisis package.
+		$config->ensure(
+			'identity_crisis',
+			array(
+				'slug'       => 'jetpack',
+				'admin_page' => '/wp-admin/admin.php?page=jetpack',
 			)
 		);
 

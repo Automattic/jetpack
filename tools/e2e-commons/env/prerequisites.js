@@ -206,6 +206,12 @@ export async function deactivateModules( modulesList ) {
 	}
 }
 
+export async function isModuleActive( module ) {
+	logger.prerequisites( `Checking if ${ module } module is active` );
+	const result = await execWpCommand( `jetpack options get active_modules` );
+	return result.includes( module );
+}
+
 export async function ensurePluginsState( plugins ) {
 	if ( ! isLocalSite() ) {
 		logger.prerequisites( 'Site is not local, skipping plugins setup.' );

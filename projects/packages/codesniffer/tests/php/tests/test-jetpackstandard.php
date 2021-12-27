@@ -45,7 +45,7 @@ class JetpackStandardTest extends TestCase {
 		$config->showSources = true;
 		$config->tabWidth    = 4;
 		$config->exclude     = array(
-			'Generic.PHP.Syntax', // Tries to use `PHP_BINARY` to shell out to `php -l`, which breaks if tests are being run under phpdbg for coverage.
+			'Generic.PHP.Syntax', // Shells out to `php -l`, which is kind of slow.
 		);
 
 		$ruleset = new Ruleset( $config );

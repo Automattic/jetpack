@@ -5,7 +5,7 @@
 	"license": "GPL-2.0-or-later",
 	"require": {
 		"automattic/jetpack-constants": "^1.6",
-		"automattic/jetpack-assets": "^1.15"
+		"automattic/jetpack-assets": "^1.16"
 	},
 	"require-dev": {
 		"automattic/wordbless": "dev-master",
@@ -32,7 +32,7 @@
 		"post-update-cmd": "php -r \"copy('vendor/automattic/wordbless/src/dbless-wpdb.php', 'wordpress/wp-content/db.php');\"",
 		"test-coverage": [
 			"@composer update",
-			"phpdbg -d memory_limit=2048M -d max_execution_time=900 -qrr ./vendor/bin/phpunit --coverage-clover \"$COVERAGE_DIR/clover.xml\""
+			"php -dpcov.directory=. ./vendor/bin/phpunit --coverage-clover \"$COVERAGE_DIR/clover.xml\""
 		],
 		"test-php": [
 			"@composer update",
@@ -53,11 +53,12 @@
 	"extra": {
 		"autotagger": true,
 		"mirror-repo": "Automattic/jetpack-lazy-images",
+		"textdomain": "jetpack-lazy-images",
 		"changelogger": {
 			"link-template": "https://github.com/Automattic/jetpack-lazy-images/compare/v${old}...v${new}"
 		},
 		"branch-alias": {
-			"dev-master": "2.0.x-dev"
+			"dev-master": "2.1.x-dev"
 		}
 	}
 }

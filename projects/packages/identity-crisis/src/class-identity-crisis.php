@@ -11,10 +11,10 @@ use Automattic\Jetpack\Assets\Logo as Jetpack_Logo;
 use Automattic\Jetpack\Connection\Manager as Connection_Manager;
 use Automattic\Jetpack\Connection\Urls;
 use Automattic\Jetpack\Constants as Constants;
+use Automattic\Jetpack\IdentityCrisis\UI;
 use Automattic\Jetpack\Status as Status;
 use Automattic\Jetpack\Tracking as Tracking;
 use Jetpack_Options;
-use Jetpack_Tracks_Client;
 use WP_Error;
 
 /**
@@ -28,7 +28,7 @@ class Identity_Crisis {
 	/**
 	 * Package Version
 	 */
-	const PACKAGE_VERSION = '0.5.1-alpha';
+	const PACKAGE_VERSION = '0.6.0-alpha';
 
 	/**
 	 * Instance of the object.
@@ -166,32 +166,22 @@ class Identity_Crisis {
 	 * @return void
 	 */
 	public function wordpress_init() {
-		if ( ! current_user_can( 'jetpack_disconnect' ) && is_admin() ) {
-			add_action( 'admin_notices', array( $this, 'display_non_admin_idc_notice' ) );
-			add_action( 'admin_enqueue_scripts', array( $this, 'enqueue_idc_notice_files' ) );
-			add_action( 'current_screen', array( $this, 'non_admins_current_screen_check' ) );
-
-			return;
-		}
-
-		if (
-			isset( $_GET['jetpack_idc_clear_confirmation'], $_GET['_wpnonce'] ) &&
-			wp_verify_nonce( $_GET['_wpnonce'], 'jetpack_idc_clear_confirmation' )
-		) {
-			Jetpack_Options::delete_option( 'safe_mode_confirmed' );
-			self::$is_safe_mode_confirmed = false;
-		} else {
-			self::$is_safe_mode_confirmed = (bool) Jetpack_Options::get_option( 'safe_mode_confirmed' );
+		if ( current_user_can( 'jetpack_disconnect' ) ) {
+			if (
+					isset( $_GET['jetpack_idc_clear_confirmation'], $_GET['_wpnonce'] ) &&
+					wp_verify_nonce( $_GET['_wpnonce'], 'jetpack_idc_clear_confirmation' )
+			) {
+				Jetpack_Options::delete_option( 'safe_mode_confirmed' );
+				self::$is_safe_mode_confirmed = false;
+			} else {
+				self::$is_safe_mode_confirmed = (bool) Jetpack_Options::get_option( 'safe_mode_confirmed' );
+			}
 		}
 
 		// 121 Priority so that it's the most inner Jetpack item in the admin bar.
 		add_action( 'admin_bar_menu', array( $this, 'display_admin_bar_button' ), 121 );
-		add_action( 'admin_enqueue_scripts', array( $this, 'enqueue_admin_bar_css' ) );
 
-		if ( is_admin() && ! self::$is_safe_mode_confirmed ) {
-			add_action( 'admin_notices', array( $this, 'display_idc_notice' ) );
-			add_action( 'admin_enqueue_scripts', array( $this, 'enqueue_idc_notice_files' ) );
-		}
+		UI::init();
 	}
 
 	/**
@@ -226,18 +216,14 @@ class Identity_Crisis {
 	 * @param object $current_screen Current screen.
 	 *
 	 * @return null
+	 * @deprecated 0.5.0 Use `@automattic/jetpack-idc` instead.
 	 */
 	public function non_admins_current_screen_check( $current_screen ) {
+		_deprecated_function( __METHOD__, '0.5.0' );
+
 		self::$current_screen = $current_screen;
 		if ( isset( $current_screen->id ) && 'toplevel_page_jetpack' === $current_screen->id ) {
 			return null;
-		}
-
-		// If the user has dismissed the notice, and we're not currently on a Jetpack page,
-		// then do not show the non-admin notice.
-		if ( isset( $_COOKIE, $_COOKIE['jetpack_idc_dismiss_notice'] ) ) {
-			remove_action( 'admin_notices', array( $this, 'display_non_admin_idc_notice' ) );
-			remove_action( 'admin_enqueue_scripts', array( $this, 'enqueue_idc_notice_files' ) );
 		}
 
 		return null;
@@ -260,7 +246,7 @@ class Identity_Crisis {
 		$title = sprintf(
 			'<span class="jp-idc-admin-bar">%s %s</span>',
 			'<span class="dashicons dashicons-warning"></span>',
-			esc_html__( 'Jetpack Safe Mode', 'jetpack' )
+			esc_html__( 'Jetpack Safe Mode', 'jetpack-idc' )
 		);
 
 		$menu = array(
@@ -459,7 +445,7 @@ class Identity_Crisis {
 				'cannot_parse_url',
 				sprintf(
 				/* translators: %s: URL to parse. */
-					esc_html__( 'Cannot parse URL %s', 'jetpack' ),
+					esc_html__( 'Cannot parse URL %s', 'jetpack-idc' ),
 					$url
 				)
 			);
@@ -591,8 +577,11 @@ class Identity_Crisis {
 	 * Does the current admin page have help tabs?
 	 *
 	 * @return bool
+	 * @deprecated 0.5.0 Use `@automattic/jetpack-idc` instead.
 	 */
 	public function admin_page_has_help_tabs() {
+		_deprecated_function( __METHOD__, '0.5.0' );
+
 		if ( ! function_exists( 'get_current_screen' ) ) {
 			return false;
 		}
@@ -607,8 +596,11 @@ class Identity_Crisis {
 	 * Renders the non-admin IDC notice.
 	 *
 	 * @return void
+	 * @deprecated 0.5.0 Use `@automattic/jetpack-idc` instead.
 	 */
 	public function display_non_admin_idc_notice() {
+		_deprecated_function( __METHOD__, '0.5.0' );
+
 		$classes = 'jp-idc-notice inline is-non-admin notice notice-warning';
 		if ( isset( self::$current_screen ) && 'toplevel_page_jetpack' !== self::$current_screen->id ) {
 			$classes .= ' is-dismissible';
@@ -640,8 +632,11 @@ class Identity_Crisis {
 	 * "Fix Jetpack Connection" - Will disconnect the site and start the mitigation...
 	 *
 	 * @return void
+	 * @deprecated 0.5.0 Use `@automattic/jetpack-idc` instead.
 	 */
 	public function display_idc_notice() {
+		_deprecated_function( __METHOD__, '0.5.0' );
+
 		$classes = 'jp-idc-notice inline notice notice-warning';
 		if ( $this->admin_page_has_help_tabs() ) {
 			$classes .= ' has-help-tabs';
@@ -659,72 +654,20 @@ class Identity_Crisis {
 	 * Enqueue CSS for the admin bar.
 	 *
 	 * @return void
+	 * @deprecated 0.5.0 Use `@automattic/jetpack-idc` instead.
 	 */
 	public function enqueue_admin_bar_css() {
-
-		$build_assets = require __DIR__ . '/../build/index.asset.php';
-
-		wp_enqueue_style(
-			'jetpack-idc-admin-bar-css',
-			plugin_dir_url( __DIR__ ) . 'build/css/jetpack-idc-admin-bar.css',
-			array( 'dashicons' ),
-			$build_assets['version']
-		);
+		_deprecated_function( __METHOD__, '0.5.0' );
 	}
 
 	/**
 	 * Enqueue scripts for the notice.
 	 *
 	 * @return void
+	 * @deprecated 0.5.0 Use `@automattic/jetpack-idc` instead.
 	 */
 	public function enqueue_idc_notice_files() {
-		$build_assets                   = require __DIR__ . '/../build/index.asset.php';
-		$build_assets['dependencies'][] = 'jquery';
-
-		wp_enqueue_script(
-			'jetpack-idc-js',
-			plugin_dir_url( __DIR__ ) . 'build/index.js',
-			$build_assets['dependencies'],
-			$build_assets['version'],
-			true
-		);
-
-		wp_localize_script(
-			'jetpack-idc-js',
-			'idcL10n',
-			array(
-				'apiRoot'         => esc_url_raw( rest_url() ),
-				'nonce'           => wp_create_nonce( 'wp_rest' ),
-				'tracksUserData'  => Jetpack_Tracks_Client::get_connected_user_tracks_identity(),
-				'currentUrl'      => remove_query_arg( '_wpnonce', remove_query_arg( 'jetpack_idc_clear_confirmation' ) ),
-				'tracksEventData' => array(
-					'isAdmin'       => current_user_can( 'jetpack_disconnect' ),
-					'currentScreen' => self::$current_screen ? self::$current_screen->id : false,
-				),
-			)
-		);
-
-		if ( ! wp_style_is( 'jetpack-dops-style', 'registered' ) ) {
-			wp_register_style(
-				'jetpack-dops-style',
-				plugin_dir_url( __DIR__ ) . 'src/_inc/admin.css', // TODO Detangle style depenedencies instead of copying whole css file.
-				array(),
-				self::PACKAGE_VERSION
-			);
-		}
-
-		wp_enqueue_style(
-			'jetpack-idc-admin-bar-css',
-			plugin_dir_url( __DIR__ ) . 'build/css/jetpack-idc-admin-bar.css',
-			array( 'jetpack-dops-style' ),
-			self::PACKAGE_VERSION
-		);
-		wp_enqueue_style(
-			'jetpack-idc-css',
-			plugin_dir_url( __DIR__ ) . 'build/css/jetpack-idc.css',
-			array( 'jetpack-dops-style' ),
-			self::PACKAGE_VERSION
-		);
+		_deprecated_function( __METHOD__, '0.5.0' );
 
 		// Register and Enqueue jp-tracks-functions.
 		Tracking::register_tracks_functions_scripts( true );
@@ -734,8 +677,11 @@ class Identity_Crisis {
 	 * Renders the notice header.
 	 *
 	 * @return void
+	 * @deprecated 0.5.0 Use `@automattic/jetpack-idc` instead.
 	 */
 	public function render_notice_header() {
+		_deprecated_function( __METHOD__, '0.5.0' );
+
 		?>
 		<div class="jp-idc-notice__header">
 			<div class="jp-idc-notice__header__emblem">
@@ -745,7 +691,7 @@ class Identity_Crisis {
 				?>
 			</div>
 			<p class="jp-idc-notice__header__text">
-				<?php esc_html_e( 'Jetpack Safe Mode', 'jetpack' ); ?>
+				<?php esc_html_e( 'Jetpack Safe Mode', 'jetpack-idc' ); ?>
 			</p>
 		</div>
 
@@ -769,12 +715,12 @@ class Identity_Crisis {
 			</svg>
 			<div class="dops-notice__content">
 				<span class="dops-notice__text">
-					<?php esc_html_e( 'Something went wrong:', 'jetpack' ); ?>
+					<?php esc_html_e( 'Something went wrong:', 'jetpack-idc' ); ?>
 					<span class="jp-idc-error__desc"></span>
 				</span>
 				<a class="dops-notice__action" href="javascript:void(0);">
 					<span id="jp-idc-error__action">
-						<?php esc_html_e( 'Try Again', 'jetpack' ); ?>
+						<?php esc_html_e( 'Try Again', 'jetpack-idc' ); ?>
 					</span>
 				</a>
 			</div>
@@ -878,7 +824,7 @@ class Identity_Crisis {
 		$html = wp_kses(
 			sprintf(
 			/* translators: %s: Safe mode docs URL and site URL. */
-				__( 'Jetpack has been placed into <a href="%1$s">Safe mode</a> because we noticed this is an exact copy of <a href="%2$s">%3$s</a>.', 'jetpack' ),
+				__( 'Jetpack has been placed into <a href="%1$s">Safe mode</a> because we noticed this is an exact copy of <a href="%2$s">%3$s</a>.', 'jetpack-idc' ),
 				esc_url( self::get_safe_mod_doc_url() ),
 				esc_url( self::$wpcom_home_url ),
 				self::prepare_url_for_display( esc_url_raw( self::$wpcom_home_url ) )
@@ -906,7 +852,7 @@ class Identity_Crisis {
 		$html = wp_kses(
 			sprintf(
 			/* translators: %s: Safe mode docs URL. */
-				__( 'Please confirm Safe Mode or fix the Jetpack connection. Select one of the options below or <a href="%1$s">learn more about Safe Mode</a>.', 'jetpack' ),
+				__( 'Please confirm Safe Mode or fix the Jetpack connection. Select one of the options below or <a href="%1$s">learn more about Safe Mode</a>.', 'jetpack-idc' ),
 				esc_url( self::get_safe_mod_doc_url() )
 			),
 			array( 'a' => array( 'href' => array() ) )
@@ -932,7 +878,7 @@ class Identity_Crisis {
 		$html = wp_kses(
 			sprintf(
 			/* translators: %s: Site URL. */
-				__( 'Is this website a temporary duplicate of <a href="%1$s">%2$s</a> for the purposes of testing, staging or development? If so, we recommend keeping it in Safe Mode.', 'jetpack' ),
+				__( 'Is this website a temporary duplicate of <a href="%1$s">%2$s</a> for the purposes of testing, staging or development? If so, we recommend keeping it in Safe Mode.', 'jetpack-idc' ),
 				esc_url( untrailingslashit( self::$wpcom_home_url ) ),
 				self::prepare_url_for_display( esc_url( self::$wpcom_home_url ) )
 			),
@@ -956,7 +902,7 @@ class Identity_Crisis {
 	 * @return string
 	 */
 	public function get_confirm_safe_mode_button_text() {
-		$string = esc_html__( 'Confirm Safe Mode', 'jetpack' );
+		$string = esc_html__( 'Confirm Safe Mode', 'jetpack-idc' );
 
 		/**
 		 * Allows overriding of the default text used for the confirm safe mode action button.
@@ -978,7 +924,7 @@ class Identity_Crisis {
 		$html = wp_kses(
 			sprintf(
 			/* translators: %s: Site URL. */
-				__( 'If this is a separate and new website, or the new home of <a href="%1$s">%2$s</a>, we recommend turning Safe Mode off, and re-establishing your connection to WordPress.com.', 'jetpack' ),
+				__( 'If this is a separate and new website, or the new home of <a href="%1$s">%2$s</a>, we recommend turning Safe Mode off, and re-establishing your connection to WordPress.com.', 'jetpack-idc' ),
 				esc_url( untrailingslashit( self::$wpcom_home_url ) ),
 				self::prepare_url_for_display( esc_url( self::$wpcom_home_url ) )
 			),
@@ -1002,7 +948,7 @@ class Identity_Crisis {
 	 * @return string
 	 */
 	public function get_first_step_fix_connection_button_text() {
-		$string = esc_html__( "Fix Jetpack's Connection", 'jetpack' );
+		$string = esc_html__( "Fix Jetpack's Connection", 'jetpack-idc' );
 
 		/**
 		 * Allows overriding of the default text used for the fix Jetpack connection action button.
@@ -1023,7 +969,7 @@ class Identity_Crisis {
 	public function get_second_step_header_lead() {
 		$string = sprintf(
 		/* translators: %s: Site URL. */
-			esc_html__( 'Is %1$s the new home of %2$s?', 'jetpack' ),
+			esc_html__( 'Is %1$s the new home of %2$s?', 'jetpack-idc' ),
 			untrailingslashit( self::normalize_url_protocol_agnostic( get_home_url() ) ),
 			untrailingslashit( self::normalize_url_protocol_agnostic( esc_url_raw( self::$wpcom_home_url ) ) )
 		);
@@ -1048,7 +994,7 @@ class Identity_Crisis {
 		$html = wp_kses(
 			sprintf(
 			/* translators: %s: Site URL. */
-				__( 'Yes. <a href="%1$s">%2$s</a> is replacing <a href="%3$s">%4$s</a>. I would like to migrate my stats and subscribers from <a href="%3$s">%4$s</a> to <a href="%1$s">%2$s</a>.', 'jetpack' ),
+				__( 'Yes. <a href="%1$s">%2$s</a> is replacing <a href="%3$s">%4$s</a>. I would like to migrate my stats and subscribers from <a href="%3$s">%4$s</a> to <a href="%1$s">%2$s</a>.', 'jetpack-idc' ),
 				esc_url( get_home_url() ),
 				self::prepare_url_for_display( get_home_url() ),
 				esc_url( self::$wpcom_home_url ),
@@ -1074,7 +1020,7 @@ class Identity_Crisis {
 	 * @return string
 	 */
 	public function get_migrate_site_button_text() {
-		$string = esc_html__( 'Migrate Stats &amp; Subscribers', 'jetpack' );
+		$string = esc_html__( 'Migrate Stats &amp; Subscribers', 'jetpack-idc' );
 
 		/**
 		 * Allows overriding of the default text used for the migrate site action button.
@@ -1096,7 +1042,7 @@ class Identity_Crisis {
 		$html = wp_kses(
 			sprintf(
 			/* translators: %s: Site URL. */
-				__( 'No. <a href="%1$s">%2$s</a> is a new and different website that\'s separate from <a href="%3$s">%4$s</a>. It requires  a new connection to WordPress.com for new stats and subscribers.', 'jetpack' ),
+				__( 'No. <a href="%1$s">%2$s</a> is a new and different website that\'s separate from <a href="%3$s">%4$s</a>. It requires  a new connection to WordPress.com for new stats and subscribers.', 'jetpack-idc' ),
 				esc_url( get_home_url() ),
 				self::prepare_url_for_display( get_home_url() ),
 				esc_url( self::$wpcom_home_url ),
@@ -1122,7 +1068,7 @@ class Identity_Crisis {
 	 * @return string
 	 */
 	public function get_start_fresh_button_text() {
-		$string = esc_html__( 'Start Fresh &amp; Create New Connection', 'jetpack' );
+		$string = esc_html__( 'Start Fresh &amp; Create New Connection', 'jetpack-idc' );
 
 		/**
 		 * Allows overriding of the default text used for the start fresh action button.
@@ -1144,7 +1090,7 @@ class Identity_Crisis {
 		$html = wp_kses(
 			sprintf(
 			/* translators: %s: Safe mode docs URL. */
-				__( 'Unsure what to do? <a href="%1$s">Read more about Jetpack Safe Mode</a>', 'jetpack' ),
+				__( 'Unsure what to do? <a href="%1$s">Read more about Jetpack Safe Mode</a>', 'jetpack-idc' ),
 				esc_url( self::get_safe_mod_doc_url() )
 			),
 			array( 'a' => array( 'href' => array() ) )
@@ -1165,12 +1111,15 @@ class Identity_Crisis {
 	 * Returns the non-admin notice text.
 	 *
 	 * @return string
+	 * @deprecated 0.5.0 Use `@automattic/jetpack-idc` instead.
 	 */
 	public function get_non_admin_notice_text() {
+		_deprecated_function( __METHOD__, '0.5.0' );
+
 		$html = wp_kses(
 			sprintf(
 			/* translators: %s: Safe mode docs URL. */
-				__( 'Jetpack has been placed into Safe Mode. Learn more about <a href="%1$s">Safe Mode</a>.', 'jetpack' ),
+				__( 'Jetpack has been placed into Safe Mode. Learn more about <a href="%1$s">Safe Mode</a>.', 'jetpack-idc' ),
 				esc_url( self::get_safe_mod_doc_url() )
 			),
 			array( 'a' => array( 'href' => array() ) )
@@ -1191,9 +1140,12 @@ class Identity_Crisis {
 	 * Returns the non-admin contact admin text.
 	 *
 	 * @return string
+	 * @deprecated 0.5.0 Use `@automattic/jetpack-idc` instead.
 	 */
 	public function get_non_admin_contact_admin_text() {
-		$string = esc_html__( 'An administrator of this site can take Jetpack out of Safe Mode.', 'jetpack' );
+		_deprecated_function( __METHOD__, '0.5.0' );
+
+		$string = esc_html__( 'An administrator of this site can take Jetpack out of Safe Mode.', 'jetpack-idc' );
 
 		/**
 		 * Allows overriding of the default text that is displayed to non-admins prompting them to contact an admin.
