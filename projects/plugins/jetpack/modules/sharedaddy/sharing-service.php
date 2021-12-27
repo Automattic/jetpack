@@ -6,7 +6,10 @@ use Automattic\Jetpack\Status;
 use Automattic\Jetpack\Sync\Settings;
 
 require_once __DIR__ . '/sharing-sources.php';
-require_once __DIR__ . '/sharing-sources/class-share-copy-page-url.php';
+$sharing_source_files = glob( __DIR__ . '/sharing-sources/*.php' );
+foreach ( $sharing_source_files as $file ) {
+	require_once $file;
+}
 
 define( 'WP_SHARING_PLUGIN_VERSION', JETPACK__VERSION );
 
