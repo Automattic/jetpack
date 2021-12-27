@@ -502,8 +502,6 @@ jobs:
 
       - name: Setup tools
         uses: ./.github/actions/tool-setup
-        with:
-          php: false
 
       - run: pnpm install
       - run: .github/files/lint-project-structure.sh

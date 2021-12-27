@@ -8,6 +8,7 @@ import { withDispatch, withSelect } from '@wordpress/data';
 import { createInterpolateElement } from '@wordpress/element';
 import { Button } from '@wordpress/components';
 import { __ } from '@wordpress/i18n';
+import { removeQueryArgs } from '@wordpress/url';
 import restApi from '@automattic/jetpack-api';
 import { Spinner } from '@automattic/jetpack-components';
 
@@ -69,7 +70,11 @@ const SafeMode = props => {
 			restApi
 				.confirmIDCSafeMode()
 				.then( () => {
-					window.location.reload();
+					window.location.href = removeQueryArgs(
+						window.location.href,
+						'jetpack_idc_clear_confirmation',
+						'_wpnonce'
+					);
 				} )
 				.catch( error => {
 					setIsActionInProgress( false );

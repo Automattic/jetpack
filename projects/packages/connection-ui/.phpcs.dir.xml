@@ -3,9 +3,8 @@
 
 	<rule ref="WordPress.WP.I18n">
 		<properties>
-			<!-- TODO: Change this to something aliasable. -->
 			<property name="text_domain" type="array">
-				<element value="jetpack" />
+				<element value="jetpack-connection-ui" />
 			</property>
 		</properties>
 	</rule>
@@ -13,7 +12,7 @@
 	<rule ref="WordPress.Utils.I18nTextDomainFixer">
 		<properties>
 			<property name="old_text_domain" type="array" />
-			<property name="new_text_domain" value="jetpack" />
+			<property name="new_text_domain" value="jetpack-connection-ui" />
 		</properties>
 	</rule>
 
