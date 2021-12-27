@@ -54,11 +54,10 @@ class Scripts {
 }
 
 class Locker {
-	// public $__lock_file = '/jp-analyzer.pid';
 	public static $__lock_file = 'jp-analyzer.pid';
 
 	static function lock() {
-		$fp = fopen( self::lock_file(), 'x' );
+		$fp = @fopen( self::lock_file(), 'x' );
 		if ( ! $fp ) {
 			throw new \Exception( 'Locked already' );
 		}
@@ -77,7 +76,6 @@ class Locker {
 	}
 
 	static function lock_file() {
-		// return dirname( __DIR__ ) . '/' . self::$__lock_file;
 		return '/tmp/' . self::$__lock_file;
 	}
 

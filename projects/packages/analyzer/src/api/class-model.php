@@ -56,8 +56,6 @@ class Model {
 		$this->load();
 		$warn_folder = dirname( dirname( __DIR__ ) ) . '/output/warnings';
 		$warnings    = array_diff(scandir( $warn_folder ), array('.', '..'));
-		// unset( $warnings[0] );
-		// unset( $warnings[1] );
 
 				$this->content['result'] = array_map(
 					function ( $file ) use ( $warn_folder ) {

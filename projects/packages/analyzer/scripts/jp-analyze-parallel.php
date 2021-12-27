@@ -31,7 +31,6 @@ class ScanManager {
 	}
 
 	public function start_proc( $folder_name ) {
-		$this->wait_for_procs();
 		echo 'Starting ' . basename( $folder_name ) . "\n";
 		$cmd = 'php ' . escapeshellarg( dirname( __DIR__ ) . '/scripts/jp-warnings-job.php' ) . ' ' . escapeshellarg( $folder_name );
 		$this->count++;
@@ -70,6 +69,7 @@ class ScanManager {
 		return $this->count;
 	}
 	public function scan( $arr ) {
+		$this->wait_for_procs();
 		$this->model->update_process( count( $arr ) );
 		foreach ( $arr as $folder_name ) {
 			$this->start_proc( $folder_name );

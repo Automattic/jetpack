@@ -13,7 +13,7 @@ class Analyze_Controller extends Controller {
 			throw $th;
 		}
 
-		$cmd = 'php ' . dirname( __DIR__ ) . '/../scripts/jp-analyze-parallel.php';
+		$cmd = 'nohup php ' . escapeshellarg( dirname( __DIR__ ) . '/../scripts/jp-analyze-parallel.php' ) . ' &';
 
 		$descriptor_spec = array(
 			0 => array( 'file', '/dev/null', 'r' ),
