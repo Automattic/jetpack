@@ -34,8 +34,9 @@ class Videopress_Attachment_Metadata {
 			'headers' => array( 'content-type' => 'application/json' ),
 		);
 
-		$display_embed  = (int) $display_embed;
-		$allow_download = (int) $allow_download;
+		// Keep null values to avoid accidental unset 
+		$display_embed  = null === $display_embed ? null : (int) $display_embed;
+		$allow_download = null === $allow_download ? null : (int) $allow_download;
 
 		$values         = self::build_wpcom_api_request_values( $post_title, $caption, $post_excerpt, $rating, $display_embed, $allow_download );
 		$endpoint       = 'videos';
@@ -55,7 +56,7 @@ class Videopress_Attachment_Metadata {
 
 		$meta = wp_get_attachment_metadata( $post_id );
 
-		if ( self::is_display_embed_valid( $display_embed ) ) {
+		if ( isset( $values['display_embed'] ) ) {
 			$meta['videopress']['display_embed'] = (bool) $values['display_embed']; // convert it to bool since that's how we store it on wp-admin side.
 		}
 
