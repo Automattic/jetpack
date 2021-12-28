@@ -3303,7 +3303,7 @@ p {
 
 	/**
 	 * Handles the activation of the default modules depending on the current state of the site:
-	 *  - If the site already has the jetpack_active_modules, active those.
+	 *  - If the site already has the jetpack_active_modules option, activate those.
 	 *  - If the site has a site-only connection, only activate the default modules that require only a site connection.
 	 *  - If the site has a user connection, activate the default modules that require a user connection.
 	 *
@@ -3318,12 +3318,12 @@ p {
 			// If there was previously activated modules (a reconnection), re-activate them all including those that require a user, and do not re-activate those that have been deactivated.
 			self::activate_default_modules( 999, 1, $active_modules, false );
 		} else {
-			self::activate_default_modules( false, false, array(), false, null, null, false );
-
 			// Check for a user connection.
 			if ( $should_activate_user_modules && ( new Connection_Manager() )->get_connection_owner_id() ) {
-				self::activate_default_modules( false, false, array(), false, null, null, true );
+				self::activate_default_modules( false, false, array(), false, null, null, null );
 				Jetpack_Options::update_option( 'active_modules_initialized', true );
+			} else {
+				self::activate_default_modules( false, false, array(), false, null, null, false );
 			}
 		}
 	}
