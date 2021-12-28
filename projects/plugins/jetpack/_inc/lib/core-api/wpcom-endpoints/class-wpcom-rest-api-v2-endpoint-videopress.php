@@ -63,6 +63,12 @@ class WPCOM_REST_API_V2_Endpoint_VideoPress extends WP_REST_Controller {
 						'required'          => false,
 						'sanitize_callback' => 'rest_sanitize_boolean',
 					),
+					'allow_download' => array(
+						'description'       => __( 'Display download option and allow viewers to download this video', 'jetpack' ),
+						'type'              => 'boolean',
+						'required'          => false,
+						'sanitize_callback' => 'rest_sanitize_boolean',
+					),
 				),
 				'methods'             => WP_REST_Server::EDITABLE,
 				'callback'            => array( $this, 'videopress_block_update_meta' ),
@@ -147,6 +153,14 @@ class WPCOM_REST_API_V2_Endpoint_VideoPress extends WP_REST_Controller {
 				if ( isset( $json_params['rating'] ) && isset( $meta['videopress']['rating'] ) && videopress_is_valid_video_rating( $json_params['rating'] ) ) {
 					$meta['videopress']['rating'] = $json_params['rating'];
 					$should_update_meta           = true;
+				}
+
+				if ( isset( $json_params['allow_download'] ) ) {
+					$allow_download = (bool) $json_params['allow_download'];
+					if ( ! isset( $meta['videopress']['allow_download'] ) || $meta['videopress']['allow_download'] !== $allow_download ) {
+						$meta['videopress']['allow_download'] = $allow_download;
+						$should_update_meta                   = true;
+					}
 				}
 
 				if ( $should_update_meta ) {
