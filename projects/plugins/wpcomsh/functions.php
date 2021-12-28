@@ -183,6 +183,36 @@ function wpcomsh_is_wpcom_child_theme( $theme_slug = null ) {
 }
 
 /**
+ * Answers whether other themes have the same parent as the reference theme
+ *
+ * @param string $theme_slug Slug of the reference theme
+ * @return bool
+ */
+function wpcomsh_do_other_themes_have_same_parent( $theme_slug ) {
+	$reference_theme = wp_get_theme( $theme_slug );
+	if ( ! $reference_theme->exists() ) {
+		return false;
+	}
+
+	if ( ! wpcomsh_is_wpcom_child_theme( $theme_slug ) ) {
+		return false;
+	}
+
+	foreach ( wp_get_themes() as $theme ) {
+		if (
+			$theme->get_stylesheet() !== $reference_theme->get_stylesheet() &&
+			$theme->get_stylesheet() !== $reference_theme->get_template() &&
+			$theme->get_template() === $reference_theme->get_template()
+		) {
+			return true;
+		}
+	}
+
+	return false;
+}
+
+
+/**
  * Symlinks the theme's parent if it's a child theme.
  *
  * @param string $stylesheet Theme slug.
@@ -210,6 +240,13 @@ function wpcomsh_delete_symlinked_parent_theme( $stylesheet ) {
 	if ( $template === $stylesheet ) {
 		error_log( "WPComSH: Can't unsymlink parent theme. $stylesheet is not a child theme." );
 
+		return false;
+	}
+
+	if ( wpcomsh_do_other_themes_have_same_parent( $stylesheet ) ) {
+		error_log(
+			"WPComSH: Can't unsymlink parent theme $template. There are other installed child themes that depend on it."
+		);
 		return false;
 	}
 

@@ -2,13 +2,13 @@
 /**
  * Plugin Name: WordPress.com Site Helper
  * Description: A helper for connecting WordPress.com sites to external host infrastructure.
- * Version: 2.8.58
+ * Version: 2.8.59
  * Author: Automattic
  * Author URI: http://automattic.com/
  */
 
 // Increase version number if you change something in wpcomsh.
-define( 'WPCOMSH_VERSION', '2.8.58' );
+define( 'WPCOMSH_VERSION', '2.8.59' );
 
 // If true, Typekit fonts will be available in addition to Google fonts
 add_filter( 'jetpack_fonts_enable_typekit', '__return_true' );
@@ -708,7 +708,10 @@ function wpcomsh_jetpack_wpcom_theme_skip_download( $result, $theme_slug ) {
 
 	// If the installed WPCom theme is a child theme, we need to symlink its parent theme
 	// as well.
-	if ( wpcomsh_is_wpcom_child_theme( $theme_slug ) ) {
+	if (
+		wpcomsh_is_wpcom_child_theme( $theme_slug ) &&
+		! wpcomsh_is_theme_symlinked( wp_get_theme( $theme_slug )->get_template() )
+	) {
 		$was_parent_theme_symlinked = wpcomsh_symlink_parent_theme( $theme_slug );
 
 		if ( ! $was_parent_theme_symlinked ) {
@@ -732,7 +735,10 @@ function wpcomsh_jetpack_wpcom_theme_delete( $result, $theme_slug ) {
 	}
 
 	// If a theme is a child theme, we first need to unsymlink the parent theme.
-	if ( wpcomsh_is_wpcom_child_theme( $theme_slug ) ) {
+	if (
+		wpcomsh_is_wpcom_child_theme( $theme_slug ) &&
+		! wpcomsh_do_other_themes_have_same_parent( $theme_slug )
+	) {
 		$was_parent_theme_unsymlinked = wpcomsh_delete_symlinked_parent_theme( $theme_slug );
 
 		if ( ! $was_parent_theme_unsymlinked ) {
