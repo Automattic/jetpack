@@ -34,7 +34,7 @@ class Videopress_Attachment_Metadata {
 			'headers' => array( 'content-type' => 'application/json' ),
 		);
 
-		// Keep null values to avoid accidental unset 
+		// Keep null values to avoid accidental unset.
 		$display_embed  = null === $display_embed ? null : (int) $display_embed;
 		$allow_download = null === $allow_download ? null : (int) $allow_download;
 
@@ -103,11 +103,11 @@ class Videopress_Attachment_Metadata {
 	/**
 	 * Check if allow_download has valid values
 	 *
-	 * @param mixed $allow_download
+	 * @param mixed $allow_download The value to test.
 	 * @return bool
 	 */
 	private static function is_allow_download_valid( $allow_download ) {
-		return 0 == $allow_download || 1 === $allow_download;
+		return 0 === $allow_download || 1 === $allow_download;
 	}
 
 	/**
