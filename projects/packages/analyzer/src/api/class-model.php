@@ -55,14 +55,18 @@ class Model {
 	public function load_result() {
 		$this->load();
 		$warn_folder = dirname( dirname( __DIR__ ) ) . '/output/warnings';
-		$warnings    = array_diff(scandir( $warn_folder ), array('.', '..'));
+		$warnings    = array_values ( array_diff( scandir( $warn_folder ), array( '.', '..' ) ) );
 
-				$this->content['result'] = array_map(
-					function ( $file ) use ( $warn_folder ) {
-						return json_decode( file_get_contents( $warn_folder . '/' . $file ) );
-					},
-					$warnings
-				);
+		$this->content['result'] = array_reduce(
+			$warnings,
+			function ( $acc, $file ) use ( $warn_folder ) {
+				$file_data = json_decode( file_get_contents( $warn_folder . '/' . $file ) );
+				$key = pathinfo($file)['filename'];
+				$acc[$key] = $file_data;
+				return $acc;
+			},
+			array()
+		);
 		$this->persist();
 	}
 
