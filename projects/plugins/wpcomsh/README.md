@@ -17,7 +17,11 @@ $ composer install # installs the composer dependencies
 $ cd ..
 $ ln -s wpcomsh/wpcomsh-loader.php ./ # or copy the loader to mu-plugins
 
-# define 'IS_ATOMIC' as true so the loader will require wpcomsh
+# define 'IS_ATOMIC', 'ATOMIC_SITE_ID' and 'ATOMIC_CLIENT_ID' as true so the loader will require wpcomsh
+
+define( 'IS_ATOMIC', true );
+define( 'ATOMIC_SITE_ID', true );
+define( 'ATOMIC_CLIENT_ID', true );
 ```
 
 To work on wpcomsh, you need a WP.org site and ideally the Jetpack plugin installed and connected to WP.com.
