@@ -8,16 +8,19 @@ class Router {
 
 	private $status;
 	private $analyze;
+	private $params;
 
 	public function __construct() {
 		$this->status  = new Status_Controller();
 		$this->analyze = new Analyze_Controller();
+		$this->params = new Params();
 	}
 
+
 	public function handle_request() {
-		if ( strpos($_SERVER['REQUEST_URI'], '?status' ) !== false ) {
+		if ( $this->params->get_param( 'status' ) !== false ) {
 			return $this->status->process();
-		} elseif ( str_contains( $_SERVER['REQUEST_URI'], '?analyze' ) ) {
+		} elseif ( $this->params->get_param( 'analyze' ) !== false ) {
 			return $this->analyze->process();
 		} else {
 			throw new \Exception( 'Unknown route' );

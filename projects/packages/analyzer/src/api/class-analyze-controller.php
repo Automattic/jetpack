@@ -13,7 +13,19 @@ class Analyze_Controller extends Controller {
 			throw $th;
 		}
 
-		$cmd = 'nohup php ' . escapeshellarg( dirname( __DIR__ ) . '/../scripts/jp-analyze-parallel.php' ) . ' &';
+		$this->model->reset();
+		$this->model->toggle_status();
+
+		$this->start_scan();
+
+		return $this->model->get_status();
+	}
+
+	private function start_scan() {
+		// TODO: maybe sanitize params?
+		$params = $this->params->get_params();
+		$args = $params['type'] . ' ' . $params['old'] . ' ' . $params['new'] . ' ';
+		$cmd = 'nohup php ' . escapeshellarg( realpath( dirname( __DIR__ ) . '/../scripts/jp-analyze-parallel.php' ) ) . ' ' . $args . ' &';
 
 		$descriptor_spec = array(
 			0 => array( 'file', '/dev/null', 'r' ),
@@ -21,14 +33,7 @@ class Analyze_Controller extends Controller {
 			2 => array( 'file', 'output.txt', 'a' ),
 		);
 
-
-		$this->model->reset();
-		$this->model->toggle_status();
-
 		proc_open( $cmd, $descriptor_spec, $pipes );
-
-		return $this->model->get_status();
-
 	}
 
 	public function post() {

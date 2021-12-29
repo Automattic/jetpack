@@ -6,9 +6,11 @@ namespace Automattic\Jetpack\Analyzer;
  */
 class Controller {
 	protected $model;
+	protected $params;
 
 	public function __construct() {
 		$this->model = new Model();
+		$this->params = New Params();
 	}
 
 	public function process() {
