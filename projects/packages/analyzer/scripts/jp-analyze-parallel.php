@@ -6,13 +6,12 @@ require dirname( __DIR__ ) . '/vendor/autoload.php';
 
 use Automattic\Jetpack\Analyzer\Locker;
 use Automattic\Jetpack\Analyzer\Model;
+use Automattic\Jetpack\Analyzer\PluginDownloader;
+use Automattic\Jetpack\Analyzer\Scripts;
 
 $slurper_path = dirname( __DIR__ ) . '/slurper/plugins';
 
 $jetpack_exclude = array( '.git', 'vendor', 'tests', 'docker', 'bin', 'scss', 'images', 'docs', 'languages', 'node_modules' );
-// $jetpack_new_path = '/Users/brbrr/Developer/a8c/jetpack/projects/plugins/jetpack';
-$jetpack_new_path = '/var/www/html/wp-content/plugins/jetpack';
-$jetpack_old_path = $slurper_path . '/jetpack-production';
 
 class ScanManager {
 	private $count          = 0;
@@ -79,12 +78,21 @@ class ScanManager {
 
 		echo 'Analysis finished' . "\n";
 
+		$this->model->toggle_status();
 		$this->model->load_result();
 		Locker::unlock();
 	}
 }
 
-Automattic\Jetpack\Analyzer\Scripts::get_differences( $jetpack_new_path, $jetpack_old_path );
+$type = $argv[1];
+$old = $argv[2];
+$new = $argv[3];
+
+$pd = new PluginDownloader($type);
+$old_path = $pd->get_version($old);
+$new_path = $pd->get_version($new);
+
+Scripts::get_differences( $new_path, $old_path );
 
 // $arr = glob( $slurper_path . '/*' );
 $arr  = array( $slurper_path . '/connect-for-woocommerce', $slurper_path . '/easyreservations' );
