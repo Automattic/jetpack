@@ -315,7 +315,7 @@ const VideoPressEdit = CoreVideoEdit =>
 			);
 		};
 
-		updateMetaApiCall = ( requestData, beforeApiCallCb, revertCb, afterApiCallCb ) => {
+		updateMetaApiCall = ( requestData, onBeforeApiCall, onRevert, onAfterApiCall ) => {
 			const { invalidateCachedEmbedPreview, url } = this.props;
 			const { id } = this.props.attributes;
 
@@ -323,7 +323,7 @@ const VideoPressEdit = CoreVideoEdit =>
 				return;
 			}
 
-			beforeApiCallCb();
+			onBeforeApiCall();
 
 			const apiRequestData = { id: id };
 			Object.assign( apiRequestData, requestData );
@@ -336,13 +336,13 @@ const VideoPressEdit = CoreVideoEdit =>
 				.then( result => {
 					// check for wpcom status field, if set
 					if ( status in result && 200 !== result.status ) {
-						revertCb();
+						onRevert();
 						return;
 					}
 				} )
-				.catch( () => revertCb() )
+				.catch( () => onRevert() )
 				.finally( () => {
-					afterApiCallCb();
+					onAfterApiCall();
 					invalidateCachedEmbedPreview( url );
 				} );
 		};

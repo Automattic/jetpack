@@ -97,7 +97,7 @@ class Videopress_Attachment_Metadata {
 	 * @return bool
 	 */
 	private static function is_display_embed_valid( $display_embed ) {
-		return ( 0 === $display_embed || 1 === $display_embed );
+		return in_array( $display_embed, array( 0, 1 ), true );
 	}
 
 	/**
@@ -107,7 +107,7 @@ class Videopress_Attachment_Metadata {
 	 * @return bool
 	 */
 	private static function is_allow_download_valid( $allow_download ) {
-		return 0 === $allow_download || 1 === $allow_download;
+		return in_array( $allow_download, array( 0, 1 ), true );
 	}
 
 	/**
