@@ -16,7 +16,7 @@ This goes in the `plugins` section of your Webpack config, e.g.
 ```js
 {
 	plugins: [
-		new I18nLoaderWebpackPlugin(),
+		new I18nCheckWebpackPlugin(),
 	],
 };
 ```
@@ -26,6 +26,7 @@ Parameters recognized by the plugin are:
 - `filter`: Allows for specifying which source modules to process for i18n strings. The default is to process all files with extensions `js`, `jsx`, `ts`, `tsx`, `cjs`, and `mjs`.
 
   The value may be a function, which will be passed the file path relative to [Webpack's context] and which should return true if the file should be processed, or a string or RegExp to be compared with the relative file path, or an array of such strings, RegExps, and/or functions.
+- `expectDomain`: Set to the expected text domain that should be used in the output assets. If the assets use some other domain, an error will be generated.
 - `warnOnly`: Set true to produce warnings rather than errors when issues are found.
 - `extractorOptions`: Supply options for `GettextExtractor`.
    - `babelOptions`: Supply options for Babel.

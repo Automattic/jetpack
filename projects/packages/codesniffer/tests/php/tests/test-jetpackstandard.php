@@ -1,4 +1,4 @@
-<?php // phpcs:ignore WordPress.Files.FileName.InvalidClassFileName
+<?php
 /**
  * Tests for the Jetpack phpcs standard.
  *
@@ -31,7 +31,6 @@ class JetpackStandardTest extends TestCase {
 	 *   the fixed file.
 	 */
 	private function run_phpcs( $file, $fix ) {
-		// phpcs:ignore WordPress.WP.AlternativeFunctions.file_get_contents_file_get_contents
 		$contents = file_get_contents( "{$file}.tolint" );
 		$this->assertIsString( $contents );
 
@@ -42,11 +41,11 @@ class JetpackStandardTest extends TestCase {
 		$config->encoding    = 'utf-8';
 		$config->reports     = array( 'full' => null );
 		$config->colors      = false;
-		$config->reportWidth = PHP_INT_MAX; // phpcs:ignore WordPress.NamingConventions.ValidVariableName.UsedPropertyNotSnakeCase
-		$config->showSources = true; // phpcs:ignore WordPress.NamingConventions.ValidVariableName.UsedPropertyNotSnakeCase
-		$config->tabWidth    = 4; // phpcs:ignore WordPress.NamingConventions.ValidVariableName.UsedPropertyNotSnakeCase
+		$config->reportWidth = PHP_INT_MAX;
+		$config->showSources = true;
+		$config->tabWidth    = 4;
 		$config->exclude     = array(
-			'Generic.PHP.Syntax', // Tries to use `PHP_BINARY` to shell out to `php -l`, which breaks if tests are being run under phpdbg for coverage.
+			'Generic.PHP.Syntax', // Shells out to `php -l`, which is kind of slow.
 		);
 
 		$ruleset = new Ruleset( $config );
@@ -80,7 +79,6 @@ class JetpackStandardTest extends TestCase {
 	 * @param bool   $fix Run as phpcbf rather than phpcs.
 	 */
 	public function test_phpcs( $file, $fix ) {
-		// phpcs:ignore WordPress.WP.AlternativeFunctions.file_get_contents_file_get_contents
 		$expect = file_get_contents( $fix ? "$file.fixed" : "$file.report" );
 		$this->assertIsString( $expect );
 		$this->assertEquals( $expect, $this->run_phpcs( $file, $fix ) );

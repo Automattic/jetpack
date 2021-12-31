@@ -14,15 +14,16 @@
 	"prefer-stable": true,
 	"require": {
 		"ext-json": "*",
+		"automattic/jetpack-assets": "1.16.x-dev",
 		"automattic/jetpack-admin-ui": "0.2.x-dev",
 		"automattic/jetpack-autoloader": "2.10.x-dev",
-		"automattic/jetpack-composer-plugin": "0.2.x-dev",
-		"automattic/jetpack-config": "1.5.x-dev",
-		"automattic/jetpack-connection": "1.33.x-dev",
+		"automattic/jetpack-composer-plugin": "1.0.x-dev",
+		"automattic/jetpack-config": "1.6.x-dev",
+		"automattic/jetpack-connection": "1.34.x-dev",
 		"automattic/jetpack-device-detection": "1.4.x-dev",
-		"automattic/jetpack-lazy-images": "2.0.x-dev",
+		"automattic/jetpack-lazy-images": "2.1.x-dev",
 		"automattic/jetpack-terms-of-service": "1.9.x-dev",
-		"automattic/jetpack-tracking": "1.13.x-dev",
+		"automattic/jetpack-tracking": "1.14.x-dev",
 		"tedivm/jshrink": "1.4.0"
 	},
 	"require-dev": {
@@ -37,7 +38,7 @@
 		],
 		"test-coverage": [
 			"@composer install",
-			"phpdbg -d memory_limit=2048M -d max_execution_time=900 -qrr ./vendor/bin/phpunit --coverage-clover \"$COVERAGE_DIR/clover.xml\""
+			"php -dpcov.directory=. ./vendor/bin/phpunit --coverage-clover \"$COVERAGE_DIR/clover.xml\""
 		],
 		"test-php": [
 			"@composer install",

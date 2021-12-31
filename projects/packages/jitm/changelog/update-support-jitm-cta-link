@@ -1,0 +1,5 @@
+Significance: patch
+Type: fixed
+Comment: This change will add support for links outside Jetpack Redirects in JITM CTAs which can be used to link to other pages on the WordPress site itself
+
+

@@ -68,6 +68,7 @@ jobs:
         uses: ./.github/actions/tool-setup
         with:
           php: ${{ matrix.php }}
+          coverage: ${{ matrix.script == 'test-coverage' && 'pcov' || 'none' }}
           node: ${{ matrix.node }}
 
       - name: Detect changed projects

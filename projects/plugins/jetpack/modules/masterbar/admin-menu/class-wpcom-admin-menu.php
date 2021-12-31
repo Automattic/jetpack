@@ -16,6 +16,13 @@ require_once __DIR__ . '/class-admin-menu.php';
  */
 class WPcom_Admin_Menu extends Admin_Menu {
 	/**
+	 * Holds the current plan, set by get_current_plan().
+	 *
+	 * @var array
+	 */
+	private $current_plan = array();
+
+	/**
 	 * WPcom_Admin_Menu constructor.
 	 */
 	protected function __construct() {
@@ -47,7 +54,7 @@ class WPcom_Admin_Menu extends Admin_Menu {
 			$this->add_new_site_link();
 		}
 
-		$this->add_woocommerce_installation_menu();
+		$this->add_woocommerce_installation_menu( $this->get_current_plan() );
 
 		ksort( $GLOBALS['menu'] );
 	}
@@ -251,17 +258,28 @@ class WPcom_Admin_Menu extends Admin_Menu {
 	}
 
 	/**
+	 * Gets the current plan and stores it in $this->current_plan so the database is only called once per request.
+	 *
+	 * @return array
+	 */
+	private function get_current_plan() {
+		if ( empty( $this->current_plan ) && class_exists( 'WPCOM_Store_API' ) ) {
+			$this->current_plan = \WPCOM_Store_API::get_current_plan( get_current_blog_id() );
+		}
+		return $this->current_plan;
+	}
+
+	/**
 	 * Adds Upgrades menu.
 	 *
 	 * @param string $plan The current WPCOM plan of the blog.
 	 */
 	public function add_upgrades_menu( $plan = null ) {
-		if ( class_exists( 'WPCOM_Store_API' ) ) {
-			$products = \WPCOM_Store_API::get_current_plan( get_current_blog_id() );
-			if ( array_key_exists( 'product_name_short', $products ) ) {
-				$plan = $products['product_name_short'];
-			}
+		$current_plan = $this->get_current_plan();
+		if ( ! empty( $current_plan['product_name_short'] ) ) {
+			$plan = $current_plan['product_name_short'];
 		}
+
 		parent::add_upgrades_menu( $plan );
 
 		$last_upgrade_submenu_position = $this->get_submenu_item_count( 'paid-upgrades.php' );

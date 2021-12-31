@@ -384,7 +384,7 @@ class Assets {
 			_doing_it_wrong(
 				__METHOD__,
 				/* translators: %s is the script handle. */
-				esc_html( sprintf( __( 'Script "%s" depends on wp-i18n but does not specify "textdomain"', 'jetpack' ), $handle ) ),
+				esc_html( sprintf( __( 'Script "%s" depends on wp-i18n but does not specify "textdomain"', 'jetpack-assets' ), $handle ) ),
 				''
 			);
 		}
@@ -501,7 +501,7 @@ class Assets {
 	 * as to choose the most recent translations (which are most likely to match the package
 	 * selected by jetpack-autoloader).
 	 *
-	 * @since $$next-version$$
+	 * @since 1.15.0
 	 * @param string $from Domain to alias.
 	 * @param string $to Domain to alias it to.
 	 * @param string $totype What is the target of the alias: 'plugins', 'themes', or 'core'.
@@ -518,7 +518,7 @@ class Assets {
 				__METHOD__,
 				sprintf(
 					/* translators: 1: wp_default_scripts. 2: Name of the domain being aliased. */
-					esc_html__( 'Textdomain aliases should be registered before the %1$s hook. This notice was triggered by the %2$s domain.', 'jetpack' ),
+					esc_html__( 'Textdomain aliases should be registered before the %1$s hook. This notice was triggered by the %2$s domain.', 'jetpack-assets' ),
 					'<code>wp_default_scripts</code>',
 					'<code>' . esc_html( $from ) . '</code>'
 				),
@@ -543,7 +543,7 @@ class Assets {
 	 *  - 'type': String, `$totype`
 	 *  - 'packages': Array, mapping `$from` to `$ver`.
 	 *
-	 * @since $$next-version$$
+	 * @since 1.15.0
 	 * @param string $file Mapping file.
 	 */
 	public static function alias_textdomains_from_file( $file ) {
@@ -587,7 +587,7 @@ class Assets {
 	/**
 	 * Filter for `gettext`.
 	 *
-	 * @since $$next-version$$
+	 * @since 1.15.0
 	 * @param string $translation Translated text.
 	 * @param string $text Text to translate.
 	 * @param string $domain Text domain.
@@ -607,7 +607,7 @@ class Assets {
 	/**
 	 * Filter for `ngettext`.
 	 *
-	 * @since $$next-version$$
+	 * @since 1.15.0
 	 * @param string $translation Translated text.
 	 * @param string $single The text to be used if the number is singular.
 	 * @param string $plural The text to be used if the number is plural.
@@ -626,7 +626,7 @@ class Assets {
 	/**
 	 * Filter for `gettext_with_context`.
 	 *
-	 * @since $$next-version$$
+	 * @since 1.15.0
 	 * @param string $translation Translated text.
 	 * @param string $text Text to translate.
 	 * @param string $context Context information for the translators.
@@ -644,7 +644,7 @@ class Assets {
 	/**
 	 * Filter for `ngettext_with_context`.
 	 *
-	 * @since $$next-version$$
+	 * @since 1.15.0
 	 * @param string $translation Translated text.
 	 * @param string $single The text to be used if the number is singular.
 	 * @param string $plural The text to be used if the number is plural.
@@ -664,7 +664,7 @@ class Assets {
 	/**
 	 * Filter for `load_script_translation_file`.
 	 *
-	 * @since $$next-version$$
+	 * @since 1.15.0
 	 * @param string|false $file Path to the translation file to load. False if there isn't one.
 	 * @param string       $handle Name of the script to register a translation domain to.
 	 * @param string       $domain The text domain.

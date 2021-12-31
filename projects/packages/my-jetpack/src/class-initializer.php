@@ -32,8 +32,8 @@ class Initializer {
 		}
 
 		$page_suffix = Admin_Menu::add_menu(
-			__( 'My Jetpack', 'jetpack' ),
-			__( 'My Jetpack', 'jetpack' ),
+			__( 'My Jetpack', 'jetpack-my-jetpack' ),
+			__( 'My Jetpack', 'jetpack-my-jetpack' ),
 			'manage_options',
 			'my-jetpack',
 			array( __CLASS__, 'admin_page' ),
@@ -72,7 +72,7 @@ class Initializer {
 			array(
 				'enqueue'    => true,
 				'in_footer'  => true,
-				'textdomain' => 'jetpack',
+				'textdomain' => 'jetpack-my-jetpack',
 			)
 		);
 		wp_localize_script(
