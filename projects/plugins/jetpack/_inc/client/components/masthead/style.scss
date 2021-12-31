@@ -58,27 +58,6 @@
 	}
 }
 
-.jp-masthead__nav {
-	display: flex;
-	flex-wrap: nowrap;
-	flex-grow: 1;
-	flex-shrink: 0;
-	text-align: right;
-	margin-top: rem( 6px );
-	padding: rem( 4px ) 0;
-
-	.dops-button-group {
-		flex-grow: 1;
-		align-self: center;
-		/* This fixes an unwanted space between the buttons in the network settings caused by a line break. */
-		/* Fixed here to keep PHP code readable. It's safe: .dops-button and .dops-button.is-compact specify a font size. */
-		font-size: 0;
-	}
-	@include breakpoint( "<480px" ) {
-		text-align: left;
-	}
-}
-
 #sandbox-domain-badge {
 	background: #d63638;
 	text-transform: uppercase;
