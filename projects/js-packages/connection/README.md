@@ -219,8 +219,6 @@ In all cases, users are presented with a link to `Disconnect` (see `DisconnectDi
 ### Properties
 - *apiRoot* - string (required), API root URL.
 - *apiNonce* - string (required), API Nonce.
-- *isRegistered* - boolean (required), Whether a site level connection has already been established. If not, the component will not render.
-- *isUserConnected* - boolean (required), Whether the current user has connected their WordPress.com account.
 - *redirectUri* - string (required), The redirect admin URI after the user has connected their WordPress.com account.
 - *title* - string, The Card title. Defaults to "Connection".
 - *connectionInfoText* - string, The text that will be displayed under the title, containing info how to leverage the connection. Defaults to "Leverages the Jetpack Cloud for more features on your side."
@@ -240,8 +238,6 @@ const onDisconnectedCallback = useCallback( () => alert( 'Successfully Disconnec
 <ConnectionStatusCard
 	apiRoot={ APIRoot }
 	apiNonce={ APINonce }
-	isRegistered={ true }
-	isUserConnected={ true }
 	redirectUri="tools.php?page=wpcom-connection-manager"
 />
 ```

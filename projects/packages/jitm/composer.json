@@ -5,15 +5,15 @@
 	"license": "GPL-2.0-or-later",
 	"require": {
 		"automattic/jetpack-a8c-mc-stats": "^1.4",
-		"automattic/jetpack-assets": "^1.15",
-		"automattic/jetpack-connection": "^1.33",
+		"automattic/jetpack-assets": "^1.16",
+		"automattic/jetpack-connection": "^1.34",
 		"automattic/jetpack-device-detection": "^1.4",
 		"automattic/jetpack-logo": "^1.5",
 		"automattic/jetpack-options": "^1.14",
 		"automattic/jetpack-partner": "^1.6",
 		"automattic/jetpack-redirect": "^1.7",
 		"automattic/jetpack-status": "^1.9",
-		"automattic/jetpack-tracking": "^1.13"
+		"automattic/jetpack-tracking": "^1.14"
 	},
 	"require-dev": {
 		"brain/monkey": "2.6.1",
@@ -48,7 +48,7 @@
 		],
 		"test-coverage": [
 			"@composer update",
-			"phpdbg -d memory_limit=2048M -d max_execution_time=900 -qrr ./vendor/bin/phpunit --coverage-clover \"$COVERAGE_DIR/clover.xml\""
+			"php -dpcov.directory=. ./vendor/bin/phpunit --coverage-clover \"$COVERAGE_DIR/clover.xml\""
 		],
 		"test-php": [
 			"@composer update",
@@ -60,6 +60,7 @@
 	"extra": {
 		"autotagger": true,
 		"mirror-repo": "Automattic/jetpack-jitm",
+		"textdomain": "jetpack-jitm",
 		"version-constants": {
 			"::PACKAGE_VERSION": "src/class-jitm.php"
 		},
@@ -67,7 +68,7 @@
 			"link-template": "https://github.com/Automattic/jetpack-jitm/compare/v${old}...v${new}"
 		},
 		"branch-alias": {
-			"dev-master": "2.1.x-dev"
+			"dev-master": "2.2.x-dev"
 		}
 	}
 }
