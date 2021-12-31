@@ -16,8 +16,7 @@ module.exports = {
 		'@wordpress/i18n-text-domain': [
 			'error',
 			{
-				// @todo: Change this to something not "jetpack".
-				allowedTextDomain: 'jetpack',
+				allowedTextDomain: 'jetpack-search-pkg',
 			},
 		],
 	},
