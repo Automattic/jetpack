@@ -13,12 +13,13 @@ import { ExternalLink } from '@wordpress/components';
 import peopleSvgUrl from './people.svg';
 import PluginDashItem from 'components/plugin-dash-item';
 
-const CRM_PLUGIN_DASH = '/wp-admin/admin.php?page=zerobscrm-dash';
+const CRM_PLUGIN_DASH = 'admin.php?page=zerobscrm-dash';
 const CRM_PLUGIN_FILE = 'zero-bs-crm/ZeroBSCRM.php';
 const CRM_PLUGIN_SLUG = 'zero-bs-crm';
 
 class DashCRM extends Component {
 	static propTypes = {
+		siteAdminUrl: PropTypes.string.isRequired,
 		siteRawUrl: PropTypes.string.isRequired,
 	};
 
@@ -34,7 +35,7 @@ class DashCRM extends Component {
 				) }
 				pluginFile={ CRM_PLUGIN_FILE }
 				pluginSlug={ CRM_PLUGIN_SLUG }
-				pluginLink={ CRM_PLUGIN_DASH }
+				pluginLink={ this.props.siteAdminUrl + CRM_PLUGIN_DASH }
 				installOrActivatePrompt={ createInterpolateElement(
 					__(
 						'Sell more and get more leads with the Jetpack CRM plugin built specifically for WordPress.<br /><ExternalLink>Learn more</ExternalLink>',

@@ -13,12 +13,13 @@ import { ExternalLink } from '@wordpress/components';
 import boostSvgUrl from './boost.svg';
 import PluginDashItem from 'components/plugin-dash-item';
 
-const BOOST_PLUGIN_DASH = '/wp-admin/admin.php?page=jetpack-boost';
+const BOOST_PLUGIN_DASH = 'admin.php?page=jetpack-boost';
 const BOOST_PLUGIN_FILE = 'jetpack-boost/jetpack-boost.php';
 const BOOST_PLUGIN_SLUG = 'jetpack-boost';
 
 class DashBoost extends Component {
 	static propTypes = {
+		siteAdminUrl: PropTypes.string.isRequired,
 		siteRawUrl: PropTypes.string.isRequired,
 	};
 
@@ -34,7 +35,7 @@ class DashBoost extends Component {
 				) }
 				pluginFile={ BOOST_PLUGIN_FILE }
 				pluginSlug={ BOOST_PLUGIN_SLUG }
-				pluginLink={ BOOST_PLUGIN_DASH }
+				pluginLink={ this.props.siteAdminUrl + BOOST_PLUGIN_DASH }
 				installOrActivatePrompt={ createInterpolateElement(
 					__(
 						'Improve your site’s performance and SEO in a few clicks with the free Jetpack Boost plugin.<br /><ExternalLink>Learn more.</ExternalLink>',
