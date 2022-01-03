@@ -1,0 +1,4 @@
+Significance: patch
+Type: bugfix
+
+Stats: do not trigger views when post is embedded into another site.
