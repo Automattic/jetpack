@@ -24,6 +24,8 @@ import { isAtomicSite, isSimpleSite } from '../../shared/site-type-utils';
 import withHasWarningIsInteractiveClassNames from '../../shared/with-has-warning-is-interactive-class-names';
 import './editor.scss';
 
+import videoPressBlockExampleImage from './videopress-block-example-image.jpg';
+
 const videoPressNoPlanMediaPlaceholder = createHigherOrderComponent(
 	OriginalPlaceholder => props => {
 		const { name } = useBlockEditContext();
@@ -94,7 +96,31 @@ const preventBlockClassOnDeprecations = ( props, blockType, attributes ) => {
 	return props;
 };
 
+// Remove the default "videopress" embed block from the selectable block (keep it for video block link)
+const hideCoreVideoPressEmbed = settings => {
+	if ( ! ( 'variations' in settings ) || 'object' !== typeof settings.variations ) {
+		return;
+	}
+
+	settings.variations.some( variation => {
+		if ( 'videopress' === variation.name ) {
+			variation.scope = [];
+			return true;
+		}
+		return false;
+	} );
+};
+
 const addVideoPressSupport = ( settings, name ) => {
+	if ( 'core/embed' === name ) {
+		// If VideoPress is not available, don't modify the core blocks.
+		const { available } = getJetpackExtensionAvailability( 'videopress' );
+		if ( available ) {
+			hideCoreVideoPressEmbed( settings );
+		}
+		return settings;
+	}
+
 	// Bail if this is not the video block or if the hook has been triggered by a deprecation.
 	if ( 'core/video' !== name || settings.isDeprecation ) {
 		return settings;
@@ -114,6 +140,17 @@ const addVideoPressSupport = ( settings, name ) => {
 			`jetpack/videopress-with-has-warning-is-interactive-class-names`,
 			withHasWarningIsInteractiveClassNames( `core/video` )
 		);
+	} else if ( available ) {
+		// If VideoPress is available, we update the block description and example with VideoPress-specific content.
+		settings.description = __(
+			'Embed a video from your media library or upload a new one with VideoPress.',
+			'jetpack'
+		);
+		settings.example.attributes = {
+			caption: '',
+			isVideoPressExample: true,
+			src: videoPressBlockExampleImage,
+		};
 	}
 
 	addFilter(
@@ -154,6 +191,10 @@ const addVideoPressSupport = ( settings, name ) => {
 			},
 			loop: {
 				type: 'boolean',
+			},
+			isVideoPressExample: {
+				type: 'boolean',
+				default: false,
 			},
 			muted: {
 				type: 'boolean',

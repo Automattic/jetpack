@@ -370,7 +370,6 @@ function stats_upgrade_options( $options ) {
 		'count_roles'  => array(),
 		'blog_id'      => Jetpack_Options::get_option( 'id' ),
 		'do_not_track' => true, // @todo
-		'hide_smile'   => true,
 	);
 
 	if ( isset( $options['reg_users'] ) ) {
@@ -833,18 +832,16 @@ function stats_convert_post_title( $matches ) {
 }
 
 /**
- * Stats Hide Smile.
+ * CSS to hide the tracking pixel smiley.
+ * It is now hidden for everyone (used to be visible if you had set the hide_smile option).
  *
  * @access public
  * @return void
  */
 function stats_hide_smile_css() {
-	$options = stats_get_options();
-	if ( isset( $options['hide_smile'] ) && $options['hide_smile'] ) {
-		?>
+	?>
 <style type='text/css'>img#wpstats{display:none}</style>
-		<?php
-	}
+	<?php
 }
 
 /**
