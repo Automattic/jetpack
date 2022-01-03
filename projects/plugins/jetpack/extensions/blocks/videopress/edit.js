@@ -54,6 +54,8 @@ const VideoPressEdit = CoreVideoEdit =>
 				rating: null,
 				lastRequestedMediaId: null,
 				isUpdatingRating: false,
+				allowDownload: null,
+				isUpdatingAllowDownload: false,
 			};
 			this.posterImageButton = createRef();
 			this.previewCacheReloadTimer = null;
@@ -88,13 +90,14 @@ const VideoPressEdit = CoreVideoEdit =>
 				this.setTracks( guid );
 			}
 
-			this.setRating();
+			this.setRatingAndAllowDownload();
 		}
 
-		setRating = async () => {
+		setRatingAndAllowDownload = async () => {
 			const id = get( this.props, 'attributes.id' );
 			const media = await this.requestMedia( id );
 			let rating = get( media, 'jetpack_videopress.rating' );
+			const allowDownload = get( media, 'media_details.videopress.allow_download' );
 
 			if ( rating ) {
 				// X-18 was previously supported but is now removed to better comply with our TOS.
@@ -102,6 +105,10 @@ const VideoPressEdit = CoreVideoEdit =>
 					rating = 'R-17';
 				}
 				this.setState( { rating } );
+			}
+
+			if ( 'undefined' !== typeof allowDownload ) {
+				this.setState( { allowDownload: !! allowDownload } );
 			}
 		};
 
@@ -117,7 +124,7 @@ const VideoPressEdit = CoreVideoEdit =>
 
 			if ( attributes.id !== prevProps.attributes.id ) {
 				await this.setGuid();
-				this.setRating();
+				this.setRatingAndAllowDownload();
 			}
 
 			let invalidationTriggered = false;
@@ -306,13 +313,7 @@ const VideoPressEdit = CoreVideoEdit =>
 		}
 
 		onChangeRating = rating => {
-			const { invalidateCachedEmbedPreview, url } = this.props;
-			const { id } = this.props.attributes;
 			const originalRating = this.state.rating;
-
-			if ( ! id ) {
-				return;
-			}
 
 			// X-18 was previously supported but is now removed to better comply with our TOS.
 			if ( 'X-18' === rating ) {
@@ -323,28 +324,53 @@ const VideoPressEdit = CoreVideoEdit =>
 				return;
 			}
 
-			this.setState( { isUpdatingRating: true, rating } );
+			this.updateMetaApiCall(
+				{ rating: rating },
+				() => this.setState( { isUpdatingRating: true, rating } ),
+				() => this.setState( { rating: originalRating } ),
+				() => this.setState( { isUpdatingRating: false } )
+			);
+		};
 
-			const revertSetting = () => this.setState( { rating: originalRating } );
+		onChangeAllowDownload = allowDownload => {
+			const originalValue = this.state.allowDownload;
+
+			this.updateMetaApiCall(
+				{ allow_download: allowDownload ? 1 : 0 },
+				() => this.setState( { isUpdatingAllowDownload: true, allowDownload } ),
+				() => this.setState( { allowDownload: originalValue } ),
+				() => this.setState( { isUpdatingAllowDownload: false } )
+			);
+		};
+
+		updateMetaApiCall = ( requestData, onBeforeApiCall, onRevert, onAfterApiCall ) => {
+			const { invalidateCachedEmbedPreview, url } = this.props;
+			const { id } = this.props.attributes;
+
+			if ( ! id ) {
+				return;
+			}
+
+			onBeforeApiCall();
+
+			const apiRequestData = { id: id };
+			Object.assign( apiRequestData, requestData );
 
 			apiFetch( {
 				path: '/wpcom/v2/videopress/meta',
 				method: 'POST',
-				data: {
-					id: id,
-					rating: rating,
-				},
+				data: apiRequestData,
 			} )
 				.then( result => {
 					// check for wpcom status field, if set
 					if ( status in result && 200 !== result.status ) {
-						revertSetting();
+						onRevert();
 						return;
 					}
 				} )
-				.catch( () => revertSetting() )
+				.catch( () => onRevert() )
 				.finally( () => {
-					this.setState( { isUpdatingRating: false } );
+					onAfterApiCall();
 					invalidateCachedEmbedPreview( url );
 				} );
 		};
@@ -358,7 +384,17 @@ const VideoPressEdit = CoreVideoEdit =>
 				preview,
 				setAttributes,
 			} = this.props;
-			const { fallback, isFetchingMedia, isUpdatingRating, interactive, rating } = this.state;
+
+			const {
+				fallback,
+				isFetchingMedia,
+				isUpdatingRating,
+				interactive,
+				rating,
+				allowDownload,
+				isUpdatingAllowDownload,
+			} = this.state;
+
 			const {
 				autoplay,
 				caption,
@@ -541,6 +577,19 @@ const VideoPressEdit = CoreVideoEdit =>
 									},
 								] }
 								onChange={ this.onChangeRating }
+							/>
+							<ToggleControl
+								label={ this.renderControlLabelWithTooltip(
+									__( 'Allow download', 'jetpack' ),
+									/* translators: Tooltip describing the "allow download" option for the VideoPress player */
+									__(
+										'Display download option and allow viewers to download this video',
+										'jetpack'
+									)
+								) }
+								onChange={ this.onChangeAllowDownload }
+								checked={ allowDownload }
+								disabled={ isFetchingMedia || isUpdatingAllowDownload }
 							/>
 						</PanelBody>
 					</InspectorControls>
