@@ -107,7 +107,7 @@
 	}
 
 	.dops-banner__icon-circle-svg {
-		translate: 1px 1px;
+		transform: translate( 1px, 1px );
 	}
 
 	@include breakpoint( '>480px' ) {
