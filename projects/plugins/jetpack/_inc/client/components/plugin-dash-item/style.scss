@@ -1,4 +1,5 @@
 @import '~@automattic/jetpack-base-styles/style';
+@import '_inc/client/scss/variables/_colors.scss';
 @import '../../scss/mixin_breakpoint.scss';
 
 .plugin-dash-item {
@@ -15,12 +16,12 @@
 	}
 
 	.dops-banner.dops-card {
-		border-left-color: #3895ba; // $studio-wordpress-blue-30
+		border-left-color: $color-product; // $studio-wordpress-
 		height: 100%;
 		.dops-banner__icons {
 
 			.dops-banner__icon-circle{
-				background-color: #3895ba; // $studio-wordpress-blue-30
+				background-color: $color-product; // $studio-wordpress-blue-30
 				height: 32px;
 				width: 32px;
 
