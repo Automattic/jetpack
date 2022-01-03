@@ -72,7 +72,7 @@ class Initializer {
 			array(
 				'enqueue'    => true,
 				'in_footer'  => true,
-				'textdomain' => 'jetpack',
+				'textdomain' => 'jetpack-my-jetpack',
 			)
 		);
 		wp_localize_script(

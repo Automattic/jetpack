@@ -223,7 +223,7 @@ If a project contains PHP or JavaScript tests, it should also define `.scripts.t
 
 Output should be written to the path specified via the `COVERAGE_DIR` environment variable. Subdirectories of that path may be used as desired.
 
-For PHP tests, you'll probably run PHPUnit as `phpdbg -qrr "$(command -v phpunit)" --coverage-clover "$COVERAGE_DIR/clover.xml"`.
+For PHP tests, you'll probably run PHPUnit as `php -dpcov.directory=. "$(command -v phpunit)" --coverage-clover "$COVERAGE_DIR/clover.xml"`.
 
 There's no need to be concerned about collisions with other projects' coverage files, a separate directory is used per project. The coverage files are also automatically copied to `ARTIFACTS_DIR`.
 
