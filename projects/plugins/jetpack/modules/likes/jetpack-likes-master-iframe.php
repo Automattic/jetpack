@@ -1,15 +1,21 @@
 <?php
+/**
+ * The file with the function that needs to get loaded after the like scripts get added to the page
+ *
+ * @package automattic/jetpack
+ * @file
+ */
 
 /**
  * This function needs to get loaded after the like scripts get added to the page.
  */
 function jetpack_likes_master_iframe() {
-	$version = gmdate( 'YW' );
+	$version    = gmdate( 'YW' );
 	$in_jetpack = ( defined( 'IS_WPCOM' ) && IS_WPCOM ) ? false : true;
 
 	$_locale = get_locale();
 
-	// We have to account for w.org vs WP.com locale divergence
+	// We have to account for w.org vs WP.com locale divergence.
 	if ( $in_jetpack ) {
 		if ( ! defined( 'JETPACK__GLOTPRESS_LOCALES_PATH' ) || ! file_exists( JETPACK__GLOTPRESS_LOCALES_PATH ) ) {
 			return false;
@@ -18,10 +24,10 @@ function jetpack_likes_master_iframe() {
 		require_once JETPACK__GLOTPRESS_LOCALES_PATH;
 
 		$gp_locale = GP_Locales::by_field( 'wp_locale', $_locale );
-		$_locale = isset( $gp_locale->slug ) ? $gp_locale->slug : '';
+		$_locale   = isset( $gp_locale->slug ) ? $gp_locale->slug : '';
 	}
 
-	$likes_locale = ( '' == $_locale || 'en' == $_locale ) ? '' : '&amp;lang=' . strtolower( $_locale );
+	$likes_locale = ( '' === $_locale || 'en' === $_locale ) ? '' : '&amp;lang=' . strtolower( $_locale );
 
 	$src = sprintf(
 		'https://widgets.wp.com/likes/master.html?ver=%1$s#ver=%1$s%2$s',
@@ -30,9 +36,9 @@ function jetpack_likes_master_iframe() {
 	);
 
 	/* translators: The value of %d is not available at the time of output */
-	$likersText = wp_kses( __( '<span>%d</span> bloggers like this:', 'jetpack' ), array( 'span' => array() ) );
+	$likers_text = wp_kses( __( '<span>%d</span> bloggers like this:', 'jetpack' ), array( 'span' => array() ) );
 	?>
-	<iframe src='<?php echo $src; ?>' scrolling='no' id='likes-master' name='likes-master' style='display:none;'></iframe>
-	<div id='likes-other-gravatars'><div class="likes-text"><?php echo $likersText; ?></div><ul class="wpl-avatars sd-like-gravatars"></ul></div>
+	<iframe src='<?php echo esc_url( $src ); ?>' scrolling='no' id='likes-master' name='likes-master' style='display:none;'></iframe>
+	<div id='likes-other-gravatars'><div class="likes-text"><?php echo wp_kses( $likers_text ); ?></div><ul class="wpl-avatars sd-like-gravatars"></ul></div>
 	<?php
 }
