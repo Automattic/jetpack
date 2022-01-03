@@ -175,8 +175,8 @@ class AtAGlance extends Component {
 			}
 
 			performanceCards.push(
-				<DashBoost siteAdminUrl={ this.props.siteAdminUrl } siteRawUrl={ this.props.siteRawUrl } />,
-				<DashCRM siteAdminUrl={ this.props.siteAdminUrl } siteRawUrl={ this.props.siteRawUrl } />
+				<DashBoost siteAdminUrl={ this.props.siteAdminUrl } />,
+				<DashCRM siteAdminUrl={ this.props.siteAdminUrl } />
 			);
 
 			if ( performanceCards.length ) {

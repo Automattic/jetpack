@@ -1,11 +1,12 @@
 /**
  * External dependencies
  */
-import React, { Component } from 'react';
 import { __, _x } from '@wordpress/i18n';
-import PropTypes from 'prop-types';
 import { createInterpolateElement } from '@wordpress/element';
 import { ExternalLink } from '@wordpress/components';
+import { getRedirectUrl } from '@automattic/jetpack-components';
+import PropTypes from 'prop-types';
+import React, { Component } from 'react';
 
 /**
  * Internal dependencies
@@ -20,7 +21,6 @@ const CRM_PLUGIN_SLUG = 'zero-bs-crm';
 class DashCRM extends Component {
 	static propTypes = {
 		siteAdminUrl: PropTypes.string.isRequired,
-		siteRawUrl: PropTypes.string.isRequired,
 	};
 
 	render() {
@@ -42,14 +42,7 @@ class DashCRM extends Component {
 						'jetpack'
 					),
 					{
-						ExternalLink: (
-							<ExternalLink
-								href={
-									'https://jetpack.com/redirect/?source=stats-nudges-crm-learn&site=' +
-									this.props.siteRawUrl
-								}
-							/>
-						),
+						ExternalLink: <ExternalLink href={ getRedirectUrl( 'stats-nudges-crm-learn' ) } />,
 						br: <br />,
 					}
 				) }
