@@ -56,6 +56,8 @@ const VideoPressEdit = CoreVideoEdit =>
 				isUpdatingRating: false,
 			};
 			this.posterImageButton = createRef();
+			this.previewCacheReloadTimer = null;
+			this.previewFailuresCount = 0;
 		}
 
 		static getDerivedStateFromProps( nextProps, state ) {
@@ -104,19 +106,28 @@ const VideoPressEdit = CoreVideoEdit =>
 		};
 
 		async componentDidUpdate( prevProps ) {
-			const { attributes, invalidateCachedEmbedPreview, preview, setAttributes, url } = this.props;
+			const {
+				attributes,
+				invalidateCachedEmbedPreview,
+				preview,
+				setAttributes,
+				url,
+				isFetchingPreview,
+			} = this.props;
 
 			if ( attributes.id !== prevProps.attributes.id ) {
 				await this.setGuid();
 				this.setRating();
 			}
 
+			let invalidationTriggered = false;
 			if ( url && url !== prevProps.url ) {
 				// Due to a current bug in Gutenberg (https://github.com/WordPress/gutenberg/issues/16831), the
 				// `SandBox` component is not rendered again when the injected `html` prop changes. To work around that,
 				// we invalidate the cached preview of the embed VideoPress player in order to force the rendering of a
 				// new instance of the `SandBox` component that ensures the injected `html` will be rendered.
 				invalidateCachedEmbedPreview( url );
+				invalidationTriggered = true;
 			}
 
 			if ( preview ) {
@@ -126,10 +137,27 @@ const VideoPressEdit = CoreVideoEdit =>
 					false
 				);
 
+				// Reset preview failure count so we can retry a preview later if a problem occurs.
+				this.previewFailuresCount = 0;
+
 				// We set videoPressClassNames attribute to be used in ./save.js
 				setAttributes( { videoPressClassNames: sandboxClassnames } );
+			} else if ( ! isFetchingPreview && ! invalidationTriggered && this.props.attributes.guid ) {
+				// If we have a guid but no preview, we may want to reload the block
+				this.schedulePreviewCacheReload();
 			}
 		}
+
+		schedulePreviewCacheReload = () => {
+			const { invalidateCachedEmbedPreview, url } = this.props;
+			if ( null === this.previewCacheReloadTimer && this.previewFailuresCount < 5 ) {
+				this.previewFailuresCount++;
+				this.previewCacheReloadTimer = setTimeout( () => {
+					invalidateCachedEmbedPreview( url );
+					this.previewCacheReloadTimer = null;
+				}, this.previewFailuresCount * 2000 );
+			}
+		};
 
 		fallbackToCore = () => {
 			this.props.setAttributes( { guid: undefined } );
