@@ -239,6 +239,8 @@ const addVideoPressSupport = ( settings, name ) => {
 			},
 		};
 
+		const oldVideoEmbedRegex = /https?:\/\/v\.wordpress\.com\/([a-zA-Z\d]{8})(.+)?/i;
+
 		return {
 			...settings,
 			attributes: attributesDefinition,
@@ -268,6 +270,19 @@ const addVideoPressSupport = ( settings, name ) => {
 								blocks.push( block );
 							} );
 							return blocks;
+						},
+					},
+					// Transform old v.wordpress.com classic block embeds to videopress.com/v/ embed
+					{
+						type: 'raw',
+						isMatch: node => {
+							return node.nodeName === 'P' && oldVideoEmbedRegex.test( node.innerHTML );
+						},
+						transform: node => {
+							const matches = oldVideoEmbedRegex.exec( node.innerHTML );
+							return createBlock( 'core/embed', {
+								url: 'https://videopress.com/v/' + matches[ 1 ].trim(),
+							} );
 						},
 					},
 				],
