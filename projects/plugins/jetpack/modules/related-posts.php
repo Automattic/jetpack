@@ -14,8 +14,10 @@
 class Jetpack_RelatedPosts_Module {
 	/**
 	 * Class variables
+	 *
+	 * @var $instance
 	 */
-	private static $__instance = null;
+	private static $instance = null;
 
 	/**
 	 * Singleton implementation
@@ -23,10 +25,11 @@ class Jetpack_RelatedPosts_Module {
 	 * @return object
 	 */
 	public static function instance() {
-		if ( ! is_a( self::$__instance, 'Jetpack_RelatedPosts_Module' ) )
-			self::$__instance = new Jetpack_RelatedPosts_Module();
+		if ( ! is_a( self::$instance, 'Jetpack_RelatedPosts_Module' ) ) {
+			self::$instance = new Jetpack_RelatedPosts_Module();
+		}
 
-		return self::$__instance;
+		return self::$instance;
 	}
 
 	/**
@@ -42,7 +45,6 @@ class Jetpack_RelatedPosts_Module {
 	 * This action triggers if the module is in an active state, load related posts and options.
 	 *
 	 * @uses Jetpack_RelatedPosts::init, is_admin, Jetpack::enable_module_configurable, Jetpack_Sync::sync_posts
-	 * @return null
 	 */
 	public function action_on_load() {
 		require_once 'related-posts/jetpack-related-posts.php';
