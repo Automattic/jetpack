@@ -343,7 +343,13 @@ const VideoPressEdit = CoreVideoEdit =>
 				preload,
 				useAverageColor,
 				videoPressTracks,
+				isVideoPressExample,
+				src,
 			} = attributes;
+
+			if ( isVideoPressExample && src ) {
+				return <img src={ src } alt={ caption } />;
+			}
 
 			const videoPosterDescription = `video-block__poster-image-description-${ instanceId }`;
 
