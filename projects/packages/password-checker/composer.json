@@ -20,7 +20,7 @@
 		],
 		"test-coverage": [
 			"@composer update",
-			"phpdbg -d memory_limit=2048M -d max_execution_time=900 -qrr ./vendor/bin/phpunit --coverage-clover \"$COVERAGE_DIR/clover.xml\""
+			"php -dpcov.directory=. ./vendor/bin/phpunit --coverage-clover \"$COVERAGE_DIR/clover.xml\""
 		],
 		"test-php": [
 			"@composer update",
@@ -42,11 +42,12 @@
 	"extra": {
 		"autotagger": true,
 		"mirror-repo": "Automattic/jetpack-password-checker",
+		"textdomain": "jetpack-password-checker",
 		"changelogger": {
 			"link-template": "https://github.com/Automattic/jetpack-password-checker/compare/v${old}...v${new}"
 		},
 		"branch-alias": {
-			"dev-master": "0.1.x-dev"
+			"dev-master": "0.2.x-dev"
 		}
 	}
 }

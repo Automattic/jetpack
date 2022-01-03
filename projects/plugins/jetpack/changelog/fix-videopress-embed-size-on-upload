@@ -1,0 +1,4 @@
+Significance: patch
+Type: enhancement
+
+VideoPress: reload embed preview on creation until we know the video size.

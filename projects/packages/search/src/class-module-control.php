@@ -78,11 +78,11 @@ class Module_Control {
 		// Not available for offline mode.
 		$is_offline_mode = ( new Status() )->is_offline_mode();
 		if ( $is_offline_mode ) {
-			return new WP_Error( 'offline_mode', __( 'Search module can not be activated in offline mode.', 'jetpack' ) );
+			return new WP_Error( 'offline_mode', __( 'Search module can not be activated in offline mode.', 'jetpack-search-pkg' ) );
 		}
 		// Return false if no plan supports search.
 		if ( ! $this->plan->supports_search() ) {
-			return new WP_Error( 'not_supported', __( 'Your plan does not support Jetpack Search.', 'jetpack' ) );
+			return new WP_Error( 'not_supported', __( 'Your plan does not support Jetpack Search.', 'jetpack-search-pkg' ) );
 		}
 
 		$active_modules   = $this->get_active_modules();
@@ -175,7 +175,7 @@ class Module_Control {
 	 */
 	public function enable_instant_search() {
 		if ( ! $this->is_active() ) {
-			return new WP_Error( 'search_module_inactive', __( 'Search module needs to be activated before enabling instant search.', 'jetpack' ) );
+			return new WP_Error( 'search_module_inactive', __( 'Search module needs to be activated before enabling instant search.', 'jetpack-search-pkg' ) );
 		}
 		return update_option( self::SEARCH_MODULE_INSTANT_SEARCH_OPTION_KEY, true );
 	}
