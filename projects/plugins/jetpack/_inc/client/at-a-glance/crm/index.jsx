@@ -2,7 +2,7 @@
  * External dependencies
  */
 import React, { Component } from 'react';
-import { __ } from '@wordpress/i18n';
+import { __, _x } from '@wordpress/i18n';
 import PropTypes from 'prop-types';
 import { createInterpolateElement } from '@wordpress/element';
 import { ExternalLink } from '@wordpress/components';
@@ -27,7 +27,11 @@ class DashCRM extends Component {
 			<PluginDashItem
 				iconAlt={ __( 'Plugin icon', 'jetpack' ) }
 				iconSrc={ peopleSvgUrl }
-				pluginName={ __( 'CRM', 'jetpack' ) }
+				pluginName={ _x(
+					'CRM',
+					'The Jetpack CRM product name, without the Jetpack prefix',
+					'jetpack'
+				) }
 				pluginFile={ CRM_PLUGIN_FILE }
 				pluginSlug={ CRM_PLUGIN_SLUG }
 				pluginLink={ CRM_PLUGIN_DASH }

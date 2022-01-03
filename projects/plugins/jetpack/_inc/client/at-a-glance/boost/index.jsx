@@ -2,7 +2,7 @@
  * External dependencies
  */
 import React, { Component } from 'react';
-import { __ } from '@wordpress/i18n';
+import { __, _x } from '@wordpress/i18n';
 import PropTypes from 'prop-types';
 import { createInterpolateElement } from '@wordpress/element';
 import { ExternalLink } from '@wordpress/components';
@@ -27,7 +27,11 @@ class DashBoost extends Component {
 			<PluginDashItem
 				iconAlt={ __( 'Plugin icon', 'jetpack' ) }
 				iconSrc={ boostSvgUrl }
-				pluginName={ _x( 'Boost', 'The Jetpack Boost product name, without the Jetpack prefix', 'jetpack' ) }
+				pluginName={ _x(
+					'Boost',
+					'The Jetpack Boost product name, without the Jetpack prefix',
+					'jetpack'
+				) }
 				pluginFile={ BOOST_PLUGIN_FILE }
 				pluginSlug={ BOOST_PLUGIN_SLUG }
 				pluginLink={ BOOST_PLUGIN_DASH }
