@@ -3,45 +3,88 @@
  */
 import React from 'react';
 import { expect } from 'chai';
-import { shallow } from 'enzyme';
-import ShallowRenderer from 'react-test-renderer/shallow';
+import { render, screen } from '@testing-library/react';
+import userEvent from '@testing-library/user-event';
+import sinon from 'sinon';
 
 /**
  * Internal dependencies
  */
-import ConnectScreenRequiredPlan from '../index';
+import ConnectScreenRequiredPlan from '../visual';
+
+const requiredProps = {
+	buttonLabel: 'Setup Jetpack',
+	pricingTitle: 'Jetpack Backup',
+	priceBefore: 9,
+	priceAfter: 4.5,
+};
 
 describe( 'ConnectScreenRequiredPlan', () => {
-	const testProps = {
-		apiNonce: 'test',
-		apiRoot: 'https://example.org/wp-json/',
-		registrationNonce: 'test2',
-		redirectUri: 'https://example.org',
-		priceBefore: 9,
-		priceAfter: 4.5,
-		pricingTitle: 'Dummy',
-	};
+	it( 'renders children', () => {
+		render(
+			<ConnectScreenRequiredPlan { ...requiredProps }>
+				<p>Connect children</p>
+			</ConnectScreenRequiredPlan>
+		);
+		expect( screen.getByText( 'Connect children' ) ).to.exist;
+	} );
 
-	describe( 'Render the ConnectScreenRequiredPlan component', () => {
-		const renderer = new ShallowRenderer();
-		renderer.render( <ConnectScreenRequiredPlan { ...testProps } /> );
+	it( 'shows button, tos and subscription', () => {
+		render( <ConnectScreenRequiredPlan { ...requiredProps } /> );
+		expect( screen.getByRole( 'button', { name: 'Setup Jetpack' } ) ).to.exist;
+		expect( screen.getByText( /By clicking the button above/i ) ).to.exist;
+		expect( screen.getByText( /Already have a subscription?/i ) ).to.exist;
+	} );
 
-		const wrapper = shallow( renderer.getRenderOutput() );
+	it( 'remove button, tos and subscription', () => {
+		render( <ConnectScreenRequiredPlan { ...requiredProps } showConnectButton={ false } /> );
+		expect( screen.queryByRole( 'button', { name: 'Setup Jetpack' } ) ).not.to.exist;
+		expect( screen.queryByText( /By clicking the button above/i ) ).not.to.exist;
+		expect( screen.queryByText( /Already have a subscription?/i ) ).not.to.exist;
+	} );
 
-		it( 'component exists', () => {
-			expect( wrapper.find( 'ConnectScreenRequiredPlan' ) ).to.exist;
-		} );
+	it( 'applies correct href to terms of service', () => {
+		render( <ConnectScreenRequiredPlan { ...requiredProps } /> );
+		const terms = screen.getByRole( 'link', { name: 'Terms of Service' } );
+		expect( terms ).to.have.attribute( 'href', 'https://jetpack.com/redirect/?source=wpcom-tos' );
+		expect( terms ).to.have.attribute( 'target', '_blank' );
+	} );
 
-		it( 'logo component exists', () => {
-			expect( wrapper.find( 'JetpackLogo' ) ).to.exist;
-		} );
+	it( 'applies correct href to share', () => {
+		render( <ConnectScreenRequiredPlan { ...requiredProps } /> );
+		const share = screen.getByRole( 'link', { name: 'share details' } );
+		expect( share ).to.have.attribute(
+			'href',
+			'https://jetpack.com/redirect/?source=jetpack-support-what-data-does-jetpack-sync'
+		);
+		expect( share ).to.have.attribute( 'target', '_blank' );
+	} );
 
-		it( 'pricing card component exists', () => {
-			expect( wrapper.find( 'PricingCard' ) ).to.exist;
-		} );
+	it( 'shows error into button', () => {
+		render( <ConnectScreenRequiredPlan { ...requiredProps } displayButtonError /> );
+		expect( screen.getByText( 'An error occurred. Please try again.' ) ).to.exist;
+	} );
 
-		it( 'connect button exists', () => {
-			expect( wrapper.find( 'ConnectButton' ) ).to.exist;
-		} );
+	// we have an acessibility breach into our loading state
+	it.skip( 'shows loading into button', () => {} );
+
+	it( 'calls handleButtonClick into main button', () => {
+		const handleButtonClick = sinon.stub();
+		render(
+			<ConnectScreenRequiredPlan { ...requiredProps } handleButtonClick={ handleButtonClick } />
+		);
+		const button = screen.getByRole( 'button', { name: 'Setup Jetpack' } );
+		userEvent.click( button );
+		expect( handleButtonClick.called ).to.be.true;
+	} );
+
+	it( 'calls handleButtonClick into login button', () => {
+		const handleButtonClick = sinon.stub();
+		render(
+			<ConnectScreenRequiredPlan { ...requiredProps } handleButtonClick={ handleButtonClick } />
+		);
+		const button = screen.getByRole( 'button', { name: 'Log in' } );
+		userEvent.click( button );
+		expect( handleButtonClick.called ).to.be.true;
 	} );
 } );

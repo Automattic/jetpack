@@ -153,7 +153,7 @@ class Licensing {
 	 */
 	public function attach_licenses( array $licenses ) {
 		if ( ! $this->connection()->has_connected_owner() ) {
-			return new WP_Error( 'not_connected', __( 'Jetpack doesn\'t have a connected owner.', 'jetpack' ) );
+			return new WP_Error( 'not_connected', __( 'Jetpack doesn\'t have a connected owner.', 'jetpack-licensing' ) );
 		}
 
 		if ( empty( $licenses ) ) {
@@ -163,7 +163,7 @@ class Licensing {
 		$xml = $this->attach_licenses_request( $licenses );
 
 		if ( $xml->isError() ) {
-			$error = new WP_Error( 'request_failed', __( 'License attach request failed.', 'jetpack' ) );
+			$error = new WP_Error( 'request_failed', __( 'License attach request failed.', 'jetpack-licensing' ) );
 			$error->add( $xml->getErrorCode(), $xml->getErrorMessage() );
 			return $error;
 		}
@@ -194,7 +194,7 @@ class Licensing {
 		if ( is_wp_error( $results ) ) {
 			if ( 'request_failed' === $results->get_error_code() ) {
 				$this->log_error(
-					__( 'Failed to attach your Jetpack license(s). Please try reconnecting Jetpack.', 'jetpack' )
+					__( 'Failed to attach your Jetpack license(s). Please try reconnecting Jetpack.', 'jetpack-licensing' )
 				);
 			}
 
@@ -213,7 +213,7 @@ class Licensing {
 			$this->log_error(
 				sprintf(
 					/* translators: %s is a comma-separated list of license keys. */
-					__( 'The following Jetpack licenses are invalid, already in use, or revoked: %s', 'jetpack' ),
+					__( 'The following Jetpack licenses are invalid, already in use, or revoked: %s', 'jetpack-licensing' ),
 					implode( ', ', $failed )
 				)
 			);

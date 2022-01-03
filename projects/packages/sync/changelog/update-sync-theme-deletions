@@ -1,0 +1,4 @@
+Significance: patch
+Type: changed
+
+Theme deletions: rely on Core WP hook now that the package requires WP 5.8.

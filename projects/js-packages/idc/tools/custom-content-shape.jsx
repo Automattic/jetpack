@@ -6,6 +6,8 @@ import PropTypes from 'prop-types';
 export default {
 	/** The header text, 'Safe Mode' by default. */
 	headerText: PropTypes.string,
+	/** Alt attribute for the custom logo image. */
+	logoAlt: PropTypes.string,
 	/** The main screen title. */
 	mainTitle: PropTypes.string,
 	/** The main screen body text. */
@@ -22,4 +24,8 @@ export default {
 	startFreshCardTitle: PropTypes.string,
 	/** The "start fresh" card body. */
 	startFreshCardBodyText: PropTypes.string,
+	/** The "non admin" screen title. */
+	nonAdminTitle: PropTypes.string,
+	/** The "non admin" screen body text. */
+	nonAdminBodyText: PropTypes.string,
 };

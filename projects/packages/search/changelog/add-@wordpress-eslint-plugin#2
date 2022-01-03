@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Add missing textdomains in JS code.

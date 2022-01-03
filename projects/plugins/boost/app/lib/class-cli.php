@@ -60,17 +60,13 @@ class CLI {
 	 *
 	 * ## EXAMPLES
 	 *
-	 * wp jetpack module activate critical-css
-	 * wp jetpack module deactivate critical-css
+	 * wp jetpack-boost module activate critical-css
+	 * wp jetpack-boost module deactivate critical-css
 	 *
 	 * @param array $args Command arguments.
 	 */
 	public function module( $args ) {
 		$action = isset( $args[0] ) ? $args[0] : null;
-
-		if ( ! $action ) {
-			\WP_CLI::error( __( 'Please specify a valid action.', 'jetpack-boost' ) );
-		}
 
 		$module_slug = null;
 
@@ -83,7 +79,8 @@ class CLI {
 				);
 			}
 		} else {
-			\WP_CLI::error( __( 'Please specify a valid module.', 'jetpack-boost' ) );
+			/* translators: Placeholder is list of available modules. */
+			\WP_CLI::error( sprintf( __( 'Please specify a valid module. It should be one of %s', 'jetpack-boost' ), wp_json_encode( Jetpack_Boost::AVAILABLE_MODULES_DEFAULT ) ) );
 		}
 
 		switch ( $action ) {
@@ -112,5 +109,75 @@ class CLI {
 		\WP_CLI::success(
 			sprintf( __( "'%1\$s' has been %2\$s.", 'jetpack-boost' ), $module_slug, $status_label )
 		);
+	}
+
+	/**
+	 * Manage Jetpack Boost connection
+	 *
+	 * ## OPTIONS
+	 *
+	 * <activate|deactivate|status>
+	 * : The action to take.
+	 * ---
+	 * options:
+	 *  - activate
+	 *  - deactivate
+	 *  - status
+	 * ---
+	 *
+	 * ## EXAMPLES
+	 *
+	 * wp jetpack-boost connection activate
+	 * wp jetpack-boost connection deactivate
+	 * wp jetpack-boost connection status
+	 *
+	 * @param array $args Command arguments.
+	 */
+	public function connection( $args ) {
+		$action = isset( $args[0] ) ? $args[0] : null;
+
+		switch ( $action ) {
+			case 'activate':
+				$result = $this->jetpack_boost->connection->register();
+				if ( true === $result ) {
+					\WP_CLI::success( __( 'Boost is connected to WP.com', 'jetpack-boost' ) );
+				} else {
+					\WP_CLI::Error( __( 'Boost could not be connected to WP.com', 'jetpack-boost' ) );
+				}
+				break;
+			case 'deactivate':
+				require_once ABSPATH . '/wp-admin/includes/plugin.php';
+
+				if ( is_plugin_active_for_network( JETPACK_BOOST_PATH ) ) {
+					$this->jetpack_boost->connection->deactivate_disconnect_network();
+				} else {
+					$this->jetpack_boost->connection->disconnect();
+				}
+
+				\WP_CLI::success( __( 'Boost is disconnected from WP.com', 'jetpack-boost' ) );
+				break;
+			case 'status':
+				$is_connected = $this->jetpack_boost->connection->is_connected();
+				if ( $is_connected ) {
+					\WP_CLI::line( 'connected' );
+				} else {
+					\WP_CLI::line( 'disconnected' );
+				}
+				break;
+		}
+	}
+
+	/**
+	 * Reset Jetpack Boost
+	 *
+	 * ## EXAMPLE
+	 *
+	 * wp jetpack-boost reset
+	 */
+	public function reset() {
+		$this->jetpack_boost->deactivate();
+		$this->jetpack_boost->uninstall();
+		$this->jetpack_boost->config()->reset();
+		\WP_CLI::success( 'Reset successfully' );
 	}
 }

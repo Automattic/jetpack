@@ -4,7 +4,7 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 import { __ } from '@wordpress/i18n';
-import { getRedirectUrl } from '@automattic/jetpack-components';
+import { getRedirectUrl, ActionButton } from '@automattic/jetpack-components';
 import { createInterpolateElement } from '@wordpress/element';
 
 /**
@@ -39,13 +39,15 @@ export const ToS = createInterpolateElement(
 const ConnectScreenVisual = props => {
 	const {
 		title,
-		buttonLabel,
 		images,
 		children,
 		assetBaseUrl,
-		autoTrigger,
 		isLoading,
-		renderConnectBtn,
+		showConnectButton,
+		buttonLabel,
+		handleButtonClick,
+		displayButtonError,
+		buttonIsLoading,
 	} = props;
 
 	return (
@@ -61,9 +63,18 @@ const ConnectScreenVisual = props => {
 			<div className="jp-connection__connect-screen__content">
 				{ children }
 
-				{ renderConnectBtn( buttonLabel, autoTrigger ) }
+				{ showConnectButton && (
+					<>
+						<ActionButton
+							label={ buttonLabel }
+							onClick={ handleButtonClick }
+							displayError={ displayButtonError }
+							isLoading={ buttonIsLoading }
+						/>
 
-				<div className="jp-connection__connect-screen__tos">{ ToS }</div>
+						<div className="jp-connection__connect-screen__tos">{ ToS }</div>
+					</>
+				) }
 			</div>
 		</ConnectScreenLayout>
 	);
@@ -72,18 +83,30 @@ const ConnectScreenVisual = props => {
 ConnectScreenVisual.propTypes = {
 	/** The Title. */
 	title: PropTypes.string,
-	/** The Connect Button label. */
-	buttonLabel: PropTypes.string,
+	/** Images to display on the right side. */
+	images: PropTypes.arrayOf( PropTypes.string ),
+	/** The assets base URL. */
+	assetBaseUrl: PropTypes.string,
 	/** Whether the connection status is still loading. */
-	isLoading: PropTypes.bool.isRequired,
-	/** Whether to initiate the connection process automatically upon rendering the component. */
-	autoTrigger: PropTypes.bool,
-	/** Connect button render function */
-	renderConnectBtn: PropTypes.func.isRequired,
+	isLoading: PropTypes.bool,
+	/** Whether the connection button appears or not. */
+	showConnectButton: PropTypes.bool,
+	/** Text label to be used into button. */
+	buttonLabel: PropTypes.string.isRequired,
+	/** Callback to be called on button click. */
+	handleButtonClick: PropTypes.func,
+	/** Whether the error message appears or not. */
+	displayButtonError: PropTypes.bool,
+	/** Whether the button is loading or not. */
+	buttonIsLoading: PropTypes.bool,
 };
 
 ConnectScreenVisual.defaultProps = {
-	autoTrigger: false,
+	showConnectButton: true,
+	isLoading: false,
+	buttonIsLoading: false,
+	displayButtonError: false,
+	handleButtonClick: () => {},
 };
 
 export default ConnectScreenVisual;

@@ -349,6 +349,7 @@ class WP_Test_WPCOM_REST_API_V2_Endpoint_Admin_Menu extends WP_Test_Jetpack_REST
 	 * @throws \ReflectionException Noop.
 	 * @dataProvider menu_item_icon_data
 	 * @covers ::prepare_menu_item_icon
+	 * @covers ::prepare_dashicon
 	 */
 	public function test_prepare_menu_item_icon( $icon, $expected ) {
 		$class = new ReflectionClass( 'WPCOM_REST_API_V2_Endpoint_Admin_Menu' );
@@ -393,6 +394,10 @@ class WP_Test_WPCOM_REST_API_V2_Endpoint_Admin_Menu extends WP_Test_Jetpack_REST
 			array(
 				'dashicons-admin-media',
 				'dashicons-admin-media',
+			),
+			'When the dashicon does not exist in the core dashicon list, we expect the default dashicon.' => array(
+				'dashicons-admin-nope',
+				'dashicons-admin-generic',
 			),
 			// SVG.
 			array(

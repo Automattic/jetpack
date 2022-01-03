@@ -61,6 +61,12 @@ class IDC_Simulator {
 		if ( isset( $_GET['idc_notice'] ) ) { // phpcs:ignore WordPress.Security.NonceVerification.Recommended
 			add_action( 'admin_notices', array( $this, 'display_notice' ) );
 		}
+
+		$settings = self::get_stored_settings();
+		if ( ! $settings['idc_sync_status'] ) {
+			// Display a notice when this module disables Sync.
+			add_action( 'admin_notices', array( $this, 'display_sync_disabled_notice' ) );
+		}
 	}
 
 	/**
@@ -439,6 +445,14 @@ class IDC_Simulator {
 			default:
 				return;
 		}
+	}
+
+	/**
+	 * Display a notice when Sync is disabled by this module.
+	 */
+	public function display_sync_disabled_notice() {
+		echo '<div class="notice notice-warning"><p>Sync has been disabled by the Jetpack Debug Helper plugin\'s IDC Simulator module.</p></div>';
+
 	}
 
 	/**

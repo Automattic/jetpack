@@ -1,0 +1,42 @@
+{
+	"name": "@automattic/i18n-check-webpack-plugin",
+	"version": "1.0.0",
+	"description": "A Webpack plugin to check that WordPress i18n hasn't been mangled by Webpack optimizations.",
+	"homepage": "https://jetpack.com",
+	"bugs": {
+		"url": "https://github.com/Automattic/jetpack/issues"
+	},
+	"repository": {
+		"type": "git",
+		"url": "https://github.com/Automattic/jetpack.git"
+	},
+	"license": "GPL-2.0-or-later",
+	"author": "Automattic",
+	"scripts": {
+		"test": "jest tests/",
+		"test-coverage": "jest tests/ --coverage --collectCoverageFrom='src/**/*.js' --coverageDirectory=\"$COVERAGE_DIR\" --coverageReporters=clover"
+	},
+	"dependencies": {
+		"debug": "^4.3.2"
+	},
+	"devDependencies": {
+		"@babel/core": "7.16.0",
+		"jest": "27.3.1",
+		"webpack": "5.64.1"
+	},
+	"peerDependencies": {
+		"@babel/core": "^7.0.0",
+		"webpack": "^5.0.0"
+	},
+	"engines": {
+		"node": "^14.17.6 || ^16.7.0",
+		"pnpm": "^6.23.6",
+		"yarn": "use pnpm instead - see docs/yarn-upgrade.md"
+	},
+	"exports": {
+		".": "./src/I18nCheckPlugin.js",
+		"./GettextExtractor": "./src/GettextExtractor.js",
+		"./GettextEntries": "./src/GettextEntries.js",
+		"./GettextEntry": "./src/GettextEntry.js"
+	}
+}

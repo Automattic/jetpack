@@ -13,7 +13,7 @@
             "dist": {
                 "type": "path",
                 "url": "../../packages/changelogger",
-                "reference": "d219e673c8cb1b6b9ce85dac0f6df570a2af4af8"
+                "reference": "ed5842ee826136274b0926ea3aa2db22159cb5f8"
             },
             "require": {
                 "php": ">=5.6",
@@ -60,7 +60,7 @@
                 ],
                 "test-coverage": [
                     "@composer update",
-                    "phpdbg -d memory_limit=2048M -d max_execution_time=900 -qrr ./vendor/bin/phpunit --coverage-clover \"$COVERAGE_DIR/clover.xml\""
+                    "php -dpcov.directory=. ./vendor/bin/phpunit --coverage-clover \"$COVERAGE_DIR/clover.xml\""
                 ],
                 "test-php": [
                     "@composer update",

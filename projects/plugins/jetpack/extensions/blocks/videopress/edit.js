@@ -371,7 +371,13 @@ const VideoPressEdit = CoreVideoEdit =>
 				preload,
 				useAverageColor,
 				videoPressTracks,
+				isVideoPressExample,
+				src,
 			} = attributes;
+
+			if ( isVideoPressExample && src ) {
+				return <img src={ src } alt={ caption } />;
+			}
 
 			const videoPosterDescription = `video-block__poster-image-description-${ instanceId }`;
 
@@ -476,7 +482,11 @@ const VideoPressEdit = CoreVideoEdit =>
 											>
 												{ ! poster
 													? __( 'Select Poster Image', 'jetpack' )
-													: __( 'Replace image', 'jetpack' ) }
+													: __(
+															'Replace image',
+															'jetpack',
+															/* dummy arg to avoid bad minification */ 0
+													  ) }
 											</Button>
 										) }
 									/>
@@ -559,7 +569,11 @@ const VideoPressEdit = CoreVideoEdit =>
 								text={
 									isUploading
 										? __( 'Uploading…', 'jetpack' )
-										: __( 'Generating preview…', 'jetpack' )
+										: __(
+												'Generating preview…',
+												'jetpack',
+												/* dummy arg to avoid bad minification */ 0
+										  )
 								}
 							/>
 						</div>
