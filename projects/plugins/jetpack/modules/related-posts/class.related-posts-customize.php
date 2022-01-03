@@ -2,7 +2,7 @@
 
 use Automattic\Jetpack\Assets;
 
-// Exit if file is accessed directly
+// Exit if file is accessed directly.
 if ( ! defined( 'ABSPATH' ) ) {
 	exit;
 }
@@ -19,19 +19,21 @@ class Jetpack_Related_Posts_Customize {
 	 *
 	 * @var string
 	 */
-	var $prefix = 'jetpack_relatedposts';
+	public static $prefix = 'jetpack_relatedposts';
 
 	/**
-	 * @var string Control to focus when customizer loads.
+	 * Control to focus when customizer loads
+	 *
+	 * @var string
 	 */
-	var $focus = '';
+	public static $focus = '';
 
 	/**
 	 * Class initialization.
 	 *
 	 * @since 4.4.0
 	 */
-	function __construct() {
+	public function __construct() {
 		add_action( 'customize_register', array( $this, 'customize_register' ) );
 		add_action( 'customize_controls_enqueue_scripts', array( $this, 'customize_controls_enqueue_scripts' ) );
 	}
@@ -43,37 +45,39 @@ class Jetpack_Related_Posts_Customize {
 	 *
 	 * @param WP_Customize_Manager $wp_customize Customizer instance.
 	 */
-	function customize_register( $wp_customize ) {
+	public function customize_register( $wp_customize ) {
 
-		$wp_customize->add_section( $this->prefix,
+		$wp_customize->add_section(
+			$this->prefix,
 			array(
-				'title' 	  => esc_html__( 'Related Posts', 'jetpack' ),
+				'title'       => esc_html__( 'Related Posts', 'jetpack' ),
 				'description' => '',
 				'capability'  => 'edit_theme_options',
-				'priority' 	  => 200,
+				'priority'    => 200,
 			)
 		);
 
 		$selective_options = array();
 
 		foreach ( $this->get_options( $wp_customize ) as $key => $field ) {
-			$control_id = "$this->prefix[$key]";
+			$control_id          = "$this->prefix[$key]";
 			$selective_options[] = $control_id;
-			$wp_customize->add_setting( $control_id,
+			$wp_customize->add_setting(
+				$control_id,
 				array(
-					'default' 	 => isset( $field['default'] ) ? $field['default'] : '',
-					'type' 		 => isset( $field['setting_type'] ) ? $field['setting_type'] : 'option',
+					'default'    => isset( $field['default'] ) ? $field['default'] : '',
+					'type'       => isset( $field['setting_type'] ) ? $field['setting_type'] : 'option',
 					'capability' => isset( $field['capability'] ) ? $field['capability'] : 'edit_theme_options',
 					'transport'  => isset( $field['transport'] ) ? $field['transport'] : 'postMessage',
 				)
 			);
 			$control_settings = array(
-				'label' 	  => isset( $field['label'] ) ? $field['label'] : '',
-				'description' => isset( $field['description'] ) ? $field['description'] : '',
-				'settings' 	  => $control_id,
-				'type' 	      => isset( $field['control_type'] ) ? $field['control_type'] : 'text',
-				'section' 	  => $this->prefix,
-				'priority' 	  => 10,
+				'label'           => isset( $field['label'] ) ? $field['label'] : '',
+				'description'     => isset( $field['description'] ) ? $field['description'] : '',
+				'settings'        => $control_id,
+				'type'            => isset( $field['control_type'] ) ? $field['control_type'] : 'text',
+				'section'         => $this->prefix,
+				'priority'        => 10,
 				'active_callback' => isset( $field['active_callback'] ) ? $field['active_callback'] : __CLASS__ . '::is_single',
 			);
 			switch ( $field['control_type'] ) {
@@ -96,12 +100,15 @@ class Jetpack_Related_Posts_Customize {
 
 		// If selective refresh is available, implement it.
 		if ( isset( $wp_customize->selective_refresh ) ) {
-			$wp_customize->selective_refresh->add_partial( "$this->prefix", array(
-				'selector'            => '.jp-relatedposts:not(.jp-relatedposts-block)',
-				'settings'            => $selective_options,
-				'render_callback'     => __CLASS__ . '::render_callback',
-				'container_inclusive' => false,
-			) );
+			$wp_customize->selective_refresh->add_partial(
+				"$this->prefix",
+				array(
+					'selector'            => '.jp-relatedposts:not(.jp-relatedposts-block)',
+					'settings'            => $selective_options,
+					'render_callback'     => __CLASS__ . '::render_callback',
+					'container_inclusive' => false,
+				)
+			);
 		}
 
 	}
