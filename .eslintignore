@@ -1,6 +1,7 @@
 ### Root
 tools/docker/wordpress-develop/
 tools/docker/wordpress/
+tools/docker/data/
 
 /vendor/
 
@@ -47,12 +48,16 @@ projects/*/*/vendor
 projects/github-actions/*/dist
 projects/js-packages/babel-plugin-replace-textdomain/tests/fixtures/
 projects/js-packages/i18n-check-webpack-plugin/tests/fixtures/
+projects/js-packages/i18n-loader-webpack-plugin/tests/fixtures/
+projects/js-packages/storybook/docs/
 projects/packages/*/wordpress
 projects/packages/connection-ui/build
 projects/packages/identity-crisis/build
 projects/packages/jitm/build
 projects/packages/jitm/src/js/jetpack-jitm.js
 projects/packages/lazy-images/dist
+projects/packages/my-jetpack/build
+projects/packages/search/build
 projects/plugins/backup/build
 
 ### Storybook files

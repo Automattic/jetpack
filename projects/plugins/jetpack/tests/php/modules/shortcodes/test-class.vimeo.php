@@ -1,7 +1,18 @@
 <?php
+/**
+ * Vimeo Shortcode and embed tests.
+ *
+ * @package automattic/jetpack
+ */
 
+/**
+ * Shortcodes need external HTML requests to be converted to valid embed code (using smartframe's oembed endpoint)
+ */
 require_once __DIR__ . '/trait.http-request-cache.php';
 
+/**
+ * Test our Vimeo embed feature (shortcode as well as embed code).
+ */
 class WP_Test_Jetpack_Shortcodes_Vimeo extends WP_UnitTestCase {
 	use Automattic\Jetpack\Tests\HttpRequestCacheTrait;
 
@@ -16,6 +27,8 @@ class WP_Test_Jetpack_Shortcodes_Vimeo extends WP_UnitTestCase {
 	}
 
 	/**
+	 * Test whether the shortcode is registered and can be used.
+	 *
 	 * @author scotchfield
 	 * @covers ::vimeo_shortcode
 	 * @since 3.2
@@ -25,6 +38,8 @@ class WP_Test_Jetpack_Shortcodes_Vimeo extends WP_UnitTestCase {
 	}
 
 	/**
+	 * Test whether a shortcode without any attributes doesn't get output in the content.
+	 *
 	 * @author scotchfield
 	 * @covers ::vimeo_shortcode
 	 * @since 3.2
@@ -38,95 +53,129 @@ class WP_Test_Jetpack_Shortcodes_Vimeo extends WP_UnitTestCase {
 	}
 
 	/**
-	 * @author scotchfield
-	 * @covers ::vimeo_shortcode
-	 * @since 3.2
+	 * Sample data with different sets of shortcode attrbutes.
 	 */
-	public function test_shortcodes_vimeo_id() {
-		$video_id = '141358';
-		$content  = '[vimeo ' . $video_id . ']';
-
-		$shortcode_content = do_shortcode( $content );
-
-		$this->assertStringContainsString( 'vimeo.com/video/' . $video_id, $shortcode_content );
-	}
-
-	/**
-	 * @author scotchfield
-	 * @covers ::vimeo_shortcode
-	 * @since 3.2
-	 */
-	public function test_shortcodes_vimeo_url() {
-		$video_id = '141358';
-		$url      = 'http://vimeo.com/' . $video_id;
-		$content  = '[vimeo ' . $url . ']';
-
-		$shortcode_content = do_shortcode( $content );
-
-		$this->assertStringContainsString( 'vimeo.com/video/' . $video_id, $shortcode_content );
-	}
-
-	/**
-	 * @author scotchfield
-	 * @covers ::vimeo_shortcode
-	 * @since 3.2
-	 */
-	public function test_shortcodes_vimeo_w_h_old_format() {
+	public function get_sample_shortcode_attributes() {
 		$video_id = '141358';
 		$width    = '350';
 		$height   = '500';
-		$content  = '[vimeo ' . $video_id . ' w=' . $width . '&h=' . $height . ']';
 
-		$shortcode_content = do_shortcode( $content );
-
-		$this->assertStringContainsString( 'vimeo.com/video/' . $video_id, $shortcode_content );
-		$this->assertStringContainsString( 'width="' . $width . '"', $shortcode_content );
-		$this->assertStringContainsString( 'height="' . $height . '"', $shortcode_content );
+		return array(
+			'simple id'                            => array(
+				$video_id,
+				array( 'id' => $video_id ),
+			),
+			'simple url'                           => array(
+				'http://vimeo.com/' . $video_id,
+				array( 'id' => $video_id ),
+			),
+			'id and size attributes in old format' => array(
+				$video_id . ' w=' . $width . '&h=' . $height,
+				array(
+					'id'     => $video_id,
+					'width'  => $width,
+					'height' => $height,
+				),
+			),
+			'id and size attributes in new format' => array(
+				$video_id . ' w=' . $width . ' h=' . $height,
+				array(
+					'id'     => $video_id,
+					'width'  => $width,
+					'height' => $height,
+				),
+			),
+			'autoplay and loop on'                 => array(
+				$video_id . ' autoplay=1 loop=1',
+				array(
+					'id'       => $video_id,
+					'autoplay' => '1',
+					'loop'     => '1',
+				),
+			),
+			'autoplay and loop off'                => array(
+				$video_id . ' autoplay=0 loop=0',
+				array(
+					'id'       => $video_id,
+					'autoplay' => '0',
+					'loop'     => '0',
+				),
+			),
+		);
 	}
 
 	/**
-	 * @covers ::vimeo_shortcode
-	 * @since 8.2
+	 * Test the shortcode with different sets of attributes.
+	 *
+	 * @dataProvider get_sample_shortcode_attributes
+	 *
+	 * @param string $attribute_string     A string of shortcode attributes.
+	 * @param array  $extracted_attributes Expected extracted attributes.
 	 */
-	public function test_shortcodes_vimeo_w_h_new_format() {
-		$video_id = '141358';
-		$width    = '350';
-		$height   = '500';
-		$content  = '[vimeo ' . $video_id . ' w=' . $width . ' h=' . $height . ']';
-
+	public function test_shortcode_attributes( $attribute_string, $extracted_attributes ) {
+		$content           = '[vimeo ' . $attribute_string . ']';
 		$shortcode_content = do_shortcode( $content );
 
-		$this->assertStringContainsString( 'vimeo.com/video/' . $video_id, $shortcode_content );
-		$this->assertStringContainsString( 'width="' . $width . '"', $shortcode_content );
-		$this->assertStringContainsString( 'height="' . $height . '"', $shortcode_content );
+		$this->assertStringContainsString( 'vimeo.com/video/' . $extracted_attributes['id'], $shortcode_content );
+
+		/*
+		 * Test that all attributes get extracted and added to the final output if they need to be.
+		 * The ID attribute is a special one since it's added as part of the video embed URL.
+		 */
+		foreach ( $extracted_attributes as $attribute => $value ) {
+			if ( 'id' === $attribute ) {
+				continue;
+			}
+
+			if ( '0' !== $value ) {
+				// Autoplay and loop are appended to the embed URL, not stored as attributes.
+				if ( in_array( $attribute, array( 'autoplay', 'loop' ), true ) ) {
+					$this->assertStringContainsString( $attribute . '=' . $value, $shortcode_content );
+				} else {
+					$this->assertStringContainsString( $attribute . '="' . $value . '"', $shortcode_content );
+				}
+			} else {
+				$this->assertStringNotContainsString( $attribute . '="' . $value . '"', $shortcode_content );
+			}
+		}
 	}
 
 	/**
-	 * @author scotchfield
-	 * @covers ::vimeo_shortcode
-	 * @since 3.2
+	 * Get different possible vimeo URL formats, and the expected URL.
 	 */
-	public function test_shortcodes_vimeo_width_height() {
-		$video_id = '141358';
-		$width    = '350';
-		$height   = '500';
-		$content  = '[vimeo ' . $video_id . ' width=' . $width . ' height=' . $height . ']';
-
-		$shortcode_content = do_shortcode( $content );
-
-		$this->assertStringContainsString( 'vimeo.com/video/' . $video_id, $shortcode_content );
-		$this->assertStringContainsString( 'width="' . $width . '"', $shortcode_content );
-		$this->assertStringContainsString( 'height="' . $height . '"', $shortcode_content );
+	public function get_vimeo_urls() {
+		return array(
+			'simple id'               => array(
+				'https://vimeo.com/6342264',
+				'6342264',
+			),
+			'unlisted video'          => array(
+				'https://vimeo.com/289091934/cd1f466bcc',
+				'289091934',
+			),
+			'video within a playlist' => array(
+				'https://vimeo.com/album/2838732/video/6342264',
+				'6342264',
+			),
+			'player URL'              => array(
+				'http://player.vimeo.com/video/18427511',
+				'18427511',
+			),
+		);
 	}
 
 	/**
 	 * Test processing of vimeo URLs in post content.
 	 *
-	 * @author Toro_Unit
+	 * @dataProvider get_vimeo_urls
+	 *
 	 * @covers ::vimeo_shortcode
 	 * @since 3.9
+	 *
+	 * @param string $url      The URL to test.
+	 * @param string $video_id The expected video ID.
 	 */
-	public function test_replace_url_with_iframe_in_the_content() {
+	public function test_replace_url_with_iframe_in_the_content( $url, $video_id ) {
 		if ( defined( 'IS_WPCOM' ) && IS_WPCOM ) {
 			self::markTestSkipped( 'Embeds are handled by core on WordPress.com. See D27860-code' );
 			return;
@@ -134,9 +183,7 @@ class WP_Test_Jetpack_Shortcodes_Vimeo extends WP_UnitTestCase {
 
 		global $post;
 
-		$video_id = '141358';
-		$url      = 'http://vimeo.com/' . $video_id;
-		$post     = $this->factory->post->create_and_get( array( 'post_content' => $url ) );
+		$post = $this->factory->post->create_and_get( array( 'post_content' => $url ) );
 
 		do_action( 'init' );
 		setup_postdata( $post );
@@ -154,6 +201,8 @@ class WP_Test_Jetpack_Shortcodes_Vimeo extends WP_UnitTestCase {
 	}
 
 	/**
+	 * Test replacing vimeo content in comments.
+	 *
 	 * @author Automattic
 	 * @covers ::vimeo_shortcode
 	 * @since 4.0.0
@@ -185,87 +234,45 @@ class WP_Test_Jetpack_Shortcodes_Vimeo extends WP_UnitTestCase {
 		// $this->assertStringContainsString( $url_link, $mixed );
 	}
 
-	public function test_shortcodes_vimeo_autoplay_loop() {
-		$video_id = '141358';
-		$autoplay = '1';
-		$loop     = '1';
-		$content  = '[vimeo ' . $video_id . ' autoplay=' . $autoplay . ' loop=' . $loop . ']';
-
-		$shortcode_content = do_shortcode( $content );
-
-		$this->assertStringContainsString( 'vimeo.com/video/' . $video_id, $shortcode_content );
-		$this->assertStringContainsString( 'loop=' . $loop, $shortcode_content );
-		$this->assertStringContainsString( 'autoplay=' . $autoplay, $shortcode_content );
+	/**
+	 * Get different types of embed codes and the expected shortcode output.
+	 */
+	public function get_embed_to_shortcode_data() {
+		return array(
+			'http iFrame'                  => array(
+				'<iframe src="http://player.vimeo.com/video/18427511" width="400" height="225" frameborder="0"></iframe><p><a href="http://vimeo.com/18427511">Eskmo \'We Got More\' (Official Video)</a> from <a href="http://vimeo.com/ninjatune">Ninja Tune</a> on <a href="http://vimeo.com">Vimeo</a>.</p>',
+				'[vimeo 18427511 w=400 h=225]<p><a href="http://vimeo.com/18427511">Eskmo \'We Got More\' (Official Video)</a> from <a href="http://vimeo.com/ninjatune">Ninja Tune</a> on <a href="http://vimeo.com">Vimeo</a>.</p>',
+			),
+			'https iFrame'                 => array(
+				'<iframe src="https://player.vimeo.com/video/18427511" width="400" height="225" frameborder="0"></iframe><p><a href="http://vimeo.com/18427511">Eskmo \'We Got More\' (Official Video)</a> from <a href="http://vimeo.com/ninjatune">Ninja Tune</a> on <a href="http://vimeo.com">Vimeo</a>.</p>',
+				'[vimeo 18427511 w=400 h=225]<p><a href="http://vimeo.com/18427511">Eskmo \'We Got More\' (Official Video)</a> from <a href="http://vimeo.com/ninjatune">Ninja Tune</a> on <a href="http://vimeo.com">Vimeo</a>.</p>',
+			),
+			'no protocol'                  => array(
+				'<iframe src="//player.vimeo.com/video/81408697?byline=0&amp;badge=0&amp;color=ffffff" width="500" height="281" frameborder="0" webkitallowfullscreen mozallowfullscreen allowfullscreen></iframe><p><a href="http://vimeo.com/81408697">Partly Cloudy Redux</a> from <a href="http://vimeo.com/level1">Level 1</a> on <a href="https://vimeo.com">Vimeo</a>.</p>',
+				'[vimeo 81408697 w=500 h=281]<p><a href="http://vimeo.com/81408697">Partly Cloudy Redux</a> from <a href="http://vimeo.com/level1">Level 1</a> on <a href="https://vimeo.com">Vimeo</a>.</p>',
+			),
+			'iFrame without description'   => array(
+				'<iframe src="//player.vimeo.com/video/81408697?byline=0&amp;badge=0&amp;color=ffffff" width="500" height="281" frameborder="0" webkitallowfullscreen mozallowfullscreen allowfullscreen></iframe>',
+				'[vimeo 81408697 w=500 h=281]',
+			),
+			'simple iFrame, no extra data' => array(
+				'<iframe src="//player.vimeo.com/video/81408697"></iframe>',
+				'[vimeo 81408697]',
+			),
+		);
 	}
 
-	public function test_shortcodes_vimeo_autoplay_loop_off() {
-		$video_id = '141358';
-		$autoplay = '0';
-		$loop     = '0';
-		$content  = '[vimeo ' . $video_id . ' autoplay=' . $autoplay . ' loop=' . $loop . ']';
-
-		$shortcode_content = do_shortcode( $content );
-
-		$this->assertStringContainsString( 'vimeo.com/video/' . $video_id, $shortcode_content );
-		$this->assertStringNotContainsString( 'loop=' . $loop, $shortcode_content );
-		$this->assertStringNotContainsString( 'autoplay=' . $autoplay, $shortcode_content );
-	}
-
-	public function test_shortcodes_vimeo_old_args() {
-		$video_id = '141358';
-		$args     = 'h=500&w=350';
-		$content  = '[vimeo ' . $video_id . ' ' . $args . ']';
-
-		$shortcode_content = do_shortcode( $content );
-
-		$this->assertStringContainsString( 'vimeo.com/video/' . $video_id, $shortcode_content );
-		$this->assertStringContainsString( 'width="350"', $shortcode_content );
-		$this->assertStringContainsString( 'height="500"', $shortcode_content );
-	}
-
-	public function test_vimeo_embed_to_shortcode_1() {
-		$embed     = '<iframe src="http://player.vimeo.com/video/18427511" width="400" height="225" frameborder="0"></iframe><p><a href="http://vimeo.com/18427511">Eskmo \'We Got More\' (Official Video)</a> from <a href="http://vimeo.com/ninjatune">Ninja Tune</a> on <a href="http://vimeo.com">Vimeo</a>.</p>';
-		$shortcode = vimeo_embed_to_shortcode( $embed );
-
-		$expected_shortcode = '[vimeo 18427511 w=400 h=225]<p><a href="http://vimeo.com/18427511">Eskmo \'We Got More\' (Official Video)</a> from <a href="http://vimeo.com/ninjatune">Ninja Tune</a> on <a href="http://vimeo.com">Vimeo</a>.</p>';
-
-		$this->assertEquals( $expected_shortcode, $shortcode );
-	}
-
-	function test_vimeo_embed_to_shortcode_2() {
-		$embed     = '<iframe src="https://player.vimeo.com/video/18427511" width="400" height="225" frameborder="0"></iframe><p><a href="http://vimeo.com/18427511">Eskmo \'We Got More\' (Official Video)</a> from <a href="http://vimeo.com/ninjatune">Ninja Tune</a> on <a href="http://vimeo.com">Vimeo</a>.</p>';
-		$shortcode = vimeo_embed_to_shortcode( $embed );
-
-		$expected_shortcode = '[vimeo 18427511 w=400 h=225]<p><a href="http://vimeo.com/18427511">Eskmo \'We Got More\' (Official Video)</a> from <a href="http://vimeo.com/ninjatune">Ninja Tune</a> on <a href="http://vimeo.com">Vimeo</a>.</p>';
-
-		$this->assertEquals( $expected_shortcode, $shortcode );
-	}
-
-	function test_vimeo_embed_to_shortcode_3() {
-		$embed     = '<iframe src="//player.vimeo.com/video/81408697?byline=0&amp;badge=0&amp;color=ffffff" width="500" height="281" frameborder="0" webkitallowfullscreen mozallowfullscreen allowfullscreen></iframe><p><a href="http://vimeo.com/81408697">Partly Cloudy Redux</a> from <a href="http://vimeo.com/level1">Level 1</a> on <a href="https://vimeo.com">Vimeo</a>.</p>';
-		$shortcode = vimeo_embed_to_shortcode( $embed );
-
-		$expected_shortcode = '[vimeo 81408697 w=500 h=281]<p><a href="http://vimeo.com/81408697">Partly Cloudy Redux</a> from <a href="http://vimeo.com/level1">Level 1</a> on <a href="https://vimeo.com">Vimeo</a>.</p>';
-
-		$this->assertEquals( $expected_shortcode, $shortcode );
-	}
-
-	function test_vimeo_embed_to_shortcode_4() {
-		$embed     = '<iframe src="//player.vimeo.com/video/81408697?byline=0&amp;badge=0&amp;color=ffffff" width="500" height="281" frameborder="0" webkitallowfullscreen mozallowfullscreen allowfullscreen></iframe>';
-		$shortcode = vimeo_embed_to_shortcode( $embed );
-
-		$expected_shortcode = '[vimeo 81408697 w=500 h=281]';
-
-		$this->assertEquals( $expected_shortcode, $shortcode );
-	}
-
-	function test_vimeo_embed_to_shortcode_5() {
-		$embed     = '<iframe src="//player.vimeo.com/video/81408697"></iframe>';
-		$shortcode = vimeo_embed_to_shortcode( $embed );
-
-		$expected_shortcode = '[vimeo 81408697]';
-
-		$this->assertEquals( $expected_shortcode, $shortcode );
+	/**
+	 * Test that the embed code is converted to a shortcode.
+	 *
+	 * @dataProvider get_embed_to_shortcode_data
+	 *
+	 * @param string $embed_code The embed code to test.
+	 * @param string $expected The expected shortcode output.
+	 */
+	public function test_vimeo_embed_to_shortcode_1( $embed_code, $expected ) {
+		$shortcode = vimeo_embed_to_shortcode( $embed_code );
+		$this->assertEquals( $expected, $shortcode );
 	}
 
 	/**
@@ -273,7 +280,7 @@ class WP_Test_Jetpack_Shortcodes_Vimeo extends WP_UnitTestCase {
 	 *
 	 * @return array An associative array of test data.
 	 */
-	public function get_vimeo_shortcode_data() {
+	public function get_amp_vimeo_shortcode_data() {
 		return array(
 			'empty_attr_array'           => array(
 				array(),
@@ -297,7 +304,7 @@ class WP_Test_Jetpack_Shortcodes_Vimeo extends WP_UnitTestCase {
 	/**
 	 * Tests that the Vimeo shortcode filter produces the right HTML.
 	 *
-	 * @dataProvider get_vimeo_shortcode_data
+	 * @dataProvider get_amp_vimeo_shortcode_data
 	 *
 	 * @param array  $attr The shortcode attributes.
 	 * @param string $expected The expected return value.
@@ -383,7 +390,7 @@ class WP_Test_Jetpack_Shortcodes_Vimeo extends WP_UnitTestCase {
 	 * @param array $attr The shortcode attributes.
 	 * @param array $expected The expected dimensions.
 	 */
-	function test_jetpack_shortcode_get_vimeo_dimensions_no_global_content_width( $attr, $expected ) {
+	public function test_jetpack_shortcode_get_vimeo_dimensions_no_global_content_width( $attr, $expected ) {
 		unset( $GLOBALS['content_width'] );
 		$this->assertEquals( $expected, jetpack_shortcode_get_vimeo_dimensions( $attr ) );
 	}
@@ -393,7 +400,7 @@ class WP_Test_Jetpack_Shortcodes_Vimeo extends WP_UnitTestCase {
 	 *
 	 * @covers ::jetpack_shortcode_get_vimeo_dimensions()
 	 */
-	function test_jetpack_shortcode_get_vimeo_dimensions_with_global_content_width() {
+	public function test_jetpack_shortcode_get_vimeo_dimensions_with_global_content_width() {
 		$width                    = 500;
 		$height                   = 281;
 		$GLOBALS['content_width'] = $width;

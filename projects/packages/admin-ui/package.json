@@ -1,7 +1,7 @@
 {
 	"private": true,
 	"name": "@automattic/jetpack-admin-ui",
-	"version": "0.2.0",
+	"version": "0.2.1-alpha",
 	"description": "Generic Jetpack wp-admin UI elements",
 	"homepage": "https://jetpack.com",
 	"bugs": {
@@ -25,7 +25,7 @@
 	"devDependencies": {},
 	"engines": {
 		"node": "^14.17.6 || ^16.7.0",
-		"pnpm": "^6.5.0",
+		"pnpm": "^6.23.6",
 		"yarn": "use pnpm instead - see docs/yarn-upgrade.md"
 	}
 }

@@ -2,13 +2,21 @@
  * External dependencies
  */
 import React from 'react';
+import { renderHook } from '@testing-library/react-hooks';
+import { useSelect } from '@wordpress/data';
 import { expect } from 'chai';
 import { shallow } from 'enzyme';
+import sinon from 'sinon';
 
 /**
  * Internal dependencies
  */
 import ConnectionStatusCard from '../index';
+import { STORE_ID } from '../../../state/store';
+
+let stubGetConnectionStatus;
+let storeSelect;
+let wrapper;
 
 // TODO Mock requests with dummy data.
 describe( 'ConnectionStatusCard', () => {
@@ -16,12 +24,23 @@ describe( 'ConnectionStatusCard', () => {
 		apiNonce: 'test',
 		apiRoot: 'https://example.org/wp-json/',
 		redirectUri: 'https://example.org',
-		isRegistered: true,
-		isUserConnected: false,
 	};
 
+	before( () => {
+		renderHook( () => useSelect( select => ( storeSelect = select( STORE_ID ) ) ) );
+		stubGetConnectionStatus = sinon.stub( storeSelect, 'getConnectionStatus' );
+	} );
+
+	after( function () {
+		storeSelect.getConnectionStatus.restore();
+	} );
+
 	describe( 'When the user has not connected their WordPress.com account', () => {
-		const wrapper = shallow( <ConnectionStatusCard { ...testProps } /> );
+		beforeEach( () => {
+			stubGetConnectionStatus.reset();
+			stubGetConnectionStatus.returns( { isRegistered: true, isUserConnected: false } );
+			wrapper = shallow( <ConnectionStatusCard { ...testProps } /> );
+		} );
 
 		it( 'renders the title', () => {
 			expect( wrapper.find( 'h3' ).first().render().text() ).to.be.equal( 'Connection' );
@@ -57,9 +76,11 @@ describe( 'ConnectionStatusCard', () => {
 	} );
 
 	describe( 'When the user has connected their WordPress.com account', () => {
-		const wrapper = shallow( <ConnectionStatusCard { ...testProps } /> );
-
-		wrapper.setProps( { isUserConnected: true } );
+		beforeEach( () => {
+			stubGetConnectionStatus.reset();
+			stubGetConnectionStatus.returns( { isRegistered: true, isUserConnected: true } );
+			wrapper = shallow( <ConnectionStatusCard { ...testProps } /> );
+		} );
 
 		it( 'renders the title', () => {
 			expect( wrapper.find( 'h3' ).first().render().text() ).to.be.equal( 'Connection' );

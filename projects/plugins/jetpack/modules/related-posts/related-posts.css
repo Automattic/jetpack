@@ -315,3 +315,13 @@
 		margin-right: 0;
 	}
 }
+
+/*
+ * Hide the related post section in the print view of a post
+ */
+
+@media print {
+	.jp-relatedposts {
+		display:none !important;
+	}
+}

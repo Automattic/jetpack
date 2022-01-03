@@ -1,0 +1,4 @@
+Significance: patch
+Type: changed
+
+Drop isRegistered and isUserConnected params from ConnectionStatusCard component

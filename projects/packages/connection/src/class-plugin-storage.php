@@ -138,7 +138,7 @@ class Plugin_Storage {
 	 */
 	private static function ensure_configured() {
 		if ( ! self::$configured ) {
-			return new WP_Error( 'too_early', __( 'You cannot call this method until Jetpack Config is configured', 'jetpack' ) );
+			return new WP_Error( 'too_early', __( 'You cannot call this method until Jetpack Config is configured', 'jetpack-connection' ) );
 		}
 
 		if ( is_multisite() && get_current_blog_id() !== self::$current_blog_id ) {

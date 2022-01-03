@@ -51,6 +51,10 @@ const schema = {
 			description: 'Set true to produce warnings rather than errors.',
 			type: 'boolean',
 		},
+		expectDomain: {
+			description: 'Set the expected text domain.',
+			type: 'string',
+		},
 		extractorOptions: {
 			description: 'Options for the extractor. Ignored if `extractor` was specified.',
 			type: 'object',
@@ -89,6 +93,7 @@ class I18nCheckPlugin {
 	#extractor;
 	#filter;
 	#reportkey;
+	#expectDomain;
 
 	constructor( options = {} ) {
 		webpack.validateSchema( schema, options, {
@@ -98,6 +103,7 @@ class I18nCheckPlugin {
 
 		this.#extractor = new GettextExtractor( options.extractorOptions );
 		this.#reportkey = options.warnOnly ? 'warnings' : 'errors';
+		this.#expectDomain = options.expectDomain;
 
 		if ( options.filter ) {
 			const filters = ( Array.isArray( options.filter ) ? options.filter : [ options.filter ] ).map(
@@ -332,6 +338,13 @@ class I18nCheckPlugin {
 				new Error(
 					// prettier-ignore
 					`${ filename }: Multiple textdomains are used: ${ Array.from( domains, JSON.stringify ).sort().join( ', ' ) }\nYou may want to use @automattic/babel-plugin-replace-textdomain to fix that.`
+				)
+			);
+		} else if ( this.#expectDomain && domains.size > 0 && ! domains.has( this.#expectDomain ) ) {
+			compilation[ this.#reportkey ].push(
+				new Error(
+					// prettier-ignore
+					`${ filename }: Expected textdomain ${ JSON.stringify( this.#expectDomain ) }, but the asset uses ${ Array.from( domains, JSON.stringify )[ 0 ] } instead.\nYou may want to use @automattic/babel-plugin-replace-textdomain to fix that.`
 				)
 			);
 		}
