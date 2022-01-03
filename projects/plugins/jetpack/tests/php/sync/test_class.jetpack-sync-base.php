@@ -59,6 +59,11 @@ class WP_Test_Jetpack_Sync_Base extends WP_UnitTestCase {
 
 		$this->server_event_storage = new Jetpack_Sync_Server_Eventstore();
 		$this->server_event_storage->init();
+
+		// Set a blog token and id so the site is connected.
+		\Jetpack_Options::update_option( 'blog_token', 'asdasd.123123' );
+		\Jetpack_Options::update_option( 'id', 1234 );
+
 	}
 
 	/**
@@ -67,6 +72,9 @@ class WP_Test_Jetpack_Sync_Base extends WP_UnitTestCase {
 	public function tear_down() {
 		parent::tear_down();
 		unset( $_SERVER['HTTP_USER_AGENT'] );
+
+		\Jetpack_Options::delete_option( 'blog_token' );
+		\Jetpack_Options::delete_option( 'id' );
 	}
 
 	public function setSyncClientDefaults() {
