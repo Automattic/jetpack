@@ -379,6 +379,7 @@ class Assets {
 			self::instance()->add_async_script( $handle );
 		}
 		if ( $options['textdomain'] ) {
+			// phpcs:ignore Jetpack.Functions.I18n.DomainNotLiteral
 			wp_set_script_translations( $handle, $options['textdomain'] );
 		} elseif ( in_array( 'wp-i18n', $options['dependencies'], true ) ) {
 			_doing_it_wrong(
