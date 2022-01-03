@@ -70,17 +70,21 @@ export class PluginDashItem extends Component {
 			feature: pluginSlug,
 		} );
 
-		return restApi
-			.installPlugin( pluginSlug, 'active' )
-			.then( () => {
-				return fetchPluginsData();
-			} )
-			.finally( () => {
-				this.setState( {
-					isActivating: false,
-					isInstalling: false,
-				} );
-			} );
+		return (
+			restApi
+				.installPlugin( pluginSlug, 'active' )
+				// take a little break to avoid any race conditions with plugin data being updated
+				.then( () => new Promise( resolve => setTimeout( resolve, 2500 ) ) )
+				.then( () => {
+					return fetchPluginsData();
+				} )
+				.finally( () => {
+					this.setState( {
+						isActivating: false,
+						isInstalling: false,
+					} );
+				} )
+		);
 	};
 
 	renderContent() {
