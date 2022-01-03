@@ -27,7 +27,7 @@ class DashBoost extends Component {
 			<PluginDashItem
 				iconAlt={ __( 'Plugin icon', 'jetpack' ) }
 				iconSrc={ boostSvgUrl }
-				pluginName={ __( 'Boost', 'jetpack' ) }
+				pluginName={ _x( 'Boost', 'The Jetpack Boost product name, without the Jetpack prefix', 'jetpack' ) }
 				pluginFile={ BOOST_PLUGIN_FILE }
 				pluginSlug={ BOOST_PLUGIN_SLUG }
 				pluginLink={ BOOST_PLUGIN_DASH }
