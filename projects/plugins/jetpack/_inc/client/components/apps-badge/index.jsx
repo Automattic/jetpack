@@ -4,7 +4,6 @@
 
 import PropTypes from 'prop-types';
 import React, { PureComponent } from 'react';
-import { connect } from 'react-redux';
 import { startsWith } from 'lodash';
 import classNames from 'classnames';
 import { __ } from '@wordpress/i18n';
@@ -14,12 +13,11 @@ import { __ } from '@wordpress/i18n';
  */
 import { getUserLocale as getLocaleSlug } from 'lib/locale';
 import { imagePath } from 'constants/urls';
-import analytics from 'lib/analytics';
 
 /**
  * Style dependencies
  */
-import './apps-badge.scss';
+import './style.scss';
 
 // the locale slugs for each stores' image paths follow different rules
 // therefore we have to perform some trickery in getLocaleSlug()
@@ -65,6 +63,7 @@ class AppsBadge extends PureComponent {
 		storeLink: PropTypes.string,
 		storeName: PropTypes.oneOf( [ 'ios', 'android' ] ).isRequired,
 		titleText: PropTypes.string,
+		onBadgeClick: PropTypes.func,
 		utm_source: PropTypes.string.isRequired,
 		utm_campaign: PropTypes.string,
 		utm_medium: PropTypes.string,
@@ -117,12 +116,7 @@ class AppsBadge extends PureComponent {
 	};
 
 	onLinkClick = () => {
-		analytics.tracks.record;
-		const { storeName } = this.props;
-		analytics.tracks.recordEvent( 'jetpack_recommendations_summary_sidebar_click', {
-			type: 'mobile_app_badge',
-			store: storeName,
-		} );
+		this.props.onBadgeClick( this.props.storeName );
 	};
 
 	render() {
@@ -137,7 +131,7 @@ class AppsBadge extends PureComponent {
 		} = this.props;
 		const { imageSrc, hasExternalImageLoaded } = this.state;
 
-		const figureClassNames = classNames( 'jp-recommendations__app-badge', {
+		const figureClassNames = classNames( 'apps-badge', {
 			[ `${ storeName }-app-badge` ]: true,
 			'is-external-image': hasExternalImageLoaded,
 		} );
@@ -165,4 +159,4 @@ class AppsBadge extends PureComponent {
 	}
 }
 
-export default connect( null, null )( AppsBadge );
+export default AppsBadge;
