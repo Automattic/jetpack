@@ -12,7 +12,7 @@ import React from 'react';
 import './style.scss';
 
 const PrimaryLink = props => {
-	const { currentRecommendationsStep } = props;
+	const { currentRecommendationsStep, siteAdminUrl } = props;
 
 	const buttonLabel =
 		currentRecommendationsStep !== 'not-started'
@@ -21,8 +21,8 @@ const PrimaryLink = props => {
 
 	const buttonLink =
 		currentRecommendationsStep !== 'not-started'
-			? '/wp-admin/admin.php?page=jetpack#/my-plan'
-			: '/wp-admin/admin.php?page=jetpack#/recommendations';
+			? siteAdminUrl + 'admin.php?page=jetpack#/my-plan'
+			: siteAdminUrl + 'admin.php?page=jetpack#/recommendations';
 
 	return (
 		<Button className="jp-license-activation-screen-success-info--button" href={ buttonLink }>
@@ -32,6 +32,7 @@ const PrimaryLink = props => {
 };
 
 PrimaryLink.propTypes = {
+	siteAdminUrl: PropTypes.string,
 	currentRecommendationsStep: PropTypes.string,
 };
 

@@ -57,6 +57,7 @@ const parseAttachLicensesResult = result => {
  * @param {string} props.siteRawUrl -- url of the Jetpack Site
  * @param {string?} props.startingLicense -- pre-fill the license value
  * @param {string} props.successImage -- Image to display within the illustration.
+ * @param {string} props.siteAdminUrl -- URL of the Jetpack Site Admin
  * @param {string} props.currentRecommendationsStep -- The current recommendation step.
  * @returns {React.Component} The `ActivationScreen` component.
  */
@@ -68,6 +69,7 @@ const ActivationScreen = props => {
 		siteRawUrl,
 		startingLicense,
 		successImage,
+		siteAdminUrl,
 		currentRecommendationsStep,
 	} = props;
 
@@ -108,6 +110,7 @@ const ActivationScreen = props => {
 			<ActivationScreenSuccessInfo
 				siteRawUrl={ siteRawUrl }
 				productId={ activatedProduct }
+				siteAdminUrl={ siteAdminUrl }
 				currentRecommendationsStep={ currentRecommendationsStep }
 			/>
 			<ActivationScreenIllustration
@@ -141,6 +144,7 @@ ActivationScreen.propTypes = {
 	siteRawUrl: PropTypes.string.isRequired,
 	startingLicense: PropTypes.string,
 	successImage: PropTypes.string.isRequired,
+	siteAdminUrl: PropTypes.string.isRequired,
 	currentRecommendationsStep: PropTypes.string,
 };
 

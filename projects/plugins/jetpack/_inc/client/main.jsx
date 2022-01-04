@@ -478,6 +478,7 @@ class Main extends React.Component {
 							siteRawUrl={ this.props.siteRawUrl }
 							successImage="/images/jetpack-license-activation-with-success.png"
 							onActivationSuccess={ this.onLicenseActivationSuccess }
+							siteAdminUrl={ this.props.siteAdminUrl }
 							currentRecommendationsStep={ this.props.currentRecommendationsStep }
 						/>
 					);

@@ -23,11 +23,12 @@ import './style.scss';
  * @param {object} props -- The properties.
  * @param {number} props.productId -- The id of the product activated
  * @param {string} props.siteRawUrl -- The url of the site
- * @param {string} props.currentRecommendationsStep -- The current recommendation step.
+ * @param {string} props.siteAdminUrl -- URL of the Jetpack Site Admin
+ * @param {string} props.currentRecommendationsStep -- The current recommendation step
  * @returns {React.Component} The `ActivationSuccessInfo` component.
  */
 const ActivationSuccessInfo = props => {
-	const { productId, siteRawUrl, currentRecommendationsStep } = props;
+	const { productId, siteRawUrl, siteAdminUrl, currentRecommendationsStep } = props;
 	return (
 		<div className="jp-license-activation-screen-success-info">
 			<div className="jp-license-activation-screen-success-info--content">
@@ -35,7 +36,10 @@ const ActivationSuccessInfo = props => {
 			</div>
 			<JetpackProductDetails siteRawUrl={ siteRawUrl } productId={ productId } />
 			<div className="jp-license-activation-screen-success-info--buttons">
-				<PrimaryLink currentRecommendationsStep={ currentRecommendationsStep } />
+				<PrimaryLink
+					currentRecommendationsStep={ currentRecommendationsStep }
+					siteAdminUrl={ siteAdminUrl }
+				/>
 				<ProductLink siteRawUrl={ siteRawUrl } productId={ productId } />
 			</div>
 		</div>
@@ -45,6 +49,7 @@ const ActivationSuccessInfo = props => {
 ActivationSuccessInfo.propTypes = {
 	siteRawUrl: PropTypes.string,
 	productId: PropTypes.number,
+	siteAdminUrl: PropTypes.string,
 	currentRecommendationsStep: PropTypes.string,
 };
 
