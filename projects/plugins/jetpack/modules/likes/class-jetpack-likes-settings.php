@@ -1,9 +1,21 @@
 <?php
+/**
+ * Module Name: Jetpack Likes
+ *
+ * @package automattic/jetpack
+ */
 
 use Automattic\Jetpack\Sync\Settings;
 
+/**
+ * The Jetpack_Likes_Settings class
+ */
 class Jetpack_Likes_Settings {
-	function __construct() {
+
+	/**
+	 * The Constructor
+	 */
+	public function __construct() {
 		$this->in_jetpack = ! ( defined( 'IS_WPCOM' ) && IS_WPCOM );
 	}
 
@@ -44,16 +56,18 @@ class Jetpack_Likes_Settings {
 		 * @param string Likes metabox title. Default to "Likes".
 		 */
 		$title = apply_filters( 'likes_meta_box_title', __( 'Likes', 'jetpack' ) );
-		foreach( $post_types as $post_type ) {
+		foreach ( $post_types as $post_type ) {
 			add_meta_box( 'likes_meta', $title, array( $this, 'meta_box_content' ), $post_type, 'side', 'default', array( '__back_compat_meta_box' => true ) );
 		}
 	}
 
 	/**
 	 * Shows the likes option in the post screen metabox.
+	 *
+	 * @param object $post the corresponding post.
 	 */
 	public function meta_box_content( $post ) {
-		$post_id = ! empty( $post->ID ) ? (int) $post->ID : get_the_ID();
+		$post_id         = ! empty( $post->ID ) ? (int) $post->ID : get_the_ID();
 		$checked         = true;
 		$disabled        = ! $this->is_enabled_sitewide();
 		$switched_status = get_post_meta( $post_id, 'switch_like_status', true );
@@ -80,7 +94,8 @@ class Jetpack_Likes_Settings {
 				<?php esc_html_e( 'Show likes.', 'jetpack' ); ?>
 			</label>
 			<input type="hidden" name="wpl_like_status_hidden" value="1" />
-		</p> <?php
+		</p> 
+		<?php
 		/**
 		 * Fires after the Likes meta box content in the post editor.
 		 *
@@ -95,6 +110,7 @@ class Jetpack_Likes_Settings {
 
 	/**
 	 * Returns the current state of the "WordPress.com Likes are" option.
+	 *
 	 * @return boolean true if enabled sitewide, false if not
 	 */
 	public function is_enabled_sitewide() {
@@ -112,7 +128,7 @@ class Jetpack_Likes_Settings {
 	}
 
 	public function meta_box_save( $post_id ) {
-		if ( defined('DOING_AUTOSAVE') && DOING_AUTOSAVE ) {
+		if ( defined( 'DOING_AUTOSAVE' ) && DOING_AUTOSAVE ) {
 			return $post_id;
 		}
 
@@ -120,7 +136,7 @@ class Jetpack_Likes_Settings {
 			return $post_id;
 		}
 
-		// Record sharing disable. Only needs to be done for WPCOM
+		// Record sharing disable. Only needs to be done for WPCOM.
 		if ( ! $this->in_jetpack ) {
 			if ( isset( $_POST['post_type'] ) && in_array( $_POST['post_type'], get_post_types( array( 'public' => true ) ) ) ) {
 				if ( ! isset( $_POST['wpl_enable_post_sharing'] ) ) {
@@ -131,8 +147,8 @@ class Jetpack_Likes_Settings {
 			}
 		}
 
-		if ( 'post' == $_POST['post_type'] ) {
-			if ( !current_user_can( 'edit_post', $post_id ) ) {
+		if ( 'post' === $_POST['post_type'] ) {
+			if ( ! current_user_can( 'edit_post', $post_id ) ) {
 				return $post_id;
 			}
 		}
@@ -140,12 +156,12 @@ class Jetpack_Likes_Settings {
 		// Record a change in like status for this post - only if it contradicts the
 		// site like setting. If it doesn't contradict, then we delete the new individual status.
 		if ( ! $this->is_enabled_sitewide() && ! empty( $_POST['wpl_enable_post_likes'] ) ) {
-			// Likes turned on for individual posts. User wants to add the button to a single post
+			// Likes turned on for individual posts. User wants to add the button to a single post.
 			update_post_meta( $post_id, 'switch_like_status', 1 );
-		} else if ( $this->is_enabled_sitewide() && empty( $_POST['wpl_enable_post_likes'] ) ) {
-			// Likes turned on for all posts. User wants to remove the button from a single post
+		} elseif ( $this->is_enabled_sitewide() && empty( $_POST['wpl_enable_post_likes'] ) ) {
+			// Likes turned on for all posts. User wants to remove the button from a single post.
 			update_post_meta( $post_id, 'switch_like_status', 0 );
-		} else if (
+		} elseif (
 			( ! $this->is_enabled_sitewide() && empty( $_POST['wpl_enable_post_likes'] ) ) ||
 			( $this->is_enabled_sitewide() && ! empty( $_POST['wpl_enable_post_likes'] ) )
 		) {
@@ -162,22 +178,24 @@ class Jetpack_Likes_Settings {
 	 * WordPress.com: Metabox option for sharing (sharedaddy will handle this on the JP blog)
 	 */
 	public function sharing_meta_box_content( $post ) {
-		$post_id = ! empty( $post->ID ) ? (int) $post->ID : get_the_ID();
-		$disabled = get_post_meta( $post_id, 'sharing_disabled', true ); ?>
+		$post_id  = ! empty( $post->ID ) ? (int) $post->ID : get_the_ID();
+		$disabled = get_post_meta( $post_id, 'sharing_disabled', true );
+		?>
 		<p>
 			<label for="wpl_enable_post_sharing">
 				<input type="checkbox" name="wpl_enable_post_sharing" id="wpl_enable_post_sharing" value="1" <?php checked( ! $disabled ); ?>>
 				<?php _e( 'Show sharing buttons.', 'jetpack' ); ?>
 			</label>
 			<input type="hidden" name="wpl_sharing_status_hidden" value="1" />
-		</p> <?php
+		</p> 
+		<?php
 	}
 
 	/**
 	 * Adds the 'sharing' menu to the settings menu.
 	 * Only ran if sharedaddy and publicize are not already active.
 	 */
-	function sharing_menu() {
+	public function sharing_menu() {
 		add_submenu_page( 'options-general.php', esc_html__( 'Sharing Settings', 'jetpack' ), esc_html__( 'Sharing', 'jetpack' ), 'manage_options', 'sharing', array( $this, 'sharing_page' ) );
 	}
 
@@ -186,8 +204,9 @@ class Jetpack_Likes_Settings {
 	 * so we can display the setting.
 	 * Only ran if sharedaddy and publicize are not already active.
 	 */
-	function sharing_page() {
-		$this->updated_message(); ?>
+	public function sharing_page() {
+		$this->updated_message();
+		?>
 		<div class="wrap">
 			<div class="icon32" id="icon-options-general"><br /></div>
 			<h1><?php esc_html_e( 'Sharing Settings', 'jetpack' ); ?></h1>
@@ -196,14 +215,15 @@ class Jetpack_Likes_Settings {
 			do_action( 'pre_admin_screen_sharing' );
 			?>
 			<?php $this->sharing_block(); ?>
-		</div> <?php
+		</div> 
+		<?php
 	}
 
 	/**
 	 * Returns the settings have been saved message.
 	 */
-	function updated_message() {
-		if ( isset( $_GET['update'] ) && $_GET['update'] == 'saved' ){
+	public function updated_message() {
+		if ( isset( $_GET['update'] ) && 'saved' === $_GET['update'] ) {
 			echo '<div class="updated"><p>' . esc_html__( 'Settings have been saved', 'jetpack' ) . '</p></div>';
 		}
 	}
@@ -211,7 +231,8 @@ class Jetpack_Likes_Settings {
 	/**
 	 * Returns just the "sharing buttons" w/ like option block, so it can be inserted into different sharing page contexts
 	 */
-	function sharing_block() { ?>
+	public function sharing_block() {
+		?>
 		<h2><?php esc_html_e( 'Sharing Buttons', 'jetpack' ); ?></h2>
 		<form method="post" action="">
 			<table class="form-table">
@@ -227,17 +248,18 @@ class Jetpack_Likes_Settings {
 				<input type="submit" name="submit" class="button-primary" value="<?php esc_attr_e( 'Save Changes', 'jetpack' ); ?>" />
 			</p>
 
-			<input type="hidden" name="_wpnonce" value="<?php echo wp_create_nonce( 'sharing-options' );?>" />
-		</form> <?php
+			<input type="hidden" name="_wpnonce" value="<?php echo wp_create_nonce( 'sharing-options' ); ?>" />
+		</form> 
+		<?php
 	}
 
 	/**
 	 * Are likes enabled for this post?
 	 *
-	 * @param int $post_id
+	 * @param int $post_id the id of the post.
 	 * @return bool
 	 */
-	function is_post_likeable( $post_id = 0 ) {
+	public function is_post_likeable( $post_id = 0 ) {
 		$post = get_post( $post_id );
 		if ( ! $post || is_wp_error( $post ) ) {
 			return false;
@@ -264,7 +286,7 @@ class Jetpack_Likes_Settings {
 		 */
 		$last_modified_time = strtotime( $post->post_modified_gmt );
 
-		$behavior_was_changed_at = strtotime( "2019-02-22 00:40:42" );
+		$behavior_was_changed_at = strtotime( '2019-02-22 00:40:42' );
 
 		if ( $this->in_jetpack || $last_modified_time > $behavior_was_changed_at ) {
 			/*
@@ -304,7 +326,7 @@ class Jetpack_Likes_Settings {
 	 * Some of this code was taken and modified from sharing_display() to ensure
 	 * similar logic and filters apply here, too.
 	 */
-	function is_likes_visible() {
+	public function is_likes_visible() {
 		if ( Settings::is_syncing() ) {
 			return false;
 		}
@@ -362,12 +384,12 @@ class Jetpack_Likes_Settings {
 
 		if ( $post instanceof WP_Post ) {
 			// Check that the post is a public, published post.
-			if ( 'attachment' == $post->post_type ) {
+			if ( 'attachment' === $post->post_type ) {
 				$post_status = get_post_status( $post->post_parent );
 			} else {
 				$post_status = $post->post_status;
 			}
-			if ( 'publish' != $post_status ) {
+			if ( 'publish' !== $post_status ) {
 				$enabled = false;
 			}
 		}
@@ -392,10 +414,10 @@ class Jetpack_Likes_Settings {
 	/**
 	 * Are Post Likes enabled on single posts?
 	 *
-	 * @param String $post_type custom post type identifier
+	 * @param String $post_type custom post type identifier.
 	 * @return bool
 	 */
-	function is_single_post_enabled( $post_type = 'post' ) {
+	public function is_single_post_enabled( $post_type = 'post' ) {
 		$options = $this->get_options();
 		return (bool) apply_filters(
 		/**
@@ -419,9 +441,9 @@ class Jetpack_Likes_Settings {
 	 *
 	 * @return array
 	 */
-	function get_options() {
+	public function get_options() {
 		$setting             = array();
-		$setting['disabled'] = get_option( 'disabled_likes'  );
+		$setting['disabled'] = get_option( 'disabled_likes' );
 		$sharing             = get_option( 'sharing-options', array() );
 
 		// Default visibility settings
@@ -431,13 +453,13 @@ class Jetpack_Likes_Settings {
 			// Scalar check
 		} elseif ( is_scalar( $sharing['global']['show'] ) ) {
 			switch ( $sharing['global']['show'] ) {
-				case 'posts' :
+				case 'posts':
 					$sharing['global']['show'] = array( 'post', 'page' );
 					break;
-				case 'index' :
+				case 'index':
 					$sharing['global']['show'] = array( 'index' );
 					break;
-				case 'posts-index' :
+				case 'posts-index':
 					$sharing['global']['show'] = array( 'post', 'page', 'index' );
 					break;
 			}
@@ -463,7 +485,7 @@ class Jetpack_Likes_Settings {
 	 *
 	 * @return bool
 	 */
-	function is_index_enabled() {
+	public function is_index_enabled() {
 		$options = $this->get_options();
 		/**
 		 * Filters whether Likes should be enabled on archive/front/search pages.
@@ -482,7 +504,7 @@ class Jetpack_Likes_Settings {
 	 *
 	 * @return bool
 	 */
-	function is_single_page_enabled() {
+	public function is_single_page_enabled() {
 		$options = $this->get_options();
 		/**
 		 * Filters whether Likes should be enabled on single pages.
@@ -501,7 +523,7 @@ class Jetpack_Likes_Settings {
 	 *
 	 * @return bool
 	 */
-	function is_attachment_enabled() {
+	public function is_attachment_enabled() {
 		$options = $this->get_options();
 		/**
 		 * Filters whether Likes should be enabled on attachment pages.
@@ -518,7 +540,7 @@ class Jetpack_Likes_Settings {
 	/**
 	 * The actual options block to be inserted into the sharing page.
 	 */
-	function admin_settings_init() {
+	public function admin_settings_init() {
 		?>
 		<tr>
 			<th scope="row">
@@ -577,11 +599,12 @@ class Jetpack_Likes_Settings {
 			<?php endif; ?>
 		<?php endif; ?>
 		</tbody> <?php // closes the tbody attached to sharing_show_buttons_on_row_start... ?>
-	<?php
+		<?php
 	}
 
 	/**
 	 * Returns the current state of the "WordPress.com Reblogs are" option.
+	 *
 	 * @return boolean true if enabled sitewide, false if not
 	 */
 	function reblogs_enabled_sitewide() {
@@ -601,9 +624,10 @@ class Jetpack_Likes_Settings {
 	/**
 	 * Used for WPCOM ONLY. Comment likes are in their own module in Jetpack.
 	 * Returns if comment likes are enabled. Defaults to 'off'
+	 *
 	 * @return boolean true if we should show comment likes, false if not
 	 */
-	function is_comments_enabled() {
+	public function is_comments_enabled() {
 		/**
 		 * Filters whether Comment Likes are enabled.
 		 * true if enabled, false if not.
@@ -620,60 +644,60 @@ class Jetpack_Likes_Settings {
 	/**
 	 * Saves the setting in the database, bumps a stat on WordPress.com
 	 */
-	function admin_settings_callback() {
+	public function admin_settings_callback() {
 		// We're looking for these, and doing a dance to set some stats and save
 		// them together in array option.
 		$new_state = ! empty( $_POST['wpl_default'] ) ? $_POST['wpl_default'] : 'on';
 		$db_state  = $this->is_enabled_sitewide();
 
 		$reblogs_new_state = ! empty( $_POST['jetpack_reblogs_enabled'] ) ? $_POST['jetpack_reblogs_enabled'] : 'on';
-		$reblogs_db_state = $this->reblogs_enabled_sitewide();
-		/** Default State *********************************************************/
+		$reblogs_db_state  = $this->reblogs_enabled_sitewide();
+		/** Default State */
 
 		// Checked (enabled)
-		switch( $new_state ) {
-			case 'off' :
-				if ( true == $db_state && ! $this->in_jetpack ) {
+		switch ( $new_state ) {
+			case 'off':
+				if ( true === $db_state && ! $this->in_jetpack ) {
 					$g_gif = file_get_contents( 'https://pixel.wp.com/g.gif?v=wpcom-no-pv&x_likes=disabled_likes' );
 				}
 				update_option( 'disabled_likes', 1 );
 				break;
-			case 'on'  :
+			case 'on':
 			default:
-				if ( false == $db_state && ! $this->in_jetpack ) {
+				if ( false === $db_state && ! $this->in_jetpack ) {
 					$g_gif = file_get_contents( 'https://pixel.wp.com/g.gif?v=wpcom-no-pv&x_likes=reenabled_likes' );
 				}
 				delete_option( 'disabled_likes' );
 				break;
 		}
 
-		switch( $reblogs_new_state ) {
-			case 'off' :
-				if ( true == $reblogs_db_state && ! $this->in_jetpack ) {
+		switch ( $reblogs_new_state ) {
+			case 'off':
+				if ( true === $reblogs_db_state && ! $this->in_jetpack ) {
 					$g_gif = file_get_contents( 'https://pixel.wp.com/g.gif?v=wpcom-no-pv&x_reblogs=disabled_reblogs' );
 				}
 				update_option( 'disabled_reblogs', 1 );
 				break;
-			case 'on'  :
+			case 'on':
 			default:
-				if ( false == $reblogs_db_state && ! $this->in_jetpack ) {
+				if ( false === $reblogs_db_state && ! $this->in_jetpack ) {
 					$g_gif = file_get_contents( 'https://pixel.wp.com/g.gif?v=wpcom-no-pv&x_reblogs=reenabled_reblogs' );
 				}
 				delete_option( 'disabled_reblogs' );
 				break;
 		}
 
-		// WPCOM only: Comment Likes
+		// WPCOM only: Comment Likes.
 		if ( ! $this->in_jetpack ) {
 			$new_comments_state = ! empty( $_POST['jetpack_comment_likes_enabled'] ) ? $_POST['jetpack_comment_likes_enabled'] : false;
-			switch( (bool) $new_comments_state ) {
+			switch ( (bool) $new_comments_state ) {
 				case true:
 					update_option( 'jetpack_comment_likes_enabled', 1 );
-				break;
+					break;
 				case false:
 				default:
 					update_option( 'jetpack_comment_likes_enabled', 0 );
-				break;
+					break;
 			}
 		}
 	}
@@ -681,8 +705,8 @@ class Jetpack_Likes_Settings {
 	/**
 	 * Adds the admin update hook so we can save settings even if Sharedaddy is not enabled.
 	 */
-	function process_update_requests_if_sharedaddy_not_loaded() {
-		if ( isset( $_GET['page'] ) && ( $_GET['page'] == 'sharing.php' || $_GET['page'] == 'sharing' ) ) {
+	public function process_update_requests_if_sharedaddy_not_loaded() {
+		if ( isset( $_GET['page'] ) && ( 'sharing.php' === $_GET['page'] || 'sharing' === $_GET['page'] ) ) {
 			if ( isset( $_POST['_wpnonce'] ) && wp_verify_nonce( $_POST['_wpnonce'], 'sharing-options' ) ) {
 				/** This action is documented in modules/sharedaddy/sharing.php */
 				do_action( 'sharing_admin_update' );
@@ -695,57 +719,65 @@ class Jetpack_Likes_Settings {
 	/**
 	 * If sharedaddy is not loaded, we don't have the "Show buttons on" yet, so we need to add that since it affects likes too.
 	 */
-	function admin_settings_showbuttonon_init() {
+	public function admin_settings_showbuttonon_init() {
 		/** This action is documented in modules/sharedaddy/sharing.php */
 		echo apply_filters( 'sharing_show_buttons_on_row_start', '<tr valign="top">' );
 		?>
 		<th scope="row"><label><?php _e( 'Show buttons on', 'jetpack' ); ?></label></th>
 		<td>
 			<?php
-			$br = false;
+			$br    = false;
 			$shows = array_values( get_post_types( array( 'public' => true ) ) );
 			array_unshift( $shows, 'index' );
 			$global = $this->get_options();
 			foreach ( $shows as $show ) :
-				if ( 'index' == $show ) {
+				if ( 'index' === $show ) {
 					$label = __( 'Front Page, Archive Pages, and Search Results', 'jetpack' );
 				} else {
 					$post_type_object = get_post_type_object( $show );
-					$label = $post_type_object->labels->name;
+					$label            = $post_type_object->labels->name;
 				}
 				?>
-				<?php if ( $br ) echo '<br />'; ?><label><input type="checkbox"<?php checked( in_array( $show, $global['show'] ) ); ?> name="show[]" value="<?php echo esc_attr( $show ); ?>" /> <?php echo esc_html( $label ); ?></label>
-				<?php	$br = true; endforeach; ?>
+				<?php
+				if ( $br ) {
+					echo '<br />';}
+				?>
+				<label><input type="checkbox"<?php checked( in_array( $show, $global['show'] ) ); ?> name="show[]" value="<?php echo esc_attr( $show ); ?>" /> <?php echo esc_html( $label ); ?></label>
+				<?php
+				$br = true;
+endforeach;
+			?>
 		</td>
 		<?php
 		/** This action is documented in modules/sharedaddy/sharing.php */
 		echo apply_filters( 'sharing_show_buttons_on_row_end', '</tr>' );
 		?>
-	<?php
+		<?php
 	}
 
 	/**
 	 * If sharedaddy is not loaded, we still need to save the the settings of the "Show buttons on" option.
 	 */
-	function admin_settings_showbuttonon_callback() {
+	public function admin_settings_showbuttonon_callback() {
 		$options = get_option( 'sharing-options' );
-		if ( !is_array( $options ) )
+		if ( ! is_array( $options ) ) {
 			$options = array();
+		}
 
-		$shows = array_values( get_post_types( array( 'public' => true ) ) );
+		$shows   = array_values( get_post_types( array( 'public' => true ) ) );
 		$shows[] = 'index';
-		$data = $_POST;
+		$data    = $_POST;
 
 		if ( isset( $data['show'] ) ) {
 			if ( is_scalar( $data['show'] ) ) {
 				switch ( $data['show'] ) {
-					case 'posts' :
+					case 'posts':
 						$data['show'] = array( 'post', 'page' );
 						break;
-					case 'index' :
+					case 'index':
 						$data['show'] = array( 'index' );
 						break;
-					case 'posts-index' :
+					case 'posts-index':
 						$data['show'] = array( 'post', 'page', 'index' );
 						break;
 				}

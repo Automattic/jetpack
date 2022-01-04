@@ -27,7 +27,7 @@ Assets::add_resource_hint(
 );
 
 require_once __DIR__ . '/likes/jetpack-likes-master-iframe.php';
-require_once __DIR__ . '/likes/jetpack-likes-settings.php';
+require_once __DIR__ . '/likes/class-jetpack-likes-settings.php';
 
 /**
  * Jetpack Like Class
@@ -570,7 +570,7 @@ class Jetpack_Likes {
 function jetpack_post_likes_get_value( array $post ) {
 	$post_likes_switched = get_post_meta( $post['id'], 'switch_like_status', true );
 
-	/** This filter is documented in modules/jetpack-likes-settings.php */
+	/** This filter is documented in modules/class-jetpack-likes-settings.php */
 	$sitewide_likes_enabled = (bool) apply_filters( 'wpl_is_enabled_sitewide', ! get_option( 'disabled_likes' ) );
 
 	// An empty string: post meta was not set, so go with the global setting.
@@ -596,7 +596,7 @@ function jetpack_post_likes_get_value( array $post ) {
  * @param object $post_object - object containing post data.
  */
 function jetpack_post_likes_update_value( $enable_post_likes, $post_object ) {
-	/** This filter is documented in modules/jetpack-likes-settings.php */
+	/** This filter is documented in modules/class-jetpack-likes-settings.php */
 	$sitewide_likes_enabled = (bool) apply_filters( 'wpl_is_enabled_sitewide', ! get_option( 'disabled_likes' ) );
 
 	$should_switch_status = $enable_post_likes !== $sitewide_likes_enabled;
