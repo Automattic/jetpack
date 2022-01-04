@@ -30,9 +30,9 @@ echo "Checking if Homebrew is installed..."
 if ! command -v brew &> /dev/null; then
     echo "Installing Homebrew"
     /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
-	if [[ ON_LINUX ]]; then
-		echo 'eval "$(/home/linuxbrew/.linuxbrew/bin/brew shellenv)"' >> /home/ubuntu/.profile
+	if [[ ON_LINUX ]]; then # Add Homebrew to PATH and refresh
 		eval "$(/home/linuxbrew/.linuxbrew/bin/brew shellenv)"
+		hash -r 
 	fi
 else
 	echo "Updating brew"
