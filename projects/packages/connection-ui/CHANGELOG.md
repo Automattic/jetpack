@@ -9,7 +9,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Changed
 - Drop isRegistered and isUserConnected params from ConnectionStatusCard component
 - Replaced IDC screen rendering with site-wide IDC screen.
-- Updated package dependencies.
+- Updated package dependencies
 - Updated package textdomain from `jetpack` to `jetpack-connection-ui`.
 
 ## [2.2.0] - 2021-12-14
