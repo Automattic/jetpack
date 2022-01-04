@@ -17,7 +17,7 @@ When printing posts, additional interactive elements not meant for print have be
 The success message for the Subscription Form block can now be customized from the editor's block settings:
 
 - Make sure subscriptions are enabled in `Jetpack > Settings > Discussion`.
-- In a new test post, add a Subscription From block and customize the "Success Message Text" from the block settings panel.
+- In a new test post, add a Subscription Form block and customize the "Success Message Text" from the block settings panel.
 - Save your post and test you are able to see the customized success message displayed on the frontend after submitting the form.
 
 ### Single Sign On Error Filters
