@@ -3,7 +3,7 @@
  */
 import React from 'react';
 import PropTypes from 'prop-types';
-import { numberFormat } from 'components/number-format';
+import { numberFormat } from '@automattic/jetpack-components';
 
 /**
  * Internal Dependencies
