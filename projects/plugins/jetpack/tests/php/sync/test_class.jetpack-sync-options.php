@@ -91,7 +91,10 @@ class WP_Test_Jetpack_Sync_Options extends WP_Test_Jetpack_Sync_Base {
 			'gmt_offset'                                   => 1,
 			'timezone_string'                              => 'America/Anchorage',
 			'jetpack_sync_non_public_post_stati'           => 'pineapple',
-			'jetpack_options'                              => array( 'food' => 'pineapple' ),
+			'jetpack_options'                              => array(
+				'food' => 'pineapple',
+				'id'   => 1234,
+			),
 			'site_icon'                                    => '1',
 			'default_post_format'                          => 'pineapple',
 			'default_category'                             => 0,
