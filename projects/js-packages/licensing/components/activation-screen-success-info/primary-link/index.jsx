@@ -12,15 +12,15 @@ import React from 'react';
 import './style.scss';
 
 const PrimaryLink = props => {
-	const { initialStateRecommendationsStep } = props;
+	const { currentRecommendationsStep } = props;
 
 	const buttonLabel =
-		initialStateRecommendationsStep !== 'not-started'
+		currentRecommendationsStep !== 'not-started'
 			? __( 'View my plans', 'jetpack' )
 			: __( 'Configure my site', 'jetpack' );
 
 	const buttonLink =
-		initialStateRecommendationsStep !== 'not-started'
+		currentRecommendationsStep !== 'not-started'
 			? '/wp-admin/admin.php?page=jetpack#/my-plan'
 			: '/wp-admin/admin.php?page=jetpack#/recommendations';
 
@@ -32,7 +32,7 @@ const PrimaryLink = props => {
 };
 
 PrimaryLink.propTypes = {
-	initialStateRecommendationsStep: PropTypes.string,
+	currentRecommendationsStep: PropTypes.string,
 };
 
 export { PrimaryLink };

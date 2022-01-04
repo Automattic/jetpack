@@ -478,7 +478,7 @@ class Main extends React.Component {
 							siteRawUrl={ this.props.siteRawUrl }
 							successImage="/images/jetpack-license-activation-with-success.png"
 							onActivationSuccess={ this.onLicenseActivationSuccess }
-							initialStateRecommendationsStep={ this.props.initialStateRecommendationsStep }
+							currentRecommendationsStep={ this.props.currentRecommendationsStep }
 						/>
 					);
 				} else {
@@ -743,7 +743,7 @@ export default connect(
 			isWooCommerceActive: isWooCommerceActive( state ),
 			hasSeenWCConnectionModal: getHasSeenWCConnectionModal( state ),
 			partnerCoupon: getPartnerCoupon( state ),
-			initialStateRecommendationsStep: getInitialRecommendationsStep( state ),
+			currentRecommendationsStep: getInitialRecommendationsStep( state ),
 		};
 	},
 	dispatch => ( {

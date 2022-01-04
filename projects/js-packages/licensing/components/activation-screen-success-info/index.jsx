@@ -23,11 +23,11 @@ import './style.scss';
  * @param {object} props -- The properties.
  * @param {number} props.productId -- The id of the product activated
  * @param {string} props.siteRawUrl -- The url of the site
- * @param {string} props.initialStateRecommendationsStep -- The current recommendation step.
+ * @param {string} props.currentRecommendationsStep -- The current recommendation step.
  * @returns {React.Component} The `ActivationSuccessInfo` component.
  */
 const ActivationSuccessInfo = props => {
-	const { productId, siteRawUrl, initialStateRecommendationsStep } = props;
+	const { productId, siteRawUrl, currentRecommendationsStep } = props;
 	return (
 		<div className="jp-license-activation-screen-success-info">
 			<div className="jp-license-activation-screen-success-info--content">
@@ -35,7 +35,7 @@ const ActivationSuccessInfo = props => {
 			</div>
 			<JetpackProductDetails siteRawUrl={ siteRawUrl } productId={ productId } />
 			<div className="jp-license-activation-screen-success-info--buttons">
-				<PrimaryLink initialStateRecommendationsStep={ initialStateRecommendationsStep } />
+				<PrimaryLink currentRecommendationsStep={ currentRecommendationsStep } />
 				<ProductLink siteRawUrl={ siteRawUrl } productId={ productId } />
 			</div>
 		</div>
@@ -45,7 +45,7 @@ const ActivationSuccessInfo = props => {
 ActivationSuccessInfo.propTypes = {
 	siteRawUrl: PropTypes.string,
 	productId: PropTypes.number,
-	initialStateRecommendationsStep: PropTypes.string,
+	currentRecommendationsStep: PropTypes.string,
 };
 
 export default ActivationSuccessInfo;
