@@ -41,6 +41,7 @@
 - Hide irrelevant menu items for P2 sites
 - Instant Search: Add missing translator comments and use ordered placeholders in JS sprintf.
 - Janitorial: fix phpcs warnings in multiple widget files.
+- Jetpack: provide recommendation step parameter to external package.
 - Load the Composer package assets i18n map.
 - Switch to pcov for code coverage.
 - Sync some E2E deps with the rest of the monorepo to avoid breaking eslint tests.
@@ -48,8 +49,8 @@
 - Use `@automattic/i18n-loader-webpack-plugin` to remove the hack for Instant Search's lazy-loaded bundle.
 - VideoPress: add support for old v.wordpress.com URLs in VideoPress embed block.
 - Vimeo: tweak the regex used to fetch the Vimeo videos.
-- WordPress.com: provide a different support link for sites on the Atomic platform.
 - WordPress.com: identify admin menu dashicons that won't be rendered in Calypso and provide a default icon for them.
+- WordPress.com: provide a different support link for sites on the Atomic platform.
 
 ## 10.5-a.3 - 2021-12-14
 ### Enhancements
