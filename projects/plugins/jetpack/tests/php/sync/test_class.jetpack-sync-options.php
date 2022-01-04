@@ -283,7 +283,7 @@ class WP_Test_Jetpack_Sync_Options extends WP_Test_Jetpack_Sync_Base {
 	}
 
 	function assertOptionIsSynced( $option_name, $value ) {
-		$this->assertEqualsObject( $value, $this->server_replica_storage->get_option( $option_name ), 'Option ' . $option_name . ' did\'t have the extected value of ' . json_encode( $value ) );
+		$this->assertEqualsObject( $value, $this->server_replica_storage->get_option( $option_name ), 'Option ' . $option_name . ' didn\'t have the expected value of ' . wp_json_encode( $value ) );
 	}
 
 	public function add_jetpack_options_whitelist_filter( $options ) {
