@@ -301,14 +301,14 @@
             "dist": {
                 "type": "path",
                 "url": "../../packages/composer-plugin",
-                "reference": "b3e07e78bf7efa9e715dc2de2d9a0e6ede2c0a93"
+                "reference": "5f9c4275174458fdd95b0ff7ec3fb8acd16efa8f"
             },
             "require": {
                 "composer-plugin-api": "^2.1.0"
             },
             "require-dev": {
                 "automattic/jetpack-changelogger": "^3.0",
-                "composer/composer": "^2.1",
+                "composer/composer": "2.2.3",
                 "yoast/phpunit-polyfills": "1.0.2"
             },
             "type": "composer-plugin",
