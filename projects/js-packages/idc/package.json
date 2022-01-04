@@ -9,11 +9,12 @@
 		"@automattic/jetpack-api": "workspace:^0.8.1-alpha",
 		"@automattic/jetpack-components": "workspace:^0.9.1-alpha",
 		"@wordpress/base-styles": "4.0.4",
-		"@wordpress/components": "19.1.1",
-		"@wordpress/compose": "5.0.6",
-		"@wordpress/data": "6.1.4",
+		"@wordpress/components": "19.1.6",
+		"@wordpress/compose": "5.0.7",
+		"@wordpress/data": "6.1.5",
 		"@wordpress/element": "4.0.4",
 		"@wordpress/i18n": "4.2.4",
+		"@wordpress/url": "3.3.1",
 		"prop-types": "^15.7.2"
 	},
 	"devDependencies": {

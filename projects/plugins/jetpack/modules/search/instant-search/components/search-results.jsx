@@ -75,7 +75,8 @@ class SearchResults extends Component {
 
 		if ( hasQuery && hasCorrectedQuery ) {
 			return sprintf(
-				_n( 'Found %s result for "%s"', 'Found %s results for "%s"', total, 'jetpack' ),
+				/* translators: %1$s: number of results. %2$s: the corrected search query. */
+				_n( 'Found %1$s result for "%2$s"', 'Found %1$s results for "%2$s"', total, 'jetpack' ),
 				num,
 				corrected_query
 			);
@@ -94,6 +95,7 @@ class SearchResults extends Component {
 			);
 		} else if ( hasQuery ) {
 			return sprintf(
+				/* translators: %s: number of results. */
 				_n( 'Found %s result', 'Found %s results', total, 'jetpack' ),
 				num,
 				this.props.searchQuery
@@ -130,7 +132,10 @@ class SearchResults extends Component {
 
 				{ hasResults && hasCorrectedQuery && (
 					<p className="jetpack-instant-search__search-results-unused-query">
-						{ sprintf( __( 'No results for "%s"', 'jetpack' ), searchQuery ) }
+						{
+							/* translators: %s: Search query. */
+							sprintf( __( 'No results for "%s"', 'jetpack' ), searchQuery )
+						}
 					</p>
 				) }
 				{ this.props.hasError && (

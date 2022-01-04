@@ -1,0 +1,4 @@
+Significance: minor
+Type: added
+
+Jetpack Connection: Added fallback for keeping `jetpack_connection_active_plugins` consistent on WPCOM when Sync is not present.
