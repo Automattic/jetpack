@@ -3,12 +3,6 @@
 set -eo pipefail
 #set -x
 
-
-cd $(dirname "${BASH_SOURCE[0]}")/..
-BASE=$PWD
-. "$BASE/jetpack/tools/includes/chalk-lite.sh"
-. "$BASE/jetpack/tools/includes/plugin-functions.sh"
-
 # Print help and exit.
 function usage {
 	cat <<-EOH
@@ -24,12 +18,11 @@ if [[ $1 ]]; then
 fi
 
 # Check if we're on a Mac or Linux, bail if we're not.
-# First check OS.
 OS="$(uname)"
 if [[ "$OS" == "Linux" ]]; then
-	HOMEBREW_ON_LINUX=1
+	ON_LINUX=1
 elif [[ "$OS" != "Darwin" ]]; then
-	abort "Homebrew is only supported on macOS and Linux."
+	abort "Installer script is only supported on macOS and Linux."
 fi
 
 # Check of Homebrew and nvm are installed
@@ -37,6 +30,10 @@ echo "Checking if Homebrew is installed..."
 if ! command -v brew &> /dev/null; then
     echo "Installing Homebrew"
     /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
+	if [[ ON_LINUX ]]; then
+		echo 'eval "$(/home/linuxbrew/.linuxbrew/bin/brew shellenv)"' >> /home/ubuntu/.profile
+		eval "$(/home/linuxbrew/.linuxbrew/bin/brew shellenv)"
+	fi
 else
 	echo "Updating brew"
     brew update
@@ -51,10 +48,25 @@ else
     nvm update
 fi
 
-#install Bash
+# Install our requirements
+echo "Installing Bash"
 brew install bash
 
-# Instsall JQ
+echo "Installing jq"
 brew install jq 
 
-# Install node inside the Jetpack monorepo to pickup the .nvmrc 
+echo "Installing pnpm"
+npm install -g pnpm
+
+echo "Installing Node.js"
+nvm install && nvm use
+
+echo "Installing PHP"
+source .github/versions.sh && brew install php@$PHP_VERSION
+
+echo "Installing Composer"
+brew install composer
+
+# Setup the Jetpack CLI
+echo "Setting up the Jetpack CLI"
+pnpm install && pnpm cli-setup
