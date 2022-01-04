@@ -1,4 +1,0 @@
-Significance: patch
-Type: bugfix
-
-Jetpack: activate the default modules when the site has already been connected before plugin activation.
