@@ -1,7 +1,7 @@
 /**
  * Internal dependencies
  */
-import { getUserLocale } from 'lib/locale';
+import { getUserLocale } from '../../lib/locale/index.js';
 
 /**
  * Format a number using the locale in use by the user viewing the page.
