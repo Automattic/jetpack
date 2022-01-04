@@ -22,7 +22,7 @@ The success message for the Subscription Form block can now be customized from t
 
 ### Single Sign On Error Filters
 
-Added filters for customizing error text when a local user cannot be found for a given WordPress.com account, and for when Single Sign On (SSO) is disallowed  on a staging site:
+Added filters for customizing error text when a local user cannot be found for a given WordPress.com account, and for when Single Sign On (SSO) is disallowed on a staging site:
 
 - Example: add `add_filter( 'jetpack_sso_unknown_user_notice', function() { return 'Customer error text: we do not know you.'; } );` to a site with SSO enabled. Then try signing into that site with a WordPress.com account not associated with the site - you should be able to see the custom error text.
 - The other filter added is `jetpack_sso_disallowed_staging_notice` which can similarly be used to customize error text for staging sites that use SSO. Constant `define( JETPACK_STAGING_MODE, true );` can be used to test staging mode.
