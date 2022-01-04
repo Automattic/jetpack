@@ -21,7 +21,7 @@
 		"@wordpress/data": "6.1.5"
 	},
 	"devDependencies": {
-		"@automattic/jetpack-webpack-config": "workspace:^1.0.0",
+		"@automattic/jetpack-webpack-config": "workspace:^1.0.1-alpha",
 		"@babel/core": "7.16.0",
 		"@babel/preset-env": "7.16.4",
 		"@babel/register": "7.16.0",
