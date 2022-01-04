@@ -47,7 +47,7 @@
 		"antecedent/patchwork": "2.1.17",
 		"automattic/jetpack-changelogger": "3.0.x-dev",
 		"johnkary/phpunit-speedtrap": "^4.0.0 || ^2.0.0 || ^1.1.0",
-		"yoast/phpunit-polyfills": "1.0.2"
+		"yoast/phpunit-polyfills": "1.0.3"
 	},
 	"scripts": {
 		"build-production": [

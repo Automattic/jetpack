@@ -12,7 +12,7 @@ importers:
       chalk: 4.1.2
       config: 3.3.6
       eslint: 7.32.0
-      eslint-plugin-playwright: 0.6.0
+      eslint-plugin-playwright: 0.7.1
       jetpack-cli: link:../cli
       localtunnel: 2.0.2
       lodash: 4.17.21
@@ -30,7 +30,7 @@ importers:
       chalk: 4.1.2
       config: 3.3.6
       eslint: 7.32.0
-      eslint-plugin-playwright: 0.6.0_eslint@7.32.0
+      eslint-plugin-playwright: 0.7.1_eslint@7.32.0
       jetpack-cli: link:../cli
       localtunnel: 2.0.2
       lodash: 4.17.21
@@ -1850,8 +1850,8 @@ packages:
       language-tags: 1.0.5
     dev: true
 
-  /eslint-plugin-playwright/0.6.0_eslint@7.32.0:
-    resolution: {integrity: sha512-hccbDZcGcRAkfVa2omeTd/PCPjhjo8roZWVANYB8qBv2EGGjFNIGKkN3jzHjYQytgp5K4FKyBn/dgujPpFynjA==}
+  /eslint-plugin-playwright/0.7.1_eslint@7.32.0:
+    resolution: {integrity: sha512-BPwicI9ilexNiT3CgzSHZnWuxgAg59z4l7qhswqxzM+EdaDhpucM/atYcQCUbbB9lAmHVWCEdKBWZQPkplcW1w==}
     peerDependencies:
       eslint: '>=7'
       eslint-plugin-jest: '>=24'
