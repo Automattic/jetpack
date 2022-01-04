@@ -14,7 +14,7 @@ class VideoPress_Shortcode {
 
 		// By explicitly declaring the provider here, we can speed things up by not relying on oEmbed discovery.
 		wp_oembed_add_provider( '#^https?://videopress.com/v/.*#', 'https://public-api.wordpress.com/oembed/1.0/', true );
-		wp_oembed_add_provider( '|^https?://v\.wordpress\.com/([a-zA-Z\d]{8})(.+)?$|i', 'https://public-api.wordpress.com/oembed/1.0/', true );
+		wp_oembed_add_provider( '|^https?://v\.wordpress\.com/([a-zA-Z\d]{8})(.+)?$|i', 'https://public-api.wordpress.com/oembed/1.0/', true ); // phpcs:ignore WordPress.WP.CapitalPDangit.Misspelled
 
 		add_shortcode( 'videopress', array( $this, 'shortcode_callback' ) );
 		add_shortcode( 'wpvideo', array( $this, 'shortcode_callback' ) );
@@ -197,7 +197,7 @@ class VideoPress_Shortcode {
 					}
 
 					// Also test for old v.wordpress.com oembed URL.
-					if ( ! $videopress_guid && preg_match( '|^https?://v\.wordpress\.com/([a-zA-Z\d]{8})(.+)?$|i', $url, $matches ) ) {
+					if ( ! $videopress_guid && preg_match( '|^https?://v\.wordpress\.com/([a-zA-Z\d]{8})(.+)?$|i', $url, $matches ) ) { // phpcs:ignore WordPress.WP.CapitalPDangit.Misspelled
 						$videopress_guid = $matches[1];
 					}
 
