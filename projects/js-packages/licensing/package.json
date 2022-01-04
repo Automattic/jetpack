@@ -34,7 +34,7 @@
 	},
 	"dependencies": {
 		"@automattic/jetpack-api": "workspace:^0.8.1-alpha",
-		"@automattic/jetpack-components": "workspace:^0.9.1-alpha",
+		"@automattic/jetpack-components": "workspace:^0.10.0-alpha",
 		"@wordpress/i18n": "4.2.4",
 		"@wordpress/element": "4.0.4",
 		"prop-types": "15.7.2",
