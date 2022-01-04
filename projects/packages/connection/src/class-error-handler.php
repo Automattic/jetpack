@@ -680,7 +680,7 @@ class Error_Handler {
 	public function jetpack_react_dashboard_error( $errors ) {
 		$errors[] = array(
 			'code'    => 'xmlrpc_error',
-			'message' => __( 'Your connection with WordPress.com seems to be broken. If you\'re experiencing issues, please try reconnecting.', 'jetpack' ),
+			'message' => __( 'Your connection with WordPress.com seems to be broken. If you\'re experiencing issues, please try reconnecting.', 'jetpack-connection' ),
 			'action'  => 'reconnect',
 			'data'    => array( 'api_error_code' => $this->error_code ),
 		);

@@ -13,7 +13,7 @@
             "dist": {
                 "type": "path",
                 "url": "../../packages/changelogger",
-                "reference": "d219e673c8cb1b6b9ce85dac0f6df570a2af4af8"
+                "reference": "70732a31bed27e074a8585b3006ecced36e19f1b"
             },
             "require": {
                 "php": ">=5.6",
@@ -23,7 +23,7 @@
             },
             "require-dev": {
                 "wikimedia/testing-access-wrapper": "^1.0 | ^2.0",
-                "yoast/phpunit-polyfills": "1.0.2"
+                "yoast/phpunit-polyfills": "1.0.3"
             },
             "bin": [
                 "bin/changelogger"
@@ -60,7 +60,7 @@
                 ],
                 "test-coverage": [
                     "@composer update",
-                    "phpdbg -d memory_limit=2048M -d max_execution_time=900 -qrr ./vendor/bin/phpunit --coverage-clover \"$COVERAGE_DIR/clover.xml\""
+                    "php -dpcov.directory=. ./vendor/bin/phpunit --coverage-clover \"$COVERAGE_DIR/clover.xml\""
                 ],
                 "test-php": [
                     "@composer update",

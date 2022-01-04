@@ -7,7 +7,7 @@
 	"require-dev": {
 		"automattic/jetpack-changelogger": "^3.0",
 		"wikimedia/at-ease": "^1.2 | ^2.0",
-		"yoast/phpunit-polyfills": "1.0.2"
+		"yoast/phpunit-polyfills": "1.0.3"
 	},
 	"autoload": {
 		"classmap": [
@@ -20,7 +20,7 @@
 		],
 		"test-coverage": [
 			"@composer install",
-			"phpdbg -d memory_limit=2048M -d max_execution_time=900 -qrr ./vendor/bin/phpunit --coverage-clover \"$COVERAGE_DIR/clover.xml\""
+			"php -dpcov.directory=. ./vendor/bin/phpunit --coverage-clover \"$COVERAGE_DIR/clover.xml\""
 		],
 		"test-php": [
 			"@composer install",
@@ -45,7 +45,7 @@
 		},
 		"autotagger": true,
 		"branch-alias": {
-			"dev-master": "0.1.x-dev"
+			"dev-master": "1.0.x-dev"
 		}
 	}
 }
