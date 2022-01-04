@@ -1,4 +1,4 @@
-Significance: enhancement
-Type: added
+Significance: minor
+Type: enhancement
 
 Provide recommendation step parameter to external package and also update package dependencies.
