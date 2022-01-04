@@ -51,6 +51,7 @@ import {
 	getCurrentVersion,
 	getTracksUserData,
 	showRecommendations,
+	getInitialRecommendationsStep,
 	getPluginBaseUrl,
 	getPartnerCoupon,
 	isWoASite,
@@ -87,7 +88,6 @@ import { createInterpolateElement } from '@wordpress/element';
 import { imagePath } from 'constants/urls';
 import { ActivationScreen } from '@automattic/jetpack-licensing';
 import ContextualizedConnection from 'components/contextualized-connection';
-import { getInitialRecommendationsStep } from './state/initial-state/reducer';
 
 const recommendationsRoutes = [
 	'/recommendations',
