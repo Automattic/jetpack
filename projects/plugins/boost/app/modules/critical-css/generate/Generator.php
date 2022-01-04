@@ -2,7 +2,6 @@
 
 namespace Automattic\Jetpack_Boost\Modules\Critical_CSS\Generate;
 
-
 use Automattic\Jetpack_Boost\Lib\Nonce;
 use Automattic\Jetpack_Boost\Modules\Critical_CSS\Critical_CSS_State;
 use Automattic\Jetpack_Boost\Modules\Critical_CSS\Path_Providers\Paths;
@@ -41,39 +40,38 @@ class Generator {
 
 	}
 
-
 	/**
 	 * Get Critical CSS status.
 	 */
 	public function get_critical_css_status() {
 		if ( $this->state->is_empty() ) {
-			return [ 'status' => Critical_CSS_State::NOT_GENERATED ];
+			return array( 'status' => Critical_CSS_State::NOT_GENERATED );
 		}
 
 		if ( $this->state->is_pending() ) {
-			return [
+			return array(
 				'status'                 => Critical_CSS_State::REQUESTING,
 				'percent_complete'       => $this->state->get_percent_complete(),
 				'success_count'          => $this->state->get_providers_success_count(),
 				'pending_provider_keys'  => $this->state->get_provider_urls(),
 				'provider_success_ratio' => $this->state->get_provider_success_ratios(),
-			];
+			);
 		}
 
 		if ( $this->state->is_fatal_error() ) {
-			return [
+			return array(
 				'status'       => Critical_CSS_State::FAIL,
 				'status_error' => $this->state->get_state_error(),
-			];
+			);
 		}
 
 		$providers_errors    = $this->state->get_providers_errors();
 		$provider_key_labels = array_combine(
 			array_keys( $providers_errors ),
-			array_map( [ $this, 'describe_provider_key' ], array_keys( $providers_errors ) )
+			array_map( array( $this, 'describe_provider_key' ), array_keys( $providers_errors ) )
 		);
 
-		return [
+		return array(
 			'status'                => Critical_CSS_State::SUCCESS,
 			'success_count'         => $this->state->get_providers_success_count(),
 			'core_providers'        => self::CORE_PROVIDER_KEYS,
@@ -81,7 +79,7 @@ class Generator {
 			'providers_errors'      => $providers_errors,
 			'provider_key_labels'   => $provider_key_labels,
 			'created'               => $this->state->get_created_time(),
-		];
+		);
 	}
 
 	/**
@@ -124,7 +122,6 @@ class Generator {
 		return $provider::describe_key( $provider_key );
 	}
 
-
 	/**
 	 * Returns true if this pageload is generating Critical CSS, based on GET
 	 * parameters and headers.
@@ -132,13 +129,13 @@ class Generator {
 	 * phpcs:disable WordPress.Security.NonceVerification.Recommended
 	 */
 	public static function is_generating_critical_css() {
-		static $is_generating = NULL;
-		if ( NULL !== $is_generating ) {
+		static $is_generating = null;
+		if ( null !== $is_generating ) {
 			return $is_generating;
 		}
 
 		// Accept nonce via HTTP headers or GET parameters.
-		$generate_nonce = NULL;
+		$generate_nonce = null;
 		if ( ! empty( $_GET[ self::GENERATE_QUERY_ACTION ] ) ) {
 			$generate_nonce = sanitize_key(
 				$_GET[ self::GENERATE_QUERY_ACTION ]
@@ -201,7 +198,6 @@ class Generator {
 		die();
 	}
 
-
 	public function make_generation_request() {
 		$this->state->create_request( $this->paths->get_providers() );
 	}
@@ -234,10 +230,10 @@ class Generator {
 		);
 
 		// Add a userless nonce to use when requesting pages for Critical CSS generation (i.e.: To turn off admin features).
-		$status['generation_nonce'] = Nonce::create( Generator::GENERATE_QUERY_ACTION );
+		$status['generation_nonce'] = Nonce::create( self::GENERATE_QUERY_ACTION );
 
 		// Add a user-bound nonce to use when proxying CSS for Critical CSS generation.
-		$status['proxy_nonce'] = wp_create_nonce( Generator::GENERATE_PROXY_NONCE );
+		$status['proxy_nonce'] = wp_create_nonce( self::GENERATE_PROXY_NONCE );
 
 		// Add a passthrough block to include in all response callbacks.
 		$status['callback_passthrough'] = array(

@@ -3,9 +3,9 @@
 namespace Automattic\Jetpack_Boost\Modules\Critical_CSS\Path_Providers;
 
 use Automattic\Jetpack_Boost\Modules\Critical_CSS\Critical_CSS_Storage;
-use Automattic\Jetpack_Boost\Modules\Critical_CSS\Path_Providers\Providers\Provider;
 use Automattic\Jetpack_Boost\Modules\Critical_CSS\Path_Providers\Providers\Archive_Provider;
 use Automattic\Jetpack_Boost\Modules\Critical_CSS\Path_Providers\Providers\Post_ID_Provider;
+use Automattic\Jetpack_Boost\Modules\Critical_CSS\Path_Providers\Providers\Provider;
 use Automattic\Jetpack_Boost\Modules\Critical_CSS\Path_Providers\Providers\Singular_Post_Provider;
 use Automattic\Jetpack_Boost\Modules\Critical_CSS\Path_Providers\Providers\Taxonomy_Provider;
 use Automattic\Jetpack_Boost\Modules\Critical_CSS\Path_Providers\Providers\WP_Core_Provider;
@@ -48,7 +48,6 @@ class Paths {
 		return $this->providers;
 	}
 
-
 	/**
 	 * Get all critical CSS storage keys that are available for the current request.
 	 * Caches the result.
@@ -56,8 +55,8 @@ class Paths {
 	 * @return array
 	 */
 	public function get_current_request_css_keys() {
-		static $keys = NULL;
-		if ( NULL !== $keys ) {
+		static $keys = null;
+		if ( null !== $keys ) {
 			return $keys;
 		}
 
@@ -80,12 +79,12 @@ class Paths {
 	 * @return string|false
 	 */
 	public function get_current_request_css() {
-		if ( NULL !== $this->request_cached_css ) {
+		if ( null !== $this->request_cached_css ) {
 			return $this->request_cached_css;
 		}
 
 		$storage = new Critical_CSS_Storage();
-		$data = $storage->get_css( $this->get_current_request_css_keys() );
+		$data    = $storage->get_css( $this->get_current_request_css_keys() );
 		if ( false === $data ) {
 			return false;
 		}

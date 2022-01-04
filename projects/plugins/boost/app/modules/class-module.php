@@ -77,6 +77,6 @@ abstract class Module {
 	 * @return null|\Automattic\Jetpack_Boost\Admin\Admin_Notice[]
 	 */
 	public function get_admin_notices() {
-		return NULL;
+		return null;
 	}
 }

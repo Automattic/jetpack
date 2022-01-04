@@ -44,7 +44,7 @@ declare global {
 		config: ModulesState;
 		shownAdminNoticeIds: string[];
 		nonces: {
-			[key: string]: string
+			[ key: string ]: string;
 		};
 	};
 

@@ -1,11 +1,10 @@
 <?php
 namespace Automattic\Jetpack_Boost\Modules\Critical_CSS;
 
-use Automattic\Jetpack_Boost\Modules\Critical_CSS\REST_API\Boost_API;
 use Automattic\Jetpack_Boost\Modules\Critical_CSS\Generate\Generator;
 use Automattic\Jetpack_Boost\Modules\Critical_CSS\Path_Providers\Paths;
+use Automattic\Jetpack_Boost\Modules\Critical_CSS\REST_API\Boost_API;
 use Automattic\Jetpack_Boost\Modules\Module;
-
 
 class Critical_CSS extends Module {
 
@@ -31,7 +30,6 @@ class Critical_CSS extends Module {
 		$this->rest_api = new Boost_API();
 		add_filter( 'jetpack_boost_js_constants', array( $this, 'boost_api_nonces' ) );
 
-
 	}
 
 	/**
@@ -51,7 +49,6 @@ class Critical_CSS extends Module {
 		add_filter( 'jetpack_boost_url_ready', array( $this, 'is_ready_filter' ), 10, 1 );
 
 		add_action( 'wp', array( $this, 'display_critical_css' ) );
-
 
 		if ( Generator::is_generating_critical_css() ) {
 			add_action( 'wp_head', array( $this, 'display_generate_meta' ), 0 );
@@ -109,7 +106,6 @@ class Critical_CSS extends Module {
 		add_action( 'wp_footer', array( $display, 'onload_flip_stylesheets' ) );
 	}
 
-
 	/**
 	 * Clear Critical CSS.
 	 */
@@ -119,8 +115,6 @@ class Critical_CSS extends Module {
 		$this->storage->clear();
 		Critical_CSS_State::reset();
 	}
-
-
 
 	/**
 	 * Check if the current URL is warmed up. For this module, "warmed up" means that
@@ -162,19 +156,16 @@ class Critical_CSS extends Module {
 		}
 	}
 
-
-
-
 	/**
 	 * Override; returns an admin notice to show if there was a reset reason.
 	 *
 	 * @return null|\Automattic\Jetpack_Boost\Admin\Admin_Notice[]
 	 */
 	public function get_admin_notices() {
-		$reason = \get_option( Critical_CSS::RESET_REASON_STORAGE_KEY );
+		$reason = \get_option( self::RESET_REASON_STORAGE_KEY );
 
 		if ( ! $reason ) {
-			return NULL;
+			return null;
 		}
 
 		return array( new Regenerate_Admin_Notice( $reason ) );
@@ -184,7 +175,7 @@ class Critical_CSS extends Module {
 	 * Clear Critical CSS reset reason option.
 	 */
 	public static function clear_reset_reason() {
-		\delete_option( Critical_CSS::RESET_REASON_STORAGE_KEY );
+		\delete_option( self::RESET_REASON_STORAGE_KEY );
 	}
 
 	/**
@@ -207,7 +198,4 @@ class Critical_CSS extends Module {
 
 		return $constants;
 	}
-
-
-
 }

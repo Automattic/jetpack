@@ -16,7 +16,6 @@ class Recommendations_Dismiss implements Boost_Endpoint, Nonce_Protection {
 			wp_send_json_error();
 		}
 
-
 		$recommendations = new Recommendations();
 		$recommendations->dismiss( $provider_key );
 		wp_send_json_success();

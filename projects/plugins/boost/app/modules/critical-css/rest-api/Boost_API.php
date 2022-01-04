@@ -4,17 +4,17 @@ namespace Automattic\Jetpack_Boost\Modules\Critical_CSS\REST_API;
 
 class Boost_API {
 
-	protected $available_routes = [
+	protected $available_routes = array(
 		Generator_Status::class,
 		Generator_Request::class,
 		Generator_Success::class,
 		Generator_Error::class,
 		Recommendations_Dismiss::class,
 		Recommendations_Reset::class,
-	];
+	);
 
-	protected $routes           = [];
-	protected $protected_routes = [];
+	protected $routes           = array();
+	protected $protected_routes = array();
 
 	public function __construct() {
 
@@ -25,7 +25,6 @@ class Boost_API {
 			if ( $route instanceof Nonce_Protection ) {
 				$this->protected_routes[] = $route->name();
 			}
-
 		}
 	}
 
@@ -69,6 +68,5 @@ class Boost_API {
 			)
 		);
 	}
-
 
 }

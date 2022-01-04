@@ -36,6 +36,7 @@ class Admin_Bar_Compatibilty {
 
 	/**
 	 * Dequeue the admin bar stylesheet, so that it's not printed early.
+	 *
 	 * @see     wp_head
 	 */
 	public static function dequeue_admin_bar() {
@@ -44,6 +45,7 @@ class Admin_Bar_Compatibilty {
 
 	/**
 	 * Force the admin bar stylesheet to print right before the admin bar markup.
+	 *
 	 * @see     wp_before_admin_bar_render
 	 */
 	public static function force_admin_bar_stylesheet() {

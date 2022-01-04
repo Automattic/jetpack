@@ -3,7 +3,6 @@ namespace Automattic\Jetpack_Boost\Modules\Critical_CSS;
 
 use Automattic\Jetpack_Boost\Lib\Options;
 
-
 class Recommendations {
 
 	protected $dismissed_recommendations;

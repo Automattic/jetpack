@@ -21,5 +21,4 @@ class Nonce_Protected_Endpoint {
 		return $this->endpoint->permission_callback( $request );
 	}
 
-
 }

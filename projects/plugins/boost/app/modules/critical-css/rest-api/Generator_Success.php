@@ -25,7 +25,7 @@ class Generator_Success implements Boost_Endpoint {
 	public function response( $request ) {
 
 		// @TODO:
-		//		$this->ensure_module_initialized();
+		// $this->ensure_module_initialized();
 		/**
 		 * This used to be a thing here:
 		 * if ( true !== $this->is_initialized ) {
