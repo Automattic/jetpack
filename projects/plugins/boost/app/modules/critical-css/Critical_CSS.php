@@ -1,4 +1,10 @@
 <?php
+/**
+ * Main Critical CSS Module.
+ *
+ * @package automattic/jetpack-boost
+ */
+
 namespace Automattic\Jetpack_Boost\Modules\Critical_CSS;
 
 use Automattic\Jetpack_Boost\Modules\Critical_CSS\Generate\Generator;
@@ -6,6 +12,9 @@ use Automattic\Jetpack_Boost\Modules\Critical_CSS\Path_Providers\Paths;
 use Automattic\Jetpack_Boost\Modules\Critical_CSS\REST_API\Boost_API;
 use Automattic\Jetpack_Boost\Modules\Module;
 
+/**
+ * Class Critical CSS.
+ */
 class Critical_CSS extends Module {
 
 	const MODULE_SLUG              = 'critical-css';
@@ -18,6 +27,11 @@ class Critical_CSS extends Module {
 	 */
 	protected $storage;
 
+	/**
+	 * Boost API class instance.
+	 *
+	 * @var Boost_API
+	 */
 	private $rest_api;
 
 	/**
@@ -78,12 +92,17 @@ class Critical_CSS extends Module {
 		<?php
 	}
 
+	/**
+	 * Initialize appending Critical CSS for valid requests.
+	 *
+	 * @return void
+	 */
 	public function display_critical_css() {
-
-		// Don't look for Critical CSS in the dashboard
+		// Don't look for Critical CSS in the dashboard.
 		if ( is_admin() ) {
 			return;
 		}
+
 		// Don't display Critical CSS when generating Critical CSS.
 		if ( Generator::is_generating_critical_css() ) {
 			return;
@@ -94,7 +113,7 @@ class Critical_CSS extends Module {
 			return;
 		}
 
-		// Get the Critical CSS to show
+		// Get the Critical CSS to show.
 		$critical_css = $this->paths->get_current_request_css();
 		if ( ! $critical_css ) {
 			return;
@@ -193,6 +212,12 @@ class Critical_CSS extends Module {
 		return $constants;
 	}
 
+	/**
+	 * Add nonces for Boost constants.
+	 *
+	 * @param  array $constants Boost constants.
+	 * @return array
+	 */
 	public function boost_api_nonces( $constants ) {
 		$constants['nonces'] = $this->rest_api->get_nonces();
 

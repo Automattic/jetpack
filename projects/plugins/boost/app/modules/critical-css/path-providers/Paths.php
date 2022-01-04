@@ -1,4 +1,9 @@
 <?php
+/**
+ * Main Path provider.
+ *
+ * @package automattic/jetpack-boost
+ */
 
 namespace Automattic\Jetpack_Boost\Modules\Critical_CSS\Path_Providers;
 
@@ -10,6 +15,9 @@ use Automattic\Jetpack_Boost\Modules\Critical_CSS\Path_Providers\Providers\Singu
 use Automattic\Jetpack_Boost\Modules\Critical_CSS\Path_Providers\Providers\Taxonomy_Provider;
 use Automattic\Jetpack_Boost\Modules\Critical_CSS\Path_Providers\Providers\WP_Core_Provider;
 
+/**
+ * Class Paths.
+ */
 class Paths {
 
 	/**
@@ -44,6 +52,11 @@ class Paths {
 		Taxonomy_Provider::class,
 	);
 
+	/**
+	 * Get provider names.
+	 *
+	 * @return string[]
+	 */
 	public function get_providers() {
 		return $this->providers;
 	}
@@ -94,5 +107,4 @@ class Paths {
 
 		return $this->request_cached_css;
 	}
-
 }

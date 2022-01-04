@@ -1,4 +1,9 @@
 <?php
+/**
+ * Critical CSS Generate manager.
+ *
+ * @package automattic/jetpack-boost
+ */
 
 namespace Automattic\Jetpack_Boost\Modules\Critical_CSS\Generate;
 
@@ -7,6 +12,9 @@ use Automattic\Jetpack_Boost\Modules\Critical_CSS\Critical_CSS_State;
 use Automattic\Jetpack_Boost\Modules\Critical_CSS\Path_Providers\Paths;
 use Automattic\Jetpack_Boost\Modules\Critical_CSS\Path_Providers\Providers\Provider;
 
+/**
+ * Class Generator.
+ */
 class Generator {
 
 	const GENERATE_QUERY_ACTION = 'jb-generate-critical-css';
@@ -25,8 +33,16 @@ class Generator {
 		'singular_product',
 	);
 
+	/**
+	 * Critical CSS state.
+	 *
+	 * @var Critical_CSS_State Critical CSS state.
+	 */
 	public $state;
 
+	/**
+	 * Constructor.
+	 */
 	public function __construct() {
 		$this->state = new Critical_CSS_State();
 		$this->paths = new Paths();
@@ -198,6 +214,9 @@ class Generator {
 		die();
 	}
 
+	/**
+	 * Create Critical CSS generation request.
+	 */
 	public function make_generation_request() {
 		$this->state->create_request( $this->paths->get_providers() );
 	}

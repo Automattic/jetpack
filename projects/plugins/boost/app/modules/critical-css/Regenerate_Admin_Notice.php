@@ -10,6 +10,9 @@ namespace Automattic\Jetpack_Boost\Modules\Critical_CSS;
 
 use Automattic\Jetpack_Boost\Admin\Admin_Notice;
 
+/**
+ * Class Regenerate_Admin_Notice.
+ */
 class Regenerate_Admin_Notice extends Admin_Notice {
 
 	const SLUG = 'critical-css-regenerate';
