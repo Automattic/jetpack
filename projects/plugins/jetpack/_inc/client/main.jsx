@@ -87,6 +87,7 @@ import { createInterpolateElement } from '@wordpress/element';
 import { imagePath } from 'constants/urls';
 import { ActivationScreen } from '@automattic/jetpack-licensing';
 import ContextualizedConnection from 'components/contextualized-connection';
+import { getInitialRecommendationsStep } from './state/initial-state/reducer';
 
 const recommendationsRoutes = [
 	'/recommendations',
@@ -477,6 +478,7 @@ class Main extends React.Component {
 							siteRawUrl={ this.props.siteRawUrl }
 							successImage="/images/jetpack-license-activation-with-success.png"
 							onActivationSuccess={ this.onLicenseActivationSuccess }
+							initialStateRecommendationsStep={ this.props.initialStateRecommendationsStep }
 						/>
 					);
 				} else {
@@ -741,6 +743,7 @@ export default connect(
 			isWooCommerceActive: isWooCommerceActive( state ),
 			hasSeenWCConnectionModal: getHasSeenWCConnectionModal( state ),
 			partnerCoupon: getPartnerCoupon( state ),
+			initialStateRecommendationsStep: getInitialRecommendationsStep( state ),
 		};
 	},
 	dispatch => ( {

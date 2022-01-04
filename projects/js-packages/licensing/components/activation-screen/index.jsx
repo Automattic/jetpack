@@ -57,6 +57,7 @@ const parseAttachLicensesResult = result => {
  * @param {string} props.siteRawUrl -- url of the Jetpack Site
  * @param {string?} props.startingLicense -- pre-fill the license value
  * @param {string} props.successImage -- Image to display within the illustration.
+ * @param {string} props.initialStateRecommendationsStep -- The current recommendation step.
  * @returns {React.Component} The `ActivationScreen` component.
  */
 const ActivationScreen = props => {
@@ -67,6 +68,7 @@ const ActivationScreen = props => {
 		siteRawUrl,
 		startingLicense,
 		successImage,
+		initialStateRecommendationsStep,
 	} = props;
 
 	const [ license, setLicense ] = useState( startingLicense ?? '' );
@@ -103,7 +105,11 @@ const ActivationScreen = props => {
 
 	const renderActivationSuccess = () => (
 		<div className="jp-license-activation-screen">
-			<ActivationScreenSuccessInfo siteRawUrl={ siteRawUrl } productId={ activatedProduct } />
+			<ActivationScreenSuccessInfo
+				siteRawUrl={ siteRawUrl }
+				productId={ activatedProduct }
+				initialStateRecommendationsStep={ initialStateRecommendationsStep }
+			/>
 			<ActivationScreenIllustration
 				imageUrl={ assetBaseUrl + successImage }
 				showSupportLink={ false }
@@ -135,6 +141,7 @@ ActivationScreen.propTypes = {
 	siteRawUrl: PropTypes.string.isRequired,
 	startingLicense: PropTypes.string,
 	successImage: PropTypes.string.isRequired,
+	initialStateRecommendationsStep: PropTypes.string,
 };
 
 export default ActivationScreen;
