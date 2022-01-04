@@ -1,0 +1,5 @@
+Significance: patch
+Type: other
+Comment: Fix the logic which determines whether to display the multisite comments for PHP unit tests.
+
+
