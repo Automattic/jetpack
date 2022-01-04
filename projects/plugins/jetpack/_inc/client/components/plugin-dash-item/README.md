@@ -1,6 +1,6 @@
 # PluginDashItem Component
 
-PluginDashItem component is a React component to display an upsell for another plugin on the Jetpack AAG Dashboard.
+PluginDashItem is used to display an upsell for another plugin on the Jetpack AAG Dashboard.
 
 ## Usage
 
