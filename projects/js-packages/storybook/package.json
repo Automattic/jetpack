@@ -63,7 +63,7 @@
 		"react": "17.0.2",
 		"sass-loader": "10.2.0",
 		"style-loader": "2.0.0",
-		"webpack": "5.64.1"
+		"webpack": "5.65.0"
 	},
 	"engines": {
 		"node": "^14.17.6 || ^16.7.0",
