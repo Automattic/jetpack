@@ -9,6 +9,8 @@ import { JetpackLogo } from '@automattic/jetpack-components';
  * Internal dependencies
  */
 import analytics from 'lib/analytics';
+import { HeaderNav } from './header-nav';
+import { isWoASite as getIsWoASite } from 'state/initial-state';
 import {
 	getSiteConnectionStatus,
 	getSandboxDomain,
@@ -28,7 +30,7 @@ export class Masthead extends React.Component {
 	};
 
 	render() {
-		const { sandboxDomain, siteConnectionStatus } = this.props;
+		const { isWoASite, sandboxDomain, siteConnectionStatus } = this.props;
 
 		const offlineNotice = siteConnectionStatus === 'offline' ? <code>Offline Mode</code> : '',
 			sandboxedBadge = sandboxDomain ? (
@@ -56,6 +58,7 @@ export class Masthead extends React.Component {
 						{ offlineNotice }
 						{ sandboxedBadge }
 					</div>
+					{ isWoASite && <HeaderNav location={ this.props.location } /> }
 				</div>
 			</div>
 		);
@@ -65,6 +68,7 @@ export class Masthead extends React.Component {
 export default connect(
 	state => {
 		return {
+			isWoASite: getIsWoASite( state ),
 			sandboxDomain: getSandboxDomain( state ),
 			siteConnectionStatus: getSiteConnectionStatus( state ),
 		};

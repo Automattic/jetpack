@@ -1,0 +1,5 @@
+Significance: patch
+Type: bugfix
+Comment: Check that the Sync_Actions::do_only_first_initial_sync method exists before calling it to prevent fatals with old versions of the Sync package.
+
+

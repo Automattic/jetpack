@@ -192,6 +192,8 @@ class P2_Admin_Menu extends WPcom_Admin_Menu {
 
 	/**
 	 * Override, don't add the woocommerce installation menu on any p2s.
+	 *
+	 * @param array|null $current_plan The site's plan.
 	 */
-	public function add_woocommerce_installation_menu() {}
+	public function add_woocommerce_installation_menu( $current_plan = null ) {} // phpcs:ignore VariableAnalysis.CodeAnalysis.VariableAnalysis.UnusedVariable
 }
