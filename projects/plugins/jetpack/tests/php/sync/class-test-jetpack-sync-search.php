@@ -30,6 +30,8 @@ class Test_Jetpack_Sync_Search extends WP_Test_Jetpack_Sync_Base {
 
 	/**
 	 * Configure Jetpack/Search settings for use in all tests.
+	 *
+	 * @return void
 	 */
 	public static function setUpBeforeClass() {
 		parent::setUpBeforeClass();
@@ -37,6 +39,15 @@ class Test_Jetpack_Sync_Search extends WP_Test_Jetpack_Sync_Base {
 		// Activate Search module.
 		\Jetpack::activate_module( 'search' );
 		self::$search_sync = Modules::get_module( 'search' );
+	}
+
+	/**
+	 * Deactivate search module
+	 *
+	 * @return void
+	 */
+	public static function tearDownAfterClass() {
+		\Jetpack::deactivate_module( 'search' );
 	}
 
 	/**
