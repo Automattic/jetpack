@@ -8,15 +8,15 @@
 namespace Automattic\Jetpack_Boost\Modules\Critical_CSS\REST_API;
 
 use Automattic\Jetpack_Boost\Lib\Nonce;
-use Automattic\Jetpack_Boost\Modules\Critical_CSS\Critical_CSS;
-use Automattic\Jetpack_Boost\Modules\Critical_CSS\Critical_CSS_Storage;
+use Automattic\Jetpack_Boost\Modules\Critical_CSS\CriticalCSS;
+use Automattic\Jetpack_Boost\Modules\Critical_CSS\CriticalCSSStorage;
 use Automattic\Jetpack_Boost\Modules\Critical_CSS\Generate\Generator;
 use Automattic\Jetpack_Boost\Modules\Critical_CSS\Recommendations;
 
 /**
  * Class Generator Success.
  */
-class Generator_Success implements Boost_Endpoint {
+class GeneratorSuccess implements BoostEndpoint {
 	/**
 	 * Request methods.
 	 *
@@ -79,7 +79,7 @@ class Generator_Success implements Boost_Endpoint {
 			);
 		}
 
-		$storage         = new Critical_CSS_Storage();
+		$storage         = new CriticalCSSStorage();
 		$recommendations = new Recommendations();
 		$generator       = new Generator();
 
@@ -87,7 +87,7 @@ class Generator_Success implements Boost_Endpoint {
 		$generator->state->set_source_success( $cache_key );
 		$recommendations->reset();
 
-		Critical_CSS::clear_reset_reason();
+		CriticalCSS::clear_reset_reason();
 
 		// Set status to success to indicate the critical CSS data has been stored on the server.
 		return rest_ensure_response(

@@ -7,13 +7,13 @@
 
 namespace Automattic\Jetpack_Boost\Modules\Critical_CSS\Path_Providers;
 
-use Automattic\Jetpack_Boost\Modules\Critical_CSS\Critical_CSS_Storage;
-use Automattic\Jetpack_Boost\Modules\Critical_CSS\Path_Providers\Providers\Archive_Provider;
-use Automattic\Jetpack_Boost\Modules\Critical_CSS\Path_Providers\Providers\Post_ID_Provider;
+use Automattic\Jetpack_Boost\Modules\Critical_CSS\CriticalCSSStorage;
+use Automattic\Jetpack_Boost\Modules\Critical_CSS\Path_Providers\Providers\ArchiveProvider;
+use Automattic\Jetpack_Boost\Modules\Critical_CSS\Path_Providers\Providers\PostIDProvider;
 use Automattic\Jetpack_Boost\Modules\Critical_CSS\Path_Providers\Providers\Provider;
-use Automattic\Jetpack_Boost\Modules\Critical_CSS\Path_Providers\Providers\Singular_Post_Provider;
-use Automattic\Jetpack_Boost\Modules\Critical_CSS\Path_Providers\Providers\Taxonomy_Provider;
-use Automattic\Jetpack_Boost\Modules\Critical_CSS\Path_Providers\Providers\WP_Core_Provider;
+use Automattic\Jetpack_Boost\Modules\Critical_CSS\Path_Providers\Providers\SingularPostProvider;
+use Automattic\Jetpack_Boost\Modules\Critical_CSS\Path_Providers\Providers\TaxonomyProvider;
+use Automattic\Jetpack_Boost\Modules\Critical_CSS\Path_Providers\Providers\WPCoreProvider;
 
 /**
  * Class Paths.
@@ -45,11 +45,11 @@ class Paths {
 	 * @var Provider[]
 	 */
 	protected $providers = array(
-		Post_ID_Provider::class,
-		WP_Core_Provider::class,
-		Singular_Post_Provider::class,
-		Archive_Provider::class,
-		Taxonomy_Provider::class,
+		PostIDProvider::class,
+		WPCoreProvider::class,
+		SingularPostProvider::class,
+		ArchiveProvider::class,
+		TaxonomyProvider::class,
 	);
 
 	/**
@@ -96,7 +96,7 @@ class Paths {
 			return $this->request_cached_css;
 		}
 
-		$storage = new Critical_CSS_Storage();
+		$storage = new CriticalCSSStorage();
 		$data    = $storage->get_css( $this->get_current_request_css_keys() );
 		if ( false === $data ) {
 			return false;

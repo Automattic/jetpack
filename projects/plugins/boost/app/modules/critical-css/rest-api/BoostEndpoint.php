@@ -7,7 +7,7 @@
 
 namespace Automattic\Jetpack_Boost\Modules\Critical_CSS\REST_API;
 
-interface Boost_Endpoint {
+interface BoostEndpoint {
 	/**
 	 * Route endpoint name.
 	 *

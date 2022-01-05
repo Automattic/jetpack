@@ -9,13 +9,13 @@ namespace Automattic\Jetpack_Boost\Modules\Critical_CSS;
 
 use Automattic\Jetpack_Boost\Modules\Critical_CSS\Generate\Generator;
 use Automattic\Jetpack_Boost\Modules\Critical_CSS\Path_Providers\Paths;
-use Automattic\Jetpack_Boost\Modules\Critical_CSS\REST_API\Boost_API;
+use Automattic\Jetpack_Boost\Modules\Critical_CSS\REST_API\BoostAPI;
 use Automattic\Jetpack_Boost\Modules\Module;
 
 /**
  * Class Critical CSS.
  */
-class Critical_CSS extends Module {
+class CriticalCSS extends Module {
 
 	const MODULE_SLUG              = 'critical-css';
 	const RESET_REASON_STORAGE_KEY = 'jb-generate-critical-css-reset-reason';
@@ -23,14 +23,14 @@ class Critical_CSS extends Module {
 	/**
 	 * Critical CSS storage class instance.
 	 *
-	 * @var Critical_CSS_Storage
+	 * @var CriticalCSSStorage
 	 */
 	protected $storage;
 
 	/**
 	 * Boost API class instance.
 	 *
-	 * @var Boost_API
+	 * @var BoostAPI
 	 */
 	private $rest_api;
 
@@ -39,9 +39,9 @@ class Critical_CSS extends Module {
 	 */
 	public function on_prepare() {
 
-		$this->storage  = new Critical_CSS_Storage();
+		$this->storage  = new CriticalCSSStorage();
 		$this->paths    = new Paths();
-		$this->rest_api = new Boost_API();
+		$this->rest_api = new BoostAPI();
 		add_filter( 'jetpack_boost_js_constants', array( $this, 'boost_api_nonces' ) );
 
 	}
@@ -119,7 +119,7 @@ class Critical_CSS extends Module {
 			return;
 		}
 
-		$display = new Display_Critical_CSS( $critical_css );
+		$display = new DisplayCriticalCSS( $critical_css );
 		add_action( 'wp_head', array( $display, 'display_critical_css' ), 0 );
 		add_filter( 'style_loader_tag', array( $display, 'asynchronize_stylesheets' ), 10, 4 );
 		add_action( 'wp_footer', array( $display, 'onload_flip_stylesheets' ) );
@@ -132,7 +132,7 @@ class Critical_CSS extends Module {
 		// Mass invalidate all cached values.
 		// ^^ Not true anymore. Mass invalidate __some__ cached values.
 		$this->storage->clear();
-		Critical_CSS_State::reset();
+		CriticalCSSState::reset();
 	}
 
 	/**

@@ -8,11 +8,11 @@
 namespace Automattic\Jetpack_Boost\Modules\Critical_CSS\Path_Providers\Providers;
 
 /**
- * Class Taxonomy_Provider
+ * Class TaxonomyProvider
  *
  * @package Automattic\Jetpack_Boost\Modules\Critical_CSS\Providers
  */
-class Taxonomy_Provider extends Provider {
+class TaxonomyProvider extends Provider {
 
 	/**
 	 * Provider name.
@@ -75,7 +75,7 @@ class Taxonomy_Provider extends Provider {
 			array_filter(
 				self::get_available_taxonomies(),
 				function ( $taxonomy ) {
-					return ! empty( Taxonomy_Provider::get_terms( $taxonomy ) );
+					return ! empty( TaxonomyProvider::get_terms( $taxonomy ) );
 				}
 			)
 		);

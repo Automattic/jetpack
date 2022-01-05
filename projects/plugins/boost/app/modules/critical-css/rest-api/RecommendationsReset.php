@@ -1,6 +1,6 @@
 <?php
 /**
- * Recommendations dismiss endpoint handler.
+ * Recommendation reset endpoint handler.
  *
  * @package automattic/jetpack-boost
  */
@@ -10,9 +10,9 @@ namespace Automattic\Jetpack_Boost\Modules\Critical_CSS\REST_API;
 use Automattic\Jetpack_Boost\Modules\Critical_CSS\Recommendations;
 
 /**
- * Class Recommendations dismiss.
+ * Class Recommendations reset.
  */
-class Recommendations_Dismiss implements Boost_Endpoint, Nonce_Protection {
+class RecommendationsReset implements BoostEndpoint, NonceProtection {
 	/**
 	 * Request methods.
 	 *
@@ -23,18 +23,13 @@ class Recommendations_Dismiss implements Boost_Endpoint, Nonce_Protection {
 	}
 
 	/**
-	 * Handler for recommendation dismissal.
+	 * Handler for recommendation reset.
 	 *
 	 * @param \WP_REST_Request $request The request object.
 	 */
-	public function response( $request ) {
-		$provider_key = filter_var( $request['providerKey'], FILTER_SANITIZE_STRING );
-		if ( empty( $provider_key ) ) {
-			wp_send_json_error();
-		}
-
+	public function response( $request ) { // phpcs:ignore VariableAnalysis.CodeAnalysis.VariableAnalysis.UnusedVariable
 		$recommendations = new Recommendations();
-		$recommendations->dismiss( $provider_key );
+		$recommendations->reset();
 		wp_send_json_success();
 	}
 
@@ -51,7 +46,6 @@ class Recommendations_Dismiss implements Boost_Endpoint, Nonce_Protection {
 	 * @return string
 	 */
 	public function name() {
-		return 'recommendations/dismiss';
+		return 'recommendations/reset';
 	}
-
 }

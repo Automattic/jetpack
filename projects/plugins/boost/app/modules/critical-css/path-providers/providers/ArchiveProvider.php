@@ -8,11 +8,11 @@
 namespace Automattic\Jetpack_Boost\Modules\Critical_CSS\Path_Providers\Providers;
 
 /**
- * Class Archive_Provider
+ * Class ArchiveProvider
  *
  * @package Automattic\Jetpack_Boost\Modules\Critical_CSS\Providers
  */
-class Archive_Provider extends Provider {
+class ArchiveProvider extends Provider {
 
 	/**
 	 * Provider name.

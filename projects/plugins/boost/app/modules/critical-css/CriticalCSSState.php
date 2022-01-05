@@ -14,7 +14,7 @@ use Automattic\Jetpack_Boost\Lib\Transient;
 /**
  * Critical CSS State
  */
-class Critical_CSS_State {
+class CriticalCSSState {
 
 	const NOT_GENERATED = 'not_generated';
 	const SUCCESS       = 'success';

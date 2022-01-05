@@ -20,8 +20,8 @@ use Automattic\Jetpack_Boost\Lib\Config;
 use Automattic\Jetpack_Boost\Lib\Connection;
 use Automattic\Jetpack_Boost\Lib\Speed_Score_History;
 use Automattic\Jetpack_Boost\Lib\Viewport;
-use Automattic\Jetpack_Boost\Modules\Critical_CSS\Critical_CSS;
-use Automattic\Jetpack_Boost\Modules\Critical_CSS\Regenerate_Admin_Notice;
+use Automattic\Jetpack_Boost\Modules\Critical_CSS\CriticalCSS;
+use Automattic\Jetpack_Boost\Modules\Critical_CSS\RegenerateAdminNotice;
 use Automattic\Jetpack_Boost\Modules\Lazy_Images\Lazy_Images;
 use Automattic\Jetpack_Boost\Modules\Module;
 use Automattic\Jetpack_Boost\Modules\Render_Blocking_JS\Render_Blocking_JS;
@@ -41,7 +41,7 @@ use Automattic\Jetpack_Boost\Modules\Render_Blocking_JS\Render_Blocking_JS;
 class Jetpack_Boost {
 
 	const MODULES = array(
-		Critical_CSS::MODULE_SLUG       => Critical_CSS::class,
+		CriticalCSS::MODULE_SLUG        => CriticalCSS::class,
 		Lazy_Images::MODULE_SLUG        => Lazy_Images::class,
 		Render_Blocking_JS::MODULE_SLUG => Render_Blocking_JS::class,
 	);
@@ -55,7 +55,7 @@ class Jetpack_Boost {
 	 * Default available modules.
 	 */
 	const AVAILABLE_MODULES_DEFAULT = array(
-		Critical_CSS::MODULE_SLUG,
+		CriticalCSS::MODULE_SLUG,
 		Render_Blocking_JS::MODULE_SLUG,
 		Lazy_Images::MODULE_SLUG,
 	);
@@ -416,7 +416,7 @@ class Jetpack_Boost {
 				Render_Blocking_JS::MODULE_SLUG => array(
 					'enabled' => false,
 				),
-				Critical_CSS::MODULE_SLUG       => array(
+				CriticalCSS::MODULE_SLUG        => array(
 					'enabled'  => false,
 					'settings' => array(
 						'viewport_sizes'    => Viewport::DEFAULT_VIEWPORT_SIZES,
@@ -526,7 +526,7 @@ class Jetpack_Boost {
 	 * still capture the change of environment event and flag Critical CSS for a rebuild.
 	 */
 	public function handle_theme_change() {
-		Admin::clear_dismissed_notice( Regenerate_Admin_Notice::SLUG );
-		\update_option( Critical_CSS::RESET_REASON_STORAGE_KEY, Regenerate_Admin_Notice::REASON_THEME_CHANGE, false );
+		Admin::clear_dismissed_notice( RegenerateAdminNotice::SLUG );
+		\update_option( CriticalCSS::RESET_REASON_STORAGE_KEY, RegenerateAdminNotice::REASON_THEME_CHANGE, false );
 	}
 }

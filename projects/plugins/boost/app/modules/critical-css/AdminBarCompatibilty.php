@@ -8,9 +8,9 @@
 namespace Automattic\Jetpack_Boost\Modules\Critical_CSS;
 
 /**
- * Class Admin_Bar_Compatibilty.
+ * Class AdminBarCompatibility.
  */
-class Admin_Bar_Compatibilty {
+class AdminBarCompatibility {
 
 	/**
 	 * Enforces the admin bar stylesheet to load late and synchronously

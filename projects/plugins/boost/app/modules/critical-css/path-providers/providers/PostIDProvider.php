@@ -8,11 +8,11 @@
 namespace Automattic\Jetpack_Boost\Modules\Critical_CSS\Path_Providers\Providers;
 
 /**
- * Class Post_ID_Provider
+ * Class PostIDProvider
  *
  * @package Automattic\Jetpack_Boost\Modules\Critical_CSS\Providers
  */
-class Post_ID_Provider extends Provider {
+class PostIDProvider extends Provider {
 
 	/**
 	 * Post Ids storage key.
