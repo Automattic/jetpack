@@ -172,6 +172,73 @@ if [[ -n "$DUPS" ]]; then
 	done <<<"$DUPS"
 fi
 
+# - Text domains from plugins should not be used in packages.
+debug "Checking package textdomain usage vs plugin slugs"
+PLUGDOMAINS="$(jq -n 'reduce inputs as $i ({}; .[$i.extra["wp-plugin-slug"] // $i.extra["wp-theme-slug"] // ""] = ( input_filename | sub("^projects/(?<slug>.*)/composer\\.json$";"\(.slug)"))) | .[""] |= empty' projects/plugins/*/composer.json)"
+for FILE in projects/packages/*/composer.json; do
+	DIR="${FILE%/composer.json}"
+	SLUG="${DIR#projects/}"
+	DOM="$(jq -r '.extra.textdomain // ""' "$FILE")"
+	if [[ -n "$DOM" ]]; then
+		USEDBY="$(jq --argjson plugdom "$PLUGDOMAINS" --arg dom "$DOM" -rn '$plugdom[$dom] // ""')"
+		if [[ -n "$USEDBY" ]]; then
+			EXIT=1
+			LINE=$(jq --stream 'if length == 1 then .[0][:-1] else .[0] end | if . == ["extra","textdomain"] then input_line_number else empty end' "$FILE")
+			echo "::error file=$FILE,line=$LINE::Package $SLUG may not use textdomain $DOM, that domain belongs to plugin $USEDBY."
+		fi
+	fi
+done
+
+# - Text domains in phpcs config should match composer.json.
+debug "Checking package textdomain usage in phpcs config"
+for FILE in $(git -c core.quotepath=off ls-files 'projects/packages/**/.phpcs.dir.xml'); do
+	DOM="$(php -r '$doc = new DOMDocument(); $doc->load( $argv[1] ); $xpath = new DOMXPath( $doc ); echo $xpath->evaluate( "string(//rule[@ref=\"WordPress.WP.I18n\"]/properties/property[@name=\"text_domain\"]/element/@value)" );' "$FILE")"
+	[[ -z "$DOM" ]] && continue
+	DIR="$FILE"
+	while ! [[ "$DIR" =~ ^projects/[^/]*/[^/]*$ ]]; do
+		DIR="${DIR%/*}"
+	done
+	SLUG="${DIR#projects/}"
+	DOM2="$(jq -r '.extra.textdomain // ""' "$DIR/composer.json")"
+	if [[ "$DOM" != "$DOM2" ]]; then
+		EXIT=1
+		LINE=$(grep --line-number --max-count=1 'name="text_domain"' "$FILE" || true)
+		if [[ -n "$LINE" ]]; then
+			LINE=",line=${LINE%%:*}"
+		fi
+		if [[ -z "$DOM2" ]]; then
+			echo "::error file=$FILE$LINE::PHPCS config sets textdomain \"$DOM\", but $SLUG's composer.json does not set \`.extra.textdomain\`."
+		else
+			echo "::error file=$FILE$LINE::PHPCS config sets textdomain \"$DOM\", but $SLUG's composer.json sets domain \"$DOM2\"."
+		fi
+	fi
+done
+
+# - Text domains in eslint config should match composer.json.
+debug "Checking package textdomain usage in eslint config"
+for FILE in $(git -c core.quotepath=off ls-files 'projects/packages/**/.eslintrc.js' 'projects/packages/**/.eslintrc.cjs'); do
+	DOM="$(node -e 'const x = require( `./${ process.argv[1] }` ); console.log( x.rules?.["@wordpress/i18n-text-domain"]?.[1]?.allowedTextDomain ?? "" );' "$FILE")"
+	[[ -z "$DOM" ]] && continue
+	DIR="$FILE"
+	while ! [[ "$DIR" =~ ^projects/[^/]*/[^/]*$ ]]; do
+		DIR="${DIR%/*}"
+	done
+	SLUG="${DIR#projects/}"
+	DOM2="$(jq -r '.extra.textdomain // ""' "$DIR/composer.json")"
+	if [[ "$DOM" != "$DOM2" ]]; then
+		EXIT=1
+		LINE=$(grep --line-number --max-count=1 'allowedTextDomain' "$FILE" || true)
+		if [[ -n "$LINE" ]]; then
+			LINE=",line=${LINE%%:*}"
+		fi
+		if [[ -z "$DOM2" ]]; then
+			echo "::error file=$FILE$LINE::Eslint config sets textdomain \"$DOM\", but $SLUG's composer.json does not set \`.extra.textdomain\`."
+		else
+			echo "::error file=$FILE$LINE::Eslint config sets textdomain \"$DOM\", but $SLUG's composer.json sets domain \"$DOM2\"."
+		fi
+	fi
+done
+
 # - Renovate should ignore all monorepo packages.
 debug "Checking renovate ignore list"
 if ! tools/js-tools/check-renovate-ignore-list.js; then

@@ -174,7 +174,13 @@
 	margin: rem( 8px ) 0;
 }
 
-.jp-at-a-glance__stats-cta-buttons {
+.jp-at-a-glance__stats-ctas {
+
+	display: flex;
+	flex-direction: row;
+	align-items: center;
+	justify-content: flex-end;
+
 	@include breakpoint( '>660px' ) {
 		text-align: right;
 		flex-basis: 70%;
@@ -182,6 +188,7 @@
 
 	@include breakpoint( '<660px' ) {
 		text-align: center;
+		flex-direction: column;
 
 		.dops-button {
 			width: 100%;
@@ -192,6 +199,7 @@
 	.dops-button {
 		text-align: center;
 		margin: rem( 4px );
+		margin-right: rem( 8px );
 	}
 }
 
