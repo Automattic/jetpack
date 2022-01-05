@@ -6,7 +6,7 @@
 	"require": {},
 	"require-dev": {
 		"brain/monkey": "2.6.1",
-		"yoast/phpunit-polyfills": "1.0.2",
+		"yoast/phpunit-polyfills": "1.0.3",
 		"automattic/jetpack-changelogger": "^3.0",
 		"automattic/jetpack-options": "^1.14",
 		"automattic/wordbless": "@dev"
@@ -23,7 +23,7 @@
 		"post-update-cmd": "php -r \"copy('vendor/automattic/wordbless/src/dbless-wpdb.php', 'wordpress/wp-content/db.php');\"",
 		"test-coverage": [
 			"@composer update",
-			"phpdbg -d memory_limit=2048M -d max_execution_time=900 -qrr ./vendor/bin/phpunit --coverage-clover \"$COVERAGE_DIR/clover.xml\""
+			"php -dpcov.directory=. ./vendor/bin/phpunit --coverage-clover \"$COVERAGE_DIR/clover.xml\""
 		],
 		"test-php": [
 			"@composer update",

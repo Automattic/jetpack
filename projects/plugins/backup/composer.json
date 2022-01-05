@@ -18,7 +18,7 @@
 		"automattic/jetpack-status": "1.9.x-dev"
 	},
 	"require-dev": {
-		"yoast/phpunit-polyfills": "1.0.2",
+		"yoast/phpunit-polyfills": "1.0.3",
 		"automattic/jetpack-changelogger": "^3.0"
 	},
 	"autoload": {
