@@ -1,30 +1,44 @@
 <?php
 /**
- * Compatibility functions for AMP.
+ * Compatibility for AMP.
  *
  * @package automattic/jetpack-boost
  */
 
 namespace Automattic\Jetpack_Boost\Compatibility\Amp;
 
-use Automattic\Jetpack_Boost\Modules\Critical_CSS\Critical_CSS;
+use Automattic\Jetpack_Boost\Modules\Critical_CSS\CriticalCSS;
 
 /**
- * Init AMP compatibility actions after modules are initialized.
- *
- * @param Critical_CSS $module Critical_CSS Module instance.
+ * Class AMP.
  */
-function init_amp_compatibility( $module ) {
-	// Todo: Temporary. Find a way to remove `display_critical_css` action after amp_is_request() is available.
-	add_action(
-		'wp',
-		function () use ( $module ) {
-			if ( amp_is_request() ) {
-				remove_action( 'wp', array( $module, 'display_critical_css' ) );
-			}
-		},
-		0
-	);
+class Amp {
+	/**
+	 * CriticalCSS module instance.
+	 *
+	 * @var CriticalCSS
+	 */
+	private static $critical_css;
+
+	/**
+	 * Init AMP compatibility actions after modules are initialized.
+	 *
+	 * @param CriticalCSS $module CriticalCSS Module instance.
+	 */
+	public static function init_compatibility( $module ) {
+		self::$critical_css = $module;
+
+		add_action( 'wp', array( __CLASS__, 'disable_critical_css' ), 0 );
+	}
+
+	/**
+	 * Disable Critical CSS display.
+	 */
+	public static function disable_critical_css() {
+		if ( amp_is_request() ) {
+			remove_action( 'wp', array( self::$critical_css, 'display_critical_css' ) );
+		}
+	}
 }
 
-add_action( 'jetpack_boost_critical-css_initialized', __NAMESPACE__ . '\init_amp_compatibility' );
+add_action( 'jetpack_boost_critical-css_initialized', array( __NAMESPACE__ . '\Amp', 'init_compatibility' ) );
