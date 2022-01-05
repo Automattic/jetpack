@@ -56,7 +56,7 @@ echo "Installing jq"
 brew install jq 
 
 echo "Installing pnpm"
-npm install -g pnpm
+brew install -g pnpm
 
 echo "Installing Node.js"
 nvm install && nvm use
