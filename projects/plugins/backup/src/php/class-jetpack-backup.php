@@ -300,7 +300,7 @@ class Jetpack_Backup {
 		return rest_ensure_response(
 			array(
 				'code'    => 'success',
-				'message' => esc_html__( 'Site purchases correctly received.', 'jetpack' ),
+				'message' => esc_html__( 'Site purchases correctly received.', 'jetpack-backup' ),
 				'data'    => wp_remote_retrieve_body( $response ),
 			)
 		);
