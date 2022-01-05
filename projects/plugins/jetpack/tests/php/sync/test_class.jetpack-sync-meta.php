@@ -199,12 +199,9 @@ class WP_Test_Jetpack_Sync_Meta extends WP_Test_Jetpack_Sync_Base {
 		Settings::update_settings( array( 'post_meta_whitelist' => array() ) );
 		$this->setSyncClientDefaults();
 		// check that these values exists in the whitelist options
-		$white_listed_post_meta = array_merge(
-			Defaults::$post_meta_whitelist,
-			Modules::get_module( 'search' )->get_all_postmeta_keys()
-		);
+		$white_listed_post_meta = Defaults::$post_meta_whitelist;
 
-		// update all the opyions.
+		// update all the options.
 		foreach ( $white_listed_post_meta as $meta_key ) {
 			add_post_meta( $this->post_id, $meta_key, 'foo' );
 		}

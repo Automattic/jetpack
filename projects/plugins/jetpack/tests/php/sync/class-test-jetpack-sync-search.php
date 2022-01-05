@@ -6,6 +6,7 @@
  */
 
 use Automattic\Jetpack\Sync\Modules;
+use Automattic\Jetpack\Sync\Settings;
 
 /**
  * Testing Search Sync modifications.
@@ -38,7 +39,7 @@ class Test_Jetpack_Sync_Search extends WP_Test_Jetpack_Sync_Base {
 
 		// Activate Search module.
 		\Jetpack::activate_module( 'search' );
-		self::$search_sync = new Automattic\Jetpack\Sync\Modules\Search();
+		self::$search_sync = new Modules\Search();
 	}
 
 	/**
@@ -65,21 +66,13 @@ class Test_Jetpack_Sync_Search extends WP_Test_Jetpack_Sync_Base {
 	}
 
 	/**
-	 * Test to verify search module is enabled/active.
-	 */
-	public function test_module_is_enabled() {
-		$this->assertTrue( (bool) Modules::get_module( 'search' ) );
-		$this->assertTrue( \Jetpack::is_module_active( 'search' ) );
-	}
-
-	/**
 	 * Data Provider of allowed postmeta keys.
 	 *
 	 * @return string[][]
 	 */
 	public function get_allowed_postmeta_keys() {
 		$params = array();
-		$keys   = self::$search_sync->get_all_postmeta_keys();
+		$keys   = Modules\Search::get_all_postmeta_keys();
 		foreach ( $keys as $k ) {
 			$params[] = array( $k );
 		}
@@ -94,12 +87,41 @@ class Test_Jetpack_Sync_Search extends WP_Test_Jetpack_Sync_Base {
 	 */
 	public function get_allowed_taxonomies() {
 		$params = array();
-		$keys   = self::$search_sync->get_all_taxonomies();
+		$keys   = Modules\Search::get_all_taxonomies();
 		foreach ( $keys as $k ) {
 			$params[] = array( $k );
 		}
 
 		return $params;
+	}
+
+	/**
+	 * Verify that all allowed post meta are synced.
+	 */
+	public function test_sync_whitelisted_post_meta() {
+		Settings::update_settings( array( 'post_meta_whitelist' => array() ) );
+		$this->setSyncClientDefaults();
+		// check that these values exists in the whitelist options.
+		$white_listed_post_meta = Modules\Search::get_all_postmeta_keys();
+
+		// update all the opyions.
+		foreach ( $white_listed_post_meta as $meta_key ) {
+			add_post_meta( $this->post_id, $meta_key, 'foo' );
+		}
+
+		$this->sender->do_sync();
+
+		foreach ( $white_listed_post_meta as $meta_key ) {
+			$this->assertOptionIsSynced( $meta_key, 'foo', 'post', $this->post_id );
+		}
+		$whitelist = Settings::get_setting( 'post_meta_whitelist' );
+
+		$whitelist_and_option_keys_difference = array_diff( $whitelist, $white_listed_post_meta );
+		// Are we testing all the options.
+		$unique_whitelist = array_unique( $whitelist );
+
+		$this->assertEquals( count( $unique_whitelist ), count( $whitelist ), 'The duplicate keys are: ' . print_r( array_diff_key( $whitelist, array_unique( $whitelist ) ), 1 ) ); //phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_print_r
+		$this->assertTrue( empty( $whitelist_and_option_keys_difference ), 'Some whitelisted options don\'t have a test: ' . print_r( $whitelist_and_option_keys_difference, 1 ) ); //phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_print_r
 	}
 
 	/**
@@ -121,24 +143,24 @@ class Test_Jetpack_Sync_Search extends WP_Test_Jetpack_Sync_Base {
 	 * Verify that is_indexable returns true for indexable post meta.
 	 */
 	public function test_meta_is_indexable() {
-		$this->assertTrue( self::$search_sync->is_indexable( 'postmeta', 'jetpack-search-meta0' ) );
+		$this->assertTrue( Modules\Search::is_indexable( 'postmeta', 'jetpack-search-meta0' ) );
 	}
 
 	/**
 	 * Verify that is_indexable returns false for non-indexable post meta.
 	 */
 	public function test_meta_is_not_indexable() {
-		$this->assertFalse( self::$search_sync->is_indexable( 'postmeta', 'no_one_wants_to_index_me' ), 'no_one_wants_to_index_me' );
-		$this->assertFalse( self::$search_sync->is_indexable( 'postmeta', '_no_one_wants_to_index_me' ), '_no_one_wants_to_index_me' );
+		$this->assertFalse( Modules\Search::is_indexable( 'postmeta', 'no_one_wants_to_index_me' ), 'no_one_wants_to_index_me' );
+		$this->assertFalse( Modules\Search::is_indexable( 'postmeta', '_no_one_wants_to_index_me' ), '_no_one_wants_to_index_me' );
 	}
 
 	/**
 	 * Verify that we don't have any overlap between our lists of indexed and unindexed meta.
 	 */
 	public function test_meta_no_overlap() {
-		$indexed_keys = self::$search_sync->get_all_postmeta_keys();
+		$indexed_keys = Modules\Search::get_all_postmeta_keys();
 		asort( $indexed_keys );
-		$unindexed_keys = self::$search_sync->get_all_unindexed_postmeta_keys();
+		$unindexed_keys = Modules\Search::get_all_unindexed_postmeta_keys();
 		asort( $unindexed_keys );
 		$this->assertEmpty( array_intersect( $unindexed_keys, $indexed_keys ), 'Indexable meta keys are also contained in the $unindexed_postmeta array. Please remove them from the unindexed list.' );
 	}
@@ -151,7 +173,7 @@ class Test_Jetpack_Sync_Search extends WP_Test_Jetpack_Sync_Base {
 	 * @param string $key Meta Key.
 	 */
 	public function test_check_postmeta_spec( $key ) {
-		$spec = self::$search_sync->get_postmeta_spec( $key );
+		$spec = Modules\Search::get_postmeta_spec( $key );
 
 		$this->assertInternalType( 'array', $spec );
 		foreach ( $spec as $key => $v ) {
@@ -226,21 +248,21 @@ class Test_Jetpack_Sync_Search extends WP_Test_Jetpack_Sync_Base {
 	 * Verify that is_indexable returns true for indexable taxonomies.
 	 */
 	public function test_taxonomy_is_indexable() {
-		$this->assertTrue( self::$search_sync->is_indexable( 'taxonomy', 'jetpack-search-tag0' ) );
+		$this->assertTrue( Modules\Search::is_indexable( 'taxonomy', 'jetpack-search-tag0' ) );
 	}
 
 	/**
 	 * Verify that is_indexable returns false for non-indexable taxonomies.
 	 */
 	public function test_taxonomy_is_not_indexable() {
-		$this->assertFalse( self::$search_sync->is_indexable( 'taxonomy', 'no_one_wants_to_index_me' ) );
+		$this->assertFalse( Modules\Search::is_indexable( 'taxonomy', 'no_one_wants_to_index_me' ) );
 	}
 
 	/**
 	 * Verify that the allowed taxonomy list does not include any disallowed values.
 	 */
 	public function test_no_blacklisted_taxonomies() {
-		$taxes      = self::$search_sync->get_all_taxonomies();
+		$taxes      = Modules\Search::get_all_taxonomies();
 		$anti_taxes = \Automattic\Jetpack\Sync\Defaults::$blacklisted_taxonomies;
 		$this->assertEmpty(
 			array_intersect( $taxes, $anti_taxes ),
