@@ -175,7 +175,7 @@ class Test_Jetpack_Sync_Search extends WP_Test_Jetpack_Sync_Base {
 	public function test_check_postmeta_spec( $key ) {
 		$spec = Modules\Search::get_postmeta_spec( $key );
 
-		$this->assertInternalType( 'array', $spec );
+		$this->assertIsArray( $spec );
 		foreach ( $spec as $key => $v ) {
 			$this->assertContains(
 				$key,
@@ -188,13 +188,13 @@ class Test_Jetpack_Sync_Search extends WP_Test_Jetpack_Sync_Base {
 			);
 			switch ( $key ) {
 				case 'searchable_in_all_content':
-					$this->assertInternalType( 'bool', $spec['searchable_in_all_content'] );
+					$this->assertIsBool( $spec['searchable_in_all_content'] );
 					break;
 				case 'available':
-					$this->assertInternalType( 'bool', $spec['available'] );
+					$this->assertIsBool( $spec['available'] );
 					break;
 				case 'alternatives':
-					$this->assertInternalType( 'array', $spec['alternatives'] );
+					$this->assertIsArray( $spec['alternatives'] );
 					break;
 			}
 		}
@@ -289,6 +289,18 @@ class Test_Jetpack_Sync_Search extends WP_Test_Jetpack_Sync_Base {
 				return (object) (array) $object; },
 			$terms
 		);
+	}
+
+	/**
+	 * Helper to verify meta is synced.
+	 *
+	 * @param string $meta_key  Meta key.
+	 * @param mixed  $value     Expected value.
+	 * @param string $type      Meta type.
+	 * @param mixed  $object_id Object Id.
+	 */
+	protected function assertOptionIsSynced( $meta_key, $value, $type, $object_id ) {
+		$this->assertEqualsObject( $value, $this->server_replica_storage->get_metadata( $type, $object_id, $meta_key, true ), 'Synced option doesn\'t match local option.' );
 	}
 
 }
