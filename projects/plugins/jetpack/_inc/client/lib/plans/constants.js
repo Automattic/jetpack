@@ -97,7 +97,6 @@ export const JETPACK_BUNDLES = [
 	PLAN_JETPACK_SECURITY_REALTIME_MONTHLY,
 ];
 
-// while this is currently a identical set to JETPACK_BUNDLES above it may eventually not be
 export const JETPACK_SECURITY_BUNDLES = [
 	PLAN_JETPACK_SECURITY_T1_YEARLY,
 	PLAN_JETPACK_SECURITY_T1_MONTHLY,
