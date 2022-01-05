@@ -52,6 +52,11 @@ const TiledGalleryEdit = props => {
 
 	const { replaceInnerBlocks, updateBlockAttributes } = useDispatch( blockEditorStore );
 
+	const displayedColumns = Math.min(
+		columns,
+		dynamicColumnsNumber(attributeImages.length)
+	);
+
 	useEffect( () => {
 		const { width } = sizes || {};
 		if ( width ) {
@@ -135,12 +140,12 @@ const TiledGalleryEdit = props => {
 			allowedBlocks: [ 'core/image' ],
 			orientation: 'horizontal',
 			renderAppender: false,
-			numColumns: columns,
+			numColumns: displayedColumns,
 			marginHorizontal: TILE_SPACING,
 			marginVertical: TILE_SPACING,
 			__experimentalLayout: { type: 'default', alignments: [] },
 			gridProperties: {
-				numColumns: columns,
+				numColumns: displayedColumns,
 			},
 			parentWidth: maxWidth + 2 * TILE_SPACING,
 		}
