@@ -54,7 +54,7 @@ const StepDisconnectConfirm = props => {
 								{ __( 'Help us improve', 'jetpack' ) }
 							</Button>
 						</p>
-						<Button variant="link" onClick={ onExit }>
+						<Button isLink onClick={ onExit }>
 							{ __( 'No thank you', 'jetpack' ) }
 						</Button>
 					</>

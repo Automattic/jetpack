@@ -75,7 +75,7 @@ const StepSurvey = props => {
 				onSubmit={ onFeedBackProvided }
 				isSubmittingFeedback={ isSubmittingFeedback }
 			/>
-			<Button variant="link" onClick={ onExit }>
+			<Button isLink onClick={ onExit }>
 				{ __( 'Skip for now', 'jetpack' ) }
 			</Button>
 		</div>

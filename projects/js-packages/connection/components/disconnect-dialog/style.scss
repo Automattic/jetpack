@@ -58,6 +58,7 @@
 		&.is-link {
 			font-weight: bold;
 			color: var( --jp-black );
+			padding: 0;
 
 			&:hover,
 			&:focus {
