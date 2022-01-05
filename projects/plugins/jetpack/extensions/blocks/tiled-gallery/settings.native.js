@@ -4,12 +4,7 @@
 import { InspectorControls } from '@wordpress/block-editor';
 import { __ } from '@wordpress/i18n';
 import { useEffect, useState } from '@wordpress/element';
-import {
-	LinkSettingsNavigation,
-	PanelBody,
-	RangeControl,
-	UnitControl,
-} from '@wordpress/components';
+import { PanelBody, RangeControl, UnitControl } from '@wordpress/components';
 import { usePreferredColorSchemeStyle } from '@wordpress/compose';
 
 /**
@@ -40,7 +35,6 @@ const TiledGallerySettings = props => {
 	const {
 		setAttributes,
 		numImages,
-		linkTo,
 		columns,
 		roundedCorners,
 		clientId,
@@ -55,16 +49,6 @@ const TiledGallerySettings = props => {
 	const [ roundedCornerRadius, setRoundedCornerRadius ] = useState(
 		roundedCorners ?? DEFAULT_ROUNDED_CORNERS
 	);
-	const [ linkToURL, setLinkToURL ] = useState( linkTo ?? '' );
-
-	const linkSettingsOptions = {
-		url: {
-			label: __( 'Link URL', 'jetpack' ),
-			placeholder: __( 'Add URL', 'jetpack' ),
-			autoFocus: true,
-			autoFill: true,
-		},
-	};
 
 	const layoutStyle = getActiveStyleName( LAYOUT_STYLES, className );
 
@@ -101,18 +85,6 @@ const TiledGallerySettings = props => {
 					/>
 				</PanelBody>
 			) }
-			<PanelBody>
-				<LinkSettingsNavigation
-					url={ linkToURL }
-					setAttributes={ value => {
-						setLinkToURL( value.url );
-					} }
-					withBottomSheet={ false }
-					hasPicker
-					options={ linkSettingsOptions }
-					showIcon={ false }
-				/>
-			</PanelBody>
 		</InspectorControls>
 	);
 };

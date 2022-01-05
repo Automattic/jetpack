@@ -23,10 +23,11 @@ import { useResizeObserver } from '@wordpress/compose';
 /**
  * Internal dependencies
  */
-import { ALLOWED_MEDIA_TYPES } from './constants';
+import { ALLOWED_MEDIA_TYPES, LAYOUT_STYLES } from './constants';
 import { icon } from '.';
 import styles from './styles.scss';
 import TiledGallerySettings, { dynamicColumnsNumber, MAX_COLUMNS } from './settings';
+import { getActiveStyleName } from '../../shared/block-styles';
 
 const TILE_SPACING = 8;
 
@@ -46,7 +47,7 @@ const TiledGalleryEdit = props => {
 		noticeUI,
 		onFocus,
 		setAttributes,
-		attributes: { columns, images: attributeImages, linkTo, roundedCorners },
+		attributes: { columns, images: attributeImages, roundedCorners },
 	} = props;
 
 	const { replaceInnerBlocks, updateBlockAttributes } = useDispatch( blockEditorStore );
@@ -102,13 +103,15 @@ const TiledGalleryEdit = props => {
 	}, [ columns, images, setAttributes ] );
 
 	const populateInnerBlocksWithImages = ( imgs, replace = false ) => {
+		const layoutStyle = getActiveStyleName( LAYOUT_STYLES, className );
+
 		const newBlocks = imgs.map( image => {
 			return createBlock( 'core/image', {
 				id: image.id,
 				url: image.url,
 				caption: image.caption,
 				alt: image.alt,
-				className: styles[ 'is-style-squared' ],
+				className: styles[ `is-style-${ layoutStyle }` ],
 			} );
 		} );
 
@@ -172,7 +175,6 @@ const TiledGalleryEdit = props => {
 			{ resizeObserver }
 			<TiledGallerySettings
 				setAttributes={ props.setAttributes }
-				linkTo={ linkTo }
 				columns={ columns }
 				roundedCorners={ roundedCorners }
 				clientId={ clientId }

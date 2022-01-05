@@ -1,0 +1,4 @@
+Significance: patch
+Type: bugfix
+
+Search: avoid fatal errors when the feature is inactive, but Extra Sidebar Widgets are active.

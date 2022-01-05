@@ -4,7 +4,6 @@
 
 .horizontalBorder {
 	border-top-width: $border-width;
-	border-bottom-width: $border-width;
 	border-color: $light-gray-400;
 }
 
@@ -13,6 +12,10 @@
 }
 
 .is-style-squared {
+	aspect-ratio: 1;
+}
+
+.is-style-rectangular {
 	aspect-ratio: 1;
 }
 

@@ -631,8 +631,16 @@ class Jetpack_Gutenberg {
 		Assets::register_script(
 			'jetpack-blocks-editor',
 			"{$blocks_dir}editor{$blocks_env}.min.js",
-			JETPACK__PLUGIN_FILE
+			JETPACK__PLUGIN_FILE,
+			array( 'textdomain' => 'jetpack' )
 		);
+
+		// Hack around #20357 (specifically, that the editor bundle depends on
+		// wp-edit-post but wp-edit-post's styles break the Widget Editor and
+		// Site Editor) until a real fix gets unblocked.
+		// @todo Remove this once #20357 is properly fixed.
+		wp_styles()->query( 'jetpack-blocks-editor', 'registered' )->deps = array();
+
 		Assets::enqueue_script( 'jetpack-blocks-editor' );
 
 		wp_localize_script(
@@ -676,9 +684,9 @@ class Jetpack_Gutenberg {
 					 *
 					 * @since 10.3.0
 					 *
-					 * @param bool false Enable the RePublicize UI in the block editor context. Defaults to false.
+					 * @param bool true Enable the RePublicize UI in the block editor context. Defaults to true.
 					 */
-					'republicize_enabled'       => apply_filters( 'jetpack_block_editor_republicize_feature', false ),
+					'republicize_enabled'       => apply_filters( 'jetpack_block_editor_republicize_feature', true ),
 				),
 				'siteFragment'     => $status->get_site_suffix(),
 				'adminUrl'         => esc_url( admin_url() ),
@@ -687,8 +695,6 @@ class Jetpack_Gutenberg {
 				'allowedMimeTypes' => wp_get_mime_types(),
 			)
 		);
-
-		wp_set_script_translations( 'jetpack-blocks-editor', 'jetpack' );
 	}
 
 	/**
