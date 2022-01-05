@@ -13,12 +13,12 @@
             "dist": {
                 "type": "path",
                 "url": "projects/packages/ignorefile",
-                "reference": "d640ef88b8c90ec1c2a5f100bff93ebbd00bc997"
+                "reference": "f780873fde98b07b2a5a91e6693d1e4effcd559f"
             },
             "require-dev": {
                 "automattic/jetpack-changelogger": "^3.0",
                 "wikimedia/at-ease": "^1.2 | ^2.0",
-                "yoast/phpunit-polyfills": "1.0.2"
+                "yoast/phpunit-polyfills": "1.0.3"
             },
             "type": "library",
             "extra": {
@@ -64,7 +64,7 @@
             "dist": {
                 "type": "path",
                 "url": "projects/packages/codesniffer",
-                "reference": "14830482ca786bf9147d1a6f4404c972925d3032"
+                "reference": "5004265f49ebcbed423ee3c56204f5a442a5621c"
             },
             "require": {
                 "dealerdirect/phpcodesniffer-composer-installer": "^0.7",
@@ -75,7 +75,7 @@
             },
             "require-dev": {
                 "automattic/jetpack-changelogger": "^3.0",
-                "yoast/phpunit-polyfills": "1.0.2"
+                "yoast/phpunit-polyfills": "1.0.3"
             },
             "type": "phpcodesniffer-standard",
             "extra": {
@@ -123,7 +123,7 @@
             "dist": {
                 "type": "path",
                 "url": "projects/packages/phpcs-filter",
-                "reference": "11dab06e37662d8231c775c99a84bfbe4a9e79fe"
+                "reference": "3e73c765d04882240edc66ce8b0a3556dbe6bf30"
             },
             "require": {
                 "automattic/ignorefile": "^1.0",
@@ -131,7 +131,7 @@
             },
             "require-dev": {
                 "automattic/jetpack-changelogger": "^3.0",
-                "yoast/phpunit-polyfills": "1.0.2"
+                "yoast/phpunit-polyfills": "1.0.3"
             },
             "type": "library",
             "extra": {
