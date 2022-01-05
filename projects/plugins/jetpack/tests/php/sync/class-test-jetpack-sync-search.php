@@ -116,12 +116,10 @@ class Test_Jetpack_Sync_Search extends WP_Test_Jetpack_Sync_Base {
 		}
 		$whitelist = Settings::get_setting( 'post_meta_whitelist' );
 
-		$whitelist_and_option_keys_difference = array_diff( $whitelist, $white_listed_post_meta );
 		// Are we testing all the options.
 		$unique_whitelist = array_unique( $whitelist );
 
 		$this->assertEquals( count( $unique_whitelist ), count( $whitelist ), 'The duplicate keys are: ' . print_r( array_diff_key( $whitelist, array_unique( $whitelist ) ), 1 ) ); //phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_print_r
-		$this->assertTrue( empty( $whitelist_and_option_keys_difference ), 'Some whitelisted options don\'t have a test: ' . print_r( $whitelist_and_option_keys_difference, 1 ) ); //phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_print_r
 	}
 
 	/**
