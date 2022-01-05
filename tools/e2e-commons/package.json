@@ -29,7 +29,7 @@
 		"chalk": "4.1.2",
 		"config": "3.3.6",
 		"eslint": "7.32.0",
-		"eslint-plugin-playwright": "0.6.0",
+		"eslint-plugin-playwright": "0.7.1",
 		"jetpack-cli": "link:../cli",
 		"localtunnel": "2.0.2",
 		"lodash": "4.17.21",

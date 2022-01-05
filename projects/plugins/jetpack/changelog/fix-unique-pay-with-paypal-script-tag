@@ -1,4 +1,0 @@
-Significance: patch
-Type: compat
-
-Pay with PayPal: update the name of the script enqueued when using the Pay with PayPal button, to avoid conflicts with other plugins that may use a similar script tag.
