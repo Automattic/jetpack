@@ -90,6 +90,12 @@
 		width: calc(100% - 48px); // Help with the margin on the row.
 	}
 
+	&__inner {
+		display: flex;
+		flex-direction: column;
+		flex-grow: 1;
+	}
+
 	&__content{
 		background: var( --jp-white-off );
 		margin: 0;

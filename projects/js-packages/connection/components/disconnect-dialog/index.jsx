@@ -130,7 +130,7 @@ const DisconnectDialog = props => {
 				Object.assign( {}, { step: 'thank_you' }, defaultTracksArgs )
 			);
 		}
-	}, [ isOpen, isDisconnected, isProvidingFeedback, isFeedbackProvided, defaultTracksArgs, modalRef ] );
+	}, [ isOpen, isDisconnected, isProvidingFeedback, isFeedbackProvided, defaultTracksArgs ] );
 
 	/**
 	 * Disconnect the site.
@@ -383,7 +383,6 @@ const DisconnectDialog = props => {
 		<>
 			{ isOpen && (
 				<Modal
-					ref={ modalRef }
 					shouldCloseOnEsc={ ! isDisconnecting }
 					shouldCloseOnClickOutside={ ! isDisconnecting }
 					contentLabel={ __( 'Disconnect Jetpack', 'jetpack' ) }
@@ -393,7 +392,9 @@ const DisconnectDialog = props => {
 						( isDisconnected ? ' jp-connection__disconnect-dialog__success' : '' )
 					}
 				>
-					{ getCurrentStep() }
+					<div ref={ modalRef } className="jp-connection__disconnect-dialog__inner">
+						{ getCurrentStep() }
+					</div>
 				</Modal>
 			) }
 		</>
