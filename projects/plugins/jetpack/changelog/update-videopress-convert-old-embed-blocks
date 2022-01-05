@@ -1,4 +1,0 @@
-Significance: minor
-Type: compat
-
-VideoPress: classic block embeds with old flash URLs can now be properly converted to VideoPress blocks.
