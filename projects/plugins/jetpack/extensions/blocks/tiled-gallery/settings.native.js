@@ -17,6 +17,7 @@ import LayoutPicker from './layout-picker.native';
 
 const MIN_COLUMNS = 1;
 export const MAX_COLUMNS = 8;
+export const DEFAULT_COLUMNS = 2;
 const DEFAULT_COLUMNS_PORTRAIT = 2;
 const DEFAULT_COLUMNS_LANDSCAPE = 4;
 const MIN_ROUNDED_CORNERS = 0;
@@ -32,16 +33,8 @@ const TiledGallerySettings = props => {
 		styles.horizontalBorderDark
 	);
 
-	const {
-		setAttributes,
-		numImages,
-		columns,
-		roundedCorners,
-		clientId,
-		className,
-		window,
-	} = props;
-	const [ columnNumber, setColumnNumber ] = useState( columns ?? dynamicColumnsNumber( window ) );
+	const { setAttributes, numImages, columns, roundedCorners, clientId, className } = props;
+	const [ columnNumber, setColumnNumber ] = useState( columns ?? DEFAULT_COLUMNS );
 	useEffect( () => {
 		setColumnNumber( columns );
 	}, [ columns ] );

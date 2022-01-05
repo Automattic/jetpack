@@ -26,7 +26,11 @@ import { useResizeObserver } from '@wordpress/compose';
 import { ALLOWED_MEDIA_TYPES, LAYOUT_STYLES } from './constants';
 import { icon } from '.';
 import styles from './styles.scss';
-import TiledGallerySettings, { dynamicColumnsNumber, MAX_COLUMNS } from './settings';
+import TiledGallerySettings, {
+	dynamicColumnsNumber,
+	DEFAULT_COLUMNS,
+	MAX_COLUMNS,
+} from './settings';
 import { getActiveStyleName } from '../../shared/block-styles';
 
 const TILE_SPACING = 8;
@@ -99,7 +103,7 @@ const TiledGalleryEdit = props => {
 
 	useEffect( () => {
 		if ( ! columns ) {
-			const col = Math.min( images.length, dynamicColumnsNumber( window ) );
+			const col = Math.min( images.length, DEFAULT_COLUMNS );
 			setAttributes( { columns: Math.max( col, 1 ) } );
 		}
 	}, [ columns, images, setAttributes ] );
@@ -122,7 +126,7 @@ const TiledGalleryEdit = props => {
 
 	useEffect( () => {
 		if ( ! columns ) {
-			setAttributes( { columns: dynamicColumnsNumber( window ) } );
+			setAttributes( { columns: DEFAULT_COLUMNS } );
 		}
 	}, [ columns, setAttributes ] );
 
