@@ -130,7 +130,7 @@ const DisconnectDialog = props => {
 				Object.assign( {}, { step: 'thank_you' }, defaultTracksArgs )
 			);
 		}
-	}, [ isOpen, isDisconnected, isProvidingFeedback, isFeedbackProvided, defaultTracksArgs ] );
+	}, [ isOpen, isDisconnected, isProvidingFeedback, isFeedbackProvided, defaultTracksArgs, modalRef ] );
 
 	/**
 	 * Disconnect the site.
