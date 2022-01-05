@@ -149,16 +149,16 @@
         },
         {
             "name": "automattic/jetpack-assets",
-            "version": "v1.16.0",
+            "version": "v1.16.1",
             "source": {
                 "type": "git",
                 "url": "https://github.com/Automattic/jetpack-assets.git",
-                "reference": "2d96bf2f12279a0551b1d5e9bb9f546bbbd8d1bf"
+                "reference": "5a6959969bed4559e080269cafbd69d476249822"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/Automattic/jetpack-assets/zipball/2d96bf2f12279a0551b1d5e9bb9f546bbbd8d1bf",
-                "reference": "2d96bf2f12279a0551b1d5e9bb9f546bbbd8d1bf",
+                "url": "https://api.github.com/repos/Automattic/jetpack-assets/zipball/5a6959969bed4559e080269cafbd69d476249822",
+                "reference": "5a6959969bed4559e080269cafbd69d476249822",
                 "shasum": ""
             },
             "require": {
@@ -196,9 +196,9 @@
             ],
             "description": "Asset management utilities for Jetpack ecosystem packages",
             "support": {
-                "source": "https://github.com/Automattic/jetpack-assets/tree/v1.16.0"
+                "source": "https://github.com/Automattic/jetpack-assets/tree/v1.16.1"
             },
-            "time": "2022-01-04T21:11:41+00:00"
+            "time": "2022-01-05T21:46:22+00:00"
         },
         {
             "name": "automattic/jetpack-autoloader",
