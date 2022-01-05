@@ -9,6 +9,7 @@ namespace Automattic\Jetpack\My_Jetpack;
 
 use Automattic\Jetpack\Admin_UI\Admin_Menu;
 use Automattic\Jetpack\Assets;
+use Automattic\Jetpack\Connection\Initial_State as Connection_Initial_State;
 
 /**
  * The main Initializer class that registers the admin menu and eneuque the assets.
@@ -31,8 +32,8 @@ class Initializer {
 		}
 
 		$page_suffix = Admin_Menu::add_menu(
-			__( 'My Jetpack', 'jetpack' ),
-			__( 'My Jetpack', 'jetpack' ),
+			__( 'My Jetpack', 'jetpack-my-jetpack' ),
+			__( 'My Jetpack', 'jetpack-my-jetpack' ),
 			'manage_options',
 			'my-jetpack',
 			array( __CLASS__, 'admin_page' ),
@@ -71,9 +72,22 @@ class Initializer {
 			array(
 				'enqueue'    => true,
 				'in_footer'  => true,
-				'textdomain' => 'jetpack',
+				'textdomain' => 'jetpack-my-jetpack',
 			)
 		);
+		wp_localize_script(
+			'my_jetpack_main_app',
+			'myJetpackInitialState',
+			array(
+				'apiRoot'               => esc_url_raw( rest_url() ),
+				'apiNonce'              => wp_create_nonce( 'wp_rest' ),
+				'redirectUrl'           => admin_url( '?page=my-jetpack' ),
+				'topJetpackMenuItemUrl' => Admin_Menu::get_top_level_menu_item_url(),
+			)
+		);
+
+		// Connection Initial State.
+		wp_add_inline_script( 'my_jetpack_main_app', Connection_Initial_State::render(), 'before' );
 	}
 
 	/**
@@ -82,6 +96,6 @@ class Initializer {
 	 * @return void
 	 */
 	public static function admin_page() {
-		echo '<div id="my-jetpack-container" class="wrap"></div>';
+		echo '<div id="my-jetpack-container"></div>';
 	}
 }

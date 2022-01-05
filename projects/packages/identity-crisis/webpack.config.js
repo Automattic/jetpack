@@ -7,13 +7,12 @@ const path = require( 'path' );
 module.exports = [
 	{
 		entry: {
-			index: './src/_inc/idc-notice.js',
+			index: './src/_inc/admin.jsx',
 		},
 		mode: jetpackWebpackConfig.mode,
 		devtool: jetpackWebpackConfig.isDevelopment ? 'source-map' : false,
 		output: {
 			...jetpackWebpackConfig.output,
-			filename: '[name].js',
 			path: path.resolve( './build' ),
 		},
 		optimization: {
@@ -23,7 +22,11 @@ module.exports = [
 			...jetpackWebpackConfig.resolve,
 		},
 		node: false,
-		plugins: [ ...jetpackWebpackConfig.StandardPlugins() ],
+		plugins: [
+			...jetpackWebpackConfig.StandardPlugins( {
+				DependencyExtractionPlugin: { injectPolyfill: true },
+			} ),
+		],
 		module: {
 			strictExportPresence: true,
 			rules: [
@@ -36,7 +39,19 @@ module.exports = [
 				jetpackWebpackConfig.TranspileRule( {
 					includeNodeModules: [ '@automattic/jetpack-' ],
 				} ),
+
+				// Handle CSS.
+				jetpackWebpackConfig.CssRule( {
+					extensions: [ 'css', 'sass', 'scss' ],
+					extraLoaders: [ 'sass-loader' ],
+				} ),
 			],
+		},
+		externals: {
+			...jetpackWebpackConfig.externals,
+			jetpackConfig: JSON.stringify( {
+				consumer_slug: 'identity_crisis',
+			} ),
 		},
 	},
 ];

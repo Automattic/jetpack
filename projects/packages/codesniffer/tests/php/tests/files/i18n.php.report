@@ -1,0 +1,21 @@
+ 17 | ERROR | [x] Mismatched text domain. Expected 'domain' but got 'wrongdomain'. (Jetpack.Functions.I18n.TextDomainMismatch)
+ 18 | ERROR | [x] Mismatched text domain. Expected 'domain' but got 'wrongdomain'. (Jetpack.Functions.I18n.TextDomainMismatch)
+ 21 | ERROR | [x] Missing domain arg. (Jetpack.Functions.I18n.MissingDomain)
+ 22 | ERROR | [x] Missing domain arg. (Jetpack.Functions.I18n.MissingDomain)
+ 25 | ERROR | [ ] Missing domain arg. (Jetpack.Functions.I18n.MissingDomain)
+ 26 | ERROR | [ ] Domain is not a string literal. (Jetpack.Functions.I18n.DomainNotLiteral)
+ 29 | ERROR | [ ] The domain must not contain interpolated variables. Found $domain.
+    |       |     (Jetpack.Functions.I18n.InterpolatedVariable)
+ 30 | ERROR | [ ] The domain must not contain interpolated variables. Found $domain.
+    |       |     (Jetpack.Functions.I18n.InterpolatedVariable)
+ 33 | ERROR | [x] Mismatched text domain. Expected 'domain' but got 'a $domain'. (Jetpack.Functions.I18n.TextDomainMismatch)
+ 59 | ERROR | [x] Mismatched text domain. Expected 'domain' but got 'wrongdomain'. (Jetpack.Functions.I18n.TextDomainMismatch)
+ 60 | ERROR | [x] Mismatched text domain. Expected 'domain' but got 'wrongdomain'. (Jetpack.Functions.I18n.TextDomainMismatch)
+ 61 | ERROR | [x] Mismatched text domain. Expected 'domain' but got 'wrongdomain'. (Jetpack.Functions.I18n.TextDomainMismatch)
+ 62 | ERROR | [x] Mismatched text domain. Expected 'domain' but got 'wrongdomain'. (Jetpack.Functions.I18n.TextDomainMismatch)
+ 63 | ERROR | [x] Mismatched text domain. Expected 'domain' but got 'wrongdomain'. (Jetpack.Functions.I18n.TextDomainMismatch)
+ 64 | ERROR | [x] Mismatched text domain. Expected 'domain' but got 'wrongdomain'. (Jetpack.Functions.I18n.TextDomainMismatch)
+ 65 | ERROR | [x] Mismatched text domain. Expected 'domain' but got 'wrongdomain'. (Jetpack.Functions.I18n.TextDomainMismatch)
+ 72 | ERROR | [x] Mismatched text domain. Expected 'domain' but got 'wrongdomain'. (Jetpack.Functions.I18n.TextDomainMismatch)
+ 77 | ERROR | [ ] The domain must not contain interpolated variables. Found $domain.
+    |       |     (Jetpack.Functions.I18n.InterpolatedVariable)

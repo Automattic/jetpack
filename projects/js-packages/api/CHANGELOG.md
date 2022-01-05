@@ -2,6 +2,21 @@
 
 ### This is a list detailing changes for the Jetpack RNA Components package releases.
 
+## 0.8.1 - 2022-01-04
+### Changed
+- Updated package dependencies
+
+## 0.8.0 - 2021-11-30
+### Added
+- Added jetpack/v4/seen-wc-connection-modal endpoint
+- Search: Added search REST API
+
+### Changed
+- Updated package version
+
+### Fixed
+- Properly add GET-parameters for the `fetchAuthorizationUrl` API call.
+
 ## 0.7.0 - 2021-11-23
 ### Changed
 - Auto-formatting of the unit test.

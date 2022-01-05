@@ -1,17 +1,17 @@
 {
 	"name": "automattic/jetpack-tracking",
 	"description": "Tracking for Jetpack",
-	"type": "library",
+	"type": "jetpack-library",
 	"license": "GPL-2.0-or-later",
 	"require": {
-		"automattic/jetpack-assets": "^1.13",
-		"automattic/jetpack-options": "^1.13",
+		"automattic/jetpack-assets": "^1.16",
+		"automattic/jetpack-options": "^1.14",
 		"automattic/jetpack-status": "^1.9",
 		"automattic/jetpack-terms-of-service": "^1.9"
 	},
 	"require-dev": {
 		"brain/monkey": "2.6.1",
-		"yoast/phpunit-polyfills": "1.0.2",
+		"yoast/phpunit-polyfills": "1.0.3",
 		"automattic/jetpack-changelogger": "^3.0"
 	},
 	"autoload": {
@@ -35,7 +35,7 @@
 		],
 		"test-coverage": [
 			"@composer update",
-			"phpdbg -d memory_limit=2048M -d max_execution_time=900 -qrr ./vendor/bin/phpunit --coverage-clover \"$COVERAGE_DIR/clover.xml\""
+			"php -dpcov.directory=. ./vendor/bin/phpunit --coverage-clover \"$COVERAGE_DIR/clover.xml\""
 		],
 		"test-php": [
 			"@composer update",
@@ -47,11 +47,12 @@
 	"extra": {
 		"autotagger": true,
 		"mirror-repo": "Automattic/jetpack-tracking",
+		"textdomain": "jetpack-tracking",
 		"changelogger": {
 			"link-template": "https://github.com/Automattic/jetpack-tracking/compare/v${old}...v${new}"
 		},
 		"branch-alias": {
-			"dev-master": "1.13.x-dev"
+			"dev-master": "1.14.x-dev"
 		}
 	}
 }

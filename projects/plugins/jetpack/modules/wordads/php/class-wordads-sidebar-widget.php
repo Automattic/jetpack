@@ -17,7 +17,7 @@ class WordAds_Sidebar_Widget extends WP_Widget {
 	 *
 	 * @var string[]
 	 */
-	private static $allowed_tags = array( 'mrec', 'wideskyscraper' );
+	private static $allowed_tags = array( 'mrec', 'wideskyscraper', 'leaderboard' );
 
 	/**
 	 * Number of widgets.

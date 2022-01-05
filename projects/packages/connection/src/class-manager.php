@@ -893,7 +893,7 @@ class Manager {
 		if ( ! user_can( $new_owner_id, 'administrator' ) ) {
 			return new WP_Error(
 				'new_owner_not_admin',
-				__( 'New owner is not admin', 'jetpack' ),
+				__( 'New owner is not admin', 'jetpack-connection' ),
 				array( 'status' => 400 )
 			);
 		}
@@ -903,7 +903,7 @@ class Manager {
 		if ( $old_owner_id === $new_owner_id ) {
 			return new WP_Error(
 				'new_owner_is_existing_owner',
-				__( 'New owner is same as existing owner', 'jetpack' ),
+				__( 'New owner is same as existing owner', 'jetpack-connection' ),
 				array( 'status' => 400 )
 			);
 		}
@@ -911,7 +911,7 @@ class Manager {
 		if ( ! $this->is_user_connected( $new_owner_id ) ) {
 			return new WP_Error(
 				'new_owner_not_connected',
-				__( 'New owner is not connected', 'jetpack' ),
+				__( 'New owner is not connected', 'jetpack-connection' ),
 				array( 'status' => 400 )
 			);
 		}
@@ -931,7 +931,7 @@ class Manager {
 		}
 		return new WP_Error(
 			'error_setting_new_owner',
-			__( 'Could not confirm new owner.', 'jetpack' ),
+			__( 'Could not confirm new owner.', 'jetpack-connection' ),
 			array( 'status' => 500 )
 		);
 	}
@@ -1037,7 +1037,7 @@ class Manager {
 		$secrets = ( new Secrets() )->generate( 'register', get_current_user_id(), 600 );
 
 		if ( false === $secrets ) {
-			return new WP_Error( 'cannot_save_secrets', __( 'Jetpack experienced an issue trying to save options (cannot_save_secrets). We suggest that you contact your hosting provider, and ask them for help checking that the options table is writable on your site.', 'jetpack' ) );
+			return new WP_Error( 'cannot_save_secrets', __( 'Jetpack experienced an issue trying to save options (cannot_save_secrets). We suggest that you contact your hosting provider, and ask them for help checking that the options table is writable on your site.', 'jetpack-connection' ) );
 		}
 
 		if (
@@ -1062,6 +1062,11 @@ class Manager {
 			? $stats_options['blog_id']
 			: null;
 
+		/* This action is documented in src/class-package-version-tracker.php */
+		$package_versions = apply_filters( 'jetpack_package_versions', array() );
+
+		$active_plugins_using_connection = Plugin_Storage::get_all();
+
 		/**
 		 * Filters the request body for additional property addition.
 		 *
@@ -1075,22 +1080,24 @@ class Manager {
 			'jetpack_register_request_body',
 			array_merge(
 				array(
-					'siteurl'            => Urls::site_url(),
-					'home'               => Urls::home_url(),
-					'gmt_offset'         => $gmt_offset,
-					'timezone_string'    => (string) get_option( 'timezone_string' ),
-					'site_name'          => (string) get_option( 'blogname' ),
-					'secret_1'           => $secrets['secret_1'],
-					'secret_2'           => $secrets['secret_2'],
-					'site_lang'          => get_locale(),
-					'timeout'            => $timeout,
-					'stats_id'           => $stats_id,
-					'state'              => get_current_user_id(),
-					'site_created'       => $this->get_assumed_site_creation_date(),
-					'jetpack_version'    => Constants::get_constant( 'JETPACK__VERSION' ),
-					'ABSPATH'            => Constants::get_constant( 'ABSPATH' ),
-					'current_user_email' => wp_get_current_user()->user_email,
-					'connect_plugin'     => $this->get_plugin() ? $this->get_plugin()->get_slug() : null,
+					'siteurl'                  => Urls::site_url(),
+					'home'                     => Urls::home_url(),
+					'gmt_offset'               => $gmt_offset,
+					'timezone_string'          => (string) get_option( 'timezone_string' ),
+					'site_name'                => (string) get_option( 'blogname' ),
+					'secret_1'                 => $secrets['secret_1'],
+					'secret_2'                 => $secrets['secret_2'],
+					'site_lang'                => get_locale(),
+					'timeout'                  => $timeout,
+					'stats_id'                 => $stats_id,
+					'state'                    => get_current_user_id(),
+					'site_created'             => $this->get_assumed_site_creation_date(),
+					'jetpack_version'          => Constants::get_constant( 'JETPACK__VERSION' ),
+					'ABSPATH'                  => Constants::get_constant( 'ABSPATH' ),
+					'current_user_email'       => wp_get_current_user()->user_email,
+					'connect_plugin'           => $this->get_plugin() ? $this->get_plugin()->get_slug() : null,
+					'package_versions'         => $package_versions,
+					'active_connected_plugins' => $active_plugins_using_connection,
 				),
 				self::$extra_register_params
 			)
@@ -1147,6 +1154,8 @@ class Manager {
 				'public' => $jetpack_public,
 			)
 		);
+
+		update_option( Package_Version_Tracker::PACKAGE_VERSION_OPTION, $package_versions );
 
 		$this->get_tokens()->update_blog_token( (string) $registration_details->jetpack_secret );
 
@@ -1301,7 +1310,7 @@ class Manager {
 				'xml_rpc-32700' === $registration_response->error
 				&& ! function_exists( 'xml_parser_create' )
 			) {
-				$error_description = __( "PHP's XML extension is not available. Jetpack requires the XML extension to communicate with WordPress.com. Please contact your hosting provider to enable PHP's XML extension.", 'jetpack' );
+				$error_description = __( "PHP's XML extension is not available. Jetpack requires the XML extension to communicate with WordPress.com. Please contact your hosting provider to enable PHP's XML extension.", 'jetpack-connection' );
 			} else {
 				$error_description = isset( $registration_response->error_description )
 					? (string) $registration_response->error_description
@@ -1322,21 +1331,21 @@ class Manager {
 			return new \WP_Error(
 				'jetpack_id',
 				/* translators: %s is an error message string */
-				sprintf( __( 'Error Details: Jetpack ID is empty. Do not publicly post this error message! %s', 'jetpack' ), $entity ),
+				sprintf( __( 'Error Details: Jetpack ID is empty. Do not publicly post this error message! %s', 'jetpack-connection' ), $entity ),
 				$entity
 			);
 		} elseif ( ! is_scalar( $registration_response->jetpack_id ) ) {
 			return new \WP_Error(
 				'jetpack_id',
 				/* translators: %s is an error message string */
-				sprintf( __( 'Error Details: Jetpack ID is not a scalar. Do not publicly post this error message! %s', 'jetpack' ), $entity ),
+				sprintf( __( 'Error Details: Jetpack ID is not a scalar. Do not publicly post this error message! %s', 'jetpack-connection' ), $entity ),
 				$entity
 			);
 		} elseif ( preg_match( '/[^0-9]/', $registration_response->jetpack_id ) ) {
 			return new \WP_Error(
 				'jetpack_id',
 				/* translators: %s is an error message string */
-				sprintf( __( 'Error Details: Jetpack ID begins with a numeral. Do not publicly post this error message! %s', 'jetpack' ), $entity ),
+				sprintf( __( 'Error Details: Jetpack ID begins with a numeral. Do not publicly post this error message! %s', 'jetpack-connection' ), $entity ),
 				$entity
 			);
 		}
@@ -1728,7 +1737,7 @@ class Manager {
 	public function handle_registration( array $registration_data ) {
 		list( $registration_secret_1, $registration_user_id ) = $registration_data;
 		if ( empty( $registration_user_id ) ) {
-			return new \WP_Error( 'registration_state_invalid', __( 'Invalid Registration State', 'jetpack' ), 400 );
+			return new \WP_Error( 'registration_state_invalid', __( 'Invalid Registration State', 'jetpack-connection' ), 400 );
 		}
 
 		return ( new Secrets() )->verify( 'register', $registration_secret_1, (int) $registration_user_id );
@@ -2059,7 +2068,7 @@ class Manager {
 			return new \WP_Error(
 				'fail_domain_empty',
 				/* translators: %1$s is a domain name. */
-				sprintf( __( 'Domain `%1$s` just failed is_usable_domain check as it is empty.', 'jetpack' ), $domain )
+				sprintf( __( 'Domain `%1$s` just failed is_usable_domain check as it is empty.', 'jetpack-connection' ), $domain )
 			);
 		}
 
@@ -2095,7 +2104,7 @@ class Manager {
 					/* translators: %1$s is a domain name. */
 					__(
 						'Domain `%1$s` just failed is_usable_domain check as it is in the forbidden array.',
-						'jetpack'
+						'jetpack-connection'
 					),
 					$domain
 				)
@@ -2110,7 +2119,7 @@ class Manager {
 					/* translators: %1$s is a domain name. */
 					__(
 						'Domain `%1$s` just failed is_usable_domain check as it uses an invalid top level domain.',
-						'jetpack'
+						'jetpack-connection'
 					),
 					$domain
 				)
@@ -2125,7 +2134,7 @@ class Manager {
 					/* translators: %1$s is a domain name. */
 					__(
 						'Domain `%1$s` just failed is_usable_domain check as it is a subdomain of WordPress.com.',
-						'jetpack'
+						'jetpack-connection'
 					),
 					$domain
 				)
@@ -2215,22 +2224,22 @@ class Manager {
 		$user_data = $this->get_connected_user_data();
 		if ( is_array( $user_data ) ) {
 			$options['jetpack_user_id']         = array(
-				'desc'     => __( 'The WP.com user ID of the connected user', 'jetpack' ),
+				'desc'     => __( 'The WP.com user ID of the connected user', 'jetpack-connection' ),
 				'readonly' => true,
 				'value'    => $user_data['ID'],
 			);
 			$options['jetpack_user_login']      = array(
-				'desc'     => __( 'The WP.com username of the connected user', 'jetpack' ),
+				'desc'     => __( 'The WP.com username of the connected user', 'jetpack-connection' ),
 				'readonly' => true,
 				'value'    => $user_data['login'],
 			);
 			$options['jetpack_user_email']      = array(
-				'desc'     => __( 'The WP.com user email of the connected user', 'jetpack' ),
+				'desc'     => __( 'The WP.com user email of the connected user', 'jetpack-connection' ),
 				'readonly' => true,
 				'value'    => $user_data['email'],
 			);
 			$options['jetpack_user_site_count'] = array(
-				'desc'     => __( 'The number of sites of the connected WP.com user', 'jetpack' ),
+				'desc'     => __( 'The number of sites of the connected WP.com user', 'jetpack-connection' ),
 				'readonly' => true,
 				'value'    => $user_data['site_count'],
 			);
@@ -2252,13 +2261,13 @@ class Manager {
 			$jetpack_client_id = \Jetpack_Options::get_option( 'id' );
 		}
 		$options['jetpack_version'] = array(
-			'desc'     => __( 'Jetpack Plugin Version', 'jetpack' ),
+			'desc'     => __( 'Jetpack Plugin Version', 'jetpack-connection' ),
 			'readonly' => true,
 			'value'    => Constants::get_constant( 'JETPACK__VERSION' ),
 		);
 
 		$options['jetpack_client_id'] = array(
-			'desc'     => __( 'The Client ID/WP.com Blog ID of this site', 'jetpack' ),
+			'desc'     => __( 'The Client ID/WP.com Blog ID of this site', 'jetpack-connection' ),
 			'readonly' => true,
 			'value'    => $jetpack_client_id,
 		);
@@ -2415,7 +2424,7 @@ class Manager {
 			}
 
 			/* translators: Error description string. */
-			$error_description = isset( $json->message ) ? sprintf( __( 'Error Details: %s', 'jetpack' ), (string) $json->message ) : '';
+			$error_description = isset( $json->message ) ? sprintf( __( 'Error Details: %s', 'jetpack-connection' ), (string) $json->message ) : '';
 
 			return new WP_Error( (string) $json->code, $error_description, $code );
 		}

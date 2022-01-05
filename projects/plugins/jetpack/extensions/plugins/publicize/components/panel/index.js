@@ -79,7 +79,11 @@ const PublicizePanel = ( { prePublish } ) => {
 								label={
 									isPublicizeEnabled && ! isPublicizeDisabledBySitePlan
 										? __( 'Share when publishing', 'jetpack' )
-										: __( 'Sharing is disabled', 'jetpack' )
+										: __(
+												'Sharing is disabled',
+												'jetpack',
+												/* dummy arg to avoid bad minification */ 0
+										  )
 								}
 								onChange={ togglePublicizeFeature }
 								checked={ isPublicizeEnabled }

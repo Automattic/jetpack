@@ -13,6 +13,8 @@ import analytics from 'lib/analytics';
 import { withModuleSettingsFormHelpers } from 'components/module-settings/with-module-settings-form-helpers';
 import DashSectionHeader from 'components/dash-section-header';
 import DashActivity from './activity';
+import DashBoost from './boost';
+import DashCRM from './crm';
 import DashStats from './stats/index.jsx';
 import DashProtect from './protect';
 import DashMonitor from './monitor';
@@ -21,6 +23,7 @@ import DashAkismet from './akismet';
 import DashBackups from './backups';
 import DashPhoton from './photon';
 import DashSearch from './search';
+import DashSecurityBundle from './security-bundle';
 import DashVideoPress from './videopress';
 import DashConnections from './connections';
 import QuerySitePlugins from 'components/data/query-site-plugins';
@@ -39,6 +42,7 @@ import { getScanStatus, isFetchingScanStatus } from 'state/scan';
 const renderPairs = layout =>
 	layout.map( ( item, layoutIndex ) => [
 		item.header,
+		item.pinnedBundle,
 		chunk( item.cards, 2 ).map( ( [ left, right ], cardIndex ) => (
 			<div className="jp-at-a-glance__item-grid" key={ `card-${ layoutIndex }-${ cardIndex }` }>
 				<div className="jp-at-a-glance__left">{ left }</div>
@@ -139,10 +143,13 @@ class AtAGlance extends Component {
 
 		// If user can manage modules, we're in an admin view, otherwise it's a non-admin view.
 		if ( this.props.userCanManageModules ) {
+			const canDisplaybundleCard =
+				! this.props.multisite && ! this.props.isOfflineMode && this.props.hasConnectedOwner;
 			const pairs = [
 				{
 					header: securityHeader,
 					cards: securityCards,
+					pinnedBundle: canDisplaybundleCard ? <DashSecurityBundle /> : null,
 				},
 			];
 
@@ -166,10 +173,19 @@ class AtAGlance extends Component {
 					/>
 				);
 			}
+
+			performanceCards.push(
+				<DashBoost siteAdminUrl={ this.props.siteAdminUrl } />,
+				<DashCRM siteAdminUrl={ this.props.siteAdminUrl } />
+			);
+
 			if ( performanceCards.length ) {
 				pairs.push( {
 					header: (
-						<DashSectionHeader key="performanceHeader" label={ __( 'Performance', 'jetpack' ) } />
+						<DashSectionHeader
+							key="performanceHeader"
+							label={ __( 'Performance and Growth', 'jetpack' ) }
+						/>
 					),
 					cards: performanceCards,
 				} );

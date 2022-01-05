@@ -487,7 +487,7 @@ class Jetpack_Lazy_Images {
 	public function enqueue_assets() {
 		Assets::register_script(
 			'jetpack-lazy-images-polyfill-intersectionobserver',
-			'../dist/intersection-observer.min.js',
+			'../dist/intersection-observer.js',
 			__FILE__,
 			array(
 				'nonmin_path' => '../dist/intersection-observer.src.js',
@@ -496,7 +496,7 @@ class Jetpack_Lazy_Images {
 		);
 		Assets::register_script(
 			'jetpack-lazy-images',
-			'../dist/lazy-images.min.js',
+			'../dist/lazy-images.js',
 			__FILE__,
 			array(
 				'nonmin_path'  => 'js/lazy-images.js',
@@ -509,7 +509,7 @@ class Jetpack_Lazy_Images {
 			'jetpack-lazy-images',
 			'jetpackLazyImagesL10n',
 			array(
-				'loading_warning' => __( 'Images are still loading. Please cancel your print and try again.', 'jetpack' ),
+				'loading_warning' => __( 'Images are still loading. Please cancel your print and try again.', 'jetpack-lazy-images' ),
 			)
 		);
 	}

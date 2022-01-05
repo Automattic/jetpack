@@ -56,3 +56,11 @@ $overlay-horizontal-padding-lg: 3em;
 		box-sizing: inherit;
 	}
 }
+
+// Ensure the hidden overlay doesn't add whitespace to printed pages
+@media print {
+    .jetpack-instant-search__overlay.is-hidden {
+        display: none;
+    }
+}
+
