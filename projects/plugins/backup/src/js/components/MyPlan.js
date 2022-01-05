@@ -1,7 +1,7 @@
 /**
  * Internal dependencies
  */
-import { useState, useEffect } from '@wordpress/element';
+import { useState, useEffect, Fragment } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 import apiFetch from '@wordpress/api-fetch';
 import {
@@ -18,7 +18,7 @@ const MyPlan = props => {
 
 	// API call to get all site purchases
 	useEffect( () => {
-		apiFetch( { path: '/jetpack/v4/site/purchases' } ).then(
+		apiFetch( { path: '/jetpack/v4/site/current-purchases' } ).then(
 			res => {
 				setSitePurchases( JSON.parse( res.data ) );
 				setSitePurchasesLoaded( true );
@@ -73,10 +73,10 @@ function getPurchasesList( purchases, purchaseType ) {
 
 	filteredPurchases.forEach( purchase => {
 		purchasesList.push(
-			<>
+			<Fragment>
 				<h4> { purchase.product_name } </h4>
 				<p> { purchase.expiry_message } </p>
-			</>
+			</Fragment>
 		);
 	} );
 

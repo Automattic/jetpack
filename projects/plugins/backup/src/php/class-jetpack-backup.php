@@ -159,12 +159,14 @@ class Jetpack_Backup {
 		);
 
 		// Get information on site products.
+		// Backup plugin version of /site/purchases from JP plugin.
+		// Revert once this route and MyPlan component are extracted to a common package.
 		register_rest_route(
 			'jetpack/v4',
-			'/site/purchases',
+			'/site/current-purchases',
 			array(
 				'methods'             => WP_REST_Server::READABLE,
-				'callback'            => __CLASS__ . '::get_site_purchases',
+				'callback'            => __CLASS__ . '::get_site_current_purchases',
 				'permission_callback' => __CLASS__ . '::backups_permissions_callback',
 			)
 		);
@@ -273,7 +275,7 @@ class Jetpack_Backup {
 	 *
 	 * @return array of site purchases.
 	 */
-	public static function get_site_purchases() {
+	public static function get_site_current_purchases() {
 
 		$request  = sprintf( '/sites/%d/purchases', \Jetpack_Options::get_option( 'id' ) );
 		$response = Automattic\Jetpack\Connection\Client::wpcom_json_api_request_as_blog( $request, '1.1' );
