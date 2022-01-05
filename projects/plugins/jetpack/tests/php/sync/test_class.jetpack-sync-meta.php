@@ -78,6 +78,9 @@ class WP_Test_Jetpack_Sync_Meta extends WP_Test_Jetpack_Sync_Base {
 		$this->assertEquals( array( 'foo', 'bar' ), $meta_key_array );
 	}
 
+	/**
+	 * Verify that update_post_meta is synced after an add_post_meta.
+	 */
 	public function test_add_then_updated_post_meta_is_synced() {
 		add_post_meta( $this->post_id, $this->whitelisted_post_meta, 'foo' );
 		update_post_meta( $this->post_id, $this->whitelisted_post_meta, 'bar', 'foo' );
@@ -88,6 +91,9 @@ class WP_Test_Jetpack_Sync_Meta extends WP_Test_Jetpack_Sync_Base {
 		$this->assertEquals( get_post_meta( $this->post_id, $this->whitelisted_post_meta ), $meta_key_array );
 	}
 
+	/**
+	 * Verify that update_post_meta is sycned.
+	 */
 	public function test_updated_post_meta_is_synced() {
 		update_post_meta( $this->post_id, $this->whitelisted_post_meta, 'foo' );
 		update_post_meta( $this->post_id, $this->whitelisted_post_meta, 'bar', 'foo' );
@@ -98,6 +104,9 @@ class WP_Test_Jetpack_Sync_Meta extends WP_Test_Jetpack_Sync_Base {
 		$this->assertEquals( get_post_meta( $this->post_id, $this->whitelisted_post_meta ), $meta_key_array );
 	}
 
+	/**
+	 * Verify that delete_post_meta triggers sync.
+	 */
 	public function test_deleted_post_meta_is_synced() {
 		add_post_meta( $this->post_id, $this->whitelisted_post_meta, 'foo' );
 
@@ -111,6 +120,9 @@ class WP_Test_Jetpack_Sync_Meta extends WP_Test_Jetpack_Sync_Base {
 		$this->assertEquals( get_post_meta( $this->post_id, $this->whitelisted_post_meta ), $meta_key_array );
 	}
 
+	/**
+	 * Verify deleting all post meta is synced.
+	 */
 	public function test_delete_all_post_meta_is_synced() {
 
 		add_post_meta( $this->post_id, $this->whitelisted_post_meta, 'foo' );
@@ -124,6 +136,9 @@ class WP_Test_Jetpack_Sync_Meta extends WP_Test_Jetpack_Sync_Base {
 		$this->assertEquals( get_post_meta( $this->post_id, $this->whitelisted_post_meta ), $meta_key_array );
 	}
 
+	/**
+	 * Verify private meta is not synced.
+	 */
 	public function test_doesn_t_sync_private_meta() {
 		add_post_meta( $this->post_id, '_private_meta', 'foo' );
 
@@ -132,6 +147,9 @@ class WP_Test_Jetpack_Sync_Meta extends WP_Test_Jetpack_Sync_Base {
 		$this->assertEquals( null, $this->server_replica_storage->get_metadata( 'post', $this->post_id, '_private_meta', true ) );
 	}
 
+	/**
+	 * Verify search allowed meta is not synced if Search module inactive.
+	 */
 	public function test_doesn_t_sync_search_meta() {
 		$this->assertFalse( \Jetpack::is_module_active( 'search' ) );
 
