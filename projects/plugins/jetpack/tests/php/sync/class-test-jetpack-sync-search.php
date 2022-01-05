@@ -46,7 +46,9 @@ class Test_Jetpack_Sync_Search extends WP_Test_Jetpack_Sync_Base {
 	 *
 	 * @return void
 	 */
-	public static function tearDownAfterClass() {
+	public static function tear_down_after_class() {
+		parent::tear_down_after_class();
+
 		\Jetpack::deactivate_module( 'search' );
 		remove_filter( 'jetpack_sync_post_meta_whitelist', array( 'Automattic\\Jetpack\\Sync\\Modules\\Search', 'add_search_post_meta_whitelist' ), 10 );
 	}
@@ -54,8 +56,8 @@ class Test_Jetpack_Sync_Search extends WP_Test_Jetpack_Sync_Base {
 	/**
 	 * Setup test data.
 	 */
-	public function setUp() {
-		parent::setUp();
+	public function set_up() {
+		parent::set_up();
 
 		// create a post.
 		$this->post_id = $this->factory->post->create();
@@ -76,9 +78,8 @@ class Test_Jetpack_Sync_Search extends WP_Test_Jetpack_Sync_Base {
 	 * @return string[][]
 	 */
 	public function get_allowed_postmeta_keys() {
-		$search_sync = Modules::get_module( 'search' );
-		$params      = array();
-		$keys        = $search_sync->get_all_postmeta_keys();
+		$params = array();
+		$keys   = self::$search_sync->get_all_postmeta_keys();
 		foreach ( $keys as $k ) {
 			$params[] = array( $k );
 		}
@@ -92,9 +93,8 @@ class Test_Jetpack_Sync_Search extends WP_Test_Jetpack_Sync_Base {
 	 * @return string[][]
 	 */
 	public function get_allowed_taxonomies() {
-		$search_sync = Modules::get_module( 'search' );
-		$params      = array();
-		$keys        = $search_sync->get_all_taxonomies();
+		$params = array();
+		$keys   = self::$search_sync->get_all_taxonomies();
 		foreach ( $keys as $k ) {
 			$params[] = array( $k );
 		}
@@ -240,9 +240,8 @@ class Test_Jetpack_Sync_Search extends WP_Test_Jetpack_Sync_Base {
 	 * Verify that the allowed taxonomy list does not include any disallowed values.
 	 */
 	public function test_no_blacklisted_taxonomies() {
-		$search_sync = Modules::get_module( 'search' );
-		$taxes       = $search_sync->get_all_taxonomies();
-		$anti_taxes  = \Automattic\Jetpack\Sync\Defaults::$blacklisted_taxonomies;
+		$taxes      = self::$search_sync->get_all_taxonomies();
+		$anti_taxes = \Automattic\Jetpack\Sync\Defaults::$blacklisted_taxonomies;
 		$this->assertEmpty(
 			array_intersect( $taxes, $anti_taxes ),
 			'Some taxonomies for Search sync are explicitly in the blacklist.'
