@@ -16,8 +16,6 @@ export default function TiledGallerySave( { attributes, innerBlocks } ) {
 		if ( image.attributes ) {
 			return {
 				...image.attributes,
-				width: 100,
-				height: 100,
 			};
 		}
 		return image;
