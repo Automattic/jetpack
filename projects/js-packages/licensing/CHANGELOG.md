@@ -5,6 +5,14 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## 0.4.0 - 2022-01-04
+### Added
+- Add helpful links to the success page shown after a license is activated.
+- Link primary button after activation to Recommendations section if not seen before.
+
+### Changed
+- Updated package dependencies
+
 ## 0.3.2 - 2021-12-14
 ### Changed
 - Updated package dependencies.

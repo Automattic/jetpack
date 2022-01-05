@@ -5,6 +5,19 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.16.0] - 2022-01-04
+### Added
+- Document use of jetpack-assets, jetpack-composer-plugin, and i18n-loader-webpack-plugin together.
+
+### Changed
+- Switch to pcov for code coverage.
+- Updated package dependencies
+- Updated package textdomain from `jetpack` to `jetpack-assets`.
+
+## [1.15.0] - 2021-12-20
+### Added
+- Add `alias_textdomain()`.
+
 ## [1.14.0] - 2021-12-14
 ### Added
 - Generate `wp-jp-i18n-state` script.
@@ -149,6 +162,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - Statically access asset tools
 
+[1.16.0]: https://github.com/Automattic/jetpack-assets/compare/v1.15.0...v1.16.0
+[1.15.0]: https://github.com/Automattic/jetpack-assets/compare/v1.14.0...v1.15.0
 [1.14.0]: https://github.com/Automattic/jetpack-assets/compare/v1.13.1...v1.14.0
 [1.13.1]: https://github.com/Automattic/jetpack-assets/compare/v1.13.0...v1.13.1
 [1.13.0]: https://github.com/Automattic/jetpack-assets/compare/v1.12.0...v1.13.0

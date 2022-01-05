@@ -1,0 +1,81 @@
+<?php
+/**
+ * A dummy file to test the Jetpack.Functions.I18n sniff.
+ *
+ * @package automattic/jetpack-codesniffer
+ */
+
+// phpcs:disable VariableAnalysis, PEAR, Generic, WordPress, Squiz
+
+// Acceptable calls.
+wp_set_script_translations( 'handle', 'domain' );
+\wp_set_script_translations( 'handle', 'domain' );
+wp_set_script_translations('handle','domain');
+wp_set_script_translations( 'handle', "\d\x6fm\u{0061}\151n" );
+
+// Wrong domain, should be fixable.
+wp_set_script_translations( 'handle', 'domain' );
+\wp_set_script_translations( 'handle', 'domain' );
+
+// Missing domain, should be fixable.
+wp_set_script_translations( 'handle', 'domain' );
+wp_set_script_translations( get_handle( 1, 2, 3 ), 'domain' );
+
+// Not even fixable.
+wp_set_script_translations();
+wp_set_script_translations( 'handle', $domain );
+
+// Variable interpolation.
+wp_set_script_translations( 'handle', "a $domain" );
+wp_set_script_translations( 'handle', "a {$domain} b" );
+
+// Not a variable interpolation. Should be fixable.
+wp_set_script_translations( 'handle', 'domain' );
+
+// Acceptable calls.
+Assets::register_script( 'handle', 'path', __FILE__ );
+Assets::register_script( 'handle', 'path', __FILE__, $options );
+Assets::register_script( 'handle', 'path', __FILE__, array( 'foo' => 'bar' ) );
+Assets::register_script( 'handle', 'path', __FILE__, array( 'textdomain' => 'domain' ) );
+Automattic\Jetpack\Assets::register_script( 'handle', 'path', __FILE__, array( 'textdomain' => 'domain' ) );
+\Automattic\Jetpack\Assets::register_script( 'handle', 'path', __FILE__, array( 'textdomain' => 'domain' ) );
+Assets::register_script( 'handle', 'path', __FILE__, array( 'textdomain', 'foo' => 'bar' ) );
+Assets::register_script( 'handle', 'path', __FILE__, array('textdomain'=>'domain') );
+Assets::register_script( 'handle', 'path', __FILE__, [ 'textdomain' => 'domain' ] );
+Assets::register_script( 'handle', 'path', __FILE__, ['textdomain'=>'domain'] );
+Assets::register_script( 'handle', 'path', __FILE__, array( "textdomain" => "domain" ) );
+Assets::register_script(
+	'handle',
+	'path',
+	__FILE__,
+	array(
+		'foo'        => array( 'bar', 'textdomain' => 'wrongdomain' ),
+		'bar'        => [ 'baz', 'textdomain' => 'wrongdomain' ],
+		'textdomain' => 'domain',
+	)
+);
+
+// Fixable.
+Assets::register_script( 'handle', 'path', __FILE__, array( 'textdomain' => 'domain' ) );
+Automattic\Jetpack\Assets::register_script( 'handle', 'path', __FILE__, array( 'textdomain' => 'domain' ) );
+\Automattic\Jetpack\Assets::register_script( 'handle', 'path', __FILE__, array( 'textdomain' => 'domain' ) );
+Assets::register_script( 'handle', 'path', __FILE__, array('textdomain'=>'domain') );
+Assets::register_script( 'handle', 'path', __FILE__, [ 'textdomain' => 'domain' ] );
+Assets::register_script( 'handle', 'path', __FILE__, ['textdomain'=>'domain'] );
+Assets::register_script( 'handle', 'path', __FILE__, array( "textdomain" => 'domain' ) );
+Assets::register_script(
+	'handle',
+	'path',
+	__FILE__,
+	array(
+		'foo'        => 'bar',
+		'textdomain' => 'domain',
+	)
+);
+
+// Other.
+Assets::register_script( 'handle', 'path', __FILE__, array( 'textdomain' => "a $domain" ) );
+
+// These aren't calls.
+$something->wp_set_script_translations( 'handle', 'wrongdomain' );
+Not\Assets::register_script( 'handle', 'path', __FILE__, array( 'textdomain' => 'wrongdomain' ) );

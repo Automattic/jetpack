@@ -826,7 +826,6 @@ class Jetpack_Core_API_Data extends Jetpack_Core_API_XMLRPC_Consumer_Endpoint {
 				case 'count_roles':
 				case 'blog_id':
 				case 'do_not_track':
-				case 'hide_smile':
 				case 'version':
 				case 'collapse_nudges':
 					$grouped_options          = $grouped_options_current = (array) get_option( 'stats_options' );

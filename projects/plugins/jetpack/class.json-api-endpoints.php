@@ -1458,6 +1458,13 @@ abstract class WPCOM_JSON_API_Endpoint {
 					$response['display_embed'] = (string) (int) $metadata['videopress']['display_embed'];
 				}
 
+				if ( isset( $info->allow_download ) ) {
+					$response['allow_download'] = (string) (int) $info->allow_download;
+				} elseif ( isset( $metadata['videopress']['allow_download'] ) ) {
+					// We convert it to int then to string so that (bool) false to become "0".
+					$response['allow_download'] = (string) (int) $metadata['videopress']['allow_download'];
+				}
+
 				// Thumbnails
 				if ( function_exists( 'video_format_done' ) && function_exists( 'video_image_url_by_guid' ) ) {
 					$response['thumbnails'] = array(

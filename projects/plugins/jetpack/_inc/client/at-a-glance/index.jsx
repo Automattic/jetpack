@@ -13,6 +13,8 @@ import analytics from 'lib/analytics';
 import { withModuleSettingsFormHelpers } from 'components/module-settings/with-module-settings-form-helpers';
 import DashSectionHeader from 'components/dash-section-header';
 import DashActivity from './activity';
+import DashBoost from './boost';
+import DashCRM from './crm';
 import DashStats from './stats/index.jsx';
 import DashProtect from './protect';
 import DashMonitor from './monitor';
@@ -171,10 +173,19 @@ class AtAGlance extends Component {
 					/>
 				);
 			}
+
+			performanceCards.push(
+				<DashBoost siteAdminUrl={ this.props.siteAdminUrl } />,
+				<DashCRM siteAdminUrl={ this.props.siteAdminUrl } />
+			);
+
 			if ( performanceCards.length ) {
 				pairs.push( {
 					header: (
-						<DashSectionHeader key="performanceHeader" label={ __( 'Performance', 'jetpack' ) } />
+						<DashSectionHeader
+							key="performanceHeader"
+							label={ __( 'Performance and Growth', 'jetpack' ) }
+						/>
 					),
 					cards: performanceCards,
 				} );

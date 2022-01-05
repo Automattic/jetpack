@@ -2,6 +2,13 @@
 
 ### This is a list detailing changes for the Jetpack RNA IDC package releases.
 
+## 0.7.1 - 2022-01-04
+### Changed
+- Updated package dependencies.
+
+### Fixed
+- Remove the jetpack_idc_clear_confirmation GET parameter before reloading the page to avoid the endless loop in the UI.
+
 ## 0.7.0 - 2021-12-14
 ### Added
 - Add the non-admin IDC screen.
