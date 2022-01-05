@@ -1,4 +1,0 @@
-Significance: patch
-Type: fixed
-
-Don't issue a "doing it wrong" warning for registering aliases during plugin activation.
