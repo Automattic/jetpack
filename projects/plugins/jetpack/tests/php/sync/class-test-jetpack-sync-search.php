@@ -33,12 +33,12 @@ class Test_Jetpack_Sync_Search extends WP_Test_Jetpack_Sync_Base {
 	 *
 	 * @return void
 	 */
-	public static function setUpBeforeClass() {
-		parent::setUpBeforeClass();
+	public static function set_up_before_class() {
+		parent::set_up_before_class();
 
 		// Activate Search module.
 		\Jetpack::activate_module( 'search' );
-		self::$search_sync = Modules::get_module( 'search' );
+		self::$search_sync = new Automattic\Jetpack\Sync\Modules\Search();
 	}
 
 	/**
@@ -48,6 +48,7 @@ class Test_Jetpack_Sync_Search extends WP_Test_Jetpack_Sync_Base {
 	 */
 	public static function tearDownAfterClass() {
 		\Jetpack::deactivate_module( 'search' );
+		remove_filter( 'jetpack_sync_post_meta_whitelist', array( 'Automattic\\Jetpack\\Sync\\Modules\\Search', 'add_search_post_meta_whitelist' ), 10 );
 	}
 
 	/**

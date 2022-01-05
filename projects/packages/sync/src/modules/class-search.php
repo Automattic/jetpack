@@ -43,14 +43,9 @@ class Search extends Module {
 	 * Constructor.
 	 */
 	public function __construct() {
-		if ( \Jetpack::is_module_active( 'search' ) ) {
-			// Post meta whitelists.
-			add_filter( 'jetpack_sync_post_meta_whitelist', array( $this, 'add_search_post_meta_whitelist' ), 10 );
-		}
+		// Post meta whitelists.
+		add_filter( 'jetpack_sync_post_meta_whitelist', array( $this, 'add_search_post_meta_whitelist' ), 10 );
 	}
-
-	//
-	// All the lists.
 
 	/**
 	 * Post meta search specification.
