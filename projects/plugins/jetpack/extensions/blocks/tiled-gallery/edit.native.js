@@ -56,7 +56,7 @@ const TiledGalleryEdit = props => {
 
 	const { replaceInnerBlocks, updateBlockAttributes } = useDispatch( blockEditorStore );
 
-	const displayedColumns = Math.min( columns, dynamicColumnsNumber( attributeImages.length ) );
+	const displayedColumns = Math.min( columns, dynamicColumnsNumber( window ) );
 
 	useEffect( () => {
 		const { width } = sizes || {};
