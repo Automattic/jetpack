@@ -139,14 +139,14 @@ function jetpack_descript_shortcode( $atts ) {
 		'https://share.descript.com/view/%1$s',
 		esc_attr( $id )
 	);
-	
+
 	/*
 	Descript embed requests fail if the dnt header is added.
 	This checks whether the visitor has the flag enabled. If yes, we render a link instead of embedding and dishonoring their dnt wishes.
 	*/
-	if( jetpack_descript_is_dnt_enabled() ) {
+	if ( jetpack_descript_is_dnt_enabled() ) {
 		$embed_code = sprintf( '<a href="%1$s">%1$s</a>', $embed_url );
-	} else {		
+	} else {
 		$embed_code = wp_oembed_get( $embed_url, array_filter( $params ) );
 	}
 
