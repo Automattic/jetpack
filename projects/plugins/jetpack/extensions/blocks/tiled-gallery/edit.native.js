@@ -26,14 +26,19 @@ import { useResizeObserver } from '@wordpress/compose';
 import { ALLOWED_MEDIA_TYPES, LAYOUT_STYLES, MAX_COLUMNS } from './constants';
 import { icon } from '.';
 import styles from './styles.scss';
-import TiledGallerySettings, { maxDisplayedColumnsNumber, DEFAULT_COLUMNS } from './settings';
+import TiledGallerySettings, { DEFAULT_COLUMNS } from './settings';
 import { getActiveStyleName } from '../../shared/block-styles';
 
 const TILE_SPACING = 8;
+const MAX_DISPLAYED_COLUMNS_PORTRAIT = 2;
+const MAX_DISPLAYED_COLUMNS_LANDSCAPE = 4;
 
 export function defaultColumnsNumber( images ) {
 	return Math.min( MAX_COLUMNS, images.length );
 }
+
+const maxDisplayedColumnsNumber = window =>
+	window.width >= window.height ? MAX_DISPLAYED_COLUMNS_LANDSCAPE : MAX_DISPLAYED_COLUMNS_PORTRAIT;
 
 const TiledGalleryEdit = props => {
 	const [ resizeObserver, sizes ] = useResizeObserver();

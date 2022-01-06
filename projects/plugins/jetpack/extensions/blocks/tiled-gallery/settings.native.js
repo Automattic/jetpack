@@ -17,14 +17,9 @@ import LayoutPicker from './layout-picker.native';
 
 const MIN_COLUMNS = 1;
 export const DEFAULT_COLUMNS = 2;
-const MAX_DISPLAYED_COLUMNS_PORTRAIT = 2;
-const MAX_DISPLAYED_COLUMNS_LANDSCAPE = 4;
 const MIN_ROUNDED_CORNERS = 0;
 const MAX_ROUNDED_CORNERS = 20;
 const DEFAULT_ROUNDED_CORNERS = 2;
-
-export const maxDisplayedColumnsNumber = window =>
-	window.width >= window.height ? MAX_DISPLAYED_COLUMNS_LANDSCAPE : MAX_DISPLAYED_COLUMNS_PORTRAIT;
 
 const TiledGallerySettings = props => {
 	const horizontalSettingsDivider = usePreferredColorSchemeStyle(
