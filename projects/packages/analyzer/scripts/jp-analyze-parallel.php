@@ -59,7 +59,9 @@ class ScanManager {
 	}
 
 	public function wait_for_procs( $count = 5 ) {
+		$this->check_procs();
 		while ( $this->count > $count ) {
+			sleep( 1 );
 			$this->check_procs();
 		}
 	}
