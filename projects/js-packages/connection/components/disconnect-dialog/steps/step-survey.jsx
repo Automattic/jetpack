@@ -25,7 +25,7 @@ import DisconnectSurvey from '../../disconnect-survey';
  */
 const StepSurvey = props => {
 	const { onExit, onFeedBackProvided, isSubmittingFeedback } = props;
-	const surveyStepRef = React.createRef();
+	const skipButtonRef = React.createRef();
 
 	/**
 	 * Handle keydown events on the survey step to prevent loss of focus outside the modal.
@@ -44,20 +44,16 @@ const StepSurvey = props => {
 
 			// We are tabbing backwards.
 			// If the next element that is focusable is a radio button with the same name as the current target,
-			// then we should trap focus back at the bottom of the panel content.
+			// then we should focus back to the last element in the panel, which is the skip button.
 			if ( shiftKey && 'radio' === target.type ) {
 				const previous = focus.tabbable.findPrevious( target );
 				if ( 'radio' === previous.type && previous.name === target.name ) {
-					const trap = document.createElement( 'div' );
-					trap.tabIndex = -1;
-					surveyStepRef.current.append( trap );
-					trap.focus();
-					// create a timing hiccup to allow focus to move around
-					setTimeout( () => surveyStepRef.current.removeChild( trap ) );
+					// focus back on the skip button
+					skipButtonRef.current.focus();
 				}
 			}
 		},
-		[ surveyStepRef ]
+		[ skipButtonRef ]
 	);
 
 	return (
@@ -65,7 +61,6 @@ const StepSurvey = props => {
 			className="jp-connection__disconnect-dialog__content"
 			aria-live="polite"
 			onKeyDown={ handleKeyDown }
-			ref={ surveyStepRef }
 		>
 			<h1>{ __( 'Before you go, help us improve Jetpack', 'jetpack' ) }</h1>
 			<p className="jp-connection__disconnect-dialog__large-text">
@@ -75,7 +70,7 @@ const StepSurvey = props => {
 				onSubmit={ onFeedBackProvided }
 				isSubmittingFeedback={ isSubmittingFeedback }
 			/>
-			<Button isLink onClick={ onExit }>
+			<Button ref={ skipButtonRef } isLink onClick={ onExit }>
 				{ __( 'Skip for now', 'jetpack' ) }
 			</Button>
 		</div>
