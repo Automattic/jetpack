@@ -271,6 +271,48 @@ class WPCOM_JSON_API_Site_Settings_Endpoint extends WPCOM_JSON_API_Endpoint {
 	}
 
 	/**
+	 * Used for the WooCommmerce address options. This function returns the option value if it exists, else it looks
+	 * for a default address on the domain contact information, if it exists. Otherwise, it returns an empty string.
+	 *
+	 * @param string $key The option key to retrieve a value.
+	 *
+	 * @return string The requested address part value or an empty string.
+	 */
+	protected function get_woocommerce_address( $key ) {
+		$address_part = get_option( $key );
+
+		if ( ! empty( $address_part ) ) {
+			return $address_part;
+		}
+
+		$address_part = null;
+		if ( defined( 'IS_WPCOM' ) && IS_WPCOM ) {
+			$address = Domain_Contact_Information_Mapper::find_by_user_id( get_current_user_id() );
+
+			if ( $address ) {
+				switch ( $key ) {
+					case 'woocommerce_store_address':
+						$address_part = $address->get_address_1();
+						break;
+					case 'woocommerce_store_address_2':
+						$address_part = $address->get_address_2();
+						break;
+					case 'woocommerce_store_city':
+						$address_part = $address->get_city();
+						break;
+					case 'woocommerce_default_country':
+						$address_part = $address->get_country_code();
+						break;
+					case 'woocommerce_store_postcode':
+						$address_part = $address->get_postal_code();
+						break;
+				}
+			}
+		}
+		return sanitize_text_field( $address_part );
+	}
+
+	/**
 	 * Collects the necessary information to return for a get settings response.
 	 *
 	 * @return array
@@ -417,11 +459,11 @@ class WPCOM_JSON_API_Site_Settings_Endpoint extends WPCOM_JSON_API_Endpoint {
 						'time_format'                      => get_option( 'time_format' ),
 						'start_of_week'                    => get_option( 'start_of_week' ),
 						'woocommerce_onboarding_profile'   => (array) get_option( 'woocommerce_onboarding_profile' ),
-						'woocommerce_store_address'        => (string) get_option( 'woocommerce_store_address' ),
-						'woocommerce_store_address_2'      => (string) get_option( 'woocommerce_store_address_2' ),
-						'woocommerce_store_city'           => (string) get_option( 'woocommerce_store_city' ),
-						'woocommerce_default_country'      => (string) get_option( 'woocommerce_default_country' ),
-						'woocommerce_store_postcode'       => (string) get_option( 'woocommerce_store_postcode' ),
+						'woocommerce_store_address'        => $this->get_woocommerce_address( 'woocommerce_store_address' ),
+						'woocommerce_store_address_2'      => $this->get_woocommerce_address( 'woocommerce_store_address_2' ),
+						'woocommerce_store_city'           => $this->get_woocommerce_address( 'woocommerce_store_city' ),
+						'woocommerce_default_country'      => $this->get_woocommerce_address( 'woocommerce_default_country' ),
+						'woocommerce_store_postcode'       => $this->get_woocommerce_address( 'woocommerce_store_postcode' ),
 						'jetpack_testimonial'              => (bool) get_option( 'jetpack_testimonial', '0' ),
 						'jetpack_testimonial_posts_per_page' => (int) get_option( 'jetpack_testimonial_posts_per_page', '10' ),
 						'jetpack_portfolio'                => (bool) get_option( 'jetpack_portfolio', '0' ),
