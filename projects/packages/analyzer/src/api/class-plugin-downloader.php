@@ -61,7 +61,7 @@ class PluginDownloader {
 		for($i = 0; $i < $zip->numFiles; $i++) {
 			$filename = $target_path . '/' . str_replace($zip->getNameIndex(0), '', $zip->getNameIndex($i));
 
-			if (substr( $filename, -strlen('/') ) === '/' && !file_exists($filename)) {
+			if (substr( $filename, -1 ) === '/' && !file_exists($filename)) {
 					mkdir($filename);
 			} else {
 				copy("zip://" . $file_path . "#" . $zip->getNameIndex($i), $filename);
