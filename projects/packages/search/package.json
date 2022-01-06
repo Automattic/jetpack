@@ -82,7 +82,7 @@
 		"postcss": "8.3.11",
 		"postcss-loader": "6.2.0",
 		"prettier": "npm:wp-prettier@2.0.5",
-		"sass-loader": "12.3.0",
+		"sass-loader": "12.4.0",
 		"size-limit": "6.0.3",
 		"webpack": "5.65.0"
 	},
