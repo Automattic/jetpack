@@ -88,6 +88,20 @@ function jetpack_shortcodereverse_descript( $content ) {
 }
 
 /**
+ * Checks if dnt (Do not track) is enabled.
+ *
+ * @return bool
+ */
+function jetpack_descript_is_dnt_enabled() {
+	foreach ( $_SERVER as $name => $value ) {
+		if ( 'http_dnt' === strtolower( $name ) && 1 === (int) $value ) {
+			return true;
+		}
+	}
+	return false;
+}
+
+/**
  * Parse shortcode arguments and render its output.
  *
  * @since 10.4
@@ -116,19 +130,29 @@ function jetpack_descript_shortcode( $atts ) {
 	}
 
 	$params = array(
-		'id'     => $id,
-		'width'  => $width,
-		'height' => $height,
+		'id'     => esc_attr( $id ),
+		'width'  => (int) $width,
+		'height' => (int) $height,
 	);
 
 	$embed_url = sprintf(
 		'https://share.descript.com/view/%1$s',
 		esc_attr( $id )
 	);
+	
+	/*
+	Descript embed requests fail if the dnt header is added.
+	This checks whether the visitor has the flag enabled. If yes, we render a link instead of embedding and dishonoring their dnt wishes.
+	*/
+	if( jetpack_descript_is_dnt_enabled() ) {
+		$embed_code = sprintf( '<a href="%1$s">%1$s</a>', $embed_url );
+	} else {		
+		$embed_code = wp_oembed_get( $embed_url, array_filter( $params ) );
+	}
 
 	// wrap the embed with wp-block-embed__wrapper, otherwise it would be aligned to the very left of the viewport.
 	return sprintf(
 		'<div class="wp-block-embed__wrapper">%1$s</div>',
-		wp_oembed_get( $embed_url, array_filter( $params ) )
+		$embed_code
 	);
 }
