@@ -257,7 +257,7 @@ class Jetpack_Backup {
 			// Something went wrong so we'll just return the response without caching.
 			return new WP_Error(
 				'failed_to_fetch_data',
-				esc_html__( 'Unable to fetch the requested data.', 'jetpack' ),
+				esc_html__( 'Unable to fetch the requested data.', 'jetpack-backup' ),
 				array(
 					'status'  => $response_code,
 					'request' => $wpcom_request,
