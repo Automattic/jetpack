@@ -61,7 +61,7 @@
 		"css-loader": "6.5.1",
 		"postcss-loader": "4.3.0",
 		"react": "17.0.2",
-		"sass-loader": "10.2.0",
+		"sass-loader": "12.4.0",
 		"style-loader": "2.0.0",
 		"webpack": "5.65.0"
 	},

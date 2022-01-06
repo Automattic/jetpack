@@ -394,7 +394,7 @@ importers:
       css-loader: 6.5.1
       postcss-loader: 4.3.0
       react: 17.0.2
-      sass-loader: 10.2.0
+      sass-loader: 12.4.0
       style-loader: 2.0.0
       webpack: 5.65.0
     devDependencies:
@@ -433,7 +433,7 @@ importers:
       css-loader: 6.5.1_webpack@5.65.0
       postcss-loader: 4.3.0_webpack@5.65.0
       react: 17.0.2
-      sass-loader: 10.2.0_webpack@5.65.0
+      sass-loader: 12.4.0_webpack@5.65.0
       style-loader: 2.0.0_webpack@5.65.0
       webpack: 5.65.0
 
@@ -514,7 +514,7 @@ importers:
       react: 17.0.2
       react-dom: 17.0.2
       sass: 1.43.3
-      sass-loader: 12.2.0
+      sass-loader: 12.4.0
       webpack: 5.65.0
       webpack-cli: 4.9.1
     dependencies:
@@ -534,7 +534,7 @@ importers:
       react: 17.0.2
       react-dom: 17.0.2_react@17.0.2
       sass: 1.43.3
-      sass-loader: 12.2.0_sass@1.43.3+webpack@5.65.0
+      sass-loader: 12.4.0_sass@1.43.3+webpack@5.65.0
       webpack: 5.65.0_webpack-cli@4.9.1
       webpack-cli: 4.9.1_webpack@5.65.0
 
@@ -551,7 +551,7 @@ importers:
       react: 17.0.2
       react-dom: 17.0.2
       sass: 1.43.3
-      sass-loader: 12.2.0
+      sass-loader: 12.4.0
       webpack: 5.65.0
     dependencies:
       '@automattic/jetpack-idc': link:../../js-packages/idc
@@ -566,7 +566,7 @@ importers:
       react: 17.0.2
       react-dom: 17.0.2_react@17.0.2
       sass: 1.43.3
-      sass-loader: 12.2.0_sass@1.43.3+webpack@5.65.0
+      sass-loader: 12.4.0_sass@1.43.3+webpack@5.65.0
       webpack: 5.65.0
 
   projects/packages/jitm:
@@ -574,26 +574,26 @@ importers:
       '@automattic/jetpack-webpack-config': workspace:^1.0.1
       '@wordpress/browserslist-config': 4.1.0
       sass: 1.43.3
-      sass-loader: 12.2.0
+      sass-loader: 12.4.0
       webpack: 5.65.0
       webpack-cli: 4.9.1
     devDependencies:
       '@automattic/jetpack-webpack-config': link:../../js-packages/webpack-config
       '@wordpress/browserslist-config': 4.1.0
       sass: 1.43.3
-      sass-loader: 12.2.0_sass@1.43.3+webpack@5.65.0
+      sass-loader: 12.4.0_sass@1.43.3+webpack@5.65.0
       webpack: 5.65.0_webpack-cli@4.9.1
       webpack-cli: 4.9.1_webpack@5.65.0
 
   projects/packages/lazy-images:
     specifiers:
       '@automattic/jetpack-webpack-config': workspace:^1.0.1
-      copy-webpack-plugin: 9.0.1
+      copy-webpack-plugin: 10.2.0
       intersection-observer: 0.12.0
       webpack: 5.65.0
     devDependencies:
       '@automattic/jetpack-webpack-config': link:../../js-packages/webpack-config
-      copy-webpack-plugin: 9.0.1_webpack@5.65.0
+      copy-webpack-plugin: 10.2.0_webpack@5.65.0
       intersection-observer: 0.12.0
       webpack: 5.65.0
 
@@ -614,7 +614,7 @@ importers:
       react: 17.0.2
       react-dom: 17.0.2
       sass: 1.43.3
-      sass-loader: 12.2.0
+      sass-loader: 12.4.0
       webpack: 5.65.0
     dependencies:
       '@automattic/jetpack-components': link:../../js-packages/components
@@ -633,7 +633,7 @@ importers:
       react: 17.0.2
       react-dom: 17.0.2_react@17.0.2
       sass: 1.43.3
-      sass-loader: 12.2.0_sass@1.43.3+webpack@5.65.0
+      sass-loader: 12.4.0_sass@1.43.3+webpack@5.65.0
       webpack: 5.65.0
 
   projects/packages/search:
@@ -677,7 +677,7 @@ importers:
       react-redux: 7.2.6
       redux: 4.1.1
       refx: 3.1.1
-      sass-loader: 12.3.0
+      sass-loader: 12.4.0
       size-limit: 6.0.3
       strip: 3.0.0
       tiny-lru: 7.0.6
@@ -725,7 +725,7 @@ importers:
       postcss: 8.3.11
       postcss-loader: 6.2.0_postcss@8.3.11+webpack@5.65.0
       prettier: /wp-prettier/2.0.5
-      sass-loader: 12.3.0_webpack@5.65.0
+      sass-loader: 12.4.0_webpack@5.65.0
       size-limit: 6.0.3
       webpack: 5.65.0
 
@@ -750,7 +750,7 @@ importers:
       react: 17.0.2
       react-dom: 17.0.2
       sass: 1.43.3
-      sass-loader: 12.2.0
+      sass-loader: 12.4.0
       webpack: 5.65.0
       webpack-cli: 4.9.1
     dependencies:
@@ -774,7 +774,7 @@ importers:
       '@wordpress/browserslist-config': 4.1.0
       concurrently: 6.0.2
       sass: 1.43.3
-      sass-loader: 12.2.0_sass@1.43.3+webpack@5.65.0
+      sass-loader: 12.4.0_sass@1.43.3+webpack@5.65.0
       webpack: 5.65.0_webpack-cli@4.9.1
       webpack-cli: 4.9.1_webpack@5.65.0
 
@@ -807,7 +807,7 @@ importers:
       rollup-plugin-svelte-svg: 0.2.3
       rollup-plugin-terser: 7.0.2
       sass: 1.39.0
-      sass-loader: 12.1.0
+      sass-loader: 12.4.0
       svelte: 3.42.4
       svelte-preprocess: 4.9.2
       tslib: 2.3.1
@@ -841,7 +841,7 @@ importers:
       rollup-plugin-svelte-svg: 0.2.3_svelte@3.42.4
       rollup-plugin-terser: 7.0.2_rollup@2.56.3
       sass: 1.39.0
-      sass-loader: 12.1.0_sass@1.39.0
+      sass-loader: 12.4.0_sass@1.39.0
       svelte: 3.42.4
       svelte-preprocess: 4.9.2_2cfb7c31ab8996db5cf5e40b349521b7
       tslib: 2.3.1
@@ -912,7 +912,7 @@ importers:
       component-uid: 0.0.2
       concurrently: 6.0.2
       cookie: 0.4.1
-      copy-webpack-plugin: 9.0.1
+      copy-webpack-plugin: 10.2.0
       core-js: 3.11.1
       create-react-class: 15.7.0
       css-loader: 6.5.1
@@ -978,7 +978,7 @@ importers:
       rememo: 3.0.0
       resize-observer-polyfill: 1.5.1
       sass: 1.38.1
-      sass-loader: 10.1.1
+      sass-loader: 12.4.0
       semver: 7.3.5
       sinon: 9.2.4
       sinon-chai: 3.7.0
@@ -1030,7 +1030,7 @@ importers:
       clipboard: 2.0.6
       component-uid: 0.0.2
       cookie: 0.4.1
-      copy-webpack-plugin: 9.0.1_webpack@5.65.0
+      copy-webpack-plugin: 10.2.0_webpack@5.65.0
       core-js: 3.11.1
       create-react-class: 15.7.0
       debug: 4.3.2
@@ -1140,7 +1140,7 @@ importers:
       prettier: /wp-prettier/2.0.5
       react-click-outside: 3.0.1
       react-test-renderer: 17.0.2_react@17.0.2
-      sass-loader: 10.1.1_sass@1.38.1+webpack@5.65.0
+      sass-loader: 12.4.0_sass@1.38.1+webpack@5.65.0
       sinon: 9.2.4
       sinon-chai: 3.7.0_chai@4.3.4+sinon@9.2.4
       size-limit: 5.0.3
@@ -8901,7 +8901,6 @@ packages:
         optional: true
     dependencies:
       ajv: 8.8.2
-    dev: false
 
   /ajv-keywords/3.5.2_ajv@6.12.6:
     resolution: {integrity: sha512-5p6WTN0DdTGVQk6VjcEju19IgaHudalcfabD7yhDGeA6bcQnmL+CpveLJq/3hvfwd1aof6L386Ougkx6RfyMIQ==}
@@ -8917,7 +8916,6 @@ packages:
     dependencies:
       ajv: 8.8.2
       fast-deep-equal: 3.1.3
-    dev: false
 
   /ajv/6.12.6:
     resolution: {integrity: sha512-j3fVLgvTo527anyYyJOGTYJbG+vnnQYvE0m5mmkc1TK+nxAppkCLMIL0aZ4dblVCNoGShhm+kzE4ZUykBoMg4g==}
@@ -8943,7 +8941,6 @@ packages:
       json-schema-traverse: 1.0.0
       require-from-string: 2.0.2
       uri-js: 4.4.1
-    dev: false
 
   /alphanum-sort/1.0.2:
     resolution: {integrity: sha1-l6ERlkmyEa0zaR2fn0hqjsn74KM=}
@@ -9196,6 +9193,11 @@ packages:
   /array-union/2.1.0:
     resolution: {integrity: sha512-HGyxoOTYUyCM6stUe6EJgnd4EoewAI7zMdfqO+kGjnlZmBDz/cR5pf8r/cR4Wq60sL/p0IkcjUEEPwS3GFrIyw==}
     engines: {node: '>=8'}
+    dev: true
+
+  /array-union/3.0.1:
+    resolution: {integrity: sha512-1OvF9IbWwaeiM9VhzYXVQacMibxpXOMYVNIvMtKRyX9SImBXpKcFr8XvFDeEslCyuH/t6KRt7HEO94AlP8Iatw==}
+    engines: {node: '>=12'}
 
   /array-uniq/1.0.3:
     resolution: {integrity: sha1-r2rId6Jcx/dOBYiUdThY39sk/bY=}
@@ -10731,18 +10733,17 @@ packages:
     dependencies:
       toggle-selection: 1.0.6
 
-  /copy-webpack-plugin/9.0.1_webpack@5.65.0:
-    resolution: {integrity: sha512-14gHKKdYIxF84jCEgPgYXCPpldbwpxxLbCmA7LReY7gvbaT555DgeBWBgBZM116tv/fO6RRJrsivBqRyRlukhw==}
-    engines: {node: '>= 12.13.0'}
+  /copy-webpack-plugin/10.2.0_webpack@5.65.0:
+    resolution: {integrity: sha512-my6iXII95c78w14HzYCNya5TlJYa44lOppAge5GSTMM1SyDxNsVGCJvhP4/ld6snm8lzjn3XOonMZD6s1L86Og==}
+    engines: {node: '>= 12.20.0'}
     peerDependencies:
       webpack: ^5.1.0
     dependencies:
       fast-glob: 3.2.7
       glob-parent: 6.0.2
-      globby: 11.0.4
+      globby: 12.0.2
       normalize-path: 3.0.0
-      p-limit: 3.1.0
-      schema-utils: 3.1.1
+      schema-utils: 4.0.0
       serialize-javascript: 6.0.0
       webpack: 5.65.0
 
@@ -13690,6 +13691,18 @@ packages:
       ignore: 5.1.9
       merge2: 1.4.1
       slash: 3.0.0
+    dev: true
+
+  /globby/12.0.2:
+    resolution: {integrity: sha512-lAsmb/5Lww4r7MM9nCCliDZVIKbZTavrsunAsHLr9oHthrZP1qi7/gAnHOsUs9bLvEt2vKVJhHmxuL7QbDuPdQ==}
+    engines: {node: ^12.20.0 || ^14.13.1 || >=16.0.0}
+    dependencies:
+      array-union: 3.0.1
+      dir-glob: 3.0.1
+      fast-glob: 3.2.7
+      ignore: 5.1.9
+      merge2: 1.4.1
+      slash: 4.0.0
 
   /globby/9.2.0:
     resolution: {integrity: sha512-ollPHROa5mcxDEkwg6bPt3QbEf4pDQSNtd6JPL1YvOvAo/7/0VAm9TccUeoTmarjPw4pfUthSCqcyfNB1I3ZSg==}
@@ -20468,61 +20481,34 @@ packages:
       walker: 1.0.8
     dev: true
 
-  /sass-loader/10.1.1_sass@1.38.1+webpack@5.65.0:
-    resolution: {integrity: sha512-W6gVDXAd5hR/WHsPicvZdjAWHBcEJ44UahgxcIE196fW2ong0ZHMPO1kZuI5q0VlvMQZh32gpv69PLWQm70qrw==}
-    engines: {node: '>= 10.13.0'}
-    peerDependencies:
-      fibers: '>= 3.1.0'
-      node-sass: ^4.0.0 || ^5.0.0
-      sass: ^1.3.0
-      webpack: ^4.36.0 || ^5.0.0
-    peerDependenciesMeta:
-      fibers:
-        optional: true
-      node-sass:
-        optional: true
-      sass:
-        optional: true
-    dependencies:
-      klona: 2.0.5
-      loader-utils: 2.0.2
-      neo-async: 2.6.2
-      sass: 1.38.1
-      schema-utils: 3.1.1
-      semver: 7.3.5
-      webpack: 5.65.0_webpack-cli@4.9.1
-    dev: true
-
-  /sass-loader/10.2.0_webpack@5.65.0:
-    resolution: {integrity: sha512-kUceLzC1gIHz0zNJPpqRsJyisWatGYNFRmv2CKZK2/ngMJgLqxTbXwe/hJ85luyvZkgqU3VlJ33UVF2T/0g6mw==}
-    engines: {node: '>= 10.13.0'}
-    peerDependencies:
-      fibers: '>= 3.1.0'
-      node-sass: ^4.0.0 || ^5.0.0 || ^6.0.0
-      sass: ^1.3.0
-      webpack: ^4.36.0 || ^5.0.0
-    peerDependenciesMeta:
-      fibers:
-        optional: true
-      node-sass:
-        optional: true
-      sass:
-        optional: true
-    dependencies:
-      klona: 2.0.5
-      loader-utils: 2.0.2
-      neo-async: 2.6.2
-      schema-utils: 3.1.1
-      semver: 7.3.5
-      webpack: 5.65.0
-    dev: true
-
-  /sass-loader/12.1.0_sass@1.39.0:
-    resolution: {integrity: sha512-FVJZ9kxVRYNZTIe2xhw93n3xJNYZADr+q69/s98l9nTCrWASo+DR2Ot0s5xTKQDDEosUkatsGeHxcH4QBp5bSg==}
+  /sass-loader/12.4.0_sass@1.38.1+webpack@5.65.0:
+    resolution: {integrity: sha512-7xN+8khDIzym1oL9XyS6zP6Ges+Bo2B2xbPrjdMHEYyV3AQYhd/wXeru++3ODHF0zMjYmVadblSKrPrjEkL8mg==}
     engines: {node: '>= 12.13.0'}
     peerDependencies:
       fibers: '>= 3.1.0'
-      node-sass: ^4.0.0 || ^5.0.0 || ^6.0.0
+      node-sass: ^4.0.0 || ^5.0.0 || ^6.0.0 || ^7.0.0
+      sass: ^1.3.0
+      webpack: ^5.0.0
+    peerDependenciesMeta:
+      fibers:
+        optional: true
+      node-sass:
+        optional: true
+      sass:
+        optional: true
+    dependencies:
+      klona: 2.0.5
+      neo-async: 2.6.2
+      sass: 1.38.1
+      webpack: 5.65.0_webpack-cli@4.9.1
+    dev: true
+
+  /sass-loader/12.4.0_sass@1.39.0:
+    resolution: {integrity: sha512-7xN+8khDIzym1oL9XyS6zP6Ges+Bo2B2xbPrjdMHEYyV3AQYhd/wXeru++3ODHF0zMjYmVadblSKrPrjEkL8mg==}
+    engines: {node: '>= 12.13.0'}
+    peerDependencies:
+      fibers: '>= 3.1.0'
+      node-sass: ^4.0.0 || ^5.0.0 || ^6.0.0 || ^7.0.0
       sass: ^1.3.0
       webpack: ^5.0.0
     peerDependenciesMeta:
@@ -20538,12 +20524,12 @@ packages:
       sass: 1.39.0
     dev: true
 
-  /sass-loader/12.2.0_sass@1.43.3+webpack@5.65.0:
-    resolution: {integrity: sha512-qducnp5vSV+8A8MZxuH6zV0MUg4MOVISScl2wDTCAn/2WJX+9Auxh92O/rnkdR2bvi5QxZBafnzkzRrWGZvm7w==}
+  /sass-loader/12.4.0_sass@1.43.3+webpack@5.65.0:
+    resolution: {integrity: sha512-7xN+8khDIzym1oL9XyS6zP6Ges+Bo2B2xbPrjdMHEYyV3AQYhd/wXeru++3ODHF0zMjYmVadblSKrPrjEkL8mg==}
     engines: {node: '>= 12.13.0'}
     peerDependencies:
       fibers: '>= 3.1.0'
-      node-sass: ^4.0.0 || ^5.0.0 || ^6.0.0
+      node-sass: ^4.0.0 || ^5.0.0 || ^6.0.0 || ^7.0.0
       sass: ^1.3.0
       webpack: ^5.0.0
     peerDependenciesMeta:
@@ -20560,12 +20546,12 @@ packages:
       webpack: 5.65.0_webpack-cli@4.9.1
     dev: true
 
-  /sass-loader/12.3.0_webpack@5.65.0:
-    resolution: {integrity: sha512-6l9qwhdOb7qSrtOu96QQ81LVl8v6Dp9j1w3akOm0aWHyrTYtagDt5+kS32N4yq4hHk3M+rdqoRMH+lIdqvW6HA==}
+  /sass-loader/12.4.0_webpack@5.65.0:
+    resolution: {integrity: sha512-7xN+8khDIzym1oL9XyS6zP6Ges+Bo2B2xbPrjdMHEYyV3AQYhd/wXeru++3ODHF0zMjYmVadblSKrPrjEkL8mg==}
     engines: {node: '>= 12.13.0'}
     peerDependencies:
       fibers: '>= 3.1.0'
-      node-sass: ^4.0.0 || ^5.0.0 || ^6.0.0
+      node-sass: ^4.0.0 || ^5.0.0 || ^6.0.0 || ^7.0.0
       sass: ^1.3.0
       webpack: ^5.0.0
     peerDependenciesMeta:
@@ -20657,7 +20643,6 @@ packages:
       ajv: 8.8.2
       ajv-formats: 2.1.1
       ajv-keywords: 5.1.0_ajv@8.8.2
-    dev: false
 
   /seed-random/2.2.0:
     resolution: {integrity: sha1-KpsZ4lCoFwmSMaW5mk2vgLf77VQ=}
@@ -20913,6 +20898,11 @@ packages:
   /slash/3.0.0:
     resolution: {integrity: sha512-g9Q1haeby36OSStwb4ntCGGGaKsaVSjQ68fBxoQcutl5fS1vuY18H3wSt3jFyFtrkx+Kz0V1G85A4MyAdDMi2Q==}
     engines: {node: '>=8'}
+    dev: true
+
+  /slash/4.0.0:
+    resolution: {integrity: sha512-3dOsAHXXUkQTpOYcoAxLIorMTp4gIQr5IW3iVb7A7lFIp0VHhnynm9izx6TssdrIcVIESAlVjtnO2K8bg+Coew==}
+    engines: {node: '>=12'}
 
   /slice-ansi/0.0.4:
     resolution: {integrity: sha1-7b+JA/ZvfOL46v1s7tZeJkyDGzU=}
