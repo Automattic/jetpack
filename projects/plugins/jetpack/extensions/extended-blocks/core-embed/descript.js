@@ -8,10 +8,10 @@ import { __ } from '@wordpress/i18n';
  * Internal dependencies
  */
 import { DescriptIcon } from '../../shared/icons';
+
 /*
  * New `core/embed` block variation.
  */
-
 const coreEmbedVariationDescript = {
 	name: 'descript',
 	title: 'Descript',
