@@ -11,12 +11,11 @@ import { usePreferredColorSchemeStyle } from '@wordpress/compose';
  * Internal dependencies
  */
 import styles from './styles.scss';
-import { LAYOUT_CIRCLE, LAYOUT_STYLES } from './constants';
+import { LAYOUT_CIRCLE, LAYOUT_STYLES, MAX_COLUMNS } from './constants';
 import { getActiveStyleName } from '../../shared/block-styles';
 import LayoutPicker from './layout-picker.native';
 
 const MIN_COLUMNS = 1;
-export const MAX_COLUMNS = 8;
 export const DEFAULT_COLUMNS = 2;
 const DEFAULT_COLUMNS_PORTRAIT = 2;
 const DEFAULT_COLUMNS_LANDSCAPE = 4;
@@ -56,7 +55,7 @@ const TiledGallerySettings = props => {
 				<UnitControl
 					label={ __( 'Columns', 'jetpack' ) }
 					min={ MIN_COLUMNS }
-					max={ numImages }
+					max={ MAX_COLUMNS }
 					value={ Math.min( columnNumber, numImages ) }
 					onChange={ value => {
 						setColumnNumber( value );
