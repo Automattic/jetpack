@@ -26,7 +26,7 @@ import { useResizeObserver } from '@wordpress/compose';
 import { ALLOWED_MEDIA_TYPES, LAYOUT_STYLES, MAX_COLUMNS } from './constants';
 import { icon } from '.';
 import styles from './styles.scss';
-import TiledGallerySettings, { displayedColumnsNumber, DEFAULT_COLUMNS } from './settings';
+import TiledGallerySettings, { maxDisplayedColumnsNumber, DEFAULT_COLUMNS } from './settings';
 import { getActiveStyleName } from '../../shared/block-styles';
 
 const TILE_SPACING = 8;
@@ -52,7 +52,7 @@ const TiledGalleryEdit = props => {
 
 	const { replaceInnerBlocks, updateBlockAttributes } = useDispatch( blockEditorStore );
 
-	const displayedColumns = Math.min( columns, displayedColumnsNumber( window ) );
+	const displayedColumns = Math.min( columns, maxDisplayedColumnsNumber( window ) );
 
 	useEffect( () => {
 		const { width } = sizes || {};
