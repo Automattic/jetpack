@@ -17,6 +17,14 @@ export async function setResultFormat( format = 'expanded' ) {
 	return execWpCommand( `option update jetpack_search_result_format ${ format }` );
 }
 
+export async function setTheme( theme = 'light' ) {
+	return execWpCommand( `option update jetpack_search_result_format ${ theme }` );
+}
+
+export async function setHighlightColor( color = '"#FFFFFF"' ) {
+	return execWpCommand( `option update jetpack_search_highlight_color ${ color }` );
+}
+
 export async function getSidebarsWidgets() {
 	try {
 		return await getWpOptionData( 'sidebars_widgets' );

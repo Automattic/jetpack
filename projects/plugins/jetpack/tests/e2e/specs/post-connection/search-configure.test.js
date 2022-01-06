@@ -2,8 +2,10 @@ import { test, expect } from '../../fixtures/base-test.js';
 import { SearchConfigure } from 'jetpack-e2e-commons/pages/wp-admin/index.js';
 import {
 	enableInstantSearch,
-	disableInstantSearch,
 	searchAPIRoute,
+	setTheme,
+	setHighlightColor,
+	setResultFormat,
 } from '../../helpers/search-helper.js';
 import { prerequisitesBuilder, Plans } from 'jetpack-e2e-commons/env/index.js';
 import playwrightConfig from '../../playwright.config.cjs';
@@ -21,11 +23,13 @@ test.describe( 'Search Configure', () => {
 			.build();
 
 		await enableInstantSearch();
-		await page.close();
-	} );
 
-	test.afterAll( async () => {
-		await disableInstantSearch();
+		// initialize the settings we are going to manipulate.
+		await setTheme();
+		await setHighlightColor();
+		await setResultFormat();
+
+		await page.close();
 	} );
 
 	test.beforeEach( async ( { page } ) => {
@@ -34,23 +38,27 @@ test.describe( 'Search Configure', () => {
 		await searchConfigure.waitForNetworkIdle();
 	} );
 
-	test( 'Can save customized search overlay settings', async () => {
-		await test.step( 'Change settings', async () => {
-			await searchConfigure.chooseDarkTheme();
-			await searchConfigure.choosePinkAsHighlightColor();
-			await searchConfigure.chooseProductFormat();
-			await searchConfigure.clickSaveButton();
-			await searchConfigure.waitForTimeout( 3000000 );
-		} );
+	test( 'Can change and reflect settings', async () => {
+		await searchConfigure.chooseDarkTheme();
+		await searchConfigure.choosePinkAsHighlightColor();
+		await searchConfigure.chooseProductFormat();
+		await searchConfigure.clickSaveButton();
+		// Settings changed.
+		expect( await searchConfigure.isDarkTheme() ).toBeTruthy();
+		expect( await searchConfigure.isHighlightPink() ).toBeTruthy();
+		expect( await searchConfigure.isFormatProduct() ).toBeTruthy();
+		// Settings reflected on preview.
+		expect( await searchConfigure.isPreviewDarkTheme() ).toBeTruthy();
+		expect( await searchConfigure.isPreviewFormatProduct() ).toBeTruthy();
+	} );
 
-		await test.step( 'Settings reflected on preview', async () => {} );
-
-		await test.step( 'Settings stick after reload', async () => {
-			await searchConfigure.reload();
-			expect( await searchConfigure.isDarkTheme() ).toBeTruthy();
-			expect( await searchConfigure.isHighlightPink() ).toBeTruthy();
-			expect( await searchConfigure.isFormatProduct() ).toBeTruthy();
-			expect( await searchConfigure.isPoweredByJetpackOff() ).toBeTruthy();
-		} );
+	test( 'Settings stick after reload', async () => {
+		// Settings sticked.
+		expect( await searchConfigure.isDarkTheme() ).toBeTruthy();
+		expect( await searchConfigure.isHighlightPink() ).toBeTruthy();
+		expect( await searchConfigure.isFormatProduct() ).toBeTruthy();
+		// Settings reflected on preview.
+		expect( await searchConfigure.isPreviewDarkTheme() ).toBeTruthy();
+		expect( await searchConfigure.isPreviewFormatProduct() ).toBeTruthy();
 	} );
 } );

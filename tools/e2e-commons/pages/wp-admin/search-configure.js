@@ -2,7 +2,7 @@ import WpPage from '../wp-page.js';
 import { resolveSiteUrl } from '../../helpers/utils-helper.cjs';
 
 export default class SearchConfigure extends WpPage {
-	static SEARCH_SETTING_API_PATTERN = /^https?:\/\/.*\/wp%2Fv2%2Fsettings/;
+	static SEARCH_SETTING_API_PATTERN = /^https?:\/\/.*%2Fwp%2Fv2%2Fsettings/;
 
 	constructor( page ) {
 		const url = `${ resolveSiteUrl() }/wp-admin/admin.php?page=jetpack-search-configure`;
@@ -25,16 +25,11 @@ export default class SearchConfigure extends WpPage {
 		return await this.click( productFormatSelector );
 	}
 
-	// async toggleShowPoweredByJetpack() {
-	// 	const toggleSelector = '.components-toggle-control:nth-child(2) .components-toggle-control__label';
-	// 	return await this.click( toggleSelector );
-	// }
-
 	async clickSaveButton() {
 		const buttonSelector = 'button.jp-search-configure-save-button';
 		await this.click( buttonSelector );
+		await this.waitForUpdateSearchConfigureFinished();
 		await this.waitForNetworkIdle();
-		// await this.waitForUpdateSearchConfigureFinished();
 	}
 
 	async isDarkTheme() {
@@ -47,22 +42,25 @@ export default class SearchConfigure extends WpPage {
 	}
 
 	async isHighlightPink() {
-		const pinkColorSelector = 'button[aria-label="Color: Pale pink"]';
-		return await this.page.$eval( pinkColorSelector, e =>
-			e.getAttribute( 'class' ).includes( 'is-pressed' )
-		);
+		const pinkColorSelector = 'button.is-pressed[aria-label="Color: Pale pink"]';
+		return await this.isElementVisible( pinkColorSelector, 200 );
 	}
 
 	async isFormatProduct() {
-		const productFormatSelector = 'label[text()="Product (for WooCommerce stores)"]';
-		return await this.page.$eval( productFormatSelector, e => e.previousSibling.checked );
+		const productFormatSelector = 'input[type=radio][value="product"]';
+		return await this.page.$eval( productFormatSelector, e => e.checked );
 	}
 
-	async isPoweredByJetpackOff() {
-		const toggleSelector = 'label[text()="Show \\"Powered by Jetpack\\""]';
-		return await this.page.$eval( toggleSelector, e =>
-			e.previousSibling.getAttribute( 'class' ).includes( 'is-checked' )
-		);
+	async isPreviewDarkTheme() {
+		const darkThemeButtonSelector =
+			'.jetpack-instant-search.jetpack-instant-search__overlay.jetpack-instant-search__overlay--dark';
+		return await this.isElementVisible( darkThemeButtonSelector, 200 );
+	}
+
+	async isPreviewFormatProduct() {
+		const productFormatSelector =
+			'ol.jetpack-instant-search__search-results-list.is-format-product';
+		return await this.isElementVisible( productFormatSelector, 200 );
 	}
 
 	async waitForUpdateSearchConfigureFinished() {
