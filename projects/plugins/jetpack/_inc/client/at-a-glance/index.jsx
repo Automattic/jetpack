@@ -31,7 +31,7 @@ import QueryScanStatus from 'components/data/query-scan-status';
 import {
 	isMultisite,
 	userCanManageModules,
-	userCanInstallPlugins,
+	userCanManagePlugins,
 	userCanViewStats,
 	userIsSubscriber,
 } from 'state/initial-state';
@@ -174,7 +174,7 @@ class AtAGlance extends Component {
 				);
 			}
 
-			if ( this.props.userCanInstallPlugins ) {
+			if ( this.props.userCanManagePlugins ) {
 				performanceCards.push( <DashBoost siteAdminUrl={ this.props.siteAdminUrl } /> );
 			}
 
@@ -233,7 +233,7 @@ export default connect( state => {
 	return {
 		userCanManageModules: userCanManageModules( state ),
 		userCanViewStats: userCanViewStats( state ),
-		userCanInstallPlugins: userCanInstallPlugins( state ),
+		userCanManagePlugins: userCanManagePlugins( state ),
 		userIsSubscriber: userIsSubscriber( state ),
 		isOfflineMode: isOfflineMode( state ),
 		getModuleOverride: module_name => getModuleOverride( state, module_name ),
