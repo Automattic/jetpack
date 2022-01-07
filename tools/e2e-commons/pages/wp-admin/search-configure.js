@@ -25,6 +25,11 @@ export default class SearchConfigure extends WpPage {
 		return await this.click( productFormatSelector );
 	}
 
+	async chooseNewestAsDefaultSort() {
+		const defaultSortSelector = '.jp-search-configure-default-sort-select select';
+		return await this.selectOption( defaultSortSelector, 'newest' );
+	}
+
 	async clickSaveButton() {
 		const buttonSelector = 'button.jp-search-configure-save-button';
 		await this.click( buttonSelector );
@@ -51,6 +56,11 @@ export default class SearchConfigure extends WpPage {
 		return await this.page.$eval( productFormatSelector, e => e.checked );
 	}
 
+	async isDefaultSortNewest() {
+		const defaultSortSelector = '.jp-search-configure-default-sort-select select';
+		return await this.page.$eval( defaultSortSelector, e => e.value === 'newest' );
+	}
+
 	async isPreviewDarkTheme() {
 		const darkThemeButtonSelector =
 			'.jetpack-instant-search.jetpack-instant-search__overlay.jetpack-instant-search__overlay--dark';
@@ -61,6 +71,16 @@ export default class SearchConfigure extends WpPage {
 		const productFormatSelector =
 			'ol.jetpack-instant-search__search-results-list.is-format-product';
 		return await this.isElementVisible( productFormatSelector, 200 );
+	}
+
+	async isPreviewDefaultSortNewest() {
+		const previewDefaultSortLinkSelector =
+			'.jetpack-instant-search__search-sort-option.is-selected[data-value="newest"]';
+		const previewDefaultSortSelectSelector = '#jetpack-instant-search__search-sort-select';
+		return (
+			( await this.isElementVisible( previewDefaultSortLinkSelector, 200 ) ) ||
+			( await this.page.$eval( previewDefaultSortSelectSelector, e => e.value === 'newest' ) )
+		);
 	}
 
 	async waitForUpdateSearchConfigureFinished() {

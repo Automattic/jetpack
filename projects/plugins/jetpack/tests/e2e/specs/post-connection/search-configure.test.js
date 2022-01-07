@@ -6,6 +6,7 @@ import {
 	setTheme,
 	setHighlightColor,
 	setResultFormat,
+	setDefaultSort,
 } from '../../helpers/search-helper.js';
 import { prerequisitesBuilder, Plans } from 'jetpack-e2e-commons/env/index.js';
 import playwrightConfig from '../../playwright.config.cjs';
@@ -28,6 +29,7 @@ test.describe( 'Search Configure', () => {
 		await setTheme();
 		await setHighlightColor();
 		await setResultFormat();
+		await setDefaultSort();
 
 		await page.close();
 	} );
@@ -38,27 +40,37 @@ test.describe( 'Search Configure', () => {
 		await searchConfigure.waitForNetworkIdle();
 	} );
 
-	test( 'Can change and reflect settings', async () => {
-		await searchConfigure.chooseDarkTheme();
-		await searchConfigure.choosePinkAsHighlightColor();
-		await searchConfigure.chooseProductFormat();
-		await searchConfigure.clickSaveButton();
-		// Settings changed.
-		expect( await searchConfigure.isDarkTheme() ).toBeTruthy();
-		expect( await searchConfigure.isHighlightPink() ).toBeTruthy();
-		expect( await searchConfigure.isFormatProduct() ).toBeTruthy();
-		// Settings reflected on preview.
-		expect( await searchConfigure.isPreviewDarkTheme() ).toBeTruthy();
-		expect( await searchConfigure.isPreviewFormatProduct() ).toBeTruthy();
-	} );
+	test( 'Can configure search overlay', async () => {
+		await test.step( 'Can change and reflect settings', async () => {
+			await searchConfigure.chooseDarkTheme();
+			await searchConfigure.choosePinkAsHighlightColor();
+			await searchConfigure.chooseProductFormat();
+			await searchConfigure.chooseNewestAsDefaultSort();
+			await searchConfigure.clickSaveButton();
 
-	test( 'Settings stick after reload', async () => {
-		// Settings sticked.
-		expect( await searchConfigure.isDarkTheme() ).toBeTruthy();
-		expect( await searchConfigure.isHighlightPink() ).toBeTruthy();
-		expect( await searchConfigure.isFormatProduct() ).toBeTruthy();
-		// Settings reflected on preview.
-		expect( await searchConfigure.isPreviewDarkTheme() ).toBeTruthy();
-		expect( await searchConfigure.isPreviewFormatProduct() ).toBeTruthy();
+			// Settings changed.
+			expect( await searchConfigure.isDarkTheme() ).toBeTruthy();
+			expect( await searchConfigure.isHighlightPink() ).toBeTruthy();
+			expect( await searchConfigure.isFormatProduct() ).toBeTruthy();
+			expect( await searchConfigure.isDefaultSortNewest() ).toBeTruthy();
+			// Settings reflected on preview.
+			expect( await searchConfigure.isPreviewDarkTheme() ).toBeTruthy();
+			expect( await searchConfigure.isPreviewFormatProduct() ).toBeTruthy();
+			expect( await searchConfigure.isPreviewDefaultSortNewest() ).toBeTruthy();
+		} );
+
+		await test.step( 'Settings stick after reload', async () => {
+			await searchConfigure.reload();
+			await searchConfigure.waitForNetworkIdle();
+			// Settings sticked.
+			expect( await searchConfigure.isDarkTheme() ).toBeTruthy();
+			expect( await searchConfigure.isHighlightPink() ).toBeTruthy();
+			expect( await searchConfigure.isFormatProduct() ).toBeTruthy();
+			expect( await searchConfigure.isDefaultSortNewest() ).toBeTruthy();
+			// Settings reflected on preview.
+			expect( await searchConfigure.isPreviewDarkTheme() ).toBeTruthy();
+			expect( await searchConfigure.isPreviewFormatProduct() ).toBeTruthy();
+			expect( await searchConfigure.isPreviewDefaultSortNewest() ).toBeTruthy();
+		} );
 	} );
 } );
