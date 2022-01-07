@@ -124,6 +124,23 @@ export function userCanManageOptions( state ) {
 }
 
 /**
+ * Check if the current user can install plugins.
+ *
+ * This is especially important on Multisite networks,
+ * where an admin with the manage_options cap may not have the capability to install plugins.
+ *
+ * @param {object} state - Global state tree
+ * @returns {boolean} Whether user can install plugins on a multisite network.
+ */
+export function userCanInstallPlugins( state ) {
+	return get(
+		state.jetpack.initialState.userData.currentUser.permissions,
+		'install_plugins',
+		false
+	);
+}
+
+/**
  * Return true if user can edit posts, usually admins, editors, authors and contributors.
  *
  * @param {Object} state Global state tree
