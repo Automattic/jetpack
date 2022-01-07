@@ -8,7 +8,18 @@ class Jetpack_RelatedPosts {
 	const VERSION   = '20211209';
 	const SHORTCODE = 'jetpack-related-posts';
 
-	private static $instance     = null;
+	/**
+	 * Instance of the class.
+	 *
+	 * @var $instance
+	 */
+	private static $instance = null;
+
+	/**
+	 * Instance of the raw class (?).
+	 *
+	 * @var $instance_raw
+	 */
 	private static $instance_raw = null;
 
 	/**
@@ -18,7 +29,7 @@ class Jetpack_RelatedPosts {
 	 */
 	public static function init() {
 		if ( ! self::$instance ) {
-			if ( class_exists('WPCOM_RelatedPosts') && method_exists( 'WPCOM_RelatedPosts', 'init' ) ) {
+			if ( class_exists( 'WPCOM_RelatedPosts' ) && method_exists( 'WPCOM_RelatedPosts', 'init' ) ) {
 				self::$instance = WPCOM_RelatedPosts::init();
 			} else {
 				self::$instance = new Jetpack_RelatedPosts();
@@ -35,7 +46,7 @@ class Jetpack_RelatedPosts {
 	 */
 	public static function init_raw() {
 		if ( ! self::$instance_raw ) {
-			if ( class_exists('WPCOM_RelatedPosts') && method_exists( 'WPCOM_RelatedPosts', 'init_raw' ) ) {
+			if ( class_exists( 'WPCOM_RelatedPosts' ) && method_exists( 'WPCOM_RelatedPosts', 'init_raw' ) ) {
 				self::$instance_raw = WPCOM_RelatedPosts::init_raw();
 			} else {
 				self::$instance_raw = new Jetpack_RelatedPosts_Raw();
@@ -45,11 +56,46 @@ class Jetpack_RelatedPosts {
 		return self::$instance_raw;
 	}
 
-	protected $_options;
+	/**
+	 * Options.
+	 *
+	 * @var $options
+	 */
+	protected $options;
+
+	/**
+	 * Allow feature toggle variable.
+	 *
+	 * @var $instance
+	 */
 	protected $_allow_feature_toggle;
+	
+	/**
+	 * Blog character set.
+	 *
+	 * @var $blog_charset
+	 */
 	protected $_blog_charset;
+
+	/**
+	 * Convert character set.
+	 *
+	 * @var $convert_charset
+	 */
 	protected $_convert_charset;
-	protected $_previous_post_id;
+
+	/**
+	 * Previous Post ID
+	 *
+	 * @var $previous_post_id
+	 */
+	protected $previous_post_id;
+
+	/**
+	 * Shortcode usage.
+	 *
+	 * @var $found_shortcode
+	 */
 	protected $_found_shortcode = false;
 
 	/**
@@ -132,7 +178,7 @@ class Jetpack_RelatedPosts {
 		} else {
 			if ( isset( $_GET['relatedposts_hit'], $_GET['relatedposts_origin'], $_GET['relatedposts_position'] ) ) {
 				$this->_log_click( $_GET['relatedposts_origin'], get_the_ID(), $_GET['relatedposts_position'] );
-				$this->_previous_post_id = (int) $_GET['relatedposts_origin'];
+				$this->previous_post_id = (int) $_GET['relatedposts_origin'];
 			}
 
 			$this->_action_frontend_init_page();
@@ -246,8 +292,8 @@ class Jetpack_RelatedPosts {
 		 */
 		$headline = apply_filters( 'jetpack_relatedposts_filter_headline', $this->get_headline() );
 
-		if ( $this->_previous_post_id ) {
-			$exclude = "data-exclude='{$this->_previous_post_id}'";
+		if ( $this->previous_post_id ) {
+			$exclude = "data-exclude='{$this->previous_post_id}'";
 		} else {
 			$exclude = "";
 		}
@@ -455,30 +501,30 @@ EOT;
 	 * @return array
 	 */
 	public function get_options() {
-		if ( null === $this->_options ) {
-			$this->_options = Jetpack_Options::get_option( 'relatedposts', array() );
-			if ( ! is_array( $this->_options ) )
-				$this->_options = array();
-			if ( ! isset( $this->_options['enabled'] ) )
-				$this->_options['enabled'] = true;
-			if ( ! isset( $this->_options['show_headline'] ) )
-				$this->_options['show_headline'] = true;
-			if ( ! isset( $this->_options['show_thumbnails'] ) )
-				$this->_options['show_thumbnails'] = false;
-			if ( ! isset( $this->_options['show_date'] ) ) {
-				$this->_options['show_date'] = true;
+		if ( null === $this->options ) {
+			$this->options = Jetpack_Options::get_option( 'relatedposts', array() );
+			if ( ! is_array( $this->options ) )
+				$this->options = array();
+			if ( ! isset( $this->options['enabled'] ) )
+				$this->options['enabled'] = true;
+			if ( ! isset( $this->options['show_headline'] ) )
+				$this->options['show_headline'] = true;
+			if ( ! isset( $this->options['show_thumbnails'] ) )
+				$this->options['show_thumbnails'] = false;
+			if ( ! isset( $this->options['show_date'] ) ) {
+				$this->options['show_date'] = true;
 			}
-			if ( ! isset( $this->_options['show_context'] ) ) {
-				$this->_options['show_context'] = true;
+			if ( ! isset( $this->options['show_context'] ) ) {
+				$this->options['show_context'] = true;
 			}
-			if ( ! isset( $this->_options['layout'] ) ) {
-				$this->_options['layout'] = 'grid';
+			if ( ! isset( $this->options['layout'] ) ) {
+				$this->options['layout'] = 'grid';
 			}
-			if ( ! isset( $this->_options['headline'] ) ) {
-				$this->_options['headline'] = esc_html__( 'Related', 'jetpack' );
+			if ( ! isset( $this->options['headline'] ) ) {
+				$this->options['headline'] = esc_html__( 'Related', 'jetpack' );
 			}
-			if ( empty( $this->_options['size'] ) || (int)$this->_options['size'] < 1 )
-				$this->_options['size'] = 3;
+			if ( empty( $this->options['size'] ) || (int)$this->options['size'] < 1 )
+				$this->options['size'] = 3;
 
 			/**
 			 * Filter Related Posts basic options.
@@ -487,12 +533,12 @@ EOT;
 			 *
 			 * @since 2.8.0
 			 *
-			 * @param array $this->_options Array of basic Related Posts options.
+			 * @param array $this->options Array of basic Related Posts options.
 			 */
-			$this->_options = apply_filters( 'jetpack_relatedposts_filter_options', $this->_options );
+			$this->options = apply_filters( 'jetpack_relatedposts_filter_options', $this->options );
 		}
 
-		return $this->_options;
+		return $this->options;
 	}
 
 	public function get_option( $option_name ) {
