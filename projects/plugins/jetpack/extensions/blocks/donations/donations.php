@@ -211,16 +211,17 @@ function render_block( $attr, $content ) {
 		'
 <div class="%1$s">
 	<div class="donations__container">
-	%2$s
-	<div class="donations__content">
-		<div class="donations__tab">
-			%3$s
-			<p>%4$s</p>
-			%5$s
-			%6$s
-			<hr class="donations__separator">
-			%7$s
-			%8$s
+		%2$s
+		<div class="donations__content">
+			<div class="donations__tab">
+				%3$s
+				<p>%4$s</p>
+				%5$s
+				%6$s
+				<hr class="donations__separator">
+				%7$s
+				%8$s
+			</div>
 		</div>
 	</div>
 </div>
