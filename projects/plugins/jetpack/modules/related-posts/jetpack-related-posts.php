@@ -884,7 +884,7 @@ EOT;
 		 */
 		$args = apply_filters( 'jetpack_relatedposts_filter_args', $args, $post_id );
 
-		$filters = $this->_get_es_filters_from_args( $post_id, $args );
+		$filters = $this->get_es_filters_from_args( $post_id, $args );
 		/**
 		 * Filter Elasticsearch options used to calculate Related Posts.
 		 *
@@ -920,12 +920,12 @@ EOT;
 	/**
 	 * Creates an array of Elasticsearch filters based on the post_id and args.
 	 *
-	 * @param int $post_id
-	 * @param array $args
+	 * @param int   $post_id - the post ID.
+	 * @param array $args - the arguments.
 	 * @uses apply_filters, get_post_types, get_post_format_strings
 	 * @return array
 	 */
-	protected function _get_es_filters_from_args( $post_id, array $args ) {
+	protected function get_es_filters_from_args( $post_id, array $args ) {
 		$filters = array();
 
 		/**
@@ -940,7 +940,7 @@ EOT;
 		 */
 		$args['has_terms'] = apply_filters( 'jetpack_relatedposts_filter_has_terms', $args['has_terms'], $post_id );
 		if ( ! empty( $args['has_terms'] ) ) {
-			foreach( (array)$args['has_terms'] as $term ) {
+			foreach ( (array) $args['has_terms'] as $term ) {
 				if ( mb_strlen( $term->taxonomy ) ) {
 					switch ( $term->taxonomy ) {
 						case 'post_tag':
@@ -969,17 +969,19 @@ EOT;
 		 * @param string $post_id Post ID of the post for which we are retrieving Related Posts.
 		 */
 		$args['post_type'] = apply_filters( 'jetpack_relatedposts_filter_post_type', $args['post_type'], $post_id );
-		$valid_post_types = get_post_types();
+		$valid_post_types  = get_post_types();
 		if ( is_array( $args['post_type'] ) ) {
 			$sanitized_post_types = array();
 			foreach ( $args['post_type'] as $pt ) {
-				if ( in_array( $pt, $valid_post_types ) )
+				if ( in_array( $pt, $valid_post_types, true ) ) {
 					$sanitized_post_types[] = $pt;
+				}
 			}
-			if ( ! empty( $sanitized_post_types ) )
+			if ( ! empty( $sanitized_post_types ) ) {
 				$filters[] = array( 'terms' => array( 'post_type' => $sanitized_post_types ) );
-		} else if ( in_array( $args['post_type'], $valid_post_types ) && 'all' != $args['post_type'] ) {
-			$filters[] = array( 'term' => array( 'post_type' => $args['post_type'] ) );
+			}
+		} elseif ( in_array( $args['post_type'], $valid_post_types, true ) && ( 'all' !== $args['post_type'] ) ) {
+				$filters[] = array( 'term' => array( 'post_type' => $args['post_type'] ) );
 		}
 
 		/**
@@ -992,8 +994,8 @@ EOT;
 		 * @param array $args['post_formats'] Array of Post Formats.
 		 * @param string $post_id Post ID of the post for which we are retrieving Related Posts.
 		 */
-		$args['post_formats'] = apply_filters( 'jetpack_relatedposts_filter_post_formats', $args['post_formats'], $post_id );
-		$valid_post_formats = get_post_format_strings();
+		$args['post_formats']   = apply_filters( 'jetpack_relatedposts_filter_post_formats', $args['post_formats'], $post_id );
+		$valid_post_formats     = get_post_format_strings();
 		$sanitized_post_formats = array();
 		foreach ( $args['post_formats'] as $pf ) {
 			if ( array_key_exists( $pf, $valid_post_formats ) ) {
@@ -1017,11 +1019,11 @@ EOT;
 		$args['date_range'] = apply_filters( 'jetpack_relatedposts_filter_date_range', $args['date_range'], $post_id );
 		if ( is_array( $args['date_range'] ) && ! empty( $args['date_range'] ) ) {
 			$args['date_range'] = array_map( 'intval', $args['date_range'] );
-			if ( !empty( $args['date_range']['from'] ) && !empty( $args['date_range']['to'] ) ) {
+			if ( ! empty( $args['date_range']['from'] ) && ! empty( $args['date_range']['to'] ) ) {
 				$filters[] = array(
 					'range' => array(
 						'date_gmt' => $this->_get_coalesced_range( $args['date_range'] ),
-					)
+					),
 				);
 			}
 		}
