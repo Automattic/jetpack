@@ -1,0 +1,4 @@
+Significance: patch
+Type: bugfix
+
+Security: PDF embeds now only display a link, to avoid issues with malicious PDFss that may run arbitrary code.
