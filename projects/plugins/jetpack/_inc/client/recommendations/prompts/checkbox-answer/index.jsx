@@ -21,9 +21,18 @@ import './style.scss';
 const CheckboxAnswerComponent = ( { answerKey, checked, info, title, updateCheckboxAnswer } ) => {
 	const toggleCheckbox = useCallback(
 		e => {
-			if ( e.target.type !== 'checkbox' ) {
+			if ( e.target.localName === 'label' ) {
 				return;
 			}
+
+			if ( e.type === 'keypress' ) {
+				if ( e.charCode === 32 ) {
+					e.preventDefault();
+				} else {
+					return;
+				}
+			}
+
 			const newCheckedValue = ! checked;
 			updateCheckboxAnswer( { [ answerKey ]: newCheckedValue } );
 		},
@@ -55,6 +64,7 @@ const CheckboxAnswerComponent = ( { answerKey, checked, info, title, updateCheck
 					class="jp-checkbox-answer__checkbox-input"
 					type="checkbox"
 					defaultChecked={ checked }
+					checked={ checked }
 					tabIndex={ -1 }
 				/>
 			</div>

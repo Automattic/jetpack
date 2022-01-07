@@ -4,7 +4,7 @@
 
 .jp-recommendations-summary {
 	display: grid;
-	grid-template-columns: 57% 43%;
+	grid-template-columns: 54% 46%;
 
 	background: var( --jp-white-off );
 
@@ -54,19 +54,19 @@
 }
 
 .jp-recommendations-summary__configuration {
-	margin: 48px 48px 32px 48px;
+	margin: 3rem 3rem 2rem 3rem;
 
 	@include breakpoint( '<480px' ) {
-		margin: 16px 16px 0 16px;
+		margin: 1rem 1rem 0 1rem;
 	}
 
 	h2 {
-		margin: 32px 0 16px 0;
+		margin: 2rem 0 1rem 0;
 	}
 }
 
 .jp-recommendations-summary__sidebar {
-	padding: 24px;
+	padding: 2rem 3rem;
 
 	@include breakpoint( '<660px' ) {
 		padding: 0;
@@ -84,16 +84,16 @@
 	display: flex;
 	align-items: flex-start;
 	border-top: 1px solid $studio-gray-5;
-	padding: 40px 48px;
+	padding: 2.5rem 3rem;
 
 	@include breakpoint( '<480px' ) {
-		padding: 40px 16px;
+		padding: 2.5rem 1rem;
 	}
 
 	.gridicons-info-outline {
 		fill: $studio-gray-40;
-		margin-right: 18px;
-		flex: 0 0 24px;
+		margin-right: 1.125rem;
+		flex: 0 0 1.5rem;
 	}
 
 	.gridicons-external {

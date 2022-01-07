@@ -35,7 +35,7 @@
 	}
 }
 
-.jp-recommendations-question__main--with-illustration {
+.jp-recommendations-question__main--with-sidebar {
 	display: grid;
 	grid-template-columns: repeat( 2, 1fr );
 
@@ -43,7 +43,9 @@
 		grid-template-columns: 100% 0%;
 		background: var( --jp-white );
 	}
+}
 
+.jp-recommendations-question__main--with-illustration {
 	background: linear-gradient(
 		130deg,
 		var( --jp-white ) 0%,
