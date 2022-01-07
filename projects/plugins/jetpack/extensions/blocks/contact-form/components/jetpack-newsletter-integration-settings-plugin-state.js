@@ -17,7 +17,9 @@ export const pluginStateEnum = Object.freeze( {
 } );
 
 const CreativeMailPluginIsInstalling = ( { isActivating } ) => {
-	const btnTxt = isActivating ? __( 'Activating…', 'jetpack' ) : __( 'Installing…', 'jetpack' );
+	const btnTxt = isActivating
+		? __( 'Activating…', 'jetpack' )
+		: __( 'Installing…', 'jetpack', /* dummy arg to avoid bad minification */ 0 );
 	return (
 		<Button
 			isSecondary

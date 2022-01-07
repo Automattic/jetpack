@@ -91,8 +91,8 @@ In production mode we choose no devtool, mainly because we don't currently distr
 
 This is an object suited for spreading some default values into Webpack's `output` configuration object. We currently set two of the settings:
 
-- `filename`: `[name].min.js`. The `.min.js` bit is required to avoid a broken auto-minifier on WordPress.com infrastructure.
-- `chunkFilename`: `[name]-[id].H[contenthash:20].min.js`. The content hash serves as a cache buster; while Webpack would accept something like `[name]-[id].min.js?ver=[contenthash]`, [some of the modules we use do not](https://github.com/Automattic/jetpack/issues/21349#issuecomment-940191828).
+- `filename`: `[name].js`.
+- `chunkFilename`: `[name].js?minify=false&ver=[contenthash]`. The content hash serves as a cache buster, while `minify=false` avoids a broken minifier in the WordPress.com environment.
 
 #### `optimization`
 
@@ -110,40 +110,6 @@ The non-default options include:
 - `extractComments` is set to extract the comments normally preserved by terser to a LICENSE.txt file.
 
 The options used may be accessed as `TerserPlugin.defaultOptions`. The filter functions used for comments may be accessed as `TerserPlugin.isTranslatorsComment()` and `TerserPlugin.isSomeComments()`. If you want to actually use these to override the default configuration, you may want to look at the hack used in the default configuration to get it to work with terser-webpack-plugin's parallel processing (or disable `parallel`).
-
-##### Minification and i18n translator comments
-
-To avoid the minifier dropping or misplacing the translator comments, it's best to keep the comment as close to the function call as possible. For example, in
-```js
-const a, b, c;
-
-/* translators: This is a bad example. */
-const example = __( 'Example', 'domain' );
-```
-the minifier will combine those into a single `const` statement and misplace the comment on the way. To fix it, move the comment to the variable declaration instead of the `const` statement:
-```js
-const a, b, c;
-
-const
-	/* translators: This is a bad example. */
-	example = __( 'Example', 'domain' );
-```
-Similarly in jsx, a comment placed like this may wind up misplaced:
-```js
-<Tag
-	/* translators: This is a bad example. */
-	property={ __( 'Here's another example', 'domain' ) }
-/>
-```
-Instead put it inside the property:
-```js
-<Tag
-	property={
-		/* translators: This is an example of how to do it right. */
-		__( 'Here's another example', 'domain' )
-	}
-/>
-```
 
 #### `CssMinimizerPlugin( options )`
 
@@ -170,6 +136,8 @@ plugins: {
 	} ),
 }
 ```
+
+Note that I18nCheckPlugin is only included by default in production mode.
 
 ##### `DefinePlugin( defines )`
 
@@ -207,6 +175,18 @@ This provides an instance of [duplicate-package-checker-webpack-plugin](https://
 
 This provides an instance of [@wordpress/dependency-extraction-webpack-plugin](https://www.npmjs.com/package/@wordpress/dependency-extraction-webpack-plugin). The `options` are passed to the plugin.
 
+##### `I18nLoaderPlugin( options )`
+
+This provides an instance of [@automattic/i18n-loader-webpack-plugin](https://www.npmjs.com/package/@automattic/i18n-loader-webpack-plugin). The `options` are passed to the plugin.
+
+Note that if the plugin actually does anything in your build, you'll need to specify at least the `domain` option for it.
+
+##### `I18nCheckPlugin( options )`
+
+This provides an instance of [@wordpress/i18n-check-webpack-plugin](https://www.npmjs.com/package/@wordpress/i18n-check-webpack-plugin). The `options` are passed to the plugin.
+
+The default configuration sets a filter that excludes `node_modules` other than `@automattic/*`. This may be accessed as `I18nCheckPlugin.defaultFilter`.
+
 #### Module rules and loaders
 
 Note all rule sets are provided as factory functions returning a single rule.
@@ -235,7 +215,7 @@ Note we intentionally don't supply [sass-loader](https://www.npmjs.com/package/s
 Options are:
 - `extensions`: Array of extensions to handle. Default is to only handle `css`.
   You'll likely need to set this if you use `extraLoaders` to include [sass-loader](https://www.npmjs.com/package/sass-loader) or something like that.
-- `MiniCssExtractLoader`: Options for `mini-css-extract-plugin`'s loader.
+- `MiniCssExtractLoader`: Options for `mini-css-extract-plugin`'s loader. The default options set `chunkFilename` to `[name].css?minify=false&ver=[contenthash]` as a cache buster.
 - `CssLoader`: Options for `css-loader`. Note its `importLoaders` option is handled automatically based on the length of `extraLoaders`.
 - `extraLoaders`: An array of additional loaders, to run before the provided loaders.
 
@@ -281,6 +261,8 @@ The options and corresponding components are:
   - `targets`: Set to your browserslist config if available, otherwise set to [@wordpress/browserslist-config](https://www.npmjs.com/package/@wordpress/browserslist-config).
 - `presetReact`: Corresponds to [@babel/preset-react](https://www.npmjs.com/package/@babel/preset-react).
 - `presetTypescript`: Corresponds to [@babel/preset-typescript](https://www.npmjs.com/package/@babel/preset-typescript).
+- `pluginReplaceTextdomain`: Corresponds to [@automattic/babel-plugin-replace-textdomain](https://www.npmjs.com/package/@automattic/babel-plugin-replace-textdomain).
+  Note this plugin is only included if this option is set, as the plugin requires a `textdomain` option be set.
 - `pluginProposalClassProperties`: Corresponds to [@babel/plugin-proposal-class-properties](https://www.npmjs.com/package/@babel/plugin-proposal-class-properties).
 - `pluginTransformRuntime`: Corresponds to [@babel/plugin-transform-runtime](https://www.npmjs.com/package/@babel/plugin-transform-runtime).
 

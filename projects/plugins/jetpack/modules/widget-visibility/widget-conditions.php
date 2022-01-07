@@ -84,7 +84,7 @@ class Jetpack_Widget_Conditions {
 			}
 
 			// Saving widgets via non-batch API. This isn't used within WordPress but could be used by third parties in theory.
-			if ( 'GET' !== $_SERVER['REQUEST_METHOD'] && false !== strpos( $_SERVER['REQUEST_URI'], '/wp/v2/widgets' ) ) {
+			if ( isset( $_SERVER['REQUEST_METHOD'] ) && 'GET' !== $_SERVER['REQUEST_METHOD'] && false !== strpos( $_SERVER['REQUEST_URI'], '/wp/v2/widgets' ) ) {
 				$handle_widget_updates = true;
 				$add_html_to_form      = true;
 			}
@@ -122,7 +122,7 @@ class Jetpack_Widget_Conditions {
 	public static function setup_block_controls() {
 		Assets::register_script(
 			'widget-visibility-editor',
-			'_inc/build/widget-visibility/editor/index.min.js',
+			'_inc/build/widget-visibility/editor/index.js',
 			JETPACK__PLUGIN_FILE,
 			array(
 				'in_footer'  => true,

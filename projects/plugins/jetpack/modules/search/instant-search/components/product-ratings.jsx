@@ -46,8 +46,8 @@ export default function ProductRatings( { rating = 0, count = 0, permalink } ) {
 				{ sprintf(
 					/* Translators: the first placeholder is the average product rating out of 5; the second is the number of product reviews. */
 					_n(
-						'Average rating of %d out of 5 from %d review.',
-						'Average rating of %d out of 5 from %d reviews.',
+						'Average rating of %1$d out of 5 from %2$d review.',
+						'Average rating of %1$d out of 5 from %2$d reviews.',
 						count,
 						'jetpack'
 					),

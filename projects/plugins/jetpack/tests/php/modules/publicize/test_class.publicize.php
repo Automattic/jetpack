@@ -1,5 +1,5 @@
 <?php
-require dirname( __FILE__ ) . '/../../../../modules/publicize.php';
+require __DIR__ . '/../../../../modules/publicize.php';
 
 /**
  * @group publicize
@@ -7,8 +7,12 @@ require dirname( __FILE__ ) . '/../../../../modules/publicize.php';
  */
 class WP_Test_Publicize extends WP_UnitTestCase {
 
-
-	private $in_publish_filter = false;
+	/**
+	 * In the publish filter?
+	 *
+	 * @var bool
+	 */
+	private $in_publish_filter  = false;
 	private $publicized_post_id = null;
 	private $post;
 	private $original_user = 0;
@@ -43,43 +47,45 @@ class WP_Test_Publicize extends WP_UnitTestCase {
 	public function set_up() {
 		parent::set_up();
 
-		$this->publicize = publicize_init();
+		$this->publicize          = publicize_init();
 		$this->publicized_post_id = null;
 
-		$post_id = $this->factory->post->create( array( 'post_status' => 'draft' ) );
+		$post_id    = $this->factory->post->create( array( 'post_status' => 'draft' ) );
 		$this->post = get_post( $post_id );
 
 		$this->user_id = $this->factory->user->create();
 		wp_set_current_user( $this->user_id );
 
-		Jetpack_Options::update_options( array(
-			'publicize_connections' => array(
-				// Normally connected facebook
-				'facebook' => array(
-					'id_number' => array(
-						'connection_data' => array(
-							'user_id'  => $this->user_id,
-							'token_id' => 'test-unique-id456',
-							'meta'     => array(
-								'display_name' => 'test-display-name456',
+		Jetpack_Options::update_options(
+			array(
+				'publicize_connections' => array(
+					// Normally connected facebook.
+					'facebook' => array(
+						'id_number' => array(
+							'connection_data' => array(
+								'user_id'  => $this->user_id,
+								'token_id' => 'test-unique-id456',
+								'meta'     => array(
+									'display_name' => 'test-display-name456',
+								),
+							),
+						),
+					),
+					// Globally connected tumblr.
+					'tumblr'   => array(
+						'id_number' => array(
+							'connection_data' => array(
+								'user_id'  => 0,
+								'token_id' => 'test-unique-id123',
+								'meta'     => array(
+									'display_name' => 'test-display-name123',
+								),
 							),
 						),
 					),
 				),
-				// Globally connected tumblr
-				'tumblr' => array(
-					'id_number' => array(
-						'connection_data' => array(
-							'user_id'  => 0,
-							'token_id' => 'test-unique-id123',
-							'meta'     => array(
-								'display_name' => 'test-display-name123',
-							),
-						),
-					),
-				),
-			),
-		) );
+			)
+		);
 
 		add_filter( 'jetpack_published_post_flags', array( $this, 'set_post_flags_check' ), 20, 2 );
 
@@ -132,10 +138,10 @@ class WP_Test_Publicize extends WP_UnitTestCase {
 	public function test_publicize_does_not_fire_on_post_types_that_do_not_support_it() {
 		$args = array(
 			'public' => true,
-			'label'  => 'unregister post type'
+			'label'  => 'unregister post type',
 		);
 		register_post_type( 'foo', $args );
-		$this->post->post_type = 'foo';
+		$this->post->post_type   = 'foo';
 		$this->post->post_status = 'publish';
 
 		wp_insert_post( $this->post->to_array() );
@@ -210,22 +216,24 @@ class WP_Test_Publicize extends WP_UnitTestCase {
 			'id_number' => array(
 				'connection_data' => array(
 					'user_id' => 0,
-				)
-			)
+				),
+			),
 		);
-		$twitter_connection = array(
+		$twitter_connection  = array(
 			'id_number_2' => array(
 				'connection_data' => array(
 					'user_id' => 1,
-				)
+				),
+			),
+		);
+		Jetpack_Options::update_options(
+			array(
+				'publicize_connections' => array(
+					'facebook' => $facebook_connection,
+					'twitter'  => $twitter_connection,
+				),
 			)
 		);
-		Jetpack_Options::update_options( array(
-			'publicize_connections' => array(
-				'facebook' => $facebook_connection,
-				'twitter'  => $twitter_connection,
-			)
-		) );
 
 		$publicize = publicize_init();
 
@@ -237,8 +245,8 @@ class WP_Test_Publicize extends WP_UnitTestCase {
 		wp_set_current_user( 1 );
 		$this->assertSame(
 			array(
-			'facebook' => $facebook_connection,
-			'twitter' => $twitter_connection
+				'facebook' => $facebook_connection,
+				'twitter'  => $twitter_connection,
 			),
 			$publicize->get_all_connections_for_user()
 		);
@@ -397,7 +405,7 @@ class WP_Test_Publicize extends WP_UnitTestCase {
 	 * @since 6.7.0
 	 */
 	public function test_filter_wpas_submit_post() {
-		$connection_list = $this->publicize->get_filtered_connection_data( $this->post->ID );
+		$connection_list  = $this->publicize->get_filtered_connection_data( $this->post->ID );
 		$first_connection = $connection_list[0];
 		$this->assertEquals(
 			'facebook',
@@ -409,9 +417,9 @@ class WP_Test_Publicize extends WP_UnitTestCase {
 		// Get connection list again now that filter has been added.
 		$connection_list = $this->publicize->get_filtered_connection_data( $this->post->ID );
 
-		$this->assertEquals(
+		$this->assertCount(
 			1,
-			count( $connection_list ),
+			$connection_list,
 			'Connection list should be 1 long after \'facebook\' (Normal) connection removed.'
 		);
 		$first_connection = $connection_list[0];
@@ -432,7 +440,7 @@ class WP_Test_Publicize extends WP_UnitTestCase {
 	 * @since 6.7.0
 	 */
 	public function test_filter_publicize_checkbox_global_default_for_global_connection() {
-		$connection_list     = $this->publicize->get_filtered_connection_data( $this->post->ID );
+		$connection_list   = $this->publicize->get_filtered_connection_data( $this->post->ID );
 		$global_connection = $connection_list[ self::GLOBAL_CONNECTION_INDEX ];
 		$this->assertTrue(
 			$global_connection['global'],
@@ -450,7 +458,7 @@ class WP_Test_Publicize extends WP_UnitTestCase {
 		add_filter( 'publicize_checkbox_global_default', array( $this, 'publicize_connection_filter_no_global' ), 10, 4 );
 
 		// Get connection list again now that filter has been added.
-		$connection_list     = $this->publicize->get_filtered_connection_data( $this->post->ID );
+		$connection_list   = $this->publicize->get_filtered_connection_data( $this->post->ID );
 		$global_connection = $connection_list[ self::GLOBAL_CONNECTION_INDEX ];
 		$this->assertTrue(
 			$global_connection['global'],
@@ -473,7 +481,7 @@ class WP_Test_Publicize extends WP_UnitTestCase {
 	 * @since 6.7.0
 	 */
 	public function test_filter_publicize_checkbox_global_default_for_normal_connection() {
-		$connection_list     = $this->publicize->get_filtered_connection_data( $this->post->ID );
+		$connection_list   = $this->publicize->get_filtered_connection_data( $this->post->ID );
 		$normal_connection = $connection_list[ self::NORMAL_CONNECTION_INDEX ];
 		$this->assertFalse(
 			$normal_connection['global'],
@@ -493,7 +501,7 @@ class WP_Test_Publicize extends WP_UnitTestCase {
 		add_filter( 'publicize_checkbox_global_default', array( $this, 'publicize_connection_filter_no_normal' ), 10, 4 );
 
 		// Get connection list again now that filter has been added.
-		$connection_list     = $this->publicize->get_filtered_connection_data( $this->post->ID );
+		$connection_list   = $this->publicize->get_filtered_connection_data( $this->post->ID );
 		$normal_connection = $connection_list[ self::NORMAL_CONNECTION_INDEX ];
 
 		$this->assertSame( $before, json_encode( $normal_connection ), 'Normal connection should be unaffected by filter to uncheck global connection' );
@@ -507,7 +515,7 @@ class WP_Test_Publicize extends WP_UnitTestCase {
 	 * @since 6.7.0
 	 */
 	public function test_filter_publicize_checkbox_default_for_normal_connection() {
-		$connection_list = $this->publicize->get_filtered_connection_data( $this->post->ID );
+		$connection_list   = $this->publicize->get_filtered_connection_data( $this->post->ID );
 		$normal_connection = $connection_list[ self::NORMAL_CONNECTION_INDEX ];
 		$this->assertTrue(
 			$normal_connection['enabled'],
@@ -532,7 +540,7 @@ class WP_Test_Publicize extends WP_UnitTestCase {
 	 * @since 6.7.0
 	 */
 	public function test_filter_publicize_checkbox_default_for_global_connection() {
-		$connection_list = $this->publicize->get_filtered_connection_data( $this->post->ID );
+		$connection_list   = $this->publicize->get_filtered_connection_data( $this->post->ID );
 		$global_connection = $connection_list[ self::GLOBAL_CONNECTION_INDEX ];
 		$this->assertTrue(
 			$global_connection['enabled'],

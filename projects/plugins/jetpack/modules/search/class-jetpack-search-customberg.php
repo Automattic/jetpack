@@ -65,13 +65,8 @@ class Jetpack_Search_Customberg {
 			array( $this, 'jetpack_search_admin_page' )
 		);
 
-		// Only load assets if Customberg is supported.
-		if ( $this->wp_supports_customberg() ) {
-			add_action( "admin_print_scripts-$hook", array( $this, 'load_assets' ) );
-			add_action( 'admin_footer', array( 'Automattic\Jetpack\Search\Helper', 'print_instant_search_sidebar' ) );
-		} else {
-			add_action( "admin_print_scripts-$hook", array( $this, 'add_redirect_if_necessary' ) );
-		}
+		add_action( "admin_print_scripts-$hook", array( $this, 'load_assets' ) );
+		add_action( 'admin_footer', array( 'Automattic\Jetpack\Search\Helper', 'print_instant_search_sidebar' ) );
 	}
 
 	/**
@@ -95,20 +90,6 @@ class Jetpack_Search_Customberg {
 	}
 
 	/**
-	 * Redirects to the Customizer if Customberg is not supported by the current host.
-	 */
-	public function add_redirect_if_necessary() {
-		// Add a JS redirect if Customberg is not supported.
-		if ( ! $this->wp_supports_customberg() ) {
-			?>
-				<script>
-					window.location.href="<?php echo esc_url( admin_url( 'customize.php?autofocus[section]=jetpack_search' ) ); ?>";
-				</script>
-			<?php
-		}
-	}
-
-	/**
 	 * Loads assets for the customization experience.
 	 */
 	public function load_assets() {
@@ -127,7 +108,7 @@ class Jetpack_Search_Customberg {
 
 		Assets::register_script(
 			'jp-search-configure',
-			$path_prefix . '_inc/build/instant-search/jp-search-configure-main.min.js',
+			$path_prefix . '_inc/build/instant-search/jp-search-configure-main.js',
 			$plugin_base_path,
 			array(
 				'in_footer'  => true,
@@ -142,17 +123,6 @@ class Jetpack_Search_Customberg {
 			'jp-search-configure',
 			"window.jetpackSearchConfigureInit( 'jp-search-configure' )"
 		);
-	}
-
-	/**
-	 * Determine if the current version of WordPress supports Customberg.
-	 *
-	 * @return boolean
-	 */
-	protected function wp_supports_customberg() {
-		// Must be WP 5.8 or greater.
-		global $wp_version;
-		return version_compare( $wp_version, '5.8', '>=' );
 	}
 
 	/**

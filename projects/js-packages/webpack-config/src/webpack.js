@@ -1,3 +1,5 @@
+const fs = require( 'fs' );
+const path = require( 'path' );
 const webpack = require( 'webpack' );
 
 const CssMinimizerPlugin = require( 'css-minimizer-webpack-plugin' );
@@ -7,6 +9,8 @@ const DuplicatePackageCheckerWebpackPlugin = require( 'duplicate-package-checker
 const MiniCssExtractPlugin = require( 'mini-css-extract-plugin' );
 const MiniCSSWithRTLPlugin = require( './webpack/mini-css-with-rtl' );
 const WebpackRTLPlugin = require( '@automattic/webpack-rtl-plugin' );
+const I18nLoaderWebpackPlugin = require( '@automattic/i18n-loader-webpack-plugin' );
+const I18nCheckWebpackPlugin = require( '@automattic/i18n-check-webpack-plugin' );
 
 const MyCssMinimizerPlugin = options => new CssMinimizerPlugin( options );
 
@@ -17,13 +21,14 @@ const isDevelopment = ! isProduction;
 const mode = isProduction ? 'production' : 'development';
 const devtool = isProduction ? false : 'eval-cheap-module-source-map';
 const output = {
-	filename: '[name].min.js',
-	chunkFilename: '[name]-[id].H[contenthash:20].min.js',
+	filename: '[name].js',
+	chunkFilename: '[name].js?minify=false&ver=[contenthash]',
 };
 const optimization = {
 	minimize: isProduction,
 	minimizer: [ TerserPlugin(), MyCssMinimizerPlugin() ],
 	concatenateModules: false,
+	emitOnErrors: true,
 };
 const resolve = {
 	extensions: [ '.js', '.jsx', '.ts', '.tsx', '...' ],
@@ -46,7 +51,13 @@ const MomentLocaleIgnorePlugin = () => [
 	} ),
 ];
 
-const MyMiniCssExtractPlugin = options => [ new MiniCssExtractPlugin( options ) ];
+const MyMiniCssExtractPlugin = options => [
+	new MiniCssExtractPlugin( {
+		filename: '[name].css',
+		chunkFilename: '[name].css?minify=false&ver=[contenthash]',
+		...options,
+	} ),
+];
 
 const MyMiniCssWithRtlPlugin = options => [ new MiniCSSWithRTLPlugin( options ) ];
 
@@ -58,7 +69,49 @@ const DuplicatePackageCheckerPlugin = options => [
 
 const DependencyExtractionPlugin = options => [ new DependencyExtractionWebpackPlugin( options ) ];
 
+const I18nLoaderPlugin = options => [ new I18nLoaderWebpackPlugin( options ) ];
+
+const i18nFilterFunction = file => {
+	if ( ! /\.(?:jsx?|tsx?|cjs|mjs|svelte)$/.test( file ) ) {
+		return false;
+	}
+	const i = file.lastIndexOf( '/node_modules/' ) + 14;
+	return i < 14 || file.startsWith( '@automattic/', i );
+};
+const I18nCheckPlugin = options => {
+	const opts = { filter: i18nFilterFunction, ...options };
+	if ( typeof opts.expectDomain === 'undefined' ) {
+		let dir = process.cwd(),
+			olddir;
+		do {
+			const file = path.join( dir, 'composer.json' );
+			if ( fs.existsSync( file ) ) {
+				const cfg = JSON.parse( fs.readFileSync( file, { encoding: 'utf8' } ) );
+				if ( cfg.extra ) {
+					if ( cfg.extra.textdomain ) {
+						opts.expectDomain = cfg.extra.textdomain;
+					} else if ( cfg.extra[ 'wp-plugin-slug' ] ) {
+						opts.expectDomain = cfg.extra[ 'wp-plugin-slug' ];
+					} else if ( cfg.extra[ 'wp-theme-slug' ] ) {
+						opts.expectDomain = cfg.extra[ 'wp-theme-slug' ];
+					}
+				}
+				break;
+			}
+
+			olddir = dir;
+			dir = path.dirname( dir );
+		} while ( dir !== olddir );
+	}
+	return [ new I18nCheckWebpackPlugin( opts ) ];
+};
+I18nCheckPlugin.defaultFilter = i18nFilterFunction;
+
 const StandardPlugins = ( options = {} ) => {
+	if ( typeof options.I18nCheckPlugin === 'undefined' && isDevelopment ) {
+		options.I18nCheckPlugin = false;
+	}
+
 	return [
 		...( options.DefinePlugin === false ? [] : DefinePlugin( options.DefinePlugin ) ),
 		...( options.MomentLocaleIgnorePlugin === false
@@ -77,6 +130,8 @@ const StandardPlugins = ( options = {} ) => {
 		...( options.DependencyExtractionPlugin === false
 			? []
 			: DependencyExtractionPlugin( options.DependencyExtractionPlugin ) ),
+		...( options.I18nLoaderPlugin === false ? [] : I18nLoaderPlugin( options.I18nLoaderPlugin ) ),
+		...( options.I18nCheckPlugin === false ? [] : I18nCheckPlugin( options.I18nCheckPlugin ) ),
 	];
 };
 
@@ -110,6 +165,7 @@ module.exports = {
 	WebpackRtlPlugin: MyWebpackRtlPlugin,
 	DependencyExtractionPlugin,
 	DuplicatePackageCheckerPlugin,
+	I18nLoaderPlugin,
 	// Module rules and loaders.
 	TranspileRule,
 	CssRule,

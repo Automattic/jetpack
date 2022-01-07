@@ -2,6 +2,30 @@
 
 ### This is a list detailing changes for the Jetpack RNA IDC package releases.
 
+## 0.7.1 - 2022-01-04
+### Changed
+- Updated package dependencies.
+
+### Fixed
+- Remove the jetpack_idc_clear_confirmation GET parameter before reloading the page to avoid the endless loop in the UI.
+
+## 0.7.0 - 2021-12-14
+### Added
+- Add the non-admin IDC screen.
+
+## 0.6.0 - 2021-12-07
+### Added
+- Add event tracking.
+- IDC screen content customization.
+
+### Changed
+- Extract visual components and create Storybook stories.
+- Updated package dependencies.
+
+## 0.5.1 - 2021-11-30
+### Changed
+- Updated package dependencies.
+
 ## 0.5.0 - 2021-11-23
 ### Changed
 - Add "Staying in safe mode" spinner, rename CSS classes according to the CSS guidelines.

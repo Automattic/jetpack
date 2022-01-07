@@ -108,8 +108,6 @@ const sharedWebpackConfig = {
 	devtool: jetpackWebpackConfig.devtool,
 	output: {
 		...jetpackWebpackConfig.output,
-		filename: '[name].min.js',
-		chunkFilename: '[name].[contenthash].js',
 		path: path.join( __dirname, '../_inc/blocks' ),
 	},
 	optimization: {
@@ -121,8 +119,7 @@ const sharedWebpackConfig = {
 	node: {},
 	plugins: [
 		...jetpackWebpackConfig.StandardPlugins( {
-			MiniCssExtractPlugin: false, // Needs different configs, sigh.
-			DependencyExtractionPlugin: false,
+			DependencyExtractionPlugin: { injectPolyfill: true },
 		} ),
 	],
 	module: {
@@ -133,10 +130,10 @@ const sharedWebpackConfig = {
 				exclude: /node_modules\//,
 			} ),
 
-			// Transpile @automattic/jetpack-* in node_modules too.
+			// Transpile @automattic/* in node_modules too.
 			jetpackWebpackConfig.TranspileRule( {
 				includeNodeModules: [
-					'@automattic/jetpack-',
+					'@automattic/',
 					'debug/',
 					'gridicons/',
 					'punycode/',
@@ -180,11 +177,6 @@ module.exports = [
 		},
 		plugins: [
 			...sharedWebpackConfig.plugins,
-			...jetpackWebpackConfig.MiniCssExtractPlugin( {
-				filename: '[name].min.css',
-				chunkFilename: '[name].[contenthash].css',
-			} ),
-			...jetpackWebpackConfig.DependencyExtractionPlugin( { injectPolyfill: true } ),
 			new CopyWebpackPlugin( {
 				patterns: [
 					{
@@ -203,15 +195,13 @@ module.exports = [
 		},
 		output: {
 			...sharedWebpackConfig.output,
-			filename: '[name].js',
-			chunkFilename: '[name].[contenthash].js',
 			libraryTarget: 'commonjs2',
 		},
 		plugins: [
-			...sharedWebpackConfig.plugins,
-			...jetpackWebpackConfig.MiniCssExtractPlugin( {
-				filename: '[name].css',
-				chunkFilename: '[name].[contenthash].css',
+			...jetpackWebpackConfig.StandardPlugins( {
+				DependencyExtractionPlugin: false,
+				I18nLoaderPlugin: false,
+				I18nCheckPlugin: false,
 			} ),
 			new webpack.NormalModuleReplacementPlugin(
 				/^@wordpress\/i18n$/,

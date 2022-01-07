@@ -4,6 +4,7 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 import { connect } from 'react-redux';
+import classnames from 'classnames';
 import { find, isEmpty } from 'lodash';
 
 /**
@@ -31,6 +32,7 @@ import {
 	showLicensingUi,
 } from 'state/initial-state';
 import { getDetachedLicensesCount } from 'state/licensing';
+import { ProductActivated } from 'components/product-activated';
 import License from './license';
 import MyPlanCard from '../my-plan-card';
 
@@ -54,6 +56,7 @@ class MyPlanHeader extends React.Component {
 
 		const purchase = find( purchases, purchaseObj => purchaseObj.product_slug === productSlug );
 		let expiration;
+		let activation;
 		if ( purchase ) {
 			expiration = (
 				<ProductExpiration
@@ -63,6 +66,8 @@ class MyPlanHeader extends React.Component {
 					isRefundable={ purchase.is_refundable }
 				/>
 			);
+
+			activation = purchase.active === '1' ? <ProductActivated /> : null;
 		}
 
 		switch ( getPlanClass( productSlug ) ) {
@@ -93,14 +98,18 @@ class MyPlanHeader extends React.Component {
 					details: expiration,
 					tagLine: displayBackups
 						? __( 'Daily backups, spam filtering, and priority support.', 'jetpack' )
-						: __( 'Spam filtering and priority support.', 'jetpack' ),
+						: __(
+								'Spam filtering and priority support.',
+								'jetpack',
+								/* dummy arg to avoid bad minification */ 0
+						  ),
 					title: __( 'Jetpack Personal', 'jetpack' ),
 				};
 
 			case 'is-premium-plan':
 				return {
 					...productProps,
-					details: expiration,
+					details: [ activation, expiration ],
 					tagLine: __(
 						'Full security suite, marketing and revenue automation tools, unlimited video hosting, and priority support.',
 						'jetpack'
@@ -111,7 +120,7 @@ class MyPlanHeader extends React.Component {
 			case 'is-business-plan':
 				return {
 					...productProps,
-					details: expiration,
+					details: [ activation, expiration ],
 					tagLine: __(
 						'Full security suite, marketing and revenue automation tools, unlimited video hosting, and priority support.',
 						'jetpack'
@@ -122,7 +131,7 @@ class MyPlanHeader extends React.Component {
 			case 'is-security-t1-plan':
 				return {
 					...productProps,
-					details: expiration,
+					details: [ activation, expiration ],
 					tagLine: createInterpolateElement(
 						sprintf(
 							/* translators: %1$d is the number of gigabytes of storage space the site has. */
@@ -142,7 +151,7 @@ class MyPlanHeader extends React.Component {
 			case 'is-security-t2-plan':
 				return {
 					...productProps,
-					details: expiration,
+					details: [ activation, expiration ],
 					tagLine: createInterpolateElement(
 						sprintf(
 							/* translators: %1$d is the number of gigabytes of storage space the site has. */
@@ -162,7 +171,7 @@ class MyPlanHeader extends React.Component {
 			case 'is-complete-plan':
 				return {
 					...productProps,
-					details: expiration,
+					details: [ activation, expiration ],
 					tagLine: __(
 						'The most powerful WordPress sites: Top-tier security bundle, enhanced search.',
 						'jetpack'
@@ -173,7 +182,7 @@ class MyPlanHeader extends React.Component {
 			case 'is-backup-t1-plan':
 				return {
 					...productProps,
-					details: expiration,
+					details: [ activation, expiration ],
 					tagLine: createInterpolateElement(
 						sprintf(
 							/* translators: %1$d is the number of gigabytes of storage space the site has. */
@@ -193,7 +202,7 @@ class MyPlanHeader extends React.Component {
 			case 'is-backup-t2-plan':
 				return {
 					...productProps,
-					details: expiration,
+					details: [ activation, expiration ],
 					tagLine: createInterpolateElement(
 						sprintf(
 							/* translators: %1$d is the number of terabytes of storage space the site has. */
@@ -213,7 +222,7 @@ class MyPlanHeader extends React.Component {
 			case 'is-search-plan':
 				return {
 					...productProps,
-					details: expiration,
+					details: [ activation, expiration ],
 					tagLine: __( 'Fast, highly relevant search results and powerful filtering.', 'jetpack' ),
 					title: __( 'Jetpack Search', 'jetpack' ),
 				};
@@ -221,7 +230,7 @@ class MyPlanHeader extends React.Component {
 			case 'is-scan-plan':
 				return {
 					...productProps,
-					details: expiration,
+					details: [ activation, expiration ],
 					tagLine: __(
 						'Automatic scanning and one-click fixes keep your site one step ahead of security threats.',
 						'jetpack'
@@ -234,7 +243,7 @@ class MyPlanHeader extends React.Component {
 			case 'is-anti-spam-plan':
 				return {
 					...productProps,
-					details: expiration,
+					details: [ activation, expiration ],
 					tagLine: __(
 						'Automatically clear spam from comments and forms. Save time, get more responses, give your visitors a better experience – all without lifting a finger.',
 						'jetpack'
@@ -289,7 +298,7 @@ class MyPlanHeader extends React.Component {
 			case 'is-videopress-plan':
 				return {
 					...productProps,
-					details: expiration,
+					details: [ activation, expiration ],
 					tagLine: __( 'High-quality, ad-free video built specifically for WordPress.', 'jetpack' ),
 					title: __( 'Jetpack VideoPress', 'jetpack' ),
 				};
@@ -304,10 +313,13 @@ class MyPlanHeader extends React.Component {
 
 	renderPlan() {
 		return (
-			<Card compact>
-				{ this.renderHeader( __( 'My Plan', 'jetpack' ) ) }
-				<MyPlanCard { ...this.getProductProps( this.props.plan ) } />
-			</Card>
+			<>
+				{ this.props.hasDetachedUserLicenses && this.renderLicensingActions() }
+				<Card compact>
+					{ this.renderHeader( __( 'My Plan', 'jetpack' ) ) }
+					<MyPlanCard { ...this.getProductProps( this.props.plan ) } />
+				</Card>
+			</>
 		);
 	}
 
@@ -330,6 +342,66 @@ class MyPlanHeader extends React.Component {
 		return <h3 className="jp-landing__card-header">{ title }</h3>;
 	}
 
+	renderLicensingActions = () => {
+		const {
+			hasDetachedUserLicenses,
+			showRecommendations: showRecommendationsButton,
+			siteAdminUrl,
+			purchases,
+		} = this.props;
+		// 'showRecommendationsButton' will be false if Jetpack is not active or we are in offline mode or if this is an Atomic site.
+		if ( ! showRecommendationsButton ) {
+			return null;
+		}
+
+		const showPurchasesLink = !! purchases?.length || hasDetachedUserLicenses;
+
+		return (
+			<Card compact>
+				<div className="jp-landing__licensing-actions">
+					{ hasDetachedUserLicenses && (
+						<span>{ __( 'Got a license key? Activate it here.', 'jetpack' ) }</span>
+					) }
+					<div
+						className={ classnames( 'jp-landing__licensing-actions-item', {
+							'no-licenses': ! hasDetachedUserLicenses,
+							'no-purchases': ! showPurchasesLink,
+						} ) }
+					>
+						{ showPurchasesLink && (
+							<ExternalLink
+								className="all-purchases__link"
+								href={ getRedirectUrl( 'calypso-purchases' ) }
+								onClick={ this.trackAllPurchasesClick }
+								target="_blank"
+								icon={ true }
+							>
+								{ __( 'View all purchases', 'jetpack' ) }
+							</ExternalLink>
+						) }
+						{ hasDetachedUserLicenses ? (
+							<Button
+								href={ siteAdminUrl + 'admin.php?page=jetpack#/license/activation' }
+								onClick={ this.trackLicenseActivationClick }
+								primary
+							>
+								{ _x( 'Activate a Product', 'Navigation item.', 'jetpack' ) }
+							</Button>
+						) : (
+							<Button
+								href={ siteAdminUrl + 'admin.php?page=jetpack#/recommendations' }
+								onClick={ this.trackRecommendationsClick }
+								primary
+							>
+								{ _x( 'Recommendations', 'Navigation item.', 'jetpack' ) }
+							</Button>
+						) }
+					</div>
+				</div>
+			</Card>
+		);
+	};
+
 	trackAllPurchasesClick = () => {
 		analytics.tracks.recordJetpackClick( {
 			target: 'calypso_purchases_link',
@@ -351,55 +423,10 @@ class MyPlanHeader extends React.Component {
 	};
 
 	renderFooter() {
-		const {
-			showRecommendations: showRecommendationsButton,
-			hasDetachedUserLicenses,
-			siteAdminUrl,
-			purchases,
-		} = this.props;
-		// 'showRecommendationsButton' will be false if Jetpack is not active or we are in offline mode or if this is an Atomic site.
-		if ( ! showRecommendationsButton ) {
-			return null;
-		}
-
-		const showPurchasesLink = !! purchases?.length || hasDetachedUserLicenses;
 		return (
-			<Card compact>
-				<div className="jp-landing__card-footer">
-					{ showPurchasesLink && (
-						<div className="jp-landing__card-footer-item">
-							<ExternalLink
-								className="all-purchases__link"
-								href={ getRedirectUrl( 'calypso-purchases' ) }
-								onClick={ this.trackAllPurchasesClick }
-								target="_blank"
-								icon={ true }
-							>
-								{ __( 'View all purchases', 'jetpack' ) }
-							</ExternalLink>
-						</div>
-					) }
-					<div className="jp-landing__card-footer-item align-right">
-						{ hasDetachedUserLicenses ? (
-							<Button
-								href={ siteAdminUrl + 'admin.php?page=jetpack#/license/activation' }
-								onClick={ this.trackLicenseActivationClick }
-								primary
-							>
-								{ _x( 'Activate a Product', 'Navigation item.', 'jetpack' ) }
-							</Button>
-						) : (
-							<Button
-								href={ siteAdminUrl + 'admin.php?page=jetpack#/recommendations' }
-								onClick={ this.trackRecommendationsClick }
-								primary
-							>
-								{ _x( 'Recommendations', 'Navigation item.', 'jetpack' ) }
-							</Button>
-						) }
-					</div>
-				</div>
-			</Card>
+			// The activation label should be displayed in the footer only if
+			// there is no product to be activated.
+			! this.props.hasDetachedUserLicenses && this.renderLicensingActions()
 		);
 	}
 

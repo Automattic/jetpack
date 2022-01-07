@@ -63,8 +63,7 @@ class Jetpack_Instant_Search extends Jetpack_Search {
 	public function load_php() {
 		$this->base_load_php();
 
-		require_once __DIR__ . '/class-jetpack-search-settings.php';
-		new Jetpack_Search_Settings();
+		new Automattic\Jetpack\Search\Settings();
 
 		if ( class_exists( 'WP_Customize_Manager' ) ) {
 			require_once __DIR__ . '/class-jetpack-search-customize.php';
@@ -121,7 +120,7 @@ class Jetpack_Instant_Search extends Jetpack_Search {
 	public function load_assets_with_parameters( $path_prefix, $plugin_base_path ) {
 		Assets::register_script(
 			'jetpack-instant-search',
-			$path_prefix . '_inc/build/instant-search/jp-search-main.bundle.min.js',
+			$path_prefix . '_inc/build/instant-search/jp-search-main.js',
 			$plugin_base_path,
 			array(
 				'in_footer'  => true,
@@ -131,37 +130,6 @@ class Jetpack_Instant_Search extends Jetpack_Search {
 		Assets::enqueue_script( 'jetpack-instant-search' );
 		$this->load_and_initialize_tracks();
 		$this->inject_javascript_options();
-
-		// It only inlines the translations for the script, but does not actually load the script.
-		// The injected translations is actually for script `_inc/build/instant-search/jp-search.chunk-main-payload.[contentHash].min.js` lazy-loaded by `_inc/build/instant-search/jp-search-main.bundle.min.js`.
-		// The [contentHash] changes almost on every build, so we make the un-minimized file name fixed for the sake of loading translations.
-		$this->inject_translation_for_script(
-			plugins_url(
-				$path_prefix . '_inc/build/instant-search/jp-search.chunk-main-payload.js',
-				$plugin_base_path
-			)
-		);
-	}
-
-	/**
-	 * Add inline translations for script `$payload_url` before loading `$before_handle` script.
-	 *
-	 * @param string $payload_url - The payload url for which we load the translations.
-	 * @param string $before_handle - Inline the translations before this handle.
-	 */
-	protected function inject_translation_for_script( $payload_url, $before_handle = 'jetpack-instant-search' ) {
-		// Set a random name for the script.
-		$handle = 'jetpack-instant-search-' . wp_unique_id();
-		// Then register it, which is required for the next steps.
-		// phpcs:ignore WordPress.WP.EnqueuedResourceParameters.NoExplicitVersion
-		wp_register_script( $handle, $payload_url, array(), false, false );
-		// Set translation domain to `jetpack`, and we need to explicitly set the `path` to load translations files for WPCOM.
-		// Otherwise WPCOM would try to load from `WP_LANG_DIR . '/mu-plugins'` and fails.
-		wp_set_script_translations( $handle, 'jetpack', WP_LANG_DIR . '/plugins' );
-		// Inline the translations before `$before_handle` handle.
-		wp_add_inline_script( $before_handle, wp_scripts()->print_translations( $handle, false ), 'before' );
-		// Deregister the script as we don't really enqueue it from PHP side.
-		wp_deregister_script( $handle );
 	}
 
 	/**
