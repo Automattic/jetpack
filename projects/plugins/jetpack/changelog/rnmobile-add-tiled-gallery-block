@@ -1,0 +1,4 @@
+Significance: minor
+Type: enhancement
+
+Port the Jetpack Tiled Gallery over to native mobile (Gutenberg Mobile). This first iteration includes the Square layout only.
