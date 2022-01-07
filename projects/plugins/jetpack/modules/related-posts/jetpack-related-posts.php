@@ -103,10 +103,9 @@ class Jetpack_RelatedPosts {
 	 *
 	 * @uses get_option, add_action, apply_filters
 	 *
-	 * @return null
 	 */
 	public function __construct() {
-		$this->blog_charset = get_option( 'blog_charset' );
+		$this->blog_charset    = get_option( 'blog_charset' );
 		$this->convert_charset = ( function_exists( 'iconv' ) && ! preg_match( '/^utf\-?8$/i', $this->blog_charset ) );
 
 		add_action( 'admin_init', array( $this, 'action_admin_init' ) );
@@ -127,6 +126,11 @@ class Jetpack_RelatedPosts {
 		);
 	}
 
+	/**
+	 * Get the blog ID.
+	 *
+	 * @return Object current blog id.
+	 */
 	protected function get_blog_id() {
 		return Jetpack_Options::get_option( 'id' );
 	}
@@ -142,17 +146,16 @@ class Jetpack_RelatedPosts {
 	 *
 	 * @action admin_init
 	 * @uses add_settings_field, __, register_setting, add_action
-	 * @return null
 	 */
 	public function action_admin_init() {
 
-		// Add the setting field [jetpack_relatedposts] and place it in Settings > Reading
+		// Add the setting field [jetpack_relatedposts] and place it in Settings > Reading.
 		add_settings_field( 'jetpack_relatedposts', '<span id="jetpack_relatedposts">' . __( 'Related posts', 'jetpack' ) . '</span>', array( $this, 'print_setting_html' ), 'reading' );
 		register_setting( 'reading', 'jetpack_relatedposts', array( $this, 'parse_options' ) );
-		add_action('admin_head', array( $this, 'print_setting_head' ) );
+		add_action( 'admin_head', array( $this, 'print_setting_head' ) );
 
-		if( 'options-reading.php' == $GLOBALS['pagenow'] ) {
-			// Enqueue style for live preview on the reading settings page
+		if ( 'options-reading.php' === $GLOBALS['pagenow'] ) {
+			// Enqueue style for live preview on the reading settings page.
 			$this->_enqueue_assets( false, true );
 		}
 	}
@@ -163,14 +166,14 @@ class Jetpack_RelatedPosts {
 	 * @global $_GET
 	 * @action wp
 	 * @uses add_shortcode, get_the_ID
-	 * @returns null
 	 */
 	public function action_frontend_init() {
-		// Add a shortcode handler that outputs nothing, this gets overridden later if we can display related content
+		// Add a shortcode handler that outputs nothing, this gets overridden later if we can display related content.
 		add_shortcode( self::SHORTCODE, array( $this, 'get_client_rendered_html_unsupported' ) );
 
-		if ( ! $this->_enabled_for_request() )
+		if ( ! $this->_enabled_for_request() ) {
 			return;
+		}
 
 		if ( isset( $_GET['relatedposts'] ) ) {
 			$excludes = $this->parse_numeric_get_arg( 'relatedposts_exclude' );
@@ -260,9 +263,9 @@ class Jetpack_RelatedPosts {
 	 * Looks for our shortcode on the unfiltered content, this has to execute early.
 	 *
 	 * @filter the_content
-	 * @param string $content
+	 * @param string $content - content of the post.
 	 * @uses has_shortcode
-	 * @returns string
+	 * @return string $content
 	 */
 	public function test_for_shortcode( $content ) {
 		$this->found_shortcode = has_shortcode( $content, self::SHORTCODE );
@@ -274,7 +277,7 @@ class Jetpack_RelatedPosts {
 	 * Returns the HTML for the related posts section.
 	 *
 	 * @uses esc_html__, apply_filters
-	 * @returns string
+	 * @return string
 	 */
 	public function get_client_rendered_html() {
 		if ( Settings::is_syncing() ) {
@@ -295,7 +298,7 @@ class Jetpack_RelatedPosts {
 		if ( $this->previous_post_id ) {
 			$exclude = "data-exclude='{$this->previous_post_id}'";
 		} else {
-			$exclude = "";
+			$exclude = '';
 		}
 
 		return <<<EOT
