@@ -156,5 +156,5 @@ function applyImgRatio( col, { colHeight, width, rawWidth } ) {
 				item.setAttribute( 'style', `height:${ height }px;width:${ width }px;` );
 			} );
 		},
-	} );
+	} )();
 }

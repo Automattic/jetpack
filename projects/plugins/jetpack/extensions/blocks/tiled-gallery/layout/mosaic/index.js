@@ -93,9 +93,9 @@ export default class Mosaic extends Component {
 				: ratiosToMosaicRows( ratios, { isWide: [ 'full', 'wide' ].includes( align ) } );
 
 		const columnWidths = Platform.select( {
-			web: this.props.columnWidths,
-			native: getColumnWidths( rows, renderedImages, 1000 ),
-		} );
+			web: () => this.props.columnWidths,
+			native: () => getColumnWidths( rows, renderedImages, 1000 ),
+		} )();
 
 		let cursor = 0;
 		return (
