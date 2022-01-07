@@ -3,6 +3,10 @@
 set -o pipefail
 #set -x
 
+BASE=$(cd $(dirname "${BASH_SOURCE[0]}")/.. && pwd)
+. "$BASE/tools/includes/check-osx-bash-version.sh"
+. "$BASE/tools/includes/chalk-lite.sh"
+
 # Print help and exit.
 function usage {
 	cat <<-EOH
@@ -32,7 +36,9 @@ if ! type brew &> /dev/null; then
     echo "Installing Homebrew"
     /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
 	if [[ ON_LINUX ]]; then # Add homebrew to PATH
+		echo 'eval "$(/home/ubuntu/.linuxbrew/bin/brew shellenv)"' >> /home/ubuntu/.profile
 		eval "$(/home/linuxbrew/.linuxbrew/bin/brew shellenv)"
+		PATH=/home/linuxbrew/.linuxbrew/bin:$PATH
 		hash -r 
 	fi
 else
@@ -61,10 +67,11 @@ echo "Installing jq"
 brew install jq
 
 echo "Installing pnpm"
-curl -f https://get.pnpm.io/v6.16.js | node - add --global pnp
+curl -f https://get.pnpm.io/v6.16.js | node - add --global pnpm
 
 echo "Installing PHP"
 source .github/versions.sh && brew install php@$PHP_VERSION
+brew link php@8.0
 
 echo "Installing Composer"
 if ! composer -v &> /dev/null; then
@@ -83,9 +90,17 @@ if ! composer -v &> /dev/null; then
 	RESULT=$?
 	rm composer-setup.php
 	echo "$RESULT"
-	sudo mv composer.phar usr/local/bin/composer
+	sudo mv composer.phar /usr/local/bin/composer
 fi 
+
+# Reset the terminal so it picks up the changes.
+if [[ "$SHELL" == "/bin/zsh" ]]; then 
+	source ~/.zshrc
+elif [[ "$SHELL" == "/bin/bash" ]]; then
+	echo "Refreshing terminal"
+	source ~/.bashrc
+fi
 
 # Setup the Jetpack CLI
 echo "Setting up the Jetpack CLI"
-pnpm install && pnpm cli-setup && pnpm jetpack cli link
+pnpm install && pnpm cli-setup
