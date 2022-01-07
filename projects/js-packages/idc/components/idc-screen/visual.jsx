@@ -37,6 +37,9 @@ const IDCScreenVisual = props => {
 		isStartingFresh,
 		startFreshCallback,
 		isAdmin,
+		hasMigrateError,
+		hasFreshError,
+		hasStaySafeError,
 	} = props;
 
 	const nonAdminBody = ! isAdmin ? <ScreenNonAdmin customContent={ customContent } /> : '';
@@ -62,6 +65,9 @@ const IDCScreenVisual = props => {
 				migrateCallback={ migrateCallback }
 				isStartingFresh={ isStartingFresh }
 				startFreshCallback={ startFreshCallback }
+				hasMigrateError={ hasMigrateError }
+				hasFreshError={ hasFreshError }
+				hasStaySafeError={ hasStaySafeError }
 			/>
 		);
 	}
@@ -111,6 +117,12 @@ IDCScreenVisual.propTypes = {
 	startFreshCallback: PropTypes.func,
 	/** Whether to display the "admin" or "non-admin" screen. */
 	isAdmin: PropTypes.bool.isRequired,
+	/** Whether the component encountered the migration error. */
+	hasMigrateError: PropTypes.bool.isRequired,
+	/** Whether the component encountered the "Fresh Connection" error. */
+	hasFreshError: PropTypes.bool.isRequired,
+	/** Whether the component encountered the "Stay in Safe Mode" error. */
+	hasStaySafeError: PropTypes.bool.isRequired,
 };
 
 IDCScreenVisual.defaultProps = {
@@ -120,6 +132,9 @@ IDCScreenVisual.defaultProps = {
 	isMigrating: false,
 	isStartingFresh: false,
 	customContent: {},
+	hasMigrateError: false,
+	hasFreshError: false,
+	hasStaySafeError: false,
 };
 
 export default IDCScreenVisual;
