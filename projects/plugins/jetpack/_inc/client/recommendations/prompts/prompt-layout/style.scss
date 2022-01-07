@@ -5,7 +5,7 @@
 	flex-direction: column;
 }
 
-.jp-recommendations-question__main--with-illustration .jp-recommendations-question__content {
+.jp-recommendations-question__main--with-sidebar .jp-recommendations-question__content {
 	@include breakpoint( '>660px' ) {
 		padding-right: 48px;
 	}
@@ -54,7 +54,7 @@
 	}
 }
 
-.jp-recommendations-question__main--with-illustration .jp-recommendations-question__description {
+.jp-recommendations-question__main--with-sidebar .jp-recommendations-question__description {
 	margin-right: 0;
 
 	@include breakpoint( '<660px' ) {
@@ -81,6 +81,10 @@
 	@include breakpoint( '<660px' ) {
 		display: none;
 	}
+}
+
+.jp-recommendations-question__sidebar-card {
+	width: 100%;
 }
 
 .jp-recommendations-question__illustration-background {
