@@ -897,7 +897,7 @@ EOT;
 		 */
 		$filters = apply_filters( 'jetpack_relatedposts_filter_filters', $filters, $post_id );
 
-		$results = $this->_get_related_posts( $post_id, $args['size'], $filters );
+		$results = $this->get_related_posts( $post_id, $args['size'], $filters );
 		/**
 		 * Filter the array of related posts matched by Elasticsearch.
 		 *
@@ -1225,17 +1225,18 @@ EOT;
 		}
 
 		$response = array(
-			'version' => self::VERSION,
+			'version'         => self::VERSION,
 			'show_thumbnails' => (bool) $options['show_thumbnails'],
-			'show_date' => (bool) $options['show_date'],
-			'show_context' => (bool) $options['show_context'],
-			'layout' => (string) $options['layout'],
-			'headline' => (string) $options['headline'],
-			'items' => array(),
+			'show_date'       => (bool) $options['show_date'],
+			'show_context'    => (bool) $options['show_context'],
+			'layout'          => (string) $options['layout'],
+			'headline'        => (string) $options['headline'],
+			'items'           => array(),
 		);
 
-		if ( count( $related_posts ) == $options['size'] )
+		if ( count( $related_posts ) === $options['size'] ) {
 			$response['items'] = $related_posts;
+		}
 
 		echo json_encode( $response );
 
@@ -1458,7 +1459,7 @@ EOT;
 	 * @uses wp_remote_post, is_wp_error, get_option, wp_remote_retrieve_body, get_post, add_query_arg, remove_query_arg, get_permalink, get_post_format, apply_filters
 	 * @return array
 	 */
-	protected function _get_related_posts( $post_id, $size, array $filters ) {
+	protected function get_related_posts( $post_id, $size, array $filters ) {
 		$hits = $this->_filter_non_public_posts(
 			$this->_get_related_post_ids(
 				$post_id,
@@ -1503,48 +1504,49 @@ EOT;
 			'size' => (int) $size,
 		);
 
-		if ( !empty( $filters ) )
+		if ( ! empty( $filters ) )
 			$body['filter'] = array( 'and' => $filters );
 
-		// Build cache key
+		// Build cache key.
 		$cache_key = md5( serialize( $body ) );
 
-		// Load all cached values
+		// Load all cached values.
 		if ( wp_using_ext_object_cache() ) {
 			$transient_name = "{$cache_meta_key}_{$cache_key}_{$post_id}";
-			$cache = get_transient( $transient_name );
+			$cache          = get_transient( $transient_name );
 			if ( false !== $cache ) {
 				return $cache;
 			}
 		} else {
 			$cache = get_post_meta( $post_id, $cache_meta_key, true );
 
-			if ( empty( $cache ) )
+			if ( empty( $cache ) ) {
 				$cache = array();
-
+			}
 
 			// Cache is valid! Return cached value.
-			if ( isset( $cache[ $cache_key ] ) && is_array( $cache[ $cache_key ] ) && $cache[ $cache_key ][ 'expires' ] > $now_ts ) {
-				return $cache[ $cache_key ][ 'payload' ];
+			if ( isset( $cache[ $cache_key ] ) && is_array( $cache[ $cache_key ] ) && $cache[ $cache_key ]['expires'] > $now_ts ) {
+				return $cache[ $cache_key ]['payload'];
 			}
 		}
 
 		$response = wp_remote_post(
 			"https://public-api.wordpress.com/rest/v1/sites/{$this->get_blog_id()}/posts/$post_id/related/",
 			array(
-				'timeout' => 10,
+				'timeout'    => 10,
 				'user-agent' => 'jetpack_related_posts',
-				'sslverify' => true,
-				'body' => $body,
+				'sslverify'  => true,
+				'body'       => $body,
 			)
 		);
 
 		// Oh no... return nothing don't cache errors.
 		if ( is_wp_error( $response ) ) {
-			if ( isset( $cache[ $cache_key ] ) && is_array( $cache[ $cache_key ] ) )
-				return $cache[ $cache_key ][ 'payload' ]; // return stale
-			else
+			if ( isset( $cache[ $cache_key ] ) && is_array( $cache[ $cache_key ] ) ) {
+				return $cache[ $cache_key ]['payload']; // return stale.
+			} else {
 				return array();
+			}
 		}
 
 		$results = json_decode( wp_remote_retrieve_body( $response ), true );
@@ -1821,7 +1823,6 @@ EOT;
 	 *
 	 * @action rest_api_init
 	 * @uses register_rest_field, self::rest_get_related_posts
-	 * @return null
 	 */
 	public function rest_register_related_posts() {
 		/** This filter is already documented in class.json-api-endpoints.php */
@@ -1846,42 +1847,51 @@ EOT;
 	 * @since 4.4.0
 	 *
 	 * @param array $object Details of current post.
-	 * @param string $field_name Name of field.
-	 * @param WP_REST_Request $request Current request
 	 *
 	 * @uses self::get_for_post_id
 	 *
 	 * @return array
 	 */
-	public function rest_get_related_posts( $object, $field_name, $request ) {
+	public function rest_get_related_posts( $object ) {
 		return $this->get_for_post_id( $object['id'], array( 'size' => 6 ) );
 	}
 }
 
+/**
+ * The raw related posts class can be used by other plugins or themes
+ * to get related content. This class wraps the existing RelatedPosts
+ * logic thus we never want to add anything to the DOM or do anything
+ * for event hooks. We will also not present any settings for this
+ * class and keep it enabled as calls to this class is done
+ * programmatically.
+ */
 class Jetpack_RelatedPosts_Raw extends Jetpack_RelatedPosts {
-	protected $_query_name;
+	protected $query_name;
 
 	/**
 	 * Allows callers of this class to tag each query with a unique name for tracking purposes.
 	 *
-	 * @param string $name
+	 * @param string $name - the name of the query.
 	 * @return Jetpack_RelatedPosts_Raw
 	 */
 	public function set_query_name( $name ) {
-		$this->_query_name = (string) $name;
+		$this->query_name = (string) $name;
 		return $this;
 	}
 
 	/**
-	 * The raw related posts class can be used by other plugins or themes
-	 * to get related content. This class wraps the existing RelatedPosts
-	 * logic thus we never want to add anything to the DOM or do anything
-	 * for event hooks. We will also not present any settings for this
-	 * class and keep it enabled as calls to this class is done
-	 * programmatically.
+	 * Initialize admin.
 	 */
 	public function action_admin_init() {}
+
+	/**
+	 * Initialize front end.
+	 */
 	public function action_frontend_init() {}
+
+	/**
+	 * Get options.
+	 */
 	public function get_options() {
 		return array(
 			'enabled' => true,
@@ -1891,13 +1901,13 @@ class Jetpack_RelatedPosts_Raw extends Jetpack_RelatedPosts {
 	/**
 	 * Workhorse method to return array of related posts ids matched by Elasticsearch.
 	 *
-	 * @param int $post_id
-	 * @param int $size
-	 * @param array $filters
+	 * @param int   $post_id - the post ID.
+	 * @param int   $size - size of the post.
+	 * @param array $filters - filters we're using.
 	 * @uses wp_remote_post, is_wp_error, wp_remote_retrieve_body
 	 * @return array
 	 */
-	protected function _get_related_posts( $post_id, $size, array $filters ) {
+	protected function get_related_posts( $post_id, $size, array $filters ) {
 		$hits = $this->_filter_non_public_posts(
 			$this->_get_related_post_ids(
 				$post_id,
