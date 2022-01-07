@@ -1208,10 +1208,10 @@ EOT;
 			foreach ( array_merge( $with_post_thumbnails, $no_post_thumbnails ) as $index => $real_post ) {
 				$related_posts[ $index ]['id']      = $real_post->ID;
 				$related_posts[ $index ]['url']     = esc_url( get_permalink( $real_post ) );
-				$related_posts[ $index ]['title']   = $this->_to_utf8( $this->get_title( $real_post->post_title, $real_post->post_content, $real_post->ID ) );
+				$related_posts[ $index ]['title']   = $this->to_utf8( $this->get_title( $real_post->post_title, $real_post->post_content, $real_post->ID ) );
 				$related_posts[ $index ]['date']    = get_the_date( '', $real_post );
-				$related_posts[ $index ]['excerpt'] = html_entity_decode( $this->_to_utf8( $this->_get_excerpt( $real_post->post_excerpt, $real_post->post_content ) ), ENT_QUOTES, 'UTF-8' );
-				$related_posts[ $index ]['img']     = $this->_generate_related_post_image_params( $real_post->ID );
+				$related_posts[ $index ]['excerpt'] = html_entity_decode( $this->to_utf8( $this->get_excerpt( $real_post->post_excerpt, $real_post->post_content ) ), ENT_QUOTES, 'UTF-8' );
+				$related_posts[ $index ]['img']     = $this->generate_related_post_image_params( $real_post->ID );
 				$related_posts[ $index ]['context'] = $this->_generate_related_post_context( $real_post->ID );
 			}
 		} else {
@@ -1261,10 +1261,10 @@ EOT;
 				'origin'   => $origin,
 				'position' => $position,
 			),
-			'title'    => $this->_to_utf8( $this->get_title( $post->post_title, $post->post_content, $post->ID ) ),
+			'title'    => $this->to_utf8( $this->get_title( $post->post_title, $post->post_content, $post->ID ) ),
 			'date'     => get_the_date( '', $post->ID ),
 			'format'   => get_post_format( $post->ID ),
-			'excerpt'  => html_entity_decode( $this->_to_utf8( $this->_get_excerpt( $post->post_excerpt, $post->post_content ) ), ENT_QUOTES, 'UTF-8' ),
+			'excerpt'  => html_entity_decode( $this->to_utf8( $this->get_excerpt( $post->post_excerpt, $post->post_content ) ), ENT_QUOTES, 'UTF-8' ),
 			/**
 			 * Filters the rel attribute for the Related Posts' links.
 			 *
@@ -1284,15 +1284,15 @@ EOT;
 			 *
 			 * @since 3.0.0
 			 *
-			 * @param string $this->_to_utf8( $this->_generate_related_post_context( $post->ID ) ) Context displayed below each related post.
+			 * @param string $this->to_utf8( $this->_generate_related_post_context( $post->ID ) ) Context displayed below each related post.
 			 * @param string $post_id Post ID of the post for which we are retrieving Related Posts.
 			 */
 			'context'  => apply_filters(
 				'jetpack_relatedposts_filter_post_context',
-				$this->_to_utf8( $this->_generate_related_post_context( $post->ID ) ),
+				$this->to_utf8( $this->_generate_related_post_context( $post->ID ) ),
 				$post->ID
 			),
-			'img'      => $this->_generate_related_post_image_params( $post->ID ),
+			'img'      => $this->generate_related_post_image_params( $post->ID ),
 			/**
 			 * Filter the post css classes added on HTML markup.
 			 *
@@ -1346,7 +1346,7 @@ EOT;
 	 * @uses strip_shortcodes, wp_strip_all_tags, wp_trim_words
 	 * @return string
 	 */
-	protected function _get_excerpt( $post_excerpt, $post_content ) {
+	protected function get_excerpt( $post_excerpt, $post_content ) {
 		if ( empty( $post_excerpt ) ) {
 			$excerpt = $post_content;
 		} else {
@@ -1360,12 +1360,11 @@ EOT;
 	 * Generates the thumbnail image to be used for the post. Uses the
 	 * image as returned by Jetpack_PostImages::get_image()
 	 *
-	 * @param int $post_id
+	 * @param int $post_id - the post ID.
 	 * @uses self::get_options, apply_filters, Jetpack_PostImages::get_image, Jetpack_PostImages::fit_image_url
 	 * @return string
 	 */
-	protected function _generate_related_post_image_params( $post_id ) {
-		$options      = $this->get_options();
+	protected function generate_related_post_image_params( $post_id ) {
 		$image_params = array(
 			'alt_text' => '',
 			'src'      => '',
@@ -1396,7 +1395,7 @@ EOT;
 			);
 		}
 
-		// Try to get post image
+		// Try to get post image.
 		if ( class_exists( 'Jetpack_PostImages' ) ) {
 			$img_url    = '';
 			$post_image = Jetpack_PostImages::get_image(
@@ -1436,10 +1435,10 @@ EOT;
 	/**
 	 * Returns the string UTF-8 encoded
 	 *
-	 * @param string $text
+	 * @param string $text - the text we want to convert.
 	 * @return string
 	 */
-	protected function _to_utf8( $text ) {
+	protected function to_utf8( $text ) {
 		if ( $this->convert_charset ) {
 			return iconv( $this->blog_charset, 'UTF-8', $text );
 		} else {
@@ -1722,7 +1721,7 @@ EOT;
 	 *
 	 * @uses self::enqueue_assets, self::setup_shortcode, add_filter
 	 */
-	protected function _action_frontend_init_page() {
+	protected function action_frontend_init_page() {
 		$this->enqueue_assets( true, true );
 		$this->setup_shortcode();
 
@@ -1875,6 +1874,12 @@ EOT;
  * programmatically.
  */
 class Jetpack_RelatedPosts_Raw extends Jetpack_RelatedPosts {
+
+	/**
+	 * The query name we want to look up.
+	 *
+	 * @var string
+	 */
 	protected $query_name;
 
 	/**
