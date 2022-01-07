@@ -173,7 +173,14 @@ function stats_map_meta_caps( $caps, $cap, $user_id ) {
 function stats_template_redirect() {
 	global $current_user;
 
-	if ( is_feed() || is_robots() || is_trackback() || is_preview() || jetpack_is_dnt_enabled() ) {
+	if (
+		is_feed()
+		|| is_robots()
+		|| is_embed()
+		|| is_trackback()
+		|| is_preview()
+		|| jetpack_is_dnt_enabled()
+	) {
 		return;
 	}
 
