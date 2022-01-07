@@ -15,7 +15,7 @@ export default function Square( { columns, renderedImages } ) {
 	const columnCount = Math.min( MAX_COLUMNS, columns );
 
 	const remainder = renderedImages.length % columnCount;
-	
+
 	return (
 		<Gallery>
 			{ [
