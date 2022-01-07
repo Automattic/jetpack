@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 
-set -eo pipefail
+set -o pipefail
 #set -x
 
 # Print help and exit.
@@ -43,16 +43,15 @@ fi
 echo "Checking if NVM is installed..."
 if ! command -v nvm &> /dev/null ; then
     echo "Installing nvm"
-    curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.39.0/install.sh | bash
-	source ~/.nvm/nvm.sh
-	export NVM_DIR="$HOME/.nvm"
-	[ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh"
-	[ -s "$NVM_DIR/bash_completion" ] && \. "$NVM_DIR/bash_completion"
-	
+    curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.39.0/install.sh | bash && export NVM_DIR=$HOME/.nvm && source $NVM_DIR/nvm.sh
 else
 	echo "Updating nvm"
     nvm update
 fi
+
+# Install and use the correct version of Node.js
+echo "Installing Node.js"
+nvm install && nvm use
 
 # Install our requirements
 echo "Installing Bash"
@@ -60,9 +59,6 @@ brew install bash
 
 echo "Installing jq"
 brew install jq
-
-echo "Installing Node.js"
-nvm install && nvm use
 
 echo "Installing pnpm"
 curl -f https://get.pnpm.io/v6.16.js | node - add --global pnp
@@ -87,8 +83,9 @@ if ! composer -v &> /dev/null; then
 	RESULT=$?
 	rm composer-setup.php
 	echo "$RESULT"
-	mv composer.phar /usr/local/bin/composer
+	sudo mv composer.phar usr/local/bin/composer
 fi 
+
 # Setup the Jetpack CLI
 echo "Setting up the Jetpack CLI"
-pnpm install && pnpm cli-setup
+pnpm install && pnpm cli-setup && pnpm jetpack cli link
