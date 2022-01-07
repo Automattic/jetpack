@@ -271,8 +271,8 @@ class WPCOM_JSON_API_Site_Settings_Endpoint extends WPCOM_JSON_API_Endpoint {
 	}
 
 	/**
-	 * Used for the WooCommmerce address options. This function returns the option value if it exists, else it looks
-	 * for a default address on the domain contact information, if it exists. Otherwise, it returns an empty string.
+	 * Used for the WooCommerce address options. This function returns the option value if it exists, else it looks
+	 * for a default address on the domain contact information. If that does not exist it returns an empty string.
 	 *
 	 * @param string $key The option key to retrieve a value.
 	 *
@@ -281,11 +281,15 @@ class WPCOM_JSON_API_Site_Settings_Endpoint extends WPCOM_JSON_API_Endpoint {
 	protected function get_woocommerce_address( $key ) {
 		$address_part = get_option( $key );
 
-		if ( ! empty( $address_part ) ) {
+		// If there's any value set in the database, return it. Even if it's null or an empty string.
+		// False means no value for this option was found in the database.
+		if ( false !== $address_part ) {
 			return $address_part;
 		}
 
-		$address_part = null;
+		// If no value is set in the database, return the corresponding address part from the user's domain contact
+		// address. If that does not exist return an empty string.
+		$address_part = '';
 		if ( defined( 'IS_WPCOM' ) && IS_WPCOM ) {
 			$address = Domain_Contact_Information_Mapper::find_by_user_id( get_current_user_id() );
 
