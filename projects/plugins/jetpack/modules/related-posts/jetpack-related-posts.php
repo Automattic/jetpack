@@ -68,21 +68,21 @@ class Jetpack_RelatedPosts {
 	 *
 	 * @var $instance
 	 */
-	protected $_allow_feature_toggle;
-	
+	protected $allow_feature_toggle;
+
 	/**
 	 * Blog character set.
 	 *
 	 * @var $blog_charset
 	 */
-	protected $_blog_charset;
+	protected $blog_charset;
 
 	/**
 	 * Convert character set.
 	 *
 	 * @var $convert_charset
 	 */
-	protected $_convert_charset;
+	protected $convert_charset;
 
 	/**
 	 * Previous Post ID
@@ -96,7 +96,7 @@ class Jetpack_RelatedPosts {
 	 *
 	 * @var $found_shortcode
 	 */
-	protected $_found_shortcode = false;
+	protected $found_shortcode = false;
 
 	/**
 	 * Constructor for Jetpack_RelatedPosts.
@@ -106,8 +106,8 @@ class Jetpack_RelatedPosts {
 	 * @return null
 	 */
 	public function __construct() {
-		$this->_blog_charset = get_option( 'blog_charset' );
-		$this->_convert_charset = ( function_exists( 'iconv' ) && ! preg_match( '/^utf\-?8$/i', $this->_blog_charset ) );
+		$this->blog_charset = get_option( 'blog_charset' );
+		$this->convert_charset = ( function_exists( 'iconv' ) && ! preg_match( '/^utf\-?8$/i', $this->blog_charset ) );
 
 		add_action( 'admin_init', array( $this, 'action_admin_init' ) );
 		add_action( 'wp', array( $this, 'action_frontend_init' ) );
@@ -224,7 +224,7 @@ class Jetpack_RelatedPosts {
 			return $content;
 		}
 
-		if ( ! $this->_found_shortcode && ! doing_filter( 'get_the_excerpt' ) ) {
+		if ( ! $this->found_shortcode && ! doing_filter( 'get_the_excerpt' ) ) {
 			if ( class_exists( 'Jetpack_AMP_Support' ) && Jetpack_AMP_Support::is_amp_request() ) {
 				$content .= "\n" . $this->get_server_rendered_html();
 			} else {
@@ -265,7 +265,7 @@ class Jetpack_RelatedPosts {
 	 * @returns string
 	 */
 	public function test_for_shortcode( $content ) {
-		$this->_found_shortcode = has_shortcode( $content, self::SHORTCODE );
+		$this->found_shortcode = has_shortcode( $content, self::SHORTCODE );
 
 		return $content;
 	}
@@ -638,7 +638,7 @@ EOT;
 			esc_html__( 'Preview:', 'jetpack' )
 		);
 
-		if ( !$this->_allow_feature_toggle() ) {
+		if ( !$this->allow_feature_toggle() ) {
 			$template = <<<EOT
 <input type="hidden" name="jetpack_relatedposts[enabled]" value="1" />
 %s
@@ -747,7 +747,7 @@ EOT;
 EOT;
 		$related_without_images = str_replace( "\n", '', $related_without_images );
 
-		if ( $this->_allow_feature_toggle() ) {
+		if ( $this->allow_feature_toggle() ) {
 			$extra_css = '#settings-reading-relatedposts-customize { padding-left:2em; margin-top:.5em; }';
 		} else {
 			$extra_css = '';
@@ -1413,8 +1413,8 @@ EOT;
 	 * @return string
 	 */
 	protected function _to_utf8( $text ) {
-		if ( $this->_convert_charset ) {
-			return iconv( $this->_blog_charset, 'UTF-8', $text );
+		if ( $this->convert_charset ) {
+			return iconv( $this->blog_charset, 'UTF-8', $text );
 		} else {
 			return $text;
 		}
@@ -1675,7 +1675,7 @@ EOT;
 			&& ! is_attachment()
 			&& ! is_admin()
 			&& ! is_embed()
-			&& ( ! $this->_allow_feature_toggle() || $this->get_option( 'enabled' ) );
+			&& ( ! $this->allow_feature_toggle() || $this->get_option( 'enabled' ) );
 
 		/**
 		 * Filter the Enabled value to allow related posts to be shown on pages as well.
@@ -1769,8 +1769,8 @@ EOT;
 		add_shortcode( self::SHORTCODE, array( $this, 'get_client_rendered_html' ) );
 	}
 
-	protected function _allow_feature_toggle() {
-		if ( null === $this->_allow_feature_toggle ) {
+	protected function allow_feature_toggle() {
+		if ( null === $this->allow_feature_toggle ) {
 			/**
 			 * Filter the display of the Related Posts toggle in Settings > Reading.
 			 *
@@ -1780,9 +1780,9 @@ EOT;
 			 *
 			 * @param bool false Display a feature toggle. Default to false.
 			 */
-			$this->_allow_feature_toggle = apply_filters( 'jetpack_relatedposts_filter_allow_feature_toggle', false );
+			$this->allow_feature_toggle = apply_filters( 'jetpack_relatedposts_filter_allow_feature_toggle', false );
 		}
-		return $this->_allow_feature_toggle;
+		return $this->allow_feature_toggle;
 	}
 
 	/**
