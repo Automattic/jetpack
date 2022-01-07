@@ -1218,7 +1218,7 @@ class Jetpack {
 				'jetpack-facebook-embed',
 				Assets::get_file_url_for_environment( '_inc/build/facebook-embed.min.js', '_inc/facebook-embed.js' ),
 				array(),
-				null,
+				'20210107',
 				true
 			);
 
@@ -1498,7 +1498,8 @@ class Jetpack {
 	public static function is_single_user_site() {
 		global $wpdb;
 
-		if ( false === ( $some_users = get_transient( 'jetpack_is_single_user' ) ) ) {
+		$some_users = get_transient( 'jetpack_is_single_user' );
+		if ( false === ( $some_users ) ) {
 			$some_users = $wpdb->get_var( "SELECT COUNT(*) FROM (SELECT user_id FROM $wpdb->usermeta WHERE meta_key = '{$wpdb->prefix}capabilities' LIMIT 2) AS someusers" );
 			set_transient( 'jetpack_is_single_user', (int) $some_users, 12 * HOUR_IN_SECONDS );
 		}
@@ -1518,7 +1519,7 @@ class Jetpack {
 		require_once ABSPATH . 'wp-admin/includes/template.php';
 
 		$filesystem_method = get_filesystem_method();
-		if ( $filesystem_method === 'direct' ) {
+		if ( 'direct' === $filesystem_method ) {
 			return 1;
 		}
 
@@ -1841,7 +1842,8 @@ class Jetpack {
 
 		$version = Jetpack_Options::get_option( 'version' );
 		if ( ! $version ) {
-			$version = $old_version = JETPACK__VERSION . ':' . time();
+			$version     = JETPACK__VERSION . ':' . time();
+			$old_version = $version;
 			/** This action is documented in class.jetpack.php */
 			do_action( 'updating_jetpack_version', $version, false );
 			Jetpack_Options::update_options( compact( 'version', 'old_version' ) );
@@ -2016,7 +2018,7 @@ class Jetpack {
 			}
 
 			$themes[ $slug ] = array(
-				'is_active_theme' => $slug == wp_get_theme()->get_template(),
+				'is_active_theme' => wp_get_theme()->get_template() === $slug,
 				'slug'            => $slug,
 				'theme_root'      => $theme_data->get_theme_root_uri(),
 				'parent'          => $theme_data->parent(),
@@ -2147,7 +2149,8 @@ class Jetpack {
 
 		$absolute_path = untrailingslashit( $absolute_path );
 		$files         = array();
-		if ( ! $dir = @opendir( $absolute_path ) ) {
+		$dir           = @opendir( $absolute_path ); // phpcs:ignore WordPress.PHP.NoSilencedErrors.Discouraged
+		if ( ! $dir ) {
 			return $files;
 		}
 
@@ -2184,7 +2187,9 @@ class Jetpack {
 
 		$jetpack_old_version = Jetpack_Options::get_option( 'version' );
 		if ( ! $jetpack_old_version ) {
-			$jetpack_old_version = $version = $old_version = '1.1:' . time();
+			$old_version         = '1.1:' . time();
+			$version             = $old_version;
+			$jetpack_old_version = $version;
 			/** This action is documented in class.jetpack.php */
 			do_action( 'updating_jetpack_version', $version, false );
 			Jetpack_Options::update_options( compact( 'version', 'old_version' ) );
@@ -2874,8 +2879,9 @@ class Jetpack {
 			if ( $send_state_messages && in_array( $module, $active ) ) {
 				$module_info = self::get_module( $module );
 				if ( ! $module_info['deactivate'] ) {
-					$state = in_array( $module, $other_modules ) ? 'reactivated_modules' : 'activated_modules';
-					if ( $active_state = self::state( $state ) ) {
+					$state        = in_array( $module, $other_modules, true ) ? 'reactivated_modules' : 'activated_modules';
+					$active_state = self::state( $state );
+					if ( $active_state ) {
 						$active_state = explode( ',', $active_state );
 					} else {
 						$active_state = array();
@@ -2908,8 +2914,9 @@ class Jetpack {
 
 			if ( $send_state_messages ) {
 
-				$state = in_array( $module, $other_modules ) ? 'reactivated_modules' : 'activated_modules';
-				if ( $active_state = self::state( $state ) ) {
+				$state        = in_array( $module, $other_modules, true ) ? 'reactivated_modules' : 'activated_modules';
+				$active_state = self::state( $state );
+				if ( $active_state ) {
 					$active_state = explode( ',', $active_state );
 				} else {
 					$active_state = array();
@@ -3164,7 +3171,7 @@ p {
 		Jetpack_Options::update_option( 'activated', 1 );
 
 		if ( version_compare( $GLOBALS['wp_version'], JETPACK__MINIMUM_WP_VERSION, '<' ) ) {
-			/* translator: Jetpack version number. */
+			/* translators: Jetpack version number. */
 			self::bail_on_activation( sprintf( __( 'Jetpack requires WordPress version %s or later.', 'jetpack' ), JETPACK__MINIMUM_WP_VERSION ) );
 		}
 
@@ -3290,7 +3297,8 @@ p {
 		}
 
 		if ( ! Jetpack_Options::get_option( 'version' ) ) {
-			$version = $old_version = JETPACK__VERSION . ':' . time();
+			$old_version = JETPACK__VERSION . ':' . time();
+			$version     = $old_version;
 			/** This action is documented in class.jetpack.php */
 			do_action( 'updating_jetpack_version', $version, false );
 			Jetpack_Options::update_options( compact( 'version', 'old_version' ) );
@@ -3474,7 +3482,7 @@ p {
 
 		// Try add_option first, to make sure it's not autoloaded.
 		// @todo: Add an add_option method to Jetpack_Options.
-		if ( ! add_option( 'jetpack_log', $log, null, 'no' ) ) {
+		if ( ! add_option( 'jetpack_log', $log, '', 'no' ) ) {
 			Jetpack_Options::update_option( 'log', $log );
 		}
 
@@ -3587,6 +3595,7 @@ p {
 	 * @return array stats values.
 	 */
 	public static function get_additional_stat_data( $prefix = '' ) {
+		$return                             = array();
 		$return[ "{$prefix}themes" ]        = self::get_parsed_theme_data();
 		$return[ "{$prefix}plugins-extra" ] = self::get_parsed_plugin_data();
 		$return[ "{$prefix}users" ]         = (int) self::get_site_user_count();
@@ -3611,7 +3620,8 @@ p {
 				return -1; // Not a real value but should tell us that we are dealing with a large network.
 			}
 		}
-		if ( false === ( $user_count = get_transient( 'jetpack_site_user_count' ) ) ) {
+		$user_count = get_transient( 'jetpack_site_user_count' );
+		if ( false === ( $user_count ) ) {
 			// It wasn't there, so regenerate the data and save the transient.
 			$user_count = $wpdb->get_var( "SELECT COUNT(*) FROM $wpdb->usermeta WHERE meta_key = '{$wpdb->prefix}capabilities'" );
 			set_transient( 'jetpack_site_user_count', $user_count, DAY_IN_SECONDS );
@@ -3931,12 +3941,13 @@ p {
 			}
 
 			if ( $update_media_item ) {
-				if ( ! isset( $post_id ) || $post_id === 0 ) {
+				if ( ! isset( $post_id ) || 0 === $post_id ) {
 					return new WP_Error( 'invalid_input', 'Media ID must be defined.', 400 );
 				}
 
 				$media_array = $_FILES['media'];
 
+				$file_array             = array();
 				$file_array['name']     = $media_array['name'][0];
 				$file_array['type']     = $media_array['type'][0];
 				$file_array['tmp_name'] = $media_array['tmp_name'][0];
@@ -4078,11 +4089,11 @@ p {
 		$jp_menu_order = array();
 
 		foreach ( $menu_order as $index => $item ) {
-			if ( $item != 'jetpack' ) {
+			if ( 'jetpack' !== $item ) {
 				$jp_menu_order[] = $item;
 			}
 
-			if ( $index == 0 ) {
+			if ( 0 == $index ) { // phpcs:ignore WordPress.PHP.StrictComparisons.LooseComparison
 				$jp_menu_order[] = 'jetpack';
 			}
 		}
@@ -4215,7 +4226,7 @@ p {
 	public function login_init() {
 		// phpcs:ignore WordPress.Security.NonceVerification
 		if ( ! empty( $_GET[ self::$jetpack_redirect_login ] ) ) {
-			add_filter( 'allowed_redirect_hosts', array( &$this, 'allow_wpcom_environments' ) );
+			add_filter( 'allowed_redirect_hosts', array( $this, 'allow_wpcom_environments' ) );
 			wp_safe_redirect(
 				add_query_arg(
 					array(
@@ -4283,9 +4294,9 @@ p {
 			if ( ! self::connection()->is_user_connected() ) {
 				$redirect = ! empty( $_GET['redirect_after_auth'] ) ? $_GET['redirect_after_auth'] : false;
 
-				add_filter( 'allowed_redirect_hosts', array( &$this, 'allow_wpcom_environments' ) );
+				add_filter( 'allowed_redirect_hosts', array( $this, 'allow_wpcom_environments' ) );
 				$connect_url = $this->build_connect_url( true, $redirect, $from );
-				remove_filter( 'allowed_redirect_hosts', array( &$this, 'allow_wpcom_environments' ) );
+				remove_filter( 'allowed_redirect_hosts', array( $this, 'allow_wpcom_environments' ) );
 
 				if ( isset( $_GET['notes_iframe'] ) ) {
 					$connect_url .= '&notes_iframe';
@@ -4493,7 +4504,9 @@ p {
 						self::create_onboarding_token();
 						$url = $this->build_connect_url( true );
 
-						if ( false !== ( $token = Jetpack_Options::get_option( 'onboarding' ) ) ) {
+						$token = Jetpack_Options::get_option( 'onboarding' );
+
+						if ( false !== ( $token ) ) {
 							$url = add_query_arg( 'onboarding', $token, $url );
 						}
 
@@ -4614,7 +4627,10 @@ p {
 			);
 			?>
 			</h2>
-			<?php	if ( $desc = self::state( 'error_description' ) ) : ?>
+			<?php
+			$desc = self::state( 'error_description' );
+			if ( $desc ) :
+				?>
 		<p><?php echo esc_html( stripslashes( $desc ) ); ?></p>
 <?php	endif; ?>
 	</div>
@@ -4644,7 +4660,8 @@ p {
 		}
 
 		if ( $this->privacy_checks ) :
-			$module_names = $module_slugs = array();
+			$module_names = array();
+			$module_slugs = array();
 
 			$privacy_checks = explode( ',', $this->privacy_checks );
 			$privacy_checks = array_filter( $privacy_checks, array( 'Jetpack', 'is_module' ) );
@@ -5322,7 +5339,8 @@ endif;
 	 * @return string Secret token
 	 */
 	public static function create_onboarding_token() {
-		if ( false === ( $token = Jetpack_Options::get_option( 'onboarding' ) ) ) {
+		$token = Jetpack_Options::get_option( 'onboarding' );
+		if ( false === ( $token ) ) {
 			$token = wp_generate_password( 32, false );
 			Jetpack_Options::update_option( 'onboarding', $token );
 		}
@@ -5376,7 +5394,8 @@ endif;
 	 */
 	public static function permit_ssl( $force_recheck = false ) {
 		// Do some fancy tests to see if ssl is being supported.
-		if ( $force_recheck || false === ( $ssl = get_transient( 'jetpack_https_test' ) ) ) {
+		$ssl = get_transient( 'jetpack_https_test' );
+		if ( $force_recheck || false === ( $ssl ) ) {
 			$message = '';
 			if ( 'https' !== substr( JETPACK__API_BASE, 0, 5 ) ) {
 				$ssl = 0;
@@ -5549,7 +5568,7 @@ endif;
 	/**
 	 * Filters the token request body to include tracking properties.
 	 *
-	 * @param array $properties
+	 * @param array $properties Token request properties.
 	 *
 	 * @return array amended properties.
 	 */
@@ -5622,7 +5641,8 @@ endif;
 				$path   = ( isset( $bits['path'] ) ) ? dirname( $bits['path'] ) : null;
 				$domain = ( isset( $bits['host'] ) ) ? $bits['host'] : null;
 			} else {
-				$path = $domain = null;
+				$path   = null;
+				$domain = null;
 			}
 		}
 
@@ -5757,11 +5777,11 @@ endif;
 	public function login_form_json_api_authorization() {
 		$this->verify_json_api_authorization_request();
 
-		add_action( 'wp_login', array( &$this, 'store_json_api_authorization_token' ), 10, 2 );
+		add_action( 'wp_login', array( $this, 'store_json_api_authorization_token' ), 10, 2 );
 
-		add_action( 'login_message', array( &$this, 'login_message_json_api_authorization' ) );
-		add_action( 'login_form', array( &$this, 'preserve_action_in_login_form_for_json_api_authorization' ) );
-		add_filter( 'site_url', array( &$this, 'post_login_form_to_signed_url' ), 10, 3 );
+		add_action( 'login_message', array( $this, 'login_message_json_api_authorization' ) );
+		add_action( 'login_form', array( $this, 'preserve_action_in_login_form_for_json_api_authorization' ) );
+		add_filter( 'site_url', array( $this, 'post_login_form_to_signed_url' ), 10, 3 );
 	}
 
 	/**
@@ -5801,8 +5821,8 @@ endif;
 	 * @param WP_User $user User logged in.
 	 */
 	public function store_json_api_authorization_token( $user_login, $user ) {
-		add_filter( 'login_redirect', array( &$this, 'add_token_to_login_redirect_json_api_authorization' ), 10, 3 );
-		add_filter( 'allowed_redirect_hosts', array( &$this, 'allow_wpcom_public_api_domain' ) );
+		add_filter( 'login_redirect', array( $this, 'add_token_to_login_redirect_json_api_authorization' ), 10, 3 );
+		add_filter( 'allowed_redirect_hosts', array( $this, 'allow_wpcom_public_api_domain' ) );
 		$token = wp_generate_password( 32, false );
 		update_user_meta( $user->ID, 'jetpack_json_api_' . $this->json_api_authorization_request['client_id'], $token );
 	}
@@ -6230,11 +6250,13 @@ endif;
 		if ( preg_match( '# href=\'([^\']+)\' #i', $tag, $matches ) ) {
 			$href = $matches[1];
 			// Strip off query string.
-			if ( $pos = strpos( $href, '?' ) ) {
+			$pos = strpos( $href, '?' );
+			if ( $pos ) {
 				$href = substr( $href, 0, $pos );
 			}
 			// Strip off fragment.
-			if ( $pos = strpos( $href, '#' ) ) {
+			$pos = strpos( $href, '#' );
+			if ( $pos ) {
 				$href = substr( $href, 0, $pos );
 			}
 		} else {
@@ -6242,7 +6264,7 @@ endif;
 		}
 
 		$plugins_dir = plugin_dir_url( JETPACK__PLUGIN_FILE );
-		if ( $plugins_dir !== substr( $href, 0, strlen( $plugins_dir ) ) ) {
+		if ( substr( $href, 0, strlen( $plugins_dir ) ) !== $plugins_dir ) {
 			return $tag;
 		}
 
@@ -6581,7 +6603,8 @@ endif;
 		);
 
 		if ( preg_match_all( $pattern, $css, $matches, PREG_SET_ORDER ) ) {
-			$find = $replace = array();
+			$replace = array();
+			$find    = array();
 			foreach ( $matches as $match ) {
 				$url = trim( $match['path'], "'\" \t" );
 
