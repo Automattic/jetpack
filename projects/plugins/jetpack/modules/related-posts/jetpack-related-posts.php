@@ -506,14 +506,18 @@ EOT;
 	public function get_options() {
 		if ( null === $this->options ) {
 			$this->options = Jetpack_Options::get_option( 'relatedposts', array() );
-			if ( ! is_array( $this->options ) )
+			if ( ! is_array( $this->options ) ) {
 				$this->options = array();
-			if ( ! isset( $this->options['enabled'] ) )
+			}
+			if ( ! isset( $this->options['enabled'] ) ) {
 				$this->options['enabled'] = true;
-			if ( ! isset( $this->options['show_headline'] ) )
+			}
+			if ( ! isset( $this->options['show_headline'] ) ) {
 				$this->options['show_headline'] = true;
-			if ( ! isset( $this->options['show_thumbnails'] ) )
+			}
+			if ( ! isset( $this->options['show_thumbnails'] ) ) {
 				$this->options['show_thumbnails'] = false;
+			}
 			if ( ! isset( $this->options['show_date'] ) ) {
 				$this->options['show_date'] = true;
 			}
@@ -526,8 +530,9 @@ EOT;
 			if ( ! isset( $this->options['headline'] ) ) {
 				$this->options['headline'] = esc_html__( 'Related', 'jetpack' );
 			}
-			if ( empty( $this->options['size'] ) || (int)$this->options['size'] < 1 )
+			if ( empty( $this->options['size'] ) || (int) $this->options['size'] < 1 ){
 				$this->options['size'] = 3;
+			}
 
 			/**
 			 * Filter Related Posts basic options.
@@ -544,6 +549,12 @@ EOT;
 		return $this->options;
 	}
 
+	/**
+	 *
+	 * Gets options.
+	 *
+	 * @param string $option_name - option we want to get.
+	 */
 	public function get_option( $option_name ) {
 		$options = $this->get_options();
 
@@ -557,15 +568,16 @@ EOT;
 	/**
 	 * Parses input and returns normalized options array.
 	 *
-	 * @param array $input
+	 * @param array $input - input we're parsing.
 	 * @uses self::get_options
 	 * @return array
 	 */
 	public function parse_options( $input ) {
 		$current = $this->get_options();
 
-		if ( !is_array( $input ) )
+		if ( ! is_array( $input ) ) {
 			$input = array();
+		}
 
 		if (
 			! isset( $input['enabled'] )
@@ -577,23 +589,23 @@ EOT;
 			$input['enabled'] = '1';
 		}
 
-		if ( '1' == $input['enabled'] ) {
-			$current['enabled'] = true;
-			$current['show_headline'] = ( isset( $input['show_headline'] ) && '1' == $input['show_headline'] );
-			$current['show_thumbnails'] = ( isset( $input['show_thumbnails'] ) && '1' == $input['show_thumbnails'] );
-			$current['show_date'] = ( isset( $input['show_date'] ) && '1' == $input['show_date'] );
-			$current['show_context'] = ( isset( $input['show_context'] ) && '1' == $input['show_context'] );
-			$current['layout'] = isset( $input['layout'] ) && in_array( $input['layout'], array( 'grid', 'list' ), true ) ? $input['layout'] : 'grid';
-			$current['headline'] = isset( $input['headline'] ) ? $input['headline'] : esc_html__( 'Related', 'jetpack' );
+		if ( '1' === $input['enabled'] ) {
+			$current['enabled']         = true;
+			$current['show_headline']   = ( isset( $input['show_headline'] ) && '1' === $input['show_headline'] );
+			$current['show_thumbnails'] = ( isset( $input['show_thumbnails'] ) && '1' === $input['show_thumbnails'] );
+			$current['show_date']       = ( isset( $input['show_date'] ) && '1' === $input['show_date'] );
+			$current['show_context']    = ( isset( $input['show_context'] ) && '1' === $input['show_context'] );
+			$current['layout']          = isset( $input['layout'] ) && in_array( $input['layout'], array( 'grid', 'list' ), true ) ? $input['layout'] : 'grid';
+			$current['headline']        = isset( $input['headline'] ) ? $input['headline'] : esc_html__( 'Related', 'jetpack' );
 		} else {
 			$current['enabled'] = false;
 		}
 
-		if ( isset( $input['size'] ) && (int)$input['size'] > 0 )
-			$current['size'] = (int)$input['size'];
-		else
+		if ( isset( $input['size'] ) && (int)$input['size'] > 0 ) {
+			$current['size'] = (int) $input['size'];
+		} else {
 			$current['size'] = null;
-
+		}
 		return $current;
 	}
 
