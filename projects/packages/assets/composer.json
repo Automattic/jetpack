@@ -69,7 +69,7 @@
 			"link-template": "https://github.com/Automattic/jetpack-assets/compare/v${old}...v${new}"
 		},
 		"branch-alias": {
-			"dev-master": "1.16.x-dev"
+			"dev-master": "1.17.x-dev"
 		}
 	}
 }

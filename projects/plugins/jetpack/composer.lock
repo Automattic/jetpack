@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "792ab9c7ef300798fed1153b536004e5",
+    "content-hash": "dd7391f73f330ceb157e76398ea9bab5",
     "packages": [
         {
             "name": "automattic/jetpack-a8c-mc-stats",
@@ -177,7 +177,7 @@
             "dist": {
                 "type": "path",
                 "url": "../../packages/assets",
-                "reference": "1b2a0136456d308be0065ba35445d06a3188ca59"
+                "reference": "026a56a0be91e031c8c561895765f324aec9a109"
             },
             "require": {
                 "automattic/jetpack-constants": "^1.6"
@@ -197,7 +197,7 @@
                     "link-template": "https://github.com/Automattic/jetpack-assets/compare/v${old}...v${new}"
                 },
                 "branch-alias": {
-                    "dev-master": "1.16.x-dev"
+                    "dev-master": "1.17.x-dev"
                 }
             },
             "autoload": {
@@ -209,14 +209,31 @@
                 ]
             },
             "scripts": {
+                "build-development": [
+                    "Composer\\Config::disableProcessTimeout",
+                    "pnpm run build"
+                ],
+                "build-production": [
+                    "Composer\\Config::disableProcessTimeout",
+                    "pnpm run build-production"
+                ],
                 "phpunit": [
                     "./vendor/phpunit/phpunit/phpunit --colors=always"
                 ],
                 "test-coverage": [
+                    "Composer\\Config::disableProcessTimeout",
                     "@composer update",
-                    "php -dpcov.directory=. ./vendor/bin/phpunit --coverage-clover \"$COVERAGE_DIR/clover.xml\""
+                    "pnpm install --frozen-lockfile",
+                    "php -dpcov.directory=. ./vendor/bin/phpunit --coverage-clover \"$COVERAGE_DIR/php/clover.xml\"",
+                    "pnpm run test-coverage"
+                ],
+                "test-js": [
+                    "Composer\\Config::disableProcessTimeout",
+                    "pnpm install --frozen-lockfile",
+                    "pnpm run test"
                 ],
                 "test-php": [
+                    "Composer\\Config::disableProcessTimeout",
                     "@composer update",
                     "@composer phpunit"
                 ]
@@ -616,10 +633,10 @@
             "dist": {
                 "type": "path",
                 "url": "../../packages/connection-ui",
-                "reference": "141221fe12b83df9d5a76ff3d609d0933c65542c"
+                "reference": "9f11aa6d5cc2c13fb172606db0796c717bb647d5"
             },
             "require": {
-                "automattic/jetpack-assets": "^1.16",
+                "automattic/jetpack-assets": "^1.17",
                 "automattic/jetpack-connection": "^1.34",
                 "automattic/jetpack-constants": "^1.6",
                 "automattic/jetpack-device-detection": "^1.4",
@@ -866,10 +883,10 @@
             "dist": {
                 "type": "path",
                 "url": "../../packages/identity-crisis",
-                "reference": "2555ccdc47f1e5f7b8751dc7050c9bca678a82df"
+                "reference": "7f430bf57b8aa0b6c5c60cb733c5d927c4d69196"
             },
             "require": {
-                "automattic/jetpack-assets": "^1.16",
+                "automattic/jetpack-assets": "^1.17",
                 "automattic/jetpack-connection": "^1.34",
                 "automattic/jetpack-constants": "^1.6",
                 "automattic/jetpack-logo": "^1.5",
@@ -945,11 +962,11 @@
             "dist": {
                 "type": "path",
                 "url": "../../packages/jitm",
-                "reference": "0fee873b88846f05b5cc9878cee0455bb06c85f6"
+                "reference": "66f591fe86921645c684f00a28138317716390e0"
             },
             "require": {
                 "automattic/jetpack-a8c-mc-stats": "^1.4",
-                "automattic/jetpack-assets": "^1.16",
+                "automattic/jetpack-assets": "^1.17",
                 "automattic/jetpack-connection": "^1.34",
                 "automattic/jetpack-device-detection": "^1.4",
                 "automattic/jetpack-logo": "^1.5",
@@ -1020,10 +1037,10 @@
             "dist": {
                 "type": "path",
                 "url": "../../packages/lazy-images",
-                "reference": "cb6c992bcf1190d27fdebf29a31d2156a1e7558f"
+                "reference": "6a5d37eb988e84b920978c9f20b0160bfda5d5ff"
             },
             "require": {
-                "automattic/jetpack-assets": "^1.16",
+                "automattic/jetpack-assets": "^1.17",
                 "automattic/jetpack-constants": "^1.6"
             },
             "require-dev": {
@@ -1196,11 +1213,11 @@
             "dist": {
                 "type": "path",
                 "url": "../../packages/my-jetpack",
-                "reference": "e7a8885ab0f5e4ccc37eba980673348c441bdde3"
+                "reference": "0bbff1ff300bd19ba36eb219737115ff25afe5d6"
             },
             "require": {
                 "automattic/jetpack-admin-ui": "^0.2",
-                "automattic/jetpack-assets": "^1.16",
+                "automattic/jetpack-assets": "^1.17",
                 "automattic/jetpack-connection": "^1.34"
             },
             "require-dev": {
@@ -1767,10 +1784,10 @@
             "dist": {
                 "type": "path",
                 "url": "../../packages/tracking",
-                "reference": "35bd26a71aa47368f18cf35b7817ae897c3ef8ca"
+                "reference": "c7ea0b6a9a0cb592a935de9d57750130f95518a4"
             },
             "require": {
-                "automattic/jetpack-assets": "^1.16",
+                "automattic/jetpack-assets": "^1.17",
                 "automattic/jetpack-options": "^1.14",
                 "automattic/jetpack-status": "^1.9",
                 "automattic/jetpack-terms-of-service": "^1.9"
