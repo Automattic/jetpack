@@ -1,0 +1,4 @@
+Significance: patch
+Type: bugfix
+
+Widget Visibility: Fix "Match All" setting being overwritten on save in the block widget editor.
