@@ -120,9 +120,9 @@ jetpack docker uninstall
 jetpack docker up
 ```
 
-Start the containers (WordPress, MySQL and MailDev) defined in `docker-composer.yml`.
+Start the containers (WordPress, MySQL and MailDev) defined in `docker-compose.yml`.
 
-This command will rebuild the WordPress container if you made any changes to `docker-composer.yml`.
+This command will rebuild the WordPress container if you made any changes to `docker-compose.yml`.
 
 For running the containers in the background, use:
 
