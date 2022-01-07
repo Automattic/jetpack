@@ -32,14 +32,14 @@ test.describe.serial( 'Modules', () => {
 		} );
 
 		test( `The ${ moduleSlug } module state should toggle to an inverse state`, async () => {
-			await jetpackBoostPage.toggleModuleAndWaitForResponse( moduleSlug );
+			await jetpackBoostPage.toggleModule( moduleSlug );
 			expect( await jetpackBoostPage.isModuleEnabled( moduleSlug ) ).toEqual(
 				moduleState !== 'enabled'
 			);
 		} );
 
 		test( `The ${ moduleSlug } module state should revert back to original state`, async () => {
-			await jetpackBoostPage.toggleModuleAndWaitForResponse( moduleSlug );
+			await jetpackBoostPage.toggleModule( moduleSlug );
 			expect( await jetpackBoostPage.isModuleEnabled( moduleSlug ) ).toEqual(
 				moduleState === 'enabled'
 			);

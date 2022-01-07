@@ -45,10 +45,6 @@ export default class JetpackBoostPage extends WpPage {
 
 	async toggleModule( moduleName ) {
 		this.page.click( `#jb-feature-toggle-${ moduleName }` );
-	}
-
-	async toggleModuleAndWaitForResponse( moduleName ) {
-		await this.toggleModule( moduleName );
 		await this.waitForApiResponse( `${ moduleName }-status` );
 	}
 

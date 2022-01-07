@@ -22,7 +22,6 @@ test.describe( 'Auto refresh of speed scores', () => {
 			await jetpackBoostPage.waitForScoreLoadingToFinish();
 
 			await jetpackBoostPage.toggleModule( moduleSlug );
-			await jetpackBoostPage.waitForApiResponse( `${ moduleSlug }-status` );
 
 			await new Promise( resolve => setTimeout( resolve, 2100 ) ); // Score refresh starts after 2 seconds delay
 
@@ -35,13 +34,13 @@ test.describe( 'Auto refresh of speed scores', () => {
 	test( 'Score refresh should debounce between multiple module toggle', async () => {
 		await jetpackBoostPage.waitForScoreLoadingToFinish();
 
-		await jetpackBoostPage.toggleModuleAndWaitForResponse( 'lazy-images' );
+		await jetpackBoostPage.toggleModule( 'lazy-images' );
 
 		// Wait a second after first module is toggled
 		await new Promise( resolve => setTimeout( resolve, 1000 ) );
 
 		// Toggle another module before the automatic score refresh started
-		await jetpackBoostPage.toggleModuleAndWaitForResponse( 'render-blocking-js' );
+		await jetpackBoostPage.toggleModule( 'render-blocking-js' );
 
 		// Wait slightly more than a second after second module is toggled
 		await new Promise( resolve => setTimeout( resolve, 1100 ) );
