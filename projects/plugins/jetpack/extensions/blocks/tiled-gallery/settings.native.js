@@ -11,12 +11,11 @@ import { usePreferredColorSchemeStyle } from '@wordpress/compose';
  * Internal dependencies
  */
 import styles from './styles.scss';
-import { LAYOUT_CIRCLE, LAYOUT_STYLES } from './constants';
+import { LAYOUT_CIRCLE, LAYOUT_STYLES, MAX_COLUMNS } from './constants';
 import { getActiveStyleName } from '../../shared/block-styles';
 import LayoutPicker from './layout-picker.native';
 
 const MIN_COLUMNS = 1;
-export const MAX_COLUMNS = 8;
 export const DEFAULT_COLUMNS = 2;
 const MIN_ROUNDED_CORNERS = 0;
 const MAX_ROUNDED_CORNERS = 20;
@@ -28,7 +27,7 @@ const TiledGallerySettings = props => {
 		styles.horizontalBorderDark
 	);
 
-	const { setAttributes, columns, roundedCorners, clientId, className } = props;
+	const { setAttributes, numImages, columns, roundedCorners, clientId, className } = props;
 	const [ columnNumber, setColumnNumber ] = useState( columns ?? DEFAULT_COLUMNS );
 	useEffect( () => {
 		setColumnNumber( columns );
@@ -52,7 +51,7 @@ const TiledGallerySettings = props => {
 					label={ __( 'Columns', 'jetpack' ) }
 					min={ MIN_COLUMNS }
 					max={ MAX_COLUMNS }
-					value={ columnNumber }
+					value={ Math.min( columnNumber, numImages ) }
 					onChange={ value => {
 						setColumnNumber( value );
 						setAttributes( { columns: value } );
