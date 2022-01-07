@@ -1,0 +1,4 @@
+Significance: patch
+Type: deprecated
+
+Deprecated the `wp-jp-i18n-state` module.

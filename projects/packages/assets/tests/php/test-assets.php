@@ -666,10 +666,24 @@ class AssetsTest extends TestCase {
 		$mock = $this->getMockBuilder( stdClass::class )
 			->setMethods( array( 'add', 'add_inline_script' ) )
 			->getMock();
-		$mock->expects( $this->once() )->method( 'add' )
-			->with( 'wp-jp-i18n-state', null, array( 'wp-i18n' ) );
-		$mock->expects( $this->once() )->method( 'add_inline_script' )
-			->with( 'wp-jp-i18n-state', $expect_js, 'before' );
+		$mock->expects( $this->exactly( 2 ) )->method( 'add' )
+			->withConsecutive(
+				array(
+					'wp-jp-i18n-loader',
+					$this->logicalOr(
+						'http://www.example.com/wp-content/plugins/jetpack/packages/assets/build/i18n-loader.js?minify=true',
+						'http://www.example.com/wp-content/plugins/jetpack/packages/assets/src/js/i18n-loader.js?minify=true'
+					),
+					array( 'wp-i18n' ),
+				),
+				array( 'wp-jp-i18n-state', null, array( 'wp-deprecated', 'wp-jp-i18n-loader' ) )
+			);
+		$mock->expects( $this->exactly( 3 ) )->method( 'add_inline_script' )
+			->withConsecutive(
+				array( 'wp-jp-i18n-loader', $expect_js ),
+				array( 'wp-jp-i18n-state', 'wp.deprecated( "wp-jp-i18n-state", { alternative: "wp-jp-i18n-loader" } );' ),
+				array( 'wp-jp-i18n-state', 'wp.jpI18nState = wp.jpI18nLoader.state;' )
+			);
 
 		Assets::wp_default_scripts_hook( $mock );
 	}
@@ -685,7 +699,7 @@ class AssetsTest extends TestCase {
 		return array(
 			'Basic test'                       => array(
 				$expect_filter,
-				'wp.jpI18nState = {"baseUrl":"http://example.com/wp-content/languages/","locale":"en_US","domainMap":{}};',
+				'wp.jpI18nLoader.state = {"baseUrl":"http://example.com/wp-content/languages/","locale":"en_US","domainMap":{}};',
 			),
 			'Basic test (2)'                   => array(
 				array(
@@ -697,7 +711,7 @@ class AssetsTest extends TestCase {
 						'core'        => 'default',
 					),
 				),
-				'wp.jpI18nState = {"baseUrl":"http://example.com/wp-includes/languages/","locale":"de_DE","domainMap":{"jetpack-foo":"plugins/jetpack","jetpack-bar":"themes/sometheme","core":"default"}};',
+				'wp.jpI18nLoader.state = {"baseUrl":"http://example.com/wp-includes/languages/","locale":"de_DE","domainMap":{"jetpack-foo":"plugins/jetpack","jetpack-bar":"themes/sometheme","core":"default"}};',
 				array(
 					'constants'  => array( 'WP_LANG_DIR' => '/path/to/wordpress/wp-includes/languages' ),
 					'locale'     => 'de_DE',
@@ -717,7 +731,7 @@ class AssetsTest extends TestCase {
 			),
 			'Filter'                           => array(
 				array( 'baseUrl' => false ) + $expect_filter,
-				'wp.jpI18nState = {"baseUrl":"http://example.org/languages/","locale":"klingon","domainMap":{"foo":"plugins/bar"}};',
+				'wp.jpI18nLoader.state = {"baseUrl":"http://example.org/languages/","locale":"klingon","domainMap":{"foo":"plugins/bar"}};',
 				array(
 					'constants' => array( 'WP_LANG_DIR' => '/not/path/to/wordpress/wp-content/languages' ),
 					'filter'    => array(

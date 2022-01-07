@@ -430,7 +430,7 @@ class Assets {
 	/**
 	 * 'wp_default_scripts' action handler.
 	 *
-	 * This registers the `wp-jp-i18n-state` script for use by Webpack bundles built with
+	 * This registers the `wp-jp-i18n-loader` script for use by Webpack bundles built with
 	 * `@automattic/i18n-loader-webpack-plugin`.
 	 *
 	 * @since 1.14.0
@@ -468,22 +468,37 @@ class Assets {
 		 */
 		$data = apply_filters( 'jetpack_i18n_state', $data );
 
+		// Can't use self::register_script(), this action is called too early.
+		if ( file_exists( __DIR__ . '/../build/i18n-loader.asset.php' ) ) {
+			$path  = '../build/i18n-loader.js';
+			$asset = require __DIR__ . '/../build/i18n-loader.asset.php';
+		} else {
+			$path  = 'js/i18n-loader.js';
+			$asset = array(
+				'dependencies' => array( 'wp-i18n' ),
+				'version'      => filemtime( __DIR__ . "/$path" ),
+			);
+		}
+		$url = self::normalize_path( plugins_url( $path, __FILE__ ) );
+		$url = add_query_arg( 'minify', 'true', $url );
+		$wp_scripts->add( 'wp-jp-i18n-loader', $url, $asset['dependencies'], $asset['version'] );
 		if ( ! is_array( $data ) ||
 			! isset( $data['baseUrl'] ) || ! ( is_string( $data['baseUrl'] ) || false === $data['baseUrl'] ) ||
 			! isset( $data['locale'] ) || ! is_string( $data['locale'] ) ||
 			! isset( $data['domainMap'] ) || ! is_array( $data['domainMap'] )
 		) {
-			$js = 'console.warn( "I18n state deleted by jetpack_i18n_state hook" );';
+			$wp_scripts->add_inline_script( 'wp-jp-i18n-loader', 'console.warn( "I18n state deleted by jetpack_i18n_state hook" );' );
 		} elseif ( ! $data['baseUrl'] ) {
-			$js = 'console.warn( "Failed to determine languages base URL. Is WP_LANG_DIR in the WordPress root?" );';
+			$wp_scripts->add_inline_script( 'wp-jp-i18n-loader', 'console.warn( "Failed to determine languages base URL. Is WP_LANG_DIR in the WordPress root?" );' );
 		} else {
 			$data['domainMap'] = (object) $data['domainMap']; // Ensure it becomes a json object.
-			$js                = 'wp.jpI18nState = ' . wp_json_encode( $data, JSON_UNESCAPED_SLASHES ) . ';';
+			$wp_scripts->add_inline_script( 'wp-jp-i18n-loader', 'wp.jpI18nLoader.state = ' . wp_json_encode( $data, JSON_UNESCAPED_SLASHES ) . ';' );
 		}
 
-		// Depend on wp-i18n to ensure global `wp` exists and because anything needing this will need that too.
-		$wp_scripts->add( 'wp-jp-i18n-state', null, array( 'wp-i18n' ) );
-		$wp_scripts->add_inline_script( 'wp-jp-i18n-state', $js, 'before' );
+		// Deprecated state module: Depend on wp-i18n to ensure global `wp` exists and because anything needing this will need that too.
+		$wp_scripts->add( 'wp-jp-i18n-state', null, array( 'wp-deprecated', 'wp-jp-i18n-loader' ) );
+		$wp_scripts->add_inline_script( 'wp-jp-i18n-state', 'wp.deprecated( "wp-jp-i18n-state", { alternative: "wp-jp-i18n-loader" } );' );
+		$wp_scripts->add_inline_script( 'wp-jp-i18n-state', 'wp.jpI18nState = wp.jpI18nLoader.state;' );
 	}
 
 	// endregion .
