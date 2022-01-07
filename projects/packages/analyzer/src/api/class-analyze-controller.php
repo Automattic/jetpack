@@ -25,12 +25,12 @@ class Analyze_Controller extends Controller {
 		// TODO: maybe sanitize params?
 		$params = $this->params->get_params();
 		$args = $params['type'] . ' ' . $params['old'] . ' ' . $params['new'] . ' ';
-		$cmd = 'nohup php ' . escapeshellarg( realpath( dirname( __DIR__ ) . '/../scripts/jp-analyze-parallel.php' ) ) . ' ' . $args . ' &';
-
+		$analyzer_folder = realpath( dirname( __DIR__ ) . '/../' );
+		$cmd = 'nohup php ' . escapeshellarg( $analyzer_folder  . '/scripts/jp-analyze-parallel.php' ) . ' ' . $args . ' &';
 		$descriptor_spec = array(
 			0 => array( 'file', '/dev/null', 'r' ),
-			1 => array( 'file', 'output.txt', 'a' ),
-			2 => array( 'file', 'output.txt', 'a' ),
+			1 => array( 'file', $analyzer_folder . '/output.txt', 'a' ),
+			2 => array( 'file', $analyzer_folder . '/output.txt', 'a' ),
 		);
 
 		proc_open( $cmd, $descriptor_spec, $pipes );

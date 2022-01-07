@@ -40,16 +40,22 @@ class Scripts {
 	}
 
 	static function get_warnings( $folder_name, $differences, $excludes ) {
+		$warnings_folder = dirname( __DIR__ ) . '/output/warnings/';
+		$invocations_folder = dirname( __DIR__ ) . '/output/invocations/';
+
 		echo "Looking for invocations in:\n${folder_name}\n\n";
 		$invocations = new Invocations();
 		$invocations->scan( $folder_name, $excludes );
-		$invocations->save( dirname( __DIR__ ) . '/output/invocations/' . basename( $folder_name ) . '.json', false );
+		$invocations->save( $invocations_folder . basename( $folder_name ) . '.json', false );
+
+		echo "Removing " . $warnings_folder . "\n";
+		system( "rm -rf " . escapeshellarg( $warnings_folder ) );
 
 		echo "Generate warnings\n";
 		$warnings = new Warnings();
 		$warnings->generate( $invocations, $differences );
 		$warnings->output();
-		$warnings->save_json( dirname( __DIR__ ) . '/output/warnings/' . basename( $folder_name ) . '.json', false );
+		$warnings->save_json( $warnings_folder . basename( $folder_name ) . '.json', false );
 	}
 }
 

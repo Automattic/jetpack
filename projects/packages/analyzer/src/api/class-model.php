@@ -6,7 +6,7 @@ class Model {
 	private $content;
 
 	public function __construct() {
-		$this->db_file = dirname( __DIR__ ) . 'data-store.json';
+		$this->db_file = dirname( __DIR__ ) . '/data-store.json';
 	}
 
 	public function get_status() {

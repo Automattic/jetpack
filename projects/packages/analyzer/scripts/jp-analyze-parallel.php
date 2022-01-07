@@ -31,8 +31,7 @@ class ScanManager {
 
 	public function start_proc( $folder_name ) {
 		echo 'Starting ' . basename( $folder_name ) . "\n";
-		$cmd = 'php ' . escapeshellarg( dirname( __DIR__ ) . '/scripts/jp-warnings-job.php' ) . ' ' . escapeshellarg( $folder_name );
-		$this->count++;
+		$cmd = 'nohup php  ' . escapeshellarg( dirname( __DIR__ ) . '/scripts/jp-warnings-job.php' ) . ' ' . escapeshellarg( $folder_name ) . ' &';		$this->count++;
 		$process       = proc_open( $cmd, $this->descriptorspec, $pipes );
 		$this->procs[] = $process;
 		$this->pipez[] = $pipes;
