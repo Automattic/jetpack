@@ -177,7 +177,7 @@ class Jetpack_RelatedPosts {
 
 		if ( isset( $_GET['relatedposts'] ) ) {
 			$excludes = $this->parse_numeric_get_arg( 'relatedposts_exclude' );
-			$this->_action_frontend_init_ajax( $excludes );
+			$this->action_frontend_init_ajax( $excludes );
 		} else {
 			if ( isset( $_GET['relatedposts_hit'], $_GET['relatedposts_origin'], $_GET['relatedposts_position'] ) ) {
 				$this->_log_click( $_GET['relatedposts_origin'], get_the_ID(), $_GET['relatedposts_position'] );
@@ -1022,7 +1022,7 @@ EOT;
 			if ( ! empty( $args['date_range']['from'] ) && ! empty( $args['date_range']['to'] ) ) {
 				$filters[] = array(
 					'range' => array(
-						'date_gmt' => $this->_get_coalesced_range( $args['date_range'] ),
+						'date_gmt' => $this->get_coalesced_range( $args['date_range'] ),
 					),
 				);
 			}
@@ -1039,12 +1039,13 @@ EOT;
 		 * @param string $post_id Post ID of the post for which we are retrieving Related Posts.
 		 */
 		$args['exclude_post_ids'] = apply_filters( 'jetpack_relatedposts_filter_exclude_post_ids', $args['exclude_post_ids'], $post_id );
-		if ( !empty( $args['exclude_post_ids'] ) && is_array( $args['exclude_post_ids'] ) ) {
+		if ( ! empty( $args['exclude_post_ids'] ) && is_array( $args['exclude_post_ids'] ) ) {
 			$excluded_post_ids = array();
-			foreach ( $args['exclude_post_ids'] as $exclude_post_id) {
-				$exclude_post_id = (int)$exclude_post_id;
-				if ( $exclude_post_id > 0 )
+			foreach ( $args['exclude_post_ids'] as $exclude_post_id ) {
+				$exclude_post_id = (int) $exclude_post_id;
+				if ( $exclude_post_id > 0 ) {
 					$excluded_post_ids[] = $exclude_post_id;
+				}
 			}
 			$filters[] = array( 'not' => array( 'terms' => array( 'post_id' => $excluded_post_ids ) ) );
 		}
@@ -1055,22 +1056,22 @@ EOT;
 	/**
 	 * Takes a range and coalesces it into a month interval bracketed by a time as determined by the blog_id to enhance caching.
 	 *
-	 * @param array $date_range
+	 * @param array $date_range - the date range.
 	 * @return array
 	 */
-	protected function _get_coalesced_range( array $date_range ) {
-		$now = time();
+	protected function get_coalesced_range( array $date_range ) {
+		$now           = time();
 		$coalesce_time = $this->get_blog_id() % 86400;
-		$current_time = $now - strtotime( 'today', $now );
+		$current_time  = $now - strtotime( 'today', $now );
 
 		if ( $current_time < $coalesce_time && '01' == date( 'd', $now ) ) {
-			// Move back 1 period
+			// Move back 1 period.
 			return array(
 				'from' => date( 'Y-m-01', strtotime( '-1 month', $date_range['from'] ) ) . ' ' . date( 'H:i:s', $coalesce_time ),
 				'to'   => date( 'Y-m-01', $date_range['to'] ) . ' ' . date( 'H:i:s', $coalesce_time ),
 			);
 		} else {
-			// Use current period
+			// Use current period.
 			return array(
 				'from' => date( 'Y-m-01', $date_range['from'] ) . ' ' . date( 'H:i:s', $coalesce_time ),
 				'to'   => date( 'Y-m-01', strtotime( '+1 month', $date_range['to'] ) ) . ' ' . date( 'H:i:s', $coalesce_time ),
@@ -1082,14 +1083,13 @@ EOT;
 	 * Generate and output ajax response for related posts API call.
 	 * NOTE: Calls exit() to end all further processing after payload has been outputed.
 	 *
-	 * @param array $excludes array of post_ids to exclude
+	 * @param array $excludes array of post_ids to exclude.
 	 * @uses send_nosniff_header, self::get_for_post_id, get_the_ID
-	 * @return null
 	 */
-	protected function _action_frontend_init_ajax( array $excludes ) {
+	protected function action_frontend_init_ajax( array $excludes ) {
 		define( 'DOING_AJAX', true );
 
-		header( 'Content-type: application/json; charset=utf-8' ); // JSON can only be UTF-8
+		header( 'Content-type: application/json; charset=utf-8' ); // JSON can only be UTF-8.
 		send_nosniff_header();
 
 		$options = $this->get_options();
@@ -1097,14 +1097,14 @@ EOT;
 		if ( isset( $_GET['jetpackrpcustomize'] ) ) {
 
 			// If we're in the customizer, add dummy content.
-			$date_now = current_time( get_option( 'date_format' ) );
+			$date_now      = current_time( get_option( 'date_format' ) );
 			$related_posts = array(
 				array(
 					'id'       => - 1,
 					'url'      => 'https://jetpackme.files.wordpress.com/2019/03/cat-blog.png',
 					'url_meta' => array(
 						'origin'   => 0,
-						'position' => 0
+						'position' => 0,
 					),
 					'title'    => esc_html__( 'Big iPhone/iPad Update Now Available', 'jetpack' ),
 					'date'     => $date_now,
@@ -1115,16 +1115,16 @@ EOT;
 					'img'      => array(
 						'src'    => 'https://jetpackme.files.wordpress.com/2019/03/cat-blog.png',
 						'width'  => 350,
-						'height' => 200
+						'height' => 200,
 					),
-					'classes'  => array()
+					'classes'  => array(),
 				),
 				array(
 					'id'       => - 1,
 					'url'      => 'https://jetpackme.files.wordpress.com/2019/03/devices.jpg',
 					'url_meta' => array(
 						'origin'   => 0,
-						'position' => 0
+						'position' => 0,
 					),
 					'title'    => esc_html__( 'The WordPress for Android App Gets a Big Facelift', 'jetpack' ),
 					'date'     => $date_now,
@@ -1135,16 +1135,16 @@ EOT;
 					'img'      => array(
 						'src'    => 'https://jetpackme.files.wordpress.com/2019/03/devices.jpg',
 						'width'  => 350,
-						'height' => 200
+						'height' => 200,
 					),
-					'classes'  => array()
+					'classes'  => array(),
 				),
 				array(
 					'id'       => - 1,
 					'url'      => 'https://jetpackme.files.wordpress.com/2019/03/mobile-wedding.jpg',
 					'url_meta' => array(
 						'origin'   => 0,
-						'position' => 0
+						'position' => 0,
 					),
 					'title'    => esc_html__( 'Upgrade Focus, VideoPress for weddings', 'jetpack' ),
 					'date'     => $date_now,
@@ -1155,9 +1155,9 @@ EOT;
 					'img'      => array(
 						'src'    => 'https://jetpackme.files.wordpress.com/2019/03/mobile-wedding.jpg',
 						'width'  => 350,
-						'height' => 200
+						'height' => 200,
 					),
-					'classes'  => array()
+					'classes'  => array(),
 				),
 			);
 
