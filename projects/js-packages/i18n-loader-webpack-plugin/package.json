@@ -17,8 +17,7 @@
 		"test-coverage": "jest tests --coverage --collectCoverageFrom='src/**/*.js' --coverageDirectory=\"$COVERAGE_DIR\" --coverageReporters=clover"
 	},
 	"dependencies": {
-		"debug": "^4.3.2",
-		"md5-es": "^1.8.2"
+		"debug": "^4.3.2"
 	},
 	"devDependencies": {
 		"@wordpress/dependency-extraction-webpack-plugin": "3.2.1",

@@ -28,7 +28,8 @@ This goes in the `plugins` section of your Webpack config, e.g.
 Parameters recognized by the plugin are:
 
 - `textdomain`: The text domain used in the JavaScript code. This is required, unless nothing in your JS actually uses [@wordpress/i18n].
-- `stateModule`: The name of a module supplying the i18n state. See [State module](#state-module) below for details.
+- `loaderModule`: The name of a module supplying the i18n loader. See [Loader module](#loader-module) below for details.
+- `loaderMethod`: The name of the function from `loaderModule` to download the i18n. See [Loader module](#loader-module) below for details.
 - `target`: The target of the build: 'plugin' (the default), 'theme', or 'core'. This is used to determine where in WordPress's languages directory to look for the translation files.
 - `path`: See [Webpack context](#webpack-context) and [Use in Composer packages](#use-in-composer-packages) below for details.
 - `ignoreModules`: If some bundles in your build depend on [@wordpress/i18n] for purposes other than translating strings, i18n-loader-webpack-plugin will none the less count them as "using @wordpress/i18n" which may result in it trying to load translations for bundles that do not need it. This option may be used to ignore the relevant source files when examining the bundles.
@@ -50,17 +51,26 @@ But if for some reason you want to do it manually, something like this in your W
 }
 ```
 
-### State module
+### Loader module
 
-In order to load the translations, the generated bundle needs to be provided with some state at runtime. This is handled by loading a module that must be externalized by your Webpack configuration.
+In order to load the translations, the generated bundle needs to call a method to do the actual downloading at runtime. This is handled by loading a module that must be externalized by your Webpack configuration.
 
-The default module name is `@wordpress/jp-i18n-state`, which will automatically be externalized by [@wordpress/dependency-extraction-webpack-plugin], which will also register it as a dependency for "wp-jp-i18n-state" in the generated `.asset.php` file. That, in turn, is provided by the [automattic/jetpack-assets] Composer package (which also provides an `Automattic\Jetpack\Assets::register_script()` function to easily consume the `.asset.php` file).
+The default module name is `@wordpress/jp-i18n-loader`, which will automatically be externalized by [@wordpress/dependency-extraction-webpack-plugin], which will also register it as a dependency for "wp-jp-i18n-loader" in the generated `.asset.php` file. That, in turn, is provided by the [automattic/jetpack-assets] Composer package (which also provides an `Automattic\Jetpack\Assets::register_script()` function to easily consume the `.asset.php` file).
 
-But if for some reason you don't want to use those packages, you can set the plugin's `stateModule` option to point to a different module name, use [Webpack's externals configuration] to externalize it, and appropriate PHP code to provide the corresponding global variable for your externals configuration to retrieve. The state is a JavaScript object with the following properties:
+But if for some reason you don't want to use those packages, you can set the plugin's `loaderModule` and `loaderMethod` options to point to a different module name, use [Webpack's externals configuration] to externalize it, and appropriate PHP code to provide the corresponding global variable for your externals configuration to retrieve.
 
-- `baseUrl`: The base URL from which to fetch the translations, probably something like `https://yoursite.example.com/wp-content/languages/`. The trailing slash is required.
-- `locale`: The locale used on the page.
-- `domainMap`: An object mapping textdomains. See [Use in Composer packages](#use-in-composer-packages) below for details.
+The loader method might be documented like this:
+```js
+/**
+ * Download and register translations for a bundle.
+ *
+ * @param {string} path - Bundle path being fetched. May have a query part.
+ * @param {string} domain - Text domain to register into.
+ * @param {string} location - Location for the translation: 'plugin', 'theme', or 'core'.
+ * @returns {Promise} Resolved when the translations are registered, or rejected with an `Error`.
+ */
+```
+Most likely the method will separate any query part from the path, hash it, build the download url, fetch it, then register it via `@wordpress/i18n`'s `setLocaleData()` method.
 
 ### Webpack context
 
@@ -90,7 +100,8 @@ You'll need to use something like [automattic/jetpack-composer-plugin] so that t
 
 Then, for Webpack builds in the Composer package, you'll need to set i18n-loader-webpack-plugin's `path` option to the path relative to the _plugin's_ root directory. For example, if your Composer package is named "automattic/foobar", will be used with [automattic/jetpack-composer-plugin] which will install the package to `jetpack_vendor/` rather than `vendor/`, and Webpack is building to a `build/` directory within the package, you'd need to set `path` to `jetpack_vendor/automattic/foobar/build/` as that's where the built files will end up relative to the plugin.
 
-The consuming plugin will also need to arrange for the [state module](#state-module)'s `domainMap` to include a mapping from your Composer package's textdomain to the plugin's textdomain (prefixed with "plugins/"), as that's where the translations will end up. This may be done using [automattic/jetpack-assets] along with [automattic/jetpack-composer-plugin], as described in the latter's documentation.
+Also, as the translation file will be named using the plugin's textdomain rather than the Composer package's, the consuming plugin will also need to arrange for the [loader module](#loader-module) to fetch the proper file.
+This may be done using [automattic/jetpack-assets] along with [automattic/jetpack-composer-plugin], as described in the latter's documentation.
 
 ## Security
 
