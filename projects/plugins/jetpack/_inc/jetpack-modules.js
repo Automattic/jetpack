@@ -79,11 +79,11 @@
 		event.preventDefault();
 	} );
 } )(
-	this,
+	window,
 	jQuery,
 	window.jetpackModulesData.modules,
-	this.jetpackModules.models,
-	this.jetpackModules.views,
+	window.jetpackModules.models,
+	window.jetpackModules.views,
 	window.jetpackModulesData.i18n,
 	window.jetpackModulesData.modalinfo,
 	window.jetpackModulesData.nonces

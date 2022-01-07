@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Activation buttons: ensure that the styles are specific enough when using Gutenberg

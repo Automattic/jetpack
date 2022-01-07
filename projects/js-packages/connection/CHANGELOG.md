@@ -2,6 +2,13 @@
 
 ### This is a list detailing changes for the Jetpack RNA Connection Component releases.
 
+## 0.12.0 - 2022-01-04
+### Changed
+- Changed min-width of log in link
+- Connection: Extract connection logic for custom hook
+- Drop isRegistered and isUserConnected params from ConnectionStatusCard component
+- Updated package dependencies.
+
 ## 0.11.3 - 2021-12-14
 ### Fixed
 - Fix JavaScript i18n strings.

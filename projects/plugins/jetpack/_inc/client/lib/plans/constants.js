@@ -97,12 +97,23 @@ export const JETPACK_BUNDLES = [
 	PLAN_JETPACK_SECURITY_REALTIME_MONTHLY,
 ];
 
-// while this is currently a identical set to JETPACK_BUNDLES above it may eventually not be
 export const JETPACK_SECURITY_BUNDLES = [
 	PLAN_JETPACK_SECURITY_T1_YEARLY,
 	PLAN_JETPACK_SECURITY_T1_MONTHLY,
 	PLAN_JETPACK_SECURITY_T2_YEARLY,
 	PLAN_JETPACK_SECURITY_T2_MONTHLY,
+
+	// WoA plans.
+	PLAN_BUSINESS,
+	PLAN_BUSINESS_2_YEARS,
+	PLAN_BUSINESS_MONTHLY,
+	PLAN_ECOMMERCE,
+	PLAN_ECOMMERCE_2_YEARS,
+	PLAN_ECOMMERCE_MONTHLY,
+
+	// VIP.
+	PLAN_VIP,
+	PLAN_WPCOM_ENTERPRISE,
 
 	// DEPRECATED: Daily and Real-time variations will soon be retired.
 	// Remove after all customers are migrated to new products.
