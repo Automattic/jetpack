@@ -601,7 +601,7 @@ EOT;
 			$current['enabled'] = false;
 		}
 
-		if ( isset( $input['size'] ) && (int)$input['size'] > 0 ) {
+		if ( isset( $input['size'] ) && (int) $input['size'] > 0 ) {
 			$current['size'] = (int) $input['size'];
 		} else {
 			$current['size'] = null;
@@ -653,7 +653,7 @@ EOT;
 			esc_html__( 'Preview:', 'jetpack' )
 		);
 
-		if ( !$this->allow_feature_toggle() ) {
+		if ( ! $this->allow_feature_toggle() ) {
 			$template = <<<EOT
 <input type="hidden" name="jetpack_relatedposts[enabled]" value="1" />
 %s
@@ -693,23 +693,24 @@ EOT;
 	 */
 	public function print_setting_head() {
 
-		// only dislay the Related Posts JavaScript on the Reading Settings Admin Page
-		$current_screen =  get_current_screen();
+		// only dislay the Related Posts JavaScript on the Reading Settings Admin Page.
+		$current_screen = get_current_screen();
 
 		if ( is_null( $current_screen ) ) {
 			return;
 		}
 
-		if( 'options-reading' != $current_screen->id )
+		if ( 'options-reading' !== $current_screen->id ) {
 			return;
+		}
 
 		$related_headline = sprintf(
 			'<h3 class="jp-relatedposts-headline"><em>%s</em></h3>',
 			esc_html__( 'Related', 'jetpack' )
 		);
 
-		$href_params = 'class="jp-relatedposts-post-a" href="#jetpack_relatedposts" rel="nofollow" data-origin="0" data-position="0"';
-		$related_with_images = <<<EOT
+		$href_params            = 'class="jp-relatedposts-post-a" href="#jetpack_relatedposts" rel="nofollow" data-origin="0" data-position="0"';
+		$related_with_images    = <<<EOT
 <div class="jp-relatedposts-items jp-relatedposts-items-visual">
 	<div class="jp-relatedposts-post jp-relatedposts-post0 jp-relatedposts-post-thumbs" data-post-id="0" data-post-format="image">
 		<a $href_params>
@@ -743,7 +744,7 @@ EOT;
 	</div>
 </div>
 EOT;
-		$related_with_images = str_replace( "\n", '', $related_with_images );
+		$related_with_images    = str_replace( "\n", '', $related_with_images );
 		$related_without_images = <<<EOT
 <div class="jp-relatedposts-items jp-relatedposts-items-minimal">
 	<p class="jp-relatedposts-post jp-relatedposts-post0" data-post-id="0" data-post-format="image">
