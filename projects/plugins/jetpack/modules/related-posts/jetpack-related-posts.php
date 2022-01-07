@@ -1175,28 +1175,33 @@ EOT;
 			);
 
 			// Fetch posts with featured image.
-			$with_post_thumbnails = get_posts( array(
-				'posts_per_page'   => $options['size'],
-				'post__not_in'     => $excluded_posts,
-				'post_type'        => $current_post->post_type,
-				'meta_key'         => '_thumbnail_id',
-				'suppress_filters' => false,
-			) );
+			$with_post_thumbnails = get_posts(
+				array(
+					'posts_per_page'   => $options['size'],
+					'post__not_in'     => $excluded_posts,
+					'post_type'        => $current_post->post_type,
+					'meta_key'         => '_thumbnail_id',
+					'suppress_filters' => false,
+				)
+			);
 
 			// If we don't have enough, fetch posts without featured image.
-			if ( 0 < ( $more = $options['size'] - count( $with_post_thumbnails ) ) ) {
-				$no_post_thumbnails = get_posts( array(
-					'posts_per_page'  => $more,
-					'post__not_in'    => $excluded_posts,
-					'post_type'       => $current_post->post_type,
-					'meta_query' => array(
-						array(
-							'key'     => '_thumbnail_id',
-							'compare' => 'NOT EXISTS',
+			$more = $options['size'] - count( $with_post_thumbnails );
+			if ( 0 < $more ) {
+				$no_post_thumbnails = get_posts(
+					array(
+						'posts_per_page'   => $more,
+						'post__not_in'     => $excluded_posts,
+						'post_type'        => $current_post->post_type,
+						'meta_query'       => array(
+							array(
+								'key'     => '_thumbnail_id',
+								'compare' => 'NOT EXISTS',
+							),
 						),
-					),
-					'suppress_filters' => false,
-				) );
+						'suppress_filters' => false,
+					)
+				);
 			} else {
 				$no_post_thumbnails = array();
 			}
