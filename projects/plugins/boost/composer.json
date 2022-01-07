@@ -30,7 +30,7 @@
 		"automattic/jetpack-changelogger": "^3.0",
 		"automattic/wordbless": "0.3.1",
 		"brain/monkey": "2.6.1",
-		"yoast/phpunit-polyfills": "1.0.2"
+		"yoast/phpunit-polyfills": "1.0.3"
 	},
 	"scripts": {
 		"phpunit": [

@@ -1,0 +1,48 @@
+@import '~@automattic/jetpack-base-styles/style';
+
+.components-button {
+	&.jp-license-activation-screen-success-info--button,
+	&.jp-license-activation-screen-success-info--button:active,
+	&.jp-license-activation-screen-success-info--button:visited {
+		background-color: var( --jp-black );
+		border-radius: 4px;
+		color: var( --jp-white );
+		font-size: 16px;
+		font-size: var(--font-body);
+		font-style: normal;
+		font-weight: 600;
+		justify-content: center;
+		line-height: 24px;
+		margin-top: 24px;
+		min-height: 48px;
+		min-width: 158px;
+		padding: 13.5px 45px 13.5px 45px;
+		width: 100%;
+		margin: 0 40px 20px 0;
+
+		@media screen and (min-width: 480px) {
+			width: auto;
+		}
+
+		&:hover {
+			background-color: var( --jp-black-80 );
+			color: var( --jp-white );
+		}
+
+		&:focus {
+			background-color: var( --jp-black-80 );
+			border: 1px solid var( --jp-white );
+			color: var( --jp-white );
+		}
+
+		&[disabled],
+		&:disabled {
+			background-color: var( --jp-gray );
+			color: var( --jp-gray-20 );;
+		}
+
+		.jp-components-spinner {
+			width: 100%;
+		}
+	}
+}

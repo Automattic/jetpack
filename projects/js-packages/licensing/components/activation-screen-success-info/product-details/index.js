@@ -12,6 +12,11 @@ import React from 'react';
 import { getProductGroup } from '../../activation-screen/utils';
 
 /**
+ * Style dependencies
+ */
+import './style.scss';
+
+/**
  * The Jetpack Product Details component.
  *
  * @param {object} props -- The properties.
@@ -100,9 +105,9 @@ const JetpackProductDetails = props => {
 	};
 
 	return (
-		<div>
+		<div className="jp-license-activation-screen-success-info--product-details">
 			<h1>
-				{ productInfoMap[ productGroup ].title }{ ' ' }
+				{ productInfoMap[ productGroup ].title }&nbsp;
 				{ String.fromCodePoint( 0x1f389 ) /* Celebration emoji 🎉 */ }
 			</h1>
 			<p>{ productInfoMap[ productGroup ].text }</p>

@@ -42,8 +42,8 @@ class Themes extends Module {
 		add_action( 'jetpack_network_disabled_themes', $callable, 10, 2 );
 		add_action( 'jetpack_network_enabled_themes', $callable, 10, 2 );
 
-		// @todo Switch to use the new `deleted_theme` hook once WP 5.8 is the minimum version. See https://core.trac.wordpress.org/changeset/50826
-		add_action( 'delete_site_transient_update_themes', array( $this, 'detect_theme_deletion' ) );
+		// Theme deletions.
+		add_action( 'deleted_theme', array( $this, 'detect_theme_deletion' ), 10, 2 );
 		add_action( 'jetpack_deleted_theme', $callable, 10, 2 );
 
 		// Sidebar updates.
@@ -335,33 +335,32 @@ class Themes extends Module {
 	 * Detect a theme deletion.
 	 *
 	 * @access public
+	 *
+	 * @param string $stylesheet Stylesheet of the theme to delete.
+	 * @param bool   $deleted    Whether the theme deletion was successful.
 	 */
-	public function detect_theme_deletion() {
-		$delete_theme_call = $this->get_delete_theme_call();
-		if ( empty( $delete_theme_call ) ) {
-			return;
-		}
-
-		$slug       = $delete_theme_call['args'][0];
-		$theme      = wp_get_theme( $slug );
+	public function detect_theme_deletion( $stylesheet, $deleted ) {
+		$theme      = wp_get_theme( $stylesheet );
 		$theme_data = array(
 			'name'    => $theme->get( 'Name' ),
 			'version' => $theme->get( 'Version' ),
 			'uri'     => $theme->get( 'ThemeURI' ),
-			'slug'    => $slug,
+			'slug'    => $stylesheet,
 		);
 
-		/**
-		 * Signals to the sync listener that a theme was deleted and a sync action
-		 * reflecting the deletion and theme slug should be sent
-		 *
-		 * @since 1.6.3
-		 * @since-jetpack 5.0.0
-		 *
-		 * @param string $slug Theme slug
-		 * @param array $theme_data Theme info Since 5.3
-		 */
-		do_action( 'jetpack_deleted_theme', $slug, $theme_data );
+		if ( $deleted ) {
+			/**
+			 * Signals to the sync listener that a theme was deleted and a sync action
+			 * reflecting the deletion and theme slug should be sent
+			 *
+			 * @since 1.6.3
+			 * @since-jetpack 5.0.0
+			 *
+			 * @param string $stylesheet Theme slug
+			 * @param array  $theme_data Theme info Since 5.3
+			 */
+			do_action( 'jetpack_deleted_theme', $stylesheet, $theme_data );
+		}
 	}
 
 	/**
