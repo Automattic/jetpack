@@ -1,0 +1,4 @@
+Significance: patch
+Type: other
+
+Remove use of deprecated `~` in sass-loader imports.
