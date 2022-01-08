@@ -20,6 +20,7 @@
 	.dops-button.is-primary {
 		background-color: var( --jp-black );
 		border-color: var( --jp-black );
+		transition: all 150ms ease-in-out;
 
 		&:hover:not(:disabled),
 		&:active:not(:disabled) {

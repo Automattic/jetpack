@@ -1,11 +1,16 @@
 @import 'node_modules/@automattic/jetpack-base-styles/style';
+@import '../../../scss/mixin_breakpoint.scss';
 
 .jp-recommendations-discount-card {
 	display: flex;
 	justify-content: center;
 	align-items: center;
 	height: 100%;
-	background: radial-gradient( circle at 79%, rgba(6, 158, 8, 0.15) 0%, rgba( 255, 255, 255, 0) 56%), radial-gradient( circle at 30% 85%, rgba( 206, 217, 242, 0.7) 5%, rgba(255, 256, 255, 0) 25% );
+	padding: 1rem;
+
+	@include breakpoint( '>1040px' ) {
+		background: radial-gradient( circle at 79%, rgba(6, 158, 8, 0.15) 0%, rgba( 255, 255, 255, 0) 56%), radial-gradient( circle at 30% 85%, rgba( 206, 217, 242, 0.7) 5%, rgba(255, 256, 255, 0) 25% );
+	}
 
 	&__card-container {
 		width: 100%;
@@ -24,6 +29,8 @@
 	}
 
 	&__card-body {
+		display: flex;
+		flex-direction: column;
 		padding: 1.5rem 1rem 2rem;
 		background-color: var( --jp-white );
 
@@ -51,20 +58,28 @@
 		margin-top: 2rem;
 		padding: 0.5rem 1.5rem;
 		background-color: var( --jp-white );
-		border-color: var( --jp-black );
+		border: 2px solid var( --jp-black );
 		color: var( --jp-black );
+		transition: all 150ms ease-in-out;
 
 		&:hover:not(:disabled),
 		&:active:not(:disabled),
 		&:focus:not(:disabled) {
 			box-shadow: 0 0 0 1px var( --jp-black );
-			color: var( --jp-black );
+			background-color: var(--jp-black);
+			color: var( --jp-white );
 		}
 
 		&:disabled,
 		&.disabled {
 			background: var( --jp-gray );
 			pointer-events: none;
+		}
+
+		&:focus:not(:disabled) {
+			box-shadow:
+				0 0 0 1px var( --jp-white ),
+				0 0 0 3px var( --jp-black );
 		}
 	}
 }
