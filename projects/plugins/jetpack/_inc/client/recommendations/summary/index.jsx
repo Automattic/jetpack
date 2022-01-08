@@ -122,7 +122,7 @@ const SummaryComponent = props => {
 	if ( isFetchingSidebarData ) {
 		sidebarCard = <JetpackLoadingIcon altText={ __( 'Loading recommendations', 'jetpack' ) } />;
 	} else {
-		switch ( 'manage-security' ) {
+		switch ( sidebarCardSlug ) {
 			case 'loading':
 				sidebarCard = <JetpackLoadingIcon altText={ __( 'Loading recommendations', 'jetpack' ) } />;
 				break;
