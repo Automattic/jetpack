@@ -42,7 +42,7 @@ const DiscountCard = () => {
 					</ul>
 					<Button
 						className="jp-recommendations-discount-card__button"
-						href="/product-suggestions"
+						href={ '#/recommendations/product-suggestions' }
 						onClick={ onViewDiscountClick }
 					>
 						{ __( 'View discounted plans', 'jetpack' ) }

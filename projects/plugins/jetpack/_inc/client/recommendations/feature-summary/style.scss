@@ -1,3 +1,4 @@
+@import 'node_modules/@automattic/color-studio/dist/color-variables.scss';
 @import '../../scss/variables/colors';
 @import '../../scss/typography';
 
@@ -32,6 +33,10 @@
 	.jp-recommendations__new-badge {
 		margin-left: 1rem;
 	}
+}
+
+.jp-recommendations-summary .jp-recommendations-feature-summary__display-name a {
+	color: var( --jp-gray-100 );
 }
 
 .jp-recommendations-summary .jp-recommendations-feature-summary__display-name a {
