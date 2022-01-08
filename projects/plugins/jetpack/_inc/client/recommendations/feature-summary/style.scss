@@ -1,3 +1,4 @@
+@import 'node_modules/@automattic/color-studio/dist/color-variables.scss';
 @import '../../scss/variables/colors';
 @import '../../scss/typography';
 
@@ -28,6 +29,10 @@
 	padding-left: 12px;
 
 	font-size: $font-body;
+}
+
+.jp-recommendations-summary .jp-recommendations-feature-summary__display-name a {
+	color: var( --jp-gray-100 );
 }
 
 .jp-recommendations-summary .jp-recommendations-feature-summary__display-name a {
