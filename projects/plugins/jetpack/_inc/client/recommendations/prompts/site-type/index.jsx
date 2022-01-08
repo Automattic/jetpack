@@ -20,6 +20,7 @@ import {
 	getNextRoute,
 	saveRecommendationsData as saveRecommendationsDataAction,
 	updateRecommendationsStep as updateRecommendationsStepAction,
+	isProductSuggestionsAvailable,
 } from 'state/recommendations';
 
 /**
@@ -34,6 +35,7 @@ const SiteTypeQuestionComponent = props => {
 		saveRecommendationsData,
 		siteTitle,
 		updateRecommendationsStep,
+		canShowProductSuggestions,
 	} = props;
 
 	useEffect( () => {
@@ -105,8 +107,10 @@ const SiteTypeQuestionComponent = props => {
 				'jetpack'
 			) }
 			answer={ answerSection }
-			// illustrationPath="recommendations/site-type-illustration.jpg"
-			sidebarCard={ <DiscountCard /> }
+			illustrationPath={
+				! canShowProductSuggestions ? 'recommendations/site-type-illustration.jpg' : null
+			}
+			sidebarCard={ canShowProductSuggestions ? <DiscountCard /> : null }
 		/>
 	);
 };
@@ -121,6 +125,7 @@ export const SiteTypeQuestion = connect(
 			store: getDataByKey( state, 'site-type-store' ),
 			other: getDataByKey( state, 'site-type-other' ),
 		},
+		canShowProductSuggestions: isProductSuggestionsAvailable( state ),
 	} ),
 	dispatch => ( {
 		updateRecommendationsStep: step => dispatch( updateRecommendationsStepAction( step ) ),
