@@ -1,4 +1,5 @@
 @import '../../../scss/variables/colors';
+@import 'node_modules/@automattic/jetpack-base-styles/style';
 
 .jp-recommendations-sidebar-card {
 	width: 100%;
@@ -36,14 +37,14 @@
 
 .jp-recommendations-sidebar-card__features {
 	margin: 32px 0 8px 0;
+	list-style-type: none;
+	padding: 0;
 
 	li {
-		display: flex;
-		align-items: center;
-	}
-
-	.gridicons-checkmark-circle {
-		fill: $green-primary;
-		margin-right: 8px;
+		background: url(data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAADAAAAAwCAMAAABg3Am1AAAANlBMVEVHcEwFnwUInggGnggGnggHnAcAnwUFnQcAnwcGnwkFnQgGnQgFnwcGnQYFnQcFnAcGnQkDnwdhiL0pAAAAEnRSTlMAMF//f2Aw7yBQ3+9gcIBgcED+HDbkAAAAZklEQVR4Ae3LNwICARDDQC0+cv7/Y8mwV9odSfWIcf/+VegnGkIvDaGXKvTTn/Gz+Uf5xTL0K1XotS7fs5H6GHvvaO8d7c3j7rdgHne/A/PYt/cO+R42oYdN6OEQetiFHo4A//6dAXqtBEkmtWutAAAAAElFTkSuQmCC) no-repeat;
+		background-size: 24px;
+		padding-left: 2.5rem;
+		margin-bottom: 0.5rem;
+		color: var( --jp-gray-80 );
 	}
 }

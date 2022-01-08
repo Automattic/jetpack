@@ -19,6 +19,7 @@
 	.dops-button.is-primary {
 		background-color: var( --jp-black );
 		border-color: var( --jp-black );
+		transition: all 150ms ease-in-out;
 
 		&:hover:not(:disabled),
 		&:active:not(:disabled) {
@@ -60,9 +61,19 @@
 		margin: 1rem 1rem 0 1rem;
 	}
 
+	h1 {
+		font-size: 1.5rem;
+	}
+
 	h2 {
 		margin: 2rem 0 1rem 0;
+		font-size: 1rem;
 	}
+}
+
+.jp-recommendations-summary__recommendation-notice {
+	font-size: 0.875rem;
+	color: var( --jp-gray-50 );
 }
 
 .jp-recommendations-summary__sidebar {

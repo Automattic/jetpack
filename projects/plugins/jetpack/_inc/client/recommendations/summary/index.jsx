@@ -77,7 +77,7 @@ const SummaryComponent = props => {
 								<FeatureSummary key={ slug } featureSlug={ slug } />
 							) )
 						) : (
-							<p>
+							<p className="jp-recommendations-summary__recommendation-notice">
 								<em>
 									{ __(
 										'You didn’t enable any recommended features. To get the most out of Jetpack, enable some recommendations or explore all Jetpack features.',
@@ -129,7 +129,7 @@ const SummaryComponent = props => {
 	if ( isFetchingSidebarData ) {
 		sidebarCard = <JetpackLoadingIcon altText={ __( 'Loading recommendations', 'jetpack' ) } />;
 	} else {
-		switch ( 'manage-security' ) {
+		switch ( sidebarCardSlug ) {
 			case 'loading':
 				sidebarCard = <JetpackLoadingIcon altText={ __( 'Loading recommendations', 'jetpack' ) } />;
 				break;

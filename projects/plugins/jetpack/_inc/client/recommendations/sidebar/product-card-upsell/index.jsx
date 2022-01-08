@@ -3,13 +3,13 @@
  */
 import PropTypes from 'prop-types';
 import React, { useCallback, useEffect } from 'react';
+import { __, sprintf } from '@wordpress/i18n';
 import { getCurrencyObject } from '@automattic/format-currency';
 
 /**
  * Internal dependencies
  */
 import Button from 'components/button';
-import Gridicon from 'components/gridicon';
 import { imagePath } from 'constants/urls';
 import analytics from 'lib/analytics';
 
@@ -21,7 +21,6 @@ import './style.scss';
 const ProductCardUpsell = ( {
 	billing_timeframe,
 	cost_timeframe,
-	cta_text,
 	currency_code,
 	description,
 	features,
@@ -84,15 +83,14 @@ const ProductCardUpsell = ( {
 					target="_blank"
 					rel="noopener noreferrer"
 				>
-					{ cta_text }
-					<Gridicon icon="external" />
+					{
+						/* translators: %s: Jetpack product name. */
+						sprintf( __( 'Continue with %s', 'jetpack' ), title )
+					}
 				</Button>
 				<ul className="jp-recommendations-sidebar-card__features">
 					{ features.map( feature => (
-						<li key={ feature }>
-							<Gridicon icon="checkmark-circle" />
-							{ feature }
-						</li>
+						<li key={ feature }>{ feature }</li>
 					) ) }
 				</ul>
 			</div>

@@ -10,6 +10,7 @@
 	.dops-button.is-primary {
 		background-color: var( --jp-black );
 		border-color: var( --jp-black );
+		transition: all 150ms ease-in-out;
 
 		&:hover:not(:disabled),
 		&:active:not(:disabled) {
@@ -40,7 +41,7 @@
 	grid-template-columns: repeat( 2, 1fr );
 
 	@include breakpoint( '<660px' ) {
-		grid-template-columns: 100% 0%;
+		grid-template-columns: auto;
 		background: var( --jp-white );
 	}
 }
@@ -52,6 +53,10 @@
 		var( --jp-white ) 60%,
 		var( --jp-white-off ) 60%
 	);
+
+	@include breakpoint( '<660px' ) {
+		grid-template-columns: 100% 0%;
+	}
 }
 
 .jp-recommendations__loading {

@@ -1,3 +1,4 @@
+@import 'node_modules/@automattic/jetpack-base-styles/style';
 @import '../../../scss/variables/colors';
 
 .jp-recommendations-product-card-upsell-no-price {
@@ -23,6 +24,7 @@
 
 	p {
 		margin: 0;
+		color: var( --jp-gray-80 );
 	}
 
 	.gridicons-checkmark-circle {
@@ -37,6 +39,19 @@
 		border-color: $color-plan;
 		text-align: center;
 	}
+
+	&__features{
+		list-style-type: none;
+		padding: 0;
+
+		li {
+			background: url(data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAADAAAAAwCAMAAABg3Am1AAAANlBMVEVHcEwFnwUInggGnggGnggHnAcAnwUFnQcAnwcGnwkFnQgGnQgFnwcGnQYFnQcFnAcGnQkDnwdhiL0pAAAAEnRSTlMAMF//f2Aw7yBQ3+9gcIBgcED+HDbkAAAAZklEQVR4Ae3LNwICARDDQC0+cv7/Y8mwV9odSfWIcf/+VegnGkIvDaGXKvTTn/Gz+Uf5xTL0K1XotS7fs5H6GHvvaO8d7c3j7rdgHne/A/PYt/cO+R42oYdN6OEQetiFHo4A//6dAXqtBEkmtWutAAAAAElFTkSuQmCC) no-repeat;
+			background-size: 24px;
+			padding-left: 2.5rem;
+			margin-bottom: 0.5rem;
+			color: var( --jp-gray-80 );
+		}
+	}
 }
 
 .jp-recommendations-product-card-upsell-no-price__padding {
@@ -44,7 +59,8 @@
 }
 
 .jp-recommendations-product-card-upsell-no-price__header-chrome {
-	background: $blue-medium;
+	display: flex;
+	background: $black;
 	border-top-left-radius: inherit;
 	border-top-right-radius: inherit;
 	padding: 8px;

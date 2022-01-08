@@ -46,12 +46,9 @@ const ProductCardUpsellNoPrice = props => {
 			</div>
 			<div className="jp-recommendations-product-card-upsell-no-price__padding">
 				<h2>{ __( 'Powerful security, performance, and marketing', 'jetpack' ) }</h2>
-				<ul>
+				<ul className="jp-recommendations-product-card-upsell-no-price__features">
 					{ features.map( feature => (
-						<li key={ feature }>
-							<Gridicon icon="checkmark-circle" />
-							{ feature }
-						</li>
+						<li key={ feature }>{ feature }</li>
 					) ) }
 				</ul>
 				<p>
