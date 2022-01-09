@@ -21,7 +21,7 @@ export async function setTheme( theme = 'light' ) {
 	return execWpCommand( `option update jetpack_search_result_format ${ theme }` );
 }
 
-export async function setHighlightColor( color = '"#FFFFFF"' ) {
+export async function setHighlightColor( color = '' ) {
 	return execWpCommand( `option update jetpack_search_highlight_color ${ color }` );
 }
 

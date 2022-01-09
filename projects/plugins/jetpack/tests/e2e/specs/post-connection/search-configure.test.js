@@ -1,6 +1,7 @@
 import { test, expect } from '../../fixtures/base-test.js';
 import { SearchConfigure } from 'jetpack-e2e-commons/pages/wp-admin/index.js';
 import {
+	disableInstantSearch,
 	enableInstantSearch,
 	searchAPIRoute,
 	setTheme,
@@ -35,10 +36,11 @@ test.describe( 'Search Configure', () => {
 	} );
 
 	test.afterAll( async () => {
-		await setTheme( 'light' );
-		await setHighlightColor( '' );
-		await setResultFormat( 'expanded' );
-		await setDefaultSort( 'relevance' );
+		await setTheme();
+		await setHighlightColor();
+		await setResultFormat();
+		await setDefaultSort();
+		await disableInstantSearch();
 	} );
 
 	test.beforeEach( async ( { page } ) => {
