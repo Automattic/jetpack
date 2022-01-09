@@ -34,6 +34,13 @@ test.describe( 'Search Configure', () => {
 		await page.close();
 	} );
 
+	test.afterAll( async () => {
+		await setTheme( 'light' );
+		await setHighlightColor( '' );
+		await setResultFormat( 'expanded' );
+		await setDefaultSort( 'relevance' );
+	} );
+
 	test.beforeEach( async ( { page } ) => {
 		searchConfigure = await SearchConfigure.visit( page );
 		await searchAPIRoute( page );
