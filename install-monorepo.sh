@@ -96,7 +96,7 @@ echo "Installing Composer"
 		exit 1
 	fi
 
-	php composer-setup.php --version=2.1.8 --quiet
+	php composer-setup.php --version=$COMPOSER_VERSION --quiet
 	RESULT=$?
 	rm composer-setup.php
 	sudo mv composer.phar /usr/local/bin/composer
