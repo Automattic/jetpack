@@ -291,7 +291,8 @@ class WPCOM_JSON_API_Site_Settings_Endpoint extends WPCOM_JSON_API_Endpoint {
 		// address. If that does not exist return an empty string.
 		$address_part = '';
 		if ( defined( 'IS_WPCOM' ) && IS_WPCOM ) {
-			$address = Domain_Contact_Information_Mapper::find_by_user_id( get_current_user_id() );
+			$blog_owner_user_id = wpcom_get_blog_owner( get_current_blog_id() );
+			$address            = Domain_Contact_Information_Mapper::find_by_user_id( $blog_owner_user_id );
 
 			if ( $address ) {
 				switch ( $key ) {
@@ -305,7 +306,24 @@ class WPCOM_JSON_API_Site_Settings_Endpoint extends WPCOM_JSON_API_Endpoint {
 						$address_part = $address->get_city();
 						break;
 					case 'woocommerce_default_country':
-						$address_part = $address->get_country_code();
+						// WooCommerce expects this setting to be $country_code:$region_code like US:CA.
+						$country_code = $address->get_country_code();
+						$state_name   = $address->get_state_name(); // Note this is 'state_name' not region_code.
+
+						// Get the list of regions and region_codes supported by WooCommerce.
+						$regions_by_country_code = require_once __DIR__ . '/woocommerce/states.php';
+
+						// If there exists an array of regions for our $country_code, search it for a region that
+						// matches our $state_name. If we find an exact match return $country_code:$region_code, else
+						// "break" and return an empty string.
+						$regions = $regions_by_country_code[ $country_code ];
+						if ( is_array( $regions ) ) {
+							$region_code = array_search( $state_name, $regions, true );
+
+							if ( ! empty( $region_code ) ) {
+								$address_part = $country_code . ':' . $region_code;
+							}
+						}
 						break;
 					case 'woocommerce_store_postcode':
 						$address_part = $address->get_postal_code();
@@ -313,7 +331,7 @@ class WPCOM_JSON_API_Site_Settings_Endpoint extends WPCOM_JSON_API_Endpoint {
 				}
 			}
 		}
-		return sanitize_text_field( $address_part );
+		return $address_part;
 	}
 
 	/**
