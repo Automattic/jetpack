@@ -1,0 +1,4 @@
+Significance: patch
+Type: bugfix
+
+Subscription form: adding a default line-height to avoid differences using different font-faces on input and button elements

@@ -10,13 +10,14 @@ import { Button } from '@wordpress/components';
 import { __ } from '@wordpress/i18n';
 import { removeQueryArgs } from '@wordpress/url';
 import restApi from '@automattic/jetpack-api';
-import { Spinner } from '@automattic/jetpack-components';
+import { getRedirectUrl, Spinner } from '@automattic/jetpack-components';
 
 /**
  * Internal dependencies
  */
 import { STORE_ID } from '../../state/store';
 import trackAndBumpMCStats from '../../tools/tracking';
+import ErrorMessage from '../error-message';
 import './style.scss';
 
 /**
@@ -56,14 +57,45 @@ const renderStayingSafe = () => {
 	);
 };
 
+/**
+ * Render the error message.
+ *
+ * @returns {React.Component} The error message.
+ */
+const renderError = () => {
+	return (
+		<ErrorMessage>
+			{ createInterpolateElement(
+				__( 'Could not stay in safe mode. Retry or find out more <a>here</a>.', 'jetpack' ),
+				{
+					a: (
+						<a
+							href={ getRedirectUrl( 'jetpack-support-safe-mode' ) }
+							rel="noopener noreferrer"
+							target="_blank"
+						/>
+					),
+				}
+			) }
+		</ErrorMessage>
+	);
+};
+
 const SafeMode = props => {
-	const { isActionInProgress, setIsActionInProgress } = props;
+	const {
+		isActionInProgress,
+		setIsActionInProgress,
+		setErrorType,
+		clearErrorType,
+		hasError,
+	} = props;
 	const [ isStayingSafe, setIsStayingSafe ] = useState( false );
 
 	const staySafeCallback = useCallback( () => {
 		if ( ! isActionInProgress ) {
 			setIsStayingSafe( true );
 			setIsActionInProgress( true );
+			clearErrorType();
 
 			trackAndBumpMCStats( 'confirm_safe_mode' );
 
@@ -79,16 +111,19 @@ const SafeMode = props => {
 				.catch( error => {
 					setIsActionInProgress( false );
 					setIsStayingSafe( false );
+					setErrorType( 'safe-mode' );
 					throw error;
 				} );
 		}
-	}, [ isActionInProgress, setIsActionInProgress ] );
+	}, [ isActionInProgress, setIsActionInProgress, setErrorType, clearErrorType ] );
 
 	return (
 		<div className="jp-idc__safe-mode">
 			{ isStayingSafe
 				? renderStayingSafe()
 				: renderStaySafeButton( staySafeCallback, isActionInProgress ) }
+
+			{ hasError && renderError() }
 		</div>
 	);
 };
@@ -98,6 +133,16 @@ SafeMode.propTypes = {
 	isActionInProgress: PropTypes.bool,
 	/** Function to set the "action in progress" flag. */
 	setIsActionInProgress: PropTypes.func.isRequired,
+	/** Function to set the error type. */
+	setErrorType: PropTypes.func.isRequired,
+	/** Function to clear the error. */
+	clearErrorType: PropTypes.func.isRequired,
+	/** Whether the component has an error. */
+	hasError: PropTypes.bool.isRequired,
+};
+
+SafeMode.defaultProps = {
+	hasError: false,
 };
 
 export default compose( [
@@ -109,6 +154,8 @@ export default compose( [
 	withDispatch( dispatch => {
 		return {
 			setIsActionInProgress: dispatch( STORE_ID ).setIsActionInProgress,
+			setErrorType: dispatch( STORE_ID ).setErrorType,
+			clearErrorType: dispatch( STORE_ID ).clearErrorType,
 		};
 	} ),
 ] )( SafeMode );
