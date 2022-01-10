@@ -6,7 +6,7 @@ const glob = require( 'glob' );
 
 const getBabelConfig = () => {
 	// support babel.config.* | .babelrc | .bablerc.*
-	const files = glob.sync( '?(.)babel*', { dot: true } );
+	const files = glob.sync( 'babel.config.*', { dot: true } );
 	return files.length
 		? path.join( process.cwd(), files[ 0 ] )
 		: path.join( __dirname, './babel.config.js' );
