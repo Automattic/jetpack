@@ -20,6 +20,7 @@ class WP_Test_Module extends Base_Test_Case {
 	 */
 	public function test_deactivate_hook() {
 		$module = new Mock_Module();
+		Mock_Module::prepare();
 		$this->assertEquals( 10, has_action( 'jetpack_boost_deactivate', [ $module, 'on_deactivate' ] ) );
 	}
 
@@ -28,6 +29,7 @@ class WP_Test_Module extends Base_Test_Case {
 	 */
 	public function test_uninstall_hook() {
 		$module = new Mock_Module();
+		Mock_Module::prepare();
 		$this->assertEquals( 10, has_action( 'jetpack_boost_uninstall', [ $module, 'on_uninstall' ] ) );
 	}
 }
