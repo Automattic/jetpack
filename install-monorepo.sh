@@ -46,9 +46,6 @@ else
 		 echo "Reinstalling Homebrew"
    	 	/bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
 	fi
-else
-    echo FAIL
-fi
 fi
 
 echo "Checking if NVM is installed..."
