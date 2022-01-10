@@ -1,0 +1,4 @@
+Significance: minor
+Type: bugfix
+
+Fixed math fallback's input accessibility and display
