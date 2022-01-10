@@ -152,7 +152,7 @@ importers:
 
   projects/js-packages/connection:
     specifiers:
-      '@automattic/jetpack-analytics': workspace:^0.1.4
+      '@automattic/jetpack-analytics': workspace:^0.1.5-alpha
       '@automattic/jetpack-api': workspace:^0.8.1
       '@automattic/jetpack-base-styles': workspace:^0.1.4-alpha
       '@automattic/jetpack-components': workspace:^0.9.2-alpha
@@ -261,7 +261,7 @@ importers:
 
   projects/js-packages/idc:
     specifiers:
-      '@automattic/jetpack-analytics': workspace:^0.1.4
+      '@automattic/jetpack-analytics': workspace:^0.1.5-alpha
       '@automattic/jetpack-api': workspace:^0.8.1
       '@automattic/jetpack-base-styles': workspace:^0.1.4-alpha
       '@automattic/jetpack-components': workspace:^0.9.2-alpha
@@ -638,7 +638,7 @@ importers:
     specifiers:
       '@automattic/calypso-color-schemes': 2.1.1
       '@automattic/color-studio': 2.5.0
-      '@automattic/jetpack-analytics': workspace:^0.1.4
+      '@automattic/jetpack-analytics': workspace:^0.1.5-alpha
       '@automattic/jetpack-api': workspace:^0.8.1
       '@automattic/jetpack-components': workspace:^0.9.2-alpha
       '@automattic/jetpack-webpack-config': workspace:^1.0.1
@@ -851,7 +851,7 @@ importers:
       '@automattic/color-studio': 2.5.0
       '@automattic/components': 1.0.0-alpha.3
       '@automattic/format-currency': 1.0.0-alpha.0
-      '@automattic/jetpack-analytics': workspace:^0.1.4
+      '@automattic/jetpack-analytics': workspace:^0.1.5-alpha
       '@automattic/jetpack-api': workspace:^0.8.1
       '@automattic/jetpack-base-styles': workspace:^0.1.4-alpha
       '@automattic/jetpack-components': workspace:^0.9.2-alpha
