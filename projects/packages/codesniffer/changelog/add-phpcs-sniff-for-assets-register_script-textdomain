@@ -1,0 +1,4 @@
+Significance: minor
+Type: added
+
+Add a sniff to check the textdomain passed to `Assets::register_script()`.
