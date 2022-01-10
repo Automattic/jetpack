@@ -17,7 +17,7 @@ const defaultConfig = {
 			__dirname,
 			'./fileMock.js'
 		),
-		'\\.module\\.(css|less)$': 'identity-obj-proxy',
+		'\\.module\\.s?css$': 'identity-obj-proxy',
 		jetpackConfig: path.join( __dirname, './jetpack.config' ),
 	},
 	coverageReporters: [ 'clover', 'lcov' ],
