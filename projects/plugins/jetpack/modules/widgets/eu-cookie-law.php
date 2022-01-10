@@ -160,7 +160,7 @@ if ( ! class_exists( 'Jetpack_EU_Cookie_Law_Widget' ) ) {
 			$instance = wp_parse_args( $instance, $this->defaults() );
 
 			if ( class_exists( 'Jetpack_AMP_Support' ) && Jetpack_AMP_Support::is_amp_request() ) {
-				require dirname( __FILE__ ) . '/eu-cookie-law/widget-amp.php';
+				require __DIR__ . '/eu-cookie-law/widget-amp.php';
 				return;
 			}
 
@@ -225,7 +225,7 @@ if ( ! class_exists( 'Jetpack_EU_Cookie_Law_Widget' ) ) {
 				20180417
 			);
 
-			require( dirname( __FILE__ ) . '/eu-cookie-law/form.php' );
+			require __DIR__ . '/eu-cookie-law/form.php';
 		}
 
 		/**

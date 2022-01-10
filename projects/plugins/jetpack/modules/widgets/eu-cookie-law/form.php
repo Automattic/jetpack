@@ -84,10 +84,12 @@ use Automattic\Jetpack\Redirect;
 				<span class="notice notice-warning custom-policy" style="display: none;">
 					<span style="display: block; margin: .5em 0;">
 						<strong><?php esc_html_e( 'Caution:', 'jetpack' ); ?></strong>
-						<?php echo sprintf(
+						<?php
+						echo sprintf(
 							__( 'For GDPR compliance, please make sure your policy contains <a href="%s" target="_blank">privacy information relating to Jetpack Ads</a>.', 'jetpack' ),
 							esc_url( Redirect::get_url( 'jetpack-support-ads', array( 'anchor' => 'privacy' ) ) )
-						); ?>
+						);
+						?>
 					</span>
 				</span>
 			<?php endif; ?>
