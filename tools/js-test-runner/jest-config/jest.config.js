@@ -2,8 +2,16 @@
  * External dependencies
  */
 const path = require( 'path' );
+const glob = require( 'glob' );
 
 let config = {};
+
+const getBabelConfig = () => {
+	const files = glob.sync( '?(.)babel*', { dot: true } );
+	return files.length
+		? path.join( process.cwd(), files[ 0 ] )
+		: path.join( __dirname, './babel.config.js' );
+};
 
 const defaultConfig = {
 	preset: '@wordpress/jest-preset-default',
@@ -31,10 +39,7 @@ const defaultConfig = {
 		'!jest.setup.{js,jsx}',
 	],
 	transform: {
-		'\\.[jt]sx?$': [
-			require.resolve( 'babel-jest' ),
-			{ configFile: path.join( __dirname, './babel.config.js' ) },
-		],
+		'\\.[jt]sx?$': [ require.resolve( 'babel-jest' ), { configFile: getBabelConfig() } ],
 	},
 };
 
