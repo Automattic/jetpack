@@ -457,7 +457,10 @@ class Test_Identity_Crisis extends BaseTestCase {
 
 		$result     = Identity_Crisis::init()->add_idc_query_args_to_url( $input_url );
 		$url_parts  = wp_parse_url( $result );
-		$query_args = wp_parse_args( $url_parts['query'] );
+		$query_args = array();
+		if ( array_key_exists( 'query', $url_parts ) ) {
+			$query_args = wp_parse_args( $url_parts['query'] );
+		}
 
 		$this->tear_down_for_test_add_idc_query_args_to_url();
 		remove_filter( 'jetpack_offline_mode', '__return_true' );
@@ -482,7 +485,10 @@ class Test_Identity_Crisis extends BaseTestCase {
 
 		$result     = Identity_Crisis::init()->add_idc_query_args_to_url( $input_url );
 		$url_parts  = wp_parse_url( $result );
-		$query_args = wp_parse_args( $url_parts['query'] );
+		$query_args = array();
+		if ( array_key_exists( 'query', $url_parts ) ) {
+			$query_args = wp_parse_args( $url_parts['query'] );
+		}
 
 		$this->tear_down_for_test_add_idc_query_args_to_url();
 		remove_filter( 'jetpack_is_staging_site', '__return_true' );
