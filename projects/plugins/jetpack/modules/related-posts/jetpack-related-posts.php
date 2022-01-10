@@ -408,12 +408,26 @@ EOT;
 			$rows_markup .= $this->render_block_row( $lower_row_posts, $block_attributes );
 		}
 
-		return sprintf(
+		$display_markup = sprintf(
 			'<nav class="jp-relatedposts-i2" data-layout="%1$s">%2$s%3$s</nav>',
 			esc_attr( $block_attributes['layout'] ),
 			$block_attributes['headline'],
 			$rows_markup
 		);
+
+		/**
+		 * Filter the output HTML of Related Posts.
+		 *
+		 * @module related-posts
+		 *
+		 * @since $$next-version$$
+		 *
+		 * @param string $display_markup HTML output of Related Posts.
+		 * @param string get_the_ID() Post ID of the post for which we are retrieving Related Posts.
+		 * @param array $related_posts Array of related posts.
+		 * @param array $block_attributes Array of Block attributes.
+		 */
+		return apply_filters('jetpack_related_posts_display_markup', $display_markup, get_the_ID(), $related_posts, $block_attributes);
 	}
 
 	/**
