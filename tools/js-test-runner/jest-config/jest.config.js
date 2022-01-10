@@ -4,13 +4,18 @@
 const path = require( 'path' );
 const glob = require( 'glob' );
 
-let config = {};
-
 const getBabelConfig = () => {
+	// support babel.config.* | .babelrc | .bablerc.*
 	const files = glob.sync( '?(.)babel*', { dot: true } );
 	return files.length
 		? path.join( process.cwd(), files[ 0 ] )
 		: path.join( __dirname, './babel.config.js' );
+};
+
+const getJestCustomConfig = () => {
+	// support .js|.cjs|.mjs
+	const files = glob.sync( 'jest.config.*' );
+	return files.length ? require( path.join( process.cwd(), files[ 0 ] ) ) : {};
 };
 
 const defaultConfig = {
@@ -43,15 +48,7 @@ const defaultConfig = {
 	},
 };
 
-try {
-	// merge custom config with default, custom is prioritized
-	const customConfig = require( path.join( process.cwd(), './jest.config.js' ) );
-	config = {
-		...defaultConfig,
-		...customConfig,
-	};
-} catch {
-	config = defaultConfig;
-}
-
-module.exports = config;
+module.exports = {
+	...defaultConfig,
+	...getJestCustomConfig(),
+};
