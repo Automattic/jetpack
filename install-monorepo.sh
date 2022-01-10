@@ -34,8 +34,8 @@ if [[ -z "$(command -v brew)" ]]; then
     /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
 	if [[ -n "$ON_LINUX" ]]; then # Add homebrew to PATH
 		echo 'eval "$("$HOME/.linuxbrew/bin/brew" shellenv)"' >> "$HOME/.profile"
-		eval "$(/home/linuxbrew/.linuxbrew/bin/brew shellenv)"
-		PATH=/home/linuxbrew/.linuxbrew/bin:$PATH
+		eval "$("$HOME/.linuxbrew/bin/brew" shellenv)"
+		PATH="$HOME/.linuxbrew/bin:$PATH"
 		hash -r 
 	fi
 else
