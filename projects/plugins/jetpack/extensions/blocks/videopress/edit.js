@@ -37,6 +37,7 @@ import { get, indexOf } from 'lodash';
 import Loading from './loading';
 import { getVideoPressUrl } from './url';
 import { getClassNames } from './utils';
+import ResumableUpload from './resumable-upload';
 import SeekbarColorSettings from './seekbar-color-settings';
 import TracksEditor from './tracks-editor';
 
@@ -614,17 +615,20 @@ const VideoPressEdit = CoreVideoEdit =>
 				return (
 					<Fragment>
 						<div className={ ! isUploading && ! isFetchingVideo ? 'videopress-block-hide' : '' }>
-							<Loading
-								text={
-									isUploading
-										? __( 'Uploading…', 'jetpack' )
-										: __(
-												'Generating preview…',
-												'jetpack',
-												/* dummy arg to avoid bad minification */ 0
-										  )
-								}
-							/>
+							{ isUploading ? (
+								<ResumableUpload />
+							) : (
+								<Loading
+									text={
+										__(
+											'Generating preview…',
+											'jetpack',
+											/* dummy arg to avoid bad minification */ 0
+										)
+									}
+								/>
+							) }
+							
 						</div>
 						<div className={ ! displayCoreVideoBlock ? 'videopress-block-hide' : '' }>
 							<CoreVideoEdit { ...this.props } />
@@ -780,7 +784,7 @@ export default createHigherOrderComponent(
 			const preview = !! url && getEmbedPreview( url );
 
 			const isFetchingEmbedPreview = !! url && isRequestingEmbedPreview( url );
-			const isUploading = isBlobURL( src );
+			const isUploading = true; //isBlobURL( src );
 
 			return {
 				isFetchingPreview: isFetchingEmbedPreview,
