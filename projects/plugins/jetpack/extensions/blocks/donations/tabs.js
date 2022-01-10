@@ -42,9 +42,15 @@ const Tabs = props => {
 		}
 
 		setAttributes( {
-			oneTimeDonation: { ...oneTimeDonation, planId: products[ 'one-time' ] },
-			monthlyDonation: { ...monthlyDonation, planId: products[ '1 month' ] },
-			annualDonation: { ...annualDonation, planId: products[ '1 year' ] },
+			...( products[ 'one-time' ] && {
+				oneTimeDonation: { ...oneTimeDonation, planId: products[ 'one-time' ] },
+			} ),
+			...( products[ '1 month' ] && {
+				monthlyDonation: { ...monthlyDonation, planId: products[ '1 month' ] },
+			} ),
+			...( products[ '1 year' ] && {
+				annualDonation: { ...annualDonation, planId: products[ '1 year' ] },
+			} ),
 		} );
 	}, [ oneTimeDonation, monthlyDonation, annualDonation, setAttributes, products ] );
 
