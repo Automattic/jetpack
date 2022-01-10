@@ -1,3 +1,4 @@
+
 /* global myJetpackInitialState */
 
 /**
@@ -48,12 +49,6 @@ export default function MyJetpackScreen() {
 							<h1>{ __( 'My Plan', 'jetpack-my-jetpack' ) }</h1>
 						</Col>
 						<Col lg={ 6 } sm={ 4 }>
-							<ConnectionStatusCard
-								apiRoot={ myJetpackInitialState.apiRoot }
-								apiNonce={ myJetpackInitialState.apiNonce }
-								redirectUri={ myJetpackInitialState.redirectUri }
-								onDisconnected={ redirectAfterDisconnect }
-							/>
 						</Col>
 					</Row>
 				</AdminSection>

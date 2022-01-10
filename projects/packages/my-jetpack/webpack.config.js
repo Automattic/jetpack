@@ -2,43 +2,47 @@
  * External dependencies
  */
 const jetpackWebpackConfig = require( '@automattic/jetpack-webpack-config/webpack' );
+const defaultConfig = require( '@wordpress/scripts/config/webpack.config' );
 const path = require( 'path' );
 
 module.exports = [
 	{
-		entry: {
-			index: './_inc/admin.jsx',
-		},
-		mode: jetpackWebpackConfig.mode,
-		devtool: jetpackWebpackConfig.isDevelopment ? 'source-map' : false,
-		output: {
-			...jetpackWebpackConfig.output,
-			path: path.resolve( './build' ),
-		},
-		optimization: {
-			...jetpackWebpackConfig.optimization,
-		},
+		...defaultConfig,
+		// entry: {
+		// 	index: './_inc/admin.jsx',
+		// },
+		// mode: jetpackWebpackConfig.mode,
+		// devtool: jetpackWebpackConfig.isDevelopment ? 'source-map' : false,
+		// output: {
+		// 	...jetpackWebpackConfig.output,
+		// 	path: path.resolve( './build' ),
+		// },
+		// optimization: {
+		// 	...jetpackWebpackConfig.optimization,
+		// },
 		resolve: {
-			...jetpackWebpackConfig.resolve,
+			extensions: [ '.js', '.jsx', '.ts', '.tsx', '...' ],
 		},
-		node: false,
-		plugins: [
-			...jetpackWebpackConfig.StandardPlugins( {
-				DependencyExtractionPlugin: { injectPolyfill: true },
-			} ),
-		],
+		// node: false,
+		// plugins: [
+		// 	...jetpackWebpackConfig.StandardPlugins( {
+		// 		DependencyExtractionPlugin: { injectPolyfill: true },
+		// 	} ),
+		// ],
 		module: {
-			strictExportPresence: true,
+			...defaultConfig.module,
+			// strictExportPresence: true,
 			rules: [
+				...defaultConfig.module.rules,
 				// Transpile JavaScript
-				jetpackWebpackConfig.TranspileRule( {
-					exclude: /node_modules\//,
-				} ),
+				// jetpackWebpackConfig.TranspileRule( {
+				// 	exclude: /node_modules\//,
+				// } ),
 
 				// Transpile @automattic/jetpack-* in node_modules too.
-				jetpackWebpackConfig.TranspileRule( {
-					includeNodeModules: [ '@automattic/jetpack-' ],
-				} ),
+				// jetpackWebpackConfig.TranspileRule( {
+				// 	includeNodeModules: [ '@automattic/jetpack-' ],
+				// } ),
 
 				// Handle CSS.
 				jetpackWebpackConfig.CssRule( {
@@ -47,7 +51,7 @@ module.exports = [
 				} ),
 
 				// Handle images.
-				jetpackWebpackConfig.FileRule(),
+				// jetpackWebpackConfig.FileRule(),
 			],
 		},
 		externals: {
