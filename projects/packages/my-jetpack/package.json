@@ -15,7 +15,7 @@
 	"author": "Automattic",
 	"scripts": {
 		"build": "pnpm run install-if-deps-outdated && pnpm run clean && pnpm run build-client",
-		"build-client": "pnpm webpack --config webpack.config.js",
+		"build-client": "wp-scripts build _inc/index.tsx",
 		"clean": "rm -rf build/",
 		"install-if-deps-outdated": "pnpm install --no-prod --frozen-lockfile",
 		"watch": "pnpm run build && pnpm webpack watch"
@@ -37,6 +37,7 @@
 		"@babel/preset-env": "7.16.4",
 		"@babel/register": "7.16.0",
 		"@babel/runtime": "7.16.3",
+		"@wordpress/scripts": "19.2.2",
 		"enzyme": "3.11.0",
 		"jest": "27.3.1",
 		"react": "17.0.2",
