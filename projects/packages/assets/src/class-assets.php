@@ -514,7 +514,11 @@ class Assets {
 			throw new InvalidArgumentException( 'Type must be "plugins", "themes", or "core"' );
 		}
 
-		if ( did_action( 'wp_default_scripts' ) ) {
+		if (
+			did_action( 'wp_default_scripts' ) &&
+			// Don't complain during plugin activation.
+			! defined( 'WP_SANDBOX_SCRAPING' )
+		) {
 			_doing_it_wrong(
 				__METHOD__,
 				sprintf(

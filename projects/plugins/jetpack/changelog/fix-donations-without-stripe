@@ -1,0 +1,4 @@
+Significance: patch
+Type: bugfix
+
+Don't display the donations block to visitors unless Stripe is connected
