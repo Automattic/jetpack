@@ -37,6 +37,7 @@
 		"@babel/preset-env": "7.16.4",
 		"@babel/register": "7.16.0",
 		"@babel/runtime": "7.16.3",
+		"@wordpress/eslint-plugin": "9.3.0",
 		"@wordpress/scripts": "19.2.2",
 		"enzyme": "3.11.0",
 		"jest": "27.3.1",
