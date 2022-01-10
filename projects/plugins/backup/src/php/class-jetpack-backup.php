@@ -158,6 +158,15 @@ class Jetpack_Backup {
 			)
 		);
 
+		register_rest_route(
+			'jetpack/v4',
+			'/backup-promoted-product-info',
+			array(
+				'methods'             => WP_REST_Server::READABLE,
+				'callback'            => __CLASS__ . '::get_backup_promoted_product_info',
+				'permission_callback' => __CLASS__ . '::backups_permissions_callback',
+			)
+		);
 	}
 
 	/**
@@ -230,6 +239,31 @@ class Jetpack_Backup {
 		return rest_ensure_response(
 			json_decode( $response['body'], true )
 		);
+	}
+
+	/**
+	 * Gets information about the currently promoted backup product.
+	 *
+	 * @return string|WP_Error A JSON object of the current backup product being promoted if the request was successful, or a WP_Error otherwise.
+	 */
+	public static function get_backup_promoted_product_info() {
+		$request_url   = 'https://public-api.wordpress.com/rest/v1.1/products?locale=' . get_user_locale() . '&type=jetpack';
+		$wpcom_request = wp_remote_get( esc_url_raw( $request_url ) );
+		$response_code = wp_remote_retrieve_response_code( $wpcom_request );
+		if ( 200 === $response_code ) {
+			$products = json_decode( wp_remote_retrieve_body( $wpcom_request ) );
+			return $products->{JETPACK_BACKUP_PROMOTED_PRODUCT};
+		} else {
+			// Something went wrong so we'll just return the response without caching.
+			return new WP_Error(
+				'failed_to_fetch_data',
+				esc_html__( 'Unable to fetch the requested data.', 'jetpack-backup' ),
+				array(
+					'status'  => $response_code,
+					'request' => $wpcom_request,
+				)
+			);
+		}
 	}
 
 	/**
