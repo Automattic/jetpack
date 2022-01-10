@@ -15,6 +15,19 @@ add_action( 'init', function() {
 ```
 
 That's all!
+## Develop
+
+Simply take advantage of the awesome [Jetpack CLI](/../../../tools/cli/Readme.md). For instance:
+
+**Build the project**
+```cli
+jetpack build projects/my-jetpack
+```
+
+**Watch (and build) the project**
+```
+jetpack watch projects/my-jetpack
+```
 
 ## Security
 
