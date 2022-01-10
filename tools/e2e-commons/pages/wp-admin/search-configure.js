@@ -6,8 +6,11 @@ export default class SearchConfigure extends WpPage {
 
 	constructor( page ) {
 		const url = `${ resolveSiteUrl() }/wp-admin/admin.php?page=jetpack-search-configure`;
-		super( page, { expectedSelectors: [ '.jp-search-configure-header__title' ], url } );
-		this.timeout = 30000; // 30s.
+		super( page, {
+			expectedSelectors: [ '.jp-search-configure-header__title' ],
+			url,
+			explicitWaitMS: 30000,
+		} );
 	}
 
 	async chooseDarkTheme() {
