@@ -3,8 +3,6 @@
 set -o pipefail
 
 BASE=$(cd $(dirname "${BASH_SOURCE[0]}")/.. && pwd)
-. "$BASE/tools/includes/check-osx-bash-version.sh"
-. "$BASE/tools/includes/chalk-lite.sh"
 
 # Print help and exit.
 function usage {
@@ -31,7 +29,7 @@ fi
 
 # Check of Homebrew and nvm are installed
 echo "Checking if Homebrew is installed..."
-if ! type brew &> /dev/null; then
+if [[ -z "$(command -v brew)" ]]; then
     echo "Installing Homebrew"
     /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
 	if [[ ON_LINUX ]]; then # Add homebrew to PATH
@@ -46,7 +44,7 @@ else
 fi
 
 echo "Checking if NVM is installed..."
-if ! command -v nvm &> /dev/null ; then
+if [[ -z "$(command -v nvm)" ]]; then
     echo "Installing nvm"
     curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.39.0/install.sh | bash && export NVM_DIR=$HOME/.nvm && source $NVM_DIR/nvm.sh
 else
@@ -62,18 +60,25 @@ nvm install && nvm use
 echo "Installing Bash"
 brew install bash
 
-echo "Installing jq"
-brew install jq
+echo "Checking if jq is installed..."
+if [[ -z "$(command -v jq)" ]]; then
+	echo "Installing jq"
+	brew install jq
+fi
 
-echo "Installing pnpm"
-curl -f https://get.pnpm.io/v6.16.js | node - add --global pnpm
+echo "Checking if pnmp is installed..."
+if [[ -z "$(command -v pnpm)" ]]; then
+	echo "Installing pnpm"
+	curl -f https://get.pnpm.io/v6.16.js | node - add --global pnpm
+fi 
 
-echo "Installing PHP"
+echo "Installing and linking PHP 8.0"
 source .github/versions.sh && brew install php@$PHP_VERSION
 brew link php@8.0
 
+echo "Checking composer..."
+if [[ -z "$(command -v composer)" ]]; then
 echo "Installing Composer"
-if ! composer -v &> /dev/null; then
 	EXPECTED_CHECKSUM="$(php -r 'copy("https://composer.github.io/installer.sig", "php://stdout");')"
 	php -r "copy('https://getcomposer.org/installer', 'composer-setup.php');"
 	ACTUAL_CHECKSUM="$(php -r "echo hash_file('sha384', 'composer-setup.php');")"
@@ -85,26 +90,18 @@ if ! composer -v &> /dev/null; then
 		exit 1
 	fi
 
-	php composer-setup.php --quiet
+	php composer-setup.php --version=2.1.8 --quiet
 	RESULT=$?
 	rm composer-setup.php
 	echo "$RESULT"
 	sudo mv composer.phar /usr/local/bin/composer
 fi 
 
-
-# Reset the terminal so it picks up the changes.
-if [[ "$SHELL" == "/bin/zsh" ]]; then
-	echo "Refreshing terminal"
-	exec zsh
-elif [[ "$SHELL" == "/bin/bash" ]]; then
-	echo "Refreshing terminal"
-	exec bash
-fi
-
 # Setup the Jetpack CLI
 echo "Setting up the Jetpack CLI"
 pnpm install && pnpm cli-setup
+pnpm jetpack cli link # I don't know why we have to do this twice, but it works.
+jetpack install --root
 
 # Reset the terminal so it picks up the changes.
 if [[ "$SHELL" == "/bin/zsh" ]]; then
@@ -113,4 +110,8 @@ if [[ "$SHELL" == "/bin/zsh" ]]; then
 elif [[ "$SHELL" == "/bin/bash" ]]; then
 	echo "Refreshing terminal"
 	exec bash
+else 
+	echo "Note: You may have to restart your terminal for monorepo tools to work properly."
 fi
+
+echo "Installation complete. You may run tools/check-development-environment.sh to make sure everything installed correctly"
