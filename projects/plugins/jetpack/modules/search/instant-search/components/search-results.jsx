@@ -227,7 +227,7 @@ class SearchResults extends Component {
 						onClick={ this.closeOverlay }
 						onKeyPress={ this.onKeyPressHandler }
 						tabIndex="0"
-						aria-label={ __( 'Close search interface', 'jetpack' ) }
+						aria-label={ __( 'Close search results', 'jetpack' ) }
 					>
 						<Gridicon icon="cross" size="24" aria-hidden="true" focusable="false" />
 					</button>
