@@ -271,70 +271,6 @@ class WPCOM_JSON_API_Site_Settings_Endpoint extends WPCOM_JSON_API_Endpoint {
 	}
 
 	/**
-	 * Used for the WooCommerce address options. This function returns the option value if it exists, else it looks
-	 * for a default address on the domain contact information. If that does not exist it returns an empty string.
-	 *
-	 * @param string $key The option key to retrieve a value.
-	 *
-	 * @return string The requested address part value or an empty string.
-	 */
-	protected function get_woocommerce_address( $key ) {
-		$address_part = get_option( $key );
-
-		// If there's any value set in the database, return it. Even if it's null or an empty string.
-		// False means no value for this option was found in the database.
-		if ( false !== $address_part ) {
-			return $address_part;
-		}
-
-		// If no value is set in the database, return the corresponding address part from the user's domain contact
-		// address. If that does not exist return an empty string.
-		$address_part = '';
-		if ( defined( 'IS_WPCOM' ) && IS_WPCOM ) {
-			$blog_owner_user_id = wpcom_get_blog_owner( get_current_blog_id() );
-			$address            = Domain_Contact_Information_Mapper::find_by_user_id( $blog_owner_user_id );
-
-			if ( $address ) {
-				switch ( $key ) {
-					case 'woocommerce_store_address':
-						$address_part = $address->get_address_1();
-						break;
-					case 'woocommerce_store_address_2':
-						$address_part = $address->get_address_2();
-						break;
-					case 'woocommerce_store_city':
-						$address_part = $address->get_city();
-						break;
-					case 'woocommerce_default_country':
-						// WooCommerce expects this setting to be $country_code:$region_code like US:CA.
-						$country_code = $address->get_country_code();
-						$state_name   = $address->get_state_name(); // Note this is 'state_name' not region_code.
-
-						// Get the list of regions and region_codes supported by WooCommerce.
-						$regions_by_country_code = require_once __DIR__ . '/woocommerce/states.php';
-
-						// If there exists an array of regions for our $country_code, search it for a region that
-						// matches our $state_name. If we find an exact match return $country_code:$region_code, else
-						// "break" and return an empty string.
-						$regions = $regions_by_country_code[ $country_code ];
-						if ( is_array( $regions ) ) {
-							$region_code = array_search( $state_name, $regions, true );
-
-							if ( ! empty( $region_code ) ) {
-								$address_part = $country_code . ':' . $region_code;
-							}
-						}
-						break;
-					case 'woocommerce_store_postcode':
-						$address_part = $address->get_postal_code();
-						break;
-				}
-			}
-		}
-		return $address_part;
-	}
-
-	/**
 	 * Collects the necessary information to return for a get settings response.
 	 *
 	 * @return array
@@ -481,11 +417,11 @@ class WPCOM_JSON_API_Site_Settings_Endpoint extends WPCOM_JSON_API_Endpoint {
 						'time_format'                      => get_option( 'time_format' ),
 						'start_of_week'                    => get_option( 'start_of_week' ),
 						'woocommerce_onboarding_profile'   => (array) get_option( 'woocommerce_onboarding_profile' ),
-						'woocommerce_store_address'        => $this->get_woocommerce_address( 'woocommerce_store_address' ),
-						'woocommerce_store_address_2'      => $this->get_woocommerce_address( 'woocommerce_store_address_2' ),
-						'woocommerce_store_city'           => $this->get_woocommerce_address( 'woocommerce_store_city' ),
-						'woocommerce_default_country'      => $this->get_woocommerce_address( 'woocommerce_default_country' ),
-						'woocommerce_store_postcode'       => $this->get_woocommerce_address( 'woocommerce_store_postcode' ),
+						'woocommerce_store_address'        => (string) get_option( 'woocommerce_store_address' ),
+						'woocommerce_store_address_2'      => (string) get_option( 'woocommerce_store_address_2' ),
+						'woocommerce_store_city'           => (string) get_option( 'woocommerce_store_city' ),
+						'woocommerce_default_country'      => (string) get_option( 'woocommerce_default_country' ),
+						'woocommerce_store_postcode'       => (string) get_option( 'woocommerce_store_postcode' ),
 						'jetpack_testimonial'              => (bool) get_option( 'jetpack_testimonial', '0' ),
 						'jetpack_testimonial_posts_per_page' => (int) get_option( 'jetpack_testimonial_posts_per_page', '10' ),
 						'jetpack_portfolio'                => (bool) get_option( 'jetpack_portfolio', '0' ),
