@@ -42,7 +42,7 @@ else
 	echo "Updating brew"
     brew update
 	# Brew can be finicky on MacOS
-	if [ $? -ne 0 ]; then
+	if [[ $? -ne 0 ]]; then
 		 echo "Reinstalling Homebrew"
    	 	/bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
 	fi
