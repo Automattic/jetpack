@@ -1,0 +1,4 @@
+Significance: minor
+Type: bugfix
+
+Donations block: Fixed an issue which was invalidating existing blocks if they were edited by non-plan owners.

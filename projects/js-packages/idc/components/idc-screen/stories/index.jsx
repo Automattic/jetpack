@@ -33,6 +33,9 @@ const DefaultArgs = {
 	isMigrating: false,
 	isStartingFresh: false,
 	isAdmin: true,
+	hasMigrateError: false,
+	hasFreshError: false,
+	hasStaySafeError: false,
 };
 
 export const _default = Template.bind( {} );

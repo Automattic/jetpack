@@ -33,7 +33,6 @@ test.describe.serial( 'Modules', () => {
 
 		test( `The ${ moduleSlug } module state should toggle to an inverse state`, async () => {
 			await jetpackBoostPage.toggleModule( moduleSlug );
-			await jetpackBoostPage.waitForApiResponse( `${ moduleSlug }-status` );
 			expect( await jetpackBoostPage.isModuleEnabled( moduleSlug ) ).toEqual(
 				moduleState !== 'enabled'
 			);
@@ -41,7 +40,6 @@ test.describe.serial( 'Modules', () => {
 
 		test( `The ${ moduleSlug } module state should revert back to original state`, async () => {
 			await jetpackBoostPage.toggleModule( moduleSlug );
-			await jetpackBoostPage.waitForApiResponse( `${ moduleSlug }-status` );
 			expect( await jetpackBoostPage.isModuleEnabled( moduleSlug ) ).toEqual(
 				moduleState === 'enabled'
 			);
