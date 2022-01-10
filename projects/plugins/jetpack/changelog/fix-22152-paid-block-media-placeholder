@@ -1,0 +1,4 @@
+Significance: minor
+Type: bugfix
+
+Other blocks should not be hiding behind the Cover block placeholder.
