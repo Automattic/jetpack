@@ -1218,7 +1218,7 @@ class Jetpack {
 				'jetpack-facebook-embed',
 				Assets::get_file_url_for_environment( '_inc/build/facebook-embed.min.js', '_inc/facebook-embed.js' ),
 				array(),
-				'20210107',
+				JETPACK__VERSION,
 				true
 			);
 
@@ -1499,7 +1499,7 @@ class Jetpack {
 		global $wpdb;
 
 		$some_users = get_transient( 'jetpack_is_single_user' );
-		if ( false === ( $some_users ) ) {
+		if ( false === $some_users ) {
 			$some_users = $wpdb->get_var( "SELECT COUNT(*) FROM (SELECT user_id FROM $wpdb->usermeta WHERE meta_key = '{$wpdb->prefix}capabilities' LIMIT 2) AS someusers" );
 			set_transient( 'jetpack_is_single_user', (int) $some_users, 12 * HOUR_IN_SECONDS );
 		}
