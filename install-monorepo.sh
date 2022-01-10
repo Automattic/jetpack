@@ -80,9 +80,10 @@ if [[ -z "$(command -v pnpm)" ]]; then
 	curl -f https://get.pnpm.io/v6.16.js | node - add --global pnpm
 fi 
 
-echo "Installing and linking PHP 8.0"
-source .github/versions.sh && brew install php@$PHP_VERSION
-brew link php@8.0
+source .github/versions.sh
+echo "Installing and linking PHP $PHP_VERSION"
+brew install php@$PHP_VERSION
+brew link php@$PHP_VERSION
 
 echo "Checking composer..."
 if [[ -z "$(command -v composer)" ]]; then
