@@ -623,7 +623,7 @@ class Jetpack_Widget_Conditions {
 	public static function widget_update( $instance, $new_instance, $old_instance ) {
 		$conditions              = array();
 		$conditions['action']    = isset( $new_instance['conditions']['action'] ) ? $new_instance['conditions']['action'] : null;
-		$conditions['match_all'] = isset( $new_instance['conditions']['match_all'] ) ? '1' : '0';
+		$conditions['match_all'] = ! empty( $new_instance['conditions']['match_all'] ) ? '1' : '0';
 		$conditions['rules']     = isset( $new_instance['conditions']['rules'] ) ? $new_instance['conditions']['rules'] : array();
 
 		if ( isset( $new_instance['conditions']['rules_major'] ) ) {

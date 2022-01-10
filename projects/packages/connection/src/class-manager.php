@@ -1065,6 +1065,8 @@ class Manager {
 		/* This action is documented in src/class-package-version-tracker.php */
 		$package_versions = apply_filters( 'jetpack_package_versions', array() );
 
+		$active_plugins_using_connection = Plugin_Storage::get_all();
+
 		/**
 		 * Filters the request body for additional property addition.
 		 *
@@ -1078,23 +1080,24 @@ class Manager {
 			'jetpack_register_request_body',
 			array_merge(
 				array(
-					'siteurl'            => Urls::site_url(),
-					'home'               => Urls::home_url(),
-					'gmt_offset'         => $gmt_offset,
-					'timezone_string'    => (string) get_option( 'timezone_string' ),
-					'site_name'          => (string) get_option( 'blogname' ),
-					'secret_1'           => $secrets['secret_1'],
-					'secret_2'           => $secrets['secret_2'],
-					'site_lang'          => get_locale(),
-					'timeout'            => $timeout,
-					'stats_id'           => $stats_id,
-					'state'              => get_current_user_id(),
-					'site_created'       => $this->get_assumed_site_creation_date(),
-					'jetpack_version'    => Constants::get_constant( 'JETPACK__VERSION' ),
-					'ABSPATH'            => Constants::get_constant( 'ABSPATH' ),
-					'current_user_email' => wp_get_current_user()->user_email,
-					'connect_plugin'     => $this->get_plugin() ? $this->get_plugin()->get_slug() : null,
-					'package_versions'   => $package_versions,
+					'siteurl'                  => Urls::site_url(),
+					'home'                     => Urls::home_url(),
+					'gmt_offset'               => $gmt_offset,
+					'timezone_string'          => (string) get_option( 'timezone_string' ),
+					'site_name'                => (string) get_option( 'blogname' ),
+					'secret_1'                 => $secrets['secret_1'],
+					'secret_2'                 => $secrets['secret_2'],
+					'site_lang'                => get_locale(),
+					'timeout'                  => $timeout,
+					'stats_id'                 => $stats_id,
+					'state'                    => get_current_user_id(),
+					'site_created'             => $this->get_assumed_site_creation_date(),
+					'jetpack_version'          => Constants::get_constant( 'JETPACK__VERSION' ),
+					'ABSPATH'                  => Constants::get_constant( 'ABSPATH' ),
+					'current_user_email'       => wp_get_current_user()->user_email,
+					'connect_plugin'           => $this->get_plugin() ? $this->get_plugin()->get_slug() : null,
+					'package_versions'         => $package_versions,
+					'active_connected_plugins' => $active_plugins_using_connection,
 				),
 				self::$extra_register_params
 			)

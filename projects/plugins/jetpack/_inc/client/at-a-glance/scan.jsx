@@ -111,6 +111,14 @@ class DashScan extends Component {
 		trackUpgradeButtonView: noop,
 	};
 
+	trackScansClick = () => {
+		analytics.tracks.recordJetpackClick( {
+			type: 'scans-link',
+			target: 'at-a-glance',
+			feature: 'scans',
+		} );
+	};
+
 	onActivateVaultPressClick = () => {
 		analytics.tracks.recordJetpackClick( {
 			type: 'activate-link',
@@ -297,6 +305,7 @@ class DashScan extends Component {
 				href={ url }
 				target="_blank"
 				rel="noopener noreferrer"
+				onClick={ this.trackScansClick }
 			>
 				{ message }
 			</Card>
