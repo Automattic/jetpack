@@ -1,7 +1,6 @@
 #!/usr/bin/env bash
 
 set -o pipefail
-#set -x
 
 BASE=$(cd $(dirname "${BASH_SOURCE[0]}")/.. && pwd)
 . "$BASE/tools/includes/check-osx-bash-version.sh"
@@ -93,14 +92,25 @@ if ! composer -v &> /dev/null; then
 	sudo mv composer.phar /usr/local/bin/composer
 fi 
 
+
 # Reset the terminal so it picks up the changes.
-if [[ "$SHELL" == "/bin/zsh" ]]; then 
-	source ~/.zshrc
+if [[ "$SHELL" == "/bin/zsh" ]]; then
+	echo "Refreshing terminal"
+	exec zsh
 elif [[ "$SHELL" == "/bin/bash" ]]; then
 	echo "Refreshing terminal"
-	source ~/.bashrc
+	exec bash
 fi
 
 # Setup the Jetpack CLI
 echo "Setting up the Jetpack CLI"
 pnpm install && pnpm cli-setup
+
+# Reset the terminal so it picks up the changes.
+if [[ "$SHELL" == "/bin/zsh" ]]; then
+	echo "Refreshing terminal"
+	exec zsh
+elif [[ "$SHELL" == "/bin/bash" ]]; then
+	echo "Refreshing terminal"
+	exec bash
+fi
