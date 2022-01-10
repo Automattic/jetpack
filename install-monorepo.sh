@@ -41,6 +41,14 @@ if [[ -z "$(command -v brew)" ]]; then
 else
 	echo "Updating brew"
     brew update
+	# Brew can be finicky on MacOS
+	if [ $? -ne 0 ]; then
+		 echo "Reinstalling Homebrew"
+   	 	/bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
+	fi
+else
+    echo FAIL
+fi
 fi
 
 echo "Checking if NVM is installed..."
@@ -93,7 +101,6 @@ echo "Installing Composer"
 	php composer-setup.php --version=2.1.8 --quiet
 	RESULT=$?
 	rm composer-setup.php
-	echo "$RESULT"
 	sudo mv composer.phar /usr/local/bin/composer
 fi 
 
@@ -114,4 +121,4 @@ else
 	echo "Note: You may have to restart your terminal for monorepo tools to work properly."
 fi
 
-echo "Installation complete. You may run tools/check-development-environment.sh to make sure everything installed correctly"
+echo "Installation complete. You may run tools/check-development-environment.sh to make sure everything installed correctly."
