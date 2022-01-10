@@ -1,0 +1,4 @@
+Significance: minor
+Type: changed
+
+Move numberFormat component into components js package
