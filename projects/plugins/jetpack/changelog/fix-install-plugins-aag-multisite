@@ -1,0 +1,5 @@
+Significance: patch
+Type: bugfix
+Comment: Admin Page: do not show plugin install cards to non-super admins on Multisite network.
+
+
