@@ -29,14 +29,22 @@ fi
 
 # Check of Homebrew and nvm are installed
 echo "Checking if Homebrew is installed..."
-if [[ -z "$(command -v brew)" ]]; then
+if ! command -v brew &>/dev/null; then
     echo "Installing Homebrew"
     /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
 	if [[ -n "$ON_LINUX" ]]; then # Add homebrew to PATH
+	# Reset the terminal so it picks up the changes.
+
 		echo 'eval "$("$HOME/.linuxbrew/bin/brew" shellenv)"' >> "$HOME/.profile"
 		eval "$("$HOME/.linuxbrew/bin/brew" shellenv)"
 		PATH="$HOME/.linuxbrew/bin:$PATH"
-		hash -r 
+			if [[ "$SHELL" == "/bin/zsh" ]]; then
+		echo "Refreshing terminal"
+		source ~./zshrc
+	elif [[ "$SHELL" == "/bin/bash" ]]; then
+		echo "Refreshing terminal"
+		source ~./bashrc
+	fi
 	fi
 else
 	echo "Updating brew"
@@ -49,12 +57,12 @@ else
 fi
 
 echo "Checking if NVM is installed..."
-if [[ -z "$(command -v nvm)" ]]; then
+if ! command -v nvm &>/dev/null; then
     echo "Installing nvm"
     curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.39.0/install.sh | bash && export NVM_DIR=$HOME/.nvm && source $NVM_DIR/nvm.sh
 else
 	echo "Updating nvm"
-    nvm update
+    curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.39.0/install.sh | bash
 fi
 
 # Install and use the correct version of Node.js
@@ -62,17 +70,19 @@ echo "Installing Node.js"
 nvm install && nvm use
 
 # Install our requirements
-echo "Installing Bash"
-brew install bash
+echo "Checking Bash version..."
+if [[ -z "${BASH_VERSINFO}" || -z "${BASH_VERSINFO[0]}" || ${BASH_VERSINFO[0]} -lt 4 ]]; then	
+	brew install bash
+fi
 
 echo "Checking if jq is installed..."
-if [[ -z "$(command -v jq)" ]]; then
+if ! command -v jq &>/dev/null; then
 	echo "Installing jq"
 	brew install jq
 fi
 
 echo "Checking if pnmp is installed..."
-if [[ -z "$(command -v pnpm)" ]]; then
+if ! command -v pnpm &>/dev/null; then
 	echo "Installing pnpm"
 	curl -f https://get.pnpm.io/v6.16.js | node - add --global pnpm
 fi 
@@ -83,7 +93,7 @@ brew install php@$PHP_VERSION
 brew link php@$PHP_VERSION
 
 echo "Checking composer..."
-if [[ -z "$(command -v composer)" ]]; then
+if ! command -v composer &>/dev/null; then
 echo "Installing Composer"
 	EXPECTED_CHECKSUM="$(php -r 'copy("https://composer.github.io/installer.sig", "php://stdout");')"
 	php -r "copy('https://getcomposer.org/installer', 'composer-setup.php');"
@@ -97,7 +107,6 @@ echo "Installing Composer"
 	fi
 
 	php composer-setup.php --version=2.1.8 --quiet
-	RESULT=$?
 	rm composer-setup.php
 	sudo mv composer.phar /usr/local/bin/composer
 fi 
@@ -107,6 +116,8 @@ echo "Setting up the Jetpack CLI"
 pnpm install && pnpm cli-setup
 pnpm jetpack cli link # I don't know why we have to do this twice, but it works.
 jetpack install --root
+
+echo "Installation complete. You may run tools/check-development-environment.sh to make sure everything installed correctly."
 
 # Reset the terminal so it picks up the changes.
 if [[ "$SHELL" == "/bin/zsh" ]]; then
@@ -118,5 +129,3 @@ elif [[ "$SHELL" == "/bin/bash" ]]; then
 else 
 	echo "Note: You may have to restart your terminal for monorepo tools to work properly."
 fi
-
-echo "Installation complete. You may run tools/check-development-environment.sh to make sure everything installed correctly."
