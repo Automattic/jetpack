@@ -7,16 +7,12 @@ namespace Automattic\Jetpack_Boost\Lib;
  */
 class Collection {
 
-	/**
-	 * Options key.
-	 *
-	 * @var string Options key.
-	 */
 	private $key;
 
 	/**
-	 * Collections imply that they may carry more data than regular options.
-	 * Disable Autoloading for Collections by default.
+	 * Collections imply that they may carry more data than regular options,
+	 * This might unnecessarily slow down sites.
+	 * Disable autoloading by default.
 	 *
 	 * @see autoload() to enable autoloading.
 	 */
@@ -50,6 +46,13 @@ class Collection {
 		return array();
 	}
 
+	/**
+	 * Append a single item to the collection
+	 *
+	 * @param $item
+	 *
+	 * @return bool
+	 */
 	public function append( $item ) {
 		$items = $this->get();
 
@@ -61,6 +64,12 @@ class Collection {
 		return false;
 	}
 
+
+	/**
+	 * Delete the whole collection
+	 *
+	 * @return bool
+	 */
 	public function delete() {
 		return delete_option( $this->key );
 	}
