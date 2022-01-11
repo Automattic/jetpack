@@ -1,4 +1,5 @@
-@import './_variables.scss';
+@import 'scss/_variables.scss';
+@import 'scss/mixin_breakpoint.scss';
 
 $sidebar-width: 220px;
 $close-button-size: 60px;

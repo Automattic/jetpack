@@ -7,7 +7,8 @@ import { __, sprintf } from '@wordpress/i18n';
 /**
  * Internal dependencies
  */
-import Gridicon from 'components/gridicon';
+// TODO change to our own gridicon component, when instant search is migrated.
+import Gridicon from 'gridicons';
 import TextRowPlaceHolder from './placeholder';
 import './mocked-instant-search.scss';
 
@@ -60,17 +61,17 @@ export default function MockedInstantSearch() {
 						<div className="jp-mocked-instant-search__result-statistics">
 							{
 								/* translators: %s is replaced with the number of search results */
-								sprintf( __( 'Found %s results', 'jetpack' ), '27' )
+								sprintf( __( 'Found %s results', 'jetpack-search-pkg' ), '27' )
 							}
 						</div>
 						<div className="jp-mocked-instant-search__result-sort-list">
 							<span className="jp-mocked-instant-search__result-sort-selected">
-								{ __( 'Relevance', 'jetpack' ) }
+								{ __( 'Relevance', 'jetpack-search-pkg' ) }
 							</span>
 							<span>&middot;</span>
-							<span>{ __( 'Newest', 'jetpack' ) }</span>
+							<span>{ __( 'Newest', 'jetpack-search-pkg' ) }</span>
 							<span>&middot;</span>
-							<span>{ __( 'Oldest', 'jetpack' ) }</span>
+							<span>{ __( 'Oldest', 'jetpack-search-pkg' ) }</span>
 						</div>
 					</div>
 					<div className="jp-mocked-instant-search__search-results-content">
@@ -79,7 +80,7 @@ export default function MockedInstantSearch() {
 				</div>
 				<div className="jp-mocked-instant-search__search-results-secondary">
 					<div className="jp-mocked-instant-search__search-filter-header">
-						{ __( 'Filter options', 'jetpack' ) }
+						{ __( 'Filter options', 'jetpack-search-pkg' ) }
 					</div>
 					<div className="jp-mocked-instant-search__search-filter-list">
 						{ Array.apply( null, Array( 2 ) ).map( renderFilterOption ) }

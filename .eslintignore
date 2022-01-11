@@ -55,6 +55,7 @@ projects/packages/connection-ui/build
 projects/packages/identity-crisis/build
 projects/packages/jitm/build
 projects/packages/jitm/src/js/jetpack-jitm.js
+projects/packages/search/build
 projects/packages/lazy-images/dist
 projects/packages/my-jetpack/build
 projects/packages/search/build
