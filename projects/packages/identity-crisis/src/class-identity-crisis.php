@@ -190,7 +190,11 @@ class Identity_Crisis {
 	 * @param string $url The remote request url.
 	 */
 	public function add_idc_query_args_to_url( $url ) {
-		if ( ! is_string( $url ) || self::validate_sync_error_idc_option() ) {
+		$status = new Status();
+		if ( ! is_string( $url )
+			|| $status->is_offline_mode()
+			|| $status->is_staging_site()
+			|| self::validate_sync_error_idc_option() ) {
 			return $url;
 		}
 
