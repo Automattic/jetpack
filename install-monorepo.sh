@@ -72,7 +72,7 @@ if ! command -v jq &>/dev/null; then
 	brew install jq
 fi
 
-echo "Checking if pnmp is installed..."
+echo "Checking if pnpm is installed..."
 if ! command -v pnpm &>/dev/null; then
 	echo "Installing pnpm"
 	curl -f https://get.pnpm.io/v6.16.js | node - add --global pnpm
