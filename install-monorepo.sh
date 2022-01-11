@@ -49,7 +49,7 @@ fi
 
 echo "Checking if NVM is installed..."
 if ! command -v nvm &>/dev/null; then
-    echo "Installing nvm"
+	echo "Installing nvm"
     curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.39.0/install.sh | bash && export NVM_DIR=$HOME/.nvm && source $NVM_DIR/nvm.sh || true
 else
 	echo "Updating nvm"
