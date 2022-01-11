@@ -33,9 +33,9 @@ if ! command -v brew &>/dev/null; then
 	echo "Installing Homebrew"
 	/bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
 	if [[ -n "$ON_LINUX" ]]; then # Add homebrew to PATH
-		echo 'eval "$("$HOME/.linuxbrew/bin/brew" shellenv)"' >> "$HOME/.profile"
-		eval "$("$HOME/.linuxbrew/bin/brew" shellenv)"
-		PATH="$HOME/.linuxbrew/bin:$PATH"
+		echo 'eval "$("/home/linuxbrew/.linuxbrew/bin/brew" shellenv)"' >> "$HOME/.profile"
+		eval "$("/home/linuxbrew/.linuxbrew/bin/brew" shellenv)"
+		PATH="/home/linuxbrew/.linuxbrew/bin:$PATH"
 	fi
 else
 	echo "Updating brew"
