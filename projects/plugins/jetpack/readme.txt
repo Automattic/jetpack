@@ -1,7 +1,7 @@
 === Jetpack - WP Security, Backup, Speed, & Growth ===
 Contributors: automattic, adamkheckler, adrianmoldovanwp, aduth, akirk, allendav, alternatekev, andy, annamcphee, annezazu, apeatling, arcangelini, azaozz, batmoo, barry, beaulebens, biskobe, blobaugh, bjorsch, brbrr, cainm, cena, cfinke, chaselivingston, chellycat, clickysteve, csonnek, danielbachhuber, davoraltman, daniloercoli, delawski, designsimply, dllh, drawmyface, dsmart, dzver, ebinnion, egregor, eliorivero, enej, eoigal, erania-pinnera, ethitter, fgiannar, gcorne, georgestephanis, gibrown, goldsounds, hew, hugobaeta, hypertextranch, iammattthomas, iandunn, jblz, jasmussen, jeffgolenski, jeherve, jenhooks, jenia, jessefriedman, jgs, jkudish, jmdodd, joanrho, johnjamesjacoby, jshreve, kbrownkd, keoshi, koke, kraftbj, lancewillett, leogermani, lschuyler, macmanx, martinremy, matt, matveb, mattwiebe, maverick3x6, mcsf, mdawaffe, mdbitz, MichaelArestad, migueluy, mikeyarce, mkaz, nancythanki, nickmomrik, obenland, oskosk, pento, professor44, rachelsquirrel, rdcoll, ryancowles, richardmuscat, richardmtl, robertbpugh, roccotripaldi, samhotchkiss, samiff, scarstocea, scottsweb, sdixon194, sdquirk, sermitr, simison, stephdau, tmoorewp, tyxla, Viper007Bond, westi, yoavf, zinigor
 Tags: Security, backup, Woo, malware, scan, spam, CDN, search, social
-Stable tag: 10.4
+Stable tag: 10.5
 Requires at least: 5.8
 Requires PHP: 5.6
 Tested up to: 5.9
@@ -242,13 +242,13 @@ Jetpack Backup can do a full website migration to a new host, migrate theme file
 4. Promote your newest posts, pages, and products across your social media channels.
 
 == Changelog ==
-### 10.5-beta - 2022-01-04
+### 10.5 - 2022-01-11
 #### Enhancements
 - Print Styles: additional interactive elements are now hidden when printing posts (e.g. Likes, Recommended Posts, Share this).
 - Secure Sign On: add filters for the error text when a local user cannot be found for a given WP.com account and for when SSO is disallowed when on a staging site.
 - Subscription Block: add 'Success Message Text' to the block settings.
 - VideoPress: add "allow download" option on videos to allow viewers to download the video.
-- VideoPress Block: add adaptive progress bar color settings.
+- VideoPress Block: add adaptive progress bar color settings
 - WordAds: add hook for header ad placement, and allow 'leaderboard' size when displaying an ad widget.
 
 #### Improved compatibility
@@ -259,6 +259,7 @@ Jetpack Backup can do a full website migration to a new host, migrate theme file
 - Pay with PayPal: update the name of the script enqueued when using the Pay with PayPal button as to avoid conflicts with other plugins that may use a similar script tag.
 - Pay with PayPal Widget: hide widget from Legacy Widget block.
 - Stats: remove legacy option to display a Smiley face used for the tracking pixel since the pixel is hidden by default.
+- Twitter Timeline widget: hide widget from the block inserter and Legacy widget block drop-down menu.
 - VideoPress: classic block embeds with old flash URLs can now be properly converted to VideoPress blocks.
 - VideoPress: hide the dedicated VideoPress embed block in favor of Video block.
 
@@ -274,15 +275,16 @@ Jetpack Backup can do a full website migration to a new host, migrate theme file
 - Jetpack: do not display recommendations during an identity crisis.
 - Milestone widget: fix issue that prevented styles from loading until the widget is saved.
 - Search: fix styling conflict for Blank Canvas theme.
+- Security: PDF embeds now only display a link, to avoid issues with malicious PDFss that may run arbitrary code.
 - Settings menu: add Jetpack item for sites with Scan product.
 - Sharing Buttons: rely on official sharing buttons only for Facebook share counts.
 - Stats: do not trigger views when post is embedded into another site.
-- Twitter Timeline widget: hide widget from the block inserter and Legacy widget block drop-down menu (WPCOM).
 - VideoPress: avoid errors when copying and pasting empty video blocks.
 - VideoPress: reload embed preview on creation until the video size is known.
 - VideoPress Block: maintain the state of different settings panels when reloading the video preview.
 - Vimeo Embeds: support more URL formats, such as videos in playlists.
 - WhatsApp block: fix country code for Cyprus.
+- Widget Visibility: fix "Match All" setting being overwritten on save in the block widget editor.
 
 --------
 
