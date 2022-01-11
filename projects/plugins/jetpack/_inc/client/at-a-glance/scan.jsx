@@ -11,7 +11,7 @@ import { get, isArray, noop } from 'lodash';
  */
 import { createInterpolateElement } from '@wordpress/element';
 import { __, _n } from '@wordpress/i18n';
-import { getRedirectUrl } from '@automattic/jetpack-components';
+import { getRedirectUrl, numberFormat } from '@automattic/jetpack-components';
 
 /**
  * Internal dependencies
@@ -42,7 +42,6 @@ import {
 	getJetpackProductUpsellByFeature,
 	FEATURE_SECURITY_SCANNING_JETPACK,
 } from 'lib/plans/constants';
-import { numberFormat } from 'components/number-format';
 
 /**
  * Displays a card for Security Scan based on the props given.

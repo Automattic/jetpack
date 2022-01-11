@@ -14,17 +14,23 @@ import './style.scss';
 const PrimaryLink = props => {
 	const { currentRecommendationsStep, siteAdminUrl } = props;
 
-    // If the user has not completed the first step of the Assistant, make the primary button link to it.
+	// If the user has not completed the first step of the Assistant, make the primary button link to it.
 	if ( currentRecommendationsStep === 'not-started' ) {
 		return (
-			<Button className="jp-license-activation-screen-success-info--button" href={ siteAdminUrl + 'admin.php?page=jetpack#/recommendations' }>
+			<Button
+				className="jp-license-activation-screen-success-info--button"
+				href={ siteAdminUrl + 'admin.php?page=jetpack#/recommendations' }
+			>
 				{ __( 'Configure my site', 'jetpack' ) }
 			</Button>
 		);
-    }
+	}
 
 	return (
-		<Button className="jp-license-activation-screen-success-info--button" href={ siteAdminUrl + 'admin.php?page=jetpack#/my-plan' }>
+		<Button
+			className="jp-license-activation-screen-success-info--button"
+			href={ siteAdminUrl + 'admin.php?page=jetpack#/my-plan' }
+		>
 			{ __( 'View my plans', 'jetpack' ) }
 		</Button>
 	);
