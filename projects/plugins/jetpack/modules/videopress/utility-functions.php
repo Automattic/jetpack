@@ -480,8 +480,12 @@ function video_get_info_by_blogpostid( $blog_id, $post_id ) {
 	$meta             = wp_get_attachment_metadata( $post_id );
 
 	if ( $meta && isset( $meta['videopress'] ) ) {
-		$videopress_meta    = $meta['videopress'];
-		$video_info->rating = $videopress_meta['rating'];
+		$videopress_meta            = $meta['videopress'];
+		$video_info->rating         = $videopress_meta['rating'];
+		$video_info->allow_download =
+			isset( $videopress_meta['allow_download'] )
+			? $videopress_meta['allow_download']
+			: 0;
 	}
 
 	if ( videopress_is_finished_processing( $post_id ) ) {

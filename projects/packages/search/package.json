@@ -41,9 +41,9 @@
 	"dependencies": {
 		"@automattic/calypso-color-schemes": "2.1.1",
 		"@automattic/color-studio": "2.5.0",
-		"@automattic/jetpack-analytics": "workspace:^0.1.4",
+		"@automattic/jetpack-analytics": "workspace:^0.1.5-alpha",
 		"@automattic/jetpack-api": "workspace:^0.8.1",
-		"@automattic/jetpack-components": "workspace:^0.9.1",
+		"@automattic/jetpack-components": "workspace:^0.10.0-alpha",
 		"@wordpress/base-styles": "4.0.4",
 		"@wordpress/block-editor": "8.0.12",
 		"@wordpress/data": "6.1.5",
@@ -85,7 +85,7 @@
 		"postcss": "8.3.11",
 		"postcss-loader": "6.2.0",
 		"prettier": "npm:wp-prettier@2.0.5",
-		"sass-loader": "12.3.0",
+		"sass-loader": "12.4.0",
 		"size-limit": "6.0.3",
 		"webpack": "5.65.0"
 	},

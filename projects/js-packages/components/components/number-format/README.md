@@ -10,7 +10,7 @@ The function relies on `Intl.NumberFormat` to format the numbers, based on the l
 ## General Usage:
 
 ```js
-import { numberFormat } from 'components/number-format';
+import { numberFormat } from '@automattic/jetpack-components';
 
 render() {
 	const number = '123456';
