@@ -363,6 +363,7 @@ importers:
       '@automattic/jetpack-components': workspace:^0.10.0-alpha
       '@automattic/jetpack-connection': workspace:^0.12.1-alpha
       '@automattic/jetpack-idc': workspace:^0.8.1-alpha
+      '@automattic/jetpack-my-jetpack': workspace:^0.3.1-alpha
       '@babel/core': 7.16.0
       '@babel/plugin-syntax-jsx': 7.16.0
       '@babel/runtime-corejs3': 7.16.3
@@ -402,6 +403,7 @@ importers:
       '@automattic/jetpack-components': link:../components
       '@automattic/jetpack-connection': link:../connection
       '@automattic/jetpack-idc': link:../idc
+      '@automattic/jetpack-my-jetpack': link:../../packages/my-jetpack
       '@babel/core': 7.16.0
       '@babel/plugin-syntax-jsx': 7.16.0_@babel+core@7.16.0
       '@babel/runtime-corejs3': 7.16.3
