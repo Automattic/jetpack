@@ -1,6 +1,10 @@
 <?php
+
 namespace Automattic\Jetpack_Boost\Lib;
 
+/**
+ * A collection of WordPress options that's stored as a single ar
+ */
 class Collection {
 
 	/**
@@ -10,31 +14,35 @@ class Collection {
 	 */
 	private $key;
 
+	private $autoload;
+
 	/**
-	 * @param string $key Option key.
+	 * @param string $key Collection key.
 	 */
-	public function __construct( $key ) {
-		$this->key = $key;
+	public function __construct( $key, $autoload = false ) {
+		$this->key      = $key;
+		$this->autoload = $autoload;
 	}
 
 	/**
-	 * Get option array value.
+	 * Get the whole collection
 	 *
-	 * @return false|mixed|void
+	 * @return array
 	 */
 	public function get() {
-		return get_option( $this->key, array() );
+		$result = get_option( $this->key, array() );
+		if ( is_array( $result ) ) {
+			return $result;
+		}
+		return array();
 	}
 
-	/**√
-	 * @param  mixed $item Option item to append.
-	 */
 	public function append( $item ) {
-		$all_items = get_option( $this->key, array() );
+		$items = $this->get();
 
-		if ( ! in_array( $item, $all_items, true ) ) {
-			$all_items[] = $item;
-			update_option( $this->key, $all_items );
+		if ( ! in_array( $item, $items, true ) ) {
+			$items[] = $item;
+			update_option( $this->key, $items, $this->autoload );
 		}
 	}
 
