@@ -758,7 +758,16 @@ class WPCOM_JSON_API_Site_Settings_Endpoint extends WPCOM_JSON_API_Endpoint {
 					break;
 
 				case 'woocommerce_onboarding_profile':
-					$sanitized_value = array_map( 'sanitize_text_field', (array) $value );
+					// Allow boolean values but sanitize_text_field everything else.
+					$sanitized_value = (array) $value;
+					array_walk_recursive(
+						$sanitized_value,
+						function ( &$value ) {
+							if ( ! is_bool( $value ) ) {
+								$value = sanitize_text_field( $value );
+							}
+						}
+					);
 					if ( update_option( $key, $sanitized_value ) ) {
 						$updated[ $key ] = $sanitized_value;
 					}

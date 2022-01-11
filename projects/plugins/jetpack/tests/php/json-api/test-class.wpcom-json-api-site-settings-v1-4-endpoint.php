@@ -12,6 +12,49 @@ require_jetpack_file( 'class.json-api-endpoints.php' );
  * Jetpack `sites/%s/settings` endpoint unit tests.
  */
 class WP_Test_WPCOM_JSON_API_Site_Settings_V1_4_Endpoint extends WP_UnitTestCase {
+
+	/**
+	 * Example of woocommerce_onboarding_profile value.
+	 *
+	 * @var array
+	 */
+	private $onboarding_profile_example = array(
+		'is_agree_marketing'  => true,
+		'store_email'         => 'example@gmail.com',
+		'industry'            =>
+		array(
+			0 =>
+			array(
+				'slug' => 'health-beauty',
+			),
+			1 =>
+			array(
+				'slug' => 'fashion-apparel-accessories',
+			),
+			2 =>
+			array(
+				'slug'   => 'other',
+				'detail' => 'Custom industry',
+			),
+		),
+		'product_types'       =>
+		array(
+			0 => 'physical',
+			1 => 'downloads',
+			2 => 'memberships',
+		),
+		'product_count'       => '11-100',
+		'selling_venues'      => 'other-woocommerce',
+		'revenue'             => 'up-to-2500',
+		'setup_client'        => true,
+		'business_extensions' =>
+		array(
+			0 => 'google-listings-and-ads',
+		),
+		'theme'               => 'storefront',
+		'completed'           => true,
+	);
+
 	/**
 	 * Prepare the environment for the test.
 	 */
@@ -246,7 +289,7 @@ class WP_Test_WPCOM_JSON_API_Site_Settings_V1_4_Endpoint extends WP_UnitTestCase
 			'woocommerce_store_city'         => array( 'woocommerce_store_city', '' ),
 			'woocommerce_default_country'    => array( 'woocommerce_default_country', '' ),
 			'woocommerce_store_postcode'     => array( 'woocommerce_store_postcode', '' ),
-			'woocommerce_onboarding_profile' => array( 'woocommerce_onboarding_profile', array( 0 => false ) ),
+			'woocommerce_onboarding_profile' => array( 'woocommerce_onboarding_profile', array( false ) ),
 		);
 	}
 
@@ -281,6 +324,9 @@ class WP_Test_WPCOM_JSON_API_Site_Settings_V1_4_Endpoint extends WP_UnitTestCase
 			'woocommerce_store_postcode script tag'     => array( 'woocommerce_store_postcode', '<script>98738</script>', '' ),
 			'woocommerce_onboarding_profile'            => array( 'woocommerce_onboarding_profile', array( 'test_key' => '<strong>test value</strong>' ), array( 'test_key' => 'test value' ) ),
 			'woocommerce_onboarding_profile script tag' => array( 'woocommerce_onboarding_profile', array( 'test_key' => '<script>test value</script>' ), array( 'test_key' => '' ) ),
+			'woocommerce_onboarding_profile string'     => array( 'woocommerce_onboarding_profile', 'string', array( 'string' ) ),
+			'woocommerce_onboarding_profile bool'       => array( 'woocommerce_onboarding_profile', true, array( true ) ),
+			'woocommerce_onboarding_profile example'    => array( 'woocommerce_onboarding_profile', $this->onboarding_profile_example, $this->onboarding_profile_example ),
 		);
 	}
 }
