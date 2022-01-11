@@ -30,7 +30,7 @@ class Display_Critical_CSS {
 	 * @param string $href   The stylesheet's source URL.
 	 * @param string $media  The stylesheet's media attribute.
 	 *
-	 * @return string|string[]|null
+	 * @return string
 	 * @see style_loader_tag
 	 */
 	public function asynchronize_stylesheets(

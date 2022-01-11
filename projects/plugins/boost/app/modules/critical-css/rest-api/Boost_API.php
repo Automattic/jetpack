@@ -15,7 +15,7 @@ class Boost_API {
 	/**
 	 * Available route classes.
 	 *
-	 * @var string[]
+	 * @var Boost_Endpoint[]
 	 */
 	protected $available_routes = array(
 		Generator_Status::class,
