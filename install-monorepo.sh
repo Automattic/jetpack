@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 
-set -o pipefail
+set -eo pipefail
 
 BASE=$(cd $(dirname "${BASH_SOURCE[0]}")/.. && pwd)
 
@@ -33,18 +33,9 @@ if ! command -v brew &>/dev/null; then
     echo "Installing Homebrew"
     /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
 	if [[ -n "$ON_LINUX" ]]; then # Add homebrew to PATH
-	# Reset the terminal so it picks up the changes.
-
 		echo 'eval "$("$HOME/.linuxbrew/bin/brew" shellenv)"' >> "$HOME/.profile"
 		eval "$("$HOME/.linuxbrew/bin/brew" shellenv)"
 		PATH="$HOME/.linuxbrew/bin:$PATH"
-			if [[ "$SHELL" == "/bin/zsh" ]]; then
-		echo "Refreshing terminal"
-		source ~./zshrc
-	elif [[ "$SHELL" == "/bin/bash" ]]; then
-		echo "Refreshing terminal"
-		source ~./bashrc
-	fi
 	fi
 else
 	echo "Updating brew"
@@ -59,10 +50,10 @@ fi
 echo "Checking if NVM is installed..."
 if ! command -v nvm &>/dev/null; then
     echo "Installing nvm"
-    curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.39.0/install.sh | bash && export NVM_DIR=$HOME/.nvm && source $NVM_DIR/nvm.sh
+    curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.39.0/install.sh | bash && export NVM_DIR=$HOME/.nvm && source $NVM_DIR/nvm.sh || true
 else
 	echo "Updating nvm"
-    curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.39.0/install.sh | bash
+    curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.39.0/install.sh | bash  || true
 fi
 
 # Install and use the correct version of Node.js
