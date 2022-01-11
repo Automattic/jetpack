@@ -91,7 +91,7 @@ class Instant_Search extends Classic_Search {
 			array(
 				'dependencies' => array( 'wp-i18n' ),
 				'in_footer'    => true,
-				'textdomain'   => 'jetpack',
+				'textdomain'   => 'jetpack-search-pkg',
 			)
 		);
 		Assets::enqueue_script( 'jetpack-instant-search' );

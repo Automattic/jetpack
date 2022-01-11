@@ -123,7 +123,7 @@ class Customberg2 {
 					'wp-block-editor',
 				),
 				'in_footer'        => true,
-				'textdomain'       => 'jetpack',
+				'textdomain'       => 'jetpack-search-pkg',
 			)
 		);
 		Assets::enqueue_script( 'jp-search-configure' );
