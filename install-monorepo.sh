@@ -122,7 +122,7 @@ pnpm install && pnpm cli-setup
 pnpm jetpack cli link # I don't know why we have to do this twice, but it works.
 jetpack install --root
 
-echo "Installation complete. You may run tools/check-development-environment.sh to make sure everything installed correctly."
+echo "Installation complete. You may need to restart your terminal for changes to take effect. Then you can run tools/check-development-environment.sh to make sure everything installed correctly."
 
 # Reset the terminal so it picks up the changes.
 if [[ "$SHELL" == "/bin/zsh" ]]; then
