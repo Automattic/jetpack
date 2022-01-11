@@ -22,9 +22,22 @@ fi
 OS="$(uname)"
 if [[ "$OS" == "Linux" ]]; then
 	ON_LINUX=1
+	if ! command -v apt &>/dev/null; then
+		abort "Installer script requires `apt` to ensure essentials are installed."
+	fi
+	apt update
 	sudo apt install build-essential
 elif [[ "$OS" != "Darwin" ]]; then
 	abort "Installer script is only supported on macOS and Linux."
+fi
+
+# Check for curl and git
+if ! command -v git &>/dev/null; then
+	abort "Installer script requires `git` to be installed."
+fi
+
+if ! command -v git &>/dev/null; then
+	abort "Installer script requires `cURL` to be installed"
 fi
 
 # Check of Homebrew and nvm are installed
