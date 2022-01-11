@@ -242,49 +242,17 @@ Jetpack Backup can do a full website migration to a new host, migrate theme file
 4. Promote your newest posts, pages, and products across your social media channels.
 
 == Changelog ==
-### 10.5 - 2022-01-11
-#### Enhancements
-- Print Styles: additional interactive elements are now hidden when printing posts (e.g. Likes, Recommended Posts, Share this).
-- Secure Sign On: add filters for the error text when a local user cannot be found for a given WP.com account and for when SSO is disallowed when on a staging site.
-- Subscription Block: add 'Success Message Text' to the block settings.
-- VideoPress: add "allow download" option on videos to allow viewers to download the video.
-- VideoPress Block: add adaptive progress bar color settings
-- WordAds: add hook for header ad placement, and allow 'leaderboard' size when displaying an ad widget.
-
+### 10.6-a.1 - 2022-01-11
 #### Improved compatibility
-- General: ensure Jetpack options are properly deleted when the plugin is deactivated.
-- General: update WordPress version requirements to WordPress 5.8.
-- Media Extractor: add support for alt_text in extract.
-- Notifications: remove legacy code supporting IE versions older than 9.
-- Pay with PayPal: update the name of the script enqueued when using the Pay with PayPal button as to avoid conflicts with other plugins that may use a similar script tag.
-- Pay with PayPal Widget: hide widget from Legacy Widget block.
-- Stats: remove legacy option to display a Smiley face used for the tracking pixel since the pixel is hidden by default.
-- Twitter Timeline widget: hide widget from the block inserter and Legacy widget block drop-down menu.
-- VideoPress: classic block embeds with old flash URLs can now be properly converted to VideoPress blocks.
-- VideoPress: hide the dedicated VideoPress embed block in favor of Video block.
+- Subscription form: update the placeholder color to be the same as the text color of the site.
 
 #### Bug fixes
-- Contact Form: avoid PHP notices in submitted forms in some cases.
-- Cookies & Consents Banner: fix preview in Customizer and block widget editor.
-- Dashboard: fix logic that blocked one from enabling searchable features from the Jetpack settings.
-- Dashboard: hide licensing interface from users who did not link their account to WordPress.com yet, or who are not the main Jetpack connection owner.
-- General: prevent an E_NOTICE when running in non-web context.
-- Instant Search: ensure the hidden overlay doesn't add whitespace to printed pages.
-- Internationalization: ensure that all text, including text added via JavaScript, can be translated.
-- Jetpack: activate the default modules when the site has already been connected before plugin activation.
-- Jetpack: do not display recommendations during an identity crisis.
-- Milestone widget: fix issue that prevented styles from loading until the widget is saved.
-- Search: fix styling conflict for Blank Canvas theme.
-- Security: PDF embeds now only display a link, to avoid issues with malicious PDFss that may run arbitrary code.
-- Settings menu: add Jetpack item for sites with Scan product.
-- Sharing Buttons: rely on official sharing buttons only for Facebook share counts.
-- Stats: do not trigger views when post is embedded into another site.
-- VideoPress: avoid errors when copying and pasting empty video blocks.
-- VideoPress: reload embed preview on creation until the video size is known.
-- VideoPress Block: maintain the state of different settings panels when reloading the video preview.
-- Vimeo Embeds: support more URL formats, such as videos in playlists.
-- WhatsApp block: fix country code for Cyprus.
-- Widget Visibility: fix "Match All" setting being overwritten on save in the block widget editor.
+- Donations block: add a missing closing div for the front-end rendering.
+- Donations block: don't display the donations block to visitors unless Stripe is connected.
+- Donations block: fixed an issue which was invalidating existing blocks if they were edited by non-plan owners.
+- Donations block: tweak currency display for the edit control.
+- Protect: fixed math fallback's input accessibility and display.
+- Subscription form: adding a default line-height to avoid differences using different font-faces on input and button elements
 
 --------
 
