@@ -46,7 +46,7 @@ test.describe( 'Search Configure', () => {
 	test.beforeEach( async ( { page } ) => {
 		searchConfigure = await SearchConfigure.visit( page );
 		await searchAPIRoute( page );
-		await searchConfigure.waitForNetworkIdle();
+		await searchConfigure.waitForPage();
 	} );
 
 	test( 'Can configure search overlay', async () => {
