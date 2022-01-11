@@ -1,4 +1,0 @@
-Significance: patch
-Type: fixed
-
-Do not add IDC query args to authenticated request when in offline or staging mode.
