@@ -1,7 +1,7 @@
 module.exports = {
 	// This project uses react, so load the shared react config.
 	root: true,
-	extends: [ '../../../.eslintrc.react.js' ],
+	extends: [ 'plugin:@wordpress/eslint-plugin/recommended' ],
 	parserOptions: {
 		babelOptions: {
 			configFile: require.resolve( './babel.config.js' ),
