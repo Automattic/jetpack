@@ -788,16 +788,16 @@
         },
         {
             "name": "automattic/jetpack-identity-crisis",
-            "version": "v0.6.0",
+            "version": "v0.6.1",
             "source": {
                 "type": "git",
                 "url": "https://github.com/Automattic/jetpack-identity-crisis.git",
-                "reference": "f42be7ab651cc4cee47199d29657cdd17802f2ce"
+                "reference": "62f19cd6b289f719ed0ae4fb366b0bf44c5f5be9"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/Automattic/jetpack-identity-crisis/zipball/f42be7ab651cc4cee47199d29657cdd17802f2ce",
-                "reference": "f42be7ab651cc4cee47199d29657cdd17802f2ce",
+                "url": "https://api.github.com/repos/Automattic/jetpack-identity-crisis/zipball/62f19cd6b289f719ed0ae4fb366b0bf44c5f5be9",
+                "reference": "62f19cd6b289f719ed0ae4fb366b0bf44c5f5be9",
                 "shasum": ""
             },
             "require": {
@@ -840,9 +840,9 @@
             ],
             "description": "Identity Crisis.",
             "support": {
-                "source": "https://github.com/Automattic/jetpack-identity-crisis/tree/v0.6.0"
+                "source": "https://github.com/Automattic/jetpack-identity-crisis/tree/v0.6.1"
             },
-            "time": "2022-01-04T21:12:00+00:00"
+            "time": "2022-01-11T16:37:39+00:00"
         },
         {
             "name": "automattic/jetpack-jitm",
