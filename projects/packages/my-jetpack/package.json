@@ -15,8 +15,8 @@
 	"author": "Automattic",
 	"scripts": {
 		"build": "pnpm run install-if-deps-outdated && pnpm run clean && pnpm run build-client",
-		"build-client": "wp-scripts build _inc/admin.js --config webpack.config.js",
-		"watch-client": "wp-scripts start _inc/admin.js --config webpack.config.js",
+		"build-client": "wp-scripts build _inc/admin.jsx --config webpack.custom.config.js",
+		"watch-client": "wp-scripts start _inc/admin.jsx --config webpack.custom.config.js",
 		"clean": "rm -rf build/",
 		"install-if-deps-outdated": "pnpm install --no-prod --frozen-lockfile",
 		"watch": "pnpm run build && pnpm watch-client"
