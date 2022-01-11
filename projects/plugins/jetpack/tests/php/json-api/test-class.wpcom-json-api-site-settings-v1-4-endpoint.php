@@ -1,6 +1,7 @@
 <?php
 /**
  * Jetpack `sites/%s/settings` endpoint unit tests.
+ * Run this test with command: jetpack docker phpunit -- --filter=WP_Test_WPCOM_JSON_API_Site_Settings_V1_4_Endpoint
  *
  * @package automattic/jetpack
  */
