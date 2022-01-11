@@ -757,6 +757,13 @@ class WPCOM_JSON_API_Site_Settings_Endpoint extends WPCOM_JSON_API_Endpoint {
 					}
 					break;
 
+				case 'woocommerce_onboarding_profile':
+					$sanitized_value = array_map( 'sanitize_text_field', (array) $value );
+					if ( update_option( $key, $sanitized_value ) ) {
+						$updated[ $key ] = $sanitized_value;
+					}
+					break;
+
 				case 'woocommerce_store_address':
 				case 'woocommerce_store_address_2':
 				case 'woocommerce_store_city':
