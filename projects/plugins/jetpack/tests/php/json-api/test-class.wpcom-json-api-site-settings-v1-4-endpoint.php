@@ -43,7 +43,7 @@ class WP_Test_WPCOM_JSON_API_Site_Settings_V1_4_Endpoint extends WP_UnitTestCase
 	/**
 	 * Test GET `sites/%s/settings` returns correct set value.
 	 *
-	 * @dataProvider setting_value_pairs_get_response
+	 * @dataProvider setting_value_pairs_get_request
 	 *
 	 * @param string $setting_name The setting lookup key.
 	 * @param string $setting_value The setting value to test.
@@ -59,14 +59,15 @@ class WP_Test_WPCOM_JSON_API_Site_Settings_V1_4_Endpoint extends WP_UnitTestCase
 	/**
 	 * Test POST `sites/%s/settings` sets the correct value.
 	 *
-	 * @dataProvider setting_value_pairs_post_response
+	 * @dataProvider setting_value_pairs_post_request
 	 *
 	 * @param string $setting_name The setting lookup key.
 	 * @param string $setting_value The setting value to test.
 	 * @param string $expected_value The expected sanitized value.
 	 */
 	public function test_post_settings_sets_key_values( $setting_name, $setting_value, $expected_value ) {
-		$response = $this->make_post_request( $setting_name, $setting_value );
+		$setting  = wp_json_encode( array( $setting_name => $setting_value ) );
+		$response = $this->make_post_request( $setting );
 		$updated  = $response['updated'];
 		$this->assertSame( $expected_value, $updated[ $setting_name ] );
 	}
@@ -113,10 +114,9 @@ class WP_Test_WPCOM_JSON_API_Site_Settings_V1_4_Endpoint extends WP_UnitTestCase
 	/**
 	 * Returns the response of a successful POST request to `sites/%s/settings`.
 	 *
-	 * @param string $setting_name The setting key to set.
-	 * @param string $setting_value The setting value to set.
+	 * @param string $setting The json encoded POST request body containing the test setting key and value.
 	 */
-	public function make_post_request( $setting_name, $setting_value ) {
+	public function make_post_request( $setting ) {
 		global $blog_id;
 
 		$admin = $this->factory->user->create_and_get(
@@ -226,7 +226,7 @@ class WP_Test_WPCOM_JSON_API_Site_Settings_V1_4_Endpoint extends WP_UnitTestCase
 			)
 		);
 
-		$endpoint->api->post_body    = sprintf( '{"%1$s":"%2$s"}', $setting_name, $setting_value );
+		$endpoint->api->post_body    = $setting;
 		$endpoint->api->content_type = 'application/json';
 		$endpoint->api->method       = 'POST';
 
@@ -240,41 +240,46 @@ class WP_Test_WPCOM_JSON_API_Site_Settings_V1_4_Endpoint extends WP_UnitTestCase
 	 */
 	public function setting_default_key_values() {
 		return array(
-			'woocommerce_store_address'   => array( 'woocommerce_store_address', '' ),
-			'woocommerce_store_address_2' => array( 'woocommerce_store_address_2', '' ),
-			'woocommerce_store_city'      => array( 'woocommerce_store_city', '' ),
-			'woocommerce_default_country' => array( 'woocommerce_default_country', '' ),
-			'woocommerce_store_postcode'  => array( 'woocommerce_store_postcode', '' ),
+			'woocommerce_store_address'      => array( 'woocommerce_store_address', '' ),
+			'woocommerce_store_address_2'    => array( 'woocommerce_store_address_2', '' ),
+			'woocommerce_store_city'         => array( 'woocommerce_store_city', '' ),
+			'woocommerce_default_country'    => array( 'woocommerce_default_country', '' ),
+			'woocommerce_store_postcode'     => array( 'woocommerce_store_postcode', '' ),
+			'woocommerce_onboarding_profile' => array( 'woocommerce_onboarding_profile', array( 0 => false ) ),
 		);
 	}
 
 	/**
-	 * Data provider to test setting value pairs.
+	 * Data provider to test setting value pairs in GET request.
 	 *
 	 * @return array[ $setting_name, $setting_value ]
 	 */
-	public function setting_value_pairs_get_response() {
+	public function setting_value_pairs_get_request() {
 		return array(
-			'woocommerce_store_address'   => array( 'woocommerce_store_address', 'Street 34th 1/2' ),
-			'woocommerce_store_address_2' => array( 'woocommerce_store_address_2', 'Apt #1' ),
-			'woocommerce_store_city'      => array( 'woocommerce_store_city', 'City' ),
-			'woocommerce_default_country' => array( 'woocommerce_default_country', 'US:NY' ),
-			'woocommerce_store_postcode'  => array( 'woocommerce_store_postcode', '98738' ),
+			'woocommerce_store_address'      => array( 'woocommerce_store_address', 'Street 34th 1/2' ),
+			'woocommerce_store_address_2'    => array( 'woocommerce_store_address_2', 'Apt #1' ),
+			'woocommerce_store_city'         => array( 'woocommerce_store_city', 'City' ),
+			'woocommerce_default_country'    => array( 'woocommerce_default_country', 'US:NY' ),
+			'woocommerce_store_postcode'     => array( 'woocommerce_store_postcode', '98738' ),
+			'woocommerce_onboarding_profile' => array( 'woocommerce_onboarding_profile', array( 'test' => 'test value' ) ),
 		);
 	}
 
 	/**
-	 * Data provider to test setting value pairs.
+	 * Data provider to test setting value pairs in POST request.
 	 *
 	 * @return array[ $setting_name, $setting_value, $expected_value ]
 	 */
-	public function setting_value_pairs_post_response() {
+	public function setting_value_pairs_post_request() {
 		return array(
-			'woocommerce_store_address'   => array( 'woocommerce_store_address', '<h1>Street 34th 1/2</h1>', 'Street 34th 1/2' ),
-			'woocommerce_store_address_2' => array( 'woocommerce_store_address_2', '<h2>Apt #1</h2>', 'Apt #1' ),
-			'woocommerce_store_city'      => array( 'woocommerce_store_city', '<h3>City</h3>', 'City' ),
-			'woocommerce_default_country' => array( 'woocommerce_default_country', '<p>US:NY</p>', 'US:NY' ),
-			'woocommerce_store_postcode'  => array( 'woocommerce_store_postcode', '<div>98738</div>', '98738' ),
+			'woocommerce_store_address'                 => array( 'woocommerce_store_address', '<h1>Street 34th 1/2</h1>', 'Street 34th 1/2' ),
+			'woocommerce_store_address_2'               => array( 'woocommerce_store_address_2', '<h2>Apt #1</h2>', 'Apt #1' ),
+			'woocommerce_store_city'                    => array( 'woocommerce_store_city', '<h3>City</h3>', 'City' ),
+			'woocommerce_default_country'               => array( 'woocommerce_default_country', '<p>US:NY</p>', 'US:NY' ),
+			'woocommerce_store_postcode'                => array( 'woocommerce_store_postcode', '<div>98738</div>', '98738' ),
+			'woocommerce_store_postcode script tag'     => array( 'woocommerce_store_postcode', '<script>98738</script>', '' ),
+			'woocommerce_onboarding_profile'            => array( 'woocommerce_onboarding_profile', array( 'test_key' => '<strong>test value</strong>' ), array( 'test_key' => 'test value' ) ),
+			'woocommerce_onboarding_profile script tag' => array( 'woocommerce_onboarding_profile', array( 'test_key' => '<script>test value</script>' ), array( 'test_key' => '' ) ),
 		);
 	}
 }
