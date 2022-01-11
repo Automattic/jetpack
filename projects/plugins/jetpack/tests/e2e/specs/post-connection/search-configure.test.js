@@ -47,6 +47,7 @@ test.describe( 'Search Configure', () => {
 		searchConfigure = await SearchConfigure.visit( page );
 		await searchAPIRoute( page );
 		await searchConfigure.waitForPage();
+		await searchConfigure.waitForNetworkIdle();
 	} );
 
 	test( 'Can configure search overlay', async () => {
@@ -71,6 +72,7 @@ test.describe( 'Search Configure', () => {
 		await test.step( 'Settings stick after reload', async () => {
 			// Reload the page.
 			await searchConfigure.reload();
+			await searchConfigure.waitForPage();
 			await searchConfigure.waitForNetworkIdle();
 			// Settings sticked.
 			expect( await searchConfigure.isDarkTheme() ).toBeTruthy();
