@@ -1,16 +1,7 @@
 <?php
-/**
- * Options handler.
- *
- * @package automattic/jetpack-boost
- */
-
 namespace Automattic\Jetpack_Boost\Lib;
 
-/**
- * Class options.
- */
-class Options {
+class Collection {
 
 	/**
 	 * Options key.
@@ -20,8 +11,6 @@ class Options {
 	private $key;
 
 	/**
-	 * Constructor.
-	 *
 	 * @param string $key Option key.
 	 */
 	public function __construct( $key ) {
@@ -37,9 +26,7 @@ class Options {
 		return get_option( $this->key, array() );
 	}
 
-	/**
-	 * Append an item to the options array.
-	 *
+	/**√
 	 * @param  mixed $item Option item to append.
 	 */
 	public function append( $item ) {
@@ -51,9 +38,6 @@ class Options {
 		}
 	}
 
-	/**
-	 * Delete option.
-	 */
 	public function delete() {
 		delete_option( $this->key );
 	}

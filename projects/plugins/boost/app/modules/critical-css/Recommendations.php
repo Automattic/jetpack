@@ -7,7 +7,7 @@
 
 namespace Automattic\Jetpack_Boost\Modules\Critical_CSS;
 
-use Automattic\Jetpack_Boost\Lib\Options;
+use Automattic\Jetpack_Boost\Lib\Collection;
 
 /**
  * Class Recommendations.
@@ -17,7 +17,7 @@ class Recommendations {
 	/**
 	 * Dismissed recommendations.
 	 *
-	 * @var Options Dismissed recommendations.
+	 * @var Collection Dismissed recommendations.
 	 */
 	protected $dismissed_recommendations;
 
@@ -25,7 +25,7 @@ class Recommendations {
 	 * Constructor.
 	 */
 	public function __construct() {
-		$this->dismissed_recommendations = new Options( 'jb-critical-css-dismissed-recommendations' );
+		$this->dismissed_recommendations = new Collection( 'jb-critical-css-dismissed-recommendations' );
 	}
 
 	/**
