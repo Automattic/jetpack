@@ -694,7 +694,10 @@ importers:
       '@wordpress/base-styles': 4.0.4
       '@wordpress/block-editor': 8.0.12_b4e1ce88a10f1ab0bbeb2b9720317029
       '@wordpress/data': 6.1.5_react@17.0.2+redux@4.1.1
+<<<<<<< HEAD
       '@wordpress/element': 4.0.4
+=======
+>>>>>>> origin/master
       '@wordpress/i18n': 4.2.4
       '@wordpress/icons': 6.1.1
       classnames: 2.3.1
@@ -4130,7 +4133,7 @@ packages:
       '@octokit/request-error': 2.1.0
       '@octokit/types': 6.34.0
       is-plain-object: 5.0.0
-      node-fetch: 2.6.1
+      node-fetch: 2.6.6
       universal-user-agent: 6.0.0
 
   /@octokit/rest/18.6.7:
@@ -16915,6 +16918,7 @@ packages:
   /node-fetch/2.6.1:
     resolution: {integrity: sha512-V4aYg89jEoVRxRb2fJdAg8FHvI7cEyYdVAh94HH0UIK8oJxUfkjlDQN9RbMx+bEjP7+ggMiFRprSti032Oipxw==}
     engines: {node: 4.x || >=6.0.0}
+    dev: false
 
   /node-fetch/2.6.5:
     resolution: {integrity: sha512-mmlIVHJEu5rnIxgEgez6b9GgWXbkZj5YZ7fx+2r94a2E+Uirsp6HsPTPlomfdHtpt/B0cdKviwkoaM6pyvUOpQ==}
@@ -23068,7 +23072,7 @@ packages:
       require-directory: 2.1.1
       string-width: 4.2.3
       y18n: 5.0.8
-      yargs-parser: 20.2.4
+      yargs-parser: 20.2.9
 
   /yargs/7.1.2:
     resolution: {integrity: sha512-ZEjj/dQYQy0Zx0lgLMLR8QuaqTihnxirir7EwUHp1Axq4e3+k8jXU5K0VLbNvedv1f4EWtBonDIZm0NUr+jCcA==}
