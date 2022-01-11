@@ -10,7 +10,7 @@ namespace Automattic\Jetpack_Boost\Modules\Critical_CSS\REST_API;
 /**
  * Class Boost API.
  */
-class BoostAPI {
+class Boost_API {
 
 	/**
 	 * Available route classes.
@@ -18,12 +18,12 @@ class BoostAPI {
 	 * @var string[]
 	 */
 	protected $available_routes = array(
-		GeneratorStatus::class,
-		GeneratorRequest::class,
-		GeneratorSuccess::class,
-		GeneratorError::class,
-		RecommendationsDismiss::class,
-		RecommendationsReset::class,
+		Generator_Status::class,
+		Generator_Request::class,
+		Generator_Success::class,
+		Generator_Error::class,
+		Recommendations_Dismiss::class,
+		Recommendations_Reset::class,
 	);
 
 	/**
@@ -49,7 +49,7 @@ class BoostAPI {
 			$route                          = new $route_class();
 			$this->routes[ $route->name() ] = $route;
 
-			if ( $route instanceof NonceProtection ) {
+			if ( $route instanceof Nonce_Protection ) {
 				$this->protected_routes[] = $route->name();
 			}
 		}
@@ -76,7 +76,7 @@ class BoostAPI {
 	/**
 	 * Register route for given route class instance.
 	 *
-	 * @param BoostEndpoint $route Route instance.
+	 * @param Boost_Endpoint $route Route instance.
 	 */
 	public function register_route( $route ) {
 		// Developer Mode:
@@ -90,10 +90,10 @@ class BoostAPI {
 		// Allow the endpoint to handle permissions by default.
 		$permission_callback = array( $route, 'permission_callback' );
 
-		// But if a class requires NonceProtection,
-		// Wrap it in a NonceProtection class.
-		if ( $route instanceof NonceProtection ) {
-			$nonce_wrapper       = new NonceProtectedEndpoint( $route );
+		// But if a class requires Nonce_Protection,
+		// Wrap it in a Nonce_Protection class.
+		if ( $route instanceof Nonce_Protection ) {
+			$nonce_wrapper       = new Nonce_Protected_Endpoint( $route );
 			$permission_callback = array( $nonce_wrapper, 'permission_callback' );
 		}
 

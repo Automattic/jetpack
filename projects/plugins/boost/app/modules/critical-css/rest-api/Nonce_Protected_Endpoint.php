@@ -8,23 +8,23 @@
 namespace Automattic\Jetpack_Boost\Modules\Critical_CSS\REST_API;
 
 /**
- * Class NonceProtectedEndpoint.
+ * Class Nonce_Protected_Endpoint.
  *
  * @return string
  */
-class NonceProtectedEndpoint {
+class Nonce_Protected_Endpoint {
 
 	/**
 	 * Endpoint instance.
 	 *
-	 * @var BoostEndpoint Boost Endpoint instance.
+	 * @var Boost_Endpoint Boost Endpoint instance.
 	 */
 	protected $endpoint;
 
 	/**
 	 * Constructor.
 	 *
-	 * @param BoostEndpoint $endpoint Endpoint instance.
+	 * @param Boost_Endpoint $endpoint Endpoint instance.
 	 */
 	public function __construct( $endpoint ) {
 		$this->endpoint = $endpoint;

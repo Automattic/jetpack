@@ -14,7 +14,7 @@ use Automattic\Jetpack_Boost\Lib\Storage_Post_Type;
 /**
  * Critical CSS Storage class
  */
-class CriticalCSSStorage {
+class Critical_CSS_Storage {
 
 	/**
 	 * Storage post type.
@@ -24,7 +24,7 @@ class CriticalCSSStorage {
 	private $storage;
 
 	/**
-	 * CriticalCSSStorage constructor.
+	 * Critical_CSS_Storage constructor.
 	 */
 	public function __construct() {
 		$this->storage = new Storage_Post_Type( 'css' );

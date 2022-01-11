@@ -8,11 +8,11 @@
 namespace Automattic\Jetpack_Boost\Modules\Critical_CSS\Path_Providers\Providers;
 
 /**
- * Class WPCoreProvider.
+ * Class WP_Core_Provider.
  *
  * @package Automattic\Jetpack_Boost\Modules\Critical_CSS\Providers
  */
-class WPCoreProvider extends Provider {
+class WP_Core_Provider extends Provider {
 
 	/**
 	 * Provider name.

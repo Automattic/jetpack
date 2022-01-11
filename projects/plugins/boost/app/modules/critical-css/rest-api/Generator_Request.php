@@ -7,15 +7,15 @@
 
 namespace Automattic\Jetpack_Boost\Modules\Critical_CSS\REST_API;
 
-use Automattic\Jetpack_Boost\Modules\Critical_CSS\CriticalCSS;
-use Automattic\Jetpack_Boost\Modules\Critical_CSS\CriticalCSSStorage;
+use Automattic\Jetpack_Boost\Modules\Critical_CSS\Critical_CSS;
+use Automattic\Jetpack_Boost\Modules\Critical_CSS\Critical_CSS_Storage;
 use Automattic\Jetpack_Boost\Modules\Critical_CSS\Generate\Generator;
 use Automattic\Jetpack_Boost\Modules\Critical_CSS\Recommendations;
 
 /**
  * Class Generator Request
  */
-class GeneratorRequest implements BoostEndpoint {
+class Generator_Request implements Boost_Endpoint {
 	/**
 	 * Request methods.
 	 *
@@ -33,19 +33,19 @@ class GeneratorRequest implements BoostEndpoint {
 	public function response( $request ) {
 		$reset = ! empty( $request['reset'] );
 
-		$cleared_critical_css_reason = \get_option( CriticalCSS::RESET_REASON_STORAGE_KEY );
+		$cleared_critical_css_reason = \get_option( Critical_CSS::RESET_REASON_STORAGE_KEY );
 		$generator                   = new Generator();
 
 		if ( $reset || $cleared_critical_css_reason ) {
 
-			$storage         = new CriticalCSSStorage();
+			$storage         = new Critical_CSS_Storage();
 			$recommendations = new Recommendations();
 
 			// Create a new Critical CSS Request block to track creation request.
 			$storage->clear();
 			$generator->make_generation_request();
 			$recommendations->reset();
-			CriticalCSS::clear_reset_reason();
+			Critical_CSS::clear_reset_reason();
 		}
 
 		return rest_ensure_response(

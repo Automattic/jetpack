@@ -8,11 +8,11 @@
 namespace Automattic\Jetpack_Boost\Modules\Critical_CSS\Path_Providers\Providers;
 
 /**
- * Class SingularPostProvider
+ * Class Singular_Post_Provider
  *
  * @package Automattic\Jetpack_Boost\Modules\Critical_CSS\Providers
  */
-class SingularPostProvider extends Provider {
+class Singular_Post_Provider extends Provider {
 
 	/**
 	 * Provider name.

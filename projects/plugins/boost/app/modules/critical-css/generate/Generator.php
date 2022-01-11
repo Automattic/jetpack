@@ -8,7 +8,7 @@
 namespace Automattic\Jetpack_Boost\Modules\Critical_CSS\Generate;
 
 use Automattic\Jetpack_Boost\Lib\Nonce;
-use Automattic\Jetpack_Boost\Modules\Critical_CSS\CriticalCSSState;
+use Automattic\Jetpack_Boost\Modules\Critical_CSS\Critical_CSS_State;
 use Automattic\Jetpack_Boost\Modules\Critical_CSS\Path_Providers\Paths;
 use Automattic\Jetpack_Boost\Modules\Critical_CSS\Path_Providers\Providers\Provider;
 
@@ -36,7 +36,7 @@ class Generator {
 	/**
 	 * Critical CSS state.
 	 *
-	 * @var CriticalCSSState Critical CSS state.
+	 * @var Critical_CSS_State Critical CSS state.
 	 */
 	public $state;
 
@@ -44,7 +44,7 @@ class Generator {
 	 * Constructor.
 	 */
 	public function __construct() {
-		$this->state = new CriticalCSSState();
+		$this->state = new Critical_CSS_State();
 		$this->paths = new Paths();
 		if ( $this->state->is_empty() && ! wp_doing_ajax() && ! wp_doing_cron() ) {
 			$this->state->create_request( $this->paths->get_providers() );
@@ -61,12 +61,12 @@ class Generator {
 	 */
 	public function get_critical_css_status() {
 		if ( $this->state->is_empty() ) {
-			return array( 'status' => CriticalCSSState::NOT_GENERATED );
+			return array( 'status' => Critical_CSS_State::NOT_GENERATED );
 		}
 
 		if ( $this->state->is_pending() ) {
 			return array(
-				'status'                 => CriticalCSSState::REQUESTING,
+				'status'                 => Critical_CSS_State::REQUESTING,
 				'percent_complete'       => $this->state->get_percent_complete(),
 				'success_count'          => $this->state->get_providers_success_count(),
 				'pending_provider_keys'  => $this->state->get_provider_urls(),
@@ -76,7 +76,7 @@ class Generator {
 
 		if ( $this->state->is_fatal_error() ) {
 			return array(
-				'status'       => CriticalCSSState::FAIL,
+				'status'       => Critical_CSS_State::FAIL,
 				'status_error' => $this->state->get_state_error(),
 			);
 		}
@@ -88,7 +88,7 @@ class Generator {
 		);
 
 		return array(
-			'status'                => CriticalCSSState::SUCCESS,
+			'status'                => Critical_CSS_State::SUCCESS,
 			'success_count'         => $this->state->get_providers_success_count(),
 			'core_providers'        => self::CORE_PROVIDER_KEYS,
 			'core_providers_status' => $this->state->get_core_providers_status( self::CORE_PROVIDER_KEYS ),

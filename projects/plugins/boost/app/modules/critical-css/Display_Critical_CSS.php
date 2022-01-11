@@ -8,9 +8,9 @@
 namespace Automattic\Jetpack_Boost\Modules\Critical_CSS;
 
 /**
- * Class DisplayCriticalCSS.
+ * Class Display_Critical_CSS.
  */
-class DisplayCriticalCSS {
+class Display_Critical_CSS {
 	/**
 	 * Critical CSS.
 	 *

@@ -10,9 +10,9 @@ namespace Automattic\Jetpack_Boost\Modules\Critical_CSS\REST_API;
 use Automattic\Jetpack_Boost\Modules\Critical_CSS\Generate\Generator;
 
 /**
- * Class GeneratorStatus.
+ * Class Generator_Status.
  */
-class GeneratorStatus implements BoostEndpoint {
+class Generator_Status implements Boost_Endpoint {
 
 	/**
 	 * Status request methods.

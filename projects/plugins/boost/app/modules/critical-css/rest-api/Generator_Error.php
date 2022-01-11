@@ -8,13 +8,13 @@
 namespace Automattic\Jetpack_Boost\Modules\Critical_CSS\REST_API;
 
 use Automattic\Jetpack_Boost\Lib\Nonce;
-use Automattic\Jetpack_Boost\Modules\Critical_CSS\CriticalCSSStorage;
+use Automattic\Jetpack_Boost\Modules\Critical_CSS\Critical_CSS_Storage;
 use Automattic\Jetpack_Boost\Modules\Critical_CSS\Generate\Generator;
 
 /**
  * Class Generator Error
  */
-class GeneratorError implements BoostEndpoint {
+class Generator_Error implements Boost_Endpoint {
 
 	/**
 	 * Request methods.
@@ -89,7 +89,7 @@ class GeneratorError implements BoostEndpoint {
 			);
 		}
 
-		$storage   = new CriticalCSSStorage();
+		$storage   = new Critical_CSS_Storage();
 		$generator = new Generator();
 
 		if ( true === $data['show_stopper'] ) {
