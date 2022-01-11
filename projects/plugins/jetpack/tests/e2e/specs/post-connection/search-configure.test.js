@@ -74,7 +74,7 @@ test.describe( 'Search Configure', () => {
 			await searchConfigure.reload();
 			await searchConfigure.waitForPage();
 			await searchConfigure.waitForNetworkIdle();
-			// Settings sticked.
+			// Settings do stick.
 			expect( await searchConfigure.isDarkTheme() ).toBeTruthy();
 			expect( await searchConfigure.isHighlightPink() ).toBeTruthy();
 			expect( await searchConfigure.isFormatProduct() ).toBeTruthy();
