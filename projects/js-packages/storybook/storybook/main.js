@@ -19,6 +19,10 @@ const stories = [
 		'@automattic/jetpack-connection/components/**/**/stories/*.@(js|jsx|mdx)'
 	),
 	path.join( modulesDir, '@automattic/jetpack-idc/components/**/stories/*.@(js|jsx|mdx)' ),
+	path.join(
+		modulesDir,
+		'@automattic/jetpack-my-jetpack/_inc/components/**/stories/*.@(js|jsx|mdx)'
+	),
 ].filter( Boolean );
 
 const customEnvVariables = {};
