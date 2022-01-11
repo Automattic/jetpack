@@ -363,10 +363,9 @@ importers:
 
   projects/js-packages/storybook:
     specifiers:
-      '@automattic/jetpack-connection': workspace:^0.13.0-alpha
       '@automattic/jetpack-base-styles': workspace:^0.1.4-alpha
       '@automattic/jetpack-components': workspace:^0.10.0-alpha
-      '@automattic/jetpack-connection': workspace:^0.12.1-alpha
+      '@automattic/jetpack-connection': workspace:^0.13.0-alpha
       '@automattic/jetpack-idc': workspace:^0.8.1-alpha
       '@babel/core': 7.16.0
       '@babel/plugin-syntax-jsx': 7.16.0
@@ -604,10 +603,9 @@ importers:
 
   projects/packages/my-jetpack:
     specifiers:
-      '@automattic/jetpack-connection': workspace:^0.13.0-alpha
       '@automattic/jetpack-base-styles': workspace:^0.1.4-alpha
       '@automattic/jetpack-components': workspace:^0.10.0-alpha
-      '@automattic/jetpack-connection': workspace:^0.12.1-alpha
+      '@automattic/jetpack-connection': workspace:^0.13.0-alpha
       '@automattic/jetpack-webpack-config': workspace:^1.0.1
       '@babel/core': 7.16.0
       '@babel/preset-env': 7.16.4
@@ -738,10 +736,9 @@ importers:
   projects/plugins/backup:
     specifiers:
       '@automattic/jetpack-api': workspace:^0.8.1
-      '@automattic/jetpack-connection': workspace:^0.13.0-alpha
       '@automattic/jetpack-base-styles': workspace:^0.1.4-alpha
       '@automattic/jetpack-components': workspace:^0.10.0-alpha
-      '@automattic/jetpack-connection': workspace:^0.12.1-alpha
+      '@automattic/jetpack-connection': workspace:^0.13.0-alpha
       '@automattic/jetpack-webpack-config': workspace:^1.0.1
       '@babel/core': 7.16.0
       '@babel/preset-env': 7.16.4
@@ -862,10 +859,9 @@ importers:
       '@automattic/format-currency': 1.0.0-alpha.0
       '@automattic/jetpack-analytics': workspace:^0.1.5-alpha
       '@automattic/jetpack-api': workspace:^0.8.1
-      '@automattic/jetpack-connection': workspace:^0.13.0-alpha
       '@automattic/jetpack-base-styles': workspace:^0.1.4-alpha
       '@automattic/jetpack-components': workspace:^0.10.0-alpha
-      '@automattic/jetpack-connection': workspace:^0.12.1-alpha
+      '@automattic/jetpack-connection': workspace:^0.13.0-alpha
       '@automattic/jetpack-licensing': workspace:^0.4.2-alpha
       '@automattic/jetpack-partner-coupon': workspace:^0.1.4-alpha
       '@automattic/jetpack-webpack-config': workspace:^1.0.1
