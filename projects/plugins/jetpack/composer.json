@@ -70,7 +70,7 @@
 		"test-js": [
 			"Composer\\Config::disableProcessTimeout",
 			"pnpm install",
-			"pnpx concurrently 'pnpm:test-adminpage' 'pnpm:test-extensions' 'pnpm:test-search'"
+			"pnpx concurrently 'pnpm:test-adminpage' 'pnpm:test-extensions'"
 		],
 		"test-php": [
 			"Composer\\Config::disableProcessTimeout",

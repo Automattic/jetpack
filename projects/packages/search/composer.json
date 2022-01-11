@@ -36,6 +36,10 @@
 			"@composer install",
 			"php -dpcov.directory=. ./vendor/bin/phpunit --coverage-clover \"$COVERAGE_DIR/clover.xml\""
 		],
+		"test-js": [
+			"Composer\\Config::disableProcessTimeout",
+			"pnpm run test"
+		],
 		"test-php": [
 			"@composer install",
 			"@composer phpunit"

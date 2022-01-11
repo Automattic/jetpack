@@ -228,7 +228,7 @@ class Jetpack_Search_Widget extends WP_Widget {
 	 * This method returns a boolean for whether the widget should show site-wide filters for the site.
 	 *
 	 * This is meant to provide backwards-compatibility for VIP, and other professional plan users, that manually
-	 * configured filters via `Jetpack_Search::set_filters()`.
+	 * configured filters via `Automattic\Jetpack\Search\Classic_Search::set_filters()`.
 	 *
 	 * @since 5.7.0
 	 *
@@ -338,12 +338,13 @@ class Jetpack_Search_Widget extends WP_Widget {
 	public function widget_non_instant( $args, $instance ) {
 		$display_filters = false;
 
-		if ( is_search() ) {
+		// Search instance must have been initialized before widget render.
+		if ( is_search() && Automattic\Jetpack\Search\Classic_Search::instance() ) {
 			if ( Helper::should_rerun_search_in_customizer_preview() ) {
-				Jetpack_Search::instance()->update_search_results_aggregations();
+				Automattic\Jetpack\Search\Classic_Search::instance()->update_search_results_aggregations();
 			}
 
-			$filters = Jetpack_Search::instance()->get_filters();
+			$filters = Automattic\Jetpack\Search\Classic_Search::instance()->get_filters();
 
 			if ( ! Helper::are_filters_by_widget_disabled() && ! $this->should_display_sitewide_filters() ) {
 				$filters = array_filter( $filters, array( $this, 'is_for_current_widget' ) );
@@ -443,11 +444,16 @@ class Jetpack_Search_Widget extends WP_Widget {
 	 * @param array $instance The current widget instance.
 	 */
 	public function widget_instant( $args, $instance ) {
-		if ( Helper::should_rerun_search_in_customizer_preview() ) {
-			Jetpack_Search::instance()->update_search_results_aggregations();
+		// Exit early if search instance has not been initialized.
+		if ( ! Automattic\Jetpack\Search\Instant_Search::instance() ) {
+			return false;
 		}
 
-		$filters = Jetpack_Search::instance()->get_filters();
+		if ( Helper::should_rerun_search_in_customizer_preview() ) {
+			Automattic\Jetpack\Search\Instant_Search::instance()->update_search_results_aggregations();
+		}
+
+		$filters = Automattic\Jetpack\Search\Instant_Search::instance()->get_filters();
 		if ( ! Helper::are_filters_by_widget_disabled() && ! $this->should_display_sitewide_filters() ) {
 			$filters = array_filter( $filters, array( $this, 'is_for_current_widget' ) );
 		}
