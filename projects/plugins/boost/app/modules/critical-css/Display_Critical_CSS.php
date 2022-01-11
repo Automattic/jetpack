@@ -1,20 +1,15 @@
 <?php
 /**
- * Critical CSS frontend display handler.
- *
- * @package automattic/jetpack-boost
+ * Class that's responsible for rendering
+ * Critical CSS on the site front-end.
  */
 
 namespace Automattic\Jetpack_Boost\Modules\Critical_CSS;
 
-/**
- * Class Display_Critical_CSS.
- */
 class Display_Critical_CSS {
+
 	/**
-	 * Critical CSS.
-	 *
-	 * @var string Critical CSS.
+	 * @var string The Critical CSS to display.
 	 */
 	protected $css;
 
