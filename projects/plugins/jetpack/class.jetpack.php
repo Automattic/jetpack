@@ -5394,8 +5394,11 @@ endif;
 	 */
 	public static function permit_ssl( $force_recheck = false ) {
 		// Do some fancy tests to see if ssl is being supported.
-		$ssl = get_transient( 'jetpack_https_test' );
-		if ( $force_recheck || false === ( $ssl ) ) {
+		if ( ! $force_recheck ) {
+			$ssl = get_transient( 'jetpack_https_test' );
+		}
+
+		if ( $force_recheck || false === $ssl ) {
 			$message = '';
 			if ( 'https' !== substr( JETPACK__API_BASE, 0, 5 ) ) {
 				$ssl = 0;
