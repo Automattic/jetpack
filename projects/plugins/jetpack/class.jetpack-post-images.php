@@ -1,4 +1,9 @@
-<?php
+<?php // phpcs:ignore WordPress.Files.FileName.InvalidClassFileName
+/**
+ * Useful for finding an image to display alongside/in representation of a specific post.
+ *
+ * @package automattic/jetpack
+ */
 
 /**
  * Useful for finding an image to display alongside/in representation of a specific post.
@@ -13,6 +18,11 @@
 class Jetpack_PostImages {
 	/**
 	 * If a slideshow is embedded within a post, then parse out the images involved and return them
+	 *
+	 * @param int $post_id Post ID.
+	 * @param int $width Image width.
+	 * @param int $height Image height.
+	 * @return array Images.
 	 */
 	static function from_slideshow( $post_id, $width = 200, $height = 200 ) {
 		$images = array();
@@ -28,25 +38,25 @@ class Jetpack_PostImages {
 		}
 
 		if ( false === has_shortcode( $post->post_content, 'slideshow' ) ) {
-			return $images; // no slideshow - bail
+			return $images; // no slideshow - bail.
 		}
 
 		$permalink = get_permalink( $post->ID );
 
-		// Mechanic: Somebody set us up the bomb
+		// Mechanic: Somebody set us up the bomb.
 		$old_post                  = $GLOBALS['post'];
 		$GLOBALS['post']           = $post;
 		$old_shortcodes            = $GLOBALS['shortcode_tags'];
 		$GLOBALS['shortcode_tags'] = array( 'slideshow' => $old_shortcodes['slideshow'] );
 
-		// Find all the slideshows
+		// Find all the slideshows.
 		preg_match_all( '/' . get_shortcode_regex() . '/sx', $post->post_content, $slideshow_matches, PREG_SET_ORDER );
 
-		ob_start(); // The slideshow shortcode handler calls wp_print_scripts and wp_print_styles... not too happy about that
+		ob_start(); // The slideshow shortcode handler calls wp_print_scripts and wp_print_styles... not too happy about that.
 
 		foreach ( $slideshow_matches as $slideshow_match ) {
 			$slideshow = do_shortcode_tag( $slideshow_match );
-			if ( false === $pos = stripos( $slideshow, 'jetpack-slideshow' ) ) { // must be something wrong - or we changed the output format in which case none of the following will work
+			if ( false === $pos = stripos( $slideshow, 'jetpack-slideshow' ) ) { // must be something wrong - or we changed the output format in which case none of the following will work.
 				continue;
 			}
 			$start       = strpos( $slideshow, '[', $pos );
@@ -61,7 +71,7 @@ class Jetpack_PostImages {
 
 					$meta = wp_get_attachment_metadata( $post_image_id );
 
-					// Must be larger than 200x200 (or user-specified)
+					// Must be larger than 200x200 (or user-specified).
 					if ( ! isset( $meta['width'] ) || $meta['width'] < $width ) {
 						continue;
 					}
@@ -84,7 +94,7 @@ class Jetpack_PostImages {
 		}
 		ob_end_clean();
 
-		// Operator: Main screen turn on
+		// Operator: Main screen turn on.
 		$GLOBALS['shortcode_tags'] = $old_shortcodes;
 		$GLOBALS['post']           = $old_post;
 
@@ -93,6 +103,9 @@ class Jetpack_PostImages {
 
 	/**
 	 * If a gallery is detected, then get all the images from it.
+	 *
+	 * @param int $post_id Post ID.
+	 * @return array Images.
 	 */
 	static function from_gallery( $post_id ) {
 		$images = array();
@@ -134,9 +147,9 @@ class Jetpack_PostImages {
 				foreach ( $image_ids as $image_id ) {
 					$image = wp_get_attachment_image_src( $image_id, $image_size );
 					if ( ! empty( $image[0] ) ) {
-						list( $raw_src ) = explode( '?', $image[0] ); // pull off any Query string (?w=250)
-						$raw_src         = wp_specialchars_decode( $raw_src ); // rawify it
-						$raw_src         = esc_url_raw( $raw_src ); // clean it
+						list( $raw_src ) = explode( '?', $image[0] ); // pull off any Query string (?w=250).
+						$raw_src         = wp_specialchars_decode( $raw_src ); // rawify it.
+						$raw_src         = esc_url_raw( $raw_src ); // clean it.
 						$images[]        = array(
 							'type' => 'image',
 							'from' => 'gallery',
@@ -147,9 +160,9 @@ class Jetpack_PostImages {
 				}
 			} elseif ( ! empty( $gallery['src'] ) ) {
 				foreach ( $gallery['src'] as $src ) {
-					list( $raw_src ) = explode( '?', $src ); // pull off any Query string (?w=250)
-					$raw_src         = wp_specialchars_decode( $raw_src ); // rawify it
-					$raw_src         = esc_url_raw( $raw_src ); // clean it
+					list( $raw_src ) = explode( '?', $src ); // pull off any Query string (?w=250).
+					$raw_src         = wp_specialchars_decode( $raw_src ); // rawify it.
+					$raw_src         = esc_url_raw( $raw_src ); // clean it.
 					$images[]        = array(
 						'type' => 'image',
 						'from' => 'gallery',
@@ -166,6 +179,11 @@ class Jetpack_PostImages {
 	/**
 	 * Get attachment images for a specified post and return them. Also make sure
 	 * their dimensions are at or above a required minimum.
+	 *
+	 * @param  int $post_id The post ID to check.
+	 * @param  int $width Image width.
+	 * @param  int $height Image height.
+	 * @return array Containing details of the image, or empty array if none.
 	 */
 	static function from_attachment( $post_id, $width = 200, $height = 200 ) {
 		$images = array();
@@ -178,10 +196,10 @@ class Jetpack_PostImages {
 
 		$post_images = get_posts(
 			array(
-				'post_parent'      => $post_id,   // Must be children of post
-				'numberposts'      => 5,          // No more than 5
-				'post_type'        => 'attachment', // Must be attachments
-				'post_mime_type'   => 'image', // Must be images
+				'post_parent'      => $post_id,   // Must be children of post.
+				'numberposts'      => 5,          // No more than 5.
+				'post_type'        => 'attachment', // Must be attachments.
+				'post_mime_type'   => 'image', // Must be images.
 				'suppress_filters' => false,
 			)
 		);
@@ -209,7 +227,7 @@ class Jetpack_PostImages {
 
 		foreach ( $html_images as $html_image ) {
 			$src = wp_parse_url( $html_image['src'] );
-			// strip off any query strings from src
+			// strip off any query strings from src.
 			if ( ! empty( $src['scheme'] ) && ! empty( $src['host'] ) ) {
 				$inserted_images[] = $src['scheme'] . '://' . $src['host'] . $src['path'];
 			} elseif ( ! empty( $src['host'] ) ) {
@@ -231,7 +249,9 @@ class Jetpack_PostImages {
 	 * Check if a Featured Image is set for this post, and return it in a similar
 	 * format to the other images?_from_*() methods.
 	 *
-	 * @param  int $post_id The post ID to check
+	 * @param  int $post_id The post ID to check.
+	 * @param  int $width Image width.
+	 * @param  int $height Image height.
 	 * @return array containing details of the Featured Image, or empty array if none.
 	 */
 	static function from_thumbnail( $post_id, $width = 200, $height = 200 ) {
@@ -251,7 +271,7 @@ class Jetpack_PostImages {
 
 		if ( $thumb ) {
 			$meta = wp_get_attachment_metadata( $thumb );
-			// Must be larger than requested minimums
+			// Must be larger than requested minimums.
 			if ( ! isset( $meta['width'] ) || $meta['width'] < $width ) {
 				return $images;
 			}
@@ -281,7 +301,7 @@ class Jetpack_PostImages {
 
 			$url    = $img_src[0];
 			$images = array(
-				array( // Other methods below all return an array of arrays
+				array( // Other methods below all return an array of arrays.
 					'type'       => 'image',
 					'from'       => 'thumbnail',
 					'src'        => $url,
@@ -306,7 +326,7 @@ class Jetpack_PostImages {
 				}
 
 				$images = array(
-					array( // Other methods below all return an array of arrays
+					array( // Other methods below all return an array of arrays.
 						'type'       => 'image',
 						'from'       => 'thumbnail',
 						'src'        => $meta_thumbnail['URL'],
@@ -470,8 +490,10 @@ class Jetpack_PostImages {
 	}
 
 	/**
-	 * @param    int $post_id The post ID to check
-	 * @param    int $size
+	 * Data from blavatar.
+	 *
+	 * @param    int $post_id The post ID to check.
+	 * @param    int $size Size.
 	 * @return array containing details of the image, or empty array if none.
 	 */
 	static function from_blavatar( $post_id, $size = 96 ) {
@@ -550,8 +572,8 @@ class Jetpack_PostImages {
 	 * Run through the different methods that we have available to try to find a single good
 	 * display image for this post.
 	 *
-	 * @param  int   $post_id
-	 * @param array $args Other arguments (currently width and height required for images where possible to determine)
+	 * @param int   $post_id Post ID.
+	 * @param array $args Other arguments (currently width and height required for images where possible to determine).
 	 * @return array containing details of the best image to be used
 	 */
 	static function get_image( $post_id, $args = array() ) {
@@ -592,8 +614,8 @@ class Jetpack_PostImages {
 	 * Get an array containing a collection of possible images for this post, stopping once we hit a method
 	 * that returns something useful.
 	 *
-	 * @param  int   $post_id
-	 * @param  array $args Optional args, see defaults list for details
+	 * @param  int   $post_id Post ID.
+	 * @param  array $args Optional args, see defaults list for details.
 	 * @return array containing images that would be good for representing this post
 	 */
 	static function get_images( $post_id, $args = array() ) {
@@ -616,21 +638,21 @@ class Jetpack_PostImages {
 		}
 
 		$defaults = array(
-			'width'               => 200, // Required minimum width (if possible to determine)
-			'height'              => 200, // Required minimum height (if possible to determine)
+			'width'               => 200, // Required minimum width (if possible to determine).
+			'height'              => 200, // Required minimum height (if possible to determine).
 
-			'fallback_to_avatars' => false, // Optionally include Blavatar and Gravatar (in that order) in the image stack
-			'avatar_size'         => 96, // Used for both Grav and Blav
-			'gravatar_default'    => false, // Default image to use if we end up with no Gravatar
+			'fallback_to_avatars' => false, // Optionally include Blavatar and Gravatar (in that order) in the image stack.
+			'avatar_size'         => 96, // Used for both Grav and Blav.
+			'gravatar_default'    => false, // Default image to use if we end up with no Gravatar.
 
-			'from_thumbnail'      => true, // Use these flags to specify which methods to use to find an image
+			'from_thumbnail'      => true, // Use these flags to specify which methods to use to find an image.
 			'from_slideshow'      => true,
 			'from_gallery'        => true,
 			'from_attachment'     => true,
 			'from_blocks'         => true,
 			'from_html'           => true,
 
-			'html_content'        => '', // HTML string to pass to from_html()
+			'html_content'        => '', // HTML string to pass to from_html().
 		);
 		$args     = wp_parse_args( $args, $defaults );
 
@@ -649,16 +671,16 @@ class Jetpack_PostImages {
 		}
 		if ( ! $media && $args['from_blocks'] ) {
 			if ( empty( $args['html_content'] ) ) {
-				$media = self::from_blocks( $post_id, $args['width'], $args['height'] ); // Use the post_id, which will load the content
+				$media = self::from_blocks( $post_id, $args['width'], $args['height'] ); // Use the post_id, which will load the content.
 			} else {
-				$media = self::from_blocks( $args['html_content'], $args['width'], $args['height'] ); // If html_content is provided, use that
+				$media = self::from_blocks( $args['html_content'], $args['width'], $args['height'] ); // If html_content is provided, use that.
 			}
 		}
 		if ( ! $media && $args['from_html'] ) {
 			if ( empty( $args['html_content'] ) ) {
-				$media = self::from_html( $post_id, $args['width'], $args['height'] ); // Use the post_id, which will load the content
+				$media = self::from_html( $post_id, $args['width'], $args['height'] ); // Use the post_id, which will load the content.
 			} else {
-				$media = self::from_html( $args['html_content'], $args['width'], $args['height'] ); // If html_content is provided, use that
+				$media = self::from_html( $args['html_content'], $args['width'], $args['height'] ); // If html_content is provided, use that.
 			}
 		}
 
@@ -686,9 +708,10 @@ class Jetpack_PostImages {
 	 * Takes an image URL and pixel dimensions then returns a URL for the
 	 * resized and cropped image.
 	 *
-	 * @param  string $src
-	 * @param  int    $dimension
-	 * @return string            Transformed image URL
+	 * @param  string $src Image URL.
+	 * @param  int    $width Image width.
+	 * @param  int    $height Image height.
+	 * @return string Transformed image URL
 	 */
 	static function fit_image_url( $src, $width, $height ) {
 		$width  = (int) $width;
@@ -698,7 +721,7 @@ class Jetpack_PostImages {
 			return $src;
 		}
 
-		// See if we should bypass WordPress.com SaaS resizing
+		// See if we should bypass WordPress.com SaaS resizing.
 		if ( has_filter( 'jetpack_images_fit_image_url_override' ) ) {
 			/**
 			 * Filters the image URL used after dimensions are set by Photon.
@@ -712,7 +735,7 @@ class Jetpack_PostImages {
 			return apply_filters( 'jetpack_images_fit_image_url_override', $src, $width, $height );
 		}
 
-		// If WPCOM hosted image use native transformations
+		// If WPCOM hosted image use native transformations.
 		$img_host = wp_parse_url( $src, PHP_URL_HOST );
 		if ( '.files.wordpress.com' == substr( $img_host, -20 ) ) {
 			return add_query_arg(
@@ -725,7 +748,7 @@ class Jetpack_PostImages {
 			);
 		}
 
-		// Use Photon magic
+		// Use Photon magic.
 		if ( function_exists( 'jetpack_photon_url' ) ) {
 			return jetpack_photon_url( $src, array( 'resize' => "$width,$height" ) );
 		}

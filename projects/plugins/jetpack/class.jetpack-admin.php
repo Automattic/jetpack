@@ -1,17 +1,31 @@
-<?php
+<?php // phpcs:ignore WordPress.Files.FileName.InvalidClassFileName
+/**
+ * Build the Jetpack admin menu as a whole.
+ *
+ * @package automattic/jetpack
+ */
 
 use Automattic\Jetpack\Assets\Logo as Jetpack_Logo;
 use Automattic\Jetpack\Partner_Coupon as Jetpack_Partner_Coupon;
 use Automattic\Jetpack\Status;
 
-// Build the Jetpack admin menu as a whole
+/**
+ * Build the Jetpack admin menu as a whole.
+ */
 class Jetpack_Admin {
 
 	/**
+	 * Static instance.
+	 *
 	 * @var Jetpack_Admin
-	 **/
+	 */
 	private static $instance = null;
 
+	/**
+	 * Initialize and fetch the static instance.
+	 *
+	 * @return self
+	 */
 	static function init() {
 		if ( isset( $_GET['page'] ) && $_GET['page'] === 'jetpack' ) {
 			add_filter( 'nocache_headers', array( 'Jetpack_Admin', 'add_no_store_header' ), 100 );
@@ -23,11 +37,18 @@ class Jetpack_Admin {
 		return self::$instance;
 	}
 
+	/**
+	 * Filter callback to add `no-store` to the `Cache-Control` header.
+	 *
+	 * @param array $headers Headers array.
+	 * @return array Modified headers array.
+	 */
 	static function add_no_store_header( $headers ) {
 		$headers['Cache-Control'] .= ', no-store';
 		return $headers;
 	}
 
+	/** Constructor. */
 	private function __construct() {
 		jetpack_require_lib( 'admin-pages/class.jetpack-react-page' );
 		$this->jetpack_react = new Jetpack_React_Page();
@@ -49,11 +70,11 @@ class Jetpack_Admin {
 		add_action( 'jetpack_admin_menu', array( $this->fallback_page, 'add_actions' ) );
 		add_action( 'jetpack_admin_menu', array( $this->jetpack_about, 'add_actions' ) );
 
-		// Add redirect to current page for activation/deactivation of modules
+		// Add redirect to current page for activation/deactivation of modules.
 		add_action( 'jetpack_pre_activate_module', array( $this, 'fix_redirect' ), 10, 2 );
 		add_action( 'jetpack_pre_deactivate_module', array( $this, 'fix_redirect' ) );
 
-		// Add module bulk actions handler
+		// Add module bulk actions handler.
 		add_action( 'jetpack_unrecognized_action', array( $this, 'handle_unrecognized_action' ) );
 
 		if ( class_exists( 'Akismet_Admin' ) ) {
@@ -99,6 +120,13 @@ class Jetpack_Admin {
 		wp_add_inline_style( 'admin-bar', $style );
 	}
 
+	/**
+	 * Sort callback to put modules with `requires_connection` last.
+	 *
+	 * @param array $module1 Module data.
+	 * @param array $module2 Module data.
+	 * @return int Indicating the relative ordering of module1 and module2.
+	 */
 	static function sort_requires_connection_last( $module1, $module2 ) {
 		if ( $module1['requires_connection'] == $module2['requires_connection'] ) {
 			return 0;
@@ -111,8 +139,10 @@ class Jetpack_Admin {
 		return 0;
 	}
 
-	// Produce JS understandable objects of modules containing information for
-	// presentation like description, name, configuration url, etc.
+	/**
+	 * Produce JS understandable objects of modules containing information for
+	 * presentation like description, name, configuration url, etc.
+	 */
 	function get_modules() {
 		include_once JETPACK__PLUGIN_DIR . 'modules/module-info.php';
 		$available_modules = Jetpack::get_available_modules();
@@ -131,7 +161,7 @@ class Jetpack_Admin {
 				 * @param string $module Module slug.
 				 */
 				$short_desc = apply_filters( 'jetpack_short_module_description', $module_array['description'], $module );
-				// Fix: correct multibyte strings truncate with checking for mbstring extension
+				// Fix: correct multibyte strings truncate with checking for mbstring extension.
 				$short_desc_trunc = ( function_exists( 'mb_strlen' ) )
 							? ( ( mb_strlen( $short_desc ) > 143 )
 								? mb_substr( $short_desc, 0, 140 ) . '...'
@@ -231,6 +261,11 @@ class Jetpack_Admin {
 		return $modules;
 	}
 
+	/**
+	 * Check if a module is available.
+	 *
+	 * @param array $module Module data.
+	 */
 	static function is_module_available( $module ) {
 		if ( ! is_array( $module ) || empty( $module ) ) {
 			return false;
@@ -354,6 +389,11 @@ class Jetpack_Admin {
 		return '';
 	}
 
+	/**
+	 * Handle an unrecognized action.
+	 *
+	 * @param string $action Action.
+	 */
 	function handle_unrecognized_action( $action ) {
 		switch ( $action ) {
 			case 'bulk-activate':
@@ -392,6 +432,15 @@ class Jetpack_Admin {
 		}
 	}
 
+	/**
+	 * Fix redirect.
+	 *
+	 * Apparently we redirect to the referrer instead of whatever WordPress
+	 * wants to redirect to when activating and deactivating modules.
+	 *
+	 * @param string $module Module slug.
+	 * @param bool   $redirect Should we exit after the module has been activated. Default to true.
+	 */
 	function fix_redirect( $module, $redirect = true ) {
 		if ( ! $redirect ) {
 			return;
@@ -401,6 +450,9 @@ class Jetpack_Admin {
 		}
 	}
 
+	/**
+	 * Add debugger admin menu.
+	 */
 	function admin_menu_debugger() {
 		jetpack_require_lib( 'debugger' );
 		Jetpack_Debugger::disconnect_and_redirect();
@@ -415,6 +467,9 @@ class Jetpack_Admin {
 		add_action( "admin_head-$debugger_hook", array( 'Jetpack_Debugger', 'jetpack_debug_admin_head' ) );
 	}
 
+	/**
+	 * Wrap debugger page.
+	 */
 	function wrap_debugger_page() {
 		nocache_headers();
 		if ( ! current_user_can( 'manage_options' ) ) {
@@ -423,6 +478,9 @@ class Jetpack_Admin {
 		Jetpack_Admin_Page::wrap_ui( array( $this, 'debugger_page' ) );
 	}
 
+	/**
+	 * Display debugger page.
+	 */
 	function debugger_page() {
 		jetpack_require_lib( 'debugger' );
 		Jetpack_Debugger::jetpack_debug_display_handler();

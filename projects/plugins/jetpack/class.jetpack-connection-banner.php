@@ -1,4 +1,9 @@
-<?php
+<?php // phpcs:ignore WordPress.Files.FileName.InvalidClassFileName
+/**
+ * Jetpack connection banner.
+ *
+ * @package automattic/jetpack
+ */
 
 use Automattic\Jetpack\Assets;
 use Automattic\Jetpack\Assets\Logo;
@@ -7,12 +12,22 @@ use Automattic\Jetpack\Device_Detection\User_Agent_Info;
 use Automattic\Jetpack\Licensing;
 use Automattic\Jetpack\Redirect;
 
+/**
+ * Jetpack connection banner.
+ */
 class Jetpack_Connection_Banner {
 	/**
+	 * Static instance.
+	 *
 	 * @var Jetpack_Connection_Banner
-	 **/
+	 */
 	private static $instance = null;
 
+	/**
+	 * Initialize and fetch the static instance.
+	 *
+	 * @return self
+	 */
 	static function init() {
 		if ( is_null( self::$instance ) ) {
 			self::$instance = new Jetpack_Connection_Banner();
@@ -100,8 +115,7 @@ class Jetpack_Connection_Banner {
 	 *              The param $slide_num was removed since we removed all slides but the first one.
 	 * @since 4.4.0
 	 *
-	 * @param string $jp_version_banner_added A short version of when the banner was added. Ex. 44
-	 *
+	 * @param string $jp_version_banner_added A short version of when the banner was added. Ex. 44.
 	 * @return string
 	 */
 	function build_connect_url_for_slide( $jp_version_banner_added ) {
@@ -124,7 +138,7 @@ class Jetpack_Connection_Banner {
 	 * @since 7.2   B test was removed.
 	 * @since 9.7   Moved the connection condition checking to this method to fulfill Licensing requirements.
 	 *
-	 * @param $current_screen
+	 * @param \WP_Screen $current_screen Current WordPress screen.
 	 */
 	function maybe_initialize_hooks( $current_screen ) {
 		if ( ! self::can_be_displayed( $current_screen ) ) {
@@ -144,7 +158,7 @@ class Jetpack_Connection_Banner {
 			add_action( 'network_admin_notices', array( $this, 'network_connect_notice' ) );
 		}
 
-		// Only fires immediately after plugin activation
+		// Only fires immediately after plugin activation.
 		if ( get_transient( 'activated_jetpack' ) ) {
 			if (
 				! \Jetpack_Options::get_option( 'has_seen_wc_connection_modal', false )

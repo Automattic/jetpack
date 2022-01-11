@@ -1,4 +1,9 @@
-<?php
+<?php // phpcs:ignore WordPress.Files.FileName.InvalidClassFileName
+/**
+ * Jetpack API endpoint base class.
+ *
+ * @package automattic/jetpack
+ */
 
 use Automattic\Jetpack\Connection\Client;
 
@@ -7,47 +12,98 @@ require_once __DIR__ . '/sal/class.json-api-links.php';
 require_once __DIR__ . '/sal/class.json-api-metadata.php';
 require_once __DIR__ . '/sal/class.json-api-date.php';
 
-// Endpoint
+/**
+ * Endpoint.
+ */
 abstract class WPCOM_JSON_API_Endpoint {
-	// The API Object
+	/**
+	 * The API Object
+	 *
+	 * @var WPCOM_JSON_API
+	 */
 	public $api;
 
-	// The link-generating utility class
+	/**
+	 * The link-generating utility class
+	 *
+	 * @var WPCOM_JSON_API_Links
+	 */
 	public $links;
 
+	/**
+	 * Whether to pass wpcom user details.
+	 *
+	 * @var bool
+	 */
 	public $pass_wpcom_user_details = false;
 
-	// One liner.
+	/**
+	 * One liner.
+	 *
+	 * @var string
+	 */
 	public $description;
 
-	// Object Grouping For Documentation (Users, Posts, Comments)
+	/**
+	 * Object Grouping For Documentation (Users, Posts, Comments)
+	 *
+	 * @var string
+	 */
 	public $group;
 
-	// Stats extra value to bump
+	/**
+	 * Stats extra value to bump
+	 *
+	 * @var mixed
+	 */
 	public $stat;
 
-	// HTTP Method
+	/**
+	 * HTTP Method
+	 *
+	 * @var string
+	 */
 	public $method = 'GET';
 
-	// Minimum version of the api for which to serve this endpoint
+	/**
+	 * Minimum version of the api for which to serve this endpoint
+	 *
+	 * @var string
+	 */
 	public $min_version = '0';
 
-	// Maximum version of the api for which to serve this endpoint
+	/**
+	 * Maximum version of the api for which to serve this endpoint
+	 *
+	 * @var string
+	 */
 	public $max_version = WPCOM_JSON_API__CURRENT_VERSION;
 
-	// Path at which to serve this endpoint: sprintf() format.
+	/**
+	 * Path at which to serve this endpoint: sprintf() format.
+	 *
+	 * @var string
+	 */
 	public $path = '';
 
-	// Identifiers to fill sprintf() formatted $path
+	/**
+	 * Identifiers to fill sprintf() formatted $path
+	 *
+	 * @var array
+	 */
 	public $path_labels = array();
 
-	// Accepted query parameters
+	/**
+	 * Accepted query parameters
+	 *
+	 * @var array
+	 */
 	public $query = array(
-		// Parameter name
+		// Parameter name.
 		'context'       => array(
-			// Default value => description
+			// Default value => description.
 			'display' => 'Formats the output as HTML for display.  Shortcodes are parsed, paragraph tags are added, etc..',
-			// Other possible values => description
+			// Other possible values => description.
 			'edit'    => 'Formats the output for editing.  Shortcodes are left unparsed, significant whitespace is kept, etc..',
 		),
 		'http_envelope' => array(
@@ -60,75 +116,119 @@ abstract class WPCOM_JSON_API_Endpoint {
 		),
 		'meta'          => "(string) Optional. Loads data from the endpoints found in the 'meta' part of the response. Comma-separated list. Example: meta=site,likes",
 		'fields'        => '(string) Optional. Returns specified fields only. Comma-separated list. Example: fields=ID,title',
-		// Parameter name => description (default value is empty)
+		// Parameter name => description (default value is empty).
 		'callback'      => '(string) An optional JSONP callback function.',
 	);
 
-	// Response format
+	/**
+	 * Response format
+	 *
+	 * @var array
+	 */
 	public $response_format = array();
 
-	// Request format
+	/**
+	 * Request format
+	 *
+	 * @var array
+	 */
 	public $request_format = array();
 
-	// Is this endpoint still in testing phase?  If so, not available to the public.
+	/**
+	 * Is this endpoint still in testing phase?  If so, not available to the public.
+	 *
+	 * @var bool
+	 */
 	public $in_testing = false;
 
-	// Is this endpoint still allowed if the site in question is flagged?
+	/**
+	 * Is this endpoint still allowed if the site in question is flagged?
+	 *
+	 * @var bool
+	 */
 	public $allowed_if_flagged = false;
 
-	// Is this endpoint allowed if the site is red flagged?
+	/**
+	 * Is this endpoint allowed if the site is red flagged?
+	 *
+	 * @var bool
+	 */
 	public $allowed_if_red_flagged = false;
 
-	// Is this endpoint allowed if the site is deleted?
+	/**
+	 * Is this endpoint allowed if the site is deleted?
+	 *
+	 * @var bool
+	 */
 	public $allowed_if_deleted = false;
 
 	/**
-	 * @var string Version of the API
+	 * Version of the API
+	 *
+	 * @var string
 	 */
 	public $version = '';
 
 	/**
-	 * @var string Example request to make
+	 * Example request to make
+	 *
+	 * @var string
 	 */
 	public $example_request = '';
 
 	/**
-	 * @var string Example request data (for POST methods)
+	 * Example request data (for POST methods)
+	 *
+	 * @var string
 	 */
 	public $example_request_data = '';
 
 	/**
-	 * @var string Example response from $example_request
+	 * Example response from $example_request
+	 *
+	 * @var string
 	 */
 	public $example_response = '';
 
 	/**
-	 * @var bool Set to true if the endpoint implements its own filtering instead of the standard `fields` query method
+	 * Set to true if the endpoint implements its own filtering instead of the standard `fields` query method
+	 *
+	 * @var bool
 	 */
 	public $custom_fields_filtering = false;
 
 	/**
-	 * @var bool Set to true if the endpoint accepts all cross origin requests. You probably should not set this flag.
+	 * Set to true if the endpoint accepts all cross origin requests. You probably should not set this flag.
+	 *
+	 * @var bool
 	 */
 	public $allow_cross_origin_request = false;
 
 	/**
-	 * @var bool Set to true if the endpoint can recieve unauthorized POST requests.
+	 * Set to true if the endpoint can recieve unauthorized POST requests.
+	 *
+	 * @var bool
 	 */
 	public $allow_unauthorized_request = false;
 
 	/**
-	 * @var bool Set to true if the endpoint should accept site based (not user based) authentication.
+	 * Set to true if the endpoint should accept site based (not user based) authentication.
+	 *
+	 * @var bool
 	 */
 	public $allow_jetpack_site_auth = false;
 
 	/**
-	 * @var bool Set to true if the endpoint should accept auth from an upload token.
+	 * Set to true if the endpoint should accept auth from an upload token.
+	 *
+	 * @var bool
 	 */
 	public $allow_upload_token_auth = false;
 
 	/**
-	 * @var bool Set to true if the endpoint should require auth from a Rewind auth token.
+	 * Set to true if the endpoint should require auth from a Rewind auth token.
+	 *
+	 * @var bool
 	 */
 	public $require_rewind_auth = false;
 
@@ -139,6 +239,11 @@ abstract class WPCOM_JSON_API_Endpoint {
 	 */
 	public $allow_fallback_to_jetpack_blog_token = false;
 
+	/**
+	 * Constructor.
+	 *
+	 * @param string|array|object $args Args.
+	 */
 	function __construct( $args ) {
 		$defaults = array(
 			'in_testing'                           => false,
@@ -195,7 +300,7 @@ abstract class WPCOM_JSON_API_Endpoint {
 		$this->deprecated  = $args['deprecated'];
 		$this->new_version = $args['new_version'];
 
-		// Ensure max version is not less than min version
+		// Ensure max version is not less than min version.
 		if ( version_compare( $this->min_version, $this->max_version, '>' ) ) {
 			$this->max_version = $this->min_version;
 		}
@@ -232,12 +337,12 @@ abstract class WPCOM_JSON_API_Endpoint {
 			$this->query = array_filter( array_merge( $this->query, $args['query_parameters'] ) );
 		}
 
-		$this->api   = WPCOM_JSON_API::init(); // Auto-add to WPCOM_JSON_API
+		$this->api   = WPCOM_JSON_API::init(); // Auto-add to WPCOM_JSON_API.
 		$this->links = WPCOM_JSON_API_Links::getInstance();
 
 		/** Example Request/Response */
 
-		// Examples for endpoint documentation request
+		// Examples for endpoint documentation request.
 		$this->example_request      = $args['example_request'];
 		$this->example_request_data = $args['example_request_data'];
 		$this->example_response     = $args['example_response'];
@@ -245,7 +350,13 @@ abstract class WPCOM_JSON_API_Endpoint {
 		$this->api->add( $this );
 	}
 
-	// Get all query args.  Prefill with defaults
+	/**
+	 * Get all query args. Prefill with defaults.
+	 *
+	 * @param bool $return_default_values Whether to include default values in the response.
+	 * @param bool $cast_and_filter Whether to cast and filter input according to the documentation.
+	 * @return array
+	 */
 	function query_args( $return_default_values = true, $cast_and_filter = true ) {
 		$args = array_intersect_key( $this->api->query, $this->query );
 
@@ -256,7 +367,13 @@ abstract class WPCOM_JSON_API_Endpoint {
 		return $this->cast_and_filter( $args, $this->query, $return_default_values );
 	}
 
-	// Get POST body data
+	/**
+	 * Get POST body data.
+	 *
+	 * @param bool $return_default_values Whether to include default values in the response.
+	 * @param bool $cast_and_filter Whether to cast and filter input according to the documentation.
+	 * @return mixed
+	 */
 	function input( $return_default_values = true, $cast_and_filter = true ) {
 		$input        = trim( (string) $this->api->post_body );
 		$content_type = (string) $this->api->content_type;
@@ -288,7 +405,7 @@ abstract class WPCOM_JSON_API_Endpoint {
 				$return = array_merge( stripslashes_deep( $_POST ), $_FILES );
 				break;
 			case 'application/x-www-form-urlencoded':
-				// attempt JSON first, since probably a curl command
+				// attempt JSON first, since probably a curl command.
 				$return = json_decode( $input, true );
 
 				if ( is_null( $return ) ) {
@@ -315,6 +432,12 @@ abstract class WPCOM_JSON_API_Endpoint {
 		return $return;
 	}
 
+	/**
+	 * Fetch a body via secure request.
+	 *
+	 * @param string $secure_key Key for the request.
+	 * @return mixed|null API response, or null if the request failed.
+	 */
 	protected function get_secure_body( $secure_key ) {
 		$response = Client::wpcom_json_api_request_as_blog(
 			sprintf( '/sites/%d/secure-request', Jetpack_Options::get_option( 'id' ) ),
@@ -328,6 +451,15 @@ abstract class WPCOM_JSON_API_Endpoint {
 		return json_decode( $response['body'], true );
 	}
 
+	/**
+	 * Cast and filter data.
+	 *
+	 * @param mixed $data Data to cast and filter.
+	 * @param array $documentation Documentation for keys in `$data` to keep and cast.
+	 * @param bool  $return_default_values Set default values from `$documentation` to process.
+	 * @param bool  $for_output See `$this->cast_and_filter_item()`.
+	 * @return mixed Filtered data.
+	 */
 	function cast_and_filter( $data, $documentation, $return_default_values = false, $for_output = false ) {
 		$return_as_object = false;
 		if ( is_object( $data ) ) {
@@ -345,21 +477,21 @@ abstract class WPCOM_JSON_API_Endpoint {
 
 		foreach ( $documentation as $key => $description ) {
 			if ( is_array( $description ) ) {
-				// String or boolean array keys only
+				// String or boolean array keys only.
 				$whitelist = array_keys( $description );
 
 				if ( $whitelist === $boolean_arg || $whitelist === $naeloob_arg ) {
-					// Truthiness
+					// Truthiness.
 					if ( isset( $data[ $key ] ) ) {
 						$return[ $key ] = (bool) WPCOM_JSON_API::is_truthy( $data[ $key ] );
 					} elseif ( $return_default_values ) {
 						$return[ $key ] = $whitelist === $naeloob_arg; // Default to true for naeloob_arg and false for boolean_arg.
 					}
 				} elseif ( isset( $data[ $key ] ) && isset( $description[ $data[ $key ] ] ) ) {
-					// String Key
+					// String Key.
 					$return[ $key ] = (string) $data[ $key ];
 				} elseif ( $return_default_values ) {
-					// Default value
+					// Default value.
 					$return[ $key ] = (string) current( $whitelist );
 				}
 
@@ -369,7 +501,7 @@ abstract class WPCOM_JSON_API_Endpoint {
 			$types = $this->parse_types( $description );
 			$type  = array_shift( $types );
 
-			// Explicit default - string and int only for now.  Always set these reguardless of $return_default_values
+			// Explicit default - string and int only for now.  Always set these reguardless of $return_default_values.
 			if ( isset( $type['default'] ) ) {
 				if ( ! isset( $data[ $key ] ) ) {
 					$data[ $key ] = $type['default'];
@@ -401,6 +533,13 @@ abstract class WPCOM_JSON_API_Endpoint {
 	 * object:category means a hash of categories
 	 *
 	 * Handles object typing - object>post means an object of type post
+	 *
+	 * @param array        $return Array to assign the value into.
+	 * @param string|array $type Type to cast.
+	 * @param string|int   $key Key in `$return` to assign the value to.
+	 * @param mixed        $value Value to cast.
+	 * @param array        $types Fallback types.
+	 * @param bool         $for_output Appears to affect formatting of 'date' types.
 	 */
 	function cast_and_filter_item( &$return, $type, $key, $value, $types = array(), $for_output = false ) {
 		if ( is_string( $type ) ) {
@@ -422,7 +561,7 @@ abstract class WPCOM_JSON_API_Endpoint {
 				$return[ $key ] = (string) esc_url_raw( $value );
 				break;
 			case 'string':
-				// Fallback string -> array, or for string -> object
+				// Fallback string -> array, or for string -> object.
 				if ( is_array( $value ) || is_object( $value ) ) {
 					if ( ! empty( $types[0] ) ) {
 						$next_type = array_shift( $types );
@@ -430,7 +569,7 @@ abstract class WPCOM_JSON_API_Endpoint {
 					}
 				}
 
-				// Fallback string -> false
+				// Fallback string -> false.
 				if ( ! is_string( $value ) ) {
 					if ( ! empty( $types[0] ) && 'false' === $types[0]['type'] ) {
 						$next_type = array_shift( $types );
@@ -450,7 +589,7 @@ abstract class WPCOM_JSON_API_Endpoint {
 				if ( is_array( $value ) ) {
 					if ( isset( $value['name'] ) && is_array( $value['name'] ) ) {
 						// It's a $_FILES array
-						// Reformat into array of $_FILES items
+						// Reformat into array of $_FILES items.
 						$files = array();
 
 						foreach ( $value['name'] as $k => $v ) {
@@ -464,11 +603,11 @@ abstract class WPCOM_JSON_API_Endpoint {
 						break;
 					}
 				} else {
-					// no break - treat as 'array'
+					// no break - treat as 'array'.
 				}
-				// nobreak
+				// nobreak.
 			case 'array':
-				// Fallback array -> string
+				// Fallback array -> string.
 				if ( is_string( $value ) ) {
 					if ( ! empty( $types[0] ) ) {
 						$next_type = array_shift( $types );
@@ -509,7 +648,7 @@ abstract class WPCOM_JSON_API_Endpoint {
 				$return[ $key ] = (bool) WPCOM_JSON_API::is_truthy( $value );
 				break;
 			case 'object':
-				// Fallback object -> false
+				// Fallback object -> false.
 				if ( is_scalar( $value ) || is_null( $value ) ) {
 					if ( ! empty( $types[0] ) && 'false' === $types[0]['type'] ) {
 						return $this->cast_and_filter_item( $return, 'false', $key, $value, $types, $for_output );
@@ -767,7 +906,7 @@ abstract class WPCOM_JSON_API_Endpoint {
 				break;
 
 			case 'visibility':
-				// This is needed to fix a bug in WPAndroid where `public: "PUBLIC"` is sent in place of `public: 1`
+				// This is needed to fix a bug in WPAndroid where `public: "PUBLIC"` is sent in place of `public: 1`.
 				if ( 'public' === strtolower( $value ) ) {
 					$return[ $key ] = 1;
 				} elseif ( 'private' === strtolower( $value ) ) {
@@ -797,6 +936,12 @@ abstract class WPCOM_JSON_API_Endpoint {
 		}
 	}
 
+	/**
+	 * Parse types from text.
+	 *
+	 * @param string $text Text.
+	 * @return array Types.
+	 */
 	function parse_types( $text ) {
 		if ( ! preg_match( '#^\(([^)]+)\)#', ltrim( $text ), $matches ) ) {
 			return 'none';
@@ -827,6 +972,8 @@ abstract class WPCOM_JSON_API_Endpoint {
 
 	/**
 	 * Checks if the endpoint is publicly displayable
+	 *
+	 * @return bool
 	 */
 	function is_publicly_documentable() {
 		return '__do_not_document' !== $this->group && true !== $this->in_testing;
@@ -835,6 +982,8 @@ abstract class WPCOM_JSON_API_Endpoint {
 	/**
 	 * Auto generates documentation based on description, method, path, path_labels, and query parameters.
 	 * Echoes HTML.
+	 *
+	 * @param bool $show_description Whether to show the description.
 	 */
 	function document( $show_description = true ) {
 		global $wpdb;
@@ -955,6 +1104,14 @@ abstract class WPCOM_JSON_API_Endpoint {
 		}
 	}
 
+	/**
+	 * `preg_replace_callback` callback to add http_build_query to php content example.
+	 *
+	 * @todo Is this used anywhere?
+	 *
+	 * @param array $matches Matches.
+	 * @return string
+	 */
 	function add_http_build_query_to_php_content_example( $matches ) {
 		$trimmed_match = ltrim( $matches[0] );
 		$pad           = substr( $matches[0], 0, -1 * strlen( $trimmed_match ) );
@@ -966,6 +1123,8 @@ abstract class WPCOM_JSON_API_Endpoint {
 	/**
 	 * Recursively generates the <dl>'s to document item descriptions.
 	 * Echoes HTML.
+	 *
+	 * @param string|array $item Post data to output, or an array of key => data mappings.
 	 */
 	function generate_doc_description( $item ) {
 		if ( is_array( $item ) ) :
@@ -1032,7 +1191,7 @@ abstract class WPCOM_JSON_API_Endpoint {
 					}
 
 					if ( 'response_format' !== $_property ) {
-						// hack - don't show "(default)" in response format
+						// hack - don't show "(default)" in response format.
 						reset( $description );
 						$description_key                 = key( $description );
 						$description[ $description_key ] = "(default) {$description[$description_key]}";
@@ -1057,7 +1216,7 @@ abstract class WPCOM_JSON_API_Endpoint {
 						}
 					}
 					$type                       = '(' . join( '|', $type ) . ')';
-					$noop                       = ''; // skip an index in list below
+					$noop                       = ''; // skip an index in list below.
 					list( $noop, $description ) = explode( ')', $description, 2 );
 					$description                = trim( $description );
 					if ( $default ) {
@@ -1078,6 +1237,12 @@ abstract class WPCOM_JSON_API_Endpoint {
 		return $doc;
 	}
 
+	/**
+	 * Can the user view the post?
+	 *
+	 * @param int $post_id Post ID.
+	 * @return bool|WP_Error
+	 */
 	function user_can_view_post( $post_id ) {
 		$post = get_post( $post_id );
 		if ( ! $post || is_wp_error( $post ) ) {
@@ -1106,7 +1271,7 @@ abstract class WPCOM_JSON_API_Endpoint {
 						return new WP_Error( 'unauthorized', 'User cannot view post', 403 );
 					}
 				} elseif ( 'auto-draft' === $post->post_status ) {
-					// allow auto-drafts
+					// allow auto-drafts.
 				} else {
 					return new WP_Error( 'unauthorized', 'User cannot view post', 403 );
 				}
@@ -1160,8 +1325,8 @@ abstract class WPCOM_JSON_API_Endpoint {
 	/**
 	 * Returns author object.
 	 *
-	 * @param object $author user ID, user row, WP_User object, comment row, post row
-	 * @param bool   $show_email_and_ip output the author's email address and IP address?
+	 * @param object $author user ID, user row, WP_User object, comment row, post row.
+	 * @param bool   $show_email_and_ip output the author's email address and IP address?.
 	 *
 	 * @return object
 	 */
@@ -1182,7 +1347,7 @@ abstract class WPCOM_JSON_API_Endpoint {
 			$site_id     = -1;
 
 			// Comment author URLs and Emails are sent through wp_kses() on save, which replaces "&" with "&amp;"
-			// "&" is the only email/URL character altered by wp_kses()
+			// "&" is the only email/URL character altered by wp_kses().
 			foreach ( array( 'email', 'URL' ) as $field ) {
 				$$field = str_replace( '&amp;', '&', $$field );
 			}
@@ -1286,6 +1451,12 @@ abstract class WPCOM_JSON_API_Endpoint {
 		return (object) $author;
 	}
 
+	/**
+	 * Get a media item.
+	 *
+	 * @param int $media_id Media post ID.
+	 * @return object|WP_Error Media item data, or WP_Error.
+	 */
 	function get_media_item( $media_id ) {
 		$media_item = get_post( $media_id );
 
@@ -1321,6 +1492,14 @@ abstract class WPCOM_JSON_API_Endpoint {
 		return (object) $response;
 	}
 
+	/**
+	 * Get a v1.1 media item.
+	 *
+	 * @param int          $media_id Media post ID.
+	 * @param WP_Post|null $media_item Media item.
+	 * @param string|null  $file File path.
+	 * @return object|WP_Error Media item data, or WP_Error.
+	 */
 	function get_media_item_v1_1( $media_id, $media_item = null, $file = null ) {
 
 		if ( ! $media_item ) {
@@ -1435,7 +1614,7 @@ abstract class WPCOM_JSON_API_Endpoint {
 				$response['length'] = $metadata['length'];
 			}
 
-			// add VideoPress info
+			// add VideoPress info.
 			if ( function_exists( 'video_get_info_by_blogpostid' ) ) {
 				$info = video_get_info_by_blogpostid( $this->api->get_blog_id_for_output(), $media_item->ID );
 
@@ -1464,7 +1643,7 @@ abstract class WPCOM_JSON_API_Endpoint {
 					$response['allow_download'] = (string) (int) $metadata['videopress']['allow_download'];
 				}
 
-				// Thumbnails
+				// Thumbnails.
 				if ( function_exists( 'video_format_done' ) && function_exists( 'video_image_url_by_guid' ) ) {
 					$response['thumbnails'] = array(
 						'fmt_hd'  => '',
@@ -1502,7 +1681,7 @@ abstract class WPCOM_JSON_API_Endpoint {
 			),
 		);
 
-		// add VideoPress link to the meta
+		// add VideoPress link to the meta.
 		if ( isset( $response['videopress_guid'] ) ) {
 			if ( function_exists( 'video_get_info_by_blogpostid' ) ) {
 				$response['meta']->links->videopress = (string) $this->links->get_link( '/videos/%s', $response['videopress_guid'], '' );
@@ -1516,10 +1695,18 @@ abstract class WPCOM_JSON_API_Endpoint {
 		return (object) $response;
 	}
 
+	/**
+	 * Get a formatted taxonomy.
+	 *
+	 * @param int    $taxonomy_id Taxonomy ID.
+	 * @param string $taxonomy_type Name of taxonomy.
+	 * @param string $context Context, 'edit' or 'display'.
+	 * @return object|WP_Error
+	 */
 	function get_taxonomy( $taxonomy_id, $taxonomy_type, $context ) {
 
 		$taxonomy = get_term_by( 'slug', $taxonomy_id, $taxonomy_type );
-		// keep updating this function
+		// keep updating this function.
 		if ( ! $taxonomy || is_wp_error( $taxonomy ) ) {
 			return new WP_Error( 'unknown_taxonomy', 'Unknown taxonomy', 404 );
 		}
@@ -1527,8 +1714,16 @@ abstract class WPCOM_JSON_API_Endpoint {
 		return $this->format_taxonomy( $taxonomy, $taxonomy_type, $context );
 	}
 
+	/**
+	 * Format a taxonomy.
+	 *
+	 * @param WP_Term $taxonomy Taxonomy.
+	 * @param string  $taxonomy_type Name of taxonomy.
+	 * @param string  $context Context, 'edit' or 'display'.
+	 * @return object|WP_Error
+	 */
 	function format_taxonomy( $taxonomy, $taxonomy_type, $context ) {
-		// Permissions
+		// Permissions.
 		switch ( $context ) {
 			case 'edit':
 				$tax = get_taxonomy( $taxonomy_type );
@@ -1571,9 +1766,8 @@ abstract class WPCOM_JSON_API_Endpoint {
 	/**
 	 * Returns ISO 8601 formatted datetime: 2011-12-08T01:15:36-08:00
 	 *
-	 * @param $date_gmt (string) GMT datetime string.
-	 * @param $date (string) Optional.  Used to calculate the offset from GMT.
-	 *
+	 * @param string $date_gmt GMT datetime string.
+	 * @param string $date Optional. Used to calculate the offset from GMT.
 	 * @return string
 	 */
 	function format_date( $date_gmt, $date = null ) {
@@ -1623,19 +1817,21 @@ abstract class WPCOM_JSON_API_Endpoint {
 		);
 	}
 
-	// Load the functions.php file for the current theme to get its post formats, CPTs, etc.
+	/**
+	 * Load the functions.php file for the current theme to get its post formats, CPTs, etc.
+	 */
 	function load_theme_functions() {
 		if ( false === defined( 'STYLESHEETPATH' ) ) {
 			wp_templating_constants();
 		}
 
-		// bail if we've done this already (can happen when calling /batch endpoint)
+		// bail if we've done this already (can happen when calling /batch endpoint).
 		if ( defined( 'REST_API_THEME_FUNCTIONS_LOADED' ) ) {
 			return;
 		}
 
 		// VIP context loading is handled elsewhere, so bail to prevent
-		// duplicate loading. See `switch_to_blog_and_validate_user()`
+		// duplicate loading. See `switch_to_blog_and_validate_user()`.
 		if ( defined( 'WPCOM_IS_VIP_ENV' ) && WPCOM_IS_VIP_ENV ) {
 			return;
 		}
@@ -1663,13 +1859,13 @@ abstract class WPCOM_JSON_API_Endpoint {
 			}
 		}
 
-		// add inc/wpcom.php and/or includes/wpcom.php
+		// add inc/wpcom.php and/or includes/wpcom.php.
 		wpcom_load_theme_compat_file();
 
-		// Enable including additional directories or files in actions to be copied
+		// Enable including additional directories or files in actions to be copied.
 		$copy_dirs = apply_filters( 'restapi_theme_action_copy_dirs', $copy_dirs );
 
-		// since the stuff we care about (CPTS, post formats, are usually on setup or init hooks, we want to load those)
+		// since the stuff we care about (CPTS, post formats, are usually on setup or init hooks, we want to load those).
 		$this->copy_hooks( 'after_setup_theme', 'restapi_theme_after_setup_theme', $copy_dirs );
 
 		/**
@@ -1702,6 +1898,13 @@ abstract class WPCOM_JSON_API_Endpoint {
 		do_action( 'restapi_theme_init' );
 	}
 
+	/**
+	 * Copy hook functions.
+	 *
+	 * @param string $from_hook Hook to copy from.
+	 * @param string $to_hook Hook to copy to.
+	 * @param array  $base_paths Only copy hooks defined in the specified paths.
+	 */
 	function copy_hooks( $from_hook, $to_hook, $base_paths ) {
 		global $wp_filter;
 		foreach ( $wp_filter as $hook => $actions ) {
@@ -1717,14 +1920,14 @@ abstract class WPCOM_JSON_API_Endpoint {
 				foreach ( $callbacks as $callback_key => $callback_data ) {
 					$callback = $callback_data['function'];
 
-					// use reflection api to determine filename where function is defined
+					// use reflection api to determine filename where function is defined.
 					$reflection = $this->get_reflection( $callback );
 
 					if ( false !== $reflection ) {
 						$file_name = $reflection->getFileName();
 						foreach ( $base_paths as $base_path ) {
 
-							// only copy hooks with functions which are part of the specified files
+							// only copy hooks with functions which are part of the specified files.
 							if ( 0 === strpos( $file_name, $base_path ) ) {
 								add_action(
 									$to_hook,
@@ -1740,6 +1943,12 @@ abstract class WPCOM_JSON_API_Endpoint {
 		}
 	}
 
+	/**
+	 * Get a ReflectionMethod or ReflectionFunction for the callback.
+	 *
+	 * @param callable $callback Callback.
+	 * @return ReflectionMethod|ReflectionFunction|false
+	 */
 	function get_reflection( $callback ) {
 		if ( is_array( $callback ) ) {
 			list( $class, $method ) = $callback;
@@ -1763,10 +1972,10 @@ abstract class WPCOM_JSON_API_Endpoint {
 	}
 
 	/**
-	 * Check whether a user can view or edit a post type
+	 * Check whether a user can view or edit a post type.
 	 *
-	 * @param string $post_type              post type to check
-	 * @param string $context                'display' or 'edit'
+	 * @param string $post_type post type to check.
+	 * @param string $context   'display' or 'edit'.
 	 * @return bool
 	 */
 	function current_user_can_access_post_type( $post_type, $context = 'display' ) {
@@ -1785,18 +1994,24 @@ abstract class WPCOM_JSON_API_Endpoint {
 		}
 	}
 
+	/**
+	 * Is the post type allowed?
+	 *
+	 * @param string $post_type Post type.
+	 * @return bool
+	 */
 	function is_post_type_allowed( $post_type ) {
-		// if the post type is empty, that's fine, WordPress will default to post
+		// if the post type is empty, that's fine, WordPress will default to post.
 		if ( empty( $post_type ) ) {
 			return true;
 		}
 
-		// allow special 'any' type
+		// allow special 'any' type.
 		if ( 'any' == $post_type ) {
 			return true;
 		}
 
-		// check for allowed types
+		// check for allowed types.
 		if ( in_array( $post_type, $this->_get_whitelisted_post_types() ) ) {
 			return true;
 		}
@@ -1835,13 +2050,26 @@ abstract class WPCOM_JSON_API_Endpoint {
 		return array_unique( $allowed_types );
 	}
 
+	/**
+	 * Handle a v1.1 media creation.
+	 *
+	 * Only one of $media_files and $media_urls should be non-empty.
+	 *
+	 * @param array     $media_files File upload data.
+	 * @param array     $media_urls URLs to fetch.
+	 * @param array     $media_attrs Attributes corresponding to each entry in `$media_files`/`$media_urls`.
+	 * @param int|false $force_parent_id Force the parent ID, overriding `$media_attrs[]['parent_id']`.
+	 * @return array Two items:
+	 *  - media_ids: IDs created, by index in `$media_files`/`$media_urls`.
+	 *  - errors: Errors encountered, by index in `$media_files`/`$media_urls`.
+	 */
 	function handle_media_creation_v1_1( $media_files, $media_urls, $media_attrs = array(), $force_parent_id = false ) {
 
 		add_filter( 'upload_mimes', array( $this, 'allow_video_uploads' ) );
 
 		$media_ids             = $errors = array();
 		$user_can_upload_files = current_user_can( 'upload_files' ) || $this->api->is_authorized_with_upload_token();
-		$media_attrs           = array_values( $media_attrs ); // reset the keys
+		$media_attrs           = array_values( $media_attrs ); // reset the keys.
 		$i                     = 0;
 
 		if ( ! empty( $media_files ) ) {
@@ -1911,7 +2139,7 @@ abstract class WPCOM_JSON_API_Endpoint {
 				$attrs  = $media_attrs[ $index ];
 				$insert = array();
 
-				// Attributes: Title, Caption, Description
+				// Attributes: Title, Caption, Description.
 
 				if ( isset( $attrs['title'] ) ) {
 					$insert['post_title'] = $attrs['title'];
@@ -1930,14 +2158,14 @@ abstract class WPCOM_JSON_API_Endpoint {
 					wp_update_post( (object) $insert );
 				}
 
-				// Attributes: Alt
+				// Attributes: Alt.
 
 				if ( isset( $attrs['alt'] ) ) {
 					$alt = wp_strip_all_tags( $attrs['alt'], true );
 					update_post_meta( $media_id, '_wp_attachment_image_alt', $alt );
 				}
 
-				// Attributes: Artist, Album
+				// Attributes: Artist, Album.
 
 				$id3_meta = array();
 
@@ -1948,7 +2176,7 @@ abstract class WPCOM_JSON_API_Endpoint {
 				}
 
 				if ( ! empty( $id3_meta ) ) {
-					// Before updating metadata, ensure that the item is audio
+					// Before updating metadata, ensure that the item is audio.
 					$item = $this->get_media_item_v1_1( $media_id );
 					if ( 0 === strpos( $item->mime_type, 'audio/' ) ) {
 						wp_update_attachment_metadata( $media_id, $id3_meta );
@@ -1964,12 +2192,20 @@ abstract class WPCOM_JSON_API_Endpoint {
 
 	}
 
+	/**
+	 * Handle a media sideload.
+	 *
+	 * @param string $url URL.
+	 * @param int    $parent_post_id Parent post ID.
+	 * @param string $type Type.
+	 * @return int|WP_Error|false Media post ID, or error, or false if nothing was sideloaded.
+	 */
 	function handle_media_sideload( $url, $parent_post_id = 0, $type = 'any' ) {
 		if ( ! function_exists( 'download_url' ) || ! function_exists( 'media_handle_sideload' ) ) {
 			return false;
 		}
 
-		// if we didn't get a URL, let's bail
+		// if we didn't get a URL, let's bail.
 		$parsed = wp_parse_url( $url );
 		if ( empty( $parsed ) ) {
 			return false;
@@ -1987,7 +2223,7 @@ abstract class WPCOM_JSON_API_Endpoint {
 			return new WP_Error( 'invalid_input', 'Invalid file type.', 403 );
 		}
 
-		// emulate a $_FILES entry
+		// emulate a $_FILES entry.
 		$file_array = array(
 			'name'     => basename( wp_parse_url( $url, PHP_URL_PATH ) ),
 			'tmp_name' => $tmp,
@@ -2020,13 +2256,19 @@ abstract class WPCOM_JSON_API_Endpoint {
 		return jetpack_is_file_supported_for_sideloading( $file );
 	}
 
+	/**
+	 * Filter for `upload_mimes`.
+	 *
+	 * @param array $mimes Allowed mime types.
+	 * @return array Allowed mime types.
+	 */
 	function allow_video_uploads( $mimes ) {
-		// if we are on Jetpack, bail - Videos are already allowed
+		// if we are on Jetpack, bail - Videos are already allowed.
 		if ( ! defined( 'IS_WPCOM' ) || ! IS_WPCOM ) {
 			return $mimes;
 		}
 
-		// extra check that this filter is only ever applied during REST API requests
+		// extra check that this filter is only ever applied during REST API requests.
 		if ( ! defined( 'REST_API_REQUEST' ) || ! REST_API_REQUEST ) {
 			return $mimes;
 		}
@@ -2036,7 +2278,7 @@ abstract class WPCOM_JSON_API_Endpoint {
 			return $mimes;
 		}
 
-		// lets whitelist to only specific clients right now
+		// lets whitelist to only specific clients right now.
 		$clients_allowed_video_uploads = array();
 		/**
 		 * Filter the list of whitelisted video clients.
@@ -2082,6 +2324,11 @@ abstract class WPCOM_JSON_API_Endpoint {
 		return $mimes;
 	}
 
+	/**
+	 * Is the current site multi-user?
+	 *
+	 * @return bool
+	 */
 	function is_current_site_multi_user() {
 		$users = wp_cache_get( 'site_user_count', 'WPCOM_JSON_API_Endpoint' );
 		if ( false === $users ) {
@@ -2097,10 +2344,22 @@ abstract class WPCOM_JSON_API_Endpoint {
 		return $users > 1;
 	}
 
+	/**
+	 * Whether cross-origin requests are allowed.
+	 *
+	 * @return bool
+	 */
 	function allows_cross_origin_requests() {
 		return 'GET' == $this->method || $this->allow_cross_origin_request;
 	}
 
+	/**
+	 * Whether unauthorized requests are allowed.
+	 *
+	 * @param string   $origin Origin.
+	 * @param string[] $complete_access_origins Access origins.
+	 * @return bool
+	 */
 	function allows_unauthorized_requests( $origin, $complete_access_origins ) {
 		return 'GET' == $this->method || ( $this->allow_unauthorized_request && in_array( $origin, $complete_access_origins ) );
 	}
@@ -2118,6 +2377,11 @@ abstract class WPCOM_JSON_API_Endpoint {
 			$this->api->is_jetpack_authorized_for_site();
 	}
 
+	/**
+	 * Get platform.
+	 *
+	 * @return WPORG_Platform
+	 */
 	function get_platform() {
 		return wpcom_get_sal_platform( $this->api->token_details );
 	}
@@ -2128,10 +2392,10 @@ abstract class WPCOM_JSON_API_Endpoint {
 	 *
 	 * Override this method if you want to do something different.
 	 *
-	 * @param  int $blog_id
+	 * @param int $blog_id Blog ID.
 	 * @return bool
 	 */
-	function force_wpcom_request( $blog_id ) {
+	function force_wpcom_request( $blog_id ) { // phpcs:ignore VariableAnalysis.CodeAnalysis.VariableAnalysis.UnusedVariable
 		return false;
 	}
 

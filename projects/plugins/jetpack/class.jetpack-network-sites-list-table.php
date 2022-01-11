@@ -1,13 +1,26 @@
-<?php
+<?php // phpcs:ignore WordPress.Files.FileName.InvalidClassFileName
+/**
+ * Jetpack network sites list table.
+ *
+ * @package automattic/jetpack
+ */
 
 if ( ! class_exists( 'WP_List_Table' ) ) {
 	require_once ABSPATH . 'wp-admin/includes/class-wp-list-table.php';
 }
 
+/**
+ * Jetpack network sites list table.
+ */
 class Jetpack_Network_Sites_List_Table extends WP_List_Table {
 
+	/**
+	 * Get columns.
+	 *
+	 * @return array name => header HTML.
+	 */
 	public function get_columns() {
-		// site name, status, username connected under
+		// site name, status, username connected under.
 		$columns = array(
 			'cb'        => '<input type="checkbox" />',
 			'blogname'  => __( 'Site Name', 'jetpack' ),
@@ -18,10 +31,13 @@ class Jetpack_Network_Sites_List_Table extends WP_List_Table {
 		return $columns;
 	}
 
+	/**
+	 * Prepare items.
+	 */
 	public function prepare_items() {
 		$jpms = Jetpack_Network::init();
 
-		// Deal with bulk actions if any were requested by the user
+		// Deal with bulk actions if any were requested by the user.
 		$this->process_bulk_action();
 
 		$sites = get_sites(
@@ -33,7 +49,7 @@ class Jetpack_Network_Sites_List_Table extends WP_List_Table {
 			)
 		);
 
-		// Setup pagination
+		// Setup pagination.
 		$per_page     = 25;
 		$current_page = $this->get_pagenum();
 		$total_items  = count( $sites );
@@ -52,8 +68,14 @@ class Jetpack_Network_Sites_List_Table extends WP_List_Table {
 		$this->items           = $sites;
 	}
 
+	/**
+	 * Column blogname.
+	 *
+	 * @param object|array $item Item.
+	 * @return string HTML.
+	 */
 	public function column_blogname( $item ) {
-		// http://jpms/wp-admin/network/site-info.php?id=1
+		// <http://jpms/wp-admin/network/site-info.php?id=1>.
 		switch_to_blog( $item->blog_id );
 		$jp_url = admin_url( 'admin.php?page=jetpack' );
 		restore_current_blog();
@@ -68,6 +90,12 @@ class Jetpack_Network_Sites_List_Table extends WP_List_Table {
 		return sprintf( '%1$s %2$s', '<strong>' . get_blog_option( $item->blog_id, 'blogname' ) . '</strong>', $this->row_actions( $actions ) );
 	}
 
+	/**
+	 * Column blog path.
+	 *
+	 * @param object|array $item Item.
+	 * @return string HTML.
+	 */
 	public function column_blog_path( $item ) {
 		return '<a href="' .
 						 get_site_url( $item->blog_id, '', 'admin' ) .
@@ -76,6 +104,12 @@ class Jetpack_Network_Sites_List_Table extends WP_List_Table {
 						 '</a>';
 	}
 
+	/**
+	 * Column connected.
+	 *
+	 * @param object|array $item Item.
+	 * @return string HTML.
+	 */
 	public function column_connected( $item ) {
 		$jpms = Jetpack_Network::init();
 		$jp   = Jetpack::init();
@@ -93,7 +127,7 @@ class Jetpack_Network_Sites_List_Table extends WP_List_Table {
 		}
 
 		if ( $jp->is_connection_ready() ) {
-			// Build url for disconnecting
+			// Build url for disconnecting.
 			$url = $jpms->get_url(
 				array(
 					'name'    => 'subsitedisconnect',
@@ -106,7 +140,7 @@ class Jetpack_Network_Sites_List_Table extends WP_List_Table {
 		}
 		restore_current_blog();
 
-		// Build URL for connecting
+		// Build URL for connecting.
 		$url = $jpms->get_url(
 			array(
 				'name'    => 'subsiteregister',
@@ -116,6 +150,11 @@ class Jetpack_Network_Sites_List_Table extends WP_List_Table {
 		return '<a href="' . esc_url( $url ) . '">' . esc_html__( 'Connect', 'jetpack' ) . '</a>';
 	}
 
+	/**
+	 * Get bulk actions.
+	 *
+	 * @return array Code => HTML.
+	 */
 	public function get_bulk_actions() {
 		$actions = array(
 			'connect'    => esc_html__( 'Connect', 'jetpack' ),
@@ -125,6 +164,12 @@ class Jetpack_Network_Sites_List_Table extends WP_List_Table {
 		return $actions;
 	}
 
+	/**
+	 * Column checkbox.
+	 *
+	 * @param object|array $item Item.
+	 * @return string HTML.
+	 */
 	function column_cb( $item ) {
 			return sprintf(
 				'<input type="checkbox" name="bulk[]" value="%s" />',
@@ -132,9 +177,12 @@ class Jetpack_Network_Sites_List_Table extends WP_List_Table {
 			);
 	}
 
+	/**
+	 * Process bulk actions.
+	 */
 	public function process_bulk_action() {
 		if ( ! isset( $_POST['bulk'] ) || empty( $_POST['bulk'] ) ) {
-			return; // Thou shall not pass! There is nothing to do
+			return; // Thou shall not pass! There is nothing to do.
 		}
 
 		$jpms = Jetpack_Network::init();
