@@ -1,0 +1,4 @@
+Significance: patch
+Type: other
+
+Fix modules using `this` to mean `window`.

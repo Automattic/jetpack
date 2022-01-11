@@ -14,7 +14,6 @@ import { withModuleSettingsFormHelpers } from 'components/module-settings/with-m
 import DashSectionHeader from 'components/dash-section-header';
 import DashActivity from './activity';
 import DashBoost from './boost';
-import DashCRM from './crm';
 import DashStats from './stats/index.jsx';
 import DashProtect from './protect';
 import DashMonitor from './monitor';
@@ -32,6 +31,7 @@ import QueryScanStatus from 'components/data/query-scan-status';
 import {
 	isMultisite,
 	userCanManageModules,
+	userCanManagePlugins,
 	userCanViewStats,
 	userIsSubscriber,
 } from 'state/initial-state';
@@ -174,10 +174,9 @@ class AtAGlance extends Component {
 				);
 			}
 
-			performanceCards.push(
-				<DashBoost siteAdminUrl={ this.props.siteAdminUrl } />,
-				<DashCRM siteAdminUrl={ this.props.siteAdminUrl } />
-			);
+			if ( this.props.userCanManagePlugins ) {
+				performanceCards.push( <DashBoost siteAdminUrl={ this.props.siteAdminUrl } /> );
+			}
 
 			if ( performanceCards.length ) {
 				pairs.push( {
@@ -234,6 +233,7 @@ export default connect( state => {
 	return {
 		userCanManageModules: userCanManageModules( state ),
 		userCanViewStats: userCanViewStats( state ),
+		userCanManagePlugins: userCanManagePlugins( state ),
 		userIsSubscriber: userIsSubscriber( state ),
 		isOfflineMode: isOfflineMode( state ),
 		getModuleOverride: module_name => getModuleOverride( state, module_name ),

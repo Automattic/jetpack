@@ -12,4 +12,19 @@ test.describe( 'Speed Score feature', () => {
 		expect( await jetpackBoostPage.getSpeedScore( 'mobile' ) ).toBeGreaterThan( 0 );
 		expect( await jetpackBoostPage.getSpeedScore( 'desktop' ) ).toBeGreaterThan( 0 );
 	} );
+
+	test( 'The Speed Scores should be able to refresh', async () => {
+		await jetpackBoostPage.waitForScoreLoadingToFinish();
+		await jetpackBoostPage.clickRefreshSpeedScore();
+
+		expect( await jetpackBoostPage.isScoreLoading() ).toBeTruthy();
+		await jetpackBoostPage.waitForScoreLoadingToFinish();
+		expect( await jetpackBoostPage.isScoreVisible() ).toBeTruthy();
+	} );
+
+	test( 'Should be able to hover info icon next to overall score and see the detailed overall score description popin', async () => {
+		await jetpackBoostPage.waitForScoreLoadingToFinish();
+		await jetpackBoostPage.page.hover( '.jb-score-context' );
+		expect( await jetpackBoostPage.isScoreDescriptionPopinVisible() ).toBeTruthy();
+	} );
 } );

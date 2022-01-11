@@ -12,12 +12,14 @@ import {
 	Row,
 	Col,
 	getRedirectUrl,
+	PricingCard,
 } from '@automattic/jetpack-components';
 
 /**
  * Internal dependencies
  */
 import Backups from './Backups';
+import MyPlan from './MyPlan';
 import useConnection from '../hooks/useConnection';
 import './admin-style.scss';
 import './masthead/masthead-style.scss';
@@ -31,6 +33,8 @@ const Admin = () => {
 	const [ connectionLoaded, setConnectionLoaded ] = useState( false );
 	const [ capabilitiesLoaded, setCapabilitiesLoaded ] = useState( false );
 	const [ showHeaderFooter, setShowHeaderFooter ] = useState( true );
+	const [ price, setPrice ] = useState( null );
+	const [ priceAfter, setPriceAfter ] = useState( null );
 
 	const domain = useSelect( select => select( STORE_ID ).getCalypsoSlug(), [] );
 
@@ -41,7 +45,7 @@ const Admin = () => {
 	}, [ connectionStatus ] );
 
 	useEffect( () => {
-		apiFetch( { path: 'jetpack/v4/backup-capabilities' } ).then(
+		apiFetch( { path: '/jetpack/v4/backup-capabilities' } ).then(
 			res => {
 				setCapabilities( res.capabilities );
 				setCapabilitiesLoaded( true );
@@ -51,6 +55,14 @@ const Admin = () => {
 				setCapabilitiesError( 'Failed to fetch site capabilities' );
 			}
 		);
+		apiFetch( { path: '/jetpack/v4/backup-promoted-product-info' } ).then( res => {
+			setPrice( res.cost / 12 );
+			if ( res.introductory_offer ) {
+				setPriceAfter( res.introductory_offer.cost_per_interval / 12 );
+			} else {
+				setPriceAfter( res.cost / 12 );
+			}
+		} );
 	}, [] );
 
 	const isFullyConnected = () => {
@@ -61,27 +73,48 @@ const Admin = () => {
 		return capabilities.includes( 'backup' );
 	};
 
+	const sendToCart = () => {
+		window.location.href = getRedirectUrl( 'backup-plugin-upgrade-10gb', { site: domain } );
+	};
+
 	const renderNoBackupCapabilities = () => {
+		const basicInfoText = __( '14 day money back guarantee.', 'jetpack-backup' );
+		const introductoryInfoText = __(
+			'Special introductory pricing, all renewals are at full price. 14 day money back guarantee.',
+			'jetpack-backup'
+		);
 		return (
 			<Row>
-				<Col lg={ 8 } md={ 8 } sm={ 4 }>
-					<h1>{ __( 'Your site does not have backups', 'jetpack-backup' ) }</h1>
+				<Col lg={ 6 } md={ 6 } sm={ 4 }>
+					<h1>{ __( 'Secure your site with a Backup subscription.', 'jetpack-backup' ) }</h1>
 					<p>
+						{ ' ' }
 						{ __(
-							'Get peace of mind knowing your work will be saved, add backups today.',
+							'Get peace of mind knowing that all your work will be saved, and get back online quickly with one-click restores.',
 							'jetpack-backup'
 						) }
 					</p>
-					<a
-						class="button"
-						href={ getRedirectUrl( 'backup-plugin-upgrade-10gb', { site: domain } ) }
-						target="_blank"
-						rel="noreferrer"
-					>
-						{ __( 'Upgrade now', 'jetpack-backup' ) }
-					</a>
+					<ul className="jp-product-promote">
+						<li>{ __( 'Automated real-time backups', 'jetpack-backup' ) }</li>
+						<li>{ __( 'Easy one-click restores', 'jetpack-backup' ) }</li>
+						<li>{ __( 'Complete list of all site changes', 'jetpack-backup' ) }</li>
+						<li>{ __( 'Global server infrastructure', 'jetpack-backup' ) }</li>
+						<li>{ __( 'Best-in-class support', 'jetpack-backup' ) }</li>
+					</ul>
 				</Col>
-				<Col lg={ 4 } md={ 0 } sm={ 0 } />
+				<Col lg={ 1 } md={ 1 } sm={ 0 } />
+				<Col lg={ 5 } md={ 6 } sm={ 4 }>
+					<PricingCard
+						ctaText={ __( 'Get Jetpack Backup', 'jetpack-backup' ) }
+						icon="data:image/svg+xml,%3Csvg width='32' height='32' fill='none' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath fill-rule='evenodd' clip-rule='evenodd' d='m21.092 15.164.019-1.703v-.039c0-1.975-1.803-3.866-4.4-3.866-2.17 0-3.828 1.351-4.274 2.943l-.426 1.524-1.581-.065a2.92 2.92 0 0 0-.12-.002c-1.586 0-2.977 1.344-2.977 3.133 0 1.787 1.388 3.13 2.973 3.133H22.399c1.194 0 2.267-1.016 2.267-2.4 0-1.235-.865-2.19-1.897-2.368l-1.677-.29Zm-10.58-3.204a4.944 4.944 0 0 0-.201-.004c-2.75 0-4.978 2.298-4.978 5.133s2.229 5.133 4.978 5.133h12.088c2.357 0 4.267-1.97 4.267-4.4 0-2.18-1.538-3.99-3.556-4.339v-.06c0-3.24-2.865-5.867-6.4-5.867-2.983 0-5.49 1.871-6.199 4.404Z' fill='%23000'/%3E%3C/svg%3E"
+						infoText={ priceAfter === price ? basicInfoText : introductoryInfoText }
+						// eslint-disable-next-line react/jsx-no-bind
+						onCtaClick={ sendToCart }
+						priceAfter={ priceAfter }
+						priceBefore={ price }
+						title={ __( 'Jetpack Backup', 'jetpack-backup' ) }
+					/>
+				</Col>
 			</Row>
 		);
 	};
@@ -137,26 +170,29 @@ const Admin = () => {
 		return (
 			<Row>
 				<Col lg={ 6 } md={ 4 }>
-					<h2>{ __( 'Where are my backups stored?', 'jetpack-backup' ) }</h2>
+					<h2>{ __( 'Your cloud backups', 'jetpack-backup' ) }</h2>
 					<p>
 						{ __(
 							'All the backups are safely stored in the cloud and available for you at any time on Jetpack.com, with full details about status and content.',
 							'jetpack-backup'
 						) }
 					</p>
-					{ hasBackupPlan() && ! capabilities.includes( 'backup-realtime' ) && (
-						<a
-							class="jp-cut"
-							href={ getRedirectUrl( 'backup-plugin-realtime-upgrade', { site: domain } ) }
-						>
-							<span>
-								{ __(
-									'Your site is updated with new content several times a day',
-									'jetpack-backup'
-								) }
-							</span>
-							<span>{ __( 'Consider upgrading to real-time protection', 'jetpack-backup' ) }</span>
-						</a>
+					{ hasBackupPlan() && (
+						<>
+							<p>
+								<a
+									href={ getRedirectUrl( 'jetpack-backup', { site: domain } ) }
+									target="_blank"
+									rel="noreferrer"
+								>
+									{ __( 'See all your backups', 'jetpack-backup' ) }
+								</a>
+							</p>
+							<MyPlan
+								purchaseType={ 'backup' }
+								redirectUrl={ getRedirectUrl( 'backup-plugin-my-plan', { site: domain } ) }
+							/>
+						</>
 					) }
 				</Col>
 				<Col lg={ 1 } md={ 1 } sm={ 0 } />
