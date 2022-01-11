@@ -3,7 +3,7 @@
  */
 import { connect } from 'react-redux';
 import PropTypes from 'prop-types';
-import React, { Component } from 'react';
+import React, { useCallback, useState } from 'react';
 import restApi from '@automattic/jetpack-api';
 
 /**
@@ -31,45 +31,35 @@ import SectionHeader from 'components/section-header';
  */
 import './style.scss';
 
-export class PluginDashItem extends Component {
-	static propTypes = {
-		pluginName: PropTypes.string.isRequired,
-		pluginFile: PropTypes.string.isRequired,
-		pluginSlug: PropTypes.string.isRequired,
-		pluginLink: PropTypes.string.isRequired,
-		installOrActivatePrompt: PropTypes.element.isRequired,
-		iconAlt: PropTypes.string,
-		iconSrc: PropTypes.string,
+export const PluginDashItem = ( {
+	fetchPluginsData,
+	iconAlt,
+	iconSrc,
+	installOrActivatePrompt,
+	isFetchingPluginsData,
+	pluginIsActive,
+	pluginIsInstalled,
+	pluginLink,
+	pluginName,
+	pluginSlug,
+} ) => {
+	const [ isActivating, setIsActivating ] = useState( false );
+	const [ isInstalling, setIsInstalling ] = useState( false );
 
-		// connected properties
-		isFetchingPluginsData: PropTypes.bool,
-		pluginIsActive: PropTypes.bool,
-		pluginIsInstalled: PropTypes.bool,
-	};
-
-	state = {
-		isActivating: false,
-		isInstalling: false,
-	};
-
-	activateOrInstallPlugin = () => {
-		const { fetchPluginsData, pluginIsActive, pluginIsInstalled, pluginSlug } = this.props;
-
+	const activateOrInstallPlugin = useCallback( () => {
 		if ( ! pluginIsInstalled ) {
-			this.setState( { isInstalling: true } );
+			setIsInstalling( true );
 		} else if ( ! pluginIsActive ) {
-			this.setState( { isActivating: true } );
+			setIsActivating( true );
 		} else if ( pluginIsInstalled && pluginIsActive ) {
 			// do not try to do anything to an installed, active plugin
 			return Promise.resolve();
 		}
-
 		analytics.tracks.recordJetpackClick( {
 			target: 'plugin_dash_item',
 			type: pluginIsInstalled ? 'install' : 'activate',
 			feature: pluginSlug,
 		} );
-
 		return (
 			restApi
 				.installPlugin( pluginSlug, 'active' )
@@ -79,27 +69,13 @@ export class PluginDashItem extends Component {
 					return fetchPluginsData();
 				} )
 				.finally( () => {
-					this.setState( {
-						isActivating: false,
-						isInstalling: false,
-					} );
+					setIsActivating( false );
+					setIsInstalling( false );
 				} )
 		);
-	};
+	}, [ fetchPluginsData, pluginIsActive, pluginIsInstalled, pluginSlug ] );
 
-	renderContent() {
-		const {
-			iconAlt,
-			iconSrc,
-			isFetchingPluginsData,
-			pluginLink,
-			pluginName,
-			pluginIsActive,
-			pluginIsInstalled,
-			installOrActivatePrompt,
-		} = this.props;
-		const { isInstalling, isActivating } = this.state;
-
+	const renderContent = () => {
 		if ( isFetchingPluginsData ) {
 			return (
 				<Card className="plugin-dash-item__content">
@@ -144,7 +120,7 @@ export class PluginDashItem extends Component {
 					iconAlt={ iconAlt }
 					iconSrc={ iconSrc }
 					title={ installOrActivatePrompt }
-					onClick={ this.activateOrInstallPlugin }
+					onClick={ activateOrInstallPlugin }
 				/>
 			);
 		} else if ( ! pluginIsActive ) {
@@ -159,7 +135,7 @@ export class PluginDashItem extends Component {
 					iconAlt={ iconAlt }
 					iconSrc={ iconSrc }
 					title={ installOrActivatePrompt }
-					onClick={ this.activateOrInstallPlugin }
+					onClick={ activateOrInstallPlugin }
 				/>
 			);
 		}
@@ -177,25 +153,36 @@ export class PluginDashItem extends Component {
 				href={ pluginLink }
 			/>
 		);
-	}
+	};
 
-	render() {
-		const { pluginName } = this.props;
+	return (
+		<div className="plugin-dash-item">
+			<SectionHeader className="plugin-dash-item__section-header" label={ pluginName } />
+			{ renderContent() }
+		</div>
+	);
+};
 
-		return (
-			<div className="plugin-dash-item">
-				<SectionHeader className="plugin-dash-item__section-header" label={ pluginName } />
-				{ this.renderContent() }
-			</div>
-		);
-	}
-}
+PluginDashItem.propTypes = {
+	pluginName: PropTypes.string.isRequired,
+	pluginFile: PropTypes.string.isRequired,
+	pluginSlug: PropTypes.string.isRequired,
+	pluginLink: PropTypes.string.isRequired,
+	installOrActivatePrompt: PropTypes.element.isRequired,
+	iconAlt: PropTypes.string,
+	iconSrc: PropTypes.string,
+
+	// connected properties
+	isFetchingPluginsData: PropTypes.bool,
+	pluginIsActive: PropTypes.bool,
+	pluginIsInstalled: PropTypes.bool,
+};
 
 export default connect(
-	( state, ownProps ) => ( {
+	( state, { pluginFile } ) => ( {
 		isFetchingPluginsData: getIsFetchingPluginsData( state ),
-		pluginIsInstalled: isPluginInstalled( state, ownProps.pluginFile ),
-		pluginIsActive: isPluginActive( state, ownProps.pluginFile ),
+		pluginIsInstalled: isPluginInstalled( state, pluginFile ),
+		pluginIsActive: isPluginActive( state, pluginFile ),
 	} ),
 	dispatch => ( { fetchPluginsData: () => dispatch( dispatchFetchPluginsData() ) } )
 )( PluginDashItem );

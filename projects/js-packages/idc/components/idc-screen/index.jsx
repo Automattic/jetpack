@@ -5,6 +5,7 @@ import React, { useEffect, useState, useCallback } from 'react';
 import PropTypes from 'prop-types';
 import analytics from '@automattic/jetpack-analytics';
 import restApi from '@automattic/jetpack-api';
+import { useSelect } from '@wordpress/data';
 
 /**
  * Internal dependencies
@@ -15,6 +16,7 @@ import useMigration from '../../hooks/use-migration';
 import useMigrationFinished from '../../hooks/use-migration-finished';
 import useStartFresh from '../../hooks/use-start-fresh';
 import customContentShape from '../../tools/custom-content-shape';
+import { STORE_ID } from '../../state/store';
 
 /**
  * The IDC screen component.
@@ -37,6 +39,8 @@ const IDCScreen = props => {
 	} = props;
 
 	const [ isMigrated, setIsMigrated ] = useState( false );
+
+	const errorType = useSelect( select => select( STORE_ID ).getErrorType(), [] );
 
 	const { isMigrating, migrateCallback } = useMigration(
 		useCallback( () => {
@@ -90,6 +94,9 @@ const IDCScreen = props => {
 			isStartingFresh={ isStartingFresh }
 			startFreshCallback={ startFreshCallback }
 			isAdmin={ isAdmin }
+			hasStaySafeError={ errorType === 'safe-mode' }
+			hasFreshError={ errorType === 'start-fresh' }
+			hasMigrateError={ errorType === 'migrate' }
 		/>
 	);
 };

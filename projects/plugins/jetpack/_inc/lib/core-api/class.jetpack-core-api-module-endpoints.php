@@ -737,19 +737,31 @@ class Jetpack_Core_API_Data extends Jetpack_Core_API_XMLRPC_Consumer_Endpoint {
 
 				case 'search_auto_config':
 					if ( ! $value ) {
+						// Skip execution if no value is specified.
 						$updated = true;
-					} elseif ( class_exists( 'Jetpack_Search' ) ) {
-						$jps = Jetpack_Search::instance();
-						if ( is_a( $jps, 'Jetpack_Instant_Search' ) ) {
-							$jps->auto_config_search();
-							$updated = true;
-						} else {
-							$updated = new WP_Error( 'instant_search_disabled', 'Instant Search Disabled', array( 'status' => 400 ) );
-							$error   = $updated->get_error_message();
-						}
 					} else {
-						$updated = new WP_Error( 'search_disabled', 'Search Disabled', array( 'status' => 400 ) );
-						$error   = $updated->get_error_message();
+						$plan = new Automattic\Jetpack\Search\Plan();
+						if ( ! $plan->supports_instant_search() ) {
+							$updated = new WP_Error( 'instant_search_not_supported', 'Instant Search is not supported by this site', array( 'status' => 400 ) );
+							$error   = $updated->get_error_message();
+						} else {
+							if ( ! Automattic\Jetpack\Search\Options::is_instant_enabled() ) {
+								$updated = new WP_Error( 'instant_search_disabled', 'Instant Search is disabled', array( 'status' => 400 ) );
+								$error   = $updated->get_error_message();
+							} else {
+								$instance = Automattic\Jetpack\Search\Instant_Search::instance();
+
+								// Perform initialization. This should have already been executed in modules/search.php.
+								// In other words: This is a failsafe.
+								if ( ! $instance ) {
+									Automattic\Jetpack\Search\Jetpack_Initializer::initialize();
+									$instance = Automattic\Jetpack\Search\Instant_Search::instance();
+								}
+
+								$instance->auto_config_search();
+								$updated = true;
+							}
+						}
 					}
 					break;
 
