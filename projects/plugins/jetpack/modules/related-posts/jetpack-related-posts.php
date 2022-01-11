@@ -1,9 +1,17 @@
 <?php
+/**
+ * The Jetpack_RelatedPosts class.
+ *
+ * @package automattic/jetpack
+ */
 
 use Automattic\Jetpack\Assets;
 use Automattic\Jetpack\Blocks;
 use Automattic\Jetpack\Sync\Settings;
 
+/**
+ * The Jetpack_RelatedPosts class.
+ */
 class Jetpack_RelatedPosts {
 	const VERSION   = '20211209';
 	const SHORTCODE = 'jetpack-related-posts';
@@ -1212,7 +1220,7 @@ EOT;
 				$related_posts[ $index ]['date']    = get_the_date( '', $real_post );
 				$related_posts[ $index ]['excerpt'] = html_entity_decode( $this->to_utf8( $this->get_excerpt( $real_post->post_excerpt, $real_post->post_content ) ), ENT_QUOTES, 'UTF-8' );
 				$related_posts[ $index ]['img']     = $this->generate_related_post_image_params( $real_post->ID );
-				$related_posts[ $index ]['context'] = $this->_generate_related_post_context( $real_post->ID );
+				$related_posts[ $index ]['context'] = $this->generate_related_post_context( $real_post->ID );
 			}
 		} else {
 			$related_posts = $this->get_for_post_id(
@@ -1284,12 +1292,12 @@ EOT;
 			 *
 			 * @since 3.0.0
 			 *
-			 * @param string $this->to_utf8( $this->_generate_related_post_context( $post->ID ) ) Context displayed below each related post.
+			 * @param string $this->to_utf8( $this->generate_related_post_context( $post->ID ) ) Context displayed below each related post.
 			 * @param string $post_id Post ID of the post for which we are retrieving Related Posts.
 			 */
 			'context'  => apply_filters(
 				'jetpack_relatedposts_filter_post_context',
-				$this->to_utf8( $this->_generate_related_post_context( $post->ID ) ),
+				$this->to_utf8( $this->generate_related_post_context( $post->ID ) ),
 				$post->ID
 			),
 			'img'      => $this->generate_related_post_image_params( $post->ID ),
@@ -1607,7 +1615,7 @@ EOT;
 
 		$filtered = array();
 		foreach ( $related_posts as $hit ) {
-			if ( in_array( get_post_status( $hit['id'] ), $public_stati ) ) {
+			if ( in_array( get_post_status( $hit['id'] ), $public_stati, true ) ) {
 				$filtered[] = $hit;
 			}
 		}
@@ -1621,16 +1629,17 @@ EOT;
 	 *   - First post tag
 	 *   - Number of comments
 	 *
-	 * @param int $post_id
+	 * @param int $post_id - the post ID.
 	 * @uses get_the_category, get_the_terms, get_comments_number, number_format_i18n, __, _n
 	 * @return string
 	 */
-	protected function _generate_related_post_context( $post_id ) {
+	protected function generate_related_post_context( $post_id ) {
 		$categories = get_the_category( $post_id );
 		if ( is_array( $categories ) ) {
 			foreach ( $categories as $category ) {
-				if ( 'uncategorized' != $category->slug && '' != trim( $category->name ) ) {
+				if ( 'uncategorized' !== $category->slug && '' !== trim( $category->name ) ) {
 					$post_cat_context = sprintf(
+						// Translators: The category or tag name.
 						esc_html_x( 'In "%s"', 'in {category/tag name}', 'jetpack' ),
 						$category->name
 					);
@@ -1652,8 +1661,9 @@ EOT;
 		$tags = get_the_terms( $post_id, 'post_tag' );
 		if ( is_array( $tags ) ) {
 			foreach ( $tags as $tag ) {
-				if ( '' != trim( $tag->name ) ) {
+				if ( '' !== trim( $tag->name ) ) {
 					$post_tag_context = sprintf(
+						// Translators: the category or tag name.
 						_x( 'In "%s"', 'in {category/tag name}', 'jetpack' ),
 						$tag->name
 					);
@@ -1685,7 +1695,6 @@ EOT;
 
 	/**
 	 * Logs clicks for clickthrough analysis and related result tuning.
-	 *
 	 */
 	protected function log_click( $post_id, $to_post_id, $link_position ) {
 
