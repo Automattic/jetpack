@@ -15,6 +15,7 @@ import {
 import { ConnectionStatusCard } from '@automattic/jetpack-connection';
 
 import './style.scss';
+import PlanSection from '../plan-section';
 
 /**
  * The My Jetpack App Main Screen.
@@ -45,7 +46,7 @@ export default function MyJetpackScreen() {
 				<AdminSection>
 					<Row>
 						<Col lg={ 6 } sm={ 4 }>
-							<h1>{ __( 'My Plan', 'jetpack-my-jetpack' ) }</h1>
+							<PlanSection />
 						</Col>
 						<Col lg={ 6 } sm={ 4 }>
 							<ConnectionStatusCard
