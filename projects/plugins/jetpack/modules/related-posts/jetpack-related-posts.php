@@ -170,7 +170,7 @@ class Jetpack_RelatedPosts {
 		// Add a shortcode handler that outputs nothing, this gets overridden later if we can display related content.
 		add_shortcode( self::SHORTCODE, array( $this, 'get_client_rendered_html_unsupported' ) );
 
-		if ( ! $this->_enabled_for_request() ) {
+		if ( ! $this->enabled_for_request() ) {
 			return;
 		}
 
@@ -179,7 +179,7 @@ class Jetpack_RelatedPosts {
 			$this->action_frontend_init_ajax( $excludes );
 		} else {
 			if ( isset( $_GET['relatedposts_hit'], $_GET['relatedposts_origin'], $_GET['relatedposts_position'] ) ) {
-				$this->_log_click( $_GET['relatedposts_origin'], get_the_ID(), $_GET['relatedposts_position'] );
+				$this->log_click( $_GET['relatedposts_origin'], get_the_ID(), $_GET['relatedposts_position'] );
 				$this->previous_post_id = (int) $_GET['relatedposts_origin'];
 			}
 
@@ -1455,15 +1455,15 @@ EOT;
 	/**
 	 * Workhorse method to return array of related posts matched by Elasticsearch.
 	 *
-	 * @param int   $post_id
-	 * @param int   $size
-	 * @param array $filters
+	 * @param int   $post_id - the ID of the post.
+	 * @param int   $size - the size of the post.
+	 * @param array $filters - filters.
 	 * @uses wp_remote_post, is_wp_error, get_option, wp_remote_retrieve_body, get_post, add_query_arg, remove_query_arg, get_permalink, get_post_format, apply_filters
 	 * @return array
 	 */
 	protected function get_related_posts( $post_id, $size, array $filters ) {
-		$hits = $this->_filter_non_public_posts(
-			$this->_get_related_post_ids(
+		$hits = $this->filter_non_public_posts(
+			$this->get_related_post_ids(
 				$post_id,
 				$size,
 				$filters
@@ -1492,13 +1492,13 @@ EOT;
 	/**
 	 * Get array of related posts matched by Elasticsearch.
 	 *
-	 * @param int   $post_id
-	 * @param int   $size
-	 * @param array $filters
+	 * @param int   $post_id - the post ID.
+	 * @param int   $size - the size.
+	 * @param array $filters - some filters.
 	 * @uses wp_remote_post, is_wp_error, wp_remote_retrieve_body, get_post_meta, update_post_meta
 	 * @return array
 	 */
-	protected function _get_related_post_ids( $post_id, $size, array $filters ) {
+	protected function get_related_post_ids( $post_id, $size, array $filters ) {
 		$now_ts         = time();
 		$cache_meta_key = '_jetpack_related_posts_cache';
 
@@ -1564,18 +1564,18 @@ EOT;
 
 		// An empty array might indicate no related posts or that posts
 		// are not yet synced to WordPress.com, so we cache for only 1
-		// minute in this case
+		// minute in this case.
 		if ( empty( $related_posts ) ) {
 			$cache_ttl = 60;
 		} else {
 			$cache_ttl = 12 * HOUR_IN_SECONDS;
 		}
 
-		// Update cache
+		// Update cache.
 		if ( wp_using_ext_object_cache() ) {
 			set_transient( $transient_name, $related_posts, $cache_ttl );
 		} else {
-			// Copy all valid cache values
+			// Copy all valid cache values.
 			$new_cache = array();
 			foreach ( $cache as $k => $v ) {
 				if ( is_array( $v ) && $v['expires'] > $now_ts ) {
@@ -1583,7 +1583,7 @@ EOT;
 				}
 			}
 
-			// Set new cache value
+			// Set new cache value.
 			$cache_expires           = $cache_ttl + $now_ts;
 			$new_cache[ $cache_key ] = array(
 				'expires' => $cache_expires,
@@ -1598,11 +1598,11 @@ EOT;
 	/**
 	 * Filter out any hits that are not public anymore.
 	 *
-	 * @param array $related_posts
+	 * @param array $related_posts - the related posts.
 	 * @uses get_post_stati, get_post_status
 	 * @return array
 	 */
-	protected function _filter_non_public_posts( array $related_posts ) {
+	protected function filter_non_public_posts( array $related_posts ) {
 		$public_stati = get_post_stati( array( 'public' => true ) );
 
 		$filtered = array();
@@ -1687,7 +1687,7 @@ EOT;
 	 * Logs clicks for clickthrough analysis and related result tuning.
 	 *
 	 */
-	protected function _log_click( $post_id, $to_post_id, $link_position ) {
+	protected function log_click( $post_id, $to_post_id, $link_position ) {
 
 	}
 
@@ -1697,7 +1697,7 @@ EOT;
 	 * @uses self::get_options, is_admin, is_single, apply_filters
 	 * @return bool
 	 */
-	protected function _enabled_for_request() {
+	protected function enabled_for_request() {
 		$enabled = is_single()
 			&& ! is_attachment()
 			&& ! is_admin()
@@ -1922,8 +1922,8 @@ class Jetpack_RelatedPosts_Raw extends Jetpack_RelatedPosts {
 	 * @return array
 	 */
 	protected function get_related_posts( $post_id, $size, array $filters ) {
-		$hits = $this->_filter_non_public_posts(
-			$this->_get_related_post_ids(
+		$hits = $this->filter_non_public_posts(
+			$this->get_related_post_ids(
 				$post_id,
 				$size,
 				$filters
