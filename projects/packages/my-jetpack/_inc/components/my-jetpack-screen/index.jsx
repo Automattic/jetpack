@@ -19,7 +19,7 @@ import './style.scss';
 /**
  * The My Jetpack App Main Screen.
  *
- * @returns {object} The MyJetpackScreen component.
+ * @return {Object} The MyJetpackScreen component.
  */
 export default function MyJetpackScreen() {
 	const redirectAfterDisconnect = useCallback( () => {
