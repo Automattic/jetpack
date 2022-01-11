@@ -6,7 +6,7 @@ WP Admin page with information and configuration shared among all Jetpack stand-
 
 Every Jetpack plugin must include the My Jetpack package.
 
-Define the `JETPACK_ENABLE_MY_JETPACK` constante as True:
+Define the `JETPACK_ENABLE_MY_JETPACK` constant as true:
 
 ```php
 defined( 'JETPACK_ENABLE_MY_JETPACK' ) || define( 'JETPACK_ENABLE_MY_JETPACK', true );
