@@ -14,14 +14,27 @@ class Collection {
 	 */
 	private $key;
 
-	private $autoload;
+	/**
+	 * Collections imply that they may carry more data than regular options.
+	 * Disable Autoloading for Collections by default.
+	 *
+	 * @see autoload() to enable autoloading.
+	 */
+	private $autoload = false;
 
 	/**
 	 * @param string $key Collection key.
 	 */
-	public function __construct( $key, $autoload = false ) {
-		$this->key      = $key;
-		$this->autoload = $autoload;
+	public function __construct( $key ) {
+		$this->key = $key;
+	}
+
+	/*
+	 * Allow autoloading collections
+	 */
+	public function autoload() {
+		$this->autoload = true;
+		return $this;
 	}
 
 	/**
@@ -42,11 +55,13 @@ class Collection {
 
 		if ( ! in_array( $item, $items, true ) ) {
 			$items[] = $item;
-			update_option( $this->key, $items, $this->autoload );
+			return update_option( $this->key, $items, $this->autoload );
 		}
+
+		return false;
 	}
 
 	public function delete() {
-		delete_option( $this->key );
+		return delete_option( $this->key );
 	}
 }
