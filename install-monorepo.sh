@@ -30,8 +30,8 @@ fi
 # Check of Homebrew and nvm are installed
 echo "Checking if Homebrew is installed..."
 if ! command -v brew &>/dev/null; then
-    echo "Installing Homebrew"
-    /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
+	echo "Installing Homebrew"
+	/bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
 	if [[ -n "$ON_LINUX" ]]; then # Add homebrew to PATH
 		echo 'eval "$("$HOME/.linuxbrew/bin/brew" shellenv)"' >> "$HOME/.profile"
 		eval "$("$HOME/.linuxbrew/bin/brew" shellenv)"
