@@ -2,10 +2,10 @@
 
 use Automattic\Jetpack\Connection\Client;
 
-require_once dirname( __FILE__ ) . '/json-api-config.php';
-require_once dirname( __FILE__ ) . '/sal/class.json-api-links.php';
-require_once dirname( __FILE__ ) . '/sal/class.json-api-metadata.php';
-require_once dirname( __FILE__ ) . '/sal/class.json-api-date.php';
+require_once __DIR__ . '/json-api-config.php';
+require_once __DIR__ . '/sal/class.json-api-links.php';
+require_once __DIR__ . '/sal/class.json-api-metadata.php';
+require_once __DIR__ . '/sal/class.json-api-date.php';
 
 // Endpoint
 abstract class WPCOM_JSON_API_Endpoint {
@@ -314,7 +314,6 @@ abstract class WPCOM_JSON_API_Endpoint {
 		}
 		return $return;
 	}
-
 
 	protected function get_secure_body( $secure_key ) {
 		$response = Client::wpcom_json_api_request_as_blog(
@@ -771,7 +770,7 @@ abstract class WPCOM_JSON_API_Endpoint {
 				// This is needed to fix a bug in WPAndroid where `public: "PUBLIC"` is sent in place of `public: 1`
 				if ( 'public' === strtolower( $value ) ) {
 					$return[ $key ] = 1;
-				} else if ( 'private' === strtolower( $value ) ) {
+				} elseif ( 'private' === strtolower( $value ) ) {
 					$return[ $key ] = -1;
 				} else {
 					$return[ $key ] = (int) $value;
@@ -1752,8 +1751,8 @@ abstract class WPCOM_JSON_API_Endpoint {
 			return new ReflectionMethod( $class, $method );
 		}
 
-		if ( method_exists( $callback, "__invoke" ) ) {
-			return new ReflectionMethod( $callback, "__invoke" );
+		if ( method_exists( $callback, '__invoke' ) ) {
+			return new ReflectionMethod( $callback, '__invoke' );
 		}
 
 		if ( is_string( $callback ) && strpos( $callback, '::' ) == false && function_exists( $callback ) ) {
@@ -2182,7 +2181,6 @@ abstract class WPCOM_JSON_API_Endpoint {
 	 */
 	abstract public function callback( $path = '' );
 
-
 }
 
-require_once dirname( __FILE__ ) . '/json-endpoints.php';
+require_once __DIR__ . '/json-endpoints.php';

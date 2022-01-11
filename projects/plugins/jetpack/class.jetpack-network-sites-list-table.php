@@ -6,7 +6,6 @@ if ( ! class_exists( 'WP_List_Table' ) ) {
 
 class Jetpack_Network_Sites_List_Table extends WP_List_Table {
 
-
 	public function get_columns() {
 		// site name, status, username connected under
 		$columns = array(

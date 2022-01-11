@@ -240,7 +240,7 @@ class Jetpack_Network {
 
 		if ( is_string( $args ) ) {
 			$name = $args;
-		} else if ( is_array( $args ) ) {
+		} elseif ( is_array( $args ) ) {
 			$name = $args['name'];
 		} else {
 			return $url;
