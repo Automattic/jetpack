@@ -39,7 +39,7 @@ if ! command -v brew &>/dev/null; then
 	fi
 else
 	echo "Updating brew"
-    brew update
+	brew update
 	# Brew can be finicky on MacOS
 	if [[ $? -ne 0 ]]; then
 		 echo "Reinstalling Homebrew"
