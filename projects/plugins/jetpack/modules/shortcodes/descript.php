@@ -126,9 +126,6 @@ function jetpack_descript_shortcode( $atts ) {
 		esc_attr( $id )
 	);
 
-	// jetpack_is_dnt_enabled runs this filter before checking the headers.
-	add_filter( 'jetpack_honor_dnt_header_for_stats', '__return_true' );
-
 	/*
 	Descript embed requests fail if the dnt header is added.
 	This checks whether the visitor has the flag enabled. If yes, we render a link instead of embedding and dishonoring their dnt wishes.
@@ -138,8 +135,6 @@ function jetpack_descript_shortcode( $atts ) {
 	} else {
 		$embed_code = wp_oembed_get( $embed_url, array_filter( $params ) );
 	}
-
-	remove_filter( 'jetpack_honor_dnt_header_for_stats', '__return_true' );
 
 	// wrap the embed with wp-block-embed__wrapper, otherwise it would be aligned to the very left of the viewport.
 	return sprintf(
