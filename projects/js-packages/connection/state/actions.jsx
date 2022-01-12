@@ -49,7 +49,7 @@ const fetchAuthorizationUrl = redirectUri => {
 
 const setUserConnectionData = userConnectionData => {
 	return { type: SET_USER_CONNECTION_DATA, userConnectionData };
-}
+};
 
 /**
  * Connect site with wp.com user
