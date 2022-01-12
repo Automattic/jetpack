@@ -12,9 +12,10 @@ class Jetpack_Frame_Nonce_Preview {
 	/**
 	 * Static instance.
 	 *
+	 * @todo This should be private.
 	 * @var self
 	 */
-	static $instance = null;
+	public static $instance = null;
 
 	/**
 	 * Returns the single instance of the Jetpack_Frame_Nonce_Preview object
@@ -31,8 +32,12 @@ class Jetpack_Frame_Nonce_Preview {
 		return self::$instance = new Jetpack_Frame_Nonce_Preview();
 	}
 
-	/** Constructor. */
-	function __construct() {
+	/**
+	 * Constructor.
+	 *
+	 * @todo This should be private.
+	 */
+	public function __construct() {
 		if ( isset( $_GET['frame-nonce'] ) && ! is_admin() ) {
 			add_filter( 'pre_get_posts', array( $this, 'maybe_display_post' ) );
 		}

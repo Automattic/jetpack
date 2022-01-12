@@ -17,7 +17,7 @@ if ( ! class_exists( 'WP_List_Table' ) ) {
 class Jetpack_Modules_List_Table extends WP_List_Table {
 
 	/** Constructor. */
-	function __construct() {
+	public function __construct() {
 		parent::__construct();
 
 		Jetpack::init();
@@ -102,7 +102,7 @@ class Jetpack_Modules_List_Table extends WP_List_Table {
 	/**
 	 * Output row template.
 	 */
-	function js_templates() {
+	public function js_templates() {
 		?>
 		<script type="text/html" id="tmpl-Jetpack_Modules_List_Table_Template">
 			<# var i = 0;
@@ -149,7 +149,7 @@ class Jetpack_Modules_List_Table extends WP_List_Table {
 	 *
 	 * @return array Maps identifier to display HTML.
 	 */
-	function get_views() {
+	public function get_views() {
 		/** This filter is already documented in class.jetpack-modules-list-table.php */
 		$modules              = apply_filters( 'jetpack_modules_list_table_items', Jetpack_Admin::init()->get_modules() );
 		$array_of_module_tags = wp_list_pluck( $modules, 'module_tags' );
@@ -181,7 +181,7 @@ class Jetpack_Modules_List_Table extends WP_List_Table {
 	/**
 	 * Output views HTML.
 	 */
-	function views() {
+	public function views() {
 		$views = $this->get_views();
 
 		echo "<ul class='subsubsub'>\n";
@@ -198,7 +198,7 @@ class Jetpack_Modules_List_Table extends WP_List_Table {
 	 * @param array $modules Modules.
 	 * @return array Displayed modules.
 	 */
-	function filter_displayed_table_items( $modules ) {
+	public function filter_displayed_table_items( $modules ) {
 		return array_filter( $modules, array( $this, 'is_module_displayed' ) );
 	}
 
@@ -208,7 +208,7 @@ class Jetpack_Modules_List_Table extends WP_List_Table {
 	 * @param array $module Module data.
 	 * @return bool
 	 */
-	static function is_module_displayed( $module ) {
+	public static function is_module_displayed( $module ) {
 		// Handle module tag based filtering.
 		if ( ! empty( $_REQUEST['module_tag'] ) ) {
 			$module_tag = sanitize_text_field( $_REQUEST['module_tag'] );
@@ -228,7 +228,7 @@ class Jetpack_Modules_List_Table extends WP_List_Table {
 	 * @param array $module2 Module data.
 	 * @return int Indicating the relative ordering of module1 and module2.
 	 */
-	static function sort_requires_connection_last( $module1, $module2 ) {
+	public static function sort_requires_connection_last( $module1, $module2 ) {
 		if ( $module1['requires_connection'] == $module2['requires_connection'] ) {
 			return 0;
 		}
@@ -247,7 +247,7 @@ class Jetpack_Modules_List_Table extends WP_List_Table {
 	 *
 	 * @return string[] Column name to header HTML.
 	 */
-	function get_columns() {
+	public function get_columns() {
 		$columns = array(
 			'cb'   => '<input type="checkbox" />',
 			'name' => __( 'Name', 'jetpack' ),
@@ -260,7 +260,7 @@ class Jetpack_Modules_List_Table extends WP_List_Table {
 	 *
 	 * @return string[] Actions, code => text.
 	 */
-	function get_bulk_actions() {
+	public function get_bulk_actions() {
 		$actions = array(
 			'bulk-activate'   => __( 'Activate', 'jetpack' ),
 			'bulk-deactivate' => __( 'Deactivate', 'jetpack' ),
@@ -273,7 +273,7 @@ class Jetpack_Modules_List_Table extends WP_List_Table {
 	 *
 	 * @param object|array $item Item.
 	 */
-	function single_row( $item ) {
+	public function single_row( $item ) {
 		static $i  = 0;
 		$row_class = ( ++$i % 2 ) ? ' alternate' : '';
 
@@ -295,7 +295,7 @@ class Jetpack_Modules_List_Table extends WP_List_Table {
 	 *
 	 * @return string[] HTML.
 	 */
-	function get_table_classes() {
+	public function get_table_classes() {
 		return array( 'table', 'table-bordered', 'wp-list-table', 'widefat', 'fixed', 'jetpack-modules' );
 	}
 
@@ -305,7 +305,7 @@ class Jetpack_Modules_List_Table extends WP_List_Table {
 	 * @param object|array $item Item.
 	 * @return string HTML.
 	 */
-	function column_cb( $item ) {
+	public function column_cb( $item ) {
 		if ( ! Jetpack_Admin::is_module_available( $item ) ) {
 			return '';
 		}
@@ -319,7 +319,7 @@ class Jetpack_Modules_List_Table extends WP_List_Table {
 	 * @param object|array $item Item.
 	 * @return string HTML.
 	 */
-	function column_icon( $item ) {
+	public function column_icon( $item ) {
 		$badge_text = $free_text = '';
 		ob_start();
 		?>
@@ -339,7 +339,7 @@ class Jetpack_Modules_List_Table extends WP_List_Table {
 	 * @param object|array $item Item.
 	 * @return string HTML.
 	 */
-	function column_name( $item ) {
+	public function column_name( $item ) {
 		$actions = array(
 			'info' => sprintf( '<a href="%s" target="blank">%s</a>', esc_url( $item['learn_more_button'] ), esc_html__( 'Feature Info', 'jetpack' ) ),
 		);
@@ -383,7 +383,7 @@ class Jetpack_Modules_List_Table extends WP_List_Table {
 	 * @param object|array $item Item.
 	 * @return string HTML.
 	 */
-	function column_description( $item ) {
+	public function column_description( $item ) {
 		ob_start();
 		/** This action is documented in class.jetpack-admin.php */
 		echo apply_filters( 'jetpack_short_module_description', $item['description'], $item['module'] );
@@ -402,7 +402,7 @@ class Jetpack_Modules_List_Table extends WP_List_Table {
 	 * @param object|array $item Item.
 	 * @return string HTML.
 	 */
-	function column_module_tags( $item ) {
+	public function column_module_tags( $item ) {
 		$module_tags = array();
 		foreach ( $item['module_tags'] as $module_tag ) {
 			$module_tags[] = sprintf( '<a href="%3$s" data-title="%2$s">%1$s</a>', esc_html( $module_tag ), esc_attr( $module_tag ), esc_url( add_query_arg( 'module_tag', urlencode( $module_tag ) ) ) );
@@ -417,7 +417,7 @@ class Jetpack_Modules_List_Table extends WP_List_Table {
 	 * @param string       $column_name Column name.
 	 * @return string
 	 */
-	function column_default( $item, $column_name ) {
+	public function column_default( $item, $column_name ) {
 		switch ( $column_name ) {
 			case 'icon':
 			case 'name':
@@ -435,7 +435,7 @@ class Jetpack_Modules_List_Table extends WP_List_Table {
 	 * @param array        $modules Modules array.
 	 * @return string|false
 	 */
-	function module_info_check( $info, $modules ) {
+	public function module_info_check( $info, $modules ) {
 		if ( false == $info ) {
 			return false;
 		} elseif ( array_key_exists( $info, $modules ) ) {
@@ -452,7 +452,7 @@ class Jetpack_Modules_List_Table extends WP_List_Table {
 	 * @param string $which Which nav table to display.
 	 * @return mixed
 	 */
-	function unprotected_display_tablenav( $which = 'top' ) {
+	public function unprotected_display_tablenav( $which = 'top' ) {
 		return $this->display_tablenav( $which );
 	}
 

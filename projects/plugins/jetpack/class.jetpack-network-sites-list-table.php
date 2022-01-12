@@ -170,7 +170,7 @@ class Jetpack_Network_Sites_List_Table extends WP_List_Table {
 	 * @param object|array $item Item.
 	 * @return string HTML.
 	 */
-	function column_cb( $item ) {
+	public function column_cb( $item ) {
 			return sprintf(
 				'<input type="checkbox" name="bulk[]" value="%s" />',
 				$item->blog_id

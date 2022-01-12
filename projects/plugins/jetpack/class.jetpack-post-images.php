@@ -24,7 +24,7 @@ class Jetpack_PostImages {
 	 * @param int $height Image height.
 	 * @return array Images.
 	 */
-	static function from_slideshow( $post_id, $width = 200, $height = 200 ) {
+	public static function from_slideshow( $post_id, $width = 200, $height = 200 ) {
 		$images = array();
 
 		$post = get_post( $post_id );
@@ -107,7 +107,7 @@ class Jetpack_PostImages {
 	 * @param int $post_id Post ID.
 	 * @return array Images.
 	 */
-	static function from_gallery( $post_id ) {
+	public static function from_gallery( $post_id ) {
 		$images = array();
 
 		$post = get_post( $post_id );
@@ -185,7 +185,7 @@ class Jetpack_PostImages {
 	 * @param  int $height Image height.
 	 * @return array Containing details of the image, or empty array if none.
 	 */
-	static function from_attachment( $post_id, $width = 200, $height = 200 ) {
+	public static function from_attachment( $post_id, $width = 200, $height = 200 ) {
 		$images = array();
 
 		$post = get_post( $post_id );
@@ -254,7 +254,7 @@ class Jetpack_PostImages {
 	 * @param  int $height Image height.
 	 * @return array containing details of the Featured Image, or empty array if none.
 	 */
-	static function from_thumbnail( $post_id, $width = 200, $height = 200 ) {
+	public static function from_thumbnail( $post_id, $width = 200, $height = 200 ) {
 		$images = array();
 
 		$post = get_post( $post_id );
@@ -407,7 +407,7 @@ class Jetpack_PostImages {
 	 *
 	 * @return array containing images
 	 */
-	static function from_html( $html_or_id, $width = 200, $height = 200 ) {
+	public static function from_html( $html_or_id, $width = 200, $height = 200 ) {
 		$images = array();
 
 		$html_info = self::get_post_html( $html_or_id );
@@ -496,7 +496,7 @@ class Jetpack_PostImages {
 	 * @param    int $size Size.
 	 * @return array containing details of the image, or empty array if none.
 	 */
-	static function from_blavatar( $post_id, $size = 96 ) {
+	public static function from_blavatar( $post_id, $size = 96 ) {
 
 		$permalink = get_permalink( $post_id );
 
@@ -536,7 +536,7 @@ class Jetpack_PostImages {
 	 * @param string $default The default image to use.
 	 * @return array containing details of the image, or empty array if none.
 	 */
-	static function from_gravatar( $post_id, $size = 96, $default = false ) {
+	public static function from_gravatar( $post_id, $size = 96, $default = false ) {
 		$post      = get_post( $post_id );
 		$permalink = get_permalink( $post_id );
 
@@ -576,7 +576,7 @@ class Jetpack_PostImages {
 	 * @param array $args Other arguments (currently width and height required for images where possible to determine).
 	 * @return array containing details of the best image to be used
 	 */
-	static function get_image( $post_id, $args = array() ) {
+	public static function get_image( $post_id, $args = array() ) {
 		$image = '';
 
 		/**
@@ -618,7 +618,7 @@ class Jetpack_PostImages {
 	 * @param  array $args Optional args, see defaults list for details.
 	 * @return array containing images that would be good for representing this post
 	 */
-	static function get_images( $post_id, $args = array() ) {
+	public static function get_images( $post_id, $args = array() ) {
 		// Figure out which image to attach to this post.
 		$media = false;
 
@@ -713,7 +713,7 @@ class Jetpack_PostImages {
 	 * @param  int    $height Image height.
 	 * @return string Transformed image URL
 	 */
-	static function fit_image_url( $src, $width, $height ) {
+	public static function fit_image_url( $src, $width, $height ) {
 		$width  = (int) $width;
 		$height = (int) $height;
 
@@ -769,7 +769,7 @@ class Jetpack_PostImages {
 	 * @type string $post_url Post URL.
 	 * }
 	 */
-	static function get_post_html( $html_or_id ) {
+	public static function get_post_html( $html_or_id ) {
 		if ( is_numeric( $html_or_id ) ) {
 			$post = get_post( $html_or_id );
 

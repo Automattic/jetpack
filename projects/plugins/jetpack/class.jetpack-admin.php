@@ -26,7 +26,7 @@ class Jetpack_Admin {
 	 *
 	 * @return self
 	 */
-	static function init() {
+	public static function init() {
 		if ( isset( $_GET['page'] ) && $_GET['page'] === 'jetpack' ) {
 			add_filter( 'nocache_headers', array( 'Jetpack_Admin', 'add_no_store_header' ), 100 );
 		}
@@ -43,7 +43,7 @@ class Jetpack_Admin {
 	 * @param array $headers Headers array.
 	 * @return array Modified headers array.
 	 */
-	static function add_no_store_header( $headers ) {
+	public static function add_no_store_header( $headers ) {
 		$headers['Cache-Control'] .= ', no-store';
 		return $headers;
 	}
@@ -127,7 +127,7 @@ class Jetpack_Admin {
 	 * @param array $module2 Module data.
 	 * @return int Indicating the relative ordering of module1 and module2.
 	 */
-	static function sort_requires_connection_last( $module1, $module2 ) {
+	public static function sort_requires_connection_last( $module1, $module2 ) {
 		if ( $module1['requires_connection'] == $module2['requires_connection'] ) {
 			return 0;
 		} elseif ( $module1['requires_connection'] ) {
@@ -143,7 +143,7 @@ class Jetpack_Admin {
 	 * Produce JS understandable objects of modules containing information for
 	 * presentation like description, name, configuration url, etc.
 	 */
-	function get_modules() {
+	public function get_modules() {
 		include_once JETPACK__PLUGIN_DIR . 'modules/module-info.php';
 		$available_modules = Jetpack::get_available_modules();
 		$active_modules    = Jetpack::get_active_modules();
@@ -266,7 +266,7 @@ class Jetpack_Admin {
 	 *
 	 * @param array $module Module data.
 	 */
-	static function is_module_available( $module ) {
+	public static function is_module_available( $module ) {
 		if ( ! is_array( $module ) || empty( $module ) ) {
 			return false;
 		}
@@ -394,7 +394,7 @@ class Jetpack_Admin {
 	 *
 	 * @param string $action Action.
 	 */
-	function handle_unrecognized_action( $action ) {
+	public function handle_unrecognized_action( $action ) {
 		switch ( $action ) {
 			case 'bulk-activate':
 				if ( ! current_user_can( 'jetpack_activate_modules' ) ) {
@@ -441,7 +441,7 @@ class Jetpack_Admin {
 	 * @param string $module Module slug.
 	 * @param bool   $redirect Should we exit after the module has been activated. Default to true.
 	 */
-	function fix_redirect( $module, $redirect = true ) {
+	public function fix_redirect( $module, $redirect = true ) {
 		if ( ! $redirect ) {
 			return;
 		}
@@ -453,7 +453,7 @@ class Jetpack_Admin {
 	/**
 	 * Add debugger admin menu.
 	 */
-	function admin_menu_debugger() {
+	public function admin_menu_debugger() {
 		jetpack_require_lib( 'debugger' );
 		Jetpack_Debugger::disconnect_and_redirect();
 		$debugger_hook = add_submenu_page(
@@ -470,7 +470,7 @@ class Jetpack_Admin {
 	/**
 	 * Wrap debugger page.
 	 */
-	function wrap_debugger_page() {
+	public function wrap_debugger_page() {
 		nocache_headers();
 		if ( ! current_user_can( 'manage_options' ) ) {
 			die( '-1' );
@@ -481,7 +481,7 @@ class Jetpack_Admin {
 	/**
 	 * Display debugger page.
 	 */
-	function debugger_page() {
+	public function debugger_page() {
 		jetpack_require_lib( 'debugger' );
 		Jetpack_Debugger::jetpack_debug_display_handler();
 	}

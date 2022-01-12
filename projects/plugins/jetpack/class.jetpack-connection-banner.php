@@ -28,7 +28,7 @@ class Jetpack_Connection_Banner {
 	 *
 	 * @return self
 	 */
-	static function init() {
+	public static function init() {
 		if ( is_null( self::$instance ) ) {
 			self::$instance = new Jetpack_Connection_Banner();
 		}
@@ -118,7 +118,7 @@ class Jetpack_Connection_Banner {
 	 * @param string $jp_version_banner_added A short version of when the banner was added. Ex. 44.
 	 * @return string
 	 */
-	function build_connect_url_for_slide( $jp_version_banner_added ) {
+	public function build_connect_url_for_slide( $jp_version_banner_added ) {
 		global $current_screen;
 		$url = Jetpack::init()->build_connect_url(
 			true,
@@ -140,7 +140,7 @@ class Jetpack_Connection_Banner {
 	 *
 	 * @param \WP_Screen $current_screen Current WordPress screen.
 	 */
-	function maybe_initialize_hooks( $current_screen ) {
+	public function maybe_initialize_hooks( $current_screen ) {
 		if ( ! self::can_be_displayed( $current_screen ) ) {
 			return;
 		}
@@ -548,7 +548,7 @@ class Jetpack_Connection_Banner {
 	/**
 	 * Renders the legacy network connection banner.
 	 */
-	function network_connect_notice() {
+	public function network_connect_notice() {
 		?>
 		<div id="message" class="updated jetpack-message">
 			<div class="squeezer">

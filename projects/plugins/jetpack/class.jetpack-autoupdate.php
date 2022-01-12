@@ -58,7 +58,7 @@ class Jetpack_Autoupdate {
 	 *
 	 * @return self
 	 */
-	static function init() {
+	public static function init() {
 		if ( is_null( self::$instance ) ) {
 			self::$instance = new Jetpack_Autoupdate();
 		}
@@ -302,7 +302,7 @@ class Jetpack_Autoupdate {
 	 *
 	 * @return string[] Failure codes.
 	 */
-	static function get_possible_failures() {
+	public static function get_possible_failures() {
 		$result = array();
 		// Lets check some reasons why it might not be working as expected.
 		include_once ABSPATH . '/wp-admin/includes/admin.php';
@@ -353,7 +353,7 @@ class Jetpack_Autoupdate {
 	 * @param string $plugin_file Plugin file.
 	 * @return string Slug.
 	 */
-	static function get_plugin_slug( $plugin_file ) {
+	public static function get_plugin_slug( $plugin_file ) {
 		$update_plugins = get_site_transient( 'update_plugins' );
 		if ( isset( $update_plugins->no_update ) ) {
 			if ( isset( $update_plugins->no_update[ $plugin_file ] ) ) {
