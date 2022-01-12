@@ -96,17 +96,6 @@ class Jetpack_Autoupdate {
 		$autoupdate_themes_translations = Jetpack_Options::get_option( 'autoupdate_themes_translations', array() );
 		$autoupdate_theme_list          = Jetpack_Options::get_option( 'autoupdate_themes', array() );
 
-		/*
-		$item = {
-		  "type":"theme",
-		  "slug":"twentyfourteen",
-		  "language":"en_CA",
-		  "version":"1.8",
-		  "updated":"2015-07-18 11:27:20",
-		  "package":"https:\/\/downloads.wordpress.org\/translation\/theme\/twentyfourteen\/1.8\/en_CA.zip",
-		  "autoupdate":true
-		}
-		*/
 		if ( ( in_array( $item->slug, $autoupdate_themes_translations )
 			   || in_array( $item->slug, $autoupdate_theme_list ) )
 			 && 'theme' === $item->type

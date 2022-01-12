@@ -1432,7 +1432,7 @@ abstract class WPCOM_JSON_API_Endpoint {
 		$author = array(
 			'ID'          => (int) $id,
 			'login'       => (string) $login,
-			'email'       => $email, // (string|bool)
+			'email'       => $email, // string|bool.
 			'name'        => (string) $name,
 			'first_name'  => (string) $first_name,
 			'last_name'   => (string) $last_name,
@@ -1440,7 +1440,7 @@ abstract class WPCOM_JSON_API_Endpoint {
 			'URL'         => (string) esc_url_raw( $URL ),
 			'avatar_URL'  => (string) esc_url_raw( $avatar_URL ),
 			'profile_URL' => (string) esc_url_raw( $profile_URL ),
-			'ip_address'  => $ip_address, // (string|bool)
+			'ip_address'  => $ip_address, // string|bool.
 		);
 
 		if ( $site_id > -1 ) {
