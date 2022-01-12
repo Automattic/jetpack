@@ -848,7 +848,7 @@ class Jetpack_CLI extends WP_CLI_Command {
 					_x( "Above are your options. You may 'get', 'delete', and 'update' them.", "'get', 'delete', and 'update' are commands - do not translate.", 'jetpack' ) . "\n" .
 					str_pad( 'wp jetpack options get', 26 ) . $option_text . "\n" .
 					str_pad( 'wp jetpack options delete', 26 ) . $option_text . "\n" .
-					str_pad( 'wp jetpack options update', 26 ) . "$option_text $value_text" . "\n" .
+					str_pad( 'wp jetpack options update', 26 ) . "$option_text $value_text\n" .
 					_x( "Type 'wp jetpack options' for more info.", "'wp jetpack options' is a command - do not translate.", 'jetpack' ) . "\n"
 				);
 				break;

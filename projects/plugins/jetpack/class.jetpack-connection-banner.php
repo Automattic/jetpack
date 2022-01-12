@@ -305,8 +305,7 @@ class Jetpack_Connection_Banner {
 								alt="
 								<?php
 								esc_attr_e(
-									'Jetpack premium services offer even more powerful performance, security, ' .
-									'and revenue tools to help you keep your site safe, fast, and help generate income.',
+									'Jetpack premium services offer even more powerful performance, security, and revenue tools to help you keep your site safe, fast, and help generate income.',
 									'jetpack'
 								);
 								?>
@@ -322,9 +321,7 @@ class Jetpack_Connection_Banner {
 							<p>
 								<?php
 								esc_html_e(
-									'Jetpack protects you against brute force attacks and unauthorized logins. Basic protection ' .
-									'is always free, while premium plans add unlimited backups of your whole site, spam protection, ' .
-									'malware scanning, and automated fixes.',
+									'Jetpack protects you against brute force attacks and unauthorized logins. Basic protection is always free, while premium plans add unlimited backups of your whole site, spam protection, malware scanning, and automated fixes.',
 									'jetpack'
 								);
 								?>
@@ -333,9 +330,7 @@ class Jetpack_Connection_Banner {
 							<p>
 								<?php
 								esc_html_e(
-									'Activate site accelerator tools and watch your page load times decrease—we’ll ' .
-									'optimize your images and serve them from our own powerful global network of servers, ' .
-									'and speed up your mobile site to reduce bandwidth usage.',
+									'Activate site accelerator tools and watch your page load times decrease—we’ll optimize your images and serve them from our own powerful global network of servers, and speed up your mobile site to reduce bandwidth usage.',
 									'jetpack'
 								);
 								?>
