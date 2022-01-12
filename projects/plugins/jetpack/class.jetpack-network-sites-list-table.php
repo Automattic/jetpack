@@ -98,10 +98,10 @@ class Jetpack_Network_Sites_List_Table extends WP_List_Table {
 	 */
 	public function column_blog_path( $item ) {
 		return '<a href="' .
-						 get_site_url( $item->blog_id, '', 'admin' ) .
-						 '">' .
-						 str_replace( array( 'http://', 'https://' ), '', get_site_url( $item->blog_id, '', 'admin' ) ) .
-						 '</a>';
+			get_site_url( $item->blog_id, '', 'admin' ) .
+			'">' .
+			str_replace( array( 'http://', 'https://' ), '', get_site_url( $item->blog_id, '', 'admin' ) ) .
+			'</a>';
 	}
 
 	/**
