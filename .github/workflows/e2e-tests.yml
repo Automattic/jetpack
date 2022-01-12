@@ -52,13 +52,6 @@ jobs:
       run: |
         pnpm install
 
-    - name: Build plugins
-      working-directory: ${{ matrix.path }}
-      run: |
-        echo "::group::Build"
-        pnpm run build
-        echo "::endgroup::"
-
     - name: Test environment set-up
       working-directory: ${{ matrix.path }}
       env:
@@ -66,6 +59,10 @@ jobs:
       run: |
         echo "::group::Install e2e project"
         pnpm install
+        echo "::endgroup::"
+
+        echo "::group::Build plugin(s)"
+        pnpm run build
         echo "::endgroup::"
 
         echo "::group::Decrypt config"
