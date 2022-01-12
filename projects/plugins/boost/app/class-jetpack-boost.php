@@ -12,7 +12,6 @@
 
 namespace Automattic\Jetpack_Boost;
 
-use Automattic\Jetpack\Config as Jetpack_Config;
 use Automattic\Jetpack_Boost\Admin\Admin;
 use Automattic\Jetpack_Boost\Lib\Analytics;
 use Automattic\Jetpack_Boost\Lib\CLI;
@@ -254,23 +253,7 @@ class Jetpack_Boost {
 	 * Initialize the admin experience.
 	 */
 	public function init_admin() {
-		if ( ! apply_filters( 'jetpack_boost_connection_bypass', false ) ) {
-			$jetpack_config = new Jetpack_Config();
-			$jetpack_config->ensure(
-				'connection',
-				array(
-					'slug'     => 'jetpack-boost',
-					'name'     => 'Jetpack Boost',
-					'url_info' => '', // Optional, URL of the plugin.
-				)
-			);
-		}
-
-		/**
-		 * The class responsible for defining all actions that occur in the admin area.
-		 */
-		require_once plugin_dir_path( __FILE__ ) . 'admin/class-admin.php';
-
+		$this->connection->ensure_connection();
 		new Admin( $this );
 	}
 
