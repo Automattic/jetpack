@@ -116,7 +116,7 @@ abstract class Module {
 
 	public function disable() {
 
-		// Only record analytics evet if the config update succeeds
+		// Only record analytics event if the config update succeeds
 		if ( ! $this->config->update( 'enabled', false ) ) {
 			return false;
 		}
