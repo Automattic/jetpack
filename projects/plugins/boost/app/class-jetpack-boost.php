@@ -18,7 +18,6 @@ use Automattic\Jetpack_Boost\Lib\Analytics;
 use Automattic\Jetpack_Boost\Lib\CLI;
 use Automattic\Jetpack_Boost\Lib\Connection;
 use Automattic\Jetpack_Boost\Lib\Speed_Score_History;
-use Automattic\Jetpack_Boost\Lib\Viewport;
 use Automattic\Jetpack_Boost\Modules\Critical_CSS\Critical_CSS;
 use Automattic\Jetpack_Boost\Modules\Critical_CSS\Regenerate_Admin_Notice;
 use Automattic\Jetpack_Boost\Modules\Lazy_Images\Lazy_Images;
@@ -249,39 +248,6 @@ class Jetpack_Boost {
 		}
 
 		return $this->modules[ $module_slug ];
-	}
-
-
-	/**
-	 * Returns a default config array.
-	 *
-	 * @return array Default config.
-	 */
-	public static function get_default_config_array() {
-		return apply_filters(
-			'jetpack_boost_config_array',
-			array(
-				Render_Blocking_JS::MODULE_SLUG => array(
-					'enabled' => false,
-				),
-				Critical_CSS::MODULE_SLUG       => array(
-					'enabled'  => false,
-					'settings' => array(
-						'viewport_sizes'    => Viewport::DEFAULT_VIEWPORT_SIZES,
-						'default_viewports' => Viewport::DEFAULT_VIEWPORTS,
-						'css-ignore-rules'  => array(
-							// TODO: Define if we need any default CSS ignore rules
-							// Example regex, exclude all css where there is a url inside.
-							'url\(',
-						),
-					),
-				),
-				Lazy_Images::MODULE_SLUG        => array(
-					'enabled' => false,
-				),
-				'show_rating_prompt'            => true,
-			)
-		);
 	}
 
 	/**
