@@ -1,4 +1,4 @@
-name: Jetpack E2E Tests
+name: E2E Tests
 
 on:
   pull_request:
@@ -94,11 +94,12 @@ jobs:
       uses: actions/upload-artifact@v2
       with:
         name: test-output-${{ matrix.group }}
-        path: projects/plugins/jetpack/tests/e2e/output
+        path: ${{ matrix.path }}/output
 
     - name: Send Slack notification
       if: ${{ failure() }}
       env:
         GITHUB_CONTEXT: ${{ toJson(github) }}
-      working-directory: projects/plugins/jetpack/tests/e2e
-      run: pnpm run slack -- suite $GROUP
+        REPORT: ${{ matrix.project }}
+      working-directory: ${{ matrix.path }}
+      run: pnpm run slack -- --report $REPORT
