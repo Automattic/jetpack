@@ -56,7 +56,8 @@ class Jetpack_PostImages {
 
 		foreach ( $slideshow_matches as $slideshow_match ) {
 			$slideshow = do_shortcode_tag( $slideshow_match );
-			if ( false === $pos = stripos( $slideshow, 'jetpack-slideshow' ) ) { // must be something wrong - or we changed the output format in which case none of the following will work.
+			$pos       = stripos( $slideshow, 'jetpack-slideshow' );
+			if ( false === $pos ) { // must be something wrong - or we changed the output format in which case none of the following will work.
 				continue;
 			}
 			$start       = strpos( $slideshow, '[', $pos );

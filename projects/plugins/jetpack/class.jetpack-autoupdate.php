@@ -96,7 +96,7 @@ class Jetpack_Autoupdate {
 		$autoupdate_themes_translations = Jetpack_Options::get_option( 'autoupdate_themes_translations', array() );
 		$autoupdate_theme_list          = Jetpack_Options::get_option( 'autoupdate_themes', array() );
 
-		if ( ( in_array( $item->slug, $autoupdate_themes_translations ) || in_array( $item->slug, $autoupdate_theme_list ) )
+		if ( ( in_array( $item->slug, $autoupdate_themes_translations, true ) || in_array( $item->slug, $autoupdate_theme_list, true ) )
 			&& 'theme' === $item->type
 		) {
 			$this->expect( $item->type . ':' . $item->slug, 'translation' );

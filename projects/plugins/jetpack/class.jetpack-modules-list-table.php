@@ -316,10 +316,9 @@ class Jetpack_Modules_List_Table extends WP_List_Table {
 	/**
 	 * Column icon.
 	 *
-	 * @param object|array $item Item.
 	 * @return string HTML.
 	 */
-	public function column_icon( $item ) {
+	public function column_icon() {
 		$badge_text = $free_text = '';
 		ob_start();
 		?>

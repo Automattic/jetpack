@@ -1215,10 +1215,9 @@ abstract class WPCOM_JSON_API_Endpoint {
 							}
 						}
 					}
-					$type                       = '(' . join( '|', $type ) . ')';
-					$noop                       = ''; // skip an index in list below.
-					list( $noop, $description ) = explode( ')', $description, 2 );
-					$description                = trim( $description );
+					$type                  = '(' . join( '|', $type ) . ')';
+					list( , $description ) = explode( ')', $description, 2 );
+					$description           = trim( $description );
 					if ( $default ) {
 						$description .= " Default: $default.";
 					}
