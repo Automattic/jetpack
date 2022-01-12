@@ -14,6 +14,7 @@ import {
 	CLEAR_REGISTRATION_ERROR,
 	SET_REGISTRATION_ERROR,
 	SET_AUTHORIZATION_URL,
+	SET_USER_CONNECTION_DATA,
 } from './actions';
 
 const connectionStatus = ( state = {}, action ) => {
@@ -72,6 +73,15 @@ const authorizationUrl = ( state, action ) => {
 	}
 };
 
+const userConnectionData = ( state, action ) => {
+	switch ( action.type ) {
+		case SET_USER_CONNECTION_DATA:
+			return action.userConnectionData;
+		default:
+			return state;
+	}
+};
+
 const reducers = combineReducers( {
 	connectionStatus,
 	connectionStatusIsFetching,
@@ -79,6 +89,7 @@ const reducers = combineReducers( {
 	userIsConnecting,
 	registrationError,
 	authorizationUrl,
+	userConnectionData,
 } );
 
 export default reducers;

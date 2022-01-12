@@ -9,6 +9,7 @@ const REGISTER_SITE = 'REGISTER_SITE';
 const SET_AUTHORIZATION_URL = 'SET_AUTHORIZATION_URL';
 const CONNECT_USER = 'CONNECT_USER';
 const FETCH_AUTHORIZATION_URL = 'FETCH_AUTHORIZATION_URL';
+const SET_USER_CONNECTION_DATA = 'SET_USER_CONNECTION_DATA';
 
 const setConnectionStatus = connectionStatus => {
 	return { type: SET_CONNECTION_STATUS, connectionStatus };
@@ -45,6 +46,10 @@ const setAuthorizationUrl = authorizationUrl => {
 const fetchAuthorizationUrl = redirectUri => {
 	return { type: FETCH_AUTHORIZATION_URL, redirectUri };
 };
+
+const setUserConnectionData = userConnectionData => {
+	return { type: SET_USER_CONNECTION_DATA, userConnectionData };
+}
 
 /**
  * Connect site with wp.com user
@@ -98,6 +103,7 @@ const actions = {
 	setAuthorizationUrl,
 	registerSite,
 	connectUser,
+	setUserConnectionData,
 };
 
 export {
@@ -112,5 +118,6 @@ export {
 	REGISTER_SITE,
 	SET_AUTHORIZATION_URL,
 	CONNECT_USER,
+	SET_USER_CONNECTION_DATA,
 	actions as default,
 };

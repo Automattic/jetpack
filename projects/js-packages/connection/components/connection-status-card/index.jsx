@@ -44,9 +44,14 @@ const ConnectionStatusCard = props => {
 
 	const avatarRef = useRef();
 	const avatar = userConnectionData.currentUser?.wpcomUser?.avatar;
-	if ( avatar ) {
-		avatarRef.current.style.backgroundImage = `url('${ avatar }')`;
-	}
+
+	// Update avatar if we have one.
+	useEffect( () => {
+		if ( avatar ) {
+			avatarRef.current.style.backgroundImage = `url('${ avatar }')`;
+		}
+	}, [ avatar ] );
+
 
 	const [ isDisconnectDialogOpen, setIsDisconnectDialogOpen ] = useState( false );
 	const userIsConnecting = useSelect( select => select( STORE_ID ).getUserIsConnecting(), [] );
