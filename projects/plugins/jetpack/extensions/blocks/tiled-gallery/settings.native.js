@@ -13,7 +13,6 @@ import { usePreferredColorSchemeStyle } from '@wordpress/compose';
 import styles from './styles.scss';
 import { LAYOUT_CIRCLE, LAYOUT_STYLES, MAX_COLUMNS } from './constants';
 import { getActiveStyleName } from '../../shared/block-styles';
-import LayoutPicker from './layout-picker.native';
 
 const MIN_COLUMNS = 1;
 export const DEFAULT_COLUMNS = 2;
@@ -44,9 +43,6 @@ const TiledGallerySettings = props => {
 			<PanelBody title={ __( 'Tiled gallery settings', 'jetpack' ) } />
 
 			<PanelBody>
-				<LayoutPicker clientId={ clientId } className={ className } />
-			</PanelBody>
-			<PanelBody>
 				<UnitControl
 					label={ __( 'Columns', 'jetpack' ) }
 					min={ MIN_COLUMNS }
@@ -58,20 +54,6 @@ const TiledGallerySettings = props => {
 					} }
 				/>
 			</PanelBody>
-			{ layoutStyle !== LAYOUT_CIRCLE && (
-				<PanelBody style={ horizontalSettingsDivider }>
-					<RangeControl
-						label={ __( 'Rounded corners', 'jetpack' ) }
-						minimumValue={ MIN_ROUNDED_CORNERS }
-						maximumValue={ MAX_ROUNDED_CORNERS }
-						value={ roundedCornerRadius }
-						onChange={ value => {
-							setRoundedCornerRadius( value );
-							setAttributes( { roundedCorners: value } );
-						} }
-					/>
-				</PanelBody>
-			) }
 		</InspectorControls>
 	);
 };
