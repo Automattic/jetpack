@@ -14,9 +14,7 @@ class Display_Critical_CSS {
 	protected $css;
 
 	/**
-	 * Constructor.
-	 *
-	 * @param string $css Critical CSS.
+	 * @param $css
 	 */
 	public function __construct( $css ) {
 		$this->css = $css;

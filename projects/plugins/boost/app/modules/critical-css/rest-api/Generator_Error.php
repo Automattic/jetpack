@@ -1,9 +1,4 @@
 <?php
-/**
- * Generator error endpoint handler.
- *
- * @package automattic/jetpack-boost
- */
 
 namespace Automattic\Jetpack_Boost\Modules\Critical_CSS\REST_API;
 
@@ -11,16 +6,8 @@ use Automattic\Jetpack_Boost\Lib\Nonce;
 use Automattic\Jetpack_Boost\Modules\Critical_CSS\Critical_CSS_Storage;
 use Automattic\Jetpack_Boost\Modules\Critical_CSS\Generate\Generator;
 
-/**
- * Class Generator Error
- */
 class Generator_Error implements Boost_Endpoint {
 
-	/**
-	 * Request methods.
-	 *
-	 * @return string
-	 */
 	public function request_methods() {
 		return \WP_REST_Server::EDITABLE;
 	}
@@ -35,7 +22,7 @@ class Generator_Error implements Boost_Endpoint {
 	 */
 	public function response( $request ) {
 
-		// @TODO: (Do this for all the endpoint classes)
+		// @TODO:
 		// $this->ensure_module_initialized();
 		/**
 		 * This used to be a thing here:
@@ -132,18 +119,10 @@ class Generator_Error implements Boost_Endpoint {
 		);
 	}
 
-	/**
-	 * Permission callback.
-	 */
-	public function permission_callback() {
-		return current_user_can( 'manage_options' );
+	public function permission_callback( $request ) {
+		return true;
 	}
 
-	/**
-	 * Route endpoint name.
-	 *
-	 * @return string
-	 */
 	public function name() {
 		return 'critical-css/(?P<cacheKey>.+)/error';
 	}

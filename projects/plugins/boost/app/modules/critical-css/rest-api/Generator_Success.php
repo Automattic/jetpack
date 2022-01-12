@@ -1,9 +1,4 @@
 <?php
-/**
- * Generator success endpoint handler.
- *
- * @package automattic/jetpack-boost
- */
 
 namespace Automattic\Jetpack_Boost\Modules\Critical_CSS\REST_API;
 
@@ -13,15 +8,8 @@ use Automattic\Jetpack_Boost\Modules\Critical_CSS\Critical_CSS_Storage;
 use Automattic\Jetpack_Boost\Modules\Critical_CSS\Generate\Generator;
 use Automattic\Jetpack_Boost\Modules\Critical_CSS\Recommendations;
 
-/**
- * Class Generator Success.
- */
 class Generator_Success implements Boost_Endpoint {
-	/**
-	 * Request methods.
-	 *
-	 * @return string
-	 */
+
 	public function request_methods() {
 		return \WP_REST_Server::EDITABLE;
 	}
@@ -35,6 +23,16 @@ class Generator_Success implements Boost_Endpoint {
 	 * @todo: Figure out what to do in the JavaScript when responding with the error status.
 	 */
 	public function response( $request ) {
+
+		// @TODO:
+		// $this->ensure_module_initialized();
+		/**
+		 * This used to be a thing here:
+		 * if ( true !== $this->is_initialized ) {
+		 * wp_send_json( array( 'status' => 'module-unavailable' ) );
+		 * }
+		 */
+
 		$cache_key = $request['cacheKey'];
 
 		if ( ! $cache_key ) {
@@ -99,19 +97,11 @@ class Generator_Success implements Boost_Endpoint {
 		);
 	}
 
-	/**
-	 * Permission callback.
-	 */
-	public function permission_callback() {
-		return current_user_can( 'manage_options' );
+	public function permission_callback( $request ) {
+		return true;
 	}
 
-	/**
-	 * Route endpoint name.
-	 *
-	 * @return string
-	 */
 	public function name() {
-		return 'critical-css/(?P<cacheKey>.+)/success';
+		return '/critical-css/(?P<cacheKey>.+)/success';
 	}
 }
