@@ -27,7 +27,7 @@
 	},
 	"devDependencies": {
 		"@automattic/jetpack-components": "workspace:^0.10.0",
-		"@automattic/jetpack-connection": "workspace:^0.12.1",
+		"@automattic/jetpack-connection": "workspace:^0.12.2-alpha",
 		"@automattic/jetpack-base-styles": "workspace:^0.1.4",
 		"@automattic/jetpack-idc": "workspace:^0.8.1",
 		"@babel/core": "7.16.0",
