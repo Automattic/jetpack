@@ -75,8 +75,6 @@ const authorizationUrl = ( state, action ) => {
 
 const userConnectionData = ( state, action ) => {
 	switch ( action.type ) {
-		case SET_USER_CONNECTION_DATA:
-			return action.userConnectionData;
 		default:
 			return state;
 	}
