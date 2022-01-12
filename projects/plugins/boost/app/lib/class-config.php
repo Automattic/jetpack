@@ -156,10 +156,6 @@ class Config extends Cacheable {
 	 * @return mixed|void
 	 */
 	public function store( $expiry = self::DEFAULT_EXPIRY ) {
-		if ( Jetpack_Boost::CURRENT_CONFIG_ID === $this->config_id ) {
-			$this->store_in_option();
-		}
-
 		return parent::store( $expiry );
 	}
 
@@ -171,12 +167,6 @@ class Config extends Cacheable {
 	 * @return \WP_Error|mixed
 	 */
 	public static function get( $id ) {
-		if ( Jetpack_Boost::CURRENT_CONFIG_ID === $id ) {
-			$option_name = apply_filters( 'jetpack_boost_options_store_key_name', 'jetpack_boost_config' );
-
-			return self::get_from_option( $option_name );
-		}
-
 		return parent::get( $id );
 	}
 

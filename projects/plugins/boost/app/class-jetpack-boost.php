@@ -60,8 +60,6 @@ class Jetpack_Boost {
 		Lazy_Images::MODULE_SLUG,
 	);
 
-	const CURRENT_CONFIG_ID = 'default';
-
 	/**
 	 * The unique identifier of this plugin.
 	 *
@@ -378,7 +376,7 @@ class Jetpack_Boost {
 	public function config() {
 		if ( ! $this->config ) {
 			do_action( 'jetpack_boost_pre_get_config' );
-			$this->config = Config::get( self::CURRENT_CONFIG_ID ); // under the hood, this actually fetches from an option, not the config cache.
+			$this->config = Config::get(); // under the hood, this actually fetches from an option, not the config cache.
 		}
 
 		return apply_filters( 'jetpack_boost_config', $this->config );
