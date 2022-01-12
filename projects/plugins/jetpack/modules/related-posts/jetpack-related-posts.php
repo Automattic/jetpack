@@ -1696,7 +1696,7 @@ EOT;
 	/**
 	 * Logs clicks for clickthrough analysis and related result tuning.
 	 */
-	protected function log_click( $post_id, $to_post_id, $link_position ) {
+	protected function log_click( $post_id, $to_post_id, $link_position ) { // phpcs:ignore VariableAnalysis.CodeAnalysis.VariableAnalysis.UnusedVariable
 
 	}
 
