@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Make user connection errors appear if an API request fails.
