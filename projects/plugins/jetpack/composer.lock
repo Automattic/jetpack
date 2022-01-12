@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "85814f335c9c9b8cd1c2c66a8ed46303",
+    "content-hash": "d0ff3c9048545164f40445ada86212de",
     "packages": [
         {
             "name": "automattic/jetpack-a8c-mc-stats",
@@ -545,7 +545,7 @@
             "dist": {
                 "type": "path",
                 "url": "../../packages/connection",
-                "reference": "4350f4029b54e2ff02ba4650dfbdcc3cd0cbf76a"
+                "reference": "c934b2246c674bce6387d3dfe9af5e5e8b43fb12"
             },
             "require": {
                 "automattic/jetpack-a8c-mc-stats": "^1.4",
@@ -556,7 +556,7 @@
                 "automattic/jetpack-roles": "^1.4",
                 "automattic/jetpack-status": "^1.9",
                 "automattic/jetpack-terms-of-service": "^1.9",
-                "automattic/jetpack-tracking": "^1.14"
+                "automattic/jetpack-tracking": "^1.15"
             },
             "require-dev": {
                 "automattic/jetpack-changelogger": "^3.0",
@@ -866,7 +866,7 @@
             "dist": {
                 "type": "path",
                 "url": "../../packages/identity-crisis",
-                "reference": "2555ccdc47f1e5f7b8751dc7050c9bca678a82df"
+                "reference": "a6d714f73123f897a11d71be11efec46a44a6b81"
             },
             "require": {
                 "automattic/jetpack-assets": "^1.16",
@@ -875,7 +875,7 @@
                 "automattic/jetpack-logo": "^1.5",
                 "automattic/jetpack-options": "^1.14",
                 "automattic/jetpack-status": "^1.9",
-                "automattic/jetpack-tracking": "^1.14"
+                "automattic/jetpack-tracking": "^1.15"
             },
             "require-dev": {
                 "automattic/jetpack-changelogger": "^3.0",
@@ -945,7 +945,7 @@
             "dist": {
                 "type": "path",
                 "url": "../../packages/jitm",
-                "reference": "0fee873b88846f05b5cc9878cee0455bb06c85f6"
+                "reference": "2dcc51fc499b6ba8808ec7190a1740e4d6a73dc2"
             },
             "require": {
                 "automattic/jetpack-a8c-mc-stats": "^1.4",
@@ -957,7 +957,7 @@
                 "automattic/jetpack-partner": "^1.6",
                 "automattic/jetpack-redirect": "^1.7",
                 "automattic/jetpack-status": "^1.9",
-                "automattic/jetpack-tracking": "^1.14"
+                "automattic/jetpack-tracking": "^1.15"
             },
             "require-dev": {
                 "automattic/jetpack-changelogger": "^3.0",
@@ -976,7 +976,7 @@
                     "link-template": "https://github.com/Automattic/jetpack-jitm/compare/v${old}...v${new}"
                 },
                 "branch-alias": {
-                    "dev-master": "2.2.x-dev"
+                    "dev-master": "2.3.x-dev"
                 }
             },
             "autoload": {
@@ -1520,7 +1520,7 @@
             "dist": {
                 "type": "path",
                 "url": "../../packages/search",
-                "reference": "7e47728dc28fd997e63ca72418d46ad0d0d147ba"
+                "reference": "78d6598405e4091c4496958b7a8d0a0972110861"
             },
             "require": {
                 "automattic/jetpack-assets": "^1.16",
@@ -1528,7 +1528,7 @@
                 "automattic/jetpack-constants": "^1.6",
                 "automattic/jetpack-options": "^1.14",
                 "automattic/jetpack-status": "^1.9",
-                "automattic/jetpack-tracking": "^1.14"
+                "automattic/jetpack-tracking": "^1.15"
             },
             "require-dev": {
                 "automattic/jetpack-changelogger": "^3.0",
@@ -1776,7 +1776,7 @@
             "dist": {
                 "type": "path",
                 "url": "../../packages/tracking",
-                "reference": "35bd26a71aa47368f18cf35b7817ae897c3ef8ca"
+                "reference": "18290d0efaaf09e8ebce203e1df38e85b1421c40"
             },
             "require": {
                 "automattic/jetpack-assets": "^1.16",
@@ -1798,7 +1798,7 @@
                     "link-template": "https://github.com/Automattic/jetpack-tracking/compare/v${old}...v${new}"
                 },
                 "branch-alias": {
-                    "dev-master": "1.14.x-dev"
+                    "dev-master": "1.15.x-dev"
                 }
             },
             "autoload": {
