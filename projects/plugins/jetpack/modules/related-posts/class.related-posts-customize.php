@@ -119,7 +119,7 @@ class Jetpack_Related_Posts_Customize {
 	 * @since 4.4.0
 	 */
 	public static function render_callback() {
-		echo esc_html( Jetpack_RelatedPosts::init()->get_headline() );
+		echo Jetpack_RelatedPosts::init()->get_headline();
 	}
 
 	/**
