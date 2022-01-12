@@ -1520,10 +1520,15 @@
             "dist": {
                 "type": "path",
                 "url": "../../packages/search",
-                "reference": "58a18c9d8e957ddd9099e0d18a9b6210d7d995d9"
+                "reference": "7e47728dc28fd997e63ca72418d46ad0d0d147ba"
             },
             "require": {
-                "automattic/jetpack-connection": "^1.34"
+                "automattic/jetpack-assets": "^1.16",
+                "automattic/jetpack-connection": "^1.34",
+                "automattic/jetpack-constants": "^1.6",
+                "automattic/jetpack-options": "^1.14",
+                "automattic/jetpack-status": "^1.9",
+                "automattic/jetpack-tracking": "^1.14"
             },
             "require-dev": {
                 "automattic/jetpack-changelogger": "^3.0",
@@ -1566,6 +1571,10 @@
                 "test-coverage": [
                     "@composer install",
                     "php -dpcov.directory=. ./vendor/bin/phpunit --coverage-clover \"$COVERAGE_DIR/clover.xml\""
+                ],
+                "test-js": [
+                    "Composer\\Config::disableProcessTimeout",
+                    "pnpm run test"
                 ],
                 "test-php": [
                     "@composer install",
@@ -2152,6 +2161,9 @@
             },
             "require": {
                 "php": "^7.1 || ^8.0"
+            },
+            "replace": {
+                "myclabs/deep-copy": "self.version"
             },
             "require-dev": {
                 "doctrine/collections": "^1.0",
