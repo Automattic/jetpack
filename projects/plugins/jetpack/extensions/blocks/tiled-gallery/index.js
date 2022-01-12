@@ -64,6 +64,8 @@ function getValidImages( images ) {
 	return filter( images, ( { id, url } ) => id && url );
 }
 
+const defaultLayout = LAYOUT_STYLES.find( layout => layout.isDefault ).name;
+
 const blockAttributes = {
 	// Set default align
 	align: {
@@ -72,7 +74,7 @@ const blockAttributes = {
 	},
 	// Set default className (used with block styles)
 	className: {
-		default: `is-style-${ LAYOUT_DEFAULT }`,
+		default: `is-style-${ defaultLayout }`,
 		type: 'string',
 	},
 	columns: {
