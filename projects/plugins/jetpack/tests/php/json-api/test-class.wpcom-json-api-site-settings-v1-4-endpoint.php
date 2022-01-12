@@ -289,7 +289,7 @@ class WP_Test_WPCOM_JSON_API_Site_Settings_V1_4_Endpoint extends WP_UnitTestCase
 			'woocommerce_store_city'         => array( 'woocommerce_store_city', '' ),
 			'woocommerce_default_country'    => array( 'woocommerce_default_country', '' ),
 			'woocommerce_store_postcode'     => array( 'woocommerce_store_postcode', '' ),
-			'woocommerce_onboarding_profile' => array( 'woocommerce_onboarding_profile', array( false ) ),
+			'woocommerce_onboarding_profile' => array( 'woocommerce_onboarding_profile', array() ),
 		);
 	}
 
