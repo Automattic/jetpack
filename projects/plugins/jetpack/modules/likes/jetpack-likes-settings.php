@@ -1,9 +1,20 @@
 <?php
+/**
+ * Module Name: Jetpack Likes
+ *
+ * @package automattic/jetpack
+ */
 
 use Automattic\Jetpack\Sync\Settings;
 
+/**
+ * The Jetpack_Likes_Settings class
+ */
 class Jetpack_Likes_Settings {
-	function __construct() {
+	/**
+	 * The Constructor
+	 */
+	public function __construct() {
 		$this->in_jetpack = ! ( defined( 'IS_WPCOM' ) && IS_WPCOM );
 	}
 
@@ -51,6 +62,8 @@ class Jetpack_Likes_Settings {
 
 	/**
 	 * Shows the likes option in the post screen metabox.
+	 *
+	 * @param object $post the corresponding post.
 	 */
 	public function meta_box_content( $post ) {
 		$post_id         = ! empty( $post->ID ) ? (int) $post->ID : get_the_ID();
@@ -113,6 +126,11 @@ class Jetpack_Likes_Settings {
 		return (bool) apply_filters( 'wpl_is_enabled_sitewide', ! Jetpack_Options::get_option_and_ensure_autoload( 'disabled_likes', 0 ) );
 	}
 
+	/**
+	 * The function responsible to save the metabox selections for saving and liking a post.
+	 *
+	 * @param int $post_id the id of the post.
+	 */
 	public function meta_box_save( $post_id ) {
 		if ( defined( 'DOING_AUTOSAVE' ) && DOING_AUTOSAVE ) {
 			return $post_id;
@@ -122,7 +140,7 @@ class Jetpack_Likes_Settings {
 			return $post_id;
 		}
 
-		// Record sharing disable. Only needs to be done for WPCOM
+		// Record sharing disable. Only needs to be done for WPCOM.
 		if ( ! $this->in_jetpack ) {
 			if ( isset( $_POST['post_type'] ) && in_array( $_POST['post_type'], get_post_types( array( 'public' => true ) ) ) ) {
 				if ( ! isset( $_POST['wpl_enable_post_sharing'] ) ) {
@@ -162,6 +180,8 @@ class Jetpack_Likes_Settings {
 
 	/**
 	 * WordPress.com: Metabox option for sharing (sharedaddy will handle this on the JP blog)
+	 *
+	 * @param object $post the corresponding post.
 	 */
 	public function sharing_meta_box_content( $post ) {
 		$post_id  = ! empty( $post->ID ) ? (int) $post->ID : get_the_ID();
@@ -181,7 +201,7 @@ class Jetpack_Likes_Settings {
 	 * Adds the 'sharing' menu to the settings menu.
 	 * Only ran if sharedaddy and publicize are not already active.
 	 */
-	function sharing_menu() {
+	public function sharing_menu() {
 		add_submenu_page( 'options-general.php', esc_html__( 'Sharing Settings', 'jetpack' ), esc_html__( 'Sharing', 'jetpack' ), 'manage_options', 'sharing', array( $this, 'sharing_page' ) );
 	}
 
@@ -190,7 +210,7 @@ class Jetpack_Likes_Settings {
 	 * so we can display the setting.
 	 * Only ran if sharedaddy and publicize are not already active.
 	 */
-	function sharing_page() {
+	public function sharing_page() {
 		$this->updated_message();
 		?>
 		<div class="wrap">
@@ -208,7 +228,7 @@ class Jetpack_Likes_Settings {
 	/**
 	 * Returns the settings have been saved message.
 	 */
-	function updated_message() {
+	public function updated_message() {
 		if ( isset( $_GET['update'] ) && $_GET['update'] == 'saved' ) {
 			echo '<div class="updated"><p>' . esc_html__( 'Settings have been saved', 'jetpack' ) . '</p></div>';
 		}
@@ -217,7 +237,7 @@ class Jetpack_Likes_Settings {
 	/**
 	 * Returns just the "sharing buttons" w/ like option block, so it can be inserted into different sharing page contexts
 	 */
-	function sharing_block() {
+	public function sharing_block() {
 		?>
 		<h2><?php esc_html_e( 'Sharing Buttons', 'jetpack' ); ?></h2>
 		<form method="post" action="">
@@ -242,10 +262,10 @@ class Jetpack_Likes_Settings {
 	/**
 	 * Are likes enabled for this post?
 	 *
-	 * @param int $post_id
+	 * @param int $post_id the id of the post.
 	 * @return bool
 	 */
-	function is_post_likeable( $post_id = 0 ) {
+	public function is_post_likeable( $post_id = 0 ) {
 		$post = get_post( $post_id );
 		if ( ! $post || is_wp_error( $post ) ) {
 			return false;
@@ -312,7 +332,7 @@ class Jetpack_Likes_Settings {
 	 * Some of this code was taken and modified from sharing_display() to ensure
 	 * similar logic and filters apply here, too.
 	 */
-	function is_likes_visible() {
+	public function is_likes_visible() {
 		if ( Settings::is_syncing() ) {
 			return false;
 		}
@@ -400,10 +420,10 @@ class Jetpack_Likes_Settings {
 	/**
 	 * Are Post Likes enabled on single posts?
 	 *
-	 * @param String $post_type custom post type identifier
+	 * @param String $post_type custom post type identifier.
 	 * @return bool
 	 */
-	function is_single_post_enabled( $post_type = 'post' ) {
+	public function is_single_post_enabled( $post_type = 'post' ) {
 		$options = $this->get_options();
 		return (bool) apply_filters(
 		/**
@@ -427,16 +447,16 @@ class Jetpack_Likes_Settings {
 	 *
 	 * @return array
 	 */
-	function get_options() {
+	public function get_options() {
 		$setting             = array();
 		$setting['disabled'] = get_option( 'disabled_likes' );
 		$sharing             = get_option( 'sharing-options', array() );
 
-		// Default visibility settings
+		// Default visibility settings.
 		if ( ! isset( $sharing['global']['show'] ) ) {
 			$sharing['global']['show'] = array( 'post', 'page' );
 
-			// Scalar check
+			// Scalar check.
 		} elseif ( is_scalar( $sharing['global']['show'] ) ) {
 			switch ( $sharing['global']['show'] ) {
 				case 'posts':
@@ -451,7 +471,7 @@ class Jetpack_Likes_Settings {
 			}
 		}
 
-		// Ensure it's always an array (even if not previously empty or scalar)
+		// Ensure it's always an array (even if not previously empty or scalar).
 		$setting['show'] = ! empty( $sharing['global']['show'] ) ? (array) $sharing['global']['show'] : array();
 
 		/**
@@ -471,7 +491,7 @@ class Jetpack_Likes_Settings {
 	 *
 	 * @return bool
 	 */
-	function is_index_enabled() {
+	public function is_index_enabled() {
 		$options = $this->get_options();
 		/**
 		 * Filters whether Likes should be enabled on archive/front/search pages.
@@ -490,7 +510,7 @@ class Jetpack_Likes_Settings {
 	 *
 	 * @return bool
 	 */
-	function is_single_page_enabled() {
+	public function is_single_page_enabled() {
 		$options = $this->get_options();
 		/**
 		 * Filters whether Likes should be enabled on single pages.
@@ -509,7 +529,7 @@ class Jetpack_Likes_Settings {
 	 *
 	 * @return bool
 	 */
-	function is_attachment_enabled() {
+	public function is_attachment_enabled() {
 		$options = $this->get_options();
 		/**
 		 * Filters whether Likes should be enabled on attachment pages.
@@ -526,7 +546,7 @@ class Jetpack_Likes_Settings {
 	/**
 	 * The actual options block to be inserted into the sharing page.
 	 */
-	function admin_settings_init() {
+	public function admin_settings_init() {
 		?>
 		<tr>
 			<th scope="row">
@@ -593,7 +613,7 @@ class Jetpack_Likes_Settings {
 	 *
 	 * @return boolean true if enabled sitewide, false if not
 	 */
-	function reblogs_enabled_sitewide() {
+	public function reblogs_enabled_sitewide() {
 		/**
 		 * Filters whether Reblogs are enabled by default on all posts.
 		 * true if enabled sitewide, false if not.
@@ -613,7 +633,7 @@ class Jetpack_Likes_Settings {
 	 *
 	 * @return boolean true if we should show comment likes, false if not
 	 */
-	function is_comments_enabled() {
+	public function is_comments_enabled() {
 		/**
 		 * Filters whether Comment Likes are enabled.
 		 * true if enabled, false if not.
@@ -630,7 +650,7 @@ class Jetpack_Likes_Settings {
 	/**
 	 * Saves the setting in the database, bumps a stat on WordPress.com
 	 */
-	function admin_settings_callback() {
+	public function admin_settings_callback() {
 		// We're looking for these, and doing a dance to set some stats and save
 		// them together in array option.
 		$new_state = ! empty( $_POST['wpl_default'] ) ? $_POST['wpl_default'] : 'on';
@@ -640,7 +660,7 @@ class Jetpack_Likes_Settings {
 		$reblogs_db_state  = $this->reblogs_enabled_sitewide();
 		/** Default State */
 
-		// Checked (enabled)
+		// Checked (enabled).
 		switch ( $new_state ) {
 			case 'off':
 				if ( true == $db_state && ! $this->in_jetpack ) {
@@ -673,7 +693,7 @@ class Jetpack_Likes_Settings {
 				break;
 		}
 
-		// WPCOM only: Comment Likes
+		// WPCOM only: Comment Likes.
 		if ( ! $this->in_jetpack ) {
 			$new_comments_state = ! empty( $_POST['jetpack_comment_likes_enabled'] ) ? $_POST['jetpack_comment_likes_enabled'] : false;
 			switch ( (bool) $new_comments_state ) {
@@ -691,7 +711,7 @@ class Jetpack_Likes_Settings {
 	/**
 	 * Adds the admin update hook so we can save settings even if Sharedaddy is not enabled.
 	 */
-	function process_update_requests_if_sharedaddy_not_loaded() {
+	public function process_update_requests_if_sharedaddy_not_loaded() {
 		if ( isset( $_GET['page'] ) && ( $_GET['page'] == 'sharing.php' || $_GET['page'] == 'sharing' ) ) {
 			if ( isset( $_POST['_wpnonce'] ) && wp_verify_nonce( $_POST['_wpnonce'], 'sharing-options' ) ) {
 				/** This action is documented in modules/sharedaddy/sharing.php */
@@ -705,7 +725,7 @@ class Jetpack_Likes_Settings {
 	/**
 	 * If sharedaddy is not loaded, we don't have the "Show buttons on" yet, so we need to add that since it affects likes too.
 	 */
-	function admin_settings_showbuttonon_init() {
+	public function admin_settings_showbuttonon_init() {
 		/** This action is documented in modules/sharedaddy/sharing.php */
 		echo apply_filters( 'sharing_show_buttons_on_row_start', '<tr valign="top">' );
 		?>
@@ -744,7 +764,7 @@ endforeach;
 	/**
 	 * If sharedaddy is not loaded, we still need to save the the settings of the "Show buttons on" option.
 	 */
-	function admin_settings_showbuttonon_callback() {
+	public function admin_settings_showbuttonon_callback() {
 		$options = get_option( 'sharing-options' );
 		if ( ! is_array( $options ) ) {
 			$options = array();
