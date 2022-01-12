@@ -1,7 +1,7 @@
 /**
  * External dependencies
  */
-import {dispatch, select } from '@wordpress/data';
+import { dispatch, select } from '@wordpress/data';
 
 /**
  * Internal dependencies
@@ -39,12 +39,22 @@ const connectionResolvers = {
 		},
 		*fulfill( redirectUri ) {
 			try {
-				const response = yield actions.fetchAuthorizationUrl(redirectUri);
+				const response = yield actions.fetchAuthorizationUrl( redirectUri );
 				yield actions.setAuthorizationUrl( response.authorizeUrl );
 			} catch ( e ) {
+				let errorMessage = null;
+				if ( e.hasOwnProperty( 'response' ) ) {
+					errorMessage =
+						e.response.hasOwnProperty( 'message' ) && e.response.message
+							? e.response.message
+							: e.response.code;
+				} else {
+					errorMessage = e.toString();
+				}
+
 				yield actions.setUserIsConnecting( false );
 				yield actions.setSiteIsRegistering( false );
-				yield actions.setRegistrationError( e.hasOwnProperty( 'response' ) ? ( ( e.response.hasOwnProperty( 'message' ) && e.response.message ) ? e.response.message : e.response.code ) : e.toString() );
+				yield actions.setRegistrationError( errorMessage );
 				throw e;
 			}
 		},
