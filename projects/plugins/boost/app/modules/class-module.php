@@ -106,23 +106,23 @@ abstract class Module {
 
 	public function enable() {
 		// Only record analytics evet if the config update succeeds
-		if ( $this->config->update( 'enabled', true ) ) {
-			$this->track_module_status( false );
-			return true;
+		if ( ! $this->config->update( 'enabled', true ) ) {
+			return false;
 		}
 
-		return false;
+		$this->track_module_status( false );
+		return true;
 	}
 
 	public function disable() {
 
 		// Only record analytics evet if the config update succeeds
-		if ( $this->config->update( 'enabled', false ) ) {
-			$this->track_module_status( false );
-			return true;
+		if ( ! $this->config->update( 'enabled', false ) ) {
+			return false;
 		}
 
-		return false;
+		$this->track_module_status( false );
+		return true;
 	}
 
 	protected function track_module_status( $status ) {

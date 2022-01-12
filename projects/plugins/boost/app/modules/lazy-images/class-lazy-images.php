@@ -1,11 +1,4 @@
 <?php
-/**
- * Implements the Lazy Images feature.
- *
- * @link       https://automattic.com
- * @since      1.0.0
- * @package    automattic/jetpack-boost
- */
 
 namespace Automattic\Jetpack_Boost\Modules\Lazy_Images;
 
@@ -13,12 +6,6 @@ use Automattic\Jetpack\Jetpack_Lazy_Images;
 use Automattic\Jetpack_Boost\Modules\Module;
 use Jetpack;
 
-/**
- * Class Lazy_Images
- *
- * @TODO: Losing consistency between Jetpack and Jetpack Boost module state at the moment.
- * Going to fix that before submitting for review.
- */
 class Lazy_Images extends Module {
 
 	const MODULE_SLUG = 'lazy-images';
@@ -31,23 +18,17 @@ class Lazy_Images extends Module {
 	}
 
 	public function enable() {
-		if ( ! class_exists( 'Jetpack' ) ) {
-			return parent::enable();
+		if ( class_exists( 'Jetpack' ) ) {
+			Jetpack::activate_module( self::MODULE_SLUG, false, false );
 		}
-		if ( Jetpack::activate_module( self::MODULE_SLUG, false, false ) ) {
-			$this->track_module_status( true );
-		}
-
+		return parent::enable();
 	}
 
 	public function disable() {
-		if ( ! class_exists( 'Jetpack' ) ) {
-			return parent::disable();
+		if ( class_exists( 'Jetpack' ) ) {
+			Jetpack::deactivate_module( self::MODULE_SLUG );
 		}
-
-		if ( Jetpack::deactivate_module( self::MODULE_SLUG ) ) {
-			$this->track_module_status( false );
-		}
+		return parent::disable();
 	}
 
 
