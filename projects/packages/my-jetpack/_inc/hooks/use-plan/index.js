@@ -2,6 +2,7 @@
  * WordPress dependencies
  */
 import { useEffect, useState } from '@wordpress/element';
+import { __, sprintf } from '@wordpress/i18n';
 import apiFetch from '@wordpress/api-fetch';
 
 // Site plan is provided by the `/my-jetpack/v1/site` endpoint response.
@@ -18,6 +19,11 @@ function mapPlanData( plan = {} ) {
 		...plan,
 		name: plan.product_name,
 		shorName: plan.product_name_short,
+		billingPeriod: sprintf(
+			/* translators: placeholder is the billing period of the plan (e.g. Montly, Annual, ...) */
+			__( '%s subscription', 'jetpack-my-jetpack' ),
+			plan.billing_period
+		),
 	};
 }
 

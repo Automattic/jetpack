@@ -19,12 +19,14 @@ import usePlan from '../../hooks/use-plan';
  * @returns {object} PlanSection React component.
  */
 export default function PlanSection() {
-	const { name } = usePlan();
+	const { name, billingPeriod } = usePlan();
 	return (
 		<div>
 			<h1>{ __( 'Your plan', 'jetpack-my-jetpack' ) }</h1>
 			<p>{ __( 'The extra power you added to your Jetpack.', 'jetpack-my-jetpack' ) }</p>
-			{ name }
+
+			<h2>{ name }</h2>
+			<p>{ billingPeriod }</p>
 		</div>
 	);
 }
