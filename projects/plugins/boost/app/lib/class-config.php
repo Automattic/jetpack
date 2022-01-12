@@ -147,29 +147,7 @@ class Config extends Cacheable {
 
 		return $this->store_in_option();
 	}
-
-	/**
-	 * Store the object.
-	 *
-	 * @param int $expiry Expiry in seconds.
-	 *
-	 * @return mixed|void
-	 */
-	public function store( $expiry = self::DEFAULT_EXPIRY ) {
-		return parent::store( $expiry );
-	}
-
-	/**
-	 * Fetch an object with the given ID.
-	 *
-	 * @param string $id The object ID.
-	 *
-	 * @return \WP_Error|mixed
-	 */
-	public static function get( $id ) {
-		return parent::get( $id );
-	}
-
+	
 	/**
 	 * Extra functions to store and retrieve in the options table.
 	 */
