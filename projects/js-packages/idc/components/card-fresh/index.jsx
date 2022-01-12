@@ -7,7 +7,7 @@ import { Button, Dashicon } from '@wordpress/components';
 import { useSelect } from '@wordpress/data';
 import { createInterpolateElement } from '@wordpress/element';
 import { __, sprintf } from '@wordpress/i18n';
-import { Spinner } from '@automattic/jetpack-components';
+import { getRedirectUrl, Spinner } from '@automattic/jetpack-components';
 
 /**
  * Internal dependencies
@@ -15,6 +15,31 @@ import { Spinner } from '@automattic/jetpack-components';
 import { STORE_ID } from '../../state/store';
 import extractHostname from '../../tools/extract-hostname';
 import customContentShape from '../../tools/custom-content-shape';
+import ErrorMessage from '../error-message';
+
+/**
+ * Render the error message.
+ *
+ * @returns {React.Component} The error message.
+ */
+const renderError = () => {
+	return (
+		<ErrorMessage>
+			{ createInterpolateElement(
+				__( 'Could not create the connection. Retry or find out more <a>here</a>.', 'jetpack' ),
+				{
+					a: (
+						<a
+							href={ getRedirectUrl( 'jetpack-support-safe-mode' ) }
+							rel="noopener noreferrer"
+							target="_blank"
+						/>
+					),
+				}
+			) }
+		</ErrorMessage>
+	);
+};
 
 /**
  * The "start fresh" card.
@@ -23,7 +48,7 @@ import customContentShape from '../../tools/custom-content-shape';
  * @returns {React.Component} The `ConnectScreen` component.
  */
 const CardFresh = props => {
-	const { isStartingFresh, startFreshCallback, customContent } = props;
+	const { isStartingFresh, startFreshCallback, customContent, hasError } = props;
 
 	const wpcomHostName = extractHostname( props.wpcomHomeUrl );
 	const currentHostName = extractHostname( props.currentUrl );
@@ -33,7 +58,12 @@ const CardFresh = props => {
 	const buttonLabel = __( 'Create a fresh connection', 'jetpack' );
 
 	return (
-		<div className="jp-idc__idc-screen__card-action-base">
+		<div
+			className={
+				'jp-idc__idc-screen__card-action-base' +
+				( hasError ? ' jp-idc__idc-screen__card-action-error' : '' )
+			}
+		>
 			<div className="jp-idc__idc-screen__card-action-top">
 				<h4>
 					{ customContent.startFreshCardTitle ||
@@ -72,6 +102,8 @@ const CardFresh = props => {
 				>
 					{ isStartingFresh ? <Spinner /> : buttonLabel }
 				</Button>
+
+				{ hasError && renderError() }
 			</div>
 		</div>
 	);
@@ -88,12 +120,15 @@ CardFresh.propTypes = {
 	startFreshCallback: PropTypes.func.isRequired,
 	/** Custom text content. */
 	customContent: PropTypes.shape( customContentShape ),
+	/** Whether the component has an error. */
+	hasError: PropTypes.bool.isRequired,
 };
 
 CardFresh.defaultProps = {
 	isStartingFresh: false,
 	startFreshCallback: () => {},
 	customContent: {},
+	hasError: false,
 };
 
 export default CardFresh;

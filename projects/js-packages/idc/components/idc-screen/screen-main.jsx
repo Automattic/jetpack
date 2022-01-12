@@ -30,6 +30,9 @@ const ScreenMain = props => {
 		isStartingFresh,
 		startFreshCallback,
 		customContent,
+		hasMigrateError,
+		hasFreshError,
+		hasStaySafeError,
 	} = props;
 
 	return (
@@ -58,13 +61,19 @@ const ScreenMain = props => {
 
 			<h3>{ __( 'Please select an option', 'jetpack' ) }</h3>
 
-			<div className="jp-idc__idc-screen__cards">
+			<div
+				className={
+					'jp-idc__idc-screen__cards' +
+					( hasMigrateError || hasFreshError ? ' jp-idc__idc-screen__cards-error' : '' )
+				}
+			>
 				<CardMigrate
 					wpcomHomeUrl={ wpcomHomeUrl }
 					currentUrl={ currentUrl }
 					isMigrating={ isMigrating }
 					migrateCallback={ migrateCallback }
 					customContent={ customContent }
+					hasError={ hasMigrateError }
 				/>
 				<div className="jp-idc__idc-screen__cards-separator">or</div>
 				<CardFresh
@@ -73,10 +82,11 @@ const ScreenMain = props => {
 					isStartingFresh={ isStartingFresh }
 					startFreshCallback={ startFreshCallback }
 					customContent={ customContent }
+					hasError={ hasFreshError }
 				/>
 			</div>
 
-			<SafeMode />
+			<SafeMode hasError={ hasStaySafeError } />
 		</React.Fragment>
 	);
 };
@@ -96,12 +106,21 @@ ScreenMain.propTypes = {
 	startFreshCallback: PropTypes.func,
 	/** Custom text content. */
 	customContent: PropTypes.shape( customContentShape ),
+	/** Whether the component encountered the migration error. */
+	hasMigrateError: PropTypes.bool.isRequired,
+	/** Whether the component encountered the "Fresh Connection" error. */
+	hasFreshError: PropTypes.bool.isRequired,
+	/** Whether the component encountered the "Stay in Safe Mode" error. */
+	hasStaySafeError: PropTypes.bool.isRequired,
 };
 
 ScreenMain.defaultProps = {
 	isMigrating: false,
 	isStartingFresh: false,
 	customContent: {},
+	hasMigrateError: false,
+	hasFreshError: false,
+	hasStaySafeError: false,
 };
 
 export default ScreenMain;
