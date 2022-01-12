@@ -1,7 +1,7 @@
 /**
  * External dependencies
  */
-import { dispatch, select } from '@wordpress/data';
+import {dispatch, select } from '@wordpress/data';
 
 /**
  * Internal dependencies
@@ -24,6 +24,10 @@ const connectionResolvers = {
 				args
 			);
 
+			if ( ! hasAuthorization ) {
+				dispatch( STORE_ID ).invalidateResolution( 'getAuthorizationUrl', args );
+			}
+
 			// we need to set finish resolution to fix a problem when using resolveSelect,
 			// since it looks for finishResolution to return the value
 			// ref: https://github.com/WordPress/gutenberg/blob/5dbf7ca8a285f5cab65ebf7ab87dafeb6118b6aa/packages/data/src/redux-store/index.js#L342
@@ -34,8 +38,15 @@ const connectionResolvers = {
 			return hasAuthorization;
 		},
 		*fulfill( redirectUri ) {
-			const response = yield actions.fetchAuthorizationUrl( redirectUri );
-			yield actions.setAuthorizationUrl( response.authorizeUrl );
+			try {
+				const response = yield actions.fetchAuthorizationUrl(redirectUri);
+				yield actions.setAuthorizationUrl( response.authorizeUrl );
+			} catch ( e ) {
+				yield actions.setUserIsConnecting( false );
+				yield actions.setSiteIsRegistering( false );
+				yield actions.setRegistrationError( e.hasOwnProperty( 'response' ) ? ( ( e.response.hasOwnProperty( 'message' ) && e.response.message ) ? e.response.message : e.response.code ) : e.toString() );
+				throw e;
+			}
 		},
 	},
 };
