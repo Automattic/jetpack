@@ -7,7 +7,7 @@
 ?>
 
 <div
-	class="<?php echo implode( ' ', $classes ); ?>"
+	class="<?php echo esc_attr( implode( ' ', $classes ) ); ?>"
 	data-hide-timeout="<?php echo (int) $instance['hide-timeout']; ?>"
 	data-consent-expiration="<?php echo (int) $instance['consent-expiration']; ?>"
 	id="eu-cookie-law"
@@ -17,8 +17,8 @@
 	</form>
 
 	<?php
-	if ( 'default' == $instance['text'] || empty( $instance['customtext'] ) ) {
-		echo nl2br( $instance['default-text'] );
+	if ( 'default' === $instance['text'] || empty( $instance['customtext'] ) ) {
+		echo nl2br( esc_html( $instance['default-text'] ) );
 	} else {
 		echo nl2br( esc_html( $instance['customtext'] ) );
 	}
