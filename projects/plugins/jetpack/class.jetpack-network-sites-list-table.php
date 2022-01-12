@@ -35,7 +35,8 @@ class Jetpack_Network_Sites_List_Table extends WP_List_Table {
 	 * Prepare items.
 	 */
 	public function prepare_items() {
-		$jpms = Jetpack_Network::init();
+		// Make sure Jetpack_Network is initialized.
+		Jetpack_Network::init();
 
 		// Deal with bulk actions if any were requested by the user.
 		$this->process_bulk_action();
@@ -191,12 +192,12 @@ class Jetpack_Network_Sites_List_Table extends WP_List_Table {
 		switch ( $action ) {
 
 			case 'connect':
-				foreach ( $_POST['bulk'] as $k => $site ) {
+				foreach ( $_POST['bulk'] as $site ) {
 					$jpms->do_subsiteregister( $site );
 				}
 				break;
 			case 'disconnect':
-				foreach ( $_POST['bulk'] as $k => $site ) {
+				foreach ( $_POST['bulk'] as $site ) {
 					$jpms->do_subsitedisconnect( $site );
 				}
 				break;

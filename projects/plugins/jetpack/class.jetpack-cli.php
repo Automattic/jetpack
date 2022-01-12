@@ -242,7 +242,8 @@ class Jetpack_CLI extends WP_CLI_Command {
 					$field   = 'login';
 					$user_id = sanitize_user( $user_id, true );
 				}
-				if ( ! $user = get_user_by( $field, $user_id ) ) {
+				$user = get_user_by( $field, $user_id );
+				if ( ! $user ) {
 					WP_CLI::error( __( 'Please specify a valid user.', 'jetpack' ) );
 				}
 			} else {
@@ -790,6 +791,7 @@ class Jetpack_CLI extends WP_CLI_Command {
 
 		// Let's print_r the option if it's an array.
 		// Used in the 'get' and 'list' actions.
+		// phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_print_r
 		$option = is_array( $option ) ? print_r( $option ) : $option;
 
 		switch ( $action ) {
@@ -893,7 +895,7 @@ class Jetpack_CLI extends WP_CLI_Command {
 				foreach ( $status as $key => $item ) {
 					$collection[] = array(
 						'option' => $key,
-						'value'  => is_scalar( $item ) ? $item : json_encode( $item ),
+						'value'  => is_scalar( $item ) ? $item : wp_json_encode( $item ),
 					);
 				}
 				WP_CLI::log( __( 'Sync Status:', 'jetpack' ) );
@@ -901,14 +903,15 @@ class Jetpack_CLI extends WP_CLI_Command {
 				break;
 			case 'settings':
 				WP_CLI::log( __( 'Sync Settings:', 'jetpack' ) );
+				$settings = array();
 				foreach ( Settings::get_settings() as $setting => $item ) {
 					$settings[] = array(
 						'setting' => $setting,
-						'value'   => is_scalar( $item ) ? $item : json_encode( $item ),
+						'value'   => is_scalar( $item ) ? $item : wp_json_encode( $item ),
 					);
 				}
 				WP_CLI\Utils\format_items( 'table', $settings, array( 'setting', 'value' ) );
-
+				break;
 			case 'disable':
 				// Don't set it via the Settings since that also resets the queues.
 				update_option( 'jetpack_sync_settings_disable', 1 );
@@ -1102,10 +1105,11 @@ class Jetpack_CLI extends WP_CLI_Command {
 
 		// We map the queue name that way we can support more friendly queue names in the commands, but still use
 		// the queue name that the code expects.
-		$queue_name_map    = $allowed_queues = array(
+		$allowed_queues    = array(
 			'incremental' => 'sync',
 			'full'        => 'full_sync',
 		);
+		$queue_name_map    = $allowed_queues;
 		$mapped_queue_name = isset( $queue_name_map[ $queue_name ] ) ? $queue_name_map[ $queue_name ] : $queue_name;
 
 		switch ( $action ) {
@@ -1121,7 +1125,7 @@ class Jetpack_CLI extends WP_CLI_Command {
 					foreach ( $items as $item ) {
 						$collection[] = array(
 							'action'          => $item[0],
-							'args'            => json_encode( $item[1] ),
+							'args'            => wp_json_encode( $item[1] ),
 							'current_user_id' => $item[2],
 							'microtime'       => $item[3],
 							'importing'       => (string) $item[4],
@@ -1161,7 +1165,8 @@ class Jetpack_CLI extends WP_CLI_Command {
 	public function partner_cancel( $args, $named_args ) {
 		list( $token_json ) = $args;
 
-		if ( ! $token_json || ! ( $token = json_decode( $token_json ) ) ) {
+		$token = $token_json ? json_decode( $token_json ) : null;
+		if ( ! $token ) {
 			/* translators: %s is the invalid JSON string */
 			$this->partner_provision_error( new WP_Error( 'missing_access_token', sprintf( __( 'Invalid token JSON: %s', 'jetpack' ), $token_json ) ) );
 		}
@@ -1256,7 +1261,8 @@ class Jetpack_CLI extends WP_CLI_Command {
 	public function partner_provision( $args, $named_args ) {
 		list( $token_json ) = $args;
 
-		if ( ! $token_json || ! ( $token = json_decode( $token_json ) ) ) {
+		$token = $token_json ? json_decode( $token_json ) : null;
+		if ( ! $token ) {
 			/* translators: %s is the invalid JSON string */
 			$this->partner_provision_error( new WP_Error( 'missing_access_token', sprintf( __( 'Invalid token JSON: %s', 'jetpack' ), $token_json ) ) );
 		}
@@ -1277,8 +1283,9 @@ class Jetpack_CLI extends WP_CLI_Command {
 		$body_json = Jetpack_Provision::partner_provision( $token->access_token, $named_args );
 
 		if ( is_wp_error( $body_json ) ) {
+			// phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_error_log
 			error_log(
-				json_encode(
+				wp_json_encode(
 					array(
 						'success'       => false,
 						'error_code'    => $body_json->get_error_code(),
@@ -1289,7 +1296,7 @@ class Jetpack_CLI extends WP_CLI_Command {
 			exit( 1 );
 		}
 
-		WP_CLI::log( json_encode( $body_json ) );
+		WP_CLI::log( wp_json_encode( $body_json ) );
 	}
 
 	/**
@@ -1894,7 +1901,7 @@ class Jetpack_CLI extends WP_CLI_Command {
 	 */
 	private function partner_provision_error( $error ) {
 		WP_CLI::log(
-			json_encode(
+			wp_json_encode(
 				array(
 					'success'       => false,
 					'error_code'    => $error->get_error_code(),
@@ -1993,7 +2000,7 @@ class Jetpack_CLI extends WP_CLI_Command {
 
 		$wp_filesystem->mkdir( $path );
 
-		$hasKeywords = isset( $assoc_args['keywords'] );
+		$has_keywords = isset( $assoc_args['keywords'] );
 
 		$files = array(
 			"$path/$slug.php"     => $this->render_block_file(
@@ -2014,7 +2021,7 @@ class Jetpack_CLI extends WP_CLI_Command {
 					'description' => isset( $assoc_args['description'] )
 						? $assoc_args['description']
 						: $title,
-					'keywords'    => $hasKeywords
+					'keywords'    => $has_keywords
 					? array_map(
 						function ( $keyword ) {
 								// Construction necessary for Mustache lists.
@@ -2023,7 +2030,7 @@ class Jetpack_CLI extends WP_CLI_Command {
 						explode( ',', $assoc_args['keywords'], 3 )
 					)
 					: '',
-					'hasKeywords' => $hasKeywords,
+					'hasKeywords' => $has_keywords,
 				)
 			),
 			"$path/editor.js"     => $this->render_block_file( 'block-editor-js' ),

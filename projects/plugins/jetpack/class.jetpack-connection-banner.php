@@ -226,7 +226,7 @@ class Jetpack_Connection_Banner {
 			)
 		);
 
-		$jetpackApiUrl = wp_parse_url( Jetpack::connection()->api_url( '' ) );
+		$jetpack_api_url = wp_parse_url( Jetpack::connection()->api_url( '' ) );
 
 		// Due to the limitation in how 3rd party cookies are handled in Safari and Opera,
 		// we're falling back to the original flow.
@@ -248,7 +248,7 @@ class Jetpack_Connection_Banner {
 				'apiNonce'              => wp_create_nonce( 'wp_rest' ),
 				'apiSiteDataNonce'      => wp_create_nonce( 'wp_rest' ),
 				'buttonTextRegistering' => __( 'Loading...', 'jetpack' ),
-				'jetpackApiDomain'      => $jetpackApiUrl['scheme'] . '://' . $jetpackApiUrl['host'],
+				'jetpackApiDomain'      => $jetpack_api_url['scheme'] . '://' . $jetpack_api_url['host'],
 				'forceVariation'        => $force_variation,
 				'connectInPlaceUrl'     => Jetpack::admin_url( 'page=jetpack#/setup' ),
 				'dashboardUrl'          => Jetpack::admin_url( 'page=jetpack#/dashboard' ),

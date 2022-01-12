@@ -27,7 +27,7 @@ class Jetpack_Admin {
 	 * @return self
 	 */
 	public static function init() {
-		if ( isset( $_GET['page'] ) && $_GET['page'] === 'jetpack' ) {
+		if ( isset( $_GET['page'] ) && 'jetpack' === $_GET['page'] ) {
 			add_filter( 'nocache_headers', array( 'Jetpack_Admin', 'add_no_store_header' ), 100 );
 		}
 
@@ -113,7 +113,8 @@ class Jetpack_Admin {
 	 * Jetpack Anti-Spam. Without this, we would have to change the logo from Akismet codebase and we want to avoid that.
 	 */
 	public function akismet_logo_replacement_styles() {
-		$logo            = new Jetpack_Logo();
+		$logo = new Jetpack_Logo();
+		// phpcs:ignore WordPress.PHP.DiscouragedPHPFunctions.obfuscation_base64_encode
 		$logo_base64     = base64_encode( $logo->get_jp_emblem_larger() );
 		$logo_base64_url = "data:image/svg+xml;base64,{$logo_base64}";
 		$style           = ".akismet-masthead__logo-container { background: url({$logo_base64_url}) no-repeat .25rem; height: 1.8125rem; } .akismet-masthead__logo { display: none; }";
@@ -151,7 +152,8 @@ class Jetpack_Admin {
 		$jetpack_active    = Jetpack::is_connection_ready() || ( new Status() )->is_offline_mode();
 		$overrides         = Jetpack_Modules_Overrides::instance();
 		foreach ( $available_modules as $module ) {
-			if ( $module_array = Jetpack::get_module( $module ) ) {
+			$module_array = Jetpack::get_module( $module );
+			if ( $module_array ) {
 				/**
 				 * Filters each module's short description.
 				 *

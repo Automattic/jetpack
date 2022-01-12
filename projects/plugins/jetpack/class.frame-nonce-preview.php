@@ -25,11 +25,11 @@ class Jetpack_Frame_Nonce_Preview {
 	 * @return Jetpack_Frame_Nonce_Preview
 	 **/
 	public static function get_instance() {
-		if ( ! is_null( self::$instance ) ) {
-			return self::$instance;
+		if ( null === self::$instance ) {
+			self::$instance = new Jetpack_Frame_Nonce_Preview();
 		}
 
-		return self::$instance = new Jetpack_Frame_Nonce_Preview();
+		return self::$instance;
 	}
 
 	/**

@@ -168,7 +168,7 @@ class Jetpack_Modules_List_Table extends WP_List_Table {
 		foreach ( $module_tags_unique as $title => $count ) {
 			$key           = sanitize_title( $title );
 			$display_title = esc_html( wptexturize( $title ) );
-			$url           = esc_url( add_query_arg( 'module_tag', urlencode( $title ) ) );
+			$url           = esc_url( add_query_arg( 'module_tag', rawurlencode( $title ) ) );
 			$current       = '';
 			if ( ! empty( $_GET['module_tag'] ) && $title == $_GET['module_tag'] ) {
 				$current = ' class="current"';
@@ -275,7 +275,7 @@ class Jetpack_Modules_List_Table extends WP_List_Table {
 	 */
 	public function single_row( $item ) {
 		static $i  = 0;
-		$row_class = ( ++$i % 2 ) ? ' alternate' : '';
+		$row_class = ( ( ++$i ) % 2 ) ? ' alternate' : '';
 
 		if ( ! empty( $item['activated'] ) ) {
 			$row_class .= ' active';
@@ -319,7 +319,8 @@ class Jetpack_Modules_List_Table extends WP_List_Table {
 	 * @return string HTML.
 	 */
 	public function column_icon() {
-		$badge_text = $free_text = '';
+		$badge_text = '';
+		$free_text  = '';
 		ob_start();
 		?>
 		<a href="#TB_inline?width=600&height=550&inlineId=more-info-module-settings-modal" class="thickbox">
@@ -404,7 +405,7 @@ class Jetpack_Modules_List_Table extends WP_List_Table {
 	public function column_module_tags( $item ) {
 		$module_tags = array();
 		foreach ( $item['module_tags'] as $module_tag ) {
-			$module_tags[] = sprintf( '<a href="%3$s" data-title="%2$s">%1$s</a>', esc_html( $module_tag ), esc_attr( $module_tag ), esc_url( add_query_arg( 'module_tag', urlencode( $module_tag ) ) ) );
+			$module_tags[] = sprintf( '<a href="%3$s" data-title="%2$s">%1$s</a>', esc_html( $module_tag ), esc_attr( $module_tag ), esc_url( add_query_arg( 'module_tag', rawurlencode( $module_tag ) ) ) );
 		}
 		return implode( ', ', $module_tags );
 	}
@@ -423,6 +424,7 @@ class Jetpack_Modules_List_Table extends WP_List_Table {
 			case 'description':
 				return '';
 			default:
+				// phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_print_r
 				return print_r( $item, true );
 		}
 	}

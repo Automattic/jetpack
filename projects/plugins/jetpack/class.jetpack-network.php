@@ -563,12 +563,6 @@ class Jetpack_Network {
 		 * connections will feed off this one
 		 */
 		if ( ! $main_active ) {
-			$url  = $this->get_url(
-				array(
-					'name'    => 'subsiteregister',
-					'site_id' => 1,
-				)
-			);
 			$data = array( 'url' => $jp->build_connect_url() );
 			Jetpack::init()->load_view( 'admin/must-connect-main-blog.php', $data );
 

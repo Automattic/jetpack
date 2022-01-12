@@ -395,7 +395,7 @@ abstract class WPCOM_JSON_API_Endpoint {
 						return null;
 					}
 				} else {
-					if ( is_null( $return ) && json_encode( null ) !== $input ) {
+					if ( is_null( $return ) && wp_json_encode( null ) !== $input ) {
 						return null;
 					}
 				}
@@ -602,10 +602,8 @@ abstract class WPCOM_JSON_API_Endpoint {
 						$return[ $key ] = $files;
 						break;
 					}
-				} else {
-					// no break - treat as 'array'.
 				}
-				// nobreak.
+				// no break - treat as 'array'.
 			case 'array':
 				// Fallback array -> string.
 				if ( is_string( $value ) ) {
@@ -931,6 +929,7 @@ abstract class WPCOM_JSON_API_Endpoint {
 						$for_output
 					);
 				} else {
+					// phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_trigger_error
 					trigger_error( "Unknown API casting type {$type['type']}", E_USER_WARNING );
 				}
 		}
@@ -1269,7 +1268,7 @@ abstract class WPCOM_JSON_API_Endpoint {
 					if ( ! current_user_can( 'edit_post', $post->ID ) ) {
 						return new WP_Error( 'unauthorized', 'User cannot view post', 403 );
 					}
-				} elseif ( 'auto-draft' === $post->post_status ) {
+				} elseif ( 'auto-draft' === $post->post_status ) { // phpcs:ignore Generic.CodeAnalysis.EmptyStatement.DetectedElseif
 					// allow auto-drafts.
 				} else {
 					return new WP_Error( 'unauthorized', 'User cannot view post', 403 );
@@ -1339,9 +1338,9 @@ abstract class WPCOM_JSON_API_Endpoint {
 			$name        = $author->comment_author;
 			$first_name  = '';
 			$last_name   = '';
-			$URL         = $author->comment_author_url;
-			$avatar_URL  = $this->api->get_avatar_url( $author );
-			$profile_URL = 'https://en.gravatar.com/' . md5( strtolower( trim( $email ) ) );
+			$url         = $author->comment_author_url;
+			$avatar_url  = $this->api->get_avatar_url( $author );
+			$profile_url = 'https://en.gravatar.com/' . md5( strtolower( trim( $email ) ) );
 			$nice        = '';
 			$site_id     = -1;
 
@@ -1379,7 +1378,7 @@ abstract class WPCOM_JSON_API_Endpoint {
 					$name       = get_post_meta( $post_id, '_jetpack_author', true );
 					$first_name = '';
 					$last_name  = '';
-					$URL        = '';
+					$url        = '';
 					$nice       = '';
 				} else {
 					$author = $author->post_author;
@@ -1389,7 +1388,7 @@ abstract class WPCOM_JSON_API_Endpoint {
 			if ( ! isset( $id ) ) {
 				$user = get_user_by( 'id', $author );
 				if ( ! $user || is_wp_error( $user ) ) {
-					trigger_error( 'Unknown user', E_USER_WARNING );
+					trigger_error( 'Unknown user', E_USER_WARNING ); // phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_trigger_error
 
 					return null;
 				}
@@ -1399,7 +1398,7 @@ abstract class WPCOM_JSON_API_Endpoint {
 				$name       = $user->display_name;
 				$first_name = $user->first_name;
 				$last_name  = $user->last_name;
-				$URL        = $user->user_url;
+				$url        = $user->user_url;
 				$nice       = $user->user_nicename;
 			}
 			if ( defined( 'IS_WPCOM' ) && IS_WPCOM && ! $is_jetpack ) {
@@ -1411,13 +1410,13 @@ abstract class WPCOM_JSON_API_Endpoint {
 						is_private_blog_user( $site_id, get_current_user_id() )
 					);
 				}
-				$profile_URL = "https://en.gravatar.com/{$login}";
+				$profile_url = "https://en.gravatar.com/{$login}";
 			} else {
-				$profile_URL = 'https://en.gravatar.com/' . md5( strtolower( trim( $email ) ) );
+				$profile_url = 'https://en.gravatar.com/' . md5( strtolower( trim( $email ) ) );
 				$site_id     = -1;
 			}
 
-			$avatar_URL = $this->api->get_avatar_url( $email );
+			$avatar_url = $this->api->get_avatar_url( $email );
 		}
 
 		if ( $show_email_and_ip ) {
@@ -1436,9 +1435,9 @@ abstract class WPCOM_JSON_API_Endpoint {
 			'first_name'  => (string) $first_name,
 			'last_name'   => (string) $last_name,
 			'nice_name'   => (string) $nice,
-			'URL'         => (string) esc_url_raw( $URL ),
-			'avatar_URL'  => (string) esc_url_raw( $avatar_URL ),
-			'profile_URL' => (string) esc_url_raw( $profile_URL ),
+			'URL'         => (string) esc_url_raw( $url ),
+			'avatar_URL'  => (string) esc_url_raw( $avatar_url ),
+			'profile_URL' => (string) esc_url_raw( $profile_url ),
 			'ip_address'  => $ip_address, // string|bool.
 		);
 
@@ -1595,8 +1594,7 @@ abstract class WPCOM_JSON_API_Endpoint {
 
 		if (
 			in_array( $ext, array( 'ogv', 'mp4', 'mov', 'wmv', 'avi', 'mpg', '3gp', '3g2', 'm4v' ) )
-			||
-			$response['mime_type'] === 'video/videopress'
+			|| 'video/videopress' === $response['mime_type']
 		) {
 			$is_video = true;
 		}
@@ -1916,7 +1914,7 @@ abstract class WPCOM_JSON_API_Endpoint {
 			}
 
 			foreach ( $actions as $priority => $callbacks ) {
-				foreach ( $callbacks as $callback_key => $callback_data ) {
+				foreach ( $callbacks as $callback_data ) {
 					$callback = $callback_data['function'];
 
 					// use reflection api to determine filename where function is defined.
@@ -2015,7 +2013,8 @@ abstract class WPCOM_JSON_API_Endpoint {
 			return true;
 		}
 
-		if ( $post_type_object = get_post_type_object( $post_type ) ) {
+		$post_type_object = get_post_type_object( $post_type );
+		if ( $post_type_object ) {
 			if ( ! empty( $post_type_object->show_in_rest ) ) {
 				return $post_type_object->show_in_rest;
 			}
@@ -2032,7 +2031,7 @@ abstract class WPCOM_JSON_API_Endpoint {
 	 *
 	 * @return array Whitelisted post types.
 	 */
-	protected function _get_whitelisted_post_types() {
+	protected function _get_whitelisted_post_types() { // phpcs:ignore PSR2.Methods.MethodDeclaration.Underscore -- Legacy.
 		$allowed_types = array( 'post', 'page', 'revision' );
 
 		/**
@@ -2066,7 +2065,8 @@ abstract class WPCOM_JSON_API_Endpoint {
 
 		add_filter( 'upload_mimes', array( $this, 'allow_video_uploads' ) );
 
-		$media_ids             = $errors = array();
+		$media_ids             = array();
+		$errors                = array();
 		$user_can_upload_files = current_user_can( 'upload_files' ) || $this->api->is_authorized_with_upload_token();
 		$media_attrs           = array_values( $media_attrs ); // reset the keys.
 		$i                     = 0;
@@ -2218,7 +2218,7 @@ abstract class WPCOM_JSON_API_Endpoint {
 		// First check to see if we get a mime-type match by file, otherwise, check to
 		// see if WordPress supports this file as an image. If neither, then it is not supported.
 		if ( ! $this->is_file_supported_for_sideloading( $tmp ) || 'image' === $type && ! file_is_displayable_image( $tmp ) ) {
-			@unlink( $tmp );
+			@unlink( $tmp ); // phpcs:ignore WordPress.PHP.NoSilencedErrors.Discouraged
 			return new WP_Error( 'invalid_input', 'Invalid file type.', 403 );
 		}
 
@@ -2230,7 +2230,7 @@ abstract class WPCOM_JSON_API_Endpoint {
 
 		$id = media_handle_sideload( $file_array, $parent_post_id );
 		if ( file_exists( $tmp ) ) {
-			@unlink( $tmp );
+			@unlink( $tmp ); // phpcs:ignore WordPress.PHP.NoSilencedErrors.Discouraged
 		}
 
 		if ( is_wp_error( $id ) ) {
@@ -2311,7 +2311,7 @@ abstract class WPCOM_JSON_API_Endpoint {
 		if ( ! empty( $video_exts ) ) {
 			foreach ( $video_exts as $ext ) {
 				foreach ( $mime_list as $ext_pattern => $mime ) {
-					if ( $ext != '' && strpos( $ext_pattern, $ext ) !== false ) {
+					if ( '' !== $ext && strpos( $ext_pattern, $ext ) !== false ) {
 						$video_mimes[ $ext_pattern ] = $mime;
 					}
 				}
@@ -2405,7 +2405,7 @@ abstract class WPCOM_JSON_API_Endpoint {
 	 * @return array
 	 */
 	public function get_amp_cache_origins( $siteurl ) {
-		$host = parse_url( $siteurl, PHP_URL_HOST );
+		$host = wp_parse_url( $siteurl, PHP_URL_HOST );
 
 		/*
 		 * From AMP docs:

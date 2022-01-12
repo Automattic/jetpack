@@ -66,7 +66,8 @@ class Jetpack_PostImages {
 			// If the JSON didn't decode don't try and act on it.
 			if ( is_array( $post_images ) ) {
 				foreach ( $post_images as $post_image ) {
-					if ( ! $post_image_id = absint( $post_image->id ) ) {
+					$post_image_id = absint( $post_image->id );
+					if ( ! $post_image_id ) {
 						continue;
 					}
 
@@ -428,7 +429,7 @@ class Jetpack_PostImages {
 		// The @ is not enough to suppress errors when dealing with libxml,
 		// we have to tell it directly how we want to handle errors.
 		libxml_use_internal_errors( true );
-		@$dom_doc->loadHTML( $html_info['html'] );
+		@$dom_doc->loadHTML( $html_info['html'] ); // phpcs:ignore WordPress.PHP.NoSilencedErrors.Discouraged
 		libxml_use_internal_errors( false );
 
 		$image_tags = $dom_doc->getElementsByTagName( 'img' );

@@ -5,7 +5,9 @@
  * @package automattic/jetpack
  */
 
-defined( 'WPCOM_JSON_API__DEBUG' ) or define( 'WPCOM_JSON_API__DEBUG', false );
+if ( ! defined( 'WPCOM_JSON_API__DEBUG' ) ) {
+	define( 'WPCOM_JSON_API__DEBUG', false );
+}
 
 require_once __DIR__ . '/sal/class.json-api-platform.php';
 
@@ -103,7 +105,7 @@ class WPCOM_JSON_API {
 	 *
 	 * @var string
 	 */
-	public $_server_https;
+	public $_server_https; // phpcs:ignore PSR2.Classes.PropertyDeclaration.Underscore
 
 	/**
 	 * Whether to exit after serving a response.
@@ -176,6 +178,8 @@ class WPCOM_JSON_API {
 	 * @param WPCOM_JSON_API_Endpoint $endpoint Endpoint to add.
 	 */
 	public function add( WPCOM_JSON_API_Endpoint $endpoint ) {
+		// @todo Determine if anything depends on this being serialized rather than e.g. JSON.
+		// phpcs:ignore WordPress.PHP.DiscouragedPHPFunctions.serialize_serialize -- Legacy, possibly depended on elsewhere.
 		$path_versions = serialize(
 			array(
 				$endpoint->path,
@@ -350,7 +354,7 @@ class WPCOM_JSON_API {
 	 * @return string|null Content type (assuming it didn't exit), or null in certain error cases.
 	 */
 	public function serve( $exit = true ) {
-		ini_set( 'display_errors', false );
+		ini_set( 'display_errors', false ); // phpcs:ignore WordPress.PHP.IniSet.display_errors_Blacklisted
 
 		$this->exit = (bool) $exit;
 
@@ -430,6 +434,8 @@ class WPCOM_JSON_API {
 		// Find which endpoint to serve.
 		$found = false;
 		foreach ( $this->endpoints as $endpoint_path_versions => $endpoints_by_method ) {
+			// @todo Determine if anything depends on this being serialized rather than e.g. JSON.
+			// phpcs:ignore WordPress.PHP.DiscouragedPHPFunctions.serialize_unserialize -- Legacy, possibly depended on elsewhere.
 			$endpoint_path_versions = unserialize( $endpoint_path_versions );
 			$endpoint_path          = $endpoint_path_versions[0];
 			$endpoint_min_version   = $endpoint_path_versions[1];
@@ -713,7 +719,8 @@ class WPCOM_JSON_API {
 			'message' => $error->get_error_message(),
 		);
 
-		if ( $additional_data = $error->get_error_data( 'additional_data' ) ) {
+		$additional_data = $error->get_error_data( 'additional_data' );
+		if ( $additional_data ) {
 			$response['data'] = $additional_data;
 		}
 
@@ -781,6 +788,7 @@ class WPCOM_JSON_API {
 				foreach ( $response[ $key_to_filter ] as $key => $values ) {
 					if ( is_object( $values ) ) {
 						if ( is_object( $response[ $key_to_filter ] ) ) {
+							// phpcs:ignore Squiz.PHP.DisallowMultipleAssignments.Found -- False positive.
 							$response[ $key_to_filter ]->$key = (object) array_intersect_key( ( (array) $values ), array_flip( $fields ) );
 						} elseif ( is_array( $response[ $key_to_filter ] ) ) {
 							$response[ $key_to_filter ][ $key ] = (object) array_intersect_key( ( (array) $values ), array_flip( $fields ) );
@@ -851,7 +859,7 @@ class WPCOM_JSON_API {
 	 * @return bool
 	 */
 	public function ends_with( $haystack, $needle ) {
-		return $needle === substr( $haystack, -strlen( $needle ) );
+		return substr( $haystack, -strlen( $needle ) ) === $needle;
 	}
 
 	/**
@@ -1144,7 +1152,7 @@ class WPCOM_JSON_API {
 		);
 
 		// ... unless it's 500
-		if ( (int) $args['response'] !== 500 ) {
+		if ( 500 !== (int) $args['response'] ) {
 			$this->trapped_error['status'] = $args['response'];
 		}
 
