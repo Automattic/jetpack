@@ -92,7 +92,7 @@ class Plugin implements PluginInterface, EventSubscriberInterface {
 			$totype   = 'themes';
 		} else {
 			$io->warning( 'Skipping jetpack-library i18n map generation, .extra.wp-plugin-slug / .extra.wp-theme-slug is not set in composer.json' );
-			$filesystem->unlink( 'jetpack_vendor/i18n-map.php' );
+			$filesystem->remove( 'jetpack_vendor/i18n-map.php' );
 			return;
 		}
 
@@ -109,6 +109,10 @@ class Plugin implements PluginInterface, EventSubscriberInterface {
 			$ver = $package->getVersion();
 			if ( isset( $extra['branch-alias'][ $ver ] ) ) {
 				$ver = $extra['branch-alias'][ $ver ];
+			}
+			if ( ! preg_match( '/^\d+\.\d+\.\d+(?:-[0-9a-zA-Z-]+(?:\.[0-9a-zA-Z-]+)*)?(?:\+[0-9a-zA-Z-]+(?:\.[0-9a-zA-Z-]+)*)?$/', $ver ) ) {
+				// Invalid version, skip it.
+				$ver = '0.0.0';
 			}
 
 			$extra = $package->getExtra();
