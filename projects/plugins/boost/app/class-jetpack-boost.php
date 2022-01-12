@@ -269,15 +269,6 @@ class Jetpack_Boost {
 	}
 
 	/**
-	 * Registers the `jetpack_boost_url_ready` filter which allows modules to provide their readiness status.
-	 */
-	public function display_meta_field_module_ready() {
-		?>
-		<meta name="jetpack-boost-ready" content="<?php echo apply_filters( 'jetpack_boost_url_ready', true ) ? 'true' : 'false'; ?>"/>
-		<?php
-	}
-
-	/**
 	 * The name of the plugin used to uniquely identify it within the context of
 	 * WordPress and to define internationalization functionality.
 	 *

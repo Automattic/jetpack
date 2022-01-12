@@ -45,9 +45,6 @@ class Critical_CSS extends Module {
 
 		add_action( 'rest_api_init', array( $this->rest_api, 'register_routes' ) );
 
-		// Update ready flag used to indicate Boost optimizations are warmed up in metatag.
-		add_filter( 'jetpack_boost_url_ready', array( $this, 'is_ready_filter' ), 10, 1 );
-
 		add_action( 'wp', array( $this, 'display_critical_css' ) );
 
 		if ( Generator::is_generating_critical_css() ) {
@@ -116,29 +113,6 @@ class Critical_CSS extends Module {
 		Critical_CSS_State::reset();
 	}
 
-	/**
-	 * Check if the current URL is warmed up. For this module, "warmed up" means that
-	 * either Critical CSS has been generated for this page, or this page is not
-	 * eligible to have Critical CSS generated for it.
-	 *
-	 * @param bool $ready Injected filter value.
-	 *
-	 * @return bool
-	 */
-	public function is_ready_filter( $ready ) {
-		if ( ! $ready ) {
-			return $ready;
-		}
-
-		// If this page has no provider keys, it is ineligible for Critical CSS.
-		$keys = $this->paths->get_current_request_css_keys();
-		if ( count( $keys ) === 0 ) {
-			return true;
-		}
-
-		// Return "ready" if Critical CSS has been generated.
-		return ! empty( $this->paths->get_current_request_css() );
-	}
 
 	/**
 	 * Force the current page to render as viewed by a logged out user. Useful when generating
