@@ -68,20 +68,12 @@
 		"php:autofix": "composer phpcs:fix",
 		"php:compatibility": "composer phpcs:compatibility",
 		"php:lint": "composer phpcs:lint",
+		"prepare": "husky install",
 		"reformat-files": "prettier --ignore-path .eslintignore --write \"**/*.{js,jsx,cjs,mjs,ts,tsx,svelte,json}\"",
 		"version-packages": "bash ./tools/version-packages.sh"
 	},
-	"husky": {
-		"hooks": {
-			"pre-commit": "node tools/js-tools/git-hooks/pre-commit-hook.js",
-			"prepare-commit-msg": "node tools/js-tools/git-hooks/prepare-commit-msg.js",
-			"post-checkout": "./tools/js-tools/git-hooks/post-merge-checkout-hook.sh",
-			"post-merge": "./tools/js-tools/git-hooks/post-merge-checkout-hook.sh",
-			"pre-push": "node tools/js-tools/git-hooks/pre-push-hook.js"
-		}
-	},
 	"devDependencies": {
-		"husky": "4.3.8",
+		"husky": "7.0.4",
 		"jetpack-cli": "workspace:1.0.0",
 		"jetpack-js-tools": "workspace:*"
 	},
