@@ -284,7 +284,7 @@ class Jetpack_Related_Posts_Customize {
 			),
 			array( 'customize-controls' ),
 			JETPACK__VERSION,
-			$in_footer = false
+			false
 		);
 	}
 
