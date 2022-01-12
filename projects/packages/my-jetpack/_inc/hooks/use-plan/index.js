@@ -32,7 +32,7 @@ function mapPlanData( plan = {} ) {
  *
  * @returns {object} site plan data
  */
-export default function usePlans() {
+export default function usePlan() {
 	const [ data, setData ] = useState( {} );
 
 	useEffect( () => {
