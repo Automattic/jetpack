@@ -190,20 +190,6 @@ class Config extends Cacheable {
 	}
 
 	/**
-	 * Fetch this configuration from an option.
-	 *
-	 * @param string $option_name The option to store it in.
-	 *
-	 * @return Config
-	 */
-	private static function get_from_option( $option_name ) {
-		$option_value = \get_option( $option_name, array() );
-
-		// @todo - unserialize from JSON to match cache entries?
-		return new Config( $option_value, $option_name );
-	}
-
-	/**
 	 * Set data.
 	 *
 	 * @param mixed $data Data.
