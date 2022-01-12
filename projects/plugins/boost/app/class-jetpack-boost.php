@@ -16,7 +16,6 @@ use Automattic\Jetpack\Config as Jetpack_Config;
 use Automattic\Jetpack_Boost\Admin\Admin;
 use Automattic\Jetpack_Boost\Lib\Analytics;
 use Automattic\Jetpack_Boost\Lib\CLI;
-use Automattic\Jetpack_Boost\Lib\Config;
 use Automattic\Jetpack_Boost\Lib\Connection;
 use Automattic\Jetpack_Boost\Lib\Speed_Score_History;
 use Automattic\Jetpack_Boost\Lib\Viewport;
@@ -40,24 +39,10 @@ use Automattic\Jetpack_Boost\Modules\Render_Blocking_JS\Render_Blocking_JS;
  */
 class Jetpack_Boost {
 
-	const MODULES = array(
+	const AVAILABLE_MODULES = array(
 		Critical_CSS::MODULE_SLUG       => Critical_CSS::class,
 		Lazy_Images::MODULE_SLUG        => Lazy_Images::class,
 		Render_Blocking_JS::MODULE_SLUG => Render_Blocking_JS::class,
-	);
-
-	/**
-	 * Default enabled modules.
-	 */
-	const ENABLED_MODULES_DEFAULT = array();
-
-	/**
-	 * Default available modules.
-	 */
-	const AVAILABLE_MODULES_DEFAULT = array(
-		Critical_CSS::MODULE_SLUG,
-		Render_Blocking_JS::MODULE_SLUG,
-		Lazy_Images::MODULE_SLUG,
 	);
 
 	/**
@@ -77,17 +62,9 @@ class Jetpack_Boost {
 	private $version;
 
 	/**
-	 * The config
-	 *
-	 * @since    1.0.0
-	 * @var      Config|null $config The configuration object
-	 */
-	private $config;
-
-	/**
 	 * Store all plugin module instances here
 	 *
-	 * @var array
+	 * @var Module[]
 	 */
 	private $modules = array();
 
@@ -125,10 +102,7 @@ class Jetpack_Boost {
 			\WP_CLI::add_command( 'jetpack-boost', $cli_instance );
 		}
 
-		// Initialize the config module separately.
-		$this->init_config();
-
-		$this->prepare_modules();
+		$this->modules = $this->prepare_modules();
 
 		// Initialize the Admin experience.
 		$this->init_admin();
@@ -179,7 +153,7 @@ class Jetpack_Boost {
 
 		Speed_Score_History::clear_all();
 		$this->clear_cache();
-		delete_option( apply_filters( 'jetpack_boost_options_store_key_name', 'jetpack_boost_config' ) );
+
 	}
 
 	/**
@@ -205,9 +179,9 @@ class Jetpack_Boost {
 	 * phpcs:disable WordPress.Security.NonceVerification.Recommended
 	 */
 	public function prepare_modules() {
-		$available_modules = $this->get_available_modules();
 
 		$forced_disabled_modules = array();
+		$modules                 = array();
 
 		// Get the lists of modules explicitly disabled from the 'jb-disable-modules' query string.
 		// The parameter is a comma separated value list of module slug.
@@ -217,7 +191,7 @@ class Jetpack_Boost {
 			$forced_disabled_modules = array_map( 'sanitize_key', explode( ',', $_GET['jb-disable-modules'] ) );
 		}
 
-		foreach ( self::MODULES as $module_slug => $module_class ) {
+		foreach ( self::AVAILABLE_MODULES as $module_slug => $module_class ) {
 			// Don't register modules that have been forcibly disabled from the url 'jb-disable-modules' query string parameter.
 			if ( in_array( $module_slug, $forced_disabled_modules, true ) || in_array( 'all', $forced_disabled_modules, true ) ) {
 				continue;
@@ -228,26 +202,20 @@ class Jetpack_Boost {
 				continue;
 			}
 
-			// Don't register modules that aren't available.
-			if ( ! in_array( $module_slug, $available_modules, true ) ) {
-				continue;
-			}
-
-			$module                        = $module_class::prepare();
-			$this->modules[ $module_slug ] = $module;
+			$modules[ $module_slug ] = $module_class::prepare();
 		}
 
 		do_action( 'jetpack_boost_modules_loaded' );
+		return $modules;
 	}
 
 	/**
 	 * Initialize modules when WordPress is ready
 	 */
 	public function initialize_modules() {
-		foreach ( $this->modules as $module_slug => $module ) {
-			if ( true === $this->get_module_status( $module_slug ) ) {
+		foreach ( $this->modules as $module ) {
+			if ( $module->is_enabled() ) {
 				$module->initialize();
-				do_action( "jetpack_boost_{$module_slug}_initialized", $module );
 			}
 		}
 	}
@@ -257,150 +225,32 @@ class Jetpack_Boost {
 	 *
 	 * @return array The available modules.
 	 */
-	public function get_available_modules() {
-		$available_modules = self::AVAILABLE_MODULES_DEFAULT;
-
-		// Add the Lazy Images module if Jetpack Lazy Images module is enabled.
-		if ( Lazy_Images::is_jetpack_lazy_images_module_enabled() ) {
-			$available_modules = array_unique( array_merge( self::AVAILABLE_MODULES_DEFAULT, array( Lazy_Images::MODULE_SLUG ) ) );
-		}
-
-		return apply_filters(
-			'jetpack_boost_modules',
-			$available_modules
-		);
+	public static function get_available_modules() {
+		return array_keys( self::AVAILABLE_MODULES );
 	}
 
 	/**
 	 * Returns an array of active modules.
 	 */
 	public function get_active_modules() {
-		// Cache active modules.
-		static $active_modules = null;
-		if ( null !== $active_modules ) {
-			return $active_modules;
+		return array_filter( $this->modules, function( $module ) {
+			return $module->is_enabled();
+		} );
+	}
+
+	/**
+	 * @param string $module_slug
+	 *
+	 * @return Module|false
+	 */
+	public function get_module( $module_slug ) {
+		if ( ! $this->modules[ $module_slug ] ) {
+			return false; // @TODO: Return empty module instead
 		}
 
-		return array_filter(
-			$this->modules,
-			function ( $module, $module_slug ) {
-				return true === $this->get_module_status( $module_slug );
-			},
-			ARRAY_FILTER_USE_BOTH
-		);
+		return $this->modules[ $module_slug ];
 	}
 
-	/**
-	 * Returns the status of a given module.
-	 *
-	 * @param string $module_slug The module's slug.
-	 *
-	 * @return bool The enablement status of the module.
-	 */
-	public function get_module_status( $module_slug ) {
-		$default_module_status = in_array( $module_slug, self::ENABLED_MODULES_DEFAULT, true );
-
-		return apply_filters( 'jetpack_boost_module_enabled', $default_module_status, $module_slug );
-	}
-
-	/**
-	 * Check if a module is enabled.
-	 *
-	 * @param boolean $is_enabled  Default value.
-	 * @param string  $module_slug The module we are checking.
-	 *
-	 * @return mixed|null
-	 */
-	public function is_module_enabled( $is_enabled, $module_slug ) {
-		do_action( 'jetpack_boost_pre_is_module_enabled', $is_enabled, $module_slug );
-
-		return $this->config()->get_value( "$module_slug/enabled", $is_enabled );
-	}
-
-	/**
-	 * Set status of a module.
-	 *
-	 * @param boolean $is_enabled  Default value.
-	 * @param string  $module_slug The module we are checking.
-	 */
-	public function set_module_status( $is_enabled, $module_slug ) {
-		do_action( 'jetpack_boost_pre_set_module_status', $is_enabled, $module_slug );
-		Analytics::record_user_event(
-			'set_module_status',
-			array(
-				'module' => $module_slug,
-				'status' => $is_enabled,
-			)
-		);
-		$this->config()->set_value( "$module_slug/enabled", $is_enabled, true );
-	}
-
-	/**
-	 * Get critical CSS viewport sizes.
-	 *
-	 * @param mixed $default The default value.
-	 *
-	 * @return mixed|null
-	 */
-	public function get_critical_css_viewport_sizes( $default ) {
-		return $this->config()->get_value( 'critical-css/settings/viewport_sizes', $default );
-	}
-
-	/**
-	 * Get critical CSS default viewports.
-	 *
-	 * @param mixed $default The default value.
-	 *
-	 * @return mixed|null
-	 */
-	public function get_critical_css_default_viewports( $default ) {
-		return $this->config()->get_value( 'critical-css/settings/default_viewports', $default );
-	}
-
-	/**
-	 * Get critical CSS ignore rules.
-	 *
-	 * @param mixed $default The default value.
-	 *
-	 * @return mixed|null
-	 */
-	public function get_critical_css_ignore_rules( $default ) {
-		return $this->config()->get_value( 'critical-css/settings/css-ignore-rules', $default );
-	}
-
-	/**
-	 * Returns configuration array.
-	 *
-	 * @return Config Configuration array.
-	 */
-	public function config() {
-		if ( ! $this->config ) {
-			do_action( 'jetpack_boost_pre_get_config' );
-			$this->config = Config::get(); // under the hood, this actually fetches from an option, not the config cache.
-		}
-
-		return apply_filters( 'jetpack_boost_config', $this->config );
-	}
-
-	/**
-	 * Initialize config system.
-	 *
-	 * @todo This should be replaced by a proper configuration implementation eventually.
-	 */
-	public function init_config() {
-		add_action( 'switch_blog', array( $this, 'clear_memoized_config' ) );
-		add_filter( 'jetpack_boost_module_enabled', array( $this, 'is_module_enabled' ), 0, 2 );
-		add_filter( 'jetpack_boost_critical_css_viewport_sizes', array( $this, 'get_critical_css_viewport_sizes' ) );
-		add_filter( 'jetpack_boost_critical_css_default_viewports', array( $this, 'get_critical_css_default_viewports' ) );
-		add_filter( 'jetpack_boost_critical_css_ignore_rules', array( $this, 'get_critical_css_ignore_rules' ) );
-	}
-
-	/**
-	 * Clear the memoized config, executed on `switch_blog`
-	 */
-	public function clear_memoized_config() {
-		$this->config = null;
-	}
 
 	/**
 	 * Returns a default config array.
@@ -474,7 +324,7 @@ class Jetpack_Boost {
 	 */
 	public function display_meta_field_module_ready() {
 		?>
-		<meta name="jetpack-boost-ready" content="<?php echo apply_filters( 'jetpack_boost_url_ready', true ) ? 'true' : 'false'; ?>" />
+		<meta name="jetpack-boost-ready" content="<?php echo apply_filters( 'jetpack_boost_url_ready', true ) ? 'true' : 'false'; ?>"/>
 		<?php
 	}
 

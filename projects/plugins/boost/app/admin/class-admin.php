@@ -127,6 +127,22 @@ class Admin {
 			true
 		);
 
+		$active_modules    = array_keys( $this->jetpack_boost->get_active_modules() );
+		$available_modules = Jetpack_Boost::get_available_modules();
+
+		/**
+		 * @TODO: This config here ia bit incorrect - JavaScript relies on config module containing all the modules, even the disabled ones.
+		 *      But that doesn't make much sense, since we're already passing all the available modules separately.
+		 *      The "constants" should be cleaned up a bit, but out of scope at the moment.
+		 *        The config system should be cleaned up a bit further.
+		 */
+		$module_config = array();
+		foreach ( $available_modules as $module_slug ) {
+			$module_config[ $module_slug ] = array(
+				'enabled' => in_array( $module_slug, $active_modules, true ),
+			);
+		}
+
 		// Prepare configuration constants for JavaScript.
 		$constants = array(
 			'version'             => JETPACK_BOOST_VERSION,
@@ -134,8 +150,8 @@ class Admin {
 				'namespace' => JETPACK_BOOST_REST_NAMESPACE,
 				'prefix'    => JETPACK_BOOST_REST_PREFIX,
 			),
-			'modules'             => $this->jetpack_boost->get_available_modules(),
-			'config'              => $this->jetpack_boost->config()->get_data(),
+			'modules'             => $available_modules,
+			'config'              => $module_config,
 			'locale'              => get_locale(),
 			'site'                => array(
 				'url'       => get_home_url(),
@@ -235,11 +251,24 @@ class Admin {
 			);
 		}
 
-		$module_slug = $request['slug'];
-		$this->jetpack_boost->set_module_status( (bool) $params['status'], $module_slug );
 
+		$module_slug = $request['slug'];
+
+		// @TODO: Looks like we need a Module Factory instead.
+		$module      = $this->jetpack_boost->get_module( $module_slug );
+
+		if ( ! $module ) {
+			return \WP_Error( 'jetpack_boost_invalid_module', __( 'Module not found', 'jetpack-boost' ) );
+		}
+
+		if( true === $params['status'] ) {
+			$module->enable();
+		} else {
+			$module->disable();
+		}
+		
 		return rest_ensure_response(
-			$this->jetpack_boost->get_module_status( $module_slug )
+			$module->is_enabled()
 		);
 	}
 
@@ -256,7 +285,7 @@ class Admin {
 		$dismissed_notices = \get_option( self::DISMISSED_NOTICE_OPTION, array() );
 		$notices           = array_filter(
 			$notices,
-			function ( $notice ) use ( $dismissed_notices ) {
+			function( $notice ) use ( $dismissed_notices ) {
 				$notice_slug = $notice->get_slug();
 
 				return ! in_array( $notice_slug, $dismissed_notices, true );
