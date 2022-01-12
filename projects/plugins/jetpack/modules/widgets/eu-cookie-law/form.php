@@ -1,7 +1,13 @@
 <?php
+/**
+ * EU Cookie Law Widget form.
+ *
+ * @package automattic/jetpack
+ */
 
 use Automattic\Jetpack\Redirect;
 
+// phpcs:disable VariableAnalysis.CodeAnalysis.VariableAnalysis.UndefinedVariable
 ?>
 <p>
 	<strong>
@@ -86,7 +92,16 @@ use Automattic\Jetpack\Redirect;
 						<strong><?php esc_html_e( 'Caution:', 'jetpack' ); ?></strong>
 						<?php
 						echo sprintf(
-							__( 'For GDPR compliance, please make sure your policy contains <a href="%s" target="_blank">privacy information relating to Jetpack Ads</a>.', 'jetpack' ),
+							wp_kses(
+								/* Translators: %s is the URL to a Jetpack support article. */
+								__( 'For GDPR compliance, please make sure your policy contains <a href="%s" target="_blank">privacy information relating to Jetpack Ads</a>.', 'jetpack' ),
+								array(
+									'a' => array(
+										'href'   => array(),
+										'target' => array(),
+									),
+								)
+							),
 							esc_url( Redirect::get_url( 'jetpack-support-ads', array( 'anchor' => 'privacy' ) ) )
 						);
 						?>
@@ -104,7 +119,7 @@ use Automattic\Jetpack\Redirect;
 	<label>
 		<input
 			class="widefat"
-			name="<?php echo $this->get_field_name( 'policy-link-text' ); ?>"
+			name="<?php echo esc_attr( $this->get_field_name( 'policy-link-text' ) ); ?>"
 			type="text"
 			value="<?php echo esc_attr( $instance['policy-link-text'] ); ?>"
 		/>
@@ -120,7 +135,7 @@ use Automattic\Jetpack\Redirect;
 	<label>
 		<input
 			class="widefat"
-			name="<?php echo $this->get_field_name( 'button' ); ?>"
+			name="<?php echo esc_attr( $this->get_field_name( 'button' ) ); ?>"
 			type="text"
 			value="<?php echo esc_attr( $instance['button'] ); ?>"
 		/>
@@ -131,7 +146,7 @@ use Automattic\Jetpack\Redirect;
 
 <p>
 	<strong>
-		<?php _ex( 'Capture consent & hide the banner', 'action', 'jetpack' ); ?>
+		<?php esc_html_x( 'Capture consent & hide the banner', 'action', 'jetpack' ); ?>
 	</strong>
 	<ul>
 		<li>
@@ -193,7 +208,7 @@ use Automattic\Jetpack\Redirect;
 
 <p>
 	<strong>
-		<?php _ex( 'Consent expires after', 'action', 'jetpack' ); ?>
+		<?php esc_html_x( 'Consent expires after', 'action', 'jetpack' ); ?>
 	</strong>
 	<ul>
 		<li>
@@ -214,7 +229,7 @@ use Automattic\Jetpack\Redirect;
 
 <p>
 	<strong>
-		<?php _e( 'Color scheme', 'jetpack' ); ?>
+		<?php esc_html_e( 'Color scheme', 'jetpack' ); ?>
 	</strong>
 	<ul>
 		<li>
@@ -246,7 +261,7 @@ use Automattic\Jetpack\Redirect;
 
 <p>
 	<strong>
-		<?php _e( 'Position', 'jetpack' ); ?>
+		<?php esc_html_e( 'Position', 'jetpack' ); ?>
 	</strong>
 	<ul>
 		<li>
