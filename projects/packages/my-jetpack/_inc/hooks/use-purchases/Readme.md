@@ -7,7 +7,16 @@ Simple React custom hook that provides data about the current site purchases.
 import usePlan from './hooks/use-purchases';
 
 function PlansSection() {
-	const { name } = usePurchases();
-	return <h1>{ name ) }</h1>;
+	const purchasesList = usePurchases();
+	return (
+		<div className="purchases">
+			{ purchases.map( purchase => (
+				<>
+					<h4>{ product_name }</h4>
+					<p>{ expiry_message }</p>
+				</>
+			) ) }
+		</div>
+	)
 }
 ```
