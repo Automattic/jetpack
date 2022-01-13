@@ -1,12 +1,13 @@
 <?php
 
-namespace Automattic\Jetpack_Boost\Modules\Critical_CSS\REST_API;
+namespace Automattic\Jetpack_Boost\Modules\Critical_CSS\REST_API\Endpoints;
 
 use Automattic\Jetpack_Boost\Modules\Critical_CSS\Recommendations;
+use Automattic\Jetpack_Boost\Modules\Critical_CSS\REST_API\Contracts\Endpoint;
 use Automattic\Jetpack_Boost\Modules\Critical_CSS\REST_API\Permissions\Current_User_Admin;
 use Automattic\Jetpack_Boost\Modules\Critical_CSS\REST_API\Permissions\Nonce;
 
-class Recommendations_Dismiss implements Boost_Endpoint {
+class Recommendations_Dismiss implements Endpoint {
 
 	public function request_methods() {
 		return \WP_REST_Server::EDITABLE;

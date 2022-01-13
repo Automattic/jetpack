@@ -1,13 +1,14 @@
 <?php
 
-namespace Automattic\Jetpack_Boost\Modules\Critical_CSS\REST_API;
+namespace Automattic\Jetpack_Boost\Modules\Critical_CSS\REST_API\Endpoints;
 
 use Automattic\Jetpack_Boost\Lib\Nonce;
 use Automattic\Jetpack_Boost\Modules\Critical_CSS\Critical_CSS_Storage;
 use Automattic\Jetpack_Boost\Modules\Critical_CSS\Generate\Generator;
+use Automattic\Jetpack_Boost\Modules\Critical_CSS\REST_API\Contracts\Endpoint;
 use Automattic\Jetpack_Boost\Modules\Critical_CSS\REST_API\Permissions\Current_User_Admin;
 
-class Generator_Error implements Boost_Endpoint {
+class Generator_Error implements Endpoint {
 
 	public function request_methods() {
 		return \WP_REST_Server::EDITABLE;

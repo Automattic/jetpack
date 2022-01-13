@@ -1,8 +1,8 @@
 <?php
 
-namespace Automattic\Jetpack_Boost\Modules\Critical_CSS\REST_API;
+namespace Automattic\Jetpack_Boost\Modules\Critical_CSS\REST_API\Contracts;
 
-interface Boost_Endpoint {
+interface Endpoint {
 
 	public function name();
 

@@ -1,6 +1,6 @@
 <?php
 
-namespace Automattic\Jetpack_Boost\Modules\Critical_CSS\REST_API\Permissions;
+namespace Automattic\Jetpack_Boost\Modules\Critical_CSS\REST_API\Contracts;
 
 /**
  * API Endpoints have permissions that are checked by WordPress on `permission_callback`.

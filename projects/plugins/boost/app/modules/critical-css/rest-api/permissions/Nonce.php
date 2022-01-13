@@ -2,6 +2,8 @@
 
 namespace Automattic\Jetpack_Boost\Modules\Critical_CSS\REST_API\Permissions;
 
+use Automattic\Jetpack_Boost\Modules\Critical_CSS\REST_API\Contracts\Permission;
+
 /**
  * Nonces are tricky in REST.
  *
@@ -44,7 +46,7 @@ class Nonce implements Permission {
 	 */
 	private static $saved_nonces = array();
 
-	
+
 	public function __construct( $action, $request_key = 'nonce' ) {
 		$this->action      = $action;
 		$this->request_key = $request_key;

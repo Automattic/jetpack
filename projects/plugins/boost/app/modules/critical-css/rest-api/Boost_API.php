@@ -2,6 +2,12 @@
 
 namespace Automattic\Jetpack_Boost\Modules\Critical_CSS\REST_API;
 
+use Automattic\Jetpack_Boost\Modules\Critical_CSS\REST_API\Endpoints\Generator_Error;
+use Automattic\Jetpack_Boost\Modules\Critical_CSS\REST_API\Endpoints\Generator_Request;
+use Automattic\Jetpack_Boost\Modules\Critical_CSS\REST_API\Endpoints\Generator_Status;
+use Automattic\Jetpack_Boost\Modules\Critical_CSS\REST_API\Endpoints\Generator_Success;
+use Automattic\Jetpack_Boost\Modules\Critical_CSS\REST_API\Endpoints\Recommendations_Dismiss;
+use Automattic\Jetpack_Boost\Modules\Critical_CSS\REST_API\Endpoints\Recommendations_Reset;
 use Automattic\Jetpack_Boost\Modules\Critical_CSS\REST_API\Permissions\Nonce;
 
 class Boost_API {
@@ -10,9 +16,9 @@ class Boost_API {
 		Generator_Status::class,
 		Generator_Request::class,
 		Generator_Success::class,
-		Generator_Error::class,
 		Recommendations_Dismiss::class,
 		Recommendations_Reset::class,
+		Generator_Error::class,
 	);
 
 	protected $routes = array();
