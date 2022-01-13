@@ -7,6 +7,9 @@
 
 namespace Automattic\Jetpack\Status;
 
+/**
+ * Visitor class.
+ */
 class Visitor {
 
 	/**
