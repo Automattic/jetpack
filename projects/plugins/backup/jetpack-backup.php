@@ -92,7 +92,7 @@ if ( is_wp_error( $jetpack_backup_meets_requirements ) ) {
 $jetpack_autoloader = JETPACK_BACKUP_PLUGIN_DIR . 'vendor/autoload_packages.php';
 if ( is_readable( $jetpack_autoloader ) ) {
 	require_once $jetpack_autoloader;
-	if ( method_exists( '\Automattic\Jetpack\Assets', 'alias_textdomains_from_file' ) ) {
+	if ( method_exists( \Automattic\Jetpack\Assets::class, 'alias_textdomains_from_file' ) ) {
 		\Automattic\Jetpack\Assets::alias_textdomains_from_file( JETPACK_BACKUP_PLUGIN_DIR . 'jetpack_vendor/i18n-map.php' );
 	}
 } else { // Something very unexpected. Error out gently with an admin_notice and exit loading.
