@@ -97,7 +97,7 @@ const VideoPressEdit = CoreVideoEdit =>
 			const id = get( this.props, 'attributes.id' );
 			const media = await this.requestMedia( id );
 			let rating = get( media, 'jetpack_videopress.rating' );
-			const allowDownload = get( media, 'media_details.videopress.allow_download' );
+			const allowDownload = get( media, 'jetpack_videopress.allow_download' );
 
 			if ( rating ) {
 				// X-18 was previously supported but is now removed to better comply with our TOS.

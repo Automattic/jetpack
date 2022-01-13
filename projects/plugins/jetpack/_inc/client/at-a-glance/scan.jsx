@@ -11,7 +11,7 @@ import { get, isArray, noop } from 'lodash';
  */
 import { createInterpolateElement } from '@wordpress/element';
 import { __, _n } from '@wordpress/i18n';
-import { getRedirectUrl } from '@automattic/jetpack-components';
+import { getRedirectUrl, numberFormat } from '@automattic/jetpack-components';
 
 /**
  * Internal dependencies
@@ -42,7 +42,6 @@ import {
 	getJetpackProductUpsellByFeature,
 	FEATURE_SECURITY_SCANNING_JETPACK,
 } from 'lib/plans/constants';
-import { numberFormat } from 'components/number-format';
 
 /**
  * Displays a card for Security Scan based on the props given.
@@ -109,6 +108,14 @@ class DashScan extends Component {
 		isVaultPressInstalled: false,
 		fetchingSiteData: false,
 		trackUpgradeButtonView: noop,
+	};
+
+	trackScansClick = () => {
+		analytics.tracks.recordJetpackClick( {
+			type: 'scans-link',
+			target: 'at-a-glance',
+			feature: 'scans',
+		} );
 	};
 
 	onActivateVaultPressClick = () => {
@@ -297,6 +304,7 @@ class DashScan extends Component {
 				href={ url }
 				target="_blank"
 				rel="noopener noreferrer"
+				onClick={ this.trackScansClick }
 			>
 				{ message }
 			</Card>
