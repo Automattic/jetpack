@@ -1,4 +1,4 @@
-Significance: major
+Significance: patch
 Type: fixed
 
 Rename method enqueue_scritps to enqueue_scripts
