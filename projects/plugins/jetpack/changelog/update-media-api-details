@@ -1,0 +1,4 @@
+Significance: minor
+Type: enhancement
+
+API: Include details about where the file has been attached and its parent to the Media endpoint.
