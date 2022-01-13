@@ -78,7 +78,7 @@ jobs:
 
     - name: Run ${{ matrix.group }} tests
       working-directory: projects/plugins/jetpack/tests/e2e
-      run: pnpm run test-e2e -- $TESTS -gv search
+      run: pnpm run test-e2e -- $TESTS
 
     - name: Environment tear-down
       if: ${{ always() }}
