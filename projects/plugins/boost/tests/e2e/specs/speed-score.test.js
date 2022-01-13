@@ -1,10 +1,11 @@
+import { prerequisitesBuilder } from 'jetpack-e2e-commons/env/prerequisites.js';
 import { test, expect } from '../fixtures/base-test.js';
 import { JetpackBoostPage } from '../lib/pages/index.js';
 
 let jetpackBoostPage;
 
 test.describe( 'Speed Score feature', () => {
-	/*test.beforeAll( async ( { browser } ) => {
+	test.beforeAll( async ( { browser } ) => {
 		const page = await browser.newPage();
 		await prerequisitesBuilder( page )
 			.withInactivePlugins( [ 'e2e-mock-speed-score-api.php' ] )
@@ -16,7 +17,7 @@ test.describe( 'Speed Score feature', () => {
 		await prerequisitesBuilder( page )
 			.withActivePlugins( [ 'e2e-mock-speed-score-api.php' ] )
 			.build();
-	} );*/
+	} );
 
 	test.beforeEach( async function ( { page } ) {
 		jetpackBoostPage = await JetpackBoostPage.visit( page );

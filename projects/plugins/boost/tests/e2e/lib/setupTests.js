@@ -8,7 +8,7 @@ export default async function () {
 
 	await prerequisitesBuilder( page )
 		.withLoggedIn( true )
-		//		.withActivePlugins( [ 'boost', 'e2e-mock-speed-score-api.php' ] )
+		.withActivePlugins( [ 'boost', 'e2e-mock-speed-score-api.php' ] )
 		.build();
 	await boostPrerequisitesBuilder( page ).withCleanEnv( true ).withConnection( true ).build();
 	await page.close();
