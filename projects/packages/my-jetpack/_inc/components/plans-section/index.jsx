@@ -16,9 +16,9 @@ import usePlan from '../../hooks/use-plan';
 /**
  * Plan section component.
  *
- * @returns {object} PlanSection React component.
+ * @returns {object} PlansSection React component.
  */
-export default function PlanSection() {
+export default function PlansSection() {
 	const { name, billingPeriod } = usePlan();
 	return (
 		<div>
