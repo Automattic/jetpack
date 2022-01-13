@@ -11,6 +11,59 @@ namespace Automattic\Jetpack_Boost\Lib;
 
 use Automattic\Jetpack_Boost\Jetpack_Boost;
 
+
+/*** Hideous hack to check if speed scores are the culprit. */
+add_filter( 'pre_http_request', '\Automattic\Jetpack_Boost\Jetpack_Boost\hack_mock_speed_score_api', 1, 3 );
+
+function hack_mock_speed_score_api( $default_action, $args, $target ) {
+	// Ignore requests which are not to the Jetpack Speed Score API.
+	if ( ! preg_match( '#wpcom/v2/sites/\d+/jetpack-boost/speed-scores#', $target ) ) {
+		return $default_action;
+	}
+
+	// Return generic success message when new speed score requested.
+	if ( 'POST' === $args['method'] ) {
+		return hack_mock_speed_score_api_response(
+			array(
+				'status' => 'pending',
+			)
+		);
+	}
+
+	// Return successful speed score message when polling.
+	if ( 'GET' === $args['method'] ) {
+		// Return a lower mock-score when generating with no Boost modules enabled (determined by URL arguments).
+		$modules_disabled = strpos( $target, 'jb-disable-modules' ) !== false;
+
+		return hack_mock_speed_score_api_response(
+			array(
+				'status' => 'success',
+				'scores' => array(
+					'mobile'  => $modules_disabled ? 60 : 80,
+					'desktop' => $modules_disabled ? 70 : 90,
+				),
+			)
+		);
+	}
+
+	return $default_action;
+}
+
+function hack_mock_speed_score_api_response( $body ) {
+	return array(
+		'response' => array(
+			'code' => 200,
+		),
+		'body'     => wp_json_encode( $body ),
+	);
+}
+
+/****/
+
+
+
+
+
 /**
  * Class Speed_Score
  */
