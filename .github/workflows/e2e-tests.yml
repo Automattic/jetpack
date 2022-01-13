@@ -60,6 +60,7 @@ jobs:
         pnpm install
         pnpx jetpack build packages/search -v --production
         pnpx jetpack build plugins/jetpack -v --production
+        # composer ingores the build folder when mirroring the package, so we manually copy it.
         cp -Rfp projects/packages/search/build projects/plugins/jetpack/jetpack_vendor/automattic/jetpack-search
 
     - name: Environment set-up
