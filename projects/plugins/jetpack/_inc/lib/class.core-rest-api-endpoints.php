@@ -8,6 +8,7 @@ use Automattic\Jetpack\Jetpack_CRM_Data;
 use Automattic\Jetpack\Licensing;
 use Automattic\Jetpack\Search\REST_Controller as Search_REST_Controller;
 use Automattic\Jetpack\Status\Host;
+use Automattic\Jetpack\Status\Visitor;
 
 /**
  * Register WP REST API endpoints for Jetpack.
@@ -908,7 +909,7 @@ class Jetpack_Core_Json_Api_Endpoints {
 			array(
 				'method'  => 'GET',
 				'headers' => array(
-					'X-Forwarded-For' => Jetpack::current_user_ip( true ),
+					'X-Forwarded-For' => ( new Visitor() )->get_ip( true ),
 				),
 			)
 		);
@@ -952,7 +953,7 @@ class Jetpack_Core_Json_Api_Endpoints {
 			array(
 				'method'  => 'GET',
 				'headers' => array(
-					'X-Forwarded-For' => Jetpack::current_user_ip( true ),
+					'X-Forwarded-For' => ( new Visitor() )->get_ip( true ),
 				),
 			)
 		);
@@ -1036,7 +1037,7 @@ class Jetpack_Core_Json_Api_Endpoints {
 			array(
 				'method'  => 'GET',
 				'headers' => array(
-					'X-Forwarded-For' => Jetpack::current_user_ip( true ),
+					'X-Forwarded-For' => ( new Visitor() )->get_ip( true ),
 				),
 			)
 		);
@@ -1067,7 +1068,7 @@ class Jetpack_Core_Json_Api_Endpoints {
 			array(
 				'method'  => 'GET',
 				'headers' => array(
-					'X-Forwarded-For' => Jetpack::current_user_ip( true ),
+					'X-Forwarded-For' => ( new Visitor() )->get_ip( true ),
 				),
 			)
 		);
@@ -1100,7 +1101,7 @@ class Jetpack_Core_Json_Api_Endpoints {
 				'method'  => 'GET',
 				'headers' => array(
 					'Content-Type'    => 'application/json',
-					'X-Forwarded-For' => Jetpack::current_user_ip( true ),
+					'X-Forwarded-For' => ( new Visitor() )->get_ip( true ),
 				),
 			)
 		);
@@ -1163,7 +1164,7 @@ class Jetpack_Core_Json_Api_Endpoints {
 				'method'  => 'POST',
 				'headers' => array(
 					'Content-Type'    => 'application/json',
-					'X-Forwarded-For' => Jetpack::current_user_ip( true ),
+					'X-Forwarded-For' => ( new Visitor() )->get_ip( true ),
 				),
 			),
 			$request->get_json_params()
@@ -1920,7 +1921,7 @@ class Jetpack_Core_Json_Api_Endpoints {
 				array(
 					'method'  => 'GET',
 					'headers' => array(
-						'X-Forwarded-For' => Jetpack::current_user_ip( true ),
+						'X-Forwarded-For' => ( new Visitor() )->get_ip( true ),
 					),
 				)
 			);
@@ -1954,7 +1955,7 @@ class Jetpack_Core_Json_Api_Endpoints {
 					'method'  => 'PUT',
 					'headers' => array(
 						'Content-Type'    => 'application/json',
-						'X-Forwarded-For' => Jetpack::current_user_ip( true ),
+						'X-Forwarded-For' => ( new Visitor() )->get_ip( true ),
 					),
 				),
 				wp_json_encode( $request->get_params() )
@@ -2081,7 +2082,7 @@ class Jetpack_Core_Json_Api_Endpoints {
 			array(
 				'method'  => 'GET',
 				'headers' => array(
-					'X-Forwarded-For' => Jetpack::current_user_ip( true ),
+					'X-Forwarded-For' => ( new Visitor() )->get_ip( true ),
 				),
 			),
 			null,
