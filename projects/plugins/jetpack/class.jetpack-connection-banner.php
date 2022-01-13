@@ -223,7 +223,9 @@ class Jetpack_Connection_Banner {
 			Assets::get_file_url_for_environment(
 				'css/jetpack-connect.min.css',
 				'css/jetpack-connect.css'
-			)
+			),
+			array(),
+			JETPACK__VERSION
 		);
 
 		$jetpack_api_url = wp_parse_url( Jetpack::connection()->api_url( '' ) );
