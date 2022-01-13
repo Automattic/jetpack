@@ -137,7 +137,7 @@ class Jetpack_Network_Sites_List_Table extends WP_List_Table {
 				)
 			);
 			restore_current_blog();
-			return '<a href="' . esc_url( $url ) . '">' . esc_html__( 'Disconnect', 'jetpack' ) . '</a>';
+			return '<a href="' . wp_nonce_url( $url, 'jetpack-subsite-disconnect' ) . '">' . esc_html__( 'Disconnect', 'jetpack' ) . '</a>';
 		}
 		restore_current_blog();
 
@@ -148,7 +148,7 @@ class Jetpack_Network_Sites_List_Table extends WP_List_Table {
 				'site_id' => $item->blog_id,
 			)
 		);
-		return '<a href="' . esc_url( $url ) . '">' . esc_html__( 'Connect', 'jetpack' ) . '</a>';
+		return '<a href="' . wp_nonce_url( $url, 'jetpack-subsite-register' ) . '">' . esc_html__( 'Connect', 'jetpack' ) . '</a>';
 	}
 
 	/**
@@ -182,9 +182,12 @@ class Jetpack_Network_Sites_List_Table extends WP_List_Table {
 	 * Process bulk actions.
 	 */
 	public function process_bulk_action() {
+		// phpcs:ignore WordPress.Security.NonceVerification.Missing -- Check if we have anything to do before checking the nonce.
 		if ( ! isset( $_POST['bulk'] ) || empty( $_POST['bulk'] ) ) {
 			return; // Thou shall not pass! There is nothing to do.
 		}
+
+		check_admin_referer( 'bulk-toplevel_page_jetpack-network' );
 
 		$jpms = Jetpack_Network::init();
 

@@ -286,6 +286,7 @@ class WPCOM_JSON_API {
 				}
 
 				if ( 0 === strpos( strtolower( $this->content_type ), 'multipart/' ) ) {
+					// phpcs:ignore WordPress.Security.NonceVerification.Missing
 					$this->post_body    = http_build_query( stripslashes_deep( $_POST ) );
 					$this->files        = $_FILES;
 					$this->content_type = 'multipart/form-data';

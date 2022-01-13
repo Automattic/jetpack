@@ -37,7 +37,8 @@ class Jetpack_Modules_List_Table extends WP_List_Table {
 		$this->items           = $this->all_items;
 		$this->items           = $this->filter_displayed_table_items( $this->items );
 		$this->_column_headers = array( $this->get_columns(), array(), array(), 'name' );
-		$modal_info            = isset( $_GET['info'] ) ? $_GET['info'] : false;
+		// phpcs:ignore WordPress.Security.NonceVerification.Recommended -- This is a view, not a model or controller.
+		$modal_info = isset( $_GET['info'] ) ? $_GET['info'] : false;
 
 		wp_register_script(
 			'models.jetpack-modules',
@@ -157,10 +158,11 @@ class Jetpack_Modules_List_Table extends WP_List_Table {
 		$module_tags_unique   = array_count_values( $module_tags );
 		ksort( $module_tags_unique );
 
-		$format  = '<a href="%3$s"%4$s data-title="%1$s">%1$s <span class="count">(%2$s)</span></a>';
-		$title   = __( 'All', 'jetpack' );
-		$count   = count( $modules );
-		$url     = esc_url( remove_query_arg( 'module_tag' ) );
+		$format = '<a href="%3$s"%4$s data-title="%1$s">%1$s <span class="count">(%2$s)</span></a>';
+		$title  = __( 'All', 'jetpack' );
+		$count  = count( $modules );
+		$url    = esc_url( remove_query_arg( 'module_tag' ) );
+		// phpcs:ignore WordPress.Security.NonceVerification.Recommended -- This is a view, not a model or controller.
 		$current = empty( $_GET['module_tag'] ) ? ' class="current all"' : ' class="all"';
 		$views   = array(
 			'all' => sprintf( $format, $title, $count, $url, $current ),
@@ -170,6 +172,7 @@ class Jetpack_Modules_List_Table extends WP_List_Table {
 			$display_title = esc_html( wptexturize( $title ) );
 			$url           = esc_url( add_query_arg( 'module_tag', rawurlencode( $title ) ) );
 			$current       = '';
+			// phpcs:ignore WordPress.Security.NonceVerification.Recommended -- This is a view, not a model or controller.
 			if ( ! empty( $_GET['module_tag'] ) && $title == $_GET['module_tag'] ) {
 				$current = ' class="current"';
 			}
@@ -210,7 +213,9 @@ class Jetpack_Modules_List_Table extends WP_List_Table {
 	 */
 	public static function is_module_displayed( $module ) {
 		// Handle module tag based filtering.
+		// phpcs:ignore WordPress.Security.NonceVerification.Recommended -- This is a view, not a model or controller.
 		if ( ! empty( $_REQUEST['module_tag'] ) ) {
+			// phpcs:ignore WordPress.Security.NonceVerification.Recommended -- This is a view, not a model or controller.
 			$module_tag = sanitize_text_field( $_REQUEST['module_tag'] );
 			if ( ! in_array( $module_tag, $module['module_tags'] ) ) {
 				return false;

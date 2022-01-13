@@ -402,6 +402,7 @@ abstract class WPCOM_JSON_API_Endpoint {
 
 				break;
 			case 'multipart/form-data':
+				// phpcs:ignore WordPress.Security.NonceVerification.Missing
 				$return = array_merge( stripslashes_deep( $_POST ), $_FILES );
 				break;
 			case 'application/x-www-form-urlencoded':

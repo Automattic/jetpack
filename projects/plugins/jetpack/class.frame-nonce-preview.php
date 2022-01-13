@@ -5,6 +5,8 @@
  * @package automattic/jetpack
  */
 
+// phpcs:disable WordPress.Security.NonceVerification.Recommended -- This is _implementing_ cross-site nonce handling, no need for WordPress's nonces.
+
 /**
  * Allows viewing posts on the frontend when the user is not logged in.
  */

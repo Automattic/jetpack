@@ -27,6 +27,7 @@ class Jetpack_Admin {
 	 * @return self
 	 */
 	public static function init() {
+		// phpcs:ignore WordPress.Security.NonceVerification.Recommended
 		if ( isset( $_GET['page'] ) && 'jetpack' === $_GET['page'] ) {
 			add_filter( 'nocache_headers', array( 'Jetpack_Admin', 'add_no_store_header' ), 100 );
 		}
@@ -399,13 +400,13 @@ class Jetpack_Admin {
 	public function handle_unrecognized_action( $action ) {
 		switch ( $action ) {
 			case 'bulk-activate':
+				check_admin_referer( 'bulk-jetpack_page_jetpack_modules' );
 				if ( ! current_user_can( 'jetpack_activate_modules' ) ) {
 					break;
 				}
 
 				$modules = (array) $_GET['modules'];
 				$modules = array_map( 'sanitize_key', $modules );
-				check_admin_referer( 'bulk-jetpack_page_jetpack_modules' );
 				foreach ( $modules as $module ) {
 					Jetpack::log( 'activate', $module );
 					Jetpack::activate_module( $module, false );
@@ -414,13 +415,13 @@ class Jetpack_Admin {
 				wp_safe_redirect( wp_get_referer() );
 				exit;
 			case 'bulk-deactivate':
+				check_admin_referer( 'bulk-jetpack_page_jetpack_modules' );
 				if ( ! current_user_can( 'jetpack_deactivate_modules' ) ) {
 					break;
 				}
 
 				$modules = (array) $_GET['modules'];
 				$modules = array_map( 'sanitize_key', $modules );
-				check_admin_referer( 'bulk-jetpack_page_jetpack_modules' );
 				foreach ( $modules as $module ) {
 					Jetpack::log( 'deactivate', $module );
 					Jetpack::deactivate_module( $module );
