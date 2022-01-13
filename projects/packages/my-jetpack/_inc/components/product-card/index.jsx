@@ -7,7 +7,7 @@ import React from 'react';
  * Internal dependencies
  */
 import styles from './style.module.scss';
-import { ButtonGroup, Button } from '@wordpress/components';
+import { ButtonGroup, Button, DropdownMenu } from '@wordpress/components';
 
 const BackupIcon = () => (
 	<svg width="24" height="24" fill="none" xmlns="http://www.w3.org/2000/svg">
@@ -42,9 +42,18 @@ const ProductCard = () => {
 			<div className={ styles.actions }>
 				<ButtonGroup>
 					<Button isPressed>Manage</Button>
-					<Button isPressed>
-						<DownIcon />
-					</Button>
+					<DropdownMenu
+						className={ styles.dropdown }
+						toggleProps={ { isPressed: true } }
+						popoverProps={ { noArrow: false } }
+						icon={ DownIcon }
+						controls={ [
+							{
+								title: 'Deactivate',
+								icon: null,
+							},
+						] }
+					/>
 				</ButtonGroup>
 				<div className={ styles.status }>Active</div>
 			</div>
