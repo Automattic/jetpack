@@ -25,13 +25,22 @@ class Boost_API {
 
 	public function __construct() {
 		foreach ( $this->available_routes as $route_class ) {
-			$this->routes[] = new Route( $route_class );
+			$route          = new Route( $route_class );
+			$this->routes[] = $route;
 		}
 	}
 
-	public function register_rest_routes() {
+
+	/**
+	 * @TODO: Something seems off here.
+	 * I don't know why, but Boost expects modules to have routes always turned on.
+	 * Enable REST Routes when the Critical CSS module is enabled.
+	 *
+	 * @return void
+	 */
+	public function enable_rest_routes() {
 		foreach ( $this->routes as $route ) {
-			$route->register_rest_route();
+			$route->enable();
 		}
 	}
 

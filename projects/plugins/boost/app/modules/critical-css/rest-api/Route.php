@@ -11,11 +11,18 @@ class Route {
 
 	protected $permissions;
 
+	protected $enabled = false;
+
 
 
 	public function __construct( $endpoint ) {
 		$this->endpoint    = new $endpoint();
 		$this->permissions = $this->endpoint->permissions();
+
+		// @TODO: Move this out of the constructor.
+		// Actions shouldn't be registered on the constructor.
+		// This will be probably auto-fixed when Boost_API is moved out of Critical_CSS Realm
+		add_action( 'rest_api_init', array( $this, 'register_rest_route' ) );
 	}
 
 	public function register_rest_route() {
@@ -24,7 +31,7 @@ class Route {
 			JETPACK_BOOST_REST_PREFIX . '/' . $this->endpoint->name(),
 			array(
 				'methods'             => $this->endpoint->request_methods(),
-				'callback'            => array( $this->endpoint, 'response' ),
+				'callback'            => array( $this, 'response' ),
 				'permission_callback' => array( $this, 'verify_permissions' ),
 			)
 		);
@@ -47,6 +54,29 @@ class Route {
 			}
 		}
 		return true;
+	}
+
+	public function response( $request ) {
+		if ( $this->enabled === true ) {
+			return $this->endpoint->response( $request );
+		}
+
+		return $this->response_endpoint_disabled();
+
+	}
+
+	public function response_endpoint_disabled() {
+		return rest_ensure_response(
+			new \WP_HTTP_Response(
+				array(
+					'status' => 'module-unavailable',
+				),
+				200
+			) );
+	}
+
+	public function enable() {
+		$this->enabled = true;
 	}
 
 
