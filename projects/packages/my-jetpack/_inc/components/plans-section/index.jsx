@@ -8,6 +8,8 @@ import { __ } from '@wordpress/i18n';
  * Internal dependencies
  */
 import usePurchases from '../../hooks/use-purchases';
+import getManageYourPlanUrl from '../../utils/get-manage-your-plan-url';
+
 import './style.scss';
 
 /**
@@ -38,7 +40,7 @@ function PlanSectionHeader() {
 			<h3>{ __( 'My Plan', 'jetpack-my-jetpack' ) }</h1>
 			<p>{ __( 'The extra power you added to your Jetpack.', 'jetpack-my-jetpack' ) }</p>
 			<p>
-				<a href="#">{ __( 'Manage your plan', 'jetpack-my-jetpack' ) }</a>
+				<a href={ getManageYourPlanUrl() }>{ __( 'Manage your plan', 'jetpack-my-jetpack' ) }</a>
 			</p>
 		</>
 	);
