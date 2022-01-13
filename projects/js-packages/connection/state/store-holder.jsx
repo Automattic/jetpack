@@ -1,7 +1,7 @@
 /**
  * External dependencies
  */
-import { createReduxStore, register, dispatch } from '@wordpress/data';
+import { createReduxStore, register } from '@wordpress/data';
 
 class storeHolder {
 	static store = null;
