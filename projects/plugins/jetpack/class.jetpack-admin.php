@@ -130,7 +130,7 @@ class Jetpack_Admin {
 	 * @return int Indicating the relative ordering of module1 and module2.
 	 */
 	public static function sort_requires_connection_last( $module1, $module2 ) {
-		if ( $module1['requires_connection'] == $module2['requires_connection'] ) {
+		if ( (bool) $module1['requires_connection'] === (bool) $module2['requires_connection'] ) {
 			return 0;
 		} elseif ( $module1['requires_connection'] ) {
 			return 1;

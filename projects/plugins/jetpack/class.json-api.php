@@ -370,7 +370,7 @@ class WPCOM_JSON_API {
 		add_filter( 'comment_edit_pre', array( $this, 'comment_edit_pre' ) );
 
 		$initialization = $this->initialize();
-		if ( 'OPTIONS' == $this->method ) {
+		if ( 'OPTIONS' === $this->method ) {
 			/**
 			 * Fires before the page output.
 			 * Can be used to specify custom header options.
@@ -403,7 +403,7 @@ class WPCOM_JSON_API {
 		if ( $is_help ) {
 			$origin = get_http_origin();
 
-			if ( ! empty( $origin ) && 'GET' == $this->method ) {
+			if ( ! empty( $origin ) && 'GET' === $this->method ) {
 				header( 'Access-Control-Allow-Origin: ' . esc_url_raw( $origin ) );
 			}
 
@@ -419,7 +419,7 @@ class WPCOM_JSON_API {
 				$help_content_type = 'html';
 			}
 		} else {
-			if ( in_array( $this->method, $allowed_methods ) ) {
+			if ( in_array( $this->method, $allowed_methods, true ) ) {
 				// Only serve requested method.
 				$methods                     = array( $this->method );
 				$find_all_matching_endpoints = false;
@@ -605,6 +605,8 @@ class WPCOM_JSON_API {
 	 * @return string Content type (assuming it didn't exit).
 	 */
 	public function output( $status_code, $response = null, $content_type = 'application/json', $extra = array() ) {
+		$status_code = (int) $status_code;
+
 		// In case output() was called before the callback returned.
 		if ( $this->did_output ) {
 			if ( $this->exit ) {
@@ -615,7 +617,7 @@ class WPCOM_JSON_API {
 		$this->did_output = true;
 
 		// 400s and 404s are allowed for all origins
-		if ( 404 == $status_code || 400 == $status_code ) {
+		if ( 404 === $status_code || 400 === $status_code ) {
 			header( 'Access-Control-Allow-Origin: *' );
 		}
 
@@ -924,7 +926,7 @@ class WPCOM_JSON_API {
 		 * @param array $array Array of Blog IDs.
 		 */
 		$restricted_blog_ids = apply_filters( 'wpcom_json_api_restricted_blog_ids', array() );
-		return true === in_array( $blog_id, $restricted_blog_ids );
+		return true === in_array( $blog_id, $restricted_blog_ids ); // phpcs:ignore WordPress.PHP.StrictInArray.MissingTrueStrict -- I don't trust filters to return the right types.
 	}
 
 	/**

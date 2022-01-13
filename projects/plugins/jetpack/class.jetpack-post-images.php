@@ -241,7 +241,7 @@ class Jetpack_PostImages {
 			}
 		}
 		foreach ( $images as $i => $image ) {
-			if ( ! in_array( $image['src'], $inserted_images ) ) {
+			if ( ! in_array( $image['src'], $inserted_images, true ) ) {
 				unset( $images[ $i ] );
 			}
 		}
@@ -595,7 +595,7 @@ class Jetpack_PostImages {
 
 		if ( is_array( $media ) ) {
 			foreach ( $media as $item ) {
-				if ( 'image' == $item['type'] ) {
+				if ( 'image' === $item['type'] ) {
 					$image = $item;
 					break;
 				}
@@ -741,7 +741,7 @@ class Jetpack_PostImages {
 
 		// If WPCOM hosted image use native transformations.
 		$img_host = wp_parse_url( $src, PHP_URL_HOST );
-		if ( '.files.wordpress.com' == substr( $img_host, -20 ) ) {
+		if ( '.files.wordpress.com' === substr( $img_host, -20 ) ) {
 			return add_query_arg(
 				array(
 					'w'    => $width,

@@ -73,7 +73,7 @@ class Jetpack_Network {
 			add_action( 'network_admin_edit_jetpack-network-settings', array( $this, 'save_network_settings_page' ), 10, 0 );
 			add_filter( 'admin_body_class', array( $this, 'body_class' ) );
 
-			if ( isset( $_GET['page'] ) && 'jetpack' == $_GET['page'] ) { // phpcs:ignore WordPress.Security.NonceVerification.Recommended -- This is view logic.
+			if ( isset( $_GET['page'] ) && 'jetpack' === $_GET['page'] ) { // phpcs:ignore WordPress.Security.NonceVerification.Recommended -- This is view logic.
 				add_action( 'admin_init', array( $this, 'jetpack_sites_list' ) );
 			}
 		}
@@ -393,10 +393,10 @@ class Jetpack_Network {
 	 * Shows the Jetpack plugin notices.
 	 */
 	public function show_jetpack_notice() {
-		if ( isset( $_GET['action'] ) && 'connected' == $_GET['action'] ) { // phpcs:ignore WordPress.Security.NonceVerification.Recommended -- This is view logic.
+		if ( isset( $_GET['action'] ) && 'connected' === $_GET['action'] ) { // phpcs:ignore WordPress.Security.NonceVerification.Recommended -- This is view logic.
 			$notice    = __( 'Site successfully connected.', 'jetpack' );
 			$classname = 'updated';
-		} elseif ( isset( $_GET['action'] ) && 'connection_failed' == $_GET['action'] ) { // phpcs:ignore WordPress.Security.NonceVerification.Recommended -- This is view logic.
+		} elseif ( isset( $_GET['action'] ) && 'connection_failed' === $_GET['action'] ) { // phpcs:ignore WordPress.Security.NonceVerification.Recommended -- This is view logic.
 			$notice    = __( 'Site connection failed!', 'jetpack' );
 			$classname = 'error';
 		}

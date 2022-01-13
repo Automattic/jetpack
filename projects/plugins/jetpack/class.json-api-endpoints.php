@@ -1201,7 +1201,7 @@ abstract class WPCOM_JSON_API_Endpoint {
 					$type    = array();
 					$default = '';
 
-					if ( 'none' == $types ) {
+					if ( 'none' === $types ) {
 						$types           = array();
 						$types[]['type'] = 'none';
 					}
@@ -1265,7 +1265,7 @@ abstract class WPCOM_JSON_API_Endpoint {
 					if ( ! current_user_can( 'read_post', $post->ID ) ) {
 						return new WP_Error( 'unauthorized', 'User cannot view post', 403 );
 					}
-				} elseif ( in_array( $post->post_status, array( 'inherit', 'trash' ) ) ) {
+				} elseif ( in_array( $post->post_status, array( 'inherit', 'trash' ), true ) ) {
 					if ( ! current_user_can( 'edit_post', $post->ID ) ) {
 						return new WP_Error( 'unauthorized', 'User cannot view post', 403 );
 					}
@@ -1280,7 +1280,7 @@ abstract class WPCOM_JSON_API_Endpoint {
 		}
 
 		if (
-			-1 == get_option( 'blog_public' ) &&
+			-1 === (int) get_option( 'blog_public' ) &&
 			/**
 			 * Filter access to a specific post.
 			 *
@@ -1357,7 +1357,7 @@ abstract class WPCOM_JSON_API_Endpoint {
 				$author = $author->ID;
 			} elseif ( isset( $author->post_author ) ) {
 				// then $author is a Post Object.
-				if ( 0 == $author->post_author ) {
+				if ( ! $author->post_author ) {
 					return null;
 				}
 				/**
@@ -1407,7 +1407,7 @@ abstract class WPCOM_JSON_API_Endpoint {
 				$site_id     = $active_blog->blog_id;
 				if ( $site_id > -1 ) {
 					$site_visible = (
-						-1 != $active_blog->public ||
+						-1 !== (int) $active_blog->public ||
 						is_private_blog_user( $site_id, get_current_user_id() )
 					);
 				}
@@ -1585,7 +1585,7 @@ abstract class WPCOM_JSON_API_Endpoint {
 			}
 		}
 
-		if ( in_array( $ext, array( 'mp3', 'm4a', 'wav', 'ogg' ) ) ) {
+		if ( in_array( $ext, array( 'mp3', 'm4a', 'wav', 'ogg' ), true ) ) {
 			$metadata           = wp_get_attachment_metadata( $media_item->ID );
 			$response['length'] = $metadata['length'];
 			$response['exif']   = $metadata;
@@ -1594,7 +1594,7 @@ abstract class WPCOM_JSON_API_Endpoint {
 		$is_video = false;
 
 		if (
-			in_array( $ext, array( 'ogv', 'mp4', 'mov', 'wmv', 'avi', 'mpg', '3gp', '3g2', 'm4v' ) )
+			in_array( $ext, array( 'ogv', 'mp4', 'mov', 'wmv', 'avi', 'mpg', '3gp', '3g2', 'm4v' ), true )
 			|| 'video/videopress' === $response['mime_type']
 		) {
 			$is_video = true;
@@ -1730,7 +1730,7 @@ abstract class WPCOM_JSON_API_Endpoint {
 				}
 				break;
 			case 'display':
-				if ( -1 == get_option( 'blog_public' ) && ! current_user_can( 'read' ) ) {
+				if ( -1 === (int) get_option( 'blog_public' ) && ! current_user_can( 'read' ) ) {
 					return new WP_Error( 'unauthorized', 'User cannot view taxonomy', 403 );
 				}
 				break;
@@ -1907,7 +1907,7 @@ abstract class WPCOM_JSON_API_Endpoint {
 		global $wp_filter;
 		foreach ( $wp_filter as $hook => $actions ) {
 
-			if ( $from_hook != $hook ) {
+			if ( $from_hook !== $hook ) {
 				continue;
 			}
 			if ( ! has_action( $hook ) ) {
@@ -1962,7 +1962,7 @@ abstract class WPCOM_JSON_API_Endpoint {
 			return new ReflectionMethod( $callback, '__invoke' );
 		}
 
-		if ( is_string( $callback ) && strpos( $callback, '::' ) == false && function_exists( $callback ) ) {
+		if ( is_string( $callback ) && strpos( $callback, '::' ) === false && function_exists( $callback ) ) {
 			return new ReflectionFunction( $callback );
 		}
 
@@ -2005,12 +2005,12 @@ abstract class WPCOM_JSON_API_Endpoint {
 		}
 
 		// allow special 'any' type.
-		if ( 'any' == $post_type ) {
+		if ( 'any' === $post_type ) {
 			return true;
 		}
 
 		// check for allowed types.
-		if ( in_array( $post_type, $this->_get_whitelisted_post_types() ) ) {
+		if ( in_array( $post_type, $this->_get_whitelisted_post_types(), true ) ) {
 			return true;
 		}
 
@@ -2274,7 +2274,7 @@ abstract class WPCOM_JSON_API_Endpoint {
 		}
 
 		// bail early if they already have the upgrade..
-		if ( get_option( 'video_upgrade' ) == '1' ) {
+		if ( (string) get_option( 'video_upgrade' ) === '1' ) {
 			return $mimes;
 		}
 
@@ -2290,7 +2290,7 @@ abstract class WPCOM_JSON_API_Endpoint {
 		 * @param array $clients_allowed_video_uploads Array of whitelisted Video clients.
 		 */
 		$clients_allowed_video_uploads = apply_filters( 'rest_api_clients_allowed_video_uploads', $clients_allowed_video_uploads );
-		if ( ! in_array( $this->api->token_details['client_id'], $clients_allowed_video_uploads ) ) {
+		if ( ! in_array( $this->api->token_details['client_id'], $clients_allowed_video_uploads ) ) { // phpcs:ignore WordPress.PHP.StrictInArray.MissingTrueStrict -- Check what types are expected here.
 			return $mimes;
 		}
 
@@ -2350,7 +2350,7 @@ abstract class WPCOM_JSON_API_Endpoint {
 	 * @return bool
 	 */
 	public function allows_cross_origin_requests() {
-		return 'GET' == $this->method || $this->allow_cross_origin_request;
+		return 'GET' === $this->method || $this->allow_cross_origin_request;
 	}
 
 	/**
@@ -2361,7 +2361,7 @@ abstract class WPCOM_JSON_API_Endpoint {
 	 * @return bool
 	 */
 	public function allows_unauthorized_requests( $origin, $complete_access_origins ) {
-		return 'GET' == $this->method || ( $this->allow_unauthorized_request && in_array( $origin, $complete_access_origins ) );
+		return 'GET' === $this->method || ( $this->allow_unauthorized_request && in_array( $origin, $complete_access_origins, true ) );
 	}
 
 	/**

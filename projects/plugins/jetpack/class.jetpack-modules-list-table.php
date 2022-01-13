@@ -175,7 +175,7 @@ class Jetpack_Modules_List_Table extends WP_List_Table {
 			$url           = esc_url( add_query_arg( 'module_tag', rawurlencode( $title ) ) );
 			$current       = '';
 			// phpcs:ignore WordPress.Security.NonceVerification.Recommended -- This is a view, not a model or controller.
-			if ( ! empty( $_GET['module_tag'] ) && $title == $_GET['module_tag'] ) {
+			if ( ! empty( $_GET['module_tag'] ) && $title === $_GET['module_tag'] ) {
 				$current = ' class="current"';
 			}
 			$views[ $key ] = sprintf( $format, $display_title, $count, $url, $current );
@@ -219,7 +219,7 @@ class Jetpack_Modules_List_Table extends WP_List_Table {
 		if ( ! empty( $_REQUEST['module_tag'] ) ) {
 			// phpcs:ignore WordPress.Security.NonceVerification.Recommended -- This is a view, not a model or controller.
 			$module_tag = sanitize_text_field( $_REQUEST['module_tag'] );
-			if ( ! in_array( $module_tag, $module['module_tags'] ) ) {
+			if ( ! in_array( $module_tag, $module['module_tags'], true ) ) {
 				return false;
 			}
 		}
@@ -236,7 +236,7 @@ class Jetpack_Modules_List_Table extends WP_List_Table {
 	 * @return int Indicating the relative ordering of module1 and module2.
 	 */
 	public static function sort_requires_connection_last( $module1, $module2 ) {
-		if ( $module1['requires_connection'] == $module2['requires_connection'] ) {
+		if ( (bool) $module1['requires_connection'] === (bool) $module2['requires_connection'] ) {
 			return 0;
 		}
 		if ( $module1['requires_connection'] ) {
@@ -446,7 +446,7 @@ class Jetpack_Modules_List_Table extends WP_List_Table {
 	 * @return string|false
 	 */
 	public function module_info_check( $info, $modules ) {
-		if ( false == $info ) {
+		if ( ! $info ) {
 			return false;
 		} elseif ( array_key_exists( $info, $modules ) ) {
 			return $info;
