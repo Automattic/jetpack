@@ -15,7 +15,7 @@ import './style.scss';
  *
  * @param {object} props          - Component props.
  * @param {object} props.purchase - Purchase object.
- * @returns {object} PlanSection React component.
+ * @returns {object} PlanSection react component.
  */
 function PlanSection( { purchase = {} } ) {
 	const { product_name, expiry_message } = purchase;
@@ -23,6 +23,23 @@ function PlanSection( { purchase = {} } ) {
 		<>
 			<h4>{ product_name }</h4>
 			<p>{ expiry_message }</p>
+		</>
+	);
+}
+
+/**
+ * Plan section Header component.
+ *
+ * @returns {object} PlanSectionHeader react component.
+ */
+function PlanSectionHeader() {
+	return (
+		<>
+			<h3>{ __( 'My Plan', 'jetpack-my-jetpack' ) }</h1>
+			<p>{ __( 'The extra power you added to your Jetpack.', 'jetpack-my-jetpack' ) }</p>
+			<p>
+				<a href="#">{ __( 'Manage your plan', 'jetpack-my-jetpack' ) }</a>
+			</p>
 		</>
 	);
 }
@@ -37,10 +54,9 @@ export default function PlansSection() {
 
 	return (
 		<div className="jp-plans-section">
-			<h3>{ __( 'My Plan', 'jetpack-my-jetpack' ) }</h3>
-			<p>{ __( 'The extra power you added to your Jetpack.', 'jetpack-my-jetpack' ) }</p>
+			<PlanSectionHeader />
 
-			<div className="jp-plans-section__plan-card">
+			<div className="jp-plans-section__purchases-section">
 				{ purchases.map( purchase => (
 					<PlanSection purchase={ purchase } />
 				) ) }
