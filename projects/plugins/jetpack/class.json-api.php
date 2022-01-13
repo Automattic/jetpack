@@ -1039,6 +1039,7 @@ class WPCOM_JSON_API {
 			implode( "','", $exclude )
 		);
 
+		// phpcs:disable WordPress.DB.PreparedSQL.InterpolatedNotPrepared -- `$where` is built with escaping just above.
 		$count = $wpdb->get_results(
 			"SELECT comment_approved, COUNT(*) AS num_comments
 				FROM $wpdb->comments
@@ -1046,6 +1047,7 @@ class WPCOM_JSON_API {
 				GROUP BY comment_approved
 			"
 		);
+		// phpcs:enable WordPress.DB.PreparedSQL.InterpolatedNotPrepared
 
 		$approved = array(
 			'0'            => 'moderated',
