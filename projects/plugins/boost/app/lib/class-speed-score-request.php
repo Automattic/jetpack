@@ -196,6 +196,12 @@ class Speed_Score_Request extends Cacheable {
 		);
 
 		if ( is_wp_error( $response ) ) {
+			// Temp hack: If this is a not_found, try again.
+			if ( 'not_found' === $response->get_error_code() ) {
+				$this->restart();
+				return true;
+			}
+
 			return $response;
 		}
 
@@ -235,6 +241,19 @@ class Speed_Score_Request extends Cacheable {
 		}
 
 		return true;
+	}
+
+	/**
+	 * Force this request to be re-executed - resetting the start time.
+	 */
+	private function restart() {
+		$result = $this->execute();
+		if ( is_wp_error( $result ) ) {
+			return $result;
+		}
+
+		$this->created = time();
+		$this->store();
 	}
 
 	/**
