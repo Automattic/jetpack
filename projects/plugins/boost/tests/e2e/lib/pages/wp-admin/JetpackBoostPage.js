@@ -17,12 +17,20 @@ export default class JetpackBoostPage extends WpPage {
 	async connect() {
 		const button = await this.page.$( '.jb-connection button' );
 		await button.click();
+		await this.waitForApiResponse( 'connection' );
 	}
 
-	async isFreshlyConnected() {
-		await this.connect();
-		await this.waitForApiResponse( 'connection' );
-		return await this.isSiteScoreLoading();
+	async isDisconnected() {
+		return await this.isElementVisible( '.jb-connection button' );
+	}
+
+	async isConnected() {
+		const [ showingScore, isOffline ] = await Promise.all( [
+			this.isElementVisible( '.jb-site-score' ),
+			this.isElementVisible( '.jb-site-score__offline' ),
+		] );
+
+		return showingScore && ! isOffline;
 	}
 
 	async isOverallScoreHeaderShown() {
