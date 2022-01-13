@@ -7,6 +7,8 @@
 
 namespace Automattic\Jetpack\My_Jetpack;
 
+require 'class-products.php';
+
 use Automattic\Jetpack\Admin_UI\Admin_Menu;
 use Automattic\Jetpack\Assets;
 use Automattic\Jetpack\Connection\Client as Client;
@@ -90,8 +92,8 @@ class Initializer {
 			array(
 				'apiRoot'               => esc_url_raw( rest_url() ),
 				'apiNonce'              => wp_create_nonce( 'wp_rest' ),
-				'products'              => self::get_products(),
-				'purchases'             => array(),
+				'products'              => Products::get_products(),
+				'purchases'             => array(),				
 				'redirectUrl'           => admin_url( '?page=my-jetpack' ),
 				'topJetpackMenuItemUrl' => Admin_Menu::get_top_level_menu_item_url(),
 				'siteSuffix'            => ( new Status() )->get_site_suffix(),

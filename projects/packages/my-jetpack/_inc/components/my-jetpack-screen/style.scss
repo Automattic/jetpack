@@ -1,1 +1,193 @@
 @import '@automattic/jetpack-base-styles/style';
+
+
+.jp-my-jetpack-screen {
+	h1 {
+		font-size: var(--font-title-large);
+		font-weight: 700;
+		margin-top: 48px;
+		line-height: 1.1;
+		color: var( --jp-black );
+		margin: 0;
+	}
+}
+
+
+/********* My Jetpack styles *********/
+
+/********* Mixins *********/
+@mixin for-desktop-up {
+	@media (min-width: 1140px) { @content; }
+}
+
+@mixin for-desktop-down {
+	@media (max-width: 1140px) { @content; }
+}
+
+.jp-row {
+	display: grid;
+	grid-gap: 24px;
+	grid-template-columns: repeat(4, 1fr);
+	width: 100%;
+	margin: 0 16px;
+	
+	@include for-phone-up {
+		grid-template-columns: repeat(8, 1fr);
+		margin: 0 18px;
+	}
+	
+	@include for-tablet-up {
+		grid-template-columns: repeat(12, 1fr);
+		max-width: 1128px;
+		margin: 0 24px;
+	}
+}
+
+
+  .jp-product {
+    grid-column: span 4;
+    padding: 24px;
+    background: var( --jp-white );
+    border-radius: var( --jp-border-radius );
+    box-shadow: 0px 0px 40px rgba(0, 0, 0, 0.08);
+    
+    @include for-desktop-up {
+      grid-column: span 3;
+    }
+    
+    &.is-disabled {
+      background: none;
+      box-shadow: none;
+      box-shadow: 0 0 0 1px var( --is-disabled ) inset;
+    }
+  }
+  
+  .jp-product__name {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    width: 100%;
+    font-size: 24px;
+    font-weight: 700;
+  }
+  
+  .jp-product__description {
+    font-size: 14px;
+  }
+  
+  .jp-product__actions {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    width: 100%;
+    margin-top: 16px;
+    font-size: 12px;
+    font-weight: 600;
+  }
+  
+  .jp-product__status {
+    margin-left: 4px;
+    color: var( --is-active );
+    white-space: nowrap;
+    
+    &:before {
+      content: "";
+      display: inline-block;
+      width: 8px;
+      height: 8px;
+      margin-right: 4px;
+      border-radius: 50%;
+      background: var( --is-active );
+    }
+    
+    $statuses: inactive, error;
+  
+    @each $status in $statuses {
+      .is-#{$status} & {
+        color: var( --is-#{$status} );
+        
+        &:before {
+          background: var( --is-#{$status} );
+        }
+      }
+    }
+  }
+
+
+  .button {
+		display: block;
+		padding: 6px 10px;
+		font-weight: 500;
+		color: var( --jp-black );
+		background: var( --jp-white );
+		text-decoration: none;
+    border: 1px solid var( --jp-black );
+		border-radius: var( --jp-border-radius );
+    text-align: center;
+    text-decoration: none;
+    white-space: nowrap;
+    text-overflow: ellipsis;
+    vertical-align: top;
+    cursor: pointer;
+
+		&.is-full-width {
+			width: 100%;
+			text-align: center;
+		}
+    
+    &.is-primary {
+		  color: var( --jp-white );
+      background: var( --jp-black );
+    }
+    
+    &.is-transparent {
+      padding-left: 0;
+      padding-right: 0;
+      background: transparent;
+      border: 0;
+      text-decoration: underline;
+      
+      &:hover {
+        background: none;
+  			text-decoration-thickness: var( --jp-underline-thickness );
+      }
+    }
+    
+    &.split-button__main {
+      font-size: 12px;
+      margin-right: -1px;
+      border-top-right-radius: 0;
+      border-bottom-right-radius: 0;
+    }
+    
+    &.split-button__toggle {
+      padding: 6px 4px;
+      border-top-left-radius: 0;
+      border-bottom-left-radius: 0;
+      
+      svg {
+        position: relative;
+        margin-top: -12px;
+        top: 7px;
+      }
+    }
+
+		&:hover,
+		&:active {
+			background: var( --jp-black-80 );
+		}
+
+		&:focus {
+			box-shadow: 0 0 0 1px var( --jp-white ) inset, 0 0 0 2px var( --jp-black );
+		}
+
+		&:disabled,
+		&.disabled {
+			background: var( --jp-gray );
+			pointer-events: none;
+		}
+	}
+  
+  .split-button {
+    display: flex;
+  }
