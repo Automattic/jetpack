@@ -1,14 +1,18 @@
+window.myJetpackInitialState = {
+	siteSuffix: 'my-jetpack-mock-site.com',
+};
+
 export const siteWithSecurityPlanResponseBody = {
 	ID: 12345678,
 	name: 'My awesome Jetpack mock site',
 	description: 'Just another mocking WordPress site',
-	URL: 'https://mock-site.com',
+	URL: 'https://my-jetpack-mock-site.com',
 	options: {
 		timezone: '',
 		gmt_offset: 0,
 		blog_public: 0,
-		login_url: 'https://mock-site.com/wp-login.php',
-		admin_url: 'https://mock-site.com/wp-admin/',
+		login_url: 'https://my-jetpack-mock-site.com/wp-login.php',
+		admin_url: 'https://my-jetpack-mock-site.com/wp-admin/',
 	},
 	plan: {
 		product_id: 2017,
