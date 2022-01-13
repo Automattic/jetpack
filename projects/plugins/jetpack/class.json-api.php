@@ -291,9 +291,8 @@ class WPCOM_JSON_API {
 					$this->content_type = 'multipart/form-data';
 				}
 			} else {
-				$this->post_body = $post_body;
-				// @todo I think this is broken, since d0dc307bc1d in 2014.
-				$this->content_type = '{' === isset( $this->post_body[0] ) && $this->post_body[0] ? 'application/json' : 'application/x-www-form-urlencoded';
+				$this->post_body    = $post_body;
+				$this->content_type = isset( $this->post_body[0] ) && '{' === $this->post_body[0] ? 'application/json' : 'application/x-www-form-urlencoded';
 			}
 		} else {
 			$this->post_body    = null;
