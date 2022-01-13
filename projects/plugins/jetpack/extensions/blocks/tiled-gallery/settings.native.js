@@ -11,14 +11,13 @@ import { usePreferredColorSchemeStyle } from '@wordpress/compose';
  * Internal dependencies
  */
 import styles from './styles.scss';
-import { LAYOUT_CIRCLE, LAYOUT_STYLES, MAX_COLUMNS } from './constants';
+import { LAYOUT_CIRCLE, LAYOUT_STYLES, MAX_COLUMNS, MAX_ROUNDED_CORNERS } from './constants';
 import { getActiveStyleName } from '../../shared/block-styles';
 import LayoutPicker from './layout-picker.native';
 
 const MIN_COLUMNS = 1;
 export const DEFAULT_COLUMNS = 2;
 const MIN_ROUNDED_CORNERS = 0;
-const MAX_ROUNDED_CORNERS = 20;
 const DEFAULT_ROUNDED_CORNERS = 2;
 
 const TiledGallerySettings = props => {
