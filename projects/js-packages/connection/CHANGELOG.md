@@ -2,6 +2,10 @@
 
 ### This is a list detailing changes for the Jetpack RNA Connection Component releases.
 
+## 0.13.0 - 2022-01-13
+### Changed
+- Added user data to initial state
+
 ## 0.12.1 - 2022-01-11
 ### Removed
 - Remove use of deprecated `~` in sass-loader imports.
