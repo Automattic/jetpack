@@ -944,7 +944,7 @@ importers:
       jsdom: 16.4.0
       lodash: 4.17.21
       mapbox-gl: 1.13.0
-      markdown-it: 12.0.4
+      markdown-it: 12.3.2
       mocha: 8.4.0
       mockery: 2.1.0
       nock: 13.1.4
@@ -1051,7 +1051,7 @@ importers:
       gulp-sourcemaps: 3.0.0
       jsdom: 16.4.0
       mapbox-gl: 1.13.0
-      markdown-it: 12.0.4
+      markdown-it: 12.3.2
       photon: 4.0.0
       plugin-error: 1.0.1
       postcss-custom-properties: 10.0.0
@@ -16576,8 +16576,8 @@ packages:
     resolution: {integrity: sha512-8z4efJYk43E0upd0NbVXwgSTQs6cT3T06etieCMEg7dRbzCbxUCK/GHlX8mhHRDcp+OLlHkPKsvqQTCvsRl2cg==}
     dev: true
 
-  /markdown-it/12.0.4:
-    resolution: {integrity: sha512-34RwOXZT8kyuOJy25oJNJoulO8L0bTHYWXcdZBYZqFnjIy3NgjeoM3FmPXIOFQ26/lSHYMr8oc62B6adxXcb3Q==}
+  /markdown-it/12.3.2:
+    resolution: {integrity: sha512-TchMembfxfNVpHkbtriWltGWc+m3xszaRD0CZup7GFFhzIgQqxIfn3eGj1yZpfuflzPvfkt611B2Q/Bsk1YnGg==}
     hasBin: true
     dependencies:
       argparse: 2.0.1
