@@ -8,7 +8,7 @@ import withMock from 'storybook-addon-mock';
 /**
  * Internal dependencies
  */
-import { siteWithSecurityPlanResponseBody } from './mock-data';
+import { purchasesList, siteWithSecurityPlanResponseBody } from './mock-data';
 import PlansSection from '../index.jsx';
 
 export default {
@@ -37,7 +37,49 @@ _default.parameters = {
 			status: 200,
 			response: siteWithSecurityPlanResponseBody,
 		},
+		{
+			url: 'my-jetpack/v1/site/purchases?_locale=user',
+			method: 'GET',
+			status: 200,
+			response: purchasesList,
+		},
 	],
 };
 
 _default.args = DefaultArgs;
+
+export const NoSitePlan = Template.bind( {} );
+NoSitePlan.parameters = {
+	mockData: [
+		{
+			url: 'my-jetpack/v1/site/purchases?_locale=user',
+			method: 'GET',
+			status: 200,
+			response: [],
+		},
+	],
+};
+
+export const OnePlan = Template.bind( {} );
+OnePlan.parameters = {
+	mockData: [
+		{
+			url: 'my-jetpack/v1/site/purchases?_locale=user',
+			method: 'GET',
+			status: 200,
+			response: [ purchasesList[ 0 ] ],
+		},
+	],
+};
+
+export const MultiplePlans = Template.bind( {} );
+MultiplePlans.parameters = {
+	mockData: [
+		{
+			url: 'my-jetpack/v1/site/purchases?_locale=user',
+			method: 'GET',
+			status: 200,
+			response: purchasesList,
+		},
+	],
+};
