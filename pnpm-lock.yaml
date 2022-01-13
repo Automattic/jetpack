@@ -360,9 +360,6 @@ importers:
   projects/js-packages/storybook:
     specifiers:
       '@automattic/jetpack-base-styles': workspace:^0.1.4
-      '@automattic/jetpack-components': workspace:^0.10.0
-      '@automattic/jetpack-connection': workspace:^0.12.1
-      '@automattic/jetpack-idc': workspace:^0.8.1
       '@babel/core': 7.16.0
       '@babel/plugin-syntax-jsx': 7.16.0
       '@babel/runtime-corejs3': 7.16.3
@@ -399,9 +396,6 @@ importers:
       webpack: 5.65.0
     devDependencies:
       '@automattic/jetpack-base-styles': link:../base-styles
-      '@automattic/jetpack-components': link:../components
-      '@automattic/jetpack-connection': link:../connection
-      '@automattic/jetpack-idc': link:../idc
       '@babel/core': 7.16.0
       '@babel/plugin-syntax-jsx': 7.16.0_@babel+core@7.16.0
       '@babel/runtime-corejs3': 7.16.3
@@ -950,7 +944,7 @@ importers:
       jsdom: 16.4.0
       lodash: 4.17.21
       mapbox-gl: 1.13.0
-      markdown-it: 12.0.4
+      markdown-it: 12.3.2
       mocha: 8.4.0
       mockery: 2.1.0
       nock: 13.1.4
@@ -1057,7 +1051,7 @@ importers:
       gulp-sourcemaps: 3.0.0
       jsdom: 16.4.0
       mapbox-gl: 1.13.0
-      markdown-it: 12.0.4
+      markdown-it: 12.3.2
       photon: 4.0.0
       plugin-error: 1.0.1
       postcss-custom-properties: 10.0.0
@@ -11215,7 +11209,7 @@ packages:
       postcss-modules-values: 4.0.0_postcss@8.4.5
       postcss-value-parser: 4.2.0
       semver: 7.3.5
-      webpack: 5.65.0_webpack-cli@4.9.1
+      webpack: 5.65.0
 
   /css-mediaquery/0.1.2:
     resolution: {integrity: sha1-aiw3NEkoYYYxxUvTPO3TAdoYvqA=}
@@ -16582,8 +16576,8 @@ packages:
     resolution: {integrity: sha512-8z4efJYk43E0upd0NbVXwgSTQs6cT3T06etieCMEg7dRbzCbxUCK/GHlX8mhHRDcp+OLlHkPKsvqQTCvsRl2cg==}
     dev: true
 
-  /markdown-it/12.0.4:
-    resolution: {integrity: sha512-34RwOXZT8kyuOJy25oJNJoulO8L0bTHYWXcdZBYZqFnjIy3NgjeoM3FmPXIOFQ26/lSHYMr8oc62B6adxXcb3Q==}
+  /markdown-it/12.3.2:
+    resolution: {integrity: sha512-TchMembfxfNVpHkbtriWltGWc+m3xszaRD0CZup7GFFhzIgQqxIfn3eGj1yZpfuflzPvfkt611B2Q/Bsk1YnGg==}
     hasBin: true
     dependencies:
       argparse: 2.0.1
