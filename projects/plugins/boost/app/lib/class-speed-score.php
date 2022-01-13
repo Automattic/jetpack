@@ -11,9 +11,8 @@ namespace Automattic\Jetpack_Boost\Lib;
 
 use Automattic\Jetpack_Boost\Jetpack_Boost;
 
-
 /*** Hideous hack to check if speed scores are the culprit. */
-add_filter( 'pre_http_request', '\Automattic\Jetpack_Boost\Jetpack_Boost\hack_mock_speed_score_api', 1, 3 );
+add_filter( 'pre_http_request', '\Automattic\Jetpack_Boost\Lib\hack_mock_speed_score_api', 1, 3 );
 
 function hack_mock_speed_score_api( $default_action, $args, $target ) {
 	// Ignore requests which are not to the Jetpack Speed Score API.
@@ -59,10 +58,6 @@ function hack_mock_speed_score_api_response( $body ) {
 }
 
 /****/
-
-
-
-
 
 /**
  * Class Speed_Score
