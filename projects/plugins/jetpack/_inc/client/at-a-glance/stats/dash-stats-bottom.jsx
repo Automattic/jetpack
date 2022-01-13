@@ -4,6 +4,7 @@
 import PropTypes from 'prop-types';
 import React, { Component } from 'react';
 import { connect } from 'react-redux';
+import classNames from 'classnames';
 
 /**
  * WordPress dependencies
@@ -22,7 +23,6 @@ import Button from 'components/button';
 import Card from 'components/card';
 import ConnectButton from 'components/connect-button';
 import { userCanConnectAccount } from 'state/initial-state';
-import classNames from 'classnames';
 
 class DashStatsBottom extends Component {
 	statsBottom() {
