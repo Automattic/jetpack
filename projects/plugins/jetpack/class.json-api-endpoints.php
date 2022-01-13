@@ -1347,7 +1347,7 @@ abstract class WPCOM_JSON_API_Endpoint {
 
 			// Comment author URLs and Emails are sent through wp_kses() on save, which replaces "&" with "&amp;"
 			// "&" is the only email/URL character altered by wp_kses().
-			foreach ( array( 'email', 'URL' ) as $field ) {
+			foreach ( array( 'email', 'url' ) as $field ) {
 				$$field = str_replace( '&amp;', '&', $$field );
 			}
 		} else {
