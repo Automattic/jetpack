@@ -8,13 +8,9 @@ const path = require( 'path' );
  */
 const postcssPlugins = require( '@wordpress/postcss-plugins-preset' );
 
-const includePaths = [
-	path.resolve( __dirname ),
-	path.join( __dirname, '../../base-styles/stories' ),
-	path.join( __dirname, '../../components/components' ),
-	path.join( __dirname, '../../connection/components' ),
-	path.join( __dirname, '../../idc/components' ),
-];
+const projects = require( './projects' );
+
+const includePaths = [ path.resolve( __dirname ) ].concat( projects );
 
 module.exports = ( { config } ) => {
 	config.module.rules.push(
