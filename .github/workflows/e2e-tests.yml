@@ -24,7 +24,7 @@ jobs:
       - uses: actions/checkout@v2
       - id: create-projects-matrix
         run: |
-          PROJECTS='[{"project":"jetpack","path":"projects/plugins/jetpack/tests/e2e"},{"project":"boost","path":"projects/plugins/boost/tests/e2e"}]'
+          PROJECTS='[{"project":"Jetpack","path":"projects/plugins/jetpack/tests/e2e"},{"project":"Boost","path":"projects/plugins/boost/tests/e2e"}]'
           echo $PROJECTS
 
           # should check changed files here and decide which project should run
