@@ -687,7 +687,7 @@ class WPCOM_JSON_API {
 			echo "/**/$callback("; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- This is JSONP output, not HTML.
 
 		}
-		echo $this->json_encode( $response ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- This is JSONP output, not HTML.
+		echo $this->json_encode( $response ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- This is JSON or JSONP output, not HTML.
 		if ( $callback ) {
 			echo ');';
 		}
