@@ -14,7 +14,6 @@ import {
 	CLEAR_REGISTRATION_ERROR,
 	SET_REGISTRATION_ERROR,
 	SET_AUTHORIZATION_URL,
-	SET_USER_CONNECTION_DATA,
 } from './actions';
 
 const connectionStatus = ( state = {}, action ) => {
