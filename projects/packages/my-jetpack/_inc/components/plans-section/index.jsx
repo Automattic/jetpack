@@ -3,6 +3,7 @@
  */
 import React from 'react';
 import { __ } from '@wordpress/i18n';
+import { ExternalLink } from '@wordpress/components';
 
 /**
  * Internal dependencies
@@ -40,7 +41,9 @@ function PlanSectionHeader() {
 			<h3>{ __( 'My Plan', 'jetpack-my-jetpack' ) }</h1>
 			<p>{ __( 'The extra power you added to your Jetpack.', 'jetpack-my-jetpack' ) }</p>
 			<p>
-				<a href={ getManageYourPlanUrl() }>{ __( 'Manage your plan', 'jetpack-my-jetpack' ) }</a>
+				<ExternalLink href={ getManageYourPlanUrl() }>
+					{ __( 'Manage your plan', 'jetpack-my-jetpack' ) }
+				</ExternalLink>
 			</p>
 		</>
 	);
