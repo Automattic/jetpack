@@ -120,12 +120,12 @@ class Jetpack_CLI extends WP_CLI_Command {
 
 			// Display red flags first.
 			foreach ( $stats['bad'] as $stat => $value ) {
-				printf( "$this->red_open%-'.16s %s $this->color_close\n", $stat, $value );
+				WP_CLI::line( sprintf( "$this->red_open%-'.16s %s $this->color_close", $stat, $value ) );
 			}
 
 			// Display caution warnings next.
 			foreach ( $stats['caution'] as $stat => $value ) {
-				printf( "$this->yellow_open%-'.16s %s $this->color_close\n", $stat, $value );
+				WP_CLI::line( sprintf( "$this->yellow_open%-'.16s %s $this->color_close", $stat, $value ) );
 			}
 
 			// The rest of the results are good!
@@ -133,11 +133,11 @@ class Jetpack_CLI extends WP_CLI_Command {
 
 				// Modules should get special spacing for aestetics.
 				if ( strpos( $stat, 'odule-' ) ) {
-					printf( "%-'.30s %s\n", $stat, $value );
+					WP_CLI::line( sprintf( "%-'.30s %s", $stat, $value ) );
 					usleep( 4000 ); // For dramatic effect lolz.
 					continue;
 				}
-				printf( "%-'.16s %s\n", $stat, $value );
+				WP_CLI::line( sprintf( "%-'.16s %s", $stat, $value ) );
 				usleep( 4000 ); // For dramatic effect lolz.
 			}
 		} else {
@@ -792,7 +792,7 @@ class Jetpack_CLI extends WP_CLI_Command {
 		// Let's print_r the option if it's an array.
 		// Used in the 'get' and 'list' actions.
 		// phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_print_r
-		$option = is_array( $option ) ? print_r( $option ) : $option;
+		$option = is_array( $option ) ? print_r( $option, true ) : $option;
 
 		switch ( $action ) {
 			case 'get':
@@ -1283,8 +1283,7 @@ class Jetpack_CLI extends WP_CLI_Command {
 		$body_json = Jetpack_Provision::partner_provision( $token->access_token, $named_args );
 
 		if ( is_wp_error( $body_json ) ) {
-			// phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_error_log
-			error_log(
+			WP_CLI::error(
 				wp_json_encode(
 					array(
 						'success'       => false,
