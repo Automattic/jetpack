@@ -1100,7 +1100,7 @@ abstract class WPCOM_JSON_API_Endpoint {
 
 		<?php
 		if ( 'unset' !== $original_post ) {
-			$GLOBALS['post'] = $original_post;
+			$GLOBALS['post'] = $original_post; // phpcs:ignore WordPress.WP.GlobalVariablesOverride.Prohibited
 		}
 	}
 

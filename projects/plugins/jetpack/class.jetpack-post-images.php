@@ -45,9 +45,9 @@ class Jetpack_PostImages {
 
 		// Mechanic: Somebody set us up the bomb.
 		$old_post                  = $GLOBALS['post'];
-		$GLOBALS['post']           = $post;
+		$GLOBALS['post']           = $post; // phpcs:ignore WordPress.WP.GlobalVariablesOverride.Prohibited
 		$old_shortcodes            = $GLOBALS['shortcode_tags'];
-		$GLOBALS['shortcode_tags'] = array( 'slideshow' => $old_shortcodes['slideshow'] );
+		$GLOBALS['shortcode_tags'] = array( 'slideshow' => $old_shortcodes['slideshow'] ); // phpcs:ignore WordPress.WP.GlobalVariablesOverride.Prohibited
 
 		// Find all the slideshows.
 		preg_match_all( '/' . get_shortcode_regex() . '/sx', $post->post_content, $slideshow_matches, PREG_SET_ORDER );
@@ -97,8 +97,8 @@ class Jetpack_PostImages {
 		ob_end_clean();
 
 		// Operator: Main screen turn on.
-		$GLOBALS['shortcode_tags'] = $old_shortcodes;
-		$GLOBALS['post']           = $old_post;
+		$GLOBALS['shortcode_tags'] = $old_shortcodes; // phpcs:ignore WordPress.WP.GlobalVariablesOverride.Prohibited
+		$GLOBALS['post']           = $old_post; // phpcs:ignore WordPress.WP.GlobalVariablesOverride.Prohibited
 
 		return $images;
 	}
@@ -131,6 +131,7 @@ class Jetpack_PostImages {
 		 *  See core ticket:
 		 *  https://core.trac.wordpress.org/ticket/39304
 		 */
+		// phpcs:disable WordPress.WP.GlobalVariablesOverride.Prohibited
 		if ( isset( $GLOBALS['post'] ) ) {
 			$juggle_post     = $GLOBALS['post'];
 			$GLOBALS['post'] = $post;
@@ -141,6 +142,7 @@ class Jetpack_PostImages {
 			$galleries       = get_post_galleries( $post->ID, false );
 			unset( $GLOBALS['post'] );
 		}
+		// phpcs:enable WordPress.WP.GlobalVariablesOverride.Prohibited
 
 		foreach ( $galleries as $gallery ) {
 			if ( isset( $gallery['type'] ) && 'slideshow' === $gallery['type'] && ! empty( $gallery['ids'] ) ) {
