@@ -1,4 +1,5 @@
 <?php
+
 namespace Automattic\Jetpack_Boost\Modules\Critical_CSS;
 
 use Automattic\Jetpack_Boost\Modules\Critical_CSS\Generate\Generator;
@@ -43,7 +44,7 @@ class Critical_CSS extends Module {
 		$recommendations = new Recommendations();
 		$recommendations->attach_hooks();
 
-		add_action( 'rest_api_init', array( $this->rest_api, 'register_routes' ) );
+		add_action( 'rest_api_init', array( $this->rest_api, 'register_rest_routes' ) );
 
 		add_action( 'wp', array( $this, 'display_critical_css' ) );
 
@@ -139,7 +140,7 @@ class Critical_CSS extends Module {
 		$reason = \get_option( self::RESET_REASON_STORAGE_KEY );
 
 		if ( ! $reason ) {
-			return null;
+			return NULL;
 		}
 
 		return array( new Regenerate_Admin_Notice( $reason ) );

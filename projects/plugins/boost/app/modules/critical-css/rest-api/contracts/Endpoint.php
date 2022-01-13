@@ -10,6 +10,6 @@ interface Boost_Endpoint {
 
 	public function response( $request );
 
-	public function permission_callback( $request );
+	public function permissions();
 
 }

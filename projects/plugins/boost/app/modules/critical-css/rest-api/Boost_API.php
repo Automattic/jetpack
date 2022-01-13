@@ -2,6 +2,8 @@
 
 namespace Automattic\Jetpack_Boost\Modules\Critical_CSS\REST_API;
 
+use Automattic\Jetpack_Boost\Modules\Critical_CSS\REST_API\Permissions\Nonce;
+
 class Boost_API {
 
 	protected $available_routes = array(
@@ -13,60 +15,22 @@ class Boost_API {
 		Recommendations_Reset::class,
 	);
 
-	protected $routes           = array();
-	protected $protected_routes = array();
+	protected $routes = array();
 
 	public function __construct() {
-
 		foreach ( $this->available_routes as $route_class ) {
-			$route                          = new $route_class();
-			$this->routes[ $route->name() ] = $route;
-
-			if ( $route instanceof Nonce_Protection ) {
-				$this->protected_routes[] = $route->name();
-			}
+			$this->routes[] = new Route( $route_class );
 		}
 	}
 
-	public function register_routes() {
+	public function register_rest_routes() {
 		foreach ( $this->routes as $route ) {
-			$this->register_route( $route );
+			$route->register_rest_route();
 		}
 	}
 
 	public function get_nonces() {
-		return array_combine( $this->protected_routes, array_map( 'wp_create_nonce', $this->protected_routes ) );
-	}
-
-	public function register_route( Boost_Endpoint $route ) {
-
-		// Developer Mode:
-		// Make sure routes don't accidentally start with a slash
-		if ( defined( 'WP_DEBUG' ) && WP_DEBUG ) {
-			if ( '/' === substr( $route->name(), 0, 1 ) ) {
-				error_log( "Endpoint method shouldn't start with a slash" );
-			}
-		}
-
-		// Allow the endpoint to handle permissions by default
-		$permission_callback = array( $route, 'permission_callback' );
-
-		// But if a class requires Nonce_Protection,
-		// Wrap it in a Nonce_Protection class
-		if ( $route instanceof Nonce_Protection ) {
-			$nonce_wrapper       = new Nonce_Protected_Endpoint( $route );
-			$permission_callback = array( $nonce_wrapper, 'permission_callback' );
-		}
-
-		register_rest_route(
-			JETPACK_BOOST_REST_NAMESPACE,
-			JETPACK_BOOST_REST_PREFIX . '/' . $route->name(),
-			array(
-				'methods'             => $route->request_methods(),
-				'callback'            => array( $route, 'response' ),
-				'permission_callback' => $permission_callback,
-			)
-		);
+		return Nonce::get_generated_nonces();
 	}
 
 }
