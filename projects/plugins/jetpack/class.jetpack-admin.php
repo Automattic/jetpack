@@ -231,7 +231,7 @@ class Jetpack_Admin {
 				 *
 				 * @param string The search terms (comma separated).
 				 */
-				echo apply_filters( 'jetpack_search_terms_' . $module, $module_array['additional_search_queries'] );
+				echo apply_filters( 'jetpack_search_terms_' . $module, $module_array['additional_search_queries'] ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
 				$module_array['search_terms'] = ob_get_clean();
 
 				$module_array['configurable'] = false;

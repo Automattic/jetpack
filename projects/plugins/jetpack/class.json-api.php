@@ -635,7 +635,7 @@ class WPCOM_JSON_API {
 			foreach ( $extra as $key => $value ) {
 				header( "$key: $value" );
 			}
-			echo $response;
+			echo $response; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
 			if ( $this->exit ) {
 				exit;
 			}
@@ -681,10 +681,10 @@ class WPCOM_JSON_API {
 			// Mitigate Rosetta Flash [1] by setting the Content-Type-Options: nosniff header
 			// and by prepending the JSONP response with a JS comment.
 			// [1] <https://blog.miki.it/2014/7/8/abusing-jsonp-with-rosetta-flash/index.html>.
-			echo "/**/$callback(";
+			echo "/**/$callback("; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- This is JSONP output, not HTML.
 
 		}
-		echo $this->json_encode( $response );
+		echo $this->json_encode( $response ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- This is JSONP output, not HTML.
 		if ( $callback ) {
 			echo ');';
 		}

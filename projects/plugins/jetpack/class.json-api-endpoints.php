@@ -929,7 +929,7 @@ abstract class WPCOM_JSON_API_Endpoint {
 						$for_output
 					);
 				} else {
-					// phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_trigger_error
+					// phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_trigger_error, WordPress.Security.EscapeOutput.OutputNotEscaped
 					trigger_error( "Unknown API casting type {$type['type']}", E_USER_WARNING );
 				}
 		}
@@ -1062,11 +1062,11 @@ abstract class WPCOM_JSON_API_Endpoint {
 			$param_label = strtolower( str_replace( ' ', '-', $label ) );
 			?>
 
-<section class="<?php echo $param_label; ?>">
+<section class="<?php echo esc_attr( $param_label ); ?>">
 
 <h2 id="apidoc-<?php echo esc_attr( $doc_section_key ); ?>"><?php echo wp_kses_post( $label ); ?></h2>
 
-<table class="api-doc api-doc-<?php echo $param_label; ?>-parameters api-doc-<?php echo strtolower( str_replace( ' ', '-', $doc['group'] ) ); ?>">
+<table class="api-doc api-doc-<?php echo esc_attr( $param_label ); ?>-parameters api-doc-<?php echo esc_attr( strtolower( str_replace( ' ', '-', $doc['group'] ) ) ); ?>">
 
 <thead>
 	<tr>

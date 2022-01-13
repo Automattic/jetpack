@@ -297,10 +297,10 @@ class Jetpack_Connection_Banner {
 						<div class="jp-wpcom-connect__content-icon jp-connect-illo">
 							<?php
 							$logo = new Logo();
-							echo $logo->render();
+							echo $logo->render(); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- Returns SVG.
 							?>
 							<img
-								src="<?php echo plugins_url( 'images/jetpack-powering-up.svg', JETPACK__PLUGIN_FILE ); ?>"
+								src="<?php echo esc_url( plugins_url( 'images/jetpack-powering-up.svg', JETPACK__PLUGIN_FILE ) ); ?>"
 								class="jp-wpcom-connect__hide-phone-and-smaller"
 								alt="
 								<?php
@@ -367,7 +367,7 @@ class Jetpack_Connection_Banner {
 					<div class="jp-wpcom-connect__slide jp-wpcom-connect__slide-one jp__slide-is-active">
 
 						<div class="jp-wpcom-connect__content-icon jp-connect-illo">
-							<?php echo ( new Logo() )->render(); ?>
+							<?php echo ( new Logo() )->render(); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- Returns SVG. ?>
 							<img
 								src="<?php echo esc_url( plugins_url( 'images/jetpack-powering-up.svg', JETPACK__PLUGIN_FILE ) ); ?>"
 								class="jp-wpcom-connect__hide-phone-and-smaller"
@@ -439,7 +439,7 @@ class Jetpack_Connection_Banner {
 				<?php if ( 'plugins' === $current_screen->base ) : ?>
 					<?php
 					$logo = new Logo();
-					echo $logo->render();
+					echo $logo->render(); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- Returns SVG.
 					?>
 
 					<?php
@@ -479,7 +479,7 @@ class Jetpack_Connection_Banner {
 					<div class="jp-connect-full__slide">
 						<div class="jp-connect-full__slide-card illustration">
 							<img
-									src="<?php echo plugins_url( 'images/jetpack-connection-security.svg', JETPACK__PLUGIN_FILE ); ?>"
+									src="<?php echo esc_url( plugins_url( 'images/jetpack-connection-security.svg', JETPACK__PLUGIN_FILE ) ); ?>"
 									alt="<?php esc_attr_e( 'Security & Backups', 'jetpack' ); ?>"
 							/>
 						</div>
@@ -495,7 +495,7 @@ class Jetpack_Connection_Banner {
 					<div class="jp-connect-full__slide">
 						<div class="jp-connect-full__slide-card illustration">
 							<img
-									src="<?php echo plugins_url( 'images/jetpack-connection-performance.svg', JETPACK__PLUGIN_FILE ); ?>"
+									src="<?php echo esc_url( plugins_url( 'images/jetpack-connection-performance.svg', JETPACK__PLUGIN_FILE ) ); ?>"
 									alt="<?php esc_attr_e( 'Built-in Performance', 'jetpack' ); ?>"
 							/>
 						</div>

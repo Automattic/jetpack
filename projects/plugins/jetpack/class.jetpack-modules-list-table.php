@@ -120,9 +120,9 @@ class Jetpack_Modules_List_Table extends WP_List_Table {
 							<span class='configure'>{{{ item.configurable }}}</span>
 						<# } #>
 						<# if ( item.activated && 'vaultpress' !== item.module && item.available ) { #>
-							<span class='delete'><a href="<?php echo admin_url( 'admin.php' ); ?>?page=jetpack&#038;action=deactivate&#038;module={{{ item.module }}}&#038;_wpnonce={{{ item.deactivate_nonce }}}"><?php _e( 'Deactivate', 'jetpack' ); ?></a></span>
+							<span class='delete'><a href="<?php echo esc_url( admin_url( 'admin.php' ) ); ?>?page=jetpack&#038;action=deactivate&#038;module={{{ item.module }}}&#038;_wpnonce={{{ item.deactivate_nonce }}}"><?php esc_html_e( 'Deactivate', 'jetpack' ); ?></a></span>
 						<# } else if ( item.available ) { #>
-							<span class='activate'><a href="<?php echo admin_url( 'admin.php' ); ?>?page=jetpack&#038;action=activate&#038;module={{{ item.module }}}&#038;_wpnonce={{{ item.activate_nonce }}}"><?php _e( 'Activate', 'jetpack' ); ?></a></span>
+							<span class='activate'><a href="<?php echo esc_url( admin_url( 'admin.php' ) ); ?>?page=jetpack&#038;action=activate&#038;module={{{ item.module }}}&#038;_wpnonce={{{ item.activate_nonce }}}"><?php esc_html_e( 'Activate', 'jetpack' ); ?></a></span>
 						<# } #>
 						<# if ( ! item.available ) { #>
 							<span class='unavailable_reason'>{{{ item.unavailable_reason }}}</span>
@@ -188,7 +188,7 @@ class Jetpack_Modules_List_Table extends WP_List_Table {
 		foreach ( $views as $class => $view ) {
 			$views[ $class ] = "\t<li class='$class'>$view</li>";
 		}
-		echo implode( "\n", $views ) . "\n";
+		echo implode( "\n", $views ) . "\n"; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- Is HTML. Escaping happens in get_views().
 		echo '</ul>';
 	}
 
@@ -325,7 +325,7 @@ class Jetpack_Modules_List_Table extends WP_List_Table {
 		?>
 		<a href="#TB_inline?width=600&height=550&inlineId=more-info-module-settings-modal" class="thickbox">
 			<div class="module-image">
-				<p><span class="module-image-badge"><?php echo $badge_text; ?></span><span class="module-image-free" style="display: none"><?php echo $free_text; ?></span></p>
+				<p><span class="module-image-badge"><?php echo esc_html( $badge_text ); ?></span><span class="module-image-free" style="display: none"><?php echo esc_html( $free_text ); ?></span></p>
 			</div>
 		</a>
 		<?php
@@ -385,6 +385,7 @@ class Jetpack_Modules_List_Table extends WP_List_Table {
 	 */
 	public function column_description( $item ) {
 		ob_start();
+		// phpcs:disable WordPress.Security.EscapeOutput.OutputNotEscaped
 		/** This action is documented in class.jetpack-admin.php */
 		echo apply_filters( 'jetpack_short_module_description', $item['description'], $item['module'] );
 		/** This action is documented in class.jetpack-admin.php */
@@ -393,6 +394,7 @@ class Jetpack_Modules_List_Table extends WP_List_Table {
 		/** This action is documented in class.jetpack-admin.php */
 		do_action( 'jetpack_module_more_info_' . $item['module'] );
 		echo '</div>';
+		// phpcs:enable WordPress.Security.EscapeOutput.OutputNotEscaped
 		return ob_get_clean();
 	}
 
