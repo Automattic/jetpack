@@ -9,18 +9,18 @@ import withMock from 'storybook-addon-mock';
  * Internal dependencies
  */
 import { siteWithSecurityPlanResponseBody } from './mock-data';
-import PlanSection from '../index.jsx';
+import PlansSection from '../index.jsx';
 
 export default {
-	title: 'My Jetpack/Plan Section',
-	component: PlanSection,
+	title: 'My Jetpack/Plans Section',
+	component: PlansSection,
 	decorators: [ withMock ],
 	argTypes: {
 		logoColor: { control: 'color' },
 	},
 };
 
-const Template = args => <PlanSection { ...args } />;
+const Template = args => <PlansSection { ...args } />;
 
 const DefaultArgs = {
 	width: 150,
