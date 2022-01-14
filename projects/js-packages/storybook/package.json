@@ -29,6 +29,7 @@
 		"@automattic/jetpack-base-styles": "workspace:^0.1.5-alpha",
 		"@babel/core": "7.16.0",
 		"@babel/plugin-syntax-jsx": "7.16.0",
+		"@babel/preset-react": "7.16.0",
 		"@babel/runtime-corejs3": "7.16.3",
 		"@babel/traverse": "7.16.3",
 		"@emotion/babel-plugin": "11.3.0",
