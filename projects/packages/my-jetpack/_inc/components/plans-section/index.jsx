@@ -33,12 +33,18 @@ function PlanSection( { purchase = {} } ) {
 /**
  * Plan section Header component.
  *
+ * @param {object} props          - Component props.
+ * @param {Array} props.purchases - Purchases array.
  * @returns {object} PlanSectionHeader react component.
  */
-function PlanSectionHeader() {
+function PlanSectionHeader( { purchases } ) {
 	return (
 		<>
-			<h3>{ __( 'My Plan', 'jetpack-my-jetpack' ) }</h3>
+			<h3>
+				{ purchases.length <= 1
+					? __( 'My plan', 'jetpack-my-jetpack' )
+					: __( 'My plans', 'jetpack-my-jetpack' ) }
+			</h3>
 			<p>{ __( 'The extra power you added to your Jetpack.', 'jetpack-my-jetpack' ) }</p>
 			<p>
 				<ExternalLink href={ getManageYourPlanUrl() }>
@@ -59,7 +65,7 @@ export default function PlansSection() {
 
 	return (
 		<div className="jp-plans-section">
-			<PlanSectionHeader />
+			<PlanSectionHeader purchases={ purchases } />
 
 			<div className="jp-plans-section__purchases-section">
 				{ purchases.map( purchase => (
