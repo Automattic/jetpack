@@ -170,6 +170,31 @@ class Jetpack_Boost {
 		Analytics::record_user_event( 'clear_cache' );
 	}
 
+	protected function available_modules() {
+		$forced_disabled_modules = array();
+		// Get the lists of modules explicitly disabled from the 'jb-disable-modules' query string.
+		// The parameter is a comma separated value list of module slug.
+		if ( ! empty( $_GET['jb-disable-modules'] ) ) {
+			// phpcs:disable WordPress.Security.ValidatedSanitizedInput.MissingUnslash
+			// phpcs:disable WordPress.Security.ValidatedSanitizedInput.InputNotSanitized
+			$forced_disabled_modules = array_map( 'sanitize_key', explode( ',', $_GET['jb-disable-modules'] ) );
+		}
+
+
+
+		$all_modules       = self::AVAILABLE_MODULES;
+		$available_modules = array();
+		foreach ( $all_modules as $module_slug => $module ) {
+			// Don't register modules that have been forcibly disabled from the url 'jb-disable-modules' query string parameter.
+			if ( in_array( $module_slug, $forced_disabled_modules, true ) || in_array( 'all', $forced_disabled_modules, true ) ) {
+				continue;
+			}
+			$available_modules[ $module_slug ] = $module;
+		}
+
+		return $available_modules;
+	}
+
 	/**
 	 * Initialize modules.
 	 *
@@ -179,29 +204,13 @@ class Jetpack_Boost {
 	 * phpcs:disable WordPress.Security.NonceVerification.Recommended
 	 */
 	public function prepare_modules() {
-
-		$forced_disabled_modules = array();
-		$modules                 = array();
-
-		// Get the lists of modules explicitly disabled from the 'jb-disable-modules' query string.
-		// The parameter is a comma separated value list of module slug.
-		if ( ! empty( $_GET['jb-disable-modules'] ) ) {
-			// phpcs:disable WordPress.Security.ValidatedSanitizedInput.MissingUnslash
-			// phpcs:disable WordPress.Security.ValidatedSanitizedInput.InputNotSanitized
-			$forced_disabled_modules = array_map( 'sanitize_key', explode( ',', $_GET['jb-disable-modules'] ) );
-		}
-
-		foreach ( self::AVAILABLE_MODULES as $module_slug => $module_class ) {
-			// Don't register modules that have been forcibly disabled from the url 'jb-disable-modules' query string parameter.
-			if ( in_array( $module_slug, $forced_disabled_modules, true ) || in_array( 'all', $forced_disabled_modules, true ) ) {
-				continue;
-			}
-
+		$modules = array();
+		foreach ( $this->available_modules() as $module_slug => $module_class ) {
 			/**
 			 * @var Module $module
 			 */
-			$module = new $module_class();
-			$toggleable_module                  = new Module( $module );
+			$module                  = new $module_class();
+			$toggleable_module       = new Module( $module );
 			$modules[ $module_slug ] = $toggleable_module;
 
 			if ( $module instanceof Has_Endpoints ) {
@@ -213,7 +222,6 @@ class Jetpack_Boost {
 				add_action( 'rest_api_init', array( $rest_api, 'register_rest_routes' ) );
 			}
 		}
-
 
 		do_action( 'jetpack_boost_modules_loaded' );
 		return $modules;
@@ -236,7 +244,7 @@ class Jetpack_Boost {
 	 * @return array The available modules.
 	 */
 	public static function get_available_modules() {
-		return array_keys( self::AVAILABLE_MODULES );
+		return array_keys( static::AVAILABLE_MODULES );
 	}
 
 	/**
