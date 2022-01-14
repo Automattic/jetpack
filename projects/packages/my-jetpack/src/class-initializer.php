@@ -65,7 +65,7 @@ class Initializer {
 	 * @return void
 	 */
 	public static function admin_init() {
-		add_action( 'admin_enqueue_scripts', array( __CLASS__, 'enqueue_scritps' ) );
+		add_action( 'admin_enqueue_scripts', array( __CLASS__, 'enqueue_scripts' ) );
 	}
 
 	/**
@@ -73,7 +73,7 @@ class Initializer {
 	 *
 	 * @return void
 	 */
-	public static function enqueue_scritps() {
+	public static function enqueue_scripts() {
 		Assets::register_script(
 			'my_jetpack_main_app',
 			'../build/index.js',
