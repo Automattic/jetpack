@@ -24,7 +24,8 @@ class ScanManager {
 
 	public function start_proc( $folder_name ) {
 		echo 'Starting ' . basename( $folder_name ) . "\n";
-		$cmd = 'nohup php ' . escapeshellarg( dirname( __DIR__ ) . '/scripts/jp-warnings-job.php' ) . ' ' . escapeshellarg( $folder_name ) . ' &';		$this->count++;
+		$cmd = 'php ' . escapeshellarg( dirname( __DIR__ ) . '/scripts/jp-warnings-job.php' ) . ' ' . escapeshellarg( $folder_name );
+		$this->count++;
 
 		$descriptorspec = array(
 			0 => array( 'file', '/dev/null', 'r' ),
@@ -40,7 +41,7 @@ class ScanManager {
 		foreach ( $this->procs as $id => $proc ) {
 			$status = proc_get_status( $proc );
 			if ( ! $status['running'] ) {
-				$folder_name = str_replace("'", '', explode( ' ', $status['command'] ))[3];
+				$folder_name = str_replace("'", '', explode( ' ', $status['command'] ))[2];
 				$this->model->update_process( -1, null, basename( $folder_name ) );
 
 				$this->count--;
