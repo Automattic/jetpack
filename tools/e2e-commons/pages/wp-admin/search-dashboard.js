@@ -2,12 +2,15 @@ import WpPage from '../wp-page.js';
 import { resolveSiteUrl } from '../../helpers/utils-helper.cjs';
 
 export default class SearchDashboard extends WpPage {
-	static SEARCH_SETTING_API_PATTERN = /^https?:\/\/.*\/jetpack\/v4\/settings/;
+	static SEARCH_SETTING_API_PATTERN = /^https?:\/\/.*jetpack\/v4\/search\/settings/;
 
 	constructor( page ) {
 		const url = `${ resolveSiteUrl() }/wp-admin/admin.php?page=jetpack-search`;
-		super( page, { expectedSelectors: [ '.jp-search-dashboard-top__title' ], url } );
-		this.timeout = 30000; // 30s.
+		super( page, {
+			expectedSelectors: [ '.jp-search-dashboard-top__title' ],
+			url,
+			explicitWaitMS: 30000,
+		} );
 	}
 
 	async isSearchModuleToggleVisibile() {
@@ -69,11 +72,11 @@ export default class SearchDashboard extends WpPage {
 	async waitForToggling() {
 		await this.waitForUpdateSearchSettingFinished();
 		const moduleToggleSelector = 'span.form-toggle__switch:not([disabled])';
-		return await this.isElementVisible( moduleToggleSelector );
+		await this.waitForElementToBeVisible( moduleToggleSelector );
 	}
 
 	async waitForUpdateSearchSettingFinished() {
-		return this.page.waitForResponse( resp =>
+		return await this.page.waitForResponse( resp =>
 			SearchDashboard.SEARCH_SETTING_API_PATTERN.test( resp.url() )
 		);
 	}
