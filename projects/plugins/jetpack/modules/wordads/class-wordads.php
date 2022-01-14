@@ -291,16 +291,8 @@ class WordAds {
 			if ( self::is_amp() ) {
 				add_filter( 'the_content', array( $this, 'insert_header_ad_amp' ) );
 			} else {
-				switch ( get_stylesheet() ) {
-					case 'twentyseventeen':
-					case 'twentyfifteen':
-					case 'twentyfourteen':
-						add_action( 'wp_footer', array( $this, 'insert_header_ad_special' ) );
-						break;
-					default:
-						add_action( 'wp_head', array( $this, 'insert_header_ad' ), 100 );
-						break;
-				}
+				add_action( 'wordads_header_ad', array( $this, 'insert_header_ad' ), 100 );
+				add_action( 'wp_footer', array( $this, 'insert_header_ad' ), 100 );
 			}
 		}
 	}
@@ -480,30 +472,25 @@ class WordAds {
 			return;
 		}
 
-		$ad_type = $this->option( 'wordads_house' ) ? 'house' : 'iponweb';
-		echo $this->get_ad( 'top', $ad_type ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
-	}
-
-	/**
-	 * Special cases for inserting header unit via JS
-	 *
-	 * @since 4.5.0
-	 */
-	public function insert_header_ad_special() {
-		/**
-		 * Allow third-party tools to disable the display of header ads.
-		 *
-		 * @module wordads
-		 *
-		 * @since 4.5.0
-		 *
-		 * @param bool true Should the header unit be disabled. Default to false.
-		 */
-		if ( apply_filters( 'wordads_header_disable', false ) ) {
+		// Prevent multiple manual ads.
+		if ( 2 <= did_action( 'wordads_header_ad' ) ) {
 			return;
 		}
 
-		$selector = '#content';
+		// Prevent placing an automatic ad if a manual ad has already been placed.
+		if ( doing_action( 'wp_footer' ) && did_action( 'wordads_header_ad' ) ) {
+			return;
+		}
+
+		// Prevent placing a manual ad if an automatic ad has already been placed.
+		if ( doing_action( 'wordads_header_ad' ) && did_action( 'wp_footer' ) ) {
+			return;
+		}
+
+		// Default ad placement to just after the <body> tag.
+		$selector = 'body > :first-child';
+
+		// Special theme cases.
 		switch ( get_stylesheet() ) {
 			case 'twentyseventeen':
 				$selector = '#content';
@@ -514,6 +501,11 @@ class WordAds {
 			case 'twentyfourteen':
 				$selector = 'article';
 				break;
+		}
+
+		// Don't relocate if the ad is being placed manually.
+		if ( doing_action( 'wordads_header_ad' ) ) {
+			$selector = '';
 		}
 
 		$section_id  = 0 === $this->params->blog_id ? WORDADS_API_TEST_ID : $this->params->blog_id . '2';
@@ -700,7 +692,7 @@ HTML;
 	 */
 	public function get_dynamic_ad_snippet( $section_id, $form_factor = 'square', $location = '', $relocate = '' ) {
 		$div_id = 'atatags-' . $section_id . '-' . uniqid();
-		$div_id = esc_js( $div_id );
+		$div_id = esc_attr( $div_id );
 
 		// Default form factor.
 		$form_factor_id = self::$form_factor_ids['square'];
@@ -720,11 +712,12 @@ HTML;
 
 		$relocate_script = '';
 		if ( ! empty( $relocate ) ) {
-			$relocate        = esc_js( $relocate );
+			$selector        = wp_json_encode( $relocate );
 			$relocate_script = <<<JS
 			<script type="text/javascript">
-			var adNode       = document.getElementById( '$div_id' );
-			var relocateNode = document.querySelector( '$relocate' );
+			var adNode       = document.getElementById( '{$div_id}' );
+			var selector     = {$selector};
+			var relocateNode = document.querySelector( selector );
 			relocateNode.parentNode.insertBefore( adNode, relocateNode );
 			</script>
 JS;

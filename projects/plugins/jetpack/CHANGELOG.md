@@ -2,6 +2,109 @@
 
 ### This is a list detailing changes for all Jetpack releases.
 
+## 10.6-a.1 - 2022-01-11
+### Improved compatibility
+- Subscription form: update the placeholder color to be the same as the text color of the site.
+
+### Bug fixes
+- Donations block: add a missing closing div for the front-end rendering.
+- Donations block: don't display the donations block to visitors unless Stripe is connected.
+- Donations block: fixed an issue which was invalidating existing blocks if they were edited by non-plan owners.
+- Donations block: tweak currency display for the edit control.
+- Protect: fixed math fallback's input accessibility and display.
+- Subscription form: adding a default line-height to avoid differences using different font-faces on input and button elements
+
+### Other changes <!-- Non-user-facing changes go here. This section will not be copied to readme.txt. -->
+- Dashboard: update the links to different Jetpack features in the dashboard.
+- Moved numberFormat component into components js package.
+- Refactor PluginDashItem component to be functional and add README.
+- Remove use of deprecated `~` in sass-loader imports.
+- Search: migrate Classic and Instant Search code to Search package.
+- Search: move search dashboard to the search package.
+- Social Menu: remove role navigation attribute from nav item.
+- VideoPress: change allow_download data path from API (wpcom compat).
+
+## 10.5 - 2022-01-11
+### Enhancements
+- Print Styles: additional interactive elements are now hidden when printing posts (e.g. Likes, Recommended Posts, Share this).
+- VideoPress: add "allow download" option on videos to allow viewers to download the video.
+- WordAds: add hook for header ad placement, and allow 'leaderboard' size when displaying an ad widget.
+
+### Improved compatibility
+- General: update WordPress version requirements to WordPress 5.8.
+- Pay with PayPal: update the name of the script enqueued when using the Pay with PayPal button as to avoid conflicts with other plugins that may use a similar script tag.
+- Stats: remove legacy option to display a Smiley face used for the tracking pixel since the pixel is hidden by default.
+- VideoPress: classic block embeds with old flash URLs can now be properly converted to VideoPress blocks.
+- VideoPress: hide the dedicated VideoPress embed block in favor of Video block.
+
+### Bug fixes
+- Cookies & Consents Banner: fix preview in Customizer and block widget editor.
+- Dashboard: fix logic that blocked one from enabling searchable features from the Jetpack settings.
+- General: prevent an E_NOTICE when running in non-web context.
+- Instant Search: ensure the hidden overlay doesn't add whitespace to printed pages.
+- Jetpack: activate the default modules when the site has already been connected before plugin activation.
+- Jetpack: do not display recommendations during an identity crisis.
+- Search: fix styling conflict for Blank Canvas theme.
+- Security: PDF embeds now only display a link, to avoid issues with malicious PDFss that may run arbitrary code.
+- Settings menu: add Jetpack item for sites with Scan product.
+- Sharing Buttons: rely on official sharing buttons only for Facebook share counts.
+- Stats: do not trigger views when post is embedded into another site.
+- VideoPress: reload embed preview on creation until the video size is known.
+- Vimeo Embeds: support more URL formats, such as videos in playlists.
+- WhatsApp block: fix country code for Cyprus.
+- Widget Visibility: fix "Match All" setting being overwritten on save in the block widget editor.
+
+### Other changes <!-- Non-user-facing changes go here. This section will not be copied to readme.txt. -->
+- AAG upgrade banner: do not display on WoA sites
+- Add get_current_plan() to the WPcom_Admin_Menu.
+- Admin Page: remove CRM card for now.
+- Dashboard: add Jetpack Security Bundle upsell to AAG.
+- Dashboard: add new cards to AAG Dashboard for Boost and CRM plugins.
+- Dashboard: updates the Apps card on the At a Glance page to display links to the Jetpack mobile apps.
+- E2E tests: update readme docs.
+- E2E tests renovate: bump dependencies.
+- Fix a legacy sync test in PHPUnit 9.5.
+- Fix modules using `this` to mean `window`.
+- Hide irrelevant menu items for P2 sites
+- Instant Search: Add missing translator comments and use ordered placeholders in JS sprintf.
+- Janitorial: fix phpcs warnings in multiple widget files.
+- Jetpack: provide recommendation step parameter to external package.
+- Load the Composer package assets i18n map.
+- Switch to pcov for code coverage.
+- Sync some E2E deps with the rest of the monorepo to avoid breaking eslint tests.
+- Updated package dependencies
+- Updated package dependencies.
+- Use `@automattic/i18n-loader-webpack-plugin` to remove the hack for Instant Search's lazy-loaded bundle.
+- VideoPress: add support for old v.wordpress.com URLs in VideoPress embed block.
+- Vimeo: tweak the regex used to fetch the Vimeo videos.
+- WordPress.com: identify admin menu dashicons that won't be rendered in Calypso and provide a default icon for them.
+- WordPress.com: provide a different support link for sites on the Atomic platform.
+
+## 10.5-a.3 - 2021-12-14
+### Enhancements
+- Secure Sign On: add filters for the error text when a local user cannot be found for a given WP.com account and for when SSO is disallowed when on a staging site.
+- Subscription Block: add 'Success Message Text' to the block settings.
+
+### Improved compatibility
+- General: ensure Jetpack options are properly deleted when the plugin is deactivated.
+- Media Extractor: add support for alt_text in extract.
+- Notifications: remove legacy code supporting IE versions older than 9.
+- Pay with PayPal Widget: hide widget from Legacy Widget block.
+
+### Bug fixes
+- Contact Form: avoid PHP notices in submitted forms in some cases.
+- Internationalization: ensure that all text, including text added via JavaScript, can be translated.
+- Milestone widget: fix issue that prevented styles from loading until the widget is saved.
+
+### Other changes <!-- Non-user-facing changes go here. This section will not be copied to readme.txt. -->
+- Admin Menu: add support for WPML menu structure.
+- ConnectionBanner: allow "icon" prop type to be an element.
+- JITM: allow sidebar JITMs marked as dismissible to be dismissed.
+- Nav-unification: add a CSS class to the HTML body when nav-unification is enabled.
+- Update introductory discount percentages from 40% to 50%, to reflect new pricing structure..
+- Use `automattic/jetpack-composer-plugin` to move Jetpack libraries from `vendor/` to `jetpack_vendor/` for i18n.
+- [WP.com sites only) Exposes the My Home menu item to all roles
+
 ## 10.5-a.1 - 2021-12-07
 ### Enhancements
 - Sharing: hide sharing buttons when printing a post or page.

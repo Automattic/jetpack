@@ -46,9 +46,9 @@ const sharedWebpackConfig = {
 				exclude: /node_modules\//,
 			} ),
 
-			// Transpile @automattic/jetpack-* in node_modules too.
+			// Transpile @automattic/* in node_modules too.
 			jetpackWebpackConfig.TranspileRule( {
-				includeNodeModules: [ '@automattic/jetpack-', 'debug/' ],
+				includeNodeModules: [ '@automattic/', 'debug/' ],
 			} ),
 
 			// Handle CSS.
@@ -148,7 +148,6 @@ module.exports = [
 					export: 'getRouteName',
 				},
 			},
-			'search-dashboard': path.join( __dirname, '../_inc/client', 'search-dashboard-entry.js' ),
 			'plugins-page': path.join( __dirname, '../_inc/client', 'plugins-entry.js' ),
 		},
 		plugins: [
@@ -171,7 +170,11 @@ module.exports = [
 			libraryTarget: 'commonjs2',
 		},
 		plugins: [
-			...sharedWebpackConfig.plugins,
+			...jetpackWebpackConfig.StandardPlugins( {
+				DependencyExtractionPlugin: false,
+				I18nLoaderPlugin: false,
+				I18nCheckPlugin: false,
+			} ),
 			new StaticSiteGeneratorPlugin( {
 				globals: {
 					window: {

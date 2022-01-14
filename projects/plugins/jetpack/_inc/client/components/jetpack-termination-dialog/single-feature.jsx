@@ -2,12 +2,12 @@
  * External dependencies
  */
 import React from 'react';
+import { numberFormat } from '@automattic/jetpack-components';
 
 /**
  * Internal dependencies
  */
 import Gridicon from 'components/gridicon';
-import { numberFormat } from 'components/number-format';
 
 const SingleFeature = ( { amount, description, gridIcon, title } ) => {
 	return (

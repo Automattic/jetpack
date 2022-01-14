@@ -5,6 +5,22 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.28.1] - 2022-01-13
+### Changed
+- Updated package dependencies.
+
+## [1.28.0] - 2022-01-04
+### Changed
+- Listener: Do not enqueue actions when the site is disconnected
+- Switch to pcov for code coverage.
+- Theme deletions: rely on Core WP hook now that the package requires WP 5.8.
+- Updated package dependencies
+- Updated package textdomain from `jetpack` to `jetpack-sync`.
+
+## [1.27.6] - 2021-12-14
+### Changed
+- Updated package dependencies.
+
 ## [1.27.5] - 2021-11-30
 ### Changed
 - Updated package dependencies.
@@ -538,6 +554,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - Packages: Move sync to a classmapped package
 
+[1.28.1]: https://github.com/Automattic/jetpack-sync/compare/v1.28.0...v1.28.1
+[1.28.0]: https://github.com/Automattic/jetpack-sync/compare/v1.27.6...v1.28.0
+[1.27.6]: https://github.com/Automattic/jetpack-sync/compare/v1.27.5...v1.27.6
 [1.27.5]: https://github.com/Automattic/jetpack-sync/compare/v1.27.4...v1.27.5
 [1.27.4]: https://github.com/Automattic/jetpack-sync/compare/v1.27.3...v1.27.4
 [1.27.3]: https://github.com/Automattic/jetpack-sync/compare/v1.27.2...v1.27.3

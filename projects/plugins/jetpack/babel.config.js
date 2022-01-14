@@ -1,5 +1,10 @@
 const config = {
-	presets: [ '@automattic/jetpack-webpack-config/babel/preset' ],
+	presets: [
+		[
+			'@automattic/jetpack-webpack-config/babel/preset',
+			{ pluginReplaceTextdomain: { textdomain: 'jetpack' } },
+		],
+	],
 	plugins: [ '@babel/plugin-proposal-nullish-coalescing-operator' ],
 	overrides: [
 		{
@@ -33,14 +38,6 @@ const config = {
 					{ presetEnv: { modules: 'commonjs' } },
 				],
 			],
-		},
-		{
-			test: './modules/search/instant-search',
-			presets: [ './modules/search/instant-search/babel.config.js' ],
-		},
-		{
-			test: './modules/search/customberg',
-			presets: [ './modules/search/customberg/babel.config.js' ],
 		},
 	],
 	env: {
