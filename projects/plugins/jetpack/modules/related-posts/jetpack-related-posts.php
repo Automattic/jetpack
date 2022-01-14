@@ -512,34 +512,22 @@ EOT;
 	 */
 	public function get_options() {
 		if ( null === $this->options ) {
-			$this->options = Jetpack_Options::get_option( 'relatedposts', array() );
+			$this->options  = Jetpack_Options::get_option( 'relatedposts', array() );
 			if ( ! is_array( $this->options ) ) {
 				$this->options = array();
 			}
-			if ( ! isset( $this->options['enabled'] ) ) {
-				$this->options['enabled'] = true;
-			}
-			if ( ! isset( $this->options['show_headline'] ) ) {
-				$this->options['show_headline'] = true;
-			}
-			if ( ! isset( $this->options['show_thumbnails'] ) ) {
-				$this->options['show_thumbnails'] = false;
-			}
-			if ( ! isset( $this->options['show_date'] ) ) {
-				$this->options['show_date'] = true;
-			}
-			if ( ! isset( $this->options['show_context'] ) ) {
-				$this->options['show_context'] = true;
-			}
-			if ( ! isset( $this->options['layout'] ) ) {
-				$this->options['layout'] = 'grid';
-			}
-			if ( ! isset( $this->options['headline'] ) ) {
-				$this->options['headline'] = esc_html__( 'Related', 'jetpack' );
-			}
-			if ( empty( $this->options['size'] ) || (int) $this->options['size'] < 1 ) {
-				$this->options['size'] = 3;
-			}
+			$default_options = array(
+				'enabled'         => true,
+				'show_headline'   => true,
+				'show_thumbnails' => false,
+				'show_date'       => true,
+				'show_context'    => true,
+				'layout'          => 'grid',
+				'headline'        => esc_html__( 'Related', 'jetpack' ),
+				'size'            => 3,
+			);
+
+			$this->options = wp_parse_args( $this->options, $default_options );
 
 			/**
 			 * Filter Related Posts basic options.
