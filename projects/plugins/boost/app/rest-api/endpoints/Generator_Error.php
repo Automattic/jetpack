@@ -1,12 +1,12 @@
 <?php
 
-namespace Automattic\Jetpack_Boost\Modules\Critical_CSS\REST_API\Endpoints;
+namespace Automattic\Jetpack_Boost\REST_API\Endpoints;
 
 use Automattic\Jetpack_Boost\Lib\Nonce;
 use Automattic\Jetpack_Boost\Modules\Critical_CSS\Critical_CSS_Storage;
 use Automattic\Jetpack_Boost\Modules\Critical_CSS\Generate\Generator;
-use Automattic\Jetpack_Boost\Modules\Critical_CSS\REST_API\Contracts\Endpoint;
-use Automattic\Jetpack_Boost\Modules\Critical_CSS\REST_API\Permissions\Current_User_Admin;
+use Automattic\Jetpack_Boost\REST_API\Contracts\Endpoint;
+use Automattic\Jetpack_Boost\REST_API\Permissions\Current_User_Admin;
 
 class Generator_Error implements Endpoint {
 
@@ -23,7 +23,7 @@ class Generator_Error implements Endpoint {
 	 * @todo: Figure out what to do in the JavaScript when responding with the error status.
 	 */
 	public function response( $request ) {
-		
+
 		$cache_key = $request['cacheKey'];
 		$params    = $request->get_params();
 

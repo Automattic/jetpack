@@ -1,11 +1,11 @@
 <?php
 
-namespace Automattic\Jetpack_Boost\Modules\Critical_CSS\REST_API;
+namespace Automattic\Jetpack_Boost\REST_API;
 
 class Route {
 
 	/**
-	 * @var \Automattic\Jetpack_Boost\Modules\Critical_CSS\REST_API\Contracts\Endpoint
+	 * @var \Automattic\Jetpack_Boost\REST_API\Contracts\Endpoint
 	 */
 	protected $endpoint;
 

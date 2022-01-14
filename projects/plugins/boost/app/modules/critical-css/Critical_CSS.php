@@ -4,7 +4,7 @@ namespace Automattic\Jetpack_Boost\Modules\Critical_CSS;
 
 use Automattic\Jetpack_Boost\Modules\Critical_CSS\Generate\Generator;
 use Automattic\Jetpack_Boost\Modules\Critical_CSS\Path_Providers\Paths;
-use Automattic\Jetpack_Boost\Modules\Critical_CSS\REST_API\Boost_API;
+use Automattic\Jetpack_Boost\REST_API\Boost_API;
 use Automattic\Jetpack_Boost\Modules\Module;
 
 class Critical_CSS extends Module {

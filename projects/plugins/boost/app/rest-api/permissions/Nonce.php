@@ -1,8 +1,8 @@
 <?php
 
-namespace Automattic\Jetpack_Boost\Modules\Critical_CSS\REST_API\Permissions;
+namespace Automattic\Jetpack_Boost\REST_API\Permissions;
 
-use Automattic\Jetpack_Boost\Modules\Critical_CSS\REST_API\Contracts\Permission;
+use Automattic\Jetpack_Boost\REST_API\Contracts\Permission;
 
 /**
  * Nonces are tricky in REST.
