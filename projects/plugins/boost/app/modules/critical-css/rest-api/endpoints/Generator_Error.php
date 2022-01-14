@@ -23,6 +23,16 @@ class Generator_Error implements Endpoint {
 	 * @todo: Figure out what to do in the JavaScript when responding with the error status.
 	 */
 	public function response( $request ) {
+
+		// @TODO:
+		// $this->ensure_module_initialized();
+		/**
+		 * This used to be a thing here:
+		 * if ( true !== $this->is_initialized ) {
+		 * wp_send_json( array( 'status' => 'module-unavailable' ) );
+		 * }
+		 */
+
 		$cache_key = $request['cacheKey'];
 		$params    = $request->get_params();
 

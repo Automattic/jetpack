@@ -43,7 +43,8 @@ class Critical_CSS extends Module {
 		// for setting up the storage.
 		$recommendations = new Recommendations();
 		$recommendations->attach_hooks();
-		$this->rest_api->enable_rest_routes();
+
+		add_action( 'rest_api_init', array( $this->rest_api, 'register_rest_routes' ) );
 
 		add_action( 'wp', array( $this, 'display_critical_css' ) );
 
