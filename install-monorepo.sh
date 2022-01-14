@@ -43,7 +43,7 @@ if ! command -v git &>/dev/null; then
 fi
 
 if ! command -v curl &>/dev/null; then
-	abort "Installer script requires 'cURL' to be installed"
+	abort "Installer script requires 'curl' to be installed"
 fi
 
 # Check of Homebrew and nvm are installed
