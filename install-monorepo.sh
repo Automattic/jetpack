@@ -36,7 +36,7 @@ if ! command -v git &>/dev/null; then
 	abort "Installer script requires `git` to be installed."
 fi
 
-if ! command -v git &>/dev/null; then
+if ! command -v curl &>/dev/null; then
 	abort "Installer script requires `cURL` to be installed"
 fi
 
