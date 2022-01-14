@@ -25,7 +25,7 @@ if [[ "$OS" == "Linux" ]]; then
 	if ! command -v apt &>/dev/null; then
 		abort "Installer script requires `apt` to ensure essentials are installed."
 	fi
-	apt update
+	sudo apt update
 	sudo apt install build-essential
 elif [[ "$OS" != "Darwin" ]]; then
 	abort "Installer script is only supported on macOS and Linux."
