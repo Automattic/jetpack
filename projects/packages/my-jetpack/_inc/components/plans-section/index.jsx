@@ -63,7 +63,7 @@ export default function PlansSection() {
 
 			<div className="jp-plans-section__purchases-section">
 				{ purchases.map( purchase => (
-					<PlanSection purchase={ purchase } />
+					<PlanSection key={ `purchase-${ purchase.product_name }` } purchase={ purchase } />
 				) ) }
 			</div>
 		</div>
