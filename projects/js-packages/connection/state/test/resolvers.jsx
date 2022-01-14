@@ -10,12 +10,7 @@ import sinon from 'sinon';
  */
 import resolvers from '../resolvers';
 import { STORE_ID } from '../store';
-import {
-	SET_CONNECTION_STATUS_IS_FETCHING,
-	SET_CONNECTION_STATUS,
-	FETCH_AUTHORIZATION_URL,
-	SET_AUTHORIZATION_URL,
-} from '../actions';
+import { FETCH_AUTHORIZATION_URL, SET_AUTHORIZATION_URL } from '../actions';
 
 const selectors = select( STORE_ID );
 const dispatchers = dispatch( STORE_ID );
