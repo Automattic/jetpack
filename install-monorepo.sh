@@ -21,7 +21,7 @@ fi
 # Exit function
 function abort {
 	echo "$*" >&2
-        exit 1
+	exit 1
 }
 
 # Check if we're on a Mac or Linux, bail if we're not.
