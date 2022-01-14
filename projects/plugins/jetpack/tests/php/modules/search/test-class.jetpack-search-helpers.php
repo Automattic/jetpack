@@ -3,9 +3,6 @@
 use Automattic\Jetpack\Constants;
 use Automattic\Jetpack\Search\Helper as Jetpack_Search_Helpers;
 
-// TODO: Migrate this test to the Search package once class.jetpack-search.php has also been ported.
-require_jetpack_file( 'modules/search/class.jetpack-search.php' );
-
 class WP_Test_Jetpack_Search_Helpers_Customize {
 	public $previewing = false;
 

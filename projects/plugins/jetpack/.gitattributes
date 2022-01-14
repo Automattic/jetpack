@@ -54,8 +54,6 @@
 /modules/calypsoify/*.css.map                            production-exclude
 /modules/calypsoify/*.scss                               production-exclude
 /modules/masterbar/admin-color-schemes/colors/**/*.scss  production-exclude
-/modules/search/instant-search/**                        production-exclude
-/modules/search/customberg/**                            production-exclude
 /modules/widgets/follow-button.php                       production-exclude
 /modules/widget-visibility/editor/**                     production-exclude
 /node_modules/**                                         production-exclude
