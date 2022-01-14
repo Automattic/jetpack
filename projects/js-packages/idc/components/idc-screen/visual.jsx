@@ -3,6 +3,7 @@
  */
 import React from 'react';
 import PropTypes from 'prop-types';
+import { createInterpolateElement } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 import { JetpackLogo } from '@automattic/jetpack-components';
 
@@ -79,7 +80,9 @@ const IDCScreenVisual = props => {
 					{ renderLogoImage( logo, customContent.logoAlt || '' ) }
 				</div>
 				<div className="jp-idc__idc-screen__logo-label">
-					{ customContent.headerText || __( 'Safe Mode', 'jetpack' ) }
+					{ customContent.headerText
+						? createInterpolateElement( customContent.headerText, { em: <em /> } )
+						: __( 'Safe Mode', 'jetpack' ) }
 				</div>
 			</div>
 

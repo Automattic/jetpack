@@ -66,13 +66,14 @@ const CardFresh = props => {
 		>
 			<div className="jp-idc__idc-screen__card-action-top">
 				<h4>
-					{ customContent.startFreshCardTitle ||
-						__( 'Treat each site as independent sites', 'jetpack' ) }
+					{ customContent.startFreshCardTitle
+						? createInterpolateElement( customContent.startFreshCardTitle, { em: <em /> } )
+						: __( 'Treat each site as independent sites', 'jetpack' ) }
 				</h4>
 
 				<p>
-					{ customContent.startFreshCardBodyText ||
-						createInterpolateElement(
+					{ createInterpolateElement(
+						customContent.startFreshCardBodyText ||
 							sprintf(
 								/* translators: %1$s: The current site domain name. %2$s: The original site domain name. */
 								__(
@@ -82,10 +83,11 @@ const CardFresh = props => {
 								currentHostName,
 								wpcomHostName
 							),
-							{
-								hostname: <strong />,
-							}
-						) }
+						{
+							hostname: <strong />,
+							em: <em />,
+						}
+					) }
 				</p>
 			</div>
 
