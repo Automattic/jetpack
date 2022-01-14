@@ -512,7 +512,7 @@ EOT;
 	 */
 	public function get_options() {
 		if ( null === $this->options ) {
-			$this->options  = Jetpack_Options::get_option( 'relatedposts', array() );
+			$this->options = Jetpack_Options::get_option( 'relatedposts', array() );
 			if ( ! is_array( $this->options ) ) {
 				$this->options = array();
 			}
