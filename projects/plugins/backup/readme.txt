@@ -160,12 +160,9 @@ No, Jetpack Backup does not currently support split site or split home URLs.
 == Changelog ==
 ### 1.1.0-beta - 2022-01-13
 #### Added
-- Added a dependency on the automattic/jetpack-composer-plugin Composer package.
-- Added consumer_slug config to webpack
-- Added My Jetpack page work in progress behind a feature flag
-- Added pricing information to Jetpack Connection screen
-- Load the Composer package assets i18n map.
-- Pass connected plugin information to disconnect dialog flow, include analytics scripts
+- Added My Jetpack page work in progress behind a feature flag.
+- Added pricing information to Jetpack Connection screen.
+- Pass connected plugin information to disconnect dialog flow, include analytics scripts.
 - Redirect to Jetpack Backup plugin page when the plugin is activated.
 - Use monorepo `validate-es` script to validate Webpack builds.
 
@@ -173,14 +170,11 @@ No, Jetpack Backup does not currently support split site or split home URLs.
 - Change initial screen for first backup.
 - Detect when a backup will retry and update error screen content.
 - Import RNA styles from base styles package.
-- Make Admin UI consume layout components
-- Make the plugin use RNA Connection for connection state.
+- Make Admin UI consume layout components.
 - The Admin page now promotes the new real-time Backup products.
 - Updated content shown on backup segments section.
 - Updated Jetpack Primary color to match latest brand book.
-- Updated PHPUnit configs to include just what needs coverage rather than include everything then try to exclude stuff that doesn't.
-- Updated upgrade button link target to point to checkout
-- Updated to use the Connection Initial State for the React app
+- Updated upgrade button link target to point to checkout.
 - Use `Assets::register_script()` to load Webpack-built script.
 
 #### Removed
