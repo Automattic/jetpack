@@ -141,14 +141,18 @@ class Jetpack_Likes_Settings {
 
 		// Record a change in like status for this post - only if it contradicts the
 		// site like setting. If it doesn't contradict, then we delete the new individual status.
+		// phpcs:ignore WordPress.Security.NonceVerification.Missing -- we are only checking if $_POST['wpl_enable_post_likes'] is not empty, so ignoring the nonce verification. 
 		if ( ! $this->is_enabled_sitewide() && ! empty( $_POST['wpl_enable_post_likes'] ) ) {
-			// Likes turned on for individual posts. User wants to add the button to a single post
+			// Likes turned on for individual posts. User wants to add the button to a single post.
 			update_post_meta( $post_id, 'switch_like_status', 1 );
+		// phpcs:ignore WordPress.Security.NonceVerification.Missing -- we are only checking if $_POST['wpl_enable_post_likes'] is not empty, so ignoring the nonce verification. 
 		} elseif ( $this->is_enabled_sitewide() && empty( $_POST['wpl_enable_post_likes'] ) ) {
-			// Likes turned on for all posts. User wants to remove the button from a single post
+			// Likes turned on for all posts. User wants to remove the button from a single post.
 			update_post_meta( $post_id, 'switch_like_status', 0 );
 		} elseif (
+			// phpcs:ignore WordPress.Security.NonceVerification.Missing -- we are only checking if $_POST['wpl_enable_post_likes'] is not empty, so ignoring the nonce verification. 
 			( ! $this->is_enabled_sitewide() && empty( $_POST['wpl_enable_post_likes'] ) ) ||
+			// phpcs:ignore WordPress.Security.NonceVerification.Missing -- we are only checking if $_POST['wpl_enable_post_likes'] is not empty, so ignoring the nonce verification. 
 			( $this->is_enabled_sitewide() && ! empty( $_POST['wpl_enable_post_likes'] ) )
 		) {
 			// User wants to update the likes button status for an individual post, but the new status
@@ -181,7 +185,7 @@ class Jetpack_Likes_Settings {
 	 * Adds the 'sharing' menu to the settings menu.
 	 * Only ran if sharedaddy and publicize are not already active.
 	 */
-	function sharing_menu() {
+	public function sharing_menu() {
 		add_submenu_page( 'options-general.php', esc_html__( 'Sharing Settings', 'jetpack' ), esc_html__( 'Sharing', 'jetpack' ), 'manage_options', 'sharing', array( $this, 'sharing_page' ) );
 	}
 
@@ -190,7 +194,7 @@ class Jetpack_Likes_Settings {
 	 * so we can display the setting.
 	 * Only ran if sharedaddy and publicize are not already active.
 	 */
-	function sharing_page() {
+	public function sharing_page() {
 		$this->updated_message();
 		?>
 		<div class="wrap">
@@ -208,8 +212,9 @@ class Jetpack_Likes_Settings {
 	/**
 	 * Returns the settings have been saved message.
 	 */
-	function updated_message() {
-		if ( isset( $_GET['update'] ) && $_GET['update'] == 'saved' ) {
+	public function updated_message() {
+		// phpcs:ignore WordPress.Security.NonceVerification.Recommended -- ignoring nonce verification $_GET['update'] since we are strongly checking for its value. 
+		if ( isset( $_GET['update'] ) && 'saved' === $_GET['update'] ) {
 			echo '<div class="updated"><p>' . esc_html__( 'Settings have been saved', 'jetpack' ) . '</p></div>';
 		}
 	}
@@ -217,7 +222,7 @@ class Jetpack_Likes_Settings {
 	/**
 	 * Returns just the "sharing buttons" w/ like option block, so it can be inserted into different sharing page contexts
 	 */
-	function sharing_block() {
+	public function sharing_block() {
 		?>
 		<h2><?php esc_html_e( 'Sharing Buttons', 'jetpack' ); ?></h2>
 		<form method="post" action="">
