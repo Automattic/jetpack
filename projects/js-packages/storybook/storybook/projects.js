@@ -1,14 +1,12 @@
 // List of projects paths that contains stories
 const path = require( 'path' );
 
-const join = relative => path.join( __dirname, relative );
-
 const projects = [
-	join( '../../base-styles' ),
-	join( '../../components/components' ),
-	join( '../../connection/components' ),
-	join( '../../idc/components' ),
-	join( '../../../packages/my-jetpack/_inc/components' ),
+	'../../base-styles',
+	'../../components/components',
+	'../../connection/components',
+	'../../idc/components',
+	'../../../packages/my-jetpack/_inc/components',
 ];
 
-module.exports = projects;
+module.exports = projects.map( project => path.join( __dirname, project ) );
