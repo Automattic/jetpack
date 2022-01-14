@@ -110,6 +110,10 @@ class Plugin implements PluginInterface, EventSubscriberInterface {
 			if ( isset( $extra['branch-alias'][ $ver ] ) ) {
 				$ver = $extra['branch-alias'][ $ver ];
 			}
+
+			// Composer's `getVersion()` seems to like to return a 4-component version, while semver wants only 3 components. Strip any extra components.
+			$ver = preg_replace( '/^(\d+\.\d+\.\d+)(?:\.\d+)+/', '$1', $ver );
+
 			if ( ! preg_match( '/^\d+\.\d+\.\d+(?:-[0-9a-zA-Z-]+(?:\.[0-9a-zA-Z-]+)*)?(?:\+[0-9a-zA-Z-]+(?:\.[0-9a-zA-Z-]+)*)?$/', $ver ) ) {
 				// Invalid version, skip it.
 				$ver = '0.0.0';
