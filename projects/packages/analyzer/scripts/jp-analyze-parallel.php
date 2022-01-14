@@ -16,13 +16,6 @@ $jetpack_exclude = array( '.git', 'vendor', 'tests', 'docker', 'bin', 'scss', 'i
 class ScanManager {
 	private $count          = 0;
 	private $procs          = array();
-	private $pipez          = array();
-	private $descriptorspec = array(
-		0 => array( 'pipe', 'r' ),
-		1 => array( 'pipe', 'w' ),
-		2 => array( 'file', '/tmp/error-output.txt', 'a' ),
-	);
-
 	private $model;
 
 	public function __construct() {
@@ -31,10 +24,15 @@ class ScanManager {
 
 	public function start_proc( $folder_name ) {
 		echo 'Starting ' . basename( $folder_name ) . "\n";
-		$cmd = 'nohup php  ' . escapeshellarg( dirname( __DIR__ ) . '/scripts/jp-warnings-job.php' ) . ' ' . escapeshellarg( $folder_name ) . ' &';		$this->count++;
-		$process       = proc_open( $cmd, $this->descriptorspec, $pipes );
+		$cmd = 'nohup php ' . escapeshellarg( dirname( __DIR__ ) . '/scripts/jp-warnings-job.php' ) . ' ' . escapeshellarg( $folder_name ) . ' &';		$this->count++;
+
+		$descriptorspec = array(
+			0 => array( 'file', '/dev/null', 'r' ),
+			1 => array( 'file', dirname( __DIR__ ) . '/output.txt', 'a' ),
+			2 => array( 'file', dirname( __DIR__ ) . '/output.txt', 'a' ),
+		);
+		$process       = proc_open( $cmd, $descriptorspec, $pipes );
 		$this->procs[] = $process;
-		$this->pipez[] = $pipes;
 		$this->model->update_process( 0, basename( $folder_name ) );
 	}
 
@@ -42,22 +40,20 @@ class ScanManager {
 		foreach ( $this->procs as $id => $proc ) {
 			$status = proc_get_status( $proc );
 			if ( ! $status['running'] ) {
-				echo stream_get_contents( $this->pipez[ $id ][1] );
-				$folder_name = explode( ' ', $status['command'] )[2];
+				$folder_name = str_replace("'", '', explode( ' ', $status['command'] ))[3];
 				$this->model->update_process( -1, null, basename( $folder_name ) );
 
 				$this->count--;
 
 				proc_close( $proc );
 				unset( $this->procs[ $id ] );
-				unset( $this->pipez[ $id ] );
 
 				echo 'Done with ' . basename( $folder_name ) . "\n";
 			}
 		}
 	}
 
-	public function wait_for_procs( $count = 5 ) {
+	public function wait_for_procs( $count = 10 ) {
 		$this->check_procs();
 		while ( $this->count > $count ) {
 			sleep( 1 );
@@ -69,9 +65,9 @@ class ScanManager {
 		return $this->count;
 	}
 	public function scan( $arr ) {
-		$this->wait_for_procs();
 		$this->model->update_process( count( $arr ) );
 		foreach ( $arr as $folder_name ) {
+			$this->wait_for_procs();
 			$this->start_proc( $folder_name );
 		}
 
@@ -93,6 +89,7 @@ $pd = new PluginDownloader($type);
 $old_path = $pd->get_version($old);
 $new_path = $pd->get_version($new);
 
+Scripts::cleanup();
 Scripts::get_differences( $new_path, $old_path );
 
 // $arr = glob( $slurper_path . '/*' );

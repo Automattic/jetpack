@@ -48,14 +48,25 @@ class Scripts {
 		$invocations->scan( $folder_name, $excludes );
 		$invocations->save( $invocations_folder . basename( $folder_name ) . '.json', false );
 
-		echo "Removing " . $warnings_folder . "\n";
-		system( "rm -rf " . escapeshellarg( $warnings_folder ) );
-
 		echo "Generate warnings\n";
 		$warnings = new Warnings();
 		$warnings->generate( $invocations, $differences );
 		$warnings->output();
 		$warnings->save_json( $warnings_folder . basename( $folder_name ) . '.json', false );
+	}
+
+	static function cleanup() {
+		$diff_folder = dirname( __DIR__ ) . '/output/differences/';
+		$warnings_folder = dirname( __DIR__ ) . '/output/warnings/';
+		$invocations_folder = dirname( __DIR__ ) . '/output/invocations/';
+		echo "Removing " . $diff_folder . "\n";
+		system( "rm -rf " . escapeshellarg( $diff_folder ) );
+
+		echo "Removing " . $invocations_folder . "\n";
+		system( "rm -rf " . escapeshellarg( $invocations_folder ) );
+
+		echo "Removing " . $warnings_folder . "\n";
+		system( "rm -rf " . escapeshellarg( $warnings_folder ) );
 	}
 }
 
