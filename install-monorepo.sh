@@ -18,12 +18,18 @@ if [[ $1 ]]; then
 	usage
 fi
 
+# Exit function
+function abort {
+	echo "$*" >&2
+        exit 1
+}
+
 # Check if we're on a Mac or Linux, bail if we're not.
 OS="$(uname)"
 if [[ "$OS" == "Linux" ]]; then
 	ON_LINUX=1
 	if ! command -v apt &>/dev/null; then
-		abort "Installer script requires `apt` to ensure essentials are installed."
+		abort "Installer script requires 'apt' to ensure essentials are installed."
 	fi
 	sudo apt update
 	sudo apt install build-essential
@@ -33,11 +39,11 @@ fi
 
 # Check for curl and git
 if ! command -v git &>/dev/null; then
-	abort "Installer script requires `git` to be installed."
+	abort "Installer script requires 'git' to be installed."
 fi
 
 if ! command -v curl &>/dev/null; then
-	abort "Installer script requires `cURL` to be installed"
+	abort "Installer script requires 'cURL' to be installed"
 fi
 
 # Check of Homebrew and nvm are installed
