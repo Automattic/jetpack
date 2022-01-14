@@ -4,7 +4,8 @@ namespace Automattic\Jetpack_Boost\Modules\Critical_CSS;
 
 use Automattic\Jetpack_Boost\Modules\Critical_CSS\Generate\Generator;
 use Automattic\Jetpack_Boost\Modules\Critical_CSS\Path_Providers\Paths;
-use Automattic\Jetpack_Boost\Modules\Module;
+use Automattic\Jetpack_Boost\Modules\Generic_Module;
+use Automattic\Jetpack_Boost\REST_API\Contracts\Has_Endpoints;
 use Automattic\Jetpack_Boost\REST_API\Endpoints\Generator_Error;
 use Automattic\Jetpack_Boost\REST_API\Endpoints\Generator_Request;
 use Automattic\Jetpack_Boost\REST_API\Endpoints\Generator_Status;
@@ -12,7 +13,7 @@ use Automattic\Jetpack_Boost\REST_API\Endpoints\Generator_Success;
 use Automattic\Jetpack_Boost\REST_API\Endpoints\Recommendations_Dismiss;
 use Automattic\Jetpack_Boost\REST_API\Endpoints\Recommendations_Reset;
 
-class Critical_CSS extends Module {
+class Critical_CSS implements Generic_Module, Has_Endpoints {
 
 	const MODULE_SLUG              = 'critical-css';
 	const RESET_REASON_STORAGE_KEY = 'jb-generate-critical-css-reset-reason';
@@ -27,17 +28,17 @@ class Critical_CSS extends Module {
 	/**
 	 * Prepare module. This is run irrespective of the module activation status.
 	 */
-	public function on_prepare() {
+	public function __construct() {
 
-		$this->storage  = new Critical_CSS_Storage();
-		$this->paths    = new Paths();
+		$this->storage = new Critical_CSS_Storage();
+		$this->paths   = new Paths();
 
 	}
 
 	/**
 	 * This is only run if Critical CSS module has been activated.
 	 */
-	protected function on_initialize() {
+	public function initialize() {
 		// Touch to set-up the post type. This is a temporary hack.
 		// This should instantiate a new Post_Type_Storage class,
 		// so that Critical_CSS class is responsible
@@ -59,11 +60,8 @@ class Critical_CSS extends Module {
 		return true;
 	}
 
-	/**
-	 * Run on plugin uninstall
-	 */
-	public function on_uninstall() {
-		self::clear_reset_reason();
+	public function get_slug() {
+		return self::MODULE_SLUG;
 	}
 
 	/**
@@ -147,6 +145,13 @@ class Critical_CSS extends Module {
 
 	/**
 	 * Clear Critical CSS reset reason option.
+	 *
+	 * @TODO: Admin notices need to be moved elsewhere.
+	 *        Note: Looks like we need a way to <construct> and <destroy> options throughout the app.
+	 *        This is why it's currently awkwardly using a static method with a constant
+	 *        If we could trust classes to use constructors properly - without performing actions
+	 *        Then we could easily (and cheaply) instantiate all Boost objects
+	 *        and kindly ask them to delete themselves
 	 */
 	public static function clear_reset_reason() {
 		\delete_option( self::RESET_REASON_STORAGE_KEY );
@@ -167,7 +172,7 @@ class Critical_CSS extends Module {
 		return $constants;
 	}
 
-	public function get_api_routes() {
+	public function get_endpoints() {
 		return array(
 			Generator_Status::class,
 			Generator_Request::class,

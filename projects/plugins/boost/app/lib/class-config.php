@@ -13,7 +13,9 @@ class Config {
 	/**
 	 * @param string $option_name
 	 */
-	public function __construct( $option_name ) { $this->option_name = $option_name; }
+	public function __construct( $option_name ) {
+		$this->option_name = $option_name;
+	}
 
 
 	protected function get_options() {

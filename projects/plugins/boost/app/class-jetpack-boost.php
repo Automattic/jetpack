@@ -22,6 +22,7 @@ use Automattic\Jetpack_Boost\Modules\Critical_CSS\Regenerate_Admin_Notice;
 use Automattic\Jetpack_Boost\Modules\Lazy_Images\Lazy_Images;
 use Automattic\Jetpack_Boost\Modules\Module;
 use Automattic\Jetpack_Boost\Modules\Render_Blocking_JS\Render_Blocking_JS;
+use Automattic\Jetpack_Boost\REST_API\Contracts\Has_Endpoints;
 use Automattic\Jetpack_Boost\REST_API\REST_API;
 
 /**
@@ -196,25 +197,17 @@ class Jetpack_Boost {
 				continue;
 			}
 
-			// All Jetpack Boost modules should extend Module class.
-			if ( ! is_subclass_of( $module_class, Module::class ) ) {
-				continue;
-			}
-
 			/**
 			 * @var Module $module
 			 */
-			$module                  = new $module_class();
-			$modules[ $module_slug ] = $module;
+			$module = new $module_class();
+			$toggleable_module                  = new Module( $module );
+			$modules[ $module_slug ] = $toggleable_module;
 
+			if ( $module instanceof Has_Endpoints ) {
+				$module_routes = $module->get_endpoints();
+			}
 
-			add_action( 'jetpack_boost_deactivate', array( $module, 'on_deactivate' ) );
-			add_action( 'jetpack_boost_uninstall', array( $module, 'on_uninstall' ) );
-
-
-			$module->on_prepare();
-
-			$module_routes = $module->get_api_routes();
 			if ( ! empty( $module_routes ) ) {
 				$rest_api = new REST_API( $module_routes );
 				add_action( 'rest_api_init', array( $rest_api, 'register_rest_routes' ) );
@@ -314,6 +307,8 @@ class Jetpack_Boost {
 	 * @return \Automattic\Jetpack_Boost\Admin\Admin_Notice[]
 	 */
 	public function get_admin_notices() {
+		// @TODO
+		return array();
 		$all_notices = array();
 
 		foreach ( $this->get_active_modules() as $module ) {

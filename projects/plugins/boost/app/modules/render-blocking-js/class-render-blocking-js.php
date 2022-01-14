@@ -10,12 +10,12 @@
 namespace Automattic\Jetpack_Boost\Modules\Render_Blocking_JS;
 
 use Automattic\Jetpack_Boost\Lib\Output_Filter;
-use Automattic\Jetpack_Boost\Modules\Module;
+use Automattic\Jetpack_Boost\Modules\Generic_Module;
 
 /**
  * Class Render_Blocking_JS
  */
-class Render_Blocking_JS extends Module {
+class Render_Blocking_JS implements Generic_Module  {
 
 	const MODULE_SLUG = 'render-blocking-js';
 
@@ -56,10 +56,8 @@ class Render_Blocking_JS extends Module {
 	 */
 	private $is_opened_script = false;
 
-	/**
-	 * Code to run when module is started
-	 */
-	protected function on_initialize() {
+	
+	public function initialize() {
 		$this->output_filter = new Output_Filter();
 
 		// Set up the ignore attribute value.
@@ -301,4 +299,9 @@ class Render_Blocking_JS extends Module {
 		 */
 		return $opening_tags_count > $closing_tags_count;
 	}
+
+	public function get_slug() {
+		return self::MODULE_SLUG;
+	}
+
 }

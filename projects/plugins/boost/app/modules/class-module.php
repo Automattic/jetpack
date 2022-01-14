@@ -11,85 +11,31 @@ namespace Automattic\Jetpack_Boost\Modules;
 
 use Automattic\Jetpack_Boost\Lib\Analytics;
 use Automattic\Jetpack_Boost\Lib\Config;
-use Automattic\Jetpack_Boost\REST_API\Contracts\Endpoint;
 
-/**
- * Class Module
- */
-abstract class Module {
+class Module {
 
 	/**
 	 * @var Config
 	 */
 	protected $config;
 
-
-	public function __construct() {
-		$this->config = new Config( $this->get_slug() );
-	}
-
 	/**
-	 * Prepare the module such as add actions and filters.
+	 * @var Generic_Module
 	 */
-	public function on_prepare() { }
+	protected $module;
 
 
-	public function get_api_routes() {
-		return array();
+	public function __construct( $module_instance ) {
+		$this->module = $module_instance;
+		$this->config = new Config( $this->module->get_slug() );
 	}
 
 	/**
 	 * Initialize the module and track its state.
 	 */
-	final public function initialize() {
-		$this->on_initialize();
-		do_action( "jetpack_boost_{$this->get_slug()}_initialized", $this );
-	}
-
-	/**
-	 * Action(s) to perform when module is activated.
-	 * Required for modules that extend this class.
-	 *
-	 * @return bool
-	 */
-	abstract protected function on_initialize();
-
-	/**
-	 * Run actions on plugin deactivation.
-	 *
-	 * Override this method in a specific module class to run deactivation
-	 * tasks hooked to jetpack_boost_deactivate action.
-	 *
-	 * @see Module::__construct()
-	 * @see Jetpack_Boost::deactivate()
-	 */
-	public function on_deactivate() { }
-
-	/**
-	 * Run actions on plugin uninstall.
-	 *
-	 * Override this method in a specific module class to run uninstall
-	 * tasks hooked to jetpack_boost_uninstall action.
-	 *
-	 * @see Module::__construct()
-	 * @see Jetpack_Boost::uninstall()
-	 */
-	public function on_uninstall() { }
-
-	/**
-	 * Overrideable method for fetching an array of admin notices to display.
-	 * Each admin notice should be a child class of Admin_Notice.
-	 *
-	 * @return null|\Automattic\Jetpack_Boost\Admin\Admin_Notice[]
-	 */
-	public function get_admin_notices() {
-		return NULL;
-	}
-
-	public function get_slug() {
-		// @TODO: Module slugs are currently not enforced because they're slugs.
-		// This method should probably be an abstract requirement
-		return static::MODULE_SLUG;
+	public function initialize() {
+		$this->module->initialize();
+		do_action( "jetpack_boost_{$this->module->get_slug()}_initialized", $this );
 	}
 
 	public function is_enabled() {
@@ -121,7 +67,7 @@ abstract class Module {
 		Analytics::record_user_event(
 			'set_module_status',
 			array(
-				'module' => $this->get_slug(),
+				'module' => $this->module->get_slug(),
 				'status' => $status,
 			)
 		);
