@@ -26,28 +26,8 @@ function jetpack_descript_enable_embeds() {
 	// Allow script to be filtered to short code (so direct copy+paste can be done).
 	add_filter( 'pre_kses', 'jetpack_shortcodereverse_descript' );
 
-	// Descript rejects any request with the dnt query param, this removes the dnt from the oembed request.
-	add_filter( 'oembed_fetch_url', 'jetpack_descript_remove_dnt' );
-
 	// Actually display the descript Embed.
 	add_shortcode( 'descript', 'jetpack_descript_shortcode' );
-}
-
-/**
- * Removes the dnt parameter from the oembed request.
- *
- * @since 10.4
- *
- * @param string $provider the oembed request URL.
- *
- * @return string URL without dnt param
- */
-function jetpack_descript_remove_dnt( $provider ) {
-	if ( ! is_string( $provider ) || false === stripos( $provider, 'share.descript.com' ) ) {
-		return $provider;
-	} else {
-		return remove_query_arg( 'dnt', $provider );
-	}
 }
 
 /**
@@ -126,15 +106,7 @@ function jetpack_descript_shortcode( $atts ) {
 		esc_attr( $id )
 	);
 
-	/*
-	Descript embed requests fail if the dnt header is added.
-	This checks whether the visitor has the flag enabled. If yes, we render a link instead of embedding and dishonoring their dnt wishes.
-	*/
-	if ( jetpack_is_dnt_enabled() ) {
-		$embed_code = sprintf( '<a href="%1$s">%1$s</a>', $embed_url );
-	} else {
-		$embed_code = wp_oembed_get( $embed_url, array_filter( $params ) );
-	}
+	$embed_code = wp_oembed_get( $embed_url, array_filter( $params ) );
 
 	// wrap the embed with wp-block-embed__wrapper, otherwise it would be aligned to the very left of the viewport.
 	return sprintf(
