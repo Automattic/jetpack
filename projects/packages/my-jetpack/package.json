@@ -19,7 +19,7 @@
 		"clean": "rm -rf build/",
 		"install-if-deps-outdated": "pnpm install --no-prod --frozen-lockfile",
 		"watch": "pnpm run build && pnpm webpack watch",
-		"test": "js-test-runner jest"
+		"test": "js-test-runner jest --passWithNoTests"
 	},
 	"dependencies": {
 		"@automattic/jetpack-components": "workspace:^0.10.1-alpha",
