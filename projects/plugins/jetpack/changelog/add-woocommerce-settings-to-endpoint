@@ -1,0 +1,4 @@
+Significance: patch
+Type: other
+
+Adds WooCommerce settings to the /v1.4/sites/$site/settings endpoint.

@@ -108,8 +108,6 @@ async function reportTestRunResults( suite = 'Jetpack e2e tests' ) {
 		}
 	} );
 
-	console.log( failureDetails );
-
 	// build the notification blocks
 	const mainMsgBlocks = await buildDefaultMessage( result.success );
 
