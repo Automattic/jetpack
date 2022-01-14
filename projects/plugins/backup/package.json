@@ -28,7 +28,7 @@
 		"extends @wordpress/browserslist-config"
 	],
 	"dependencies": {
-		"@automattic/jetpack-api": "workspace:^0.8.1",
+		"@automattic/jetpack-api": "workspace:^0.8.2-alpha",
 		"@automattic/jetpack-components": "workspace:^0.10.1-alpha",
 		"@automattic/jetpack-connection": "workspace:^0.14.0-alpha",
 		"@wordpress/api-fetch": "5.2.6",
@@ -41,7 +41,7 @@
 	},
 	"devDependencies": {
 		"@automattic/jetpack-base-styles": "workspace:^0.1.5-alpha",
-		"@automattic/jetpack-webpack-config": "workspace:^1.0.1",
+		"@automattic/jetpack-webpack-config": "workspace:^1.0.2-alpha",
 		"@babel/core": "7.16.0",
 		"@babel/preset-env": "7.16.4",
 		"@babel/register": "7.16.0",
@@ -54,7 +54,7 @@
 		"webpack-cli": "4.9.1"
 	},
 	"engines": {
-		"node": "^14.17.6 || ^16.7.0",
+		"node": "^14.18.3 || ^16.13.2",
 		"pnpm": "^6.23.6",
 		"yarn": "use pnpm instead - see docs/yarn-upgrade.md"
 	}
