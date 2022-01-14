@@ -11,6 +11,7 @@ namespace Automattic\Jetpack_Boost\Modules;
 
 use Automattic\Jetpack_Boost\Lib\Analytics;
 use Automattic\Jetpack_Boost\Lib\Config;
+use Automattic\Jetpack_Boost\REST_API\Contracts\Endpoint;
 
 /**
  * Class Module
@@ -22,29 +23,20 @@ abstract class Module {
 	 */
 	protected $config;
 
+
 	public function __construct() {
 		$this->config = new Config( $this->get_slug() );
-	}
-
-	/**
-	 * Modules extending this class will auto-register routes
-	 * using `register_rest_routes` method if it's available.
-	 */
-	public static function prepare() {
-		$module = new static();
-
-		add_action( 'jetpack_boost_deactivate', array( $module, 'on_deactivate' ) );
-		add_action( 'jetpack_boost_uninstall', array( $module, 'on_uninstall' ) );
-
-		$module->on_prepare();
-
-		return $module;
 	}
 
 	/**
 	 * Prepare the module such as add actions and filters.
 	 */
 	public function on_prepare() { }
+
+
+	public function get_api_routes() {
+		return array();
+	}
 
 	/**
 	 * Initialize the module and track its state.

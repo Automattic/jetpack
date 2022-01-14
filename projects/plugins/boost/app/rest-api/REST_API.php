@@ -2,28 +2,21 @@
 
 namespace Automattic\Jetpack_Boost\REST_API;
 
-use Automattic\Jetpack_Boost\REST_API\Endpoints\Generator_Error;
-use Automattic\Jetpack_Boost\REST_API\Endpoints\Generator_Request;
-use Automattic\Jetpack_Boost\REST_API\Endpoints\Generator_Status;
-use Automattic\Jetpack_Boost\REST_API\Endpoints\Generator_Success;
-use Automattic\Jetpack_Boost\REST_API\Endpoints\Recommendations_Dismiss;
-use Automattic\Jetpack_Boost\REST_API\Endpoints\Recommendations_Reset;
+use Automattic\Jetpack_Boost\REST_API\Contracts\Endpoint;
 
 class REST_API {
 
-	protected $available_routes = array(
-		Generator_Status::class,
-		Generator_Request::class,
-		Generator_Success::class,
-		Recommendations_Dismiss::class,
-		Recommendations_Reset::class,
-		Generator_Error::class,
-	);
 
+	/**
+	 * @var Route[]
+	 */
 	protected $routes = array();
 
-	public function __construct() {
-		foreach ( $this->available_routes as $route_class ) {
+	/**
+	 * @param Endpoint[] $routes
+	 */
+	public function __construct( $routes ) {
+		foreach ( $routes as $route_class ) {
 			$this->routes[] = new Route( $route_class );
 		}
 	}

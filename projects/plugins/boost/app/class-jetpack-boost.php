@@ -115,9 +115,6 @@ class Jetpack_Boost {
 
 		add_action( 'handle_theme_change', array( $this, 'handle_theme_change' ) );
 
-		$rest_api = new REST_API();
-		add_action( 'rest_api_init', array( $rest_api, 'register_rest_routes' ) );
-
 		// Fired when plugin ready.
 		do_action( 'jetpack_boost_loaded', $this );
 	}
@@ -204,8 +201,26 @@ class Jetpack_Boost {
 				continue;
 			}
 
-			$modules[ $module_slug ] = $module_class::prepare();
+			/**
+			 * @var Module $module
+			 */
+			$module                  = new $module_class();
+			$modules[ $module_slug ] = $module;
+
+
+			add_action( 'jetpack_boost_deactivate', array( $module, 'on_deactivate' ) );
+			add_action( 'jetpack_boost_uninstall', array( $module, 'on_uninstall' ) );
+
+
+			$module->on_prepare();
+
+			$module_routes = $module->get_api_routes();
+			if ( ! empty( $module_routes ) ) {
+				$rest_api = new REST_API( $module_routes );
+				add_action( 'rest_api_init', array( $rest_api, 'register_rest_routes' ) );
+			}
 		}
+
 
 		do_action( 'jetpack_boost_modules_loaded' );
 		return $modules;

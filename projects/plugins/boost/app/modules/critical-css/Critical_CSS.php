@@ -5,6 +5,12 @@ namespace Automattic\Jetpack_Boost\Modules\Critical_CSS;
 use Automattic\Jetpack_Boost\Modules\Critical_CSS\Generate\Generator;
 use Automattic\Jetpack_Boost\Modules\Critical_CSS\Path_Providers\Paths;
 use Automattic\Jetpack_Boost\Modules\Module;
+use Automattic\Jetpack_Boost\REST_API\Endpoints\Generator_Error;
+use Automattic\Jetpack_Boost\REST_API\Endpoints\Generator_Request;
+use Automattic\Jetpack_Boost\REST_API\Endpoints\Generator_Status;
+use Automattic\Jetpack_Boost\REST_API\Endpoints\Generator_Success;
+use Automattic\Jetpack_Boost\REST_API\Endpoints\Recommendations_Dismiss;
+use Automattic\Jetpack_Boost\REST_API\Endpoints\Recommendations_Reset;
 
 class Critical_CSS extends Module {
 
@@ -159,5 +165,16 @@ class Critical_CSS extends Module {
 		$constants['criticalCssStatus'] = $generator->get_local_critical_css_generation_info();
 
 		return $constants;
+	}
+
+	public function get_api_routes() {
+		return array(
+			Generator_Status::class,
+			Generator_Request::class,
+			Generator_Success::class,
+			Recommendations_Dismiss::class,
+			Recommendations_Reset::class,
+			Generator_Error::class,
+		);
 	}
 }
