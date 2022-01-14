@@ -330,7 +330,7 @@ importers:
   projects/js-packages/partner-coupon:
     specifiers:
       '@automattic/jetpack-components': workspace:^0.10.1-alpha
-      '@automattic/jetpack-connection': workspace:^0.13.1-alpha
+      '@automattic/jetpack-connection': workspace:^0.14.0-alpha
       '@wordpress/i18n': 4.2.4
       classnames: 2.3.1
       jetpack-js-test-runner: workspace:*
@@ -494,7 +494,7 @@ importers:
   projects/packages/connection-ui:
     specifiers:
       '@automattic/jetpack-api': workspace:^0.8.1
-      '@automattic/jetpack-connection': workspace:^0.13.1-alpha
+      '@automattic/jetpack-connection': workspace:^0.14.0-alpha
       '@automattic/jetpack-webpack-config': workspace:^1.0.1
       '@babel/core': 7.16.0
       '@babel/preset-env': 7.16.4
@@ -595,7 +595,7 @@ importers:
     specifiers:
       '@automattic/jetpack-base-styles': workspace:^0.1.5-alpha
       '@automattic/jetpack-components': workspace:^0.10.1-alpha
-      '@automattic/jetpack-connection': workspace:^0.13.1-alpha
+      '@automattic/jetpack-connection': workspace:^0.14.0-alpha
       '@automattic/jetpack-webpack-config': workspace:^1.0.1
       '@babel/core': 7.16.0
       '@babel/preset-env': 7.16.4
@@ -738,7 +738,7 @@ importers:
       '@automattic/jetpack-api': workspace:^0.8.1
       '@automattic/jetpack-base-styles': workspace:^0.1.5-alpha
       '@automattic/jetpack-components': workspace:^0.10.1-alpha
-      '@automattic/jetpack-connection': workspace:^0.13.1-alpha
+      '@automattic/jetpack-connection': workspace:^0.14.0-alpha
       '@automattic/jetpack-webpack-config': workspace:^1.0.1
       '@babel/core': 7.16.0
       '@babel/preset-env': 7.16.4
@@ -861,7 +861,7 @@ importers:
       '@automattic/jetpack-api': workspace:^0.8.1
       '@automattic/jetpack-base-styles': workspace:^0.1.5-alpha
       '@automattic/jetpack-components': workspace:^0.10.1-alpha
-      '@automattic/jetpack-connection': workspace:^0.13.1-alpha
+      '@automattic/jetpack-connection': workspace:^0.14.0-alpha
       '@automattic/jetpack-licensing': workspace:^0.4.3-alpha
       '@automattic/jetpack-partner-coupon': workspace:^0.1.5-alpha
       '@automattic/jetpack-webpack-config': workspace:^1.0.1
@@ -18248,7 +18248,7 @@ packages:
       klona: 2.0.5
       postcss: 8.3.11
       semver: 7.3.5
-      webpack: 5.65.0_webpack-cli@4.9.1
+      webpack: 5.65.0
     dev: true
 
   /postcss-merge-longhand/5.0.4_postcss@8.4.5:
