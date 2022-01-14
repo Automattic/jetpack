@@ -38,7 +38,7 @@ function PlanSection( { purchase = {} } ) {
 function PlanSectionHeader() {
 	return (
 		<>
-			<h3>{ __( 'My Plan', 'jetpack-my-jetpack' ) }</h1>
+			<h3>{ __( 'My Plan', 'jetpack-my-jetpack' ) }</h3>
 			<p>{ __( 'The extra power you added to your Jetpack.', 'jetpack-my-jetpack' ) }</p>
 			<p>
 				<ExternalLink href={ getManageYourPlanUrl() }>
