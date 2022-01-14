@@ -173,7 +173,7 @@ class Differences extends PersistentList {
 
 				default:
 					// TODO: Implement handlers to other difference types.
-					echo $obj->diff_type . " not implemented!\n"; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
+					echo "Difference not implemented: " . $obj->diff_type . "\n"; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
 					break;
 			}
 		}
