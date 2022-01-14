@@ -56,7 +56,7 @@
 		"@automattic/jetpack-analytics": "workspace:^0.1.5",
 		"@automattic/jetpack-api": "workspace:^0.8.1",
 		"@automattic/jetpack-components": "workspace:^0.10.1-alpha",
-		"@automattic/jetpack-connection": "workspace:^0.13.0-alpha",
+		"@automattic/jetpack-connection": "workspace:^0.13.1-alpha",
 		"@automattic/jetpack-licensing": "workspace:^0.4.3-alpha",
 		"@automattic/jetpack-partner-coupon": "workspace:^0.1.5-alpha",
 		"@automattic/popup-monitor": "1.0.0",
