@@ -601,6 +601,7 @@ importers:
       '@babel/preset-env': 7.16.4
       '@babel/register': 7.16.0
       '@babel/runtime': 7.16.3
+      '@storybook/testing-react': 1.2.3
       '@testing-library/dom': 8.11.1
       '@testing-library/jest-dom': 5.14.1
       '@testing-library/react': 11.2.7
@@ -631,6 +632,7 @@ importers:
       '@babel/preset-env': 7.16.4_@babel+core@7.16.0
       '@babel/register': 7.16.0_@babel+core@7.16.0
       '@babel/runtime': 7.16.3
+      '@storybook/testing-react': 1.2.3_react@17.0.2
       '@testing-library/dom': 8.11.1
       '@testing-library/jest-dom': 5.14.1
       '@testing-library/react': 11.2.7_react-dom@17.0.2+react@17.0.2
@@ -6071,6 +6073,20 @@ packages:
       synchronous-promise: 2.0.15
       ts-dedent: 2.2.0
       util-deprecate: 1.0.2
+    dev: true
+
+  /@storybook/testing-react/1.2.3_react@17.0.2:
+    resolution: {integrity: sha512-4KK2cdux58bO5NToGdo/Y3HQXL26CsHSo3cqbrowrIZL5JW/gcFFUbYEAwjcn+Cf2vy+FnZAKOXfCZf+j1yRdQ==}
+    engines: {node: '>=10'}
+    peerDependencies:
+      '@storybook/addons': '>=6.4.0'
+      '@storybook/client-api': '>=6.4.0'
+      '@storybook/preview-web': '>=6.4.0'
+      '@storybook/react': '>=6.4.0'
+      react: ^16.8.0 || ^17.0.0
+    dependencies:
+      '@storybook/csf': 0.0.2--canary.87bc651.0
+      react: 17.0.2
     dev: true
 
   /@storybook/theming/6.4.10_react-dom@17.0.2+react@17.0.2:
