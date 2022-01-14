@@ -536,7 +536,7 @@ importers:
 
   projects/packages/identity-crisis:
     specifiers:
-      '@automattic/jetpack-idc': workspace:^0.8.2-alpha
+      '@automattic/jetpack-idc': workspace:^0.9.0-alpha
       '@automattic/jetpack-webpack-config': workspace:^1.0.2-alpha
       '@babel/core': 7.16.0
       '@babel/preset-env': 7.16.4
