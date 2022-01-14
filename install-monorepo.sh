@@ -72,7 +72,7 @@ if ! command -v nvm &>/dev/null; then
 	curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.39.0/install.sh | bash && export NVM_DIR=$HOME/.nvm && source $NVM_DIR/nvm.sh  --no-use
 else
 	echo "Updating nvm"
-	curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.39.0/install.sh | bash  || true
+	curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.39.0/install.sh | bash
 fi
 
 # Install and use the correct version of Node.js
