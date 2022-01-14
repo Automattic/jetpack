@@ -606,6 +606,7 @@ importers:
       '@wordpress/i18n': 4.2.4
       enzyme: 3.11.0
       jest: 27.3.1
+      jetpack-js-test-runner: workspace:1.0.0
       react: 17.0.2
       react-dom: 17.0.2
       sass: 1.43.3
@@ -627,6 +628,7 @@ importers:
       '@babel/runtime': 7.16.3
       enzyme: 3.11.0
       jest: 27.3.1
+      jetpack-js-test-runner: link:../../../tools/js-test-runner
       react: 17.0.2
       react-dom: 17.0.2_react@17.0.2
       sass: 1.43.3
@@ -19695,7 +19697,7 @@ packages:
     dependencies:
       array.prototype.flat: 1.2.5
       global-cache: 1.2.1
-      react-with-styles: 3.2.3
+      react-with-styles: 3.2.3_react-dom@17.0.2+react@17.0.2
 
   /react-with-styles/3.2.3:
     resolution: {integrity: sha512-MTI1UOvMHABRLj5M4WpODfwnveHaip6X7QUMI2x6zovinJiBXxzhA9AJP7MZNaKqg1JRFtHPXZdroUC8KcXwlQ==}
@@ -20749,7 +20751,7 @@ packages:
       klona: 2.0.5
       neo-async: 2.6.2
       sass: 1.43.3
-      webpack: 5.65.0_webpack-cli@4.9.1
+      webpack: 5.65.0
     dev: true
 
   /sass-loader/12.4.0_webpack@5.65.0:

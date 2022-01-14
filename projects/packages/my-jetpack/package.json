@@ -18,7 +18,8 @@
 		"build-client": "pnpm webpack --config webpack.config.js",
 		"clean": "rm -rf build/",
 		"install-if-deps-outdated": "pnpm install --no-prod --frozen-lockfile",
-		"watch": "pnpm run build && pnpm webpack watch"
+		"watch": "pnpm run build && pnpm webpack watch",
+		"test": "js-test-runner jest"
 	},
 	"dependencies": {
 		"@automattic/jetpack-components": "workspace:^0.10.1-alpha",
@@ -40,6 +41,7 @@
 		"@babel/runtime": "7.16.3",
 		"enzyme": "3.11.0",
 		"jest": "27.3.1",
+		"jetpack-js-test-runner": "workspace:1.0.0",
 		"react": "17.0.2",
 		"react-dom": "17.0.2",
 		"sass": "1.43.3",
