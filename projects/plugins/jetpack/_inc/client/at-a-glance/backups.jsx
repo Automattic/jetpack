@@ -16,6 +16,7 @@ import { getRedirectUrl } from '@automattic/jetpack-components';
 /**
  * Internal dependencies
  */
+import analytics from 'lib/analytics';
 import Card from 'components/card';
 import DashItem from 'components/dash-item';
 import JetpackBanner from 'components/jetpack-banner';
@@ -85,6 +86,14 @@ class DashBackups extends Component {
 		isVaultPressInstalled: false,
 		rewindStatus: '',
 		trackUpgradeButtonView: noop,
+	};
+
+	trackBackupsClick = () => {
+		analytics.tracks.recordJetpackClick( {
+			type: 'backups-link',
+			target: 'at-a-glance',
+			feature: 'backups',
+		} );
 	};
 
 	getVPContent() {
@@ -189,7 +198,15 @@ class DashBackups extends Component {
 	getRewindContent() {
 		const { planClass, rewindStatus, siteRawUrl } = this.props;
 		const buildAction = ( url, message ) => (
-			<Card compact key="manage-backups" className="jp-dash-item__manage-in-wpcom" href={ url }>
+			<Card
+				compact
+				key="manage-backups"
+				className="jp-dash-item__manage-in-wpcom"
+				href={ url }
+				target="_blank"
+				rel="noopener noreferrer"
+				onClick={ this.trackBackupsClick }
+			>
 				{ message }
 			</Card>
 		);

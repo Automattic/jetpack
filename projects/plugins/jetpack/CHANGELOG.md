@@ -2,7 +2,29 @@
 
 ### This is a list detailing changes for all Jetpack releases.
 
-## 10.5-beta - 2022-01-04
+## 10.6-a.1 - 2022-01-11
+### Improved compatibility
+- Subscription form: update the placeholder color to be the same as the text color of the site.
+
+### Bug fixes
+- Donations block: add a missing closing div for the front-end rendering.
+- Donations block: don't display the donations block to visitors unless Stripe is connected.
+- Donations block: fixed an issue which was invalidating existing blocks if they were edited by non-plan owners.
+- Donations block: tweak currency display for the edit control.
+- Protect: fixed math fallback's input accessibility and display.
+- Subscription form: adding a default line-height to avoid differences using different font-faces on input and button elements
+
+### Other changes <!-- Non-user-facing changes go here. This section will not be copied to readme.txt. -->
+- Dashboard: update the links to different Jetpack features in the dashboard.
+- Moved numberFormat component into components js package.
+- Refactor PluginDashItem component to be functional and add README.
+- Remove use of deprecated `~` in sass-loader imports.
+- Search: migrate Classic and Instant Search code to Search package.
+- Search: move search dashboard to the search package.
+- Social Menu: remove role navigation attribute from nav item.
+- VideoPress: change allow_download data path from API (wpcom compat).
+
+## 10.5 - 2022-01-11
 ### Enhancements
 - Print Styles: additional interactive elements are now hidden when printing posts (e.g. Likes, Recommended Posts, Share this).
 - VideoPress: add "allow download" option on videos to allow viewers to download the video.
@@ -23,21 +45,26 @@
 - Jetpack: activate the default modules when the site has already been connected before plugin activation.
 - Jetpack: do not display recommendations during an identity crisis.
 - Search: fix styling conflict for Blank Canvas theme.
+- Security: PDF embeds now only display a link, to avoid issues with malicious PDFss that may run arbitrary code.
 - Settings menu: add Jetpack item for sites with Scan product.
 - Sharing Buttons: rely on official sharing buttons only for Facebook share counts.
 - Stats: do not trigger views when post is embedded into another site.
 - VideoPress: reload embed preview on creation until the video size is known.
 - Vimeo Embeds: support more URL formats, such as videos in playlists.
 - WhatsApp block: fix country code for Cyprus.
+- Widget Visibility: fix "Match All" setting being overwritten on save in the block widget editor.
 
 ### Other changes <!-- Non-user-facing changes go here. This section will not be copied to readme.txt. -->
+- AAG upgrade banner: do not display on WoA sites
 - Add get_current_plan() to the WPcom_Admin_Menu.
+- Admin Page: remove CRM card for now.
 - Dashboard: add Jetpack Security Bundle upsell to AAG.
 - Dashboard: add new cards to AAG Dashboard for Boost and CRM plugins.
 - Dashboard: updates the Apps card on the At a Glance page to display links to the Jetpack mobile apps.
 - E2E tests: update readme docs.
 - E2E tests renovate: bump dependencies.
 - Fix a legacy sync test in PHPUnit 9.5.
+- Fix modules using `this` to mean `window`.
 - Hide irrelevant menu items for P2 sites
 - Instant Search: Add missing translator comments and use ordered placeholders in JS sprintf.
 - Janitorial: fix phpcs warnings in multiple widget files.
