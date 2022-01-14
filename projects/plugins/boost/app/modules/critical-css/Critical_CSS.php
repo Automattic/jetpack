@@ -4,7 +4,6 @@ namespace Automattic\Jetpack_Boost\Modules\Critical_CSS;
 
 use Automattic\Jetpack_Boost\Modules\Critical_CSS\Generate\Generator;
 use Automattic\Jetpack_Boost\Modules\Critical_CSS\Path_Providers\Paths;
-use Automattic\Jetpack_Boost\REST_API\Boost_API;
 use Automattic\Jetpack_Boost\Modules\Module;
 
 class Critical_CSS extends Module {
@@ -19,8 +18,6 @@ class Critical_CSS extends Module {
 	 */
 	protected $storage;
 
-	private $rest_api;
-
 	/**
 	 * Prepare module. This is run irrespective of the module activation status.
 	 */
@@ -28,8 +25,6 @@ class Critical_CSS extends Module {
 
 		$this->storage  = new Critical_CSS_Storage();
 		$this->paths    = new Paths();
-		$this->rest_api = new Boost_API();
-		add_filter( 'jetpack_boost_js_constants', array( $this, 'boost_api_nonces' ) );
 
 	}
 
@@ -43,8 +38,6 @@ class Critical_CSS extends Module {
 		// for setting up the storage.
 		$recommendations = new Recommendations();
 		$recommendations->attach_hooks();
-
-		add_action( 'rest_api_init', array( $this->rest_api, 'register_rest_routes' ) );
 
 		add_action( 'wp', array( $this, 'display_critical_css' ) );
 
@@ -164,12 +157,6 @@ class Critical_CSS extends Module {
 		// Information about the current status of Critical CSS / generation.
 		$generator                      = new Generator();
 		$constants['criticalCssStatus'] = $generator->get_local_critical_css_generation_info();
-
-		return $constants;
-	}
-
-	public function boost_api_nonces( $constants ) {
-		$constants['nonces'] = $this->rest_api->get_nonces();
 
 		return $constants;
 	}

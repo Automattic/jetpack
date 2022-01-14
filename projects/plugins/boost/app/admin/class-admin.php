@@ -14,6 +14,7 @@ use Automattic\Jetpack_Boost\Jetpack_Boost;
 use Automattic\Jetpack_Boost\Lib\Analytics;
 use Automattic\Jetpack_Boost\Lib\Environment_Change_Detector;
 use Automattic\Jetpack_Boost\Lib\Speed_Score;
+use Automattic\Jetpack_Boost\REST_API\Permissions\Nonce;
 
 /**
  * Class Admin
@@ -162,6 +163,15 @@ class Admin {
 			'preferences'         => array(
 				'showRatingPrompt' => $this->get_show_rating_prompt(),
 			),
+
+
+			/**
+			 * A bit of necessary magic,
+			 * Explained more in the Nonce class.
+			 *
+			 * Nonces are automatically generated when registering routes.
+			 */
+			'nonces' => Nonce::get_generated_nonces()
 		);
 
 		// Give each module an opportunity to define extra constants.

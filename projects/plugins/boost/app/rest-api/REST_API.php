@@ -35,8 +35,4 @@ class REST_API {
 		}
 	}
 
-	public function get_nonces() {
-		return Nonce::get_generated_nonces();
-	}
-
 }

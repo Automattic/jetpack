@@ -22,6 +22,7 @@ use Automattic\Jetpack_Boost\Modules\Critical_CSS\Regenerate_Admin_Notice;
 use Automattic\Jetpack_Boost\Modules\Lazy_Images\Lazy_Images;
 use Automattic\Jetpack_Boost\Modules\Module;
 use Automattic\Jetpack_Boost\Modules\Render_Blocking_JS\Render_Blocking_JS;
+use Automattic\Jetpack_Boost\REST_API\REST_API;
 
 /**
  * The core plugin class.
@@ -113,6 +114,9 @@ class Jetpack_Boost {
 		add_action( 'init', array( $this, 'register_cache_clear_actions' ) );
 
 		add_action( 'handle_theme_change', array( $this, 'handle_theme_change' ) );
+
+		$rest_api = new REST_API();
+		add_action( 'rest_api_init', array( $rest_api, 'register_rest_routes' ) );
 
 		// Fired when plugin ready.
 		do_action( 'jetpack_boost_loaded', $this );
