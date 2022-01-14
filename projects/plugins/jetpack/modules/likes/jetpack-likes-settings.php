@@ -1,4 +1,4 @@
-<?php
+<?php // phpcs:ignore WordPress.Files.FileName.InvalidClassFileName
 /**
  * Module Name: Jetpack Likes
  *
@@ -71,7 +71,7 @@ class Jetpack_Likes_Settings {
 		$disabled        = ! $this->is_enabled_sitewide();
 		$switched_status = get_post_meta( $post_id, 'switch_like_status', true );
 
-		if ( $disabled && empty( $switched_status ) || ! $disabled && $switched_status === '0' ) {
+		if ( $disabled && empty( $switched_status ) || ! $disabled && '0' === $switched_status ) {
 			$checked = false;
 		}
 
@@ -136,13 +136,16 @@ class Jetpack_Likes_Settings {
 			return $post_id;
 		}
 
+		// phpcs:ignore WordPress.Security.NonceVerification.Missing -- we are only checking if $_POST['wpl_like_status_hidden'] is not empty, so ignoring the nonce verification.
 		if ( empty( $_POST['wpl_like_status_hidden'] ) ) {
 			return $post_id;
 		}
 
 		// Record sharing disable. Only needs to be done for WPCOM.
 		if ( ! $this->in_jetpack ) {
-			if ( isset( $_POST['post_type'] ) && in_array( $_POST['post_type'], get_post_types( array( 'public' => true ) ) ) ) {
+			// phpcs:ignore WordPress.Security.NonceVerification.Missing -- we are only checking if $_POST['post_type'] is set and checking if it's included in the list of post types returned by get_post_types( array( 'public' => true ) ). 
+			if ( isset( $_POST['post_type'] ) && in_array( $_POST['post_type'], get_post_types( array( 'public' => true ) ), true ) ) {
+				// phpcs:ignore WordPress.Security.NonceVerification.Missing -- we are only checking if $_POST['wpl_enable_post_sharing'] is not empty, so ignoring the nonce verification.
 				if ( ! isset( $_POST['wpl_enable_post_sharing'] ) ) {
 					update_post_meta( $post_id, 'sharing_disabled', 1 );
 				} else {
@@ -151,7 +154,8 @@ class Jetpack_Likes_Settings {
 			}
 		}
 
-		if ( 'post' == $_POST['post_type'] ) {
+		// phpcs:ignore WordPress.Security.NonceVerification.Missing -- we are only checking if $_POST['post_type'] is not empty, so ignoring the nonce verification.
+		if ( 'post' === $_POST['post_type'] ) {
 			if ( ! current_user_can( 'edit_post', $post_id ) ) {
 				return $post_id;
 			}
@@ -159,14 +163,18 @@ class Jetpack_Likes_Settings {
 
 		// Record a change in like status for this post - only if it contradicts the
 		// site like setting. If it doesn't contradict, then we delete the new individual status.
+		// phpcs:ignore WordPress.Security.NonceVerification.Missing -- we are only checking if $_POST['wpl_enable_post_likes'] is not empty, so ignoring the nonce verification.
 		if ( ! $this->is_enabled_sitewide() && ! empty( $_POST['wpl_enable_post_likes'] ) ) {
-			// Likes turned on for individual posts. User wants to add the button to a single post
+			// Likes turned on for individual posts. User wants to add the button to a single post.
 			update_post_meta( $post_id, 'switch_like_status', 1 );
+		// phpcs:ignore WordPress.Security.NonceVerification.Missing -- we are only checking if $_POST['wpl_enable_post_likes'] is not empty, so ignoring the nonce verification.
 		} elseif ( $this->is_enabled_sitewide() && empty( $_POST['wpl_enable_post_likes'] ) ) {
-			// Likes turned on for all posts. User wants to remove the button from a single post
+			// Likes turned on for all posts. User wants to remove the button from a single post.
 			update_post_meta( $post_id, 'switch_like_status', 0 );
 		} elseif (
+			// phpcs:ignore WordPress.Security.NonceVerification.Missing -- we are only checking if $_POST['wpl_enable_post_likes'] is not empty, so ignoring the nonce verification.
 			( ! $this->is_enabled_sitewide() && empty( $_POST['wpl_enable_post_likes'] ) ) ||
+			// phpcs:ignore WordPress.Security.NonceVerification.Missing -- we are only checking if $_POST['wpl_enable_post_likes'] is not empty, so ignoring the nonce verification.
 			( $this->is_enabled_sitewide() && ! empty( $_POST['wpl_enable_post_likes'] ) )
 		) {
 			// User wants to update the likes button status for an individual post, but the new status
@@ -190,7 +198,7 @@ class Jetpack_Likes_Settings {
 		<p>
 			<label for="wpl_enable_post_sharing">
 				<input type="checkbox" name="wpl_enable_post_sharing" id="wpl_enable_post_sharing" value="1" <?php checked( ! $disabled ); ?>>
-				<?php _e( 'Show sharing buttons.', 'jetpack' ); ?>
+				<?php esc_html_e( 'Show sharing buttons.', 'jetpack' ); ?>
 			</label>
 			<input type="hidden" name="wpl_sharing_status_hidden" value="1" />
 		</p> 
@@ -229,7 +237,8 @@ class Jetpack_Likes_Settings {
 	 * Returns the settings have been saved message.
 	 */
 	public function updated_message() {
-		if ( isset( $_GET['update'] ) && $_GET['update'] == 'saved' ) {
+		// phpcs:disable WordPress.Security.NonceVerification.Recommended -- we are checking if $_GET['update'] is not empty and if it's 'saved'.
+		if ( isset( $_GET['update'] ) && 'saved' === $_GET['update'] ) {
 			echo '<div class="updated"><p>' . esc_html__( 'Settings have been saved', 'jetpack' ) . '</p></div>';
 		}
 	}
@@ -254,7 +263,7 @@ class Jetpack_Likes_Settings {
 				<input type="submit" name="submit" class="button-primary" value="<?php esc_attr_e( 'Save Changes', 'jetpack' ); ?>" />
 			</p>
 
-			<input type="hidden" name="_wpnonce" value="<?php echo wp_create_nonce( 'sharing-options' ); ?>" />
+			<input type="hidden" name="_wpnonce" value="<?php echo wp_create_nonce( 'sharing-options' ); //phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?>" />
 		</form> 
 		<?php
 	}
@@ -300,7 +309,7 @@ class Jetpack_Likes_Settings {
 			 * $post_likes_switched is empty to follow site setting,
 			 * 0 if we want likes disabled, 1 if we want likes enabled.
 			 */
-			return $post_likes_switched || ( $sitewide_likes_enabled && $post_likes_switched !== '0' );
+			return $post_likes_switched || ( $sitewide_likes_enabled && '0' !== $post_likes_switched );
 		}
 
 		// implicit else (old behavior): $post_likes_switched simply inverts the global setting.
@@ -360,7 +369,7 @@ class Jetpack_Likes_Settings {
 				$enabled = false;
 			}
 
-			if ( in_array( 'get_the_excerpt', (array) $wp_current_filter ) ) {
+			if ( in_array( 'get_the_excerpt', (array) $wp_current_filter, true ) ) {
 				$enabled = false;
 			}
 			// Sharing Setting Overrides ****************************************
@@ -390,12 +399,12 @@ class Jetpack_Likes_Settings {
 
 		if ( $post instanceof WP_Post ) {
 			// Check that the post is a public, published post.
-			if ( 'attachment' == $post->post_type ) {
+			if ( 'attachment' === $post->post_type ) {
 				$post_status = get_post_status( $post->post_parent );
 			} else {
 				$post_status = $post->post_status;
 			}
-			if ( 'publish' != $post_status ) {
+			if ( 'publish' !== $post_status ) {
 				$enabled = false;
 			}
 		}
@@ -438,7 +447,7 @@ class Jetpack_Likes_Settings {
 		 * @param bool $enabled Are Post Likes enabled on single posts?
 		 */
 			"wpl_is_single_{$post_type}_disabled",
-			(bool) in_array( $post_type, $options['show'] )
+			(bool) in_array( $post_type, $options['show'], true )
 		);
 	}
 
@@ -502,7 +511,7 @@ class Jetpack_Likes_Settings {
 		 *
 		 * @param bool $enabled Are Post Likes enabled on archive/front/search pages?
 		 */
-		return (bool) apply_filters( 'wpl_is_index_disabled', (bool) in_array( 'index', $options['show'] ) );
+		return (bool) apply_filters( 'wpl_is_index_disabled', (bool) in_array( 'index', $options['show'], true ) );
 	}
 
 	/**
@@ -521,7 +530,7 @@ class Jetpack_Likes_Settings {
 		 *
 		 * @param bool $enabled Are Post Likes enabled on single pages?
 		 */
-		return (bool) apply_filters( 'wpl_is_single_page_disabled', (bool) in_array( 'page', $options['show'] ) );
+		return (bool) apply_filters( 'wpl_is_single_page_disabled', (bool) in_array( 'page', $options['show'], true ) );
 	}
 
 	/**
@@ -540,7 +549,7 @@ class Jetpack_Likes_Settings {
 		 *
 		 * @param bool $enabled Are Post Likes enabled on attachment pages?
 		 */
-		return (bool) apply_filters( 'wpl_is_attachment_disabled', (bool) in_array( 'attachment', $options['show'] ) );
+		return (bool) apply_filters( 'wpl_is_attachment_disabled', (bool) in_array( 'attachment', $options['show'], true ) );
 	}
 
 	/**
@@ -653,25 +662,27 @@ class Jetpack_Likes_Settings {
 	public function admin_settings_callback() {
 		// We're looking for these, and doing a dance to set some stats and save
 		// them together in array option.
-		$new_state = ! empty( $_POST['wpl_default'] ) ? $_POST['wpl_default'] : 'on';
+		// phpcs: ignore -- might be worth adding a nonce based check here.
+		$new_state = ! empty( $_POST['wpl_default'] ) ? $_POST['wpl_default'] : 'on'; // phpcs:ignore
 		$db_state  = $this->is_enabled_sitewide();
 
-		$reblogs_new_state = ! empty( $_POST['jetpack_reblogs_enabled'] ) ? $_POST['jetpack_reblogs_enabled'] : 'on';
+		// phpcs: ignore -- might be worth adding a nonce based check here.
+		$reblogs_new_state = ! empty( $_POST['jetpack_reblogs_enabled'] ) ? $_POST['jetpack_reblogs_enabled'] : 'on'; // phpcs:ignore
 		$reblogs_db_state  = $this->reblogs_enabled_sitewide();
 		/** Default State */
 
 		// Checked (enabled).
 		switch ( $new_state ) {
 			case 'off':
-				if ( true == $db_state && ! $this->in_jetpack ) {
-					$g_gif = file_get_contents( 'https://pixel.wp.com/g.gif?v=wpcom-no-pv&x_likes=disabled_likes' );
+				if ( true === $db_state && ! $this->in_jetpack ) {
+					$g_gif = wp_remote_get( 'https://pixel.wp.com/g.gif?v=wpcom-no-pv&x_likes=disabled_likes' ); //phpcs:ignore VariableAnalysis.CodeAnalysis.VariableAnalysis.UnusedVariable
 				}
 				update_option( 'disabled_likes', 1 );
 				break;
 			case 'on':
 			default:
-				if ( false == $db_state && ! $this->in_jetpack ) {
-					$g_gif = file_get_contents( 'https://pixel.wp.com/g.gif?v=wpcom-no-pv&x_likes=reenabled_likes' );
+				if ( false === $db_state && ! $this->in_jetpack ) {
+					$g_gif = wp_remote_get( 'https://pixel.wp.com/g.gif?v=wpcom-no-pv&x_likes=reenabled_likes' ); //phpcs:ignore VariableAnalysis.CodeAnalysis.VariableAnalysis.UnusedVariable
 				}
 				delete_option( 'disabled_likes' );
 				break;
@@ -679,15 +690,15 @@ class Jetpack_Likes_Settings {
 
 		switch ( $reblogs_new_state ) {
 			case 'off':
-				if ( true == $reblogs_db_state && ! $this->in_jetpack ) {
-					$g_gif = file_get_contents( 'https://pixel.wp.com/g.gif?v=wpcom-no-pv&x_reblogs=disabled_reblogs' );
+				if ( true === $reblogs_db_state && ! $this->in_jetpack ) {
+					$g_gif = wp_remote_get( 'https://pixel.wp.com/g.gif?v=wpcom-no-pv&x_reblogs=disabled_reblogs' );  //phpcs:ignore VariableAnalysis.CodeAnalysis.VariableAnalysis.UnusedVariable
 				}
 				update_option( 'disabled_reblogs', 1 );
 				break;
 			case 'on':
 			default:
-				if ( false == $reblogs_db_state && ! $this->in_jetpack ) {
-					$g_gif = file_get_contents( 'https://pixel.wp.com/g.gif?v=wpcom-no-pv&x_reblogs=reenabled_reblogs' );
+				if ( false === $reblogs_db_state && ! $this->in_jetpack ) {
+					$g_gif = wp_remote_get( 'https://pixel.wp.com/g.gif?v=wpcom-no-pv&x_reblogs=reenabled_reblogs' );  //phpcs:ignore VariableAnalysis.CodeAnalysis.VariableAnalysis.UnusedVariable
 				}
 				delete_option( 'disabled_reblogs' );
 				break;
@@ -695,7 +706,8 @@ class Jetpack_Likes_Settings {
 
 		// WPCOM only: Comment Likes.
 		if ( ! $this->in_jetpack ) {
-			$new_comments_state = ! empty( $_POST['jetpack_comment_likes_enabled'] ) ? $_POST['jetpack_comment_likes_enabled'] : false;
+			// phpcs:ignore WordPress.Security.NonceVerification.Missing -- we are just checking if the jetpack_comment_likes_enabled os true .
+			$new_comments_state = ! empty( $_POST['jetpack_comment_likes_enabled'] ) ? $_POST['jetpack_comment_likes_enabled'] : false; // phpcs:ignore
 			switch ( (bool) $new_comments_state ) {
 				case true:
 					update_option( 'jetpack_comment_likes_enabled', 1 );
@@ -712,8 +724,8 @@ class Jetpack_Likes_Settings {
 	 * Adds the admin update hook so we can save settings even if Sharedaddy is not enabled.
 	 */
 	public function process_update_requests_if_sharedaddy_not_loaded() {
-		if ( isset( $_GET['page'] ) && ( $_GET['page'] == 'sharing.php' || $_GET['page'] == 'sharing' ) ) {
-			if ( isset( $_POST['_wpnonce'] ) && wp_verify_nonce( $_POST['_wpnonce'], 'sharing-options' ) ) {
+		if ( isset( $_GET['page'] ) && ( 'sharing.php' === $_GET['page'] || 'sharing' === $_GET['page'] ) ) {
+			if ( isset( $_POST['_wpnonce'] ) && wp_verify_nonce( $_POST['_wpnonce'], 'sharing-options' ) ) { //phpcs:ignore
 				/** This action is documented in modules/sharedaddy/sharing.php */
 				do_action( 'sharing_admin_update' );
 				wp_safe_redirect( admin_url( 'options-general.php?page=sharing&update=saved' ) );
@@ -727,9 +739,9 @@ class Jetpack_Likes_Settings {
 	 */
 	public function admin_settings_showbuttonon_init() {
 		/** This action is documented in modules/sharedaddy/sharing.php */
-		echo apply_filters( 'sharing_show_buttons_on_row_start', '<tr valign="top">' );
+		echo apply_filters( 'sharing_show_buttons_on_row_start', '<tr valign="top">' ); //phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
 		?>
-		<th scope="row"><label><?php _e( 'Show buttons on', 'jetpack' ); ?></label></th>
+		<th scope="row"><label><?php esc_html_e( 'Show buttons on', 'jetpack' ); ?></label></th>
 		<td>
 			<?php
 			$br    = false;
@@ -737,7 +749,7 @@ class Jetpack_Likes_Settings {
 			array_unshift( $shows, 'index' );
 			$global = $this->get_options();
 			foreach ( $shows as $show ) :
-				if ( 'index' == $show ) {
+				if ( 'index' === $show ) {
 					$label = __( 'Front Page, Archive Pages, and Search Results', 'jetpack' );
 				} else {
 					$post_type_object = get_post_type_object( $show );
@@ -748,7 +760,7 @@ class Jetpack_Likes_Settings {
 				if ( $br ) {
 					echo '<br />';}
 				?>
-				<label><input type="checkbox"<?php checked( in_array( $show, $global['show'] ) ); ?> name="show[]" value="<?php echo esc_attr( $show ); ?>" /> <?php echo esc_html( $label ); ?></label>
+				<label><input type="checkbox"<?php checked( in_array( $show, $global['show'], true ) ); ?> name="show[]" value="<?php echo esc_attr( $show ); ?>" /> <?php echo esc_html( $label ); ?></label>
 				<?php
 				$br = true;
 endforeach;
@@ -756,7 +768,7 @@ endforeach;
 		</td>
 		<?php
 		/** This action is documented in modules/sharedaddy/sharing.php */
-		echo apply_filters( 'sharing_show_buttons_on_row_end', '</tr>' );
+		echo apply_filters( 'sharing_show_buttons_on_row_end', '</tr>' ); //phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
 		?>
 		<?php
 	}
@@ -772,7 +784,7 @@ endforeach;
 
 		$shows   = array_values( get_post_types( array( 'public' => true ) ) );
 		$shows[] = 'index';
-		$data    = $_POST;
+		$data    = $_POST; // phpcs:ignore WordPress.Security.NonceVerification.Missing, we can skip the nonce verification here.
 
 		if ( isset( $data['show'] ) ) {
 			if ( is_scalar( $data['show'] ) ) {
@@ -789,7 +801,7 @@ endforeach;
 				}
 			}
 
-			if ( $data['show'] = array_intersect( $data['show'], $shows ) ) {
+			if ( array_intersect( $data['show'], $shows ) === $data['show'] ) {
 				$options['global']['show'] = $data['show'];
 			}
 		} else {
