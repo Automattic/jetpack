@@ -24,33 +24,6 @@ if ( ! defined( 'ABSPATH' ) ) {
 }
 
 /**
- * Checks if filter is set and dnt is enabled.
- *
- * @return bool
- */
-function jetpack_is_dnt_enabled() {
-	/**
-	 * Filter the option which decides honor DNT or not.
-	 *
-	 * @module stats
-	 * @since 6.1.0
-	 *
-	 * @param bool false Honors DNT for clients who don't want to be tracked. Defaults to false. Set to true to enable.
-	 */
-	if ( false === apply_filters( 'jetpack_honor_dnt_header_for_stats', false ) ) {
-		return false;
-	}
-
-	foreach ( $_SERVER as $name => $value ) {
-		if ( 'http_dnt' === strtolower( $name ) && 1 === (int) $value ) {
-			return true;
-		}
-	}
-
-	return false;
-}
-
-/**
  * Hook into Core's _deprecated_function
  * Add more details about when a deprecated function will be removed.
  *
@@ -74,7 +47,6 @@ function jetpack_deprecated_function( $function, $replacement, $version ) { // p
 		! empty( $removed_version )
 		&& ( defined( 'WP_DEBUG' ) && WP_DEBUG )
 		/** This filter is documented in core/src/wp-includes/functions.php */
-		/* phpcs:disable WordPress.NamingConventions.PrefixAllGlobals.NonPrefixedHooknameFound */
 		&& apply_filters( 'deprecated_function_trigger_error', true )
 	) {
 		error_log( // phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_error_log
@@ -115,7 +87,6 @@ function jetpack_deprecated_file( $file, $replacement, $version, $message ) { //
 		! empty( $removed_version )
 		&& ( defined( 'WP_DEBUG' ) && WP_DEBUG )
 		/** This filter is documented in core/src/wp-includes/functions.php */
-		/* phpcs:disable WordPress.NamingConventions.PrefixAllGlobals.NonPrefixedHooknameFound */
 		&& apply_filters( 'deprecated_file_trigger_error', true )
 	) {
 		error_log( // phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_error_log
@@ -451,7 +422,6 @@ function jetpack_is_mobile( $kind = 'any', $return_matched_agent = false ) {
 	 * @param string      $kind Category of mobile device being checked
 	 * @param bool        $return_matched_agent Boolean indicating if the UA should be returned
 	 */
-	/* phpcs:disable WordPress.NamingConventions.PrefixAllGlobals.NonPrefixedHooknameFound */
 	$pre = apply_filters( 'pre_jetpack_is_mobile', null, $kind, $return_matched_agent );
 	if ( $pre ) {
 		return $pre;
