@@ -34,6 +34,7 @@ new WPCOM_JSON_API_Get_Media_v1_1_Endpoint(
 			'exif'                       => '(array) (Image & audio only) Exif (meta) information about the media item',
 			'rating'                     => '(string) (Video only) VideoPress rating of the video',
 			'display_embed'              => '(string) Video only. Whether to share or not the video.',
+			'allow_download'             => '(string) Video only. Whether the video can be downloaded or not.',
 			'videopress_guid'            => '(string) (Video only) VideoPress GUID of the video when uploaded on a blog with VideoPress',
 			'videopress_processing_done' => '(bool) (Video only) If the video is uploaded on a blog with VideoPress, this will return the status of processing on the video.',
 		),

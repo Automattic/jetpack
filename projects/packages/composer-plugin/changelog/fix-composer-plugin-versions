@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Composer's `getVersion()` likes to return 4-component versions, while semver wants only 3 components. Strip any extra components instead of considering that invalid.

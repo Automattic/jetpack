@@ -5,6 +5,17 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.6.0] - 2022-01-04
+### Added
+- Accept options for the IDC package.
+
+### Changed
+- Updated package textdomain from `jetpack` to `jetpack-config`.
+
+## [1.5.4] - 2021-12-14
+### Changed
+- Updated package dependencies.
+
 ## [1.5.3] - 2021-10-13
 ### Changed
 - Updated package dependencies.
@@ -82,6 +93,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - Trying to add deterministic initialization.
 
+[1.6.0]: https://github.com/Automattic/jetpack-config/compare/v1.5.4...v1.6.0
+[1.5.4]: https://github.com/Automattic/jetpack-config/compare/v1.5.3...v1.5.4
 [1.5.3]: https://github.com/Automattic/jetpack-config/compare/v1.5.2...v1.5.3
 [1.5.2]: https://github.com/Automattic/jetpack-config/compare/v1.5.1...v1.5.2
 [1.5.1]: https://github.com/Automattic/jetpack-config/compare/v1.5.0...v1.5.1

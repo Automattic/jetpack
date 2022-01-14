@@ -173,7 +173,7 @@ We use eslint and phpcs to lint JavaScript and PHP code. Projects should comply 
 
 * Projects may include `.eslintrc.js` to adjust eslint configuration as necessary, but try to keep to the spirit of it.
 * As eslint does not support per-directory `.eslintignore`, any necessary ignore rules should be added to the file in the root of the monorepo.
-* As phpcs does not support per-directory configuration, any necessary file ignore clauses should be added to `.phpcs.config.xml` in the root of the monorepo.
+* We're using a fork of phpcs and a custom filter that adds support for per-directory configuration (`.phpcs.dir.xml`) and use of `.gitignore` and `.phpcsignore` files. Again, try to keep to the spirit of things.
 
 ### PHP tests
 
@@ -223,7 +223,7 @@ If a project contains PHP or JavaScript tests, it should also define `.scripts.t
 
 Output should be written to the path specified via the `COVERAGE_DIR` environment variable. Subdirectories of that path may be used as desired.
 
-For PHP tests, you'll probably run PHPUnit as `phpdbg -qrr "$(command -v phpunit)" --coverage-clover "$COVERAGE_DIR/clover.xml"`.
+For PHP tests, you'll probably run PHPUnit as `php -dpcov.directory=. "$(command -v phpunit)" --coverage-clover "$COVERAGE_DIR/clover.xml"`.
 
 There's no need to be concerned about collisions with other projects' coverage files, a separate directory is used per project. The coverage files are also automatically copied to `ARTIFACTS_DIR`.
 

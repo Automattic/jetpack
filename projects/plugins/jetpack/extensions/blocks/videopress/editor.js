@@ -24,6 +24,8 @@ import { isAtomicSite, isSimpleSite } from '../../shared/site-type-utils';
 import withHasWarningIsInteractiveClassNames from '../../shared/with-has-warning-is-interactive-class-names';
 import './editor.scss';
 
+import videoPressBlockExampleImage from './videopress-block-example-image.jpg';
+
 const videoPressNoPlanMediaPlaceholder = createHigherOrderComponent(
 	OriginalPlaceholder => props => {
 		const { name } = useBlockEditContext();
@@ -94,7 +96,35 @@ const preventBlockClassOnDeprecations = ( props, blockType, attributes ) => {
 	return props;
 };
 
+// Override the core/embed block to add support for v.wordpress.com URLs and hide the "videopress" embed
+// block from the selectable block if VideoPress is enabled.
+const addCoreEmbedOverride = settings => {
+	if ( ! ( 'variations' in settings ) || 'object' !== typeof settings.variations ) {
+		return;
+	}
+
+	const { available } = getJetpackExtensionAvailability( 'videopress' );
+
+	settings.variations.some( variation => {
+		if ( 'videopress' === variation.name ) {
+			// If VideoPress is available, hide the core VideoPress embed blocks.
+			if ( available ) {
+				variation.scope = [];
+			}
+			// Add support for old v.wordpress.com URLs
+			variation.patterns.push( /^https?:\/\/v\.wordpress\.com\/([a-zA-Z\d]{8})(.+)?$/i );
+			return true;
+		}
+		return false;
+	} );
+};
+
 const addVideoPressSupport = ( settings, name ) => {
+	if ( 'core/embed' === name ) {
+		addCoreEmbedOverride( settings );
+		return settings;
+	}
+
 	// Bail if this is not the video block or if the hook has been triggered by a deprecation.
 	if ( 'core/video' !== name || settings.isDeprecation ) {
 		return settings;
@@ -114,6 +144,17 @@ const addVideoPressSupport = ( settings, name ) => {
 			`jetpack/videopress-with-has-warning-is-interactive-class-names`,
 			withHasWarningIsInteractiveClassNames( `core/video` )
 		);
+	} else if ( available ) {
+		// If VideoPress is available, we update the block description and example with VideoPress-specific content.
+		settings.description = __(
+			'Embed a video from your media library or upload a new one with VideoPress.',
+			'jetpack'
+		);
+		settings.example.attributes = {
+			caption: '',
+			isVideoPressExample: true,
+			src: videoPressBlockExampleImage,
+		};
 	}
 
 	addFilter(
@@ -154,6 +195,10 @@ const addVideoPressSupport = ( settings, name ) => {
 			},
 			loop: {
 				type: 'boolean',
+			},
+			isVideoPressExample: {
+				type: 'boolean',
+				default: false,
 			},
 			muted: {
 				type: 'boolean',
@@ -198,6 +243,8 @@ const addVideoPressSupport = ( settings, name ) => {
 			},
 		};
 
+		const oldVideoEmbedRegex = /https?:\/\/v\.wordpress\.com\/([a-zA-Z\d]{8})(.+)?/i;
+
 		return {
 			...settings,
 			attributes: attributesDefinition,
@@ -227,6 +274,19 @@ const addVideoPressSupport = ( settings, name ) => {
 								blocks.push( block );
 							} );
 							return blocks;
+						},
+					},
+					// Transform old v.wordpress.com classic block embeds to videopress.com/v/ embed
+					{
+						type: 'raw',
+						isMatch: node => {
+							return node.nodeName === 'P' && oldVideoEmbedRegex.test( node.innerHTML );
+						},
+						transform: node => {
+							const matches = oldVideoEmbedRegex.exec( node.innerHTML );
+							return createBlock( 'core/embed', {
+								url: 'https://videopress.com/v/' + matches[ 1 ].trim(),
+							} );
 						},
 					},
 				],

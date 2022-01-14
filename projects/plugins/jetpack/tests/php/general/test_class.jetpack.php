@@ -1154,4 +1154,15 @@ EXPECTED;
 		Jetpack::init()->deprecated_hooks();
 		remove_filter( 'jetpack_bail_on_shortcode', '__return_false' );
 	}
+
+	/**
+	 * Testing that the 'jetpack_version' option will be removed when Jetpack is deactivated.
+	 *
+	 * @group jetpack_deactivation
+	 */
+	public function test_jetpack_version_removed_on_jetpack_deactivation() {
+		Jetpack_Options::update_option( 'version', '10.5' );
+		Jetpack::plugin_deactivation();
+		$this->assertFalse( Jetpack_Options::get_option( 'version' ) );
+	}
 } // end class

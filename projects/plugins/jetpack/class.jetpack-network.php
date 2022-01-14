@@ -189,6 +189,7 @@ class Jetpack_Network {
 			 */
 			if ( ! in_array( 'jetpack/jetpack.php', $active_plugins, true ) ) {
 				Jetpack::disconnect();
+				Jetpack_Options::delete_option( 'version' );
 			}
 			restore_current_blog();
 		}
@@ -239,7 +240,7 @@ class Jetpack_Network {
 
 		if ( is_string( $args ) ) {
 			$name = $args;
-		} else if ( is_array( $args ) ) {
+		} elseif ( is_array( $args ) ) {
 			$name = $args['name'];
 		} else {
 			return $url;
@@ -328,7 +329,7 @@ class Jetpack_Network {
 					 */
 					Jetpack::log( 'subsiteregister' );
 
-					// If !$_GET['site_id'] stop registration and error.
+					// If no site_id, stop registration and error.
 					if ( ! isset( $_GET['site_id'] ) || empty( $_GET['site_id'] ) ) {
 						/**
 						 * Log error to state cookie for display later.

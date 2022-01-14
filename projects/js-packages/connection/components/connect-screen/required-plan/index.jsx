@@ -1,7 +1,7 @@
 /**
  * External dependencies
  */
-import React, { useCallback } from 'react';
+import React from 'react';
 import PropTypes from 'prop-types';
 import { useSelect } from '@wordpress/data';
 import { __ } from '@wordpress/i18n';
@@ -9,9 +9,9 @@ import { __ } from '@wordpress/i18n';
 /**
  * Internal dependencies
  */
-import ConnectButton from '../../connect-button';
 import ConnectScreenRequiredPlanVisual from './visual';
 import { STORE_ID } from '../../../state/store';
+import useConnection from '../../use-connection';
 
 /**
  * The Connection Screen Visual component for consumers that require a Plan.
@@ -37,37 +37,43 @@ const ConnectScreenRequiredPlan = props => {
 		pricingCurrencyCode,
 	} = props;
 
-	const connectionStatus = useSelect( select => select( STORE_ID ).getConnectionStatus(), [] );
+	const {
+		handleRegisterSite,
+		isRegistered,
+		isUserConnected,
+		siteIsRegistering,
+		userIsConnecting,
+		registrationError,
+	} = useConnection( {
+		registrationNonce,
+		redirectUri,
+		apiRoot,
+		apiNonce,
+		autoTrigger,
+		from,
+	} );
 
-	const renderConnectBtn = useCallback(
-		( label, trigger ) => {
-			return (
-				<ConnectButton
-					autoTrigger={ trigger }
-					apiRoot={ apiRoot }
-					apiNonce={ apiNonce }
-					registrationNonce={ registrationNonce }
-					from={ from }
-					redirectUri={ redirectUri }
-					connectLabel={ label }
-				/>
-			);
-		},
-		[ apiRoot, apiNonce, registrationNonce, from, redirectUri ]
+	const showConnectButton = ! isRegistered || ! isUserConnected;
+	const connectionStatusIsFetching = useSelect( select =>
+		select( STORE_ID ).getConnectionStatusIsFetching()
 	);
+	const displayButtonError = Boolean( registrationError );
+	const buttonIsLoading = siteIsRegistering || userIsConnecting;
 
 	return (
 		<ConnectScreenRequiredPlanVisual
 			title={ title }
-			autoTrigger={ autoTrigger }
 			buttonLabel={ buttonLabel }
 			priceBefore={ priceBefore }
 			priceAfter={ priceAfter }
 			pricingIcon={ pricingIcon }
 			pricingTitle={ pricingTitle }
 			pricingCurrencyCode={ pricingCurrencyCode }
-			isLoading={ ! connectionStatus.hasOwnProperty( 'isRegistered' ) }
-			renderConnectBtn={ renderConnectBtn }
+			isLoading={ connectionStatusIsFetching }
+			handleButtonClick={ handleRegisterSite }
+			showConnectButton={ showConnectButton }
+			displayButtonError={ displayButtonError }
+			buttonIsLoading={ buttonIsLoading }
 		>
 			{ children }
 		</ConnectScreenRequiredPlanVisual>

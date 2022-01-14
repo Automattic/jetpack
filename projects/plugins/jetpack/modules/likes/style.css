@@ -217,3 +217,9 @@ div.sharedaddy.sd-like-enabled .sd-like .post-likes-widget {
 .sd-gplus .sd-title {
 	display: none;
 }
+
+@media print {
+	.jetpack-likes-widget-wrapper {
+		display: none;
+	}
+}

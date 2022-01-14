@@ -32,6 +32,10 @@ const DefaultArgs = {
 	isFinishingMigration: false,
 	isMigrating: false,
 	isStartingFresh: false,
+	isAdmin: true,
+	hasMigrateError: false,
+	hasFreshError: false,
+	hasStaySafeError: false,
 };
 
 export const _default = Template.bind( {} );
@@ -41,4 +45,10 @@ export const Migrated = Template.bind( {} );
 Migrated.args = {
 	...DefaultArgs,
 	isMigrated: true,
+};
+
+export const NonAdmin = Template.bind( {} );
+NonAdmin.args = {
+	...DefaultArgs,
+	isAdmin: false,
 };

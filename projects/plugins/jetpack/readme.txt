@@ -1,10 +1,10 @@
 === Jetpack - WP Security, Backup, Speed, & Growth ===
 Contributors: automattic, adamkheckler, adrianmoldovanwp, aduth, akirk, allendav, alternatekev, andy, annamcphee, annezazu, apeatling, arcangelini, azaozz, batmoo, barry, beaulebens, biskobe, blobaugh, bjorsch, brbrr, cainm, cena, cfinke, chaselivingston, chellycat, clickysteve, csonnek, danielbachhuber, davoraltman, daniloercoli, delawski, designsimply, dllh, drawmyface, dsmart, dzver, ebinnion, egregor, eliorivero, enej, eoigal, erania-pinnera, ethitter, fgiannar, gcorne, georgestephanis, gibrown, goldsounds, hew, hugobaeta, hypertextranch, iammattthomas, iandunn, jblz, jasmussen, jeffgolenski, jeherve, jenhooks, jenia, jessefriedman, jgs, jkudish, jmdodd, joanrho, johnjamesjacoby, jshreve, kbrownkd, keoshi, koke, kraftbj, lancewillett, leogermani, lschuyler, macmanx, martinremy, matt, matveb, mattwiebe, maverick3x6, mcsf, mdawaffe, mdbitz, MichaelArestad, migueluy, mikeyarce, mkaz, nancythanki, nickmomrik, obenland, oskosk, pento, professor44, rachelsquirrel, rdcoll, ryancowles, richardmuscat, richardmtl, robertbpugh, roccotripaldi, samhotchkiss, samiff, scarstocea, scottsweb, sdixon194, sdquirk, sermitr, simison, stephdau, tmoorewp, tyxla, Viper007Bond, westi, yoavf, zinigor
 Tags: Security, backup, Woo, malware, scan, spam, CDN, search, social
-Stable tag: 10.4
-Requires at least: 5.7
+Stable tag: 10.5
+Requires at least: 5.8
 Requires PHP: 5.6
-Tested up to: 5.8
+Tested up to: 5.9
 
 Improve your WP security with powerful one-click tools like backup and malware scan. Get essential free tools including stats, CDN and social sharing.
 
@@ -242,18 +242,17 @@ Jetpack Backup can do a full website migration to a new host, migrate theme file
 4. Promote your newest posts, pages, and products across your social media channels.
 
 == Changelog ==
-### 10.5-a.1 - 2021-12-07
-#### Enhancements
-- Sharing: hide sharing buttons when printing a post or page.
-- VideoPress Block: add adaptive progress bar color settings
-
+### 10.6-a.1 - 2022-01-11
 #### Improved compatibility
-- Twitter Timeline widget: Hide widget from the block inserter and Legacy widget block drop-down menu (WPCOM)
+- Subscription form: update the placeholder color to be the same as the text color of the site.
 
 #### Bug fixes
-- Dashboard: hide licensing interface from users who did not link their account to WordPress.com yet, or who are not the main Jetpack connection owner.
-- VideoPress: avoid errors when copying and pasting empty video blocks.
-- VideoPress Block: maintain the state of different settings panels when reloading the video preview.
+- Donations block: add a missing closing div for the front-end rendering.
+- Donations block: don't display the donations block to visitors unless Stripe is connected.
+- Donations block: fixed an issue which was invalidating existing blocks if they were edited by non-plan owners.
+- Donations block: tweak currency display for the edit control.
+- Protect: fixed math fallback's input accessibility and display.
+- Subscription form: adding a default line-height to avoid differences using different font-faces on input and button elements
 
 --------
 

@@ -10,7 +10,7 @@ import { connect } from 'react-redux';
  */
 import { createInterpolateElement } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
-import { getRedirectUrl } from '@automattic/jetpack-components';
+import { getRedirectUrl, numberFormat } from '@automattic/jetpack-components';
 
 /**
  * Internal dependencies
@@ -19,7 +19,6 @@ import DashItem from 'components/dash-item';
 import { getProtectCount } from 'state/at-a-glance';
 import { isOfflineMode, hasConnectedOwner, connectUser } from 'state/connection';
 import { isModuleAvailable } from 'state/modules';
-import { numberFormat } from 'components/number-format';
 import QueryProtectCount from 'components/data/query-dash-protect';
 
 class DashProtect extends Component {

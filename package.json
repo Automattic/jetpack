@@ -29,8 +29,8 @@
 		"clean-composer": "printf '\\e[30;43m`pnpm run clean-composer` is deprecated and no longer does anything.\\e[0m\\n'",
 		"clean-jetpack": "printf '\\e[30;43m`pnpm run clean-jetpack` is deprecated. You probably want to run `pnpm clean` in projects/plugins/jetpack instead.\\e[0m\\n'; cd projects/plugins/jetpack && pnpm run clean",
 		"cli-install": "printf '\\e[30;43m`pnpm run cli-install` is deprecated and no longer necessary. Just do `pnpm install`.\\e[0m\\n'; pnpm install",
-		"cli-link": "jetpack cli link",
-		"cli-setup": "pnpm install && jetpack cli link",
+		"cli-link": "pnpm jetpack cli link",
+		"cli-setup": "pnpm install && pnpm jetpack cli link",
 		"cli-unlink": "jetpack cli unlink",
 		"distclean": "printf '\\e[30;43m`pnpm run distclean` is deprecated.\\e[0m\\n'; rm -rf node_modules vendor && cd projects/plugins/jetpack && pnpm run distclean",
 		"distclean-jetpack": "printf '\\e[30;43m`pnpm run distclean-jetpack` is deprecated.\\e[0m\\n'; cd projects/plugins/jetpack && pnpm run distclean",
@@ -68,26 +68,18 @@
 		"php:autofix": "composer phpcs:fix",
 		"php:compatibility": "composer phpcs:compatibility",
 		"php:lint": "composer phpcs:lint",
+		"prepare": "husky install",
 		"reformat-files": "prettier --ignore-path .eslintignore --write \"**/*.{js,jsx,cjs,mjs,ts,tsx,svelte,json}\"",
 		"version-packages": "bash ./tools/version-packages.sh"
 	},
-	"husky": {
-		"hooks": {
-			"pre-commit": "node tools/js-tools/git-hooks/pre-commit-hook.js",
-			"prepare-commit-msg": "node tools/js-tools/git-hooks/prepare-commit-msg.js",
-			"post-checkout": "./tools/js-tools/git-hooks/post-merge-checkout-hook.sh",
-			"post-merge": "./tools/js-tools/git-hooks/post-merge-checkout-hook.sh",
-			"pre-push": "node tools/js-tools/git-hooks/pre-push-hook.js"
-		}
-	},
 	"devDependencies": {
-		"husky": "4.3.8",
+		"husky": "7.0.4",
 		"jetpack-cli": "workspace:1.0.0",
 		"jetpack-js-tools": "workspace:*"
 	},
 	"engines": {
 		"node": "^14.17.6 || ^16.7.0",
-		"pnpm": "^6.5.0",
+		"pnpm": "^6.23.6",
 		"yarn": "use pnpm instead - see docs/yarn-upgrade.md"
 	},
 	"pnpm": {

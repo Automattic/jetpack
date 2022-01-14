@@ -16,7 +16,27 @@ use WP_Error;
  * Registers the REST routes for Search.
  */
 class Plan {
-	const JETPACK_SEARCH_PLAN_INFO_OPTION_KEY = 'jetpack_search_plan_info';
+	const JETPACK_SEARCH_PLAN_INFO_OPTION_KEY  = 'jetpack_search_plan_info';
+	const JETPACK_SEARCH_EVER_SUPPORTED_SEARCH = 'jetpack_search_ever_supported_search';
+
+	/**
+	 * Whether we have hooked the actions.
+	 *
+	 * @var boolean
+	 */
+	protected static $update_plan_hook_initialized = false;
+
+	/**
+	 * Init hooks for updating plan info
+	 */
+	public function init_hooks() {
+		// Update plan info from WPCOM on Jetpack heartbeat.
+		// TODO: implement heartbeart for search.
+		if ( ! static::$update_plan_hook_initialized ) {
+			add_action( 'jetpack_heartbeat', array( $this, 'get_plan_info_from_wpcom' ) );
+			static::$update_plan_hook_initialized = true;
+		}
+	}
 
 	/**
 	 * Refresh plan info stored in options
@@ -84,25 +104,52 @@ class Plan {
 	}
 
 	/**
+	 * Whether the plan(s) ever supported search.
+	 */
+	public function ever_supported_search() {
+		return (bool) get_option( self::JETPACK_SEARCH_EVER_SUPPORTED_SEARCH ) || $this->supports_search();
+	}
+
+	/**
 	 * Update `has_jetpack_search_product` regarding the plan information
 	 *
 	 * @param array|WP_Error $response - Resopnse from WPCOM.
+	 * @return bool - true on success, false on failure.
 	 */
 	public function update_search_plan_info( $response ) {
 		if ( is_wp_error( $response ) ) {
-			return null;
+			return false;
 		}
 		$body        = json_decode( wp_remote_retrieve_body( $response ), true );
 		$status_code = wp_remote_retrieve_response_code( $response );
 
-		if ( 200 !== $status_code || ! isset( $body['supports_instant_search'] ) ) {
-			return null;
+		if ( 200 !== $status_code ) {
+			return false;
+		}
+
+		return $this->set_plan_options( $body );
+	}
+
+	/**
+	 * Set plan info to options table
+	 *
+	 * @param array $plan_info - the decoded plan info array.
+	 */
+	public function set_plan_options( $plan_info ) {
+		if ( ! isset( $plan_info['supports_instant_search'] ) ) {
+			return false;
 		}
 		// set option whether has Jetpack Search plan for capability reason.
-		if ( get_option( 'has_jetpack_search_product' ) !== (bool) $body['supports_instant_search'] ) {
-			update_option( 'has_jetpack_search_product', (bool) $body['supports_instant_search'] );
+		if ( get_option( 'has_jetpack_search_product' ) !== (bool) $plan_info['supports_instant_search'] ) {
+			update_option( 'has_jetpack_search_product', (bool) $plan_info['supports_instant_search'] );
 		}
-		update_option( self::JETPACK_SEARCH_PLAN_INFO_OPTION_KEY, $body );
+		// We use this option to determine the visibility of search submenu.
+		// If the site ever had search subscription, then we record it and show the menu after.
+		if ( $plan_info['supports_instant_search'] ) {
+			update_option( self::JETPACK_SEARCH_EVER_SUPPORTED_SEARCH, true, false );
+		}
+		update_option( self::JETPACK_SEARCH_PLAN_INFO_OPTION_KEY, $plan_info );
+		return true;
 	}
 
 }
