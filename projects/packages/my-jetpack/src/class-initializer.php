@@ -109,8 +109,6 @@ class Initializer {
 	}
 
 	/**
-	 * Echos the admin page content.
-	/**
 	 * Echoes the admin page content.
 	 *
 	 * @return void
