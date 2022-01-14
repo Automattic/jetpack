@@ -1,6 +1,6 @@
 <?php // phpcs:ignore WordPress.Files.FileName.InvalidClassFileName
 /**
- * Tests for Automattic\Jetpack\Status\Hosts methods
+ * Tests for Automattic\Jetpack\Status\Visitor methods
  *
  * @package automattic/jetpack-status
  */
