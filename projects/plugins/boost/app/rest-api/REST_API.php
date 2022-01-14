@@ -10,7 +10,7 @@ use Automattic\Jetpack_Boost\REST_API\Endpoints\Recommendations_Dismiss;
 use Automattic\Jetpack_Boost\REST_API\Endpoints\Recommendations_Reset;
 use Automattic\Jetpack_Boost\REST_API\Permissions\Nonce;
 
-class Boost_API {
+class REST_API {
 
 	protected $available_routes = array(
 		Generator_Status::class,
