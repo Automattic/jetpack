@@ -36,7 +36,7 @@
 		"sinon-chai": "3.7.0"
 	},
 	"engines": {
-		"node": "^14.17.6 || ^16.7.0",
+		"node": "^14.18.3 || ^16.13.2",
 		"pnpm": "^6.23.6",
 		"yarn": "use pnpm instead - see docs/yarn-upgrade.md"
 	}
