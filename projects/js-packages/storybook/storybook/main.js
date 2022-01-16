@@ -7,19 +7,15 @@
  */
 const path = require( 'path' );
 
+const projects = require( './projects' );
+
 const modulesDir = path.join( __dirname, '../node_modules' );
 
-const stories = [
-	process.env.NODE_ENV !== 'test' && './stories/**/*.@(js|jsx|mdx)',
-	path.join( modulesDir, '@automattic/jetpack-base-styles/stories/*.@(js|jsx|mdx)' ),
-	path.join( modulesDir, '@automattic/jetpack-components/components/**/stories/*.@(js|jsx|mdx)' ),
-	path.join( modulesDir, '@automattic/jetpack-connection/components/**/stories/*.@(js|jsx|mdx)' ),
-	path.join(
-		modulesDir,
-		'@automattic/jetpack-connection/components/**/**/stories/*.@(js|jsx|mdx)'
-	),
-	path.join( modulesDir, '@automattic/jetpack-idc/components/**/stories/*.@(js|jsx|mdx)' ),
-].filter( Boolean );
+const storiesSearch = '*.@(js|jsx|mdx)';
+
+const stories = [ process.env.NODE_ENV !== 'test' && `./stories/**/${ storiesSearch }` ]
+	.concat( projects.map( project => `${ project }/**/stories/${ storiesSearch }` ) )
+	.filter( Boolean );
 
 const customEnvVariables = {};
 

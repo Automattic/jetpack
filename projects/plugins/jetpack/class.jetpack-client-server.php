@@ -1,4 +1,10 @@
-<?php
+<?php // phpcs:ignore WordPress.Files.FileName.InvalidClassFileName
+/**
+ * Client = Plugin
+ * Client Server = API Methods the Plugin must respond to
+ *
+ * @package automattic/jetpack
+ */
 
 use Automattic\Jetpack\Connection\Webhooks;
 
@@ -57,6 +63,13 @@ class Jetpack_Client_Server {
 		( new Webhooks() )->handle_authorize();
 	}
 
+	/**
+	 * Deactivate a plugin.
+	 *
+	 * @param string $probable_file Expected plugin file.
+	 * @param string $probable_title Expected plugin title.
+	 * @return int 1 if a plugin was deactivated, 0 if not.
+	 */
 	public static function deactivate_plugin( $probable_file, $probable_title ) {
 		include_once ABSPATH . 'wp-admin/includes/plugin.php';
 		if ( is_plugin_active( $probable_file ) ) {
@@ -78,6 +91,8 @@ class Jetpack_Client_Server {
 	}
 
 	/**
+	 * Get the Jetpack instance.
+	 *
 	 * @deprecated since Jetpack 9.5.0
 	 * @see Jetpack::init()
 	 */
