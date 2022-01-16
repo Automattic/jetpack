@@ -1,10 +1,21 @@
-<?php
+<?php // phpcs:ignore WordPress.Files.FileName.InvalidClassFileName
+/**
+ * Allows viewing posts on the frontend when the user is not logged in.
+ *
+ * @package automattic/jetpack
+ */
 
 /**
  * Allows viewing posts on the frontend when the user is not logged in.
  */
 class Jetpack_Frame_Nonce_Preview {
-	static $instance = null;
+	/**
+	 * Static instance.
+	 *
+	 * @todo This should be private.
+	 * @var self
+	 */
+	public static $instance = null;
 
 	/**
 	 * Returns the single instance of the Jetpack_Frame_Nonce_Preview object
@@ -21,12 +32,17 @@ class Jetpack_Frame_Nonce_Preview {
 		return self::$instance = new Jetpack_Frame_Nonce_Preview();
 	}
 
-	function __construct() {
+	/**
+	 * Constructor.
+	 *
+	 * @todo This should be private.
+	 */
+	public function __construct() {
 		if ( isset( $_GET['frame-nonce'] ) && ! is_admin() ) {
 			add_filter( 'pre_get_posts', array( $this, 'maybe_display_post' ) );
 		}
 
-		// autosave previews are validated differently
+		// autosave previews are validated differently.
 		if ( isset( $_GET['frame-nonce'] ) && isset( $_GET['preview_id'] ) && isset( $_GET['preview_nonce'] ) ) {
 			remove_action( 'init', '_show_post_preview' );
 			add_action( 'init', array( $this, 'handle_autosave_nonce_validation' ) );
@@ -60,8 +76,7 @@ class Jetpack_Frame_Nonce_Preview {
 	 *
 	 * @since 4.3.0
 	 *
-	 * @param WP_Query $query
-	 *
+	 * @param WP_Query $query Query.
 	 * @return WP_Query
 	 */
 	public function maybe_display_post( $query ) {
@@ -81,8 +96,7 @@ class Jetpack_Frame_Nonce_Preview {
 	 *
 	 * @since 4.3.0
 	 *
-	 * @param array $posts
-	 *
+	 * @param array $posts Posts.
 	 * @return array
 	 */
 	public function set_post_to_publish( $posts ) {

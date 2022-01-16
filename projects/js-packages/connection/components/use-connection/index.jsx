@@ -14,13 +14,18 @@ export default ( { registrationNonce, redirectUri, apiRoot, apiNonce, autoTrigge
 	const { registerSite, connectUser } = useDispatch( STORE_ID );
 
 	const registrationError = useSelect( select => select( STORE_ID ).getRegistrationError() );
-	const { siteIsRegistering, userIsConnecting, isRegistered, isUserConnected } = useSelect(
-		select => ( {
-			siteIsRegistering: select( STORE_ID ).getSiteIsRegistering(),
-			userIsConnecting: select( STORE_ID ).getUserIsConnecting(),
-			...select( STORE_ID ).getConnectionStatus(),
-		} )
-	);
+	const {
+		siteIsRegistering,
+		userIsConnecting,
+		userConnectionData,
+		isRegistered,
+		isUserConnected,
+	} = useSelect( select => ( {
+		siteIsRegistering: select( STORE_ID ).getSiteIsRegistering(),
+		userIsConnecting: select( STORE_ID ).getUserIsConnecting(),
+		userConnectionData: select( STORE_ID ).getUserConnectionData(),
+		...select( STORE_ID ).getConnectionStatus(),
+	} ) );
 
 	const handleConnectUser = () => connectUser( { from } );
 
@@ -66,5 +71,6 @@ export default ( { registrationNonce, redirectUri, apiRoot, apiNonce, autoTrigge
 		siteIsRegistering,
 		userIsConnecting,
 		registrationError,
+		userConnectionData,
 	};
 };
