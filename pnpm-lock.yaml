@@ -601,11 +601,18 @@ importers:
       '@babel/preset-env': 7.16.4
       '@babel/register': 7.16.0
       '@babel/runtime': 7.16.3
+      '@storybook/testing-react': 1.2.3
+      '@testing-library/dom': 8.11.1
+      '@testing-library/jest-dom': 5.14.1
+      '@testing-library/react': 11.2.7
+      '@testing-library/react-hooks': 4.0.1
+      '@testing-library/user-event': 12.8.3
       '@wordpress/components': 19.1.6
       '@wordpress/data': 6.1.5
       '@wordpress/i18n': 4.2.4
       enzyme: 3.11.0
       jest: 27.3.1
+      jetpack-js-test-runner: workspace:1.0.0
       react: 17.0.2
       react-dom: 17.0.2
       sass: 1.43.3
@@ -625,8 +632,15 @@ importers:
       '@babel/preset-env': 7.16.4_@babel+core@7.16.0
       '@babel/register': 7.16.0_@babel+core@7.16.0
       '@babel/runtime': 7.16.3
+      '@storybook/testing-react': 1.2.3_react@17.0.2
+      '@testing-library/dom': 8.11.1
+      '@testing-library/jest-dom': 5.14.1
+      '@testing-library/react': 11.2.7_react-dom@17.0.2+react@17.0.2
+      '@testing-library/react-hooks': 4.0.1_react@17.0.2
+      '@testing-library/user-event': 12.8.3_@testing-library+dom@8.11.1
       enzyme: 3.11.0
       jest: 27.3.1
+      jetpack-js-test-runner: link:../../../tools/js-test-runner
       react: 17.0.2
       react-dom: 17.0.2_react@17.0.2
       sass: 1.43.3
@@ -6061,6 +6075,20 @@ packages:
       util-deprecate: 1.0.2
     dev: true
 
+  /@storybook/testing-react/1.2.3_react@17.0.2:
+    resolution: {integrity: sha512-4KK2cdux58bO5NToGdo/Y3HQXL26CsHSo3cqbrowrIZL5JW/gcFFUbYEAwjcn+Cf2vy+FnZAKOXfCZf+j1yRdQ==}
+    engines: {node: '>=10'}
+    peerDependencies:
+      '@storybook/addons': '>=6.4.0'
+      '@storybook/client-api': '>=6.4.0'
+      '@storybook/preview-web': '>=6.4.0'
+      '@storybook/react': '>=6.4.0'
+      react: ^16.8.0 || ^17.0.0
+    dependencies:
+      '@storybook/csf': 0.0.2--canary.87bc651.0
+      react: 17.0.2
+    dev: true
+
   /@storybook/theming/6.4.10_react-dom@17.0.2+react@17.0.2:
     resolution: {integrity: sha512-OUsdZhW1brWrq7RdcJ23yrJSty45TRmOOTLFqWENm+3QebaV/weLUbV6aB1uopw96phQLOXIRBOjYvp/eGiB5A==}
     peerDependencies:
@@ -6169,7 +6197,7 @@ packages:
     engines: {node: '>=10'}
     dependencies:
       '@babel/code-frame': 7.16.7
-      '@babel/runtime': 7.16.3
+      '@babel/runtime': 7.16.7
       '@types/aria-query': 4.2.2
       aria-query: 4.2.2
       chalk: 4.1.2
@@ -6182,14 +6210,13 @@ packages:
     engines: {node: '>=12'}
     dependencies:
       '@babel/code-frame': 7.16.7
-      '@babel/runtime': 7.16.3
+      '@babel/runtime': 7.16.7
       '@types/aria-query': 4.2.2
       aria-query: 5.0.0
       chalk: 4.1.2
       dom-accessibility-api: 0.5.10
       lz-string: 1.4.4
       pretty-format: 27.4.6
-    dev: false
 
   /@testing-library/jest-dom/5.14.1:
     resolution: {integrity: sha512-dfB7HVIgTNCxH22M1+KU6viG5of2ldoA5ly8Ar8xkezKHKXjRvznCdbMbqjYGgO2xjRbwnR+rR8MLUIqF3kKbQ==}
@@ -6240,6 +6267,18 @@ packages:
       react-test-renderer: 17.0.2_react@17.0.2
     dev: true
 
+  /@testing-library/react-hooks/4.0.1_react@17.0.2:
+    resolution: {integrity: sha512-DufI8Q2GOM7W2yFEEfz85VNVNaHZL0tPZyBT6ytV7HK+1A4frL1ty+W5NBE0u0K3EFV/Pg5O28HGNEtp9D5EyA==}
+    peerDependencies:
+      react: '>=16.9.0'
+      react-test-renderer: '>=16.9.0'
+    dependencies:
+      '@babel/runtime': 7.16.7
+      '@types/react': 17.0.38
+      '@types/react-test-renderer': 17.0.1
+      react: 17.0.2
+    dev: true
+
   /@testing-library/react/11.2.7:
     resolution: {integrity: sha512-tzRNp7pzd5QmbtXNG/mhdcl7Awfu/Iz1RaVHY75zTdOkmHCuzMhRL83gWHSgOAcjS3CCbyfwUHMZgRJb4kAfpA==}
     engines: {node: '>=10'}
@@ -6258,7 +6297,7 @@ packages:
       react: '*'
       react-dom: '*'
     dependencies:
-      '@babel/runtime': 7.16.3
+      '@babel/runtime': 7.16.7
       '@testing-library/dom': 7.31.2
       react: 17.0.2
       react-dom: 17.0.2_react@17.0.2
@@ -6280,9 +6319,8 @@ packages:
     peerDependencies:
       '@testing-library/dom': '>=7.21.4'
     dependencies:
-      '@babel/runtime': 7.16.3
+      '@babel/runtime': 7.16.7
       '@testing-library/dom': 8.11.1
-    dev: false
 
   /@tootallnate/once/1.1.2:
     resolution: {integrity: sha512-RbzJvlNzmRq5c3O09UipeuXno4tA1FE6ikOjxZK0tuxVv3412l64l5t1W5pj4+rJq9vpkm/kwiR07aZXnsKPxw==}
@@ -8230,7 +8268,7 @@ packages:
     resolution: {integrity: sha512-5hZDhFwTtKcbJGZdqvIzoLsW/QgBjUjf4ohgDqRlMBX8Zi6/n11O8LDRPOpmJLVSnIx1fgNSGkzXOzzQmbWuqQ==}
     engines: {node: '>=12'}
     dependencies:
-      '@babel/runtime': 7.16.3
+      '@babel/runtime': 7.16.7
       moment: 2.29.1
       moment-timezone: 0.5.34
 
@@ -8453,7 +8491,7 @@ packages:
     resolution: {integrity: sha512-MlFWyu2ttJhmzDFBVWPRwZwIMqQdHFZTjFWFWm50NlzUzIJ3gEtNA95mHNtav1Fone24N+I2YkaYMNb6PEPTyA==}
     engines: {node: '>=12'}
     dependencies:
-      '@babel/runtime': 7.16.3
+      '@babel/runtime': 7.16.7
 
   /@wordpress/html-entities/3.2.3:
     resolution: {integrity: sha512-406VUz8CuKgKGrW/wjRB877soSqGhGDwK4sSuNoIC1FvpfniZ0ijpqfsdhJOOynWdz+RYN1wAsfogBpzuREJOg==}
@@ -9485,7 +9523,6 @@ packages:
   /aria-query/5.0.0:
     resolution: {integrity: sha512-V+SM7AbUwJ+EBnB8+DXs0hPZHO0W6pqBcc0dW90OwtVG02PswOu/teuARoLQjdDOH+t9pJgGnW5/Qmouf3gPJg==}
     engines: {node: '>=6.0'}
-    dev: false
 
   /arr-diff/4.0.0:
     resolution: {integrity: sha1-1kYQdP6/7HHn4VI1dhoyml3HxSA=}
@@ -19695,7 +19732,7 @@ packages:
     dependencies:
       array.prototype.flat: 1.2.5
       global-cache: 1.2.1
-      react-with-styles: 3.2.3
+      react-with-styles: 3.2.3_react-dom@17.0.2+react@17.0.2
 
   /react-with-styles/3.2.3:
     resolution: {integrity: sha512-MTI1UOvMHABRLj5M4WpODfwnveHaip6X7QUMI2x6zovinJiBXxzhA9AJP7MZNaKqg1JRFtHPXZdroUC8KcXwlQ==}
@@ -20749,7 +20786,7 @@ packages:
       klona: 2.0.5
       neo-async: 2.6.2
       sass: 1.43.3
-      webpack: 5.65.0_webpack-cli@4.9.1
+      webpack: 5.65.0
     dev: true
 
   /sass-loader/12.4.0_webpack@5.65.0:
@@ -21200,6 +21237,7 @@ packages:
 
   /source-map-resolve/0.6.0:
     resolution: {integrity: sha512-KXBr9d/fO/bWo97NXsPIAW1bFSBOuCnjbNTBMO7N59hsv5i9yzRDfcYwwt0l04+VqnKC+EwzvJZIP/qkuMgR/w==}
+    deprecated: See https://github.com/lydell/source-map-resolve#deprecated
     dependencies:
       atob: 2.1.2
       decode-uri-component: 0.2.0
