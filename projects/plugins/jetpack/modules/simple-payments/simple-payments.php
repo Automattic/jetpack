@@ -179,7 +179,7 @@ class Jetpack_Simple_Payments {
 	 *
 	 * @return string|void
 	 */
-	public function parse_shortcode( $attrs, $content = false ) {
+	public function parse_shortcode( $attrs, $content = false ) { // phpcs:ignore VariableAnalysis.CodeAnalysis.VariableAnalysis.UnusedVariable
 		if ( empty( $attrs['id'] ) ) {
 			return;
 		}
