@@ -17,7 +17,7 @@ Require this package and initialize it:
 ```PHP
 add_action( 'init', function() {
 	Automattic\Jetpack\My_Jetpack\Initializer::init();
-});
+} );
 ```
 
 That's all!
