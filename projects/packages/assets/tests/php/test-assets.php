@@ -642,8 +642,9 @@ class AssetsTest extends TestCase {
 		);
 
 		$constants = $options['constants'] + array(
-			'ABSPATH'     => '/path/to/wordpress/',
-			'WP_LANG_DIR' => '/path/to/wordpress/wp-content/languages',
+			'ABSPATH'        => '/path/to/wordpress/',
+			'WP_CONTENT_DIR' => '/path/to/wordpress/wp-content',
+			'WP_LANG_DIR'    => '/path/to/wordpress/wp-content/languages',
 		);
 		foreach ( $constants as $k => $v ) {
 			Jetpack_Constants::set_constant( $k, $v );
@@ -655,6 +656,11 @@ class AssetsTest extends TestCase {
 		Functions\expect( 'site_url' )->andReturnUsing(
 			function ( $v ) {
 				return "http://example.com$v";
+			}
+		);
+		Functions\expect( 'content_url' )->andReturnUsing(
+			function ( $v ) {
+				return "http://example.com/wp-content/$v";
 			}
 		);
 
@@ -713,6 +719,24 @@ class AssetsTest extends TestCase {
 				'console.warn( "Failed to determine languages base URL. Is WP_LANG_DIR in the WordPress root?" );',
 				array(
 					'constants' => array( 'WP_LANG_DIR' => '/not/path/to/wordpress/wp-content/languages' ),
+				),
+			),
+			'WP_LANG_DIR in wp-includes'       => array(
+				array( 'baseUrl' => 'http://example.com/wp-includes/languages/' ) + $expect_filter,
+				'wp.jpI18nState = {"baseUrl":"http://example.com/wp-includes/languages/","locale":"en_US","domainMap":{}};',
+				array(
+					'constants' => array( 'WP_LANG_DIR' => '/path/to/wordpress/wp-includes/languages' ),
+				),
+			),
+			'WP_CONTENT_DIR not in ABSPATH'    => array(
+				array( 'baseUrl' => 'http://example.com/wp-content/languages/' ) + $expect_filter,
+				'wp.jpI18nState = {"baseUrl":"http://example.com/wp-content/languages/","locale":"en_US","domainMap":{}};',
+				array(
+					'constants' => array(
+						'ABSPATH'        => '/srv/htdocs/__wp__/',
+						'WP_CONTENT_DIR' => '/srv/htdocs/wp-content',
+						'WP_LANG_DIR'    => '/srv/htdocs/wp-content/languages',
+					),
 				),
 			),
 			'Filter'                           => array(
