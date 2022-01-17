@@ -54,9 +54,14 @@ jobs:
       uses: ./.github/actions/tool-setup
 
     - name: Build Production Jetpack
+      env:
+        COMPOSER_ROOT_VERSION: "dev-master"
       run: |
         pnpm install
+        pnpx jetpack build packages/search -v --production
         pnpx jetpack build plugins/jetpack -v --production
+        # composer ingores the build folder when mirroring the package, so we manually copy it.
+        cp -Rfp projects/packages/search/build projects/plugins/jetpack/jetpack_vendor/automattic/jetpack-search
 
     - name: Environment set-up
       working-directory: projects/plugins/jetpack/tests/e2e
@@ -75,7 +80,7 @@ jobs:
 
     - name: Run ${{ matrix.group }} tests
       working-directory: projects/plugins/jetpack/tests/e2e
-      run: pnpm run test-e2e -- $TESTS -gv search
+      run: pnpm run test-e2e -- $TESTS
 
     - name: Environment tear-down
       if: ${{ always() }}
