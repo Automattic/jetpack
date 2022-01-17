@@ -237,7 +237,7 @@ if ( ! class_exists( 'Jetpack_EU_Cookie_Law_Widget' ) ) {
 		/**
 		 * Sanitize widget form values as they are saved.
 		 *
-		 * @param  array $new_instance Values just sent to be saved.
+		 * @param array $new_instance Values just sent to be saved.
 		 * @param array $old_instance Previously saved values from database.
 		 * @return array Updated safe values to be saved.
 		 */
