@@ -76,7 +76,7 @@ class Modules {
 	 */
 	public function get_module( $module_slug ) {
 		if ( ! $this->modules[ $module_slug ] ) {
-			return false; // @TODO: Return empty module instead
+			return false; // @TODO: Return empty module instead?
 		}
 
 		return $this->modules[ $module_slug ];

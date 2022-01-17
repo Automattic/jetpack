@@ -129,7 +129,10 @@ class Critical_CSS implements Generic_Module, Has_Endpoints {
 
 	/**
 	 * Override; returns an admin notice to show if there was a reset reason.
-	 *
+	 * @TODO:
+	 *      There should be an Admin_Notice class
+	 *      To create a notice, (new Admin_Notice())->create("notice text");
+	 *      To view notices: (new Admin_Notice())->get_all();
 	 * @return null|\Automattic\Jetpack_Boost\Admin\Admin_Notice[]
 	 */
 	public function get_admin_notices() {
