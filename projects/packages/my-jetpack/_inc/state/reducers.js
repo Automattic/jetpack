@@ -25,6 +25,7 @@ const purchases = ( state = {}, action ) => {
 				...state,
 				items: action?.purchases || [],
 			};
+
 		default:
 			return state;
 	}
