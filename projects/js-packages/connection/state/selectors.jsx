@@ -1,5 +1,12 @@
 const connectionSelectors = {
 	getConnectionStatus: state => state.connectionStatus || {},
+	/**
+	 * Checks whether the store is fetching the connection status from the server
+	 *
+	 * @deprecated since version $$next-version$$
+	 * @returns {boolean} Is the store is fetching the connection status from the server?
+	 */
+	getConnectionStatusIsFetching: () => false,
 	getSiteIsRegistering: state => state.siteIsRegistering || false,
 	getUserIsConnecting: state => state.userIsConnecting || false,
 	getRegistrationError: state => state.registrationError || false,
