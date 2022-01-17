@@ -27,4 +27,16 @@ class REST_API {
 		}
 	}
 
+	/**
+	 * @param Endpoint|Endpoint[]|string $endpoints
+	 *
+	 * @return void
+	 */
+	public static function register( $endpoints ) {
+		// If endpoints are passed as a string,
+		// (array) will convert it to an array
+		$rest_api = new REST_API( (array) $endpoints );
+		add_action( 'rest_api_init', array( $rest_api, 'register_rest_routes' ) );
+	}
+
 }
