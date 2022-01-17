@@ -3,7 +3,8 @@ const productSelectors = {
 };
 
 const purchasesSelectors = {
-	getPurchases: state => state.purchases || [],
+	getPurchases: state => state.purchases?.items || [],
+	isRequestingPurchases: state => state.isRequestingPurchases || false,
 };
 
 const selectors = {

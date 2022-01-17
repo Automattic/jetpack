@@ -17,7 +17,10 @@ const purchases = ( state = {}, action ) => {
 		return state;
 	}
 
-	return action?.purchases || [];
+	return {
+		...state,
+		items: action?.purchases || [],
+	};
 };
 
 const reducers = combineReducers( {
