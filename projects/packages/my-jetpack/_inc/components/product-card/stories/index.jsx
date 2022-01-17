@@ -14,7 +14,7 @@ export default {
 	component: ProductCard,
 	parameters: { actions: { argTypesRegex: '^on.*' } },
 	argTypes: {
-		productIcon: {
+		icon: {
 			table: {
 				disable: true,
 			},
@@ -36,9 +36,9 @@ const BackupIcon = () => (
 const Template = args => <ProductCard { ...args } />;
 
 const DefaultArgs = {
-	productName: 'Backup',
-	productDescription: 'Save every change',
-	productIcon: <BackupIcon />,
+	name: 'Backup',
+	description: 'Save every change',
+	icon: <BackupIcon />,
 	status: PRODUCT_STATUSES.ACTIVE,
 };
 

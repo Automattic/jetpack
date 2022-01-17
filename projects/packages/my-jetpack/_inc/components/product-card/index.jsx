@@ -29,9 +29,9 @@ const DownIcon = () => (
 );
 
 const ProductCard = ( {
-	productName,
-	productDescription,
-	productIcon,
+	name,
+	description,
+	icon,
 	actionButtonLabel,
 	onDeactivate,
 	onActionClick,
@@ -39,10 +39,10 @@ const ProductCard = ( {
 	return (
 		<div className={ styles.container }>
 			<div className={ styles.name }>
-				<span>{ productName }</span>
-				{ productIcon }
+				<span>{ name }</span>
+				{ icon }
 			</div>
-			<p className={ styles.description }>{ productDescription }</p>
+			<p className={ styles.description }>{ description }</p>
 			<div className={ styles.actions }>
 				<ButtonGroup>
 					<Button isPressed onClick={ onActionClick }>
@@ -69,9 +69,9 @@ const ProductCard = ( {
 };
 
 ProductCard.propTypes = {
-	productName: PropTypes.string.isRequired,
-	productDescription: PropTypes.string.isRequired,
-	productIcon: PropTypes.element,
+	name: PropTypes.string.isRequired,
+	description: PropTypes.string.isRequired,
+	icon: PropTypes.element,
 	actionButtonLabel: PropTypes.string,
 	onDeactivate: PropTypes.func,
 	onActionClick: PropTypes.func,
@@ -85,7 +85,7 @@ ProductCard.propTypes = {
 
 ProductCard.defaultProps = {
 	actionButtonLabel: 'Manage',
-	productIcon: null,
+	icon: null,
 	onDeactivate: () => {},
 	onActionClick: () => {},
 };
