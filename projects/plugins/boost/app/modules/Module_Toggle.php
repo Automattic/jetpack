@@ -12,30 +12,16 @@ namespace Automattic\Jetpack_Boost\Modules;
 use Automattic\Jetpack_Boost\Lib\Analytics;
 use Automattic\Jetpack_Boost\Lib\Config;
 
-class Module {
+class Module_Toggle {
 
-	/**
-	 * @var Config
-	 */
 	protected $config;
 
-	/**
-	 * @var Generic_Module
-	 */
-	protected $module;
+	protected $slug;
 
 
-	public function __construct( $module_instance ) {
-		$this->module = $module_instance;
-		$this->config = new Config( $this->module->get_slug() );
-	}
-
-	/**
-	 * Initialize the module and track its state.
-	 */
-	public function initialize() {
-		$this->module->initialize();
-		do_action( "jetpack_boost_{$this->module->get_slug()}_initialized", $this );
+	public function __construct( $module_slug ) {
+		$this->slug   = $module_slug;
+		$this->config = new Config( $this->slug );
 	}
 
 	public function is_enabled() {
@@ -67,7 +53,7 @@ class Module {
 		Analytics::record_user_event(
 			'set_module_status',
 			array(
-				'module' => $this->module->get_slug(),
+				'module' => $this->slug,
 				'status' => $status,
 			)
 		);

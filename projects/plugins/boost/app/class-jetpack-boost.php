@@ -20,7 +20,7 @@ use Automattic\Jetpack_Boost\Lib\Speed_Score_History;
 use Automattic\Jetpack_Boost\Modules\Critical_CSS\Critical_CSS;
 use Automattic\Jetpack_Boost\Modules\Critical_CSS\Regenerate_Admin_Notice;
 use Automattic\Jetpack_Boost\Modules\Lazy_Images\Lazy_Images;
-use Automattic\Jetpack_Boost\Modules\Module;
+use Automattic\Jetpack_Boost\Modules\Module_Toggle;
 use Automattic\Jetpack_Boost\Modules\Render_Blocking_JS\Render_Blocking_JS;
 use Automattic\Jetpack_Boost\REST_API\Contracts\Has_Endpoints;
 use Automattic\Jetpack_Boost\REST_API\REST_API;
@@ -38,12 +38,6 @@ use Automattic\Jetpack_Boost\REST_API\REST_API;
  * @author     Automattic <support@jetpack.com>
  */
 class Jetpack_Boost {
-
-	const AVAILABLE_MODULES = array(
-		Critical_CSS::MODULE_SLUG       => Critical_CSS::class,
-		Lazy_Images::MODULE_SLUG        => Lazy_Images::class,
-		Render_Blocking_JS::MODULE_SLUG => Render_Blocking_JS::class,
-	);
 
 	/**
 	 * The unique identifier of this plugin.
@@ -64,7 +58,7 @@ class Jetpack_Boost {
 	/**
 	 * Store all plugin module instances here
 	 *
-	 * @var Module[]
+	 * @var array
 	 */
 	private $modules = array();
 
@@ -102,13 +96,10 @@ class Jetpack_Boost {
 			\WP_CLI::add_command( 'jetpack-boost', $cli_instance );
 		}
 
-		$this->modules = $this->prepare_modules();
+		$this->setup_modules();
 
 		// Initialize the Admin experience.
 		$this->init_admin();
-
-		// Module readiness filter.
-		add_action( 'wp_head', array( $this, 'display_meta_field_module_ready' ) );
 
 		add_action( 'init', array( $this, 'initialize_modules' ) );
 		add_action( 'init', array( $this, 'init_textdomain' ) );
@@ -182,9 +173,10 @@ class Jetpack_Boost {
 
 
 
-		$all_modules       = self::AVAILABLE_MODULES;
 		$available_modules = array();
-		foreach ( $all_modules as $module_slug => $module ) {
+		foreach ( $this->modules as $module_slug => $mod ) {
+			$module = $mod['module'];
+
 			// Don't register modules that have been forcibly disabled from the url 'jb-disable-modules' query string parameter.
 			if ( in_array( $module_slug, $forced_disabled_modules, true ) || in_array( 'all', $forced_disabled_modules, true ) ) {
 				continue;
@@ -203,15 +195,18 @@ class Jetpack_Boost {
 	 *
 	 * phpcs:disable WordPress.Security.NonceVerification.Recommended
 	 */
-	public function prepare_modules() {
-		$modules = array();
-		foreach ( $this->available_modules() as $module_slug => $module_class ) {
-			/**
-			 * @var Module $module
-			 */
-			$module                  = new $module_class();
-			$toggleable_module       = new Module( $module );
-			$modules[ $module_slug ] = $toggleable_module;
+	public function setup_modules() {
+
+		$modules = array(
+			new Critical_CSS(),
+			new Lazy_Images(),
+			new Render_Blocking_JS(),
+		);
+
+		foreach ( $modules as $module ) {
+			$slug              = $module->get_slug();
+			$toggleable_module = new Module_Toggle( $slug );
+
 
 			if ( $module instanceof Has_Endpoints ) {
 				$module_routes = $module->get_endpoints();
@@ -221,6 +216,12 @@ class Jetpack_Boost {
 				$rest_api = new REST_API( $module_routes );
 				add_action( 'rest_api_init', array( $rest_api, 'register_rest_routes' ) );
 			}
+
+
+			$this->modules[ $slug ] = array(
+				'status' => $toggleable_module,
+				'module' => $module,
+			);
 		}
 
 		do_action( 'jetpack_boost_modules_loaded' );
@@ -231,42 +232,56 @@ class Jetpack_Boost {
 	 * Initialize modules when WordPress is ready
 	 */
 	public function initialize_modules() {
-		foreach ( $this->modules as $module ) {
-			if ( $module->is_enabled() ) {
+
+		foreach ( $this->modules as $mod ) {
+			$module = $mod['module'];
+			$status = $mod['status'];
+			if ( $status->is_enabled() ) {
 				$module->initialize();
+				do_action( "jetpack_boost_{$module->get_slug()}_initialized", $module );
 			}
 		}
 	}
 
-	/**
-	 * Returns the list of available modules.
-	 *
-	 * @return array The available modules.
-	 */
-	public static function get_available_modules() {
-		return array_keys( static::AVAILABLE_MODULES );
+	public function get_modules() {
+		return $this->modules;
 	}
 
 	/**
 	 * Returns an array of active modules.
 	 */
 	public function get_active_modules() {
-		return array_filter( $this->modules, function( $module ) {
-			return $module->is_enabled();
+		return array_filter( $this->modules, function( $mod ) {
+			return $mod['status']->is_enabled();
 		} );
 	}
 
 	/**
 	 * @param string $module_slug
 	 *
-	 * @return Module|false
+	 * @return Module_Toggle|false
 	 */
 	public function get_module( $module_slug ) {
 		if ( ! $this->modules[ $module_slug ] ) {
 			return false; // @TODO: Return empty module instead
 		}
 
-		return $this->modules[ $module_slug ];
+		return $this->modules[ $module_slug ]['module'];
+	}
+
+
+	/**
+	 * Hopefull this is a temporary hack, to be replaced by a real module class.
+	 * @param $module_slug
+	 *
+	 * @return false|mixed
+	 */
+	public function get_module_status( $module_slug ) {
+		if ( ! $this->modules[ $module_slug ] ) {
+			return false;
+		}
+
+		return $this->modules[ $module_slug ]['status'];
 	}
 
 	/**

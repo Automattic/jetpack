@@ -15,7 +15,6 @@ use Automattic\Jetpack_Boost\REST_API\Endpoints\Recommendations_Reset;
 
 class Critical_CSS implements Generic_Module, Has_Endpoints {
 
-	const MODULE_SLUG              = 'critical-css';
 	const RESET_REASON_STORAGE_KEY = 'jb-generate-critical-css-reset-reason';
 
 	/**
@@ -61,7 +60,7 @@ class Critical_CSS implements Generic_Module, Has_Endpoints {
 	}
 
 	public function get_slug() {
-		return self::MODULE_SLUG;
+		return 'critical-css';
 	}
 
 	/**

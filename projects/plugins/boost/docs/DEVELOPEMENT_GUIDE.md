@@ -126,12 +126,12 @@ The bare-bones module template can look like:
 
 namespace Automattic\Jetpack_Boost\Modules\Foo;
 
-use Automattic\Jetpack_Boost\Modules\Module;
+use Automattic\Jetpack_Boost\Modules\Module_Toggle;
 
 /**
  * Class Foo
  */
-class Foo extends Module {
+class Foo extends Module_Toggle {
 
 	/**
 	 * Code to run when module is started

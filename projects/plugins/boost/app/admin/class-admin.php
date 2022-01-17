@@ -129,7 +129,7 @@ class Admin {
 		);
 
 		$active_modules    = array_keys( $this->jetpack_boost->get_active_modules() );
-		$available_modules = Jetpack_Boost::get_available_modules();
+		$available_modules = array_keys( $this->jetpack_boost->get_modules() );
 
 		/**
 		 * @TODO: This config here ia bit incorrect - JavaScript relies on config module containing all the modules, even the disabled ones.
@@ -265,7 +265,7 @@ class Admin {
 		$module_slug = $request['slug'];
 
 		// @TODO: Looks like we need a Module Factory instead.
-		$module      = $this->jetpack_boost->get_module( $module_slug );
+		$module      = $this->jetpack_boost->get_module_status( $module_slug );
 
 		if ( ! $module ) {
 			return \WP_Error( 'jetpack_boost_invalid_module', __( 'Module not found', 'jetpack-boost' ) );

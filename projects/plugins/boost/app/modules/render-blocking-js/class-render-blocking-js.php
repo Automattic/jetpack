@@ -16,9 +16,6 @@ use Automattic\Jetpack_Boost\Modules\Generic_Module;
  * Class Render_Blocking_JS
  */
 class Render_Blocking_JS implements Generic_Module  {
-
-	const MODULE_SLUG = 'render-blocking-js';
-
 	/**
 	 * Holds the script tags removed from the output buffer.
 	 *
@@ -301,7 +298,7 @@ class Render_Blocking_JS implements Generic_Module  {
 	}
 
 	public function get_slug() {
-		return self::MODULE_SLUG;
+		return 'render-blocking-js';
 	}
 
 }
