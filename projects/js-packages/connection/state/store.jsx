@@ -6,6 +6,8 @@
 import reducer from './reducers';
 import actions from './actions';
 import selectors from './selectors';
+import resolvers from './resolvers';
+import controls from './controls';
 import storeHolder from './store-holder';
 
 const STORE_ID = 'jetpack-connection';
@@ -22,6 +24,8 @@ storeHolder.mayBeInit( STORE_ID, {
 	reducer,
 	actions,
 	selectors,
+	resolvers,
+	controls,
 	initialState: initialState || {},
 } );
 
