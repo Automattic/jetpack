@@ -22,8 +22,8 @@
 		"test": "js-test-runner jest --passWithNoTests --setupFilesAfterEnv ./jest.setup.js"
 	},
 	"dependencies": {
-		"@automattic/jetpack-components": "workspace:^0.10.1-alpha",
-		"@automattic/jetpack-connection": "workspace:^0.13.1-alpha",
+		"@automattic/jetpack-components": "workspace:^0.10.2-alpha",
+		"@automattic/jetpack-connection": "workspace:^0.13.2-alpha",
 		"@wordpress/components": "19.1.6",
 		"@wordpress/data": "6.1.5",
 		"@wordpress/i18n": "4.2.4"
@@ -33,7 +33,7 @@
 		"*.scss"
 	],
 	"devDependencies": {
-		"@automattic/jetpack-base-styles": "workspace:^0.1.5-alpha",
+		"@automattic/jetpack-base-styles": "workspace:^0.1.6-alpha",
 		"@automattic/jetpack-webpack-config": "workspace:^1.0.2-alpha",
 		"@babel/core": "7.16.0",
 		"@babel/preset-env": "7.16.4",
