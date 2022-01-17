@@ -20,10 +20,9 @@ use Automattic\Jetpack_Boost\Lib\Speed_Score_History;
 use Automattic\Jetpack_Boost\Modules\Critical_CSS\Critical_CSS;
 use Automattic\Jetpack_Boost\Modules\Critical_CSS\Regenerate_Admin_Notice;
 use Automattic\Jetpack_Boost\Modules\Lazy_Images\Lazy_Images;
+use Automattic\Jetpack_Boost\Modules\Module;
 use Automattic\Jetpack_Boost\Modules\Module_Toggle;
 use Automattic\Jetpack_Boost\Modules\Render_Blocking_JS\Render_Blocking_JS;
-use Automattic\Jetpack_Boost\REST_API\Contracts\Has_Endpoints;
-use Automattic\Jetpack_Boost\REST_API\REST_API;
 
 /**
  * The core plugin class.
@@ -96,7 +95,7 @@ class Jetpack_Boost {
 			\WP_CLI::add_command( 'jetpack-boost', $cli_instance );
 		}
 
-		$this->setup_modules();
+		$this->modules = $this->setup_modules();
 
 		// Initialize the Admin experience.
 		$this->init_admin();
@@ -174,8 +173,7 @@ class Jetpack_Boost {
 
 
 		$available_modules = array();
-		foreach ( $this->modules as $module_slug => $mod ) {
-			$module = $mod['module'];
+		foreach ( $this->modules as $module_slug => $module ) {
 
 			// Don't register modules that have been forcibly disabled from the url 'jb-disable-modules' query string parameter.
 			if ( in_array( $module_slug, $forced_disabled_modules, true ) || in_array( 'all', $forced_disabled_modules, true ) ) {
@@ -197,31 +195,17 @@ class Jetpack_Boost {
 	 */
 	public function setup_modules() {
 
-		$modules = array(
+		$features = array(
 			new Critical_CSS(),
 			new Lazy_Images(),
 			new Render_Blocking_JS(),
 		);
 
-		foreach ( $modules as $module ) {
-			$slug              = $module->get_slug();
-			$toggleable_module = new Module_Toggle( $slug );
+		foreach ( $features as $feature ) {
+			$module = new Module( $feature );
+			$module->register_endpoints();
 
-
-			if ( $module instanceof Has_Endpoints ) {
-				$module_routes = $module->get_endpoints();
-			}
-
-			if ( ! empty( $module_routes ) ) {
-				$rest_api = new REST_API( $module_routes );
-				add_action( 'rest_api_init', array( $rest_api, 'register_rest_routes' ) );
-			}
-
-
-			$this->modules[ $slug ] = array(
-				'status' => $toggleable_module,
-				'module' => $module,
-			);
+			$modules[ $module->get_slug() ] = $module;
 		}
 
 		do_action( 'jetpack_boost_modules_loaded' );
@@ -232,14 +216,8 @@ class Jetpack_Boost {
 	 * Initialize modules when WordPress is ready
 	 */
 	public function initialize_modules() {
-
-		foreach ( $this->modules as $mod ) {
-			$module = $mod['module'];
-			$status = $mod['status'];
-			if ( $status->is_enabled() ) {
-				$module->initialize();
-				do_action( "jetpack_boost_{$module->get_slug()}_initialized", $module );
-			}
+		foreach ( $this->available_modules() as $module ) {
+			$module->initialize();
 		}
 	}
 
@@ -251,8 +229,8 @@ class Jetpack_Boost {
 	 * Returns an array of active modules.
 	 */
 	public function get_active_modules() {
-		return array_filter( $this->modules, function( $mod ) {
-			return $mod['status']->is_enabled();
+		return array_filter( $this->modules, function( $module ) {
+			return $module->is_enabled();
 		} );
 	}
 
@@ -266,12 +244,13 @@ class Jetpack_Boost {
 			return false; // @TODO: Return empty module instead
 		}
 
-		return $this->modules[ $module_slug ]['module'];
+		return $this->modules[ $module_slug ];
 	}
 
 
 	/**
 	 * Hopefull this is a temporary hack, to be replaced by a real module class.
+	 *
 	 * @param $module_slug
 	 *
 	 * @return false|mixed

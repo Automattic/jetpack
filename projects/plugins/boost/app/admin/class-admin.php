@@ -265,7 +265,7 @@ class Admin {
 		$module_slug = $request['slug'];
 
 		// @TODO: Looks like we need a Module Factory instead.
-		$module      = $this->jetpack_boost->get_module_status( $module_slug );
+		$module      = $this->jetpack_boost->get_module( $module_slug );
 
 		if ( ! $module ) {
 			return \WP_Error( 'jetpack_boost_invalid_module', __( 'Module not found', 'jetpack-boost' ) );
