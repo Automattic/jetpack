@@ -5,6 +5,11 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.5.13] - 2022-01-04
+### Changed
+- Switch to pcov for code coverage.
+- Updated package dependencies
+
 ## [1.5.12] - 2021-12-14
 ### Changed
 - Updated package dependencies.
@@ -105,6 +110,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - Packages: Add a basic Jetpack Logo package
 
+[1.5.13]: https://github.com/Automattic/jetpack-logo/compare/v1.5.12...v1.5.13
 [1.5.12]: https://github.com/Automattic/jetpack-logo/compare/v1.5.11...v1.5.12
 [1.5.11]: https://github.com/Automattic/jetpack-logo/compare/v1.5.10...v1.5.11
 [1.5.10]: https://github.com/Automattic/jetpack-logo/compare/v1.5.9...v1.5.10

@@ -2,6 +2,21 @@
 
 ### This is a list detailing changes for the Jetpack RNA Components package releases.
 
+## 0.10.0 - 2022-01-11
+### Changed
+- Move numberFormat component into components js package
+- Updated package dependencies.
+
+### Removed
+- Remove use of deprecated `~` in sass-loader imports.
+
+## 0.9.1 - 2022-01-04
+### Changed
+- Updated package dependencies
+
+### Fixed
+- Fix styling conflict that occurs for ActionButton when Gutenberg plugin is used
+
 ## 0.9.0 - 2021-12-14
 ### Added
 - Created Layout components.
