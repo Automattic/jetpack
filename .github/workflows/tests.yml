@@ -122,6 +122,21 @@ jobs:
               echo "Skipping $SLUG, no test script is defined in composer.json"
             else
               echo "::group::Running tests for $SLUG"
+
+              # Composer install, if appropriate. Note setup-wordpress-env.sh did it already for plugins.
+              if [[ "${SLUG%%/*}" != "plugins" && ( "$TEST_SCRIPT" == "test-php" || "$TEST_SCRIPT" == "test-coverage" ) ]]; then
+                if [[ ! -f "$DIR/composer.lock" ]]; then
+                  echo 'No composer.lock, running `composer update`'
+                  composer --working-dir="$DIR" update
+                elif composer --working-dir="$DIR" check-platform-reqs --lock; then
+                  echo 'Platform reqs pass, running `composer install`'
+                  composer --working-dir="$DIR" install
+                else
+                  echo 'Platform reqs failed, running `composer update`'
+                  composer --working-dir="$DIR" update
+                fi
+              fi
+
               mkdir -p "artifacts/$SLUG"
               export ARTIFACTS_DIR="$GITHUB_WORKSPACE/artifacts/$SLUG"
               if [[ "$TEST_SCRIPT" == "test-coverage" ]]; then

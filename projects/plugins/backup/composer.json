@@ -28,11 +28,9 @@
 	},
 	"scripts": {
 		"build-development": [
-			"Composer\\Config::disableProcessTimeout",
 			"pnpm run build"
 		],
 		"build-production": [
-			"Composer\\Config::disableProcessTimeout",
 			"pnpm run build-production-concurrently"
 		],
 		"watch": [

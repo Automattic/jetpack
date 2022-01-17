@@ -7,10 +7,9 @@
 	"author": "Automattic",
 	"license": "GPL-2.0-or-later",
 	"scripts": {
-		"build": "pnpm run install-if-deps-outdated && pnpm run clean && pnpm run build-client && pnpm run validate",
+		"build": "pnpm run clean && pnpm run build-client && pnpm run validate",
 		"build-client": "pnpx webpack",
 		"clean": "rm -rf build/",
-		"install-if-deps-outdated": "pnpm install --no-prod --frozen-lockfile",
 		"validate": "pnpm exec validate-es build/",
 		"watch": "pnpm run build && pnpx webpack watch"
 	},

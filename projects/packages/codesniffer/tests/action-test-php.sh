@@ -11,5 +11,4 @@ if php -r 'exit( version_compare( PHP_VERSION, "8.0.9999999", ">" ) ? 0 : 1 );';
 	exit 0
 fi
 
-composer update
 composer phpunit
