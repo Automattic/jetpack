@@ -4,6 +4,8 @@
 import reducer from './reducers';
 import selectors from './selectors';
 import storeHolder from './store-holder';
+import resolvers from './resolvers';
+import controls from './controls';
 
 const STORE_ID = 'my-jetpack';
 
@@ -15,8 +17,8 @@ function initStore() {
 		reducer,
 		actions: {},
 		selectors,
-		resolvers: {},
-		controls: {},
+		resolvers,
+		controls,
 		initialState: window.myJetpackInitialState || {},
 	} );
 }
