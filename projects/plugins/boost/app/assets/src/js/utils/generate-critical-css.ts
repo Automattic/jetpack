@@ -22,6 +22,7 @@ import { castToNumber } from './cast-to-number';
 import { recordBoostEvent } from './analytics';
 import { isSameOrigin } from './is-same-origin';
 import { prepareAdminAjaxRequest } from './make-admin-ajax-request';
+import { logPreCriticalCSSGeneration } from './console';
 
 export type ProviderKeyUrls = {
 	[ providerKey: string ]: string[];
@@ -116,6 +117,7 @@ export default async function generateCriticalCss(
 
 		// Run generator on each configuration.
 		updateGenerateStatus( true, 0 );
+		logPreCriticalCSSGeneration();
 		await generateForKeys(
 			cssStatus.pending_provider_keys,
 			requestGetParameters,
