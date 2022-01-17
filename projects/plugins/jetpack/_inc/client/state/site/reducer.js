@@ -430,7 +430,7 @@ export function getConnectedPlugins( state ) {
  * @param   {object} state - Global state tree
  * @returns {boolean} True if the site does have Backup
  */
-export function siteHasBackup( state ) {
+export function siteHasBackupPlan( state ) {
 	const sitePlan = getSitePlan( state );
 	const siteProducts = getSiteProducts( state );
 

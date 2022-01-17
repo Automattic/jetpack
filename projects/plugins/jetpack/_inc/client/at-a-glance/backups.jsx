@@ -32,7 +32,7 @@ import {
 	getActiveBackupPurchase,
 	getSitePlan,
 	hasActiveBackupPurchase,
-	siteHasBackup,
+	siteHasBackupPlan,
 	isFetchingSiteData,
 } from 'state/site';
 import { isPluginInstalled } from 'state/site/plugins';
@@ -268,7 +268,7 @@ class DashBackups extends Component {
 
 	renderFromRewindStatus() {
 		if (
-			this.props.hasBackup &&
+			this.props.hasBackupPlan &&
 			'unavailable' === this.props.rewindStatus &&
 			'site_new' === this.props.rewindStatusReason
 		) {
@@ -333,7 +333,7 @@ export default connect(
 			upgradeUrl: getProductDescriptionUrl( state, 'backup' ),
 			hasConnectedOwner: hasConnectedOwner( state ),
 			isFetchingSite: isFetchingSiteData( state ),
-			hasBackup: siteHasBackup( state ),
+			hasBackupPlan: siteHasBackupPlan( state ),
 		};
 	},
 	dispatch => ( {
