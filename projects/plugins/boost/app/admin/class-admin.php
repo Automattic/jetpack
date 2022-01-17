@@ -69,7 +69,6 @@ class Admin {
 
 		add_action( 'init', array( new Analytics(), 'init' ) );
 		add_filter( 'plugin_action_links_' . JETPACK_BOOST_PLUGIN_BASE, array( $this, 'plugin_page_settings_link' ) );
-		add_action( 'rest_api_init', array( $this, 'register_rest_routes' ) );
 		add_action( 'admin_notices', array( $this, 'show_notices' ) );
 		add_action( 'wp_ajax_set_show_rating_prompt', array( $this, 'handle_set_show_rating_prompt' ) );
 		add_filter( 'jetpack_boost_js_constants', array( $this, 'add_js_constants' ) );
@@ -171,7 +170,7 @@ class Admin {
 			 *
 			 * Nonces are automatically generated when registering routes.
 			 */
-			'nonces' => Nonce::get_generated_nonces()
+			'nonces'              => Nonce::get_generated_nonces(),
 		);
 
 		// Give each module an opportunity to define extra constants.
@@ -226,61 +225,6 @@ class Admin {
 		return current_user_can( 'manage_options' );
 	}
 
-	/**
-	 * Register REST routes for settings.
-	 *
-	 * @return void
-	 */
-	public function register_rest_routes() {
-		// Activate and deactivate a module.
-		register_rest_route(
-			JETPACK_BOOST_REST_NAMESPACE,
-			JETPACK_BOOST_REST_PREFIX . '/module/(?P<slug>[a-z\-]+)/status',
-			array(
-				'methods'             => \WP_REST_Server::EDITABLE,
-				'callback'            => array( $this, 'set_module_status' ),
-				'permission_callback' => array( $this, 'check_for_permissions' ),
-			)
-		);
-	}
-
-	/**
-	 * Handler for the /module/(?P<slug>[a-z\-]+)/status endpoint.
-	 *
-	 * @param \WP_REST_Request $request The request object.
-	 *
-	 * @return \WP_REST_Response|\WP_Error The response.
-	 */
-	public function set_module_status( $request ) {
-		$params = $request->get_json_params();
-
-		if ( ! isset( $params['status'] ) ) {
-			return new \WP_Error(
-				'jetpack_boost_error_missing_module_status_param',
-				__( 'Missing status param', 'jetpack-boost' )
-			);
-		}
-
-
-		$module_slug = $request['slug'];
-
-		// @TODO: Looks like we need a Module Factory instead.
-		$module      = $this->jetpack_boost->get_module( $module_slug );
-
-		if ( ! $module ) {
-			return \WP_Error( 'jetpack_boost_invalid_module', __( 'Module not found', 'jetpack-boost' ) );
-		}
-
-		if( true === $params['status'] ) {
-			$module->enable();
-		} else {
-			$module->disable();
-		}
-		
-		return rest_ensure_response(
-			$module->is_enabled()
-		);
-	}
 
 	/**
 	 * Show any admin notices from enabled modules.

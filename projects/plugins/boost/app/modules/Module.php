@@ -32,9 +32,8 @@ class Module {
 		if ( empty( $this->module->get_endpoints() ) ) {
 			return false;
 		}
-
-		$rest_api = new REST_API( $this->module->get_endpoints() );
-		add_action( 'rest_api_init', array( $rest_api, 'register_rest_routes' ) );
+		
+		REST_API::register( $this->module->get_endpoints() );
 
 	}
 
@@ -63,7 +62,7 @@ class Module {
 	public function is_enabled() {
 		return $this->toggle->is_enabled();
 	}
-	
+
 	public function enable() {
 		$this->toggle->enable();
 	}

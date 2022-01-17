@@ -23,6 +23,8 @@ use Automattic\Jetpack_Boost\Modules\Lazy_Images\Lazy_Images;
 use Automattic\Jetpack_Boost\Modules\Module;
 use Automattic\Jetpack_Boost\Modules\Module_Toggle;
 use Automattic\Jetpack_Boost\Modules\Render_Blocking_JS\Render_Blocking_JS;
+use Automattic\Jetpack_Boost\REST_API\Endpoints\Toggle_Module;
+use Automattic\Jetpack_Boost\REST_API\REST_API;
 
 /**
  * The core plugin class.
@@ -267,6 +269,7 @@ class Jetpack_Boost {
 	 * Initialize the admin experience.
 	 */
 	public function init_admin() {
+		REST_API::register( Toggle_Module::class );
 		$this->connection->ensure_connection();
 		new Admin( $this );
 	}
