@@ -90,6 +90,7 @@ class Initializer {
 				'apiRoot'               => esc_url_raw( rest_url() ),
 				'apiNonce'              => wp_create_nonce( 'wp_rest' ),
 				'products'              => self::get_products(),
+				'purchases'             => array(),
 				'redirectUrl'           => admin_url( '?page=my-jetpack' ),
 				'topJetpackMenuItemUrl' => Admin_Menu::get_top_level_menu_item_url(),
 			)
