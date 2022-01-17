@@ -49,5 +49,10 @@
 		"branch-alias": {
 			"dev-master": "1.4.x-dev"
 		}
+	},
+	"config": {
+		"allow-plugins": {
+			"roots/wordpress-core-installer": true
+		}
 	}
 }
