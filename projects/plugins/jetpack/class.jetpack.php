@@ -4068,40 +4068,6 @@ p {
 	}
 
 	/**
-	 * Returns true.
-	 *
-	 * @todo This is seemingly unused.
-	 *
-	 * @return bool
-	 */
-	public function admin_menu_order() {
-		return true;
-	}
-
-	/**
-	 * Sorts the order of wp-admin menu items.
-	 *
-	 * @param array $menu_order Existing menu order.
-	 *
-	 * @return array
-	 */
-	public function jetpack_menu_order( $menu_order ) {
-		$jp_menu_order = array();
-
-		foreach ( $menu_order as $index => $item ) {
-			if ( 'jetpack' !== $item ) {
-				$jp_menu_order[] = $item;
-			}
-
-			if ( 0 == $index ) { // phpcs:ignore WordPress.PHP.StrictComparisons.LooseComparison
-				$jp_menu_order[] = 'jetpack';
-			}
-		}
-
-		return $jp_menu_order;
-	}
-
-	/**
 	 * Registers/enqueues Jetpack banner styles.
 	 *
 	 * @return void

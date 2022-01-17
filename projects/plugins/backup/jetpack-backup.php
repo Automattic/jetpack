@@ -4,7 +4,7 @@
  * Plugin Name: Jetpack Backup
  * Plugin URI: https://jetpack.com/jetpack-backup
  * Description: Easily restore or download a backup of your site from a specific moment in time.
- * Version: 1.1.0-alpha
+ * Version: 1.1.1-alpha
  * Author: Automattic
  * Author URI: https://jetpack.com/
  * License: GPLv2 or later
@@ -92,7 +92,9 @@ if ( is_wp_error( $jetpack_backup_meets_requirements ) ) {
 $jetpack_autoloader = JETPACK_BACKUP_PLUGIN_DIR . 'vendor/autoload_packages.php';
 if ( is_readable( $jetpack_autoloader ) ) {
 	require_once $jetpack_autoloader;
-	\Automattic\Jetpack\Assets::alias_textdomains_from_file( JETPACK_BACKUP_PLUGIN_DIR . 'jetpack_vendor/i18n-map.php' );
+	if ( method_exists( \Automattic\Jetpack\Assets::class, 'alias_textdomains_from_file' ) ) {
+		\Automattic\Jetpack\Assets::alias_textdomains_from_file( JETPACK_BACKUP_PLUGIN_DIR . 'jetpack_vendor/i18n-map.php' );
+	}
 } else { // Something very unexpected. Error out gently with an admin_notice and exit loading.
 	if ( defined( 'WP_DEBUG' ) && WP_DEBUG ) {
 		error_log( // phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_error_log
