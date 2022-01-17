@@ -62,7 +62,7 @@
             "dist": {
                 "type": "path",
                 "url": "../../packages/admin-ui",
-                "reference": "b320a5899ac57492faafbd8a6edac92c95cb4b23"
+                "reference": "a32c8100f9032af318b792995597c521d038da40"
             },
             "require-dev": {
                 "automattic/jetpack-changelogger": "^3.0",
@@ -236,7 +236,7 @@
             "dist": {
                 "type": "path",
                 "url": "../../packages/backup",
-                "reference": "ebc150cc62daaa94ea3bf382776880653f7bf1a1"
+                "reference": "12bdaa08a77265dc24226cf4c607c5c07bbdb0df"
             },
             "require": {
                 "automattic/jetpack-connection": "^1.36",
@@ -393,7 +393,7 @@
             "dist": {
                 "type": "path",
                 "url": "../../packages/connection",
-                "reference": "fb9858b580c6b09790f60d4c7615499c17ab0c78"
+                "reference": "9a28a45452b2cc1ad345c1ac21ab7f3c79cf90ba"
             },
             "require": {
                 "automattic/jetpack-a8c-mc-stats": "^1.4",
@@ -664,7 +664,7 @@
             "dist": {
                 "type": "path",
                 "url": "../../packages/identity-crisis",
-                "reference": "c8be5ef3452bcad95dd60d1d1248f896ad5abda7"
+                "reference": "d63dfb552065f103248b1ae2bc011ede00587069"
             },
             "require": {
                 "automattic/jetpack-assets": "^1.16",
@@ -913,7 +913,7 @@
             "dist": {
                 "type": "path",
                 "url": "../../packages/password-checker",
-                "reference": "135f2793a7a5625d9adf2848edbf21b6249fd525"
+                "reference": "bd3670ca2602e9a4a413522a01f516c28f65ffdc"
             },
             "require-dev": {
                 "automattic/jetpack-changelogger": "^3.0",
@@ -1127,7 +1127,7 @@
             "dist": {
                 "type": "path",
                 "url": "../../packages/sync",
-                "reference": "a39c1a3bbc622b52770297d50dbcd160051309f9"
+                "reference": "039f2f2a77b992b16f1e9f8c952bc452f7aec5e7"
             },
             "require": {
                 "automattic/jetpack-connection": "^1.36",
@@ -4468,5 +4468,5 @@
     "prefer-lowest": false,
     "platform": [],
     "platform-dev": [],
-    "plugin-api-version": "2.1.0"
+    "plugin-api-version": "2.2.0"
 }
