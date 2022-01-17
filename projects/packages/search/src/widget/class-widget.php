@@ -133,6 +133,8 @@ class Widget extends \WP_Widget {
 			false
 		);
 
+		// TODO enqueue style.
+
 		wp_localize_script(
 			'jetpack-search-widget-admin',
 			'jetpack_search_filter_admin',

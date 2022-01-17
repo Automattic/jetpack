@@ -59,6 +59,8 @@ projects/packages/search/build
 projects/packages/lazy-images/dist
 projects/packages/my-jetpack/build
 projects/packages/search/build
+projects/packages/search/src/widget/js/search-widget-admin.js
+projects/packages/search/src/widget/js/search-widget.js
 projects/plugins/backup/build
 
 ### Storybook files

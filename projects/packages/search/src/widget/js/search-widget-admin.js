@@ -1,10 +1,11 @@
 /* globals jetpack_search_filter_admin, jQuery, analytics */
 
-( function ( $, args ) {
-	const defaultFilterCount =
-		'undefined' !== typeof args && args.defaultFilterCount ? args.defaultFilterCount : 5; // Just in case we couldn't find the defaultFiltercount arg
+( function( $, args ) {
+	var defaultFilterCount = ( 'undefined' !== typeof args && args.defaultFilterCount ) ?
+		args.defaultFilterCount :
+		5; // Just in case we couldn't find the defaultFiltercount arg
 
-	$( document ).ready( function () {
+	$( document ).ready( function() {
 		setListeners();
 
 		window.JetpackSearch = window.JetpackSearch || {};
@@ -16,37 +17,36 @@
 		}
 	} );
 
-	/**
-	 * @param container
-	 */
 	function generateFilterTitlePlaceholder( container ) {
-		let placeholder = null,
+		var placeholder = null,
 			isModified = null,
 			isMonth = null,
 			type = container.find( '.filter-select' ).val();
 
 		if ( 'taxonomy' === type ) {
-			placeholder = container.find( '.taxonomy-select option:selected' ).text().trim();
+			placeholder = container.find('.taxonomy-select option:selected').text().trim();
 		} else if ( 'date_histogram' === type && args && args.i18n ) {
-			isModified = -1 !== container.find( '.date-field-select' ).val().indexOf( 'modified' );
-			isMonth = 'month' === container.find( '.date-interval-select' ).val();
+			isModified = ( -1 !== container.find( '.date-field-select' ).val().indexOf( 'modified' ) );
+			isMonth = ( 'month' === container.find( '.date-interval-select' ).val() );
 
 			if ( isMonth ) {
-				placeholder = isModified ? args.i18n.monthUpdated : args.i18n.month;
+				placeholder = isModified ?
+					args.i18n.monthUpdated :
+					args.i18n.month;
 			} else {
-				placeholder = isModified ? args.i18n.yearUpdated : args.i18n.year;
+				placeholder = isModified ?
+					args.i18n.yearUpdated :
+					args.i18n.year;
 			}
 		} else {
-			placeholder = container.find( '.filter-select option:selected' ).text().trim();
+			placeholder = container.find('.filter-select option:selected').text().trim();
 		}
 
-		$( container )
-			.find( '.jetpack-search-filters-widget__title input' )
-			.prop( 'placeholder', placeholder );
+		$( container ).find('.jetpack-search-filters-widget__title input').prop( 'placeholder', placeholder );
 	}
 
-	var addFilter = function ( filtersContainer, args ) {
-		const template = _.template(
+	var addFilter = function( filtersContainer, args ) {
+		var template = _.template(
 			filtersContainer
 				.closest( '.jetpack-search-filters-widget' )
 				.find( '.jetpack-search-filters-widget__filter-template' )
@@ -55,18 +55,20 @@
 		generateFilterTitlePlaceholder( filtersContainer.append( template( args ) ) );
 	};
 
-	var setListeners = function ( widget ) {
-		widget = 'undefined' === typeof widget ? $( '.jetpack-search-filters-widget' ) : widget;
+	var setListeners = function( widget ) {
+		widget = ( 'undefined' === typeof widget ) ?
+			$( '.jetpack-search-filters-widget' ):
+			widget;
 
-		const getContainer = function ( el ) {
-			return $( el ).closest( '.jetpack-search-filters-widget__filter' );
+		var getContainer = function( el ) {
+			return $( el ).closest('.jetpack-search-filters-widget__filter');
 		};
 
-		widget.on( 'change', '.filter-select', function () {
-			const select = $( this ),
+		widget.on( 'change', '.filter-select', function() {
+			var select = $( this ),
 				selectVal = select.val(),
 				eventArgs = {
-					is_customizer: args.tracksEventData.is_customizer,
+					is_customizer: args.tracksEventData.is_customizer
 				};
 
 			eventArgs.type = selectVal;
@@ -82,9 +84,9 @@
 		} );
 
 		// enable showing sort controls only if showing search box is enabled
-		widget.on( 'change', '.jetpack-search-filters-widget__search-box-enabled', function () {
-			const checkbox = $( this ),
-				checkboxVal = checkbox.is( ':checked' ),
+		widget.on( 'change', '.jetpack-search-filters-widget__search-box-enabled', function() {
+			var checkbox = $( this ),
+				checkboxVal = checkbox.is(':checked'),
 				filterParent = checkbox.closest( '.jetpack-search-filters-widget' ),
 				sortControl = filterParent.find( '.jetpack-search-filters-widget__sort-controls-enabled' );
 
@@ -100,7 +102,7 @@
 			}
 		} );
 
-		widget.on( 'change', '.jetpack-search-filters-widget__sort-controls-enabled', function () {
+		widget.on( 'change', '.jetpack-search-filters-widget__sort-controls-enabled', function() {
 			if ( $( this ).is( ':checked' ) ) {
 				trackAndBumpMCStats( 'enabled_sort_controls', args.tracksEventData );
 			} else {
@@ -108,51 +110,40 @@
 			}
 		} );
 
-		widget.on(
-			'click',
-			'.jetpack-search-filters-widget__post-types-select input[type="checkbox"]',
-			function ( e ) {
-				const t = $( this );
-				const siblingsChecked = t
-					.closest( '.jetpack-search-filters-widget' )
-					.find(
-						'.jetpack-search-filters-widget__post-types-select input[type="checkbox"]:checked'
-					);
+		widget.on( 'click', '.jetpack-search-filters-widget__post-types-select input[type="checkbox"]', function( e ) {
+			var t = $( this );
+			var siblingsChecked = t.closest( '.jetpack-search-filters-widget' )
+				.find( '.jetpack-search-filters-widget__post-types-select input[type="checkbox"]:checked' );
 
-				if ( 0 === siblingsChecked.length ) {
-					e.preventDefault();
-					e.stopPropagation();
+			if ( 0 === siblingsChecked.length ) {
+				e.preventDefault();
+				e.stopPropagation();
 
-					trackAndBumpMCStats( 'attempted_no_post_types', args.tracksEventData );
-				}
+				trackAndBumpMCStats( 'attempted_no_post_types', args.tracksEventData );
 			}
-		);
+		} );
 
-		widget.on(
-			'change',
-			'.jetpack-search-filters-widget__post-types-select input[type="checkbox"]',
-			function () {
-				const t = $( this );
-				const eventArgs = {
-					is_customizer: args.tracksEventData.is_customizer,
-					post_type: t.val(),
-				};
-
-				if ( wp && wp.customize ) {
-					wp.customize.state( 'saved' ).set( false );
-				}
-
-				if ( t.is( ':checked' ) ) {
-					trackAndBumpMCStats( 'added_post_type', eventArgs );
-				} else {
-					trackAndBumpMCStats( 'removed_post_type', eventArgs );
-				}
-			}
-		);
-
-		widget.on( 'change', '.jetpack-search-filters-widget__sort-order', function () {
-			const eventArgs = {
+		widget.on( 'change', '.jetpack-search-filters-widget__post-types-select input[type="checkbox"]', function() {
+			var t = $( this );
+			var eventArgs = {
 				is_customizer: args.tracksEventData.is_customizer,
+				post_type:  t.val()
+			};
+
+			if ( wp && wp.customize ) {
+				wp.customize.state( 'saved' ).set( false );
+			}
+
+			if ( t.is( ':checked' ) ) {
+				trackAndBumpMCStats( 'added_post_type', eventArgs );
+			} else {
+				trackAndBumpMCStats( 'removed_post_type', eventArgs );
+			}
+		} );
+
+		widget.on( 'change', '.jetpack-search-filters-widget__sort-order', function() {
+			var eventArgs = {
+				is_customizer: args.tracksEventData.is_customizer
 			};
 
 			eventArgs.order = $( this ).val();
@@ -164,9 +155,9 @@
 			trackAndBumpMCStats( 'changed_sort_order', eventArgs );
 		} );
 
-		widget.on( 'change', '.jetpack-search-filters-widget__taxonomy-select select', function () {
-			const eventArgs = {
-				is_customizer: args.tracksEventData.is_customizer,
+		widget.on( 'change', '.jetpack-search-filters-widget__taxonomy-select select', function() {
+			var eventArgs = {
+				is_customizer: args.tracksEventData.is_customizer
 			};
 
 			eventArgs.taxonomy = $( this ).val();
@@ -180,9 +171,9 @@
 			trackAndBumpMCStats( 'changed_taxonomy', eventArgs );
 		} );
 
-		widget.on( 'change', 'select.date-field-select', function () {
-			const eventArgs = {
-				is_customizer: args.tracksEventData.is_customizer,
+		widget.on( 'change', 'select.date-field-select', function() {
+			var eventArgs = {
+				is_customizer: args.tracksEventData.is_customizer
 			};
 
 			eventArgs.field = $( this ).val();
@@ -196,9 +187,9 @@
 			trackAndBumpMCStats( 'changed_date_field', eventArgs );
 		} );
 
-		widget.on( 'change', 'select.date-interval-select', function () {
-			const eventArgs = {
-				is_customizer: args.tracksEventData.is_customizer,
+		widget.on( 'change', 'select.date-interval-select', function() {
+			var eventArgs = {
+				is_customizer: args.tracksEventData.is_customizer
 			};
 
 			eventArgs.interval = $( this ).val();
@@ -212,9 +203,9 @@
 			trackAndBumpMCStats( 'changed_date_interval', eventArgs );
 		} );
 
-		widget.on( 'change', 'input.filter-count', function () {
-			const eventArgs = {
-				is_customizer: args.tracksEventData.is_customizer,
+		widget.on( 'change', 'input.filter-count', function() {
+			var eventArgs = {
+				is_customizer: args.tracksEventData.is_customizer
 			};
 
 			eventArgs.count = $( this ).val();
@@ -227,10 +218,10 @@
 		} );
 
 		// add filter button
-		widget.on( 'click', '.jetpack-search-filters-widget__add-filter', function ( e ) {
+		widget.on( 'click', '.jetpack-search-filters-widget__add-filter', function( e ) {
 			e.preventDefault();
 
-			const filtersContainer = $( this )
+			var filtersContainer = $( this )
 				.closest( '.jetpack-search-filters-widget' )
 				.find( '.jetpack-search-filters-widget__filters' );
 
@@ -242,7 +233,7 @@
 				interval: '',
 				count: defaultFilterCount,
 				name_placeholder: '',
-				name: '',
+				name: ''
 			} );
 
 			if ( wp && wp.customize ) {
@@ -258,28 +249,22 @@
 			trackAndBumpMCStats( 'added_filter', args.tracksEventData );
 		} );
 
-		widget.on( 'click', '.jetpack-search-filters-widget__controls .delete', function ( e ) {
+		widget.on( 'click', '.jetpack-search-filters-widget__controls .delete', function( e ) {
 			e.preventDefault();
-			const filter = $( this ).closest( '.jetpack-search-filters-widget__filter' ),
+			var filter = $( this ).closest( '.jetpack-search-filters-widget__filter' ),
 				eventArgs = {
-					is_customizer: args.tracksEventData.is_customizer,
+					is_customizer: args.tracksEventData.is_customizer
 				};
 
 			eventArgs.type = filter.find( '.filter-select' ).val();
 
 			switch ( eventArgs.type ) {
 				case 'taxonomy':
-					eventArgs.taxonomy = filter
-						.find( '.jetpack-search-filters-widget__taxonomy-select select' )
-						.val();
+					eventArgs.taxonomy = filter.find( '.jetpack-search-filters-widget__taxonomy-select select' ).val();
 					break;
 				case 'date_histogram':
-					eventArgs.dateField = filter
-						.find( '.jetpack-search-filters-widget__date-histogram-select:first select' )
-						.val();
-					eventArgs.dateInterval = filter
-						.find( '.jetpack-search-filters-widget__date-histogram-select:nth-child( 2 ) select' )
-						.val();
+					eventArgs.dateField = filter.find( '.jetpack-search-filters-widget__date-histogram-select:first select' ).val();
+					eventArgs.dateInterval = filter.find( '.jetpack-search-filters-widget__date-histogram-select:nth-child( 2 ) select' ).val();
 					break;
 			}
 
@@ -296,31 +281,30 @@
 		} );
 
 		// make the filters sortable
-		$( '.jetpack-search-filters-widget__filters' )
-			.sortable( {
-				placeholder: 'jetpack-search-filters-widget__filter-placeholder',
-				axis: 'y',
-				revert: true,
-				cancel: 'input,textarea,button,select,option,.jetpack-search-filters-widget__controls a',
-				change: function () {
-					if ( wp && wp.customize ) {
-						wp.customize.state( 'saved' ).set( false );
-					}
-				},
-				update: function ( e, ui ) {
-					$( ui.item ).find( 'input, textarea, select' ).change();
-				},
-			} )
-			.disableSelection();
+		$( '.jetpack-search-filters-widget__filters' ).sortable( {
+			placeholder: 'jetpack-search-filters-widget__filter-placeholder',
+			axis: 'y',
+			revert: true,
+			cancel: 'input,textarea,button,select,option,.jetpack-search-filters-widget__controls a',
+			change: function() {
+				if ( wp && wp.customize ) {
+					wp.customize.state( 'saved' ).set( false );
+				}
+			},
+			update: function( e, ui ) {
+				$( ui.item ).find( 'input, textarea, select' ).change();
+			}
+		} )
+		.disableSelection();
 	};
 
 	// When widgets are updated, remove and re-add listeners
-	$( document ).on( 'widget-updated widget-added', function ( e, widget ) {
-		const idBase = $( widget ).find( '.id_base' ).val(),
-			isJetpackSearch = idBase && 'jetpack-search-filters' === idBase;
+	$( document ).on( 'widget-updated widget-added', function( e, widget ) {
+		var idBase = $( widget ).find('.id_base').val(),
+			isJetpackSearch = ( idBase && ( 'jetpack-search-filters' === idBase ) );
 
 		if ( ! isJetpackSearch ) {
-			return;
+			 return;
 		}
 
 		// Intentionally not tracking widget additions and updates here as these events
@@ -337,11 +321,8 @@
 		widget.off( 'change', '.jetpack-search-filters-widget__taxonomy-select' );
 		widget.off( 'change', '.jetpack-search-filters-widget__date-histogram-select:first select' );
 		widget.off( 'change', '.jetpack-search-filters-widget__date-histogram-select:eq(1) select' );
-		widget.off(
-			'click',
-			'.jetpack-search-filters-widget__post-types-select input[type="checkbox"]'
-		);
-		widget.off( 'click', '.jetpack-search-filters-widget__add-filter' );
+		widget.off( 'click', '.jetpack-search-filters-widget__post-types-select input[type="checkbox"]' );
+		widget.off( 'click', '.jetpack-search-filters-widget__add-filter');
 
 		setListeners( widget );
 	} );
@@ -354,27 +335,18 @@
 	 *
 	 * Logic borrowed from `idc-notice.js`.
 	 *
-	 * @param eventName - string
-	 * @param extraProps - object
+	 * @param eventName string
+	 * @param extraProps object
 	 */
 	function trackAndBumpMCStats( eventName, extraProps ) {
 		if ( 'undefined' === typeof extraProps || 'object' !== typeof extraProps ) {
 			extraProps = {};
 		}
 
-		if (
-			eventName &&
-			eventName.length &&
-			'undefined' !== typeof analytics &&
-			analytics.tracks &&
-			analytics.mc
-		) {
+		if ( eventName && eventName.length && 'undefined' !== typeof analytics && analytics.tracks && analytics.mc ) {
 			// Format for Tracks
 			eventName = eventName.replace( /-/g, '_' );
-			eventName =
-				eventName.indexOf( 'jetpack_widget_search_' ) !== 0
-					? 'jetpack_widget_search_' + eventName
-					: eventName;
+			eventName = eventName.indexOf( 'jetpack_widget_search_' ) !== 0 ? 'jetpack_widget_search_' + eventName : eventName;
 			analytics.tracks.recordEvent( eventName, extraProps );
 
 			// Now format for MC stats
