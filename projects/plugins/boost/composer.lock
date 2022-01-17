@@ -62,7 +62,7 @@
             "dist": {
                 "type": "path",
                 "url": "../../packages/admin-ui",
-                "reference": "b320a5899ac57492faafbd8a6edac92c95cb4b23"
+                "reference": "a32c8100f9032af318b792995597c521d038da40"
             },
             "require-dev": {
                 "automattic/jetpack-changelogger": "^3.0",
@@ -328,7 +328,7 @@
             "dist": {
                 "type": "path",
                 "url": "../../packages/connection",
-                "reference": "fb9858b580c6b09790f60d4c7615499c17ab0c78"
+                "reference": "9a28a45452b2cc1ad345c1ac21ab7f3c79cf90ba"
             },
             "require": {
                 "automattic/jetpack-a8c-mc-stats": "^1.4",
@@ -541,7 +541,7 @@
             "dist": {
                 "type": "path",
                 "url": "../../packages/lazy-images",
-                "reference": "cb6c992bcf1190d27fdebf29a31d2156a1e7558f"
+                "reference": "297c498e08a7ea8c71d9d3e740b36273c1bfe8be"
             },
             "require": {
                 "automattic/jetpack-assets": "^1.16",
@@ -4552,5 +4552,5 @@
     "platform-overrides": {
         "ext-intl": "0.0.0"
     },
-    "plugin-api-version": "2.1.0"
+    "plugin-api-version": "2.2.0"
 }
