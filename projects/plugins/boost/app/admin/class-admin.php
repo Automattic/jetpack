@@ -14,6 +14,7 @@ use Automattic\Jetpack_Boost\Jetpack_Boost;
 use Automattic\Jetpack_Boost\Lib\Analytics;
 use Automattic\Jetpack_Boost\Lib\Environment_Change_Detector;
 use Automattic\Jetpack_Boost\Lib\Speed_Score;
+use Automattic\Jetpack_Boost\Modules\Modules;
 use Automattic\Jetpack_Boost\REST_API\Permissions\Nonce;
 
 /**
@@ -46,7 +47,7 @@ class Admin {
 	 *
 	 * @var Jetpack_Boost Plugin.
 	 */
-	private $jetpack_boost;
+	private $modules;
 
 	/**
 	 * Speed_Score class instance.
@@ -62,9 +63,9 @@ class Admin {
 	 *
 	 * @since    1.0.0
 	 */
-	public function __construct( Jetpack_Boost $jetpack_boost ) {
-		$this->jetpack_boost = $jetpack_boost;
-		$this->speed_score   = new Speed_Score( $jetpack_boost );
+	public function __construct( Modules $modules ) {
+		$this->modules     = $modules;
+		$this->speed_score = new Speed_Score( $modules );
 		Environment_Change_Detector::init();
 
 		add_action( 'init', array( new Analytics(), 'init' ) );
@@ -102,7 +103,7 @@ class Admin {
 		$internal_path = apply_filters( 'jetpack_boost_asset_internal_path', 'app/assets/dist/' );
 
 		wp_enqueue_style(
-			$this->jetpack_boost->get_plugin_name() . '-css',
+			'jetpack-boost-css',
 			plugins_url( $internal_path . 'jetpack-boost.css', JETPACK_BOOST_PATH ),
 			array( 'wp-components' ),
 			JETPACK_BOOST_VERSION
@@ -117,7 +118,7 @@ class Admin {
 	public function enqueue_scripts() {
 		$internal_path = apply_filters( 'jetpack_boost_asset_internal_path', 'app/assets/dist/' );
 
-		$admin_js_handle = $this->jetpack_boost->get_plugin_name() . '-admin';
+		$admin_js_handle = 'jetpack-boost-admin';
 
 		wp_register_script(
 			$admin_js_handle,
@@ -127,8 +128,8 @@ class Admin {
 			true
 		);
 
-		$active_modules    = array_keys( $this->jetpack_boost->get_active_modules() );
-		$available_modules = array_keys( $this->jetpack_boost->get_modules() );
+		$active_modules    = array_keys( $this->modules->get_active_modules() );
+		$available_modules = array_keys( $this->modules->get_modules() );
 
 		/**
 		 * @TODO: This config here ia bit incorrect - JavaScript relies on config module containing all the modules, even the disabled ones.
@@ -204,7 +205,7 @@ class Admin {
 	 */
 	public function render_settings() {
 		wp_localize_script(
-			$this->jetpack_boost->get_plugin_name() . '-admin',
+			'jetpack-boost-admin',
 			'wpApiSettings',
 			array(
 				'root'  => esc_url_raw( rest_url() ),
@@ -233,7 +234,7 @@ class Admin {
 		// Determine if we're already on the settings page.
 		// phpcs:ignore WordPress.Security.NonceVerification.Recommended
 		$on_settings_page = isset( $_GET['page'] ) && self::MENU_SLUG === $_GET['page'];
-		$notices          = $this->jetpack_boost->get_admin_notices();
+		$notices          = $this->get_admin_notices();
 
 		// Filter out any that have been dismissed, unless newer than the dismissal.
 		$dismissed_notices = \get_option( self::DISMISSED_NOTICE_OPTION, array() );
@@ -264,13 +265,37 @@ class Admin {
 	 * @return array List of notice ids.
 	 */
 	private function get_shown_admin_notice_ids() {
-		$notices = $this->jetpack_boost->get_admin_notices();
+		$notices = $this->get_admin_notices();
 		$ids     = array();
 		foreach ( $notices as $notice ) {
 			$ids[] = $notice->get_id();
 		}
 
 		return $ids;
+	}
+
+	/**
+	 * Returns a list of admin notices to show. Asks each module to provide admin notices the user needs to see.
+	 * @TODO: This is still a code smell. We're carrying the whole modules instance just to get a list of admin notices.
+	 *
+	 * @return \Automattic\Jetpack_Boost\Admin\Admin_Notice[]
+	 */
+	public function get_admin_notices() {
+		$all_notices = array();
+
+		foreach ( $this->modules->get_active_modules() as $module ) {
+
+			if( ! method_exists( $module, 'get_admin_notices' ) ) {
+				continue;
+			}
+			$module_notices = $module->get_admin_notices();
+
+			if ( ! empty( $module_notices ) ) {
+				$all_notices = array_merge( $all_notices, $module_notices );
+			}
+		}
+
+		return $all_notices;
 	}
 
 	/**

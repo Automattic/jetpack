@@ -9,27 +9,19 @@
 
 namespace Automattic\Jetpack_Boost\Lib;
 
-use Automattic\Jetpack_Boost\Jetpack_Boost;
+
+
+use Automattic\Jetpack_Boost\Modules\Modules;
 
 /**
  * Class Speed_Score
  */
 class Speed_Score {
 
-	/**
-	 * Main plugin instance.
-	 *
-	 * @var Jetpack_Boost Plugin.
-	 */
-	private $jetpack_boost;
-
-	/**
-	 * Constructor.
-	 *
-	 * @param Jetpack_Boost $jetpack_boost Main plugin instance.
-	 */
-	public function __construct( Jetpack_Boost $jetpack_boost ) {
-		$this->jetpack_boost = $jetpack_boost;
+	private $modules;
+	
+	public function __construct( Modules $modules ) {
+		$this->modules = $modules;
 
 		add_action( 'rest_api_init', array( $this, 'register_rest_routes' ) );
 		add_action( 'jetpack_boost_clear_cache', array( $this, 'clear_speed_score_request_cache' ) );
@@ -100,7 +92,7 @@ class Speed_Score {
 		$score_request = $this->get_score_request_by_url( $url );
 		if ( empty( $score_request ) || ! $score_request->is_pending() ) {
 			// Create and store the Speed Score request.
-			$active_modules = array_keys( $this->jetpack_boost->get_active_modules() );
+			$active_modules = array_keys( $this->modules->get_active_modules() );
 			$score_request  = new Speed_Score_Request( $url, $active_modules );
 			$score_request->store( 1800 ); // Keep the request for 30 minutes even if no one access the results.
 
@@ -196,7 +188,7 @@ class Speed_Score {
 		if (
 			// If there isn't already a pending request.
 			( empty( $score_request ) || ! $score_request->is_pending() )
-			&& ! empty( $this->jetpack_boost->get_active_modules() )
+			&& ! empty( $this->modules->get_active_modules() )
 			&& (
 				null === $latest_history
 				|| $latest_history['timestamp'] < strtotime( '- 24 hours' ) // Refetch if it is older than a day.
@@ -284,7 +276,7 @@ class Speed_Score {
 
 			// Only include noBoost scores if at least one modules is enabled.
 			$latest_history = $history->latest();
-			if ( ! empty( $this->jetpack_boost->get_active_modules() ) ) {
+			if ( ! empty( $this->modules->get_active_modules() ) ) {
 				$response['scores']['noBoost'] = $history_no_boost->latest_scores();
 			}
 

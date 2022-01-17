@@ -17,12 +17,7 @@ use Automattic\Jetpack_Boost\Lib\Analytics;
 use Automattic\Jetpack_Boost\Lib\CLI;
 use Automattic\Jetpack_Boost\Lib\Connection;
 use Automattic\Jetpack_Boost\Lib\Speed_Score_History;
-use Automattic\Jetpack_Boost\Modules\Critical_CSS\Critical_CSS;
-use Automattic\Jetpack_Boost\Modules\Critical_CSS\Regenerate_Admin_Notice;
-use Automattic\Jetpack_Boost\Modules\Lazy_Images\Lazy_Images;
-use Automattic\Jetpack_Boost\Modules\Module;
-use Automattic\Jetpack_Boost\Modules\Module_Toggle;
-use Automattic\Jetpack_Boost\Modules\Render_Blocking_JS\Render_Blocking_JS;
+use Automattic\Jetpack_Boost\Modules\Modules;
 use Automattic\Jetpack_Boost\REST_API\Endpoints\Toggle_Module;
 use Automattic\Jetpack_Boost\REST_API\REST_API;
 
@@ -57,13 +52,6 @@ class Jetpack_Boost {
 	private $version;
 
 	/**
-	 * Store all plugin module instances here
-	 *
-	 * @var array
-	 */
-	private $modules = array();
-
-	/**
 	 * The Jetpack Boost Connection manager instance.
 	 *
 	 * @since    1.0.0
@@ -87,6 +75,7 @@ class Jetpack_Boost {
 
 		$this->connection = new Connection();
 
+
 		// Require plugin features.
 		$this->init_textdomain();
 
@@ -97,12 +86,12 @@ class Jetpack_Boost {
 			\WP_CLI::add_command( 'jetpack-boost', $cli_instance );
 		}
 
-		$this->modules = $this->setup_modules();
-
 		// Initialize the Admin experience.
-		$this->init_admin();
+		$modules = new Modules();
+		$modules->setup_modules();
+		$this->init_admin( $modules );
+		add_action( 'init', array( $modules, 'initialize_modules' ) );
 
-		add_action( 'init', array( $this, 'initialize_modules' ) );
 		add_action( 'init', array( $this, 'init_textdomain' ) );
 		add_action( 'init', array( $this, 'register_cache_clear_actions' ) );
 
@@ -162,116 +151,14 @@ class Jetpack_Boost {
 		Analytics::record_user_event( 'clear_cache' );
 	}
 
-	protected function available_modules() {
-		$forced_disabled_modules = array();
-		// Get the lists of modules explicitly disabled from the 'jb-disable-modules' query string.
-		// The parameter is a comma separated value list of module slug.
-		if ( ! empty( $_GET['jb-disable-modules'] ) ) {
-			// phpcs:disable WordPress.Security.ValidatedSanitizedInput.MissingUnslash
-			// phpcs:disable WordPress.Security.ValidatedSanitizedInput.InputNotSanitized
-			$forced_disabled_modules = array_map( 'sanitize_key', explode( ',', $_GET['jb-disable-modules'] ) );
-		}
-
-
-
-		$available_modules = array();
-		foreach ( $this->modules as $module_slug => $module ) {
-
-			// Don't register modules that have been forcibly disabled from the url 'jb-disable-modules' query string parameter.
-			if ( in_array( $module_slug, $forced_disabled_modules, true ) || in_array( 'all', $forced_disabled_modules, true ) ) {
-				continue;
-			}
-			$available_modules[ $module_slug ] = $module;
-		}
-
-		return $available_modules;
-	}
-
-	/**
-	 * Initialize modules.
-	 *
-	 * Note: this method ignores the nonce verification linter rule, as jb-disable-modules is intended to work
-	 * without a nonce.
-	 *
-	 * phpcs:disable WordPress.Security.NonceVerification.Recommended
-	 */
-	public function setup_modules() {
-
-		$features = array(
-			new Critical_CSS(),
-			new Lazy_Images(),
-			new Render_Blocking_JS(),
-		);
-
-		foreach ( $features as $feature ) {
-			$module = new Module( $feature );
-			$module->register_endpoints();
-
-			$modules[ $module->get_slug() ] = $module;
-		}
-
-		do_action( 'jetpack_boost_modules_loaded' );
-		return $modules;
-	}
-
-	/**
-	 * Initialize modules when WordPress is ready
-	 */
-	public function initialize_modules() {
-		foreach ( $this->available_modules() as $module ) {
-			$module->initialize();
-		}
-	}
-
-	public function get_modules() {
-		return $this->modules;
-	}
-
-	/**
-	 * Returns an array of active modules.
-	 */
-	public function get_active_modules() {
-		return array_filter( $this->modules, function( $module ) {
-			return $module->is_enabled();
-		} );
-	}
-
-	/**
-	 * @param string $module_slug
-	 *
-	 * @return Module_Toggle|false
-	 */
-	public function get_module( $module_slug ) {
-		if ( ! $this->modules[ $module_slug ] ) {
-			return false; // @TODO: Return empty module instead
-		}
-
-		return $this->modules[ $module_slug ];
-	}
-
-
-	/**
-	 * Hopefull this is a temporary hack, to be replaced by a real module class.
-	 *
-	 * @param $module_slug
-	 *
-	 * @return false|mixed
-	 */
-	public function get_module_status( $module_slug ) {
-		if ( ! $this->modules[ $module_slug ] ) {
-			return false;
-		}
-
-		return $this->modules[ $module_slug ]['status'];
-	}
 
 	/**
 	 * Initialize the admin experience.
 	 */
-	public function init_admin() {
+	public function init_admin( $modules ) {
 		REST_API::register( Toggle_Module::class );
 		$this->connection->ensure_connection();
-		new Admin( $this );
+		new Admin( $modules );
 	}
 
 	/**
@@ -306,26 +193,7 @@ class Jetpack_Boost {
 		return $this->version;
 	}
 
-	/**
-	 * Returns a list of admin notices to show. Asks each module to provide admin notices the user needs to see.
-	 *
-	 * @return \Automattic\Jetpack_Boost\Admin\Admin_Notice[]
-	 */
-	public function get_admin_notices() {
-		// @TODO
-		return array();
-		$all_notices = array();
 
-		foreach ( $this->get_active_modules() as $module ) {
-			$module_notices = $module->get_admin_notices();
-
-			if ( ! empty( $module_notices ) ) {
-				$all_notices = array_merge( $all_notices, $module_notices );
-			}
-		}
-
-		return $all_notices;
-	}
 
 	/**
 	 * Handle an environment change to set the correct status to the Critical CSS request.
