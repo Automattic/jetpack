@@ -6,21 +6,28 @@ import { combineReducers } from '@wordpress/data';
 /**
  * Internal dependencies
  */
-import { SET_PURCHASES } from './actions';
+import { SET_PURCHASES, SET_PURCHASES_IS_FETCHING } from './actions';
 
 const products = ( state = {} ) => {
 	return state;
 };
 
 const purchases = ( state = {}, action ) => {
-	if ( action.type !== SET_PURCHASES ) {
-		return state;
-	}
+	switch ( action.type ) {
+		case SET_PURCHASES_IS_FETCHING:
+			return {
+				...state,
+				isFetching: action.isFetching,
+			};
 
-	return {
-		...state,
-		items: action?.purchases || [],
-	};
+		case SET_PURCHASES:
+			return {
+				...state,
+				items: action?.purchases || [],
+			};
+		default:
+			return state;
+	}
 };
 
 const reducers = combineReducers( {
