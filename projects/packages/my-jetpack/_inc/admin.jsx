@@ -8,6 +8,9 @@ import React from 'react';
  * Internal dependencies
  */
 import MyJetpackScreen from './components/my-jetpack-screen';
+import { initStore } from './state/store';
+
+initStore();
 
 /**
  * The initial renderer function.

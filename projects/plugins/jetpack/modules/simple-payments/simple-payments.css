@@ -63,6 +63,11 @@ input[type="number"].jetpack-simple-payments-items-number {
 	padding: 4px 8px;
 }
 
+input[type=number].jetpack-simple-payments-items-number::-webkit-inner-spin-button,
+input[type=number].jetpack-simple-payments-items-number::-webkit-outer-spin-button {
+	opacity: 1;
+}
+
 .jetpack-simple-payments-button iframe {
 	margin: 0;
 }
