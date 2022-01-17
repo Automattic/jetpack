@@ -1,14 +1,14 @@
-var jetpackSearchModule = function () {
-	var i,
+const jetpackSearchModule = function () {
+	let i,
 		j,
 		checkboxes,
 		filter_list = document.querySelectorAll( '.jetpack-search-filters-widget__filter-list' );
 
 	for ( i = 0; i < filter_list.length; i++ ) {
 		filter_list[ i ].addEventListener( 'click', function ( event ) {
-			var target = event.target;
-			var precedingCheckbox;
-			var nextAnchor;
+			const target = event.target;
+			let precedingCheckbox;
+			let nextAnchor;
 
 			// If the target is an anchor, we want to toggle the checkbox.
 			if ( target.nodeName && 'a' === target.nodeName.toLowerCase() ) {
