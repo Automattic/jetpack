@@ -86,6 +86,7 @@ const CardFresh = props => {
 						{
 							hostname: <strong />,
 							em: <em />,
+							strong: <strong />,
 						}
 					) }
 				</p>

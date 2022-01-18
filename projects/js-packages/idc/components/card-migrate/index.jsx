@@ -86,6 +86,7 @@ const CardMigrate = props => {
 						{
 							hostname: <strong />,
 							em: <em />,
+							strong: <strong />,
 						}
 					) }
 				</p>

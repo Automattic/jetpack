@@ -50,6 +50,7 @@ const ScreenMigrated = props => {
 					{
 						hostname: <strong />,
 						em: <em />,
+						strong: <strong />,
 					}
 				) }
 			</p>

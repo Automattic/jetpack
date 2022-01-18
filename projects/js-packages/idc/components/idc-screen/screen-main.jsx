@@ -60,6 +60,7 @@ const ScreenMain = props => {
 							/>
 						),
 						em: <em />,
+						strong: <strong />,
 					}
 				) }
 			</p>

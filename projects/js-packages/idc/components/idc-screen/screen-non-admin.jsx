@@ -46,6 +46,7 @@ const ScreenNonAdmin = props => {
 							/>
 						),
 						em: <em />,
+						strong: <strong />,
 					}
 				) }
 			</p>

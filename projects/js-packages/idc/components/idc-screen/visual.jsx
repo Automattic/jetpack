@@ -81,7 +81,10 @@ const IDCScreenVisual = props => {
 				</div>
 				<div className="jp-idc__idc-screen__logo-label">
 					{ customContent.headerText
-						? createInterpolateElement( customContent.headerText, { em: <em /> } )
+						? createInterpolateElement( customContent.headerText, {
+								em: <em />,
+								strong: <strong />,
+						  } )
 						: __( 'Safe Mode', 'jetpack' ) }
 				</div>
 			</div>
