@@ -50,7 +50,7 @@ class Search_Widget extends \WP_Widget {
 	protected $module_control;
 
 	/**
-	 * Jetpack_Search_Widget constructor.
+	 * Search_Widget constructor.
 	 *
 	 * @param string $name Widget name.
 	 * @since 5.0.0
@@ -209,7 +209,7 @@ class Search_Widget extends \WP_Widget {
 	 * @param array $item Filter item.
 	 *
 	 * @return bool Whether the current filter item is for the current widget.
-	 * @see   Jetpack_Search_Widget::widget()
+	 * @see   Search_Widget::widget()
 	 *
 	 * @since 5.7.0
 	 */
@@ -628,7 +628,7 @@ class Search_Widget extends \WP_Widget {
 	/**
 	 * Updates a particular instance of the widget. Validates and sanitizes the options.
 	 *
-	 * @param array $new_instance New settings for this instance as input by the user via Jetpack_Search_Widget::form().
+	 * @param array $new_instance New settings for this instance as input by the user via Search_Widget::form().
 	 * @param array $old_instance Old settings for this instance.
 	 *
 	 * @return array Settings to save.
