@@ -127,11 +127,18 @@ const UserLicenseActivationNotice = props => {
 UserLicenseActivationNotice.propTypes = {
 	detachedLicensesCount: PropTypes.number.isRequired,
 	activationNoticeDismissInfo: PropTypes.shape( {
-		last_detached_count: PropTypes.number.isRequired,
-		last_dismiss_time: PropTypes.string.isRequired,
+		last_detached_count: PropTypes.number,
+		last_dismiss_time: PropTypes.string,
 	} ),
 	pathname: PropTypes.string.isRequired,
 	siteAdminUrl: PropTypes.string.isRequired,
+};
+
+UserLicenseActivationNotice.defaultProps = {
+	activationNoticeDismissInfo: {
+		last_detached_count: null,
+		last_dismiss_time: null,
+	},
 };
 
 export default connect(
