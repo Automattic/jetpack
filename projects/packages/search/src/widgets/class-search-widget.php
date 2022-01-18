@@ -494,7 +494,6 @@ class Search_Widget extends \WP_Widget {
 		echo $args['after_widget']; //phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
 	}
 
-
 	/**
 	 * Render the instant widget for the overlay.
 	 *
