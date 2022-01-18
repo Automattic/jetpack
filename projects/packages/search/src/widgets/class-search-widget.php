@@ -7,6 +7,7 @@
 
 namespace Automattic\Jetpack\Search;
 
+use Automattic\Jetpack\Connection\Manager as Connection_Manager;
 use Automattic\Jetpack\Redirect;
 use Automattic\Jetpack\Status;
 use Automattic\Jetpack\Tracking;
@@ -18,7 +19,7 @@ use Automattic\Jetpack\Tracking;
  *
  * @see   WP_Widget
  */
-class Widget extends \WP_Widget {
+class Search_Widget extends \WP_Widget {
 
 	/**
 	 * Number of aggregations (filters) to show by default.
@@ -51,15 +52,14 @@ class Widget extends \WP_Widget {
 	/**
 	 * Jetpack_Search_Widget constructor.
 	 *
-	 * @param string         $name Widget name.
-	 * @param Module_Control $module_control Module_Control instance.
+	 * @param string $name Widget name.
 	 * @since 5.0.0
 	 */
-	public function __construct( $name = null, $module_control = null ) {
+	public function __construct( $name = null ) {
 		if ( empty( $name ) ) {
 			$name = esc_html__( 'Search', 'jetpack-search-pkg' );
 		}
-		$this->module_control = is_null( $module_control ) ? new Module_Control() : $module_control;
+		$this->module_control = new Module_Control();
 		parent::__construct(
 			Helper::FILTER_WIDGET_BASE,
 			/** This filter is documented in modules/widgets/facebook-likebox.php */
@@ -135,12 +135,17 @@ class Widget extends \WP_Widget {
 
 		// TODO enqueue style.
 
+		$dotcom_data = ( new Connection_Manager( 'jetpack-search' ) )->get_connected_user_data();
+
 		wp_localize_script(
 			'jetpack-search-widget-admin',
 			'jetpack_search_filter_admin',
 			array(
 				'defaultFilterCount' => self::DEFAULT_FILTER_COUNT,
-				'tracksUserData'     => Jetpack_Tracks_Client::get_connected_user_tracks_identity(),
+				'tracksUserData'     => ! empty( $dotcom_data ) ? array(
+					'userid'   => $dotcom_data['ID'],
+					'username' => $dotcom_data['login'],
+				) : false,
 				'tracksEventData'    => array(
 					'is_customizer' => (int) is_customize_preview(),
 				),

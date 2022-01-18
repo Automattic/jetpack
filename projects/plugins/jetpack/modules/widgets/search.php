@@ -19,5 +19,5 @@ function jetpack_search_widget_init() {
 		return;
 	}
 
-	register_widget( 'Automattic\Jetpack\Search\Widget' );
+	register_widget( 'Automattic\Jetpack\Search\Search_Widget' );
 }
