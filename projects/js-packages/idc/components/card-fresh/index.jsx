@@ -55,7 +55,9 @@ const CardFresh = props => {
 
 	const isActionInProgress = useSelect( select => select( STORE_ID ).getIsActionInProgress(), [] );
 
-	const buttonLabel = __( 'Create a fresh connection', 'jetpack' );
+	const buttonLabel = customContent.startFreshButtonLabel
+		? createInterpolateElement( customContent.startFreshButtonLabel, { em: <em /> } )
+		: __( 'Create a fresh connection', 'jetpack' );
 
 	return (
 		<div
