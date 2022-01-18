@@ -34,6 +34,12 @@ class REST_Products {
 				'methods'             => \WP_REST_Server::READABLE,
 				'callback'            => __CLASS__ . '::get_product',
 				'permission_callback' => __CLASS__ . '::permissions_callback',
+				'args'                => array(
+					'product' => array(
+						'description' => __( 'Product slug', 'jetpack-my-jetpack' ),
+						'required'    => false,
+					),
+				),
 			)
 		);
 	}
