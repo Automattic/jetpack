@@ -37,6 +37,13 @@ const LayoutPicker = props => {
 		? settings.styles.find( style => `is-style-${ style.name }` === props.className ).label
 		: null;
 
+	const imageSources = [
+		require( './tiled-gallery-native_mosaic.png' ),
+		require( './tiled-gallery-native_circles.png' ),
+		require( './tiled-gallery-native_square.png' ),
+		require( './tiled-gallery-native_columns.png' ),
+	];
+
 	return (
 		<BottomSheet.SubSheet
 			navigationButton={
@@ -63,7 +70,14 @@ const LayoutPicker = props => {
 						{ __( 'Gallery style', 'jetpack' ) }
 					</BottomSheet.NavBar.Heading>
 				</BottomSheet.NavBar>
-				<BlockStyles clientId={ props.clientId } />
+				<BlockStyles
+					clientId={ props.clientId }
+					imageSources={ imageSources }
+					imageStyles={ {
+						resizeMode: 'contain',
+						width: '100%',
+					} }
+				/>
 			</>
 		</BottomSheet.SubSheet>
 	);
