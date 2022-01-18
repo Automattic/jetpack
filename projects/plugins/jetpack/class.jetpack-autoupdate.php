@@ -110,7 +110,7 @@ class Jetpack_Autoupdate {
 		$plugin_files                   = array_unique( array_merge( $autoupdate_plugin_list, $autoupdate_plugin_translations ) );
 		$plugin_slugs                   = array_map( array( __CLASS__, 'get_plugin_slug' ), $plugin_files );
 
-		if ( in_array( $item->slug, $plugin_slugs )
+		if ( in_array( $item->slug, $plugin_slugs, true )
 			&& 'plugin' === $item->type
 		) {
 			$this->expect( $item->type . ':' . $item->slug, 'translation' );
@@ -129,7 +129,7 @@ class Jetpack_Autoupdate {
 	 */
 	public function autoupdate_theme( $update, $item ) {
 		$autoupdate_theme_list = Jetpack_Options::get_option( 'autoupdate_themes', array() );
-		if ( in_array( $item->theme, $autoupdate_theme_list ) ) {
+		if ( in_array( $item->theme, $autoupdate_theme_list, true ) ) {
 			$this->expect( $item->theme, 'theme' );
 			return true;
 		}
@@ -215,7 +215,7 @@ class Jetpack_Autoupdate {
 
 		if ( is_array( $this->expected[ $items ] ) ) {
 			foreach ( $this->expected[ $items ] as $item ) {
-				if ( in_array( $item, $item_results ) ) {
+				if ( in_array( $item, $item_results, true ) ) {
 					$this->success[ $items ][] = $item;
 				} else {
 					$this->failed[ $items ][] = $item;
