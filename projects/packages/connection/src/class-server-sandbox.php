@@ -80,7 +80,7 @@ class Server_Sandbox {
 				/**
 				 * Whether to add the X Debug query parameter to the request made to the Sandbox
 				 *
-				 * @since $$next-version$$
+				 * @since 1.36.0
 				 *
 				 * @param bool   $add_parameter Whether to add the parameter to the request or not. Default is to false.
 				 * @param string $url The URL of the request being made.

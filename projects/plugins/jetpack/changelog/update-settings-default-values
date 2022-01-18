@@ -1,4 +1,0 @@
-Significance: patch
-Type: bugfix
-
-Changes the default value of woocommerce_onboarding_profile from array( 0 => false ) to array()
