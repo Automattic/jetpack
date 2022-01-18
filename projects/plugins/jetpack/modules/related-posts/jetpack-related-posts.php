@@ -1869,7 +1869,7 @@ EOT;
  * to get related content. This class wraps the existing RelatedPosts
  * logic thus we never want to add anything to the DOM or do anything
  * for event hooks. We will also not present any settings for this
- * class and keep it enabled as calls to this class is done
+ * class and keep it enabled as calls to this class are done
  * programmatically.
  */
 class Jetpack_RelatedPosts_Raw extends Jetpack_RelatedPosts {
