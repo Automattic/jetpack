@@ -1,0 +1,34 @@
+@import '@automattic/jetpack-base-styles/style';
+
+.jp-plans-section {
+	h3 {
+		font-size: var(--font-title-large);
+		font-weight: 700;
+		margin-top: 48px;
+		line-height: 1.1;
+		color: var( --jp-black );
+		margin: 0;
+	}
+
+	h4 {
+		font-size: var(--font-title-small);
+		font-weight: 500;
+		line-height: 1;
+		color: var( --jp-black );
+	}
+
+	a, a:active, a:hover {
+		color: var( --jp-black );
+	}
+
+	p {
+		margin: 16px 0;
+		color: var( --jp-black );
+	}
+
+	p, a, li {
+		font-size: var( --font-body );
+		line-height: 24px;
+	}
+
+}
