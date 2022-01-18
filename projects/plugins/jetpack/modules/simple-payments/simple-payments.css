@@ -51,6 +51,11 @@ body .jetpack-simple-payments-wrapper .jetpack-simple-payments-product-image .je
 	display: flex;
 }
 
+.jetpack-simple-payments-button {
+	max-width: 340px;
+	width: 100%;
+}
+
 .jetpack-simple-payments-items {
 	flex: 0 0 auto;
 	margin-right: 10px;
