@@ -11,13 +11,13 @@ import UpdateRenderer from 'listr-update-renderer';
  */
 import { chalkJetpackGreen } from '../helpers/styling.js';
 import promptForProject from '../helpers/promptForProject.js';
-import { readComposerJson } from '../helpers/json';
-import installProjectTask from '../helpers/tasks/installProjectTask';
-import { allProjectsByType } from '../helpers/projectHelpers';
-import { normalizeBuildArgv, normalizeProject } from '../helpers/normalizeArgv';
-import buildProjectTask from '../helpers/tasks/buildProjectTask';
-import projectBuildCommand from '../helpers/projectBuildCommand';
-import listrOpts from '../helpers/tasks/listrOpts';
+import { readComposerJson } from '../helpers/json.js';
+import installProjectTask from '../helpers/tasks/installProjectTask.js';
+import { allProjectsByType } from '../helpers/projectHelpers.js';
+import { normalizeBuildArgv, normalizeProject } from '../helpers/normalizeArgv.js';
+import buildProjectTask from '../helpers/tasks/buildProjectTask.js';
+import projectBuildCommand from '../helpers/projectBuildCommand.js';
+import listrOpts from '../helpers/tasks/listrOpts.js';
 
 /**
  * Relays build commands to a particular project.

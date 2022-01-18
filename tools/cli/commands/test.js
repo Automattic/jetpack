@@ -9,9 +9,9 @@ import path from 'path';
 /**
  * Internal dependencies
  */
-import promptForProject from '../helpers/promptForProject';
+import promptForProject from '../helpers/promptForProject.js';
 import { readComposerJson } from '../helpers/json.js';
-import { allProjects } from '../helpers/projectHelpers';
+import { allProjects } from '../helpers/projectHelpers.js';
 
 /**
  * Command definition for the test subcommand.

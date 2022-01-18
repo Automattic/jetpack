@@ -13,9 +13,9 @@ import UpdateRenderer from 'listr-update-renderer';
 /**
  * Internal dependencies
  */
-import { readComposerJson, readPackageJson } from '../json';
-import { chalkJetpackGreen } from '../styling';
-import { normalizeInstallArgv } from '../normalizeArgv';
+import { readComposerJson, readPackageJson } from '../json.js';
+import { chalkJetpackGreen } from '../styling.js';
+import { normalizeInstallArgv } from '../normalizeArgv.js';
 
 /**
  * The `pnpm install` command promise for this run.
