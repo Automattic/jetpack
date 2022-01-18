@@ -4,7 +4,7 @@
 	"type": "jetpack-library",
 	"license": "GPL-2.0-or-later",
 	"require": {
-		"automattic/jetpack-connection": "^1.35",
+		"automattic/jetpack-connection": "^1.36",
 		"automattic/jetpack-error": "^1.3"
 	},
 	"require-dev": {
@@ -50,6 +50,11 @@
 		},
 		"branch-alias": {
 			"dev-master": "1.9.x-dev"
+		}
+	},
+	"config": {
+		"allow-plugins": {
+			"roots/wordpress-core-installer": true
 		}
 	}
 }
