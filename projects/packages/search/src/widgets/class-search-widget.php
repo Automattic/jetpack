@@ -178,6 +178,8 @@ class Search_Widget extends \WP_Widget {
 			true
 		);
 
+		// TODO: No need to enqueue the style for Jetpack the plugin as it's concatenated together.
+		// @see https://github.com/Automattic/jetpack/blob/b3de78dce3d88b0d9b283282a5b04515245c8057/projects/plugins/jetpack/tools/builder/frontend-css.js#L52.
 		wp_enqueue_style(
 			'jetpack-search-widget',
 			plugins_url( 'search/css/search-widget-frontend.css', __FILE__ ),
