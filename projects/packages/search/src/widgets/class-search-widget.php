@@ -190,6 +190,20 @@ class Search_Widget extends \WP_Widget {
 	}
 
 	/**
+	 * Get the list of valid sort types/orders.
+	 *
+	 * @return array The sort orders.
+	 * @since 5.8.0
+	 */
+	private function get_sort_types() {
+		return array(
+			'relevance|DESC' => is_admin() ? esc_html__( 'Relevance (recommended)', 'jetpack-search-pkg' ) : esc_html__( 'Relevance', 'jetpack-search-pkg' ),
+			'date|DESC'      => esc_html__( 'Newest first', 'jetpack-search-pkg' ),
+			'date|ASC'       => esc_html__( 'Oldest first', 'jetpack-search-pkg' ),
+		);
+	}
+
+	/**
 	 * Callback for an array_filter() call in order to only get filters for the current widget.
 	 *
 	 * @param array $item Filter item.
@@ -201,6 +215,72 @@ class Search_Widget extends \WP_Widget {
 	 */
 	public function is_for_current_widget( $item ) {
 		return isset( $item['widget_id'] ) && $this->id == $item['widget_id']; // phpcs:ignore WordPress.PHP.StrictComparisons.LooseComparison
+	}
+
+	/**
+	 * This method returns a boolean for whether the widget should show site-wide filters for the site.
+	 *
+	 * This is meant to provide backwards-compatibility for VIP, and other professional plan users, that manually
+	 * configured filters via `Automattic\Jetpack\Search\Classic_Search::set_filters()`.
+	 *
+	 * @return bool Whether the widget should display site-wide filters or not.
+	 * @since 5.7.0
+	 */
+	public function should_display_sitewide_filters() {
+		$filter_widgets = get_option( 'widget_jetpack-search-filters' );
+
+		// This shouldn't be empty, but just for sanity.
+		if ( empty( $filter_widgets ) ) {
+			return false;
+		}
+
+		// If any widget has any filters, return false.
+		foreach ( $filter_widgets as $number => $widget ) {
+			$widget_id = sprintf( '%s-%d', $this->id_base, $number );
+			if ( ! empty( $widget['filters'] ) && is_active_widget( false, $widget_id, $this->id_base ) ) {
+				return false;
+			}
+		}
+
+		return true;
+	}
+
+	/**
+	 * Widget defaults.
+	 *
+	 *  @param array $instance Previously saved values from database.
+	 */
+	public function jetpack_search_populate_defaults( $instance ) {
+		$instance = wp_parse_args(
+			(array) $instance,
+			array(
+				'title'              => '',
+				'search_box_enabled' => true,
+				'user_sort_enabled'  => true,
+				'sort'               => self::DEFAULT_SORT,
+				'filters'            => array( array() ),
+				'post_types'         => array(),
+			)
+		);
+
+		return $instance;
+	}
+
+	/**
+	 * Populates the instance array with appropriate default values.
+	 *
+	 * @param array $instance Previously saved values from database.
+	 * @return array Instance array with default values approprate for instant search
+	 * @since 8.6.0
+	 */
+	public function populate_defaults_for_instant_search( $instance ) {
+		return wp_parse_args(
+			(array) $instance,
+			array(
+				'title'   => '',
+				'filters' => array(),
+			)
+		);
 	}
 
 	/**
@@ -236,166 +316,6 @@ class Search_Widget extends \WP_Widget {
 		} else {
 			$this->widget_non_instant( $args, $instance );
 		}
-	}
-
-	/**
-	 * Widget defaults.
-	 *
-	 *  @param array $instance Previously saved values from database.
-	 */
-	public function jetpack_search_populate_defaults( $instance ) {
-		$instance = wp_parse_args(
-			(array) $instance,
-			array(
-				'title'              => '',
-				'search_box_enabled' => true,
-				'user_sort_enabled'  => true,
-				'sort'               => self::DEFAULT_SORT,
-				'filters'            => array( array() ),
-				'post_types'         => array(),
-			)
-		);
-
-		return $instance;
-	}
-
-	/**
-	 * Render the instant widget for the overlay.
-	 *
-	 * @param array $args     Widgets args supplied by the theme.
-	 * @param array $instance The current widget instance.
-	 * @since 8.3.0
-	 */
-	public function widget_empty_instant( $args, $instance ) {
-		$title = isset( $instance['title'] ) ? $instance['title'] : '';
-
-		if ( empty( $title ) ) {
-			$title = '';
-		}
-
-		/** This filter is documented in core/src/wp-includes/default-widgets.php */
-		$title = apply_filters( 'widget_title', $title, $instance, $this->id_base );
-
-		echo $args['before_widget']; //phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
-		?>
-			<div id="<?php echo esc_attr( $this->id ); ?>-wrapper" class="jetpack-instant-search-wrapper">
-		<?php
-
-		if ( ! empty( $title ) ) {
-			/**
-			 * Responsible for displaying the title of the Jetpack Search filters widget.
-			 *
-			 * @module search
-			 *
-			 * @param string $title                The widget's title
-			 * @param string $args['before_title'] The HTML tag to display before the title
-			 * @param string $args['after_title']  The HTML tag to display after the title
-			 *@since  5.7.0
-			 */
-			do_action( 'jetpack_search_render_filters_widget_title', $title, $args['before_title'], $args['after_title'] );
-		}
-
-		echo '</div>';
-		echo $args['after_widget']; //phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
-	}
-
-	/**
-	 * Render the instant frontend widget.
-	 *
-	 * @param array $args     Widgets args supplied by the theme.
-	 * @param array $instance The current widget instance.
-	 * @since 8.3.0
-	 */
-	public function widget_instant( $args, $instance ) {
-		// Exit early if search instance has not been initialized.
-		if ( ! Instant_Search::instance() ) {
-			return false;
-		}
-
-		if ( Helper::should_rerun_search_in_customizer_preview() ) {
-			Instant_Search::instance()->update_search_results_aggregations();
-		}
-
-		$filters = Instant_Search::instance()->get_filters();
-		if ( ! Helper::are_filters_by_widget_disabled() && ! $this->should_display_sitewide_filters() ) {
-			$filters = array_filter( $filters, array( $this, 'is_for_current_widget' ) );
-		}
-
-		$display_filters = ! empty( $filters );
-
-		$title = ! empty( $instance['title'] ) ? $instance['title'] : '';
-
-		/** This filter is documented in core/src/wp-includes/default-widgets.php */
-		$title = apply_filters( 'widget_title', $title, $instance, $this->id_base );
-
-		echo $args['before_widget']; //phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
-		?>
-			<div id="<?php echo esc_attr( $this->id ); ?>-wrapper" class="jetpack-instant-search-wrapper">
-		<?php
-
-		if ( ! empty( $title ) ) {
-			/**
-			 * Responsible for displaying the title of the Jetpack Search filters widget.
-			 *
-			 * @module search
-			 *
-			 * @param string $title                The widget's title
-			 * @param string $args['before_title'] The HTML tag to display before the title
-			 * @param string $args['after_title']  The HTML tag to display after the title
-			 *@since  5.7.0
-			 */
-			do_action( 'jetpack_search_render_filters_widget_title', $title, $args['before_title'], $args['after_title'] );
-		}
-
-		Template_Tags::render_widget_search_form( array(), '', '' );
-
-		if ( $display_filters ) {
-			/**
-			 * Responsible for rendering filters to narrow down search results.
-			 *
-			 * @module search
-			 *
-			 * @param array $filters    The possible filters for the current query.
-			 * @param array $post_types An array of post types to limit filtering to.
-			 *@since  5.8.0
-			 */
-			do_action(
-				'jetpack_search_render_filters',
-				$filters,
-				null
-			);
-		}
-
-		echo '</div>';
-		echo $args['after_widget']; //phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
-	}
-
-	/**
-	 * This method returns a boolean for whether the widget should show site-wide filters for the site.
-	 *
-	 * This is meant to provide backwards-compatibility for VIP, and other professional plan users, that manually
-	 * configured filters via `Automattic\Jetpack\Search\Classic_Search::set_filters()`.
-	 *
-	 * @return bool Whether the widget should display site-wide filters or not.
-	 * @since 5.7.0
-	 */
-	public function should_display_sitewide_filters() {
-		$filter_widgets = get_option( 'widget_jetpack-search-filters' );
-
-		// This shouldn't be empty, but just for sanity.
-		if ( empty( $filter_widgets ) ) {
-			return false;
-		}
-
-		// If any widget has any filters, return false.
-		foreach ( $filter_widgets as $number => $widget ) {
-			$widget_id = sprintf( '%s-%d', $this->id_base, $number );
-			if ( ! empty( $widget['filters'] ) && is_active_widget( false, $widget_id, $this->id_base ) ) {
-				return false;
-			}
-		}
-
-		return true;
 	}
 
 	/**
@@ -504,41 +424,115 @@ class Search_Widget extends \WP_Widget {
 	}
 
 	/**
-	 * Convert a sort string into the separate order by and order parts.
+	 * Render the instant frontend widget.
 	 *
-	 * @param string $sort A sort string.
-	 *
-	 * @return array Order by and order.
-	 * @since 5.8.0
+	 * @param array $args     Widgets args supplied by the theme.
+	 * @param array $instance The current widget instance.
+	 * @since 8.3.0
 	 */
-	private function sorting_to_wp_query_param( $sort ) {
-		// phpcs:disable WordPress.Security.NonceVerification.Recommended
-		$parts   = explode( '|', $sort );
-		$orderby = isset( $_GET['orderby'] )
-			? $_GET['orderby']
-			: $parts[0];
+	public function widget_instant( $args, $instance ) {
+		// Exit early if search instance has not been initialized.
+		if ( ! Instant_Search::instance() ) {
+			return false;
+		}
 
-		$order = isset( $_GET['order'] )
-			? strtoupper( $_GET['order'] )
-			: ( ( isset( $parts[1] ) && 'ASC' === strtoupper( $parts[1] ) ) ? 'ASC' : 'DESC' );
+		if ( Helper::should_rerun_search_in_customizer_preview() ) {
+			Instant_Search::instance()->update_search_results_aggregations();
+		}
 
-		// phpcs:enable WordPress.Security.NonceVerification.Recommended
+		$filters = Instant_Search::instance()->get_filters();
+		if ( ! Helper::are_filters_by_widget_disabled() && ! $this->should_display_sitewide_filters() ) {
+			$filters = array_filter( $filters, array( $this, 'is_for_current_widget' ) );
+		}
 
-		return array( $orderby, $order );
+		$display_filters = ! empty( $filters );
+
+		$title = ! empty( $instance['title'] ) ? $instance['title'] : '';
+
+		/** This filter is documented in core/src/wp-includes/default-widgets.php */
+		$title = apply_filters( 'widget_title', $title, $instance, $this->id_base );
+
+		echo $args['before_widget']; //phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
+		?>
+			<div id="<?php echo esc_attr( $this->id ); ?>-wrapper" class="jetpack-instant-search-wrapper">
+		<?php
+
+		if ( ! empty( $title ) ) {
+			/**
+			 * Responsible for displaying the title of the Jetpack Search filters widget.
+			 *
+			 * @module search
+			 *
+			 * @param string $title                The widget's title
+			 * @param string $args['before_title'] The HTML tag to display before the title
+			 * @param string $args['after_title']  The HTML tag to display after the title
+			 *@since  5.7.0
+			 */
+			do_action( 'jetpack_search_render_filters_widget_title', $title, $args['before_title'], $args['after_title'] );
+		}
+
+		Template_Tags::render_widget_search_form( array(), '', '' );
+
+		if ( $display_filters ) {
+			/**
+			 * Responsible for rendering filters to narrow down search results.
+			 *
+			 * @module search
+			 *
+			 * @param array $filters    The possible filters for the current query.
+			 * @param array $post_types An array of post types to limit filtering to.
+			 *@since  5.8.0
+			 */
+			do_action(
+				'jetpack_search_render_filters',
+				$filters,
+				null
+			);
+		}
+
+		echo '</div>';
+		echo $args['after_widget']; //phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
 	}
 
+
 	/**
-	 * Get the list of valid sort types/orders.
+	 * Render the instant widget for the overlay.
 	 *
-	 * @return array The sort orders.
-	 * @since 5.8.0
+	 * @param array $args     Widgets args supplied by the theme.
+	 * @param array $instance The current widget instance.
+	 * @since 8.3.0
 	 */
-	private function get_sort_types() {
-		return array(
-			'relevance|DESC' => is_admin() ? esc_html__( 'Relevance (recommended)', 'jetpack-search-pkg' ) : esc_html__( 'Relevance', 'jetpack-search-pkg' ),
-			'date|DESC'      => esc_html__( 'Newest first', 'jetpack-search-pkg' ),
-			'date|ASC'       => esc_html__( 'Oldest first', 'jetpack-search-pkg' ),
-		);
+	public function widget_empty_instant( $args, $instance ) {
+		$title = isset( $instance['title'] ) ? $instance['title'] : '';
+
+		if ( empty( $title ) ) {
+			$title = '';
+		}
+
+		/** This filter is documented in core/src/wp-includes/default-widgets.php */
+		$title = apply_filters( 'widget_title', $title, $instance, $this->id_base );
+
+		echo $args['before_widget']; //phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
+		?>
+			<div id="<?php echo esc_attr( $this->id ); ?>-wrapper" class="jetpack-instant-search-wrapper">
+		<?php
+
+		if ( ! empty( $title ) ) {
+			/**
+			 * Responsible for displaying the title of the Jetpack Search filters widget.
+			 *
+			 * @module search
+			 *
+			 * @param string $title                The widget's title
+			 * @param string $args['before_title'] The HTML tag to display before the title
+			 * @param string $args['after_title']  The HTML tag to display after the title
+			 *@since  5.7.0
+			 */
+			do_action( 'jetpack_search_render_filters_widget_title', $title, $args['before_title'], $args['after_title'] );
+		}
+
+		echo '</div>';
+		echo $args['after_widget']; //phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
 	}
 
 	/**
@@ -605,6 +599,30 @@ class Search_Widget extends \WP_Widget {
 			</script>
 			<?php
 		endif;
+	}
+
+	/**
+	 * Convert a sort string into the separate order by and order parts.
+	 *
+	 * @param string $sort A sort string.
+	 *
+	 * @return array Order by and order.
+	 * @since 5.8.0
+	 */
+	private function sorting_to_wp_query_param( $sort ) {
+		// phpcs:disable WordPress.Security.NonceVerification.Recommended
+		$parts   = explode( '|', $sort );
+		$orderby = isset( $_GET['orderby'] )
+			? $_GET['orderby']
+			: $parts[0];
+
+		$order = isset( $_GET['order'] )
+			? strtoupper( $_GET['order'] )
+			: ( ( isset( $parts[1] ) && 'ASC' === strtoupper( $parts[1] ) ) ? 'ASC' : 'DESC' );
+
+		// phpcs:enable WordPress.Security.NonceVerification.Recommended
+
+		return array( $orderby, $order );
 	}
 
 	/**
@@ -875,20 +893,33 @@ class Search_Widget extends \WP_Widget {
 	}
 
 	/**
-	 * Populates the instance array with appropriate default values.
+	 * We need to render HTML in two formats: an Underscore template (client-side)
+	 * and native PHP (server-side). This helper function allows for easy rendering
+	 * of attributes in both formats.
 	 *
-	 * @param array $instance Previously saved values from database.
-	 * @return array Instance array with default values approprate for instant search
-	 * @since 8.6.0
+	 * @param string $name        Attribute name.
+	 * @param string $value       Attribute value.
+	 * @param bool   $is_template Whether this is for an Underscore template or not.
+	 * @since 5.8.0
 	 */
-	public function populate_defaults_for_instant_search( $instance ) {
-		return wp_parse_args(
-			(array) $instance,
-			array(
-				'title'   => '',
-				'filters' => array(),
-			)
-		);
+	private function render_widget_attr( $name, $value, $is_template ) {
+		echo $is_template ? "<%= $name %>" : esc_attr( $value ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
+	}
+
+	/**
+	 * We need to render HTML in two formats: an Underscore template (client-size)
+	 * and native PHP (server-side). This helper function allows for easy rendering
+	 * of the "selected" attribute in both formats.
+	 *
+	 * @param string $name        Attribute name.
+	 * @param string $value       Attribute value.
+	 * @param string $compare     Value to compare to the attribute value to decide if it should be selected.
+	 * @param bool   $is_template Whether this is for an Underscore template or not.
+	 * @since 5.8.0
+	 */
+	private function render_widget_option_selected( $name, $value, $compare, $is_template ) {
+		$compare_js = rawurlencode( $compare );
+		echo $is_template ? "<%= decodeURIComponent( '$compare_js' ) === $name ? 'selected=\"selected\"' : '' %>" : selected( $value, $compare ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
 	}
 
 	/**
@@ -1030,35 +1061,5 @@ class Search_Widget extends \WP_Widget {
 			</p>
 		</div>
 		<?php
-	}
-
-	/**
-	 * We need to render HTML in two formats: an Underscore template (client-side)
-	 * and native PHP (server-side). This helper function allows for easy rendering
-	 * of attributes in both formats.
-	 *
-	 * @param string $name        Attribute name.
-	 * @param string $value       Attribute value.
-	 * @param bool   $is_template Whether this is for an Underscore template or not.
-	 * @since 5.8.0
-	 */
-	private function render_widget_attr( $name, $value, $is_template ) {
-		echo $is_template ? "<%= $name %>" : esc_attr( $value ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
-	}
-
-	/**
-	 * We need to render HTML in two formats: an Underscore template (client-size)
-	 * and native PHP (server-side). This helper function allows for easy rendering
-	 * of the "selected" attribute in both formats.
-	 *
-	 * @param string $name        Attribute name.
-	 * @param string $value       Attribute value.
-	 * @param string $compare     Value to compare to the attribute value to decide if it should be selected.
-	 * @param bool   $is_template Whether this is for an Underscore template or not.
-	 * @since 5.8.0
-	 */
-	private function render_widget_option_selected( $name, $value, $compare, $is_template ) {
-		$compare_js = rawurlencode( $compare );
-		echo $is_template ? "<%= decodeURIComponent( '$compare_js' ) === $name ? 'selected=\"selected\"' : '' %>" : selected( $value, $compare ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
 	}
 }
