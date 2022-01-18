@@ -36,7 +36,7 @@ const ScreenNonAdmin = props => {
 						{
 							safeModeLink: (
 								<a
-									href={ getRedirectUrl( 'jetpack-support-safe-mode' ) }
+									href={ customContent.supportURL || getRedirectUrl( 'jetpack-support-safe-mode' ) }
 									rel="noopener noreferrer"
 									target="_blank"
 								/>

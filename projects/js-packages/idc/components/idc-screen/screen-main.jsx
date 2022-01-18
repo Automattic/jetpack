@@ -50,7 +50,7 @@ const ScreenMain = props => {
 						{
 							safeModeLink: (
 								<a
-									href={ getRedirectUrl( 'jetpack-support-safe-mode' ) }
+									href={ customContent.supportURL || getRedirectUrl( 'jetpack-support-safe-mode' ) }
 									rel="noopener noreferrer"
 									target="_blank"
 								/>
@@ -86,7 +86,7 @@ const ScreenMain = props => {
 				/>
 			</div>
 
-			<SafeMode hasError={ hasStaySafeError } />
+			<SafeMode hasError={ hasStaySafeError } customContent={ customContent } />
 		</React.Fragment>
 	);
 };

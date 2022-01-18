@@ -32,4 +32,6 @@ export default {
 	nonAdminTitle: PropTypes.string,
 	/** The "non admin" screen body text. */
 	nonAdminBodyText: PropTypes.string,
+	/** The support page URL. */
+	supportURL: PropTypes.string,
 };
