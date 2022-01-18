@@ -87,7 +87,7 @@ function jetpack_verification_print_meta() {
 				$ver_output .= "\n";
 			}
 		}
-		echo $ver_output;
+		echo $ver_output; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
 	}
 }
 add_action( 'wp_head', 'jetpack_verification_print_meta', 1 );
