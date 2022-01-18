@@ -121,7 +121,34 @@ jobs:
             elif ! jq --arg script "$TEST_SCRIPT" -e '.scripts[$script] // false' "$P" > /dev/null; then
               echo "Skipping $SLUG, no test script is defined in composer.json"
             else
+              if jq --arg script "skip-$TEST_SCRIPT" -e '.scripts[$script] // false' "$P" > /dev/null; then
+                { composer --working-dir="$DIR" run "skip-$TEST_SCRIPT"; CODE=$?; } || true
+                if [[ $CODE -eq 3 ]]; then
+                  echo "Skipping tests for $SLUG due to skip-$TEST_SCRIPT script"
+                  continue
+                elif [[ $CODE -ne 0 ]]; then
+                  echo "::error::Script skip-$TEST_SCRIPT failed to run $CODE!"
+                  EXIT=1
+                  continue
+                fi
+              fi
+
               echo "::group::Running tests for $SLUG"
+
+              # Composer install, if appropriate. Note setup-wordpress-env.sh did it already for plugins.
+              if [[ "${SLUG%%/*}" != "plugins" && ( "$TEST_SCRIPT" == "test-php" || "$TEST_SCRIPT" == "test-coverage" ) ]]; then
+                if [[ ! -f "$DIR/composer.lock" ]]; then
+                  echo 'No composer.lock, running `composer update`'
+                  composer --working-dir="$DIR" update
+                elif composer --working-dir="$DIR" check-platform-reqs --lock; then
+                  echo 'Platform reqs pass, running `composer install`'
+                  composer --working-dir="$DIR" install
+                else
+                  echo 'Platform reqs failed, running `composer update`'
+                  composer --working-dir="$DIR" update
+                fi
+              fi
+
               mkdir -p "artifacts/$SLUG"
               export ARTIFACTS_DIR="$GITHUB_WORKSPACE/artifacts/$SLUG"
               if [[ "$TEST_SCRIPT" == "test-coverage" ]]; then

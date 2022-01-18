@@ -37,7 +37,8 @@ class Jetpack_Modules_List_Table extends WP_List_Table {
 		$this->items           = $this->all_items;
 		$this->items           = $this->filter_displayed_table_items( $this->items );
 		$this->_column_headers = array( $this->get_columns(), array(), array(), 'name' );
-		$modal_info            = isset( $_GET['info'] ) ? $_GET['info'] : false;
+		// phpcs:ignore WordPress.Security.NonceVerification.Recommended -- This is a view, not a model or controller.
+		$modal_info = isset( $_GET['info'] ) ? $_GET['info'] : false;
 
 		wp_register_script(
 			'models.jetpack-modules',
@@ -46,7 +47,8 @@ class Jetpack_Modules_List_Table extends WP_List_Table {
 				'_inc/jetpack-modules.models.js'
 			),
 			array( 'backbone', 'underscore' ),
-			JETPACK__VERSION
+			JETPACK__VERSION,
+			false // @todo Can this be put in the footer?
 		);
 		wp_register_script(
 			'views.jetpack-modules',
@@ -55,7 +57,8 @@ class Jetpack_Modules_List_Table extends WP_List_Table {
 				'_inc/jetpack-modules.views.js'
 			),
 			array( 'backbone', 'underscore', 'wp-util' ),
-			JETPACK__VERSION
+			JETPACK__VERSION,
+			false // @todo Can this be put in the footer?
 		);
 		wp_register_script(
 			'jetpack-modules-list-table',
@@ -120,9 +123,9 @@ class Jetpack_Modules_List_Table extends WP_List_Table {
 							<span class='configure'>{{{ item.configurable }}}</span>
 						<# } #>
 						<# if ( item.activated && 'vaultpress' !== item.module && item.available ) { #>
-							<span class='delete'><a href="<?php echo admin_url( 'admin.php' ); ?>?page=jetpack&#038;action=deactivate&#038;module={{{ item.module }}}&#038;_wpnonce={{{ item.deactivate_nonce }}}"><?php _e( 'Deactivate', 'jetpack' ); ?></a></span>
+							<span class='delete'><a href="<?php echo esc_url( admin_url( 'admin.php' ) ); ?>?page=jetpack&#038;action=deactivate&#038;module={{{ item.module }}}&#038;_wpnonce={{{ item.deactivate_nonce }}}"><?php esc_html_e( 'Deactivate', 'jetpack' ); ?></a></span>
 						<# } else if ( item.available ) { #>
-							<span class='activate'><a href="<?php echo admin_url( 'admin.php' ); ?>?page=jetpack&#038;action=activate&#038;module={{{ item.module }}}&#038;_wpnonce={{{ item.activate_nonce }}}"><?php _e( 'Activate', 'jetpack' ); ?></a></span>
+							<span class='activate'><a href="<?php echo esc_url( admin_url( 'admin.php' ) ); ?>?page=jetpack&#038;action=activate&#038;module={{{ item.module }}}&#038;_wpnonce={{{ item.activate_nonce }}}"><?php esc_html_e( 'Activate', 'jetpack' ); ?></a></span>
 						<# } #>
 						<# if ( ! item.available ) { #>
 							<span class='unavailable_reason'>{{{ item.unavailable_reason }}}</span>
@@ -157,10 +160,11 @@ class Jetpack_Modules_List_Table extends WP_List_Table {
 		$module_tags_unique   = array_count_values( $module_tags );
 		ksort( $module_tags_unique );
 
-		$format  = '<a href="%3$s"%4$s data-title="%1$s">%1$s <span class="count">(%2$s)</span></a>';
-		$title   = __( 'All', 'jetpack' );
-		$count   = count( $modules );
-		$url     = esc_url( remove_query_arg( 'module_tag' ) );
+		$format = '<a href="%3$s"%4$s data-title="%1$s">%1$s <span class="count">(%2$s)</span></a>';
+		$title  = __( 'All', 'jetpack' );
+		$count  = count( $modules );
+		$url    = esc_url( remove_query_arg( 'module_tag' ) );
+		// phpcs:ignore WordPress.Security.NonceVerification.Recommended -- This is a view, not a model or controller.
 		$current = empty( $_GET['module_tag'] ) ? ' class="current all"' : ' class="all"';
 		$views   = array(
 			'all' => sprintf( $format, $title, $count, $url, $current ),
@@ -168,9 +172,10 @@ class Jetpack_Modules_List_Table extends WP_List_Table {
 		foreach ( $module_tags_unique as $title => $count ) {
 			$key           = sanitize_title( $title );
 			$display_title = esc_html( wptexturize( $title ) );
-			$url           = esc_url( add_query_arg( 'module_tag', urlencode( $title ) ) );
+			$url           = esc_url( add_query_arg( 'module_tag', rawurlencode( $title ) ) );
 			$current       = '';
-			if ( ! empty( $_GET['module_tag'] ) && $title == $_GET['module_tag'] ) {
+			// phpcs:ignore WordPress.Security.NonceVerification.Recommended -- This is a view, not a model or controller.
+			if ( ! empty( $_GET['module_tag'] ) && $title === $_GET['module_tag'] ) {
 				$current = ' class="current"';
 			}
 			$views[ $key ] = sprintf( $format, $display_title, $count, $url, $current );
@@ -188,7 +193,7 @@ class Jetpack_Modules_List_Table extends WP_List_Table {
 		foreach ( $views as $class => $view ) {
 			$views[ $class ] = "\t<li class='$class'>$view</li>";
 		}
-		echo implode( "\n", $views ) . "\n";
+		echo implode( "\n", $views ) . "\n"; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- Is HTML. Escaping happens in get_views().
 		echo '</ul>';
 	}
 
@@ -210,9 +215,11 @@ class Jetpack_Modules_List_Table extends WP_List_Table {
 	 */
 	public static function is_module_displayed( $module ) {
 		// Handle module tag based filtering.
+		// phpcs:ignore WordPress.Security.NonceVerification.Recommended -- This is a view, not a model or controller.
 		if ( ! empty( $_REQUEST['module_tag'] ) ) {
+			// phpcs:ignore WordPress.Security.NonceVerification.Recommended -- This is a view, not a model or controller.
 			$module_tag = sanitize_text_field( $_REQUEST['module_tag'] );
-			if ( ! in_array( $module_tag, $module['module_tags'] ) ) {
+			if ( ! in_array( $module_tag, $module['module_tags'], true ) ) {
 				return false;
 			}
 		}
@@ -229,7 +236,7 @@ class Jetpack_Modules_List_Table extends WP_List_Table {
 	 * @return int Indicating the relative ordering of module1 and module2.
 	 */
 	public static function sort_requires_connection_last( $module1, $module2 ) {
-		if ( $module1['requires_connection'] == $module2['requires_connection'] ) {
+		if ( (bool) $module1['requires_connection'] === (bool) $module2['requires_connection'] ) {
 			return 0;
 		}
 		if ( $module1['requires_connection'] ) {
@@ -275,7 +282,7 @@ class Jetpack_Modules_List_Table extends WP_List_Table {
 	 */
 	public function single_row( $item ) {
 		static $i  = 0;
-		$row_class = ( ++$i % 2 ) ? ' alternate' : '';
+		$row_class = ( ( ++$i ) % 2 ) ? ' alternate' : '';
 
 		if ( ! empty( $item['activated'] ) ) {
 			$row_class .= ' active';
@@ -319,12 +326,13 @@ class Jetpack_Modules_List_Table extends WP_List_Table {
 	 * @return string HTML.
 	 */
 	public function column_icon() {
-		$badge_text = $free_text = '';
+		$badge_text = '';
+		$free_text  = '';
 		ob_start();
 		?>
 		<a href="#TB_inline?width=600&height=550&inlineId=more-info-module-settings-modal" class="thickbox">
 			<div class="module-image">
-				<p><span class="module-image-badge"><?php echo $badge_text; ?></span><span class="module-image-free" style="display: none"><?php echo $free_text; ?></span></p>
+				<p><span class="module-image-badge"><?php echo esc_html( $badge_text ); ?></span><span class="module-image-free" style="display: none"><?php echo esc_html( $free_text ); ?></span></p>
 			</div>
 		</a>
 		<?php
@@ -384,6 +392,7 @@ class Jetpack_Modules_List_Table extends WP_List_Table {
 	 */
 	public function column_description( $item ) {
 		ob_start();
+		// phpcs:disable WordPress.Security.EscapeOutput.OutputNotEscaped
 		/** This action is documented in class.jetpack-admin.php */
 		echo apply_filters( 'jetpack_short_module_description', $item['description'], $item['module'] );
 		/** This action is documented in class.jetpack-admin.php */
@@ -392,6 +401,7 @@ class Jetpack_Modules_List_Table extends WP_List_Table {
 		/** This action is documented in class.jetpack-admin.php */
 		do_action( 'jetpack_module_more_info_' . $item['module'] );
 		echo '</div>';
+		// phpcs:enable WordPress.Security.EscapeOutput.OutputNotEscaped
 		return ob_get_clean();
 	}
 
@@ -404,7 +414,7 @@ class Jetpack_Modules_List_Table extends WP_List_Table {
 	public function column_module_tags( $item ) {
 		$module_tags = array();
 		foreach ( $item['module_tags'] as $module_tag ) {
-			$module_tags[] = sprintf( '<a href="%3$s" data-title="%2$s">%1$s</a>', esc_html( $module_tag ), esc_attr( $module_tag ), esc_url( add_query_arg( 'module_tag', urlencode( $module_tag ) ) ) );
+			$module_tags[] = sprintf( '<a href="%3$s" data-title="%2$s">%1$s</a>', esc_html( $module_tag ), esc_attr( $module_tag ), esc_url( add_query_arg( 'module_tag', rawurlencode( $module_tag ) ) ) );
 		}
 		return implode( ', ', $module_tags );
 	}
@@ -423,6 +433,7 @@ class Jetpack_Modules_List_Table extends WP_List_Table {
 			case 'description':
 				return '';
 			default:
+				// phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_print_r
 				return print_r( $item, true );
 		}
 	}
@@ -435,7 +446,7 @@ class Jetpack_Modules_List_Table extends WP_List_Table {
 	 * @return string|false
 	 */
 	public function module_info_check( $info, $modules ) {
-		if ( false == $info ) {
+		if ( ! $info ) {
 			return false;
 		} elseif ( array_key_exists( $info, $modules ) ) {
 			return $info;
