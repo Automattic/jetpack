@@ -5,7 +5,7 @@
 	flex-direction: column;
 }
 
-.jp-recommendations-question__main--with-sidebar .jp-recommendations-question__content {
+.jp-recommendations-question__main--with-illustration .jp-recommendations-question__content {
 	@include breakpoint( '>660px' ) {
 		padding-right: 48px;
 	}
@@ -35,7 +35,7 @@
 	color: var( --jp-gray-80 );
 
 	font-size: 1.5rem;
-	margin: 40px 40px 0 40px;
+	margin: 32px 32px 0 32px;
 
 	@include breakpoint( '<480px' ) {
 		margin: 0 16px 32px 16px;
@@ -47,7 +47,7 @@
 
 	font-size: 16px;
 
-	margin: 32px 32px 32px 40px;
+	margin: 32px 32px 24px 32px;
 
 	@include breakpoint( '<480px' ) {
 		margin: 0 16px 16px 16px;
@@ -62,7 +62,6 @@
 	}
 }
 
-<<<<<<< HEAD
 .jp-recommendations-question__description-list {
 	color: var( --jp-gray-100 );
 	font-size: 16px;
@@ -75,8 +74,6 @@
 	}
 }
 
-=======
->>>>>>> Assistant: Fix style and add discount component
 .jp-recommendations-question__main--with-sidebar .jp-recommendations-question__description {
 	margin-right: 0;
 
@@ -106,7 +103,6 @@
 	}
 }
 
-<<<<<<< HEAD
 .jp-recommendations-question__illustration-container--rna {
 	background: radial-gradient(
 			circle at 70%,
@@ -133,8 +129,6 @@
 	}
 }
 
-=======
->>>>>>> Assistant: Fix style and add discount component
 .jp-recommendations-question__sidebar-card {
 	width: 100%;
 }
@@ -144,8 +138,8 @@
 }
 
 .jp-recommendations-question__illustration-foreground {
-	width: 60%;
-	margin: 18%;
+	width: 75%;
+	margin: 10%;
 }
 
 .jp-recommendations-question__install-section {
