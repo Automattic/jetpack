@@ -115,12 +115,15 @@ We use `composer.json` to hold metadata about projects. Much of our generic tool
 * `.name`: Generally "Automattic/jetpack-_something_". Used to report names in various places. For Composer packages, this must, of course, match the name on Packagist.
 * `.version`: If present, updated by `tools/project-version.sh`. This should not be included on Composer packages that will be served through Packagist.
 * `.repositories`: If you include a repository entry referencing monorepo packages, it must have `.options.monorepo` set to true. This allows the build tooling to recognize and remove it.
-* `.scripts.build-development`: If your project has a general build step, this must run the necessary commands. This command or build-production below are required for projects requiring a build step.
-* `.scripts.build-production`: If your project requires a production-specific build step, this must run the necessary commands. This command or build-development above are required for projects requiring a build step.
+* `.scripts.build-development`: If your project has a general build step, this must run the necessary commands. See [Building](#building) for details.
+* `.scripts.build-production`: If your project requires a production-specific build step, this must run the necessary commands. See [Building](#building) for details.
 * `.scripts.test-coverage`: If the package contains any tests, this must run the necessary commands to generate a coverage report. See [Code coverage](#code-coverage) for details.
+  * `.scripts.skip-test-coverage`: Run before `.scripts.test-coverage` in CI. If it exits with code 3, the test run will be skipped.
 * `.scripts.test-e2e`: If the package contains any E2E tests, this must run the necessary commands. See [E2E tests](#e2e-tests) for details.
 * `.scripts.test-js`: If the package contains any JavaScript tests, this must run the necessary commands. See [JavaScript tests](#javascript-tests) for details.
+  * `.scripts.skip-test-js`: Run before `.scripts.test-js` in CI. If it exits with code 3, the test run will be skipped.
 * `.scripts.test-php`: If the package contains any PHPUnit tests, this must run the necessary commands. See [PHP tests](#php-tests) for details.
+  * `.scripts.skip-test-php`: Run before `.scripts.test-php` in CI. If it exits with code 3, the test run will be skipped.
 * `.extra.autorelease`: Set truthy to enable automatic creation of a GitHub release for tagged versions. See [Mirror repositories > Auto-release](#auto-release) for details.
 * `.extra.autotagger`: Set truthy to enable automatic release-version tagging in the mirror repo. See [Mirror repositories > Autotagger](#autotagger) for details.
 * `.extra.changelogger`: Configuration object for [Changelogger](#jetpack-changelogger). See [its documentation](https://github.com/Automattic/jetpack-changelogger#configuration) for details.
@@ -143,6 +146,21 @@ We use `composer.json` to hold metadata about projects. Much of our generic tool
   * `.extra.beta-plugin-slug`: This specifies the plugin slug for the Jetpack Beta Tester plugin, for cases where a plugin has not been published to WordPress.org but should still be offered by that plugin.
 
 Our mirroring tooling also uses `.gitattributes` to specify built files to include in the mirror and unnecessary files to exclude.
+
+## Building
+
+The Jetpack Monorepo includes GitHub actions to build all projects, and optionally to mirror them to [mirror repos](#mirror-repositories). The `jetpack build` command can be used to build locally.
+
+A project must define `.scripts.build-development` and/or `.scripts.build-production` in `composer.json` to specify the commands needed to build.
+The build commands should assume that `pnpm install` and `composer install` have already been run, and _must not_ run them again.
+
+* If you're building JavaScript bundles with Webpack and [@automattic/jetpack-webpack-config](../projects/js-packages/webpack-config/README.md), note that your build-production command should set `NODE_ENV=production` and `BABEL_ENV=production`.
+* If you run into problems with Composer not recognizing the local git branch as being the right version, try setting `COMPOSER_ROOT_VERSION=dev-master` in the environment.
+* When building for the mirror repos, note that `COMPOSER_MIRROR_PATH_REPOS=1` will be set in the environment and the list of repositories in `composer.json` may be altered.
+  This is not normally done in development environments, even with `jetpack build --production`.
+* For a production build of a plugin, `composer install` is passed `-o --no-dev --classmap-authoritative --prefer-dist`. For development builds and for production builds of non-plugin projects, no options are passed.
+  If you think you need something else, talk to us. Don't just have your build scripts run composer.
+  <!-- YAGNI: I doubt we'll need it, so I didn't implement `.scripts.install-development` / `.scripts.install-production` or the like. -->
 
 ## Testing
 
@@ -186,7 +204,7 @@ We use eslint and phpcs to lint JavaScript and PHP code. Projects should comply 
 
 ### PHP tests
 
-If a project contains PHP tests (typically PHPUnit), it must define `.scripts.test-php` in `composer.json` to run the tests. If a build step is required before running tests, the necessary commands for that should also be included.
+If a project contains PHP tests (typically PHPUnit), it must define `.scripts.test-php` in `composer.json` to run the tests. The CI environment will run `pnpm install` and `composer install` beforehand, but if a build step is required before running tests the necessary commands for that should also be included in `.scripts.test-php`.
 
 A MySQL database is available if needed; credentials may be found in `~/.my.cnf`. Note that the host must be specified as `127.0.0.1`, as when passed `localhost` PHP will try to connect via a Unix domain socket which is not available in the Actions environment.
 
@@ -218,7 +236,7 @@ Note that the state of WordPress's own PHPUnit integration is currently in flux.
 
 ### JavaScript tests
 
-If a project contains JavaScript tests, it must define `.scripts.test-js` in `composer.json` to run the tests. If a build step is required before running tests, the necessary commands for that should also be included.
+If a project contains JavaScript tests, it must define `.scripts.test-js` in `composer.json` to run the tests. The CI environment will run `pnpm install` beforehand, but if `composer install` or a build step is required before running tests the necessary commands for that should also be included in `.scripts.test-js`.
 
 ### E2E tests
 
@@ -228,11 +246,11 @@ If a project contains end-to-end tests, it must define `.scripts.test-e2e` in `c
 
 ### Code coverage
 
-If a project contains PHP or JavaScript tests, it should also define `.scripts.test-coverage` in `composer.json` to run the tests in a mode that will generate code coverage output.
+If a project contains PHP or JavaScript tests, it should also define `.scripts.test-coverage` in `composer.json` to run the tests in a mode that will generate code coverage output. The CI environment will run `pnpm install` and `composer install` beforehand, but if a build step is required before running tests the necessary commands for that should also be included in `.scripts.test-coverage`.
 
 Output should be written to the path specified via the `COVERAGE_DIR` environment variable. Subdirectories of that path may be used as desired.
 
-For PHP tests, you'll probably run PHPUnit as `phpdbg -qrr "$(command -v phpunit)" --coverage-clover "$COVERAGE_DIR/clover.xml"`.
+For PHP tests, you'll probably run PHPUnit as `php -dpcov.directory=. "$(command -v phpunit)" --coverage-clover "$COVERAGE_DIR/clover.xml"`.
 
 There's no need to be concerned about collisions with other projects' coverage files, a separate directory is used per project. The coverage files are also automatically copied to `ARTIFACTS_DIR`.
 

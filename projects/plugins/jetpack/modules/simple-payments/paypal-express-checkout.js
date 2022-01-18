@@ -1,5 +1,5 @@
 /**
- * This PaypalExpressCheckout global is included by wp_enqueue_script( 'paypal-express-checkout' );
+ * This PaypalExpressCheckout global is included by wp_enqueue_script( 'jetpack-paypal-express-checkout' );
  * It handles communication with Paypal Express checkout and public-api.wordpress.com for the purposes
  * of simple-payments module.
  */

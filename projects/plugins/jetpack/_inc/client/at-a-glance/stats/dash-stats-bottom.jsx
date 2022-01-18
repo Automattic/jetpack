@@ -11,7 +11,8 @@ import { connect } from 'react-redux';
 import { createInterpolateElement } from '@wordpress/element';
 import { dateI18n } from '@wordpress/date';
 import { __, _x, _n, sprintf } from '@wordpress/i18n';
-import { getRedirectUrl } from '@automattic/jetpack-components';
+import { getRedirectUrl, numberFormat } from '@automattic/jetpack-components';
+import { ExternalLink } from '@wordpress/components';
 
 /**
  * Internal dependencies
@@ -20,7 +21,6 @@ import analytics from 'lib/analytics';
 import Button from 'components/button';
 import Card from 'components/card';
 import ConnectButton from 'components/connect-button';
-import { numberFormat } from 'components/number-format';
 import { userCanConnectAccount } from 'state/initial-state';
 
 class DashStatsBottom extends Component {
@@ -106,7 +106,7 @@ class DashStatsBottom extends Component {
 				</div>
 				<div className="jp-at-a-glance__stats-cta">
 					<div className="jp-at-a-glance__stats-cta-description" />
-					<div className="jp-at-a-glance__stats-cta-buttons">
+					<div className="jp-at-a-glance__stats-ctas">
 						{ createInterpolateElement( __( '<button>View detailed stats</button>', 'jetpack' ), {
 							button: (
 								<Button
@@ -117,15 +117,16 @@ class DashStatsBottom extends Component {
 						} ) }
 						{ this.props.isLinked &&
 							createInterpolateElement(
-								__( '<button>View more stats on WordPress.com</button>', 'jetpack' ),
+								__( '<ExternalLink>View more stats on WordPress.com</ExternalLink>', 'jetpack' ),
 								{
-									button: (
-										<Button
+									ExternalLink: (
+										<ExternalLink
 											onClick={ this.trackViewWpcomStats }
-											className="is-primary"
 											href={ getRedirectUrl( 'calypso-stats-insights', {
 												site: this.props.siteRawUrl,
 											} ) }
+											rel="noopener noreferrer"
+											target="_blank"
 										/>
 									),
 								}

@@ -1,4 +1,0 @@
-Significance: minor
-Type: changed
-
-Detect when a backup will retry and update error screen content.

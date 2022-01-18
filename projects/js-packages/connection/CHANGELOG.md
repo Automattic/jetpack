@@ -2,6 +2,35 @@
 
 ### This is a list detailing changes for the Jetpack RNA Connection Component releases.
 
+## 0.13.2 - 2022-01-18
+### Changed
+- General: update required node version to v16.13.2
+
+### Fixed
+- fixed babel/preset-react dependency
+
+## 0.13.1 - 2022-01-17
+### Changed
+- Updated package dependencies.
+
+### Fixed
+- Fixed styling on Required Plan button and Login link.
+
+## 0.13.0 - 2022-01-13
+### Changed
+- Added user data to initial state
+
+## 0.12.1 - 2022-01-11
+### Removed
+- Remove use of deprecated `~` in sass-loader imports.
+
+## 0.12.0 - 2022-01-04
+### Changed
+- Changed min-width of log in link
+- Connection: Extract connection logic for custom hook
+- Drop isRegistered and isUserConnected params from ConnectionStatusCard component
+- Updated package dependencies.
+
 ## 0.11.3 - 2021-12-14
 ### Fixed
 - Fix JavaScript i18n strings.

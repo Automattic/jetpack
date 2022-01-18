@@ -2775,13 +2775,6 @@ class Jetpack_Core_Json_Api_Endpoints {
 				'validate_callback' => __CLASS__ . '::validate_boolean',
 				'jp_group'          => 'stats',
 			),
-			'hide_smile'                           => array(
-				'description'       => esc_html__( 'Hide the stats smiley face image.', 'jetpack' ),
-				'type'              => 'boolean',
-				'default'           => 1,
-				'validate_callback' => __CLASS__ . '::validate_boolean',
-				'jp_group'          => 'stats',
-			),
 			'version'                              => array(
 				'description'       => esc_html__( 'Version.', 'jetpack' ),
 				'type'              => 'integer',

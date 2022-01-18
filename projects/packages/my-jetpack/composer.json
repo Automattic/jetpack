@@ -5,11 +5,11 @@
 	"license": "GPL-2.0-or-later",
 	"require": {
 		"automattic/jetpack-admin-ui": "^0.2",
-		"automattic/jetpack-assets": "^1.15",
-		"automattic/jetpack-connection": "^1.33"
+		"automattic/jetpack-assets": "^1.16",
+		"automattic/jetpack-connection": "^1.36"
 	},
 	"require-dev": {
-		"yoast/phpunit-polyfills": "1.0.2",
+		"yoast/phpunit-polyfills": "1.0.3",
 		"automattic/jetpack-changelogger": "^3.0"
 	},
 	"autoload": {
@@ -22,19 +22,23 @@
 			"./vendor/phpunit/phpunit/phpunit --colors=always"
 		],
 		"test-coverage": [
-			"@composer install",
-			"phpdbg -d memory_limit=2048M -d max_execution_time=900 -qrr ./vendor/bin/phpunit --coverage-clover \"$COVERAGE_DIR/clover.xml\""
+			"php -dpcov.directory=. ./vendor/bin/phpunit --coverage-clover \"$COVERAGE_DIR/coverage.xml\"",
+			"pnpm run test -- --coverageDirectory=\"$COVERAGE_DIR\" --coverage --coverageReporters=clover"
 		],
 		"test-php": [
-			"@composer install",
 			"@composer phpunit"
 		],
-		"build-development": [
+		"test-js": [
+			"pnpm run test"
+		],
+		"test-js-watch": [
 			"Composer\\Config::disableProcessTimeout",
+			"pnpm run test -- --watch"
+		],
+		"build-development": [
 			"pnpm run build"
 		],
 		"build-production": [
-			"Composer\\Config::disableProcessTimeout",
 			"NODE_ENV=production pnpm run build"
 		],
 		"watch": [
@@ -56,11 +60,12 @@
 	"extra": {
 		"autotagger": true,
 		"mirror-repo": "Automattic/jetpack-my-jetpack",
+		"textdomain": "jetpack-my-jetpack",
 		"changelogger": {
 			"link-template": "https://github.com/Automattic/jetpack-my-jetpack/compare/${old}...${new}"
 		},
 		"branch-alias": {
-			"dev-master": "0.2.x-dev"
+			"dev-master": "0.3.x-dev"
 		}
 	}
 }

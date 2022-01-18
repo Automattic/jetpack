@@ -56,7 +56,8 @@
 				{#if showingProviderError}
 					<CriticalCssErrorDescription
 						errorSet={$primaryErrorSet}
-						showSuggestion={false}
+						showSuggestion={true}
+						showClosingParagraph={false}
 						foldRawErrors={false}
 						on:retry={generateCriticalCss}
 					/>
