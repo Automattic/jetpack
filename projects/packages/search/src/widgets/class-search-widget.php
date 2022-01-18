@@ -119,7 +119,7 @@ class Search_Widget extends \WP_Widget {
 			'widget-jetpack-search-filters',
 			plugins_url( 'css/search-widget-admin-ui.css', __FILE__ ),
 			array(),
-			JETPACK__VERSION
+			Helper::get_asset_version()
 		);
 
 		// Register jp-tracks and jp-tracks-functions.
@@ -129,7 +129,7 @@ class Search_Widget extends \WP_Widget {
 			'jetpack-search-widget-admin',
 			plugins_url( 'js/search-widget-admin.js', __FILE__ ),
 			array( 'jquery', 'jquery-ui-sortable', 'jp-tracks-functions' ),
-			JETPACK__VERSION,
+			Helper::get_asset_version(),
 			false
 		);
 
