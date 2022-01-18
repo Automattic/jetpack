@@ -13,9 +13,9 @@
 		"automattic/jetpack-connection": "1.36.x-dev",
 		"automattic/jetpack-connection-ui": "2.3.x-dev",
 		"automattic/jetpack-identity-crisis": "0.6.x-dev",
-		"automattic/jetpack-my-jetpack": "0.3.x-dev",
+		"automattic/jetpack-my-jetpack": "0.4.x-dev",
 		"automattic/jetpack-sync": "1.28.x-dev",
-		"automattic/jetpack-status": "1.9.x-dev"
+		"automattic/jetpack-status": "1.10.x-dev"
 	},
 	"require-dev": {
 		"yoast/phpunit-polyfills": "1.0.3",

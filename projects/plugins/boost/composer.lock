@@ -318,7 +318,7 @@
             "dist": {
                 "type": "path",
                 "url": "../../packages/connection",
-                "reference": "c6d5e144286f3a332032a31822688841b4469c9e"
+                "reference": "5bf3bebadaec57d95df9dc6e01b9d4b7e20a2284"
             },
             "require": {
                 "automattic/jetpack-a8c-mc-stats": "^1.4",
@@ -327,7 +327,7 @@
                 "automattic/jetpack-options": "^1.14",
                 "automattic/jetpack-redirect": "^1.7",
                 "automattic/jetpack-roles": "^1.4",
-                "automattic/jetpack-status": "^1.9",
+                "automattic/jetpack-status": "^1.10",
                 "automattic/jetpack-terms-of-service": "^1.9",
                 "automattic/jetpack-tracking": "^1.14"
             },
@@ -628,10 +628,10 @@
             "dist": {
                 "type": "path",
                 "url": "../../packages/redirect",
-                "reference": "9d208482891d43cc68106ece61bb3e56b1166137"
+                "reference": "853a795a62f87b8c90e891c666d53c3efe81f622"
             },
             "require": {
-                "automattic/jetpack-status": "^1.9"
+                "automattic/jetpack-status": "^1.10"
             },
             "require-dev": {
                 "automattic/jetpack-changelogger": "^3.0",
@@ -729,7 +729,7 @@
             "dist": {
                 "type": "path",
                 "url": "../../packages/status",
-                "reference": "74f1550f5066f3f47cce0b8ecebdb3302c8b4317"
+                "reference": "110f7056a6fd5fb0cc77e39b8b561e2512c1ef5b"
             },
             "require": {
                 "automattic/jetpack-constants": "^1.6"
@@ -747,7 +747,7 @@
                     "link-template": "https://github.com/Automattic/jetpack-status/compare/v${old}...v${new}"
                 },
                 "branch-alias": {
-                    "dev-master": "1.9.x-dev"
+                    "dev-master": "1.10.x-dev"
                 }
             },
             "autoload": {
@@ -781,11 +781,11 @@
             "dist": {
                 "type": "path",
                 "url": "../../packages/terms-of-service",
-                "reference": "cb1cddde09fdf1988f7e0b357a140e19da65902e"
+                "reference": "706eb81842e2098c9f91b8cb911e396d905ad7a4"
             },
             "require": {
                 "automattic/jetpack-options": "^1.14",
-                "automattic/jetpack-status": "^1.9"
+                "automattic/jetpack-status": "^1.10"
             },
             "require-dev": {
                 "automattic/jetpack-changelogger": "^3.0",
@@ -834,12 +834,12 @@
             "dist": {
                 "type": "path",
                 "url": "../../packages/tracking",
-                "reference": "8dfb63a51c19a37efb59f455090759bf46a798e3"
+                "reference": "ed6f897aaaa8e843271556d271e6c7a829cb8727"
             },
             "require": {
                 "automattic/jetpack-assets": "^1.16",
                 "automattic/jetpack-options": "^1.14",
-                "automattic/jetpack-status": "^1.9",
+                "automattic/jetpack-status": "^1.10",
                 "automattic/jetpack-terms-of-service": "^1.9"
             },
             "require-dev": {

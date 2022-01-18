@@ -13,6 +13,7 @@ use Automattic\Jetpack\Connection\Client as Client;
 use Automattic\Jetpack\Connection\Initial_State as Connection_Initial_State;
 use Automattic\Jetpack\Connection\Rest_Authentication as Connection_Rest_Authentication;
 use Automattic\Jetpack\Status as Status;
+use Automattic\Jetpack\Status\Visitor;
 
 /**
  * The main Initializer class that registers the admin menu and eneuque the assets.
@@ -202,7 +203,7 @@ class Initializer {
 			$wpcom_api_version,
 			array(
 				'headers' => array(
-					'X-Forwarded-For' => \Jetpack::current_user_ip( true ),
+					'X-Forwarded-For' => ( new Visitor() )->get_ip( true ),
 				),
 			)
 		);
