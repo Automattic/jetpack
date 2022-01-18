@@ -19,14 +19,14 @@ class Jetpack_Related_Posts_Customize {
 	 *
 	 * @var string
 	 */
-	public static $prefix = 'jetpack_relatedposts';
+	public $prefix = 'jetpack_relatedposts';
 
 	/**
 	 * Control to focus when customizer loads
 	 *
 	 * @var string
 	 */
-	public static $focus = '';
+	public $focus = '';
 
 	/**
 	 * Class initialization.
