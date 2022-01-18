@@ -726,8 +726,7 @@ class Jetpack_Likes_Settings {
 					$post_type_object = get_post_type_object( $show );
 					$label            = $post_type_object->labels->name;
 				}
-				?>
-				<?php
+
 				if ( $br ) {
 					echo '<br />';
 				}
