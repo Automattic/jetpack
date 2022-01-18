@@ -1303,6 +1303,7 @@ importers:
       '@octokit/rest': 18.6.7
       '@wordpress/eslint-plugin': 9.3.0
       chalk: 4.1.2
+      debug: 4.3.3
       eslint: 7.32.0
       eslint-config-prettier: 8.3.0
       eslint-config-wpcalypso: 6.1.0
@@ -1336,6 +1337,7 @@ importers:
       '@octokit/rest': 18.6.7
       '@wordpress/eslint-plugin': 9.3.0_@babel+core@7.16.0+eslint@7.32.0
       chalk: 4.1.2
+      debug: 4.3.3
       eslint: 7.32.0
       eslint-config-prettier: 8.3.0_eslint@7.32.0
       eslint-config-wpcalypso: 6.1.0_3eb42fe7d0610a71481faeb55adacf83
