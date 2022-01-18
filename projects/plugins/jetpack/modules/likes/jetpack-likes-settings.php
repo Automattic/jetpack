@@ -729,7 +729,8 @@ class Jetpack_Likes_Settings {
 				?>
 				<?php
 				if ( $br ) {
-					echo '<br />';}
+					echo '<br />';
+				}
 				?>
 				<label><input type="checkbox"<?php checked( in_array( $show, $global['show'], true ) ); ?> name="show[]" value="<?php echo esc_attr( $show ); ?>" /> <?php echo esc_html( $label ); ?></label>
 				<?php
