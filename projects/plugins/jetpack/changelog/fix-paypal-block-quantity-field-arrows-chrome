@@ -1,5 +1,0 @@
-Significance: patch
-Type: bugfix
-Comment: CSS style change to show arrows on an input field for Chrome. This affects only the Pay with PayPal block.
-
-
