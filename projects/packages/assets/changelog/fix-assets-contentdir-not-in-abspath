@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Handle the case where `WP_LANG_DIR` is in `WP_CONTENT_DIR`, but `WP_CONTENT_DIR` is not in `ABSPATH`.

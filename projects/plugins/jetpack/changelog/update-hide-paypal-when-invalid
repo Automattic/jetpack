@@ -1,0 +1,4 @@
+Significance: minor
+Type: enhancement
+
+Do not render the simple-payments Pay with paypal block on the front-end if it is misconfigured. Previously it would be rendered but anyone trying to use it would run into confusing error messages

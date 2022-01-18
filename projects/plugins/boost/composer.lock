@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "12d4959cf8fe49eee1b057666cd361f8",
+    "content-hash": "ad338ddf5d51f846c3f1d6786c732788",
     "packages": [
         {
             "name": "automattic/jetpack-a8c-mc-stats",
@@ -62,7 +62,7 @@
             "dist": {
                 "type": "path",
                 "url": "../../packages/admin-ui",
-                "reference": "b320a5899ac57492faafbd8a6edac92c95cb4b23"
+                "reference": "a32c8100f9032af318b792995597c521d038da40"
             },
             "require-dev": {
                 "automattic/jetpack-changelogger": "^3.0",
@@ -328,7 +328,7 @@
             "dist": {
                 "type": "path",
                 "url": "../../packages/connection",
-                "reference": "0b22aecbfeecdaef6a4ad3fec9c9114cbdee719c"
+                "reference": "9a28a45452b2cc1ad345c1ac21ab7f3c79cf90ba"
             },
             "require": {
                 "automattic/jetpack-a8c-mc-stats": "^1.4",
@@ -359,7 +359,7 @@
                     "link-template": "https://github.com/Automattic/jetpack-connection/compare/v${old}...v${new}"
                 },
                 "branch-alias": {
-                    "dev-master": "1.35.x-dev"
+                    "dev-master": "1.36.x-dev"
                 }
             },
             "autoload": {
@@ -541,7 +541,7 @@
             "dist": {
                 "type": "path",
                 "url": "../../packages/lazy-images",
-                "reference": "cb6c992bcf1190d27fdebf29a31d2156a1e7558f"
+                "reference": "297c498e08a7ea8c71d9d3e740b36273c1bfe8be"
             },
             "require": {
                 "automattic/jetpack-assets": "^1.16",
@@ -4552,5 +4552,5 @@
     "platform-overrides": {
         "ext-intl": "0.0.0"
     },
-    "plugin-api-version": "2.1.0"
+    "plugin-api-version": "2.2.0"
 }
