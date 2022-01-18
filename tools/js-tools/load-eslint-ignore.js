@@ -134,6 +134,17 @@ function loadIgnorePatterns( basedir ) {
 		}
 	}
 
+	if ( process.env.ESLINT_IGNORE_REQUIRED ) {
+		for ( const file of JSON.parse(
+			fs.readFileSync( path.join( __dirname, '../eslint-excludelist.json' ) )
+		) ) {
+			const f = path.relative( basedir, path.resolve( rootdir, file ) );
+			if ( ! f.startsWith( '../' ) ) {
+				rules.push( f );
+			}
+		}
+	}
+
 	if ( debugrules.enabled ) {
 		debugrules(
 			// prettier-ignore
