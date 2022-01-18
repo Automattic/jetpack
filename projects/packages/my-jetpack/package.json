@@ -22,7 +22,7 @@
 	},
 	"dependencies": {
 		"@automattic/jetpack-components": "workspace:^0.10.3-alpha",
-		"@automattic/jetpack-connection": "workspace:^0.13.3-alpha",
+		"@automattic/jetpack-connection": "workspace:^0.14.0-alpha",
 		"@wordpress/components": "19.1.6",
 		"@wordpress/data": "6.1.5",
 		"@wordpress/i18n": "4.2.4"
