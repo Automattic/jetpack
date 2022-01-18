@@ -32,7 +32,6 @@ const PromptLayout = props => {
 	return (
 		<div
 			className={ classNames( 'jp-recommendations-question__main', {
-				'jp-recommendations-question__main--with-sidebar': !! illustrationPath || !! sidebarCard,
 				'jp-recommendations-question__main--with-illustration': !! illustrationPath,
 				'jp-recommendations-question__main--with-illustration--rna': !! illustrationPath && !! rna,
 			} ) }
@@ -79,9 +78,6 @@ const PromptLayout = props => {
 					/>
 				</div>
 			) }
-			{ sidebarCard && ! illustrationPath && (
-				<div className="jp-recommendations-question__sidebar-card">{ sidebarCard }</div>
-			) }
 		</div>
 	);
 };
@@ -92,7 +88,6 @@ PromptLayout.propTypes = {
 	illustrationPath: PropTypes.string,
 	progressBar: PropTypes.element.isRequired,
 	question: PropTypes.oneOfType( [ PropTypes.string, PropTypes.element ] ).isRequired,
-	sidebarCard: PropTypes.element,
 };
 
 export { PromptLayout };
