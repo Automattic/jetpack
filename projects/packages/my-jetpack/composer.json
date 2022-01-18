@@ -22,31 +22,23 @@
 			"./vendor/phpunit/phpunit/phpunit --colors=always"
 		],
 		"test-coverage": [
-			"@composer install",
 			"php -dpcov.directory=. ./vendor/bin/phpunit --coverage-clover \"$COVERAGE_DIR/coverage.xml\"",
-			"pnpm install",
 			"pnpm run test -- --coverageDirectory=\"$COVERAGE_DIR\" --coverage --coverageReporters=clover"
 		],
 		"test-php": [
-			"@composer install",
 			"@composer phpunit"
 		],
 		"test-js": [
-			"Composer\\Config::disableProcessTimeout",
-			"pnpm install",
 			"pnpm run test"
 		],
 		"test-js-watch": [
 			"Composer\\Config::disableProcessTimeout",
-			"pnpm install",
 			"pnpm run test -- --watch"
 		],
 		"build-development": [
-			"Composer\\Config::disableProcessTimeout",
 			"pnpm run build"
 		],
 		"build-production": [
-			"Composer\\Config::disableProcessTimeout",
 			"NODE_ENV=production pnpm run build"
 		],
 		"watch": [

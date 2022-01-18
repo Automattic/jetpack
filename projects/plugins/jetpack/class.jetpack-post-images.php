@@ -45,9 +45,9 @@ class Jetpack_PostImages {
 
 		// Mechanic: Somebody set us up the bomb.
 		$old_post                  = $GLOBALS['post'];
-		$GLOBALS['post']           = $post;
+		$GLOBALS['post']           = $post; // phpcs:ignore WordPress.WP.GlobalVariablesOverride.Prohibited
 		$old_shortcodes            = $GLOBALS['shortcode_tags'];
-		$GLOBALS['shortcode_tags'] = array( 'slideshow' => $old_shortcodes['slideshow'] );
+		$GLOBALS['shortcode_tags'] = array( 'slideshow' => $old_shortcodes['slideshow'] ); // phpcs:ignore WordPress.WP.GlobalVariablesOverride.Prohibited
 
 		// Find all the slideshows.
 		preg_match_all( '/' . get_shortcode_regex() . '/sx', $post->post_content, $slideshow_matches, PREG_SET_ORDER );
@@ -66,7 +66,8 @@ class Jetpack_PostImages {
 			// If the JSON didn't decode don't try and act on it.
 			if ( is_array( $post_images ) ) {
 				foreach ( $post_images as $post_image ) {
-					if ( ! $post_image_id = absint( $post_image->id ) ) {
+					$post_image_id = absint( $post_image->id );
+					if ( ! $post_image_id ) {
 						continue;
 					}
 
@@ -96,8 +97,8 @@ class Jetpack_PostImages {
 		ob_end_clean();
 
 		// Operator: Main screen turn on.
-		$GLOBALS['shortcode_tags'] = $old_shortcodes;
-		$GLOBALS['post']           = $old_post;
+		$GLOBALS['shortcode_tags'] = $old_shortcodes; // phpcs:ignore WordPress.WP.GlobalVariablesOverride.Prohibited
+		$GLOBALS['post']           = $old_post; // phpcs:ignore WordPress.WP.GlobalVariablesOverride.Prohibited
 
 		return $images;
 	}
@@ -130,6 +131,7 @@ class Jetpack_PostImages {
 		 *  See core ticket:
 		 *  https://core.trac.wordpress.org/ticket/39304
 		 */
+		// phpcs:disable WordPress.WP.GlobalVariablesOverride.Prohibited
 		if ( isset( $GLOBALS['post'] ) ) {
 			$juggle_post     = $GLOBALS['post'];
 			$GLOBALS['post'] = $post;
@@ -140,6 +142,7 @@ class Jetpack_PostImages {
 			$galleries       = get_post_galleries( $post->ID, false );
 			unset( $GLOBALS['post'] );
 		}
+		// phpcs:enable WordPress.WP.GlobalVariablesOverride.Prohibited
 
 		foreach ( $galleries as $gallery ) {
 			if ( isset( $gallery['type'] ) && 'slideshow' === $gallery['type'] && ! empty( $gallery['ids'] ) ) {
@@ -238,7 +241,7 @@ class Jetpack_PostImages {
 			}
 		}
 		foreach ( $images as $i => $image ) {
-			if ( ! in_array( $image['src'], $inserted_images ) ) {
+			if ( ! in_array( $image['src'], $inserted_images, true ) ) {
 				unset( $images[ $i ] );
 			}
 		}
@@ -428,7 +431,7 @@ class Jetpack_PostImages {
 		// The @ is not enough to suppress errors when dealing with libxml,
 		// we have to tell it directly how we want to handle errors.
 		libxml_use_internal_errors( true );
-		@$dom_doc->loadHTML( $html_info['html'] );
+		@$dom_doc->loadHTML( $html_info['html'] ); // phpcs:ignore WordPress.PHP.NoSilencedErrors.Discouraged
 		libxml_use_internal_errors( false );
 
 		$image_tags = $dom_doc->getElementsByTagName( 'img' );
@@ -592,7 +595,7 @@ class Jetpack_PostImages {
 
 		if ( is_array( $media ) ) {
 			foreach ( $media as $item ) {
-				if ( 'image' == $item['type'] ) {
+				if ( 'image' === $item['type'] ) {
 					$image = $item;
 					break;
 				}
@@ -738,7 +741,7 @@ class Jetpack_PostImages {
 
 		// If WPCOM hosted image use native transformations.
 		$img_host = wp_parse_url( $src, PHP_URL_HOST );
-		if ( '.files.wordpress.com' == substr( $img_host, -20 ) ) {
+		if ( '.files.wordpress.com' === substr( $img_host, -20 ) ) {
 			return add_query_arg(
 				array(
 					'w'    => $width,
