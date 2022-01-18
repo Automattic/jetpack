@@ -6,7 +6,7 @@
 	"require": {
 		"automattic/jetpack-admin-ui": "^0.2",
 		"automattic/jetpack-assets": "^1.16",
-		"automattic/jetpack-connection": "^1.35"
+		"automattic/jetpack-connection": "^1.36"
 	},
 	"require-dev": {
 		"yoast/phpunit-polyfills": "1.0.3",
