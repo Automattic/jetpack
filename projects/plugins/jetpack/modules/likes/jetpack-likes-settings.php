@@ -740,8 +740,6 @@ class Jetpack_Likes_Settings {
 		<?php
 		/** This action is documented in modules/sharedaddy/sharing.php */
 		echo apply_filters( 'sharing_show_buttons_on_row_end', '</tr>' );
-		?>
-		<?php
 	}
 
 	/**
