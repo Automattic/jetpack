@@ -68,7 +68,8 @@ class Jetpack_Initializer extends Initializer {
 	 * Check if site has been connected.
 	 */
 	public static function is_connected() {
-		return \Jetpack::is_connection_ready();
+		// TODO: 'jetpack-search' better to be the current plugin where the package is running.
+		return ( new Connection_Manager( 'jetpack-search' ) )->is_connected();
 	}
 
 	/**
@@ -83,9 +84,9 @@ class Jetpack_Initializer extends Initializer {
 	 */
 	public static function jetpack_search_widget_init() {
 		if (
-		! \Jetpack::is_connection_ready()
-		|| ( method_exists( '\Jetpack_Plan', 'supports' ) && ! \Jetpack_Plan::supports( 'search' ) )
-		|| ! \Jetpack::is_module_active( 'search' )
+		! self::is_connected()
+		|| ! self::is_search_supported()
+		|| ! ( new Module_Control() )->is_active()
 		) {
 			return;
 		}
