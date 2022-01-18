@@ -19,7 +19,7 @@ class Jetpack_RelatedPosts {
 	/**
 	 * Instance of the class.
 	 *
-	 * @var $instance
+	 * @var Jetpack_RelatedPosts
 	 */
 	private static $instance = null;
 
