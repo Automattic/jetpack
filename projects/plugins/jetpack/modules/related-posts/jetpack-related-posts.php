@@ -545,7 +545,6 @@ EOT;
 	}
 
 	/**
-	 *
 	 * Gets options.
 	 *
 	 * @param string $option_name - option we want to get.
