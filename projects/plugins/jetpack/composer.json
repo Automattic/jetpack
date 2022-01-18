@@ -51,30 +51,22 @@
 	},
 	"scripts": {
 		"build-production": [
-			"Composer\\Config::disableProcessTimeout",
 			"pnpm run build-production-concurrently"
 		],
 		"build-development": [
-			"Composer\\Config::disableProcessTimeout",
 			"pnpm run build-concurrently"
 		],
 		"phpunit": [
 			"tests/action-phpunit.sh"
 		],
 		"test-coverage": [
-			"Composer\\Config::disableProcessTimeout",
-			"@composer install",
 			"@php tools/build-module-headings-translations.php",
 			"tests/action-test-coverage.sh"
 		],
 		"test-js": [
-			"Composer\\Config::disableProcessTimeout",
-			"pnpm install",
 			"pnpx concurrently 'pnpm:test-adminpage' 'pnpm:test-extensions'"
 		],
 		"test-php": [
-			"Composer\\Config::disableProcessTimeout",
-			"@composer install",
 			"@php tools/build-module-headings-translations.php",
 			"tests/action-test-php.sh"
 		],

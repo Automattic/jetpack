@@ -19,11 +19,9 @@
 	},
 	"scripts": {
 		"build-production": [
-			"Composer\\Config::disableProcessTimeout",
 			"pnpm run build-production"
 		],
 		"build-development": [
-			"Composer\\Config::disableProcessTimeout",
 			"pnpm run build"
 		],
 		"phpunit": [
@@ -31,11 +29,9 @@
 		],
 		"post-update-cmd": "php -r \"copy('vendor/automattic/wordbless/src/dbless-wpdb.php', 'wordpress/wp-content/db.php');\"",
 		"test-coverage": [
-			"@composer update",
 			"php -dpcov.directory=. ./vendor/bin/phpunit --coverage-clover \"$COVERAGE_DIR/clover.xml\""
 		],
 		"test-php": [
-			"@composer update",
 			"@composer phpunit"
 		]
 	},
