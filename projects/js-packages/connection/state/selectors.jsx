@@ -3,7 +3,7 @@ const connectionSelectors = {
 	/**
 	 * Checks whether the store is fetching the connection status from the server
 	 *
-	 * @deprecated since version $$next-version$$
+	 * @deprecated since $$next-version$$
 	 * @returns {boolean} Is the store is fetching the connection status from the server?
 	 */
 	getConnectionStatusIsFetching: () => false,
