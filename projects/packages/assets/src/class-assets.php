@@ -443,10 +443,13 @@ class Assets {
 			'domainMap' => array(),
 		);
 
-		$lang_dir = Jetpack_Constants::get_constant( 'WP_LANG_DIR' );
-		$abspath  = Jetpack_Constants::get_constant( 'ABSPATH' );
+		$lang_dir    = Jetpack_Constants::get_constant( 'WP_LANG_DIR' );
+		$content_dir = Jetpack_Constants::get_constant( 'WP_CONTENT_DIR' );
+		$abspath     = Jetpack_Constants::get_constant( 'ABSPATH' );
 
-		if ( strpos( $lang_dir, $abspath ) === 0 ) {
+		if ( strpos( $lang_dir, $content_dir ) === 0 ) {
+			$data['baseUrl'] = content_url( substr( trailingslashit( $lang_dir ), strlen( trailingslashit( $content_dir ) ) ) );
+		} elseif ( strpos( $lang_dir, $abspath ) === 0 ) {
 			$data['baseUrl'] = site_url( substr( trailingslashit( $lang_dir ), strlen( untrailingslashit( $abspath ) ) ) );
 		}
 

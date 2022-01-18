@@ -36,6 +36,7 @@
 
 	export let showSuggestion = true;
 	export let foldRawErrors = true;
+	export let showClosingParagraph = true;
 
 	/**
 	 * @member {ErrorSet} errorSet Error Set to display a description of, from a Recommendation or CriticalCssStatus.
@@ -78,7 +79,7 @@
 				<NumberedList items={suggestion( errorSet ).list} vars={templateVars} />
 			{/if}
 		</p>
-		{#if suggestion( errorSet ).closingParagraph}
+		{#if showClosingParagraph && suggestion( errorSet ).closingParagraph}
 			<p class="suggestion-closing">
 				<TemplatedString template={suggestion( errorSet ).closingParagraph} vars={templateVars} />
 			</p>
