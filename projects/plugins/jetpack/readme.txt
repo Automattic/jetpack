@@ -245,7 +245,7 @@ Jetpack Backup can do a full website migration to a new host, migrate theme file
 ### 10.6-a.3 - 2022-01-18
 #### Enhancements
 - Embeds: add support for Descript.com embeds.
-- Image Compare block: Add `wide` and `full` alignment options
+- Image Compare Block: Add `wide` and `full` alignment options
 - Pay with PayPal Block: do not display the block on the frontend if PayPal is misconfigured.
 - Stats: add new filter allowing site owners to exclude IP addresses from being tracked in stats.
 
