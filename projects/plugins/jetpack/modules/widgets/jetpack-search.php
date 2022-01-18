@@ -19,5 +19,7 @@ function jetpack_search_widget_init() {
 		return;
 	}
 
+	// There won't be multiple widgets registered when Search stand alone plugin registers it again.
+	// Because the function tests the hash of the class, if they are the same, just register again.
 	register_widget( 'Automattic\Jetpack\Search\Search_Widget' );
 }
