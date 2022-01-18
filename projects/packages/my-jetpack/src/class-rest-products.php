@@ -33,7 +33,7 @@ class REST_Products {
 			array(
 				'methods'             => \WP_REST_Server::READABLE,
 				'callback'            => __CLASS__ . '::get_product',
-				'permission_callback' => __CLASS__ . '::permissions_callback',
+				'permission_callback' => __CLASS__ . '::product_permissions_callback',
 				'args'                => array(
 					'product' => array(
 						'description' => __( 'Product slug', 'jetpack-my-jetpack' ),
@@ -57,25 +57,21 @@ class REST_Products {
 	}
 
 	/**
-	 * Site products endpoint.
+	 * Check Product data.
 	 *
-	 * @return array of site products list.
-	 */
-	public static function get_products() {
-		$products = Products::get_products();
-		return rest_ensure_response( $products, 200 );
-	}
-
-	/**
-	 * Site products endpoint.
+	 * @access public
+	 * @static
 	 *
 	 * @param \WP_REST_Request $request The request object.
-	 * @return array of site products list.
+	 * @return true|WP_Error
 	 */
-	public static function get_product( $request ) {
-		$params = $request->get_params();
+	public static function product_permissions_callback( $request ) {
+		if ( ! self::permissions_callback() ) {
+			return false;
+		}
 
-		if ( ! isset( $params['product'] ) ) {
+		$product_slug = $request->get_param( 'product' );
+		if ( ! isset( $product_slug ) ) {
 			return new \WP_Error(
 				'my_jetpack_missing_product',
 				__( 'Missing product param', 'jetpack-my-jetpack' ),
@@ -83,8 +79,7 @@ class REST_Products {
 			);
 		}
 
-		$products     = Products::get_products();
-		$product_slug = $params['product'];
+		$products = Products::get_products();
 		if ( ! array_key_exists( $product_slug, $products ) ) {
 			return new \WP_Error(
 				'my_jetpack_product_not_found',
@@ -93,6 +88,15 @@ class REST_Products {
 			);
 		}
 
-		return rest_ensure_response( $products[ $product_slug ], 200 );
+		return true;
+	}
+
+	/**
+	 * Site products endpoint.
+	 *
+	 * @return array of site products list.
+	 */
+	public static function get_products() {
+		return rest_ensure_response( Products::get_products(), 200 );
 	}
 }
