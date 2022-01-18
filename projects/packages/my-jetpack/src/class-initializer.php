@@ -7,6 +7,8 @@
 
 namespace Automattic\Jetpack\My_Jetpack;
 
+require_once 'class-products.php';
+require_once 'class-rest-products.php';
 require_once 'class-rest-purchases.php';
 
 use Automattic\Jetpack\Admin_UI\Admin_Menu;
@@ -93,7 +95,7 @@ class Initializer {
 			array(
 				'apiRoot'               => esc_url_raw( rest_url() ),
 				'apiNonce'              => wp_create_nonce( 'wp_rest' ),
-				'products'              => self::get_products(),
+				'products'              => Products::get_products(),
 				'purchases'             => array(),
 				'redirectUrl'           => admin_url( '?page=my-jetpack' ),
 				'topJetpackMenuItemUrl' => Admin_Menu::get_top_level_menu_item_url(),
@@ -120,6 +122,7 @@ class Initializer {
 	 * @return void
 	 */
 	public static function register_rest_endpoints() {
+		new REST_Products();
 		new REST_Purchases();
 
 		register_rest_route(
