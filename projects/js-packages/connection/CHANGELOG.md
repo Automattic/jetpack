@@ -2,6 +2,20 @@
 
 ### This is a list detailing changes for the Jetpack RNA Connection Component releases.
 
+## 0.13.2 - 2022-01-18
+### Changed
+- General: update required node version to v16.13.2
+
+### Fixed
+- fixed babel/preset-react dependency
+
+## 0.13.1 - 2022-01-17
+### Changed
+- Updated package dependencies.
+
+### Fixed
+- Fixed styling on Required Plan button and Login link.
+
 ## 0.13.0 - 2022-01-13
 ### Changed
 - Added user data to initial state

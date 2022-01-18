@@ -44,7 +44,12 @@ jobs:
         uses: ./.github/actions/tool-setup
 
       - name: Building Action
-        run: composer build-development
+        env:
+          COMPOSER_ROOT_VERSION: dev-master
+        run: |
+          pnpm install
+          composer install
+          composer build-development
         working-directory: ./projects/github-actions/repo-gardening
 
       - name: Checkout the PR
