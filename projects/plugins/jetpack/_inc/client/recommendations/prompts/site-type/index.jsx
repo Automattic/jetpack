@@ -11,6 +11,7 @@ import { ProgressBar } from '@automattic/components';
  */
 import { PromptLayout } from '../prompt-layout';
 import { CheckboxAnswer } from '../checkbox-answer';
+import DiscountCard from '../../sidebar/discount-card';
 import Button from 'components/button';
 import analytics from 'lib/analytics';
 import { getSiteTitle } from 'state/initial-state';
@@ -19,6 +20,7 @@ import {
 	getNextRoute,
 	saveRecommendationsData as saveRecommendationsDataAction,
 	updateRecommendationsStep as updateRecommendationsStepAction,
+	isProductSuggestionsAvailable,
 } from 'state/recommendations';
 
 /**
@@ -33,6 +35,7 @@ const SiteTypeQuestionComponent = props => {
 		saveRecommendationsData,
 		siteTitle,
 		updateRecommendationsStep,
+		canShowProductSuggestions,
 	} = props;
 
 	useEffect( () => {
@@ -104,7 +107,10 @@ const SiteTypeQuestionComponent = props => {
 				'jetpack'
 			) }
 			answer={ answerSection }
-			illustrationPath="recommendations/site-type-illustration.jpg"
+			illustrationPath={
+				! canShowProductSuggestions ? 'recommendations/site-type-illustration.jpg' : null
+			}
+			sidebarCard={ canShowProductSuggestions ? <DiscountCard /> : null }
 		/>
 	);
 };
@@ -119,6 +125,7 @@ export const SiteTypeQuestion = connect(
 			store: getDataByKey( state, 'site-type-store' ),
 			other: getDataByKey( state, 'site-type-other' ),
 		},
+		canShowProductSuggestions: isProductSuggestionsAvailable( state ),
 	} ),
 	dispatch => ( {
 		updateRecommendationsStep: step => dispatch( updateRecommendationsStepAction( step ) ),
