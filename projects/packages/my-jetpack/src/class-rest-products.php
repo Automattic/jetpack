@@ -41,9 +41,9 @@ class REST_Products {
 	}
 
 	/**
-	 * Site purchases endpoint.
+	 * Site products endpoint.
 	 *
-	 * @return array of site purchases.
+	 * @return array of site products list.
 	 */
 	public static function get_products() {
 		$products = Products::get_products();
