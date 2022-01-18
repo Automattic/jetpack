@@ -737,14 +737,14 @@ class AssetsTest extends TestCase {
 			),
 			'WP_LANG_DIR in wp-includes'       => array(
 				array( 'baseUrl' => 'http://example.com/wp-includes/languages/' ) + $expect_filter,
-				'wp.jpI18nState = {"baseUrl":"http://example.com/wp-includes/languages/","locale":"en_US","domainMap":{}};',
+				'wp.jpI18nLoader.state = {"baseUrl":"http://example.com/wp-includes/languages/","locale":"en_US","domainMap":{}};',
 				array(
 					'constants' => array( 'WP_LANG_DIR' => '/path/to/wordpress/wp-includes/languages' ),
 				),
 			),
 			'WP_CONTENT_DIR not in ABSPATH'    => array(
 				array( 'baseUrl' => 'http://example.com/wp-content/languages/' ) + $expect_filter,
-				'wp.jpI18nState = {"baseUrl":"http://example.com/wp-content/languages/","locale":"en_US","domainMap":{}};',
+				'wp.jpI18nLoader.state = {"baseUrl":"http://example.com/wp-content/languages/","locale":"en_US","domainMap":{}};',
 				array(
 					'constants' => array(
 						'ABSPATH'        => '/srv/htdocs/__wp__/',
