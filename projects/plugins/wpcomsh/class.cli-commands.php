@@ -414,6 +414,9 @@ if ( class_exists( 'Checksum_Plugin_Command' ) ) {
  * <plugin>
  * : The managed plugin to symlink.
  *
+ * [--remove-unmanaged]
+ * : If there is an unmanaged directory in the way, remove it without asking.
+ *
  * [--activate]
  * : Indicates that the symlinked plugin should be activated
  */
@@ -439,8 +442,13 @@ function wpcomsh_cli_plugin_symlink( $args, $assoc_args = array() ) {
 	if ( realpath( $plugin_to_symlink ) === realpath( $managed_plugin_relative_path ) ) {
 		$already_symlinked = true;
 	} else if ( is_dir( $plugin_to_symlink ) ) {
-		$answer = wpcomsh_cli_confirm( "Plugin '$plugin_to_symlink' exists. Delete it and replace with symlink?" );
-		if ( false === $answer ) {
+		$permission_to_remove = false;
+		if ( WP_CLI\Utils\get_flag_value( $assoc_args, 'remove-unmanaged', false ) ) {
+			$permission_to_remove = true;
+		} else if ( wpcomsh_cli_confirm( "Plugin '$plugin_to_symlink' exists. Delete it and replace with symlink?" ) ) {
+			$permission_to_remove = true;
+		}
+		if ( ! $permission_to_remove ) {
 			exit( -1 );
 		}
 
@@ -484,6 +492,9 @@ function wpcomsh_cli_plugin_symlink( $args, $assoc_args = array() ) {
  * <theme>
  * : The managed theme to symlink.
  *
+ * [--remove-unmanaged]
+ * : If there is an unmanaged directory in the way, remove it without asking.
+ *
  * [--activate]
  * : Indicates that the symlinked theme should be activated
  */
@@ -520,8 +531,13 @@ function wpcomsh_cli_theme_symlink( $args, $assoc_args = array() ) {
 	if ( realpath( $theme_to_symlink ) === realpath( $managed_theme_path ) ) {
 		$already_symlinked = true;
 	} else if ( is_dir( $theme_to_symlink ) ) {
-		$answer = wpcomsh_cli_confirm( "Theme '$theme_to_symlink' exists. Delete it and replace with symlink?" );
-		if ( false === $answer ) {
+		$permission_to_remove = false;
+		if ( WP_CLI\Utils\get_flag_value( $assoc_args, 'remove-unmanaged', false ) ) {
+			$permission_to_remove = true;
+		} else if ( wpcomsh_cli_confirm( "Theme '$theme_to_symlink' exists. Delete it and replace with symlink?" ) ) {
+			$permission_to_remove = true;
+		}
+		if ( ! $permission_to_remove ) {
 			exit( -1 );
 		}
 
