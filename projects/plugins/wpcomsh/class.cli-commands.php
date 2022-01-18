@@ -435,12 +435,10 @@ function wpcomsh_cli_plugin_symlink( $args, $assoc_args = array() ) {
 		WP_CLI::error( "'$plugin_to_symlink' is not a managed plugin" );
 	}
 
+	$already_symlinked = false;
 	if ( realpath( $plugin_to_symlink ) === realpath( $managed_plugin_relative_path ) ) {
-		WP_CLI::success( "Plugin '$plugin_to_symlink' is already symlinked" );
-		exit( -1 );
-	}
-
-	if ( is_dir( $plugin_to_symlink ) ) {
+		$already_symlinked = true;
+	} else if ( is_dir( $plugin_to_symlink ) ) {
 		$answer = wpcomsh_cli_confirm( "Plugin '$plugin_to_symlink' exists. Delete it and replace with symlink?" );
 		if ( false === $answer ) {
 			exit( -1 );
@@ -455,7 +453,9 @@ function wpcomsh_cli_plugin_symlink( $args, $assoc_args = array() ) {
 		);
 	}
 
-	if ( symlink( $managed_plugin_relative_path, $plugin_to_symlink ) ) {
+	if ( $already_symlinked ) {
+		WP_CLI::success( "Plugin '$plugin_to_symlink' is already symlinked" );
+	} else if ( symlink( $managed_plugin_relative_path, $plugin_to_symlink ) ) {
 		WP_CLI::success( "Symlinked '$plugin_to_symlink' plugin" );
 	} else {
 		WP_CLI::error( "Failed to symlink '$plugin_to_symlink' plugin" );
@@ -516,12 +516,10 @@ function wpcomsh_cli_theme_symlink( $args, $assoc_args = array() ) {
 		WP_CLI::error( "'$theme_to_symlink' is not a managed theme" );
 	}
 
+	$already_symlinked = false;
 	if ( realpath( $theme_to_symlink ) === realpath( $managed_theme_path ) ) {
-		WP_CLI::success( "Theme '$theme_to_symlink' is already symlinked" );
-		exit( -1 );
-	}
-
-	if ( is_dir( $theme_to_symlink ) ) {
+		$already_symlinked = true;
+	} else if ( is_dir( $theme_to_symlink ) ) {
 		$answer = wpcomsh_cli_confirm( "Theme '$theme_to_symlink' exists. Delete it and replace with symlink?" );
 		if ( false === $answer ) {
 			exit( -1 );
@@ -536,7 +534,9 @@ function wpcomsh_cli_theme_symlink( $args, $assoc_args = array() ) {
 		);
 	}
 
-	if ( symlink( $managed_theme_path, $theme_to_symlink ) ) {
+	if ( $already_symlinked ) {
+		WP_CLI::success( "Theme '$theme_to_symlink' is already symlinked" );
+	} else if ( symlink( $managed_theme_path, $theme_to_symlink ) ) {
 		WP_CLI::success( "Symlinked '$theme_to_symlink' theme" );
 	} else {
 		WP_CLI::error( "Failed to symlink '$theme_to_symlink' theme" );
