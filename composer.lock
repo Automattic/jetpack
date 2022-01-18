@@ -62,7 +62,7 @@
             "dist": {
                 "type": "path",
                 "url": "projects/packages/codesniffer",
-                "reference": "c529b8f87047c2b38db73a84c7b40be637384e8f"
+                "reference": "0c6a653df0a0baed6fe0b7558b34e733dec3f13c"
             },
             "require": {
                 "dealerdirect/phpcodesniffer-composer-installer": "^0.7",
@@ -101,8 +101,11 @@
                 "test-coverage": [
                     "php -dpcov.directory=. ./vendor/bin/phpunit --coverage-clover \"$COVERAGE_DIR/clover.xml\""
                 ],
+                "skip-test-php": [
+                    "./tests/action-skip-test-php.sh"
+                ],
                 "test-php": [
-                    "./tests/action-test-php.sh"
+                    "@composer phpunit"
                 ]
             },
             "license": [
