@@ -119,7 +119,8 @@ class Search_Widget extends \WP_Widget {
 			'widget-jetpack-search-filters',
 			plugins_url( 'css/search-widget-admin-ui.css', __FILE__ ),
 			array(),
-			Helper::get_asset_version()
+			// TODO: We'll need our own version number.
+			Helper::get_asset_version( __FILE__ )
 		);
 
 		// Register jp-tracks and jp-tracks-functions.
@@ -129,11 +130,9 @@ class Search_Widget extends \WP_Widget {
 			'jetpack-search-widget-admin',
 			plugins_url( 'js/search-widget-admin.js', __FILE__ ),
 			array( 'jquery', 'jquery-ui-sortable', 'jp-tracks-functions' ),
-			Helper::get_asset_version(),
+			Helper::get_asset_version( __FILE__ ),
 			false
 		);
-
-		// TODO enqueue style.
 
 		$dotcom_data = ( new Connection_Manager( 'jetpack-search' ) )->get_connected_user_data();
 
@@ -175,7 +174,7 @@ class Search_Widget extends \WP_Widget {
 			'jetpack-search-widget',
 			plugins_url( 'search/js/search-widget.js', __FILE__ ),
 			array(),
-			JETPACK__VERSION,
+			Helper::get_asset_version( __FILE__ ),
 			true
 		);
 
@@ -183,7 +182,7 @@ class Search_Widget extends \WP_Widget {
 			'jetpack-search-widget',
 			plugins_url( 'search/css/search-widget-frontend.css', __FILE__ ),
 			array(),
-			JETPACK__VERSION
+			Helper::get_asset_version( __FILE__ )
 		);
 	}
 

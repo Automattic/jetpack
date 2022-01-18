@@ -102,7 +102,7 @@ class Jetpack {
 		'wordads',
 		'eu-cookie-law-style',
 		'flickr-widget-style',
-		// 'jetpack-search-widget',
+		'jetpack-search-widget',
 		'jetpack-simple-payments-widget-style',
 		'jetpack-widget-social-icons-styles',
 		'wpcom_instagram_widget',

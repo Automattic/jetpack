@@ -34,8 +34,7 @@ class Jetpack_Initializer extends Initializer {
 			return;
 		}
 
-		// TODO: Port the search widget to package for milestone 2.
-		require_once JETPACK__PLUGIN_DIR . 'modules/widgets/search.php';
+		require_once JETPACK__PLUGIN_DIR . 'modules/widgets/jetpack-search.php';
 
 		/**
 		 * Location of built Jetpack Search assets, does not include trailing slash.
