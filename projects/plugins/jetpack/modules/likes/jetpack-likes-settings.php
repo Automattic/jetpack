@@ -213,7 +213,7 @@ class Jetpack_Likes_Settings {
 	 * Returns the settings have been saved message.
 	 */
 	public function updated_message() {
-		// phpcs:ignore WordPress.Security.NonceVerification.Recommended -- ignoring nonce verification $_GET['update'] since we are strongly checking for its value. 
+		// phpcs:ignore WordPress.Security.NonceVerification.Recommended -- ignoring since we are just displaying that the settings have been saved and not making  any other changes to the site.
 		if ( isset( $_GET['update'] ) && 'saved' === $_GET['update'] ) {
 			echo '<div class="updated"><p>' . esc_html__( 'Settings have been saved', 'jetpack' ) . '</p></div>';
 		}
