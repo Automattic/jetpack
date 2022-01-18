@@ -83,9 +83,9 @@ class Jetpack_Initializer extends Initializer {
 	 */
 	public static function jetpack_search_widget_init() {
 		if (
-		! Jetpack::is_connection_ready()
-		|| ( method_exists( 'Jetpack_Plan', 'supports' ) && ! Jetpack_Plan::supports( 'search' ) )
-		|| ! Jetpack::is_module_active( 'search' )
+		! \Jetpack::is_connection_ready()
+		|| ( method_exists( '\Jetpack_Plan', 'supports' ) && ! \Jetpack_Plan::supports( 'search' ) )
+		|| ! \Jetpack::is_module_active( 'search' )
 		) {
 			return;
 		}
