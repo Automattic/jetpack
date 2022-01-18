@@ -44,6 +44,8 @@ jobs:
         uses: ./.github/actions/tool-setup
 
       - name: Building Action
+        env:
+          COMPOSER_ROOT_VERSION: dev-master
         run: |
           pnpm install
           composer install
