@@ -319,8 +319,6 @@
 	"projects/plugins/jetpack/modules/tiled-gallery/tiled-gallery/tiled-gallery-shape.php",
 	"projects/plugins/jetpack/modules/tiled-gallery/tiled-gallery/tiled-gallery-square.php",
 	"projects/plugins/jetpack/modules/vaultpress.php",
-	"projects/plugins/jetpack/modules/verification-tools/blog-verification-tools.php",
-	"projects/plugins/jetpack/modules/verification-tools/verification-tools-utils.php",
 	"projects/plugins/jetpack/modules/videopress.php",
 	"projects/plugins/jetpack/modules/videopress/class.jetpack-videopress.php",
 	"projects/plugins/jetpack/modules/videopress/class.videopress-ajax.php",
