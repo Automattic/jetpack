@@ -31,13 +31,13 @@
 		"automattic/jetpack-lazy-images": "2.1.x-dev",
 		"automattic/jetpack-licensing": "1.6.x-dev",
 		"automattic/jetpack-logo": "1.5.x-dev",
-		"automattic/jetpack-my-jetpack": "0.3.x-dev",
+		"automattic/jetpack-my-jetpack": "0.4.x-dev",
 		"automattic/jetpack-options": "1.14.x-dev",
 		"automattic/jetpack-partner": "1.6.x-dev",
 		"automattic/jetpack-redirect": "1.7.x-dev",
 		"automattic/jetpack-roles": "1.4.x-dev",
 		"automattic/jetpack-search": "0.5.x-dev",
-		"automattic/jetpack-status": "1.9.x-dev",
+		"automattic/jetpack-status": "1.10.x-dev",
 		"automattic/jetpack-sync": "1.28.x-dev",
 		"automattic/jetpack-terms-of-service": "1.9.x-dev",
 		"automattic/jetpack-tracking": "1.14.x-dev",
@@ -51,30 +51,22 @@
 	},
 	"scripts": {
 		"build-production": [
-			"Composer\\Config::disableProcessTimeout",
 			"pnpm run build-production-concurrently"
 		],
 		"build-development": [
-			"Composer\\Config::disableProcessTimeout",
 			"pnpm run build-concurrently"
 		],
 		"phpunit": [
 			"tests/action-phpunit.sh"
 		],
 		"test-coverage": [
-			"Composer\\Config::disableProcessTimeout",
-			"@composer install",
 			"@php tools/build-module-headings-translations.php",
 			"tests/action-test-coverage.sh"
 		],
 		"test-js": [
-			"Composer\\Config::disableProcessTimeout",
-			"pnpm install",
 			"pnpx concurrently 'pnpm:test-adminpage' 'pnpm:test-extensions'"
 		],
 		"test-php": [
-			"Composer\\Config::disableProcessTimeout",
-			"@composer install",
 			"@php tools/build-module-headings-translations.php",
 			"tests/action-test-php.sh"
 		],

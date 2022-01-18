@@ -1,6 +1,6 @@
 {
 	"name": "@automattic/jetpack-base-styles",
-	"version": "0.1.6",
+	"version": "0.1.7-alpha",
 	"description": "Jetpack components base styles",
 	"homepage": "https://jetpack.com",
 	"bugs": {
@@ -16,10 +16,7 @@
 		"build": "echo 'Not implemented.",
 		"build-js": "echo 'Not implemented.",
 		"build-production": "echo 'Not implemented.",
-		"build-production-js": "echo 'Not implemented.",
-		"clean": "true",
-		"distclean": "rm -rf node_modules && pnpm run clean",
-		"install-if-deps-outdated": "pnpm install --no-prod --frozen-lockfile"
+		"build-production-js": "echo 'Not implemented."
 	},
 	"devDependencies": {
 		"@wordpress/base-styles": "4.0.4"

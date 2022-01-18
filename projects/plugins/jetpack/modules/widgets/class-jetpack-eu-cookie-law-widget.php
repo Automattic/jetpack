@@ -1,4 +1,9 @@
 <?php
+/**
+ * Main class file for EU Cookie Law Widget.
+ *
+ * @package automattic/jetpack
+ */
 
 use Automattic\Jetpack\Assets;
 
@@ -77,7 +82,7 @@ if ( ! class_exists( 'Jetpack_EU_Cookie_Law_Widget' ) ) {
 		/**
 		 * Constructor.
 		 */
-		function __construct() {
+		public function __construct() {
 			parent::__construct(
 				'eu_cookie_law_widget',
 				/** This filter is documented in modules/widgets/facebook-likebox.php */
@@ -97,7 +102,7 @@ if ( ! class_exists( 'Jetpack_EU_Cookie_Law_Widget' ) ) {
 		/**
 		 * Enqueue scripts and styles.
 		 */
-		function enqueue_frontend_scripts() {
+		public function enqueue_frontend_scripts() {
 			wp_enqueue_style( 'eu-cookie-law-style', plugins_url( 'eu-cookie-law/style.css', __FILE__ ), array(), JETPACK__VERSION );
 
 			if ( ! class_exists( 'Jetpack_AMP_Support' ) || ! Jetpack_AMP_Support::is_amp_request() ) {
@@ -160,7 +165,7 @@ if ( ! class_exists( 'Jetpack_EU_Cookie_Law_Widget' ) ) {
 			$instance = wp_parse_args( $instance, $this->defaults() );
 
 			if ( class_exists( 'Jetpack_AMP_Support' ) && Jetpack_AMP_Support::is_amp_request() ) {
-				require dirname( __FILE__ ) . '/eu-cookie-law/widget-amp.php';
+				require __DIR__ . '/eu-cookie-law/widget-amp.php';
 				return;
 			}
 
@@ -196,9 +201,9 @@ if ( ! class_exists( 'Jetpack_EU_Cookie_Law_Widget' ) ) {
 				return;
 			}
 
-			echo $args['before_widget'];
+			echo $args['before_widget']; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
 			require_once __DIR__ . '/eu-cookie-law/widget.php';
-			echo $args['after_widget'];
+			echo $args['after_widget']; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
 
 			/** This action is already documented in modules/widgets/gravatar-profile.php */
 			do_action( 'jetpack_stats_extra', 'widget_view', 'eu_cookie_law' );
@@ -222,20 +227,21 @@ if ( ! class_exists( 'Jetpack_EU_Cookie_Law_Widget' ) ) {
 					'modules/widgets/eu-cookie-law/eu-cookie-law-admin.js'
 				),
 				array( 'jquery' ),
-				20180417
+				20180417,
+				false
 			);
 
-			require( dirname( __FILE__ ) . '/eu-cookie-law/form.php' );
+			require __DIR__ . '/eu-cookie-law/form.php';
 		}
 
 		/**
 		 * Sanitize widget form values as they are saved.
 		 *
-		 * @param  array $new_instance Values just sent to be saved.
-		 * @param  array $old_instance Previously saved values from database.
+		 * @param array $new_instance Values just sent to be saved.
+		 * @param array $old_instance Previously saved values from database.
 		 * @return array Updated safe values to be saved.
 		 */
-		public function update( $new_instance, $old_instance ) {
+		public function update( $new_instance, $old_instance ) { // phpcs:ignore VariableAnalysis.CodeAnalysis.VariableAnalysis.UnusedVariable
 			$instance = array();
 			$defaults = $this->defaults();
 
@@ -285,7 +291,7 @@ if ( ! class_exists( 'Jetpack_EU_Cookie_Law_Widget' ) ) {
 				$instance['policy-link-text'] = trim( mb_substr( wp_kses( $new_instance['policy-link-text'], array() ), 0, 100 ) );
 			}
 
-			if ( empty( $instance['policy-link-text'] ) || $instance['policy-link-text'] == $defaults['policy-link-text'] ) {
+			if ( empty( $instance['policy-link-text'] ) || $instance['policy-link-text'] === $defaults['policy-link-text'] ) {
 				unset( $instance['policy-link-text'] );
 			}
 
@@ -293,7 +299,7 @@ if ( ! class_exists( 'Jetpack_EU_Cookie_Law_Widget' ) ) {
 				$instance['button'] = trim( mb_substr( wp_kses( $new_instance['button'], array() ), 0, 100 ) );
 			}
 
-			if ( empty( $instance['button'] ) || $instance['button'] == $defaults['button'] ) {
+			if ( empty( $instance['button'] ) || $instance['button'] === $defaults['button'] ) {
 				unset( $instance['button'] );
 			}
 
@@ -311,16 +317,18 @@ if ( ! class_exists( 'Jetpack_EU_Cookie_Law_Widget' ) ) {
 		 *
 		 * @return string $value if pass the check or first value from allowed values.
 		 */
-		function filter_value( $value, $allowed = array() ) {
+		public function filter_value( $value, $allowed = array() ) {
 			$allowed = (array) $allowed;
-			if ( empty( $value ) || ( ! empty( $allowed ) && ! in_array( $value, $allowed ) ) ) {
+			if ( empty( $value ) || ( ! empty( $allowed ) && ! in_array( $value, $allowed, true ) ) ) {
 				$value = $allowed[0];
 			}
 			return $value;
 		}
 	}
 
-	// Register Jetpack_EU_Cookie_Law_Widget widget.
+	/**
+	 * Register Jetpack_EU_Cookie_Law_Widget widget.
+	 */
 	function jetpack_register_eu_cookie_law_widget() {
 		register_widget( 'Jetpack_EU_Cookie_Law_Widget' );
 	};

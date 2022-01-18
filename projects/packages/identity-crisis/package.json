@@ -7,10 +7,9 @@
 	"author": "Automattic",
 	"license": "GPL-2.0-or-later",
 	"scripts": {
-		"build": "pnpm run install-if-deps-outdated && pnpm clean && pnpm build-client && pnpm run validate",
+		"build": "pnpm clean && pnpm build-client && pnpm run validate",
 		"build-client": "pnpm webpack --config webpack.config.js",
 		"clean": "rm -rf build/",
-		"install-if-deps-outdated": "pnpm install --no-prod --frozen-lockfile",
 		"validate": "pnpm exec validate-es build/",
 		"watch": "pnpm run build && pnpm webpack watch"
 	},
@@ -20,7 +19,7 @@
 		"@wordpress/data": "6.1.5"
 	},
 	"devDependencies": {
-		"@automattic/jetpack-webpack-config": "workspace:^1.0.2",
+		"@automattic/jetpack-webpack-config": "workspace:^1.0.3-alpha",
 		"@babel/core": "7.16.0",
 		"@babel/preset-env": "7.16.4",
 		"@babel/register": "7.16.0",
