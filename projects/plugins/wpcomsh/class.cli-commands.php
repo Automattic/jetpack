@@ -413,6 +413,9 @@ if ( class_exists( 'Checksum_Plugin_Command' ) ) {
  *
  * <plugin>
  * : The managed plugin to symlink.
+ *
+ * [--activate]
+ * : Indicates that the symlinked plugin should be activated
  */
 function wpcomsh_cli_plugin_symlink( $args, $assoc_args = array() ) {
 	$plugin_to_symlink = $args[0];
@@ -454,11 +457,23 @@ function wpcomsh_cli_plugin_symlink( $args, $assoc_args = array() ) {
 
 	if ( symlink( $managed_plugin_relative_path, $plugin_to_symlink ) ) {
 		WP_CLI::success( "Symlinked '$plugin_to_symlink' plugin" );
-		exit( 0 );
 	} else {
 		WP_CLI::error( "Failed to symlink '$plugin_to_symlink' plugin" );
 		exit( -1 );
 	}
+
+	$activate = WP_CLI\Utils\get_flag_value( $assoc_args, 'activate', false );
+	if ( $activate ) {
+		WP_CLI::runcommand(
+			"--skip-plugins --skip-themes plugin activate '$plugin_to_symlink'",
+			array(
+				'launch' => false,
+				'exit_error' => true,
+			)
+		);
+	}
+
+	exit( 0 );
 }
 
 /**
@@ -468,6 +483,9 @@ function wpcomsh_cli_plugin_symlink( $args, $assoc_args = array() ) {
  *
  * <theme>
  * : The managed theme to symlink.
+ *
+ * [--activate]
+ * : Indicates that the symlinked theme should be activated
  */
 function wpcomsh_cli_theme_symlink( $args, $assoc_args = array() ) {
 	$theme_to_symlink = $args[0];
@@ -520,11 +538,23 @@ function wpcomsh_cli_theme_symlink( $args, $assoc_args = array() ) {
 
 	if ( symlink( $managed_theme_path, $theme_to_symlink ) ) {
 		WP_CLI::success( "Symlinked '$theme_to_symlink' theme" );
-		exit( 0 );
 	} else {
 		WP_CLI::error( "Failed to symlink '$theme_to_symlink' theme" );
 		exit( -1 );
 	}
+
+	$activate = WP_CLI\Utils\get_flag_value( $assoc_args, 'activate', false );
+	if ( $activate ) {
+		WP_CLI::runcommand(
+			"--skip-plugins --skip-themes theme activate '$theme_to_symlink'",
+			array(
+				'launch' => false,
+				'exit_error' => true,
+			)
+		);
+	}
+
+	exit( 0 );
 }
 
 // Cleanup via WP-Cron event
