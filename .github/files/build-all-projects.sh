@@ -39,6 +39,9 @@ EXIT=0
 
 REPO="$(jq --arg path "$BUILD_BASE/*/*" -nc '{ type: "path", url: $path, options: { monorepo: true } }')"
 
+# We need Composer to mirror path repos for plugins.
+export COMPOSER_MIRROR_PATH_REPOS=1
+
 touch "$BUILD_BASE/mirrors.txt"
 for SLUG in "${SLUGS[@]}"; do
 	PROJECT_DIR="${BASE}/projects/${SLUG}"

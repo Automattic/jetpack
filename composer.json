@@ -62,7 +62,6 @@
 			"@phpcs:lint:required"
 		],
 		"test-js": [
-			"pnpm install",
 			"cd tools/cli && pnpm test"
 		]
 	},

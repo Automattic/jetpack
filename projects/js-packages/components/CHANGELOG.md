@@ -2,9 +2,20 @@
 
 ### This is a list detailing changes for the Jetpack RNA Components package releases.
 
+## 0.10.2 - 2022-01-18
+### Changed
+- General: update required node version to v16.13.2
+
+### Fixed
+- fixed babel/preset-react dependency
+
+## 0.10.1 - 2022-01-17
+
+- Updated package dependencies.
+
 ## 0.10.0 - 2022-01-11
 ### Changed
-- Move numberFormat component into components js package
+- Move numberFormat component into components js package.
 - Updated package dependencies.
 
 ### Removed
