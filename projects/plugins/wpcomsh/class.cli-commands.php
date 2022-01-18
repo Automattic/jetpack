@@ -478,10 +478,12 @@ function wpcomsh_cli_theme_symlink( $args, $assoc_args = array() ) {
 	}
 
 	$candidate_managed_theme_paths = array(
-		"../../../../wordpress/themes/$theme_to_symlink/latest",
 		// NOTE: pub and premium themes don't have nested `latest`and version directories
 		"../../../../wordpress/themes/pub/$theme_to_symlink",
 		"../../../../wordpress/themes/premium/$theme_to_symlink",
+		// Consider root themes dir last because we want to favor WPCOM-managed things on WPCOM
+		// See p9o2xV-1LC-p2#comment-5417
+		"../../../../wordpress/themes/$theme_to_symlink/latest",
 	);
 
 	$managed_theme_path = false;
