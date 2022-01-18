@@ -37,17 +37,24 @@ const ConnectionStatusCard = props => {
 		context,
 	} = props;
 
-	const { isRegistered, isUserConnected } = useConnection( {
+	const { isRegistered, isUserConnected, userConnectionData } = useConnection( {
 		apiRoot,
 		apiNonce,
 	} );
 
-	const [ isFetchingConnectionData, setIsFetchingConnectionData ] = useState( false );
-	const [ connectedUserData, setConnectedUserData ] = useState( {} );
+	const avatarRef = useRef();
+	const avatar = userConnectionData.currentUser?.wpcomUser?.avatar;
+
+	// Update avatar if we have one.
+	useEffect( () => {
+		if ( avatar ) {
+			avatarRef.current.style.backgroundImage = `url('${ avatar }')`;
+		}
+	}, [ avatar ] );
+
 	const [ isDisconnectDialogOpen, setIsDisconnectDialogOpen ] = useState( false );
 	const userIsConnecting = useSelect( select => select( STORE_ID ).getUserIsConnecting(), [] );
 	const { setConnectionStatus, setUserIsConnecting } = useDispatch( STORE_ID );
-	const avatarRef = useRef();
 
 	/**
 	 * Initialize the REST API.
@@ -56,29 +63,6 @@ const ConnectionStatusCard = props => {
 		restApi.setApiRoot( apiRoot );
 		restApi.setApiNonce( apiNonce );
 	}, [ apiRoot, apiNonce ] );
-
-	/**
-	 * Fetch the connection data on the first render.
-	 * To be only run once.
-	 */
-	useEffect( () => {
-		setIsFetchingConnectionData( true );
-
-		restApi
-			.fetchSiteConnectionData()
-			.then( response => {
-				setIsFetchingConnectionData( false );
-				setConnectedUserData( response.currentUser?.wpcomUser );
-				const avatar = response.currentUser?.wpcomUser?.avatar;
-				if ( avatar ) {
-					avatarRef.current.style.backgroundImage = `url('${ avatar }')`;
-				}
-			} )
-			.catch( error => {
-				setIsFetchingConnectionData( false );
-				throw error;
-			} );
-	}, [ setIsFetchingConnectionData, setConnectedUserData ] );
 
 	/**
 	 * Open the Disconnect Dialog.
@@ -154,27 +138,27 @@ const ConnectionStatusCard = props => {
 						onDisconnected={ onDisconnectedCallback }
 						connectedPlugins={ connectedPlugins }
 						connectedSiteId={ connectedSiteId }
-						connectedUser={ connectedUserData }
+						connectedUser={ userConnectionData }
 						isOpen={ isDisconnectDialogOpen }
 						onClose={ closeDisconnectDialog }
 						context={ context }
 					/>
 				</li>
 
-				{ isUserConnected && ! isFetchingConnectionData && (
+				{ isUserConnected && (
 					<li className="jp-connection-status-card--list-item-success">
-						{ __( 'Logged in as', 'jetpack' ) } { connectedUserData?.display_name }
+						{ __( 'Logged in as', 'jetpack' ) } { userConnectionData?.display_name }
 					</li>
 				) }
 
-				{ ! isUserConnected && ! isFetchingConnectionData && (
+				{ ! isUserConnected && (
 					<li className="jp-connection-status-card--list-item-error">
 						{ __( 'Your WordPress.com account is not connected.', 'jetpack' ) }
 					</li>
 				) }
 			</ul>
 
-			{ ! isUserConnected && ! isFetchingConnectionData && (
+			{ ! isUserConnected && (
 				<Button
 					isPrimary
 					disabled={ userIsConnecting }

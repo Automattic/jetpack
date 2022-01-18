@@ -158,12 +158,32 @@ No, Jetpack Backup does not currently support split site or split home URLs.
 2. Your site backups are stored in multiple locations on our world-class cloud infrastructure so you can recover them at any moment.
 
 == Changelog ==
-### 1.0.1 - 2021-11-22
+### 1.1.0-beta - 2022-01-13
+#### Added
+- Added My Jetpack page work in progress behind a feature flag.
+- Added pricing information to Jetpack Connection screen.
+- Pass connected plugin information to disconnect dialog flow, include analytics scripts.
+- Redirect to Jetpack Backup plugin page when the plugin is activated.
+- Use monorepo `validate-es` script to validate Webpack builds.
+
+#### Changed
+- Change initial screen for first backup.
+- Detect when a backup will retry and update error screen content.
+- Import RNA styles from base styles package.
+- Make Admin UI consume layout components.
+- The Admin page now promotes the new real-time Backup products.
+- Updated content shown on backup segments section.
+- Updated Jetpack Primary color to match latest brand book.
+- Updated upgrade button link target to point to checkout.
+- Use `Assets::register_script()` to load Webpack-built script.
+
 #### Removed
-- Remove the Connection UI activation.
+- Remove use of deprecated `~` in sass-loader imports.
+- Remove use of `gulp` in build, all it was doing was wrapping `webpack`.
 
 #### Fixed
-- Fix a bug that prevented the IDC UI from displaying when the site is in an identity crisis.
+- Removed backup-in-progress animation on small viewports
+- Use `@automattic/babel-plugin-replace-textdomain` to ensure proper textdomains in JS bundles.
 
 --------
 

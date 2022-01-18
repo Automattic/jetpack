@@ -9,7 +9,10 @@ namespace Automattic\Jetpack\My_Jetpack;
 
 use Automattic\Jetpack\Admin_UI\Admin_Menu;
 use Automattic\Jetpack\Assets;
+use Automattic\Jetpack\Connection\Client as Client;
 use Automattic\Jetpack\Connection\Initial_State as Connection_Initial_State;
+use Automattic\Jetpack\Connection\Rest_Authentication as Connection_Rest_Authentication;
+use Automattic\Jetpack\Status as Status;
 
 /**
  * The main Initializer class that registers the admin menu and eneuque the assets.
@@ -30,6 +33,12 @@ class Initializer {
 		if ( ! defined( 'JETPACK_ENABLE_MY_JETPACK' ) || ! JETPACK_ENABLE_MY_JETPACK ) {
 			return;
 		}
+
+		// Set up the REST authentication hooks.
+		Connection_Rest_Authentication::init();
+
+		// Add custom WP REST API endoints.
+		add_action( 'rest_api_init', array( __CLASS__, 'register_rest_routes' ) );
 
 		$page_suffix = Admin_Menu::add_menu(
 			__( 'My Jetpack', 'jetpack-my-jetpack' ),
@@ -56,7 +65,7 @@ class Initializer {
 	 * @return void
 	 */
 	public static function admin_init() {
-		add_action( 'admin_enqueue_scripts', array( __CLASS__, 'enqueue_scritps' ) );
+		add_action( 'admin_enqueue_scripts', array( __CLASS__, 'enqueue_scripts' ) );
 	}
 
 	/**
@@ -64,7 +73,7 @@ class Initializer {
 	 *
 	 * @return void
 	 */
-	public static function enqueue_scritps() {
+	public static function enqueue_scripts() {
 		Assets::register_script(
 			'my_jetpack_main_app',
 			'../build/index.js',
@@ -81,8 +90,11 @@ class Initializer {
 			array(
 				'apiRoot'               => esc_url_raw( rest_url() ),
 				'apiNonce'              => wp_create_nonce( 'wp_rest' ),
+				'products'              => self::get_products(),
+				'purchases'             => array(),
 				'redirectUrl'           => admin_url( '?page=my-jetpack' ),
 				'topJetpackMenuItemUrl' => Admin_Menu::get_top_level_menu_item_url(),
+				'siteSuffix'            => ( new Status() )->get_site_suffix(),
 			)
 		);
 
@@ -91,11 +103,136 @@ class Initializer {
 	}
 
 	/**
-	 * Echos the admin page content.
+	 * Product data
+	 *
+	 * @return array Jetpack products on the site and their availability.
+	 */
+	public static function get_products() {
+		return array();
+	}
+
+	/**
+	 * Echoes the admin page content.
 	 *
 	 * @return void
 	 */
 	public static function admin_page() {
 		echo '<div id="my-jetpack-container"></div>';
+	}
+
+	/**
+	 * Register the REST API routes.
+	 *
+	 * @return void
+	 */
+	public static function register_rest_routes() {
+		register_rest_route(
+			'my-jetpack/v1',
+			'/site',
+			array(
+				'methods'             => \WP_REST_Server::READABLE,
+				'callback'            => __CLASS__ . '::get_site',
+				'permission_callback' => __CLASS__ . '::permissions_callback',
+			)
+		);
+
+		register_rest_route(
+			'my-jetpack/v1',
+			'/site/plans',
+			array(
+				'methods'             => \WP_REST_Server::READABLE,
+				'callback'            => __CLASS__ . '::get_site_plans',
+				'permission_callback' => __CLASS__ . '::permissions_callback',
+			)
+		);
+
+		register_rest_route(
+			'my-jetpack/v1',
+			'/site/purchases',
+			array(
+				'methods'             => \WP_REST_Server::READABLE,
+				'callback'            => __CLASS__ . '::get_site_current_purchases',
+				'permission_callback' => __CLASS__ . '::permissions_callback',
+			)
+		);
+	}
+
+	/**
+	 * Check user capability to access the endpoint.
+	 *
+	 * @access public
+	 * @static
+	 *
+	 * @return true|WP_Error
+	 */
+	public static function permissions_callback() {
+		return current_user_can( 'manage_options' );
+	}
+
+	/**
+	 * Site full-data endpoint.
+	 *
+	 * @return object Site data.
+	 */
+	public static function get_site() {
+		$site_id           = \Jetpack_Options::get_option( 'id' );
+		$wpcom_endpoint    = sprintf( '/sites/%d?force=wpcom', $site_id );
+		$wpcom_api_version = '1.1';
+		$response          = Client::wpcom_json_api_request_as_blog( $wpcom_endpoint, $wpcom_api_version );
+		$response_code     = wp_remote_retrieve_response_code( $response );
+		$body              = json_decode( wp_remote_retrieve_body( $response ) );
+
+		if ( is_wp_error( $response ) || empty( $response['body'] ) ) {
+			return new \WP_Error( 'site_data_fetch_failed', 'Site data fetch failed', array( 'status' => $response_code ) );
+		}
+
+		return rest_ensure_response( $body, 200 );
+	}
+
+	/**
+	 * Site plans endpoint.
+	 *
+	 * @return array Site plans.
+	 */
+	public static function get_site_plans() {
+		$wpcom_endpoint    = sprintf( '/plans?_locale=%s?force=wpcom', get_user_locale() );
+		$wpcom_api_version = '2';
+		$response          = Client::wpcom_json_api_request_as_user(
+			$wpcom_endpoint,
+			$wpcom_api_version,
+			array(
+				'headers' => array(
+					'X-Forwarded-For' => \Jetpack::current_user_ip( true ),
+				),
+			)
+		);
+		$response_code     = wp_remote_retrieve_response_code( $response );
+		$body              = json_decode( wp_remote_retrieve_body( $response ) );
+
+		if ( is_wp_error( $response ) ) {
+			return new \WP_Error( 'site_plans_data_fetch_failed', 'Site plans data fetch failed', array( 'status' => $response_code ) );
+		}
+
+		return rest_ensure_response( $body, 200 );
+	}
+
+	/**
+	 * Site purchases endpoint.
+	 *
+	 * @return array of site purchases.
+	 */
+	public static function get_site_current_purchases() {
+		$site_id           = \Jetpack_Options::get_option( 'id' );
+		$wpcom_endpoint    = sprintf( '/sites/%d/purchases', $site_id );
+		$wpcom_api_version = '1.1';
+		$response          = Client::wpcom_json_api_request_as_blog( $wpcom_endpoint, $wpcom_api_version );
+		$response_code     = wp_remote_retrieve_response_code( $response );
+		$body              = json_decode( wp_remote_retrieve_body( $response ) );
+
+		if ( is_wp_error( $response ) || empty( $response['body'] ) ) {
+			return new \WP_Error( 'site_data_fetch_failed', 'Site data fetch failed', array( 'status' => $response_code ) );
+		}
+
+		return rest_ensure_response( $body, 200 );
 	}
 }

@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "17375020be2bdcc5094fb463df5be257",
+    "content-hash": "0a33207cd85b1dc50f469ecae7a446a9",
     "packages": [
         {
             "name": "automattic/jetpack-a8c-mc-stats",
@@ -62,7 +62,7 @@
             "dist": {
                 "type": "path",
                 "url": "../../packages/admin-ui",
-                "reference": "b320a5899ac57492faafbd8a6edac92c95cb4b23"
+                "reference": "a32c8100f9032af318b792995597c521d038da40"
             },
             "require-dev": {
                 "automattic/jetpack-changelogger": "^3.0",
@@ -236,10 +236,10 @@
             "dist": {
                 "type": "path",
                 "url": "../../packages/backup",
-                "reference": "5a4b974c617c044904b75d242bbcf0174593097d"
+                "reference": "12bdaa08a77265dc24226cf4c607c5c07bbdb0df"
             },
             "require": {
-                "automattic/jetpack-connection": "^1.34",
+                "automattic/jetpack-connection": "^1.36",
                 "automattic/jetpack-sync": "^1.28"
             },
             "require-dev": {
@@ -393,7 +393,7 @@
             "dist": {
                 "type": "path",
                 "url": "../../packages/connection",
-                "reference": "4350f4029b54e2ff02ba4650dfbdcc3cd0cbf76a"
+                "reference": "9a28a45452b2cc1ad345c1ac21ab7f3c79cf90ba"
             },
             "require": {
                 "automattic/jetpack-a8c-mc-stats": "^1.4",
@@ -424,7 +424,7 @@
                     "link-template": "https://github.com/Automattic/jetpack-connection/compare/v${old}...v${new}"
                 },
                 "branch-alias": {
-                    "dev-master": "1.34.x-dev"
+                    "dev-master": "1.36.x-dev"
                 }
             },
             "autoload": {
@@ -464,11 +464,11 @@
             "dist": {
                 "type": "path",
                 "url": "../../packages/connection-ui",
-                "reference": "141221fe12b83df9d5a76ff3d609d0933c65542c"
+                "reference": "cc049b16485bf81c08d3d17219d449dbd2a2e257"
             },
             "require": {
                 "automattic/jetpack-assets": "^1.16",
-                "automattic/jetpack-connection": "^1.34",
+                "automattic/jetpack-connection": "^1.36",
                 "automattic/jetpack-constants": "^1.6",
                 "automattic/jetpack-device-detection": "^1.4",
                 "automattic/jetpack-identity-crisis": "^0.6"
@@ -664,11 +664,11 @@
             "dist": {
                 "type": "path",
                 "url": "../../packages/identity-crisis",
-                "reference": "2555ccdc47f1e5f7b8751dc7050c9bca678a82df"
+                "reference": "d63dfb552065f103248b1ae2bc011ede00587069"
             },
             "require": {
                 "automattic/jetpack-assets": "^1.16",
-                "automattic/jetpack-connection": "^1.34",
+                "automattic/jetpack-connection": "^1.36",
                 "automattic/jetpack-constants": "^1.6",
                 "automattic/jetpack-logo": "^1.5",
                 "automattic/jetpack-options": "^1.14",
@@ -793,12 +793,12 @@
             "dist": {
                 "type": "path",
                 "url": "../../packages/my-jetpack",
-                "reference": "e7a8885ab0f5e4ccc37eba980673348c441bdde3"
+                "reference": "f7651c3f1887e4d14a9532bef5f8b8ed9c39c6a4"
             },
             "require": {
                 "automattic/jetpack-admin-ui": "^0.2",
                 "automattic/jetpack-assets": "^1.16",
-                "automattic/jetpack-connection": "^1.34"
+                "automattic/jetpack-connection": "^1.36"
             },
             "require-dev": {
                 "automattic/jetpack-changelogger": "^3.0",
@@ -827,11 +827,23 @@
                 ],
                 "test-coverage": [
                     "@composer install",
-                    "php -dpcov.directory=. ./vendor/bin/phpunit --coverage-clover \"$COVERAGE_DIR/clover.xml\""
+                    "php -dpcov.directory=. ./vendor/bin/phpunit --coverage-clover \"$COVERAGE_DIR/coverage.xml\"",
+                    "pnpm install",
+                    "pnpm run test -- --coverageDirectory=\"$COVERAGE_DIR\" --coverage --coverageReporters=clover"
                 ],
                 "test-php": [
                     "@composer install",
                     "@composer phpunit"
+                ],
+                "test-js": [
+                    "Composer\\Config::disableProcessTimeout",
+                    "pnpm install",
+                    "pnpm run test"
+                ],
+                "test-js-watch": [
+                    "Composer\\Config::disableProcessTimeout",
+                    "pnpm install",
+                    "pnpm run test -- --watch"
                 ],
                 "build-development": [
                     "Composer\\Config::disableProcessTimeout",
@@ -901,7 +913,7 @@
             "dist": {
                 "type": "path",
                 "url": "../../packages/password-checker",
-                "reference": "135f2793a7a5625d9adf2848edbf21b6249fd525"
+                "reference": "bd3670ca2602e9a4a413522a01f516c28f65ffdc"
             },
             "require-dev": {
                 "automattic/jetpack-changelogger": "^3.0",
@@ -1115,10 +1127,10 @@
             "dist": {
                 "type": "path",
                 "url": "../../packages/sync",
-                "reference": "9ca5fcf4458f807728b4486dcafa1a52f8ae20ff"
+                "reference": "039f2f2a77b992b16f1e9f8c952bc452f7aec5e7"
             },
             "require": {
-                "automattic/jetpack-connection": "^1.34",
+                "automattic/jetpack-connection": "^1.36",
                 "automattic/jetpack-constants": "^1.6",
                 "automattic/jetpack-heartbeat": "^1.4",
                 "automattic/jetpack-identity-crisis": "^0.6",
@@ -4456,5 +4468,5 @@
     "prefer-lowest": false,
     "platform": [],
     "platform-dev": [],
-    "plugin-api-version": "2.1.0"
+    "plugin-api-version": "2.2.0"
 }
