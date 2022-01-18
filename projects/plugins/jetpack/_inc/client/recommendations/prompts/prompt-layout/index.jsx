@@ -17,12 +17,11 @@ import { imagePath } from 'constants/urls';
 import './style.scss';
 
 const PromptLayout = props => {
-	const { answer, description, illustrationPath, progressBar, question, sidebarCard } = props;
+	const { answer, description, illustrationPath, progressBar, question } = props;
 
 	return (
 		<div
 			className={ classNames( 'jp-recommendations-question__main', {
-				'jp-recommendations-question__main--with-sidebar': !! illustrationPath || !! sidebarCard,
 				'jp-recommendations-question__main--with-illustration': !! illustrationPath,
 			} ) }
 		>
@@ -32,7 +31,7 @@ const PromptLayout = props => {
 				<p className="jp-recommendations-question__description">{ description }</p>
 				<div className="jp-recommendations-question__answer">{ answer }</div>
 			</div>
-			{ illustrationPath && ! sidebarCard && (
+			{ illustrationPath && (
 				<div className="jp-recommendations-question__illustration-container">
 					<img
 						className="jp-recommendations-question__illustration-background"
@@ -53,9 +52,6 @@ const PromptLayout = props => {
 					/>
 				</div>
 			) }
-			{ sidebarCard && ! illustrationPath && (
-				<div className="jp-recommendations-question__sidebar-card">{ sidebarCard }</div>
-			) }
 		</div>
 	);
 };
@@ -66,7 +62,6 @@ PromptLayout.propTypes = {
 	illustrationPath: PropTypes.string,
 	progressBar: PropTypes.element.isRequired,
 	question: PropTypes.oneOfType( [ PropTypes.string, PropTypes.element ] ).isRequired,
-	sidebarCard: PropTypes.element,
 };
 
 export { PromptLayout };
