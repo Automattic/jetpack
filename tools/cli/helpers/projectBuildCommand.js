@@ -15,10 +15,10 @@ export default function projectBuildCommand( project, production ) {
 	let command = '';
 	if ( composerJson.scripts ) {
 		const buildDev = composerJson.scripts[ 'build-development' ]
-			? 'composer build-development'
+			? 'composer run --timeout=0 build-development'
 			: null;
 		const buildProd = composerJson.scripts[ 'build-production' ]
-			? 'composer build-production'
+			? 'composer run --timeout=0 build-production'
 			: null;
 		// If production, prefer production script. If dev, prefer dev. Either case, fall back to the other if exists.
 		command = production ? buildProd || buildDev : buildDev || buildProd;

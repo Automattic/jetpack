@@ -27,26 +27,21 @@
 			"pnpm run build"
 		],
 		"build-development": [
-			"Composer\\Config::disableProcessTimeout",
 			"pnpm run build-development"
 		],
 		"build-production": [
-			"Composer\\Config::disableProcessTimeout",
 			"pnpm run build-production"
 		],
 		"phpunit": [
 			"./vendor/phpunit/phpunit/phpunit --colors=always"
 		],
 		"test-coverage": [
-			"@composer install",
 			"php -dpcov.directory=. ./vendor/bin/phpunit --coverage-clover \"$COVERAGE_DIR/clover.xml\""
 		],
 		"test-js": [
-			"Composer\\Config::disableProcessTimeout",
 			"pnpm run test"
 		],
 		"test-php": [
-			"@composer install",
 			"@composer phpunit"
 		],
 		"post-update-cmd": "php -r \"copy('vendor/automattic/wordbless/src/dbless-wpdb.php', 'wordpress/wp-content/db.php');\""
