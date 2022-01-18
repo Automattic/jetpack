@@ -237,7 +237,7 @@ class Jetpack_Likes_Settings {
 
 			<p class="submit">
 			<input type="submit" name="submit" class="button-primary" value="<?php esc_attr_e( 'Save Changes', 'jetpack' ); ?>" />
-			<input type="hidden" name="_wpnonce" value="<?php echo wp_create_nonce( 'sharing-options' ); // phpcs:disable -- WordPress.Security.EscapeOutput.OutputNotEscaped ?>" />
+			<?php wp_nonce_field( 'sharing-options' ); ?>
 		</form> 
 		<?php
 	}
@@ -729,12 +729,13 @@ class Jetpack_Likes_Settings {
 				?>
 				<?php
 				if ( $br ) {
-					echo '<br />';}
+					echo '<br />';
+				}
 				?>
 				<label><input type="checkbox"<?php checked( in_array( $show, $global['show'], true ) ); ?> name="show[]" value="<?php echo esc_attr( $show ); ?>" /> <?php echo esc_html( $label ); ?></label>
 				<?php
 				$br = true;
-endforeach;
+				endforeach;
 			?>
 		</td>
 		<?php
