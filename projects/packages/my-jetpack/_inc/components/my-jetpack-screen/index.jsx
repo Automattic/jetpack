@@ -1,9 +1,7 @@
-/* global myJetpackInitialState */
-
 /**
  * External dependencies
  */
-import React, { useCallback } from 'react';
+import React from 'react';
 import { __ } from '@wordpress/i18n';
 import {
 	AdminSection,
@@ -12,9 +10,10 @@ import {
 	Row,
 	Col,
 } from '@automattic/jetpack-components';
-import { ConnectionStatusCard } from '@automattic/jetpack-connection';
 
 import './style.scss';
+import ConnectionsSection from '../connections-section';
+import PlansSection from '../plans-section';
 
 /**
  * The My Jetpack App Main Screen.
@@ -22,10 +21,6 @@ import './style.scss';
  * @returns {object} The MyJetpackScreen component.
  */
 export default function MyJetpackScreen() {
-	const redirectAfterDisconnect = useCallback( () => {
-		window.location = myJetpackInitialState.topJetpackMenuItemUrl;
-	}, [] );
-
 	return (
 		<div className="jp-my-jetpack-screen">
 			<AdminPage>
@@ -45,15 +40,10 @@ export default function MyJetpackScreen() {
 				<AdminSection>
 					<Row>
 						<Col lg={ 6 } sm={ 4 }>
-							<h1>{ __( 'My Plan', 'jetpack-my-jetpack' ) }</h1>
+							<PlansSection />
 						</Col>
 						<Col lg={ 6 } sm={ 4 }>
-							<ConnectionStatusCard
-								apiRoot={ myJetpackInitialState.apiRoot }
-								apiNonce={ myJetpackInitialState.apiNonce }
-								redirectUri={ myJetpackInitialState.redirectUri }
-								onDisconnected={ redirectAfterDisconnect }
-							/>
+							<ConnectionsSection />
 						</Col>
 					</Row>
 				</AdminSection>

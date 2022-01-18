@@ -22,31 +22,22 @@
 	},
 	"scripts": {
 		"build-development": [
-			"Composer\\Config::disableProcessTimeout",
 			"pnpm run build"
 		],
 		"build-production": [
-			"Composer\\Config::disableProcessTimeout",
 			"pnpm run build-production"
 		],
 		"phpunit": [
 			"./vendor/phpunit/phpunit/phpunit --colors=always"
 		],
 		"test-coverage": [
-			"Composer\\Config::disableProcessTimeout",
-			"@composer update",
-			"pnpm install --frozen-lockfile",
 			"php -dpcov.directory=. ./vendor/bin/phpunit --coverage-clover \"$COVERAGE_DIR/php/clover.xml\"",
 			"pnpm run test-coverage"
 		],
 		"test-js": [
-			"Composer\\Config::disableProcessTimeout",
-			"pnpm install --frozen-lockfile",
 			"pnpm run test"
 		],
 		"test-php": [
-			"Composer\\Config::disableProcessTimeout",
-			"@composer update",
 			"@composer phpunit"
 		]
 	},

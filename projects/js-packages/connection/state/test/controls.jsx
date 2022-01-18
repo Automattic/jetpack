@@ -11,13 +11,11 @@ import sinon from 'sinon';
 import controls from '../controls';
 
 const {
-	FETCH_CONNECTION_STATUS: fetchSiteConnectionStatus,
 	REGISTER_SITE: registerSite,
 	CONNECT_USER: connectUser,
 	FETCH_AUTHORIZATION_URL: fetchAuthorizationUrl,
 } = controls;
 
-const stubFetchSiteConnectionStatus = sinon.stub( restApi, 'fetchSiteConnectionStatus' );
 const stubRegisterSite = sinon.stub( restApi, 'registerSite' );
 const stubFetchAuthorizationUrl = sinon.stub( restApi, 'fetchAuthorizationUrl' );
 const stubAssign = ( window.location.assign = sinon.stub() );
@@ -30,27 +28,6 @@ describe( 'controls', () => {
 		stubAssign.resetHistory();
 		stubRegisterSite.resetHistory();
 		stubFetchAuthorizationUrl.resetHistory();
-		stubFetchSiteConnectionStatus.resetHistory();
-	} );
-
-	describe( 'FETCH_CONNECTION_STATUS', () => {
-		it( 'resolves with result', async () => {
-			const fakeResult = {};
-			stubFetchSiteConnectionStatus.resolves( fakeResult );
-
-			const result = await fetchSiteConnectionStatus();
-			expect( result ).to.be.equal( fakeResult );
-		} );
-
-		it( 'resolves with error', done => {
-			const fakeError = new Error( 'failed' );
-			stubFetchSiteConnectionStatus.rejects( fakeError );
-
-			fetchSiteConnectionStatus().catch( error => {
-				expect( error ).to.be.equal( fakeError );
-				done();
-			} );
-		} );
 	} );
 
 	describe( 'REGISTER_SITE', () => {

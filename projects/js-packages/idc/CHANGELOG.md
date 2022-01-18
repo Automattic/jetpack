@@ -2,6 +2,17 @@
 
 ### This is a list detailing changes for the Jetpack RNA IDC package releases.
 
+## 0.8.2 - 2022-01-18
+### Changed
+- General: update required node version to v16.13.2
+
+### Fixed
+- fixed babel/preset-react dependency
+
+## 0.8.1 - 2022-01-11
+### Changed
+- Updated package dependencies.
+
 ## 0.8.0 - 2022-01-07
 ### Added
 - Display IDC resolution errors.
