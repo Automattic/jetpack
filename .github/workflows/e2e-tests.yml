@@ -54,8 +54,11 @@ jobs:
       uses: ./.github/actions/tool-setup
 
     - name: Build Production Jetpack
+      env:
+        COMPOSER_ROOT_VERSION: "dev-master"
       run: |
         pnpm install
+        pnpx jetpack build packages/search -v --production
         pnpx jetpack build plugins/jetpack -v --production
 
     - name: Environment set-up
@@ -75,7 +78,7 @@ jobs:
 
     - name: Run ${{ matrix.group }} tests
       working-directory: projects/plugins/jetpack/tests/e2e
-      run: pnpm run test-e2e -- $TESTS -gv search
+      run: pnpm run test-e2e -- $TESTS
 
     - name: Environment tear-down
       if: ${{ always() }}

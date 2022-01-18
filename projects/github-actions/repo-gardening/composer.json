@@ -9,7 +9,6 @@
 	},
 	"scripts": {
 		"build-development": [
-			"pnpm install",
 			"pnpm run build"
 		]
 	},
