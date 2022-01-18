@@ -16,7 +16,7 @@ class Jetpack_RelatedPosts_Module {
 	/**
 	 * Class variables
 	 *
-	 * @var $instance
+	 * @var Jetpack_RelatedPosts_Module
 	 */
 	private static $instance = null;
 
