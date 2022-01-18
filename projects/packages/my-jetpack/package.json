@@ -14,15 +14,14 @@
 	"license": "GPL-2.0-or-later",
 	"author": "Automattic",
 	"scripts": {
-		"build": "pnpm run install-if-deps-outdated && pnpm run clean && pnpm run build-client",
+		"build": "pnpm run clean && pnpm run build-client",
 		"build-client": "pnpm webpack --config webpack.config.js",
 		"clean": "rm -rf build/",
-		"install-if-deps-outdated": "pnpm install --no-prod --frozen-lockfile",
 		"watch": "pnpm run build && pnpm webpack watch",
 		"test": "js-test-runner jest --passWithNoTests --setupFilesAfterEnv ./jest.setup.js"
 	},
 	"dependencies": {
-		"@automattic/jetpack-components": "workspace:^0.10.2",
+		"@automattic/jetpack-components": "workspace:^0.10.3-alpha",
 		"@automattic/jetpack-connection": "workspace:^0.14.0-alpha",
 		"@wordpress/components": "19.1.6",
 		"@wordpress/data": "6.1.5",
@@ -33,8 +32,8 @@
 		"*.scss"
 	],
 	"devDependencies": {
-		"@automattic/jetpack-base-styles": "workspace:^0.1.6",
-		"@automattic/jetpack-webpack-config": "workspace:^1.0.2",
+		"@automattic/jetpack-base-styles": "workspace:^0.1.7-alpha",
+		"@automattic/jetpack-webpack-config": "workspace:^1.0.3-alpha",
 		"@babel/core": "7.16.0",
 		"@babel/preset-env": "7.16.4",
 		"@babel/register": "7.16.0",

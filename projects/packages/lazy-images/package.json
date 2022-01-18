@@ -15,17 +15,15 @@
 		"extends @wordpress/browserslist-config"
 	],
 	"scripts": {
-		"build": "pnpm run install-if-deps-outdated && pnpm run clean && pnpm run build-js",
+		"build": "pnpm run clean && pnpm run build-js",
 		"build-js": "webpack",
-		"build-production": "pnpm run distclean && pnpm run install-if-deps-outdated && pnpm run build-production-js && pnpm run validate",
+		"build-production": "pnpm run clean && pnpm run build-production-js && pnpm run validate",
 		"build-production-js": "NODE_ENV=production BABEL_ENV=production pnpm run build-js",
 		"clean": "rm -rf dist",
-		"distclean": "rm -rf node_modules && pnpm run clean",
-		"install-if-deps-outdated": "pnpm install --no-prod --frozen-lockfile",
 		"validate": "pnpm exec validate-es dist/"
 	},
 	"devDependencies": {
-		"@automattic/jetpack-webpack-config": "workspace:^1.0.2",
+		"@automattic/jetpack-webpack-config": "workspace:^1.0.3-alpha",
 		"copy-webpack-plugin": "10.2.0",
 		"intersection-observer": "0.12.0",
 		"webpack": "5.65.0"

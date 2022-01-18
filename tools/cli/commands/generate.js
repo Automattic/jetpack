@@ -391,12 +391,8 @@ async function createComposerJson( composerJson, answers ) {
 			break;
 		case 'js-package':
 			composerJson.scripts = {
-				'test-js': [ 'Composer\\Config::disableProcessTimeout', 'pnpm install', 'pnpm run test' ],
-				'test-coverage': [
-					'Composer\\Config::disableProcessTimeout',
-					'pnpm install',
-					'pnpx nyc --report-dir="$COVERAGE_DIR" pnpm run test',
-				],
+				'test-js': [ 'pnpm run test' ],
+				'test-coverage': [ 'pnpx nyc --report-dir="$COVERAGE_DIR" pnpm run test' ],
 			};
 	}
 }
