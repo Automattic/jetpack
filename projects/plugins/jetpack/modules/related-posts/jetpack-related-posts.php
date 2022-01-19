@@ -582,12 +582,12 @@ EOT;
 			$input['enabled'] = '1';
 		}
 
-		if ( '1' === $input['enabled'] ) {
+		if ( '1' == $input['enabled'] ) { // phpcs:ignore WordPress.PHP.StrictComparisons.LooseComparison -- expecting string, but may return bools.
 			$current['enabled']         = true;
-			$current['show_headline']   = ( isset( $input['show_headline'] ) && '1' === $input['show_headline'] );
-			$current['show_thumbnails'] = ( isset( $input['show_thumbnails'] ) && '1' === $input['show_thumbnails'] );
-			$current['show_date']       = ( isset( $input['show_date'] ) && '1' === $input['show_date'] );
-			$current['show_context']    = ( isset( $input['show_context'] ) && '1' === $input['show_context'] );
+			$current['show_headline']   = ( isset( $input['show_headline'] ) && '1' == $input['show_headline'] ); // phpcs:ignore WordPress.PHP.StrictComparisons.LooseComparison
+			$current['show_thumbnails'] = ( isset( $input['show_thumbnails'] ) && '1' == $input['show_thumbnails'] ); // phpcs:ignore WordPress.PHP.StrictComparisons.LooseComparison
+			$current['show_date']       = ( isset( $input['show_date'] ) && '1' == $input['show_date'] ); // phpcs:ignore WordPress.PHP.StrictComparisons.LooseComparison
+			$current['show_context']    = ( isset( $input['show_context'] ) && '1' == $input['show_context'] ); // phpcs:ignore WordPress.PHP.StrictComparisons.LooseComparison
 			$current['layout']          = isset( $input['layout'] ) && in_array( $input['layout'], array( 'grid', 'list' ), true ) ? $input['layout'] : 'grid';
 			$current['headline']        = isset( $input['headline'] ) ? $input['headline'] : esc_html__( 'Related', 'jetpack' );
 		} else {
