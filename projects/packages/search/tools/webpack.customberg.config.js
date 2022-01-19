@@ -34,7 +34,11 @@ module.exports = {
 	plugins: [
 		...jetpackWebpackConfig.StandardPlugins( {
 			DependencyExtractionPlugin: { injectPolyfill: true },
-			I18nLoaderPlugin: { textdomain: 'jetpack-search-pkg' },
+			I18nLoaderPlugin: {
+				textdomain: 'jetpack-search-pkg',
+				// When installed in a plugin, this is where it will be.
+				path: 'jetpack_vendor/automattic/jetpack-search/build/customberg',
+			},
 		} ),
 		definePaletteColorsAsStaticVariables(),
 	],
