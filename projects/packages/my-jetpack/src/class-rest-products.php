@@ -31,11 +31,14 @@ class REST_Products {
 			array(
 				'methods'             => \WP_REST_Server::READABLE,
 				'callback'            => __CLASS__ . '::get_product',
-				'permission_callback' => __CLASS__ . '::product_permissions_callback',
+				'permission_callback' => __CLASS__ . '::permissions_callback',
 				'args'                => array(
 					'product' => array(
-						'description' => __( 'Product slug', 'jetpack-my-jetpack' ),
-						'required'    => false,
+						'description'       => __( 'Product slug', 'jetpack-my-jetpack' ),
+						'type'              => 'string',
+						'enum'              => Products::get_product_names(),
+						'required'          => false,
+						'validate_callback' => __CLASS__ . '::check_product_argument',
 					),
 				),
 			)
@@ -55,34 +58,20 @@ class REST_Products {
 	}
 
 	/**
-	 * Check Product data.
+	 * Check Product arguments.
 	 *
 	 * @access public
 	 * @static
 	 *
-	 * @param \WP_REST_Request $request The request object.
-	 * @return true|WP_Error
+	 * @param  mixed $value - Value of the 'product' argument.
+	 * @return true|WP_Error   True if the value is valid, WP_Error otherwise.
 	 */
-	public static function product_permissions_callback( $request ) {
-		if ( ! self::permissions_callback() ) {
-			return false;
-		}
-
-		$product_slug = $request->get_param( 'product' );
-		if ( ! isset( $product_slug ) ) {
-			return new \WP_Error(
-				'my_jetpack_missing_product',
-				__( 'Missing product param', 'jetpack-my-jetpack' ),
-				array( 'status' => 404 )
-			);
-		}
-
-		$products = Products::get_products();
-		if ( ! array_key_exists( $product_slug, $products ) ) {
-			return new \WP_Error(
-				'my_jetpack_product_not_found',
-				__( 'Product not found', 'jetpack-my-jetpack' ),
-				array( 'status' => 404 )
+	public static function check_product_argument( $value ) {
+		if ( ! is_string( $value ) ) {
+			return new WP_Error(
+				'rest_invalid_param',
+				esc_html__( 'The product argument must be a string.', 'jetpack-my-jetpack' ),
+				array( 'status' => 400 )
 			);
 		}
 
