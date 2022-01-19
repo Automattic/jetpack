@@ -16,7 +16,7 @@ diff -ur vendor/antecedent/patchwork/src/Utils.php vendor/antecedent/patchwork/s
  
  function tokenize($string)
  {
-+	fprintf( STDERR, "tokenize:\n==========\n%s\n==========\n", $string );
++	fprintf( STDERR, "tokenize: %s\n==========\n%s\n==========\n", new \Exception(), $string );
      if (defined('TOKEN_PARSE')) {
          return token_get_all($string, TOKEN_PARSE);
      }
