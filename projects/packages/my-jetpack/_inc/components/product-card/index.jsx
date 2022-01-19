@@ -36,63 +36,54 @@ const DownIcon = () => (
 	</svg>
 );
 
-const Action = ( { status, name, admin, onActionClick, actionButtonLabel, onDeactivate } ) => {
+const renderActionButton = ( { status, admin, name } ) => {
 	if ( ! admin ) {
 		return (
-			/* translators: placeholder is product name. */
-			<div>{ sprintf( __( 'Learn about %s', 'jetpack-my-jetpack' ), name ) }</div>
-		);
-	}
-
-	if ( status === PRODUCT_STATUSES.ABSENT ) {
-		return (
-			/* translators: placeholder is product name. */
-			<div>{ sprintf( __( 'Add %s', 'jetpack-my-jetpack' ), name ) }</div>
-		);
-	}
-
-	return (
-		<ButtonGroup>
-			<Button isPressed onClick={ onActionClick }>
-				{ actionButtonLabel }
+			<Button variant="link">
+				{
+					/* translators: placeholder is product name. */
+					sprintf( __( 'Learn about %s', 'jetpack-my-jetpack' ), name )
+				}
 			</Button>
-			<DropdownMenu
-				className={ styles.dropdown }
-				toggleProps={ { isPressed: true } }
-				popoverProps={ { noArrow: false } }
-				icon={ DownIcon }
-				controls={ [
+		);
+	}
+
+	switch ( status ) {
+		case PRODUCT_STATUSES.ABSENT:
+			return (
+				<Button variant="link">
 					{
-						title: __( 'Deactivate', 'jetpack-my-jetpack' ),
-						icon: null,
-						onClick: onDeactivate,
-					},
-				] }
-			/>
-		</ButtonGroup>
-	);
+						/* translators: placeholder is product name. */
+						sprintf( __( 'Add %s', 'jetpack-my-jetpack' ), name )
+					}
+				</Button>
+			);
+		case PRODUCT_STATUSES.ACTIVE:
+			return <Button isPressed>{ __( 'Manage', 'jetpack-my-jetpack' ) }</Button>;
+		case PRODUCT_STATUSES.ERROR:
+			return <Button isPressed>{ __( 'Fix connection', 'jetpack-my-jetpack' ) }</Button>;
+		case PRODUCT_STATUSES.INACTIVE:
+			return <Button isPressed>{ __( 'Activate', 'jetpack-my-jetpack' ) }</Button>;
+	}
 };
 
-const ProductCard = ( {
-	name,
-	description,
-	icon,
-	admin,
-	status,
-	actionButtonLabel,
-	onDeactivate,
-	onActionClick,
-} ) => {
-	const renderStatusFlag = status !== PRODUCT_STATUSES.ABSENT;
+const ProductCard = props => {
+	const { name, admin, description, icon, status, onDeactivate } = props;
+	const isActive = status === PRODUCT_STATUSES.ACTIVE;
+	const isError = status === PRODUCT_STATUSES.ERROR;
+	const isInactive = status === PRODUCT_STATUSES.INACTIVE;
+	const isAbsent = status === PRODUCT_STATUSES.ABSENT;
+	const flagLabel = PRODUCT_STATUSES_LABELS[ status ];
+	const canDeactivate = ( isActive || isError ) && admin;
 
 	const containerClassName = classNames( styles.container, {
-		[ styles.absent ]: status === PRODUCT_STATUSES.ABSENT,
+		[ styles.absent ]: isAbsent,
 	} );
 
 	const statusClassName = classNames( styles.status, {
-		[ styles.active ]: status === PRODUCT_STATUSES.ACTIVE,
-		[ styles.inactive ]: status === PRODUCT_STATUSES.INACTIVE,
-		[ styles.error ]: status === PRODUCT_STATUSES.ERROR,
+		[ styles.active ]: isActive,
+		[ styles.inactive ]: isInactive,
+		[ styles.error ]: isError,
 	} );
 
 	return (
@@ -103,17 +94,27 @@ const ProductCard = ( {
 			</div>
 			<p className={ styles.description }>{ description }</p>
 			<div className={ styles.actions }>
-				<Action
-					name={ name }
-					status={ status }
-					admin={ admin }
-					actionButtonLabel={ actionButtonLabel }
-					onDeactivate={ onDeactivate }
-					onActionClick={ onActionClick }
-				/>
-				{ renderStatusFlag && (
-					<div className={ statusClassName }>{ PRODUCT_STATUSES_LABELS[ status ] }</div>
+				{ canDeactivate ? (
+					<ButtonGroup>
+						{ renderActionButton( props ) }
+						<DropdownMenu
+							className={ styles.dropdown }
+							toggleProps={ { isPressed: true } }
+							popoverProps={ { noArrow: false } }
+							icon={ DownIcon }
+							controls={ [
+								{
+									title: __( 'Deactivate', 'jetpack-my-jetpack' ),
+									icon: null,
+									onClick: onDeactivate,
+								},
+							] }
+						/>
+					</ButtonGroup>
+				) : (
+					renderActionButton( props )
 				) }
+				{ ! isAbsent && <div className={ statusClassName }>{ flagLabel }</div> }
 			</div>
 		</div>
 	);
@@ -124,7 +125,6 @@ ProductCard.propTypes = {
 	description: PropTypes.string.isRequired,
 	icon: PropTypes.element,
 	admin: PropTypes.bool.isRequired,
-	actionButtonLabel: PropTypes.string,
 	onDeactivate: PropTypes.func,
 	onActionClick: PropTypes.func,
 	status: PropTypes.oneOf( [
@@ -136,7 +136,6 @@ ProductCard.propTypes = {
 };
 
 ProductCard.defaultProps = {
-	actionButtonLabel: 'Manage',
 	icon: null,
 	onDeactivate: () => {},
 	onActionClick: () => {},
