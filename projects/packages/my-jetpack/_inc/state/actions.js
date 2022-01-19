@@ -1,6 +1,7 @@
 const SET_PURCHASES_IS_FETCHING = 'SET_PURCHASES_IS_FETCHING';
 const FETCH_PURCHASES = 'FETCH_PURCHASES';
 const SET_PURCHASES = 'SET_PURCHASES';
+const ACTIVATE_PRODUCT = 'ACTIVATE_PRODUCT';
 
 const setPurchasesIsFetching = isFetching => {
 	return { type: SET_PURCHASES_IS_FETCHING, isFetching };
@@ -14,10 +15,25 @@ const setPurchases = purchases => {
 	return { type: SET_PURCHASES, purchases };
 };
 
-const actions = {
-	setPurchasesIsFetching, // Purchases -> is fetching
-	fetchPurchases, // Purchases -> fecth
-	setPurchases, // Purchases -> set
+const activateProduct = productId => {
+	return { type: ACTIVATE_PRODUCT, productId };
 };
 
-export { SET_PURCHASES_IS_FETCHING, FETCH_PURCHASES, SET_PURCHASES, actions as default };
+const productActions = {
+	activateProduct,
+};
+
+const actions = {
+	setPurchasesIsFetching,
+	fetchPurchases,
+	setPurchases,
+	...productActions,
+};
+
+export {
+	SET_PURCHASES_IS_FETCHING,
+	FETCH_PURCHASES,
+	SET_PURCHASES,
+	ACTIVATE_PRODUCT,
+	actions as default,
+};
