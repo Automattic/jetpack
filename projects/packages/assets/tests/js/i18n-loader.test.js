@@ -49,6 +49,7 @@ beforeEach( () => {
 		baseUrl: 'http://example.com/wp-content/languages/',
 		locale: 'en_piglatin',
 		domainMap: {},
+		domainPaths: {},
 	};
 } );
 
@@ -152,6 +153,31 @@ test( 'Fetch with query part and domain map', async () => {
 	expect( global.fetch ).toHaveBeenCalledTimes( 1 );
 	expect( global.fetch ).toHaveBeenCalledWith(
 		'http://example.com/wp-content/languages/themes/mytheme-en_piglatin-1648792a465228e857cd166c292e2e4a.json?ver=12345?6789'
+	);
+	expect( mockSetLocaleData ).toHaveBeenCalledTimes( 1 );
+	expect( mockSetLocaleData ).toHaveBeenCalledWith(
+		{
+			'': {
+				domain: 'bar',
+				lang: 'en',
+				'plural-forms': 'nplurals=2; plural=(n != 1);',
+			},
+			'This is translated': [ 'is-Thay is-way anslated-tray' ],
+		},
+		'bar'
+	);
+} );
+
+test( 'Fetch with query part and domain map and path', async () => {
+	loader.state.domainMap.bar = 'themes/mytheme';
+	loader.state.domainPaths.bar = 'path/to/bar/';
+	fetch.mockFetchResponse( translations );
+	await expect(
+		loader.downloadI18n( 'dist/foo.js?ver=12345?6789', 'bar', 'plugin' )
+	).resolves.not.toThrow();
+	expect( global.fetch ).toHaveBeenCalledTimes( 1 );
+	expect( global.fetch ).toHaveBeenCalledWith(
+		'http://example.com/wp-content/languages/themes/mytheme-en_piglatin-fe1568906ebfe6b7e22d422cba956f83.json?ver=12345?6789'
 	);
 	expect( mockSetLocaleData ).toHaveBeenCalledTimes( 1 );
 	expect( mockSetLocaleData ).toHaveBeenCalledWith(

@@ -48,7 +48,7 @@ const schema = {
 			enum: [ 'plugin', 'theme', 'core' ],
 		},
 		path: {
-			description: 'Path (relative to the plugin) to locate the output assets.',
+			description: 'Path (relative to the package or plugin) to locate the output assets.',
 			type: 'string',
 		},
 		ignoreModules: {
