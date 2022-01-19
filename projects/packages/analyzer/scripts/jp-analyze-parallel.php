@@ -24,7 +24,7 @@ class ScanManager {
 
 	public function start_proc( $folder_name ) {
 		echo 'Starting ' . basename( $folder_name ) . "\n";
-		$cmd = 'php ' . escapeshellarg( dirname( __DIR__ ) . '/scripts/jp-warnings-job.php' ) . ' ' . escapeshellarg( $folder_name );
+		$cmd = array( 'php', dirname( __DIR__ ) . '/scripts/jp-warnings-job.php', $folder_name );
 		$this->count++;
 
 		$descriptorspec = array(
