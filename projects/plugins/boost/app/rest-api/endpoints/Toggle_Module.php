@@ -2,7 +2,7 @@
 
 namespace Automattic\Jetpack_Boost\REST_API\Endpoints;
 
-use Automattic\Jetpack_Boost\Modules\Module_Toggle;
+use Automattic\Jetpack_Boost\Lib\State;
 use Automattic\Jetpack_Boost\REST_API\Contracts\Endpoint;
 use Automattic\Jetpack_Boost\REST_API\Permissions\Current_User_Admin;
 
@@ -22,7 +22,7 @@ class Toggle_Module implements Endpoint {
 			);
 		}
 		$module_slug = $request['slug'];
-		$module      = new Module_Toggle( $module_slug );
+		$module      = new State( $module_slug );
 
 		// @TODO: Validate that the module exists?
 		//		if ( ! $module ) {

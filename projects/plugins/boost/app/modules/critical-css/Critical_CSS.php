@@ -2,9 +2,9 @@
 
 namespace Automattic\Jetpack_Boost\Modules\Critical_CSS;
 
+use Automattic\Jetpack_Boost\Contracts\Feature;
 use Automattic\Jetpack_Boost\Modules\Critical_CSS\Generate\Generator;
 use Automattic\Jetpack_Boost\Modules\Critical_CSS\Path_Providers\Paths;
-use Automattic\Jetpack_Boost\Modules\Generic_Module;
 use Automattic\Jetpack_Boost\REST_API\Contracts\Has_Endpoints;
 use Automattic\Jetpack_Boost\REST_API\Endpoints\Generator_Error;
 use Automattic\Jetpack_Boost\REST_API\Endpoints\Generator_Request;
@@ -13,7 +13,7 @@ use Automattic\Jetpack_Boost\REST_API\Endpoints\Generator_Success;
 use Automattic\Jetpack_Boost\REST_API\Endpoints\Recommendations_Dismiss;
 use Automattic\Jetpack_Boost\REST_API\Endpoints\Recommendations_Reset;
 
-class Critical_CSS implements Generic_Module, Has_Endpoints {
+class Critical_CSS implements Feature, Has_Endpoints {
 
 	const RESET_REASON_STORAGE_KEY = 'jb-generate-critical-css-reset-reason';
 

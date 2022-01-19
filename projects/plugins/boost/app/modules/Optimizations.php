@@ -6,7 +6,7 @@ use Automattic\Jetpack_Boost\Modules\Critical_CSS\Critical_CSS;
 use Automattic\Jetpack_Boost\Modules\Lazy_Images\Lazy_Images;
 use Automattic\Jetpack_Boost\Modules\Render_Blocking_JS\Render_Blocking_JS;
 
-class Modules {
+class Optimizations {
 
 	protected $modules = array();
 
@@ -19,7 +19,6 @@ class Modules {
 			// phpcs:disable WordPress.Security.ValidatedSanitizedInput.InputNotSanitized
 			$forced_disabled_modules = array_map( 'sanitize_key', explode( ',', $_GET['jb-disable-modules'] ) );
 		}
-
 
 
 		$available_modules = array();
@@ -50,7 +49,7 @@ class Modules {
 		);
 
 		foreach ( $features as $feature ) {
-			$module = new Module( $feature );
+			$module = new Optimization( $feature );
 			$module->register_endpoints();
 
 			$modules[ $module->get_slug() ] = $module;
@@ -71,8 +70,6 @@ class Modules {
 
 	/**
 	 * @param string $module_slug
-	 *
-	 * @return Module_Toggle|false
 	 */
 	public function get_module( $module_slug ) {
 		if ( ! $this->modules[ $module_slug ] ) {

@@ -17,7 +17,7 @@ use Automattic\Jetpack_Boost\Lib\Analytics;
 use Automattic\Jetpack_Boost\Lib\CLI;
 use Automattic\Jetpack_Boost\Lib\Connection;
 use Automattic\Jetpack_Boost\Lib\Speed_Score_History;
-use Automattic\Jetpack_Boost\Modules\Modules;
+use Automattic\Jetpack_Boost\Modules\Optimizations;
 use Automattic\Jetpack_Boost\REST_API\Endpoints\Toggle_Module;
 use Automattic\Jetpack_Boost\REST_API\REST_API;
 
@@ -87,7 +87,7 @@ class Jetpack_Boost {
 		}
 
 		// Initialize the Admin experience.
-		$modules = new Modules();
+		$modules = new Optimizations();
 		$modules->setup_modules();
 		$this->init_admin( $modules );
 		add_action( 'init', array( $modules, 'initialize_modules' ) );

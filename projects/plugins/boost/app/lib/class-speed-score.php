@@ -11,7 +11,7 @@ namespace Automattic\Jetpack_Boost\Lib;
 
 
 
-use Automattic\Jetpack_Boost\Modules\Modules;
+use Automattic\Jetpack_Boost\Modules\Optimizations;
 
 /**
  * Class Speed_Score
@@ -20,7 +20,7 @@ class Speed_Score {
 
 	private $modules;
 
-	public function __construct( Modules $modules ) {
+	public function __construct( Optimizations $modules ) {
 		$this->modules = $modules;
 
 		add_action( 'rest_api_init', array( $this, 'register_rest_routes' ) );

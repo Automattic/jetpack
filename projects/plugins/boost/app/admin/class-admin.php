@@ -14,7 +14,7 @@ use Automattic\Jetpack_Boost\Jetpack_Boost;
 use Automattic\Jetpack_Boost\Lib\Analytics;
 use Automattic\Jetpack_Boost\Lib\Environment_Change_Detector;
 use Automattic\Jetpack_Boost\Lib\Speed_Score;
-use Automattic\Jetpack_Boost\Modules\Modules;
+use Automattic\Jetpack_Boost\Modules\Optimizations;
 use Automattic\Jetpack_Boost\REST_API\Permissions\Nonce;
 
 class Admin {
@@ -54,7 +54,7 @@ class Admin {
 	private $speed_score;
 
 
-	public function __construct( Modules $modules ) {
+	public function __construct( Optimizations $modules ) {
 		$this->modules     = $modules;
 		$this->speed_score = new Speed_Score( $modules );
 		Environment_Change_Detector::init();

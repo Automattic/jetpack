@@ -9,13 +9,13 @@
 
 namespace Automattic\Jetpack_Boost\Modules\Render_Blocking_JS;
 
+use Automattic\Jetpack_Boost\Contracts\Feature;
 use Automattic\Jetpack_Boost\Lib\Output_Filter;
-use Automattic\Jetpack_Boost\Modules\Generic_Module;
 
 /**
  * Class Render_Blocking_JS
  */
-class Render_Blocking_JS implements Generic_Module  {
+class Render_Blocking_JS implements Feature  {
 	/**
 	 * Holds the script tags removed from the output buffer.
 	 *

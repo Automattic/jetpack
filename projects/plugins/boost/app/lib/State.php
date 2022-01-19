@@ -1,18 +1,15 @@
 <?php
-namespace Automattic\Jetpack_Boost\Modules;
+namespace Automattic\Jetpack_Boost\Lib;
 
-use Automattic\Jetpack_Boost\Lib\Analytics;
-use Automattic\Jetpack_Boost\Lib\Config;
-
-class Module_Toggle {
+class State {
 
 	protected $config;
 
 	protected $slug;
 
 
-	public function __construct( $module_slug ) {
-		$this->slug   = $module_slug;
+	public function __construct( $slug ) {
+		$this->slug   = $slug;
 		$this->config = new Config( $this->slug );
 	}
 
