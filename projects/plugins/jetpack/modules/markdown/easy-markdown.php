@@ -308,8 +308,6 @@ class WPCom_Markdown {
 
 	/**
 	 * Prints HTML for the Discussion setting
-	 *
-	 * @return null
 	 */
 	public function comment_field() {
 		printf(
@@ -398,8 +396,6 @@ class WPCom_Markdown {
 
 	/**
 	 * We don't want Markdown conversion all over the place.
-	 *
-	 * @return null
 	 */
 	public function add_default_post_type_support() {
 		add_post_type_support( 'post', self::POST_TYPE_SUPPORT );
@@ -429,8 +425,8 @@ class WPCom_Markdown {
 	/**
 	 * Swap post_content and post_content_filtered for editing
 	 *
-	 * @param  string $content Post content
-	 * @param  int    $id         post ID
+	 * @param  string $content Post content.
+	 * @param  int    $id         post ID.
 	 * @return string          Swapped content
 	 */
 	public function edit_post_content( $content, $id ) {
@@ -447,12 +443,12 @@ class WPCom_Markdown {
 	/**
 	 * Swap post_content_filtered and post_content for editing
 	 *
-	 * @param  string $content Post content_filtered
-	 * @param  int    $id         post ID
+	 * @param  string $content Post content_filtered.
+	 * @param  int    $id         post ID.
 	 * @return string          Swapped content
 	 */
 	public function edit_post_content_filtered( $content, $id ) {
-		// if markdown was disabled, let's turn this off
+		// if markdown was disabled, let's turn this off.
 		if ( ! $this->is_posting_enabled() && $this->is_markdown( $id ) ) {
 			$post = get_post( $id );
 			if ( $post && ! empty( $post->post_content_filtered ) ) {
@@ -533,7 +529,7 @@ jQuery( function() {
 		}
 		// rejigger post_content and post_content_filtered
 		// revisions are already in the right place, except when we're restoring, but that's taken care of elsewhere
-		// also prevent quick edit feature from overriding already-saved markdown (issue https://github.com/Automattic/jetpack/issues/636)
+		// also prevent quick edit feature from overriding already-saved markdown (issue https://github.com/Automattic/jetpack/issues/636).
 		if ( 'revision' !== $post_data['post_type'] && ! isset( $_POST['_inline_edit'] ) ) {
 			/**
 			 * Filter the original post content passed to Markdown.
@@ -549,7 +545,7 @@ jQuery( function() {
 			/** This filter is already documented in core/wp-includes/default-filters.php */
 			$post_data['post_content'] = apply_filters( 'content_save_pre', $post_data['post_content'] );
 		} elseif ( 0 === strpos( $post_data['post_name'], $post_data['post_parent'] . '-autosave' ) ) {
-			// autosaves for previews are weird
+			// autosaves for previews are weird.
 			/** This filter is already documented in modules/markdown/easy-markdown.php */
 			$post_data['post_content_filtered'] = apply_filters( 'wpcom_untransformed_content', $post_data['post_content'] );
 			$post_data['post_content']          = $this->transform( $post_data['post_content'], array( 'id' => $post_data['post_parent'] ) );
@@ -574,8 +570,7 @@ jQuery( function() {
 	 * Calls on wp_insert_post action, after wp_insert_post_data. This way we can
 	 * still set postmeta on our revisions after it's all been deleted.
 	 *
-	 * @param  int $post_id The post ID that has just been added/updated
-	 * @return null
+	 * @param  int $post_id The post ID that has just been added/updated.
 	 */
 	public function wp_insert_post( $post_id ) {
 		$post_parent = get_post_field( 'post_parent', $post_id );
@@ -596,7 +591,7 @@ jQuery( function() {
 	/**
 	 * Run a comment through Markdown. Easy peasy.
 	 *
-	 * @param  string $content
+	 * @param  string $content - the content.
 	 * @return string
 	 */
 	public function pre_comment_content( $content ) {
@@ -608,6 +603,11 @@ jQuery( function() {
 		);
 	}
 
+	/**
+	 * Return a comment hash.
+	 *
+	 * @param string $content - the content of the comment.
+	 */
 	protected function comment_hash( $content ) {
 		return 'c-' . substr( md5( $content ), 0, 8 );
 	}
@@ -615,7 +615,7 @@ jQuery( function() {
 	/**
 	 * Markdown conversion. Some DRYness for repetitive tasks.
 	 *
-	 * @param  string $text  Content to be run through Markdown
+	 * @param  string $text  Content to be run through Markdown.
 	 * @param  array  $args  Arguments, with keys:
 	 *                       id: provide a string to prefix footnotes with a unique identifier
 	 *                       unslash: when true, expects and returns slashed data
@@ -638,7 +638,7 @@ jQuery( function() {
 				'decode_code_blocks' => ! $this->get_parser()->use_code_shortcode,
 			)
 		);
-		// probably need to unslash
+		// probably need to unslash.
 		if ( $args['unslash'] ) {
 			$text = wp_unslash( $text );
 		}
@@ -654,13 +654,13 @@ jQuery( function() {
 		 * @param array $args Array of Markdown options.
 		 */
 		$text = apply_filters( 'wpcom_markdown_transform_pre', $text, $args );
-		// ensure our paragraphs are separated
+		// ensure our paragraphs are separated.
 		$text = str_replace( array( '</p><p>', "</p>\n<p>" ), "</p>\n\n<p>", $text );
 		// visual editor likes to add <p>s. Buh-bye.
 		$text = $this->get_parser()->unp( $text );
-		// sometimes we get an encoded > at start of line, breaking blockquotes
+		// sometimes we get an encoded > at start of line, breaking blockquotes.
 		$text = preg_replace( '/^&gt;/m', '>', $text );
-		// prefixes are because we need to namespace footnotes by post_id
+		// prefixes are because we need to namespace footnotes by post_id.
 		$this->get_parser()->fn_id_prefix = $args['id'] ? $args['id'] . '-' : '';
 		// If we're not using the code shortcode, prevent over-encoding.
 		if ( $args['decode_code_blocks'] ) {
@@ -668,7 +668,7 @@ jQuery( function() {
 		}
 		// Transform it!
 		$text = $this->get_parser()->transform( $text );
-		// Fix footnotes - kses doesn't like the : IDs it supplies
+		// Fix footnotes - kses doesn't like the : IDs it supplies.
 		$text = preg_replace( '/((id|href)="#?fn(ref)?):/', '$1-', $text );
 		// Markdown inserts extra spaces to make itself work. Buh-bye.
 		$text = rtrim( $text );
@@ -684,7 +684,7 @@ jQuery( function() {
 		 */
 		$text = apply_filters( 'wpcom_markdown_transform_post', $text, $args );
 
-		// probably need to re-slash
+		// probably need to re-slash.
 		if ( $args['unslash'] ) {
 			$text = wp_slash( $text );
 		}
@@ -696,8 +696,7 @@ jQuery( function() {
 	 * Shows Markdown in the Revisions screen, and ensures that post_content_filtered
 	 * is maintained on revisions
 	 *
-	 * @param  array $fields  Post fields pertinent to revisions
-	 * @return array          Modified array to include post_content_filtered
+	 * @param array $fields  Post fields pertinent to revisions.
 	 */
 	public function _wp_post_revision_fields( $fields ) {
 		$fields['post_content_filtered'] = __( 'Markdown content', 'jetpack' );
@@ -708,9 +707,8 @@ jQuery( function() {
 	 * Do some song and dance to keep all post_content and post_content_filtered content
 	 * in the expected place when a post revision is restored.
 	 *
-	 * @param  int $post_id        The post ID have a restore done to it
-	 * @param  int $revision_id    The revision ID being restored
-	 * @return null
+	 * @param  int $post_id        The post ID have a restore done to it.
+	 * @param  int $revision_id    The revision ID being restored.
 	 */
 	public function wp_restore_post_revision( $post_id, $revision_id ) {
 		if ( $this->is_markdown( $revision_id ) ) {
@@ -732,7 +730,6 @@ jQuery( function() {
 	 * column after a restore.
 	 *
 	 * @param  int $post_id The post ID that was just restored.
-	 * @return null
 	 */
 	protected function fix_latest_revision_on_restore( $post_id ) {
 		global $wpdb;
@@ -746,8 +743,7 @@ jQuery( function() {
 	 * Kicks off magic for an XML-RPC session. We want to keep editing Markdown
 	 * and publishing HTML.
 	 *
-	 * @param  string $xmlrpc_method The current XML-RPC method
-	 * @return null
+	 * @param  string $xmlrpc_method The current XML-RPC method.
 	 */
 	public function xmlrpc_actions( $xmlrpc_method ) {
 		switch ( $xmlrpc_method ) {
@@ -763,7 +759,7 @@ jQuery( function() {
 	}
 
 	/**
-	 * metaWeblog.getPost and wp.getPage fire xmlrpc_call action *after* get_post() is called.
+	 * Function metaWeblog.getPost and wp.getPage fire xmlrpc_call action *after* get_post() is called.
 	 * So, we have to detect those methods and prime the post cache early.
 	 *
 	 * @return null
@@ -785,7 +781,7 @@ jQuery( function() {
 	 * Prime the post cache with swapped post_content. This is a sneaky way of getting around
 	 * the fact that there are no good hooks to call on the *.getPost xmlrpc methods.
 	 *
-	 * @return null
+	 * @param bool $post_id - the post ID that we're priming.
 	 */
 	private function prime_post_cache( $post_id = false ) {
 		global $wp_xmlrpc_server;
@@ -793,7 +789,7 @@ jQuery( function() {
 			$post_id = $wp_xmlrpc_server->message->params[3];
 		}
 
-		// prime the post cache
+		// prime the post cache.
 		if ( $this->is_markdown( $post_id ) ) {
 			$post = get_post( $post_id );
 			if ( ! empty( $post->post_content_filtered ) ) {
@@ -803,7 +799,7 @@ jQuery( function() {
 				$this->posts_to_uncache[] = $post_id;
 			}
 		}
-		// uncache munged posts if using a persistent object cache
+		// uncache munged posts if using a persistent object cache.
 		if ( wp_using_ext_object_cache() ) {
 			add_action( 'shutdown', array( $this, 'uncache_munged_posts' ) );
 		}
@@ -812,14 +808,14 @@ jQuery( function() {
 	/**
 	 * Swaps `post_content_filtered` back to `post_content` for editing purposes.
 	 *
-	 * @param  object $post WP_Post object
-	 * @return object       WP_Post object with swapped `post_content_filtered` and `post_content`
+	 * @param  object $post WP_Post object.
+	 * @return object WP_Post object with swapped `post_content_filtered` and `post_content`.
 	 */
 	protected function swap_for_editing( $post ) {
 		$markdown = $post->post_content_filtered;
-		// unencode encoded code blocks
+		// unencode encoded code blocks.
 		$markdown = $this->get_parser()->codeblock_restore( $markdown );
-		// restore beginning of line blockquotes
+		// restore beginning of line blockquotes.
 		$markdown                    = preg_replace( '/^&gt; /m', '> ', $markdown );
 		$post->post_content_filtered = $post->post_content;
 		$post->post_content          = $markdown;
@@ -829,8 +825,6 @@ jQuery( function() {
 	/**
 	 * We munge the post cache to serve proper markdown content to XML-RPC clients.
 	 * Uncache these after the XML-RPC session ends.
-	 *
-	 * @return null
 	 */
 	public function uncache_munged_posts() {
 		// $this context gets lost in testing sometimes. Weird.
@@ -843,8 +837,7 @@ jQuery( function() {
 	 * Since *.(get)?[Rr]ecentPosts calls get_posts with suppress filters on, we need to
 	 * turn them back on so that we can swap things for editing.
 	 *
-	 * @param  object $wp_query WP_Query object
-	 * @return null
+	 * @param object $wp_query WP_Query object.
 	 */
 	public function make_filterable( $wp_query ) {
 		$wp_query->set( 'suppress_filters', false );
@@ -854,11 +847,10 @@ jQuery( function() {
 	/**
 	 * Swaps post_content and post_content_filtered for editing.
 	 *
-	 * @param  array  $posts     Posts returned by the just-completed query
-	 * @param  object $wp_query  Current WP_Query object
-	 * @return array             Modified $posts
+	 * @param array $posts Posts returned by the just-completed query.
+	 * @return array Modified $posts
 	 */
-	public function the_posts( $posts, $wp_query ) {
+	public function the_posts( $posts ) {
 		foreach ( $posts as $key => $post ) {
 			if ( $this->is_markdown( $post->ID ) && ! empty( $posts[ $key ]->post_content_filtered ) ) {
 				$markdown                             = $posts[ $key ]->post_content_filtered;
