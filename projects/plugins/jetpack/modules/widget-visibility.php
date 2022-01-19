@@ -1,5 +1,11 @@
 <?php
 /**
+ * Module: Widget Visibility
+ *
+ * @package automattic/jetpack
+ */
+
+/**
  * Module Name: Widget Visibility
  * Module Description: Control where widgets appear on your site.
  * First Introduced: 2.4
