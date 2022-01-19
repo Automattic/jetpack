@@ -754,7 +754,7 @@ class Jetpack_Likes_Settings {
 		$shows   = array_values( get_post_types( array( 'public' => true ) ) );
 		$shows[] = 'index';
 		// phpcs:ignore WordPress.Security.NonceVerification.Missing -- triggered due to the 'sharing_admin_update' action, but the code in sharing.php checks for the nonce before firing the action.
-		$data    = $_POST;
+		$data = $_POST;
 
 		if ( isset( $data['show'] ) ) {
 			if ( is_scalar( $data['show'] ) ) {
