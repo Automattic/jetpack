@@ -6,7 +6,7 @@
  * @package    automattic/jetpack-boost
  */
 
-namespace Automattic\Jetpack_Boost\Lib;
+namespace Automattic\Jetpack_Boost\Features\Speed_Score;
 
 /**
  * Class Speed_Score_History

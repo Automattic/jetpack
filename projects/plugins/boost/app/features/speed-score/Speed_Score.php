@@ -7,11 +7,12 @@
  * @package    automattic/jetpack-boost
  */
 
-namespace Automattic\Jetpack_Boost\Lib;
+namespace Automattic\Jetpack_Boost\Features\Speed_Score;
 
 
 
-use Automattic\Jetpack_Boost\Modules\Optimizations;
+use Automattic\Jetpack_Boost\Lib\Utils;
+use Automattic\Jetpack_Boost\Features\Optimizations\Optimizations;
 
 /**
  * Class Speed_Score

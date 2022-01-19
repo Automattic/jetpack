@@ -1,16 +1,16 @@
 <?php
 
-namespace Automattic\Jetpack_Boost\Modules\Critical_CSS\Path_Providers;
+namespace Automattic\Jetpack_Boost\Features\Optimizations\Critical_CSS\Source_Providers;
 
-use Automattic\Jetpack_Boost\Modules\Critical_CSS\Critical_CSS_Storage;
-use Automattic\Jetpack_Boost\Modules\Critical_CSS\Path_Providers\Providers\Archive_Provider;
-use Automattic\Jetpack_Boost\Modules\Critical_CSS\Path_Providers\Providers\Post_ID_Provider;
-use Automattic\Jetpack_Boost\Modules\Critical_CSS\Path_Providers\Providers\Provider;
-use Automattic\Jetpack_Boost\Modules\Critical_CSS\Path_Providers\Providers\Singular_Post_Provider;
-use Automattic\Jetpack_Boost\Modules\Critical_CSS\Path_Providers\Providers\Taxonomy_Provider;
-use Automattic\Jetpack_Boost\Modules\Critical_CSS\Path_Providers\Providers\WP_Core_Provider;
+use Automattic\Jetpack_Boost\Features\Optimizations\Critical_CSS\Critical_CSS_Storage;
+use Automattic\Jetpack_Boost\Features\Optimizations\Critical_CSS\Source_Providers\Providers\Archive_Provider;
+use Automattic\Jetpack_Boost\Features\Optimizations\Critical_CSS\Source_Providers\Providers\Post_ID_Provider;
+use Automattic\Jetpack_Boost\Features\Optimizations\Critical_CSS\Source_Providers\Providers\Provider;
+use Automattic\Jetpack_Boost\Features\Optimizations\Critical_CSS\Source_Providers\Providers\Singular_Post_Provider;
+use Automattic\Jetpack_Boost\Features\Optimizations\Critical_CSS\Source_Providers\Providers\Taxonomy_Provider;
+use Automattic\Jetpack_Boost\Features\Optimizations\Critical_CSS\Source_Providers\Providers\WP_Core_Provider;
 
-class Paths {
+class Source_Providers {
 
 	/**
 	 * Variable used to cache the CSS string during the page request.

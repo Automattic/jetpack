@@ -5,7 +5,7 @@
  * @package automattic/jetpack-boost
  */
 
-namespace Automattic\Jetpack_Boost\Modules\Critical_CSS\Path_Providers\Providers;
+namespace Automattic\Jetpack_Boost\Features\Optimizations\Critical_CSS\Source_Providers\Providers;
 
 /**
  * Class WP_Core_Provider.

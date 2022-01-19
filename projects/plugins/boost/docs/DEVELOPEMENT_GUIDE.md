@@ -124,9 +124,9 @@ The bare-bones module template can look like:
  * @since      1.0.0
  */
 
-namespace Automattic\Jetpack_Boost\Modules\Foo;
+namespace Automattic\Jetpack_Boost\Features\Optimizations\Foo;
 
-use Automattic\Jetpack_Boost\Modules\State;
+use Automattic\Jetpack_Boost\Features\Optimizations\State;
 
 /**
  * Class Foo

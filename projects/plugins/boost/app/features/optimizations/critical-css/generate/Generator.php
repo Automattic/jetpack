@@ -1,11 +1,11 @@
 <?php
 
-namespace Automattic\Jetpack_Boost\Modules\Critical_CSS\Generate;
+namespace Automattic\Jetpack_Boost\Features\Optimizations\Critical_CSS\Generate;
 
 use Automattic\Jetpack_Boost\Lib\Nonce;
-use Automattic\Jetpack_Boost\Modules\Critical_CSS\Critical_CSS_State;
-use Automattic\Jetpack_Boost\Modules\Critical_CSS\Path_Providers\Paths;
-use Automattic\Jetpack_Boost\Modules\Critical_CSS\Path_Providers\Providers\Provider;
+use Automattic\Jetpack_Boost\Features\Optimizations\Critical_CSS\Critical_CSS_State;
+use Automattic\Jetpack_Boost\Features\Optimizations\Critical_CSS\Source_Providers\Source_Providers;
+use Automattic\Jetpack_Boost\Features\Optimizations\Critical_CSS\Source_Providers\Providers\Provider;
 
 class Generator {
 
@@ -29,7 +29,7 @@ class Generator {
 
 	public function __construct() {
 		$this->state = new Critical_CSS_State();
-		$this->paths = new Paths();
+		$this->paths = new Source_Providers();
 		if ( $this->state->is_empty() && ! wp_doing_ajax() && ! wp_doing_cron() ) {
 			$this->state->create_request( $this->paths->get_providers() );
 		}

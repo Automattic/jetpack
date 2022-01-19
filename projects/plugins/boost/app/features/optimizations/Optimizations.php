@@ -1,10 +1,10 @@
 <?php
 
-namespace Automattic\Jetpack_Boost\Modules;
+namespace Automattic\Jetpack_Boost\Features\Optimizations;
 
-use Automattic\Jetpack_Boost\Modules\Critical_CSS\Critical_CSS;
-use Automattic\Jetpack_Boost\Modules\Lazy_Images\Lazy_Images;
-use Automattic\Jetpack_Boost\Modules\Render_Blocking_JS\Render_Blocking_JS;
+use Automattic\Jetpack_Boost\Features\Optimizations\Critical_CSS\Critical_CSS;
+use Automattic\Jetpack_Boost\Features\Optimizations\Lazy_Images\Lazy_Images;
+use Automattic\Jetpack_Boost\Features\Optimizations\Render_Blocking_JS\Render_Blocking_JS;
 
 class Optimizations {
 

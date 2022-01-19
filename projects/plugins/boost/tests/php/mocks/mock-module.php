@@ -2,7 +2,7 @@
 
 namespace Automattic\Jetpack_Boost\Tests\Mocks;
 
-use Automattic\Jetpack_Boost\Modules\State;
+use Automattic\Jetpack_Boost\Features\Optimizations\State;
 
 /**
  * Class Mock_Module

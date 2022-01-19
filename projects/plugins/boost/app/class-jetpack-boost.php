@@ -13,12 +13,12 @@
 namespace Automattic\Jetpack_Boost;
 
 use Automattic\Jetpack_Boost\Admin\Admin;
+use Automattic\Jetpack_Boost\Features\Speed_Score\Speed_Score_History;
 use Automattic\Jetpack_Boost\Lib\Analytics;
 use Automattic\Jetpack_Boost\Lib\CLI;
 use Automattic\Jetpack_Boost\Lib\Connection;
-use Automattic\Jetpack_Boost\Lib\Speed_Score_History;
-use Automattic\Jetpack_Boost\Modules\Optimizations;
-use Automattic\Jetpack_Boost\REST_API\Endpoints\Toggle_Module;
+use Automattic\Jetpack_Boost\Features\Optimizations\Optimizations;
+use Automattic\Jetpack_Boost\REST_API\Endpoints\Optimization_Status;
 use Automattic\Jetpack_Boost\REST_API\REST_API;
 
 /**
@@ -156,7 +156,7 @@ class Jetpack_Boost {
 	 * Initialize the admin experience.
 	 */
 	public function init_admin( $modules ) {
-		REST_API::register( Toggle_Module::class );
+		REST_API::register( Optimization_Status::class );
 		$this->connection->ensure_connection();
 		new Admin( $modules );
 	}

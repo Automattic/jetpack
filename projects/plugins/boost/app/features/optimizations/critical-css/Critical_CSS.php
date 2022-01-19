@@ -1,10 +1,10 @@
 <?php
 
-namespace Automattic\Jetpack_Boost\Modules\Critical_CSS;
+namespace Automattic\Jetpack_Boost\Features\Optimizations\Critical_CSS;
 
 use Automattic\Jetpack_Boost\Contracts\Feature;
-use Automattic\Jetpack_Boost\Modules\Critical_CSS\Generate\Generator;
-use Automattic\Jetpack_Boost\Modules\Critical_CSS\Path_Providers\Paths;
+use Automattic\Jetpack_Boost\Features\Optimizations\Critical_CSS\Generate\Generator;
+use Automattic\Jetpack_Boost\Features\Optimizations\Critical_CSS\Source_Providers\Source_Providers;
 use Automattic\Jetpack_Boost\REST_API\Contracts\Has_Endpoints;
 use Automattic\Jetpack_Boost\REST_API\Endpoints\Generator_Error;
 use Automattic\Jetpack_Boost\REST_API\Endpoints\Generator_Request;
@@ -28,7 +28,7 @@ class Critical_CSS implements Feature, Has_Endpoints {
 	/**
 	 * Critical CSS Provider Paths.
 	 *
-	 * @var Paths
+	 * @var Source_Providers
 	 */
 	protected $paths;
 
@@ -38,7 +38,7 @@ class Critical_CSS implements Feature, Has_Endpoints {
 	public function __construct() {
 
 		$this->storage = new Critical_CSS_Storage();
-		$this->paths   = new Paths();
+		$this->paths   = new Source_Providers();
 
 	}
 

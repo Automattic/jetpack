@@ -7,7 +7,11 @@
  * @package    automattic/jetpack-boost
  */
 
-namespace Automattic\Jetpack_Boost\Lib;
+namespace Automattic\Jetpack_Boost\Features\Speed_Score;
+
+use Automattic\Jetpack_Boost\Lib\Cacheable;
+use Automattic\Jetpack_Boost\Lib\Url;
+use Automattic\Jetpack_Boost\Lib\Utils;
 
 /**
  * Class Speed_Score_Request
