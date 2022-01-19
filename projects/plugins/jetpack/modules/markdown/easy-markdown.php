@@ -302,8 +302,8 @@ class WPCom_Markdown {
 	public function post_field() {
 		printf(
 			'<label><input name="%s" id="%s" type="checkbox"%s /> %s</label><p class="description">%s</p>',
-			self::POST_OPTION,
-			self::POST_OPTION,
+			esc_attr( self::POST_OPTION ),
+			esc_attr( self::POST_OPTION ),
 			checked( $this->is_posting_enabled(), true, false ),
 			esc_html__( 'Use Markdown for posts and pages.', 'jetpack' ),
 			sprintf( '<a href="%s">%s</a>', esc_url( $this->get_support_url() ), esc_html__( 'Learn more about Markdown.', 'jetpack' ) )
@@ -316,8 +316,8 @@ class WPCom_Markdown {
 	public function comment_field() {
 		printf(
 			'<label><input name="%s" id="%s" type="checkbox"%s /> %s</label><p class="description">%s</p>',
-			self::COMMENT_OPTION,
-			self::COMMENT_OPTION,
+			esc_attr( self::COMMENT_OPTION ),
+			esc_attr( self::COMMENT_OPTION ),
 			checked( $this->is_commenting_enabled(), true, false ),
 			esc_html__( 'Use Markdown for comments.', 'jetpack' ),
 			sprintf( '<a href="%s">%s</a>', esc_url( $this->get_support_url() ), esc_html__( 'Learn more about Markdown.', 'jetpack' ) )
@@ -559,7 +559,7 @@ jQuery( function() {
 			$post_data['post_content'] = apply_filters( 'content_save_pre', $post_data['post_content'] );
 		}
 
-		// set as markdown on the wp_insert_post hook later
+		// set as markdown on the wp_insert_post hook later.
 		if ( $post_id ) {
 			$this->monitoring['post'][ $post_id ] = true;
 		} else {
@@ -720,10 +720,10 @@ jQuery( function() {
 		if ( $this->is_markdown( $revision_id ) ) {
 			$revision             = get_post( $revision_id, ARRAY_A );
 			$post                 = get_post( $post_id, ARRAY_A );
-			$post['post_content'] = $revision['post_content_filtered']; // Yes, we put it in post_content, because our wp_insert_post_data() expects that
-			// set this flag so we can restore the post_content_filtered on the last revision later
+			$post['post_content'] = $revision['post_content_filtered']; // Yes, we put it in post_content, because our wp_insert_post_data() expects that.
+			// set this flag so we can restore the post_content_filtered on the last revision later.
 			$this->monitoring['restore'] = true;
-			// let's not make a revision of our fixing update
+			// let's not make a revision of our fixing update.
 			add_filter( 'wp_revisions_to_keep', '__return_false', 99 );
 			wp_update_post( $post );
 			$this->fix_latest_revision_on_restore( $post_id );
@@ -779,7 +779,7 @@ jQuery( function() {
 		include_once ABSPATH . WPINC . '/class-IXR.php';
 		$message = new IXR_Message( $raw_post_data );
 		$message->parse();
-		$post_id_position = 'metaWeblog.getPost' === $message->methodName ? 0 : 1;
+		$post_id_position = 'metaWeblog.getPost' === $message->methodName ? 0 : 1; // phpcs:ignore WordPress.NamingConventions.ValidVariableName.UsedPropertyNotSnakeCase
 		$this->prime_post_cache( $message->params[ $post_id_position ] );
 	}
 
