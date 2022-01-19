@@ -33,6 +33,9 @@
  * **********************************************************************
  */
 
+/**
+ * WPCom_Markdown class.
+ */
 class WPCom_Markdown {
 
 	const POST_OPTION       = 'wpcom_publish_posts_with_markdown';
@@ -43,9 +46,19 @@ class WPCom_Markdown {
 	private static $parser;
 	private static $instance;
 
-	// to ensure that our munged posts over xml-rpc are removed from the cache
+	/**
+	 * To ensure that our munged posts over xml-rpc are removed from the cache.
+	 *
+	 * @var array
+	 */
 	public $posts_to_uncache = array();
-	private $monitoring      = array(
+
+	/**
+	 * Posts and parents to monitor.
+	 *
+	 * @var array
+	 */
+	private $monitoring = array(
 		'post'   => array(),
 		'parent' => array(),
 	);
@@ -64,8 +77,6 @@ class WPCom_Markdown {
 
 	/**
 	 * Kicks things off on `init` action
-	 *
-	 * @return null
 	 */
 	public function load() {
 		$this->add_default_post_type_support();
@@ -82,8 +93,6 @@ class WPCom_Markdown {
 
 	/**
 	 * If we're in a bulk edit session, unload so that we don't lose our markdown metadata
-	 *
-	 * @return null
 	 */
 	public function maybe_unload_for_bulk_edit() {
 		if ( isset( $_REQUEST['bulk_edit'] ) && $this->is_posting_enabled() ) {
@@ -95,8 +104,8 @@ class WPCom_Markdown {
 	 * Called on init and fires on switch_blog to decide if our actions and filters
 	 * should be running.
 	 *
-	 * @param int|null $new_blog_id New blog ID
-	 * @param int|null $old_blog_id Old blog ID
+	 * @param int|null $new_blog_id New blog ID.
+	 * @param int|null $old_blog_id Old blog ID.
 	 * @return null
 	 */
 	public function maybe_load_actions_and_filters( $new_blog_id = null, $old_blog_id = null ) {
@@ -106,7 +115,7 @@ class WPCom_Markdown {
 			return;
 		}
 
-		// If this is a switch_to_blog call, and the blog isn't changing, we'll already be loaded
+		// If this is a switch_to_blog call, and the blog isn't changing, we'll already be loaded.
 		if ( $new_blog_id && $new_blog_id === $old_blog_id ) {
 			return;
 		}
@@ -126,8 +135,6 @@ class WPCom_Markdown {
 
 	/**
 	 * Set up hooks for enabling Markdown conversion on posts
-	 *
-	 * @return null
 	 */
 	public function load_markdown_for_posts() {
 		add_filter( 'wp_kses_allowed_html', array( $this, 'wp_kses_allowed_html' ), 10, 2 );
@@ -147,8 +154,6 @@ class WPCom_Markdown {
 
 	/**
 	 * Removes hooks to disable Markdown conversion on posts
-	 *
-	 * @return null
 	 */
 	public function unload_markdown_for_posts() {
 		remove_filter( 'wp_kses_allowed_html', array( $this, 'wp_kses_allowed_html' ) );
@@ -165,8 +170,6 @@ class WPCom_Markdown {
 
 	/**
 	 * Set up hooks for enabling Markdown conversion on comments
-	 *
-	 * @return null
 	 */
 	protected function load_markdown_for_comments() {
 		// Use priority 9 so that Markdown runs before KSES, which can clean up
@@ -176,17 +179,13 @@ class WPCom_Markdown {
 
 	/**
 	 * Removes hooks to disable Markdown conversion
-	 *
-	 * @return null
 	 */
 	protected function unload_markdown_for_comments() {
 		remove_filter( 'pre_comment_content', array( $this, 'pre_comment_content' ), 9 );
 	}
 
 	/**
-	 * o2 does some of what we do. Let's take precedence.
-	 *
-	 * @return null
+	 * The o2 plugin does some of what we do. Let's take precedence.
 	 */
 	public function add_o2_helpers() {
 		if ( $this->is_posting_enabled() ) {
@@ -203,7 +202,7 @@ class WPCom_Markdown {
 	/**
 	 * If Markdown is enabled for posts on this blog, filter the text for o2 previews
 	 *
-	 * @param  string $text Post text
+	 * @param  string $text Post text.
 	 * @return string       Post text transformed through the magic of Markdown
 	 */
 	public function o2_preview_post( $text ) {
@@ -216,7 +215,7 @@ class WPCom_Markdown {
 	/**
 	 * If Markdown is enabled for comments on this blog, filter the text for o2 previews
 	 *
-	 * @param  string $text Comment text
+	 * @param  string $text Comment text.
 	 * @return string       Comment text transformed through the magic of Markdown
 	 */
 	public function o2_preview_comment( $text ) {
@@ -229,8 +228,8 @@ class WPCom_Markdown {
 	/**
 	 * Escapes lists so that o2 doesn't trounce them
 	 *
-	 * @param  string $text Post/comment text
-	 * @return string       Text escaped with HTML entity for asterisk
+	 * @param  string $text Post/comment text.
+	 * @return string       Text escaped with HTML entity for asterisk.
 	 */
 	public function o2_escape_lists( $text ) {
 		return preg_replace( '/^\\* /um', '&#42; ', $text );
@@ -239,7 +238,7 @@ class WPCom_Markdown {
 	/**
 	 * Unescapes the token we inserted on o2_escape_lists
 	 *
-	 * @param  string $text Post/comment text with HTML entities for asterisks
+	 * @param  string $text Post/comment text with HTML entities for asterisks.
 	 * @return string       Text with the HTML entity removed
 	 */
 	public function o2_unescape_lists( $text ) {
@@ -249,8 +248,8 @@ class WPCom_Markdown {
 	/**
 	 * Preserve code blocks from being munged by KSES before they have a chance
 	 *
-	 * @param  string $text post content
-	 * @return string       post content with code blocks escaped
+	 * @param  string $text post content.
+	 * @return string       post content with code blocks escaped.
 	 */
 	public function preserve_code_blocks( $text ) {
 		return $this->get_parser()->codeblock_preserve( $text );
@@ -258,11 +257,9 @@ class WPCom_Markdown {
 
 	/**
 	 * Remove KSES if it's there. Store the result to manually invoke later if needed.
-	 *
-	 * @return null
 	 */
 	public function maybe_remove_kses() {
-		// Filters return true if they existed before you removed them
+		// Filters return true if they existed before you removed them.
 		if ( $this->is_posting_enabled() ) {
 			$this->kses = remove_filter( 'content_filtered_save_pre', 'wp_filter_post_kses' ) && remove_filter( 'content_save_pre', 'wp_filter_post_kses' );
 		}
@@ -270,8 +267,6 @@ class WPCom_Markdown {
 
 	/**
 	 * Add our Writing and Discussion settings.
-	 *
-	 * @return null
 	 */
 	public function register_setting() {
 		add_settings_field( self::POST_OPTION, __( 'Markdown', 'jetpack' ), array( $this, 'post_field' ), 'writing' );
@@ -283,7 +278,7 @@ class WPCom_Markdown {
 	/**
 	 * Sanitize setting. Don't really want to store "on" value, so we'll store "1" instead!
 	 *
-	 * @param  string $input Value received by settings API via $_POST
+	 * @param  string $input Value received by settings API via $_POST.
 	 * @return bool          Cast to boolean.
 	 */
 	public function sanitize_setting( $input ) {
@@ -292,8 +287,6 @@ class WPCom_Markdown {
 
 	/**
 	 * Prints HTML for the Writing setting
-	 *
-	 * @return null
 	 */
 	public function post_field() {
 		printf(
