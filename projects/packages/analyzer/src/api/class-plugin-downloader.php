@@ -61,7 +61,7 @@ class PluginDownloader {
 			throw new \Exception("Failed to open plugin's zip file " . $file_path);
 		}
 		for($i = 0; $i < $zip->numFiles; $i++) {
-			$filename = $target_path . '/' . str_replace($zip->getNameIndex(0), '', $zip->getNameIndex($i));
+			$filename = $target_path . '/' . substr_replace($zip->getNameIndex($i), '', 0, strlen($zip->getNameIndex(0)));
 
 			if (substr( $filename, -1 ) === '/' && !file_exists($filename)) {
 					mkdir($filename);
