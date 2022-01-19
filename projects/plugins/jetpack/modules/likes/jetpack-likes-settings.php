@@ -122,7 +122,7 @@ class Jetpack_Likes_Settings {
 			return $post_id;
 		}
 
-		// Record sharing disable. Only needs to be done for WPCOM
+		// Record sharing disable. Only needs to be done for WPCOM.
 		if ( ! $this->in_jetpack ) {
 			if ( isset( $_POST['post_type'] ) && in_array( $_POST['post_type'], get_post_types( array( 'public' => true ) ) ) ) {
 				if ( ! isset( $_POST['wpl_enable_post_sharing'] ) ) {
@@ -141,19 +141,19 @@ class Jetpack_Likes_Settings {
 
 		// Record a change in like status for this post - only if it contradicts the
 		// site like setting. If it doesn't contradict, then we delete the new individual status.
-		// phpcs:ignore WordPress.Security.NonceVerification.Missing -- we are only checking if $_POST['wpl_enable_post_likes'] is not empty, so ignoring the nonce verification. 
+		// phpcs:ignore WordPress.Security.NonceVerification.Missing -- this function is triggered either due the save_post or the edit attachment actions, by which time a nonce verification is complete. 
 		if ( ! $this->is_enabled_sitewide() && ! empty( $_POST['wpl_enable_post_likes'] ) ) {
 			// Likes turned on for individual posts. User wants to add the button to a single post.
 			update_post_meta( $post_id, 'switch_like_status', 1 );
-		// phpcs:ignore WordPress.Security.NonceVerification.Missing -- we are only checking if $_POST['wpl_enable_post_likes'] is not empty, so ignoring the nonce verification. 
+		// phpcs:ignore WordPress.Security.NonceVerification.Missing -- this function is triggered either due the save_post or the edit attachment actions, by which time a nonce verification is complete.
 		} elseif ( $this->is_enabled_sitewide() && empty( $_POST['wpl_enable_post_likes'] ) ) {
 			// Likes turned on for all posts. User wants to remove the button from a single post.
 			update_post_meta( $post_id, 'switch_like_status', 0 );
 		} elseif (
-			// phpcs:ignore WordPress.Security.NonceVerification.Missing -- we are only checking if $_POST['wpl_enable_post_likes'] is not empty, so ignoring the nonce verification. 
-			( ! $this->is_enabled_sitewide() && empty( $_POST['wpl_enable_post_likes'] ) ) ||
-			// phpcs:ignore WordPress.Security.NonceVerification.Missing -- we are only checking if $_POST['wpl_enable_post_likes'] is not empty, so ignoring the nonce verification. 
-			( $this->is_enabled_sitewide() && ! empty( $_POST['wpl_enable_post_likes'] ) )
+		// phpcs:ignore WordPress.Security.NonceVerification.Missing -- this function is triggered either due the save_post or the edit attachment actions, by which time a nonce verification is complete.
+		( ! $this->is_enabled_sitewide() && empty( $_POST['wpl_enable_post_likes'] ) ) ||
+		// phpcs:ignore WordPress.Security.NonceVerification.Missing -- this function is triggered either due the save_post or the edit attachment actions, by which time a nonce verification is complete.
+		( $this->is_enabled_sitewide() && ! empty( $_POST['wpl_enable_post_likes'] ) )
 		) {
 			// User wants to update the likes button status for an individual post, but the new status
 			// is the same as if they're asking for the default behavior according to the current Likes setting.
