@@ -70,7 +70,7 @@ const Controls = props => {
 											className="jetpack-donations__currency-toggle"
 											icon={
 												<>
-													{ CURRENCIES[ currency ].symbol + ' - ' + currency }
+													{ currency + ' - ' + CURRENCIES[ currency ].symbol }
 													<Dashicon icon="arrow-down" />
 												</>
 											}
@@ -91,7 +91,7 @@ const Controls = props => {
 												} }
 												key={ `jetpack-donations-currency-${ ccy }` }
 											>
-												{ CURRENCIES[ ccy ].symbol + ' - ' + ccy }
+												{ ccy + ' - ' + CURRENCIES[ ccy ].symbol }
 											</MenuItem>
 										) ) }
 									</MenuGroup>

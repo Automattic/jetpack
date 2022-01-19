@@ -29,6 +29,7 @@ import {
 	DEFAULT_SPACING_VALUE,
 	DEFAULT_FONTSIZE_VALUE,
 } from './constants';
+import { isSimpleSite } from '../../shared/site-type-utils';
 
 export default function SubscriptionControls( {
 	buttonBackgroundColor,
@@ -246,23 +247,24 @@ export default function SubscriptionControls( {
 					} }
 				/>
 			</PanelBody>
-
-			<PanelBody
-				title={ __( 'Success Message Text', 'jetpack' ) }
-				initialOpen={ false }
-				className="wp-block-jetpack-subscriptions__successpanel"
-			>
-				<TextareaControl
-					value={ successMessage }
-					label={ __( 'Success Message Text', 'jetpack' ) }
-					hideLabelFromVision={ true }
-					help={ __(
-						'Save your custom message to display when a user subscribes your website.',
-						'jetpack'
-					) }
-					onChange={ newSuccessMessage => setAttributes( { successMessage: newSuccessMessage } ) }
-				/>
-			</PanelBody>
+			{ ! isSimpleSite() && (
+				<PanelBody
+					title={ __( 'Success Message Text', 'jetpack' ) }
+					initialOpen={ false }
+					className="wp-block-jetpack-subscriptions__successpanel"
+				>
+					<TextareaControl
+						value={ successMessage }
+						label={ __( 'Success Message Text', 'jetpack' ) }
+						hideLabelFromVision={ true }
+						help={ __(
+							'Save your custom message to display when a user subscribes your website.',
+							'jetpack'
+						) }
+						onChange={ newSuccessMessage => setAttributes( { successMessage: newSuccessMessage } ) }
+					/>
+				</PanelBody>
+			) }
 		</>
 	);
 }

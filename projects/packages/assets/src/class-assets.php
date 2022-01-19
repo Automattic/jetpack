@@ -379,12 +379,13 @@ class Assets {
 			self::instance()->add_async_script( $handle );
 		}
 		if ( $options['textdomain'] ) {
+			// phpcs:ignore Jetpack.Functions.I18n.DomainNotLiteral
 			wp_set_script_translations( $handle, $options['textdomain'] );
 		} elseif ( in_array( 'wp-i18n', $options['dependencies'], true ) ) {
 			_doing_it_wrong(
 				__METHOD__,
 				/* translators: %s is the script handle. */
-				esc_html( sprintf( __( 'Script "%s" depends on wp-i18n but does not specify "textdomain"', 'jetpack' ), $handle ) ),
+				esc_html( sprintf( __( 'Script "%s" depends on wp-i18n but does not specify "textdomain"', 'jetpack-assets' ), $handle ) ),
 				''
 			);
 		}
@@ -442,10 +443,13 @@ class Assets {
 			'domainMap' => array(),
 		);
 
-		$lang_dir = Jetpack_Constants::get_constant( 'WP_LANG_DIR' );
-		$abspath  = Jetpack_Constants::get_constant( 'ABSPATH' );
+		$lang_dir    = Jetpack_Constants::get_constant( 'WP_LANG_DIR' );
+		$content_dir = Jetpack_Constants::get_constant( 'WP_CONTENT_DIR' );
+		$abspath     = Jetpack_Constants::get_constant( 'ABSPATH' );
 
-		if ( strpos( $lang_dir, $abspath ) === 0 ) {
+		if ( strpos( $lang_dir, $content_dir ) === 0 ) {
+			$data['baseUrl'] = content_url( substr( trailingslashit( $lang_dir ), strlen( trailingslashit( $content_dir ) ) ) );
+		} elseif ( strpos( $lang_dir, $abspath ) === 0 ) {
 			$data['baseUrl'] = site_url( substr( trailingslashit( $lang_dir ), strlen( untrailingslashit( $abspath ) ) ) );
 		}
 
@@ -513,12 +517,16 @@ class Assets {
 			throw new InvalidArgumentException( 'Type must be "plugins", "themes", or "core"' );
 		}
 
-		if ( did_action( 'wp_default_scripts' ) ) {
+		if (
+			did_action( 'wp_default_scripts' ) &&
+			// Don't complain during plugin activation.
+			! defined( 'WP_SANDBOX_SCRAPING' )
+		) {
 			_doing_it_wrong(
 				__METHOD__,
 				sprintf(
 					/* translators: 1: wp_default_scripts. 2: Name of the domain being aliased. */
-					esc_html__( 'Textdomain aliases should be registered before the %1$s hook. This notice was triggered by the %2$s domain.', 'jetpack' ),
+					esc_html__( 'Textdomain aliases should be registered before the %1$s hook. This notice was triggered by the %2$s domain.', 'jetpack-assets' ),
 					'<code>wp_default_scripts</code>',
 					'<code>' . esc_html( $from ) . '</code>'
 				),

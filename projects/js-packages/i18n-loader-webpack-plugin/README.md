@@ -90,8 +90,7 @@ You'll need to use something like [automattic/jetpack-composer-plugin] so that t
 
 Then, for Webpack builds in the Composer package, you'll need to set i18n-loader-webpack-plugin's `path` option to the path relative to the _plugin's_ root directory. For example, if your Composer package is named "automattic/foobar", will be used with [automattic/jetpack-composer-plugin] which will install the package to `jetpack_vendor/` rather than `vendor/`, and Webpack is building to a `build/` directory within the package, you'd need to set `path` to `jetpack_vendor/automattic/foobar/build/` as that's where the built files will end up relative to the plugin.
 
-The consuming plugin will also need to arrange for the [state module](#state-module)'s `domainMap` to include a mapping from your Composer package's textdomain to the plugin's textdomain (prefixed with "plugins/"), as that's where the translations will end up.
-<!-- @todo: Mention how to do that with automattic/jetpack-assets once we finish https://github.com/Automattic/jetpack/issues/21690. -->
+The consuming plugin will also need to arrange for the [state module](#state-module)'s `domainMap` to include a mapping from your Composer package's textdomain to the plugin's textdomain (prefixed with "plugins/"), as that's where the translations will end up. This may be done using [automattic/jetpack-assets] along with [automattic/jetpack-composer-plugin], as described in the latter's documentation.
 
 ## Security
 

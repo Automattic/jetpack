@@ -37,4 +37,4 @@
 	}
 
 	facebookEmbed();
-} )( this );
+} )( window );

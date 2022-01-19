@@ -54,8 +54,11 @@ jobs:
       uses: ./.github/actions/tool-setup
 
     - name: Build Production Jetpack
+      env:
+        COMPOSER_ROOT_VERSION: "dev-master"
       run: |
         pnpm install
+        pnpx jetpack build packages/search -v --production
         pnpx jetpack build plugins/jetpack -v --production
 
     - name: Environment set-up

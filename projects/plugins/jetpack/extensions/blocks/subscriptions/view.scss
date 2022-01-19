@@ -10,7 +10,12 @@
 		.wp-block-jetpack-subscriptions__button,
 		input[type="email"],
 		button {
-			line-height: initial;
+			line-height: 1.3;
+		}
+
+		input[type="email"]::placeholder {
+			color: currentColor;
+			opacity: .5;
 		}
 
 		.wp-block-jetpack-subscriptions__button,

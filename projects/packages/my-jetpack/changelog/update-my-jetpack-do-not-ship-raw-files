@@ -1,0 +1,4 @@
+Significance: patch
+Type: changed
+
+Build: do not ship raw files in production bundle.
