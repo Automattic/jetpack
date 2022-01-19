@@ -46,7 +46,7 @@
 			"link-template": "https://github.com/Automattic/jetpack-partner/compare/v${old}...v${new}"
 		},
 		"branch-alias": {
-			"dev-master": "1.6.x-dev"
+			"dev-master": "1.7.x-dev"
 		}
 	},
 	"config": {

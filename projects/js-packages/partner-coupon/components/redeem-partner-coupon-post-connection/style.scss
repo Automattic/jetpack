@@ -1,0 +1,101 @@
+@import '@wordpress/base-styles/breakpoints';
+@import '@wordpress/base-styles/mixins';
+@import '@automattic/jetpack-base-styles/style';
+
+.jetpack-redeem-partner-coupon-post-connection {
+	background: var( --jp-white );
+	box-shadow: 0 0 40px rgba(0, 0, 0, 0.08);
+	border-radius: 4px;
+
+	/*
+	 * Make our custom "Redeem" button look like the "Setup and redeem" button.
+	 * We have to do this because it's not native to the ConnectScreen component.
+	 */
+	.components-button {
+		font-weight: 600;
+		font-size: 14px;
+		border-radius: 4px;
+		height: 40px;
+		justify-content: center;
+	}
+
+	&__layout {
+		display: flex;
+		justify-content: stretch;
+	}
+
+	&__content {
+		flex: 1 0 66%;
+		padding: 48px;
+	}
+
+	&__logo {
+		display: flex;
+		justify-content: left;
+		align-items: center;
+		color: #000000;
+		font-weight: bold;
+
+		> * + * {
+			margin-left: 16px;
+		}
+	}
+
+	&__aside {
+		display: none;
+		background: var( --jp-white-off );
+		background-size: cover;
+		background-position: center;
+
+		@include break-xlarge {
+			flex: 1 1 34%;
+			display: flex;
+			justify-content: center;
+			align-items: center;
+		}
+	}
+
+  &__heading {
+		font-style: normal;
+		font-weight: bold;
+		font-size: 36px;
+		line-height: 40px;
+		color: #000000;
+		margin-top: 48px;
+		margin-bottom: 0;
+	}
+
+	p, li {
+		font-style: normal;
+		font-weight: normal;
+		font-size: 16px;
+		line-height: 24px;
+		color: var( --jp-black );
+	}
+
+	ul {
+		list-style-type: none;
+		padding: 0;
+
+		@include break-medium {
+			display: flex;
+			flex-wrap: wrap;
+			justify-content: space-between;
+		}
+
+		li {
+			background: url(data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAADAAAAAwCAMAAABg3Am1AAAANlBMVEVHcEwFnwUInggGnggGnggHnAcAnwUFnQcAnwcGnwkFnQgGnQgFnwcGnQYFnQcFnAcGnQkDnwdhiL0pAAAAEnRSTlMAMF//f2Aw7yBQ3+9gcIBgcED+HDbkAAAAZklEQVR4Ae3LNwICARDDQC0+cv7/Y8mwV9odSfWIcf/+VegnGkIvDaGXKvTTn/Gz+Uf5xTL0K1XotS7fs5H6GHvvaO8d7c3j7rdgHne/A/PYt/cO+R42oYdN6OEQetiFHo4A//6dAXqtBEkmtWutAAAAAElFTkSuQmCC) no-repeat;
+			background-size: 24px;
+			padding-left: 30px;
+			margin-bottom: 9px;
+
+			@include break-medium {
+				flex: 0 1 calc( 50% - 12px );
+			}
+		}
+	}
+
+	.jp-action-button {
+		margin-top: 20px;
+	}
+}
