@@ -117,6 +117,7 @@ class Initializer {
 	 * @return void
 	 */
 	public static function register_rest_endpoints() {
+		new REST_Plans();
 		new REST_Products();
 		new REST_Purchases();
 
@@ -126,16 +127,6 @@ class Initializer {
 			array(
 				'methods'             => \WP_REST_Server::READABLE,
 				'callback'            => __CLASS__ . '::get_site',
-				'permission_callback' => __CLASS__ . '::permissions_callback',
-			)
-		);
-
-		register_rest_route(
-			'my-jetpack/v1',
-			'/site/plans',
-			array(
-				'methods'             => \WP_REST_Server::READABLE,
-				'callback'            => __CLASS__ . '::get_site_plans',
 				'permission_callback' => __CLASS__ . '::permissions_callback',
 			)
 		);
@@ -168,33 +159,6 @@ class Initializer {
 
 		if ( is_wp_error( $response ) || empty( $response['body'] ) ) {
 			return new \WP_Error( 'site_data_fetch_failed', 'Site data fetch failed', array( 'status' => $response_code ) );
-		}
-
-		return rest_ensure_response( $body, 200 );
-	}
-
-	/**
-	 * Site plans endpoint.
-	 *
-	 * @return array Site plans.
-	 */
-	public static function get_site_plans() {
-		$wpcom_endpoint    = sprintf( '/plans?_locale=%s?force=wpcom', get_user_locale() );
-		$wpcom_api_version = '2';
-		$response          = Client::wpcom_json_api_request_as_user(
-			$wpcom_endpoint,
-			$wpcom_api_version,
-			array(
-				'headers' => array(
-					'X-Forwarded-For' => \Jetpack::current_user_ip( true ),
-				),
-			)
-		);
-		$response_code     = wp_remote_retrieve_response_code( $response );
-		$body              = json_decode( wp_remote_retrieve_body( $response ) );
-
-		if ( is_wp_error( $response ) ) {
-			return new \WP_Error( 'site_plans_data_fetch_failed', 'Site plans data fetch failed', array( 'status' => $response_code ) );
 		}
 
 		return rest_ensure_response( $body, 200 );
