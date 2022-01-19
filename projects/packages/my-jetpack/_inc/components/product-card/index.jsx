@@ -36,14 +36,7 @@ const DownIcon = () => (
 	</svg>
 );
 
-const Action = ( {
-	status,
-	name,
-	admin = true,
-	onActionClick,
-	actionButtonLabel,
-	onDeactivate,
-} ) => {
+const Action = ( { status, name, admin, onActionClick, actionButtonLabel, onDeactivate } ) => {
 	if ( ! admin ) {
 		return (
 			/* translators: placeholder is product name. */
@@ -84,6 +77,7 @@ const ProductCard = ( {
 	name,
 	description,
 	icon,
+	admin,
 	status,
 	actionButtonLabel,
 	onDeactivate,
@@ -112,6 +106,7 @@ const ProductCard = ( {
 				<Action
 					name={ name }
 					status={ status }
+					admin={ admin }
 					actionButtonLabel={ actionButtonLabel }
 					onDeactivate={ onDeactivate }
 					onActionClick={ onActionClick }
@@ -128,6 +123,7 @@ ProductCard.propTypes = {
 	name: PropTypes.string.isRequired,
 	description: PropTypes.string.isRequired,
 	icon: PropTypes.element,
+	admin: PropTypes.bool.isRequired,
 	actionButtonLabel: PropTypes.string,
 	onDeactivate: PropTypes.func,
 	onActionClick: PropTypes.func,

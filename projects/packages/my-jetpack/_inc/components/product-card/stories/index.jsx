@@ -46,6 +46,7 @@ const DefaultArgs = {
 	description: 'Save every change',
 	icon: <BackupIcon />,
 	status: PRODUCT_STATUSES.ACTIVE,
+	admin: true,
 };
 
 export const Default = Template.bind( {} );
