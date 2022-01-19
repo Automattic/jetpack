@@ -536,7 +536,7 @@ jQuery( function() {
 		// rejigger post_content and post_content_filtered
 		// revisions are already in the right place, except when we're restoring, but that's taken care of elsewhere
 		// also prevent quick edit feature from overriding already-saved markdown (issue https://github.com/Automattic/jetpack/issues/636).
-		if ( 'revision' !== $post_data['post_type'] && ! isset( $_POST['_inline_edit'] ) ) {
+		if ( 'revision' !== $post_data['post_type'] && ! isset( $_POST['_inline_edit'] ) ) { // phpcs:ignore WordPress.Security.NonceVerification.Missing 
 			/**
 			 * Filter the original post content passed to Markdown.
 			 *
