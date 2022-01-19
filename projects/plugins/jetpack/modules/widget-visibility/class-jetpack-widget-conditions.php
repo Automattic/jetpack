@@ -484,8 +484,8 @@ class Jetpack_Widget_Conditions {
 				// display the visibility panel open, e.g. when saving. In the gutenberg widget experience the POST
 				// value will always be empty, but this is fine - it doesn't rerender the HTML when saving anyway.
 				if (
-						empty( $_POST['widget-conditions-visible'] )
-						|| '0' == $_POST['widget-conditions-visible']
+						// phpcs:ignore WordPress.Security.NonceVerification.Missing
+						empty( $_POST['widget-conditions-visible'] ) || '0' === $_POST['widget-conditions-visible']
 					) {
 					?>
 						widget-conditional-hide
@@ -506,12 +506,12 @@ class Jetpack_Widget_Conditions {
 			">
 			<input type="hidden" name="widget-conditions-visible" value="
 			<?php
-			if ( isset( $_POST['widget-conditions-visible'] ) ) {
-				echo esc_attr( $_POST['widget-conditions-visible'] ); } else {
+			if ( isset( $_POST['widget-conditions-visible'] ) ) { // phpcs:ignore WordPress.Security.NonceVerification.Missing
+				echo esc_attr( $_POST['widget-conditions-visible'] ); } else { // phpcs:ignore WordPress.Security.NonceVerification.Missing
 				?>
 				0<?php } ?>" />
 			<?php
-			if ( ! isset( $_POST['widget-conditions-visible'] ) ) {
+			if ( ! isset( $_POST['widget-conditions-visible'] ) ) { // phpcs:ignore WordPress.Security.NonceVerification.Missing
 				?>
 				<a href="#" class="button display-options"><?php esc_html_e( 'Visibility', 'jetpack' ); ?></a><?php } ?>
 			<div class="widget-conditional-inner">
