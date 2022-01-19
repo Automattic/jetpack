@@ -13,8 +13,8 @@
  * @package automattic/jetpack
  */
 
-// Require easy-markdown.php file.
-require __DIR__ . '/markdown/easy-markdown.php';
+// Require the markdown class file.
+require __DIR__ . '/markdown/class-wpcom-markdown.php';
 
 /**
  * Remove checkbox set in modules/markdown/easy-markdown.php.
