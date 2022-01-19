@@ -7039,7 +7039,7 @@ endif;
 			: array();
 
 		if ( Jetpack_Options::get_option( 'active_modules_initialized' ) ) {
-			$active_modules = Jetpack_Options::get_option( 'active_modules' );
+			$active_modules = self::get_active_modules();
 			self::delete_active_modules();
 
 			self::activate_default_modules( 999, 1, array_merge( $active_modules, $other_modules ), $redirect_on_activation_error, $send_state_messages );
