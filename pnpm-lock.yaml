@@ -683,6 +683,7 @@ importers:
       '@babel/preset-env': 7.16.4
       '@babel/preset-react': 7.16.0
       '@babel/preset-typescript': 7.16.0
+      '@babel/runtime': 7.16.3
       '@size-limit/preset-app': 6.0.3
       '@testing-library/jest-dom': 5.14.1
       '@testing-library/preact': 2.0.1
@@ -754,6 +755,7 @@ importers:
       '@babel/preset-env': 7.16.4_@babel+core@7.16.0
       '@babel/preset-react': 7.16.0_@babel+core@7.16.0
       '@babel/preset-typescript': 7.16.0_@babel+core@7.16.0
+      '@babel/runtime': 7.16.3
       '@size-limit/preset-app': 6.0.3_size-limit@6.0.3
       '@testing-library/jest-dom': 5.14.1
       '@testing-library/preact': 2.0.1_preact@10.5.15
