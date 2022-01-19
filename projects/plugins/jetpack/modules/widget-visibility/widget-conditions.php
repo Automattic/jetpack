@@ -305,7 +305,7 @@ class Jetpack_Widget_Conditions {
 			'option_none_value'     => '',
 			'value_field'           => 'ID',
 		);
-		$pages_dropdown = walk_page_dropdown_tree( $pages, 0, $dropdown_tree_args );
+		$pages_dropdown     = walk_page_dropdown_tree( $pages, 0, $dropdown_tree_args );
 		preg_match_all( '/value=.([0-9]+).[^>]*>([^<]+)</', $pages_dropdown, $page_ids_and_titles, PREG_SET_ORDER );
 		$static_pages = array();
 
