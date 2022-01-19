@@ -6,7 +6,7 @@ use Automattic\Jetpack_Boost\Lib\State;
 use Automattic\Jetpack_Boost\REST_API\Contracts\Endpoint;
 use Automattic\Jetpack_Boost\REST_API\Permissions\Current_User_Admin;
 
-class Toggle_Module implements Endpoint {
+class Optimization_Status implements Endpoint {
 
 	public function request_methods() {
 		return \WP_REST_Server::EDITABLE;
@@ -45,6 +45,7 @@ class Toggle_Module implements Endpoint {
 	}
 
 	public function name() {
+		// @TODO: Rename module to optimization here as well?
 		return '/module/(?P<slug>[a-z\-]+)/status';
 	}
 }
