@@ -26,7 +26,7 @@ class Jetpack_RelatedPosts {
 	/**
 	 * Instance of the raw class (?).
 	 *
-	 * @var $instance_raw
+	 * @var Jetpack_RelatedPosts
 	 */
 	private static $instance_raw = null;
 
@@ -67,42 +67,42 @@ class Jetpack_RelatedPosts {
 	/**
 	 * Options.
 	 *
-	 * @var $options
+	 * @var array $options
 	 */
 	protected $options;
 
 	/**
 	 * Allow feature toggle variable.
 	 *
-	 * @var $instance
+	 * @var bool
 	 */
 	protected $allow_feature_toggle;
 
 	/**
 	 * Blog character set.
 	 *
-	 * @var $blog_charset
+	 * @var mixed
 	 */
 	protected $blog_charset;
 
 	/**
 	 * Convert character set.
 	 *
-	 * @var $convert_charset
+	 * @var bool
 	 */
 	protected $convert_charset;
 
 	/**
 	 * Previous Post ID
 	 *
-	 * @var $previous_post_id
+	 * @var int
 	 */
 	protected $previous_post_id;
 
 	/**
 	 * Shortcode usage.
 	 *
-	 * @var $found_shortcode
+	 * @var bool
 	 */
 	protected $found_shortcode = false;
 
@@ -114,7 +114,6 @@ class Jetpack_RelatedPosts {
 	public function __construct() {
 		$this->blog_charset    = get_option( 'blog_charset' );
 		$this->convert_charset = ( function_exists( 'iconv' ) && ! preg_match( '/^utf\-?8$/i', $this->blog_charset ) );
-
 		add_action( 'admin_init', array( $this, 'action_admin_init' ) );
 		add_action( 'wp', array( $this, 'action_frontend_init' ) );
 
