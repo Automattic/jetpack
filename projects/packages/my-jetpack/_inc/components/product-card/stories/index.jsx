@@ -12,7 +12,13 @@ import ProductCard, { PRODUCT_STATUSES } from '../index.jsx';
 export default {
 	title: 'My Jetpack/Product Card',
 	component: ProductCard,
-	parameters: { actions: { argTypesRegex: '^on.*' } },
+	parameters: {
+		actions: { argTypesRegex: '^on.*' },
+		backgrounds: {
+			default: 'light',
+			values: [ { name: 'light', value: 'var(--jp-white-off)' } ],
+		},
+	},
 	argTypes: {
 		icon: {
 			table: {
