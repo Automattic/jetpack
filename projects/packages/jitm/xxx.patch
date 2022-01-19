@@ -1,0 +1,22 @@
+diff -ur vendor/antecedent/patchwork/src/CodeManipulation.php vendor/antecedent/patchwork/src/CodeManipulation.php
+--- vendor/antecedent/patchwork/src/CodeManipulation.php	2022-01-19 06:06:53.000000000 -0500
++++ vendor/antecedent/patchwork/src/CodeManipulation.php	2022-01-19 12:05:27.391610263 -0500
+@@ -119,6 +119,7 @@
+         return fopen(getCachedPath($file), 'r');
+     }
+     $resource = fopen(OUTPUT_DESTINATION, OUTPUT_ACCESS_MODE);
++	fprintf( STDERR, "!!! transformAndOpen( %s )\n", $file );
+     $code = file_get_contents($file, true);
+     $source = new Source($code);
+     $source->file = $file;
+diff -ur vendor/antecedent/patchwork/src/Utils.php vendor/antecedent/patchwork/src/Utils.php
+--- vendor/antecedent/patchwork/src/Utils.php	2022-01-19 06:06:53.000000000 -0500
++++ vendor/antecedent/patchwork/src/Utils.php	2022-01-19 12:05:39.527513309 -0500
+@@ -380,6 +380,7 @@
+ 
+ function tokenize($string)
+ {
++	fprintf( STDERR, "tokenize:\n==========\n%s\n==========\n", $string );
+     if (defined('TOKEN_PARSE')) {
+         return token_get_all($string, TOKEN_PARSE);
+     }
