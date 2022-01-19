@@ -3,12 +3,17 @@
  */
 import React from 'react';
 import PropTypes from 'prop-types';
+import classNames from 'classnames';
+
+/**
+ * Wordpress dependencies
+ */
+import { ButtonGroup, Button, DropdownMenu } from '@wordpress/components';
 
 /**
  * Internal dependencies
  */
 import styles from './style.module.scss';
-import { ButtonGroup, Button, DropdownMenu } from '@wordpress/components';
 
 export const PRODUCT_STATUSES = {
 	ACTIVE: 'active',
@@ -32,10 +37,18 @@ const ProductCard = ( {
 	name,
 	description,
 	icon,
+	status,
 	actionButtonLabel,
 	onDeactivate,
 	onActionClick,
 } ) => {
+	const statusClassName = classNames( styles.status, {
+		[ styles.active ]: status === PRODUCT_STATUSES.ACTIVE,
+		[ styles.inactive ]: status === PRODUCT_STATUSES.INACTIVE,
+		[ styles.error ]: status === PRODUCT_STATUSES.ERROR,
+		[ styles.absent ]: status === PRODUCT_STATUSES.ABSENT,
+	} );
+
 	return (
 		<div className={ styles.container }>
 			<div className={ styles.name }>
@@ -62,7 +75,7 @@ const ProductCard = ( {
 						] }
 					/>
 				</ButtonGroup>
-				<div className={ styles.status }>Active</div>
+				<div className={ statusClassName }>Active</div>
 			</div>
 		</div>
 	);

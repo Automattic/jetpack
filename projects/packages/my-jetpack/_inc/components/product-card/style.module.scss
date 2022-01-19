@@ -1,36 +1,16 @@
-:root {
-	--font-title-large: 36px;
-	--font-title-small: 24px;
-	--font-body: 16px;
-	--font-label: 12px;
-
-	--jp-black:           #000000;
-	--jp-black-80:        #2C3338;
-	--jp-white:           #FFFFFF;
-	--jp-white-off:       #F9F9F6;
-	--jp-gray:            #DCDCDE;
-	--jp-gray-off:        #E2E2DF;
-
-	--jp-green-primary:   #069E08;
-	--jp-green-secondary: #2FB41F;
-
-  --jp-red-0:           #F7EBEC;
-
-	--jp-border-radius:       4px;
-	--jp-menu-border-height:  1px;
-	--jp-underline-thickness: 2px;
-
-  --is-active:          #008710;
-  --is-inactive:        #646970;
-  --is-error:           #B32D2E;
-  --is-disabled:        #C3C4C7;
-}
-
-$product-card-font-size: 24px;
-
 .container {
+  // all css variables used down in product-card
   --product-card-shadow: rgba(0, 0, 0, 0.08);
   --product-card-shadow-size: 40px;
+  --product-card-name-font-size: 24px;
+  --product-card-description-font-size: 14px;
+  --product-card-actions-font-size: 12px;
+  --product-card-margin-base: 4px;
+  --status-size: 8px;
+  --status-active: #008710;
+  --status-inactive: #646970;
+  --status-error: #B32D2E;
+  --status-absent: #C3C4C7;
 
   padding: 24px;
   background: var( --jp-white );
@@ -49,13 +29,13 @@ $product-card-font-size: 24px;
   align-items: center;
   justify-content: space-between;
   width: 100%;
-  font-size: $product-card-font-size;
+  font-size: var(--product-card-name-font-size);
   font-weight: 700;
-  margin-bottom: 4px;
+  margin-bottom: var(--product-card-margin-base);
 }
 
 .description {
-  font-size: 14px;
+  font-size: var(--product-card-description-font-size);
   margin:0;
 }
 
@@ -64,35 +44,35 @@ $product-card-font-size: 24px;
   align-items: center;
   justify-content: space-between;
   width: 100%;
-  margin-top: 16px;
-  font-size: 12px;
+  margin-top: calc(var(--product-card-margin-base) * 4); // 16px
+  font-size: var(--product-card-actions-font-size);
   font-weight: 600;
 }
 
 .status {
-  margin-left: 4px;
-  color: var( --is-active );
+  margin-left: var(--product-card-margin-base);
   white-space: nowrap;
 
   &:before {
     content: "";
     display: inline-block;
-    width: 8px;
-    height: 8px;
-    margin-right: 4px;
+    width: var(--status-size);
+    height: var(--status-size);
+    margin-right: var(--product-card-margin-base);
     border-radius: 50%;
-    background: var( --is-active );
   }
 
-  $statuses: inactive, error;
+  $statuses: active, inactive, error, absent;
 
   @each $status in $statuses {
-    .is-#{$status} & {
-      color: var( --is-#{$status} );
+    $color: var(--status-#{$status});
 
+    &.#{$status} {
+      color: $color;
       &:before {
-        background: var( --is-#{$status} );
+        background: $color;
       }
     }
   }
 }
+
