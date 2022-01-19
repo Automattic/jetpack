@@ -7,6 +7,8 @@
 
 namespace Automattic\Jetpack\Search;
 
+use Automattic\Jetpack\Connection\Manager as Connection_Manager;
+
 /**
  * Initializer for the main Jetpack plugin. Instantiate to enable Jetpack Search functionality.
  */
