@@ -14,8 +14,5 @@
 		<exclude name="PHPCompatibility.FunctionUse.NewFunctions.sodium_crypto_box_sealFound" />
 		<exclude name="PHPCompatibility.Classes.NewClasses.sodiumexceptionFound" />
 		<exclude name="PHPCompatibility.FunctionUse.NewFunctions.is_countableFound" />
-
-		<!-- Analyzer doesn't follow the same requirements. -->
-		<exclude-pattern>/projects/packages/analyzer/*</exclude-pattern>
 	</rule>
 </ruleset>
