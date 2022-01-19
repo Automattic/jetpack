@@ -4,10 +4,7 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 import classNames from 'classnames';
-
-/**
- * Wordpress dependencies
- */
+import { __, sprintf } from '@wordpress/i18n';
 import { ButtonGroup, Button, DropdownMenu } from '@wordpress/components';
 
 /**
@@ -20,6 +17,12 @@ export const PRODUCT_STATUSES = {
 	INACTIVE: 'inactive',
 	ERROR: 'error',
 	ABSENT: 'absent',
+};
+
+const PRODUCT_STATUSES_LABELS = {
+	[ PRODUCT_STATUSES.ACTIVE ]: __( 'Active', 'jetpack-my-jetpack' ),
+	[ PRODUCT_STATUSES.INACTIVE ]: __( 'Inactive', 'jetpack-my-jetpack' ),
+	[ PRODUCT_STATUSES.ERROR ]: __( 'Error', 'jetpack-my-jetpack' ),
 };
 
 const DownIcon = () => (
@@ -42,11 +45,17 @@ const Action = ( {
 	onDeactivate,
 } ) => {
 	if ( ! admin ) {
-		return <div>Learn about { name }</div>;
+		return (
+			/* translators: placeholder is product name. */
+			<div>{ sprintf( __( 'Learn about %s', 'jetpack-my-jetpack' ), name ) }</div>
+		);
 	}
 
 	if ( status === PRODUCT_STATUSES.ABSENT ) {
-		return <div>Add { name }</div>;
+		return (
+			/* translators: placeholder is product name. */
+			<div>{ sprintf( __( 'Add %s', 'jetpack-my-jetpack' ), name ) }</div>
+		);
 	}
 
 	return (
@@ -61,7 +70,7 @@ const Action = ( {
 				icon={ DownIcon }
 				controls={ [
 					{
-						title: 'Deactivate',
+						title: __( 'Deactivate', 'jetpack-my-jetpack' ),
 						icon: null,
 						onClick: onDeactivate,
 					},
@@ -107,7 +116,9 @@ const ProductCard = ( {
 					onDeactivate={ onDeactivate }
 					onActionClick={ onActionClick }
 				/>
-				{ renderStatusFlag && <div className={ statusClassName }>Active</div> }
+				{ renderStatusFlag && (
+					<div className={ statusClassName }>{ PRODUCT_STATUSES_LABELS[ status ] }</div>
+				) }
 			</div>
 		</div>
 	);
