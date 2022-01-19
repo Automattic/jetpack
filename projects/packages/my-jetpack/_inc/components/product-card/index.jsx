@@ -33,6 +33,44 @@ const DownIcon = () => (
 	</svg>
 );
 
+const Action = ( {
+	status,
+	name,
+	admin = true,
+	onActionClick,
+	actionButtonLabel,
+	onDeactivate,
+} ) => {
+	if ( ! admin ) {
+		return <div>Learn about { name }</div>;
+	}
+
+	if ( status === PRODUCT_STATUSES.ABSENT ) {
+		return <div>Add { name }</div>;
+	}
+
+	return (
+		<ButtonGroup>
+			<Button isPressed onClick={ onActionClick }>
+				{ actionButtonLabel }
+			</Button>
+			<DropdownMenu
+				className={ styles.dropdown }
+				toggleProps={ { isPressed: true } }
+				popoverProps={ { noArrow: false } }
+				icon={ DownIcon }
+				controls={ [
+					{
+						title: 'Deactivate',
+						icon: null,
+						onClick: onDeactivate,
+					},
+				] }
+			/>
+		</ButtonGroup>
+	);
+};
+
 const ProductCard = ( {
 	name,
 	description,
@@ -42,40 +80,34 @@ const ProductCard = ( {
 	onDeactivate,
 	onActionClick,
 } ) => {
+	const renderStatusFlag = status !== PRODUCT_STATUSES.ABSENT;
+
+	const containerClassName = classNames( styles.container, {
+		[ styles.absent ]: status === PRODUCT_STATUSES.ABSENT,
+	} );
+
 	const statusClassName = classNames( styles.status, {
 		[ styles.active ]: status === PRODUCT_STATUSES.ACTIVE,
 		[ styles.inactive ]: status === PRODUCT_STATUSES.INACTIVE,
 		[ styles.error ]: status === PRODUCT_STATUSES.ERROR,
-		[ styles.absent ]: status === PRODUCT_STATUSES.ABSENT,
 	} );
 
 	return (
-		<div className={ styles.container }>
+		<div className={ containerClassName }>
 			<div className={ styles.name }>
 				<span>{ name }</span>
 				{ icon }
 			</div>
 			<p className={ styles.description }>{ description }</p>
 			<div className={ styles.actions }>
-				<ButtonGroup>
-					<Button isPressed onClick={ onActionClick }>
-						{ actionButtonLabel }
-					</Button>
-					<DropdownMenu
-						className={ styles.dropdown }
-						toggleProps={ { isPressed: true } }
-						popoverProps={ { noArrow: false } }
-						icon={ DownIcon }
-						controls={ [
-							{
-								title: 'Deactivate',
-								icon: null,
-								onClick: onDeactivate,
-							},
-						] }
-					/>
-				</ButtonGroup>
-				<div className={ statusClassName }>Active</div>
+				<Action
+					name={ name }
+					status={ status }
+					actionButtonLabel={ actionButtonLabel }
+					onDeactivate={ onDeactivate }
+					onActionClick={ onActionClick }
+				/>
+				{ renderStatusFlag && <div className={ statusClassName }>Active</div> }
 			</div>
 		</div>
 	);
