@@ -1,7 +1,7 @@
 /**
  * Internal dependencies
  */
-import { readComposerJson } from './json';
+import { readComposerJson } from './json.js';
 
 /**
  * Returns the project build command.

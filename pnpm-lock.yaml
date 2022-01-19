@@ -1198,8 +1198,8 @@ importers:
       chalk: 4.1.2
       configstore: 5.0.1
       envfile: 6.17.0
-      esm: 3.2.25
       execa: 5.0.0
+      glob: 7.1.6
       inquirer: 7.3.3
       js-yaml: 4.1.0
       listr: 0.14.3
@@ -1210,6 +1210,7 @@ importers:
       pluralize: 8.0.0
       process: 0.11.10
       simple-git: 2.37.0
+      sinon: 9.2.4
       yargs: 16.2.0
       yargs-parser: 20.2.4
     dependencies:
@@ -1218,8 +1219,8 @@ importers:
       chalk: 4.1.2
       configstore: 5.0.1
       envfile: 6.17.0
-      esm: 3.2.25
       execa: 5.0.0
+      glob: 7.1.6
       inquirer: 7.3.3
       js-yaml: 4.1.0
       listr: 0.14.3
@@ -1233,6 +1234,7 @@ importers:
     devDependencies:
       chai: 4.3.4
       mocha: 8.4.0
+      sinon: 9.2.4
       yargs-parser: 20.2.4
 
   tools/js-test-runner:
@@ -12677,11 +12679,6 @@ packages:
     transitivePeerDependencies:
       - supports-color
     dev: true
-
-  /esm/3.2.25:
-    resolution: {integrity: sha512-U1suiZ2oDVWv4zPO56S0NcR5QriEahGtdN2OR6FiOG4WJvcjBVFB0qI4+eKoWFH483PKGuLuu6V8Z4T5g63UVA==}
-    engines: {node: '>=6'}
-    dev: false
 
   /espree/7.3.1:
     resolution: {integrity: sha512-v3JCNCE64umkFpmkFGqzVKsOT0tN1Zr+ueqLZfpV1Ob8e+CEgPWa+OxCoGH3tnhimMKIaBm4m/vaRpJ/krRz2g==}
