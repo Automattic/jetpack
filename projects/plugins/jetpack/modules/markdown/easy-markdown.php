@@ -43,7 +43,18 @@ class WPCom_Markdown {
 	const POST_TYPE_SUPPORT = 'wpcom-markdown';
 	const IS_MD_META        = '_wpcom_is_markdown';
 
+	/**
+	 * Our markdown parser.
+	 *
+	 * @var WPCom_GHF_Markdown_Parser
+	 */
 	private static $parser;
+
+	/**
+	 * An instance of the markdown class.
+	 *
+	 * @var WPCom_Markdown
+	 */
 	private static $instance;
 
 	/**
