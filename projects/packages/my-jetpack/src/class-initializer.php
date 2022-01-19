@@ -7,10 +7,6 @@
 
 namespace Automattic\Jetpack\My_Jetpack;
 
-require_once 'class-products.php';
-require_once 'class-rest-products.php';
-require_once 'class-rest-purchases.php';
-
 use Automattic\Jetpack\Admin_UI\Admin_Menu;
 use Automattic\Jetpack\Assets;
 use Automattic\Jetpack\Connection\Client as Client;
