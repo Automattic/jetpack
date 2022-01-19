@@ -155,7 +155,7 @@ class WPCom_Markdown {
 		add_filter( 'edit_post_content', array( $this, 'edit_post_content' ), 10, 2 );
 		add_filter( 'edit_post_content_filtered', array( $this, 'edit_post_content_filtered' ), 10, 2 );
 		add_action( 'wp_restore_post_revision', array( $this, 'wp_restore_post_revision' ), 10, 2 );
-		add_filter( '_wp_post_revision_fields', array( $this, '_wp_post_revision_fields' ) );
+		add_filter( 'wp_post_revision_fields', array( $this, 'wp_post_revision_fields' ) );
 		add_action( 'xmlrpc_call', array( $this, 'xmlrpc_actions' ) );
 		add_filter( 'content_save_pre', array( $this, 'preserve_code_blocks' ), 1 );
 		if ( defined( 'XMLRPC_REQUEST' ) && XMLRPC_REQUEST ) {
@@ -174,7 +174,7 @@ class WPCom_Markdown {
 		remove_filter( 'edit_post_content', array( $this, 'edit_post_content' ), 10, 2 );
 		remove_filter( 'edit_post_content_filtered', array( $this, 'edit_post_content_filtered' ), 10, 2 );
 		remove_action( 'wp_restore_post_revision', array( $this, 'wp_restore_post_revision' ), 10, 2 );
-		remove_filter( '_wp_post_revision_fields', array( $this, '_wp_post_revision_fields' ) );
+		remove_filter( 'wp_post_revision_fields', array( $this, 'wp_post_revision_fields' ) );
 		remove_action( 'xmlrpc_call', array( $this, 'xmlrpc_actions' ) );
 		remove_filter( 'content_save_pre', array( $this, 'preserve_code_blocks' ), 1 );
 	}
@@ -704,7 +704,7 @@ jQuery( function() {
 	 *
 	 * @param array $fields  Post fields pertinent to revisions.
 	 */
-	public function _wp_post_revision_fields( $fields ) {
+	public function wp_post_revision_fields( $fields ) {
 		$fields['post_content_filtered'] = __( 'Markdown content', 'jetpack' );
 		return $fields;
 	}
