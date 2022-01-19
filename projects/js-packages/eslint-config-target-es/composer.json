@@ -8,13 +8,9 @@
 	},
 	"scripts": {
 		"test-js": [
-			"Composer\\Config::disableProcessTimeout",
-			"pnpm install",
 			"pnpm run test"
 		],
 		"test-coverage": [
-			"Composer\\Config::disableProcessTimeout",
-			"pnpm install",
 			"pnpm run test-coverage"
 		]
 	},
