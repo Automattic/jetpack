@@ -2,6 +2,22 @@
 
 ### This is a list detailing changes for all Jetpack releases.
 
+## 10.6-a.3 - 2022-01-18
+### Enhancements
+- Embeds: add support for Descript.com embeds.
+- Image Compare Block: Add `wide` and `full` alignment options
+- Pay with PayPal Block: do not display the block on the frontend if PayPal is misconfigured.
+- Stats: add new filter allowing site owners to exclude IP addresses from being tracked in stats.
+
+### Other changes <!-- Non-user-facing changes go here. This section will not be copied to readme.txt. -->
+- Adds WooCommerce settings to the /v1.4/sites/$site/settings endpoint.
+- Changes the default value of woocommerce_onboarding_profile from array( 0 => false ) to array()
+- Fix various PHPCS warnings and errors in root classes.
+- General: update required node version to v16.13.2
+- Subscription Form block: hide custom success message setting for WordPress.com simple sites.
+- Update composer.lock
+- Update package dependencies
+
 ## 10.6-a.1 - 2022-01-11
 ### Improved compatibility
 - Subscription form: update the placeholder color to be the same as the text color of the site.

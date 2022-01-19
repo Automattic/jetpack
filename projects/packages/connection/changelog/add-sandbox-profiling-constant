@@ -1,4 +1,0 @@
-Significance: minor
-Type: added
-
-Debugging: Add a filter to add XDEBUG_PROFILE to requests made to the sandbox.

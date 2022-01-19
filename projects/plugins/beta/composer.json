@@ -15,22 +15,7 @@
 	"require-dev": {
 		"automattic/jetpack-changelogger": "3.0.x-dev"
 	},
-	"scripts": {
-		"build-development": [
-			"Composer\\Config::disableProcessTimeout",
-			"@clean",
-			"@composer install"
-		],
-		"build-production": [
-			"Composer\\Config::disableProcessTimeout",
-			"@clean",
-			"@putenv COMPOSER_MIRROR_PATH_REPOS=1",
-			"@composer install -o --no-dev --classmap-authoritative --prefer-dist"
-		],
-		"clean": [
-			"rm -rf vendor/ jetpack_vendor/"
-		]
-	},
+	"scripts": {},
 	"autoload": {
 		"classmap": [
 			"src/"

@@ -1,7 +1,0 @@
-Significance: patch
-Type: enhancement
-
-- Implement Descript.com embedding support
-  - Add `[descript]` shortcode
-  - Support embedding descript URLs
-  - Support embedding descript's embed code (iframe)
