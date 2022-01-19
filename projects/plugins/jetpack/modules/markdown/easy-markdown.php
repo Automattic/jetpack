@@ -106,7 +106,7 @@ class WPCom_Markdown {
 	 * If we're in a bulk edit session, unload so that we don't lose our markdown metadata
 	 */
 	public function maybe_unload_for_bulk_edit() {
-		if ( isset( $_REQUEST['bulk_edit'] ) && $this->is_posting_enabled() ) {
+		if ( isset( $_REQUEST['bulk_edit'] ) && $this->is_posting_enabled() ) { // phpcs:ignore WordPress.Security.NonceVerification.Recommended
 			$this->unload_markdown_for_posts();
 		}
 	}
@@ -414,16 +414,18 @@ class WPCom_Markdown {
 	 */
 	protected function get_post_screen_post_type() {
 		global $pagenow;
+		$post_type = filter_var( INPUT_GET, 'post_type', FILTER_SANITIZE_STRING );
+		$post_id   = filter_var( INPUT_GET, 'post', FILTER_SANITIZE_NUMBER_INT );
+
 		if ( 'post-new.php' === $pagenow ) {
-			return ( isset( $_GET['post_type'] ) ) ? $_GET['post_type'] : 'post';
+			return ! empty( $post_type ) ? $post_type : 'post';
 		}
-		if ( isset( $_GET['post'] ) ) {
-			$post = get_post( (int) $_GET['post'] );
-			if ( is_object( $post ) && isset( $post->post_type ) ) {
-				return $post->post_type;
-			}
+
+		if ( $post_id ) {
+			$post_type = get_post_type( $post_id );
 		}
-		return 'post';
+
+		return ! empty( $post_type ) ? $post_type : 'post';
 	}
 
 	/**
