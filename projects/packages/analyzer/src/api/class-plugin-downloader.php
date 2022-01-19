@@ -2,6 +2,8 @@
 
 namespace Automattic\Jetpack\Analyzer;
 
+use Automattic\Jetpack\Analyzer\Scripts;
+
 class PluginDownloader {
 	private $type;
 
@@ -20,7 +22,7 @@ class PluginDownloader {
 			}
 
 			echo "Removing " . $target_path . "\n";
-			system( "rm -rf " . escapeshellarg( $target_path ) );
+			Scripts::rm($target_path);
 		}
 
 		$url = $this->build_url($version);

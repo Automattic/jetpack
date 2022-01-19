@@ -26,7 +26,16 @@ class Analyze_Controller extends Controller {
 		$params = $this->params->get_params();
 		$args = $params['type'] . ' ' . $params['old'] . ' ' . $params['new'] . ' ';
 		$analyzer_folder = realpath( dirname( __DIR__ ) . '/../' );
-		$cmd = 'nohup php ' . escapeshellarg( $analyzer_folder  . '/scripts/jp-analyze-parallel.php' ) . ' ' . $args . ' &';
+		// $cmd = 'nohup php ' . escapeshellarg( $analyzer_folder  . '/scripts/jp-analyze-parallel.php' ) . ' ' . $args . ' &';
+		$cmd = array(
+			'nohup',
+			'php',
+			$analyzer_folder  . '/scripts/jp-analyze-parallel.php',
+			$params['type'],
+			$params['old'],
+			$params['new'],
+			'&'
+		);
 		$descriptor_spec = array(
 			0 => array( 'file', '/dev/null', 'r' ),
 			1 => array( 'file', $analyzer_folder . '/output.txt', 'a' ),

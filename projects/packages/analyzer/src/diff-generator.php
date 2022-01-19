@@ -60,13 +60,27 @@ class Scripts {
 		$warnings_folder = dirname( __DIR__ ) . '/output/warnings/';
 		$invocations_folder = dirname( __DIR__ ) . '/output/invocations/';
 		echo "Removing " . $diff_folder . "\n";
-		system( "rm -rf " . escapeshellarg( $diff_folder ) );
+		self::rm($diff_folder);
 
 		echo "Removing " . $invocations_folder . "\n";
-		system( "rm -rf " . escapeshellarg( $invocations_folder ) );
+		self::rm($invocations_folder);
 
 		echo "Removing " . $warnings_folder . "\n";
-		system( "rm -rf " . escapeshellarg( $warnings_folder ) );
+		self::rm($warnings_folder);
+	}
+
+	static function rm($folder) {
+		$iter = new \RecursiveIteratorIterator(
+			new \RecursiveDirectoryIterator( escapeshellarg( $folder ), \FilesystemIterator::CURRENT_AS_PATHNAME | \FilesystemIterator::SKIP_DOTS ),
+			\RecursiveIteratorIterator::CHILD_FIRST
+		);
+		foreach ( $iter as $path ) {
+			if ( is_dir( $path ) ) {
+				rmdir( $path );
+			} else {
+				unlink( $path );
+			}
+		}
 	}
 }
 
