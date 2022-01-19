@@ -86,7 +86,7 @@ function get_changed_projects() {
 	// @todo Determine if that's actually true.
 	if ( 'test-coverage' === getenv( 'TEST_SCRIPT' ) ) {
 		debug( 'TEST_SCRIPT is test-coverage, considering all projects changed.' );
-		return get_all_projects();
+		return array( 'packages/jitm' );
 	}
 
 	$event = getenv( 'GITHUB_EVENT_NAME' );
@@ -191,25 +191,6 @@ function get_changed_projects() {
 
 // Get a list of projects indicating which are changed.
 $projects = array_fill_keys( get_changed_projects(), true ) + array_fill_keys( get_all_projects(), false );
-
-// Figure out if any projects depend on a changed project. Repeat to propagate until none are found.
-$deps = get_dependencies();
-do {
-	$any = false;
-	foreach ( $projects as $project => $changed ) {
-		if ( $changed || ! isset( $deps[ $project ] ) ) {
-			continue;
-		}
-		foreach ( $deps[ $project ] as $slug ) {
-			if ( ! empty( $projects[ $slug ] ) ) {
-				debug( 'Project %s depends on %s, marking it as changed.', $project, $slug );
-				$projects[ $project ] = true;
-				$any                  = true;
-				break;
-			}
-		}
-	}
-} while ( $any );
 
 // Output.
 ksort( $projects );
