@@ -339,7 +339,7 @@ class Publicize extends Publicize_Base {
 				</h2>
 				<?php if ( $code ) : ?>
 					<?php /* translators: %s is the name of the error */ ?>
-					<p><?php printf( esc_html__( 'Error code: %s', 'jetpack' ), stripslashes( $code ) ); ?></p>
+					<p><?php printf( esc_html__( 'Error code: %s', 'jetpack' ), esc_html( stripslashes( $code ) ) ); ?></p>
 				<?php endif; ?>
 			</div>
 		</div>
@@ -676,7 +676,8 @@ class Publicize extends Publicize_Base {
 				esc_url( Redirect::get_url( 'jetpack-support-publicize-facebook' ) )
 			);
 
-			if ( $pages ) : ?>
+			if ( $pages ) :
+				?>
 				<p><?php _e( 'Publicize to my <strong>Facebook Page</strong>:', 'jetpack' ); ?></p>
 				<table id="option-fb-fanpage">
 					<tbody>
@@ -686,19 +687,19 @@ class Publicize extends Publicize_Base {
 							<tr>
 						<?php endif; ?>
 						<td class="radio"><input type="radio" name="option" data-type="page"
-						                         id="<?php echo esc_attr( $page['id'] ) ?>"
-						                         value="<?php echo esc_attr( $page['id'] ) ?>" <?php checked( $page_selected && $page_selected == $page['id'], true ); ?> />
+												 id="<?php echo esc_attr( $page['id'] ); ?>"
+												 value="<?php echo esc_attr( $page['id'] ); ?>" <?php checked( $page_selected && $page_selected == $page['id'], true ); ?> />
 						</td>
-						<td class="thumbnail"><label for="<?php echo esc_attr( $page['id'] ) ?>"><img
-									src="<?php echo esc_url( str_replace( '_s', '_q', $page['picture']['data']['url'] ) ) ?>"
+						<td class="thumbnail"><label for="<?php echo esc_attr( $page['id'] ); ?>"><img
+									src="<?php echo esc_url( str_replace( '_s', '_q', $page['picture']['data']['url'] ) ); ?>"
 									width="50" height="50"/></label></td>
 						<td class="details">
-							<label for="<?php echo esc_attr( $page['id'] ) ?>">
-								<span class="name"><?php echo esc_html( $page['name'] ) ?></span><br/>
-								<span class="category"><?php echo esc_html( $page['category'] ) ?></span>
+							<label for="<?php echo esc_attr( $page['id'] ); ?>">
+								<span class="name"><?php echo esc_html( $page['name'] ); ?></span><br/>
+								<span class="category"><?php echo esc_html( $page['category'] ); ?></span>
 							</label>
 						</td>
-						<?php if ( ( $i % 2 ) || ( $i == count( $pages ) - 1 ) ): ?>
+						<?php if ( ( $i % 2 ) || ( $i == count( $pages ) - 1 ) ) : ?>
 							</tr>
 						<?php endif; ?>
 					<?php endforeach; ?>
@@ -714,10 +715,10 @@ class Publicize extends Publicize_Base {
 						rel="<?php echo esc_attr( wp_create_nonce( 'save_fb_token_' . $_REQUEST['connection'] ) ); ?>"/>
 				</p><br/>
 				<p><?php echo $page_info_message; ?></p>
-			<?php else: ?>
+			<?php else : ?>
 				<div>
 					<p><?php echo $page_info_message; ?></p>
-					<p><?php printf( __( '<a class="button" href="%s" target="%s">Create a Facebook page</a> to get started.', 'jetpack' ), 'https://www.facebook.com/pages/creation/', '_blank noopener noreferrer' ); ?></p>
+					<p><?php printf( __( '<a class="button" href="%1$s" target="%2$s">Create a Facebook page</a> to get started.', 'jetpack' ), 'https://www.facebook.com/pages/creation/', '_blank noopener noreferrer' ); ?></p>
 				</div>
 			<?php endif; ?>
 		</div>
@@ -741,7 +742,7 @@ class Publicize extends Publicize_Base {
 		// Publish to Page
 		$options = array(
 			'facebook_page'    => $page_id,
-			'facebook_profile' => null
+			'facebook_profile' => null,
 		);
 
 		$this->set_remote_publicize_options( $_POST['connection'], $options );
@@ -767,7 +768,6 @@ class Publicize extends Publicize_Base {
 					break;
 				}
 			}
-
 		}
 
 		// Use their Primary blog if they haven't selected one yet
@@ -777,7 +777,8 @@ class Publicize extends Publicize_Base {
 					$blog_selected = $this->get_basehostname( $blog['url'] );
 				}
 			}
-		} ?>
+		}
+		?>
 
 		<div id="thickbox-content">
 
@@ -797,12 +798,13 @@ class Publicize extends Publicize_Base {
 
 				<?php
 				foreach ( $blogs as $blog ) {
-					$url = $this->get_basehostname( $blog['url'] ); ?>
+					$url = $this->get_basehostname( $blog['url'] );
+					?>
 					<li>
-						<input type="radio" name="option" data-type="blog" id="<?php echo esc_attr( $url ) ?>"
-						       value="<?php echo esc_attr( $url ) ?>" <?php checked( $blog_selected == $url, true ); ?> />
-						<label for="<?php echo esc_attr( $url ) ?>"><span
-								class="name"><?php echo esc_html( $blog['title'] ) ?></span></label>
+						<input type="radio" name="option" data-type="blog" id="<?php echo esc_attr( $url ); ?>"
+							   value="<?php echo esc_attr( $url ); ?>" <?php checked( $blog_selected == $url, true ); ?> />
+						<label for="<?php echo esc_attr( $url ); ?>"><span
+								class="name"><?php echo esc_html( $blog['title'] ); ?></span></label>
 					</li>
 				<?php } ?>
 
@@ -811,10 +813,10 @@ class Publicize extends Publicize_Base {
 			<?php Publicize_UI::global_checkbox( 'tumblr', $_REQUEST['connection'] ); ?>
 
 			<p style="text-align: center;">
-				<input type="submit" value="<?php esc_attr_e( 'OK', 'jetpack' ) ?>"
-				       class="button tumblr-options save-options" name="save"
-				       data-connection="<?php echo esc_attr( $_REQUEST['connection'] ); ?>"
-				       rel="<?php echo wp_create_nonce( 'save_tumblr_blog_' . $_REQUEST['connection'] ) ?>"/>
+				<input type="submit" value="<?php esc_attr_e( 'OK', 'jetpack' ); ?>"
+					   class="button tumblr-options save-options" name="save"
+					   data-connection="<?php echo esc_attr( $_REQUEST['connection'] ); ?>"
+					   rel="<?php echo wp_create_nonce( 'save_tumblr_blog_' . $_REQUEST['connection'] ); ?>"/>
 			</p> <br/>
 		</div>
 
