@@ -7,8 +7,6 @@
 
 namespace Automattic\Jetpack\My_Jetpack;
 
-require_once 'class-products.php';
-
 /**
  * Registers the REST routes for Products.
  */
@@ -98,5 +96,17 @@ class REST_Products {
 	 */
 	public static function get_products() {
 		return rest_ensure_response( Products::get_products(), 200 );
+	}
+
+	/**
+	 * Site single product endpoint.
+	 *
+	 * @param \WP_REST_Request $request The request object.
+	 * @return array of site products list.
+	 */
+	public static function get_product( $request ) {
+		$product_slug = $request->get_param( 'product' );
+		$products     = Products::get_products();
+		return rest_ensure_response( $products[ $product_slug ], 200 );
 	}
 }
