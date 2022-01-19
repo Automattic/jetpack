@@ -1,12 +1,4 @@
 <?php
-/**
- * All Jetpack Boost modules are required to extend this class.
- *
- * @link       https://automattic.com
- * @since      1.0.0
- * @package    automattic/jetpack-boost
- */
-
 namespace Automattic\Jetpack_Boost\Modules;
 
 use Automattic\Jetpack_Boost\Lib\Analytics;
@@ -29,7 +21,7 @@ class Module_Toggle {
 	}
 
 	public function enable() {
-		// Only record analytics evet if the config update succeeds
+		// Only record analytics event if the config update succeeds
 		if ( ! $this->config->update( 'enabled', true ) ) {
 			return false;
 		}

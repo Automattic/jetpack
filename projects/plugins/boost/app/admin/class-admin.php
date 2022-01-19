@@ -17,9 +17,6 @@ use Automattic\Jetpack_Boost\Lib\Speed_Score;
 use Automattic\Jetpack_Boost\Modules\Modules;
 use Automattic\Jetpack_Boost\REST_API\Permissions\Nonce;
 
-/**
- * Class Admin
- */
 class Admin {
 
 	/**
@@ -56,13 +53,7 @@ class Admin {
 	 */
 	private $speed_score;
 
-	/**
-	 * Initialize the class and set its properties.
-	 *
-	 * @param Jetpack_Boost $jetpack_boost Main plugin instance.
-	 *
-	 * @since    1.0.0
-	 */
+
 	public function __construct( Modules $modules ) {
 		$this->modules     = $modules;
 		$this->speed_score = new Speed_Score( $modules );

@@ -32,7 +32,7 @@ class Paths {
 	 * List of all the Critical CSS Types.
 	 *
 	 * The order is important because searching for critical CSS will stop as soon as a value is found.
-	 * So finding Critical CSS by post ID is attempted before searching for a common Sngular Post critical CSS.
+	 * So finding Critical CSS by post ID is attempted before searching for a common Singular Post critical CSS.
 	 *
 	 * @var Provider[]
 	 */

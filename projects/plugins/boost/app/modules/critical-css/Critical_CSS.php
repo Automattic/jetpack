@@ -24,6 +24,14 @@ class Critical_CSS implements Generic_Module, Has_Endpoints {
 	 */
 	protected $storage;
 
+
+	/**
+	 * Critical CSS Provider Paths.
+	 *
+	 * @var Paths
+	 */
+	protected $paths;
+
 	/**
 	 * Prepare module. This is run irrespective of the module activation status.
 	 */
@@ -38,7 +46,7 @@ class Critical_CSS implements Generic_Module, Has_Endpoints {
 	 * This is only run if Critical CSS module has been activated.
 	 */
 	public function initialize() {
-		// Touch to set-up the post type. This is a temporary hack.
+		// Touch to setup the post type. This is a temporary hack.
 		// This should instantiate a new Post_Type_Storage class,
 		// so that Critical_CSS class is responsible
 		// for setting up the storage.
@@ -184,4 +192,5 @@ class Critical_CSS implements Generic_Module, Has_Endpoints {
 			Generator_Error::class,
 		);
 	}
+
 }

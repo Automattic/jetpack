@@ -19,7 +19,7 @@ use Automattic\Jetpack_Boost\Modules\Modules;
 class Speed_Score {
 
 	private $modules;
-	
+
 	public function __construct( Modules $modules ) {
 		$this->modules = $modules;
 
