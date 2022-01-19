@@ -60,9 +60,12 @@ export default function installProjectTask( argv ) {
 		// For composer, choose 'install' or 'update' depending on whether the lockfile is checked in.
 		// For pnpm, the lockfile is always checked in thanks to the workspace thing.
 		let subcommand;
-		let args = ''; // eslint-disable-line prefer-const
+		let args = '';
 		if ( pkgMgr === 'composer' ) {
 			subcommand = ( await hasLockFile( cwd, 'composer.lock' ) ) ? 'install' : 'update';
+			if ( argv.project.startsWith( 'plugins/' ) && argv.production ) {
+				args += ' -o --no-dev --classmap-authoritative --prefer-dist';
+			}
 		} else if ( pkgMgr === 'pnpm' ) {
 			if ( pnpmInstallPromise ) {
 				return pnpmInstallPromise;
