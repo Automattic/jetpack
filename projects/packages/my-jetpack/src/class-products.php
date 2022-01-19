@@ -27,7 +27,15 @@ class Products {
 			'crm'        => self::get_crm_data(),
 			'extras'     => self::get_extras_data(),
 		);
+	}
 
+	/**
+	 * Return product names list.
+	 *
+	 * @return array Product names array.
+	 */
+	public static function get_product_names() {
+		return array_keys( self::get_products() );
 	}
 
 	/**
