@@ -581,7 +581,7 @@ jQuery( function() {
 	public function wp_insert_post( $post_id ) {
 		$post_parent = get_post_field( 'post_parent', $post_id );
 		// this didn't have an ID yet. Compare the content that was just saved.
-		if ( isset( $this->monitoring['content'] ) && $this->monitoring['content'] === get_post_field( 'post_content', $post_id ) ) {
+		if ( isset( $this->monitoring['content'] ) && get_post_field( 'post_content', $post_id ) === $this->monitoring['content'] ) {
 			unset( $this->monitoring['content'] );
 			$this->set_as_markdown( $post_id );
 		}
