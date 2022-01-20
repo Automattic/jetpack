@@ -7,6 +7,7 @@
 
 namespace Automattic\Jetpack;
 
+use Automattic\Jetpack\Connection\Client as Connection_Client;
 use Automattic\Jetpack\Connection\Manager as Connection_Manager;
 use Jetpack_Options;
 
@@ -83,7 +84,7 @@ class Partner_Coupon {
 	public static function register_coupon_admin_hooks( $plugin_slug, $redirect_location ) {
 		$instance = self::get_instance();
 
-		add_action( 'admin_init', array( $instance, 'purge_coupon' ) );
+		add_action( 'admin_init', array( $instance, 'maybe_purge_coupon' ) );
 
 		// We have to use an anonymous function, so we can pass along relevant information
 		// and not have to hardcode values for a single plugin.
@@ -127,10 +128,14 @@ class Partner_Coupon {
 	/**
 	 * Purge partner coupon.
 	 *
+	 * @todo Update DocBlock.
+	 * @todo limit this check to only Jetpack settings pages (requires dynamic values if other plugins implements it).
+	 * @todo Only check every 30 seconds to try and limit the API requests?
+	 *
 	 * We automatically purge partner coupons after a certain amount of time to prevent
 	 * us from unnecessarily promoting a product for months or years in the future.
 	 */
-	public function purge_coupon() {
+	public function maybe_purge_coupon() {
 		$date = Jetpack_Options::get_option( self::$added_option, '' );
 
 		if ( empty( $date ) ) {
@@ -141,13 +146,43 @@ class Partner_Coupon {
 		$today       = time();
 
 		if ( $today >= $expire_date ) {
-			Jetpack_Options::delete_option(
-				array(
-					self::$coupon_option,
-					self::$added_option,
-				)
-			);
+			$this->delete_coupon_data();
+
+			return;
 		}
+
+		$last_check = Jetpack_Options::get_raw_option( 'jetpack_partner_coupon_last_check', 0 );
+
+		if ( $last_check && time() > $last_check + 30 ) {
+			return;
+		}
+
+		Jetpack_Options::update_raw_option( 'jetpack_partner_coupon_last_check', time() );
+
+		$coupon   = self::get_coupon();
+		$response = Connection_Client::wpcom_json_api_request_as_user(
+			sprintf( '/jetpack-partner/coupon/v1/site/coupon?coupon_code=%s', $coupon['coupon_code'] ),
+			2,
+			array( 'method' => 'GET' )
+		);
+
+		$body = json_decode( wp_remote_retrieve_body( $response ), true );
+
+		if ( 200 === wp_remote_retrieve_response_code( $response ) && isset( $body['status'] ) && false === $body['status'] ) {
+			$this->delete_coupon_data();
+		}
+	}
+
+	/**
+	 * Delete all coupon data.
+	 */
+	protected function delete_coupon_data() {
+		Jetpack_Options::delete_option(
+			array(
+				self::$coupon_option,
+				self::$added_option,
+			)
+		);
 	}
 
 	/**
