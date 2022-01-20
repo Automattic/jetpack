@@ -320,8 +320,6 @@
 	"projects/plugins/jetpack/modules/videopress/editor-media-view.php",
 	"projects/plugins/jetpack/modules/videopress/shortcode.php",
 	"projects/plugins/jetpack/modules/videopress/utility-functions.php",
-	"projects/plugins/jetpack/modules/widget-visibility.php",
-	"projects/plugins/jetpack/modules/widget-visibility/widget-conditions.php",
 	"projects/plugins/jetpack/modules/widgets.php",
 	"projects/plugins/jetpack/modules/widgets/authors.php",
 	"projects/plugins/jetpack/modules/widgets/blog-stats.php",
