@@ -30,7 +30,7 @@ echo "::group::Changelogger setup"
 echo "::endgroup::"
 
 echo "::group::Determining build order"
-TMP="$(tools/get-build-order.php)"
+TMP="$(pnpx jetpack dependencies build-order --pretty --ignore-root)"
 SLUGS=()
 mapfile -t SLUGS <<<"$TMP"
 echo "::endgroup::"
