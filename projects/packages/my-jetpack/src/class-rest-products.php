@@ -66,7 +66,6 @@ class REST_Products {
 				),
 			)
 		);
-
 	}
 
 	/**
@@ -225,5 +224,16 @@ class REST_Products {
 		);
 		return rest_ensure_response( $response, 200 );
 
+	}
+
+	/**
+	 * Enable a site product.
+	 *
+	 * @param \WP_REST_Request $request The request object.
+	 * @return array of site products list.
+	 */
+	public static function enable_product( $request ) {
+		$product_slug = $request->get_param( 'product' );
+		return Products::enable_backup_product( $product_slug );
 	}
 }
