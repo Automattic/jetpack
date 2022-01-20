@@ -14,7 +14,8 @@
 	},
 	"autoload": {
 		"classmap": [
-			"src/"
+			"src/",
+			"src/products"
 		]
 	},
 	"scripts": {

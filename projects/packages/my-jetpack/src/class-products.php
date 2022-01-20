@@ -72,12 +72,7 @@ class Products {
 	 * @return array Object with infromation about the product.
 	 */
 	public static function get_boost_data() {
-		return array(
-			'slug'        => 'boost',
-			'description' => __( 'Instant speed and SEO', 'jetpack-my-jetpack' ),
-			'name'        => __( 'Boost', 'jetpack-my-jetpack' ),
-			'status'      => 'plugin_absent',
-		);
+		return Products\Boost::get_info();
 	}
 
 	/**
