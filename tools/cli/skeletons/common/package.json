@@ -18,9 +18,7 @@
 		"build-js": "echo 'Not implemented.",
 		"build-production": "echo 'Not implemented.",
 		"build-production-js": "echo 'Not implemented.",
-		"clean": "true",
-		"distclean": "rm -rf node_modules && pnpm run clean",
-		"install-if-deps-outdated": "pnpm install --no-prod --frozen-lockfile"
+		"clean": "true"
 	},
 	"devDependencies": {},
 	"engines": {

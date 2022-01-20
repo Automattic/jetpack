@@ -12,6 +12,8 @@ use Automattic\Jetpack\Assets;
 use Automattic\Jetpack\Connection\Client as Client;
 use Automattic\Jetpack\Connection\Initial_State as Connection_Initial_State;
 use Automattic\Jetpack\Connection\Rest_Authentication as Connection_Rest_Authentication;
+use Automattic\Jetpack\Status as Status;
+use Automattic\Jetpack\Status\Visitor;
 
 /**
  * The main Initializer class that registers the admin menu and eneuque the assets.
@@ -37,7 +39,7 @@ class Initializer {
 		Connection_Rest_Authentication::init();
 
 		// Add custom WP REST API endoints.
-		add_action( 'rest_api_init', array( __CLASS__, 'register_rest_routes' ) );
+		add_action( 'rest_api_init', array( __CLASS__, 'register_rest_endpoints' ) );
 
 		$page_suffix = Admin_Menu::add_menu(
 			__( 'My Jetpack', 'jetpack-my-jetpack' ),
@@ -89,23 +91,16 @@ class Initializer {
 			array(
 				'apiRoot'               => esc_url_raw( rest_url() ),
 				'apiNonce'              => wp_create_nonce( 'wp_rest' ),
-				'products'              => self::get_products(),
+				'products'              => Products::get_products(),
+				'purchases'             => array(),
 				'redirectUrl'           => admin_url( '?page=my-jetpack' ),
 				'topJetpackMenuItemUrl' => Admin_Menu::get_top_level_menu_item_url(),
+				'siteSuffix'            => ( new Status() )->get_site_suffix(),
 			)
 		);
 
 		// Connection Initial State.
 		wp_add_inline_script( 'my_jetpack_main_app', Connection_Initial_State::render(), 'before' );
-	}
-
-	/**
-	 * Product data
-	 *
-	 * @return array Jetpack products on the site and their availability.
-	 */
-	public static function get_products() {
-		return array();
 	}
 
 	/**
@@ -122,7 +117,10 @@ class Initializer {
 	 *
 	 * @return void
 	 */
-	public static function register_rest_routes() {
+	public static function register_rest_endpoints() {
+		new REST_Products();
+		new REST_Purchases();
+
 		register_rest_route(
 			'my-jetpack/v1',
 			'/site',
@@ -189,7 +187,7 @@ class Initializer {
 			$wpcom_api_version,
 			array(
 				'headers' => array(
-					'X-Forwarded-For' => \Jetpack::current_user_ip( true ),
+					'X-Forwarded-For' => ( new Visitor() )->get_ip( true ),
 				),
 			)
 		);
