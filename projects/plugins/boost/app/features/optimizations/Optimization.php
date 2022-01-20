@@ -34,11 +34,10 @@ class Optimization {
 		if ( empty( $this->feature->get_endpoints() ) ) {
 			return false;
 		}
-		
+
 		REST_API::register( $this->feature->get_endpoints() );
 
 	}
-
 
 	/**
 	 * When a module is enabled,
@@ -60,7 +59,6 @@ class Optimization {
 		return $this->feature->get_slug();
 	}
 
-
 	public function is_enabled() {
 		return $this->state->is_enabled();
 	}
@@ -72,6 +70,5 @@ class Optimization {
 	public function disable() {
 		$this->state->disable();
 	}
-
 
 }

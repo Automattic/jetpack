@@ -42,9 +42,9 @@ class Generator_Request implements Endpoint {
 	}
 
 	public function permissions() {
-		return [
+		return array(
 			new Current_User_Admin(),
-		];
+		);
 	}
 
 	public function name() {

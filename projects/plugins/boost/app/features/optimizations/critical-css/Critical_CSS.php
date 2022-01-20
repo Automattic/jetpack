@@ -24,7 +24,6 @@ class Critical_CSS implements Feature, Has_Endpoints {
 	 */
 	protected $storage;
 
-
 	/**
 	 * Critical CSS Provider Paths.
 	 *
@@ -118,7 +117,6 @@ class Critical_CSS implements Feature, Has_Endpoints {
 		Critical_CSS_State::reset();
 	}
 
-
 	/**
 	 * Force the current page to render as viewed by a logged out user. Useful when generating
 	 * Critical CSS.
@@ -137,6 +135,7 @@ class Critical_CSS implements Feature, Has_Endpoints {
 
 	/**
 	 * Override; returns an admin notice to show if there was a reset reason.
+	 *
 	 * @TODO:
 	 *      There should be an Admin_Notice class
 	 *      To create a notice, (new Admin_Notice())->create("notice text");
@@ -147,7 +146,7 @@ class Critical_CSS implements Feature, Has_Endpoints {
 		$reason = \get_option( self::RESET_REASON_STORAGE_KEY );
 
 		if ( ! $reason ) {
-			return NULL;
+			return null;
 		}
 
 		return array( new Regenerate_Admin_Notice( $reason ) );

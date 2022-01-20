@@ -18,9 +18,9 @@ class Generator_Status implements Endpoint {
 	}
 
 	public function permissions() {
-		return [
+		return array(
 			new Current_User_Admin(),
-		];
+		);
 	}
 	public function name() {
 		return 'status';

@@ -11,8 +11,6 @@ class Route {
 
 	protected $permissions;
 
-
-
 	public function __construct( $endpoint ) {
 		$this->endpoint    = new $endpoint();
 		$this->permissions = $this->endpoint->permissions();
@@ -48,6 +46,5 @@ class Route {
 		}
 		return true;
 	}
-
 
 }

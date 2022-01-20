@@ -6,7 +6,6 @@ use Automattic\Jetpack_Boost\REST_API\Contracts\Endpoint;
 
 class REST_API {
 
-
 	/**
 	 * @var Route[]
 	 */

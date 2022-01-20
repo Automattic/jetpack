@@ -20,7 +20,6 @@ class Optimizations {
 			$forced_disabled_modules = array_map( 'sanitize_key', explode( ',', $_GET['jb-disable-modules'] ) );
 		}
 
-
 		$available_modules = array();
 		foreach ( $this->modules as $module_slug => $module ) {
 
@@ -67,7 +66,6 @@ class Optimizations {
 		}
 	}
 
-
 	/**
 	 * @param string $module_slug
 	 */
@@ -83,15 +81,16 @@ class Optimizations {
 	 * Returns an array of active modules.
 	 */
 	public function get_active_modules() {
-		return array_filter( $this->modules, function( $module ) {
-			return $module->is_enabled();
-		} );
+		return array_filter(
+			$this->modules,
+			function ( $module ) {
+				return $module->is_enabled();
+			}
+		);
 	}
 
 	public function get_modules() {
 		return $this->modules;
 	}
-
-
 
 }

@@ -13,11 +13,11 @@
 namespace Automattic\Jetpack_Boost;
 
 use Automattic\Jetpack_Boost\Admin\Admin;
+use Automattic\Jetpack_Boost\Features\Optimizations\Optimizations;
 use Automattic\Jetpack_Boost\Features\Speed_Score\Speed_Score_History;
 use Automattic\Jetpack_Boost\Lib\Analytics;
 use Automattic\Jetpack_Boost\Lib\CLI;
 use Automattic\Jetpack_Boost\Lib\Connection;
-use Automattic\Jetpack_Boost\Features\Optimizations\Optimizations;
 use Automattic\Jetpack_Boost\REST_API\Endpoints\Optimization_Status;
 use Automattic\Jetpack_Boost\REST_API\REST_API;
 
@@ -74,7 +74,6 @@ class Jetpack_Boost {
 		$this->plugin_name = 'jetpack-boost';
 
 		$this->connection = new Connection();
-
 
 		// Require plugin features.
 		$this->init_textdomain();
@@ -151,7 +150,6 @@ class Jetpack_Boost {
 		Analytics::record_user_event( 'clear_cache' );
 	}
 
-
 	/**
 	 * Initialize the admin experience.
 	 */
@@ -192,8 +190,6 @@ class Jetpack_Boost {
 	public function get_version() {
 		return $this->version;
 	}
-
-
 
 	/**
 	 * Handle an environment change to set the correct status to the Critical CSS request.

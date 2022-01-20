@@ -21,8 +21,6 @@ use Automattic\Jetpack_Boost\REST_API\Contracts\Permission;
  * retrieved later using:
  *
  * Nonce::get_generated_nonces()
- *
- *
  */
 class Nonce implements Permission {
 
@@ -46,7 +44,6 @@ class Nonce implements Permission {
 	 */
 	private static $saved_nonces = array();
 
-
 	public function __construct( $action, $request_key = 'nonce' ) {
 		$this->action      = $action;
 		$this->request_key = $request_key;
@@ -67,7 +64,6 @@ class Nonce implements Permission {
 		return $nonce;
 	}
 
-
 	/**
 	 * Keep track of the nonces created using this class.
 	 *
@@ -86,8 +82,5 @@ class Nonce implements Permission {
 	public static function get_generated_nonces() {
 		return static::$saved_nonces;
 	}
-
-
-
 
 }

@@ -10,11 +10,11 @@ namespace Automattic\Jetpack_Boost\Admin;
 
 use Automattic\Jetpack\Admin_UI\Admin_Menu;
 use Automattic\Jetpack\Status;
+use Automattic\Jetpack_Boost\Features\Optimizations\Optimizations;
 use Automattic\Jetpack_Boost\Features\Speed_Score\Speed_Score;
 use Automattic\Jetpack_Boost\Jetpack_Boost;
 use Automattic\Jetpack_Boost\Lib\Analytics;
 use Automattic\Jetpack_Boost\Lib\Environment_Change_Detector;
-use Automattic\Jetpack_Boost\Features\Optimizations\Optimizations;
 use Automattic\Jetpack_Boost\REST_API\Permissions\Nonce;
 
 class Admin {
@@ -52,7 +52,6 @@ class Admin {
 	 * @var Speed_Score instance.
 	 */
 	private $speed_score;
-
 
 	public function __construct( Optimizations $modules ) {
 		$this->modules     = $modules;
@@ -155,7 +154,6 @@ class Admin {
 				'showRatingPrompt' => $this->get_show_rating_prompt(),
 			),
 
-
 			/**
 			 * A bit of necessary magic,
 			 * Explained more in the Nonce class.
@@ -217,7 +215,6 @@ class Admin {
 		return current_user_can( 'manage_options' );
 	}
 
-
 	/**
 	 * Show any admin notices from enabled modules.
 	 */
@@ -231,7 +228,7 @@ class Admin {
 		$dismissed_notices = \get_option( self::DISMISSED_NOTICE_OPTION, array() );
 		$notices           = array_filter(
 			$notices,
-			function( $notice ) use ( $dismissed_notices ) {
+			function ( $notice ) use ( $dismissed_notices ) {
 				$notice_slug = $notice->get_slug();
 
 				return ! in_array( $notice_slug, $dismissed_notices, true );
@@ -267,6 +264,7 @@ class Admin {
 
 	/**
 	 * Returns a list of admin notices to show. Asks each module to provide admin notices the user needs to see.
+	 *
 	 * @TODO: This is still a code smell. We're carrying the whole modules instance just to get a list of admin notices.
 	 *
 	 * @return \Automattic\Jetpack_Boost\Admin\Admin_Notice[]
@@ -276,7 +274,7 @@ class Admin {
 
 		foreach ( $this->modules->get_active_modules() as $module ) {
 
-			if( ! method_exists( $module, 'get_admin_notices' ) ) {
+			if ( ! method_exists( $module, 'get_admin_notices' ) ) {
 				continue;
 			}
 			$module_notices = $module->get_admin_notices();

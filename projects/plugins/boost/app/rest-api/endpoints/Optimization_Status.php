@@ -25,9 +25,9 @@ class Optimization_Status implements Endpoint {
 		$module      = new State( $module_slug );
 
 		// @TODO: Validate that the module exists?
-		//		if ( ! $module ) {
-		//			return \WP_Error( 'jetpack_boost_invalid_module', __( 'Module not found', 'jetpack-boost' ) );
-		//		}
+		// if ( ! $module ) {
+		// return \WP_Error( 'jetpack_boost_invalid_module', __( 'Module not found', 'jetpack-boost' ) );
+		// }
 		if ( true === $params['status'] ) {
 			$module->enable();
 		} else {

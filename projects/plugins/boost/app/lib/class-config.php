@@ -17,7 +17,6 @@ class Config {
 		$this->option_name = $option_name;
 	}
 
-
 	protected function get_options() {
 		$value = get_option( $this->option_name, array() );
 		if ( ! is_array( $value ) ) {
@@ -45,6 +44,5 @@ class Config {
 
 		return $options;
 	}
-
 
 }

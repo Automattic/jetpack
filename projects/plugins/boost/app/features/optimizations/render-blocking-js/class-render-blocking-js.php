@@ -15,7 +15,7 @@ use Automattic\Jetpack_Boost\Lib\Output_Filter;
 /**
  * Class Render_Blocking_JS
  */
-class Render_Blocking_JS implements Feature  {
+class Render_Blocking_JS implements Feature {
 	/**
 	 * Holds the script tags removed from the output buffer.
 	 *
@@ -53,7 +53,6 @@ class Render_Blocking_JS implements Feature  {
 	 */
 	private $is_opened_script = false;
 
-	
 	public function initialize() {
 		$this->output_filter = new Output_Filter();
 

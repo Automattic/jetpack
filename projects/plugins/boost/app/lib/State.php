@@ -7,7 +7,6 @@ class State {
 
 	protected $slug;
 
-
 	public function __construct( $slug ) {
 		$this->slug   = $slug;
 		$this->config = new Config( $this->slug );

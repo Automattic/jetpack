@@ -2,11 +2,11 @@
 
 namespace Automattic\Jetpack_Boost\REST_API\Endpoints;
 
-use Automattic\Jetpack_Boost\Lib\Nonce;
 use Automattic\Jetpack_Boost\Features\Optimizations\Critical_CSS\Critical_CSS;
 use Automattic\Jetpack_Boost\Features\Optimizations\Critical_CSS\Critical_CSS_Storage;
 use Automattic\Jetpack_Boost\Features\Optimizations\Critical_CSS\Generate\Generator;
 use Automattic\Jetpack_Boost\Features\Optimizations\Critical_CSS\Recommendations;
+use Automattic\Jetpack_Boost\Lib\Nonce;
 use Automattic\Jetpack_Boost\REST_API\Contracts\Endpoint;
 use Automattic\Jetpack_Boost\REST_API\Permissions\Current_User_Admin;
 
@@ -91,9 +91,9 @@ class Generator_Success implements Endpoint {
 	}
 
 	public function permissions() {
-		return [
+		return array(
 			new Current_User_Admin(),
-		];
+		);
 	}
 
 	public function name() {
