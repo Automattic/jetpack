@@ -713,7 +713,7 @@ class Helper {
 	 */
 	public static function get_asset_version( $file ) {
 		return is_development_version() && file_exists( JETPACK_SEARCH_PKG__DIR . $file )
-			? filemtime( JETPACK__PLUGIN_DIR . $file )
+			? filemtime( JETPACK_SEARCH_PKG__DIR . $file )
 			: JETPACK_SEARCH_PKG__VERSION;
 	}
 
