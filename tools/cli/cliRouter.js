@@ -7,17 +7,17 @@ import { hideBin } from 'yargs/helpers';
 /**
  * Internal dependencies
  */
-import { buildDefine } from './commands/build';
-import { watchDefine } from './commands/watch';
-import { installDefine } from './commands/install';
-import { cleanDefine } from './commands/clean';
-import { cliDefine } from './commands/cli';
-import { generateDefine } from './commands/generate';
-import { draftDefine } from './commands/draft';
-import { changelogDefine } from './commands/changelog';
-import { dockerDefine } from './commands/docker';
-import { testDefine } from './commands/test';
-import { releaseDefine } from './commands/release';
+import { buildDefine } from './commands/build.js';
+import { watchDefine } from './commands/watch.js';
+import { installDefine } from './commands/install.js';
+import { cleanDefine } from './commands/clean.js';
+import { cliDefine } from './commands/cli.js';
+import { generateDefine } from './commands/generate.js';
+import { draftDefine } from './commands/draft.js';
+import { changelogDefine } from './commands/changelog.js';
+import { dockerDefine } from './commands/docker.js';
+import { testDefine } from './commands/test.js';
+import { releaseDefine } from './commands/release.js';
 
 /**
  * The main CLI router function.
@@ -28,6 +28,8 @@ import { releaseDefine } from './commands/release';
 export async function cli() {
 	// Sets up the yargs instance.
 	let argv = yargs( hideBin( process.argv ) );
+
+	argv.scriptName( 'jetpack' );
 
 	/*
 	 * Adds the commands to the yargs instance. Help text will list commands in the order they are included here.

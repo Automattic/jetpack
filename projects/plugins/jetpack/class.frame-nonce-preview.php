@@ -5,6 +5,8 @@
  * @package automattic/jetpack
  */
 
+// phpcs:disable WordPress.Security.NonceVerification.Recommended -- This is _implementing_ cross-site nonce handling, no need for WordPress's nonces.
+
 /**
  * Allows viewing posts on the frontend when the user is not logged in.
  */
@@ -25,11 +27,11 @@ class Jetpack_Frame_Nonce_Preview {
 	 * @return Jetpack_Frame_Nonce_Preview
 	 **/
 	public static function get_instance() {
-		if ( ! is_null( self::$instance ) ) {
-			return self::$instance;
+		if ( null === self::$instance ) {
+			self::$instance = new Jetpack_Frame_Nonce_Preview();
 		}
 
-		return self::$instance = new Jetpack_Frame_Nonce_Preview();
+		return self::$instance;
 	}
 
 	/**
@@ -122,7 +124,7 @@ class Jetpack_Frame_Nonce_Preview {
 	 */
 	public function handle_autosave_nonce_validation() {
 		if ( ! $this->is_frame_nonce_valid() ) {
-			wp_die( __( 'Sorry, you are not allowed to preview drafts.', 'jetpack' ) );
+			wp_die( esc_html__( 'Sorry, you are not allowed to preview drafts.', 'jetpack' ) );
 		}
 		add_filter( 'the_preview', '_set_preview' );
 	}

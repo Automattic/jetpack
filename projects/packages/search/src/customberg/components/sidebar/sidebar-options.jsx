@@ -75,7 +75,10 @@ export default function SidebarOptions() {
 					options={ [
 						{ label: __( 'Minimal', 'jetpack-search-pkg' ), value: 'minimal' },
 						{ label: __( 'Expanded (shows images)', 'jetpack-search-pkg' ), value: 'expanded' },
-						{ label: __( 'Product (for WooCommerce stores)', 'jetpack-search-pkg' ), value: 'product' },
+						{
+							label: __( 'Product (for WooCommerce stores)', 'jetpack-search-pkg' ),
+							value: 'product',
+						},
 					] }
 					onChange={ setResultFormat }
 				/>
@@ -99,9 +102,18 @@ export default function SidebarOptions() {
 					label={ __( 'Overlay trigger', 'jetpack-search-pkg' ) }
 					value={ trigger }
 					options={ [
-						{ label: __( 'Open when the user starts typing', 'jetpack-search-pkg' ), value: 'immediate' },
-						{ label: __( 'Open when results are available', 'jetpack-search-pkg' ), value: 'results' },
-						{ label: __( 'Open when user submits the form', 'jetpack-search-pkg' ), value: 'submit' },
+						{
+							label: __( 'Open when the user starts typing', 'jetpack-search-pkg' ),
+							value: 'immediate',
+						},
+						{
+							label: __( 'Open when results are available', 'jetpack-search-pkg' ),
+							value: 'results',
+						},
+						{
+							label: __( 'Open when user submits the form', 'jetpack-search-pkg' ),
+							value: 'submit',
+						},
 					] }
 					onChange={ setTrigger }
 				/>

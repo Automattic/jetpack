@@ -189,9 +189,9 @@ export default class SearchFilter extends Component {
 	render() {
 		return (
 			<div>
-				<h4 className="jetpack-instant-search__search-filter-sub-heading">
+				<h3 className="jetpack-instant-search__search-filter-sub-heading">
 					{ this.props.configuration.name }
-				</h4>
+				</h3>
 
 				<div ref={ this.filtersList }>
 					<div className="jetpack-instant-search__search-filter-list jetpack-instant-search__search-static-filter-list">

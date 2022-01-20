@@ -4,7 +4,7 @@
 	"type": "jetpack-library",
 	"license": "GPL-2.0-or-later",
 	"require": {
-		"automattic/jetpack-status": "^1.9"
+		"automattic/jetpack-status": "^1.10"
 	},
 	"require-dev": {
 		"brain/monkey": "2.6.1",
@@ -21,11 +21,9 @@
 			"./vendor/phpunit/phpunit/phpunit --colors=always"
 		],
 		"test-coverage": [
-			"@composer update",
 			"php -dpcov.directory=. ./vendor/bin/phpunit --coverage-clover \"$COVERAGE_DIR/clover.xml\""
 		],
 		"test-php": [
-			"@composer update",
 			"@composer phpunit"
 		]
 	},

@@ -6,7 +6,7 @@ const path = require( 'path' );
 module.exports = {
 	testEnvironment: 'jsdom',
 	testMatch: [ '<rootDir>/**/test/*.[jt]s?(x)', '!**/.eslintrc.*' ],
-	roots: [ '<rootDir>/extensions/'],
+	roots: [ '<rootDir>/extensions/' ],
 	transform: {
 		'\\.[jt]sx?$': path.join( __dirname, 'tests', 'jest-extensions-babel-transform' ),
 		'\\.(gif|jpg|jpeg|png|svg|scss|sass|css)$': path.join(
