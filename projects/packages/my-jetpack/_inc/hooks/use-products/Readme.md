@@ -5,7 +5,7 @@ Simple React custom hook that provides data and helpers to deal with site produc
 ## API
 
 ```es6
-const { list: productsList, enable, disable } = useProducts();
+const { list: productsList, activate, deactivate } = useProducts();
 ```
 
 The `useProducts()` hooks returns an object with the following properties:
@@ -14,17 +14,17 @@ The `useProducts()` hooks returns an object with the following properties:
 
 An array with the products list.
 
-### enable( <slug> )
-A helper function to enable a product.
+### activate( <slug> )
+A helper function to activate a product.
 
-### disnable( <slug> )
+### deactivate( <slug> )
 A helper function to disable a product.
 
 ```es6
 import usePlan from './hooks/use-products';
 
 function PlansSection() {
-	const { list: productsList, enable, disable } = useProducts();
+	const { list: productsList, activate, deactivate } = useProducts();
 
 	return (
 		<div className="products">
@@ -32,8 +32,8 @@ function PlansSection() {
 				<>
 					<h4>{ name }</h4>
 					<p>{ description }</p>
-					<Button onClick={ () => enable( slug ) }>Enable</Button>
-					<Button onClick={ () => disable( slug ) }>Disable</Button>
+					<Button onClick={ () => activate( slug ) }>Enable</Button>
+					<Button onClick={ () => deactivate( slug ) }>Disable</Button>
 				</>
 			) ) }
 		</div>
