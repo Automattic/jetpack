@@ -11,7 +11,7 @@ class Optimization {
 	/**
 	 * @var Status
 	 */
-	protected $state;
+	protected $status;
 
 	/**
 	 * @var Feature
@@ -23,7 +23,7 @@ class Optimization {
 	 */
 	public function __construct( Feature $feature ) {
 		$this->feature = $feature;
-		$this->state   = new Status( $feature->get_slug() );
+		$this->status  = new Status( $feature->get_slug() );
 	}
 
 	public function register_endpoints() {
@@ -45,7 +45,7 @@ class Optimization {
 	 * like attach hooks
 	 */
 	public function initialize() {
-		if ( ! $this->state->is_enabled() ) {
+		if ( ! $this->status->is_enabled() ) {
 			return false;
 		}
 
@@ -60,15 +60,15 @@ class Optimization {
 	}
 
 	public function is_enabled() {
-		return $this->state->is_enabled();
+		return $this->status->is_enabled();
 	}
 
 	public function enable() {
-		$this->state->enable();
+		$this->status->enable();
 	}
 
 	public function disable() {
-		$this->state->disable();
+		$this->status->disable();
 	}
 
 }
