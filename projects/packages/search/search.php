@@ -37,10 +37,10 @@ if ( function_exists( 'add_filter' ) ) {
  *
  * @return array The packge version array.
  */
-function pkg_send_version_to_tracker( $package_versions ) {
+function send_version_to_tracker( $package_versions ) {
 	$package_versions[ JETPACK_SEARCH_PKG__SLUG ] = JETPACK_SEARCH_PKG__VERSION;
 	return $package_versions;
 }
 
 // Set up package version hook.
-$add_filter( 'jetpack_package_versions', __NAMESPACE__ . '\pkg_send_version_to_tracker' );
+$add_filter( 'jetpack_package_versions', __NAMESPACE__ . '\send_version_to_tracker' );
