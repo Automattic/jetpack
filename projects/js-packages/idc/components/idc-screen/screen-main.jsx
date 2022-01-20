@@ -37,26 +37,32 @@ const ScreenMain = props => {
 
 	return (
 		<React.Fragment>
-			<h2>{ customContent.mainTitle || __( 'Safe Mode has been activated', 'jetpack' ) }</h2>
+			<h2>
+				{ customContent.mainTitle
+					? createInterpolateElement( customContent.mainTitle, { em: <em /> } )
+					: __( 'Safe Mode has been activated', 'jetpack' ) }
+			</h2>
 
 			<p>
-				{ customContent.mainBodyText ||
-					createInterpolateElement(
+				{ createInterpolateElement(
+					customContent.mainBodyText ||
 						__(
 							'Your site is in Safe Mode because you have 2 Jetpack-powered sites that appear to be duplicates. ' +
 								'2 sites that are telling Jetpack they’re the same site. <safeModeLink>Learn more about safe mode.</safeModeLink>',
 							'jetpack'
 						),
-						{
-							safeModeLink: (
-								<a
-									href={ getRedirectUrl( 'jetpack-support-safe-mode' ) }
-									rel="noopener noreferrer"
-									target="_blank"
-								/>
-							),
-						}
-					) }
+					{
+						safeModeLink: (
+							<a
+								href={ getRedirectUrl( 'jetpack-support-safe-mode' ) }
+								rel="noopener noreferrer"
+								target="_blank"
+							/>
+						),
+						em: <em />,
+						strong: <strong />,
+					}
+				) }
 			</p>
 
 			<h3>{ __( 'Please select an option', 'jetpack' ) }</h3>

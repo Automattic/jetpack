@@ -6,7 +6,7 @@ import chai from 'chai';
 /**
  * Internal dependencies
  */
-import { doesRepoExist } from '../../../helpers/github';
+import { doesRepoExist } from '../../../helpers/github.js';
 
 describe( 'doesRepoExist Unit Tests', function () {
 	it( 'should be a function', function () {

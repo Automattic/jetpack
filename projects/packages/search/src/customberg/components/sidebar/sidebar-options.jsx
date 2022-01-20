@@ -75,7 +75,10 @@ export default function SidebarOptions() {
 					options={ [
 						{ label: __( 'Minimal', 'jetpack-search-pkg' ), value: 'minimal' },
 						{ label: __( 'Expanded (shows images)', 'jetpack-search-pkg' ), value: 'expanded' },
-						{ label: __( 'Product (for WooCommerce stores)', 'jetpack-search-pkg' ), value: 'product' },
+						{
+							label: __( 'Product (for WooCommerce stores)', 'jetpack-search-pkg' ),
+							value: 'product',
+						},
 					] }
 					onChange={ setResultFormat }
 				/>
@@ -84,6 +87,7 @@ export default function SidebarOptions() {
 
 			<PanelBody title={ __( 'Search options', 'jetpack-search-pkg' ) } initialOpen={ true }>
 				<SelectControl
+					className="jp-search-configure-default-sort-select"
 					disabled={ isDisabled }
 					label={ __( 'Default sort', 'jetpack-search-pkg' ) }
 					value={ sort }
@@ -95,13 +99,23 @@ export default function SidebarOptions() {
 					onChange={ setSort }
 				/>
 				<SelectControl
+					className="jp-search-configure-overlay-trigger-select"
 					disabled={ isDisabled }
 					label={ __( 'Overlay trigger', 'jetpack-search-pkg' ) }
 					value={ trigger }
 					options={ [
-						{ label: __( 'Open when the user starts typing', 'jetpack-search-pkg' ), value: 'immediate' },
-						{ label: __( 'Open when results are available', 'jetpack-search-pkg' ), value: 'results' },
-						{ label: __( 'Open when user submits the form', 'jetpack-search-pkg' ), value: 'submit' },
+						{
+							label: __( 'Open when the user starts typing', 'jetpack-search-pkg' ),
+							value: 'immediate',
+						},
+						{
+							label: __( 'Open when results are available', 'jetpack-search-pkg' ),
+							value: 'results',
+						},
+						{
+							label: __( 'Open when user submits the form', 'jetpack-search-pkg' ),
+							value: 'submit',
+						},
 					] }
 					onChange={ setTrigger }
 				/>
@@ -114,18 +128,21 @@ export default function SidebarOptions() {
 
 			<PanelBody title={ __( 'Additional settings', 'jetpack-search-pkg' ) } initialOpen={ true }>
 				<ToggleControl
+					className="jp-search-configure-show-sort-toggle"
 					checked={ sortEnabled }
 					disabled={ isDisabled }
 					label={ __( 'Show sort selector', 'jetpack-search-pkg' ) }
 					onChange={ setSortEnabled }
 				/>
 				<ToggleControl
+					className="jp-search-configure-infinite-scroll-toggle"
 					checked={ infiniteScroll }
 					disabled={ isDisabled }
 					label={ __( 'Enable infinite scroll', 'jetpack-search-pkg' ) }
 					onChange={ setInfiniteScroll }
 				/>
 				<ToggleControl
+					className="jp-search-configure-show-logo-toggle"
 					checked={ showLogo }
 					disabled={ isDisabled }
 					label={ __( 'Show "Powered by Jetpack"', 'jetpack-search-pkg' ) }
