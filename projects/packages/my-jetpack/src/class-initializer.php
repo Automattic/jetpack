@@ -39,7 +39,7 @@ class Initializer {
 		Connection_Rest_Authentication::init();
 
 		// Add custom WP REST API endoints.
-		add_action( 'rest_api_init', array( __CLASS__, 'register_rest_routes' ) );
+		add_action( 'rest_api_init', array( __CLASS__, 'register_rest_endpoints' ) );
 
 		$page_suffix = Admin_Menu::add_menu(
 			__( 'My Jetpack', 'jetpack-my-jetpack' ),
@@ -91,7 +91,7 @@ class Initializer {
 			array(
 				'apiRoot'               => esc_url_raw( rest_url() ),
 				'apiNonce'              => wp_create_nonce( 'wp_rest' ),
-				'products'              => self::get_products(),
+				'products'              => Products::get_products(),
 				'purchases'             => array(),
 				'redirectUrl'           => admin_url( '?page=my-jetpack' ),
 				'topJetpackMenuItemUrl' => Admin_Menu::get_top_level_menu_item_url(),
@@ -101,15 +101,6 @@ class Initializer {
 
 		// Connection Initial State.
 		wp_add_inline_script( 'my_jetpack_main_app', Connection_Initial_State::render(), 'before' );
-	}
-
-	/**
-	 * Product data
-	 *
-	 * @return array Jetpack products on the site and their availability.
-	 */
-	public static function get_products() {
-		return array();
 	}
 
 	/**
@@ -126,7 +117,10 @@ class Initializer {
 	 *
 	 * @return void
 	 */
-	public static function register_rest_routes() {
+	public static function register_rest_endpoints() {
+		new REST_Products();
+		new REST_Purchases();
+
 		register_rest_route(
 			'my-jetpack/v1',
 			'/site',
@@ -143,16 +137,6 @@ class Initializer {
 			array(
 				'methods'             => \WP_REST_Server::READABLE,
 				'callback'            => __CLASS__ . '::get_site_plans',
-				'permission_callback' => __CLASS__ . '::permissions_callback',
-			)
-		);
-
-		register_rest_route(
-			'my-jetpack/v1',
-			'/site/purchases',
-			array(
-				'methods'             => \WP_REST_Server::READABLE,
-				'callback'            => __CLASS__ . '::get_site_current_purchases',
 				'permission_callback' => __CLASS__ . '::permissions_callback',
 			)
 		);
@@ -212,26 +196,6 @@ class Initializer {
 
 		if ( is_wp_error( $response ) ) {
 			return new \WP_Error( 'site_plans_data_fetch_failed', 'Site plans data fetch failed', array( 'status' => $response_code ) );
-		}
-
-		return rest_ensure_response( $body, 200 );
-	}
-
-	/**
-	 * Site purchases endpoint.
-	 *
-	 * @return array of site purchases.
-	 */
-	public static function get_site_current_purchases() {
-		$site_id           = \Jetpack_Options::get_option( 'id' );
-		$wpcom_endpoint    = sprintf( '/sites/%d/purchases', $site_id );
-		$wpcom_api_version = '1.1';
-		$response          = Client::wpcom_json_api_request_as_blog( $wpcom_endpoint, $wpcom_api_version );
-		$response_code     = wp_remote_retrieve_response_code( $response );
-		$body              = json_decode( wp_remote_retrieve_body( $response ) );
-
-		if ( is_wp_error( $response ) || empty( $response['body'] ) ) {
-			return new \WP_Error( 'site_data_fetch_failed', 'Site data fetch failed', array( 'status' => $response_code ) );
 		}
 
 		return rest_ensure_response( $body, 200 );

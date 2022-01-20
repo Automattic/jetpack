@@ -76,7 +76,12 @@ class SearchResults extends Component {
 		if ( hasQuery && hasCorrectedQuery ) {
 			return sprintf(
 				/* translators: %1$s: number of results. %2$s: the corrected search query. */
-				_n( 'Found %1$s result for "%2$s"', 'Found %1$s results for "%2$s"', total, 'jetpack-search-pkg' ),
+				_n(
+					'Found %1$s result for "%2$s"',
+					'Found %1$s results for "%2$s"',
+					total,
+					'jetpack-search-pkg'
+				),
 				num,
 				corrected_query
 			);
@@ -89,7 +94,12 @@ class SearchResults extends Component {
 			const p2Name = allP2[ 0 ]?.name ? allP2[ 0 ].name : __( 'All P2', 'jetpack-search-pkg' );
 			return sprintf(
 				/* translators: %1$s: number of results. - %2$s: site name. */
-				_n( 'Found %1$s result in %2$s', 'Found %1$s results in %2$s', total, 'jetpack-search-pkg' ),
+				_n(
+					'Found %1$s result in %2$s',
+					'Found %1$s results in %2$s',
+					total,
+					'jetpack-search-pkg'
+				),
 				num,
 				p2Name
 			);
@@ -126,9 +136,7 @@ class SearchResults extends Component {
 						`,
 					} }
 				/>
-				<div className="jetpack-instant-search__search-results-title">
-					{ this.getSearchTitle() }
-				</div>
+				<h2 className="jetpack-instant-search__search-results-title">{ this.getSearchTitle() }</h2>
 
 				{ hasResults && hasCorrectedQuery && (
 					<p className="jetpack-instant-search__search-results-unused-query">
@@ -140,7 +148,10 @@ class SearchResults extends Component {
 				) }
 				{ this.props.hasError && (
 					<Notice type="warning">
-						{ __( "It looks like you're offline. Please reconnect for results.", 'jetpack-search-pkg' ) }
+						{ __(
+							"It looks like you're offline. Please reconnect for results.",
+							'jetpack-search-pkg'
+						) }
 					</Notice>
 				) }
 				{ hasResults && ! this.props.hasError && this.props.response._isOffline && (
@@ -214,11 +225,11 @@ class SearchResults extends Component {
 		return (
 			<div
 				aria-hidden={ this.props.isLoading === true }
-				aria-live="polite"
 				className="jetpack-instant-search__search-results"
 			>
-				<div className="jetpack-instant-search__search-results-controls">
+				<div className="jetpack-instant-search__search-results-controls" role="form">
 					<SearchForm
+						aria-controls="jetpack-instant-search__search-results-content"
 						className="jetpack-instant-search__search-results-search-form"
 						isVisible={ this.props.isVisible }
 						onChangeSearch={ this.props.onChangeSearch }
@@ -265,7 +276,11 @@ class SearchResults extends Component {
 					) }
 				</SearchControls>
 
-				<div className="jetpack-instant-search__search-results-content">
+				<div
+					aria-live="polite"
+					className="jetpack-instant-search__search-results-content"
+					id="jetpack-instant-search__search-results-content"
+				>
 					<div className="jetpack-instant-search__search-results-primary">
 						{ this.renderPrimarySection() }
 					</div>

@@ -15,3 +15,4 @@ export { default as ThemesPage } from './themes.js';
 export { default as RecommendationsPage } from './recommendations.js';
 export { default as Sidebar } from './sidebar.js';
 export { default as SearchDashboard } from './search-dashboard.js';
+export { default as SearchConfigure } from './search-configure.js';
