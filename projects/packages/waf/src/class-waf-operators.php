@@ -19,6 +19,10 @@ class WafOperators {
 	 * @return string|false
 	 */
 	public function begins_with( $input, $test ) {
+		if ( '' === $input && '' === $test ) {
+			return '';
+		}
+
 		return substr( $input, 0, strlen( $test ) ) === $test
 		? $test
 		: false;
