@@ -33,16 +33,6 @@ class CLI {
 	}
 
 	/**
-	 * Reset settings command.
-	 *
-	 * @subcommand reset-settings
-	 */
-	public function reset_settings() {
-		$this->jetpack_boost->config()->reset();
-		\WP_CLI::success( 'Reset settings successfully' );
-	}
-
-	/**
 	 * Manage Jetpack Boost Modules
 	 *
 	 * ## OPTIONS
@@ -177,7 +167,6 @@ class CLI {
 	public function reset() {
 		$this->jetpack_boost->deactivate();
 		$this->jetpack_boost->uninstall();
-		$this->jetpack_boost->config()->reset();
 		\WP_CLI::success( 'Reset successfully' );
 	}
 }

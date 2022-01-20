@@ -8,12 +8,11 @@ class Recommendations {
 	protected $dismissed_recommendations;
 
 	public function __construct() {
-		$this->dismissed_recommendations = new Collection( 'jb-critical-css-dismissed-recommendations' );
+		$this->dismissed_recommendations = new Collection( 'jetpack_boost_dismissed_recommendations' );
 	}
 
 	public function attach_hooks() {
 		add_filter( 'jetpack_boost_js_constants', array( $this, 'add_boost_js_constants' ) );
-		add_action( 'jetpack_boost_uninstall', array( $this, 'reset' ) );
 	}
 
 	public function add_boost_js_constants( $constants ) {
