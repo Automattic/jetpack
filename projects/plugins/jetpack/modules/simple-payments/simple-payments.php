@@ -79,6 +79,9 @@ class Jetpack_Simple_Payments {
 		return self::$instance;
 	}
 
+	/**
+	 * Register scripts and styles.
+	 */
 	private function register_scripts_and_styles() {
 		/**
 		 * Paypal heavily discourages putting that script in your own server:
@@ -96,15 +99,24 @@ class Jetpack_Simple_Payments {
 		wp_register_style( 'jetpack-simple-payments', plugins_url( '/simple-payments.css', __FILE__ ), array( 'dashicons' ) );
 	}
 
+	/**
+	 * Register init hooks.
+	 */
 	private function register_init_hooks() {
 		add_action( 'init', array( $this, 'init_hook_action' ) );
 		add_action( 'rest_api_init', array( $this, 'register_meta_fields_in_rest_api' ) );
 	}
 
+	/**
+	 * Register the shortcode.
+	 */
 	private function register_shortcode() {
 		add_shortcode( self::$shortcode, array( $this, 'parse_shortcode' ) );
 	}
 
+	/**
+	 * Actions that are run on init.
+	 */
 	public function init_hook_action() {
 		add_filter( 'rest_api_allowed_post_types', array( $this, 'allow_rest_api_types' ) );
 		add_filter( 'jetpack_sync_post_meta_whitelist', array( $this, 'allow_sync_post_meta' ) );
@@ -150,7 +162,12 @@ class Jetpack_Simple_Payments {
 		);
 	}
 
-	function remove_auto_paragraph_from_product_description( $content ) {
+	/**
+	 * Remove auto paragraph from product description.
+	 *
+	 * @param string $content - the content of the post.
+	 */
+	public function remove_auto_paragraph_from_product_description( $content ) {
 		if ( get_post_type() === self::$post_type_product ) {
 			remove_filter( 'the_content', 'wpautop' );
 		}
@@ -158,7 +175,8 @@ class Jetpack_Simple_Payments {
 		return $content;
 	}
 
-	function get_blog_id() {
+	/** Return the blog ID */
+	public function get_blog_id() {
 		if ( defined( 'IS_WPCOM' ) && IS_WPCOM ) {
 			return get_current_blog_id();
 		}
@@ -171,7 +189,7 @@ class Jetpack_Simple_Payments {
 	 *
 	 * @return bool True if Simple Payments are enabled, false otherwise.
 	 */
-	function is_enabled_jetpack_simple_payments() {
+	public function is_enabled_jetpack_simple_payments() {
 		/**
 		 * Can be used by plugin authors to disable the conflicting output of Simple Payments.
 		 *
@@ -183,13 +201,13 @@ class Jetpack_Simple_Payments {
 			return false;
 		}
 
-		// For WPCOM sites
+		// For WPCOM sites.
 		if ( defined( 'IS_WPCOM' ) && IS_WPCOM && function_exists( 'has_any_blog_stickers' ) ) {
 			$site_id = $this->get_blog_id();
 			return has_any_blog_stickers( array( 'premium-plan', 'business-plan', 'ecommerce-plan' ), $site_id );
 		}
 
-		// For all Jetpack sites
+		// For all Jetpack sites.
 		return Jetpack::is_connection_ready() && Jetpack_Plan::supports( 'simple-payments' );
 	}
 
@@ -232,7 +250,7 @@ class Jetpack_Simple_Payments {
 			return;
 		}
 
-		// We allow for overriding the presentation labels
+		// We allow for overriding the presentation labels.
 		$data = shortcode_atts(
 			array(
 				'blog_id'     => $this->get_blog_id(),
@@ -266,7 +284,12 @@ class Jetpack_Simple_Payments {
 		return $this->output_shortcode( $data );
 	}
 
-	function output_admin_warning( $data ) {
+	/**
+	 * Output an admin warning if user can't use Pay with PayPal.
+	 *
+	 * @param array $data unused.
+	 */
+	public function output_admin_warning( $data ) { // phpcs:ignore VariableAnalysis.CodeAnalysis.VariableAnalysis.UnusedVariable
 		if ( ! current_user_can( 'manage_options' ) ) {
 			return;
 		}
@@ -381,17 +404,22 @@ class Jetpack_Simple_Payments {
 	/**
 	 * Allows custom post types to be used by REST API.
 	 *
-	 * @param $post_types
+	 * @param array $post_types - the allows post types.
 	 * @see hook 'rest_api_allowed_post_types'
 	 * @return array
 	 */
-	function allow_rest_api_types( $post_types ) {
+	public function allow_rest_api_types( $post_types ) {
 		$post_types[] = self::$post_type_order;
 		$post_types[] = self::$post_type_product;
 		return $post_types;
 	}
 
-	function allow_sync_post_meta( $post_meta ) {
+	/**
+	 * Merge $post_meta with additional meta information.
+	 *
+	 * @param array $post_meta - the post's meta information.
+	 */
+	public function allow_sync_post_meta( $post_meta ) {
 		return array_merge(
 			$post_meta,
 			array(
@@ -502,6 +530,7 @@ class Jetpack_Simple_Payments {
 	 *
 	 * List has to be in sync with list at the block's client side and widget's backend side:
 	 *
+	 * @param array $currency - list of currencies.
 	 * @link https://github.com/Automattic/jetpack/blob/31efa189ad223c0eb7ad085ac0650a23facf9ef5/extensions/blocks/simple-payments/constants.js#L9-L39
 	 * @link https://github.com/Automattic/jetpack/blob/31efa189ad223c0eb7ad085ac0650a23facf9ef5/modules/widgets/simple-payments.php#L19-L44
 	 *
@@ -554,7 +583,7 @@ class Jetpack_Simple_Payments {
 	 *
 	 * @link https://developer.paypal.com/docs/api/orders/v1/#definition-item
 	 *
-	 * @param      $value
+	 * @param string $price - the price we want to sanitize.
 	 * @return null|string
 	 */
 	public static function sanitize_price( $price ) {
@@ -564,8 +593,7 @@ class Jetpack_Simple_Payments {
 	/**
 	 * Sets up the custom post types for the module.
 	 */
-	function setup_cpts() {
-
+	public function setup_cpts() {
 		/*
 		 * ORDER data structure. holds:
 		 * title = customer_name | 4xproduct_name
