@@ -1,0 +1,4 @@
+Significance: patch
+Type: added
+
+Make the ProductCard My Jetpack component accept an actions property
