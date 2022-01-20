@@ -17,7 +17,6 @@ class Jetpack_Display_Posts_Widget extends Jetpack_Display_Posts_Widget__Base {
 	 */
 	public static $cron_name = 'jetpack_display_posts_widget_cron_update';
 
-
 	// DATA STORE
 
 	/**
@@ -75,14 +74,12 @@ class Jetpack_Display_Posts_Widget extends Jetpack_Display_Posts_Widget__Base {
 		 */
 		if ( false === $instance_data ) {
 			$this->wp_add_option( $option_key, $new_data );
-		}
-		else {
+		} else {
 			$this->wp_update_option( $option_key, $new_data );
 		}
 
 		return $new_data;
 	}
-
 
 	// WIDGET API
 
@@ -98,7 +95,6 @@ class Jetpack_Display_Posts_Widget extends Jetpack_Display_Posts_Widget__Base {
 
 		return $instance;
 	}
-
 
 	// CRON
 
@@ -229,7 +225,6 @@ class Jetpack_Display_Posts_Widget extends Jetpack_Display_Posts_Widget__Base {
 		return $urls;
 
 	}
-
 
 	// MOCKABLES
 

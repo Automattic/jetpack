@@ -6,6 +6,7 @@
  * Author: Brad Angelcyk, Kathryn Presner, Justin Shreve, Carolyn Sonnek
  * Author URI: https://automattic.com
  * License: GPL2
+ * Text Domain: jetpack
  */
 
 /**
@@ -15,14 +16,13 @@ if ( ! defined( 'ABSPATH' ) ) {
 	exit;
 }
 
-require dirname( __FILE__ ) . '/wordpress-post-widget/class.jetpack-display-posts-widget-base.php';
-require dirname( __FILE__ ) . '/wordpress-post-widget/class.jetpack-display-posts-widget.php';
+require __DIR__ . '/wordpress-post-widget/class.jetpack-display-posts-widget-base.php';
+require __DIR__ . '/wordpress-post-widget/class.jetpack-display-posts-widget.php';
 
 add_action( 'widgets_init', 'jetpack_display_posts_widget' );
 function jetpack_display_posts_widget() {
 	register_widget( 'Jetpack_Display_Posts_Widget' );
 }
-
 
 /**
  * Cron tasks
@@ -70,7 +70,6 @@ function jetpack_display_posts_update_cron_action() {
  * `jetpack_activate_module_widgets` - Activate the cron when the Extra Sidebar widgets are activated.
  *
  * `activated_plugin` - Activate the cron when Jetpack gets activated.
- *
  */
 add_action( 'updating_jetpack_version', 'jetpack_display_posts_widget_conditionally_activate_cron' );
 add_action( 'jetpack_activate_module_widgets', 'Jetpack_Display_Posts_Widget::activate_cron' );
@@ -89,6 +88,7 @@ function jetpack_conditionally_activate_cron_on_plugin_activation( $plugin_file_
 
 /**
  * Activates the cron only when needed.
+ *
  * @see Jetpack_Display_Posts_Widget::should_cron_be_running
  */
 function jetpack_display_posts_widget_conditionally_activate_cron() {
@@ -103,7 +103,6 @@ function jetpack_display_posts_widget_conditionally_activate_cron() {
 /**
  * End of cron activation handling.
  */
-
 
 /**
  * Handle deactivation procedures where they are needed.
