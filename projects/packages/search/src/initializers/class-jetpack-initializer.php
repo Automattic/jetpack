@@ -57,9 +57,6 @@ class Jetpack_Initializer extends Initializer {
 			// Enable the classic search experience.
 			Classic_Search::initialize( $blog_id );
 		}
-
-		// Set up package version hook.
-		add_filter( 'jetpack_package_versions', __NAMESPACE__ . '\pkg_send_version_to_tracker' );
 	}
 
 	/**
