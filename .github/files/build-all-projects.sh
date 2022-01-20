@@ -178,6 +178,18 @@ for SLUG in "${SLUGS[@]}"; do
 	# Copy SECURITY.md
 	cp "$BASE/SECURITY.md" "$BUILD_DIR/SECURITY.md"
 
+	# Copy only wanted files, based on .gitignore and .gitattributes.
+	{
+		# Include unignored files by default.
+		git -c core.quotepath=off ls-files
+		# Include ignored files that are tagged as production-include.
+		git -c core.quotepath=off ls-files --others --ignored --exclude-standard | git -c core.quotepath=off check-attr --stdin production-include | sed -n 's/: production-include: \(unspecified\|unset\)$//;t;s/: production-include: .*//p'
+	} |
+		# Remove all files tagged with production-exclude. This can override production-include.
+		git -c core.quotepath=off check-attr --stdin production-exclude | sed -n 's/: production-exclude: \(unspecified\|unset\)$//p' |
+		# Copy the resulting list of files into the clone.
+		xargs cp --parents --target-directory="$BUILD_DIR"
+
 	if [[ "$SLUG" == "plugins/jetpack" ]]; then
 		echo "::group::Copying Jetpack files for backward compatibility."
 
@@ -199,25 +211,16 @@ for SLUG in "${SLUGS[@]}"; do
 		for file in "${FILES_TO_COPY[@]}"; do
 			if [[ -f "$NEW_VENDOR_DIR/$file" ]]; then
 				dir_name=$(dirname "$file")
-
 				mkdir -p "$OLD_VENDOR_DIR/$dir_name"
-				cp "$NEW_VENDOR_DIR/$file" "$OLD_VENDOR_DIR/$file"
+
+				printf "<?php // Stub to avoid errors during upgrades\nrequire_once __DIR__ . '/%s/../jetpack_vendor/%s';\n" \
+					"$(sed -E 's![^/]+!..!g' <<<"$dir_name")" \
+					"$file" \
+					> "$OLD_VENDOR_DIR/$file"
+
 			fi
 		done
 	fi
-
-
-	# Copy only wanted files, based on .gitignore and .gitattributes.
-	{
-		# Include unignored files by default.
-		git -c core.quotepath=off ls-files
-		# Include ignored files that are tagged as production-include.
-		git -c core.quotepath=off ls-files --others --ignored --exclude-standard | git -c core.quotepath=off check-attr --stdin production-include | sed -n 's/: production-include: \(unspecified\|unset\)$//;t;s/: production-include: .*//p'
-	} |
-		# Remove all files tagged with production-exclude. This can override production-include.
-		git -c core.quotepath=off check-attr --stdin production-exclude | sed -n 's/: production-exclude: \(unspecified\|unset\)$//p' |
-		# Copy the resulting list of files into the clone.
-		xargs cp --parents --target-directory="$BUILD_DIR"
 
 	# Remove monorepo repos from composer.json
 	JSON=$(jq --tab 'if .repositories then .repositories |= map( select( .options.monorepo | not ) ) else . end' "$BUILD_DIR/composer.json")
