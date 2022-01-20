@@ -157,11 +157,11 @@ abstract class Jetpack_Display_Posts_Widget__Base extends WP_Widget {
 			$post_title  = ( $single_post['title'] ) ? $single_post['title'] : '( No Title )';
 
 			$target = '';
-			if ( isset( $instance['open_in_new_window'] ) && true == $instance['open_in_new_window'] ) {
+			if ( isset( $instance['open_in_new_window'] ) && true === $instance['open_in_new_window'] ) {
 				$target = ' target="_blank" rel="noopener"';
 			}
 			$content .= '<h4><a href="' . esc_url( $single_post['url'] ) . '"' . $target . '>' . esc_html( $post_title ) . '</a></h4>' . "\n";
-			if ( ( true == $instance['featured_image'] ) && ( ! empty( $single_post['featured_image'] ) ) ) {
+			if ( ( true === $instance['featured_image'] ) && ( ! empty( $single_post['featured_image'] ) ) ) {
 				$featured_image = $single_post['featured_image'];
 				/**
 				 * Allows setting up custom Photon parameters to manipulate the image output in the Display Posts widget.
@@ -178,7 +178,7 @@ abstract class Jetpack_Display_Posts_Widget__Base extends WP_Widget {
 				$content     .= '<a title="' . esc_attr( $post_title ) . '" href="' . esc_url( $single_post['url'] ) . '"' . $target . '><img src="' . jetpack_photon_url( $featured_image, $image_params ) . '" alt="' . esc_attr( $post_title ) . '"/></a>';
 			}
 
-			if ( true == $instance['show_excerpts'] ) {
+			if ( true === $instance['show_excerpts'] ) {
 				$content .= $single_post['excerpt'];
 			}
 		}
