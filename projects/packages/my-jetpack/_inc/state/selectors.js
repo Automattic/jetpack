@@ -1,5 +1,11 @@
+export const getProducts = state => state.products?.items || {};
+export const getProductNames = state => Object.keys( getProducts( state ) );
+export const isValidProduct = ( state, product ) => getProductNames( state ).includes( product );
+
 const productSelectors = {
-	getProducts: state => state.products || {},
+	getProducts,
+	getProductNames,
+	isValidProduct,
 };
 
 const purchasesSelectors = {
