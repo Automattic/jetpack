@@ -325,7 +325,36 @@ class Sender {
 		 * This runs on shutdown. Let's see what action we want to trigger depending on the request.
 		 */
 		$do_sync_method = $this->get_do_sync_callback( $this->sync_queue );
+		if ( is_wp_error( $do_sync_method ) ) {
+			return $do_sync_method;
+		}
+
 		return call_user_func( $do_sync_method, $this->sync_queue );
+	}
+
+	/**
+	 * Check if this request should trigger dedicated sync.
+	 *
+	 * @param Automattic\Jetpack\Sync\Queue $queue Queue object.
+	 * @return boolean|WP_Error True if this is a POST request and jetpack_dedicated_sync_request is set, false otherwise, WP_Error if the nonce can't be verified.
+	 */
+	private function is_dedicated_sync_request( $queue ) {
+
+		$is_dedicated_sync_request = isset( $_SERVER['REQUEST_METHOD'] ) &&
+			'POST' === $_SERVER['REQUEST_METHOD']  &&
+			isset( $_POST['jetpack_dedicated_sync_request'] );
+
+		if ( $is_dedicated_sync_request ) {
+			$is_valid = isset( $_POST['nonce'] ) &&
+				wp_verify_nonce( $_POST['nonce'], 'jetpack_sync_dedicated_request_' . $queue->id );
+			if ( ! $is_valid ) {
+				return new WP_Error( 'invalid_nonce' );
+			}
+
+			return true;
+		}
+
+		return false;
 	}
 
 	private function get_do_sync_callback( $queue ) {
@@ -338,45 +367,65 @@ class Sender {
 		error_log( $_SERVER['REQUEST_URI'] );
 		error_log( 'do_sync called' );
 		error_log( 'Current user ID: ' . get_current_user_id() );
-		if ( Settings::get_setting( 'dedicated_request_enable' ) && ! isset( $_POST['jetpack_dedicated_sync_request'] ) ) {
-			error_log( 'triggering a dedicated request' );
-			return array( $this, 'do_dedicated_sync' );
 
-			// If the request is a stand-alone request to process sync, nonce must be valid.
-		} elseif (
-			Settings::get_setting( 'dedicated_request_enable' ) &&
-			wp_verify_nonce( $_POST['nonce'], 'jetpack_sync_dedicated_request_' . $queue->id ) &&
-			$_POST['jetpack_dedicated_sync_request']
-		) {
-			error_log( 'Valid dedicated request: processing sync normally' );
-			return array( $this, 'do_sync_and_set_delays' );
-
-			// If not dedicated request. Process sync normally.
-		} elseif ( ! Settings::get_setting( 'dedicated_request_enable' ) ) {
+		if ( ! Settings::get_setting( 'dedicated_request_enable' ) ) {
 			error_log( 'Not dedicated request: processing sync normally' );
-			return array( $this, 'do_sync_and_set_delays' );
 
-			// Log invalid dedicated requests.
-		} else {
-			error_log( 'Valid dedicated request: Not processing sync' );
-			error_log( 'Nonce verification: ' . json_encode( wp_verify_nonce( $_POST['nonce'], 'jetpack_sync_dedicated_request_' . $queue->id ) ) );
+			return array( $this, 'do_sync_and_set_delays' );
+		}
+
+		if ( Settings::get_setting( 'dedicated_request_enable' ) ) {
+			$is_dedicated_sync_request = $this->is_dedicated_sync_request( $queue );
+			if ( is_wp_error( $is_dedicated_sync_request ) ) {
+				return $is_dedicated_sync_request;
+			}
+			if ( $is_dedicated_sync_request ) {
+				error_log( 'Valid dedicated request: processing sync normally' );
+				return array( $this, 'do_sync_and_set_delays' );
+			} else {
+				error_log( 'triggering a dedicated request' );
+				return array( $this, 'do_dedicated_sync' );
+			}
 		}
 	}
 
+	/**
+	 * Trigger dedicated sync for a certain sync queue.
+	 *
+	 * @access public
+	 *
+	 * @param Automattic\Jetpack\Sync\Queue $queue Queue object.
+	 *
+	 * @return boolean|WP_Error True if this sync sending was successful, error object otherwise.
+	 */
 	public function do_dedicated_sync( $queue ) {
+		if ( $queue->is_locked() ) {
+			error_log( 'queue locked. not triggering request' );
+			return new WP_Error( 'queue locked' );
+		}
+
+		if ( $queue->size() === 0 ) {
+			error_log( 'queue empty. not triggering request' );
+			return new WP_Error( 'empty_queue_' . $queue->id );
+		}
+
 		$args = array(
 			'cookies' => $_COOKIE,
 			'body'    => array(
 				'jetpack_dedicated_sync_request' => 1,
 				'nonce'                          => wp_create_nonce( 'jetpack_sync_dedicated_request_' . $queue->id ),
 			),
+			'blocking'  => false,
+			'timeout'   => 0.01,
 		);
 
-		if ( ! $queue->is_locked() && $queue->has_any_items() ) {
-			return wp_remote_post( site_url(), $args );
-		} else {
-			error_log( 'queue locked or empty. not triggering request' );
+		$result = wp_remote_post( site_url(), $args );
+
+		if ( is_wp_error( $result ) ) {
+			return $result;
 		}
+
+		return true;
 	}
 
 	/**
