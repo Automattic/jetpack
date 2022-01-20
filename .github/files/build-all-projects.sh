@@ -179,7 +179,7 @@ for SLUG in "${SLUGS[@]}"; do
 	cp "$BASE/SECURITY.md" "$BUILD_DIR/SECURITY.md"
 
 	if [[ "$SLUG" == "plugins/jetpack" ]]; then
-		echo "Copying Jetpack files for backward compatibility."
+		echo "::group::Copying Jetpack files for backward compatibility."
 
 		OLD_VENDOR_DIR="$BUILD_DIR/vendor"
 		NEW_VENDOR_DIR="$BUILD_DIR/jetpack_vendor"
