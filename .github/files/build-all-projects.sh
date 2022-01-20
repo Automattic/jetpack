@@ -197,7 +197,7 @@ for SLUG in "${SLUGS[@]}"; do
 		)
 
 		for file in "${FILES_TO_COPY[@]}"; do
-			if [[ -f "$file" ]]; then
+			if [[ -f "$NEW_VENDOR_DIR/$file" ]]; then
 				dir_name=$(dirname "$file")
 
 				mkdir -pm 644 "$OLD_VENDOR_DIR/$dir_name"
