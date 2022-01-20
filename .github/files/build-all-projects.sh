@@ -198,7 +198,7 @@ for SLUG in "${SLUGS[@]}"; do
 
 		for file in "${FILES_TO_COPY[@]}"; do
 			if [[ -f "$file" ]]; then
-				cp "$NEW_VENDOR_DIR/$file" "$OLD_VENDOR_DIR/$file"
+				install -D -m 644 "$NEW_VENDOR_DIR/$file" "$OLD_VENDOR_DIR/$file"
 			fi
 		done
 	fi
