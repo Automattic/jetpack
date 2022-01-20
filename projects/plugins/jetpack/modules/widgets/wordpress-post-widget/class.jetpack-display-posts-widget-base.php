@@ -516,7 +516,7 @@ abstract class Jetpack_Display_Posts_Widget__Base extends WP_Widget {
 	 */
 	public function fetch_site_info( $site ) {
 
-		$response = $this->fetch_service_endpoint( sprintf( '/sites/%s', urlencode( $site ) ) );
+		$response = $this->fetch_service_endpoint( sprintf( '/sites/%s', rawurlencode( $site ) ) );
 
 		return $response;
 	}
