@@ -10,20 +10,20 @@ import {
 	SET_PURCHASES,
 	SET_PURCHASES_IS_FETCHING,
 	SET_PRODUCT_ACTION_ERROR,
-	SET_PRODUCT_ACTIVATED,
+	SET_PRODUCT_STATUS,
 } from './actions';
 
 const products = ( state = {}, action ) => {
 	switch ( action.type ) {
-		case SET_PRODUCT_ACTIVATED: {
-			const { productId } = action;
+		case SET_PRODUCT_STATUS: {
+			const { productId, status } = action;
 			return {
 				...state,
 				items: {
 					...state.items,
 					[ productId ]: {
 						...state.items[ productId ],
-						status: 'active',
+						...status,
 					},
 				},
 			};

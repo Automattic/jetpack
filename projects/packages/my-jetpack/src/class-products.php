@@ -53,9 +53,9 @@ class Products {
 	}
 
 	/**
-	 * Enable Backup product
+	 * Activate Backup product
 	 */
-	public static function enable_backup_product() {
+	public static function activate_backup_product() {
 		/*
 		 * @todo: implement
 		 * suggestion: when it enables, return an success array:
@@ -63,7 +63,19 @@ class Products {
 		 * Otherwise, an WP_Error instance will be nice.
 		 */
 		return array(
-			'status' => 'activated',
+			'status' => 'active',
+		);
+	}
+
+	/**
+	 * Deactivate Backup product
+	 */
+	public static function deactivate_backup_product() {
+		/*
+		 * @todo: implement
+		 */
+		return array(
+			'status' => 'inactive',
 		);
 	}
 

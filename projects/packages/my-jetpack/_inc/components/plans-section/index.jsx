@@ -3,7 +3,8 @@
  */
 import React from 'react';
 import { __ } from '@wordpress/i18n';
-import { ExternalLink } from '@wordpress/components';
+import { ExternalLink, Button } from '@wordpress/components';
+import { useCallback } from '@wordpress/element';
 
 /**
  * Internal dependencies
@@ -12,6 +13,7 @@ import usePurchases from '../../hooks/use-purchases';
 import getManageYourPlanUrl from '../../utils/get-manage-your-plan-url';
 
 import './style.scss';
+import { useProducts } from '../../hooks/use-products';
 
 /**
  * Basic plan section component.
@@ -38,6 +40,17 @@ function PlanSection( { purchase = {} } ) {
  * @returns {object} PlanSectionHeader react component.
  */
 function PlanSectionHeader( { purchases } ) {
+	const { list: productsList, activate, deactivate } = useProducts();
+
+	/**
+	 * Set product state handler
+	 */
+	const setProductStateHandler = useCallback(
+		() =>
+			productsList?.backup.status !== 'active' ? activate( 'backup' ) : deactivate( 'backup' ),
+		[ productsList, activate, deactivate ]
+	);
+
 	return (
 		<>
 			<h3>
@@ -52,6 +65,12 @@ function PlanSectionHeader( { purchases } ) {
 						? __( 'Manage your plan', 'jetpack-my-jetpack' )
 						: __( 'Manage your plans', 'jetpack-my-jetpack' ) }
 				</ExternalLink>
+
+				<Button primary onClick={ setProductStateHandler }>
+					{ productsList.backup.status !== 'active'
+						? __( 'Activate Backup', 'jetpack-my-jetpack' )
+						: __( 'Deactivate Backup', 'jetpack-my-jetpack' ) }
+				</Button>
 			</p>
 		</>
 	);

@@ -49,7 +49,7 @@ class REST_Products {
 			'/site/products/(?P<product>[a-z\-]+)',
 			array(
 				'methods'             => \WP_REST_Server::CREATABLE,
-				'callback'            => __CLASS__ . '::enable_product',
+				'callback'            => __CLASS__ . '::set_product_state',
 				'permission_callback' => __CLASS__ . '::permissions_callback',
 				'args'                => array(
 					'product' => array(
@@ -126,13 +126,19 @@ class REST_Products {
 	}
 
 	/**
-	 * Enable a site product.
+	 * Set site product state.
 	 *
 	 * @param \WP_REST_Request $request The request object.
 	 * @return array of site products list.
 	 */
-	public static function enable_product( $request ) {
+	public static function set_product_state( $request ) {
 		$product_slug = $request->get_param( 'product' );
-		return Products::enable_backup_product( $product_slug );
+		$activate     = $request->get_param( 'activate' );
+
+		if ( $activate ) {
+			return Products::activate_backup_product( $product_slug );
+		}
+
+		return Products::deactivate_backup_product( $product_slug );
 	}
 }
