@@ -1,0 +1,4 @@
+Significance: patch
+Type: bugfix
+
+Connection: correctly request list of active modules so they can be activated on a reconnection

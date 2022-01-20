@@ -10,13 +10,7 @@ import sinon from 'sinon';
  */
 import resolvers from '../resolvers';
 import { STORE_ID } from '../store';
-import {
-	SET_CONNECTION_STATUS_IS_FETCHING,
-	FETCH_CONNECTION_STATUS,
-	SET_CONNECTION_STATUS,
-	FETCH_AUTHORIZATION_URL,
-	SET_AUTHORIZATION_URL,
-} from '../actions';
+import { FETCH_AUTHORIZATION_URL, SET_AUTHORIZATION_URL } from '../actions';
 
 const selectors = select( STORE_ID );
 const dispatchers = dispatch( STORE_ID );
@@ -29,26 +23,6 @@ describe( 'resolvers', () => {
 		stubHasFinishedResolution.resetHistory();
 		stubHasFinishedResolution.returns( true );
 		spyFinishResolution.resetHistory();
-	} );
-
-	describe( 'getConnectionStatus', () => {
-		it( 'fetch and set all states', () => {
-			const result = { data: 'FAKE' };
-			const connection = resolvers.getConnectionStatus();
-			expect( connection.next().value ).to.be.eql( {
-				type: SET_CONNECTION_STATUS_IS_FETCHING,
-				isFetching: true,
-			} );
-			expect( connection.next().value ).to.be.eql( { type: FETCH_CONNECTION_STATUS } );
-			expect( connection.next( result ).value ).to.be.eql( {
-				type: SET_CONNECTION_STATUS_IS_FETCHING,
-				isFetching: false,
-			} );
-			expect( connection.next().value ).to.be.eql( {
-				type: SET_CONNECTION_STATUS,
-				connectionStatus: result,
-			} );
-		} );
 	} );
 
 	describe( 'getAuthorizationUrl', () => {

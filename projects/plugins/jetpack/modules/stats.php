@@ -206,7 +206,7 @@ function stats_template_redirect() {
 	 *
 	 * @module stats
 	 *
-	 * @since $$next-version$$
+	 * @since 10.6
 	 *
 	 * @param array $excluded_ips An array of IP address strings to exclude from tracking.
 	 */

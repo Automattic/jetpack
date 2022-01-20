@@ -20,26 +20,10 @@
 			"./vendor/phpunit/phpunit/phpunit --colors=always"
 		],
 		"test-coverage": [
-			"@composer install",
 			"php -dpcov.directory=. ./vendor/bin/phpunit --coverage-clover \"$COVERAGE_DIR/clover.xml\""
 		],
 		"test-php": [
-			"@composer install",
 			"@composer phpunit"
-		],
-		"build-development": [
-			"Composer\\Config::disableProcessTimeout",
-			"@clean",
-			"@composer install"
-		],
-		"build-production": [
-			"Composer\\Config::disableProcessTimeout",
-			"@clean",
-			"@putenv COMPOSER_MIRROR_PATH_REPOS=1",
-			"@composer install -o --no-dev --classmap-authoritative --prefer-dist"
-		],
-		"clean": [
-			"rm -rf vendor/ jetpack_vendor/"
 		]
 	},
 	"repositories": [
