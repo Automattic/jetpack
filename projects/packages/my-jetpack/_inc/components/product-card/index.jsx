@@ -89,7 +89,7 @@ const renderActionButton = ( {
 };
 
 const ProductCard = props => {
-	const { name, admin, description, icon, status, onDeactivate } = props;
+	const { actions, name, admin, description, icon, status, onDeactivate } = props;
 	const isActive = status === PRODUCT_STATUSES.ACTIVE;
 	const isError = status === PRODUCT_STATUSES.ERROR;
 	const isInactive = status === PRODUCT_STATUSES.INACTIVE;
@@ -107,6 +107,14 @@ const ProductCard = props => {
 		[ styles.error ]: isError,
 	} );
 
+	const defaultActions = [
+		{
+			title: __( 'Deactivate', 'jetpack-my-jetpack' ),
+			icon: null,
+			onClick: onDeactivate,
+		},
+	];
+
 	return (
 		<div className={ containerClassName }>
 			<div className={ styles.name }>
@@ -123,13 +131,7 @@ const ProductCard = props => {
 							toggleProps={ { isPressed: true } }
 							popoverProps={ { noArrow: false } }
 							icon={ DownIcon }
-							controls={ [
-								{
-									title: __( 'Deactivate', 'jetpack-my-jetpack' ),
-									icon: null,
-									onClick: onDeactivate,
-								},
-							] }
+							controls={ actions || defaultActions }
 						/>
 					</ButtonGroup>
 				) : (
@@ -142,6 +144,7 @@ const ProductCard = props => {
 };
 
 ProductCard.propTypes = {
+	actions: PropTypes.array,
 	name: PropTypes.string.isRequired,
 	description: PropTypes.string.isRequired,
 	icon: PropTypes.element,
