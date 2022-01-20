@@ -13,7 +13,9 @@
 namespace Automattic\Jetpack_Boost;
 
 use Automattic\Jetpack_Boost\Admin\Admin;
+use Automattic\Jetpack_Boost\Features\Optimizations\Critical_CSS\Critical_CSS;
 use Automattic\Jetpack_Boost\Features\Optimizations\Critical_CSS\Critical_CSS_Storage;
+use Automattic\Jetpack_Boost\Features\Optimizations\Critical_CSS\Regenerate_Admin_Notice;
 use Automattic\Jetpack_Boost\Features\Optimizations\Optimizations;
 use Automattic\Jetpack_Boost\Lib\Analytics;
 use Automattic\Jetpack_Boost\Lib\CLI;
