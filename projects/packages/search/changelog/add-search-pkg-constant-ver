@@ -1,4 +1,4 @@
-Significance: patch
-Type: changed
+Significance: minor
+Type: added
 
-constants
+Search package: added package version number and others
