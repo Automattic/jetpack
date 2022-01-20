@@ -23,8 +23,10 @@ final class WafRuntimeTest extends PHPUnit\Framework\TestCase {
 
 	/**
 	 * Test setup
+	 *
+	 * @before
 	 */
-	protected function setUp(): void {
+	protected function before() {
 		$this->runtime = new WafRuntime( new WafTransforms(), new WafOperators() );
 	}
 

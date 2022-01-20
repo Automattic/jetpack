@@ -47,8 +47,10 @@ final class WafOperatorsTest extends PHPUnit\Framework\TestCase {
 
 	/**
 	 * Test setup
+	 *
+	 * @before
 	 */
-	protected function setUp(): void {
+	protected function before() {
 		$this->o = new WafOperators();
 	}
 

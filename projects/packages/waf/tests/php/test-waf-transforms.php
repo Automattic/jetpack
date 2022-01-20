@@ -22,8 +22,10 @@ final class WafTransformsTest extends PHPUnit\Framework\TestCase {
 
 	/**
 	 * Test setup
+	 *
+	 * @before
 	 */
-	protected function setUp(): void {
+	protected function before() {
 		$this->t = new GlobalWafTransforms();
 	}
 
