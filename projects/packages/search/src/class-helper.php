@@ -705,19 +705,6 @@ class Helper {
 	}
 
 	/**
-	 * Get the version number to use when loading the file. Allows us to bypass cache when developing.
-	 *
-	 * @since 8.6.0
-	 * @param string $file Path of the file we are looking for.
-	 * @return string $script_version Version number.
-	 */
-	public static function get_asset_version( $file ) {
-		return is_development_version() && file_exists( JETPACK_SEARCH_PKG__DIR . $file )
-			? filemtime( JETPACK_SEARCH_PKG__DIR . $file )
-			: JETPACK_SEARCH_PKG__VERSION;
-	}
-
-	/**
 	 * Generates a customizer settings ID for a given post type.
 	 *
 	 * @since 8.8.0
