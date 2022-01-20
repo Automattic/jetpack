@@ -14,11 +14,11 @@ import * as stories from './stories';
 const { Default } = composeStories( stories );
 
 describe( 'ProductCard', () => {
-	test( 'calls onActionClick', () => {
-		const onActionClick = jest.fn();
-		render( <Default onActionClick={ onActionClick } /> );
+	test( 'calls onManage', () => {
+		const onManage = jest.fn();
+		render( <Default onManage={ onManage } /> );
 		const actionButton = screen.getByRole( 'button', { name: 'Manage' } );
 		userEvent.click( actionButton );
-		expect( onActionClick ).toHaveBeenCalled();
+		expect( onManage ).toHaveBeenCalled();
 	} );
 } );
