@@ -200,7 +200,7 @@ for SLUG in "${SLUGS[@]}"; do
 			if [[ -f "$NEW_VENDOR_DIR/$file" ]]; then
 				dir_name=$(dirname "$file")
 
-				mkdir -pm 644 "$OLD_VENDOR_DIR/$dir_name"
+				mkdir -p "$OLD_VENDOR_DIR/$dir_name"
 				cp "$NEW_VENDOR_DIR/$file" "$OLD_VENDOR_DIR/$file"
 			fi
 		done
