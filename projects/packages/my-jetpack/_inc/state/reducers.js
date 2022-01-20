@@ -26,6 +26,7 @@ const products = ( state = {}, action ) => {
 						...status,
 					},
 				},
+				error: {},
 			};
 		}
 
