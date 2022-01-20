@@ -44,6 +44,7 @@ function PlanSectionHeader( { purchases } ) {
 	/**
 	 * Set product state handler
 	 */
+	// @todo: remove this testing code
 	const setProductStateHandler = useCallback(
 		() =>
 			productsList?.backup.status !== 'active' ? activate( 'backup' ) : deactivate( 'backup' ),
