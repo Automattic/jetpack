@@ -37,11 +37,6 @@ class Jetpack_Initializer extends Initializer {
 		// TODO: Port the search widget to package for milestone 2.
 		require_once JETPACK__PLUGIN_DIR . 'modules/widgets/search.php';
 
-		/**
-		 * Location of built Jetpack Search assets, does not include trailing slash.
-		 */
-		define( 'JETPACK_SEARCH_PACKAGE_DIRECTORY', dirname( dirname( __DIR__ ) ) );
-
 		if ( Options::is_instant_enabled() ) {
 			// Enable the instant search experience.
 			Instant_Search::initialize( $blog_id );
@@ -64,7 +59,7 @@ class Jetpack_Initializer extends Initializer {
 		}
 
 		// Set up package version hook.
-		add_filter( 'jetpack_package_versions', __NAMESPACE__ . '\Package_Version::send_package_version_to_tracker' );
+		add_filter( 'jetpack_package_versions', __NAMESPACE__ . '\pkg_send_version_to_tracker' );
 	}
 
 	/**
