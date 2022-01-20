@@ -6,10 +6,38 @@ import { combineReducers } from '@wordpress/data';
 /**
  * Internal dependencies
  */
-import { SET_PURCHASES, SET_PURCHASES_IS_FETCHING } from './actions';
+import {
+	SET_PURCHASES,
+	SET_PURCHASES_IS_FETCHING,
+	SET_PRODUCT_ACTION_ERROR,
+	SET_PRODUCT_ACTIVATED,
+} from './actions';
 
-const products = ( state = {} ) => {
-	return state;
+const products = ( state = {}, action ) => {
+	switch ( action.type ) {
+		case SET_PRODUCT_ACTIVATED: {
+			const { productId } = action;
+			return {
+				...state,
+				items: {
+					...state.items,
+					[ productId ]: {
+						...state.items[ productId ],
+						status: 'active',
+					},
+				},
+			};
+		}
+
+		case SET_PRODUCT_ACTION_ERROR:
+			return {
+				...state,
+				error: action.error,
+			};
+
+		default:
+			return state;
+	}
 };
 
 const purchases = ( state = {}, action ) => {
