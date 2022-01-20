@@ -1,0 +1,83 @@
+.container {
+  // @todo find a better way to change link color
+  // since this could affect more places
+  --wp-admin-theme-color: var(--jp-black);
+  // all css variables used down in product-card
+  --product-card-shadow: rgba(0, 0, 0, 0.08);
+  --product-card-shadow-size: 40px;
+  --product-card-name-font-size: 24px;
+  --product-card-description-font-size: 14px;
+  --product-card-actions-font-size: 12px;
+  --product-card-margin-base: 4px;
+  --status-size: 8px;
+  --status-active: #008710;
+  --status-inactive: #646970;
+  --status-error: #B32D2E;
+  --status-absent: #C3C4C7;
+
+  padding: 24px;
+  background: var( --jp-white );
+  border-radius: var( --jp-border-radius );
+  box-shadow: 0 0 var(--product-card-shadow-size) var(--product-card-shadow);
+
+  &.absent {
+    background: none;
+    box-shadow: none;
+    box-shadow: 0 0 0 1px var( --status-absent ) inset;
+  }
+}
+
+.name {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  width: 100%;
+  font-size: var(--product-card-name-font-size);
+  font-weight: 700;
+  margin-bottom: var(--product-card-margin-base);
+}
+
+.description {
+  font-size: var(--product-card-description-font-size);
+  margin:0;
+}
+
+.actions {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  width: 100%;
+  min-height: 36px;
+  margin-top: calc(var(--product-card-margin-base) * 4); // 16px
+  font-size: var(--product-card-actions-font-size);
+  font-weight: 600;
+}
+
+.status {
+  margin-left: var(--product-card-margin-base);
+  white-space: nowrap;
+
+  &:before {
+    content: "";
+    display: inline-block;
+    width: var(--status-size);
+    height: var(--status-size);
+    margin-right: var(--product-card-margin-base);
+    border-radius: 50%;
+  }
+
+  // in absent case, there's not status flag
+  $statuses: active, inactive, error;
+
+  @each $status in $statuses {
+    $color: var(--status-#{$status});
+
+    &.#{$status} {
+      color: $color;
+      &:before {
+        background: $color;
+      }
+    }
+  }
+}
+
