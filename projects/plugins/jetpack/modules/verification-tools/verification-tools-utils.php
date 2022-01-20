@@ -1,14 +1,20 @@
 <?php
-
-/*
+/**
  * Helper functions that are called from API even when module is inactive should be added here.
  * This file will be included in module-extras.php.
+ *
+ * @package jetpack
  */
 
 if ( ! function_exists( 'jetpack_verification_validate' ) ) {
+	/**
+	 * Validate jetpack verification codes.
+	 *
+	 * @param array $verification_services_codes - array of verification codes.
+	 */
 	function jetpack_verification_validate( $verification_services_codes ) {
 		foreach ( $verification_services_codes as $key => $code ) {
-			// Parse html meta tag if it does not look like a valid code
+			// Parse html meta tag if it does not look like a valid code.
 			if ( ! preg_match( '/^[a-z0-9_-]+$/i', $code ) ) {
 				$code = jetpack_verification_get_code( $code );
 			}
@@ -37,6 +43,11 @@ if ( ! function_exists( 'jetpack_verification_validate' ) ) {
 }
 
 if ( ! function_exists( 'jetpack_verification_get_code' ) ) {
+	/**
+	 * Return the code we're trying to verify after decoding.
+	 *
+	 * @param string $code - the code we need to parse.
+	 */
 	function jetpack_verification_get_code( $code ) {
 		$pattern = '/content=["\']?([^"\' ]*)["\' ]/is';
 		preg_match( $pattern, $code, $match );

@@ -27,11 +27,13 @@
 			"./vendor/phpunit/phpunit/phpunit --colors=always"
 		],
 		"test-coverage": [
-			"@composer update",
 			"php -dpcov.directory=. ./vendor/bin/phpunit --coverage-clover \"$COVERAGE_DIR/clover.xml\""
 		],
+		"skip-test-php": [
+			"./tests/action-skip-test-php.sh"
+		],
 		"test-php": [
-			"./tests/action-test-php.sh"
+			"@composer phpunit"
 		]
 	},
 	"repositories": [
@@ -53,6 +55,11 @@
 		},
 		"branch-alias": {
 			"dev-master": "2.4.x-dev"
+		}
+	},
+	"config": {
+		"allow-plugins": {
+			"dealerdirect/phpcodesniffer-composer-installer": true
 		}
 	}
 }

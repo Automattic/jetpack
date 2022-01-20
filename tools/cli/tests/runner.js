@@ -5,11 +5,11 @@
  */
 import Mocha from 'mocha';
 import glob from 'glob';
-import path from 'path';
 import process from 'process';
 import parser from 'yargs-parser';
+import { fileURLToPath } from 'url';
 
-process.chdir( path.join( __dirname, '../../..' ) );
+process.chdir( fileURLToPath( new URL( '../../..', import.meta.url ) ) );
 
 const args = {
 	type: parser( process.argv.slice( 2 ) ).type || false,
@@ -35,6 +35,7 @@ glob.sync( pattern ).forEach( file => {
 	mochaRunner.addFile( file );
 } );
 
+await mochaRunner.loadFilesAsync();
 mochaRunner.run( function ( failures ) {
 	process.on( 'exit', function () {
 		process.exit( failures ); //eslint-disable-line no-process-exit

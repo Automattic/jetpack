@@ -1,0 +1,4 @@
+Significance: patch
+Type: added
+
+Search E2E: added class names for some form components for easier E2E tests

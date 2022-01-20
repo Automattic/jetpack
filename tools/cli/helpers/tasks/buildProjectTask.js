@@ -8,9 +8,9 @@ import execa from 'execa';
 /**
  * Internal dependencies
  */
-import { chalkJetpackGreen } from '../styling';
-import { normalizeBuildArgv } from '../normalizeArgv';
-import projectBuildCommand from '../projectBuildCommand';
+import { chalkJetpackGreen } from '../styling.js';
+import { normalizeBuildArgv } from '../normalizeArgv.js';
+import projectBuildCommand from '../projectBuildCommand.js';
 
 /**
  * Preps the task for an individual project.
