@@ -27,7 +27,6 @@ jetpack_vendor/
 npm-debug.log
 *.unison.tmp
 .eslintcache
-.eslintignore-required
 .phpcs.xml
 .pnpm-debug.log
 phpcs.xml

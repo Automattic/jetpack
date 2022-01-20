@@ -42,7 +42,6 @@ class Instant_Search extends Classic_Search {
 	public function init_hooks() {
 		if ( ! is_admin() ) {
 			add_filter( 'posts_pre_query', array( $this, 'filter__posts_pre_query' ), 10, 2 );
-			add_action( 'parse_query', array( $this, 'action__parse_query' ), 10, 1 );
 
 			add_action( 'init', array( $this, 'set_filters_from_widgets' ) );
 
@@ -164,7 +163,7 @@ class Instant_Search extends Classic_Search {
 	 *
 	 * @since 8.3.0
 	 */
-	public function action__parse_query() {
+	public function fetch_search_result_if_empty() {
 		if ( ! empty( $this->search_result ) ) {
 			return;
 		}
@@ -300,6 +299,7 @@ class Instant_Search extends Classic_Search {
 	 * @return array Array of Aggregations performed on the search.
 	 */
 	public function get_search_aggregations_results() {
+		$this->fetch_search_result_if_empty();
 		if ( empty( $this->search_result ) || is_wp_error( $this->search_result ) || ! isset( $this->search_result['aggregations'] ) ) {
 			return array();
 		}

@@ -33,8 +33,8 @@ const Admin = () => {
 	const [ connectionLoaded, setConnectionLoaded ] = useState( false );
 	const [ capabilitiesLoaded, setCapabilitiesLoaded ] = useState( false );
 	const [ showHeaderFooter, setShowHeaderFooter ] = useState( true );
-	const [ price, setPrice ] = useState( null );
-	const [ priceAfter, setPriceAfter ] = useState( null );
+	const [ price, setPrice ] = useState( 0 );
+	const [ priceAfter, setPriceAfter ] = useState( 0 );
 
 	const domain = useSelect( select => select( STORE_ID ).getCalypsoSlug(), [] );
 

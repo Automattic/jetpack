@@ -32,8 +32,8 @@ export default function useConnection() {
 		select => select( CONNECTION_STORE_ID ).getConnectionStatus(),
 		[]
 	);
-	const [ price, setPrice ] = useState( null );
-	const [ priceAfter, setPriceAfter ] = useState( null );
+	const [ price, setPrice ] = useState( 0 );
+	const [ priceAfter, setPriceAfter ] = useState( 0 );
 
 	useEffect( () => {
 		apiFetch( { path: '/jetpack/v4/backup-promoted-product-info' } ).then( res => {
