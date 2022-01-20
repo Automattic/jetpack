@@ -87,6 +87,7 @@ export default function SidebarOptions() {
 
 			<PanelBody title={ __( 'Search options', 'jetpack-search-pkg' ) } initialOpen={ true }>
 				<SelectControl
+					className="jp-search-configure-default-sort-select"
 					disabled={ isDisabled }
 					label={ __( 'Default sort', 'jetpack-search-pkg' ) }
 					value={ sort }
@@ -98,6 +99,7 @@ export default function SidebarOptions() {
 					onChange={ setSort }
 				/>
 				<SelectControl
+					className="jp-search-configure-overlay-trigger-select"
 					disabled={ isDisabled }
 					label={ __( 'Overlay trigger', 'jetpack-search-pkg' ) }
 					value={ trigger }
@@ -126,18 +128,21 @@ export default function SidebarOptions() {
 
 			<PanelBody title={ __( 'Additional settings', 'jetpack-search-pkg' ) } initialOpen={ true }>
 				<ToggleControl
+					className="jp-search-configure-show-sort-toggle"
 					checked={ sortEnabled }
 					disabled={ isDisabled }
 					label={ __( 'Show sort selector', 'jetpack-search-pkg' ) }
 					onChange={ setSortEnabled }
 				/>
 				<ToggleControl
+					className="jp-search-configure-infinite-scroll-toggle"
 					checked={ infiniteScroll }
 					disabled={ isDisabled }
 					label={ __( 'Enable infinite scroll', 'jetpack-search-pkg' ) }
 					onChange={ setInfiniteScroll }
 				/>
 				<ToggleControl
+					className="jp-search-configure-show-logo-toggle"
 					checked={ showLogo }
 					disabled={ isDisabled }
 					label={ __( 'Show "Powered by Jetpack"', 'jetpack-search-pkg' ) }
