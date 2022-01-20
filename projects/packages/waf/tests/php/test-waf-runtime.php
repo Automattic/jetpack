@@ -56,7 +56,7 @@ final class WafRuntimeTest extends PHPUnit\Framework\TestCase {
 	 */
 	public function testRemovingTargetByRuleId() {
 		$this->runtime->flag_target_for_removal( 'id', '111', 'args' );
-		$this->assertEqualsCanonicalizing(
+		$this->assertEquals(
 			array( 'auth_type' => array() ),
 			$this->runtime->update_targets(
 				array(
@@ -68,7 +68,7 @@ final class WafRuntimeTest extends PHPUnit\Framework\TestCase {
 			),
 			'Did not remove target'
 		);
-		$this->assertEqualsCanonicalizing(
+		$this->assertEquals(
 			array(
 				'auth_type' => array(),
 				'args'      => array(),
@@ -90,7 +90,7 @@ final class WafRuntimeTest extends PHPUnit\Framework\TestCase {
 	 */
 	public function testRemovingTargetPropByRuleId() {
 		$this->runtime->flag_target_for_removal( 'id', '111', 'args', 'p' );
-		$this->assertEqualsCanonicalizing(
+		$this->assertEquals(
 			array(
 				'auth_type' => array(),
 				'args'      => array( 'except' => array( 'p' ) ),
@@ -105,7 +105,7 @@ final class WafRuntimeTest extends PHPUnit\Framework\TestCase {
 			),
 			'Did not create except list for removed prop'
 		);
-		$this->assertEqualsCanonicalizing(
+		$this->assertEquals(
 			array(
 				'auth_type' => array(),
 				'args'      => array( 'except' => array( 'o', 'p' ) ),
@@ -120,7 +120,7 @@ final class WafRuntimeTest extends PHPUnit\Framework\TestCase {
 			),
 			'Did not add prop to existing except list'
 		);
-		$this->assertEqualsCanonicalizing(
+		$this->assertEquals(
 			array(
 				'auth_type' => array(),
 				'args'      => array(
@@ -140,7 +140,7 @@ final class WafRuntimeTest extends PHPUnit\Framework\TestCase {
 				array()
 			)
 		);
-		$this->assertEqualsCanonicalizing(
+		$this->assertEquals(
 			array(
 				'auth_type' => array(),
 				'args'      => array(),
@@ -162,7 +162,7 @@ final class WafRuntimeTest extends PHPUnit\Framework\TestCase {
 	 */
 	public function testRemovingTargetByRuleTag() {
 		$this->runtime->flag_target_for_removal( 'tag', 'abc', 'args' );
-		$this->assertEqualsCanonicalizing(
+		$this->assertEquals(
 			array( 'auth_type' => array() ),
 			$this->runtime->update_targets(
 				array(
@@ -174,7 +174,7 @@ final class WafRuntimeTest extends PHPUnit\Framework\TestCase {
 			),
 			'Did not remove target'
 		);
-		$this->assertEqualsCanonicalizing(
+		$this->assertEquals(
 			array(
 				'auth_type' => array(),
 				'args'      => array(),
@@ -196,7 +196,7 @@ final class WafRuntimeTest extends PHPUnit\Framework\TestCase {
 	 */
 	public function testRemovingTargetPropByRuleTag() {
 		$this->runtime->flag_target_for_removal( 'tag', 'abc', 'args', 'p' );
-		$this->assertEqualsCanonicalizing(
+		$this->assertEquals(
 			array(
 				'auth_type' => array(),
 				'args'      => array( 'except' => array( 'p' ) ),
@@ -211,7 +211,7 @@ final class WafRuntimeTest extends PHPUnit\Framework\TestCase {
 			),
 			'Did not create except list for removed prop'
 		);
-		$this->assertEqualsCanonicalizing(
+		$this->assertEquals(
 			array(
 				'auth_type' => array(),
 				'args'      => array( 'except' => array( 'o', 'p' ) ),
@@ -226,7 +226,7 @@ final class WafRuntimeTest extends PHPUnit\Framework\TestCase {
 			),
 			'Did not add prop to existing except list'
 		);
-		$this->assertEqualsCanonicalizing(
+		$this->assertEquals(
 			array(
 				'auth_type' => array(),
 				'args'      => array(
@@ -246,7 +246,7 @@ final class WafRuntimeTest extends PHPUnit\Framework\TestCase {
 				array( 'abc' )
 			)
 		);
-		$this->assertEqualsCanonicalizing(
+		$this->assertEquals(
 			array(
 				'auth_type' => array(),
 				'args'      => array(),
