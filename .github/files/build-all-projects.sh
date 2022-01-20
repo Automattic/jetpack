@@ -220,6 +220,7 @@ for SLUG in "${SLUGS[@]}"; do
 
 			fi
 		done
+		echo "::endgroup::"
 	fi
 
 	# Remove monorepo repos from composer.json
