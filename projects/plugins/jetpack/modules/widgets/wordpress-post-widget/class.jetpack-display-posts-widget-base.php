@@ -109,7 +109,7 @@ abstract class Jetpack_Display_Posts_Widget__Base extends WP_Widget {
 			}
 			$content .= $args['after_widget'];
 
-			echo $content;
+			echo $content; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
 			return;
 		}
 
@@ -119,7 +119,7 @@ abstract class Jetpack_Display_Posts_Widget__Base extends WP_Widget {
 			$content .= '<p>' . __( 'Cannot load blog information at this time.', 'jetpack' ) . '</p>';
 			$content .= $args['after_widget'];
 
-			echo $content;
+			echo $content; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
 			return;
 		}
 
@@ -140,7 +140,7 @@ abstract class Jetpack_Display_Posts_Widget__Base extends WP_Widget {
 			$content .= '</div><!-- .jetpack-display-remote-posts -->';
 			$content .= $args['after_widget'];
 
-			echo $content;
+			echo $content; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
 			return;
 		}
 
@@ -195,7 +195,7 @@ abstract class Jetpack_Display_Posts_Widget__Base extends WP_Widget {
 		 *
 		 * @param string $content Widget content.
 		 */
-		echo apply_filters( 'jetpack_display_posts_widget_content', $content );
+		echo apply_filters( 'jetpack_display_posts_widget_content', $content ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
 	}
 
 	/**
@@ -231,15 +231,15 @@ abstract class Jetpack_Display_Posts_Widget__Base extends WP_Widget {
 
 		?>
 		<p>
-			<label for="<?php echo $this->get_field_id( 'title' ); ?>"><?php _e( 'Title:', 'jetpack' ); ?></label>
-			<input class="widefat" id="<?php echo $this->get_field_id( 'title' ); ?>" name="<?php echo $this->get_field_name( 'title' ); ?>" type="text" value="<?php echo esc_attr( $title ); ?>" />
+			<label for="<?php echo esc_attr( $this->get_field_id( 'title' ) ); ?>"><?php esc_html_e( 'Title:', 'jetpack' ); ?></label>
+			<input class="widefat" id="<?php echo esc_attr( $this->get_field_id( 'title' ) ); ?>" name="<?php echo esc_attr( $this->get_field_name( 'title' ) ); ?>" type="text" value="<?php echo esc_attr( $title ); ?>" />
 		</p>
 
 		<p>
-			<label for="<?php echo $this->get_field_id( 'url' ); ?>"><?php _e( 'Blog URL:', 'jetpack' ); ?></label>
-			<input class="widefat" id="<?php echo $this->get_field_id( 'url' ); ?>" name="<?php echo $this->get_field_name( 'url' ); ?>" type="text" value="<?php echo esc_attr( $url ); ?>" />
+			<label for="<?php echo esc_attr( $this->get_field_id( 'url' ) ); ?>"><?php esc_html_e( 'Blog URL:', 'jetpack' ); ?></label>
+			<input class="widefat" id="<?php echo esc_attr( $this->get_field_id( 'url' ) ); ?>" name="<?php echo esc_attr( $this->get_field_name( 'url' ) ); ?>" type="text" value="<?php echo esc_attr( $url ); ?>" />
 			<i>
-				<?php _e( 'Enter a WordPress.com or Jetpack WordPress site URL.', 'jetpack' ); ?>
+				<?php esc_html_e( 'Enter a WordPress.com or Jetpack WordPress site URL.', 'jetpack' ); ?>
 			</i>
 			<?php
 			/**
@@ -250,32 +250,32 @@ abstract class Jetpack_Display_Posts_Widget__Base extends WP_Widget {
 			if ( empty( $url ) && ! preg_match( '/__i__|%i%/', $this->id ) ) {
 				?>
 				<br />
-				<i class="error-message"><?php echo __( 'You must specify a valid blog URL!', 'jetpack' ); ?></i>
+				<i class="error-message"><?php esc_html_e( 'You must specify a valid blog URL!', 'jetpack' ); ?></i>
 				<?php
 			}
 			?>
 		</p>
 		<p>
-			<label for="<?php echo $this->get_field_id( 'number_of_posts' ); ?>"><?php _e( 'Number of Posts to Display:', 'jetpack' ); ?></label>
-			<select name="<?php echo $this->get_field_name( 'number_of_posts' ); ?>">
+			<label for="<?php echo esc_attr( $this->get_field_id( 'number_of_posts' ) ); ?>"><?php esc_html_e( 'Number of Posts to Display:', 'jetpack' ); ?></label>
+			<select name="<?php echo esc_attr( $this->get_field_name( 'number_of_posts' ) ); ?>">
 				<?php
 				for ( $i = 1; $i <= 10; $i ++ ) {
-					echo '<option value="' . $i . '" ' . selected( $number_of_posts, $i ) . '>' . $i . '</option>';
+					echo '<option value="' . esc_attr( $i ) . '" ' . selected( $number_of_posts, $i ) . '>' . esc_html( $i ) . '</option>';
 				}
 				?>
 			</select>
 		</p>
 		<p>
-			<label for="<?php echo $this->get_field_id( 'open_in_new_window' ); ?>"><?php _e( 'Open links in new window/tab:', 'jetpack' ); ?></label>
-			<input type="checkbox" name="<?php echo $this->get_field_name( 'open_in_new_window' ); ?>" <?php checked( $open_in_new_window, 1 ); ?> />
+			<label for="<?php echo esc_attr( $this->get_field_id( 'open_in_new_window' ) ); ?>"><?php esc_html_e( 'Open links in new window/tab:', 'jetpack' ); ?></label>
+			<input type="checkbox" name="<?php echo esc_attr( $this->get_field_name( 'open_in_new_window' ) ); ?>" <?php checked( $open_in_new_window, 1 ); ?> />
 		</p>
 		<p>
-			<label for="<?php echo $this->get_field_id( 'featured_image' ); ?>"><?php _e( 'Show Featured Image:', 'jetpack' ); ?></label>
-			<input type="checkbox" name="<?php echo $this->get_field_name( 'featured_image' ); ?>" <?php checked( $featured_image, 1 ); ?> />
+			<label for="<?php echo esc_attr( $this->get_field_id( 'featured_image' ) ); ?>"><?php esc_html_e( 'Show Featured Image:', 'jetpack' ); ?></label>
+			<input type="checkbox" name="<?php echo esc_attr( $this->get_field_name( 'featured_image' ) ); ?>" <?php checked( $featured_image, 1 ); ?> />
 		</p>
 		<p>
-			<label for="<?php echo $this->get_field_id( 'show_excerpts' ); ?>"><?php _e( 'Show Excerpts:', 'jetpack' ); ?></label>
-			<input type="checkbox" name="<?php echo $this->get_field_name( 'show_excerpts' ); ?>" <?php checked( $show_excerpts, 1 ); ?> />
+			<label for="<?php echo esc_attr( $this->get_field_id( 'show_excerpts' ) ); ?>"><?php esc_html_e( 'Show Excerpts:', 'jetpack' ); ?></label>
+			<input type="checkbox" name="<?php echo esc_attr( $this->get_field_name( 'show_excerpts' ) ); ?>" <?php checked( $show_excerpts, 1 ); ?> />
 		</p>
 
 		<?php
