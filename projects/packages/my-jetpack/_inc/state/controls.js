@@ -3,7 +3,10 @@
  */
 import apiFetch from '@wordpress/api-fetch';
 
-const REST_API_SITE_PURCHASES_ENDPOINT = 'my-jetpack/v1/site/purchases';
+/**
+ * Internal dependencies
+ */
+import { REST_API_SITE_PURCHASES_ENDPOINT } from './constants';
 
 const FETCH_PURCHASES = () => {
 	return new Promise( ( resolve, reject ) => {
