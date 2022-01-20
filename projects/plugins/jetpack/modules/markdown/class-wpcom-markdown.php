@@ -301,8 +301,7 @@ class WPCom_Markdown {
 	 */
 	public function post_field() {
 		printf(
-			'<label><input name="%s" id="%s" type="checkbox"%s /> %s</label><p class="description">%s</p>',
-			esc_attr( self::POST_OPTION ),
+			'<label><input name="%1$s" id="%1$s" type="checkbox"%2$s /> %3$s</label><p class="description">%4$s</p>',
 			esc_attr( self::POST_OPTION ),
 			checked( $this->is_posting_enabled(), true, false ),
 			esc_html__( 'Use Markdown for posts and pages.', 'jetpack' ),
@@ -315,8 +314,7 @@ class WPCom_Markdown {
 	 */
 	public function comment_field() {
 		printf(
-			'<label><input name="%s" id="%s" type="checkbox"%s /> %s</label><p class="description">%s</p>',
-			esc_attr( self::COMMENT_OPTION ),
+			'<label><input name="%1$s" id="%1$s" type="checkbox"%2$s /> %3$s</label><p class="description">%4$s</p>',
 			esc_attr( self::COMMENT_OPTION ),
 			checked( $this->is_commenting_enabled(), true, false ),
 			esc_html__( 'Use Markdown for comments.', 'jetpack' ),
