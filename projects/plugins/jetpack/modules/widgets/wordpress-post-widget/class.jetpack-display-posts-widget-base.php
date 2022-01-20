@@ -342,8 +342,8 @@ abstract class Jetpack_Display_Posts_Widget__Base extends WP_Widget {
 	public function update( $new_instance, $old_instance ) { // phpcs:ignore VariableAnalysis.CodeAnalysis.VariableAnalysis.UnusedVariable
 
 		$instance          = array();
-		$instance['title'] = ( ! empty( $new_instance['title'] ) ) ? strip_tags( $new_instance['title'] ) : '';
-		$instance['url']   = ( ! empty( $new_instance['url'] ) ) ? strip_tags( trim( $new_instance['url'] ) ) : '';
+		$instance['title'] = ( ! empty( $new_instance['title'] ) ) ? wp_strip_all_tags( $new_instance['title'] ) : '';
+		$instance['url']   = ( ! empty( $new_instance['url'] ) ) ? wp_strip_all_tags( trim( $new_instance['url'] ) ) : '';
 		$instance['url']   = preg_replace( '!^https?://!is', '', $instance['url'] );
 		$instance['url']   = untrailingslashit( $instance['url'] );
 
