@@ -36,10 +36,19 @@ const DownIcon = () => (
 	</svg>
 );
 
-const renderActionButton = ( { status, admin, name } ) => {
+const renderActionButton = ( {
+	status,
+	admin,
+	name,
+	onLearn,
+	onAdd,
+	onManage,
+	onFixConnection,
+	onActivate,
+} ) => {
 	if ( ! admin ) {
 		return (
-			<Button variant="link">
+			<Button variant="link" onClick={ onLearn }>
 				{
 					/* translators: placeholder is product name. */
 					sprintf( __( 'Learn about %s', 'jetpack-my-jetpack' ), name )
@@ -51,7 +60,7 @@ const renderActionButton = ( { status, admin, name } ) => {
 	switch ( status ) {
 		case PRODUCT_STATUSES.ABSENT:
 			return (
-				<Button variant="link">
+				<Button variant="link" onClick={ onAdd }>
 					{
 						/* translators: placeholder is product name. */
 						sprintf( __( 'Add %s', 'jetpack-my-jetpack' ), name )
@@ -59,11 +68,23 @@ const renderActionButton = ( { status, admin, name } ) => {
 				</Button>
 			);
 		case PRODUCT_STATUSES.ACTIVE:
-			return <Button isPressed>{ __( 'Manage', 'jetpack-my-jetpack' ) }</Button>;
+			return (
+				<Button isPressed onClick={ onManage }>
+					{ __( 'Manage', 'jetpack-my-jetpack' ) }
+				</Button>
+			);
 		case PRODUCT_STATUSES.ERROR:
-			return <Button isPressed>{ __( 'Fix connection', 'jetpack-my-jetpack' ) }</Button>;
+			return (
+				<Button isPressed onClick={ onFixConnection }>
+					{ __( 'Fix connection', 'jetpack-my-jetpack' ) }
+				</Button>
+			);
 		case PRODUCT_STATUSES.INACTIVE:
-			return <Button isPressed>{ __( 'Activate', 'jetpack-my-jetpack' ) }</Button>;
+			return (
+				<Button isPressed onClick={ onActivate }>
+					{ __( 'Activate', 'jetpack-my-jetpack' ) }
+				</Button>
+			);
 	}
 };
 
@@ -126,7 +147,11 @@ ProductCard.propTypes = {
 	icon: PropTypes.element,
 	admin: PropTypes.bool.isRequired,
 	onDeactivate: PropTypes.func,
-	onActionClick: PropTypes.func,
+	onManage: PropTypes.func,
+	onFixConnection: PropTypes.func,
+	onActivate: PropTypes.func,
+	onAdd: PropTypes.func,
+	onLearn: PropTypes.func,
 	status: PropTypes.oneOf( [
 		PRODUCT_STATUSES.ACTIVE,
 		PRODUCT_STATUSES.INACTIVE,
@@ -138,7 +163,11 @@ ProductCard.propTypes = {
 ProductCard.defaultProps = {
 	icon: null,
 	onDeactivate: () => {},
-	onActionClick: () => {},
+	onManage: () => {},
+	onFixConnection: () => {},
+	onActivate: () => {},
+	onAdd: () => {},
+	onLearn: () => {},
 };
 
 export default ProductCard;
