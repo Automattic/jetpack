@@ -89,9 +89,8 @@ class Speed_Score_Request extends Cacheable {
 
 	/**
 	 * Convert this object to a plain array for JSON serialization.
-	 *
-	 * @return array The object as an array.
 	 */
+	#[\ReturnTypeWillChange]
 	public function jsonSerialize() {
 		return array(
 			'id'             => $this->get_cache_id(),
