@@ -1,6 +1,6 @@
-<?php
+<?php // phpcs:ignore WordPress.Files.FileName.InvalidClassFileName
 
-/*
+/**
  * For back-compat, the final widget class must be named
  * Jetpack_Display_Posts_Widget.
  *
@@ -16,16 +16,25 @@
  *
  * That this widget is currently implemented as these two classes
  * is an implementation detail and should not be depended on :)
+ *
+ * phpcs:disable PEAR.NamingConventions.ValidClassName.Invalid
  */
 abstract class Jetpack_Display_Posts_Widget__Base extends WP_Widget {
+	// phpcs:enable PEAR.NamingConventions.ValidClassName.Invalid
+
 	/**
-	 * @var string Remote service API URL prefix.
+	 * Remote service API URL prefix.
+	 *
+	 * @var string
 	 */
 	public $service_url = 'https://public-api.wordpress.com/rest/v1.1/';
 
+	/**
+	 * Jetpack_Display_Posts_Widget__Base constructor.
+	 */
 	public function __construct() {
 		parent::__construct(
-		// internal id
+		// Internal id.
 			'jetpack_display_posts_widget',
 			/** This filter is documented in modules/widgets/facebook-likebox.php */
 			apply_filters( 'jetpack_widget_name', __( 'Display WordPress Posts', 'jetpack' ) ),
@@ -46,15 +55,20 @@ abstract class Jetpack_Display_Posts_Widget__Base extends WP_Widget {
 	 * @since 4.0.0
 	 */
 	public function enqueue_scripts() {
-		wp_enqueue_style( 'jetpack_display_posts_widget', plugins_url( 'style.css', __FILE__ ) );
+		wp_enqueue_style(
+			'jetpack_display_posts_widget',
+			plugins_url( 'style.css', __FILE__ ),
+			array(),
+			JETPACK__VERSION
+		);
 	}
 
-	// DATA STORE: Must implement
+	// DATA STORE: Must implement.
 
 	/**
 	 * Gets blog data from the cache.
 	 *
-	 * @param string $site
+	 * @param string $site Site.
 	 *
 	 * @return array|WP_Error
 	 */
@@ -69,13 +83,13 @@ abstract class Jetpack_Display_Posts_Widget__Base extends WP_Widget {
 	 */
 	abstract public function update_instance( $site );
 
-	// WIDGET API
+	// WIDGET API.
 
 	/**
 	 * Set up the widget display on the front end.
 	 *
-	 * @param array $args
-	 * @param array $instance
+	 * @param array $args Widget args.
+	 * @param array $instance Widget instance.
 	 */
 	public function widget( $args, $instance ) {
 		/** This action is documented in modules/widgets/gravatar-profile.php */
@@ -100,7 +114,7 @@ abstract class Jetpack_Display_Posts_Widget__Base extends WP_Widget {
 		}
 
 		$data = $this->get_blog_data( $instance['url'] );
-		// check for errors
+		// Check for errors.
 		if ( is_wp_error( $data ) || empty( $data['site_info']['data'] ) ) {
 			$content .= '<p>' . __( 'Cannot load blog information at this time.', 'jetpack' ) . '</p>';
 			$content .= $args['after_widget'];
@@ -319,7 +333,13 @@ abstract class Jetpack_Display_Posts_Widget__Base extends WP_Widget {
 		}
 	}
 
-	public function update( $new_instance, $old_instance ) {
+	/**
+	 * Widget update function.
+	 *
+	 * @param array $new_instance New instance widget settings.
+	 * @param array $old_instance Old instance widget settings.
+	 */
+	public function update( $new_instance, $old_instance ) { // phpcs:ignore VariableAnalysis.CodeAnalysis.VariableAnalysis.UnusedVariable
 
 		$instance          = array();
 		$instance['title'] = ( ! empty( $new_instance['title'] ) ) ? strip_tags( $new_instance['title'] ) : '';
@@ -361,7 +381,7 @@ abstract class Jetpack_Display_Posts_Widget__Base extends WP_Widget {
 		return $instance;
 	}
 
-	// DATA PROCESSING
+	// DATA PROCESSING.
 
 	/**
 	 * Expiring transients have a name length maximum of 45 characters,
@@ -621,7 +641,7 @@ abstract class Jetpack_Display_Posts_Widget__Base extends WP_Widget {
 					'title'          => $single_post->title ? $single_post->title : '',
 					'excerpt'        => $single_post->excerpt ? $single_post->excerpt : '',
 					'featured_image' => $single_post->featured_image ? $single_post->featured_image : '',
-					'url'            => $single_post->URL,
+					'url'            => $single_post->URL, // phpcs:ignore WordPress.NamingConventions.ValidVariableName.UsedPropertyNotSnakeCase
 				);
 
 				/**
@@ -683,14 +703,13 @@ abstract class Jetpack_Display_Posts_Widget__Base extends WP_Widget {
 			$widget_data['site_info']['error'] = $site_info_parsed_data;
 
 			return $widget_data;
-		}
-		/**
-		 * If data is fetched successfully, update the data and set the proper time.
-		 *
-		 * Data is only updated if we have valid results. This is done this way so we can show
-		 * something if external service is down.
-		 */
-		else {
+		} else {
+			/**
+			 * If data is fetched successfully, update the data and set the proper time.
+			 *
+			 * Data is only updated if we have valid results. This is done this way so we can show
+			 * something if external service is down.
+			 */
 			$widget_data['site_info']['last_update'] = time();
 			$widget_data['site_info']['data']        = $site_info_parsed_data;
 			$widget_data['site_info']['error']       = null;
@@ -718,14 +737,13 @@ abstract class Jetpack_Display_Posts_Widget__Base extends WP_Widget {
 			$widget_data['posts']['error'] = $site_posts_parsed_data;
 
 			return $widget_data;
-		}
-		/**
-		 * If data is fetched successfully, update the data and set the proper time.
-		 *
-		 * Data is only updated if we have valid results. This is done this way so we can show
-		 * something if external service is down.
-		 */
-		else {
+		} else {
+			/**
+			 * If data is fetched successfully, update the data and set the proper time.
+			 *
+			 * Data is only updated if we have valid results. This is done this way so we can show
+			 * something if external service is down.
+			 */
 			$widget_data['posts']['last_update'] = time();
 			$widget_data['posts']['data']        = $site_posts_parsed_data;
 			$widget_data['posts']['error']       = null;
@@ -813,7 +831,7 @@ abstract class Jetpack_Display_Posts_Widget__Base extends WP_Widget {
 	/**
 	 * This is just to make method mocks in the unit tests easier.
 	 *
-	 * @param string $url  The URL to fetch
+	 * @param string $url  The URL to fetch.
 	 * @param array  $args Optional. Request arguments.
 	 *
 	 * @return array|WP_Error
