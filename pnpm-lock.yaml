@@ -1200,6 +1200,7 @@ importers:
       envfile: 6.17.0
       execa: 5.0.0
       glob: 7.1.6
+      ignore: 5.1.8
       inquirer: 7.3.3
       js-yaml: 4.1.0
       listr: 0.14.3
@@ -1221,6 +1222,7 @@ importers:
       envfile: 6.17.0
       execa: 5.0.0
       glob: 7.1.6
+      ignore: 5.1.8
       inquirer: 7.3.3
       js-yaml: 4.1.0
       listr: 0.14.3
@@ -14614,7 +14616,6 @@ packages:
   /ignore/5.1.8:
     resolution: {integrity: sha512-BMpfD7PpiETpBl/A6S498BaIJ6Y/ABT93ETbby2fP00v4EbvPBXWEoaR1UBPKs3iR53pJY7EtZk5KACI57i1Uw==}
     engines: {node: '>= 4'}
-    dev: true
 
   /ignore/5.2.0:
     resolution: {integrity: sha512-CmxgYGiEPCLhfLnpPp1MoRmifwEIOgjcHXxOBjv7mY96c+eWScsOP9c112ZyLdWHi0FxHjI+4uVhKYp/gcdRmQ==}
