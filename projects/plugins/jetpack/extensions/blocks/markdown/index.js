@@ -77,6 +77,18 @@ export const settings = {
 	},
 
 	supports: {
+		color: {
+			link: true,
+			gradients: true,
+		},
+		spacing: {
+			padding: true,
+		},
+		typography: {
+			fontSize: true,
+			lineHeight: true,
+		},
+		align: [ 'wide', 'full' ],
 		html: false,
 	},
 
