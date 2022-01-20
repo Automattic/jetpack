@@ -12,7 +12,7 @@ jobs:
   check:
     name: "Check if Boost E2E tests should run"
     runs-on: ubuntu-latest
-    timeout-minutes: 1  # 2021-11-12: Should only take a second.
+    timeout-minutes: 3  # 2022-01-20: Takes a little time now for the tools and pnpm install.
     outputs:
       boost: ${{ steps.check.outputs.boost }}
     steps:
