@@ -103,6 +103,21 @@ class Products {
 	}
 
 	/**
+	 * Enable Backup product
+	 */
+	public static function enable_backup_product() {
+		/*
+		 * @todo: implement
+		 * suggestion: when it enables, return an success array:
+		 * array( 'status' => 'activated' );
+		 * Otherwise, an WP_Error instance will be nice.
+		 */
+		return array(
+			'status' => 'activated',
+		);
+	}
+
+	/**
 	 * Returns information about the Backup product
 	 *
 	 * @return array Object with infromation about the product.
