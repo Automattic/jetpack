@@ -184,15 +184,15 @@ for SLUG in "${SLUGS[@]}"; do
 		OLD_VENDOR_DIR="$BUILD_DIR/vendor"
 		NEW_VENDOR_DIR="$BUILD_DIR/jetpack_vendor"
 		FILES_TO_COPY=(
-			"automattic/jetpack-roles/src/class-roles.php",
-			"automattic/jetpack-backup/src/class-package-version.php",
-			"automattic/jetpack-sync/src/class-package-version.php",
-			"automattic/jetpack-connection/src/class-package-version.php",
-			"automattic/jetpack-connection/src/class-urls.php",
-			"automattic/jetpack-sync/src/class-queue-buffer.php",
-			"automattic/jetpack-sync/src/class-utils.php",
-			"automattic/jetpack-connection/legacy/class-jetpack-ixr-client.php",
-			"automattic/jetpack-connection/src/class-client.php",
+			"automattic/jetpack-roles/src/class-roles.php"
+			"automattic/jetpack-backup/src/class-package-version.php"
+			"automattic/jetpack-sync/src/class-package-version.php"
+			"automattic/jetpack-connection/src/class-package-version.php"
+			"automattic/jetpack-connection/src/class-urls.php"
+			"automattic/jetpack-sync/src/class-queue-buffer.php"
+			"automattic/jetpack-sync/src/class-utils.php"
+			"automattic/jetpack-connection/legacy/class-jetpack-ixr-client.php"
+			"automattic/jetpack-connection/src/class-client.php"
 			"automattic/jetpack-connection/legacy/class-jetpack-signature.php"
 		)
 
