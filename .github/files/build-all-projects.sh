@@ -178,27 +178,30 @@ for SLUG in "${SLUGS[@]}"; do
 	# Copy SECURITY.md
 	cp "$BASE/SECURITY.md" "$BUILD_DIR/SECURITY.md"
 
-	# Copy files for backward compatibility.
-	OLD_VENDOR_DIR="$BUILD_DIR/vendor"
-	NEW_VENDOR_DIR="$BUILD_DIR/jetpack_vendor"
-	FILES_TO_MOVE=(
-		"automattic/jetpack-roles/src/class-roles.php",
-		"automattic/jetpack-backup/src/class-package-version.php",
-		"automattic/jetpack-sync/src/class-package-version.php",
-		"automattic/jetpack-connection/src/class-package-version.php",
-		"automattic/jetpack-connection/src/class-urls.php",
-		"automattic/jetpack-sync/src/class-queue-buffer.php",
-		"automattic/jetpack-sync/src/class-utils.php",
-		"automattic/jetpack-connection/legacy/class-jetpack-ixr-client.php",
-		"automattic/jetpack-connection/src/class-client.php",
-		"automattic/jetpack-connection/legacy/class-jetpack-signature.php"
-	)
+	if [ $SLUG === "plugins/jetpack" ]; then
+		echo "Copying Jetpack files for backward compatibility."
 
-	for file in "${FILES_TO_MOVE[@]}"; do
-		if [[ -f "$file" ]]; then
-			cp "$NEW_VENDOR_DIR$file" "$OLD_VENDOR_DIR$file"
-		fi
-	done
+		OLD_VENDOR_DIR="$BUILD_DIR/vendor"
+		NEW_VENDOR_DIR="$BUILD_DIR/jetpack_vendor"
+		FILES_TO_COPY=(
+			"automattic/jetpack-roles/src/class-roles.php",
+			"automattic/jetpack-backup/src/class-package-version.php",
+			"automattic/jetpack-sync/src/class-package-version.php",
+			"automattic/jetpack-connection/src/class-package-version.php",
+			"automattic/jetpack-connection/src/class-urls.php",
+			"automattic/jetpack-sync/src/class-queue-buffer.php",
+			"automattic/jetpack-sync/src/class-utils.php",
+			"automattic/jetpack-connection/legacy/class-jetpack-ixr-client.php",
+			"automattic/jetpack-connection/src/class-client.php",
+			"automattic/jetpack-connection/legacy/class-jetpack-signature.php"
+		)
+
+		for file in "${FILES_TO_COPY[@]}"; do
+			if [[ -f "$file" ]]; then
+				cp "$NEW_VENDOR_DIR/$file" "$OLD_VENDOR_DIR/$file"
+			fi
+		done
+	fi
 
 
 	# Copy only wanted files, based on .gitignore and .gitattributes.
