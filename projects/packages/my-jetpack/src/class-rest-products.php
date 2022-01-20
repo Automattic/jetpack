@@ -69,27 +69,6 @@ class REST_Products {
 	}
 
 	/**
-	 * Get the schema for the products endpoint
-	 *
-	 * @return array
-	 */
-	public function get_product_sschema() {
-		return array(
-			'$schema'    => 'http://json-schema.org/draft-04/schema#',
-			'title'      => 'product',
-			'type'       => 'object',
-			'properties' => array(
-				'product' => Products::get_product_data_schema(),
-				'success' => array(
-					'title'       => 'The request status',
-					'description' => 'In case of POST|DELETE, indicates whether the action was successful',
-					'type'        => 'boolean',
-				),
-			),
-		);
-	}
-
-	/**
 	 * Check user capability to access the endpoint.
 	 *
 	 * @access public
@@ -227,13 +206,19 @@ class REST_Products {
 	}
 
 	/**
-	 * Enable a site product.
+	 * Set site product state.
 	 *
 	 * @param \WP_REST_Request $request The request object.
 	 * @return array of site products list.
 	 */
-	public static function enable_product( $request ) {
+	public static function set_product_state( $request ) {
 		$product_slug = $request->get_param( 'product' );
-		return Products::enable_backup_product( $product_slug );
+		$activate     = $request->get_param( 'activate' );
+
+		if ( $activate ) {
+			return Products::activate_backup_product( $product_slug );
+		}
+
+		return Products::deactivate_backup_product( $product_slug );
 	}
 }

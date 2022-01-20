@@ -7,7 +7,12 @@ import { __ } from '@wordpress/i18n';
 /**
  * Internal dependencies
  */
-import { setProductActionError, setProductActivated } from './actions';
+import {
+	ACTIVATE_PRODUCT,
+	DEACTIVATE_PRODUCT,
+	setProductActionError,
+	setProductStatus,
+} from './actions';
 import { REST_API_SITE_PRODUCTS_ENDPOINT } from './constants';
 import { isValidProduct } from './selectors';
 
@@ -18,8 +23,8 @@ import { isValidProduct } from './selectors';
  * @param {object} action  - Action which had initiated the effect handler.
  * @param {object} store   - Store instance.
  */
-function activateProduct( action, store ) {
-	const { productId } = action;
+function requestProductStatus( action, store ) {
+	const { productId, type } = action;
 	const { getState, dispatch } = store;
 
 	// Check valid product.
@@ -34,17 +39,19 @@ function activateProduct( action, store ) {
 		return;
 	}
 
+	// Body request.
+	const data = { activate: type === ACTIVATE_PRODUCT };
+
 	apiFetch( {
 		path: `${ REST_API_SITE_PRODUCTS_ENDPOINT }/${ productId }`,
 		method: 'POST',
-		data: {
-			action: 'activate',
-		},
+		data,
 	} )
-		.then( () => dispatch( setProductActivated( productId ) ) )
+		.then( status => dispatch( setProductStatus( productId, status ) ) )
 		.catch( error => dispatch( setProductActionError( error ) ) );
 }
 
 export default {
-	ACTIVATE_PRODUCT: activateProduct,
+	[ ACTIVATE_PRODUCT ]: requestProductStatus,
+	[ DEACTIVATE_PRODUCT ]: requestProductStatus,
 };

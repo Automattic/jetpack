@@ -14,11 +14,11 @@ import { STORE_ID } from '../../state/store';
  * @returns {object} site products data
  */
 export function useProducts() {
-	const { activateProduct: activate } = useDispatch( STORE_ID );
+	const { activateProduct: activate, deactivateProduct: deactivate } = useDispatch( STORE_ID );
 
 	return {
 		list: useSelect( select => select( STORE_ID ).getProducts() ),
 		activate,
-		disable: () => {},
+		deactivate,
 	};
 }
