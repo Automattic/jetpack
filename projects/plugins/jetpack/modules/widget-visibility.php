@@ -17,4 +17,4 @@
  * Additional Search Queries: widget visibility, logic, conditional, widgets, widget
  */
 
-require __DIR__ . '/widget-visibility/class-jetpack-widget-conditions.php';
+require __DIR__ . '/widget-visibility/widget-conditions.php';
