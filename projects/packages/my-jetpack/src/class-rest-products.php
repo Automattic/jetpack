@@ -43,6 +43,32 @@ class REST_Products {
 				),
 			)
 		);
+
+		register_rest_route(
+			'my-jetpack/v1/',
+			'/site/products/(?P<product>[a-z\-]+)',
+			array(
+				'methods'             => \WP_REST_Server::CREATABLE,
+				'callback'            => __CLASS__ . '::enable_product',
+				'permission_callback' => __CLASS__ . '::permissions_callback',
+				'args'                => array(
+					'product' => array(
+						'description'       => __( 'Product slug', 'jetpack-my-jetpack' ),
+						'type'              => 'string',
+						'enum'              => Products::get_product_names(),
+						'required'          => false,
+						'validate_callback' => __CLASS__ . '::check_product_argument',
+					),
+					'action'  => array(
+						'description'       => __( 'Production action to execute', 'jetpack-my-jetpack' ),
+						'type'              => 'string',
+						'enum'              => array( 'activate', 'deactivate' ),
+						'required'          => false,
+						'validate_callback' => __CLASS__ . '::check_product_argument',
+					),
+				),
+			)
+		);
 	}
 
 	/**
@@ -97,5 +123,16 @@ class REST_Products {
 		$product_slug = $request->get_param( 'product' );
 		$products     = Products::get_products();
 		return rest_ensure_response( $products[ $product_slug ], 200 );
+	}
+
+	/**
+	 * Enable a site product.
+	 *
+	 * @param \WP_REST_Request $request The request object.
+	 * @return array of site products list.
+	 */
+	public static function enable_product( $request ) {
+		$product_slug = $request->get_param( 'product' );
+		return Products::enable_backup_product( $product_slug );
 	}
 }
