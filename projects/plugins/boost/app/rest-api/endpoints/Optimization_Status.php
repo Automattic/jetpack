@@ -2,7 +2,7 @@
 
 namespace Automattic\Jetpack_Boost\REST_API\Endpoints;
 
-use Automattic\Jetpack_Boost\Lib\State;
+use Automattic\Jetpack_Boost\Lib\Status;
 use Automattic\Jetpack_Boost\REST_API\Contracts\Endpoint;
 use Automattic\Jetpack_Boost\REST_API\Permissions\Current_User_Admin;
 
@@ -22,17 +22,14 @@ class Optimization_Status implements Endpoint {
 			);
 		}
 		$module_slug = $request['slug'];
-		$module      = new State( $module_slug );
+		$state       = new Status( $module_slug );
 
 		// @TODO: Validate that the module exists?
 
-		if ( true === $params['status'] ) {
-			$module->enable();
-		} else {
-			$module->disable();
-		}
+		$state->update( (bool) $params['status'] );
+
 		return rest_ensure_response(
-			$module->is_enabled()
+			$state->is_enabled()
 		);
 	}
 

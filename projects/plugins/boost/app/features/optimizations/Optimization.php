@@ -3,13 +3,13 @@
 namespace Automattic\Jetpack_Boost\Features\Optimizations;
 
 use Automattic\Jetpack_Boost\Contracts\Feature;
-use Automattic\Jetpack_Boost\Lib\State;
+use Automattic\Jetpack_Boost\Lib\Status;
 use Automattic\Jetpack_Boost\REST_API\Contracts\Has_Endpoints;
 use Automattic\Jetpack_Boost\REST_API\REST_API;
 
 class Optimization {
 	/**
-	 * @var State
+	 * @var Status
 	 */
 	protected $state;
 
@@ -23,7 +23,7 @@ class Optimization {
 	 */
 	public function __construct( Feature $feature ) {
 		$this->feature = $feature;
-		$this->state   = new State( $feature->get_slug() );
+		$this->state   = new Status( $feature->get_slug() );
 	}
 
 	public function register_endpoints() {
