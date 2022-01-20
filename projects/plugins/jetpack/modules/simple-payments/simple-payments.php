@@ -12,22 +12,65 @@
  */
 class Jetpack_Simple_Payments {
 	// These have to be under 20 chars because that is CPT limit.
-	static $post_type_order   = 'jp_pay_order';
-	static $post_type_product = 'jp_pay_product';
 
-	static $shortcode = 'simple-payment';
+	/**
+	 * Post type order.
+	 *
+	 * @var string
+	 */
+	public static $post_type_order = 'jp_pay_order';
 
-	static $css_classname_prefix = 'jetpack-simple-payments';
+	/**
+	 * Post type product.
+	 *
+	 * @var string
+	 */
+	public static $post_type_product = 'jp_pay_product';
 
-	static $required_plan;
+	/**
+	 * Define simple payment shortcode.
+	 *
+	 * @var string
+	 */
+	public static $shortcode = 'simple-payment';
 
-	// Increase this number each time there's a change in CSS or JS to bust cache.
-	static $version = '0.25';
+	/**
+	 * Define simple payment CSS prefix.
+	 *
+	 * @var string
+	 */
+	public static $css_classname_prefix = 'jetpack-simple-payments';
 
-	// Classic singleton pattern:
+	/**
+	 * Which plan the user is on.
+	 *
+	 * @var string value_bundle or jetpack_premium
+	 */
+	public static $required_plan;
+
+	/**
+	 * Increase this number each time there's a change in CSS or JS to bust cache.
+	 *
+	 * @var string
+	 */
+	public static $version = '0.25';
+
+	/**
+	 * Instance of the class.
+	 *
+	 * @var Jetpack_Simple_Payments
+	 */
 	private static $instance;
+
+	/**
+	 * Construction function.
+	 */
 	private function __construct() {}
-	static function getInstance() {
+
+	/**
+	 * Create instance of class.
+	 */
+	public static function get_instance() {
 		if ( ! self::$instance ) {
 			self::$instance = new self();
 			self::$instance->register_init_hooks();
@@ -714,4 +757,4 @@ class Jetpack_Simple_Payments {
 		return null;
 	}
 }
-Jetpack_Simple_Payments::getInstance();
+Jetpack_Simple_Payments::get_instance();
