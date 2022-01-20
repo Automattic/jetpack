@@ -121,7 +121,7 @@ export async function handler( argv ) {
 		for ( const file of stdout.split( '\n' ).filter( v => v.length ) ) {
 			if ( infrastructureFiles.has( file ) ) {
 				debug( `Diff touches infrastructure file ${ file }, considering all projects as changed.` );
-				deps.keys().forEach( k => projset.add( k ) );
+				Array.from( deps.keys() ).forEach( k => projset.add( k ) );
 				break;
 			}
 			const slug = file.match( /^projects\/([^/]+\/[^/]+)\// )?.[ 1 ] || 'monorepo';
