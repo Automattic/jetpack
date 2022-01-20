@@ -7,6 +7,8 @@
  * Author URI: https://automattic.com
  * License: GPL2
  * Text Domain: jetpack
+ *
+ * @package automattic/jetpack
  */
 
 /**
@@ -20,6 +22,9 @@ require __DIR__ . '/wordpress-post-widget/class.jetpack-display-posts-widget-bas
 require __DIR__ . '/wordpress-post-widget/class.jetpack-display-posts-widget.php';
 
 add_action( 'widgets_init', 'jetpack_display_posts_widget' );
+/**
+ * Registers widget Jetpack_Display_Posts_Widget
+ */
 function jetpack_display_posts_widget() {
 	register_widget( 'Jetpack_Display_Posts_Widget' );
 }
@@ -28,7 +33,7 @@ function jetpack_display_posts_widget() {
  * Cron tasks
  */
 
-add_filter( 'cron_schedules', 'jetpack_display_posts_widget_cron_intervals' );
+add_filter( 'cron_schedules', 'jetpack_display_posts_widget_cron_intervals' ); // phpcs:ignore WordPress.WP.CronInterval.CronSchedulesInterval
 
 /**
  * Adds 10 minute running interval to the cron schedules.
@@ -56,6 +61,9 @@ function jetpack_display_posts_widget_cron_intervals( $current_schedules ) {
  * Execute the cron task
  */
 add_action( 'jetpack_display_posts_widget_cron_update', 'jetpack_display_posts_update_cron_action' );
+/**
+ * Run the Jetpack_Display_Posts_Widget cron task.
+ */
 function jetpack_display_posts_update_cron_action() {
 	$widget = new Jetpack_Display_Posts_Widget();
 	$widget->cron_task();
