@@ -219,7 +219,7 @@ class WafRuntime {
 				if ( $capture ) {
 					$captures = is_array( $match ) ? $match : array( $match );
 					foreach ( array_slice( $captures, 0, 10 )  as $i => $c ) {
-						$this->setvar( "tx.$i", $c );
+						$this->set_var( "tx.$i", $c );
 					}
 				}
 			}
@@ -302,7 +302,7 @@ class WafRuntime {
 	 *
 	 * @param string $key Key.
 	 */
-	public function var( $key ) { // phpcs:ignore PHPCompatibility.Keywords.ForbiddenNames.varFound
+	public function get_var( $key ) {
 		return isset( $this->state[ $key ] )
 			? $this->state[ $key ]
 			: '';
@@ -314,7 +314,7 @@ class WafRuntime {
 	 * @param string $key Key.
 	 * @param string $value Value.
 	 */
-	public function setvar( $key, $value ) {
+	public function set_var( $key, $value ) {
 		$this->state[ $key ] = $value;
 	}
 

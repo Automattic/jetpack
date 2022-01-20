@@ -267,16 +267,16 @@ final class WafRuntimeTest extends PHPUnit\Framework\TestCase {
 	 * Test vars
 	 */
 	public function testVars() {
-		$this->assertSame( '', $this->runtime->var( 'abc' ) );
-		$this->runtime->setvar( 'abc', '123' );
-		$this->assertSame( '123', $this->runtime->var( 'abc' ) );
+		$this->assertSame( '', $this->runtime->get_var( 'abc' ) );
+		$this->runtime->set_var( 'abc', '123' );
+		$this->assertSame( '123', $this->runtime->get_var( 'abc' ) );
 		$this->runtime->inc_var( 'abc', 3 );
-		$this->assertEquals( 126, $this->runtime->var( 'abc' ) );
+		$this->assertEquals( 126, $this->runtime->get_var( 'abc' ) );
 		$this->runtime->dec_var( 'abc', 10 );
-		$this->assertEquals( 116, $this->runtime->var( 'abc' ) );
+		$this->assertEquals( 116, $this->runtime->get_var( 'abc' ) );
 		$this->runtime->inc_var( 'def', 2 );
-		$this->assertSame( 2.0, $this->runtime->var( 'def' ) );
+		$this->assertSame( 2.0, $this->runtime->get_var( 'def' ) );
 		$this->runtime->unset_var( 'abc' );
-		$this->assertSame( '', $this->runtime->var( 'abc' ) );
+		$this->assertSame( '', $this->runtime->get_var( 'abc' ) );
 	}
 }

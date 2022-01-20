@@ -105,7 +105,7 @@ class WafRuleCompiler {
 	private function add_rule( $rule_id, $rule_tags, $rule_php ) {
 		// wrap in a "if rule removed" check (only if a previous rule might be removing this rule).
 		if ( $this->check_if_maybe_will_change_at_runtime( 'rule', $rule_id, $rule_tags ) ) {
-			array_unshift( $rule_php, 'if(!$waf->ruleRemoved($rule->id, $rule->tags)) {' );
+			array_unshift( $rule_php, 'if(!$waf->rule_removed($rule->id, $rule->tags)) {' );
 			$rule_php[] = '}';
 		}
 		$this->php = array_merge( $this->php, $rule_php );
@@ -134,21 +134,21 @@ class WafRuleCompiler {
 		return array_map(
 			function ( $act ) {
 				switch ( $act['name'] ) {
-					case 'setVar':
+					case 'set_var':
 						// key, op, value.
 						$k = $this->expand_macro( strtolower( $act['key'] ) );
 						if ( 'x' === $act['op'] ) {
 							return sprintf(
-								'$waf->unsetVar(%s);',
+								'$waf->unset_var(%s);',
 								$k
 							);
 						} else {
 							$v  = $this->expand_macro( $act['value'] );
-							$fn = 'setVar';
+							$fn = 'set_var';
 							if ( '+' === $act['op'] ) {
-								$fn = 'incVar';
+								$fn = 'inc_var';
 							} elseif ( '-' === $act['op'] ) {
-								$fn = 'decVar';
+								$fn = 'dec_var';
 							}
 							return sprintf(
 								'$waf->%s(%s,%s);',
@@ -157,7 +157,7 @@ class WafRuleCompiler {
 								$v
 							);
 						}
-					case 'removeTarget':
+					case 'remove_target':
 						// make a note (for compiler use) other rules'
 						// targets may be updated based on ID or tag.
 						$this->maybe_will_change_at_runtime(
@@ -167,23 +167,23 @@ class WafRuleCompiler {
 						);
 						// add a runtime line.
 						return sprintf(
-							'$waf->flagTargetForRemoval(%s,%s,%s,%s);',
+							'$waf->flag_target_for_removal(%s,%s,%s,%s);',
 							var_export( $act['prop'], true ),
 							var_export( strtolower( $act['value'] ), true ),
 							var_export( strtolower( $act['targetName'] ), true ),
 							var_export( $act['targetProp'], true )
 						);
-					case 'removeRule':
+					case 'remove_rule':
 						// make a note (for compiler use) other rules
 						// may be removed based on ID or tag.
 						$this->maybe_will_change_at_runtime( 'rule', $act['prop'], $act['value'] );
 						// add a runtime line.
 						return sprintf(
-							'$waf->flagRuleForRemoval(%s,%s);',
+							'$waf->flag_rule_for_removal(%s,%s);',
 							var_export( $act['prop'], true ),
 							var_export( $act['value'], true )
 						);
-					case 'setReason':
+					case 'set_reason':
 						return sprintf(
 							'$rule->reason = %s;',
 							$this->expand_macro( $act['reason'] )
@@ -292,7 +292,7 @@ class WafRuleCompiler {
 			// to a method to update them at runtime.
 			if ( $this->check_if_maybe_will_change_at_runtime( 'target', $rule_id, $rule_tags ) ) {
 				$targets = sprintf(
-					'$waf->updateTargets(%s, $rule->id, $rule->tags)',
+					'$waf->update_targets(%s, $rule->id, $rule->tags)',
 					$targets
 				);
 			}
@@ -326,7 +326,7 @@ class WafRuleCompiler {
 			}
 			// write the condition.
 			$php_lines[] = sprintf(
-				'if($waf->matchTargets(%s,%s,%s,%s,%s,%s)) {',
+				'if($waf->match_targets(%s,%s,%s,%s,%s,%s)) {',
 				var_export( isset( $rule['transforms'] ) ? $rule['transforms'] : array(), true ),
 				$targets,
 				var_export( $op_name, true ),
@@ -367,7 +367,7 @@ class WafRuleCompiler {
 			function ( $m ) use ( &$matched ) {
 				$k = strtolower( substr( $m[0], 2, -1 ) );
 				if ( 1 === preg_match( '/^(tx|ip)\./', $k ) ) {
-					$matched[] = '$waf->var(' . var_export( $k, true ) . ')';
+					$matched[] = '$waf->get_var(' . var_export( $k, true ) . ')';
 				} elseif ( strpos( $k, 'request_headers.' ) === 0 ) {
 					$matched[] = "\$waf->meta('headers', " . var_export( substr( $k, 16 ), true ) . ')';
 				} else {
