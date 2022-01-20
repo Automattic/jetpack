@@ -1,7 +1,7 @@
 /**
  * WordPress dependencies
  */
-import { useSelect } from '@wordpress/data';
+import { useSelect, useDispatch } from '@wordpress/data';
 
 /**
  * Internal dependencies
@@ -14,9 +14,11 @@ import { STORE_ID } from '../../state/store';
  * @returns {object} site products data
  */
 export function useProducts() {
+	const { activateProduct: activate } = useDispatch( STORE_ID );
+
 	return {
 		list: useSelect( select => select( STORE_ID ).getProducts() ),
-		enable: () => {},
+		activate,
 		disable: () => {},
 	};
 }
