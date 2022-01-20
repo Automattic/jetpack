@@ -14,7 +14,7 @@
  */
 
 // Require the markdown class file.
-require __DIR__ . '/markdown/class-wpcom-markdown.php';
+require __DIR__ . '/markdown/easy-markdown.php';
 
 /**
  * Remove checkbox set in modules/markdown/easy-markdown.php.

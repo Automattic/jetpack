@@ -1,4 +1,4 @@
-<?php
+<?php //phpcs:ignore WordPress.Files.FileName.InvalidClassFileName
 /**
  * Plugin URI: https://automattic.com/
  * Plugin Name: Easy Markdown
