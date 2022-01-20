@@ -12,6 +12,8 @@ class Generator_Status implements Endpoint {
 		return \WP_REST_Server::READABLE;
 	}
 
+	// $request is required to adhere to the contract.
+	//phpcs:disable VariableAnalysis.CodeAnalysis.VariableAnalysis.UnusedVariable
 	public function response( $request ) {
 		$generator = new Generator();
 		return rest_ensure_response( $generator->get_critical_css_status() );

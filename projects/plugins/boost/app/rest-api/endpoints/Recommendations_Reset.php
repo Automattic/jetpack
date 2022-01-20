@@ -12,6 +12,8 @@ class Recommendations_Reset implements Endpoint {
 		return \WP_REST_Server::EDITABLE;
 	}
 
+	// $request is required to adhere to the contract.
+	//phpcs:disable VariableAnalysis.CodeAnalysis.VariableAnalysis.UnusedVariable
 	public function response( $request ) {
 		$recommendations = new Recommendations();
 		$recommendations->reset();

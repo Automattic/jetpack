@@ -81,7 +81,7 @@ class Critical_CSS implements Feature, Has_Endpoints {
 
 	public function display_critical_css() {
 
-		// Don't look for Critical CSS in the dashboard
+		// Don't look for Critical CSS in the dashboard.
 		if ( is_admin() ) {
 			return;
 		}
@@ -95,7 +95,7 @@ class Critical_CSS implements Feature, Has_Endpoints {
 			return;
 		}
 
-		// Get the Critical CSS to show
+		// Get the Critical CSS to show.
 		$critical_css = $this->paths->get_current_request_css();
 		if ( ! $critical_css ) {
 			return;

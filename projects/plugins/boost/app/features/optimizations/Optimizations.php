@@ -14,7 +14,10 @@ class Optimizations {
 		$forced_disabled_modules = array();
 		// Get the lists of modules explicitly disabled from the 'jb-disable-modules' query string.
 		// The parameter is a comma separated value list of module slug.
+
+		// phpcs:disable WordPress.Security.NonceVerification.Recommended
 		if ( ! empty( $_GET['jb-disable-modules'] ) ) {
+			// phpcs:disable WordPress.Security.NonceVerification.Recommended
 			// phpcs:disable WordPress.Security.ValidatedSanitizedInput.MissingUnslash
 			// phpcs:disable WordPress.Security.ValidatedSanitizedInput.InputNotSanitized
 			$forced_disabled_modules = array_map( 'sanitize_key', explode( ',', $_GET['jb-disable-modules'] ) );
@@ -47,6 +50,7 @@ class Optimizations {
 			new Render_Blocking_JS(),
 		);
 
+		$modules = array();
 		foreach ( $features as $feature ) {
 			$module = new Optimization( $feature );
 			$module->register_endpoints();
