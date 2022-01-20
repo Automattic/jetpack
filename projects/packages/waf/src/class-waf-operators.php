@@ -275,6 +275,10 @@ class WafOperators {
 	 * @return string|false
 	 */
 	public function within( $input, $test ) {
+		if ( '' === $input || '' === $test ) {
+			return false;
+		}
+
 		return stripos( $test, $input ) !== false
 		? $input
 		: false;
