@@ -155,7 +155,7 @@ class WPCom_Markdown {
 		add_filter( 'edit_post_content', array( $this, 'edit_post_content' ), 10, 2 );
 		add_filter( 'edit_post_content_filtered', array( $this, 'edit_post_content_filtered' ), 10, 2 );
 		add_action( 'wp_restore_post_revision', array( $this, 'wp_restore_post_revision' ), 10, 2 );
-		add_filter( 'wp_post_revision_fields', array( $this, 'wp_post_revision_fields' ) );
+		add_filter( '_wp_post_revision_fields', array( $this, 'wp_post_revision_fields' ) );
 		add_action( 'xmlrpc_call', array( $this, 'xmlrpc_actions' ) );
 		add_filter( 'content_save_pre', array( $this, 'preserve_code_blocks' ), 1 );
 		if ( defined( 'XMLRPC_REQUEST' ) && XMLRPC_REQUEST ) {
