@@ -185,7 +185,7 @@ class Render_Blocking_JS implements Feature  {
 	 * @return array
 	 */
 	protected function get_script_tags( $buffer ) {
-		$regex = sprintf( '~<script(?![^>]*%s="%s")([^>]*)>[\s\S]*?<\/script>~si', preg_quote( $this->ignore_attribute, '~' ), preg_quote( $this->ignore_value, '~' ) );
+		$regex = sprintf( '~<script(?![^>]*%s=(?<q>["\']*)%s\k<q>)([^>]*)>[\s\S]*?<\/script>~si', preg_quote( $this->ignore_attribute, '~' ), preg_quote( $this->ignore_value, '~' ) );
 		preg_match_all( $regex, $buffer, $script_tags, PREG_OFFSET_CAPTURE );
 
 		// No script_tags in the joint buffer.

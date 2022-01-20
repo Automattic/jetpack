@@ -91,11 +91,7 @@ class Jetpack_Search_Debug_Bar extends Debug_Bar_Panel {
 	 * @return void
 	 */
 	public function render() {
-		if ( ! class_exists( 'Jetpack_Search' ) ) {
-			return;
-		}
-
-		$jetpack_search  = Jetpack_Search::instance();
+		$jetpack_search  = Automattic\Jetpack\Search\Classic_Search::instance();
 		$last_query_info = $jetpack_search->get_last_query_info();
 
 		// If not empty, let's reshuffle the order of some things.
