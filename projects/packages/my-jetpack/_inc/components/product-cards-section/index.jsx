@@ -10,6 +10,7 @@ import { Container, Row, Col } from '@automattic/jetpack-components';
 import ProductCard, { PRODUCT_STATUSES } from '../product-card';
 import BackupCard from './backup-card';
 import ScanCard from './scan-card';
+import AntiSpamCard from './anti-spam-card';
 
 /**
  * Product cards section component.
@@ -27,11 +28,7 @@ export default function ProductCardsSection() {
 					<ScanCard admin={ true } />
 				</Col>
 				<Col sm={ 3 }>
-					<ProductCard
-						name="Anti-spam"
-						description="Stop comment and form spam"
-						status={ PRODUCT_STATUSES.ERROR }
-					/>
+					<AntiSpamCard admin={ true } />
 				</Col>
 				<Col sm={ 3 }>
 					<ProductCard
