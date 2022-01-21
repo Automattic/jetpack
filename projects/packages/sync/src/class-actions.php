@@ -698,7 +698,7 @@ class Actions {
 	 * @static
 	 *
 	 * @param array $sync_modules The list of sync modules declared prior to this filter.
-	 * @return array A list of sync modules that now includes Woo's modules.
+	 * @return array A list of sync modules that now includes Search's modules.
 	 */
 	public static function add_search_sync_module( $sync_modules ) {
 		$sync_modules[] = 'Automattic\\Jetpack\\Sync\\Modules\\Search';
