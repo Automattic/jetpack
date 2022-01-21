@@ -187,6 +187,40 @@ for SLUG in "${SLUGS[@]}"; do
 		# Copy the resulting list of files into the clone.
 		xargs cp --parents --target-directory="$BUILD_DIR"
 
+	if [[ "$SLUG" == "plugins/jetpack" ]]; then
+		echo "::group::Copying Jetpack files for backward compatibility."
+
+		OLD_VENDOR_DIR="$BUILD_DIR/vendor"
+		NEW_VENDOR_DIR="$BUILD_DIR/jetpack_vendor"
+		FILES_TO_COPY=(
+			"automattic/jetpack-roles/src/class-roles.php"
+			"automattic/jetpack-backup/src/class-package-version.php"
+			"automattic/jetpack-sync/src/class-package-version.php"
+			"automattic/jetpack-connection/src/class-package-version.php"
+			"automattic/jetpack-connection/src/class-urls.php"
+			"automattic/jetpack-sync/src/class-functions.php"
+			"automattic/jetpack-sync/src/class-queue-buffer.php"
+			"automattic/jetpack-sync/src/class-utils.php"
+			"automattic/jetpack-connection/legacy/class-jetpack-ixr-client.php"
+			"automattic/jetpack-connection/src/class-client.php"
+			"automattic/jetpack-connection/legacy/class-jetpack-signature.php"
+		)
+
+		for file in "${FILES_TO_COPY[@]}"; do
+			if [[ -f "$NEW_VENDOR_DIR/$file" ]]; then
+				dir_name=$(dirname "$file")
+				mkdir -p "$OLD_VENDOR_DIR/$dir_name"
+
+				printf "<?php // Stub to avoid errors during upgrades\nrequire_once __DIR__ . '/%s/../jetpack_vendor/%s';\n" \
+					"$(sed -E 's![^/]+!..!g' <<<"$dir_name")" \
+					"$file" \
+					> "$OLD_VENDOR_DIR/$file"
+
+			fi
+		done
+		echo "::endgroup::"
+	fi
+
 	# Remove monorepo repos from composer.json
 	JSON=$(jq --tab 'if .repositories then .repositories |= map( select( .options.monorepo | not ) ) else . end' "$BUILD_DIR/composer.json")
 	if [[ "$JSON" != "$(<"$BUILD_DIR/composer.json")" ]]; then
