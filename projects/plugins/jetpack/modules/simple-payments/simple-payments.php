@@ -569,7 +569,7 @@ class Jetpack_Simple_Payments {
 			'THB',
 		);
 
-		return in_array( $currency, $valid_currencies ) ? $currency : false;
+		return in_array( $currency, $valid_currencies, true ) ? $currency : false;
 	}
 
 	/**
