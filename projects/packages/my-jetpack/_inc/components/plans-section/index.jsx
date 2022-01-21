@@ -10,8 +10,7 @@ import { ExternalLink } from '@wordpress/components';
  */
 import usePurchases from '../../hooks/use-purchases';
 import getManageYourPlanUrl from '../../utils/get-manage-your-plan-url';
-
-import './style.scss';
+import styles from './style.module.scss';
 
 /**
  * Basic plan section component.
@@ -66,7 +65,7 @@ export default function PlansSection() {
 	const purchases = usePurchases();
 
 	return (
-		<div className="jp-plans-section">
+		<div className={ styles.container }>
 			<PlanSectionHeader purchases={ purchases } />
 
 			<div className="jp-plans-section__purchases-section">
