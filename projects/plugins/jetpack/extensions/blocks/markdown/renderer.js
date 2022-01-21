@@ -23,8 +23,8 @@ const handleLinkClick = event => {
 };
 
 const getStyles = ( attributes = {} ) => {
-	const spacingProps = getSpacingClassesAndStyles( attributes );
-	return spacingProps.style;
+	const spacingProps = getSpacingClassesAndStyles?.( attributes );
+	return spacingProps?.style ? spacingProps.style : {};
 };
 
 export default ( { className, source = '', attributes } ) => (
