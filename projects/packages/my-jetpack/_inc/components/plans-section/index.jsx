@@ -66,7 +66,12 @@ function PlanSectionHeader( { purchases } ) {
 						: __( 'Manage your plans', 'jetpack-my-jetpack' ) }
 				</ExternalLink>
 
-				<Button primary onClick={ setProductStateHandler } disabled={ isFetching }>
+				<Button
+					primary
+					onClick={ setProductStateHandler }
+					disabled={ isFetching }
+					isBusy={ isFetching }
+				>
 					{ isActive
 						? __( 'Activate Backup', 'jetpack-my-jetpack' )
 						: __( 'Deactivate Backup', 'jetpack-my-jetpack' ) }
