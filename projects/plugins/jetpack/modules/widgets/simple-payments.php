@@ -415,7 +415,7 @@ if ( ! class_exists( 'Jetpack_Simple_Payments_Widget' ) ) {
 
 			echo '<div class="jetpack-simple-payments-content">';
 
-			if ( ! empty( $instance['form_action'] ) && in_array( $instance['form_action'], array( 'add', 'edit' ) ) && is_customize_preview() ) {
+			if ( ! empty( $instance['form_action'] ) && in_array( $instance['form_action'], array( 'add', 'edit' ), true ) && is_customize_preview() ) {
 				require __DIR__ . '/simple-payments/widget.php';
 			} else {
 				$jsp                    = Jetpack_Simple_Payments::getInstance();
