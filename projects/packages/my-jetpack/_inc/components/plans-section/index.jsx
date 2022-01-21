@@ -11,8 +11,8 @@ import { useCallback } from '@wordpress/element';
  */
 import usePurchases from '../../hooks/use-purchases';
 import getManageYourPlanUrl from '../../utils/get-manage-your-plan-url';
+import { useProduct } from '../../hooks/use-product';
 import styles from './style.module.scss';
-import { useProducts } from '../../hooks/use-products';
 
 /**
  * Basic plan section component.
@@ -39,17 +39,17 @@ function PlanSection( { purchase = {} } ) {
  * @returns {object} PlanSectionHeader react component.
  */
 function PlanSectionHeader( { purchases } ) {
-	const { list: productsList, activate, deactivate } = useProducts();
+	const { isActive, isFetching, activate, deactivate } = useProduct( 'backup' );
 
 	/**
 	 * Set product state handler
 	 */
 	// @todo: remove this testing code
-	const setProductStateHandler = useCallback(
-		() =>
-			productsList?.backup.status !== 'active' ? activate( 'backup' ) : deactivate( 'backup' ),
-		[ productsList, activate, deactivate ]
-	);
+	const setProductStateHandler = useCallback( () => ( ! isActive ? activate() : deactivate() ), [
+		isActive,
+		activate,
+		deactivate,
+	] );
 
 	return (
 		<>
@@ -66,8 +66,8 @@ function PlanSectionHeader( { purchases } ) {
 						: __( 'Manage your plans', 'jetpack-my-jetpack' ) }
 				</ExternalLink>
 
-				<Button primary onClick={ setProductStateHandler }>
-					{ productsList.backup.status !== 'active'
+				<Button primary onClick={ setProductStateHandler } disabled={ isFetching }>
+					{ isActive
 						? __( 'Activate Backup', 'jetpack-my-jetpack' )
 						: __( 'Deactivate Backup', 'jetpack-my-jetpack' ) }
 				</Button>
