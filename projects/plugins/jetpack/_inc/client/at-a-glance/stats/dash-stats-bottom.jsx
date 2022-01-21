@@ -4,6 +4,7 @@
 import PropTypes from 'prop-types';
 import React, { Component } from 'react';
 import { connect } from 'react-redux';
+import classNames from 'classnames';
 
 /**
  * WordPress dependencies
@@ -107,14 +108,6 @@ class DashStatsBottom extends Component {
 				<div className="jp-at-a-glance__stats-cta">
 					<div className="jp-at-a-glance__stats-cta-description" />
 					<div className="jp-at-a-glance__stats-ctas">
-						{ createInterpolateElement( __( '<button>View detailed stats</button>', 'jetpack' ), {
-							button: (
-								<Button
-									onClick={ this.trackViewDetailedStats }
-									href={ this.props.siteAdminUrl + 'admin.php?page=stats' }
-								/>
-							),
-						} ) }
 						{ this.props.isLinked &&
 							createInterpolateElement(
 								__( '<ExternalLink>View more stats on WordPress.com</ExternalLink>', 'jetpack' ),
@@ -127,10 +120,22 @@ class DashStatsBottom extends Component {
 											} ) }
 											rel="noopener noreferrer"
 											target="_blank"
+											className={ classNames(
+												'jp-at-a-glance__stats-ctas-wpcom-stats',
+												this.props.className
+											) }
 										/>
 									),
 								}
 							) }
+						{ createInterpolateElement( __( '<button>View detailed stats</button>', 'jetpack' ), {
+							button: (
+								<Button
+									onClick={ this.trackViewDetailedStats }
+									href={ this.props.siteAdminUrl + 'admin.php?page=stats' }
+								/>
+							),
+						} ) }
 					</div>
 				</div>
 				{ ! this.props.isLinked && this.props.userCanConnectAccount && (

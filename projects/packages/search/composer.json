@@ -4,12 +4,12 @@
 	"type": "jetpack-library",
 	"license": "GPL-2.0-or-later",
 	"require": {
-		"automattic/jetpack-connection": "^1.34",
+		"automattic/jetpack-connection": "^1.36",
 		"automattic/jetpack-assets": "^1.16",
 		"automattic/jetpack-constants": "^1.6",
 		"automattic/jetpack-tracking": "^1.14",
 		"automattic/jetpack-options": "^1.14",
-		"automattic/jetpack-status": "^1.9"
+		"automattic/jetpack-status": "^1.10"
 	},
 	"require-dev": {
 		"automattic/jetpack-changelogger": "^3.0",
@@ -27,26 +27,21 @@
 			"pnpm run build"
 		],
 		"build-development": [
-			"Composer\\Config::disableProcessTimeout",
 			"pnpm run build-development"
 		],
 		"build-production": [
-			"Composer\\Config::disableProcessTimeout",
 			"pnpm run build-production"
 		],
 		"phpunit": [
 			"./vendor/phpunit/phpunit/phpunit --colors=always"
 		],
 		"test-coverage": [
-			"@composer install",
 			"php -dpcov.directory=. ./vendor/bin/phpunit --coverage-clover \"$COVERAGE_DIR/clover.xml\""
 		],
 		"test-js": [
-			"Composer\\Config::disableProcessTimeout",
 			"pnpm run test"
 		],
 		"test-php": [
-			"@composer install",
 			"@composer phpunit"
 		],
 		"post-update-cmd": "php -r \"copy('vendor/automattic/wordbless/src/dbless-wpdb.php', 'wordpress/wp-content/db.php');\""
@@ -71,6 +66,11 @@
 		},
 		"branch-alias": {
 			"dev-master": "0.5.x-dev"
+		}
+	},
+	"config": {
+		"allow-plugins": {
+			"roots/wordpress-core-installer": true
 		}
 	}
 }

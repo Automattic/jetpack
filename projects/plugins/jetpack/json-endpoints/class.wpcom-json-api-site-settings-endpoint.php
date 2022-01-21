@@ -416,7 +416,7 @@ class WPCOM_JSON_API_Site_Settings_Endpoint extends WPCOM_JSON_API_Endpoint {
 						'date_format'                      => get_option( 'date_format' ),
 						'time_format'                      => get_option( 'time_format' ),
 						'start_of_week'                    => get_option( 'start_of_week' ),
-						'woocommerce_onboarding_profile'   => (array) get_option( 'woocommerce_onboarding_profile' ),
+						'woocommerce_onboarding_profile'   => (array) get_option( 'woocommerce_onboarding_profile', array() ),
 						'woocommerce_store_address'        => (string) get_option( 'woocommerce_store_address' ),
 						'woocommerce_store_address_2'      => (string) get_option( 'woocommerce_store_address_2' ),
 						'woocommerce_store_city'           => (string) get_option( 'woocommerce_store_city' ),
