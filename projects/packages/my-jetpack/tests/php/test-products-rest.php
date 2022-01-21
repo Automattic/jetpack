@@ -152,7 +152,7 @@ class Test_Products_Rest extends TestCase {
 		$data     = $response->get_data();
 
 		$this->assertEquals( 200, $response->get_status() );
-		$this->assertEquals( $product, $data['product'] );
+		$this->assertEquals( $product, $data['products'][0] );
 	}
 
 	/**
@@ -179,7 +179,7 @@ class Test_Products_Rest extends TestCase {
 		$response = $this->server->dispatch( $this->request );
 		$data     = $response->get_data();
 
-		$this->assertEquals( 'active', $data['product']['status'] );
+		$this->assertEquals( 'active', $data['products'][0]['status'] );
 		$this->assertTrue( is_plugin_active( $this->boost_mock_filename ) );
 	}
 
@@ -197,7 +197,7 @@ class Test_Products_Rest extends TestCase {
 		$response = $this->server->dispatch( $this->request );
 		$data     = $response->get_data();
 
-		$this->assertEquals( 'inactive', $data['product']['status'] );
+		$this->assertEquals( 'inactive', $data['products'][0]['status'] );
 		$this->assertFalse( is_plugin_active( $this->boost_mock_filename ) );
 	}
 

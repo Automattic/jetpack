@@ -64,7 +64,6 @@ class REST_Products {
 						'product' => $product_arg,
 					),
 				),
-				'schema' => array( $this, 'get_product_schema' ),
 			)
 		);
 
@@ -75,21 +74,7 @@ class REST_Products {
 	 *
 	 * @return array
 	 */
-	public function get_products_schema() {
-		return array(
-			'$schema' => 'http://json-schema.org/draft-04/schema#',
-			'title'   => 'products',
-			'type'    => 'array',
-			'items'   => Products::get_product_data_schema(),
-		);
-	}
-
-	/**
-	 * Get the schema for the product endpoint
-	 *
-	 * @return array
-	 */
-	public function get_product_schema() {
+	public function get_product_sschema() {
 		return array(
 			'$schema'    => 'http://json-schema.org/draft-04/schema#',
 			'title'      => 'product',
@@ -159,7 +144,7 @@ class REST_Products {
 	public static function get_product( $request ) {
 		$product_slug = $request->get_param( 'product' );
 		$response     = array(
-			'product' => Products::get_product( $product_slug ),
+			'products' => array( Products::get_product( $product_slug ) ),
 		);
 		return rest_ensure_response( $response, 200 );
 	}
@@ -199,8 +184,8 @@ class REST_Products {
 
 		$success  = call_user_func( array( $product['class'], 'activate' ) );
 		$response = array(
-			'success' => $success,
-			'product' => Products::get_product( $product_slug ),
+			'success'  => $success,
+			'products' => array( Products::get_product( $product_slug ) ),
 		);
 		return rest_ensure_response( $response, 200 );
 
@@ -226,8 +211,8 @@ class REST_Products {
 
 		$success  = call_user_func( array( $product['class'], 'deactivate' ) );
 		$response = array(
-			'success' => $success,
-			'product' => Products::get_product( $product_slug ),
+			'success'  => $success,
+			'products' => array( Products::get_product( $product_slug ) ),
 		);
 		return rest_ensure_response( $response, 200 );
 
