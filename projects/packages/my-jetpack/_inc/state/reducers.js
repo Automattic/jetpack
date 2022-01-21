@@ -11,6 +11,7 @@ import {
 	SET_PURCHASES_IS_FETCHING,
 	SET_PRODUCT_ACTION_ERROR,
 	SET_PRODUCT_STATUS,
+	IS_FETCHING_PRODUCT_STATUS,
 } from './actions';
 
 const products = ( state = {}, action ) => {
@@ -34,6 +35,12 @@ const products = ( state = {}, action ) => {
 			return {
 				...state,
 				error: action.error,
+			};
+
+		case IS_FETCHING_PRODUCT_STATUS:
+			return {
+				...state,
+				isFetching: action.isFetching,
 			};
 
 		default:

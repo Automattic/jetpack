@@ -18,6 +18,7 @@ const SET_PURCHASES = 'SET_PURCHASES';
 const SET_PRODUCT_ACTION_ERROR = 'SET_PRODUCT_ACTION_ERROR';
 const ACTIVATE_PRODUCT = 'ACTIVATE_PRODUCT';
 const DEACTIVATE_PRODUCT = 'DEACTIVATE_PRODUCT';
+const IS_FETCHING_PRODUCT_STATUS = 'IS_FETCHING_PRODUCT_STATUS';
 const SET_PRODUCT_STATUS = 'SET_PRODUCT_STATUS';
 
 const setPurchasesIsFetching = isFetching => {
@@ -36,6 +37,10 @@ const setProductStatus = ( productId, status ) => {
 	return { type: SET_PRODUCT_STATUS, productId, status };
 };
 
+const setIsFetchingProductStatus = ( productId, isFetching ) => {
+	return { type: IS_FETCHING_PRODUCT_STATUS, productId, isFetching };
+};
+
 const setProductActionError = error => {
 	return { type: SET_PRODUCT_ACTION_ERROR, error };
 };
@@ -44,12 +49,12 @@ const setProductActionError = error => {
  * Side effect action which will sync
  * the `status` state of the product with the server.
  *
- * @param {string}   productId        - My Jetpack product ID.
- * @param {object}   data             - POST Action data. eg: { activate: true }
- * @param {object}   store            - Redux store.
- * @param {object}   store.select     - Redux store select.
- * @param {Function} store.dispatch   - Redux store dispatch.
- * @returns {Promise}                 - Promise which resolves when the product status is updated.
+ * @param {string}   productId      - My Jetpack product ID.
+ * @param {object}   data           - POST Action data. eg: { activate: true }
+ * @param {object}   store          - Redux store.
+ * @param {object}   store.select   - Redux store select.
+ * @param {Function} store.dispatch - Redux store dispatch.
+ * @returns {Promise}               - Promise which resolves when the product status is updated.
  */
 function requestProductStatus( productId, data, { select, dispatch } ) {
 	return new Promise( ( resolve, reject ) => {
@@ -64,6 +69,8 @@ function requestProductStatus( productId, data, { select, dispatch } ) {
 			);
 		}
 
+		dispatch( setIsFetchingProductStatus( productId, true ) );
+
 		// Activate/deactivate product.
 		return apiFetch( {
 			path: `${ REST_API_SITE_PRODUCTS_ENDPOINT }/${ productId }`,
@@ -77,7 +84,8 @@ function requestProductStatus( productId, data, { select, dispatch } ) {
 			.catch( error => {
 				dispatch( setProductActionError( error ) );
 				reject( error );
-			} );
+			} )
+			.finally( dispatch( setIsFetchingProductStatus( productId, false ) ) );
 	} );
 }
 
@@ -122,6 +130,7 @@ export {
 	SET_PRODUCT_ACTION_ERROR,
 	ACTIVATE_PRODUCT,
 	DEACTIVATE_PRODUCT,
+	IS_FETCHING_PRODUCT_STATUS,
 	SET_PRODUCT_STATUS,
 	actions as default,
 };
