@@ -22,10 +22,7 @@ const handleLinkClick = event => {
 	}
 };
 
-const getStyles = attributes => {
-	if ( ! attributes ) {
-		return null;
-	}
+const getStyles = ( attributes = {} ) => {
 	const spacingProps = getSpacingClassesAndStyles( attributes );
 	return spacingProps.style;
 };
