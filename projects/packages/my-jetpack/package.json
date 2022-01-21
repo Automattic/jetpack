@@ -27,8 +27,7 @@
 		"@wordpress/data": "6.1.5",
 		"@wordpress/i18n": "4.2.4",
 		"classnames": "2.3.1",
-		"prop-types": "15.8.1",
-		"refx": "3.1.1"
+		"prop-types": "15.8.1"
 	},
 	"sideEffects": [
 		"*.css",
