@@ -405,12 +405,12 @@ if ( ! class_exists( 'Jetpack_Simple_Payments_Widget' ) ) {
 		public function widget( $args, $instance ) {
 			$instance = wp_parse_args( $instance, $this->defaults() );
 
-			echo $args['before_widget'];
+			echo $args['before_widget']; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
 
 			/** This filter is documented in core/src/wp-includes/default-widgets.php */
 			$title = apply_filters( 'widget_title', $instance['title'] );
 			if ( ! empty( $title ) ) {
-				echo $args['before_title'] . $title . $args['after_title'];
+				echo $args['before_title'] . $title . $args['after_title']; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
 			}
 
 			echo '<div class="jetpack-simple-payments-content">';
@@ -426,13 +426,13 @@ if ( ! class_exists( 'Jetpack_Simple_Payments_Widget' ) ) {
 				);
 
 				if ( ! is_null( $simple_payments_button ) || is_customize_preview() ) {
-					echo $simple_payments_button;
+					echo $simple_payments_button; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
 				}
 			}
 
 			echo '</div><!--simple-payments-->';
 
-			echo $args['after_widget'];
+			echo $args['after_widget']; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
 
 			/** This action is already documented in modules/widgets/gravatar-profile.php */
 			do_action( 'jetpack_stats_extra', 'widget_view', 'simple_payments' );
