@@ -1,10 +1,12 @@
 export const getProducts = state => state.products?.items || {};
 export const getProductNames = state => Object.keys( getProducts( state ) );
-export const isValidProduct = ( state, product ) => getProductNames( state ).includes( product );
+export const getProduct = ( state, productId ) => getProducts( state )?.[ productId ] || {};
+export const isValidProduct = ( state, productId ) => getProductNames( state ).includes( productId );
 
 const productSelectors = {
 	getProducts,
 	getProductNames,
+	getProduct,
 	isValidProduct,
 };
 
