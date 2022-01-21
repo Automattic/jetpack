@@ -10,8 +10,9 @@ import PropTypes from 'prop-types';
 import ProductCard, { PRODUCT_STATUSES } from '../product-card';
 
 const SearchIcon = () => (
-	<svg width="24" height="24" fill="none" xmlns="http://www.w3.org/2000/svg">
-		<circle cx="5.5" cy="5.5" r="4.75" stroke="#1E1E1E" stroke-width="1.5" />
+	<svg width="14" height="13" viewBox="0 0 14 13" fill="none" xmlns="http://www.w3.org/2000/svg">
+		<path d="M1 12L5 8.5" stroke="#1E1E1E" strokeWidth="1.5" />
+		<circle cx="8.5" cy="5.5" r="4.75" stroke="#1E1E1E" strokeWidth="1.5" />
 	</svg>
 );
 
