@@ -56,9 +56,7 @@ const CardMigrate = props => {
 
 	const { isMigrating, migrateCallback, customContent, hasError } = props;
 
-	const buttonLabel = customContent.migrateButtonLabel
-		? createInterpolateElement( customContent.migrateButtonLabel, { em: <em /> } )
-		: __( 'Move your settings', 'jetpack' );
+	const buttonLabel = customContent.migrateButtonLabel || __( 'Move your settings', 'jetpack' );
 
 	return (
 		<div
