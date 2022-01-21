@@ -363,6 +363,7 @@ EOT;
 	 * @return string
 	 */
 	public function render_block( $attributes ) {
+		$post_id = get_the_ID();
 		$block_attributes = array(
 			'headline'        => isset( $attributes['headline'] ) ? $attributes['headline'] : null,
 			'show_thumbnails' => isset( $attributes['displayThumbnails'] ) && $attributes['displayThumbnails'],
@@ -375,7 +376,7 @@ EOT;
 		$excludes = $this->parse_numeric_get_arg( 'relatedposts_origin' );
 
 		$related_posts = $this->get_for_post_id(
-			get_the_ID(),
+			$post_id,
 			array(
 				'size'             => $block_attributes['size'],
 				'exclude_post_ids' => $excludes,
@@ -427,7 +428,7 @@ EOT;
 		 * @param array $related_posts Array of related posts.
 		 * @param array $block_attributes Array of Block attributes.
 		 */
-		return apply_filters('jetpack_related_posts_display_markup', $display_markup, get_the_ID(), $related_posts, $block_attributes);
+		return apply_filters( 'jetpack_related_posts_display_markup', $display_markup, $post_id, $related_posts, $block_attributes );
 	}
 
 	/**
@@ -1198,8 +1199,8 @@ EOT;
 	 */
 	public function get_related_post_data_for_post( $post_id, $position, $origin ) {
 		$post = get_post( $post_id );
-
-		return array(
+		
+		$related_posts =  array(
 			'id'       => $post->ID,
 			'url'      => get_permalink( $post->ID ),
 			'url_meta' => array(
@@ -1254,6 +1255,18 @@ EOT;
 				$post->ID
 			),
 		);
+
+		/**
+		 * Filter the array of related posts.
+		 *
+		 * @module related-posts
+		 *
+		 * @since 2.8.0
+		 *
+		 * @param array $results Array of related posts.
+		 * @param string $post_id Post ID of the post for which we are retrieving Related Posts.
+		 */
+		return apply_filters( 'jetpack_relatedposts_returned_results', $related_posts, $post_id );
 	}
 
 	/**
