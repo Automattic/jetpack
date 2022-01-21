@@ -33,7 +33,7 @@ const AntiSpamCard = ( { admin } ) => {
 	);
 };
 
-AntiSpamIcon.propTypes = {
+AntiSpamCard.propTypes = {
 	admin: PropTypes.bool.isRequired,
 };
 

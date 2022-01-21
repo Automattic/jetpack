@@ -33,7 +33,7 @@ const ScanCard = ( { admin } ) => {
 	);
 };
 
-ScanIcon.propTypes = {
+ScanCard.propTypes = {
 	admin: PropTypes.bool.isRequired,
 };
 

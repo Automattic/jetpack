@@ -33,7 +33,7 @@ const BackupCard = ( { admin } ) => {
 	);
 };
 
-BackupIcon.propTypes = {
+BackupCard.propTypes = {
 	admin: PropTypes.bool.isRequired,
 };
 
