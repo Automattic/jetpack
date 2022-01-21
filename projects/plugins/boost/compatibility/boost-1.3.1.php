@@ -28,6 +28,20 @@ add_filter( 'default_option_jetpack_boost_state_render-blocking-js', 'jetpack_bo
  */
 
 function jetpack_boost_131_option_migration() {
+
+	/**
+	 * This function is hooked into add_option
+	 * and also is using add_option
+	 *
+	 * That can cause quite a bit of recursion.
+	 * Use static variables to guard that.
+	 */
+	static $has_run = false;
+	if ( false !== $has_run ) {
+		return;
+	}
+	$has_run = true;
+
 	$old_config = get_option( 'jetpack_boost_config' );
 
 	if ( ! $old_config ) {
