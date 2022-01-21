@@ -158,3 +158,8 @@ function jetpack_boost_uninstall() {
 	$boost = new Jetpack_Boost();
 	$boost->uninstall();
 }
+
+/**
+ * Previous version compatibility files
+ */
+require_once __DIR__ . '/compatibility/boost-1.3.1.php';
