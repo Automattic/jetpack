@@ -201,6 +201,7 @@ for SLUG in "${SLUGS[@]}"; do
 			"automattic/jetpack-sync/src/class-package-version.php"
 			"automattic/jetpack-connection/src/class-package-version.php"
 			"automattic/jetpack-connection/src/class-urls.php"
+			"automattic/jetpack-sync/src/class-functions.php"
 			"automattic/jetpack-sync/src/class-queue-buffer.php"
 			"automattic/jetpack-sync/src/class-utils.php"
 			"automattic/jetpack-connection/legacy/class-jetpack-ixr-client.php"
