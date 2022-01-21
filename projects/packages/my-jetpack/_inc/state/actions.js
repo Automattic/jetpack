@@ -18,7 +18,7 @@ const SET_PURCHASES = 'SET_PURCHASES';
 const SET_PRODUCT_ACTION_ERROR = 'SET_PRODUCT_ACTION_ERROR';
 const ACTIVATE_PRODUCT = 'ACTIVATE_PRODUCT';
 const DEACTIVATE_PRODUCT = 'DEACTIVATE_PRODUCT';
-const IS_FETCHING_PRODUCT_STATUS = 'IS_FETCHING_PRODUCT_STATUS';
+const SET_FETCHING_PRODUCT_STATUS = 'SET_FETCHING_PRODUCT_STATUS';
 const SET_PRODUCT_STATUS = 'SET_PRODUCT_STATUS';
 
 const setPurchasesIsFetching = isFetching => {
@@ -38,7 +38,7 @@ const setProductStatus = ( productId, status ) => {
 };
 
 const setIsFetchingProductStatus = ( productId, isFetching ) => {
-	return { type: IS_FETCHING_PRODUCT_STATUS, productId, isFetching };
+	return { type: SET_FETCHING_PRODUCT_STATUS, productId, isFetching };
 };
 
 const setProductActionError = error => {
@@ -131,7 +131,7 @@ export {
 	SET_PRODUCT_ACTION_ERROR,
 	ACTIVATE_PRODUCT,
 	DEACTIVATE_PRODUCT,
-	IS_FETCHING_PRODUCT_STATUS,
+	SET_FETCHING_PRODUCT_STATUS,
 	SET_PRODUCT_STATUS,
 	actions as default,
 };
