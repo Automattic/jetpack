@@ -1,4 +1,4 @@
-<?php
+<?php // phpcs:ignore WordPress.Files.FileName.InvalidClassFileName
 use Automattic\Jetpack\Tracking;
 
 /**
@@ -18,6 +18,7 @@ if ( ! class_exists( 'Jetpack_Simple_Payments_Widget' ) ) {
 		/**
 		 * Currencies should be supported by PayPal:
 		 *
+		 * @var array $supported_currency_list
 		 * @link https://developer.paypal.com/docs/api/reference/currency-codes/
 		 *
 		 * List has to be in sync with list at the block's client side and API's backend side:
@@ -59,7 +60,7 @@ if ( ! class_exists( 'Jetpack_Simple_Payments_Widget' ) ) {
 		/**
 		 * Constructor.
 		 */
-		function __construct() {
+		public function __construct() {
 			parent::__construct(
 				'jetpack_simple_payments_widget',
 				/** This filter is documented in modules/widgets/facebook-likebox.php */
@@ -139,20 +140,29 @@ if ( ! class_exists( 'Jetpack_Simple_Payments_Widget' ) ) {
 		 * @param array $nonces Array of nonces.
 		 * @return array $nonces Modified array of nonces.
 		 */
-		function filter_nonces( $nonces ) {
+		public function filter_nonces( $nonces ) {
 			$nonces['customize-jetpack-simple-payments'] = wp_create_nonce( 'customize-jetpack-simple-payments' );
 			return $nonces;
 		}
 
-		function enqueue_style() {
+		/**
+		 * Enqueue styles.
+		 */
+		public function enqueue_style() {
 			wp_enqueue_style( 'jetpack-simple-payments-widget-style', plugins_url( 'simple-payments/style.css', __FILE__ ), array(), '20180518' );
 		}
 
-		function admin_enqueue_styles() {
+		/**
+		 * Enqueue admin styles.
+		 */
+		public function admin_enqueue_styles() {
 			wp_enqueue_style( 'jetpack-simple-payments-widget-customizer', plugins_url( 'simple-payments/customizer.css', __FILE__ ) );
 		}
 
-		function admin_enqueue_scripts() {
+		/**
+		 * Enqueue admin scripts.
+		 */
+		public function admin_enqueue_scripts() {
 				wp_enqueue_media();
 				wp_enqueue_script( 'jetpack-simple-payments-widget-customizer', plugins_url( '/simple-payments/customizer.js', __FILE__ ), array( 'jquery' ), false, true );
 				wp_localize_script(
@@ -164,6 +174,9 @@ if ( ! class_exists( 'Jetpack_Simple_Payments_Widget' ) ) {
 				);
 		}
 
+		/**
+		 * Get payment buttons.
+		 */
 		public function ajax_get_payment_buttons() {
 			if ( ! check_ajax_referer( 'customize-jetpack-simple-payments', 'customize-jetpack-simple-payments-nonce', false ) ) {
 				wp_send_json_error( 'bad_nonce', 400 );
@@ -187,11 +200,16 @@ if ( ! class_exists( 'Jetpack_Simple_Payments_Widget' ) ) {
 				)
 			);
 
-			 $formatted_products = array_map( array( $this, 'format_product_post_for_ajax_reponse' ), $product_posts );
+			$formatted_products = array_map( array( $this, 'format_product_post_for_ajax_reponse' ), $product_posts );
 
-			 wp_send_json_success( $formatted_products );
+			wp_send_json_success( $formatted_products );
 		}
 
+		/**
+		 * Format product_post object.
+		 *
+		 * @param object $product_post - info about the post the product is on.
+		 */
 		public function format_product_post_for_ajax_reponse( $product_post ) {
 			return array(
 				'ID'         => $product_post->ID,
@@ -199,6 +217,9 @@ if ( ! class_exists( 'Jetpack_Simple_Payments_Widget' ) ) {
 			);
 		}
 
+		/**
+		 * Handle saving the simple payments widget.
+		 */
 		public function ajax_save_payment_button() {
 			if ( ! check_ajax_referer( 'customize-jetpack-simple-payments', 'customize-jetpack-simple-payments-nonce', false ) ) {
 				wp_send_json_error( 'bad_nonce', 400 );
@@ -269,6 +290,9 @@ if ( ! class_exists( 'Jetpack_Simple_Payments_Widget' ) ) {
 			);
 		}
 
+		/**
+		 * Handle deleting the simple payment widget.
+		 */
 		public function ajax_delete_payment_button() {
 			if ( ! check_ajax_referer( 'customize-jetpack-simple-payments', 'customize-jetpack-simple-payments-nonce', false ) ) {
 				wp_send_json_error( 'bad_nonce', 400 );
@@ -319,6 +343,11 @@ if ( ! class_exists( 'Jetpack_Simple_Payments_Widget' ) ) {
 			return isset( $parts[1] ) ? strlen( $parts[1] ) : 0;
 		}
 
+		/**
+		 * Validate ajax parameters.
+		 *
+		 * @param array $params - the parameters.
+		 */
 		public function validate_ajax_params( $params ) {
 			$errors = new WP_Error();
 
@@ -349,7 +378,10 @@ if ( ! class_exists( 'Jetpack_Simple_Payments_Widget' ) ) {
 			return $errors;
 		}
 
-		function get_first_product_id() {
+		/**
+		 * Get the id of the first product.
+		 */
+		public function get_first_product_id() {
 			$product_posts = get_posts(
 				array(
 					'numberposts' => 1,
@@ -370,7 +402,7 @@ if ( ! class_exists( 'Jetpack_Simple_Payments_Widget' ) ) {
 		 * @param array $args     Widget arguments.
 		 * @param array $instance Saved values from database.
 		 */
-		function widget( $args, $instance ) {
+		public function widget( $args, $instance ) {
 			$instance = wp_parse_args( $instance, $this->defaults() );
 
 			echo $args['before_widget'];
@@ -409,9 +441,9 @@ if ( ! class_exists( 'Jetpack_Simple_Payments_Widget' ) ) {
 		/**
 		 * Gets the latests field value from either the old instance or the new instance.
 		 *
-		 * @param array $mixed Array of values for the new form instance.
-		 * @param array $mixed Array of values for the old form instance.
-		 * @return mixed $mixed Field value.
+		 * @param array $new_instance mixed Array of values for the new form instance.
+		 * @param array $old_instance mixed Array of values for the old form instance.
+		 * @param mixed $field mixed Field value.
 		 */
 		private function get_latest_field_value( $new_instance, $old_instance, $field ) {
 			return ! empty( $new_instance[ $field ] )
@@ -423,7 +455,7 @@ if ( ! class_exists( 'Jetpack_Simple_Payments_Widget' ) ) {
 		 * Gets the product fields from the product post. If no post found
 		 * it returns the default values.
 		 *
-		 * @param int Product Post ID.
+		 * @param int $product_post_id Product Post ID.
 		 * @return array $fields Product Fields from the Product Post.
 		 */
 		private function get_product_from_post( $product_post_id ) {
@@ -451,9 +483,9 @@ if ( ! class_exists( 'Jetpack_Simple_Payments_Widget' ) ) {
 		/**
 		 * Record a Track event and bump a MC stat.
 		 *
-		 * @param string $stat_name
-		 * @param string $event_action
-		 * @param array  $event_properties
+		 * @param string $stat_name - the name of the stat.
+		 * @param string $event_action - the action we're recording.
+		 * @param array  $event_properties - proprties of the event.
 		 */
 		private function record_event( $stat_name, $event_action, $event_properties = array() ) {
 			$current_user = wp_get_current_user();
@@ -485,9 +517,9 @@ if ( ! class_exists( 'Jetpack_Simple_Payments_Widget' ) ) {
 		 *
 		 * @return array Updated safe values to be saved.
 		 */
-		function update( $new_instance, $old_instance ) {
+		public function update( $new_instance, $old_instance ) {
 			$defaults = $this->defaults();
-			// do not overrite `product_post_id` for `$new_instance` with the defaults
+			// do not overrite `product_post_id` for `$new_instance` with the defaults.
 			$new_instance = wp_parse_args( $new_instance, array_diff_key( $defaults, array( 'product_post_id' => 0 ) ) );
 			$old_instance = wp_parse_args( $old_instance, $defaults );
 
@@ -536,7 +568,7 @@ if ( ! class_exists( 'Jetpack_Simple_Payments_Widget' ) ) {
 		 *
 		 * @param array $instance Previously saved values from database.
 		 */
-		function form( $instance ) {
+		public function form( $instance ) {
 			$jetpack_simple_payments = Jetpack_Simple_Payments::getInstance();
 			if ( ! method_exists( $jetpack_simple_payments, 'is_enabled_jetpack_simple_payments' ) ) {
 				return;
@@ -548,7 +580,7 @@ if ( ! class_exists( 'Jetpack_Simple_Payments_Widget' ) ) {
 
 			$instance = wp_parse_args( $instance, $this->defaults() );
 
-			$product_posts = get_posts(
+			$product_posts = get_posts( // phpcs:ignore VariableAnalysis.CodeAnalysis.VariableAnalysis.UnusedVariable
 				array(
 					'numberposts' => 100,
 					'orderby'     => 'date',
@@ -561,7 +593,9 @@ if ( ! class_exists( 'Jetpack_Simple_Payments_Widget' ) ) {
 		}
 	}
 
-	// Register Jetpack_Simple_Payments_Widget widget.
+	/**
+	 * Register Jetpack_Simple_Payments_Widget widget.
+	 */
 	function register_widget_jetpack_simple_payments() {
 		if ( ! class_exists( 'Jetpack_Simple_Payments' ) ) {
 			return;
