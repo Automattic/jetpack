@@ -13,6 +13,7 @@ import ScanCard from './scan-card';
 import AntiSpamCard from './anti-spam-card';
 import BoostCard from './boost-card';
 import SearchCard from './search-card';
+import VideopressCard from './videopress-card';
 
 /**
  * Product cards section component.
@@ -39,11 +40,7 @@ export default function ProductCardsSection() {
 					<SearchCard admin={ true } />
 				</Col>
 				<Col sm={ 3 }>
-					<ProductCard
-						name="VideoPress"
-						description="High-quality, ad-free video"
-						status={ PRODUCT_STATUSES.ERROR }
-					/>
+					<VideopressCard admin={ true } />
 				</Col>
 				<Col sm={ 3 }>
 					<ProductCard
