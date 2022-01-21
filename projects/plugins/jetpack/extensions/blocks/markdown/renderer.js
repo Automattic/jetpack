@@ -23,11 +23,14 @@ const handleLinkClick = event => {
 };
 
 const getStyles = attributes => {
+	if ( ! attributes ) {
+		return null;
+	}
 	const spacingProps = getSpacingClassesAndStyles( attributes );
 	return spacingProps.style;
 };
 
-export default ( { className, source = '', attributes = '' } ) => (
+export default ( { className, source = '', attributes } ) => (
 	<RawHTML className={ className } onClick={ handleLinkClick } style={ getStyles( attributes ) }>
 		{ source.length ? markdownConverter.render( source ) : '' }
 	</RawHTML>
