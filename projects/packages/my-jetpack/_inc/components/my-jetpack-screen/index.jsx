@@ -14,6 +14,7 @@ import {
 import './style.scss';
 import ConnectionsSection from '../connections-section';
 import PlansSection from '../plans-section';
+import ProductCardsSection from '../product-cards-section';
 
 /**
  * The My Jetpack App Main Screen.
@@ -33,6 +34,7 @@ export default function MyJetpackScreen() {
 									'jetpack-my-jetpack'
 								) }
 							</h1>
+							<ProductCardsSection />
 						</Col>
 					</Row>
 				</AdminSectionHero>
