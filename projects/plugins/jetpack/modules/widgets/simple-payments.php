@@ -157,8 +157,8 @@ if ( ! class_exists( 'Jetpack_Simple_Payments_Widget' ) ) {
 		 */
 		public function admin_enqueue_styles() {
 			wp_enqueue_style(
-				'jetpack-simple-payments-widget-customizer',
-				plugins_url( 'simple-payments/customizer.css', __FILE__ )
+				'jetpack-simple-payments-widg`et-customizer',
+				plugins_url( 'simple-payments/customizer.css', __FILE__ ),
 				false
 			);
 		}
