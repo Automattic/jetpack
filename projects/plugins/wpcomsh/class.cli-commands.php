@@ -415,7 +415,10 @@ if ( class_exists( 'Checksum_Plugin_Command' ) ) {
  * : The managed plugin to symlink.
  *
  * [--remove-unmanaged]
- * : If there is an unmanaged directory in the way, remove it without asking.
+ * : Deprecated. If there is an unmanaged directory in the way, remove it without asking.
+ *
+ * [--remove-existing]
+ * : If there is an existing directory or different symlink in the way, remove it without asking.
  *
  * [--activate]
  * : Indicates that the symlinked plugin should be activated
@@ -443,22 +446,31 @@ function wpcomsh_cli_plugin_symlink( $args, $assoc_args = array() ) {
 		$already_symlinked = true;
 	} else if ( is_dir( $plugin_to_symlink ) ) {
 		$permission_to_remove = false;
-		if ( WP_CLI\Utils\get_flag_value( $assoc_args, 'remove-unmanaged', false ) ) {
+		if ( WP_CLI\Utils\get_flag_value( $assoc_args, 'remove-existing', false ) ) {
 			$permission_to_remove = true;
-		} else if ( wpcomsh_cli_confirm( "Plugin '$plugin_to_symlink' exists. Delete it and replace with symlink?" ) ) {
+		} else if ( WP_CLI\Utils\get_flag_value( $assoc_args, 'remove-unmanaged', false ) ) {
+			$permission_to_remove = true;
+		} else if ( wpcomsh_cli_confirm( "Plugin '$plugin_to_symlink' exists. Delete it and replace with symlink to managed plugin?" ) ) {
 			$permission_to_remove = true;
 		}
 		if ( ! $permission_to_remove ) {
 			exit( -1 );
 		}
 
-		WP_CLI::runcommand(
-			"--skip-plugins --skip-themes plugin delete '$plugin_to_symlink'",
-			array(
-				'launch' => false,
-				'exit_error' => true,
-			)
-		);
+		if ( is_link( $plugin_to_symlink ) ) {
+			if ( false === unlink( $plugin_to_symlink ) ) {
+				WP_CLI::error( "Failed to remove conflicting symlink '$plugin_to_symlink'" );
+				exit( -1 );
+			}
+		} else {
+			WP_CLI::runcommand(
+				"--skip-plugins --skip-themes plugin delete '$plugin_to_symlink'",
+				array(
+					'launch' => false,
+					'exit_error' => true,
+				)
+			);
+		}
 	}
 
 	if ( $already_symlinked ) {
@@ -493,7 +505,10 @@ function wpcomsh_cli_plugin_symlink( $args, $assoc_args = array() ) {
  * : The managed theme to symlink.
  *
  * [--remove-unmanaged]
- * : If there is an unmanaged directory in the way, remove it without asking.
+ * : Deprecated. If there is an unmanaged directory in the way, remove it without asking.
+ *
+ * [--remove-existing]
+ * : If there is an existing directory or different symlink in the way, remove it without asking.
  *
  * [--activate]
  * : Indicates that the symlinked theme should be activated
@@ -532,22 +547,31 @@ function wpcomsh_cli_theme_symlink( $args, $assoc_args = array() ) {
 		$already_symlinked = true;
 	} else if ( is_dir( $theme_to_symlink ) ) {
 		$permission_to_remove = false;
-		if ( WP_CLI\Utils\get_flag_value( $assoc_args, 'remove-unmanaged', false ) ) {
+		if ( WP_CLI\Utils\get_flag_value( $assoc_args, 'remove-existing', false ) ) {
 			$permission_to_remove = true;
-		} else if ( wpcomsh_cli_confirm( "Theme '$theme_to_symlink' exists. Delete it and replace with symlink?" ) ) {
+		} else if ( WP_CLI\Utils\get_flag_value( $assoc_args, 'remove-unmanaged', false ) ) {
+			$permission_to_remove = true;
+		} else if ( wpcomsh_cli_confirm( "Theme '$theme_to_symlink' exists. Delete it and replace with symlink to managed theme?" ) ) {
 			$permission_to_remove = true;
 		}
 		if ( ! $permission_to_remove ) {
 			exit( -1 );
 		}
 
-		WP_CLI::runcommand(
-			"--skip-plugins --skip-themes theme delete '$theme_to_symlink'",
-			array(
-				'launch' => false,
-				'exit_error' => true,
-			)
-		);
+		if ( is_link( $theme_to_symlink ) ) {
+			if ( false === unlink( $theme_to_symlink ) ) {
+				WP_CLI::error( "Failed to remove conflicting symlink '$theme_to_symlink'" );
+				exit( -1 );
+			}
+		} else {
+			WP_CLI::runcommand(
+				"--skip-plugins --skip-themes theme delete '$theme_to_symlink'",
+				array(
+					'launch' => false,
+					'exit_error' => true,
+				)
+			);
+		}
 	}
 
 	if ( $already_symlinked ) {
