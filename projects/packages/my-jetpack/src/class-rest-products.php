@@ -17,31 +17,76 @@ class REST_Products {
 	public function __construct() {
 		register_rest_route(
 			'my-jetpack/v1',
-			'/site/products',
+			'site/products',
 			array(
-				'methods'             => \WP_REST_Server::READABLE,
-				'callback'            => __CLASS__ . '::get_products',
-				'permission_callback' => __CLASS__ . '::permissions_callback',
+				array(
+					'methods'             => \WP_REST_Server::READABLE,
+					'callback'            => __CLASS__ . '::get_products',
+					'permission_callback' => __CLASS__ . '::permissions_callback',
+				),
+				'schema' => array( $this, 'get_products_schema' ),
 			)
 		);
 
+		$product_arg = array(
+			'description'       => __( 'Product slug', 'jetpack-my-jetpack' ),
+			'type'              => 'string',
+			'enum'              => Products::get_product_names(),
+			'required'          => false,
+			'validate_callback' => __CLASS__ . '::check_product_argument',
+		);
+
 		register_rest_route(
-			'my-jetpack/v1/',
-			'/site/products/(?P<product>[a-z\-]+)',
+			'my-jetpack/v1',
+			'site/products/(?P<product>[a-z\-]+)',
 			array(
-				'methods'             => \WP_REST_Server::READABLE,
-				'callback'            => __CLASS__ . '::get_product',
-				'permission_callback' => __CLASS__ . '::permissions_callback',
-				'args'                => array(
-					'product' => array(
-						'description'       => __( 'Product slug', 'jetpack-my-jetpack' ),
-						'type'              => 'string',
-						'enum'              => Products::get_product_names(),
-						'required'          => false,
-						'validate_callback' => __CLASS__ . '::check_product_argument',
+				array(
+					'methods'             => \WP_REST_Server::READABLE,
+					'callback'            => __CLASS__ . '::get_product',
+					'permission_callback' => __CLASS__ . '::permissions_callback',
+					'args'                => array(
+						'product' => $product_arg,
+					),
+				),
+				array(
+					'methods'             => \WP_REST_Server::EDITABLE,
+					'callback'            => __CLASS__ . '::activate_product',
+					'permission_callback' => __CLASS__ . '::edit_permissions_callback',
+					'args'                => array(
+						'product' => $product_arg,
+					),
+				),
+				array(
+					'methods'             => \WP_REST_Server::DELETABLE,
+					'callback'            => __CLASS__ . '::deactivate_product',
+					'permission_callback' => __CLASS__ . '::edit_permissions_callback',
+					'args'                => array(
+						'product' => $product_arg,
 					),
 				),
 			)
+		);
+
+	}
+
+	/**
+	 * Get the schema for the products endpoint
+	 *
+	 * @return array
+	 */
+	public function get_product_sschema() {
+		return array(
+			'$schema'    => 'http://json-schema.org/draft-04/schema#',
+			'title'      => 'product',
+			'type'       => 'object',
+			'properties' => array(
+				'product' => Products::get_product_data_schema(),
+				'success' => array(
+					'title'       => 'The request status',
+					'description' => 'In case of POST|DELETE, indicates whether the action was successful',
+					'type'        => 'boolean',
+				),
+			),
 		);
 	}
 
@@ -84,7 +129,10 @@ class REST_Products {
 	 * @return array of site products list.
 	 */
 	public static function get_products() {
-		return rest_ensure_response( Products::get_products(), 200 );
+		$response = array(
+			'products' => Products::get_products(),
+		);
+		return rest_ensure_response( $response, 200 );
 	}
 
 	/**
@@ -95,7 +143,87 @@ class REST_Products {
 	 */
 	public static function get_product( $request ) {
 		$product_slug = $request->get_param( 'product' );
-		$products     = Products::get_products();
-		return rest_ensure_response( $products[ $product_slug ], 200 );
+		$response     = array(
+			'products' => array( Products::get_product( $product_slug ) ),
+		);
+		return rest_ensure_response( $response, 200 );
+	}
+
+	/**
+	 * Check permission to edit product
+	 *
+	 * @return bool
+	 */
+	public static function edit_permissions_callback() {
+		if ( ! current_user_can( 'activate_plugins' ) ) {
+			return false;
+		}
+		if ( is_multisite() && ! current_user_can( 'manage_network' ) ) {
+			return false;
+		}
+		return true;
+	}
+
+	/**
+	 * Callback for activating a product
+	 *
+	 * @param \WP_REST_Request $request The request object.
+	 * @return \WP_REST_Response
+	 */
+	public static function activate_product( $request ) {
+		$product_slug = $request->get_param( 'product' );
+		$product      = Products::get_product( $product_slug );
+		if ( ! isset( $product['class'] ) ) {
+			return new \WP_REST_Response(
+				array(
+					'error_message' => 'not_implemented',
+				),
+				400
+			);
+		}
+
+		$success       = call_user_func( array( $product['class'], 'activate' ) );
+		$error_code    = '';
+		$error_message = '';
+		if ( is_wp_error( $success ) ) {
+			$error_code    = $success->get_error_code();
+			$error_message = $success->get_error_message();
+			$success       = false;
+		}
+		$response = array(
+			'success'       => $success,
+			'products'      => array( Products::get_product( $product_slug ) ),
+			'error_code'    => $error_code,
+			'error_message' => $error_message,
+		);
+		return rest_ensure_response( $response, 200 );
+
+	}
+
+	/**
+	 * Callback for activating a product
+	 *
+	 * @param \WP_REST_Request $request The request object.
+	 * @return \WP_REST_Response
+	 */
+	public static function deactivate_product( $request ) {
+		$product_slug = $request->get_param( 'product' );
+		$product      = Products::get_product( $product_slug );
+		if ( ! isset( $product['class'] ) ) {
+			return new \WP_REST_Response(
+				array(
+					'error_message' => 'not_implemented',
+				),
+				400
+			);
+		}
+
+		$success  = call_user_func( array( $product['class'], 'deactivate' ) );
+		$response = array(
+			'success'  => $success,
+			'products' => array( Products::get_product( $product_slug ) ),
+		);
+		return rest_ensure_response( $response, 200 );
+
 	}
 }

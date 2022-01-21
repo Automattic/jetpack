@@ -122,7 +122,7 @@ class Initializer {
 
 		register_rest_route(
 			'my-jetpack/v1',
-			'/site',
+			'site',
 			array(
 				'methods'             => \WP_REST_Server::READABLE,
 				'callback'            => __CLASS__ . '::get_site',
