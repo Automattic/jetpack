@@ -530,11 +530,11 @@ if ( ! class_exists( 'Jetpack_Simple_Payments_Widget' ) ) {
 			);
 
 			if ( strcmp( $new_instance['form_action'], $old_instance['form_action'] ) !== 0 ) {
-				if ( $new_instance['form_action'] == 'edit' ) {
+				if ( 'edit' == $new_instance['form_action'] ) {
 					return array_merge( $this->get_product_from_post( (int) $old_instance['product_post_id'] ), $required_widget_props );
 				}
 
-				if ( $new_instance['form_action'] == 'clear' ) {
+				if ( 'clear' === $new_instance['form_action'] ) {
 					return array_merge( $this->defaults(), $required_widget_props );
 				}
 			}
