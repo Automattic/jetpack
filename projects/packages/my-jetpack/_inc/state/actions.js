@@ -1,3 +1,17 @@
+/**
+ * External dependencies
+ */
+import apiFetch from '@wordpress/api-fetch';
+import { __ } from '@wordpress/i18n';
+
+/**
+ * Internal dependencies
+ */
+import { REST_API_SITE_PRODUCTS_ENDPOINT } from './constants';
+
+/*
+ * Action constants
+ */
 const SET_PURCHASES_IS_FETCHING = 'SET_PURCHASES_IS_FETCHING';
 const FETCH_PURCHASES = 'FETCH_PURCHASES';
 const SET_PURCHASES = 'SET_PURCHASES';
@@ -18,20 +32,75 @@ const setPurchases = purchases => {
 	return { type: SET_PURCHASES, purchases };
 };
 
-const activateProduct = productId => {
-	return { type: ACTIVATE_PRODUCT, productId };
-};
-
-const deactivateProduct = productId => {
-	return { type: DEACTIVATE_PRODUCT, productId };
-};
-
-export const setProductStatus = ( productId, status ) => {
+const setProductStatus = ( productId, status ) => {
 	return { type: SET_PRODUCT_STATUS, productId, status };
 };
 
-export const setProductActionError = error => {
+const setProductActionError = error => {
 	return { type: SET_PRODUCT_ACTION_ERROR, error };
+};
+
+/**
+ * Side effect action which will sync
+ * the `status` state of the product with the server.
+ *
+ * @param {string}   productId        - My Jetpack product ID.
+ * @param {object}   data             - POST Action data. eg: { activate: true }
+ * @param {object}   store            - Redux store.
+ * @param {object}   store.select     - Redux store select.
+ * @param {Function} store.dispatch   - Redux store dispatch.
+ * @returns {Promise}                 - Promise which resolves when the product status is updated.
+ */
+function requestProductStatus( productId, data, { select, dispatch } ) {
+	return new Promise( ( resolve, reject ) => {
+		// Check valid product.
+		const isValid = select.isValidProduct( productId );
+		if ( ! isValid ) {
+			return dispatch(
+				setProductActionError( {
+					code: 'invalid_product',
+					message: __( 'Invalid product name', 'jetpack-my-jetpack' ),
+				} )
+			);
+		}
+
+		// Activate/deactivate product.
+		return apiFetch( {
+			path: `${ REST_API_SITE_PRODUCTS_ENDPOINT }/${ productId }`,
+			method: 'POST',
+			data,
+		} )
+			.then( status => {
+				dispatch( setProductStatus( productId, status ) );
+				resolve( status );
+			} )
+			.catch( error => {
+				dispatch( setProductActionError( error ) );
+				reject( error );
+			} );
+	} );
+}
+
+/**
+ * Side effect action which will sync
+ * the `activate` state of the product with the server.
+ *
+ * @param {string} productId - My Jetpack product ID.
+ * @returns {Promise}        - Promise which resolves when the product status is activated.
+ */
+const activateProduct = productId => async store => {
+	return await requestProductStatus( productId, { activate: true }, store );
+};
+
+/**
+ * Side effect action which will sync
+ * the `deactivate` state of the product with the server.
+ *
+ * @param {string} productId - My Jetpack product ID.
+ * @returns {Promise}        - Promise which resolves when the product status is deactivated.
+ */
+const deactivateProduct = productId => async store => {
+	return await requestProductStatus( productId, { activate: false }, store );
 };
 
 const productActions = {
