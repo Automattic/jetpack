@@ -11,6 +11,7 @@ import ProductCard, { PRODUCT_STATUSES } from '../product-card';
 import BackupCard from './backup-card';
 import ScanCard from './scan-card';
 import AntiSpamCard from './anti-spam-card';
+import BoostCard from './boost-card';
 
 /**
  * Product cards section component.
@@ -31,11 +32,7 @@ export default function ProductCardsSection() {
 					<AntiSpamCard admin={ true } />
 				</Col>
 				<Col sm={ 3 }>
-					<ProductCard
-						name="Boost"
-						description="Instant speed and SEO"
-						status={ PRODUCT_STATUSES.ERROR }
-					/>
+					<BoostCard admin={ true } />
 				</Col>
 				<Col sm={ 3 }>
 					<ProductCard
