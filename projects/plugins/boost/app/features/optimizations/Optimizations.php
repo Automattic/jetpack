@@ -2,13 +2,40 @@
 
 namespace Automattic\Jetpack_Boost\Features\Optimizations;
 
+use Automattic\Jetpack_Boost\Contracts\Has_Setup;
 use Automattic\Jetpack_Boost\Features\Optimizations\Critical_CSS\Critical_CSS;
 use Automattic\Jetpack_Boost\Features\Optimizations\Lazy_Images\Lazy_Images;
 use Automattic\Jetpack_Boost\Features\Optimizations\Render_Blocking_JS\Render_Blocking_JS;
 
-class Optimizations {
+class Optimizations implements Has_Setup {
 
+	/**
+	 * @var Optimization[] - Optimization modules
+	 */
 	protected $modules = array();
+
+	/**
+	 * Initialize modules.
+	 *
+	 * Note: this method ignores the nonce verification linter rule, as jb-disable-modules is intended to work
+	 * without a nonce.
+	 */
+	public function __construct() {
+
+		$features = array(
+			new Critical_CSS(),
+			new Lazy_Images(),
+			new Render_Blocking_JS(),
+		);
+
+		$modules = array();
+		foreach ( $features as $feature ) {
+			$module                         = new Optimization( $feature );
+			$modules[ $module->get_slug() ] = $module;
+		}
+
+		$this->modules = $modules;
+	}
 
 	protected function available_modules() {
 		$forced_disabled_modules = array();
@@ -34,40 +61,6 @@ class Optimizations {
 		}
 
 		return $available_modules;
-	}
-
-	/**
-	 * Initialize modules.
-	 *
-	 * Note: this method ignores the nonce verification linter rule, as jb-disable-modules is intended to work
-	 * without a nonce.
-	 */
-	public function setup_modules() {
-
-		$features = array(
-			new Critical_CSS(),
-			new Lazy_Images(),
-			new Render_Blocking_JS(),
-		);
-
-		$modules = array();
-		foreach ( $features as $feature ) {
-			$module = new Optimization( $feature );
-			$module->register_endpoints();
-
-			$modules[ $module->get_slug() ] = $module;
-		}
-
-		$this->modules = $modules;
-	}
-
-	/**
-	 * Initialize modules when WordPress is ready
-	 */
-	public function initialize_modules() {
-		foreach ( $this->available_modules() as $module ) {
-			$module->initialize();
-		}
 	}
 
 	/**
@@ -97,4 +90,20 @@ class Optimizations {
 		return $this->modules;
 	}
 
+	/**
+	 * @inheritDoc
+	 */
+	public function setup() {
+		foreach ( $this->available_modules() as $module ) {
+			$module->register_endpoints();
+			$module->initialize();
+		}
+	}
+
+	/**
+	 * @inheritDoc
+	 */
+	public function setup_trigger() {
+		return 'init';
+	}
 }

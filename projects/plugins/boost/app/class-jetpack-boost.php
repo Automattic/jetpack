@@ -20,6 +20,7 @@ use Automattic\Jetpack_Boost\Features\Optimizations\Optimizations;
 use Automattic\Jetpack_Boost\Lib\Analytics;
 use Automattic\Jetpack_Boost\Lib\CLI;
 use Automattic\Jetpack_Boost\Lib\Connection;
+use Automattic\Jetpack_Boost\Lib\Setup;
 use Automattic\Jetpack_Boost\REST_API\Endpoints\Optimization_Status;
 use Automattic\Jetpack_Boost\REST_API\REST_API;
 
@@ -87,12 +88,11 @@ class Jetpack_Boost {
 			\WP_CLI::add_command( 'jetpack-boost', $cli_instance );
 		}
 
-		// Initialize the Admin experience.
-		$modules = new Optimizations();
-		$modules->setup_modules();
-		$this->init_admin( $modules );
-		add_action( 'init', array( $modules, 'initialize_modules' ) );
+		$optimizations = new Optimizations();
+		Setup::add( $optimizations );
 
+		// Initialize the Admin experience.
+		$this->init_admin( $optimizations );
 		add_action( 'init', array( $this, 'init_textdomain' ) );
 
 		add_action( 'handle_theme_change', array( $this, 'handle_theme_change' ) );
