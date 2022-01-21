@@ -37,11 +37,19 @@ const products = ( state = {}, action ) => {
 				error: action.error,
 			};
 
-		case IS_FETCHING_PRODUCT_STATUS:
+		case IS_FETCHING_PRODUCT_STATUS: {
+			const { productId, isFetching } = action;
 			return {
 				...state,
-				isFetching: action.isFetching,
+				items: {
+					...state.items,
+					[ productId ]: {
+						...state.items[ productId ],
+						isFetching,
+					},
+				},
 			};
+		}
 
 		default:
 			return state;
