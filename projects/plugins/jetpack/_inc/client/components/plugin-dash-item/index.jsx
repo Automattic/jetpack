@@ -165,7 +165,7 @@ export const PluginDashItem = ( {
 
 PluginDashItem.propTypes = {
 	pluginName: PropTypes.string.isRequired,
-	pluginFile: PropTypes.string.isRequired,
+	pluginFiles: PropTypes.arrayOf( PropTypes.string ).isRequired,
 	pluginSlug: PropTypes.string.isRequired,
 	pluginLink: PropTypes.string.isRequired,
 	installOrActivatePrompt: PropTypes.element.isRequired,
