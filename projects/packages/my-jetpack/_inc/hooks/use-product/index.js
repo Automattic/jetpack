@@ -24,6 +24,7 @@ export function useProduct( productId ) {
 		all: useSelect( select => select( STORE_ID ).getProducts() ),
 		detail,
 		isActive: detail.status === 'active',
+		status: detail.status, // shorthand. Consider to remove.
 		isFetching: !! detail.isFetching,
 	};
 }
