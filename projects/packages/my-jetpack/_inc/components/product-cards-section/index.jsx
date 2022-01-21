@@ -14,6 +14,7 @@ import AntiSpamCard from './anti-spam-card';
 import BoostCard from './boost-card';
 import SearchCard from './search-card';
 import VideopressCard from './videopress-card';
+import CrmCard from './crm-card';
 
 /**
  * Product cards section component.
@@ -43,11 +44,7 @@ export default function ProductCardsSection() {
 					<VideopressCard admin={ true } />
 				</Col>
 				<Col sm={ 3 }>
-					<ProductCard
-						name="CRM"
-						description="Connect with your people"
-						status={ PRODUCT_STATUSES.ERROR }
-					/>
+					<CrmCard admin={ true } />
 				</Col>
 				<Col sm={ 3 }>
 					<ProductCard
