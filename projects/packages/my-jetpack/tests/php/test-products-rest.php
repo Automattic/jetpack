@@ -57,6 +57,9 @@ class Test_Products_Rest extends TestCase {
 	 * @before
 	 */
 	public function set_up() {
+
+		$this->install_mock_plugin();
+
 		global $wp_rest_server;
 
 		$wp_rest_server = new WP_REST_Server();
@@ -81,8 +84,6 @@ class Test_Products_Rest extends TestCase {
 				'role'       => 'editor',
 			)
 		);
-
-		$this->install_mock_plugin();
 
 	}
 
