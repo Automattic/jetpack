@@ -106,8 +106,6 @@ const deactivateProduct = productId => async store => {
 const productActions = {
 	activateProduct,
 	deactivateProduct,
-	setProductStatus,
-	setProductActionError,
 };
 
 const actions = {
