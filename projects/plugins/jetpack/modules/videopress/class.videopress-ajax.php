@@ -55,7 +55,7 @@ class VideoPress_AJAX {
 			// 'sslverify' => false,
 		);
 
-		$endpoint = "sites/{$options['shadow_blog_id']}/media/vidoepress-upload-jwt";
+		$endpoint = "sites/{$options['shadow_blog_id']}/media/videopress-upload-jwt";
 		$result   = Client::wpcom_json_api_request_as_blog( $endpoint, Client::WPCOM_JSON_API_VERSION, $args );
 
 		if ( is_wp_error( $result ) ) {
@@ -70,7 +70,7 @@ class VideoPress_AJAX {
 			return;
 		}
 
-		$response['upload_action_url'] = videopress_make_media_upload_path( $options['shadow_blog_id'] );
+		$response['upload_action_url'] = videopress_make_resumable_upload_path( $options['shadow_blog_id'] );
 
 		wp_send_json_success( $response );
 	}

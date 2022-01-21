@@ -1,14 +1,15 @@
 import * as tus from 'tus-js-client';
 
-const getJWT = function () {
+export const getJWT = function () {
 	// eslint-disable-next-line no-undef
 	return new Promise( function ( resolve, reject ) {
 		wp.media
-			.ajax( 'videopress-get-upload-jwt', { async: true, data: { filename: vttFile.name } } )
+			.ajax( 'videopress-get-upload-jwt', { async: true } )
 			.done( function ( response ) {
+                console.log( 'RESPONSE!', response );
 				resolve( {
 					token: response.upload_token,
-					blogId: response.blog_id,
+					blogId: response.upload_blog_id,
 					url: response.upload_action_url,
 				} );
 			} ).fail( function ( reason ) { reject( reason );
@@ -16,13 +17,14 @@ const getJWT = function () {
 	} );
 };
 
+var jwtsForKeys = {}; // TODO seems unecessary
+
 export const useUploader = ( {
 	onError,
 	onProgress,
 	onSuccess,
 } ) => {
-	return ( file ) => {
-		getJWT().then( ( data ) => {
+	return ( file, data ) => {
 			const upload = new tus.Upload( file,
 				{
 					onError:
@@ -62,7 +64,7 @@ export const useUploader = ( {
 					},
 					retryDelays: [ 0, 1000, 3000, 5000, 10000 ],
 					onAfterResponse: function ( req, res ) {
-						console.log( res._xhr.getAllResponseHeaders() );
+						//console.log( res._xhr.getAllResponseHeaders() );
 						// Why is this not showing the x-headers?
 						if ( res.getStatus() >= 400 ) {
 							return;
@@ -83,7 +85,7 @@ export const useUploader = ( {
 
 							data[headerMap[header]] = value;
 						} );
-						console.log( res, data );
+						//console.log( res, data );
 
 						if (data.key && data.token) {
 							jwtsForKeys[data.key] = data.token;
@@ -123,24 +125,25 @@ export const useUploader = ( {
 							var parts = path.split( '/' );
 							var maybeUploadkey = parts[parts.length-1];
 							if ( jwtsForKeys[maybeUploadkey] ) {
+                                console.log( 'ADDING HEADER TOKEN' );
 								req.setHeader( 'x-videopress-upload-token', jwtsForKeys[maybeUploadkey] );
 							}
 						}
 
 						return req;
 					},
-				})
-		} );
+				} )
 
-		upload.findPreviousUploads().then( function ( previousUploads ) {
-			if ( previousUploads.length ) {
-				upload.resumeFromPreviousUpload( previousUploads[ 0 ] );
-			}
-
-			upload.start();
-		} );
-
-		return upload;
+            upload.findPreviousUploads().then( function ( previousUploads ) {
+                if ( previousUploads.length ) {
+                    upload.resumeFromPreviousUpload( previousUploads[ 0 ] );
+                }
+    
+                console.log( 'STARTING UPLOAD' );
+                upload.start();
+            } );
+    
+            return upload;
 	};
 };
 

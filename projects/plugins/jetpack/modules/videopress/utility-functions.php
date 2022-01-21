@@ -458,7 +458,7 @@ function videopress_make_media_upload_path( $blog_id ) {
  */
 function videopress_make_resumable_upload_path( $blog_id ) {
 	return sprintf(
-		'https://public-api.wordpress.com/rest/v1.1/video-uploader/%s/',
+		'https://public-api.wordpress.com/rest/v1.1/video-uploads/%s/',
 		$blog_id
 	);
 }
