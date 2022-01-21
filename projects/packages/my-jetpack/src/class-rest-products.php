@@ -17,11 +17,14 @@ class REST_Products {
 	public function __construct() {
 		register_rest_route(
 			'my-jetpack/v1',
-			'/site/products',
+			'site/products',
 			array(
-				'methods'             => \WP_REST_Server::READABLE,
-				'callback'            => __CLASS__ . '::get_products',
-				'permission_callback' => __CLASS__ . '::permissions_callback',
+				array(
+					'methods'             => \WP_REST_Server::READABLE,
+					'callback'            => __CLASS__ . '::get_products',
+					'permission_callback' => __CLASS__ . '::permissions_callback',
+				),
+				'schema' => array( $this, 'get_products_schema' ),
 			)
 		);
 
@@ -34,8 +37,8 @@ class REST_Products {
 		);
 
 		register_rest_route(
-			'my-jetpack/v1/',
-			'/site/products/(?P<product>[a-z\-]+)',
+			'my-jetpack/v1',
+			'site/products/(?P<product>[a-z\-]+)',
 			array(
 				array(
 					'methods'             => \WP_REST_Server::READABLE,
@@ -61,9 +64,45 @@ class REST_Products {
 						'product' => $product_arg,
 					),
 				),
+				'schema' => array( $this, 'get_product_schema' ),
 			)
 		);
 
+	}
+
+	/**
+	 * Get the schema for the products endpoint
+	 *
+	 * @return array
+	 */
+	public function get_products_schema() {
+		return array(
+			'$schema' => 'http://json-schema.org/draft-04/schema#',
+			'title'   => 'products',
+			'type'    => 'array',
+			'items'   => Products::get_product_data_schema(),
+		);
+	}
+
+	/**
+	 * Get the schema for the product endpoint
+	 *
+	 * @return array
+	 */
+	public function get_product_schema() {
+		return array(
+			'$schema'    => 'http://json-schema.org/draft-04/schema#',
+			'title'      => 'product',
+			'type'       => 'object',
+			'properties' => array(
+				'product' => Products::get_product_data_schema(),
+				'success' => array(
+					'title'       => 'The request status',
+					'description' => 'In case of POST|DELETE, indicates whether the action was successful',
+					'type'        => 'boolean',
+				),
+			),
+		);
 	}
 
 	/**
@@ -105,7 +144,10 @@ class REST_Products {
 	 * @return array of site products list.
 	 */
 	public static function get_products() {
-		return rest_ensure_response( Products::get_products(), 200 );
+		$response = array(
+			'products' => Products::get_products(),
+		);
+		return rest_ensure_response( $response, 200 );
 	}
 
 	/**
@@ -116,8 +158,10 @@ class REST_Products {
 	 */
 	public static function get_product( $request ) {
 		$product_slug = $request->get_param( 'product' );
-		$products     = Products::get_products();
-		return rest_ensure_response( $products[ $product_slug ], 200 );
+		$response     = array(
+			'product' => Products::get_product( $product_slug ),
+		);
+		return rest_ensure_response( $response, 200 );
 	}
 
 	/**
@@ -143,8 +187,7 @@ class REST_Products {
 	 */
 	public static function activate_product( $request ) {
 		$product_slug = $request->get_param( 'product' );
-		$products     = Products::get_products();
-		$product      = $products[ $product_slug ];
+		$product      = Products::get_product( $product_slug );
 		if ( ! isset( $product['class'] ) ) {
 			return new \WP_REST_Response(
 				array(
@@ -154,8 +197,12 @@ class REST_Products {
 			);
 		}
 
-		$result = call_user_func( array( $product['class'], 'activate' ) );
-		return rest_ensure_response( $result, 200 );
+		$success  = call_user_func( array( $product['class'], 'activate' ) );
+		$response = array(
+			'success' => $success,
+			'product' => Products::get_product( $product_slug ),
+		);
+		return rest_ensure_response( $response, 200 );
 
 	}
 
@@ -167,8 +214,7 @@ class REST_Products {
 	 */
 	public static function deactivate_product( $request ) {
 		$product_slug = $request->get_param( 'product' );
-		$products     = Products::get_products();
-		$product      = $products[ $product_slug ];
+		$product      = Products::get_product( $product_slug );
 		if ( ! isset( $product['class'] ) ) {
 			return new \WP_REST_Response(
 				array(
@@ -178,8 +224,12 @@ class REST_Products {
 			);
 		}
 
-		$result = call_user_func( array( $product['class'], 'deactivate' ) );
-		return rest_ensure_response( $result, 200 );
+		$success  = call_user_func( array( $product['class'], 'deactivate' ) );
+		$response = array(
+			'success' => $success,
+			'product' => Products::get_product( $product_slug ),
+		);
+		return rest_ensure_response( $response, 200 );
 
 	}
 }

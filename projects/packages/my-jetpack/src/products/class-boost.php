@@ -42,7 +42,7 @@ class Boost {
 	 * @return boolean
 	 */
 	public static function is_active() {
-		return self::is_plugin_installed() && self::is_plugin_active();
+		return self::is_plugin_active();
 	}
 
 	/**
@@ -71,7 +71,8 @@ class Boost {
 	 */
 	public static function activate() {
 		// TODO - extract lib/plugins.php from Jetpack in order to install. For now this will only activate the already installed plugin.
-		return activate_plugin( self::PLUGIN_FILENAME );
+		$result = activate_plugin( self::PLUGIN_FILENAME );
+		return is_null( $result );
 	}
 
 	/**
@@ -80,6 +81,7 @@ class Boost {
 	 * @return boolean
 	 */
 	public static function deactivate() {
-		return deactivate_plugins( self::PLUGIN_FILENAME );
+		deactivate_plugins( self::PLUGIN_FILENAME );
+		return true;
 	}
 }
