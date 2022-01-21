@@ -82,6 +82,22 @@ class Test_Products_Rest extends TestCase {
 			)
 		);
 
+		$this->install_mock_plugin();
+
+	}
+
+	/**
+	 * Installs the mock plugin present in the test assets folder as if it was the Boost plugin
+	 *
+	 * @param string $source The prefix of the file to be used as the Boost plugin.
+	 * @return void
+	 */
+	public function install_mock_plugin( $source = 'boost' ) {
+		$plugin_dir = WP_PLUGIN_DIR . '/boost';
+		if ( ! file_exists( $plugin_dir ) ) {
+			mkdir( $plugin_dir, 0777, true );
+		}
+		copy( __DIR__ . "/assets/$source-mock-plugin.txt", $plugin_dir . '/jetpack-boost.php' );
 	}
 
 	/**
@@ -198,6 +214,27 @@ class Test_Products_Rest extends TestCase {
 		$data     = $response->get_data();
 
 		$this->assertEquals( 'inactive', $data['products'][0]['status'] );
+		$this->assertFalse( is_plugin_active( $this->boost_mock_filename ) );
+	}
+
+	/**
+	 * Test POST uninstallable product
+	 */
+	public function test_activate_uninstallable() {
+
+		$this->install_mock_plugin( 'uninstallable' );
+
+		$this->assertFalse( is_plugin_active( $this->boost_mock_filename ) );
+
+		// Activate.
+		$this->request = new WP_REST_Request( 'POST', '/my-jetpack/v1/site/products/boost' );
+
+		$response = $this->server->dispatch( $this->request );
+		$data     = $response->get_data();
+
+		$this->assertEquals( 'inactive', $data['products'][0]['status'] );
+		$this->assertEquals( 'plugin_php_incompatible', $data['error_code'] );
+		$this->assertFalse( $data['success'] );
 		$this->assertFalse( is_plugin_active( $this->boost_mock_filename ) );
 	}
 

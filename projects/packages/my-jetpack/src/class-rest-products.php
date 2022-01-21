@@ -182,10 +182,19 @@ class REST_Products {
 			);
 		}
 
-		$success  = call_user_func( array( $product['class'], 'activate' ) );
+		$success       = call_user_func( array( $product['class'], 'activate' ) );
+		$error_code    = '';
+		$error_message = '';
+		if ( is_wp_error( $success ) ) {
+			$error_code    = $success->get_error_code();
+			$error_message = $success->get_error_message();
+			$success       = false;
+		}
 		$response = array(
-			'success'  => $success,
-			'products' => array( Products::get_product( $product_slug ) ),
+			'success'       => $success,
+			'products'      => array( Products::get_product( $product_slug ) ),
+			'error_code'    => $error_code,
+			'error_message' => $error_message,
 		);
 		return rest_ensure_response( $response, 200 );
 

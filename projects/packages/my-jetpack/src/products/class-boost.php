@@ -67,11 +67,14 @@ class Boost {
 	/**
 	 * Activates the plugin (in the future also intall the plugin if needed)
 	 *
-	 * @return boolean
+	 * @return boolean|\WP_Error
 	 */
 	public static function activate() {
 		// TODO - extract lib/plugins.php from Jetpack in order to install. For now this will only activate the already installed plugin.
 		$result = activate_plugin( self::PLUGIN_FILENAME );
+		if ( is_wp_error( $result ) ) {
+			return $result;
+		}
 		return is_null( $result );
 	}
 
