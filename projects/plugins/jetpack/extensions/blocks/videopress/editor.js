@@ -6,6 +6,7 @@ import { createBlobURL } from '@wordpress/blob';
 import { createBlock } from '@wordpress/blocks';
 import { mediaUpload } from '@wordpress/editor';
 import { useBlockEditContext } from '@wordpress/block-editor';
+import { useContext } from '@wordpress/element';
 import { addFilter } from '@wordpress/hooks';
 import { createHigherOrderComponent } from '@wordpress/compose';
 import { __ } from '@wordpress/i18n';
@@ -16,6 +17,7 @@ import { every } from 'lodash';
  */
 import withVideoPressEdit from './edit';
 import withVideoPressSave from './save';
+import { VideoPressBlockContext } from './components';
 import getJetpackExtensionAvailability from '../../shared/get-jetpack-extension-availability';
 import deprecatedV1 from './deprecated/v1';
 import deprecatedV2 from './deprecated/v2';
@@ -25,6 +27,7 @@ import withHasWarningIsInteractiveClassNames from '../../shared/with-has-warning
 import './editor.scss';
 
 import videoPressBlockExampleImage from './videopress-block-example-image.jpg';
+import { object } from 'prop-types';
 
 const videoPressNoPlanMediaPlaceholder = createHigherOrderComponent(
 	OriginalPlaceholder => props => {
@@ -58,6 +61,29 @@ const videoPressNoPlanMediaPlaceholder = createHigherOrderComponent(
 		);
 	},
 	'videoPressNoPlanMediaPlaceholder'
+);
+
+const videoPressMediaPlaceholder = createHigherOrderComponent(
+	OriginalPlaceholder => props => {
+		// We will handle uploads
+
+		props.handleUpload = false;
+		
+		const { onFilesSelected } = useContext( VideoPressBlockContext );
+
+		props.onSelect = ( files ) => {
+			onFilesSelected( files );
+		};
+
+		return (
+			<OriginalPlaceholder
+				{ ...props }
+				className="videopress-media-placeholder"
+			>
+			</OriginalPlaceholder>
+		);
+	},
+	'videoPressMediaPlaceholder'
 );
 
 /**
@@ -145,6 +171,7 @@ const addVideoPressSupport = ( settings, name ) => {
 			withHasWarningIsInteractiveClassNames( `core/video` )
 		);
 	} else if ( available ) {
+		addFilter( 'editor.MediaPlaceholder', 'jetpack/videopress', videoPressMediaPlaceholder );
 		// If VideoPress is available, we update the block description and example with VideoPress-specific content.
 		settings.description = __(
 			'Embed a video from your media library or upload a new one with VideoPress.',
@@ -241,6 +268,10 @@ const addVideoPressSupport = ( settings, name ) => {
 			videoPressClassNames: {
 				type: 'string',
 			},
+			fileForImmediateUpload: {
+				type: object,
+				default: null,
+			},
 		};
 
 		const oldVideoEmbedRegex = /https?:\/\/v\.wordpress\.com\/([a-zA-Z\d]{8})(.+)?/i;
@@ -260,17 +291,19 @@ const addVideoPressSupport = ( settings, name ) => {
 						priority: 9,
 						transform: ( files, onChange ) => {
 							const blocks = [];
+							console.log( 'FILES?', files );
 							files.forEach( file => {
 								const block = createBlock( 'core/video', {
-									src: createBlobURL( file ),
+									'fileForImmediateUpload': file,
 								} );
-								mediaUpload( {
+								console.log( block );
+								/*mediaUpload( {
 									filesList: [ file ],
 									onFileChange: ( [ { id, url } ] ) => {
 										onChange( block.clientId, { id, src: url } );
 									},
 									allowedTypes: [ 'video' ],
-								} );
+								} );*/
 								blocks.push( block );
 							} );
 							return blocks;

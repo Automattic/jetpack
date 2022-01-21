@@ -1,8 +1,14 @@
 /**
+ * Internal Dependencies
+ */
+ import filesize from 'filesize';
+
+/**
  * WordPress dependencies
  */
  import { __, sprintf } from '@wordpress/i18n';
  import { createInterpolateElement } from '@wordpress/element';
+ import { escapeHTML } from '@wordpress/escape-html';
  /*import apiFetch from '@wordpress/api-fetch';
  import { __, sprintf } from '@wordpress/i18n';
 
@@ -19,28 +25,80 @@ import {
 import { VideoPressIcon } from '../../../shared/icons';
 import './style.scss';
 
- export default function ResumableUpload( { tracks = [], onChange, guid } ) {
-    const progress = 50.3;
+export default function ResumableUpload( { file } ) {
+	if ( ! file ) {
+		return null;
+	}
+
+    /*const progress = 50.3;
     const roundedProgress = 50;
 
     const pauseOrResumeUpload = () => {};
     const hasPaused = false;
     const cssWidth = { width: `${roundedProgress}%` };
+	const escapedFileName = escapeHTML( file.name );*/
+
+	const [ progress, setProgress ] = useState( 0 );
+	const [ hasPaused, setHasPaused ] = useState( false );
+	const onError = () => {};
+
+	const onProgress = ( bytesUploaded, bytesTotal ) => {
+		const percentage = ( bytesUploaded / bytesTotal ) * 100;
+		setProgress( percentage );
+	};
+
+	const onSuccess = () => {
+		// TODO: Load video? (Conversion screen) Need the guid
+	};
+
+	const uploader = useUploader( {
+		onError,
+		onProgress,
+		onSuccess,
+		endpoint,
+		token,
+	} );
+
+	const roundedProgress = Math.round( progress );
+	const cssWidth = { width: `${roundedProgress}%` };
+
+	// Some better way to detect if upload is occuring?
+	const isUploading = progress > 0;
+	const hasFile = null !== file;
+
+	const pauseOrResumeUpload = () => {
+		if ( tusUploader ) {
+			if ( hasPaused ) {
+				tusUploader.start();
+			} else {
+				tusUploader.abort();
+			}
+
+			setHasPaused( ! hasPaused );
+		}
+	};
+
+	const startUpload = () => {
+		if ( file ) {
+			// Set state so we can perform actions on the tus uploader (like pausing)
+			setTusUploader( uploader( file ) );
+		}
+	};
 
 	const fileNameLabel = createInterpolateElement(
 		sprintf(
 			/* translators: Placeholder is a video file name. */
 			__(
 				'Uploading <strong>%s</strong>',
-				'red-line.mp4',
+				escapedFileName,
 				'jetpack'
 			),
-			'red-line.mp4'
+			escapedFileName
 		),
 		{ strong: <strong /> }
 	)
 	
-	const fileSizeLabel = `${148.7}MB`;
+	const fileSizeLabel = filesize( file.size );
 
     return (
         <div className="wp-block resumable-upload">
