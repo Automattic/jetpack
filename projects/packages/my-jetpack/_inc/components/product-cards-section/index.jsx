@@ -12,6 +12,7 @@ import BackupCard from './backup-card';
 import ScanCard from './scan-card';
 import AntiSpamCard from './anti-spam-card';
 import BoostCard from './boost-card';
+import SearchCard from './search-card';
 
 /**
  * Product cards section component.
@@ -35,11 +36,7 @@ export default function ProductCardsSection() {
 					<BoostCard admin={ true } />
 				</Col>
 				<Col sm={ 3 }>
-					<ProductCard
-						name="Search"
-						description="Help them find what they need"
-						status={ PRODUCT_STATUSES.ERROR }
-					/>
+					<SearchCard admin={ true } />
 				</Col>
 				<Col sm={ 3 }>
 					<ProductCard
