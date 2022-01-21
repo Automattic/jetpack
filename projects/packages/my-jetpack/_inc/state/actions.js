@@ -80,12 +80,13 @@ function requestProductStatus( productId, data, { select, dispatch } ) {
 			.then( status => {
 				dispatch( setProductStatus( productId, status ) );
 				resolve( status );
+				dispatch( setIsFetchingProductStatus( productId, false ) );
 			} )
 			.catch( error => {
 				dispatch( setProductActionError( error ) );
 				reject( error );
-			} )
-			.finally( dispatch( setIsFetchingProductStatus( productId, false ) ) );
+				dispatch( setIsFetchingProductStatus( productId, false ) );
+			} );
 	} );
 }
 
