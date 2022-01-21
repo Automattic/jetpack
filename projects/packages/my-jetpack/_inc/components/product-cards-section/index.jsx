@@ -21,7 +21,7 @@ import ExtrasCard from './extras-card';
  *
  * @returns {object} ProductCardsSection React component.
  */
-export default function ProductCardsSection() {
+const ProductCardsSection = () => {
 	return (
 		<Container>
 			<Row>
@@ -52,4 +52,6 @@ export default function ProductCardsSection() {
 			</Row>
 		</Container>
 	);
-}
+};
+
+export default ProductCardsSection;
