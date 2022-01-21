@@ -3,6 +3,7 @@
  */
 import React from 'react';
 import PropTypes from 'prop-types';
+import { __ } from '@wordpress/i18n';
 
 /**
  * Internal dependencies
@@ -19,8 +20,8 @@ const BoostCard = ( { admin } ) => {
 	// @todo: implement action handlers
 	return (
 		<ProductCard
-			name="Boost"
-			description="Instant speed and SEO"
+			name={ __( 'Boost', 'jetpack-my-jetpack' ) }
+			description={ __( 'Instant speed and SEO', 'jetpack-my-jetpack' ) }
 			status={ PRODUCT_STATUSES.ABSENT }
 			icon={ <BoostIcon /> }
 			admin={ admin }

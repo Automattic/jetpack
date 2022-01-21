@@ -3,6 +3,7 @@
  */
 import React from 'react';
 import PropTypes from 'prop-types';
+import { __ } from '@wordpress/i18n';
 
 /**
  * Internal dependencies
@@ -28,8 +29,8 @@ const VideopressCard = ( { admin } ) => {
 	// @todo: implement action handlers
 	return (
 		<ProductCard
-			name="VideoPress"
-			description="High-quality, ad-free video"
+			name={ __( 'VideoPress', 'jetpack-my-jetpack' ) }
+			description={ __( 'High-quality, ad-free video', 'jetpack-my-jetpack' ) }
 			status={ PRODUCT_STATUSES.ABSENT }
 			icon={ <VideopressIcon /> }
 			admin={ admin }

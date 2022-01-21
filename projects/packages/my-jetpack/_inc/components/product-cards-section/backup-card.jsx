@@ -3,6 +3,7 @@
  */
 import React from 'react';
 import PropTypes from 'prop-types';
+import { __ } from '@wordpress/i18n';
 
 /**
  * Internal dependencies
@@ -24,8 +25,8 @@ const BackupCard = ( { admin } ) => {
 	// @todo: implement action handlers
 	return (
 		<ProductCard
-			name="Backup"
-			description="Save every change"
+			name={ __( 'Backup', 'jetpack-my-jetpack' ) }
+			description={ __( 'Save every change', 'jetpack-my-jetpack' ) }
 			status={ PRODUCT_STATUSES.ACTIVE }
 			icon={ <BackupIcon /> }
 			admin={ admin }

@@ -3,6 +3,7 @@
  */
 import React from 'react';
 import PropTypes from 'prop-types';
+import { __ } from '@wordpress/i18n';
 
 /**
  * Internal dependencies
@@ -24,8 +25,8 @@ const ExtrasCard = ( { admin } ) => {
 	// @todo: implement action handlers
 	return (
 		<ProductCard
-			name="Extras"
-			description="Basic tools for a successful site"
+			name={ __( 'Extras', 'jetpack-my-jetpack' ) }
+			description={ __( 'Basic tools for a successful site', 'jetpack-my-jetpack' ) }
 			status={ PRODUCT_STATUSES.ABSENT }
 			icon={ <ExtrasIcon /> }
 			admin={ admin }

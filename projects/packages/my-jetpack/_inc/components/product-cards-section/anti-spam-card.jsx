@@ -3,6 +3,7 @@
  */
 import React from 'react';
 import PropTypes from 'prop-types';
+import { __ } from '@wordpress/i18n';
 
 /**
  * Internal dependencies
@@ -24,8 +25,8 @@ const AntiSpamCard = ( { admin } ) => {
 	// @todo: implement action handlers
 	return (
 		<ProductCard
-			name="Anti-spam"
-			description="Stop comment and form spam"
+			name={ __( 'Anti-spam', 'jetpack-my-jetpack' ) }
+			description={ __( 'Stop comment and form spam', 'jetpack-my-jetpack' ) }
 			status={ PRODUCT_STATUSES.ABSENT }
 			icon={ <AntiSpamIcon /> }
 			admin={ admin }

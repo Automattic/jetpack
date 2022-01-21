@@ -3,6 +3,7 @@
  */
 import React from 'react';
 import PropTypes from 'prop-types';
+import { __ } from '@wordpress/i18n';
 
 /**
  * Internal dependencies
@@ -20,8 +21,8 @@ const SearchCard = ( { admin } ) => {
 	// @todo: implement action handlers
 	return (
 		<ProductCard
-			name="Search"
-			description="Help them find what they need"
+			name={ __( 'Search', 'jetpack-my-jetpack' ) }
+			description={ __( 'Help them find what they need', 'jetpack-my-jetpack' ) }
 			status={ PRODUCT_STATUSES.ABSENT }
 			icon={ <SearchIcon /> }
 			admin={ admin }

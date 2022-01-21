@@ -3,6 +3,7 @@
  */
 import React from 'react';
 import PropTypes from 'prop-types';
+import { __ } from '@wordpress/i18n';
 
 /**
  * Internal dependencies
@@ -26,8 +27,8 @@ const CrmCard = ( { admin } ) => {
 	// @todo: implement action handlers
 	return (
 		<ProductCard
-			name="CRM"
-			description="Connect with your people"
+			name={ __( 'CRM', 'jetpack-my-jetpack' ) }
+			description={ __( 'Connect with your people', 'jetpack-my-jetpack' ) }
 			status={ PRODUCT_STATUSES.ABSENT }
 			icon={ <CrmIcon /> }
 			admin={ admin }
