@@ -19,6 +19,7 @@ import {
  * Internal dependencies
  */
 import Backups from './Backups';
+import MyPlan from './MyPlan';
 import useConnection from '../hooks/useConnection';
 import './admin-style.scss';
 import './masthead/masthead-style.scss';
@@ -32,8 +33,8 @@ const Admin = () => {
 	const [ connectionLoaded, setConnectionLoaded ] = useState( false );
 	const [ capabilitiesLoaded, setCapabilitiesLoaded ] = useState( false );
 	const [ showHeaderFooter, setShowHeaderFooter ] = useState( true );
-	const [ price, setPrice ] = useState( null );
-	const [ priceAfter, setPriceAfter ] = useState( null );
+	const [ price, setPrice ] = useState( 0 );
+	const [ priceAfter, setPriceAfter ] = useState( 0 );
 
 	const domain = useSelect( select => select( STORE_ID ).getCalypsoSlug(), [] );
 
@@ -169,26 +170,29 @@ const Admin = () => {
 		return (
 			<Row>
 				<Col lg={ 6 } md={ 4 }>
-					<h2>{ __( 'Where are my backups stored?', 'jetpack-backup' ) }</h2>
+					<h2>{ __( 'Your cloud backups', 'jetpack-backup' ) }</h2>
 					<p>
 						{ __(
 							'All the backups are safely stored in the cloud and available for you at any time on Jetpack.com, with full details about status and content.',
 							'jetpack-backup'
 						) }
 					</p>
-					{ hasBackupPlan() && ! capabilities.includes( 'backup-realtime' ) && (
-						<a
-							class="jp-cut"
-							href={ getRedirectUrl( 'backup-plugin-realtime-upgrade', { site: domain } ) }
-						>
-							<span>
-								{ __(
-									'Your site is updated with new content several times a day',
-									'jetpack-backup'
-								) }
-							</span>
-							<span>{ __( 'Consider upgrading to real-time protection', 'jetpack-backup' ) }</span>
-						</a>
+					{ hasBackupPlan() && (
+						<>
+							<p>
+								<a
+									href={ getRedirectUrl( 'jetpack-backup', { site: domain } ) }
+									target="_blank"
+									rel="noreferrer"
+								>
+									{ __( 'See all your backups', 'jetpack-backup' ) }
+								</a>
+							</p>
+							<MyPlan
+								purchaseType={ 'backup' }
+								redirectUrl={ getRedirectUrl( 'backup-plugin-my-plan', { site: domain } ) }
+							/>
+						</>
 					) }
 				</Col>
 				<Col lg={ 1 } md={ 1 } sm={ 0 } />

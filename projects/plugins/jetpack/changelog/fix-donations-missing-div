@@ -1,4 +1,0 @@
-Significance: patch
-Type: bugfix
-
-Add a missing closing div to the front-end rendering of the donations block

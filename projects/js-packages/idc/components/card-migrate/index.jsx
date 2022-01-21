@@ -65,11 +65,15 @@ const CardMigrate = props => {
 			}
 		>
 			<div className="jp-idc__idc-screen__card-action-top">
-				<h4>{ customContent.migrateCardTitle || __( 'Move Jetpack data', 'jetpack' ) }</h4>
+				<h4>
+					{ customContent.migrateCardTitle
+						? createInterpolateElement( customContent.migrateCardTitle, { em: <em /> } )
+						: __( 'Move Jetpack data', 'jetpack' ) }
+				</h4>
 
 				<p>
-					{ customContent.migrateCardBodyText ||
-						createInterpolateElement(
+					{ createInterpolateElement(
+						customContent.migrateCardBodyText ||
 							sprintf(
 								/* translators: %1$s: The current site domain name. %2$s: The original site domain name. */
 								__(
@@ -79,10 +83,12 @@ const CardMigrate = props => {
 								currentHostName,
 								wpcomHostName
 							),
-							{
-								hostname: <strong />,
-							}
-						) }
+						{
+							hostname: <strong />,
+							em: <em />,
+							strong: <strong />,
+						}
+					) }
 				</p>
 			</div>
 

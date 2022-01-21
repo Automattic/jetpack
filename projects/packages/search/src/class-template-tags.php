@@ -2,10 +2,6 @@
 /**
  * Template tags class used primarily for rendering widget-related HTML.
  *
- * Currently, this package can only run in the Jetpack plugin due to its usage of Jetpack_Search.
- * Once Jetpack_Search has been migrated to the package as Classic_Search,
- * this library will be independent from the Jetpack plugin.
- *
  * @package    automattic/jetpack-search
  */
 
@@ -29,8 +25,7 @@ class Template_Tags {
 	 */
 	public static function render_available_filters( $filters = null, $post_types = null ) {
 		if ( is_null( $filters ) ) {
-			// TODO: Must be migrated to use Classic_Search once the migration is underway.
-			$filters = \Jetpack_Search::instance()->get_filters();
+			$filters = Classic_Search::instance()->get_filters();
 		}
 
 		if ( is_null( $post_types ) ) {
@@ -44,8 +39,7 @@ class Template_Tags {
 		$active_post_types = array();
 		if ( Helper::post_types_differ_searchable( $post_types ) ) {
 			// get the active filter buckets from the query.
-			// TODO: Must be migrated to use Classic_Search once the migration is underway.
-			$active_buckets          = \Jetpack_Search::instance()->get_active_filter_buckets();
+			$active_buckets          = Classic_Search::instance()->get_active_filter_buckets();
 			$post_types_differ_query = Helper::post_types_differ_query( $post_types );
 
 			// remove any post_type filters from display if the current query
@@ -84,8 +78,7 @@ class Template_Tags {
 	 */
 	public static function render_instant_filters( $filters = null ) {
 		if ( is_null( $filters ) ) {
-			// TODO: Must be migrated to use Classic_Search once the migration is underway.
-			$filters = \Jetpack_Search::instance()->get_filters();
+			$filters = Classic_Search::instance()->get_filters();
 		}
 
 		foreach ( (array) $filters as $filter ) {

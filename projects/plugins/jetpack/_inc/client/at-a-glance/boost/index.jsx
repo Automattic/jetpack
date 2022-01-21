@@ -38,7 +38,7 @@ class DashBoost extends Component {
 				pluginLink={ this.props.siteAdminUrl + BOOST_PLUGIN_DASH }
 				installOrActivatePrompt={ createInterpolateElement(
 					__(
-						'Improve your site’s performance and SEO in a few clicks with the free Jetpack Boost plugin.<br /><ExternalLink>Learn more.</ExternalLink>',
+						'Improve your site’s performance and SEO in a few clicks with the free Jetpack Boost plugin.<br /><ExternalLink>Learn more</ExternalLink>',
 						'jetpack'
 					),
 					{

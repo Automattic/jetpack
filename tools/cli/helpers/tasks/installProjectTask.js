@@ -13,9 +13,9 @@ import UpdateRenderer from 'listr-update-renderer';
 /**
  * Internal dependencies
  */
-import { readComposerJson, readPackageJson } from '../json';
-import { chalkJetpackGreen } from '../styling';
-import { normalizeInstallArgv } from '../normalizeArgv';
+import { readComposerJson, readPackageJson } from '../json.js';
+import { chalkJetpackGreen } from '../styling.js';
+import { normalizeInstallArgv } from '../normalizeArgv.js';
 
 /**
  * The `pnpm install` command promise for this run.
@@ -60,9 +60,12 @@ export default function installProjectTask( argv ) {
 		// For composer, choose 'install' or 'update' depending on whether the lockfile is checked in.
 		// For pnpm, the lockfile is always checked in thanks to the workspace thing.
 		let subcommand;
-		let args = ''; // eslint-disable-line prefer-const
+		let args = '';
 		if ( pkgMgr === 'composer' ) {
 			subcommand = ( await hasLockFile( cwd, 'composer.lock' ) ) ? 'install' : 'update';
+			if ( argv.project.startsWith( 'plugins/' ) && argv.production ) {
+				args += ' -o --no-dev --classmap-authoritative --prefer-dist';
+			}
 		} else if ( pkgMgr === 'pnpm' ) {
 			if ( pnpmInstallPromise ) {
 				return pnpmInstallPromise;
