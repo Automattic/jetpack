@@ -9,6 +9,7 @@ import { Container, Row, Col } from '@automattic/jetpack-components';
  */
 import ProductCard, { PRODUCT_STATUSES } from '../product-card';
 import BackupCard from './backup-card';
+import ScanCard from './scan-card';
 
 /**
  * Product cards section component.
@@ -23,11 +24,7 @@ export default function ProductCardsSection() {
 					<BackupCard admin={ true } />
 				</Col>
 				<Col sm={ 3 }>
-					<ProductCard
-						name="Scan"
-						description="Stay one step ahead of threats"
-						status={ PRODUCT_STATUSES.ERROR }
-					/>
+					<ScanCard admin={ true } />
 				</Col>
 				<Col sm={ 3 }>
 					<ProductCard
