@@ -9,6 +9,7 @@
  import { __, sprintf } from '@wordpress/i18n';
  import { createInterpolateElement } from '@wordpress/element';
  import { escapeHTML } from '@wordpress/escape-html';
+ import { useUploader } from './use-uploader';
  /*import apiFetch from '@wordpress/api-fetch';
  import { __, sprintf } from '@wordpress/i18n';
 
@@ -30,14 +31,6 @@ export default function ResumableUpload( { file } ) {
 		return null;
 	}
 
-    /*const progress = 50.3;
-    const roundedProgress = 50;
-
-    const pauseOrResumeUpload = () => {};
-    const hasPaused = false;
-    const cssWidth = { width: `${roundedProgress}%` };
-	const escapedFileName = escapeHTML( file.name );*/
-
 	const [ progress, setProgress ] = useState( 0 );
 	const [ hasPaused, setHasPaused ] = useState( false );
 	const onError = () => {};
@@ -55,16 +48,13 @@ export default function ResumableUpload( { file } ) {
 		onError,
 		onProgress,
 		onSuccess,
-		endpoint,
-		token,
 	} );
+
+	// Kicks things off.
+	const tusUploader = uploader( file );
 
 	const roundedProgress = Math.round( progress );
 	const cssWidth = { width: `${roundedProgress}%` };
-
-	// Some better way to detect if upload is occuring?
-	const isUploading = progress > 0;
-	const hasFile = null !== file;
 
 	const pauseOrResumeUpload = () => {
 		if ( tusUploader ) {
@@ -73,15 +63,7 @@ export default function ResumableUpload( { file } ) {
 			} else {
 				tusUploader.abort();
 			}
-
 			setHasPaused( ! hasPaused );
-		}
-	};
-
-	const startUpload = () => {
-		if ( file ) {
-			// Set state so we can perform actions on the tus uploader (like pausing)
-			setTusUploader( uploader( file ) );
 		}
 	};
 
@@ -97,7 +79,7 @@ export default function ResumableUpload( { file } ) {
 		),
 		{ strong: <strong /> }
 	)
-	
+
 	const fileSizeLabel = filesize( file.size );
 
     return (
@@ -128,5 +110,4 @@ export default function ResumableUpload( { file } ) {
 		</div>
     );
 }
- 
- 
+
