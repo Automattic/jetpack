@@ -8,6 +8,7 @@ import { Container, Row, Col } from '@automattic/jetpack-components';
  * Internal dependencies
  */
 import ProductCard, { PRODUCT_STATUSES } from '../product-card';
+import BackupCard from './backup-card';
 
 /**
  * Product cards section component.
@@ -19,11 +20,7 @@ export default function ProductCardsSection() {
 		<Container>
 			<Row>
 				<Col sm={ 3 }>
-					<ProductCard
-						name="Backup"
-						description="Save every change"
-						status={ PRODUCT_STATUSES.ERROR }
-					/>
+					<BackupCard admin={ true } />
 				</Col>
 				<Col sm={ 3 }>
 					<ProductCard
