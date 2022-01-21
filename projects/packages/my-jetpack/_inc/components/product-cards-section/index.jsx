@@ -7,7 +7,6 @@ import { Container, Row, Col } from '@automattic/jetpack-components';
 /**
  * Internal dependencies
  */
-import ProductCard, { PRODUCT_STATUSES } from '../product-card';
 import BackupCard from './backup-card';
 import ScanCard from './scan-card';
 import AntiSpamCard from './anti-spam-card';
@@ -15,6 +14,7 @@ import BoostCard from './boost-card';
 import SearchCard from './search-card';
 import VideopressCard from './videopress-card';
 import CrmCard from './crm-card';
+import ExtrasCard from './extras-card';
 
 /**
  * Product cards section component.
@@ -47,11 +47,7 @@ export default function ProductCardsSection() {
 					<CrmCard admin={ true } />
 				</Col>
 				<Col sm={ 3 }>
-					<ProductCard
-						name="Extras"
-						description="Basic tools for a successful site"
-						status={ PRODUCT_STATUSES.ERROR }
-					/>
+					<ExtrasCard admin={ true } />
 				</Col>
 			</Row>
 		</Container>
