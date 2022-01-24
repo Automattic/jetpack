@@ -14,16 +14,18 @@
   *
   * @param {object}  props - Provider properties.
   * @param {Function}  props.onFilesSelected - Callback when video files have been selected
+  * @param {Function}  props.onUploadFinished - Callback when video file upload finished
   * @param {boolean} props.children - Provider Children.
   * @returns {*} Provider component.
   */
  export const VideoPressBlockProvider = ( {
      onFilesSelected,
+     onUploadFinished,
      children,
  } ) => {
      return (
      <VideoPressBlockContext.Provider
-         value={ { onFilesSelected } }
+         value={ { onFilesSelected, onUploadFinished } }
          children={ children }
      />
  ) };

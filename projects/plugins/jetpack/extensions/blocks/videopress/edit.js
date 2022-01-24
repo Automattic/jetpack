@@ -620,13 +620,22 @@ const VideoPressEdit = CoreVideoEdit =>
 					this.setState( { fileForUpload: files[0] } );
 				}
 
+				const uploadFinished = ( error = null ) => {
+					// TODO Maybe have the guid here to reload w/ player (show transcoding screen)
+					this.setState( { fileForUpload: null } );
+					if ( error ) {
+						// TODO show error message
+					}
+				};
+
 				const isUploadingVid = null !== fileForUpload;
 				const displayCoreVideoBlock =
 				renderCoreVideoAndLoadingBlocks && ! isUploadingVid && ! isFetchingVideo;
 
 				return (
 					<VideoPressBlockProvider
-						onFilesSelected={ filesSelected }>
+						onFilesSelected={ filesSelected }
+						onUploadFinished={ uploadFinished }>
 						<Fragment>
 							<div className={ ! isUploadingVid && ! isFetchingVideo ? 'videopress-block-hide' : '' }>
 								{ isUploadingVid ? (

@@ -16,14 +16,15 @@
  import { MediaUploadCheck, store as blockEditorStore } from '@wordpress/block-editor';
  import { upload } from '@wordpress/icons';
  import { useSelect } from '@wordpress/data';*/
- import { useEffect, useState } from '@wordpress/element';
+ import { useContext, useEffect, useState } from '@wordpress/element';
 
 import {
     Button,
-	Icon
+	Icon,
 } from '@wordpress/components';
 
 import { VideoPressIcon } from '../../../shared/icons';
+import { VideoPressBlockContext } from '../components';
 import './style.scss';
 
 export default function ResumableUpload( { file } ) {
@@ -34,8 +35,9 @@ export default function ResumableUpload( { file } ) {
 	const [ progress, setProgress ] = useState( 0 );
 	const [ hasPaused, setHasPaused ] = useState( false );
 	const [ tusUploader, setTusUploader ] = useState( null );
+	const { onUploadFinished } = useContext( VideoPressBlockContext );
 
-	const onError = ( error ) => { console.log( 'I failed', error ); };
+	const onError = ( error ) => { onUploadFinished( error ) };
 
 	const onProgress = ( bytesUploaded, bytesTotal ) => {
 		const percentage = ( bytesUploaded / bytesTotal ) * 100;
@@ -45,6 +47,7 @@ export default function ResumableUpload( { file } ) {
 
 	const onSuccess = () => {
 		console.log( 'SUCCESS' );
+		onUploadFinished();
 		// TODO: Load video? (Conversion screen) Need the guid
 	};
 
@@ -59,15 +62,10 @@ export default function ResumableUpload( { file } ) {
 		getJWT().then( ( jwtData ) => {
 			const newUploader = uploader( file, jwtData );
 			setTusUploader( newUploader );
+		} ).catch( ( error ) => {
+			onUploadFinished( error );
 		} );
 	}, []);
-
-	console.log( tusUploader );
-	if ( null === tusUploader ) {
-		return (
-			<div className="wp-block resumable-upload">Just a wee sec...</div>
-		);
-	}
 
 	const roundedProgress = Math.round( progress );
 	const cssWidth = { width: `${roundedProgress}%` };
@@ -100,7 +98,7 @@ export default function ResumableUpload( { file } ) {
 	const fileSizeLabel = filesize( file.size );
 
     return (
-        <div className="wp-block resumable-upload">
+		<div className="wp-block resumable-upload">
 			<div className="resumable-upload__logo">
 				<Icon icon={ VideoPressIcon } />
 				<div className="resumable-upload__logo-text">{ __( 'Video', 'jetpack' ) }</div>

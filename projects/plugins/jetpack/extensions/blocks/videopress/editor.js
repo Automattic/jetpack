@@ -65,8 +65,13 @@ const videoPressNoPlanMediaPlaceholder = createHigherOrderComponent(
 
 const videoPressMediaPlaceholder = createHigherOrderComponent(
 	OriginalPlaceholder => props => {
-		// We will handle uploads
-
+		const { name } = useBlockEditContext();
+		if ( name !== 'core/video' ) {
+			return <OriginalPlaceholder { ...props } />;
+		}
+		
+		// We will handle video uploads
+		console.log( OriginalPlaceholder, props );
 		props.handleUpload = false;
 		
 		const { onFilesSelected } = useContext( VideoPressBlockContext );
