@@ -1,0 +1,4 @@
+Significance: minor
+Type: enhancement
+
+Add a comment to explain the reasoning behind an empty scss file.

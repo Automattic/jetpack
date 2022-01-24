@@ -11,7 +11,11 @@ use Automattic\Jetpack\Admin_UI\Admin_Menu;
 use Automattic\Jetpack\Assets;
 use Automattic\Jetpack\Connection\Client as Client;
 use Automattic\Jetpack\Connection\Initial_State as Connection_Initial_State;
+use Automattic\Jetpack\Connection\Manager as Connection_Manager;
 use Automattic\Jetpack\Connection\Rest_Authentication as Connection_Rest_Authentication;
+use Automattic\Jetpack\Status as Status;
+use Automattic\Jetpack\Terms_Of_Service;
+use Automattic\Jetpack\Tracking;
 
 /**
  * The main Initializer class that registers the admin menu and eneuque the assets.
@@ -37,7 +41,7 @@ class Initializer {
 		Connection_Rest_Authentication::init();
 
 		// Add custom WP REST API endoints.
-		add_action( 'rest_api_init', array( __CLASS__, 'register_rest_routes' ) );
+		add_action( 'rest_api_init', array( __CLASS__, 'register_rest_endpoints' ) );
 
 		$page_suffix = Admin_Menu::add_menu(
 			__( 'My Jetpack', 'jetpack-my-jetpack' ),
@@ -64,15 +68,26 @@ class Initializer {
 	 * @return void
 	 */
 	public static function admin_init() {
-		add_action( 'admin_enqueue_scripts', array( __CLASS__, 'enqueue_scritps' ) );
+		add_action( 'admin_enqueue_scripts', array( __CLASS__, 'enqueue_scripts' ) );
 	}
 
+	/**
+	 * Returns whether we are in condition to track to use
+	 * Analytics functionality like Tracks, MC, or GA.
+	 */
+	public static function can_use_analytics() {
+		$status     = new Status();
+		$connection = new Connection_Manager();
+		$tracking   = new Tracking( 'jetpack', $connection );
+
+		return $tracking->should_enable_tracking( new Terms_Of_Service(), $status );
+	}
 	/**
 	 * Enqueue admin page assets.
 	 *
 	 * @return void
 	 */
-	public static function enqueue_scritps() {
+	public static function enqueue_scripts() {
 		Assets::register_script(
 			'my_jetpack_main_app',
 			'../build/index.js',
@@ -89,17 +104,29 @@ class Initializer {
 			array(
 				'apiRoot'               => esc_url_raw( rest_url() ),
 				'apiNonce'              => wp_create_nonce( 'wp_rest' ),
+				'products'              => array(
+					'items' => Products::get_products(),
+				),
+				'purchases'             => array(
+					'items' => array(),
+				),
 				'redirectUrl'           => admin_url( '?page=my-jetpack' ),
 				'topJetpackMenuItemUrl' => Admin_Menu::get_top_level_menu_item_url(),
+				'siteSuffix'            => ( new Status() )->get_site_suffix(),
 			)
 		);
 
 		// Connection Initial State.
 		wp_add_inline_script( 'my_jetpack_main_app', Connection_Initial_State::render(), 'before' );
+
+		// Required for Analytics.
+		if ( self::can_use_analytics() ) {
+			Tracking::register_tracks_functions_scripts( true );
+		}
 	}
 
 	/**
-	 * Echos the admin page content.
+	 * Echoes the admin page content.
 	 *
 	 * @return void
 	 */
@@ -112,23 +139,16 @@ class Initializer {
 	 *
 	 * @return void
 	 */
-	public static function register_rest_routes() {
-		register_rest_route(
-			'my-jetpack/v1',
-			'/site',
-			array(
-				'methods'             => \WP_REST_Server::READABLE,
-				'callback'            => __CLASS__ . '::get_site',
-				'permission_callback' => __CLASS__ . '::permissions_callback',
-			)
-		);
+	public static function register_rest_endpoints() {
+		new REST_Products();
+		new REST_Purchases();
 
 		register_rest_route(
 			'my-jetpack/v1',
-			'/site/plans',
+			'site',
 			array(
 				'methods'             => \WP_REST_Server::READABLE,
-				'callback'            => __CLASS__ . '::get_site_plans',
+				'callback'            => __CLASS__ . '::get_site',
 				'permission_callback' => __CLASS__ . '::permissions_callback',
 			)
 		);
@@ -166,30 +186,4 @@ class Initializer {
 		return rest_ensure_response( $body, 200 );
 	}
 
-	/**
-	 * Site plans endpoint.
-	 *
-	 * @return array Site plans.
-	 */
-	public static function get_site_plans() {
-		$wpcom_endpoint    = sprintf( '/plans?_locale=%s?force=wpcom', get_user_locale() );
-		$wpcom_api_version = '2';
-		$response          = Client::wpcom_json_api_request_as_user(
-			$wpcom_endpoint,
-			$wpcom_api_version,
-			array(
-				'headers' => array(
-					'X-Forwarded-For' => \Jetpack::current_user_ip( true ),
-				),
-			)
-		);
-		$response_code     = wp_remote_retrieve_response_code( $response );
-		$body              = json_decode( wp_remote_retrieve_body( $response ) );
-
-		if ( is_wp_error( $response ) ) {
-			return new \WP_Error( 'site_plans_data_fetch_failed', 'Site plans data fetch failed', array( 'status' => $response_code ) );
-		}
-
-		return rest_ensure_response( $body, 200 );
-	}
 }
