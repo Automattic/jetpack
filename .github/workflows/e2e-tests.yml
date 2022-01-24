@@ -82,6 +82,13 @@ jobs:
       working-directory: ${{ matrix.path }}
       run: pnpm run test-e2e
 
+    - name: Send Slack notification
+      env:
+        GITHUB_CONTEXT: ${{ toJson(github) }}
+        REPORT: ${{ matrix.project }}
+      working-directory: ${{ matrix.path }}
+      run: pnpm run slack -- --report $REPORT
+
     - name: Test environment tear-down
       if: ${{ always() }}
       working-directory: ${{ matrix.path }}
@@ -97,10 +104,4 @@ jobs:
         name: test-output-${{ matrix.group }}
         path: ${{ matrix.path }}/output
 
-    - name: Send Slack notification
-      if: ${{ failure() }}
-      env:
-        GITHUB_CONTEXT: ${{ toJson(github) }}
-        REPORT: ${{ matrix.project }}
-      working-directory: ${{ matrix.path }}
-      run: pnpm run slack -- --report $REPORT
+
