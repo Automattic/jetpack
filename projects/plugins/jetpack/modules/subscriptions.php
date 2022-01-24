@@ -168,9 +168,9 @@ class Jetpack_Subscriptions {
 			wp_nonce_field( 'disable_subscribe', 'disable_subscribe_nonce' );
 			?>
 			<div class="misc-pub-section">
-				<label for="_jetpack_dont_email_post_to_subs"><?php _e( 'Jetpack Subscriptions:', 'jetpack' ); ?></label><br>
+				<label for="_jetpack_dont_email_post_to_subs"><?php esc_html_e( 'Jetpack Subscriptions:', 'jetpack' ); ?></label><br>
 				<input type="checkbox" name="_jetpack_dont_email_post_to_subs" id="jetpack-per-post-subscribe" value="1" <?php checked( $disable_subscribe_value, 1, true ); ?> />
-				<?php _e( 'Don&#8217;t send this to subscribers', 'jetpack' ); ?>
+				<?php esc_html_e( 'Don&#8217;t send this to subscribers', 'jetpack' ); ?>
 			</div>
 			<?php
 		endif;
@@ -403,7 +403,7 @@ class Jetpack_Subscriptions {
 	 */
 	public function subscriptions_settings_section() {
 		?>
-		<p id="jetpack-subscriptions-settings"><?php _e( 'Change whether your visitors can subscribe to your posts or comments or both.', 'jetpack' ); ?></p>
+		<p id="jetpack-subscriptions-settings"><?php esc_html_e( 'Change whether your visitors can subscribe to your posts or comments or both.', 'jetpack' ); ?></p>
 
 		<?php
 	}
@@ -418,7 +418,15 @@ class Jetpack_Subscriptions {
 
 		<p class="description">
 			<input type="checkbox" name="stb_enabled" id="jetpack-post-subscribe" value="1" <?php checked( $stb_enabled, 1 ); ?> />
-			<?php _e( "Show a <em>'follow blog'</em> option in the comment form", 'jetpack' ); ?>
+			<?php
+			echo wp_kses(
+				__(
+					"Show a <em>'follow blog'</em> option in the comment form",
+					'jetpack'
+				),
+				array( 'em' => array() )
+			);
+			?>
 		</p>
 		<?php
 	}
@@ -433,7 +441,15 @@ class Jetpack_Subscriptions {
 
 		<p class="description">
 			<input type="checkbox" name="stc_enabled" id="jetpack-comment-subscribe" value="1" <?php checked( $stc_enabled, 1 ); ?> />
-			<?php _e( "Show a <em>'follow comments'</em> option in the comment form", 'jetpack' ); ?>
+			<?php
+			echo wp_kses(
+				__(
+					"Show a <em>'follow comments'</em> option in the comment form",
+					'jetpack'
+				),
+				array( 'em' => array() )
+			);
+			?>
 		</p>
 
 		<?php
@@ -532,7 +548,7 @@ class Jetpack_Subscriptions {
 	 */
 	public function reading_section() {
 		echo '<p id="follower-settings">';
-		_e( 'These settings change emails sent from your blog to followers.', 'jetpack' );
+		esc_html_e( 'These settings change emails sent from your blog to followers.', 'jetpack' );
 		echo '</p>';
 	}
 
@@ -542,7 +558,7 @@ class Jetpack_Subscriptions {
 	public function setting_invitation() {
 		$settings = $this->get_settings();
 		echo '<textarea name="subscription_options[invitation]" class="large-text" cols="50" rows="5">' . esc_textarea( $settings['invitation'] ) . '</textarea>';
-		echo '<p><span class="description">' . __( 'Introduction text sent when someone follows your blog. (Site and confirmation details will be automatically added for you.)', 'jetpack' ) . '</span></p>';
+		echo '<p><span class="description">' . esc_html__( 'Introduction text sent when someone follows your blog. (Site and confirmation details will be automatically added for you.)', 'jetpack' ) . '</span></p>';
 	}
 
 	/**
@@ -551,7 +567,7 @@ class Jetpack_Subscriptions {
 	public function setting_comment_follow() {
 		$settings = $this->get_settings();
 		echo '<textarea name="subscription_options[comment_follow]" class="large-text" cols="50" rows="5">' . esc_textarea( $settings['comment_follow'] ) . '</textarea>';
-		echo '<p><span class="description">' . __( 'Introduction text sent when someone follows a post on your blog. (Site and confirmation details will be automatically added for you.)', 'jetpack' ) . '</span></p>';
+		echo '<p><span class="description">' . esc_html__( 'Introduction text sent when someone follows a post on your blog. (Site and confirmation details will be automatically added for you.)', 'jetpack' ) . '</span></p>';
 	}
 
 	/**
