@@ -57,7 +57,6 @@ class Jetpack_JSON_API_Plugins_Install_Endpoint extends Jetpack_JSON_API_Plugins
 	protected $action = 'install';
 
 	protected function install() {
-		jetpack_require_lib( 'plugins' );
 		$result = '';
 		foreach ( $this->plugins as $index => $slug ) {
 			$result = Jetpack_Plugins::install_plugin( $slug );
@@ -84,7 +83,6 @@ class Jetpack_JSON_API_Plugins_Install_Endpoint extends Jetpack_JSON_API_Plugins
 			return new WP_Error( 'missing_plugins', __( 'No plugins found.', 'jetpack' ) );
 		}
 
-		jetpack_require_lib( 'plugins' );
 		foreach ( $this->plugins as $index => $slug ) {
 			// make sure it is not already installed
 			if ( Jetpack_Plugins::get_plugin_id_by_slug( $slug ) ) {

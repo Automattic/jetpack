@@ -10,8 +10,6 @@ use Automattic\Jetpack\Jetpack_CRM_Data;
 use Automattic\Jetpack\Redirect;
 use Automattic\Jetpack\Tracking;
 
-jetpack_require_lib( 'plugins' );
-
 /**
  * Class that adds a new section to the Stats Report page
  */

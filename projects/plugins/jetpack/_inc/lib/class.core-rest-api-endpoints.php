@@ -3681,7 +3681,6 @@ class Jetpack_Core_Json_Api_Endpoints {
 	 * @return WP_REST_Response|WP_Error List of plugins in the site. Otherwise, a WP_Error instance with the corresponding error.
 	 */
 	public static function get_plugins() {
-		jetpack_require_lib( 'plugins' );
 		$plugins = Jetpack_Plugins::get_plugins();
 
 		if ( ! empty( $plugins ) ) {
@@ -3709,13 +3708,12 @@ class Jetpack_Core_Json_Api_Endpoints {
 	public static function install_plugin( $request ) {
 		$plugin = stripslashes( $request['slug'] );
 
-		jetpack_require_lib( 'plugins' );
-
 		// Let's make sure the plugin isn't already installed.
 		$plugin_id = Jetpack_Plugins::get_plugin_id_by_slug( $plugin );
 
 		// If not installed, let's install now.
 		if ( ! $plugin_id ) {
+			error_log( 'asdasdasdasdasdasdsadasdasdasdsadasdasdsa');
 			$result = Jetpack_Plugins::install_plugin( $plugin );
 
 			if ( is_wp_error( $result ) ) {
@@ -3804,7 +3802,6 @@ class Jetpack_Core_Json_Api_Endpoints {
 			);
 		}
 
-		jetpack_require_lib( 'plugins' );
 		$plugins = Jetpack_Plugins::get_plugins();
 
 		if ( empty( $plugins ) ) {
@@ -3904,7 +3901,6 @@ class Jetpack_Core_Json_Api_Endpoints {
 	 * @return bool|WP_Error True if module was activated. Otherwise, a WP_Error instance with the corresponding error.
 	 */
 	public static function get_plugin( $request ) {
-		jetpack_require_lib( 'plugins' );
 		$plugins = Jetpack_Plugins::get_plugins();
 
 		if ( empty( $plugins ) ) {

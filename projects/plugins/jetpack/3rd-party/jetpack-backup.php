@@ -67,7 +67,6 @@ function try_install() {
  * @return bool result of installation
  */
 function install_and_activate() {
-	jetpack_require_lib( 'plugins' );
 	$result = \Jetpack_Plugins::install_and_activate_plugin( PLUGIN_SLUG );
 
 	if ( is_wp_error( $result ) ) {

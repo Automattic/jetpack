@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "83b762352d36b1f733c09a5b5d4adc58",
+    "content-hash": "e6e3826de32e5b76a1ca0cc0a939a302",
     "packages": [
         {
             "name": "automattic/jetpack-a8c-mc-stats",
@@ -1369,6 +1369,52 @@
                 "GPL-2.0-or-later"
             ],
             "description": "Password Checker.",
+            "transport-options": {
+                "monorepo": true,
+                "relative": true
+            }
+        },
+        {
+            "name": "automattic/jetpack-plugins-installer",
+            "version": "dev-master",
+            "dist": {
+                "type": "path",
+                "url": "../../packages/plugins-installer",
+                "reference": "0dc14d4d1bbc95fc7bc1994ab056a3bb7394524b"
+            },
+            "require": {
+                "automattic/jetpack-a8c-mc-stats": "^1.4"
+            },
+            "require-dev": {
+                "automattic/jetpack-changelogger": "^3.0",
+                "yoast/phpunit-polyfills": "1.0.3"
+            },
+            "type": "library",
+            "extra": {
+                "branch-alias": {
+                    "dev-master": "0.1.x-dev"
+                }
+            },
+            "autoload": {
+                "classmap": [
+                    "src/"
+                ]
+            },
+            "scripts": {
+                "phpunit": [
+                    "./vendor/phpunit/phpunit/phpunit --colors=always"
+                ],
+                "test-coverage": [
+                    "php -dpcov.directory=. ./vendor/bin/phpunit --coverage-clover \"$COVERAGE_DIR/clover.xml\""
+                ],
+                "test-php": [
+                    "@composer phpunit"
+                ]
+            },
+            "license": [
+                "GPL-2.0-or-later"
+            ],
+            "description": "Handle installation of plugins from WP.org",
             "transport-options": {
                 "monorepo": true,
                 "relative": true
@@ -2860,16 +2906,16 @@
         },
         {
             "name": "phpunit/phpunit",
-            "version": "9.5.11",
+            "version": "9.5.13",
             "source": {
                 "type": "git",
                 "url": "https://github.com/sebastianbergmann/phpunit.git",
-                "reference": "2406855036db1102126125537adb1406f7242fdd"
+                "reference": "597cb647654ede35e43b137926dfdfef0fb11743"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/sebastianbergmann/phpunit/zipball/2406855036db1102126125537adb1406f7242fdd",
-                "reference": "2406855036db1102126125537adb1406f7242fdd",
+                "url": "https://api.github.com/repos/sebastianbergmann/phpunit/zipball/597cb647654ede35e43b137926dfdfef0fb11743",
+                "reference": "597cb647654ede35e43b137926dfdfef0fb11743",
                 "shasum": ""
             },
             "require": {
@@ -2947,7 +2993,7 @@
             ],
             "support": {
                 "issues": "https://github.com/sebastianbergmann/phpunit/issues",
-                "source": "https://github.com/sebastianbergmann/phpunit/tree/9.5.11"
+                "source": "https://github.com/sebastianbergmann/phpunit/tree/9.5.13"
             },
             "funding": [
                 {
@@ -2959,7 +3005,7 @@
                     "type": "github"
                 }
             ],
-            "time": "2021-12-25T07:07:57+00:00"
+            "time": "2022-01-24T07:33:35+00:00"
         },
         {
             "name": "psr/container",
@@ -5116,6 +5162,7 @@
         "automattic/jetpack-my-jetpack": 20,
         "automattic/jetpack-options": 20,
         "automattic/jetpack-partner": 20,
+        "automattic/jetpack-plugins-installer": 20,
         "automattic/jetpack-redirect": 20,
         "automattic/jetpack-roles": 20,
         "automattic/jetpack-search": 20,
