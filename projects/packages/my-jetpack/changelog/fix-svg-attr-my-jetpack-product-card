@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Fixed svg attribute strokeWidth for Boost Card
