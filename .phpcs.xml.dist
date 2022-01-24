@@ -4,6 +4,9 @@
 	<!-- Load configuration. -->
 	<rule ref="./.phpcs.config.xml" />
 
+	<!-- Default ruleset. -->
+	<rule ref="Jetpack" />
+
 	<rule ref="VariableAnalysis.CodeAnalysis.VariableAnalysis">
 		<!-- Template files use extracted variables. -->
 		<exclude-pattern>/projects/plugins/jetpack/extensions/blocks/podcast-player/templates/*</exclude-pattern>
