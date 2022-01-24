@@ -78,6 +78,7 @@ function requestProductStatus( productId, data, { select, dispatch } ) {
 		// Check valid product.
 		const isValid = select.isValidProduct( productId );
 		if ( ! isValid ) {
+			dispatch( setProductStatus( productId, { status: 'error' } ) );
 			return dispatch(
 				setRequestProductError( productId, {
 					code: 'invalid_product',
@@ -86,17 +87,18 @@ function requestProductStatus( productId, data, { select, dispatch } ) {
 			);
 		}
 
+		const method = data.activate ? 'POST' : 'DELETE';
 		dispatch( setIsFetchingProduct( productId, true ) );
 
 		// Activate/deactivate product.
 		return apiFetch( {
 			path: `${ REST_API_SITE_PRODUCTS_ENDPOINT }/${ productId }`,
-			method: 'POST',
+			method,
 			data,
 		} )
-			.then( status => {
+			.then( freshProduct => {
 				dispatch( setIsFetchingProduct( productId, false ) );
-				dispatch( setProductStatus( productId, status ) );
+				dispatch( setProduct( freshProduct ) );
 				resolve( status );
 			} )
 			.catch( error => {
