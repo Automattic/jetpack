@@ -612,7 +612,7 @@ class Jetpack_Subscriptions {
 			if ( $async ) {
 				XMLRPC_Async_Call::add_call( 'jetpack.subscribeToSite', 0, $email, $post_id, serialize( $extra_data ) ); //phpcs:ignore WordPress.PHP.DiscouragedPHPFunctions.serialize_serialize
 			} else {
-				$xml->addCall( 'jetpack.subscribeToSite', $email, $post_id, serialize( $extra_data ) );
+				$xml->addCall( 'jetpack.subscribeToSite', $email, $post_id, serialize( $extra_data ) ); //phpcs:ignore WordPress.PHP.DiscouragedPHPFunctions.serialize_serialize
 			}
 		}
 
