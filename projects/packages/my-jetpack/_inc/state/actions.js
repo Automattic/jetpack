@@ -100,6 +100,7 @@ function requestProductStatus( productId, data, { select, dispatch } ) {
 				resolve( status );
 			} )
 			.catch( error => {
+				dispatch( setProductStatus( productId, { status: 'error' } ) );
 				dispatch( setRequestProductError( productId, error ) );
 				reject( error );
 				dispatch( setIsFetchingProduct( productId, false ) );
