@@ -239,7 +239,7 @@ class Jetpack_Subscriptions {
 		}
 
 		// Only posts are currently supported.
-		if ( $post->post_type !== 'post' ) {
+		if ( 'post' !== $post->post_type ) {
 			return false;
 		}
 
