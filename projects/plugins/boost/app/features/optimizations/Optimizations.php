@@ -83,10 +83,11 @@ class Optimizations implements Has_Setup {
 	 * @inheritDoc
 	 */
 	public function setup() {
+
 		foreach ( $this->available_modules() as $slug => $optimization ) {
 
 			if ( ! $optimization->status->is_enabled() ) {
-				return false;
+				continue;
 			}
 
 			$optimization->feature->setup();
