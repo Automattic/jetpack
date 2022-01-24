@@ -760,9 +760,8 @@ class Jetpack_Subscriptions {
 	 * Set up and add the comment subscription checkbox to the comment form.
 	 *
 	 * @param string $submit_button HTML markup for the submit field.
-	 * @param array  $args          Arguments passed to `comment_form()`.
 	 */
-	public function comment_subscribe_init( $submit_button, $args ) {
+	public function comment_subscribe_init( $submit_button ) {
 		global $post;
 
 		$comments_checked = '';
