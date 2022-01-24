@@ -98,7 +98,7 @@ class Jetpack_Subscriptions {
 		add_action( 'admin_init', array( $this, 'configure' ) );
 
 		// Catch subscription widget submits.
-		if ( isset( $_REQUEST['jetpack_subscriptions_widget'] ) ) {
+		if ( isset( $_REQUEST['jetpack_subscriptions_widget'] ) ) { // phpcs:ignore WordPress.Security.NonceVerification.Recommended -- Nonce checked in widget_submit() for logged in users.
 			add_action( 'template_redirect', array( $this, 'widget_submit' ) );
 		}
 
@@ -870,19 +870,19 @@ class Jetpack_Subscriptions {
 		}
 
 		// Set cookies for this post/comment.
-		$this->set_cookies( isset( $_REQUEST['subscribe_comments'] ), $comment->comment_post_ID, isset( $_REQUEST['subscribe_blog'] ) );
+		$this->set_cookies( isset( $_REQUEST['subscribe_comments'] ), $comment->comment_post_ID, isset( $_REQUEST['subscribe_blog'] ) ); // phpcs:ignore WordPress.Security.NonceVerification.Recommended
 
-		if ( ! isset( $_REQUEST['subscribe_comments'] ) && ! isset( $_REQUEST['subscribe_blog'] ) ) {
+		if ( ! isset( $_REQUEST['subscribe_comments'] ) && ! isset( $_REQUEST['subscribe_blog'] ) ) {  // phpcs:ignore WordPress.Security.NonceVerification.Recommended
 			return;
 		}
 
 		$post_ids = array();
 
-		if ( isset( $_REQUEST['subscribe_comments'] ) ) {
+		if ( isset( $_REQUEST['subscribe_comments'] ) ) { // phpcs:ignore WordPress.Security.NonceVerification.Recommended
 			$post_ids[] = $comment->comment_post_ID;
 		}
 
-		if ( isset( $_REQUEST['subscribe_blog'] ) ) {
+		if ( isset( $_REQUEST['subscribe_blog'] ) ) { // phpcs:ignore WordPress.Security.NonceVerification.Recommended
 			$post_ids[] = 0;
 		}
 
