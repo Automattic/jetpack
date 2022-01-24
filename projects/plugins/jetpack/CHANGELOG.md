@@ -2,6 +2,10 @@
 
 ### This is a list detailing changes for all Jetpack releases.
 
+## 10.5.1 - 2022-01-24
+### Bug fixes
+- General: avoid Fatal Errors that may happen during the plugin update process.
+
 ## 10.5 - 2022-01-11
 ### Enhancements
 - Print Styles: additional interactive elements are now hidden when printing posts (e.g. Likes, Recommended Posts, Share this).
