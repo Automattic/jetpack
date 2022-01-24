@@ -1,0 +1,4 @@
+Significance: minor
+Type: enhancement
+
+Ported Donations block from RichText to InnerBlocks.
