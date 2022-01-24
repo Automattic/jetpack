@@ -5,7 +5,7 @@ import { __, _x } from '@wordpress/i18n';
 import { getBlockType, createBlock } from '@wordpress/blocks';
 import { Path, Circle } from '@wordpress/components';
 import { Fragment } from '@wordpress/element';
-import { InnerBlocks } from '@wordpress/block-editor';
+import { InnerBlocks, useBlockProps } from '@wordpress/block-editor';
 
 /**
  * Internal dependencies
@@ -44,11 +44,29 @@ export const settings = {
 		_x( 'contact form', 'block search term', 'jetpack' ),
 	],
 	supports: {
+		color: {
+			link: true,
+			gradients: true,
+		},
 		html: false,
+		spacing: {
+			padding: true,
+		},
+		typography: {
+			fontSize: true,
+			lineHeight: true,
+		},
 	},
 	attributes: defaultAttributes,
 	edit,
-	save: () => <InnerBlocks.Content />,
+	save: () => {
+		const blockProps = useBlockProps.save();
+		return (
+			<div { ...blockProps }>
+				<InnerBlocks.Content />
+			</div>
+		);
+	},
 	variations,
 	category: 'grow',
 	transforms,
