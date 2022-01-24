@@ -1,0 +1,4 @@
+Significance: patch
+Type: added
+
+Add missing dev dependency on `nyc` for code coverage.

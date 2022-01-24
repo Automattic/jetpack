@@ -153,8 +153,10 @@ importers:
   projects/js-packages/config:
     specifiers:
       jetpack-js-test-runner: workspace:*
+      nyc: 15.1.0
     devDependencies:
       jetpack-js-test-runner: link:../../../tools/js-test-runner
+      nyc: 15.1.0
 
   projects/js-packages/connection:
     specifiers:
@@ -326,6 +328,7 @@ importers:
       '@wordpress/i18n': 4.2.4
       '@wordpress/icons': 6.1.1
       jetpack-js-test-runner: workspace:*
+      nyc: 15.1.0
       prop-types: 15.7.2
       react: 17.0.2
       react-test-renderer: 17.0.2
@@ -342,6 +345,7 @@ importers:
       '@babel/core': 7.16.0
       '@babel/preset-react': 7.16.0_@babel+core@7.16.0
       jetpack-js-test-runner: link:../../../tools/js-test-runner
+      nyc: 15.1.0
       react: 17.0.2
       react-test-renderer: 17.0.2_react@17.0.2
 
@@ -354,6 +358,7 @@ importers:
       '@wordpress/i18n': 4.2.4
       classnames: 2.3.1
       jetpack-js-test-runner: workspace:*
+      nyc: 15.1.0
       prop-types: 15.7.2
       react: 17.0.2
     dependencies:
@@ -366,6 +371,7 @@ importers:
       '@babel/core': 7.16.0
       '@babel/preset-react': 7.16.0_@babel+core@7.16.0
       jetpack-js-test-runner: link:../../../tools/js-test-runner
+      nyc: 15.1.0
       react: 17.0.2
 
   projects/js-packages/remove-asset-webpack-plugin:
@@ -479,6 +485,7 @@ importers:
       css-minimizer-webpack-plugin: 3.1.4
       duplicate-package-checker-webpack-plugin: 3.0.0
       mini-css-extract-plugin: 2.4.5
+      nyc: 15.1.0
       terser-webpack-plugin: 5.2.5
       thread-loader: 3.0.4
       webpack: 5.65.0
@@ -509,6 +516,7 @@ importers:
     devDependencies:
       '@babel/core': 7.16.0
       '@babel/runtime': 7.16.3
+      nyc: 15.1.0
       webpack: 5.65.0_webpack-cli@4.9.1
       webpack-cli: 4.9.1_webpack@5.65.0
 
@@ -1219,6 +1227,7 @@ importers:
       path-name: 1.0.0
       pluralize: 8.0.0
       process: 0.11.10
+      semver: 7.3.5
       simple-git: 2.37.0
       sinon: 9.2.4
       yargs: 16.2.0
@@ -1239,6 +1248,7 @@ importers:
       path-name: 1.0.0
       pluralize: 8.0.0
       process: 0.11.10
+      semver: 7.3.5
       simple-git: 2.37.0
       yargs: 16.2.0
     devDependencies:
