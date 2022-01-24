@@ -1,5 +1,8 @@
 import logger from 'jetpack-e2e-commons/logger.cjs';
-import { execWpCommand } from 'jetpack-e2e-commons/helpers/utils-helper.cjs';
+import {
+	execDockerShellCommand,
+	execWpCommand,
+} from 'jetpack-e2e-commons/helpers/utils-helper.cjs';
 
 import { expect } from '@playwright/test';
 import { JetpackBoostPage } from '../pages/index.js';
@@ -11,6 +14,7 @@ export function boostPrerequisitesBuilder( page ) {
 		modules: { active: undefined, inactive: undefined },
 		connected: undefined,
 		jetpackDeactivated: undefined,
+		mockSpeedScore: undefined,
 	};
 
 	return {
@@ -30,6 +34,10 @@ export function boostPrerequisitesBuilder( page ) {
 			state.testPostTitles = testPostTitles;
 			return this;
 		},
+		withSpeedScoreMocked( shouldMockSpeedScore ) {
+			state.mockSpeedScore = shouldMockSpeedScore;
+			return this;
+		},
 		withCleanEnv() {
 			state.clean = true;
 			return this;
@@ -46,6 +54,7 @@ async function buildPrerequisites( state, page ) {
 		connected: () => ensureConnectedState( state.connected, page ),
 		testPostTitles: () => ensureTestPosts( state.testPostTitles ),
 		clean: () => ensureCleanState( state.clean ),
+		mockSpeedScore: () => ensureMockSpeedScoreState( state.mockSpeedScore ),
 	};
 
 	logger.prerequisites( JSON.stringify( state, null, 2 ) );
@@ -75,6 +84,26 @@ export async function ensureModulesState( modules ) {
 		logger.prerequisites( 'Cannot find list of modules to deactivate!' );
 	}
 }
+
+export async function ensureMockSpeedScoreState( mockSpeedScore ) {
+	if ( mockSpeedScore ) {
+		logger.prerequisites( 'Mocking Speed Score' );
+
+		// Copy the speed-score mock plugin in place
+		const pluginSrc =
+			'/usr/local/src/jetpack-monorepo/projects/plugins/boost/tests/e2e/plugins/e2e-mock-speed-score-api.php';
+		const wpPlugins = '/var/www/html/wp-content/plugins';
+		await execDockerShellCommand( `cp ${ pluginSrc } ${ wpPlugins }` );
+
+		// Enable the speed score mock plugin.
+		await execWpCommand( 'plugin activate e2e-mock-speed-score-api' );
+	} else {
+		logger.prerequisites( 'Unmocking Speed Score' );
+
+		await execWpCommand( 'plugin deactivate e2e-mock-speed-score-api' );
+	}
+}
+
 export async function activateModules( modules ) {
 	for ( const module of modules ) {
 		logger.prerequisites( `Activating module ${ module }` );
