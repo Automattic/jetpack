@@ -9,11 +9,9 @@ import { combineReducers } from '@wordpress/data';
 import {
 	SET_PURCHASES,
 	SET_PURCHASES_IS_FETCHING,
-	SET_PRODUCT_ACTION_ERROR,
 	SET_PRODUCT,
 	SET_PRODUCT_STATUS,
 	SET_IS_FETCHING_PRODUCT,
-	SET_FETCHING_PRODUCT_STATUS,
 	SET_PRODUCT_REQUEST_ERROR,
 } from './actions';
 
@@ -41,7 +39,6 @@ const products = ( state = {}, action ) => {
 						...status,
 					},
 				},
-				error: {},
 			};
 		}
 
@@ -65,27 +62,6 @@ const products = ( state = {}, action ) => {
 					...state.errors,
 					[ productId ]: error,
 				},
-			};
-		}
-
-		case SET_PRODUCT_ACTION_ERROR:
-			return {
-				...state,
-				error: action.error,
-			};
-
-		case SET_FETCHING_PRODUCT_STATUS: {
-			const { productId, isFetching } = action;
-			return {
-				...state,
-				items: {
-					...state.items,
-					[ productId ]: {
-						...state.items[ productId ],
-						isFetching,
-					},
-				},
-				error: isFetching ? {} : state.error,
 			};
 		}
 

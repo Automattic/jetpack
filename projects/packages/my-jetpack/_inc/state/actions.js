@@ -18,10 +18,8 @@ const SET_PURCHASES = 'SET_PURCHASES';
 const SET_IS_FETCHING_PRODUCT = 'SET_IS_FETCHING_PRODUCT';
 const SET_PRODUCT = 'SET_PRODUCT';
 const SET_PRODUCT_REQUEST_ERROR = 'SET_PRODUCT_REQUEST_ERROR';
-const SET_PRODUCT_ACTION_ERROR = 'SET_PRODUCT_ACTION_ERROR';
 const ACTIVATE_PRODUCT = 'ACTIVATE_PRODUCT';
 const DEACTIVATE_PRODUCT = 'DEACTIVATE_PRODUCT';
-const SET_FETCHING_PRODUCT_STATUS = 'SET_FETCHING_PRODUCT_STATUS';
 const SET_PRODUCT_STATUS = 'SET_PRODUCT_STATUS';
 
 const setPurchasesIsFetching = isFetching => {
@@ -48,13 +46,21 @@ const setProductStatus = ( productId, status ) => {
 	return { type: SET_PRODUCT_STATUS, productId, status };
 };
 
-const setIsFetchingProductStatus = ( productId, isFetching ) => {
-	return { type: SET_FETCHING_PRODUCT_STATUS, productId, isFetching };
-};
-
-const setProductActionError = error => {
-	return { type: SET_PRODUCT_ACTION_ERROR, error };
-};
+/**
+ * Action that set the `isFetching` state of the product,
+ * when the client hits the server.
+ *
+ * @param {string} productId   - My Jetpack product ID.
+ * @param {boolean} isFetching - True if the product is being fetched. Otherwise, False.
+ * @returns {object}           - Redux action.
+ */
+function setIsFetchingProduct( productId, isFetching ) {
+	return {
+		type: SET_IS_FETCHING_PRODUCT,
+		productId,
+		isFetching,
+	};
+}
 
 /**
  * Side effect action which will sync
@@ -73,14 +79,14 @@ function requestProductStatus( productId, data, { select, dispatch } ) {
 		const isValid = select.isValidProduct( productId );
 		if ( ! isValid ) {
 			return dispatch(
-				setProductActionError( {
+				setRequestProductError( productId, {
 					code: 'invalid_product',
 					message: __( 'Invalid product name', 'jetpack-my-jetpack' ),
 				} )
 			);
 		}
 
-		dispatch( setIsFetchingProductStatus( productId, true ) );
+		dispatch( setIsFetchingProduct( productId, true ) );
 
 		// Activate/deactivate product.
 		return apiFetch( {
@@ -89,32 +95,16 @@ function requestProductStatus( productId, data, { select, dispatch } ) {
 			data,
 		} )
 			.then( status => {
-				dispatch( setIsFetchingProductStatus( productId, false ) );
+				dispatch( setIsFetchingProduct( productId, false ) );
 				dispatch( setProductStatus( productId, status ) );
 				resolve( status );
 			} )
 			.catch( error => {
-				dispatch( setProductActionError( error ) );
+				dispatch( setRequestProductError( productId, error ) );
 				reject( error );
-				dispatch( setIsFetchingProductStatus( productId, false ) );
+				dispatch( setIsFetchingProduct( productId, false ) );
 			} );
 	} );
-}
-
-/**
- * Action that set the `isFetching` state of the product,
- * when the client hits the server.
- *
- * @param {string} productId   - My Jetpack product ID.
- * @param {boolean} isFetching - True if the product is being fetched. Otherwise, False.
- * @returns {object}           - Redux action.
- */
-function setIsFetchingProduct( productId, isFetching ) {
-	return {
-		type: SET_IS_FETCHING_PRODUCT,
-		productId,
-		isFetching,
-	};
 }
 
 /**
@@ -158,13 +148,11 @@ export {
 	SET_PURCHASES_IS_FETCHING,
 	FETCH_PURCHASES,
 	SET_PURCHASES,
-	SET_PRODUCT_ACTION_ERROR,
 	SET_PRODUCT,
 	SET_PRODUCT_REQUEST_ERROR,
 	ACTIVATE_PRODUCT,
 	DEACTIVATE_PRODUCT,
 	SET_IS_FETCHING_PRODUCT,
-	SET_FETCHING_PRODUCT_STATUS,
 	SET_PRODUCT_STATUS,
 	actions as default,
 };
