@@ -4,6 +4,7 @@ exports[`MarkdownRenderer renders markdown to HTML as expected 1`] = `
 <RawHTML
   className="markdown"
   onClick={[Function]}
+  style={Object {}}
 >
   &lt;h1&gt;Heading&lt;/h1&gt;
 &lt;h2&gt;2nd Heading&lt;/h2&gt;
