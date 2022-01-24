@@ -14,11 +14,11 @@ class Status {
 		return '1' === get_option( $this->slug );
 	}
 
-	public function update( $new_state ) {
+	public function update( $new_status ) {
 
-		if ( update_option( $this->slug, (bool) $new_state ) ) {
+		if ( update_option( $this->slug, (bool) $new_status ) ) {
 			// Only record analytics event if the config update succeeds.
-			$this->track_module_status( (bool) $new_state );
+			$this->track_module_status( (bool) $new_status );
 			return true;
 		}
 		return false;

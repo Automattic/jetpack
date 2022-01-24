@@ -1,6 +1,11 @@
 <?php
+
 namespace Automattic\Jetpack_Boost\Contracts;
 
-interface Feature extends Initialize {
-	public function get_slug();
+/**
+ * Every plugin feature that's large enough
+ * to need setup also needs a slug
+ */
+interface Feature extends Has_Setup, Has_Slug {
+
 }

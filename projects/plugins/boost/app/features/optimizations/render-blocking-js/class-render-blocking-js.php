@@ -53,7 +53,7 @@ class Render_Blocking_JS implements Feature {
 	 */
 	private $is_opened_script = false;
 
-	public function initialize() {
+	public function setup() {
 		$this->output_filter = new Output_Filter();
 
 		// Set up the ignore attribute value.
@@ -298,6 +298,10 @@ class Render_Blocking_JS implements Feature {
 
 	public function get_slug() {
 		return 'render-blocking-js';
+	}
+
+	public function setup_trigger() {
+		return 'init';
 	}
 
 }

@@ -26,10 +26,11 @@ class Optimization_Status implements Endpoint {
 
 		// @TODO: Validate that the module exists?
 
-		$state->update( (bool) $params['status'] );
+		$new_status = (bool) $params['status'];
+		$success    = $state->update( (bool) $params['status'] );
 
 		return rest_ensure_response(
-			$state->is_enabled()
+			$success ? $new_status : ! $new_status
 		);
 	}
 

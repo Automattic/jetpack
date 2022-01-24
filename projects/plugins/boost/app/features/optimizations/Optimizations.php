@@ -6,13 +6,14 @@ use Automattic\Jetpack_Boost\Contracts\Has_Setup;
 use Automattic\Jetpack_Boost\Features\Optimizations\Critical_CSS\Critical_CSS;
 use Automattic\Jetpack_Boost\Features\Optimizations\Lazy_Images\Lazy_Images;
 use Automattic\Jetpack_Boost\Features\Optimizations\Render_Blocking_JS\Render_Blocking_JS;
+use Automattic\Jetpack_Boost\REST_API\Contracts\Has_Endpoints;
 
 class Optimizations implements Has_Setup {
 
 	/**
 	 * @var Optimization[] - Optimization modules
 	 */
-	protected $modules = array();
+	protected $features = array();
 
 	/**
 	 * Initialize modules.
@@ -28,82 +29,98 @@ class Optimizations implements Has_Setup {
 			new Render_Blocking_JS(),
 		);
 
-		$modules = array();
 		foreach ( $features as $feature ) {
-			$module                         = new Optimization( $feature );
-			$modules[ $module->get_slug() ] = $module;
+			$slug                    = $feature->get_slug();
+			$this->features[ $slug ] = new Optimization( $feature );
 		}
-
-		$this->modules = $modules;
 	}
 
-	protected function available_modules() {
-		$forced_disabled_modules = array();
-		// Get the lists of modules explicitly disabled from the 'jb-disable-modules' query string.
-		// The parameter is a comma separated value list of module slug.
+	public function available_modules() {
+		$forced_disabled_modules = $this->get_disabled_modules();
 
-		// phpcs:disable WordPress.Security.NonceVerification.Recommended
-		if ( ! empty( $_GET['jb-disable-modules'] ) ) {
-			// phpcs:disable WordPress.Security.NonceVerification.Recommended
-			// phpcs:disable WordPress.Security.ValidatedSanitizedInput.MissingUnslash
-			// phpcs:disable WordPress.Security.ValidatedSanitizedInput.InputNotSanitized
-			$forced_disabled_modules = array_map( 'sanitize_key', explode( ',', $_GET['jb-disable-modules'] ) );
+		if ( empty( $forced_disabled_modules ) ) {
+			return $this->features;
+		}
+
+		if ( array( 'all' ) === $forced_disabled_modules ) {
+			return array();
 		}
 
 		$available_modules = array();
-		foreach ( $this->modules as $module_slug => $module ) {
-
-			// Don't register modules that have been forcibly disabled from the url 'jb-disable-modules' query string parameter.
-			if ( in_array( $module_slug, $forced_disabled_modules, true ) || in_array( 'all', $forced_disabled_modules, true ) ) {
-				continue;
+		foreach ( $this->features as $slug => $feature ) {
+			if ( ! in_array( $slug, $forced_disabled_modules, true ) ) {
+				$available_modules[ $slug ] = $feature;
 			}
-			$available_modules[ $module_slug ] = $module;
 		}
 
 		return $available_modules;
 	}
 
-	/**
-	 * @param string $module_slug
-	 */
-	public function get_module( $module_slug ) {
-		if ( ! $this->modules[ $module_slug ] ) {
-			return false; // @TODO: Return empty module instead?
+	public function have_enabled_modules() {
+		return count( $this->get_status() ) > 0;
+	}
+
+	public function get_status() {
+		$status = array();
+		foreach ( $this->features as $slug => $optimization ) {
+			$status[ $slug ] = $optimization->status->is_enabled();
+		}
+		return $status;
+	}
+
+	public function register_endpoints( $feature ) {
+		if ( ! $feature instanceof Has_Endpoints ) {
+			return false;
 		}
 
-		return $this->modules[ $module_slug ];
-	}
+		if ( empty( $feature->get_endpoints() ) ) {
+			return false;
+		}
 
-	/**
-	 * Returns an array of active modules.
-	 */
-	public function get_active_modules() {
-		return array_filter(
-			$this->modules,
-			function ( $module ) {
-				return $module->is_enabled();
-			}
-		);
-	}
-
-	public function get_modules() {
-		return $this->modules;
 	}
 
 	/**
 	 * @inheritDoc
 	 */
 	public function setup() {
-		foreach ( $this->available_modules() as $module ) {
-			$module->register_endpoints();
-			$module->initialize();
+		foreach ( $this->available_modules() as $slug => $optimization ) {
+
+			if ( ! $optimization->status->is_enabled() ) {
+				return false;
+			}
+
+			$optimization->feature->setup();
+			$this->register_endpoints( $optimization->feature );
+
+			do_action( "jetpack_boost_{$slug}_initialized", $this );
+
 		}
+	}
+
+	/**
+	 * Get the lists of modules explicitly disabled from the 'jb-disable-modules' query string.
+	 * The parameter is a comma separated value list of module slug.
+	 *
+	 * @return array
+	 */
+
+	public function get_disabled_modules() {
+		// phpcs:disable WordPress.Security.NonceVerification.Recommended
+		if ( ! empty( $_GET['jb-disable-modules'] ) ) {
+			// phpcs:disable WordPress.Security.NonceVerification.Recommended
+			// phpcs:disable WordPress.Security.ValidatedSanitizedInput.MissingUnslash
+			// phpcs:disable WordPress.Security.ValidatedSanitizedInput.InputNotSanitized
+			return array_map( 'sanitize_key', explode( ',', $_GET['jb-disable-modules'] ) );
+		}
+
+		return array();
 	}
 
 	/**
 	 * @inheritDoc
 	 */
 	public function setup_trigger() {
-		return 'init';
+		return 'plugins_loaded';
 	}
+
 }

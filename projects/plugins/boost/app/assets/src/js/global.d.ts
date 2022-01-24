@@ -12,7 +12,7 @@ import type { BrowserInterfaceIframe, generateCriticalCSS } from 'jetpack-boost-
  */
 import type { ConnectionStatus } from './stores/connection';
 import type { CriticalCssStatus } from './stores/critical-css-status';
-import type { ModulesState } from './stores/modules';
+import type { Optimizations } from './stores/modules';
 
 declare global {
 	const wpApiSettings: {
@@ -41,7 +41,7 @@ declare global {
 			online: boolean;
 			assetPath: string;
 		};
-		config: ModulesState;
+		optimizations: Optimizations;
 		shownAdminNoticeIds: string[];
 		nonces: {
 			[ key: string ]: string;
