@@ -3,12 +3,12 @@
  */
 import React from 'react';
 import PropTypes from 'prop-types';
-import { __ } from '@wordpress/i18n';
 
 /**
  * Internal dependencies
  */
-import ProductCard, { PRODUCT_STATUSES } from '../product-card';
+import ProductCard from '../product-card';
+import { useProduct } from '../../hooks/use-product';
 
 const BackupIcon = () => (
 	<svg width="24" height="24" fill="none" xmlns="http://www.w3.org/2000/svg">
@@ -22,14 +22,18 @@ const BackupIcon = () => (
 );
 
 const BackupCard = ( { admin } ) => {
-	// @todo: implement action handlers
+	const { status, activate, deactivate, detail } = useProduct( 'backup' );
+	const { name, description } = detail;
+
 	return (
 		<ProductCard
-			name={ __( 'Backup', 'jetpack-my-jetpack' ) }
-			description={ __( 'Save every change', 'jetpack-my-jetpack' ) }
-			status={ PRODUCT_STATUSES.ACTIVE }
+			name={ name }
+			description={ description }
+			status={ status }
 			icon={ <BackupIcon /> }
 			admin={ admin }
+			onDeactivate={ deactivate }
+			onActivate={ activate }
 		/>
 	);
 };
