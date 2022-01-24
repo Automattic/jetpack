@@ -11,8 +11,11 @@ use Automattic\Jetpack\Admin_UI\Admin_Menu;
 use Automattic\Jetpack\Assets;
 use Automattic\Jetpack\Connection\Client as Client;
 use Automattic\Jetpack\Connection\Initial_State as Connection_Initial_State;
+use Automattic\Jetpack\Connection\Manager as Connection_Manager;
 use Automattic\Jetpack\Connection\Rest_Authentication as Connection_Rest_Authentication;
 use Automattic\Jetpack\Status as Status;
+use Automattic\Jetpack\Terms_Of_Service;
+use Automattic\Jetpack\Tracking;
 
 /**
  * The main Initializer class that registers the admin menu and eneuque the assets.
@@ -69,6 +72,17 @@ class Initializer {
 	}
 
 	/**
+	 * Returns whether we are in condition to track to use
+	 * Analytics functionality like Tracks, MC, or GA.
+	 */
+	public static function can_use_analytics() {
+		$status     = new Status();
+		$connection = new Connection_Manager();
+		$tracking   = new Tracking( 'jetpack', $connection );
+
+		return $tracking->should_enable_tracking( new Terms_Of_Service(), $status );
+	}
+	/**
 	 * Enqueue admin page assets.
 	 *
 	 * @return void
@@ -100,6 +114,11 @@ class Initializer {
 
 		// Connection Initial State.
 		wp_add_inline_script( 'my_jetpack_main_app', Connection_Initial_State::render(), 'before' );
+
+		// Required for Analytics.
+		if ( self::can_use_analytics() ) {
+			Tracking::register_tracks_functions_scripts( true );
+		}
 	}
 
 	/**

@@ -619,6 +619,7 @@ importers:
 
   projects/packages/my-jetpack:
     specifiers:
+      '@automattic/jetpack-analytics': workspace:^0.1.7-alpha
       '@automattic/jetpack-base-styles': workspace:^0.1.7-alpha
       '@automattic/jetpack-components': workspace:^0.10.3-alpha
       '@automattic/jetpack-connection': workspace:^0.14.0-alpha
@@ -648,6 +649,7 @@ importers:
       storybook-addon-mock: 2.0.2
       webpack: 5.65.0
     dependencies:
+      '@automattic/jetpack-analytics': link:../../js-packages/analytics
       '@automattic/jetpack-components': link:../../js-packages/components
       '@automattic/jetpack-connection': link:../../js-packages/connection
       '@wordpress/components': 19.1.6_aae888dfa296766acacf1a733aa50b3a
