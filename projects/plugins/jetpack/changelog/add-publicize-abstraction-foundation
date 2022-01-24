@@ -1,0 +1,4 @@
+Significance: minor
+Type: other
+
+Moved the Publicize module into a separate Composer package and cleaned up PHPCS violations.
