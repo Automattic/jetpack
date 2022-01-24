@@ -1,7 +1,7 @@
 /**
  * External Dependencies
  */
-import React from 'react';
+import React, { useCallback } from 'react';
 
 /**
  * Internal Dependencies
@@ -30,7 +30,17 @@ const StepDisconnect = props => {
 		disconnectingPlugin,
 		closeModal,
 		context,
+		trackModalClick,
 	} = props;
+
+	const trackLearnClick = useCallback( () => trackModalClick( 'learn_about' ), [
+		trackModalClick,
+	] );
+	const trackSupportClick = useCallback( () => trackModalClick( 'support' ), [ trackModalClick ] );
+	const trackStayConnectedClick = useCallback( () => {
+		trackModalClick( 'stay_connected' );
+		closeModal();
+	}, [ trackModalClick, closeModal ] );
 
 	/**
 	 * Render the disconnect button, allows for some variance based on context.
@@ -109,6 +119,7 @@ const StepDisconnect = props => {
 											rel="noopener noreferrer"
 											target="_blank"
 											className="jp-connection__disconnect-dialog__link"
+											onClick={ trackLearnClick }
 										/>
 									),
 									jpSupportLink: (
@@ -117,6 +128,7 @@ const StepDisconnect = props => {
 											rel="noopener noreferrer"
 											target="_blank"
 											className="jp-connection__disconnect-dialog__link"
+											onClick={ trackSupportClick }
 										/>
 									),
 								}
@@ -127,7 +139,7 @@ const StepDisconnect = props => {
 						<Button
 							isPrimary
 							disabled={ isDisconnecting }
-							onClick={ closeModal }
+							onClick={ trackStayConnectedClick }
 							className="jp-connection__disconnect-dialog__btn-dismiss"
 						>
 							{ __( 'Stay connected', 'jetpack' ) }
@@ -162,6 +174,8 @@ StepDisconnect.propTypes = {
 	closeModal: PropTypes.func,
 	/** Where this modal is being rendered. */
 	context: PropTypes.string,
+	/** Callback tracks link/btn clicks (onDisconnect handles it's own tracks) */
+	trackModalClick: PropTypes.func,
 };
 
 export default StepDisconnect;

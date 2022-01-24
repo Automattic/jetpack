@@ -200,6 +200,11 @@ const DisconnectDialog = props => {
 		e => {
 			e && e.preventDefault();
 
+			jetpackAnalytics.tracks.recordEvent(
+				'jetpack_disconnect_dialog_click_disconnect',
+				defaultTracksArgs
+			);
+
 			setDisconnectError( false );
 			setIsDisconnecting( true );
 
@@ -217,7 +222,24 @@ const DisconnectDialog = props => {
 			// Default to making the disconnect API call here.
 			_disconnect();
 		},
-		[ setDisconnectError, setIsDisconnecting, pluginScreenDisconnectCallback, context, _disconnect ]
+		[
+			setDisconnectError,
+			setIsDisconnecting,
+			pluginScreenDisconnectCallback,
+			context,
+			_disconnect,
+			defaultTracksArgs,
+		]
+	);
+
+	const trackModalClick = useCallback(
+		target => {
+			jetpackAnalytics.tracks.recordEvent(
+				`jetpack_disconnect_dialog_click_${ target }`,
+				defaultTracksArgs
+			);
+		},
+		[ defaultTracksArgs ]
 	);
 
 	/**
@@ -321,6 +343,7 @@ const DisconnectDialog = props => {
 					disconnectError={ disconnectError }
 					context={ context } // Where is the modal showing? ( most important for when it loads on the plugins page )
 					disconnectingPlugin={ disconnectingPlugin } // Which plugin is initiating the disconnect.
+					trackModalClick={ trackModalClick }
 				/>
 			);
 		} else if ( isDisconnected && ! isProvidingFeedback && ! isFeedbackProvided ) {
