@@ -63,14 +63,14 @@ class Products {
 			'title'      => 'The requested product data',
 			'type'       => 'object',
 			'properties' => array(
-				'product' => array(
+				'product'     => array(
 					'description'       => __( 'Product slug', 'jetpack-my-jetpack' ),
 					'type'              => 'string',
-					'enum'              => Products::get_product_names(),
+					'enum'              => __CLASS__ . '::get_product_names',
 					'required'          => false,
 					'validate_callback' => __CLASS__ . '::check_product_argument',
 				),
-				'action'  => array(
+				'action'      => array(
 					'description'       => __( 'Production action to execute', 'jetpack-my-jetpack' ),
 					'type'              => 'string',
 					'enum'              => array( 'activate', 'deactivate' ),
