@@ -41,7 +41,7 @@ class Publicize extends Publicize_Base {
 
 		add_filter( 'jetpack_published_post_flags', array( $this, 'set_post_flags' ), 10, 2 );
 
-		add_action( 'wp_insert_post', array( $this, 'save_publicized' ), 11, 3 );
+		add_action( 'wp_insert_post', array( $this, 'save_publicized' ), 11, 2 );
 
 		add_filter( 'jetpack_twitter_cards_site_tag', array( $this, 'enhaced_twitter_cards_site_tag' ) );
 
@@ -361,7 +361,7 @@ class Publicize extends Publicize_Base {
 	public function globalization() {
 		if ( 'on' === $_REQUEST['global'] ) {
 			$globalize_connection = $_REQUEST['connection'];
-			if ( ! current_user_can( $this->GLOBAL_CAP ) ) {
+			if ( ! current_user_can( $this->GLOBAL_CAP ) ) { // phpcs:ignore WordPress.NamingConventions.ValidVariableName.UsedPropertyNotSnakeCase
 				return;
 			}
 
@@ -371,6 +371,8 @@ class Publicize extends Publicize_Base {
 
 	/**
 	 * Globalize a connection.
+	 *
+	 * @param string $connection_id Connection ID.
 	 */
 	public function globalize_connection( $connection_id ) {
 		$xml = new Jetpack_IXR_Client();
@@ -382,6 +384,11 @@ class Publicize extends Publicize_Base {
 		}
 	}
 
+	/**
+	 * Unglobalize a connection.
+	 *
+	 * @param string $connection_id Connection ID.
+	 */
 	public function unglobalize_connection( $connection_id ) {
 		$xml = new Jetpack_IXR_Client();
 		$xml->query( 'jetpack.globalizePublicizeConnection', $connection_id, 'unglobalize' );
@@ -538,11 +545,17 @@ class Publicize extends Publicize_Base {
 			$should_publicize = apply_filters( 'publicize_should_publicize_published_post', true, $post );
 
 			if ( $should_publicize ) {
-				update_post_meta( $post->ID, $this->PENDING, true );
+				update_post_meta( $post->ID, $this->PENDING, true ); // phpcs:ignore WordPress.NamingConventions.ValidVariableName.UsedPropertyNotSnakeCase
 			}
 		}
 	}
 
+	/**
+	 * Test a connection.
+	 *
+	 * @param string $service_name Name of the service.
+	 * @param array  $connection Connection to be tested.
+	 */
 	public function test_connection( $service_name, $connection ) {
 		$id = $this->get_connection_id( $connection );
 
@@ -558,7 +571,7 @@ class Publicize extends Publicize_Base {
 		$connection_test_message = $xml_response['faultString'];
 
 		// Set up refresh if the user can.
-		$user_can_refresh = current_user_can( $this->GLOBAL_CAP );
+		$user_can_refresh = current_user_can( $this->GLOBAL_CAP ); // phpcs:ignore WordPress.NamingConventions.ValidVariableName.UsedPropertyNotSnakeCase
 		if ( $user_can_refresh ) {
 			/* translators: %s is the name of a social media service */
 			$refresh_text = sprintf( _x( 'Refresh connection with %s', 'Refresh connection with {social media service}', 'jetpack' ), $this->get_service_label( $service_name ) );
@@ -594,24 +607,36 @@ class Publicize extends Publicize_Base {
 			return false;
 		}
 
-		return 'publish' === $post->post_status || get_post_meta( $post->ID, $this->POST_DONE . 'all', true );
+		return 'publish' === $post->post_status || get_post_meta( $post->ID, $this->POST_DONE . 'all', true ); // phpcs:ignore WordPress.NamingConventions.ValidVariableName.UsedPropertyNotSnakeCase
 	}
 
 	/**
 	 * Save a flag locally to indicate that this post has already been Publicized via the selected
 	 * connections.
+	 *
+	 * @param int      $post_ID Post ID.
+	 * @param \WP_Post $post Post object.
 	 */
-	public function save_publicized( $post_ID, $post = null, $update = null ) {
+	public function save_publicized( $post_ID, $post = null ) {
 		if ( is_null( $post ) ) {
 			return;
 		}
 		// Only do this when a post transitions to being published.
+		// phpcs:disable WordPress.NamingConventions.ValidVariableName.UsedPropertyNotSnakeCase
 		if ( get_post_meta( $post->ID, $this->PENDING ) && $this->post_type_is_publicizeable( $post->post_type ) ) {
 			delete_post_meta( $post->ID, $this->PENDING );
 			update_post_meta( $post->ID, $this->POST_DONE . 'all', true );
 		}
+		// phpcs:enable WordPress.NamingConventions.ValidVariableName.UsedPropertyNotSnakeCase
 	}
 
+	/**
+	 * Set post flags for Publicize.
+	 *
+	 * @param array    $flags List of flags.
+	 * @param \WP_Post $post Post object.
+	 * @return array
+	 */
 	public function set_post_flags( $flags, $post ) {
 		$flags['publicize_post'] = false;
 		if ( ! $this->post_type_is_publicizeable( $post->post_type ) ) {
@@ -633,6 +658,9 @@ class Publicize extends Publicize_Base {
 		return $flags;
 	}
 
+	/**
+	 * Render Facebook options.
+	 */
 	public function options_page_facebook() {
 		$connected_services = $this->get_all_connections();
 		$connection         = $connected_services['facebook'][ $_REQUEST['connection'] ];
@@ -648,6 +676,7 @@ class Publicize extends Publicize_Base {
 			$found = false;
 			if ( $pages && isset( $pages->data ) && is_array( $pages->data ) ) {
 				foreach ( $pages->data as $page ) {
+					// phpcs:ignore WordPress.PHP.StrictComparisons.LooseComparison
 					if ( $page->id == $connection['connection_data']['meta']['facebook_page'] ) {
 						$found = true;
 						break;
@@ -669,16 +698,27 @@ class Publicize extends Publicize_Base {
 			$update_notice = ob_get_clean();
 
 			if ( ! empty( $update_notice ) ) {
-				echo $update_notice;
+				echo wp_kses_post( $update_notice );
 			}
 			$page_info_message = sprintf(
-				__( 'Facebook supports Publicize connections to Facebook Pages, but not to Facebook Profiles. <a href="%s">Learn More about Publicize for Facebook</a>', 'jetpack' ),
+				wp_kses(
+					/* translators: %s is the link to the support page about using Facebook with Publicize */
+					__( 'Facebook supports Publicize connections to Facebook Pages, but not to Facebook Profiles. <a href="%s">Learn More about Publicize for Facebook</a>', 'jetpack' ),
+					array( 'a' => array( 'href' ) )
+				),
 				esc_url( Redirect::get_url( 'jetpack-support-publicize-facebook' ) )
 			);
 
 			if ( $pages ) :
 				?>
-				<p><?php _e( 'Publicize to my <strong>Facebook Page</strong>:', 'jetpack' ); ?></p>
+				<p>
+					<?php
+						echo wp_kses(
+							__( 'Publicize to my <strong>Facebook Page</strong>:', 'jetpack' ),
+							array( 'strong' )
+						);
+					?>
+				</p>
 				<table id="option-fb-fanpage">
 					<tbody>
 
@@ -686,9 +726,14 @@ class Publicize extends Publicize_Base {
 						<?php if ( ! ( $i % 2 ) ) : ?>
 							<tr>
 						<?php endif; ?>
-						<td class="radio"><input type="radio" name="option" data-type="page"
-												 id="<?php echo esc_attr( $page['id'] ); ?>"
-												 value="<?php echo esc_attr( $page['id'] ); ?>" <?php checked( $page_selected && $page_selected == $page['id'], true ); ?> />
+						<td class="radio">
+							<input
+								type="radio"
+								name="option"
+								data-type="page"
+								id="<?php echo esc_attr( $page['id'] ); ?>"
+								value="<?php echo esc_attr( $page['id'] ); ?>"
+								<?php checked( $page_selected && (int) $page_selected === (int) $page['id'], true ); ?> />
 						</td>
 						<td class="thumbnail"><label for="<?php echo esc_attr( $page['id'] ); ?>"><img
 									src="<?php echo esc_url( str_replace( '_s', '_q', $page['picture']['data']['url'] ) ); ?>"
@@ -699,7 +744,7 @@ class Publicize extends Publicize_Base {
 								<span class="category"><?php echo esc_html( $page['category'] ); ?></span>
 							</label>
 						</td>
-						<?php if ( ( $i % 2 ) || ( $i == count( $pages ) - 1 ) ) : ?>
+						<?php if ( ( $i % 2 ) || ( count( $pages ) - 1 === $i ) ) : ?>
 							</tr>
 						<?php endif; ?>
 					<?php endforeach; ?>
@@ -714,32 +759,49 @@ class Publicize extends Publicize_Base {
 						data-connection="<?php echo esc_attr( $_REQUEST['connection'] ); ?>"
 						rel="<?php echo esc_attr( wp_create_nonce( 'save_fb_token_' . $_REQUEST['connection'] ) ); ?>"/>
 				</p><br/>
+				<?php // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?>
 				<p><?php echo $page_info_message; ?></p>
 			<?php else : ?>
 				<div>
+					<?php // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?>
 					<p><?php echo $page_info_message; ?></p>
-					<p><?php printf( __( '<a class="button" href="%1$s" target="%2$s">Create a Facebook page</a> to get started.', 'jetpack' ), 'https://www.facebook.com/pages/creation/', '_blank noopener noreferrer' ); ?></p>
+					<p>
+						<?php
+							echo wp_kses(
+								sprintf(
+									/* translators: %1$s is the link to Facebook documentation to create a page, %2$s is the target of the link */
+									__( '<a class="button" href="%1$s" target="%2$s">Create a Facebook page</a> to get started.', 'jetpack' ),
+									'https://www.facebook.com/pages/creation/',
+									'_blank noopener noreferrer'
+								),
+								array( 'a' => array( 'class', 'href', 'target' ) )
+							);
+						?>
+					</p>
 				</div>
 			<?php endif; ?>
 		</div>
 		<?php
 	}
 
+	/**
+	 * Save Facebook options.
+	 */
 	public function options_save_facebook() {
-		// Nonce check
+		// Nonce check.
 		check_admin_referer( 'save_fb_token_' . $_REQUEST['connection'] );
 
-		// Check for a numeric page ID
+		// Check for a numeric page ID.
 		$page_id = $_POST['selected_id'];
 		if ( ! ctype_digit( $page_id ) ) {
 			die( 'Security check' );
 		}
 
-		if ( 'page' != $_POST['type'] || ! isset( $_POST['selected_id'] ) ) {
+		if ( 'page' !== $_POST['type'] || ! isset( $_POST['selected_id'] ) ) {
 			return;
 		}
 
-		// Publish to Page
+		// Publish to Page.
 		$options = array(
 			'facebook_page'    => $page_id,
 			'facebook_profile' => null,
@@ -748,8 +810,11 @@ class Publicize extends Publicize_Base {
 		$this->set_remote_publicize_options( $_POST['connection'], $options );
 	}
 
+	/**
+	 * Render Tumblr options.
+	 */
 	public function options_page_tumblr() {
-		// Nonce check
+		// Nonce check.
 		check_admin_referer( 'options_page_tumblr_' . $_REQUEST['connection'] );
 
 		$connected_services = $this->get_all_connections();
@@ -763,14 +828,14 @@ class Publicize extends Publicize_Base {
 
 		if ( ! empty( $connection['connection_data']['meta']['tumblr_base_hostname'] ) ) {
 			foreach ( $blogs as $blog ) {
-				if ( $connection['connection_data']['meta']['tumblr_base_hostname'] == $this->get_basehostname( $blog['url'] ) ) {
+				if ( $connection['connection_data']['meta']['tumblr_base_hostname'] === $this->get_basehostname( $blog['url'] ) ) {
 					$blog_selected = $connection['connection_data']['meta']['tumblr_base_hostname'];
 					break;
 				}
 			}
 		}
 
-		// Use their Primary blog if they haven't selected one yet
+		// Use their Primary blog if they haven't selected one yet.
 		if ( ! $blog_selected ) {
 			foreach ( $blogs as $blog ) {
 				if ( $blog['primary'] ) {
@@ -788,11 +853,11 @@ class Publicize extends Publicize_Base {
 			$update_notice = ob_get_clean();
 
 			if ( ! empty( $update_notice ) ) {
-				echo $update_notice;
+				echo wp_kses_post( $update_notice );
 			}
 			?>
 
-			<p><?php _e( 'Publicize to my <strong>Tumblr blog</strong>:', 'jetpack' ); ?></p>
+			<p><?php wp_kses( __( 'Publicize to my <strong>Tumblr blog</strong>:', 'jetpack' ), array( 'strong' ) ); ?></p>
 
 			<ul id="option-tumblr-blog">
 
@@ -802,7 +867,7 @@ class Publicize extends Publicize_Base {
 					?>
 					<li>
 						<input type="radio" name="option" data-type="blog" id="<?php echo esc_attr( $url ); ?>"
-							   value="<?php echo esc_attr( $url ); ?>" <?php checked( $blog_selected == $url, true ); ?> />
+							value="<?php echo esc_attr( $url ); ?>" <?php checked( $blog_selected === $url, true ); ?> />
 						<label for="<?php echo esc_attr( $url ); ?>"><span
 								class="name"><?php echo esc_html( $blog['title'] ); ?></span></label>
 					</li>
@@ -814,21 +879,30 @@ class Publicize extends Publicize_Base {
 
 			<p style="text-align: center;">
 				<input type="submit" value="<?php esc_attr_e( 'OK', 'jetpack' ); ?>"
-					   class="button tumblr-options save-options" name="save"
-					   data-connection="<?php echo esc_attr( $_REQUEST['connection'] ); ?>"
-					   rel="<?php echo wp_create_nonce( 'save_tumblr_blog_' . $_REQUEST['connection'] ); ?>"/>
+					class="button tumblr-options save-options" name="save"
+					data-connection="<?php echo esc_attr( $_REQUEST['connection'] ); ?>"
+					rel="<?php echo esc_attr( wp_create_nonce( 'save_tumblr_blog_' . $_REQUEST['connection'] ) ); ?>"/>
 			</p> <br/>
 		</div>
 
 		<?php
 	}
 
+	/**
+	 * Get the hostname from a URL.
+	 *
+	 * @param string $url The URL to extract the hostname from.
+	 * @return string|false|null
+	 */
 	public function get_basehostname( $url ) {
 		return wp_parse_url( $url, PHP_URL_HOST );
 	}
 
+	/**
+	 * Save Tumblr options.
+	 */
 	public function options_save_tumblr() {
-		// Nonce check
+		// Nonce check.
 		check_admin_referer( 'save_tumblr_blog_' . $_REQUEST['connection'] );
 		$options = array( 'tumblr_base_hostname' => $_POST['selected_id'] );
 
@@ -836,6 +910,12 @@ class Publicize extends Publicize_Base {
 
 	}
 
+	/**
+	 * Set remote Publicize options.
+	 *
+	 * @param int   $id Connection ID.
+	 * @param array $options Options to set.
+	 */
 	public function set_remote_publicize_options( $id, $options ) {
 		$xml = new Jetpack_IXR_Client();
 		$xml->query( 'jetpack.setPublicizeOptions', $id, $options );
@@ -911,6 +991,14 @@ class Publicize extends Publicize_Base {
 		return $tag;
 	}
 
+	/**
+	 * Save the Publicized Twitter account when publishing a post.
+	 *
+	 * @param bool   $submit_post Should the post be publicized.
+	 * @param int    $post_id Post ID.
+	 * @param string $service_name Service name.
+	 * @param array  $connection Array of connection details.
+	 */
 	public function save_publicized_twitter_account( $submit_post, $post_id, $service_name, $connection ) {
 		if ( 'twitter' === $service_name && $submit_post ) {
 			$connection_meta        = $this->get_connection_meta( $connection );
@@ -921,6 +1009,13 @@ class Publicize extends Publicize_Base {
 		}
 	}
 
+	/**
+	 * Get the Twitter username.
+	 *
+	 * @param string $account Twitter username.
+	 * @param int    $post_id ID of the post.
+	 * @return string
+	 */
 	public function get_publicized_twitter_account( $account, $post_id ) {
 		if ( ! empty( $account ) ) {
 			return $account;
@@ -936,6 +1031,11 @@ class Publicize extends Publicize_Base {
 	/**
 	 * Save the Publicized Facebook account when publishing a post
 	 * Use only Personal accounts, not Facebook Pages
+	 *
+	 * @param bool   $submit_post Should the post be publicized.
+	 * @param int    $post_id Post ID.
+	 * @param string $service_name Service name.
+	 * @param array  $connection Array of connection details.
 	 */
 	public function save_publicized_facebook_account( $submit_post, $post_id, $service_name, $connection ) {
 		$connection_meta = $this->get_connection_meta( $connection );
