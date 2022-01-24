@@ -69,6 +69,20 @@ class REST_Products {
 	}
 
 	/**
+	 * Get the schema for the products endpoint
+	 *
+	 * @return array
+	 */
+	public function get_products_schema() {
+		return array(
+			'$schema'    => 'http://json-schema.org/draft-04/schema#',
+			'title'      => 'products',
+			'type'       => 'object',
+			'properties' => Products::get_product_data_schema(),
+		);
+	}
+
+	/**
 	 * Check user capability to access the endpoint.
 	 *
 	 * @access public
@@ -107,9 +121,7 @@ class REST_Products {
 	 * @return array of site products list.
 	 */
 	public static function get_products() {
-		$response = array(
-			'products' => Products::get_products(),
-		);
+		$response = Products::get_products();
 		return rest_ensure_response( $response, 200 );
 	}
 
@@ -161,7 +173,7 @@ class REST_Products {
 			return $activate_product_result;
 		}
 
-		return rest_ensure_response( $activate_product_result, 200 );
+		return rest_ensure_response( Products::get_product( $product_slug ), 200 );
 	}
 
 	/**
@@ -174,11 +186,10 @@ class REST_Products {
 		$product_slug = $request->get_param( 'product' );
 		$product      = Products::get_product( $product_slug );
 		if ( ! isset( $product['class'] ) ) {
-			return new \WP_REST_Response(
-				array(
-					'error_message' => 'not_implemented',
-				),
-				400
+			return new \WP_Error(
+				'not_implemented',
+				esc_html__( 'The product class handler is not implemented', 'jetpack-my-jetpack' ),
+				array( 'status' => 400 )
 			);
 		}
 
@@ -187,23 +198,7 @@ class REST_Products {
 			return $deactivate_product_result;
 		}
 
-		return rest_ensure_response( $deactivate_product_result, 200 );
+		return rest_ensure_response( Products::get_product( $product_slug ), 200 );
 	}
 
-	/**
-	 * Set site product state.
-	 *
-	 * @param \WP_REST_Request $request The request object.
-	 * @return array of site products list.
-	 */
-	public static function set_product_state( $request ) {
-		$product_slug = $request->get_param( 'product' );
-		$activate     = $request->get_param( 'activate' );
-
-		if ( $activate ) {
-			return rest_ensure_response( Products::activate_backup_product( $product_slug ), 200 );
-		}
-
-		return rest_ensure_response( Products::deactivate_backup_product( $product_slug ), 200 );
-	}
 }
