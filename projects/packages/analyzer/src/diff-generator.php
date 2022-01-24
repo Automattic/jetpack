@@ -39,6 +39,17 @@ class Scripts {
 		return $differences;
 	}
 
+	static function load_differences() {
+		$diff_path                = dirname( __DIR__ ) . '/output/differences/diff.json';
+		$differences              = new Differences();
+
+		if ( !file_exists( $diff_path ) ) {
+			throw new \Exception('Failed to load differences. File does not exist: ' . $diff_path);
+		}
+		$differences->load( $diff_path );
+		return $differences;
+	}
+
 	static function get_warnings( $folder_name, $differences, $excludes ) {
 		$warnings_folder = dirname( __DIR__ ) . '/output/warnings/';
 		$invocations_folder = dirname( __DIR__ ) . '/output/invocations/';
