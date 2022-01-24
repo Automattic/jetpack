@@ -56,31 +56,6 @@ const PRODUCT_GROUPS = {
 };
 
 /**
- * Get a product specific URL given a product Id.
- *
- * @param {number} productId -- The id of the product
- * @param {string} siteRawUrl -- The URL of the site
- * @returns {string} The URL of a dashboard specific to the given product.
- */
-export function getJetpackProductDashboardUrl( productId, siteRawUrl ) {
-	const cloudDashboardBaseUrl = 'https://cloud.jetpack.com';
-
-	const productGroup = getProductGroup( productId );
-
-	const productToDashboardLink = {
-		jetpack_anti_spam: `${ cloudDashboardBaseUrl }/landing/${ siteRawUrl }`,
-		jetpack_backup: `${ cloudDashboardBaseUrl }/backup/${ siteRawUrl }`,
-		jetpack_complete: `${ cloudDashboardBaseUrl }/backup/${ siteRawUrl }`,
-		jetpack_scan: `${ cloudDashboardBaseUrl }/scan/${ siteRawUrl }`,
-		jetpack_search: `${ cloudDashboardBaseUrl }/jetpack-search/${ siteRawUrl }`,
-		jetpack_security: `${ cloudDashboardBaseUrl }/backup/${ siteRawUrl }`,
-		jetpack_videopress: `${ cloudDashboardBaseUrl }/landing/${ siteRawUrl }`,
-		default: `${ cloudDashboardBaseUrl }/landing/${ siteRawUrl }`,
-	};
-	return productToDashboardLink[ productGroup ];
-}
-
-/**
  * Get the group of a product given a product Id.
  *
  * @param {number} productId -- The id of the product

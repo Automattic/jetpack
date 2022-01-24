@@ -413,7 +413,7 @@ class Actions {
 		if ( ! class_exists( '\\Jetpack_IXR_Client' ) ) {
 			return new WP_Error(
 				'ixr_client_missing',
-				esc_html__( 'Sync has been aborted because the IXR client is missing.', 'jetpack' )
+				esc_html__( 'Sync has been aborted because the IXR client is missing.', 'jetpack-sync' )
 			);
 		}
 
@@ -466,7 +466,7 @@ class Actions {
 		if ( Identity_Crisis::init()->check_response_for_idc( $response ) ) {
 			return new WP_Error(
 				'sync_error_idc',
-				esc_html__( 'Sync has been blocked from WordPress.com because it would cause an identity crisis', 'jetpack' )
+				esc_html__( 'Sync has been blocked from WordPress.com because it would cause an identity crisis', 'jetpack-sync' )
 			);
 		}
 
@@ -561,9 +561,9 @@ class Actions {
 		if ( ! isset( $schedules[ self::DEFAULT_SYNC_CRON_INTERVAL_NAME ] ) ) {
 			$minutes = (int) ( self::DEFAULT_SYNC_CRON_INTERVAL_VALUE / 60 );
 			$display = ( 1 === $minutes ) ?
-				__( 'Every minute', 'jetpack' ) :
+				__( 'Every minute', 'jetpack-sync' ) :
 				/* translators: %d is an integer indicating the number of minutes. */
-				sprintf( __( 'Every %d minutes', 'jetpack' ), $minutes );
+				sprintf( __( 'Every %d minutes', 'jetpack-sync' ), $minutes );
 			$schedules[ self::DEFAULT_SYNC_CRON_INTERVAL_NAME ] = array(
 				'interval' => self::DEFAULT_SYNC_CRON_INTERVAL_VALUE,
 				'display'  => $display,
@@ -673,6 +673,36 @@ class Actions {
 			return;
 		}
 		add_filter( 'jetpack_sync_modules', array( __CLASS__, 'add_woocommerce_sync_module' ) );
+	}
+
+	/**
+	 * Initializes sync for Instant Search.
+	 *
+	 * @access public
+	 * @static
+	 */
+	public static function initialize_search() {
+		if ( false === class_exists( 'Automattic\\Jetpack\\Search\\Module_Control' ) ) {
+			return;
+		}
+		$search_module = new \Automattic\Jetpack\Search\Module_Control();
+		if ( $search_module->is_instant_search_enabled() ) {
+			add_filter( 'jetpack_sync_modules', array( __CLASS__, 'add_search_sync_module' ) );
+		}
+	}
+
+	/**
+	 * Add Search updates to Sync Filters.
+	 *
+	 * @access public
+	 * @static
+	 *
+	 * @param array $sync_modules The list of sync modules declared prior to this filter.
+	 * @return array A list of sync modules that now includes Search's modules.
+	 */
+	public static function add_search_sync_module( $sync_modules ) {
+		$sync_modules[] = 'Automattic\\Jetpack\\Sync\\Modules\\Search';
+		return $sync_modules;
 	}
 
 	/**

@@ -47,6 +47,7 @@ test.describe( 'Search', () => {
 	test.beforeEach( async ( { page } ) => {
 		homepage = await SearchHomepage.visit( page );
 		await searchAPIRoute( homepage.page );
+		await homepage.waitForPage();
 		await homepage.waitForNetworkIdle();
 	} );
 

@@ -5,13 +5,17 @@ import chalk from 'chalk';
 import inquirer from 'inquirer';
 import child_process from 'child_process';
 import path from 'path';
+import Listr from 'listr';
+import VerboseRenderer from 'listr-verbose-renderer';
+import UpdateRenderer from 'listr-update-renderer';
 
 /**
  * Internal dependencies
  */
-import promptForProject from '../helpers/promptForProject';
+import installProjectTask from '../helpers/tasks/installProjectTask.js';
+import promptForProject from '../helpers/promptForProject.js';
 import { readComposerJson } from '../helpers/json.js';
-import { allProjects } from '../helpers/projectHelpers';
+import { allProjects } from '../helpers/projectHelpers.js';
 
 /**
  * Command definition for the test subcommand.
@@ -132,8 +136,16 @@ async function getTestInstructions( argv ) {
  * @param {object} argv - the arguments passed.
  */
 async function runTest( argv ) {
+	const installer = new Listr(
+		[ installProjectTask( { project: argv.project, v: argv.verbose } ) ],
+		{
+			renderer: argv.verbose ? VerboseRenderer : UpdateRenderer,
+		}
+	);
+	await installer.run();
+
 	console.log( chalk.green( `Running ${ argv.testScript } tests for ${ argv.project }` ) );
-	const res = child_process.spawnSync( 'composer', [ 'run', argv.testScript ], {
+	const res = child_process.spawnSync( 'composer', [ 'run', '--timeout=0', argv.testScript ], {
 		stdio: 'inherit',
 		cwd: path.resolve( `projects/${ argv.project }` ),
 	} );

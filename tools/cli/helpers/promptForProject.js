@@ -6,7 +6,7 @@ import inquirer from 'inquirer';
 /**
  * Internal dependencies
  */
-import { dirs, projectTypes, allProjects } from './projectHelpers';
+import { dirs, projectTypes, allProjects } from './projectHelpers.js';
 
 /**
  * Prompt for project.

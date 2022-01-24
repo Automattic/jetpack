@@ -1,0 +1,4 @@
+Significance: patch
+Type: compat
+
+Sharing / AMP plugin: avoid adding sharing's CSS on AMP pages when the sharing feature is not active.

@@ -20,3 +20,4 @@ package.json                                             export-ignore
 /src/**/*.scss                                           production-exclude
 # JS scripts to integrate with customizer and wigets might need to be explicitly included.
 /src/**/*.[jt]s?(x)                                      production-exclude
+.phpcs.dir.xml                                           production-exclude
