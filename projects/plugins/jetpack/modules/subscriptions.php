@@ -605,7 +605,7 @@ class Jetpack_Subscriptions {
 			$post_id = (int) $post_id;
 			if ( $post_id < 0 ) {
 				return new WP_Error( 'invalid_post_id' );
-			} elseif ( $post_id && ! $post = get_post( $post_id ) ) {
+			} elseif ( $post_id && ! get_post( $post_id ) ) {
 				return new WP_Error( 'unknown_post_id' );
 			}
 
