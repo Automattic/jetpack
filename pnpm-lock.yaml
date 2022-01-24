@@ -4815,6 +4815,7 @@ packages:
       - '@swc/core'
       - '@types/react'
       - bufferutil
+      - encoding
       - esbuild
       - eslint
       - supports-color
@@ -4877,6 +4878,7 @@ packages:
       - '@swc/core'
       - '@types/react'
       - bufferutil
+      - encoding
       - esbuild
       - eslint
       - lit
@@ -5572,7 +5574,7 @@ packages:
       globby: 11.1.0
       ip: 1.1.5
       lodash: 4.17.21
-      node-fetch: 2.6.6
+      node-fetch: 2.6.7
       pretty-hrtime: 1.0.3
       prompts: 2.4.2
       react: 17.0.2
@@ -5590,6 +5592,7 @@ packages:
       - '@types/react'
       - acorn
       - bufferutil
+      - encoding
       - esbuild
       - eslint
       - supports-color
@@ -5647,7 +5650,7 @@ packages:
       globby: 11.1.0
       ip: 1.1.5
       lodash: 4.17.21
-      node-fetch: 2.6.6
+      node-fetch: 2.6.7
       pretty-hrtime: 1.0.3
       prompts: 2.4.2
       react: 17.0.2
@@ -5665,6 +5668,7 @@ packages:
       - '@types/react'
       - acorn
       - bufferutil
+      - encoding
       - esbuild
       - eslint
       - supports-color
@@ -5699,6 +5703,7 @@ packages:
       - '@types/react'
       - acorn
       - bufferutil
+      - encoding
       - esbuild
       - eslint
       - supports-color
@@ -5733,6 +5738,7 @@ packages:
       - '@types/react'
       - acorn
       - bufferutil
+      - encoding
       - esbuild
       - eslint
       - supports-color
@@ -5802,7 +5808,7 @@ packages:
       find-up: 5.0.0
       fs-extra: 9.1.0
       html-webpack-plugin: 5.5.0_acorn@7.4.1+webpack@5.65.0
-      node-fetch: 2.6.6
+      node-fetch: 2.6.7
       react: 17.0.2
       read-pkg-up: 7.0.1
       regenerator-runtime: 0.13.9
@@ -5819,6 +5825,7 @@ packages:
       - '@swc/core'
       - '@types/react'
       - acorn
+      - encoding
       - esbuild
       - eslint
       - supports-color
@@ -5857,7 +5864,7 @@ packages:
       find-up: 5.0.0
       fs-extra: 9.1.0
       html-webpack-plugin: 5.5.0_webpack@5.65.0
-      node-fetch: 2.6.6
+      node-fetch: 2.6.7
       react: 17.0.2
       read-pkg-up: 7.0.1
       regenerator-runtime: 0.13.9
@@ -5874,6 +5881,7 @@ packages:
       - '@swc/core'
       - '@types/react'
       - acorn
+      - encoding
       - esbuild
       - eslint
       - supports-color
@@ -5991,6 +5999,7 @@ packages:
       - '@types/webpack'
       - acorn
       - bufferutil
+      - encoding
       - esbuild
       - eslint
       - sockjs-client
@@ -8253,7 +8262,9 @@ packages:
       '@wordpress/url': 3.3.1
       form-data: 4.0.0
       lodash: 4.17.21
-      node-fetch: 2.6.6
+      node-fetch: 2.6.7
+    transitivePeerDependencies:
+      - encoding
     dev: true
 
   /@wordpress/editor/12.0.15_595f56c80e7e5fab2a648c0f724c83ea:
@@ -17195,13 +17206,6 @@ packages:
 
   /node-fetch/2.6.5:
     resolution: {integrity: sha512-mmlIVHJEu5rnIxgEgez6b9GgWXbkZj5YZ7fx+2r94a2E+Uirsp6HsPTPlomfdHtpt/B0cdKviwkoaM6pyvUOpQ==}
-    engines: {node: 4.x || >=6.0.0}
-    dependencies:
-      whatwg-url: 5.0.0
-    dev: true
-
-  /node-fetch/2.6.6:
-    resolution: {integrity: sha512-Z8/6vRlTUChSdIgMa51jxQ4lrw/Jy5SOW10ObaA47/RElsAN2c5Pn8bTgFGWn/ibwzXTE8qwr1Yzx28vsecXEA==}
     engines: {node: 4.x || >=6.0.0}
     dependencies:
       whatwg-url: 5.0.0
