@@ -196,6 +196,11 @@ class Speed_Score_Request extends Cacheable {
 		);
 
 		if ( is_wp_error( $response ) ) {
+			// Special case: If the request is not found, restart it.
+			if ( 'not_found' === $response->get_error_code() ) {
+				return $this->restart();
+			}
+
 			return $response;
 		}
 
@@ -203,11 +208,8 @@ class Speed_Score_Request extends Cacheable {
 			case 'pending':
 				// The initial job probalby failed, dispatch again if so.
 				if ( $this->created <= strtotime( '-15 mins' ) ) {
-					$this->execute();
-					$this->created = time();
-					$this->store();
+					return $this->restart();
 				}
-
 				break;
 
 			case 'error':
@@ -233,6 +235,21 @@ class Speed_Score_Request extends Cacheable {
 					$response
 				);
 		}
+
+		return true;
+	}
+
+	/**
+	 * Restart this request; useful when WPCOM doesn't recognize the request or it times out.
+	 */
+	private function restart() {
+		$result = $this->execute();
+		if ( is_wp_error( $result ) ) {
+			return $result;
+		}
+
+		$this->created = time();
+		$this->store();
 
 		return true;
 	}
