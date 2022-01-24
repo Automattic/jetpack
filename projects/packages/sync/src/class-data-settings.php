@@ -12,67 +12,6 @@ namespace Automattic\Jetpack\Sync;
  */
 class Data_Settings {
 
-	const DATA_FILTER_DEFAULTS = array(
-		'jetpack_sync_modules'                      =>
-			array(
-				'class'    => 'Automattic\\Jetpack\\Sync\\Modules',
-				'constant' => 'DEFAULT_SYNC_MODULES',
-			),
-		'jetpack_sync_options_whitelist'            =>
-			array(
-				'class'    => 'Automattic\Jetpack\Sync\Defaults',
-				'property' => 'default_options_whitelist',
-			),
-		'jetpack_sync_options_contentless'          =>
-			array(
-				'class'    => 'Automattic\Jetpack\Sync\Defaults',
-				'property' => 'default_options_contentless',
-			),
-		'jetpack_sync_constants_whitelist'          =>
-			array(
-				'class'    => 'Automattic\Jetpack\Sync\Defaults',
-				'property' => 'default_constants_whitelist',
-			),
-		'jetpack_sync_callable_whitelist'           =>
-			array(
-				'class'    => 'Automattic\Jetpack\Sync\Defaults',
-				'property' => 'default_callable_whitelist',
-			),
-		'jetpack_sync_multisite_callable_whitelist' =>
-			array(
-				'class'    => 'Automattic\Jetpack\Sync\Defaults',
-				'property' => 'default_multisite_callable_whitelist',
-			),
-		'jetpack_sync_post_meta_whitelist'          =>
-			array(
-				'class'    => 'Automattic\Jetpack\Sync\Defaults',
-				'property' => 'post_meta_whitelist',
-			),
-		'jetpack_sync_comment_meta_whitelist'       =>
-			array(
-				'class'    => 'Automattic\Jetpack\Sync\Defaults',
-				'property' => 'comment_meta_whitelist',
-			),
-		'jetpack_sync_capabilities_whitelist'       =>
-			array(
-				'class'    => 'Automattic\Jetpack\Sync\Defaults',
-				'property' => 'default_capabilities_whitelist',
-			),
-		'jetpack_sync_known_importers'              =>
-			array(
-				'class'    => 'Automattic\Jetpack\Sync\Defaults',
-				'property' => 'default_known_importers',
-			),
-	);
-
-	/**
-	 * The data associated with these filters are associative arrays.
-	 */
-	const ASSOCIATIVE_FILTERS = array(
-		'jetpack_sync_callable_whitelist',
-		'jetpack_sync_multisite_callable_whitelist',
-	);
-
 	/**
 	 * The data that must be synced for every synced site.
 	 */
@@ -88,27 +27,48 @@ class Data_Settings {
 		),
 	);
 
-	/**
-	 * Map of filters to modules.
-	 */
-	const FILTER_MODULE_MAPPING = array(
-		'jetpack_sync_options_whitelist'            => 'Automattic\\Jetpack\\Sync\\Modules\\Options',
-		'jetpack_sync_options_contentless'          => 'Automattic\\Jetpack\\Sync\\Modules\\Options',
-		'jetpack_sync_constants_whitelist'          => 'Automattic\\Jetpack\\Sync\\Modules\\Constants',
-		'jetpack_sync_callable_whitelist'           => 'Automattic\\Jetpack\\Sync\\Modules\\Callables',
-		'jetpack_sync_multisite_callable_whitelist' => 'Automattic\\Jetpack\\Sync\\Modules\\Callables',
-		'jetpack_sync_post_meta_whitelist'          => 'Automattic\\Jetpack\\Sync\\Modules\\Posts',
-		'jetpack_sync_comment_meta_whitelist'       => 'Automattic\\Jetpack\\Sync\\Modules\\Comments',
-		'jetpack_sync_capabilities_whitelist'       => 'Automattic\\Jetpack\\Sync\\Modules\\Users',
-		'jetpack_sync_known_importers'              => 'Automattic\\Jetpack\\Sync\\Modules\\Import',
+	const MODULE_FILTER_MAPPING = array(
+		'Automattic\\Jetpack\\Sync\\Modules\\Options'   => array(
+			'jetpack_sync_options_whitelist',
+			'jetpack_sync_options_contentless',
+		),
+		'Automattic\\Jetpack\\Sync\\Modules\\Constants' => array(
+			'jetpack_sync_constants_whitelist',
+		),
+		'Automattic\\Jetpack\\Sync\\Modules\\Callables' => array(
+			'jetpack_sync_callable_whitelist',
+			'jetpack_sync_multisite_callable_whitelist',
+		),
+		'Automattic\\Jetpack\\Sync\\Modules\\Posts'     => array(
+			'jetpack_sync_post_meta_whitelist',
+		),
+		'Automattic\\Jetpack\\Sync\\Modules\\Comments'  => array(
+			'jetpack_sync_comment_meta_whitelist',
+		),
+		'Automattic\\Jetpack\\Sync\\Modules\\Users'     => array(
+			'jetpack_sync_capabilities_whitelist',
+		),
+		'Automattic\\Jetpack\\Sync\\Modules\\Import'    => array(
+			'jetpack_sync_known_importers',
+		),
 	);
 
+	const MODULES_FILTER_NAME = 'jetpack_sync_modules';
+
 	/**
-	 * A static property containing the Sync data settings.
+	 * The static data settings array which contains the aggregated data settings for
+	 * each sync filter.
 	 *
 	 * @var array
 	 */
 	private static $data_settings = array();
+
+	/**
+	 * The static array which contains the list of filter hooks that have already been set up.
+	 *
+	 * @var array
+	 */
+	private static $set_filter_hooks = array();
 
 	/**
 	 * Adds the data settings provided by a plugin to the Sync data settings.
@@ -117,55 +77,166 @@ class Data_Settings {
 	 *                               from the DATA_FILTER_DEFAULTS list as keys.
 	 */
 	public function add_settings_list( $plugin_settings = array() ) {
-		foreach ( self::DATA_FILTER_DEFAULTS as $filter => $default_value ) {
-			if ( 'jetpack_sync_modules' !== $filter && ! $this->is_valid_filter_setting( $plugin_settings, $filter ) ) {
-				// The consumer didn't enable the module associated with this filter, so skip it.
-				continue;
-			}
-
-			if ( isset( $plugin_settings[ $filter ] ) && is_array( $plugin_settings[ $filter ] ) ) {
-				// If the plugin provided a data setting for this filter, use it.
-				$setting = $plugin_settings[ $filter ];
-
-			} else {
-				// If the plugin didn't provide a data setting for this filter, use the default.
-				$setting = $this->get_default_value_for_filter( $filter );
-
-				if ( isset( static::$data_settings[ $filter ] ) && $setting === static::$data_settings[ $filter ] ) {
-					// If the current setting is the default, we don't need to add the default list again.
-					continue;
-				}
-			}
-
-			$this->add_filter_setting( $filter, $setting );
+		if ( empty( $plugin_settings[ self::MODULES_FILTER_NAME ] )
+			|| ! is_array( $plugin_settings[ self::MODULES_FILTER_NAME ] ) ) {
+			/*
+			 * No modules have been set, so use defaults for everything and bail early.
+			 */
+			$this->set_all_defaults();
+			return;
 		}
 
-		if ( ! did_action( 'jetpack_sync_set_data_filters' ) ) {
+		$this->add_filters_custom_settings_and_hooks( $plugin_settings );
+
+		if ( ! did_action( 'jetpack_sync_add_required_data_settings' ) ) {
 			$this->add_required_settings();
-			// Set the sync data filters only once.
-			add_action( 'plugins_loaded', array( $this, 'set_sync_data_filters' ) );
-			do_action( 'jetpack_sync_set_data_filters' );
+			/**
+			 * Fires when the required settings have been adding to the static
+			 * data_settings array.
+			 *
+			 * @since $$next-version$$
+			 *
+			 * @module sync
+			 */
+			do_action( 'jetpack_sync_add_required_data_settings' );
 		}
 	}
 
 	/**
-	 * Determines whether the module assocated with the filter has been enabled by this consumer.
+	 * Sets the default values for sync modules and all sync data filters.
+	 */
+	private function set_all_defaults() {
+		$this->add_sync_filter_setting( self::MODULES_FILTER_NAME, Modules::DEFAULT_SYNC_MODULES );
+
+		foreach ( array_keys( Default_Filter_Settings::DATA_FILTER_DEFAULTS ) as $filter ) {
+			$this->add_sync_filter_setting( $filter, $this->get_default_setting_for_filter( $filter ) );
+		}
+	}
+
+	/**
+	 * Returns the default settings for the given filter.
 	 *
-	 * @param array  $plugin_settings The array provided by the plugin. The array must use filters
-	 *                               from the DATA_FILTER_DEFAULTS list as keys.
+	 * @param string $filter The filter name.
+	 *
+	 * @return array The filter's default settings array.
+	 */
+	private function get_default_setting_for_filter( $filter ) {
+		if ( self::MODULES_FILTER_NAME === $filter ) {
+			return Modules::DEFAULT_SYNC_MODULES;
+		}
+
+		return ( new Default_Filter_Settings() )->get_default_settings( $filter );
+	}
+
+	/**
+	 * Adds the custom settings and sets up the necessary filter hooks.
+	 *
+	 * @param array $filters_settings The custom settings.
+	 */
+	private function add_filters_custom_settings_and_hooks( $filters_settings ) {
+		if ( ! isset( $filters_settings[ self::MODULES_FILTER_NAME ] ) ) {
+			// This shouldn't happen.
+			return;
+		}
+
+		$this->add_custom_filter_setting( self::MODULES_FILTER_NAME, $filters_settings[ self::MODULES_FILTER_NAME ] );
+
+		$enabled_modules = $filters_settings[ self::MODULES_FILTER_NAME ];
+		$all_modules     = Modules::DEFAULT_SYNC_MODULES;
+
+		foreach ( $all_modules as $module ) {
+			if ( in_array( $module, $enabled_modules, true ) ) {
+				$this->add_filters_for_enabled_module( $module, $filters_settings );
+			} else {
+				$this->add_filters_for_disabled_module( $module );
+			}
+		}
+	}
+
+	/**
+	 * Adds the filters for the provided enabled module. If the settings provided custom filter settings
+	 * for the module's filters, those are used. Otherwise, the filter's default settings are used.
+	 *
+	 * @param string $module The module name.
+	 * @param array  $filters_settings The settings for the filters.
+	 */
+	private function add_filters_for_enabled_module( $module, $filters_settings ) {
+		$filters_for_module = isset( self::MODULE_FILTER_MAPPING[ $module ] ) ? self::MODULE_FILTER_MAPPING[ $module ] : array();
+
+		foreach ( $filters_for_module as $filter ) {
+			if ( isset( $filters_settings[ $filter ] ) ) {
+				$this->add_custom_filter_setting( $filter, $filters_settings[ $filter ] );
+			} else {
+				$this->add_sync_filter_setting( $filter, $this->get_default_setting_for_filter( $filter ) );
+			}
+		}
+	}
+
+	/**
+	 * Adds the filters for the provided disabled module. The disabled module's associated filter settings are
+	 * set to an empty array.
+	 *
+	 * @param string $module The module name.
+	 */
+	private function add_filters_for_disabled_module( $module ) {
+		$filters_for_module = isset( self::MODULE_FILTER_MAPPING[ $module ] ) ? self::MODULE_FILTER_MAPPING[ $module ] : array();
+
+		foreach ( $filters_for_module as $filter ) {
+			$this->add_custom_filter_setting( $filter, array() );
+		}
+	}
+
+	/**
+	 * Adds the provided custom setting for a filter. If the filter setting isn't valid, the default
+	 * value is used.
+	 *
+	 * If the filter's hook hasn't already been set up, it gets set up.
+	 *
+	 * @param string $filter The filter.
+	 * @param array  $setting The filter setting.
+	 */
+	private function add_custom_filter_setting( $filter, $setting ) {
+		if ( ! $this->is_valid_filter_setting( $filter, $setting ) ) {
+			/*
+			 * The provided setting isn't valid, so use the default for this filter.
+			 * We're using the default values so there's no need to set the filter hook.
+			 */
+			$this->add_sync_filter_setting( $filter, $this->get_default_setting_for_filter( $filter ) );
+			return;
+		}
+
+		if ( ! isset( static::$set_filter_hooks[ $filter ] ) ) {
+			// First time a custom modules setting is provided, so set the filter hook.
+			add_filter( $filter, array( $this, 'sync_data_filter_hook' ) );
+			static::$set_filter_hooks[ $filter ] = 1;
+		}
+
+		$this->add_sync_filter_setting( $filter, $setting );
+	}
+
+	/**
+	 * Determines whether the filter setting is valid. The setting array is in the correct format (associative or indexed).
 	 *
 	 * @param string $filter The filter to check.
+	 * @param array  $filter_settings The filter settings.
 	 *
 	 * @return bool Whether the filter settings can be used.
 	 */
-	private function is_valid_filter_setting( $plugin_settings, $filter ) {
-		if ( ! isset( $plugin_settings['jetpack_sync_modules'] ) ) {
-			// All modules are active.
+	private function is_valid_filter_setting( $filter, $filter_settings ) {
+		if ( ! is_array( $filter_settings ) ) {
+			// The settings for each filter must be an array.
+			return false;
+		}
+
+		if ( empty( $filter_settings ) ) {
+			// Empty settings are allowed.
 			return true;
 		}
 
-		$expected_module = self::FILTER_MODULE_MAPPING[ $filter ];
-		if ( in_array( $expected_module, $plugin_settings['jetpack_sync_modules'], true ) ) {
+		$indexed_array = isset( $filter_settings[0] );
+		if ( in_array( $filter, Default_Filter_Settings::ASSOCIATIVE_FILTERS, true ) && ! $indexed_array ) {
+				return true;
+		} elseif ( ! in_array( $filter, Default_Filter_Settings::ASSOCIATIVE_FILTERS, true ) && $indexed_array ) {
 			return true;
 		}
 
@@ -173,34 +244,12 @@ class Data_Settings {
 	}
 
 	/**
-	 * Adds the data settings that are always required.
+	 * Adds the data settings that are always required for every plugin that uses Sync.
 	 */
 	private function add_required_settings() {
-		foreach ( static::MUST_SYNC_DATA_SETTINGS as $filter => $setting ) {
-			$this->add_filter_setting( $filter, $setting );
+		foreach ( self::MUST_SYNC_DATA_SETTINGS as $filter => $setting ) {
+			$this->add_custom_filter_setting( $filter, $setting );
 		}
-	}
-
-	/**
-	 * Returns the default data settings list for the provided filter.
-	 *
-	 * @param string $filter The filter name.
-	 *
-	 * @return array The default list of data settings.
-	 */
-	private function get_default_value_for_filter( $filter ) {
-		$default_value = self::DATA_FILTER_DEFAULTS[ $filter ];
-
-		if ( array_key_exists( 'constant', $default_value ) ) {
-			// The modules list is a class constant.
-			$setting = constant( $default_value['class'] . '::' . $default_value['constant'] );
-		} else {
-			// The other default lists are class properties.
-			$property = $default_value['property'];
-			$setting  = $default_value['class']::$$property;
-		}
-
-		return $setting;
 	}
 
 	/**
@@ -209,13 +258,13 @@ class Data_Settings {
 	 * @param string $filter The filter name.
 	 * @param array  $value The data setting.
 	 */
-	private function add_filter_setting( $filter, $value ) {
+	private function add_sync_filter_setting( $filter, $value ) {
 		if ( ! isset( static::$data_settings[ $filter ] ) ) {
 			static::$data_settings[ $filter ] = $value;
 			return;
 		}
 
-		if ( in_array( $filter, self::ASSOCIATIVE_FILTERS, true ) ) {
+		if ( in_array( $filter, Default_Filter_Settings::ASSOCIATIVE_FILTERS, true ) ) {
 			$this->add_associative_filter_setting( $filter, $value );
 		} else {
 			$this->add_indexed_filter_setting( $filter, $value );
@@ -245,20 +294,12 @@ class Data_Settings {
 	 * @param array  $settings The data settings.
 	 */
 	private function add_indexed_filter_setting( $filter, $settings ) {
-		foreach ( $settings as $item ) {
-			if ( ! in_array( $item, static::$data_settings[ $filter ], true ) ) {
-				static::$data_settings[ $filter ][] = $item;
-			}
-		}
-	}
-
-	/**
-	 * Sets up the Sync data setting filters.
-	 */
-	public function set_sync_data_filters() {
-		foreach ( static::$data_settings as $filter => $value ) {
-			add_filter( $filter, array( $this, 'add_sync_data_settings' ) );
-		}
+		static::$data_settings[ $filter ] = array_unique(
+			array_merge(
+				static::$data_settings[ $filter ],
+				$settings
+			)
+		);
 	}
 
 	/**
@@ -269,7 +310,7 @@ class Data_Settings {
 	 *
 	 * @return array The data settings for the filter.
 	 */
-	public function add_sync_data_settings( $filtered_values ) {
+	public function sync_data_filter_hook( $filtered_values ) {
 		if ( ! is_array( $filtered_values ) ) {
 			// Something is wrong with the input, so set it to an empty array.
 			$filtered_values = array();
@@ -277,28 +318,27 @@ class Data_Settings {
 
 		$current_filter = current_filter();
 
-		if ( in_array( $current_filter, self::ASSOCIATIVE_FILTERS, true ) ) {
-			foreach ( $filtered_values as $key => $item ) {
-				if ( ! array_key_exists( $key, $this->get_default_value_for_filter( $current_filter ) ) ) {
-					$this->add_associative_filter_setting( $current_filter, array( $key => $item ) );
-				}
-			}
-		} else {
-			foreach ( $filtered_values as $item ) {
-				if ( ! in_array( $item, $this->get_default_value_for_filter( $current_filter ), true ) ) {
-					$this->add_indexed_filter_setting( $current_filter, array( $item ) );
-				}
-			}
+		if ( ! isset( static::$data_settings[ $current_filter ] ) ) {
+			return $filtered_values;
 		}
 
+		if ( in_array( $current_filter, Default_Filter_Settings::ASSOCIATIVE_FILTERS, true ) ) {
+			$extra_filters = array_diff_key( $filtered_values, $this->get_default_setting_for_filter( $current_filter ) );
+			$this->add_associative_filter_setting( $current_filter, $extra_filters );
+			return static::$data_settings[ $current_filter ];
+		}
+
+		$extra_filters = array_diff( $filtered_values, $this->get_default_setting_for_filter( $current_filter ) );
+		$this->add_indexed_filter_setting( $current_filter, $extra_filters );
 		return static::$data_settings[ $current_filter ];
 	}
 
 	/**
 	 * Sets the $data_settings property to an empty array. This is useful for testing.
 	 */
-	public function empty_data_settings() {
-		static::$data_settings = array();
+	public function empty_data_settings_and_hooks() {
+		static::$data_settings    = array();
+		static::$set_filter_hooks = array();
 	}
 
 	/**

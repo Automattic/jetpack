@@ -12,4 +12,8 @@ An initial full sync of the site is started when the site is registered or when 
 
 The `Actions::do_only_first_initial_sync` method can be used to start an initial full sync when a site has not already had a full sync started. This is useful for situations in which a plugin needs to start an initial full sync only if no other plugin has already started one.
 
+## Sync Data Settings
+
+Consumer plugins can customize the data that is synced to WPCOM. See [`docs/sync-data-settings.md`](docs/sync-data-settings.md) for more details.
+
 ## Examples
