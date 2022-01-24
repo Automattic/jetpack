@@ -21,7 +21,7 @@ export function useProduct( productId ) {
 	return {
 		activate: () => activateProduct( productId ),
 		deactivate: () => deactivateProduct( productId ),
-		all: useSelect( select => select( STORE_ID ).getProducts() ),
+		productsList: useSelect( select => select( STORE_ID ).getProducts() ),
 		detail,
 		isActive: detail.status === 'active',
 		status: detail.status, // shorthand. Consider to remove.

@@ -19,7 +19,9 @@ Whether a request about the product is being requested. Use it when you'd like t
 ### detail
 An object with details about the product.
 
-### all
+### productsList
+
+Returns the current products list of My Jetpack.
 
 An array with all products list.
 

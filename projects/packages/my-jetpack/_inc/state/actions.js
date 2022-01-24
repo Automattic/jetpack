@@ -78,9 +78,9 @@ function requestProductStatus( productId, data, { select, dispatch } ) {
 			data,
 		} )
 			.then( status => {
+				dispatch( setIsFetchingProductStatus( productId, false ) );
 				dispatch( setProductStatus( productId, status ) );
 				resolve( status );
-				dispatch( setIsFetchingProductStatus( productId, false ) );
 			} )
 			.catch( error => {
 				dispatch( setProductActionError( error ) );
