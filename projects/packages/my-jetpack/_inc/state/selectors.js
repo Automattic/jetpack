@@ -9,6 +9,7 @@ const productSelectors = {
 	getProductNames,
 	getProduct,
 	isValidProduct,
+	isFetching: ( state, productId ) => state.products?.isFetching?.[ productId ] || false,
 };
 
 const purchasesSelectors = {
