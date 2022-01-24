@@ -122,7 +122,8 @@ class REST_Products {
 	public static function get_product( $request ) {
 		$product_slug = $request->get_param( 'product' );
 		$response     = array(
-			'products' => array( Products::get_product( $product_slug ) ),
+			'success' => true,
+			'product' => Products::get_product( $product_slug ),
 		);
 		return rest_ensure_response( $response, 200 );
 	}
@@ -170,7 +171,7 @@ class REST_Products {
 		}
 		$response = array(
 			'success'       => $success,
-			'products'      => array( Products::get_product( $product_slug ) ),
+			'product'       => Products::get_product( $product_slug ),
 			'error_code'    => $error_code,
 			'error_message' => $error_message,
 		);
@@ -198,8 +199,8 @@ class REST_Products {
 
 		$success  = call_user_func( array( $product['class'], 'deactivate' ) );
 		$response = array(
-			'success'  => $success,
-			'products' => array( Products::get_product( $product_slug ) ),
+			'success' => $success,
+			'product' => Products::get_product( $product_slug ),
 		);
 		return rest_ensure_response( $response, 200 );
 
