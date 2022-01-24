@@ -32,7 +32,7 @@ class REST_Products {
 			'description'       => __( 'Product slug', 'jetpack-my-jetpack' ),
 			'type'              => 'string',
 			'enum'              => Products::get_product_names(),
-			'required'          => false,
+			'required'          => true,
 			'validate_callback' => __CLASS__ . '::check_product_argument',
 		);
 
