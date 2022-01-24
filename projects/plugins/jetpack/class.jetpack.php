@@ -28,6 +28,7 @@ use Automattic\Jetpack\Plugin\Tracking as Plugin_Tracking;
 use Automattic\Jetpack\Redirect;
 use Automattic\Jetpack\Status;
 use Automattic\Jetpack\Status\Host;
+use Automattic\Jetpack\Status\Visitor;
 use Automattic\Jetpack\Sync\Actions as Sync_Actions;
 use Automattic\Jetpack\Sync\Health;
 use Automattic\Jetpack\Sync\Sender;
@@ -1800,27 +1801,14 @@ class Jetpack {
 	 *
 	 * @param  bool $check_all_headers Check all headers? Default is `false`.
 	 *
+	 * @deprecated Jetpack 10.6
+	 *
 	 * @return string                  Current user IP address.
 	 */
 	public static function current_user_ip( $check_all_headers = false ) {
-		if ( $check_all_headers ) {
-			foreach ( array(
-				'HTTP_CF_CONNECTING_IP',
-				'HTTP_CLIENT_IP',
-				'HTTP_X_FORWARDED_FOR',
-				'HTTP_X_FORWARDED',
-				'HTTP_X_CLUSTER_CLIENT_IP',
-				'HTTP_FORWARDED_FOR',
-				'HTTP_FORWARDED',
-				'HTTP_VIA',
-			) as $key ) {
-				if ( ! empty( $_SERVER[ $key ] ) ) {
-					return $_SERVER[ $key ];
-				}
-			}
-		}
+		_deprecated_function( __METHOD__, 'jetpack-10.6', 'Automattic\\Jetpack\\Status\\Visitor::get_ip' );
 
-		return ! empty( $_SERVER['REMOTE_ADDR'] ) ? $_SERVER['REMOTE_ADDR'] : '';
+		return ( new Visitor() )->get_ip( $check_all_headers );
 	}
 
 	/**
@@ -7051,7 +7039,7 @@ endif;
 			: array();
 
 		if ( Jetpack_Options::get_option( 'active_modules_initialized' ) ) {
-			$active_modules = Jetpack_Options::get_option( 'active_modules' );
+			$active_modules = self::get_active_modules();
 			self::delete_active_modules();
 
 			self::activate_default_modules( 999, 1, array_merge( $active_modules, $other_modules ), $redirect_on_activation_error, $send_state_messages );

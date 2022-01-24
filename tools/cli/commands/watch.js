@@ -8,10 +8,10 @@ import child_process from 'child_process';
 /**
  * Internal dependencies
  */
-import promptForProject from '../helpers/promptForProject';
-import { readComposerJson } from '../helpers/json';
-import { chalkJetpackGreen } from '../helpers/styling';
-import { allProjects } from '../helpers/projectHelpers';
+import promptForProject from '../helpers/promptForProject.js';
+import { readComposerJson } from '../helpers/json.js';
+import { chalkJetpackGreen } from '../helpers/styling.js';
+import { allProjects } from '../helpers/projectHelpers.js';
 
 let output = true;
 

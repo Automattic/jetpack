@@ -62,7 +62,6 @@
 			"@phpcs:lint:required"
 		],
 		"test-js": [
-			"pnpm install",
 			"cd tools/cli && pnpm test"
 		]
 	},
@@ -96,6 +95,9 @@
 	"minimum-stability": "dev",
 	"prefer-stable": true,
 	"config": {
-		"sort-packages": true
+		"sort-packages": true,
+		"allow-plugins": {
+			"dealerdirect/phpcodesniffer-composer-installer": true
+		}
 	}
 }

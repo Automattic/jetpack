@@ -1,0 +1,4 @@
+Significance: minor
+Type: enhancement
+
+Search: adds explicit post meta keys and taxonomies to sync into the index. Particularly important for integrating with third-party plugins.

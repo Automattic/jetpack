@@ -1,0 +1,5 @@
+Significance: patch
+Type: other
+Comment: PHPCS: undo file rename as to avoid handling wpcom linting.
+
+
