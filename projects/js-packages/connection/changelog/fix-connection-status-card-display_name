@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Fix access to display_name property in connection status card

@@ -1,4 +1,0 @@
-Significance: minor
-Type: bugfix
-
-Cover block: avoid the block's placeholder rendering on top of other blocks
