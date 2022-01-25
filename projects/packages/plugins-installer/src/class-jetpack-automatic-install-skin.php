@@ -71,6 +71,8 @@ class Jetpack_Automatic_Install_Skin extends Automatic_Upgrader_Skin {
 	}
 
 	/**
+	 * Set the main error message.
+	 *
 	 * Don't set the process_failed as message since it is not that helpful unless we don't have one already set
 	 *
 	 * @param string $message The error message.
