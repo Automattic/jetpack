@@ -1200,7 +1200,7 @@ EOT;
 	public function get_related_post_data_for_post( $post_id, $position, $origin ) {
 		$post = get_post( $post_id );
 		
-		$related_posts = array(
+		$related_posts =  array(
 			'id'       => $post->ID,
 			'url'      => get_permalink( $post->ID ),
 			'url_meta' => array(
