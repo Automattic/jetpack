@@ -6,6 +6,7 @@
 	flex-direction: column;
 	align-items: flex-start;
 	padding: 20px;
+	border: 1px solid #1E1E1E;
 	font-size: $default-font-size;
 }
 
@@ -80,4 +81,15 @@
 			box-shadow: none;
 		}
 	}
+}
+
+.resumable-upload__error-text {
+	margin-top: $grid-unit-20;
+	font-family: $default-font;
+	color: $alert-red;
+}
+
+.resumable-upload__error-cancel {
+	margin-top: $grid-unit-20;
+	margin-left: $grid-unit-15;
 }

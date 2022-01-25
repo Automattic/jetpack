@@ -40,11 +40,14 @@ export default function ResumableUpload( { file } ) {
 	const [ progress, setProgress ] = useState( 0 );
 	const [ hasPaused, setHasPaused ] = useState( false );
 	const [ tusUploader, setTusUploader ] = useState( null );
+	const [ error, setError ] = useState( null );
 	const tusUploaderRef = useRef( null );
 	tusUploaderRef.current = tusUploader;
 	const { onUploadFinished } = useContext( VideoPressBlockContext );
 
-	const onError = ( error ) => { onUploadFinished( error ) };
+	const onError = ( error ) => {
+		setError( error );
+	};
 
 	const onProgress = ( bytesUploaded, bytesTotal ) => {
 		const percentage = ( bytesUploaded / bytesTotal ) * 100;
@@ -70,7 +73,7 @@ export default function ResumableUpload( { file } ) {
 			const newUploader = uploader( file, jwtData );
 			setTusUploader( newUploader );
 		} ).catch( ( error ) => {
-			onUploadFinished( error );
+			setError( error );
 		} );
 
 		// Stop the upload when the block is removed.
@@ -95,6 +98,14 @@ export default function ResumableUpload( { file } ) {
 		}
 	};
 
+	const startUpload = () => {
+		if ( tusUploader ) {
+			tusUploader.start();
+		}
+
+		setError( null );
+	};
+
 	const escapedFileName = escapeHTML( file.name );
 	const fileNameLabel = createInterpolateElement(
 		sprintf(
@@ -117,23 +128,31 @@ export default function ResumableUpload( { file } ) {
 				<Icon icon={ VideoPressIcon } />
 				<div className="resumable-upload__logo-text">{ __( 'Video', 'jetpack' ) }</div>
 			</div>
-			<div className="resumable-upload__status">
-				<div className="resumable-upload__file-info">
-					<div className="resumable-upload__file-name">{ fileNameLabel }</div>
-					<div className="resumable-upload__file-size">{ fileSizeLabel }</div>
+			{ null !== error ? (
+				<div className="resumable-upload__error">
+					<div className="resumable-upload__error-text">{ __( 'An error was encountered during the upload.' ) }</div>
+					<Button isPrimary onClick={ () => startUpload() }>{ __( 'Try again', 'jetpack' ) }</Button>
+					<Button isSecondary onClick={ () => onUploadFinished( error ) } className="resumable-upload__error-cancel">{ __('Cancel', 'jetpack' ) }</Button>
 				</div>
-				<div className="resumable-upload__progress">
-					<div className="resumable-upload__progress-loaded" style={ cssWidth } />
-				</div>
-				<div className="resumable-upload__actions">
-						<div className="videopress-upload__percent-complete">{ `${roundedProgress}%` }</div>
-						<Button
-							isLink
-							onClick={ () => pauseOrResumeUpload() }>
-								{ hasPaused ? 'Resume' : 'Pause' }
-						</Button>
+			) : (
+				<div className="resumable-upload__status">
+					<div className="resumable-upload__file-info">
+						<div className="resumable-upload__file-name">{ fileNameLabel }</div>
+						<div className="resumable-upload__file-size">{ fileSizeLabel }</div>
 					</div>
-			</div>
+					<div className="resumable-upload__progress">
+						<div className="resumable-upload__progress-loaded" style={ cssWidth } />
+					</div>
+					<div className="resumable-upload__actions">
+							<div className="videopress-upload__percent-complete">{ `${roundedProgress}%` }</div>
+							<Button
+								isLink
+								onClick={ () => pauseOrResumeUpload() }>
+									{ hasPaused ? 'Resume' : 'Pause' }
+							</Button>
+						</div>
+				</div>
+			) }
 		</div>
     );
 }

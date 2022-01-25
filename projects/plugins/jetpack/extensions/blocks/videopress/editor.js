@@ -71,7 +71,6 @@ const videoPressMediaPlaceholder = createHigherOrderComponent(
 		}
 		
 		// We will handle video uploads
-		console.log( OriginalPlaceholder, props );
 		props.handleUpload = false;
 		
 		const { onFilesSelected } = useContext( VideoPressBlockContext );

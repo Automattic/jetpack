@@ -125,8 +125,6 @@ const VideoPressEdit = CoreVideoEdit =>
 				isFetchingPreview,
 			} = this.props;
 
-			console.log( 'EDIT PROPS', this.props );
-
 			if ( attributes.id !== prevProps.attributes.id ) {
 				await this.setGuid();
 				this.setRatingAndAllowDownload();
