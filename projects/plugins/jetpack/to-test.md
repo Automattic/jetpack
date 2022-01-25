@@ -22,7 +22,7 @@ In this release we've fixed some bugs with this block. It's a good opportunity t
 
 ### Tiled Gallery Block
 
-We've made changes to the Tiled Gallery block in this release, to ensure it can be used from the mobile apps as well. You'll want to make sure it can still be used from the block editor on the web:
+We've made changes to the Tiled Gallery block to ensure it can be used from the mobile apps as well. You'll want to make sure it can still be used from the block editor on the web (no need to test on mobile for this release specifically):
 
 1. Look for posts that were published in the past and that included tiled galleries; edit those posts, and ensure you can edit the galleries without any errors.
 2. Try publishing new posts with one or more tiled galleries.
