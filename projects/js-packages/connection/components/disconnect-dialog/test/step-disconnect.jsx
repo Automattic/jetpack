@@ -40,13 +40,18 @@ describe( 'StepDisconnect', () => {
 
 	describe( 'When the disconnect button is clicked', () => {
 		const wrapper = shallow( <StepDisconnect { ...testProps } /> );
-
-		wrapper
-			.find( '.jp-connection__disconnect-dialog__btn-disconnect' )
-			.simulate( 'click', { preventDefault: () => undefined } );
+		const disconnectButton = wrapper.find( '.jp-connection__disconnect-dialog__btn-disconnect' );
 
 		it( 'calls the disconnect callback', () => {
+			disconnectButton.simulate( 'click', { preventDefault: () => undefined } );
+
 			expect( testProps.onDisconnect.called ).to.be.true;
+		} );
+
+		it( 'calls the trackModalClick callback with disconnect', () => {
+			disconnectButton.simulate( 'click', { preventDefault: () => undefined } );
+
+			expect( testProps.trackModalClick.calledOnceWith( 'disconnect' ) ).to.be.true;
 		} );
 	} );
 
@@ -71,6 +76,7 @@ describe( 'StepDisconnect', () => {
 		const learnAboutLink = 0;
 		const supportLink = 1;
 		const wrapper = shallow( <StepDisconnect { ...testProps } /> );
+
 		const links = wrapper.find( '.jp-connection__disconnect-dialog__link' );
 
 		it( 'the connection link calls the trackModalClick with learn_about', () => {

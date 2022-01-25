@@ -200,11 +200,6 @@ const DisconnectDialog = props => {
 		e => {
 			e && e.preventDefault();
 
-			jetpackAnalytics.tracks.recordEvent(
-				'jetpack_disconnect_dialog_click_disconnect',
-				defaultTracksArgs
-			);
-
 			setDisconnectError( false );
 			setIsDisconnecting( true );
 
@@ -222,14 +217,7 @@ const DisconnectDialog = props => {
 			// Default to making the disconnect API call here.
 			_disconnect();
 		},
-		[
-			setDisconnectError,
-			setIsDisconnecting,
-			pluginScreenDisconnectCallback,
-			context,
-			_disconnect,
-			defaultTracksArgs,
-		]
+		[ setDisconnectError, setIsDisconnecting, pluginScreenDisconnectCallback, context, _disconnect ]
 	);
 
 	const trackModalClick = useCallback(
