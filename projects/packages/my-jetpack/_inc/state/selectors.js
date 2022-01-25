@@ -1,5 +1,14 @@
+export const getProducts = state => state.products?.items || {};
+export const getProductNames = state => Object.keys( getProducts( state ) );
+export const getProduct = ( state, productId ) => getProducts( state )?.[ productId ] || {};
+export const isValidProduct = ( state, productId ) =>
+	getProductNames( state ).includes( productId );
+
 const productSelectors = {
-	getProducts: state => state.products || {},
+	getProducts,
+	getProductNames,
+	getProduct,
+	isValidProduct,
 };
 
 const purchasesSelectors = {
