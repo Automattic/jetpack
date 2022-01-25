@@ -1,0 +1,4 @@
+Significance: minor
+Type: changed
+
+Updated package dependencies. Major version bump for i18n-loader-webpack-plugin.

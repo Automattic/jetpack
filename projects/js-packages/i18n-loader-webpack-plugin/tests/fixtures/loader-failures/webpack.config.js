@@ -15,7 +15,7 @@ module.exports = {
 		},
 	},
 	plugins: [
-		new I18nLoaderPlugin( { textdomain: 'fetch-failures' } ),
+		new I18nLoaderPlugin( { textdomain: 'loader-failures' } ),
 		new DependencyExtractionPlugin(),
 	],
 };

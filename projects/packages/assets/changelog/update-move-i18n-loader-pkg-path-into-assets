@@ -1,0 +1,4 @@
+Significance: minor
+Type: added
+
+Accept package path prefixes from jetpack-composer-plugin and use them when lazy-loading JS translations.
