@@ -187,8 +187,6 @@ for SLUG in "${SLUGS[@]}"; do
 		# Copy the resulting list of files into the clone.
 		xargs cp --parents --target-directory="$BUILD_DIR"
 
-<<<<<<< HEAD
-=======
 	if [[ "$SLUG" == "plugins/jetpack" || "$SLUG" == "plugins/backup" ]]; then
 		echo "::group::Copying Jetpack files for backward compatibility."
 
@@ -223,7 +221,6 @@ for SLUG in "${SLUGS[@]}"; do
 		echo "::endgroup::"
 	fi
 
->>>>>>> dace448b93 (Add backup to previous vendor copy logic (#22451))
 	# Remove monorepo repos from composer.json
 	JSON=$(jq --tab 'if .repositories then .repositories |= map( select( .options.monorepo | not ) ) else . end' "$BUILD_DIR/composer.json")
 	if [[ "$JSON" != "$(<"$BUILD_DIR/composer.json")" ]]; then
