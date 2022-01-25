@@ -47,6 +47,13 @@ class Speed_Score_Request extends Cacheable {
 	private $status;
 
 	/**
+	 * Number of retries attempted.
+	 *
+	 * @var int $retry_count Number of times this Speed Score request has been retried.
+	 */
+	private $retry_count;
+
+	/**
 	 * The error returned
 	 *
 	 * @var array $error Speed Scores error.
@@ -70,6 +77,7 @@ class Speed_Score_Request extends Cacheable {
 		$this->created        = is_null( $created ) ? microtime( true ) : $created;
 		$this->status         = $status;
 		$this->error          = $error;
+		$this->retry_count    = 0;
 	}
 
 	/**
@@ -96,6 +104,7 @@ class Speed_Score_Request extends Cacheable {
 			'created'        => $this->created,
 			'status'         => $this->status,
 			'error'          => $this->error,
+			'retry_count'    => $this->retry_count,
 		);
 	}
 
@@ -117,6 +126,10 @@ class Speed_Score_Request extends Cacheable {
 
 		if ( ! empty( $data['id'] ) ) {
 			$object->set_cache_id( $data['id'] );
+		}
+
+		if ( ! empty( $data['retry_count'] ) ) {
+			$object->retry_count = intval( $data['retry_count'] );
 		}
 
 		return $object;
@@ -243,12 +256,25 @@ class Speed_Score_Request extends Cacheable {
 	 * Restart this request; useful when WPCOM doesn't recognize the request or it times out.
 	 */
 	private function restart() {
+		// Enforce a maximum number of restarts.
+		if ( $this->retry_count > 2 ) {
+			$this->status = 'error';
+			$this->error  = 'Maximum number of retries exceeded';
+			$this->store();
+
+			return new \WP_Error(
+				'error',
+				$this->error
+			);
+		}
+
 		$result = $this->execute();
 		if ( is_wp_error( $result ) ) {
 			return $result;
 		}
 
 		$this->created = time();
+		$this->retry_count++;
 		$this->store();
 
 		return true;
