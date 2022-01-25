@@ -30,12 +30,76 @@ class Products {
 	}
 
 	/**
+	 * Get one product data by its slug
+	 *
+	 * @param string $slug The product slug.
+	 *
+	 * @return ?array
+	 */
+	public static function get_product( $slug ) {
+		$products = self::get_products();
+		if ( array_key_exists( $slug, $products ) ) {
+			return $products[ $slug ];
+		}
+		return null;
+	}
+
+	/**
 	 * Return product names list.
 	 *
 	 * @return array Product names array.
 	 */
 	public static function get_product_names() {
 		return array_keys( self::get_products() );
+	}
+
+	/**
+	 * Gets the json schema for the product data
+	 *
+	 * @return array
+	 */
+	public static function get_product_data_schema() {
+		return array(
+			'title'      => 'The requested product data',
+			'type'       => 'object',
+			'properties' => array(
+				'product'     => array(
+					'description'       => __( 'Product slug', 'jetpack-my-jetpack' ),
+					'type'              => 'string',
+					'enum'              => __CLASS__ . '::get_product_names',
+					'required'          => false,
+					'validate_callback' => __CLASS__ . '::check_product_argument',
+				),
+				'action'      => array(
+					'description'       => __( 'Production action to execute', 'jetpack-my-jetpack' ),
+					'type'              => 'string',
+					'enum'              => array( 'activate', 'deactivate' ),
+					'required'          => false,
+					'validate_callback' => __CLASS__ . '::check_product_argument',
+				),
+				'slug'        => array(
+					'title' => 'The product slug',
+					'type'  => 'string',
+				),
+				'name'        => array(
+					'title' => 'The product name',
+					'type'  => 'string',
+				),
+				'description' => array(
+					'title' => 'The product description',
+					'type'  => 'string',
+				),
+				'status'      => array(
+					'title' => 'The product status',
+					'type'  => 'string',
+					'enum'  => array( 'active', 'inactive', 'plugin_absent' ),
+				),
+				'class'       => array(
+					'title' => 'The product class handler',
+					'type'  => 'string',
+				),
+			),
+		);
 	}
 
 	/**
@@ -49,6 +113,33 @@ class Products {
 			'description' => __( 'Stop comment and form spam', 'jetpack-my-jetpack' ),
 			'name'        => __( 'Anti-spam', 'jetpack-my-jetpack' ),
 			'status'      => 'inactive',
+		);
+	}
+
+	/**
+	 * Activate Backup product
+	 */
+	public static function activate_backup_product() {
+		/*
+		 * @todo: implement
+		 * suggestion: when it enables, return an success array:
+		 * array( 'status' => 'activated' );
+		 * Otherwise, an WP_Error instance will be nice.
+		 */
+		return array(
+			'status' => 'active',
+		);
+	}
+
+	/**
+	 * Deactivate Backup product
+	 */
+	public static function deactivate_backup_product() {
+		/*
+		 * @todo: implement
+		 */
+		return array(
+			'status' => 'inactive',
 		);
 	}
 
@@ -72,12 +163,7 @@ class Products {
 	 * @return array Object with infromation about the product.
 	 */
 	public static function get_boost_data() {
-		return array(
-			'slug'        => 'boost',
-			'description' => __( 'Instant speed and SEO', 'jetpack-my-jetpack' ),
-			'name'        => __( 'Boost', 'jetpack-my-jetpack' ),
-			'status'      => 'plugin_absent',
-		);
+		return Products\Boost::get_info();
 	}
 
 	/**

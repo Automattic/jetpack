@@ -1,18 +1,24 @@
 /**
  * External dependencies
  */
+import apiFetch from '@wordpress/api-fetch';
 
 /**
  * Internal dependencies
  */
-import actions from './actions';
+import { REST_API_SITE_PURCHASES_ENDPOINT } from './constants';
 
 const myJetpackResolvers = {
-	*getPurchases() {
-		yield actions.setPurchasesIsFetching( true );
-		const result = yield actions.fetchPurchases();
-		yield actions.setPurchasesIsFetching( false );
-		return actions.setPurchases( result );
+	getPurchases: () => async ( { dispatch } ) => {
+		dispatch.setPurchasesIsFetching( true );
+
+		try {
+			dispatch.setPurchases( await apiFetch( { path: REST_API_SITE_PURCHASES_ENDPOINT } ) );
+			dispatch.setPurchasesIsFetching( false );
+		} catch ( error ) {
+			dispatch.setPurchasesIsFetching( false );
+			throw error;
+		}
 	},
 };
 
