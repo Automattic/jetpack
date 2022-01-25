@@ -22,7 +22,7 @@ const products = ( state = {}, action ) => {
 			return {
 				...state,
 				isFetching: {
-					...state.request,
+					...state.isFetching,
 					[ productId ]: isFetching,
 				},
 			};
