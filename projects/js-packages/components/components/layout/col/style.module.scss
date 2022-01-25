@@ -1,35 +1,32 @@
-@import '@automattic/jetpack-base-styles/style';
-
-@for $i from 1 through 4 {
-	.sm-col-span-#{$i} {
-		grid-column-end: span #{$i};
-	}
-}
-
-@include for-phone-up {
-	@for $i from 1 through 8 {
-		.md-col-span-#{$i} {
-			grid-column-end: span #{$i};
-		}
-	}
-}
-
-@include for-tablet-up {
+@mixin cols($size) {
 	@for $i from 1 through 12 {
-		.lg-col-span-#{$i} {
+		.col-#{$size}-#{$i} {
 			grid-column-end: span #{$i};
 		}
 	}
 }
 
-@include for-tablet-down {
-	.md-col-span-0 {
-		display: none;
-	}
+// Breakpoints based on Material Design
+// https://material.io/design/layout/responsive-layout-grid.html#breakpoints
+// @todo: get the official values for jetpack from design
+
+@media ( min-width: 0px ) {
+	@include cols(xs)
 }
 
-@include for-phone-down {
-	.sm-col-span-0 {
-		display: none;
-	}
+@media ( min-width: 600px ) {
+	@include cols(sm)
 }
+
+@media ( min-width: 905px ) {
+	@include cols(md)
+}
+
+@media ( min-width: 1240px ) {
+	@include cols(lg)
+}
+
+@media ( min-width: 1440px ) {
+	@include cols(xl)
+}
+
