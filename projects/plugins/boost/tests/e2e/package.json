@@ -45,5 +45,11 @@
 		"pnpm": "^6.23.6",
 		"yarn": "use pnpm instead - see docs/yarn-upgrade.md"
 	},
-	"browserslist": []
+	"browserslist": [],
+	"ci": {
+		"projects": [
+			"plugins/boost",
+			"tools/e2e-commons"
+		]
+	}
 }
