@@ -27,7 +27,8 @@ jobs:
         if: github.event_name == 'pull_request'
         uses: ./.github/actions/deepen-to-merge-base
 
-      - id: create-projects-matrix
+      - name: Create projects matrix
+        id: create-projects-matrix
         run: |
           PROJECTS=$(.github/files/create-e2e-projects-matrix.sh)
           echo "::set-output name=matrix::$PROJECTS"

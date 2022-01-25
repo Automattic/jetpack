@@ -20,13 +20,13 @@ for PROJECT in "${PROJECTS[@]}"; do
 			RESULT=$(jq --arg prj "$TESTED_PROJECT" '.[$prj]' <<<"$CHANGED_PROJECTS")
 			printf "\t%s: %s\n" "$TESTED_PROJECT" "$RESULT"
 			if [[ "$RESULT" == true ]]; then
-      		PROJECTS_MATRIX+=("$PROJECT")
-      		break
-      fi
+				PROJECTS_MATRIX+=("$PROJECT")
+				break
+			fi
 		done
 	fi
 
 	echo
 done
 
-echo "${PROJECTS_MATRIX[@]}"
+jq -s '.' <<<"${PROJECTS_MATRIX[@]}"
