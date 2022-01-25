@@ -2,7 +2,8 @@
 /**
  * External dependencies
  */
-import React, { useCallback } from 'react';
+import React from 'react';
+import { useCallback } from '@wordpress/element';
 import { ConnectionStatusCard } from '@automattic/jetpack-connection';
 
 /**
