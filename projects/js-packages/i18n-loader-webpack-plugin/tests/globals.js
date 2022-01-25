@@ -1,69 +1,66 @@
-// Some globals the tests will probably want.
 global.wpI18n = require( '@wordpress/i18n' );
-global.jpI18nState = {
-	baseUrl: 'http://test.example.com/wp-content/languages/',
-	locale: 'en_piglatin',
-	domainMap: {},
-};
+
+/** Loader class. */
+class I18nLoader {
+	/** Map paths to promise-factory functions. */
+	expect = {};
+
+	/**
+	 * "Download" an i18n file.
+	 *
+	 * Actually just returns a promise from `this.expect`, if any,
+	 * or throws an error.
+	 *
+	 * @param {string} path - Path being "downloaded".
+	 * @param {string} domain - Text domain.
+	 * @returns {Promise} Promise.
+	 */
+	downloadI18n( path, domain ) {
+		const ret = this.expect[ path ];
+		if ( typeof ret === 'undefined' ) {
+			throw new Error( `Unexpected call for ${ path }` );
+		}
+		if ( ret === null ) {
+			throw new Error( `Path ${ path } was requested multiple times` );
+		}
+		this.expect[ expect ] = null;
+		return ret( domain );
+	}
+
+	/**
+	 * Mock a path.
+	 *
+	 * @param {string} path - Path.
+	 * @param {object} data - I18n data.
+	 */
+	expectI18n( path, data ) {
+		this.expect[ path ] = domain => {
+			const localeData = data.locale_data[ domain ] || data.locale_data.messages;
+			localeData[ '' ].domain = domain;
+			global.wpI18n.setLocaleData( localeData, domain );
+			return Promise.resolve();
+		};
+	}
+
+	/**
+	 * Mock an error.
+	 *
+	 * @param {string} path - Path.
+	 * @param {Error}  err - Error.
+	 */
+	expectError = ( path, err ) => {
+		this.expect[ path ] = () => {
+			return Promise.reject( err );
+		};
+	};
+}
+
+global.I18nLoader = I18nLoader;
+global.jpI18nLoader = new I18nLoader();
 global.window = {
 	...global.window,
 	wp: {
 		i18n: global.wpI18n,
-		jpI18nState: global.jpI18nState,
+		jpI18nLoader: global.jpI18nLoader,
 	},
-};
-
-// Simple fetch mock, sufficient for our purposes.
-global.fetch = jest.fn( url => {
-	const ret = fetch.urls[ url ];
-	if ( typeof ret === 'undefined' ) {
-		throw new Error( `Unexpected URL ${ url }` );
-	}
-	if ( ret === null ) {
-		throw new Error( `URL ${ url } was requested multiple times` );
-	}
-	fetch.urls[ url ] = null;
-	return ret;
-} );
-fetch.urls = {};
-
-/**
- * Mock a URL.
- *
- * @param {string} url - URL.
- * @param {*}      body - Response body. If not a string, it will be passed through `JSON.stringify()`.
- * @param {object} init - Additional response data.
- * @param {number} init.status - Response status. Default 200.
- * @param {string} init.statusText - Response status text. Default "OK".
- */
-fetch.expectUrl = ( url, body, init = {} ) => {
-	const status = parseInt( init.status || 200 );
-	const statusText = init.statusText || 'OK';
-
-	let rbody = body;
-	if ( typeof rbody !== 'string' ) {
-		rbody = JSON.stringify( rbody );
-	}
-	if ( status < 200 || status > 599 ) {
-		throw new Error( `Invalid status: ${ init.status }` );
-	}
-
-	fetch.urls[ url ] = Promise.resolve( {
-		body: rbody,
-		ok: status < 300,
-		status: status,
-		statusText: statusText,
-		url: url,
-		json: () => JSON.parse( rbody ),
-	} );
-};
-
-/**
- * Mock a fetch error.
- *
- * @param {string} url - URL.
- * @param {Error}  err - Error.
- */
-fetch.expectError = ( url, err ) => {
-	fetch.urls[ url ] = Promise.reject( err );
 };
