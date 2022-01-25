@@ -1,0 +1,4 @@
+Significance: major
+Type: changed
+
+BREAKING: Remove the downloading logic from the runtime by requiring a "loader" module rather than a "state" module. This gives more flexibility for different implementations in the future.
