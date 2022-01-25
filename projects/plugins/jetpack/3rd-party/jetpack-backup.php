@@ -10,6 +10,8 @@
 
 namespace Automattic\Jetpack\Jetpack_Backup;
 
+use Automattic\Jetpack\Plugins_Installer;
+
 if ( ! defined( 'ABSPATH' ) ) {
 	exit;
 }
@@ -67,7 +69,7 @@ function try_install() {
  * @return bool result of installation
  */
 function install_and_activate() {
-	$result = \Jetpack_Plugins::install_and_activate_plugin( PLUGIN_SLUG );
+	$result = Plugins_Installer::install_and_activate_plugin( PLUGIN_SLUG );
 
 	if ( is_wp_error( $result ) ) {
 		return false;

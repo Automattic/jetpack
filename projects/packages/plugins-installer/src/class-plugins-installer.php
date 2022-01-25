@@ -9,12 +9,15 @@
  * @package jetpack-plugins-installer
  */
 
-use Automattic\Jetpack\A8c_Mc_Stats;
+namespace Automattic\Jetpack;
+
+use Plugin_Upgrader;
+use WP_Error;
 
 /**
  * Plugins management tools.
  */
-class Jetpack_Plugins {
+class Plugins_Installer {
 
 	/**
 	 * Install and activate a plugin.
@@ -63,7 +66,7 @@ class Jetpack_Plugins {
 			return new WP_Error( 'not_allowed', __( 'You are not allowed to install plugins on this site.', 'jetpack-plugins-installer' ) );
 		}
 
-		$skin     = new Jetpack_Automatic_Install_Skin();
+		$skin     = new Automatic_Install_Skin();
 		$upgrader = new Plugin_Upgrader( $skin );
 		$zip_url  = self::generate_wordpress_org_plugin_download_link( $slug );
 		$mc_stats = new A8c_Mc_Stats();

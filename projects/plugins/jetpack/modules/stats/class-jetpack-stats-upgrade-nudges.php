@@ -7,6 +7,7 @@
 
 use Automattic\Jetpack\Connection\Manager;
 use Automattic\Jetpack\Jetpack_CRM_Data;
+use Automattic\Jetpack\Plugins_Installer;
 use Automattic\Jetpack\Redirect;
 use Automattic\Jetpack\Tracking;
 
@@ -63,7 +64,7 @@ class Jetpack_Stats_Upgrade_Nudges {
 	 * @return boolean
 	 */
 	private static function is_plugin_installed( $plugin_file ) {
-		$plugins = Jetpack_Plugins::get_plugins();
+		$plugins = Plugins_Installer::get_plugins();
 		return isset( $plugins[ $plugin_file ] );
 	}
 
@@ -74,7 +75,7 @@ class Jetpack_Stats_Upgrade_Nudges {
 	 * @return boolean
 	 */
 	private static function is_plugin_active( $plugin_file ) {
-		$plugins = Jetpack_Plugins::get_plugins();
+		$plugins = Plugins_Installer::get_plugins();
 		return isset( $plugins[ $plugin_file ] ) && isset( $plugins[ $plugin_file ]['active'] ) && $plugins[ $plugin_file ]['active'];
 	}
 

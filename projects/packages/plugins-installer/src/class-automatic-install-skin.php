@@ -5,6 +5,10 @@
  * @package jetpack-plugins-installer
  */
 
+namespace Automattic\Jetpack;
+
+use Automatic_Upgrader_Skin;
+
 /**
  * Include required files from wp-admin.
  */
@@ -15,7 +19,7 @@ require_once ABSPATH . 'wp-admin/includes/file.php';
  * Allows us to capture that the site doesn't have proper file system access.
  * In order to update the plugin.
  */
-class Jetpack_Automatic_Install_Skin extends Automatic_Upgrader_Skin {
+class Automatic_Install_Skin extends Automatic_Upgrader_Skin {
 	/**
 	 * Stores the last error key;
 	 *

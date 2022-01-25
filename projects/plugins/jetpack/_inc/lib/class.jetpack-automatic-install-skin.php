@@ -6,3 +6,5 @@
  *
  * @package jetpack
  */
+
+class_alias( Automattic\Jetpack\Automatic_Install_Skin::class, 'Jetpack_Automatic_Install_Skin' );
