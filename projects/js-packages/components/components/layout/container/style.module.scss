@@ -1,7 +1,15 @@
-.jp-container {
-	display: flex;
-	align-items: center;
-	flex-wrap: wrap;
-	max-width: 1128px;
+.container {
+	--gap: 24px;
+	--max-width: 1128px;
+
+	display: grid;
+	grid-gap: var(--gap);
+	grid-template-columns: repeat( 12, 1fr );
+	width: 100%;
+	max-width: var(--max-width);
 	margin: 0 auto;
+
+	&.fluid {
+		max-width: none;
+	}
 }
