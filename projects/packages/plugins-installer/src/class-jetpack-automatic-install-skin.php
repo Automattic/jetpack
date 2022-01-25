@@ -1,12 +1,13 @@
 <?php
 /**
- * Upgrader Skin
- *
- * Automatic_Upgrader_Skin extension for Jetpack.
+ * Automatic_Upgrader_Skin extension for Jetpack
  *
  * @package jetpack-plugins-installer
  */
 
+/**
+ * Include required files from wp-admin.
+ */
 require_once ABSPATH . 'wp-admin/includes/class-wp-upgrader.php';
 require_once ABSPATH . 'wp-admin/includes/file.php';
 
