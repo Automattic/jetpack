@@ -5,7 +5,7 @@ import { InnerBlocks } from '@wordpress/block-editor';
 
 export default function Save() {
 	return (
-		<div className="donations__tab">
+		<div className="wp-block-jetpack-donations">
 			<InnerBlocks.Content />
 		</div>
 	);

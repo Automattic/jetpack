@@ -8,6 +8,7 @@ import { DonationsIcon } from '../../shared/icons';
  * Internal dependencies
  */
 import edit from './edit';
+import save from './save';
 import {
 	ANNUAL_DONATION_TAB,
 	MONTHLY_DONATION_TAB,
@@ -36,10 +37,6 @@ export const settings = {
 			type: 'boolean',
 			default: true,
 		},
-		customAmount: {
-			type: 'boolean',
-			default: true,
-		},
 	},
 	supports: {
 		align: true,
@@ -47,5 +44,5 @@ export const settings = {
 		html: false,
 	},
 	edit,
-	save: () => null,
+	save,
 };
