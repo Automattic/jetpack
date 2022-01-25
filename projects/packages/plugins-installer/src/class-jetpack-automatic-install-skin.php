@@ -59,6 +59,8 @@ class Jetpack_Automatic_Install_Skin extends Automatic_Upgrader_Skin {
 	}
 
 	/**
+	 * Set the main error code.
+	 *
 	 * Don't set the process_failed as code since it is not that helpful unless we don't have one already set
 	 *
 	 * @param string $code The error code.
