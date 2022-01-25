@@ -16,7 +16,8 @@
  import { MediaUploadCheck, store as blockEditorStore } from '@wordpress/block-editor';
  import { upload } from '@wordpress/icons';
  import { useSelect } from '@wordpress/data';*/
- import { useContext, useEffect, useState } from '@wordpress/element';
+ import { useContext, useEffect, useRef, useState } from '@wordpress/element';
+ import { useBlockProps } from '@wordpress/block-editor';
 
 import {
     Button,
@@ -28,6 +29,10 @@ import { VideoPressBlockContext } from '../components';
 import './style.scss';
 
 export default function ResumableUpload( { file } ) {
+	const blockProps = useBlockProps( {
+        className: "resumable-upload",
+    } );
+
 	if ( ! file ) {
 		return null;
 	}
@@ -35,6 +40,8 @@ export default function ResumableUpload( { file } ) {
 	const [ progress, setProgress ] = useState( 0 );
 	const [ hasPaused, setHasPaused ] = useState( false );
 	const [ tusUploader, setTusUploader ] = useState( null );
+	const tusUploaderRef = useRef( null );
+	tusUploaderRef.current = tusUploader;
 	const { onUploadFinished } = useContext( VideoPressBlockContext );
 
 	const onError = ( error ) => { onUploadFinished( error ) };
@@ -65,6 +72,13 @@ export default function ResumableUpload( { file } ) {
 		} ).catch( ( error ) => {
 			onUploadFinished( error );
 		} );
+
+		// Stop the upload when the block is removed.
+		return () => {
+			if ( null !== tusUploaderRef.current ) {
+				tusUploaderRef.current.abort();
+			}
+		};
 	}, []);
 
 	const roundedProgress = Math.round( progress );
@@ -98,7 +112,7 @@ export default function ResumableUpload( { file } ) {
 	const fileSizeLabel = filesize( file.size );
 
     return (
-		<div className="wp-block resumable-upload">
+		<div { ...blockProps }>
 			<div className="resumable-upload__logo">
 				<Icon icon={ VideoPressIcon } />
 				<div className="resumable-upload__logo-text">{ __( 'Video', 'jetpack' ) }</div>
