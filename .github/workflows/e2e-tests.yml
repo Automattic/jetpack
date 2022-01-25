@@ -90,6 +90,7 @@ jobs:
       run: pnpm run test-e2e
 
     - name: Send Slack notification
+      if: ${{ always() }}
       env:
         GITHUB_CONTEXT: ${{ toJson(github) }}
         SUITE: ${{ matrix.project }}
