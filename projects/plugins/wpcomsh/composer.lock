@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "4eca610cc342e050e5ce1b061b6c9623",
+    "content-hash": "416dc277a08460696bf257b8edde01fb",
     "packages": [
         {
             "name": "automattic/at-pressable-podcasting",
@@ -290,16 +290,16 @@
         },
         {
             "name": "automattic/wc-calypso-bridge",
-            "version": "v1.8.4",
+            "version": "v1.8.5",
             "source": {
                 "type": "git",
                 "url": "https://github.com/Automattic/wc-calypso-bridge.git",
-                "reference": "1c27034351e63a87e007dd880a35cdbb4ed397f9"
+                "reference": "4545d45b30cd42792b082e698898306fe2d7ba3a"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/Automattic/wc-calypso-bridge/zipball/1c27034351e63a87e007dd880a35cdbb4ed397f9",
-                "reference": "1c27034351e63a87e007dd880a35cdbb4ed397f9",
+                "url": "https://api.github.com/repos/Automattic/wc-calypso-bridge/zipball/4545d45b30cd42792b082e698898306fe2d7ba3a",
+                "reference": "4545d45b30cd42792b082e698898306fe2d7ba3a",
                 "shasum": ""
             },
             "require": {
@@ -311,7 +311,8 @@
                 "squizlabs/php_codesniffer": "*",
                 "wimg/php-compatibility": "9.0.0",
                 "woocommerce/woocommerce-sniffs": "*",
-                "wp-coding-standards/wpcs": "1.1.0"
+                "wp-coding-standards/wpcs": "1.1.0",
+                "yoast/phpunit-polyfills": "^1.0"
             },
             "type": "library",
             "extra": {
@@ -337,7 +338,7 @@
                     "phpcbf -p"
                 ]
             },
-            "time": "2021-11-10T02:54:51+00:00"
+            "time": "2022-01-24T20:36:40+00:00"
         },
         {
             "name": "composer/installers",
