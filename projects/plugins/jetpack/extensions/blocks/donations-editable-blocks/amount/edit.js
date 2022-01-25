@@ -2,6 +2,7 @@
  * External dependencies
  */
 import formatCurrency, { CURRENCIES } from '@automattic/format-currency';
+import { minimumTransactionAmountForCurrency, parseAmount } from '../../../shared/currencies';
 import classnames from 'classnames';
 
 /**
@@ -9,11 +10,6 @@ import classnames from 'classnames';
  */
 import { RichText } from '@wordpress/block-editor';
 import { useCallback, useEffect, useRef, useState } from '@wordpress/element';
-
-/**
- * Internal dependencies
- */
-import { minimumTransactionAmountForCurrency, parseAmount } from '../../../../shared/currencies';
 
 const Edit = props => {
 	const { value, currency, className } = props;
