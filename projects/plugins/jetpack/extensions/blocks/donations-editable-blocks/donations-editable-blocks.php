@@ -11,10 +11,8 @@ namespace Automattic\Jetpack\Extensions\Donations_Editable;
 
 use Automattic\Jetpack\Blocks;
 
-require_once __DIR__ . '/child-blocks/one-time-view/one-time-view.php';
-require_once __DIR__ . '/child-blocks/monthly-view/monthly-view.php';
-require_once __DIR__ . '/child-blocks/annual-view/annual-view.php';
-require_once __DIR__ . '/child-blocks/amount/amount.php';
+require_once __DIR__ . '/donations-view/donations-view.php';
+require_once __DIR__ . '/amount/amount.php';
 
 const BLOCK_NAME = 'donations-editable-blocks';
 /**

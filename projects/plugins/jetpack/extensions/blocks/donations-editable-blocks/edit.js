@@ -19,7 +19,8 @@ import {
 	MONTHLY_DONATION_TAB,
 	ONE_TIME_DONATION_TAB,
 } from './common/constants';
-import DonationsContext from './common/donations-context';
+import Context from './common/context';
+import Controls from './controls';
 
 const tabs = [
 	{
@@ -53,43 +54,53 @@ const DonationTabButton = ( { label, id, tabIndex, isActive, onActivateTab } ) =
 	);
 };
 
-const Edit = () => {
+const Edit = props => {
+	const { attributes } = props;
+	const { annualDonation, monthlyDonation } = attributes;
 	// Tab navigation state handling.
 	const [ activeTab, setActiveTab ] = useState( DEFAULT_TAB );
+
+	const resetActiveTab = ( controlTab, value ) => {
+		if ( value === false && activeTab === controlTab ) {
+			setActiveTab( DEFAULT_TAB );
+		}
+	};
 
 	return (
 		<div className="wp-block-jetpack-donations">
 			<div className="donations__container">
-				<div className="donations__nav">
-					{ tabs.map( ( { id, label }, index ) => (
-						<DonationTabButton
-							label={ label }
-							id={ id }
-							tabIndex={ index }
-							isActive={ activeTab === id }
-							onActivateTab={ setActiveTab }
-						/>
-					) ) }
-				</div>
+				{ ( annualDonation || monthlyDonation ) && (
+					<div className="donations__nav">
+						{ tabs.map(
+							( { id, label }, index ) =>
+								attributes[ id ] && (
+									<DonationTabButton
+										label={ label }
+										id={ id }
+										tabIndex={ index }
+										isActive={ activeTab === id }
+										onActivateTab={ setActiveTab }
+									/>
+								)
+						) }
+					</div>
+				) }
 				<div className="donations__content">
-					<DonationsContext.Provider value={ { activeTab } }>
+					<Context.Provider value={ { activeTab } }>
 						<InnerBlocks
-							allowedBlocks={ [
-								'jetpack/donations-one-time-view',
-								'jetpack/donations-monthly-view',
-								'jetpack/donations-annual-view',
-							] }
+							allowedBlocks={ [ 'jetpack/donations-view' ] }
 							templateLock={ 'all' }
 							template={ [
-								[ 'jetpack/donations-one-time-view', { activeTab } ],
-								[ 'jetpack/donations-monthly-view', { activeTab } ],
-								[ 'jetpack/donations-annual-view', { activeTab } ],
+								[ 'jetpack/donations-view', { type: ONE_TIME_DONATION_TAB } ],
+								[ 'jetpack/donations-view', { type: MONTHLY_DONATION_TAB } ],
+								[ 'jetpack/donations-view', { type: ANNUAL_DONATION_TAB } ],
 							] }
 							__experimentalCaptureToolbars={ true }
 							templateInsertUpdatesSelection={ false }
 						/>
-					</DonationsContext.Provider>
+					</Context.Provider>
 				</div>
+				<Controls { ...props } onChange={ resetActiveTab } />
 			</div>
 		</div>
 	);

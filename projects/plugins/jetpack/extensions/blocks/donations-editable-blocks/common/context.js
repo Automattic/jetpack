@@ -12,6 +12,6 @@ const defaultContext = {
 	activeTab: DEFAULT_TAB,
 };
 
-const DonationsContext = createContext( defaultContext );
+const Context = createContext( defaultContext );
 
-export default DonationsContext;
+export default Context;
