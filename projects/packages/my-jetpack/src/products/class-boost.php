@@ -33,7 +33,7 @@ class Boost {
 			'name'        => __( 'Boost', 'jetpack-my-jetpack' ),
 			'status'      => $status,
 			'class'       => __CLASS__,
-			'admin-url'   => admin_url( '?page=jetpack-boost' ),
+			'admin-url'   => admin_url( 'admin.php?page=jetpack-boost' ),
 		);
 	}
 
