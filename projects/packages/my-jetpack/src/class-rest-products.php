@@ -32,7 +32,7 @@ class REST_Products {
 			'description'       => __( 'Product slug', 'jetpack-my-jetpack' ),
 			'type'              => 'string',
 			'enum'              => Products::get_product_names(),
-			'required'          => false,
+			'required'          => true,
 			'validate_callback' => __CLASS__ . '::check_product_argument',
 		);
 
@@ -65,6 +65,20 @@ class REST_Products {
 					),
 				),
 			)
+		);
+	}
+
+	/**
+	 * Get the schema for the products endpoint
+	 *
+	 * @return array
+	 */
+	public function get_products_schema() {
+		return array(
+			'$schema'    => 'http://json-schema.org/draft-04/schema#',
+			'title'      => 'products',
+			'type'       => 'object',
+			'properties' => Products::get_product_data_schema(),
 		);
 	}
 
@@ -107,9 +121,7 @@ class REST_Products {
 	 * @return array of site products list.
 	 */
 	public static function get_products() {
-		$response = array(
-			'products' => Products::get_products(),
-		);
+		$response = Products::get_products();
 		return rest_ensure_response( $response, 200 );
 	}
 
@@ -121,10 +133,7 @@ class REST_Products {
 	 */
 	public static function get_product( $request ) {
 		$product_slug = $request->get_param( 'product' );
-		$response     = array(
-			'products' => array( Products::get_product( $product_slug ) ),
-		);
-		return rest_ensure_response( $response, 200 );
+		return rest_ensure_response( Products::get_product( $product_slug ), 200 );
 	}
 
 	/**
@@ -152,30 +161,19 @@ class REST_Products {
 		$product_slug = $request->get_param( 'product' );
 		$product      = Products::get_product( $product_slug );
 		if ( ! isset( $product['class'] ) ) {
-			return new \WP_REST_Response(
-				array(
-					'error_message' => 'not_implemented',
-				),
-				400
+			return new \WP_Error(
+				'not_implemented',
+				esc_html__( 'The product class handler is not implemented', 'jetpack-my-jetpack' ),
+				array( 'status' => 400 )
 			);
 		}
 
-		$success       = call_user_func( array( $product['class'], 'activate' ) );
-		$error_code    = '';
-		$error_message = '';
-		if ( is_wp_error( $success ) ) {
-			$error_code    = $success->get_error_code();
-			$error_message = $success->get_error_message();
-			$success       = false;
+		$activate_product_result = call_user_func( array( $product['class'], 'activate' ) );
+		if ( is_wp_error( $activate_product_result ) ) {
+			return $activate_product_result;
 		}
-		$response = array(
-			'success'       => $success,
-			'products'      => array( Products::get_product( $product_slug ) ),
-			'error_code'    => $error_code,
-			'error_message' => $error_message,
-		);
-		return rest_ensure_response( $response, 200 );
 
+		return rest_ensure_response( Products::get_product( $product_slug ), 200 );
 	}
 
 	/**
@@ -188,37 +186,19 @@ class REST_Products {
 		$product_slug = $request->get_param( 'product' );
 		$product      = Products::get_product( $product_slug );
 		if ( ! isset( $product['class'] ) ) {
-			return new \WP_REST_Response(
-				array(
-					'error_message' => 'not_implemented',
-				),
-				400
+			return new \WP_Error(
+				'not_implemented',
+				esc_html__( 'The product class handler is not implemented', 'jetpack-my-jetpack' ),
+				array( 'status' => 400 )
 			);
 		}
 
-		$success  = call_user_func( array( $product['class'], 'deactivate' ) );
-		$response = array(
-			'success'  => $success,
-			'products' => array( Products::get_product( $product_slug ) ),
-		);
-		return rest_ensure_response( $response, 200 );
-
-	}
-
-	/**
-	 * Set site product state.
-	 *
-	 * @param \WP_REST_Request $request The request object.
-	 * @return array of site products list.
-	 */
-	public static function set_product_state( $request ) {
-		$product_slug = $request->get_param( 'product' );
-		$activate     = $request->get_param( 'activate' );
-
-		if ( $activate ) {
-			return Products::activate_backup_product( $product_slug );
+		$deactivate_product_result = call_user_func( array( $product['class'], 'deactivate' ) );
+		if ( is_wp_error( $deactivate_product_result ) ) {
+			return $deactivate_product_result;
 		}
 
-		return Products::deactivate_backup_product( $product_slug );
+		return rest_ensure_response( Products::get_product( $product_slug ), 200 );
 	}
+
 }
