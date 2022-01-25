@@ -25,6 +25,9 @@ const deprecatedAttributes = [
 
 const v2 = {
 	defaultAttributes,
+	supports: {
+		html: false,
+	},
 	save: () => <InnerBlocks.Content />,
 };
 
