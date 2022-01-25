@@ -1,8 +1,5 @@
 import logger from 'jetpack-e2e-commons/logger.cjs';
-import {
-	execDockerShellCommand,
-	execWpCommand,
-} from 'jetpack-e2e-commons/helpers/utils-helper.cjs';
+import { execWpCommand } from 'jetpack-e2e-commons/helpers/utils-helper.cjs';
 
 import { expect } from '@playwright/test';
 import { JetpackBoostPage } from '../pages/index.js';
@@ -88,18 +85,10 @@ export async function ensureModulesState( modules ) {
 export async function ensureMockSpeedScoreState( mockSpeedScore ) {
 	if ( mockSpeedScore ) {
 		logger.prerequisites( 'Mocking Speed Score' );
-
-		// Copy the speed-score mock plugin in place
-		const pluginSrc =
-			'/usr/local/src/jetpack-monorepo/projects/plugins/boost/tests/e2e/plugins/e2e-mock-speed-score-api.php';
-		const wpPlugins = '/var/www/html/wp-content/plugins';
-		await execDockerShellCommand( `cp ${ pluginSrc } ${ wpPlugins }` );
-
 		// Enable the speed score mock plugin.
 		await execWpCommand( 'plugin activate e2e-mock-speed-score-api' );
 	} else {
 		logger.prerequisites( 'Unmocking Speed Score' );
-
 		await execWpCommand( 'plugin deactivate e2e-mock-speed-score-api' );
 	}
 }
