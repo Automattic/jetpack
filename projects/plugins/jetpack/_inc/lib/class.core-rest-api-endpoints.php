@@ -3713,7 +3713,6 @@ class Jetpack_Core_Json_Api_Endpoints {
 
 		// If not installed, let's install now.
 		if ( ! $plugin_id ) {
-			error_log( 'asdasdasdasdasdasdsadasdasdasdsadasdasdsa');
 			$result = Jetpack_Plugins::install_plugin( $plugin );
 
 			if ( is_wp_error( $result ) ) {
