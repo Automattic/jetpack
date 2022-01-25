@@ -1,0 +1,4 @@
+Significance: patch
+Type: changed
+
+Update documentation for moving of the handling of package→plugin path mapping into jetpack-composer-plugin and jetpack-assets.

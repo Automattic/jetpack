@@ -31,7 +31,7 @@ Parameters recognized by the plugin are:
 - `loaderModule`: The name of a module supplying the i18n loader. See [Loader module](#loader-module) below for details.
 - `loaderMethod`: The name of the function from `loaderModule` to download the i18n. See [Loader module](#loader-module) below for details.
 - `target`: The target of the build: 'plugin' (the default), 'theme', or 'core'. This is used to determine where in WordPress's languages directory to look for the translation files.
-- `path`: See [Webpack context](#webpack-context) and [Use in Composer packages](#use-in-composer-packages) below for details.
+- `path`: See [Webpack context](#webpack-context) below for details.
 - `ignoreModules`: If some bundles in your build depend on [@wordpress/i18n] for purposes other than translating strings, i18n-loader-webpack-plugin will none the less count them as "using @wordpress/i18n" which may result in it trying to load translations for bundles that do not need it. This option may be used to ignore the relevant source files when examining the bundles.
 
   The value may be a function, which will be passed the file path relative to [Webpack's context] and the Webpack Module object and which should return true if the file should be ignored, or a string or RegExp to be compared with the relative file path, or an array of such strings, RegExps, and/or functions.
@@ -76,7 +76,7 @@ Most likely the method will separate any query part from the path, hash it, buil
 
 WordPress's translation infrastructure generates a file for each JS script named like "_textdomain_-_locale_-_hash_.json". The _hash_ is an MD5 hash of the path of the script file relative to the plugin's root.
 
-I18n-loader-webpack-plugin assumes that [Webpack's context] is the base of the WordPress plugin in which the bundles will be included.
+I18n-loader-webpack-plugin assumes that [Webpack's context] is the base of the WordPress package or plugin in which the bundles will be included, and that the [loader module](#loader-module) will handle mapping from package root to plugin root.
 If this is not the case, you'll need to set the plugin's `path` parameter to the relative path from the plugin's root to Webpack's `output.path`.
 
 ### Other useful Webpack configuration
@@ -97,8 +97,6 @@ Composer packages are useful for holding shared code, but when it comes to WordP
 WordPress's plugin infrastructure doesn't natively support Composer packages, so the usual thing to do is to include the `vendor/` directory in the push to the WordPress.org SVN.
 That won't work for packages needing translation, though, as WordPress's translation infrastructure ignores the `vendor/` directory when looking for strings to be translated.
 You'll need to use something like [automattic/jetpack-composer-plugin] so that the composer packages with translated strings are installed to a different path.
-
-Then, for Webpack builds in the Composer package, you'll need to set i18n-loader-webpack-plugin's `path` option to the path relative to the _plugin's_ root directory. For example, if your Composer package is named "automattic/foobar", will be used with [automattic/jetpack-composer-plugin] which will install the package to `jetpack_vendor/` rather than `vendor/`, and Webpack is building to a `build/` directory within the package, you'd need to set `path` to `jetpack_vendor/automattic/foobar/build/` as that's where the built files will end up relative to the plugin.
 
 Also, as the translation file will be named using the plugin's textdomain rather than the Composer package's, the consuming plugin will also need to arrange for the [loader module](#loader-module) to fetch the proper file.
 This may be done using [automattic/jetpack-assets] along with [automattic/jetpack-composer-plugin], as described in the latter's documentation.

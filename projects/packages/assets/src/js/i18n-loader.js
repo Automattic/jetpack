@@ -14,6 +14,7 @@ module.exports = {
 		baseUrl: null,
 		locale: null,
 		domainMap: {},
+		domainPaths: {},
 	},
 
 	/**
@@ -41,13 +42,14 @@ module.exports = {
 		}
 
 		// Extract any query part and hash the script name like WordPress does.
+		const pathPrefix = hasOwn( state.domainPaths, domain ) ? state.domainPaths[ domain ] : '';
 		let hash, query;
 		const i = path.indexOf( '?' );
 		if ( i >= 0 ) {
-			hash = md5.hash( path.substring( 0, i ) );
+			hash = md5.hash( pathPrefix + path.substring( 0, i ) );
 			query = path.substring( i );
 		} else {
-			hash = md5.hash( path );
+			hash = md5.hash( pathPrefix + path );
 			query = '';
 		}
 

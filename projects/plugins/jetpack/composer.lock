@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "4e0657836c2a099f253a650fac6abf39",
+    "content-hash": "1d4c429182c3873ea4bae518a3d4d268",
     "packages": [
         {
             "name": "automattic/jetpack-a8c-mc-stats",
@@ -449,7 +449,7 @@
             "dist": {
                 "type": "path",
                 "url": "../../packages/composer-plugin",
-                "reference": "d9a79b97dbf363bdffb2f748e0dbed8216753c36"
+                "reference": "c3fc0e4cf179c619f896174a6c9db8e70cff74c3"
             },
             "require": {
                 "composer-plugin-api": "^2.1.0"
@@ -468,7 +468,7 @@
                 },
                 "autotagger": true,
                 "branch-alias": {
-                    "dev-master": "1.0.x-dev"
+                    "dev-master": "1.1.x-dev"
                 }
             },
             "autoload": {

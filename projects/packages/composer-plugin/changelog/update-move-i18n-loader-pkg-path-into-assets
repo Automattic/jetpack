@@ -1,0 +1,4 @@
+Significance: minor
+Type: added
+
+Include package path prefixes in `i18n-map.php` so Assets can map them when lazy-loading.
