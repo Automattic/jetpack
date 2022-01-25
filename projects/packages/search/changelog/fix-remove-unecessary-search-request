@@ -1,4 +1,0 @@
-Significance: patch
-Type: fixed
-
-Search widget: changed fetching search result to just before rendering jp search widget
