@@ -249,7 +249,7 @@ class Identity_Crisis {
 
 		$title = sprintf(
 			'<span class="jp-idc-admin-bar">%s %s</span>',
-			'<span class="dashicons dashicons-warning"></span>',
+			'<span class="dashicons dashicons-info-outline"></span>',
 			esc_html__( 'Jetpack Safe Mode', 'jetpack-idc' )
 		);
 
