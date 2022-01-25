@@ -25,6 +25,10 @@ const products = ( state = {}, action ) => {
 					...state.isFetching,
 					[ productId ]: isFetching,
 				},
+				errors: {
+					...state.errors,
+					[ productId ]: isFetching ? undefined : state.errors[ productId ],
+				},
 			};
 		}
 
