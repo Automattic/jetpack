@@ -242,12 +242,34 @@ Jetpack Backup can do a full website migration to a new host, migrate theme file
 4. Promote your newest posts, pages, and products across your social media channels.
 
 == Changelog ==
-### 10.6-a.3 - 2022-01-18
+### 10.6-beta - 2022-01-25
 #### Enhancements
+- Contact Info and Markdown Blocks: add color, typography and spacing features.
+- Dashboard: support Beta versions of Automattic plugins in plugin cards.
 - Embeds: add support for Descript.com embeds.
 - Image Compare Block: Add `wide` and `full` alignment options
 - Pay with PayPal Block: do not display the block on the frontend if PayPal is misconfigured.
+- Search: improve accessibility via headings hierarchy and aria roles.
 - Stats: add new filter allowing site owners to exclude IP addresses from being tracked in stats.
+- Tiled Gallery Block: improve the block so it can be used within the mobile applications.
+
+#### Improved compatibility
+- Instant Search: synchronize more meta data so the search feature can be used with more third-party plugins.
+- Sharing / AMP plugin: avoid adding sharing's CSS on AMP pages when the sharing feature is not active.
+- Subscription form: update the placeholder color to be the same as the text color of the site.
+
+#### Bug fixes
+- Backups: hide backup preparation message for sites without backup.
+- Connection: correctly request list of active features so they can be activated on a reconnection.
+- Donations block: add a missing closing div for the front-end rendering.
+- Donations block: don't display the donations block to visitors unless Stripe is connected.
+- Donations block: fixed an issue which was invalidating existing blocks if they were edited by non-plan owners.
+- Donations block: tweak currency display for the edit control.
+- Pay with Paypal Block: properly display the card icons below the button.
+- Protect: fixed math fallback's input accessibility and display.
+- Scan: avoid PHP notice when non-admin users access the dashboard.
+- Subscription form: adding a default line-height to avoid differences using different font-faces on input and button elements
+- Widget Visibility: ensure it remains possible to edit visibility for legacy widgets in the block-based widget editor.
 
 --------
 
