@@ -37,11 +37,6 @@ const Controls = props => {
 					} }
 					label={ __( 'Show annual donations', 'jetpack' ) }
 				/>
-				<ToggleControl
-					checked={ attributes.customAmount }
-					onChange={ value => setAttributes( { customAmount: value } ) }
-					label={ __( 'Show custom amount option', 'jetpack' ) }
-				/>
 				<ExternalLink href={ `https://wordpress.com/earn/payments/${ getSiteFragment() }` }>
 					{ __( 'View donation earnings', 'jetpack' ) }
 				</ExternalLink>
