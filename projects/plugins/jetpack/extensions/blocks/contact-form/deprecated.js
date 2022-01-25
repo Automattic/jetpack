@@ -24,7 +24,9 @@ const deprecatedAttributes = [
 ];
 
 const v2 = {
-	defaultAttributes,
+	attributes: {
+		...defaultAttributes,
+	},
 	supports: {
 		html: false,
 	},
