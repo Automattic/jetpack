@@ -22,12 +22,19 @@ jobs:
       matrix: ${{ steps.create-projects-matrix.outputs.matrix }}
     steps:
       - uses: actions/checkout@v2
+      # For pull requests, list-changed-projects.php needs the merge base.
+      - name: Deepen to merge base
+        if: github.event_name == 'pull_request'
+        uses: ./.github/actions/deepen-to-merge-base
+
       - id: create-projects-matrix
         run: |
           PROJECTS='[{"project":"Jetpack","path":"projects/plugins/jetpack/tests/e2e"},{"project":"Boost","path":"projects/plugins/boost/tests/e2e"}]'
           echo $PROJECTS
 
-          # should check changed files here and decide which project should run
+          # Check changed projects and decide which e2e tests should run
+          CHANGED_PROJECTS="$(.github/files/list-changed-projects.php --debug)"
+          echo $CHANGED_PROJECTS
 
           echo "::set-output name=matrix::$PROJECTS"
 
@@ -85,9 +92,9 @@ jobs:
     - name: Send Slack notification
       env:
         GITHUB_CONTEXT: ${{ toJson(github) }}
-        REPORT: ${{ matrix.project }}
+        SUITE: ${{ matrix.project }}
       working-directory: ${{ matrix.path }}
-      run: pnpm run slack -- --report $REPORT
+      run: pnpm run slack -- suite $SUITE
 
     - name: Test environment tear-down
       if: ${{ always() }}
