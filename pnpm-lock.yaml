@@ -655,6 +655,7 @@ importers:
       '@wordpress/components': 19.1.6
       '@wordpress/data': 6.1.5
       '@wordpress/i18n': 4.2.4
+      '@wordpress/icons': 6.1.1
       classnames: 2.3.1
       enzyme: 3.11.0
       jest: 27.3.1
@@ -673,6 +674,7 @@ importers:
       '@wordpress/components': 19.1.6_aae888dfa296766acacf1a733aa50b3a
       '@wordpress/data': 6.1.5_react@17.0.2
       '@wordpress/i18n': 4.2.4
+      '@wordpress/icons': 6.1.1
       classnames: 2.3.1
       prop-types: 15.8.1
     devDependencies:
@@ -19676,7 +19678,7 @@ packages:
     dependencies:
       array.prototype.flat: 1.2.5
       global-cache: 1.2.1
-      react-with-styles: 3.2.3
+      react-with-styles: 3.2.3_react-dom@17.0.2+react@17.0.2
 
   /react-with-styles/3.2.3:
     resolution: {integrity: sha512-MTI1UOvMHABRLj5M4WpODfwnveHaip6X7QUMI2x6zovinJiBXxzhA9AJP7MZNaKqg1JRFtHPXZdroUC8KcXwlQ==}
@@ -20730,7 +20732,7 @@ packages:
       klona: 2.0.5
       neo-async: 2.6.2
       sass: 1.43.3
-      webpack: 5.65.0_webpack-cli@4.9.1
+      webpack: 5.65.0
     dev: true
 
   /sass-loader/12.4.0_webpack@5.65.0:
