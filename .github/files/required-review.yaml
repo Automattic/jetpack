@@ -22,6 +22,7 @@
   paths:
    - 'projects/packages/**'
    - 'projects/plugins/jetpack/**'
+   - '!projects/packages/search/**'
   teams:
    - jetpack-approvers
 

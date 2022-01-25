@@ -1,7 +1,7 @@
 /**
  * External dependencies
  */
-import React from 'react';
+import React, { useEffect } from 'react';
 import { __ } from '@wordpress/i18n';
 import {
 	AdminSection,
@@ -11,10 +11,14 @@ import {
 	Col,
 } from '@automattic/jetpack-components';
 
+/**
+ * Internal dependencies
+ */
 import './style.scss';
 import ConnectionsSection from '../connections-section';
 import PlansSection from '../plans-section';
 import ProductCardsSection from '../product-cards-section';
+import useAnalytics from '../../hooks/use-analytics';
 
 /**
  * The My Jetpack App Main Screen.
@@ -22,6 +26,12 @@ import ProductCardsSection from '../product-cards-section';
  * @returns {object} The MyJetpackScreen component.
  */
 export default function MyJetpackScreen() {
+	const {
+		tracks: { recordEvent },
+	} = useAnalytics();
+	useEffect( () => {
+		recordEvent( 'jetpack_myjetpack_page_view' );
+	}, [ recordEvent ] );
 	return (
 		<div className="jp-my-jetpack-screen">
 			<AdminPage>

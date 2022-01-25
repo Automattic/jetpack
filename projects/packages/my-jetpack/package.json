@@ -21,6 +21,7 @@
 		"test": "js-test-runner jest --passWithNoTests --setupFilesAfterEnv ./jest.setup.js"
 	},
 	"dependencies": {
+		"@automattic/jetpack-analytics": "workspace:^0.1.7-alpha",
 		"@automattic/jetpack-components": "workspace:^0.10.3-alpha",
 		"@automattic/jetpack-connection": "workspace:^0.14.0-alpha",
 		"@wordpress/components": "19.1.6",

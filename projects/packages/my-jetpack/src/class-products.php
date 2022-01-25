@@ -63,6 +63,20 @@ class Products {
 			'title'      => 'The requested product data',
 			'type'       => 'object',
 			'properties' => array(
+				'product'     => array(
+					'description'       => __( 'Product slug', 'jetpack-my-jetpack' ),
+					'type'              => 'string',
+					'enum'              => __CLASS__ . '::get_product_names',
+					'required'          => false,
+					'validate_callback' => __CLASS__ . '::check_product_argument',
+				),
+				'action'      => array(
+					'description'       => __( 'Production action to execute', 'jetpack-my-jetpack' ),
+					'type'              => 'string',
+					'enum'              => array( 'activate', 'deactivate' ),
+					'required'          => false,
+					'validate_callback' => __CLASS__ . '::check_product_argument',
+				),
 				'slug'        => array(
 					'title' => 'The product slug',
 					'type'  => 'string',
@@ -99,6 +113,33 @@ class Products {
 			'description' => __( 'Stop comment and form spam', 'jetpack-my-jetpack' ),
 			'name'        => __( 'Anti-spam', 'jetpack-my-jetpack' ),
 			'status'      => 'inactive',
+		);
+	}
+
+	/**
+	 * Activate Backup product
+	 */
+	public static function activate_backup_product() {
+		/*
+		 * @todo: implement
+		 * suggestion: when it enables, return an success array:
+		 * array( 'status' => 'activated' );
+		 * Otherwise, an WP_Error instance will be nice.
+		 */
+		return array(
+			'status' => 'active',
+		);
+	}
+
+	/**
+	 * Deactivate Backup product
+	 */
+	public static function deactivate_backup_product() {
+		/*
+		 * @todo: implement
+		 */
+		return array(
+			'status' => 'inactive',
 		);
 	}
 
