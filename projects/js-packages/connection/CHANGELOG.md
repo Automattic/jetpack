@@ -2,6 +2,10 @@
 
 ### This is a list detailing changes for the Jetpack RNA Connection Component releases.
 
+## 0.13.2 - 2022-01-25
+### Fixed
+- Fix access to display_name property in connection status card
+
 ## 0.13.1 - 2022-01-17
 ### Changed
 - Updated package dependencies.
