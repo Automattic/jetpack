@@ -17,7 +17,8 @@
 		"test": "pnpx concurrently 'pnpm:test-scripts' 'pnpm:test-size'",
 		"test-scripts": "jest --passWithNoTests",
 		"test-size": "NODE_ENV=production BABEL_ENV=production pnpm run build-instant && size-limit",
-		"validate": "pnpm exec validate-es --no-error-on-unmatched-pattern build/"
+		"validate": "pnpm exec validate-es --no-error-on-unmatched-pattern build/",
+		"watch": "pnpx concurrently 'pnpm:build-instant -- --watch' 'pnpm:build-customberg -- --watch' 'pnpm:build-dashboard -- --watch'"
 	},
 	"repository": {
 		"type": "git",

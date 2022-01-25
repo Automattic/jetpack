@@ -1491,7 +1491,7 @@
             "dist": {
                 "type": "path",
                 "url": "../../packages/search",
-                "reference": "c1c718a08cf1d0b11804ea40ac1fc5741cc5ff96"
+                "reference": "b25ad52d55b4da78cfb1885f2f6d4922d476b9c9"
             },
             "require": {
                 "automattic/jetpack-assets": "^1.17",
@@ -1548,6 +1548,10 @@
                 ],
                 "post-update-cmd": [
                     "php -r \"copy('vendor/automattic/wordbless/src/dbless-wpdb.php', 'wordpress/wp-content/db.php');\""
+                ],
+                "watch": [
+                    "Composer\\Config::disableProcessTimeout",
+                    "pnpm run watch"
                 ]
             },
             "license": [
