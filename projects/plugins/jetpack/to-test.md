@@ -18,7 +18,7 @@ In this release, we've continued to make progress towards a Jetpack Search plugi
 
 ### Pay with PayPal Block
 
-In this release we've fixed some bugs with this block. It's a good opportunity to test it again. You'll need to purchase a paid bundle first, such as the Complete plan. Then, head to Posts > Add New and try adding a Pay with PayPal block. Let us know if you run into any issues with layout in the editor, currencies, or layout on the site's frontend.
+In this release we've fixed some bugs with this block. It's a good opportunity to test it again. You'll need to purchase a paid bundle first, such as the Complete plan. Then, head to Posts > Add New and try adding a Pay with PayPal block. Let us know if you run into any issues with the layout in the editor, currencies, or layout on the site's frontend.
 
 ### Tiled Gallery Block
 
