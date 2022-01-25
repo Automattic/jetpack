@@ -350,7 +350,7 @@ importers:
   projects/js-packages/partner-coupon:
     specifiers:
       '@automattic/jetpack-components': workspace:^0.10.3
-      '@automattic/jetpack-connection': workspace:^0.14.0
+      '@automattic/jetpack-connection': workspace:^0.14.1-alpha
       '@babel/core': 7.16.0
       '@babel/preset-react': 7.16.0
       '@wordpress/i18n': 4.2.4
@@ -536,7 +536,7 @@ importers:
   projects/packages/connection-ui:
     specifiers:
       '@automattic/jetpack-api': workspace:^0.8.3
-      '@automattic/jetpack-connection': workspace:^0.14.0
+      '@automattic/jetpack-connection': workspace:^0.14.1-alpha
       '@automattic/jetpack-webpack-config': workspace:^1.1.0
       '@babel/core': 7.16.0
       '@babel/preset-env': 7.16.4
@@ -640,7 +640,7 @@ importers:
       '@automattic/jetpack-analytics': workspace:^0.1.7
       '@automattic/jetpack-base-styles': workspace:^0.1.7
       '@automattic/jetpack-components': workspace:^0.10.3
-      '@automattic/jetpack-connection': workspace:^0.14.0
+      '@automattic/jetpack-connection': workspace:^0.14.1-alpha
       '@automattic/jetpack-webpack-config': workspace:^1.1.0
       '@babel/core': 7.16.0
       '@babel/preset-env': 7.16.4
@@ -802,7 +802,7 @@ importers:
       '@automattic/jetpack-api': workspace:^0.8.3
       '@automattic/jetpack-base-styles': workspace:^0.1.7
       '@automattic/jetpack-components': workspace:^0.10.3
-      '@automattic/jetpack-connection': workspace:^0.14.0
+      '@automattic/jetpack-connection': workspace:^0.14.1-alpha
       '@automattic/jetpack-webpack-config': workspace:^1.1.0
       '@babel/core': 7.16.0
       '@babel/preset-env': 7.16.4
@@ -925,9 +925,9 @@ importers:
       '@automattic/jetpack-api': workspace:^0.8.3
       '@automattic/jetpack-base-styles': workspace:^0.1.7
       '@automattic/jetpack-components': workspace:^0.10.3
-      '@automattic/jetpack-connection': workspace:^0.14.0
+      '@automattic/jetpack-connection': workspace:^0.14.1-alpha
       '@automattic/jetpack-licensing': workspace:^0.4.4
-      '@automattic/jetpack-partner-coupon': workspace:^0.1.6
+      '@automattic/jetpack-partner-coupon': workspace:^0.1.7-alpha
       '@automattic/jetpack-webpack-config': workspace:^1.1.0
       '@automattic/popup-monitor': 1.0.0
       '@automattic/remove-asset-webpack-plugin': workspace:^1.0.3
