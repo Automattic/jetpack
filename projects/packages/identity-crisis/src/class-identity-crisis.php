@@ -247,10 +247,15 @@ class Identity_Crisis {
 
 		$href = wp_nonce_url( $href, 'jetpack_idc_clear_confirmation' );
 
+		$consumer_data = UI::get_consumer_data();
+		$label         = isset( $consumer_data['customContent']['adminBarSafeModeLabel'] )
+			? esc_html( $consumer_data['customContent']['adminBarSafeModeLabel'] )
+			: esc_html__( 'Jetpack Safe Mode', 'jetpack-idc' );
+
 		$title = sprintf(
 			'<span class="jp-idc-admin-bar">%s %s</span>',
 			'<span class="dashicons dashicons-info-outline"></span>',
-			esc_html__( 'Jetpack Safe Mode', 'jetpack-idc' )
+			$label
 		);
 
 		$menu = array(
