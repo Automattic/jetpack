@@ -1,0 +1,4 @@
+Significance: minor
+Type: added
+
+Jetpack Search :: update the allowed post meta when search is active to include all indexable meta.

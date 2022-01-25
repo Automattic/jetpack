@@ -1,5 +1,4 @@
 <?php
-
 /**
  * Module Name: Markdown
  * Module Description: Write posts or pages in plain-text Markdown syntax
@@ -10,9 +9,12 @@
  * Module Tags: Writing
  * Feature: Writing
  * Additional Search Queries: md, markdown
+ *
+ * @package automattic/jetpack
  */
 
-include dirname( __FILE__ ) . '/markdown/easy-markdown.php';
+// Require the markdown class file.
+require __DIR__ . '/markdown/easy-markdown.php';
 
 /**
  * Remove checkbox set in modules/markdown/easy-markdown.php.

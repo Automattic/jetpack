@@ -93,6 +93,11 @@ class Admin_Sidebar_Link {
 	private function get_link_offset() {
 		global $submenu;
 		$offset = 0;
+
+		if ( ! array_key_exists( 'jetpack', $submenu ) ) {
+			return $offset;
+		}
+
 		foreach ( $submenu['jetpack'] as $link ) {
 			if ( 'jetpack_admin_page' !== $link[1] ) {
 				break;
@@ -193,5 +198,3 @@ class Admin_Sidebar_Link {
 		$this->schedule_refresh_checked = true;
 	}
 }
-
-

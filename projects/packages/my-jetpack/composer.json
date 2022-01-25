@@ -6,15 +6,19 @@
 	"require": {
 		"automattic/jetpack-admin-ui": "^0.2",
 		"automattic/jetpack-assets": "^1.17",
-		"automattic/jetpack-connection": "^1.36"
+		"automattic/jetpack-connection": "^1.36",
+		"automattic/jetpack-terms-of-service": "^1.9",
+		"automattic/jetpack-tracking": "^1.14"
 	},
 	"require-dev": {
 		"yoast/phpunit-polyfills": "1.0.3",
-		"automattic/jetpack-changelogger": "^3.0"
+		"automattic/jetpack-changelogger": "^3.0",
+		"automattic/wordbless": "@dev"
 	},
 	"autoload": {
 		"classmap": [
-			"src/"
+			"src/",
+			"src/products"
 		]
 	},
 	"scripts": {
@@ -44,7 +48,8 @@
 		"watch": [
 			"Composer\\Config::disableProcessTimeout",
 			"pnpm run watch"
-		]
+		],
+		"post-update-cmd": "php -r \"copy('vendor/automattic/wordbless/src/dbless-wpdb.php', 'wordpress/wp-content/db.php');\""
 	},
 	"repositories": [
 		{
@@ -66,6 +71,11 @@
 		},
 		"branch-alias": {
 			"dev-master": "0.4.x-dev"
+		}
+	},
+	"config": {
+		"allow-plugins": {
+			"roots/wordpress-core-installer": true
 		}
 	}
 }

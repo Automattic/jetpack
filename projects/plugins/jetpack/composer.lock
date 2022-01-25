@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "1d4c429182c3873ea4bae518a3d4d268",
+    "content-hash": "fc04d854164baae04258770ecb0fe4ca",
     "packages": [
         {
             "name": "automattic/jetpack-a8c-mc-stats",
@@ -294,11 +294,11 @@
             "dist": {
                 "type": "path",
                 "url": "../../packages/backup",
-                "reference": "03b3ccb89caaa50471e57b3972a91a89087e0949"
+                "reference": "281aecc8c5f48a483bd931c61d64d50a66f3b741"
             },
             "require": {
                 "automattic/jetpack-connection": "^1.36",
-                "automattic/jetpack-sync": "^1.28"
+                "automattic/jetpack-sync": "^1.29"
             },
             "require-dev": {
                 "automattic/jetpack-changelogger": "^3.0",
@@ -1164,15 +1164,18 @@
             "dist": {
                 "type": "path",
                 "url": "../../packages/my-jetpack",
-                "reference": "d291998f5499fb66c084e73a60d26399ed54b18d"
+                "reference": "9675f2ecb0c79671aac9f402ab1836f827a1ead5"
             },
             "require": {
                 "automattic/jetpack-admin-ui": "^0.2",
                 "automattic/jetpack-assets": "^1.17",
-                "automattic/jetpack-connection": "^1.36"
+                "automattic/jetpack-connection": "^1.36",
+                "automattic/jetpack-terms-of-service": "^1.9",
+                "automattic/jetpack-tracking": "^1.14"
             },
             "require-dev": {
                 "automattic/jetpack-changelogger": "^3.0",
+                "automattic/wordbless": "@dev",
                 "yoast/phpunit-polyfills": "1.0.3"
             },
             "type": "jetpack-library",
@@ -1189,7 +1192,8 @@
             },
             "autoload": {
                 "classmap": [
-                    "src/"
+                    "src/",
+                    "src/products"
                 ]
             },
             "scripts": {
@@ -1219,6 +1223,9 @@
                 "watch": [
                     "Composer\\Config::disableProcessTimeout",
                     "pnpm run watch"
+                ],
+                "post-update-cmd": [
+                    "php -r \"copy('vendor/automattic/wordbless/src/dbless-wpdb.php', 'wordpress/wp-content/db.php');\""
                 ]
             },
             "license": [
@@ -1610,7 +1617,7 @@
             "dist": {
                 "type": "path",
                 "url": "../../packages/sync",
-                "reference": "5d145ec6f50d6ac62118cf89c9243b65e53fb908"
+                "reference": "cad6e550e4c76cc17cab3ddef0829b67e2c04838"
             },
             "require": {
                 "automattic/jetpack-connection": "^1.36",
@@ -1639,7 +1646,7 @@
                     "link-template": "https://github.com/Automattic/jetpack-sync/compare/v${old}...v${new}"
                 },
                 "branch-alias": {
-                    "dev-master": "1.28.x-dev"
+                    "dev-master": "1.29.x-dev"
                 }
             },
             "autoload": {

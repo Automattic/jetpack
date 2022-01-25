@@ -6,23 +6,25 @@ import pluralize from 'pluralize';
 import inquirer from 'inquirer';
 import chalk from 'chalk';
 import fs from 'fs';
+import { fileURLToPath } from 'url';
+import semver from 'semver';
 import yaml from 'js-yaml';
 
 /**
  * Internal dependencies
  */
-import { promptForType, promptForName } from '../helpers/promptForProject';
-import { projectTypes, checkNameValid } from '../helpers/projectHelpers';
+import { promptForType, promptForName } from '../helpers/promptForProject.js';
+import { projectTypes, checkNameValid } from '../helpers/projectHelpers.js';
 import {
 	readPackageJson,
 	readComposerJson,
 	writePackageJson,
 	writeComposerJson,
-} from '../helpers/json';
-import { normalizeGenerateArgv } from '../helpers/normalizeArgv';
-import mergeDirs from '../helpers/mergeDirs';
-import { chalkJetpackGreen } from '../helpers/styling';
-import { doesRepoExist } from '../helpers/github';
+} from '../helpers/json.js';
+import { normalizeGenerateArgv } from '../helpers/normalizeArgv.js';
+import mergeDirs from '../helpers/mergeDirs.js';
+import { chalkJetpackGreen } from '../helpers/styling.js';
+import { doesRepoExist } from '../helpers/github.js';
 
 /**
  * Entry point for the CLI.
@@ -219,7 +221,9 @@ export async function generateProject(
 ) {
 	const type = pluralize( answers.type );
 	const project = type + '/' + answers.name;
-	const projDir = path.join( __dirname, '../../..', 'projects/', type, answers.name );
+	const projDir = fileURLToPath(
+		new URL( `../../../projects/${ type }/${ answers.name }`, import.meta.url )
+	);
 
 	createSkeleton( type, projDir, answers.name );
 
@@ -266,7 +270,9 @@ function generatePlugin( answers, pluginDir ) {
 
 	// Fill in the README.txt file
 	const readmeTxtContent = createReadMeTxt( answers );
-	const readmeTxtPath = path.join( __dirname, '../', 'skeletons/plugins/readme.txt' );
+	const readmeTxtPath = fileURLToPath(
+		new URL( '../skeletons/plugins/readme.txt', import.meta.url )
+	);
 	const readmeTxtData = fs.readFileSync( readmeTxtPath, 'utf8' );
 	writeToFile( pluginDir + '/README.txt', readmeTxtContent + readmeTxtData );
 }
@@ -291,7 +297,7 @@ function generateAction( answers, actDir ) {
  * @param {string} name - Name of new project.
  */
 function createSkeleton( type, dir, name ) {
-	const skeletonDir = path.join( __dirname, '../skeletons' );
+	const skeletonDir = fileURLToPath( new URL( '../skeletons', import.meta.url ) );
 
 	// Copy the skeletons over.
 	try {
@@ -324,6 +330,17 @@ function createPackageJson( packageJson, answers ) {
 				"NODE_ENV=test NODE_PATH=tests:. js-test-runner --jsdom --initfile=test-main.jsx 'glob:./!(node_modules)/**/test/*.@(jsx|js)'",
 		};
 		packageJson.devDependencies = { 'jetpack-js-test-runner': 'workspace:*' };
+
+		// Since `createComposerJson()` adds a use of `nyc`, we need to depend on it here too.
+		// Look for which version is currently in use.
+		const yamlFile = yaml.load(
+			fs.readFileSync( new URL( '../../../pnpm-lock.yaml', import.meta.url ), 'utf8' )
+		);
+		const nycVersion = Object.keys( yamlFile.packages ).reduce( ( value, cur ) => {
+			const ver = cur.match( /^\/nyc\/([^_]+)/ )?.[ 1 ];
+			return ! value || ( ver && semver.gt( ver, value ) ) ? ver : value;
+		}, null );
+		packageJson.devDependencies.nyc = nycVersion || '*';
 	}
 }
 
