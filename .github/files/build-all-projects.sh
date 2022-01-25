@@ -190,7 +190,7 @@ for SLUG in "${SLUGS[@]}"; do
 		# Copy the resulting list of files into the clone.
 		xargs cp --parents --target-directory="$BUILD_DIR"
 
-	if [[ "$SLUG" == "plugins/jetpack" ]]; then
+	if [[ "$SLUG" == "plugins/jetpack" || "$SLUG" == "plugins/backup" ]]; then
 		echo "::group::Copying Jetpack files for backward compatibility."
 
 		OLD_VENDOR_DIR="$BUILD_DIR/vendor"

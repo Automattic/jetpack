@@ -23,8 +23,6 @@ An object with details about the product.
 
 Returns the current products list of My Jetpack.
 
-An array with all products list.
-
 ### activate( <productSlug> )
 A helper function to activate a product.
 
