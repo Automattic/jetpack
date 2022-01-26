@@ -16,7 +16,7 @@ export const PRODUCT_STATUSES = {
 	ACTIVE: 'active',
 	INACTIVE: 'inactive',
 	ERROR: 'error',
-	ABSENT: 'absent',
+	ABSENT: 'plugin_absent',
 };
 
 const PRODUCT_STATUSES_LABELS = {
@@ -104,7 +104,7 @@ const ProductCard = props => {
 	const canDeactivate = ( isActive || isError ) && admin;
 
 	const containerClassName = classNames( styles.container, {
-		[ styles.absent ]: isAbsent,
+		[ styles.plugin_absent ]: isAbsent,
 	} );
 
 	const statusClassName = classNames( styles.status, {
