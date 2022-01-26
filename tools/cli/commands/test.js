@@ -12,10 +12,10 @@ import UpdateRenderer from 'listr-update-renderer';
 /**
  * Internal dependencies
  */
-import installProjectTask from '../helpers/tasks/installProjectTask';
-import promptForProject from '../helpers/promptForProject';
+import installProjectTask from '../helpers/tasks/installProjectTask.js';
+import promptForProject from '../helpers/promptForProject.js';
 import { readComposerJson } from '../helpers/json.js';
-import { allProjects } from '../helpers/projectHelpers';
+import { allProjects } from '../helpers/projectHelpers.js';
 
 /**
  * Command definition for the test subcommand.

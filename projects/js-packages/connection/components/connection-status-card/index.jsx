@@ -147,7 +147,8 @@ const ConnectionStatusCard = props => {
 
 				{ isUserConnected && (
 					<li className="jp-connection-status-card--list-item-success">
-						{ __( 'Logged in as', 'jetpack' ) } { userConnectionData?.display_name }
+						{ __( 'Logged in as', 'jetpack' ) }{ ' ' }
+						{ userConnectionData.currentUser?.wpcomUser?.display_name }
 					</li>
 				) }
 
@@ -180,7 +181,7 @@ ConnectionStatusCard.propTypes = {
 	/** API Nonce, required. */
 	apiNonce: PropTypes.string.isRequired,
 	/** The redirect admin URI after the user has connected their WordPress.com account. */
-	redirectUri: PropTypes.string.isRequired,
+	redirectUri: PropTypes.string,
 	/** An object of the plugins currently using the Jetpack connection. */
 	connectedPlugins: PropTypes.object,
 	/** ID of the currently connected site. */
@@ -201,6 +202,7 @@ ConnectionStatusCard.defaultProps = {
 		'Leverages the Jetpack Cloud for more features on your side.',
 		'jetpack'
 	),
+	redirectUri: null,
 };
 
 export default ConnectionStatusCard;

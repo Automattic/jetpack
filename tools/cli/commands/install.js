@@ -8,10 +8,10 @@ import Listr from 'listr';
  * Internal dependencies
  */
 import promptForProject from '../helpers/promptForProject.js';
-import installProjectTask from '../helpers/tasks/installProjectTask';
-import { allProjects } from '../helpers/projectHelpers';
-import { normalizeInstallArgv, normalizeProject } from '../helpers/normalizeArgv';
-import listrOpts from '../helpers/tasks/listrOpts';
+import installProjectTask from '../helpers/tasks/installProjectTask.js';
+import { allProjects } from '../helpers/projectHelpers.js';
+import { normalizeInstallArgv, normalizeProject } from '../helpers/normalizeArgv.js';
+import listrOpts from '../helpers/tasks/listrOpts.js';
 
 /**
  * Installs a project.
