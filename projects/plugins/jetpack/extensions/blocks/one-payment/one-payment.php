@@ -32,10 +32,10 @@ function register_block() {
 add_action( 'init', __NAMESPACE__ . '\register_block' );
 
 /**
- * DeanTest block registration/dependency declaration.
+ * OnePayment block registration/dependency declaration.
  *
- * @param array  $attr    Array containing the DeanTest block attributes.
- * @param string $content String containing the DeanTest block content.
+ * @param array  $attr    Array containing the OnePayment block attributes.
+ * @param string $content String containing the OnePayment block content.
  *
  * @return string
  */
