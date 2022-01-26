@@ -3,28 +3,25 @@
  */
 
 /**
- * External dependencies
+ * Internal dependencies
  */
-import { __ } from '@wordpress/i18n';
+import { settings as DonationSettings } from '../donations';
+import { settings as RecurringPaymentSettings } from '../recurring-payments';
 
 const variations = [
 	{
-		name: 'piffle',
-		title: __( 'Add a donations block', 'jetpack' ),
-		attributes: {
-			className: 'foo',
-		},
+		name: 'onepayment-donations',
+		title: DonationSettings.title,
+		description: DonationSettings.description,
 		innerBlocks: [ [ 'jetpack/donations', {} ] ],
 		// The inner block itself is already listed in the inserter in its own right, so just include in this blocks
 		// unified intro.
 		scope: [ 'block' ],
 	},
 	{
-		name: 'flibble',
-		title: 'Add a payments block',
-		attributes: {
-			className: 'bar',
-		},
+		name: 'onepayment-recurring-payments',
+		title: RecurringPaymentSettings.title,
+		description: RecurringPaymentSettings.description,
 		innerBlocks: [ [ 'jetpack/recurring-payments', {} ] ],
 		// The inner block itself is already listed in the inserter in its own right, so just include in this blocks
 		// unified intro.
