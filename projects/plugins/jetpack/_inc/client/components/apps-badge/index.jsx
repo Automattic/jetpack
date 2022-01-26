@@ -11,7 +11,7 @@ import { __ } from '@wordpress/i18n';
 /**
  * Internal dependencies
  */
-import { getUserLocale as getLocaleSlug } from 'lib/locale';
+import { getUserLocale as getLocaleSlug } from '@automattic/jetpack-components';
 import { imagePath } from 'constants/urls';
 
 /**

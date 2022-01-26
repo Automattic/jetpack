@@ -105,7 +105,7 @@ class DashSecurityBundle extends Component {
 						<p>
 							{ createInterpolateElement(
 								__(
-									'Total protection for your site, including Backup, Scan, and Anti-spam. <ExternalLink>Learn More.</ExternalLink>',
+									'Total protection for your site, including Backup, Scan, and Anti-spam. <ExternalLink>Learn More</ExternalLink>',
 									'jetpack'
 								),
 								{

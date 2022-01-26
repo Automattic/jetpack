@@ -99,10 +99,16 @@ function render_block( $attr, $content ) {
 		return $content;
 	}
 
+	require_once JETPACK__PLUGIN_DIR . 'modules/memberships/class-jetpack-memberships.php';
+
+	// If stripe isn't connected don't show anything to potential donors - they can't actually make a donation.
+	if ( ! \Jetpack_Memberships::get_connected_account_id() ) {
+		return '';
+	}
+
 	Jetpack_Gutenberg::load_assets_as_required( FEATURE_NAME, array( 'thickbox' ) );
 	add_thickbox();
 
-	require_once JETPACK__PLUGIN_DIR . 'modules/memberships/class-jetpack-memberships.php';
 	jetpack_require_lib( 'class-jetpack-currencies' );
 
 	$donations = array(

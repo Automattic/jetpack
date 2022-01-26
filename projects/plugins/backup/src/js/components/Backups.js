@@ -116,16 +116,19 @@ const Backups = () => {
 
 	const renderInProgressBackup = ( showProgressBar = true ) => {
 		return (
-			<div class="jp-row">
-				<div class="lg-col-span-5 md-col-span-8 sm-col-span-4">
+			<div className="jp-row">
+				<div className="lg-col-span-5 md-col-span-8 sm-col-span-4">
 					{ showProgressBar && (
-						<div class="backup__progress">
-							<div class="backup__progress-info">
+						<div className="backup__progress">
+							<div className="backup__progress-info">
 								<p>{ __( 'Backing up Your Groovy Site…', 'jetpack-backup' ) }</p>
-								<p class="backup__progress-info-percentage">{ progress }%</p>
+								<p className="backup__progress-info-percentage">{ progress }%</p>
 							</div>
-							<div class="backup__progress-bar">
-								<div class="backup__progress-bar-actual" style={ { width: progress + '%' } }></div>
+							<div className="backup__progress-bar">
+								<div
+									className="backup__progress-bar-actual"
+									style={ { width: progress + '%' } }
+								></div>
 							</div>
 						</div>
 					) }
@@ -154,8 +157,8 @@ const Backups = () => {
 						) }
 					</p>
 				</div>
-				<div class="lg-col-span-1 md-col-span-4 sm-col-span-0"></div>
-				<div class="backup__animation lg-col-span-6 md-col-span-2 sm-col-span-2">
+				<div className="lg-col-span-1 md-col-span-4 sm-col-span-0"></div>
+				<div className="backup__animation lg-col-span-6 md-col-span-2 sm-col-span-2">
 					<img className="backup__animation-el-1" src={ BackupAnim1 } alt="" />
 					<img className="backup__animation-el-2" src={ BackupAnim2 } alt="" />
 					<img className="backup__animation-el-3" src={ BackupAnim3 } alt="" />
@@ -186,7 +189,7 @@ const Backups = () => {
 					</div>
 					<h1>{ formatDateString( latestTime ) }</h1>
 					<a
-						class="button is-full-width"
+						className="button is-full-width"
 						href={ getRedirectUrl( 'jetpack-backup', { site: domain } ) }
 						target="_blank"
 						rel="noreferrer"
@@ -229,8 +232,8 @@ const Backups = () => {
 
 	const renderNoGoodBackups = () => {
 		return (
-			<div class="jp-row">
-				<div class="lg-col-span-5 md-col-span-4 sm-col-span-4">
+			<div className="jp-row">
+				<div className="lg-col-span-5 md-col-span-4 sm-col-span-4">
 					<img src={ CloudAlertIcon } alt="" />
 					<h1>{ __( "We're having trouble backing up your site", 'jetpack-backup' ) }</h1>
 					<p>
@@ -252,18 +255,18 @@ const Backups = () => {
 						) }
 					</p>
 				</div>
-				<div class="lg-col-span-1 md-col-span-4 sm-col-span-0"></div>
-				<div class="lg-col-span-6 md-col-span-2 sm-col-span-2"></div>
+				<div className="lg-col-span-1 md-col-span-4 sm-col-span-0"></div>
+				<div className="lg-col-span-6 md-col-span-2 sm-col-span-2"></div>
 			</div>
 		);
 	};
 
 	const renderLoading = () => {
-		return <div class="jp-row"></div>;
+		return <div className="jp-row"></div>;
 	};
 
 	return (
-		<div className="jp-wrap">
+		<div className="jp-wrap jp-content">
 			{ BACKUP_STATE.LOADING === backupState && renderLoading() }
 			{ BACKUP_STATE.NO_BACKUPS === backupState && renderInProgressBackup() }
 			{ BACKUP_STATE.NO_BACKUPS_RETRY === backupState && renderInProgressBackup( false ) }
