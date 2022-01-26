@@ -20,6 +20,14 @@ use WP_Error;
 class Plugins_Installer {
 
 	/**
+	 * Ensures that plugins functions are loaded, as they are only loaded in admin context by default.
+	 */
+	private static function ensure_plugin_functions_are_loaded() {
+		if ( ! function_exists( 'get_plugins' ) ) {
+			require_once ABSPATH . 'wp-admin/includes/plugin.php';
+		}
+	}
+	/**
 	 * Install and activate a plugin.
 	 *
 	 * @since-jetpack 5.8.0
@@ -37,7 +45,7 @@ class Plugins_Installer {
 				return $installed;
 			}
 			$plugin_id = self::get_plugin_id_by_slug( $slug );
-		} elseif ( is_plugin_active( $plugin_id ) ) {
+		} elseif ( self::is_plugin_active( $plugin_id ) ) {
 			return true; // Already installed and active.
 		}
 
@@ -164,15 +172,41 @@ class Plugins_Installer {
 	 * @return string Either 'network-active', 'active' or 'inactive'.
 	 */
 	public static function get_plugin_status( $plugin_file ) {
-		if ( is_plugin_active_for_network( $plugin_file ) ) {
+		if ( self::is_plugin_active_for_network( $plugin_file ) ) {
 			return 'network-active';
 		}
 
-		if ( is_plugin_active( $plugin_file ) ) {
+		if ( self::is_plugin_active( $plugin_file ) ) {
 			return 'active';
 		}
 
 		return 'inactive';
+	}
+
+	/**
+	 * Safely checks if the plugin is active
+	 *
+	 * @since $next-version$
+	 *
+	 * @param string $plugin_file The plugin file to check.
+	 * @return bool
+	 */
+	public static function is_plugin_active( $plugin_file ) {
+		self::ensure_plugin_functions_are_loaded();
+		return is_plugin_active( $plugin_file );
+	}
+
+	/**
+	 * Safely checks if the plugin is active for network
+	 *
+	 * @since $next-version$
+	 *
+	 * @param string $plugin_file The plugin file to check.
+	 * @return bool
+	 */
+	public static function is_plugin_active_for_network( $plugin_file ) {
+		self::ensure_plugin_functions_are_loaded();
+		return is_plugin_active_for_network( $plugin_file );
 	}
 
 	/**
@@ -184,9 +218,7 @@ class Plugins_Installer {
 	 * @return array
 	 */
 	public static function get_plugins() {
-		if ( ! function_exists( 'get_plugins' ) ) {
-			require_once ABSPATH . 'wp-admin/includes/plugin.php';
-		}
+		self::ensure_plugin_functions_are_loaded();
 		/** This filter is documented in wp-admin/includes/class-wp-plugins-list-table.php */
 		$plugins = apply_filters( 'all_plugins', get_plugins() );
 
