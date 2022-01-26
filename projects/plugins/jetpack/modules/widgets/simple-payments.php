@@ -159,7 +159,8 @@ if ( ! class_exists( 'Jetpack_Simple_Payments_Widget' ) ) {
 			wp_enqueue_style(
 				'jetpack-simple-payments-widg`et-customizer',
 				plugins_url( 'simple-payments/customizer.css', __FILE__ ),
-				false
+				array(),
+				JETPACK_VERSION
 			);
 		}
 
@@ -172,7 +173,7 @@ if ( ! class_exists( 'Jetpack_Simple_Payments_Widget' ) ) {
 					'jetpack-simple-payments-widget-customizer',
 					plugins_url( '/simple-payments/customizer.js', __FILE__ ),
 					array( 'jquery' ),
-					false,
+					JETPACK__VERSION,
 					true
 				);
 				wp_localize_script(
