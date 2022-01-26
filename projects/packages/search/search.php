@@ -9,7 +9,7 @@ namespace Automattic\Jetpack\Search;
 
 define( 'JETPACK_SEARCH_PKG__VERSION', '0.6.0-alpha' );
 define( 'JETPACK_SEARCH_PKG__DIR', __DIR__ );
-define( 'JETPACK_SEARCH_PKG__SLUG', 'jetpack-search-pkg' );
+define( 'JETPACK_SEARCH_PKG__SLUG', 'search' );
 
 // If WordPress's plugin API is available already, use it. If not,
 // drop data into `$wp_filter` for `WP_Hook::build_preinitialized_hooks()`.
