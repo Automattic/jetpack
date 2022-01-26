@@ -84,7 +84,7 @@ class Automatic_Install_Skin extends Automatic_Upgrader_Skin {
 	 * @return void
 	 */
 	private function set_main_error_message( $message, $code ) {
-		$this->main_error_message = ( 'process_failed' === $code && $this->main_error_code ? $this->main_error_code : $message );
+		$this->main_error_message = ( 'process_failed' === $code && $this->main_error_message ? $this->main_error_message : $message );
 	}
 
 	/**
