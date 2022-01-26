@@ -70,7 +70,7 @@
     border-radius: 50%;
   }
 
-  // in pluing absent case, there's not status flag
+  // in plugin absent case, there's not status flag
   $statuses: active, inactive, error;
 
   @each $status in $statuses {
