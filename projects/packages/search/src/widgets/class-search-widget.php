@@ -7,6 +7,7 @@
 
 namespace Automattic\Jetpack\Search;
 
+use Automattic\Jetpack\Assets;
 use Automattic\Jetpack\Connection\Manager as Connection_Manager;
 use Automattic\Jetpack\Redirect;
 use Automattic\Jetpack\Status;
@@ -170,23 +171,19 @@ class Search_Widget extends \WP_Widget {
 		if ( ! is_active_widget( false, false, $this->id_base, true ) || Options::is_instant_enabled() ) {
 			return;
 		}
-
-		wp_enqueue_script(
+		Assets::register_script(
 			'jetpack-search-widget',
-			plugins_url( 'search/js/search-widget.js', __FILE__ ),
-			array(),
-			Helper::get_asset_version( __FILE__ ),
-			true
+			'js/search-widget.js',
+			__FILE__,
+			array(
+				'in_footer'  => true,
+				'textdomain' => 'jetpack-search-pkg',
+				// Jetpack the plugin would concatenated the style with other styles and minimize. And the style would be dequeued from WP.
+				// @see https://github.com/Automattic/jetpack/blob/b3de78dce3d88b0d9b283282a5b04515245c8057/projects/plugins/jetpack/tools/builder/frontend-css.js#L52.
+				'css_path'   => 'css/search-widget-frontend.css',
+			)
 		);
-
-		// TODO: No need to enqueue the style for Jetpack the plugin as it's concatenated together.
-		// @see https://github.com/Automattic/jetpack/blob/b3de78dce3d88b0d9b283282a5b04515245c8057/projects/plugins/jetpack/tools/builder/frontend-css.js#L52.
-		wp_enqueue_style(
-			'jetpack-search-widget',
-			plugins_url( 'search/css/search-widget-frontend.css', __FILE__ ),
-			array(),
-			Helper::get_asset_version( __FILE__ )
-		);
+		Assets::enqueue_script( 'jetpack-search-widget' );
 	}
 
 	/**
