@@ -116,23 +116,19 @@ class Search_Widget extends \WP_Widget {
 	 * @since 5.7.0
 	 */
 	public function widget_admin_setup() {
-		wp_enqueue_style(
-			'widget-jetpack-search-filters',
-			plugins_url( 'css/search-widget-admin-ui.css', __FILE__ ),
-			array(),
-			// TODO: We'll need our own version number.
-			Helper::get_asset_version( __FILE__ )
-		);
-
 		// Register jp-tracks and jp-tracks-functions.
 		Tracking::register_tracks_functions_scripts();
 
-		wp_register_script(
+		Assets::register_script(
 			'jetpack-search-widget-admin',
-			plugins_url( 'js/search-widget-admin.js', __FILE__ ),
-			array( 'jquery', 'jquery-ui-sortable', 'jp-tracks-functions' ),
-			Helper::get_asset_version( __FILE__ ),
-			false
+			'js/search-widget-admin.js',
+			__FILE__,
+			array(
+				'in_footer'    => true,
+				'textdomain'   => 'jetpack-search-pkg',
+				'css_path'     => 'css/search-widget-admin-ui.css',
+				'dependencies' => array( 'jquery', 'jquery-ui-sortable', 'jp-tracks-functions' ),
+			)
 		);
 
 		// TODO: 'jetpack-search' better to be the current plugin where the package is running.
@@ -159,7 +155,7 @@ class Search_Widget extends \WP_Widget {
 			)
 		);
 
-		wp_enqueue_script( 'jetpack-search-widget-admin' );
+		Assets::enqueue_script( 'jetpack-search-widget-admin' );
 	}
 
 	/**
