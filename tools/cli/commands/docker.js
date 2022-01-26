@@ -430,10 +430,20 @@ const execJtCmdHandler = argv => {
 		opts.push( 'break' );
 	} else if ( arg === 'jt-up' ) {
 		cmd = jtTunnelFile;
+		console.warn(
+			chalk.yellow(
+				'Remember! This is creating a tunnel to your local machine. Please use jetpack docker jt-down as soon as you are done with your testing.'
+			)
+		);
 	}
 
 	const jtResult = executor( argv, () => shellExecutor( argv, cmd, opts.concat( jtOpts ) ) );
 	checkProcessResult( jtResult );
+	console.warn(
+		chalk.yellow(
+			'Remember! This is creating a tunnel to your local machine. Please use jetpack docker jt-down as soon as you are done with your testing.'
+		)
+	);
 };
 
 /**
