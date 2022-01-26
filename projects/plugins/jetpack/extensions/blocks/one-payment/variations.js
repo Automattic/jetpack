@@ -15,6 +15,9 @@ const variations = [
 			className: 'foo',
 		},
 		innerBlocks: [ [ 'jetpack/donations', {} ] ],
+		// The inner block itself is already listed in the inserter in its own right, so just include in this blocks
+		// unified intro.
+		scope: [ 'block' ],
 	},
 	{
 		name: 'flibble',
@@ -23,6 +26,9 @@ const variations = [
 			className: 'bar',
 		},
 		innerBlocks: [ [ 'jetpack/recurring-payments', {} ] ],
+		// The inner block itself is already listed in the inserter in its own right, so just include in this blocks
+		// unified intro.
+		scope: [ 'block' ],
 	},
 ];
 
