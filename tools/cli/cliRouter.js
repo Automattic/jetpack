@@ -18,6 +18,7 @@ import { changelogDefine } from './commands/changelog.js';
 import { dockerDefine } from './commands/docker.js';
 import { testDefine } from './commands/test.js';
 import { releaseDefine } from './commands/release.js';
+import * as dependenciesCommand from './commands/dependencies.js';
 
 /**
  * The main CLI router function.
@@ -40,6 +41,7 @@ export async function cli() {
 	argv = cleanDefine( argv );
 	argv = cliDefine( argv );
 	argv.completion( 'completion', 'Generate bash/zsh completions' ); // Placed here to keep things alphabetical.
+	argv.command( dependenciesCommand );
 	argv = dockerDefine( argv );
 	argv = draftDefine( argv );
 	argv = generateDefine( argv );
