@@ -39,10 +39,10 @@ const DownIcon = () => (
 
 const renderActionButton = ( {
 	status,
-	activateHandler,
 	admin,
 	name,
 	onLearn,
+	onActivate,
 	onAdd,
 	onManage,
 	onFixConnection,
@@ -88,7 +88,7 @@ const renderActionButton = ( {
 			);
 		case PRODUCT_STATUSES.INACTIVE:
 			return (
-				<Button { ...buttonState } onClick={ activateHandler }>
+				<Button { ...buttonState } onClick={ onActivate }>
 					{ __( 'Activate', 'jetpack-my-jetpack' ) }
 				</Button>
 			);
@@ -149,7 +149,7 @@ const ProductCard = props => {
 			<div className={ styles.actions }>
 				{ canDeactivate ? (
 					<ButtonGroup>
-						{ renderActionButton( { ...props, activateHandler } ) }
+						{ renderActionButton( { ...props, onActivate: activateHandler } ) }
 						<DropdownMenu
 							className={ styles.dropdown }
 							toggleProps={ { isPressed: true, disabled: isFetching } }
