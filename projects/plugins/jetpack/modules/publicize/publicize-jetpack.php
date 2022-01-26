@@ -357,15 +357,16 @@ class Publicize extends Publicize_Base {
 
 	/**
 	 * If applicable, globalize a connection.
+	 *
+	 * @param string $connection_id Connection ID.
 	 */
-	public function globalization() {
-		if ( 'on' === $_REQUEST['global'] ) {
-			$globalize_connection = $_REQUEST['connection'];
+	public function globalization( $connection_id ) {
+		if ( 'on' === $_REQUEST['global'] ) { // phpcs:ignore WordPress.Security.NonceVerification.Recommended
 			if ( ! current_user_can( $this->GLOBAL_CAP ) ) { // phpcs:ignore WordPress.NamingConventions.ValidVariableName.UsedPropertyNotSnakeCase
 				return;
 			}
 
-			$this->globalize_connection( $globalize_connection );
+			$this->globalize_connection( $connection_id );
 		}
 	}
 
@@ -669,7 +670,7 @@ class Publicize extends Publicize_Base {
 	 */
 	public function options_page_facebook() {
 		// Nonce check.
-		check_admin_referer( 'options_page_facebook_' . $_REQUEST['connection'] )
+		check_admin_referer( 'options_page_facebook_' . $_REQUEST['connection'] );
 
 		$connected_services = $this->get_all_connections();
 		$connection         = $connected_services['facebook'][ $_REQUEST['connection'] ];
@@ -929,7 +930,7 @@ class Publicize extends Publicize_Base {
 		if ( ! $xml->isError() ) {
 			$response = $xml->getResponse();
 			Jetpack_Options::update_option( 'publicize_connections', $response );
-			$this->globalization();
+			$this->globalization( $id );
 		}
 	}
 
@@ -969,7 +970,8 @@ class Publicize extends Publicize_Base {
 	public function options_save_other( $service_name ) {
 		// Nonce check.
 		check_admin_referer( 'save_' . $service_name . '_token_' . $_REQUEST['connection'] );
-		$this->globalization();
+
+		$this->globalization( $_REQUEST['connection'] );
 	}
 
 	/**
