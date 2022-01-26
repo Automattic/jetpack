@@ -158,7 +158,7 @@ No, Jetpack Backup does not currently support split site or split home URLs.
 2. Your site backups are stored in multiple locations on our world-class cloud infrastructure so you can recover them at any moment.
 
 == Changelog ==
-### 1.1.0-beta - 2022-01-13
+### 1.1.0-beta - 2022-01-26
 #### Added
 - Added My Jetpack page work in progress behind a feature flag.
 - Added pricing information to Jetpack Connection screen.
@@ -182,6 +182,8 @@ No, Jetpack Backup does not currently support split site or split home URLs.
 - Remove use of `gulp` in build, all it was doing was wrapping `webpack`.
 
 #### Fixed
+- Changed price default to null from 0 to fix prop warnings.
+- Correct wrong use of class instead of className prop.
 - Removed backup-in-progress animation on small viewports
 - Use `@automattic/babel-plugin-replace-textdomain` to ensure proper textdomains in JS bundles.
 

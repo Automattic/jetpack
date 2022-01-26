@@ -1,4 +1,0 @@
-Significance: patch
-Type: fixed
-
-Changed price default to null from 0 to fix prop warnings.
