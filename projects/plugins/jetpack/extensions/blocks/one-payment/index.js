@@ -2,7 +2,6 @@
  * External dependencies
  */
 import { __ } from '@wordpress/i18n';
-import { Fragment } from '@wordpress/element';
 import { InnerBlocks } from '@wordpress/block-editor';
 
 /**
@@ -22,12 +21,7 @@ export const name = 'one-payment';
 export const title = __( 'One payment', 'jetpack' );
 export const settings = {
 	title,
-	description: (
-		<Fragment>
-			<p>{ __( 'One Payment', 'jetpack' ) }</p>
-			<p>{ __( 'Take payments on your website', 'jetpack' ) }</p>
-		</Fragment>
-	),
+	description: __( 'Sell products and services or receive donations on your website', 'jetpack' ),
 	icon: {
 		src: icon,
 		foreground: getIconColor(),
