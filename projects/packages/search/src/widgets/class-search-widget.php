@@ -180,6 +180,7 @@ class Search_Widget extends \WP_Widget {
 				'textdomain' => 'jetpack-search-pkg',
 				// Jetpack the plugin would concatenated the style with other styles and minimize. And the style would be dequeued from WP.
 				// @see https://github.com/Automattic/jetpack/blob/b3de78dce3d88b0d9b283282a5b04515245c8057/projects/plugins/jetpack/tools/builder/frontend-css.js#L52.
+				// @see https://github.com/Automattic/jetpack/blob/bb1b6a9a9cfa98600441f8fa31c9f9c4ef9a04a5/projects/plugins/jetpack/class.jetpack.php#L106.
 				'css_path'   => 'css/search-widget-frontend.css',
 			)
 		);
