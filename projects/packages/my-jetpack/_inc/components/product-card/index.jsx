@@ -11,6 +11,7 @@ import { ButtonGroup, Button, DropdownMenu } from '@wordpress/components';
  * Internal dependencies
  */
 import styles from './style.module.scss';
+import useAnalytics from '../../hooks/use-analytics';
 
 export const PRODUCT_STATUSES = {
 	ACTIVE: 'active',
@@ -41,10 +42,10 @@ const renderActionButton = ( {
 	admin,
 	name,
 	onLearn,
+	onActivate,
 	onAdd,
 	onManage,
 	onFixConnection,
-	onActivate,
 	isFetching,
 } ) => {
 	if ( ! admin ) {
@@ -95,7 +96,7 @@ const renderActionButton = ( {
 };
 
 const ProductCard = props => {
-	const { name, admin, description, icon, status, onDeactivate, isFetching } = props;
+	const { name, admin, description, icon, status, onActivate, onDeactivate, isFetching } = props;
 	const isActive = status === PRODUCT_STATUSES.ACTIVE;
 	const isError = status === PRODUCT_STATUSES.ERROR;
 	const isInactive = status === PRODUCT_STATUSES.INACTIVE;
@@ -114,6 +115,30 @@ const ProductCard = props => {
 		[ styles[ 'is-fetching' ] ]: isFetching,
 	} );
 
+	const {
+		tracks: { recordEvent },
+	} = useAnalytics();
+
+	/**
+	 * Calls the passed function onDeactivate after firing Tracks event
+	 */
+	const deactivateHandler = () => {
+		recordEvent( 'jetpack_myjetpack_product_card_deactivate_click', {
+			product: name,
+		} );
+		onDeactivate();
+	};
+
+	/**
+	 * Calls the passed function onActivate after firing Tracks event
+	 */
+	const activateHandler = () => {
+		recordEvent( 'jetpack_myjetpack_product_card_activate_click', {
+			product: name,
+		} );
+		onActivate();
+	};
+
 	return (
 		<div className={ containerClassName }>
 			<div className={ styles.name }>
@@ -124,7 +149,7 @@ const ProductCard = props => {
 			<div className={ styles.actions }>
 				{ canDeactivate ? (
 					<ButtonGroup>
-						{ renderActionButton( props ) }
+						{ renderActionButton( { ...props, onActivate: activateHandler } ) }
 						<DropdownMenu
 							className={ styles.dropdown }
 							toggleProps={ { isPressed: true, disabled: isFetching } }
@@ -135,7 +160,7 @@ const ProductCard = props => {
 								{
 									title: __( 'Deactivate', 'jetpack-my-jetpack' ),
 									icon: null,
-									onClick: onDeactivate,
+									onClick: deactivateHandler,
 								},
 							] }
 						/>
