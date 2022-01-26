@@ -363,7 +363,7 @@ EOT;
 	 * @return string
 	 */
 	public function render_block( $attributes ) {
-		$post_id = get_the_ID();
+		$post_id          =  get_the_ID();
 		$block_attributes = array(
 			'headline'        => isset( $attributes['headline'] ) ? $attributes['headline'] : null,
 			'show_thumbnails' => isset( $attributes['displayThumbnails'] ) && $attributes['displayThumbnails'],
@@ -1198,9 +1198,8 @@ EOT;
 	 * @return array
 	 */
 	public function get_related_post_data_for_post( $post_id, $position, $origin ) {
-		$post = get_post( $post_id );
-		
-		$related_posts =  array(
+		$post          = get_post( $post_id );
+		$related_posts = array(
 			'id'       => $post->ID,
 			'url'      => get_permalink( $post->ID ),
 			'url_meta' => array(
