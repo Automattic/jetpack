@@ -1,11 +1,8 @@
-<?php // phpcs:ignore WordPress.Files.FileName.InvalidClassFileName
+<?php
 /**
  * Runtime for Jetpack Waf
  *
  * @package automattic/jetpack-waf
- * @phpcs:disable WordPress.PHP.DevelopmentFunctions.error_log_error_log
- * @phpcs:disable WordPress.Security.NonceVerification.Recommended
- * @phpcs:disable WordPress.PHP.DevelopmentFunctions.error_log_var_dump
  */
 
 namespace Automattic\Jetpack\Waf;
@@ -245,7 +242,7 @@ class WafRuntime {
 		header( "X-JetpackWAF-Blocked: $status_code $reason" );
 		if ( defined( 'JETPACK_WAF_MODE' ) && 'normal' === JETPACK_WAF_MODE ) {
 			header( $_SERVER['SERVER_PROTOCOL'] . ' 403 Forbidden', true, $status_code );
-			die( "rule $rule_id" ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
+			die( "rule $rule_id" );
 		}
 	}
 
@@ -538,10 +535,10 @@ class WafRuntime {
 					$this->normalize_array_target( array_keys( $_GET ), array(), array(), $k, $return, $count_only );
 					continue 2;
 				case 'args_post':
-					$this->normalize_array_target( $_POST, $only, $except, $k, $return, $count_only ); // phpcs:ignore WordPress.Security.NonceVerification.Missing
+					$this->normalize_array_target( $_POST, $only, $except, $k, $return, $count_only );
 					continue 2;
 				case 'args_post_names':
-					$this->normalize_array_target( array_keys( $_POST ), array(), array(), $k, $return, $count_only ); // phpcs:ignore WordPress.Security.NonceVerification.Missing
+					$this->normalize_array_target( array_keys( $_POST ), array(), array(), $k, $return, $count_only );
 					continue 2;
 				case 'files':
 					$names = array_map(

@@ -1,14 +1,8 @@
-<?php // phpcs:ignore WordPress.Files.FileName.InvalidClassFileName
+<?php
 /**
  * Transforms for Jetpack Waf
  *
  * @package automattic/jetpack-waf
- * phpcs:disable WordPress.PHP.DiscouragedPHPFunctions.obfuscation_base64_decode
- * phpcs:disable WordPress.PHP.DiscouragedPHPFunctions.obfuscation_base64_encode
- * phpcs:disable WordPress.PHP.NoSilencedErrors.Discouraged
- * phpcs:disable WordPress.PHP.StrictInArray.MissingTrueStrict
- * phpcs:disable WordPress.PHP.DevelopmentFunctions.error_log_error_log
- * phpcs:disable WordPress.WP.AlternativeFunctions.json_encode_json_encode
  */
 
 namespace Automattic\Jetpack\Waf;
@@ -114,7 +108,7 @@ class WafTransforms {
 	 * @return string
 	 */
 	public function hex_decode( $value ) {
-		return @pack( 'H*', $value );
+		return pack( 'H*', $value );
 	}
 
 	/**
@@ -176,7 +170,7 @@ class WafTransforms {
 				// If this folder is a self-reference, remove it.
 				case '..':
 					// If this folder is a backreference, remove it unless we're already at the root.
-					if ( isset( $parts[ $i - 1 ] ) && ! in_array( $parts[ $i - 1 ], array( '', '..' ) ) ) {
+					if ( isset( $parts[ $i - 1 ] ) && ! in_array( $parts[ $i - 1 ], array( '', '..' ), true ) ) {
 						array_splice( $parts, $i - 1, 2 );
 						$i--;
 						continue 2;

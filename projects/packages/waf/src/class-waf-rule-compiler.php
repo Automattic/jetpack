@@ -1,10 +1,8 @@
-<?php // phpcs:ignore WordPress.Files.FileName.InvalidClassFileName
+<?php
 /**
  * Rule compiler for Jetpack Waf.
  *
  * @package automattic/jetpack-waf
- * @phpcs:disable WordPress.PHP.DevelopmentFunctions.error_log_var_export
- * @phpcs:disable WordPress.PHP.DevelopmentFunctions.error_log_var_dump
  */
 
 namespace Automattic\Jetpack\Waf;

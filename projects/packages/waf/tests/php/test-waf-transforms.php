@@ -3,7 +3,6 @@
  * Adapted from modsecurity tests: https://github.com/SpiderLabs/ModSecurity/tree/caadf97524a4861456be176a8cb91dcbb76b97e4/tests/tfn
  *
  * @package automattic/jetpack-waf
- * @phpcs:disable PHPCompatibility.FunctionDeclarations.NewReturnTypeDeclarations.voidFound
  */
 
 use Automattic\Jetpack\Waf\WafTransforms as GlobalWafTransforms;

@@ -1,38 +1,12 @@
-<?php // phpcs:ignore WordPress.Files.FileName.InvalidClassFileName
+<?php
 /**
  * Adapted from modsecurity tests: https://github.com/SpiderLabs/ModSecurity/tree/caadf97524a4861456be176a8cb91dcbb76b97e4/tests/op
  *
  * @package automattic/jetpack-waf
- * @phpcs:disable Generic.Files.OneObjectStructurePerFile.MultipleFound
- * @phpcs:disable PHPCompatibility.FunctionDeclarations.NewReturnTypeDeclarations.voidFound
  */
 
 use Automattic\Jetpack\Waf\WafOperators;
 use Automattic\Jetpack\Waf\WafRuleCompiler;
-
-/**
- * Operators test case.
- */
-class WafOperatorsTestCase {
-	/**
-	 * Input string.
-	 *
-	 * @var string
-	 */
-	public $input;
-	/**
-	 * Param string.
-	 *
-	 * @var string
-	 */
-	public $param;
-	/**
-	 * Expected return string.
-	 *
-	 * @var string
-	 */
-	public $expected_return;
-}
 
 /**
  * Operators test suite.

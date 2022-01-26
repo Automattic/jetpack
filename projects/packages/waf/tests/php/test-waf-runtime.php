@@ -3,7 +3,6 @@
  * Runtime test suite.
  *
  * @package automattic/jetpack-waf
- * @phpcs:disable PHPCompatibility.FunctionDeclarations.NewReturnTypeDeclarations.voidFound
  */
 
 use Automattic\Jetpack\Waf\WafOperators;
