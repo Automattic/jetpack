@@ -7,6 +7,7 @@ import inquirer from 'inquirer';
 import chalk from 'chalk';
 import fs from 'fs';
 import { fileURLToPath } from 'url';
+import semver from 'semver';
 import yaml from 'js-yaml';
 
 /**
@@ -329,6 +330,17 @@ function createPackageJson( packageJson, answers ) {
 				"NODE_ENV=test NODE_PATH=tests:. js-test-runner --jsdom --initfile=test-main.jsx 'glob:./!(node_modules)/**/test/*.@(jsx|js)'",
 		};
 		packageJson.devDependencies = { 'jetpack-js-test-runner': 'workspace:*' };
+
+		// Since `createComposerJson()` adds a use of `nyc`, we need to depend on it here too.
+		// Look for which version is currently in use.
+		const yamlFile = yaml.load(
+			fs.readFileSync( new URL( '../../../pnpm-lock.yaml', import.meta.url ), 'utf8' )
+		);
+		const nycVersion = Object.keys( yamlFile.packages ).reduce( ( value, cur ) => {
+			const ver = cur.match( /^\/nyc\/([^_]+)/ )?.[ 1 ];
+			return ! value || ( ver && semver.gt( ver, value ) ) ? ver : value;
+		}, null );
+		packageJson.devDependencies.nyc = nycVersion || '*';
 	}
 }
 
