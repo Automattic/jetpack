@@ -6,7 +6,6 @@ export const getJWT = function () {
 		wp.media
 			.ajax( 'videopress-get-upload-jwt', { async: true } )
 			.done( function ( response ) {
-                console.log( 'RESPONSE!', response );
 				resolve( {
 					token: response.upload_token,
 					blogId: response.upload_blog_id,
@@ -64,7 +63,6 @@ export const useUploader = ( {
 					},
 					retryDelays: [ 0, 1000, 3000, 5000, 10000 ],
 					onAfterResponse: function ( req, res ) {
-						//console.log( res._xhr.getAllResponseHeaders() );
 						// Why is this not showing the x-headers?
 						if ( res.getStatus() >= 400 ) {
 							return;
@@ -85,7 +83,6 @@ export const useUploader = ( {
 
 							data[headerMap[header]] = value;
 						} );
-						//console.log( res, data );
 
 						if (data.key && data.token) {
 							jwtsForKeys[data.key] = data.token;
@@ -125,7 +122,6 @@ export const useUploader = ( {
 							var parts = path.split( '/' );
 							var maybeUploadkey = parts[parts.length-1];
 							if ( jwtsForKeys[maybeUploadkey] ) {
-                                console.log( 'ADDING HEADER TOKEN' );
 								req.setHeader( 'x-videopress-upload-token', jwtsForKeys[maybeUploadkey] );
 							}
 						}
@@ -139,7 +135,6 @@ export const useUploader = ( {
                     upload.resumeFromPreviousUpload( previousUploads[ 0 ] );
                 }
     
-                console.log( 'STARTING UPLOAD' );
                 upload.start();
             } );
     

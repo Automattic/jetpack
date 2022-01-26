@@ -1,29 +1,25 @@
 /**
- * Internal Dependencies
+ * External Dependencies
  */
- import filesize from 'filesize';
+import filesize from 'filesize';
 
 /**
  * WordPress dependencies
  */
- import { __, sprintf } from '@wordpress/i18n';
- import { createInterpolateElement } from '@wordpress/element';
- import { escapeHTML } from '@wordpress/escape-html';
- import { getJWT, useUploader } from './use-uploader';
- /*import apiFetch from '@wordpress/api-fetch';
- import { __, sprintf } from '@wordpress/i18n';
-
- import { MediaUploadCheck, store as blockEditorStore } from '@wordpress/block-editor';
- import { upload } from '@wordpress/icons';
- import { useSelect } from '@wordpress/data';*/
- import { useContext, useEffect, useRef, useState } from '@wordpress/element';
- import { useBlockProps } from '@wordpress/block-editor';
-
+import { __, sprintf } from '@wordpress/i18n';
+import { createInterpolateElement } from '@wordpress/element';
+import { escapeHTML } from '@wordpress/escape-html';
+import { getJWT, useUploader } from './use-uploader';
 import {
     Button,
 	Icon,
 } from '@wordpress/components';
+import { useContext, useEffect, useRef, useState } from '@wordpress/element';
+import { useBlockProps } from '@wordpress/block-editor';
 
+/**
+ * Internal Dependencies
+ */
 import { VideoPressIcon } from '../../../shared/icons';
 import { VideoPressBlockContext } from '../components';
 import './style.scss';
@@ -45,36 +41,38 @@ export default function ResumableUpload( { file } ) {
 	tusUploaderRef.current = tusUploader;
 	const { onUploadFinished } = useContext( VideoPressBlockContext );
 
-	const onError = ( error ) => {
-		setError( error );
-	};
+	const startUpload = () => {
+		const onError = ( error ) => {
+			setError( error );
+		};
+	
+		const onProgress = ( bytesUploaded, bytesTotal ) => {
+			const percentage = ( bytesUploaded / bytesTotal ) * 100;
+			setProgress( percentage );
+		};
+	
+		const onSuccess = () => {
+			onUploadFinished();
+			// TODO: Load video? (Conversion screen) Need the guid
+		};
 
-	const onProgress = ( bytesUploaded, bytesTotal ) => {
-		const percentage = ( bytesUploaded / bytesTotal ) * 100;
-		setProgress( percentage );
-		console.log( percentage );
-	};
-
-	const onSuccess = () => {
-		console.log( 'SUCCESS' );
-		onUploadFinished();
-		// TODO: Load video? (Conversion screen) Need the guid
-	};
-
-	useEffect(() => {
 		const uploader = useUploader( {
 			onError,
 			onProgress,
 			onSuccess,
 		} );
 
-		// Kicks things off.
 		getJWT().then( ( jwtData ) => {
 			const newUploader = uploader( file, jwtData );
 			setTusUploader( newUploader );
 		} ).catch( ( error ) => {
 			setError( error );
 		} );
+	}
+
+	useEffect(() => {
+		// Kicks things off.
+		startUpload();
 
 		// Stop the upload when the block is removed.
 		return () => {
@@ -98,12 +96,9 @@ export default function ResumableUpload( { file } ) {
 		}
 	};
 
-	const startUpload = () => {
-		if ( tusUploader ) {
-			tusUploader.start();
-		}
-
+	const restartUpload = () => {
 		setError( null );
+		startUpload();
 	};
 
 	const escapedFileName = escapeHTML( file.name );
@@ -130,8 +125,8 @@ export default function ResumableUpload( { file } ) {
 			</div>
 			{ null !== error ? (
 				<div className="resumable-upload__error">
-					<div className="resumable-upload__error-text">{ __( 'An error was encountered during the upload.' ) }</div>
-					<Button isPrimary onClick={ () => startUpload() }>{ __( 'Try again', 'jetpack' ) }</Button>
+					<div className="resumable-upload__error-text">{ __( 'An error was encountered during the upload. Check your network connection.' ) }</div>
+					<Button isPrimary onClick={ () => restartUpload() }>{ __( 'Try again', 'jetpack' ) }</Button>
 					<Button isSecondary onClick={ () => onUploadFinished( error ) } className="resumable-upload__error-cancel">{ __('Cancel', 'jetpack' ) }</Button>
 				</div>
 			) : (
