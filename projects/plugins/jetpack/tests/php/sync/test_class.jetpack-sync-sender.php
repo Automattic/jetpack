@@ -597,7 +597,7 @@ class WP_Test_Jetpack_Sync_Sender extends WP_Test_Jetpack_Sync_Base {
 		Settings::update_settings( array( 'dedicated_request_enable' => 1 ) );
 		$this->factory->post->create();
 
-		add_filter( 'pre_http_request', array( $this, 'pre_http_sync_request_spawned' ) );
+		add_filter( 'pre_http_request', array( $this, 'pre_http_sync_request_spawned' ), 10, 3 );
 		$this->sender->do_sync();
 		remove_filter( 'pre_http_request', array( $this, 'pre_http_sync_request_spawned' ) );
 
@@ -612,7 +612,7 @@ class WP_Test_Jetpack_Sync_Sender extends WP_Test_Jetpack_Sync_Base {
 	public function test_do_sync_will_not_spawn_dedicated_sync_request_with_empty_queue() {
 		Settings::update_settings( array( 'dedicated_request_enable' => 1 ) );
 
-		add_filter( 'pre_http_request', array( $this, 'pre_http_sync_request_spawned' ) );
+		add_filter( 'pre_http_request', array( $this, 'pre_http_sync_request_spawned' ), 10, 3 );
 		$result = $this->sender->do_sync();
 		remove_filter( 'pre_http_request', array( $this, 'pre_http_sync_request_spawned' ) );
 
@@ -631,7 +631,7 @@ class WP_Test_Jetpack_Sync_Sender extends WP_Test_Jetpack_Sync_Base {
 
 		Settings::update_settings( array( 'dedicated_request_enable' => 1 ) );
 
-		add_filter( 'pre_http_request', array( $this, 'pre_http_sync_request_spawned' ) );
+		add_filter( 'pre_http_request', array( $this, 'pre_http_sync_request_spawned' ), 10, 3 );
 		$result = $this->sender->do_sync();
 		remove_filter( 'pre_http_request', array( $this, 'pre_http_sync_request_spawned' ) );
 
