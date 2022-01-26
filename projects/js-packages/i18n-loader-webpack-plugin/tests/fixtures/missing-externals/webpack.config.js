@@ -32,9 +32,7 @@ module.exports = [
 				type: 'commonjs2',
 			},
 		},
-		plugins: [
-			new I18nLoaderPlugin( { textdomain: 'missing-externals', loaderModule: 'missingloader' } ),
-		],
+		plugins: [ new I18nLoaderPlugin( { textdomain: 'missing-externals', loaderModule: 'missingloader' } ) ],
 		externals: {
 			'@wordpress/i18n': 'global wpI18n',
 		},

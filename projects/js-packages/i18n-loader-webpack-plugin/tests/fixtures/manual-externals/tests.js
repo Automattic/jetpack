@@ -10,4 +10,5 @@ describe( 'Tests', () => {
 		jpI18nLoader.expectI18n( 'dist/hasI18n.js', require( './en_piglatin.json' ) );
 		expect( await main.hasI18n() ).toEqual( 'is-Thay is-way anslated-tray' );
 	} );
+
 } );

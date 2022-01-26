@@ -33,9 +33,7 @@ describe( 'Tests', () => {
 			expect( await a.hasI18n() ).toEqual( 'This is translated' );
 			expect( spy ).toHaveBeenCalledTimes( 1 );
 			expect( spy ).toHaveBeenCalledWith( 'Failed to fetch i18n data: ', expect.any( Error ) );
-			expect( spy.mock.calls[ 0 ][ 1 ].message ).toEqual(
-				'I18n loader is not available. Check that WordPress is exporting wp.jpI18nLoader.'
-			);
+			expect( spy.mock.calls[ 0 ][ 1 ].message ).toEqual(	'I18n loader is not available. Check that WordPress is exporting wp.jpI18nLoader.' );
 		} finally {
 			window.wp.jpI18nLoader = global.jpI18nLoader;
 		}
@@ -48,9 +46,7 @@ describe( 'Tests', () => {
 			expect( await a.hasI18n() ).toEqual( 'This is translated' );
 			expect( spy ).toHaveBeenCalledTimes( 1 );
 			expect( spy ).toHaveBeenCalledWith( 'Failed to fetch i18n data: ', expect.any( Error ) );
-			expect( spy.mock.calls[ 0 ][ 1 ].message ).toEqual(
-				'I18n loader is not available. Check that WordPress is exporting wp.jpI18nLoader.'
-			);
+			expect( spy.mock.calls[ 0 ][ 1 ].message ).toEqual( 'I18n loader is not available. Check that WordPress is exporting wp.jpI18nLoader.' );
 		} finally {
 			window.wp.jpI18nLoader = global.jpI18nLoader;
 		}
@@ -67,4 +63,5 @@ describe( 'Tests', () => {
 		expect( spy ).toHaveBeenCalledWith( 'Failed to fetch i18n data: ', expect.any( Error ) );
 		expect( spy.mock.calls[ 0 ][ 1 ].message ).toEqual( 'The specified document was not found.' );
 	} );
+
 } );

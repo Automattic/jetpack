@@ -7,10 +7,7 @@ test( 'Options', async () => {
 
 	try {
 		const main = require( './dist/main.js' );
-		optionLoader.expectI18n(
-			'jetpack_vendor/automattic/jetpack-foobar/dist/hasI18n.js',
-			require( './en_piglatin.json' )
-		);
+		optionLoader.expectI18n( 'jetpack_vendor/automattic/jetpack-foobar/dist/hasI18n.js', require( './en_piglatin.json' ) );
 		expect( await main.hasI18n() ).toEqual( 'is-Thay is-way anslated-tray' );
 	} finally {
 		delete global.optionLoader;
