@@ -2,6 +2,15 @@
 
 ### This is a list detailing changes for the Jetpack RNA Connection Component releases.
 
+## 0.14.0 - 2022-01-25
+### Changed
+- Enforces the usage of initial state
+- Update h3 style for connection status card
+
+### Fixed
+- Fix Wrong spelling of propTypes in ConnectedPlugins
+- Make redirectUri property not be required in ConnectionStatusCard
+
 ## 0.13.2 - 2022-01-18
 ### Changed
 - General: update required node version to v16.13.2

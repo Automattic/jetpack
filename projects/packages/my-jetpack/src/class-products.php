@@ -117,33 +117,6 @@ class Products {
 	}
 
 	/**
-	 * Activate Backup product
-	 */
-	public static function activate_backup_product() {
-		/*
-		 * @todo: implement
-		 * suggestion: when it enables, return an success array:
-		 * array( 'status' => 'activated' );
-		 * Otherwise, an WP_Error instance will be nice.
-		 */
-		return array(
-			'status' => 'active',
-		);
-	}
-
-	/**
-	 * Deactivate Backup product
-	 */
-	public static function deactivate_backup_product() {
-		/*
-		 * @todo: implement
-		 */
-		return array(
-			'status' => 'inactive',
-		);
-	}
-
-	/**
 	 * Returns information about the Backup product
 	 *
 	 * @return array Object with infromation about the product.
