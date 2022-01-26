@@ -71,7 +71,7 @@ class Gridicon extends Component {
 				return <title>{ __( 'Post', 'jetpack-search-pkg' ) }</title>;
 			case 'gridicons-jetpack-search':
 			case 'gridicons-search':
-				return <title>{ __( 'Search', 'jetpack-search-pkg' ) }</title>;
+				return <title>{ __( 'Magnifying Glass', 'jetpack-search-pkg' ) }</title>;
 			case 'gridicons-tag':
 				return <title>{ __( 'Tag', 'jetpack-search-pkg' ) }</title>;
 			case 'gridicons-video':

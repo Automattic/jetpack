@@ -1,4 +1,3 @@
-const { default: md5 } = require( 'md5-es' );
 const path = require( 'path' );
 const webpack = require( 'webpack' );
 const { Template, RuntimeGlobals } = webpack;
@@ -44,12 +43,12 @@ class I18nLoaderRuntimeModule extends webpack.RuntimeModule {
 	}
 
 	/**
-	 * Get info for chunks we need to care about.
+	 * Get set of chunks we need to care about.
 	 *
-	 * @returns {Map} Map of chunk ID to data.
+	 * @returns {Set} Chunk IDs.
 	 */
-	getChunkInfo() {
-		const ret = new Map();
+	getChunks() {
+		const ret = new Set();
 		const { chunkGraph } = this.compilation;
 
 		for ( const chunk of this.chunk.getAllAsyncChunks() ) {
@@ -61,12 +60,7 @@ class I18nLoaderRuntimeModule extends webpack.RuntimeModule {
 					module.userRequest === '@wordpress/i18n' ||
 					module.dependencies.some( d => d.request === '@wordpress/i18n' )
 				) {
-					const [ chunkPath, query ] = this.getChunkPath( chunk ).split( '?', 2 );
-					ret.set( chunk.id, {
-						chunkPath,
-						query,
-						hash: md5.hash( chunkPath ),
-					} );
+					ret.add( chunk.id );
 					continue;
 				}
 			}
@@ -76,34 +70,24 @@ class I18nLoaderRuntimeModule extends webpack.RuntimeModule {
 
 	generate() {
 		const { chunk, compilation, runtimeOptions, runtimeRequirements } = this;
-		const { stateModule, stateModuleName, i18nModulesArr, textdomain } = runtimeOptions;
+		const { loaderModule, loaderMethod, loaderModuleName, textdomain, target } = runtimeOptions;
 		const { chunkGraph, runtimeTemplate } = compilation;
-		const chunkInfo = this.getChunkInfo();
+		const basepath =
+			this.runtimeOptions.path ||
+			path.relative( compilation.compiler.context, compilation.outputOptions.path );
+		const chunks = this.getChunks();
 
-		if ( ! chunkInfo.size ) {
+		if ( ! chunks.size ) {
 			debug( `No async submodules using @wordpress/i18n in ${ this.getChunkPath( chunk ) }.` );
 			return null;
 		}
 		debug( `Adding i18n-loading runtime for ${ this.getChunkPath( chunk ) }.` );
 
-		// The hooks should have injected the state and i18n modules. Check to make sure they're still there.
-		if ( ! chunkGraph.isModuleInChunk( stateModule, chunk ) ) {
+		// The hooks should have injected the loader module. Check to make sure it's still there.
+		if ( ! chunkGraph.isModuleInChunk( loaderModule, chunk ) ) {
 			throw new webpack.WebpackError(
 				// prettier-ignore
-				`Chunk ${ chunk.name || chunk.id || chunk.debugId } (${ this.getChunkPath( chunk ) }) has submodules using @wordpress/i18n, but is missing the state module ${ stateModuleName }.`
-			);
-		}
-		let i18nModule;
-		for ( const m of i18nModulesArr ) {
-			if ( chunkGraph.isModuleInChunk( m, chunk ) ) {
-				i18nModule = m;
-				break;
-			}
-		}
-		if ( ! i18nModule ) {
-			throw new webpack.WebpackError(
-				// prettier-ignore
-				`Chunk ${ chunk.name || chunk.id || chunk.debugId } (${ this.getChunkPath( chunk ) }) has submodules using @wordpress/i18n, but is itself missing @wordpress/i18n.`
+				`Chunk ${ chunk.name || chunk.id || chunk.debugId } (${ this.getChunkPath( chunk ) }) has submodules using @wordpress/i18n, but is missing the loader module ${ loaderModuleName }.`
 			);
 		}
 
@@ -116,82 +100,46 @@ class I18nLoaderRuntimeModule extends webpack.RuntimeModule {
 		}
 
 		// Determine the WordPress module name that @wordpress/dependency-extraction-webpack-plugin will (by default) use.
-		let depName = stateModuleName;
+		let depName = loaderModuleName;
 		if ( depName.startsWith( '@wordpress/' ) ) {
 			// prettier-ignore
 			depName = 'wp.' + depName.substring( 11 ).replace( /-([a-z])/g, ( _, letter ) => letter.toUpperCase() );
 		}
 
-		const targetcode = {
-			plugin: '"plugins/" + ',
-			theme: '"themes/" + ',
-			core: '',
-		}[ this.runtimeOptions.target ];
-		const domaincode = `state.domainMap[textdomain] || ( ${ targetcode }textdomain )`;
-
 		// Build the runtime code.
 		// prettier-ignore
 		return Template.asString( [
-			`var textdomain = ${ JSON.stringify( textdomain ) };`,
-			'var chunkInfo = {',
-			Template.indent(
-				Array.from( chunkInfo.entries(), ( [ k, v ] ) => {
-					const items = [
-						Template.toNormalComment( v.chunkPath ) + ' ' + JSON.stringify( v.hash ),
-						v.query ? JSON.stringify( '?' + v.query ) : '""',
-					];
-					return `${ JSON.stringify( k ) }: [ ${ items.join( ', ' ) } ]`;
-				} ).join( ',\n' )
-			),
+			'var installedChunks = {',
+			Template.indent( Array.from( chunks.values(), id => `${ JSON.stringify( id ) }: 0` ).join( ',\n' ) ),
 			'};',
 			'',
 			'var loadI18n = ' +
-				runtimeTemplate.basicFunction( 'info', [
-					'var i18n = ' + runtimeTemplate.moduleExports( {
-						module: i18nModule,
+				runtimeTemplate.basicFunction( 'chunkId', [
+					'var loader = ' + runtimeTemplate.moduleExports( {
+						module: loaderModule,
 						chunkGraph,
-						request: '@wordpress/i18n',
+						request: loaderModuleName,
 						runtimeRequirements,
 					} ) + ';',
-					'var state = ' + runtimeTemplate.moduleExports( {
-						module: stateModule,
-						chunkGraph,
-						request: stateModuleName,
-						runtimeRequirements,
-					} ) + ';',
-					`if ( ! state ) return Promise.reject( new Error( ${ JSON.stringify( 'I18n state is not available. Check that WordPress is exporting ' + depName + '.' ) } ) );`,
-					`if ( state.locale === "en_US" ) return Promise.resolve();`,
-					'if ( typeof fetch === "undefined" ) return Promise.reject( new Error( "Fetch API is not available." ) );',
-					'return fetch(',
-					Template.indent( [
-						runtimeTemplate.supportTemplateLiteral()
-							? '`${ state.baseUrl }${ ' + domaincode + ' }-${ state.locale }-${ info[0] }.json${ info[1] }`'
-							: 'state.baseUrl + ( ' + domaincode + ' ) + "-" + state.locale + "-" + info[0] + ".json" + info[1]',
-					] ),
-					').then( ' + runtimeTemplate.basicFunction( 'res', [
-						'if ( ! res.ok ) throw new Error( "HTTP request failed: " + res.status + " " + res.statusText );',
-						'return res.json();',
-					] ) + ' ).then( ' + runtimeTemplate.basicFunction( 'data', [
-						'var data2 = data.locale_data;',
-						'var localeData = data2[ textdomain ] || data2.messages;',
-						'localeData[""].domain = textdomain;',
-						'i18n.setLocaleData( localeData, textdomain );',
-					] ) + ' );',
+					`if ( loader && loader.${ loaderMethod } )`,
+					Template.indent(
+						`return loader.${ loaderMethod }( ${ JSON.stringify( basepath + '/' ) } + ${ RuntimeGlobals.getChunkScriptFilename }( chunkId ), ${ JSON.stringify( textdomain ) }, ${ JSON.stringify( target ) } );`,
+					),
+					`return Promise.reject( new Error( ${ JSON.stringify( 'I18n loader is not available. Check that WordPress is exporting ' + depName + '.' ) } ) );`,
 				] ) + ';',
 			'',
-			'var installedChunks = {};',
 			`${ RuntimeGlobals.ensureChunkHandlers }.wpI18n = ` + runtimeTemplate.basicFunction( 'chunkId, promises', [
 				'if ( installedChunks[chunkId] ) {',
 				Template.indent( 'promises.push( installedChunks[chunkId] );' ),
-				'} else if ( installedChunks[chunkId] !== 0 && chunkInfo[chunkId] ) {',
+				'} else if ( installedChunks[chunkId] === 0 ) {',
 				Template.indent( [
-					'promises.push( installedChunks[chunkId] = loadI18n( chunkInfo[chunkId] ).then( ',
+					'promises.push( installedChunks[chunkId] = loadI18n( chunkId ).then( ',
 					Template.indent( [
-						runtimeTemplate.basicFunction( '', [ 'installedChunks[chunkId] = 0;' ] ) + ',',
+						runtimeTemplate.basicFunction( '', [ 'installedChunks[chunkId] = false;' ] ) + ',',
 						runtimeTemplate.basicFunction( 'e', [
-							'delete installedChunks[chunkId];',
+							'installedChunks[chunkId] = 0;',
 							"// Log only, we don't want i18n failure to break the entire page.",
-							'console.error( "Failed to fetch i18n data:", e );',
+							'console.error( "Failed to fetch i18n data: ", e );',
 						] ),
 					] ),
 					') );',
