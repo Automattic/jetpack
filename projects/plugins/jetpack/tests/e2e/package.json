@@ -52,7 +52,7 @@
 	},
 	"browserslist": [],
 	"ci": {
-		"projects": [
+		"targets": [
 			"plugins/jetpack",
 			"tools/e2e-commons"
 		]

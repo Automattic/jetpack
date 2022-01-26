@@ -47,7 +47,7 @@
 	},
 	"browserslist": [],
 	"ci": {
-		"projects": [
+		"targets": [
 			"plugins/boost",
 			"tools/e2e-commons"
 		]
