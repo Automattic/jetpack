@@ -42,5 +42,15 @@ function send_version_to_tracker( $package_versions ) {
 	return $package_versions;
 }
 
+/**
+ * Whether Jetpack Search Package's version maps to a public release, or a development version.
+ */
+function is_development_version() {
+	return (bool) apply_filters(
+		'jetpack_search_pkg_version',
+		! preg_match( '/^\d+(\.\d+)+$/', JETPACK_SEARCH_PKG__VERSION )
+	);
+}
+
 // Set up package version hook.
 $add_filter( 'jetpack_package_versions', __NAMESPACE__ . '\send_version_to_tracker' );
