@@ -1269,4 +1269,11 @@ class Defaults {
 		),
 	);
 
+	/**
+	 * Default for enabling Sync Dedicated Request flow.
+	 *
+	 * @var int Bool-ish. Default 0.
+	 */
+	public static $default_dedicated_request_enable = 0;
+
 }

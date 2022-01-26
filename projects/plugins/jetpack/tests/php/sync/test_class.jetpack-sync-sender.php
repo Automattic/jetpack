@@ -13,6 +13,21 @@ class WP_Test_Jetpack_Sync_Sender extends WP_Test_Jetpack_Sync_Base {
 	protected $action_timestamp;
 	protected $encoded_data;
 	protected $filter_ran;
+	/**
+	 * Whether a dedicated Sync request was spawned.
+	 *
+	 * @var bool
+	 */
+	protected $dedicated_sync_request_spawned;
+
+	/**
+	 * Set up.
+	 */
+	public function set_up() {
+		parent::set_up();
+
+		$this->dedicated_sync_request_spawned = false;
+	}
 
 	function test_add_post_fires_sync_data_action_with_codec_and_timestamp_on_do_sync() {
 		// some trivial action so that there's an item in the queue
@@ -575,6 +590,59 @@ class WP_Test_Jetpack_Sync_Sender extends WP_Test_Jetpack_Sync_Base {
 		$this->assertTrue( is_wp_error( $response ) );
 	}
 
+	/**
+	 * Test do_sync will spawn a dedicated Sync request when the corresponding setting is enabled.
+	 */
+	public function test_do_sync_spawns_dedicated_sync_request() {
+		Settings::update_settings( array( 'dedicated_request_enable' => 1 ) );
+		$this->factory->post->create();
+
+		add_filter( 'pre_http_request', array( $this, 'pre_http_sync_request_spawned' ) );
+		$this->sender->do_sync();
+		remove_filter( 'pre_http_request', array( $this, 'pre_http_sync_request_spawned' ) );
+
+		$this->assertTrue( $this->dedicated_sync_request_spawned );
+
+		Settings::update_settings( array( 'dedicated_request_enable' => 0 ) );
+	}
+
+	/**
+	 * Test do_sync will NOT spawn a dedicated Sync request when the corresponding setting is enabled if the Sync queue is empty.
+	 */
+	public function test_do_sync_will_not_spawn_dedicated_sync_request_with_empty_queue() {
+		Settings::update_settings( array( 'dedicated_request_enable' => 1 ) );
+
+		add_filter( 'pre_http_request', array( $this, 'pre_http_sync_request_spawned' ) );
+		$result = $this->sender->do_sync();
+		remove_filter( 'pre_http_request', array( $this, 'pre_http_sync_request_spawned' ) );
+
+		$this->assertFalse( $this->dedicated_sync_request_spawned );
+		$this->assertTrue( is_wp_error( $result ) );
+		$this->assertEquals( 'empty_queue_sync', $result->get_error_code() );
+
+		Settings::update_settings( array( 'dedicated_request_enable' => 0 ) );
+	}
+
+	/**
+	 * Test do_sync will NOT spawn a dedicated Sync request when the corresponding setting is enabled if the Sync queue is locked.
+	 */
+	public function test_do_sync_will_not_spawn_dedicated_sync_request_with_locked_queue() {
+		$this->sender->get_sync_queue()->lock( 0 );
+
+		Settings::update_settings( array( 'dedicated_request_enable' => 1 ) );
+
+		add_filter( 'pre_http_request', array( $this, 'pre_http_sync_request_spawned' ) );
+		$result = $this->sender->do_sync();
+		remove_filter( 'pre_http_request', array( $this, 'pre_http_sync_request_spawned' ) );
+
+		$this->assertFalse( $this->dedicated_sync_request_spawned );
+		$this->assertTrue( is_wp_error( $result ) );
+		$this->assertEquals( 'locked_queue_sync', $result->get_error_code() );
+
+		Settings::update_settings( array( 'dedicated_request_enable' => 0 ) );
+		$this->sender->get_sync_queue()->reset();
+	}
+
 	function run_filter( $data ) {
 		$this->filter_ran = true;
 		return $data;
@@ -607,5 +675,25 @@ class WP_Test_Jetpack_Sync_Sender extends WP_Test_Jetpack_Sync_Base {
 		$this->encoded_data = $data;
 
 		return $data;
+	}
+
+	/**
+	 * Intercept HTTP request to run Sync and mock the response.
+	 * Should be hooked on the `pre_http_request` filter.
+	 *
+	 * @param false  $preempt A preemptive return value of an HTTP request.
+	 * @param array  $args The request arguments.
+	 * @param string $url The request URL.
+	 *
+	 * @return array
+	 */
+	public function pre_http_sync_request_spawned( $preempt, $args, $url ) { // phpcs:ignore VariableAnalysis.CodeAnalysis.VariableAnalysis.UnusedVariable
+		$this->dedicated_sync_request_spawned = isset( $_SERVER['REQUEST_METHOD'] ) &&
+			'POST' === $_SERVER['REQUEST_METHOD'] &&
+			isset( $_POST['jetpack_dedicated_sync_request'] ); // phpcs:ignore WordPress.Security.NonceVerification.Missing
+
+		return array(
+			'success' => true,
+		);
 	}
 }
