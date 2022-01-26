@@ -170,7 +170,5 @@ add_filter( 'jetpack_open_graph_tags', 'enhanced_og_video' );
  * @return bool True if the post has a suitable featured image, false otherwise.
  */
 function enhanced_og_has_featured_image( $post_id ) {
-	$featured = Jetpack_PostImages::from_thumbnail( $post_id, 200, 200 );
-
-	return ! empty( $featured ) && count( $featured ) > 0;
+	return ! empty( Jetpack_PostImages::from_thumbnail( $post_id ) );
 }
