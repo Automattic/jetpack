@@ -37,6 +37,7 @@
 		"path-name": "1.0.0",
 		"pluralize": "8.0.0",
 		"process": "0.11.10",
+		"semver": "7.3.5",
 		"simple-git": "2.37.0",
 		"yargs": "16.2.0"
 	},
