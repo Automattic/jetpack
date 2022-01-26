@@ -363,7 +363,7 @@ EOT;
 	 * @return string
 	 */
 	public function render_block( $attributes ) {
-		$post_id          =  get_the_ID();
+		$post_id          = get_the_ID();
 		$block_attributes = array(
 			'headline'        => isset( $attributes['headline'] ) ? $attributes['headline'] : null,
 			'show_thumbnails' => isset( $attributes['displayThumbnails'] ) && $attributes['displayThumbnails'],
