@@ -2,9 +2,7 @@
 /**
  * Enhanced Open Graph for Jetpack.
  *
- * @package automattic/jetpack-publicize
- *
- * @since-jetpack $$next-version$$ Moved to the jetpack-publicize package.
+ * @package automattic/jetpack
  */
 
 if ( ! class_exists( 'Jetpack_Media_Summary' ) ) {

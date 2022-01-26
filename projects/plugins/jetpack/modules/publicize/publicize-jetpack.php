@@ -2,9 +2,7 @@
 /**
  * Publicize class.
  *
- * @package automattic/jetpack-publicize
- *
- * @since-jetpack $$next-version$$ Moved to the jetpack-publicize package.
+ * @package automattic/jetpack
  */
 
 use Automattic\Jetpack\Connection\Tokens;
