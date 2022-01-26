@@ -70,7 +70,7 @@ class Jetpack_Simple_Payments {
 	/**
 	 * Create instance of class.
 	 */
-	public static function get_instance() {
+	public static function getInstance() { // phpcs:ignore WordPress.NamingConventions.ValidFunctionName.MethodNameInvalid
 		if ( ! self::$instance ) {
 			self::$instance = new self();
 			self::$instance->register_init_hooks();
@@ -797,4 +797,4 @@ class Jetpack_Simple_Payments {
 		return null;
 	}
 }
-Jetpack_Simple_Payments::get_instance();
+Jetpack_Simple_Payments::getInstance();
