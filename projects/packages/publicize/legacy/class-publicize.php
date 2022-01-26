@@ -512,8 +512,14 @@ class Publicize extends Publicize_Base {
 
 	/**
 	 * Get a specific connection. Stub.
+	 *
+	 * @param string    $service_name 'facebook', 'twitter', etc.
+	 * @param string    $connection_id Connection ID.
+	 * @param false|int $_blog_id The blog ID. Use false (default) for the current blog.
+	 * @param false|int $_user_id The user ID. Use false (default) for the current user.
+	 * @return void
 	 */
-	public function get_connection() {
+	public function get_connection( $service_name, $connection_id, $_blog_id = false, $_user_id = false ) {
 		// Stub.
 	}
 
