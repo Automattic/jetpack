@@ -11,7 +11,7 @@ This guide assumes you are using MacOS or a Linux machine and are an Automattici
 ### Using the installation script
 
 To speed up the installation process, you may use our monorepo installation script. To do so:
- - clone the Jetpack repo: `git clone https://github.com/Automattic/jetpack.git`
+ - clone the Jetpack repo: `git clone git@github.com:Automattic/Jetpack.git` using a public SSH key ([recommended](https://github.com/Automattic/jetpack/blob/master/docs/development-environment.md#clone-the-repository)) or `git clone https://github.com/Automattic/jetpack.git` using HTTPS
  - `cd` into the cloned `jetpack` folder.
  - run `tools/install-monorepo.sh` from the monorepo root.
  Once the installation is complete, continue onto the section [Running Jetpack locally](#running-jetpack-locally). 
@@ -26,7 +26,7 @@ Prior to installation, we recommend using [`Homebrew`](https://brew.sh/) to mana
 The Jetpack Monorepo requires the following to be installed on your machine:
 
 - Start by cloning the GitHub repo:
-	- `git clone https://github.com/Automattic/jetpack.git`
+	-  `git clone git@github.com:Automattic/Jetpack.git` using a public SSH key ([recommended](https://github.com/Automattic/jetpack/blob/master/docs/development-environment.md#clone-the-repository)) or `git clone https://github.com/Automattic/jetpack.git` using HTTPS
 	- If you're not an Automattician, you can [fork the repo following the instructions here](https://docs.github.com/en/get-started/quickstart/contributing-to-projects).
 - Bash (will need to be updated from default Mac version): `brew install bash`
 - jq (JSON processor used in scripts): `brew install jq` 
@@ -47,10 +47,10 @@ To setup Docker:
 	- Mac: `brew install --cask docker` (This will take a while!)
 	- Linux: `brew install docker` 
 	- `open -a Docker` (or open the app from your Applications folder) to open the GUI application. You will likely need to enter your device password and accept their terms for a first time setup.
-- Copy the settings file: `cp tools/docker/default.env tools/docker/.env`
+- Copy the settings file from within the monorepo root: `cp tools/docker/default.env tools/docker/.env`
 - Open `tools/docker/.env` and make any modifications you'd like.	
 	- It's strongly recommend you at least change `WP_ADMIN_PASSWORD` to something more secure.
-- Start the Docker container using `jetpack docker up` (this may take some time for the first setup)
+- Start the Docker container using `jetpack docker up -d` (this may take some time for the first setup)
 - Install WordPress in your Docker container using `jetpack docker install` 
 - Open up http://localhost to see your site!
 
@@ -60,7 +60,7 @@ For more in depth Docker instructions, follow the [Docker environment for Jetpac
 
 In order to test features that require a WordPress.com connection and other network related Jetpack features, you'll need a test site that can create local HTTP tunnels. If you're an Automattician, we recommend using Jurassic Tube:
 
-- Add a subdomain on [jurassic.tube](https://jurassic.tube/)
+- Visit the [jurassic.tube](https://jurassic.tube/) homepage to create a subdomain
 - Make sure you've run `pnpm install && pnpm cli-link`
 - Make sure Docker is running `jetpack docker up -d`
 - Stand on the monorepo root in your terminal and run `mkdir tools/docker/bin/jt`
