@@ -29,4 +29,4 @@ for PROJECT in "${PROJECTS[@]}"; do
 	echo
 done
 
-echo "'$(jq -s -c '.' <<<"${PROJECTS_MATRIX[@]}")'"
+jq -s -c -r '.' <<<"${PROJECTS_MATRIX[@]}"
