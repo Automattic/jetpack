@@ -72,7 +72,7 @@ export default function MyJetpackScreen() {
 			<AdminPage>
 				<AdminSectionHero>
 					<Row>
-						<Col lg={ 12 } md={ 8 } sm={ 4 }>
+						<Col lg={ 6 } md={ 4 } sm={ 4 }>
 							<h1>
 								{ __(
 									'Manage your Jetpack plan and products all in one place',
@@ -82,11 +82,7 @@ export default function MyJetpackScreen() {
 							<GlobalNotice />
 						</Col>
 					</Row>
-					<Row>
-						<Col lg={ 12 } md={ 8 } sm={ 4 }>
-							<ProductCardsSection />
-						</Col>
-					</Row>
+					<ProductCardsSection />
 				</AdminSectionHero>
 
 				<AdminSection>
