@@ -2,7 +2,7 @@
  * External dependencies
  */
 import React from 'react';
-import { Container, Row, Col } from '@automattic/jetpack-components';
+import { Container, Col } from '@automattic/jetpack-components';
 
 /**
  * Internal dependencies
@@ -24,32 +24,30 @@ import ExtrasCard from './extras-card';
 const ProductCardsSection = () => {
 	return (
 		<Container>
-			<Row>
-				<Col sm={ 3 }>
-					<BackupCard admin={ true } />
-				</Col>
-				<Col sm={ 3 }>
-					<ScanCard admin={ true } />
-				</Col>
-				<Col sm={ 3 }>
-					<AntiSpamCard admin={ true } />
-				</Col>
-				<Col sm={ 3 }>
-					<BoostCard admin={ true } />
-				</Col>
-				<Col sm={ 3 }>
-					<SearchCard admin={ true } />
-				</Col>
-				<Col sm={ 3 }>
-					<VideopressCard admin={ true } />
-				</Col>
-				<Col sm={ 3 }>
-					<CrmCard admin={ true } />
-				</Col>
-				<Col sm={ 3 }>
-					<ExtrasCard admin={ true } />
-				</Col>
-			</Row>
+			<Col xs={ 12 } sm={ 6 } md={ 3 }>
+				<BackupCard admin={ true } />
+			</Col>
+			<Col xs={ 12 } sm={ 6 } md={ 3 }>
+				<ScanCard admin={ true } />
+			</Col>
+			<Col xs={ 12 } sm={ 6 } md={ 3 }>
+				<AntiSpamCard admin={ true } />
+			</Col>
+			<Col xs={ 12 } sm={ 6 } md={ 3 }>
+				<BoostCard admin={ true } />
+			</Col>
+			<Col xs={ 12 } sm={ 6 } md={ 3 }>
+				<SearchCard admin={ true } />
+			</Col>
+			<Col xs={ 12 } sm={ 6 } md={ 3 }>
+				<VideopressCard admin={ true } />
+			</Col>
+			<Col xs={ 12 } sm={ 6 } md={ 3 }>
+				<CrmCard admin={ true } />
+			</Col>
+			<Col xs={ 12 } sm={ 6 } md={ 3 }>
+				<ExtrasCard admin={ true } />
+			</Col>
 		</Container>
 	);
 };
