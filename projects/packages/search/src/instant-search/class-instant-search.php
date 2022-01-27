@@ -70,7 +70,7 @@ class Instant_Search extends Classic_Search {
 	 * Loads assets for Jetpack Instant Search Prototype featuring Search As You Type experience.
 	 */
 	public function load_assets() {
-			$this->load_assets_with_parameters( JETPACK_SEARCH_PKG__DIR );
+			$this->load_assets_with_parameters( constant( 'JETPACK_SEARCH_PKG__DIR' ) );
 	}
 
 	/**
