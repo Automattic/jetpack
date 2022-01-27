@@ -40,9 +40,13 @@ const Container = props => {
 };
 
 Container.propTypes = {
+	/** Make container not having a max width. */
 	fluid: PropTypes.bool,
+	/** Custom className to be inserted. */
 	className: PropTypes.string,
+	/** Number of spacing (top / bottom), it gets mutiplied by 8px. Needs to be an integer */
 	horizontalSpacing: PropTypes.number,
+	/** Number of gap betwen rows, it gets multipled by 8px. Needs to be an integer */
 	horizontalGap: PropTypes.number,
 };
 

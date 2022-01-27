@@ -35,7 +35,7 @@ const Col = props => {
 Col.proptypes = {
 	/** Custom className to be inserted. */
 	className: PropTypes.string,
-	/** Colspan for extra small viewport. Needs to be an integer. */
+	/** Colspan for small viewport. Needs to be an integer. */
 	sm: PropTypes.number.isRequired,
 	/** Colspan for medium viewport. Needs to be an integer. */
 	md: PropTypes.number,
