@@ -123,17 +123,6 @@ async function execWpCommand( wpCmd, sendUrl = true ) {
 	return result;
 }
 
-/**
- * Run a shell command inside the testing docker.
- *
- * @param {string} shellCmd - Shell command to run.
- */
-async function execDockerShellCommand( shellCmd ) {
-	const cmd = `${ BASE_DOCKER_CMD } exec -- ${ shellCmd }`;
-
-	return await execShellCommand( cmd );
-}
-
 async function logDebugLog() {
 	let log;
 	try {
@@ -349,7 +338,6 @@ async function getJetpackVersion() {
 module.exports = {
 	execShellCommand,
 	execSyncShellCommand,
-	execDockerShellCommand,
 	resetWordpressInstall,
 	prepareUpdaterTest,
 	provisionJetpackStartConnection,
