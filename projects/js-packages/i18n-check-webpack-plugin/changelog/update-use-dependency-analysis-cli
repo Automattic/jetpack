@@ -1,0 +1,5 @@
+Significance: patch
+Type: added
+Comment: Tooling only: Add missing extra test dependency on webpack-config
+
+
