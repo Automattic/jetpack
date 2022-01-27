@@ -21,7 +21,7 @@ class WP_Test_Jetpack_Sync_Sender extends WP_Test_Jetpack_Sync_Base {
 	protected $dedicated_sync_request_spawned;
 
 	/**
-	 * Set up.
+	 * Setting up the testing environment.
 	 */
 	public function set_up() {
 		parent::set_up();
@@ -610,6 +610,8 @@ class WP_Test_Jetpack_Sync_Sender extends WP_Test_Jetpack_Sync_Base {
 	 * Test do_sync will NOT spawn a dedicated Sync request when the corresponding setting is enabled if the Sync queue is empty.
 	 */
 	public function test_do_sync_will_not_spawn_dedicated_sync_request_with_empty_queue() {
+		$this->sender->get_sync_queue()->reset();
+
 		Settings::update_settings( array( 'dedicated_request_enable' => 1 ) );
 
 		add_filter( 'pre_http_request', array( $this, 'pre_http_sync_request_spawned' ), 10, 3 );
@@ -688,10 +690,8 @@ class WP_Test_Jetpack_Sync_Sender extends WP_Test_Jetpack_Sync_Base {
 	 * @return array
 	 */
 	public function pre_http_sync_request_spawned( $preempt, $args, $url ) { // phpcs:ignore VariableAnalysis.CodeAnalysis.VariableAnalysis.UnusedVariable
-		$this->dedicated_sync_request_spawned = isset( $_SERVER['REQUEST_METHOD'] ) &&
-			'POST' === $_SERVER['REQUEST_METHOD'] &&
-			isset( $_POST['jetpack_dedicated_sync_request'] ); // phpcs:ignore WordPress.Security.NonceVerification.Missing
-
+		$this->dedicated_sync_request_spawned = 'POST' === $args['method'] &&
+			isset( $args['body']['jetpack_dedicated_sync_request'] );
 		return array(
 			'success' => true,
 		);
