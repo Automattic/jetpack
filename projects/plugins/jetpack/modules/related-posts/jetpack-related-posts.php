@@ -1263,7 +1263,7 @@ EOT;
 		 * @since 2.8.0
 		 *
 		 * @param array $results Array of related posts.
-		 * @param string $post_id Post ID of the post for which we are retrieving Related Posts.
+		 * @param int $post_id Post ID of the post for which we are retrieving Related Posts.
 		 */
 		return apply_filters( 'jetpack_relatedposts_returned_results', $related_posts, $post_id );
 	}
