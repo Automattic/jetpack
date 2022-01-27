@@ -424,7 +424,7 @@ EOT;
 		 * @since $$next-version$$
 		 *
 		 * @param string $display_markup HTML output of Related Posts.
-		 * @param string get_the_ID() Post ID of the post for which we are retrieving Related Posts.
+		 * @param int|false get_the_ID() Post ID of the post for which we are retrieving Related Posts.
 		 * @param array $related_posts Array of related posts.
 		 * @param array $block_attributes Array of Block attributes.
 		 */
@@ -1230,7 +1230,7 @@ EOT;
 			 * @since 3.0.0
 			 *
 			 * @param string $this->_to_utf8( $this->_generate_related_post_context( $post->ID ) ) Context displayed below each related post.
-			 * @param string $post_id Post ID of the post for which we are retrieving Related Posts.
+			 * @param int $post_id Post ID of the post for which we are retrieving Related Posts.
 			 */
 			'context' => apply_filters(
 				'jetpack_relatedposts_filter_post_context',
