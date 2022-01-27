@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "f58694f7fcade81008c38bcf98521d04",
+    "content-hash": "d4b537758d000cae06766dd4af578285",
     "packages": [
         {
             "name": "automattic/jetpack-a8c-mc-stats",
@@ -608,14 +608,14 @@
             "dist": {
                 "type": "path",
                 "url": "../../packages/connection-ui",
-                "reference": "9af24b55eb5b3505d5b133008a881b7ef8271f08"
+                "reference": "af0b68a96950278824fbd56aad4fc5f5a2af4240"
             },
             "require": {
                 "automattic/jetpack-assets": "^1.17",
                 "automattic/jetpack-connection": "^1.36",
                 "automattic/jetpack-constants": "^1.6",
                 "automattic/jetpack-device-detection": "^1.4",
-                "automattic/jetpack-identity-crisis": "^0.6"
+                "automattic/jetpack-identity-crisis": "^0.7"
             },
             "require-dev": {
                 "automattic/jetpack-changelogger": "^3.0"
@@ -850,7 +850,7 @@
             "dist": {
                 "type": "path",
                 "url": "../../packages/identity-crisis",
-                "reference": "c51ca771789f8d08c3e2edf1636ad051a1a3dd62"
+                "reference": "80cc6904f5337f7cfa194199ad307e054fece278"
             },
             "require": {
                 "automattic/jetpack-assets": "^1.17",
@@ -878,7 +878,7 @@
                     "link-template": "https://github.com/Automattic/jetpack-identity-crisis/compare/v${old}...v${new}"
                 },
                 "branch-alias": {
-                    "dev-master": "0.6.x-dev"
+                    "dev-master": "0.7.x-dev"
                 }
             },
             "autoload": {
@@ -1391,7 +1391,7 @@
             "dist": {
                 "type": "path",
                 "url": "../../packages/plugins-installer",
-                "reference": "574d2b6e9475c5e8c8ac4cd9030c43408fd08fe9"
+                "reference": "19c930344c337c188d411a51938c7c870ea511a1"
             },
             "require": {
                 "automattic/jetpack-a8c-mc-stats": "^1.4"
@@ -1405,6 +1405,11 @@
                 "branch-alias": {
                     "dev-master": "0.1.x-dev"
                 },
+                "mirror-repo": "Automattic/jetpack-plugins-installer",
+                "changelogger": {
+                    "link-template": "https://github.com/Automattic/jetpack-plugins-installer/compare/v${old}...v${new}"
+                },
+                "autotagger": true,
                 "textdomain": "jetpack-plugins-installer"
             },
             "autoload": {
@@ -1675,13 +1680,13 @@
             "dist": {
                 "type": "path",
                 "url": "../../packages/sync",
-                "reference": "cad6e550e4c76cc17cab3ddef0829b67e2c04838"
+                "reference": "08c63a81a1ac29072c140383f3bf9266a4c3c6be"
             },
             "require": {
                 "automattic/jetpack-connection": "^1.36",
                 "automattic/jetpack-constants": "^1.6",
                 "automattic/jetpack-heartbeat": "^1.4",
-                "automattic/jetpack-identity-crisis": "^0.6",
+                "automattic/jetpack-identity-crisis": "^0.7",
                 "automattic/jetpack-options": "^1.14",
                 "automattic/jetpack-password-checker": "^0.2",
                 "automattic/jetpack-roles": "^1.4",
