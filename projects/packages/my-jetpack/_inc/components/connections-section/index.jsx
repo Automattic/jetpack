@@ -16,6 +16,7 @@ export default function ConnectionsSection() {
 	const redirectAfterDisconnect = useCallback( () => {
 		window.location = myJetpackInitialState.topJetpackMenuItemUrl;
 	}, [] );
+
 	return (
 		<ConnectionStatusCard
 			apiRoot={ apiRoot }

@@ -21,6 +21,7 @@ import PlansSection from '../plans-section';
 import ProductCardsSection from '../product-cards-section';
 import useAnalytics from '../../hooks/use-analytics';
 import useNoticeWatcher, { useGlobalNotice } from '../../hooks/use-notice';
+import useMyJetpackConnection from '../../hooks/use-my-jetpack-connection';
 import './style.scss';
 
 /**
@@ -66,6 +67,11 @@ export default function MyJetpackScreen() {
 	useEffect( () => {
 		recordEvent( 'jetpack_myjetpack_page_view' );
 	}, [ recordEvent ] );
+
+	const { isSiteConnected } = useMyJetpackConnection();
+	if ( ! isSiteConnected ) {
+		return null;
+	}
 
 	return (
 		<div className="jp-my-jetpack-screen">
