@@ -33,17 +33,21 @@ const StepDisconnect = props => {
 		trackModalClick,
 	} = props;
 
-	const trackLearnClick = useCallback( () => trackModalClick( 'learn_about' ), [
-		trackModalClick,
-	] );
-	const trackSupportClick = useCallback( () => trackModalClick( 'support' ), [ trackModalClick ] );
+	const trackLearnClick = useCallback(
+		() => trackModalClick( 'jetpack_disconnect_dialog_click_learn_about' ),
+		[ trackModalClick ]
+	);
+	const trackSupportClick = useCallback(
+		() => trackModalClick( 'jetpack_disconnect_dialog_click_support' ),
+		[ trackModalClick ]
+	);
 	const handleStayConnectedClick = useCallback( () => {
-		trackModalClick( 'stay_connected' );
+		trackModalClick( 'jetpack_disconnect_dialog_click_stay_connected' );
 		closeModal();
 	}, [ trackModalClick, closeModal ] );
 	const handleDisconnectClick = useCallback(
 		e => {
-			trackModalClick( 'disconnect' );
+			trackModalClick( 'jetpack_disconnect_dialog_click_disconnect' );
 			onDisconnect( e );
 		},
 		[ trackModalClick, onDisconnect ]

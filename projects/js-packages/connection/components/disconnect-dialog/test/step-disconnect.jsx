@@ -48,10 +48,12 @@ describe( 'StepDisconnect', () => {
 			expect( testProps.onDisconnect.called ).to.be.true;
 		} );
 
-		it( 'calls the trackModalClick callback with disconnect', () => {
+		it( 'calls the trackModalClick callback with jetpack_disconnect_dialog_click_disconnect', () => {
 			disconnectButton.simulate( 'click', { preventDefault: () => undefined } );
 
-			expect( testProps.trackModalClick.calledOnceWith( 'disconnect' ) ).to.be.true;
+			expect(
+				testProps.trackModalClick.calledOnceWith( 'jetpack_disconnect_dialog_click_disconnect' )
+			).to.be.true;
 		} );
 	} );
 
@@ -65,30 +67,39 @@ describe( 'StepDisconnect', () => {
 			expect( testProps.closeModal.called ).to.be.true;
 		} );
 
-		it( 'calls the trackModalClick callback with stay_connected', () => {
+		it( 'calls the trackModalClick callback with jetpack_disconnect_dialog_click_stay_connected', () => {
 			dismissBtn.simulate( 'click', { preventDefault: () => undefined } );
 
-			expect( testProps.trackModalClick.calledOnceWith( 'stay_connected' ) ).to.be.true;
+			expect(
+				testProps.trackModalClick.calledOnceWith( 'jetpack_disconnect_dialog_click_stay_connected' )
+			).to.be.true;
 		} );
 	} );
 
 	describe( 'When help links are clicked', () => {
-		const learnAboutLink = 0;
-		const supportLink = 1;
+		const trackEvents = [
+			'jetpack_disconnect_dialog_click_learn_about',
+			'jetpack_disconnect_dialog_click_support',
+		];
 		const wrapper = shallow( <StepDisconnect { ...testProps } /> );
-
 		const links = wrapper.find( '.jp-connection__disconnect-dialog__link' );
+		let trackedTotal = 0;
 
-		it( 'the connection link calls the trackModalClick with learn_about', () => {
-			links.at( learnAboutLink ).simulate( 'click', { preventDefault: () => undefined } );
+		links.forEach( ( link, i ) => {
+			link.simulate( 'click', { preventDefault: () => undefined } );
 
-			expect( testProps.trackModalClick.calledOnceWith( 'learn_about' ) ).to.be.true;
+			const clickTrackValue = testProps.trackModalClick.getCall( i ).args[ 0 ];
+
+			it( `should track ${ clickTrackValue }`, async () => {
+				const valueIdx = trackEvents.indexOf( clickTrackValue );
+
+				expect( clickTrackValue ).to.equal( trackEvents[ valueIdx ] );
+				trackedTotal++;
+			} );
 		} );
 
-		it( 'the support link calls the trackModalClick with support', () => {
-			links.at( supportLink ).simulate( 'click', { preventDefault: () => undefined } );
-
-			expect( testProps.trackModalClick.calledOnceWith( 'support' ) ).to.be.true;
+		it( `should track all ${ trackEvents.length } expected events`, () => {
+			expect( trackedTotal ).to.equal( trackEvents.length );
 		} );
 	} );
 } );

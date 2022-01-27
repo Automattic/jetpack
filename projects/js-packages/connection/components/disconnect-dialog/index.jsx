@@ -221,12 +221,7 @@ const DisconnectDialog = props => {
 	);
 
 	const trackModalClick = useCallback(
-		target => {
-			jetpackAnalytics.tracks.recordEvent(
-				`jetpack_disconnect_dialog_click_${ target }`,
-				defaultTracksArgs
-			);
-		},
+		target => jetpackAnalytics.tracks.recordEvent( target, defaultTracksArgs ),
 		[ defaultTracksArgs ]
 	);
 
