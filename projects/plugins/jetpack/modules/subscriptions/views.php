@@ -192,9 +192,13 @@ class Jetpack_Subscriptions_Widget extends WP_Widget {
 					<p class="error">
 					<?php
 					printf(
-						__( 'The email address has opted out of subscription emails. <br /> You can manage your preferences at <a href="%1$s" title="%2$s" target="_blank">subscribe.wordpress.com</a>', 'jetpack' ),
+						wp_kses(
+							/* translators: 1: Link to Subscription Management page https://subscribe.wordpress.com/, 2: Description of this link. */
+							__( 'The email address has opted out of subscription emails. <br /> You can manage your preferences at <a href="%1$s" title="%2$s" target="_blank">subscribe.wordpress.com</a>', 'jetpack' ),
+							self::$allowed_html_tags_for_message
+						),
 						'https://subscribe.wordpress.com/',
-						__( 'Manage your email preferences.', 'jetpack' )
+						esc_attr__( 'Manage your email preferences.', 'jetpack' )
 					);
 					?>
 										</p>
@@ -205,9 +209,13 @@ class Jetpack_Subscriptions_Widget extends WP_Widget {
 					<p class="error">
 					<?php
 					printf(
-						__( 'You have already subscribed to this site. Please check your inbox. <br /> You can manage your preferences at <a href="%1$s" title="%2$s" target="_blank">subscribe.wordpress.com</a>', 'jetpack' ),
+						wp_kses(
+							/* translators: 1: Link to Subscription Management page https://subscribe.wordpress.com/, 2: Description of this link. */
+							__( 'You have already subscribed to this site. Please check your inbox. <br /> You can manage your preferences at <a href="%1$s" title="%2$s" target="_blank">subscribe.wordpress.com</a>', 'jetpack' ),
+							self::$allowed_html_tags_for_message
+						),
 						'https://subscribe.wordpress.com/',
-						__( 'Manage your email preferences.', 'jetpack' )
+						esc_attr__( 'Manage your email preferences.', 'jetpack' )
 					);
 					?>
 										</p>
@@ -664,7 +672,7 @@ class Jetpack_Subscriptions_Widget extends WP_Widget {
 	 *
 	 * @return array
 	 */
-	static function defaults() {
+	public static function defaults() {
 		$defaults = array(
 			'show_subscribers_total'     => true,
 			'show_only_email_and_button' => false,
@@ -757,7 +765,10 @@ class Jetpack_Subscriptions_Widget extends WP_Widget {
 					<input type="checkbox" id="<?php echo $this->get_field_id( 'show_subscribers_total' ); ?>"
 						name="<?php echo $this->get_field_name( 'show_subscribers_total' ); ?>"
 						value="1"<?php echo $show_subscribers_total; ?> />
-					<?php echo esc_html( sprintf( _n( 'Show total number of followers? (%s follower)', 'Show total number of followers? (%s followers)', $subscribers_total, 'jetpack' ), number_format_i18n( $subscribers_total ) ) ); ?>
+					<?php
+					/* translators: %s: Number of followers. */
+					echo esc_html( sprintf( _n( 'Show total number of followers? (%s follower)', 'Show total number of followers? (%s followers)', $subscribers_total, 'jetpack' ), number_format_i18n( $subscribers_total ) ) );
+					?>
 				</label>
 			</p>
 			<?php
@@ -810,7 +821,10 @@ class Jetpack_Subscriptions_Widget extends WP_Widget {
 					<input type="checkbox" id="<?php echo $this->get_field_id( 'show_subscribers_total' ); ?>"
 						name="<?php echo $this->get_field_name( 'show_subscribers_total' ); ?>"
 						value="1"<?php echo $show_subscribers_total; ?> />
-					<?php echo esc_html( sprintf( _n( 'Show total number of subscribers? (%s subscriber)', 'Show total number of subscribers? (%s subscribers)', $subscribers_total, 'jetpack' ), $subscribers_total ) ); ?>
+					<?php
+					/* translators: %s: Number of subscribers. */
+					echo esc_html( sprintf( _n( 'Show total number of subscribers? (%s subscriber)', 'Show total number of subscribers? (%s subscribers)', $subscribers_total, 'jetpack' ), $subscribers_total ) );
+					?>
 				</label>
 			</p>
 			<?php
