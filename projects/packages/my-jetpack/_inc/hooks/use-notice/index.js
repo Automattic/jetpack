@@ -50,7 +50,7 @@ export default function useNoticeWatcher() {
 					'jetpack-my-jetpack'
 				),
 				{
-					status: 'error',
+					status: 'warning',
 					actions: [
 						{
 							label: __( 'Connect Jetpack now.', 'jetpack-my-jetpack' ),
