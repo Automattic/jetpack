@@ -484,7 +484,6 @@ export default connect(
 			getModuleOverride: module_name => getModuleOverride( state, module_name ),
 			getModule: module_name => getModule( state, module_name ),
 			activeFeatures: getActiveFeatures( state ),
-			videoPremiumUpgradeUrl: getProductDescriptionUrl( state, 'videopress' ),
 			adsUpgradeUrl: getUpgradeUrl( state, 'settings-ads' ),
 			securityUpgradeUrl: getProductDescriptionUrl( state, 'security' ),
 			scanUpgradeUrl: getProductDescriptionUrl( state, 'scan' ),
