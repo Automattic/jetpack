@@ -17,9 +17,14 @@ const purchasesSelectors = {
 	isRequestingPurchases: state => state.isRequestingPurchases || false,
 };
 
+const noticeSelectors = {
+	getGlobalNotice: state => state.notices?.global,
+};
+
 const selectors = {
 	...productSelectors,
 	...purchasesSelectors,
+	...noticeSelectors,
 };
 
 export default selectors;

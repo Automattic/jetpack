@@ -22,6 +22,9 @@ const ACTIVATE_PRODUCT = 'ACTIVATE_PRODUCT';
 const DEACTIVATE_PRODUCT = 'DEACTIVATE_PRODUCT';
 const SET_PRODUCT_STATUS = 'SET_PRODUCT_STATUS';
 
+const SET_GLOBAL_NOTICE = 'SET_GLOBAL_NOTICE';
+const CLEAN_GLOBAL_NOTICE = 'CLEAN_GLOBAL_NOTICE';
+
 const setPurchasesIsFetching = isFetching => {
 	return { type: SET_PURCHASES_IS_FETCHING, isFetching };
 };
@@ -140,10 +143,20 @@ const productActions = {
 	setRequestProductError,
 };
 
+const noticeActions = {
+	setGlobalNotice: ( message, options ) => ( {
+		type: 'SET_GLOBAL_NOTICE',
+		message,
+		options,
+	} ),
+	cleanGlobalNotice: () => ( { type: 'CLEAN_GLOBAL_NOTICE' } ),
+};
+
 const actions = {
 	setPurchasesIsFetching,
 	fetchPurchases,
 	setPurchases,
+	...noticeActions,
 	...productActions,
 };
 
@@ -157,5 +170,7 @@ export {
 	DEACTIVATE_PRODUCT,
 	SET_IS_FETCHING_PRODUCT,
 	SET_PRODUCT_STATUS,
+	SET_GLOBAL_NOTICE,
+	CLEAN_GLOBAL_NOTICE,
 	actions as default,
 };
