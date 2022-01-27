@@ -7,6 +7,8 @@
 
 namespace Automattic\Jetpack\My_Jetpack\Products;
 
+use Automattic\Jetpack\Plugins_Installer;
+
 /**
  * Class responsible for handling the Boost product
  */
@@ -51,7 +53,7 @@ class Boost {
 	 * @return boolean
 	 */
 	public static function is_plugin_installed() {
-		$all_plugins = get_plugins();
+		$all_plugins = Plugins_Installer::get_plugins();
 		return array_key_exists( self::PLUGIN_FILENAME, $all_plugins );
 	}
 
@@ -61,7 +63,7 @@ class Boost {
 	 * @return boolean
 	 */
 	public static function is_plugin_active() {
-		return is_plugin_active( self::PLUGIN_FILENAME );
+		return Plugins_Installer::is_plugin_active( self::PLUGIN_FILENAME );
 	}
 
 	/**

@@ -12,18 +12,21 @@ jobs:
   check:
     name: "Check if Boost E2E tests should run"
     runs-on: ubuntu-latest
-    timeout-minutes: 1  # 2021-11-12: Should only take a second.
+    timeout-minutes: 3  # 2022-01-20: Takes a little time now for the tools and pnpm install.
     outputs:
       boost: ${{ steps.check.outputs.boost }}
     steps:
       - uses: actions/checkout@v2
-      # For pull requests, list-changed-projects.php needs the merge base.
+      # For pull requests, list-changed-projects.sh needs the merge base.
       - name: Deepen to merge base
         if: github.event_name == 'pull_request'
         uses: ./.github/actions/deepen-to-merge-base
+      - name: Setup tools
+        uses: ./.github/actions/tool-setup
       - id: check
         run: |
-          CHANGED="$(.github/files/list-changed-projects.php --debug)"
+          pnpm install
+          CHANGED="$(.github/files/list-changed-projects.sh)"
           BOOST="$(jq '.["plugins/boost"]' <<<"$CHANGED")"
           echo "::set-output name=boost::${BOOST}"
 

@@ -70,11 +70,11 @@ class Test_Jetpack_Sync_Search extends WP_Test_Jetpack_Sync_Base {
 	 *
 	 * @return string[][]
 	 */
-	public function get_allowed_postmeta_keys() {
+	public function get_random_allowed_postmeta_keys() {
 		$params = array();
 		$keys   = Modules\Search::get_all_postmeta_keys();
-		foreach ( $keys as $k ) {
-			$params[] = array( $k );
+		foreach ( array_rand( $keys, 10 ) as $k ) {
+			$params[] = array( $keys[ $k ] );
 		}
 
 		return $params;
@@ -85,11 +85,11 @@ class Test_Jetpack_Sync_Search extends WP_Test_Jetpack_Sync_Base {
 	 *
 	 * @return string[][]
 	 */
-	public function get_allowed_taxonomies() {
+	public function get_random_allowed_taxonomies() {
 		$params = array();
 		$keys   = Modules\Search::get_all_taxonomies();
-		foreach ( $keys as $k ) {
-			$params[] = array( $k );
+		foreach ( array_rand( $keys, 10 ) as $k ) {
+			$params[] = array( $keys[ $k ] );
 		}
 
 		return $params;
@@ -167,7 +167,7 @@ class Test_Jetpack_Sync_Search extends WP_Test_Jetpack_Sync_Base {
 	 * Important that we double check the specification format since
 	 * this will often get added to.
 	 *
-	 * @dataProvider get_allowed_postmeta_keys
+	 * @dataProvider get_random_allowed_postmeta_keys
 	 * @param string $key Meta Key.
 	 */
 	public function test_check_postmeta_spec( $key ) {
@@ -201,7 +201,7 @@ class Test_Jetpack_Sync_Search extends WP_Test_Jetpack_Sync_Base {
 	/**
 	 * Verify that allowed taxonomies are synced.
 	 *
-	 * @dataProvider get_allowed_taxonomies
+	 * @dataProvider get_random_allowed_taxonomies
 	 * @param string $taxonomy Taxonomy Name.
 	 */
 	public function test_add_taxonomy( $taxonomy ) {
