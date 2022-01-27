@@ -1,7 +1,7 @@
 PROJECTS=('{"project":"Jetpack","path":"projects/plugins/jetpack/tests/e2e"}' '{"project":"Boost","path":"projects/plugins/boost/tests/e2e"}')
 PROJECTS_MATRIX=()
 
-CHANGED_PROJECTS="$(.github/files/list-changed-projects.php --debug)"
+CHANGED_PROJECTS="$(.github/files/list-changed-projects.sh)"
 #echo "$CHANGED_PROJECTS"
 
 for PROJECT in "${PROJECTS[@]}"; do
