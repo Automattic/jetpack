@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "16b2ce002bf7190ab1af5e6816a68fab",
+    "content-hash": "2b9857b762d40c01b3b73d9a3ec493df",
     "packages": [
         {
             "name": "automattic/jetpack-a8c-mc-stats",
@@ -149,16 +149,16 @@
         },
         {
             "name": "automattic/jetpack-assets",
-            "version": "v1.17.0",
+            "version": "v1.17.1",
             "source": {
                 "type": "git",
                 "url": "https://github.com/Automattic/jetpack-assets.git",
-                "reference": "91d88714171476dbfc75743dfc2c48d84eb14364"
+                "reference": "d4e2134acb8d7a397625cb90754fbae9c2c39e80"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/Automattic/jetpack-assets/zipball/91d88714171476dbfc75743dfc2c48d84eb14364",
-                "reference": "91d88714171476dbfc75743dfc2c48d84eb14364",
+                "url": "https://api.github.com/repos/Automattic/jetpack-assets/zipball/d4e2134acb8d7a397625cb90754fbae9c2c39e80",
+                "reference": "d4e2134acb8d7a397625cb90754fbae9c2c39e80",
                 "shasum": ""
             },
             "require": {
@@ -196,9 +196,9 @@
             ],
             "description": "Asset management utilities for Jetpack ecosystem packages",
             "support": {
-                "source": "https://github.com/Automattic/jetpack-assets/tree/v1.17.0"
+                "source": "https://github.com/Automattic/jetpack-assets/tree/v1.17.1"
             },
-            "time": "2022-01-25T17:38:45+00:00"
+            "time": "2022-01-27T15:05:26+00:00"
         },
         {
             "name": "automattic/jetpack-autoloader",
@@ -1338,16 +1338,16 @@
         },
         {
             "name": "automattic/jetpack-search",
-            "version": "v0.5.2",
+            "version": "v0.5.3",
             "source": {
                 "type": "git",
                 "url": "https://github.com/Automattic/jetpack-search.git",
-                "reference": "e408700a61a7937263cdb48320acc91def69a95d"
+                "reference": "eb89ae15916d6f40dbc1310b6decfcb2f3545995"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/Automattic/jetpack-search/zipball/e408700a61a7937263cdb48320acc91def69a95d",
-                "reference": "e408700a61a7937263cdb48320acc91def69a95d",
+                "url": "https://api.github.com/repos/Automattic/jetpack-search/zipball/eb89ae15916d6f40dbc1310b6decfcb2f3545995",
+                "reference": "eb89ae15916d6f40dbc1310b6decfcb2f3545995",
                 "shasum": ""
             },
             "require": {
@@ -1386,9 +1386,9 @@
             ],
             "description": "Tools to assist with enabling cloud search for Jetpack sites.",
             "support": {
-                "source": "https://github.com/Automattic/jetpack-search/tree/v0.5.2"
+                "source": "https://github.com/Automattic/jetpack-search/tree/v0.5.3"
             },
-            "time": "2022-01-25T17:39:04+00:00"
+            "time": "2022-01-27T15:05:39+00:00"
         },
         {
             "name": "automattic/jetpack-status",
