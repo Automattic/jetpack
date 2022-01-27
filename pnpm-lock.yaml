@@ -662,6 +662,7 @@ importers:
       '@testing-library/user-event': 12.8.3
       '@wordpress/components': 19.1.6
       '@wordpress/data': 6.1.5
+      '@wordpress/element': 4.0.4
       '@wordpress/i18n': 4.2.4
       '@wordpress/icons': 6.1.1
       classnames: 2.3.1
@@ -681,6 +682,7 @@ importers:
       '@automattic/jetpack-connection': link:../../js-packages/connection
       '@wordpress/components': 19.1.6_aae888dfa296766acacf1a733aa50b3a
       '@wordpress/data': 6.1.5_react@17.0.2
+      '@wordpress/element': 4.0.4
       '@wordpress/i18n': 4.2.4
       '@wordpress/icons': 6.1.1
       classnames: 2.3.1
