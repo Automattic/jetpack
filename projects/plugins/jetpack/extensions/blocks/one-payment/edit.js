@@ -21,7 +21,7 @@ import defaultVariations from './variations';
 export function JetpackOnePaymentEdit( {
 	setAttributes,
 	hasInnerBlocks,
-	replaceInnerBlocks,
+	replaceBlock,
 	selectBlock,
 	clientId,
 	className,
@@ -45,7 +45,7 @@ export function JetpackOnePaymentEdit( {
 		}
 
 		if ( variation.innerBlocks ) {
-			replaceInnerBlocks( clientId, createBlocksFromInnerBlocksTemplate( variation.innerBlocks ) );
+			replaceBlock( clientId, createBlocksFromInnerBlocksTemplate( variation.innerBlocks ) );
 		}
 
 		selectBlock( clientId );
@@ -91,14 +91,13 @@ export default compose( [
 			blockType: getBlockType && getBlockType( props.name ),
 			defaultVariation: getDefaultBlockVariation && getDefaultBlockVariation( props.name, 'block' ),
 			variations: getBlockVariations && getBlockVariations( props.name, 'block' ),
-
 			innerBlocks,
 			hasInnerBlocks: innerBlocks.length > 0,
 		};
 	} ),
 	withDispatch( dispatch => {
-		const { replaceInnerBlocks, selectBlock } = dispatch( 'core/block-editor' );
-		return { replaceInnerBlocks, selectBlock };
+		const { replaceBlock, selectBlock } = dispatch( 'core/block-editor' );
+		return { replaceBlock, selectBlock };
 	} ),
 	withInstanceId,
 ] )( JetpackOnePaymentEdit );
