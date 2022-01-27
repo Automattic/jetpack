@@ -58,7 +58,7 @@ foreach ( array( '5.6', '7.0', '7.2', '7.3', '7.4', '8.0' ) as $php ) {
 		'script'  => 'test-php',
 		'php'     => $php,
 		'wp'      => 'latest',
-		'timeout' => 15, // 2021-01-18: Successful runs seem to take ~8 minutes for PHP 5.6 and for the 7.4 master run, ~5.5-6 for 7.x and 8.0.
+		'timeout' => 20, // 2022-01-25: 5.6 tests have started timing out at 15 minutes. Previously: Successful runs seem to take ~8 minutes for PHP 5.6 and for the 7.4 master run, ~5.5-6 for 7.x and 8.0.
 	);
 }
 // Merge this into the above once we decide PHP 8.1 is stable and WP latest works with 8.1.

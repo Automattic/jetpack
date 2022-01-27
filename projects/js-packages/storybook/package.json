@@ -23,7 +23,7 @@
 		"storybook:dev": "concurrently \"pnpm run dev:packages\" \"start-storybook -c ./storybook -p 50240 -s ./public\""
 	},
 	"devDependencies": {
-		"@automattic/jetpack-base-styles": "workspace:^0.1.7-alpha",
+		"@automattic/jetpack-base-styles": "workspace:^0.1.7",
 		"@babel/core": "7.16.0",
 		"@babel/plugin-syntax-jsx": "7.16.0",
 		"@babel/preset-react": "7.16.0",

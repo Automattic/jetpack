@@ -13,7 +13,7 @@
   --status-active: #008710;
   --status-inactive: #646970;
   --status-error: #B32D2E;
-  --status-absent: #C3C4C7;
+  --status-plugin_absent: #C3C4C7;
 
   padding: 24px;
   background: var( --jp-white );
@@ -24,10 +24,10 @@
   flex-direction: column;
   justify-content: space-between;
 
-  &.absent {
+  &.plugin_absent {
     background: none;
     box-shadow: none;
-    box-shadow: 0 0 0 1px var( --status-absent ) inset;
+    box-shadow: 0 0 0 1px var( --status-plugin_absent ) inset;
   }
 }
 
@@ -70,7 +70,7 @@
     border-radius: 50%;
   }
 
-  // in absent case, there's not status flag
+  // in plugin absent case, there's not status flag
   $statuses: active, inactive, error;
 
   @each $status in $statuses {
@@ -82,6 +82,24 @@
         background: $color;
       }
     }
+  }
+
+  &.is-fetching {
+    &:before {
+      animation: blink-animation 0.5s linear infinite;
+    }
+  }
+}
+
+@keyframes blink-animation{
+  0%{
+    opacity: 0;
+  }
+  50%{
+    opacity: 0.5;
+  }
+  100%{
+    opacity: 0;
   }
 }
 
