@@ -7,18 +7,18 @@ import {
 	AdminSection,
 	AdminSectionHero,
 	AdminPage,
-	Row,
+	Container,
 	Col,
 } from '@automattic/jetpack-components';
 
 /**
  * Internal dependencies
  */
-import './style.scss';
 import ConnectionsSection from '../connections-section';
 import PlansSection from '../plans-section';
 import ProductCardsSection from '../product-cards-section';
 import useAnalytics from '../../hooks/use-analytics';
+import styles from './styles.module.scss';
 
 /**
  * The My Jetpack App Main Screen.
@@ -33,33 +33,33 @@ export default function MyJetpackScreen() {
 		recordEvent( 'jetpack_myjetpack_page_view' );
 	}, [ recordEvent ] );
 	return (
-		<div className="jp-my-jetpack-screen">
-			<AdminPage>
-				<AdminSectionHero>
-					<Row>
-						<Col lg={ 12 } md={ 8 } sm={ 4 }>
-							<h1>
-								{ __(
-									'Manage your Jetpack plan and products all in one place',
-									'jetpack-my-jetpack'
-								) }
-							</h1>
-							<ProductCardsSection />
-						</Col>
-					</Row>
-				</AdminSectionHero>
+		<AdminPage>
+			<AdminSectionHero>
+				<Container horizontalSpacing={ 5 }>
+					<Col>
+						<h1 className={ styles.heading }>
+							{ __(
+								'Manage your Jetpack plan and products all in one place',
+								'jetpack-my-jetpack'
+							) }
+						</h1>
+					</Col>
+					<Col>
+						<ProductCardsSection />
+					</Col>
+				</Container>
+			</AdminSectionHero>
 
-				<AdminSection>
-					<Row>
-						<Col lg={ 6 } sm={ 4 }>
-							<PlansSection />
-						</Col>
-						<Col lg={ 6 } sm={ 4 }>
-							<ConnectionsSection />
-						</Col>
-					</Row>
-				</AdminSection>
-			</AdminPage>
-		</div>
+			<AdminSection>
+				<Container horizontalSpacing={ 8 }>
+					<Col sm={ 2 } md={ 4 } lg={ 6 }>
+						<PlansSection />
+					</Col>
+					<Col sm={ 2 } md={ 4 } lg={ 6 }>
+						<ConnectionsSection />
+					</Col>
+				</Container>
+			</AdminSection>
+		</AdminPage>
 	);
 }
