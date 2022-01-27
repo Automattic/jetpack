@@ -1391,7 +1391,7 @@
             "dist": {
                 "type": "path",
                 "url": "../../packages/plugins-installer",
-                "reference": "574d2b6e9475c5e8c8ac4cd9030c43408fd08fe9"
+                "reference": "19c930344c337c188d411a51938c7c870ea511a1"
             },
             "require": {
                 "automattic/jetpack-a8c-mc-stats": "^1.4"
@@ -1405,6 +1405,11 @@
                 "branch-alias": {
                     "dev-master": "0.1.x-dev"
                 },
+                "mirror-repo": "Automattic/jetpack-plugins-installer",
+                "changelogger": {
+                    "link-template": "https://github.com/Automattic/jetpack-plugins-installer/compare/v${old}...v${new}"
+                },
+                "autotagger": true,
                 "textdomain": "jetpack-plugins-installer"
             },
             "autoload": {
