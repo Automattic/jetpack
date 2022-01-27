@@ -16,7 +16,7 @@ Includes manipulation of paths, enqueuing async scripts, and DNS resource hintin
 * `::alias_textdomains_from_file( $file )` -- Use data recorded by [automattic/jetpack-composer-plugin](https://packagist.org/packages/automattic/jetpack-composer-plugin) to enable use of translations for shared Composer libraries.
 * `::alias_textdomains( $from, $to, $totype, $ver )` -- Manually add a textdomain alias, if for some reason `::alias_textdomains_from_file()` is insufficient.
 
-The Assets package also provides a `wp-jp-i18n-state` script to support Webpack lazy-loaded bundles using [@automattic/i18n-loader-webpack-plugin](https://www.npmjs.com/package/@automattic/i18n-loader-webpack-plugin). No initialization is required, other than calling `::alias_textdomains_from_file()` or `::alias_textdomains()` if said bundles are coming from shared Composer libraries.
+The Assets package also provides a `wp-jp-i18n-loader` script to support Webpack lazy-loaded bundles using [@automattic/i18n-loader-webpack-plugin](https://www.npmjs.com/package/@automattic/i18n-loader-webpack-plugin). No initialization is required, other than calling `::alias_textdomains_from_file()` or `::alias_textdomains()` if said bundles are coming from shared Composer libraries.
 
 ## Testing
 

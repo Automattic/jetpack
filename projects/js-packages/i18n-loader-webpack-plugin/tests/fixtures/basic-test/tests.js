@@ -1,3 +1,5 @@
+/* global jpI18nLoader */
+
 test( 'Tests', async () => {
 	const main = require( './dist/main.js' );
 	const bar = require( './dist/bar.js' );
@@ -6,10 +8,7 @@ test( 'Tests', async () => {
 
 	expect( await main.noI18n() ).toEqual( 'No i18n here' );
 
-	fetch.expectUrl(
-		'http://test.example.com/wp-content/languages/plugins/basic-test-en_piglatin-c7c3968298452ee95564fb9c05e2de50.json',
-		translations
-	);
+	jpI18nLoader.expectI18n( 'dist/hasI18n.js', translations );
 	expect( await main.hasI18n() ).toEqual( 'is-Thay is-way anslated-tray' );
 	expect( await main.hasI18n() ).toEqual( 'is-Thay is-way anslated-tray' );
 

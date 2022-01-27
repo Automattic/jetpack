@@ -43,8 +43,10 @@ Non-installed WordPress is running at [http://localhost](http://localhost) now. 
 jetpack docker install
 ```
 
-At this point, we encourage you to set up a service that can create local HTTP tunnels, such as [the Jurassic Tube Tunneling Service](#jurassic-tube-tunneling-service) if you are an Automattician, [ngrok](#using-ngrok-with-jetpack), or [another similar service](https://alternativeto.net/software/ngrok/).
+At this point, to connect Jetpack, you'd need to set up a service that can create local HTTP tunnels, such as [the Jurassic Tube Tunneling Service](#jurassic-tube-tunneling-service) (available to Automatticians only), [ngrok](#using-ngrok-with-jetpack), or [another similar service](https://alternativeto.net/software/ngrok/).
 With such a service, your site will be publicly accessible and you will be able to connect Jetpack to WordPress.com.
+
+**Warning: These solutions create a public tunnel to your system. You should only activate the tunnel while actively needing it and deactivate when you are finished.**
 
 _You are now ready to login to your new WordPress install and connect Jetpack, congratulations!_
 
@@ -281,7 +283,7 @@ jetpack docker jt-up
 
 ## Using Ngrok with Jetpack
 
-Note: While Ngrok is technically supported for everyone, Jurassic Tube should be considered as preferred tunneling solution for Automatticians.
+Note: While Ngrok is technically supported for everyone, Jurassic Tube is used by the Jetpack team and is available to all Automatticians.
 
 To be able to connect Jetpack you will need a domain - you can use [Ngrok.com](https://ngrok.com/) to assign one.
 

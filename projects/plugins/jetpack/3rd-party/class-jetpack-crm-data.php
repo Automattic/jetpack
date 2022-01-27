@@ -22,8 +22,7 @@ class Jetpack_CRM_Data {
 	 * @return array An array containing the Jetpack CRM plugin data.
 	 */
 	public function get_crm_data() {
-		jetpack_require_lib( 'plugins' );
-		$plugins = \Jetpack_Plugins::get_plugins();
+		$plugins = Plugins_Installer::get_plugins();
 
 		// Set default values.
 		$response = array(

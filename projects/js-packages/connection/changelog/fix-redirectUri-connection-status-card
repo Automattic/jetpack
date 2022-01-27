@@ -1,4 +1,0 @@
-Significance: patch
-Type: fixed
-
-Make redirectUri property not be required in ConnectionStatusCard

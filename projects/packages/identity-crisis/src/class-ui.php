@@ -69,7 +69,7 @@ class UI {
 	 */
 	public static function render_container() {
 		?>
-		<div id="jp-identity-crisis-container"></div>
+		<div id="jp-identity-crisis-container" class="notice"></div>
 		<?php
 	}
 
