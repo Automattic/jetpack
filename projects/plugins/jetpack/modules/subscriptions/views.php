@@ -654,10 +654,10 @@ class Jetpack_Subscriptions_Widget extends WP_Widget {
 		}
 
 		if ( self::is_wpcom() ) {
-			$instance['title']               = strip_tags( stripslashes( $new_instance['title'] ) );
-			$instance['title_following']     = strip_tags( stripslashes( $new_instance['title_following'] ) );
+			$instance['title']               = wp_strip_all_tags( stripslashes( $new_instance['title'] ) );
+			$instance['title_following']     = wp_strip_all_tags( stripslashes( $new_instance['title_following'] ) );
 			$instance['subscribe_logged_in'] = wp_filter_post_kses( stripslashes( $new_instance['subscribe_logged_in'] ) );
-			$instance['subscribe_button']    = strip_tags( stripslashes( $new_instance['subscribe_button'] ) );
+			$instance['subscribe_button']    = wp_strip_all_tags( stripslashes( $new_instance['subscribe_button'] ) );
 		}
 
 		$instance['show_subscribers_total']     = isset( $new_instance['show_subscribers_total'] ) && $new_instance['show_subscribers_total'];
