@@ -1,5 +1,7 @@
 <?php // phpcs:ignore WordPress.Files.FileName.InvalidClassFileName
 
+use Automattic\Jetpack\Plugins_Installer;
+
 if ( ! defined( 'ABSPATH' ) ) {
 	exit;
 }
@@ -126,8 +128,7 @@ class WC_Services_Installer {
 	 * @return bool result of installation
 	 */
 	private function install() {
-		jetpack_require_lib( 'plugins' );
-		$result = Jetpack_Plugins::install_plugin( 'woocommerce-services' );
+		$result = Plugins_Installer::install_plugin( 'woocommerce-services' );
 
 		if ( is_wp_error( $result ) ) {
 			return false;
