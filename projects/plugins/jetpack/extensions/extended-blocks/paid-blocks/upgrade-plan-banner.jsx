@@ -12,11 +12,8 @@ import { Nudge } from '../../shared/components/upgrade-nudge';
 
 export const UPGRADE_NUDGE_TITLE = __( 'Premium Block', 'jetpack' );
 
-// translators: %s: name of the plan.
-export const UPGRADE_NUDGE_PLAN_DESCRIPTION = __(
-	'Upgrade to %s to use this premium block',
-	'jetpack'
-);
+export const /** translators: %s: name of the plan. */
+	UPGRADE_NUDGE_PLAN_DESCRIPTION = __( 'Upgrade to %s to use this premium block', 'jetpack' );
 
 export const UPGRADE_NUDGE_DESCRIPTION = __(
 	'Upgrade your plan to use this premium block',
