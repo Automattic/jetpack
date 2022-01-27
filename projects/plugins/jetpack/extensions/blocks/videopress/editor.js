@@ -162,12 +162,12 @@ const addVideoPressSupport = ( settings, name ) => {
 
 	const { deprecated, edit, save, supports, transforms } = settings;
 	const { available, unavailableReason } = getJetpackExtensionAvailability( 'videopress' );
+	const isNotAvailable =
+		( isSimpleSite() || isAtomicSite() ) &&
+		[ 'missing_plan', 'unknown' ].includes( unavailableReason );
 
 	// Check if VideoPress is unavailable and filter the mediaplaceholder to limit options
-	if (
-		( isSimpleSite() || isAtomicSite() ) &&
-		[ 'missing_plan', 'unknown' ].includes( unavailableReason )
-	) {
+	if ( isNotAvailable ) {
 		addFilter( 'editor.MediaPlaceholder', 'jetpack/videopress', videoPressNoPlanMediaPlaceholder );
 		addFilter(
 			'editor.BlockListBlock',
@@ -295,20 +295,30 @@ const addVideoPressSupport = ( settings, name ) => {
 						priority: 9,
 						transform: ( files, onChange ) => {
 							const blocks = [];
-							console.log( 'FILES?', files );
 							files.forEach( file => {
-								const block = createBlock( 'core/video', {
-									'fileForImmediateUpload': file,
-								} );
-								console.log( block );
-								/*mediaUpload( {
-									filesList: [ file ],
-									onFileChange: ( [ { id, url } ] ) => {
-										onChange( block.clientId, { id, src: url } );
-									},
-									allowedTypes: [ 'video' ],
-								} );*/
-								blocks.push( block );
+								if ( available ) {
+									// VideoPress block handles the upload
+									const block = createBlock( 'core/video', {
+										'fileForImmediateUpload': file,
+									} );
+
+									blocks.push( block );
+								} else {
+									// Use core block w/ standard mediaUpload
+									const block = createBlock( 'core/video', {
+										src: createBlobURL( file ),
+									} );
+										
+									mediaUpload( {
+										filesList: [ file ],
+										onFileChange: ( [ { id, url } ] ) => {
+											onChange( block.clientId, { id, src: url } );
+										},
+										allowedTypes: [ 'video' ],
+									} );
+
+									blocks.push( block );
+								}
 							} );
 							return blocks;
 						},
