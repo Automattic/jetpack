@@ -40,6 +40,13 @@ class Partner_Coupon {
 	public static $added_option = 'partner_coupon_added';
 
 	/**
+	 * Name of the Jetpack_Option last check option.
+	 *
+	 * @var string
+	 */
+	public static $last_check_option = 'jetpack_partner_coupon_last_check';
+
+	/**
 	 * Jetpack_Partner_Coupon
 	 *
 	 * @var Partner_Coupon|null
@@ -128,14 +135,21 @@ class Partner_Coupon {
 	/**
 	 * Purge partner coupon.
 	 *
-	 * @todo Update DocBlock.
-	 * @todo limit this check to only Jetpack settings pages (requires dynamic values if other plugins implements it).
-	 * @todo Only check every 30 seconds to try and limit the API requests?
-	 *
-	 * We automatically purge partner coupons after a certain amount of time to prevent
-	 * us from unnecessarily promoting a product for months or years in the future.
+	 * We try to remotely check if a coupon looks valid. We also automatically purge
+	 * partner coupons after a certain amount of time to prevent unnecessary look-ups
+	 * and/or promoting a product for months or years in the future due to unknown
+	 * errors.
 	 */
 	public function maybe_purge_coupon() {
+		// Only run coupon checks on Jetpack admin pages.
+		// The "admin-ui" package is responsible for registering the Jetpack admin
+		// page for all Jetpack plugins and has hardcoded the settings page to be
+		// "jetpack", so we shouldn't need to allow for dynamic/custom values.
+		// phpcs:ignore WordPress.Security.NonceVerification.Recommended
+		if ( ! isset( $_GET['page'] ) || ! 'jetpack' === $_GET['page'] ) {
+			return;
+		}
+
 		$date = Jetpack_Options::get_option( self::$added_option, '' );
 
 		if ( empty( $date ) ) {
@@ -151,24 +165,31 @@ class Partner_Coupon {
 			return;
 		}
 
-		$last_check = Jetpack_Options::get_raw_option( 'jetpack_partner_coupon_last_check', 0 );
+		$last_check = Jetpack_Options::get_raw_option( self::$last_check_option, 0 );
 
-		if ( $last_check && time() > $last_check + 30 ) {
+		// Limit checks to happen every minute instead of on all page requests.
+		if ( $last_check && time() > $last_check + MINUTE_IN_SECONDS ) {
 			return;
 		}
 
-		Jetpack_Options::update_raw_option( 'jetpack_partner_coupon_last_check', time() );
+		Jetpack_Options::update_raw_option( self::$last_check_option, time() );
 
 		$coupon   = self::get_coupon();
-		$response = Connection_Client::wpcom_json_api_request_as_user(
+		$response = Connection_Client::wpcom_json_api_request_as_blog(
 			sprintf( '/jetpack-partner/coupon/v1/site/coupon?coupon_code=%s', $coupon['coupon_code'] ),
 			2,
-			array( 'method' => 'GET' )
+			array( 'method' => 'GET' ),
+			null,
+			'wpcom'
 		);
 
 		$body = json_decode( wp_remote_retrieve_body( $response ), true );
 
-		if ( 200 === wp_remote_retrieve_response_code( $response ) && isset( $body['status'] ) && false === $body['status'] ) {
+		if (
+			200 === wp_remote_retrieve_response_code( $response ) &&
+			isset( $body['status'] ) &&
+			false === $body['status']
+		) {
 			$this->delete_coupon_data();
 		}
 	}
@@ -183,6 +204,8 @@ class Partner_Coupon {
 				self::$added_option,
 			)
 		);
+
+		Jetpack_Options::delete_raw_option( self::$last_check_option );
 	}
 
 	/**
