@@ -28,14 +28,14 @@ class Critical_CSS_State {
 	 *
 	 * @var mixed
 	 */
-	private $state;
+	protected $state;
 
 	/**
 	 * Critical CSS state error.
 	 *
 	 * @var mixed
 	 */
-	private $state_error;
+	protected $state_error;
 
 	/**
 	 * Formatted sources array created from providers.
@@ -44,14 +44,14 @@ class Critical_CSS_State {
 	 * @var array
 	 * @todo: Maybe rename to providers
 	 */
-	private $sources = array();
+	protected $sources = array();
 
 	/**
 	 * Epoch time when was Critical CSS last updated.
 	 *
 	 * @var int
 	 */
-	private $created;
+	protected $created;
 
 	/**
 	 * Constructor.

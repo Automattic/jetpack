@@ -3,6 +3,7 @@
 namespace Automattic\Jetpack_Boost\Features\Optimizations;
 
 use Automattic\Jetpack_Boost\Features\Optimizations\Critical_CSS\Critical_CSS;
+use Automattic\Jetpack_Boost\Features\Optimizations\Cloud_CSS\Cloud_CSS;
 use Automattic\Jetpack_Boost\Features\Optimizations\Lazy_Images\Lazy_Images;
 use Automattic\Jetpack_Boost\Features\Optimizations\Render_Blocking_JS\Render_Blocking_JS;
 
@@ -44,6 +45,7 @@ class Optimizations {
 
 		$features = array(
 			new Critical_CSS(),
+			new Cloud_CSS(),
 			new Lazy_Images(),
 			new Render_Blocking_JS(),
 		);
