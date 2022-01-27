@@ -5,7 +5,6 @@
 	"projects/plugins/jetpack/_inc/lib/admin-pages/class.jetpack-settings-page.php",
 	"projects/plugins/jetpack/_inc/lib/class.color.php",
 	"projects/plugins/jetpack/_inc/lib/class.core-rest-api-endpoints.php",
-	"projects/plugins/jetpack/_inc/lib/class.jetpack-automatic-install-skin.php",
 	"projects/plugins/jetpack/_inc/lib/class.jetpack-iframe-embed.php",
 	"projects/plugins/jetpack/_inc/lib/class.jetpack-keyring-service-helper.php",
 	"projects/plugins/jetpack/_inc/lib/class.jetpack-photon-image-sizes.php",
