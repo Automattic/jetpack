@@ -6,6 +6,7 @@ const apiEndpointsRegex = {
 	'lazy-images-status': /jetpack-boost\/v1\/module\/lazy-images\/status/,
 	'render-blocking-js-status': /jetpack-boost\/v1\/module\/render-blocking-js\/status/,
 	'speed-scores-update': /jetpack-boost\/v1\/speed-scores\/\w*\/update/,
+	connection: /jetpack-boost\/v1\/connection/,
 };
 
 export default class JetpackBoostPage extends WpPage {
