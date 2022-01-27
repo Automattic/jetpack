@@ -23,29 +23,29 @@ import ExtrasCard from './extras-card';
  */
 const ProductCardsSection = () => {
 	return (
-		<Container>
-			<Col xs={ 12 } sm={ 6 } md={ 3 }>
+		<Container fluid>
+			<Col sm={ 12 } md={ 4 } lg={ 3 }>
 				<BackupCard admin={ true } />
 			</Col>
-			<Col xs={ 12 } sm={ 6 } md={ 3 }>
+			<Col sm={ 12 } md={ 4 } lg={ 3 }>
 				<ScanCard admin={ true } />
 			</Col>
-			<Col xs={ 12 } sm={ 6 } md={ 3 }>
+			<Col sm={ 12 } md={ 4 } lg={ 3 }>
 				<AntiSpamCard admin={ true } />
 			</Col>
-			<Col xs={ 12 } sm={ 6 } md={ 3 }>
+			<Col sm={ 12 } md={ 4 } lg={ 3 }>
 				<BoostCard admin={ true } />
 			</Col>
-			<Col xs={ 12 } sm={ 6 } md={ 3 }>
+			<Col sm={ 12 } md={ 4 } lg={ 3 }>
 				<SearchCard admin={ true } />
 			</Col>
-			<Col xs={ 12 } sm={ 6 } md={ 3 }>
+			<Col sm={ 12 } md={ 4 } lg={ 3 }>
 				<VideopressCard admin={ true } />
 			</Col>
-			<Col xs={ 12 } sm={ 6 } md={ 3 }>
+			<Col sm={ 12 } md={ 4 } lg={ 3 }>
 				<CrmCard admin={ true } />
 			</Col>
-			<Col xs={ 12 } sm={ 6 } md={ 3 }>
+			<Col sm={ 12 } md={ 4 } lg={ 3 }>
 				<ExtrasCard admin={ true } />
 			</Col>
 		</Container>
