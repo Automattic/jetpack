@@ -2,7 +2,7 @@
 /**
  * External dependencies
  */
-import { useEffect } from 'react';
+import { useEffect } from '@wordpress/element';
 import jetpackAnalytics from '@automattic/jetpack-analytics';
 import { useConnection } from '@automattic/jetpack-connection';
 

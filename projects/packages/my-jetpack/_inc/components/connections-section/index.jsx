@@ -3,7 +3,8 @@
 /**
  * External dependencies
  */
-import React, { useCallback } from 'react';
+import React from 'react';
+import { useCallback } from '@wordpress/element';
 import { ConnectionStatusCard } from '@automattic/jetpack-connection';
 
 /**
@@ -16,6 +17,7 @@ export default function ConnectionsSection() {
 	const redirectAfterDisconnect = useCallback( () => {
 		window.location = myJetpackInitialState.topJetpackMenuItemUrl;
 	}, [] );
+
 	return (
 		<ConnectionStatusCard
 			apiRoot={ apiRoot }

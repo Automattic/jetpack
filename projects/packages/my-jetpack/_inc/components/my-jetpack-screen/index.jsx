@@ -1,7 +1,8 @@
 /**
  * External dependencies
  */
-import React, { useEffect } from 'react';
+import React from 'react';
+import { useEffect } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 import { Notice } from '@wordpress/components';
 import { Icon, warning, info } from '@wordpress/icons';
