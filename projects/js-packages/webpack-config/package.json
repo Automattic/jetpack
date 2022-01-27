@@ -1,7 +1,7 @@
 {
 	"private": true,
 	"name": "@automattic/jetpack-webpack-config",
-	"version": "1.0.3-alpha",
+	"version": "1.1.1",
 	"description": "Library of pieces for webpack config in Jetpack projects.",
 	"homepage": "https://jetpack.com",
 	"bugs": {
@@ -18,9 +18,9 @@
 	},
 	"dependencies": {
 		"@automattic/babel-plugin-preserve-i18n": "1.0.0",
-		"@automattic/babel-plugin-replace-textdomain": "workspace:^1.0.2-alpha",
-		"@automattic/i18n-check-webpack-plugin": "workspace:^1.0.3-alpha",
-		"@automattic/i18n-loader-webpack-plugin": "workspace:^1.0.3-alpha",
+		"@automattic/babel-plugin-replace-textdomain": "workspace:^1.0.2",
+		"@automattic/i18n-check-webpack-plugin": "workspace:^1.0.4",
+		"@automattic/i18n-loader-webpack-plugin": "workspace:^2.0.0",
 		"@automattic/webpack-rtl-plugin": "5.1.0",
 		"@babel/compat-data": "7.16.4",
 		"@babel/helper-compilation-targets": "7.16.3",
@@ -43,6 +43,7 @@
 	"devDependencies": {
 		"@babel/core": "7.16.0",
 		"@babel/runtime": "7.16.3",
+		"nyc": "15.1.0",
 		"webpack": "5.65.0",
 		"webpack-cli": "4.9.1"
 	},

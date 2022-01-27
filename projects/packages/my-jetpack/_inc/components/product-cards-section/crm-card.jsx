@@ -7,7 +7,8 @@ import PropTypes from 'prop-types';
 /**
  * Internal dependencies
  */
-import ProductCard, { PRODUCT_STATUSES } from '../product-card';
+import ProductCard from '../product-card';
+import { useProduct } from '../../hooks/use-product';
 
 const CrmIcon = () => (
 	<svg width="18" height="11" viewBox="0 0 18 11" fill="none" xmlns="http://www.w3.org/2000/svg">
@@ -23,14 +24,19 @@ const CrmIcon = () => (
 );
 
 const CrmCard = ( { admin } ) => {
-	// @todo: implement action handlers
+	const { status, activate, deactivate, detail, isFetching } = useProduct( 'crm' );
+	const { name, description } = detail;
+
 	return (
 		<ProductCard
-			name="CRM"
-			description="Connect with your people"
-			status={ PRODUCT_STATUSES.ABSENT }
+			name={ name }
+			description={ description }
+			status={ status }
 			icon={ <CrmIcon /> }
+			isFetching={ isFetching }
 			admin={ admin }
+			onDeactivate={ deactivate }
+			onActivate={ activate }
 		/>
 	);
 };
