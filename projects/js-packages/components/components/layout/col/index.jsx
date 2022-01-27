@@ -17,14 +17,16 @@ import styles from './style.module.scss';
  * @returns {React.Component} Col component.
  */
 const Col = props => {
-	const { children, className, xs, sm, md, lg, xl } = props;
+	const { children, className } = props;
+
+	const sm = Math.min( 4, props.sm ?? 4 ); // max of 4, if undefined = 4
+	const md = Math.min( 8, props.md ?? 8 ); // max of 8, if undefined = 8
+	const lg = Math.min( 12, props.lg ?? 12 ); // max of 12, if undefined = 12
 
 	const colClassName = classnames( className, {
-		[ styles[ `col-xs-${ xs }` ] ]: Number.isInteger( xs ),
 		[ styles[ `col-sm-${ sm }` ] ]: Number.isInteger( sm ),
 		[ styles[ `col-md-${ md }` ] ]: Number.isInteger( md ),
 		[ styles[ `col-lg-${ lg }` ] ]: Number.isInteger( lg ),
-		[ styles[ `col-xl-${ xl }` ] ]: Number.isInteger( xl ),
 	} );
 
 	return <div className={ colClassName }>{ children }</div>;
@@ -34,15 +36,11 @@ Col.proptypes = {
 	/** Custom className to be inserted. */
 	className: PropTypes.string,
 	/** Colspan for extra small viewport. Needs to be an integer. */
-	xs: PropTypes.number.isRequired,
-	/** Colspan for small viewport. Needs to be an integer. */
-	sm: PropTypes.number,
+	sm: PropTypes.number.isRequired,
 	/** Colspan for medium viewport. Needs to be an integer. */
 	md: PropTypes.number,
 	/** Colspan for large viewport. Needs to be an integer. */
 	lg: PropTypes.number,
-	/** Colspan for extra large viewport. Needs to be an integer. */
-	xl: PropTypes.number,
 };
 
 export default Col;
