@@ -39,18 +39,6 @@ import { isOfflineMode, hasConnectedOwner } from 'state/connection';
 import { getModuleOverride } from 'state/modules';
 import { getScanStatus, isFetchingScanStatus } from 'state/scan';
 
-const renderPairs = layout =>
-	layout.map( ( item, layoutIndex ) => [
-		item.header,
-		item.pinnedBundle,
-		chunk( item.cards, 2 ).map( ( [ left, right ], cardIndex ) => (
-			<div className="jp-at-a-glance__item-grid" key={ `card-${ layoutIndex }-${ cardIndex }` }>
-				<div className="jp-at-a-glance__left">{ left }</div>
-				<div className="jp-at-a-glance__right">{ right }</div>
-			</div>
-		) ),
-	] );
-
 class AtAGlance extends Component {
 	trackSecurityClick = () => analytics.tracks.recordJetpackClick( 'aag_manage_security_wpcom' );
 
@@ -71,7 +59,6 @@ class AtAGlance extends Component {
 		};
 		const securityHeader = (
 			<DashSectionHeader
-				key="securityHeader"
 				label={ __( 'Security', 'jetpack' ) }
 				settingsPath={ this.props.userCanManageModules ? '#security' : undefined }
 				externalLink={
@@ -145,14 +132,6 @@ class AtAGlance extends Component {
 		if ( this.props.userCanManageModules ) {
 			const canDisplaybundleCard =
 				! this.props.multisite && ! this.props.isOfflineMode && this.props.hasConnectedOwner;
-			const pairs = [
-				{
-					header: securityHeader,
-					cards: securityCards,
-					pinnedBundle: canDisplaybundleCard ? <DashSecurityBundle /> : null,
-				},
-			];
-
 			const performanceCards = [];
 			if ( 'inactive' !== this.props.getModuleOverride( 'photon' ) ) {
 				performanceCards.push( <DashPhoton { ...settingsProps } /> );
@@ -178,25 +157,21 @@ class AtAGlance extends Component {
 				performanceCards.push( <DashBoost siteAdminUrl={ this.props.siteAdminUrl } /> );
 			}
 
-			if ( performanceCards.length ) {
-				pairs.push( {
-					header: (
-						<DashSectionHeader
-							key="performanceHeader"
-							label={ __( 'Performance and Growth', 'jetpack' ) }
-						/>
-					),
-					cards: performanceCards,
-				} );
-			}
-
 			return (
 				<div className="jp-at-a-glance">
 					<QuerySitePlugins />
 					<QuerySite />
 					<QueryScanStatus />
 					<DashStats { ...settingsProps } { ...urls } />
-					{ renderPairs( pairs ) }
+					<Section
+						header={ securityHeader }
+						cards={ securityCards }
+						pinnedBundle={ canDisplaybundleCard ? <DashSecurityBundle /> : null }
+					/>
+					<Section
+						header={ <DashSectionHeader label={ __( 'Performance and Growth', 'jetpack' ) } /> }
+						cards={ performanceCards }
+					/>
 					{ connections }
 				</div>
 			);
@@ -243,3 +218,21 @@ export default connect( state => {
 		hasConnectedOwner: hasConnectedOwner( state ),
 	};
 } )( withModuleSettingsFormHelpers( AtAGlance ) );
+
+const Section = ( { cards = [], header, pinnedBundle } ) => {
+	if ( ! cards.length ) {
+		return null;
+	}
+	return (
+		<>
+			{ header }
+			{ pinnedBundle }
+			{ chunk( cards, 2 ).map( ( [ left, right ], cardIndex ) => (
+				<div className="jp-at-a-glance__item-grid" key={ `card-${ cardIndex }` }>
+					<div className="jp-at-a-glance__left">{ left }</div>
+					<div className="jp-at-a-glance__right">{ right }</div>
+				</div>
+			) ) }
+		</>
+	);
+};
