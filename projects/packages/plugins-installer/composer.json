@@ -41,6 +41,11 @@
 		"branch-alias": {
 			"dev-master": "0.1.x-dev"
 		},
+		"mirror-repo": "Automattic/jetpack-plugins-installer",
+		"changelogger": {
+			"link-template": "https://github.com/Automattic/jetpack-plugins-installer/compare/v${old}...v${new}"
+		},
+		"autotagger": true,
 		"textdomain": "jetpack-plugins-installer"
 	}
 }
