@@ -24,15 +24,7 @@ import useNoticeWatcher, { useGlobalNotice } from '../../hooks/use-notice';
 import useMyJetpackConnection from '../../hooks/use-my-jetpack-connection';
 import styles from './styles.module.scss';
 
-/**
- * Component that renders the My Jetpack global notices.
- *
- * @returns {object} The GlobalNotice component.
- */
-function GlobalNotice() {
-	// Watch global events.
-	useNoticeWatcher();
-
+const GlobalNotice = ( { message, options, clean } ) => {
 	/*
 	 * Map Notice statuses with Icons.
 	 * `success`, `info`, `warning`, `error`
@@ -42,18 +34,13 @@ function GlobalNotice() {
 		info,
 	};
 
-	const { message, options, clean } = useGlobalNotice();
-	if ( ! message ) {
-		return null;
-	}
-
 	return (
 		<Notice { ...options } onRemove={ clean }>
 			{ iconMap?.[ options.status ] && <Icon icon={ iconMap[ options.status ] } /> }
 			<div className="components-notice__message-content">{ message }</div>
 		</Notice>
 	);
-}
+};
 
 /**
  * The My Jetpack App Main Screen.
@@ -61,15 +48,20 @@ function GlobalNotice() {
  * @returns {object} The MyJetpackScreen component.
  */
 export default function MyJetpackScreen() {
+	useNoticeWatcher();
+	const { message, options, clean } = useGlobalNotice();
+
 	const {
 		tracks: { recordEvent },
 	} = useAnalytics();
+
 	useEffect( () => {
 		recordEvent( 'jetpack_myjetpack_page_view' );
 	}, [ recordEvent ] );
 
 	// No render when site is not connected.
 	const { isSiteConnected } = useMyJetpackConnection( { redirect: true } );
+
 	if ( ! isSiteConnected ) {
 		return null;
 	}
@@ -77,7 +69,7 @@ export default function MyJetpackScreen() {
 	return (
 		<AdminPage>
 			<AdminSectionHero>
-				<Container horizontalSpacing={ 5 } horizontalGap={ 6 }>
+				<Container horizontalSpacing={ 5 } horizontalGap={ message ? 3 : 6 }>
 					<Col lg={ 6 }>
 						<h1 className={ styles.heading }>
 							{ __(
@@ -86,8 +78,12 @@ export default function MyJetpackScreen() {
 							) }
 						</h1>
 					</Col>
+					{ message && (
+						<Col>
+							<GlobalNotice message={ message } options={ options } clean={ clean } />
+						</Col>
+					) }
 					<Col>
-						<GlobalNotice />
 						<ProductCardsSection />
 					</Col>
 				</Container>
