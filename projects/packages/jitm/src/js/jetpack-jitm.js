@@ -195,7 +195,7 @@ jQuery( document ).ready( function ( $ ) {
 		} );
 
 		// Handle CTA ajax actions.
-		$template.find( '.jitm-button[data-ajax-action]' ).click( function ( e ) {
+		$template.find( '.jitm-button[data-ajax-action]' ).on( 'click', function ( e ) {
 			e.preventDefault();
 			var button = $( this );
 			button.attr( 'disabled', true );
