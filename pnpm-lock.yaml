@@ -383,6 +383,14 @@ importers:
       jest: 27.3.1
       webpack: 5.65.0
 
+  projects/js-packages/shared-extension-utils:
+    specifiers:
+      jetpack-js-test-runner: workspace:*
+      nyc: 15.1.0
+    devDependencies:
+      jetpack-js-test-runner: link:../../../tools/js-test-runner
+      nyc: 15.1.0
+
   projects/js-packages/storybook:
     specifiers:
       '@automattic/jetpack-base-styles': workspace:^0.1.7
@@ -1234,6 +1242,7 @@ importers:
       inquirer: 7.3.3
       js-yaml: 4.1.0
       listr: 0.14.3
+      listr-silent-renderer: 1.1.1
       listr-update-renderer: 0.5.0
       listr-verbose-renderer: 0.6.0
       mocha: 8.4.0
@@ -1243,6 +1252,7 @@ importers:
       semver: 7.3.5
       simple-git: 2.37.0
       sinon: 9.2.4
+      sprintf-js: 1.1.2
       yargs: 16.2.0
       yargs-parser: 20.2.4
     dependencies:
@@ -1257,6 +1267,7 @@ importers:
       inquirer: 7.3.3
       js-yaml: 4.1.0
       listr: 0.14.3
+      listr-silent-renderer: 1.1.1
       listr-update-renderer: 0.5.0_listr@0.14.3
       listr-verbose-renderer: 0.6.0
       path-name: 1.0.0
@@ -1264,6 +1275,7 @@ importers:
       process: 0.11.10
       semver: 7.3.5
       simple-git: 2.37.0
+      sprintf-js: 1.1.2
       yargs: 16.2.0
     devDependencies:
       chai: 4.3.4

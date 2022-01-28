@@ -1,0 +1,4 @@
+Significance: patch
+Type: bugfix
+
+Fixed several React warnings shown on the console when SCRIPT_DEBUG is active
