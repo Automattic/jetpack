@@ -36,7 +36,7 @@ export default function MyJetpackScreen() {
 		<AdminPage>
 			<AdminSectionHero>
 				<Container horizontalSpacing={ 5 } horizontalGap={ 6 }>
-					<Col>
+					<Col lg={ 6 }>
 						<h1 className={ styles.heading }>
 							{ __(
 								'Manage your Jetpack plan and products all in one place',
