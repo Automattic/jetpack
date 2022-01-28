@@ -89,11 +89,18 @@ export const settings = {
 	category: 'grow',
 	supports: {
 		html: true,
-		color: true,
+		color: {
+			gradients: true,
+		},
 		spacing: {
 			margin: true,
 			padding: true,
 		},
+		typography: {
+			fontSize: true,
+			lineHeight: true,
+		},
+		align: [ 'wide', 'full' ],
 	},
 	keywords: [
 		_x( 'opening hours', 'block search term', 'jetpack' ),

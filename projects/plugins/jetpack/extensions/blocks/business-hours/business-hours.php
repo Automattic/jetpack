@@ -25,13 +25,20 @@ function register_block() {
 		BLOCK_NAME,
 		array(
 			'render_callback' => __NAMESPACE__ . '\render',
-			'supports' => array(
-				'color' => true,
-				'spacing' => array(
-					'margin' => true,
+			'supports'        => array(
+				'color'      => array(
+					'gradients' => true,
+				),
+				'spacing'    => array(
+					'margin'  => true,
 					'padding' => true,
-				)
-			)
+				),
+				'typography' => array(
+					'fontSize'   => true,
+					'lineHeight' => true,
+				),
+				'align'      => array( 'wide', 'full' ),
+			),
 		)
 	);
 }
@@ -122,7 +129,7 @@ function render( $attributes ) {
 		'<dl class="jetpack-business-hours%s%s"%s>',
 		! empty( $attributes['className'] ) ? ' ' . esc_attr( $attributes['className'] ) : '',
 		! empty( $wrapper_attributes['class'] ) ? ' ' . esc_attr( $wrapper_attributes['class'] ) : '',
-		! empty( $wrapper_attributes['style'] ) ? ' style="'. esc_attr( $wrapper_attributes['style'] ) . '"' : ''
+		! empty( $wrapper_attributes['style'] ) ? ' style="' . esc_attr( $wrapper_attributes['style'] ) . '"' : ''
 	);
 
 	$days = array( 'Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat' );
