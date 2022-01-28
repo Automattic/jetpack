@@ -123,7 +123,7 @@ const ProductCard = props => {
 			<p className={ styles.description }>{ description }</p>
 			<div className={ styles.actions }>
 				{ canDeactivate ? (
-					<ButtonGroup>
+					<ButtonGroup className={ styles.group }>
 						{ renderActionButton( props ) }
 						<DropdownMenu
 							className={ styles.dropdown }
