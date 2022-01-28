@@ -383,6 +383,14 @@ importers:
       jest: 27.3.1
       webpack: 5.65.0
 
+  projects/js-packages/shared-extension-utils:
+    specifiers:
+      jetpack-js-test-runner: workspace:*
+      nyc: 15.1.0
+    devDependencies:
+      jetpack-js-test-runner: link:../../../tools/js-test-runner
+      nyc: 15.1.0
+
   projects/js-packages/storybook:
     specifiers:
       '@automattic/jetpack-base-styles': workspace:^0.1.7
