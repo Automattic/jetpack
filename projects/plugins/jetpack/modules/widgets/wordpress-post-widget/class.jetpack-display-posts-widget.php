@@ -1,34 +1,36 @@
-<?php
+<?php // phpcs:ignore WordPress.Files.FileName.InvalidClassFileName
 
 use Automattic\Jetpack\Status;
 
-/*
+/**
  * Display a list of recent posts from a WordPress.com or Jetpack-enabled blog.
  */
-
 class Jetpack_Display_Posts_Widget extends Jetpack_Display_Posts_Widget__Base {
 	/**
-	 * @var string Widget options key prefix.
+	 * Widget options key prefix.
+	 *
+	 * @var string
 	 */
 	public $widget_options_key_prefix = 'display_posts_site_data_';
 
 	/**
-	 * @var string The name of the cron that will update widget data.
+	 * The name of the cron that will update widget data.
+	 *
+	 * @var string
 	 */
 	public static $cron_name = 'jetpack_display_posts_widget_cron_update';
 
-
-	// DATA STORE
+	// DATA STORE.
 
 	/**
 	 * Gets blog data from the cache.
 	 *
-	 * @param string $site
+	 * @param string $site Site.
 	 *
 	 * @return array|WP_Error
 	 */
 	public function get_blog_data( $site ) {
-		// load from cache, if nothing return an error
+		// Load from cache, if nothing return an error.
 		$site_hash = $this->get_site_hash( $site );
 
 		$cached_data = $this->wp_get_option( $this->widget_options_key_prefix . $site_hash );
@@ -75,17 +77,21 @@ class Jetpack_Display_Posts_Widget extends Jetpack_Display_Posts_Widget__Base {
 		 */
 		if ( false === $instance_data ) {
 			$this->wp_add_option( $option_key, $new_data );
-		}
-		else {
+		} else {
 			$this->wp_update_option( $option_key, $new_data );
 		}
 
 		return $new_data;
 	}
 
+	// WIDGET API.
 
-	// WIDGET API
-
+	/**
+	 * Widget update function.
+	 *
+	 * @param array $new_instance New instance widget settings.
+	 * @param array $old_instance Old instance widget settings.
+	 */
 	public function update( $new_instance, $old_instance ) {
 		$instance = parent::update( $new_instance, $old_instance );
 
@@ -99,8 +105,7 @@ class Jetpack_Display_Posts_Widget extends Jetpack_Display_Posts_Widget__Base {
 		return $instance;
 	}
 
-
-	// CRON
+	// CRON.
 
 	/**
 	 * Activates widget update cron task.
@@ -230,13 +235,12 @@ class Jetpack_Display_Posts_Widget extends Jetpack_Display_Posts_Widget__Base {
 
 	}
 
-
-	// MOCKABLES
+	// MOCKABLES.
 
 	/**
 	 * This is just to make method mocks in the unit tests easier.
 	 *
-	 * @param string $param Option key to get
+	 * @param string $param Option key to get.
 	 *
 	 * @return mixed
 	 *
@@ -249,8 +253,8 @@ class Jetpack_Display_Posts_Widget extends Jetpack_Display_Posts_Widget__Base {
 	/**
 	 * This is just to make method mocks in the unit tests easier.
 	 *
-	 * @param string $option_name  Option name to be added
-	 * @param mixed  $option_value Option value
+	 * @param string $option_name  Option name to be added.
+	 * @param mixed  $option_value Option value.
 	 *
 	 * @return mixed
 	 *
@@ -263,8 +267,8 @@ class Jetpack_Display_Posts_Widget extends Jetpack_Display_Posts_Widget__Base {
 	/**
 	 * This is just to make method mocks in the unit tests easier.
 	 *
-	 * @param string $option_name  Option name to be updated
-	 * @param mixed  $option_value Option value
+	 * @param string $option_name  Option name to be updated.
+	 * @param mixed  $option_value Option value.
 	 *
 	 * @return mixed
 	 *

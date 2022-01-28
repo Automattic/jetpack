@@ -13,17 +13,21 @@
   --status-active: #008710;
   --status-inactive: #646970;
   --status-error: #B32D2E;
-  --status-absent: #C3C4C7;
+  --status-plugin_absent: #C3C4C7;
 
   padding: 24px;
   background: var( --jp-white );
   border-radius: var( --jp-border-radius );
   box-shadow: 0 0 var(--product-card-shadow-size) var(--product-card-shadow);
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
 
-  &.absent {
+  &.plugin_absent {
     background: none;
     box-shadow: none;
-    box-shadow: 0 0 0 1px var( --status-absent ) inset;
+    box-shadow: 0 0 0 1px var( --status-plugin_absent ) inset;
   }
 }
 
@@ -47,7 +51,7 @@
   align-items: center;
   justify-content: space-between;
   width: 100%;
-  min-height: 36px;
+  height: 36px;
   margin-top: calc(var(--product-card-margin-base) * 4); // 16px
   font-size: var(--product-card-actions-font-size);
   font-weight: 600;
@@ -66,7 +70,7 @@
     border-radius: 50%;
   }
 
-  // in absent case, there's not status flag
+  // in plugin absent case, there's not status flag
   $statuses: active, inactive, error;
 
   @each $status in $statuses {
@@ -78,6 +82,24 @@
         background: $color;
       }
     }
+  }
+
+  &.is-fetching {
+    &:before {
+      animation: blink-animation 0.5s linear infinite;
+    }
+  }
+}
+
+@keyframes blink-animation{
+  0%{
+    opacity: 0;
+  }
+  50%{
+    opacity: 0.5;
+  }
+  100%{
+    opacity: 0;
   }
 }
 

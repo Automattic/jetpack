@@ -1,5 +1,7 @@
 <?php
 
+use Automattic\Jetpack\Plugins_Installer;
+
 include_once ABSPATH . 'wp-admin/includes/class-wp-upgrader.php';
 include_once ABSPATH . 'wp-admin/includes/file.php';
 // POST /sites/%s/plugins/%s/install
@@ -57,10 +59,9 @@ class Jetpack_JSON_API_Plugins_Install_Endpoint extends Jetpack_JSON_API_Plugins
 	protected $action = 'install';
 
 	protected function install() {
-		jetpack_require_lib( 'plugins' );
 		$result = '';
 		foreach ( $this->plugins as $index => $slug ) {
-			$result = Jetpack_Plugins::install_plugin( $slug );
+			$result = Plugins_Installer::install_plugin( $slug );
 			if ( is_wp_error( $result ) ) {
 				$this->log[ $slug ][] = $result->get_error_message();
 				if ( ! $this->bulk ) {
@@ -74,7 +75,7 @@ class Jetpack_JSON_API_Plugins_Install_Endpoint extends Jetpack_JSON_API_Plugins
 		}
 
 		// No errors, install worked. Now replace the slug with the actual plugin id
-		$this->plugins[$index] = Jetpack_Plugins::get_plugin_id_by_slug( $slug );
+		$this->plugins[ $index ] = Plugins_Installer::get_plugin_id_by_slug( $slug );
 
 		return true;
 	}
@@ -84,10 +85,9 @@ class Jetpack_JSON_API_Plugins_Install_Endpoint extends Jetpack_JSON_API_Plugins
 			return new WP_Error( 'missing_plugins', __( 'No plugins found.', 'jetpack' ) );
 		}
 
-		jetpack_require_lib( 'plugins' );
 		foreach ( $this->plugins as $index => $slug ) {
 			// make sure it is not already installed
-			if ( Jetpack_Plugins::get_plugin_id_by_slug( $slug ) ) {
+			if ( Plugins_Installer::get_plugin_id_by_slug( $slug ) ) {
 				return new WP_Error( 'plugin_already_installed', __( 'The plugin is already installed', 'jetpack' ) );
 			}
 

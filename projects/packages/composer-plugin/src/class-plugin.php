@@ -123,8 +123,11 @@ class Plugin implements PluginInterface, EventSubscriberInterface {
 			if ( empty( $extra['textdomain'] ) ) {
 				$io->info( "  {$package->getName()} ($ver): no textdomain set" );
 			} else {
-				$data['packages'][ $extra['textdomain'] ] = $ver;
-				$io->info( "  {$package->getName()} ($ver): textdomain is {$extra['textdomain']}" );
+				$data['packages'][ $extra['textdomain'] ] = array(
+					'path' => 'jetpack_vendor/' . $package->getPrettyName(),
+					'ver'  => $ver,
+				);
+				$io->info( "  {$package->getName()} ($ver): textdomain is {$extra['textdomain']}, path is jetpack_vendor/{$package->getPrettyName()}" );
 			}
 		}
 
