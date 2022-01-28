@@ -56,7 +56,7 @@ class Settings {
 		'full_sync_send_duration'                => true,
 		'full_sync_limits'                       => true,
 		'checksum_disable'                       => true,
-		'dedicated_request_enable'               => true,
+		'sync_spawning_enabled'                  => true,
 	);
 
 	/**
@@ -564,6 +564,18 @@ class Settings {
 	 */
 	public static function is_checksum_enabled() {
 		return ! (bool) self::get_setting( 'checksum_disable' );
+	}
+
+	/**
+	 * Whether Sync spawning is enabled.
+	 *
+	 * @access public
+	 * @static
+	 *
+	 * @return boolean Whether sync is enabled.
+	 */
+	public static function is_sync_spawning_enabled() {
+		return (bool) self::get_setting( 'sync_spawning_enabled' );
 	}
 
 }

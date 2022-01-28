@@ -1270,10 +1270,10 @@ class Defaults {
 	);
 
 	/**
-	 * Default for enabling Sync Dedicated Request flow.
+	 * Default for enabling Sync spawning.
 	 *
 	 * @var int Bool-ish. Default 0.
 	 */
-	public static $default_dedicated_request_enable = 0;
+	public static $default_sync_spawning_enabled = 0;
 
 }
