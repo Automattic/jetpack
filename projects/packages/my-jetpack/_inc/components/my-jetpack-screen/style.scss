@@ -1,1 +1,20 @@
 @import '@automattic/jetpack-base-styles/style';
+
+.components-notice {
+	margin: 20px 0;
+
+	.components-notice__content {
+		display: flex;
+
+		.components-notice__message-content {
+			height: 24px;
+			line-height: 24px;
+			margin-left: 10px;
+		}
+	}
+
+	.components-notice__action.components-button.is-link {
+		color: var( --jp-black );
+		font-weight: 600;
+	}
+}
