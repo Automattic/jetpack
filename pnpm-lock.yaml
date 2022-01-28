@@ -383,6 +383,14 @@ importers:
       jest: 27.3.1
       webpack: 5.65.0
 
+  projects/js-packages/shared-extension-utils:
+    specifiers:
+      jetpack-js-test-runner: workspace:*
+      nyc: 15.1.0
+    devDependencies:
+      jetpack-js-test-runner: link:../../../tools/js-test-runner
+      nyc: 15.1.0
+
   projects/js-packages/storybook:
     specifiers:
       '@automattic/jetpack-base-styles': workspace:^0.1.7
@@ -1244,6 +1252,7 @@ importers:
       semver: 7.3.5
       simple-git: 2.37.0
       sinon: 9.2.4
+      sprintf-js: 1.1.2
       yargs: 16.2.0
       yargs-parser: 20.2.4
     dependencies:
@@ -1266,6 +1275,7 @@ importers:
       process: 0.11.10
       semver: 7.3.5
       simple-git: 2.37.0
+      sprintf-js: 1.1.2
       yargs: 16.2.0
     devDependencies:
       chai: 4.3.4

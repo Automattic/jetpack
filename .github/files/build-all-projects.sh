@@ -79,7 +79,7 @@ for SLUG in "${SLUGS[@]}"; do
 			OLDLOCK=
 		fi
 	fi
-	if (cd $BASE && pnpx jetpack build "${SLUG}" -v --production --no-pnpm-install); then
+	if (cd $BASE && pnpx jetpack build "${SLUG}" -v --production --timing --no-pnpm-install); then
 		FAIL=false
 	else
 		FAIL=true
