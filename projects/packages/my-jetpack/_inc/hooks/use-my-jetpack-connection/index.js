@@ -1,5 +1,4 @@
 /* global myJetpackInitialState */
-
 /* global myJetpackRest */
 /**
  * WordPress dependencies

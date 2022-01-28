@@ -34,7 +34,6 @@ export function useGlobalNotice() {
  */
 export default function useNoticeWatcher() {
 	const dispatch = useDispatch();
-
 	const { isUserConnected, redirectUrl } = useMyJetpackConnection();
 
 	useEffect( () => {
