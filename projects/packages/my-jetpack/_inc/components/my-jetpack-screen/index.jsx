@@ -68,8 +68,9 @@ export default function MyJetpackScreen() {
 		recordEvent( 'jetpack_myjetpack_page_view' );
 	}, [ recordEvent ] );
 
-	const { isSiteConnected } = useMyJetpackConnection( { redirect: true } );
-	if ( ! isSiteConnected ) {
+	// No render when no site and no user is connected.
+	const { isSiteConnected, isUserConnected } = useMyJetpackConnection( { redirect: true } );
+	if ( ! isSiteConnected && ! isUserConnected ) {
 		return null;
 	}
 
