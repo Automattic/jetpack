@@ -35,7 +35,7 @@ export function useGlobalNotice() {
 export default function useNoticeWatcher() {
 	const dispatch = useDispatch();
 
-	const { isUserConnected } = useMyJetpackConnection();
+	const { isUserConnected, redirectUrl } = useMyJetpackConnection();
 
 	useEffect( () => {
 		if ( ! isUserConnected ) {
@@ -49,11 +49,11 @@ export default function useNoticeWatcher() {
 					actions: [
 						{
 							label: __( 'Connect Jetpack now.', 'jetpack-my-jetpack' ),
-							url: '#',
+							url: redirectUrl,
 						},
 					],
 				}
 			);
 		}
-	}, [ isUserConnected, dispatch ] );
+	}, [ isUserConnected, dispatch, redirectUrl ] );
 }
