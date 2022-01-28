@@ -1,0 +1,4 @@
+Significance: patch
+Type: enhancement
+
+Changed the plan description for invalid plans and added a Warning message for Premium content blocks with invalid plans.
