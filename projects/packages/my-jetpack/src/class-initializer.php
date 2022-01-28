@@ -37,6 +37,11 @@ class Initializer {
 			return;
 		}
 
+		// Do not initialize My Jetpack if site is not connected.
+		if ( ! ( new Connection_Manager() )->is_connected() ) {
+			return;
+		}
+
 		// Set up the REST authentication hooks.
 		Connection_Rest_Authentication::init();
 
