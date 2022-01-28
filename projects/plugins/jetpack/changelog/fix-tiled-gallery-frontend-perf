@@ -1,0 +1,4 @@
+Significance: patch
+Type: bugfix
+
+Tiled Gallery Block: Fix performance issue affecting page views that use the Tiled Gallery.
