@@ -160,7 +160,7 @@ jQuery( document ).ready( function ( $ ) {
 		}
 
 		// Handle Module activation button if it exists.
-		$template.find( '#jitm-banner__activate a' ).click( function () {
+		$template.find( '#jitm-banner__activate a' ).on( 'click', function () {
 			var $activate_button = $( this );
 
 			// Do not allow any requests if the button is disabled.
