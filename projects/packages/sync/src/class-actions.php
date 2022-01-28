@@ -195,9 +195,9 @@ class Actions {
 		}
 
 		/**
-		 * For now, if the feature flag is enabled we will always initialize send, even for GET and unauthenticated requests.
+		 * For now, if Sync spawning is enabled we will always initialize send, even for GET and unauthenticated requests.
 		 */
-		if ( Settings::get_setting( 'dedicated_request_enable' ) ) {
+		if ( Settings::is_sync_spawning_enabled() ) {
 			return true;
 		}
 
