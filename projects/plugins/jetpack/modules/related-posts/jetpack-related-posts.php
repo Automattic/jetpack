@@ -186,8 +186,8 @@ class Jetpack_RelatedPosts {
 			$this->action_frontend_init_ajax( $excludes );
 		} else {
 			if ( isset( $_GET['relatedposts_hit'], $_GET['relatedposts_origin'], $_GET['relatedposts_position'] ) ) { // phpcs:ignore WordPress.Security.NonceVerification.Recommended
-				$this->log_click( $_GET['relatedposts_origin'], get_the_ID(), $_GET['relatedposts_position'] ); // phpcs:ignore WordPress.Security.NonceVerification.Recommended
-				$this->previous_post_id = (int) $_GET['relatedposts_origin'];
+				$this->previous_post_id = (int) $_GET['relatedposts_origin']; // phpcs:ignore WordPress.Security.NonceVerification.Recommended
+				$this->log_click( $this->previous_post_id, get_the_ID(), $_GET['relatedposts_position'] ); // phpcs:ignore WordPress.Security.NonceVerification.Recommended
 			}
 
 			$this->action_frontend_init_page();
