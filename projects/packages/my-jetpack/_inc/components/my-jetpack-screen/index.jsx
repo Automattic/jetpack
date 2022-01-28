@@ -70,7 +70,7 @@ export default function MyJetpackScreen() {
 		<AdminPage>
 			<AdminSectionHero>
 				<Container horizontalSpacing={ 5 } horizontalGap={ message ? 3 : 6 }>
-					<Col lg={ 6 }>
+					<Col sm={ 4 } md={ 7 } lg={ 6 }>
 						<h1 className={ styles.heading }>
 							{ __(
 								'Manage your Jetpack plan and products all in one place',
