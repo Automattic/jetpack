@@ -1,16 +1,15 @@
-/* global myJetpackRest */
 /**
  * WordPress dependencies
  */
 import { useEffect } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
-import { useConnection } from '@automattic/jetpack-connection';
 import { useSelect, useDispatch } from '@wordpress/data';
 
 /**
  * Internal dependencies
  */
 import { STORE_ID } from '../../state/store';
+import useMyJetpackConnection from '../use-my-jetpack-connection';
 
 /**
  * React custom hook to get global notices.
@@ -34,13 +33,9 @@ export function useGlobalNotice() {
  * the hook dispatches an action to populate the global notice.
  */
 export default function useNoticeWatcher() {
-	const { apiRoot, apiNonce } = myJetpackRest;
 	const dispatch = useDispatch();
 
-	const { isUserConnected } = useConnection( {
-		apiRoot,
-		apiNonce,
-	} );
+	const { isUserConnected } = useMyJetpackConnection();
 
 	useEffect( () => {
 		if ( ! isUserConnected ) {
