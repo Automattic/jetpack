@@ -1,11 +1,10 @@
 /* global myJetpackInitialState */
-
 /* global myJetpackRest */
 /**
  * WordPress dependencies
  */
-import { useConnection } from '@automattic/jetpack-connection';
 import { useEffect } from 'react';
+import { useConnection } from '@automattic/jetpack-connection';
 
 /**
  * React custom hook to get the site purchases data.
@@ -16,6 +15,7 @@ import { useEffect } from 'react';
  */
 export default function useMyJetpackConnection( options = { redirect: false } ) {
 	const { apiRoot, apiNonce } = myJetpackRest;
+	const { topJetpackMenuItemUrl } = myJetpackInitialState;
 	const { redirect } = options;
 	const connectionData = useConnection( { apiRoot, apiNonce } );
 
@@ -28,6 +28,11 @@ export default function useMyJetpackConnection( options = { redirect: false } ) 
 	 * redirect to the Jetpack dashboard.
 	 */
 	useEffect( () => {
+		// Bail early when topJetpackMenuItemUrl is not defined.
+		if ( ! topJetpackMenuItemUrl ) {
+			return;
+		}
+
 		// Bail early when redirect mode is disabled.
 		if ( ! redirect ) {
 			return;
@@ -38,11 +43,14 @@ export default function useMyJetpackConnection( options = { redirect: false } ) 
 			return;
 		}
 
-		window.location = myJetpackInitialState.topJetpackMenuItemUrl;
-	}, [ isSiteConnected, redirect ] );
+		window.location = topJetpackMenuItemUrl;
+	}, [ isSiteConnected, redirect, topJetpackMenuItemUrl ] );
 
 	return {
+		apiNonce,
+		apiRoot,
 		...connectionData,
 		isSiteConnected,
+		redirectUrl: topJetpackMenuItemUrl,
 	};
 }
