@@ -2,8 +2,10 @@
  * External dependencies
  */
 import chalk from 'chalk';
+import execa from 'execa';
+import fs from 'fs/promises';
 import Listr from 'listr';
-import VerboseRenderer from 'listr-verbose-renderer';
+import SilentRenderer from 'listr-silent-renderer';
 import UpdateRenderer from 'listr-update-renderer';
 
 /**
@@ -12,158 +14,170 @@ import UpdateRenderer from 'listr-update-renderer';
 import { chalkJetpackGreen } from '../helpers/styling.js';
 import promptForProject from '../helpers/promptForProject.js';
 import { readComposerJson } from '../helpers/json.js';
-import installProjectTask from '../helpers/tasks/installProjectTask.js';
-import { allProjectsByType } from '../helpers/projectHelpers.js';
-import { normalizeBuildArgv, normalizeProject } from '../helpers/normalizeArgv.js';
-import buildProjectTask from '../helpers/tasks/buildProjectTask.js';
-import projectBuildCommand from '../helpers/projectBuildCommand.js';
-import listrOpts from '../helpers/tasks/listrOpts.js';
+import { getInstallArgs, projectDir } from '../helpers/install.js';
+import { allProjects, allProjectsByType } from '../helpers/projectHelpers.js';
+
+export const command = 'build [project...]';
+export const describe = 'Builds one or more monorepo projects';
 
 /**
- * Relays build commands to a particular project.
+ * Options definition for the build subcommand.
  *
- * @param {object} options - The argv options.
+ * @param {object} yargs - The Yargs dependency.
+ * @returns {object} Yargs with the build commands defined.
  */
-async function buildRouter( options ) {
-	if ( options.project ) {
-		const data = readComposerJson( options.project );
-		data !== false ? await build( options.project, options.production, data, options.v ) : false;
-	} else {
-		console.error( chalk.red( 'You did not choose a valid project!' ) );
-	}
+export function builder( yargs ) {
+	return yargs
+		.positional( 'project', {
+			describe: 'Project in the form of type/name, e.g. plugins/jetpack',
+			type: 'string',
+		} )
+		.option( 'all', {
+			type: 'boolean',
+			description: 'Build all projects.',
+		} )
+		.option( 'production', {
+			alias: 'p',
+			type: 'boolean',
+			description: 'Build for production.',
+		} )
+		.option( 'no-pnpm-install', {
+			type: 'boolean',
+			description: 'Skip execution of `pnpm install` before the build.',
+		} );
 }
 
 /**
- * Builds a project.
+ * Handles the build command.
  *
- * @param {string} project - The project.
- * @param {boolean} production - If a production build should be made.
- * @param {object} composerJson - The project's composer.json file, parsed.
- * @param {boolean} verbose - If verbose output is desired.
+ * @param {object} argv - the arguments passed.
  */
-export async function build( project, production, composerJson, verbose ) {
+export async function handler( argv ) {
+	if ( argv.project.length === 1 ) {
+		if ( argv.project[ 0 ] === 'packages' ) {
+			argv.project = allProjectsByType( 'packages' );
+		} else if ( argv.project[ 0 ].indexOf( '/' ) < 0 ) {
+			argv.type = argv.project[ 0 ];
+			argv.project = [];
+		}
+	}
+
+	if ( argv.all ) {
+		argv.project = allProjects();
+	}
+
+	if ( argv.project.length === 0 ) {
+		argv.project = '';
+		argv = await promptForProject( argv );
+		argv.project = [ argv.project ];
+	}
+
+	const listr = new Listr( [], {
+		renderer: argv.v ? SilentRenderer : UpdateRenderer,
+	} );
+
+	// Add `pnpm install` task.
+	if ( argv.pnpmInstall !== false ) {
+		listr.add(
+			createBuildTask( argv, `Install pnpm dependencies`, async t => {
+				await t.setStatus( 'installing' );
+				await t.execa( 'pnpm', await getInstallArgs( 'monorepo', 'pnpm', argv ), {
+					cwd: process.cwd(),
+				} );
+			} )
+		);
+	}
+
+	// Add build tasks.
+	for ( const project of new Set( argv.project ) ) {
+		// Does the project even exist?
+		if (
+			( await fs.access( `projects/${ project }/composer.json` ).catch( () => false ) ) === false
+		) {
+			console.error( chalk.red( `Project ${ project } does not exist!` ) );
+			continue;
+		}
+
+		const cwd = projectDir( project );
+		listr.add(
+			createBuildTask( argv, `Build ${ project }`, async t => {
+				await t.setStatus( 'installing' );
+				await t.execa( 'composer', await getInstallArgs( project, 'composer', argv ), { cwd } );
+
+				await t.setStatus( 'building' );
+				// Determine the composer script to run.
+				const composerJson = readComposerJson( project, false );
+				const scripts = argv.production
+					? [ 'build-production', 'build-development' ]
+					: [ 'build-development', 'build-production' ];
+				let script = null;
+				for ( const s of scripts ) {
+					if ( composerJson.scripts?.[ s ] ) {
+						script = s;
+						break;
+					}
+				}
+
+				if ( script === null ) {
+					await t.output( `No build scripts are defined for ${ project }\n` );
+				} else {
+					await t.execa( 'composer', [ 'run', '--timeout=0', script ], { cwd } );
+				}
+			} )
+		);
+	}
+
 	console.log(
 		chalkJetpackGreen(
-			`Hell yeah! It is time to build ${ project }!\n` +
+			`Hell yeah! It is time to build!\n` +
 				'Go ahead and sit back. Relax. This will take a few minutes.'
 		)
 	);
-
-	const opts = {
-		renderer: verbose ? VerboseRenderer : UpdateRenderer,
-	};
-
-	const builder = new Listr(
-		[
-			{
-				title: `Building ${ project }`,
-				task: () => {
-					return new Listr(
-						[
-							installProjectTask( { project: project, v: verbose, production: production } ),
-							buildProjectTask( { project: project, v: verbose, production: production } ),
-						],
-						opts
-					);
-				},
-			},
-		],
-		opts
-	);
-
-	builder.run().catch( err => {
+	await listr.run().catch( err => {
 		console.error( err );
 		process.exit( err.exitCode || 1 );
 	} );
 }
 
 /**
- * Builds all packages.
+ * Create a build task.
  *
- * @param {object} options - The options passed from the command line.
+ * @param {object} argv - Command line arguments.
+ * @param {string} title - Task title.
+ * @param {Function} build - Build function.
+ * @returns {object} Listr task.
  */
-function buildAllPackages( options ) {
-	const tasks = [];
-	const opts = listrOpts( options );
-
-	allProjectsByType( 'packages' ).forEach( project => {
-		if ( projectBuildCommand( project, options.production ) ) {
-			tasks.push( {
-				title: `Building ${ project }`,
-				task: () => {
-					return new Listr(
-						[
-							installProjectTask( {
-								project: project,
-								v: options.v,
-								production: options.production,
-							} ),
-							buildProjectTask( {
-								project: project,
-								v: options.v,
-								production: options.production,
-							} ),
-						],
-						opts
-					);
-				},
-			} );
-		}
-	} );
-
-	const builds = new Listr( tasks, opts );
-
-	builds.run().catch( err => {
-		console.error( err );
-	} );
-}
-
-/**
- * Entry point for the CLI.
- *
- * @param {object} argv - The argv for the command line.
- */
-export async function buildCli( argv ) {
-	argv = normalizeBuildArgv( argv );
-
-	if ( argv.project === 'packages' ) {
-		buildAllPackages( argv );
-		return;
-	}
-	argv = normalizeProject( argv );
-	argv = await promptForProject( argv );
-	await buildRouter( argv );
-}
-
-/**
- * Command definition for the build subcommand.
- *
- * @param {object} yargs - The Yargs dependency.
- * @returns {object} Yargs with the build commands defined.
- */
-export function buildDefine( yargs ) {
-	yargs.command(
-		'build [project]',
-		'Builds a monorepo project',
-		yarg => {
-			yarg
-				.positional( 'project', {
-					describe: 'Project in the form of type/name, e.g. plugins/jetpack',
-					type: 'string',
-				} )
-				.option( 'production', {
-					alias: 'p',
-					type: 'boolean',
-					description: 'Build for production.',
-				} );
-		},
-		async argv => {
-			await buildCli( argv );
+function createBuildTask( argv, title, build ) {
+	return {
+		title: title,
+		task: async ( ctx, task ) => {
+			const t = {};
 			if ( argv.v ) {
-				console.log( argv );
+				t.execa = ( file, args, options ) => {
+					const p = execa( file, args, {
+						stdio: [ 'ignore', 'inherit', 'inherit' ],
+						...options,
+					} );
+					return p;
+				};
+				t.output = m =>
+					new Promise( resolve => {
+						process.stdout.write( m, 'utf8', resolve );
+					} );
+				t.setStatus = s => t.output( '\n' + chalk.bold( `== ${ title } [${ s }] ==` ) + '\n\n' );
+			} else {
+				t.execa = ( file, args, options ) => execa( file, args, { stdio: 'ignore', ...options } );
+				t.output = () => Promise.resolve();
+				t.setStatus = async s => {
+					task.title = `${ title } [${ s }]`;
+				};
 			}
-		}
-	);
 
-	return yargs;
+			try {
+				await build( t );
+			} finally {
+				await t.setStatus( 'complete' );
+			}
+		},
+	};
 }

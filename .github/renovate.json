@@ -24,6 +24,7 @@
 				"@automattic/jetpack-idc",
 				"@automattic/jetpack-licensing",
 				"@automattic/jetpack-partner-coupon",
+				"@automattic/jetpack-shared-extension-utils",
 				"@automattic/jetpack-storybook",
 				"@automattic/jetpack-webpack-config",
 				"@automattic/remove-asset-webpack-plugin",
