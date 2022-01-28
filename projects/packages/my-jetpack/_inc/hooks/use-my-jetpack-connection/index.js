@@ -4,8 +4,8 @@
 /**
  * WordPress dependencies
  */
-import { useConnection } from '@automattic/jetpack-connection';
 import { useEffect } from 'react';
+import { useConnection } from '@automattic/jetpack-connection';
 
 /**
  * React custom hook to get the site purchases data.
@@ -17,6 +17,7 @@ import { useEffect } from 'react';
 export default function useMyJetpackConnection( options = { redirect: false } ) {
 	const { apiRoot, apiNonce } = myJetpackRest;
 	const { redirect } = options;
+	const { topJetpackMenuItemUrl } = myJetpackInitialState;
 	const connectionData = useConnection( { apiRoot, apiNonce } );
 
 	// Alias: https://github.com/Automattic/jetpack/blob/master/projects/packages/connection/src/class-rest-connector.php/#L315
@@ -28,6 +29,11 @@ export default function useMyJetpackConnection( options = { redirect: false } ) 
 	 * redirect to the Jetpack dashboard.
 	 */
 	useEffect( () => {
+		// Bail early when topJetpackMenuItemUrl is not defined.
+		if ( ! topJetpackMenuItemUrl ) {
+			return;
+		}
+
 		// Bail early when redirect mode is disabled.
 		if ( ! redirect ) {
 			return;
@@ -38,11 +44,12 @@ export default function useMyJetpackConnection( options = { redirect: false } ) 
 			return;
 		}
 
-		window.location = myJetpackInitialState.topJetpackMenuItemUrl;
-	}, [ isSiteConnected, redirect ] );
+		window.location = topJetpackMenuItemUrl;
+	}, [ isSiteConnected, redirect, topJetpackMenuItemUrl ] );
 
 	return {
 		...connectionData,
 		isSiteConnected,
+		redirectUrl: topJetpackMenuItemUrl,
 	};
 }
