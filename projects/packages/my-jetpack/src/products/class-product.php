@@ -36,9 +36,23 @@ abstract class Product {
 	public static $plugin_slug = null;
 
 	/**
+	 * The Jetpack plugin slug
+	 *
+	 * @var string
+	 */
+	const JETPACK_PLUGIN_SLUG = 'jetpack';
+
+	/**
+	 * The Jetpack plugin filename
+	 *
+	 * @var string
+	 */
+	const JETPACK_PLUGIN_FILENAME = 'jetpack/jetpack.php';
+
+	/**
 	 * Get the Product info for the API
 	 *
-	 * @throws \Exception If required constants are not declared in the child class.
+	 * @throws \Exception If required attribute is not declared in the child class.
 	 * @return array
 	 */
 	public static function get_info() {
@@ -113,12 +127,31 @@ abstract class Product {
 	}
 
 	/**
-	 * Activates the plugin (in the future also intall the plugin if needed)
+	 * Checks whether the Jetpack plugin is installed
+	 *
+	 * @return boolean
+	 */
+	public static function is_jetpack_plugin_installed() {
+		$all_plugins = Plugins_Installer::get_plugins();
+		return array_key_exists( self::JETPACK_PLUGIN_FILENAME, $all_plugins );
+	}
+
+	/**
+	 * Checks whether the Jetpack plugin is active
+	 *
+	 * @return boolean
+	 */
+	public static function is_jetpack_plugin_active() {
+		return Plugins_Installer::is_plugin_active( self::JETPACK_PLUGIN_FILENAME );
+	}
+
+	/**
+	 * Activates the product by installing and activating its plugin
 	 *
 	 * @return boolean|\WP_Error
 	 */
 	public static function activate() {
-		if ( Plugins_Installer::is_plugin_active( static::$plugin_filename ) ) {
+		if ( static::is_active() ) {
 			return true;
 		}
 
