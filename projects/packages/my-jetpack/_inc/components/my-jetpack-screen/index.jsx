@@ -4,7 +4,6 @@
 import React, { useEffect } from 'react';
 import { __ } from '@wordpress/i18n';
 import {
-	ThemeProvider,
 	AdminSection,
 	AdminSectionHero,
 	AdminPage,
@@ -34,35 +33,33 @@ export default function MyJetpackScreen() {
 		recordEvent( 'jetpack_myjetpack_page_view' );
 	}, [ recordEvent ] );
 	return (
-		<ThemeProvider>
-			<AdminPage>
-				<AdminSectionHero>
-					<Container horizontalSpacing={ 5 } horizontalGap={ 6 }>
-						<Col>
-							<h1 className={ styles.heading }>
-								{ __(
-									'Manage your Jetpack plan and products all in one place',
-									'jetpack-my-jetpack'
-								) }
-							</h1>
-						</Col>
-						<Col>
-							<ProductCardsSection />
-						</Col>
-					</Container>
-				</AdminSectionHero>
+		<AdminPage>
+			<AdminSectionHero>
+				<Container horizontalSpacing={ 5 } horizontalGap={ 6 }>
+					<Col>
+						<h1 className={ styles.heading }>
+							{ __(
+								'Manage your Jetpack plan and products all in one place',
+								'jetpack-my-jetpack'
+							) }
+						</h1>
+					</Col>
+					<Col>
+						<ProductCardsSection />
+					</Col>
+				</Container>
+			</AdminSectionHero>
 
-				<AdminSection>
-					<Container horizontalSpacing={ 8 }>
-						<Col sm={ 2 } md={ 4 } lg={ 6 }>
-							<PlansSection />
-						</Col>
-						<Col sm={ 2 } md={ 4 } lg={ 6 }>
-							<ConnectionsSection />
-						</Col>
-					</Container>
-				</AdminSection>
-			</AdminPage>
-		</ThemeProvider>
+			<AdminSection>
+				<Container horizontalSpacing={ 8 }>
+					<Col sm={ 2 } md={ 4 } lg={ 6 }>
+						<PlansSection />
+					</Col>
+					<Col sm={ 2 } md={ 4 } lg={ 6 }>
+						<ConnectionsSection />
+					</Col>
+				</Container>
+			</AdminSection>
+		</AdminPage>
 	);
 }
