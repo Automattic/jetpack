@@ -19,6 +19,13 @@ use Automattic\Jetpack\Constants;
 class Server_Sandbox {
 
 	/**
+	 * A set of proxy parameters - host and port keys.
+	 *
+	 * @var Array
+	 */
+	private $proxy_parameters = false;
+
+	/**
 	 * Sets up the action hooks for the server sandbox.
 	 */
 	public function init() {
@@ -27,6 +34,7 @@ class Server_Sandbox {
 		}
 
 		add_action( 'requests-requests.before_request', array( $this, 'server_sandbox' ), 10, 4 );
+		add_action( 'requests-curl.before_send', array( $this, 'filter_before_send' ) );
 		add_action( 'admin_bar_menu', array( $this, 'admin_bar_add_sandbox_item' ), 999 );
 
 		/**
@@ -97,6 +105,42 @@ class Server_Sandbox {
 		}
 
 		return compact( 'url', 'host', 'new_signature' );
+	}
+
+	/**
+	 * Filters the WordPress cURL filter that allows us to set a proxy setting.
+	 *
+	 * @param cURL $ch cURL handle for the new request.
+	 */
+	public function filter_before_send( $ch ) {
+
+		/**
+		 * Whether to add a proxy parameter to the request made to the Sandbox
+		 *
+		 * @since $$next-version$$
+		 *
+		 * @param mixed  $proxy_parameters False if disabled or an array with proxy parameters:
+		 *               host => the proxy server hostname,
+		 *               port => the proxy server port.
+		 */
+		$proxy_params = apply_filters( 'jetpack_sandbox_add_proxy_parameter', false );
+		if ( empty( $proxy_params ) ) {
+			return;
+		}
+
+		error_log( // phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_error_log
+			sprintf(
+				"SANDBOXING: Enabling request proxy: '%s:%s'",
+				$proxy_params['host'],
+				$proxy_params['port']
+			)
+		);
+
+		// phpcs:disable WordPress.WP.AlternativeFunctions.curl_curl_setopt
+		curl_setopt( $ch, CURLOPT_PROXYTYPE, CURLPROXY_SOCKS5 );
+		curl_setopt( $ch, CURLOPT_PROXY, $proxy_params['host'] );
+		curl_setopt( $ch, CURLOPT_PROXYPORT, $proxy_params['port'] );
+		// phpcs:enable WordPress.WP.AlternativeFunctions.curl_curl_setopt
 	}
 
 	/**
