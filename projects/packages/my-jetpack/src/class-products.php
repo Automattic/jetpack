@@ -145,12 +145,7 @@ class Products {
 	 * @return array Object with infromation about the product.
 	 */
 	public static function get_crm_data() {
-		return array(
-			'slug'        => 'crm',
-			'description' => __( 'Connect with your people', 'jetpack-my-jetpack' ),
-			'name'        => __( 'CRM', 'jetpack-my-jetpack' ),
-			'status'      => 'plugin_absent',
-		);
+		return Products\Crm::get_info();
 	}
 
 	/**
