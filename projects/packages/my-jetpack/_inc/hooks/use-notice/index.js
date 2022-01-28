@@ -1,7 +1,3 @@
-<<<<<<< HEAD
-/* global myJetpackRest */
-=======
->>>>>>> ac91b94a08 ([not verified] my-jetpack: use custom hook to deal with connection)
 /**
  * WordPress dependencies
  */
@@ -37,10 +33,6 @@ export function useGlobalNotice() {
  * the hook dispatches an action to populate the global notice.
  */
 export default function useNoticeWatcher() {
-<<<<<<< HEAD
-	const { apiRoot, apiNonce } = myJetpackRest;
-=======
->>>>>>> ac91b94a08 ([not verified] my-jetpack: use custom hook to deal with connection)
 	const dispatch = useDispatch();
 
 	const { isUserConnected } = useMyJetpackConnection();
