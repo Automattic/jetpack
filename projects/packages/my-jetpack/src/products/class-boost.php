@@ -15,6 +15,7 @@ use Automattic\Jetpack\Plugins_Installer;
 class Boost {
 
 	const PLUGIN_FILENAME = 'boost/jetpack-boost.php';
+	const PLUGIN_SLUG     = 'jetpack-boost';
 
 	/**
 	 * Get the Product info for the API
@@ -72,7 +73,21 @@ class Boost {
 	 * @return boolean|\WP_Error
 	 */
 	public static function activate() {
-		// TODO - extract lib/plugins.php from Jetpack in order to install. For now this will only activate the already installed plugin.
+		if ( Plugins_Installer::is_plugin_active( self::PLUGIN_FILENAME ) ) {
+			return true;
+		}
+
+		if ( ! self::is_plugin_installed() ) {
+			$installed = Plugins_Installer::install_plugin( self::PLUGIN_SLUG );
+			if ( is_wp_error( $installed ) ) {
+				return $installed;
+			}
+		}
+
+		if ( ! current_user_can( 'activate_plugins' ) ) {
+			return new WP_Error( 'not_allowed', __( 'You are not allowed to activate plugins on this site.', 'jetpack-my-jetpack' ) );
+		}
+
 		$result = activate_plugin( self::PLUGIN_FILENAME );
 		if ( is_wp_error( $result ) ) {
 			return $result;
