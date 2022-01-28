@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+added unit test mock for new global variable myJetpackRest

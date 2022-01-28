@@ -1,0 +1,4 @@
+Significance: minor
+Type: compat
+
+Extract Jetpack_Plugins class to its own package

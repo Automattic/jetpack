@@ -363,6 +363,7 @@ EOT;
 	 * @return string
 	 */
 	public function render_block( $attributes ) {
+		$post_id          = get_the_ID();
 		$block_attributes = array(
 			'headline'        => isset( $attributes['headline'] ) ? $attributes['headline'] : null,
 			'show_thumbnails' => isset( $attributes['displayThumbnails'] ) && $attributes['displayThumbnails'],
@@ -375,7 +376,7 @@ EOT;
 		$excludes = $this->parse_numeric_get_arg( 'relatedposts_origin' );
 
 		$related_posts = $this->get_for_post_id(
-			get_the_ID(),
+			$post_id,
 			array(
 				'size'             => $block_attributes['size'],
 				'exclude_post_ids' => $excludes,
@@ -408,12 +409,26 @@ EOT;
 			$rows_markup .= $this->render_block_row( $lower_row_posts, $block_attributes );
 		}
 
-		return sprintf(
+		$display_markup = sprintf(
 			'<nav class="jp-relatedposts-i2" data-layout="%1$s">%2$s%3$s</nav>',
 			esc_attr( $block_attributes['layout'] ),
 			$block_attributes['headline'],
 			$rows_markup
 		);
+
+		/**
+		 * Filter the output HTML of Related Posts.
+		 *
+		 * @module related-posts
+		 *
+		 * @since $$next-version$$
+		 *
+		 * @param string $display_markup HTML output of Related Posts.
+		 * @param int|false get_the_ID() Post ID of the post for which we are retrieving Related Posts.
+		 * @param array $related_posts Array of related posts.
+		 * @param array $block_attributes Array of Block attributes.
+		 */
+		return apply_filters( 'jetpack_related_posts_display_markup', $display_markup, $post_id, $related_posts, $block_attributes );
 	}
 
 	/**
@@ -1183,9 +1198,8 @@ EOT;
 	 * @return array
 	 */
 	public function get_related_post_data_for_post( $post_id, $position, $origin ) {
-		$post = get_post( $post_id );
-
-		return array(
+		$post          = get_post( $post_id );
+		$related_posts = array(
 			'id'       => $post->ID,
 			'url'      => get_permalink( $post->ID ),
 			'url_meta' => array(
@@ -1216,7 +1230,7 @@ EOT;
 			 * @since 3.0.0
 			 *
 			 * @param string $this->_to_utf8( $this->_generate_related_post_context( $post->ID ) ) Context displayed below each related post.
-			 * @param string $post_id Post ID of the post for which we are retrieving Related Posts.
+			 * @param int $post_id Post ID of the post for which we are retrieving Related Posts.
 			 */
 			'context' => apply_filters(
 				'jetpack_relatedposts_filter_post_context',
@@ -1240,6 +1254,18 @@ EOT;
 				$post->ID
 			),
 		);
+
+		/**
+		 * Filter the array of related posts.
+		 *
+		 * @module related-posts
+		 *
+		 * @since 2.8.0
+		 *
+		 * @param array $results Array of related posts.
+		 * @param int $post_id Post ID of the post for which we are retrieving Related Posts.
+		 */
+		return apply_filters( 'jetpack_relatedposts_returned_results', $related_posts, $post_id );
 	}
 
 	/**

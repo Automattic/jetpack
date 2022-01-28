@@ -22,6 +22,8 @@
   paths:
    - 'projects/packages/**'
    - 'projects/plugins/jetpack/**'
+   # Exclude packages managed by other teams, which are covered by other blocks below.
+   - '!projects/packages/search/**'
   teams:
    - jetpack-approvers
 
@@ -44,10 +46,11 @@
    - heart-of-gold
    - jetpack-approvers
 
-# The Search team reviews changes to the Search plugin
+# The Search team reviews changes to the Search plugin, and the Search package.
 - name: Search
   paths:
    - 'projects/plugins/search/**'
+   - 'projects/packages/search/**'
   teams:
    - jetpack-search
    - jetpack-approvers

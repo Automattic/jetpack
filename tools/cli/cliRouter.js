@@ -7,9 +7,9 @@ import { hideBin } from 'yargs/helpers';
 /**
  * Internal dependencies
  */
-import { buildDefine } from './commands/build.js';
+import * as buildCommand from './commands/build.js';
 import { watchDefine } from './commands/watch.js';
-import { installDefine } from './commands/install.js';
+import * as installCommand from './commands/install.js';
 import { cleanDefine } from './commands/clean.js';
 import { cliDefine } from './commands/cli.js';
 import { generateDefine } from './commands/generate.js';
@@ -18,6 +18,7 @@ import { changelogDefine } from './commands/changelog.js';
 import { dockerDefine } from './commands/docker.js';
 import { testDefine } from './commands/test.js';
 import { releaseDefine } from './commands/release.js';
+import * as dependenciesCommand from './commands/dependencies.js';
 
 /**
  * The main CLI router function.
@@ -35,15 +36,16 @@ export async function cli() {
 	 * Adds the commands to the yargs instance. Help text will list commands in the order they are included here.
 	 * Let's keep it alphabetical.
 	 */
-	argv = buildDefine( argv );
+	argv.command( buildCommand );
 	argv = changelogDefine( argv );
 	argv = cleanDefine( argv );
 	argv = cliDefine( argv );
 	argv.completion( 'completion', 'Generate bash/zsh completions' ); // Placed here to keep things alphabetical.
+	argv.command( dependenciesCommand );
 	argv = dockerDefine( argv );
 	argv = draftDefine( argv );
 	argv = generateDefine( argv );
-	argv = installDefine( argv );
+	argv.command( installCommand );
 	argv = releaseDefine( argv );
 	argv = testDefine( argv );
 	argv = watchDefine( argv );
