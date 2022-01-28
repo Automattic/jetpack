@@ -48,6 +48,8 @@ export default function useMyJetpackConnection( options = { redirect: false } ) 
 	}, [ isSiteConnected, redirect, topJetpackMenuItemUrl ] );
 
 	return {
+		apiNonce,
+		apiRoot,
 		...connectionData,
 		isSiteConnected,
 		redirectUrl: topJetpackMenuItemUrl,
