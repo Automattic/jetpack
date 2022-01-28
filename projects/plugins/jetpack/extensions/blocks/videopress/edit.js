@@ -619,7 +619,7 @@ const VideoPressEdit = CoreVideoEdit =>
 				}
 			};
 
-			const isUploading = null !== fileForUpload;
+			const isUploading = null !== fileForUpload && fileForUpload instanceof File;
 			if ( isUploading ) {
 				return (
 					<VideoPressBlockProvider
