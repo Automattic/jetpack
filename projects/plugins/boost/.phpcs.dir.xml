@@ -44,6 +44,12 @@
 		<severity>0</severity>
 	</rule>
 
+	<rule ref="VariableAnalysis.CodeAnalysis.VariableAnalysis">
+		<properties>
+			<property name="ignoreUnusedRegexp" value="/^_/"/>
+		</properties>
+	</rule>
+
 </ruleset>
 
 
