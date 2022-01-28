@@ -25,9 +25,10 @@ import { VideoPressBlockContext } from '../components';
 import './style.scss';
 
 export default function ResumableUpload( { file } ) {
+	console.log( file );
 	const blockProps = useBlockProps( {
-        className: "resumable-upload",
-    } );
+	    className: "resumable-upload",
+	} );
 
 	if ( ! file ) {
 		return null;
@@ -45,14 +46,14 @@ export default function ResumableUpload( { file } ) {
 		const onError = ( error ) => {
 			setError( error );
 		};
-	
+
 		const onProgress = ( bytesUploaded, bytesTotal ) => {
 			const percentage = ( bytesUploaded / bytesTotal ) * 100;
 			setProgress( percentage );
 		};
-	
-		const onSuccess = () => {
-			onUploadFinished();
+
+		const onSuccess =  ( guid ) => {
+			onUploadFinished( guid );
 			// TODO: Load video? (Conversion screen) Need the guid
 		};
 

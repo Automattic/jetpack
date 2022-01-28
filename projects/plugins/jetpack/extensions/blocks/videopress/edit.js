@@ -611,11 +611,10 @@ const VideoPressEdit = CoreVideoEdit =>
 				this.setState( { fileForUpload: files[0] } );
 			}
 
-			const uploadFinished = ( error = null ) => {
-				// TODO Maybe have the guid here to reload w/ player (show transcoding screen)
+			const uploadFinished = ( guid = null ) => {
 				this.setState( { fileForUpload: null } );
-				if ( error ) {
-					// TODO show error message
+				if ( !! guid ) {
+				    setAttributes( { guid } );
 				}
 			};
 
@@ -630,11 +629,11 @@ const VideoPressEdit = CoreVideoEdit =>
 							</Fragment>
 					</VideoPressBlockProvider>
 				)
-			}						
+			}
 
 			const isFetchingVideo = isFetchingMedia || isFetchingPreview;
 			const renderCoreVideoAndLoadingBlocks = fallback || ! guid;
-			
+
 
 			// In order for the media placeholder to keep its state for error messages, we need to keep the CoreVideoEdit component in the tree during file uploads.
 			// Keep this section separate so the CoreVideoEdit stays in the tree, once we have a video, we don't need it anymore.

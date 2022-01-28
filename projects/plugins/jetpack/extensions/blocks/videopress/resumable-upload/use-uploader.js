@@ -16,13 +16,13 @@ export const getJWT = function () {
 	} );
 };
 
-var jwtsForKeys = {}; // TODO seems unecessary
 
 export const useUploader = ( {
 	onError,
 	onProgress,
 	onSuccess,
 } ) => {
+	const jwtsForKeys = {}; // TODO seems unecessary
 	return ( file, data ) => {
 			const upload = new tus.Upload( file,
 				{
@@ -40,15 +40,13 @@ export const useUploader = ( {
 							).toFixed( 2 );
 							console.log( bytesUploaded, bytesTotal, percentage + '%' );
 						},
-					onSuccess:
-						onSuccess ||
-						function () {
-							console.log(
-								'Download %s from %s',
-								upload.file.name,
-								upload.url
-							);
-						},
+					onSuccess: function () {
+						console.log(
+							'Download %s from %s',
+							upload.file.name,
+							upload.url
+						);
+					},
 					endpoint: data.url,
 					resume: true,
 					removeFingerprintOnSuccess: true,
@@ -65,6 +63,13 @@ export const useUploader = ( {
 					onAfterResponse: function ( req, res ) {
 						// Why is this not showing the x-headers?
 						if ( res.getStatus() >= 400 ) {
+							return;
+						}
+
+						const GUID_HEADER = 'x-videopress-upload-guid';
+						const guid = res.getHeader( GUID_HEADER );
+						if ( !! guid ) {
+							onSuccess && onSuccess( guid );
 							return;
 						}
 
@@ -134,10 +139,10 @@ export const useUploader = ( {
                 if ( previousUploads.length ) {
                     upload.resumeFromPreviousUpload( previousUploads[ 0 ] );
                 }
-    
+
                 upload.start();
             } );
-    
+
             return upload;
 	};
 };
