@@ -56,7 +56,7 @@ jobs:
           # codecov.io requires a fetch depth > 1.
           fetch-depth: 2
 
-      # For pull requests, list-changed-projects.php needs the merge base.
+      # For pull requests, list-changed-projects.sh needs the merge base.
       # But it doesn't have to be checked out, and codecov.io requires it not be.
       - name: Deepen to merge base
         if: github.event_name == 'pull_request'
@@ -71,10 +71,16 @@ jobs:
           coverage: ${{ matrix.script == 'test-coverage' && 'pcov' || 'none' }}
           node: ${{ matrix.node }}
 
+      - name: Monorepo install
+        run: |
+          echo "::group::Pnpm"
+          pnpm install
+          echo "::endgroup::"
+
       - name: Detect changed projects
         id: changed
         run: |
-          CHANGED="$(.github/files/list-changed-projects.php --debug)"
+          CHANGED="$(.github/files/list-changed-projects.sh)"
           ANY_PLUGINS="$(jq --argjson changed "$CHANGED" -n '$changed | with_entries( select( .key | startswith( "plugins/" ) ) ) | any')"
           echo "::set-output name=projects::${CHANGED}"
           echo "::set-output name=any-plugins::${ANY_PLUGINS}"
@@ -82,12 +88,6 @@ jobs:
       - name: Setup WordPress environment for plugin tests
         if: steps.changed.outputs.any-plugins == 'true' && matrix.wp != 'none'
         run: .github/files/setup-wordpress-env.sh
-
-      - name: Monorepo install
-        run: |
-          echo "::group::Pnpm"
-          pnpm install
-          echo "::endgroup::"
 
       - name: Run project tests
         env:

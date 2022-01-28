@@ -5,6 +5,16 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.7.0] - 2022-01-27
+### Changed
+- IDC "Safe Mode" admin bar button redesign.
+
+## [0.6.4] - 2022-01-25
+### Changed
+- Add class notice to the IDC container div.
+- Add missing JS peer dependency.
+- Updated package dependencies.
+
 ## [0.6.3] - 2022-01-18
 ### Changed
 - General: update required node version to v16.13.2
@@ -131,7 +141,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Updated package dependencies.
 - Use Connection/Urls for home_url and site_url functions migrated from Sync.
 
-[0.6.3]: https://github.com/Automattic/jetpack-identity-crisis/compare/v0.6.2...v0.6.3
+[0.7.0]: https://github.com/Automattic/jetpack-identity-crisis/compare/v0.6.4...v0.7.0
+[0.6.4]: https://github.com/Automattic/jetpack-identity-crisis/compare/v0.6.3...v0.6.4
 [0.6.3]: https://github.com/Automattic/jetpack-identity-crisis/compare/v0.6.2...v0.6.3
 [0.6.2]: https://github.com/Automattic/jetpack-identity-crisis/compare/v0.6.1...v0.6.2
 [0.6.1]: https://github.com/Automattic/jetpack-identity-crisis/compare/v0.6.0...v0.6.1

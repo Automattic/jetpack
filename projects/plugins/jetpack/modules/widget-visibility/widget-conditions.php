@@ -892,11 +892,11 @@ class Jetpack_Widget_Conditions {
 									$condition_result = $wp_query->is_posts_page;
 								} else {
 									// $rule['minor'] is a page ID
-									$condition_result = is_page() && ( get_the_ID() === $rule['minor'] );
+									$condition_result = is_page() && ( get_the_ID() === (int) $rule['minor'] );
 
 									// Check if $rule['minor'] is parent of page ID.
 									if ( ! $condition_result && isset( $rule['has_children'] ) && $rule['has_children'] ) {
-										$condition_result = wp_get_post_parent_id( get_the_ID() ) === $rule['minor'];
+										$condition_result = wp_get_post_parent_id( get_the_ID() ) === (int) $rule['minor'];
 									}
 								}
 								break;

@@ -147,7 +147,8 @@ const ConnectionStatusCard = props => {
 
 				{ isUserConnected && (
 					<li className="jp-connection-status-card--list-item-success">
-						{ __( 'Logged in as', 'jetpack' ) } { userConnectionData?.display_name }
+						{ __( 'Logged in as', 'jetpack' ) }{ ' ' }
+						{ userConnectionData.currentUser?.wpcomUser?.display_name }
 					</li>
 				) }
 
