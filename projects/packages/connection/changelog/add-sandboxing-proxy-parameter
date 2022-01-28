@@ -1,0 +1,4 @@
+Significance: minor
+Type: added
+
+Added parameters for enabling proxying of sandboxed requests.
