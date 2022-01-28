@@ -17,7 +17,7 @@ jobs:
   create-projects-matrix:
     name: "Determine tests matrix"
     runs-on: ubuntu-latest
-    timeout-minutes: 1
+    timeout-minutes: 3
     outputs:
       matrix: ${{ steps.create-projects-matrix.outputs.matrix }}
     steps:
