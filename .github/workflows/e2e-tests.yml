@@ -22,10 +22,18 @@ jobs:
       matrix: ${{ steps.create-projects-matrix.outputs.matrix }}
     steps:
       - uses: actions/checkout@v2
-      # For pull requests, list-changed-projects.php needs the merge base.
+
+      # For pull requests, list-changed-projects.sh needs the merge base.
       - name: Deepen to merge base
         if: github.event_name == 'pull_request'
         uses: ./.github/actions/deepen-to-merge-base
+
+      - name: Setup tools
+        uses: ./.github/actions/tool-setup
+
+      - name: Install monorepo
+        run: |
+          pnpm install
 
       - name: Create projects matrix
         id: create-projects-matrix
