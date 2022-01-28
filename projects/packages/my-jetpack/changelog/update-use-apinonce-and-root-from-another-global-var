@@ -1,0 +1,4 @@
+Significance: patch
+Type: changed
+
+Pick API root and nonce values from a new window var myJetpackRest
