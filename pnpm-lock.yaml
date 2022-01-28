@@ -463,7 +463,7 @@ importers:
     specifiers:
       '@automattic/babel-plugin-preserve-i18n': 1.0.0
       '@automattic/babel-plugin-replace-textdomain': workspace:^1.0.2
-      '@automattic/i18n-check-webpack-plugin': workspace:^1.0.4-alpha
+      '@automattic/i18n-check-webpack-plugin': workspace:^1.0.4
       '@automattic/i18n-loader-webpack-plugin': workspace:^2.0.0
       '@automattic/webpack-rtl-plugin': 5.1.0
       '@babel/compat-data': 7.16.4
@@ -523,7 +523,7 @@ importers:
 
   projects/packages/assets:
     specifiers:
-      '@automattic/jetpack-webpack-config': workspace:^1.1.1-alpha
+      '@automattic/jetpack-webpack-config': workspace:^1.1.1
       jest: 27.3.1
       md5-es: 1.8.2
       webpack: 5.65.0
@@ -537,7 +537,7 @@ importers:
     specifiers:
       '@automattic/jetpack-api': workspace:^0.8.3
       '@automattic/jetpack-connection': workspace:^0.14.1-alpha
-      '@automattic/jetpack-webpack-config': workspace:^1.1.1-alpha
+      '@automattic/jetpack-webpack-config': workspace:^1.1.1
       '@babel/core': 7.16.0
       '@babel/preset-env': 7.16.4
       '@babel/register': 7.16.0
@@ -577,7 +577,7 @@ importers:
   projects/packages/identity-crisis:
     specifiers:
       '@automattic/jetpack-idc': workspace:^0.9.0
-      '@automattic/jetpack-webpack-config': workspace:^1.1.1-alpha
+      '@automattic/jetpack-webpack-config': workspace:^1.1.1
       '@babel/core': 7.16.0
       '@babel/preset-env': 7.16.4
       '@babel/register': 7.16.0
@@ -609,7 +609,7 @@ importers:
 
   projects/packages/jitm:
     specifiers:
-      '@automattic/jetpack-webpack-config': workspace:^1.1.1-alpha
+      '@automattic/jetpack-webpack-config': workspace:^1.1.1
       '@wordpress/browserslist-config': 4.1.0
       sass: 1.43.3
       sass-loader: 12.4.0
@@ -625,7 +625,7 @@ importers:
 
   projects/packages/lazy-images:
     specifiers:
-      '@automattic/jetpack-webpack-config': workspace:^1.1.1-alpha
+      '@automattic/jetpack-webpack-config': workspace:^1.1.1
       copy-webpack-plugin: 10.2.0
       intersection-observer: 0.12.0
       webpack: 5.65.0
@@ -641,7 +641,7 @@ importers:
       '@automattic/jetpack-base-styles': workspace:^0.1.7
       '@automattic/jetpack-components': workspace:^0.10.3
       '@automattic/jetpack-connection': workspace:^0.14.1-alpha
-      '@automattic/jetpack-webpack-config': workspace:^1.1.1-alpha
+      '@automattic/jetpack-webpack-config': workspace:^1.1.1
       '@babel/core': 7.16.0
       '@babel/preset-env': 7.16.4
       '@babel/register': 7.16.0
@@ -707,7 +707,7 @@ importers:
       '@automattic/jetpack-analytics': workspace:^0.1.7
       '@automattic/jetpack-api': workspace:^0.8.3
       '@automattic/jetpack-components': workspace:^0.10.3
-      '@automattic/jetpack-webpack-config': workspace:^1.1.1-alpha
+      '@automattic/jetpack-webpack-config': workspace:^1.1.1
       '@babel/core': 7.16.0
       '@babel/plugin-proposal-nullish-coalescing-operator': 7.16.0
       '@babel/preset-env': 7.16.4
@@ -805,7 +805,7 @@ importers:
       '@automattic/jetpack-base-styles': workspace:^0.1.7
       '@automattic/jetpack-components': workspace:^0.10.3
       '@automattic/jetpack-connection': workspace:^0.14.1-alpha
-      '@automattic/jetpack-webpack-config': workspace:^1.1.1-alpha
+      '@automattic/jetpack-webpack-config': workspace:^1.1.1
       '@babel/core': 7.16.0
       '@babel/preset-env': 7.16.4
       '@babel/register': 7.16.0
@@ -930,7 +930,7 @@ importers:
       '@automattic/jetpack-connection': workspace:^0.14.1-alpha
       '@automattic/jetpack-licensing': workspace:^0.4.4
       '@automattic/jetpack-partner-coupon': workspace:^0.1.7-alpha
-      '@automattic/jetpack-webpack-config': workspace:^1.1.1-alpha
+      '@automattic/jetpack-webpack-config': workspace:^1.1.1
       '@automattic/popup-monitor': 1.0.0
       '@automattic/remove-asset-webpack-plugin': workspace:^1.0.3
       '@automattic/request-external-access': 1.0.0
@@ -1234,6 +1234,7 @@ importers:
       inquirer: 7.3.3
       js-yaml: 4.1.0
       listr: 0.14.3
+      listr-silent-renderer: 1.1.1
       listr-update-renderer: 0.5.0
       listr-verbose-renderer: 0.6.0
       mocha: 8.4.0
@@ -1257,6 +1258,7 @@ importers:
       inquirer: 7.3.3
       js-yaml: 4.1.0
       listr: 0.14.3
+      listr-silent-renderer: 1.1.1
       listr-update-renderer: 0.5.0_listr@0.14.3
       listr-verbose-renderer: 0.6.0
       path-name: 1.0.0
@@ -19679,7 +19681,7 @@ packages:
     dependencies:
       array.prototype.flat: 1.2.5
       global-cache: 1.2.1
-      react-with-styles: 3.2.3_react-dom@17.0.2+react@17.0.2
+      react-with-styles: 3.2.3
 
   /react-with-styles/3.2.3:
     resolution: {integrity: sha512-MTI1UOvMHABRLj5M4WpODfwnveHaip6X7QUMI2x6zovinJiBXxzhA9AJP7MZNaKqg1JRFtHPXZdroUC8KcXwlQ==}
@@ -20733,7 +20735,7 @@ packages:
       klona: 2.0.5
       neo-async: 2.6.2
       sass: 1.43.3
-      webpack: 5.65.0
+      webpack: 5.65.0_webpack-cli@4.9.1
     dev: true
 
   /sass-loader/12.4.0_webpack@5.65.0:
