@@ -19,14 +19,12 @@ export default function useMyJetpackConnection( options = { redirect: false } ) 
 	const { topJetpackMenuItemUrl } = myJetpackInitialState;
 	const { redirect } = options;
 	const connectionData = useConnection( { apiRoot, apiNonce } );
-	const { isUserConnected } = connectionData;
 
 	// Alias: https://github.com/Automattic/jetpack/blob/master/projects/packages/connection/src/class-rest-connector.php/#L315
 	const isSiteConnected = connectionData.isRegistered;
 
 	/*
 	 * When the site is not connect,
-	 * and the user is not connected,
 	 * and the `redirect` option is set to `true`,
 	 * redirect to the Jetpack dashboard.
 	 */
@@ -41,13 +39,13 @@ export default function useMyJetpackConnection( options = { redirect: false } ) 
 			return;
 		}
 
-		// When site and user are connected, bail early.
-		if ( isSiteConnected && isUserConnected ) {
+		// When site is connected, bail early.
+		if ( isSiteConnected ) {
 			return;
 		}
 
 		window.location = topJetpackMenuItemUrl;
-	}, [ isSiteConnected, isUserConnected, redirect, topJetpackMenuItemUrl ] );
+	}, [ isSiteConnected, redirect, topJetpackMenuItemUrl ] );
 
 	return {
 		...connectionData,
