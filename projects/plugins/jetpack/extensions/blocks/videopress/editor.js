@@ -73,10 +73,14 @@ const videoPressMediaPlaceholder = createHigherOrderComponent(
 		// We will handle video uploads
 		props.handleUpload = false;
 		
-		const { onFilesSelected } = useContext( VideoPressBlockContext );
+		const { onFilesSelected, onMediaItemSelected } = useContext( VideoPressBlockContext );
 
-		props.onSelect = ( files ) => {
-			onFilesSelected( files );
+		props.onSelect = ( selected ) => {
+			if ( selected instanceof FileList ) {
+				onFilesSelected( selected );
+			} else {
+				onMediaItemSelected( selected );
+			}
 		};
 
 		return (

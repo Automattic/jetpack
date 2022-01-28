@@ -611,6 +611,15 @@ const VideoPressEdit = CoreVideoEdit =>
 				this.setState( { fileForUpload: files[0] } );
 			}
 
+			// Handle Media Library selection
+			const mediaItemSelected = ( item ) => {
+				if ( item && item.videopress_guid ) {
+					this.props.setAttributes( { guid: item.videopress_guid } );
+				} else {
+					this.props.setAttributes( { src: item.url } );
+				}
+			}
+
 			const uploadFinished = ( guid = null ) => {
 				this.setState( { fileForUpload: null } );
 				if ( !! guid ) {
@@ -643,7 +652,8 @@ const VideoPressEdit = CoreVideoEdit =>
 
 				return (
 					<VideoPressBlockProvider
-						onFilesSelected={ filesSelected }>
+						onFilesSelected={ filesSelected }
+						onMediaItemSelected= { mediaItemSelected }>
 						<Fragment>
 							<div className={ ! isFetchingVideo ? 'videopress-block-hide' : '' }>
 								<Loading
