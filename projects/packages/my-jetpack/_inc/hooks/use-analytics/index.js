@@ -1,4 +1,4 @@
-/* global myJetpackInitialState */
+/* global myJetpackRest */
 /**
  * External dependencies
  */
@@ -7,7 +7,7 @@ import jetpackAnalytics from '@automattic/jetpack-analytics';
 import { useConnection } from '@automattic/jetpack-connection';
 
 const useAnalytics = () => {
-	const { apiRoot, apiNonce } = myJetpackInitialState;
+	const { apiRoot, apiNonce } = myJetpackRest;
 
 	const { isUserConnected, userConnectionData } = useConnection( {
 		apiRoot,

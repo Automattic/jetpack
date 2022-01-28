@@ -1,4 +1,4 @@
-/* global myJetpackInitialState */
+/* global myJetpackRest */
 /**
  * WordPress dependencies
  */
@@ -34,7 +34,7 @@ export function useGlobalNotice() {
  * the hook dispatches an action to populate the global notice.
  */
 export default function useNoticeWatcher() {
-	const { apiRoot, apiNonce } = myJetpackInitialState;
+	const { apiRoot, apiNonce } = myJetpackRest;
 	const dispatch = useDispatch();
 
 	const { isUserConnected } = useConnection( {

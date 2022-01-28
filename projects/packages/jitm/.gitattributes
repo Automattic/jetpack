@@ -12,4 +12,5 @@ webpack.config.js export-ignore
 .gitignore        production-exclude
 .phpcs.dir.xml    production-exclude
 phpunit.xml.dist  production-exclude
+.eslintignore     production-exclude
 tests/**          production-exclude
