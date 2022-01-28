@@ -73,7 +73,9 @@ jQuery( document ).ready( function ( $ ) {
 				html += '<div class="jitm-banner__action">';
 				html +=
 					'<a href="' +
-					( envelope.CTA.hasOwnProperty( 'link' ) && envelope.CTA.link.length ? envelope.CTA.link : envelope.url ) +
+					( envelope.CTA.hasOwnProperty( 'link' ) && envelope.CTA.link.length
+						? envelope.CTA.link
+						: envelope.url ) +
 					'" target="' +
 					( envelope.CTA.newWindow === false || ajaxAction ? '_self' : '_blank' ) +
 					'" rel="noopener noreferrer" title="' +
@@ -139,7 +141,7 @@ jQuery( document ).ready( function ( $ ) {
 		response.url = response.url + '&redirect=' + redirect;
 
 		var $template = templates[ template ]( response );
-		$template.find( '.jitm-banner__dismiss' ).click( render( $template ) );
+		$template.find( '.jitm-banner__dismiss' ).on( 'click', render( $template ) );
 
 		if ( $( '#jp-admin-notices' ).length > 0 ) {
 			// Add to Jetpack notices within the Jetpack settings app.
