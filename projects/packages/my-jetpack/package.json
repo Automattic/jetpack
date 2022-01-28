@@ -1,7 +1,7 @@
 {
 	"private": true,
 	"name": "@automattic/jetpack-my-jetpack",
-	"version": "0.4.0-alpha",
+	"version": "0.5.0-alpha",
 	"description": "WP Admin page with information and configuration shared among all Jetpack stand-alone plugins",
 	"homepage": "https://jetpack.com",
 	"bugs": {
@@ -21,12 +21,13 @@
 		"test": "js-test-runner jest --passWithNoTests --setupFilesAfterEnv ./jest.setup.js"
 	},
 	"dependencies": {
-		"@automattic/jetpack-analytics": "workspace:^0.1.7-alpha",
-		"@automattic/jetpack-components": "workspace:^0.10.3-alpha",
-		"@automattic/jetpack-connection": "workspace:^0.14.0-alpha",
+		"@automattic/jetpack-analytics": "workspace:^0.1.7",
+		"@automattic/jetpack-components": "workspace:^0.10.3",
+		"@automattic/jetpack-connection": "workspace:^0.14.1-alpha",
 		"@wordpress/components": "19.1.6",
 		"@wordpress/data": "6.1.5",
 		"@wordpress/i18n": "4.2.4",
+		"@wordpress/icons": "6.1.1",
 		"classnames": "2.3.1",
 		"prop-types": "15.8.1"
 	},
@@ -35,8 +36,8 @@
 		"*.scss"
 	],
 	"devDependencies": {
-		"@automattic/jetpack-base-styles": "workspace:^0.1.7-alpha",
-		"@automattic/jetpack-webpack-config": "workspace:^1.0.3-alpha",
+		"@automattic/jetpack-base-styles": "workspace:^0.1.7",
+		"@automattic/jetpack-webpack-config": "workspace:^1.1.1",
 		"@babel/core": "7.16.0",
 		"@babel/preset-env": "7.16.4",
 		"@babel/register": "7.16.0",

@@ -9,6 +9,7 @@ const productSelectors = {
 	getProductNames,
 	getProduct,
 	isValidProduct,
+	isFetching: ( state, productId ) => state.products?.isFetching?.[ productId ] || false,
 };
 
 const purchasesSelectors = {
@@ -16,9 +17,14 @@ const purchasesSelectors = {
 	isRequestingPurchases: state => state.isRequestingPurchases || false,
 };
 
+const noticeSelectors = {
+	getGlobalNotice: state => state.notices?.global,
+};
+
 const selectors = {
 	...productSelectors,
 	...purchasesSelectors,
+	...noticeSelectors,
 };
 
 export default selectors;

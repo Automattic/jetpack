@@ -15,11 +15,15 @@ import { REST_API_SITE_PRODUCTS_ENDPOINT } from './constants';
 const SET_PURCHASES_IS_FETCHING = 'SET_PURCHASES_IS_FETCHING';
 const FETCH_PURCHASES = 'FETCH_PURCHASES';
 const SET_PURCHASES = 'SET_PURCHASES';
-const SET_PRODUCT_ACTION_ERROR = 'SET_PRODUCT_ACTION_ERROR';
+const SET_IS_FETCHING_PRODUCT = 'SET_IS_FETCHING_PRODUCT';
+const SET_PRODUCT = 'SET_PRODUCT';
+const SET_PRODUCT_REQUEST_ERROR = 'SET_PRODUCT_REQUEST_ERROR';
 const ACTIVATE_PRODUCT = 'ACTIVATE_PRODUCT';
 const DEACTIVATE_PRODUCT = 'DEACTIVATE_PRODUCT';
-const SET_FETCHING_PRODUCT_STATUS = 'SET_FETCHING_PRODUCT_STATUS';
 const SET_PRODUCT_STATUS = 'SET_PRODUCT_STATUS';
+
+const SET_GLOBAL_NOTICE = 'SET_GLOBAL_NOTICE';
+const CLEAN_GLOBAL_NOTICE = 'CLEAN_GLOBAL_NOTICE';
 
 const setPurchasesIsFetching = isFetching => {
 	return { type: SET_PURCHASES_IS_FETCHING, isFetching };
@@ -33,17 +37,33 @@ const setPurchases = purchases => {
 	return { type: SET_PURCHASES, purchases };
 };
 
+const setProduct = product => ( { type: SET_PRODUCT, product } );
+
+const setRequestProductError = ( productId, error ) => ( {
+	type: SET_PRODUCT_REQUEST_ERROR,
+	productId,
+	error,
+} );
+
 const setProductStatus = ( productId, status ) => {
 	return { type: SET_PRODUCT_STATUS, productId, status };
 };
 
-const setIsFetchingProductStatus = ( productId, isFetching ) => {
-	return { type: SET_FETCHING_PRODUCT_STATUS, productId, isFetching };
-};
-
-const setProductActionError = error => {
-	return { type: SET_PRODUCT_ACTION_ERROR, error };
-};
+/**
+ * Action that set the `isFetching` state of the product,
+ * when the client hits the server.
+ *
+ * @param {string} productId   - My Jetpack product ID.
+ * @param {boolean} isFetching - True if the product is being fetched. Otherwise, False.
+ * @returns {object}           - Redux action.
+ */
+function setIsFetchingProduct( productId, isFetching ) {
+	return {
+		type: SET_IS_FETCHING_PRODUCT,
+		productId,
+		isFetching,
+	};
+}
 
 /**
  * Side effect action which will sync
@@ -61,31 +81,34 @@ function requestProductStatus( productId, data, { select, dispatch } ) {
 		// Check valid product.
 		const isValid = select.isValidProduct( productId );
 		if ( ! isValid ) {
+			dispatch( setProductStatus( productId, { status: 'error' } ) );
 			return dispatch(
-				setProductActionError( {
+				setRequestProductError( productId, {
 					code: 'invalid_product',
 					message: __( 'Invalid product name', 'jetpack-my-jetpack' ),
 				} )
 			);
 		}
 
-		dispatch( setIsFetchingProductStatus( productId, true ) );
+		const method = data.activate ? 'POST' : 'DELETE';
+		dispatch( setIsFetchingProduct( productId, true ) );
 
 		// Activate/deactivate product.
 		return apiFetch( {
 			path: `${ REST_API_SITE_PRODUCTS_ENDPOINT }/${ productId }`,
-			method: 'POST',
+			method,
 			data,
 		} )
-			.then( status => {
-				dispatch( setIsFetchingProductStatus( productId, false ) );
-				dispatch( setProductStatus( productId, status ) );
+			.then( freshProduct => {
+				dispatch( setIsFetchingProduct( productId, false ) );
+				dispatch( setProduct( freshProduct ) );
 				resolve( status );
 			} )
 			.catch( error => {
-				dispatch( setProductActionError( error ) );
+				dispatch( setProductStatus( productId, { status: 'error' } ) );
+				dispatch( setRequestProductError( productId, error ) );
 				reject( error );
-				dispatch( setIsFetchingProductStatus( productId, false ) );
+				dispatch( setIsFetchingProduct( productId, false ) );
 			} );
 	} );
 }
@@ -113,14 +136,27 @@ const deactivateProduct = productId => async store => {
 };
 
 const productActions = {
+	setProduct,
 	activateProduct,
 	deactivateProduct,
+	setIsFetchingProduct,
+	setRequestProductError,
+};
+
+const noticeActions = {
+	setGlobalNotice: ( message, options ) => ( {
+		type: 'SET_GLOBAL_NOTICE',
+		message,
+		options,
+	} ),
+	cleanGlobalNotice: () => ( { type: 'CLEAN_GLOBAL_NOTICE' } ),
 };
 
 const actions = {
 	setPurchasesIsFetching,
 	fetchPurchases,
 	setPurchases,
+	...noticeActions,
 	...productActions,
 };
 
@@ -128,10 +164,13 @@ export {
 	SET_PURCHASES_IS_FETCHING,
 	FETCH_PURCHASES,
 	SET_PURCHASES,
-	SET_PRODUCT_ACTION_ERROR,
+	SET_PRODUCT,
+	SET_PRODUCT_REQUEST_ERROR,
 	ACTIVATE_PRODUCT,
 	DEACTIVATE_PRODUCT,
-	SET_FETCHING_PRODUCT_STATUS,
+	SET_IS_FETCHING_PRODUCT,
 	SET_PRODUCT_STATUS,
+	SET_GLOBAL_NOTICE,
+	CLEAN_GLOBAL_NOTICE,
 	actions as default,
 };
