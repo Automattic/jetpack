@@ -12,10 +12,12 @@ import UpdateRenderer from 'listr-update-renderer';
  * Internal dependencies
  */
 import { chalkJetpackGreen } from '../helpers/styling.js';
+import formatDuration from '../helpers/format-duration.js';
 import promptForProject from '../helpers/promptForProject.js';
 import { readComposerJson } from '../helpers/json.js';
 import { getInstallArgs, projectDir } from '../helpers/install.js';
 import { allProjects, allProjectsByType } from '../helpers/projectHelpers.js';
+import PrefixTransformStream from '../helpers/prefix-stream.js';
 
 export const command = 'build [project...]';
 export const describe = 'Builds one or more monorepo projects';
@@ -44,6 +46,10 @@ export function builder( yargs ) {
 		.option( 'no-pnpm-install', {
 			type: 'boolean',
 			description: 'Skip execution of `pnpm install` before the build.',
+		} )
+		.option( 'timing', {
+			type: 'boolean',
+			description: 'Output timing information.',
 		} );
 }
 
@@ -153,16 +159,23 @@ function createBuildTask( argv, title, build ) {
 		task: async ( ctx, task ) => {
 			const t = {};
 			if ( argv.v ) {
+				const stdout = new PrefixTransformStream( { time: !! argv.timing } );
+				const stderr = new PrefixTransformStream( { time: !! argv.timing } );
+				stdout.pipe( process.stdout );
+				stderr.pipe( process.stderr );
+
 				t.execa = ( file, args, options ) => {
 					const p = execa( file, args, {
-						stdio: [ 'ignore', 'inherit', 'inherit' ],
+						stdio: [ 'ignore', 'pipe', 'pipe' ],
 						...options,
 					} );
+					p.stdout.pipe( stdout, { end: false } );
+					p.stderr.pipe( stderr, { end: false } );
 					return p;
 				};
 				t.output = m =>
 					new Promise( resolve => {
-						process.stdout.write( m, 'utf8', resolve );
+						stdout.write( m, 'utf8', resolve );
 					} );
 				t.setStatus = s => t.output( '\n' + chalk.bold( `== ${ title } [${ s }] ==` ) + '\n\n' );
 			} else {
@@ -173,10 +186,11 @@ function createBuildTask( argv, title, build ) {
 				};
 			}
 
+			const t0 = Date.now();
 			try {
 				await build( t );
 			} finally {
-				await t.setStatus( 'complete' );
+				await t.setStatus( argv.timing ? formatDuration( Date.now() - t0 ) + 's' : 'complete' );
 			}
 		},
 	};
