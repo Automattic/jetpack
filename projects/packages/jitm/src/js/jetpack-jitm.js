@@ -255,7 +255,7 @@ jQuery( document ).ready( function ( $ ) {
 
 	reFetch();
 
-	$( window ).bind( 'hashchange', function ( e ) {
+	$( window ).on( 'hashchange', function ( e ) {
 		var newURL = e.originalEvent.newURL;
 
 		if ( newURL.indexOf( 'jetpack#/' ) >= 0 ) {
