@@ -55,7 +55,6 @@ class AppsCard extends React.Component {
 							borderless
 							compact
 							className="jp-apps-card__dismiss"
-							href="javascript:void(0)"
 							onClick={ this.dismissCard }
 						>
 							<span className="dashicons dashicons-no" />

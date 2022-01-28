@@ -29,7 +29,7 @@ class JetpackBanner extends Banner {
 		path: PropTypes.string,
 		plan: PropTypes.string,
 		siteSlug: PropTypes.string,
-		title: PropTypes.string.isRequired,
+		title: PropTypes.node.isRequired,
 	};
 
 	static defaultProps = {
