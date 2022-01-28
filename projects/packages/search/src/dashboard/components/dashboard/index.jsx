@@ -170,6 +170,10 @@ export default function SearchDashboard() {
 		);
 	};
 
+	const isRecordMeterEnabled = useSelect( select =>
+		select( STORE_ID ).isFeatureEnabled( 'record-meter' )
+	);
+
 	return (
 		<div className="jp-search-dashboard-page">
 			{ isLoading && (
@@ -180,7 +184,7 @@ export default function SearchDashboard() {
 					{ renderHeader() }
 					{ renderMockedSearchInterface() }
 					{ renderModuleControl() }
-					<RecordMeter />
+					{ isRecordMeterEnabled && <RecordMeter /> }
 					{ renderFooter() }
 				</Fragment>
 			) }
