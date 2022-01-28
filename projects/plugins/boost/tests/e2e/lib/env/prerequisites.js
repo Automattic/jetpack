@@ -131,7 +131,6 @@ export async function connect( page ) {
 	// as a localhost site. The only solution is to do it via the site itself running under the localtunnel.
 	const jetpackBoostPage = await JetpackBoostPage.visit( page );
 	await jetpackBoostPage.connect();
-	await jetpackBoostPage.waitForApiResponse( 'connection' );
 	await jetpackBoostPage.isOverallScoreHeaderShown();
 }
 
