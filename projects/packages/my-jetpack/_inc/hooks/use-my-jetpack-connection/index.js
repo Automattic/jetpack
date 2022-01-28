@@ -1,5 +1,6 @@
 /* global myJetpackInitialState */
 
+/* global myJetpackRest */
 /**
  * WordPress dependencies
  */
@@ -12,7 +13,7 @@ import { useEffect } from 'react';
  * @returns {object} site purchases data
  */
 export default function useMyJetpackConnection() {
-	const { apiRoot, apiNonce } = myJetpackInitialState;
+	const { apiRoot, apiNonce } = myJetpackRest;
 	const connectionData = useConnection( { apiRoot, apiNonce } );
 
 	// Alias: https://github.com/Automattic/jetpack/blob/master/projects/packages/connection/src/class-rest-connector.php/#L315
