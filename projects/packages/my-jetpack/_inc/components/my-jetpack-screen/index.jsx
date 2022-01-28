@@ -68,7 +68,7 @@ export default function MyJetpackScreen() {
 		recordEvent( 'jetpack_myjetpack_page_view' );
 	}, [ recordEvent ] );
 
-	const { isSiteConnected } = useMyJetpackConnection();
+	const { isSiteConnected } = useMyJetpackConnection( { redirect: true } );
 	if ( ! isSiteConnected ) {
 		return null;
 	}
