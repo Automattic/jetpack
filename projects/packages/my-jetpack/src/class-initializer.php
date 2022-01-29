@@ -175,7 +175,7 @@ class Initializer {
 		if ( did_action( 'my_jetpack_init' ) ) {
 			return false;
 		}
-		$should = apply_filters( 'jetpack_my_jetpck_should_initialize', true );
+		$should = apply_filters( 'jetpack_my_jetpack_should_initialize', true );
 
 		// Feature flag while we are developing it.
 		if ( ! defined( 'JETPACK_ENABLE_MY_JETPACK' ) || ! JETPACK_ENABLE_MY_JETPACK ) {
