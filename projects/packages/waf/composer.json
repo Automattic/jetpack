@@ -3,7 +3,9 @@
 	"description": "Tools to assist with the Jetpack Web Application Firewall",
 	"type": "library",
 	"license": "GPL-2.0-or-later",
-	"require": {},
+	"require": {
+		"wikimedia/aho-corasick": "^1.0"
+	},
 	"require-dev": {
 		"yoast/phpunit-polyfills": "1.0.3",
 		"automattic/jetpack-changelogger": "^3.0"
