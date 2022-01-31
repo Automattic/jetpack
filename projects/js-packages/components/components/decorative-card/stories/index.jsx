@@ -5,7 +5,7 @@ import React from 'react';
 import DecorativeCard from '../index.jsx';
 
 export default {
-	title: 'Playground/Decorative Card',
+	title: 'JS Packages/Components/Decorative Card',
 	component: DecorativeCard,
 };
 
