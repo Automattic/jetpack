@@ -1,20 +1,14 @@
-/* global myJetpackRest */
 /**
  * External dependencies
  */
 import { useEffect } from 'react';
 import jetpackAnalytics from '@automattic/jetpack-analytics';
-import { useConnection } from '@automattic/jetpack-connection';
+import useMyJetpackConnection from '../use-my-jetpack-connection';
 
 const useAnalytics = () => {
-	const { apiRoot, apiNonce } = myJetpackRest;
-
-	const { isUserConnected, userConnectionData } = useConnection( {
-		apiRoot,
-		apiNonce,
-	} );
-
+	const { isUserConnected, userConnectionData } = useMyJetpackConnection();
 	const { login, ID } = userConnectionData.currentUser.wpcomUser;
+
 	/**
 	 * Initialize tracks with user data.
 	 * Should run when we have a connected user.
