@@ -35,6 +35,10 @@ class Test_Hybrid_Product extends TestCase {
 	 */
 	public function set_up() {
 
+		if ( version_compare( phpversion(), '5.7', '<=' ) ) {
+			$this->markTestSkipped( 'avoid bug in PHP 5.6 that throws strict mode warnings for abstract static methods.' );
+		}
+
 		$this->install_mock_plugins();
 		wp_cache_delete( 'plugins', 'plugins' );
 
