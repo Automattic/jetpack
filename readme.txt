@@ -1,8 +1,8 @@
 # WP Super Cache #
 * Contributors: donncha, automattic
 * Tags: performance, caching, wp-cache, wp-super-cache, cache
-* Tested up to: 5.8.1
-* Stable tag: 1.7.4
+* Tested up to: 5.9
+* Stable tag: 1.7.5
 * Requires at least: 3.1
 * Requires PHP: 5.2.4
 * License: GPLv2 or later
@@ -268,6 +268,14 @@ Your theme is probably responsive which means it resizes the page to suit whatev
 
 
 ## Changelog ##
+
+### 1.7.5 ###
+* Move the text of the settings pages into separate files. #791
+* Allow editors to delete all the cache files. #793
+* Only clear the cache from the current site, not the whole network (admin bar link). #794
+* Check $cache_path is somewhat sane. #797
+* realpath returns false if directory not found. #798
+* Don't reject bots for new installs. They "preload pages" too. #800
 
 ### 1.7.4 ###
 * Make config file path configurable, props @sebastianpopp #755
@@ -767,4 +775,4 @@ Your theme is probably responsive which means it resizes the page to suit whatev
 
 
 ## Upgrade Notice ##
-Security and new feature release. Security issue is very difficult to perform but you should upgrade.
+Bug fix release
