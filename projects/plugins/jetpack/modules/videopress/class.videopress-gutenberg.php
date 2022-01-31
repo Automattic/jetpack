@@ -214,7 +214,7 @@ class VideoPress_Gutenberg {
 			false
 		);
 
-		if ( function_exists( 'is_automattician' ) && is_automattician() ) {
+		if ( true /*function_exists( 'is_automattician' ) && is_automattician()*/ ) {
 			wp_add_inline_script(
 				'jetpack-videopress-gutenberg-override-video-upload',
 				'var videoPressResumableEnabled = true;'
