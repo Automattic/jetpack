@@ -40,7 +40,7 @@
 		"@automattic/color-studio": "2.5.0",
 		"@automattic/jetpack-analytics": "workspace:^0.1.7",
 		"@automattic/jetpack-api": "workspace:^0.8.3",
-		"@automattic/jetpack-components": "workspace:^0.10.3",
+		"@automattic/jetpack-components": "workspace:^0.10.4-alpha",
 		"@wordpress/base-styles": "4.0.4",
 		"@wordpress/block-editor": "8.0.12",
 		"@wordpress/data": "6.1.5",
