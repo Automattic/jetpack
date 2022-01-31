@@ -68,8 +68,8 @@
 .status {
   margin-left: var(--product-card-margin-base);
   white-space: nowrap;
-  height: --product-card-actions-size;
-  line-height: --product-card-actions-size;
+  height: var(--product-card-actions-size);
+  line-height: var(--product-card-actions-size);
 
   &:before {
     content: "";
