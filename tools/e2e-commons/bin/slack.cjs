@@ -57,7 +57,7 @@ yargs
  * @param {string} suite test suite name
  * @return {Promise<void>}
  */
-async function reportTestRunResults( suite = 'e2e tests' ) {
+async function reportTestRunResults( suite = 'e2e' ) {
 	let result;
 
 	// If results summary file is not found send failure notification and exit

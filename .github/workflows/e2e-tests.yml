@@ -35,6 +35,7 @@ jobs:
       - name: Setup tools
         uses: ./.github/actions/tool-setup
 
+      # Required for list-changed-projects.sh
       - name: Install monorepo
         run: |
           pnpm install
@@ -110,7 +111,7 @@ jobs:
         pnpm run env:up
         echo "::endgroup::"
 
-        if ["$RUN_NAME" == "gutenberg"]; then
+        if ["${RUN_NAME}" == "gutenberg"]; then
             echo "::group::Setting up Gutenberg"
             pnpx e2e-env gb-setup
             echo "::endgroup::"
@@ -149,8 +150,8 @@ jobs:
         name: test-output-${{ matrix.group }}
         path: ${{ matrix.path }}/output
 
-  test-reports:
-    name: "Trigger test report workflow"
+  test-report:
+    name: "Test report"
     runs-on: ubuntu-latest
     if: ${{ ! cancelled() }}
     needs: [create-test-matrix, e2e-tests]

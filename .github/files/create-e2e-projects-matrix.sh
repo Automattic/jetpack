@@ -4,23 +4,20 @@ set -eo pipefail
 
 PROJECTS=('{"project":"Jetpack","path":"projects/plugins/jetpack/tests/e2e","testArgs":"","slackArgs":""}' '{"project":"Boost","path":"projects/plugins/boost/tests/e2e","testArgs":"","slackArgs":""}')
 PROJECTS_MATRIX=()
-RUN_NAME=''
+RUN_NAME='gutenberg'
 
 CHANGED_PROJECTS="$(.github/files/list-changed-projects.sh)"
-#echo "$CHANGED_PROJECTS"
 
 # gutenberg scheduled run
-#if [ "$CRON" == "0 */12 * * *" ]; then
-if [ "$GITHUB_EVENT_NAME" == "pull_request" ]; then
+if [ "$CRON" == "0 */12 * * *" ]; then
   PROJECTS_MATRIX+=('{"project":"Jetpack with Gutenberg","path":"projects/plugins/jetpack/tests/e2e","testArgs":"blocks","slackArgs":"--report gutenberg"}')
   RUN_NAME='gutenberg'
 fi
 
 # atomic scheduled run
-#if [ "$CRON" == "0 */12 * * *" ]; then
-if [ "$GITHUB_EVENT_NAME" == "pull_request" ]; then
+if [ "$CRON" == "0 */4 * * *" ]; then
   PROJECTS_MATRIX+=('{"project":"Jetpack on Atomic","path":"projects/plugins/jetpack/tests/e2e","testArgs":"blocks --grep-invert wordads","slackArgs":"--report atomic"}')
-  RUN_NAME='test-run-name'
+  RUN_NAME='atomic'
 fi
 
 for PROJECT in "${PROJECTS[@]}"; do
