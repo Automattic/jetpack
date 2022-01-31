@@ -13,7 +13,7 @@ import { initStore } from '../../../state/store';
 initStore();
 
 export default {
-	title: 'My Jetpack/Product Card',
+	title: 'Packages/My Jetpack/Product Card',
 	component: ProductCard,
 	parameters: {
 		actions: { argTypesRegex: '^on.*' },
