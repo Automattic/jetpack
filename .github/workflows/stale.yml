@@ -22,7 +22,7 @@ jobs:
           days-before-pr-stale: 90
           # Issues and PRs with these labels will never be considered stale.
           exempt-issue-labels: '[Pri] High,[Pri] BLOCKER,[Type] Good For Community,[Type] Good First Bug,FixTheFlows'
-          exempt-pr-labels: '[Pri] High,[Pri] BLOCKER,[Type] Good For Community,[Type] Good First Bug,FixTheFlows'
+          exempt-pr-labels: '[Pri] High,[Pri] BLOCKER,FixTheFlows'
           # Label to use when marking an issue / PR as stale
           stale-pr-label: '[Status] Stale'
           stale-issue-label: '[Status] Stale'
