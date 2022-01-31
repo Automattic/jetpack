@@ -9,7 +9,7 @@ import Col from '../../layout/col';
 import Container from '../../layout/container';
 
 export default {
-	title: 'Playground/Admin Sections',
+	title: 'JS Packages/Components/Admin Sections',
 };
 
 // Export additional stories using pre-defined values
