@@ -10,7 +10,7 @@ import React from 'react';
 import Spinner from '../index.jsx';
 
 export default {
-	title: 'Playground/Spinner',
+	title: 'JS Packages/Components/Spinner',
 	component: Spinner,
 	argTypes: {
 		color: { control: 'color' },

@@ -6,11 +6,11 @@ import { writable, derived } from 'svelte/store';
 /**
  * Internal dependencies
  */
+import api from '../api/api';
 import { CriticalCssErrorDetails, criticalCssStatus } from './critical-css-status';
 import type { JSONObject } from '../utils/json-types';
 import { objectFilter } from '../utils/object-filter';
 import { sortByFrequency } from '../utils/sort-by-frequency';
-import { makeAdminAjaxRequest } from '../utils/make-admin-ajax-request';
 import { castToString } from '../utils/cast-to-string';
 
 const importantProviders = [
@@ -118,10 +118,9 @@ export function setDismissalError( title: string, error: JSONObject ): void {
  * @param {string} key Key of recommendation to dismiss.
  */
 export async function dismissRecommendation( key: string ): Promise< void > {
-	await makeAdminAjaxRequest( {
-		action: 'dismiss_recommendations',
+	await api.post( '/recommendations/dismiss', {
 		providerKey: key,
-		nonce: Jetpack_Boost.criticalCssDismissRecommendationsNonce,
+		nonce: Jetpack_Boost.nonces[ 'recommendations/dismiss' ],
 	} );
 	dismissed.update( keys => [ ...keys, key ] );
 }
@@ -130,9 +129,8 @@ export async function dismissRecommendation( key: string ): Promise< void > {
  * Clear all the dismissed recommendations.
  */
 export async function clearDismissedRecommendations(): Promise< void > {
-	await makeAdminAjaxRequest( {
-		action: 'reset_dismissed_recommendations',
-		nonce: Jetpack_Boost.criticalCssDismissRecommendationsNonce,
+	await api.post( '/recommendations/reset', {
+		nonce: Jetpack_Boost.nonces[ 'recommendations/reset' ],
 	} );
 	dismissed.set( [] );
 }

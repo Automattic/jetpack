@@ -4,7 +4,7 @@
 import { Fragment } from '@wordpress/element';
 import { BlockControls } from '@wordpress/block-editor';
 import { DropdownMenu, ToolbarGroup, ToolbarItem } from '@wordpress/components';
-import { Icon, update } from '@wordpress/icons';
+import { Icon, update, warning } from '@wordpress/icons';
 import { __ } from '@wordpress/i18n';
 
 /**
@@ -31,6 +31,13 @@ export default function Controls( props ) {
 	if ( currentPlan ) {
 		planDescription = ' ' + getPlanDescription( currentPlan );
 	}
+
+	let subscriptionIcon = update;
+	if ( selectedPlanId && ! currentPlan ) {
+		planDescription = __( 'Subscription not found', 'jetpack' );
+		subscriptionIcon = warning;
+	}
+
 	return (
 		<BlockControls>
 			<ToolbarGroup>
@@ -40,7 +47,7 @@ export default function Controls( props ) {
 							// @ts-ignore We want a label with our Dashicon.Icon
 							icon={
 								<Fragment>
-									<Icon icon={ update } />{ ' ' }
+									<Icon icon={ subscriptionIcon } />{ ' ' }
 									{ planDescription && <Fragment>{ planDescription }</Fragment> }
 								</Fragment>
 							}
