@@ -92,7 +92,7 @@ class Plugin implements PluginInterface, EventSubscriberInterface {
 			$totype   = 'themes';
 		} else {
 			$io->warning( 'Skipping jetpack-library i18n map generation, .extra.wp-plugin-slug / .extra.wp-theme-slug is not set in composer.json' );
-			$filesystem->unlink( 'jetpack_vendor/i18n-map.php' );
+			$filesystem->remove( 'jetpack_vendor/i18n-map.php' );
 			return;
 		}
 
@@ -111,12 +111,23 @@ class Plugin implements PluginInterface, EventSubscriberInterface {
 				$ver = $extra['branch-alias'][ $ver ];
 			}
 
+			// Composer's `getVersion()` seems to like to return a 4-component version, while semver wants only 3 components. Strip any extra components.
+			$ver = preg_replace( '/^(\d+\.\d+\.\d+)(?:\.\d+)+/', '$1', $ver );
+
+			if ( ! preg_match( '/^\d+\.\d+\.\d+(?:-[0-9a-zA-Z-]+(?:\.[0-9a-zA-Z-]+)*)?(?:\+[0-9a-zA-Z-]+(?:\.[0-9a-zA-Z-]+)*)?$/', $ver ) ) {
+				// Invalid version, skip it.
+				$ver = '0.0.0';
+			}
+
 			$extra = $package->getExtra();
 			if ( empty( $extra['textdomain'] ) ) {
 				$io->info( "  {$package->getName()} ($ver): no textdomain set" );
 			} else {
-				$data['packages'][ $extra['textdomain'] ] = $ver;
-				$io->info( "  {$package->getName()} ($ver): textdomain is {$extra['textdomain']}" );
+				$data['packages'][ $extra['textdomain'] ] = array(
+					'path' => 'jetpack_vendor/' . $package->getPrettyName(),
+					'ver'  => $ver,
+				);
+				$io->info( "  {$package->getName()} ($ver): textdomain is {$extra['textdomain']}, path is jetpack_vendor/{$package->getPrettyName()}" );
 			}
 		}
 

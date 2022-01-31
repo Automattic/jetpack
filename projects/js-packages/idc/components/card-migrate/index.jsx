@@ -7,7 +7,7 @@ import { Button, Dashicon } from '@wordpress/components';
 import { useSelect } from '@wordpress/data';
 import { createInterpolateElement } from '@wordpress/element';
 import { __, sprintf } from '@wordpress/i18n';
-import { Spinner } from '@automattic/jetpack-components';
+import { getRedirectUrl, Spinner } from '@automattic/jetpack-components';
 
 /**
  * Internal dependencies
@@ -15,6 +15,32 @@ import { Spinner } from '@automattic/jetpack-components';
 import { STORE_ID } from '../../state/store';
 import extractHostname from '../../tools/extract-hostname';
 import customContentShape from '../../tools/custom-content-shape';
+import ErrorMessage from '../error-message';
+
+/**
+ * Render the error message.
+ *
+ * @param {string} supportURL - The support page URL.
+ * @returns {React.Component} The error message.
+ */
+const renderError = supportURL => {
+	return (
+		<ErrorMessage>
+			{ createInterpolateElement(
+				__( 'Could not move your settings. Retry or find out more <a>here</a>.', 'jetpack' ),
+				{
+					a: (
+						<a
+							href={ supportURL || getRedirectUrl( 'jetpack-support-safe-mode' ) }
+							rel="noopener noreferrer"
+							target="_blank"
+						/>
+					),
+				}
+			) }
+		</ErrorMessage>
+	);
+};
 
 /**
  * The "migrate" card.
@@ -28,18 +54,27 @@ const CardMigrate = props => {
 
 	const isActionInProgress = useSelect( select => select( STORE_ID ).getIsActionInProgress(), [] );
 
-	const { isMigrating, migrateCallback, customContent } = props;
+	const { isMigrating, migrateCallback, customContent, hasError } = props;
 
-	const buttonLabel = __( 'Move your settings', 'jetpack' );
+	const buttonLabel = customContent.migrateButtonLabel || __( 'Move your settings', 'jetpack' );
 
 	return (
-		<div className="jp-idc__idc-screen__card-action-base">
+		<div
+			className={
+				'jp-idc__idc-screen__card-action-base' +
+				( hasError ? ' jp-idc__idc-screen__card-action-error' : '' )
+			}
+		>
 			<div className="jp-idc__idc-screen__card-action-top">
-				<h4>{ customContent.migrateCardTitle || __( 'Move Jetpack data', 'jetpack' ) }</h4>
+				<h4>
+					{ customContent.migrateCardTitle
+						? createInterpolateElement( customContent.migrateCardTitle, { em: <em /> } )
+						: __( 'Move Jetpack data', 'jetpack' ) }
+				</h4>
 
 				<p>
-					{ customContent.migrateCardBodyText ||
-						createInterpolateElement(
+					{ createInterpolateElement(
+						customContent.migrateCardBodyText ||
 							sprintf(
 								/* translators: %1$s: The current site domain name. %2$s: The original site domain name. */
 								__(
@@ -49,10 +84,12 @@ const CardMigrate = props => {
 								currentHostName,
 								wpcomHostName
 							),
-							{
-								hostname: <strong />,
-							}
-						) }
+						{
+							hostname: <strong />,
+							em: <em />,
+							strong: <strong />,
+						}
+					) }
 				</p>
 			</div>
 
@@ -69,6 +106,8 @@ const CardMigrate = props => {
 				>
 					{ isMigrating ? <Spinner /> : buttonLabel }
 				</Button>
+
+				{ hasError && renderError( customContent.supportURL ) }
 			</div>
 		</div>
 	);
@@ -85,12 +124,15 @@ CardMigrate.propTypes = {
 	migrateCallback: PropTypes.func.isRequired,
 	/** Custom text content. */
 	customContent: PropTypes.shape( customContentShape ),
+	/** Whether the component has an error. */
+	hasError: PropTypes.bool.isRequired,
 };
 
 CardMigrate.defaultProps = {
 	isMigrating: false,
 	migrateCallback: () => {},
 	customContent: {},
+	hasError: false,
 };
 
 export default CardMigrate;

@@ -6,8 +6,10 @@ use Automattic\Jetpack\Connection\Rest_Authentication;
 use Automattic\Jetpack\Connection\REST_Connector;
 use Automattic\Jetpack\Jetpack_CRM_Data;
 use Automattic\Jetpack\Licensing;
+use Automattic\Jetpack\Plugins_Installer;
 use Automattic\Jetpack\Search\REST_Controller as Search_REST_Controller;
 use Automattic\Jetpack\Status\Host;
+use Automattic\Jetpack\Status\Visitor;
 
 /**
  * Register WP REST API endpoints for Jetpack.
@@ -908,7 +910,7 @@ class Jetpack_Core_Json_Api_Endpoints {
 			array(
 				'method'  => 'GET',
 				'headers' => array(
-					'X-Forwarded-For' => Jetpack::current_user_ip( true ),
+					'X-Forwarded-For' => ( new Visitor() )->get_ip( true ),
 				),
 			)
 		);
@@ -952,7 +954,7 @@ class Jetpack_Core_Json_Api_Endpoints {
 			array(
 				'method'  => 'GET',
 				'headers' => array(
-					'X-Forwarded-For' => Jetpack::current_user_ip( true ),
+					'X-Forwarded-For' => ( new Visitor() )->get_ip( true ),
 				),
 			)
 		);
@@ -1036,7 +1038,7 @@ class Jetpack_Core_Json_Api_Endpoints {
 			array(
 				'method'  => 'GET',
 				'headers' => array(
-					'X-Forwarded-For' => Jetpack::current_user_ip( true ),
+					'X-Forwarded-For' => ( new Visitor() )->get_ip( true ),
 				),
 			)
 		);
@@ -1067,7 +1069,7 @@ class Jetpack_Core_Json_Api_Endpoints {
 			array(
 				'method'  => 'GET',
 				'headers' => array(
-					'X-Forwarded-For' => Jetpack::current_user_ip( true ),
+					'X-Forwarded-For' => ( new Visitor() )->get_ip( true ),
 				),
 			)
 		);
@@ -1100,7 +1102,7 @@ class Jetpack_Core_Json_Api_Endpoints {
 				'method'  => 'GET',
 				'headers' => array(
 					'Content-Type'    => 'application/json',
-					'X-Forwarded-For' => Jetpack::current_user_ip( true ),
+					'X-Forwarded-For' => ( new Visitor() )->get_ip( true ),
 				),
 			)
 		);
@@ -1163,7 +1165,7 @@ class Jetpack_Core_Json_Api_Endpoints {
 				'method'  => 'POST',
 				'headers' => array(
 					'Content-Type'    => 'application/json',
-					'X-Forwarded-For' => Jetpack::current_user_ip( true ),
+					'X-Forwarded-For' => ( new Visitor() )->get_ip( true ),
 				),
 			),
 			$request->get_json_params()
@@ -1920,7 +1922,7 @@ class Jetpack_Core_Json_Api_Endpoints {
 				array(
 					'method'  => 'GET',
 					'headers' => array(
-						'X-Forwarded-For' => Jetpack::current_user_ip( true ),
+						'X-Forwarded-For' => ( new Visitor() )->get_ip( true ),
 					),
 				)
 			);
@@ -1954,7 +1956,7 @@ class Jetpack_Core_Json_Api_Endpoints {
 					'method'  => 'PUT',
 					'headers' => array(
 						'Content-Type'    => 'application/json',
-						'X-Forwarded-For' => Jetpack::current_user_ip( true ),
+						'X-Forwarded-For' => ( new Visitor() )->get_ip( true ),
 					),
 				),
 				wp_json_encode( $request->get_params() )
@@ -2081,7 +2083,7 @@ class Jetpack_Core_Json_Api_Endpoints {
 			array(
 				'method'  => 'GET',
 				'headers' => array(
-					'X-Forwarded-For' => Jetpack::current_user_ip( true ),
+					'X-Forwarded-For' => ( new Visitor() )->get_ip( true ),
 				),
 			),
 			null,
@@ -2770,13 +2772,6 @@ class Jetpack_Core_Json_Api_Endpoints {
 			),
 			'do_not_track'                         => array(
 				'description'       => esc_html__( 'Do not track.', 'jetpack' ),
-				'type'              => 'boolean',
-				'default'           => 1,
-				'validate_callback' => __CLASS__ . '::validate_boolean',
-				'jp_group'          => 'stats',
-			),
-			'hide_smile'                           => array(
-				'description'       => esc_html__( 'Hide the stats smiley face image.', 'jetpack' ),
 				'type'              => 'boolean',
 				'default'           => 1,
 				'validate_callback' => __CLASS__ . '::validate_boolean',
@@ -3687,8 +3682,7 @@ class Jetpack_Core_Json_Api_Endpoints {
 	 * @return WP_REST_Response|WP_Error List of plugins in the site. Otherwise, a WP_Error instance with the corresponding error.
 	 */
 	public static function get_plugins() {
-		jetpack_require_lib( 'plugins' );
-		$plugins = Jetpack_Plugins::get_plugins();
+		$plugins = Plugins_Installer::get_plugins();
 
 		if ( ! empty( $plugins ) ) {
 			return rest_ensure_response( $plugins );
@@ -3715,14 +3709,12 @@ class Jetpack_Core_Json_Api_Endpoints {
 	public static function install_plugin( $request ) {
 		$plugin = stripslashes( $request['slug'] );
 
-		jetpack_require_lib( 'plugins' );
-
 		// Let's make sure the plugin isn't already installed.
-		$plugin_id = Jetpack_Plugins::get_plugin_id_by_slug( $plugin );
+		$plugin_id = Plugins_Installer::get_plugin_id_by_slug( $plugin );
 
 		// If not installed, let's install now.
 		if ( ! $plugin_id ) {
-			$result = Jetpack_Plugins::install_plugin( $plugin );
+			$result = Plugins_Installer::install_plugin( $plugin );
 
 			if ( is_wp_error( $result ) ) {
 				return new WP_Error(
@@ -3763,7 +3755,7 @@ class Jetpack_Core_Json_Api_Endpoints {
 		 * Let's check again for the plugin's ID if we don't already have it.
 		 */
 		if ( ! $plugin_id ) {
-			$plugin_id = Jetpack_Plugins::get_plugin_id_by_slug( $plugin );
+			$plugin_id = Plugins_Installer::get_plugin_id_by_slug( $plugin );
 			if ( ! $plugin_id ) {
 				return new WP_Error(
 					'unable_to_determine_installed_plugin',
@@ -3810,8 +3802,7 @@ class Jetpack_Core_Json_Api_Endpoints {
 			);
 		}
 
-		jetpack_require_lib( 'plugins' );
-		$plugins = Jetpack_Plugins::get_plugins();
+		$plugins = Plugins_Installer::get_plugins();
 
 		if ( empty( $plugins ) ) {
 			return new WP_Error( 'no_plugins_found', esc_html__( 'This site has no plugins.', 'jetpack' ), array( 'status' => 404 ) );
@@ -3839,7 +3830,7 @@ class Jetpack_Core_Json_Api_Endpoints {
 		}
 
 		// Is the plugin active already?
-		$status = Jetpack_Plugins::get_plugin_status( $plugin );
+		$status = Plugins_Installer::get_plugin_status( $plugin );
 		if ( in_array( $status, array( 'active', 'network-active' ), true ) ) {
 			return new WP_Error(
 				'plugin_already_active',
@@ -3910,8 +3901,7 @@ class Jetpack_Core_Json_Api_Endpoints {
 	 * @return bool|WP_Error True if module was activated. Otherwise, a WP_Error instance with the corresponding error.
 	 */
 	public static function get_plugin( $request ) {
-		jetpack_require_lib( 'plugins' );
-		$plugins = Jetpack_Plugins::get_plugins();
+		$plugins = Plugins_Installer::get_plugins();
 
 		if ( empty( $plugins ) ) {
 			return new WP_Error( 'no_plugins_found', esc_html__( 'This site has no plugins.', 'jetpack' ), array( 'status' => 404 ) );
@@ -3925,7 +3915,7 @@ class Jetpack_Core_Json_Api_Endpoints {
 
 		$plugin_data = $plugins[ $plugin ];
 
-		$plugin_data['active'] = in_array( Jetpack_Plugins::get_plugin_status( $plugin ), array( 'active', 'network-active' ), true );
+		$plugin_data['active'] = in_array( Plugins_Installer::get_plugin_status( $plugin ), array( 'active', 'network-active' ), true );
 
 		return rest_ensure_response(
 			array(

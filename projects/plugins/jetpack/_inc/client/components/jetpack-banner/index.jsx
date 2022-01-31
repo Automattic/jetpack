@@ -21,13 +21,15 @@ class JetpackBanner extends Banner {
 		feature: PropTypes.string,
 		href: PropTypes.string,
 		icon: PropTypes.string,
+		iconAlt: PropTypes.string,
+		iconSrc: PropTypes.string,
 		list: PropTypes.arrayOf( PropTypes.string ),
 		onClick: PropTypes.func,
 		trackBannerDisplay: PropTypes.func,
 		path: PropTypes.string,
 		plan: PropTypes.string,
 		siteSlug: PropTypes.string,
-		title: PropTypes.string.isRequired,
+		title: PropTypes.node.isRequired,
 	};
 
 	static defaultProps = {

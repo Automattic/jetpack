@@ -1,7 +1,7 @@
 === Jetpack - WP Security, Backup, Speed, & Growth ===
 Contributors: automattic, adamkheckler, adrianmoldovanwp, aduth, akirk, allendav, alternatekev, andy, annamcphee, annezazu, apeatling, arcangelini, azaozz, batmoo, barry, beaulebens, biskobe, blobaugh, bjorsch, brbrr, cainm, cena, cfinke, chaselivingston, chellycat, clickysteve, csonnek, danielbachhuber, davoraltman, daniloercoli, delawski, designsimply, dllh, drawmyface, dsmart, dzver, ebinnion, egregor, eliorivero, enej, eoigal, erania-pinnera, ethitter, fgiannar, gcorne, georgestephanis, gibrown, goldsounds, hew, hugobaeta, hypertextranch, iammattthomas, iandunn, jblz, jasmussen, jeffgolenski, jeherve, jenhooks, jenia, jessefriedman, jgs, jkudish, jmdodd, joanrho, johnjamesjacoby, jshreve, kbrownkd, keoshi, koke, kraftbj, lancewillett, leogermani, lschuyler, macmanx, martinremy, matt, matveb, mattwiebe, maverick3x6, mcsf, mdawaffe, mdbitz, MichaelArestad, migueluy, mikeyarce, mkaz, nancythanki, nickmomrik, obenland, oskosk, pento, professor44, rachelsquirrel, rdcoll, ryancowles, richardmuscat, richardmtl, robertbpugh, roccotripaldi, samhotchkiss, samiff, scarstocea, scottsweb, sdixon194, sdquirk, sermitr, simison, stephdau, tmoorewp, tyxla, Viper007Bond, westi, yoavf, zinigor
 Tags: Security, backup, Woo, malware, scan, spam, CDN, search, social
-Stable tag: 10.4
+Stable tag: 10.5.1
 Requires at least: 5.8
 Requires PHP: 5.6
 Tested up to: 5.9
@@ -242,21 +242,34 @@ Jetpack Backup can do a full website migration to a new host, migrate theme file
 4. Promote your newest posts, pages, and products across your social media channels.
 
 == Changelog ==
-### 10.5-a.3 - 2021-12-14
+### 10.6-beta - 2022-01-25
 #### Enhancements
-- Secure Sign On: add filters for the error text when a local user cannot be found for a given WP.com account and for when SSO is disallowed when on a staging site.
-- Subscription Block: add 'Success Message Text' to the block settings.
+- Contact Info and Markdown Blocks: add color, typography and spacing features.
+- Dashboard: support Beta versions of Automattic plugins in plugin cards.
+- Embeds: add support for Descript.com embeds.
+- Image Compare Block: Add `wide` and `full` alignment options
+- Pay with PayPal Block: do not display the block on the frontend if PayPal is misconfigured.
+- Search: improve accessibility via headings hierarchy and aria roles.
+- Stats: add new filter allowing site owners to exclude IP addresses from being tracked in stats.
+- Tiled Gallery Block: improve the block so it can be used within the mobile applications.
 
 #### Improved compatibility
-- General: ensure Jetpack options are properly deleted when the plugin is deactivated.
-- Media Extractor: add support for alt_text in extract.
-- Notifications: remove legacy code supporting IE versions older than 9.
-- Pay with PayPal Widget: hide widget from Legacy Widget block.
+- Instant Search: synchronize more meta data so the search feature can be used with more third-party plugins.
+- Sharing / AMP plugin: avoid adding sharing's CSS on AMP pages when the sharing feature is not active.
+- Subscription form: update the placeholder color to be the same as the text color of the site.
 
 #### Bug fixes
-- Contact Form: avoid PHP notices in submitted forms in some cases.
-- Internationalization: ensure that all text, including text added via JavaScript, can be translated.
-- Milestone widget: fix issue that prevented styles from loading until the widget is saved.
+- Backups: hide backup preparation message for sites without backup.
+- Connection: correctly request list of active features so they can be activated on a reconnection.
+- Donations block: add a missing closing div for the front-end rendering.
+- Donations block: don't display the donations block to visitors unless Stripe is connected.
+- Donations block: fixed an issue which was invalidating existing blocks if they were edited by non-plan owners.
+- Donations block: tweak currency display for the edit control.
+- Pay with Paypal Block: properly display the card icons below the button.
+- Protect: fixed math fallback's input accessibility and display.
+- Scan: avoid PHP notice when non-admin users access the dashboard.
+- Subscription form: adding a default line-height to avoid differences using different font-faces on input and button elements
+- Widget Visibility: ensure it remains possible to edit visibility for legacy widgets in the block-based widget editor.
 
 --------
 
