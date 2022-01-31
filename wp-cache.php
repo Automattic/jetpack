@@ -1052,6 +1052,7 @@ table.wpsc-settings-table {
 					'cache_schedule_interval',
 					'cache_time_interval',
 					'cache_gc_email_me',
+					'wp_cache_mobile_prefixes',
 					'wp_cache_preload_on'
 				)
 			);
