@@ -4,7 +4,7 @@ set -eo pipefail
 
 PROJECTS=('{"project":"Jetpack","path":"projects/plugins/jetpack/tests/e2e","testArgs":"","slackArgs":""}' '{"project":"Boost","path":"projects/plugins/boost/tests/e2e","testArgs":"","slackArgs":""}')
 PROJECTS_MATRIX=()
-RUN_NAME='gutenberg'
+RUN_NAME=''
 
 CHANGED_PROJECTS="$(.github/files/list-changed-projects.sh)"
 
@@ -21,7 +21,6 @@ if [ "$CRON" == "0 */4 * * *" ]; then
 fi
 
 for PROJECT in "${PROJECTS[@]}"; do
-	PROJECT_NAME=$(jq -r ".project" <<<"$PROJECT")
 	PROJECT_PATH=$(jq -r ".path" <<<"$PROJECT")
 	TARGET_PROJECTS=$(jq -r -e ".ci.targets[]" "$PROJECT_PATH/package.json")
 
