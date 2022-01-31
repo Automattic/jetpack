@@ -8,6 +8,9 @@ on:
     branches: [master]
     paths-ignore:
     - '**.md'
+  schedule:
+    - cron: '0 */12 * * *' # gutenberg run, every 12 hours - if you update this, also update it in .github/files/create-e2e-projects-matrix.sh
+    - cron: '0 */4 * * *' # atomic run, every 4 hours - if you update this, also update it in .github/files/create-e2e-projects-matrix.sh
 
 concurrency:
   group: e2e-tests-${{ github.event_name }}-${{ github.ref }}
@@ -37,6 +40,8 @@ jobs:
 
       - name: Create projects matrix
         id: create-projects-matrix
+        env:
+          CRON: github.event.schedule
         run: |
           PROJECTS="$(.github/files/create-e2e-projects-matrix.sh)"
           echo "::set-output name=matrix::$PROJECTS"
@@ -90,7 +95,9 @@ jobs:
 
     - name: Run ${{ matrix.project }} tests
       working-directory: ${{ matrix.path }}
-      run: pnpm run test-e2e
+      env:
+        TEST_ARGS: ${{ matrix.args }}
+      run: pnpm run test-e2e -- "${ARGS}"
 
     - name: Send Slack notification
       if: ${{ always() }}
@@ -114,5 +121,18 @@ jobs:
       with:
         name: test-output-${{ matrix.group }}
         path: ${{ matrix.path }}/output
+
+#    - name: Trigger test report workflow
+#      uses: ./.github/actions/test-report-dispatch
+#      with:
+#        token: ${{ secrets.E2E_TEST_REPORTS_TOKEN }}
+#        event_type: e2e
+#        report_name: ${{ matrix.reportName }}
+
+    - name: Trigger test report workflow
+      env:
+        REPORT_NAME: ${{ matrix.reportName }}
+      run: |
+        echo "${REPORT_NAME}"
 
 

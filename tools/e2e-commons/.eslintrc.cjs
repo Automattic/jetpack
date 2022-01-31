@@ -17,10 +17,5 @@ module.exports = {
 		'no-console': 0,
 		'jest/no-done-callback': 0,
 		'jest/no-disabled-tests': 0,
-		'no-mixed-spaces-and-tabs': [ 'error', 'smart-tabs' ],
-		'space-before-function-paren': [
-			'error',
-			{ anonymous: 'always', named: 'never', asyncArrow: 'always' },
-		],
 	},
 };

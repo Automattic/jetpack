@@ -1,8 +1,24 @@
-PROJECTS=('{"project":"Jetpack","path":"projects/plugins/jetpack/tests/e2e"}' '{"project":"Boost","path":"projects/plugins/boost/tests/e2e"}')
+#!/bin/bash
+
+set -eo pipefail
+
+PROJECTS=('{"project":"Jetpack","path":"projects/plugins/jetpack/tests/e2e","testArgs":"","slackArgs":"","reportName":""}' '{"project":"Boost","path":"projects/plugins/boost/tests/e2e","testArgs":"","slackArgs":"","reportName":""}')
 PROJECTS_MATRIX=()
 
 CHANGED_PROJECTS="$(.github/files/list-changed-projects.sh)"
 #echo "$CHANGED_PROJECTS"
+
+# gutenberg scheduled run
+#if [ "$CRON" == "0 */12 * * *" ]; then
+if [ "$GITHUB_EVENT_NAME" == "pull_request" ]; then
+  PROJECTS_MATRIX+=('{"project":"Jetpack","path":"projects/plugins/jetpack/tests/e2e","testArgs":"blocks","slackArgs":"--report gutenberg","reportName":"gutenberg"}')
+fi
+
+# atomic scheduled run
+#if [ "$CRON" == "0 */12 * * *" ]; then
+if [ "$GITHUB_EVENT_NAME" == "pull_request" ]; then
+  PROJECTS_MATRIX+=('{"project":"Jetpack","path":"projects/plugins/jetpack/tests/e2e","testArgs":"blocks --grep-invert wordads","slackArgs":"--report atomic","reportName":"atomic"}')
+fi
 
 for PROJECT in "${PROJECTS[@]}"; do
 	PROJECT_NAME=$(jq -r ".project" <<<"$PROJECT")
