@@ -83,14 +83,6 @@ jobs:
     - name: Setup tools
       uses: ./.github/actions/tool-setup
 
-    - name: Print test plan
-      env:
-        FOO: ${{matrix}}
-        BAR: ${{needs.create-test-matrix.outputs.runName}}
-      run: |
-        echo ${FOO}
-        echo ${BAR}
-
     - name: Install monorepo
       run: |
         pnpm install
@@ -100,7 +92,10 @@ jobs:
       env:
         CONFIG_KEY: ${{ secrets.E2E_CONFIG_KEY }}
         COMPOSER_ROOT_VERSION: "dev-master"
+        GUTENBERG: ${{needs.create-test-matrix.outputs.runName}} == 'gutenberg'
       run: |
+        echo "$GUTENBERG
+
         echo "::group::Install e2e project"
         pnpm install
         echo "::endgroup::"
