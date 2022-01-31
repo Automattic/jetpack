@@ -61,6 +61,7 @@ class Test_Products_Rest extends TestCase {
 	public function set_up() {
 
 		$this->install_mock_plugin();
+		wp_cache_delete( 'plugins', 'plugins' );
 
 		// Mock site connection.
 		( new Tokens() )->update_blog_token( 'test.test.1' );

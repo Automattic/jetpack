@@ -36,6 +36,7 @@ class Test_Hybrid_Product extends TestCase {
 	public function set_up() {
 
 		$this->install_mock_plugins();
+		wp_cache_delete( 'plugins', 'plugins' );
 
 	}
 
