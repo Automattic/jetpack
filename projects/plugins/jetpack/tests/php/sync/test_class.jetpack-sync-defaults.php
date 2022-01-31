@@ -10,15 +10,21 @@ class WP_Test_Jetpack_Sync_Defaults extends WP_Test_Jetpack_Sync_Base {
 
 	private $jp_sync_option = 'example_jp_sync_option_name_here';
 
-	public function setUp() {
-		parent::setUp();
+	/**
+	 * Set up.
+	 */
+	public function set_up() {
+		parent::set_up();
 
 		add_filter( 'jetpack_options_whitelist', array( $this, 'add_to_options_whitelist' ) );
 		add_filter( 'jetpack_sync_options_whitelist', array( $this, 'add_to_sync_options_whitelist' ) );
 	}
 
-	public function tearDown() {
-		parent::tearDown();
+	/**
+	 * Tear down.
+	 */
+	public function tear_down() {
+		parent::tear_down();
 
 		remove_filter( 'jetpack_options_whitelist', array( $this, 'add_to_options_whitelist' ) );
 		remove_filter( 'jetpack_sync_options_whitelist', array( $this, 'add_to_sync_options_whitelist' ) );

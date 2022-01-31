@@ -14,6 +14,7 @@ const getFiles = require( '../../get-files' );
 const getLabels = require( '../../get-labels' );
 const getNextValidMilestone = require( '../../get-next-valid-milestone' );
 const getPluginNames = require( '../../get-plugin-names' );
+const getPrWorkspace = require( '../../get-pr-workspace' );
 
 /* global GitHub, WebhookPayloadPullRequest */
 
@@ -227,19 +228,20 @@ function statusEntry( isFailure, checkMessage, severity = 'error' ) {
  * @returns {Array} - list of affected projects without changelog entry
  */
 async function getChangelogEntries( octokit, owner, repo, number ) {
+	const baseDir = getPrWorkspace();
 	const files = await getFiles( octokit, owner, repo, number );
 	const affectedProjects = getAffectedChangeloggerProjects( files );
 	debug( `check-description: affected changelogger projects: ${ affectedProjects }` );
 
 	return affectedProjects.reduce( ( acc, project ) => {
-		const composerFile = process.env.GITHUB_WORKSPACE + `/projects/${ project }/composer.json`;
+		const composerFile = `${ baseDir }/projects/${ project }/composer.json`;
 		const json = JSON.parse( fs.readFileSync( composerFile ) );
 		// Changelog directory could customized via .extra.changelogger.changes-dir in composer.json. Lets check for it.
 		const changelogDir =
 			path.relative(
-				process.env.GITHUB_WORKSPACE,
+				baseDir,
 				path.resolve(
-					process.env.GITHUB_WORKSPACE + `/projects/${ project }`,
+					`${ baseDir }/projects/${ project }`,
 					( json.extra && json.extra.changelogger && json.extra.changelogger[ 'changes-dir' ] ) ||
 						'changelog'
 				)

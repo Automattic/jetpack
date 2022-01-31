@@ -1,0 +1,24 @@
+@import '@automattic/jetpack-base-styles/style';
+
+.jp-license-activation-screen-illustration {
+	align-items: center;
+	background: var( --jp-white-off );
+	display: flex;
+	flex-direction: column;
+	justify-content: space-between;
+	padding: 32px;
+}
+
+.jp-license-activation-screen-illustration--wrapper {
+	display: flex;
+	flex: 1;
+	img {
+		max-width: 100%;
+		height: auto;
+		align-self: center;
+	}
+}
+
+.jp-license-activation-screen-illustration--support-link {
+	flex: 0;
+}

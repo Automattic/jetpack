@@ -19,20 +19,6 @@ class Utils {
 	const DEFAULT_JETPACK__WPCOM_JSON_API_BASE = 'https://public-api.wordpress.com';
 
 	/**
-	 * This method used to set the URL scheme to HTTP when HTTPS requests can't be made.
-	 * Now it returns the exact same URL you pass as an argument.
-	 *
-	 * @param string $url The url.
-	 * @return string The exact same url.
-	 *
-	 * @deprecated 1.19.2 Jetpack can't function properly on servers that don't support outbound HTTPS requests.
-	 */
-	public static function fix_url_for_bad_hosts( $url ) {
-		_deprecated_function( __METHOD__, '1.19.2' );
-		return $url;
-	}
-
-	/**
 	 * Enters a user token into the user_tokens option
 	 *
 	 * @deprecated 1.24.0 Use Automattic\Jetpack\Connection\Tokens->update_user_token() instead.

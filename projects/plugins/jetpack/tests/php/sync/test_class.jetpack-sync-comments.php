@@ -13,8 +13,11 @@ class WP_Test_Jetpack_Sync_Comments extends WP_Test_Jetpack_Sync_Base {
 	protected $post_id;
 	protected $comment_ids;
 
-	public function setUp() {
-		parent::setUp();
+	/**
+	 * Set up.
+	 */
+	public function set_up() {
+		parent::set_up();
 
 		$this->post_id = $this->factory->post->create();
 		$this->comment_ids = $this->factory->comment->create_post_comments( $this->post_id );

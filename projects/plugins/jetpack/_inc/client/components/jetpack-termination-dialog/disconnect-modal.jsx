@@ -13,6 +13,7 @@ import { disconnectSite } from 'state/connection';
 import JetpackTerminationDialog from './dialog';
 import Modal from 'components/modal';
 
+// DEPRECATED in favor of <DisconnectDialog /> from the connection package.
 class JetpackDisconnectModal extends Component {
 	static propTypes = {
 		show: PropTypes.bool,
@@ -52,7 +53,7 @@ class JetpackDisconnectModal extends Component {
 export default connect( null, dispatch => {
 	return {
 		disconnectSite: () => {
-			return dispatch( disconnectSite( true ) );
+			return dispatch( disconnectSite() );
 		},
 	};
 } )( JetpackDisconnectModal );

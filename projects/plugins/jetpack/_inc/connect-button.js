@@ -188,17 +188,6 @@ jQuery( document ).ready( function ( $ ) {
 		},
 	};
 
-	// When we visit /wp-admin/admin.php?page=jetpack#/setup, immediately start the connection flow.
-	var hash = location.hash.replace( /(#\/setup).*/, 'setup' );
-
 	// In case the parameter has been manually set in the URL after redirect.
 	connectButtonFrom = location.hash.split( '&from=' )[ 1 ];
-
-	if ( 'setup' === hash ) {
-		if ( connectionHelpSections.length ) {
-			connectionHelpSections.hide();
-		}
-
-		jetpackConnectButton.startConnectionFlow();
-	}
 } );

@@ -115,6 +115,7 @@ class ModuleToggleComponent extends Component {
 				id={ this.props.id }
 				onChange={ this.toggleModule }
 				disabledReason={ this.getDisabledReason() }
+				aria-label={ this.props[ 'aria-label' ] }
 			>
 				{ this.props.children }
 			</CompactFormToggle>

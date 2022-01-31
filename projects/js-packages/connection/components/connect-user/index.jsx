@@ -61,6 +61,7 @@ ConnectUser.propTypes = {
 
 ConnectUser.defaultProps = {
 	redirectFunc: url => window.location.assign( url ),
+	redirectUri: null,
 };
 
 export default ConnectUser;

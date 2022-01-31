@@ -4,22 +4,16 @@
 import React from 'react';
 import classnames from 'classnames';
 import { __ } from '@wordpress/i18n';
+import PropTypes from 'prop-types';
 
 /**
- * AutomatticBylineLogo component definition.
+ * Automattic "By line" Logo component.
  *
  * @param {object} props - Component properties.
- * @param {string} props.title - Title for SVG.
- * @param {number} props.height - Height for SVG.
- * @param {number} props.className - Additional className for the a wrapper, default only: `jp-automattic-byline-logo`.
  * @returns {React.Component} AutomatticBylineLogo component.
  */
-export default function AutomatticBylineLogo( {
-	title = __( 'An Automattic Airline', 'jetpack' ),
-	height = 7,
-	className = '',
-	...otherProps
-} ) {
+const AutomatticBylineLogo = props => {
+	const { title, height, className, ...otherProps } = props;
 	return (
 		<svg
 			role="img"
@@ -38,4 +32,21 @@ export default function AutomatticBylineLogo( {
 			<path d="M719.9 37l-4.8-8.9H694l-4.6 8.9h-7.1l19.5-36h5.6l19.8 36H719.9zM704.4 8l-7.8 15.1h15.9L704.4 8zM733 37V1h6.8v36H733zM781 37c-1.8 0-2.6-2.5-2.9-5.8l-0.2-3.7c-0.2-3.6-1.7-5.1-8.4-5.1h-12.8V37H750V1h19.6c10.8 0 15.7 4.3 15.7 9.9 0 3.9-2 7.7-9 9 7 0.5 8.5 3.7 8.6 7.9l0.1 3c0.1 2.5 0.5 4.3 2.2 6.1V37H781zM778.5 11.8c0-2.6-2.1-5.1-7.9-5.1h-13.8v10.8h14.4c5 0 7.3-2.4 7.3-5.2V11.8zM794.8 37V1h6.8v30.4h28.2V37H794.8zM836.7 37V1h6.8v36H836.7zM886.2 37l-23.4-24.1 -2.3-2.5V37h-6.8V1h6.5l22.7 24.1 2.3 2.6V1h6.8v36H886.2zM902.3 37V1H935v5.6h-26v9.2h20v5.5h-20v10.1h26V37H902.3z" />
 		</svg>
 	);
-}
+};
+
+AutomatticBylineLogo.defaultProps = {
+	title: __( 'An Automattic Airline', 'jetpack' ),
+	height: 7,
+	className: '',
+};
+
+AutomatticBylineLogo.propTypes = {
+	/** Title for SVG. */
+	title: PropTypes.string,
+	/** Height for SVG. */
+	height: PropTypes.number,
+	/** Additional className for the a wrapper. `jp-automattic-byline-logo` always included */
+	className: PropTypes.string,
+};
+
+export default AutomatticBylineLogo;

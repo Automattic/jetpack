@@ -1,37 +1,24 @@
 <?php
-
 /**
  * This feature is only useful for Automattic developers.
  * It configures Jetpack to talk to staging/sandbox servers
  * on WordPress.com instead of production servers.
+ *
+ * @package automattic/jetpack
  */
 
 /**
- * @param string $sandbox Sandbox domain
- * @param string $url URL of request about to be made
- * @param array  $headers Headers of request about to be made
- * @return array [ 'url' => new URL, 'host' => new Host ]
+ * Provides sandbox request parameters.
+ *
+ * @param string $sandbox Sandbox domain.
+ * @param string $url URL of request about to be made.
+ * @param array  $headers Headers of request about to be made.
+ * @return array [ 'url' => new URL, 'host' => new Host ].
  */
 function jetpack_server_sandbox_request_parameters( $sandbox, $url, $headers ) {
-	$host = '';
+	_deprecated_function( __METHOD__, 'jetpack-10.2', 'Automattic\\Jetpack\\Server_Sandbox::server_sandbox_request_parameters' );
 
-	$url_host = wp_parse_url( $url, PHP_URL_HOST );
-
-	switch ( $url_host ) {
-	case 'public-api.wordpress.com' :
-	case 'jetpack.wordpress.com' :
-	case 'jetpack.com' :
-	case 'dashboard.wordpress.com' :
-		$host = isset( $headers['Host'] ) ? $headers['Host'] : $url_host;
-		$url = preg_replace(
-			'@^(https?://)' . preg_quote( $url_host, '@' ) . '(?=[/?#].*|$)@',
-			'${1}' . $sandbox,
-			$url,
-			1
-		);
-	}
-
-	return compact( 'url', 'host' );
+	return ( new Automattic\Jetpack\Server_Sandbox() )->server_sandbox_request_parameters( $sandbox, $url, $headers );
 }
 
 /**
@@ -39,25 +26,13 @@ function jetpack_server_sandbox_request_parameters( $sandbox, $url, $headers ) {
  * server specified by `JETPACK__SANDBOX_DOMAIN`.
  *
  * Attached to the `requests-requests.before_request` filter.
- * @param string &$url URL of request about to be made
- * @param array  &$headers Headers of request about to be made
+ *
+ * @param string $url URL of request about to be made.
+ * @param array  $headers Headers of request about to be made.
  * @return void
  */
 function jetpack_server_sandbox( &$url, &$headers ) {
-	if ( ! JETPACK__SANDBOX_DOMAIN ) {
-		return;
-	}
+	_deprecated_function( __METHOD__, 'jetpack-10.2', 'Automattic\\Jetpack\\Server_Sandbox::server_sandbox' );
 
-	$original_url = $url;
-
-	$request_parameters = jetpack_server_sandbox_request_parameters( JETPACK__SANDBOX_DOMAIN, $url, $headers );
-	$url = $request_parameters['url'];
-	if ( $request_parameters['host'] ) {
-		$headers['Host'] = $request_parameters['host'];
-		if ( defined( 'WP_DEBUG' ) && WP_DEBUG ) {
-			error_log( sprintf( "SANDBOXING via '%s': '%s'", JETPACK__SANDBOX_DOMAIN, $original_url ) );
-		}
-	}
+	( new Automattic\Jetpack\Server_Sandbox() )->server_sandbox( $url, $headers );
 }
-
-add_action( 'requests-requests.before_request', 'jetpack_server_sandbox', 10, 2 );

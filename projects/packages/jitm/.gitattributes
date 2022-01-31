@@ -5,10 +5,12 @@ package.json      export-ignore
 webpack.config.js export-ignore
 
 # Files to include in the mirror repo
-/src/js/jetpack-jitm.min.js  production-include
+/build/**         production-include
 
 # Files to exclude from the mirror repo
-/changelog/**    production-exclude
+/changelog/**     production-exclude
 .gitignore        production-exclude
+.phpcs.dir.xml    production-exclude
 phpunit.xml.dist  production-exclude
+.eslintignore     production-exclude
 tests/**          production-exclude

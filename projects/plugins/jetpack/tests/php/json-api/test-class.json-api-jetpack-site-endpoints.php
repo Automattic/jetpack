@@ -24,14 +24,14 @@ class WP_Test_Jetpack_Site_Json_Api_Endpoints extends WP_UnitTestCase {
 	/**
 	 * Prepare the environment for the test.
 	 */
-	public function setUp() {
+	public function set_up() {
 		global $blog_id;
 
 		if ( ! defined( 'WPCOM_JSON_API__BASE' ) ) {
 			define( 'WPCOM_JSON_API__BASE', 'public-api.wordpress.com/rest/v1' );
 		}
 
-		parent::setUp();
+		parent::set_up();
 
 		$this->set_globals();
 
@@ -82,6 +82,6 @@ class WP_Test_Jetpack_Site_Json_Api_Endpoints extends WP_UnitTestCase {
 		$this->assertTrue( $response['jetpack_connection'] );
 
 		$options = (array) $response['options'];
-		$this->assertContains( 'jetpack_connection_active_plugins', $options );
+		$this->assertArrayHasKey( 'jetpack_connection_active_plugins', $options );
 	}
 }

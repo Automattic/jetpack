@@ -23,7 +23,7 @@ const ifNotClosed = require( './if-not-closed' );
 
 const automations = [
 	{
-		event: 'pull_request',
+		event: 'pull_request_target',
 		action: [ 'opened', 'synchronize', 'edited' ],
 		task: ifNotFork( assignIssues ),
 	},
@@ -32,19 +32,20 @@ const automations = [
 		task: addMilestone,
 	},
 	{
-		event: 'pull_request',
+		event: 'pull_request_target',
 		action: [ 'opened', 'reopened', 'synchronize', 'edited', 'labeled' ],
 		task: ifNotClosed( addLabels ),
 	},
 	{
-		event: 'pull_request',
+		event: 'pull_request_target',
 		action: [ 'closed' ],
 		task: cleanLabels,
 	},
 	{
-		event: 'pull_request',
+		event: 'pull_request_target',
 		action: [ 'opened', 'reopened', 'synchronize', 'edited', 'labeled' ],
 		task: ifNotClosed( checkDescription ),
+		// Note this task requires a PR checkout. See README.md for details.
 	},
 	{
 		event: 'pull_request_target',

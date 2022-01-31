@@ -1,4 +1,0 @@
-Significance: patch
-Type: changed
-
-Avoid setting global state during the action.

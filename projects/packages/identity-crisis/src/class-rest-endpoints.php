@@ -15,7 +15,7 @@ use WP_REST_Server;
 /**
  * This class will handle Identity Crisis Endpoints
  *
- * @since 9.9.0
+ * @since 0.2.0
  */
 class REST_Endpoints {
 
@@ -54,6 +54,12 @@ class REST_Endpoints {
 				'methods'             => WP_REST_Server::EDITABLE,
 				'callback'            => __CLASS__ . '::start_fresh_connection',
 				'permission_callback' => __CLASS__ . '::identity_crisis_mitigation_permission_check',
+				'args'                => array(
+					'redirect_uri' => array(
+						'description' => __( 'URI of the admin page where the user should be redirected after connection flow', 'jetpack-idc' ),
+						'type'        => 'string',
+					),
+				),
 			)
 		);
 
@@ -62,7 +68,8 @@ class REST_Endpoints {
 	/**
 	 * Handles identity crisis mitigation, confirming safe mode for this site.
 	 *
-	 * @since 4.4.0
+	 * @since 0.2.0
+	 * @since-jetpack 4.4.0
 	 *
 	 * @return bool | WP_Error True if option is properly set.
 	 */
@@ -78,7 +85,7 @@ class REST_Endpoints {
 
 		return new WP_Error(
 			'error_setting_jetpack_safe_mode',
-			esc_html__( 'Could not confirm safe mode.', 'jetpack' ),
+			esc_html__( 'Could not confirm safe mode.', 'jetpack-idc' ),
 			array( 'status' => 500 )
 		);
 	}
@@ -86,7 +93,8 @@ class REST_Endpoints {
 	/**
 	 * Handles identity crisis mitigation, migrating stats and subscribers from old url to this, new url.
 	 *
-	 * @since 4.4.0
+	 * @since 0.2.0
+	 * @since-jetpack 4.4.0
 	 *
 	 * @return bool | WP_Error True if option is properly set.
 	 */
@@ -94,7 +102,7 @@ class REST_Endpoints {
 		if ( Jetpack_Options::get_option( 'sync_error_idc' ) && ! Jetpack_Options::delete_option( 'sync_error_idc' ) ) {
 			return new WP_Error(
 				'error_deleting_sync_error_idc',
-				esc_html__( 'Could not delete sync error option.', 'jetpack' ),
+				esc_html__( 'Could not delete sync error option.', 'jetpack-idc' ),
 				array( 'status' => 500 )
 			);
 		}
@@ -108,7 +116,7 @@ class REST_Endpoints {
 		}
 		return new WP_Error(
 			'error_setting_jetpack_migrate',
-			esc_html__( 'Could not confirm migration.', 'jetpack' ),
+			esc_html__( 'Could not confirm migration.', 'jetpack-idc' ),
 			array( 'status' => 500 )
 		);
 	}
@@ -120,15 +128,19 @@ class REST_Endpoints {
 	 * It will first will disconnect the site without phoning home as to not disturb the production site.
 	 * It then builds a fresh connection URL and sends it back along with the response.
 	 *
-	 * @since 4.4.0
-	 * @return WP_REST_Response|WP_Error
+	 * @since 0.2.0
+	 * @since-jetpack 4.4.0
+	 *
+	 * @param \WP_REST_Request $request The request sent to the WP REST API.
+	 *
+	 * @return \WP_REST_Response|WP_Error
 	 */
-	public static function start_fresh_connection() {
+	public static function start_fresh_connection( $request ) {
 		/**
 		 * Fires when Users have requested through Identity Crisis for the connection to be reset.
 		 * Should be used to disconnect any connections and reset options.
 		 *
-		 * @since 9.9.0
+		 * @since 0.2.0
 		 */
 		do_action( 'jetpack_idc_disconnect' );
 
@@ -139,22 +151,26 @@ class REST_Endpoints {
 		if ( ! $result || is_wp_error( $result ) ) {
 			return rest_ensure_response( $result );
 		}
+
+		$redirect_uri = $request->get_param( 'redirect_uri' ) ? admin_url( $request->get_param( 'redirect_uri' ) ) : null;
+
 		/**
 		 * Filters the connection url that users should be redirected to for re-establishing their connection.
 		 *
-		 * @since 9.9.0
+		 * @since 0.2.0
 		 *
-		 * @param WP_REST_Response|WP_Error    $connection_url Connection URL user should be redirected to.
+		 * @param \WP_REST_Response|WP_Error    $connection_url Connection URL user should be redirected to.
 		 */
-		return apply_filters( 'jetpack_idc_authorization_url', rest_ensure_response( $connection->get_authorization_url( null, null ) ) );
+		return apply_filters( 'jetpack_idc_authorization_url', rest_ensure_response( $connection->get_authorization_url( null, $redirect_uri ) ) );
 	}
 
 	/**
 	 * Verify that user can mitigate an identity crisis.
 	 *
-	 * @since 4.4.0
+	 * @since 0.2.0
+	 * @since-jetpack 4.4.0
 	 *
-	 * @return bool Whether user has capability 'jetpack_disconnect'.
+	 * @return true|WP_Error True if the user has capability 'jetpack_disconnect', an error object otherwise.
 	 */
 	public static function identity_crisis_mitigation_permission_check() {
 		if ( current_user_can( 'jetpack_disconnect' ) ) {
@@ -163,7 +179,7 @@ class REST_Endpoints {
 		$error_msg = esc_html__(
 			'You do not have the correct user permissions to perform this action.
 			Please contact your site admin if you think this is a mistake.',
-			'jetpack'
+			'jetpack-idc'
 		);
 
 		return new WP_Error( 'invalid_user_permission_identity_crisis', $error_msg, array( 'status' => rest_authorization_required_code() ) );

@@ -124,7 +124,8 @@ class Constants extends Module {
 		 *
 		 * @param boolean Whether to expand constants (should always be true)
 		 *
-		 * @since 4.2.0
+		 * @since 1.6.3
+		 * @since-jetpack 4.2.0
 		 */
 		do_action( 'jetpack_full_sync_constants', true );
 
@@ -204,7 +205,8 @@ class Constants extends Module {
 				 * @param string The name of the constant
 				 * @param mixed The value of the constant
 				 *
-				 * @since 4.2.0
+				 * @since 1.6.3
+				 * @since-jetpack 4.2.0
 				 */
 				do_action( 'jetpack_sync_constant', $name, $value );
 				$constants_checksums[ $name ] = $checksum;

@@ -1,16 +1,16 @@
 /**
  * Internal dependencies
  */
-import connectionSelectors from './connection-status';
 import APISelectors from './api';
 import jetpackStatusSelectors from './jetpack-status';
-import assetsSelectors from './assets';
+import connectedPluginsSelectors from './connected-plugins';
+import siteDataSelectors from './site-data';
 
 const selectors = {
-	...connectionSelectors,
 	...APISelectors,
 	...jetpackStatusSelectors,
-	...assetsSelectors,
+	...connectedPluginsSelectors,
+	...siteDataSelectors,
 };
 
 export default selectors;

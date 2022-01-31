@@ -1,16 +1,54 @@
-// @todo Remove this, use calypso-build instead. See https://github.com/Automattic/jetpack/pull/17571.
-// That should also allow us to remove webpack from package.json.
+/**
+ * External dependencies
+ */
+const jetpackWebpackConfig = require( '@automattic/jetpack-webpack-config/webpack' );
 const path = require( 'path' );
-const packagesFolder = path.resolve( __dirname, 'src/js' );
 
 module.exports = [
 	{
-		mode: 'production',
-		context: packagesFolder,
-		entry: './jetpack-jitm.js',
+		entry: {
+			index: './src/js/jetpack-jitm.js',
+		},
+		mode: jetpackWebpackConfig.mode,
+		devtool: jetpackWebpackConfig.isDevelopment ? 'source-map' : false,
 		output: {
-			path: packagesFolder,
-			filename: 'jetpack-jitm.min.js',
+			...jetpackWebpackConfig.output,
+			path: path.resolve( './build' ),
+		},
+		optimization: {
+			...jetpackWebpackConfig.optimization,
+		},
+		resolve: {
+			...jetpackWebpackConfig.resolve,
+		},
+		node: false,
+		plugins: [
+			...jetpackWebpackConfig.StandardPlugins( {
+				DependencyExtractionPlugin: { injectPolyfill: true },
+			} ),
+		],
+		module: {
+			strictExportPresence: true,
+			rules: [
+				// Transpile JavaScript
+				jetpackWebpackConfig.TranspileRule( {
+					exclude: /node_modules\//,
+				} ),
+
+				// Transpile @automattic/jetpack-* in node_modules too.
+				jetpackWebpackConfig.TranspileRule( {
+					includeNodeModules: [ '@automattic/jetpack-' ],
+				} ),
+
+				// Handle CSS.
+				jetpackWebpackConfig.CssRule( {
+					extensions: [ 'css', 'sass', 'scss' ],
+					extraLoaders: [ 'sass-loader' ],
+				} ),
+
+				// Handle images.
+				jetpackWebpackConfig.FileRule(),
+			],
 		},
 	},
 ];

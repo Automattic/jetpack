@@ -538,7 +538,7 @@ class Jetpack_Cxn_Test_Base {
 
 		// openssl_free_key was deprecated as no longer needed in PHP 8.0+. Can remove when PHP 8.0 is our minimum. (lol).
 		if ( PHP_VERSION_ID < 80000 ) {
-			openssl_free_key( $public_key ); // phpcs:ignore PHPCompatibility.FunctionUse.RemovedFunctions.openssl_free_keyDeprecated
+			openssl_free_key( $public_key ); // phpcs:ignore PHPCompatibility.FunctionUse.RemovedFunctions.openssl_free_keyDeprecated, Generic.PHP.DeprecatedFunctions.Deprecated
 		}
 
 		return $return;

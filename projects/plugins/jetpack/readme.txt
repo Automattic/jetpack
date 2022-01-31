@@ -1,10 +1,10 @@
 === Jetpack - WP Security, Backup, Speed, & Growth ===
-Contributors: automattic, adamkheckler, aduth, akirk, allendav, alternatekev, andy, annezazu, apeatling, azaozz, batmoo, barry, beaulebens, biskobe, blobaugh, brbrr, cainm, cena, cfinke, chaselivingston, chellycat, clickysteve, csonnek, danielbachhuber, davoraltman, daniloercoli, delawski, designsimply, dllh, drawmyface, dsmart, dzver, ebinnion, egregor, eliorivero, enej, eoigal, erania-pinnera, ethitter, fgiannar, gcorne, georgestephanis, gibrown, goldsounds, hew, hugobaeta, hypertextranch, iammattthomas, iandunn, jblz, jasmussen, jeffgolenski, jeherve, jenhooks, jenia, jessefriedman, jgs, jkudish, jmdodd, joanrho, johnjamesjacoby, jshreve, kbrownkd, keoshi, koke, kraftbj, lancewillett, leogermani, lschuyler, macmanx, martinremy, matt, matveb, mattwiebe, maverick3x6, mcsf, mdawaffe, mdbitz, MichaelArestad, migueluy, mikeyarce, mkaz, nancythanki, nickmomrik, obenland, oskosk, pento, professor44, rachelsquirrel, rdcoll, ryancowles, richardmuscat, richardmtl, robertbpugh, roccotripaldi, samhotchkiss, samiff, scarstocea, scottsweb, sdixon194, sdquirk, sermitr, simison, stephdau, tmoorewp, tyxla, Viper007Bond, westi, yoavf, zinigor
+Contributors: automattic, adamkheckler, adrianmoldovanwp, aduth, akirk, allendav, alternatekev, andy, annamcphee, annezazu, apeatling, arcangelini, azaozz, batmoo, barry, beaulebens, biskobe, blobaugh, bjorsch, brbrr, cainm, cena, cfinke, chaselivingston, chellycat, clickysteve, csonnek, danielbachhuber, davoraltman, daniloercoli, delawski, designsimply, dllh, drawmyface, dsmart, dzver, ebinnion, egregor, eliorivero, enej, eoigal, erania-pinnera, ethitter, fgiannar, gcorne, georgestephanis, gibrown, goldsounds, hew, hugobaeta, hypertextranch, iammattthomas, iandunn, jblz, jasmussen, jeffgolenski, jeherve, jenhooks, jenia, jessefriedman, jgs, jkudish, jmdodd, joanrho, johnjamesjacoby, jshreve, kbrownkd, keoshi, koke, kraftbj, lancewillett, leogermani, lschuyler, macmanx, martinremy, matt, matveb, mattwiebe, maverick3x6, mcsf, mdawaffe, mdbitz, MichaelArestad, migueluy, mikeyarce, mkaz, nancythanki, nickmomrik, obenland, oskosk, pento, professor44, rachelsquirrel, rdcoll, ryancowles, richardmuscat, richardmtl, robertbpugh, roccotripaldi, samhotchkiss, samiff, scarstocea, scottsweb, sdixon194, sdquirk, sermitr, simison, stephdau, tmoorewp, tyxla, Viper007Bond, westi, yoavf, zinigor
 Tags: Security, backup, Woo, malware, scan, spam, CDN, search, social
-Stable tag: 10.0
-Requires at least: 5.7
+Stable tag: 10.5.1
+Requires at least: 5.8
 Requires PHP: 5.6
-Tested up to: 5.8
+Tested up to: 5.9
 
 Improve your WP security with powerful one-click tools like backup and malware scan. Get essential free tools including stats, CDN and social sharing.
 
@@ -242,29 +242,34 @@ Jetpack Backup can do a full website migration to a new host, migrate theme file
 4. Promote your newest posts, pages, and products across your social media channels.
 
 == Changelog ==
-### 10.0 - 2021-08-03
+### 10.6-beta - 2022-01-25
 #### Enhancements
-- Carousel: add JS-based smooth scroll behavior for the footer buttons.
-- Carousel: on image zoom, fade out controls. Fade them back in when sized back to original, or the slide is advanced.
+- Contact Info and Markdown Blocks: add color, typography and spacing features.
+- Dashboard: support Beta versions of Automattic plugins in plugin cards.
+- Embeds: add support for Descript.com embeds.
+- Image Compare Block: Add `wide` and `full` alignment options
+- Pay with PayPal Block: do not display the block on the frontend if PayPal is misconfigured.
+- Search: improve accessibility via headings hierarchy and aria roles.
+- Stats: add new filter allowing site owners to exclude IP addresses from being tracked in stats.
+- Tiled Gallery Block: improve the block so it can be used within the mobile applications.
 
 #### Improved compatibility
-- Carousel: add a Swiper JS param to prevent interaction on the carousel while transitioning between slides.
-- Map Block: ensure theme styles do not override map button background colors.
-- Search: remove required attribute from search inputs.
+- Instant Search: synchronize more meta data so the search feature can be used with more third-party plugins.
+- Sharing / AMP plugin: avoid adding sharing's CSS on AMP pages when the sharing feature is not active.
+- Subscription form: update the placeholder color to be the same as the text color of the site.
 
 #### Bug fixes
-- Carousel: fix carousel title formatting to prevent issues with quote conversion.
-- Comments: fix subsequent commenting when using a social profile.
-- Contact Form Block: remove specific form colors to prevent theme style clash.
-- Instant Search: fix visual glitch on breadcrumb in Firefox.
-- Instant Search: make sure ?s= is set when using filter links.
-- Like Button: add title and aria-hidden attributes to the Like button iframe.
-- OpenTable Block: fix input width when used in block editor.
-- Publicize: avoid PHP notices in edge-cases where no info about a post can be found.
-- Search: fix notice issue with WP 5.8's widget editor.
-- Select Dropdown Component: add content-box box sizing to prevent global box-sizing conflict.
-- SEO Tools: ensure functions are loaded before API endpoint attempts to use them.
-- Tiled Gallery: fix blurry display of images much wider than they are high.
+- Backups: hide backup preparation message for sites without backup.
+- Connection: correctly request list of active features so they can be activated on a reconnection.
+- Donations block: add a missing closing div for the front-end rendering.
+- Donations block: don't display the donations block to visitors unless Stripe is connected.
+- Donations block: fixed an issue which was invalidating existing blocks if they were edited by non-plan owners.
+- Donations block: tweak currency display for the edit control.
+- Pay with Paypal Block: properly display the card icons below the button.
+- Protect: fixed math fallback's input accessibility and display.
+- Scan: avoid PHP notice when non-admin users access the dashboard.
+- Subscription form: adding a default line-height to avoid differences using different font-faces on input and button elements
+- Widget Visibility: ensure it remains possible to edit visibility for legacy widgets in the block-based widget editor.
 
 --------
 

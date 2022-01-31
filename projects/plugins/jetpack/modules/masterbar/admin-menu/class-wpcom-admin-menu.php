@@ -16,12 +16,20 @@ require_once __DIR__ . '/class-admin-menu.php';
  */
 class WPcom_Admin_Menu extends Admin_Menu {
 	/**
+	 * Holds the current plan, set by get_current_plan().
+	 *
+	 * @var array
+	 */
+	private $current_plan = array();
+
+	/**
 	 * WPcom_Admin_Menu constructor.
 	 */
 	protected function __construct() {
 		parent::__construct();
 
 		add_action( 'wp_ajax_sidebar_state', array( $this, 'ajax_sidebar_state' ) );
+		add_action( 'wp_ajax_jitm_dismiss', array( $this, 'wp_ajax_jitm_dismiss' ) );
 		add_action( 'admin_init', array( $this, 'sync_sidebar_collapsed_state' ) );
 		add_action( 'admin_menu', array( $this, 'remove_submenus' ), 140 ); // After hookpress hook at 130.
 	}
@@ -33,6 +41,7 @@ class WPcom_Admin_Menu extends Admin_Menu {
 		parent::reregister_menu_items();
 
 		$this->add_my_home_menu();
+		$this->add_inbox_menu();
 
 		// Not needed outside of wp-admin.
 		if ( ! $this->is_api_request ) {
@@ -45,7 +54,7 @@ class WPcom_Admin_Menu extends Admin_Menu {
 			$this->add_new_site_link();
 		}
 
-		$this->add_beta_testing_menu();
+		$this->add_woocommerce_installation_menu( $this->get_current_plan() );
 
 		ksort( $GLOBALS['menu'] );
 	}
@@ -224,6 +233,9 @@ class WPcom_Admin_Menu extends Admin_Menu {
 				'tracks_impression_cta_name'   => $message->tracks['display']['props']['cta_name'],
 				'tracks_click_event_name'      => $message->tracks['click']['name'],
 				'tracks_click_cta_name'        => $message->tracks['click']['props']['cta_name'],
+				'dismissible'                  => $message->is_dismissible,
+				'feature_class'                => $message->feature_class,
+				'id'                           => $message->id,
 			);
 		}
 	}
@@ -246,17 +258,28 @@ class WPcom_Admin_Menu extends Admin_Menu {
 	}
 
 	/**
+	 * Gets the current plan and stores it in $this->current_plan so the database is only called once per request.
+	 *
+	 * @return array
+	 */
+	private function get_current_plan() {
+		if ( empty( $this->current_plan ) && class_exists( 'WPCOM_Store_API' ) ) {
+			$this->current_plan = \WPCOM_Store_API::get_current_plan( get_current_blog_id() );
+		}
+		return $this->current_plan;
+	}
+
+	/**
 	 * Adds Upgrades menu.
 	 *
 	 * @param string $plan The current WPCOM plan of the blog.
 	 */
 	public function add_upgrades_menu( $plan = null ) {
-		if ( class_exists( 'WPCOM_Store_API' ) ) {
-			$products = \WPCOM_Store_API::get_current_plan( get_current_blog_id() );
-			if ( array_key_exists( 'product_name_short', $products ) ) {
-				$plan = $products['product_name_short'];
-			}
+		$current_plan = $this->get_current_plan();
+		if ( ! empty( $current_plan['product_name_short'] ) ) {
+			$plan = $current_plan['product_name_short'];
 		}
+
 		parent::add_upgrades_menu( $plan );
 
 		$last_upgrade_submenu_position = $this->get_submenu_item_count( 'paid-upgrades.php' );
@@ -379,6 +402,16 @@ class WPcom_Admin_Menu extends Admin_Menu {
 		update_user_attribute( $user_id, 'calypso_preferences', $value );
 
 		die();
+	}
+
+	/**
+	 * Handle ajax requests to dismiss a just-in-time-message
+	 */
+	public function wp_ajax_jitm_dismiss() {
+		check_ajax_referer( 'jitm_dismiss' );
+		require_lib( 'jetpack-jitm/jitm-engine' );
+		JITM\Engine::dismiss( $_REQUEST['id'], $_REQUEST['feature_class'] );
+		wp_die();
 	}
 
 	/**

@@ -11,7 +11,6 @@ use Automattic\Jetpack\Connection\Secrets;
 use Automattic\Jetpack\Connection\Tokens;
 use Automattic\Jetpack\Connection\Urls;
 use Automattic\Jetpack\Roles;
-use Automattic\Jetpack\Sync\Sender;
 
 /**
  * Just a sack of functions.  Not actually an IXR_Server
@@ -120,6 +119,7 @@ class Jetpack_XMLRPC_Server {
 	public function authorize_xmlrpc_methods() {
 		return array(
 			'jetpack.remoteAuthorize' => array( $this, 'remote_authorize' ),
+			'jetpack.remoteRegister'  => array( $this, 'remote_already_registered' ),
 		);
 	}
 
@@ -158,7 +158,7 @@ class Jetpack_XMLRPC_Server {
 			return $this->error(
 				new \WP_Error(
 					'invalid_user',
-					__( 'Invalid user identifier.', 'jetpack' ),
+					__( 'Invalid user identifier.', 'jetpack-connection' ),
 					400
 				),
 				'get_user'
@@ -171,7 +171,7 @@ class Jetpack_XMLRPC_Server {
 			return $this->error(
 				new \WP_Error(
 					'user_unknown',
-					__( 'User not found.', 'jetpack' ),
+					__( 'User not found.', 'jetpack-connection' ),
 					404
 				),
 				'get_user'
@@ -280,7 +280,7 @@ class Jetpack_XMLRPC_Server {
 
 		if ( ! $user ) {
 			return $this->error(
-				new WP_Error( 'input_error', __( 'Valid user is required', 'jetpack' ), 400 ),
+				new WP_Error( 'input_error', __( 'Valid user is required', 'jetpack-connection' ), 400 ),
 				'remote_register'
 			);
 		}
@@ -293,7 +293,7 @@ class Jetpack_XMLRPC_Server {
 			return $this->error(
 				new \WP_Error(
 					'nonce_missing',
-					__( 'The required "nonce" parameter is missing.', 'jetpack' ),
+					__( 'The required "nonce" parameter is missing.', 'jetpack-connection' ),
 					400
 				),
 				'remote_register'
@@ -317,7 +317,7 @@ class Jetpack_XMLRPC_Server {
 			return $this->error(
 				new \WP_Error(
 					'invalid_nonce',
-					__( 'There was an issue validating this request.', 'jetpack' ),
+					__( 'There was an issue validating this request.', 'jetpack-connection' ),
 					400
 				),
 				'remote_register'
@@ -338,7 +338,7 @@ class Jetpack_XMLRPC_Server {
 				return $this->error(
 					new \WP_Error(
 						'registration_error',
-						__( 'There was an unspecified error registering the site', 'jetpack' ),
+						__( 'There was an unspecified error registering the site', 'jetpack-connection' ),
 						400
 					),
 					'remote_register'
@@ -355,6 +355,20 @@ class Jetpack_XMLRPC_Server {
 	}
 
 	/**
+	 * This is a substitute for remote_register() when the blog is already registered which returns an error code
+	 * signifying that state.
+	 * This is an unauthorized call and we should not be responding with any data other than the error code.
+	 *
+	 * @return \IXR_Error
+	 */
+	public function remote_already_registered() {
+		return $this->error(
+			new \WP_Error( 'already_registered', __( 'Blog is already registered', 'jetpack-connection' ), 400 ),
+			'remote_register'
+		);
+	}
+
+	/**
 	 * This XML-RPC method is called from the /jpphp/provision endpoint on WPCOM in order to
 	 * register this site so that a plan can be provisioned.
 	 *
@@ -367,7 +381,7 @@ class Jetpack_XMLRPC_Server {
 
 		if ( ! $user ) {
 			return $this->error(
-				new WP_Error( 'input_error', __( 'Valid user is required', 'jetpack' ), 400 ),
+				new WP_Error( 'input_error', __( 'Valid user is required', 'jetpack-connection' ), 400 ),
 				'remote_provision'
 			);
 		}
@@ -434,7 +448,7 @@ class Jetpack_XMLRPC_Server {
 			return $this->error(
 				new WP_Error(
 					'already_connected',
-					__( 'Jetpack is already connected.', 'jetpack' ),
+					__( 'Jetpack is already connected.', 'jetpack-connection' ),
 					400
 				),
 				'remote_connect'
@@ -447,7 +461,7 @@ class Jetpack_XMLRPC_Server {
 			return $this->error(
 				new WP_Error(
 					'input_error',
-					__( 'Valid user is required.', 'jetpack' ),
+					__( 'Valid user is required.', 'jetpack-connection' ),
 					400
 				),
 				'remote_connect'
@@ -458,7 +472,7 @@ class Jetpack_XMLRPC_Server {
 			return $this->error(
 				new WP_Error(
 					'input_error',
-					__( 'A non-empty nonce must be supplied.', 'jetpack' ),
+					__( 'A non-empty nonce must be supplied.', 'jetpack-connection' ),
 					400
 				),
 				'remote_connect'
@@ -482,7 +496,7 @@ class Jetpack_XMLRPC_Server {
 			return $this->error(
 				new WP_Error(
 					'token_fetch_failed',
-					__( 'Failed to fetch user token from WordPress.com.', 'jetpack' ),
+					__( 'Failed to fetch user token from WordPress.com.', 'jetpack-connection' ),
 					400
 				),
 				'remote_connect'
@@ -512,7 +526,7 @@ class Jetpack_XMLRPC_Server {
 			return $this->error(
 				new \WP_Error(
 					'local_user_missing',
-					__( 'The required "local_user" parameter is missing.', 'jetpack' ),
+					__( 'The required "local_user" parameter is missing.', 'jetpack-connection' ),
 					400
 				),
 				'remote_provision'
@@ -632,6 +646,9 @@ class Jetpack_XMLRPC_Server {
 				$code = -10520;
 			}
 			$message = sprintf( 'Jetpack: [%s] %s', $this->error->get_error_code(), $this->error->get_error_message() );
+			if ( ! class_exists( \IXR_Error::class ) ) {
+				require_once ABSPATH . WPINC . '/class-IXR.php';
+			}
 			return new \IXR_Error( $code, $message );
 		} elseif ( is_a( $this->error, 'IXR_Error' ) ) {
 			return $this->error;
@@ -741,20 +758,6 @@ class Jetpack_XMLRPC_Server {
 			$user_id,
 			(bool) $user_id
 		);
-	}
-
-	/**
-	 * Returns any object that is able to be synced.
-	 *
-	 * @deprecated since jetpack 7.8.0
-	 * @see Automattic\Jetpack\Sync\Sender::sync_object()
-	 *
-	 * @param array $args the synchronized object parameters.
-	 * @return string Encoded sync object.
-	 */
-	public function sync_object( $args ) {
-		_deprecated_function( __METHOD__, 'jetpack-7.8', 'Automattic\\Jetpack\\Sync\\Sender::sync_object' );
-		return Sender::get_instance()->sync_object( $args );
 	}
 
 	/**

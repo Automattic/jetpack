@@ -23,8 +23,8 @@ import { transformRelativePath } from './transform-relative-paths';
  * When making changes to that list, you must also update $concatenated_style_handles in class.jetpack.php.
  */
 export const frontendCSSSeparateFilesList = [
-	'modules/carousel/jetpack-carousel.css',
 	'modules/carousel/swiper-bundle.css',
+	'modules/carousel/jetpack-carousel.css',
 	'modules/contact-form/css/grunion.css',
 	'modules/infinite-scroll/infinity.css',
 	'modules/likes/style.css',
@@ -52,6 +52,7 @@ export const frontendCSSSeparateFilesList = [
 	'modules/widgets/search/css/search-widget-frontend.css',
 	'modules/widgets/simple-payments/style.css',
 	'modules/widgets/social-icons/social-icons.css',
+	'modules/widgets/milestone/milestone-widget.css',
 ];
 
 /**

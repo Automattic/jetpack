@@ -7,10 +7,9 @@
 
 use Automattic\Jetpack\Connection\Manager;
 use Automattic\Jetpack\Jetpack_CRM_Data;
+use Automattic\Jetpack\Plugins_Installer;
 use Automattic\Jetpack\Redirect;
 use Automattic\Jetpack\Tracking;
-
-jetpack_require_lib( 'plugins' );
 
 /**
  * Class that adds a new section to the Stats Report page
@@ -37,6 +36,18 @@ class Jetpack_Stats_Upgrade_Nudges {
 	}
 
 	/**
+	 * Unsets the collapse nudges setting.
+	 */
+	public static function unset_nudges_setting() {
+		$stats_options = get_option( 'stats_options' );
+
+		if ( $stats_options ) {
+			unset( $stats_options['collapse_nudges'] );
+			update_option( 'stats_options', $stats_options );
+		}
+	}
+
+	/**
 	 * Determines whether Backup is active
 	 *
 	 * @return boolean
@@ -53,7 +64,7 @@ class Jetpack_Stats_Upgrade_Nudges {
 	 * @return boolean
 	 */
 	private static function is_plugin_installed( $plugin_file ) {
-		$plugins = Jetpack_Plugins::get_plugins();
+		$plugins = Plugins_Installer::get_plugins();
 		return isset( $plugins[ $plugin_file ] );
 	}
 
@@ -64,7 +75,7 @@ class Jetpack_Stats_Upgrade_Nudges {
 	 * @return boolean
 	 */
 	private static function is_plugin_active( $plugin_file ) {
-		$plugins = Jetpack_Plugins::get_plugins();
+		$plugins = Plugins_Installer::get_plugins();
 		return isset( $plugins[ $plugin_file ] ) && isset( $plugins[ $plugin_file ]['active'] ) && $plugins[ $plugin_file ]['active'];
 	}
 
@@ -121,6 +132,25 @@ class Jetpack_Stats_Upgrade_Nudges {
 	}
 
 	/**
+	 * Determines whether the Site has a specific product.
+	 *
+	 * @param string $target_product_slug The product slug we are looking for.
+	 *
+	 * @return boolean
+	 */
+	private static function has_product( $target_product_slug ) {
+		$site_products_slugs = array_column( Jetpack_Plan::get_products(), 'product_slug' );
+
+		foreach ( $site_products_slugs as $product_slug ) {
+			if ( wp_startswith( $product_slug, $target_product_slug ) ) {
+				return true;
+			}
+		}
+
+		return false;
+	}
+
+	/**
 	 * Determines whether Akismet is active
 	 *
 	 * @return boolean
@@ -143,16 +173,35 @@ class Jetpack_Stats_Upgrade_Nudges {
 			$title = __( 'Security, performance, and growth tools for %s', 'jetpack' );
 		}
 		$title = sprintf( $title, get_bloginfo( 'site_name' ) );
+
+		$aria_expanded  = 'true';
+		$postbox_closed = '';
+
+		$stats_options = get_option( 'stats_options' );
+
+		if ( isset( $stats_options['collapse_nudges'] ) && $stats_options['collapse_nudges'] ) {
+			$aria_expanded  = 'false';
+			$postbox_closed = ' closed';
+		}
+
 		?>
 		<div id="jp-stats-report-upgrade-wrap">
-			<div class="dops-card dops-section-header is-compact jp-stats-report-upgrade-header">
-				<div class="dops-section-header__label">
-					<span class="dops-section-header__label-text">
-						<?php echo esc_html( $title ); ?>
-					</span>
-				</div>
-				<div class="dops-section-header__actions"></div>
-			</div>
+			<div class="meta-box-sortables">
+				<div class="postbox<?php echo esc_attr( $postbox_closed ); ?>">
+					<div class="dops-card dops-section-header is-compact jp-stats-report-upgrade-header">
+						<div class="dops-section-header__label">
+							<span class="dops-section-header__label-text">
+								<?php echo esc_html( $title ); ?>
+							</span>
+						</div>
+						<div class="dops-section-header__actions handle-actions hide-if-no-js">
+							<button type="button" id="stats_nudges_toggle" class="handlediv" aria-expanded="<?php echo esc_attr( $aria_expanded ); ?>">
+								<span class="screen-reader-text">Toggle Upgrade Nudges</span>
+								<span class="toggle-indicator" aria-hidden="true"></span>
+							</button>
+						</div>
+					</div>
+					<div class="inside">
 		<?php
 	}
 
@@ -163,6 +212,9 @@ class Jetpack_Stats_Upgrade_Nudges {
 	 */
 	private static function print_footer() {
 		?>
+					</div>
+				</div>
+			</div>
 		</div>
 		<?php
 	}
@@ -175,13 +227,16 @@ class Jetpack_Stats_Upgrade_Nudges {
 	private static function print_styles() {
 		?>
 		<style>
-			#jp-stats-report-upgrade-wrap {
-				background-color: white;
-				border: 1px solid #c3c4c7;
-			}
 			.dops-section-header.dops-card.jp-stats-report-upgrade-header {
 				font-weight: bold;
 				box-shadow: none;
+				flex-wrap: nowrap;
+			}
+			#jp-stats-report-upgrade-wrap .dops-section-header__label-text {
+				white-space: normal;
+			}
+			#stats_nudges_toggle {
+				height: 100%;
 			}
 			.dops-banner.dops-card.is-product.jp-stats-report-upgrade-item {
 				margin-bottom: 0px;
@@ -189,7 +244,6 @@ class Jetpack_Stats_Upgrade_Nudges {
 				box-shadow: none;
 				border-top: 1px solid #c3c4c7;
 				padding: 12px 24px;
-
 			}
 			.dops-banner.dops-card.jp-stats-report-upgrade-item.jp-stats-report-upgrade-subitem {
 				margin-left: 72px;
@@ -205,7 +259,49 @@ class Jetpack_Stats_Upgrade_Nudges {
 				margin: 5px 0 0 0;
 				font-weight: normal;
 			}
+			#jp-stats-report-upgrade-wrap .postbox {
+				background-color: white;
+				border: 1px solid #c3c4c7;
+				margin-bottom: 0;
+			}
+			#jp-stats-report-upgrade-wrap .postbox .inside {
+				padding: 0;
+			}
 		</style>
+		<?php
+	}
+	/**
+	 * Add a script which handles collapse/expansion of the nudge UI.
+	 */
+	private static function print_script() {
+		?>
+		<script>
+			(function(window, document, undefined){
+				window.onload = set_up_click_handler;
+
+				const stats_wrap = document.getElementById( 'jp-stats-wrap' );
+				stats_wrap.addEventListener( 'stats-loaded', function () {
+					const stat_chart = document.getElementById( 'statchart' );
+					if ( stat_chart === null ) {
+						document.getElementById( 'stats_nudges_toggle' ).style.display = 'none';
+					}
+				});
+
+				function set_up_click_handler(){
+					document.getElementById( 'stats_nudges_toggle' ).onclick = function () {
+						const collapseValue = 'true' === this.getAttribute( 'aria-expanded' );
+
+						fetch( '/wp-json/jetpack/v4/settings', {
+							method: 'post',
+							body: JSON.stringify( { collapse_nudges: collapseValue } ),
+							headers: {
+								'X-WP-Nonce': "<?php echo esc_js( wp_create_nonce( 'wp_rest' ) ); ?>",
+								'Content-type': 'application/json' }
+						} );
+					};
+				}
+			})(window, document, undefined);
+		</script>
 		<?php
 	}
 
@@ -221,6 +317,16 @@ class Jetpack_Stats_Upgrade_Nudges {
 			$args['query'] = 'unlinked=1';
 		}
 		return Redirect::get_url( $source, $args );
+	}
+
+	/**
+	 * Gets the product description link.
+	 *
+	 * @param string $product_key The product key of the product we wish to display.
+	 * @return string
+	 */
+	private static function get_product_description_link( $product_key ) {
+		return Jetpack::admin_url( array( 'page' => sprintf( 'jetpack#/product/%s', $product_key ) ) );
 	}
 
 	/**
@@ -261,7 +367,6 @@ class Jetpack_Stats_Upgrade_Nudges {
 		$view_event         = "stats_nudges_view_$tracks_id";
 		$click_event        = "stats_nudges_click_$tracks_id";
 		$learn_more_event   = "stats_nudges_learn_more_$tracks_id";
-
 		self::track_event( $view_event );
 
 		?>
@@ -297,10 +402,10 @@ class Jetpack_Stats_Upgrade_Nudges {
 	 * @return void
 	 */
 	private static function print_security() {
-		$upgrade_link = self::get_upgrade_link( 'stats-nudges-security' );
-		$learn_link   = self::get_upgrade_link( 'stats-nudges-security-learn' );
-		$text         = __( 'Comprehensive protection for your site, including Backup, Scan, and Anti-spam.', 'jetpack' );
-		self::print_item( __( 'Security', 'jetpack' ), $text, 'product-jetpack-security-bundle.svg', $upgrade_link, 'security', $learn_link );
+		$link       = self::get_product_description_link( 'security' );
+		$learn_link = self::get_upgrade_link( 'stats-nudges-security-learn' );
+		$text       = __( 'Comprehensive protection for your site, including Backup, Scan, and Anti-spam.', 'jetpack' );
+		self::print_item( __( 'Security', 'jetpack' ), $text, 'product-jetpack-security-bundle.svg', $link, 'security', $learn_link );
 	}
 
 	/**
@@ -309,34 +414,44 @@ class Jetpack_Stats_Upgrade_Nudges {
 	 * @return void
 	 */
 	private static function print_backup() {
-		$upgrade_link = self::get_upgrade_link( 'stats-nudges-backup' );
-		$learn_link   = self::get_upgrade_link( 'stats-nudges-backup-learn' );
-		$text         = __( 'Save every change and get back online quickly with one-click restores.', 'jetpack' );
-		self::print_item( __( 'Backup', 'jetpack' ), $text, 'product-jetpack-backup.svg', $upgrade_link, 'backup', $learn_link, true );
+		$link       = self::get_product_description_link( 'backup' );
+		$learn_link = self::get_upgrade_link( 'stats-nudges-backup-learn' );
+		$text       = __( 'Save every change and get back online quickly with one-click restores.', 'jetpack' );
+		self::print_item( __( 'Backup', 'jetpack' ), $text, 'product-jetpack-backup.svg', $link, 'backup', $learn_link, true );
 	}
 
 	/**
 	 * Prints the Scan item
 	 *
+	 * @since 10.1
+	 * @since 10.3 The scan nudge has been removed, but leaving this here in case we reverse course.
+	 *
+	 * @todo Remove this function is not used ~6 months.
+	 *
 	 * @return void
 	 */
 	private static function print_scan() {
-		$upgrade_link = self::get_upgrade_link( 'stats-nudges-scan' );
-		$learn_link   = self::get_upgrade_link( 'stats-nudges-scan-learn' );
-		$text         = __( 'Stay ahead of security threats with automated scanning and one-click fixes.', 'jetpack' );
-		self::print_item( __( 'Scan', 'jetpack' ), $text, 'product-jetpack-scan.svg', $upgrade_link, 'scan', $learn_link, true );
+		$link       = self::get_product_description_link( 'scan' );
+		$learn_link = self::get_upgrade_link( 'stats-nudges-scan-learn' );
+		$text       = __( 'Stay ahead of security threats with automated scanning and one-click fixes.', 'jetpack' );
+		self::print_item( __( 'Scan', 'jetpack' ), $text, 'product-jetpack-scan.svg', $link, 'scan', $learn_link, true );
 	}
 
 	/**
 	 * Prints the Akismet item
 	 *
+	 * @since 10.1
+	 * @since 10.3 The anti-spam nudge has been removed, but leaving this here in case we reverse course.
+	 *
+	 * @todo Remove this function is not used ~6 months.
+	 *
 	 * @return void
 	 */
 	private static function print_akismet() {
-		$upgrade_link = self::get_upgrade_link( 'stats-nudges-akismet' );
-		$learn_link   = self::get_upgrade_link( 'stats-nudges-akismet-learn' );
-		$text         = __( 'Automatically clear spam from comments and forms.', 'jetpack' );
-		self::print_item( __( 'Anti-spam', 'jetpack' ), $text, 'product-jetpack-anti-spam.svg', $upgrade_link, 'akismet', $learn_link, true );
+		$link       = self::get_product_description_link( 'akismet' );
+		$learn_link = self::get_upgrade_link( 'stats-nudges-akismet-learn' );
+		$text       = __( 'Automatically clear spam from comments and forms.', 'jetpack' );
+		self::print_item( __( 'Anti-spam', 'jetpack' ), $text, 'product-jetpack-anti-spam.svg', $link, 'akismet', $learn_link, true );
 	}
 
 	/**
@@ -345,10 +460,22 @@ class Jetpack_Stats_Upgrade_Nudges {
 	 * @return void
 	 */
 	private static function print_search() {
-		$upgrade_link = self::get_upgrade_link( 'stats-nudges-search' );
-		$learn_link   = self::get_upgrade_link( 'stats-nudges-search-learn' );
-		$text         = __( 'Help your site visitors instantly find what they\'re looking for so they read and buy more.', 'jetpack' );
-		self::print_item( __( 'Search', 'jetpack' ), $text, 'product-jetpack-search.svg', $upgrade_link, 'search', $learn_link );
+		$link       = self::get_product_description_link( 'search' );
+		$learn_link = self::get_upgrade_link( 'stats-nudges-search-learn' );
+		$text       = __( 'Help your site visitors instantly find what they\'re looking for so they read and buy more.', 'jetpack' );
+		self::print_item( __( 'Search', 'jetpack' ), $text, 'product-jetpack-search.svg', $link, 'search', $learn_link );
+	}
+
+	/**
+	 * Prints the VideoPress item
+	 *
+	 * @return void
+	 */
+	private static function print_videopress() {
+		$link       = self::get_product_description_link( 'videopress' );
+		$learn_link = self::get_upgrade_link( 'stats-nudges-videopress-learn' );
+		$text       = __( 'Engage your visitors with high-quality, ad-free videos built specifically for WordPress.', 'jetpack' );
+		self::print_item( __( 'VideoPress', 'jetpack' ), $text, 'product-jetpack-videopress.svg', $link, 'videopress', $learn_link );
 	}
 
 	/**
@@ -382,6 +509,8 @@ class Jetpack_Stats_Upgrade_Nudges {
 	 * Prints the CRM item
 	 *
 	 * @param bool $print Whether to print the item output or just check whether it would be printed or not.
+	 *
+	 * @since 10.1
 	 *
 	 * @return bool
 	 */
@@ -424,8 +553,6 @@ class Jetpack_Stats_Upgrade_Nudges {
 		if (
 			self::has_security_plan() &&
 			self::is_backup_active() &&
-			self::is_scan_active() &&
-			self::is_akismet_active() &&
 			self::is_search_active() &&
 			! self::get_boost_output( false ) &&
 			! self::get_crm_output( false )
@@ -434,21 +561,19 @@ class Jetpack_Stats_Upgrade_Nudges {
 		}
 
 		self::print_styles();
+		self::print_script();
 		self::print_header();
 		if ( ! self::has_security_plan() ) {
 			self::print_security();
 			if ( ! self::is_backup_active() ) {
 				self::print_backup();
 			}
-			if ( ! self::is_scan_active() ) {
-				self::print_scan();
-			}
-			if ( ! self::is_akismet_active() ) {
-				self::print_akismet();
-			}
 		}
 		if ( ! self::is_search_active() ) {
 			self::print_search();
+		}
+		if ( ! self::has_product( 'jetpack_videopress' ) ) {
+			self::print_videopress();
 		}
 		self::get_boost_output();
 		self::get_crm_output();

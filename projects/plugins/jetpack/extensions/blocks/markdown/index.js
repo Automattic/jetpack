@@ -77,7 +77,11 @@ export const settings = {
 	},
 
 	supports: {
+		align: [ 'wide', 'full' ],
 		html: false,
+		spacing: {
+			padding: true,
+		},
 	},
 
 	edit,

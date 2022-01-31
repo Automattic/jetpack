@@ -14,7 +14,7 @@ use WP_REST_Server;
 /**
  * This class will handle Sync v4 REST Endpoints.
  *
- * @since 9.9.0
+ * @since 1.23.1
  */
 class REST_Endpoints {
 
@@ -40,21 +40,21 @@ class REST_Endpoints {
 				'permission_callback' => __CLASS__ . '::verify_default_permissions',
 				'args'                => array(
 					'modules'  => array(
-						'description' => __( 'Data Modules that should be included in Full Sync', 'jetpack' ),
+						'description' => __( 'Data Modules that should be included in Full Sync', 'jetpack-sync' ),
 						'type'        => 'array',
 						'required'    => false,
 					),
 					'users'    => array(
-						'description' => __( 'User IDs to include in Full Sync or "initial"', 'jetpack' ),
+						'description' => __( 'User IDs to include in Full Sync or "initial"', 'jetpack-sync' ),
 						'required'    => false,
 					),
 					'posts'    => array(
-						'description' => __( 'Post IDs to include in Full Sync', 'jetpack' ),
+						'description' => __( 'Post IDs to include in Full Sync', 'jetpack-sync' ),
 						'type'        => 'array',
 						'required'    => false,
 					),
 					'comments' => array(
-						'description' => __( 'Comment IDs to include in Full Sync', 'jetpack' ),
+						'description' => __( 'Comment IDs to include in Full Sync', 'jetpack-sync' ),
 						'type'        => 'array',
 						'required'    => false,
 					),
@@ -72,7 +72,7 @@ class REST_Endpoints {
 				'permission_callback' => __CLASS__ . '::verify_default_permissions',
 				'args'                => array(
 					'fields' => array(
-						'description' => __( 'Comma seperated list of additional fields that should be included in status.', 'jetpack' ),
+						'description' => __( 'Comma seperated list of additional fields that should be included in status.', 'jetpack-sync' ),
 						'type'        => 'string',
 						'required'    => false,
 					),
@@ -90,7 +90,7 @@ class REST_Endpoints {
 				'permission_callback' => __CLASS__ . '::verify_default_permissions',
 				'args'                => array(
 					'status' => array(
-						'description' => __( 'New Sync health status', 'jetpack' ),
+						'description' => __( 'New Sync health status', 'jetpack-sync' ),
 						'type'        => 'string',
 						'required'    => true,
 					),
@@ -126,17 +126,17 @@ class REST_Endpoints {
 				'permission_callback' => __CLASS__ . '::verify_default_permissions',
 				'args'                => array(
 					'module_name' => array(
-						'description' => __( 'Name of Sync module', 'jetpack' ),
+						'description' => __( 'Name of Sync module', 'jetpack-sync' ),
 						'type'        => 'string',
 						'required'    => false,
 					),
 					'object_type' => array(
-						'description' => __( 'Object Type', 'jetpack' ),
+						'description' => __( 'Object Type', 'jetpack-sync' ),
 						'type'        => 'string',
 						'required'    => false,
 					),
 					'object_ids'  => array(
-						'description' => __( 'Objects Identifiers', 'jetpack' ),
+						'description' => __( 'Objects Identifiers', 'jetpack-sync' ),
 						'type'        => 'array',
 						'required'    => false,
 					),
@@ -154,7 +154,7 @@ class REST_Endpoints {
 				'permission_callback' => __CLASS__ . '::verify_default_permissions',
 				'args'                => array(
 					'queue' => array(
-						'description' => __( 'Name of Sync queue.', 'jetpack' ),
+						'description' => __( 'Name of Sync queue.', 'jetpack-sync' ),
 						'type'        => 'string',
 						'required'    => true,
 					),
@@ -194,7 +194,7 @@ class REST_Endpoints {
 				'permission_callback' => __CLASS__ . '::verify_default_permissions',
 				'args'                => array(
 					'queue' => array(
-						'description' => __( 'Name of Sync queue.', 'jetpack' ),
+						'description' => __( 'Name of Sync queue.', 'jetpack-sync' ),
 						'type'        => 'string',
 						'required'    => true,
 					),
@@ -212,12 +212,12 @@ class REST_Endpoints {
 				'permission_callback' => __CLASS__ . '::verify_default_permissions',
 				'args'                => array(
 					'sync_module' => array(
-						'description' => __( 'Name of Sync module.', 'jetpack' ),
+						'description' => __( 'Name of Sync module.', 'jetpack-sync' ),
 						'type'        => 'string',
 						'required'    => true,
 					),
 					'batch_size'  => array(
-						'description' => __( 'Size of batches', 'jetpack' ),
+						'description' => __( 'Size of batches', 'jetpack-sync' ),
 						'type'        => 'int',
 						'required'    => true,
 					),
@@ -235,7 +235,7 @@ class REST_Endpoints {
 				'permission_callback' => __CLASS__ . '::verify_default_permissions',
 				'args'                => array(
 					'perform_text_conversion' => array(
-						'description' => __( 'If text fields should be converted to UTF8 in checksum calculation.', 'jetpack' ),
+						'description' => __( 'If text fields should be converted to latin1 in checksum calculation.', 'jetpack-sync' ),
 						'type'        => 'boolean',
 						'required'    => false,
 					),
@@ -253,52 +253,52 @@ class REST_Endpoints {
 				'permission_callback' => __CLASS__ . '::verify_default_permissions',
 				'args'                => array(
 					'columns'                 => array(
-						'description' => __( 'Column mappings', 'jetpack' ),
+						'description' => __( 'Column mappings', 'jetpack-sync' ),
 						'type'        => 'array',
 						'required'    => false,
 					),
 					'object_type'             => array(
-						'description' => __( 'Object Type', 'jetpack' ),
+						'description' => __( 'Object Type', 'jetpack-sync' ),
 						'type'        => 'string',
 						'required'    => false,
 					),
 					'buckets'                 => array(
-						'description' => __( 'Number of histogram buckets.', 'jetpack' ),
+						'description' => __( 'Number of histogram buckets.', 'jetpack-sync' ),
 						'type'        => 'int',
 						'required'    => false,
 					),
 					'start_id'                => array(
-						'description' => __( 'Start ID for the histogram', 'jetpack' ),
+						'description' => __( 'Start ID for the histogram', 'jetpack-sync' ),
 						'type'        => 'int',
 						'required'    => false,
 					),
 					'end_id'                  => array(
-						'description' => __( 'End ID for the histogram', 'jetpack' ),
+						'description' => __( 'End ID for the histogram', 'jetpack-sync' ),
 						'type'        => 'int',
 						'required'    => false,
 					),
 					'strip_non_ascii'         => array(
-						'description' => __( 'Strip non-ascii characters?', 'jetpack' ),
+						'description' => __( 'Strip non-ascii characters?', 'jetpack-sync' ),
 						'type'        => 'boolean',
 						'required'    => false,
 					),
 					'shared_salt'             => array(
-						'description' => __( 'Shared Salt to use when generating checksum', 'jetpack' ),
+						'description' => __( 'Shared Salt to use when generating checksum', 'jetpack-sync' ),
 						'type'        => 'string',
 						'required'    => false,
 					),
 					'only_range_edges'        => array(
-						'description' => __( 'Should only range endges be returned', 'jetpack' ),
+						'description' => __( 'Should only range endges be returned', 'jetpack-sync' ),
 						'type'        => 'boolean',
 						'required'    => false,
 					),
 					'detailed_drilldown'      => array(
-						'description' => __( 'Do we want the checksum or object ids.', 'jetpack' ),
+						'description' => __( 'Do we want the checksum or object ids.', 'jetpack-sync' ),
 						'type'        => 'boolean',
 						'required'    => false,
 					),
 					'perform_text_conversion' => array(
-						'description' => __( 'If text fields should be converted to UTF8 in checksum calculation.', 'jetpack' ),
+						'description' => __( 'If text fields should be converted to latin1 in checksum calculation.', 'jetpack-sync' ),
 						'type'        => 'boolean',
 						'required'    => false,
 					),
@@ -311,7 +311,7 @@ class REST_Endpoints {
 	/**
 	 * Trigger a Full Sync of specified modules.
 	 *
-	 * @since 9.9.0
+	 * @since 1.23.1
 	 *
 	 * @param \WP_REST_Request $request The request sent to the WP REST API.
 	 *
@@ -352,7 +352,7 @@ class REST_Endpoints {
 	/**
 	 * Return Sync's status.
 	 *
-	 * @since 9.9.0
+	 * @since 1.23.1
 	 *
 	 * @param \WP_REST_Request $request The request sent to the WP REST API.
 	 *
@@ -366,7 +366,7 @@ class REST_Endpoints {
 	/**
 	 * Return table checksums.
 	 *
-	 * @since 9.9.0
+	 * @since 1.23.1
 	 *
 	 * @param \WP_REST_Request $request The request sent to the WP REST API.
 	 *
@@ -388,7 +388,7 @@ class REST_Endpoints {
 	/**
 	 * Return Histogram.
 	 *
-	 * @since 9.9.0
+	 * @since 1.23.1
 	 *
 	 * @param \WP_REST_Request $request The request sent to the WP REST API.
 	 *
@@ -442,7 +442,7 @@ class REST_Endpoints {
 	/**
 	 * Update Sync health.
 	 *
-	 * @since 9.9.0
+	 * @since 1.23.1
 	 *
 	 * @param \WP_REST_Request $request The request sent to the WP REST API.
 	 *
@@ -470,7 +470,7 @@ class REST_Endpoints {
 	/**
 	 * Obtain Sync settings.
 	 *
-	 * @since 9.9.0
+	 * @since 1.23.1
 	 *
 	 * @return \WP_REST_Response
 	 */
@@ -481,7 +481,7 @@ class REST_Endpoints {
 	/**
 	 * Update Sync settings.
 	 *
-	 * @since 9.9.0
+	 * @since 1.23.1
 	 *
 	 * @param \WP_REST_Request $request The request sent to the WP REST API.
 	 *
@@ -515,7 +515,7 @@ class REST_Endpoints {
 	/**
 	 * Retrieve Sync Objects.
 	 *
-	 * @since 9.9.0
+	 * @since 1.23.1
 	 *
 	 * @param \WP_REST_Request $request The request sent to the WP REST API.
 	 *
@@ -549,7 +549,7 @@ class REST_Endpoints {
 	/**
 	 * Request Sync processing.
 	 *
-	 * @since 9.9.0
+	 * @since 1.23.1
 	 *
 	 * @param \WP_REST_Request $request The request sent to the WP REST API.
 	 *
@@ -575,7 +575,7 @@ class REST_Endpoints {
 	/**
 	 * Request sync data from specified queue.
 	 *
-	 * @since 9.9.0
+	 * @since 1.23.1
 	 *
 	 * @param \WP_REST_Request $request The request sent to the WP REST API.
 	 *
@@ -607,7 +607,7 @@ class REST_Endpoints {
 	/**
 	 * Unlock a Sync queue.
 	 *
-	 * @since 9.9.0
+	 * @since 1.23.1
 	 *
 	 * @param \WP_REST_Request $request The request sent to the WP REST API.
 	 *
@@ -634,7 +634,7 @@ class REST_Endpoints {
 	/**
 	 * Checkin Sync actions.
 	 *
-	 * @since 9.9.0
+	 * @since 1.23.1
 	 *
 	 * @param \WP_REST_Request $request The request sent to the WP REST API.
 	 *
@@ -702,7 +702,7 @@ class REST_Endpoints {
 	/**
 	 * Retrieve range of Object Ids for a specified Sync module.
 	 *
-	 * @since 9.9.0
+	 * @since 1.23.1
 	 *
 	 * @param \WP_REST_Request $request The request sent to the WP REST API.
 	 *
@@ -728,7 +728,7 @@ class REST_Endpoints {
 	/**
 	 * Verify that request has default permissions to perform sync actions.
 	 *
-	 * @since 9.9.0
+	 * @since 1.23.1
 	 *
 	 * @return bool Whether user has capability 'manage_options' or a blog token is used.
 	 */
@@ -740,7 +740,7 @@ class REST_Endpoints {
 		$error_msg = esc_html__(
 			'You do not have the correct user permissions to perform this action.
 			Please contact your site admin if you think this is a mistake.',
-			'jetpack'
+			'jetpack-sync'
 		);
 
 		return new WP_Error( 'invalid_user_permission_sync', $error_msg, array( 'status' => rest_authorization_required_code() ) );

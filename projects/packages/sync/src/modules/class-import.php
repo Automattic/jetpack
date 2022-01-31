@@ -122,7 +122,8 @@ class Import extends Module {
 				/**
 				 * Used for syncing the start of an import
 				 *
-				 * @since 7.3.0
+				 * @since 1.6.3
+				 * @since-jetpack 7.3.0
 				 *
 				 * @module sync
 				 *
@@ -136,7 +137,8 @@ class Import extends Module {
 				/**
 				 * Used for syncing the end of an import
 				 *
-				 * @since 7.3.0
+				 * @since 1.6.3
+				 * @since-jetpack 7.3.0
 				 *
 				 * @module sync
 				 *

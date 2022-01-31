@@ -6,23 +6,25 @@ import pluralize from 'pluralize';
 import inquirer from 'inquirer';
 import chalk from 'chalk';
 import fs from 'fs';
+import { fileURLToPath } from 'url';
+import semver from 'semver';
 import yaml from 'js-yaml';
 
 /**
  * Internal dependencies
  */
-import { promptForType, promptForName } from '../helpers/promptForProject';
-import { projectTypes, checkNameValid } from '../helpers/projectHelpers';
+import { promptForType, promptForName } from '../helpers/promptForProject.js';
+import { projectTypes, checkNameValid } from '../helpers/projectHelpers.js';
 import {
 	readPackageJson,
 	readComposerJson,
 	writePackageJson,
 	writeComposerJson,
-} from '../helpers/json';
-import { normalizeGenerateArgv } from '../helpers/normalizeArgv';
-import mergeDirs from '../helpers/mergeDirs';
-import { chalkJetpackGreen } from '../helpers/styling';
-import { doesRepoExist } from '../helpers/github';
+} from '../helpers/json.js';
+import { normalizeGenerateArgv } from '../helpers/normalizeArgv.js';
+import mergeDirs from '../helpers/mergeDirs.js';
+import { chalkJetpackGreen } from '../helpers/styling.js';
+import { doesRepoExist } from '../helpers/github.js';
 
 /**
  * Entry point for the CLI.
@@ -183,6 +185,7 @@ export function getQuestions( type ) {
 		},
 	];
 	const packageQuestions = [];
+	const jsPackageQuestions = [];
 	const pluginQuestions = [
 		{
 			type: 'input',
@@ -203,6 +206,8 @@ export function getQuestions( type ) {
 			return defaultQuestions.concat( extensionQuestions );
 		case 'github-action':
 			return defaultQuestions.concat( githubQuestions );
+		case 'js-package':
+			return defaultQuestions.concat( jsPackageQuestions );
 	}
 }
 
@@ -216,7 +221,9 @@ export async function generateProject(
 ) {
 	const type = pluralize( answers.type );
 	const project = type + '/' + answers.name;
-	const projDir = path.join( __dirname, '../../..', 'projects/', type, answers.name );
+	const projDir = fileURLToPath(
+		new URL( `../../../projects/${ type }/${ answers.name }`, import.meta.url )
+	);
 
 	createSkeleton( type, projDir, answers.name );
 
@@ -236,6 +243,8 @@ export async function generateProject(
 
 	switch ( answers.type ) {
 		case 'package':
+			break;
+		case 'js-package':
 			break;
 		case 'plugin':
 			generatePlugin( answers, projDir );
@@ -261,7 +270,9 @@ function generatePlugin( answers, pluginDir ) {
 
 	// Fill in the README.txt file
 	const readmeTxtContent = createReadMeTxt( answers );
-	const readmeTxtPath = path.join( __dirname, '../', 'skeletons/plugins/readme.txt' );
+	const readmeTxtPath = fileURLToPath(
+		new URL( '../skeletons/plugins/readme.txt', import.meta.url )
+	);
 	const readmeTxtData = fs.readFileSync( readmeTxtPath, 'utf8' );
 	writeToFile( pluginDir + '/README.txt', readmeTxtContent + readmeTxtData );
 }
@@ -286,12 +297,12 @@ function generateAction( answers, actDir ) {
  * @param {string} name - Name of new project.
  */
 function createSkeleton( type, dir, name ) {
-	const skeletonDir = path.join( __dirname, '../skeletons' );
+	const skeletonDir = fileURLToPath( new URL( '../skeletons', import.meta.url ) );
 
 	// Copy the skeletons over.
 	try {
-		mergeDirs( path.join( skeletonDir, '/common' ), dir, name );
-		mergeDirs( path.join( skeletonDir, '/' + type ), dir, name );
+		mergeDirs( path.join( skeletonDir, '/common' ), dir, name, true );
+		mergeDirs( path.join( skeletonDir, '/' + type ), dir, name, true );
 	} catch ( e ) {
 		console.error( e );
 	}
@@ -305,6 +316,32 @@ function createSkeleton( type, dir, name ) {
  */
 function createPackageJson( packageJson, answers ) {
 	packageJson.description = answers.description;
+	packageJson.name = `@automattic/jetpack-${ answers.name }`;
+	packageJson.version = '0.1.0-alpha';
+
+	if ( answers.type === 'js-package' ) {
+		packageJson.exports = {
+			'.': './index.jsx',
+			'./state': './src/state',
+			'./action-types': './src/state/action-types',
+		};
+		packageJson.scripts = {
+			test:
+				"NODE_ENV=test NODE_PATH=tests:. js-test-runner --jsdom --initfile=test-main.jsx 'glob:./!(node_modules)/**/test/*.@(jsx|js)'",
+		};
+		packageJson.devDependencies = { 'jetpack-js-test-runner': 'workspace:*' };
+
+		// Since `createComposerJson()` adds a use of `nyc`, we need to depend on it here too.
+		// Look for which version is currently in use.
+		const yamlFile = yaml.load(
+			fs.readFileSync( new URL( '../../../pnpm-lock.yaml', import.meta.url ), 'utf8' )
+		);
+		const nycVersion = Object.keys( yamlFile.packages ).reduce( ( value, cur ) => {
+			const ver = cur.match( /^\/nyc\/([^_]+)/ )?.[ 1 ];
+			return ! value || ( ver && semver.gt( ver, value ) ) ? ver : value;
+		}, null );
+		packageJson.devDependencies.nyc = nycVersion || '*';
+	}
 }
 
 /**
@@ -364,6 +401,11 @@ async function createComposerJson( composerJson, answers ) {
 			composerJson.extra[ 'release-branch-prefix' ] = answers.name;
 			composerJson.type = 'wordpress-plugin';
 			break;
+		case 'js-package':
+			composerJson.scripts = {
+				'test-js': [ 'pnpm run test' ],
+				'test-coverage': [ 'pnpx nyc --report-dir="$COVERAGE_DIR" pnpm run test' ],
+			};
 	}
 }
 
@@ -525,9 +567,9 @@ function createReadMeTxt( answers ) {
 		`=== Jetpack ${ answers.name } ===\n` +
 		'Contributors: automattic,\n' +
 		'Tags: jetpack, stuff\n' +
-		'Requires at least: 5.7\n' +
+		'Requires at least: 5.8\n' +
 		'Requires PHP: 5.6\n' +
-		'Tested up to: 5.8\n' +
+		'Tested up to: 5.9\n' +
 		`Stable tag: ${ answers.version }\n` +
 		'License: GPLv2 or later\n' +
 		'License URI: http://www.gnu.org/licenses/gpl-2.0.html\n' +

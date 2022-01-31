@@ -10,27 +10,23 @@ namespace Automattic\Jetpack\Extensions\Podcast_Player;
 /**
  * Template variables.
  *
- * @var string $player_id
- * @var string $title
- * @var string $link
- * @var array  $track
- * @var array  $primary_colors
+ * @var string $template_props
  */
 
-if ( ! isset( $title ) && empty( $track['title'] ) ) {
+if ( ! isset( $template_props['title'] ) && empty( $template_props['track']['title'] ) ) {
 	return;
 }
 
-$track_link = empty( $track['link'] ) ? $track['src'] : $track['link'];
+$track_link = empty( $template_props['track']['link'] ) ? $template_props['track']['src'] : $template_props['track']['link'];
 ?>
 
-<h2 id="<?php echo esc_attr( $player_id ); ?>__title" class="jetpack-podcast-player__title">
+<h2 id="<?php echo esc_attr( $template_props['player_id'] ); ?>__title" class="jetpack-podcast-player__title">
 	<span
-		class="jetpack-podcast-player__current-track-title <?php echo esc_attr( $primary_colors['class'] ); ?>"
-		<?php echo isset( $primary_colors['style'] ) ? 'style="' . esc_attr( $primary_colors['style'] ) . '"' : ''; ?>
+		class="jetpack-podcast-player__current-track-title <?php echo esc_attr( $template_props['primary_colors']['class'] ); ?>"
+		<?php echo isset( $template_props['primary_colors']['style'] ) ? 'style="' . esc_attr( $template_props['primary_colors']['style'] ) . '"' : ''; ?>
 	>
 		<?php
-		echo esc_html( $track['title'] );
+		echo esc_html( $template_props['track']['title'] );
 		if ( ! empty( $track_link ) ) :
 			// Prevent whitespace between title and link to cause a jump when JS kicks in.
 			// phpcs:disable Squiz.PHP.EmbeddedPhp.ContentAfterEnd
@@ -47,15 +43,15 @@ $track_link = empty( $track['link'] ) ? $track['src'] : $track['link'];
 		<?php endif; // phpcs:enable ?>
 	</span>
 
-	<?php if ( ! empty( $title ) ) : ?>
+	<?php if ( ! empty( $template_props['title'] ) ) : ?>
 		<span class="jetpack-podcast-player--visually-hidden"> - </span>
 
 		<?php
 		render(
 			'podcast-title',
 			array(
-				'title' => $title,
-				'link'  => $link,
+				'title' => $template_props['title'],
+				'link'  => $template_props['link'],
 			)
 		);
 		?>

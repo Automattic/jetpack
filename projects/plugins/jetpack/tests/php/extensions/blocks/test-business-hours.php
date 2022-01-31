@@ -48,6 +48,7 @@ class Business_Hours_Block_Test extends \Jetpack_Block_Fixture_TestCase {
 	 * @before
 	 */
 	public function set_up() {
+		parent::set_up();
 		$this->was_registered = \Automattic\Jetpack\Blocks::is_registered( self::BLOCK_NAME );
 		\Automattic\Jetpack\Extensions\Business_Hours\register_block();
 	}
@@ -61,6 +62,7 @@ class Business_Hours_Block_Test extends \Jetpack_Block_Fixture_TestCase {
 		if ( ! $this->was_registered ) {
 			unregister_block_type( 'jetpack/business-hours' );
 		}
+		parent::tear_down();
 	}
 
 	/**

@@ -5,6 +5,118 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.29.0] - 2022-01-25
+### Added
+- Jetpack Search: update the allowed post meta when search is active to include all indexable meta.
+
+## [1.28.2] - 2022-01-18
+### Changed
+- Updated package dependencies.
+
+## [1.28.1] - 2022-01-13
+### Changed
+- Updated package dependencies.
+
+## [1.28.0] - 2022-01-04
+### Changed
+- Listener: Do not enqueue actions when the site is disconnected
+- Switch to pcov for code coverage.
+- Theme deletions: rely on Core WP hook now that the package requires WP 5.8.
+- Updated package dependencies
+- Updated package textdomain from `jetpack` to `jetpack-sync`.
+
+## [1.27.6] - 2021-12-14
+### Changed
+- Updated package dependencies.
+
+## [1.27.5] - 2021-11-30
+### Changed
+- Updated package dependencies.
+
+## [1.27.4] - 2021-11-23
+### Changed
+- Updated package dependencies.
+
+## [1.27.3] - 2021-11-16
+### Changed
+- Actions: add the do_only_first_initial_sync method which starts an initial sync only when one hasn't already been done
+
+## [1.27.2] - 2021-11-09
+### Added
+- Constants: Now syncing Atomic platform constant
+
+### Changed
+- Full Sync : limit included users to contributors and above (based on wp_user_limit)
+- Updated package dependencies.
+- User Checksums - limit scope to users with wp_user_level > 0
+
+### Fixed
+- Fix PHP 8.1 deprecation warnings.
+
+## [1.27.1] - 2021-11-02
+### Changed
+- Set `convertDeprecationsToExceptions` true in PHPUnit config.
+- Update PHPUnit configs to include just what needs coverage rather than include everything then try to exclude stuff that doesn't.
+
+## [1.27.0] - 2021-10-26
+### Added
+- Added the _wpas_feature_enabled meta key to the sync list
+- Sync Error Log to capture failed sync requests.
+
+### Fixed
+- Check the return value of get_comment() before to use it.
+- Increase send timeout to 20 seconds allowing capture of WP.com 408 responses.
+
+## [1.26.4] - 2021-10-13
+### Changed
+- Sync Checksums: Convert text fields to latin1 before generating checksum.
+- Updated package dependencies.
+
+### Fixed
+- Sync Checksums - Update distinct clause to use $wpdb-> table names to accouunt for differences in prefixes.
+
+## [1.26.3] - 2021-10-12
+### Changed
+- Updated package dependencies
+
+### Removed
+- Remove initialization of the identity-crisis package. That will be handled by the Config package.
+
+### Fixed
+- Reduce transient expiration for how often we check the state of the queue.
+- Sync Checksums - exclude locale from checksum if same as site setting
+- Sync Checksums - use distinct query when calculating count of Term Relationships
+
+## [1.26.2] - 2021-09-28
+### Added
+- Add support for checksumming user-related tabled: wp_users and wp_usermeta
+
+### Changed
+- Update annotations versions.
+- Updated package dependencies.
+
+### Fixed
+- Resolve indirect modification notice.
+- Sync Checksums: utilize distinct clause in term counts.
+- Sync Queue: better handling of serialization issues and empty actions.
+
+## [1.26.1] - 2021-09-03
+### Fixed
+- Add better checks if the WooCommerce tables should be enabled for checksum/fix.
+- Prevent PHP notices on queue_pull if all args are not set.
+
+## [1.26.0] - 2021-08-30
+### Added
+- Add support for WooCommerce table to the checksum/fix process.
+- Enable support for utf8 conversion during checksum calculation.
+
+### Changed
+- Don't run composer install on regular phpunit script
+- Tests: update PHPUnit polyfills dependency (yoast/phpunit-polyfills).
+
+### Fixed
+- Sync Checksums - ensure last object is included in histogram
+
 ## [1.25.0] - 2021-08-12
 ### Added
 - Add package version tracking.
@@ -450,6 +562,22 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - Packages: Move sync to a classmapped package
 
+[1.29.0]: https://github.com/Automattic/jetpack-sync/compare/v1.28.2...v1.29.0
+[1.28.2]: https://github.com/Automattic/jetpack-sync/compare/v1.28.1...v1.28.2
+[1.28.1]: https://github.com/Automattic/jetpack-sync/compare/v1.28.0...v1.28.1
+[1.28.0]: https://github.com/Automattic/jetpack-sync/compare/v1.27.6...v1.28.0
+[1.27.6]: https://github.com/Automattic/jetpack-sync/compare/v1.27.5...v1.27.6
+[1.27.5]: https://github.com/Automattic/jetpack-sync/compare/v1.27.4...v1.27.5
+[1.27.4]: https://github.com/Automattic/jetpack-sync/compare/v1.27.3...v1.27.4
+[1.27.3]: https://github.com/Automattic/jetpack-sync/compare/v1.27.2...v1.27.3
+[1.27.2]: https://github.com/Automattic/jetpack-sync/compare/v1.27.1...v1.27.2
+[1.27.1]: https://github.com/Automattic/jetpack-sync/compare/v1.27.0...v1.27.1
+[1.27.0]: https://github.com/Automattic/jetpack-sync/compare/v1.26.4...v1.27.0
+[1.26.4]: https://github.com/Automattic/jetpack-sync/compare/v1.26.3...v1.26.4
+[1.26.3]: https://github.com/Automattic/jetpack-sync/compare/v1.26.2...v1.26.3
+[1.26.2]: https://github.com/Automattic/jetpack-sync/compare/v1.26.1...v1.26.2
+[1.26.1]: https://github.com/Automattic/jetpack-sync/compare/v1.26.0...v1.26.1
+[1.26.0]: https://github.com/Automattic/jetpack-sync/compare/v1.25.0...v1.26.0
 [1.25.0]: https://github.com/Automattic/jetpack-sync/compare/v1.24.2...v1.25.0
 [1.24.2]: https://github.com/Automattic/jetpack-sync/compare/v1.24.1...v1.24.2
 [1.24.1]: https://github.com/Automattic/jetpack-sync/compare/v1.24.0...v1.24.1

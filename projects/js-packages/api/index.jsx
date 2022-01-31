@@ -2,6 +2,8 @@
  * External dependencies
  */
 import { assign } from 'lodash';
+import { addQueryArgs } from '@wordpress/url';
+import { jetpackConfigGet, jetpackConfigHas } from '@automattic/jetpack-config';
 
 /**
  * Helps create new custom error classes to better notify upper layers.
@@ -73,22 +75,33 @@ function JetpackRestApiClient( root, nonce ) {
 			cacheBusterCallback = callback;
 		},
 
-		registerSite: ( registrationNonce, redirectUri ) =>
-			postRequest( `${ apiRoot }jetpack/v4/connection/register`, postParams, {
-				body: JSON.stringify( {
-					registration_nonce: registrationNonce,
-					no_iframe: true,
-					redirect_uri: redirectUri,
-				} ),
+		registerSite: ( registrationNonce, redirectUri ) => {
+			const params = {
+				registration_nonce: registrationNonce,
+				no_iframe: true,
+			};
+
+			if ( jetpackConfigHas( 'consumer_slug' ) ) {
+				params.plugin_slug = jetpackConfigGet( 'consumer_slug' );
+			}
+
+			if ( null !== redirectUri ) {
+				params.redirect_uri = redirectUri;
+			}
+
+			return postRequest( `${ apiRoot }jetpack/v4/connection/register`, postParams, {
+				body: JSON.stringify( params ),
 			} )
 				.then( checkStatus )
-				.then( parseJsonResponse ),
+				.then( parseJsonResponse );
+		},
 
 		fetchAuthorizationUrl: redirectUri =>
 			getRequest(
-				`${ apiRoot }jetpack/v4/connection/authorize_url?no_iframe=1&redirect_uri=${ encodeURIComponent(
-					redirectUri
-				) }`,
+				addQueryArgs( `${ apiRoot }jetpack/v4/connection/authorize_url`, {
+					no_iframe: '1',
+					redirect_uri: redirectUri,
+				} ),
 				getParams
 			)
 				.then( checkStatus )
@@ -146,6 +159,11 @@ function JetpackRestApiClient( root, nonce ) {
 
 		fetchConnectedPlugins: () =>
 			getRequest( `${ apiRoot }jetpack/v4/connection/plugins`, getParams )
+				.then( checkStatus )
+				.then( parseJsonResponse ),
+
+		setHasSeenWCConnectionModal: () =>
+			postRequest( `${ apiRoot }jetpack/v4/seen-wc-connection-modal`, postParams )
 				.then( checkStatus )
 				.then( parseJsonResponse ),
 
@@ -314,6 +332,11 @@ function JetpackRestApiClient( root, nonce ) {
 				.then( checkStatus )
 				.then( parseJsonResponse ),
 
+		fetchRecommendationsProductSuggestions: () =>
+			getRequest( `${ apiRoot }jetpack/v4/recommendations/product-suggestions`, getParams )
+				.then( checkStatus )
+				.then( parseJsonResponse ),
+
 		fetchRecommendationsUpsell: () =>
 			getRequest( `${ apiRoot }jetpack/v4/recommendations/upsell`, getParams )
 				.then( checkStatus )
@@ -402,10 +425,59 @@ function JetpackRestApiClient( root, nonce ) {
 				.then( checkStatus )
 				.then( parseJsonResponse ),
 
+		getUserLicensesCounts: () =>
+			getRequest( `${ apiRoot }jetpack/v4/licensing/user/counts`, getParams )
+				.then( checkStatus )
+				.then( parseJsonResponse ),
+
+		updateLicensingActivationNoticeDismiss: lastDetachedCount =>
+			postRequest( `${ apiRoot }jetpack/v4/licensing/user/activation-notice-dismiss`, postParams, {
+				body: JSON.stringify( { last_detached_count: lastDetachedCount } ),
+			} )
+				.then( checkStatus )
+				.then( parseJsonResponse ),
+
 		updateRecommendationsStep: step =>
 			postRequest( `${ apiRoot }jetpack/v4/recommendations/step`, postParams, {
 				body: JSON.stringify( { step } ),
 			} ).then( checkStatus ),
+
+		confirmIDCSafeMode: () =>
+			postRequest( `${ apiRoot }jetpack/v4/identity-crisis/confirm-safe-mode`, postParams ).then(
+				checkStatus
+			),
+
+		startIDCFresh: redirectUri =>
+			postRequest( `${ apiRoot }jetpack/v4/identity-crisis/start-fresh`, postParams, {
+				body: JSON.stringify( { redirect_uri: redirectUri } ),
+			} )
+				.then( checkStatus )
+				.then( parseJsonResponse ),
+
+		migrateIDC: () =>
+			postRequest( `${ apiRoot }jetpack/v4/identity-crisis/migrate`, postParams ).then(
+				checkStatus
+			),
+		attachLicenses: licenses =>
+			postRequest( `${ apiRoot }jetpack/v4/licensing/attach-licenses`, postParams, {
+				body: JSON.stringify( { licenses } ),
+			} )
+				.then( checkStatus )
+				.then( parseJsonResponse ),
+		fetchSearchPlanInfo: () =>
+			getRequest( `${ apiRoot }jetpack/v4/search/plan`, getParams )
+				.then( checkStatus )
+				.then( parseJsonResponse ),
+		fetchSearchSettings: () =>
+			getRequest( `${ apiRoot }jetpack/v4/search/settings`, getParams )
+				.then( checkStatus )
+				.then( parseJsonResponse ),
+		updateSearchSettings: newSettings =>
+			postRequest( `${ apiRoot }jetpack/v4/search/settings`, postParams, {
+				body: JSON.stringify( newSettings ),
+			} )
+				.then( checkStatus )
+				.then( parseJsonResponse ),
 	};
 
 	/**

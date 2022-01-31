@@ -1,6 +1,12 @@
 <?php
-// See https://github.com/Automattic/jetpack/issues/2765
-$fuzzy_image_meta = $item->fuzzy_image_meta();
+/**
+ * Template used to display arguments used to build the carousel modal.
+ *
+ * @package automattic/jetpack
+ */
+
+$item             = $context['item']; // phpcs:ignore VariableAnalysis.CodeAnalysis.VariableAnalysis.UndefinedVariable
+$fuzzy_image_meta = $item->fuzzy_image_meta(); // See https://github.com/Automattic/jetpack/issues/2765 .
 if ( isset( $fuzzy_image_meta['keywords'] ) ) {
 	unset( $fuzzy_image_meta['keywords'] );
 }

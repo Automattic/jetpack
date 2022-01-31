@@ -129,6 +129,10 @@ async function getLabelsToAdd( octokit, owner, repo, number ) {
 			if ( project.groups.ptype === 'github-actions' ) {
 				keywords.add( 'Actions' );
 			}
+
+			if ( project.groups.ptype === 'js-packages' ) {
+				keywords.add( 'RNA' );
+			}
 		}
 
 		// Modules.
@@ -165,13 +169,17 @@ async function getLabelsToAdd( octokit, owner, repo, number ) {
 			keywords.add( 'Docs' );
 		}
 
-		// Existing blocks.
+		// Existing blocks and block plugins.
 		const blocks = file.match(
-			/^projects\/plugins\/jetpack\/extensions\/blocks\/(?<block>[^/]*)\//
+			/^projects\/plugins\/jetpack\/extensions\/(?<type>blocks|plugins)\/(?<block>[^/]*)\//
 		);
-		const blockName = blocks && blocks.groups.block;
-		if ( blockName ) {
-			keywords.add( `[Block] ${ cleanName( blockName ) }` );
+		if ( blocks !== null ) {
+			const { groups: { type: blockType, block: blockName } = {} } = blocks;
+			if ( blockType && blockName ) {
+				keywords.add(
+					`[${ 'plugins' === blockType ? 'Extension' : 'Block' }] ${ cleanName( blockName ) }`
+				);
+			}
 		}
 
 		// React Dashboard and Boost Admin.
@@ -214,7 +222,7 @@ async function getLabelsToAdd( octokit, owner, repo, number ) {
 		}
 
 		// E2E tests.
-		const e2e = file.match( /^projects\/plugins\/jetpack\/tests\/e2e\// );
+		const e2e = file.match( /\/tests\/e2e\/|^tools\/e2e-commons\// );
 		if ( e2e ) {
 			keywords.add( 'E2E Tests' );
 		}

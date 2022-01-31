@@ -7,6 +7,7 @@
 
 namespace Automattic\Jetpack\Dashboard_Customizations;
 
+use Automattic\Jetpack\Status\Host;
 use Automattic\Jetpack\Tracking;
 
 /**
@@ -44,7 +45,7 @@ function should_customize_nav( $admin_menu_class ) {
  */
 function get_admin_menu_class() {
 	// WordPress.com Atomic sites.
-	if ( jetpack_is_atomic_site() ) {
+	if ( ( new Host() )->is_woa_site() ) {
 		require_once __DIR__ . '/class-atomic-admin-menu.php';
 		return Atomic_Admin_Menu::class;
 	}
@@ -57,6 +58,15 @@ function get_admin_menu_class() {
 		$blog_options   = get_blog_option( $blog_id, 'options' );
 		$is_domain_only = ! empty( $blog_options['is_domain_only'] );
 		if ( $is_domain_only ) {
+			require_once __DIR__ . '/class-domain-only-admin-menu.php';
+			return Domain_Only_Admin_Menu::class;
+		}
+
+		// DIFM Lite In Progress Sites. Uses the same menu used for domain-only sites.
+		// Ignore this check if we are in a support session.
+		$is_difm_lite_in_progress = has_blog_sticker( 'difm-lite-in-progress' );
+		$is_support_session       = defined( 'WPCOM_SUPPORT_SESSION' ) && WPCOM_SUPPORT_SESSION;
+		if ( $is_difm_lite_in_progress && ! $is_support_session ) {
 			require_once __DIR__ . '/class-domain-only-admin-menu.php';
 			return Domain_Only_Admin_Menu::class;
 		}

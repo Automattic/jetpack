@@ -8,6 +8,8 @@
 namespace Automattic\Jetpack\Sync;
 
 use Automattic\Jetpack\Sync\Replicastore\Table_Checksum;
+use Automattic\Jetpack\Sync\Replicastore\Table_Checksum_Usermeta;
+use Automattic\Jetpack\Sync\Replicastore\Table_Checksum_Users;
 use Exception;
 use WP_Error;
 
@@ -1037,7 +1039,8 @@ class Replicastore implements Replicastore_Interface {
 			/**
 			 * Fires immediately before an object-term relationship is deleted.
 			 *
-			 * @since 2.9.0
+			 * @since 1.6.3
+			 * @since-jetpack 2.9.0
 			 *
 			 * @param int   $object_id Object ID.
 			 * @param array $tt_ids    An array of term taxonomy IDs.
@@ -1051,7 +1054,8 @@ class Replicastore implements Replicastore_Interface {
 				/**
 				 * Fires immediately after an object-term relationship is deleted.
 				 *
-				 * @since 2.9.0
+				 * @since 1.6.3
+				 * @since-jetpack 2.9.0
 				 *
 				 * @param int   $object_id Object ID.
 				 * @param array $tt_ids    An array of term taxonomy IDs.
@@ -1171,7 +1175,7 @@ class Replicastore implements Replicastore_Interface {
 	 *
 	 * @access public
 	 *
-	 * @param boolean $perform_text_conversion If text fields should be UTF8 converted.
+	 * @param boolean $perform_text_conversion If text fields should be latin1 converted.
 	 *
 	 * @return array Checksums.
 	 */
@@ -1184,7 +1188,7 @@ class Replicastore implements Replicastore_Interface {
 		$term_relationships_checksum = $this->checksum_histogram( 'term_relationships', null, null, null, null, true, '', false, false, $perform_text_conversion );
 		$term_taxonomy_checksum      = $this->checksum_histogram( 'term_taxonomy', null, null, null, null, true, '', false, false, $perform_text_conversion );
 
-		return array(
+		$result = array(
 			'posts'              => $this->summarize_checksum_histogram( $post_checksum ),
 			'comments'           => $this->summarize_checksum_histogram( $comments_checksum ),
 			'post_meta'          => $this->summarize_checksum_histogram( $post_meta_checksum ),
@@ -1193,6 +1197,46 @@ class Replicastore implements Replicastore_Interface {
 			'term_relationships' => $this->summarize_checksum_histogram( $term_relationships_checksum ),
 			'term_taxonomy'      => $this->summarize_checksum_histogram( $term_taxonomy_checksum ),
 		);
+
+		/**
+		 * WooCommerce tables
+		 */
+
+		/**
+		 * On WordPress.com, we can't directly check if the site has support for WooCommerce.
+		 * Having the option to override the functionality here helps with syncing WooCommerce tables.
+		 *
+		 * @since 10.1
+		 *
+		 * @param bool If we should we force-enable WooCommerce tables support.
+		 */
+		$force_woocommerce_support = apply_filters( 'jetpack_table_checksum_force_enable_woocommerce', false );
+
+		if ( $force_woocommerce_support || class_exists( 'WooCommerce' ) ) {
+			/**
+			 * Guard in Try/Catch as it's possible for the WooCommerce class to exist, but
+			 * the tables to not. If we don't do this, the response will be just the exception, without
+			 * returning any valid data. This will prevent us from ever performing a checksum/fix
+			 * for sites like this.
+			 * It's better to just skip the tables in the response, instead of completely failing.
+			 */
+
+			try {
+				$woocommerce_order_items_checksum  = $this->checksum_histogram( 'woocommerce_order_items' );
+				$result['woocommerce_order_items'] = $this->summarize_checksum_histogram( $woocommerce_order_items_checksum );
+			} catch ( Exception $ex ) {
+				$result['woocommerce_order_items'] = null;
+			}
+
+			try {
+				$woocommerce_order_itemmeta_checksum  = $this->checksum_histogram( 'woocommerce_order_itemmeta' );
+				$result['woocommerce_order_itemmeta'] = $this->summarize_checksum_histogram( $woocommerce_order_itemmeta_checksum );
+			} catch ( Exception $ex ) {
+				$result['woocommerce_order_itemmeta'] = null;
+			}
+		}
+
+		return $result;
 	}
 
 	/**
@@ -1259,7 +1303,7 @@ class Replicastore implements Replicastore_Interface {
 	 * @param string $salt                    Salt, used for $wpdb->prepare()'s args.
 	 * @param bool   $only_range_edges        Only return the range edges and not the actual checksums.
 	 * @param bool   $detailed_drilldown      If the call should return a detailed drilldown for the checksum or only the checksum.
-	 * @param bool   $perform_text_conversion If text fields should be converted to UTF8 during the checksum calculation.
+	 * @param bool   $perform_text_conversion If text fields should be converted to latin1 during the checksum calculation.
 	 *
 	 * @return array|WP_Error The checksum histogram.
 	 * @throws Exception Throws an exception if data validation fails inside `Table_Checksum` calls.
@@ -1269,7 +1313,7 @@ class Replicastore implements Replicastore_Interface {
 
 		$wpdb->queries = array();
 		try {
-			$checksum_table = new Table_Checksum( $table, $salt, $perform_text_conversion );
+			$checksum_table = $this->get_table_checksum_instance( $table, $salt, $perform_text_conversion );
 		} catch ( Exception $ex ) {
 			return new WP_Error( 'checksum_disabled', $ex->getMessage() );
 		}
@@ -1321,7 +1365,7 @@ class Replicastore implements Replicastore_Interface {
 
 			$previous_max_id = $ids_range['max_range'] + 1;
 			// If we've reached the max_range lets bail out.
-			if ( $previous_max_id >= $range_edges['max_range'] ) {
+			if ( $previous_max_id > $range_edges['max_range'] ) {
 				break;
 			}
 		} while ( true );
@@ -1364,7 +1408,7 @@ class Replicastore implements Replicastore_Interface {
 	private function calculate_buckets( $table, $start_id = null, $end_id = null ) {
 		// Get # of objects.
 		try {
-			$checksum_table = new Table_Checksum( $table );
+			$checksum_table = $this->get_table_checksum_instance( $table );
 		} catch ( Exception $ex ) {
 			return new WP_Error( 'checksum_disabled', $ex->getMessage() );
 		}
@@ -1381,9 +1425,33 @@ class Replicastore implements Replicastore_Interface {
 		switch ( $table ) {
 			case 'postmeta':
 			case 'commentmeta':
+			case 'order_itemmeta':
 				$bucket_size = 1000; // Meta bucket size is restricted to 1000 items.
 		}
 
 		return (int) ceil( $object_count / $bucket_size );
+	}
+
+	/**
+	 * Return an instance for `Table_Checksum`, depending on the table.
+	 *
+	 * Some tables require custom instances, due to different checksum logic.
+	 *
+	 * @param string $table The table that we want to get the instance for.
+	 * @param null   $salt  Salt to be used when generating the checksums.
+	 * @param false  $perform_text_conversion Should we perform text encoding conversion when calculating the checksum.
+	 *
+	 * @return Table_Checksum|Table_Checksum_Usermeta
+	 * @throws Exception Might throw an exception if any of the input parameters were invalid.
+	 */
+	public function get_table_checksum_instance( $table, $salt = null, $perform_text_conversion = false ) {
+		if ( 'users' === $table ) {
+			return new Table_Checksum_Users( $table, $salt, $perform_text_conversion );
+		}
+		if ( 'usermeta' === $table ) {
+			return new Table_Checksum_Usermeta( $table, $salt, $perform_text_conversion );
+		}
+
+		return new Table_Checksum( $table, $salt, $perform_text_conversion );
 	}
 }

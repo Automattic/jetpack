@@ -16,15 +16,14 @@ import Card from 'components/card';
 import Button from 'components/button';
 import { getSitePlan, isFetchingSiteData } from 'state/site';
 import {
-	getConnectUrl,
 	getSiteConnectionStatus,
 	hasConnectedOwner,
 	isCurrentUserLinked,
 	isConnectionOwner,
+	connectUser,
 } from 'state/connection';
 import { isAtomicSite, isDevVersion as _isDevVersion, getUpgradeUrl } from 'state/initial-state';
 import JetpackBanner from 'components/jetpack-banner';
-import { JETPACK_CONTACT_SUPPORT, JETPACK_CONTACT_BETA_SUPPORT } from 'constants/urls';
 import {
 	getJetpackProductUpsellByFeature,
 	FEATURE_PRIORITY_SUPPORT_JETPACK,
@@ -48,17 +47,17 @@ class SupportCard extends React.Component {
 		} );
 	};
 
+	/**
+	 * Track the click and show the user connection screen.
+	 */
+	handleConnectClick = () => {
+		this.trackBannerClick();
+		this.props.connectUser();
+	};
+
 	shouldComponentUpdate( nextProps ) {
 		return nextProps.sitePlan.product_slug !== this.props.sitePlan.product_slug;
 	}
-
-	trackAskQuestionClick = () => {
-		analytics.tracks.recordJetpackClick( {
-			target: 'support-card',
-			button: 'support-ask',
-			page: this.props.path,
-		} );
-	};
 
 	trackSearchClick = () => {
 		analytics.tracks.recordJetpackClick( {
@@ -81,10 +80,6 @@ class SupportCard extends React.Component {
 				'undefined' === typeof this.props.sitePlan.product_slug ||
 				'jetpack_free' === this.props.sitePlan.product_slug;
 
-		const jetpackSupportURl = this.props.isDevVersion
-			? JETPACK_CONTACT_BETA_SUPPORT
-			: JETPACK_CONTACT_SUPPORT;
-
 		return (
 			<div className={ classes }>
 				<Card className="jp-support-card__happiness">
@@ -98,20 +93,11 @@ class SupportCard extends React.Component {
 								  )
 								: __(
 										'Your paid plan gives you access to prioritized Jetpack support.',
-										'jetpack'
+										'jetpack',
+										/* dummy arg to avoid bad minification */ 0
 								  ) }
 						</p>
 						<p className="jp-support-card__description">
-							<Button
-								onClick={ this.trackAskQuestionClick }
-								href={
-									this.props.isAtomicSite
-										? getRedirectUrl( 'calypso-help-contact' )
-										: jetpackSupportURl
-								}
-							>
-								{ __( 'Ask a question', 'jetpack' ) }
-							</Button>
 							<Button
 								onClick={ this.trackSearchClick }
 								href={
@@ -144,8 +130,7 @@ class SupportCard extends React.Component {
 							) }
 							plan={ getJetpackProductUpsellByFeature( FEATURE_PRIORITY_SUPPORT_JETPACK ) }
 							callToAction={ __( 'Connect', 'jetpack' ) }
-							onClick={ this.trackBannerClick }
-							href={ this.props.connectUrl }
+							onClick={ this.handleConnectClick }
 						/>
 					) }
 			</div>
@@ -156,21 +141,27 @@ class SupportCard extends React.Component {
 SupportCard.propTypes = {
 	siteConnectionStatus: PropTypes.any.isRequired,
 	className: PropTypes.string,
-	isCurrentUserLinked: PropTypes.string,
+	isCurrentUserLinked: PropTypes.bool,
 	isConnectionOwner: PropTypes.bool,
 };
 
-export default connect( state => {
-	return {
-		sitePlan: getSitePlan( state ),
-		siteConnectionStatus: getSiteConnectionStatus( state ),
-		isFetchingSiteData: isFetchingSiteData( state ),
-		isAtomicSite: isAtomicSite( state ),
-		isDevVersion: _isDevVersion( state ),
-		supportUpgradeUrl: getUpgradeUrl( state, 'support' ),
-		isCurrentUserLinked: isCurrentUserLinked( state ),
-		isConnectionOwner: isConnectionOwner( state ),
-		connectUrl: getConnectUrl( state ),
-		hasConnectedOwner: hasConnectedOwner( state ),
-	};
-} )( SupportCard );
+export default connect(
+	state => {
+		return {
+			sitePlan: getSitePlan( state ),
+			siteConnectionStatus: getSiteConnectionStatus( state ),
+			isFetchingSiteData: isFetchingSiteData( state ),
+			isAtomicSite: isAtomicSite( state ),
+			isDevVersion: _isDevVersion( state ),
+			supportUpgradeUrl: getUpgradeUrl( state, 'support' ),
+			isCurrentUserLinked: isCurrentUserLinked( state ),
+			isConnectionOwner: isConnectionOwner( state ),
+			hasConnectedOwner: hasConnectedOwner( state ),
+		};
+	},
+	dispatch => ( {
+		connectUser: () => {
+			return dispatch( connectUser() );
+		},
+	} )
+)( SupportCard );

@@ -1,12 +1,30 @@
 # Jetpack Monorepo Overview
 
 Welcome to the Jetpack Monorepo! This document will give you some idea of the layout, and what is required for your project to fit in with our tooling.
+
+## Table of contents
+
+- [Layout](#layout)
+- [Compatibility](#compatibility)
+- [First Time](#first-time)
+- [Jetpack Generate Wizard](#jetpack-generate-wizard)
+- [Project Structure](#project-structure)
+- [Testing](#testing)
+- [Mirror Repositories](#mirror-repositories)
+- [Plugin Release Tooling](#plugin-release-tooling)
+- [Jetpack Changelogger](#jetpack-changelogger)
+	- [Using the Jetpack Changelogger](#using-the-jetpack-changelogger)
+- [New Projects](#new-projects)
+	- [Creating a new Composer Package](#creating-a-new-composer-package)
+	- [Creating a new plugin](#creating-a-new-plugin)
+
 ## Layout
 
-Projects are divided into WordPress plugins, Composer packages, and Gutenberg editor extensions.
+Projects are divided into WordPress plugins, Composer packages, JS packages, and Gutenberg editor extensions.
 
 * WordPress plugins live in subdirectories of `projects/plugins/`. The directory name should probably match the WordPress plugin name, with a leading "jetpack-" removed if applicable.
 * Composer packages live in subdirectories of `projects/packages/`. The directory name should probably match the package name with the leading "Automattic/jetpack-" removed.
+* JS packages live in subdirectories of `projects/js-packages/`. The directory name should probably match the package name with the leading "Automattic/jetpack-" removed.
 * Editor extensions live in subdirectories of `projects/editor-extensions/`. The directory name should match the feature name (without a "jetpack/" prefix).
 * GitHub Actions live in subdirectories of `projects/github-actions/`. The directory name should match the action name with the leading "Automattic/action-" removed.
 
@@ -97,16 +115,22 @@ We use `composer.json` to hold metadata about projects. Much of our generic tool
 * `.name`: Generally "Automattic/jetpack-_something_". Used to report names in various places. For Composer packages, this must, of course, match the name on Packagist.
 * `.version`: If present, updated by `tools/project-version.sh`. This should not be included on Composer packages that will be served through Packagist.
 * `.repositories`: If you include a repository entry referencing monorepo packages, it must have `.options.monorepo` set to true. This allows the build tooling to recognize and remove it.
-* `.scripts.build-development`: If your project has a general build step, this must run the necessary commands. This command or build-production below are required for projects requiring a build step.
-* `.scripts.build-production`: If your project requires a production-specific build step, this must run the necessary commands. This command or build-development above are required for projects requiring a build step.
+* `.scripts.build-development`: If your project has a general build step, this must run the necessary commands. See [Building](#building) for details.
+* `.scripts.build-production`: If your project requires a production-specific build step, this must run the necessary commands. See [Building](#building) for details.
 * `.scripts.test-coverage`: If the package contains any tests, this must run the necessary commands to generate a coverage report. See [Code coverage](#code-coverage) for details.
+  * `.scripts.skip-test-coverage`: Run before `.scripts.test-coverage` in CI. If it exits with code 3, the test run will be skipped.
 * `.scripts.test-e2e`: If the package contains any E2E tests, this must run the necessary commands. See [E2E tests](#e2e-tests) for details.
 * `.scripts.test-js`: If the package contains any JavaScript tests, this must run the necessary commands. See [JavaScript tests](#javascript-tests) for details.
+  * `.scripts.skip-test-js`: Run before `.scripts.test-js` in CI. If it exits with code 3, the test run will be skipped.
 * `.scripts.test-php`: If the package contains any PHPUnit tests, this must run the necessary commands. See [PHP tests](#php-tests) for details.
+  * `.scripts.skip-test-php`: Run before `.scripts.test-php` in CI. If it exits with code 3, the test run will be skipped.
+* `.extra.autorelease`: Set truthy to enable automatic creation of a GitHub release for tagged versions. See [Mirror repositories > Auto-release](#auto-release) for details.
 * `.extra.autotagger`: Set truthy to enable automatic release-version tagging in the mirror repo. See [Mirror repositories > Autotagger](#autotagger) for details.
 * `.extra.changelogger`: Configuration object for [Changelogger](#jetpack-changelogger). See [its documentation](https://github.com/Automattic/jetpack-changelogger#configuration) for details.
 * `.extra.changelogger-default-type`: Certain of our tools automatically create Changelogger change entries. This is the value to use for `--type` when doing so. Default type is `changed`.
-* `.extra.dependencies`: This optional array specifies the "slugs" of any within-monorepo dependencies that can't otherwise be inferred. The "slug" consists of the two levels of directory under `projects/`, e.g. `plugins/jetpack` or `packages/lazy-images`. See [Testing](#testing) for details.
+* `.extra.dependencies.build`: This optional array specifies the "slugs" of any within-monorepo build dependencies that can't otherwise be inferred. The "slug" consists of the two levels of directory under `projects/`, e.g. `plugins/jetpack` or `packages/lazy-images`.
+* `.extra.dependencies.test`: This optional array specifies the "slugs" of any within-monorepo testing dependencies that can't otherwise be inferred. The "slug" consists of the two levels of directory under `projects/`, e.g. `plugins/jetpack` or `packages/lazy-images`. See [Testing](#testing) for details.
+* `.extra.dev-releases`: Indicate that the plugin will have developer alpha releases. Instead of the mirror repositories showing "VER-alpha", they'll start at "VER-a.0" and you can use the `-a` flag to the release tooling to release "VER-a.1".
 * `.extra.mirror-repo`: This specifies the name of the GitHub mirror repo, i.e. the "Automattic/jetpack-_something_" in "<span>https://</span>github.com/Automattic/jetpack-_something_".
 * `.extra.npmjs-autopublish`: Set truthy to enable automatic publishing of tagged versions to npmjs.com. See [Mirror repositories > Npmjs Auto-publisher](#npmjs-auto-publisher) for details.
 * `.extra.release-branch-prefix`: Our mirroring and release tooling considers any branch named like "_prefix_/branch-_version_" to be a release branch, and this specifies which _prefix_ belongs to the project.
@@ -124,6 +148,21 @@ We use `composer.json` to hold metadata about projects. Much of our generic tool
 
 Our mirroring tooling also uses `.gitattributes` to specify built files to include in the mirror and unnecessary files to exclude.
 
+## Building
+
+The Jetpack Monorepo includes GitHub actions to build all projects, and optionally to mirror them to [mirror repos](#mirror-repositories). The `jetpack build` command can be used to build locally.
+
+A project must define `.scripts.build-development` and/or `.scripts.build-production` in `composer.json` to specify the commands needed to build.
+The build commands should assume that `pnpm install` and `composer install` have already been run, and _must not_ run them again.
+
+* If you're building JavaScript bundles with Webpack and [@automattic/jetpack-webpack-config](../projects/js-packages/webpack-config/README.md), note that your build-production command should set `NODE_ENV=production` and `BABEL_ENV=production`.
+* If you run into problems with Composer not recognizing the local git branch as being the right version, try setting `COMPOSER_ROOT_VERSION=dev-master` in the environment.
+* When building for the mirror repos, note that `COMPOSER_MIRROR_PATH_REPOS=1` will be set in the environment and the list of repositories in `composer.json` may be altered.
+  This is not normally done in development environments, even with `jetpack build --production`.
+* For a production build of a plugin, `composer install` is passed `-o --no-dev --classmap-authoritative --prefer-dist`. For development builds and for production builds of non-plugin projects, no options are passed.
+  If you think you need something else, talk to us. Don't just have your build scripts run composer.
+  <!-- YAGNI: I doubt we'll need it, so I didn't implement `.scripts.install-development` / `.scripts.install-production` or the like. -->
+
 ## Testing
 
 The Jetpack Monorepo includes GitHub actions to run a number of CI checks on all projects.
@@ -131,7 +170,8 @@ The Jetpack Monorepo includes GitHub actions to run a number of CI checks on all
 Tests for a project are only run for a PR if changes are made to the project or its dependencies. Dependencies may be specified as:
 
 * For Composer packages included in the monorepo, via `.require` and `.require-dev` in `composer.json`.
-* For any other dependencies, via `.extra.dependencies` in `composer.json`.
+* For JavaScript packages included in the monorepo, via `.dependencies` and `.devDependencies` in `package.json`.
+* For any other dependencies, via `.extra.dependencies.test` in `composer.json`.
 
 The test environment will be set up with appropriate tools, including node, pnpm, php, phpdbg, and composer. Unless otherwise specified below, the versions of node and php will be those specified in `.github/versions.sh`. Other necessary tools may be pulled in via composer and pnpm.
 
@@ -152,12 +192,21 @@ The following environment variables are avaliable for all tests:
 We use eslint and phpcs to lint JavaScript and PHP code. Projects should comply with the [coding standards](development-environment.md#coding-standards) enforced by these tools.
 
 * Projects may include `.eslintrc.js` to adjust eslint configuration as necessary, but try to keep to the spirit of it.
-* As eslint does not support per-directory `.eslintignore`, any necessary ignore rules should be added to the file in the root of the monorepo.
-* As phpcs does not support per-directory configuration, any necessary file ignore clauses should be added to `.phpcs.config.xml` in the root of the monorepo.
+
+  Note we're using something of a hack to get eslint to read ignore rules from `.gitignore` and per-directory `.eslintignore` files.
+  Any eslintrc that does `root: true` or an `extends` that extends from an eslintrc that includes the hack will have to do like
+  ```js
+  const loadIgnorePatterns = require( '../../../tools/js-tools/load-eslint-ignore.js' );
+  module.exports = {
+  	// Whatever stuff, including `root: true` or `extends`.
+  	ignorePatterns: loadIgnorePatterns( __dirname ),
+  };
+  ```
+* We're using a fork of phpcs and a custom filter that adds support for per-directory configuration (`.phpcs.dir.xml`) and use of `.gitignore` and `.phpcsignore` files. Again, try to keep to the spirit of things.
 
 ### PHP tests
 
-If a project contains PHP tests (typically PHPUnit), it must define `.scripts.test-php` in `composer.json` to run the tests. If a build step is required before running tests, the necessary commands for that should also be included.
+If a project contains PHP tests (typically PHPUnit), it must define `.scripts.test-php` in `composer.json` to run the tests. The CI environment will run `pnpm install` and `composer install` beforehand, but if a build step is required before running tests the necessary commands for that should also be included in `.scripts.test-php`.
 
 A MySQL database is available if needed; credentials may be found in `~/.my.cnf`. Note that the host must be specified as `127.0.0.1`, as when passed `localhost` PHP will try to connect via a Unix domain socket which is not available in the Actions environment.
 
@@ -180,15 +229,16 @@ We currently make use of the following packages in testing; it's encouraged to u
 
 #### PHP tests for plugins
 
-WordPress plugins generally want to run within WordPress. All monorepo plugins are copied into place in a WordPress installation and tests are run from there. An appropriate version of PHPUnit is made available in the path; installing it via Composer is not needed.
+WordPress plugins generally want to run within WordPress. All monorepo plugins are copied into place in a WordPress installation and tests are run from there.
 
 Tests will be run against the latest version of WordPress using the variety of supported PHP versions, and against the previous and master versions of WordPress using the PHP version in `.github/versions.sh`. The environment variable `WP_BRANCH` will be set to 'latest', 'previous', or 'master' accordingly. If you have tests that only need to be run once, run them when `WP_BRANCH` is 'latest'.
 
-Note that WordPress currently requires a version of PHPUnit that does not natively support PHP 8.0. Their current approach is to monkey-patch it via `composer.json` which monorepo plugins cannot duplicate. [This example bootstrap.php](./examples/bootstrap.php) illustrates how to handle it.
+<!-- @todo: Update this once we drop support for WP 5.8. -->
+Note that the state of WordPress's own PHPUnit integration is currently in flux. For WordPress 5.8 and earlier you need to both use `yoast/phpunit-polyfills` to supply polyfills and need to run with PHPUnit < 8.0 (even on PHP 8, where monkey-patching is required), while for 5.9 you can use `yoast/phpunit-polyfills` normally. Your best bet for the moment is to copy what Jetpack is doing; once the situation has stabilized, we'll update this documentation and [the example bootstrap.php](./examples/bootstrap.php).
 
 ### JavaScript tests
 
-If a project contains JavaScript tests, it must define `.scripts.test-js` in `composer.json` to run the tests. If a build step is required before running tests, the necessary commands for that should also be included.
+If a project contains JavaScript tests, it must define `.scripts.test-js` in `composer.json` to run the tests. The CI environment will run `pnpm install` beforehand, but if `composer install` or a build step is required before running tests the necessary commands for that should also be included in `.scripts.test-js`.
 
 ### E2E tests
 
@@ -198,11 +248,11 @@ If a project contains end-to-end tests, it must define `.scripts.test-e2e` in `c
 
 ### Code coverage
 
-If a project contains PHP or JavaScript tests, it should also define `.scripts.test-coverage` in `composer.json` to run the tests in a mode that will generate code coverage output.
+If a project contains PHP or JavaScript tests, it should also define `.scripts.test-coverage` in `composer.json` to run the tests in a mode that will generate code coverage output. The CI environment will run `pnpm install` and `composer install` beforehand, but if a build step is required before running tests the necessary commands for that should also be included in `.scripts.test-coverage`.
 
 Output should be written to the path specified via the `COVERAGE_DIR` environment variable. Subdirectories of that path may be used as desired.
 
-For PHP tests, you'll probably run PHPUnit as `phpdbg -qrr "$(which phpunit)" --coverage-clover "$COVERAGE_DIR/clover.xml"`.
+For PHP tests, you'll probably run PHPUnit as `php -dpcov.directory=. "$(command -v phpunit)" --coverage-clover "$COVERAGE_DIR/clover.xml"`.
 
 There's no need to be concerned about collisions with other projects' coverage files, a separate directory is used per project. The coverage files are also automatically copied to `ARTIFACTS_DIR`.
 
@@ -240,6 +290,21 @@ This is intended to work in combination with [Changelogger](#jetpack-changelogge
    * If they did, you'll likely have to create a release branch in the affected projects' mirror repos and manually tag.
 5. Verify that the Build workflow run for your PR's merge to master succeeded. [This search](https://github.com/Automattic/jetpack/actions/workflows/build.yml?query=branch%3Amaster) will show the runs of that workflow for all merges to master.
    * If it failed, you can try re-running it as long as no other PRs were merged adding change files to the projects being released. If some were merged, you'll have to manually tag the affected projects.
+
+### Auto-release
+
+If `.extra.autorelease` is set to a truthy value in the project's `composer.json`, a GitHub Action will be included in the mirror repo that will automatically create a GitHub release when a version tag is created. This works with Autotagger.
+
+The body of the created release will be the entry from CHANGELOG.md for the tagged version. A zip file will be added to the release as an artifact. The zip file contains a single directory, which holds the output from `git archive`.
+
+If `.extra.autotagger` is set to an object, the following are recognized:
+
+* `.extra.autotagger.slug`: Base name for the zip file, and the name of the base directory inside. If this is omitted, `.extra.wp-plugin-slug` will be used. If that is also not set, the portion of `.name` after the `/` will be used.
+* `.extra.autotagger.titlefmt`: Format for the release title. Must contain a single `%s`, which will be replaced with the version tagged. If omitted, the release title will simply be the version number.
+
+Note the following will also be done by the build process:
+
+* An entry will be prepended to `.gitattributes`, setting export-ignore for `/.git*`. The file will be created if necessary. This prevents `.github` and other git files from being included in the zip.
 
 ### Npmjs Auto-publisher
 
@@ -317,6 +382,20 @@ To add a Composer package:
 * Create your package and submit a PR as usual.
 
 Once reviewed and approved, the Crew team does the following:
-* Creates a GitHub repo in the Automattic repo to be the mirror repo for this project, if not done already.
+* Creates a GitHub repo in the Automattic repo to be the mirror repo for this project, if not done already. The new repo follows the [mirror repo guidelines](#mirror-repositories).
+* Adds a `composer.json` file to the repo, with some basic information about the package. This file is used by Packagist to generate the package page.
 * Creates a new Packagist package on packagist.org under the Automattic org. @jeherve, @dsmart, and @kraftbj are added as maintainers of all Jetpack monorepo packages.
-* In the Packagist project, configure the new package to use the Github webhook of the mirror repo to listen for updates and new versions.
+
+### Creating a new plugin
+
+If you're thinking about developing a new plugin in the monorepo, come chat with us in #jetpack-crew. We'll help you get started.
+
+Once you are ready to start working on a first version of your plugin in the monorepo, use the `jetpack generate plugin` command to create the first files for your plugin. Then, open a new PR with that skeleton.
+
+Before you can merge your PR, the Crew team will do the following:
+
+* Create the mirror repo for the plugin following the [mirror repo guidelines](#mirror-repositories).
+* Add a first version of a `composer.json` file to the mirror repo.
+* Add the plugin to Packagist, for folks who may be consuming it through Composer.
+* Add maintainers to the Packagist entry, just like for Composer packages above.
+* Add an entry for the new plugin in the Beta server settings. Find extra details on this process in the Jetpack Beta Builder repository. More information: PCYsg-gDE-p2

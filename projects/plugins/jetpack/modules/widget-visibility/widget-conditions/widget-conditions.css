@@ -149,3 +149,64 @@
 	 */
 	font-size: 13px;
 }
+
+/*
+ * Rules for gutenberg advanced panel
+ */
+
+ .widget-vis__wrapper .components-base-control,
+ .widget-vis__rule .components-base-control {
+	 margin-bottom: 12px;
+ }
+
+.widget-vis__rule {
+	padding: 12px;
+	border: 1px solid #dcdcde;
+	display: flex;
+	flex-direction: column;
+	margin-bottom: 12px;
+}
+
+.widget-vis__rule-major,
+.widget-vis__rule-minor {
+	display: flex;
+	justify-content: stretch;
+	align-items: center;
+}
+
+.widget-vis__if,
+.widget-vis__is {
+	margin-right: 8px;
+	width: 10px;
+}
+
+.widget-vis__show-hide {
+	margin-bottom: 0;
+}
+
+.components-button.widget-vis__add-new-rule {
+	display: block;
+}
+
+.widget-vis__delete-rule {
+	margin-top: 6px;
+	text-align: right;
+}
+
+.widget-vis__match-all {
+	margin-top: 12px;
+}
+
+.widget-vis__select {
+	width: 100%;
+}
+
+.widget-vis__select .components-input-control__container {
+	position: relative;
+	top: 4px;
+}
+
+.widget-vis__select-multi-level select option:disabled {
+    font-size: 18px;
+    font-weight: 600;
+}

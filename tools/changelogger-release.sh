@@ -5,17 +5,19 @@ set -eo pipefail
 BASE=$(cd $(dirname "${BASH_SOURCE[0]}")/.. && pwd)
 . "$BASE/tools/includes/check-osx-bash-version.sh"
 . "$BASE/tools/includes/chalk-lite.sh"
+. "$BASE/tools/includes/alpha-tag.sh"
 
 # Print help and exit.
 function usage {
 	cat <<-EOH
-		usage: $0 [-v] [-b] <slug>
+		usage: $0 [-v] [-a|-b] <slug>
 
 		Prepare a release of the specified project and everything it depends on.
 		 - Run \`changelogger write\`
 		 - Run \`tools/replace-next-version-tag.sh\`
 		 - Run \`tools/project-version.sh\`
 
+		Pass \`-a\` to prepare a developer release by passing \`--prerelease=a.N\` to changelogger.
 		Pass \`-b\` to prepare a beta release by passing \`--prerelease=beta\` to changelogger.
 	EOH
 	exit 1
@@ -27,8 +29,8 @@ fi
 
 # Sets options.
 VERBOSE=
-BETA=false
-while getopts ":vbh" opt; do
+ALPHABETA=
+while getopts ":vabh" opt; do
 	case ${opt} in
 		v)
 			if [[ -n "$VERBOSE" ]]; then
@@ -37,8 +39,11 @@ while getopts ":vbh" opt; do
 				VERBOSE="-v"
 			fi
 			;;
+		a)
+			ALPHABETA=alpha
+			;;
 		b)
-			BETA=true
+			ALPHABETA=beta
 			;;
 		h)
 			usage
@@ -72,17 +77,17 @@ fi
 cd "$BASE"
 pnpx jetpack install --all
 
-DEPS="$(tools/find-project-deps.php)"
+DEPS="$(pnpx jetpack dependencies json)"
 declare -A RELEASED
 
 # Release a project
 #  - $1: Project slug.
-#  - $2: Beta flag.
+#  - $2: Alpha/Beta flag.
 #  - $3: Project that depended on this project.
 #  - $4: Indent.
 function releaseProject {
 	local SLUG="$1"
-	local BETA="$2"
+	local ALPHABETA="$2"
 	local FROM="$3"
 	local I="$4"
 
@@ -104,8 +109,6 @@ function releaseProject {
 	local CL
 	if [[ -x vendor/bin/changelogger ]]; then
 		CL=vendor/bin/changelogger
-	elif [[ -x bin/changelogger ]]; then
-		CL=bin/changelogger
 	else
 		yellow "${I}No changelogger! Skipping."
 		return
@@ -117,7 +120,11 @@ function releaseProject {
 		ARGS+=( "$VERBOSE" )
 	fi
 	ARGS+=( "--default-first-version" )
-	if $BETA; then
+	if [[ "$ALPHABETA" == "alpha" ]]; then
+		local P=$(alpha_tag "$CL" composer.json 1)
+		[[ "$P" == "alpha" ]] && die "Cannot use -a with $SLUG"
+		ARGS+=( "--prerelease=$P" )
+	elif [[ "$ALPHABETA" == "beta" ]]; then
 		ARGS+=( "--prerelease=beta" )
 	fi
 	debug "${I}  $CL ${ARGS[*]}"
@@ -128,7 +135,7 @@ function releaseProject {
 	local VER=$($CL version current)
 
 	# Replace $$next-version$$
-	"$BASE"/tools/replace-next-version-tag.sh "$SLUG" "${VER%-beta}"
+	"$BASE"/tools/replace-next-version-tag.sh "$SLUG" "$(sed -E -e 's/-(beta|a\.[0-9]+)$//' <<<"$VER")"
 
 	# Update versions.
 	ARGS=()
@@ -142,20 +149,19 @@ function releaseProject {
 	# Release deps.
 	debug "${I}  Processing dependencies..."
 	for D in $(jq --argjson deps "$DEPS" --arg slug "$SLUG" -nr '$deps[$slug] // [] | .[]'); do
-		releaseProject "$D" false "$SLUG" "$I  "
+		releaseProject "$D" "" "$SLUG" "$I  "
 	done
 
 	debug "${I}Done processing $SLUG!"
 }
 
-releaseProject "$SLUG" "$BETA"
+releaseProject "$SLUG" "$ALPHABETA"
 
 cd "$BASE"
 info "Updating dependencies..."
 SLUGS=()
 # Use a temp variable so pipefail works
-TMP="$(tools/get-build-order.php 2>/dev/null)"
-TMP=monorepo$'\n'"$TMP"
+TMP="$(pnpx jetpack dependencies build-order --pretty)"
 mapfile -t SLUGS <<<"$TMP"
 for SLUG in "${SLUGS[@]}"; do
 	if [[ -n "${RELEASED[$SLUG]}" ]]; then
@@ -166,6 +172,9 @@ for SLUG in "${SLUGS[@]}"; do
 		tools/check-intra-monorepo-deps.sh $VERBOSE -u "$SLUG"
 	fi
 done
+
+debug "  Updating pnpm.lock..."
+pnpm install --silent
 
 cat <<-EOM
 
@@ -182,8 +191,6 @@ if [[ "$SLUG" == plugins/* ]]; then
 	VER=
 	if [[ -x "projects/$SLUG/vendor/bin/changelogger" ]]; then
 		VER=$(cd "projects/$SLUG" && vendor/bin/changelogger version current)
-	elif [[ -x "projects/$SLUG/bin/changelogger" ]]; then
-		VER=$(cd "projects/$SLUG" && bin/changelogger version current)
 	fi
 	if [[ -n "$VER" ]]; then
 		cat <<-EOM

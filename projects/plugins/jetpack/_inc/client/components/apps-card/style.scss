@@ -65,6 +65,26 @@
 	font-style: italic;
 }
 
+.jp-apps-card__apps-badges {
+	display: flex;
+	flex-direction: row;
+	justify-content: center;
+	align-items: center;
+
+	@include breakpoint( '<480px' ) {
+		flex-direction: column;
+
+		.apps-badge:first-child {
+			margin-right: 0;
+		}
+
+		.apps-badge:last-child {
+			margin-top: 1rem;
+		}
+	}
+
+}
+
 .jp-themes-card {
 	margin-bottom: rem( 20px );
 }

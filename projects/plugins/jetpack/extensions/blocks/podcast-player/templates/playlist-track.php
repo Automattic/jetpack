@@ -10,21 +10,18 @@ namespace Automattic\Jetpack\Extensions\Podcast_Player;
 /**
  * Template variables.
  *
- * @var array $attachment
- * @var array $primary_colors
- * @var array $secondary_colors
- * @var bool  $is_active
+ * @var array $template_props
  */
 
-$track_title    = $attachment['title'];
-$track_link     = empty( $attachment['link'] ) ? $attachment['src'] : $attachment['link'];
-$track_duration = ! empty( $attachment['duration'] ) ? $attachment['duration'] : '';
+$track_title    = $template_props['attachment']['title'];
+$track_link     = empty( $template_props['attachment']['link'] ) ? $template_props['attachment']['src'] : $template_props['attachment']['link'];
+$track_duration = ! empty( $template_props['attachment']['duration'] ) ? $template_props['attachment']['duration'] : '';
 
-$class = 'jetpack-podcast-player__track ' . $secondary_colors['class'];
-$style = $secondary_colors['style'];
-if ( $is_active ) {
-	$class = 'jetpack-podcast-player__track is-active ' . $primary_colors['class'];
-	$style = $primary_colors['style'];
+$class = 'jetpack-podcast-player__track ' . $template_props['secondary_colors']['class'];
+$style = $template_props['secondary_colors']['style'];
+if ( $template_props['is_active'] ) {
+	$class = 'jetpack-podcast-player__track is-active ' . $template_props['primary_colors']['class'];
+	$style = $template_props['primary_colors']['style'];
 }
 
 ?>
@@ -37,7 +34,7 @@ if ( $is_active ) {
 		class="jetpack-podcast-player__track-link jetpack-podcast-player__link"
 		href="<?php echo esc_url( $track_link ); ?>"
 		role="button"
-		<?php echo $is_active ? 'aria-current="track"' : ''; ?>
+		<?php echo $template_props['is_active'] ? 'aria-current="track"' : ''; ?>
 	>
 		<span class="jetpack-podcast-player__track-status-icon"></span>
 		<span class="jetpack-podcast-player__track-title"><?php echo esc_html( $track_title ); ?></span>

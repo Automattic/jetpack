@@ -2,7 +2,7 @@
  * External dependencies
  */
 import { __ } from '@wordpress/i18n';
-import { ToggleControl, PanelBody, RangeControl } from '@wordpress/components';
+import { ToggleControl, PanelBody, RangeControl, TextareaControl } from '@wordpress/components';
 import {
 	ContrastChecker,
 	PanelColorSettings,
@@ -29,6 +29,7 @@ import {
 	DEFAULT_SPACING_VALUE,
 	DEFAULT_FONTSIZE_VALUE,
 } from './constants';
+import { isSimpleSite } from '../../shared/site-type-utils';
 
 export default function SubscriptionControls( {
 	buttonBackgroundColor,
@@ -51,6 +52,7 @@ export default function SubscriptionControls( {
 	subscriberCount,
 	textColor,
 	buttonWidth,
+	successMessage,
 } ) {
 	return (
 		<>
@@ -245,6 +247,24 @@ export default function SubscriptionControls( {
 					} }
 				/>
 			</PanelBody>
+			{ ! isSimpleSite() && (
+				<PanelBody
+					title={ __( 'Success Message Text', 'jetpack' ) }
+					initialOpen={ false }
+					className="wp-block-jetpack-subscriptions__successpanel"
+				>
+					<TextareaControl
+						value={ successMessage }
+						label={ __( 'Success Message Text', 'jetpack' ) }
+						hideLabelFromVision={ true }
+						help={ __(
+							'Save your custom message to display when a user subscribes your website.',
+							'jetpack'
+						) }
+						onChange={ newSuccessMessage => setAttributes( { successMessage: newSuccessMessage } ) }
+					/>
+				</PanelBody>
+			) }
 		</>
 	);
 }

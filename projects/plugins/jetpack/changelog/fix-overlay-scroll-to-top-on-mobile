@@ -1,4 +1,0 @@
-Significance: patch
-Type: bugfix
-
-Search: fixed modal not scrolling to top when keyboard is opened on mobile devices

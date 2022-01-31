@@ -10,18 +10,24 @@ class WP_Test_Jetpack_Sync_WP_Super_Cache extends WP_Test_Jetpack_Sync_Base {
 
 	static $wp_super_cache_enabled;
 
-	public static function setUpBeforeClass() {
-		parent::setUpBeforeClass();
-		
+	/**
+	 * Set up before class.
+	 */
+	public static function set_up_before_class() {
+		parent::set_up_before_class();
+
 		self::$wp_super_cache_enabled = true;
 	}
 
-	public function setUp() {
+	/**
+	 * Set up.
+	 */
+	public function set_up() {
 		if ( ! self::$wp_super_cache_enabled ) {
 			$this->markTestSkipped();
 			return;
 		}
-		parent::setUp();
+		parent::set_up();
 		$this->resetCallableAndConstantTimeouts();
 		set_current_screen( 'post_user' );
 	}

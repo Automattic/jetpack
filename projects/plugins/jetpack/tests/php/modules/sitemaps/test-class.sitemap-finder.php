@@ -33,7 +33,7 @@ class WP_Test_Jetpack_Sitemap_Finder extends WP_UnitTestCase {
 			$array['path'] . '?' . $array['query']
 		);
 
-		$this->assertEquals( $result['sitemap_name'], 'sitemap.xml' );
+		$this->assertEquals( 'sitemap.xml', $result['sitemap_name'] );
 	}
 
 }

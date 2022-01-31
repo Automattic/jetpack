@@ -17,7 +17,7 @@ import { getRedirectUrl } from '@automattic/jetpack-components';
  */
 import analytics from 'lib/analytics';
 import { isModuleAvailable } from 'state/modules';
-import { isOfflineMode, hasConnectedOwner, authorizeUserInPlace } from 'state/connection';
+import { isOfflineMode, hasConnectedOwner, connectUser } from 'state/connection';
 import DashItem from 'components/dash-item';
 
 class DashMonitor extends Component {
@@ -36,7 +36,7 @@ class DashMonitor extends Component {
 		this.props.updateOptions( { monitor: true } );
 	};
 
-	connect = () => this.props.authorizeUserInPlace();
+	connect = () => this.props.connectUser();
 
 	getContent() {
 		const labelName = __( 'Downtime monitoring', 'jetpack' );
@@ -121,8 +121,8 @@ export default connect(
 		hasConnectedOwner: hasConnectedOwner( state ),
 	} ),
 	dispatch => ( {
-		authorizeUserInPlace: () => {
-			return dispatch( authorizeUserInPlace() );
+		connectUser: () => {
+			return dispatch( connectUser() );
 		},
 	} )
 )( DashMonitor );

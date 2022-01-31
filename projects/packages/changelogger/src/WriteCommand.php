@@ -1,11 +1,9 @@
-<?php // phpcs:ignore WordPress.Files.FileName.NotHyphenatedLowercase
+<?php
 /**
  * "Write" command for the changelogger tool CLI.
  *
  * @package automattic/jetpack-changelogger
  */
-
-// phpcs:disable WordPress.NamingConventions.ValidVariableName
 
 namespace Automattic\Jetpack\Changelogger;
 
@@ -514,11 +512,9 @@ EOF
 	 * @return string|int New version, or int on error.
 	 */
 	protected function nextVersion( InputInterface $input, OutputInterface $output, Changelog $changelog, array $changes, $amendedVersion ) {
-		$extra = array_filter(
-			array(
-				'prerelease' => $input->getOption( 'prerelease' ),
-				'buildinfo'  => $input->getOption( 'buildinfo' ),
-			)
+		$extra = array(
+			'prerelease' => $input->getOption( 'prerelease' ),
+			'buildinfo'  => $input->getOption( 'buildinfo' ),
 		);
 
 		// Is there a version in the changelog?
@@ -558,7 +554,7 @@ EOF
 
 		// Get the next version from the versioning plugin.
 		try {
-			$version = $this->versioning->nextVersion( $latest->getVersion(), $verchanges, $extra );
+			$version = VersionCommand::getNextVersion( $changelog->getVersions(), $verchanges, $extra );
 		} catch ( InvalidArgumentException $ex ) {
 			// Was it the version from the changelog that made it fail, or something else?
 			try {

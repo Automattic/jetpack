@@ -8,9 +8,9 @@ class WP_Test_Jetpack_Shortcodes_Facebook extends WP_UnitTestCase {
 	/**
 	 * After a test method runs, reset any state in WordPress the test method might have changed.
 	 */
-	public function tearDown() {
+	public function tear_down() {
 		wp_reset_postdata();
-		parent::tearDown();
+		parent::tear_down();
 	}
 
 	/**
@@ -55,7 +55,7 @@ class WP_Test_Jetpack_Shortcodes_Facebook extends WP_UnitTestCase {
 		ob_start();
 		the_content();
 		$actual = ob_get_clean();
-		$this->assertContains(
+		$this->assertStringContainsString(
 			sprintf(
 				'<div class="fb-video" data-allowfullscreen="true" data-href="%s"></div>',
 				$url
@@ -84,7 +84,7 @@ class WP_Test_Jetpack_Shortcodes_Facebook extends WP_UnitTestCase {
 		ob_start();
 		the_content();
 		$actual = ob_get_clean();
-		$this->assertContains(
+		$this->assertStringContainsString(
 			sprintf(
 				'<div class="fb-video" data-allowfullscreen="true" data-href="%s"></div>',
 				$url
@@ -113,7 +113,7 @@ class WP_Test_Jetpack_Shortcodes_Facebook extends WP_UnitTestCase {
 		ob_start();
 		the_content();
 		$actual = ob_get_clean();
-		$this->assertContains(
+		$this->assertStringContainsString(
 			sprintf(
 				'<div class="fb-video" data-allowfullscreen="true" data-href="%s"></div>',
 				$url

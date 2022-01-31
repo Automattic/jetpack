@@ -16,6 +16,7 @@ export const getVideoPressUrl = (
 		seekbarColor,
 		seekbarPlayedColor,
 		seekbarLoadingColor,
+		useAverageColor,
 	}
 ) => {
 	if ( ! guid ) {
@@ -32,6 +33,7 @@ export const getVideoPressUrl = (
 	// - Preload: None by default.
 	const options = {
 		resizeToParent: true,
+		cover: true,
 		...( autoplay && { autoPlay: true } ),
 		...( ! controls && { controls: false } ),
 		...( loop && { loop: true } ),
@@ -42,6 +44,7 @@ export const getVideoPressUrl = (
 		...( seekbarColor !== '' && { sbc: seekbarColor } ),
 		...( seekbarPlayedColor !== '' && { sbpc: seekbarPlayedColor } ),
 		...( seekbarLoadingColor !== '' && { sblc: seekbarLoadingColor } ),
+		...( useAverageColor && { useAverageColor: true } ),
 	};
 	return addQueryArgs( `https://videopress.com/v/${ guid }`, options );
 };

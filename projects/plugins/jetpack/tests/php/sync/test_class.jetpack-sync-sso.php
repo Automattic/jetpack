@@ -4,8 +4,11 @@
  * Testing sync of values for SSO.
  */
 class WP_Test_Jetpack_Sync_SSO extends WP_Test_Jetpack_Sync_Base {
-	public function setUp() {
-		parent::setUp();
+	/**
+	 * Set up.
+	 */
+	public function set_up() {
+		parent::set_up();
 		$this->sender->do_sync();
 		$this->resetCallableAndConstantTimeouts();
 	}

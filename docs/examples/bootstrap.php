@@ -3,6 +3,11 @@
  * PHPUnit bootstrap file to apply WordPress core's monkey-patching to versions
  * of PHPUnit that don't natively support PHP 8.0 for PHP 8.0.
  *
+ * WARNING: This is outdated as of September 2021. WordPress is in the midst of
+ * updating their stuff to stop being hacky, but have left WP 5.7 and 5.8 in a
+ * strange in-between state. Once we only support 5.9+ we should update this
+ * for whatever it turns out to be.
+ *
  * @package automattic/jetpack
  */
 

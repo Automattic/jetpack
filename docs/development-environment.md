@@ -16,7 +16,6 @@
         * [Pnpm package manager](#pnpm)
         * [PHP](#php)
         * [Composer](#composer)
-        * [PHPUnit](#phpunit)
         * [jetpack CLI](#jetpack-cli)
       * [Check if your environment is ready for Jetpack development](#check-if-your-environment-is-ready-for-jetpack-development)
 * [Start development](#development-workflow)
@@ -111,7 +110,7 @@ You'll need all the tools below to work in the Jetpack monorepo.
 
 	Composer is a PHP package manager and it's used to install packages that are required to run development tools and build projects.
 
-	The monorepo requires version 2.0.x.
+	The monorepo requires version 2.2.x.
 
 	 * ##### Installing Composer on macOS
 
@@ -127,30 +126,12 @@ You'll need all the tools below to work in the Jetpack monorepo.
 		brew install composer
 		```
 
-		The latest composer in Homebrew at the time of writing is 2.1.x, but we currently require 2.0.x. If you need to downgrade to a specific version, we suggest these instructions:
-
-		```sh
-		composer self-update 2.0.14
-		```
-
 	 * ##### Installing Composer on other systems
 
 		We recommend visiting the [official Composer download instructions](https://getcomposer.org/download/) to install composer on other operating systems.
 
 		Most Linux distributions may have an older version of Composer as an installable package, but installing from the official source ensures you have the most up to date version.
 		Note that [we recommend using the Windows Subsystem for Linux](#developing-and-contributing-code-to-jetpack-from-a-windows-machine) to run Composer and PHP.
-
-* #### PHPUnit
-
-	PHPUnit is the unit test framework we use in Jetpack.
-
-	If you use [our Docker setup](../tools/docker/README.md), it will be available to you in the container.
-
-	If you use your own local setup, you will need different setups based on the project you're working on:
-	- Our Composer packages require PHPUnit as you install dependencies, so you do not need to install it on your system.
-	- Our plugins rely on a specific version of PHPUnit as well as a local installation of WordPress' test development environment.
-
-	See the [Unit-testing](#unit-testing) to find out more.
 
 * #### jetpack CLI
 
@@ -215,6 +196,8 @@ If you're not familiar with PHP Unit Testing, you can also check [this tutorial]
 To get started, there are several ways to run the unit tests, depending on how you set up your development environment.
 
 ## PHP unit tests
+
+⚠️ This section is in need of update! Changes to how WordPress sets up its tests mean that a global version of phpunit is no longer provided.
 
 * ### Docker
 

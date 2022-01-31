@@ -7,12 +7,25 @@ import VerboseRenderer from 'listr-verbose-renderer';
 import UpdateRenderer from 'listr-update-renderer';
 import execa from 'execa';
 import PATH from 'path-name';
+import { fileURLToPath } from 'url';
 
 /**
  * Internal dependencies
  */
-import { chalkJetpackGreen } from '../helpers/styling';
+import { chalkJetpackGreen } from '../helpers/styling.js';
 
+/**
+ * Show us the status of the cli, such as the currenet linked directory.
+ */
+function cliStatus() {
+	console.log(
+		chalkJetpackGreen(
+			'Jetpack CLI is currently linked to ' +
+				fileURLToPath( new URL( `../../../`, import.meta.url ) )
+		)
+	);
+	console.log( 'To change the linked directory of the CLI, run `pnpm cli-setup` ' );
+}
 /**
  * CLI link.
  *
@@ -109,6 +122,17 @@ export function cliDefine( yargs ) {
 				() => {},
 				argv => {
 					cliUnlink( argv );
+					if ( argv.v ) {
+						console.log( argv );
+					}
+				}
+			)
+			.command(
+				'status',
+				'Get the status of the CLI',
+				() => {},
+				argv => {
+					cliStatus( argv );
 					if ( argv.v ) {
 						console.log( argv );
 					}

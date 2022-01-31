@@ -1,6 +1,6 @@
 ########
 #
-# This file is deprecated. Please use `jetpack-docker-config.json` config for any custom mappings
+# This file is deprecated. Please use `jetpack-docker-config.yml` config for any custom mappings
 #
 ########
 

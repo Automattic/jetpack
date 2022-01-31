@@ -32,11 +32,11 @@ class Table_Checksum {
 	public $table_configuration = array();
 
 	/**
-	 * Perfom Text Conversion to UTF8.
+	 * Perform Text Conversion to latin1.
 	 *
 	 * @var boolean
 	 */
-	private $perform_text_convesion = false;
+	protected $perform_text_conversion = false;
 
 	/**
 	 * Field to be used for range queries.
@@ -60,7 +60,7 @@ class Table_Checksum {
 	public $checksum_fields = array();
 
 	/**
-	 * Field(s) to be used in generating the checksum value that need utf8 conversion.
+	 * Field(s) to be used in generating the checksum value that need latin1 conversion.
 	 *
 	 * @var array
 	 */
@@ -106,28 +106,35 @@ class Table_Checksum {
 	 *
 	 * @var mixed|null
 	 */
-	private $parent_table = null;
+	protected $parent_table = null;
 
 	/**
 	 * What field to use for the parent table join, if it has a "parent" table.
 	 *
 	 * @var mixed|null
 	 */
-	private $parent_join_field = null;
+	protected $parent_join_field = null;
 
 	/**
 	 * What field to use for the table join, if it has a "parent" table.
 	 *
 	 * @var mixed|null
 	 */
-	private $table_join_field = null;
+	protected $table_join_field = null;
+
+	/**
+	 * Some tables might not exist on the remote, and we want to verify they exist, before trying to query them.
+	 *
+	 * @var callable
+	 */
+	protected $is_table_enabled_callback = false;
 
 	/**
 	 * Table_Checksum constructor.
 	 *
 	 * @param string  $table The table to calculate checksums for.
 	 * @param string  $salt  Optional salt to add to the checksum.
-	 * @param boolean $perform_text_conversion If text fields should be UTF8 converted.
+	 * @param boolean $perform_text_conversion If text fields should be latin1 converted.
 	 *
 	 * @throws Exception Throws exception from inner functions.
 	 */
@@ -156,6 +163,13 @@ class Table_Checksum {
 
 		$this->prepare_fields( $this->table_configuration );
 
+		// Run any callbacks to check if a table is enabled or not.
+		if (
+			is_callable( $this->is_table_enabled_callback )
+			&& ! call_user_func( $this->is_table_enabled_callback, $table )
+		) {
+			throw new Exception( "Unable to use table name: $table" );
+		}
 	}
 
 	/**
@@ -163,18 +177,18 @@ class Table_Checksum {
 	 *
 	 * @return array
 	 */
-	private function get_default_tables() {
+	protected function get_default_tables() {
 		global $wpdb;
 
 		return array(
-			'posts'              => array(
+			'posts'                      => array(
 				'table'           => $wpdb->posts,
 				'range_field'     => 'ID',
 				'key_fields'      => array( 'ID' ),
 				'checksum_fields' => array( 'post_modified_gmt' ),
 				'filter_values'   => Sync\Settings::get_disallowed_post_types_structured(),
 			),
-			'postmeta'           => array(
+			'postmeta'                   => array(
 				'table'                => $wpdb->postmeta,
 				'range_field'          => 'post_id',
 				'key_fields'           => array( 'post_id', 'meta_key' ),
@@ -184,7 +198,7 @@ class Table_Checksum {
 				'parent_join_field'    => 'ID',
 				'table_join_field'     => 'post_id',
 			),
-			'comments'           => array(
+			'comments'                   => array(
 				'table'           => $wpdb->comments,
 				'range_field'     => 'comment_ID',
 				'key_fields'      => array( 'comment_ID' ),
@@ -203,7 +217,7 @@ class Table_Checksum {
 					),
 				),
 			),
-			'commentmeta'        => array(
+			'commentmeta'                => array(
 				'table'                => $wpdb->commentmeta,
 				'range_field'          => 'comment_id',
 				'key_fields'           => array( 'comment_id', 'meta_key' ),
@@ -213,7 +227,7 @@ class Table_Checksum {
 				'parent_join_field'    => 'comment_ID',
 				'table_join_field'     => 'comment_id',
 			),
-			'terms'              => array(
+			'terms'                      => array(
 				'table'                => $wpdb->terms,
 				'range_field'          => 'term_id',
 				'key_fields'           => array( 'term_id' ),
@@ -221,14 +235,14 @@ class Table_Checksum {
 				'checksum_text_fields' => array( 'name', 'slug' ),
 				'parent_table'         => 'term_taxonomy',
 			),
-			'termmeta'           => array(
+			'termmeta'                   => array(
 				'table'                => $wpdb->termmeta,
 				'range_field'          => 'term_id',
 				'key_fields'           => array( 'term_id', 'meta_key' ),
 				'checksum_text_fields' => array( 'meta_key', 'meta_value' ),
 				'parent_table'         => 'term_taxonomy',
 			),
-			'term_relationships' => array(
+			'term_relationships'         => array(
 				'table'             => $wpdb->term_relationships,
 				'range_field'       => 'object_id',
 				'key_fields'        => array( 'object_id' ),
@@ -237,7 +251,7 @@ class Table_Checksum {
 				'parent_join_field' => 'term_taxonomy_id',
 				'table_join_field'  => 'term_taxonomy_id',
 			),
-			'term_taxonomy'      => array(
+			'term_taxonomy'              => array(
 				'table'                => $wpdb->term_taxonomy,
 				'range_field'          => 'term_taxonomy_id',
 				'key_fields'           => array( 'term_taxonomy_id' ),
@@ -245,8 +259,50 @@ class Table_Checksum {
 				'checksum_text_fields' => array( 'taxonomy', 'description' ),
 				'filter_values'        => Sync\Settings::get_allowed_taxonomies_structured(),
 			),
-			'links'              => $wpdb->links, // TODO describe in the array format or add exceptions.
-			'options'            => $wpdb->options, // TODO describe in the array format or add exceptions.
+			'links'                      => $wpdb->links, // TODO describe in the array format or add exceptions.
+			'options'                    => $wpdb->options, // TODO describe in the array format or add exceptions.
+			'woocommerce_order_items'    => array(
+				'table'                     => "{$wpdb->prefix}woocommerce_order_items",
+				'range_field'               => 'order_item_id',
+				'key_fields'                => array( 'order_item_id' ),
+				'checksum_fields'           => array( 'order_id' ),
+				'checksum_text_fields'      => array( 'order_item_name', 'order_item_type' ),
+				'is_table_enabled_callback' => array( $this, 'enable_woocommerce_tables' ),
+			),
+			'woocommerce_order_itemmeta' => array(
+				'table'                     => "{$wpdb->prefix}woocommerce_order_itemmeta",
+				'range_field'               => 'order_item_id',
+				'key_fields'                => array( 'order_item_id', 'meta_key' ),
+				'checksum_text_fields'      => array( 'meta_key', 'meta_value' ),
+				'filter_values'             => Sync\Settings::get_allowed_order_itemmeta_structured(),
+				'parent_table'              => 'woocommerce_order_items',
+				'parent_join_field'         => 'order_item_id',
+				'table_join_field'          => 'order_item_id',
+				'is_table_enabled_callback' => array( $this, 'enable_woocommerce_tables' ),
+			),
+			'users'                      => array(
+				'table'                => $wpdb->users,
+				'range_field'          => 'ID',
+				'key_fields'           => array( 'ID' ),
+				'checksum_text_fields' => array( 'user_login', 'user_nicename', 'user_email', 'user_url', 'user_registered', 'user_status', 'display_name' ),
+				'filter_values'        => array(),
+			),
+
+			/**
+			 * Usermeta is a special table, as it needs to use a custom override flow,
+			 * as the user roles, capabilities, locale, mime types can be filtered by plugins.
+			 * This prevents us from doing a direct comparison in the database.
+			 */
+			'usermeta'                   => array(
+				'table'           => $wpdb->users,
+				/**
+				 * Range field points to ID, which in this case is the `WP_User` ID,
+				 * since we're querying the whole WP_User objects, instead of meta entries in the DB.
+				 */
+				'range_field'     => 'ID',
+				'key_fields'      => array(),
+				'checksum_fields' => array(),
+			),
 		);
 	}
 
@@ -255,16 +311,17 @@ class Table_Checksum {
 	 *
 	 * @param array $table_configuration The table configuration array.
 	 */
-	private function prepare_fields( $table_configuration ) {
-		$this->key_fields            = $table_configuration['key_fields'];
-		$this->range_field           = $table_configuration['range_field'];
-		$this->checksum_fields       = isset( $table_configuration['checksum_fields'] ) ? $table_configuration['checksum_fields'] : array();
-		$this->checksum_text_fields  = isset( $table_configuration['checksum_text_fields'] ) ? $table_configuration['checksum_text_fields'] : array();
-		$this->filter_values         = isset( $table_configuration['filter_values'] ) ? $table_configuration['filter_values'] : null;
-		$this->additional_filter_sql = ! empty( $table_configuration['filter_sql'] ) ? $table_configuration['filter_sql'] : '';
-		$this->parent_table          = isset( $table_configuration['parent_table'] ) ? $table_configuration['parent_table'] : null;
-		$this->parent_join_field     = isset( $table_configuration['parent_join_field'] ) ? $table_configuration['parent_join_field'] : $table_configuration['range_field'];
-		$this->table_join_field      = isset( $table_configuration['table_join_field'] ) ? $table_configuration['table_join_field'] : $table_configuration['range_field'];
+	protected function prepare_fields( $table_configuration ) {
+		$this->key_fields                = $table_configuration['key_fields'];
+		$this->range_field               = $table_configuration['range_field'];
+		$this->checksum_fields           = isset( $table_configuration['checksum_fields'] ) ? $table_configuration['checksum_fields'] : array();
+		$this->checksum_text_fields      = isset( $table_configuration['checksum_text_fields'] ) ? $table_configuration['checksum_text_fields'] : array();
+		$this->filter_values             = isset( $table_configuration['filter_values'] ) ? $table_configuration['filter_values'] : null;
+		$this->additional_filter_sql     = ! empty( $table_configuration['filter_sql'] ) ? $table_configuration['filter_sql'] : '';
+		$this->parent_table              = isset( $table_configuration['parent_table'] ) ? $table_configuration['parent_table'] : null;
+		$this->parent_join_field         = isset( $table_configuration['parent_join_field'] ) ? $table_configuration['parent_join_field'] : $table_configuration['range_field'];
+		$this->table_join_field          = isset( $table_configuration['table_join_field'] ) ? $table_configuration['table_join_field'] : $table_configuration['range_field'];
+		$this->is_table_enabled_callback = isset( $table_configuration['is_table_enabled_callback'] ) ? $table_configuration['is_table_enabled_callback'] : false;
 	}
 
 	/**
@@ -275,7 +332,7 @@ class Table_Checksum {
 	 * @return mixed|string
 	 * @throws Exception Throw an exception on validation failure.
 	 */
-	private function validate_table_name( $table ) {
+	protected function validate_table_name( $table ) {
 		if ( empty( $table ) ) {
 			throw new Exception( 'Invalid table name: empty' );
 		}
@@ -283,8 +340,6 @@ class Table_Checksum {
 		if ( ! array_key_exists( $table, $this->allowed_tables ) ) {
 			throw new Exception( "Invalid table name: $table not allowed" );
 		}
-
-		// TODO other checks if such are needed.
 
 		return $this->allowed_tables[ $table ]['table'];
 	}
@@ -296,7 +351,7 @@ class Table_Checksum {
 	 *
 	 * @throws Exception Throw an exception on failure to validate.
 	 */
-	private function validate_fields( $fields ) {
+	protected function validate_fields( $fields ) {
 		foreach ( $fields as $field ) {
 			if ( ! preg_match( '/^[0-9,a-z,A-Z$_]+$/i', $field ) ) {
 				throw new Exception( "Invalid field name: $field is not allowed" );
@@ -314,7 +369,7 @@ class Table_Checksum {
 	 * @return bool
 	 * @throws Exception Throw an exception on failure to validate.
 	 */
-	private function validate_fields_against_table( $fields ) {
+	protected function validate_fields_against_table( $fields ) {
 		global $wpdb;
 
 		$valid_fields = array();
@@ -341,7 +396,7 @@ class Table_Checksum {
 	 *
 	 * @throws Exception Throw an exception on failure to validate in the internal functions.
 	 */
-	private function validate_input() {
+	protected function validate_input() {
 		$fields = array_merge( array( $this->range_field ), $this->key_fields, $this->checksum_fields, $this->checksum_text_fields );
 
 		$this->validate_fields( $fields );
@@ -356,7 +411,7 @@ class Table_Checksum {
 	 *
 	 * @return array|null
 	 */
-	private function prepare_filter_values_as_sql( $filter_values = array(), $table_prefix = '' ) {
+	protected function prepare_filter_values_as_sql( $filter_values = array(), $table_prefix = '' ) {
 		global $wpdb;
 
 		if ( ! is_array( $filter_values ) ) {
@@ -463,13 +518,13 @@ class Table_Checksum {
 	 *
 	 * @return string
 	 *
-	 * @throws Exception Throws and exception if validation fails in the internal function calls.
+	 * @throws Exception Throws an exception if validation fails in the internal function calls.
 	 */
-	private function build_checksum_query( $range_from = null, $range_to = null, $filter_values = null, $granular_result = false ) {
+	protected function build_checksum_query( $range_from = null, $range_to = null, $filter_values = null, $granular_result = false ) {
 		global $wpdb;
 
 		// Escape the salt.
-		$salt = $wpdb->prepare( '%s', $this->salt ); // TODO escape or prepare statement.
+		$salt = $wpdb->prepare( '%s', $this->salt );
 
 		// Prepare the compound key.
 		$key_fields = array();
@@ -487,11 +542,11 @@ class Table_Checksum {
 		foreach ( $this->checksum_fields as $field ) {
 			$checksum_fields[] = $this->table . '.' . $field;
 		}
-		// Apply utf8 conversion if enabled.
+		// Apply latin1 conversion if enabled.
 		if ( $this->perform_text_conversion ) {
 			// Convert text fields to allow for encoding discrepancies as WP.com is latin1.
 			foreach ( $this->checksum_text_fields as $field ) {
-				$checksum_fields[] = 'CONVERT(' . $this->table . '.' . $field . ' using utf8 )';
+				$checksum_fields[] = 'CONVERT(' . $this->table . '.' . $field . ' using latin1 )';
 			}
 		} else {
 			// Conversion disabled, default to table prefixing.
@@ -609,7 +664,10 @@ class Table_Checksum {
 		}
 
 		// Only make the distinct count when we know there can be multiple entries for the range column.
-		$distinct_count = count( $this->key_fields ) > 1 ? 'DISTINCT' : '';
+		$distinct_count = '';
+		if ( count( $this->key_fields ) > 1 || $wpdb->terms === $this->table || $wpdb->term_relationships === $this->table ) {
+			$distinct_count = 'DISTINCT';
+		}
 
 		$query = "
 			SELECT
@@ -732,4 +790,37 @@ class Table_Checksum {
 			return $this->prepare_results_for_output( $result );
 		}
 	}
+
+	/**
+	 * Make sure the WooCommerce tables should be enabled for Checksum/Fix.
+	 *
+	 * @return bool
+	 */
+	protected function enable_woocommerce_tables() {
+		/**
+		 * On WordPress.com, we can't directly check if the site has support for WooCommerce.
+		 * Having the option to override the functionality here helps with syncing WooCommerce tables.
+		 *
+		 * @since 10.1
+		 *
+		 * @param bool If we should we force-enable WooCommerce tables support.
+		 */
+		$force_woocommerce_support = apply_filters( 'jetpack_table_checksum_force_enable_woocommerce', false );
+
+		// If we're forcing WooCommerce tables support, there's no need to check further.
+		// This is used on WordPress.com.
+		if ( $force_woocommerce_support ) {
+			return true;
+		}
+
+		// No need to proceed if WooCommerce is not available.
+		if ( ! class_exists( 'WooCommerce' ) ) {
+			return false;
+		}
+
+		// TODO more checks if needed. Probably query the DB to make sure the tables exist.
+
+		return true;
+	}
+
 }

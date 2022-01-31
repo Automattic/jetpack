@@ -5,28 +5,41 @@
 	It can include a list of failed URLs, what a user can do, and extra information.
 -->
 <script>
+	/**
+	 * External dependencies
+	 */
 	import { slide } from 'svelte/transition';
+
+	/**
+	 * WordPress dependencies
+	 */
+	import { __ } from '@wordpress/i18n';
+
+	/**
+	 * Internal dependencies
+	 */
 	import FoldingElement from '../../../elements/FoldingElement.svelte';
 	import MoreList from '../../../elements/MoreList.svelte';
 	import { createEventDispatcher } from 'svelte';
 	import TemplatedString from '../../../elements/TemplatedString.svelte';
 	import actionLinkTemplateVar from '../../../utils/action-link-template-var.ts';
-	import { __ } from '@wordpress/i18n';
 	import {
 		describeErrorSet,
-		textSuggestion,
+		suggestion,
 		footerComponent,
 		rawError,
 	} from '../../../utils/describe-critical-css-recommendations';
 	import supportLinkTemplateVar from '../../../utils/support-link-template-var';
+	import NumberedList from '../../../elements/NumberedList.svelte';
 
 	const dispatch = createEventDispatcher();
 
 	export let showSuggestion = true;
 	export let foldRawErrors = true;
+	export let showClosingParagraph = true;
 
 	/**
-	 * @var {ErrorSet} errorSet Error Set to display a description of, from a Recommendation or CriticalCssStatus.
+	 * @member {ErrorSet} errorSet Error Set to display a description of, from a Recommendation or CriticalCssStatus.
 	 */
 	export let errorSet;
 
@@ -61,8 +74,16 @@
 		</h5>
 
 		<p class="suggestion">
-			<TemplatedString template={textSuggestion( errorSet )} vars={templateVars} />
+			<TemplatedString template={suggestion( errorSet ).paragraph} vars={templateVars} />
+			{#if suggestion( errorSet ).list}
+				<NumberedList items={suggestion( errorSet ).list} vars={templateVars} />
+			{/if}
 		</p>
+		{#if showClosingParagraph && suggestion( errorSet ).closingParagraph}
+			<p class="suggestion-closing">
+				<TemplatedString template={suggestion( errorSet ).closingParagraph} vars={templateVars} />
+			</p>
+		{/if}
 
 		<svelte:component this={footerComponent( errorSet )} />
 	{/if}

@@ -3,8 +3,11 @@ require_jetpack_file( 'modules/sharedaddy/recaptcha.php' );
 
 class WP_Test_Jetpack_ReCaptcha extends WP_UnitTestCase {
 
-	public function setUp() {
-		parent::setUp();
+	/**
+	 * Set up.
+	 */
+	public function set_up() {
+		parent::set_up();
 
 		$this->site_key       = 'sitekey';
 		$this->secret_key     = 'secretkey';
@@ -92,17 +95,17 @@ class WP_Test_Jetpack_ReCaptcha extends WP_UnitTestCase {
 
 	public function test_get_recaptcha_html() {
 		$config = $this->recaptcha->get_default_config();
-		$html = $this->recaptcha->get_recaptcha_html();
+		$html   = $this->recaptcha->get_recaptcha_html();
 
 		// Make sure div tag appears with expected attributes.
-		$this->assertContains( '<div', $html );
-		$this->assertContains( $this->site_key, $html );
-		$this->assertContains( '</div>', $html );
+		$this->assertStringContainsString( '<div', $html );
+		$this->assertStringContainsString( $this->site_key, $html );
+		$this->assertStringContainsString( '</div>', $html );
 
 		// Make sure script tag appears with expected language.
-		$this->assertContains( '<script', $html );
-		$this->assertContains( $config['language'], $html );
-		$this->assertContains( '</script>', $html );
+		$this->assertStringContainsString( '<script', $html );
+		$this->assertStringContainsString( $config['language'], $html );
+		$this->assertStringContainsString( '</script>', $html );
 	}
 
 	/**
@@ -113,11 +116,11 @@ class WP_Test_Jetpack_ReCaptcha extends WP_UnitTestCase {
 		$html   = $this->recaptcha_lazy->get_recaptcha_html();
 
 		// Make sure div tag appears with expected attributes.
-		$this->assertContains( '<div', $html );
-		$this->assertContains( $this->site_key, $html );
+		$this->assertStringContainsString( '<div', $html );
+		$this->assertStringContainsString( $this->site_key, $html );
 		// Make sure script URL contains expected language.
-		$this->assertContains( $config['language'], $html );
-		$this->assertContains( '</div>', $html );
+		$this->assertStringContainsString( $config['language'], $html );
+		$this->assertStringContainsString( '</div>', $html );
 	}
 
 	public function pre_http_request_response_success() {
@@ -150,10 +153,12 @@ class WP_Test_Jetpack_ReCaptcha extends WP_UnitTestCase {
 
 	protected function http_response_with_error_code( $first_error_code ) {
 		return array(
-			'body' => json_encode( array(
-				'success'     => false,
-				'error-codes' => array( $first_error_code ),
-			) ),
+			'body' => wp_json_encode(
+				array(
+					'success'     => false,
+					'error-codes' => array( $first_error_code ),
+				)
+			),
 		);
 	}
 }

@@ -34,6 +34,7 @@ class WPCOM_JSON_API_GET_Site_V1_2_Endpoint extends WPCOM_JSON_API_GET_Site_Endp
 		'jetpack'                     => '(bool) Whether the site is a Jetpack site or not',
 		'jetpack_connection'          => '(bool) Whether the site is connected to WP.com via `jetpack-connection`',
 		'is_multisite'                => '(bool) Whether the site is a Multisite site or not. Always true for WP.com sites.',
+		'site_owner'                  => '(int) User ID of the site owner',
 		'post_count'                  => '(int) The number of posts the site has',
 		'subscribers_count'           => '(int) The number of subscribers the site has',
 		'locale'                      => '(string) Primary locale code of the site',

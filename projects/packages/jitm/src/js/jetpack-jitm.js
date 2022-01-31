@@ -1,3 +1,5 @@
+import '../css/jetpack-admin-jitm.scss';
+
 jQuery( document ).ready( function ( $ ) {
 	var templates = {
 		default: function ( envelope ) {
@@ -71,7 +73,7 @@ jQuery( document ).ready( function ( $ ) {
 				html += '<div class="jitm-banner__action">';
 				html +=
 					'<a href="' +
-					envelope.url +
+					( envelope.CTA.hasOwnProperty( 'link' ) && envelope.CTA.link.length ? envelope.CTA.link : envelope.url ) +
 					'" target="' +
 					( envelope.CTA.newWindow === false || ajaxAction ? '_self' : '_blank' ) +
 					'" rel="noopener noreferrer" title="' +

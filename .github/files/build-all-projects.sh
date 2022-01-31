@@ -4,15 +4,17 @@
 set -eo pipefail
 
 BASE=$(pwd)
+. tools/includes/alpha-tag.sh
+
 if [[ -z "$BUILD_BASE" ]]; then
 	BUILD_BASE=$(mktemp -d "${TMPDIR:-/tmp}/jetpack-project-mirrors.XXXXXXXX")
 elif [[ ! -e "$BUILD_BASE" ]]; then
 	mkdir -p "$BUILD_BASE"
-elif [[ ! -d "$BUILD_DIR" ]]; then
-	echo "$BUILD_DIR already exists, and is not a directory." >&2
+elif [[ ! -d "$BUILD_BASE" ]]; then
+	echo "$BUILD_BASE already exists, and is not a directory." >&2
 	exit 1
-elif [[ "$(ls -A -- "$BUILD_DIR")" ]]; then
-	echo "Directory $BUILD_DIR already exists, and is not empty." >&2
+elif [[ "$(ls -A -- "$BUILD_BASE")" ]]; then
+	echo "Directory $BUILD_BASE already exists, and is not empty." >&2
 	exit 1
 fi
 
@@ -28,7 +30,7 @@ echo "::group::Changelogger setup"
 echo "::endgroup::"
 
 echo "::group::Determining build order"
-TMP="$(tools/get-build-order.php)"
+TMP="$(pnpx jetpack dependencies build-order --pretty --ignore-root)"
 SLUGS=()
 mapfile -t SLUGS <<<"$TMP"
 echo "::endgroup::"
@@ -36,6 +38,9 @@ echo "::endgroup::"
 EXIT=0
 
 REPO="$(jq --arg path "$BUILD_BASE/*/*" -nc '{ type: "path", url: $path, options: { monorepo: true } }')"
+
+# We need Composer to mirror path repos for plugins.
+export COMPOSER_MIRROR_PATH_REPOS=1
 
 touch "$BUILD_BASE/mirrors.txt"
 for SLUG in "${SLUGS[@]}"; do
@@ -74,7 +79,7 @@ for SLUG in "${SLUGS[@]}"; do
 			OLDLOCK=
 		fi
 	fi
-	if (cd $BASE && pnpx jetpack build "${SLUG}" -v --production); then
+	if (cd $BASE && pnpx jetpack build "${SLUG}" -v --production --timing --no-pnpm-install); then
 		FAIL=false
 	else
 		FAIL=true
@@ -96,9 +101,6 @@ for SLUG in "${SLUGS[@]}"; do
 	# Update the changelog, if applicable.
 	if [[ -x 'vendor/bin/changelogger' ]]; then
 		CHANGELOGGER=vendor/bin/changelogger
-	elif [[ -x 'bin/changelogger' ]]; then
-		# Changelogger itself doesn't have itself in vendor/.
-		CHANGELOGGER=bin/changelogger
 	elif jq -e '.["require-dev"]["automattic/jetpack-changelogger"] // false' composer.json > /dev/null; then
 		# Some plugins might build with `composer install --no-dev`.
 		CHANGELOGGER="$BASE/projects/packages/changelogger/bin/changelogger"
@@ -109,7 +111,8 @@ for SLUG in "${SLUGS[@]}"; do
 		CHANGES_DIR="$(jq -r '.extra.changelogger["changes-dir"] // "changelog"' composer.json)"
 		if [[ -d "$CHANGES_DIR" && "$(ls -- "$CHANGES_DIR")" ]]; then
 			echo "::group::Updating changelog"
-			if ! $CHANGELOGGER write --prologue='This is an alpha version! The changes listed here are not final.' --default-first-version --prerelease=alpha --release-date=unreleased --no-interaction --yes -vvv; then
+			PRERELEASE=$(alpha_tag $CHANGELOGGER composer.json 0)
+			if ! $CHANGELOGGER write --prologue='This is an alpha version! The changes listed here are not final.' --default-first-version --prerelease=$PRERELEASE --release-date=unreleased --no-interaction --yes -vvv; then
 				echo "::endgroup::"
 				echo "::error::Changelog update for ${SLUG} failed"
 				EXIT=1
@@ -145,9 +148,12 @@ for SLUG in "${SLUGS[@]}"; do
 	# Copy standard .github
 	cp -r "$BASE/.github/files/mirror-.github" "$BUILD_DIR/.github"
 
-	# Copy autotagger and npmjs-autopublisher if enabled
+	# Copy autotagger, autorelease, and/or npmjs-autopublisher if enabled
 	if jq -e '.extra.autotagger // false' composer.json > /dev/null; then
 		cp -r "$BASE/.github/files/gh-autotagger/." "$BUILD_DIR/.github/."
+	fi
+	if jq -e '.extra.autorelease // false' composer.json > /dev/null; then
+		cp -r "$BASE/.github/files/gh-autorelease/." "$BUILD_DIR/.github/."
 	fi
 	if jq -e '.extra["npmjs-autopublish"] // false' composer.json > /dev/null; then
 		cp -r "$BASE/.github/files/gh-npmjs-autopublisher/." "$BUILD_DIR/.github/."
@@ -184,6 +190,40 @@ for SLUG in "${SLUGS[@]}"; do
 		# Copy the resulting list of files into the clone.
 		xargs cp --parents --target-directory="$BUILD_DIR"
 
+	if [[ "$SLUG" == "plugins/jetpack" || "$SLUG" == "plugins/backup" ]]; then
+		echo "::group::Copying Jetpack files for backward compatibility."
+
+		OLD_VENDOR_DIR="$BUILD_DIR/vendor"
+		NEW_VENDOR_DIR="$BUILD_DIR/jetpack_vendor"
+		FILES_TO_COPY=(
+			"automattic/jetpack-roles/src/class-roles.php"
+			"automattic/jetpack-backup/src/class-package-version.php"
+			"automattic/jetpack-sync/src/class-package-version.php"
+			"automattic/jetpack-connection/src/class-package-version.php"
+			"automattic/jetpack-connection/src/class-urls.php"
+			"automattic/jetpack-sync/src/class-functions.php"
+			"automattic/jetpack-sync/src/class-queue-buffer.php"
+			"automattic/jetpack-sync/src/class-utils.php"
+			"automattic/jetpack-connection/legacy/class-jetpack-ixr-client.php"
+			"automattic/jetpack-connection/src/class-client.php"
+			"automattic/jetpack-connection/legacy/class-jetpack-signature.php"
+		)
+
+		for file in "${FILES_TO_COPY[@]}"; do
+			if [[ -f "$NEW_VENDOR_DIR/$file" ]]; then
+				dir_name=$(dirname "$file")
+				mkdir -p "$OLD_VENDOR_DIR/$dir_name"
+
+				printf "<?php // Stub to avoid errors during upgrades\nrequire_once __DIR__ . '/%s/../jetpack_vendor/%s';\n" \
+					"$(sed -E 's![^/]+!..!g' <<<"$dir_name")" \
+					"$file" \
+					> "$OLD_VENDOR_DIR/$file"
+
+			fi
+		done
+		echo "::endgroup::"
+	fi
+
 	# Remove monorepo repos from composer.json
 	JSON=$(jq --tab 'if .repositories then .repositories |= map( select( .options.monorepo | not ) ) else . end' "$BUILD_DIR/composer.json")
 	if [[ "$JSON" != "$(<"$BUILD_DIR/composer.json")" ]]; then
@@ -213,6 +253,25 @@ for SLUG in "${SLUGS[@]}"; do
 			cat <<-EOF >> "$BUILD_DIR/.npmignore"
 
 				# Package ignore file.
+				$TMP
+			EOF
+		fi
+	fi
+
+	# If autorelease is active, flag .git files to be excluded from the archive.
+	if jq -e '.extra.autorelease // false' composer.json > /dev/null; then
+		TMP=
+		if [[ -e "$BUILD_DIR/.gitattributes" ]]; then
+			TMP="$(<"$BUILD_DIR/.gitattributes")"
+		fi
+		cat <<-EOF > "$BUILD_DIR/.gitattributes"
+			# Automatically generated rules.
+			/.git*	export-ignore
+		EOF
+		if [[ -n "$TMP" ]]; then
+			cat <<-EOF >> "$BUILD_DIR/.gitattributes"
+
+				# Package attributes file.
 				$TMP
 			EOF
 		fi

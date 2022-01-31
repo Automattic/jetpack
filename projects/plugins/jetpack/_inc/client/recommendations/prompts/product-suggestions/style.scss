@@ -1,0 +1,62 @@
+@import '_inc/client/scss/variables/_colors.scss';
+@import '../../../scss/mixin_breakpoint.scss';
+@import '../../../scss/functions/rem';
+
+.jp-recommendations-product-suggestion__container {
+	text-align: center;
+	margin-bottom: 32px;
+}
+
+.jp-recommendations-product-suggestion__items {
+	display: flex;
+	flex-direction: column;
+
+	margin: 8px 16px 24px;
+
+	max-width: 660px;
+	text-align: left;
+
+	@include breakpoint( '>960px' ) {
+		display: grid;
+		gap: 16px;
+		grid-template-rows: auto;
+		grid-template-columns: 1fr 1fr;
+
+		max-width: none;
+	}
+
+	@include breakpoint( '>480px' ) {
+		margin-left: 32px;
+		margin-right: 32px;
+	}
+}
+
+.jp-recommendations-product-suggestion__item {
+	@include breakpoint( '<960px' ) {
+		margin-bottom: 16px;
+
+		&:last-of-type {
+			margin-bottom: 0;
+		}
+	}
+}
+
+.jp-recommendations-product-suggestion__introductory-pricing {
+	color: $wpui-header-dark;
+	font-size: rem( 14px );
+	line-height: 1.5;
+	letter-spacing: 0.1px;
+
+	margin-bottom: 10px;
+}
+
+.jp-recommendations-product-suggestion__money-back-guarantee {
+	margin-bottom: 24px;
+}
+
+.jp-recommendations-product-suggestion__skip {
+	display: inline-block;
+
+	font-size: rem( 16px );
+	line-height: 1.5;
+}

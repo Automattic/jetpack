@@ -1,5 +1,0 @@
-Significance: patch
-Type: bugfix
-Comment: Apply the 2x of max image size to all images, not just those smaller than 1000px
-
-

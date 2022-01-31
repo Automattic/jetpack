@@ -51,9 +51,6 @@ function twentytwenty_jetpack_setup() {
 		)
 	);
 
-	// Social Menu.
-	add_theme_support( 'jetpack-social-menu', 'svg' );
-
 	/**
 	 * Add theme support for geo-location.
 	 */

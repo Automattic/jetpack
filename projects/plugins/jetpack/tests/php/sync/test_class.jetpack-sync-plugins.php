@@ -6,15 +6,6 @@ class WP_Test_Jetpack_Sync_Plugins extends WP_Test_Jetpack_Sync_Base {
 	protected $theme;
 	const PLUGIN_ZIP = __DIR__ . '/../files/the.1.1.zip';
 
-	public function setUp() {
-		parent::setUp();
-
-	}
-
-	public function tearDown() {
-		parent::tearDown();
-	}
-
 	public function test_installing_and_removing_plugin_is_synced() {
 		$this->resetCallableAndConstantTimeouts();
 		$this->sender->do_sync();
