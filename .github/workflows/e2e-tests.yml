@@ -92,7 +92,7 @@ jobs:
       env:
         CONFIG_KEY: ${{ secrets.E2E_CONFIG_KEY }}
         COMPOSER_ROOT_VERSION: "dev-master"
-        GUTENBERG: ${{needs.create-test-matrix.outputs.runName}} == 'gutenberg'
+        GUTENBERG: ${{ needs.create-test-matrix.outputs.runName == 'gutenberg' }}
       run: |
         echo "$GUTENBERG
 
