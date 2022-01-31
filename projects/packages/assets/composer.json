@@ -1,0 +1,66 @@
+{
+	"name": "automattic/jetpack-assets",
+	"description": "Asset management utilities for Jetpack ecosystem packages",
+	"type": "jetpack-library",
+	"license": "GPL-2.0-or-later",
+	"require": {
+		"automattic/jetpack-constants": "^1.6"
+	},
+	"require-dev": {
+		"brain/monkey": "2.6.1",
+		"yoast/phpunit-polyfills": "1.0.3",
+		"automattic/jetpack-changelogger": "^3.0",
+		"wikimedia/testing-access-wrapper": "^1.0 | ^2.0"
+	},
+	"autoload": {
+		"files": [
+			"actions.php"
+		],
+		"classmap": [
+			"src/"
+		]
+	},
+	"scripts": {
+		"build-development": [
+			"pnpm run build"
+		],
+		"build-production": [
+			"pnpm run build-production"
+		],
+		"phpunit": [
+			"./vendor/phpunit/phpunit/phpunit --colors=always"
+		],
+		"test-coverage": [
+			"php -dpcov.directory=. ./vendor/bin/phpunit --coverage-clover \"$COVERAGE_DIR/php/clover.xml\"",
+			"pnpm run test-coverage"
+		],
+		"test-js": [
+			"pnpm run test"
+		],
+		"test-php": [
+			"@composer phpunit"
+		]
+	},
+	"repositories": [
+		{
+			"type": "path",
+			"url": "../*",
+			"options": {
+				"monorepo": true
+			}
+		}
+	],
+	"minimum-stability": "dev",
+	"prefer-stable": true,
+	"extra": {
+		"autotagger": true,
+		"mirror-repo": "Automattic/jetpack-assets",
+		"textdomain": "jetpack-assets",
+		"changelogger": {
+			"link-template": "https://github.com/Automattic/jetpack-assets/compare/v${old}...v${new}"
+		},
+		"branch-alias": {
+			"dev-master": "1.17.x-dev"
+		}
+	}
+}

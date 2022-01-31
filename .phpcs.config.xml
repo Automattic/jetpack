@@ -1,0 +1,22 @@
+<?xml version="1.0"?>
+<!-- This file configures everything except the list of rules. -->
+<!-- The separation is so .github/files/phpcompatibility-dev-phpcs.xml can use the same config with a different rule set. -->
+<ruleset>
+	<config name="minimum_supported_wp_version" value="5.8" />
+	<config name="testVersion" value="5.6-"/>
+
+	<!-- Use our custom filter for `.phpcsignore` and `.phpcs.dir.xml` support. -->
+	<arg name="filter" value="vendor/automattic/jetpack-phpcs-filter/src/PhpcsFilter.php" />
+	<!-- The bootstrap file is needed to get phpcs-changed to work right. -->
+	<arg name="bootstrap" value="vendor/automattic/jetpack-phpcs-filter/stdin-bootstrap.php" />
+
+	<!-- Check all PHP files in directory tree by default. -->
+	<arg name="extensions" value="php"/>
+	<file>.</file>
+
+	<!-- Show sniff codes in all reports -->
+	<arg value="s"/>
+
+	<arg name="colors"/>
+
+</ruleset>

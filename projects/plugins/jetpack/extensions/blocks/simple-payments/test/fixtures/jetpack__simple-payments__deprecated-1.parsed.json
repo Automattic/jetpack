@@ -1,0 +1,18 @@
+[
+    {
+        "blockName": "jetpack/simple-payments",
+        "attrs": {
+            "email": "bob@bob.com",
+            "featuredMediaId": 11,
+            "multiple": true,
+            "currency": "AUD",
+            "price": 10,
+            "productId": 573
+        },
+        "innerBlocks": [],
+        "innerHTML": "\n[simple-payment id=\"573\"]\n",
+        "innerContent": [
+            "\n[simple-payment id=\"573\"]\n"
+        ]
+    }
+]

@@ -1,0 +1,27 @@
+[
+    {
+        "blockName": "jetpack/send-a-message",
+        "attrs": {},
+        "innerBlocks": [
+            {
+                "blockName": "jetpack/whatsapp-button",
+                "attrs": {
+                    "countryCode": "61CX",
+                    "phoneNumber": "267 8888",
+                    "firstMessage": "My Message"
+                },
+                "innerBlocks": [],
+                "innerHTML": "\n\t<div class=\"wp-block-jetpack-whatsapp-button is-color-dark\"><a class=\"whatsapp-block__button\" href=\"https://api.whatsapp.com/send?phone=612678888&amp;text=My%20Message\" style=\"background-color:#25D366\" target=\"_self\" rel=\"noopener noreferrer\"><div>Chat on WhatsApp</div></a></div>\n\t",
+                "innerContent": [
+                    "\n\t<div class=\"wp-block-jetpack-whatsapp-button is-color-dark\"><a class=\"whatsapp-block__button\" href=\"https://api.whatsapp.com/send?phone=612678888&amp;text=My%20Message\" style=\"background-color:#25D366\" target=\"_self\" rel=\"noopener noreferrer\"><div>Chat on WhatsApp</div></a></div>\n\t"
+                ]
+            }
+        ],
+        "innerHTML": "\n<div class=\"wp-block-jetpack-send-a-message\"></div>\n\t",
+        "innerContent": [
+            "\n<div class=\"wp-block-jetpack-send-a-message\">",
+            null,
+            "</div>\n\t"
+        ]
+    }
+]

@@ -1,0 +1,65 @@
+{
+	"name": "automattic/jetpack-codesniffer",
+	"description": "Jetpack Coding Standards. Based on the WordPress Coding Standards, with some additions.",
+	"type": "phpcodesniffer-standard",
+	"license": "GPL-2.0-or-later",
+	"require": {
+		"dealerdirect/phpcodesniffer-composer-installer": "^0.7",
+		"mediawiki/mediawiki-codesniffer": "^38.0",
+		"phpcompatibility/phpcompatibility-wp": "^2.1",
+		"sirbrillig/phpcs-variable-analysis": "^2.10",
+		"wp-coding-standards/wpcs": "^2.3"
+	},
+	"require-dev": {
+		"yoast/phpunit-polyfills": "1.0.3",
+		"automattic/jetpack-changelogger": "^3.0"
+	},
+	"autoload": {
+		"classmap": [
+			"hacks/"
+		],
+		"psr-4": {
+			"Automattic\\Jetpack\\Sniffs\\": "Jetpack/Sniffs"
+		}
+	},
+	"scripts": {
+		"phpunit": [
+			"./vendor/phpunit/phpunit/phpunit --colors=always"
+		],
+		"test-coverage": [
+			"php -dpcov.directory=. ./vendor/bin/phpunit --coverage-clover \"$COVERAGE_DIR/clover.xml\""
+		],
+		"skip-test-php": [
+			"./tests/action-skip-test-php.sh"
+		],
+		"test-php": [
+			"@composer phpunit"
+		]
+	},
+	"repositories": [
+		{
+			"type": "path",
+			"url": "../*",
+			"options": {
+				"monorepo": true
+			}
+		}
+	],
+	"minimum-stability": "dev",
+	"prefer-stable": true,
+	"extra": {
+		"autotagger": true,
+		"mirror-repo": "Automattic/jetpack-codesniffer",
+		"changelogger": {
+			"link-template": "https://github.com/Automattic/jetpack-codesniffer/compare/v${old}...v${new}"
+		},
+		"branch-alias": {
+			"dev-master": "2.4.x-dev"
+		}
+	},
+	"config": {
+		"allow-plugins": {
+			"dealerdirect/phpcodesniffer-composer-installer": true
+		}
+	}
+}

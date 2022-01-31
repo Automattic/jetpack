@@ -1,0 +1,21 @@
+[
+    {
+        "clientId": "_clientId_0",
+        "name": "jetpack/story",
+        "isValid": true,
+        "attributes": {
+            "mediaFiles": [
+                {
+                    "alt": "",
+                    "caption": "",
+                    "id": "42",
+                    "mime": "video/mp4",
+                    "type": "video",
+                    "url": "http://localhost/wp-content/uploads/2021/05/wp-1600296981566.mp4"
+                }
+            ]
+        },
+        "innerBlocks": [],
+        "originalContent": "<div class=\"wp-block-jetpack-story wp-story\"></div>"
+    }
+]

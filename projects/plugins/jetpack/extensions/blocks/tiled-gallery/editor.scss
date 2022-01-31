@@ -1,0 +1,201 @@
+@import './view.scss';
+@import './variables.scss';
+@import '../../shared/styles/gutenberg-base-styles.scss';
+
+// inspired by from assets/shared/_animations loading-fade
+@keyframes tiled-gallery-img-placeholder {
+	0% {
+		background-color: var( --color-neutral-0 );
+	}
+	50% {
+		background-color: rgba( var( --color-neutral-0-rgb ), 0.5 );
+	}
+	100% {
+		background-color: var( --color-neutral-0 );
+	}
+}
+
+.wp-block-jetpack-tiled-gallery {
+	// Ensure that selected image outlines are visibile
+	padding-left: 4px;
+	padding-right: 4px;
+
+	&.is-style-square,
+	&.is-style-circle {
+		.tiled-gallery__item.is-transient img {
+			// Transient images (no src attribute) occupy no vertical space.
+			// If on a row by themself, the row is hidden.
+			// By setting the bottom margin, ensure they occupy the correct vertical space.
+			margin-bottom: 100%;
+		}
+	}
+
+	.tiled-gallery__item {
+		// Hide the focus outline that otherwise briefly appears when selecting a block.
+		> img:focus {
+			outline: none;
+		}
+
+		> img {
+			// Inspired by Calypso's placeholder mixin
+			animation: tiled-gallery-img-placeholder 1.6s ease-in-out infinite;
+		}
+
+		&.is-selected {
+			outline: 4px solid $tiled-gallery-selection;
+
+			// Disable filters when selected
+			filter: none;
+			&::before,
+			&::after {
+				content: none;
+			}
+		}
+
+		&.is-transient {
+			height: 100%;
+			width: 100%;
+			img {
+				background-position: center;
+				background-size: cover;
+				height: 100%;
+				opacity: 0.3;
+				width: 100%;
+			}
+		}
+
+		&.is-selected .tiled-gallery__item__move-menu,
+		&.is-selected .tiled-gallery__item__inline-menu {
+			background: $white;
+			border: 1px solid $dark-gray-placeholder;
+			border-radius: $radius-block-ui;
+			transition: box-shadow 0.2s ease-out;
+			@include reduce-motion("transition");
+
+			&:hover {
+				box-shadow: $shadow-popover;
+			}
+
+			.components-button {
+				color: $dark-gray-placeholder;
+				padding: 2px;
+				height: $button-size-small;
+
+				// Remove hover box shadows, since they clash with the container.
+				&:not(:disabled):not([aria-disabled="true"]):not(.is-secondary):hover {
+					box-shadow: none;
+				}
+
+				@include break-small() {
+					// Use smaller buttons to fit when there are many columns.
+					.columns-7 &,
+					.columns-8 & {
+						padding: 0;
+						width: inherit;
+						height: inherit;
+					}
+				}
+			}
+
+			.components-button:focus {
+				color: inherit;
+			}
+		}
+	}
+
+	.tiled-gallery__add-item {
+		margin-top: $tiled-gallery-gutter;
+		width: 100%;
+
+		.components-form-file-upload,
+		.components-button.tiled-gallery__add-item-button {
+			width: 100%;
+		}
+
+		.components-button.tiled-gallery__add-item-button {
+			display: flex;
+			flex-direction: column;
+			justify-content: center;
+			box-shadow: none;
+			border: none;
+			border-radius: 0;
+			min-height: 100px;
+
+			.dashicon {
+				margin-top: 10px;
+			}
+
+			&:hover,
+			&:focus {
+				border: 1px solid $gray-600;
+			}
+		}
+	}
+
+	.tiled-gallery__item__move-menu,
+	.tiled-gallery__item__inline-menu {
+		margin: $grid-unit-10;
+		display: inline-flex;
+		z-index: z-index(".block-library-gallery-item__inline-menu");
+
+		.components-button {
+			color: transparent;
+		}
+
+		@include break-small() {
+			// Use smaller buttons to fit when there are many columns.
+			.columns-7 &,
+			.columns-8 & {
+				padding: $grid-unit-05 * 0.5;
+			}
+		}
+	}
+
+	.tiled-gallery__item__inline-menu {
+		position: absolute;
+		top: -2px;
+		right: -2px;
+	}
+
+	.tiled-gallery__item__move-menu {
+		position: absolute;
+		top: -2px;
+		left: -2px;
+	}
+
+	.tiled-gallery__item__move-backward,
+	.tiled-gallery__item__move-forward,
+	.tiled-gallery__item__remove {
+		padding: 0;
+	}
+
+	.tiled-gallery__item .components-spinner {
+		position: absolute;
+		top: 50%;
+		left: 50%;
+		margin: 0;
+		transform: translate( -50%, -50% );
+	}
+
+	// Hide upload buttons in style picker preview
+	.block-editor-block-preview__content & {
+		.block-editor-media-placeholder {
+			display: none;
+		}
+	}
+}
+
+.tiled-gallery__filter-picker-menu {
+	$active-item-outline-width: 2px;
+	padding: 7px;
+
+	// Leave space between elements for active state styling
+	.components-menu-item__button + .components-menu-item__button {
+		margin-top: $active-item-outline-width;
+	}
+
+	.components-menu-item__button.is-active {
+		color: $gray-900;
+		box-shadow: 0 0 0 $active-item-outline-width $gray-600 !important;
+	}
+}

@@ -1,0 +1,36 @@
+[
+	{
+		"filePath": "/tmp/x/t/bar.js",
+		"messages": [],
+		"errorCount": 0,
+		"fatalErrorCount": 0,
+		"warningCount": 0,
+		"fixableErrorCount": 0,
+		"fixableWarningCount": 0,
+		"usedDeprecatedRules": []
+	},
+	{
+		"filePath": "/tmp/x/t/foo.js",
+		"messages": [
+			{
+				"ruleId": "quotes",
+				"severity": 2,
+				"message": "Strings must use singlequote.",
+				"line": 4,
+				"column": 14,
+				"nodeType": "Literal",
+				"messageId": "wrongQuotes",
+				"endLine": 4,
+				"endColumn": 23,
+				"fix": { "range": [ 61, 70 ], "text": "'Really!'" }
+			}
+		],
+		"errorCount": 1,
+		"fatalErrorCount": 0,
+		"warningCount": 0,
+		"fixableErrorCount": 1,
+		"fixableWarningCount": 0,
+		"source": "var x = 123;\n\nconsole.log( \"This is a thing\" );\nconsole.log( \"Really!\" );\nconsole.log( \"x = \", x );\n",
+		"usedDeprecatedRules": []
+	}
+]

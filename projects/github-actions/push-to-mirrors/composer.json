@@ -1,0 +1,28 @@
+{
+	"name": "automattic/action-push-to-mirrors",
+	"description": "GitHub Action to push built versions of projects from a monorepo to mirror repos.",
+	"type": "project",
+	"license": "GPL-2.0-or-later",
+	"require": {},
+	"require-dev": {
+		"automattic/jetpack-changelogger": "3.0.x-dev"
+	},
+	"repositories": [
+		{
+			"type": "path",
+			"url": "../../packages/*",
+			"options": {
+				"monorepo": true
+			}
+		}
+	],
+	"extra": {
+		"autotagger": {
+			"major": true
+		},
+		"mirror-repo": "Automattic/action-push-to-mirrors",
+		"changelogger": {
+			"link-template": "https://github.com/Automattic/action-push-to-mirrors/compare/v${old}...v${new}"
+		}
+	}
+}

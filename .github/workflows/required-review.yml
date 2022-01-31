@@ -1,0 +1,19 @@
+name: Check required reviews
+on:
+  pull_request_review:
+  pull_request:
+    types: [ opened, reopened, synchronize ]
+
+jobs:
+  check_required_reviews:
+    name: Checking required reviews
+    runs-on: ubuntu-latest
+    if: github.event.pull_request.head.repo.full_name == github.event.pull_request.base.repo.full_name
+    timeout-minutes: 1  # 2021-01-18: Successful runs seem to take ~15 seconds.
+    steps:
+      - uses: actions/checkout@v2
+      - name: Check for required review approval
+        uses: automattic/action-required-review@v2
+        with:
+          token: ${{ secrets.API_TOKEN_GITHUB }}
+          requirements-file: .github/files/required-review.yaml

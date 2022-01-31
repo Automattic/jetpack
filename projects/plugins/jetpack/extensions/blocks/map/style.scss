@@ -1,0 +1,28 @@
+@import '../../shared/styles/gutenberg-base-styles.scss';
+
+.wp-block-jetpack-map {
+	.wp-block-jetpack-map__gm-container {
+		width: 100%;
+		overflow: hidden;
+		background: $gray-200;
+		min-height: 400px;
+		text-align: left;
+	}
+	.mapboxgl-popup {
+		h3 {
+			font-size: 1.3125em;
+			font-weight: 400;
+			margin-bottom: 0.5rem;
+		}
+		p {
+			margin-bottom: 0;
+		}
+		max-width: 300px;
+	}
+	.mapboxgl-ctrl-group button {
+		// Prevents theme styles adding a border radius to all buttons affecting the Map block controls too.
+		border-radius: 0;
+		// Prevents theme styles from affecting the background color of the button.
+		background-color: transparent !important;
+	}
+}

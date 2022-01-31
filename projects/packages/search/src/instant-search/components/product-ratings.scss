@@ -1,0 +1,13 @@
+@import '../lib/styles/_helper.scss';
+
+.jetpack-instant-search__product-rating-stars .gridicon {
+	vertical-align: middle;
+	fill: $studio-yellow-20;
+}
+
+.jetpack-instant-search a.jetpack-instant-search__product-rating-count {
+	color: $color-text-lighter;
+	font-size: 0.9em;
+	text-decoration: underline;
+	vertical-align: text-top;
+}

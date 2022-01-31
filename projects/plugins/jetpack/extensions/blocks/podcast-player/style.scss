@@ -1,0 +1,376 @@
+/**
+ * Podcast Player block shared styles (editor & front-end).
+ */
+@import '../../shared/styles/gutenberg-base-styles.scss';
+
+$gutter-s: 10px;
+$gutter-m: 15px;
+$gutter-l: 24px;
+$cover-image-size: 80px;
+$current-track-title-font-size: 24px;
+$current-track-title-icon-size: 27px;
+$track-status-icon-size: 22px;
+$jetpack-podcast-player-primary: $black;
+$jetpack-podcast-player-secondary: $gray-400;
+$jetpack-podcast-player-background: $white;
+$jetpack-podcast-player-error: $alert-red;
+
+.jetpack-podcast-player--visually-hidden {
+	position: absolute !important;
+	height: 1px;
+	width: 1px;
+	overflow: hidden;
+	clip: rect( 1px, 1px, 1px, 1px );
+	white-space: nowrap; /* added line */
+}
+
+/**
+ * Player's (block) parent element.
+ */
+.wp-block-jetpack-podcast-player {
+	overflow: hidden;
+
+	audio {
+		display: none;
+	}
+
+	.jetpack-podcast-player {
+		/**
+		 * Set default values for our CSS variables.
+		 */
+		--jetpack-podcast-player-primary: #{$jetpack-podcast-player-primary};
+		--jetpack-podcast-player-secondary: #{$jetpack-podcast-player-secondary};
+		--jetpack-podcast-player-background: #{$jetpack-podcast-player-background};
+
+		/**
+		 * Reset vertical padding for <section /> elements.
+		 * For instance, Twenty-Twenty sets `padding: 8rem 0`.
+		 */
+		padding-top: 0;
+		padding-bottom: 0;
+		color: var( --jetpack-podcast-player-secondary );
+		background-color: var( --jetpack-podcast-player-background );
+
+		&:not( .has-secondary ) {
+			color: $jetpack-podcast-player-secondary;
+		}
+
+		&:not( .has-background ) {
+			background-color: $jetpack-podcast-player-background;
+		}
+
+		/**
+		 * Player's state classes added to this element:
+		 * &.is-playing {} // When audio starts playing.
+	 	 * &.is-paused {}  // When audio is paused.
+		 * &.is-error {}   // When playback error occured.
+		 */
+
+		/**
+		 * Reset anchor styles to address themes' overrides.
+		 */
+		a,
+		a:active,
+		a:visited,
+		a:hover,
+		a:focus {
+			box-shadow: none; // Some themes use it instead of outline
+			text-decoration: none;
+			border: none;
+		}
+		a:focus {
+			outline: 1px solid;
+			outline-color: $jetpack-podcast-player-secondary;
+			outline-color: var( --jetpack-podcast-player-secondary );
+			outline-offset: 2px;
+		}
+
+		a.jetpack-podcast-player__link {
+			&,
+			&:active,
+			&:visited {
+				color: inherit;
+			}
+
+			&:hover,
+			&:focus {
+				color: inherit;
+				color: var( --jetpack-podcast-player-primary );
+			}
+		}
+	}
+
+	/**
+	 * Header elements styles
+	 */
+
+	.jetpack-podcast-player__header {
+		display: flex;
+		flex-direction: column;
+	}
+
+	.jetpack-podcast-player__current-track-info {
+		display: flex;
+		padding: $gutter-l;
+	}
+
+	.jetpack-podcast-player__cover {
+		width: $cover-image-size;
+		margin-right: $gutter-l;
+		flex-shrink: 0;
+	}
+
+	.jetpack-podcast-player__cover-image {
+		width: $cover-image-size;
+		height: $cover-image-size;
+		padding: 0;
+		border: 0;
+		max-width: 100%;
+	}
+
+	// The tag name increases specificity to override some themes/editor styles.
+	h2.jetpack-podcast-player__title {
+		display: flex;
+		flex-direction: column;
+		width: 100%; // Makes long titles wrap in IE11.
+		margin: 0;
+		padding: 0;
+		letter-spacing: 0; // Fixes Twenty Twenty compressed text.
+		color: inherit;
+
+		&:before,
+		&:after {
+			display: none;
+		}
+	}
+
+	.jetpack-podcast-player__current-track-title {
+		font-size: $current-track-title-font-size;
+		margin: 0 0 $gutter-s;
+		color: var( --jetpack-podcast-player-primary );
+
+		// Apply default color if custom primary has not been set
+		&:not( .has-primary ) {
+			color: $jetpack-podcast-player-primary;
+		}
+	}
+
+	.jetpack-podcast-player__podcast-title {
+		font-size: $editor-font-size;
+		margin: 0;
+		color: inherit;
+	}
+
+	/**
+	 * Playlist elements styles
+	 */
+
+	.jetpack-podcast-player__tracks {
+		list-style-type: none;
+		display: flex;
+		flex-direction: column;
+		margin: $gutter-l 0 0;
+		padding: 0 0 $gutter-m 0;
+	}
+
+	.jetpack-podcast-player__track {
+		margin: 0;
+		font-size: $editor-font-size;
+		line-height: $editor-line-height;
+		color: var( --jetpack-podcast-player-secondary );
+
+		&:not( .is-active ):not( .has-secondary ) {
+			color: $jetpack-podcast-player-secondary;
+		}
+
+		/**
+		 * When track "is-active", it means that it's been clicked by a user to
+		 * start playback. Combine this class with the Player's state classes (see
+		 * above) to apply styling for different scenarios.
+		 */
+		&.is-active {
+			font-weight: bold;
+			color: var( --jetpack-podcast-player-primary );
+
+			&:not( .has-primary ) {
+				color: $jetpack-podcast-player-primary;
+			}
+		}
+	}
+
+	.jetpack-podcast-player__track-link {
+		display: flex;
+		flex-flow: row nowrap;
+		justify-content: space-between;
+		padding-top: $gutter-s;
+		padding-bottom: $gutter-s;
+		padding-left: $gutter-l - 2px; // Adjustments on left padding to account for SVG sound icon spacing
+		padding-right: $gutter-l;
+		transition: none;
+	}
+
+	// Make space for the error element that will be appended.
+	.is-error .jetpack-podcast-player__track.is-active .jetpack-podcast-player__track-link {
+		padding-bottom: 0;
+	}
+
+	.jetpack-podcast-player__track-status-icon {
+		flex: $track-status-icon-size 0 0;
+		fill: currentColor;
+
+		svg {
+			display: block;
+			width: $track-status-icon-size;
+			height: $track-status-icon-size;
+			margin-top: ( $editor-font-size * $editor-line-height - $track-status-icon-size ) * 0.5; // center vertically
+			fill: inherit;
+		}
+	}
+
+	.jetpack-podcast-player__track-status-icon--error {
+		fill: $jetpack-podcast-player-error;
+	}
+
+	// Use primary color to prevent visual conflicts (i.e. with red bg color)
+	.jetpack-podcast-player__track.has-primary .jetpack-podcast-player__track-status-icon--error {
+		fill: currentColor;
+	}
+
+	.jetpack-podcast-player__track-title {
+		flex-grow: 1;
+		padding: 0 $gutter-m;
+	}
+
+	.jetpack-podcast-player__track-title-link {
+		display: inline-block;
+		height: $current-track-title-icon-size;
+		margin-left: $gutter-s * 0.5;
+		vertical-align: top;
+
+		&,
+		&:active,
+		&:visited {
+			color: currentColor;
+		}
+
+		&:hover,
+		&:focus {
+			color: inherit;
+			color: var( --jetpack-podcast-player-secondary );
+		}
+
+		svg {
+			display: block;
+			width: $current-track-title-icon-size;
+			height: $current-track-title-icon-size;
+			fill: currentColor;
+		}
+	}
+
+	.jetpack-podcast-player__track-duration {
+		word-break: normal; // Prevents the time breaking into multiple lines.
+	}
+
+	.jetpack-podcast-player__track-description {
+		order: 99; // high number to make it always appear after the audio player
+		padding: 0 $gutter-l;
+		margin: 0 0 $gutter-l 0;
+		font-size: $editor-font-size;
+		line-height: $editor-line-height;
+		color: inherit;
+		overflow: hidden;
+		max-height: 4em * $editor-line-height; // IE11 fallback for line-clamp.
+
+		@supports ( display: -webkit-box ) {
+			// Crop the description if too long.
+			display: -webkit-box;
+			-webkit-box-orient: vertical;
+			-webkit-line-clamp: 4;
+			max-height: initial;
+		}
+	}
+
+	/**
+	 * Error element, appended as the last child of the Episode element
+	 * (.jetpack-podcast-player__track) when Player's error has been caught.
+	 */
+	.jetpack-podcast-player__track-error {
+		display: block;
+		margin-left: ( $gutter-l - 2px ) + $track-status-icon-size + $gutter-m; // has to be aligned with the track title
+		margin-bottom: $gutter-s;
+		font-size: 0.8em;
+		font-weight: normal;
+		color: $jetpack-podcast-player-error;
+
+		& > span {
+			color: var( --jetpack-podcast-player-secondary );
+
+			&:not( .has-secondary ) {
+				color: $jetpack-podcast-player-secondary;
+			}
+		}
+	}
+
+	// Use primary color to prevent visual conflicts (i.e. red background)
+	.jetpack-podcast-player__track.has-primary .jetpack-podcast-player__track-error {
+		color: inherit;
+	}
+
+	/**
+	 * Global error element, replaces the whole block with the error message.
+	 */
+	.jetpack-podcast-player__error {
+		padding: $gutter-l;
+		margin: 0;
+		color: $jetpack-podcast-player-error;
+		font-size: 0.8em;
+		font-weight: normal;
+	}
+
+	@supports ( mask-image: none ) or ( -webkit-mask-image: none ) {
+		.jetpack-podcast-player__track-status-icon--playing {
+			background-image: none;
+
+			// Using mask on the :before pseudo to prevent it from covering the outline
+			&:before {
+				display: block;
+				content: '';
+				width: 100%;
+				height: 100%;
+				background-color: var( --jetpack-podcast-player-primary );
+				background-image: none;
+				mask: url("data:image/svg+xml,%3C%3Fxml version='1.0' encoding='UTF-8'%3F%3E%3Csvg width='18' height='18' version='1.1' viewBox='0 0 4.7625 4.7625' xmlns='http://www.w3.org/2000/svg'%3E%3Cg transform='translate(-189.69 -71.078)'%3E%3Cpath class='st0' d='m191.34 72.282c-0.1323 0.10583-0.3175 0.15875-0.47625 0.15875h-0.84667c-0.15875 0-0.26458 0.10583-0.26458 0.26458v1.5081c0 0.15875 0.10583 0.26458 0.26458 0.26458h1.1112c0.0794 0.05292 0.13229 0.10583 0.21167 0.15875l0.92604 0.68792c0.10583 0.07937 0.21166 0.02646 0.21166-0.10583v-3.5454c0-0.13229-0.10583-0.18521-0.21166-0.10583z' stroke-width='.26458'/%3E%3Cpath class='st1' d='m193.17 71.408s1.0319-0.21167 1.0319 2.0373-1.0319 2.0638-1.0319 2.0638' fill='none' stroke='%23000' stroke-linecap='round' stroke-width='.39688'/%3E%3Cpath class='st1' d='m192.82 72.44s0.68792-0.10583 0.68792 1.0054-0.68792 1.0319-0.68792 1.0319' fill='none' stroke='%23000' stroke-linecap='round' stroke-width='.39688'/%3E%3C/g%3E%3C/svg%3E%0A");
+				max-height: $track-status-icon-size;
+				mask-position: 0 0;
+				mask-repeat: no-repeat;
+				max-width: 20px;
+				margin: 4px 2px 0 0;
+			}
+			svg {
+				/**
+				* To stay consistent with the mediaelement player icons, we're using the same
+				* icon sprite for the track list playing icon. As we still keep the SVG as a
+				* fallback when CSS masks are not supported, we have to hide it when they are.
+				*/
+				display: none;
+			}
+		}
+	}
+
+
+	/**
+	 * Style the block to hide dynamic UI and show just its default style (no-js).
+	 */
+	&.is-default {
+		.jetpack-podcast-player__track-title {
+			padding-left: 0; // Account for missing space for status-icon.
+		}
+
+		.jetpack-audio-player,
+		.jetpack-podcast-player__track-status-icon {
+			display: none;
+		}
+	}
+}
+
+

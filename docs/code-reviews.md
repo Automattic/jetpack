@@ -6,7 +6,7 @@ Every PR should be reviewed and approved by someone other than the author, even 
 
 The recommended way of finding an appropriate person to review your code is by [blaming](https://help.github.com/articles/using-git-blame-to-trace-changes-in-a-file/) one of the files you are updating and looking at who was responsible for previous commits on that file.
 
-Then, you may ask that person to review your code by mentioning his/her GitHub username on the PR comments like this:
+Then, you may ask that person to review your code by mentioning their GitHub username on the PR comments like this:
 
 ```
  cc @username

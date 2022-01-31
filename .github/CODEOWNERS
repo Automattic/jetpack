@@ -3,22 +3,17 @@
 #  or disavow any section of the codebase. #
 ############################################
 
+# Packages
+/projects/packages/search @Automattic/jetpack-search
+/projects/packages/search/src/wpes @Automattic/prometheus
+
 # Individual Modules:
-/modules/contact-form/    @georgestephanis
-/modules/custom-css/      @georgestephanis
-/modules/search/          @Automattic/jetpack-search
+/projects/plugins/jetpack/modules/search/ @Automattic/jetpack-search
 
 # Other bits of the Codebase
-/class.jetpack-debugger.php @kraftbj
-/_inc/lib/jetpack-wpes-query-builder/ @gibrown
-/class.jetpack-jitm.php @withinboredom
+/projects/plugins/jetpack/_inc/lib/debugger/ @kraftbj
 
-# Jetpack CLI is used heavily by our partners
-/class.jetpack-cli.php @automattic/catalyst
-
-# Catch-all owners, the Jetpack Crew
-# Please leave this at the bottom of the list
-* @automattic/jetpack-crew
-
-/sync/ @automattic/poseidon @automattic/jetpack-crew
-/tests/php/sync/ @automattic/poseidon @automattic/jetpack-crew
+# Functionality that is important to our partners
+/projects/plugins/jetpack/class.jetpack-cli.php @automattic/jetpack-infinity
+/tools/partner-provision.sh @automattic/jetpack-infinity
+/tools/partner-cancel.sh @automattic/jetpack-infinity

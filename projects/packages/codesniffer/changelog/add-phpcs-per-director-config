@@ -1,0 +1,4 @@
+Significance: patch
+Type: changed
+
+Reconfigure phpcs so we don't need so many `phpcs:ignore` comments.

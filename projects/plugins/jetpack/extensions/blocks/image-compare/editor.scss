@@ -1,0 +1,114 @@
+// Remove the left and right margin of the figure element in the editor.
+// The frontend is the domain of the theme.
+.wp-block-jetpack-image-compare {
+	margin-left: 0;
+	margin-right: 0;
+	img {
+		max-width: 100%;
+	}
+}
+
+// The positioning in the editor crops the selection focus. This accounts for that.
+.jx-slider.jx-slider {
+	top: 1px;
+	left: 1px;
+	width: calc( 100% - 2px );
+}
+
+.image-compare__placeholder > .components-placeholder {
+	flex-direction: row;
+	align-items: center;
+
+	> .components-placeholder__label {
+		display: none;
+	}
+
+	// Remove backgrounds from the nested placeholders.
+	.components-placeholder {
+		background: none;
+	}
+}
+
+.image-compare__image-before,
+.image-compare__image-after {
+	display: flex;
+	flex-direction: column;
+	flex: 1;
+	position: relative;
+
+	.components-placeholder.components-placeholder {
+		box-shadow: none;
+		padding: 0;
+		min-height: 0;
+
+		.components-placeholder__instructions {
+			display: none;
+		}
+	}
+}
+
+.components-placeholder.is-large {
+	.image-compare__image-before {
+		padding-right: 12px;
+	}
+
+	.image-compare__image-after {
+		padding-left: 12px;
+	}
+}
+
+.components-placeholder.is-medium {
+	.image-compare__image-before {
+		margin-bottom: 24px;
+	}
+}
+
+// Disable the juxtaposition effect until the block itself is selected.
+[data-type='jetpack/image-compare']:not( .is-selected ) .image-compare__comparison {
+	pointer-events: none;
+}
+
+// When juxtapose isn't loaded, we style the block to resemble the end result.
+// This effectively styles the block to look good in the block preview.
+.juxtapose .components-placeholder {
+	border: none;
+	padding: 0;
+	box-shadow: none;
+
+	.components-placeholder__label {
+		display: none;
+	}
+
+	.image-compare__image-before,
+	.image-compare__image-after {
+		padding: 0;
+		flex: none;
+		width: 100%;
+	}
+
+	&::before {
+		content: '';
+		display: block;
+		position: absolute;
+		z-index: 2;
+		width: 100%;
+		height: 4px;
+		background: white;
+	}
+
+	// Show a side by side previe.
+	.image-compare__image-after {
+		position: absolute;
+		width: 100%;
+		height: 50%;
+		overflow: hidden;
+
+		img {
+			width: 100%;
+			height: 200%;
+			max-width: none;
+			display: flex;
+			align-self: flex-end;
+		}
+	}
+}

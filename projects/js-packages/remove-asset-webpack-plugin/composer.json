@@ -1,0 +1,37 @@
+{
+	"name": "automattic/jetpack-remove-asset-webpack-plugin",
+	"description": "A Webpack plugin to remove assets from the build.",
+	"type": "library",
+	"license": "GPL-2.0-or-later",
+	"require": {},
+	"require-dev": {
+		"automattic/jetpack-changelogger": "^3.0"
+	},
+	"scripts": {
+		"test-js": [
+			"pnpm run test"
+		],
+		"test-coverage": [
+			"pnpm run test-coverage"
+		]
+	},
+	"repositories": [
+		{
+			"type": "path",
+			"url": "../../packages/*",
+			"options": {
+				"monorepo": true
+			}
+		}
+	],
+	"minimum-stability": "dev",
+	"prefer-stable": true,
+	"extra": {
+		"autotagger": true,
+		"npmjs-autopublish": true,
+		"mirror-repo": "Automattic/remove-asset-webpack-plugin",
+		"changelogger": {
+			"link-template": "https://github.com/Automattic/remove-asset-webpack-plugin/compare/v${old}...v${new}"
+		}
+	}
+}

@@ -1,0 +1,68 @@
+{
+	"name": "automattic/jetpack-sync",
+	"description": "Everything needed to allow syncing to the WP.com infrastructure.",
+	"type": "jetpack-library",
+	"license": "GPL-2.0-or-later",
+	"require": {
+		"automattic/jetpack-connection": "^1.36",
+		"automattic/jetpack-constants": "^1.6",
+		"automattic/jetpack-heartbeat": "^1.4",
+		"automattic/jetpack-identity-crisis": "^0.7",
+		"automattic/jetpack-options": "^1.14",
+		"automattic/jetpack-password-checker": "^0.2",
+		"automattic/jetpack-roles": "^1.4",
+		"automattic/jetpack-status": "^1.10"
+	},
+	"require-dev": {
+		"automattic/jetpack-changelogger": "^3.0",
+		"yoast/phpunit-polyfills": "1.0.3",
+		"automattic/wordbless": "@dev"
+	},
+	"autoload": {
+		"classmap": [
+			"src/"
+		]
+	},
+	"scripts": {
+		"phpunit": [
+			"./vendor/phpunit/phpunit/phpunit --colors=always"
+		],
+		"test-coverage": [
+			"php -dpcov.directory=. ./vendor/bin/phpunit --coverage-clover \"$COVERAGE_DIR/clover.xml\""
+		],
+		"test-php": [
+			"@composer phpunit"
+		],
+		"post-update-cmd": "php -r \"copy('vendor/automattic/wordbless/src/dbless-wpdb.php', 'wordpress/wp-content/db.php');\""
+	},
+	"repositories": [
+		{
+			"type": "path",
+			"url": "../*",
+			"options": {
+				"monorepo": true
+			}
+		}
+	],
+	"minimum-stability": "dev",
+	"prefer-stable": true,
+	"extra": {
+		"autotagger": true,
+		"mirror-repo": "Automattic/jetpack-sync",
+		"textdomain": "jetpack-sync",
+		"version-constants": {
+			"::PACKAGE_VERSION": "src/class-package-version.php"
+		},
+		"changelogger": {
+			"link-template": "https://github.com/Automattic/jetpack-sync/compare/v${old}...v${new}"
+		},
+		"branch-alias": {
+			"dev-master": "1.29.x-dev"
+		}
+	},
+	"config": {
+		"allow-plugins": {
+			"roots/wordpress-core-installer": true
+		}
+	}
+}

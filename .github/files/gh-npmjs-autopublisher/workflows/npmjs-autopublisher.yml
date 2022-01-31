@@ -1,0 +1,33 @@
+name: Npmjs auto-publisher
+
+on:
+  push:
+    tags:
+      - 'v*.*.*'
+
+jobs:
+  publish:
+    name: Publish
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check that the secret is set
+        env:
+          TOKEN: ${{ secrets.NPMJS_AUTOMATION_TOKEN }}
+        run: |
+          if [[ -z "$TOKEN" ]]; then
+            echo '::error::The secret NPMJS_AUTOMATION_TOKEN must be set.'
+            exit 1
+          fi
+
+      - uses: actions/checkout@v2
+
+      - uses: actions/setup-node@v2
+        with:
+          # NPM version shouldn't matter, just use the LTS.
+          node-version: 'lts/*'
+          registry-url: 'https://registry.npmjs.org'
+
+      - name: Publish
+        env:
+          NODE_AUTH_TOKEN: ${{ secrets.NPMJS_AUTOMATION_TOKEN }}
+        run: npm publish --access public

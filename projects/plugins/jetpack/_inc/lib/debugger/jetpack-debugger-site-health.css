@@ -1,0 +1,21 @@
+.jetpack-sync-progress-ui {
+	display: flex;
+	align-items: baseline;
+}
+
+.jetpack-sync-progress-label {
+	width: 5%;
+	margin-right: 1%;
+	font-weight: 600;
+	color: #036699;
+}
+
+.ui-progressbar.jetpack-sync-progress-bar {
+	width: 94%;
+	background: #bfe7f3;
+	height: 8px;
+}
+
+.jetpack-sync-progress-bar .ui-progressbar-value {
+	background: #036699;
+}

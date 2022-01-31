@@ -1,0 +1,87 @@
+.wp-block-jetpack-opentable {
+	position: relative; /* For sake of amp-iframe with layout=fill */
+
+	> iframe {
+		background: transparent; /* Override AMP Reader mode gray background for iframes in legacy post templates. */
+		margin: 0; /* Override margins in AMP legacy Reader mode. */
+	}
+
+	&.aligncenter iframe {
+		margin: 0 auto;
+	}
+
+	&.is-style-standard, &.is-style-wide.is-style-mobile {
+		height: 301px;
+
+		&.is-multi {
+			height: 361px;
+		}
+
+		&.aligncenter iframe {
+			width: 224px !important;
+		}
+	}
+
+	&.is-style-tall {
+		height: 490px;
+
+		&.is-multi {
+			height: 550px;
+		}
+
+		&.aligncenter iframe {
+			width: 288px !important;
+		}
+	}
+
+	&.is-style-wide {
+		height: 150px;
+		iframe {
+			width: 840px !important;
+		}
+
+		&.alignleft {
+			max-width: 840px;
+			right: auto;
+			margin-left: 2rem;
+		}
+
+		&.alignright {
+			max-width: 840px;
+			left: calc( 100% - 840px - 2rem );
+		}
+	}
+
+	&.is-style-button {
+		height: 113px;
+		&.aligncenter iframe {
+			width: 210px !important;
+		}
+
+		&.has-no-margin {
+			> div[id^="ot-widget-container"] {
+				margin: -14px;
+			}
+		}
+	}
+
+	.ot-dtp-picker {
+		box-sizing: content-box;
+
+		.ot-title {
+			margin: 4px auto 12px auto;
+		}
+
+		.ot-dtp-picker-selector-link {
+			text-decoration: none;
+		}
+
+		input[type='submit'] {
+			text-transform: none;
+			padding: 0;
+			&:hover {
+				text-decoration: none;
+			}
+		}
+	}
+}

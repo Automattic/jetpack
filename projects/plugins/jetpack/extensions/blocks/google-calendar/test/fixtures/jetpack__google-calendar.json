@@ -1,0 +1,13 @@
+[
+    {
+        "clientId": "_clientId_0",
+        "name": "jetpack/google-calendar",
+        "isValid": true,
+        "attributes": {
+            "url": "https://calendar.google.com/calendar/embed?src=c_rr8cguo95gga9im2vs4tqi939g%40group.calendar.google.com&ctz=Australia%2FBrisbane",
+            "height": 600
+        },
+        "innerBlocks": [],
+        "originalContent": "<a href=\"https://calendar.google.com/calendar/embed?src=c_rr8cguo95gga9im2vs4tqi939g%40group.calendar.google.com&amp;ctz=Australia%2FBrisbane\" class=\"wp-block-jetpack-google-calendar\">https://calendar.google.com/calendar/embed?src=c_rr8cguo95gga9im2vs4tqi939g%40group.calendar.google.com&amp;ctz=Australia%2FBrisbane</a>"
+    }
+]

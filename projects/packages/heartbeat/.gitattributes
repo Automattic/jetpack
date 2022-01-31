@@ -1,0 +1,7 @@
+# Files not needed to be distributed.
+.gitattributes   export-ignore
+.github/         export-ignore
+
+# Files not needed in the production build.
+.phpcs.dir.xml   production-exclude
+/changelog/**    production-exclude

@@ -24,7 +24,7 @@ Once your development environment is ready, you can get started and [create your
 
 If you'd like to contribute but don't know where to get started, you can take a look at existing issues:
 
-- ["Good First Bug"](https://github.com/Automattic/jetpack/labels/%5BType%5D%20Good%20First%20Bug) issues are a good entry point to get familiar with Jetpack's codebase.
+- ["Good First Bug"](https://github.com/Automattic/jetpack/labels/%5BType%5D%20Good%20First%20Bug) issues are a good entry point to get familiar with Jetpack's code base.
 - All issues labeled with [the "Good For Community" label](https://github.com/Automattic/Jetpack/issues?q=is%3Aopen+is%3Aissue+label%3A%22%5BType%5D+Good+For+Community%22) are fair game. That's a great way to contribute new features and fix small issues within Jetpack.
 
 ### We’re Here To Help

@@ -1,0 +1,26 @@
+{
+	"name": "automattic/js-connection",
+	"description": "Jetpack Connection Component.",
+	"license": "GPL-2.0-or-later",
+	"require": {},
+	"require-dev": {
+		"automattic/jetpack-changelogger": "3.0.x-dev"
+	},
+	"scripts": {
+		"test-js": [
+			"pnpm run test"
+		],
+		"test-coverage": [
+			"pnpx nyc --report-dir=\"$COVERAGE_DIR\" pnpm run test"
+		]
+	},
+	"repositories": [
+		{
+			"type": "path",
+			"url": "../../packages/*",
+			"options": {
+				"monorepo": true
+			}
+		}
+	]
+}

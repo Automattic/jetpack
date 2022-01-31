@@ -1,0 +1,7 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="none">
+    <path
+        d="M8 0C3.588 0 0 3.588 0 8s3.588 8 8 8 8-3.588 8-8-3.588-8-8-8zm-.412 9.328H3.603l3.985-7.755v7.755zm.809 5.084V6.656h3.985l-3.985 7.756z"
+        fill="#000"
+        fill-opacity="0.7"
+    />
+</svg>

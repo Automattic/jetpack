@@ -1,0 +1,42 @@
+.jp-connect-user-bar__card {
+	display: flex;
+	justify-content: space-between;
+	align-items: center;
+	background: #F3F5F6;
+	padding: 8px 24px;
+	border-top: 1px solid #ccd0d4;
+
+	.jp-connect-user-bar__text {
+		font-weight: 500;
+		font-size: 13px;
+		line-height: 16px;
+		color: #414141;
+		height: 16px;
+	}
+
+	.jp-connect-user-bar__button {
+		order: 3;
+
+		.jp-jetpack-connect__button,
+		.jp-jetpack-connect__button:disabled,
+		.jp-jetpack-connect__button[disabled] {
+			background: #F3F5F6;
+			border: 1px solid #0071A1;
+			box-sizing: border-box;
+			border-radius: 3px;
+			float: right;
+			font-weight: 600;
+			font-size: 13px;
+			line-height: 16px;
+			color: #0071A1;
+			text-align: center;
+			white-space: nowrap;
+
+			&:disabled,
+			&[disabled] {
+				background: #F3F5F6 !important;
+				color: #0071A1 !important;
+			}
+		}
+	}
+}
