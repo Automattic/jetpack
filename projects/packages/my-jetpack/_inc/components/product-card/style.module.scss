@@ -15,6 +15,7 @@
   --status-inactive: #646970;
   --status-error: #B32D2E;
   --status-plugin_absent: #C3C4C7;
+  --status-label-height: 36px;
 
   padding: 24px;
   background: var( --jp-white );
@@ -67,8 +68,8 @@
 .status {
   margin-left: var(--product-card-margin-base);
   white-space: nowrap;
-  height: 36px;
-  line-height: 36px;
+  height: --product-card-actions-size;
+  line-height: --product-card-actions-size;
 
   &:before {
     content: "";
