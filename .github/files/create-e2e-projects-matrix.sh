@@ -2,22 +2,25 @@
 
 set -eo pipefail
 
-PROJECTS=('{"project":"Jetpack","path":"projects/plugins/jetpack/tests/e2e","testArgs":"","slackArgs":"","reportName":""}' '{"project":"Boost","path":"projects/plugins/boost/tests/e2e","testArgs":"","slackArgs":"","reportName":""}')
+PROJECTS=('{"project":"Jetpack","path":"projects/plugins/jetpack/tests/e2e","testArgs":"","slackArgs":""}' '{"project":"Boost","path":"projects/plugins/boost/tests/e2e","testArgs":"","slackArgs":""}')
 PROJECTS_MATRIX=()
+RUN_NAME=''
 
 CHANGED_PROJECTS="$(.github/files/list-changed-projects.sh)"
 #echo "$CHANGED_PROJECTS"
 
 # gutenberg scheduled run
 #if [ "$CRON" == "0 */12 * * *" ]; then
-if [ "$GITHUB_EVENT_NAME" == "pull_request" ]; then
-  PROJECTS_MATRIX+=('{"project":"Jetpack","path":"projects/plugins/jetpack/tests/e2e","testArgs":"blocks","slackArgs":"--report gutenberg","reportName":"gutenberg"}')
+if [ "$GITHUB_EVENT_NAME" == "push" ]; then
+  PROJECTS_MATRIX+=('{"project":"Jetpack with Gutenberg","path":"projects/plugins/jetpack/tests/e2e","testArgs":"blocks","slackArgs":"--report gutenberg"}')
+  RUN_NAME='gutenberg'
 fi
 
 # atomic scheduled run
 #if [ "$CRON" == "0 */12 * * *" ]; then
-if [ "$GITHUB_EVENT_NAME" == "pull_request" ]; then
-  PROJECTS_MATRIX+=('{"project":"Jetpack","path":"projects/plugins/jetpack/tests/e2e","testArgs":"blocks --grep-invert wordads","slackArgs":"--report atomic","reportName":"atomic"}')
+if [ "$GITHUB_EVENT_NAME" == "push" ]; then
+  PROJECTS_MATRIX+=('{"project":"Jetpack on Atomic","path":"projects/plugins/jetpack/tests/e2e","testArgs":"blocks --grep-invert wordads","slackArgs":"--report atomic"}')
+  RUN_NAME='test-run-name'
 fi
 
 for PROJECT in "${PROJECTS[@]}"; do
@@ -42,4 +45,4 @@ for PROJECT in "${PROJECTS[@]}"; do
 	fi
 done
 
-jq -s -c -r '.' <<<"${PROJECTS_MATRIX[@]}"
+jq -n -c --arg runName "$RUN_NAME" --argjson projects "$(jq -s -c -r '.' <<<"${PROJECTS_MATRIX[@]}")" '{ "run": $runName, "matrix": $projects }'

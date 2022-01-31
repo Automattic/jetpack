@@ -22,7 +22,8 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 3
     outputs:
-      matrix: ${{ steps.create-projects-matrix.outputs.matrix }}
+      matrix: ${{ steps.create-matrix.outputs.matrix }}
+      runName: ${{ steps.create-matrix.outputs.runName }}
     steps:
       - uses: actions/checkout@v2
 
@@ -39,11 +40,14 @@ jobs:
           pnpm install
 
       - name: Create projects matrix
-        id: create-projects-matrix
+        id: create-matrix
         env:
           CRON: github.event.schedule
         run: |
-          PROJECTS="$(.github/files/create-e2e-projects-matrix.sh)"
+          OUT="$(.github/files/create-e2e-projects-matrix.sh)"
+          RUN_NAME=$(jq -r ".run" <<<"$OUT")
+          MATRIX=$(jq -r ".matrix" <<<"$OUT")
+          echo "::set-output name=runName::$RUN_NAME"
           echo "::set-output name=matrix::$PROJECTS"
 
   e2e-tests:
@@ -122,17 +126,20 @@ jobs:
         name: test-output-${{ matrix.group }}
         path: ${{ matrix.path }}/output
 
-#    - name: Trigger test report workflow
-#      uses: ./.github/actions/test-report-dispatch
-#      with:
-#        token: ${{ secrets.E2E_TEST_REPORTS_TOKEN }}
-#        event_type: e2e
-#        report_name: ${{ matrix.reportName }}
+  test-reports:
+    name: "Trigger test report workflow"
+    runs-on: ubuntu-latest
+    if: ${{ ! cancelled() }}
+    needs: [create-projects-matrix, e2e-tests]
 
-    - name: Trigger test report workflow
-      env:
-        REPORT_NAME: ${{ matrix.reportName }}
-      run: |
-        echo "${REPORT_NAME}"
+    steps:
+      - uses: actions/checkout@v2
+
+      - name: Trigger test report workflow
+        uses: ./.github/actions/test-report-dispatch
+        with:
+          token: ${{ secrets.E2E_TEST_REPORTS_TOKEN }}
+          event_type: e2e
+          report_name: ${{needs.create-projects-matrix.outputs.runName}}
 
 
