@@ -23,7 +23,7 @@ import ExtrasCard from './extras-card';
  */
 const ProductCardsSection = () => {
 	return (
-		<Container fluid>
+		<Container fluid horizontalSpacing={ 0 } horizontalGap={ 3 }>
 			<Col sm={ 4 } md={ 4 } lg={ 3 }>
 				<BackupCard admin={ true } />
 			</Col>
