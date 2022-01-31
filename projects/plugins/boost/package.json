@@ -22,7 +22,7 @@
 		"@typescript-eslint/parser": "4.33.0",
 		"@wordpress/e2e-test-utils": "5.4.10",
 		"@wordpress/i18n": "4.2.4",
-		"eslint-plugin-import": "2.25.3",
+		"eslint-plugin-import": "2.25.4",
 		"eslint-plugin-svelte3": "3.2.1",
 		"node-wp-i18n": "1.2.6",
 		"npm-run-all": "4.1.5",
@@ -35,7 +35,7 @@
 		"rollup-plugin-svelte-svg": "0.2.3",
 		"rollup-plugin-terser": "7.0.2",
 		"sass": "1.39.0",
-		"sass-loader": "12.1.0",
+		"sass-loader": "12.4.0",
 		"svelte": "3.42.4",
 		"svelte-preprocess": "4.9.2",
 		"tslib": "2.3.1",
@@ -43,11 +43,8 @@
 	},
 	"scripts": {
 		"add-textdomain": "wpi18n addtextdomain --textdomain=jetpack-boost --exclude=node_modules,tests,vendor *.php **/*.php",
-		"build-development": "pnpm run clear-dist && pnpm run build-php && rollup -c",
-		"build-production": "pnpm run clear-dist && pnpm run install-if-deps-outdated && pnpm run build-production-php && NODE_ENV=production BABEL_ENV=production rollup -c",
-		"build-php": "composer install --ignore-platform-reqs",
-		"build-production-php": "rm -rf vendor/ jetpack_vendor/ && COMPOSER_MIRROR_PATH_REPOS=1 COMPOSER_ROOT_VERSION=dev-master composer install -o --no-dev --classmap-authoritative --prefer-dist",
-		"install-if-deps-outdated": "pnpm install --no-prod --frozen-lockfile",
+		"build-development": "pnpm run clear-dist && rollup -c",
+		"build-production": "pnpm run clear-dist && NODE_ENV=production BABEL_ENV=production rollup -c",
 		"dev-serve": "rollup -c -w --environment SERVE",
 		"dev": "pnpm run clear-dist && rollup -c -w",
 		"reformat-files": "../../../tools/js-tools/node_modules/.bin/prettier --ignore-path ../../../.eslintignore --write --plugin-search-dir=. ./**/*.{svelte,js,ts,json}",
@@ -70,7 +67,7 @@
 	},
 	"homepage": "https://jetpack.com/boost/",
 	"engines": {
-		"node": "^14.17.6 || ^16.7.0",
+		"node": "^14.18.3 || ^16.13.2",
 		"pnpm": "^6.23.6",
 		"yarn": "use pnpm instead - see docs/yarn-upgrade.md"
 	}

@@ -16,6 +16,7 @@ import { getRedirectUrl } from '@automattic/jetpack-components';
 /**
  * Internal dependencies
  */
+import analytics from 'lib/analytics';
 import Card from 'components/card';
 import DashItem from 'components/dash-item';
 import JetpackBanner from 'components/jetpack-banner';
@@ -27,7 +28,13 @@ import {
 	FEATURE_SITE_BACKUPS_JETPACK,
 } from 'lib/plans/constants';
 import { getProductDescriptionUrl } from 'product-descriptions/utils';
-import { getActiveBackupPurchase, getSitePlan, hasActiveBackupPurchase } from 'state/site';
+import {
+	getActiveBackupPurchase,
+	getSitePlan,
+	hasActiveBackupPurchase,
+	siteHasBackupPlan,
+	isFetchingSiteData,
+} from 'state/site';
 import { isPluginInstalled } from 'state/site/plugins';
 import { getVaultPressData } from 'state/at-a-glance';
 import { hasConnectedOwner, isOfflineMode, connectUser } from 'state/connection';
@@ -85,6 +92,14 @@ class DashBackups extends Component {
 		isVaultPressInstalled: false,
 		rewindStatus: '',
 		trackUpgradeButtonView: noop,
+	};
+
+	trackBackupsClick = () => {
+		analytics.tracks.recordJetpackClick( {
+			type: 'backups-link',
+			target: 'at-a-glance',
+			feature: 'backups',
+		} );
 	};
 
 	getVPContent() {
@@ -179,17 +194,21 @@ class DashBackups extends Component {
 			} );
 		}
 
-		return renderCard( {
-			className: '',
-			status: '',
-			content: __( 'Loading…', 'jetpack' ),
-		} );
+		return this.renderLoading();
 	}
 
 	getRewindContent() {
 		const { planClass, rewindStatus, siteRawUrl } = this.props;
 		const buildAction = ( url, message ) => (
-			<Card compact key="manage-backups" className="jp-dash-item__manage-in-wpcom" href={ url }>
+			<Card
+				compact
+				key="manage-backups"
+				className="jp-dash-item__manage-in-wpcom"
+				href={ url }
+				target="_blank"
+				rel="noopener noreferrer"
+				onClick={ this.trackBackupsClick }
+			>
 				{ message }
 			</Card>
 		);
@@ -239,8 +258,17 @@ class DashBackups extends Component {
 		return false;
 	}
 
+	renderLoading() {
+		return renderCard( {
+			className: '',
+			status: '',
+			content: __( 'Loading…', 'jetpack' ),
+		} );
+	}
+
 	renderFromRewindStatus() {
 		if (
+			this.props.hasBackupPlan &&
 			'unavailable' === this.props.rewindStatus &&
 			'site_new' === this.props.rewindStatusReason
 		) {
@@ -276,6 +304,10 @@ class DashBackups extends Component {
 			);
 		}
 
+		if ( this.props.isFetchingSite ) {
+			this.renderLoading();
+		}
+
 		return (
 			<div>
 				<QueryVaultPressData />
@@ -300,6 +332,8 @@ export default connect(
 			showBackups: showBackups( state ),
 			upgradeUrl: getProductDescriptionUrl( state, 'backup' ),
 			hasConnectedOwner: hasConnectedOwner( state ),
+			isFetchingSite: isFetchingSiteData( state ),
+			hasBackupPlan: siteHasBackupPlan( state ),
 		};
 	},
 	dispatch => ( {

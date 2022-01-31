@@ -6,30 +6,30 @@ import AdminSection from '../basic';
 import AdminSectionHero from '../hero';
 import AdminPage from '../../admin-page';
 import Col from '../../layout/col';
-import Row from '../../layout/row';
+import Container from '../../layout/container';
 
 export default {
-	title: 'Playground/Admin Sections',
+	title: 'JS Packages/Components/Admin Sections',
 };
 
 // Export additional stories using pre-defined values
 const Template = () => (
 	<AdminPage>
 		<AdminSectionHero>
-			<Row>
+			<Container>
 				<Col lg={ 12 } md={ 8 } sm={ 4 }>
 					<h1>Sample Hero section</h1>
 					<p>This is a sample Hero section</p>
 				</Col>
-			</Row>
+			</Container>
 		</AdminSectionHero>
 		<AdminSection>
-			<Row>
+			<Container>
 				<Col lg={ 12 } md={ 8 } sm={ 4 }>
 					<h2>Sample Section</h2>
 					<p>This is a sample section</p>
 				</Col>
-			</Row>
+			</Container>
 		</AdminSection>
 	</AdminPage>
 );
@@ -39,22 +39,22 @@ export const _default = Template.bind( {} );
 
 export const onlyBasic = () => (
 	<AdminSection>
-		<Row>
+		<Container>
 			<Col lg={ 12 } md={ 8 } sm={ 4 }>
 				<h2>Sample Section</h2>
 				<p>This is a sample section</p>
 			</Col>
-		</Row>
+		</Container>
 	</AdminSection>
 );
 
 export const onlyHero = () => (
 	<AdminSectionHero>
-		<Row>
+		<Container>
 			<Col lg={ 12 } md={ 8 } sm={ 4 }>
 				<h2>Sample Hero Section</h2>
 				<p>This is a sample Hero section</p>
 			</Col>
-		</Row>
+		</Container>
 	</AdminSectionHero>
 );

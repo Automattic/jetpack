@@ -11,7 +11,7 @@ import { __ } from '@wordpress/i18n';
 /**
  * Internal dependencies
  */
-import { getUserLocale as getLocaleSlug } from 'lib/locale';
+import { getUserLocale as getLocaleSlug } from '@automattic/jetpack-components';
 import { imagePath } from 'constants/urls';
 
 /**
@@ -64,7 +64,7 @@ class AppsBadge extends PureComponent {
 		storeName: PropTypes.oneOf( [ 'ios', 'android' ] ).isRequired,
 		titleText: PropTypes.string,
 		onBadgeClick: PropTypes.func,
-		utm_source: PropTypes.string.isRequired,
+		utm_source: PropTypes.string,
 		utm_campaign: PropTypes.string,
 		utm_medium: PropTypes.string,
 	};

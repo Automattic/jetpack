@@ -2,6 +2,19 @@
 
 ### This is a list detailing changes for the Jetpack RNA Components package releases.
 
+## 0.8.3 - 2022-01-25
+### Changed
+- Updated package dependencies.
+
+## 0.8.2 - 2022-01-18
+### Changed
+- General: update required node version to v16.13.2
+- Updated package dependencies.
+
+## 0.8.1 - 2022-01-04
+### Changed
+- Updated package dependencies
+
 ## 0.8.0 - 2021-11-30
 ### Added
 - Added jetpack/v4/seen-wc-connection-modal endpoint

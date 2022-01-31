@@ -43,9 +43,12 @@ class Plan {
 	 */
 	public function get_plan_info_from_wpcom() {
 		$blog_id  = Jetpack_Options::get_option( 'id' );
-		$response = Client::wpcom_json_api_request_as_user(
+		$response = Client::wpcom_json_api_request_as_blog(
 			'/sites/' . $blog_id . '/jetpack-search/plan',
-			'2'
+			'2',
+			array(),
+			null,
+			'wpcom'
 		);
 
 		// store plan in options.
@@ -84,7 +87,7 @@ class Plan {
 	 */
 	public function supports_instant_search() {
 		$plan_info = $this->get_plan_info();
-		return isset( $plan_info['supports_instant_search'] ) && $plan_info['supports_instant_search'];
+		return ( isset( $plan_info['supports_instant_search'] ) && $plan_info['supports_instant_search'] ) || $this->has_jetpack_search_product();
 	}
 
 	/**
@@ -92,7 +95,7 @@ class Plan {
 	 */
 	public function supports_search() {
 		$plan_info = $this->get_plan_info();
-		return isset( $plan_info['supports_search'] ) && $plan_info['supports_search'];
+		return ( isset( $plan_info['supports_search'] ) && $plan_info['supports_search'] ) || $this->has_jetpack_search_product();
 	}
 
 	/**
@@ -114,27 +117,42 @@ class Plan {
 	 * Update `has_jetpack_search_product` regarding the plan information
 	 *
 	 * @param array|WP_Error $response - Resopnse from WPCOM.
+	 * @return bool - true on success, false on failure.
 	 */
 	public function update_search_plan_info( $response ) {
 		if ( is_wp_error( $response ) ) {
-			return null;
+			return false;
 		}
 		$body        = json_decode( wp_remote_retrieve_body( $response ), true );
 		$status_code = wp_remote_retrieve_response_code( $response );
 
-		if ( 200 !== $status_code || ! isset( $body['supports_instant_search'] ) ) {
-			return null;
+		if ( 200 !== $status_code ) {
+			return false;
+		}
+
+		return $this->set_plan_options( $body );
+	}
+
+	/**
+	 * Set plan info to options table
+	 *
+	 * @param array $plan_info - the decoded plan info array.
+	 */
+	public function set_plan_options( $plan_info ) {
+		if ( ! isset( $plan_info['supports_instant_search'] ) ) {
+			return false;
 		}
 		// set option whether has Jetpack Search plan for capability reason.
-		if ( get_option( 'has_jetpack_search_product' ) !== (bool) $body['supports_instant_search'] ) {
-			update_option( 'has_jetpack_search_product', (bool) $body['supports_instant_search'] );
+		if ( get_option( 'has_jetpack_search_product' ) !== (bool) $plan_info['supports_instant_search'] ) {
+			update_option( 'has_jetpack_search_product', (bool) $plan_info['supports_instant_search'] );
 		}
 		// We use this option to determine the visibility of search submenu.
 		// If the site ever had search subscription, then we record it and show the menu after.
-		if ( $body['supports_instant_search'] ) {
+		if ( $plan_info['supports_instant_search'] ) {
 			update_option( self::JETPACK_SEARCH_EVER_SUPPORTED_SEARCH, true, false );
 		}
-		update_option( self::JETPACK_SEARCH_PLAN_INFO_OPTION_KEY, $body );
+		update_option( self::JETPACK_SEARCH_PLAN_INFO_OPTION_KEY, $plan_info );
+		return true;
 	}
 
 }

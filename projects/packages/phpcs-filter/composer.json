@@ -9,7 +9,7 @@
 	},
 	"require-dev": {
 		"automattic/jetpack-changelogger": "^3.0",
-		"yoast/phpunit-polyfills": "1.0.2"
+		"yoast/phpunit-polyfills": "1.0.3"
 	},
 	"autoload": {
 		"classmap": [
@@ -21,11 +21,9 @@
 			"./vendor/phpunit/phpunit/phpunit --colors=always"
 		],
 		"test-coverage": [
-			"@composer install",
 			"php -dpcov.directory=. ./vendor/bin/phpunit --coverage-clover \"$COVERAGE_DIR/clover.xml\""
 		],
 		"test-php": [
-			"@composer install",
 			"@composer phpunit"
 		]
 	},

@@ -18,6 +18,13 @@ use Jetpack_Tracks_Client;
 class UI {
 
 	/**
+	 * Temporary storage for consumer data.
+	 *
+	 * @var array
+	 */
+	private static $consumers;
+
+	/**
 	 * Initialization.
 	 */
 	public static function init() {
@@ -28,7 +35,7 @@ class UI {
 		/**
 		 * Action called after initializing Identity Crisis UI.
 		 *
-		 * @since $$next-version$$
+		 * @since 0.6.0
 		 */
 		do_action( 'jetpack_identity_crisis_ui_init' );
 
@@ -69,7 +76,7 @@ class UI {
 	 */
 	public static function render_container() {
 		?>
-		<div id="jp-identity-crisis-container"></div>
+		<div id="jp-identity-crisis-container" class="notice"></div>
 		<?php
 	}
 
@@ -114,7 +121,11 @@ class UI {
 	 *
 	 * @return array
 	 */
-	private static function get_consumer_data() {
+	public static function get_consumer_data() {
+		if ( null !== static::$consumers ) {
+			return static::$consumers;
+		}
+
 		$consumers = apply_filters( 'jetpack_idc_consumers', array() );
 
 		if ( ! $consumers ) {
@@ -145,7 +156,9 @@ class UI {
 			}
 		}
 
-		return $consumer_chosen ? $consumer_chosen : array_shift( $consumers );
+		static::$consumers = $consumer_chosen ? $consumer_chosen : array_shift( $consumers );
+
+		return static::$consumers;
 	}
 
 }

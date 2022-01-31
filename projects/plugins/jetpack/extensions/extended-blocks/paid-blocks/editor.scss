@@ -1,5 +1,5 @@
 @import '../../shared/styles/gutenberg-base-styles.scss';
-@import "~@automattic/color-studio/dist/color-variables";
+@import "@automattic/color-studio/dist/color-variables";
 
 $banner-height: 48px;
 $icon-size: 10px;
@@ -121,7 +121,7 @@ $icon-background-color: #fff;
 
 	// Remove paid-block-media-placeholder from being a flexbox child
 	// when the cover block has a background set
-	.wp-block-cover &:not( :only-child ) {
+	.wp-block-cover:not( .is-placeholder ) & {
 		position: absolute;
 		top: 0;
 		right: 0;

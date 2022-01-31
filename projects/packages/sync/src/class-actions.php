@@ -676,6 +676,36 @@ class Actions {
 	}
 
 	/**
+	 * Initializes sync for Instant Search.
+	 *
+	 * @access public
+	 * @static
+	 */
+	public static function initialize_search() {
+		if ( false === class_exists( 'Automattic\\Jetpack\\Search\\Module_Control' ) ) {
+			return;
+		}
+		$search_module = new \Automattic\Jetpack\Search\Module_Control();
+		if ( $search_module->is_instant_search_enabled() ) {
+			add_filter( 'jetpack_sync_modules', array( __CLASS__, 'add_search_sync_module' ) );
+		}
+	}
+
+	/**
+	 * Add Search updates to Sync Filters.
+	 *
+	 * @access public
+	 * @static
+	 *
+	 * @param array $sync_modules The list of sync modules declared prior to this filter.
+	 * @return array A list of sync modules that now includes Search's modules.
+	 */
+	public static function add_search_sync_module( $sync_modules ) {
+		$sync_modules[] = 'Automattic\\Jetpack\\Sync\\Modules\\Search';
+		return $sync_modules;
+	}
+
+	/**
 	 * Adds Woo's sync modules to existing modules for sending.
 	 *
 	 * @access public
