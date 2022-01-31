@@ -662,7 +662,7 @@ class Share_Email extends Sharing_Source {
 	 *
 	 * @param \WP_Post $post The current post being viewed.
 	 */
-	public function get_amp_display( $post ) {
+	public function get_amp_display( $post ) { // phpcs:ignore
 		$attrs = array(
 			// Prevents an empty window from opening on desktop: https://github.com/ampproject/amphtml/issues/9157.
 			'data-target' => '_self',
