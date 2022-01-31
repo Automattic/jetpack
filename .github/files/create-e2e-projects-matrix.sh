@@ -32,10 +32,8 @@ for PROJECT in "${PROJECTS[@]}"; do
 		# iterate over defined target plugins/projects and see if they are changed
 		for TESTED_PROJECT in $TARGET_PROJECTS; do
 			RESULT=$(jq --arg prj "$TESTED_PROJECT" '.[$prj]' <<<"$CHANGED_PROJECTS")
-			#	printf "%s: %s" "$TESTED_PROJECT" "$RESULT"
 			if [[ "$RESULT" == true ]]; then
 				PROJECTS_MATRIX+=("$PROJECT")
-				#	printf " ==> %s tests should run\n" "$PROJECT_NAME"
 				break
 			fi
 		done
