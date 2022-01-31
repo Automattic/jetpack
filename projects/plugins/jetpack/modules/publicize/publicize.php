@@ -1097,9 +1097,11 @@ abstract class Publicize_Base {
 			$submit_post = false;
 		}
 
-		if ( ! empty( $_GET['bulk_edit'] ) ) { // phpcs:ignore
+		// phpcs:disable WordPress.Security.NonceVerification.Recommended -- just ignoring the line doesn't work for some reason
+		if ( ! empty( $_GET['bulk_edit'] ) ) {
 			$submit_post = false;
 		}
+		// phpcs:enable WordPress.Security.NonceVerification.Recommended
 
 		// - API/XML-RPC Test Posts
 		if (
