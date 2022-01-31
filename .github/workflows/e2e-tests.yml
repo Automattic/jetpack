@@ -17,13 +17,13 @@ concurrency:
   cancel-in-progress: true
 
 jobs:
-  create-projects-matrix:
+  create-test-matrix:
     name: "Determine tests matrix"
     runs-on: ubuntu-latest
     timeout-minutes: 3
     outputs:
-      matrix: ${{ steps.create-matrix.outputs.matrix }}
-      runName: ${{ steps.create-matrix.outputs.runName }}
+      matrix: ${{ steps.set-matrix.outputs.matrix }}
+      runName: ${{ steps.set-run-name.outputs.runName }}
     steps:
       - uses: actions/checkout@v2
 
@@ -39,26 +39,39 @@ jobs:
         run: |
           pnpm install
 
-      - name: Create projects matrix
-        id: create-matrix
+      - name: Evaluate test projects and triggers
+        id: evaluate
         env:
-          CRON: github.event.schedule
+          CRON: ${{ github.event.schedule }}
         run: |
-          OUT="$(.github/files/create-e2e-projects-matrix.sh)"
-          RUN_NAME=$(jq -r ".run" <<<"$OUT")
-          MATRIX=$(jq -r ".matrix" <<<"$OUT")
+          TEST_PLAN="$(.github/files/create-e2e-projects-matrix.sh)"
+          echo "::set-output name=testPlan::$TEST_PLAN"
+
+      - name: Set projects matrix
+        id: set-matrix
+        env:
+          TEST_PLAN: ${{ steps.evaluate.outputs.testPlan }}
+        run: |
+          MATRIX=$(jq -r ".matrix" <<<"$TEST_PLAN")
+          echo "::set-output name=matrix::$MATRIX"
+
+      - name: Set run name
+        id: set-run-name
+        env:
+          TEST_PLAN: ${{ steps.evaluate.outputs.testPlan }}
+        run: |
+          RUN_NAME=$(jq -r ".run" <<<"$TEST_PLAN")
           echo "::set-output name=runName::$RUN_NAME"
-          echo "::set-output name=matrix::$PROJECTS"
 
   e2e-tests:
     name: "${{ matrix.project }} e2e tests"
     runs-on: ubuntu-latest
-    needs: create-projects-matrix
+    needs: create-test-matrix
     timeout-minutes: 25
     strategy:
       fail-fast: false
       matrix:
-        include: ${{ fromJson( needs.create-projects-matrix.outputs.matrix ) }}
+        include: ${{ fromJson( needs.create-test-matrix.outputs.matrix ) }}
     if: github.event.pull_request.head.repo.full_name == github.event.pull_request.base.repo.full_name
 
     steps:
@@ -66,6 +79,14 @@ jobs:
 
     - name: Setup tools
       uses: ./.github/actions/tool-setup
+
+    - name: Print test plan
+      env:
+        FOO: ${{matrix}}
+        BAR: ${{needs.create-test-matrix.outputs.runName}}
+      run: |
+        echo ${FOO}
+        echo ${BAR}
 
     - name: Install monorepo
       run: |
@@ -130,7 +151,7 @@ jobs:
     name: "Trigger test report workflow"
     runs-on: ubuntu-latest
     if: ${{ ! cancelled() }}
-    needs: [create-projects-matrix, e2e-tests]
+    needs: [create-test-matrix, e2e-tests]
 
     steps:
       - uses: actions/checkout@v2
@@ -140,6 +161,6 @@ jobs:
         with:
           token: ${{ secrets.E2E_TEST_REPORTS_TOKEN }}
           event_type: e2e
-          report_name: ${{needs.create-projects-matrix.outputs.runName}}
+          report_name: ${{needs.create-test-matrix.outputs.runName}}
 
 
