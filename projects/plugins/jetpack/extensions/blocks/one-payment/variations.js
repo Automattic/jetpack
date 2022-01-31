@@ -26,7 +26,7 @@ const variationDefinitions = variations
 		if ( getBlockType( 'jetpack/' + blockName ) ) {
 			blockDefinition.name = 'jetpack/onepayment-' + blockName;
 			blockDefinition.title = settings.title;
-			blockDefinition.description = settings.desccription;
+			blockDefinition.description = settings.description;
 			blockDefinition.icon = settings.icon.src;
 			blockDefinition.innerBlocks = [ [ 'jetpack/' + blockName, {} ] ];
 			// The inner block itself is already listed in the inserter in its own right, so just include in this blocks
