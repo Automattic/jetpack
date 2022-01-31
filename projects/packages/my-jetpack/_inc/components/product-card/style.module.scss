@@ -67,6 +67,8 @@
 .status {
   margin-left: var(--product-card-margin-base);
   white-space: nowrap;
+  height: 36px;
+  line-height: 36px;
 
   &:before {
     content: "";
