@@ -13,6 +13,7 @@ import { getFilterKeys } from './filters';
 import {
 	MINUTE_IN_MILLISECONDS,
 	MULTISITE_NO_GROUP_VALUE,
+	RESULT_FORMAT_MINIMAL,
 	RESULT_FORMAT_PRODUCT,
 	SERVER_OBJECT_NAME,
 } from './constants';
@@ -97,7 +98,7 @@ function generateAggregation( filter ) {
 
 const DATE_REGEX = /(\d{4})-(\d{2})-(\d{2})/;
 /**
- * Generates a ElasticSerach date range filter.
+ * Generates a ElasticSearch date range filter.
  *
  * @param {string} fieldName - Name of the field (created, modified, etc).
  * @param {string} input - Filter value.
@@ -177,7 +178,7 @@ function buildStaticFilters( staticFilters ) {
 }
 
 /**
- * Build an ElasticSerach filter object.
+ * Build an ElasticSearch filter object.
  *
  * @param {object} filterQuery - Filter query value object.
  * @param {object} adminQueryFilter - Manual ElasticSearch query override.
@@ -266,11 +267,18 @@ function generateApiQueryString( {
 		'tag.name.default',
 		'category.name.default',
 		'post_type',
-		'has.image',
 		'shortcode_types',
-		'image.url.raw',
 	];
 	const highlightFields = [ 'title', 'content', 'comments' ];
+
+	/* Fetch image fields for non-minimal results
+	 *
+	 * We always need these in the Customizer too, because the API request is not
+	 * repeated when switching result format
+	 */
+	if ( resultFormat !== RESULT_FORMAT_MINIMAL || isInCustomizer ) {
+		fields = fields.concat( [ 'has.image', 'image.url.raw', 'image.alt_text' ] );
+	}
 
 	/* Fetch additional fields for product results
 	 *

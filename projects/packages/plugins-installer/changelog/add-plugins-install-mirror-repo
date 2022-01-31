@@ -1,0 +1,4 @@
+Significance: patch
+Type: changed
+
+Build: add missing mirror repo details, so package can be deployed.

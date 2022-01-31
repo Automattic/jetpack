@@ -6,6 +6,10 @@ export default async function () {
 	const browser = await chromium.launch();
 	const page = await browser.newPage();
 	await prerequisitesBuilder( page ).withLoggedIn( true ).withActivePlugins( [ 'boost' ] ).build();
-	await boostPrerequisitesBuilder( page ).withCleanEnv( true ).withConnection( true ).build();
+	await boostPrerequisitesBuilder( page )
+		.withCleanEnv( true )
+		.withSpeedScoreMocked( true )
+		.withConnection( true )
+		.build();
 	await page.close();
 }

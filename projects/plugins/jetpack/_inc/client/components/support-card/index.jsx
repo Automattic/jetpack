@@ -141,7 +141,7 @@ class SupportCard extends React.Component {
 SupportCard.propTypes = {
 	siteConnectionStatus: PropTypes.any.isRequired,
 	className: PropTypes.string,
-	isCurrentUserLinked: PropTypes.string,
+	isCurrentUserLinked: PropTypes.bool,
 	isConnectionOwner: PropTypes.bool,
 };
 
