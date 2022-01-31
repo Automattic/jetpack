@@ -49,25 +49,31 @@ export class EventbriteEdit extends Component {
 			return;
 		}
 
-		const newAttributes = {
-			eventId: eventIdFromUrl( url ),
-			url,
-		};
+		const eventId = eventIdFromUrl( url );
 
-		testEmbedUrl( newAttributes.url, this.setIsResolvingUrl )
-			.then( resolvedUrl => {
-				const newValidatedAttributes = getValidatedAttributes( attributeDetails, {
-					...newAttributes,
-					url: resolvedUrl,
+		if ( ! eventId ) {
+			this.setErrorNotice();
+		} else {
+			const newAttributes = {
+				eventId,
+				url,
+			};
+
+			testEmbedUrl( newAttributes.url, this.setIsResolvingUrl )
+				.then( resolvedUrl => {
+					const newValidatedAttributes = getValidatedAttributes( attributeDetails, {
+						...newAttributes,
+						url: resolvedUrl,
+					} );
+					setAttributes( newValidatedAttributes );
+					this.setState( { editedUrl: resolvedUrl } );
+					noticeOperations.removeAllNotices();
+				} )
+				.catch( () => {
+					setAttributes( { eventId: undefined, url: undefined } );
+					this.setErrorNotice();
 				} );
-				setAttributes( newValidatedAttributes );
-				this.setState( { editedUrl: resolvedUrl } );
-				noticeOperations.removeAllNotices();
-			} )
-			.catch( () => {
-				setAttributes( { eventId: undefined, url: undefined } );
-				this.setErrorNotice();
-			} );
+		}
 	};
 
 	setIsResolvingUrl = isResolvingUrl => this.setState( { isResolvingUrl } );

@@ -57,6 +57,13 @@ class P2_Admin_Menu extends WPcom_Admin_Menu {
 	private $is_hub = false;
 
 	/**
+	 * Whether or not the P2 has a paid plan.
+	 *
+	 * @var bool
+	 */
+	private $is_paid = false;
+
+	/**
 	 * P2_Admin_Menu constructor.
 	 */
 	protected function __construct() {
@@ -68,7 +75,9 @@ class P2_Admin_Menu extends WPcom_Admin_Menu {
 		) {
 			require_lib( 'wpforteams' );
 
-			$this->is_hub = \WPForTeams\Workspace\is_workspace_hub( get_current_blog_id() );
+			$current_blog_id = get_current_blog_id();
+			$this->is_hub    = \WPForTeams\Workspace\is_workspace_hub( $current_blog_id );
+			$this->is_paid   = \WPForTeams\has_p2_plus_plan( \WPForTeams\Workspace\get_hub_blog_id_from_blog_id( $current_blog_id ) );
 		}
 		// Appearance -> AMP. This needs to be called here in the constructor.
 		// Running it from reregister_menu_items is not early enough.
@@ -83,8 +92,6 @@ class P2_Admin_Menu extends WPcom_Admin_Menu {
 
 		if ( ! $this->is_hub ) {
 			$this->remove_menus_for_p2_space();
-			// Only add the P2 Editor menu on non-hubs.
-			$this->add_p2_editor_menu();
 		} else {
 			$this->remove_menus_for_hub();
 		}
@@ -133,18 +140,27 @@ class P2_Admin_Menu extends WPcom_Admin_Menu {
 		remove_menu_page( $this->appearance_slug );
 		// Tools.
 		remove_menu_page( $this->tools_slug );
+		// Hide settings.
+		remove_submenu_page( 'options-general.php', 'options-reading.php' );
+		remove_submenu_page( 'options-general.php', 'options-writing.php' );
+		remove_submenu_page( 'options-general.php', 'options-discussion.php' );
 	}
 
 	/**
 	 * Remove menu items that are not applicable for all P2s.
 	 */
 	private function remove_menus_for_all_p2s() {
+		// For free sites remove Jetpack menu item.
+		if ( ! $this->is_paid ) {
+			remove_menu_page( $this->jetpack_slug );
+		}
+
 		// The following menu items are hidden for both hubs and P2 sites.
 		remove_menu_page( 'link-manager.php' );
 		remove_menu_page( 'feedback' );
-		remove_menu_page( 'https://wordpress.com/beta-testing/' . $this->domain );
 		remove_menu_page( $this->plugins_slug );
 		remove_menu_page( 'https://wordpress.com/plugins/' . $this->domain );
+		remove_menu_page( 'https://wordpress.com/inbox/' . $this->domain );
 
 		remove_submenu_page( $this->tools_slug, 'https://wordpress.com/marketing/tools/' . $this->domain );
 		remove_submenu_page( $this->tools_slug, 'https://wordpress.com/earn/' . $this->domain );
@@ -160,28 +176,24 @@ class P2_Admin_Menu extends WPcom_Admin_Menu {
 			'https://wordpress.com/settings/general/' . $this->domain,
 			'https://wordpress.com/marketing/sharing-buttons/' . $this->domain
 		);
+
+		/** This action is documented in `wp-content/plugins/p2-editor/classes/p2-editor-admin.php` */
+		if ( apply_filters( 'p2tenberg_admin_patterns', apply_filters( 'p2editor_admin_patterns', true ) ) !== true ) {
+			remove_menu_page( 'edit.php?post_type=p2_pattern' );
+		}
+		remove_submenu_page(
+			'edit.php?post_type=p2_pattern',
+			'edit-tags.php?taxonomy=post_tag&amp;post_type=p2_pattern'
+		);
+
+		// Hide performance settings.
+		remove_submenu_page( 'options-general.php', 'https://wordpress.com/settings/performance/' . $this->domain );
 	}
 
 	/**
-	 * Adds the P2 Editor menu.
+	 * Override, don't add the woocommerce installation menu on any p2s.
+	 *
+	 * @param array|null $current_plan The site's plan.
 	 */
-	private function add_p2_editor_menu() {
-		/** This action is documented in `wp-content/plugins/p2-editor/classes/p2-editor-admin.php` */
-		if ( apply_filters( 'p2tenberg_admin_patterns', apply_filters( 'p2editor_admin_patterns', true ) ) !== true ) {
-			return;
-		}
-
-		// Add the menu only in Calypso (it already exists in WP Admin).
-		if ( $this->is_api_request ) {
-			add_menu_page(
-				esc_attr__( 'P2 Editor', 'jetpack' ),
-				__( 'P2 Editor', 'jetpack' ),
-				'manage_options',
-				'p2editor',
-				'',
-				'dashicons-admin-multisite'
-			);
-		}
-	}
-
+	public function add_woocommerce_installation_menu( $current_plan = null ) {} // phpcs:ignore VariableAnalysis.CodeAnalysis.VariableAnalysis.UnusedVariable
 }

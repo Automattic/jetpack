@@ -1,18 +1,34 @@
-<?php
+<?php // phpcs:ignore WordPress.Files.FileName.InvalidClassFileName
+/**
+ * Build the Jetpack admin menu as a whole.
+ *
+ * @package automattic/jetpack
+ */
 
-use Automattic\Jetpack\Status;
 use Automattic\Jetpack\Assets\Logo as Jetpack_Logo;
+use Automattic\Jetpack\Partner_Coupon as Jetpack_Partner_Coupon;
+use Automattic\Jetpack\Status;
 
-// Build the Jetpack admin menu as a whole
+/**
+ * Build the Jetpack admin menu as a whole.
+ */
 class Jetpack_Admin {
 
 	/**
+	 * Static instance.
+	 *
 	 * @var Jetpack_Admin
-	 **/
+	 */
 	private static $instance = null;
 
-	static function init() {
-		if ( isset( $_GET['page'] ) && $_GET['page'] === 'jetpack' ) {
+	/**
+	 * Initialize and fetch the static instance.
+	 *
+	 * @return self
+	 */
+	public static function init() {
+		// phpcs:ignore WordPress.Security.NonceVerification.Recommended
+		if ( isset( $_GET['page'] ) && 'jetpack' === $_GET['page'] ) {
 			add_filter( 'nocache_headers', array( 'Jetpack_Admin', 'add_no_store_header' ), 100 );
 		}
 
@@ -22,11 +38,18 @@ class Jetpack_Admin {
 		return self::$instance;
 	}
 
-	static function add_no_store_header( $headers ) {
+	/**
+	 * Filter callback to add `no-store` to the `Cache-Control` header.
+	 *
+	 * @param array $headers Headers array.
+	 * @return array Modified headers array.
+	 */
+	public static function add_no_store_header( $headers ) {
 		$headers['Cache-Control'] .= ', no-store';
 		return $headers;
 	}
 
+	/** Constructor. */
 	private function __construct() {
 		jetpack_require_lib( 'admin-pages/class.jetpack-react-page' );
 		$this->jetpack_react = new Jetpack_React_Page();
@@ -37,23 +60,22 @@ class Jetpack_Admin {
 		jetpack_require_lib( 'admin-pages/class-jetpack-about-page' );
 		$this->jetpack_about = new Jetpack_About_Page();
 
-		jetpack_require_lib( 'admin-pages/class-jetpack-search-dashboard-page' );
-		$this->jetpack_search = new Jetpack_Search_Dashboard_Page();
+		// The dashboard has to be initialized outside the module, otherwise which wouldn't load if module disabled.
+		( new Automattic\Jetpack\Search\Dashboard() )->init_hooks();
 
 		add_action( 'admin_init', array( $this->jetpack_react, 'react_redirects' ), 0 );
 		add_action( 'admin_menu', array( $this->jetpack_react, 'add_actions' ), 998 );
-		add_action( 'admin_menu', array( $this->jetpack_search, 'add_actions' ), 999 );
 		add_action( 'jetpack_admin_menu', array( $this->jetpack_react, 'jetpack_add_dashboard_sub_nav_item' ) );
 		add_action( 'jetpack_admin_menu', array( $this->jetpack_react, 'jetpack_add_settings_sub_nav_item' ) );
 		add_action( 'jetpack_admin_menu', array( $this, 'admin_menu_debugger' ) );
 		add_action( 'jetpack_admin_menu', array( $this->fallback_page, 'add_actions' ) );
 		add_action( 'jetpack_admin_menu', array( $this->jetpack_about, 'add_actions' ) );
 
-		// Add redirect to current page for activation/deactivation of modules
+		// Add redirect to current page for activation/deactivation of modules.
 		add_action( 'jetpack_pre_activate_module', array( $this, 'fix_redirect' ), 10, 2 );
 		add_action( 'jetpack_pre_deactivate_module', array( $this, 'fix_redirect' ) );
 
-		// Add module bulk actions handler
+		// Add module bulk actions handler.
 		add_action( 'jetpack_unrecognized_action', array( $this, 'handle_unrecognized_action' ) );
 
 		if ( class_exists( 'Akismet_Admin' ) ) {
@@ -82,6 +104,9 @@ class Jetpack_Admin {
 		}
 
 		add_filter( 'jetpack_display_jitms_on_screen', array( $this, 'should_display_jitms_on_screen' ), 10, 2 );
+
+		// Register Jetpack partner coupon hooks.
+		Jetpack_Partner_Coupon::register_coupon_admin_hooks( 'jetpack', Jetpack::admin_url() );
 	}
 
 	/**
@@ -89,15 +114,23 @@ class Jetpack_Admin {
 	 * Jetpack Anti-Spam. Without this, we would have to change the logo from Akismet codebase and we want to avoid that.
 	 */
 	public function akismet_logo_replacement_styles() {
-		$logo            = new Jetpack_Logo();
+		$logo = new Jetpack_Logo();
+		// phpcs:ignore WordPress.PHP.DiscouragedPHPFunctions.obfuscation_base64_encode
 		$logo_base64     = base64_encode( $logo->get_jp_emblem_larger() );
 		$logo_base64_url = "data:image/svg+xml;base64,{$logo_base64}";
 		$style           = ".akismet-masthead__logo-container { background: url({$logo_base64_url}) no-repeat .25rem; height: 1.8125rem; } .akismet-masthead__logo { display: none; }";
 		wp_add_inline_style( 'admin-bar', $style );
 	}
 
-	static function sort_requires_connection_last( $module1, $module2 ) {
-		if ( $module1['requires_connection'] == $module2['requires_connection'] ) {
+	/**
+	 * Sort callback to put modules with `requires_connection` last.
+	 *
+	 * @param array $module1 Module data.
+	 * @param array $module2 Module data.
+	 * @return int Indicating the relative ordering of module1 and module2.
+	 */
+	public static function sort_requires_connection_last( $module1, $module2 ) {
+		if ( (bool) $module1['requires_connection'] === (bool) $module2['requires_connection'] ) {
 			return 0;
 		} elseif ( $module1['requires_connection'] ) {
 			return 1;
@@ -108,9 +141,11 @@ class Jetpack_Admin {
 		return 0;
 	}
 
-	// Produce JS understandable objects of modules containing information for
-	// presentation like description, name, configuration url, etc.
-	function get_modules() {
+	/**
+	 * Produce JS understandable objects of modules containing information for
+	 * presentation like description, name, configuration url, etc.
+	 */
+	public function get_modules() {
 		include_once JETPACK__PLUGIN_DIR . 'modules/module-info.php';
 		$available_modules = Jetpack::get_available_modules();
 		$active_modules    = Jetpack::get_active_modules();
@@ -118,7 +153,8 @@ class Jetpack_Admin {
 		$jetpack_active    = Jetpack::is_connection_ready() || ( new Status() )->is_offline_mode();
 		$overrides         = Jetpack_Modules_Overrides::instance();
 		foreach ( $available_modules as $module ) {
-			if ( $module_array = Jetpack::get_module( $module ) ) {
+			$module_array = Jetpack::get_module( $module );
+			if ( $module_array ) {
 				/**
 				 * Filters each module's short description.
 				 *
@@ -128,7 +164,7 @@ class Jetpack_Admin {
 				 * @param string $module Module slug.
 				 */
 				$short_desc = apply_filters( 'jetpack_short_module_description', $module_array['description'], $module );
-				// Fix: correct multibyte strings truncate with checking for mbstring extension
+				// Fix: correct multibyte strings truncate with checking for mbstring extension.
 				$short_desc_trunc = ( function_exists( 'mb_strlen' ) )
 							? ( ( mb_strlen( $short_desc ) > 143 )
 								? mb_substr( $short_desc, 0, 140 ) . '...'
@@ -196,7 +232,7 @@ class Jetpack_Admin {
 				 *
 				 * @param string The search terms (comma separated).
 				 */
-				echo apply_filters( 'jetpack_search_terms_' . $module, $module_array['additional_search_queries'] );
+				echo apply_filters( 'jetpack_search_terms_' . $module, $module_array['additional_search_queries'] ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
 				$module_array['search_terms'] = ob_get_clean();
 
 				$module_array['configurable'] = false;
@@ -228,7 +264,12 @@ class Jetpack_Admin {
 		return $modules;
 	}
 
-	static function is_module_available( $module ) {
+	/**
+	 * Check if a module is available.
+	 *
+	 * @param array $module Module data.
+	 */
+	public static function is_module_available( $module ) {
 		if ( ! is_array( $module ) || empty( $module ) ) {
 			return false;
 		}
@@ -351,16 +392,21 @@ class Jetpack_Admin {
 		return '';
 	}
 
-	function handle_unrecognized_action( $action ) {
+	/**
+	 * Handle an unrecognized action.
+	 *
+	 * @param string $action Action.
+	 */
+	public function handle_unrecognized_action( $action ) {
 		switch ( $action ) {
 			case 'bulk-activate':
+				check_admin_referer( 'bulk-jetpack_page_jetpack_modules' );
 				if ( ! current_user_can( 'jetpack_activate_modules' ) ) {
 					break;
 				}
 
 				$modules = (array) $_GET['modules'];
 				$modules = array_map( 'sanitize_key', $modules );
-				check_admin_referer( 'bulk-jetpack_page_jetpack_modules' );
 				foreach ( $modules as $module ) {
 					Jetpack::log( 'activate', $module );
 					Jetpack::activate_module( $module, false );
@@ -369,13 +415,13 @@ class Jetpack_Admin {
 				wp_safe_redirect( wp_get_referer() );
 				exit;
 			case 'bulk-deactivate':
+				check_admin_referer( 'bulk-jetpack_page_jetpack_modules' );
 				if ( ! current_user_can( 'jetpack_deactivate_modules' ) ) {
 					break;
 				}
 
 				$modules = (array) $_GET['modules'];
 				$modules = array_map( 'sanitize_key', $modules );
-				check_admin_referer( 'bulk-jetpack_page_jetpack_modules' );
 				foreach ( $modules as $module ) {
 					Jetpack::log( 'deactivate', $module );
 					Jetpack::deactivate_module( $module );
@@ -389,7 +435,16 @@ class Jetpack_Admin {
 		}
 	}
 
-	function fix_redirect( $module, $redirect = true ) {
+	/**
+	 * Fix redirect.
+	 *
+	 * Apparently we redirect to the referrer instead of whatever WordPress
+	 * wants to redirect to when activating and deactivating modules.
+	 *
+	 * @param string $module Module slug.
+	 * @param bool   $redirect Should we exit after the module has been activated. Default to true.
+	 */
+	public function fix_redirect( $module, $redirect = true ) {
 		if ( ! $redirect ) {
 			return;
 		}
@@ -398,7 +453,10 @@ class Jetpack_Admin {
 		}
 	}
 
-	function admin_menu_debugger() {
+	/**
+	 * Add debugger admin menu.
+	 */
+	public function admin_menu_debugger() {
 		jetpack_require_lib( 'debugger' );
 		Jetpack_Debugger::disconnect_and_redirect();
 		$debugger_hook = add_submenu_page(
@@ -412,7 +470,10 @@ class Jetpack_Admin {
 		add_action( "admin_head-$debugger_hook", array( 'Jetpack_Debugger', 'jetpack_debug_admin_head' ) );
 	}
 
-	function wrap_debugger_page() {
+	/**
+	 * Wrap debugger page.
+	 */
+	public function wrap_debugger_page() {
 		nocache_headers();
 		if ( ! current_user_can( 'manage_options' ) ) {
 			die( '-1' );
@@ -420,7 +481,10 @@ class Jetpack_Admin {
 		Jetpack_Admin_Page::wrap_ui( array( $this, 'debugger_page' ) );
 	}
 
-	function debugger_page() {
+	/**
+	 * Display debugger page.
+	 */
+	public function debugger_page() {
 		jetpack_require_lib( 'debugger' );
 		Jetpack_Debugger::jetpack_debug_display_handler();
 	}

@@ -30,8 +30,8 @@ class Test_CSS_Customizer_Nudge extends \WP_UnitTestCase {
 	 *
 	 * @return void
 	 */
-	public function setUp() {
-		parent::setUp();
+	public function set_up() {
+		parent::set_up();
 
 		$this->wp_customize = new \WP_Customize_Manager();
 		register_css_nudge_control( $this->wp_customize );

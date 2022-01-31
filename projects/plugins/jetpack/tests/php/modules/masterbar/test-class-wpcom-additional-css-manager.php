@@ -33,8 +33,8 @@ class Test_WPCOM_Additional_Css_Manager extends \WP_UnitTestCase {
 	 *
 	 * @return void
 	 */
-	public function setUp() {
-		parent::setUp();
+	public function set_up() {
+		parent::set_up();
 
 		$this->wp_customize = new \WP_Customize_Manager();
 	}

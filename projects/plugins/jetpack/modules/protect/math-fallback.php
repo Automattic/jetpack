@@ -147,14 +147,14 @@ if ( ! class_exists( 'Jetpack_Protect_Math_Authenticate' ) ) {
 			$salted_ans  = hash_hmac( 'sha1', $ans, $salt . $time_window );
 			?>
 			<div style="margin: 5px 0 20px;">
-				<label for="jetpack_protect_answer">
+				<p style="font-size: 14px;">
 					<?php esc_html_e( 'Prove your humanity', 'jetpack' ); ?>
-				</label>
+				</p>
 				<br/>
-				<span style="vertical-align:super;">
+				<label for="jetpack_protect_answer" style="vertical-align:super;">
 					<?php echo esc_html( "$num1 &nbsp; + &nbsp; $num2 &nbsp; = &nbsp;" ); ?>
-				</span>
-				<input type="text" id="jetpack_protect_answer" name="jetpack_protect_num" value="" size="2" style="width:30px;height:25px;vertical-align:middle;font-size:13px;" class="input" />
+				</label>
+				<input type="number" id="jetpack_protect_answer" name="jetpack_protect_num" value="" size="2" style="width:50px;height:25px;vertical-align:middle;font-size:13px;" class="input" />
 				<input type="hidden" name="jetpack_protect_answer" value="<?php echo esc_attr( $salted_ans ); ?>" />
 			</div>
 		<?php

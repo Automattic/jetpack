@@ -261,17 +261,56 @@ function sharing_global_resources_save() {
 	update_option( 'sharedaddy_disable_resources', isset( $_POST['disable_resources'] ) ? 1 : 0 );
 }
 
+/**
+ * Returns the Recaptcha site/public key.
+ *
+ * Supports legacy RECAPTCHA_PUBLIC_KEY or RECAPTCHA_SITE_KEY.
+ *
+ * @return string
+ */
+function sharing_recaptcha_site_key() {
+	if ( ! defined( 'RECAPTCHA_PUBLIC_KEY' ) && ! defined( 'RECAPTCHA_SITE_KEY' ) ) {
+		return '';
+	}
+
+	if ( defined( 'RECAPTCHA_PUBLIC_KEY' ) && ! defined( 'RECAPTCHA_SITE_KEY' ) ) {
+		define( 'RECAPTCHA_SITE_KEY', RECAPTCHA_PUBLIC_KEY );
+	}
+
+	return RECAPTCHA_SITE_KEY;
+}
+
+/**
+ * Returns the Recaptcha private/secret key.
+ *
+ * Supports legacy RECAPTCHA_PRIVATE_KEY or RECAPTCHA_SECRET_KEY.
+ *
+ * @return string
+ */
+function sharing_recaptcha_secret_key() {
+	if ( ! defined( 'RECAPTCHA_PRIVATE_KEY' ) && ! defined( 'RECAPTCHA_SECRET_KEY' ) ) {
+		return '';
+	}
+
+	if ( defined( 'RECAPTCHA_PRIVATE_KEY' ) && ! defined( 'RECAPTCHA_SECRET_KEY' ) ) {
+		define( 'RECAPTCHA_SECRET_KEY', RECAPTCHA_PRIVATE_KEY );
+	}
+
+	return RECAPTCHA_SECRET_KEY;
+
+}
+
 function sharing_email_dialog() {
 	require_once plugin_dir_path( __FILE__ ) . 'recaptcha.php';
 
-	$recaptcha = new Jetpack_ReCaptcha( RECAPTCHA_PUBLIC_KEY, RECAPTCHA_PRIVATE_KEY, array( 'script_lazy' => true ) );
+	$recaptcha = new Jetpack_ReCaptcha( sharing_recaptcha_site_key(), sharing_recaptcha_secret_key(), array( 'script_lazy' => true ) );
 	echo $recaptcha->get_recaptcha_html(); // xss ok
 }
 
 function sharing_email_check( $true, $post, $data ) {
 	require_once plugin_dir_path( __FILE__ ) . 'recaptcha.php';
 
-	$recaptcha = new Jetpack_ReCaptcha( RECAPTCHA_PUBLIC_KEY, RECAPTCHA_PRIVATE_KEY, array( 'script_lazy' => true ) );
+	$recaptcha = new Jetpack_ReCaptcha( sharing_recaptcha_site_key(), sharing_recaptcha_secret_key(), array( 'script_lazy' => true ) );
 	$response  = ! empty( $_POST['g-recaptcha-response'] ) ? $_POST['g-recaptcha-response'] : '';
 	$result    = $recaptcha->verify( $response, $_SERVER['REMOTE_ADDR'] );
 
@@ -289,7 +328,7 @@ add_action( 'sharing_admin_update', 'sharing_global_resources_save' );
 add_action( 'plugin_action_links_'.basename( dirname( __FILE__ ) ).'/'.basename( __FILE__ ), 'sharing_plugin_settings', 10, 4 );
 add_filter( 'plugin_row_meta', 'sharing_add_plugin_settings', 10, 2 );
 
-if ( defined( 'RECAPTCHA_PUBLIC_KEY' ) && defined( 'RECAPTCHA_PRIVATE_KEY' ) ) {
+if ( sharing_recaptcha_site_key() && sharing_recaptcha_secret_key() ) {
 	add_action( 'sharing_email_dialog', 'sharing_email_dialog' );
 	add_filter( 'sharing_email_check', 'sharing_email_check', 10, 3 );
 }

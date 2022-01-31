@@ -1,4 +1,4 @@
-/*
+/*!
  * printThis v1.9.0
  * @desc Printing plug-in for jQuery
  * @author Jason Day
@@ -12,7 +12,8 @@
  *              http://www.opensource.org/licenses/mit-license.php
  *
  * (c) Jason Day 2015
- *
+ */
+/*
  * Usage:
  *
  *  $("#mySelector").printThis({

@@ -2,6 +2,10 @@
  * External dependencies
  */
 import type { SvelteComponent } from 'svelte';
+
+/**
+ * WordPress dependencies
+ */
 import { __, _n, sprintf } from '@wordpress/i18n';
 
 /**
@@ -270,7 +274,7 @@ const errorTypeSpecs: { [ type: string ]: ErrorTypeSpec } = {
 				urlCount( set ),
 				'jetpack-boost'
 			),
-		suggestion: set => ( {
+		suggestion: _set => ( {
 			paragraph: __(
 				'This may indicate that a WordPress plugin is redirecting users who are not logged in to a different location, or it may indicate that your hosting provider is redirecting your WordPress site to a different URL.',
 				'jetpack-boost'
@@ -288,11 +292,11 @@ const errorTypeSpecs: { [ type: string ]: ErrorTypeSpec } = {
 					'If you believe the issue is resolved, please <retry>try again</retry>.',
 					'jetpack-boost'
 				),
-				__(
-					'If you think that the redirection is valid, then it is safe to ignore this issue.',
-					'jetpack-boost'
-				),
 			],
+			closingParagraph: __(
+				'If you think that the redirection is valid, then it is safe to ignore this issue.',
+				'jetpack-boost'
+			),
 		} ),
 	},
 
@@ -432,6 +436,34 @@ const errorTypeSpecs: { [ type: string ]: ErrorTypeSpec } = {
 					'If the error still persist please contact <support>Jetpack Boost Support</support> with a copy of your error message.',
 					'jetpack-boost'
 				),
+			],
+		} ),
+	},
+
+	XFrameDenyError: {
+		describeSet: set =>
+			_n(
+				"Jetpack Boost couldn't load the following page due to its X-Frame-Options configuration:",
+				"Jetpack Boost couldn't load the following page due to their X-Frame-Options configuration:",
+				urlCount( set ),
+				'jetpack-boost'
+			),
+		rawError: set => Object.values( set.byUrl )[ 0 ].message,
+		suggestion: _set => ( {
+			paragraph: __(
+				'Jetpack Boost uses iframes while generating your Critical CSS. Unfortunately, your site has a special configuration header which prevents it from loading inside an iframe. The header is called "X-Frame-Options: DENY". This can be added to a WordPress site either by using a plugin, or by server configuration.',
+				'jetpack-boost'
+			),
+			list: [
+				__(
+					'Check that you are not using any plugins which add extra HTTP headers to your WordPress site, and deactivate them if you are.',
+					'jetpack-boost'
+				),
+				__(
+					'If you are unsure of what these headers are, or where they come from please contact your hosting provider and ask them to remove the "X-Frame-Options" header from your site',
+					'jetpack-boost'
+				),
+				__( '<retry>Try again</retry> to generate the Critical CSS.', 'jetpack-boost' ),
 			],
 		} ),
 	},

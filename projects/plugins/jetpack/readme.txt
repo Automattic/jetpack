@@ -1,10 +1,10 @@
 === Jetpack - WP Security, Backup, Speed, & Growth ===
-Contributors: automattic, adamkheckler, aduth, akirk, allendav, alternatekev, andy, annezazu, apeatling, azaozz, batmoo, barry, beaulebens, biskobe, blobaugh, brbrr, cainm, cena, cfinke, chaselivingston, chellycat, clickysteve, csonnek, danielbachhuber, davoraltman, daniloercoli, delawski, designsimply, dllh, drawmyface, dsmart, dzver, ebinnion, egregor, eliorivero, enej, eoigal, erania-pinnera, ethitter, fgiannar, gcorne, georgestephanis, gibrown, goldsounds, hew, hugobaeta, hypertextranch, iammattthomas, iandunn, jblz, jasmussen, jeffgolenski, jeherve, jenhooks, jenia, jessefriedman, jgs, jkudish, jmdodd, joanrho, johnjamesjacoby, jshreve, kbrownkd, keoshi, koke, kraftbj, lancewillett, leogermani, lschuyler, macmanx, martinremy, matt, matveb, mattwiebe, maverick3x6, mcsf, mdawaffe, mdbitz, MichaelArestad, migueluy, mikeyarce, mkaz, nancythanki, nickmomrik, obenland, oskosk, pento, professor44, rachelsquirrel, rdcoll, ryancowles, richardmuscat, richardmtl, robertbpugh, roccotripaldi, samhotchkiss, samiff, scarstocea, scottsweb, sdixon194, sdquirk, sermitr, simison, stephdau, tmoorewp, tyxla, Viper007Bond, westi, yoavf, zinigor
+Contributors: automattic, adamkheckler, adrianmoldovanwp, aduth, akirk, allendav, alternatekev, andy, annamcphee, annezazu, apeatling, arcangelini, azaozz, batmoo, barry, beaulebens, biskobe, blobaugh, bjorsch, brbrr, cainm, cena, cfinke, chaselivingston, chellycat, clickysteve, csonnek, danielbachhuber, davoraltman, daniloercoli, delawski, designsimply, dllh, drawmyface, dsmart, dzver, ebinnion, egregor, eliorivero, enej, eoigal, erania-pinnera, ethitter, fgiannar, gcorne, georgestephanis, gibrown, goldsounds, hew, hugobaeta, hypertextranch, iammattthomas, iandunn, jblz, jasmussen, jeffgolenski, jeherve, jenhooks, jenia, jessefriedman, jgs, jkudish, jmdodd, joanrho, johnjamesjacoby, jshreve, kbrownkd, keoshi, koke, kraftbj, lancewillett, leogermani, lschuyler, macmanx, martinremy, matt, matveb, mattwiebe, maverick3x6, mcsf, mdawaffe, mdbitz, MichaelArestad, migueluy, mikeyarce, mkaz, nancythanki, nickmomrik, obenland, oskosk, pento, professor44, rachelsquirrel, rdcoll, ryancowles, richardmuscat, richardmtl, robertbpugh, roccotripaldi, samhotchkiss, samiff, scarstocea, scottsweb, sdixon194, sdquirk, sermitr, simison, stephdau, tmoorewp, tyxla, Viper007Bond, westi, yoavf, zinigor
 Tags: Security, backup, Woo, malware, scan, spam, CDN, search, social
-Stable tag: 10.0
-Requires at least: 5.7
+Stable tag: 10.5.1
+Requires at least: 5.8
 Requires PHP: 5.6
-Tested up to: 5.8
+Tested up to: 5.9
 
 Improve your WP security with powerful one-click tools like backup and malware scan. Get essential free tools including stats, CDN and social sharing.
 
@@ -242,50 +242,34 @@ Jetpack Backup can do a full website migration to a new host, migrate theme file
 4. Promote your newest posts, pages, and products across your social media channels.
 
 == Changelog ==
-### 10.1-beta - 2021-08-31
-#### Major Enhancements
-- Search: add a Gutenberg powered customization interface.
-
+### 10.6-beta - 2022-01-25
 #### Enhancements
-- Carousel: photo info and comment sections stay open once toggled on.
-- Carousel: show image info icon even if Exif metadata option is off.
-- Carousel: use photo description as caption if caption and title fields are blank.
-- Form Block: scroll to subscription message after submitting the form.
-- Jetpack Assistant: introduce a new "Product Suggestion" step to inform new users of relevant Jetpack services.
-- Search: visual, functional, and accessibility improvements to new wp-admin section and customization interface.
-- Search: greater theme compatibility, including label coloring and custom checkbox margins.
-- Search: improves handling of breadcrumb display.
-- Secure Sign On: remove additional redirect during sign in process.
-- Shortcodes: allow wrapping quizzes together with the Quiz shortcode.
-- Spotify Shortcode: add lazy loading support.
-- Stats: add the ability to collapse the nudges UI.
-- Tiled Gallery Block: ensure it can be used when in Offline Mode.
-- Widget Visibility: rename taxonomy label "All Pages" in dropdown.
+- Contact Info and Markdown Blocks: add color, typography and spacing features.
+- Dashboard: support Beta versions of Automattic plugins in plugin cards.
+- Embeds: add support for Descript.com embeds.
+- Image Compare Block: Add `wide` and `full` alignment options
+- Pay with PayPal Block: do not display the block on the frontend if PayPal is misconfigured.
+- Search: improve accessibility via headings hierarchy and aria roles.
+- Stats: add new filter allowing site owners to exclude IP addresses from being tracked in stats.
+- Tiled Gallery Block: improve the block so it can be used within the mobile applications.
 
 #### Improved compatibility
-- Browser Compatibility: allow use of new JavaScript features not supported by Internet Explorer 11.
-- Image CDN: added support for the WEBP format.
-- Mailchimp Block: updates terminology to use "Audience" instead of "Lists".
-- Media: allow ZIP files to be uploaded to sites via WordPress.com.
-- Related Posts: allow shortcodes in Related Posts titles.
+- Instant Search: synchronize more meta data so the search feature can be used with more third-party plugins.
+- Sharing / AMP plugin: avoid adding sharing's CSS on AMP pages when the sharing feature is not active.
+- Subscription form: update the placeholder color to be the same as the text color of the site.
 
 #### Bug fixes
-- Carousel: fix a bug that changes the cursor to a pointer over all nested blocks.
-- Carousel: fix bug preventing user from swiping in gallery when images are configured to link to Attachment Page.
-- Carousel: hide UI controls in the carousel for single images.
-- Contact Form: disable the Block Editor for contact form submissions.
-- Custom CSS: ensure that short CSS is added inline instead of via an external file.
-- Dashboard: add a new message to the backup card if the site is too new to have an accurate status.
-- Dashboard: ensure that the image CDN does not get enabled by default when using the Site Accelerator toggle while in Offline mode.
-- Facebook Page Widget: fix a bug that prevented widget from being added in the wp-admin widget editor.
-- Form Block: fix form button alignment in editor.
-- Instant Search: ensure box-shadow and text-shadow aren't applied to search buttons.
-- Search: fix various issues with scrolling on both desktop and mobile devices.
-- Search: fix search widgets not saving in block widget editor.
-- Slideshow Block: fix intermittent issue where next/prev buttons sometimes don't respond to clicks.
-- Social Icons Widget: fix issue in wp-admin widget editor where icons don't save on refresh.
-- Stats: allow better translations of page view counts in the Stats widget.
-- Video Block: fix resizing so that video block doesn't display black bars on the sides.
+- Backups: hide backup preparation message for sites without backup.
+- Connection: correctly request list of active features so they can be activated on a reconnection.
+- Donations block: add a missing closing div for the front-end rendering.
+- Donations block: don't display the donations block to visitors unless Stripe is connected.
+- Donations block: fixed an issue which was invalidating existing blocks if they were edited by non-plan owners.
+- Donations block: tweak currency display for the edit control.
+- Pay with Paypal Block: properly display the card icons below the button.
+- Protect: fixed math fallback's input accessibility and display.
+- Scan: avoid PHP notice when non-admin users access the dashboard.
+- Subscription form: adding a default line-height to avoid differences using different font-faces on input and button elements
+- Widget Visibility: ensure it remains possible to edit visibility for legacy widgets in the block-based widget editor.
 
 --------
 

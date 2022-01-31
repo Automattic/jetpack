@@ -4,6 +4,7 @@
 import React from 'react';
 import { Redirect, Route, Switch } from 'react-router-dom';
 import { connect } from 'react-redux';
+import { __ } from '@wordpress/i18n';
 
 /**
  * Internal dependencies
@@ -20,7 +21,7 @@ import QueryRewindStatus from 'components/data/query-rewind-status';
 import QuerySite from 'components/data/query-site';
 import QuerySitePlugins from 'components/data/query-site-plugins';
 import { getStep, isRecommendationsDataLoaded } from 'state/recommendations';
-import { LoadingCard } from './sidebar/loading-card';
+import { JetpackLoadingIcon } from 'components/jetpack-loading-icon';
 import { RECOMMENDATION_WIZARD_STEP } from './constants';
 
 const RecommendationsComponent = props => {
@@ -70,7 +71,7 @@ const RecommendationsComponent = props => {
 			<QuerySitePlugins />
 			{ isLoading ? (
 				<div className="jp-recommendations__loading">
-					<LoadingCard />
+					<JetpackLoadingIcon altText={ __( 'Loading recommendations', 'jetpack' ) } />
 				</div>
 			) : (
 				<Switch>

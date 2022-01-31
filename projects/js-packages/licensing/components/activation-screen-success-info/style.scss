@@ -1,0 +1,34 @@
+@import '@automattic/jetpack-base-styles/style';
+
+.jp-license-activation-screen-success-info {
+	background: var( --jp-white );
+	padding: 32px;
+	display: flex;
+	flex-direction: column;
+	justify-content: space-between;
+
+	h1 {
+		//typography-exception
+		font-size: 44px;
+		font-weight: 700;
+	}
+
+	p {
+		font-size: var( --font-body );
+	}
+
+	label {
+		font-weight: 600;
+		font-size: var( --font-body );
+	}
+
+	@media screen and ( min-width: 780px ) {
+		padding: 64px;
+	}
+
+	.jp-license-activation-screen-success-info--buttons {
+		@media screen and (max-width: 480px) {
+			text-align: center;
+		}
+	}
+}

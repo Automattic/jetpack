@@ -2,7 +2,7 @@
 /**
  * External dependencies
  */
-import { text } from '@storybook/addon-knobs';
+import React from 'react';
 
 /**
  * Internal dependencies
@@ -10,18 +10,15 @@ import { text } from '@storybook/addon-knobs';
 import JetpackFooter from '../index.jsx';
 
 export default {
-	title: 'Playground/Jetpack Footer',
+	title: 'JS Packages/Components/Jetpack Footer',
+	component: JetpackFooter,
 };
 
-export const _default = () => {
-	const moduleName = text( 'Module Name', 'The Module Name' );
-	const a8cLogoHref = text( 'A8C Logo Href', 'https://www.jetpack.com' );
+const Template = args => <JetpackFooter { ...args } />;
 
-	return (
-		<JetpackFooter
-			moduleName={ moduleName }
-			a8cLogoHref={ a8cLogoHref }
-			className="jp-dashboard-footer"
-		/>
-	);
+const DefaultArgs = {
+	moduleName: 'The Module Name',
 };
+
+export const _default = Template.bind( {} );
+_default.args = DefaultArgs;

@@ -12,11 +12,11 @@ import simpleGit from 'simple-git';
 /**
  * Internal dependencies
  */
-import promptForProject from '../helpers/promptForProject';
-import { chalkJetpackGreen } from '../helpers/styling';
-import { normalizeProject } from '../helpers/normalizeArgv';
-import { allProjects, projectTypes } from '../helpers/projectHelpers';
-import { readComposerJson } from '../helpers/json';
+import promptForProject from '../helpers/promptForProject.js';
+import { chalkJetpackGreen } from '../helpers/styling.js';
+import { normalizeProject } from '../helpers/normalizeArgv.js';
+import { allProjects, projectTypes } from '../helpers/projectHelpers.js';
+import { readComposerJson } from '../helpers/json.js';
 
 /**
  * Comand definition for changelog subcommand.
@@ -468,7 +468,10 @@ async function changedProjects() {
 function doesFilenameExist( fileName, needChangelog ) {
 	let fileExists = false;
 	for ( const proj of needChangelog ) {
-		const projPath = path.join( __dirname, '../../..', 'projects', proj, 'changelog', fileName );
+		const projPath = new URL(
+			`../../../projects/${ proj }/changelog/${ fileName }`,
+			import.meta.url
+		);
 		try {
 			if ( fs.existsSync( projPath ) ) {
 				console.log(
@@ -507,10 +510,6 @@ export async function validateProject( argv ) {
 function validatePath( argv, dir ) {
 	if ( ! fs.existsSync( dir ) ) {
 		throw new Error( chalk.red( `Project doesn't exist! Typo?` ) );
-	}
-	if ( argv.project === 'packages/changelogger' ) {
-		argv.cmdPath = 'bin/changelogger';
-		return;
 	}
 	if ( fs.existsSync( dir + `/vendor/bin/changelogger` ) ) {
 		argv.cmdPath = 'vendor/bin/changelogger';

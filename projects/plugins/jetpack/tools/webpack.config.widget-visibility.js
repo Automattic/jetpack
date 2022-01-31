@@ -1,45 +1,78 @@
 /**
  * External dependencies
  */
+const jetpackWebpackConfig = require( '@automattic/jetpack-webpack-config/webpack' );
 const path = require( 'path' );
-const getBaseWebpackConfig = require( '@automattic/calypso-build/webpack.config.js' );
-const DependencyExtractionWebpackPlugin = require( '@wordpress/dependency-extraction-webpack-plugin' );
 
 /**
  * Internal dependencies
  */
 const { definePaletteColorsAsStaticVariables } = require( './webpack.helpers' );
 
-const isDevelopment = process.env.NODE_ENV !== 'production';
-
-const baseWebpackConfig = getBaseWebpackConfig(
-	{ WP: true },
-	{
-		entry: {
-			main: path.join( __dirname, '../modules/widget-visibility/editor/index.jsx' ),
-		},
-		'output-filename': 'index.min.js',
-		'output-path': path.join( __dirname, '../_inc/build/widget-visibility/editor' ),
-	}
-);
-
 module.exports = {
-	...baseWebpackConfig,
+	mode: jetpackWebpackConfig.mode,
+	devtool: jetpackWebpackConfig.isDevelopment ? 'source-map' : false,
+	entry: {
+		index: {
+			import: path.join( __dirname, '../modules/widget-visibility/editor/index.jsx' ),
+			library: {
+				name: 'WidgetVisibility',
+				type: 'window',
+				export: 'WidgetVisibility',
+			},
+		},
+	},
+	output: {
+		...jetpackWebpackConfig.output,
+		path: path.join( __dirname, '../_inc/build/widget-visibility/editor' ),
+	},
+	optimization: {
+		...jetpackWebpackConfig.optimization,
+	},
 	resolve: {
-		...baseWebpackConfig.resolve,
-		modules: [
-			path.resolve( __dirname, '../_inc/client' ),
-			path.resolve( __dirname, '../node_modules' ),
-			'node_modules',
-		],
+		...jetpackWebpackConfig.resolve,
+		modules: [ path.resolve( __dirname, '../_inc/client' ), 'node_modules' ],
 		fallback: {
+			...jetpackWebpackConfig.resolve.fallback,
 			fs: false,
 		},
 	},
-	devtool: isDevelopment ? 'source-map' : false,
 	plugins: [
-		...baseWebpackConfig.plugins,
-		new DependencyExtractionWebpackPlugin( { injectPolyfill: true } ),
+		...jetpackWebpackConfig.StandardPlugins( {
+			DependencyExtractionPlugin: { injectPolyfill: true },
+			I18nLoaderPlugin: { textdomain: 'jetpack' },
+		} ),
 		definePaletteColorsAsStaticVariables(),
 	],
+	module: {
+		strictExportPresence: true,
+		rules: [
+			// Transpile JavaScript
+			jetpackWebpackConfig.TranspileRule( {
+				exclude: /node_modules\//,
+			} ),
+
+			// Transpile @automattic/jetpack-* in node_modules too.
+			jetpackWebpackConfig.TranspileRule( {
+				includeNodeModules: [ '@automattic/jetpack-', 'debug/' ],
+			} ),
+
+			// Handle CSS.
+			jetpackWebpackConfig.CssRule( {
+				extensions: [ 'css', 'sass', 'scss' ],
+				extraLoaders: [
+					{
+						loader: 'postcss-loader',
+						options: {
+							postcssOptions: { config: path.join( __dirname, '../postcss.config.js' ) },
+						},
+					},
+					'sass-loader',
+				],
+			} ),
+
+			// Handle images.
+			jetpackWebpackConfig.FileRule(),
+		],
+	},
 };

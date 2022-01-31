@@ -1,8 +1,19 @@
 <script>
+	/**
+	 * External dependencies
+	 */
 	import { slide } from 'svelte/transition';
+
+	/**
+	 * WordPress dependencies
+	 */
+	import { __ } from '@wordpress/i18n';
+
+	/**
+	 * Internal dependencies
+	 */
 	import { criticalCssStatus } from '../../../stores/critical-css-status';
 	import ErrorNotice from '../../../elements/ErrorNotice.svelte';
-	import { __ } from '@wordpress/i18n';
 	import FoldingElement from '../../../elements/FoldingElement.svelte';
 	import generateCriticalCss from '../../../utils/generate-critical-css';
 	import { primaryErrorSet } from '../../../stores/critical-css-recommendations';
@@ -25,7 +36,7 @@
 
 <ErrorNotice {title}>
 	<p>
-		{$criticalCssStatus.retriedShowstopper
+		{$criticalCssStatus.retried_show_stopper
 			? __(
 					"Hmm, looks like something went wrong. We're still seeing an unexpected error. Please reach out to our support to get help.",
 					'jetpack-boost'
@@ -45,7 +56,8 @@
 				{#if showingProviderError}
 					<CriticalCssErrorDescription
 						errorSet={$primaryErrorSet}
-						showSuggestion={false}
+						showSuggestion={true}
+						showClosingParagraph={false}
 						foldRawErrors={false}
 						on:retry={generateCriticalCss}
 					/>
@@ -57,7 +69,7 @@
 	{/if}
 
 	<div slot="actionButton">
-		{#if $criticalCssStatus.retriedShowstopper}
+		{#if $criticalCssStatus.retried_show_stopper}
 			<a
 				class="button button-secondary"
 				href="https://wordpress.org/support/plugin/jetpack-boost/"

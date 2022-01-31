@@ -114,7 +114,7 @@ class Grunion_Contact_Form_Plugin {
 				$data_without_tags[ $index ] = $value;
 			}
 		} else {
-			$data_without_tags = wp_kses( $data_with_tags, array() );
+			$data_without_tags = wp_kses( (string) $data_with_tags, array() );
 			$data_without_tags = str_replace( '&amp;', '&', $data_without_tags ); // undo damage done by wp_kses_normalize_entities()
 		}
 
@@ -659,7 +659,10 @@ class Grunion_Contact_Form_Plugin {
 	}
 
 	static function sanitize_value( $value ) {
-		return preg_replace( '=((<CR>|<LF>|0x0A/%0A|0x0D/%0D|\\n|\\r)\S).*=i', null, $value );
+		if ( null === $value ) {
+			return '';
+		}
+		return preg_replace( '=((<CR>|<LF>|0x0A/%0A|0x0D/%0D|\\n|\\r)\S).*=i', '', $value );
 	}
 
 	/**
@@ -818,7 +821,16 @@ class Grunion_Contact_Form_Plugin {
 			}
 		}
 
-		return $form;
+		/**
+		 * Filter the values that are sent to Akismet for the spam check.
+		 *
+		 * @module contact-form
+		 *
+		 * @since 10.2.0
+		 *
+		 * @param array $form The form values being sent to Akismet.
+		 */
+		return apply_filters( 'jetpack_contact_form_akismet_values', $form );
 	}
 
 	/**
@@ -1804,9 +1816,9 @@ class Crunion_Contact_Form_Shortcode {
 	function parse_content( $content ) {
 		if ( is_null( $content ) ) {
 			$this->body = null;
+		} else {
+			$this->body = do_shortcode( $content );
 		}
-
-		$this->body = do_shortcode( $content );
 	}
 
 	/**
@@ -1850,7 +1862,8 @@ class Crunion_Contact_Form_Shortcode {
 		// For back-compat with old Grunion encoding
 		// Also, unencode commas
 		$value = strtr(
-			$value, array(
+			(string) $value,
+			array(
 				'%26' => '&',
 				'%25' => '%',
 			)
@@ -2199,6 +2212,8 @@ class Grunion_Contact_Form extends Crunion_Contact_Form_Shortcode {
 			}
 
 			$r .= "<form action='" . esc_url( $url ) . "' method='post' class='" . esc_attr( $form_classes ) . "'>\n";
+			$r .= self::get_script_for_form();
+
 			$r .= $form->body;
 
 			// In new versions of the contact form block the button is an inner block
@@ -2266,7 +2281,16 @@ class Grunion_Contact_Form extends Crunion_Contact_Form_Shortcode {
 
 		$r .= '</div>';
 
-		return $r;
+		/**
+		 * Filter the contact form, allowing plugins to modify the HTML.
+		 *
+		 * @module contact-form
+		 *
+		 * @since 10.2.0
+		 *
+		 * @param string $r The contact form HTML.
+		 */
+		return apply_filters( 'jetpack_contact_form_html', $r );
 	}
 
 	/**
@@ -2294,6 +2318,29 @@ class Grunion_Contact_Form extends Crunion_Contact_Form_Shortcode {
 				'p'          => array(),
 			)
 		);
+	}
+
+	/**
+	 * Returns a script that disables the contact form button after a form submission.
+	 *
+	 * @return string The script.
+	 */
+	private static function get_script_for_form() {
+		return "<script>
+			( function () {
+				const contact_forms = document.getElementsByClassName('contact-form');
+
+				for ( const form of contact_forms ) {
+					form.onsubmit = function() {
+						const buttons = form.getElementsByTagName('button');
+
+						for( const button of buttons ) {
+							button.setAttribute('disabled', true);
+						}
+					}
+				}
+			} )();
+		</script>";
 	}
 
 	/**
@@ -2335,6 +2382,11 @@ class Grunion_Contact_Form extends Crunion_Contact_Form_Shortcode {
 					$value         = $feedback->post_content;
 					list( $value ) = explode( '<!--more-->', $value );
 					$value         = trim( $value );
+				}
+
+				// If we still do not have any value, bail.
+				if ( empty( $value ) ) {
+					continue;
 				}
 
 				$field_index                   = array_search( $field_ids[ $type ], $field_ids['all'] );
@@ -2790,7 +2842,7 @@ class Grunion_Contact_Form extends Crunion_Contact_Form_Shortcode {
 
 		$vars = array( 'comment_author', 'comment_author_email', 'comment_author_url', 'contact_form_subject', 'comment_author_IP' );
 		foreach ( $vars as $var ) {
-			$$var = str_replace( array( "\n", "\r" ), '', $$var );
+			$$var = str_replace( array( "\n", "\r" ), '', (string) $$var );
 		}
 
 		// Ensure that Akismet gets all of the relevant information from the contact form,
@@ -2887,6 +2939,32 @@ class Grunion_Contact_Form extends Crunion_Contact_Form_Shortcode {
 		 */
 		$headers = 'From: ' . $comment_author . ' <' . $from_email_addr . ">\r\n" .
 			'Reply-To: ' . $comment_author . ' <' . $reply_to_addr . ">\r\n";
+
+		/**
+		 * Allow customizing the email headers.
+		 *
+		 * Warning: DO NOT add headers or header data from the form submission without proper
+		 * escaping and validation, or you're liable to allow abusers to use your site to send spam.
+		 *
+		 * Especially DO NOT take email addresses from the form data to add as CC or BCC headers
+		 * without strictly validating each address against a list of allowed addresses.
+		 *
+		 * @module contact-form
+		 *
+		 * @since 10.2.0
+		 *
+		 * @param string|array $headers        Email headers.
+		 * @param string       $comment_author Name of the author of the submitted feedback, if provided in form.
+		 * @param string       $reply_to_addr  Email of the author of the submitted feedback, if provided in form.
+		 * @param string|array $to             Array of valid email addresses, or single email address, where the form is sent.
+		 */
+		$headers = apply_filters(
+			'jetpack_contact_form_email_headers',
+			$headers,
+			$comment_author,
+			$reply_to_addr,
+			$to
+		);
 
 		$all_values['email_marketing_consent'] = $email_marketing_consent;
 

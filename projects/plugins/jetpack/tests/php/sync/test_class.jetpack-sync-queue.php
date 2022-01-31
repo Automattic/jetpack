@@ -7,8 +7,11 @@ class WP_Test_Jetpack_Sync_Queue extends WP_UnitTestCase {
 
 	private $queue;
 
-	public function setUp() {
-		parent::setUp();
+	/**
+	 * Set up.
+	 */
+	public function set_up() {
+		parent::set_up();
 
 		$this->queue = new Queue( 'my_queue' );
 	}
@@ -57,13 +60,9 @@ class WP_Test_Jetpack_Sync_Queue extends WP_UnitTestCase {
 			->setConstructorArgs( array( 'my_queue' ) )
 			->getMock();
 
-		$queue->expects( $this->at( 0 ) )
+		$queue->expects( $this->exactly( 2 ) )
 			->method( 'generate_option_name_timestamp' )
-			->will( $this->returnValue( '1.5' ) );
-
-		$queue->expects( $this->at( 1 ) )
-			->method( 'generate_option_name_timestamp' )
-			->will( $this->returnValue( '3.0' ) );
+			->willReturnOnConsecutiveCalls( '1.5', '3.0' );
 
 		$queue->reset();
 		$queue->add( 'foo' );
@@ -280,32 +279,32 @@ class WP_Test_Jetpack_Sync_Queue extends WP_UnitTestCase {
 		// Verify null returns an empty array.
 		$items = $this->queue->peek_by_id( null );
 		$this->assertEmpty( $items );
-		$this->assertInternalType( 'array', $items );
+		$this->assertIsArray( $items );
 
 		// Verify empty array returns an empty array.
 		$items = $this->queue->peek_by_id( array() );
 		$this->assertEmpty( $items );
-		$this->assertInternalType( 'array', $items );
+		$this->assertIsArray( $items );
 
 		// Verify unknown ids array returns an empty array.
 		$items = $this->queue->peek_by_id( array( 'blue' ) );
 		$this->assertEmpty( $items );
-		$this->assertInternalType( 'array', $items );
+		$this->assertIsArray( $items );
 
 		// Verify string returns an empty array.
 		$items = $this->queue->peek_by_id( 'blue' );
 		$this->assertEmpty( $items );
-		$this->assertInternalType( 'array', $items );
+		$this->assertIsArray( $items );
 
 		// Verify number returns an empty array.
 		$items = $this->queue->peek_by_id( 18 );
 		$this->assertEmpty( $items );
-		$this->assertInternalType( 'array', $items );
+		$this->assertIsArray( $items );
 
 		// Verify Error returns and empty array.
 		$items = $this->queue->peek_by_id( new \Automattic\Jetpack\Error( 'random', 'something happened.' ) );
 		$this->assertEmpty( $items );
-		$this->assertInternalType( 'array', $items );
+		$this->assertIsArray( $items );
 	}
 
 	function test_queue_is_persisted() {

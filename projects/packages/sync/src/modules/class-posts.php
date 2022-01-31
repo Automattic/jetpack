@@ -174,7 +174,8 @@ class Posts extends Module {
 			/**
 			 * Used for syncing deletion of batch post meta
 			 *
-			 * @since 6.1.0
+			 * @since 1.6.3
+			 * @since-jetpack 6.1.0
 			 *
 			 * @module sync
 			 *
@@ -453,7 +454,8 @@ class Posts extends Module {
 		 * Jetpacks data but will prevent us from displaying the data on in the API as well as
 		 * other services.
 		 *
-		 * @since 4.2.0
+		 * @since 1.6.3
+		 * @since-jetpack 4.2.0
 		 *
 		 * @param boolean false prevent post data from being synced to WordPress.com
 		 * @param mixed $post \WP_Post object
@@ -492,7 +494,8 @@ class Posts extends Module {
 			 * Since we can can expand some type of shortcode better on the .com side and make the
 			 * expansion more relevant to contexts. For example [galleries] and subscription emails
 			 *
-			 * @since 4.5.0
+			 * @since 1.6.3
+			 * @since-jetpack 4.5.0
 			 *
 			 * @param array of shortcode tags to remove.
 			 */
@@ -608,7 +611,8 @@ class Posts extends Module {
 		/**
 		 * Filter that is used to add to the post flags ( meta data ) when a post gets published
 		 *
-		 * @since 5.8.0
+		 * @since 1.6.3
+		 * @since-jetpack 5.8.0
 		 *
 		 * @param int $post_ID the post ID
 		 * @param mixed $post \WP_Post object
@@ -677,7 +681,8 @@ class Posts extends Module {
 		/**
 		 * Filter that is used to add to the post flags ( meta data ) when a post gets published
 		 *
-		 * @since 4.4.0
+		 * @since 1.6.3
+		 * @since-jetpack 4.4.0
 		 *
 		 * @param mixed array post flags that are added to the post
 		 * @param mixed $post \WP_Post object
@@ -689,7 +694,8 @@ class Posts extends Module {
 			/**
 			 * Action that gets synced when a post type gets published.
 			 *
-			 * @since 4.4.0
+			 * @since 1.6.3
+			 * @since-jetpack 4.4.0
 			 *
 			 * @param int $post_ID
 			 * @param mixed array $flags post flags that are added to the post

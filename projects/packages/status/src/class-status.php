@@ -141,8 +141,9 @@ class Status {
 		// Check for localhost and sites using an IP only first.
 		$is_local = site_url() && false === strpos( site_url(), '.' );
 
+		// @todo Remove function_exists when the package has a documented minimum WP version.
 		// Use Core's environment check, if available. Added in 5.5.0 / 5.5.1 (for `local` return value).
-		if ( 'local' === wp_get_environment_type() ) {
+		if ( function_exists( 'wp_get_environment_type' ) && 'local' === wp_get_environment_type() ) {
 			$is_local = true;
 		}
 
@@ -184,8 +185,9 @@ class Status {
 	 * @return bool
 	 */
 	public function is_staging_site() {
+		// @todo Remove function_exists when the package has a documented minimum WP version.
 		// Core's wp_get_environment_type allows for a few specific options. We should default to bowing out gracefully for anything other than production or local.
-		$is_staging = ! in_array( \wp_get_environment_type(), array( 'production', 'local' ), true );
+		$is_staging = function_exists( 'wp_get_environment_type' ) && ! in_array( wp_get_environment_type(), array( 'production', 'local' ), true );
 
 		$known_staging = array(
 			'urls'      => array(

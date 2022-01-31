@@ -26,6 +26,7 @@ import {
 	UNLINK_USER_SUCCESS,
 	SITE_RECONNECT,
 	SITE_RECONNECT_FAIL,
+	JETPACK_CONNECTION_HAS_SEEN_WC_CONNECTION_MODAL,
 } from 'state/action-types';
 import restApi from '@automattic/jetpack-api';
 import { isSafari, doNotUseConnectionIframe } from 'state/initial-state';
@@ -149,6 +150,8 @@ export const disconnectSite = ( reloadAfter = false ) => {
 
 				if ( reloadAfter ) {
 					window.location.reload();
+				} else {
+					dispatch( fetchSiteConnectionStatus() );
 				}
 			} )
 			.catch( error => {
@@ -285,5 +288,15 @@ export const reconnectSite = () => {
 					)
 				);
 			} );
+	};
+};
+
+export const setHasSeenWCConnectionModal = () => {
+	return dispatch => {
+		dispatch( {
+			type: JETPACK_CONNECTION_HAS_SEEN_WC_CONNECTION_MODAL,
+		} );
+
+		return restApi.setHasSeenWCConnectionModal();
 	};
 };

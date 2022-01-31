@@ -70,22 +70,32 @@ describe( 'SubscriptionEdit', () => {
 		window.fetch.mockReturnValue( DEFAULT_FETCH_MOCK_RETURN );
 	} );
 
-	afterEach( async () => {
-		await act( () => RESOLVED_FETCH_PROMISE );
-	} );
-
-	afterAll( () => {
+	afterEach( () => {
 		window.fetch = originalFetch;
 	} );
 
-	test( 'adds correct classes to container', () => {
-		const { container, rerender } = render( <SubscriptionEdit { ...defaultProps }  /> );
+	/**
+	 * Use the asynchronous version of act to apply resolved promises.
+	 *
+	 * @param {SubscriptionEdit} ui - Object to render.
+	 * @return {RenderResult}
+	 */
+	async function renderAsync( ui ) {
+		let ret;
+		await act( async () => {
+			ret = render( ui );
+		} );
+		return ret;
+	}
+
+	test( 'adds correct classes to container', async () => {
+		const { container, rerender } = await renderAsync( <SubscriptionEdit { ...defaultProps }  /> );
 
 		expect( container.querySelector( `.${ defaultProps.className }` ) ).toBeInTheDocument();
 	} );
 
-	test( 'adds correct classes when button on new line', () => {
-		const { container, rerender } = render( <SubscriptionEdit { ...defaultProps }  /> );
+	test( 'adds correct classes when button on new line', async () => {
+		const { container, rerender } = await renderAsync( <SubscriptionEdit { ...defaultProps }  /> );
 
 		expect( container.querySelector( '.wp-block-jetpack-subscriptions__use-newline' ) ).not.toBeInTheDocument();
 
@@ -101,35 +111,35 @@ describe( 'SubscriptionEdit', () => {
 		expect( container.querySelector( '.wp-block-jetpack-subscriptions__use-newline' ) ).toBeInTheDocument();
 	} );
 
-	test( 'renders text field with placeholder text', () => {
-		render( <SubscriptionEdit { ...defaultProps }  /> );
+	test( 'renders text field with placeholder text', async () => {
+		await renderAsync( <SubscriptionEdit { ...defaultProps }  /> );
 
 		expect( screen.getByPlaceholderText( defaultAttributes.subscribePlaceholder ) ).toBeInTheDocument();
 	} );
 
-	test( 'renders button with default text', () => {
-		render( <SubscriptionEdit { ...defaultProps }  /> );
+	test( 'renders button with default text', async () => {
+		await renderAsync( <SubscriptionEdit { ...defaultProps }  /> );
 
 		expect( screen.getByText( defaultAttributes.submitButtonText ) ).toBeInTheDocument();
 	} );
 
-	test( 'calls setAttributes handler on button when value changes', () => {
-		render( <SubscriptionEdit { ...defaultProps }  /> );
+	test( 'calls setAttributes handler on button when value changes', async () => {
+		await renderAsync( <SubscriptionEdit { ...defaultProps }  /> );
 
 		expect( screen.getByText( defaultAttributes.submitButtonText ) ).toBeInTheDocument();
 	} );
 
-	test( 'displays subscriber total', () => {
-		render( <SubscriptionEdit { ...defaultProps }  /> );
-		userEvent.type( screen.getByText( defaultAttributes.submitButtonText ), ' right now!' );
+	test( 'displays subscriber total', async () => {
+		await renderAsync( <SubscriptionEdit { ...defaultProps }  /> );
+		userEvent.type( screen.getByText( defaultAttributes.submitButtonText ), '-right-now!' );
 
 		expect( setAttributes ).toHaveBeenCalledWith( {
-			submitButtonText: `${ defaultAttributes.submitButtonText} right now!`,
+			submitButtonText: `${ defaultAttributes.submitButtonText}-right-now!`,
 		} );
 	} );
 
-	test( 'displays subscriber total', () => {
-		const { container, rerender } = render( <SubscriptionEdit { ...defaultProps }  /> );
+	test( 'displays subscriber total', async () => {
+		const { container, rerender } = await renderAsync( <SubscriptionEdit { ...defaultProps }  /> );
 		expect( container.querySelector( 'p' ) ).not.toBeInTheDocument();
 		expect( container.querySelector( '.wp-block-jetpack-subscriptions__show-subs' ) ).not.toBeInTheDocument();
 

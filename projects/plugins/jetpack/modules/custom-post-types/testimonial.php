@@ -72,8 +72,7 @@ class Jetpack_Testimonial {
 		add_action( 'customize_register',                                        array( $this, 'customize_register'      ) );
 
 		// Only add the 'Customize' sub-menu if the theme supports it.
-		$num_testimonials = self::count_testimonials();
-		if ( ! empty( $num_testimonials ) && current_theme_supports( self::CUSTOM_POST_TYPE ) ) {
+		if ( is_admin() && current_theme_supports( self::CUSTOM_POST_TYPE ) && ! empty( self::count_testimonials() ) ) {
 			add_action( 'admin_menu',                                            array( $this, 'add_customize_page' ) );
 		}
 

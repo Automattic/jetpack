@@ -58,20 +58,25 @@
 
 .jp-recommendations-summary__more-features {
 	display: flex;
-	align-items: center;
+	align-items: flex-start;
 	border-top: 1px solid $studio-gray-5;
-	padding: 32px 48px;
+	padding: 40px 48px;
 
 	@include breakpoint( '<480px' ) {
-		padding: 32px 16px;
+		padding: 40px 16px;
 	}
 
 	.gridicons-info-outline {
 		fill: $studio-gray-40;
 		margin-right: 18px;
+		flex: 0 0 24px;
 	}
 
 	.gridicons-external {
 		margin-left: 0.25rem;
+	}
+
+	> p {
+		margin: 1px 0 0 0;
 	}
 }

@@ -1,11 +1,10 @@
-/* global ajaxurl, jpAdminMenu */
+/* global ajaxurl, jetpackAdminMenu */
 
 ( function () {
 	function init() {
 		var adminbar = document.querySelector( '#wpadminbar' );
 		var wpwrap = document.querySelector( '#wpwrap' );
 		var adminMenu = document.querySelector( '#adminmenu' );
-		var switcher = document.querySelector( '#dashboard-switcher .dashboard-switcher-button' );
 
 		if ( ! adminbar ) {
 			return;
@@ -59,10 +58,31 @@
 					}, 50 );
 				} );
 			}
-		}
 
-		if ( switcher ) {
-			switcher.addEventListener( 'click', setDefaultViewAsPreferred );
+			const jitmDismissButton = adminMenu.querySelector( '.dismissible-card__close-icon' );
+			if ( jitmDismissButton ) {
+				jitmDismissButton.addEventListener( 'click', function ( event ) {
+					event.preventDefault();
+
+					const siteNotice = document.getElementById( 'toplevel_page_site-notices' );
+					if ( siteNotice ) {
+						siteNotice.style.display = 'none';
+					}
+
+					makeAjaxRequest(
+						'POST',
+						ajaxurl,
+						'application/x-www-form-urlencoded; charset=UTF-8',
+						'id=' +
+							encodeURIComponent( jitmDismissButton.dataset.feature_id ) +
+							'&feature_class=' +
+							encodeURIComponent( jitmDismissButton.dataset.feature_class ) +
+							'&action=jitm_dismiss' +
+							'&_ajax_nonce=' +
+							jetpackAdminMenu.jitmDismissNonce
+					);
+				} );
+			}
 		}
 	}
 
@@ -83,16 +103,6 @@
 			ajaxurl,
 			'application/x-www-form-urlencoded; charset=UTF-8',
 			'action=sidebar_state&expanded=' + expanded
-		);
-	}
-
-	function setDefaultViewAsPreferred() {
-		makeAjaxRequest(
-			'GET',
-			ajaxurl +
-				'?action=set_preferred_view&screen=' +
-				jpAdminMenu.screen +
-				'&preferred-view=default'
 		);
 	}
 

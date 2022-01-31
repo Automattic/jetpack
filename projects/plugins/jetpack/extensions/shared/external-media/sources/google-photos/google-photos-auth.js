@@ -52,7 +52,7 @@ function GooglePhotosAuth( props ) {
 			{ isAuthing ? <AuthProgress /> : <AuthInstructions /> }
 
 			<Button isPrimary disabled={ isAuthing } onClick={ onAuthorize }>
-				{ __( 'Authorize', 'jetpack' ) }
+				{ __( 'Connect to Google Photos', 'jetpack' ) }
 			</Button>
 		</div>
 	);

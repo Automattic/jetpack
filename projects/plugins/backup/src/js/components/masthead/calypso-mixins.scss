@@ -1,3 +1,5 @@
+@use "sass:math";
+
 $full-width:	960px;
 $one-col:		660px;
 $mobile:		480px;
@@ -229,7 +231,7 @@ $breakpoints: 480px, 660px, 960px, 1040px; // Think very carefully before adding
 		display: inline-block;
 		-webkit-font-smoothing: antialiased;
 		-moz-osx-font-smoothing: grayscale;
-		font: normal $icon-size/1 'Noticons';
+		font: normal math.div($icon-size, 1) 'Noticons';
 		color: $white;
 		position: absolute;
 		top: 0;

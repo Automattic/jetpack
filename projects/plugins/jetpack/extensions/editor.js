@@ -7,6 +7,7 @@ import './shared/plan-upgrade-notification';
 import './shared/stripe-connection-notification';
 import './shared/external-media';
 import './extended-blocks/core-embed';
+import './extended-blocks/core-social-links';
 import './extended-blocks/paid-blocks';
 import './shared/styles/slideshow-fix.scss';
 import './shared/styles/external-link-fix.scss';

@@ -7,7 +7,7 @@
 	* [Setting up your environment](#setting-up-your-environment)
 	* [Build the project](#build-the-project)
 	* [PHP unit tests](#php-unit-tests)
-	* [JavaScript unit tests and e2e tests](#javascript-unit-tests-and-e2e-tests)
+	* [JavaScript unit tests and e2e tests](#javascript-e2e-tests)
 	* [Linting Jetpack Boost's PHP code](#linting-jetpack-boost-php-code)
 	* [Linting Jetpack Boost's JavaScript code](#linting-jetpack-boost-javascript-code)
 * [Module architectural overview 101](#module-architectural-overview-101)
@@ -58,10 +58,9 @@ Or you might also choose to run them inside Docker if you are using it as your d
 jetpack docker exec -- sh -c "composer -d wp-content/plugins/boost test-php"
 ```
 
-## JavaScript unit tests and e2e tests
+## JavaScript e2e tests
 
-For the time being there are no usable JavaScript tests and there is a [Github issue](https://github.com/Automattic/jetpack/issues/20615) opened to resolve this.
-
+Please refer to the Jetpack Boost e2e tests specific [documentation](../tests/e2e/README.md).
 
 ## Linting Jetpack Boost PHP code
 
@@ -125,14 +124,14 @@ The bare-bones module template can look like:
  * @since      1.0.0
  */
 
-namespace Automattic\Jetpack_Boost\Modules\Foo;
+namespace Automattic\Jetpack_Boost\Features\Optimizations\Foo;
 
-use Automattic\Jetpack_Boost\Modules\Module;
+use Automattic\Jetpack_Boost\Features\Optimizations\State;
 
 /**
  * Class Foo
  */
-class Foo extends Module {
+class Foo extends State {
 
 	/**
 	 * Code to run when module is started

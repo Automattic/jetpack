@@ -33,27 +33,18 @@ const generateCheckoutLink = ( { product, siteAdminUrl, siteRawUrl } ) => {
 const ProductSuggestionComponent = props => {
 	const { product, addSelectedRecommendation } = props;
 
-	const onPurchaseClick = useCallback(
-		event => {
-			event.preventDefault();
+	const onPurchaseClick = useCallback( () => {
+		analytics.tracks.recordEvent( 'jetpack_recommendations_product_suggestion_click', {
+			type: product.slug,
+		} );
 
-			analytics.tracks.recordEvent(
-				'jetpack_recommendations_product_suggestion_click',
-				product.slug
-			);
-
-			addSelectedRecommendation( 'product-suggestions' );
-
-			window.location.href = event.target.href;
-		},
-		[ product, addSelectedRecommendation ]
-	);
+		addSelectedRecommendation( 'product-suggestions' );
+	}, [ product, addSelectedRecommendation ] );
 
 	const onExternalLinkClick = useCallback( () => {
-		analytics.tracks.recordEvent(
-			'jetpack_recommendations_product_suggestion_learn_more_click',
-			product.slug
-		);
+		analytics.tracks.recordEvent( 'jetpack_recommendations_product_suggestion_learn_more_click', {
+			type: product.slug,
+		} );
 	}, [ product ] );
 
 	const currencyObject = getCurrencyObject( product.cost, product.currency_code );

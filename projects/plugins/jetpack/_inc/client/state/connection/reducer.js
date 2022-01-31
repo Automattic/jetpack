@@ -28,6 +28,7 @@ import {
 	SITE_RECONNECT,
 	SITE_RECONNECT_FAIL,
 	SITE_RECONNECT_SUCCESS,
+	JETPACK_CONNECTION_HAS_SEEN_WC_CONNECTION_MODAL,
 } from 'state/action-types';
 import {
 	getModulesThatRequireConnection,
@@ -43,6 +44,10 @@ export const status = (
 			return assign( {}, state, { siteConnected: action.siteConnected } );
 		case DISCONNECT_SITE_SUCCESS:
 			return assign( {}, state, { siteConnected: action.siteConnected } );
+		case UNLINK_USER_SUCCESS:
+			return assign( {}, state, {
+				siteConnected: { ...state.siteConnected, isUserConnected: false },
+			} );
 		case USER_CONNECTION_DATA_FETCH_SUCCESS:
 			if ( true === action.userConnectionData?.currentUser?.isConnected ) {
 				return assign( {}, state, {
@@ -140,12 +145,38 @@ export const requests = ( state = connectionRequests, action ) => {
 	}
 };
 
+export const hasSeenWCConnectionModal = (
+	state = window.Initial_State.hasSeenWCConnectionModal || false,
+	action
+) => {
+	switch ( action.type ) {
+		case JETPACK_CONNECTION_HAS_SEEN_WC_CONNECTION_MODAL:
+			return true;
+
+		default:
+			return state;
+	}
+};
+
 export const reducer = combineReducers( {
 	connectUrl,
 	status,
 	user,
 	requests,
+	hasSeenWCConnectionModal,
 } );
+
+/**
+ * Get the whole connection status object.
+ *
+ * @param  {object} state - Global state tree
+ * @returns {object} Connection status object.
+ */
+export function getConnectionStatus( state ) {
+	return 'object' === typeof state.jetpack.connection.status.siteConnected
+		? state.jetpack.connection.status.siteConnected
+		: false;
+}
 
 /**
  * Returns true if site is connected to WordPress.com
@@ -412,4 +443,14 @@ export function getSandboxDomain( state ) {
  */
 export function isReconnectingSite( state ) {
 	return !! state.jetpack.connection.requests.reconnectingSite;
+}
+
+/**
+ * Check if `hasSeenWCConnectionModal` (Jetpack option) is true.
+ *
+ * @param {object} state - Global state tree.
+ * @returns {boolean} If true, the site has already displayed the WooCommerce Connection Modal.
+ */
+export function getHasSeenWCConnectionModal( state ) {
+	return !! state.jetpack.connection.hasSeenWCConnectionModal;
 }

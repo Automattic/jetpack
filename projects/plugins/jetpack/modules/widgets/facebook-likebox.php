@@ -57,10 +57,18 @@ class WPCOM_Widget_Facebook_LikeBox extends WP_Widget {
 		wp_style_add_data( 'jetpack_facebook_likebox', 'jetpack-inline', true );
 	}
 
-	function widget( $args, $instance ) {
-		extract( $args );
-
-		$like_args = $this->get_default_args();
+	/**
+	 * Display the widget.
+	 *
+	 * @param array $args Display arguments including before_title, after_title, before_widget, and after_widget.
+	 * @param array $instance The settings for the particular instance of the widget.
+	 */
+	public function widget( $args, $instance ) {
+		$before_widget = isset( $args['before_widget'] ) ? $args['before_widget'] : '';
+		$before_title  = isset( $args['before_title'] ) ? $args['before_title'] : '';
+		$after_title   = isset( $args['after_title'] ) ? $args['after_title'] : '';
+		$after_widget  = isset( $args['after_widget'] ) ? $args['after_widget'] : '';
+		$like_args     = $this->get_default_args();
 
 		if ( isset( $instance['like_args'] ) ) {
 			$like_args = $this->normalize_facebook_args( $instance['like_args'] );
@@ -68,9 +76,22 @@ class WPCOM_Widget_Facebook_LikeBox extends WP_Widget {
 
 		if ( empty( $like_args['href'] ) || ! $this->is_valid_facebook_url( $like_args['href'] ) ) {
 			if ( current_user_can( 'edit_theme_options' ) ) {
-				echo $before_widget;
-				echo '<p>' . sprintf( __( 'It looks like your Facebook URL is incorrectly configured. Please check it in your <a href="%s">widget settings</a>.', 'jetpack' ), admin_url( 'widgets.php' ) ) . '</p>';
-				echo $after_widget;
+				echo $before_widget; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
+
+				$error_link = wp_kses(
+					sprintf(
+						/* translators: %s: link to widgets administration screen. */
+						__( 'It looks like your Facebook URL is incorrectly configured. Please check it in your <a href="%1$s">widget settings</a>.', 'jetpack' ),
+						esc_url( admin_url( 'widgets.php' ) )
+					),
+					array( 'a' => array( 'href' => array() ) )
+				);
+				printf(
+					'<p>%s</p>',
+					$error_link // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
+				);
+
+				echo $after_widget; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
 			}
 			echo '<!-- Invalid Facebook Page URL -->';
 			return;
@@ -96,13 +117,12 @@ class WPCOM_Widget_Facebook_LikeBox extends WP_Widget {
 		 */
 		$hide_cta = apply_filters( 'jetpack_facebook_likebox_hide_cta', false );
 
-		echo $before_widget;
+		echo $before_widget; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
 
 		if ( ! empty( $title ) ) :
-			echo $before_title;
+			echo $before_title; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
 
-			$likebox_widget_title = '<a href="' . esc_url( $page_url ) . '">' . esc_html( $title ) . '</a>';
-
+			$likebox_widget_title = '<a href="' . esc_url( $page_url ) . '">' . $title . '</a>';
 			/**
 			 * Filter Facebook Likebox's widget title.
 			 *
@@ -114,9 +134,14 @@ class WPCOM_Widget_Facebook_LikeBox extends WP_Widget {
 			 * @param string $title Widget title as set in the widget settings.
 			 * @param string $page_url Facebook Page URL.
 			 */
-			echo apply_filters( 'jetpack_facebook_likebox_title', $likebox_widget_title, $title, $page_url );
+			$likebox_widget_title = apply_filters( 'jetpack_facebook_likebox_title', $likebox_widget_title, $title, $page_url );
 
-			echo $after_title;
+			echo wp_kses(
+				$likebox_widget_title,
+				array( 'a' => array( 'href' => array() ) )
+			);
+
+			echo $after_title; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
 		endif;
 
 		?>
@@ -126,7 +151,8 @@ class WPCOM_Widget_Facebook_LikeBox extends WP_Widget {
 		</div>
 		<?php
 		wp_enqueue_script( 'jetpack-facebook-embed' );
-		echo $after_widget;
+
+		echo $after_widget; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
 
 		/** This action is documented in modules/widgets/gravatar-profile.php */
 		do_action( 'jetpack_stats_extra', 'widget_view', 'facebook-likebox' );
@@ -316,21 +342,5 @@ class WPCOM_Widget_Facebook_LikeBox extends WP_Widget {
 		}
 
 		return $value;
-	}
-
-	/**
-	 * @deprecated
-	 */
-	function guess_locale_from_lang( $lang ) {
-		_deprecated_function( __METHOD__, '4.0.0', 'Jetpack::guess_locale_from_lang()' );
-		Jetpack::$instance->guess_locale_from_lang( $lang );
-	}
-
-	/**
-	 * @deprecated
-	 */
-	function get_locale() {
-		_deprecated_function( __METHOD__, '4.0.0', 'Jetpack::get_locale()' );
-		Jetpack::$instance->get_locale();
 	}
 }

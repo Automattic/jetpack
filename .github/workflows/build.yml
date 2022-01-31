@@ -15,7 +15,7 @@ jobs:
   build:
     name: Build all projects
     runs-on: ubuntu-latest
-    timeout-minutes: 20  # 2021-08-13: Seems to take a tad over 15 minutes. Should figure out how to improve this...
+    timeout-minutes: 30  # 2022-01-14: Timing out lately at 20 minutes. Improving this is near the top of Brad's list of things to do.
 
     steps:
       - uses: actions/checkout@v2
@@ -50,7 +50,7 @@ jobs:
     name: Create artifact for Jetpack Beta plugin
     runs-on: ubuntu-latest
     needs: build
-    if: github.repository == 'Automattic/jetpack'
+    if: github.event_name != 'pull_request' || github.event.pull_request.head.repo.full_name == 'Automattic/jetpack'
     timeout-minutes: 10  # 2021-06-24: Successful runs should take just a few seconds now. But sometimes the upload is slow.
     steps:
       - uses: actions/checkout@v2

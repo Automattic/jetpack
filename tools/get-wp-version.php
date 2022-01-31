@@ -31,7 +31,7 @@ $versions = $versions->offers;
  * @return bool|int
  */
 function offer_version_sort( $first, $second ) {
-	return version_compare( $first->version, $second->version, '<' );
+	return version_compare( $second->version, $first->version );
 }
 
 uasort( $versions, 'offer_version_sort' );

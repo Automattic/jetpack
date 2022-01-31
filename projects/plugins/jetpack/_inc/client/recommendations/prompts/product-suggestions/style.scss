@@ -1,3 +1,4 @@
+@import '_inc/client/scss/variables/_colors.scss';
 @import '../../../scss/mixin_breakpoint.scss';
 @import '../../../scss/functions/rem';
 
@@ -38,6 +39,15 @@
 			margin-bottom: 0;
 		}
 	}
+}
+
+.jp-recommendations-product-suggestion__introductory-pricing {
+	color: $wpui-header-dark;
+	font-size: rem( 14px );
+	line-height: 1.5;
+	letter-spacing: 0.1px;
+
+	margin-bottom: 10px;
 }
 
 .jp-recommendations-product-suggestion__money-back-guarantee {

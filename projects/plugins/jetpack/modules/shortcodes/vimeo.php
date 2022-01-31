@@ -258,19 +258,31 @@ add_shortcode( 'vimeo', 'vimeo_shortcode' );
  * @return string Return output of Vimeo shortcode with the proper markup.
  */
 function wpcom_vimeo_embed_url( $matches, $attr, $url ) {
-	return vimeo_shortcode( array( $url ) );
+	$vimeo_info = array( $url );
+
+	// If we are able to extract a video ID, use it in the shortcode instead of the full URL.
+	if ( ! empty( $matches['video_id'] ) ) {
+		$vimeo_info = array( 'id' => $matches['video_id'] );
+	}
+
+	return vimeo_shortcode( $vimeo_info );
 }
 
 /**
- * For bare URLs on their own line of the form
- * http://vimeo.com/12345
+ * For bare URLs on their own line of the form.
+ *
+ * Accepted formats:
+ * https://vimeo.com/289091934/cd1f466bcc
+ * https://vimeo.com/album/2838732/video/6342264
+ * https://vimeo.com/6342264
+ * http://player.vimeo.com/video/18427511
  *
  * @since 3.9
  *
  * @uses wpcom_vimeo_embed_url
  */
 function wpcom_vimeo_embed_url_init() {
-	wp_embed_register_handler( 'wpcom_vimeo_embed_url', '#https?://(.+\.)?vimeo\.com/#i', 'wpcom_vimeo_embed_url' );
+	wp_embed_register_handler( 'wpcom_vimeo_embed_url', '#https?://(?:[^/]+\.)?vimeo\.com/(?:album/(?<album_id>\d+)/)?(?:video/)?(?<video_id>\d+)(?:/.*)?$#i', 'wpcom_vimeo_embed_url' );
 }
 
 /*

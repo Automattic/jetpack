@@ -1,8 +1,16 @@
-<?php
+<?php // phpcs:ignore WordPress.Files.FileName.InvalidClassFileName
+/**
+ * Jetpack Heartbeat.
+ *
+ * @package automattic/jetpack
+ */
 
 use Automattic\Jetpack\Connection\Manager;
 use Automattic\Jetpack\Heartbeat;
 
+/**
+ * Jetpack Heartbeat.
+ */
 class Jetpack_Heartbeat {
 
 	/**
@@ -41,25 +49,9 @@ class Jetpack_Heartbeat {
 	 * Constructor for singleton
 	 *
 	 * @since 2.3.3
-	 * @return Jetpack_Heartbeat
 	 */
 	private function __construct() {
 		add_filter( 'jetpack_heartbeat_stats_array', array( $this, 'add_stats_to_heartbeat' ) );
-	}
-
-	/**
-	 * Method that gets executed on the wp-cron call
-	 *
-	 * @deprecated since 8.9.0
-	 * @see Automattic\Jetpack\Heartbeat::cron_exec()
-	 *
-	 * @since 2.3.3
-	 * @global string $wp_version
-	 */
-	public function cron_exec() {
-		_deprecated_function( __METHOD__, 'jetpack-8.9.0', 'Automattic\\Jetpack\\Heartbeat::cron_exec' );
-		return self::$proxied_instance->cron_exec();
-
 	}
 
 	/**
@@ -130,48 +122,6 @@ class Jetpack_Heartbeat {
 		}
 
 		return $return;
-	}
-
-	/**
-	 * Registers jetpack.getHeartbeatData xmlrpc method
-	 *
-	 * @deprecated since 8.9.0
-	 * @see Automattic\Jetpack\Heartbeat::jetpack_xmlrpc_methods()
-	 *
-	 * @param array $methods The list of methods to be filtered.
-	 * @return array $methods
-	 */
-	public static function jetpack_xmlrpc_methods( $methods ) {
-		_deprecated_function( __METHOD__, 'jetpack-8.9.0', 'Automattic\\Jetpack\\Heartbeat::jetpack_xmlrpc_methods' );
-		return Heartbeat::jetpack_xmlrpc_methods( $methods );
-	}
-
-	/**
-	 * Handles the response for the jetpack.getHeartbeatData xmlrpc method
-	 *
-	 * @deprecated since 8.9.0
-	 * @see Automattic\Jetpack\Heartbeat::xmlrpc_data_response()
-	 *
-	 * @param array $params The parameters received in the request.
-	 * @return array $params all the stats that heartbeat handles.
-	 */
-	public static function xmlrpc_data_response( $params = array() ) {
-		_deprecated_function( __METHOD__, 'jetpack-8.9.0', 'Automattic\\Jetpack\\Heartbeat::xmlrpc_data_response' );
-		return Heartbeat::xmlrpc_data_response( $params );
-	}
-
-	/**
-	 * Clear scheduled events
-	 *
-	 * @deprecated since 8.9.0
-	 * @see Automattic\Jetpack\Heartbeat::deactivate()
-	 *
-	 * @return void
-	 */
-	public function deactivate() {
-		// Cronjobs are now handled by the Heartbeat package and we don't want to deactivate it here.
-		// We are adding jetpack stats to the heartbeat only if the connection is available. so we don't need to disable the cron when disconnecting.
-		_deprecated_function( __METHOD__, 'jetpack-8.9.0', 'Automattic\\Jetpack\\Heartbeat::deactivate' );
 	}
 
 	/**

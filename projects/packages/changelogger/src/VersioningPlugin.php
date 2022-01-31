@@ -1,11 +1,9 @@
-<?php // phpcs:ignore WordPress.Files.FileName.NotHyphenatedLowercase
+<?php
 /**
  * Versioning plugin interface.
  *
  * @package automattic/jetpack-changelogger
  */
-
-// phpcs:disable WordPress.NamingConventions.ValidFunctionName
 
 namespace Automattic\Jetpack\Changelogger;
 
@@ -45,13 +43,26 @@ interface VersioningPlugin {
 	public function setIO( InputInterface $input, OutputInterface $output );
 
 	/**
+	 * Parse a version number.
+	 *
+	 * @param string $version Version.
+	 * @return array Associative array with at minimum the following keys. Additional keys may be returned depending on the subclass.
+	 *  - version: (string) Version number, without any prerelease or buildinfo.
+	 *  - prerelease: (string|null) Prerelease version, e.g. "dev", "alpha", or "beta", if any.
+	 *  - buildinfo: (string|null) Build info, if any.
+	 * @throws InvalidArgumentException If the version number is not in a recognized format or extra is invalid.
+	 */
+	public function parseVersion( $version );
+
+	/**
 	 * Check and normalize a version number.
 	 *
 	 * @param string $version Version.
+	 * @param array  $extra Extra components for the version, replacing any in `$version`.
 	 * @return string Normalized version.
 	 * @throws InvalidArgumentException If the version number is not in a recognized format.
 	 */
-	public function normalizeVersion( $version );
+	public function normalizeVersion( $version, $extra = array() );
 
 	/**
 	 * Determine the next version given a current version and a set of changes.

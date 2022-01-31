@@ -1,5 +1,8 @@
+const loadIgnorePatterns = require( '../../../../tools/js-tools/load-eslint-ignore.js' );
+
 module.exports = {
-	extends: [ '../.eslintrc.js', 'plugin:@wordpress/eslint-plugin/i18n', 'plugin:jest/recommended' ],
+	extends: [ '../.eslintrc.js', 'plugin:jest/recommended' ],
+	ignorePatterns: loadIgnorePatterns( __dirname ),
 	env: { jest: true },
 	rules: {
 		'react/forbid-elements': [

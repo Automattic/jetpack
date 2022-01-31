@@ -49,7 +49,7 @@ function load_assets( $attr ) {
 		return '';
 	}
 
-	$sandbox = 'allow-scripts allow-same-origin';
+	$sandbox = 'allow-scripts allow-same-origin allow-popups';
 	if ( Blocks::is_amp_request() ) {
 		$noscript_src = str_replace(
 			'//calendar.google.com/calendar/embed',

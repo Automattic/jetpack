@@ -1,0 +1,105 @@
+@import './variables';
+
+//
+// Mixins
+//
+
+// @breakpoint is a string prefixed with < or > followed by a breakpoint size.
+// (e.g. ">sm" or "<large").
+@mixin break( $breakpoint-string ) {
+	$breakpoint: map-get( $breakpoints, to-lower-case( str-slice( $breakpoint-string, 2 ) ) );
+
+	$predicate: max-width;
+	@if str-slice( $breakpoint-string, 1, 1 ) == '>' {
+		$predicate: min-width;
+	} @else {
+		$breakpoint: $breakpoint - 0.02px;
+	}
+
+	@media ( $predicate: #{ $breakpoint } ) {
+		@content;
+	}
+}
+
+@mixin break-small-up() {
+	@media ( min-width: #{ ( $break-sm ) } ) {
+		@content;
+	}
+}
+@mixin break-small-down() {
+	@media ( max-width: #{ ( $break-sm - .02px ) } ) {
+		@content;
+	}
+}
+
+@mixin break-medium-up() {
+	@media ( min-width: #{ ( $break-md ) } ) {
+		@content;
+	}
+}
+@mixin break-medium-down() {
+	@media ( max-width: #{ ( $break-md - .02px ) } ) {
+		@content;
+	}
+}
+
+@mixin break-large-up() {
+	@media ( min-width: #{ ( $break-lg ) } ) {
+		@content;
+	}
+}
+@mixin break-large-down() {
+	@media ( max-width: #{ ( $break-lg - .02px ) } ) {
+		@content;
+	}
+}
+
+@mixin break-xlarge-up() {
+	@media ( min-width: #{ ( $break-xl ) } ) {
+		@content;
+	}
+}
+
+@mixin break-xxlarge-up() {
+	@media ( min-width: #{ ( $break-xxl ) } ) {
+		@content;
+	}
+}
+
+$customberg-container-selector: '.jp-search-configure-app-wrapper' !default;
+
+// NOTE: Only works if first breakpoint is more restrictive than the customberg breakpoint.
+//       E.g. multiple-breaks-for-customberg( '<l', '<xl' );
+//            multiple-breaks-for-customberg( '>l', '>m' );
+@mixin multiple-breaks-for-customberg( $breakpoint-string, $customberg-breakpoint-string ) {
+	@include break( $breakpoint-string ) {
+		@content;
+	}
+
+	#{$customberg-container-selector} & {
+		@include break( $customberg-breakpoint-string ) {
+			@content;
+		}
+	}
+}
+
+@mixin remove-button-styling() {
+	appearance: none;
+	background: none;
+	border: none;
+	box-shadow: none;
+	margin: 0;
+	outline: none;
+	padding: 0;
+	text-decoration: none;
+	text-shadow: none;
+	text-transform: none;
+
+	&:hover,
+	&:focus {
+		appearance: none;
+		background: none;
+		box-shadow: none;
+		outline: none;
+	}
+}

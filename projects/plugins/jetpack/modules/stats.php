@@ -173,7 +173,14 @@ function stats_map_meta_caps( $caps, $cap, $user_id ) {
 function stats_template_redirect() {
 	global $current_user;
 
-	if ( is_feed() || is_robots() || is_trackback() || is_preview() || jetpack_is_dnt_enabled() ) {
+	if (
+		is_feed()
+		|| is_robots()
+		|| is_embed()
+		|| is_trackback()
+		|| is_preview()
+		|| jetpack_is_dnt_enabled()
+	) {
 		return;
 	}
 
@@ -189,6 +196,28 @@ function stats_template_redirect() {
 		if ( ! is_array( $count_roles ) || ! array_intersect( $current_user->roles, $count_roles ) ) {
 			return;
 		}
+	}
+
+	/**
+	 * Allow excluding specific IP addresses from being tracked in Stats.
+	 * Note: for this to work well, visitors' IP addresses must:
+	 * - be stored and returned properly in IP address headers;
+	 * - not be impacted by any caching setup on your site.
+	 *
+	 * @module stats
+	 *
+	 * @since 10.6
+	 *
+	 * @param array $excluded_ips An array of IP address strings to exclude from tracking.
+	 */
+	$excluded_ips = (array) apply_filters( 'jetpack_stats_excluded_ips', array() );
+
+	// Should we be counting views for this IP address?
+	if (
+		! empty( $excluded_ips )
+		&& in_array( Jetpack::current_user_ip( true ), $excluded_ips, true )
+	) {
+		return;
 	}
 
 	add_action( 'wp_footer', 'stats_footer', 101 );
@@ -370,7 +399,6 @@ function stats_upgrade_options( $options ) {
 		'count_roles'  => array(),
 		'blog_id'      => Jetpack_Options::get_option( 'id' ),
 		'do_not_track' => true, // @todo
-		'hide_smile'   => true,
 	);
 
 	if ( isset( $options['reg_users'] ) ) {
@@ -394,8 +422,6 @@ function stats_upgrade_options( $options ) {
 	if ( ! stats_set_options( $new_options ) ) {
 		return false;
 	}
-
-	stats_update_blog();
 
 	return $new_options;
 }
@@ -665,6 +691,7 @@ function stats_reports_page( $main_chart_only = false ) {
 		'comment_subscribers' => null,
 		'type'                => array( 'wpcom', 'email', 'pending' ),
 		'pagenum'             => 'int',
+		'masterbar'           => null,
 	);
 	foreach ( $args as $var => $vals ) {
 		if ( ! isset( $_REQUEST[ $var ] ) ) { // phpcs:ignore WordPress.Security.NonceVerification.Recommended
@@ -834,18 +861,16 @@ function stats_convert_post_title( $matches ) {
 }
 
 /**
- * Stats Hide Smile.
+ * CSS to hide the tracking pixel smiley.
+ * It is now hidden for everyone (used to be visible if you had set the hide_smile option).
  *
  * @access public
  * @return void
  */
 function stats_hide_smile_css() {
-	$options = stats_get_options();
-	if ( isset( $options['hide_smile'] ) && $options['hide_smile'] ) {
-		?>
+	?>
 <style type='text/css'>img#wpstats{display:none}</style>
-		<?php
-	}
+	<?php
 }
 
 /**
@@ -899,6 +924,29 @@ function stats_admin_bar_head() {
 }
 
 /**
+ * Gets the image source of the given stats chart.
+ *
+ * @param string $chart Name of the chart.
+ * @param array  $args Extra list of argument to use in the image source.
+ * @return string An image source.
+ */
+function stats_get_image_chart_src( $chart, $args = array() ) {
+	$url = add_query_arg( 'page', 'stats', admin_url( 'admin.php' ) );
+
+	return add_query_arg(
+		array_merge(
+			array(
+				'noheader' => '',
+				'proxy'    => '',
+				'chart'    => $chart,
+			),
+			$args
+		),
+		$url
+	);
+}
+
+/**
  * Stats AdminBar.
  *
  * @access public
@@ -906,36 +954,14 @@ function stats_admin_bar_head() {
  * @return void
  */
 function stats_admin_bar_menu( &$wp_admin_bar ) {
-	$url = add_query_arg( 'page', 'stats', admin_url( 'admin.php' ) ); // no menu_page_url() blog-side.
-
-	$img_src    = esc_attr(
-		add_query_arg(
-			array(
-				'noheader' => '',
-				'proxy'    => '',
-				'chart'    => 'admin-bar-hours-scale',
-			),
-			$url
-		)
-	);
-	$img_src_2x = esc_attr(
-		add_query_arg(
-			array(
-				'noheader' => '',
-				'proxy'    => '',
-				'chart'    => 'admin-bar-hours-scale-2x',
-			),
-			$url
-		)
-	);
-
-	$alt = esc_attr( __( 'Stats', 'jetpack' ) );
-
-	$title = esc_attr( __( 'Views over 48 hours. Click for more Site Stats.', 'jetpack' ) );
+	$img_src    = esc_attr( stats_get_image_chart_src( 'admin-bar-hours-scale' ) );
+	$img_src_2x = esc_attr( stats_get_image_chart_src( 'admin-bar-hours-scale-2x' ) );
+	$alt        = esc_attr( __( 'Stats', 'jetpack' ) );
+	$title      = esc_attr( __( 'Views over 48 hours. Click for more Site Stats.', 'jetpack' ) );
 
 	$menu = array(
 		'id'    => 'stats',
-		'href'  => $url,
+		'href'  => add_query_arg( 'page', 'stats', admin_url( 'admin.php' ) ), // no menu_page_url() blog-side.
 		'title' => "<div><img src='$img_src' srcset='$img_src 1x, $img_src_2x 2x' width='112' height='24' alt='$alt' title='$title'></div>",
 	);
 
@@ -943,12 +969,18 @@ function stats_admin_bar_menu( &$wp_admin_bar ) {
 }
 
 /**
+ *
+ * Deprecated. The stats module should not update blog details. This is handled by Sync.
+ *
  * Stats Update Blog.
  *
  * @access public
  * @return void
+ *
+ * @deprecated since 10.3.
  */
 function stats_update_blog() {
+	deprecated_function( __METHOD__, 'jetpack-10.3' );
 	XMLRPC_Async_Call::add_call( 'jetpack.updateBlog', 0, stats_get_blog() );
 }
 
@@ -1226,7 +1258,7 @@ function stats_dashboard_widget_content() {
 	}
 
 	$_width  = $width - 5;
-	$_height = $height - ( $GLOBALS['is_winIE'] ? 16 : 5 ); // Hack! @todo Remove WordPress 5.8 is minimum. IE should be fully deprecated.
+	$_height = $height - 5;
 
 	$options = stats_dashboard_widget_options();
 	$blog_id = Jetpack_Options::get_option( 'id' );

@@ -43,7 +43,8 @@ class Jetpack_VideoPress {
 	public function on_init() {
 		add_action( 'wp_enqueue_media', array( $this, 'enqueue_admin_scripts' ) );
 		add_filter( 'plupload_default_settings', array( $this, 'videopress_pluploder_config' ) );
-		add_filter( 'wp_get_attachment_url', array( $this, 'update_attachment_url_for_videopress' ), 10, 2 );
+		add_filter( 'wp_get_attachment_url', array( $this, 'maybe_get_attached_url_for_videopress' ), 10, 2 );
+		add_filter( 'get_attached_file', array( $this, 'maybe_get_attached_url_for_videopress' ), 10, 2 );
 
 		if ( Jetpack_Plan::supports( 'videopress' ) ) {
 			add_filter( 'upload_mimes', array( $this, 'add_video_upload_mimes' ), 999 );
@@ -58,6 +59,37 @@ class Jetpack_VideoPress {
 
 		VideoPress_Scheduler::init();
 		VideoPress_XMLRPC::init();
+
+		if ( $this->is_videopress_enabled() ) {
+			add_action( 'admin_notices', array( $this, 'media_new_page_admin_notice' ) );
+		}
+	}
+
+	/**
+	 * The media-new.php page isn't supported for uploading to VideoPress.
+	 *
+	 * There is either a technical reason for this (bulk uploader isn't overridable),
+	 * or it is an intentional way to give site owners an option for uploading videos that bypass VideoPress.
+	 */
+	public function media_new_page_admin_notice() {
+		global $pagenow;
+
+		if ( 'media-new.php' === $pagenow ) {
+			echo '<div class="notice notice-warning is-dismissible">' .
+					'<p>' .
+					wp_kses(
+						sprintf(
+							/* translators: %s is the url to the Media Library */
+							__( 'VideoPress uploads are not supported here. To upload to VideoPress, add your videos from the <a href="%s">Media Library</a> or the block editor using the Video block.', 'jetpack' ),
+							esc_url( admin_url( 'upload.php' ) )
+						),
+						array(
+							'a' => array( 'href' => array() ),
+						)
+					) .
+					'</p>' .
+				'</div>';
+		}
 	}
 
 	/**
@@ -97,19 +129,6 @@ class Jetpack_VideoPress {
 		}
 
 		return true;
-	}
-
-	/**
-	 * Returns true if the provided user is the Jetpack connection owner.
-	 *
-	 * @deprecated since 7.7
-	 *
-	 * @param Integer|Boolean $user_id the user identifier. False for current user.
-	 * @return bool Whether the current user is the connection owner.
-	 */
-	public function is_connection_owner( $user_id = false ) {
-		_deprecated_function( __METHOD__, 'jetpack-7.7', 'Automattic\\Jetpack\\Connection\\Manager::is_connection_owner' );
-		return Jetpack::connection()->is_connection_owner( $user_id );
 	}
 
 	/**
@@ -232,21 +251,21 @@ class Jetpack_VideoPress {
 	}
 
 	/**
-	 * An override for the attachment url, which returns back the WPCOM VideoPress processed url.
+	 * Returns the VideoPress URL for the give post id, otherwise returns the provided default.
 	 *
-	 * This is an action proxy to the videopress_get_attachment_url() utility function.
+	 * This is an attachment-based filter handler.
 	 *
-	 * @param string $url
-	 * @param int    $post_id
-	 *
-	 * @return string
+	 * @param string $default The default return value if post id is not a VideoPress video.
+	 * @param int    $post_id The post id for the current attachment.
 	 */
-	public function update_attachment_url_for_videopress( $url, $post_id ) {
-		if ( $videopress_url = videopress_get_attachment_url( $post_id ) ) {
+	public function maybe_get_attached_url_for_videopress( $default, $post_id ) {
+		$videopress_url = videopress_get_attachment_url( $post_id );
+
+		if ( null !== $videopress_url ) {
 			return $videopress_url;
 		}
 
-		return $url;
+		return $default;
 	}
 
 	/**
@@ -294,6 +313,15 @@ class Jetpack_VideoPress {
 			return false;
 		}
 
+		return $this->is_videopress_enabled();
+	}
+
+	/**
+	 * Detects if VideoPress is enabled.
+	 *
+	 * @return bool
+	 */
+	protected function is_videopress_enabled() {
 		$options = VideoPress_Options::get_options();
 
 		return $options['shadow_blog_id'] > 0;

@@ -75,7 +75,7 @@ describe( 'Recommendations – Product Suggestion Item', () => {
 		expect(
 			recordEventStub.withArgs(
 				'jetpack_recommendations_product_suggestion_click',
-				productSuggestion.slug,
+				{ type: productSuggestion.slug },
 			).callCount
 		).to.be.equal( 1 );
 
@@ -106,7 +106,7 @@ describe( 'Recommendations – Product Suggestion Item', () => {
 		expect(
 			recordEventStub.withArgs(
 				'jetpack_recommendations_product_suggestion_learn_more_click',
-				productSuggestion.slug,
+				{ type: productSuggestion.slug },
 			).callCount
 		).to.be.equal( 1 );
 

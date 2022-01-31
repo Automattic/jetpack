@@ -103,7 +103,8 @@ class Network_Options extends Module {
 		/**
 		 * Tells the client to sync all options to the server
 		 *
-		 * @since 4.2.0
+		 * @since 1.6.3
+		 * @since-jetpack 4.2.0
 		 *
 		 * @param boolean Whether to expand options (should always be true)
 		 */

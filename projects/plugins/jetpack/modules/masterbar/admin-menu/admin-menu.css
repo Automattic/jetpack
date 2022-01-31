@@ -131,6 +131,12 @@
 	min-height: 26px;
 }
 
+#adminmenu .toplevel_page_site-notices .upsell_banner svg.dismissible-card__close-icon {
+	height: 24px;
+	width: 24px;
+	margin-left: 10px;
+}
+
 @media screen and (min-width: 782px) {
 	.folded #adminmenu .toplevel_page_site-notices .wp-menu-image {
 		display: block;
@@ -328,6 +334,14 @@
 		padding-left: 42px;
 	}
 
+	.wp-responsive-open #wpbody {
+		right: inherit;
+	}
+
+	.wp-responsive-open #wpcontent {
+		margin-left: 272px;
+	}
+
 	.auto-fold #adminmenu, .auto-fold #adminmenuback, .auto-fold #adminmenuwrap {
 		width: 272px;
 	}
@@ -348,6 +362,10 @@
 	.auto-fold #adminmenuwrap {
 		width: 100%;
 		z-index: 171;
+	}
+
+	.wp-responsive-open #wpcontent {
+		margin-left: 0;
 	}
 
 	ul#adminmenu a.wp-has-current-submenu:after,

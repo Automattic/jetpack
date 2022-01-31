@@ -10,7 +10,7 @@ import { ProgressBar } from '@automattic/components';
 /**
  * Internal dependencies
  */
-import { LoadingCard } from '../../sidebar/loading-card';
+import { JetpackLoadingIcon } from 'components/jetpack-loading-icon';
 import { PromptLayout } from '../prompt-layout';
 import { ProductSuggestion } from '../product-suggestion';
 import { MoneyBackGuarantee } from 'components/money-back-guarantee';
@@ -54,7 +54,7 @@ const ProductSuggestionsComponent = props => {
 	// This should only happen if the "step" is accessed directly and not
 	// as part of the initial flow where the user selects the site type.
 	if ( isFetchingSuggestions ) {
-		return <LoadingCard />;
+		return <JetpackLoadingIcon altText={ __( 'Loading recommendations', 'jetpack' ) } />;
 	}
 
 	// Redirect the user to the next step if they are not eligible for the product
@@ -85,6 +85,9 @@ const ProductSuggestionsComponent = props => {
 				{ suggestions.map( ( item, key ) => (
 					<ProductSuggestion key={ key } product={ item } />
 				) ) }
+			</div>
+			<div className="jp-recommendations-product-suggestion__introductory-pricing">
+				{ __( 'Special introductory pricing, all renewals are at full price.', 'jetpack' ) }
 			</div>
 			<div className="jp-recommendations-product-suggestion__money-back-guarantee">
 				<MoneyBackGuarantee text={ __( '14-day money-back guarantee', 'jetpack' ) } />

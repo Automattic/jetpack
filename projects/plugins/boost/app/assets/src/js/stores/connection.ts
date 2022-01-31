@@ -23,10 +23,10 @@ function partialUpdate( data: Partial< ConnectionStatus > ) {
 	} );
 }
 
-async function refresh() {
+async function refresh(): Promise< void > {
 	partialUpdate( await api.get( '/connection' ) );
 }
-async function initialize() {
+async function initialize(): Promise< void > {
 	partialUpdate( { isConnecting: true } );
 	try {
 		partialUpdate( await api.post( '/connection' ) );

@@ -1,5 +1,7 @@
 <?php
 
+use Automattic\Jetpack\Status\Host;
+
 require_once dirname( __FILE__ ) . '/class.json-api-date.php';
 require_once dirname( __FILE__ ) . '/class.json-api-post-base.php';
 
@@ -101,6 +103,13 @@ abstract class SAL_Site {
 
 	abstract public function is_multisite();
 
+	/**
+	 * Points to the user ID of the site owner
+	 *
+	 * @return int for WP.com, null for Jetpack
+	 */
+	abstract public function get_site_owner();
+
 	abstract public function is_single_user_site();
 
 	abstract public function get_plan();
@@ -173,7 +182,7 @@ abstract class SAL_Site {
 	 * @return bool
 	 */
 	public function is_wpcom_atomic() {
-		return jetpack_is_atomic_site();
+		return ( new Host() )->is_woa_site();
 	}
 
 	public function is_wpcom_store() {
@@ -717,4 +726,22 @@ abstract class SAL_Site {
 	public function get_anchor_podcast() {
 		return get_option( 'anchor_podcast' );
 	}
+
+	/**
+	 * Check if the site is currently being built by the DIFM Lite team.
+	 */
+	public function is_difm_lite_in_progress() {
+		if ( function_exists( 'has_blog_sticker' ) ) {
+			return has_blog_sticker( 'difm-lite-in-progress' );
+		}
+		return false;
+	}
+
+	/**
+	 * Get the option of site intent which value is coming from the Hero Flow
+	 */
+	public function get_site_intent() {
+		return get_option( 'site_intent', '' );
+	}
 }
+

@@ -1,4 +1,4 @@
-this.jetpackModules = this.jetpackModules || {};
+window.jetpackModules = window.jetpackModules || {};
 
 window.jetpackModules.models = ( function( window, $, _, Backbone ) {
 	'use strict';
@@ -77,4 +77,4 @@ window.jetpackModules.models = ( function( window, $, _, Backbone ) {
 	} );
 
 	return models;
-} )( this, jQuery, _, Backbone );
+} )( window, jQuery, _, Backbone );

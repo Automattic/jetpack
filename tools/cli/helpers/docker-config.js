@@ -62,7 +62,7 @@ const getDeprecatedVolumesMapping = config => {
 	const volumes = yaml.load( readFileSync( volumesFile, 'utf8' ) );
 	console.warn(
 		chalk.yellow(
-			`[WARNING] Using configuration defined in ${ volumesFile }. This approach in deprecated in favor of 'jetpack-docker-config.json'. This configuration method will be removed in a future version`
+			`[WARNING] Using configuration defined in ${ volumesFile }. This approach in deprecated in favor of 'jetpack-docker-config.yml'. This configuration method will be removed in a future version`
 		)
 	);
 
@@ -95,7 +95,7 @@ const getDeprecatedExtras = config => {
 	const extras = yaml.load( readFileSync( extrasFile, 'utf8' ) );
 	console.warn(
 		chalk.yellow(
-			`[WARNING] Using configuration defined in ${ extrasFile }. This approach in deprecated in favor of 'jetpack-docker-config.json'. This configuration method will be removed in a future version`
+			`[WARNING] Using configuration defined in ${ extrasFile }. This approach in deprecated in favor of 'jetpack-docker-config.yml'. This configuration method will be removed in a future version`
 		)
 	);
 	delete extras.version;
@@ -177,9 +177,7 @@ const setMappings = ( argv, config ) => {
 
 	if ( argv.type === 'dev' ) {
 		mappingsCompose.services.sftp = {
-			volumes: volumesMapping.map( vol =>
-				vol.startsWith( '/var/www/html' ) ? '/home/wordpress' + vol : vol
-			),
+			volumes: volumesMapping.map( vol => vol.replace( ':', ':/home/wordpress' ) ),
 		};
 	}
 
@@ -188,7 +186,7 @@ const setMappings = ( argv, config ) => {
 };
 
 /**
- * Generates Extras compose file based on jetpack-docker-config.json config files
+ * Generates Extras compose file based on jetpack-docker-config.yml config files
  *
  * @param {object} argv - Yargs
  * @param {object} config - Configuration object

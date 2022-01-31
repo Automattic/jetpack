@@ -8,14 +8,16 @@
 
 namespace Automattic\Jetpack_Boost\Admin;
 
+use Automattic\Jetpack\Admin_UI\Admin_Menu;
 use Automattic\Jetpack\Status;
+use Automattic\Jetpack_Boost\Features\Optimizations\Critical_CSS\Critical_CSS;
+use Automattic\Jetpack_Boost\Features\Optimizations\Optimizations;
+use Automattic\Jetpack_Boost\Features\Speed_Score\Speed_Score;
 use Automattic\Jetpack_Boost\Jetpack_Boost;
+use Automattic\Jetpack_Boost\Lib\Analytics;
 use Automattic\Jetpack_Boost\Lib\Environment_Change_Detector;
-use Automattic\Jetpack_Boost\Lib\Speed_Score;
+use Automattic\Jetpack_Boost\REST_API\Permissions\Nonce;
 
-/**
- * Class Admin
- */
 class Admin {
 
 	/**
@@ -24,16 +26,26 @@ class Admin {
 	const MENU_SLUG = 'jetpack-boost';
 
 	/**
+	 * Nonce action for setting the status of show_rating_prompt.
+	 */
+	const SET_SHOW_RATING_PROMPT_NONCE = 'set_show_rating_prompt';
+
+	/**
 	 * Option to store options that have been dismissed.
 	 */
 	const DISMISSED_NOTICE_OPTION = 'jb-dismissed-notices';
+
+	/**
+	 * Name of option to store status of show/hide rating prompts
+	 */
+	const SHOW_RATING_PROMPT_OPTION = 'jb_show_rating_prompt';
 
 	/**
 	 * Main plugin instance.
 	 *
 	 * @var Jetpack_Boost Plugin.
 	 */
-	private $jetpack_boost;
+	private $modules;
 
 	/**
 	 * Speed_Score class instance.
@@ -42,61 +54,35 @@ class Admin {
 	 */
 	private $speed_score;
 
-	/**
-	 * Initialize the class and set its properties.
-	 *
-	 * @param Jetpack_Boost $jetpack_boost Main plugin instance.
-	 *
-	 * @since    1.0.0
-	 */
-	public function __construct( Jetpack_Boost $jetpack_boost ) {
-		$this->jetpack_boost = $jetpack_boost;
-		$this->speed_score   = new Speed_Score();
+	public function __construct( Optimizations $modules ) {
+		$this->modules     = $modules;
+		$this->speed_score = new Speed_Score( $modules );
 		Environment_Change_Detector::init();
 
-		add_action( 'admin_menu', array( $this, 'admin_menu' ) );
-		add_action( 'admin_enqueue_scripts', array( $this, 'enqueue_styles' ) );
-		add_action( 'admin_enqueue_scripts', array( $this, 'enqueue_scripts' ) );
+		add_action( 'init', array( new Analytics(), 'init' ) );
 		add_filter( 'plugin_action_links_' . JETPACK_BOOST_PLUGIN_BASE, array( $this, 'plugin_page_settings_link' ) );
-		add_action( 'rest_api_init', array( $this, 'register_rest_routes' ) );
 		add_action( 'admin_notices', array( $this, 'show_notices' ) );
+		add_action( 'wp_ajax_set_show_rating_prompt', array( $this, 'handle_set_show_rating_prompt' ) );
+		add_filter( 'jetpack_boost_js_constants', array( $this, 'add_js_constants' ) );
 
 		$this->handle_get_parameters();
-	}
 
-	/**
-	 * Runs the function that generates the admin menu for the plugin.
-	 */
-	public function admin_menu() {
-		add_menu_page(
-			__( 'Jetpack Boost', 'jetpack-boost' ),
-			__( 'Jetpack Boost', 'jetpack-boost' ),
-			'manage_options',
-			JETPACK_BOOST_SLUG,
-			array( $this, 'render_settings' ),
-			'dashicons-chart-line',
-			77 // Between Tools & Settings.
-		);
-
-		add_submenu_page(
-			'jetpack-boost',
+		$page_suffix = Admin_Menu::add_menu(
 			__( 'Jetpack Boost - Settings', 'jetpack-boost' ),
-			__( 'Settings', 'jetpack-boost' ),
+			'Boost',
 			'manage_options',
 			JETPACK_BOOST_SLUG,
 			array( $this, 'render_settings' )
 		);
+		add_action( 'load-' . $page_suffix, array( $this, 'admin_init' ) );
 	}
 
 	/**
-	 * Returns true if on Jetpack Boost admin page.
-	 *
-	 * @return bool
+	 * Enqueue scripts and styles for the admin page.
 	 */
-	public function on_boost_admin_page() {
-		$screen = get_current_screen();
-
-		return 'toplevel_page_jetpack-boost' === $screen->id;
+	public function admin_init() {
+		add_action( 'admin_enqueue_scripts', array( $this, 'enqueue_styles' ) );
+		add_action( 'admin_enqueue_scripts', array( $this, 'enqueue_scripts' ) );
 	}
 
 	/**
@@ -105,14 +91,10 @@ class Admin {
 	 * @since    1.0.0
 	 */
 	public function enqueue_styles() {
-		if ( ! $this->on_boost_admin_page() ) {
-			return;
-		}
-
 		$internal_path = apply_filters( 'jetpack_boost_asset_internal_path', 'app/assets/dist/' );
 
 		wp_enqueue_style(
-			$this->jetpack_boost->get_plugin_name() . '-css',
+			'jetpack-boost-css',
 			plugins_url( $internal_path . 'jetpack-boost.css', JETPACK_BOOST_PATH ),
 			array( 'wp-components' ),
 			JETPACK_BOOST_VERSION
@@ -125,13 +107,9 @@ class Admin {
 	 * @since    1.0.0
 	 */
 	public function enqueue_scripts() {
-		if ( ! $this->on_boost_admin_page() ) {
-			return;
-		}
-
 		$internal_path = apply_filters( 'jetpack_boost_asset_internal_path', 'app/assets/dist/' );
 
-		$admin_js_handle = $this->jetpack_boost->get_plugin_name() . '-admin';
+		$admin_js_handle = 'jetpack-boost-admin';
 
 		wp_register_script(
 			$admin_js_handle,
@@ -141,6 +119,7 @@ class Admin {
 			true
 		);
 
+		$optimizations = ( new Optimizations() )->get_status();
 		// Prepare configuration constants for JavaScript.
 		$constants = array(
 			'version'             => JETPACK_BOOST_VERSION,
@@ -148,15 +127,25 @@ class Admin {
 				'namespace' => JETPACK_BOOST_REST_NAMESPACE,
 				'prefix'    => JETPACK_BOOST_REST_PREFIX,
 			),
-			'modules'             => $this->jetpack_boost->get_available_modules(),
-			'config'              => $this->jetpack_boost->config()->get_data(),
+			'optimizations'       => $optimizations,
 			'locale'              => get_locale(),
 			'site'                => array(
-				'url'       => get_site_url(),
+				'url'       => get_home_url(),
 				'online'    => ! ( new Status() )->is_offline_mode(),
 				'assetPath' => plugins_url( $internal_path, JETPACK_BOOST_PATH ),
 			),
 			'shownAdminNoticeIds' => $this->get_shown_admin_notice_ids(),
+			'preferences'         => array(
+				'showRatingPrompt' => $this->get_show_rating_prompt(),
+			),
+
+			/**
+			 * A bit of necessary magic,
+			 * Explained more in the Nonce class.
+			 *
+			 * Nonces are automatically generated when registering routes.
+			 */
+			'nonces'              => Nonce::get_generated_nonces(),
 		);
 
 		// Give each module an opportunity to define extra constants.
@@ -179,7 +168,7 @@ class Admin {
 	 * @param array $links the array of links.
 	 */
 	public function plugin_page_settings_link( $links ) {
-		$settings_link = '<a href="' . admin_url( '?page=jetpack-boost' ) . '">' . esc_html__( 'Settings', 'jetpack-boost' ) . '</a>';
+		$settings_link = '<a href="' . admin_url( 'admin.php?page=jetpack-boost' ) . '">' . esc_html__( 'Settings', 'jetpack-boost' ) . '</a>';
 		array_unshift( $links, $settings_link );
 
 		return $links;
@@ -190,7 +179,7 @@ class Admin {
 	 */
 	public function render_settings() {
 		wp_localize_script(
-			$this->jetpack_boost->get_plugin_name() . '-admin',
+			'jetpack-boost-admin',
 			'wpApiSettings',
 			array(
 				'root'  => esc_url_raw( rest_url() ),
@@ -212,56 +201,13 @@ class Admin {
 	}
 
 	/**
-	 * Register REST routes for settings.
-	 *
-	 * @return void
-	 */
-	public function register_rest_routes() {
-		// Activate and deactivate a module.
-		register_rest_route(
-			JETPACK_BOOST_REST_NAMESPACE,
-			JETPACK_BOOST_REST_PREFIX . '/module/(?P<slug>[a-z\-]+)/status',
-			array(
-				'methods'             => \WP_REST_Server::EDITABLE,
-				'callback'            => array( $this, 'set_module_status' ),
-				'permission_callback' => array( $this, 'check_for_permissions' ),
-			)
-		);
-	}
-
-	/**
-	 * Handler for the /module/(?P<slug>[a-z\-]+)/status endpoint.
-	 *
-	 * @param \WP_REST_Request $request The request object.
-	 *
-	 * @return \WP_REST_Response|\WP_Error The response.
-	 */
-	public function set_module_status( $request ) {
-		$params = $request->get_json_params();
-
-		if ( ! isset( $params['status'] ) ) {
-			return new \WP_Error(
-				'jetpack_boost_error_missing_module_status_param',
-				__( 'Missing status param', 'jetpack-boost' )
-			);
-		}
-
-		$module_slug = $request['slug'];
-		$this->jetpack_boost->set_module_status( (bool) $params['status'], $module_slug );
-
-		return rest_ensure_response(
-			$this->jetpack_boost->get_module_status( $module_slug )
-		);
-	}
-
-	/**
 	 * Show any admin notices from enabled modules.
 	 */
 	public function show_notices() {
 		// Determine if we're already on the settings page.
 		// phpcs:ignore WordPress.Security.NonceVerification.Recommended
 		$on_settings_page = isset( $_GET['page'] ) && self::MENU_SLUG === $_GET['page'];
-		$notices          = $this->jetpack_boost->get_admin_notices();
+		$notices          = $this->get_admin_notices();
 
 		// Filter out any that have been dismissed, unless newer than the dismissal.
 		$dismissed_notices = \get_option( self::DISMISSED_NOTICE_OPTION, array() );
@@ -292,13 +238,25 @@ class Admin {
 	 * @return array List of notice ids.
 	 */
 	private function get_shown_admin_notice_ids() {
-		$notices = $this->jetpack_boost->get_admin_notices();
+		$notices = $this->get_admin_notices();
 		$ids     = array();
 		foreach ( $notices as $notice ) {
 			$ids[] = $notice->get_id();
 		}
 
 		return $ids;
+	}
+
+	/**
+	 * Returns a list of admin notices to show. Asks each module to provide admin notices the user needs to see.
+	 *
+	 * @TODO: This is still a code smell. We're carrying the whole modules instance just to get a list of admin notices.
+	 *
+	 * @return \Automattic\Jetpack_Boost\Admin\Admin_Notice[]
+	 */
+	public function get_admin_notices() {
+		$critical_css = new Critical_CSS();
+		return $critical_css->get_admin_notices();
 	}
 
 	/**
@@ -325,10 +283,48 @@ class Admin {
 	// phpcs:enable WordPress.Security.NonceVerification.Recommended
 
 	/**
+	 * Handle the ajax request to set show-rating-prompt status.
+	 */
+	public function handle_set_show_rating_prompt() {
+		if ( check_ajax_referer( self::SET_SHOW_RATING_PROMPT_NONCE, 'nonce' ) && $this->check_for_permissions() ) {
+			$response = array(
+				'status' => 'ok',
+			);
+
+			$is_enabled = 'true' === $_POST['value'] ? '1' : '0';
+			\update_option( self::SHOW_RATING_PROMPT_OPTION, $is_enabled );
+
+			wp_send_json( $response );
+		} else {
+			$error = new \WP_Error( 'authorization', __( 'You do not have permission to take this action.', 'jetpack-boost' ) );
+			wp_send_json_error( $error, 403 );
+		}
+	}
+
+	/**
+	 * Get the value of show_rating_prompt.
+	 *
+	 * This determines if there should be a prompt after speed score improvements. Initially the value is set to true by
+	 * default. Once the user clicks on the rating button, it is switched to false.
+	 *
+	 * @return bool
+	 */
+	public function get_show_rating_prompt() {
+		return \get_option( self::SHOW_RATING_PROMPT_OPTION, '1' ) === '1';
+	}
+
+	/**
 	 * Delete the option tracking which admin notices have been dismissed during deactivation.
 	 */
 	public static function clear_dismissed_notices() {
 		\delete_option( self::DISMISSED_NOTICE_OPTION );
+	}
+
+	/**
+	 * Clear the status of show_rating_prompt
+	 */
+	public static function clear_show_rating_prompt() {
+		\delete_option( self::SHOW_RATING_PROMPT_OPTION );
 	}
 
 	/**
@@ -344,5 +340,19 @@ class Admin {
 		}
 
 		\update_option( self::DISMISSED_NOTICE_OPTION, $dismissed_notices, false );
+	}
+
+	/**
+	 * Add Admin related constants to be passed to JavaScript.
+	 *
+	 * @param array $constants Constants to be passed to JavaScript.
+	 *
+	 * @return array
+	 */
+	public function add_js_constants( $constants ) {
+		// Information about the current status of Critical CSS / generation.
+		$constants['showRatingPromptNonce'] = wp_create_nonce( self::SET_SHOW_RATING_PROMPT_NONCE );
+
+		return $constants;
 	}
 }

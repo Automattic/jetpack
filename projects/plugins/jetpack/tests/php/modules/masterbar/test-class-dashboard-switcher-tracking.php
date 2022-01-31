@@ -33,8 +33,8 @@ class Test_Dashboard_Switcher_Tracking extends \WP_UnitTestCase {
 	/**
 	 * Set up data.
 	 */
-	public function setUp() {
-		parent::setUp();
+	public function set_up() {
+		parent::set_up();
 		wp_set_current_user( static::$user_id );
 	}
 
@@ -59,10 +59,15 @@ class Test_Dashboard_Switcher_Tracking extends \WP_UnitTestCase {
 			'plan'         => 'business',
 		);
 
-		$tracking->expects( $this->once() )->method( 'record_user_event' )->with(
-			Dashboard_Switcher_Tracking::EVENT_NAME,
-			$event_properties
-		);
+		if ( defined( 'IS_WPCOM' ) && IS_WPCOM ) {
+			$event_properties['blog_id'] = get_current_blog_id();
+		} else {
+			// record_user_event only gets called outside WP.com.
+			$tracking->expects( $this->once() )->method( 'record_user_event' )->with(
+				Dashboard_Switcher_Tracking::JETPACK_EVENT_NAME,
+				$event_properties
+			);
+		}
 
 		$wpcom_tracks = function ( $properties ) use ( $event_properties ) {
 			$this->assertEquals( $event_properties, $properties );

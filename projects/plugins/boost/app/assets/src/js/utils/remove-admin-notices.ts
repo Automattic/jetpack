@@ -3,7 +3,7 @@
  *
  * @param {string} moduleSlug Module Slug
  */
-export function removeShownAdminNotices( moduleSlug: string ) {
+export function removeShownAdminNotices( moduleSlug: string ): void {
 	for ( const adminNoticeId of Jetpack_Boost.shownAdminNoticeIds ) {
 		if ( adminNoticeId.includes( moduleSlug ) ) {
 			const notice = document.getElementById( adminNoticeId );

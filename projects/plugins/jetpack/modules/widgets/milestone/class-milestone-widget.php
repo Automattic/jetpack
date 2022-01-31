@@ -114,45 +114,9 @@ class Milestone_Widget extends WP_Widget {
 		?>
 <style>
 .milestone-widget {
-	margin-bottom: 1em;
-}
-.milestone-content {
-	line-height: 2;
-	margin-top: 5px;
-	max-width: 100%;
-	padding: 0;
-	text-align: center;
-}
-.milestone-header {
-	background-color: <?php echo self::sanitize_color_hex( $colors['text'] ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?>;
-	color: <?php echo self::sanitize_color_hex( $colors['bg'] ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?>;
-	line-height: 1.3;
-	margin: 0;
-	padding: .8em;
-}
-.milestone-header .event,
-.milestone-header .date {
-	display: block;
-}
-.milestone-header .event {
-	font-size: 120%;
-}
-.milestone-countdown .difference {
-	display: block;
-	font-size: 500%;
-	font-weight: bold;
-	line-height: 1.2;
-}
-.milestone-countdown,
-.milestone-message {
-	background-color: <?php echo self::sanitize_color_hex( $colors['bg'] ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?>;
-	border: 1px solid <?php echo self::sanitize_color_hex( $colors['border'] ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?>;
-	border-top: 0;
-	color: <?php echo self::sanitize_color_hex( $colors['text'] ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?>;
-	padding-bottom: 1em;
-}
-.milestone-message {
-	padding-top: 1em
+	--milestone-text-color: <?php echo self::sanitize_color_hex( $colors['text'] ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?>;
+	--milestone-bg-color: <?php echo self::sanitize_color_hex( $colors['bg'] ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?>;
+	--milestone-border-color:<?php echo self::sanitize_color_hex( $colors['border'] ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?>;
 }
 </style>
 		<?php
@@ -241,12 +205,14 @@ class Milestone_Widget extends WP_Widget {
 	public function widget( $args, $instance ) {
 		$instance = wp_parse_args( $instance, $this->defaults() );
 
+		$this->enqueue_scripts();
+
 		echo $args['before_widget']; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
 
 		/** This filter is documented in wp-includes/widgets/class-wp-widget-pages.php */
 		$title = apply_filters( 'widget_title', $instance['title'] );
 		if ( ! empty( $title ) ) {
-			echo $args['before_title'] . esc_html( $title ) . $args['after_title']; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
+			echo $args['before_title'] . $title . $args['after_title']; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
 		}
 
 		$widget_id = ! empty( $args['widget_id'] ) ? $args['widget_id'] : 'milestone_widget';
@@ -281,6 +247,18 @@ class Milestone_Widget extends WP_Widget {
 
 		/** This action is documented in modules/widgets/gravatar-profile.php */
 		do_action( 'jetpack_stats_extra', 'widget_view', 'milestone' );
+	}
+
+	/**
+	 * Enqueue widget styles
+	 */
+	public function enqueue_scripts() {
+		wp_enqueue_style(
+			'milestone-widget',
+			plugins_url( 'milestone-widget.css', __FILE__ ),
+			array(),
+			JETPACK__VERSION
+		);
 	}
 
 	/**

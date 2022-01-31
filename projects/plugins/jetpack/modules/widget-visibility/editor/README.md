@@ -7,4 +7,4 @@ This means that we can now develop a new interface to manage widget visibility s
 
 ## Build (& Watch)
 
-This feature will be built via `pnpm run build-widget-visibility`, which is invoked in `pnpm build`.
+This feature will be built via `pnpm run build-widget-visibility`, which is invoked in `jetpack build plugins/jetpack`.

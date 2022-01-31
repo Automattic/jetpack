@@ -25,7 +25,7 @@ import {
 	FEATURE_SEARCH_JETPACK,
 } from 'lib/plans/constants';
 import { getSitePlan, hasActiveSearchPurchase, isFetchingSitePurchases } from 'state/site';
-import { getUpgradeUrl } from 'state/initial-state';
+import { getProductDescriptionUrl } from 'product-descriptions/utils';
 import { hasConnectedOwner, isOfflineMode, connectUser } from 'state/connection';
 import JetpackBanner from 'components/jetpack-banner';
 
@@ -63,24 +63,34 @@ const renderCard = props => (
 class DashSearch extends Component {
 	static propTypes = {
 		getOptionValue: PropTypes.func.isRequired,
+		trackUpgradeBanner: PropTypes.func,
 
 		// Connected props
 		isOfflineMode: PropTypes.bool.isRequired,
-		hasConnectedOwner: PropTypes.string.isRequired,
+		hasConnectedOwner: PropTypes.bool.isRequired,
 	};
 
 	static defaultProps = {
 		getOptionValue: noop,
 		isOfflineMode: false,
+		trackUpgradeBanner: noop,
 	};
 
-	trackSearchLink() {
+	trackConfigureSearchLink = () => {
 		analytics.tracks.recordJetpackClick( {
-			type: 'upgrade-link',
+			type: 'configure-search-link',
 			target: 'at-a-glance',
 			feature: 'search',
 		} );
-	}
+	};
+
+	trackAddSearchWidgetLink = () => {
+		analytics.tracks.recordJetpackClick( {
+			type: 'search-widget-link',
+			target: 'at-a-glance',
+			feature: 'search',
+		} );
+	};
 
 	activateSearch = () => {
 		this.props.updateOptions( {
@@ -121,6 +131,7 @@ class DashSearch extends Component {
 						path="dashboard"
 						plan={ getJetpackProductUpsellByFeature( FEATURE_SEARCH_JETPACK ) }
 						icon="search"
+						trackBannerDisplay={ this.props.trackUpgradeButtonView }
 					/>
 				) : (
 					<JetpackBanner
@@ -163,6 +174,7 @@ class DashSearch extends Component {
 							compact
 							className="jp-search-config-aag"
 							href="admin.php?page=jetpack-search-configure"
+							onClick={ this.trackConfigureSearchLink }
 						>
 							{ SEARCH_CUSTOMIZE_CTA }
 						</Card>
@@ -171,6 +183,7 @@ class DashSearch extends Component {
 							compact
 							className="jp-search-config-aag"
 							href="customize.php?autofocus[panel]=widgets"
+							onClick={ this.trackAddSearchWidgetLink }
 						>
 							{ __( 'Add Search (Jetpack) Widget', 'jetpack' ) }
 						</Card>
@@ -202,7 +215,7 @@ export default connect(
 			isOfflineMode: isOfflineMode( state ),
 			isFetching: isFetchingSitePurchases( state ),
 			hasSearchProduct: hasActiveSearchPurchase( state ),
-			upgradeUrl: getUpgradeUrl( state, 'aag-search' ),
+			upgradeUrl: getProductDescriptionUrl( state, 'search' ),
 			hasConnectedOwner: hasConnectedOwner( state ),
 		};
 	},

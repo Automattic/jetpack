@@ -8,6 +8,8 @@
 
 namespace Automattic\Jetpack\Cloudflare_Analytics;
 
+use Automattic\Jetpack\Status\Host;
+
 /**
  * Add Cloudflare Analytics tracking code to the head.
  * This is currently only available to Atomic and WordPress.com Simple sites.
@@ -21,7 +23,7 @@ function insert_tracking_id() {
 		! empty( $option['code'] )
 		&& ! is_admin()
 		&& ( class_exists( 'Jetpack_AMP_Support' ) && ! \Jetpack_AMP_Support::is_amp_request() )
-		&& ( ( defined( 'IS_WPCOM' ) && IS_WPCOM ) || \jetpack_is_atomic_site() )
+		&& ( ( defined( 'IS_WPCOM' ) && IS_WPCOM ) || ( new Host() )->is_woa_site() )
 	) {
 		printf(
 			"<!-- Jetpack Cloudflare Web Analytics -->

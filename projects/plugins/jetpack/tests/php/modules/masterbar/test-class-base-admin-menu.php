@@ -58,8 +58,8 @@ class Test_Base_Admin_Menu extends WP_UnitTestCase {
 	/**
 	 * Set up data.
 	 */
-	public function setUp() {
-		parent::setUp();
+	public function set_up() {
+		parent::set_up();
 
 		$admin_menu = $this->get_concrete_menu_admin();
 
@@ -104,9 +104,9 @@ class Test_Base_Admin_Menu extends WP_UnitTestCase {
 		static::$admin_menu->add_admin_menu_separator( 10, 'manage_options' );
 
 		$this->assertSame( 'manage_options', $menu[10][1] );
-		$this->assertContains( 'separator-custom-', $menu[10][2] );
+		$this->assertStringContainsString( 'separator-custom-', $menu[10][2] );
 		$this->assertSame( 'read', $menu[15][1] );
-		$this->assertContains( 'separator-custom-', $menu[15][2] );
+		$this->assertStringContainsString( 'separator-custom-', $menu[15][2] );
 
 		// Restore filtered $menu.
 		$menu = $temp_menu;
@@ -140,9 +140,17 @@ class Test_Base_Admin_Menu extends WP_UnitTestCase {
 	 * @covers ::handle_preferred_view
 	 */
 	public function test_handle_preferred_view() {
+		// @see p9dueE-3LL-p2#comment-6669
+		if ( defined( 'IS_WPCOM' ) && IS_WPCOM ) {
+			$this->markTestSkipped( 'Does not work on WP.com as handle_preferred_view() performs a redirect and then terminates the execution.' );
+		}
+
 		global $pagenow;
 		$pagenow                = 'test.php';
 		$_GET['preferred-view'] = 'classic';
+
+		$this->expectException( ExitException::class );
+
 		static::$admin_menu->handle_preferred_view();
 
 		$this->assertSame( 'classic', static::$admin_menu->get_preferred_view( 'test.php' ) );

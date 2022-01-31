@@ -1,0 +1,27 @@
+# Files not needed to be distributed.
+.gitattributes                                           export-ignore
+.github/                                                 export-ignore
+package.json                                             export-ignore
+
+# Files to include in production build.
+/build/**                                                production-include
+
+# Files not needed in the production build.
+/changelog/**                                            production-exclude
+/.gitignore                                              production-exclude
+/.eslintrc.js                                            production-exclude
+/.eslintignore                                           production-exclude
+/.size-limit.js                                          production-exclude
+/babel.config*                                           production-exclude
+/jest.config.js                                          production-exclude
+/postcss.config.js                                       production-exclude
+/tools/**                                                production-exclude
+/phpunit.xml.dist                                        production-exclude
+/tests/**                                                production-exclude
+/src/**/test/**                                          production-exclude
+/src/**/*.scss                                           production-exclude
+# JS scripts to integrate with customizer and wigets might need to be explicitly included.
+/src/**/*.js                                             production-exclude
+/src/**/*.jsx                                            production-exclude
+/src/**/*.ts                                             production-exclude
+.phpcs.dir.xml                                           production-exclude

@@ -1,6 +1,4 @@
-/*global google:true*/
-/*global _wp_google_translate_widget:true*/
-/*exported googleTranslateElementInit*/
+/* global google, _wp_google_translate_widget, module */
 function googleTranslateElementInit() {
 	var lang = 'en';
 	var langParam;
@@ -29,4 +27,7 @@ function googleTranslateElementInit() {
 		},
 		'google_translate_element'
 	);
+}
+if ( module ) {
+	module.exports = googleTranslateElementInit;
 }

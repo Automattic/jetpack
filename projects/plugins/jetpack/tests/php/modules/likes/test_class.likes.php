@@ -1,5 +1,5 @@
 <?php
-require dirname( __FILE__ ) . '/../../../../modules/likes.php';
+require __DIR__ . '/../../../../modules/likes.php';
 
 class WP_Test_Likes extends WP_UnitTestCase {
 
@@ -53,13 +53,13 @@ class WP_Test_Likes extends WP_UnitTestCase {
 		$post = get_post( $post_id );
 
 		// This time there's a post set so return the HTML.
-		$this->assertContains( "<div class='sharedaddy sd-block", Jetpack_Likes::init()->post_likes( $content ) );
+		$this->assertStringContainsString( "<div class='sharedaddy sd-block", Jetpack_Likes::init()->post_likes( $content ) );
 
 		// Disable likes
 		remove_filter( 'wpl_is_likes_visible', '__return_true' );
 
 		// Likes are disabled this time so return the same content.
-		$this->assertContains( 'Some content.', Jetpack_Likes::init()->post_likes( $content ) );
+		$this->assertStringContainsString( 'Some content.', Jetpack_Likes::init()->post_likes( $content ) );
 	}
 
 	/**
@@ -78,7 +78,7 @@ class WP_Test_Likes extends WP_UnitTestCase {
 		add_filter( 'wpl_is_single_post_disabled', '__return_false' );
 
 		// Likes should not be visible where they're not supported
-		$this->assertEquals( false, Jetpack_Likes::init()->settings->is_likes_visible() );
+		$this->assertFalse( Jetpack_Likes::init()->settings->is_likes_visible() );
 
 		// Reenable support
 		remove_filter( 'wpl_is_single_post_disabled', '__return_false' );
@@ -86,12 +86,12 @@ class WP_Test_Likes extends WP_UnitTestCase {
 		$GLOBALS['post']->post_status = 'draft';
 
 		// Likes should not be visible in draft posts
-		$this->assertEquals( false, Jetpack_Likes::init()->settings->is_likes_visible() );
+		$this->assertFalse( Jetpack_Likes::init()->settings->is_likes_visible() );
 
 		$GLOBALS['post']->post_status = 'publish';
 
 		// Likes should be visible
-		$this->assertEquals( true, Jetpack_Likes::init()->settings->is_likes_visible() );
+		$this->assertTrue( Jetpack_Likes::init()->settings->is_likes_visible() );
 	}
 
 	/**
