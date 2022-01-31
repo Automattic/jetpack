@@ -1,7 +1,7 @@
 /**
  * External dependencies
  */
-import { __ } from '@wordpress/i18n';
+import { __, _x } from '@wordpress/i18n';
 import { InnerBlocks } from '@wordpress/block-editor';
 
 /**
@@ -27,7 +27,19 @@ export const settings = {
 		foreground: getIconColor(),
 	},
 	category: 'earn',
-	keywords: [],
+	keywords: [
+		_x( 'sell', 'block search term', 'jetpack' ),
+		_x( 'subscriptions', 'block search term', 'jetpack' ),
+		_x( 'product', 'block search term', 'jetpack' ),
+		'stripe',
+		_x( 'memberships', 'block search term', 'jetpack' ),
+		_x( 'donations', 'block search term', 'jetpack' ),
+		_x( 'tip', 'block search term', 'jetpack' ),
+		_x( 'paid', 'block search term', 'jetpack' ),
+		_x( 'pay', 'block search term', 'jetpack' ),
+		_x( 'money', 'block search term', 'jetpack' ),
+		_x( 'checkout', 'block search term', 'jetpack' ),
+	],
 	supports: {
 		// This block acts as a dumb wrapper and so should offer minimal capabilities for customisation. In general,
 		// individual feature support is up to the individual blocks wrapped. Exceptions to avoid confusion will exist
