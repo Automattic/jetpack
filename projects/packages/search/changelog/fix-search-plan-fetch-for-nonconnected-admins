@@ -1,4 +1,0 @@
-Significance: patch
-Type: fixed
-
-Search: Fetch plan info as blog, not as user, to allow nonconnected admins to use dashboard
