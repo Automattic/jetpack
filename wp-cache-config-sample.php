@@ -21,7 +21,7 @@ $ossdlcdn = 0;
 $cache_acceptable_files = array( 'wp-comments-popup.php', 'wp-links-opml.php', 'wp-locations.php' );
 
 $cache_rejected_uri = array('wp-.*\\.php', 'index\\.php');
-$cache_rejected_user_agent = array ( 0 => 'bot', 1 => 'ia_archive', 2 => 'slurp', 3 => 'crawl', 4 => 'spider', 5 => 'Yandex' );
+$cache_rejected_user_agent = array();
 
 $cache_rebuild_files = 1;
 
