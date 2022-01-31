@@ -25,7 +25,6 @@ import { VideoPressBlockContext } from '../components';
 import './style.scss';
 
 export default function ResumableUpload( { file } ) {
-	console.log( file );
 	const blockProps = useBlockProps( {
 	    className: "resumable-upload",
 	} );
@@ -54,7 +53,6 @@ export default function ResumableUpload( { file } ) {
 
 		const onSuccess =  ( guid ) => {
 			onUploadFinished( guid );
-			// TODO: Load video? (Conversion screen) Need the guid
 		};
 
 		const uploader = useUploader( {
