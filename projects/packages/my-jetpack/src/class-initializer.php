@@ -175,6 +175,14 @@ class Initializer {
 		if ( did_action( 'my_jetpack_init' ) ) {
 			return false;
 		}
+
+		/**
+		 * Allows filtering whether My Jetpack should be initialized
+		 *
+		 * @since 0.5.0-alpha
+		 *
+		 * @param bool $shoud_initialize Should we initialize My Jetpack?
+		 */
 		$should = apply_filters( 'jetpack_my_jetpack_should_initialize', true );
 
 		// Feature flag while we are developing it.
