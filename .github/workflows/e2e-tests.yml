@@ -92,10 +92,8 @@ jobs:
       env:
         CONFIG_KEY: ${{ secrets.E2E_CONFIG_KEY }}
         COMPOSER_ROOT_VERSION: "dev-master"
-        GUTENBERG: ${{ needs.create-test-matrix.outputs.runName == 'gutenberg' }}
+        RUN_NAME: ${{ needs.create-test-matrix.outputs.runName }}
       run: |
-        echo "$GUTENBERG
-
         echo "::group::Install e2e project"
         pnpm install
         echo "::endgroup::"
@@ -111,6 +109,12 @@ jobs:
         echo "::group::Start docker environment"
         pnpm run env:up
         echo "::endgroup::"
+
+        if ["$RUN_NAME" == "gutenberg"]; then
+            echo "::group::Setting up Gutenberg"
+            pnpx e2e-env gb-setup
+            echo "::endgroup::"
+        fi
 
         echo "::group::Create tunnel"
         pnpm run tunnel:up
