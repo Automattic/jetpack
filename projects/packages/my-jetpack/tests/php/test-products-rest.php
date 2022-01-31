@@ -2,6 +2,8 @@
 
 namespace Automattic\Jetpack\My_Jetpack;
 
+use Automattic\Jetpack\Connection\Tokens;
+use Jetpack_Options;
 use PHPUnit\Framework\TestCase;
 use WorDBless\Options as WorDBless_Options;
 use WorDBless\Users as WorDBless_Users;
@@ -59,6 +61,10 @@ class Test_Products_Rest extends TestCase {
 	public function set_up() {
 
 		$this->install_mock_plugin();
+
+		// Mock site connection.
+		( new Tokens() )->update_blog_token( 'test.test.1' );
+		Jetpack_Options::update_option( 'id', 123 );
 
 		global $wp_rest_server;
 

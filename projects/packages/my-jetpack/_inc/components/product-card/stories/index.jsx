@@ -8,6 +8,9 @@ import React from 'react';
  * Internal dependencies
  */
 import ProductCard, { PRODUCT_STATUSES } from '../index.jsx';
+import { initStore } from '../../../state/store';
+
+initStore();
 
 export default {
 	title: 'My Jetpack/Product Card',

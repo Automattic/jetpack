@@ -32,4 +32,4 @@ else
 	die "Unsupported GITHUB_EVENT_NAME \"$GITHUB_EVENT_NAME\""
 fi
 
-pnpx jetpack dependencies list "${ARGS[@]}" | jq -cR 'reduce inputs as $i ({}; .[$i] |= true)'
+pnpx jetpack dependencies list "${ARGS[@]}" | jq -ncR 'reduce inputs as $i ({}; .[$i] |= true)'
