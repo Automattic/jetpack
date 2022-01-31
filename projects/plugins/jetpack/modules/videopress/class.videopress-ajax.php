@@ -103,7 +103,7 @@ class VideoPress_AJAX {
 			return;
 		}
 
-		$response['upload_action_url'] = videopress_make_resumable_upload_path( $options['shadow_blog_id'] );
+		$response['upload_action_url'] = videopress_make_media_upload_path( $options['shadow_blog_id'] );
 
 		wp_send_json_success( $response );
 	}

@@ -383,7 +383,9 @@ const VideoPressEdit = CoreVideoEdit =>
 				attributes,
 				instanceId,
 				isFetchingPreview,
+				isUploading,
 				preview,
+				resumableUploadEnabled,
 				setAttributes,
 			} = this.props;
 
@@ -599,14 +601,6 @@ const VideoPressEdit = CoreVideoEdit =>
 				</Fragment>
 			);
 
-			/*
-			 * The Loading/CoreVideoEdit blocks should be in the tree if :
-			 *     - We don't have a video GUID
-			 *     - Or we're uploading a video
-			 *     - Or we're in fallback mode (to display a video hosted locally for instance)
-			 * In all other cases, we should be able to safely display the Loading/VpBlock branch.
-			 */
-
 			const filesSelected = ( files ) => {
 				this.setState( { fileForUpload: files[0] } );
 			}
@@ -627,8 +621,8 @@ const VideoPressEdit = CoreVideoEdit =>
 				}
 			};
 
-			const isUploading = null !== fileForUpload && fileForUpload instanceof File;
-			if ( isUploading ) {
+			const isResumableUploading = null !== fileForUpload && fileForUpload instanceof File;
+			if ( isResumableUploading ) {
 				return (
 					<VideoPressBlockProvider
 						onUploadFinished={ uploadFinished }>
@@ -640,37 +634,53 @@ const VideoPressEdit = CoreVideoEdit =>
 				)
 			}
 
-			const isFetchingVideo = isFetchingMedia || isFetchingPreview;
-			const renderCoreVideoAndLoadingBlocks = fallback || ! guid;
+			/*
+			* The Loading/CoreVideoEdit blocks should be in the tree if :
+			*     - We don't have a video GUID
+			*     - Or we're uploading a video
+			*     - Or we're in fallback mode (to display a video hosted locally for instance)
+			* In all other cases, we should be able to safely display the Loading/VpBlock branch.
+			*/
 
+			const isFetchingVideo = isFetchingMedia || isFetchingPreview;
+			const renderCoreVideoAndLoadingBlocks = fallback || isUploading || ! guid;
+			const displayCoreVideoBlock =
+				renderCoreVideoAndLoadingBlocks && ! isUploading && ! isFetchingVideo;
 
 			// In order for the media placeholder to keep its state for error messages, we need to keep the CoreVideoEdit component in the tree during file uploads.
 			// Keep this section separate so the CoreVideoEdit stays in the tree, once we have a video, we don't need it anymore.
-			if ( renderCoreVideoAndLoadingBlocks ) {
-				const displayCoreVideoBlock =
-				renderCoreVideoAndLoadingBlocks && ! isFetchingVideo;
-
-				return (
-					<VideoPressBlockProvider
-						onFilesSelected={ filesSelected }
-						onMediaItemSelected= { mediaItemSelected }>
-						<Fragment>
-							<div className={ ! isFetchingVideo ? 'videopress-block-hide' : '' }>
-								<Loading
-									text={
-										__(
+			const coreVideoFragment = (
+				<Fragment>
+					<div className={ ! isUploading && ! isFetchingVideo ? 'videopress-block-hide' : '' }>
+						<Loading
+							text={
+								isUploading
+									? __( 'Uploading…', 'jetpack' )
+									: __(
 											'Generating preview…',
 											'jetpack',
 											/* dummy arg to avoid bad minification */ 0
 										)
-									}
-								/>
-							</div>
-							<div className={ ! displayCoreVideoBlock ? 'videopress-block-hide' : '' }>
-								<CoreVideoEdit { ...this.props } />
-							</div>
-						</Fragment>
+							}
+						/>
+					</div>
+					<div className={ ! displayCoreVideoBlock ? 'videopress-block-hide' : '' }>
+						<CoreVideoEdit { ...this.props } />
+					</div>
+				</Fragment>
+			);
+
+			if ( renderCoreVideoAndLoadingBlocks ) {
+				return resumableUploadEnabled ? (
+					<VideoPressBlockProvider
+						onFilesSelected={ filesSelected }
+						onMediaItemSelected= { mediaItemSelected }>
+						{ coreVideoFragment }
 					</VideoPressBlockProvider>
+				) : (
+					<Fragment>
+						{ coreVideoFragment }
+					</Fragment>
 				);
 			}
 
@@ -801,6 +811,7 @@ export default createHigherOrderComponent(
 				seekbarColor,
 				seekbarLoadingColor,
 				seekbarPlayedColor,
+				src,
 				useAverageColor,
 			} = ownProps.attributes;
 			const { getEmbedPreview, isRequestingEmbedPreview } = select( 'core' );
@@ -821,11 +832,15 @@ export default createHigherOrderComponent(
 			const preview = !! url && getEmbedPreview( url );
 
 			const isFetchingEmbedPreview = !! url && isRequestingEmbedPreview( url );
+			const resumableUploadEnabled = typeof window.videoPressResumableEnabled !== 'undefined';
+			const isUploading = ! resumableUploadEnabled && isBlobURL( src );
 
 			return {
 				fileForImmediateUpload,
 				isFetchingPreview: isFetchingEmbedPreview,
+				isUploading,
 				preview,
+				resumableUploadEnabled,
 				url,
 			};
 		} ),

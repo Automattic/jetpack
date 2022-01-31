@@ -170,6 +170,8 @@ const addVideoPressSupport = ( settings, name ) => {
 		( isSimpleSite() || isAtomicSite() ) &&
 		[ 'missing_plan', 'unknown' ].includes( unavailableReason );
 
+	const resumableUploadEnabled = typeof window.videoPressResumableEnabled !== 'undefined';
+
 	// Check if VideoPress is unavailable and filter the mediaplaceholder to limit options
 	if ( isNotAvailable ) {
 		addFilter( 'editor.MediaPlaceholder', 'jetpack/videopress', videoPressNoPlanMediaPlaceholder );
@@ -179,7 +181,9 @@ const addVideoPressSupport = ( settings, name ) => {
 			withHasWarningIsInteractiveClassNames( `core/video` )
 		);
 	} else if ( available ) {
-		addFilter( 'editor.MediaPlaceholder', 'jetpack/videopress', videoPressMediaPlaceholder );
+		if ( resumableUploadEnabled ) {
+			addFilter( 'editor.MediaPlaceholder', 'jetpack/videopress', videoPressMediaPlaceholder );
+		}
 		// If VideoPress is available, we update the block description and example with VideoPress-specific content.
 		settings.description = __(
 			'Embed a video from your media library or upload a new one with VideoPress.',
@@ -300,7 +304,7 @@ const addVideoPressSupport = ( settings, name ) => {
 						transform: ( files, onChange ) => {
 							const blocks = [];
 							files.forEach( file => {
-								if ( available ) {
+								if ( available && resumableUploadEnabled ) {
 									// VideoPress block handles the upload
 									const block = createBlock( 'core/video', {
 										'fileForImmediateUpload': file,
