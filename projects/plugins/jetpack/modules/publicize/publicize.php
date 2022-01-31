@@ -531,7 +531,7 @@ abstract class Publicize_Base {
 		}
 
 		// if we have the specific connection info..
-		$id = filter_input( INPUT_GET, 'id', FILTER_SANITIZE_STRING );
+		$id = sanitize_text_field( wp_unslash( $_GET['id'] ) ); // phpcs:ignore WordPress.Security.NonceVerification.Recommended
 
 		if ( $id ) {
 			if ( $cmeta['connection_data']['id'] === $id ) {
@@ -539,8 +539,10 @@ abstract class Publicize_Base {
 			}
 		} else {
 			// Otherwise, just show if this is the completed step / first load.
-			$action  = filter_input( INPUT_GET, 'action', FILTER_SANITIZE_STRING );
-			$service = filter_input( INPUT_GET, 'service', FILTER_SANITIZE_STRING );
+			// phpcs:disable WordPress.Security.NonceVerification.Recommended
+			$action  = sanitize_text_field( wp_unslash( $_GET['action'] ) );
+			$service = sanitize_text_field( wp_unslash( $_GET['service'] ) );
+			// phpcs:enable WordPress.Security.NonceVerification.Recommended
 
 			if ( ! empty( $action ) && 'completed' === $action && ! empty( $service ) && $service_name === $service && ! in_array( $service, array( 'facebook', 'tumblr' ), true ) ) {
 				return true;
@@ -1095,8 +1097,7 @@ abstract class Publicize_Base {
 			$submit_post = false;
 		}
 
-		// - bulk edit
-		if ( filter_input( INPUT_GET, 'bulk_edit', FILTER_VALIDATE_BOOL ) ) {
+		if ( ! empty( $_GET['bulk_edit'] ) ) { // phpcs:ignore
 			$submit_post = false;
 		}
 
@@ -1127,7 +1128,7 @@ abstract class Publicize_Base {
 			$submit_post = false;
 		}
 
-		$admin_page = filter_input( INPUT_POST, $this->ADMIN_PAGE );
+		$admin_page = sanitize_text_field( wp_unslash( $_POST[ $this->ADMIN_PAGE ] ) ); // phpcs:ignore WordPress.Security.NonceVerification.Missing
 
 		// Did this request happen via wp-admin?
 		$from_web = isset( $_SERVER['REQUEST_METHOD'] )
@@ -1136,7 +1137,7 @@ abstract class Publicize_Base {
 			&&
 			! empty( $admin_page );
 
-		$title = filter_input( INPUT_POST, 'wpas_title', FILTER_SANITIZE_STRING );
+		$title = sanitize_text_field( wp_unslash( $_POST['title'] ) ); // phpcs:ignore WordPress.Security.NonceVerification.Missing
 
 		if ( ( $from_web || defined( 'POST_BY_EMAIL' ) ) && $title ) {
 			if ( empty( $title ) ) {

@@ -274,7 +274,9 @@ class Publicize extends Publicize_Base {
 	 * Show error on settings page if applicable.
 	 */
 	public function admin_page_load() {
-		if ( filter_input( INPUT_GET, 'action', FILTER_SANITIZE_STRING ) === 'error' ) {
+		$action = sanitize_text_field( wp_unslash( $_GET['action'] ) ); // phpcs:ignore WordPress.Security.NonceVerification.Recommended
+
+		if ( ! empty( $action ) ) {
 			add_action( 'pre_admin_screen_sharing', array( $this, 'display_connection_error' ), 9 );
 		}
 	}
@@ -283,9 +285,11 @@ class Publicize extends Publicize_Base {
 	 * Display an error message.
 	 */
 	public function display_connection_error() {
-		$code            = false;
-		$service         = filter_input( INPUT_GET, 'service', FILTER_SANITIZE_STRING );
-		$publicize_error = filter_input( INPUT_GET, 'publicize_error', FILTER_SANITIZE_STRING );
+		$code = false;
+		// phpcs:disable WordPress.Security.NonceVerification.Recommended
+		$service         = sanitize_text_field( wp_unslash( $_GET['service'] ) );
+		$publicize_error = sanitize_text_field( wp_unslash( $_GET['publicize_error'] ) );
+		// phpcs:enable WordPress.Security.NonceVerification.Recommended
 
 		if ( isset( $service ) ) {
 			/* translators: %s is the name of the Publicize service (e.g. Facebook, Twitter) */
