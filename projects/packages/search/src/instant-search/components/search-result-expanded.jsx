@@ -77,7 +77,7 @@ export default function SearchResultExpanded( props ) {
 					<div className="jetpack-instant-search__search-result-expanded__image-container">
 						{ firstImage ? (
 							<PhotonImage
-								alt={ fields[ 'title.default' ] }
+								alt={ fields[ 'image.alt_text' ] }
 								className="jetpack-instant-search__search-result-expanded__image"
 								isPhotonEnabled={ props.isPhotonEnabled }
 								src={ `//${ firstImage }` }

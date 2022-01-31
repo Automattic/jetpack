@@ -7,7 +7,6 @@ import React from 'react';
  * Internal dependencies
  */
 import styles from './style.module.scss';
-import Container from '../../layout/container';
 
 /**
  * This is the wrapper component to build sections within your admin page.
@@ -17,11 +16,7 @@ import Container from '../../layout/container';
  */
 const AdminSection = props => {
 	const { children } = props;
-	return (
-		<div className={ styles[ 'jp-admin-section' ] }>
-			<Container>{ children }</Container>
-		</div>
-	);
+	return <div className={ styles.section }>{ children }</div>;
 };
 
 export default AdminSection;

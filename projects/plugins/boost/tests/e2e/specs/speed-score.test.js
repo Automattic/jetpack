@@ -1,9 +1,20 @@
 import { test, expect } from '../fixtures/base-test.js';
+import { boostPrerequisitesBuilder } from '../lib/env/prerequisites.js';
 import { JetpackBoostPage } from '../lib/pages/index.js';
 
 let jetpackBoostPage;
 
 test.describe( 'Speed Score feature', () => {
+	test.beforeAll( async ( { browser } ) => {
+		const page = await browser.newPage();
+		await boostPrerequisitesBuilder( page ).withSpeedScoreMocked( false ).build();
+	} );
+
+	test.afterAll( async ( { browser } ) => {
+		const page = await browser.newPage();
+		await boostPrerequisitesBuilder( page ).withSpeedScoreMocked( true ).build();
+	} );
+
 	test.beforeEach( async function ( { page } ) {
 		jetpackBoostPage = await JetpackBoostPage.visit( page );
 	} );
