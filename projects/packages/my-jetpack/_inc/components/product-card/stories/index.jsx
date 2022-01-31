@@ -1,4 +1,5 @@
 /* eslint-disable react/react-in-jsx-scope */
+
 /**
  * External dependencies
  */
@@ -9,6 +10,9 @@ import React from 'react';
  */
 import ProductCard, { PRODUCT_STATUSES } from '../index.jsx';
 import { initStore } from '../../../state/store';
+
+// Set myJetpackRest global var.
+window.myJetpackRest = {};
 
 initStore();
 
