@@ -515,8 +515,10 @@ class Grunion_Contact_Form_Plugin {
 		add_filter( 'contact_form_subject', array( $this, 'replace_tokens_with_input' ), 10, 2 );
 
 		// phpcs:disable WordPress.Security.NonceVerification.Missing
-		$id   = isset( $_POST['contact-form-id'] ) && is_string( $_POST['contact-form-id'] ) ? wp_unslash( $_POST['contact-form-id'] ) : null;
-		$hash = isset( $_POST['contact-form-hash'] ) && is_string( $_POST['contact-form-hash'] ) ? wp_unslash( $_POST['contact-form-hash'] ) : null;
+		$id   = isset( $_POST['contact-form-id'] ) ? wp_unslash( $_POST['contact-form-id'] ) : null;
+		$id   = is_string( $id ) ? $id : null;
+		$hash = isset( $_POST['contact-form-hash'] ) ? wp_unslash( $_POST['contact-form-hash'] ) : null;
+		$hash = is_string( $hash ) ? $hash : null;
 		$hash = preg_replace( '/[^\da-f]/i', '', $hash );
 		// phpcs:enable
 
