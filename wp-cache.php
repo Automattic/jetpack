@@ -1077,6 +1077,7 @@ table.wpsc-settings-table {
 					'is_nginx'      => $is_nginx,
 					'wp_cache_mod_rewrite' => $wp_cache_mod_rewrite,
 					'valid_nonce' => $valid_nonce,
+					'cache_path'              => $cache_path,
 					'wp_super_cache_comments' => $wp_super_cache_comments,
 				)
 			);
