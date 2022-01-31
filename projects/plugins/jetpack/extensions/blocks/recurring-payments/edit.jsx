@@ -412,50 +412,10 @@ export class MembershipsButtonEdit extends Component {
 					) }
 				{ ! this.state.shouldUpgrade &&
 					! this.props.attributes.planId &&
-<<<<<<< HEAD:extensions/blocks/recurring-payments/edit.jsx
-					connected === API_STATE_NOTCONNECTED && (
-						<div className="wp-block-jetpack-recurring-payments">
-							<Placeholder
-								icon={ icon }
-								label={ __( 'Recurring Payments', 'jetpack' ) }
-								notices={ notices }
-							>
-								<div className="components-placeholder__instructions">
-									<p>
-										{ __(
-											'In order to start selling Recurring Payments plans, you have to connect to Stripe:',
-											'jetpack'
-										) }
-									</p>
-									<Button isDefault isLarge href={ connectURL } target="_blank">
-										{ __( 'Connect to Stripe or set up an account', 'jetpack' ) }
-									</Button>
-									<br />
-									<Button isLink onClick={ this.apiCall }>
-										{ __( 'Re-check Connection', 'jetpack' ) }
-									</Button>
-									{ this.renderDisclaimer() }
-								</div>
-							</Placeholder>
-						</div>
-					) }
-				{ ! this.state.shouldUpgrade &&
-					! this.props.attributes.planId &&
-=======
->>>>>>> origin/master:projects/plugins/jetpack/extensions/blocks/recurring-payments/edit.jsx
 					connected === API_STATE_CONNECTED &&
 					products.length === 0 && (
 						<div className="wp-block-jetpack-recurring-payments">
-							<Placeholder
-<<<<<<< HEAD:extensions/blocks/recurring-payments/edit.jsx
-								icon={ icon }
-								label={ __( 'Recurring Payments', 'jetpack' ) }
-=======
-								icon={ <BlockIcon icon={ icon } /> }
-								label={ __( 'Payments', 'jetpack' ) }
->>>>>>> origin/master:projects/plugins/jetpack/extensions/blocks/recurring-payments/edit.jsx
-								notices={ notices }
-							>
+							<Placeholder icon={ icon } label={ __( 'Payments', 'jetpack' ) } notices={ notices }>
 								<div className="components-placeholder__instructions">
 									<p>
 										{ __( 'To use this block, first add at least one payment plan.', 'jetpack' ) }
@@ -472,16 +432,7 @@ export class MembershipsButtonEdit extends Component {
 					connected === API_STATE_CONNECTED &&
 					products.length > 0 && (
 						<div className="wp-block-jetpack-recurring-payments">
-							<Placeholder
-<<<<<<< HEAD:extensions/blocks/recurring-payments/edit.jsx
-								icon={ icon }
-								label={ __( 'Recurring Payments', 'jetpack' ) }
-=======
-								icon={ <BlockIcon icon={ icon } /> }
-								label={ __( 'Payments', 'jetpack' ) }
->>>>>>> origin/master:projects/plugins/jetpack/extensions/blocks/recurring-payments/edit.jsx
-								notices={ notices }
-							>
+							<Placeholder icon={ icon } label={ __( 'Payments', 'jetpack' ) } notices={ notices }>
 								<div className="components-placeholder__instructions">
 									<p>
 										{ __(
