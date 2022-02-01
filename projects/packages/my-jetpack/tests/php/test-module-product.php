@@ -107,8 +107,6 @@ class Test_Module_Product extends TestCase {
 
 	/**
 	 * Tests activating/deactivating and checking active
-	 *
-	 * @expectedException \Exception
 	 */
 	public function test_activate_and_check() {
 		$this->assertFalse( Videopress::is_active() );
