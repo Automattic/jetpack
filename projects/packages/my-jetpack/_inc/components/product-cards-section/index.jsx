@@ -2,7 +2,7 @@
  * External dependencies
  */
 import React from 'react';
-import { Container, Row, Col } from '@automattic/jetpack-components';
+import { Container, Col } from '@automattic/jetpack-components';
 
 /**
  * Internal dependencies
@@ -23,33 +23,31 @@ import ExtrasCard from './extras-card';
  */
 const ProductCardsSection = () => {
 	return (
-		<Container>
-			<Row>
-				<Col sm={ 3 }>
-					<BackupCard admin={ true } />
-				</Col>
-				<Col sm={ 3 }>
-					<ScanCard admin={ true } />
-				</Col>
-				<Col sm={ 3 }>
-					<AntiSpamCard admin={ true } />
-				</Col>
-				<Col sm={ 3 }>
-					<BoostCard admin={ true } />
-				</Col>
-				<Col sm={ 3 }>
-					<SearchCard admin={ true } />
-				</Col>
-				<Col sm={ 3 }>
-					<VideopressCard admin={ true } />
-				</Col>
-				<Col sm={ 3 }>
-					<CrmCard admin={ true } />
-				</Col>
-				<Col sm={ 3 }>
-					<ExtrasCard admin={ true } />
-				</Col>
-			</Row>
+		<Container fluid horizontalSpacing={ 0 } horizontalGap={ 3 }>
+			<Col sm={ 4 } md={ 4 } lg={ 3 }>
+				<BackupCard admin={ true } />
+			</Col>
+			<Col sm={ 4 } md={ 4 } lg={ 3 }>
+				<ScanCard admin={ true } />
+			</Col>
+			<Col sm={ 4 } md={ 4 } lg={ 3 }>
+				<AntiSpamCard admin={ true } />
+			</Col>
+			<Col sm={ 4 } md={ 4 } lg={ 3 }>
+				<BoostCard admin={ true } />
+			</Col>
+			<Col sm={ 4 } md={ 4 } lg={ 3 }>
+				<SearchCard admin={ true } />
+			</Col>
+			<Col sm={ 4 } md={ 4 } lg={ 3 }>
+				<VideopressCard admin={ true } />
+			</Col>
+			<Col sm={ 4 } md={ 4 } lg={ 3 }>
+				<CrmCard admin={ true } />
+			</Col>
+			<Col sm={ 4 } md={ 4 } lg={ 3 }>
+				<ExtrasCard admin={ true } />
+			</Col>
 		</Container>
 	);
 };
