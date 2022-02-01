@@ -53,4 +53,21 @@ class Crm extends Product {
 		return __( 'Connect with your people', 'jetpack-my-jetpack' );
 	}
 
+	/**
+	 * Get the internationalized product long description
+	 *
+	 * @return string
+	 */
+	public static function get_long_description() {
+		return ''; // @todo Add long description
+	}
+
+	/**
+	 * Get the internationalized features list
+	 *
+	 * @return array CRM features list
+	 */
+	public static function get_features() {
+		return array();
+	}
 }
