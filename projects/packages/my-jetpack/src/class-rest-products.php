@@ -164,12 +164,13 @@ class REST_Products {
 			return new \WP_Error(
 				'not_implemented',
 				esc_html__( 'The product class handler is not implemented', 'jetpack-my-jetpack' ),
-				array( 'status' => 400 )
+				array( 'status' => 501 )
 			);
 		}
 
 		$activate_product_result = call_user_func( array( $product['class'], 'activate' ) );
 		if ( is_wp_error( $activate_product_result ) ) {
+			$activate_product_result->add_data( array( 'status' => 400 ) );
 			return $activate_product_result;
 		}
 
@@ -189,12 +190,13 @@ class REST_Products {
 			return new \WP_Error(
 				'not_implemented',
 				esc_html__( 'The product class handler is not implemented', 'jetpack-my-jetpack' ),
-				array( 'status' => 400 )
+				array( 'status' => 501 )
 			);
 		}
 
 		$deactivate_product_result = call_user_func( array( $product['class'], 'deactivate' ) );
 		if ( is_wp_error( $deactivate_product_result ) ) {
+			$deactivate_product_result->add_data( array( 'status' => 400 ) );
 			return $deactivate_product_result;
 		}
 

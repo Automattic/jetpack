@@ -246,7 +246,7 @@ class Test_Products_Rest extends TestCase {
 		$response = $this->server->dispatch( $this->request );
 		$data     = $response->get_data();
 
-		$this->assertEquals( 500, $response->get_status() );
+		$this->assertEquals( 400, $response->get_status() );
 		$this->assertEquals( 'plugin_php_incompatible', $data['code'] );
 		$this->assertFalse( is_plugin_active( $this->boost_mock_filename ) );
 	}
