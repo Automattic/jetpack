@@ -34,7 +34,7 @@ function ProductIcon( { slug } ) {
  */
 export default function ProductDetailCard( { slug } ) {
 	const { detail } = useProduct( slug );
-	const { title, longDescription } = detail;
+	const { title, longDescription, features } = detail;
 
 	return (
 		<div className={ styles.container }>
@@ -42,6 +42,11 @@ export default function ProductDetailCard( { slug } ) {
 
 			<h3>{ title }</h3>
 			<p className={ styles.name }>{ longDescription }</p>
+			<ul className={ styles.features }>
+				{ features.map( ( feature, id ) => (
+					<li key={ `feature-${ id }` }>{ feature }</li>
+				) ) }
+			</ul>
 		</div>
 	);
 }

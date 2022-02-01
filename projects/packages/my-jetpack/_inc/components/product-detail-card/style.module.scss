@@ -41,3 +41,14 @@
 	font-size: var(--product-card-description-font-size);
 	margin: 0 0 22px;
 }
+
+.features {
+	margin: 0 0 30px;
+	padding: 0;
+	li {
+		list-style: none;
+		display: flex;
+		align-items: center;
+		margin-bottom: 8px;
+	}
+}
