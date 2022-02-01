@@ -7,12 +7,7 @@ import { __ } from '@wordpress/i18n';
 /**
  * WordPress dependencies
  */
-import {
-	BlockIcon,
-	ContrastChecker,
-	InspectorControls,
-	PanelColorSettings,
-} from '@wordpress/block-editor';
+import { ContrastChecker, InspectorControls, PanelColorSettings } from '@wordpress/block-editor';
 import {
 	Button,
 	ExternalLink,
@@ -80,7 +75,7 @@ function AmazonEdit( {
 		<Placeholder
 			label={ __( 'Amazon', 'jetpack' ) }
 			instructions={ __( 'Search by entering an Amazon product name or ID below.', 'jetpack' ) }
-			icon={ <BlockIcon icon={ icon } /> }
+			icon={ icon }
 			notices={ noticeUI } // TODO
 		>
 			<form>

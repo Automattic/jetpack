@@ -3,7 +3,7 @@
  */
 import { __ } from '@wordpress/i18n';
 import { useCallback, useMemo, useState } from '@wordpress/element';
-import { InnerBlocks, InspectorControls, BlockIcon } from '@wordpress/block-editor';
+import { InnerBlocks, InspectorControls } from '@wordpress/block-editor';
 import {
 	Panel,
 	PanelBody,
@@ -199,7 +199,7 @@ function ConversationEdit( {
 						</div>
 					</>
 				}
-				icon={ <BlockIcon icon={ icon } /> }
+				icon={ icon }
 				notices={ noticeUI }
 			>
 				<div className={ `${ baseClassName }__placeholder` }>

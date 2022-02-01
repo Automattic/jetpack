@@ -6,7 +6,7 @@ import { isEqual } from 'lodash';
 /**
  * WordPress dependencies
  */
-import { BlockIcon, InnerBlocks, InspectorControls } from '@wordpress/block-editor';
+import { InnerBlocks, InspectorControls } from '@wordpress/block-editor';
 import {
 	Button,
 	ToggleControl,
@@ -73,7 +73,7 @@ export default function RevueEdit( { attributes, className, setAttributes } ) {
 		<div className={ className }>
 			{ ! revueUsername && (
 				<Placeholder
-					icon={ <BlockIcon icon={ icon } /> }
+					icon={ icon }
 					instructions={ __( 'Enter your Revue username.', 'jetpack' ) }
 					label={ __( 'Revue', 'jetpack' ) }
 				>

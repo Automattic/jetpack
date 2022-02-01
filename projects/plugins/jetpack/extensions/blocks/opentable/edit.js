@@ -8,7 +8,7 @@ import { isEmpty, isEqual, join } from 'lodash';
 /**
  * WordPress dependencies
  */
-import { BlockIcon, InspectorControls, InspectorAdvancedControls } from '@wordpress/block-editor';
+import { InspectorControls, InspectorAdvancedControls } from '@wordpress/block-editor';
 import {
 	ExternalLink,
 	PanelBody,
@@ -236,7 +236,7 @@ function OpenTableEdit( {
 	const blockPlaceholder = (
 		<Placeholder
 			label={ __( 'OpenTable Reservation', 'jetpack' ) }
-			icon={ <BlockIcon icon={ icon } /> }
+			icon={ icon }
 			instructions={ __(
 				'Enter your restaurant name, or paste an OpenTable Reservation Widget embed code.',
 				'jetpack'
