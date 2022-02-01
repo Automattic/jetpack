@@ -10,7 +10,7 @@ import PropTypes from 'prop-types';
 import ProductCard from '../product-card';
 import { useProduct } from '../../hooks/use-product';
 
-const CrmIcon = () => (
+export const CrmIcon = () => (
 	<svg width="18" height="11" viewBox="0 0 18 11" fill="none" xmlns="http://www.w3.org/2000/svg">
 		<path
 			d="M9.5 11L9.5 9C9.5 7.89543 8.60457 7 7.5 7L3.5 7C2.39543 7 1.5 7.89543 1.5 9L1.5 11"
