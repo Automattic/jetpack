@@ -9,5 +9,5 @@ done < <(find projects -name "*.php" -type f -print0)
 
 for file in "${array[@]}"; do
 	echo "Checking $file"
-  vendor/bin/phpcs -q -s --standard="$1" --sniffs="$2" "$file" >> ./tools/phpcs.log || true
+  vendor/bin/phpcs -q -s --standard="$1" --sniffs="$2" --ignore="*/vendor/*,*/wordpress/*" "$file" >> ./tools/phpcs.log || true
 done
