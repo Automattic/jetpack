@@ -125,7 +125,7 @@ jobs:
       working-directory: ${{ matrix.path }}
       env:
         TEST_ARGS: ${{ matrix.args }}
-      run: pnpm run test-e2e -- "${ARGS}"
+      run: pnpm run test:run -- "${ARGS}"
 
     - name: Send Slack notification
       if: ${{ always() }}
