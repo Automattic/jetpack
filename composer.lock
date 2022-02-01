@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "cfc3d18e703804b5510c6cdf0f022874",
+    "content-hash": "6b8fc77c68a5e2aca697efef8af1bfc3",
     "packages": [],
     "packages-dev": [
         {
@@ -62,7 +62,7 @@
             "dist": {
                 "type": "path",
                 "url": "projects/packages/codesniffer",
-                "reference": "fed045a7f3b956595e9aae20595ec65c3c2b135a"
+                "reference": "2a4af97977bd15c65184b5287b85308e02ea0874"
             },
             "require": {
                 "dealerdirect/phpcodesniffer-composer-installer": "^0.7",
@@ -83,7 +83,7 @@
                     "link-template": "https://github.com/Automattic/jetpack-codesniffer/compare/v${old}...v${new}"
                 },
                 "branch-alias": {
-                    "dev-master": "2.4.x-dev"
+                    "dev-master": "2.5.x-dev"
                 }
             },
             "autoload": {
