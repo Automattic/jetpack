@@ -51,6 +51,13 @@ abstract class Product {
 	const JETPACK_PLUGIN_FILENAME = 'jetpack/jetpack.php';
 
 	/**
+	 * Whether this product requires a user connection
+	 *
+	 * @var string
+	 */
+	public static $requires_user_connection = true;
+
+	/**
 	 * Get the plugin slug
 	 *
 	 * @return ?string
@@ -79,13 +86,14 @@ abstract class Product {
 			throw new \Exception( 'Product classes must declare the $slug attribute.' );
 		}
 		return array(
-			'slug'             => static::$slug,
-			'name'             => static::get_name(),
-			'description'      => static::get_description(),
-			'long_description' => static::get_long_description(),
-			'features'         => static::get_features(),
-			'status'           => static::get_status(),
-			'class'            => get_called_class(),
+			'slug'                     => static::$slug,
+			'name'                     => static::get_name(),
+			'description'              => static::get_description(),
+			'long_description'         => static::get_long_description(),
+			'features'                 => static::get_features(),
+			'status'                   => static::get_status(),
+			'requires_user_connection' => static::$requires_user_connection,
+			'class'                    => get_called_class(),
 		);
 	}
 
