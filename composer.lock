@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "cfc3d18e703804b5510c6cdf0f022874",
+    "content-hash": "6b8fc77c68a5e2aca697efef8af1bfc3",
     "packages": [],
     "packages-dev": [
         {
@@ -62,7 +62,7 @@
             "dist": {
                 "type": "path",
                 "url": "projects/packages/codesniffer",
-                "reference": "018c59f7e7faf82ea3b526be21256fb47dccca6f"
+                "reference": "0a8aac00a9310b7a05eac18f7f5fd6d3b10ddcc1"
             },
             "require": {
                 "automattic/vipwpcs": "^2.3",
@@ -84,7 +84,7 @@
                     "link-template": "https://github.com/Automattic/jetpack-codesniffer/compare/v${old}...v${new}"
                 },
                 "branch-alias": {
-                    "dev-master": "2.4.x-dev"
+                    "dev-master": "2.5.x-dev"
                 }
             },
             "autoload": {
