@@ -24,7 +24,7 @@ export const parameters = {
 		values: [
 			{
 				name: 'Jetpack Dashboard',
-				value: '#F6F6F6',
+				value: 'var(--jp-white-off)',
 			},
 			{
 				name: 'Dark',
