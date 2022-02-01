@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Resolved minor code standard violation after implementing a stricter rule.
