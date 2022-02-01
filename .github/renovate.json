@@ -60,6 +60,7 @@
 				"automattic/jetpack-phpcs-filter",
 				"automattic/jetpack-plugins-installer",
 				"automattic/jetpack-post-list",
+				"automattic/jetpack-publicize",
 				"automattic/jetpack-redirect",
 				"automattic/jetpack-roles",
 				"automattic/jetpack-search",
