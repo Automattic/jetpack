@@ -88,8 +88,6 @@ class Test_Module_Product extends TestCase {
 
 	/**
 	 * Tests exception module name missing
-	 *
-	 * @expectedException \Exception
 	 */
 	public function test_throws_if_module_name_is_missing() {
 		$this->expectException( \Exception::class );
