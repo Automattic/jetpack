@@ -658,12 +658,17 @@ class Share_Email extends Sharing_Source {
 	}
 
 	/**
-	 * No AMP display for email.
+	 * AMP display for email.
 	 *
 	 * @param \WP_Post $post The current post being viewed.
 	 */
 	public function get_amp_display( $post ) { // phpcs:ignore
-		return false;
+		$attrs = array(
+			// Prevents an empty window from opening on desktop: https://github.com/ampproject/amphtml/issues/9157.
+			'data-target' => '_self',
+		);
+
+		return $this->build_amp_markup( $attrs );
 	}
 
 	/**
