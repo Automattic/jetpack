@@ -465,7 +465,7 @@ class Jetpack_Subscriptions_Widget extends WP_Widget {
 			?>
 			<form action="#" method="post" accept-charset="utf-8" id="<?php echo esc_attr( $form_id ); ?>">
 				<?php
-				if ( $subscribe_text && ( ! isset( $_GET['subscribe'] ) || 'success' != $_GET['subscribe'] ) ) {
+				if ( $subscribe_text && ( ! isset( $_GET['subscribe'] ) || 'success' !== $_GET['subscribe'] ) ) {
 					?>
 					<div id="subscribe-text"><?php echo wp_kses( wpautop( str_replace( '[total-subscribers]', number_format_i18n( $subscribers_total['value'] ), $subscribe_text ) ), 'post' ); ?></div>
 														<?php
@@ -483,7 +483,7 @@ class Jetpack_Subscriptions_Widget extends WP_Widget {
 					</div>
 					<?php
 				}
-				if ( ! isset( $_GET['subscribe'] ) || 'success' != $_GET['subscribe'] ) {
+				if ( ! isset( $_GET['subscribe'] ) || 'success' !== $_GET['subscribe'] ) {
 					?>
 					<p id="subscribe-email">
 						<label id="jetpack-subscribe-label"
@@ -547,7 +547,7 @@ class Jetpack_Subscriptions_Widget extends WP_Widget {
 	 * @return bool Is the person already subscribed.
 	 */
 	public static function is_current_user_subscribed() {
-		$subscribed = isset( $_GET['subscribe'] ) && 'success' == $_GET['subscribe'];
+		$subscribed = isset( $_GET['subscribe'] ) && 'success' === $_GET['subscribe'];
 
 		if ( self::is_wpcom() && class_exists( 'Blog_Subscription' ) && class_exists( 'Blog_Subscriber' ) ) {
 			$subscribed = is_user_logged_in() && Blog_Subscription::is_subscribed( new Blog_Subscriber() );
@@ -591,7 +591,8 @@ class Jetpack_Subscriptions_Widget extends WP_Widget {
 					'subscribed',
 					'pending',
 					'confirmed',
-				)
+				),
+				true
 			);
 	}
 
@@ -605,7 +606,7 @@ class Jetpack_Subscriptions_Widget extends WP_Widget {
 
 		if ( self::is_jetpack() ) {
 			$subs_count = get_transient( 'wpcom_subscribers_total' );
-			if ( false === $subs_count || 'failed' == $subs_count['status'] ) {
+			if ( false === $subs_count || 'failed' === $subs_count['status'] ) {
 				$xml = new Jetpack_IXR_Client();
 
 				$xml->query( 'jetpack.fetchSubscriberCount' );
@@ -712,7 +713,7 @@ class Jetpack_Subscriptions_Widget extends WP_Widget {
 			$subscribe_button      = stripslashes( $instance['subscribe_button'] );
 			$success_message       = stripslashes( $instance['success_message'] );
 			$subs_fetch            = self::fetch_subscriber_count();
-			if ( 'failed' == $subs_fetch['status'] ) {
+			if ( 'failed' === $subs_fetch['status'] ) {
 				printf( '<div class="error inline"><p>%s: %s</p></div>', esc_html( $subs_fetch['code'] ), esc_html( $subs_fetch['message'] ) );
 			}
 			$subscribers_total = number_format_i18n( $subs_fetch['value'] );
