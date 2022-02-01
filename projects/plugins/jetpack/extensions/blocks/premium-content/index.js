@@ -75,6 +75,12 @@ export const settings = {
 				type: 'block',
 				isMultiBlock: true,
 				blocks: [ '*' ],
+				isMatch: fromAttributes => {
+					if ( fromAttributes.some( attributes => attributes.isPremiumContentChild ) ) {
+						return false;
+					}
+					return true;
+				},
 				__experimentalConvert( blocks ) {
 					// Avoid transforming any premium-content block.
 					if ( blocks.some( blockContainsPremiumBlock ) ) {
