@@ -257,7 +257,7 @@ class Jetpack_Subscriptions_Widget extends WP_Widget {
 					break;
 				case 'success':
 					?>
-					<div class="success"><?php echo wpautop( str_replace( '[total-subscribers]', number_format_i18n( $subscribers_total['value'] ), $success_message ) ); ?></div>
+					<div class="success"><?php echo wp_kses( wpautop( str_replace( '[total-subscribers]', number_format_i18n( $subscribers_total['value'] ), $success_message ) ), 'post' ); ?></div>
 					<?php
 					break;
 				default:
@@ -467,7 +467,7 @@ class Jetpack_Subscriptions_Widget extends WP_Widget {
 				<?php
 				if ( $subscribe_text && ( ! isset( $_GET['subscribe'] ) || 'success' != $_GET['subscribe'] ) ) {
 					?>
-					<div id="subscribe-text"><?php echo wpautop( str_replace( '[total-subscribers]', number_format_i18n( $subscribers_total['value'] ), $subscribe_text ) ); ?></div>
+					<div id="subscribe-text"><?php echo wp_kses( wpautop( str_replace( '[total-subscribers]', number_format_i18n( $subscribers_total['value'] ), $subscribe_text ) ), 'post' ); ?></div>
 														<?php
 				}
 
