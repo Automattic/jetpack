@@ -129,7 +129,7 @@ function get_button_classes( $attributes ) {
 		$classes[] = sprintf( 'has-%s-gradient-background', $attributes['gradient'] );
 	}
 
-	// phpcs:ignore WordPress.PHP.StrictComparisons.LooseComparison
+	// phpcs:ignore Universal.Operators.StrictComparisons.LooseEqual
 	if ( $has_border_radius && 0 == $attributes['borderRadius'] ) {
 		$classes[] = 'no-border-radius';
 	}
@@ -172,7 +172,7 @@ function get_button_styles( $attributes ) {
 		$styles[] = sprintf( 'background-color: %s;', $attributes['customBackgroundColor'] );
 	}
 
-	// phpcs:ignore WordPress.PHP.StrictComparisons.LooseComparison
+	// phpcs:ignore Universal.Operators.StrictComparisons.LooseNotEqual
 	if ( $has_border_radius && 0 != $attributes['borderRadius'] ) {
 		$styles[] = sprintf( 'border-radius: %spx;', $attributes['borderRadius'] );
 	}

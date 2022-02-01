@@ -122,7 +122,7 @@ class WPCOM_REST_API_V2_Endpoint_List_Publicize_Connections extends WP_REST_Cont
 					'display_name'         => $publicize->get_display_name( $service_name, $connection ),
 					'profile_display_name' => ! empty( $connection_meta['profile_display_name'] ) ? $connection_meta['profile_display_name'] : '',
 					'profile_picture'      => ! empty( $connection_meta['profile_picture'] ) ? $connection_meta['profile_picture'] : '',
-					// phpcs:ignore WordPress.PHP.StrictComparisons.LooseComparison -- We expect an integer, but do loose comparison below in case some other type is stored.
+					// phpcs:ignore Universal.Operators.StrictComparisons.LooseEqual -- We expect an integer, but do loose comparison below in case some other type is stored.
 					'global'               => 0 == $connection_data['user_id'],
 				);
 			}

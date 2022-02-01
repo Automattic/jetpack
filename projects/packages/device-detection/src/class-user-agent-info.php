@@ -1445,7 +1445,7 @@ class User_Agent_Info {
 		// the mobile reader on iOS has an incorrect UA when loading the reader
 		// currently it is the default one provided by the iOS framework which
 		// causes problems with 2-step-auth
-		// User-Agent	WordPress/3.1.4 CFNetwork/609 Darwin/13.0.0.
+		// User-Agent   WordPress/3.1.4 CFNetwork/609 Darwin/13.0.0.
 		$app_agents[] = 'wordpress/3.1';
 
 		foreach ( $app_agents as $app_agent ) {

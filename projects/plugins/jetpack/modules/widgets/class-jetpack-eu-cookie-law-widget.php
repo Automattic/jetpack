@@ -331,7 +331,7 @@ if ( ! class_exists( 'Jetpack_EU_Cookie_Law_Widget' ) ) {
 	 */
 	function jetpack_register_eu_cookie_law_widget() {
 		register_widget( 'Jetpack_EU_Cookie_Law_Widget' );
-	};
+	}
 
 	add_action( 'widgets_init', 'jetpack_register_eu_cookie_law_widget' );
 }

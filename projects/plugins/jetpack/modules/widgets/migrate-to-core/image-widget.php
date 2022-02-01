@@ -155,8 +155,8 @@ function jetpack_migrate_image_widget() {
 
 				// Set correct size if dimensions fit.
 				if (
-					$media_image[ $id ]['width'] == $image_meta['width'] || // phpcs:ignore WordPress.PHP.StrictComparisons.LooseComparison
-					$media_image[ $id ]['height'] == $image_meta['height'] // phpcs:ignore WordPress.PHP.StrictComparisons.LooseComparison
+					$media_image[ $id ]['width'] == $image_meta['width'] || // phpcs:ignore Universal.Operators.StrictComparisons.LooseEqual
+					$media_image[ $id ]['height'] == $image_meta['height'] // phpcs:ignore Universal.Operators.StrictComparisons.LooseEqual
 				) {
 					$media_image[ $id ]['size'] = 'full';
 				}
@@ -170,8 +170,8 @@ function jetpack_migrate_image_widget() {
 
 					// Set correct size if dimensions fit.
 					if (
-						$media_image[ $id ]['width'] == $image['width'] || // phpcs:ignore WordPress.PHP.StrictComparisons.LooseComparison
-						$media_image[ $id ]['height'] == $image['height'] // phpcs:ignore WordPress.PHP.StrictComparisons.LooseComparison
+						$media_image[ $id ]['width'] == $image['width'] || // phpcs:ignore Universal.Operators.StrictComparisons.LooseEqual
+						$media_image[ $id ]['height'] == $image['height'] // phpcs:ignore Universal.Operators.StrictComparisons.LooseEqual
 					) {
 						$media_image[ $id ]['size'] = $size;
 					}

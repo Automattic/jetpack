@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Fixed some new PHPCS warnings.

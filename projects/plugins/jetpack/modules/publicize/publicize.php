@@ -746,7 +746,7 @@ abstract class Publicize_Base {
 					'enabled'         => $enabled,
 					'done'            => $done,
 					'toggleable'      => $toggleable,
-					'global'          => 0 == $connection_data['user_id'], // phpcs:ignore WordPress.PHP.StrictComparisons.LooseComparison -- Other types can be used at times.
+					'global'          => 0 == $connection_data['user_id'], // phpcs:ignore Universal.Operators.StrictComparisons.LooseEqual -- Other types can be used at times.
 				);
 			}
 		}

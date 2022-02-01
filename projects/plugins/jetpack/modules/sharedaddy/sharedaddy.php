@@ -248,7 +248,7 @@ function sharing_global_resources() {
 		<?php
 		printf(
 			'<input id="disable_css" type="checkbox" name="disable_resources"%1$s />  <small><em>%2$s</em></small>',
-			( 1 == $disable ) ? ' checked="checked"' : '', // phpcs:ignore WordPress.PHP.StrictComparisons.LooseComparison
+			( 1 == $disable ) ? ' checked="checked"' : '', // phpcs:ignore Universal.Operators.StrictComparisons.LooseEqual
 			esc_html__( 'Advanced. If this option is checked, you must include these files in your theme manually for the sharing links to work.', 'jetpack' )
 		);
 		?>

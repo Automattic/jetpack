@@ -310,7 +310,7 @@ class Client {
 		$code = wp_remote_retrieve_response_code( $response );
 
 		// Only trust the Date header on some responses.
-		if ( 200 != $code && 304 != $code && 400 != $code && 401 != $code ) { // phpcs:ignore  WordPress.PHP.StrictComparisons.LooseComparison
+		if ( 200 != $code && 304 != $code && 400 != $code && 401 != $code ) { // phpcs:ignore  Universal.Operators.StrictComparisons.LooseNotEqual
 			return;
 		}
 
