@@ -6,7 +6,7 @@ import ActionButton from '../index.jsx';
 import { action } from '@storybook/addon-actions';
 
 export default {
-	title: 'Playground/Action Button',
+	title: 'JS Packages/Components/Action Button',
 	component: ActionButton,
 	// TODO: Storybook Actions are not working. See https://github.com/storybookjs/storybook/issues/7215
 	argTypes: {

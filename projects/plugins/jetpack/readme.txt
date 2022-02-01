@@ -1,7 +1,7 @@
 === Jetpack - WP Security, Backup, Speed, & Growth ===
 Contributors: automattic, adamkheckler, adrianmoldovanwp, aduth, akirk, allendav, alternatekev, andy, annamcphee, annezazu, apeatling, arcangelini, azaozz, batmoo, barry, beaulebens, biskobe, blobaugh, bjorsch, brbrr, cainm, cena, cfinke, chaselivingston, chellycat, clickysteve, csonnek, danielbachhuber, davoraltman, daniloercoli, delawski, designsimply, dllh, drawmyface, dsmart, dzver, ebinnion, egregor, eliorivero, enej, eoigal, erania-pinnera, ethitter, fgiannar, gcorne, georgestephanis, gibrown, goldsounds, hew, hugobaeta, hypertextranch, iammattthomas, iandunn, jblz, jasmussen, jeffgolenski, jeherve, jenhooks, jenia, jessefriedman, jgs, jkudish, jmdodd, joanrho, johnjamesjacoby, jshreve, kbrownkd, keoshi, koke, kraftbj, lancewillett, leogermani, lschuyler, macmanx, martinremy, matt, matveb, mattwiebe, maverick3x6, mcsf, mdawaffe, mdbitz, MichaelArestad, migueluy, mikeyarce, mkaz, nancythanki, nickmomrik, obenland, oskosk, pento, professor44, rachelsquirrel, rdcoll, ryancowles, richardmuscat, richardmtl, robertbpugh, roccotripaldi, samhotchkiss, samiff, scarstocea, scottsweb, sdixon194, sdquirk, sermitr, simison, stephdau, tmoorewp, tyxla, Viper007Bond, westi, yoavf, zinigor
 Tags: Security, backup, Woo, malware, scan, spam, CDN, search, social
-Stable tag: 10.4
+Stable tag: 10.5.1
 Requires at least: 5.8
 Requires PHP: 5.6
 Tested up to: 5.9
@@ -242,47 +242,34 @@ Jetpack Backup can do a full website migration to a new host, migrate theme file
 4. Promote your newest posts, pages, and products across your social media channels.
 
 == Changelog ==
-### 10.5-beta - 2022-01-04
+### 10.6-beta - 2022-01-25
 #### Enhancements
-- Print Styles: additional interactive elements are now hidden when printing posts (e.g. Likes, Recommended Posts, Share this).
-- Secure Sign On: add filters for the error text when a local user cannot be found for a given WP.com account and for when SSO is disallowed when on a staging site.
-- Subscription Block: add 'Success Message Text' to the block settings.
-- VideoPress: add "allow download" option on videos to allow viewers to download the video.
-- VideoPress Block: add adaptive progress bar color settings.
-- WordAds: add hook for header ad placement, and allow 'leaderboard' size when displaying an ad widget.
+- Contact Info and Markdown Blocks: add color, typography and spacing features.
+- Dashboard: support Beta versions of Automattic plugins in plugin cards.
+- Embeds: add support for Descript.com embeds.
+- Image Compare Block: Add `wide` and `full` alignment options
+- Pay with PayPal Block: do not display the block on the frontend if PayPal is misconfigured.
+- Search: improve accessibility via headings hierarchy and aria roles.
+- Stats: add new filter allowing site owners to exclude IP addresses from being tracked in stats.
+- Tiled Gallery Block: improve the block so it can be used within the mobile applications.
 
 #### Improved compatibility
-- General: ensure Jetpack options are properly deleted when the plugin is deactivated.
-- General: update WordPress version requirements to WordPress 5.8.
-- Media Extractor: add support for alt_text in extract.
-- Notifications: remove legacy code supporting IE versions older than 9.
-- Pay with PayPal: update the name of the script enqueued when using the Pay with PayPal button as to avoid conflicts with other plugins that may use a similar script tag.
-- Pay with PayPal Widget: hide widget from Legacy Widget block.
-- Stats: remove legacy option to display a Smiley face used for the tracking pixel since the pixel is hidden by default.
-- VideoPress: classic block embeds with old flash URLs can now be properly converted to VideoPress blocks.
-- VideoPress: hide the dedicated VideoPress embed block in favor of Video block.
+- Instant Search: synchronize more meta data so the search feature can be used with more third-party plugins.
+- Sharing / AMP plugin: avoid adding sharing's CSS on AMP pages when the sharing feature is not active.
+- Subscription form: update the placeholder color to be the same as the text color of the site.
 
 #### Bug fixes
-- Contact Form: avoid PHP notices in submitted forms in some cases.
-- Cookies & Consents Banner: fix preview in Customizer and block widget editor.
-- Dashboard: fix logic that blocked one from enabling searchable features from the Jetpack settings.
-- Dashboard: hide licensing interface from users who did not link their account to WordPress.com yet, or who are not the main Jetpack connection owner.
-- General: prevent an E_NOTICE when running in non-web context.
-- Instant Search: ensure the hidden overlay doesn't add whitespace to printed pages.
-- Internationalization: ensure that all text, including text added via JavaScript, can be translated.
-- Jetpack: activate the default modules when the site has already been connected before plugin activation.
-- Jetpack: do not display recommendations during an identity crisis.
-- Milestone widget: fix issue that prevented styles from loading until the widget is saved.
-- Search: fix styling conflict for Blank Canvas theme.
-- Settings menu: add Jetpack item for sites with Scan product.
-- Sharing Buttons: rely on official sharing buttons only for Facebook share counts.
-- Stats: do not trigger views when post is embedded into another site.
-- Twitter Timeline widget: hide widget from the block inserter and Legacy widget block drop-down menu (WPCOM).
-- VideoPress: avoid errors when copying and pasting empty video blocks.
-- VideoPress: reload embed preview on creation until the video size is known.
-- VideoPress Block: maintain the state of different settings panels when reloading the video preview.
-- Vimeo Embeds: support more URL formats, such as videos in playlists.
-- WhatsApp block: fix country code for Cyprus.
+- Backups: hide backup preparation message for sites without backup.
+- Connection: correctly request list of active features so they can be activated on a reconnection.
+- Donations block: add a missing closing div for the front-end rendering.
+- Donations block: don't display the donations block to visitors unless Stripe is connected.
+- Donations block: fixed an issue which was invalidating existing blocks if they were edited by non-plan owners.
+- Donations block: tweak currency display for the edit control.
+- Pay with Paypal Block: properly display the card icons below the button.
+- Protect: fixed math fallback's input accessibility and display.
+- Scan: avoid PHP notice when non-admin users access the dashboard.
+- Subscription form: adding a default line-height to avoid differences using different font-faces on input and button elements
+- Widget Visibility: ensure it remains possible to edit visibility for legacy widgets in the block-based widget editor.
 
 --------
 

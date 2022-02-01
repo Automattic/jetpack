@@ -10,11 +10,12 @@ namespace Automattic\Jetpack_Boost\Admin;
 
 use Automattic\Jetpack\Admin_UI\Admin_Menu;
 use Automattic\Jetpack\Status;
+use Automattic\Jetpack_Boost\Features\Optimizations\Critical_CSS\Critical_CSS;
+use Automattic\Jetpack_Boost\Features\Optimizations\Optimizations;
 use Automattic\Jetpack_Boost\Features\Speed_Score\Speed_Score;
 use Automattic\Jetpack_Boost\Jetpack_Boost;
 use Automattic\Jetpack_Boost\Lib\Analytics;
 use Automattic\Jetpack_Boost\Lib\Environment_Change_Detector;
-use Automattic\Jetpack_Boost\Features\Optimizations\Optimizations;
 use Automattic\Jetpack_Boost\REST_API\Permissions\Nonce;
 
 class Admin {
@@ -52,7 +53,6 @@ class Admin {
 	 * @var Speed_Score instance.
 	 */
 	private $speed_score;
-
 
 	public function __construct( Optimizations $modules ) {
 		$this->modules     = $modules;
@@ -119,22 +119,7 @@ class Admin {
 			true
 		);
 
-		$active_modules    = array_keys( $this->modules->get_active_modules() );
-		$available_modules = array_keys( $this->modules->get_modules() );
-
-		/**
-		 * @TODO: This config here ia bit incorrect - JavaScript relies on config module containing all the modules, even the disabled ones.
-		 *      But that doesn't make much sense, since we're already passing all the available modules separately.
-		 *      The "constants" should be cleaned up a bit, but out of scope at the moment.
-		 *        The config system should be cleaned up a bit further.
-		 */
-		$module_config = array();
-		foreach ( $available_modules as $module_slug ) {
-			$module_config[ $module_slug ] = array(
-				'enabled' => in_array( $module_slug, $active_modules, true ),
-			);
-		}
-
+		$optimizations = ( new Optimizations() )->get_status();
 		// Prepare configuration constants for JavaScript.
 		$constants = array(
 			'version'             => JETPACK_BOOST_VERSION,
@@ -142,8 +127,7 @@ class Admin {
 				'namespace' => JETPACK_BOOST_REST_NAMESPACE,
 				'prefix'    => JETPACK_BOOST_REST_PREFIX,
 			),
-			'modules'             => $available_modules,
-			'config'              => $module_config,
+			'optimizations'       => $optimizations,
 			'locale'              => get_locale(),
 			'site'                => array(
 				'url'       => get_home_url(),
@@ -154,7 +138,6 @@ class Admin {
 			'preferences'         => array(
 				'showRatingPrompt' => $this->get_show_rating_prompt(),
 			),
-
 
 			/**
 			 * A bit of necessary magic,
@@ -217,7 +200,6 @@ class Admin {
 		return current_user_can( 'manage_options' );
 	}
 
-
 	/**
 	 * Show any admin notices from enabled modules.
 	 */
@@ -231,7 +213,7 @@ class Admin {
 		$dismissed_notices = \get_option( self::DISMISSED_NOTICE_OPTION, array() );
 		$notices           = array_filter(
 			$notices,
-			function( $notice ) use ( $dismissed_notices ) {
+			function ( $notice ) use ( $dismissed_notices ) {
 				$notice_slug = $notice->get_slug();
 
 				return ! in_array( $notice_slug, $dismissed_notices, true );
@@ -267,26 +249,14 @@ class Admin {
 
 	/**
 	 * Returns a list of admin notices to show. Asks each module to provide admin notices the user needs to see.
+	 *
 	 * @TODO: This is still a code smell. We're carrying the whole modules instance just to get a list of admin notices.
 	 *
 	 * @return \Automattic\Jetpack_Boost\Admin\Admin_Notice[]
 	 */
 	public function get_admin_notices() {
-		$all_notices = array();
-
-		foreach ( $this->modules->get_active_modules() as $module ) {
-
-			if( ! method_exists( $module, 'get_admin_notices' ) ) {
-				continue;
-			}
-			$module_notices = $module->get_admin_notices();
-
-			if ( ! empty( $module_notices ) ) {
-				$all_notices = array_merge( $all_notices, $module_notices );
-			}
-		}
-
-		return $all_notices;
+		$critical_css = new Critical_CSS();
+		return $critical_css->get_admin_notices();
 	}
 
 	/**

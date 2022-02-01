@@ -13,11 +13,14 @@
 namespace Automattic\Jetpack_Boost;
 
 use Automattic\Jetpack_Boost\Admin\Admin;
-use Automattic\Jetpack_Boost\Features\Speed_Score\Speed_Score_History;
+use Automattic\Jetpack_Boost\Features\Optimizations\Critical_CSS\Critical_CSS;
+use Automattic\Jetpack_Boost\Features\Optimizations\Critical_CSS\Critical_CSS_Storage;
+use Automattic\Jetpack_Boost\Features\Optimizations\Critical_CSS\Regenerate_Admin_Notice;
+use Automattic\Jetpack_Boost\Features\Optimizations\Optimizations;
 use Automattic\Jetpack_Boost\Lib\Analytics;
 use Automattic\Jetpack_Boost\Lib\CLI;
 use Automattic\Jetpack_Boost\Lib\Connection;
-use Automattic\Jetpack_Boost\Features\Optimizations\Optimizations;
+use Automattic\Jetpack_Boost\Lib\Setup;
 use Automattic\Jetpack_Boost\REST_API\Endpoints\Optimization_Status;
 use Automattic\Jetpack_Boost\REST_API\REST_API;
 
@@ -75,7 +78,6 @@ class Jetpack_Boost {
 
 		$this->connection = new Connection();
 
-
 		// Require plugin features.
 		$this->init_textdomain();
 
@@ -86,14 +88,12 @@ class Jetpack_Boost {
 			\WP_CLI::add_command( 'jetpack-boost', $cli_instance );
 		}
 
-		// Initialize the Admin experience.
-		$modules = new Optimizations();
-		$modules->setup_modules();
-		$this->init_admin( $modules );
-		add_action( 'init', array( $modules, 'initialize_modules' ) );
+		$optimizations = new Optimizations();
+		Setup::add( $optimizations );
 
+		// Initialize the Admin experience.
+		$this->init_admin( $optimizations );
 		add_action( 'init', array( $this, 'init_textdomain' ) );
-		add_action( 'init', array( $this, 'register_cache_clear_actions' ) );
 
 		add_action( 'handle_theme_change', array( $this, 'handle_theme_change' ) );
 
@@ -110,47 +110,14 @@ class Jetpack_Boost {
 	}
 
 	/**
-	 * Wipe all cached values.
-	 */
-	public function clear_cache() {
-		do_action( 'jetpack_boost_clear_cache' );
-	}
-
-	/**
 	 * Plugin deactivation handler. Clear cache, and reset admin notices.
 	 */
 	public function deactivate() {
 		do_action( 'jetpack_boost_deactivate' );
-
-		$this->clear_cache();
+		do_action( 'jetpack_boost_clear_cache' );
+		Analytics::record_user_event( 'clear_cache' );
 		Admin::clear_dismissed_notices();
 	}
-
-	/**
-	 * Plugin uninstallation handler. Delete all settings and cache.
-	 */
-	public function uninstall() {
-		do_action( 'jetpack_boost_uninstall' );
-
-		Speed_Score_History::clear_all();
-		$this->clear_cache();
-
-	}
-
-	/**
-	 * Handlers for clearing module caches go here, so that caches get cleared even if the module is not enabled.
-	 */
-	public function register_cache_clear_actions() {
-		add_action( 'jetpack_boost_clear_cache', array( $this, 'record_clear_cache_event' ) );
-	}
-
-	/**
-	 * Record the clear cache event.
-	 */
-	public function record_clear_cache_event() {
-		Analytics::record_user_event( 'clear_cache' );
-	}
-
 
 	/**
 	 * Initialize the admin experience.
@@ -193,8 +160,6 @@ class Jetpack_Boost {
 		return $this->version;
 	}
 
-
-
 	/**
 	 * Handle an environment change to set the correct status to the Critical CSS request.
 	 * This is done here so even if the Critical CSS module is switched off we can
@@ -203,5 +168,29 @@ class Jetpack_Boost {
 	public function handle_theme_change() {
 		Admin::clear_dismissed_notice( Regenerate_Admin_Notice::SLUG );
 		\update_option( Critical_CSS::RESET_REASON_STORAGE_KEY, Regenerate_Admin_Notice::REASON_THEME_CHANGE, false );
+	}
+
+	/**
+	 * Plugin uninstallation handler. Delete all settings and cache.
+	 */
+	public function uninstall() {
+
+		global $wpdb;
+
+		// When uninstalling, make sure all deactivation cleanups have run as well.
+		$this->deactivate();
+
+		// Delete all Jetpack Boost options.
+		$wpdb->query(
+			"
+			DELETE
+			FROM    `$wpdb->options`
+			WHERE   `option_name` LIKE jetpack_boost_%
+		"
+		);
+
+		// Delete stored Critical CSS.
+		( new Critical_CSS_Storage() )->clear();
+
 	}
 }

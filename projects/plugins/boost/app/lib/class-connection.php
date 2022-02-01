@@ -8,6 +8,7 @@
  */
 
 namespace Automattic\Jetpack_Boost\Lib;
+
 use Automattic\Jetpack\Config as Jetpack_Config;
 use Automattic\Jetpack\Connection\Manager;
 use Automattic\Jetpack\Terms_Of_Service;

@@ -12,15 +12,15 @@ class Generator_Status implements Endpoint {
 		return \WP_REST_Server::READABLE;
 	}
 
-	public function response( $request ) {
+	public function response( $_request ) {
 		$generator = new Generator();
 		return rest_ensure_response( $generator->get_critical_css_status() );
 	}
 
 	public function permissions() {
-		return [
+		return array(
 			new Current_User_Admin(),
-		];
+		);
 	}
 	public function name() {
 		return 'status';

@@ -64,7 +64,6 @@ class Collection {
 		return false;
 	}
 
-
 	/**
 	 * Delete the whole collection
 	 *

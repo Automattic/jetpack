@@ -5,6 +5,7 @@ namespace Automattic\Jetpack_Boost\Features\Optimizations\Critical_CSS;
 use Automattic\Jetpack_Boost\Contracts\Feature;
 use Automattic\Jetpack_Boost\Features\Optimizations\Critical_CSS\Generate\Generator;
 use Automattic\Jetpack_Boost\Features\Optimizations\Critical_CSS\Source_Providers\Source_Providers;
+use Automattic\Jetpack_Boost\REST_API\Contracts\Endpoint;
 use Automattic\Jetpack_Boost\REST_API\Contracts\Has_Endpoints;
 use Automattic\Jetpack_Boost\REST_API\Endpoints\Generator_Error;
 use Automattic\Jetpack_Boost\REST_API\Endpoints\Generator_Request;
@@ -12,6 +13,7 @@ use Automattic\Jetpack_Boost\REST_API\Endpoints\Generator_Status;
 use Automattic\Jetpack_Boost\REST_API\Endpoints\Generator_Success;
 use Automattic\Jetpack_Boost\REST_API\Endpoints\Recommendations_Dismiss;
 use Automattic\Jetpack_Boost\REST_API\Endpoints\Recommendations_Reset;
+use Automattic\Jetpack_Boost\REST_API\REST_API;
 
 class Critical_CSS implements Feature, Has_Endpoints {
 
@@ -23,7 +25,6 @@ class Critical_CSS implements Feature, Has_Endpoints {
 	 * @var Critical_CSS_Storage
 	 */
 	protected $storage;
-
 
 	/**
 	 * Critical CSS Provider Paths.
@@ -45,7 +46,7 @@ class Critical_CSS implements Feature, Has_Endpoints {
 	/**
 	 * This is only run if Critical CSS module has been activated.
 	 */
-	public function initialize() {
+	public function setup() {
 		// Touch to setup the post type. This is a temporary hack.
 		// This should instantiate a new Post_Type_Storage class,
 		// so that Critical_CSS class is responsible
@@ -64,6 +65,7 @@ class Critical_CSS implements Feature, Has_Endpoints {
 		add_action( 'jetpack_boost_clear_cache', array( $this, 'clear_critical_css' ) );
 		add_filter( 'jetpack_boost_js_constants', array( $this, 'add_critical_css_constants' ) );
 
+		REST_API::register( $this->get_endpoints() );
 		return true;
 	}
 
@@ -82,7 +84,7 @@ class Critical_CSS implements Feature, Has_Endpoints {
 
 	public function display_critical_css() {
 
-		// Don't look for Critical CSS in the dashboard
+		// Don't look for Critical CSS in the dashboard.
 		if ( is_admin() ) {
 			return;
 		}
@@ -96,7 +98,7 @@ class Critical_CSS implements Feature, Has_Endpoints {
 			return;
 		}
 
-		// Get the Critical CSS to show
+		// Get the Critical CSS to show.
 		$critical_css = $this->paths->get_current_request_css();
 		if ( ! $critical_css ) {
 			return;
@@ -118,7 +120,6 @@ class Critical_CSS implements Feature, Has_Endpoints {
 		Critical_CSS_State::reset();
 	}
 
-
 	/**
 	 * Force the current page to render as viewed by a logged out user. Useful when generating
 	 * Critical CSS.
@@ -137,6 +138,7 @@ class Critical_CSS implements Feature, Has_Endpoints {
 
 	/**
 	 * Override; returns an admin notice to show if there was a reset reason.
+	 *
 	 * @TODO:
 	 *      There should be an Admin_Notice class
 	 *      To create a notice, (new Admin_Notice())->create("notice text");
@@ -147,7 +149,7 @@ class Critical_CSS implements Feature, Has_Endpoints {
 		$reason = \get_option( self::RESET_REASON_STORAGE_KEY );
 
 		if ( ! $reason ) {
-			return NULL;
+			return array();
 		}
 
 		return array( new Regenerate_Admin_Notice( $reason ) );
@@ -182,6 +184,11 @@ class Critical_CSS implements Feature, Has_Endpoints {
 		return $constants;
 	}
 
+	/**
+	 * @TODO: Facepalm. PHP Typehinting is broken.
+	 * @return Endpoint[]
+	 *
+	 */
 	public function get_endpoints() {
 		return array(
 			Generator_Status::class,
@@ -193,4 +200,10 @@ class Critical_CSS implements Feature, Has_Endpoints {
 		);
 	}
 
+	/**
+	 * @inheritDoc
+	 */
+	public function setup_trigger() {
+		return 'init';
+	}
 }

@@ -8,6 +8,16 @@ This guide assumes you are using MacOS or a Linux machine and are an Automattici
 
 ## Installation
 
+### Using the installation script
+
+To speed up the installation process, you may use our monorepo installation script. To do so:
+ - clone the Jetpack repo: `git clone https://github.com/Automattic/jetpack.git`
+ - `cd` into the cloned `jetpack` folder.
+ - run `tools/install-monorepo.sh` from the monorepo root.
+ Once the installation is complete, continue onto the section [Running Jetpack locally](#running-jetpack-locally). 
+
+### Installing manually
+
 Prior to installation, we recommend using [`Homebrew`](https://brew.sh/) to manage installations and [`nvm`](https://github.com/nvm-sh/nvm/) to manage Node.js versions. If you don't already have those installed, you can do so by copy/pasting each of the following commands and running them in your terminal:
 
 - Homebrew: `/bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"`
@@ -49,6 +59,8 @@ For more in depth Docker instructions, follow the [Docker environment for Jetpac
 ### Setting up Jurassic Tube
 
 In order to test features that require a WordPress.com connection and other network related Jetpack features, you'll need a test site that can create local HTTP tunnels. If you're an Automattician, we recommend using Jurassic Tube:
+
+**Warning: This creates a tunnel to your local machine which should not be trusted as secure. If it is compromised, so is your computer and everything it has access to. Only `jetpack docker jt-up` when needed for testing things that require the site to be publicly accessible, and `jetpack docker jt-down` when completed.**
 
 - Add a subdomain on [jurassic.tube](https://jurassic.tube/)
 - Make sure you've run `pnpm install && pnpm cli-link`

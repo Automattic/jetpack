@@ -12,6 +12,8 @@ class Recommendations_Reset implements Endpoint {
 		return \WP_REST_Server::EDITABLE;
 	}
 
+	// $request is required to adhere to the contract.
+	//phpcs:disable VariableAnalysis.CodeAnalysis.VariableAnalysis.UnusedVariable
 	public function response( $request ) {
 		$recommendations = new Recommendations();
 		$recommendations->reset();
@@ -19,10 +21,10 @@ class Recommendations_Reset implements Endpoint {
 	}
 
 	public function permissions() {
-		return [
+		return array(
 			new Nonce( $this->name() ),
 			new Current_User_Admin(),
-		];
+		);
 	}
 
 	public function name() {

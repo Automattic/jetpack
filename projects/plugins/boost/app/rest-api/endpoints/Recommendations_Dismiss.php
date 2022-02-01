@@ -25,10 +25,10 @@ class Recommendations_Dismiss implements Endpoint {
 	}
 
 	public function permissions() {
-		return [
+		return array(
 			new Nonce( $this->name() ),
 			new Current_User_Admin(),
-		];
+		);
 	}
 
 	public function name() {

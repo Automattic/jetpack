@@ -32,7 +32,7 @@ class Assets {
 	/**
 	 * The registered textdomain mappings.
 	 *
-	 * @var array `array( mapped_domain => array( string target_domain, string target_type, string semver ) )`.
+	 * @var array `array( mapped_domain => array( string target_domain, string target_type, string semver, string path_prefix ) )`.
 	 */
 	private static $domain_map = array();
 
@@ -430,7 +430,7 @@ class Assets {
 	/**
 	 * 'wp_default_scripts' action handler.
 	 *
-	 * This registers the `wp-jp-i18n-state` script for use by Webpack bundles built with
+	 * This registers the `wp-jp-i18n-loader` script for use by Webpack bundles built with
 	 * `@automattic/i18n-loader-webpack-plugin`.
 	 *
 	 * @since 1.14.0
@@ -438,20 +438,27 @@ class Assets {
 	 */
 	public static function wp_default_scripts_hook( $wp_scripts ) {
 		$data = array(
-			'baseUrl'   => false,
-			'locale'    => determine_locale(),
-			'domainMap' => array(),
+			'baseUrl'     => false,
+			'locale'      => determine_locale(),
+			'domainMap'   => array(),
+			'domainPaths' => array(),
 		);
 
-		$lang_dir = Jetpack_Constants::get_constant( 'WP_LANG_DIR' );
-		$abspath  = Jetpack_Constants::get_constant( 'ABSPATH' );
+		$lang_dir    = Jetpack_Constants::get_constant( 'WP_LANG_DIR' );
+		$content_dir = Jetpack_Constants::get_constant( 'WP_CONTENT_DIR' );
+		$abspath     = Jetpack_Constants::get_constant( 'ABSPATH' );
 
-		if ( strpos( $lang_dir, $abspath ) === 0 ) {
+		if ( strpos( $lang_dir, $content_dir ) === 0 ) {
+			$data['baseUrl'] = content_url( substr( trailingslashit( $lang_dir ), strlen( trailingslashit( $content_dir ) ) ) );
+		} elseif ( strpos( $lang_dir, $abspath ) === 0 ) {
 			$data['baseUrl'] = site_url( substr( trailingslashit( $lang_dir ), strlen( untrailingslashit( $abspath ) ) ) );
 		}
 
-		foreach ( self::$domain_map as $from => list( $to, $type ) ) {
+		foreach ( self::$domain_map as $from => list( $to, $type, , $path ) ) {
 			$data['domainMap'][ $from ] = ( 'core' === $type ? '' : "{$type}/" ) . $to;
+			if ( '' !== $path ) {
+				$data['domainPaths'][ $from ] = trailingslashit( $path );
+			}
 		}
 
 		/**
@@ -465,25 +472,44 @@ class Assets {
 		 *  - `locale`: (string) The locale for the page.
 		 *  - `domainMap`: (string[]) A mapping from Composer package textdomains to the corresponding
 		 *    `plugins/textdomain` or `themes/textdomain` (or core `textdomain`, but that's unlikely).
+		 *  - `domainPaths`: (string[]) A mapping from Composer package textdomains to the corresponding package
+		 *     paths.
 		 */
 		$data = apply_filters( 'jetpack_i18n_state', $data );
 
+		// Can't use self::register_script(), this action is called too early.
+		if ( file_exists( __DIR__ . '/../build/i18n-loader.asset.php' ) ) {
+			$path  = '../build/i18n-loader.js';
+			$asset = require __DIR__ . '/../build/i18n-loader.asset.php';
+		} else {
+			$path  = 'js/i18n-loader.js';
+			$asset = array(
+				'dependencies' => array( 'wp-i18n' ),
+				'version'      => filemtime( __DIR__ . "/$path" ),
+			);
+		}
+		$url = self::normalize_path( plugins_url( $path, __FILE__ ) );
+		$url = add_query_arg( 'minify', 'true', $url );
+		$wp_scripts->add( 'wp-jp-i18n-loader', $url, $asset['dependencies'], $asset['version'] );
 		if ( ! is_array( $data ) ||
 			! isset( $data['baseUrl'] ) || ! ( is_string( $data['baseUrl'] ) || false === $data['baseUrl'] ) ||
 			! isset( $data['locale'] ) || ! is_string( $data['locale'] ) ||
-			! isset( $data['domainMap'] ) || ! is_array( $data['domainMap'] )
+			! isset( $data['domainMap'] ) || ! is_array( $data['domainMap'] ) ||
+			! isset( $data['domainPaths'] ) || ! is_array( $data['domainPaths'] )
 		) {
-			$js = 'console.warn( "I18n state deleted by jetpack_i18n_state hook" );';
+			$wp_scripts->add_inline_script( 'wp-jp-i18n-loader', 'console.warn( "I18n state deleted by jetpack_i18n_state hook" );' );
 		} elseif ( ! $data['baseUrl'] ) {
-			$js = 'console.warn( "Failed to determine languages base URL. Is WP_LANG_DIR in the WordPress root?" );';
+			$wp_scripts->add_inline_script( 'wp-jp-i18n-loader', 'console.warn( "Failed to determine languages base URL. Is WP_LANG_DIR in the WordPress root?" );' );
 		} else {
-			$data['domainMap'] = (object) $data['domainMap']; // Ensure it becomes a json object.
-			$js                = 'wp.jpI18nState = ' . wp_json_encode( $data, JSON_UNESCAPED_SLASHES ) . ';';
+			$data['domainMap']   = (object) $data['domainMap']; // Ensure it becomes a json object.
+			$data['domainPaths'] = (object) $data['domainPaths']; // Ensure it becomes a json object.
+			$wp_scripts->add_inline_script( 'wp-jp-i18n-loader', 'wp.jpI18nLoader.state = ' . wp_json_encode( $data, JSON_UNESCAPED_SLASHES ) . ';' );
 		}
 
-		// Depend on wp-i18n to ensure global `wp` exists and because anything needing this will need that too.
-		$wp_scripts->add( 'wp-jp-i18n-state', null, array( 'wp-i18n' ) );
-		$wp_scripts->add_inline_script( 'wp-jp-i18n-state', $js, 'before' );
+		// Deprecated state module: Depend on wp-i18n to ensure global `wp` exists and because anything needing this will need that too.
+		$wp_scripts->add( 'wp-jp-i18n-state', null, array( 'wp-deprecated', 'wp-jp-i18n-loader' ) );
+		$wp_scripts->add_inline_script( 'wp-jp-i18n-state', 'wp.deprecated( "wp-jp-i18n-state", { alternative: "wp-jp-i18n-loader" } );' );
+		$wp_scripts->add_inline_script( 'wp-jp-i18n-state', 'wp.jpI18nState = wp.jpI18nLoader.state;' );
 	}
 
 	// endregion .
@@ -507,9 +533,10 @@ class Assets {
 	 * @param string $to Domain to alias it to.
 	 * @param string $totype What is the target of the alias: 'plugins', 'themes', or 'core'.
 	 * @param string $ver Version of the `$from` domain.
+	 * @param string $path Path to prepend when lazy-loading from JavaScript.
 	 * @throws InvalidArgumentException If arguments are invalid.
 	 */
-	public static function alias_textdomain( $from, $to, $totype, $ver ) {
+	public static function alias_textdomain( $from, $to, $totype, $ver, $path = '' ) {
 		if ( ! in_array( $totype, array( 'plugins', 'themes', 'core' ), true ) ) {
 			throw new InvalidArgumentException( 'Type must be "plugins", "themes", or "core"' );
 		}
@@ -533,9 +560,9 @@ class Assets {
 
 		if ( empty( self::$domain_map[ $from ] ) ) {
 			self::init_domain_map_hooks( $from, array() === self::$domain_map );
-			self::$domain_map[ $from ] = array( $to, $totype, $ver );
+			self::$domain_map[ $from ] = array( $to, $totype, $ver, $path );
 		} elseif ( Semver::compare( $ver, self::$domain_map[ $from ][2] ) > 0 ) {
-			self::$domain_map[ $from ] = array( $to, $totype, $ver );
+			self::$domain_map[ $from ] = array( $to, $totype, $ver, $path );
 		}
 	}
 
@@ -546,15 +573,21 @@ class Assets {
 	 * with the following properties:
 	 *  - 'domain': String, `$to`
 	 *  - 'type': String, `$totype`
-	 *  - 'packages': Array, mapping `$from` to `$ver`.
+	 *  - 'packages': Array, mapping `$from` to `array( 'path' => $path, 'ver' => $ver )` (or to the string `$ver` for back compat).
 	 *
 	 * @since 1.15.0
 	 * @param string $file Mapping file.
 	 */
 	public static function alias_textdomains_from_file( $file ) {
 		$data = require $file;
-		foreach ( $data['packages'] as $from => $ver ) {
-			self::alias_textdomain( $from, $data['domain'], $data['type'], $ver );
+		foreach ( $data['packages'] as $from => $fromdata ) {
+			if ( ! is_array( $fromdata ) ) {
+				$fromdata = array(
+					'path' => '',
+					'ver'  => $fromdata,
+				);
+			}
+			self::alias_textdomain( $from, $data['domain'], $data['type'], $fromdata['ver'], $fromdata['path'] );
 		}
 	}
 

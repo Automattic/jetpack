@@ -31,13 +31,14 @@ const ScreenMigrated = props => {
 	return (
 		<React.Fragment>
 			<h2>
-				{ customContent.migratedTitle ||
-					__( 'Your Jetpack settings have migrated successfully', 'jetpack' ) }
+				{ customContent.migratedTitle
+					? createInterpolateElement( customContent.migratedTitle, { em: <em /> } )
+					: __( 'Your Jetpack settings have migrated successfully', 'jetpack' ) }
 			</h2>
 
 			<p>
-				{ customContent.migratedBodyText ||
-					createInterpolateElement(
+				{ createInterpolateElement(
+					customContent.migratedBodyText ||
 						sprintf(
 							/* translators: %1$s: The current site domain name. */
 							__(
@@ -46,10 +47,12 @@ const ScreenMigrated = props => {
 							),
 							currentHostName
 						),
-						{
-							hostname: <strong />,
-						}
-					) }
+					{
+						hostname: <strong />,
+						em: <em />,
+						strong: <strong />,
+					}
+				) }
 			</p>
 
 			<div className="jp-idc__idc-screen__card-migrated">

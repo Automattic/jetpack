@@ -18,20 +18,15 @@
 		"build-js": "echo 'Not implemented.",
 		"build-production": "echo 'Not implemented.",
 		"build-production-js": "echo 'Not implemented.",
-		"clean": "true",
-		"distclean": "rm -rf node_modules && pnpm run clean",
-		"install-if-deps-outdated": "pnpm install --no-prod --frozen-lockfile",
 		"storybook:build": "build-storybook -s ./public -c ./storybook -o ./docs",
 		"dev:packages": "echo 'TODO dev:packages'",
 		"storybook:dev": "concurrently \"pnpm run dev:packages\" \"start-storybook -c ./storybook -p 50240 -s ./public\""
 	},
 	"devDependencies": {
-		"@automattic/jetpack-components": "workspace:^0.10.0-alpha",
-		"@automattic/jetpack-connection": "workspace:^0.12.1-alpha",
-		"@automattic/jetpack-base-styles": "workspace:^0.1.4-alpha",
-		"@automattic/jetpack-idc": "workspace:^0.8.1-alpha",
+		"@automattic/jetpack-base-styles": "workspace:^0.1.7",
 		"@babel/core": "7.16.0",
 		"@babel/plugin-syntax-jsx": "7.16.0",
+		"@babel/preset-react": "7.16.0",
 		"@babel/runtime-corejs3": "7.16.3",
 		"@babel/traverse": "7.16.3",
 		"@emotion/babel-plugin": "11.3.0",
@@ -66,7 +61,7 @@
 		"webpack": "5.65.0"
 	},
 	"engines": {
-		"node": "^14.17.6 || ^16.7.0",
+		"node": "^14.18.3 || ^16.13.2",
 		"pnpm": "^6.23.6",
 		"yarn": "use pnpm instead - see docs/yarn-upgrade.md"
 	}

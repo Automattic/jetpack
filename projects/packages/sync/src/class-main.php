@@ -58,6 +58,7 @@ class Main {
 		 * For now additional modules are enabled based on whether the third party plugin
 		 * class exists or not.
 		 */
+		Sync_Actions::initialize_search();
 		Sync_Actions::initialize_woocommerce();
 		Sync_Actions::initialize_wp_super_cache();
 

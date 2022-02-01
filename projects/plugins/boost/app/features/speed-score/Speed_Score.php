@@ -9,17 +9,13 @@
 
 namespace Automattic\Jetpack_Boost\Features\Speed_Score;
 
-
-
-use Automattic\Jetpack_Boost\Lib\Utils;
 use Automattic\Jetpack_Boost\Features\Optimizations\Optimizations;
+use Automattic\Jetpack_Boost\Lib\Utils;
 
 /**
  * Class Speed_Score
  */
 class Speed_Score {
-
-	private $modules;
 
 	public function __construct( Optimizations $modules ) {
 		$this->modules = $modules;
@@ -93,7 +89,7 @@ class Speed_Score {
 		$score_request = $this->get_score_request_by_url( $url );
 		if ( empty( $score_request ) || ! $score_request->is_pending() ) {
 			// Create and store the Speed Score request.
-			$active_modules = array_keys( $this->modules->get_active_modules() );
+			$active_modules = array_keys( array_filter( $this->modules->get_status(), 'strlen' ) );
 			$score_request  = new Speed_Score_Request( $url, $active_modules );
 			$score_request->store( 1800 ); // Keep the request for 30 minutes even if no one access the results.
 
@@ -189,7 +185,7 @@ class Speed_Score {
 		if (
 			// If there isn't already a pending request.
 			( empty( $score_request ) || ! $score_request->is_pending() )
-			&& ! empty( $this->modules->get_active_modules() )
+			&& $this->modules->have_enabled_modules()
 			&& (
 				null === $latest_history
 				|| $latest_history['timestamp'] < strtotime( '- 24 hours' ) // Refetch if it is older than a day.
@@ -254,7 +250,7 @@ class Speed_Score {
 	/**
 	 * Prepare the speed score response.
 	 *
-	 * @param string              $url URL of the speed is requested for.
+	 * @param string              $url                    URL of the speed is requested for.
 	 * @param Speed_Score_Request $score_request          Speed score request.
 	 * @param Speed_Score_Request $score_request_no_boost Speed score request without boost enabled.
 	 *
@@ -277,7 +273,7 @@ class Speed_Score {
 
 			// Only include noBoost scores if at least one modules is enabled.
 			$latest_history = $history->latest();
-			if ( ! empty( $this->modules->get_active_modules() ) ) {
+			if ( ! empty( $this->modules->available_modules() ) ) {
 				$response['scores']['noBoost'] = $history_no_boost->latest_scores();
 			}
 

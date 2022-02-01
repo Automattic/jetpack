@@ -1,0 +1,7 @@
+{
+	"name": "automattic/jp-b",
+	"require": {
+		"automattic/jp-a": "*",
+		"automattic/jp-c": "*"
+	}
+}
