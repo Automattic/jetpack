@@ -122,12 +122,7 @@ class Products {
 	 * @return array Object with infromation about the product.
 	 */
 	public static function get_backup_data() {
-		return array(
-			'slug'        => 'backup',
-			'description' => __( 'Save every change', 'jetpack-my-jetpack' ),
-			'name'        => __( 'Backup', 'jetpack-my-jetpack' ),
-			'status'      => 'active',
-		);
+		return Products\Backup::get_info();
 	}
 
 	/**
