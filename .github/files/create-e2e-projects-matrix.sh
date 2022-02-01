@@ -22,15 +22,15 @@ fi
 
 for PROJECT in "${PROJECTS[@]}"; do
 	PROJECT_PATH=$(jq -r ".path" <<<"$PROJECT")
-	TARGET_PROJECTS=$(jq -r -e ".ci.targets[]" "$PROJECT_PATH/package.json")
+	TARGETS=$(jq -r -e ".ci.targets" "$PROJECT_PATH/package.json")
 
-	if [ "$TARGET_PROJECTS" == "" ]; then
+	if [ "$TARGETS" == "[]" ] || [ "$TARGETS" == "" ]; then
 		# if no target projects are found run the tests
 		PROJECTS_MATRIX+=("$PROJECT")
 	else
 		# iterate over defined target plugins/projects and see if they are changed
-		for TESTED_PROJECT in $TARGET_PROJECTS; do
-			RESULT=$(jq --arg prj "$TESTED_PROJECT" '.[$prj]' <<<"$CHANGED_PROJECTS")
+		for TARGET in $(jq -r -e ".[]" <<<"$TARGETS"); do
+			RESULT=$(jq --arg prj "$TARGET" '.[$prj]' <<<"$CHANGED_PROJECTS")
 			if [[ "$RESULT" == true ]]; then
 				PROJECTS_MATRIX+=("$PROJECT")
 				break
