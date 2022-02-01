@@ -69,13 +69,13 @@ const videoPressMediaPlaceholder = createHigherOrderComponent(
 		if ( name !== 'core/video' ) {
 			return <OriginalPlaceholder { ...props } />;
 		}
-		
+
 		// We will handle video uploads
 		props.handleUpload = false;
-		
+
 		const { onFilesSelected, onMediaItemSelected } = useContext( VideoPressBlockContext );
 
-		props.onSelect = ( selected ) => {
+		props.onSelect = selected => {
 			if ( selected instanceof FileList ) {
 				onFilesSelected( selected );
 			} else {
@@ -87,8 +87,7 @@ const videoPressMediaPlaceholder = createHigherOrderComponent(
 			<OriginalPlaceholder
 				{ ...props }
 				className="videopress-media-placeholder"
-			>
-			</OriginalPlaceholder>
+			></OriginalPlaceholder>
 		);
 	},
 	'videoPressMediaPlaceholder'
@@ -307,7 +306,7 @@ const addVideoPressSupport = ( settings, name ) => {
 								if ( available && resumableUploadEnabled ) {
 									// VideoPress block handles the upload
 									const block = createBlock( 'core/video', {
-										'fileForImmediateUpload': file,
+										fileForImmediateUpload: file,
 									} );
 
 									blocks.push( block );
@@ -316,7 +315,7 @@ const addVideoPressSupport = ( settings, name ) => {
 									const block = createBlock( 'core/video', {
 										src: createBlobURL( file ),
 									} );
-										
+
 									mediaUpload( {
 										filesList: [ file ],
 										onFileChange: ( [ { id, url } ] ) => {

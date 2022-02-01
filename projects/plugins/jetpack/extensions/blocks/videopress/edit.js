@@ -40,7 +40,7 @@ import { getClassNames } from './utils';
 import ResumableUpload from './resumable-upload';
 import SeekbarColorSettings from './seekbar-color-settings';
 import TracksEditor from './tracks-editor';
-import { VideoPressBlockProvider} from './components';
+import { VideoPressBlockProvider } from './components';
 
 const VIDEO_POSTER_ALLOWED_MEDIA_TYPES = [ 'image' ];
 
@@ -601,46 +601,45 @@ const VideoPressEdit = CoreVideoEdit =>
 				</Fragment>
 			);
 
-			const filesSelected = ( files ) => {
-				this.setState( { fileForUpload: files[0] } );
-			}
+			const filesSelected = files => {
+				this.setState( { fileForUpload: files[ 0 ] } );
+			};
 
 			// Handle Media Library selection
-			const mediaItemSelected = ( item ) => {
+			const mediaItemSelected = item => {
 				if ( item && item.videopress_guid ) {
 					this.props.setAttributes( { guid: item.videopress_guid } );
 				} else {
 					this.props.setAttributes( { src: item.url } );
 				}
-			}
+			};
 
-			const uploadFinished = ( guid = null ) => {
+			const uploadFinished = ( videoGuid = null ) => {
 				this.setState( { fileForUpload: null } );
-				if ( !! guid ) {
-				    setAttributes( { guid } );
+				if ( videoGuid ) {
+					setAttributes( { videoGuid } );
 				}
 			};
 
 			const isResumableUploading = null !== fileForUpload && fileForUpload instanceof File;
 			if ( isResumableUploading ) {
 				return (
-					<VideoPressBlockProvider
-						onUploadFinished={ uploadFinished }>
-							<Fragment>
-								{ blockSettings }
-								<ResumableUpload file={ fileForUpload } { ...this.props } />
-							</Fragment>
+					<VideoPressBlockProvider onUploadFinished={ uploadFinished }>
+						<Fragment>
+							{ blockSettings }
+							<ResumableUpload file={ fileForUpload } { ...this.props } />
+						</Fragment>
 					</VideoPressBlockProvider>
-				)
+				);
 			}
 
 			/*
-			* The Loading/CoreVideoEdit blocks should be in the tree if :
-			*     - We don't have a video GUID
-			*     - Or we're uploading a video
-			*     - Or we're in fallback mode (to display a video hosted locally for instance)
-			* In all other cases, we should be able to safely display the Loading/VpBlock branch.
-			*/
+			 * The Loading/CoreVideoEdit blocks should be in the tree if :
+			 *     - We don't have a video GUID
+			 *     - Or we're uploading a video
+			 *     - Or we're in fallback mode (to display a video hosted locally for instance)
+			 * In all other cases, we should be able to safely display the Loading/VpBlock branch.
+			 */
 
 			const isFetchingVideo = isFetchingMedia || isFetchingPreview;
 			const renderCoreVideoAndLoadingBlocks = fallback || isUploading || ! guid;
@@ -660,7 +659,7 @@ const VideoPressEdit = CoreVideoEdit =>
 											'Generating preview…',
 											'jetpack',
 											/* dummy arg to avoid bad minification */ 0
-										)
+									  )
 							}
 						/>
 					</div>
@@ -674,13 +673,12 @@ const VideoPressEdit = CoreVideoEdit =>
 				return resumableUploadEnabled ? (
 					<VideoPressBlockProvider
 						onFilesSelected={ filesSelected }
-						onMediaItemSelected= { mediaItemSelected }>
+						onMediaItemSelected={ mediaItemSelected }
+					>
 						{ coreVideoFragment }
 					</VideoPressBlockProvider>
 				) : (
-					<Fragment>
-						{ coreVideoFragment }
-					</Fragment>
+					<Fragment>{ coreVideoFragment }</Fragment>
 				);
 			}
 
