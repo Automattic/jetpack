@@ -8,20 +8,18 @@ import withMock from 'storybook-addon-mock';
 /**
  * Internal dependencies
  */
-import ProductDetailCard from '../index.jsx';
+import ProductDetailCard, { BackupDetailCard } from '../index.jsx';
 import { backupProductData } from './mock-data.js';
 
 export default {
-	title: 'Packages/My Jetpack/Product Detail Card',
+	title: 'Packages/My Jetpack/Backup Detail Card',
 	component: ProductDetailCard,
 	decorators: [ withMock ],
 };
 
-const Template = args => <ProductDetailCard { ...args } />;
+const Template = args => <BackupDetailCard { ...args } />;
 
-const DefaultArgs = {
-	slug: 'backup',
-};
+const DefaultArgs = {};
 
 export const _default = Template.bind( {} );
 
