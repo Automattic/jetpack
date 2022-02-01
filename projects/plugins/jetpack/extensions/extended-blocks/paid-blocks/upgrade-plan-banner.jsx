@@ -37,19 +37,22 @@ const UpgradePlanBanner = ( {
 		onRedirect
 	);
 
-	const upgradeDescription = useSelect( select => {
-		if ( description ) {
-			return description;
-		}
+	const upgradeDescription = useSelect(
+		select => {
+			if ( description ) {
+				return description;
+			}
 
-		const planSelector = select( 'wordpress-com/plans' );
-		const plan = planSelector && planSelector.getPlan( requiredPlan );
-		if ( plan ) {
-			return sprintf( UPGRADE_NUDGE_PLAN_DESCRIPTION, plan.product_name_short );
-		}
+			const planSelector = select( 'wordpress-com/plans' );
+			const plan = planSelector && planSelector.getPlan( requiredPlan );
+			if ( plan ) {
+				return sprintf( UPGRADE_NUDGE_PLAN_DESCRIPTION, plan.product_name_short );
+			}
 
-		return null;
-	}, [] );
+			return null;
+		},
+		[ description ]
+	);
 
 	return (
 		upgradeDescription && (
