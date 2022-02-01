@@ -617,7 +617,7 @@ const VideoPressEdit = CoreVideoEdit =>
 			const uploadFinished = ( videoGuid = null ) => {
 				this.setState( { fileForUpload: null } );
 				if ( videoGuid ) {
-					setAttributes( { videoGuid } );
+					setAttributes( { guid: videoGuid } );
 				}
 			};
 
