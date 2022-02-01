@@ -37,20 +37,6 @@ function getRowRatio( row ) {
 	return result;
 }
 
-export function getColumnWidths( rows, images, width ) {
-	let cursor = 0;
-	const content = rows.map( row => {
-		return row.map( colSize => {
-			const columnImages = images.slice( cursor, cursor + colSize );
-			cursor += colSize;
-			return columnImages;
-		} );
-	} );
-
-	const result = content.map( row => handleRowResize( row, width ) );
-	return result;
-}
-
 export function getGalleryRows( gallery ) {
 	return Array.from( gallery.querySelectorAll( '.tiled-gallery__row' ) );
 }
