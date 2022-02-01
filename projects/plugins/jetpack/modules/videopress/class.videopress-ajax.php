@@ -85,7 +85,6 @@ class VideoPress_AJAX {
 
 		$args = array(
 			'method' => 'POST',
-			// 'sslverify' => false,
 		);
 
 		$endpoint = "sites/{$options['shadow_blog_id']}/media/token";
