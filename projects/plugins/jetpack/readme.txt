@@ -242,7 +242,7 @@ Jetpack Backup can do a full website migration to a new host, migrate theme file
 4. Promote your newest posts, pages, and products across your social media channels.
 
 == Changelog ==
-### 10.6-beta - 2022-01-25
+### 10.6 - 2022-02-01
 #### Enhancements
 - Contact Info and Markdown Blocks: add color, typography and spacing features.
 - Dashboard: support Beta versions of Automattic plugins in plugin cards.
@@ -268,6 +268,7 @@ Jetpack Backup can do a full website migration to a new host, migrate theme file
 - Pay with Paypal Block: properly display the card icons below the button.
 - Protect: fixed math fallback's input accessibility and display.
 - Scan: avoid PHP notice when non-admin users access the dashboard.
+- Search: Initialize debug bar using correct class
 - Subscription form: adding a default line-height to avoid differences using different font-faces on input and button elements
 - Widget Visibility: ensure it remains possible to edit visibility for legacy widgets in the block-based widget editor.
 
