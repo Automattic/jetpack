@@ -41,7 +41,7 @@ export default function ProductDetailCard( { slug } ) {
 			<ProductIcon slug={ slug } />
 
 			<h3>{ title }</h3>
-			<p>{ longDescription }</p>
+			<p className={ styles.name }>{ longDescription }</p>
 		</div>
 	);
 }

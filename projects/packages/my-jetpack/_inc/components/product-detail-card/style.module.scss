@@ -2,11 +2,18 @@
 	// @todo find a better way to change link color
 	// since this could affect more places
 	--wp-admin-theme-color: var(--jp-black);
+
 	// all css variables used down in product-detail-card
+
+	// Main wrapper
 	--product-card-bg-color: white;
 	--product-card-border-color: #d5d5d5;
 	--product-card-shadow: rgb(0 0 0 / 3%);
 	--product-card-border-radius: 4px;
+
+	// Text
+	--product-card-description-line-height: 1.5;
+	--product-card-description-font-size: 0.9375rem;
 
 	display: flex;
 	flex-direction: column;
@@ -25,6 +32,12 @@
 		margin-top: 48px;
 		line-height: 1.1;
 		color: var( --jp-black );
-		margin: 0;
+		margin: 10px 0;
 	}
+}
+
+.name {
+	line-height: var(--product-card-description-line-height);
+	font-size: var(--product-card-description-font-size);
+	margin: 0 0 22px;
 }
