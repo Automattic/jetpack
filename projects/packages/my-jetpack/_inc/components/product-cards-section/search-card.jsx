@@ -7,7 +7,8 @@ import PropTypes from 'prop-types';
 /**
  * Internal dependencies
  */
-import ProductCard, { PRODUCT_STATUSES } from '../product-card';
+import ProductCard from '../product-card';
+import { useProduct } from '../../hooks/use-product';
 
 const SearchIcon = () => (
 	<svg width="14" height="13" viewBox="0 0 14 13" fill="none" xmlns="http://www.w3.org/2000/svg">
@@ -17,14 +18,19 @@ const SearchIcon = () => (
 );
 
 const SearchCard = ( { admin } ) => {
-	// @todo: implement action handlers
+	const { status, activate, deactivate, detail, isFetching } = useProduct( 'search' );
+	const { name, description } = detail;
+
 	return (
 		<ProductCard
-			name="Search"
-			description="Help them find what they need"
-			status={ PRODUCT_STATUSES.ABSENT }
+			name={ name }
+			description={ description }
+			status={ status }
 			icon={ <SearchIcon /> }
 			admin={ admin }
+			isFetching={ isFetching }
+			onDeactivate={ deactivate }
+			onActivate={ activate }
 		/>
 	);
 };
