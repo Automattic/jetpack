@@ -12,7 +12,7 @@ import { purchasesList, siteWithSecurityPlanResponseBody } from './mock-data';
 import PlansSection from '../index.jsx';
 
 export default {
-	title: 'My Jetpack/Plans Section',
+	title: 'Packages/My Jetpack/Plans Section',
 	component: PlansSection,
 	decorators: [ withMock ],
 	argTypes: {
