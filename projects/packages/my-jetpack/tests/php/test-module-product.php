@@ -91,7 +91,7 @@ class Test_Module_Product extends TestCase {
 	 */
 	public function test_throws_if_module_name_is_missing() {
 		$this->expectException( \Exception::class );
-		require_once 'class-broken-product.php';
+		require_once __DIR__ . '/class-broken-product.php';
 		Broken_Product::is_module_active();
 	}
 

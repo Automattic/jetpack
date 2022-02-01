@@ -71,7 +71,7 @@ $jetpack_dev_debug_modules = array(
 	),
 );
 
-require_once 'class-admin.php';
+require_once __DIR__ . '/class-admin.php';
 
 foreach ( (array) Admin::get_active_modules() as $module ) {
 	if ( isset( $jetpack_dev_debug_modules[ $module ] ) ) {
