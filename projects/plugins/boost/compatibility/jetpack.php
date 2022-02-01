@@ -53,7 +53,7 @@ add_filter( 'option_jetpack_boost_status_lazy-images', __NAMESPACE__ . '\lazy_im
  * Forward all lazy image settings changes to Jetpack
  * when interacting with Jetpack Boost dashboard.
  */
-function lazy_imasges_sync_status( $_unused, $new_value ) {
+function lazy_images_sync_status( $_unused, $new_value ) {
 	if ( $new_value ) {
 		\Jetpack::activate_module( 'lazy-images', false, false );
 	} else {
@@ -63,5 +63,5 @@ function lazy_imasges_sync_status( $_unused, $new_value ) {
 	return $new_value;
 }
 
-add_action( 'add_option_jetpack_boost_status_lazy-images', __NAMESPACE__ . '\lazy_imasges_sync_status', 10, 2 );
-add_action( 'update_option_jetpack_boost_status_lazy-images', __NAMESPACE__ . '\lazy_imasges_sync_status', 10, 2 );
+add_action( 'add_option_jetpack_boost_status_lazy-images', __NAMESPACE__ . '\lazy_images_sync_status', 10, 2 );
+add_action( 'update_option_jetpack_boost_status_lazy-images', __NAMESPACE__ . '\lazy_images_sync_status', 10, 2 );
