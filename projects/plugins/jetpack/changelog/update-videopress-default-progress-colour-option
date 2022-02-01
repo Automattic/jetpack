@@ -1,0 +1,4 @@
+Significance: minor
+Type: other
+
+Changes the default for the `Match video` setting to `true` for VideoPress videos.
