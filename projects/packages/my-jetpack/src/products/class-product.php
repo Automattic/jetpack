@@ -60,11 +60,13 @@ abstract class Product {
 			throw new \Exception( 'Product classes must declare the $slug attribute.' );
 		}
 		return array(
-			'slug'        => static::$slug,
-			'name'        => static::get_name(),
-			'description' => static::get_description(),
-			'status'      => static::get_status(),
-			'class'       => get_called_class(),
+			'slug'             => static::$slug,
+			'name'             => static::get_name(),
+			'description'      => static::get_description(),
+			'long_description' => static::get_long_description(),
+			'features'         => static::get_features(),
+			'status'           => static::get_status(),
+			'class'            => get_called_class(),
 		);
 	}
 
@@ -81,6 +83,20 @@ abstract class Product {
 	 * @return string
 	 */
 	abstract public static function get_description();
+
+	/**
+	 * Get the internationalized product long description
+	 *
+	 * @return string
+	 */
+	abstract public static function get_long_description();
+
+	/**
+	 * Get the internationalized features list
+	 *
+	 * @return array
+	 */
+	abstract public static function get_features();
 
 	/**
 	 * Undocumented function
