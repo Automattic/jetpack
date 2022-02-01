@@ -122,12 +122,7 @@ class Products {
 	 * @return array Object with infromation about the product.
 	 */
 	public static function get_backup_data() {
-		return array(
-			'slug'        => 'backup',
-			'description' => __( 'Save every change', 'jetpack-my-jetpack' ),
-			'name'        => __( 'Backup', 'jetpack-my-jetpack' ),
-			'status'      => 'active',
-		);
+		return Products\Backup::get_info();
 	}
 
 	/**
@@ -145,12 +140,7 @@ class Products {
 	 * @return array Object with infromation about the product.
 	 */
 	public static function get_crm_data() {
-		return array(
-			'slug'        => 'crm',
-			'description' => __( 'Connect with your people', 'jetpack-my-jetpack' ),
-			'name'        => __( 'CRM', 'jetpack-my-jetpack' ),
-			'status'      => 'plugin_absent',
-		);
+		return Products\Crm::get_info();
 	}
 
 	/**
