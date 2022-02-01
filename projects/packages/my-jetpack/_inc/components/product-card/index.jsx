@@ -166,7 +166,7 @@ const ProductCard = props => {
 						/>
 					</ButtonGroup>
 				) : (
-					renderActionButton( props )
+					renderActionButton( { ...props, onActivate: activateHandler } )
 				) }
 				{ ! isAbsent && <div className={ statusClassName }>{ flagLabel }</div> }
 			</div>
