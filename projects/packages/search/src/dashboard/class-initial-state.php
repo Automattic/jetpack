@@ -80,6 +80,7 @@ class Initial_State {
 				'search'                 => $this->module_control->is_active(),
 				'instant_search_enabled' => $this->module_control->is_instant_search_enabled(),
 			),
+			// phpcs:ignore WordPress.Security.NonceVerification.Recommended
 			'features'        => filter_var_array( explode( ',', $_GET['features'] ), FILTER_SANITIZE_STRING ),
 		);
 	}
