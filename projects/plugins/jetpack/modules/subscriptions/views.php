@@ -131,7 +131,7 @@ class Jetpack_Subscriptions_Widget extends WP_Widget {
 		$before_widget = isset( $args['before_widget'] ) ? $args['before_widget'] : '';
 		$instance      = wp_parse_args( (array) $instance, $this->defaults() );
 
-		echo $before_widget;
+		echo $before_widget; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
 
 		self::$instance_count ++;
 
@@ -141,7 +141,7 @@ class Jetpack_Subscriptions_Widget extends WP_Widget {
 
 		self::render_widget_subscription_form( $args, $instance, $subscribe_email );
 
-		echo "\n" . $after_widget;
+		echo "\n" . $after_widget; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
 	}
 
 	/**
@@ -721,50 +721,50 @@ class Jetpack_Subscriptions_Widget extends WP_Widget {
 		if ( self::is_wpcom() ) :
 			?>
 			<p>
-				<label for="<?php echo $this->get_field_id( 'title' ); ?>">
-					<?php _e( 'Widget title for non-followers:', 'jetpack' ); ?>
-					<input class="widefat" id="<?php echo $this->get_field_id( 'title' ); ?>"
-						name="<?php echo $this->get_field_name( 'title' ); ?>" type="text"
-						value="<?php echo $title; ?>"/>
+				<label for="<?php echo esc_attr( $this->get_field_id( 'title' ) ); ?>">
+					<?php esc_html_e( 'Widget title for non-followers:', 'jetpack' ); ?>
+					<input class="widefat" id="<?php echo esc_attr( $this->get_field_id( 'title' ) ); ?>"
+						name="<?php echo esc_attr( $this->get_field_name( 'title' ) ); ?>" type="text"
+						value="<?php echo esc_attr( $title ); ?>"/>
 				</label>
 			</p>
 			<p>
-				<label for="<?php echo $this->get_field_id( 'title_following' ); ?>">
-					<?php _e( 'Widget title for followers:', 'jetpack' ); ?>
-					<input class="widefat" id="<?php echo $this->get_field_id( 'title_following' ); ?>"
-						name="<?php echo $this->get_field_name( 'title_following' ); ?>" type="text"
-						value="<?php echo $title_following; ?>"/>
+				<label for="<?php echo esc_attr( $this->get_field_id( 'title_following' ) ); ?>">
+					<?php esc_html_e( 'Widget title for followers:', 'jetpack' ); ?>
+					<input class="widefat" id="<?php echo esc_attr( $this->get_field_id( 'title_following' ) ); ?>"
+						name="<?php echo esc_attr( $this->get_field_name( 'title_following' ) ); ?>" type="text"
+						value="<?php echo esc_attr( $title_following ); ?>"/>
 				</label>
 			</p>
 			<p>
-				<label for="<?php echo $this->get_field_id( 'subscribe_logged_in' ); ?>">
-					<?php _e( 'Optional text to display to logged in WordPress.com users:', 'jetpack' ); ?>
-					<textarea style="width: 95%" id="<?php echo $this->get_field_id( 'subscribe_logged_in' ); ?>"
-						name="<?php echo $this->get_field_name( 'subscribe_logged_in' ); ?>"
-						type="text"><?php echo $subscribe_logged_in; ?></textarea>
+				<label for="<?php echo esc_attr( $this->get_field_id( 'subscribe_logged_in' ) ); ?>">
+					<?php esc_html_e( 'Optional text to display to logged in WordPress.com users:', 'jetpack' ); ?>
+					<textarea style="width: 95%" id="<?php echo esc_attr( $this->get_field_id( 'subscribe_logged_in' ) ); ?>"
+						name="<?php echo esc_attr( $this->get_field_name( 'subscribe_logged_in' ) ); ?>"
+						type="text"><?php echo esc_html( $subscribe_logged_in ); ?></textarea>
 				</label>
 			</p>
 			<p>
-				<label for="<?php echo $this->get_field_id( 'subscribe_text' ); ?>">
-					<?php _e( 'Optional text to display to non-WordPress.com users:', 'jetpack' ); ?>
-					<textarea style="width: 95%" id="<?php echo $this->get_field_id( 'subscribe_text' ); ?>"
-						name="<?php echo $this->get_field_name( 'subscribe_text' ); ?>"
-						type="text"><?php echo $subscribe_text; ?></textarea>
+				<label for="<?php echo esc_attr( $this->get_field_id( 'subscribe_text' ) ); ?>">
+					<?php esc_html_e( 'Optional text to display to non-WordPress.com users:', 'jetpack' ); ?>
+					<textarea style="width: 95%" id="<?php echo esc_attr( $this->get_field_id( 'subscribe_text' ) ); ?>"
+						name="<?php echo esc_attr( $this->get_field_name( 'subscribe_text' ) ); ?>"
+						type="text"><?php echo esc_html( $subscribe_text ); ?></textarea>
 				</label>
 			</p>
 			<p>
-				<label for="<?php echo $this->get_field_id( 'subscribe_button' ); ?>">
-					<?php _e( 'Follow Button Text:', 'jetpack' ); ?>
-					<input class="widefat" id="<?php echo $this->get_field_id( 'subscribe_button' ); ?>"
-						name="<?php echo $this->get_field_name( 'subscribe_button' ); ?>" type="text"
-						value="<?php echo $subscribe_button; ?>"/>
+				<label for="<?php echo esc_attr( $this->get_field_id( 'subscribe_button' ) ); ?>">
+					<?php esc_html_e( 'Follow Button Text:', 'jetpack' ); ?>
+					<input class="widefat" id="<?php echo esc_attr( $this->get_field_id( 'subscribe_button' ) ); ?>"
+						name="<?php echo esc_attr( $this->get_field_name( 'subscribe_button' ) ); ?>" type="text"
+						value="<?php echo esc_attr( $subscribe_button ); ?>"/>
 				</label>
 			</p>
 			<p>
-				<label for="<?php echo $this->get_field_id( 'show_subscribers_total' ); ?>">
-					<input type="checkbox" id="<?php echo $this->get_field_id( 'show_subscribers_total' ); ?>"
-						name="<?php echo $this->get_field_name( 'show_subscribers_total' ); ?>"
-						value="1"<?php echo $show_subscribers_total; ?> />
+				<label for="<?php echo esc_attr( $this->get_field_id( 'show_subscribers_total' ) ); ?>">
+					<input type="checkbox" id="<?php echo esc_attr( $this->get_field_id( 'show_subscribers_total' ) ); ?>"
+						name="<?php echo esc_attr( $this->get_field_name( 'show_subscribers_total' ) ); ?>"
+						value="1"<?php echo esc_attr( $show_subscribers_total ); ?> />
 					<?php
 					/* translators: %s: Number of followers. */
 					echo esc_html( sprintf( _n( 'Show total number of followers? (%s follower)', 'Show total number of followers? (%s followers)', $subscribers_total, 'jetpack' ), number_format_i18n( $subscribers_total ) ) );
@@ -777,50 +777,50 @@ class Jetpack_Subscriptions_Widget extends WP_Widget {
 		if ( self::is_jetpack() ) :
 			?>
 			<p>
-				<label for="<?php echo $this->get_field_id( 'title' ); ?>">
-					<?php _e( 'Widget title:', 'jetpack' ); ?>
-					<input class="widefat" id="<?php echo $this->get_field_id( 'title' ); ?>"
-						name="<?php echo $this->get_field_name( 'title' ); ?>" type="text"
+				<label for="<?php echo esc_attr( $this->get_field_id( 'title' ) ); ?>">
+					<?php esc_html_e( 'Widget title:', 'jetpack' ); ?>
+					<input class="widefat" id="<?php echo esc_attr( $this->get_field_id( 'title' ) ); ?>"
+						name="<?php echo esc_attr( $this->get_field_name( 'title' ) ); ?>" type="text"
 						value="<?php echo esc_attr( $title ); ?>"/>
 				</label>
 			</p>
 			<p>
-				<label for="<?php echo $this->get_field_id( 'subscribe_text' ); ?>">
-					<?php _e( 'Optional text to display to your readers:', 'jetpack' ); ?>
-					<textarea class="widefat" id="<?php echo $this->get_field_id( 'subscribe_text' ); ?>"
-						name="<?php echo $this->get_field_name( 'subscribe_text' ); ?>"
+				<label for="<?php echo esc_attr( $this->get_field_id( 'subscribe_text' ) ); ?>">
+					<?php esc_html_e( 'Optional text to display to your readers:', 'jetpack' ); ?>
+					<textarea class="widefat" id="<?php echo esc_attr( $this->get_field_id( 'subscribe_text' ) ); ?>"
+						name="<?php echo esc_attr( $this->get_field_name( 'subscribe_text' ) ); ?>"
 						rows="3"><?php echo esc_html( $subscribe_text ); ?></textarea>
 				</label>
 			</p>
 			<p>
-				<label for="<?php echo $this->get_field_id( 'subscribe_placeholder' ); ?>">
+				<label for="<?php echo esc_attr( $this->get_field_id( 'subscribe_placeholder' ) ); ?>">
 					<?php esc_html_e( 'Subscribe Placeholder:', 'jetpack' ); ?>
-					<input class="widefat" id="<?php echo $this->get_field_id( 'subscribe_placeholder' ); ?>"
-						name="<?php echo $this->get_field_name( 'subscribe_placeholder' ); ?>" type="text"
+					<input class="widefat" id="<?php echo esc_attr( $this->get_field_id( 'subscribe_placeholder' ) ); ?>"
+						name="<?php echo esc_attr( $this->get_field_name( 'subscribe_placeholder' ) ); ?>" type="text"
 						value="<?php echo esc_attr( $subscribe_placeholder ); ?>"/>
 				</label>
 			</p>
 			<p>
-				<label for="<?php echo $this->get_field_id( 'subscribe_button' ); ?>">
-					<?php _e( 'Subscribe Button:', 'jetpack' ); ?>
-					<input class="widefat" id="<?php echo $this->get_field_id( 'subscribe_button' ); ?>"
-						name="<?php echo $this->get_field_name( 'subscribe_button' ); ?>" type="text"
+				<label for="<?php echo esc_attr( $this->get_field_id( 'subscribe_button' ) ); ?>">
+					<?php esc_html_e( 'Subscribe Button:', 'jetpack' ); ?>
+					<input class="widefat" id="<?php echo esc_attr( $this->get_field_id( 'subscribe_button' ) ); ?>"
+						name="<?php echo esc_attr( $this->get_field_name( 'subscribe_button' ) ); ?>" type="text"
 						value="<?php echo esc_attr( $subscribe_button ); ?>"/>
 				</label>
 			</p>
 			<p>
-				<label for="<?php echo $this->get_field_id( 'success_message' ); ?>">
-					<?php _e( 'Success Message Text:', 'jetpack' ); ?>
-					<textarea class="widefat" id="<?php echo $this->get_field_id( 'success_message' ); ?>"
-						name="<?php echo $this->get_field_name( 'success_message' ); ?>"
+				<label for="<?php echo esc_attr( $this->get_field_id( 'success_message' ) ); ?>">
+					<?php esc_html_e( 'Success Message Text:', 'jetpack' ); ?>
+					<textarea class="widefat" id="<?php echo esc_attr( $this->get_field_id( 'success_message' ) ); ?>"
+						name="<?php echo esc_attr( $this->get_field_name( 'success_message' ) ); ?>"
 						rows="5"><?php echo esc_html( $success_message ); ?></textarea>
 				</label>
 			</p>
 			<p>
-				<label for="<?php echo $this->get_field_id( 'show_subscribers_total' ); ?>">
-					<input type="checkbox" id="<?php echo $this->get_field_id( 'show_subscribers_total' ); ?>"
-						name="<?php echo $this->get_field_name( 'show_subscribers_total' ); ?>"
-						value="1"<?php echo $show_subscribers_total; ?> />
+				<label for="<?php echo esc_attr( $this->get_field_id( 'show_subscribers_total' ) ); ?>">
+					<input type="checkbox" id="<?php echo esc_attr( $this->get_field_id( 'show_subscribers_total' ) ); ?>"
+						name="<?php echo esc_attr( $this->get_field_name( 'show_subscribers_total' ) ); ?>"
+						value="1"<?php echo esc_attr( $show_subscribers_total ); ?> />
 					<?php
 					/* translators: %s: Number of subscribers. */
 					echo esc_html( sprintf( _n( 'Show total number of subscribers? (%s subscriber)', 'Show total number of subscribers? (%s subscribers)', $subscribers_total, 'jetpack' ), $subscribers_total ) );
