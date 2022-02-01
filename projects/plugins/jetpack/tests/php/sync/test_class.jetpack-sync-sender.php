@@ -5,6 +5,7 @@ use Automattic\Jetpack\Sync\Defaults;
 use Automattic\Jetpack\Sync\Lock;
 use Automattic\Jetpack\Sync\Modules\Callables;
 use Automattic\Jetpack\Sync\Settings;
+use Automattic\Jetpack\Constants;
 
 
 class WP_Test_Jetpack_Sync_Sender extends WP_Test_Jetpack_Sync_Base {
@@ -569,11 +570,11 @@ class WP_Test_Jetpack_Sync_Sender extends WP_Test_Jetpack_Sync_Base {
 	 * Validate that WP_Error is returned in do_sync if JETPACK_SYNC_READ_ONLY is defined and true.
 	 */
 	public function test_do_sync_errors_if_read_only() {
-		\Automattic\Jetpack\Constants::set_constant( 'JETPACK_SYNC_READ_ONLY', true );
+		Constants::set_constant( 'JETPACK_SYNC_READ_ONLY', true );
 
 		$this->factory->post->create();
 		$response = $this->sender->do_sync();
-		\Automattic\Jetpack\Constants::clear_single_constant( 'JETPACK_SYNC_READ_ONLY' );
+		Constants::clear_single_constant( 'JETPACK_SYNC_READ_ONLY' );
 
 		$this->assertTrue( is_wp_error( $response ) );
 	}
@@ -582,11 +583,11 @@ class WP_Test_Jetpack_Sync_Sender extends WP_Test_Jetpack_Sync_Base {
 	 * Validate that WP_Error is returned in do_full_sync if JETPACK_SYNC_READ_ONLY is defined and true.
 	 */
 	public function test_do_full_sync_errors_if_read_only() {
-		\Automattic\Jetpack\Constants::set_constant( 'JETPACK_SYNC_READ_ONLY', true );
+		Constants::set_constant( 'JETPACK_SYNC_READ_ONLY', true );
 
 		$this->factory->post->create();
 		$response = $this->sender->do_full_sync();
-		\Automattic\Jetpack\Constants::clear_single_constant( 'JETPACK_SYNC_READ_ONLY' );
+		Constants::clear_single_constant( 'JETPACK_SYNC_READ_ONLY' );
 
 		$this->assertTrue( is_wp_error( $response ) );
 	}
@@ -641,6 +642,80 @@ class WP_Test_Jetpack_Sync_Sender extends WP_Test_Jetpack_Sync_Base {
 		$this->assertFalse( $this->dedicated_sync_request_spawned );
 		$this->assertTrue( is_wp_error( $result ) );
 		$this->assertEquals( 'locked_queue_sync', $result->get_error_code() );
+
+		Settings::update_settings( array( 'sync_spawning_enabled' => 0 ) );
+		$this->sender->get_sync_queue()->reset();
+	}
+
+	/**
+	 * Test do_sync will NOT re-spawn a dedicated Sync request if queue is empty.
+	 */
+	public function test_do_sync_will_not_re_spawn_dedicated_sync_request_with_empty_queue() {
+		Settings::update_settings( array( 'sync_spawning_enabled' => 1 ) );
+		$this->factory->post->create();
+		// Current "request" is dedicated Sync request.
+		$_SERVER['REQUEST_METHOD']               = 'POST';
+		$_POST['jetpack_dedicated_sync_request'] = 1;
+		$_POST['nonce']                          = wp_create_nonce( 'jetpack_sync_dedicated_request_sync' );
+
+		add_filter( 'pre_http_request', array( $this, 'pre_http_sync_request_spawned' ), 10, 3 );
+		$result = $this->sender->do_sync();
+		remove_filter( 'pre_http_request', array( $this, 'pre_http_sync_request_spawned' ) );
+
+		$this->assertFalse( $this->dedicated_sync_request_spawned );
+		$this->assertTrue( is_wp_error( $result ) );
+		$this->assertEquals( 'empty_queue_sync', $result->get_error_code() );
+
+		Settings::update_settings( array( 'sync_spawning_enabled' => 0 ) );
+		$this->sender->get_sync_queue()->reset();
+	}
+
+	/**
+	 * Test do_sync will NOT re-spawn a dedicated Sync request Sync result if JETPACK_SYNC_READ_ONLY is defined and true.
+	 */
+	public function test_do_sync_will_not_re_spawn_dedicated_sync_request_if_read_only() {
+		Settings::update_settings( array( 'sync_spawning_enabled' => 1 ) );
+		Constants::set_constant( 'JETPACK_SYNC_READ_ONLY', true );
+		$this->factory->post->create();
+		// Current "request" is dedicated Sync request.
+		$_SERVER['REQUEST_METHOD']               = 'POST';
+		$_POST['jetpack_dedicated_sync_request'] = 1;
+		$_POST['nonce']                          = wp_create_nonce( 'jetpack_sync_dedicated_request_sync' );
+
+		add_filter( 'pre_http_request', array( $this, 'pre_http_sync_request_spawned' ), 10, 3 );
+		$result = $this->sender->do_sync();
+		remove_filter( 'pre_http_request', array( $this, 'pre_http_sync_request_spawned' ) );
+
+		$this->assertFalse( $this->dedicated_sync_request_spawned );
+		$this->assertTrue( is_wp_error( $result ) );
+		$this->assertEquals( 'jetpack_sync_read_only', $result->get_error_code() );
+
+		Settings::update_settings( array( 'sync_spawning_enabled' => 0 ) );
+		Constants::clear_single_constant( 'JETPACK_SYNC_READ_ONLY' );
+		$this->sender->get_sync_queue()->reset();
+	}
+
+	/**
+	 * Test do_sync will re-spawn a dedicated Sync request..
+	 */
+	public function test_do_sync_will_re_spawn_dedicated_sync_request() {
+		Settings::update_settings( array( 'sync_spawning_enabled' => 1 ) );
+		// Process one action at each run.
+		$this->sender->set_upload_max_rows( 1 );
+		// Trigger two new actions.
+		$this->factory->post->create();
+		$this->factory->post->create();
+		// Current "request" is dedicated Sync request.
+		$_SERVER['REQUEST_METHOD']               = 'POST';
+		$_POST['jetpack_dedicated_sync_request'] = 1;
+		$_POST['nonce']                          = wp_create_nonce( 'jetpack_sync_dedicated_request_sync' );
+
+		add_filter( 'pre_http_request', array( $this, 'pre_http_sync_request_spawned' ), 10, 3 );
+		$result = $this->sender->do_sync();
+		remove_filter( 'pre_http_request', array( $this, 'pre_http_sync_request_spawned' ) );
+
+		$this->assertTrue( $this->dedicated_sync_request_spawned );
+		$this->assertTrue( $result );
 
 		Settings::update_settings( array( 'sync_spawning_enabled' => 0 ) );
 		$this->sender->get_sync_queue()->reset();

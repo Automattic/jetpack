@@ -40,6 +40,45 @@ class Test_Spawner extends BaseTestCase {
 	 */
 	public function tear_down() {
 		WorDBless_Options::init()->clear_options();
+		unset( $_SERVER['REQUEST_METHOD'] );
+		unset( $_POST ); // phpcs:ignore WordPress.Security.NonceVerification.Missing
+	}
+
+	/**
+	 * Tests Spawner::is_dedicated_sync_request.
+	 */
+	public function test_is_dedicated_sync_request() {
+		$_SERVER['REQUEST_METHOD']               = 'POST';
+		$_POST['jetpack_dedicated_sync_request'] = 1;
+		$_POST['nonce']                          = wp_create_nonce( 'jetpack_sync_dedicated_request_sync' );
+
+		$result = Spawner::is_dedicated_sync_request( $this->queue );
+
+		$this->assertTrue( $result );
+	}
+
+	/**
+	 * Tests Spawner::is_dedicated_sync_request with a random request.
+	 */
+	public function test_is_dedicated_sync_request_with_random_request() {
+		$_SERVER['REQUEST_METHOD'] = 'GET';
+
+		$result = Spawner::is_dedicated_sync_request( $this->queue );
+
+		$this->assertFalse( $result );
+	}
+
+	/**
+	 * Tests Spawner::is_dedicated_sync_request with nonce missing.
+	 */
+	public function test_is_dedicated_sync_request_with_nonce_missing() {
+		$_SERVER['REQUEST_METHOD']               = 'POST';
+		$_POST['jetpack_dedicated_sync_request'] = 1;
+
+		$result = Spawner::is_dedicated_sync_request( $this->queue );
+
+		$this->assertTrue( is_wp_error( $result ) );
+		$this->assertEquals( 'invalid_nonce', $result->get_error_code() );
 	}
 
 	/**
