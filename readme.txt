@@ -2,7 +2,7 @@
 * Contributors: donncha, automattic
 * Tags: performance, caching, wp-cache, wp-super-cache, cache
 * Tested up to: 5.9
-* Stable tag: 1.7.6
+* Stable tag: 1.7.7
 * Requires at least: 3.1
 * Requires PHP: 5.2.4
 * License: GPLv2 or later
@@ -268,6 +268,9 @@ Your theme is probably responsive which means it resizes the page to suit whatev
 
 
 ## Changelog ##
+
+### 1.7.7 ###
+* Fixes to settings page
 
 ### 1.7.6 ###
 * Fix for PHP < 7.3
@@ -778,4 +781,4 @@ Your theme is probably responsive which means it resizes the page to suit whatev
 
 
 ## Upgrade Notice ##
-Bug fix release
+Fixes for settings page
