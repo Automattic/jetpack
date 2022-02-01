@@ -11,3 +11,6 @@ for file in "${array[@]}"; do
 	echo "Checking $file"
   vendor/bin/phpcs -q -s --standard="$1" --sniffs="$2" --ignore="*/vendor/*,*/wordpress/*" "$file" >> ./tools/phpcs.log || true
 done
+
+echo "Files with errors and warnings logged to /tools/phpcs.log"
+
