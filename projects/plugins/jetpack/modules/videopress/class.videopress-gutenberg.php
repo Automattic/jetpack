@@ -35,6 +35,7 @@ class VideoPress_Gutenberg {
 		add_action( 'init', array( $this, 'register_video_block_with_videopress' ) );
 		add_action( 'jetpack_register_gutenberg_extensions', array( $this, 'set_extension_availability' ) );
 		add_action( 'enqueue_block_editor_assets', array( $this, 'override_video_upload' ) );
+		add_action( 'enqueue_block_editor_assets', array( $this, 'add_resumable_upload_support' ) );
 	}
 
 	/**
@@ -192,6 +193,24 @@ class VideoPress_Gutenberg {
 	}
 
 	/**
+	 * Temporary method to enable resumable uploads for testing by Automatticians
+	 */
+	public function add_resumable_upload_support() {
+		if (
+			defined( 'IS_WPCOM' ) && IS_WPCOM &&
+			function_exists( 'is_automattician') && is_automattician()
+		) {
+			wp_enqueue_script(
+				'videopress-add-resumable-upload-support',
+				plugins_url( 'js/videopress-add-resumable-upload-support.js', __FILE__ ),
+				null,
+				'1',
+				false
+			);
+		}
+	}
+
+	/**
 	 * Replaces the video uploaded in the block editor.
 	 *
 	 * Enqueues a script that registers an API fetch middleware replacing the video uploads in Gutenberg so they are
@@ -213,13 +232,6 @@ class VideoPress_Gutenberg {
 			JETPACK__VERSION,
 			false
 		);
-
-		if ( function_exists( 'is_automattician' ) && is_automattician() ) {
-			wp_add_inline_script(
-				'jetpack-videopress-gutenberg-override-video-upload',
-				'var videoPressResumableEnabled = true;'
-			);
-		};
 	}
 }
 
