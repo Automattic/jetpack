@@ -1,39 +1,22 @@
 <?php
 /**
- * Boost product
+ * Testing class
  *
  * @package my-jetpack
  */
 
-namespace Automattic\Jetpack\My_Jetpack\Products;
-
-use Automattic\Jetpack\My_Jetpack\Product;
+namespace Automattic\Jetpack\My_Jetpack;
 
 /**
- * Class responsible for handling the CRM product
+ * Broken product for testing
  */
-class Crm extends Product {
-
+class Broken_Product extends Module_Product {
 	/**
-	 * The product slug
+	 * Product slug
 	 *
 	 * @var string
 	 */
-	public static $slug = 'crm';
-
-	/**
-	 * The filename (id) of the plugin associated with this product. If not defined, it will default to the Jetpack plugin
-	 *
-	 * @var string
-	 */
-	public static $plugin_filename = 'zero-bs-crm/ZeroBSCRM.php';
-
-	/**
-	 * The slug of the plugin associated with this product. If not defined, it will default to the Jetpack plugin
-	 *
-	 * @var string
-	 */
-	public static $plugin_slug = 'zero-bs-crm';
+	public static $slug = 'broken';
 
 	/**
 	 * Get the internationalized product name
@@ -65,7 +48,7 @@ class Crm extends Product {
 	/**
 	 * Get the internationalized features list
 	 *
-	 * @return array CRM features list
+	 * @return array Boost features list
 	 */
 	public static function get_features() {
 		return array();

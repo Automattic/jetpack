@@ -1,39 +1,32 @@
 <?php
 /**
- * Boost product
+ * VideoPress product
  *
  * @package my-jetpack
  */
 
 namespace Automattic\Jetpack\My_Jetpack\Products;
 
-use Automattic\Jetpack\My_Jetpack\Product;
+use Automattic\Jetpack\My_Jetpack\Module_Product;
 
 /**
- * Class responsible for handling the Boost product
+ * Class responsible for handling the VideoPress product
  */
-class Boost extends Product {
+class Videopress extends Module_Product {
 
 	/**
 	 * The product slug
 	 *
 	 * @var string
 	 */
-	public static $slug = 'boost';
+	public static $slug = 'videopress';
 
 	/**
-	 * The filename (id) of the plugin associated with this product. If not defined, it will default to the Jetpack plugin
+	 * The Jetpack module name
 	 *
 	 * @var string
 	 */
-	public static $plugin_filename = 'boost/jetpack-boost.php';
-
-	/**
-	 * The slug of the plugin associated with this product. If not defined, it will default to the Jetpack plugin
-	 *
-	 * @var string
-	 */
-	public static $plugin_slug = 'jetpack-boost';
+	public static $module_name = 'videopress';
 
 	/**
 	 * Get the internationalized product name
@@ -41,7 +34,7 @@ class Boost extends Product {
 	 * @return string
 	 */
 	public static function get_name() {
-		return __( 'Boost', 'jetpack-my-jetpack' );
+		return __( 'VideoPress', 'jetpack-my-jetpack' );
 	}
 
 	/**
@@ -50,7 +43,7 @@ class Boost extends Product {
 	 * @return string
 	 */
 	public static function get_description() {
-		return __( 'Instant speed and SEO', 'jetpack-my-jetpack' );
+		return __( 'High quality, ad-free video', 'jetpack-my-jetpack' );
 	}
 
 	/**
@@ -70,4 +63,5 @@ class Boost extends Product {
 	public static function get_features() {
 		return array();
 	}
+
 }
