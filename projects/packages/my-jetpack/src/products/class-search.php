@@ -46,4 +46,22 @@ class Search extends Module_Product {
 		return __( 'Help them find what they need', 'jetpack-my-jetpack' );
 	}
 
+	/**
+	 * Get the internationalized product long description
+	 *
+	 * @return string
+	 */
+	public static function get_long_description() {
+		return ''; // @todo Add long description
+	}
+
+	/**
+	 * Get the internationalized features list
+	 *
+	 * @return array Boost features list
+	 */
+	public static function get_features() {
+		return array();
+	}
+
 }
