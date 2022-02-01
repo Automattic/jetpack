@@ -22,7 +22,7 @@ export const getJWT = function () {
 };
 
 export const resumableUploader = ( { onError, onProgress, onSuccess } ) => {
-	const jwtsForKeys = {}; // TODO seems unecessary
+	const jwtsForKeys = {};
 	return ( file, data ) => {
 		const upload = new tus.Upload( file, {
 			onError: onError,
@@ -70,7 +70,7 @@ export const resumableUploader = ( { onError, onProgress, onSuccess } ) => {
 				} );
 
 				if ( tokenData.key && tokenData.token ) {
-					jwtsForKeys[ data.key ] = tokenData.token;
+					jwtsForKeys[ tokenData.key ] = tokenData.token;
 				}
 			},
 			onBeforeRequest: function ( req ) {
