@@ -10,7 +10,7 @@ import React from 'react';
 import JetpackLogo from '../index.jsx';
 
 export default {
-	title: 'Playground/Jetpack Logo',
+	title: 'JS Packages/Components/Jetpack Logo',
 	component: JetpackLogo,
 	argTypes: {
 		logoColor: { control: 'color' },

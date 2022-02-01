@@ -5,7 +5,7 @@ import { spawnSync } from 'child_process';
 import chalk from 'chalk';
 import * as envfile from 'envfile';
 import fs from 'fs';
-import { dockerFolder, setConfig } from '../helpers/docker-config';
+import { dockerFolder, setConfig } from '../helpers/docker-config.js';
 
 /**
  * Sets default options that are common for most of the commands
@@ -281,9 +281,9 @@ const defaultDockerCmdHandler = async argv => {
 	// TODO: Make it work with all container types, not only e2e
 	if ( argv.type === 'e2e' && argv._[ 1 ] === 'up' && argv.detached ) {
 		console.log( 'Waiting for WordPress to be ready...' );
-		const getContent = () =>
-			new Promise( ( resolve, reject ) => {
-				const https = require( 'http' );
+		const getContent = async () => {
+			const https = await import( 'http' );
+			return new Promise( ( resolve, reject ) => {
 				const request = https.get( `http://localhost:${ envOpts.PORT_WORDPRESS }/`, response => {
 					// handle http errors
 
@@ -300,6 +300,7 @@ const defaultDockerCmdHandler = async argv => {
 				// handle connection errors of the request
 				request.on( 'error', err => reject( err ) );
 			} );
+		};
 
 		await retry( getContent, { times: 24 } ); // 24 * 5000 = 120 sec
 	}
@@ -429,10 +430,20 @@ const execJtCmdHandler = argv => {
 		opts.push( 'break' );
 	} else if ( arg === 'jt-up' ) {
 		cmd = jtTunnelFile;
+		console.warn(
+			chalk.yellow(
+				'Remember! This is creating a tunnel to your local machine. Please use jetpack docker jt-down as soon as you are done with your testing.'
+			)
+		);
 	}
 
 	const jtResult = executor( argv, () => shellExecutor( argv, cmd, opts.concat( jtOpts ) ) );
 	checkProcessResult( jtResult );
+	console.warn(
+		chalk.yellow(
+			'Remember! This is creating a tunnel to your local machine. Please use jetpack docker jt-down as soon as you are done with your testing.'
+		)
+	);
 };
 
 /**

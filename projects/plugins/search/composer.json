@@ -18,11 +18,9 @@
 			"./vendor/phpunit/phpunit/phpunit --colors=always"
 		],
 		"test-coverage": [
-			"@composer install",
 			"php -dpcov.directory=. ./vendor/bin/phpunit --coverage-clover \"$COVERAGE_DIR/clover.xml\""
 		],
 		"test-php": [
-			"@composer install",
 			"@composer phpunit"
 		],
 		"build-production": "echo 'Add your build step to composer.json, please!'",

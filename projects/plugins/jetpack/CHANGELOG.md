@@ -2,7 +2,81 @@
 
 ### This is a list detailing changes for all Jetpack releases.
 
-## 10.5-beta - 2022-01-04
+## 10.6-beta - 2022-01-25
+### Enhancements
+- Dashboard: support Beta versions of Automattic plugins in plugin cards.
+- Contact Info and Markdown Blocks: add color, typography and spacing features.
+- Tiled Gallery Block: improve the block so it can be used within the mobile applications.
+- Search: improve accessibility via headings hierarchy and aria roles.
+
+### Improved compatibility
+- Sharing / AMP plugin: avoid adding sharing's CSS on AMP pages when the sharing feature is not active.
+- Instant Search: synchronize more meta data so the search feature can be used with more third-party plugins.
+
+### Bug fixes
+- Backups: hide backup preparation message for sites without backup.
+- Connection: correctly request list of active features so they can be activated on a reconnection.
+- Pay with Paypal Block: properly display the card icons below the button.
+- Scan: avoid PHP notice when non-admin users access the dashboard.
+- Widget Visibility: ensure it remains possible to edit visibility for legacy widgets in the block-based widget editor.
+
+### Other changes <!-- Non-user-facing changes go here. This section will not be copied to readme.txt. -->
+- Add a comment to explain the reasoning behind an empty scss file.
+- Comment: phpcs linting cleanup.
+- Cover block: avoid the block's placeholder rendering on top of other blocks.
+- Dashboard: update CTAs (wording, layout) in the At A Glance section.
+- Fixed development mode prop type warning in UserLicenseActivationNotice component.
+- Fix PHPCS sniffs in root classes.
+- PHPCS fixes for site verification tools.
+- phpcs fixes for the markdown module
+- Search: add E2E tests for Customberg
+- Search: added E2E tests for the search dashboard
+- Updated package dependencies.
+- Use new Visitor class for determining IP address.
+
+## 10.6-a.3 - 2022-01-18
+### Enhancements
+- Embeds: add support for Descript.com embeds.
+- Image Compare Block: Add `wide` and `full` alignment options
+- Pay with PayPal Block: do not display the block on the frontend if PayPal is misconfigured.
+- Stats: add new filter allowing site owners to exclude IP addresses from being tracked in stats.
+
+### Other changes <!-- Non-user-facing changes go here. This section will not be copied to readme.txt. -->
+- Adds WooCommerce settings to the /v1.4/sites/$site/settings endpoint.
+- Changes the default value of woocommerce_onboarding_profile from array( 0 => false ) to array()
+- Fix various PHPCS warnings and errors in root classes.
+- General: update required node version to v16.13.2
+- Subscription Form block: hide custom success message setting for WordPress.com simple sites.
+- Update composer.lock
+- Update package dependencies
+
+## 10.6-a.1 - 2022-01-11
+### Improved compatibility
+- Subscription form: update the placeholder color to be the same as the text color of the site.
+
+### Bug fixes
+- Donations block: add a missing closing div for the front-end rendering.
+- Donations block: don't display the donations block to visitors unless Stripe is connected.
+- Donations block: fixed an issue which was invalidating existing blocks if they were edited by non-plan owners.
+- Donations block: tweak currency display for the edit control.
+- Protect: fixed math fallback's input accessibility and display.
+- Subscription form: adding a default line-height to avoid differences using different font-faces on input and button elements
+
+### Other changes <!-- Non-user-facing changes go here. This section will not be copied to readme.txt. -->
+- Dashboard: update the links to different Jetpack features in the dashboard.
+- Moved numberFormat component into components js package.
+- Refactor PluginDashItem component to be functional and add README.
+- Remove use of deprecated `~` in sass-loader imports.
+- Search: migrate Classic and Instant Search code to Search package.
+- Search: move search dashboard to the search package.
+- Social Menu: remove role navigation attribute from nav item.
+- VideoPress: change allow_download data path from API (wpcom compat).
+
+## 10.5.1 - 2022-01-24
+### Bug fixes
+- General: avoid Fatal Errors that may happen during the plugin update process.
+
+## 10.5 - 2022-01-11
 ### Enhancements
 - Print Styles: additional interactive elements are now hidden when printing posts (e.g. Likes, Recommended Posts, Share this).
 - VideoPress: add "allow download" option on videos to allow viewers to download the video.
@@ -23,21 +97,26 @@
 - Jetpack: activate the default modules when the site has already been connected before plugin activation.
 - Jetpack: do not display recommendations during an identity crisis.
 - Search: fix styling conflict for Blank Canvas theme.
+- Security: PDF embeds now only display a link, to avoid issues with malicious PDFss that may run arbitrary code.
 - Settings menu: add Jetpack item for sites with Scan product.
 - Sharing Buttons: rely on official sharing buttons only for Facebook share counts.
 - Stats: do not trigger views when post is embedded into another site.
 - VideoPress: reload embed preview on creation until the video size is known.
 - Vimeo Embeds: support more URL formats, such as videos in playlists.
 - WhatsApp block: fix country code for Cyprus.
+- Widget Visibility: fix "Match All" setting being overwritten on save in the block widget editor.
 
 ### Other changes <!-- Non-user-facing changes go here. This section will not be copied to readme.txt. -->
+- AAG upgrade banner: do not display on WoA sites
 - Add get_current_plan() to the WPcom_Admin_Menu.
+- Admin Page: remove CRM card for now.
 - Dashboard: add Jetpack Security Bundle upsell to AAG.
 - Dashboard: add new cards to AAG Dashboard for Boost and CRM plugins.
 - Dashboard: updates the Apps card on the At a Glance page to display links to the Jetpack mobile apps.
 - E2E tests: update readme docs.
 - E2E tests renovate: bump dependencies.
 - Fix a legacy sync test in PHPUnit 9.5.
+- Fix modules using `this` to mean `window`.
 - Hide irrelevant menu items for P2 sites
 - Instant Search: Add missing translator comments and use ordered placeholders in JS sprintf.
 - Janitorial: fix phpcs warnings in multiple widget files.
