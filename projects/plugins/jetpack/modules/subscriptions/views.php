@@ -178,10 +178,10 @@ class Jetpack_Subscriptions_Widget extends WP_Widget {
 	 * @param array $instance The settings for the particular instance of the widget.
 	 */
 	public static function render_widget_status_messages( $instance ) {
-		if ( self::is_jetpack() && isset( $_GET['subscribe'] ) ) {
+		if ( self::is_jetpack() && isset( $_GET['subscribe'] ) ) { // phpcs:ignore WordPress.Security.NonceVerification.Recommended -- Non-sensitive informational output.
 			$success_message   = isset( $instance['success_message'] ) ? stripslashes( $instance['success_message'] ) : '';
 			$subscribers_total = self::fetch_subscriber_count();
-			switch ( $_GET['subscribe'] ) :
+			switch ( $_GET['subscribe'] ) : // phpcs:ignore WordPress.Security.NonceVerification.Recommended
 				case 'invalid_email':
 					?>
 					<p class="error"><?php esc_html_e( 'The email you entered was invalid. Please check and try again.', 'jetpack' ); ?></p>
@@ -272,7 +272,7 @@ class Jetpack_Subscriptions_Widget extends WP_Widget {
 			global $themecolors;
 			$message = '';
 
-			switch ( $_GET['blogsub'] ) {
+			switch ( $_GET['blogsub'] ) { // phpcs:ignore WordPress.Security.NonceVerification.Recommended
 				case 'confirming':
 					$message = __( 'Thanks for subscribing! You&rsquo;ll get an email with a link to confirm your subscription. If you don&rsquo;t get it, please <a href="https://en.support.wordpress.com/contact/">contact us</a>.', 'jetpack' );
 					break;
@@ -465,7 +465,7 @@ class Jetpack_Subscriptions_Widget extends WP_Widget {
 			?>
 			<form action="#" method="post" accept-charset="utf-8" id="<?php echo esc_attr( $form_id ); ?>">
 				<?php
-				if ( $subscribe_text && ( ! isset( $_GET['subscribe'] ) || 'success' !== $_GET['subscribe'] ) ) {
+				if ( $subscribe_text && ( ! isset( $_GET['subscribe'] ) || 'success' !== $_GET['subscribe'] ) ) { // phpcs:ignore WordPress.Security.NonceVerification.Recommended -- Non-sensitive informational output.
 					?>
 					<div id="subscribe-text"><?php echo wp_kses( wpautop( str_replace( '[total-subscribers]', number_format_i18n( $subscribers_total['value'] ), $subscribe_text ) ), 'post' ); ?></div>
 														<?php
@@ -483,7 +483,7 @@ class Jetpack_Subscriptions_Widget extends WP_Widget {
 					</div>
 					<?php
 				}
-				if ( ! isset( $_GET['subscribe'] ) || 'success' !== $_GET['subscribe'] ) {
+				if ( ! isset( $_GET['subscribe'] ) || 'success' !== $_GET['subscribe'] ) { // phpcs:ignore WordPress.Security.NonceVerification.Recommended -- Display of unsubmitted form.
 					?>
 					<p id="subscribe-email">
 						<label id="jetpack-subscribe-label"
@@ -547,7 +547,7 @@ class Jetpack_Subscriptions_Widget extends WP_Widget {
 	 * @return bool Is the person already subscribed.
 	 */
 	public static function is_current_user_subscribed() {
-		$subscribed = isset( $_GET['subscribe'] ) && 'success' === $_GET['subscribe'];
+		$subscribed = isset( $_GET['subscribe'] ) && 'success' === $_GET['subscribe']; // phpcs:ignore WordPress.Security.NonceVerification.Recommended
 
 		if ( self::is_wpcom() && class_exists( 'Blog_Subscription' ) && class_exists( 'Blog_Subscriber' ) ) {
 			$subscribed = is_user_logged_in() && Blog_Subscription::is_subscribed( new Blog_Subscriber() );
@@ -580,9 +580,9 @@ class Jetpack_Subscriptions_Widget extends WP_Widget {
 	 * @return bool
 	 */
 	public static function wpcom_has_status_message() {
-		return isset( $_GET['blogsub'] ) &&
+		return isset( $_GET['blogsub'] ) && // phpcs:ignore WordPress.Security.NonceVerification.Recommended
 			in_array(
-				$_GET['blogsub'],
+				$_GET['blogsub'], // phpcs:ignore WordPress.Security.NonceVerification.Recommended
 				array(
 					'confirming',
 					'blocked',
