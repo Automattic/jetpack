@@ -18,7 +18,7 @@
 
 	// Text
 	--product-card-description-line-height: 1.5;
-	--product-card-description-font-size: 0.9375rem;
+	--product-card-description-font-size: 16px;
 	--product-card-price-font-size: 4rem;
 
 	display: flex;
@@ -43,6 +43,9 @@
 
 	.checkout-button {
 		margin-top: 20px;
+		white-space: pre-line;
+		height: auto;
+		line-height: 26px;
 	}
 }
 
@@ -73,7 +76,6 @@
 	display: flex;
 	flex-wrap: wrap;
 	flex-direction: row;
-	justify-content: space-between;
 	align-items: flex-end;
 	margin-top: auto;
 	color: var(--jp-text-color);
@@ -84,6 +86,10 @@
     display: flex;
 	margin: 0;
 	position: relative;
+
+	&:first-child {
+		margin-right: 10px;
+	}
 
 	.price-symbol {
 		padding-right: 1px;
@@ -124,11 +130,12 @@
 .price-description {
 	color: #787c82;
 	letter-spacing: 0.2px;
+	flex-grow: 2;
 }
 
 .checkout-button {
 	align-self: flex-start;
-	font-size: 1rem;
+	font-size: 16px;
 	padding: 8px 60px;
     text-align: center;;
 	width: 100%;
