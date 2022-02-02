@@ -39,7 +39,11 @@ const RedeemPartnerCouponPostConnection = props => {
 				<span>+</span>
 				<img
 					src={ `${ assetBaseUrl }${ partnerCoupon.partner.logo.src }` }
-					alt=""
+					alt={ sprintf(
+						/* translators: %s: Name of Jetpack partner. */
+						__( 'Logo of %s who are offering a coupon in partnership with Jetpack', 'jetpack' ),
+						partnerCoupon.partner.name
+					) }
 					width={ partnerCoupon.partner.logo.width }
 					height={ partnerCoupon.partner.logo.height }
 				/>
@@ -60,7 +64,16 @@ const RedeemPartnerCouponPostConnection = props => {
 					<h2 className="jetpack-redeem-partner-coupon-post-connection__heading">
 						{ __( 'One free year of Jetpack Backup', 'jetpack' ) }
 					</h2>
-
+				</div>
+				<div
+					className="jetpack-redeem-partner-coupon-post-connection__aside"
+					style={ {
+						backgroundImage: `url(${ assetBaseUrl }/images/jetpack-aside-background.jpg)`,
+					} }
+				>
+					<img src={ assetBaseUrl + '/images/cloud-checkmark.svg' } alt="" />
+				</div>
+				<div className="jetpack-redeem-partner-coupon-post-connection__subcontent">
 					<p>
 						{ sprintf(
 							/* translators: %s: Name of a Jetpack product. */
@@ -86,14 +99,6 @@ const RedeemPartnerCouponPostConnection = props => {
 						) }
 						onClick={ onClick }
 					/>
-				</div>
-				<div
-					className="jetpack-redeem-partner-coupon-post-connection__aside"
-					style={ {
-						backgroundImage: `url(${ assetBaseUrl }/images/jetpack-aside-background.jpg)`,
-					} }
-				>
-					<img src={ assetBaseUrl + '/images/cloud-checkmark.svg' } alt="" />
 				</div>
 			</div>
 		</div>
