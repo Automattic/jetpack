@@ -16,7 +16,7 @@ import {
 	withNotices,
 	SelectControl,
 } from '@wordpress/components';
-import { InspectorControls, InnerBlocks, BlockIcon, BlockControls } from '@wordpress/block-editor';
+import { InspectorControls, InnerBlocks, BlockControls } from '@wordpress/block-editor';
 import { Component } from '@wordpress/element';
 import { applyFilters } from '@wordpress/hooks';
 
@@ -378,7 +378,7 @@ export class MembershipsButtonEdit extends Component {
 				{ ! this.hasUpgradeNudge && this.state.shouldUpgrade && (
 					<div className="wp-block-jetpack-recurring-payments">
 						<Placeholder
-							icon={ <BlockIcon icon={ icon } /> }
+							icon={ icon }
 							label={ __( 'Payments', 'jetpack' ) }
 							notices={ notices }
 							instructions={ __(
@@ -406,7 +406,7 @@ export class MembershipsButtonEdit extends Component {
 				{ ( connected === API_STATE_LOADING ||
 					this.state.addingMembershipAmount === PRODUCT_FORM_SUBMITTED ) &&
 					! this.props.attributes.planId && (
-						<Placeholder icon={ <BlockIcon icon={ icon } /> } notices={ notices }>
+						<Placeholder icon={ icon } notices={ notices }>
 							<Spinner />
 						</Placeholder>
 					) }
@@ -415,11 +415,7 @@ export class MembershipsButtonEdit extends Component {
 					connected === API_STATE_CONNECTED &&
 					products.length === 0 && (
 						<div className="wp-block-jetpack-recurring-payments">
-							<Placeholder
-								icon={ <BlockIcon icon={ icon } /> }
-								label={ __( 'Payments', 'jetpack' ) }
-								notices={ notices }
-							>
+							<Placeholder icon={ icon } label={ __( 'Payments', 'jetpack' ) } notices={ notices }>
 								<div className="components-placeholder__instructions">
 									<p>
 										{ __( 'To use this block, first add at least one payment plan.', 'jetpack' ) }
@@ -436,11 +432,7 @@ export class MembershipsButtonEdit extends Component {
 					connected === API_STATE_CONNECTED &&
 					products.length > 0 && (
 						<div className="wp-block-jetpack-recurring-payments">
-							<Placeholder
-								icon={ <BlockIcon icon={ icon } /> }
-								label={ __( 'Payments', 'jetpack' ) }
-								notices={ notices }
-							>
+							<Placeholder icon={ icon } label={ __( 'Payments', 'jetpack' ) } notices={ notices }>
 								<div className="components-placeholder__instructions">
 									<p>
 										{ __(

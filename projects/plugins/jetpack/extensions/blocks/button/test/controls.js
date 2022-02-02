@@ -13,7 +13,7 @@ import ButtonControls from '../controls';
 // Temporarily mock out the ButtonWidthControl, which is causing errors due to missing
 // dependencies in the jest test runner.
 jest.mock( '../button-width-panel', () => ( {
-    __esModule: true,
+	__esModule: true,
 	default: () => <div>Mocked Width Settings</div>,
 } ) );
 
@@ -66,7 +66,11 @@ describe( 'Inspector settings', () => {
 
 		test( 'loads and displays only default background color options', () => {
 			render( <ButtonControls { ...defaultProps } /> );
-			const backgroundColorPanel = screen.getByText( 'Background' ).closest( 'fieldset' );
+
+			userEvent.click( screen.getByText( 'Background', { ignore: '[aria-hidden=true]' } ) );
+			const backgroundColorPanel = screen
+				.getByText( 'Background' )
+				.closest( 'div.components-dropdown' );
 
 			expect( within( backgroundColorPanel ).queryByText( 'Solid' ) ).not.toBeInTheDocument();
 			expect( within( backgroundColorPanel ).queryByText( 'Gradient' ) ).not.toBeInTheDocument();
@@ -75,25 +79,31 @@ describe( 'Inspector settings', () => {
 		test( 'sets text color attribute', () => {
 			render( <ButtonControls { ...defaultProps } /> );
 
-			const textColors = screen.getByText( 'Text Color' ).closest( 'fieldset' );
+			userEvent.click( screen.getByText( 'Text Color', { ignore: '[aria-hidden=true]' } ) );
+			const textColors = screen.getByText( 'Text Color' ).closest( 'div.components-dropdown' );
 			userEvent.click( within( textColors ).getAllByLabelText( 'Color: ', { exact: false } )[ 0 ] );
 
-			expect( setTextColor.mock.calls[ 0 ] [ 0 ] ).toMatch( /#[a-z0-9]{6,6}/ );
+			expect( setTextColor.mock.calls[ 0 ][ 0 ] ).toMatch( /#[a-z0-9]{6,6}/ );
 		} );
 
 		test( 'sets background color attribute', () => {
 			render( <ButtonControls { ...defaultProps } /> );
 
-			const backgroundSection = screen.getByText( 'Background' ).closest( 'fieldset' );
-			const backgroundColorOption = within( backgroundSection ).getAllByLabelText( 'Color: ', { exact: false } )[ 0 ];
+			userEvent.click( screen.getByText( 'Background', { ignore: '[aria-hidden=true]' } ) );
+			const backgroundSection = screen
+				.getByText( 'Background' )
+				.closest( 'div.components-dropdown' );
+			const backgroundColorOption = within( backgroundSection ).getAllByLabelText( 'Color: ', {
+				exact: false,
+			} )[ 0 ];
 			userEvent.click( backgroundColorOption );
 
-			expect( setBackgroundColor.mock.calls[ 0 ] [ 0 ] ).toMatch( /#[a-z0-9]{6,6}/ );
+			expect( setBackgroundColor.mock.calls[ 0 ][ 0 ] ).toMatch( /#[a-z0-9]{6,6}/ );
 		} );
 	} );
 
-	describe('Color settings when gradients are available', () => {
-		test('loads and displays Gradient Color Settings panel', () => {
+	describe( 'Color settings when gradients are available', () => {
+		test( 'loads and displays Gradient Color Settings panel', () => {
 			render( <ButtonControls { ...defaultProps } isGradientAvailable={ true } /> );
 
 			expect( screen.getByText( 'Background & Text Color' ) ).toBeInTheDocument();
@@ -103,44 +113,67 @@ describe( 'Inspector settings', () => {
 
 		test( 'loads and displays solid and gradient background color options', () => {
 			render( <ButtonControls { ...defaultProps } isGradientAvailable={ true } /> );
-			const backgroundSection = screen.getByText( 'Background' ).closest( 'fieldset' );
 
-			expect( within( backgroundSection ).getByText( 'Solid', { ignore: '[aria-hidden=true]' } ) ).toBeInTheDocument();
-			expect(within(backgroundSection).getByText('Gradient', { ignore: '[aria-hidden=true]' } )).toBeInTheDocument();
-		});
+			userEvent.click( screen.getByText( 'Background', { ignore: '[aria-hidden=true]' } ) );
+			const backgroundSection = screen
+				.getByText( 'Background' )
+				.closest( 'div.components-dropdown' );
+
+			expect(
+				within( backgroundSection ).getByText( 'Solid', { ignore: '[aria-hidden=true]' } )
+			).toBeInTheDocument();
+			expect(
+				within( backgroundSection ).getByText( 'Gradient', { ignore: '[aria-hidden=true]' } )
+			).toBeInTheDocument();
+		} );
 
 		test( 'sets text color attribute', () => {
 			render( <ButtonControls { ...defaultProps } isGradientAvailable={ true } /> );
 
-			const textColors = screen.getByText( 'Text Color' ).closest( 'fieldset' );
+			userEvent.click( screen.getByText( 'Text Color', { ignore: '[aria-hidden=true]' } ) );
+			const textColors = screen.getByText( 'Text Color' ).closest( 'div.components-dropdown' );
 			userEvent.click( within( textColors ).getAllByLabelText( 'Color: ', { exact: false } )[ 0 ] );
 
-			expect( setTextColor.mock.calls[ 0 ] [ 0 ] ).toMatch( /#[a-z0-9]{6,6}/ );
+			expect( setTextColor.mock.calls[ 0 ][ 0 ] ).toMatch( /#[a-z0-9]{6,6}/ );
 		} );
 
 		test( 'sets solid background color attribute', () => {
 			render( <ButtonControls { ...defaultProps } isGradientAvailable={ true } /> );
 
-			const backgroundSection = screen.getByText( 'Background' ).closest( 'fieldset' );
+			userEvent.click( screen.getByText( 'Background', { ignore: '[aria-hidden=true]' } ) );
+			const backgroundSection = screen
+				.getByText( 'Background' )
+				.closest( 'div.components-dropdown' );
 
-			userEvent.click(within(backgroundSection).getByText('Solid', { ignore: '[aria-hidden=true]' } ));
-			userEvent.click(within(backgroundSection).getAllByLabelText('Color: ', { exact: false })[0]);
+			userEvent.click(
+				within( backgroundSection ).getByText( 'Solid', { ignore: '[aria-hidden=true]' } )
+			);
+			userEvent.click(
+				within( backgroundSection ).getAllByLabelText( 'Color: ', { exact: false } )[ 0 ]
+			);
 
-			expect( setBackgroundColor.mock.calls[ 0 ] [ 0 ] ).toMatch( /#[a-z0-9]{6,6}/ );
-        } );
+			expect( setBackgroundColor.mock.calls[ 0 ][ 0 ] ).toMatch( /#[a-z0-9]{6,6}/ );
+		} );
 
 		test( 'sets gradient background color attribute', () => {
 			render( <ButtonControls { ...defaultProps } isGradientAvailable={ true } /> );
 
-			const backgroundSection = screen.getByText( 'Background' ).closest( 'fieldset' );
-			userEvent.click( within( backgroundSection ).getByText( 'Gradient', { ignore: '[aria-hidden=true]' } ) );
-			userEvent.click( within( backgroundSection ).getAllByLabelText( 'Gradient: ', { exact: false } )[ 0 ] );
+			userEvent.click( screen.getByText( 'Background', { ignore: '[aria-hidden=true]' } ) );
+			const backgroundSection = screen
+				.getByText( 'Background' )
+				.closest( 'div.components-dropdown' );
+			userEvent.click(
+				within( backgroundSection ).getByText( 'Gradient', { ignore: '[aria-hidden=true]' } )
+			);
+			userEvent.click(
+				within( backgroundSection ).getAllByLabelText( 'Gradient: ', { exact: false } )[ 0 ]
+			);
 
 			expect( setGradient.mock.calls[ 0 ][ 0 ] ).toMatch( /linear\-gradient\((.+)\)/ );
 		} );
-    } );
+	} );
 
-    describe( 'Border settings', () => {
+	describe( 'Border settings', () => {
 		test( 'loads and displays border radius', () => {
 			render( <ButtonControls { ...defaultProps } /> );
 
@@ -150,11 +183,11 @@ describe( 'Inspector settings', () => {
 		test( 'sets the border radius attribute', () => {
 			render( <ButtonControls { ...defaultProps } /> );
 
-			const borderPanel = screen.getByText('Border Settings').closest('div');
-			const input = borderPanel.querySelector('input[type="number"]');
+			const borderPanel = screen.getByText( 'Border Settings' ).closest( 'div' );
+			const input = borderPanel.querySelector( 'input[type="number"]' );
 			input.focus();
-			fireEvent.change(input, { target: { value: '6' } });
-			expect(setAttributes).toHaveBeenCalledWith({ borderRadius: 6 });
+			fireEvent.change( input, { target: { value: '6' } } );
+			expect( setAttributes ).toHaveBeenCalledWith( { borderRadius: 6 } );
 		} );
 	} );
 } );

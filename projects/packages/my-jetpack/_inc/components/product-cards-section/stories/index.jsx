@@ -9,7 +9,7 @@ import React from 'react';
 import ProductCardsSection from '../index.jsx';
 
 export default {
-	title: 'My Jetpack/Product Cards Section',
+	title: 'Packages/My Jetpack/Product Cards Section',
 	component: ProductCardsSection,
 	parameters: {
 		actions: { argTypesRegex: '^on.*' },

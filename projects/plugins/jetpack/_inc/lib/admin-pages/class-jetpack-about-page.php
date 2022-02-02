@@ -12,7 +12,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 	exit;
 }
 
-require_once 'class.jetpack-admin-page.php';
+require_once __DIR__ . '/class.jetpack-admin-page.php';
 
 /**
  * Builds the landing page and its menu.

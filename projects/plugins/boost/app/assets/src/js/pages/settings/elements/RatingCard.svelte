@@ -24,6 +24,7 @@
 		await makeAdminAjaxRequest( {
 			action: 'set_show_rating_prompt',
 			value: false,
+			// eslint-disable-next-line camelcase
 			nonce: Jetpack_Boost.showRatingPromptNonce,
 		} );
 
