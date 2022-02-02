@@ -24,7 +24,7 @@ for PROJECT in "${PROJECTS[@]}"; do
 	PROJECT_PATH=$(jq -r ".path" <<<"$PROJECT")
 	TARGETS=$(jq -r -e ".ci.targets" "$PROJECT_PATH/package.json")
 
-	if [ "$TARGETS" == "[]" ] || [ "$TARGETS" == "" ]; then
+	if [[ "$TARGETS" == "[]" || "$TARGETS" == "" ]]; then
 		# if no target projects are found run the tests
 		PROJECTS_MATRIX+=("$PROJECT")
 	else
