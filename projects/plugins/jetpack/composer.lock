@@ -1286,14 +1286,17 @@
             "dist": {
                 "type": "path",
                 "url": "../../packages/partner",
-                "reference": "ebfaa48c46285aa4dcb541879d50130f7d922492"
+                "reference": "365b80090b63161a63344465816208ee178bbb1c"
+            },
+            "require": {
+                "automattic/jetpack-connection": "^1.36",
+                "automattic/jetpack-options": "^1.14"
             },
             "require-dev": {
                 "automattic/jetpack-changelogger": "^3.0",
-                "automattic/jetpack-options": "^1.14",
                 "automattic/wordbless": "@dev",
                 "brain/monkey": "2.6.1",
-                "yoast/phpunit-polyfills": "1.0.3"
+                "yoast/phpunit-polyfills": "1.0.2"
             },
             "type": "jetpack-library",
             "extra": {
