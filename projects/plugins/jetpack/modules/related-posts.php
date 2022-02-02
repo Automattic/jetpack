@@ -45,7 +45,7 @@ class Jetpack_RelatedPosts_Module {
 	 * @return null
 	 */
 	public function action_on_load() {
-		require_once 'related-posts/jetpack-related-posts.php';
+		require_once __DIR__ . '/related-posts/jetpack-related-posts.php';
 		Jetpack_RelatedPosts::init();
 
 		if ( is_admin() ) {
@@ -54,7 +54,7 @@ class Jetpack_RelatedPosts_Module {
 
 		// Load Customizer controls.
 		if ( class_exists( WP_Customize_Manager::class ) && class_exists( WP_Customize_Control::class ) ) {
-			require_once 'related-posts/class.related-posts-customize.php';
+			require_once __DIR__ . '/related-posts/class.related-posts-customize.php';
 		}
 	}
 }

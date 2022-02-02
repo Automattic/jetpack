@@ -148,7 +148,7 @@ const ProductCard = props => {
 			<p className={ styles.description }>{ description }</p>
 			<div className={ styles.actions }>
 				{ canDeactivate ? (
-					<ButtonGroup>
+					<ButtonGroup className={ styles.group }>
 						{ renderActionButton( { ...props, onActivate: activateHandler } ) }
 						<DropdownMenu
 							className={ styles.dropdown }
@@ -166,7 +166,7 @@ const ProductCard = props => {
 						/>
 					</ButtonGroup>
 				) : (
-					renderActionButton( props )
+					renderActionButton( { ...props, onActivate: activateHandler } )
 				) }
 				{ ! isAbsent && <div className={ statusClassName }>{ flagLabel }</div> }
 			</div>
