@@ -92,7 +92,7 @@ const JetpackProductDetails = props => {
 			),
 		},
 		jetpack_videopress: {
-			title: __( 'Jetpack Videopress is active!', 'jetpack' ),
+			title: __( 'Jetpack VideoPress is active!', 'jetpack' ),
 			text: __(
 				'Experience high-quality, ad-free video built specifically for WordPress.',
 				'jetpack'
