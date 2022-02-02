@@ -104,8 +104,6 @@ jobs:
         echo "::endgroup::"
 
         if [ "${RUN_NAME}" != atomic ]; then
-          echo "TEST_SITE=atomic" >> $GITHUB_ENV
-
           echo "::group::Build plugin(s)"
           pnpm run build
           echo "::endgroup::"
@@ -117,6 +115,8 @@ jobs:
           echo "::group::Create tunnel"
           pnpm run tunnel:up
           echo "::endgroup::"
+        else
+          echo "TEST_SITE=atomic" >> $GITHUB_ENV
         fi
 
         if [ "${RUN_NAME}" == gutenberg ]; then
@@ -134,7 +134,7 @@ jobs:
         pnpm run test:run -- "${TEST_ARGS[@]}"
 
     - name: Send Slack notification
-      if: ${{ success() }}
+      if: ${{ always() }}
       env:
         GITHUB_CONTEXT: ${{ toJson(github) }}
         SUITE: ${{ matrix.project }}
@@ -152,7 +152,7 @@ jobs:
         pnpm run tunnel:down
 
     - name: Upload test artifacts
-      if: ${{ always() }}
+      if: ${{ success() }}
       continue-on-error: true
       uses: actions/upload-artifact@v2
       with:
