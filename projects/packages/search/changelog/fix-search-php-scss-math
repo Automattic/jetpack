@@ -1,4 +1,0 @@
-Significance: patch
-Type: added
-
-Add `@use "sass:math"` in base styles scss for upcoming `@wordpress/block-editor` 8.1.0 requirement.
