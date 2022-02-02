@@ -125,7 +125,7 @@ module.exports = {
 
 		// JSDoc plugin overrides
 		'jsdoc/check-alignment': 1, // Recommended
-		'jsdoc/check-examples': 1,
+		'jsdoc/check-examples': 0, // See https://github.com/eslint/eslint/issues/14745
 		'jsdoc/check-indentation': 1,
 		'jsdoc/check-param-names': 1, // Recommended
 		'jsdoc/check-syntax': 1,

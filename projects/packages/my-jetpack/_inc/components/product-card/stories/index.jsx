@@ -1,4 +1,5 @@
 /* eslint-disable react/react-in-jsx-scope */
+
 /**
  * External dependencies
  */
@@ -8,9 +9,15 @@ import React from 'react';
  * Internal dependencies
  */
 import ProductCard, { PRODUCT_STATUSES } from '../index.jsx';
+import { initStore } from '../../../state/store';
+
+// Set myJetpackRest global var.
+window.myJetpackRest = {};
+
+initStore();
 
 export default {
-	title: 'My Jetpack/Product Card',
+	title: 'Packages/My Jetpack/Product Card',
 	component: ProductCard,
 	parameters: {
 		actions: { argTypesRegex: '^on.*' },
