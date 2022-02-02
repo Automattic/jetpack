@@ -64,10 +64,6 @@ export default {
 		src: {
 			type: 'string',
 		},
-		useAverageColor: {
-			type: 'boolean',
-			default: false, // forcing false here to be explicit about what is changing even though thats the default.
-		},
 		videoPressTracks: {
 			type: 'array',
 			items: {
@@ -84,6 +80,12 @@ export default {
 	},
 	isEligible: attrs => {
 		return attrs.guid;
+	},
+	migrate: attributes => {
+		return {
+			...attributes,
+			useAverageColor: false,
+		};
 	},
 	save,
 	isDeprecation: true,
