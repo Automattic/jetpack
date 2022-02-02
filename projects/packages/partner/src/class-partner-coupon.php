@@ -73,6 +73,8 @@ class Partner_Coupon {
 
 	/**
 	 * Get singleton instance of class.
+	 *
+	 * @return Partner_Coupon
 	 */
 	public static function get_instance() {
 		if ( is_null( self::$instance ) ) {
@@ -150,18 +152,7 @@ class Partner_Coupon {
 			return;
 		}
 
-		$date = Jetpack_Options::get_option( self::$added_option, '' );
-
-		if ( empty( $date ) ) {
-			return;
-		}
-
-		$expire_date = strtotime( '+30 days', $date );
-		$today       = time();
-
-		if ( $today >= $expire_date ) {
-			$this->delete_coupon_data();
-
+		if ( $this->maybe_purge_coupon_by_added_date() ) {
 			return;
 		}
 
@@ -174,13 +165,59 @@ class Partner_Coupon {
 
 		Jetpack_Options::update_raw_option( self::$last_check_option, time() );
 
+		$this->maybe_purge_coupon_by_availability_check();
+	}
+
+	/**
+	 * Purge coupon based on local added date.
+	 *
+	 * We automatically remove the coupon after a month to "self-heal" if
+	 * something in the claim process has broken with the site.
+	 *
+	 * @return bool Return whether we deleted coupon data.
+	 */
+	protected function maybe_purge_coupon_by_added_date() {
+		$date = Jetpack_Options::get_option( self::$added_option, '' );
+
+		if ( empty( $date ) ) {
+			return false;
+		}
+
+		$expire_date = strtotime( '+30 days', $date );
+		$today       = time();
+
+		if ( $today >= $expire_date ) {
+			$this->delete_coupon_data();
+
+			return true;
+		}
+
+		return false;
+	}
+
+	/**
+	 * Purge coupon based on availability check.
+	 *
+	 * @param string|null $connection_client The connection client to remotely look up availability.
+	 * @return bool Return whether we deleted coupon data.
+	 */
+	protected function maybe_purge_coupon_by_availability_check( $connection_client = null ) {
+		// Allow for client dependency injection to allow for mock client during unit testing.
+		if (
+			empty( $connection_client ) ||
+			! class_exists( $connection_client ) ||
+			! method_exists( $connection_client, 'wpcom_json_api_request_as_blog' )
+		) {
+			$connection_client = Connection_Client::class;
+		}
+
 		$jetpack_id = Jetpack_Options::get_option( 'id', false );
 		if ( ! $jetpack_id ) {
-			return;
+			return false;
 		}
 
 		$coupon   = self::get_coupon();
-		$response = Connection_Client::wpcom_json_api_request_as_blog(
+		$response = $connection_client::wpcom_json_api_request_as_blog(
 			sprintf(
 				'/sites/%d/jetpack-partner/coupon/v1/site/coupon?coupon_code=%s',
 				$jetpack_id,
@@ -200,7 +237,11 @@ class Partner_Coupon {
 			false === $body['available']
 		) {
 			$this->delete_coupon_data();
+
+			return true;
 		}
+
+		return false;
 	}
 
 	/**
