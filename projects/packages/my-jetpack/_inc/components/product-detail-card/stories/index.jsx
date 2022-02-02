@@ -8,21 +8,20 @@ import withMock from 'storybook-addon-mock';
 /**
  * Internal dependencies
  */
-import ProductDetailCard, { BackupDetailCard } from '../index.jsx';
-import { backupProductData } from './mock-data.js';
+import ProductDetailCard, { BackupDetailCard, BoostDetailCard } from '../index.jsx';
+import { backupProductData, boostProductData } from './mock-data.js';
 
 export default {
-	title: 'Packages/My Jetpack/Backup Detail Card',
+	title: 'Packages/My Jetpack/Product Detail Card',
 	component: ProductDetailCard,
 	decorators: [ withMock ],
 };
 
-const Template = args => <BackupDetailCard { ...args } />;
-
 const DefaultArgs = {};
 
-export const _default = Template.bind( {} );
+const DefaultBackupDetailCard = args => <BackupDetailCard { ...args } />;
 
+export const _default = DefaultBackupDetailCard.bind( {} );
 _default.parameters = {
 	mockData: [
 		{
@@ -33,5 +32,30 @@ _default.parameters = {
 		},
 	],
 };
-
 _default.args = DefaultArgs;
+
+const BackupTemplate = args => <BackupDetailCard { ...args } />;
+export const JetpackBackup = BackupTemplate.bind( {} );
+JetpackBackup.parameters = {
+	mockData: [
+		{
+			url: 'my-jetpack/v1/site/products/boost?_locale=user',
+			method: 'GET',
+			status: 200,
+			response: boostProductData,
+		},
+	],
+};
+
+const BoostTemplate = args => <BoostDetailCard { ...args } />;
+export const JetpackBoost = BoostTemplate.bind( {} );
+JetpackBoost.parameters = {
+	mockData: [
+		{
+			url: 'my-jetpack/v1/site/products/boost?_locale=user',
+			method: 'GET',
+			status: 200,
+			response: boostProductData,
+		},
+	],
+};

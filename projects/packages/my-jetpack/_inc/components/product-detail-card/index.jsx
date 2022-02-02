@@ -14,6 +14,7 @@ import { __, sprintf } from '@wordpress/i18n';
 import { useProduct } from '../../hooks/use-product';
 import { BackupIcon } from '../product-cards-section/backup-card';
 import styles from './style.module.scss';
+import { BoostIcon } from '../product-cards-section/boost-card';
 
 /**
  * Simple react component to render the product icon,
@@ -26,6 +27,9 @@ function ProductIcon( { slug } ) {
 	switch ( slug ) {
 		case 'backup':
 			return <BackupIcon />;
+
+		case 'boost':
+			return <BoostIcon />;
 		default:
 			return null;
 	}
@@ -108,4 +112,13 @@ export default function ProductDetailCard( { slug } ) {
  */
 export function BackupDetailCard() {
 	return <ProductDetailCard slug="backup" />;
+}
+
+/**
+ * BoostDetailCard component
+ *
+ * @returns {object} BoostDetailCard react component.
+ */
+export function BoostDetailCard() {
+	return <ProductDetailCard slug="boost" />;
 }
