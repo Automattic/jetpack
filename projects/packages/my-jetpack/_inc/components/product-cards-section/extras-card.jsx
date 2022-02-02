@@ -7,7 +7,8 @@ import PropTypes from 'prop-types';
 /**
  * Internal dependencies
  */
-import ProductCard, { PRODUCT_STATUSES } from '../product-card';
+import ProductCard from '../product-card';
+import { useProduct } from '../../hooks/use-product';
 
 const ExtrasIcon = () => (
 	<svg width="19" height="19" viewBox="0 0 19 19" fill="none" xmlns="http://www.w3.org/2000/svg">
@@ -21,14 +22,19 @@ const ExtrasIcon = () => (
 );
 
 const ExtrasCard = ( { admin } ) => {
-	// @todo: implement action handlers
+	const { status, activate, deactivate, detail, isFetching } = useProduct( 'extras' );
+	const { name, description } = detail;
+
 	return (
 		<ProductCard
-			name="Extras"
-			description="Basic tools for a successful site"
-			status={ PRODUCT_STATUSES.ABSENT }
+			name={ name }
+			description={ description }
+			status={ status }
 			icon={ <ExtrasIcon /> }
 			admin={ admin }
+			isFetching={ isFetching }
+			onDeactivate={ deactivate }
+			onActivate={ activate }
 		/>
 	);
 };

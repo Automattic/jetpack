@@ -8,6 +8,7 @@
 namespace Automattic\Jetpack\My_Jetpack;
 
 use Automattic\Jetpack\Plugins_Installer;
+use WP_Error;
 
 /**
  * Class responsible for handling the products
@@ -50,6 +51,31 @@ abstract class Product {
 	const JETPACK_PLUGIN_FILENAME = 'jetpack/jetpack.php';
 
 	/**
+	 * Whether this product requires a user connection
+	 *
+	 * @var string
+	 */
+	public static $requires_user_connection = true;
+
+	/**
+	 * Get the plugin slug
+	 *
+	 * @return ?string
+	 */
+	public static function get_plugin_slug() {
+		return static::$plugin_slug;
+	}
+
+	/**
+	 * Get the plugin filename
+	 *
+	 * @return ?string
+	 */
+	public static function get_plugin_filename() {
+		return static::$plugin_filename;
+	}
+
+	/**
 	 * Get the Product info for the API
 	 *
 	 * @throws \Exception If required attribute is not declared in the child class.
@@ -60,11 +86,14 @@ abstract class Product {
 			throw new \Exception( 'Product classes must declare the $slug attribute.' );
 		}
 		return array(
-			'slug'        => static::$slug,
-			'name'        => static::get_name(),
-			'description' => static::get_description(),
-			'status'      => static::get_status(),
-			'class'       => get_called_class(),
+			'slug'                     => static::$slug,
+			'name'                     => static::get_name(),
+			'description'              => static::get_description(),
+			'long_description'         => static::get_long_description(),
+			'features'                 => static::get_features(),
+			'status'                   => static::get_status(),
+			'requires_user_connection' => static::$requires_user_connection,
+			'class'                    => get_called_class(),
 		);
 	}
 
@@ -81,6 +110,20 @@ abstract class Product {
 	 * @return string
 	 */
 	abstract public static function get_description();
+
+	/**
+	 * Get the internationalized product long description
+	 *
+	 * @return string
+	 */
+	abstract public static function get_long_description();
+
+	/**
+	 * Get the internationalized features list
+	 *
+	 * @return array
+	 */
+	abstract public static function get_features();
 
 	/**
 	 * Undocumented function
@@ -114,7 +157,7 @@ abstract class Product {
 	 */
 	public static function is_plugin_installed() {
 		$all_plugins = Plugins_Installer::get_plugins();
-		return array_key_exists( static::$plugin_filename, $all_plugins );
+		return array_key_exists( static::get_plugin_filename(), $all_plugins );
 	}
 
 	/**
@@ -123,7 +166,7 @@ abstract class Product {
 	 * @return boolean
 	 */
 	public static function is_plugin_active() {
-		return Plugins_Installer::is_plugin_active( static::$plugin_filename );
+		return Plugins_Installer::is_plugin_active( static::get_plugin_filename() );
 	}
 
 	/**
@@ -148,7 +191,7 @@ abstract class Product {
 	/**
 	 * Activates the product by installing and activating its plugin
 	 *
-	 * @return boolean|\WP_Error
+	 * @return boolean|WP_Error
 	 */
 	public static function activate() {
 		if ( static::is_active() ) {
@@ -156,7 +199,7 @@ abstract class Product {
 		}
 
 		if ( ! static::is_plugin_installed() ) {
-			$installed = Plugins_Installer::install_plugin( static::$plugin_slug );
+			$installed = Plugins_Installer::install_plugin( static::get_plugin_slug() );
 			if ( is_wp_error( $installed ) ) {
 				return $installed;
 			}
@@ -166,7 +209,7 @@ abstract class Product {
 			return new WP_Error( 'not_allowed', __( 'You are not allowed to activate plugins on this site.', 'jetpack-my-jetpack' ) );
 		}
 
-		$result = activate_plugin( static::$plugin_filename );
+		$result = activate_plugin( static::get_plugin_filename() );
 		if ( is_wp_error( $result ) ) {
 			return $result;
 		}
@@ -174,12 +217,12 @@ abstract class Product {
 	}
 
 	/**
-	 * Deactivate the plugin
+	 * Deactivate the product
 	 *
 	 * @return boolean
 	 */
 	public static function deactivate() {
-		deactivate_plugins( static::$plugin_filename );
+		deactivate_plugins( static::get_plugin_filename() );
 		return true;
 	}
 }

@@ -568,7 +568,7 @@ class Jetpack_Network {
 			return;
 		}
 
-		require_once 'class.jetpack-network-sites-list-table.php';
+		require_once __DIR__ . '/class.jetpack-network-sites-list-table.php';
 
 		$network_sites_table = new Jetpack_Network_Sites_List_Table();
 		echo '<div class="wrap"><h2>' . esc_html__( 'Sites', 'jetpack' ) . '</h2>';

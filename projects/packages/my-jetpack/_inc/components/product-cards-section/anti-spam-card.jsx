@@ -7,7 +7,8 @@ import PropTypes from 'prop-types';
 /**
  * Internal dependencies
  */
-import ProductCard, { PRODUCT_STATUSES } from '../product-card';
+import ProductCard from '../product-card';
+import { useProduct } from '../../hooks/use-product';
 
 const AntiSpamIcon = () => (
 	<svg width="14" height="19" viewBox="0 0 14 19" fill="none" xmlns="http://www.w3.org/2000/svg">
@@ -21,14 +22,19 @@ const AntiSpamIcon = () => (
 );
 
 const AntiSpamCard = ( { admin } ) => {
-	// @todo: implement action handlers
+	const { status, activate, deactivate, detail, isFetching } = useProduct( 'anti-spam' );
+	const { name, description } = detail;
+
 	return (
 		<ProductCard
-			name="Anti-spam"
-			description="Stop comment and form spam"
-			status={ PRODUCT_STATUSES.ABSENT }
+			name={ name }
+			description={ description }
+			status={ status }
 			icon={ <AntiSpamIcon /> }
 			admin={ admin }
+			isFetching={ isFetching }
+			onDeactivate={ deactivate }
+			onActivate={ activate }
 		/>
 	);
 };
