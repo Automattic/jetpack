@@ -31,7 +31,6 @@ class CLI extends WP_CLI_Command {
 			$is_force_run = ! empty( $assoc_args['force'] );
 			if ( ! $is_force_run && get_option( Options::OPTION_PREFIX . 'result_format' ) !== false ) {
 				WP_CLI::error( 'Jetpack Search: auto config has run already. You could add option `--force` to force run.' );
-				return;
 			}
 			$blog_id = ( defined( 'IS_WPCOM' ) && constant( 'IS_WPCOM' ) ) ? get_current_blog_id() : Jetpack_Options::get_option( 'id' );
 			Instant_Search::initialize( $blog_id );
