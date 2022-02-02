@@ -42,6 +42,9 @@
 		<exclude name="Squiz.WhiteSpace.SuperfluousWhitespace.EmptyLines" />
 	</rule>
 
+	<!-- Only include select VIP rules -->
+	<rule ref="WordPressVIPMinimum.Files.IncludingFile.NotAbsolutePath" />
+
 	<!-- Elevate undefined variables to an Error instead of a Warning. -->
 	<rule ref="VariableAnalysis.CodeAnalysis.VariableAnalysis.UndefinedVariable">
 		<type>error</type>
