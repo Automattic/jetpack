@@ -22,8 +22,8 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 3
     outputs:
-      matrix: ${{ steps.set-matrix.outputs.matrix }}
-      runName: ${{ steps.set-run-name.outputs.runName }}
+      matrix: ${{ steps.evaluate.outputs.matrix }}
+      runName: ${{ steps.evaluate.outputs.runName }}
     steps:
       - uses: actions/checkout@v2
 
@@ -40,30 +40,18 @@ jobs:
         run: |
           pnpm install
 
-      - name: Evaluate test projects and triggers
+      - name: Create test plan
         id: evaluate
         env:
           CRON: ${{ github.event.schedule }}
         run: |
           TEST_PLAN="$(.github/files/create-e2e-projects-matrix.sh)"
           echo "$TEST_PLAN"
-          echo "::set-output name=testPlan::$TEST_PLAN"
 
-      - name: Set projects matrix
-        id: set-matrix
-        env:
-          TEST_PLAN: ${{ steps.evaluate.outputs.testPlan }}
-        run: |
           MATRIX=$(jq -r -c ".matrix" <<<"$TEST_PLAN")
           echo "$MATRIX"
           echo "::set-output name=matrix::$MATRIX"
 
-      - name: Set run name
-        id: set-run-name
-        env:
-          TEST_PLAN: ${{ steps.evaluate.outputs.testPlan }}
-        run: |
-          RUN_NAME=$(jq -r ".run" <<<"$TEST_PLAN")
           echo "$RUN_NAME"
           echo "::set-output name=runName::$RUN_NAME"
 
