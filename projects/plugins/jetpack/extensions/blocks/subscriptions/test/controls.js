@@ -9,9 +9,7 @@ import '@testing-library/jest-dom/extend-expect';
  * Internal dependencies
  */
 import SubscriptionsInspectorControls from '../controls';
-import {
-	DEFAULT_FONTSIZE_VALUE,
-} from '../constants';
+import { DEFAULT_FONTSIZE_VALUE } from '../constants';
 
 // Temporarily mock out the ButtonWidthControl, which is causing errors due to missing
 // dependencies in the jest test runner.
@@ -68,17 +66,23 @@ describe( 'Inspector controls', () => {
 
 		test( 'sets solid background color', async () => {
 			render( <SubscriptionsInspectorControls { ...defaultProps } /> );
+			userEvent.click(
+				screen.getByText( 'Button Background Color', { ignore: '[aria-hidden=true]' } )
+			);
 			userEvent.click( screen.getByText( 'Solid', { ignore: '[aria-hidden=true]' } ) );
-			userEvent.click( screen.queryAllByLabelText( /Color\: (?!Black)/i, { selector: 'button' } )[0] );
+			userEvent.click(
+				screen.queryAllByLabelText( /Color\: (?!Black)/i, { selector: 'button' } )[ 0 ]
+			);
 
-			expect( setButtonBackgroundColor.mock.calls[0][0] ).toMatch(/#[a-z0-9]{6,6}/);
+			expect( setButtonBackgroundColor.mock.calls[ 0 ][ 0 ] ).toMatch( /#[a-z0-9]{6,6}/ );
 		} );
-
 	} );
 
 	describe( 'Color settings panel', () => {
 		test( 'hides gradient settings control panel', () => {
-			render( <SubscriptionsInspectorControls { ...defaultProps } isGradientAvailable={ false }/> );
+			render(
+				<SubscriptionsInspectorControls { ...defaultProps } isGradientAvailable={ false } />
+			);
 
 			expect( screen.getByText( 'Background Colors' ) ).toBeInTheDocument();
 			expect( screen.queryByText( 'Color Settings' ) ).not.toBeInTheDocument();
@@ -86,10 +90,13 @@ describe( 'Inspector controls', () => {
 
 		test( 'sets gradient background color', async () => {
 			render( <SubscriptionsInspectorControls { ...defaultProps } /> );
+			userEvent.click(
+				screen.getByText( 'Button Background Color', { ignore: '[aria-hidden=true]' } )
+			);
 			userEvent.click( screen.getByText( 'Gradient', { ignore: '[aria-hidden=true]' } ) );
-			userEvent.click( screen.queryAllByLabelText( /Gradient\:/i, { selector: 'button' } )[0] );
+			userEvent.click( screen.queryAllByLabelText( /Gradient\:/i, { selector: 'button' } )[ 0 ] );
 
-			expect( setGradient.mock.calls[0][0] ).toMatch(/linear\-gradient\((.+)\)/);
+			expect( setGradient.mock.calls[ 0 ][ 0 ] ).toMatch( /linear\-gradient\((.+)\)/ );
 		} );
 	} );
 
@@ -103,7 +110,7 @@ describe( 'Inspector controls', () => {
 		test( 'set custom text ', () => {
 			render( <SubscriptionsInspectorControls { ...defaultProps } /> );
 			userEvent.click( screen.getByText( 'Text Settings' ), { selector: 'button' } );
-			userEvent.type( screen.getAllByLabelText( 'Custom Size' )[1], '18' );
+			userEvent.type( screen.getAllByLabelText( 'Custom Size' )[ 1 ], '18' );
 
 			expect( setAttributes ).toHaveBeenLastCalledWith( {
 				fontSize: 18,
@@ -122,7 +129,7 @@ describe( 'Inspector controls', () => {
 		test( 'set border radius', () => {
 			render( <SubscriptionsInspectorControls { ...defaultProps } /> );
 			userEvent.click( screen.getByText( 'Border Settings' ), { selector: 'button' } );
-			const rangeControlElement = screen.getAllByLabelText( 'Border Radius' )[1];
+			const rangeControlElement = screen.getAllByLabelText( 'Border Radius' )[ 1 ];
 			userEvent.clear( rangeControlElement );
 			userEvent.type( rangeControlElement, '5' );
 
@@ -134,7 +141,7 @@ describe( 'Inspector controls', () => {
 		test( 'set border weight', () => {
 			render( <SubscriptionsInspectorControls { ...defaultProps } /> );
 			userEvent.click( screen.getByText( 'Border Settings' ), { selector: 'button' } );
-			const rangeControlElement = screen.getAllByLabelText( 'Border Weight' )[1];
+			const rangeControlElement = screen.getAllByLabelText( 'Border Weight' )[ 1 ];
 			userEvent.clear( rangeControlElement );
 			userEvent.type( rangeControlElement, '5' );
 
@@ -154,7 +161,7 @@ describe( 'Inspector controls', () => {
 		test( 'set space inside', () => {
 			render( <SubscriptionsInspectorControls { ...defaultProps } /> );
 			userEvent.click( screen.getByText( 'Spacing Settings' ), { selector: 'button' } );
-			const rangeControlElement = screen.getAllByLabelText( 'Space Inside' )[1];
+			const rangeControlElement = screen.getAllByLabelText( 'Space Inside' )[ 1 ];
 			userEvent.clear( rangeControlElement );
 			userEvent.type( rangeControlElement, '5' );
 
@@ -166,7 +173,7 @@ describe( 'Inspector controls', () => {
 		test( 'set space between', () => {
 			render( <SubscriptionsInspectorControls { ...defaultProps } /> );
 			userEvent.click( screen.getByText( 'Spacing Settings' ), { selector: 'button' } );
-			const rangeControlElement = screen.getAllByLabelText( 'Space Between' )[1];
+			const rangeControlElement = screen.getAllByLabelText( 'Space Between' )[ 1 ];
 			userEvent.clear( rangeControlElement );
 			userEvent.type( rangeControlElement, '5' );
 
