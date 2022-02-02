@@ -671,7 +671,7 @@ class VideoPress_Player {
 
 			$js_url = 'https://s0.wp.com/wp-content/plugins/video/assets/js/next/videopress-iframe.js';
 
-			return "<iframe width='" . esc_attr( $videopress_options['width'] )
+			return "<iframe title='video player' aria-label='video player' width='" . esc_attr( $videopress_options['width'] )
 				. "' height='" . esc_attr( $videopress_options['height'] )
 				. "' src='" . esc_attr( $iframe_url )
 				. "' frameborder='0' allowfullscreen></iframe>"
