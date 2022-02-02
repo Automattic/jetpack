@@ -17,3 +17,23 @@ import { withA11y } from '@storybook/addon-a11y';
 import './style.scss';
 
 addDecorator( withA11y );
+
+export const parameters = {
+	backgrounds: {
+		default: 'Jetpack Dashboard',
+		values: [
+			{
+				name: 'Jetpack Dashboard',
+				value: 'var(--jp-white-off)',
+			},
+			{
+				name: 'Dark',
+				value: 'rgb(51, 51, 51)',
+			},
+			{
+				name: 'Light',
+				value: '#FFF',
+			},
+		],
+	},
+};

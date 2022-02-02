@@ -96,7 +96,17 @@ const renderActionButton = ( {
 };
 
 const ProductCard = props => {
-	const { name, admin, description, icon, status, onActivate, onDeactivate, isFetching } = props;
+	const {
+		name,
+		admin,
+		description,
+		icon,
+		status,
+		onActivate,
+		onAdd,
+		onDeactivate,
+		isFetching,
+	} = props;
 	const isActive = status === PRODUCT_STATUSES.ACTIVE;
 	const isError = status === PRODUCT_STATUSES.ERROR;
 	const isInactive = status === PRODUCT_STATUSES.INACTIVE;
@@ -139,6 +149,16 @@ const ProductCard = props => {
 		onActivate();
 	};
 
+	/**
+	 * Calls the passed function onAdd after firing Tracks event
+	 */
+	const addHandler = () => {
+		recordEvent( 'jetpack_myjetpack_product_card_add_click', {
+			product: name,
+		} );
+		onAdd();
+	};
+
 	return (
 		<div className={ containerClassName }>
 			<div className={ styles.name }>
@@ -166,7 +186,7 @@ const ProductCard = props => {
 						/>
 					</ButtonGroup>
 				) : (
-					renderActionButton( props )
+					renderActionButton( { ...props, onActivate: activateHandler, onAdd: addHandler } )
 				) }
 				{ ! isAbsent && <div className={ statusClassName }>{ flagLabel }</div> }
 			</div>
