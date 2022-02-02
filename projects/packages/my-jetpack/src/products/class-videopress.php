@@ -64,4 +64,15 @@ class Videopress extends Module_Product {
 		return array();
 	}
 
+	/**
+	 * Get the product princing details
+	 *
+	 * @return array Pricing details
+	 */
+	public static function get_pricing() {
+		return array(
+			'available' => true,
+			'is_free'   => true,
+		);
+	}
 }

@@ -76,4 +76,18 @@ class Backup extends Hybrid_Product {
 		);
 	}
 
+	/**
+	 * Get the product princing details
+	 *
+	 * @return array Pricing details
+	 */
+	public static function get_pricing() {
+		return array(
+			'available'            => true,
+			'currency_code'        => 'USD',
+			'full_price'           => '108',
+			'promotion_percentage' => '50',
+		);
+	}
+
 }
