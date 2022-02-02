@@ -2,7 +2,7 @@
 //phpcs:ignoreFile
 namespace Automattic\Jetpack_Boost\Tests\Lib;
 
-use Automattic\Jetpack_Boost\Lib\Speed_Score_History;
+use Automattic\Jetpack_Boost\Features\Speed_Score\Speed_Score_History;
 use Automattic\Jetpack_Boost\Tests\Base_Test_Case;
 use Brain\Monkey\Functions;
 

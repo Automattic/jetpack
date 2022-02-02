@@ -5,6 +5,20 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.6.0] - 2022-02-02
+### Added
+- Add `@use "sass:math"` in base styles scss for upcoming `@wordpress/block-editor` 8.1.0 requirement.
+- Search package: added package version number and others
+
+### Changed
+- Build: remove unneeded files from production build.
+- Instant Search: add image alt text from API
+- Updated package dependencies.
+
+## [0.5.4] - 2022-01-31
+### Fixed
+- Search: Fetch plan info as blog, not as user, to allow nonconnected admins to use dashboard
+
 ## [0.5.3] - 2022-01-27
 ### Fixed
 - Search package: fixed compatibility issue with plan activation
@@ -74,6 +88,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Updated package dependencies.
 - Update PHPUnit configs to include just what needs coverage rather than include everything then try to exclude stuff that doesn't.
 
+[0.6.0]: https://github.com/Automattic/jetpack-search/compare/v0.5.4...v0.6.0
+[0.5.4]: https://github.com/Automattic/jetpack-search/compare/v0.5.3...v0.5.4
 [0.5.3]: https://github.com/Automattic/jetpack-search/compare/v0.5.2...v0.5.3
 [0.5.2]: https://github.com/Automattic/jetpack-search/compare/v0.5.1...v0.5.2
 [0.5.1]: https://github.com/Automattic/jetpack-search/compare/v0.5.0...v0.5.1

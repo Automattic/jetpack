@@ -59,7 +59,7 @@ class SearchResultProduct extends Component {
 					>
 						{ firstImage ? (
 							<PhotonImage
-								alt={ fields[ 'title.default' ] }
+								alt={ fields[ 'image.alt_text' ] }
 								className="jetpack-instant-search__search-result-product-img"
 								isPhotonEnabled={ this.props.isPhotonEnabled }
 								src={ `//${ firstImage }` }
