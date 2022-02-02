@@ -2,6 +2,32 @@
 
 ### This is a list detailing changes for all Jetpack releases.
 
+## 10.7-a.1 - 2022-02-02
+### Enhancements
+- Add an AMP-compatible version of the email share button.
+- Add transformation from core/buttons to jetpack/recurring-payments block (requires gutenberg >= 11.5.0).
+- Business Hours: Add support for color & spacing design tool.
+- Changed the plan description for invalid plans and added a Warning message for Premium content blocks with invalid plans.
+- Dashboard: update the links used to purchase plans when in Jetpack settings.
+
+### Improved compatibility
+- My Community widget: Hide widget from the block inserter and Legacy widget block drop-down menu
+
+### Bug fixes
+- Fixed several React warnings shown on the console when SCRIPT_DEBUG is active
+- Search: avoid PHP warning when using Search widget.
+- Widget Visibility: ensure role and logged in features are available.
+
+### Other changes <!-- Non-user-facing changes go here. This section will not be copied to readme.txt. -->
+- Added 'jetpack_related_posts_display_markup' filter to update the output HTML of Related Posts module
+- Extract Jetpack_Plugins class to its own package
+- Blocks: Update block fixture docs for running phpunit tests.
+- Build: remove unneeded files from production build.
+- Payments Block: remove wrapper around icons.
+- Updated package dependencies
+- Reduced the data set for the Search Sync tests to speed up the process.
+- Update internal logic for rendering Dashboard sections.
+
 ## 10.6 - 2022-02-01
 ### Enhancements
 - Contact Info and Markdown Blocks: add color, typography and spacing features.
