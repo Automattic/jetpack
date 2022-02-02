@@ -1,4 +1,9 @@
-<?php
+<?php // phpcs:ignore WordPress.Files.FileName.InvalidClassFileName
+/**
+ * A collection of helper functions used in the SSO module.
+ *
+ * @package automattic/jetpack
+ */
 
 if ( ! class_exists( 'Jetpack_SSO_Helpers' ) ) :
 
@@ -13,7 +18,7 @@ if ( ! class_exists( 'Jetpack_SSO_Helpers' ) ) :
 		 *
 		 * @return bool
 		 **/
-		static function should_hide_login_form() {
+		public static function should_hide_login_form() {
 			/**
 			 * Remove the default log in form, only leave the WordPress.com log in button.
 			 *
@@ -32,7 +37,7 @@ if ( ! class_exists( 'Jetpack_SSO_Helpers' ) ) :
 		 *
 		 * @return bool
 		 */
-		static function match_by_email() {
+		public static function match_by_email() {
 			$match_by_email = ( 1 == get_option( 'jetpack_sso_match_by_email', true ) ) ? true : false;
 			$match_by_email = defined( 'WPCC_MATCH_BY_EMAIL' ) ? WPCC_MATCH_BY_EMAIL : $match_by_email;
 
@@ -52,9 +57,10 @@ if ( ! class_exists( 'Jetpack_SSO_Helpers' ) ) :
 		 * Returns a boolean for whether users are allowed to register on the Jetpack site with SSO,
 		 * even though the site disallows normal registrations.
 		 *
+		 * @param object|null $user_data WordPress.com user information.
 		 * @return bool
 		 */
-		static function new_user_override( $user_data = null ) {
+		public static function new_user_override( $user_data = null ) {
 			$new_user_override = defined( 'WPCC_NEW_USER_OVERRIDE' ) ? WPCC_NEW_USER_OVERRIDE : false;
 
 			/**
@@ -89,7 +95,7 @@ if ( ! class_exists( 'Jetpack_SSO_Helpers' ) ) :
 		 *
 		 * @return bool
 		 */
-		static function is_two_step_required() {
+		public static function is_two_step_required() {
 			/**
 			 * Is it required to have 2-step authentication enabled on WordPress.com to use SSO?
 			 *
@@ -108,7 +114,7 @@ if ( ! class_exists( 'Jetpack_SSO_Helpers' ) ) :
 		 *
 		 * @return bool
 		 */
-		static function bypass_login_forward_wpcom() {
+		public static function bypass_login_forward_wpcom() {
 			/**
 			 * Redirect the site's log in form to WordPress.com's log in form.
 			 *
@@ -129,7 +135,7 @@ if ( ! class_exists( 'Jetpack_SSO_Helpers' ) ) :
 		 *
 		 * @return bool
 		 */
-		static function show_sso_login() {
+		public static function show_sso_login() {
 			if ( self::should_hide_login_form() ) {
 				return true;
 			}
@@ -153,7 +159,7 @@ if ( ! class_exists( 'Jetpack_SSO_Helpers' ) ) :
 		 *
 		 * @return bool
 		 */
-		static function is_require_two_step_checkbox_disabled() {
+		public static function is_require_two_step_checkbox_disabled() {
 			return (bool) has_filter( 'jetpack_sso_require_two_step' );
 		}
 
@@ -164,7 +170,7 @@ if ( ! class_exists( 'Jetpack_SSO_Helpers' ) ) :
 		 *
 		 * @return bool
 		 */
-		static function is_match_by_email_checkbox_disabled() {
+		public static function is_match_by_email_checkbox_disabled() {
 			return defined( 'WPCC_MATCH_BY_EMAIL' ) || has_filter( 'jetpack_sso_match_by_email' );
 		}
 
@@ -177,12 +183,12 @@ if ( ! class_exists( 'Jetpack_SSO_Helpers' ) ) :
 		 * @since 4.3.0
 		 * @since 4.6.0 Added public-api.wordpress.com as an allowed redirect
 		 *
-		 * @param array  $hosts
-		 * @param string $api_base
+		 * @param array  $hosts Allowed redirect hosts.
+		 * @param string $api_base Base API URL.
 		 *
 		 * @return array
 		 */
-		static function allowed_redirect_hosts( $hosts, $api_base = JETPACK__API_BASE ) {
+		public static function allowed_redirect_hosts( $hosts, $api_base = JETPACK__API_BASE ) {
 			if ( empty( $hosts ) ) {
 				$hosts = array();
 			}
@@ -202,7 +208,12 @@ if ( ! class_exists( 'Jetpack_SSO_Helpers' ) ) :
 			return array_unique( $hosts );
 		}
 
-		static function generate_user( $user_data ) {
+		/**
+		 * Generate a new user from a SSO attempt.
+		 *
+		 * @param object $user_data WordPress.com user information.
+		 */
+		public static function generate_user( $user_data ) {
 			$username = $user_data->login;
 			/**
 			 * Determines how many times the SSO module can attempt to randomly generate a user.
@@ -244,7 +255,12 @@ if ( ! class_exists( 'Jetpack_SSO_Helpers' ) ) :
 			return get_userdata( $created_user_id );
 		}
 
-		static function extend_auth_cookie_expiration_for_sso() {
+		/**
+		 * Determines how long the auth cookie is valid for when a user logs in with SSO.
+		 *
+		 * @return int result of the jetpack_sso_auth_cookie_expiration filter.
+		 */
+		public static function extend_auth_cookie_expiration_for_sso() {
 			/**
 			 * Determines how long the auth cookie is valid for when a user logs in with SSO.
 			 *
@@ -263,11 +279,11 @@ if ( ! class_exists( 'Jetpack_SSO_Helpers' ) ) :
 		 *
 		 * @since 4.6.0
 		 *
-		 * @param string $action
+		 * @param string $action SSO action being performed.
 		 *
 		 * @return bool  Is SSO allowed for the current action?
 		 */
-		static function display_sso_form_for_action( $action ) {
+		public static function display_sso_form_for_action( $action ) {
 			/**
 			 * Allows plugins the ability to overwrite actions where the SSO form is allowed to be used.
 			 *
@@ -296,7 +312,7 @@ if ( ! class_exists( 'Jetpack_SSO_Helpers' ) ) :
 		 *
 		 * @return array|bool
 		 */
-		static function get_json_api_auth_environment() {
+		public static function get_json_api_auth_environment() {
 			if ( empty( $_COOKIE['jetpack_sso_original_request'] ) ) {
 				return false;
 			}
