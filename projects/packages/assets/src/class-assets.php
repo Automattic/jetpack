@@ -358,7 +358,7 @@ class Assets {
 		}
 
 		if ( $options['asset_path'] && file_exists( "$dir/{$options['asset_path']}" ) ) {
-			$asset                       = require "$dir/{$options['asset_path']}";
+			$asset                       = require "$dir/{$options['asset_path']}"; // phpcs:ignore WordPressVIPMinimum.Files.IncludingFile.NotAbsolutePath
 			$options['dependencies']     = array_merge( $asset['dependencies'], $options['dependencies'] );
 			$options['css_dependencies'] = array_merge(
 				array_filter(
