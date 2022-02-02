@@ -152,7 +152,7 @@ jobs:
         pnpm run tunnel:down
 
     - name: Upload test artifacts
-      if: ${{ success() }}
+      if: ${{ always() }}
       continue-on-error: true
       uses: actions/upload-artifact@v2
       with:
