@@ -35,7 +35,7 @@ class CLI extends WP_CLI_Command {
 			}
 			$blog_id = ( defined( 'IS_WPCOM' ) && constant( 'IS_WPCOM' ) ) ? get_current_blog_id() : Jetpack_Options::get_option( 'id' );
 			Instant_Search::initialize( $blog_id );
-			Instant_Search::instance()->auto_config_search();
+			Instant_Search::instance()->auto_config_search_no_pri();
 			WP_CLI::line( 'Jetpack Search: auto config success!' );
 		} catch ( \Exception $e ) {
 			WP_CLI::error( $e->getMessage() );
