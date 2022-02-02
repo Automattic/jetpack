@@ -81,7 +81,7 @@ class Admin_Menu {
 		}
 
 		/**
-		 * add_sub_menu has a bug and will not keep the right order of menu items.
+		 * The add_sub_menu function has a bug and will not keep the right order of menu items.
 		 *
 		 * @see https://core.trac.wordpress.org/ticket/52035
 		 * Let's order the items before registering them.
