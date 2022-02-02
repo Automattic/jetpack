@@ -57,7 +57,7 @@ yargs
  * @param {string} suite test suite name
  * @return {Promise<void>}
  */
-async function reportTestRunResults( suite = 'Jetpack e2e tests' ) {
+async function reportTestRunResults( suite = 'e2e' ) {
 	let result;
 
 	// If results summary file is not found send failure notification and exit
@@ -78,12 +78,14 @@ async function reportTestRunResults( suite = 'Jetpack e2e tests' ) {
 
 	const detailLines = [];
 	const failureDetails = [];
+	let isSuccess = true;
 
-	// Go through each specs, check tests and results and extract failure details
+	// Go through each spec, check tests and results and extract failure details
 	// Expected structure spec: {tests: [{results: [{}]}]}
 	specs.forEach( spec => {
 		if ( ! spec.ok ) {
 			console.log( `${ spec.title } failed` );
+			isSuccess = false;
 			detailLines.push( `- ${ spec.title }` );
 
 			// Go through each test of the spec
@@ -109,7 +111,7 @@ async function reportTestRunResults( suite = 'Jetpack e2e tests' ) {
 	} );
 
 	// build the notification blocks
-	const mainMsgBlocks = await buildDefaultMessage( result.success );
+	const mainMsgBlocks = await buildDefaultMessage( isSuccess );
 
 	// Add a header line
 	let testListHeader = `*${ specs.length } ${ suite }* tests ran successfully`;

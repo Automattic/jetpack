@@ -221,7 +221,7 @@ class Jetpack_Search_Widget extends WP_Widget {
 	 * @return bool Whether the current filter item is for the current widget.
 	 */
 	public function is_for_current_widget( $item ) {
-		return isset( $item['widget_id'] ) && $this->id == $item['widget_id']; // phpcs:ignore WordPress.PHP.StrictComparisons.LooseComparison
+		return isset( $item['widget_id'] ) && $this->id == $item['widget_id']; // phpcs:ignore Universal.Operators.StrictComparisons.LooseEqual
 	}
 
 	/**

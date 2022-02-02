@@ -116,7 +116,7 @@
             "dist": {
                 "type": "path",
                 "url": "../../packages/admin-ui",
-                "reference": "e9c471e1ac68c4dd7cf656fd17a4b96fdc4c6ff1"
+                "reference": "bbb92b9b9852760e84b7aaee877ee081616efcb3"
             },
             "require-dev": {
                 "automattic/jetpack-changelogger": "^3.0",
@@ -127,6 +127,7 @@
             "extra": {
                 "autotagger": true,
                 "mirror-repo": "Automattic/jetpack-admin-ui",
+                "textdomain": "jetpack-admin-ui",
                 "changelogger": {
                     "link-template": "https://github.com/Automattic/jetpack-admin-ui/compare/${old}...${new}"
                 },
