@@ -174,9 +174,18 @@ class Partner_Coupon {
 
 		Jetpack_Options::update_raw_option( self::$last_check_option, time() );
 
+		$jetpack_id = Jetpack_Options::get_option( 'id', false );
+		if ( ! $jetpack_id ) {
+			return;
+		}
+
 		$coupon   = self::get_coupon();
 		$response = Connection_Client::wpcom_json_api_request_as_blog(
-			sprintf( '/jetpack-partner/coupon/v1/site/coupon?coupon_code=%s', $coupon['coupon_code'] ),
+			sprintf(
+				'/sites/%d/jetpack-partner/coupon/v1/site/coupon?coupon_code=%s',
+				$jetpack_id,
+				$coupon['coupon_code']
+			),
 			2,
 			array( 'method' => 'GET' ),
 			null,
@@ -187,8 +196,8 @@ class Partner_Coupon {
 
 		if (
 			200 === wp_remote_retrieve_response_code( $response ) &&
-			isset( $body['status'] ) &&
-			false === $body['status']
+			isset( $body['available'] ) &&
+			false === $body['available']
 		) {
 			$this->delete_coupon_data();
 		}
