@@ -23,14 +23,15 @@
 	"dependencies": {
 		"@automattic/jetpack-analytics": "workspace:^0.1.7",
 		"@automattic/jetpack-components": "workspace:^0.10.4-alpha",
-		"@automattic/jetpack-connection": "workspace:^0.14.1-alpha",
+		"@automattic/jetpack-connection": "workspace:^0.15.0-alpha",
 		"@wordpress/api-fetch": "6.0.0",
 		"@wordpress/components": "19.1.6",
 		"@wordpress/data": "6.1.5",
 		"@wordpress/i18n": "4.2.4",
 		"@wordpress/icons": "6.1.1",
 		"classnames": "2.3.1",
-		"prop-types": "15.8.1"
+		"prop-types": "15.8.1",
+		"react-router-dom": "6"
 	},
 	"sideEffects": [
 		"*.css",

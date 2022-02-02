@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Added a bunch of missing eslint ignore directives.

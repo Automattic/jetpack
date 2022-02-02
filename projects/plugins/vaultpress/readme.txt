@@ -2,7 +2,7 @@
 Contributors: automattic, annezazu, apokalyptik, bjorsch, briancolinger, dsmart, georgestephanis, jeherve, josephscott, miguelxavierpenha, rachelsquirrel, rdcoll, sdixon194, shaunandrews, thingalon, viper007bond, williamvianas, xknown
 Tags: security, malware, virus, archive, back up, back ups, backup, backups, scanning, restore, wordpress backup, site backup, website backup
 Requires at least: 5.2
-Tested up to: 5.8
+Tested up to: 5.9
 Stable tag: 2.2.0
 Requires PHP: 5.6
 License: GPLv2
@@ -48,16 +48,11 @@ A VaultPress subscription is for a single WordPress site. You can purchase addit
 Yes, VaultPress supports Multisite installs. Each site will require its own subscription.
 
 == Changelog ==
-### 2.2.0 - 2021-10-11
+### 2.2.1 - 2022-02-01
 #### Changed
-- Tests: update PHPUnit polyfills dependency (yoast/phpunit-polyfills).
-- Updated package dependencies.
+- Colors: update colors to match the latest iterations of our brand.
+- General: update WordPress tested up to version, since the plugin works with WordPress 5.9.
 
-#### Security
-- VaultPress: Remove obsolete hotfixes
-
-#### Fixed
-- General: avoid PHP notices when using recent versions of PHP.
 
 --------
 
