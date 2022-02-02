@@ -5,8 +5,7 @@
 ## 10.7-a.1 - 2022-02-02
 ### Enhancements
 - Add an AMP-compatible version of the email share button.
-- Add transformation from core/buttons to jetpack/recurring-payments block.
-- Requires gutenberg >= 11.5.0
+- Add transformation from core/buttons to jetpack/recurring-payments block (requires gutenberg >= 11.5.0).
 - Business Hours: Add support for color & spacing design tool.
 - Changed the plan description for invalid plans and added a Warning message for Premium content blocks with invalid plans.
 - Dashboard: update the links used to purchase plans when in Jetpack settings.
