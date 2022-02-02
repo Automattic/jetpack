@@ -645,6 +645,7 @@ importers:
 
   projects/packages/my-jetpack:
     specifiers:
+      '@automattic/format-currency': 1.0.0-alpha.0
       '@automattic/jetpack-analytics': workspace:^0.1.7
       '@automattic/jetpack-base-styles': workspace:^0.1.8-alpha
       '@automattic/jetpack-components': workspace:^0.10.5-alpha
@@ -678,6 +679,7 @@ importers:
       storybook-addon-mock: 2.0.2
       webpack: 5.65.0
     dependencies:
+      '@automattic/format-currency': 1.0.0-alpha.0_react@17.0.2
       '@automattic/jetpack-analytics': link:../../js-packages/analytics
       '@automattic/jetpack-components': link:../../js-packages/components
       '@automattic/jetpack-connection': link:../../js-packages/connection
