@@ -61,13 +61,13 @@ function Price( { value, currency, isOld } ) {
 }
 
 /**
- * Product Interstitial component.
+ * Product Detail component.
  *
  * @param {object} props          - Component props.
  * @param {string} props.slug     - Product slug
  * @returns {object}                ProductDetailCard react component.
  */
-export default function ProductDetailCard( { slug } ) {
+export function ProductDetail( { slug } ) {
 	const { detail } = useProduct( slug );
 	const { title, longDescription, features } = detail;
 	const price = 9;
@@ -106,6 +106,21 @@ export default function ProductDetailCard( { slug } ) {
 }
 
 /**
+ * ProductDetailCard component.
+ *
+ * @param {object} props          - Component props.
+ * @param {string} props.slug     - Product slug
+ * @returns {object}                ProductDetailCard react component.
+ */
+export default function ProductDetailCard( { slug } ) {
+	return (
+		<div className={ styles.card }>
+			<ProductDetail slug={ slug } />
+		</div>
+	);
+}
+
+/**
  * BackupDetailCard component
  *
  * @returns {object} BackupDetailCard react component.
@@ -115,10 +130,28 @@ export function BackupDetailCard() {
 }
 
 /**
+ * BackupDetail component
+ *
+ * @returns {object} BackupDetail react component.
+ */
+export function BackupDetail() {
+	return <ProductDetail slug="backup" />;
+}
+
+/**
  * BoostDetailCard component
  *
  * @returns {object} BoostDetailCard react component.
  */
 export function BoostDetailCard() {
 	return <ProductDetailCard slug="boost" />;
+}
+
+/**
+ * BoostDetail component
+ *
+ * @returns {object} BoostDetail react component.
+ */
+export function BoostDetail() {
+	return <ProductDetail slug="boost" />;
 }
