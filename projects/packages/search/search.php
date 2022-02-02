@@ -7,7 +7,7 @@
 
 namespace Automattic\Jetpack\Search;
 
-define( 'JETPACK_SEARCH_PKG__VERSION', '0.6.0' );
+define( 'JETPACK_SEARCH_PKG__VERSION', '0.6.1-alpha' );
 define( 'JETPACK_SEARCH_PKG__DIR', __DIR__ . '/' );
 define( 'JETPACK_SEARCH_PKG__SLUG', 'search' );
 

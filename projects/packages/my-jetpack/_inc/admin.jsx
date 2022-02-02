@@ -9,16 +9,10 @@ import { HashRouter, Routes, Route } from 'react-router-dom';
  * Internal dependencies
  */
 import MyJetpackScreen from './components/my-jetpack-screen';
+import ConnectionScreen from './components/connection-screen';
 import { initStore } from './state/store';
-import useRouteBlocker from './hooks/use-route-blocker';
 
 initStore();
-
-// @TODO Remove as soon new routes arrives
-const New = () => {
-	useRouteBlocker();
-	return <div>New</div>;
-};
 
 /**
  * The initial renderer function.
@@ -34,7 +28,7 @@ function render() {
 		<HashRouter>
 			<Routes>
 				<Route path="/" element={ <MyJetpackScreen /> } />
-				<Route path="/new" element={ <New /> } />
+				<Route path="/connection" element={ <ConnectionScreen /> } />
 			</Routes>
 		</HashRouter>,
 		container
