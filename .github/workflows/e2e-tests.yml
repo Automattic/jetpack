@@ -52,6 +52,7 @@ jobs:
           echo "$MATRIX"
           echo "::set-output name=matrix::$MATRIX"
 
+          RUN_NAME=$(jq -r -c ".run" <<<"$TEST_PLAN")
           echo "$RUN_NAME"
           echo "::set-output name=runName::$RUN_NAME"
 
