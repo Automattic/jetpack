@@ -41,8 +41,8 @@ Automattic\Jetpack\Assets::register_script( 'handle', 'path', __FILE__, array( '
 \Automattic\Jetpack\Assets::register_script( 'handle', 'path', __FILE__, array( 'textdomain' => 'domain' ) );
 Assets::register_script( 'handle', 'path', __FILE__, array( 'textdomain', 'foo' => 'bar' ) );
 Assets::register_script( 'handle', 'path', __FILE__, array('textdomain'=>'domain') );
-Assets::register_script( 'handle', 'path', __FILE__, [ 'textdomain' => 'domain' ] );
-Assets::register_script( 'handle', 'path', __FILE__, ['textdomain'=>'domain'] );
+Assets::register_script( 'handle', 'path', __FILE__, array( 'textdomain' => 'domain' ) );
+Assets::register_script( 'handle', 'path', __FILE__, array('textdomain'=>'domain') );
 Assets::register_script( 'handle', 'path', __FILE__, array( "textdomain" => "domain" ) );
 Assets::register_script(
 	'handle',
@@ -50,7 +50,7 @@ Assets::register_script(
 	__FILE__,
 	array(
 		'foo'        => array( 'bar', 'textdomain' => 'wrongdomain' ),
-		'bar'        => [ 'baz', 'textdomain' => 'wrongdomain' ],
+		'bar'        => array( 'baz', 'textdomain' => 'wrongdomain' ),
 		'textdomain' => 'domain',
 	)
 );
@@ -60,8 +60,8 @@ Assets::register_script( 'handle', 'path', __FILE__, array( 'textdomain' => 'dom
 Automattic\Jetpack\Assets::register_script( 'handle', 'path', __FILE__, array( 'textdomain' => 'domain' ) );
 \Automattic\Jetpack\Assets::register_script( 'handle', 'path', __FILE__, array( 'textdomain' => 'domain' ) );
 Assets::register_script( 'handle', 'path', __FILE__, array('textdomain'=>'domain') );
-Assets::register_script( 'handle', 'path', __FILE__, [ 'textdomain' => 'domain' ] );
-Assets::register_script( 'handle', 'path', __FILE__, ['textdomain'=>'domain'] );
+Assets::register_script( 'handle', 'path', __FILE__, array( 'textdomain' => 'domain' ) );
+Assets::register_script( 'handle', 'path', __FILE__, array('textdomain'=>'domain') );
 Assets::register_script( 'handle', 'path', __FILE__, array( "textdomain" => 'domain' ) );
 Assets::register_script(
 	'handle',
