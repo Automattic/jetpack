@@ -1,4 +1,0 @@
-Significance: minor
-Type: other
-
-Added 'jetpack_related_posts_display_markup' filter to update the output HTML of Related Posts module
