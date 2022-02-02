@@ -104,6 +104,8 @@ jobs:
         echo "::endgroup::"
 
         if [ "${RUN_NAME}" != atomic ]; then
+          echo "TEST_SITE=atomic" >> $GITHUB_ENV
+
           echo "::group::Build plugin(s)"
           pnpm run build
           echo "::endgroup::"
@@ -132,7 +134,7 @@ jobs:
         pnpm run test:run -- "${TEST_ARGS[@]}"
 
     - name: Send Slack notification
-      if: ${{ always() }}
+      if: ${{ success() }}
       env:
         GITHUB_CONTEXT: ${{ toJson(github) }}
         SUITE: ${{ matrix.project }}
