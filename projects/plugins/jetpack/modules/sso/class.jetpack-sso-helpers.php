@@ -226,9 +226,11 @@ if ( ! class_exists( 'Jetpack_SSO_Helpers' ) ) :
 			 */
 			$num_tries = (int) apply_filters( 'jetpack_sso_allowed_username_generate_retries', 5 );
 
-			$tries = 0;
-			while ( ( $exists = username_exists( $username ) ) && $tries++ < $num_tries ) {
+			$exists = username_exists( $username );
+			$tries  = 0;
+			while ( $exists && $tries++ < $num_tries ) {
 				$username = $user_data->login . '_' . $user_data->ID . '_' . wp_rand();
+				$exists   = username_exists( $username );
 			}
 
 			if ( $exists ) {
