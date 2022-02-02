@@ -37,7 +37,31 @@ class Admin_Menu {
 	public static function init() {
 		if ( ! self::$initialized ) {
 			self::$initialized = true;
+			self::handle_akismet_menu();
 			add_action( 'admin_menu', array( __CLASS__, 'admin_menu_hook_callback' ), 1000 ); // Jetpack uses 998.
+		}
+	}
+
+	/**
+	 * Handles the Akismet menu item when used alongside other stand-alone plugins
+	 *
+	 * When Jetpack plugin is present, Akismet menu item is moved under the Jetpack top level menu, but if Akismet is active alongside other stand-alone plugins,
+	 * we use this method to move the menu item.
+	 */
+	private static function handle_akismet_menu() {
+		if ( class_exists( 'Akismet_Admin' ) ) {
+			// Prevent Akismet from adding a menu item.
+			add_action(
+				'admin_menu',
+				function () {
+					remove_action( 'admin_menu', array( 'Akismet_Admin', 'admin_menu' ), 5 );
+				},
+				4
+			);
+
+			// Add an Anti-spam menu item for Jetpack.
+			self::add_menu( __( 'Anti-Spam', 'jetpack-admin-ui' ), __( 'Anti-Spam', 'jetpack-admin-ui' ), 'manage_options', 'akismet-key-config', array( 'Akismet_Admin', 'display_page' ) );
+
 		}
 	}
 
