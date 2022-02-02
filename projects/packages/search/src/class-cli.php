@@ -37,8 +37,8 @@ class CLI extends WP_CLI_Command {
 			Instant_Search::initialize( $blog_id );
 			Instant_Search::instance()->auto_config_search();
 			WP_CLI::line( 'Jetpack Search: auto config success!' );
-		} catch ( \Throwable $t ) {
-			WP_CLI::error( $t->getMessage() );
+		} catch ( \Exception $e ) {
+			WP_CLI::error( $e->getMessage() );
 		}
 	}
 }
