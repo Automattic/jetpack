@@ -38,10 +38,10 @@
 	"dependencies": {
 		"@automattic/jetpack-api": "workspace:^0.8.3",
 		"@automattic/jetpack-components": "workspace:^0.10.4",
-		"@wordpress/i18n": "4.2.4",
-		"@wordpress/element": "4.0.4",
+		"@wordpress/i18n": "4.3.0",
+		"@wordpress/element": "4.1.0",
 		"prop-types": "15.7.2",
-		"@wordpress/components": "19.1.6",
-		"@wordpress/icons": "6.1.1"
+		"@wordpress/components": "19.3.0",
+		"@wordpress/icons": "6.2.0"
 	}
 }
