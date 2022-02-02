@@ -5,18 +5,21 @@
 
 	// all css variables used down in product-detail-card
 
-	// Main wrapper
+	// Card main wrapper
 	--product-card-bg-color: white;
 	--product-card-border-color: #d5d5d5;
 	--product-card-shadow: rgb(0 0 0 / 3%);
 	--product-card-border-radius: 4px;
 
+	// Colors
+	--jp-green-primary: #069e08;
+	--jp-green-secondary: #2fb41f;
+	--jp-text-color: ###;
+
 	// Text
 	--product-card-description-line-height: 1.5;
 	--product-card-description-font-size: 0.9375rem;
-	--jp-green-primary: #069e08;
-	--jp-green-secondary: #2fb41f;
-
+	--product-card-price-font-size: 4rem;
 
 	display: flex;
 	flex-direction: column;
@@ -59,5 +62,57 @@
 
 	svg {
 		fill: var(--jp-green-primary);
+	}
+}
+
+.price-container {
+	display: flex;
+	flex-wrap: wrap;
+	flex-direction: row;
+	justify-content: space-between;
+	max-width: 180px;
+	margin-top: auto;
+	color: var(--jp-text-color);
+}
+
+.price {
+	font-size: var(--product-card-price-font-size);
+    display: flex;
+	margin: 0;
+	position: relative;
+
+	.price-symbol {
+		padding-right: 1px;
+		font-size: 0.5em;
+		line-height: 1.4;
+	}
+
+	.price-number {
+		font-size: inherit;
+		font-weight: 700;
+		line-height: 1;
+	}
+
+	.price-fraction {
+		padding-left: 1px;
+		font-size: 0.35em;
+		font-weight: 700;
+		line-height: 1.7;
+	}
+
+	&.is-old {
+    	color: #a7aaad;
+		&:after {
+			content: " ";
+			display: block;
+			width: 100%;
+			height: 3px;
+			background: #c9356e;
+			border-radius: 5px;
+			position: absolute;
+			top: 50%;
+			margin-top: -2px;
+			pointer-events: none;
+		}
 	}
 }

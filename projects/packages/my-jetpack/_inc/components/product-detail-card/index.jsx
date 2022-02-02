@@ -3,6 +3,8 @@
  */
 import React from 'react';
 import { Icon, check } from '@wordpress/icons';
+import { getCurrencyObject } from '@automattic/format-currency';
+import classnames from 'classnames';
 
 /**
  * Internal dependencies
@@ -28,6 +30,31 @@ function ProductIcon( { slug } ) {
 }
 
 /**
+ * React component to render the price.
+ *
+ * @param {object} props          - Component props.
+ * @param {string} props.value    - Product price
+ * @param {string} props.currency - Product current code
+ * @param {string} props.isOld    - True when the product price is old
+ * @returns {object}                Price react component.
+ */
+function Price( { value, currency, isOld } ) {
+	const priceObject = getCurrencyObject( value, currency );
+
+	const classNames = classnames( styles.price, {
+		[ styles[ 'is-old' ] ]: isOld,
+	} );
+
+	return (
+		<div className={ classNames }>
+			<sup className={ styles[ 'price-symbol' ] }>{ priceObject.symbol }</sup>
+			<span className={ styles[ 'price-number' ] }>{ priceObject.integer }</span>
+			<sup className={ styles[ 'price-fraction' ] }>{ priceObject.fraction }</sup>
+		</div>
+	);
+}
+
+/**
  * Product Interstitial component.
  *
  * @param {object} props          - Component props.
@@ -37,6 +64,8 @@ function ProductIcon( { slug } ) {
 export default function ProductDetailCard( { slug } ) {
 	const { detail } = useProduct( slug );
 	const { title, longDescription, features } = detail;
+	const price = 9;
+	const currencyCode = 'USD';
 
 	return (
 		<div className={ styles.container }>
@@ -52,6 +81,11 @@ export default function ProductDetailCard( { slug } ) {
 					</li>
 				) ) }
 			</ul>
+			<div className={ styles[ 'price-container' ] }>
+				<Price value={ price } currency={ currencyCode } isOld={ true } />
+
+				<Price value={ price } currency={ currencyCode } isOld={ false } />
+			</div>
 		</div>
 	);
 }
