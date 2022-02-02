@@ -9,7 +9,7 @@ import apiFetch from '@wordpress/api-fetch';
 import { REST_API_SITE_PURCHASES_ENDPOINT, REST_API_SITE_PRODUCTS_ENDPOINT } from './constants';
 
 const myJetpackResolvers = {
-	getProduct: productId => async ( { dispatch } ) => {
+	getProduct: ( productId ) => async ( { dispatch } ) => {
 		try {
 			dispatch.setProduct(
 				await apiFetch( {
