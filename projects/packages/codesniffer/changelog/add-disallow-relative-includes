@@ -1,0 +1,4 @@
+Significance: minor
+Type: added
+
+Add sniff to disallow relative file includes.

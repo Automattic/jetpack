@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Update tests for eslint 8.8.0.
