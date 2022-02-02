@@ -39,10 +39,10 @@ export const JetpackBackup = BackupTemplate.bind( {} );
 JetpackBackup.parameters = {
 	mockData: [
 		{
-			url: 'my-jetpack/v1/site/products/boost?_locale=user',
+			url: 'my-jetpack/v1/site/products/backup?_locale=user',
 			method: 'GET',
 			status: 200,
-			response: boostProductData,
+			response: backupProductData,
 		},
 	],
 };
