@@ -2,11 +2,13 @@
  * External dependencies
  */
 import React from 'react';
-import { useProduct } from '../../hooks/use-product';
-import { BackupIcon } from '../product-cards-section/backup-card';
+import { Icon, check } from '@wordpress/icons';
+
 /**
  * Internal dependencies
  */
+import { useProduct } from '../../hooks/use-product';
+import { BackupIcon } from '../product-cards-section/backup-card';
 import styles from './style.module.scss';
 
 /**
@@ -44,7 +46,10 @@ export default function ProductDetailCard( { slug } ) {
 			<p className={ styles.name }>{ longDescription }</p>
 			<ul className={ styles.features }>
 				{ features.map( ( feature, id ) => (
-					<li key={ `feature-${ id }` }>{ feature }</li>
+					<li key={ `feature-${ id }` }>
+						<Icon icon={ check } size={ 30 } />
+						{ feature }
+					</li>
 				) ) }
 			</ul>
 		</div>
