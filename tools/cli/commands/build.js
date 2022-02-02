@@ -3,7 +3,7 @@
  */
 import chalk from 'chalk';
 import execa from 'execa';
-import fs from 'fs/promises';
+import inquirer from 'inquirer';
 import Listr from 'listr';
 import SilentRenderer from 'listr-silent-renderer';
 import UpdateRenderer from 'listr-update-renderer';
@@ -13,6 +13,7 @@ import UpdateRenderer from 'listr-update-renderer';
  */
 import { chalkJetpackGreen } from '../helpers/styling.js';
 import formatDuration from '../helpers/format-duration.js';
+import { getDependencies, filterDeps, getBuildOrder } from '../helpers/dependencyAnalysis.js';
 import promptForProject from '../helpers/promptForProject.js';
 import { readComposerJson } from '../helpers/json.js';
 import { getInstallArgs, projectDir } from '../helpers/install.js';
@@ -38,6 +39,10 @@ export function builder( yargs ) {
 			type: 'boolean',
 			description: 'Build all projects.',
 		} )
+		.option( 'deps', {
+			type: 'boolean',
+			description: 'Build dependencies of the specified projects too.',
+		} )
 		.option( 'production', {
 			alias: 'p',
 			type: 'boolean',
@@ -59,6 +64,8 @@ export function builder( yargs ) {
  * @param {object} argv - the arguments passed.
  */
 export async function handler( argv ) {
+	let dependencies = await getDependencies( process.cwd(), 'build' );
+
 	if ( argv.project.length === 1 ) {
 		if ( argv.project[ 0 ] === 'packages' ) {
 			argv.project = allProjectsByType( 'packages' );
@@ -75,8 +82,21 @@ export async function handler( argv ) {
 	if ( argv.project.length === 0 ) {
 		argv.project = '';
 		argv = await promptForProject( argv );
+		argv = await promptForDeps( argv );
 		argv.project = [ argv.project ];
 	}
+
+	// Check for unknown projects.
+	argv.project = [ ...new Set( argv.project ) ];
+	const missing = new Set( argv.project.filter( p => ! dependencies.has( p ) ) );
+	if ( missing.size ) {
+		for ( const project of missing ) {
+			console.error( chalk.red( `Project ${ project } does not exist!` ) );
+		}
+		argv.project = argv.project.filter( p => dependencies.has( p ) );
+	}
+
+	dependencies = filterDeps( dependencies, argv.project, { dependencies: argv.deps } );
 
 	const listr = new Listr( [], {
 		renderer: argv.v ? SilentRenderer : UpdateRenderer,
@@ -95,15 +115,7 @@ export async function handler( argv ) {
 	}
 
 	// Add build tasks.
-	for ( const project of new Set( argv.project ) ) {
-		// Does the project even exist?
-		if (
-			( await fs.access( `projects/${ project }/composer.json` ).catch( () => false ) ) === false
-		) {
-			console.error( chalk.red( `Project ${ project } does not exist!` ) );
-			continue;
-		}
-
+	for ( const project of getBuildOrder( dependencies ).flat() ) {
 		const cwd = projectDir( project );
 		listr.add(
 			createBuildTask( argv, `Build ${ project }`, async t => {
@@ -193,5 +205,29 @@ function createBuildTask( argv, title, build ) {
 				await t.setStatus( argv.timing ? formatDuration( Date.now() - t0 ) + 's' : 'complete' );
 			}
 		},
+	};
+}
+
+/**
+ * Prompt for whether dependencies should be built too.
+ *
+ * @param {object} options - Passthrough of the argv object.
+ * @returns {object} argv object with the project property.
+ */
+async function promptForDeps( options ) {
+	if ( typeof options.deps !== 'undefined' ) {
+		return options;
+	}
+
+	const answers = await inquirer.prompt( [
+		{
+			type: 'confirm',
+			name: 'deps',
+			message: `Build dependencies of ${ options.project } too?`,
+		},
+	] );
+	return {
+		...options,
+		deps: answers.deps,
 	};
 }
