@@ -113,7 +113,7 @@ class Jetpack_Redux_State_Helper {
 			'pluginBaseUrl'               => plugins_url( '', JETPACK__PLUGIN_FILE ),
 			'connectionStatus'            => $connection_status,
 			'connectedPlugins'            => Connection_Plugin_Storage::get_all(),
-			'connectUrl'                  => false == $current_user_data['isConnected'] // phpcs:ignore WordPress.PHP.StrictComparisons.LooseComparison
+			'connectUrl'                  => false == $current_user_data['isConnected'] // phpcs:ignore Universal.Operators.StrictComparisons.LooseEqual
 				? Jetpack::init()->build_connect_url( true, false, false )
 				: '',
 			'dismissedNotices'            => self::get_dismissed_jetpack_notices(),
@@ -145,7 +145,7 @@ class Jetpack_Redux_State_Helper {
 				'icon'                       => has_site_icon()
 					? apply_filters( 'jetpack_photon_url', get_site_icon_url(), array( 'w' => 64 ) )
 					: '',
-				'siteVisibleToSearchEngines' => '1' == get_option( 'blog_public' ), // phpcs:ignore WordPress.PHP.StrictComparisons.LooseComparison
+				'siteVisibleToSearchEngines' => '1' == get_option( 'blog_public' ), // phpcs:ignore Universal.Operators.StrictComparisons.LooseEqual
 				/**
 				 * Whether promotions are visible or not.
 				 *
