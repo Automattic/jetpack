@@ -13,7 +13,7 @@ namespace Automattic\Jetpack\Admin_UI;
  */
 class Admin_Menu {
 
-	const PACKAGE_VERSION = '0.2.3';
+	const PACKAGE_VERSION = '0.2.4-alpha';
 
 	/**
 	 * Whether this class has been initialized
@@ -82,15 +82,19 @@ class Admin_Menu {
 
 		/**
 		 * add_sub_menu has a bug and will not keep the right order of menu items.
+		 *
 		 * @see https://core.trac.wordpress.org/ticket/52035
 		 * Let's order the items before registering them.
 		 * Since this all happens after the Jetpack plugin menu items were added, all items will be added after Jetpack plugin items - unless position is very low number (smaller than the number of menu items present in Jetpack plugin).
 		 */
-		usort( self::$menu_items, function( $a, $b ) {
-			$position_a = empty( $a['position'] ) ? 0 : $a['position'];
-			$position_b = empty( $b['position'] ) ? 0 : $b['position'];
-			return $position_a - $position_b;
-		});
+		usort(
+			self::$menu_items,
+			function ( $a, $b ) {
+				$position_a = empty( $a['position'] ) ? 0 : $a['position'];
+				$position_b = empty( $b['position'] ) ? 0 : $b['position'];
+				return $position_a - $position_b;
+			}
+		);
 
 		foreach ( self::$menu_items as $menu_item ) {
 			if ( ! current_user_can( $menu_item['capability'] ) ) {
