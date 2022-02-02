@@ -60,7 +60,12 @@ class Test_Products_Rest extends TestCase {
 	 */
 	public function set_up() {
 
+		if ( version_compare( phpversion(), '5.7', '<=' ) ) {
+			$this->markTestSkipped( 'avoid bug in PHP 5.6 that throws strict mode warnings for abstract static methods.' );
+		}
+
 		$this->install_mock_plugin();
+		wp_cache_delete( 'plugins', 'plugins' );
 
 		// Mock site connection.
 		( new Tokens() )->update_blog_token( 'test.test.1' );
@@ -241,7 +246,7 @@ class Test_Products_Rest extends TestCase {
 		$response = $this->server->dispatch( $this->request );
 		$data     = $response->get_data();
 
-		$this->assertEquals( 500, $response->get_status() );
+		$this->assertEquals( 400, $response->get_status() );
 		$this->assertEquals( 'plugin_php_incompatible', $data['code'] );
 		$this->assertFalse( is_plugin_active( $this->boost_mock_filename ) );
 	}
