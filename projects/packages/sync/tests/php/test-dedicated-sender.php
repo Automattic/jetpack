@@ -6,13 +6,13 @@ use WorDBless\BaseTestCase;
 use WorDBless\Options as WorDBless_Options;
 
 /**
- * Unit tests for the Spawner class.
+ * Unit tests for the Dedicated_Sender class.
  *
- * @covers Automattic\Jetpack\Sync\Spawner
+ * @covers Automattic\Jetpack\Sync\Dedicated_Sender
  *
  * @package automattic/jetpack-sync
  */
-class Test_Spawner extends BaseTestCase {
+class Test_Dedicated_Sender extends BaseTestCase {
 	/**
 	 * Whether a dedicated Sync request was spawned.
 	 *
@@ -45,92 +45,92 @@ class Test_Spawner extends BaseTestCase {
 	}
 
 	/**
-	 * Tests Spawner::is_dedicated_sync_request.
+	 * Tests Dedicated_Sender::is_dedicated_sync_request.
 	 */
 	public function test_is_dedicated_sync_request() {
 		$_SERVER['REQUEST_METHOD']               = 'POST';
 		$_POST['jetpack_dedicated_sync_request'] = 1;
 		$_POST['nonce']                          = wp_create_nonce( 'jetpack_sync_dedicated_request_sync' );
 
-		$result = Spawner::is_dedicated_sync_request( $this->queue );
+		$result = Dedicated_Sender::is_dedicated_sync_request( $this->queue );
 
 		$this->assertTrue( $result );
 	}
 
 	/**
-	 * Tests Spawner::is_dedicated_sync_request with a random request.
+	 * Tests Dedicated_Sender::is_dedicated_sync_request with a random request.
 	 */
 	public function test_is_dedicated_sync_request_with_random_request() {
 		$_SERVER['REQUEST_METHOD'] = 'GET';
 
-		$result = Spawner::is_dedicated_sync_request( $this->queue );
+		$result = Dedicated_Sender::is_dedicated_sync_request( $this->queue );
 
 		$this->assertFalse( $result );
 	}
 
 	/**
-	 * Tests Spawner::is_dedicated_sync_request with nonce missing.
+	 * Tests Dedicated_Sender::is_dedicated_sync_request with nonce missing.
 	 */
 	public function test_is_dedicated_sync_request_with_nonce_missing() {
 		$_SERVER['REQUEST_METHOD']               = 'POST';
 		$_POST['jetpack_dedicated_sync_request'] = 1;
 
-		$result = Spawner::is_dedicated_sync_request( $this->queue );
+		$result = Dedicated_Sender::is_dedicated_sync_request( $this->queue );
 
 		$this->assertTrue( is_wp_error( $result ) );
 		$this->assertEquals( 'invalid_nonce', $result->get_error_code() );
 	}
 
 	/**
-	 * Tests Spawner::spawn_sync with sync_spawning_enabled set to 0.
+	 * Tests Dedicated_Sender::spawn_sync with dedicated_sync_enabled set to 0.
 	 */
-	public function test_spawn_sync_with_sync_spawning_disabled() {
+	public function test_spawn_sync_with_dedicated_sync_disabled() {
 		$this->queue->method( 'size' )->will( $this->returnValue( 0 ) );
 
-		$result = Spawner::spawn_sync( $this->queue );
+		$result = Dedicated_Sender::spawn_sync( $this->queue );
 
 		$this->assertTrue( is_wp_error( $result ) );
-		$this->assertSame( 'sync_spawning_disabled', $result->get_error_code() );
+		$this->assertSame( 'dedicated_sync_disabled', $result->get_error_code() );
 	}
 
 	/**
-	 * Tests Spawner::spawn_sync with an empty queue.
+	 * Tests Dedicated_Sender::spawn_sync with an empty queue.
 	 */
 	public function test_spawn_sync_with_empty_queue() {
-		Settings::update_settings( array( 'sync_spawning_enabled' => 1 ) );
+		Settings::update_settings( array( 'dedicated_sync_enabled' => 1 ) );
 
 		$this->queue->method( 'size' )->will( $this->returnValue( 0 ) );
 
-		$result = Spawner::spawn_sync( $this->queue );
+		$result = Dedicated_Sender::spawn_sync( $this->queue );
 
 		$this->assertTrue( is_wp_error( $result ) );
 		$this->assertSame( 'empty_queue_sync', $result->get_error_code() );
 	}
 
 	/**
-	 * Tests Spawner::spawn_sync with an locked queue.
+	 * Tests Dedicated_Sender::spawn_sync with an locked queue.
 	 */
 	public function test_spawn_sync_with_locked_queue() {
-		Settings::update_settings( array( 'sync_spawning_enabled' => 1 ) );
+		Settings::update_settings( array( 'dedicated_sync_enabled' => 1 ) );
 
 		$this->queue->method( 'is_locked' )->will( $this->returnValue( true ) );
 
-		$result = Spawner::spawn_sync( $this->queue );
+		$result = Dedicated_Sender::spawn_sync( $this->queue );
 
 		$this->assertTrue( is_wp_error( $result ) );
 		$this->assertSame( 'locked_queue_sync', $result->get_error_code() );
 	}
 
 	/**
-	 * Tests Spawner::spawn_sync will spawn dedicated Sync request.
+	 * Tests Dedicated_Sender::spawn_sync will spawn dedicated Sync request.
 	 */
 	public function test_spawn_sync_will_spawn_dedicated_sync_request() {
-		Settings::update_settings( array( 'sync_spawning_enabled' => 1 ) );
+		Settings::update_settings( array( 'dedicated_sync_enabled' => 1 ) );
 
 		$this->queue->method( 'size' )->will( $this->returnValue( 1 ) );
 
 		add_filter( 'pre_http_request', array( $this, 'pre_http_request_success' ), 10, 3 );
-		$result = Spawner::spawn_sync( $this->queue );
+		$result = Dedicated_Sender::spawn_sync( $this->queue );
 		remove_filter( 'pre_http_request', array( $this, 'pre_http_request_success' ) );
 
 		$this->assertTrue( $result );

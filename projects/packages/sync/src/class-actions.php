@@ -195,9 +195,9 @@ class Actions {
 		}
 
 		/**
-		 * For now, if Sync spawning is enabled we will always initialize send, even for GET and unauthenticated requests.
+		 * For now, if dedicated Sync is enabled we will always initialize send, even for GET and unauthenticated requests.
 		 */
-		if ( Settings::is_sync_spawning_enabled() ) {
+		if ( Settings::is_dedicated_sync_enabled() ) {
 			return true;
 		}
 

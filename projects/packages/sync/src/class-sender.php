@@ -321,13 +321,13 @@ class Sender {
 	 * @return boolean|WP_Error True if this sync sending was successful, error object otherwise.
 	 */
 	public function do_sync() {
-		if ( ! Settings::is_sync_spawning_enabled() ) {
+		if ( ! Settings::is_dedicated_sync_enabled() ) {
 			return $this->do_sync_and_set_delays( $this->sync_queue );
 		}
 
 		// If this is a dedicated Sync request, run Sync
 		// otherwise attempt to spawn a dedicated Sync request.
-		$is_dedicated_sync_request = Spawner::is_dedicated_sync_request( $this->sync_queue );
+		$is_dedicated_sync_request = Dedicated_Sender::is_dedicated_sync_request( $this->sync_queue );
 		if ( is_wp_error( $is_dedicated_sync_request ) ) {
 			return $is_dedicated_sync_request;
 		}
@@ -336,12 +336,12 @@ class Sender {
 			$result = $this->do_sync_and_set_delays( $this->sync_queue );
 			// If no errors occurred, re-spawn a dedicated Sync request.
 			if ( true === $result ) {
-				return Spawner::spawn_sync( $this->sync_queue );
+				return Dedicated_Sender::spawn_sync( $this->sync_queue );
 			}
 
 			return $result;
 		} else {
-			return Spawner::spawn_sync( $this->sync_queue );
+			return Dedicated_Sender::spawn_sync( $this->sync_queue );
 		}
 	}
 

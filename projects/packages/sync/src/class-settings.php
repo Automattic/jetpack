@@ -56,7 +56,7 @@ class Settings {
 		'full_sync_send_duration'                => true,
 		'full_sync_limits'                       => true,
 		'checksum_disable'                       => true,
-		'sync_spawning_enabled'                  => true,
+		'dedicated_sync_enabled'                 => true,
 	);
 
 	/**
@@ -567,15 +567,15 @@ class Settings {
 	}
 
 	/**
-	 * Whether Sync spawning is enabled.
+	 * Whether dedicated Sync flow is enabled.
 	 *
 	 * @access public
 	 * @static
 	 *
-	 * @return boolean Whether sync is enabled.
+	 * @return boolean Whether dedicated Sync flow is enabled.
 	 */
-	public static function is_sync_spawning_enabled() {
-		return (bool) self::get_setting( 'sync_spawning_enabled' );
+	public static function is_dedicated_sync_enabled() {
+		return (bool) self::get_setting( 'dedicated_sync_enabled' );
 	}
 
 }

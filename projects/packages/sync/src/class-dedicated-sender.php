@@ -1,6 +1,6 @@
 <?php
 /**
- * Sync Spawner.
+ * Dedicated Sender.
  *
  * The class is responsible for spawning dedicated Sync requests.
  *
@@ -15,7 +15,7 @@ use WP_Error;
  * The purpose of this class is to provide the means to unblock Sync from running in the shutdown hook
  * of regular requests by spawning a dedicated Sync request instead which will trigger Sync to run.
  */
-class Spawner {
+class Dedicated_Sender {
 
 	/**
 	 * Check if this request should trigger Sync to run.
@@ -56,8 +56,8 @@ class Spawner {
 	 * @return boolean|WP_Error True if spawned, WP_Error otherwise.
 	 */
 	public static function spawn_sync( $queue ) {
-		if ( ! Settings::is_sync_spawning_enabled() ) {
-			return new WP_Error( 'sync_spawning_disabled', 'Sync spawning is disabled.' );
+		if ( ! Settings::is_dedicated_sync_enabled() ) {
+			return new WP_Error( 'dedicated_sync_disabled', 'Dedicated Sync flow is disabled.' );
 		}
 
 		if ( $queue->is_locked() ) {
