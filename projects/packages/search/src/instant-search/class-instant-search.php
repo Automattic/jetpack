@@ -403,6 +403,64 @@ class Instant_Search extends Classic_Search {
 
 		update_option( $widget_opt_name, $widget_options );
 		update_option( 'sidebars_widgets', $sidebars );
+
+		if ( \current_theme_supports( 'block-templates' ) ) {
+			$this->add_search_block_above_footer();
+		}
+	}
+
+	/**
+	 * Add a search widget above footer for block templates.
+	 */
+	public function add_search_block_above_footer() {
+		$active_theme     = \wp_get_theme()->get_stylesheet();
+		$template_part_id = "{$active_theme}//footer";
+		$footer           = \get_block_template( $template_part_id, 'wp_template_part' );
+		if ( is_wp_error( $footer ) || empty( $footer ) ) {
+			return;
+		}
+		// We now only checks the standard search block.
+		// In the future we need to add Jetpack Search block when it's ready.
+		if ( false !== strpos( $footer->content, 'wp:search' ) ) {
+			return;
+		}
+		$request = new \WP_REST_Request( 'PUT', "/wp/v2/template-parts/{$template_part_id}" );
+		$request->set_header( 'content-type', 'application/json' );
+		$request->set_param( 'content', $this->prepand_search_widget_to_block( $footer->content ) );
+		$request->set_param( 'id', $template_part_id );
+		$controller = new \WP_REST_Templates_Controller( 'wp_template_part' );
+		$controller->update_item( $request );
+	}
+
+	/**
+	 * Prepend Search block to block if no 'wp:search' exists already.
+	 *
+	 * @param {string} $block_content - the content to prepend the search block.
+	 */
+	protected function prepand_search_widget_to_block( $block_content ) {
+		// search block is on 3rd of 4 columns.
+		$search_block_group = <<<EOT
+		<!-- wp:group -->
+		<div class="wp-block-group"><!-- wp:columns -->
+		<div class="wp-block-columns"><!-- wp:column -->
+		<div class="wp-block-column"></div>
+		<!-- /wp:column -->
+
+		<!-- wp:column -->
+		<div class="wp-block-column"></div>
+		<!-- /wp:column -->
+
+		<!-- wp:column -->
+		<div class="wp-block-column"><!-- wp:search {"label":"Search","width":100,"widthUnit":"%","buttonText":"Search"} /--></div>
+		<!-- /wp:column -->
+
+		<!-- wp:column -->
+		<div class="wp-block-column"></div>
+		<!-- /wp:column --></div>
+		<!-- /wp:columns --></div>
+		<!-- /wp:group -->\n
+EOT;
+		return $search_block_group . $block_content;
 	}
 
 	/**
