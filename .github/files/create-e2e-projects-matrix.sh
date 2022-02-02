@@ -39,6 +39,7 @@ for PROJECT in "${PROJECTS[@]}"; do
 	fi
 done
 
+RUN_NAME='atomic'
 PROJECTS_MATRIX+=('{"project":"Jetpack with Gutenberg","path":"projects/plugins/jetpack/tests/e2e","testArgs":["blocks"],"slackArgs":["--report", "gutenberg"]}')
 PROJECTS_MATRIX+=('{"project":"Jetpack on Atomic","path":"projects/plugins/jetpack/tests/e2e","testArgs":["blocks", "--grep-invert", "wordads"],"slackArgs":["--report", "atomic"]}')
 
