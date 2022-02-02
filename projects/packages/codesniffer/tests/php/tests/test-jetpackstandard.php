@@ -87,10 +87,16 @@ class JetpackStandardTest extends TestCase {
 	 * @param bool   $fix Run as phpcbf rather than phpcs.
 	 */
 	public function test_phpcs( $file, $fix ) {
-		$expect = file_get_contents( $fix ? "$file.fixed" : "$file.report" );
+		$snapfile = $fix ? "$file.fixed" : "$file.report";
+		$expect   = file_get_contents( $snapfile );
 		$this->assertIsString( $expect );
-		file_put_contents( $fix ? "$file.fixed" : "$file.report", $expect = $this->run_phpcs( $file, $fix ) );
-		$this->assertEquals( $expect, $this->run_phpcs( $file, $fix ) );
+		$actual = $this->run_phpcs( $file, $fix );
+		if ( getenv( 'UPDATE_SNAPSHOTS' ) && $expect !== $actual ) {
+			file_put_contents( $snapfile, $actual );
+			$this->addWarning( "Updated snapshot in $snapfile" );
+		} else {
+			$this->assertEquals( $expect, $actual, '(Run with UPDATE_SNAPSHOTS=1 to update snapshots)' );
+		}
 	}
 
 	/**
