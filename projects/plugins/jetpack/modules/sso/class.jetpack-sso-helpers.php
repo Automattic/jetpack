@@ -38,7 +38,7 @@ if ( ! class_exists( 'Jetpack_SSO_Helpers' ) ) :
 		 * @return bool
 		 */
 		public static function match_by_email() {
-			$match_by_email = ( 1 == get_option( 'jetpack_sso_match_by_email', true ) ) ? true : false;
+			$match_by_email = ( 1 === (int) get_option( 'jetpack_sso_match_by_email', true ) ) ? true : false;
 			$match_by_email = defined( 'WPCC_MATCH_BY_EMAIL' ) ? WPCC_MATCH_BY_EMAIL : $match_by_email;
 
 			/**
@@ -301,7 +301,7 @@ if ( ! class_exists( 'Jetpack_SSO_Helpers' ) ) :
 					'jetpack_json_api_authorization',
 				)
 			);
-			return in_array( $action, $allowed_actions_for_sso );
+			return in_array( $action, $allowed_actions_for_sso, true );
 		}
 
 		/**
@@ -331,7 +331,7 @@ if ( ! class_exists( 'Jetpack_SSO_Helpers' ) ) :
 				return false;
 			}
 
-			if ( 'jetpack_json_api_authorization' != $args['action'] ) {
+			if ( 'jetpack_json_api_authorization' !== $args['action'] ) {
 				return false;
 			}
 
