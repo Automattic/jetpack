@@ -2,9 +2,11 @@
  * External dependencies
  */
 import React from 'react';
+import classnames from 'classnames';
+import { Button } from '@wordpress/components';
 import { Icon, check } from '@wordpress/icons';
 import { getCurrencyObject } from '@automattic/format-currency';
-import classnames from 'classnames';
+import { __, sprintf } from '@wordpress/i18n';
 
 /**
  * Internal dependencies
@@ -83,9 +85,18 @@ export default function ProductDetailCard( { slug } ) {
 			</ul>
 			<div className={ styles[ 'price-container' ] }>
 				<Price value={ price } currency={ currencyCode } isOld={ true } />
-
 				<Price value={ price } currency={ currencyCode } isOld={ false } />
+				<div className={ styles[ 'price-description' ] }>
+					{ __( '/month, paid yearly', 'jetpack-my-jetpack' ) }
+				</div>
 			</div>
+
+			<Button isLink isPrimary href="#" className={ styles[ 'checkout-button' ] }>
+				{
+					/* translators: placeholder is product name. */
+					sprintf( __( 'Add %s', 'jetpack-my-jetpack' ), title )
+				}
+			</Button>
 		</div>
 	);
 }

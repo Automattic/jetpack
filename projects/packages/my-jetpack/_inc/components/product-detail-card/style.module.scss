@@ -24,7 +24,7 @@
 	display: flex;
 	flex-direction: column;
 	justify-content: space-between;
-	max-width: 400px;
+	max-width: 600px;
 	height: 100%;
 	padding: 60px 40px;
 	background-color: var(--product-card-bg-color);
@@ -39,6 +39,10 @@
 		line-height: 1.1;
 		color: var( --jp-black );
 		margin: 10px 0;
+	}
+
+	.checkout-button {
+		margin-top: 20px;
 	}
 }
 
@@ -70,7 +74,7 @@
 	flex-wrap: wrap;
 	flex-direction: row;
 	justify-content: space-between;
-	max-width: 180px;
+	align-items: flex-end;
 	margin-top: auto;
 	color: var(--jp-text-color);
 }
@@ -115,4 +119,18 @@
 			pointer-events: none;
 		}
 	}
+}
+
+.price-description {
+	color: #787c82;
+	letter-spacing: 0.2px;
+}
+
+.checkout-button {
+	align-self: flex-start;
+	font-size: 1rem;
+	padding: 8px 60px;
+    text-align: center;;
+	width: 100%;
+	display: inline-block;
 }
