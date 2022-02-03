@@ -44,7 +44,7 @@ class Jetpack_VideoPress {
 		add_action( 'wp_enqueue_media', array( $this, 'enqueue_admin_scripts' ) );
 		add_filter( 'plupload_default_settings', array( $this, 'videopress_pluploder_config' ) );
 		add_filter( 'wp_get_attachment_url', array( $this, 'maybe_get_attached_url_for_videopress' ), 10, 2 );
-		add_filter( 'get_attached_file', array( $this, 'maybe_get_attached_url_for_videopress' ), 10, 2 );
+		add_filter( 'get_attached_file', array( $this, 'maybe_get_original_url_for_videopress' ), 10, 2 );
 
 		if ( Jetpack_Plan::supports( 'videopress' ) ) {
 			add_filter( 'upload_mimes', array( $this, 'add_video_upload_mimes' ), 999 );
@@ -260,6 +260,24 @@ class Jetpack_VideoPress {
 	 */
 	public function maybe_get_attached_url_for_videopress( $default, $post_id ) {
 		$videopress_url = videopress_get_attachment_url( $post_id );
+
+		if ( null !== $videopress_url ) {
+			return $videopress_url;
+		}
+
+		return $default;
+	}
+
+	/**
+	 * Returns a VideoPress URL for the originally uploaded file for the give post id, otherwise returns the provided default.
+	 *
+	 * This is an attachment-based filter handler.
+	 *
+	 * @param string $default The default return value if post id is not a VideoPress video.
+	 * @param int    $post_id The post id for the current attachment.
+	 */
+	public function maybe_get_original_url_for_videopress( $default, $post_id ) {
+		$videopress_url = videopress_get_attachment_url( $post_id, true );
 
 		if ( null !== $videopress_url ) {
 			return $videopress_url;

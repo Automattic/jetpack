@@ -643,10 +643,11 @@ function videopress_get_post_id_by_guid( $guid ) {
  *
  * When the MP4 hasn't been processed yet or this is not a VideoPress video, this will return null.
  *
- * @param int $post_id Post ID of the attachment.
+ * @param int  $post_id Post ID of the attachment.
+ * @param bool $ignore_compat Whether or not to ignore the `compat` file for retrieving the video filename.
  * @return string|null
  */
-function videopress_get_attachment_url( $post_id ) {
+function videopress_get_attachment_url( $post_id, $ignore_compat = false ) {
 
 	// We only handle VideoPress attachments.
 	if ( get_post_mime_type( $post_id ) !== 'video/videopress' ) {
@@ -656,8 +657,10 @@ function videopress_get_attachment_url( $post_id ) {
 	$meta = wp_get_attachment_metadata( $post_id );
 
 	// As of Jetpack 10.3 transcoded video files are reserved for the VideoPress player.
-	// All other video file requests will receive the originally uploaded file, stored on the wpcom cdn.
-	if ( ! isset( $meta['videopress']['original'] ) ) {
+	// All other video file requests will receive the `compat` video (as of Jetpack 10.7) or the originally uploaded file, stored on the wpcom cdn.
+	if ( ! $ignore_compat && isset( $meta['videopress']['files']['hd_1080p_compat']['mp4'] ) ) {
+		$return = $meta['videopress']['file_url_base']['https'] . $meta['videopress']['files']['hd_1080p_compat']['mp4'];
+	} elseif ( ! isset( $meta['videopress']['original'] ) ) {
 		// Use the original file as the url if it isn't transcoded yet.
 		if ( isset( $meta['original'] ) ) {
 			$return = $meta['original'];
