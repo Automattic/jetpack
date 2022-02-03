@@ -6,19 +6,21 @@ PROJECTS=('{"project":"Jetpack","path":"projects/plugins/jetpack/tests/e2e","tes
 PROJECTS_MATRIX=()
 RUN_NAME=''
 
-CHANGED_PROJECTS="$(.github/files/list-changed-projects.sh)"
-
 # gutenberg scheduled run
 if [ "$CRON" == "0 */12 * * *" ]; then
   PROJECTS_MATRIX+=('{"project":"Jetpack with Gutenberg","path":"projects/plugins/jetpack/tests/e2e","testArgs":["blocks"],"slackArgs":["--report", "gutenberg"]}')
   RUN_NAME='gutenberg'
+  exit 0
 fi
 
 # atomic scheduled run
 if [ "$CRON" == "0 */4 * * *" ]; then
   PROJECTS_MATRIX+=('{"project":"Jetpack on Atomic","path":"projects/plugins/jetpack/tests/e2e","testArgs":["blocks", "--grep-invert", "wordads"],"slackArgs":["--report", "atomic"]}')
   RUN_NAME='atomic'
+  exit 0
 fi
+
+CHANGED_PROJECTS="$(.github/files/list-changed-projects.sh)"
 
 for PROJECT in "${PROJECTS[@]}"; do
 	PROJECT_PATH=$(jq -r ".path" <<<"$PROJECT")
