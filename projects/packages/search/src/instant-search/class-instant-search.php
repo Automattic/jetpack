@@ -354,14 +354,12 @@ class Instant_Search extends Classic_Search {
 		if ( ( false !== $sidebar_jp_searchbox_idx ) && isset( $widget_options[ $sidebar_jp_searchbox_idx ] ) ) {
 			// If there is JP search widget in theme sidebar, copy it over to overlay sidebar and done.
 			$widget_options[ $next_id ] = $widget_options[ $sidebar_jp_searchbox_idx ];
-			array_unshift( $sidebars['jetpack-instant-search-sidebar'], Helper::build_widget_id( $next_id ) );
 		} else {
 			// If JP Search widget doesn't exist in theme sidebar, we have nothing to copy from, so we create in overlay sidebar.
-			$preconfig_opts             = $this->get_preconfig_widget_options();
-			$widget_options[ $next_id ] = $preconfig_opts;
-			array_unshift( $sidebars['jetpack-instant-search-sidebar'], Helper::build_widget_id( $next_id ) );
+			$widget_options[ $next_id ] = $this->get_preconfig_widget_options();
 		}
 
+		array_unshift( $sidebars['jetpack-instant-search-sidebar'], Helper::build_widget_id( $next_id ) );
 		update_option( $widget_opt_name, $widget_options );
 		update_option( 'sidebars_widgets', $sidebars );
 	}
@@ -391,6 +389,7 @@ class Instant_Search extends Classic_Search {
 			// Add JP Search widgetto top.
 			array_unshift( $sidebars['sidebar-1'], Helper::build_widget_id( $next_id ) );
 		}
+
 		update_option( $widget_opt_name, $widget_options );
 		update_option( 'sidebars_widgets', $sidebars );
 	}
