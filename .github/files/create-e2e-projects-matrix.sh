@@ -6,7 +6,9 @@ PROJECTS=('{"project":"Jetpack","path":"projects/plugins/jetpack/tests/e2e","tes
 PROJECTS_MATRIX=()
 RUN_NAME=''
 
-CHANGED_PROJECTS="$(.github/files/list-changed-projects.sh)"
+if [[ "$GITHUB_EVENT_NAME" == "pull_request" || "$GITHUB_EVENT_NAME" == "push" ]]; then
+	CHANGED_PROJECTS="$(.github/files/list-changed-projects.sh)"
+fi
 
 # gutenberg scheduled run
 if [ "$CRON" == "0 */12 * * *" ]; then
