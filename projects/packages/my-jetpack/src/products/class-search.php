@@ -71,8 +71,10 @@ class Search extends Module_Product {
 	 */
 	public static function get_pricing_for_ui() {
 		return array(
-			'available' => true,
-			'is_free'   => true,
+			'available'            => true,
+			'currency_code'        => 'EUR',
+			'full_price'           => '4.50',
+			'promotion_percentage' => '50',
 		);
 	}
 }

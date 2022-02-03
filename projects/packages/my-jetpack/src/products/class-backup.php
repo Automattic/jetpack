@@ -84,8 +84,8 @@ class Backup extends Hybrid_Product {
 	public static function get_pricing_for_ui() {
 		return array(
 			'available'            => true,
-			'currency_code'        => 'USD',
-			'full_price'           => '108',
+			'currency_code'        => 'EUR',
+			'full_price'           => '9',
 			'promotion_percentage' => '50',
 		);
 	}
