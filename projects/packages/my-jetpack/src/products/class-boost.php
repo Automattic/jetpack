@@ -77,4 +77,16 @@ class Boost extends Product {
 	public static function get_features() {
 		return array();
 	}
+
+	/**
+	 * Get the product princing details
+	 *
+	 * @return array Pricing details
+	 */
+	public static function get_pricing_for_ui() {
+		return array(
+			'available' => true,
+			'is_free'   => true,
+		);
+	}
 }
