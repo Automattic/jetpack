@@ -67,7 +67,8 @@ class Jetpack_SSO {
 			return self::$instance;
 		}
 
-		return self::$instance = new Jetpack_SSO();
+		self::$instance = new Jetpack_SSO();
+		return self::$instance;
 	}
 
 	/**
@@ -653,7 +654,8 @@ class Jetpack_SSO {
 	 * @param int $user_id The local user id.
 	 */
 	public static function delete_connection_for_user( $user_id ) {
-		if ( ! $wpcom_user_id = get_user_meta( $user_id, 'wpcom_user_id', true ) ) {
+		$wpcom_user_id = get_user_meta( $user_id, 'wpcom_user_id', true );
+		if ( ! $wpcom_user_id ) {
 			return;
 		}
 
@@ -786,8 +788,8 @@ class Jetpack_SSO {
 		}
 
 		// If we've still got nothing, create the user.
-		$new_user_override_role = false;
-		if ( empty( $user ) && ( get_option( 'users_can_register' ) || ( $new_user_override_role = Jetpack_SSO_Helpers::new_user_override( $user_data ) ) ) ) {
+		$new_user_override_role = Jetpack_SSO_Helpers::new_user_override( $user_data );
+		if ( empty( $user ) && ( get_option( 'users_can_register' ) || $new_user_override_role ) ) {
 			/**
 			 * If not matching by email we still need to verify the email does not exist
 			 * or this blows up
@@ -862,7 +864,8 @@ class Jetpack_SSO {
 			// If we have a saved redirect to request in a cookie.
 			if ( ! empty( $_COOKIE['jetpack_sso_redirect_to'] ) ) {
 				// Set that as the requested redirect to.
-				$redirect_to = $_request_redirect_to = esc_url_raw( $_COOKIE['jetpack_sso_redirect_to'] );
+				$redirect_to          = esc_url_raw( $_COOKIE['jetpack_sso_redirect_to'] );
+				$_request_redirect_to = $redirect_to;
 			}
 
 			$json_api_auth_environment = Jetpack_SSO_Helpers::get_json_api_auth_environment();
