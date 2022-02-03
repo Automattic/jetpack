@@ -3,25 +3,29 @@
  */
 import edit from './edit';
 import save from './save';
+import {
+	ANNUAL_DONATION,
+	DEFAULT_TAB,
+	MONTHLY_DONATION,
+	ONE_TIME_DONATION,
+} from '../common/constants';
 
 /**
  * WordPress dependencies
  */
 import { __ } from '@wordpress/i18n';
+
+/**
+ * External dependencies
+ */
 import { DonationsIcon } from '../../../shared/icons';
-import {
-	ANNUAL_DONATION_TAB,
-	DEFAULT_TAB,
-	MONTHLY_DONATION_TAB,
-	ONE_TIME_DONATION_TAB,
-} from '../common/constants';
 
 const name = 'donations-view';
 
 const blockTitles = {
-	[ ONE_TIME_DONATION_TAB ]: __( 'One Time Donation View', 'jetpack' ),
-	[ MONTHLY_DONATION_TAB ]: __( 'Monthly Donation View', 'jetpack' ),
-	[ ANNUAL_DONATION_TAB ]: __( 'Annual Donation View', 'jetpack' ),
+	[ ONE_TIME_DONATION ]: __( 'One Time Donation View', 'jetpack' ),
+	[ MONTHLY_DONATION ]: __( 'Monthly Donation View', 'jetpack' ),
+	[ ANNUAL_DONATION ]: __( 'Annual Donation View', 'jetpack' ),
 };
 
 const settings = {
@@ -34,6 +38,14 @@ const settings = {
 		type: {
 			type: 'string',
 			default: DEFAULT_TAB,
+		},
+		fallbackLinkUrl: {
+			type: 'string',
+			default: '',
+		},
+		planId: {
+			type: 'string',
+			default: '',
 		},
 	},
 	edit,

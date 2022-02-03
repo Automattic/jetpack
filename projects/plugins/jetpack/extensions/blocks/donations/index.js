@@ -2,14 +2,15 @@
  * WordPress dependencies
  */
 import { __ } from '@wordpress/i18n';
+import { DonationsIcon } from '../../shared/icons';
 
 /**
  * Internal dependencies
  */
 import edit from './edit';
 import save from './save';
-import deprecatedV1 from './deprecated/v1';
-import { DonationsIcon } from '../../shared/icons';
+import { ANNUAL_DONATION, MONTHLY_DONATION, ONE_TIME_DONATION } from './common/constants';
+import { deprecated } from './deprecated';
 
 /**
  * Style dependencies
@@ -24,12 +25,49 @@ export const settings = {
 	description: __( 'Collect one-time, monthly, or annually recurring donations.', 'jetpack' ),
 	icon: DonationsIcon,
 	category: 'earn',
-	keywords: [ __( 'Donations', 'jetpack' ) ],
+	keywords: [ __( 'donations', 'jetpack' ) ],
+	attributes: {
+		[ ONE_TIME_DONATION ]: {
+			type: 'boolean',
+			default: true,
+		},
+		[ MONTHLY_DONATION ]: {
+			type: 'boolean',
+			default: true,
+		},
+		[ ANNUAL_DONATION ]: {
+			type: 'boolean',
+			default: true,
+		},
+		showCustomAmount: {
+			type: 'boolean',
+			default: true,
+		},
+		currency: {
+			type: 'string',
+			default: 'USD',
+		},
+		fallbackLinkUrl: {
+			type: 'string',
+		},
+	},
 	supports: {
+		align: true,
+		alignWide: false,
+		spacing: {
+			padding: true,
+		},
+		color: {
+			link: true,
+			gradients: true,
+		},
+		typography: {
+			fontSize: true,
+			lineHeight: true,
+		},
 		html: false,
 	},
 	edit,
 	save,
-	example: {},
-	deprecated: [ deprecatedV1 ],
+	deprecated,
 };

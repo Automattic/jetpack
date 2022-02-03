@@ -12,6 +12,14 @@
 		}
 	}
 
+  	.donations__view {
+	  display: none;
+
+	  &.is-active {
+		display: inherit;
+	  }
+	}
+
 	.donations__custom-amount {
 		cursor: default;
 	}

@@ -1,12 +1,6 @@
 /**
- * External dependencies
- */
-import { CURRENCIES } from '@automattic/format-currency';
-
-/**
  * WordPress dependencies
  */
-import { BlockControls, InspectorControls } from '@wordpress/block-editor';
 import {
 	Button,
 	Dashicon,
@@ -20,32 +14,28 @@ import {
 	ToolbarItem,
 } from '@wordpress/components';
 import { __ } from '@wordpress/i18n';
+import { BlockControls, InspectorControls } from '@wordpress/block-editor';
 import { DOWN } from '@wordpress/keycodes';
+
+/**
+ * External dependencies
+ */
+import getSiteFragment from '../../shared/get-site-fragment';
 
 /**
  * Internal dependencies
  */
+import { ANNUAL_DONATION, MONTHLY_DONATION } from './common/constants';
+import { CURRENCIES } from '@automattic/format-currency';
 import { SUPPORTED_CURRENCIES } from '../../shared/currencies';
-import getSiteFragment from '../../shared/get-site-fragment';
 
 const Controls = props => {
-	const { attributes, setAttributes } = props;
-	const { currency, monthlyDonation, annualDonation, showCustomAmount } = attributes;
+	const { attributes, setAttributes, onChangeTab } = props;
+	const { showCustomAmount, currency } = attributes;
 
-	const toggleDonation = ( interval, show ) => {
-		const donationAttributes = {
-			'1 month': 'monthlyDonation',
-			'1 year': 'annualDonation',
-		};
-		const donationAttribute = donationAttributes[ interval ];
-		const donation = attributes[ donationAttribute ];
-
-		setAttributes( {
-			[ donationAttribute ]: {
-				...donation,
-				show,
-			},
-		} );
+	const toggleDonation = ( donationType, show ) => {
+		setAttributes( { [ donationType ]: show } );
+		onChangeTab( donationType, show );
 	};
 
 	return (
@@ -104,13 +94,13 @@ const Controls = props => {
 			<InspectorControls>
 				<PanelBody title={ __( 'Settings', 'jetpack' ) }>
 					<ToggleControl
-						checked={ monthlyDonation.show }
-						onChange={ value => toggleDonation( '1 month', value ) }
+						checked={ attributes[ MONTHLY_DONATION ] }
+						onChange={ value => toggleDonation( MONTHLY_DONATION, value ) }
 						label={ __( 'Show monthly donations', 'jetpack' ) }
 					/>
 					<ToggleControl
-						checked={ annualDonation.show }
-						onChange={ value => toggleDonation( '1 year', value ) }
+						checked={ attributes[ ANNUAL_DONATION ] }
+						onChange={ value => toggleDonation( ANNUAL_DONATION, value ) }
 						label={ __( 'Show annual donations', 'jetpack' ) }
 					/>
 					<ToggleControl
