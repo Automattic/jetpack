@@ -267,8 +267,9 @@ class REST_Controller {
 		}
 
 		// Automatically configure necessary settings for instant search.
-		// We will either to make sure the auto config process idempotent or call it only once.
-		Instant_Search::instance()->auto_config_search();
+		if ( $request->get_param( 'auto_config_search' ) ) {
+			Instant_Search::instance()->auto_config_search();
+		}
 
 		return rest_ensure_response(
 			array(
