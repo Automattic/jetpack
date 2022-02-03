@@ -701,7 +701,7 @@ class Jetpack_Gutenberg {
 
 	/**
 	 * Add the Gutenberg editor stylesheet to the site editor.
-	 * The `add_editor_style` function automatically adds another stylesheet with -rtl prefix.
+	 * This workaround is only supposed to be used by WordPress.com Simple sites.
 	 *
 	 * @since $$next-version$$
 	 *
@@ -729,7 +729,22 @@ class Jetpack_Gutenberg {
 			$blocks_env = '';
 		}
 
-		Assets::add_editor_style( "{$blocks_dir}editor{$blocks_env}.css", JETPACK__PLUGIN_FILE );
+		$path = "{$blocks_dir}editor{$blocks_env}.css";
+		$dir  = dirname( JETPACK__PLUGIN_FILE );
+
+		if ( file_exists( "$dir/$path" ) ) {
+			if ( is_rtl() ) {
+				$rtlcsspath = substr( $path, 0, -4 ) . '.rtl.css';
+				if ( file_exists( "$dir/$rtlcsspath" ) ) {
+					$path = $rtlcsspath;
+				}
+			}
+
+			$url = Assets::normalize_path( plugins_url( $path, JETPACK__PLUGIN_FILE ) );
+			$url = add_query_arg( 'minify', 'false', $url );
+
+			add_editor_style( $url );
+		}
 	}
 
 	/**
