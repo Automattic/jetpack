@@ -374,6 +374,16 @@ class Instant_Search extends Classic_Search {
 			return;
 		}
 
+		// If there's JP search widget in theme sidebar, skip.
+		if ( isset( $sidebars['sidebar-1'] ) ) {
+			foreach ( (array) $sidebars['sidebar-1'] as $widget_id ) {
+				if ( 0 === strpos( $widget_id, Helper::FILTER_WIDGET_BASE ) ) {
+					// Already configured.
+					return;
+				}
+			}
+		}
+
 		$widget_opt_name = Helper::get_widget_option_name();
 		$widget_options  = get_option( $widget_opt_name, array() );
 
