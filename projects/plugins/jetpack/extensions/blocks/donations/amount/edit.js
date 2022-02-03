@@ -1,53 +1,48 @@
 /**
  * External dependencies
  */
-import formatCurrency, { CURRENCIES } from '@automattic/format-currency';
 import classnames from 'classnames';
+import { minimumTransactionAmountForCurrency, parseAmount } from '../../../shared/currencies';
+
+/**
+ * Internal dependencies
+ */
+import DonationsContext from '../common/context';
 
 /**
  * WordPress dependencies
  */
 import { RichText } from '@wordpress/block-editor';
-import { useCallback, useEffect, useRef, useState } from '@wordpress/element';
+import formatCurrency, { CURRENCIES } from '@automattic/format-currency';
+import { useCallback, useContext, useEffect, useMemo, useRef, useState } from '@wordpress/element';
 
-/**
- * Internal dependencies
- */
-import { minimumTransactionAmountForCurrency, parseAmount } from '../../shared/currencies';
-
-const Amount = ( {
-	className = null,
-	currency = null,
-	defaultValue = null,
-	disabled = false,
-	label = '',
-	onChange = null,
-	value = '',
-} ) => {
+const Edit = props => {
+	const { attributes, setAttributes } = props;
+	const { baseAmountMultiplier, className, label, amount, disabled = false } = attributes;
+	const { currency } = useContext( DonationsContext );
+	const defaultValue = useMemo(
+		() => minimumTransactionAmountForCurrency( currency ) * baseAmountMultiplier,
+		[ currency, baseAmountMultiplier ]
+	);
 	const [ editedValue, setEditedValue ] = useState(
-		formatCurrency( value, currency, { symbol: '' } )
+		formatCurrency( amount, currency, { symbol: '' } )
 	);
 	const [ isFocused, setIsFocused ] = useState( false );
 	const [ isInvalid, setIsInvalid ] = useState( false );
 	const richTextRef = useRef( null );
 
 	const setAmount = useCallback(
-		amount => {
-			setEditedValue( amount );
-
-			if ( ! onChange ) {
-				return;
-			}
-
-			const parsedAmount = parseAmount( amount, currency );
+		newAmount => {
+			setEditedValue( newAmount );
+			setAttributes( { amount: newAmount, currency } );
+			const parsedAmount = parseAmount( newAmount, currency );
 			if ( parsedAmount && parsedAmount >= minimumTransactionAmountForCurrency( currency ) ) {
-				onChange( parsedAmount );
 				setIsInvalid( false );
-			} else if ( amount ) {
+			} else if ( newAmount ) {
 				setIsInvalid( true );
 			}
 		},
-		[ currency, onChange ]
+		[ currency, setAttributes ]
 	);
 
 	const setFocus = () => {
@@ -73,17 +68,8 @@ const Amount = ( {
 		if ( isFocused || editedValue ) {
 			return;
 		}
-
 		setAmount( formatCurrency( defaultValue, currency, { symbol: '' } ) );
-	}, [ currency, defaultValue, editedValue, isFocused, setAmount ] );
-
-	// Syncs the edited value with the actual value whenever the latter changes (e.g. new default amount after a currency change).
-	useEffect( () => {
-		if ( isFocused || isInvalid ) {
-			return;
-		}
-		setEditedValue( formatCurrency( value, currency, { symbol: '' } ) );
-	}, [ currency, isFocused, isInvalid, setAmount, value ] );
+	}, [ currency, editedValue, isFocused, setAmount, defaultValue ] );
 
 	return (
 		<div
@@ -99,7 +85,7 @@ const Amount = ( {
 			{ CURRENCIES[ currency ].symbol }
 			{ disabled ? (
 				<div className="donations__amount-value">
-					{ formatCurrency( value ? value : defaultValue, currency, { symbol: '' } ) }
+					{ formatCurrency( amount ? amount : defaultValue, currency, { symbol: '' } ) }
 				</div>
 			) : (
 				<RichText
@@ -107,15 +93,13 @@ const Amount = ( {
 					aria-label={ label }
 					keepPlaceholderOnFocus={ true }
 					multiline={ false }
-					onChange={ amount => setAmount( amount ) }
-					placeholder={ formatCurrency( defaultValue, currency, { symbol: '' } ) }
+					onChange={ newAmount => setAmount( newAmount ) }
 					ref={ richTextRef }
 					value={ editedValue }
-					withoutInteractiveFormatting
 				/>
 			) }
 		</div>
 	);
 };
 
-export default Amount;
+export default Edit;

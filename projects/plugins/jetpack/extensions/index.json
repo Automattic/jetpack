@@ -39,7 +39,7 @@
 		"videopress",
 		"wordads"
 	],
-	"beta": [ "amazon", "donations-editable-blocks" ],
+	"beta": [ "amazon" ],
 	"experimental": [ "anchor-fm", "premium-content", "conversation", "dialogue" ],
 	"no-post-editor": [
 		"business-hours",

@@ -19,7 +19,7 @@ import { initializeMembershipButtons } from '../../shared/memberships';
 /**
  * Style dependencies
  */
-import './view.scss';
+import '../donations/view.scss';
 
 class JetpackDonations {
 	constructor( block ) {
@@ -54,16 +54,19 @@ class JetpackDonations {
 			'1 month': 'donations__monthly-item',
 			'1 year': 'donations__annual-item',
 		};
+
 		return this.block.querySelector(
-			`.donations__donate-button.${ buttonIntervalClasses[ this.interval ] }`
+			`.${
+				buttonIntervalClasses[ this.interval ]
+			} .donations__donate-button .wp-block-button__link`
 		);
 	}
 
 	toggleDonateButton( enable ) {
 		const donateButton = this.getDonateButton();
 		enable
-			? donateButton.classList.remove( 'is-disabled' )
-			: donateButton.classList.add( 'is-disabled' );
+			? donateButton.parentElement.classList.remove( 'is-disabled' )
+			: donateButton.parentElement.classList.add( 'is-disabled' );
 	}
 
 	updateUrl() {
@@ -110,7 +113,7 @@ class JetpackDonations {
 
 	initNavigation() {
 		const navItems = this.block.querySelectorAll( '.donations__nav-item' );
-		const tabContent = this.block.querySelector( '.donations__tab' );
+		const tabContent = this.block.querySelector( '.donations__content' );
 		const tabContentClasses = {
 			'one-time': 'is-one-time',
 			'1 month': 'is-monthly',
@@ -223,7 +226,7 @@ class JetpackDonations {
 
 				// Enables the donate button.
 				const donateButton = this.getDonateButton();
-				donateButton.classList.remove( 'is-disabled' );
+				donateButton.parentElement.classList.remove( 'is-disabled' );
 			} );
 		} );
 
@@ -237,5 +240,5 @@ class JetpackDonations {
 domReady( () => {
 	const blocks = document.querySelectorAll( '.wp-block-jetpack-donations' );
 	blocks.forEach( block => new JetpackDonations( block ) );
-	initializeMembershipButtons( '.donations__donate-button' );
+	initializeMembershipButtons( '.donations__donate-button .wp-block-button__link' );
 } );

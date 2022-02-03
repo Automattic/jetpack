@@ -8,6 +8,7 @@ import { parse as parseUrl } from 'url';
  */
 import apiFetch from '@wordpress/api-fetch';
 import { addQueryArgs } from '@wordpress/url';
+import { __ } from '@wordpress/i18n';
 
 const fetchStatus = async ( type = null ) => {
 	const { query } = parseUrl( window.location.href, true );
@@ -21,6 +22,11 @@ const fetchStatus = async ( type = null ) => {
 			path,
 			method: 'GET',
 		} );
+
+		if ( ( ! result && typeof result !== 'object' ) || result.errors ) {
+			return Promise.reject( __( 'Could not load data from WordPress.com.', 'jetpack' ) );
+		}
+
 		return result;
 	} catch ( error ) {
 		return Promise.reject( error.message );
