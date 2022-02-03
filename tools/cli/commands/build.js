@@ -3,7 +3,7 @@
  */
 import chalk from 'chalk';
 import execa from 'execa';
-import fs from 'fs/promises';
+import inquirer from 'inquirer';
 import Listr from 'listr';
 import SilentRenderer from 'listr-silent-renderer';
 import UpdateRenderer from 'listr-update-renderer';
@@ -12,10 +12,13 @@ import UpdateRenderer from 'listr-update-renderer';
  * Internal dependencies
  */
 import { chalkJetpackGreen } from '../helpers/styling.js';
+import formatDuration from '../helpers/format-duration.js';
+import { getDependencies, filterDeps, getBuildOrder } from '../helpers/dependencyAnalysis.js';
 import promptForProject from '../helpers/promptForProject.js';
 import { readComposerJson } from '../helpers/json.js';
 import { getInstallArgs, projectDir } from '../helpers/install.js';
 import { allProjects, allProjectsByType } from '../helpers/projectHelpers.js';
+import PrefixTransformStream from '../helpers/prefix-stream.js';
 
 export const command = 'build [project...]';
 export const describe = 'Builds one or more monorepo projects';
@@ -36,6 +39,10 @@ export function builder( yargs ) {
 			type: 'boolean',
 			description: 'Build all projects.',
 		} )
+		.option( 'deps', {
+			type: 'boolean',
+			description: 'Build dependencies of the specified projects too.',
+		} )
 		.option( 'production', {
 			alias: 'p',
 			type: 'boolean',
@@ -44,6 +51,10 @@ export function builder( yargs ) {
 		.option( 'no-pnpm-install', {
 			type: 'boolean',
 			description: 'Skip execution of `pnpm install` before the build.',
+		} )
+		.option( 'timing', {
+			type: 'boolean',
+			description: 'Output timing information.',
 		} );
 }
 
@@ -53,6 +64,8 @@ export function builder( yargs ) {
  * @param {object} argv - the arguments passed.
  */
 export async function handler( argv ) {
+	let dependencies = await getDependencies( process.cwd(), 'build' );
+
 	if ( argv.project.length === 1 ) {
 		if ( argv.project[ 0 ] === 'packages' ) {
 			argv.project = allProjectsByType( 'packages' );
@@ -69,8 +82,21 @@ export async function handler( argv ) {
 	if ( argv.project.length === 0 ) {
 		argv.project = '';
 		argv = await promptForProject( argv );
+		argv = await promptForDeps( argv );
 		argv.project = [ argv.project ];
 	}
+
+	// Check for unknown projects.
+	argv.project = [ ...new Set( argv.project ) ];
+	const missing = new Set( argv.project.filter( p => ! dependencies.has( p ) ) );
+	if ( missing.size ) {
+		for ( const project of missing ) {
+			console.error( chalk.red( `Project ${ project } does not exist!` ) );
+		}
+		argv.project = argv.project.filter( p => dependencies.has( p ) );
+	}
+
+	dependencies = filterDeps( dependencies, argv.project, { dependencies: argv.deps } );
 
 	const listr = new Listr( [], {
 		renderer: argv.v ? SilentRenderer : UpdateRenderer,
@@ -89,15 +115,7 @@ export async function handler( argv ) {
 	}
 
 	// Add build tasks.
-	for ( const project of new Set( argv.project ) ) {
-		// Does the project even exist?
-		if (
-			( await fs.access( `projects/${ project }/composer.json` ).catch( () => false ) ) === false
-		) {
-			console.error( chalk.red( `Project ${ project } does not exist!` ) );
-			continue;
-		}
-
+	for ( const project of getBuildOrder( dependencies ).flat() ) {
 		const cwd = projectDir( project );
 		listr.add(
 			createBuildTask( argv, `Build ${ project }`, async t => {
@@ -153,16 +171,23 @@ function createBuildTask( argv, title, build ) {
 		task: async ( ctx, task ) => {
 			const t = {};
 			if ( argv.v ) {
+				const stdout = new PrefixTransformStream( { time: !! argv.timing } );
+				const stderr = new PrefixTransformStream( { time: !! argv.timing } );
+				stdout.pipe( process.stdout );
+				stderr.pipe( process.stderr );
+
 				t.execa = ( file, args, options ) => {
 					const p = execa( file, args, {
-						stdio: [ 'ignore', 'inherit', 'inherit' ],
+						stdio: [ 'ignore', 'pipe', 'pipe' ],
 						...options,
 					} );
+					p.stdout.pipe( stdout, { end: false } );
+					p.stderr.pipe( stderr, { end: false } );
 					return p;
 				};
 				t.output = m =>
 					new Promise( resolve => {
-						process.stdout.write( m, 'utf8', resolve );
+						stdout.write( m, 'utf8', resolve );
 					} );
 				t.setStatus = s => t.output( '\n' + chalk.bold( `== ${ title } [${ s }] ==` ) + '\n\n' );
 			} else {
@@ -173,11 +198,36 @@ function createBuildTask( argv, title, build ) {
 				};
 			}
 
+			const t0 = Date.now();
 			try {
 				await build( t );
 			} finally {
-				await t.setStatus( 'complete' );
+				await t.setStatus( argv.timing ? formatDuration( Date.now() - t0 ) + 's' : 'complete' );
 			}
 		},
+	};
+}
+
+/**
+ * Prompt for whether dependencies should be built too.
+ *
+ * @param {object} options - Passthrough of the argv object.
+ * @returns {object} argv object with the project property.
+ */
+async function promptForDeps( options ) {
+	if ( typeof options.deps !== 'undefined' ) {
+		return options;
+	}
+
+	const answers = await inquirer.prompt( [
+		{
+			type: 'confirm',
+			name: 'deps',
+			message: `Build dependencies of ${ options.project } too?`,
+		},
+	] );
+	return {
+		...options,
+		deps: answers.deps,
 	};
 }

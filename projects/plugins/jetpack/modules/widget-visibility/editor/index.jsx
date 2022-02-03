@@ -9,7 +9,7 @@ import { createHigherOrderComponent } from '@wordpress/compose';
 import { useSelect } from '@wordpress/data';
 import analytics from '../../../_inc/client/lib/analytics';
 
-/* global widget_conditions_data, wpcom */
+/* global widget_conditions_data */
 /* eslint-disable react/react-in-jsx-scope */
 
 //// Unescape utility
@@ -124,6 +124,17 @@ const buildOptions = ( options, level = 0 ) =>
 		return acc.concat( [ newItem ] );
 	}, [] );
 
+/**
+ * Get the site type.
+ *
+ * @return {string} - jetpack, atomic, or simple.
+ */
+const getSiteType = () => {
+	return 'object' === typeof window && typeof window._currentSiteType === 'string'
+		? window._currentSiteType
+		: 'jetpack';
+};
+
 const VisibilityRule = props => {
 	const { rule, onDelete, setMajor, setMinor } = props;
 
@@ -132,7 +143,6 @@ const VisibilityRule = props => {
 		{ label: __( 'User', 'jetpack' ), value: 'loggedin' },
 		{ label: __( 'Role', 'jetpack' ), value: 'role' },
 	];
-	const isWpcom = typeof wpcom !== 'undefined';
 
 	// "Taxonomy" is shown if there is at least one taxonomy (or if the current
 	// rule is taxonomy, so they can delete an invalid rule after removing
@@ -148,7 +158,7 @@ const VisibilityRule = props => {
 		{ label: __( 'Category', 'jetpack' ), value: 'category' },
 		{ label: __( 'Author', 'jetpack' ), value: 'author' },
 	]
-		.concat( isWpcom ? [] : optionsDisabledOnWpcom )
+		.concat( 'simple' === getSiteType() ? [] : optionsDisabledOnWpcom )
 		.concat( [
 			{ label: __( 'Tag', 'jetpack' ), value: 'tag' },
 			{ label: __( 'Date', 'jetpack' ), value: 'date' },

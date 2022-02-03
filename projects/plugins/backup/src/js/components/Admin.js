@@ -9,7 +9,7 @@ import {
 	AdminPage,
 	AdminSection,
 	AdminSectionHero,
-	Row,
+	Container,
 	Col,
 	getRedirectUrl,
 	PricingCard,
@@ -84,7 +84,7 @@ const Admin = () => {
 			'jetpack-backup'
 		);
 		return (
-			<Row>
+			<Container>
 				<Col lg={ 6 } md={ 6 } sm={ 4 }>
 					<h1>{ __( 'Secure your site with a Backup subscription.', 'jetpack-backup' ) }</h1>
 					<p>
@@ -115,7 +115,7 @@ const Admin = () => {
 						title={ __( 'Jetpack Backup', 'jetpack-backup' ) }
 					/>
 				</Col>
-			</Row>
+			</Container>
 		);
 	};
 
@@ -130,11 +130,11 @@ const Admin = () => {
 			}
 
 			return (
-				<Row>
+				<Container>
 					<Col lg={ 12 } md={ 8 } sm={ 4 }>
 						{ renderConnectScreen() }
 					</Col>
-				</Row>
+				</Container>
 			);
 		}
 
@@ -154,11 +154,11 @@ const Admin = () => {
 		// Render an error state, this shouldn't occurr since we've passed userConnected checks
 		if ( capabilitiesError ) {
 			return (
-				<Row>
+				<Container>
 					<Col lg={ 12 } md={ 8 } sm={ 4 }>
 						{ capabilitiesError }
 					</Col>
-				</Row>
+				</Container>
 			);
 		}
 
@@ -168,7 +168,7 @@ const Admin = () => {
 	// Renders additional segments under the jp-hero area condition on having a backup plan
 	const renderBackupSegments = () => {
 		return (
-			<Row>
+			<Container>
 				<Col lg={ 6 } md={ 4 }>
 					<h2>{ __( 'Your cloud backups', 'jetpack-backup' ) }</h2>
 					<p>
@@ -218,7 +218,7 @@ const Admin = () => {
 
 					{ renderConnectionStatusCard() }
 				</Col>
-			</Row>
+			</Container>
 		);
 	};
 

@@ -6,6 +6,7 @@ const apiEndpointsRegex = {
 	'lazy-images-status': /jetpack-boost\/v1\/module\/lazy-images\/status/,
 	'render-blocking-js-status': /jetpack-boost\/v1\/module\/render-blocking-js\/status/,
 	'speed-scores-update': /jetpack-boost\/v1\/speed-scores\/\w*\/update/,
+	connection: /jetpack-boost\/v1\/connection/,
 };
 
 export default class JetpackBoostPage extends WpPage {
@@ -14,15 +15,38 @@ export default class JetpackBoostPage extends WpPage {
 		super( page, { expectedSelectors: [ '#jb-settings' ], url } );
 	}
 
+	/**
+	 * Tries to connect Jetpack Boost to WordPress.com, and waits for the connection API call to complete.
+	 */
 	async connect() {
 		const button = await this.page.$( '.jb-connection button' );
 		await button.click();
+		await this.waitForApiResponse( 'connection' );
 	}
 
-	async isFreshlyConnected() {
-		await this.connect();
-		await this.waitForApiResponse( 'connection' );
-		return await this.isSiteScoreLoading();
+	/**
+	 * Check if the site looks disconnected from WordPress.com based on elements on the dashboard page.
+	 * Specifically checks for a "Connect" button.
+	 *
+	 * @return {boolean}  - True if the dashboard looks disconnected. (Not offline mode)
+	 */
+	async isAwaitingConnection() {
+		return await this.isElementVisible( '.jb-connection button' );
+	}
+
+	/**
+	 * Check if the site looks connected to WordPress.com based on elements on the dashboard page.
+	 * Looks for a "Site Score" area, which is not in "offline" mode.
+	 *
+	 * @return {boolean} - True if the dashboard looks connected to WordPRess.com.
+	 */
+	async isConnected() {
+		const [ showingScoreArea, isOffline ] = await Promise.all( [
+			this.isElementVisible( '.jb-site-score' ),
+			this.isElementVisible( '.jb-site-score__offline' ),
+		] );
+
+		return showingScoreArea && ! isOffline;
 	}
 
 	async isOverallScoreHeaderShown() {
@@ -62,6 +86,7 @@ export default class JetpackBoostPage extends WpPage {
 		);
 		await this.page.waitForSelector( '.jb-score-bar__score', {
 			state: 'visible',
+			timeout: 40 * 1000,
 		} );
 		return Number( await speedBar.$eval( '.jb-score-bar__score', e => e.textContent ) );
 	}

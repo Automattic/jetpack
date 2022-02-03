@@ -27,9 +27,9 @@ elif [[ "${GITHUB_EVENT_NAME:?}" == "pull_request" ]]; then
 	debug "GITHUB_EVENT_NAME is pull_request, checking diff from $DIFF"
 	ARGS+=( --verbose "--git-changed=$DIFF" )
 elif [[ "${GITHUB_EVENT_NAME:?}" == "push" ]]; then
-	debug "GITHUB_EVENT_NAME is pull_request, considering all projects changed."
+	debug "GITHUB_EVENT_NAME is push, considering all projects changed."
 else
 	die "Unsupported GITHUB_EVENT_NAME \"$GITHUB_EVENT_NAME\""
 fi
 
-pnpx jetpack dependencies list "${ARGS[@]}" | jq -cR 'reduce inputs as $i ({}; .[$i] |= true)'
+pnpx jetpack dependencies list "${ARGS[@]}" | jq -ncR 'reduce inputs as $i ({}; .[$i] |= true)'

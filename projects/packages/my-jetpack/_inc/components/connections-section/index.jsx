@@ -1,9 +1,9 @@
-/* global myJetpackInitialState */
 /**
  * External dependencies
  */
-import React, { useCallback } from 'react';
+import React from 'react';
 import { ConnectionStatusCard } from '@automattic/jetpack-connection';
+import useMyJetpackConnection from '../../hooks/use-my-jetpack-connection';
 
 /**
  * Plan section component.
@@ -11,15 +11,8 @@ import { ConnectionStatusCard } from '@automattic/jetpack-connection';
  * @returns {object} ConnectionsSection React component.
  */
 export default function ConnectionsSection() {
-	const redirectAfterDisconnect = useCallback( () => {
-		window.location = myJetpackInitialState.topJetpackMenuItemUrl;
-	}, [] );
+	const { apiRoot, apiNonce, redirectUrl } = useMyJetpackConnection();
 	return (
-		<ConnectionStatusCard
-			apiRoot={ myJetpackInitialState.apiRoot }
-			apiNonce={ myJetpackInitialState.apiNonce }
-			redirectUri={ myJetpackInitialState.redirectUri }
-			onDisconnected={ redirectAfterDisconnect }
-		/>
+		<ConnectionStatusCard apiRoot={ apiRoot } apiNonce={ apiNonce } redirectUri={ redirectUrl } />
 	);
 }

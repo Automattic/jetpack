@@ -39,11 +39,6 @@ class Jetpack_Initializer extends Initializer {
 		// registers Jetpack Search widget.
 		add_action( 'widgets_init', array( 'Automattic\Jetpack\Search\Jetpack_Initializer', 'jetpack_search_widget_init' ) );
 
-		/**
-		 * Location of built Jetpack Search assets, does not include trailing slash.
-		 */
-		define( 'JETPACK_SEARCH_PACKAGE_DIRECTORY', dirname( dirname( __DIR__ ) ) );
-
 		if ( Options::is_instant_enabled() ) {
 			// Enable the instant search experience.
 			Instant_Search::initialize( $blog_id );

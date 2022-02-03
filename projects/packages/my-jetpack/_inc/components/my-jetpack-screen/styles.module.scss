@@ -1,0 +1,28 @@
+@import '@automattic/jetpack-base-styles/style';
+
+.heading {
+	font-size: 36px;
+	line-height: 40px;
+	margin: 0;
+}
+
+:global {
+	.components-notice {
+		margin: 0;
+
+		.components-notice__content {
+			display: flex;
+
+			.components-notice__message-content {
+				height: 24px;
+				line-height: 24px;
+				margin-left: 10px;
+			}
+		}
+
+		.components-notice__action.components-button.is-link {
+			color: var( --jp-black );
+			font-weight: 600;
+		}
+	}
+}
