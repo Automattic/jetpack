@@ -119,39 +119,3 @@ export default function ProductDetailCard( { slug } ) {
 		</div>
 	);
 }
-
-/**
- * BackupDetailCard component
- *
- * @returns {object} BackupDetailCard react component.
- */
-export function BackupDetailCard() {
-	return <ProductDetailCard slug="backup" />;
-}
-
-/**
- * BackupDetail component
- *
- * @returns {object} BackupDetail react component.
- */
-export function BackupDetail() {
-	return <ProductDetail slug="backup" />;
-}
-
-/**
- * BoostDetailCard component
- *
- * @returns {object} BoostDetailCard react component.
- */
-export function BoostDetailCard() {
-	return <ProductDetailCard slug="boost" />;
-}
-
-/**
- * BoostDetail component
- *
- * @returns {object} BoostDetail react component.
- */
-export function BoostDetail() {
-	return <ProductDetail slug="boost" />;
-}
