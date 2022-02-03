@@ -4,6 +4,7 @@
 import { useEffect } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 import { useSelect, useDispatch } from '@wordpress/data';
+import { useNavigate } from 'react-router-dom';
 
 /**
  * Internal dependencies
@@ -34,7 +35,8 @@ export function useGlobalNotice() {
  */
 export default function useNoticeWatcher() {
 	const dispatch = useDispatch();
-	const { isUserConnected, redirectUrl } = useMyJetpackConnection();
+	const { isUserConnected } = useMyJetpackConnection();
+	const navigate = useNavigate();
 
 	useEffect( () => {
 		if ( ! isUserConnected ) {
@@ -48,11 +50,13 @@ export default function useNoticeWatcher() {
 					actions: [
 						{
 							label: __( 'Connect Jetpack now.', 'jetpack-my-jetpack' ),
-							url: redirectUrl,
+							onClick: () => navigate( '/connection' ),
+							variant: 'link',
+							noDefaultClasses: true,
 						},
 					],
 				}
 			);
 		}
-	}, [ isUserConnected, dispatch, redirectUrl ] );
+	}, [ isUserConnected, dispatch, navigate ] );
 }
