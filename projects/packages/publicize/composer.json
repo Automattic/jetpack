@@ -38,6 +38,12 @@
 	"minimum-stability": "dev",
 	"prefer-stable": true,
 	"extra": {
+		"autotagger": true,
+		"mirror-repo": "Automattic/jetpack-publicize",
+		"textdomain": "jetpack-publicize-pkg",
+		"changelogger": {
+			"link-template": "https://github.com/Automattic/jetpack-publicize/compare/v${old}...v${new}"
+		},
 		"branch-alias": {
 			"dev-master": "0.1.x-dev"
 		}
