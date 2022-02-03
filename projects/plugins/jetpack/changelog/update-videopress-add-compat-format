@@ -1,0 +1,4 @@
+Significance: minor
+Type: compat
+
+VideoPress videos now return a highly compatible h264 mp4 file instead of the originally uploaded video file for calls to `get_attachment_url`. This will . The original video file url is still available in the Media Library should it need to be shared separately.
