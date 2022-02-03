@@ -515,7 +515,7 @@ class Jetpack_SSO {
 
 
 			<div id="jetpack-sso-wrap__action">
-				<?php echo $this->build_sso_button( array(), 'is_primary' ); ?>
+				<?php echo $this->build_sso_button( array(), 'is_primary' ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- Escaping done in build_sso_button() ?>
 
 				<?php if ( $display_name && $gravatar ) : ?>
 					<a rel="nofollow" class="jetpack-sso-wrap__reauth" href="<?php echo esc_url( $this->build_sso_button_url( array( 'force_reauth' => '1' ) ) ); ?>">
@@ -1009,7 +1009,7 @@ class Jetpack_SSO {
 					'error_message' => $error_message,
 				)
 			);
-			wp_die( $error_message );
+			wp_die( esc_html( $error_message ) );
 		}
 
 		return $sso_redirect;
