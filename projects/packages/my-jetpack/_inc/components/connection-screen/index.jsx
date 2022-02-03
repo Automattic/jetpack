@@ -5,25 +5,20 @@ import React from 'react';
 import { __ } from '@wordpress/i18n';
 import { ConnectScreen } from '@automattic/jetpack-connection';
 import { Container, Col } from '@automattic/jetpack-components';
-import { Link } from 'react-router-dom';
-import { Icon, arrowLeft } from '@wordpress/icons';
 
 /**
  * Internal dependencies
  */
-import styles from './styles.module.scss';
 import useMyJetpackConnection from '../../hooks/use-my-jetpack-connection';
 import connectImage from './connect.png';
+import GoBackLink from '../go-back-link';
 
 const ConnectionScreen = () => {
 	const { apiRoot, apiNonce } = useMyJetpackConnection();
 	return (
 		<Container horizontalSpacing={ 3 } horizontalGap={ 3 }>
 			<Col>
-				<Link to="/" className={ styles.link }>
-					<Icon icon={ arrowLeft } className={ styles.icon } />
-					{ __( 'Go back', 'jetpack-my-jetpack' ) }
-				</Link>
+				<GoBackLink />
 			</Col>
 			<Col>
 				<ConnectScreen
