@@ -313,6 +313,15 @@ class Instant_Search extends Classic_Search {
 			return;
 		}
 
+		return $this->auto_config_search_no_pri();
+	}
+
+	/**
+	 * Automatically configure necessary settings for instant search
+	 *
+	 * @since  8.3.0
+	 */
+	public function auto_config_search_no_pri() {
 		// Set default result format to "expanded".
 		update_option( Options::OPTION_PREFIX . 'result_format', Options::RESULT_FORMAT_EXPANDED );
 
