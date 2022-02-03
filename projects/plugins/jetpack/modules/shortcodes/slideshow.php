@@ -191,7 +191,7 @@ class Jetpack_Slideshow_Shortcode {
 				'ids' => wp_list_pluck( $gallery, 'id' ),
 			);
 
-			if ( 'true' == $autostart ) { // phpcs:ignore WordPress.PHP.StrictComparisons.LooseComparison -- attribute can be stored as boolean or string.
+			if ( 'true' == $autostart ) { // phpcs:ignore Universal.Operators.StrictComparisons.LooseEqual -- attribute can be stored as boolean or string.
 				$amp_args['autoplay'] = true;
 			}
 

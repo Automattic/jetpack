@@ -5,7 +5,7 @@ import React from 'react';
 import AdminPage from '../index.jsx';
 
 export default {
-	title: 'Playground/Admin Page',
+	title: 'JS Packages/Components/Admin Page',
 	component: AdminPage,
 };
 

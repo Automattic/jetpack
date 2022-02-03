@@ -573,7 +573,7 @@ class WPCOM_JSON_API_Site_Settings_Endpoint extends WPCOM_JSON_API_Endpoint {
 					$coerce_value = ( $value ) ? 'open' : 'closed';
 					if ( update_option( $key, $coerce_value ) ) {
 						$updated[ $key ] = $value;
-					};
+					}
 					break;
 				case 'jetpack_protect_whitelist':
 					if ( function_exists( 'jetpack_protect_save_whitelist' ) ) {

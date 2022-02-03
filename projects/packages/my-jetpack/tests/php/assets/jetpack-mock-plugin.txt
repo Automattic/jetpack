@@ -1,0 +1,41 @@
+<?php
+/**
+ * Jetpack Plugin
+ *
+ * Plugin Name:       Jetpack
+ * Description:       Jetpack mock
+ * Author:            Automattic
+ * Author URI:        https://automattic.com
+ * License:           GPL-2.0+
+ * License URI:       http://www.gnu.org/licenses/gpl-2.0.txt
+ */
+
+class Jetpack {
+
+	static $active_modules = array();
+
+	static $return_false = false; // Force return false in action methods.
+
+	public static function is_module_active( $module_name ) {
+		return in_array( $module_name, self::$active_modules );
+	}
+
+	public static function activate_module( $module_name, $exit = true, $redirect = true ) {
+		if ( self::$return_false ) {
+			return false;
+		}
+		if ( ! self::is_module_active( $module_name ) ) {
+			self::$active_modules[] = $module_name;
+		}
+		return true;
+	}
+
+	public static function deactivate_module( $module_name ) {
+		if ( self::$return_false ) {
+			return false;
+		}
+		$new = array_filter( array_diff( self::$active_modules, (array) $module_name ) );
+		self::$active_modules = $new;
+		return true;
+	}
+}

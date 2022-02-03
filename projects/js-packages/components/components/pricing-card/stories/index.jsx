@@ -11,7 +11,7 @@ import { action } from '@storybook/addon-actions';
 import PricingCard from '../index.jsx';
 
 export default {
-	title: 'Playground/Pricing Card',
+	title: 'JS Packages/Components/Pricing Card',
 	component: PricingCard,
 	// TODO: Storybook Actions are not working. See https://github.com/storybookjs/storybook/issues/7215
 	argTypes: {

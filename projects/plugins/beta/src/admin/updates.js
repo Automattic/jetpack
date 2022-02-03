@@ -1,4 +1,6 @@
 /**
+ * Update message hooks.
+ *
  * @param {jQuery}  $ - jQuery object.
  * @param {object}  wp - WP object.
  * @param {object}  i18n - I18n data.

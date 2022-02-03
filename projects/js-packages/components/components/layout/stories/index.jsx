@@ -36,7 +36,7 @@ const Layout = ( { items, fluid, horizontalGap, horizontalSpacing } ) => {
 };
 
 export default {
-	title: 'Playground/Layout',
+	title: 'JS Packages/Components/Layout',
 	component: Layout,
 };
 
