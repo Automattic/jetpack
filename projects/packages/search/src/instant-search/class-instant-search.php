@@ -372,6 +372,7 @@ class Instant_Search extends Classic_Search {
 		$widget_opt_name = Helper::get_widget_option_name();
 		$widget_options  = get_option( $widget_opt_name, array() );
 		foreach ( $widget_options as $id => $w ) {
+			$id = intval( $id );
 			if ( $id >= $next_id ) {
 				$next_id = $id + 1;
 			}
