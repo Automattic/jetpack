@@ -37,7 +37,7 @@ const MyPlanBanner = props => {
 		<div className="jp-my-plan-banner">
 			<div
 				className="jp-my-plan-banner__card dops-card"
-				style={ { backgroundImage: `url(${ imagePath }jetpack-banner-gradient.svg)` } }
+				style={ { backgroundImage: `url(${ imagePath }jetpack-banner-gradient.png)` } }
 			>
 				<MyPlanCard
 					productSlug={ productSlug }
