@@ -72,6 +72,7 @@ const videoPressMediaPlaceholder = createHigherOrderComponent(
 
 		// We will handle video uploads
 		props.handleUpload = false;
+		props.disableDropZone = true;
 
 		const { onFilesSelected, onMediaItemSelected } = useContext( VideoPressBlockContext );
 
