@@ -480,7 +480,8 @@ class Instant_Search extends Classic_Search {
 	}
 
 	/**
-	 * Automatically configure post types to exclude from one of the search widgets
+	 * Automatically configure post types to exclude from one of the search widgets.
+	 * The function is only for compatibility to convert older version included post types to excluded post types.
 	 *
 	 * @since  8.8.0
 	 */
