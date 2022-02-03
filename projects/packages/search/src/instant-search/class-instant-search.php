@@ -48,6 +48,8 @@ class Instant_Search extends Classic_Search {
 			add_action( 'wp_enqueue_scripts', array( $this, 'load_assets' ) );
 			add_action( 'wp_footer', array( 'Automattic\Jetpack\Search\Helper', 'print_instant_search_sidebar' ) );
 			add_filter( 'body_class', array( $this, 'add_body_class' ), 10 );
+
+			add_action( 'init', array( $this, 'add_search_block_above_footer' ) );
 		} else {
 			add_action( 'update_option', array( $this, 'track_widget_updates' ), 10, 3 );
 		}
@@ -414,19 +416,19 @@ class Instant_Search extends Classic_Search {
 	 */
 	public function add_search_block_above_footer() {
 		$active_theme     = \wp_get_theme()->get_stylesheet();
-		$template_part_id = "{$active_theme}//footer";
-		$footer           = \get_block_template( $template_part_id, 'wp_template_part' );
-		if ( is_wp_error( $footer ) || empty( $footer ) ) {
+		$template_part_id = "{$active_theme}//header";
+		$teplate_part     = \get_block_template( $template_part_id, 'wp_template_part' );
+		if ( is_wp_error( $teplate_part ) || empty( $teplate_part ) ) {
 			return;
 		}
 		// We now only checks the standard search block.
 		// In the future we need to add Jetpack Search block when it's ready.
-		if ( false !== strpos( $footer->content, 'wp:search' ) ) {
+		if ( false !== strpos( $teplate_part->content, 'wp:search' ) ) {
 			return;
 		}
 		$request = new \WP_REST_Request( 'PUT', "/wp/v2/template-parts/{$template_part_id}" );
 		$request->set_header( 'content-type', 'application/json' );
-		$request->set_param( 'content', $this->prepand_search_widget_to_block( $footer->content ) );
+		$request->set_param( 'content', $this->prepand_search_widget_to_block( $teplate_part->content ) );
 		$request->set_param( 'id', $template_part_id );
 		$controller = new \WP_REST_Templates_Controller( 'wp_template_part' );
 		$controller->update_item( $request );
@@ -453,14 +455,10 @@ class Instant_Search extends Classic_Search {
 		<!-- wp:column -->
 		<div class="wp-block-column"><!-- wp:search {"label":"Search","width":100,"widthUnit":"%","buttonText":"Search"} /--></div>
 		<!-- /wp:column -->
-
-		<!-- wp:column -->
-		<div class="wp-block-column"></div>
-		<!-- /wp:column --></div>
 		<!-- /wp:columns --></div>
 		<!-- /wp:group -->\n
 EOT;
-		return $search_block_group . $block_content;
+		return $block_content . $search_block_group;
 	}
 
 	/**
