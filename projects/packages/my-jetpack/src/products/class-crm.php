@@ -36,6 +36,13 @@ class Crm extends Product {
 	public static $plugin_slug = 'zero-bs-crm';
 
 	/**
+	 * Whether this product requires a user connection
+	 *
+	 * @var string
+	 */
+	public static $requires_user_connection = false;
+
+	/**
 	 * Get the internationalized product name
 	 *
 	 * @return string

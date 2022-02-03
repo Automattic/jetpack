@@ -543,10 +543,12 @@ exports[`Webpack \`multiple-runtime\` Build results: Webpack build error 1`] = `
 
 exports[`Webpack \`multiple-runtime\` Build results: Webpack build files 1`] = `
 Object {
+  "bar.asset.php": Object {},
   "bar.js": Object {
     "jpI18nState": null,
     "loader": null,
   },
+  "baz.asset.php": Object {},
   "baz.js": Object {
     "jpI18nState": null,
     "loader": null,
@@ -559,10 +561,12 @@ Object {
     "jpI18nState": null,
     "loader": null,
   },
+  "main.asset.php": Object {},
   "main.js": Object {
     "jpI18nState": null,
     "loader": null,
   },
+  "main2.asset.php": Object {},
   "main2.js": Object {
     "jpI18nState": null,
     "loader": null,
@@ -571,17 +575,14 @@ Object {
     "jpI18nState": null,
     "loader": null,
   },
-  "runtime~bar.asset.php": Object {},
   "runtime~bar.js": Object {
     "jpI18nState": null,
     "loader": null,
   },
-  "runtime~baz.asset.php": Object {},
   "runtime~baz.js": Object {
     "jpI18nState": null,
     "loader": null,
   },
-  "runtime~main.asset.php": Object {},
   "runtime~main.js": Object {
     "jpI18nState": "/***/ \\"@wordpress/jp-i18n-loader\\":
 /*!**************************************!*\\\\
@@ -622,7 +623,6 @@ module.exports = window[\\"wp\\"][\\"jpI18nLoader\\"];
 /******/ 		};
 /******/ 	})();",
   },
-  "runtime~main2.asset.php": Object {},
   "runtime~main2.js": Object {
     "jpI18nState": "/***/ \\"@wordpress/jp-i18n-loader\\":
 /*!**************************************!*\\\\
@@ -886,10 +886,12 @@ exports[`Webpack \`single-runtime\` Build results: Webpack build error 1`] = `nu
 
 exports[`Webpack \`single-runtime\` Build results: Webpack build files 1`] = `
 Object {
+  "bar.asset.php": Object {},
   "bar.js": Object {
     "jpI18nState": null,
     "loader": null,
   },
+  "baz.asset.php": Object {},
   "baz.js": Object {
     "jpI18nState": null,
     "loader": null,
@@ -902,10 +904,12 @@ Object {
     "jpI18nState": null,
     "loader": null,
   },
+  "main.asset.php": Object {},
   "main.js": Object {
     "jpI18nState": null,
     "loader": null,
   },
+  "main2.asset.php": Object {},
   "main2.js": Object {
     "jpI18nState": null,
     "loader": null,
@@ -914,7 +918,6 @@ Object {
     "jpI18nState": null,
     "loader": null,
   },
-  "runtime.asset.php": Object {},
   "runtime.js": Object {
     "jpI18nState": "/***/ \\"@wordpress/jp-i18n-loader\\":
 /*!**************************************!*\\\\

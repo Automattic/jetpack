@@ -108,12 +108,7 @@ class Products {
 	 * @return array Object with infromation about the product.
 	 */
 	public static function get_anti_spam_data() {
-		return array(
-			'slug'        => 'anti-spam',
-			'description' => __( 'Stop comment and form spam', 'jetpack-my-jetpack' ),
-			'name'        => __( 'Anti-spam', 'jetpack-my-jetpack' ),
-			'status'      => 'inactive',
-		);
+		return Products\Anti_Spam::get_info();
 	}
 
 	/**
@@ -163,12 +158,7 @@ class Products {
 	 * @return array Object with infromation about the product.
 	 */
 	public static function get_scan_data() {
-		return array(
-			'slug'        => 'scan',
-			'description' => __( 'Stay one step ahead of threats', 'jetpack-my-jetpack' ),
-			'name'        => __( 'Scan', 'jetpack-my-jetpack' ),
-			'status'      => 'plugin_absent',
-		);
+		return Products\Scan::get_info();
 	}
 
 	/**
@@ -177,12 +167,7 @@ class Products {
 	 * @return array Object with infromation about the product.
 	 */
 	public static function get_search_data() {
-		return array(
-			'slug'        => 'search',
-			'description' => __( 'Help them find what they need', 'jetpack-my-jetpack' ),
-			'name'        => __( 'Search', 'jetpack-my-jetpack' ),
-			'status'      => 'plugin_absent',
-		);
+		return Products\Search::get_info();
 	}
 
 	/**
@@ -191,11 +176,6 @@ class Products {
 	 * @return array Object with infromation about the product.
 	 */
 	public static function get_videopress_data() {
-		return array(
-			'slug'        => 'videopress',
-			'description' => __( 'High quality, ad-free video', 'jetpack-my-jetpack' ),
-			'name'        => __( 'VideoPress', 'jetpack-my-jetpack' ),
-			'status'      => 'active',
-		);
+		return Products\Videopress::get_info();
 	}
 }
