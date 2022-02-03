@@ -14,8 +14,8 @@ import MyPlanBanner from '../my-plan-banner';
 import { getPartnerCoupon } from 'state/initial-state';
 
 const MyPlanPartnerCoupon = ( { siteAdminUrl, partnerCoupon } ) => {
-	if ( ! partnerCoupon ) {
-		return;
+	if ( 'object' !== typeof partnerCoupon ) {
+		return null;
 	}
 
 	const redeemButton = (
@@ -48,7 +48,7 @@ const MyPlanPartnerCoupon = ( { siteAdminUrl, partnerCoupon } ) => {
 };
 
 MyPlanPartnerCoupon.propTypes = {
-	partnerCoupon: PropTypes.object.isRequired,
+	partnerCoupon: PropTypes.oneOfType( [ PropTypes.object, PropTypes.bool ] ).isRequired,
 	siteAdminUrl: PropTypes.string.isRequired,
 };
 
