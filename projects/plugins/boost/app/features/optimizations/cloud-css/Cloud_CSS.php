@@ -1,16 +1,16 @@
 <?php
-
 namespace Automattic\Jetpack_Boost\Features\Optimizations\Cloud_CSS;
 
-use Automattic\Jetpack\Jetpack_Lazy_Images;
 use Automattic\Jetpack_Boost\Contracts\Feature;
 use Automattic\Jetpack_Boost\REST_API\Contracts\Has_Endpoints;
 use Automattic\Jetpack_Boost\REST_API\Endpoints\Generate_Cloud_CSS;
+use Automattic\Jetpack_Boost\REST_API\REST_API;
 
 class Cloud_CSS implements Feature, Has_Endpoints {
 
-	public function initialize() {
-		add_action( 'wp', array( Jetpack_Lazy_Images::class, 'instance' ) );
+	public function setup() {
+		REST_API::register( $this->get_endpoints() );
+		return true;
 	}
 
 	public function get_slug() {
@@ -20,7 +20,14 @@ class Cloud_CSS implements Feature, Has_Endpoints {
 	public function get_endpoints()
 	{
 		return array(
-			Generate_Cloud_CSS::class,
+			new Generate_Cloud_CSS(),
 		);
+	}
+
+	/**
+	 * @inheritDoc
+	 */
+	public function setup_trigger() {
+		return 'init';
 	}
 }
