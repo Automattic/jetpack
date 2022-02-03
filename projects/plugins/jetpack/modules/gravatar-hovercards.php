@@ -15,14 +15,14 @@
 define( 'GROFILES__CACHE_BUSTER', gmdate( 'YW' ) );
 
 function grofiles_hovercards_init() {
-	add_filter( 'get_avatar',          'grofiles_get_avatar', 10, 2 );
-	add_action( 'wp_enqueue_scripts',  'grofiles_attach_cards' );
-	add_action( 'wp_footer',           'grofiles_extra_data' );
-	add_action( 'admin_init',          'grofiles_add_settings' );
+	add_filter( 'get_avatar', 'grofiles_get_avatar', 10, 2 );
+	add_action( 'wp_enqueue_scripts', 'grofiles_attach_cards' );
+	add_action( 'wp_footer', 'grofiles_extra_data' );
+	add_action( 'admin_init', 'grofiles_add_settings' );
 
-	add_action( 'load-index.php',              'grofiles_admin_cards' );
-	add_action( 'load-users.php',              'grofiles_admin_cards' );
-	add_action( 'load-edit-comments.php',      'grofiles_admin_cards' );
+	add_action( 'load-index.php', 'grofiles_admin_cards' );
+	add_action( 'load-users.php', 'grofiles_admin_cards' );
+	add_action( 'load-edit-comments.php', 'grofiles_admin_cards' );
 	add_action( 'load-options-discussion.php', 'grofiles_admin_cards_forced' );
 
 	add_filter( 'jetpack_module_configuration_url_gravatar-hovercards', 'gravatar_hovercards_configuration_url' );
@@ -44,11 +44,11 @@ add_action( 'jetpack_modules_loaded', 'grofiles_hovercards_init' );
  * @todo - always print HTML, hide via CSS/JS if !show_avatars
  */
 function grofiles_add_settings() {
-	if ( !get_option( 'show_avatars' ) )
+	if ( ! get_option( 'show_avatars' ) )
 		return;
 
- 	add_settings_field( 'gravatar_disable_hovercards', __( 'Gravatar Hovercards', 'jetpack' ), 'grofiles_setting_callback', 'discussion', 'avatars' );
- 	register_setting( 'discussion', 'gravatar_disable_hovercards', 'grofiles_hovercard_option_sanitize' );
+	add_settings_field( 'gravatar_disable_hovercards', __( 'Gravatar Hovercards', 'jetpack' ), 'grofiles_setting_callback', 'discussion', 'avatars' );
+	register_setting( 'discussion', 'gravatar_disable_hovercards', 'grofiles_hovercard_option_sanitize' );
 }
 
 /**
@@ -59,7 +59,7 @@ function grofiles_setting_callback() {
 
 	$checked = 'disabled' == get_option( 'gravatar_disable_hovercards' ) ? '' : 'checked="checked" ';
 
- 	echo "<label id='gravatar-hovercard-options'><input {$checked}name='gravatar_disable_hovercards' id='gravatar_disable_hovercards' type='checkbox' value='enabled' class='code' /> " . __( "View people's profiles when you mouse over their Gravatars", 'jetpack' ) . "</label>";
+	echo "<label id='gravatar-hovercard-options'><input {$checked}name='gravatar_disable_hovercards' id='gravatar_disable_hovercards' type='checkbox' value='enabled' class='code' /> " . __( "View people's profiles when you mouse over their Gravatars", 'jetpack' ) . "</label>";
 ?>
 <style type="text/css">
 #grav-profile-example img {
@@ -86,8 +86,8 @@ jQuery( function($) {
 } );
 // ]]>
 </script>
-	<p id="grav-profile-example" class="hide-if-no-js"<?php if ( !$checked ) echo ' style="display:none"'; ?>><?php echo get_avatar( $current_user->ID, 64 ); ?> <span><?php _e( 'Put your mouse over your Gravatar to check out your profile.', 'jetpack' ); ?> <br class="clear" /></span></p>
-<?php
+	<p id="grav-profile-example" class="hide-if-no-js"<?php if ( ! $checked ) echo ' style="display:none"'; ?>><?php echo get_avatar( $current_user->ID, 64 ); ?> <span><?php _e( 'Put your mouse over your Gravatar to check out your profile.', 'jetpack' ); ?> <br class="clear" /></span></p>
+	<?php
 }
 
 /**
@@ -100,7 +100,6 @@ function grofiles_hovercard_option_sanitize( $val ) {
 
 	return $val ? 'enabled' : 'disabled';
 }
-
 
 /* Hovercard Display */
 
@@ -154,7 +153,7 @@ function grofiles_amp_comment_author_url( $url, $id ) {
  * Attached to the 'get_avatar' filter.
  *
  * @param string $avatar The <img/> element of the avatar.
- * @param mixed $author User ID, email address, user login, comment object, user object, post object
+ * @param mixed  $author User ID, email address, user login, comment object, user object, post object
  *
  * @return string The <img/> element of the avatar.
  */
@@ -209,8 +208,7 @@ function grofiles_get_avatar( $avatar, $author ) {
 			return $avatar;
 		if ( $author->user_id )
 			grofiles_gravatars_to_append( $author->user_id );
-		else
-			grofiles_gravatars_to_append( $author->comment_author_email );
+		else grofiles_gravatars_to_append( $author->comment_author_email );
 	} else if ( isset( $author->user_login ) ) {
 		grofiles_gravatars_to_append( $author->ID );
 	} else if ( isset( $author->post_author ) ) {
@@ -279,15 +277,15 @@ function grofiles_extra_data() {
 		wp_dequeue_script( 'grofiles-cards' );
 		wp_dequeue_script( 'wpgroho' );
 	} else {
-?>
+		?>
 	<div style="display:none">
-<?php
+		<?php
 		foreach ( $authors as $author ) {
 			grofiles_hovercards_data_html( $author );
 		}
-?>
+		?>
 	</div>
-<?php
+		<?php
 	}
 }
 
@@ -315,15 +313,14 @@ function grofiles_hovercards_data_html( $author ) {
 	if ( ! $hash ) {
 		return;
 	}
-?>
+	?>
 	<div class="grofile-hash-map-<?php echo $hash; ?>">
-<?php	foreach ( $data as $key => $value ) : ?>
+	<?php	foreach ( $data as $key => $value ) : ?>
 		<span class="<?php echo esc_attr( $key ); ?>"><?php echo esc_html( $value ); ?></span>
 <?php	endforeach; ?>
 	</div>
-<?php
+	<?php
 }
-
 
 /* API */
 
@@ -357,10 +354,10 @@ function grofiles_hovercards_data_callbacks() {
 function grofiles_hovercards_data( $author ) {
 	$r = array();
 	foreach ( grofiles_hovercards_data_callbacks() as $key => $callback ) {
-		if ( !is_callable( $callback ) )
+		if ( ! is_callable( $callback ) )
 			continue;
 		$data = call_user_func( $callback, $author, $key );
-		if ( !is_null( $data ) )
+		if ( ! is_null( $data ) )
 			$r[$key] = $data;
 	}
 
