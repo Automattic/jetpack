@@ -1,0 +1,8 @@
+{
+	"dependencies": {
+		"@automattic/jp-d": "*"
+	},
+	"devDependencies": {
+		"@automattic/jp-e": "*"
+	}
+}

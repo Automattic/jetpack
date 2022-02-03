@@ -1,26 +1,20 @@
-/* global myJetpackInitialState */
 /**
  * External dependencies
  */
 import { useEffect } from 'react';
 import jetpackAnalytics from '@automattic/jetpack-analytics';
-import { useConnection } from '@automattic/jetpack-connection';
+import useMyJetpackConnection from '../use-my-jetpack-connection';
 
 const useAnalytics = () => {
-	const { apiRoot, apiNonce } = myJetpackInitialState;
+	const { isUserConnected, userConnectionData = {} } = useMyJetpackConnection();
+	const { login, ID } = userConnectionData.currentUser?.wpcomUser || {};
 
-	const { isUserConnected, userConnectionData } = useConnection( {
-		apiRoot,
-		apiNonce,
-	} );
-
-	const { login, ID } = userConnectionData.currentUser.wpcomUser;
 	/**
 	 * Initialize tracks with user data.
 	 * Should run when we have a connected user.
 	 */
 	useEffect( () => {
-		if ( isUserConnected ) {
+		if ( isUserConnected && ID && login ) {
 			jetpackAnalytics.initialize( ID, login );
 		}
 	} );

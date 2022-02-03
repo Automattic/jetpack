@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "0f8a76482e4c5edb14c2efc74e15a0f6",
+    "content-hash": "c3a6891977d5f9e3a9b540f58682effe",
     "packages": [
         {
             "name": "automattic/jetpack-a8c-mc-stats",
@@ -60,7 +60,7 @@
             "dist": {
                 "type": "path",
                 "url": "../../packages/admin-ui",
-                "reference": "e9c471e1ac68c4dd7cf656fd17a4b96fdc4c6ff1"
+                "reference": "bbb92b9b9852760e84b7aaee877ee081616efcb3"
             },
             "require-dev": {
                 "automattic/jetpack-changelogger": "^3.0",
@@ -71,6 +71,7 @@
             "extra": {
                 "autotagger": true,
                 "mirror-repo": "Automattic/jetpack-admin-ui",
+                "textdomain": "jetpack-admin-ui",
                 "changelogger": {
                     "link-template": "https://github.com/Automattic/jetpack-admin-ui/compare/${old}...${new}"
                 },
@@ -460,14 +461,14 @@
             "dist": {
                 "type": "path",
                 "url": "../../packages/connection-ui",
-                "reference": "9af24b55eb5b3505d5b133008a881b7ef8271f08"
+                "reference": "af0b68a96950278824fbd56aad4fc5f5a2af4240"
             },
             "require": {
                 "automattic/jetpack-assets": "^1.17",
                 "automattic/jetpack-connection": "^1.36",
                 "automattic/jetpack-constants": "^1.6",
                 "automattic/jetpack-device-detection": "^1.4",
-                "automattic/jetpack-identity-crisis": "^0.6"
+                "automattic/jetpack-identity-crisis": "^0.7"
             },
             "require-dev": {
                 "automattic/jetpack-changelogger": "^3.0"
@@ -654,7 +655,7 @@
             "dist": {
                 "type": "path",
                 "url": "../../packages/identity-crisis",
-                "reference": "c51ca771789f8d08c3e2edf1636ad051a1a3dd62"
+                "reference": "80cc6904f5337f7cfa194199ad307e054fece278"
             },
             "require": {
                 "automattic/jetpack-assets": "^1.17",
@@ -682,7 +683,7 @@
                     "link-template": "https://github.com/Automattic/jetpack-identity-crisis/compare/v${old}...v${new}"
                 },
                 "branch-alias": {
-                    "dev-master": "0.6.x-dev"
+                    "dev-master": "0.7.x-dev"
                 }
             },
             "autoload": {
@@ -777,17 +778,19 @@
             "dist": {
                 "type": "path",
                 "url": "../../packages/my-jetpack",
-                "reference": "9675f2ecb0c79671aac9f402ab1836f827a1ead5"
+                "reference": "5ca3f982d2e026a0b72c4965a349812f9e321677"
             },
             "require": {
                 "automattic/jetpack-admin-ui": "^0.2",
                 "automattic/jetpack-assets": "^1.17",
                 "automattic/jetpack-connection": "^1.36",
+                "automattic/jetpack-plugins-installer": "^0.1",
                 "automattic/jetpack-terms-of-service": "^1.9",
                 "automattic/jetpack-tracking": "^1.14"
             },
             "require-dev": {
                 "automattic/jetpack-changelogger": "^3.0",
+                "automattic/jetpack-options": "^1.14",
                 "automattic/wordbless": "@dev",
                 "yoast/phpunit-polyfills": "1.0.3"
             },
@@ -800,7 +803,7 @@
                     "link-template": "https://github.com/Automattic/jetpack-my-jetpack/compare/${old}...${new}"
                 },
                 "branch-alias": {
-                    "dev-master": "0.4.x-dev"
+                    "dev-master": "0.5.x-dev"
                 }
             },
             "autoload": {
@@ -938,6 +941,58 @@
                 "GPL-2.0-or-later"
             ],
             "description": "Password Checker.",
+            "transport-options": {
+                "monorepo": true,
+                "relative": true
+            }
+        },
+        {
+            "name": "automattic/jetpack-plugins-installer",
+            "version": "dev-master",
+            "dist": {
+                "type": "path",
+                "url": "../../packages/plugins-installer",
+                "reference": "19c930344c337c188d411a51938c7c870ea511a1"
+            },
+            "require": {
+                "automattic/jetpack-a8c-mc-stats": "^1.4"
+            },
+            "require-dev": {
+                "automattic/jetpack-changelogger": "^3.0",
+                "yoast/phpunit-polyfills": "1.0.3"
+            },
+            "type": "library",
+            "extra": {
+                "branch-alias": {
+                    "dev-master": "0.1.x-dev"
+                },
+                "mirror-repo": "Automattic/jetpack-plugins-installer",
+                "changelogger": {
+                    "link-template": "https://github.com/Automattic/jetpack-plugins-installer/compare/v${old}...v${new}"
+                },
+                "autotagger": true,
+                "textdomain": "jetpack-plugins-installer"
+            },
+            "autoload": {
+                "classmap": [
+                    "src/"
+                ]
+            },
+            "scripts": {
+                "phpunit": [
+                    "./vendor/phpunit/phpunit/phpunit --colors=always"
+                ],
+                "test-coverage": [
+                    "php -dpcov.directory=. ./vendor/bin/phpunit --coverage-clover \"$COVERAGE_DIR/clover.xml\""
+                ],
+                "test-php": [
+                    "@composer phpunit"
+                ]
+            },
+            "license": [
+                "GPL-2.0-or-later"
+            ],
+            "description": "Handle installation of plugins from WP.org",
             "transport-options": {
                 "monorepo": true,
                 "relative": true
@@ -1102,13 +1157,13 @@
             "dist": {
                 "type": "path",
                 "url": "../../packages/sync",
-                "reference": "cad6e550e4c76cc17cab3ddef0829b67e2c04838"
+                "reference": "08c63a81a1ac29072c140383f3bf9266a4c3c6be"
             },
             "require": {
                 "automattic/jetpack-connection": "^1.36",
                 "automattic/jetpack-constants": "^1.6",
                 "automattic/jetpack-heartbeat": "^1.4",
-                "automattic/jetpack-identity-crisis": "^0.6",
+                "automattic/jetpack-identity-crisis": "^0.7",
                 "automattic/jetpack-options": "^1.14",
                 "automattic/jetpack-password-checker": "^0.2",
                 "automattic/jetpack-roles": "^1.4",
@@ -1432,9 +1487,6 @@
             },
             "require": {
                 "php": "^7.1 || ^8.0"
-            },
-            "replace": {
-                "myclabs/deep-copy": "self.version"
             },
             "require-dev": {
                 "doctrine/collections": "^1.0",

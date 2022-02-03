@@ -30,7 +30,7 @@ echo "::group::Changelogger setup"
 echo "::endgroup::"
 
 echo "::group::Determining build order"
-TMP="$(tools/get-build-order.php)"
+TMP="$(pnpx jetpack dependencies build-order --pretty --ignore-root)"
 SLUGS=()
 mapfile -t SLUGS <<<"$TMP"
 echo "::endgroup::"
@@ -79,7 +79,7 @@ for SLUG in "${SLUGS[@]}"; do
 			OLDLOCK=
 		fi
 	fi
-	if (cd $BASE && pnpx jetpack build "${SLUG}" -v --production); then
+	if (cd $BASE && pnpx jetpack build "${SLUG}" -v --production --timing --no-pnpm-install); then
 		FAIL=false
 	else
 		FAIL=true

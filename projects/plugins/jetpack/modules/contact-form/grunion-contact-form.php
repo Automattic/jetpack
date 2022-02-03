@@ -510,13 +510,17 @@ class Grunion_Contact_Form_Plugin {
 	 *
 	 * Conditionally attached to `template_redirect`
 	 */
-	function process_form_submission() {
-		// Add a filter to replace tokens in the subject field with sanitized field values
+	public function process_form_submission() {
+		// Add a filter to replace tokens in the subject field with sanitized field values.
 		add_filter( 'contact_form_subject', array( $this, 'replace_tokens_with_input' ), 10, 2 );
 
-		$id   = stripslashes( $_POST['contact-form-id'] );
-		$hash = isset( $_POST['contact-form-hash'] ) ? $_POST['contact-form-hash'] : '';
+		// phpcs:disable WordPress.Security.NonceVerification.Missing
+		$id   = isset( $_POST['contact-form-id'] ) ? wp_unslash( $_POST['contact-form-id'] ) : null;
+		$id   = is_string( $id ) ? $id : null;
+		$hash = isset( $_POST['contact-form-hash'] ) ? wp_unslash( $_POST['contact-form-hash'] ) : null;
+		$hash = is_string( $hash ) ? $hash : null;
 		$hash = preg_replace( '/[^\da-f]/i', '', $hash );
+		// phpcs:enable
 
 		if ( ! is_string( $id ) || ! is_string( $hash ) ) {
 			return false;
@@ -2532,13 +2536,13 @@ class Grunion_Contact_Form extends Crunion_Contact_Form_Shortcode {
 			$form->fields[] = $field;
 		}
 
-		if (
+		if ( // phpcs:disable WordPress.Security.NonceVerification.Missing
 			isset( $_POST['action'] ) && 'grunion-contact-form' === $_POST['action']
 			&&
 			isset( $_POST['contact-form-id'] ) && $form->get_attribute( 'id' ) == $_POST['contact-form-id']
 			&&
-			isset( $_POST['contact-form-hash'] ) && hash_equals( $form->hash, $_POST['contact-form-hash'] )
-		) {
+			isset( $_POST['contact-form-hash'] ) && is_string( $_POST['contact-form-hash'] ) && hash_equals( $form->hash, $_POST['contact-form-hash'] )
+		) { // phpcs:enable
 			// If we're processing a POST submission for this contact form, validate the field value so we can show errors as necessary.
 			$field->validate();
 		}

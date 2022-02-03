@@ -412,8 +412,8 @@ class WPCom_Markdown {
 	 */
 	protected function get_post_screen_post_type() {
 		global $pagenow;
-		$post_type = filter_var( INPUT_GET, 'post_type', FILTER_SANITIZE_STRING );
-		$post_id   = filter_var( INPUT_GET, 'post', FILTER_SANITIZE_NUMBER_INT );
+		$post_type = filter_input( INPUT_GET, 'post_type', FILTER_SANITIZE_STRING );
+		$post_id   = filter_input( INPUT_GET, 'post', FILTER_SANITIZE_NUMBER_INT );
 
 		if ( 'post-new.php' === $pagenow ) {
 			return ! empty( $post_type ) ? $post_type : 'post';

@@ -10,3 +10,4 @@ window.JP_CONNECTION_INITIAL_STATE = {
 	},
 };
 window.myJetpackInitialState = {};
+window.myJetpackRest = {};

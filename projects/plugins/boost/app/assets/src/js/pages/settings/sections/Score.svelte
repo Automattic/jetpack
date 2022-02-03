@@ -25,6 +25,7 @@
 	 */
 	import { __ } from '@wordpress/i18n';
 
+	// eslint-disable-next-line camelcase
 	const siteIsOnline = Jetpack_Boost.site.online;
 
 	let loadError;
@@ -120,6 +121,7 @@
 		}
 	}, 2000 );
 
+	// eslint-disable-next-line camelcase
 	const respawnRatingPrompt = writable( Jetpack_Boost.preferences.showRatingPrompt );
 
 	const showRatingCard = derived(

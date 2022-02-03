@@ -15,6 +15,7 @@ export async function loadCriticalCssLibrary(): Promise< void > {
 
 	loadLibraryPromise = new Promise< void >( ( resolve, reject ) => {
 		const scriptUrl =
+			// eslint-disable-next-line camelcase
 			Jetpack_Boost.site.assetPath + '/critical-css-gen.js?ver=' + Jetpack_Boost.version;
 		const scriptTag = document.createElement( 'script' );
 		scriptTag.src = scriptUrl;

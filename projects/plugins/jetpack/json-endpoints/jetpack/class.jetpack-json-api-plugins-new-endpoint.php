@@ -1,6 +1,5 @@
 <?php
 
-
 include_once ABSPATH . 'wp-admin/includes/class-wp-upgrader.php';
 include_once ABSPATH . 'wp-admin/includes/file.php';
 

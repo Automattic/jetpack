@@ -28,12 +28,7 @@ class Initializer {
 	 * @return void
 	 */
 	public static function init() {
-		if ( did_action( 'my_jetpack_init' ) ) {
-			return;
-		}
-
-		// Feature flag while we are developing it.
-		if ( ! defined( 'JETPACK_ENABLE_MY_JETPACK' ) || ! JETPACK_ENABLE_MY_JETPACK ) {
+		if ( ! self::should_initialize() ) {
 			return;
 		}
 
@@ -102,8 +97,6 @@ class Initializer {
 			'my_jetpack_main_app',
 			'myJetpackInitialState',
 			array(
-				'apiRoot'               => esc_url_raw( rest_url() ),
-				'apiNonce'              => wp_create_nonce( 'wp_rest' ),
 				'products'              => array(
 					'items' => Products::get_products(),
 				),
@@ -113,6 +106,15 @@ class Initializer {
 				'redirectUrl'           => admin_url( '?page=my-jetpack' ),
 				'topJetpackMenuItemUrl' => Admin_Menu::get_top_level_menu_item_url(),
 				'siteSuffix'            => ( new Status() )->get_site_suffix(),
+			)
+		);
+
+		wp_localize_script(
+			'my_jetpack_main_app',
+			'myJetpackRest',
+			array(
+				'apiRoot'  => esc_url_raw( rest_url() ),
+				'apiNonce' => wp_create_nonce( 'wp_rest' ),
 			)
 		);
 
@@ -164,6 +166,36 @@ class Initializer {
 	 */
 	public static function permissions_callback() {
 		return current_user_can( 'manage_options' );
+	}
+
+	/**
+	 * Return true if we should initialize the My Jetpack
+	 */
+	public static function should_initialize() {
+		if ( did_action( 'my_jetpack_init' ) ) {
+			return false;
+		}
+
+		/**
+		 * Allows filtering whether My Jetpack should be initialized
+		 *
+		 * @since 0.5.0-alpha
+		 *
+		 * @param bool $shoud_initialize Should we initialize My Jetpack?
+		 */
+		$should = apply_filters( 'jetpack_my_jetpack_should_initialize', true );
+
+		// Feature flag while we are developing it.
+		if ( ! defined( 'JETPACK_ENABLE_MY_JETPACK' ) || ! JETPACK_ENABLE_MY_JETPACK ) {
+			return false;
+		}
+
+		// Do not initialize My Jetpack if site is not connected.
+		if ( ! ( new Connection_Manager() )->is_connected() ) {
+			return false;
+		}
+
+		return $should;
 	}
 
 	/**
