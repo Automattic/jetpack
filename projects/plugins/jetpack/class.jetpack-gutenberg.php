@@ -700,6 +700,37 @@ class Jetpack_Gutenberg {
 	}
 
 	/**
+	 * Add the Gutenberg editor stylesheet to the site editor.
+	 * The `add_editor_style` function automatically adds another stylesheet with -rtl prefix.
+	 *
+	 * @return void
+	 */
+	public static function add_site_editor_style() {
+		if ( ! self::should_load() ) {
+			return;
+		}
+
+		global $pagenow;
+		$allowed_pages       = array( 'admin.php', 'themes.php' );
+		$is_site_editor_page = isset( $pagenow ) && in_array( $pagenow, $allowed_pages, true ) &&
+			isset( $_GET['page'] ) && 'gutenberg-edit-site' === $_GET['page']; // phpcs:ignore WordPress.Security.NonceVerification.Recommended
+		if ( ! $is_site_editor_page ) {
+			return;
+		}
+
+		$blocks_dir       = self::get_blocks_directory();
+		$blocks_variation = self::blocks_variation();
+
+		if ( 'production' !== $blocks_variation ) {
+			$blocks_env = '-' . esc_attr( $blocks_variation );
+		} else {
+			$blocks_env = '';
+		}
+
+		Assets::add_editor_style( "{$blocks_dir}editor{$blocks_env}.css", JETPACK__PLUGIN_FILE );
+	}
+
+	/**
 	 * Some blocks do not depend on a specific module,
 	 * and can consequently be loaded outside of the usual modules.
 	 * We will look for such modules in the extensions/ directory.
