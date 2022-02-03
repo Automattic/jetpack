@@ -28,6 +28,15 @@ class Broken_Product extends Module_Product {
 	}
 
 	/**
+	 * Get the internationalized product title
+	 *
+	 * @return string
+	 */
+	public static function get_title() {
+		return __( 'Jetpack CRM', 'jetpack-my-jetpack' );
+	}
+
+	/**
 	 * Get the internationalized product description
 	 *
 	 * @return string

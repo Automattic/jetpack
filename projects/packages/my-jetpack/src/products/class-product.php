@@ -88,6 +88,7 @@ abstract class Product {
 		return array(
 			'slug'                     => static::$slug,
 			'name'                     => static::get_name(),
+			'title'                    => static::get_title(),
 			'description'              => static::get_description(),
 			'long_description'         => static::get_long_description(),
 			'features'                 => static::get_features(),
@@ -104,6 +105,13 @@ abstract class Product {
 	 * @return string
 	 */
 	abstract public static function get_name();
+
+	/**
+	 * Get the internationalized product title
+	 *
+	 * @return string
+	 */
+	abstract public static function get_title();
 
 	/**
 	 * Get the internationalized product description
