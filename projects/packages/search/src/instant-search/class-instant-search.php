@@ -379,17 +379,15 @@ class Instant_Search extends Classic_Search {
 	 */
 	protected function auto_config_theme_sidebar_search_widget() {
 		$sidebars = get_option( 'sidebars_widgets', array() );
-		if ( empty( $sidebars['sidebar-1'] ) ) {
+		if ( ! isset( $sidebars['sidebar-1'] ) ) {
 			return;
 		}
 
 		// If there's JP search widget in theme sidebar, skip.
-		if ( isset( $sidebars['sidebar-1'] ) ) {
-			foreach ( (array) $sidebars['sidebar-1'] as $widget_id ) {
-				if ( 0 === strpos( $widget_id, Helper::FILTER_WIDGET_BASE ) ) {
-					// Already configured.
-					return;
-				}
+		foreach ( (array) $sidebars['sidebar-1'] as $widget_id ) {
+			if ( 0 === strpos( $widget_id, Helper::FILTER_WIDGET_BASE ) ) {
+				// Already configured.
+				return;
 			}
 		}
 
