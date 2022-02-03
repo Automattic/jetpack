@@ -249,8 +249,8 @@ class REST_Controller {
 	public function activate_plan( $request ) {
 		// Update plan data, plan info is in the request body.
 		// We do this to avoid another call to WPCOM and reduce latency.
-		$plan_info = $request->get_json_params();
-		if ( ! $this->plan->set_plan_options( $plan_info ) ) {
+		$payload = $request->get_json_params();
+		if ( isset( $payload['search_plan_info'] ) && ! $this->plan->set_plan_options( $payload['search_plan_info'] ) ) {
 			$this->plan->get_plan_info_from_wpcom();
 		}
 		// Activate module.
@@ -267,7 +267,7 @@ class REST_Controller {
 		}
 
 		// Automatically configure necessary settings for instant search.
-		if ( $request->get_param( 'auto_config_search' ) ) {
+		if ( isset( $payload['auto_config_search'] ) && $payload['auto_config_search'] ) {
 			Instant_Search::instance()->auto_config_search();
 		}
 
