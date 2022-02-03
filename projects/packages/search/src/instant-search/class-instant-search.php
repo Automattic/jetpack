@@ -318,6 +318,7 @@ class Instant_Search extends Classic_Search {
 
 		$this->auto_config_excluded_post_types();
 		$this->auto_config_overlay_sidebar_widgets();
+		$this->auto_config_search_input();
 		$this->auto_config_woo_result_format();
 	}
 
@@ -391,6 +392,7 @@ class Instant_Search extends Classic_Search {
 			$widget_options[ $next_id ] = $preconfig_opts;
 			if ( false !== $sidebar_searchbox_idx ) {
 				// Replace Core search box.
+				// TODO: this is a side effect of the function, should be moved to `auto_config_search_input`.
 				$sidebars['sidebar-1'][ $sidebar_searchbox_idx ] = Helper::build_widget_id( $next_id );
 			} else {
 				// Add to top.
@@ -403,6 +405,14 @@ class Instant_Search extends Classic_Search {
 
 		update_option( $widget_opt_name, $widget_options );
 		update_option( 'sidebars_widgets', $sidebars );
+	}
+
+	/**
+	 * Add search input to the current theme for user to start with.
+	 * For FSE themes, the search block is added below header.
+	 * For non-FSE themes, a Jetpack Search widget is added to `sidebar-1` to replace wp search widget if any.
+	 */
+	protected function auto_config_search_input() {
 	}
 
 	/**
