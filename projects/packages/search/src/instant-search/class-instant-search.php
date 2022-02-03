@@ -322,13 +322,10 @@ class Instant_Search extends Classic_Search {
 	 * @since  8.3.0
 	 */
 	public function auto_config_search_no_pri() {
-		// Set default result format to "expanded".
-		update_option( Options::OPTION_PREFIX . 'result_format', Options::RESULT_FORMAT_EXPANDED );
-
 		$this->auto_config_excluded_post_types();
 		$this->auto_config_overlay_sidebar_widgets();
 		$this->auto_config_theme_sidebar_search_widget();
-		$this->auto_config_woo_result_format();
+		$this->auto_config_result_format();
 	}
 
 	/**
@@ -549,22 +546,30 @@ class Instant_Search extends Classic_Search {
 	}
 
 	/**
-	 * Automatically set result format to 'product' if WooCommerce is installed
+	 * Automatically set result format.
 	 *
 	 * @since  9.6.0
 	 */
-	public function auto_config_woo_result_format() {
+	public function auto_config_result_format() {
+		$result_format_option_name = Options::OPTION_PREFIX . 'result_format';
+
+		// Result format already set, skip.
+		if ( get_option( $result_format_option_name, false ) ) {
+			return;
+		}
+
 		// Check if WooCommerce plugin is active (based on https://docs.woocommerce.com/document/create-a-plugin/).
 		// TODO: WooCommerce doesn't necessarily reside in folder `woocommerce`. Need a more reliable way.
-		if ( ! in_array(
+		if ( in_array(
 			'woocommerce/woocommerce.php',
 			apply_filters( 'active_plugins', Helper::get_active_plugins() ),
 			true
 		) ) {
-			return false;
+			update_option( Options::OPTION_PREFIX . 'result_format', Options::RESULT_FORMAT_PRODUCT );
 		}
 
-		update_option( Options::OPTION_PREFIX . 'result_format', Options::RESULT_FORMAT_PRODUCT );
+		// Set `expanded` as default result format.
+		update_option( Options::OPTION_PREFIX . 'result_format', Options::RESULT_FORMAT_EXPANDED );
 	}
 
 	/**
