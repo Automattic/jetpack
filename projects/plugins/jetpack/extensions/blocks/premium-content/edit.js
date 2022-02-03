@@ -332,21 +332,21 @@ function Edit( props ) {
 				<ToolbarGroup>
 					<ToolbarButton
 						onClick={ () => {
-							selectTab( tabs[ 0 ] );
-						} }
-						className="components-tab-button"
-						isPressed={ selectedTab.className !== 'wp-premium-content-logged-out-view' }
-					>
-						<span>{ __( 'Subscriber View', 'jetpack' ) }</span>
-					</ToolbarButton>
-					<ToolbarButton
-						onClick={ () => {
 							selectTab( tabs[ 1 ] );
 						} }
 						className="components-tab-button"
 						isPressed={ selectedTab.className === 'wp-premium-content-logged-out-view' }
 					>
 						<span>{ __( 'Guest View', 'jetpack' ) }</span>
+					</ToolbarButton>
+					<ToolbarButton
+						onClick={ () => {
+							selectTab( tabs[ 0 ] );
+						} }
+						className="components-tab-button"
+						isPressed={ selectedTab.className !== 'wp-premium-content-logged-out-view' }
+					>
+						<span>{ __( 'Subscriber View', 'jetpack' ) }</span>
 					</ToolbarButton>
 				</ToolbarGroup>
 			</BlockControls>
