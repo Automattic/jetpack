@@ -539,6 +539,7 @@ class Instant_Search extends Classic_Search {
 	 */
 	public function auto_config_woo_result_format() {
 		// Check if WooCommerce plugin is active (based on https://docs.woocommerce.com/document/create-a-plugin/).
+		// TODO: WooCommerce doesn't necessarily reside in folder `woocommerce`. Need a more reliable way.
 		if ( ! in_array(
 			'woocommerce/woocommerce.php',
 			apply_filters( 'active_plugins', Helper::get_active_plugins() ),
