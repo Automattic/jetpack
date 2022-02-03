@@ -2,11 +2,7 @@
  * External dependencies
  */
 import { registerPlugin } from '@wordpress/plugins';
-
-/**
- * Internal dependencies
- */
-import getJetpackExtensionAvailability from './get-jetpack-extension-availability';
+import { getJetpackExtensionAvailability } from '@automattic/jetpack-shared-extension-utils';
 
 /**
  * Registers a Gutenberg block if the availability requirements are met.

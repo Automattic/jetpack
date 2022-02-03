@@ -1,0 +1,4 @@
+Significance: minor
+Type: enhancement
+
+Moved get-jetpack-extension-availability file from jetpack plugin shared extensions
