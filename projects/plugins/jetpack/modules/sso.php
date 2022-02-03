@@ -504,6 +504,7 @@ class Jetpack_SSO {
 					<h2>
 						<?php
 						echo wp_kses(
+							/* translators: %s a user display name. */
 							sprintf( __( 'Log in as <span>%s</span>', 'jetpack' ), esc_html( $display_name ) ),
 							array( 'span' => true )
 						);
