@@ -85,7 +85,7 @@ class Jetpack_SSO {
 	public function maybe_logout_user() {
 		global $current_user;
 
-		if ( 1 == $current_user->jetpack_force_logout ) {
+		if ( 1 === (int) $current_user->jetpack_force_logout ) {
 			delete_user_meta( $current_user->ID, 'jetpack_force_logout' );
 			self::delete_connection_for_user( $current_user->ID );
 			wp_logout();
@@ -375,7 +375,7 @@ class Jetpack_SSO {
 		}
 
 		if ( 'jetpack-sso' === $action ) {
-			if ( isset( $_GET['result'], $_GET['user_id'], $_GET['sso_nonce'] ) && 'success' == $_GET['result'] ) {
+			if ( isset( $_GET['result'], $_GET['user_id'], $_GET['sso_nonce'] ) && 'success' === $_GET['result'] ) {
 				$this->handle_login();
 				$this->display_sso_login_form();
 			} else {
