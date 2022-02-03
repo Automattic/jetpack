@@ -7,9 +7,10 @@ import PropTypes from 'prop-types';
 /**
  * Internal dependencies
  */
-import ProductCard, { PRODUCT_STATUSES } from '../product-card';
+import ProductCard from '../product-card';
+import { useProduct } from '../../hooks/use-product';
 
-const BackupIcon = () => (
+export const BackupIcon = () => (
 	<svg width="24" height="24" fill="none" xmlns="http://www.w3.org/2000/svg">
 		<path
 			fillRule="evenodd"
@@ -21,14 +22,19 @@ const BackupIcon = () => (
 );
 
 const BackupCard = ( { admin } ) => {
-	// @todo: implement action handlers
+	const { status, activate, deactivate, detail, isFetching } = useProduct( 'backup' );
+	const { name, description } = detail;
+
 	return (
 		<ProductCard
-			name="Backup"
-			description="Save every change"
-			status={ PRODUCT_STATUSES.ACTIVE }
+			name={ name }
+			description={ description }
+			status={ status }
 			icon={ <BackupIcon /> }
+			isFetching={ isFetching }
 			admin={ admin }
+			onDeactivate={ deactivate }
+			onActivate={ activate }
 		/>
 	);
 };

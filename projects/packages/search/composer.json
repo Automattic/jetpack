@@ -5,7 +5,7 @@
 	"license": "GPL-2.0-or-later",
 	"require": {
 		"automattic/jetpack-connection": "^1.36",
-		"automattic/jetpack-assets": "^1.16",
+		"automattic/jetpack-assets": "^1.17",
 		"automattic/jetpack-constants": "^1.6",
 		"automattic/jetpack-tracking": "^1.14",
 		"automattic/jetpack-options": "^1.14",
@@ -17,6 +17,9 @@
 		"automattic/wordbless": "0.3.1"
 	},
 	"autoload": {
+		"files": [
+			"search.php"
+		],
 		"classmap": [
 			"src/"
 		]
@@ -44,7 +47,11 @@
 		"test-php": [
 			"@composer phpunit"
 		],
-		"post-update-cmd": "php -r \"copy('vendor/automattic/wordbless/src/dbless-wpdb.php', 'wordpress/wp-content/db.php');\""
+		"post-update-cmd": "php -r \"copy('vendor/automattic/wordbless/src/dbless-wpdb.php', 'wordpress/wp-content/db.php');\"",
+		"watch": [
+			"Composer\\Config::disableProcessTimeout",
+			"pnpm run watch"
+		]
 	},
 	"repositories": [
 		{
@@ -65,7 +72,10 @@
 			"link-template": "https://github.com/Automattic/jetpack-search/compare/v${old}...v${new}"
 		},
 		"branch-alias": {
-			"dev-master": "0.5.x-dev"
+			"dev-master": "0.6.x-dev"
+		},
+		"version-constants": {
+			"JETPACK_SEARCH_PKG__VERSION": "search.php"
 		}
 	},
 	"config": {

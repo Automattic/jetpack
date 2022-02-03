@@ -230,14 +230,23 @@ class Jetpack_Widget_Conditions {
 		$widget_conditions_data['author']   = array();
 		$widget_conditions_data['author'][] = array( '', __( 'All author pages', 'jetpack' ) );
 
-		// Only users with publish caps.
-		$authors = get_users(
-			array(
-				'orderby' => 'name',
-				'who'     => 'authors',
-				'fields'  => array( 'ID', 'display_name' ),
-			)
+		/*
+		 * Query for users with publish caps.
+		 */
+		$authors_args = array(
+			'orderby'    => 'name',
+			'capability' => array( 'edit_posts' ),
+			'fields'     => array( 'ID', 'display_name' ),
 		);
+
+		// To-do: remove this once Jetpack requires WordPress 5.9.
+		global $wp_version;
+		if ( version_compare( $wp_version, '5.9-alpha', '<' ) ) {
+			$authors_args['who'] = 'authors';
+			unset( $authors_args['capability'] );
+		}
+
+		$authors = get_users( $authors_args );
 
 		foreach ( $authors as $author ) {
 			$widget_conditions_data['author'][] = array( (string) $author->ID, $author->display_name );
@@ -892,11 +901,11 @@ class Jetpack_Widget_Conditions {
 									$condition_result = $wp_query->is_posts_page;
 								} else {
 									// $rule['minor'] is a page ID
-									$condition_result = is_page() && ( get_the_ID() === $rule['minor'] );
+									$condition_result = is_page() && ( get_the_ID() === (int) $rule['minor'] );
 
 									// Check if $rule['minor'] is parent of page ID.
 									if ( ! $condition_result && isset( $rule['has_children'] ) && $rule['has_children'] ) {
-										$condition_result = wp_get_post_parent_id( get_the_ID() ) === $rule['minor'];
+										$condition_result = wp_get_post_parent_id( get_the_ID() ) === (int) $rule['minor'];
 									}
 								}
 								break;

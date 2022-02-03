@@ -41,7 +41,7 @@ class PersistentList {
 			return '';
 		}
 
-		if ( ! file_exists( dirname( $file_path ) ) ) {
+		if ( 'php://memory' !== $file_path && ! file_exists( dirname( $file_path ) ) ) {
 			mkdir( dirname( $file_path ), 0777, true );
 		}
 

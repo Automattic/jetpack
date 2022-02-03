@@ -2,6 +2,15 @@
 
 All notable changes to this project will be documented in this file.
 
+## 2.2.1 - 2022-02-01
+### Changed
+- Colors: update colors to match the latest iterations of our brand.
+- General: update WordPress tested up to version, since the plugin works with WordPress 5.9.
+- Set `convertDeprecationsToExceptions` true in PHPUnit config.
+- Switch to pcov for code coverage.
+- Updated package dependencies.
+
+
 ## 2.2.0 - 2021-10-11
 ### Changed
 - Tests: update PHPUnit polyfills dependency (yoast/phpunit-polyfills).

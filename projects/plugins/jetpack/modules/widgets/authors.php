@@ -106,10 +106,17 @@ class Jetpack_Widget_Authors extends WP_Widget {
 		$get_author_params = apply_filters(
 			'jetpack_widget_authors_params',
 			array(
-				'who'     => 'authors',
-				'exclude' => (array) $excluded_authors,
+				'capability' => array( 'edit_posts' ),
+				'exclude'    => (array) $excluded_authors,
 			)
 		);
+
+		// To-do: remove this once Jetpack requires WordPress 5.9.
+		global $wp_version;
+		if ( version_compare( $wp_version, '5.9-alpha', '<' ) ) {
+			$get_author_params['who'] = 'authors';
+			unset( $get_author_params['capability'] );
+		}
 
 		$authors = get_users( $get_author_params );
 

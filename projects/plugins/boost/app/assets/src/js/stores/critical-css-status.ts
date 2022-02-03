@@ -47,6 +47,7 @@ export interface CriticalCssStatus {
 const success = 'success';
 const fail = 'fail';
 
+// eslint-disable-next-line camelcase
 const initialState = Jetpack_Boost.criticalCssStatus || {
 	generating: false,
 	progress: 0,

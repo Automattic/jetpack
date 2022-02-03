@@ -43,8 +43,8 @@ class Banner extends Component {
 		path: PropTypes.string,
 		plan: PropTypes.string,
 		siteSlug: PropTypes.string,
-		title: PropTypes.string.isRequired,
-		isCurrentUserLinked: PropTypes.string,
+		title: PropTypes.node.isRequired,
+		isCurrentUserLinked: PropTypes.bool,
 		isConnectionOwner: PropTypes.bool,
 	};
 

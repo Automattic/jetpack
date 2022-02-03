@@ -70,11 +70,7 @@ class Instant_Search extends Classic_Search {
 	 * Loads assets for Jetpack Instant Search Prototype featuring Search As You Type experience.
 	 */
 	public function load_assets() {
-		if ( defined( 'JETPACK_SEARCH_PACKAGE_DIRECTORY' ) ) {
-			$this->load_assets_with_parameters(
-				constant( 'JETPACK_SEARCH_PACKAGE_DIRECTORY' )
-			);
-		}
+			$this->load_assets_with_parameters( constant( 'JETPACK_SEARCH_PKG__DIR' ) );
 	}
 
 	/**
@@ -217,7 +213,7 @@ class Instant_Search extends Classic_Search {
 
 		$request_args = array(
 			'timeout'    => 10,
-			'user-agent' => "WordPress/{$wp_version} | Jetpack/" . constant( 'JETPACK__VERSION' ),
+			'user-agent' => "WordPress/{$wp_version} | Jetpack-Search/" . constant( 'JETPACK_SEARCH_PKG__VERSION' ),
 		);
 
 		$request  = wp_remote_get( esc_url_raw( $service_url ), $request_args );

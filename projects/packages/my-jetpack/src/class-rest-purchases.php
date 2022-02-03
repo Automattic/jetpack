@@ -8,6 +8,7 @@
 namespace Automattic\Jetpack\My_Jetpack;
 
 use Automattic\Jetpack\Connection\Client as Client;
+use Automattic\Jetpack\Connection\Manager as Connection_Manager;
 
 /**
  * Registers the REST routes for Purchases.
@@ -37,6 +38,19 @@ class REST_Purchases {
 	 * @return true|WP_Error
 	 */
 	public static function permissions_callback() {
+		$connection        = new Connection_Manager();
+		$is_user_connected = $connection->is_connected();
+
+		if ( ! $is_user_connected ) {
+			return new \WP_Error(
+				'not_connected',
+				__( 'You are not connected to Jetpack.', 'jetpack-my-jetpack' ),
+				array(
+					'status' => 400,
+				)
+			);
+		}
+
 		return current_user_can( 'manage_options' );
 	}
 

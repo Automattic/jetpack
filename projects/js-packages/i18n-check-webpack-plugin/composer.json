@@ -32,6 +32,11 @@
 		"mirror-repo": "Automattic/i18n-check-webpack-plugin",
 		"changelogger": {
 			"link-template": "https://github.com/Automattic/i18n-check-webpack-plugin/compare/v${old}...v${new}"
+		},
+		"dependencies": {
+			"test": [
+				"js-packages/webpack-config"
+			]
 		}
 	}
 }

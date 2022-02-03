@@ -93,9 +93,8 @@ DO_PNPM_LOCK=true
 SLUGS=()
 if [[ $# -le 0 ]]; then
 	# Use a temp variable so pipefail works
-	TMP="$(tools/get-build-order.php 2>/dev/null)"
+	TMP="$(pnpx jetpack dependencies build-order --pretty)"
 	mapfile -t SLUGS <<<"$TMP"
-	SLUGS+=( 'monorepo' )
 	TMP="$(git ls-files '**/composer.json' '**/package.json' | sed -E -n -e '\!^projects/[^/]*/[^/]*/(composer|package)\.json$! d' -e 's!/(composer|package)\.json$!!' -e 's/^/nonproject:/p' | sort -u)"
 	mapfile -t -O ${#SLUGS[@]} SLUGS <<<"$TMP"
 else

@@ -67,7 +67,7 @@ class DashSearch extends Component {
 
 		// Connected props
 		isOfflineMode: PropTypes.bool.isRequired,
-		hasConnectedOwner: PropTypes.string.isRequired,
+		hasConnectedOwner: PropTypes.bool.isRequired,
 	};
 
 	static defaultProps = {

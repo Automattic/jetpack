@@ -11,8 +11,11 @@ use Automattic\Jetpack\Admin_UI\Admin_Menu;
 use Automattic\Jetpack\Assets;
 use Automattic\Jetpack\Connection\Client as Client;
 use Automattic\Jetpack\Connection\Initial_State as Connection_Initial_State;
+use Automattic\Jetpack\Connection\Manager as Connection_Manager;
 use Automattic\Jetpack\Connection\Rest_Authentication as Connection_Rest_Authentication;
 use Automattic\Jetpack\Status as Status;
+use Automattic\Jetpack\Terms_Of_Service;
+use Automattic\Jetpack\Tracking;
 
 /**
  * The main Initializer class that registers the admin menu and eneuque the assets.
@@ -25,12 +28,7 @@ class Initializer {
 	 * @return void
 	 */
 	public static function init() {
-		if ( did_action( 'my_jetpack_init' ) ) {
-			return;
-		}
-
-		// Feature flag while we are developing it.
-		if ( ! defined( 'JETPACK_ENABLE_MY_JETPACK' ) || ! JETPACK_ENABLE_MY_JETPACK ) {
+		if ( ! self::should_initialize() ) {
 			return;
 		}
 
@@ -69,6 +67,17 @@ class Initializer {
 	}
 
 	/**
+	 * Returns whether we are in condition to track to use
+	 * Analytics functionality like Tracks, MC, or GA.
+	 */
+	public static function can_use_analytics() {
+		$status     = new Status();
+		$connection = new Connection_Manager();
+		$tracking   = new Tracking( 'jetpack', $connection );
+
+		return $tracking->should_enable_tracking( new Terms_Of_Service(), $status );
+	}
+	/**
 	 * Enqueue admin page assets.
 	 *
 	 * @return void
@@ -88,18 +97,34 @@ class Initializer {
 			'my_jetpack_main_app',
 			'myJetpackInitialState',
 			array(
-				'apiRoot'               => esc_url_raw( rest_url() ),
-				'apiNonce'              => wp_create_nonce( 'wp_rest' ),
-				'products'              => Products::get_products(),
-				'purchases'             => array(),
+				'products'              => array(
+					'items' => Products::get_products(),
+				),
+				'purchases'             => array(
+					'items' => array(),
+				),
 				'redirectUrl'           => admin_url( '?page=my-jetpack' ),
 				'topJetpackMenuItemUrl' => Admin_Menu::get_top_level_menu_item_url(),
 				'siteSuffix'            => ( new Status() )->get_site_suffix(),
 			)
 		);
 
+		wp_localize_script(
+			'my_jetpack_main_app',
+			'myJetpackRest',
+			array(
+				'apiRoot'  => esc_url_raw( rest_url() ),
+				'apiNonce' => wp_create_nonce( 'wp_rest' ),
+			)
+		);
+
 		// Connection Initial State.
 		wp_add_inline_script( 'my_jetpack_main_app', Connection_Initial_State::render(), 'before' );
+
+		// Required for Analytics.
+		if ( self::can_use_analytics() ) {
+			Tracking::register_tracks_functions_scripts( true );
+		}
 	}
 
 	/**
@@ -141,6 +166,36 @@ class Initializer {
 	 */
 	public static function permissions_callback() {
 		return current_user_can( 'manage_options' );
+	}
+
+	/**
+	 * Return true if we should initialize the My Jetpack
+	 */
+	public static function should_initialize() {
+		if ( did_action( 'my_jetpack_init' ) ) {
+			return false;
+		}
+
+		/**
+		 * Allows filtering whether My Jetpack should be initialized
+		 *
+		 * @since 0.5.0-alpha
+		 *
+		 * @param bool $shoud_initialize Should we initialize My Jetpack?
+		 */
+		$should = apply_filters( 'jetpack_my_jetpack_should_initialize', true );
+
+		// Feature flag while we are developing it.
+		if ( ! defined( 'JETPACK_ENABLE_MY_JETPACK' ) || ! JETPACK_ENABLE_MY_JETPACK ) {
+			return false;
+		}
+
+		// Do not initialize My Jetpack if site is not connected.
+		if ( ! ( new Connection_Manager() )->is_connected() ) {
+			return false;
+		}
+
+		return $should;
 	}
 
 	/**

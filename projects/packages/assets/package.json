@@ -1,0 +1,25 @@
+{
+	"private": true,
+	"browserslist": "extends @wordpress/browserslist-config",
+	"scripts": {
+		"build": "pnpm run clean && pnpm run build-js",
+		"build-js": "webpack",
+		"build-production": "pnpm run clean && pnpm run build-production-js && pnpm run validate",
+		"build-production-js": "NODE_ENV=production BABEL_ENV=production pnpm run build-js",
+		"clean": "rm -rf build",
+		"test": "jest tests",
+		"test-coverage": "jest tests --coverage --collectCoverageFrom='src/**/*.js' --coverageDirectory=\"$COVERAGE_DIR/js\" --coverageReporters=clover",
+		"validate": "pnpm exec validate-es build/"
+	},
+	"devDependencies": {
+		"@automattic/jetpack-webpack-config": "workspace:^1.1.2-alpha",
+		"md5-es": "1.8.2",
+		"jest": "27.3.1",
+		"webpack": "5.65.0"
+	},
+	"engines": {
+		"node": "^14.18.3 || ^16.13.2",
+		"pnpm": "^6.23.6",
+		"yarn": "use pnpm instead - see docs/yarn-upgrade.md"
+	}
+}

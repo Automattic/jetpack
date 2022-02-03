@@ -126,7 +126,7 @@ class Declarations extends PersistentList {
 					break;
 				default:
 					// TODO: Implement handlers to other difference types.
-					echo $obj->decl_type . " not implemented!\n"; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
+					echo "Declaration not implemented: " . $obj->decl_type . "\n"; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
 					break;
 			}
 		}
