@@ -17,6 +17,7 @@
 	},
 	"devDependencies": {
 		"jetpack-js-test-runner": "workspace:*",
+		"lodash": "4.17.21",
 		"nyc": "15.1.0"
 	},
 	"engines": {

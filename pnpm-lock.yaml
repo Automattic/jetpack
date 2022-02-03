@@ -386,9 +386,11 @@ importers:
   projects/js-packages/shared-extension-utils:
     specifiers:
       jetpack-js-test-runner: workspace:*
+      lodash: 4.17.21
       nyc: 15.1.0
     devDependencies:
       jetpack-js-test-runner: link:../../../tools/js-test-runner
+      lodash: 4.17.21
       nyc: 15.1.0
 
   projects/js-packages/storybook:
@@ -944,6 +946,7 @@ importers:
       '@automattic/jetpack-connection': workspace:^0.15.1-alpha
       '@automattic/jetpack-licensing': workspace:^0.4.6-alpha
       '@automattic/jetpack-partner-coupon': workspace:^0.1.8-alpha
+      '@automattic/jetpack-shared-extension-utils': workspace:^0.1.0-alpha
       '@automattic/jetpack-webpack-config': workspace:^1.1.2-alpha
       '@automattic/popup-monitor': 1.0.0
       '@automattic/remove-asset-webpack-plugin': workspace:^1.0.3
@@ -1090,6 +1093,7 @@ importers:
       '@automattic/jetpack-connection': link:../../js-packages/connection
       '@automattic/jetpack-licensing': link:../../js-packages/licensing
       '@automattic/jetpack-partner-coupon': link:../../js-packages/partner-coupon
+      '@automattic/jetpack-shared-extension-utils': link:../../js-packages/shared-extension-utils
       '@automattic/popup-monitor': 1.0.0
       '@automattic/request-external-access': 1.0.0
       '@automattic/social-previews': 1.1.1_d6aa0d5b77ebdc587ad2683e8fb8389a
