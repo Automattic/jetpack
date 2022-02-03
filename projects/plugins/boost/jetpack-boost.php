@@ -142,6 +142,10 @@ function include_compatibility_files() {
 	if ( class_exists( '\Elementor\TemplateLibrary\Source_Local' ) ) {
 		require_once __DIR__ . '/compatibility/elementor.php';
 	}
+
+	if ( function_exists( 'amp_is_request' ) ) {
+		require_once __DIR__ . '/compatibility/amp.php';
+	}
 }
 
 add_action( 'plugins_loaded', __NAMESPACE__ . '\include_compatibility_files' );
@@ -154,3 +158,8 @@ function jetpack_boost_uninstall() {
 	$boost = new Jetpack_Boost();
 	$boost->uninstall();
 }
+
+/**
+ * Previous version compatibility files
+ */
+require_once __DIR__ . '/compatibility/boost-1.3.1.php';

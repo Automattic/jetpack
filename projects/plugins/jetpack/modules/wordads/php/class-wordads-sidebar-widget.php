@@ -39,6 +39,20 @@ class WordAds_Sidebar_Widget extends WP_Widget {
 				'customize_selective_refresh' => true,
 			)
 		);
+
+		add_filter( 'widget_types_to_hide_from_legacy_widget_block', array( $this, 'hide_widget_in_block_editor' ) );
+	}
+
+	/**
+	 * Remove the Ad widget from the Legacy Widget block
+	 *
+	 * @param array $widget_types List of widgets that are currently removed from the Legacy Widget block.
+	 *
+	 * @return array $widget_types New list of widgets that will be removed.
+	 */
+	public function hide_widget_in_block_editor( $widget_types ) {
+		$widget_types[] = 'wordads_sidebar_widget';
+		return $widget_types;
 	}
 
 	/**

@@ -1,0 +1,32 @@
+<?xml version="1.0"?>
+<ruleset>
+
+	<!-- This is not WordPress code. -->
+	<rule ref="WordPress.Files.FileName">
+		<severity>0</severity>
+	</rule>
+	<rule ref="WordPress.NamingConventions.ValidFunctionName">
+		<severity>0</severity>
+	</rule>
+	<rule ref="WordPress.NamingConventions.ValidVariableName">
+		<severity>0</severity>
+	</rule>
+	<rule ref="WordPress.PHP.DiscouragedPHPFunctions">
+		<severity>0</severity>
+	</rule>
+	<rule ref="WordPress.Security.EscapeOutput.OutputNotEscaped">
+		<severity>0</severity>
+	</rule>
+	<rule ref="WordPress.WP.AlternativeFunctions">
+		<severity>0</severity>
+	</rule>
+	<rule ref="WordPress.Security.NonceVerification.Recommended">
+		<severity>0</severity>
+	</rule>
+	<rule ref="WordPress.Security.NonceVerification.Missing">
+		<severity>0</severity>
+	</rule>
+	<rule ref="WordPress.PHP.DevelopmentFunctions.error_log_var_export">
+		<severity>0</severity>
+	</rule>
+</ruleset>

@@ -9,6 +9,7 @@
   --product-card-description-font-size: 14px;
   --product-card-actions-font-size: 12px;
   --product-card-margin-base: 4px;
+  --product-card-actions-size: 36px;
   --status-size: 8px;
   --status-active: #008710;
   --status-inactive: #646970;
@@ -51,15 +52,23 @@
   align-items: center;
   justify-content: space-between;
   width: 100%;
-  height: 36px;
+  min-height: var(--product-card-actions-size);
   margin-top: calc(var(--product-card-margin-base) * 4); // 16px
   font-size: var(--product-card-actions-font-size);
   font-weight: 600;
+  flex-wrap: wrap;
+}
+
+.group {
+  display: flex;
+  height: var(--product-card-actions-size);
 }
 
 .status {
   margin-left: var(--product-card-margin-base);
   white-space: nowrap;
+  height: var(--product-card-actions-size);
+  line-height: var(--product-card-actions-size);
 
   &:before {
     content: "";

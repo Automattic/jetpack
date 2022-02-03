@@ -42,10 +42,12 @@ if ( version_compare( PHP_VERSION, '8.0', '>=' ) &&
 	if ( ! class_exists( PHPUnit\Framework\MockObject\InvocationMocker::class, false ) &&
 		file_exists( "$test_root/includes/phpunit7/MockObject/InvocationMocker.php" )
 	) {
+		// phpcs:disable WordPressVIPMinimum.Files.IncludingFile.NotAbsolutePath
 		require "$test_root/includes/phpunit7/MockObject/Builder/NamespaceMatch.php";
 		require "$test_root/includes/phpunit7/MockObject/Builder/ParametersMatch.php";
 		require "$test_root/includes/phpunit7/MockObject/InvocationMocker.php";
 		require "$test_root/includes/phpunit7/MockObject/MockMethod.php";
+		// phpcs:enable
 	} else {
 		fprintf(
 			STDOUT,

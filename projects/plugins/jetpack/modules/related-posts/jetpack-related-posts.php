@@ -476,7 +476,7 @@ EOT;
 		 *
 		 * @module related-posts
 		 *
-		 * @since $$next-version$$
+		 * @since 10.7
 		 *
 		 * @param string $display_markup HTML output of Related Posts.
 		 * @param int|false get_the_ID() Post ID of the post for which we are retrieving Related Posts.

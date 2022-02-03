@@ -43,9 +43,12 @@ class Plan {
 	 */
 	public function get_plan_info_from_wpcom() {
 		$blog_id  = Jetpack_Options::get_option( 'id' );
-		$response = Client::wpcom_json_api_request_as_user(
+		$response = Client::wpcom_json_api_request_as_blog(
 			'/sites/' . $blog_id . '/jetpack-search/plan',
-			'2'
+			'2',
+			array(),
+			null,
+			'wpcom'
 		);
 
 		// store plan in options.
