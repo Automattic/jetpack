@@ -414,7 +414,7 @@ class Jetpack_WPCOM_Block_Editor {
 		global $post;
 		if ( ! $post instanceof WP_Post ) {
 			return false;
-		};
+		}
 
 		if ( ! has_blocks( $post ) ) {
 			return false;
