@@ -155,7 +155,8 @@ class VideoPress_Edit_Attachment {
 		$info          = (object) $meta['videopress'];
 		$file_statuses = isset( $meta['file_statuses'] ) ? $meta['file_statuses'] : array();
 
-		$guid = get_post_meta( $post_id, 'videopress_guid', true );
+		$guid              = get_post_meta( $post_id, 'videopress_guid', true );
+		$original_file_url = videopress_get_attachment_url( $post_id, true );
 
 		unset( $fields['url'] );
 		unset( $fields['post_content'] );
@@ -191,6 +192,16 @@ class VideoPress_Edit_Attachment {
 			'show_in_modal' => true,
 			'show_in_edit'  => false,
 		);
+
+		if ( $file_statuses['hd_1080p_compat'] ) {
+			$fields['videopress_original_file_url'] = array(
+				'label'         => _x( 'Original File URL', 'A header for the original file url field', 'jetpack' ),
+				'input'         => 'html',
+				'html'          => "<input type=\"text\" name=\"videopress_original_file_url\" value=\"{$original_file_url}\" readonly=\"readonly\"/>",
+				'show_in_modal' => true,
+				'show_in_edit'  => false,
+			);
+		}
 
 		$fields['display_embed'] = array(
 			'label' => _x( 'Share', 'A header for the video sharing options area', 'jetpack' ),
