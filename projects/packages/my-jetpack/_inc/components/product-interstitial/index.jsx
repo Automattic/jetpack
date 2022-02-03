@@ -15,13 +15,17 @@ import styles from './style.module.scss';
  *
  * @param {object} props          - Component props.
  * @param {string} props.slug     - Product slug
+ * @param {object} props.children - Product additional content
  * @returns {object}                ProductInterstitial react component.
  */
-export default function ProductInterstitial( { slug } ) {
+export default function ProductInterstitial( { slug, children = null } ) {
 	return (
-		<Container className={ styles.container } fluid horizontalSpacing={ 0 } horizontalGap={ 3 }>
+		<Container className={ styles.container } fluid horizontalSpacing={ 0 } horizontalGap={ 0 }>
 			<Col sm={ 4 } md={ 4 } lg={ 6 }>
 				<ProductDetail slug={ slug } />
+			</Col>
+			<Col sm={ 4 } md={ 4 } lg={ 6 }>
+				{ children }
 			</Col>
 		</Container>
 	);
@@ -33,7 +37,11 @@ export default function ProductInterstitial( { slug } ) {
  * @returns {object} BackupInterstitial react component.
  */
 export function BackupInterstitial() {
-	return <ProductInterstitial slug="backup" />;
+	return (
+		<ProductInterstitial slug="backup">
+			<h2>@todo Popular upgrade here</h2>
+		</ProductInterstitial>
+	);
 }
 
 /**
