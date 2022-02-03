@@ -308,7 +308,7 @@ HTML;
 			"attachments-{$info->post_id}-allowdownload",
 			"attachments[{$info->post_id}][allow_download]",
 			__( 'Display download option and allow viewers to download this video', 'jetpack' ),
-			$info->allow_download
+			isset( $info->allow_download ) && $info->allow_download
 		);
 	}
 

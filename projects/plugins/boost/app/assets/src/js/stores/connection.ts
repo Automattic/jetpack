@@ -14,6 +14,7 @@ export type ConnectionStatus = {
 	error: null | string;
 };
 
+// eslint-disable-next-line camelcase
 const initialState = Jetpack_Boost.connection;
 const { subscribe, update } = writable< ConnectionStatus >( initialState );
 

@@ -71,7 +71,7 @@ function wufoo_shortcode( $atts ) {
 		'(function(){try{var wufoo_%1$s = new WufooForm();wufoo_%1$s.initialize({"userName":"%2$s","formHash":"%1$s","autoResize":%3$s,"height":"%4$d","header":"%5$s","ssl":true,"async":true});wufoo_%1$s.display();}catch(e){}})();',
 		esc_attr( $attr['formhash'] ),
 		esc_attr( $attr['username'] ),
-		'true' == $attr['autoresize'] ? 'true' : 'false', // phpcs:ignore WordPress.PHP.StrictComparisons.LooseComparison
+		'true' == $attr['autoresize'] ? 'true' : 'false', // phpcs:ignore Universal.Operators.StrictComparisons.LooseEqual
 		absint( $attr['height'] ),
 		'show' === $attr['header'] ? 'show' : 'hide'
 	);

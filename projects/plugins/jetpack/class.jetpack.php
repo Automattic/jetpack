@@ -1888,7 +1888,7 @@ class Jetpack {
 				continue;
 			}
 
-			if ( ! include_once self::get_module_path( $module ) ) {
+			if ( ! include_once self::get_module_path( $module ) ) { // phpcs:ignore WordPressVIPMinimum.Files.IncludingFile.NotAbsolutePath
 				unset( $modules[ $index ] );
 				self::update_active_modules( array_values( $modules ) );
 				continue;
@@ -3022,7 +3022,7 @@ class Jetpack {
 
 		self::catch_errors( true );
 		ob_start();
-		require self::get_module_path( $module );
+		require self::get_module_path( $module ); // phpcs:ignore WordPressVIPMinimum.Files.IncludingFile.NotAbsolutePath
 		/** This action is documented in class.jetpack.php */
 		do_action( 'jetpack_activate_module', $module );
 		$active[] = $module;
