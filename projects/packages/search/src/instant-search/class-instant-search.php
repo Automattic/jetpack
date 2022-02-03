@@ -415,6 +415,10 @@ class Instant_Search extends Classic_Search {
 	 * Add a search widget above footer for block templates.
 	 */
 	public function add_search_block_above_footer() {
+		// Check whether block theme functions exist.
+		if ( ! function_exists( 'get_block_template' ) ) {
+			return;
+		}
 		$active_theme     = \wp_get_theme()->get_stylesheet();
 		$template_part_id = "{$active_theme}//header";
 		$teplate_part     = \get_block_template( $template_part_id, 'wp_template_part' );
