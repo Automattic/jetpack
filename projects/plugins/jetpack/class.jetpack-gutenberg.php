@@ -703,6 +703,8 @@ class Jetpack_Gutenberg {
 	 * Add the Gutenberg editor stylesheet to the site editor.
 	 * The `add_editor_style` function automatically adds another stylesheet with -rtl prefix.
 	 *
+	 * @since $$next-version$$
+	 *
 	 * @return void
 	 */
 	public static function add_site_editor_style() {
