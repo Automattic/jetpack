@@ -9,20 +9,24 @@
 
 namespace Automattic\Jetpack_Boost\Features\Optimizations\Cloud_CSS;
 
-use Automattic\Jetpack_Boost\Features\Optimizations\Critical_CSS\Critical_CSS_State;
 use Automattic\Jetpack_Boost\Features\Optimizations\Critical_CSS\Source_Providers\Source_Providers;
-use Automattic\Jetpack_Boost\Lib\Transient;
 
 /**
  * Cloud CSS State
  */
 class Cloud_CSS_Request {
 
-	private Cloud_CSS_State $cloud_css_state;
-	private Source_Providers $source_providers;
+	/**
+	 * @var Cloud_CSS_State
+	 */
+	private $cloud_css_state;
 
-	public function __construct()
-	{
+	/**
+	 * @var Source_Providers
+	 */
+	private $source_providers;
+
+	public function __construct() {
 		$this->source_providers = new Source_Providers();
 		$this->cloud_css_state = new Cloud_CSS_State();
 	}
@@ -31,8 +35,8 @@ class Cloud_CSS_Request {
 		$this->cloud_css_state->create_request( $this->source_providers->get_providers() );
 		$sources = $this->cloud_css_state->get_provider_urls();
 
-		$response = wp_remote_post( 'http://hydra-api:1982/v1/test/critical-css/batch', [
-			'body' => wp_json_encode( [ 'urls' => $sources ] ),
+		$response = wp_remote_post( 'http://hydra-api:1982/v1/action/critical-css', [
+			'body' => wp_json_encode( [ 'providers' => $sources ] ),
 			'timeout' => 30,
 			'headers' => [
 				'Content-Type' => 'application/json',
