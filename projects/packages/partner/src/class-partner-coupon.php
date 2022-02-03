@@ -174,13 +174,13 @@ class Partner_Coupon {
 	 * We automatically remove the coupon after a month to "self-heal" if
 	 * something in the claim process has broken with the site.
 	 *
-	 * @return bool Return whether we deleted coupon data.
+	 * @return bool Return whether we should skip further purge checks.
 	 */
 	protected function maybe_purge_coupon_by_added_date() {
 		$date = Jetpack_Options::get_option( self::$added_option, '' );
 
 		if ( empty( $date ) ) {
-			return false;
+			return true;
 		}
 
 		$expire_date = strtotime( '+30 days', $date );
