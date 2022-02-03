@@ -14,7 +14,7 @@ import ProductDetailCard, {
 	BackupDetail,
 	BoostDetail,
 } from '../index.jsx';
-import { backupProductData } from './mock-data.js';
+import { backupProductData, boostProductData } from './mock-data.js';
 
 export default {
 	title: 'Packages/My Jetpack/Product Detail Card',
@@ -25,6 +25,11 @@ export default {
 const DefaultArgs = {};
 
 const DefaultBackupDetailCard = args => <BackupDetailCard { ...args } />;
+
+const mapResponse = {
+	backup: backupProductData,
+	boost: boostProductData,
+};
 
 /**
  * Helper function that returns the story mock data.
@@ -38,7 +43,7 @@ function getMockData( product ) {
 			url: `my-jetpack/v1/site/products/${ product }?_locale=user`,
 			method: 'GET',
 			status: 200,
-			response: backupProductData,
+			response: mapResponse[ product ],
 		},
 	];
 }
