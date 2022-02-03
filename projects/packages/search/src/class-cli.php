@@ -21,17 +21,9 @@ class CLI extends WP_CLI_Command {
 	 * ## EXAMPLES
 	 *
 	 * wp jetpack-search auto_config
-	 * wp jetpack-search auto_config --force
-	 *
-	 * @param array $args Positional args.
-	 * @param array $assoc_args Named args.
 	 */
-	public function auto_config( $args, $assoc_args ) {
+	public function auto_config() {
 		try {
-			$is_force_run = ! empty( $assoc_args['force'] );
-			if ( ! $is_force_run && get_option( Options::OPTION_PREFIX . 'result_format' ) !== false ) {
-				WP_CLI::error( 'Jetpack Search: auto config has run already. You could add option `--force` to force run.' );
-			}
 			$blog_id = ( defined( 'IS_WPCOM' ) && constant( 'IS_WPCOM' ) ) ? get_current_blog_id() : Jetpack_Options::get_option( 'id' );
 			Instant_Search::initialize( $blog_id );
 			Instant_Search::instance()->auto_config_search_no_pri();
