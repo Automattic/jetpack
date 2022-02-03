@@ -1,0 +1,4 @@
+Significance: patch
+Type: bugfix
+
+Contact Form: ensure form validation uses the correct variable types.

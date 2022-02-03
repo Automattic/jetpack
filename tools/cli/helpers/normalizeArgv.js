@@ -49,3 +49,19 @@ export function normalizeCleanArgv( argv ) {
 		...argv,
 	};
 }
+
+/**
+ * Check a concurrency value.
+ *
+ * Intended for use as a `coerce` in a yargs option definition.
+ *
+ * @param {number} v - Value to check.
+ * @returns {number} Number.
+ * @throws {Error} If the value is invalid.
+ */
+export function coerceConcurrency( v ) {
+	if ( v === Infinity || ( Number.isSafeInteger( v ) && v > 0 ) ) {
+		return v;
+	}
+	throw new Error( 'Concurrency value must be an integer greater than 0, or Infinity.' );
+}

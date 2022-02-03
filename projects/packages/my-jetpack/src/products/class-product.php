@@ -92,6 +92,7 @@ abstract class Product {
 			'long_description'         => static::get_long_description(),
 			'features'                 => static::get_features(),
 			'status'                   => static::get_status(),
+			'pricing_for_ui'           => static::get_pricing_for_ui(),
 			'requires_user_connection' => static::$requires_user_connection,
 			'class'                    => get_called_class(),
 		);
@@ -124,6 +125,13 @@ abstract class Product {
 	 * @return array
 	 */
 	abstract public static function get_features();
+
+	/**
+	 * Get the product pricing
+	 *
+	 * @return array
+	 */
+	abstract public static function get_pricing_for_ui();
 
 	/**
 	 * Undocumented function
