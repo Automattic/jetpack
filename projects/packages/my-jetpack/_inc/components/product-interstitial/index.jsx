@@ -9,6 +9,7 @@ import { Container, Col } from '@automattic/jetpack-components';
  */
 import { ProductDetail } from '../product-detail-card';
 import styles from './style.module.scss';
+import boostImage from './boost.png';
 
 /**
  * Product Interstitial component.
@@ -20,11 +21,11 @@ import styles from './style.module.scss';
  */
 export default function ProductInterstitial( { slug, children = null } ) {
 	return (
-		<Container className={ styles.container } fluid horizontalSpacing={ 0 } horizontalGap={ 0 }>
-			<Col sm={ 4 } md={ 4 } lg={ 6 }>
+		<Container className={ styles.container } horizontalSpacing={ 0 } horizontalGap={ 0 }>
+			<Col sm={ 4 } md={ 4 } lg={ 5 }>
 				<ProductDetail slug={ slug } />
 			</Col>
-			<Col sm={ 4 } md={ 4 } lg={ 6 }>
+			<Col sm={ 4 } md={ 4 } lg={ 7 } className={ styles.imageContainer }>
 				{ children }
 			</Col>
 		</Container>
@@ -50,5 +51,9 @@ export function BackupInterstitial() {
  * @returns {object} BoostInterstitial react component.
  */
 export function BoostInterstitial() {
-	return <ProductInterstitial slug="boost" />;
+	return (
+		<ProductInterstitial slug="boost">
+			<img src={ boostImage } alt="Boost" />
+		</ProductInterstitial>
+	);
 }
