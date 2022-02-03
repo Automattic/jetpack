@@ -69,7 +69,7 @@ class Scan extends Module_Product {
 	 *
 	 * @return array Pricing details
 	 */
-	public static function get_pricing() {
+	public static function get_pricing_for_ui() {
 		return array(
 			'available' => true,
 			'is_free'   => true,
