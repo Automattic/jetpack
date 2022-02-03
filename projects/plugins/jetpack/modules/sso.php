@@ -971,7 +971,7 @@ class Jetpack_SSO {
 		$args = wp_parse_args( $args, $defaults );
 
 		if ( ! empty( $_GET['redirect_to'] ) ) {
-			$args['redirect_to'] = urlencode( esc_url_raw( $_GET['redirect_to'] ) );
+			$args['redirect_to'] = rawurlencode( esc_url_raw( $_GET['redirect_to'] ) );
 		}
 
 		return add_query_arg( $args, wp_login_url() );
@@ -1065,7 +1065,7 @@ class Jetpack_SSO {
 			'site_id'      => Jetpack_Options::get_option( 'id' ),
 			'sso_nonce'    => $sso_nonce,
 			'reauth'       => '1',
-			'redirect_to'  => urlencode( $redirect ),
+			'redirect_to'  => rawurlencode( $redirect ),
 			'calypso_auth' => '1',
 		);
 
