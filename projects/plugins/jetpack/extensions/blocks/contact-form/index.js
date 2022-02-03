@@ -52,10 +52,6 @@ export const settings = {
 		spacing: {
 			padding: true,
 		},
-		typography: {
-			fontSize: true,
-			lineHeight: true,
-		},
 	},
 	attributes: defaultAttributes,
 	edit,
