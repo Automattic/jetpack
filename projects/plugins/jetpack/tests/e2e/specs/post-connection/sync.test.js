@@ -19,7 +19,8 @@ test.describe( 'Sync', () => {
 
 		const jetpackOptions = await execWpCommand( 'option get jetpack_options --format=json' );
 		wpcomBlogId = JSON.parse( jetpackOptions ).id;
-		wpcomForcedPostsUrl = wpcomRestAPIBase + `v1/sites/${ wpcomBlogId }/posts?force=wpcom`;
+		wpcomForcedPostsUrl =
+			wpcomRestAPIBase + `v1/sites/${ wpcomBlogId }/posts?force=wpcom&search=Sync`;
 	} );
 
 	test.beforeEach( async ( { page } ) => {
@@ -58,7 +59,8 @@ test.describe( 'Sync', () => {
 
 	test( 'Disabled Sync Flow', async ( { page } ) => {
 		await test.step( 'Disabled Sync', async () => {
-			await execWpCommand( 'option update jetpack_sync_settings_disable 1' );
+			const syncDisabled = await execWpCommand( 'option update jetpack_sync_settings_disable 1' );
+			expect( syncDisabled ).toMatch( 'Success' );
 		} );
 
 		await test.step( 'Publish a post', async () => {
@@ -82,7 +84,10 @@ test.describe( 'Sync', () => {
 
 	test( 'Dedicated Sync Flow', async ( { page } ) => {
 		await test.step( 'Enable Dedicated Sync', async () => {
-			await execWpCommand( 'option update jetpack_sync_settings_dedicated_sync_enabled 1' );
+			const dedicatedSyncEnabled = await execWpCommand(
+				'option update jetpack_sync_settings_dedicated_sync_enabled 1'
+			);
+			expect( dedicatedSyncEnabled ).toMatch( 'Success' );
 		} );
 
 		await test.step( 'Publish a post', async () => {
