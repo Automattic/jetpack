@@ -552,11 +552,11 @@ class Instant_Search extends Classic_Search {
 			apply_filters( 'active_plugins', Helper::get_active_plugins() ),
 			true
 		) ) {
-			update_option( Options::OPTION_PREFIX . 'result_format', Options::RESULT_FORMAT_PRODUCT );
+			update_option( $result_format_option_name, Options::RESULT_FORMAT_PRODUCT );
 		}
 
 		// Set `expanded` as default result format.
-		update_option( Options::OPTION_PREFIX . 'result_format', Options::RESULT_FORMAT_EXPANDED );
+		update_option( $result_format_option_name, Options::RESULT_FORMAT_EXPANDED );
 	}
 
 	/**
