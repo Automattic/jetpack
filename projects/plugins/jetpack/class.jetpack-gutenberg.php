@@ -700,14 +700,16 @@ class Jetpack_Gutenberg {
 	}
 
 	/**
-	 * Add the Gutenberg editor stylesheet to the site editor.
+	 * Add the Gutenberg editor stylesheet to iframed editors, such as the site editor,
+	 * which don't have access to stylesheets added with `wp_enqueue_style`.
+	 *
 	 * This workaround is only supposed to be used by WordPress.com Simple sites.
 	 *
 	 * @since $$next-version$$
 	 *
 	 * @return void
 	 */
-	public static function add_site_editor_style() {
+	public static function add_iframed_editor_style() {
 		if ( ! self::should_load() ) {
 			return;
 		}
