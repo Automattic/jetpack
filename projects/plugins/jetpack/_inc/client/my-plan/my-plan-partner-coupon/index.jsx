@@ -4,6 +4,7 @@
 import React from 'react';
 import { connect } from 'react-redux';
 import PropTypes from 'prop-types';
+import { getRedirectUrl } from '@automattic/jetpack-components';
 import { __, sprintf } from '@wordpress/i18n';
 
 /**
@@ -13,13 +14,20 @@ import Button from 'components/button';
 import MyPlanBanner from '../my-plan-banner';
 import { getPartnerCoupon } from 'state/initial-state';
 
-const MyPlanPartnerCoupon = ( { siteAdminUrl, partnerCoupon } ) => {
+const MyPlanPartnerCoupon = ( { partnerCoupon, siteRawUrl } ) => {
 	if ( 'object' !== typeof partnerCoupon ) {
 		return null;
 	}
 
 	const redeemButton = (
-		<Button primary href={ `${ siteAdminUrl }admin.php?page=jetpack&showCouponRedemption=1` }>
+		<Button
+			primary
+			href={ getRedirectUrl( 'jetpack-plugin-partner-coupon-checkout', {
+				path: partnerCoupon.product.slug,
+				site: siteRawUrl,
+				query: `coupon=${ partnerCoupon.coupon_code }`,
+			} ) }
+		>
 			{ __( 'Redeem', 'jetpack' ) }
 		</Button>
 	);
@@ -49,7 +57,7 @@ const MyPlanPartnerCoupon = ( { siteAdminUrl, partnerCoupon } ) => {
 
 MyPlanPartnerCoupon.propTypes = {
 	partnerCoupon: PropTypes.oneOfType( [ PropTypes.object, PropTypes.bool ] ).isRequired,
-	siteAdminUrl: PropTypes.string.isRequired,
+	siteRawUrl: PropTypes.string.isRequired,
 };
 
 export default connect( state => ( {

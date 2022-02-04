@@ -35,7 +35,7 @@ export function MyPlan( props ) {
 	return (
 		<React.Fragment>
 			<QuerySite />
-			<MyPlanPartnerCoupon siteAdminUrl={ props.siteAdminUrl } />
+			<MyPlanPartnerCoupon siteRawUrl={ props.siteRawUrl } />
 			<MyPlanHeader
 				activeProducts={ props.activeProducts }
 				plan={ sitePlan }
