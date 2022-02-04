@@ -81,7 +81,7 @@ function requestProductStatus( productId, data, { select, dispatch } ) {
 		// Check valid product.
 		const isValid = select.isValidProduct( productId );
 		if ( ! isValid ) {
-			dispatch( setProductStatus( productId, { status: 'error' } ) );
+			dispatch( setProductStatus( productId, 'error' ) );
 			return dispatch(
 				setRequestProductError( productId, {
 					code: 'invalid_product',
@@ -105,7 +105,7 @@ function requestProductStatus( productId, data, { select, dispatch } ) {
 				resolve( status );
 			} )
 			.catch( error => {
-				dispatch( setProductStatus( productId, { status: 'error' } ) );
+				dispatch( setProductStatus( productId, 'error' ) );
 				dispatch( setRequestProductError( productId, error ) );
 				reject( error );
 				dispatch( setIsFetchingProduct( productId, false ) );

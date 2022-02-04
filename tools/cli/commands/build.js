@@ -5,13 +5,16 @@ import chalk from 'chalk';
 import execa from 'execa';
 import inquirer from 'inquirer';
 import Listr from 'listr';
+import ListrState from 'listr/lib/state.js';
 import SilentRenderer from 'listr-silent-renderer';
 import UpdateRenderer from 'listr-update-renderer';
+import pLimit from 'p-limit';
 
 /**
  * Internal dependencies
  */
 import { chalkJetpackGreen } from '../helpers/styling.js';
+import { coerceConcurrency } from '../helpers/normalizeArgv.js';
 import formatDuration from '../helpers/format-duration.js';
 import { getDependencies, filterDeps, getBuildOrder } from '../helpers/dependencyAnalysis.js';
 import promptForProject from '../helpers/promptForProject.js';
@@ -39,6 +42,12 @@ export function builder( yargs ) {
 			type: 'boolean',
 			description: 'Build all projects.',
 		} )
+		.option( 'concurrency', {
+			type: 'number',
+			description: 'Maximum number of build tasks to run at once.',
+			default: Infinity,
+			coerce: coerceConcurrency,
+		} )
 		.option( 'deps', {
 			type: 'boolean',
 			description: 'Build dependencies of the specified projects too.',
@@ -65,6 +74,11 @@ export function builder( yargs ) {
  */
 export async function handler( argv ) {
 	let dependencies = await getDependencies( process.cwd(), 'build' );
+	const listr = new Listr( [], {
+		renderer: argv.v ? SilentRenderer : UpdateRenderer,
+		concurrent: argv.concurrency > 1,
+		exitOnError: argv.concurrency === 1,
+	} );
 
 	if ( argv.project.length === 1 ) {
 		if ( argv.project[ 0 ] === 'packages' ) {
@@ -96,16 +110,30 @@ export async function handler( argv ) {
 		argv.project = argv.project.filter( p => dependencies.has( p ) );
 	}
 
+	// Filter to just what we want to build.
 	dependencies = filterDeps( dependencies, argv.project, { dependencies: argv.deps } );
 
-	const listr = new Listr( [], {
-		renderer: argv.v ? SilentRenderer : UpdateRenderer,
-	} );
+	// Calculate build order, with a cloned map so as to keep the original map for later.
+	const bodeps = new Map();
+	for ( const [ k, v ] of dependencies ) {
+		bodeps.set( k, new Set( v ) );
+	}
+	const buildOrder = getBuildOrder( bodeps ).flat();
 
-	// Add `pnpm install` task.
+	// Avoid a node warning about too many event listeners.
+	if ( argv.v ) {
+		process.stdout.setMaxListeners( buildOrder.length + 10 );
+		process.stderr.setMaxListeners( buildOrder.length + 10 );
+	}
+
+	// Add `pnpm install` task, if one is necessary.
 	if ( argv.pnpmInstall !== false ) {
+		for ( const v of dependencies.values() ) {
+			v.add( 'pnpm install' );
+		}
+		dependencies.set( 'pnpm install', new Set() );
 		listr.add(
-			createBuildTask( argv, `Install pnpm dependencies`, async t => {
+			createBuildTask( 'pnpm install', argv, `Install pnpm dependencies`, async t => {
 				await t.setStatus( 'installing' );
 				await t.execa( 'pnpm', await getInstallArgs( 'monorepo', 'pnpm', argv ), {
 					cwd: process.cwd(),
@@ -115,10 +143,10 @@ export async function handler( argv ) {
 	}
 
 	// Add build tasks.
-	for ( const project of getBuildOrder( dependencies ).flat() ) {
+	for ( const project of buildOrder ) {
 		const cwd = projectDir( project );
 		listr.add(
-			createBuildTask( argv, `Build ${ project }`, async t => {
+			createBuildTask( project, argv, `Build ${ project }`, async t => {
 				await t.setStatus( 'installing' );
 				await t.execa( 'composer', await getInstallArgs( project, 'composer', argv ), { cwd } );
 
@@ -145,14 +173,20 @@ export async function handler( argv ) {
 		);
 	}
 
+	// Run it!
 	console.log(
 		chalkJetpackGreen(
 			`Hell yeah! It is time to build!\n` +
 				'Go ahead and sit back. Relax. This will take a few minutes.'
 		)
 	);
-	await listr.run().catch( err => {
-		console.error( err );
+	const ctx = {
+		concurrent: argv.concurrency > 1,
+		limit: pLimit( argv.concurrency ),
+		dependencies,
+		promises: {},
+	};
+	await listr.run( ctx ).catch( err => {
 		process.exit( err.exitCode || 1 );
 	} );
 }
@@ -160,50 +194,156 @@ export async function handler( argv ) {
 /**
  * Create a build task.
  *
+ * @param {string} project - Project slug.
  * @param {object} argv - Command line arguments.
  * @param {string} title - Task title.
  * @param {Function} build - Build function.
  * @returns {object} Listr task.
  */
-function createBuildTask( argv, title, build ) {
+function createBuildTask( project, argv, title, build ) {
 	return {
 		title: title,
 		task: async ( ctx, task ) => {
-			const t = {};
-			if ( argv.v ) {
-				const stdout = new PrefixTransformStream( { time: !! argv.timing } );
-				const stderr = new PrefixTransformStream( { time: !! argv.timing } );
-				stdout.pipe( process.stdout );
-				stderr.pipe( process.stderr );
+			const setStatus = s => {
+				task.title = title + chalk.grey( ` [${ s }]` );
+			};
 
-				t.execa = ( file, args, options ) => {
-					const p = execa( file, args, {
-						stdio: [ 'ignore', 'pipe', 'pipe' ],
-						...options,
-					} );
-					p.stdout.pipe( stdout, { end: false } );
-					p.stderr.pipe( stderr, { end: false } );
-					return p;
-				};
-				t.output = m =>
-					new Promise( resolve => {
-						stdout.write( m, 'utf8', resolve );
-					} );
-				t.setStatus = s => t.output( '\n' + chalk.bold( `== ${ title } [${ s }] ==` ) + '\n\n' );
-			} else {
-				t.execa = ( file, args, options ) => execa( file, args, { stdio: 'ignore', ...options } );
-				t.output = () => Promise.resolve();
-				t.setStatus = async s => {
-					task.title = `${ title } [${ s }]`;
-				};
+			// Hack listr's wrapper to expose the state.
+			if (
+				task._task &&
+				typeof task._task.state !== 'undefined' &&
+				typeof task.state === 'undefined'
+			) {
+				Object.defineProperty( task, 'state', {
+					get: () => task._task.state,
+					set: v => {
+						task._task.state = v;
+					},
+				} );
 			}
 
-			const t0 = Date.now();
-			try {
-				await build( t );
-			} finally {
-				await t.setStatus( argv.timing ? formatDuration( Date.now() - t0 ) + 's' : 'complete' );
-			}
+			// Create a promise (by executing an async function), add a "status" property, store it in `ctx.promises`, and return it.
+			let status = 'pending';
+			let buildStarted = false;
+			const promise = ( async () => {
+				task.state = undefined;
+
+				// First, wait for dependencies.
+				// If any dependency failed, reject.
+				// If any are pending, wait.
+				const deps = ctx.dependencies.get( project );
+				while ( ctx.concurrent ) {
+					const mydeps = [];
+					for ( const dep of deps ) {
+						const dp = ctx.promises[ dep ];
+						if ( ! dp ) {
+							// Task hasn't started yet. This will make Promise.race return next tick to re-loop.
+							mydeps.push( dep );
+						} else if ( dp.status === 'rejected' ) {
+							// Something failed, so throw.
+							setStatus( 'dependencies failed' );
+							throw new Error( `Dependency ${ dep } failed` );
+						} else if ( dp.status === 'pending' ) {
+							mydeps.push( dp );
+						}
+					}
+
+					// Nothing pending, so break the loop.
+					if ( mydeps.length === 0 ) {
+						break;
+					}
+
+					// At least one task is pending, so wait for it. Catch any errors here,
+					// we'll handle them on the next time around the loop.
+					setStatus( 'waiting on dependencies' );
+					await Promise.race( mydeps ).catch( () => {} );
+				}
+
+				// Wait for a concurrency slot.
+				setStatus( 'pending' );
+				await ctx.limit( async () => {
+					task.state = ListrState.PENDING;
+
+					// Create the task-functions object to pass to the builder.
+					const t = {};
+					if ( argv.v ) {
+						const streamArgs = { prefix: ctx.concurrent ? project : null, time: !! argv.timing };
+						const stdout = new PrefixTransformStream( streamArgs );
+						const stderr = new PrefixTransformStream( streamArgs );
+						stdout.pipe( process.stdout, { end: false } );
+						stderr.pipe( process.stderr, { end: false } );
+
+						t.execa = ( file, args, options ) => {
+							const stdio = options.stdio || [];
+							stdio[ 0 ] ||= 'ignore';
+							const p = execa( file, args, {
+								...options,
+								stdio,
+							} );
+							if ( ! stdio[ 1 ] ) {
+								p.stdout.pipe( stdout, { end: false } );
+							}
+							if ( ! stdio[ 2 ] ) {
+								p.stderr.pipe( stderr, { end: false } );
+							}
+							return p;
+						};
+						t.output = m =>
+							new Promise( resolve => {
+								stdout.write( m, 'utf8', resolve );
+							} );
+						t.setStatus = s =>
+							t.output( '\n' + chalk.bold( `== ${ title } [${ s }] ==` ) + '\n\n' );
+					} else {
+						t.execa = ( file, args, options ) => {
+							const stdio = options.stdio || [];
+							stdio[ 0 ] ||= 'ignore';
+							stdio[ 1 ] ||= 'ignore';
+							stdio[ 2 ] ||= 'ignore';
+							const p = execa( file, args, {
+								...options,
+								stdio,
+							} );
+							return p;
+						};
+						t.output = () => Promise.resolve();
+						t.setStatus = setStatus;
+					}
+
+					// Build!
+					const t0 = Date.now();
+					buildStarted = true;
+					try {
+						await build( t );
+					} finally {
+						await t.setStatus( argv.timing ? formatDuration( Date.now() - t0 ) + 's' : 'complete' );
+					}
+				} );
+			} )().then(
+				v => {
+					status = 'resolved';
+					return v;
+				},
+				async e => {
+					if ( argv.v && ! buildStarted ) {
+						await new Promise( resolve => {
+							const prefix = argv.timing ? `[${ project } 0.000] ` : `[${ project }] `;
+							process.stdout.write(
+								`\nBuild aborted: ${ e.message }\n`.replace( /^/gm, prefix ) + '\n',
+								'utf8',
+								resolve
+							);
+						} );
+					}
+					status = 'rejected';
+					throw e;
+				}
+			);
+			Object.defineProperty( promise, 'status', {
+				get: () => status,
+			} );
+			ctx.promises[ project ] = promise;
+			return promise;
 		},
 	};
 }
