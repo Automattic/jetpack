@@ -778,7 +778,7 @@
             "dist": {
                 "type": "path",
                 "url": "../../packages/my-jetpack",
-                "reference": "9f59b21271fba40b07df13f73e2f5dc8b489c1f4"
+                "reference": "0a4354d247242a1fbc56373c2ddd4ccacab62d52"
             },
             "require": {
                 "automattic/jetpack-admin-ui": "^0.2",
@@ -791,7 +791,7 @@
             "require-dev": {
                 "automattic/jetpack-changelogger": "^3.0",
                 "automattic/jetpack-options": "^1.14",
-                "automattic/jetpack-search": "0.7.x-dev",
+                "automattic/jetpack-search": "^0.7",
                 "automattic/wordbless": "@dev",
                 "yoast/phpunit-polyfills": "1.0.3"
             },
