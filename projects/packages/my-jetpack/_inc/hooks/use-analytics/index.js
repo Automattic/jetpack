@@ -1,7 +1,7 @@
 /**
  * External dependencies
  */
-import { useEffect } from 'react';
+import { useEffect, useCallback } from 'react';
 import jetpackAnalytics from '@automattic/jetpack-analytics';
 import useMyJetpackConnection from '../use-my-jetpack-connection';
 
@@ -61,4 +61,25 @@ export function useRecordEventOnView( eventName, eventProperties ) {
 	useEffect( () => {
 		recordEvent( eventName, eventProperties );
 	}, [ recordEvent, eventName, eventProperties ] );
+}
+
+/**
+ * Custom hook to record event on event happening.
+ *
+ * @param {string} eventName       - The name of the event to record.
+ * @param {object} eventProperties - The properties of the event to record.
+ * @param {Function} callback      - The callback to run when the event is recorded (optional).
+ * @returns {Function}             - On event handler.
+ */
+export function useRecordEventOnEvent( eventName, eventProperties, callback ) {
+	const {
+		tracks: { recordEvent },
+	} = useAnalytics();
+
+	return useCallback( () => {
+		recordEvent( eventName, eventProperties );
+		if ( callback ) {
+			callback();
+		}
+	}, [ eventName, eventProperties, recordEvent, callback ] );
 }
