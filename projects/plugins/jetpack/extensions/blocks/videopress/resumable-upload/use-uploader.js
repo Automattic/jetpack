@@ -3,11 +3,12 @@
  */
 import * as tus from 'tus-js-client';
 
-export const getJWT = function () {
+export const getJWT = function ( key ) {
 	return new Promise( function ( resolve, reject ) {
+		const extras = key ? { data: { key } } : {};
 		// eslint-disable-next-line no-undef
 		wp.media
-			.ajax( 'videopress-get-upload-jwt', { async: true } )
+			.ajax( 'videopress-get-upload-jwt', { async: true, ...extras } )
 			.done( function ( response ) {
 				resolve( {
 					token: response.upload_token,
@@ -21,8 +22,9 @@ export const getJWT = function () {
 	} );
 };
 
+const jwtsForKeys = {};
+
 export const resumableUploader = ( { onError, onProgress, onSuccess } ) => {
-	const jwtsForKeys = {};
 	return ( file, data ) => {
 		const upload = new tus.Upload( file, {
 			onError: onError,
@@ -108,10 +110,16 @@ export const resumableUploader = ( { onError, onProgress, onSuccess } ) => {
 					const maybeUploadkey = parts[ parts.length - 1 ];
 					if ( jwtsForKeys[ maybeUploadkey ] ) {
 						req.setHeader( 'x-videopress-upload-token', jwtsForKeys[ maybeUploadkey ] );
+					} else if ( 'HEAD' === method ) {
+						return getJWT( maybeUploadkey ).then( responseData => {
+							jwtsForKeys[ maybeUploadkey ] = responseData.token;
+							req.setHeader( 'x-videopress-upload-token', responseData.token );
+							return req;
+						} );
 					}
 				}
 
-				return req;
+				return Promise.resolve( req );
 			},
 		} );
 
