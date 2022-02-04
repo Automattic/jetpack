@@ -32,15 +32,18 @@ export default function ProductInterstitial( { slug, children = null } ) {
 	const trackProductClick = useCallback( () => {
 		recordEvent( 'jetpack_myjetpack_product_interstitial_add_link_click', { product: slug } );
 	}, [ recordEvent, slug ] );
+
 	return (
-		<Container className={ styles.container } horizontalSpacing={ 0 } horizontalGap={ 0 }>
-			<Col sm={ 4 } md={ 4 } lg={ 5 }>
-				<ProductDetail slug={ slug } trackButtonClick={ trackProductClick } />
-			</Col>
-			<Col sm={ 4 } md={ 4 } lg={ 7 } className={ styles.imageContainer }>
-				{ children }
-			</Col>
-		</Container>
+		<div class={ styles.wrapper }>
+			<Container className={ styles.container } horizontalSpacing={ 0 } horizontalGap={ 0 }>
+				<Col sm={ 4 } md={ 4 } lg={ 5 }>
+					<ProductDetail slug={ slug } trackButtonClick={ trackProductClick } />
+				</Col>
+				<Col sm={ 4 } md={ 4 } lg={ 7 } className={ styles.imageContainer }>
+					{ children }
+				</Col>
+			</Container>
+		</div>
 	);
 }
 
