@@ -64,4 +64,17 @@ class Search extends Module_Product {
 		return array();
 	}
 
+	/**
+	 * Get the product princing details
+	 *
+	 * @return array Pricing details
+	 */
+	public static function get_pricing_for_ui() {
+		return array(
+			'available'            => true,
+			'currency_code'        => 'EUR',
+			'full_price'           => '4.50',
+			'promotion_percentage' => '50',
+		);
+	}
 }

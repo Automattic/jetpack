@@ -40,6 +40,7 @@
 	"extra": {
 		"autotagger": true,
 		"mirror-repo": "Automattic/jetpack-admin-ui",
+		"textdomain": "jetpack-admin-ui",
 		"changelogger": {
 			"link-template": "https://github.com/Automattic/jetpack-admin-ui/compare/${old}...${new}"
 		},
