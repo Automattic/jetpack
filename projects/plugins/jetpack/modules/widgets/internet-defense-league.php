@@ -51,6 +51,19 @@ class Jetpack_Internet_Defense_League_Widget extends WP_Widget {
 			'variant'  => key( $this->variants ),
 			'badge'    => key( $this->badges ),
 		);
+
+		add_filter( 'widget_types_to_hide_from_legacy_widget_block', array( $this, 'hide_widget_in_block_editor' ) );
+	}
+
+	/**
+	 * Remove the "Internet Defense League" widget from the Legacy Widget block
+	 *
+	 * @param array $widget_types List of widgets that are currently removed from the Legacy Widget block.
+	 * @return array $widget_types New list of widgets that will be removed.
+	 */
+	public function hide_widget_in_block_editor( $widget_types ) {
+		$widget_types[] = 'internet_defense_league_widget';
+		return $widget_types;
 	}
 
 	public function widget( $args, $instance ) {
