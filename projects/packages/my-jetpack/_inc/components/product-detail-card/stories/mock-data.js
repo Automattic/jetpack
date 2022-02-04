@@ -27,4 +27,8 @@ export const boostProductData = {
 		'Enable improvements in one click',
 		'Standalone free plugin for those focused on speed',
 	],
+	pricingForUi: {
+		available: true,
+		is_free: true,
+	},
 };
