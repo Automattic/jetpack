@@ -21,7 +21,7 @@ class Critical_CSS_Storage {
 	 *
 	 * @var Storage_Post_Type
 	 */
-	private $storage;
+	protected $storage;
 
 	/**
 	 * Critical_CSS_Storage constructor.
