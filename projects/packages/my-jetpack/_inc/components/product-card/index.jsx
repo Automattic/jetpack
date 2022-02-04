@@ -1,7 +1,7 @@
 /**
  * External dependencies
  */
-import React from 'react';
+import React, { useCallback } from 'react';
 import PropTypes from 'prop-types';
 import classNames from 'classnames';
 import { __, sprintf } from '@wordpress/i18n';
@@ -132,32 +132,32 @@ const ProductCard = props => {
 	/**
 	 * Calls the passed function onDeactivate after firing Tracks event
 	 */
-	const deactivateHandler = () => {
+	const deactivateHandler = useCallback( () => {
 		recordEvent( 'jetpack_myjetpack_product_card_deactivate_click', {
 			product: name,
 		} );
 		onDeactivate();
-	};
+	}, [ name, onDeactivate, recordEvent ] );
 
 	/**
 	 * Calls the passed function onActivate after firing Tracks event
 	 */
-	const activateHandler = () => {
+	const activateHandler = useCallback( () => {
 		recordEvent( 'jetpack_myjetpack_product_card_activate_click', {
 			product: name,
 		} );
 		onActivate();
-	};
+	}, [ name, onActivate, recordEvent ] );
 
 	/**
 	 * Calls the passed function onAdd after firing Tracks event
 	 */
-	const addHandler = () => {
+	const addHandler = useCallback( () => {
 		recordEvent( 'jetpack_myjetpack_product_card_add_click', {
 			product: name,
 		} );
 		onAdd();
-	};
+	}, [ name, onAdd, recordEvent ] );
 
 	return (
 		<div className={ containerClassName }>
