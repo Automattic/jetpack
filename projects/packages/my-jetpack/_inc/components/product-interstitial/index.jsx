@@ -1,7 +1,7 @@
 /**
  * External dependencies
  */
-import React from 'react';
+import React, { useEffect } from 'react';
 import { Container, Col } from '@automattic/jetpack-components';
 
 /**
@@ -10,6 +10,7 @@ import { Container, Col } from '@automattic/jetpack-components';
 import { ProductDetail } from '../product-detail-card';
 import styles from './style.module.scss';
 import boostImage from './boost.png';
+import useAnalytics from '../../hooks/use-analytics';
 
 /**
  * Product Interstitial component.
@@ -20,6 +21,13 @@ import boostImage from './boost.png';
  * @returns {object}                ProductInterstitial react component.
  */
 export default function ProductInterstitial( { slug, children = null } ) {
+	const {
+		tracks: { recordEvent },
+	} = useAnalytics();
+
+	useEffect( () => {
+		recordEvent( 'jetpack_myjetpack_product_interstitial_view', { slug } );
+	}, [ recordEvent, slug ] );
 	return (
 		<Container className={ styles.container } horizontalSpacing={ 0 } horizontalGap={ 0 }>
 			<Col sm={ 4 } md={ 4 } lg={ 5 }>
