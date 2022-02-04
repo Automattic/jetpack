@@ -198,7 +198,7 @@ class VideoPress_Gutenberg {
 	public function add_resumable_upload_support() {
 		if (
 			defined( 'IS_WPCOM' ) && IS_WPCOM &&
-			function_exists( 'is_automattician') && is_automattician()
+			function_exists( 'is_automattician' ) && is_automattician()
 		) {
 			wp_enqueue_script(
 				'videopress-add-resumable-upload-support',
