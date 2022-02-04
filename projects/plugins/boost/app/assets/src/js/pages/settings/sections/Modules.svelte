@@ -3,7 +3,7 @@
 	 * Internal dependencies
 	 */
 	import { maybeGenerateCriticalCss } from '../../../utils/generate-critical-css';
-	import { requestCloudCss } from "../../../utils/cloud-css";
+	import { requestCloudCss } from '../../../utils/cloud-css';
 	import RefreshIcon from '../../../svg/refresh.svg';
 	import GenerateCss from '../elements/GenerateCSS.svelte';
 	import Module from '../elements/Module.svelte';
