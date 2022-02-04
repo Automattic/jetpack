@@ -704,7 +704,7 @@ async function buildProject( t ) {
 			const newfile = npath.join( buildDir, 'jetpack_vendor', file );
 			if ( await fsExists( newfile ) ) {
 				const oldfile = npath.join( buildDir, 'vendor', file );
-				t.output( `Stubbing ${ oldfile } → ${ newfile }` );
+				t.output( `Stubbing ${ oldfile } → ${ newfile }\n` );
 				await fs.mkdir( npath.dirname( oldfile ), { recursive: true } );
 				await fs.writeFile(
 					oldfile,
