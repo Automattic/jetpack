@@ -12,6 +12,7 @@ import UpdateRenderer from 'listr-update-renderer';
  * Internal dependencies
  */
 import promptForProject from '../helpers/promptForProject.js';
+import { coerceConcurrency } from '../helpers/normalizeArgv.js';
 import { needsPnpmInstall, getInstallArgs, projectDir } from '../helpers/install.js';
 import { allProjects } from '../helpers/projectHelpers.js';
 
@@ -48,6 +49,7 @@ export function builder( yargs ) {
 			type: 'number',
 			description: 'Maximum number of install tasks to run at once. Ignored with `--verbose`.',
 			default: Infinity,
+			coerce: coerceConcurrency,
 		} );
 }
 

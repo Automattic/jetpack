@@ -52,6 +52,15 @@ class Crm extends Product {
 	}
 
 	/**
+	 * Get the internationalized product title
+	 *
+	 * @return string
+	 */
+	public static function get_title() {
+		return ''; // @todo title
+	}
+
+	/**
 	 * Get the internationalized product description
 	 *
 	 * @return string
@@ -76,5 +85,17 @@ class Crm extends Product {
 	 */
 	public static function get_features() {
 		return array();
+	}
+
+	/**
+	 * Get the product princing details
+	 *
+	 * @return array Pricing details
+	 */
+	public static function get_pricing_for_ui() {
+		return array(
+			'available' => true,
+			'is_free'   => true,
+		);
 	}
 }

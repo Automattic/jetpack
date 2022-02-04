@@ -1546,7 +1546,7 @@
             "dist": {
                 "type": "path",
                 "url": "../../packages/search",
-                "reference": "7f10a2eee8838620ec5433a00b8733292f23fe7a"
+                "reference": "7755f7ba56dd4ebd45432b82a54b4622eeee025b"
             },
             "require": {
                 "automattic/jetpack-assets": "^1.17",
@@ -1570,7 +1570,7 @@
                     "link-template": "https://github.com/Automattic/jetpack-search/compare/v${old}...v${new}"
                 },
                 "branch-alias": {
-                    "dev-master": "0.6.x-dev"
+                    "dev-master": "0.7.x-dev"
                 },
                 "version-constants": {
                     "JETPACK_SEARCH_PKG__VERSION": "search.php"

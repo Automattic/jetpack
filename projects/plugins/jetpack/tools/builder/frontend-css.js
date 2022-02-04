@@ -49,7 +49,7 @@ export const frontendCSSSeparateFilesList = [
 	'modules/widgets/eu-cookie-law/style.css',
 	'modules/widgets/flickr/style.css',
 	'modules/widgets/instagram/instagram.css',
-	'modules/widgets/search/css/search-widget-frontend.css',
+	'jetpack_vendor/automattic/jetpack-search/src/widgets/css/search-widget-frontend.css',
 	'modules/widgets/simple-payments/style.css',
 	'modules/widgets/social-icons/social-icons.css',
 	'modules/widgets/milestone/milestone-widget.css',

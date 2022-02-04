@@ -8,7 +8,7 @@ import withMock from 'storybook-addon-mock';
 /**
  * Internal dependencies
  */
-import ProductDetailCard, { BackupDetailCard, BoostDetailCard } from '../index.jsx';
+import ProductDetailCard, { ProductDetail } from '../index.jsx';
 import { backupProductData, boostProductData } from './mock-data.js';
 
 export default {
@@ -19,43 +19,56 @@ export default {
 
 const DefaultArgs = {};
 
-const DefaultBackupDetailCard = args => <BackupDetailCard { ...args } />;
+const DefaultProductDetailCard = args => <ProductDetailCard { ...args } slug="backup" />;
 
-export const _default = DefaultBackupDetailCard.bind( {} );
-_default.parameters = {
-	mockData: [
+const mapResponse = {
+	backup: backupProductData,
+	boost: boostProductData,
+};
+
+/**
+ * Helper function that returns the story mock data.
+ *
+ * @param {string} product - Product slug
+ * @returns {Array}          Story mock data
+ */
+function getMockData( product ) {
+	return [
 		{
-			url: 'my-jetpack/v1/site/products/backup?_locale=user',
+			url: `my-jetpack/v1/site/products/${ product }?_locale=user`,
 			method: 'GET',
 			status: 200,
-			response: backupProductData,
+			response: mapResponse[ product ],
 		},
-	],
+	];
+}
+
+export const _default = DefaultProductDetailCard.bind( {} );
+_default.parameters = {
+	mockData: getMockData( 'backup' ),
 };
 _default.args = DefaultArgs;
 
-const BackupTemplate = args => <BackupDetailCard { ...args } />;
+const BackupTemplate = args => <ProductDetail { ...args } slug="backup" />;
 export const JetpackBackup = BackupTemplate.bind( {} );
 JetpackBackup.parameters = {
-	mockData: [
-		{
-			url: 'my-jetpack/v1/site/products/backup?_locale=user',
-			method: 'GET',
-			status: 200,
-			response: backupProductData,
-		},
-	],
+	mockData: getMockData( 'backup' ),
 };
 
-const BoostTemplate = args => <BoostDetailCard { ...args } />;
-export const JetpackBoost = BoostTemplate.bind( {} );
-JetpackBoost.parameters = {
-	mockData: [
-		{
-			url: 'my-jetpack/v1/site/products/boost?_locale=user',
-			method: 'GET',
-			status: 200,
-			response: boostProductData,
-		},
-	],
+const BoostTemplate = args => <ProductDetail { ...args } slug="boost" />;
+export const BoostBackup = BoostTemplate.bind( {} );
+BoostBackup.parameters = {
+	mockData: getMockData( 'boost' ),
+};
+
+const BackupCardTemplate = args => <ProductDetailCard { ...args } slug="backup" />;
+export const JetpackBackupCard = BackupCardTemplate.bind( {} );
+JetpackBackupCard.parameters = {
+	mockData: getMockData( 'backup' ),
+};
+
+const BoostCardTemplate = args => <ProductDetailCard { ...args } slug="boost" />;
+export const BoostBackupCard = BoostCardTemplate.bind( {} );
+BoostBackupCard.parameters = {
+	mockData: getMockData( 'boost' ),
 };
