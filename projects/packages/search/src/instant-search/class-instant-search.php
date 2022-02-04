@@ -445,19 +445,17 @@ class Instant_Search extends Classic_Search {
 		// search block is on 3rd of 4 columns.
 		$search_block_group = <<<EOT
 		<!-- wp:group -->
-		<div class="wp-block-group"><!-- wp:columns -->
-		<div class="wp-block-columns"><!-- wp:column -->
-		<div class="wp-block-column"></div>
-		<!-- /wp:column -->
-
-		<!-- wp:column -->
-		<div class="wp-block-column"></div>
-		<!-- /wp:column -->
-
-		<!-- wp:column -->
-		<div class="wp-block-column"><!-- wp:search {"label":"Search","width":100,"widthUnit":"%","buttonText":"Search"} /--></div>
-		<!-- /wp:column -->
-		<!-- /wp:columns --></div>
+		<div class="wp-block-group">
+			<!-- wp:columns -->
+			<div class="wp-block-columns">
+				<!-- wp:column -->
+				<div class="wp-block-column">
+					<!-- wp:search {"label":"Search","width":100,"widthUnit":"%","buttonText":"Search"} /-->
+				</div>
+				<!-- /wp:column -->
+			</div>
+			<!-- /wp:columns -->
+		</div>
 		<!-- /wp:group -->\n
 EOT;
 		return $block_content . $search_block_group;
