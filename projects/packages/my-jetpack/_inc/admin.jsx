@@ -4,7 +4,7 @@
 import ReactDOM from 'react-dom';
 import React from 'react';
 import { HashRouter, Routes, Route } from 'react-router-dom';
-import { Container, Col } from '@automattic/jetpack-components';
+import { Container, Col, JetpackFooter } from '@automattic/jetpack-components';
 
 /**
  * Internal dependencies
@@ -14,6 +14,7 @@ import ConnectionScreen from './components/connection-screen';
 import { initStore } from './state/store';
 import { BoostInterstitial } from './components/product-interstitial';
 import GoBackLink from './components/go-back-link';
+import styles from './style.module.scss';
 
 initStore();
 
@@ -41,10 +42,15 @@ function Layout( { nav = false, children } ) {
 	) : null;
 
 	return (
-		<>
-			{ headerNav }
-			{ children }
-		</>
+		<div className={ styles.layout }>
+			<div className={ styles.nav }>{ headerNav }</div>
+
+			<div className={ styles.primary }>{ children }</div>
+
+			<div className={ styles.footer }>
+				<JetpackFooter />
+			</div>
+		</div>
 	);
 }
 
