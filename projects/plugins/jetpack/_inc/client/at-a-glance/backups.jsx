@@ -102,11 +102,20 @@ class DashBackups extends Component {
 		} );
 	};
 
+	trackRedeemCouponButtonView = () => {
+		const { partnerCoupon } = this.props;
+
+		analytics.tracks.recordEvent( 'jetpack_wpa_aag_redeem_coupon_button_view', {
+			feature: 'backups',
+			coupon_preset: partnerCoupon.preset,
+		} );
+	};
+
 	getJetpackBackupBanner() {
 		const { partnerCoupon, upgradeUrl, siteRawUrl, trackUpgradeButtonView } = this.props;
 
 		if ( this.props.hasConnectedOwner ) {
-			if ( partnerCoupon ) {
+			if ( partnerCoupon && 'jetpack_backup_daily' === partnerCoupon.product.slug ) {
 				const checkoutUrl = getRedirectUrl( 'jetpack-plugin-partner-coupon-checkout', {
 					path: partnerCoupon.product.slug,
 					site: siteRawUrl,
@@ -128,8 +137,12 @@ class DashBackups extends Component {
 						href={ checkoutUrl }
 						eventFeature="backups"
 						path="dashboard"
+						eventProps={ {
+							type: 'redeem_coupon',
+							coupon_preset: partnerCoupon.preset,
+						} }
 						plan={ getJetpackProductUpsellByFeature( FEATURE_SITE_BACKUPS_JETPACK ) }
-						trackBannerDisplay={ trackUpgradeButtonView }
+						trackBannerDisplay={ this.trackRedeemCouponButtonView }
 					/>
 				);
 			}
