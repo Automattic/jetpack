@@ -26,7 +26,7 @@ export default function ProductInterstitial( { slug, children = null } ) {
 	} = useAnalytics();
 
 	useEffect( () => {
-		recordEvent( 'jetpack_myjetpack_product_interstitial_view', { slug } );
+		recordEvent( 'jetpack_myjetpack_product_interstitial_view', { product: slug } );
 	}, [ recordEvent, slug ] );
 	return (
 		<Container className={ styles.container } horizontalSpacing={ 0 } horizontalGap={ 0 }>
