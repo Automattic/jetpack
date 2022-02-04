@@ -309,10 +309,6 @@ class Instant_Search extends Classic_Search {
 	 * @since  8.3.0
 	 */
 	public function auto_config_search() {
-		if ( ! current_user_can( 'edit_theme_options' ) ) {
-			return;
-		}
-
 		// Set default result format to "expanded".
 		update_option( Options::OPTION_PREFIX . 'result_format', Options::RESULT_FORMAT_EXPANDED );
 
@@ -363,6 +359,7 @@ class Instant_Search extends Classic_Search {
 		$widget_opt_name = Helper::get_widget_option_name();
 		$widget_options  = get_option( $widget_opt_name, array() );
 		foreach ( $widget_options as $id => $w ) {
+			$id = intval( $id );
 			if ( $id >= $next_id ) {
 				$next_id = $id + 1;
 			}

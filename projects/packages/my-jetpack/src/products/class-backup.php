@@ -45,6 +45,16 @@ class Backup extends Hybrid_Product {
 	}
 
 	/**
+	 * Get the internationalized product title
+	 *
+	 * @return string
+	 */
+	public static function get_title() {
+		return __( 'Jetpack Backup', 'jetpack-my-jetpack' );
+
+	}
+
+	/**
 	 * Get the internationalized product description
 	 *
 	 * @return string
@@ -73,6 +83,20 @@ class Backup extends Hybrid_Product {
 			_x( '10GB of backup storage', 'Backup Product Feature', 'jetpack-my-jetpack' ),
 			_x( '30-day archive & activity log', 'Backup Product Feature', 'jetpack-my-jetpack' ),
 			_x( 'One-click restores', 'Backup Product Feature', 'jetpack-my-jetpack' ),
+		);
+	}
+
+	/**
+	 * Get the product princing details
+	 *
+	 * @return array Pricing details
+	 */
+	public static function get_pricing_for_ui() {
+		return array(
+			'available'            => true,
+			'currency_code'        => 'EUR',
+			'full_price'           => '9',
+			'promotion_percentage' => '50',
 		);
 	}
 
