@@ -42,7 +42,7 @@ const products = ( state = {}, action ) => {
 					...state.items,
 					[ productId ]: {
 						...state.items[ productId ],
-						...status,
+						status,
 					},
 				},
 			};

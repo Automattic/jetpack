@@ -52,6 +52,15 @@ class Boost extends Product {
 	}
 
 	/**
+	 * Get the internationalized product title
+	 *
+	 * @return string
+	 */
+	public static function get_title() {
+		return __( 'Jetpack Boost', 'jetpack-my-jetpack' );
+	}
+
+	/**
 	 * Get the internationalized product description
 	 *
 	 * @return string
@@ -66,7 +75,7 @@ class Boost extends Product {
 	 * @return string
 	 */
 	public static function get_long_description() {
-		return ''; // @todo Add long description
+		return __( 'Jetpack Boost gives your site the same performance advantages as the world’s leading websites, no developer required.', 'jetpack-my-jetpack' );
 	}
 
 	/**
@@ -75,6 +84,22 @@ class Boost extends Product {
 	 * @return array Boost features list
 	 */
 	public static function get_features() {
-		return array();
+		return array(
+			__( 'Check your site performance', 'jetpack-my-jetpack' ),
+			__( 'Enable improvements in one click', 'jetpack-my-jetpack' ),
+			__( 'Standalone free plugin for those focused on speed', 'jetpack-my-jetpack' ),
+		);
+	}
+
+	/**
+	 * Get the product princing details
+	 *
+	 * @return array Pricing details
+	 */
+	public static function get_pricing_for_ui() {
+		return array(
+			'available' => true,
+			'is_free'   => true,
+		);
 	}
 }
