@@ -52,6 +52,15 @@ class Anti_Spam extends Product {
 	}
 
 	/**
+	 * Get the internationalized product title
+	 *
+	 * @return string
+	 */
+	public static function get_title() {
+		return ''; // @todo title
+	}
+
+	/**
 	 * Get the internationalized product description
 	 *
 	 * @return string
