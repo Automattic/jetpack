@@ -309,19 +309,6 @@ class Instant_Search extends Classic_Search {
 	 * @since  8.3.0
 	 */
 	public function auto_config_search() {
-		if ( ! current_user_can( 'edit_theme_options' ) ) {
-			return;
-		}
-
-		return $this->auto_config_search_no_pri();
-	}
-
-	/**
-	 * Automatically configure necessary settings for instant search
-	 *
-	 * @since  8.3.0
-	 */
-	public function auto_config_search_no_pri() {
 		$this->auto_config_excluded_post_types();
 		$this->auto_config_overlay_sidebar_widgets();
 		$this->auto_config_theme_sidebar_search_widget();
