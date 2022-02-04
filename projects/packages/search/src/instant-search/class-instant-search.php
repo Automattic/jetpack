@@ -441,20 +441,20 @@ class Instant_Search extends Classic_Search {
 	protected function prepand_search_widget_to_block( $block_content ) {
 		// search block is on 3rd of 4 columns.
 		$search_block_group = <<<EOT
-		<!-- wp:group -->
-		<div class="wp-block-group">
+
+		<!-- wp:group {"style":{"spacing":{"padding":{"top":"20px","bottom":"20px","right":"0px","left":"0px"}}},"layout":{"type":"flex","setCascadingProperties":true,"justifyContent":"center"}} -->
+		<div class="wp-block-group" style="padding-top:20px;padding-right:0px;padding-bottom:20px;padding-left:0px">
 			<!-- wp:columns -->
 			<div class="wp-block-columns">
 				<!-- wp:column -->
 				<div class="wp-block-column">
-					<!-- wp:search {"label":"Search","width":100,"widthUnit":"%","buttonText":"Search"} /-->
+					<!-- wp:search {"label":"Jetpack Search","width":325,"widthUnit":"px","buttonText":"Search"} /-->
 				</div>
 				<!-- /wp:column -->
 			</div>
 			<!-- /wp:columns -->
 		</div>
 		<!-- /wp:group -->
-
 
 EOT;
 		return $block_content . $search_block_group;
