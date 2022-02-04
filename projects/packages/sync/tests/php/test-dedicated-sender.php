@@ -50,9 +50,8 @@ class Test_Dedicated_Sender extends BaseTestCase {
 	public function test_is_dedicated_sync_request() {
 		$_SERVER['REQUEST_METHOD']               = 'POST';
 		$_POST['jetpack_dedicated_sync_request'] = 1;
-		$_POST['nonce']                          = wp_create_nonce( 'jetpack_sync_dedicated_request_sync' );
 
-		$result = Dedicated_Sender::is_dedicated_sync_request( $this->queue );
+		$result = Dedicated_Sender::is_dedicated_sync_request();
 
 		$this->assertTrue( $result );
 	}
@@ -63,22 +62,9 @@ class Test_Dedicated_Sender extends BaseTestCase {
 	public function test_is_dedicated_sync_request_with_random_request() {
 		$_SERVER['REQUEST_METHOD'] = 'GET';
 
-		$result = Dedicated_Sender::is_dedicated_sync_request( $this->queue );
+		$result = Dedicated_Sender::is_dedicated_sync_request();
 
 		$this->assertFalse( $result );
-	}
-
-	/**
-	 * Tests Dedicated_Sender::is_dedicated_sync_request with nonce missing.
-	 */
-	public function test_is_dedicated_sync_request_with_nonce_missing() {
-		$_SERVER['REQUEST_METHOD']               = 'POST';
-		$_POST['jetpack_dedicated_sync_request'] = 1;
-
-		$result = Dedicated_Sender::is_dedicated_sync_request( $this->queue );
-
-		$this->assertTrue( is_wp_error( $result ) );
-		$this->assertEquals( 'invalid_nonce', $result->get_error_code() );
 	}
 
 	/**

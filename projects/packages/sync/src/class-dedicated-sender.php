@@ -22,27 +22,15 @@ class Dedicated_Sender {
 	 *
 	 * @access public
 	 *
-	 * @param Automattic\Jetpack\Sync\Queue $queue Queue object.
-	 *
-	 * @return boolean|WP_Error True if this is a POST request and jetpack_dedicated_sync_request is set, false otherwise, WP_Error if the nonce can't be verified.
+	 * @return boolean True if this is a POST request and jetpack_dedicated_sync_request is set, false otherwise.
 	 */
-	public static function is_dedicated_sync_request( $queue ) {
+	public static function is_dedicated_sync_request() {
 
 		$is_dedicated_sync_request = isset( $_SERVER['REQUEST_METHOD'] ) &&
 			'POST' === $_SERVER['REQUEST_METHOD'] &&
-			isset( $_POST['jetpack_dedicated_sync_request'] );
+			isset( $_POST['jetpack_dedicated_sync_request'] ); // phpcs:ignore WordPress.Security.NonceVerification.Missing
 
-		if ( $is_dedicated_sync_request ) {
-			$is_valid = isset( $_POST['nonce'] ) &&
-				wp_verify_nonce( $_POST['nonce'], 'jetpack_sync_dedicated_request_' . $queue->id );
-			if ( ! $is_valid ) {
-				return new WP_Error( 'invalid_nonce' );
-			}
-
-			return true;
-		}
-
-		return false;
+		return $is_dedicated_sync_request;
 	}
 
 	/**
@@ -72,7 +60,6 @@ class Dedicated_Sender {
 			'cookies'   => $_COOKIE,
 			'body'      => array(
 				'jetpack_dedicated_sync_request' => 1,
-				'nonce'                          => wp_create_nonce( 'jetpack_sync_dedicated_request_' . $queue->id ),
 			),
 			'blocking'  => false,
 			'timeout'   => 0.01,

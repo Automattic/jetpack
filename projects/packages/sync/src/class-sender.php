@@ -327,10 +327,8 @@ class Sender {
 
 		// If this is a dedicated Sync request, run Sync
 		// otherwise attempt to spawn a dedicated Sync request.
-		$is_dedicated_sync_request = Dedicated_Sender::is_dedicated_sync_request( $this->sync_queue );
-		if ( is_wp_error( $is_dedicated_sync_request ) ) {
-			return $is_dedicated_sync_request;
-		}
+		$is_dedicated_sync_request = Dedicated_Sender::is_dedicated_sync_request();
+
 		if ( $is_dedicated_sync_request ) {
 			// Run Sync.
 			$result = $this->do_sync_and_set_delays( $this->sync_queue );

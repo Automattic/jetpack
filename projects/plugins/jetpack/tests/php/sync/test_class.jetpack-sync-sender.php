@@ -656,7 +656,6 @@ class WP_Test_Jetpack_Sync_Sender extends WP_Test_Jetpack_Sync_Base {
 		// Current "request" is dedicated Sync request.
 		$_SERVER['REQUEST_METHOD']               = 'POST';
 		$_POST['jetpack_dedicated_sync_request'] = 1;
-		$_POST['nonce']                          = wp_create_nonce( 'jetpack_sync_dedicated_request_sync' );
 
 		add_filter( 'pre_http_request', array( $this, 'pre_http_sync_request_spawned' ), 10, 3 );
 		$result = $this->sender->do_sync();
@@ -680,7 +679,6 @@ class WP_Test_Jetpack_Sync_Sender extends WP_Test_Jetpack_Sync_Base {
 		// Current "request" is dedicated Sync request.
 		$_SERVER['REQUEST_METHOD']               = 'POST';
 		$_POST['jetpack_dedicated_sync_request'] = 1;
-		$_POST['nonce']                          = wp_create_nonce( 'jetpack_sync_dedicated_request_sync' );
 
 		add_filter( 'pre_http_request', array( $this, 'pre_http_sync_request_spawned' ), 10, 3 );
 		$result = $this->sender->do_sync();
@@ -708,7 +706,6 @@ class WP_Test_Jetpack_Sync_Sender extends WP_Test_Jetpack_Sync_Base {
 		// Current "request" is dedicated Sync request.
 		$_SERVER['REQUEST_METHOD']               = 'POST';
 		$_POST['jetpack_dedicated_sync_request'] = 1;
-		$_POST['nonce']                          = wp_create_nonce( 'jetpack_sync_dedicated_request_sync' );
 
 		add_filter( 'pre_http_request', array( $this, 'pre_http_sync_request_spawned' ), 10, 3 );
 		$result = $this->sender->do_sync();
