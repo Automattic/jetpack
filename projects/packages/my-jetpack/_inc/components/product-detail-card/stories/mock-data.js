@@ -12,6 +12,12 @@ export const backupProductData = {
 		'30-day archive & activity log',
 		'One-click restores',
 	],
+	pricingForUi: {
+		available: true,
+		currencyCode: 'EUR',
+		fullPrice: '9',
+		promotionPercentage: '50',
+	},
 };
 
 export const boostProductData = {
