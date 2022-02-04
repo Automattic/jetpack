@@ -11,7 +11,7 @@ function JetpackSlideshow( element, transition, autostart ) {
 JetpackSlideshow.prototype.showLoadingImage = function ( toggle ) {
 	if ( toggle ) {
 		this.loadingImage_ = document.createElement( 'div' );
-		this.loadingImage_.className = 'slideshow-loading';
+		this.loadingImage_.className = 'jetpack-slideshow-loading';
 		var img = document.createElement( 'img' );
 		img.src = jetpackSlideshowSettings.spinner;
 		this.loadingImage_.appendChild( img );
@@ -38,11 +38,11 @@ JetpackSlideshow.prototype.init = function () {
 		img.setAttribute( 'itemprop', 'image' );
 		img.nopin = 'nopin';
 		var caption = document.createElement( 'div' );
-		caption.className = 'slideshow-slide-caption';
+		caption.className = 'jetpack-slideshow-slide-caption';
 		caption.setAttribute( 'itemprop', 'caption description' );
 		caption.innerHTML = imageInfo.caption;
 		var container = document.createElement( 'div' );
-		container.className = 'slideshow-slide';
+		container.className = 'jetpack-slideshow-slide';
 		container.setAttribute( 'itemprop', 'associatedMedia' );
 		container.setAttribute( 'itemscope', '' );
 		container.setAttribute( 'itemtype', 'https://schema.org/ImageObject' );
@@ -73,7 +73,7 @@ JetpackSlideshow.prototype.init = function () {
 
 JetpackSlideshow.prototype.makeZeroWidthSpan = function () {
 	var emptySpan = document.createElement( 'span' );
-	emptySpan.className = 'slideshow-line-height-hack';
+	emptySpan.className = 'jetpack-slideshow-line-height-hack';
 	// Having a NBSP makes IE act weird during transitions, but other
 	// browsers ignore a text node with a space in it as whitespace.
 	if ( -1 !== window.navigator.userAgent.indexOf( 'MSIE ' ) ) {
@@ -96,7 +96,7 @@ JetpackSlideshow.prototype.finishInit_ = function () {
 			prev: this.controls.prev,
 			next: this.controls.next,
 			timeout: jetpackSlideshowSettings.speed,
-			slideExpr: '.slideshow-slide',
+			slideExpr: '.jetpack-slideshow-slide',
 			onPrevNextEvent: function () {
 				return self.onCyclePrevNextClick_.apply( self, arguments );
 			},
@@ -136,7 +136,7 @@ JetpackSlideshow.prototype.renderControls_ = function () {
 	}
 
 	var controlsDiv = document.createElement( 'div' );
-	controlsDiv.className = 'slideshow-controls';
+	controlsDiv.className = 'jetpack-slideshow-controls';
 
 	var controls = [ 'prev', 'stop', 'next' ];
 	for ( var i = 0; i < controls.length; i++ ) {
