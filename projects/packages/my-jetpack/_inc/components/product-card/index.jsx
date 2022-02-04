@@ -18,11 +18,13 @@ export const PRODUCT_STATUSES = {
 	INACTIVE: 'inactive',
 	ERROR: 'error',
 	ABSENT: 'plugin_absent',
+	NEEDS_PURCHASE: 'needs_purchase',
 };
 
 const PRODUCT_STATUSES_LABELS = {
 	[ PRODUCT_STATUSES.ACTIVE ]: __( 'Active', 'jetpack-my-jetpack' ),
 	[ PRODUCT_STATUSES.INACTIVE ]: __( 'Inactive', 'jetpack-my-jetpack' ),
+	[ PRODUCT_STATUSES.NEEDS_PURCHASE ]: __( 'Inactive', 'jetpack-my-jetpack' ),
 	[ PRODUCT_STATUSES.ERROR ]: __( 'Error', 'jetpack-my-jetpack' ),
 };
 
@@ -65,6 +67,7 @@ const renderActionButton = ( {
 	};
 
 	switch ( status ) {
+		case PRODUCT_STATUSES.NEEDS_PURCHASE:
 		case PRODUCT_STATUSES.ABSENT:
 			return (
 				<Button variant="link" onClick={ onAdd }>
@@ -110,7 +113,7 @@ const ProductCard = props => {
 	const isActive = status === PRODUCT_STATUSES.ACTIVE;
 	const isError = status === PRODUCT_STATUSES.ERROR;
 	const isInactive = status === PRODUCT_STATUSES.INACTIVE;
-	const isAbsent = status === PRODUCT_STATUSES.ABSENT;
+	const isAbsent = status === PRODUCT_STATUSES.ABSENT || status === PRODUCT_STATUSES.NEEDS_PURCHASE;
 	const flagLabel = PRODUCT_STATUSES_LABELS[ status ];
 	const canDeactivate = ( isActive || isError ) && admin;
 
@@ -211,6 +214,7 @@ ProductCard.propTypes = {
 		PRODUCT_STATUSES.INACTIVE,
 		PRODUCT_STATUSES.ERROR,
 		PRODUCT_STATUSES.ABSENT,
+		PRODUCT_STATUSES.NEEDS_PURCHASE,
 	] ).isRequired,
 };
 
