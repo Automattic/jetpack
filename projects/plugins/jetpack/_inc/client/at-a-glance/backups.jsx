@@ -105,7 +105,7 @@ class DashBackups extends Component {
 	trackRedeemCouponButtonView = () => {
 		const { partnerCoupon } = this.props;
 
-		analytics.tracks.recordEvent( 'jetpack_wpa_aag_redeem_coupon_button_view', {
+		analytics.tracks.recordEvent( 'jetpack_wpa_aag_redeem_partner_coupon_button_view', {
 			feature: 'backups',
 			coupon_preset: partnerCoupon.preset,
 		} );
@@ -138,7 +138,7 @@ class DashBackups extends Component {
 						eventFeature="backups"
 						path="dashboard"
 						eventProps={ {
-							type: 'redeem_coupon',
+							type: 'redeem_partner_coupon',
 							coupon_preset: partnerCoupon.preset,
 						} }
 						plan={ getJetpackProductUpsellByFeature( FEATURE_SITE_BACKUPS_JETPACK ) }
