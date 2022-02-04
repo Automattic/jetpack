@@ -66,7 +66,7 @@ function Price( { value, currency, isOld } ) {
  * @param {object} props                    - Component props.
  * @param {string} props.slug               - Product slug
  * @param {Function} props.trackButtonClick - Function to call for tracking clicks on Call To Action button
- * @returns {object}                        ProductDetailCard react component.
+ * @returns {object}                          ProductDetailCard react component.
  */
 const ProductDetail = ( { slug, trackButtonClick } ) => {
 	const { detail } = useProduct( slug );
