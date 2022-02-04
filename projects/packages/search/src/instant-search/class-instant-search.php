@@ -407,7 +407,7 @@ class Instant_Search extends Classic_Search {
 	}
 
 	/**
-	 * Add a search widget above footer for block templates.
+	 * Add a search widget below header for block templates.
 	 */
 	public function add_search_block_below_header() {
 		// Check whether block theme functions exist.
@@ -434,12 +434,11 @@ class Instant_Search extends Classic_Search {
 	}
 
 	/**
-	 * Prepend Search block to block if no 'wp:search' exists already.
+	 * Append Search block to block if no 'wp:search' exists already.
 	 *
-	 * @param {string} $block_content - the content to prepend the search block.
+	 * @param {string} $block_content - the content to append the search block.
 	 */
 	protected function prepand_search_widget_to_block( $block_content ) {
-		// search block is on 3rd of 4 columns.
 		$search_block_group = <<<EOT
 
 		<!-- wp:group {"style":{"spacing":{"padding":{"top":"20px","bottom":"20px","right":"0px","left":"0px"}}},"layout":{"type":"flex","setCascadingProperties":true,"justifyContent":"center"}} -->
