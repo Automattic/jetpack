@@ -42,6 +42,7 @@ test.describe( 'Sync', () => {
 			await blockEditor.setTitle( 'Testing Sync' );
 			await blockEditor.selectPostTitle();
 			await blockEditor.publishPost();
+			await blockEditor.viewPost();
 		} );
 
 		await test.step( 'Assert post is synced', async () => {
@@ -67,6 +68,7 @@ test.describe( 'Sync', () => {
 			await blockEditor.setTitle( 'Disabled Sync' );
 			await blockEditor.selectPostTitle();
 			await blockEditor.publishPost();
+			await blockEditor.viewPost();
 		} );
 
 		await test.step( 'Assert post is not synced', async () => {
@@ -94,6 +96,7 @@ test.describe( 'Sync', () => {
 			await blockEditor.setTitle( 'Dedicated Sync' );
 			await blockEditor.selectPostTitle();
 			await blockEditor.publishPost();
+			await blockEditor.viewPost();
 		} );
 
 		await test.step( 'Assert post is synced', async () => {
