@@ -456,7 +456,9 @@ class Instant_Search extends Classic_Search {
 			</div>
 			<!-- /wp:columns -->
 		</div>
-		<!-- /wp:group -->\n
+		<!-- /wp:group -->
+
+
 EOT;
 		return $block_content . $search_block_group;
 	}
