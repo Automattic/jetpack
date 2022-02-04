@@ -11,6 +11,7 @@ import { HashRouter, Routes, Route } from 'react-router-dom';
 import MyJetpackScreen from './components/my-jetpack-screen';
 import ConnectionScreen from './components/connection-screen';
 import { initStore } from './state/store';
+import { BoostInterstitial } from './components/product-interstitial';
 
 initStore();
 
@@ -29,6 +30,7 @@ function render() {
 			<Routes>
 				<Route path="/" element={ <MyJetpackScreen /> } />
 				<Route path="/connection" element={ <ConnectionScreen /> } />
+				<Route path="/add-boost" element={ <BoostInterstitial /> } />
 			</Routes>
 		</HashRouter>,
 		container
