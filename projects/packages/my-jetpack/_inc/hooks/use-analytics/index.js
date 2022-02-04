@@ -17,7 +17,8 @@ const useAnalytics = () => {
 		if ( isUserConnected && ID && login ) {
 			jetpackAnalytics.initialize( ID, login );
 		}
-	} );
+	}, [ ID, isUserConnected, login ] );
+
 	const {
 		clearedIdentity,
 		ga,
