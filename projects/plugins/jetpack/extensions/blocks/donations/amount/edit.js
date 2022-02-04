@@ -12,13 +12,13 @@ import DonationsContext from '../common/context';
 /**
  * WordPress dependencies
  */
-import { RichText } from '@wordpress/block-editor';
+import { RichText, useBlockProps } from '@wordpress/block-editor';
 import formatCurrency, { CURRENCIES } from '@automattic/format-currency';
 import { useCallback, useContext, useEffect, useMemo, useRef, useState } from '@wordpress/element';
 
 const Edit = props => {
 	const { attributes, setAttributes } = props;
-	const { baseAmountMultiplier, className, label, amount, disabled = false } = attributes;
+	const { baseAmountMultiplier, label, amount, disabled = false } = attributes;
 	const { currency } = useContext( DonationsContext );
 	const defaultValue = useMemo(
 		() => minimumTransactionAmountForCurrency( currency ) * baseAmountMultiplier,
@@ -34,9 +34,9 @@ const Edit = props => {
 	const setAmount = useCallback(
 		newAmount => {
 			setEditedValue( newAmount );
-			setAttributes( { amount: newAmount, currency } );
 			const parsedAmount = parseAmount( newAmount, currency );
 			if ( parsedAmount && parsedAmount >= minimumTransactionAmountForCurrency( currency ) ) {
+				setAttributes( { amount: newAmount, currency } );
 				setIsInvalid( false );
 			} else if ( newAmount ) {
 				setIsInvalid( true );
@@ -73,9 +73,11 @@ const Edit = props => {
 
 	return (
 		<div
-			className={ classnames( 'donations__amount', className, {
-				'has-focus': isFocused,
-				'has-error': isInvalid,
+			{ ...useBlockProps( {
+				className: classnames( 'wp-block-button wp-block-button__link', {
+					'has-focus': isFocused,
+					'has-error': isInvalid,
+				} ),
 			} ) }
 			role="button"
 			tabIndex={ 0 }
