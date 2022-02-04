@@ -1,7 +1,7 @@
 /**
  * External dependencies
  */
-import React, { useCallback } from 'react';
+import React from 'react';
 import { Container, Col } from '@automattic/jetpack-components';
 
 /**
@@ -10,7 +10,7 @@ import { Container, Col } from '@automattic/jetpack-components';
 import { ProductDetail } from '../product-detail-card';
 import styles from './style.module.scss';
 import boostImage from './boost.png';
-import useAnalytics, { useRecordEventOnView } from '../../hooks/use-analytics';
+import { useRecordEventOnView, useRecordEventOnEvent } from '../../hooks/use-analytics';
 
 /**
  * Product Interstitial component.
@@ -21,15 +21,12 @@ import useAnalytics, { useRecordEventOnView } from '../../hooks/use-analytics';
  * @returns {object}                ProductInterstitial react component.
  */
 export default function ProductInterstitial( { slug, children = null } ) {
-	const {
-		tracks: { recordEvent },
-	} = useAnalytics();
-
 	useRecordEventOnView( 'jetpack_myjetpack_product_interstitial_view', { product: slug } );
 
-	const trackProductClick = useCallback( () => {
-		recordEvent( 'jetpack_myjetpack_product_interstitial_add_link_click', { product: slug } );
-	}, [ recordEvent, slug ] );
+	const trackProductClick = useRecordEventOnEvent(
+		'jetpack_myjetpack_product_interstitial_add_link_click',
+		{ product: slug }
+	);
 
 	return (
 		<div className={ styles.wrapper }>

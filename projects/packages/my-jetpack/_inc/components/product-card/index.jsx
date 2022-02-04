@@ -1,7 +1,7 @@
 /**
  * External dependencies
  */
-import React, { useCallback } from 'react';
+import React from 'react';
 import PropTypes from 'prop-types';
 import classNames from 'classnames';
 import { __, sprintf } from '@wordpress/i18n';
@@ -11,7 +11,7 @@ import { ButtonGroup, Button, DropdownMenu } from '@wordpress/components';
  * Internal dependencies
  */
 import styles from './style.module.scss';
-import useAnalytics from '../../hooks/use-analytics';
+import { useRecordEventOnEvent } from '../../hooks/use-analytics';
 
 export const PRODUCT_STATUSES = {
 	ACTIVE: 'active',
@@ -125,39 +125,23 @@ const ProductCard = props => {
 		[ styles[ 'is-fetching' ] ]: isFetching,
 	} );
 
-	const {
-		tracks: { recordEvent },
-	} = useAnalytics();
+	const activateHandler = useRecordEventOnEvent(
+		'jetpack_myjetpack_product_card_activate_click',
+		{ product: name },
+		onActivate
+	);
 
-	/**
-	 * Calls the passed function onDeactivate after firing Tracks event
-	 */
-	const deactivateHandler = useCallback( () => {
-		recordEvent( 'jetpack_myjetpack_product_card_deactivate_click', {
-			product: name,
-		} );
-		onDeactivate();
-	}, [ name, onDeactivate, recordEvent ] );
+	const deactivateHandler = useRecordEventOnEvent(
+		'jetpack_myjetpack_product_card_deactivate_click',
+		{ product: name },
+		onDeactivate
+	);
 
-	/**
-	 * Calls the passed function onActivate after firing Tracks event
-	 */
-	const activateHandler = useCallback( () => {
-		recordEvent( 'jetpack_myjetpack_product_card_activate_click', {
-			product: name,
-		} );
-		onActivate();
-	}, [ name, onActivate, recordEvent ] );
-
-	/**
-	 * Calls the passed function onAdd after firing Tracks event
-	 */
-	const addHandler = useCallback( () => {
-		recordEvent( 'jetpack_myjetpack_product_card_add_click', {
-			product: name,
-		} );
-		onAdd();
-	}, [ name, onAdd, recordEvent ] );
+	const addHandler = useRecordEventOnEvent(
+		'jetpack_myjetpack_product_card_add_click',
+		{ product: name },
+		onAdd
+	);
 
 	return (
 		<div className={ containerClassName }>
