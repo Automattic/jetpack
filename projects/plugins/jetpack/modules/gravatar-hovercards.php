@@ -66,9 +66,13 @@ function grofiles_add_settings() {
 function grofiles_setting_callback() {
 	global $current_user;
 
-	$checked = 'disabled' == get_option( 'gravatar_disable_hovercards' ) ? '' : 'checked="checked" ';
+	$option = get_option( 'gravatar_disable_hovercards' );
+	printf(
+		"<label id='gravatar-hovercard-options'><input %s name='gravatar_disable_hovercards' id='gravatar_disable_hovercards' type='checkbox' value='enabled' class='code'/>%s</label>",
+		checked( $option, 'enabled', false ),
+		esc_html__( 'View people\'s profiles when you mouse over their Gravatars', 'jetpack' )
+	);
 
-	echo "<label id='gravatar-hovercard-options'><input {$checked}name='gravatar_disable_hovercards' id='gravatar_disable_hovercards' type='checkbox' value='enabled' class='code' /> " . __( "View people's profiles when you mouse over their Gravatars", 'jetpack' ) . ' </label>';
 	?>
 <style type="text/css">
 #grav-profile-example img {
@@ -97,11 +101,11 @@ jQuery( function($) {
 </script>
 	<p id="grav-profile-example" class="hide-if-no-js"
 		<?php
-		if ( ! $checked ) {
+		if ( 'disabled' === $option ) {
 			echo ' style="display:none"';}
 		?>
 		>
-		<?php echo get_avatar( $current_user->ID, 64 ); ?> <span><?php _e( 'Put your mouse over your Gravatar to check out your profile.', 'jetpack' ); ?> <br class="clear" /></span></p>
+		<?php echo get_avatar( $current_user->ID, 64 ); ?> <span><?php esc_html_e( 'Put your mouse over your Gravatar to check out your profile.', 'jetpack' ); ?> <br class="clear" /></span></p>
 	<?php
 }
 
@@ -111,7 +115,7 @@ jQuery( function($) {
  * @param string $val Disabled or enabled.
  */
 function grofiles_hovercard_option_sanitize( $val ) {
-	if ( 'disabled' == $val ) {
+	if ( 'disabled' === $val ) {
 		return $val;
 	}
 
@@ -179,15 +183,16 @@ function grofiles_get_avatar( $avatar, $author ) {
 
 	if ( is_numeric( $author ) ) {
 		grofiles_gravatars_to_append( $author );
-	} else if ( is_string( $author ) ) {
+	} elseif ( is_string( $author ) ) {
 		if ( false !== strpos( $author, '@' ) ) {
 			grofiles_gravatars_to_append( $author );
 		} else {
-			if ( $user = get_user_by( 'slug', $author ) ) {
+			$user = get_user_by( 'slug', $author );
+			if ( $user ) {
 				grofiles_gravatars_to_append( $user->ID );
 			}
 		}
-	} else if ( isset( $author->comment_type ) ) {
+	} elseif ( isset( $author->comment_type ) ) {
 		if ( $is_amp ) {
 			if ( 1 === preg_match( '/avatar\/([a-zA-Z0-9]+)\?/', $avatar, $email_hash ) ) {
 				$email_hash  = $email_hash[1];
@@ -222,7 +227,7 @@ function grofiles_get_avatar( $avatar, $author ) {
 			return $avatar;
 		}
 
-		if ( '' != $author->comment_type && 'comment' != $author->comment_type ) {
+		if ( '' !== $author->comment_type && 'comment' !== $author->comment_type ) {
 			return $avatar;
 		}
 		if ( $author->user_id ) {
@@ -230,9 +235,9 @@ function grofiles_get_avatar( $avatar, $author ) {
 		} else {
 			grofiles_gravatars_to_append( $author->comment_author_email );
 		}
-	} else if ( isset( $author->user_login ) ) {
+	} elseif ( isset( $author->user_login ) ) {
 		grofiles_gravatars_to_append( $author->ID );
-	} else if ( isset( $author->post_author ) ) {
+	} elseif ( isset( $author->post_author ) ) {
 		grofiles_gravatars_to_append( $author->post_author );
 	}
 
@@ -245,7 +250,6 @@ function grofiles_get_avatar( $avatar, $author ) {
  * @todo is_singular() only?
  */
 function grofiles_attach_cards() {
-	global $blog_id;
 
 	// Is the display of Avatars disabled?
 	if ( ! get_option( 'show_avatars' ) ) {
@@ -253,7 +257,7 @@ function grofiles_attach_cards() {
 	}
 
 	// Is the display of Gravatar Hovercards disabled?
-	if ( 'disabled' == Jetpack_Options::get_option_and_ensure_autoload( 'gravatar_disable_hovercards', '0' ) ) {
+	if ( 'disabled' === Jetpack_Options::get_option_and_ensure_autoload( 'gravatar_disable_hovercards', '0' ) ) {
 		return;
 	}
 
@@ -345,7 +349,7 @@ function grofiles_hovercards_data_html( $author ) {
 		return;
 	}
 	?>
-	<div class="grofile-hash-map-<?php echo $hash; ?>">
+	<div class="grofile-hash-map-<?php echo esc_html( $hash ); ?>">
 	<?php	foreach ( $data as $key => $value ) : ?>
 		<span class="<?php echo esc_attr( $key ); ?>"><?php echo esc_html( $value ); ?></span>
 <?php	endforeach; ?>
