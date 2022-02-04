@@ -16,6 +16,9 @@ jobs:
     name: Build all projects
     runs-on: ubuntu-latest
     timeout-minutes: 30  # 2022-01-14: Timing out lately at 20 minutes. Improving this is near the top of Brad's list of things to do.
+    env:
+      # Hard-code a specific directory to avoid paths in vendor/composer/installed.json changing every build.
+      BUILD_BASE: ${{ steps.build.outputs.build-base }}
 
     steps:
       - uses: actions/checkout@v2
@@ -23,12 +26,12 @@ jobs:
       - name: Setup tools
         uses: ./.github/actions/tool-setup
 
+      - name: Pnpm install
+        run: pnpm install
+
       - name: Build all projects
         id: build
-        env:
-          # Hard-code a specific directory to avoid paths in vendor/composer/installed.json changing every build.
-          BUILD_BASE: /tmp/jetpack-build
-        run: .github/files/build-all-projects.sh
+        run: pnpx jetpack build -v --no-pnpm-install --for-mirrors="$BUILD_BASE" --all
 
       # GitHub's artifact stuff doesn't preserve permissions or file case. Sigh.
       # This is the official workaround: https://github.com/actions/upload-artifact#maintaining-file-permissions-and-case-sensitive-files
