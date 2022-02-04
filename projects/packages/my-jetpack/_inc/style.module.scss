@@ -1,0 +1,14 @@
+.layout {
+	min-height: calc( 100vh - 100px ); // Thank you for creating with WordPress.Version 5.9
+	position: relative;
+	padding-bottom: 30px;
+}
+
+.footer {
+	position: absolute;
+    bottom: 0px;
+    width: 100%;
+	height: 30px;
+	line-height: 30px;
+    padding-right: 20px;
+}

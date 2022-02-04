@@ -1,17 +1,12 @@
 {
-	"name": "automattic/jetpack-plans",
-	"description": "Fetch information about Jetpack Plans from wpcom",
+	"name": "automattic/jetpack-publicize",
+	"description": "Publicize makes it easy to share your site’s posts on several social media networks automatically when you publish a new post.",
 	"type": "library",
 	"license": "GPL-2.0-or-later",
-	"require": {
-		"automattic/jetpack-connection": "^1.36"
-	},
+	"require": {},
 	"require-dev": {
 		"yoast/phpunit-polyfills": "1.0.3",
-		"automattic/jetpack-changelogger": "^3.0",
-		"automattic/jetpack-options": "^1.14",
-		"automattic/jetpack-status": "^1.10",
-		"automattic/wordbless": "@dev"
+		"automattic/jetpack-changelogger": "^3.0"
 	},
 	"autoload": {
 		"classmap": [
@@ -28,7 +23,6 @@
 		"test-php": [
 			"@composer phpunit"
 		],
-		"post-update-cmd": "php -r \"copy('vendor/automattic/wordbless/src/dbless-wpdb.php', 'wordpress/wp-content/db.php');\"",
 		"build-production": "echo 'Add your build step to composer.json, please!'",
 		"build-development": "echo 'Add your build step to composer.json, please!'"
 	},
@@ -45,17 +39,13 @@
 	"prefer-stable": true,
 	"extra": {
 		"autotagger": true,
-		"mirror-repo": "Automattic/jetpack-plans",
+		"mirror-repo": "Automattic/jetpack-publicize",
+		"textdomain": "jetpack-publicize-pkg",
 		"changelogger": {
-			"link-template": "https://github.com/Automattic/jetpack-plans/compare/v${old}...v${new}"
+			"link-template": "https://github.com/Automattic/jetpack-publicize/compare/v${old}...v${new}"
 		},
 		"branch-alias": {
 			"dev-master": "0.1.x-dev"
-		}
-	},
-	"config": {
-		"allow-plugins": {
-			"roots/wordpress-core-installer": true
 		}
 	}
 }
