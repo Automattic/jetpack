@@ -7,11 +7,6 @@
 	<!-- Default ruleset. -->
 	<rule ref="Jetpack" />
 
-	<rule ref="VariableAnalysis.CodeAnalysis.VariableAnalysis">
-		<!-- Template files use extracted variables. -->
-		<exclude-pattern>/projects/plugins/jetpack/extensions/blocks/podcast-player/templates/*</exclude-pattern>
-	</rule>
-
 	<rule ref="WordPress.WP.I18n">
 		<properties>
 			<property name="text_domain" type="array">
