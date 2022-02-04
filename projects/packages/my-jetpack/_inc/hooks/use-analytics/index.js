@@ -44,3 +44,21 @@ const useAnalytics = () => {
 };
 
 export default useAnalytics;
+
+/**
+ * Custom hook to record event on view.
+ * In other words, when the user views the page,
+ * in other words, when the component is rendered.
+ *
+ * @param {string} eventName       - The name of the event to record.
+ * @param {object} eventProperties - The properties of the event to record.
+ */
+export function useRecordEventOnView( eventName, eventProperties ) {
+	const {
+		tracks: { recordEvent },
+	} = useAnalytics();
+
+	useEffect( () => {
+		recordEvent( eventName, eventProperties );
+	}, [ recordEvent, eventName, eventProperties ] );
+}
