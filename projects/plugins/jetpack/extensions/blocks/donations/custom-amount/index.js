@@ -26,7 +26,6 @@ const settings = {
 		inserter: false,
 		reusable: false,
 		color: {
-			__experimentalSkipSerialization: true,
 			gradients: true,
 		},
 		typography: {
@@ -37,7 +36,6 @@ const settings = {
 			},
 		},
 		spacing: {
-			__experimentalSkipSerialization: true,
 			padding: [ 'horizontal', 'vertical' ],
 			__experimentalDefaultControls: {
 				padding: true,
@@ -45,7 +43,6 @@ const settings = {
 		},
 		__experimentalBorder: {
 			radius: true,
-			__experimentalSkipSerialization: true,
 			__experimentalDefaultControls: {
 				radius: true,
 			},

@@ -44,7 +44,6 @@ const settings = {
 		html: false,
 		lightBlockWrapper: true,
 		color: {
-			__experimentalSkipSerialization: true,
 			gradients: true,
 		},
 		typography: {
@@ -56,7 +55,6 @@ const settings = {
 		},
 		reusable: false,
 		spacing: {
-			__experimentalSkipSerialization: true,
 			padding: [ 'horizontal', 'vertical' ],
 			__experimentalDefaultControls: {
 				padding: true,
@@ -64,7 +62,6 @@ const settings = {
 		},
 		__experimentalBorder: {
 			radius: true,
-			__experimentalSkipSerialization: true,
 			__experimentalDefaultControls: {
 				radius: true,
 			},

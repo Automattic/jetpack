@@ -5,7 +5,7 @@
  * @package automattic/jetpack
  */
 
-namespace Automattic\Jetpack\Extensions\Donations_Editable;
+namespace Automattic\Jetpack\Extensions\Donations;
 
 use Automattic\Jetpack\Blocks;
 use Jetpack_Gutenberg;

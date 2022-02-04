@@ -2,7 +2,7 @@
 @import './common';
 
 .editor-styles-wrapper .wp-block-jetpack-donations {
-	.donations__amount {
+	.wp-block-jetpack-donations-amount {
 		cursor: text;
 
 		&.has-focus {
@@ -22,22 +22,6 @@
 
 	.donations__custom-amount {
 		cursor: default;
-	}
-
-	.donations__amount .block-editor-rich-text__editable {
-		display: inline-block;
-		text-align: left;
-
-		&:focus {
-			box-shadow: none;
-			outline: none;
-			outline-offset: 0;
-		}
-	}
-
-	.donations__amount [data-rich-text-placeholder]::after {
-		color: $gray-400;
-		opacity: 1;
 	}
 
 	.donations__custom-amount .donations__amount-value {

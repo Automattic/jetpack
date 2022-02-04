@@ -7,7 +7,7 @@
  * @package automattic/jetpack
  */
 
-namespace Automattic\Jetpack\Extensions\Donations_Editable;
+namespace Automattic\Jetpack\Extensions\Donations;
 
 use Automattic\Jetpack\Blocks;
 use Jetpack_Gutenberg;
@@ -30,7 +30,7 @@ function register_block() {
 		BLOCK_NAME,
 		array(
 			'render_callback' => __NAMESPACE__ . '\render_block',
-			'plan_check'      => false,
+			'plan_check'      => true,
 			'attributes'      => array(
 				'oneTimeDonation' => array(
 					'type'    => 'boolean',

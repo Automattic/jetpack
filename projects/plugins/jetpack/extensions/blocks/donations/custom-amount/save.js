@@ -1,8 +1,7 @@
 /**
  * WordPress dependencies
  */
-import { InnerBlocks } from '@wordpress/block-editor';
 
-const Save = () => <InnerBlocks.Content />;
+const Save = () => null;
 
 export default Save;
