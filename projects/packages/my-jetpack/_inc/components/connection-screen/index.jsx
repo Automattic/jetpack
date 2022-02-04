@@ -11,15 +11,11 @@ import { Container, Col } from '@automattic/jetpack-components';
  */
 import useMyJetpackConnection from '../../hooks/use-my-jetpack-connection';
 import connectImage from './connect.png';
-import GoBackLink from '../go-back-link';
 
 const ConnectionScreen = () => {
 	const { apiRoot, apiNonce } = useMyJetpackConnection();
 	return (
 		<Container horizontalSpacing={ 3 } horizontalGap={ 3 }>
-			<Col>
-				<GoBackLink />
-			</Col>
 			<Col>
 				<ConnectScreen
 					title={ __(
