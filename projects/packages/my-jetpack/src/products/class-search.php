@@ -44,7 +44,7 @@ class Search extends Module_Product {
 	 * @return string
 	 */
 	public static function get_title() {
-		return ''; // @todo title
+		return __( 'Jetpack Site Search', 'jetpack-my-jetpack' );
 	}
 
 	/**
@@ -62,7 +62,7 @@ class Search extends Module_Product {
 	 * @return string
 	 */
 	public static function get_long_description() {
-		return ''; // @todo Add long description
+		return __( 'Help your site visitors find answers instantly so they keep reading and buying. Great for sites with a lot of content.', 'jetpack-my-jetpack' );
 	}
 
 	/**
@@ -71,7 +71,12 @@ class Search extends Module_Product {
 	 * @return array Boost features list
 	 */
 	public static function get_features() {
-		return array();
+		return array(
+			__( 'Instant search and indexing', 'jetpack-my-jetpack' ),
+			__( 'Powerful filtering', 'jetpack-my-jetpack' ),
+			__( 'Supports 29 languages', 'jetpack-my-jetpack' ),
+			__( 'Spelling correction', 'jetpack-my-jetpack' ),
+		);
 	}
 
 	/**
