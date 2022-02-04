@@ -1,0 +1,5 @@
+Significance: patch
+Type: fixed
+Comment: Unify how connection register and authorize url works with local environments
+
+
