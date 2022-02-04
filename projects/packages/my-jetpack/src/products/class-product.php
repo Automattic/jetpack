@@ -95,6 +95,7 @@ abstract class Product {
 			'status'                   => static::get_status(),
 			'pricing_for_ui'           => static::get_pricing_for_ui(),
 			'requires_user_connection' => static::$requires_user_connection,
+			'has_required_plan'        => static::has_required_plan(),
 			'class'                    => get_called_class(),
 		);
 	}
@@ -140,6 +141,19 @@ abstract class Product {
 	 * @return array
 	 */
 	abstract public static function get_pricing_for_ui();
+
+	/**
+	 * Checks whether the current plan (or purchases) of the site already supports the product
+	 *
+	 * Returns true if it supports. Return false if a purchase is still required.
+	 *
+	 * Free products will always return true.
+	 *
+	 * @return boolean
+	 */
+	public static function has_required_plan() {
+		return true;
+	}
 
 	/**
 	 * Undocumented function
