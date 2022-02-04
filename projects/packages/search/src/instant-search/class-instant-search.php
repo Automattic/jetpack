@@ -402,14 +402,14 @@ class Instant_Search extends Classic_Search {
 		update_option( 'sidebars_widgets', $sidebars );
 
 		if ( \current_theme_supports( 'block-templates' ) ) {
-			$this->add_search_block_above_footer();
+			$this->add_search_block_below_header();
 		}
 	}
 
 	/**
 	 * Add a search widget above footer for block templates.
 	 */
-	public function add_search_block_above_footer() {
+	public function add_search_block_below_header() {
 		// Check whether block theme functions exist.
 		if ( ! function_exists( 'get_block_template' ) ) {
 			return;
