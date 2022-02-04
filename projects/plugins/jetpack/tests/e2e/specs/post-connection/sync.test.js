@@ -1,5 +1,11 @@
 import { test, expect } from '../../fixtures/base-test.js';
 import { execWpCommand } from 'jetpack-e2e-commons/helpers/utils-helper.cjs';
+import {
+	enableSync,
+	disableSync,
+	enableDedicatedSync,
+	disableDedicatedSync,
+} from '../../helpers/sync-helper.js';
 import { BlockEditorPage } from 'jetpack-e2e-commons/pages/wp-admin/index.js';
 import { prerequisitesBuilder } from 'jetpack-e2e-commons/env/index.js';
 import playwrightConfig from '../../playwright.config.cjs';
@@ -32,8 +38,8 @@ test.describe( 'Sync', () => {
 
 	test.afterEach( async () => {
 		await test.step( 'Reset Sync defaults', async () => {
-			await execWpCommand( 'option update jetpack_sync_settings_disable 0' );
-			await execWpCommand( 'option update jetpack_sync_settings_dedicated_sync_enabled 0' );
+			await enableSync();
+			await disableDedicatedSync();
 		} );
 	} );
 
@@ -42,7 +48,6 @@ test.describe( 'Sync', () => {
 			await blockEditor.setTitle( 'Testing Sync' );
 			await blockEditor.selectPostTitle();
 			await blockEditor.publishPost();
-			await blockEditor.viewPost();
 		} );
 
 		await test.step( 'Assert post is synced', async () => {
@@ -60,15 +65,14 @@ test.describe( 'Sync', () => {
 
 	test( 'Disabled Sync Flow', async ( { page } ) => {
 		await test.step( 'Disabled Sync', async () => {
-			const syncDisabled = await execWpCommand( 'option update jetpack_sync_settings_disable 1' );
-			expect( syncDisabled ).toMatch( 'Success' );
+			const syncDisabled = await disableSync();
+			expect( syncDisabled ).toMatch( 'Sync Disabled' );
 		} );
 
 		await test.step( 'Publish a post', async () => {
 			await blockEditor.setTitle( 'Disabled Sync' );
 			await blockEditor.selectPostTitle();
 			await blockEditor.publishPost();
-			await blockEditor.viewPost();
 		} );
 
 		await test.step( 'Assert post is not synced', async () => {
@@ -86,9 +90,7 @@ test.describe( 'Sync', () => {
 
 	test( 'Dedicated Sync Flow', async ( { page } ) => {
 		await test.step( 'Enable Dedicated Sync', async () => {
-			const dedicatedSyncEnabled = await execWpCommand(
-				'option update jetpack_sync_settings_dedicated_sync_enabled 1'
-			);
+			const dedicatedSyncEnabled = await enableDedicatedSync();
 			expect( dedicatedSyncEnabled ).toMatch( 'Success' );
 		} );
 
@@ -96,7 +98,6 @@ test.describe( 'Sync', () => {
 			await blockEditor.setTitle( 'Dedicated Sync' );
 			await blockEditor.selectPostTitle();
 			await blockEditor.publishPost();
-			await blockEditor.viewPost();
 		} );
 
 		await test.step( 'Assert post is synced', async () => {
