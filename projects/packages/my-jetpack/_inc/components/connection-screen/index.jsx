@@ -15,7 +15,7 @@ import connectImage from './connect.png';
 const ConnectionScreen = () => {
 	const { apiRoot, apiNonce } = useMyJetpackConnection();
 	return (
-		<Container horizontalSpacing={ 3 } horizontalGap={ 3 }>
+		<Container horizontalSpacing={ 0 } horizontalGap={ 3 }>
 			<Col>
 				<ConnectScreen
 					title={ __(
