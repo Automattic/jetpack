@@ -721,14 +721,18 @@ class REST_Connector {
 	public function connection_authorize_url( $request ) {
 		$redirect_uri = $request->get_param( 'redirect_uri' ) ? admin_url( $request->get_param( 'redirect_uri' ) ) : null;
 
-		if ( ! $request->get_param( 'no_iframe' ) ) {
-			add_filter( 'jetpack_use_iframe_authorization_flow', '__return_true' );
-		}
+		if ( class_exists( 'Jetpack' ) ) {
+			$authorize_url = \Jetpack::build_authorize_url( $redirect_uri, ! $request->get_param( 'no_iframe' ) );
+		} else {
+			if ( ! $request->get_param( 'no_iframe' ) ) {
+				add_filter( 'jetpack_use_iframe_authorization_flow', '__return_true' );
+			}
 
-		$authorize_url = $this->connection->get_authorization_url( null, $redirect_uri );
+			$authorize_url = $this->connection->get_authorization_url( null, $redirect_uri );
 
-		if ( ! $request->get_param( 'no_iframe' ) ) {
-			remove_filter( 'jetpack_use_iframe_authorization_flow', '__return_true' );
+			if ( ! $request->get_param( 'no_iframe' ) ) {
+				remove_filter( 'jetpack_use_iframe_authorization_flow', '__return_true' );
+			}
 		}
 
 		return rest_ensure_response(
