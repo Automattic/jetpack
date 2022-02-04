@@ -39,7 +39,7 @@
 .wp-multiplayer,
 .PDS_Poll,
 .CSS_Poll,
-.entry-content .slideshow-window {
+.entry-content .jetpack-slideshow-window {
 	margin-bottom: 24px;
 }
 
@@ -47,7 +47,7 @@
 	margin-bottom: 0;
 }
 
-.entry-content .slideshow-window {
+.entry-content .jetpack-slideshow-window {
 	border-radius: 0;
 }
 
