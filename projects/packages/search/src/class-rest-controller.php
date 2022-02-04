@@ -250,7 +250,7 @@ class REST_Controller {
 		// Update plan data, plan info is in the request body.
 		// We do this to avoid another call to WPCOM and reduce latency.
 		$payload = $request->get_json_params();
-		if ( isset( $payload['search_plan_info'] ) && ! $this->plan->set_plan_options( $payload['search_plan_info'] ) ) {
+		if ( ! isset( $payload['search_plan_info'] ) || ! $this->plan->set_plan_options( $payload['search_plan_info'] ) ) {
 			$this->plan->get_plan_info_from_wpcom();
 		}
 		// Activate module.
