@@ -18,7 +18,7 @@ jobs:
     timeout-minutes: 30  # 2022-01-14: Timing out lately at 20 minutes. Improving this is near the top of Brad's list of things to do.
     env:
       # Hard-code a specific directory to avoid paths in vendor/composer/installed.json changing every build.
-      BUILD_BASE: ${{ steps.build.outputs.build-base }}
+      BUILD_BASE: /tmp/jetpack-build
 
     steps:
       - uses: actions/checkout@v2
