@@ -23,16 +23,16 @@ initStore();
  * could get more complex in the future.
  *
  * @param {object} props          - Component props.
- * @param {object} props.nav      - Header navigation.
+ * @param {boolean} props.nav     - Header navigation.
  * @param {object} props.children - Child components.
  * @returns {object}                Layout react component.
  */
-function Layout( { nav, children } ) {
+function Layout( { nav = false, children } ) {
 	if ( ! nav ) {
 		return children;
 	}
 
-	const headerNav = nav.back ? (
+	const headerNav = nav ? (
 		<Container horizontalSpacing={ 3 } horizontalGap={ 3 }>
 			<Col>
 				<GoBackLink />
@@ -63,11 +63,11 @@ function render() {
 				<Route path="/" element={ <MyJetpackScreen /> } />
 				<Route
 					path="/connection"
-					element={ <Layout nav={ { back: true } } children={ <ConnectionScreen /> } /> }
+					element={ <Layout nav={ true } children={ <ConnectionScreen /> } /> }
 				/>
 				<Route
 					path="/add-boost"
-					element={ <Layout nav={ { back: true } } children={ <BoostInterstitial /> } /> }
+					element={ <Layout nav={ true } children={ <BoostInterstitial /> } /> }
 				/>
 			</Routes>
 		</HashRouter>,
