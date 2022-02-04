@@ -1,9 +1,9 @@
 /**
  * External dependencies
  */
-import React from 'react';
+import React, { useCallback } from 'react';
 import classnames from 'classnames';
-import { Button } from '@wordpress/components';
+import { ActionButton } from '@automattic/jetpack-components';
 import { Icon, check, plus } from '@wordpress/icons';
 import { getCurrencyObject } from '@automattic/format-currency';
 import { __, sprintf } from '@wordpress/i18n';
@@ -74,7 +74,7 @@ function Price( { value, currency, isOld } ) {
  * @returns {object}                          ProductDetailCard react component.
  */
 const ProductDetail = ( { slug, trackButtonClick } ) => {
-	const { detail } = useProduct( slug );
+	const { detail, status, active, isFetching } = useProduct( slug );
 	const { title, longDescription, features, pricingForUi, isBundle, supportedProducts } = detail;
 
 	const { isFree, fullPrice, currencyCode, discountedPrice } = pricingForUi;
@@ -106,6 +106,12 @@ const ProductDetail = ( { slug, trackButtonClick } ) => {
 				} )
 		: null;
 
+	const doit = useCallback( () => {
+		trackButtonClick();
+		if ( [ 'plugin_absent', 'inactive' ].includes( status ) ) {
+			activate( slug );
+		}
+	}, [ activate, status, slug, trackButtonClick ] );
 	return (
 		<>
 			{ isBundle && (
@@ -145,21 +151,20 @@ const ProductDetail = ( { slug, trackButtonClick } ) => {
 					<h3 className={ styles[ 'product-free' ] }>{ __( 'Free', 'jetpack-my-jetpack' ) }</h3>
 				) }
 
-				<Button
-					onClick={ trackButtonClick }
+				<ActionButton
+					onClick={ doit }
+					isLoading={ isFetching }
 					isLink
 					isPrimary={ ! isBundle }
 					isSecondary={ isBundle }
-					href={ addProductUrl }
 					className={ `${ styles[ 'checkout-button' ] } ${
 						isBundle ? styles[ 'is-bundle' ] : ''
 					}` }
-				>
-					{
+					label={
 						/* translators: placeholder is product name. */
 						sprintf( __( 'Add %s', 'jetpack-my-jetpack' ), title )
 					}
-				</Button>
+				/>
 			</div>
 		</>
 	);
