@@ -1,0 +1,4 @@
+Significance: patch
+Type: added
+
+Introduce basic Layout component. Add GoBackLink component
