@@ -1,3 +1,16 @@
+.is-style-compact {
+	.wp-block-jetpack-subscriptions__button {
+		margin-left: 0 !important;
+		border-top-left-radius: 0 !important;
+		border-bottom-left-radius: 0 !important;
+	}
+	.components-text-control__input {
+		border-top-right-radius: 0 !important;
+		border-bottom-right-radius: 0 !important;
+		border-right-width: 0 !important;
+	}
+}
+
 .wp-block-jetpack-subscriptions.wp-block-jetpack-subscriptions__supports-newline {
 	position: relative;
 

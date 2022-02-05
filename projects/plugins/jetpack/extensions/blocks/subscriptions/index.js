@@ -37,11 +37,11 @@ export const icon = (
 	</SVG>
 );
 export const settings = {
-	title: __( 'Subscription Form', 'jetpack' ),
+	title: __( 'Subscribe', 'jetpack' ),
 	description: (
 		<p>
 			{ __(
-				'A form enabling readers to get notifications when new posts are published from this site.',
+				'Allow readers to receive future posts in their inbox as a newsletter or notifications.',
 				'jetpack'
 			) }
 		</p>
@@ -52,13 +52,24 @@ export const settings = {
 	},
 	category: 'grow',
 	keywords: [
-		_x( 'subscribe', 'block search term', 'jetpack' ),
+		_x( 'newsletter', 'block search term', 'jetpack' ),
 		_x( 'join', 'block search term', 'jetpack' ),
 		_x( 'follow', 'block search term', 'jetpack' ),
 	],
 	attributes,
 	edit,
 	save,
+	styles: [
+		{
+			name: 'compact',
+			label: __( 'Compact', 'jetpack' ),
+			isDefault: true,
+		},
+		{
+			name: 'split',
+			label: __( 'Split', 'jetpack' ),
+		},
+	],
 	transforms: {
 		from: [
 			{
