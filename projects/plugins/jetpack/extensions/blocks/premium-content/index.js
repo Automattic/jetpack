@@ -10,18 +10,13 @@ import { createBlock } from '@wordpress/blocks';
 import edit from './edit';
 import save from './save';
 import icon from './_inc/icon';
-import {
-	blockContainsPremiumBlock,
-	blockHasParentPremiumBlock,
-} from './_inc/premium';
+import { blockContainsPremiumBlock, blockHasParentPremiumBlock } from './_inc/premium';
+import { transformToCoreGroup } from './_inc/transform-to-core-group';
 
 export const name = 'premium-content/container';
 export const settings = {
 	title: __( 'Premium Content', 'jetpack' ),
-	description: __(
-		'Restrict access to your content for paying subscribers.',
-		'jetpack'
-	),
+	description: __( 'Restrict access to your content for paying subscribers.', 'jetpack' ),
 	icon,
 	category: 'grow',
 	keywords: [
@@ -33,7 +28,7 @@ export const settings = {
 	attributes: {
 		newPlanName: {
 			type: 'string',
-			default: __( 'Monthly Subscription', 'jetpack' )
+			default: __( 'Monthly Subscription', 'jetpack' ),
 		},
 		newPlanCurrency: {
 			type: 'string',
@@ -98,7 +93,7 @@ export const settings = {
 					// to be replaced in the switchToBlockType call thereby meaning they
 					// are removed both from their original location and within the
 					// new premium content block.
-					const innerBlocksSubscribe = blocks.map( ( block ) => {
+					const innerBlocksSubscribe = blocks.map( block => {
 						return createBlock( block.name, block.attributes, block.innerBlocks );
 					} );
 
@@ -106,6 +101,15 @@ export const settings = {
 						createBlock( 'premium-content/subscriber-view', {}, innerBlocksSubscribe ),
 						createBlock( 'premium-content/logged-out-view' ),
 					] );
+				},
+			},
+		],
+		to: [
+			{
+				type: 'block',
+				blocks: [ 'core/group' ],
+				transform: ( attributes, innerBlocks ) => {
+					return transformToCoreGroup( innerBlocks );
 				},
 			},
 		],
