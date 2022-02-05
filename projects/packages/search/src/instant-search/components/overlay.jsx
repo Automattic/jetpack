@@ -11,24 +11,37 @@ import { OVERLAY_CLASS_NAME } from '../lib/constants';
 import './overlay.scss';
 
 const callOnEscapeKey = callback => event => {
-	// IE11 uses 'Esc'
-	if ( event.key === 'Escape' || event.key === 'Esc' ) {
+	if ( event.key === 'Escape' ) {
 		event.preventDefault();
 		callback();
 	}
+};
+
+const callOnOutsideClick = callback => {
+	const resultsContainer = document.getElementsByClassName(
+		'jetpack-instant-search__search-results'
+	)[ 0 ];
+	return event => {
+		if ( resultsContainer && ! resultsContainer.contains( event.target ) ) {
+			callback();
+		}
+	};
 };
 
 const Overlay = props => {
 	const { children, closeOverlay, colorTheme, hasOverlayWidgets, isVisible } = props;
 
 	const closeWithEscape = callOnEscapeKey( closeOverlay );
+	const closeWithOutsideClick = callOnOutsideClick( closeOverlay );
 	useEffect( () => {
 		window.addEventListener( 'keydown', closeWithEscape );
+		window.addEventListener( 'click', closeWithOutsideClick );
 		return () => {
-			// Cleanup after event
+			// Cleanup on component dismount
 			window.removeEventListener( 'keydown', closeWithEscape );
+			window.addEventListener( 'click', closeWithOutsideClick );
 		};
-	}, [ closeWithEscape ] );
+	}, [ closeWithEscape, closeWithOutsideClick ] );
 
 	return (
 		<div
