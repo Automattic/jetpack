@@ -7,6 +7,8 @@
 	.components-text-control__input {
 		border-top-right-radius: 0 !important;
 		border-bottom-right-radius: 0 !important;
+	}
+	&:not(.wp-block-jetpack-subscriptions__use-newline) .components-text-control__input {
 		border-right-width: 0 !important;
 	}
 }
