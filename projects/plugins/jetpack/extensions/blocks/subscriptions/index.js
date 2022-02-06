@@ -1,6 +1,7 @@
 /**
  * External dependencies
  */
+import { createInterpolateElement } from '@wordpress/element';
 import { __, _x } from '@wordpress/i18n';
 import { Rect, Path, SVG } from '@wordpress/components';
 import { createBlock } from '@wordpress/blocks';
@@ -39,12 +40,23 @@ export const icon = (
 export const settings = {
 	title: __( 'Subscribe', 'jetpack' ),
 	description: (
-		<p>
-			{ __(
-				'Allow readers to receive future posts in their inbox as a newsletter or notifications.',
-				'jetpack'
-			) }
-		</p>
+		<>
+			<p>
+				{ __(
+					'Allow readers to receive future posts in their inbox as a newsletter or notifications.',
+					'jetpack'
+				) }
+			</p>
+			<p>
+				{ createInterpolateElement(
+					__(
+						'Subscribers can get notifications through email or <a>the Reader app</a>.',
+						'jetpack'
+					),
+					{ a: <a href={ 'https://wordpress.com/read' } /> }
+				) }
+			</p>
+		</>
 	),
 	icon: {
 		src: icon,

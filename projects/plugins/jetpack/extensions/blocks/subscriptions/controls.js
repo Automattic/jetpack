@@ -57,15 +57,6 @@ export default function SubscriptionControls( {
 } ) {
 	return (
 		<>
-			<div style={ { margin: 20 } }>
-				{ createInterpolateElement(
-					__(
-						'Subscribers can get notifications through email or <a>the Reader app</a>.',
-						'jetpack'
-					),
-					{ a: <a href={ 'https://wordpress.com/read' } /> }
-				) }
-			</div>
 			<div
 				style={ {
 					margin: 20,
