@@ -65,7 +65,7 @@ export const settings = {
 	category: 'grow',
 	keywords: [
 		_x( 'newsletter', 'block search term', 'jetpack' ),
-		_x( 'join', 'block search term', 'jetpack' ),
+		_x( 'email', 'block search term', 'jetpack' ),
 		_x( 'follow', 'block search term', 'jetpack' ),
 	],
 	attributes,
