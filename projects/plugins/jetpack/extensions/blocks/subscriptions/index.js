@@ -43,7 +43,7 @@ export const settings = {
 		<>
 			<p>
 				{ __(
-					'Allow readers to receive future posts in their inbox as a newsletter or notifications.',
+					'Allow readers to receive a newsletter with future posts in their inbox.',
 					'jetpack'
 				) }
 			</p>
