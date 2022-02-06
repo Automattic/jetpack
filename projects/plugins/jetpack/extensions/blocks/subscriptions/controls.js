@@ -243,7 +243,7 @@ export default function SubscriptionControls( {
 					help={ () => {
 						if ( ! subscriberCount || subscriberCount < 1 ) {
 							return __(
-								'This will remain hidden on your website until you have at least one subscriber.',
+								'This will remain hidden until there is at least one subscriber.',
 								'jetpack'
 							);
 						}
@@ -259,10 +259,9 @@ export default function SubscriptionControls( {
 				{ ! isSimpleSite() && (
 					<TextareaControl
 						value={ successMessage }
-						label={ __( 'Success Message', 'jetpack' ) }
-						hideLabelFromVision={ true }
+						label={ __( 'Success message', 'jetpack' ) }
 						help={ __(
-							'Save your custom message to display when a user subscribes your website.',
+							'Edit the message displayed when a user subscribes to the newsletter.',
 							'jetpack'
 						) }
 						onChange={ newSuccessMessage => setAttributes( { successMessage: newSuccessMessage } ) }
