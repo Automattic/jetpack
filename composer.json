@@ -1,6 +1,6 @@
 {
 	"name": "automattic/jetpack-monorepo",
-	"description": "Monorepo for the Jetpack ecosystem",
+	"description": "Monorepo for the Jetpack ecosystem!",
 	"homepage": "https://jetpack.com/",
 	"type": "wordpress-plugin",
 	"license": "GPL-2.0-or-later",
