@@ -28,7 +28,6 @@ import withHasWarningIsInteractiveClassNames from '../../shared/with-has-warning
 import './editor.scss';
 
 import videoPressBlockExampleImage from './videopress-block-example-image.jpg';
-import { object } from 'prop-types';
 
 const videoPressNoPlanMediaPlaceholder = createHigherOrderComponent(
 	OriginalPlaceholder => props => {
@@ -171,7 +170,7 @@ const addVideoPressSupport = ( settings, name ) => {
 		( isSimpleSite() || isAtomicSite() ) &&
 		[ 'missing_plan', 'unknown' ].includes( unavailableReason );
 
-	const resumableUploadEnabled = typeof window.videoPressResumableEnabled !== 'undefined';
+	const resumableUploadEnabled = !! window.videoPressResumableEnabled;
 
 	// Check if VideoPress is unavailable and filter the mediaplaceholder to limit options
 	if ( isNotAvailable ) {
@@ -283,7 +282,7 @@ const addVideoPressSupport = ( settings, name ) => {
 				type: 'string',
 			},
 			fileForImmediateUpload: {
-				type: object,
+				type: 'object',
 				default: null,
 			},
 		};

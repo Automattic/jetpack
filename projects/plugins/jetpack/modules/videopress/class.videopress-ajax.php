@@ -73,6 +73,7 @@ class VideoPress_AJAX {
 
 		wp_send_json_success( $response );
 	}
+
 	/**
 	 * Ajax method that is used by the VideoPress uploader to get a token to upload a file to the wpcom api.
 	 *

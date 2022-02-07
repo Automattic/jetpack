@@ -830,7 +830,7 @@ export default createHigherOrderComponent(
 			const preview = !! url && getEmbedPreview( url );
 
 			const isFetchingEmbedPreview = !! url && isRequestingEmbedPreview( url );
-			const resumableUploadEnabled = typeof window.videoPressResumableEnabled !== 'undefined';
+			const resumableUploadEnabled = !! window.videoPressResumableEnabled;
 			const isUploading = ! resumableUploadEnabled && isBlobURL( src );
 
 			return {
