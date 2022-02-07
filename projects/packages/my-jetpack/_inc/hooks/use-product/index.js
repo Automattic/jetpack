@@ -7,6 +7,7 @@ import { useSelect, useDispatch } from '@wordpress/data';
  * Internal dependencies
  */
 import { STORE_ID } from '../../state/store';
+import { mapObjectKeysToCamel } from '../../utils/to-camel';
 
 /**
  * React custom hook to deal with a My Jetpack product.
@@ -16,7 +17,14 @@ import { STORE_ID } from '../../state/store';
  */
 export function useProduct( productId ) {
 	const { activateProduct, deactivateProduct } = useDispatch( STORE_ID );
-	const detail = useSelect( select => select( STORE_ID ).getProduct( productId ) );
+
+	/*
+	 * Re map object keys to camel case.
+	 * Consider to improve this in the process.
+	 */
+	let detail = useSelect( select => select( STORE_ID ).getProduct( productId ) );
+	detail = mapObjectKeysToCamel( detail, true );
+	detail.pricingForUi = mapObjectKeysToCamel( detail.pricingForUi, true );
 
 	return {
 		activate: () => activateProduct( productId ),

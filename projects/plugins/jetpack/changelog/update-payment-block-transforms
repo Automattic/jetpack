@@ -1,6 +1,0 @@
-Significance: minor
-Type: enhancement
-
-Add transformation from core/buttons to jetpack/recurring-payments block.
-
-Requires gutenberg >= 11.5.0

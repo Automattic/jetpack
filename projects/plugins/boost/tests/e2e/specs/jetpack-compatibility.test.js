@@ -13,7 +13,7 @@ test.describe( 'Jetpack compatibility', () => {
 		await prerequisitesBuilder().withActivePlugins( [ 'jetpack' ] ).build();
 	} );
 
-	test.skip( 'The Jetpack lazy-image module activation reflects in Boost dashboard', async ( {
+	test( 'The Jetpack lazy-image module activation reflects in Boost dashboard', async ( {
 		page,
 	} ) => {
 		await prerequisitesBuilder( page ).withInactiveModules( [ 'lazy-images' ] ).build();
@@ -23,7 +23,7 @@ test.describe( 'Jetpack compatibility', () => {
 		expect( await jetpackBoostPage.isModuleEnabled( 'lazy-images' ) ).toEqual( true );
 	} );
 
-	test.skip( 'The Jetpack lazy-image module deactivation reflects in Boost dashboard', async ( {
+	test( 'The Jetpack lazy-image module deactivation reflects in Boost dashboard', async ( {
 		page,
 	} ) => {
 		await prerequisitesBuilder( page ).withActiveModules( [ 'lazy-images' ] ).build();
@@ -33,7 +33,7 @@ test.describe( 'Jetpack compatibility', () => {
 		expect( await jetpackBoostPage.isModuleEnabled( 'lazy-images' ) ).toEqual( false );
 	} );
 
-	test.skip( 'The Boost lazy-image module activation reflects in Jetpack dashboard', async ( {
+	test( 'The Boost lazy-image module activation reflects in Jetpack dashboard', async ( {
 		page,
 	} ) => {
 		await boostPrerequisitesBuilder( page ).withInactiveModules( [ 'lazy-images' ] ).build();
@@ -43,7 +43,7 @@ test.describe( 'Jetpack compatibility', () => {
 		expect( isActive ).toBe( true );
 	} );
 
-	test.skip( 'The Boost lazy-image module deactivation reflects in Jetpack dashboard', async ( {
+	test( 'The Boost lazy-image module deactivation reflects in Jetpack dashboard', async ( {
 		page,
 	} ) => {
 		await boostPrerequisitesBuilder( page ).withActiveModules( [ 'lazy-images' ] ).build();

@@ -8,7 +8,7 @@
 		"mediawiki/mediawiki-codesniffer": "^38.0",
 		"phpcompatibility/phpcompatibility-wp": "^2.1",
 		"sirbrillig/phpcs-variable-analysis": "^2.10",
-		"wp-coding-standards/wpcs": "^2.3",
+		"wp-coding-standards/wpcs": "dev-develop as 2.3.1",
 		"automattic/vipwpcs": "^2.3"
 	},
 	"require-dev": {
