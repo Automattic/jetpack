@@ -714,6 +714,12 @@ importers:
       storybook-addon-mock: 2.0.2_react-dom@17.0.2+react@17.0.2
       webpack: 5.65.0
 
+  projects/packages/plans:
+    specifiers: {}
+
+  projects/packages/publicize:
+    specifiers: {}
+
   projects/packages/search:
     specifiers:
       '@automattic/calypso-color-schemes': 2.1.1
@@ -1239,6 +1245,7 @@ importers:
       '@octokit/auth-token': 2.4.5
       '@octokit/rest': 18.6.7
       chai: 4.3.4
+      chai-as-promised: 7.1.1
       chalk: 4.1.2
       configstore: 5.0.1
       envfile: 6.17.0
@@ -1287,6 +1294,7 @@ importers:
       yargs: 16.2.0
     devDependencies:
       chai: 4.3.4
+      chai-as-promised: 7.1.1_chai@4.3.4
       mocha: 8.4.0
       sinon: 9.2.4
       yargs-parser: 20.2.4
@@ -10879,6 +10887,15 @@ packages:
 
   /ccount/1.1.0:
     resolution: {integrity: sha512-vlNK021QdI7PNeiUh/lKkC/mNHHfV0m/Ad5JoI0TYtlBnJAslM/JIkm/tGC88bkLIwO6OQ5uV6ztS6kVAtCDlg==}
+    dev: true
+
+  /chai-as-promised/7.1.1_chai@4.3.4:
+    resolution: {integrity: sha512-azL6xMoi+uxu6z4rhWQ1jbdUhOMhis2PvscD/xjLqNMkv3BPPp2JyyuTHOrf9BOosGpNQ11v6BKv/g57RXbiaA==}
+    peerDependencies:
+      chai: '>= 2.1.2 < 5'
+    dependencies:
+      chai: 4.3.4
+      check-error: 1.0.2
     dev: true
 
   /chai-dom/1.11.0_chai@4.3.4+mocha@8.4.0:

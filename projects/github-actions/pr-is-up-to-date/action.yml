@@ -1,5 +1,8 @@
-name: pr-is-up-to-date
-description: Check that PRs are up to date with respect to a tag.
+name: PR is Up To Date
+description: Check that Pull Requests are up to date with respect to a git tag.
+branding:
+  icon: 'check-square'
+  color: 'green'
 inputs:
   branch:
     description: Only check PRs being merged into this branch. Defaults to the repo's default branch.
@@ -35,6 +38,3 @@ runs:
         DESCRIPTION_OK: ${{ inputs.description-ok }}
         TAG: ${{ inputs.tag }}
       run: $GITHUB_ACTION_PATH/run.sh
-branding:
-  color: green
-  icon: clock

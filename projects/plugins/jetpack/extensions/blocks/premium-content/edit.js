@@ -337,7 +337,7 @@ function Edit( props ) {
 						className="components-tab-button"
 						isPressed={ selectedTab.className === 'wp-premium-content-logged-out-view' }
 					>
-						<span>{ __( 'Visitor View', 'jetpack' ) }</span>
+						<span>{ __( 'Guest View', 'jetpack' ) }</span>
 					</ToolbarButton>
 					<ToolbarButton
 						onClick={ () => {
