@@ -1,4 +1,0 @@
-Significance: patch
-Type: bugfix
-
-Widget Visibility: ensure it remains possible to edit visibility for legacy widgets in the block-based widget editor.

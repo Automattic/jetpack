@@ -1,5 +1,0 @@
-Significance: patch
-Type: other
-Comment: Hack eslint config to use `.gitignore` and per-dir `.eslintignore`.
-
-

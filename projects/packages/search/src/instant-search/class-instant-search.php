@@ -70,11 +70,7 @@ class Instant_Search extends Classic_Search {
 	 * Loads assets for Jetpack Instant Search Prototype featuring Search As You Type experience.
 	 */
 	public function load_assets() {
-		if ( defined( 'JETPACK_SEARCH_PACKAGE_DIRECTORY' ) ) {
-			$this->load_assets_with_parameters(
-				constant( 'JETPACK_SEARCH_PACKAGE_DIRECTORY' )
-			);
-		}
+			$this->load_assets_with_parameters( constant( 'JETPACK_SEARCH_PKG__DIR' ) );
 	}
 
 	/**
@@ -217,7 +213,7 @@ class Instant_Search extends Classic_Search {
 
 		$request_args = array(
 			'timeout'    => 10,
-			'user-agent' => "WordPress/{$wp_version} | Jetpack/" . constant( 'JETPACK__VERSION' ),
+			'user-agent' => "WordPress/{$wp_version} | Jetpack-Search/" . constant( 'JETPACK_SEARCH_PKG__VERSION' ),
 		);
 
 		$request  = wp_remote_get( esc_url_raw( $service_url ), $request_args );
@@ -313,10 +309,6 @@ class Instant_Search extends Classic_Search {
 	 * @since  8.3.0
 	 */
 	public function auto_config_search() {
-		if ( ! current_user_can( 'edit_theme_options' ) ) {
-			return;
-		}
-
 		// Set default result format to "expanded".
 		update_option( Options::OPTION_PREFIX . 'result_format', Options::RESULT_FORMAT_EXPANDED );
 
@@ -367,6 +359,7 @@ class Instant_Search extends Classic_Search {
 		$widget_opt_name = Helper::get_widget_option_name();
 		$widget_options  = get_option( $widget_opt_name, array() );
 		foreach ( $widget_options as $id => $w ) {
+			$id = intval( $id );
 			if ( $id >= $next_id ) {
 				$next_id = $id + 1;
 			}

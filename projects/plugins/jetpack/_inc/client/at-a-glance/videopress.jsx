@@ -43,7 +43,7 @@ import { getProductDescriptionUrl } from 'product-descriptions/utils';
 class DashVideoPress extends Component {
 	static propTypes = {
 		hasConnectedOwner: PropTypes.bool.isRequired,
-		isOfflineMode: PropTypes.bool.isRequired,
+		isOffline: PropTypes.bool.isRequired,
 		isModuleAvailable: PropTypes.bool.isRequired,
 		trackUpgradeButtonView: PropTypes.func,
 	};

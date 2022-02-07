@@ -98,11 +98,7 @@ class Customberg2 {
 	 * Loads assets for the customization experience.
 	 */
 	public function load_assets() {
-		if ( defined( 'JETPACK_SEARCH_PACKAGE_DIRECTORY' ) ) {
-			$this->load_assets_with_parameters(
-				constant( 'JETPACK_SEARCH_PACKAGE_DIRECTORY' )
-			);
-		}
+			$this->load_assets_with_parameters( constant( 'JETPACK_SEARCH_PKG__DIR' ) );
 	}
 
 	/**

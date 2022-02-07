@@ -3,6 +3,7 @@
 include_once ABSPATH . 'wp-admin/includes/class-wp-upgrader.php';
 include_once ABSPATH . 'wp-admin/includes/file.php';
 
+use Automattic\Jetpack\Automatic_Install_Skin;
 
 // POST /sites/%s/plugins/new
 new Jetpack_JSON_API_Plugins_New_Endpoint(
@@ -92,8 +93,7 @@ class Jetpack_JSON_API_Plugins_New_Endpoint extends Jetpack_JSON_API_Plugins_End
 			if ( ! $local_file ) {
 				return new WP_Error( 'local-file-does-not-exist' );
 			}
-			jetpack_require_lib( 'class.jetpack-automatic-install-skin' );
-			$skin     = new Jetpack_Automatic_Install_Skin();
+			$skin     = new Automatic_Install_Skin();
 			$upgrader = new Plugin_Upgrader( $skin );
 
 			$pre_install_plugin_list = get_plugins();

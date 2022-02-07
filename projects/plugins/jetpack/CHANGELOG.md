@@ -2,6 +2,66 @@
 
 ### This is a list detailing changes for all Jetpack releases.
 
+## 10.7-a.1 - 2022-02-02
+### Enhancements
+- Add an AMP-compatible version of the email share button.
+- Add transformation from core/buttons to jetpack/recurring-payments block (requires gutenberg >= 11.5.0).
+- Business Hours: Add support for color & spacing design tool.
+- Changed the plan description for invalid plans and added a Warning message for Premium content blocks with invalid plans.
+- Dashboard: update the links used to purchase plans when in Jetpack settings.
+
+### Improved compatibility
+- My Community widget: Hide widget from the block inserter and Legacy widget block drop-down menu
+
+### Bug fixes
+- Fixed several React warnings shown on the console when SCRIPT_DEBUG is active
+- Search: avoid PHP warning when using Search widget.
+- Widget Visibility: ensure role and logged in features are available.
+
+### Other changes <!-- Non-user-facing changes go here. This section will not be copied to readme.txt. -->
+- Added 'jetpack_related_posts_display_markup' filter to update the output HTML of Related Posts module
+- Extract Jetpack_Plugins class to its own package
+- Blocks: Update block fixture docs for running phpunit tests.
+- Build: remove unneeded files from production build.
+- Payments Block: remove wrapper around icons.
+- Updated package dependencies
+- Reduced the data set for the Search Sync tests to speed up the process.
+- Update internal logic for rendering Dashboard sections.
+
+## 10.6 - 2022-02-01
+### Enhancements
+- Contact Info and Markdown Blocks: add color, typography and spacing features.
+- Dashboard: support Beta versions of Automattic plugins in plugin cards.
+- Search: improve accessibility via headings hierarchy and aria roles.
+- Tiled Gallery Block: improve the block so it can be used within the mobile applications.
+
+### Improved compatibility
+- Instant Search: synchronize more meta data so the search feature can be used with more third-party plugins.
+- Sharing / AMP plugin: avoid adding sharing's CSS on AMP pages when the sharing feature is not active.
+
+### Bug fixes
+- Backups: hide backup preparation message for sites without backup.
+- Connection: correctly request list of active features so they can be activated on a reconnection.
+- Pay with Paypal Block: properly display the card icons below the button.
+- Scan: avoid PHP notice when non-admin users access the dashboard.
+- Search: Initialize debug bar using correct class
+- Widget Visibility: ensure it remains possible to edit visibility for legacy widgets in the block-based widget editor.
+
+### Other changes <!-- Non-user-facing changes go here. This section will not be copied to readme.txt. -->
+- Add a comment to explain the reasoning behind an empty scss file.
+- Change usage of filter_var to filter_input in markdown file.
+- Comment: phpcs linting cleanup.
+- Cover block: avoid the block's placeholder rendering on top of other blocks.
+- Dashboard: update CTAs (wording, layout) in the At A Glance section.
+- Fixed development mode prop type warning in UserLicenseActivationNotice component.
+- Fix PHPCS sniffs in root classes.
+- PHPCS fixes for site verification tools.
+- phpcs fixes for the markdown module
+- Search: add E2E tests for Customberg
+- Search: added E2E tests for the search dashboard
+- Updated package dependencies.
+- Use new Visitor class for determining IP address.
+
 ## 10.6-a.3 - 2022-01-18
 ### Enhancements
 - Embeds: add support for Descript.com embeds.

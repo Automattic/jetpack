@@ -23,7 +23,7 @@ import {
 	getPlanClass,
 	getJetpackProductUpsellByFeature,
 } from 'lib/plans/constants';
-
+import { getProductDescriptionUrl } from 'product-descriptions/utils';
 import {
 	hasConnectedOwner as hasConnectedOwnerSelector,
 	isOfflineMode,
@@ -191,7 +191,7 @@ export const SettingsCard = props => {
 							callToAction={ upgradeLabel }
 							feature={ feature }
 							onClick={ handleClickForTracking( feature ) }
-							href={ props.securityProUpgradeUrl }
+							href={ props.securityUpgradeUrl }
 						/>
 					) : (
 						<JetpackBanner
@@ -217,7 +217,7 @@ export const SettingsCard = props => {
 						plan={ getJetpackProductUpsellByFeature( FEATURE_SECURITY_SCANNING_JETPACK ) }
 						feature={ feature }
 						onClick={ handleClickForTracking( feature ) }
-						href={ props.securityPremiumUpgradeUrl }
+						href={ props.scanUpgradeUrl }
 					/>
 				) : (
 					<JetpackBanner
@@ -484,13 +484,12 @@ export default connect(
 			getModuleOverride: module_name => getModuleOverride( state, module_name ),
 			getModule: module_name => getModule( state, module_name ),
 			activeFeatures: getActiveFeatures( state ),
-			videoPremiumUpgradeUrl: getUpgradeUrl( state, 'settings-video-premium' ),
 			adsUpgradeUrl: getUpgradeUrl( state, 'settings-ads' ),
-			securityProUpgradeUrl: getUpgradeUrl( state, 'settings-security-pro' ),
-			securityPremiumUpgradeUrl: getUpgradeUrl( state, 'settings-security-premium' ),
+			securityUpgradeUrl: getProductDescriptionUrl( state, 'security' ),
+			scanUpgradeUrl: getProductDescriptionUrl( state, 'scan' ),
 			gaUpgradeUrl: getUpgradeUrl( state, 'settings-ga' ),
-			searchUpgradeUrl: getUpgradeUrl( state, 'jetpack-search' ),
-			spamUpgradeUrl: getUpgradeUrl( state, 'settings-spam' ),
+			searchUpgradeUrl: getProductDescriptionUrl( state, 'search' ),
+			spamUpgradeUrl: getProductDescriptionUrl( state, 'akismet' ),
 			multisite: isMultisite( state ),
 			hasActiveSearchPurchase: hasActiveSearchPurchase( state ),
 			inOfflineMode: isOfflineMode( state ),

@@ -484,10 +484,10 @@ jobs:
     timeout-minutes: 1  # 2021-01-18: Successful runs take just a few seconds
     steps:
       - uses: actions/checkout@v2
-      - name: Tool versions
-        run: |
-          which jq
-          jq --version
+      - name: Setup tools
+        uses: ./.github/actions/tool-setup
+        with:
+          php: false
       - run: tools/check-intra-monorepo-deps.sh -v
       - run: .github/files/check-monorepo-package-repos.sh
 

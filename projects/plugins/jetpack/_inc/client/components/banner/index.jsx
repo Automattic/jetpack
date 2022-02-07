@@ -33,6 +33,7 @@ class Banner extends Component {
 		currentVersion: PropTypes.string.isRequired,
 		description: PropTypes.node,
 		eventFeature: PropTypes.string,
+		eventProps: PropTypes.object,
 		feature: PropTypes.string, // PropTypes.oneOf( getValidFeatureKeys() ),
 		href: PropTypes.string,
 		icon: PropTypes.string,
@@ -43,13 +44,14 @@ class Banner extends Component {
 		path: PropTypes.string,
 		plan: PropTypes.string,
 		siteSlug: PropTypes.string,
-		title: PropTypes.string.isRequired,
-		isCurrentUserLinked: PropTypes.string,
+		title: PropTypes.node.isRequired,
+		isCurrentUserLinked: PropTypes.bool,
 		isConnectionOwner: PropTypes.bool,
 	};
 
 	static defaultProps = {
 		onClick: noop,
+		eventProps: {},
 	};
 
 	getHref() {
@@ -67,12 +69,12 @@ class Banner extends Component {
 	handleClick = () => {
 		this.props.onClick();
 
-		const { eventFeature, path, currentVersion } = this.props;
+		const { eventFeature, path, currentVersion, eventProps } = this.props;
 		if ( eventFeature || path ) {
 			const eventFeatureProp = eventFeature ? { feature: eventFeature } : {};
 			const pathProp = path ? { path } : {};
 
-			const eventProps = {
+			const clickEventProps = {
 				target: 'banner',
 				type: 'upgrade',
 				current_version: currentVersion,
@@ -80,9 +82,10 @@ class Banner extends Component {
 				is_connection_owner: this.props.isConnectionOwner ? 'yes' : 'no',
 				...eventFeatureProp,
 				...pathProp,
+				...eventProps,
 			};
 
-			analytics.tracks.recordJetpackClick( eventProps );
+			analytics.tracks.recordJetpackClick( clickEventProps );
 		}
 	};
 

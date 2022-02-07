@@ -9,6 +9,10 @@ import { writable } from 'svelte/store';
 import config from './config';
 import { setModuleState } from '../api/modules';
 
+export type Optimizations = {
+	[ slug: string ]: boolean;
+};
+
 export type ModulesState = {
 	[ slug: string ]: {
 		enabled: boolean;
@@ -16,7 +20,13 @@ export type ModulesState = {
 	};
 };
 
-const initialState = config.config;
+const initialState = {};
+for ( const [ name, value ] of Object.entries( config.optimizations ) ) {
+	initialState[ name ] = {
+		enabled: value,
+	};
+}
+
 const { subscribe, update } = writable< ModulesState >( initialState );
 
 // Keep a subscribed copy for quick reading.

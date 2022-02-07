@@ -10,7 +10,7 @@ import PropTypes from 'prop-types';
 import ProductCard from '../product-card';
 import { useProduct } from '../../hooks/use-product';
 
-const BackupIcon = () => (
+export const BackupIcon = () => (
 	<svg width="24" height="24" fill="none" xmlns="http://www.w3.org/2000/svg">
 		<path
 			fillRule="evenodd"
@@ -22,7 +22,7 @@ const BackupIcon = () => (
 );
 
 const BackupCard = ( { admin } ) => {
-	const { status, activate, deactivate, detail } = useProduct( 'backup' );
+	const { status, activate, deactivate, detail, isFetching } = useProduct( 'backup' );
 	const { name, description } = detail;
 
 	return (
@@ -31,6 +31,7 @@ const BackupCard = ( { admin } ) => {
 			description={ description }
 			status={ status }
 			icon={ <BackupIcon /> }
+			isFetching={ isFetching }
 			admin={ admin }
 			onDeactivate={ deactivate }
 			onActivate={ activate }

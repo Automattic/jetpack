@@ -24,6 +24,7 @@
 				"@automattic/jetpack-idc",
 				"@automattic/jetpack-licensing",
 				"@automattic/jetpack-partner-coupon",
+				"@automattic/jetpack-shared-extension-utils",
 				"@automattic/jetpack-storybook",
 				"@automattic/jetpack-webpack-config",
 				"@automattic/remove-asset-webpack-plugin",
@@ -57,14 +58,18 @@
 				"automattic/jetpack-partner",
 				"automattic/jetpack-password-checker",
 				"automattic/jetpack-phpcs-filter",
+				"automattic/jetpack-plans",
+				"automattic/jetpack-plugins-installer",
 				"automattic/jetpack-post-list",
+				"automattic/jetpack-publicize",
 				"automattic/jetpack-redirect",
 				"automattic/jetpack-roles",
 				"automattic/jetpack-search",
 				"automattic/jetpack-status",
 				"automattic/jetpack-sync",
 				"automattic/jetpack-terms-of-service",
-				"automattic/jetpack-tracking"
+				"automattic/jetpack-tracking",
+				"automattic/jetpack-waf"
 			],
 			"enabled": false
 		},

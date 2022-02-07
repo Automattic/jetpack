@@ -77,7 +77,7 @@ fi
 cd "$BASE"
 pnpx jetpack install --all
 
-DEPS="$(tools/find-project-deps.php)"
+DEPS="$(pnpx jetpack dependencies json)"
 declare -A RELEASED
 
 # Release a project
@@ -161,8 +161,7 @@ cd "$BASE"
 info "Updating dependencies..."
 SLUGS=()
 # Use a temp variable so pipefail works
-TMP="$(tools/get-build-order.php 2>/dev/null)"
-TMP=monorepo$'\n'"$TMP"
+TMP="$(pnpx jetpack dependencies build-order --pretty)"
 mapfile -t SLUGS <<<"$TMP"
 for SLUG in "${SLUGS[@]}"; do
 	if [[ -n "${RELEASED[$SLUG]}" ]]; then

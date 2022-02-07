@@ -2,6 +2,15 @@
 
 ### This is a list detailing changes for the Jetpack RNA IDC package releases.
 
+## 0.9.1 - 2022-02-02
+### Changed
+- Updated package dependencies.
+
+## 0.9.0 - 2022-01-25
+### Added
+- Additional package customization parameters.
+- Allow customized text to contain HTML tags.
+
 ## 0.8.2 - 2022-01-18
 ### Changed
 - General: update required node version to v16.13.2

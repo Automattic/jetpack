@@ -1,4 +1,0 @@
-Significance: patch
-Type: other
-
-Fixed development mode prop type warning in UserLicenseActivationNotice component.

@@ -5,6 +5,67 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.5.0] - 2022-02-02
+### Added
+- Added plugin installation functionality
+- Adds Tracks events for activating and deactivating products from the product cards
+- Fixes stories for ProductCard component
+- Handle when site is not connected
+- Initial approach to handle global notice
+- Module Products
+- My Jetpack: Add route handling
+- My Jetpack: connect all product cards with data provider
+- My Jetpack: connect Backup product class with Product class. Add long description and features fields.
+- My Jetpack: handle redirect when no connection #22549
+- My Jetpack: reorganize stores by project/name
+- Remove getProduct() resolver
+- Support to Hybrid products
+- Tweak dimms of the Product card status
+- Update data handling - Implement request status in Product Card
+- User connection requirement to product info
+- uses the Plugin Installer package to safely checks plugins statuses
+
+### Changed
+- Added filter for disabling the initialization of the My Jetpack package
+- Build: remove unneeded files from production build.
+- Do not initialize My Jetpack id site is not connected
+- My Jetpack: Refactor styles to use layout components and theme provider
+- My Jetpack: Update gap between product cards section
+- Pick API root and nonce values from a new window var myJetpackRest
+- Updated package dependencies.
+- Update plugin absent status consistently
+
+### Fixed
+- added unit test mock for new global variable myJetpackRest
+- Fix tests
+- Fix unsafe optional chaining.
+- my-jetpack: fix tracking event when activating product
+- Resolved minor code standard violation after implementing a stricter rule.
+
+## [0.4.0] - 2022-01-25
+### Added
+- add API endpoints to manipulate products
+- Added css module for My Jetpack Plans Section
+- Added useAnalytics hook
+- Added Visitor class for status regarding the site visitor.
+- Add first data approach
+- Add Products and REST_Products basic classes
+- Adds very basic product cards section component to my jetpack
+- My Jetpack: Add Product Card component
+- My Jetpack: check user connectivity before to hit wpcom side
+- My Jetpack: Implement data handling for enable/disable products
+- Removed endpoint plans superseded by purchases
+
+### Changed
+- Add Connections Section wrapping the Connection Status Card to My Jetpack
+- Build: do not ship raw files in production bundle.
+
+### Removed
+- Remove unused usePlans() custom react hook
+
+### Fixed
+- Fixed svg attribute strokeWidth for Boost Card
+
 ## [0.3.3] - 2022-01-18
 ### Added
 - Added redux store specific to my-jetpack
@@ -75,6 +136,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Added
 - Created package
 
+[0.5.0]: https://github.com/Automattic/jetpack-my-jetpack/compare/0.4.0...0.5.0
+[0.4.0]: https://github.com/Automattic/jetpack-my-jetpack/compare/0.3.3...0.4.0
 [0.3.3]: https://github.com/Automattic/jetpack-my-jetpack/compare/0.3.2...0.3.3
 [0.3.2]: https://github.com/Automattic/jetpack-my-jetpack/compare/0.3.1...0.3.2
 [0.3.1]: https://github.com/Automattic/jetpack-my-jetpack/compare/0.3.0...0.3.1

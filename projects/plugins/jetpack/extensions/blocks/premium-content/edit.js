@@ -23,6 +23,7 @@ import { isPriceValid, minimumTransactionAmountForCurrency } from '../../shared/
 import getConnectUrl from '../../shared/get-connect-url';
 import './editor.scss';
 import useAutosaveAndRedirect from '../../shared/use-autosave-and-redirect';
+import InvalidSubscriptionWarning from './_inc/invalid-subscription-warning';
 
 /**
  * @typedef { import('./plan').Plan } Plan
@@ -336,7 +337,7 @@ function Edit( props ) {
 						className="components-tab-button"
 						isPressed={ selectedTab.className === 'wp-premium-content-logged-out-view' }
 					>
-						<span>{ __( 'Visitor View', 'jetpack' ) }</span>
+						<span>{ __( 'Guest View', 'jetpack' ) }</span>
 					</ToolbarButton>
 					<ToolbarButton
 						onClick={ () => {
@@ -363,6 +364,10 @@ function Edit( props ) {
 				{ ( isSelected || selectedInnerBlock ) && apiState === API_STATE_CONNECTED && (
 					<Inspector { ...props } savePlan={ savePlan } siteSlug={ siteSlug } />
 				) }
+				{ props.attributes.selectedPlanId &&
+					! products.find( plan => plan.id === props.attributes.selectedPlanId ) && (
+						<InvalidSubscriptionWarning />
+					) }
 				<Context.Provider
 					value={ {
 						selectedTab,

@@ -2,6 +2,8 @@
 
 namespace Automattic\Jetpack\My_Jetpack;
 
+use Automattic\Jetpack\Connection\Tokens;
+use Jetpack_Options;
 use PHPUnit\Framework\TestCase;
 use WorDBless\Options as WorDBless_Options;
 use WorDBless\Users as WorDBless_Users;
@@ -58,7 +60,16 @@ class Test_Products_Rest extends TestCase {
 	 */
 	public function set_up() {
 
+		if ( version_compare( phpversion(), '5.7', '<=' ) ) {
+			$this->markTestSkipped( 'avoid bug in PHP 5.6 that throws strict mode warnings for abstract static methods.' );
+		}
+
 		$this->install_mock_plugin();
+		wp_cache_delete( 'plugins', 'plugins' );
+
+		// Mock site connection.
+		( new Tokens() )->update_blog_token( 'test.test.1' );
+		Jetpack_Options::update_option( 'id', 123 );
 
 		global $wp_rest_server;
 
@@ -128,7 +139,7 @@ class Test_Products_Rest extends TestCase {
 		$data     = $response->get_data();
 
 		$this->assertEquals( 200, $response->get_status() );
-		$this->assertEquals( $products, $data['products'] );
+		$this->assertEquals( $products, $data );
 	}
 
 	/**
@@ -169,7 +180,7 @@ class Test_Products_Rest extends TestCase {
 		$data     = $response->get_data();
 
 		$this->assertEquals( 200, $response->get_status() );
-		$this->assertEquals( $product, $data['products'][0] );
+		$this->assertEquals( $product, $data );
 	}
 
 	/**
@@ -196,7 +207,8 @@ class Test_Products_Rest extends TestCase {
 		$response = $this->server->dispatch( $this->request );
 		$data     = $response->get_data();
 
-		$this->assertEquals( 'active', $data['products'][0]['status'] );
+		$this->assertEquals( 200, $response->get_status() );
+		$this->assertEquals( 'active', $data['status'] );
 		$this->assertTrue( is_plugin_active( $this->boost_mock_filename ) );
 	}
 
@@ -214,7 +226,8 @@ class Test_Products_Rest extends TestCase {
 		$response = $this->server->dispatch( $this->request );
 		$data     = $response->get_data();
 
-		$this->assertEquals( 'inactive', $data['products'][0]['status'] );
+		$this->assertEquals( 200, $response->get_status() );
+		$this->assertEquals( 'inactive', $data['status'] );
 		$this->assertFalse( is_plugin_active( $this->boost_mock_filename ) );
 	}
 
@@ -233,9 +246,8 @@ class Test_Products_Rest extends TestCase {
 		$response = $this->server->dispatch( $this->request );
 		$data     = $response->get_data();
 
-		$this->assertEquals( 'inactive', $data['products'][0]['status'] );
-		$this->assertEquals( 'plugin_php_incompatible', $data['error_code'] );
-		$this->assertFalse( $data['success'] );
+		$this->assertEquals( 400, $response->get_status() );
+		$this->assertEquals( 'plugin_php_incompatible', $data['code'] );
 		$this->assertFalse( is_plugin_active( $this->boost_mock_filename ) );
 	}
 

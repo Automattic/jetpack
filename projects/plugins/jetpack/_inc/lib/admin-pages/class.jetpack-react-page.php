@@ -3,7 +3,7 @@ use Automattic\Jetpack\Connection\Initial_State as Connection_Initial_State;
 use Automattic\Jetpack\Connection\Manager as Connection_Manager;
 use Automattic\Jetpack\Status;
 
-include_once( 'class.jetpack-admin-page.php' );
+require_once __DIR__ . '/class.jetpack-admin-page.php';
 require_once __DIR__ . '/class-jetpack-redux-state-helper.php';
 
 // Builds the landing page and its menu

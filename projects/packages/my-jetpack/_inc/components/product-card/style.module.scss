@@ -9,11 +9,12 @@
   --product-card-description-font-size: 14px;
   --product-card-actions-font-size: 12px;
   --product-card-margin-base: 4px;
+  --product-card-actions-size: 36px;
   --status-size: 8px;
   --status-active: #008710;
   --status-inactive: #646970;
   --status-error: #B32D2E;
-  --status-absent: #C3C4C7;
+  --status-plugin_absent: #C3C4C7;
 
   padding: 24px;
   background: var( --jp-white );
@@ -24,10 +25,11 @@
   flex-direction: column;
   justify-content: space-between;
 
-  &.absent {
+  &.is-purchase-required,
+  &.plugin_absent {
     background: none;
     box-shadow: none;
-    box-shadow: 0 0 0 1px var( --status-absent ) inset;
+    box-shadow: 0 0 0 1px var( --status-plugin_absent ) inset;
   }
 }
 
@@ -51,15 +53,23 @@
   align-items: center;
   justify-content: space-between;
   width: 100%;
-  height: 36px;
+  min-height: var(--product-card-actions-size);
   margin-top: calc(var(--product-card-margin-base) * 4); // 16px
   font-size: var(--product-card-actions-font-size);
   font-weight: 600;
+  flex-wrap: wrap;
+}
+
+.group {
+  display: flex;
+  height: var(--product-card-actions-size);
 }
 
 .status {
   margin-left: var(--product-card-margin-base);
   white-space: nowrap;
+  height: var(--product-card-actions-size);
+  line-height: var(--product-card-actions-size);
 
   &:before {
     content: "";
@@ -70,7 +80,7 @@
     border-radius: 50%;
   }
 
-  // in absent case, there's not status flag
+  // in plugin absent case, there's not status flag
   $statuses: active, inactive, error;
 
   @each $status in $statuses {
@@ -82,6 +92,24 @@
         background: $color;
       }
     }
+  }
+
+  &.is-fetching {
+    &:before {
+      animation: blink-animation 0.5s linear infinite;
+    }
+  }
+}
+
+@keyframes blink-animation{
+  0%{
+    opacity: 0;
+  }
+  50%{
+    opacity: 0.5;
+  }
+  100%{
+    opacity: 0;
   }
 }
 

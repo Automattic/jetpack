@@ -7,84 +7,99 @@
 
 namespace Automattic\Jetpack\My_Jetpack\Products;
 
+use Automattic\Jetpack\My_Jetpack\Product;
+
 /**
  * Class responsible for handling the Boost product
  */
-class Boost {
-
-	const PLUGIN_FILENAME = 'boost/jetpack-boost.php';
+class Boost extends Product {
 
 	/**
-	 * Get the Product info for the API
+	 * The product slug
 	 *
-	 * @return array
+	 * @var string
 	 */
-	public static function get_info() {
-		if ( self::is_active() ) {
-			$status = 'active';
-		} elseif ( ! self::is_plugin_installed() ) {
-			$status = 'plugin_absent';
-		} else {
-			$status = 'inactive';
-		}
+	public static $slug = 'boost';
+
+	/**
+	 * The filename (id) of the plugin associated with this product. If not defined, it will default to the Jetpack plugin
+	 *
+	 * @var string
+	 */
+	public static $plugin_filename = 'boost/jetpack-boost.php';
+
+	/**
+	 * The slug of the plugin associated with this product. If not defined, it will default to the Jetpack plugin
+	 *
+	 * @var string
+	 */
+	public static $plugin_slug = 'jetpack-boost';
+
+	/**
+	 * Whether this product requires a user connection
+	 *
+	 * @var string
+	 */
+	public static $requires_user_connection = false;
+
+	/**
+	 * Get the internationalized product name
+	 *
+	 * @return string
+	 */
+	public static function get_name() {
+		return __( 'Boost', 'jetpack-my-jetpack' );
+	}
+
+	/**
+	 * Get the internationalized product title
+	 *
+	 * @return string
+	 */
+	public static function get_title() {
+		return __( 'Jetpack Boost', 'jetpack-my-jetpack' );
+	}
+
+	/**
+	 * Get the internationalized product description
+	 *
+	 * @return string
+	 */
+	public static function get_description() {
+		return __( 'Instant speed and SEO', 'jetpack-my-jetpack' );
+	}
+
+	/**
+	 * Get the internationalized product long description
+	 *
+	 * @return string
+	 */
+	public static function get_long_description() {
+		return __( 'Jetpack Boost gives your site the same performance advantages as the world’s leading websites, no developer required.', 'jetpack-my-jetpack' );
+	}
+
+	/**
+	 * Get the internationalized features list
+	 *
+	 * @return array Boost features list
+	 */
+	public static function get_features() {
 		return array(
-			'slug'        => 'boost',
-			'description' => __( 'Instant speed and SEO', 'jetpack-my-jetpack' ),
-			'name'        => __( 'Boost', 'jetpack-my-jetpack' ),
-			'status'      => $status,
-			'class'       => __CLASS__,
+			__( 'Check your site performance', 'jetpack-my-jetpack' ),
+			__( 'Enable improvements in one click', 'jetpack-my-jetpack' ),
+			__( 'Standalone free plugin for those focused on speed', 'jetpack-my-jetpack' ),
 		);
 	}
 
 	/**
-	 * Checks whether the Product is active
+	 * Get the product princing details
 	 *
-	 * @return boolean
+	 * @return array Pricing details
 	 */
-	public static function is_active() {
-		return self::is_plugin_active();
-	}
-
-	/**
-	 * Checks whether the plugin is installed
-	 *
-	 * @return boolean
-	 */
-	public static function is_plugin_installed() {
-		$all_plugins = get_plugins();
-		return array_key_exists( self::PLUGIN_FILENAME, $all_plugins );
-	}
-
-	/**
-	 * Checks whether the plugin is active
-	 *
-	 * @return boolean
-	 */
-	public static function is_plugin_active() {
-		return is_plugin_active( self::PLUGIN_FILENAME );
-	}
-
-	/**
-	 * Activates the plugin (in the future also intall the plugin if needed)
-	 *
-	 * @return boolean|\WP_Error
-	 */
-	public static function activate() {
-		// TODO - extract lib/plugins.php from Jetpack in order to install. For now this will only activate the already installed plugin.
-		$result = activate_plugin( self::PLUGIN_FILENAME );
-		if ( is_wp_error( $result ) ) {
-			return $result;
-		}
-		return is_null( $result );
-	}
-
-	/**
-	 * Deactivate the plugin
-	 *
-	 * @return boolean
-	 */
-	public static function deactivate() {
-		deactivate_plugins( self::PLUGIN_FILENAME );
-		return true;
+	public static function get_pricing_for_ui() {
+		return array(
+			'available' => true,
+			'is_free'   => true,
+		);
 	}
 }

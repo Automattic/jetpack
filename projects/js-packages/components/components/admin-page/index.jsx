@@ -9,8 +9,10 @@ import PropTypes from 'prop-types';
  * Internal dependencies
  */
 import styles from './style.module.scss';
-import AdminPageHeader from './header';
-import AdminPageFooter from './footer';
+import JetpackFooter from '../jetpack-footer';
+import JetpackLogo from '../jetpack-logo';
+import Container from '../layout/container';
+import Col from '../layout/col';
 
 /**
  * This is the base structure for any admin page. It comes with Header and Footer.
@@ -24,10 +26,24 @@ const AdminPage = props => {
 	const { children, moduleName, a8cLogoHref, showHeader, showFooter } = props;
 
 	return (
-		<div className={ styles[ 'jp-admin-page' ] }>
-			{ showHeader && <AdminPageHeader /> }
-			{ children }
-			{ showFooter && <AdminPageFooter moduleName={ moduleName } a8cLogoHref={ a8cLogoHref } /> }
+		<div className={ styles[ 'admin-page' ] }>
+			{ showHeader && (
+				<Container horizontalSpacing={ 5 }>
+					<Col>
+						<JetpackLogo />
+					</Col>
+				</Container>
+			) }
+			<Container fluid horizontalSpacing={ 0 }>
+				<Col>{ children }</Col>
+			</Container>
+			{ showFooter && (
+				<Container horizontalSpacing={ 5 }>
+					<Col>
+						<JetpackFooter moduleName={ moduleName } a8cLogoHref={ a8cLogoHref } />
+					</Col>
+				</Container>
+			) }
 		</div>
 	);
 };

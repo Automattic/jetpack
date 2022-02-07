@@ -71,7 +71,11 @@ class DashSecurityBundle extends Component {
 		return (
 			<div className="dash-security-bundle--content-info-features">
 				{ features.map( ( { id, imageUrl, text, imgAlt } ) => (
-					<div id={ id } className="dash-security-bundle--content-info-features-single-feature">
+					<div
+						key={ id }
+						id={ id }
+						className="dash-security-bundle--content-info-features-single-feature"
+					>
 						<img src={ imageUrl } alt={ imgAlt } />
 						<p>{ text }</p>
 					</div>
