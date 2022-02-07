@@ -20,3 +20,24 @@
 		width: 100%;
 	}
 }
+
+// Wrapper
+
+@media (max-width: 768px) {
+	.wrapper {
+		margin-right: 12px;
+	}
+}
+
+@mixin container($width, $margin-right) {
+	@media ( min-width: #{$width} ) {
+		margin-right: $margin-right
+	}
+}
+
+.wrapper {
+	--margin-right-compensation-sm: 10px;
+	--margin-right-compensation-md: 20px;
+	@include container( 0px, var(--margin-right-compensation-sm) );
+	@include container( 782px, var(--margin-right-compensation-md) );
+}
