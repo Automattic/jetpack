@@ -254,8 +254,8 @@ class REST_Controller {
 			$this->plan->get_plan_info_from_wpcom();
 		}
 
-		// Enable search module by default, unless `activate_module` is explicitly set to boolen `false`.
-		if ( ! isset( $payload['activate_module'] ) || false !== $payload['activate_module'] ) {
+		// Enable search module by default, unless `enable_search` is explicitly set to boolen `false`.
+		if ( ! isset( $payload['enable_search'] ) || false !== $payload['enable_search'] ) {
 			// Eligibility is checked in `activate` function.
 			$ret = $this->search_module->activate();
 			if ( is_wp_error( $ret ) ) {
