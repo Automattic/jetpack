@@ -31,6 +31,8 @@ import {
 	DEFAULT_SPACING_VALUE,
 	DEFAULT_FONTSIZE_VALUE,
 } from './constants';
+import { isSimpleSite } from '../../shared/site-type-utils';
+import { JetpackLogo } from '../../shared/icons';
 
 export default function SubscriptionControls( {
 	buttonBackgroundColor,
@@ -60,16 +62,21 @@ export default function SubscriptionControls( {
 			<div
 				style={ {
 					margin: 20,
-					padding: 20,
-					textAlign: 'center',
+					padding: 24,
 					background: '#f2f2f2',
 					borderRadius: '4px',
+					display: 'flex',
+					alignItems: 'center',
+					justifyContent: 'space-between',
 				} }
 			>
-				{ createInterpolateElement(
-					sprintf( 'There are currently <span>%s readers</span>.', subscriberCount, 'jetpack' ),
-					{ span: <span style={ { textDecoration: 'underline' } } /> }
-				) }
+				<span style={ { marginRight: 12 } }>
+					{ createInterpolateElement(
+						sprintf( '<span>%s readers</span> are\xA0subscribed', subscriberCount, 'jetpack' ),
+						{ span: <span style={ { textDecoration: 'underline' } } /> }
+					) }
+				</span>
+				<JetpackLogo size="16" className="wp-block-jetpack-subscriptions__logo" />
 			</div>
 			{ isGradientAvailable && (
 				<PanelColorGradientSettings
