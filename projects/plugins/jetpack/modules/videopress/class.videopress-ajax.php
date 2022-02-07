@@ -65,7 +65,7 @@ class VideoPress_AJAX {
 		$response = json_decode( $result['body'], true );
 
 		if ( empty( $response['upload_token'] ) ) {
-			wp_send_json_error( array( 'message' => __( 'Could not obtain a VideoPress upload JWT. Please try again later.', 'jetpack' ) ) );
+			wp_send_json_error( array( 'message' => __( 'Could not obtain a VideoPress upload JWT. Please try again later. (empty upload token)', 'jetpack' ) ) );
 			return;
 		}
 
