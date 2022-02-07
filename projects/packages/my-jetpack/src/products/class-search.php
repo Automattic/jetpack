@@ -8,6 +8,7 @@
 namespace Automattic\Jetpack\My_Jetpack\Products;
 
 use Automattic\Jetpack\My_Jetpack\Module_Product;
+use Automattic\Jetpack\Search\Plan as Search_Plan;
 
 /**
  * Class responsible for handling the Search product
@@ -38,6 +39,15 @@ class Search extends Module_Product {
 	}
 
 	/**
+	 * Get the internationalized product title
+	 *
+	 * @return string
+	 */
+	public static function get_title() {
+		return __( 'Jetpack Site Search', 'jetpack-my-jetpack' );
+	}
+
+	/**
 	 * Get the internationalized product description
 	 *
 	 * @return string
@@ -52,7 +62,7 @@ class Search extends Module_Product {
 	 * @return string
 	 */
 	public static function get_long_description() {
-		return ''; // @todo Add long description
+		return __( 'Help your site visitors find answers instantly so they keep reading and buying. Great for sites with a lot of content.', 'jetpack-my-jetpack' );
 	}
 
 	/**
@@ -61,7 +71,12 @@ class Search extends Module_Product {
 	 * @return array Boost features list
 	 */
 	public static function get_features() {
-		return array();
+		return array(
+			__( 'Instant search and indexing', 'jetpack-my-jetpack' ),
+			__( 'Powerful filtering', 'jetpack-my-jetpack' ),
+			__( 'Supports 29 languages', 'jetpack-my-jetpack' ),
+			__( 'Spelling correction', 'jetpack-my-jetpack' ),
+		);
 	}
 
 	/**
@@ -76,5 +91,18 @@ class Search extends Module_Product {
 			'full_price'           => '4.50',
 			'promotion_percentage' => '50',
 		);
+	}
+
+	/**
+	 * Checks whether the current plan of the site already supports the product
+	 *
+	 * Returns true if it supports. Return false if a purchase is still required.
+	 *
+	 * Free products will always return true.
+	 *
+	 * @return boolean
+	 */
+	public static function has_required_plan() {
+		return ( new Search_PLan() )->supports_search();
 	}
 }
