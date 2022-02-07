@@ -27,9 +27,7 @@ describe( 'ActivationSuccessInfo', () => {
 		} );
 
 		it( 'shows the correct product name', () => {
-			expect( jetpackProductDetailsComponent.text() ).to.contain(
-				'Your Jetpack Backup is active!'
-			);
+			expect( jetpackProductDetailsComponent.text() ).to.contain( 'Jetpack Backup is active!' );
 		} );
 	} );
 } );

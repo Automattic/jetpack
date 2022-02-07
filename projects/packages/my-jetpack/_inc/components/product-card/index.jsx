@@ -1,7 +1,7 @@
 /**
  * External dependencies
  */
-import React from 'react';
+import React, { useCallback } from 'react';
 import PropTypes from 'prop-types';
 import classNames from 'classnames';
 import { __, sprintf } from '@wordpress/i18n';
@@ -96,7 +96,17 @@ const renderActionButton = ( {
 };
 
 const ProductCard = props => {
-	const { name, admin, description, icon, status, onActivate, onDeactivate, isFetching } = props;
+	const {
+		name,
+		admin,
+		description,
+		icon,
+		status,
+		onActivate,
+		onAdd,
+		onDeactivate,
+		isFetching,
+	} = props;
 	const isActive = status === PRODUCT_STATUSES.ACTIVE;
 	const isError = status === PRODUCT_STATUSES.ERROR;
 	const isInactive = status === PRODUCT_STATUSES.INACTIVE;
@@ -122,22 +132,32 @@ const ProductCard = props => {
 	/**
 	 * Calls the passed function onDeactivate after firing Tracks event
 	 */
-	const deactivateHandler = () => {
+	const deactivateHandler = useCallback( () => {
 		recordEvent( 'jetpack_myjetpack_product_card_deactivate_click', {
 			product: name,
 		} );
 		onDeactivate();
-	};
+	}, [ name, onDeactivate, recordEvent ] );
 
 	/**
 	 * Calls the passed function onActivate after firing Tracks event
 	 */
-	const activateHandler = () => {
+	const activateHandler = useCallback( () => {
 		recordEvent( 'jetpack_myjetpack_product_card_activate_click', {
 			product: name,
 		} );
 		onActivate();
-	};
+	}, [ name, onActivate, recordEvent ] );
+
+	/**
+	 * Calls the passed function onAdd after firing Tracks event
+	 */
+	const addHandler = useCallback( () => {
+		recordEvent( 'jetpack_myjetpack_product_card_add_click', {
+			product: name,
+		} );
+		onAdd();
+	}, [ name, onAdd, recordEvent ] );
 
 	return (
 		<div className={ containerClassName }>
@@ -166,7 +186,7 @@ const ProductCard = props => {
 						/>
 					</ButtonGroup>
 				) : (
-					renderActionButton( { ...props, onActivate: activateHandler } )
+					renderActionButton( { ...props, onActivate: activateHandler, onAdd: addHandler } )
 				) }
 				{ ! isAbsent && <div className={ statusClassName }>{ flagLabel }</div> }
 			</div>

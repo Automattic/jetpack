@@ -32,15 +32,15 @@ export default class PrefixTransformStream extends stream.Transform {
 	 * @param {boolean|number} options.time - Include time-since-start on each line. Value is the start timestamp (e.g. `Date.now()`), or boolean true to use `Date.now()`.
 	 */
 	constructor( options = {} ) {
-		const { prefix, time } = options;
-		delete options.prefix, options.time;
-		super( options );
+		const opts = { ...options };
+		delete opts.prefix, opts.time;
+		super( opts );
 
-		this.#prefix = Buffer.from( prefix || '' );
+		this.#prefix = Buffer.from( options.prefix || '' );
 		this.#rest = Buffer.alloc( 0 );
-		if ( time === true ) {
+		if ( options.time === true ) {
 			this.#startTime = Date.now();
-		} else if ( time ) {
+		} else if ( options.time ) {
 			this.#startTime = options.time;
 		}
 	}

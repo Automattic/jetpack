@@ -7,7 +7,7 @@
 
 namespace Automattic\Jetpack\Search;
 
-define( 'JETPACK_SEARCH_PKG__VERSION', '0.6.0-alpha' );
+define( 'JETPACK_SEARCH_PKG__VERSION', '0.7.0-alpha' );
 define( 'JETPACK_SEARCH_PKG__DIR', __DIR__ . '/' );
 define( 'JETPACK_SEARCH_PKG__SLUG', 'search' );
 
@@ -54,3 +54,7 @@ function is_development_version() {
 
 // Set up package version hook.
 $add_filter( 'jetpack_package_versions', __NAMESPACE__ . '\send_version_to_tracker' );
+
+if ( defined( 'WP_CLI' ) && \WP_CLI ) {
+	\WP_CLI::add_command( 'jetpack-search', __NAMESPACE__ . '\CLI' );
+}

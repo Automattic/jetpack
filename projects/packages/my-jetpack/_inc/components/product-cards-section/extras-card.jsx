@@ -10,7 +10,7 @@ import PropTypes from 'prop-types';
 import ProductCard from '../product-card';
 import { useProduct } from '../../hooks/use-product';
 
-const ExtrasIcon = () => (
+export const ExtrasIcon = () => (
 	<svg width="19" height="19" viewBox="0 0 19 19" fill="none" xmlns="http://www.w3.org/2000/svg">
 		<path
 			fillRule="evenodd"

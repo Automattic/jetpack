@@ -19,6 +19,7 @@ jetpack_vendor/
 /tools/docker/compose-extras.built.yml
 /tools/docker/compose-mappings.built.yml
 /tools/docker/jetpack-docker-config.yml
+/tools/phpcs.log
 
 # File for personal customiziations, if desired.
 /tools/docker/mu-plugins/0-sandbox.php

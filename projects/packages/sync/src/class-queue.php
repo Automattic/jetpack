@@ -735,7 +735,7 @@ class Queue {
 		}
 
 		// TODO: change to strict comparison.
-		if ( $checkout_id != $buffer->id ) { // phpcs:ignore WordPress.PHP.StrictComparisons.LooseComparison
+		if ( $checkout_id != $buffer->id ) { // phpcs:ignore Universal.Operators.StrictComparisons.LooseNotEqual
 			return new WP_Error( 'buffer_mismatch', 'The buffer you checked in was not checked out' );
 		}
 

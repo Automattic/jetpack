@@ -19,6 +19,7 @@ import ModuleControl from 'components/module-control';
 import MockedSearch from 'components/mocked-search';
 import { STORE_ID } from 'store';
 import NoticesList from 'components/global-notices';
+import RecordMeter from 'components/record-meter';
 
 import 'scss/rna-styles.scss';
 import './style.scss';
@@ -169,6 +170,10 @@ export default function SearchDashboard() {
 		);
 	};
 
+	const isRecordMeterEnabled = useSelect( select =>
+		select( STORE_ID ).isFeatureEnabled( 'record-meter' )
+	);
+
 	return (
 		<div className="jp-search-dashboard-page">
 			{ isLoading && (
@@ -179,6 +184,7 @@ export default function SearchDashboard() {
 					{ renderHeader() }
 					{ renderMockedSearchInterface() }
 					{ renderModuleControl() }
+					{ isRecordMeterEnabled && <RecordMeter /> }
 					{ renderFooter() }
 				</Fragment>
 			) }
