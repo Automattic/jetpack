@@ -34,12 +34,6 @@ Add this project as a dev dependency in your e2e tests project:
 pnpm add -D path/to/tools/e2e-commons
 ```
 
-Optionally, you can also add a `preinstall` script to install this project.
-
-```shell
-"preinstall": "pnpm --prefix path/to/tools/e2e-commons install"
-```
-
 Add Playwright
 
 ```shell
