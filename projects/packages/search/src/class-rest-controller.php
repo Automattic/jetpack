@@ -254,7 +254,7 @@ class REST_Controller {
 			$this->plan->get_plan_info_from_wpcom();
 		}
 
-		// Enable search module by default, unless `enable_search` is explicitly set to boolen `false`.
+		// Enable search module by default, unless `enable_search` is explicitly set to boolean `false`.
 		if ( ! isset( $payload['enable_search'] ) || false !== $payload['enable_search'] ) {
 			// Eligibility is checked in `activate` function.
 			$ret = $this->search_module->activate();
@@ -263,7 +263,7 @@ class REST_Controller {
 			}
 		}
 
-		// Enable instant search by default, unless `enable_instant_search` is explicitly set to boolen `false`.
+		// Enable instant search by default, unless `enable_instant_search` is explicitly set to boolean `false`.
 		if ( ! isset( $payload['enable_instant_search'] ) || false !== $payload['enable_instant_search'] ) {
 			// Eligibility is checked in `enable_instant_search` function.
 			$ret = $this->search_module->enable_instant_search();
@@ -272,7 +272,7 @@ class REST_Controller {
 			}
 		}
 
-		// Automatically configure necessary settings for instant search, unless `auto_config_search` is explicitly set to boolen `false`.
+		// Automatically configure necessary settings for instant search, unless `auto_config_search` is explicitly set to boolean `false`.
 		if ( ! isset( $payload['auto_config_search'] ) || false !== $payload['auto_config_search'] ) {
 			Instant_Search::instance()->auto_config_search();
 		}
