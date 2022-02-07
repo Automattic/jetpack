@@ -555,6 +555,7 @@ class Instant_Search extends Classic_Search {
 			true
 		) ) {
 			update_option( $result_format_option_name, Options::RESULT_FORMAT_PRODUCT );
+			return;
 		}
 
 		// Set `expanded` as default result format.

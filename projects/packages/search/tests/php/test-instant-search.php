@@ -100,6 +100,48 @@ class Test_Instant_Search extends TestCase {
 	}
 
 	/**
+	 * Test `auto_config_result_format` - already configured
+	 */
+	public function test_auto_config_result_format_already_configured() {
+		$result_format_option_name = Options::OPTION_PREFIX . 'result_format';
+
+		$return_expaned_result_format = function () {
+			return Options::RESULT_FORMAT_MINIMAL;
+		};
+		add_filter( 'option_' . $result_format_option_name, $return_expaned_result_format, 10, 2 );
+		$this->assertNull( self::$instant_search->auto_config_result_format() );
+		remove_filter( 'option_' . $result_format_option_name, $return_expaned_result_format );
+	}
+
+	/**
+	 * Test `auto_config_result_format` - not set
+	 */
+	public function test_auto_config_result_format_not_set() {
+		$result_format_option_name = Options::OPTION_PREFIX . 'result_format';
+
+		add_filter( 'option_' . $result_format_option_name, '__return_false', 10, 2 );
+		self::$instant_search->auto_config_result_format();
+		remove_filter( 'option_' . $result_format_option_name, '__return_false' );
+
+		$this->assertEquals( Options::RESULT_FORMAT_EXPANDED, get_option( $result_format_option_name, false ) );
+	}
+
+	/**
+	 * Test `auto_config_result_format` - WooCommerce
+	 */
+	public function test_auto_config_result_format_woocommerce() {
+		$result_format_option_name = Options::OPTION_PREFIX . 'result_format';
+
+		add_filter( 'option_' . $result_format_option_name, '__return_false', 10, 2 );
+		add_filter( 'active_plugins', array( $this, 'active_plugins_has_woocommerce' ), 10, 1 );
+		self::$instant_search->auto_config_result_format();
+		remove_filter( 'option_' . $result_format_option_name, '__return_false' );
+		remove_filter( 'active_plugins', array( $this, 'active_plugins_has_woocommerce' ) );
+
+		$this->assertEquals( Options::RESULT_FORMAT_PRODUCT, get_option( $result_format_option_name, false ) );
+	}
+
+	/**
 	 * Value for sidebars_widgets - jp_sidebar_configured
 	 */
 	public function sidebars_widgets_jp_sidebar_configured() {
@@ -135,6 +177,13 @@ class Test_Instant_Search extends TestCase {
 	 */
 	public function sidebars_widgets_theme_empty_sidebar() {
 		return array( 'sidebar-1' => array() );
+	}
+
+	/**
+	 * WooCommerce is activated.
+	 */
+	public function active_plugins_has_woocommerce() {
+		return array( 'woocommerce/woocommerce.php' );
 	}
 
 }
