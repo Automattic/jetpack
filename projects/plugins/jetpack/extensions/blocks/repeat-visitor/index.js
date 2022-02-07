@@ -43,7 +43,10 @@ export const settings = {
 		_x( 'visitors', 'block search term', 'jetpack' ),
 		_x( 'visibility', 'block search term', 'jetpack' ),
 	],
-	supports: { html: false },
+	supports: {
+		align: [ 'wide', 'full' ],
+		html: false,
+	},
 	title: __( 'Repeat Visitor', 'jetpack' ),
 	edit,
 	save,
