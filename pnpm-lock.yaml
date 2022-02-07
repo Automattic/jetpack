@@ -386,11 +386,9 @@ importers:
   projects/js-packages/shared-extension-utils:
     specifiers:
       jetpack-js-test-runner: workspace:*
-      lodash: 4.17.21
       nyc: 15.1.0
     devDependencies:
       jetpack-js-test-runner: link:../../../tools/js-test-runner
-      lodash: 4.17.21
       nyc: 15.1.0
 
   projects/js-packages/storybook:
@@ -715,6 +713,12 @@ importers:
       sass-loader: 12.4.0_sass@1.43.3+webpack@5.65.0
       storybook-addon-mock: 2.0.2_react-dom@17.0.2+react@17.0.2
       webpack: 5.65.0
+
+  projects/packages/plans:
+    specifiers: {}
+
+  projects/packages/publicize:
+    specifiers: {}
 
   projects/packages/search:
     specifiers:
