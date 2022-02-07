@@ -17,7 +17,7 @@ import { imagePath } from 'constants/urls';
 import './style.scss';
 
 const MyPlanBanner = props => {
-	const { productSlug, action, title, tagLine, trackingId, additionalEventProperties } = props;
+	const { additionalEventProperties, productSlug, action, title, tagLine, trackingId } = props;
 
 	useEffect( () => {
 		analytics.tracks.recordEvent( 'jetpack_my_plan_banner_view', {
