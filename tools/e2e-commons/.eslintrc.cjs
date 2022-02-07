@@ -3,7 +3,11 @@ const loadIgnorePatterns = require( '../../tools/js-tools/load-eslint-ignore.js'
 // .eslintrc.js
 module.exports = {
 	root: true,
-	extends: [ 'plugin:@wordpress/eslint-plugin/esnext', 'plugin:playwright/playwright-test' ],
+	extends: [
+		'plugin:@wordpress/eslint-plugin/esnext',
+		'plugin:playwright/playwright-test',
+		'prettier',
+	],
 	ignorePatterns: loadIgnorePatterns( __dirname ),
 	parserOptions: {
 		requireConfigFile: false,
