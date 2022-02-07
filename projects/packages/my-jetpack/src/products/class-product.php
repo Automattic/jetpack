@@ -161,11 +161,10 @@ abstract class Product {
 	 * @return string
 	 */
 	public static function get_status() {
-		if ( static::is_active() ) {
+		if ( ! static::has_required_plan() ) {
+			$status = 'needs_purchase';
+		} elseif ( static::is_active() ) {
 			$status = 'active';
-			if ( ! static::has_required_plan() ) {
-				$status = 'needs_purchase';
-			}
 		} elseif ( ! self::is_plugin_installed() ) {
 			$status = 'plugin_absent';
 		} else {
