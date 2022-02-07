@@ -13,7 +13,7 @@ use Automattic\Jetpack\Sync\Sender;
 use Automattic\Jetpack\Sync\Settings;
 
 
-require_once 'test_class.jetpack-sync-base.php';
+require_once __DIR__ . '/test_class.jetpack-sync-base.php';
 
 function jetpack_foo_is_callable() {
 	return 'bar';

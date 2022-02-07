@@ -2,6 +2,16 @@
 
 ### This is a list detailing changes for the Jetpack RNA Connection Component releases.
 
+## 0.15.0 - 2022-02-02
+### Added
+- Added user click tracking to disconnect dialog modal.
+
+### Changed
+- Updated package dependencies.
+
+### Fixed
+- Fix access to display_name property in connection status card.
+
 ## 0.14.0 - 2022-01-25
 ### Changed
 - Enforces the usage of initial state

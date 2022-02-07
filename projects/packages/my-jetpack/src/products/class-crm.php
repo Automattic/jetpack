@@ -36,12 +36,28 @@ class Crm extends Product {
 	public static $plugin_slug = 'zero-bs-crm';
 
 	/**
+	 * Whether this product requires a user connection
+	 *
+	 * @var string
+	 */
+	public static $requires_user_connection = false;
+
+	/**
 	 * Get the internationalized product name
 	 *
 	 * @return string
 	 */
 	public static function get_name() {
 		return __( 'CRM', 'jetpack-my-jetpack' );
+	}
+
+	/**
+	 * Get the internationalized product title
+	 *
+	 * @return string
+	 */
+	public static function get_title() {
+		return ''; // @todo title
 	}
 
 	/**
@@ -69,5 +85,17 @@ class Crm extends Product {
 	 */
 	public static function get_features() {
 		return array();
+	}
+
+	/**
+	 * Get the product princing details
+	 *
+	 * @return array Pricing details
+	 */
+	public static function get_pricing_for_ui() {
+		return array(
+			'available' => true,
+			'is_free'   => true,
+		);
 	}
 }

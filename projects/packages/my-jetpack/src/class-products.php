@@ -108,12 +108,7 @@ class Products {
 	 * @return array Object with infromation about the product.
 	 */
 	public static function get_anti_spam_data() {
-		return array(
-			'slug'        => 'anti-spam',
-			'description' => __( 'Stop comment and form spam', 'jetpack-my-jetpack' ),
-			'name'        => __( 'Anti-spam', 'jetpack-my-jetpack' ),
-			'status'      => 'inactive',
-		);
+		return Products\Anti_Spam::get_info();
 	}
 
 	/**

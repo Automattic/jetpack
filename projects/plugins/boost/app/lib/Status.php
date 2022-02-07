@@ -7,7 +7,7 @@ class Status {
 	protected $slug;
 
 	public function __construct( $slug ) {
-		$this->slug = 'jetpack_boost_state_' . $slug;
+		$this->slug = 'jetpack_boost_status_' . $slug;
 	}
 
 	public function is_enabled() {

@@ -12,7 +12,7 @@
 /**
  * Require the XMLRPC functionality.
  */
-require 'inc/class-broken-token-xmlrpc.php';
+require __DIR__ . '/inc/class-broken-token-xmlrpc.php';
 
 /**
  * Class Broken_Token
