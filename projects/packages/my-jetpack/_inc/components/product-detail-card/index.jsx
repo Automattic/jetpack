@@ -61,13 +61,14 @@ function Price( { value, currency, isOld } ) {
 }
 
 /**
- * Product Interstitial component.
+ * Product Detail component.
  *
- * @param {object} props          - Component props.
- * @param {string} props.slug     - Product slug
- * @returns {object}                ProductDetailCard react component.
+ * @param {object} props                    - Component props.
+ * @param {string} props.slug               - Product slug
+ * @param {Function} props.trackButtonClick - Function to call for tracking clicks on Call To Action button
+ * @returns {object}                          ProductDetailCard react component.
  */
-export default function ProductDetailCard( { slug } ) {
+const ProductDetail = ( { slug, trackButtonClick } ) => {
 	const { detail } = useProduct( slug );
 	const { title, longDescription, features } = detail;
 	const price = 9;
@@ -95,7 +96,13 @@ export default function ProductDetailCard( { slug } ) {
 				</div>
 			</div>
 
-			<Button isLink isPrimary href="#" className={ styles[ 'checkout-button' ] }>
+			<Button
+				onClick={ trackButtonClick }
+				isLink
+				isPrimary
+				href="#"
+				className={ styles[ 'checkout-button' ] }
+			>
 				{
 					/* translators: placeholder is product name. */
 					sprintf( __( 'Add %s', 'jetpack-my-jetpack' ), title )
@@ -103,22 +110,25 @@ export default function ProductDetailCard( { slug } ) {
 			</Button>
 		</div>
 	);
-}
+};
+
+ProductDetail.defaultProps = {
+	trackButtonClick: () => {},
+};
+
+export { ProductDetail };
 
 /**
- * BackupDetailCard component
+ * ProductDetailCard component.
  *
- * @returns {object} BackupDetailCard react component.
+ * @param {object} props          - Component props.
+ * @param {string} props.slug     - Product slug
+ * @returns {object}                ProductDetailCard react component.
  */
-export function BackupDetailCard() {
-	return <ProductDetailCard slug="backup" />;
-}
-
-/**
- * BoostDetailCard component
- *
- * @returns {object} BoostDetailCard react component.
- */
-export function BoostDetailCard() {
-	return <ProductDetailCard slug="boost" />;
+export default function ProductDetailCard( { slug } ) {
+	return (
+		<div className={ styles.card }>
+			<ProductDetail slug={ slug } />
+		</div>
+	);
 }
