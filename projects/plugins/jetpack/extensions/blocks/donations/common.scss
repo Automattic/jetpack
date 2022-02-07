@@ -55,7 +55,26 @@
 		}
 	}
 
-	.donations__amounts {
+	.donations__deprecated .donations__amount {
+	  display: inline-block;
+	  padding: 16px 24px;
+	  background-color: $white;
+	  color: $gray-900;
+	  border: 1px solid $gray-400;
+	  margin-right: 8px;
+	  margin-bottom: 8px;
+	  font-weight: 600;
+	  font-size: 16px;
+	  white-space: nowrap;
+
+	  &.has-error {
+		box-shadow: 0 0 0 1px $white, 0 0 0 3px $alert-red;
+		outline: 2px solid transparent;
+		outline-offset: -2px;
+	  }
+	}
+
+	.donations__amounts:not( .donations__deprecated ) {
 		margin-bottom: 16px;
 		display: flex;
 		flex-wrap: wrap;

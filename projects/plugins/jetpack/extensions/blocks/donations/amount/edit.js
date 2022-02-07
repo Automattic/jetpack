@@ -71,6 +71,14 @@ const Edit = props => {
 		setAmount( formatCurrency( defaultValue, currency, { symbol: '' } ) );
 	}, [ currency, editedValue, isFocused, setAmount, defaultValue ] );
 
+	// Syncs the edited value with the actual value whenever the latter changes (e.g. new default amount after a currency change).
+	useEffect( () => {
+		if ( isFocused || isInvalid ) {
+			return;
+		}
+		setEditedValue( formatCurrency( amount, currency, { symbol: '' } ) );
+	}, [ currency, isFocused, isInvalid, setAmount, amount ] );
+
 	return (
 		<div
 			{ ...useBlockProps( {

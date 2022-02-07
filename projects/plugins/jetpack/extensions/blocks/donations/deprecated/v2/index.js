@@ -2,9 +2,15 @@
  * WordPress dependencies
  */
 import { RichText } from '@wordpress/block-editor';
-import { __ } from '@wordpress/i18n';
+import { __, sprintf } from '@wordpress/i18n';
 import { createBlock } from '@wordpress/blocks';
+import formatCurrency from '@automattic/format-currency';
+
+/**
+ * Internal dependencies
+ */
 import { ANNUAL_DONATION, MONTHLY_DONATION, ONE_TIME_DONATION } from '../../common/constants';
+import { minimumTransactionAmountForCurrency } from '../../../../shared/currencies';
 
 const mapAttributes = oldAttributes => ( {
 	[ ONE_TIME_DONATION ]: oldAttributes[ ONE_TIME_DONATION ].show,
@@ -14,6 +20,88 @@ const mapAttributes = oldAttributes => ( {
 	currency: oldAttributes.currency,
 	fallbackLinkUrl: oldAttributes.fallbackLinkUrl,
 } );
+
+const createDonationView = (
+	donationType,
+	donation,
+	chooseAmountText,
+	customAmountText,
+	currency
+) =>
+	createBlock(
+		'jetpack/donations-view',
+		{
+			type: donationType,
+		},
+		[
+			createBlock( 'core/heading', {
+				content: donation.heading || __( 'Make a one-time donation', 'jetpack' ),
+				level: 3,
+			} ),
+			createBlock( 'core/paragraph', {
+				content: chooseAmountText || __( 'Choose an amount', 'jetpack' ),
+			} ),
+			createBlock(
+				'core/buttons',
+				{
+					className: 'donations__amounts',
+				},
+				donation.amounts.map( ( amount, index ) =>
+					createBlock( 'jetpack/donations-amount', {
+						label: sprintf(
+							// translators: %d: Tier level e.g: "1", "2", "3"
+							__( 'Tier %d', 'jetpack' ),
+							index + 1
+						),
+						amount: formatCurrency( amount, currency, { symbol: '' } ),
+						currency,
+						baseAmountMultiplier: 2 * index,
+					} )
+				)
+			),
+			createBlock( 'jetpack/donations-custom-amount', {}, [
+				createBlock( 'core/paragraph', {
+					content: customAmountText || __( 'Custom amount', 'jetpack' ),
+				} ),
+				createBlock(
+					'core/group',
+					{
+						layout: {
+							type: 'flex',
+							allowOrientation: false,
+						},
+					},
+					[
+						createBlock( 'jetpack/donations-amount', {
+							label: __( 'Custom amount', 'jetpack' ),
+							baseAmountMultiplier: 100,
+							currency,
+							amount: formatCurrency(
+								minimumTransactionAmountForCurrency( currency ) * 100,
+								currency,
+								{ symbol: '' }
+							),
+							className: 'donations__custom-amount',
+							disabled: true,
+						} ),
+					]
+				),
+			] ),
+			createBlock( 'core/separator', {
+				className: 'is-style-wide',
+			} ),
+			createBlock( 'core/paragraph', {
+				content: donation.extraText || __( 'Your contribution is appreciated.', 'jetpack' ),
+			} ),
+			createBlock( 'core/buttons', {}, [
+				createBlock( 'core/button', {
+					element: 'a',
+					text: donation.buttonText || __( 'Donate', 'jetpack' ),
+					className: 'donations__donate-button',
+				} ),
+			] ),
+		]
+	);
 
 export default {
 	attributes: {
@@ -133,11 +221,37 @@ export default {
 	},
 	migrate: attributes => {
 		const mappedAttributes = mapAttributes( attributes );
+		const {
+			oneTimeDonation,
+			monthlyDonation,
+			annualDonation,
+			chooseAmountText,
+			customAmountText,
+			currency,
+		} = attributes;
 
 		const innerBlocks = [
-			createBlock( 'core/paragraph', {
-				content: 'My migrated text',
-			} ),
+			createDonationView(
+				ONE_TIME_DONATION,
+				oneTimeDonation,
+				chooseAmountText,
+				customAmountText,
+				currency
+			),
+			createDonationView(
+				MONTHLY_DONATION,
+				monthlyDonation,
+				chooseAmountText,
+				customAmountText,
+				currency
+			),
+			createDonationView(
+				ANNUAL_DONATION,
+				annualDonation,
+				chooseAmountText,
+				customAmountText,
+				currency
+			),
 		];
 
 		return [ mappedAttributes, innerBlocks ];

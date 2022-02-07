@@ -2,7 +2,7 @@
  * WordPress dependencies
  */
 import { useBlockProps } from '@wordpress/block-editor';
-import { CURRENCIES } from '@automattic/format-currency';
+import formatCurrency, { CURRENCIES } from '@automattic/format-currency';
 
 /**
  * External dependencies
@@ -27,7 +27,7 @@ const Save = ( { attributes } ) => {
 				<div
 					className="donations__amount-value"
 					data-currency={ currency }
-					data-empty-text={ defaultAmount }
+					data-empty-text={ formatCurrency( defaultAmount, currency, { symbol: '' } ) }
 				></div>
 			</div>
 		);
@@ -39,7 +39,7 @@ const Save = ( { attributes } ) => {
 	return (
 		<div { ...blockProps } data-amount={ amount }>
 			{ CURRENCIES[ currency ].symbol }
-			{ amount }
+			{ formatCurrency( amount, currency, { symbol: '' } ) }
 		</div>
 	);
 };

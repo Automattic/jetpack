@@ -12,6 +12,7 @@ namespace Automattic\Jetpack\Extensions\Donations;
 use Automattic\Jetpack\Blocks;
 use Jetpack_Gutenberg;
 use Jetpack_Memberships;
+use WP_Block;
 
 require_once __DIR__ . '/donations-view/donations-view.php';
 require_once __DIR__ . '/amount/amount.php';
@@ -32,17 +33,29 @@ function register_block() {
 			'render_callback' => __NAMESPACE__ . '\render_block',
 			'plan_check'      => true,
 			'attributes'      => array(
-				'oneTimeDonation' => array(
+				'oneTimeDonation'  => array(
 					'type'    => 'boolean',
 					'default' => true,
 				),
-				'monthlyDonation' => array(
+				'monthlyDonation'  => array(
 					'type'    => 'boolean',
 					'default' => true,
 				),
-				'annualDonation'  => array(
+				'annualDonation'   => array(
 					'type'    => 'boolean',
 					'default' => true,
+				),
+				'showCustomAmount' => array(
+					'type'    => 'boolean',
+					'default' => true,
+				),
+				'currency'         => array(
+					'type'    => 'string',
+					'default' => 'USD',
+				),
+				'fallbackLinkUrl'  => array(
+					'type'    => 'string',
+					'default' => '',
 				),
 			),
 		)
@@ -54,12 +67,20 @@ add_action( 'init', __NAMESPACE__ . '\register_block' );
 /**
  * Donations block dynamic rendering.
  *
- * @param array  $attr    Array containing the Donations block attributes.
- * @param string $content String containing the Donations block content.
+ * @param array    $attr    Array containing the Donations block attributes.
+ * @param string   $content String containing the Donations block content.
+ * @param WP_Block $block   The actual block that we are rendering.
  *
  * @return string
  */
-function render_block( $attr, $content ) {
+function render_block( $attr, $content, $block ) {
+	foreach ( $block->parsed_block['attrs'] as $attribute => $value ) {
+		// We validate if the stored block's attribute doesn't exist or if it has another type.
+		if ( ! isset( $block->block_type->attributes[ $attribute ] ) || gettype( $value ) !== $block->block_type->attributes[ $attribute ]['type'] ) {
+			require_once __DIR__ . '/deprecated/v2/donations.php';
+			return render_block_v2( $block->parsed_block['attrs'], $block->parsed_block['innerHTML'] );
+		}
+	}
 
 	// Keep content as-is if rendered in other contexts than frontend (i.e. feed, emails, API, etc.).
 	if ( ! jetpack_is_frontend() ) {
@@ -148,7 +169,7 @@ function amp_skip_post( $skip, $post_id, $post ) {
 	// When AMP is on standard mode, there are no non-AMP posts to link to where the donation can be completed, so let's
 	// prevent the post from being available in AMP.
 	if ( function_exists( 'amp_is_canonical' ) && \amp_is_canonical() && has_block(
-		\Automattic\Jetpack\Extensions\Donations\BLOCK_NAME,
+		BLOCK_NAME,
 		$post->post_content
 	) ) {
 		return true;

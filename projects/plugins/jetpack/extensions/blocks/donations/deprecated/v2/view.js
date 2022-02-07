@@ -1,28 +1,20 @@
 /**
  * External dependencies
  */
-import { minimumTransactionAmountForCurrency, parseAmount } from '../../shared/currencies';
-import { initializeMembershipButtons } from '../../shared/memberships';
+import formatCurrency from '@automattic/format-currency';
 
 /**
  * WordPress dependencies
  */
-import domReady from '@wordpress/dom-ready';
 import { ENTER } from '@wordpress/keycodes';
 import { addQueryArgs, removeQueryArgs } from '@wordpress/url';
-import formatCurrency from '@automattic/format-currency';
 
 /**
  * Internal dependencies
  */
-import JetpackDonationsV2 from './deprecated/v2/view';
+import { minimumTransactionAmountForCurrency, parseAmount } from '../../../../shared/currencies';
 
-/**
- * Style dependencies
- */
-import '../donations/view.scss';
-
-class JetpackDonations {
+class JetpackDonationsV2 {
 	init( block ) {
 		this.block = block;
 		this.amount = null;
@@ -55,19 +47,16 @@ class JetpackDonations {
 			'1 month': 'donations__monthly-item',
 			'1 year': 'donations__annual-item',
 		};
-
 		return this.block.querySelector(
-			`.${
-				buttonIntervalClasses[ this.interval ]
-			} .donations__donate-button .wp-block-button__link`
+			`.donations__donate-button.${ buttonIntervalClasses[ this.interval ] }`
 		);
 	}
 
 	toggleDonateButton( enable ) {
 		const donateButton = this.getDonateButton();
 		enable
-			? donateButton.parentElement.classList.remove( 'is-disabled' )
-			: donateButton.parentElement.classList.add( 'is-disabled' );
+			? donateButton.classList.remove( 'is-disabled' )
+			: donateButton.classList.add( 'is-disabled' );
 	}
 
 	updateUrl() {
@@ -114,7 +103,7 @@ class JetpackDonations {
 
 	initNavigation() {
 		const navItems = this.block.querySelectorAll( '.donations__nav-item' );
-		const tabContent = this.block.querySelector( '.donations__content' );
+		const tabContent = this.block.querySelector( '.donations__tab' );
 		const tabContentClasses = {
 			'one-time': 'is-one-time',
 			'1 month': 'is-monthly',
@@ -227,7 +216,7 @@ class JetpackDonations {
 
 				// Enables the donate button.
 				const donateButton = this.getDonateButton();
-				donateButton.parentElement.classList.remove( 'is-disabled' );
+				donateButton.classList.remove( 'is-disabled' );
 			} );
 		} );
 
@@ -238,21 +227,4 @@ class JetpackDonations {
 	}
 }
 
-domReady( () => {
-	const blocks = document.querySelectorAll( '.wp-block-jetpack-donations' );
-
-	// We can have donation blocks of the current version and previous version on the same page.
-	blocks.forEach( donationsBlock => {
-		const isDeprecated = donationsBlock.querySelectorAll( '.donations__deprecated' ).length > 0;
-
-		if ( isDeprecated ) {
-			const donationsHandler = new JetpackDonationsV2();
-			donationsHandler.init( donationsBlock );
-			initializeMembershipButtons( '.donations__donate-button' );
-		} else {
-			const donationsHandler = new JetpackDonations();
-			donationsHandler.init( donationsBlock );
-			initializeMembershipButtons( '.donations__donate-button .wp-block-button__link' );
-		}
-	} );
-} );
+export default JetpackDonationsV2;
