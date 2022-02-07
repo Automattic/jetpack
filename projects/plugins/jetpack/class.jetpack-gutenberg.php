@@ -703,7 +703,7 @@ class Jetpack_Gutenberg {
 	 * Add the Gutenberg editor stylesheet to iframed editors, such as the site editor,
 	 * which don't have access to stylesheets added with `wp_enqueue_style`.
 	 *
-	 * This workaround is only supposed to be used by WordPress.com Simple sites.
+	 * This workaround is currently used by WordPress.com Simple sites.
 	 *
 	 * @since $$next-version$$
 	 *
@@ -715,10 +715,16 @@ class Jetpack_Gutenberg {
 		}
 
 		global $pagenow;
+		if ( ! isset( $pagenow ) ) {
+			return;
+		}
+
 		$allowed_pages       = array( 'admin.php', 'themes.php' );
-		$is_site_editor_page = isset( $pagenow ) && in_array( $pagenow, $allowed_pages, true ) &&
+		$is_site_editor_page = in_array( $pagenow, $allowed_pages, true ) &&
 			isset( $_GET['page'] ) && 'gutenberg-edit-site' === $_GET['page']; // phpcs:ignore WordPress.Security.NonceVerification.Recommended
-		if ( ! $is_site_editor_page ) {
+
+		// WP 5.9 puts the site editor in `site-editor.php` when Gutenberg is not active.
+		if ( 'site-editor.php' !== $pagenow && ! $is_site_editor_page ) {
 			return;
 		}
 
