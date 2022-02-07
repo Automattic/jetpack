@@ -361,7 +361,7 @@ class Instant_Search extends Classic_Search {
 	 * Add JP Search widget on top of theme sidebar.
 	 * Or Replace core search widget in theme sidebar if exists.
 	 */
-	protected function auto_config_theme_sidebar_search_widget() {
+	public function auto_config_theme_sidebar_search_widget() {
 		$sidebars = get_option( 'sidebars_widgets', array() );
 		if ( ! isset( $sidebars['sidebar-1'] ) ) {
 			return;

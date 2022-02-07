@@ -34,50 +34,107 @@ class Test_Instant_Search extends TestCase {
 	 * Test `auto_config_overlay_sidebar_widgets` failed
 	 */
 	public function test_auto_config_overlay_sidebar_widgets_already_configured() {
-		$sidebars_widgets_value = function () {
-			return array(
-				'sidebar-1'                      => array(),
-				'jetpack-instant-search-sidebar' => array( 'jetpack-search-filters-11' ),
-			);
-		};
-		add_filter( 'option_sidebars_widgets', $sidebars_widgets_value, 10, 2 );
-
+		add_filter( 'option_sidebars_widgets', array( $this, 'sidebars_widgets_theme_sidebar_configured' ), 10, 2 );
 		$this->assertNotTrue( self::$instant_search->auto_config_overlay_sidebar_widgets() );
-		remove_filter( 'option_sidebars_widgets', $sidebars_widgets_value );
+		remove_filter( 'option_sidebars_widgets', array( $this, 'sidebars_widgets_theme_sidebar_configured' ) );
 	}
 
 	/**
 	 * Test `auto_config_overlay_sidebar_widgets` success
 	 */
 	public function test_auto_config_overlay_sidebar_widgets_success() {
-		$sidebars_widgets_value = function () {
-			return array( 'sidebar-1' => 'jetpack-search-filters-12' );
-		};
-		add_filter( 'option_sidebars_widgets', $sidebars_widgets_value, 10, 2 );
-
-		$func_jp_search_widgets = function () {
-			return array(
-				'12' => array(
-					'filters' => array(
-						array(
-							'name'  => '',
-							'type'  => 'post_type',
-							'count' => 5,
-						),
-					),
-				),
-			);
-		};
-		add_filter( 'option_' . Helper::get_widget_option_name(), $func_jp_search_widgets, 10, 2 );
-
+		add_filter( 'option_sidebars_widgets', array( $this, 'sidebars_widgets_theme_sidebar_configured' ), 10, 2 );
+		add_filter( 'option_' . Helper::get_widget_option_name(), array( $this, 'sidebars_widgets_jp_sidebar_configured' ), 10, 2 );
 		self::$instant_search->auto_config_overlay_sidebar_widgets();
-
-		remove_filter( 'option_sidebars_widgets', $sidebars_widgets_value );
-		remove_filter( 'option_' . Helper::get_widget_option_name(), $func_jp_search_widgets );
+		remove_filter( 'option_sidebars_widgets', array( $this, 'sidebars_widgets_theme_sidebar_configured' ) );
+		remove_filter( 'option_' . Helper::get_widget_option_name(), array( $this, 'sidebars_widgets_jp_sidebar_configured' ) );
 
 		$sidebars_widgets = get_option( 'sidebars_widgets' );
-
 		$this->assertEquals( 'jetpack-search-filters-13', $sidebars_widgets['jetpack-instant-search-sidebar'][0] );
+	}
+
+	/**
+	 * Test `auto_config_theme_sidebar_search_widget` failed - no sidebar
+	 */
+	public function test_auto_config_theme_sidebar_search_widget_no_sidebar() {
+		add_filter( 'option_sidebars_widgets', '__return_false', 10, 2 );
+		$this->assertNull( self::$instant_search->auto_config_theme_sidebar_search_widget() );
+		remove_filter( 'option_sidebars_widgets', '__return_false' );
+	}
+
+	/**
+	 * Test `auto_config_theme_sidebar_search_widget` failed - already has JP search widget
+	 */
+	public function test_auto_config_theme_sidebar_search_widget_already_configured() {
+		add_filter( 'option_sidebars_widgets', array( $this, 'sidebars_widgets_theme_sidebar_configured' ), 10, 2 );
+		$this->assertNull( self::$instant_search->auto_config_theme_sidebar_search_widget() );
+		remove_filter( 'option_sidebars_widgets', array( $this, 'sidebars_widgets_theme_sidebar_configured' ) );
+	}
+
+	/**
+	 * Test `auto_config_theme_sidebar_search_widget` failed - already has JP search widget
+	 */
+	public function test_auto_config_theme_sidebar_search_widget_replace_success() {
+		add_filter( 'option_sidebars_widgets', array( $this, 'sidebars_widgets_theme_has_core_search' ), 10, 2 );
+		add_filter( 'option_' . Helper::get_widget_option_name(), '__return_false', 10, 2 );
+		self::$instant_search->auto_config_theme_sidebar_search_widget();
+		remove_filter( 'option_sidebars_widgets', array( $this, 'sidebars_widgets_theme_has_core_search' ) );
+		remove_filter( 'option_' . Helper::get_widget_option_name(), '__return_false' );
+
+		$sidebars_widgets = get_option( 'sidebars_widgets' );
+		$this->assertEquals( 'jetpack-search-filters-1', $sidebars_widgets['sidebar-1'][0] );
+	}
+
+	/**
+	 * Test `auto_config_theme_sidebar_search_widget` failed - no search widget
+	 */
+	public function test_auto_config_theme_sidebar_search_widget_add_success() {
+		add_filter( 'option_sidebars_widgets', array( $this, 'sidebars_widgets_theme_empty_sidebar' ), 10, 2 );
+		add_filter( 'option_' . Helper::get_widget_option_name(), '__return_false', 10, 2 );
+		self::$instant_search->auto_config_theme_sidebar_search_widget();
+		remove_filter( 'option_sidebars_widgets', array( $this, 'sidebars_widgets_theme_empty_sidebar' ) );
+		remove_filter( 'option_' . Helper::get_widget_option_name(), '__return_false' );
+
+		$sidebars_widgets = get_option( 'sidebars_widgets' );
+		$this->assertEquals( 'jetpack-search-filters-1', $sidebars_widgets['sidebar-1'][0] );
+	}
+
+	/**
+	 * Value for sidebars_widgets - jp_sidebar_configured
+	 */
+	public function sidebars_widgets_jp_sidebar_configured() {
+		return array(
+			'12' => array(
+				'filters' => array(
+					array(
+						'name'  => '',
+						'type'  => 'post_type',
+						'count' => 5,
+					),
+				),
+			),
+		);
+	}
+
+	/**
+	 * Value for sidebars_widgets - theme_sidebar_configured
+	 */
+	public function sidebars_widgets_theme_sidebar_configured() {
+		return array( 'sidebar-1' => 'jetpack-search-filters-12' );
+	}
+
+	/**
+	 * Value for sidebars_widgets - theme_has_core_search
+	 */
+	public function sidebars_widgets_theme_has_core_search() {
+			return array( 'sidebar-1' => array( 'search-12' ) );
+	}
+
+	/**
+	 * Value for sidebars_widgets - theme_empty_sidebar
+	 */
+	public function sidebars_widgets_theme_empty_sidebar() {
+		return array( 'sidebar-1' => array() );
 	}
 
 }
