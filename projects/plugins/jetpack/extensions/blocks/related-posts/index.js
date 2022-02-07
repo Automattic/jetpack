@@ -64,6 +64,18 @@ export const settings = {
 		html: false,
 		multiple: false,
 		reusable: false,
+		color: {
+			gradients: true,
+		},
+		spacing: {
+			margin: true,
+			padding: true,
+		},
+		typography: {
+			fontSize: true,
+			lineHeight: true,
+		},
+		align: [ 'wide', 'full' ],
 	},
 
 	transforms: {
