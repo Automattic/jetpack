@@ -1,6 +1,6 @@
 {
 	"name": "automattic/jetpack-backup",
-	"description": "Tools to assist with backing up Jetpack sites.",
+	"description": "Tools to assist with backing up Jetpack sites!",
 	"type": "jetpack-library",
 	"license": "GPL-2.0-or-later",
 	"require": {
