@@ -411,15 +411,17 @@ class Instant_Search extends Classic_Search {
 		$sidebar_searchbox_idx    = false;
 		$sidebar_jp_searchbox_idx = false;
 		$sidebars                 = get_option( 'sidebars_widgets', array() );
-		foreach ( (array) $sidebars['sidebar-1'] as $idx => $widget_id ) {
-			if ( 0 === strpos( $widget_id, 'search-' ) ) {
-				// array index of wp search widget.
-				$sidebar_searchbox_idx = $idx;
-			}
-			if ( 0 === strpos( $widget_id, Helper::FILTER_WIDGET_BASE ) ) {
-				// array index of Jetpack Search widget.
-				$sidebar_jp_searchbox_idx = (int) str_replace( Helper::FILTER_WIDGET_BASE . '-', '', $widget_id );
-				break;
+		if ( isset( $sidebars['sidebar-1'] ) ) {
+			foreach ( (array) $sidebars['sidebar-1'] as $idx => $widget_id ) {
+				if ( 0 === strpos( $widget_id, 'search-' ) ) {
+					// array index of wp search widget.
+					$sidebar_searchbox_idx = $idx;
+				}
+				if ( 0 === strpos( $widget_id, Helper::FILTER_WIDGET_BASE ) ) {
+					// array index of Jetpack Search widget.
+					$sidebar_jp_searchbox_idx = (int) str_replace( Helper::FILTER_WIDGET_BASE . '-', '', $widget_id );
+					break;
+				}
 			}
 		}
 		return array( $sidebar_searchbox_idx, $sidebar_jp_searchbox_idx );
