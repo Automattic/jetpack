@@ -12,7 +12,7 @@ import { Container, Col, JetpackFooter } from '@automattic/jetpack-components';
 import MyJetpackScreen from './components/my-jetpack-screen';
 import ConnectionScreen from './components/connection-screen';
 import { initStore } from './state/store';
-import { BoostInterstitial } from './components/product-interstitial';
+import { BoostInterstitial, SearchInterstitial } from './components/product-interstitial';
 import GoBackLink from './components/go-back-link';
 import styles from './style.module.scss';
 
@@ -74,6 +74,10 @@ function render() {
 				<Route
 					path="/add-boost"
 					element={ <Layout nav={ true } children={ <BoostInterstitial /> } /> }
+				/>
+				<Route
+					path="/add-search"
+					element={ <Layout nav={ true } children={ <SearchInterstitial /> } /> }
 				/>
 			</Routes>
 		</HashRouter>,
