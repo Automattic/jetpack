@@ -364,7 +364,7 @@ function Edit( props ) {
 				{ ( isSelected || selectedInnerBlock ) && apiState === API_STATE_CONNECTED && (
 					<Inspector { ...props } savePlan={ savePlan } siteSlug={ siteSlug } />
 				) }
-				{ props.attributes.selectedPlanId &&
+				{ !! props.attributes.selectedPlanId &&
 					! products.find( plan => plan.id === props.attributes.selectedPlanId ) && (
 						<InvalidSubscriptionWarning />
 					) }
