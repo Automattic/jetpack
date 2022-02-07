@@ -3,8 +3,8 @@
 namespace Automattic\Jetpack_Boost\Features\Optimizations;
 
 use Automattic\Jetpack_Boost\Contracts\Has_Setup;
-use Automattic\Jetpack_Boost\Features\Optimizations\Critical_CSS\Critical_CSS;
 use Automattic\Jetpack_Boost\Features\Optimizations\Cloud_CSS\Cloud_CSS;
+use Automattic\Jetpack_Boost\Features\Optimizations\Critical_CSS\Critical_CSS;
 use Automattic\Jetpack_Boost\Features\Optimizations\Lazy_Images\Lazy_Images;
 use Automattic\Jetpack_Boost\Features\Optimizations\Render_Blocking_JS\Render_Blocking_JS;
 use Automattic\Jetpack_Boost\REST_API\Contracts\Has_Endpoints;
@@ -24,9 +24,13 @@ class Optimizations implements Has_Setup {
 	 */
 	public function __construct() {
 
+		$critical_css = new Critical_CSS();
+		if ( defined( 'JETPACK_BOOST_CLOUD_CSS' ) && true === JETPACK_BOOST_CLOUD_CSS ) {
+			$critical_css = new Cloud_CSS();
+		}
+
 		$features = array(
-			new Critical_CSS(),
-			new Cloud_CSS(),
+			$critical_css,
 			new Lazy_Images(),
 			new Render_Blocking_JS(),
 		);
