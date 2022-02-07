@@ -76,7 +76,7 @@ add_action( 'init', __NAMESPACE__ . '\register_block' );
 function render_block( $attr, $content, $block ) {
 	foreach ( $block->parsed_block['attrs'] as $attribute => $value ) {
 		// We validate if the stored block's attribute doesn't exist or if it has another type.
-		if ( ! isset( $block->block_type->attributes[ $attribute ] ) || gettype( $value ) !== $block->block_type->attributes[ $attribute ]['type'] ) {
+		if ( isset( $block->block_type->attributes[ $attribute ] ) && gettype( $value ) !== $block->block_type->attributes[ $attribute ]['type'] ) {
 			require_once __DIR__ . '/deprecated/v2/donations.php';
 			return render_block_v2( $block->parsed_block['attrs'], $block->parsed_block['innerHTML'] );
 		}
@@ -142,9 +142,7 @@ function render_block( $attr, $content, $block ) {
 		<div class="donations__nav">
 			%2$s
 		</div>
-		<div class="donations__content">
-			%3$s
-		</div>
+		%3$s
 	</div>
 </div>';
 
