@@ -17,21 +17,23 @@ import { imagePath } from 'constants/urls';
 import './style.scss';
 
 const MyPlanBanner = props => {
-	const { productSlug, action, title, tagLine, trackingId } = props;
+	const { additionalEventProperties, productSlug, action, title, tagLine, trackingId } = props;
 
 	useEffect( () => {
 		analytics.tracks.recordEvent( 'jetpack_my_plan_banner_view', {
 			type: trackingId,
+			...additionalEventProperties,
 		} );
-	}, [ trackingId ] );
+	}, [ additionalEventProperties, trackingId ] );
 
 	const trackActionClick = useCallback( () => {
 		analytics.tracks.recordJetpackClick( {
 			target: trackingId,
 			feature: 'my-plan-banner',
 			page: 'my-plan',
+			...additionalEventProperties,
 		} );
-	}, [ trackingId ] );
+	}, [ additionalEventProperties, trackingId ] );
 
 	return (
 		<div className="jp-my-plan-banner">
@@ -51,9 +53,10 @@ const MyPlanBanner = props => {
 };
 
 MyPlanBanner.propTypes = {
+	action: PropTypes.element.isRequired,
 	productSlug: PropTypes.string.isRequired,
 	trackingId: PropTypes.string.isRequired,
-	action: PropTypes.element.isRequired,
+	additionalEventProperties: PropTypes.object,
 	tagLine: PropTypes.oneOfType( [ PropTypes.string, PropTypes.node, PropTypes.element ] ),
 	title: PropTypes.oneOfType( [ PropTypes.string, PropTypes.node, PropTypes.element ] ),
 };
