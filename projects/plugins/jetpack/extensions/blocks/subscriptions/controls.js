@@ -58,25 +58,27 @@ export default function SubscriptionControls( {
 } ) {
 	return (
 		<>
-			<div
-				style={ {
-					margin: 20,
-					padding: 24,
-					background: '#f2f2f2',
-					borderRadius: '4px',
-					display: 'flex',
-					alignItems: 'center',
-					justifyContent: 'space-between',
-				} }
-			>
-				<span style={ { marginRight: 12 } }>
-					{ createInterpolateElement(
-						sprintf( '<span>%s readers</span> are\xA0subscribed', subscriberCount, 'jetpack' ),
-						{ span: <span style={ { textDecoration: 'underline' } } /> }
-					) }
-				</span>
-				<JetpackLogo height="16" logoColor="#1a1a1a" showText={ false } />
-			</div>
+			{ subscriberCount > 1 && (
+				<div
+					style={ {
+						margin: 20,
+						padding: 24,
+						background: '#f2f2f2',
+						borderRadius: '4px',
+						display: 'flex',
+						alignItems: 'center',
+						justifyContent: 'space-between',
+					} }
+				>
+					<span style={ { marginRight: 12 } }>
+						{ createInterpolateElement(
+							sprintf( '<span>%s readers</span> are\xA0subscribed', subscriberCount, 'jetpack' ),
+							{ span: <span style={ { textDecoration: 'underline' } } /> }
+						) }
+					</span>
+					<JetpackLogo height="16" logoColor="#1a1a1a" showText={ false } />
+				</div>
+			) }
 			{ isGradientAvailable && (
 				<PanelColorGradientSettings
 					title={ __( 'Color', 'jetpack' ) }
