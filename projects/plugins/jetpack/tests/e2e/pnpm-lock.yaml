@@ -6,7 +6,7 @@ importers:
     specifiers:
       '@playwright/test': 1.18.1
       '@wordpress/eslint-plugin': 10.0.0
-      allure-playwright: 2.0.0-beta.15
+      allure-playwright: 2.0.0-beta.14
       config: 3.3.7
       eslint: 8.8.0
       eslint-plugin-playwright: 0.8.0
@@ -15,7 +15,7 @@ importers:
     devDependencies:
       '@playwright/test': 1.18.1
       '@wordpress/eslint-plugin': 10.0.0_eslint@8.8.0
-      allure-playwright: 2.0.0-beta.15
+      allure-playwright: 2.0.0-beta.14
       config: 3.3.7
       eslint: 8.8.0
       eslint-plugin-playwright: 0.8.0_eslint@8.8.0
@@ -1822,18 +1822,18 @@ packages:
       uri-js: 4.4.1
     dev: true
 
-  /allure-js-commons/2.0.0-beta.15:
-    resolution: {integrity: sha512-6PhWo54wSEvV/vVXN9qa7MpGkymoSqEzhmsMQhAr1Kt3fcDqD3u7ZXYPt+LrBqxONwNwRvKaosg2bFZxVLL6Hw==}
+  /allure-js-commons/2.0.0-beta.14:
+    resolution: {integrity: sha512-5OlMp8kdc5FuxkquOV1ZXxJCAmFUwHnI5OqL2IlhJ65NKBeABpMwro6BbhlJqcV8iPQmh1w9bErTICSeB+Hj2A==}
     dependencies:
       mkdirp: 1.0.4
       properties: 1.2.1
       uuid: 8.3.2
     dev: true
 
-  /allure-playwright/2.0.0-beta.15:
-    resolution: {integrity: sha512-n1mq2BWQaDIBA/dzmONqKOhkYBeTJAVcMrnjOMkMsj1R88r1newvyFjlWxMsqO3sJ0JWd3/rylkrHJDxijVg8Q==}
+  /allure-playwright/2.0.0-beta.14:
+    resolution: {integrity: sha512-UAhqPOxdFYL/YuoHvrKhdBKviEgHLJubGYdbVNyX04lbbqIx1ddTHE/xo9VmHhOQCiT3WOJDOc7jljuLKom34A==}
     dependencies:
-      allure-js-commons: 2.0.0-beta.15
+      allure-js-commons: 2.0.0-beta.14
     dev: true
 
   /ansi-regex/5.0.1:
