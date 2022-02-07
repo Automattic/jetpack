@@ -63,15 +63,15 @@ function Price( { value, currency, isOld } ) {
 /**
  * Product Detail component.
  *
- * @param {object} props          - Component props.
- * @param {string} props.slug     - Product slug
- * @returns {object}                ProductDetailCard react component.
+ * @param {object} props                    - Component props.
+ * @param {string} props.slug               - Product slug
+ * @param {Function} props.trackButtonClick - Function to call for tracking clicks on Call To Action button
+ * @returns {object}                          ProductDetailCard react component.
  */
-export function ProductDetail( { slug } ) {
+const ProductDetail = ( { slug, trackButtonClick } ) => {
 	const { detail } = useProduct( slug );
-	const { title, longDescription, features } = detail;
-	const price = 9;
-	const currencyCode = 'USD';
+	const { title, longDescription, features, pricingForUi = {} } = detail;
+	const { isFree, fullPrice, currencyCode } = pricingForUi;
 
 	return (
 		<div className={ styles.container }>
@@ -87,15 +87,28 @@ export function ProductDetail( { slug } ) {
 					</li>
 				) ) }
 			</ul>
-			<div className={ styles[ 'price-container' ] }>
-				<Price value={ price } currency={ currencyCode } isOld={ true } />
-				<Price value={ price } currency={ currencyCode } isOld={ false } />
-				<div className={ styles[ 'price-description' ] }>
-					{ __( '/month, paid yearly', 'jetpack-my-jetpack' ) }
-				</div>
-			</div>
 
-			<Button isLink isPrimary href="#" className={ styles[ 'checkout-button' ] }>
+			{ ! isFree && (
+				<div className={ styles[ 'price-container' ] }>
+					<Price value={ fullPrice } currency={ currencyCode } isOld={ true } />
+					<Price value={ fullPrice } currency={ currencyCode } isOld={ false } />
+					<div className={ styles[ 'price-description' ] }>
+						{ __( '/month, paid yearly', 'jetpack-my-jetpack' ) }
+					</div>
+				</div>
+			) }
+
+			{ isFree && (
+				<h3 className={ styles[ 'product-free' ] }>{ __( 'Free', 'jetpack-my-jetpack' ) }</h3>
+			) }
+
+			<Button
+				onClick={ trackButtonClick }
+				isLink
+				isPrimary
+				href="#"
+				className={ styles[ 'checkout-button' ] }
+			>
 				{
 					/* translators: placeholder is product name. */
 					sprintf( __( 'Add %s', 'jetpack-my-jetpack' ), title )
@@ -103,7 +116,13 @@ export function ProductDetail( { slug } ) {
 			</Button>
 		</div>
 	);
-}
+};
+
+ProductDetail.defaultProps = {
+	trackButtonClick: () => {},
+};
+
+export { ProductDetail };
 
 /**
  * ProductDetailCard component.
