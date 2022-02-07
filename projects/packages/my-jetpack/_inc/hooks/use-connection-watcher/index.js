@@ -11,13 +11,15 @@ import { useNavigate } from 'react-router-dom';
  * Internal dependencies
  */
 import { STORE_ID } from '../../state/store';
+import { PRODUCT_STATUSES } from '../../components/product-card';
 
 const getProductsWithRequires = products => {
 	return Object.keys( products ).reduce( ( current, product ) => {
 		const currentProduct = products[ product ];
 		const requires =
 			currentProduct?.requiresUserConnection &&
-			( currentProduct?.status === 'active' || currentProduct?.status === 'error' );
+			( currentProduct?.status === PRODUCT_STATUSES.ACTIVE ||
+				currentProduct?.status === PRODUCT_STATUSES.ERROR );
 		if ( requires ) {
 			current.push( currentProduct?.name );
 		}
@@ -34,10 +36,12 @@ export default function useConnectionWatcher() {
 	const navigate = useNavigate();
 	const { setGlobalNotice } = useDispatch( STORE_ID );
 	const products = useSelect( select => select( STORE_ID ).getProducts() );
-	const { isSiteConnected, redirectUrl } = useMyJetpackConnection();
+	const { isSiteConnected, redirectUrl, hasConnectedOwner } = useMyJetpackConnection();
 	const productsThatRequiresUserConnection = useMemo( () => getProductsWithRequires( products ), [
 		products,
 	] );
+	const requiresUserConnection =
+		! hasConnectedOwner && productsThatRequiresUserConnection.length > 0;
 
 	/*
 	 * When the site is not connect, redirect to the Jetpack dashboard.
@@ -49,7 +53,7 @@ export default function useConnectionWatcher() {
 	}, [ isSiteConnected, redirectUrl ] );
 
 	useEffect( () => {
-		if ( productsThatRequiresUserConnection.length > 0 ) {
+		if ( requiresUserConnection ) {
 			const oneProductMessage = sprintf(
 				/* translators: placeholder is product name. */
 				__(
@@ -79,5 +83,5 @@ export default function useConnectionWatcher() {
 				],
 			} );
 		}
-	}, [ productsThatRequiresUserConnection, navigate, setGlobalNotice ] );
+	}, [ productsThatRequiresUserConnection, requiresUserConnection, navigate, setGlobalNotice ] );
 }
