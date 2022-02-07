@@ -11,6 +11,7 @@ import {
 	__experimentalPanelColorGradientSettings as PanelColorGradientSettings,
 } from '@wordpress/block-editor';
 import { isSimpleSite } from '@automattic/jetpack-shared-extension-utils';
+import { JetpackLogo } from '@automattic/jetpack-components';
 
 /**
  * Internal dependencies
@@ -31,8 +32,6 @@ import {
 	DEFAULT_SPACING_VALUE,
 	DEFAULT_FONTSIZE_VALUE,
 } from './constants';
-import { isSimpleSite } from '../../shared/site-type-utils';
-import { JetpackLogo } from '../../shared/icons';
 
 export default function SubscriptionControls( {
 	buttonBackgroundColor,
@@ -76,7 +75,7 @@ export default function SubscriptionControls( {
 						{ span: <span style={ { textDecoration: 'underline' } } /> }
 					) }
 				</span>
-				<JetpackLogo size="16" className="wp-block-jetpack-subscriptions__logo" />
+				<JetpackLogo height="16" logoColor="#1a1a1a" showText={ false } />
 			</div>
 			{ isGradientAvailable && (
 				<PanelColorGradientSettings
