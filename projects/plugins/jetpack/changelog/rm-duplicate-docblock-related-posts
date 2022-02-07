@@ -1,0 +1,4 @@
+Significance: patch
+Type: enhancement
+
+Removed duplicate docblock for jetpack_relatedposts_returned_results filter and updated $post_id type to int
