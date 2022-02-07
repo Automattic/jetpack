@@ -9,8 +9,9 @@ import { Container, Col } from '@automattic/jetpack-components';
  */
 import { ProductDetail } from '../product-detail-card';
 import styles from './style.module.scss';
-import boostImage from './boost.png';
 import useAnalytics from '../../hooks/use-analytics';
+import boostImage from './boost.png';
+import searchImage from './search.png';
 
 /**
  * Product Interstitial component.
@@ -61,7 +62,7 @@ export function BackupInterstitial() {
 }
 
 /**
- * BoostInterstitial component
+ * SearchInterstitial component
  *
  * @returns {object} BoostInterstitial react component.
  */
@@ -69,6 +70,19 @@ export function BoostInterstitial() {
 	return (
 		<ProductInterstitial slug="boost">
 			<img src={ boostImage } alt="Boost" />
+		</ProductInterstitial>
+	);
+}
+
+/**
+ * SearchInterstitial component
+ *
+ * @returns {object} SearchInterstitial react component.
+ */
+export function SearchInterstitial() {
+	return (
+		<ProductInterstitial slug="search">
+			<img src={ searchImage } alt="Search" />
 		</ProductInterstitial>
 	);
 }

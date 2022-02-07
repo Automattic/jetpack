@@ -70,9 +70,8 @@ function Price( { value, currency, isOld } ) {
  */
 const ProductDetail = ( { slug, trackButtonClick } ) => {
 	const { detail } = useProduct( slug );
-	const { title, longDescription, features } = detail;
-	const price = 9;
-	const currencyCode = 'USD';
+	const { title, longDescription, features, pricingForUi = {} } = detail;
+	const { isFree, fullPrice, currencyCode } = pricingForUi;
 
 	return (
 		<div className={ styles.container }>
@@ -88,13 +87,20 @@ const ProductDetail = ( { slug, trackButtonClick } ) => {
 					</li>
 				) ) }
 			</ul>
-			<div className={ styles[ 'price-container' ] }>
-				<Price value={ price } currency={ currencyCode } isOld={ true } />
-				<Price value={ price } currency={ currencyCode } isOld={ false } />
-				<div className={ styles[ 'price-description' ] }>
-					{ __( '/month, paid yearly', 'jetpack-my-jetpack' ) }
+
+			{ ! isFree && (
+				<div className={ styles[ 'price-container' ] }>
+					<Price value={ fullPrice } currency={ currencyCode } isOld={ true } />
+					<Price value={ fullPrice } currency={ currencyCode } isOld={ false } />
+					<div className={ styles[ 'price-description' ] }>
+						{ __( '/month, paid yearly', 'jetpack-my-jetpack' ) }
+					</div>
 				</div>
-			</div>
+			) }
+
+			{ isFree && (
+				<h3 className={ styles[ 'product-free' ] }>{ __( 'Free', 'jetpack-my-jetpack' ) }</h3>
+			) }
 
 			<Button
 				onClick={ trackButtonClick }
