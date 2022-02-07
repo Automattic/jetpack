@@ -38,6 +38,15 @@ class Videopress extends Module_Product {
 	}
 
 	/**
+	 * Get the internationalized product title
+	 *
+	 * @return string
+	 */
+	public static function get_title() {
+		return ''; // @todo title
+	}
+
+	/**
 	 * Get the internationalized product description
 	 *
 	 * @return string
@@ -64,4 +73,17 @@ class Videopress extends Module_Product {
 		return array();
 	}
 
+	/**
+	 * Get the product princing details
+	 *
+	 * @return array Pricing details
+	 */
+	public static function get_pricing_for_ui() {
+		return array(
+			'available'            => true,
+			'currency_code'        => 'EUR',
+			'full_price'           => '9',
+			'promotion_percentage' => '50',
+		);
+	}
 }

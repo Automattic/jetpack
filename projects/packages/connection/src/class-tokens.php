@@ -58,7 +58,7 @@ class Tokens {
 		// Cannot validate non-existent tokens.
 		if ( false === $user_token || false === $blog_token ) {
 			return false;
-		};
+		}
 
 		$method   = 'POST';
 		$body     = array(

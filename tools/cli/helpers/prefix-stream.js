@@ -2,11 +2,11 @@
  * External dependencies
  */
 import { Buffer } from 'buffer';
-import * as stream from 'stream';
 
 /**
  * Internal dependencies
  */
+import FilterStream from './filter-stream.js';
 import formatDuration from './format-duration.js';
 
 /**
@@ -14,15 +14,9 @@ import formatDuration from './format-duration.js';
  *
  * The data is line buffered to try to avoid interleaved output.
  */
-export default class PrefixTransformStream extends stream.Transform {
-	static #openBracket = Buffer.from( '[' );
-	static #sep = Buffer.from( ' ' );
-	static #closeBracket = Buffer.from( '] ' );
-
+export default class PrefixStream extends FilterStream {
 	#prefix;
 	#startTime;
-	#rest;
-	#onDrain;
 
 	/**
 	 * Constructor.
@@ -32,80 +26,33 @@ export default class PrefixTransformStream extends stream.Transform {
 	 * @param {boolean|number} options.time - Include time-since-start on each line. Value is the start timestamp (e.g. `Date.now()`), or boolean true to use `Date.now()`.
 	 */
 	constructor( options = {} ) {
-		const { prefix, time } = options;
-		delete options.prefix, options.time;
-		super( options );
+		const opts = { ...options };
+		delete opts.prefix, opts.time;
+		super( s => this.#addPrefix( s ), opts );
 
-		this.#prefix = Buffer.from( prefix || '' );
-		this.#rest = Buffer.alloc( 0 );
-		if ( time === true ) {
+		this.#prefix = options.prefix || '';
+		if ( options.time === true ) {
 			this.#startTime = Date.now();
-		} else if ( time ) {
+		} else if ( options.time ) {
 			this.#startTime = options.time;
 		}
 	}
 
 	/**
-	 * Push a line to the stream.
+	 * Prefixer.
 	 *
-	 * @param {Buffer} line - Line to push.
-	 * @returns {boolean} Whether the push succeeded.
+	 * @param {string} line - Line to prefix.
+	 * @returns {string} Prefixed line.
 	 */
-	#doPush( line ) {
-		if ( ! this.#prefix.length && ! this.#startTime ) {
-			return this.push( line );
-		}
-
-		// Push to the stream as a single buffer to try to avoid split writes.
-		const bufs = [ PrefixTransformStream.#openBracket ];
-		if ( this.#prefix.length > 0 ) {
-			bufs.push( this.#prefix );
+	#addPrefix( line ) {
+		const parts = [];
+		if ( this.#prefix.length ) {
+			parts.push( this.#prefix );
 		}
 		if ( this.#startTime ) {
-			if ( bufs.length > 1 ) {
-				bufs.push( PrefixTransformStream.#sep );
-			}
-			bufs.push( Buffer.from( formatDuration( Date.now() - this.#startTime ) ) );
+			parts.push( formatDuration( Date.now() - this.#startTime ) );
 		}
-		bufs.push( PrefixTransformStream.#closeBracket, line );
 
-		return this.push( Buffer.concat( bufs ) );
-	}
-
-	_transform( chunk, encoding, callback ) {
-		this.#rest = Buffer.concat( [ this.#rest, chunk ] );
-		const func = () => {
-			let i;
-			while ( ( i = this.#rest.indexOf( '\n' ) ) >= 0 ) {
-				const line = this.#rest.slice( 0, ++i );
-				this.#rest = this.#rest.slice( i );
-				if ( ! this.#doPush( line ) ) {
-					this.#onDrain = func;
-					return false;
-				}
-			}
-			callback();
-			return true;
-		};
-		func();
-	}
-
-	_flush( callback ) {
-		if ( this.#rest.length ) {
-			this.#doPush( this.#rest );
-		}
-		callback();
-	}
-
-	_read( size ) {
-		if ( this.#onDrain ) {
-			const onDrain = this.#onDrain;
-			this.#onDrain = null;
-			if ( onDrain() ) {
-				super._read( size );
-			}
-		} else {
-			super._read( size );
-		}
+		return parts.length ? '[' + parts.join( ' ' ) + '] ' + line : line;
 	}
 }

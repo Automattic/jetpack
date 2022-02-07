@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Fixes menu order working around a bug in add_submenu_page

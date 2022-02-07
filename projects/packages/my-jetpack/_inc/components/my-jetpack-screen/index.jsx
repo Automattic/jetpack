@@ -35,9 +35,9 @@ const GlobalNotice = ( { message, options, clean } ) => {
 	};
 
 	return (
-		<Notice { ...options } onRemove={ clean }>
+		<Notice { ...options } onRemove={ clean } className={ styles.notice } isDismissible={ false }>
 			{ iconMap?.[ options.status ] && <Icon icon={ iconMap[ options.status ] } /> }
-			<div className="components-notice__message-content">{ message }</div>
+			<div className={ styles.message }>{ message }</div>
 		</Notice>
 	);
 };
