@@ -175,7 +175,7 @@ class Jetpack_SSO {
 			 * The SSO module uses the method to display the default login form if we can not find a user to log in via SSO.
 			 * But, the method could be filtered by a site admin to always show the default login form if that is preferred.
 			 */
-			if ( empty( $_GET['jetpack-sso-show-default-form'] ) && Jetpack_SSO_Helpers::show_sso_login() ) {
+			if ( empty( $_GET['jetpack-sso-show-default-form'] ) && Jetpack_SSO_Helpers::show_sso_login() ) { // phpcs:ignore WordPress.Security.NonceVerification.Recommended
 				$classes[] = 'jetpack-sso-form-display';
 			}
 		}
@@ -331,10 +331,10 @@ class Jetpack_SSO {
 		$wants_to_login = false;
 
 		// Cover default WordPress behavior.
-		$action = isset( $_REQUEST['action'] ) ? $_REQUEST['action'] : 'login';
+		$action = isset( $_REQUEST['action'] ) ? $_REQUEST['action'] : 'login'; // phpcs:ignore WordPress.Security.NonceVerification.Recommended
 
 		// And now the exceptions.
-		$action = isset( $_GET['loggedout'] ) ? 'loggedout' : $action;
+		$action = isset( $_GET['loggedout'] ) ? 'loggedout' : $action; // phpcs:ignore WordPress.Security.NonceVerification.Recommended
 
 		if ( Jetpack_SSO_Helpers::display_sso_form_for_action( $action ) ) {
 			$wants_to_login = true;
@@ -375,7 +375,7 @@ class Jetpack_SSO {
 		}
 
 		if ( 'jetpack-sso' === $action ) {
-			if ( isset( $_GET['result'], $_GET['user_id'], $_GET['sso_nonce'] ) && 'success' === $_GET['result'] ) {
+			if ( isset( $_GET['result'], $_GET['user_id'], $_GET['sso_nonce'] ) && 'success' === $_GET['result'] ) { // phpcs:ignore WordPress.Security.NonceVerification.Recommended
 				$this->handle_login();
 				$this->display_sso_login_form();
 			} else {
@@ -384,7 +384,7 @@ class Jetpack_SSO {
 				} else {
 					// Is it wiser to just use wp_redirect than do this runaround to wp_safe_redirect?
 					add_filter( 'allowed_redirect_hosts', array( 'Jetpack_SSO_Helpers', 'allowed_redirect_hosts' ) );
-					$reauth  = ! empty( $_GET['force_reauth'] );
+					$reauth  = ! empty( $_GET['force_reauth'] ); // phpcs:ignore WordPress.Security.NonceVerification.Recommended
 					$sso_url = $this->get_sso_url_or_die( $reauth );
 
 					$tracking->record_user_event( 'sso_login_redirect_success' );
@@ -404,7 +404,7 @@ class Jetpack_SSO {
 			 */
 			if ( Jetpack_SSO_Helpers::bypass_login_forward_wpcom() && $this->wants_to_login() ) {
 				add_filter( 'allowed_redirect_hosts', array( 'Jetpack_SSO_Helpers', 'allowed_redirect_hosts' ) );
-				$reauth  = ! empty( $_GET['force_reauth'] );
+				$reauth  = ! empty( $_GET['force_reauth'] ); // phpcs:ignore WordPress.Security.NonceVerification.Recommended
 				$sso_url = $this->get_sso_url_or_die( $reauth );
 				$tracking->record_user_event( 'sso_login_redirect_bypass_success' );
 				wp_safe_redirect( $sso_url );
@@ -457,9 +457,9 @@ class Jetpack_SSO {
 			true
 		);
 
-		if ( ! empty( $_GET['redirect_to'] ) ) {
+		if ( ! empty( $_GET['redirect_to'] ) ) { // phpcs:ignore WordPress.Security.NonceVerification.Recommended
 			// If we have something to redirect to.
-			$url = esc_url_raw( $_GET['redirect_to'] );
+			$url = esc_url_raw( $_GET['redirect_to'] ); // phpcs:ignore WordPress.Security.NonceVerification.Recommended
 			setcookie( 'jetpack_sso_redirect_to', $url, time() + HOUR_IN_SECONDS, COOKIEPATH, COOKIE_DOMAIN, is_ssl(), true );
 		} elseif ( ! empty( $_COOKIE['jetpack_sso_redirect_to'] ) ) {
 			// Otherwise, if it's already set, purge it.
@@ -714,8 +714,8 @@ class Jetpack_SSO {
 	 * The function that actually handles the login!
 	 */
 	public function handle_login() {
-		$wpcom_nonce   = sanitize_key( $_GET['sso_nonce'] );
-		$wpcom_user_id = (int) $_GET['user_id'];
+		$wpcom_nonce   = sanitize_key( $_GET['sso_nonce'] ); // phpcs:ignore WordPress.Security.NonceVerification.Recommended
+		$wpcom_user_id = (int) $_GET['user_id']; // phpcs:ignore WordPress.Security.NonceVerification.Recommended
 
 		$xml = new Jetpack_IXR_Client();
 		$xml->query( 'jetpack.sso.validateResult', $wpcom_nonce, $wpcom_user_id );
@@ -859,7 +859,7 @@ class Jetpack_SSO {
 
 			wp_set_current_user( $user->ID );
 
-			$_request_redirect_to = isset( $_REQUEST['redirect_to'] ) ? esc_url_raw( $_REQUEST['redirect_to'] ) : '';
+			$_request_redirect_to = isset( $_REQUEST['redirect_to'] ) ? esc_url_raw( $_REQUEST['redirect_to'] ) : ''; // phpcs:ignore WordPress.Security.NonceVerification.Recommended
 			$redirect_to          = user_can( $user, 'edit_posts' ) ? admin_url() : self::profile_page_url();
 
 			// If we have a saved redirect to request in a cookie.
@@ -971,8 +971,8 @@ class Jetpack_SSO {
 
 		$args = wp_parse_args( $args, $defaults );
 
-		if ( ! empty( $_GET['redirect_to'] ) ) {
-			$args['redirect_to'] = rawurlencode( esc_url_raw( $_GET['redirect_to'] ) );
+		if ( ! empty( $_GET['redirect_to'] ) ) { // phpcs:ignore WordPress.Security.NonceVerification.Recommended
+			$args['redirect_to'] = rawurlencode( esc_url_raw( $_GET['redirect_to'] ) ); // phpcs:ignore WordPress.Security.NonceVerification.Recommended
 		}
 
 		return add_query_arg( $args, wp_login_url() );
@@ -1108,12 +1108,12 @@ class Jetpack_SSO {
 	 * calls menu_page_url() which doesn't work properly until admin menus are registered.
 	 */
 	public function maybe_authorize_user_after_sso() {
-		if ( empty( $_GET['jetpack-sso-auth-redirect'] ) ) {
+		if ( empty( $_GET['jetpack-sso-auth-redirect'] ) ) { // phpcs:ignore WordPress.Security.NonceVerification.Recommended
 			return;
 		}
 
-		$redirect_to         = ! empty( $_GET['redirect_to'] ) ? esc_url_raw( $_GET['redirect_to'] ) : admin_url();
-		$request_redirect_to = ! empty( $_GET['request_redirect_to'] ) ? esc_url_raw( $_GET['request_redirect_to'] ) : $redirect_to;
+		$redirect_to         = ! empty( $_GET['redirect_to'] ) ? esc_url_raw( $_GET['redirect_to'] ) : admin_url(); // phpcs:ignore WordPress.Security.NonceVerification.Recommended
+		$request_redirect_to = ! empty( $_GET['request_redirect_to'] ) ? esc_url_raw( $_GET['request_redirect_to'] ) : $redirect_to; // phpcs:ignore WordPress.Security.NonceVerification.Recommended
 
 		/** This filter is documented in core/src/wp-login.php */
 		$redirect_after_auth = apply_filters( 'login_redirect', $redirect_to, $request_redirect_to, wp_get_current_user() );
