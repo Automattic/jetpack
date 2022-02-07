@@ -21,7 +21,7 @@ import promptForProject from '../helpers/promptForProject.js';
 import { readComposerJson } from '../helpers/json.js';
 import { getInstallArgs, projectDir } from '../helpers/install.js';
 import { allProjects, allProjectsByType } from '../helpers/projectHelpers.js';
-import PrefixTransformStream from '../helpers/prefix-stream.js';
+import PrefixStream from '../helpers/prefix-stream.js';
 
 export const command = 'build [project...]';
 export const describe = 'Builds one or more monorepo projects';
@@ -268,8 +268,8 @@ function createBuildTask( project, argv, title, build ) {
 					const t = {};
 					if ( argv.v ) {
 						const streamArgs = { prefix: ctx.concurrent ? project : null, time: !! argv.timing };
-						const stdout = new PrefixTransformStream( streamArgs );
-						const stderr = new PrefixTransformStream( streamArgs );
+						const stdout = new PrefixStream( streamArgs );
+						const stderr = new PrefixStream( streamArgs );
 						stdout.pipe( process.stdout, { end: false } );
 						stderr.pipe( process.stderr, { end: false } );
 
