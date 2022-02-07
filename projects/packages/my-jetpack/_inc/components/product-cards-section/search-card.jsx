@@ -23,9 +23,7 @@ const SearchCard = ( { admin } ) => {
 	const { name, description } = detail;
 
 	const navigate = useNavigate();
-	const onAddHandler = useCallback( () => {
-		navigate( '/add-search' );
-	}, [ navigate ] );
+	const onAddHandler = useCallback( () => navigate( '/add-search' ), [ navigate ] );
 
 	return (
 		<ProductCard
