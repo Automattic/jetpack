@@ -441,7 +441,7 @@ class Instant_Search extends Classic_Search {
 	protected function prepend_search_widget_to_block( $block_content ) {
 		$search_block_group = <<<EOT
 
-<!-- wp:group {"style":{"spacing":{"padding":{"top":"10px","bottom":"10px","left":"10px","right":"10px"}}},"layout":{"type":"flex","setCascadingProperties":true,"justifyContent":"center"}} -->
+		<!-- wp:group {"style":{"spacing":{"padding":{"top":"10px","bottom":"10px","left":"10px","right":"10px"}}},"layout":{"type":"flex","setCascadingProperties":true,"justifyContent":"center"}} -->
 		<div class="wp-block-group jetpack-search-auto-config-search-container" style="padding-top:10px;padding-bottom:10px;padding-left:10px;padding-right:10px">
 				<!-- wp:search {"label":"Jetpack Search","buttonText":"Search"} /-->
 		</div>
