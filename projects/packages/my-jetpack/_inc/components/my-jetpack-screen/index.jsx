@@ -20,8 +20,9 @@ import ConnectionsSection from '../connections-section';
 import PlansSection from '../plans-section';
 import ProductCardsSection from '../product-cards-section';
 import useAnalytics from '../../hooks/use-analytics';
-import useNoticeWatcher, { useGlobalNotice } from '../../hooks/use-notice';
+import useGlobalNotice from '../../hooks/use-notice';
 import useMyJetpackConnection from '../../hooks/use-my-jetpack-connection';
+import useConnectionWatcher from '../../hooks/use-connection-watcher';
 import styles from './styles.module.scss';
 
 const GlobalNotice = ( { message, options, clean } ) => {
@@ -48,7 +49,7 @@ const GlobalNotice = ( { message, options, clean } ) => {
  * @returns {object} The MyJetpackScreen component.
  */
 export default function MyJetpackScreen() {
-	useNoticeWatcher();
+	useConnectionWatcher();
 	const { message, options, clean } = useGlobalNotice();
 
 	const {
@@ -60,7 +61,7 @@ export default function MyJetpackScreen() {
 	}, [ recordEvent ] );
 
 	// No render when site is not connected.
-	const { isSiteConnected } = useMyJetpackConnection( { redirect: true } );
+	const { isSiteConnected } = useMyJetpackConnection();
 
 	if ( ! isSiteConnected ) {
 		return null;
