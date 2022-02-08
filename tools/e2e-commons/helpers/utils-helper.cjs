@@ -317,7 +317,6 @@ async function getJetpackVersion() {
 		const fileContent = fs.readFileSync( envFilePath, 'utf8' );
 		const env = JSON.parse( fileContent );
 
-		// eslint-disable-next-line
 		const jetpack = env.plugins.filter( function ( p ) {
 			return p.plugin.endsWith( '/jetpack' ) && p.status === 'active';
 		} );
