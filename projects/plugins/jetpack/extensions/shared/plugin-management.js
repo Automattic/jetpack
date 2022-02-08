@@ -2,11 +2,7 @@
  * WordPress dependencies
  */
 import apiFetch from '@wordpress/api-fetch';
-
-/**
- * Internal dependencies
- */
-import { isSimpleSite } from './site-type-utils';
+import { isSimpleSite } from '@automattic/jetpack-shared-extension-utils';
 
 /**
  * Returns a list of all active plugins on the site.

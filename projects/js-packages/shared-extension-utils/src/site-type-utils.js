@@ -1,8 +1,7 @@
 /**
- * External dependencies
+ * Internal dependencies
  */
-import { get } from 'lodash';
-import { getJetpackData } from '@automattic/jetpack-shared-extension-utils';
+import getJetpackData from './get-jetpack-data';
 
 /**
  * Get the site type from environment
@@ -39,5 +38,6 @@ export function isAtomicSite() {
  * @returns {boolean} whether the current blog is set to private.
  */
 export function isPrivateSite() {
-	return get( getJetpackData(), [ 'jetpack', 'is_private_site' ], false );
+	const jetpackData = getJetpackData();
+	return jetpackData?.jetpack?.is_private_site ?? false;
 }
