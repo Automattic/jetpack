@@ -349,10 +349,12 @@ importers:
 
   projects/js-packages/partner-coupon:
     specifiers:
+      '@automattic/jetpack-base-styles': workspace:^0.1.8-alpha
       '@automattic/jetpack-components': workspace:^0.10.5-alpha
       '@automattic/jetpack-connection': workspace:^0.15.1-alpha
       '@babel/core': 7.16.0
       '@babel/preset-react': 7.16.0
+      '@wordpress/base-styles': 4.0.4
       '@wordpress/i18n': 4.3.0
       classnames: 2.3.1
       cookie: 0.4.1
@@ -368,8 +370,10 @@ importers:
       cookie: 0.4.1
       prop-types: 15.7.2
     devDependencies:
+      '@automattic/jetpack-base-styles': link:../base-styles
       '@babel/core': 7.16.0
       '@babel/preset-react': 7.16.0_@babel+core@7.16.0
+      '@wordpress/base-styles': 4.0.4
       jetpack-js-test-runner: link:../../../tools/js-test-runner
       nyc: 15.1.0
       react: 17.0.2
@@ -954,7 +958,7 @@ importers:
       '@automattic/jetpack-components': workspace:^0.10.5-alpha
       '@automattic/jetpack-connection': workspace:^0.15.1-alpha
       '@automattic/jetpack-licensing': workspace:^0.4.6-alpha
-      '@automattic/jetpack-partner-coupon': workspace:^0.1.8-alpha
+      '@automattic/jetpack-partner-coupon': workspace:^0.2.0-alpha
       '@automattic/jetpack-shared-extension-utils': workspace:^0.1.0-alpha
       '@automattic/jetpack-webpack-config': workspace:^1.1.2-alpha
       '@automattic/popup-monitor': 1.0.0
@@ -8139,6 +8143,10 @@ packages:
       core-js: 3.20.2
     transitivePeerDependencies:
       - supports-color
+    dev: true
+
+  /@wordpress/base-styles/4.0.4:
+    resolution: {integrity: sha512-qXiIhWLdTHWxBWawcqigJUUMeb2jkn9ElUEUC/Cn3DK2i62jiUWXOLp6tFIaf5eQMNXsYqtp5r7n2F/OllngQA==}
     dev: true
 
   /@wordpress/base-styles/4.1.0:

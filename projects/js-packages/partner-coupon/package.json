@@ -17,7 +17,7 @@
 		"test": "NODE_ENV=test NODE_PATH=tests:. js-test-runner --jsdom --initfile=test-main.jsx 'glob:./!(node_modules)/**/test/*.@(jsx|js)'"
 	},
 	"devDependencies": {
-		"@automattic/jetpack-base-styles": "workspace:^0.1.7",
+		"@automattic/jetpack-base-styles": "workspace:^0.1.8-alpha",
 		"@babel/core": "7.16.0",
 		"@babel/preset-react": "7.16.0",
 		"@wordpress/base-styles": "4.0.4",
