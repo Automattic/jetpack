@@ -2,13 +2,13 @@
  * WordPress dependencies
  */
 import { registerPlugin } from '@wordpress/plugins';
+import { isSimpleSite } from '@automattic/jetpack-shared-extension-utils';
 
 /**
  * Internal dependencies
  */
 import { name, settings, SocialPreviews } from '.';
 import getJetpackExtensionAvailability from '../../shared/get-jetpack-extension-availability';
-import { isSimpleSite } from '../../shared/site-type-utils';
 import registerJetpackPlugin from '../../shared/register-jetpack-plugin';
 
 /*
