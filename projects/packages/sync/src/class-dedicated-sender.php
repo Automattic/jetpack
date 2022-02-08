@@ -58,10 +58,16 @@ class Dedicated_Sender {
 			return new WP_Error( 'empty_queue_' . $queue->id );
 		}
 
-		$can_sync = Sender::get_instance()->can_sync_queue( $queue );
+		// Return early if we've gotten a retry-after header response.
+		$retry_time = get_option( Actions::RETRY_AFTER_PREFIX . $queue->id );
+		if ( $retry_time ) {
+			return new WP_Error( 'retry_after_' . $queue->id );
+		}
 
-		if ( is_wp_error( $can_sync ) ) {
-			return $can_sync;
+		// Don't sync if we are throttled.
+		$sync_next_time = Sender::get_instance()->get_next_sync_time( $queue->id );
+		if ( $sync_next_time > microtime( true ) ) {
+			return new WP_Error( 'sync_throttled_' . $queue->id );
 		}
 
 		$args = array(

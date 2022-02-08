@@ -31,6 +31,15 @@ class WP_Test_Jetpack_Sync_Sender extends WP_Test_Jetpack_Sync_Base {
 		$this->dedicated_sync_request_spawned = false;
 	}
 
+	/**
+	 * Tear down.
+	 */
+	public function tear_down() {
+		parent::tear_down();
+
+		unset( $_SERVER['REQUEST_METHOD'] );
+	}
+
 	function test_add_post_fires_sync_data_action_with_codec_and_timestamp_on_do_sync() {
 		// some trivial action so that there's an item in the queue
 		$this->factory->post->create();
@@ -672,13 +681,13 @@ class WP_Test_Jetpack_Sync_Sender extends WP_Test_Jetpack_Sync_Base {
 	}
 
 	/**
-	 * Test do_dedicated_sync_and_exit will NOT re-spawn a dedicated Sync request Sync result if JETPACK_SYNC_READ_ONLY is defined and true.
+	 * Test do_dedicated_sync_and_exit will NOT re-spawn a dedicated Sync request if queue is locked.
 	 */
-	public function test_do_dedicated_sync_and_exit_will_not_re_spawn_dedicated_sync_request_if_read_only() {
+	public function test_do_dedicated_sync_and_exit_will_not_re_spawn_dedicated_sync_request_with_locked_queue() {
 		$this->expectException( ExitException::class );
 
 		Settings::update_settings( array( 'dedicated_sync_enabled' => 1 ) );
-		Constants::set_constant( 'JETPACK_SYNC_READ_ONLY', true );
+		$this->sender->get_sync_queue()->lock( 0 );
 		$this->factory->post->create();
 		// Current "request" is dedicated Sync request.
 		$_SERVER['REQUEST_METHOD']               = 'POST';
@@ -690,10 +699,9 @@ class WP_Test_Jetpack_Sync_Sender extends WP_Test_Jetpack_Sync_Base {
 
 		$this->assertFalse( $this->dedicated_sync_request_spawned );
 		$this->assertTrue( is_wp_error( $result ) );
-		$this->assertEquals( 'jetpack_sync_read_only', $result->get_error_code() );
+		$this->assertEquals( 'locked_queue_sync', $result->get_error_code() );
 
 		Settings::update_settings( array( 'dedicated_sync_enabled' => 0 ) );
-		Constants::clear_single_constant( 'JETPACK_SYNC_READ_ONLY' );
 		$this->sender->get_sync_queue()->reset();
 	}
 

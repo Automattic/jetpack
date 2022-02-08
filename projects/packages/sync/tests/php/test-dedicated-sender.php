@@ -108,19 +108,6 @@ class Test_Dedicated_Sender extends BaseTestCase {
 	}
 
 	/**
-	 * Tests Dedicated_Sender::spawn_sync with sender disabled.
-	 */
-	public function test_spawn_sync_with_sender_disabled() {
-		Settings::update_settings( array( 'dedicated_sync_enabled' => 1 ) );
-		Settings::update_settings( array( 'sync_sender_enabled' => 0 ) );
-
-		$result = Dedicated_Sender::spawn_sync( $this->queue );
-
-		$this->assertTrue( is_wp_error( $result ) );
-		$this->assertSame( 'sender_disabled_for_queue_sync', $result->get_error_code() );
-	}
-
-	/**
 	 * Tests Dedicated_Sender::spawn_sync with Retry-After set.
 	 */
 	public function test_spawn_sync_with_retry_after_set() {
@@ -132,7 +119,7 @@ class Test_Dedicated_Sender extends BaseTestCase {
 		$result = Dedicated_Sender::spawn_sync( $this->queue );
 
 		$this->assertTrue( is_wp_error( $result ) );
-		$this->assertSame( 'retry_after', $result->get_error_code() );
+		$this->assertSame( 'retry_after_sync', $result->get_error_code() );
 	}
 
 	/**
@@ -147,7 +134,7 @@ class Test_Dedicated_Sender extends BaseTestCase {
 		$result = Dedicated_Sender::spawn_sync( $this->queue );
 
 		$this->assertTrue( is_wp_error( $result ) );
-		$this->assertSame( 'sync_throttled', $result->get_error_code() );
+		$this->assertSame( 'sync_throttled_sync', $result->get_error_code() );
 	}
 
 	/**
