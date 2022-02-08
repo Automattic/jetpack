@@ -8,7 +8,7 @@ use Automattic\Jetpack_Boost\Features\Optimizations\Critical_CSS\Generate\Genera
 use Automattic\Jetpack_Boost\Features\Optimizations\Critical_CSS\Source_Providers\Source_Providers;
 use Automattic\Jetpack_Boost\REST_API\Contracts\Has_Endpoints;
 use Automattic\Jetpack_Boost\REST_API\Endpoints\Request_Cloud_CSS;
-use Automattic\Jetpack_Boost\REST_API\Endpoints\Update_Cloud_CSS;
+use Automattic\Jetpack_Boost\REST_API\Endpoints\Update_Critical_CSS;
 use Automattic\Jetpack_Boost\REST_API\REST_API;
 
 class Cloud_CSS implements Feature, Has_Endpoints {
@@ -47,7 +47,7 @@ class Cloud_CSS implements Feature, Has_Endpoints {
 	public function get_endpoints() {
 		return array(
 			new Request_Cloud_CSS(),
-			new Update_Cloud_CSS(),
+			new Update_Critical_CSS(),
 		);
 	}
 

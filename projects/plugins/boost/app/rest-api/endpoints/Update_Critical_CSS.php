@@ -12,10 +12,10 @@ use Automattic\Jetpack_Boost\REST_API\Contracts;
 use Automattic\Jetpack_Boost\REST_API\Permissions\Signed_With_Blog_Token;
 use WP_REST_Server;
 
-class Update_Cloud_CSS implements Contracts\Endpoint {
+class Update_Critical_CSS implements Contracts\Endpoint {
 
 	public function name() {
-		return 'cloud-css/update';
+		return 'critical-css/update';
 	}
 
 	public function request_methods() {
@@ -27,21 +27,22 @@ class Update_Cloud_CSS implements Contracts\Endpoint {
 
 		try {
 			$request_body = json_decode( $request_body );
-			foreach ( $request_body as $result ) {
+			$providers    = $request_body->providers;
+			foreach ( $providers as $provider => $data ) {
 				$state   = new Cloud_CSS_State();
 				$storage = new Cloud_CSS_Storage();
 
-				if ( $result->success ) {
-					$state->set_source_success( $result->provider );
-					$storage->store_css( $result->provider, $result->data->css );
+				if ( $data->success ) {
+					$state->set_source_success( $provider );
+					$storage->store_css( $provider, $data->css );
 				} else {
-					$state->set_source_error( $result->provider, $result->error );
+					$state->set_source_error( $provider, $data->error );
 				}
 			}
 
 			wp_send_json_success();
 		} catch ( \Exception $e ) {
-			return new \WP_Error( 'invalid_json', $e->getMessage(), array( 'status' => 400 ) );
+			return new \WP_Error( 'invalid_request', $e->getMessage(), array( 'status' => 400 ) );
 		}
 	}
 
