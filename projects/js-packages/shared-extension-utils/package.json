@@ -15,6 +15,9 @@
 	"scripts": {
 		"test": "NODE_ENV=test NODE_PATH=tests:. js-test-runner --jsdom --initfile=test-main.jsx 'glob:./!(node_modules)/**/test/*.@(jsx|js)'"
 	},
+	"dependencies": {
+		"@wordpress/plugins": "4.1.0"
+	},
 	"devDependencies": {
 		"jetpack-js-test-runner": "workspace:*",
 		"nyc": "15.1.0"
