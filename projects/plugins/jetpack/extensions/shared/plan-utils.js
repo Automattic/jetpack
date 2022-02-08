@@ -6,6 +6,7 @@ import {
 	isAtomicSite,
 	isSimpleSite,
 	getJetpackData,
+	getJetpackExtensionAvailability,
 } from '@automattic/jetpack-shared-extension-utils';
 
 /**
@@ -18,7 +19,6 @@ import { __ } from '@wordpress/i18n';
  * Internal dependencies
  */
 import getSiteFragment from './get-site-fragment';
-import getJetpackExtensionAvailability from './get-jetpack-extension-availability';
 import { requiresPaidPlan } from './register-jetpack-block';
 
 /**
