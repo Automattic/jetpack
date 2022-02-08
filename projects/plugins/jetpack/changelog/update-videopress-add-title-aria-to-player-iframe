@@ -1,0 +1,4 @@
+Significance: minor
+Type: compat
+
+Added title and aria-label to VideoPress iframe embeds for better screen reader support.
