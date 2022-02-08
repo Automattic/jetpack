@@ -11,7 +11,7 @@ import {
 	ExternalLink,
 	withNotices,
 } from '@wordpress/components';
-import { BlockControls, BlockIcon, InnerBlocks } from '@wordpress/block-editor';
+import { BlockControls, InnerBlocks } from '@wordpress/block-editor';
 
 /**
  * Internal dependencies
@@ -176,7 +176,7 @@ export class EventbriteEdit extends Component {
 						'Paste a link to an Eventbrite event to embed ticket checkout.',
 						'jetpack'
 					) }
-					icon={ <BlockIcon icon={ icon } /> }
+					icon={ icon }
 					notices={ noticeUI }
 				>
 					<form onSubmit={ this.submitForm }>

@@ -2,11 +2,7 @@
  * External dependencies
  */
 import { get } from 'lodash';
-
-/**
- * Internal dependencies
- */
-import getJetpackData from './get-jetpack-data';
+import { getJetpackData } from '@automattic/jetpack-shared-extension-utils';
 
 /**
  * Get the site type from environment
