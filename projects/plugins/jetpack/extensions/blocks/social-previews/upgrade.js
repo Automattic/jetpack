@@ -3,6 +3,7 @@
  */
 import { Button } from '@wordpress/components';
 import { __ } from '@wordpress/i18n';
+import { getJetpackExtensionAvailability } from '@automattic/jetpack-shared-extension-utils';
 
 /**
  * Internal dependencies
@@ -10,7 +11,6 @@ import { __ } from '@wordpress/i18n';
 import analytics from '../../../_inc/client/lib/analytics';
 import upgradeImageUrl from './upgrade-illustration.svg';
 import useUpgradeFlow from '../../shared/use-upgrade-flow';
-import getJetpackExtensionAvailability from '../../shared/get-jetpack-extension-availability';
 import { name as block } from './index';
 
 export default function SocialPreviewsUpgrade() {

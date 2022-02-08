@@ -25,14 +25,18 @@ class Backup extends Hybrid_Product {
 	public static $slug = 'backup';
 
 	/**
-	 * The filename (id) of the plugin associated with this product. If not defined, it will default to the Jetpack plugin
+	 * The filename (id) of the plugin associated with this product.
 	 *
 	 * @var string
 	 */
-	public static $plugin_filename = 'jetpack-backup/jetpack-backup.php';
+	public static $plugin_filename = array(
+		'jetpack-backup/jetpack-backup.php',
+		'backup/jetpack-backup.php',
+		'jetpack-backup-dev/jetpack-backup.php',
+	);
 
 	/**
-	 * The slug of the plugin associated with this product. If not defined, it will default to the Jetpack plugin
+	 * The slug of the plugin associated with this product.
 	 *
 	 * @var string
 	 */
