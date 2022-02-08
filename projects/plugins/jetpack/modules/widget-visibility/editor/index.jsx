@@ -1,5 +1,5 @@
 /**
- * WordPress dependencies
+ * External dependencies
  */
 import { Fragment, useCallback, useMemo } from '@wordpress/element';
 import { BaseControl, Button, SelectControl, ToggleControl } from '@wordpress/components';
@@ -7,6 +7,11 @@ import { __, _x } from '@wordpress/i18n';
 import { InspectorAdvancedControls } from '@wordpress/block-editor'; // eslint-disable-line import/no-unresolved
 import { createHigherOrderComponent } from '@wordpress/compose';
 import { useSelect } from '@wordpress/data';
+import { isSimpleSite } from '@automattic/jetpack-shared-extension-utils';
+
+/**
+ * Internal dependencies
+ */
 import analytics from '../../../_inc/client/lib/analytics';
 
 /* global widget_conditions_data */
@@ -124,17 +129,6 @@ const buildOptions = ( options, level = 0 ) =>
 		return acc.concat( [ newItem ] );
 	}, [] );
 
-/**
- * Get the site type.
- *
- * @return {string} - jetpack, atomic, or simple.
- */
-const getSiteType = () => {
-	return 'object' === typeof window && typeof window._currentSiteType === 'string'
-		? window._currentSiteType
-		: 'jetpack';
-};
-
 const VisibilityRule = props => {
 	const { rule, onDelete, setMajor, setMinor } = props;
 
@@ -158,7 +152,7 @@ const VisibilityRule = props => {
 		{ label: __( 'Category', 'jetpack' ), value: 'category' },
 		{ label: __( 'Author', 'jetpack' ), value: 'author' },
 	]
-		.concat( 'simple' === getSiteType() ? [] : optionsDisabledOnWpcom )
+		.concat( isSimpleSite() ? [] : optionsDisabledOnWpcom )
 		.concat( [
 			{ label: __( 'Tag', 'jetpack' ), value: 'tag' },
 			{ label: __( 'Date', 'jetpack' ), value: 'date' },
