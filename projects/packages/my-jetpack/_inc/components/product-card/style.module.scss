@@ -25,6 +25,7 @@
   flex-direction: column;
   justify-content: space-between;
 
+  &.is-purchase-required,
   &.plugin_absent {
     background: none;
     box-shadow: none;
