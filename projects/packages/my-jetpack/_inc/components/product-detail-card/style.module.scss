@@ -50,6 +50,12 @@
 		height: auto;
 		line-height: 26px;
 	}
+
+	// Product Icon
+	& > svg {
+		height: 30px;
+		line-height: 30px;
+	}
 }
 
 .name {

@@ -9,7 +9,6 @@ import { concat } from 'lodash';
  */
 import {
 	store as blockEditorStore,
-	BlockIcon,
 	MediaPlaceholder,
 	useBlockProps,
 	useInnerBlocksProps,
@@ -156,7 +155,7 @@ const TiledGalleryEdit = props => {
 	const mediaPlaceholder = (
 		<MediaPlaceholder
 			isAppender={ images.length > 0 }
-			icon={ <BlockIcon icon={ icon } /> }
+			icon={ icon }
 			className={ className }
 			labels={ {
 				title: __( 'Tiled Gallery', 'jetpack' ),
