@@ -1165,7 +1165,7 @@
             "dist": {
                 "type": "path",
                 "url": "../../packages/my-jetpack",
-                "reference": "a441de113bf2be6a47891d1fabb0d9377c8bb17c"
+                "reference": "b7f4da28e31ec2691ee67b3be8dbc1a26a64a06e"
             },
             "require": {
                 "automattic/jetpack-admin-ui": "^0.2",
@@ -1178,7 +1178,6 @@
             "require-dev": {
                 "automattic/jetpack-changelogger": "^3.0",
                 "automattic/jetpack-options": "^1.14",
-                "automattic/jetpack-search": "^0.7",
                 "automattic/wordbless": "@dev",
                 "yoast/phpunit-polyfills": "1.0.3"
             },
