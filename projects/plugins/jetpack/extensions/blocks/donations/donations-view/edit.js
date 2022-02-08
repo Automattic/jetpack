@@ -43,7 +43,7 @@ const Edit = props => {
 	return (
 		<div className={ classNames( 'donations__view', { 'is-active': activeTab === type } ) }>
 			<InnerBlocks
-				templateLock={ true }
+				templateLock={ 'all' }
 				template={ [
 					[
 						'core/heading',

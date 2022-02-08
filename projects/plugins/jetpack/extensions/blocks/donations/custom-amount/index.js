@@ -16,7 +16,12 @@ const settings = {
 	title: __( 'Donations custom amount', 'jetpack' ),
 	description: __( 'Enables the user to introduce a custom donation amount', 'jetpack' ),
 	category: 'earn',
-	attributes: {},
+	attributes: {
+		isVisible: {
+			type: 'boolean',
+			default: true,
+		},
+	},
 	icon,
 	supports: {
 		align: true,

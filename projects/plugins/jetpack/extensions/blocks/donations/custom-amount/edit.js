@@ -3,15 +3,21 @@
  */
 import { InnerBlocks } from '@wordpress/block-editor';
 import { __ } from '@wordpress/i18n';
-import { useContext } from '@wordpress/element';
+import { useContext, useEffect } from '@wordpress/element';
 
 /**
  * Internal dependencies
  */
 import DonationsContext from '../common/context';
 
-const Edit = () => {
+const Edit = props => {
+	const { setAttributes } = props;
 	const { showCustomAmount, currency } = useContext( DonationsContext );
+
+	useEffect( () => setAttributes( { isVisible: showCustomAmount } ), [
+		showCustomAmount,
+		setAttributes,
+	] );
 
 	return (
 		showCustomAmount && (

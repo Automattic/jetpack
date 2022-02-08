@@ -23,7 +23,6 @@ function register_donations_view_block() {
 		DONATIONS_VIEW_BLOCK_NAME,
 		array(
 			'render_callback' => __NAMESPACE__ . '\render_donations_view_block',
-			'plan_check'      => false,
 		)
 	);
 }

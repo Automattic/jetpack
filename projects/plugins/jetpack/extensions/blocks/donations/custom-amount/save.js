@@ -3,6 +3,10 @@
  */
 import { InnerBlocks } from '@wordpress/block-editor';
 
-const Save = () => <InnerBlocks.Content />;
+const Save = props => {
+	const { attributes } = props;
+
+	return attributes.isVisible ? <InnerBlocks.Content /> : null;
+};
 
 export default Save;
