@@ -9,9 +9,12 @@ import { useBlockEditContext } from '@wordpress/block-editor';
 import { addFilter } from '@wordpress/hooks';
 import { createHigherOrderComponent } from '@wordpress/compose';
 import { __ } from '@wordpress/i18n';
-import { getJetpackExtensionAvailability } from '@automattic/jetpack-shared-extension-utils';
+import {
+	isAtomicSite,
+	isSimpleSite,
+	getJetpackExtensionAvailability,
+} from '@automattic/jetpack-shared-extension-utils';
 import { every } from 'lodash';
-import { isAtomicSite, isSimpleSite } from '@automattic/jetpack-shared-extension-utils';
 
 /**
  * Internal dependencies
