@@ -1,15 +1,17 @@
 /**
- * WordPress dependencies
+ * External dependencies
  */
 import { registerPlugin } from '@wordpress/plugins';
-import { getJetpackExtensionAvailability } from '@automattic/jetpack-shared-extension-utils';
+import {
+	getJetpackExtensionAvailability,
+	registerJetpackPlugin,
+} from '@automattic/jetpack-shared-extension-utils';
 
 /**
  * Internal dependencies
  */
 import { name, settings, SocialPreviews } from '.';
 import { isSimpleSite } from '../../shared/site-type-utils';
-import registerJetpackPlugin from '../../shared/register-jetpack-plugin';
 
 /*
  * Register the main "social-previews" extension if the feature is available
