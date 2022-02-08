@@ -536,9 +536,13 @@ async function buildProject( t ) {
 	}
 
 	// Install.
-	await t.execa( 'composer', await getInstallArgs( t.project, 'composer', t.argv ), {
-		cwd: t.cwd,
-	} );
+	await t.execa(
+		'composer',
+		[ '--ignore-platform-reqs', ...( await getInstallArgs( t.project, 'composer', t.argv ) ) ],
+		{
+			cwd: t.cwd,
+		}
+	);
 
 	await t.setStatus( 'building' );
 	// Determine the composer script to run.
