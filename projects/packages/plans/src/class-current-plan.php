@@ -10,6 +10,7 @@
 namespace Automattic\Jetpack;
 
 use Automattic\Jetpack\Connection\Client;
+use Jetpack_Options;
 
 /**
  * Provides methods methods for fetching the site's plan and products from WordPress.com.

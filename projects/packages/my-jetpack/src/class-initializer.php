@@ -103,7 +103,7 @@ class Initializer {
 				'purchases'             => array(
 					'items' => array(),
 				),
-				'redirectUrl'           => admin_url( '?page=my-jetpack' ),
+				'redirectUrl'           => admin_url( 'admin.php?page=my-jetpack' ),
 				'topJetpackMenuItemUrl' => Admin_Menu::get_top_level_menu_item_url(),
 				'siteSuffix'            => ( new Status() )->get_site_suffix(),
 			)

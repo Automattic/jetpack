@@ -7,7 +7,10 @@
 
 namespace Automattic\Jetpack\My_Jetpack\Products;
 
+use Automattic\Jetpack\Connection\Client;
 use Automattic\Jetpack\My_Jetpack\Hybrid_Product;
+use Jetpack_Options;
+use WP_Error;
 
 /**
  * Class responsible for handling the CRM product
@@ -22,14 +25,18 @@ class Backup extends Hybrid_Product {
 	public static $slug = 'backup';
 
 	/**
-	 * The filename (id) of the plugin associated with this product. If not defined, it will default to the Jetpack plugin
+	 * The filename (id) of the plugin associated with this product.
 	 *
 	 * @var string
 	 */
-	public static $plugin_filename = 'jetpack-backup/jetpack-backup.php';
+	public static $plugin_filename = array(
+		'jetpack-backup/jetpack-backup.php',
+		'backup/jetpack-backup.php',
+		'jetpack-backup-dev/jetpack-backup.php',
+	);
 
 	/**
-	 * The slug of the plugin associated with this product. If not defined, it will default to the Jetpack plugin
+	 * The slug of the plugin associated with this product.
 	 *
 	 * @var string
 	 */
@@ -98,6 +105,46 @@ class Backup extends Hybrid_Product {
 			'full_price'           => '9',
 			'promotion_percentage' => '50',
 		);
+	}
+
+	/**
+	 * Hits the wpcom api to check rewind status.
+	 *
+	 * @todo Maybe add caching.
+	 *
+	 * @return Object|WP_Error
+	 */
+	private static function get_state_from_wpcom() {
+		static $status = null;
+
+		if ( ! is_null( $status ) ) {
+			return $status;
+		}
+
+		$site_id = Jetpack_Options::get_option( 'id' );
+
+		$response = Client::wpcom_json_api_request_as_blog( sprintf( '/sites/%d/rewind', $site_id ) . '?force=wpcom', '2', array(), null, 'wpcom' );
+
+		if ( 200 !== wp_remote_retrieve_response_code( $response ) ) {
+			return new WP_Error( 'rewind_state_fetch_failed' );
+		}
+
+		$body   = wp_remote_retrieve_body( $response );
+		$status = json_decode( $body );
+		return $status;
+	}
+
+	/**
+	 * Checks whether the current plan (or purchases) of the site already supports the product
+	 *
+	 * @return boolean
+	 */
+	public static function has_required_plan() {
+		$rewind_data = static::get_state_from_wpcom();
+		if ( is_wp_error( $rewind_data ) ) {
+			return false;
+		}
+		return is_object( $rewind_data ) && isset( $rewind_data->state ) && 'unavailable' !== $rewind_data->state;
 	}
 
 }
