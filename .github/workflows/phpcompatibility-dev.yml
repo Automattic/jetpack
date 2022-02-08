@@ -37,6 +37,7 @@ jobs:
               - '.phpcs.config.xml'
               - '.phpcs.xml.dist'
               - '.phpcsignore'
+              - '**/.phpcs.dir.xml'
               - '**/.phpcsignore'
               # If other files used by this workflow changed, run it to test those changes.
               - '.github/files/phpcompatibility-dev-phpcs.xml'

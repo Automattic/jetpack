@@ -1,6 +1,6 @@
 {
 	"name": "automattic/action-required-review",
-	"description": "GitHub Action to check that required reviewers have accepted the PR, setting a status check accordingly.",
+	"description": "GitHub Action to check that a Pull Request has reviews from required teams.",
 	"type": "project",
 	"license": "GPL-2.0-or-later",
 	"require": {},

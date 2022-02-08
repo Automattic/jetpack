@@ -1,0 +1,4 @@
+Significance: patch
+Type: other
+
+Blocks: remove BlockIcon wrapper for multiple blocks.

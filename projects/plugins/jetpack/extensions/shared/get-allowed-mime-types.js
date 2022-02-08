@@ -1,12 +1,8 @@
 /**
  * External dependencies
  */
+import { getJetpackData } from '@automattic/jetpack-shared-extension-utils';
 import { get, pickBy, startsWith, flatten, map, keys, values } from 'lodash';
-
-/**
- * Internal dependencies
- */
-import getJetpackData from './get-jetpack-data';
 
 /**
  * Return an object with the allowed mime types for the site,
