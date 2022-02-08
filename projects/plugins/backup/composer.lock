@@ -778,7 +778,7 @@
             "dist": {
                 "type": "path",
                 "url": "../../packages/my-jetpack",
-                "reference": "0a4354d247242a1fbc56373c2ddd4ccacab62d52"
+                "reference": "a441de113bf2be6a47891d1fabb0d9377c8bb17c"
             },
             "require": {
                 "automattic/jetpack-admin-ui": "^0.2",
@@ -804,7 +804,7 @@
                     "link-template": "https://github.com/Automattic/jetpack-my-jetpack/compare/${old}...${new}"
                 },
                 "branch-alias": {
-                    "dev-master": "0.5.x-dev"
+                    "dev-master": "0.6.x-dev"
                 }
             },
             "autoload": {

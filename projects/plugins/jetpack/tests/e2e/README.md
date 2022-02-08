@@ -10,9 +10,9 @@ These tests are using the [e2e commons package](../../../../../tools/e2e-commons
 
 - [Pre-requisites](#pre-requisites)
 - [Environment setup](#environment-setup)
-	- [Test Configuration](#test-configuration)
-	- [Docker environment](#docker-environment)
-	- [Tunnel](#local-tunnel)
+  - [Test Configuration](#test-configuration)
+  - [Docker environment](#docker-environment)
+  - [Tunnel](#local-tunnel)
 - [Running tests](#running-tests)
 - [Tests Architecture](#tests-architecture)
 - [CI configuration](#ci-configuration)
@@ -35,12 +35,13 @@ pnpx jetpack build plugins/jetpack
 Jetpack E2E tests relies on 2 encrypted configuration files, one included in this repo as [`config/encrypted.enc`](./config/encrypted.enc), which extends on a default one from e2e-commons. To be able to successfully create a local environment and run the tests both files need to be decrypted first.
 
 To decrypt the config files (a8c only):
+
 - Find a decryption key. Search secret store for "E2E Jetpack CONFIG_KEY"
 - Run `CONFIG_KEY=YOUR_KEY pnpm test-decrypt-all-config`. This command should create a new file [`config/local.cjs`](./config/local.cjs)
 
 ### Docker environment
 
-Tests expect to have a WordPress installation with Jetpack installed, accessible via a local tunnel. 
+Tests expect to have a WordPress installation with Jetpack installed, accessible via a local tunnel.
 
 To start the environment:
 
@@ -67,7 +68,7 @@ To stop the tunnel
 pnpm tunnel-off
 ```
 
-The tunnel url will be stored in a file so that it can be read by the tests and then reused by the tunnel script. See config files for details. 
+The tunnel url will be stored in a file so that it can be read by the tests and then reused by the tunnel script. See config files for details.
 
 If you want a different url, use the `reset` command.
 
