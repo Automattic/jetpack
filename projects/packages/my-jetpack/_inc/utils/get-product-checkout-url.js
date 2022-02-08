@@ -2,31 +2,20 @@
 /* global myJetpackInitialState */
 
 /**
- * External dependencies
- */
-import { getRedirectUrl } from '@automattic/jetpack-components';
-
-/**
- * Internal dependencies
- */
-import { MY_JETPACK_PRODUCT_CHECKOUT } from '../constants';
-
-/**
- * Return the product redirect URL, according to
- * the Jetpack redirect source, site, path, and redirect_to params.
+ * Return the checkout URL for the given product.
+ * It checkes whether the user is connected to Jetpack.
+ * It doesn't use Jetpack redirect because
+ * it's not possible to pass a valid redirect_to parameter.
+ * In short, and to make it work, it replaces the `=` character with `%3D`.
  *
  * @param {string} product          - Checkout product name
  * @param {boolean} isUserConnected - True when the user is connected Jetpack
  * @returns {string} the redirect URL
  */
 export default function getProductCheckoutUrl( product, isUserConnected ) {
-	const { siteSuffix: site, redirectUrl } = window?.myJetpackInitialState || {};
-	const redirect_to = `${ redirectUrl }&product=${ product }`;
-	const unlinked = ! isUserConnected ? '&unlinked=1' : '';
-
-	return getRedirectUrl( MY_JETPACK_PRODUCT_CHECKOUT, {
-		site,
-		path: 'jetpack_search',
-		query: `redirect_to=${ redirect_to }${ unlinked }`,
-	} );
+	const { siteSuffix, redirectUrl } = window?.myJetpackInitialState || {};
+	const redirect_to = `${ redirectUrl.replace( /=/g, '%3d' ) }${
+		! isUserConnected ? '&unlinked=1' : ''
+	}&site=${ siteSuffix }`;
+	return `https://wordpress.com/checkout/${ siteSuffix }/${ product }?redirect_to=${ redirect_to }`;
 }
