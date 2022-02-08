@@ -17,13 +17,11 @@ import { prerequisitesBuilder } from 'jetpack-e2e-commons/env/index.js';
 
 const test = baseTest.extend( {
 	page: async ( { page }, use ) => {
+		await execShellCommand( '/bin/prepare-jetpack-zip.sh' );
+
 		await prepareUpdaterTest();
 
-		await prerequisitesBuilder( page )
-			.withCleanEnv()
-			.withLoggedIn( true )
-			.withWpComLoggedIn( true )
-			.build();
+		await prerequisitesBuilder( page ).withLoggedIn( true ).withWpComLoggedIn( true ).build();
 
 		await execWpCommand( `plugin activate e2e-plugin-updater` );
 		await execWpCommand( `option set e2e_jetpack_upgrader_update_version 99.9-alpha` );
