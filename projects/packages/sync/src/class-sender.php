@@ -237,6 +237,44 @@ class Sender {
 	}
 
 	/**
+	 * Whether Sync is currently unblocked for a given queue.
+	 *
+	 * @access public
+	 *
+	 * @param Automattic\Jetpack\Sync\Queue $queue Queue object.
+	 * @return boolean|WP_Error WP_Error if sending data for the given queue is blocked, true otherwise.
+	 */
+	public function can_sync_queue( $queue ) {
+		// Don't sync if importing.
+		if ( defined( 'WP_IMPORTING' ) && WP_IMPORTING ) {
+			return new WP_Error( 'is_importing' );
+		}
+
+		// Don't sync if request is marked as read only.
+		if ( Constants::is_true( 'JETPACK_SYNC_READ_ONLY' ) ) {
+			return new WP_Error( 'jetpack_sync_read_only' );
+		}
+
+		// Don't sync if sending is disabled.
+		if ( ! Settings::is_sender_enabled( $queue->id ) ) {
+			return new WP_Error( 'sender_disabled_for_queue_' . $queue->id );
+		}
+
+		// Don't sync if we've gotten a retry-after header response.
+		$retry_time = get_option( Actions::RETRY_AFTER_PREFIX . $queue->id );
+		if ( $retry_time ) {
+			return new WP_Error( 'retry_after' );
+		}
+
+		// Don't sync if we are throttled.
+		if ( $this->get_next_sync_time( $queue->id ) > microtime( true ) ) {
+			return new WP_Error( 'sync_throttled' );
+		}
+
+		return true;
+	}
+
+	/**
 	 * Set the next sync time.
 	 *
 	 * @access public
@@ -322,25 +360,34 @@ class Sender {
 	 */
 	public function do_sync() {
 		if ( ! Settings::is_dedicated_sync_enabled() ) {
-			return $this->do_sync_and_set_delays( $this->sync_queue );
-		}
-
-		// If this is a dedicated Sync request, run Sync
-		// otherwise attempt to spawn a dedicated Sync request.
-		$is_dedicated_sync_request = Dedicated_Sender::is_dedicated_sync_request();
-
-		if ( $is_dedicated_sync_request ) {
-			// Run Sync.
 			$result = $this->do_sync_and_set_delays( $this->sync_queue );
-			// If no errors occurred, re-spawn a dedicated Sync request.
-			if ( true === $result ) {
-				return Dedicated_Sender::spawn_sync( $this->sync_queue );
-			}
-
-			return $result;
 		} else {
-			return Dedicated_Sender::spawn_sync( $this->sync_queue );
+			$result = Dedicated_Sender::spawn_sync( $this->sync_queue );
 		}
+
+		return $result;
+	}
+
+	/**
+	 * Trigger incremental sync and early exit on Dedicated Sync request.
+	 *
+	 * @access public
+	 */
+	public function do_dedicated_sync() {
+		if ( ! Settings::is_dedicated_sync_enabled() ) {
+			return new WP_Error( 'dedicated_sync_disabled', 'Dedicated Sync flow is disabled.' );
+		}
+
+		if ( ! Dedicated_Sender::is_dedicated_sync_request() ) {
+			return new WP_Error( 'non_dedicated_sync_request', 'Not a Dedicated Sync request.' );
+		}
+
+		$result = $this->do_sync_and_set_delays( $this->sync_queue );
+		// If no errors occurred, re-spawn a dedicated Sync request.
+		if ( true === $result ) {
+			Dedicated_Sender::spawn_sync( $this->sync_queue );
+		}
+		exit;
 	}
 
 	/**
@@ -356,33 +403,17 @@ class Sender {
 	 * @return boolean|WP_Error True if this sync sending was successful, error object otherwise.
 	 */
 	public function do_sync_and_set_delays( $queue ) {
-		// Don't sync if importing.
-		if ( defined( 'WP_IMPORTING' ) && WP_IMPORTING ) {
-			return new WP_Error( 'is_importing' );
-		}
-
-		// Don't sync if request is marked as read only.
-		if ( Constants::is_true( 'JETPACK_SYNC_READ_ONLY' ) ) {
-			return new WP_Error( 'jetpack_sync_read_only' );
-		}
-
-		if ( ! Settings::is_sender_enabled( $queue->id ) ) {
-			return new WP_Error( 'sender_disabled_for_queue_' . $queue->id );
-		}
-
-		// Return early if we've gotten a retry-after header response.
-		$retry_time = get_option( Actions::RETRY_AFTER_PREFIX . $queue->id );
-		if ( $retry_time ) {
-			// If expired update to false but don't send. Send will occurr in new request to avoid race conditions.
-			if ( microtime( true ) > $retry_time ) {
-				update_option( Actions::RETRY_AFTER_PREFIX . $queue->id, false, false );
+		$can_sync = $this->can_sync_queue( $queue );
+		if ( is_wp_error( $can_sync ) ) {
+			if ( 'retry_after' === $can_sync->get_error_code() ) {
+				// If expired update to false but don't send. Send will occurr in new request to avoid race conditions.
+				$retry_time = get_option( Actions::RETRY_AFTER_PREFIX . $queue->id );
+				if ( $retry_time && ( microtime( true ) > $retry_time ) ) {
+					update_option( Actions::RETRY_AFTER_PREFIX . $queue->id, false, false );
+				}
 			}
-			return new WP_Error( 'retry_after' );
-		}
 
-		// Don't sync if we are throttled.
-		if ( $this->get_next_sync_time( $queue->id ) > microtime( true ) ) {
-			return new WP_Error( 'sync_throttled' );
+			return $can_sync;
 		}
 
 		$start_time = microtime( true );

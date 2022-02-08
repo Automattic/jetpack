@@ -89,6 +89,8 @@ class Actions {
 	/**
 	 * Initialize Sync for cron jobs, set up listeners for WordPress Actions,
 	 * and set up a shut-down action for sending actions to WordPress.com
+	 * If dedicated Sync is enabled and this is a dedicated Sync request
+	 * up an init action for sending actions to WordPress.com instead.
 	 *
 	 * @access public
 	 * @static
@@ -96,6 +98,15 @@ class Actions {
 	public static function init() {
 		// Everything below this point should only happen if we're a valid sync site.
 		if ( ! self::sync_allowed() ) {
+			return;
+		}
+
+		// If dedicated Sync is enabled and this is a dedicated Sync request, no need to
+		// initialize Sync for cron jobs, set up listeners or set up a shut-down action
+		// for sending actions to WordPress.com.
+		// We only need to set up an init action for sending actions to WordPress.com and exit early.
+		if ( Settings::is_dedicated_sync_enabled() && Dedicated_Sender::is_dedicated_sync_request() ) {
+			add_action( 'init', array( __CLASS__, 'add_dedicated_sync_sender_init' ), 90 );
 			return;
 		}
 
@@ -160,6 +171,22 @@ class Actions {
 			self::initialize_sender();
 			add_action( 'shutdown', array( self::$sender, 'do_sync' ) );
 			add_action( 'shutdown', array( self::$sender, 'do_full_sync' ), 9999 );
+		}
+	}
+
+	/**
+	 * Immediately sends actions on init for the current dedicated Sync request.
+	 *
+	 * @access public
+	 * @static
+	 */
+	public static function add_dedicated_sync_sender_init() {
+		if ( apply_filters(
+			'jetpack_sync_sender_should_load',
+			self::should_initialize_sender()
+		) ) {
+			self::initialize_sender();
+			self::$sender->do_dedicated_sync();
 		}
 	}
 

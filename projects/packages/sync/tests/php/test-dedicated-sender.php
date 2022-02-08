@@ -94,7 +94,7 @@ class Test_Dedicated_Sender extends BaseTestCase {
 	}
 
 	/**
-	 * Tests Dedicated_Sender::spawn_sync with an locked queue.
+	 * Tests Dedicated_Sender::spawn_sync with a locked queue.
 	 */
 	public function test_spawn_sync_with_locked_queue() {
 		Settings::update_settings( array( 'dedicated_sync_enabled' => 1 ) );
@@ -105,6 +105,49 @@ class Test_Dedicated_Sender extends BaseTestCase {
 
 		$this->assertTrue( is_wp_error( $result ) );
 		$this->assertSame( 'locked_queue_sync', $result->get_error_code() );
+	}
+
+	/**
+	 * Tests Dedicated_Sender::spawn_sync with sender disabled.
+	 */
+	public function test_spawn_sync_with_sender_disabled() {
+		Settings::update_settings( array( 'dedicated_sync_enabled' => 1 ) );
+		Settings::update_settings( array( 'sync_sender_enabled' => 0 ) );
+
+		$result = Dedicated_Sender::spawn_sync( $this->queue );
+
+		$this->assertTrue( is_wp_error( $result ) );
+		$this->assertSame( 'sender_disabled_for_queue_sync', $result->get_error_code() );
+	}
+
+	/**
+	 * Tests Dedicated_Sender::spawn_sync with Retry-After set.
+	 */
+	public function test_spawn_sync_with_retry_after_set() {
+		Settings::update_settings( array( 'dedicated_sync_enabled' => 1 ) );
+
+		// Simulate WPCOM sending us a response with `Retry-After` header set to 10 minutes.
+		update_option( Actions::RETRY_AFTER_PREFIX . $this->queue->id, microtime( true ) + 10 * 60 );
+
+		$result = Dedicated_Sender::spawn_sync( $this->queue );
+
+		$this->assertTrue( is_wp_error( $result ) );
+		$this->assertSame( 'retry_after', $result->get_error_code() );
+	}
+
+	/**
+	 * Tests Dedicated_Sender::spawn_sync with Sync throttled.
+	 */
+	public function test_spawn_sync_with_throttled() {
+		Settings::update_settings( array( 'dedicated_sync_enabled' => 1 ) );
+
+		// Sync Throttled.
+		update_option( Sender::NEXT_SYNC_TIME_OPTION_NAME . '_' . $this->queue->id, microtime( true ) + 10 * 60 );
+
+		$result = Dedicated_Sender::spawn_sync( $this->queue );
+
+		$this->assertTrue( is_wp_error( $result ) );
+		$this->assertSame( 'sync_throttled', $result->get_error_code() );
 	}
 
 	/**

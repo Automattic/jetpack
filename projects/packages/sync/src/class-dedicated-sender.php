@@ -12,8 +12,9 @@ namespace Automattic\Jetpack\Sync;
 use WP_Error;
 /**
  * Class to manage Sync spawning.
- * The purpose of this class is to provide the means to unblock Sync from running in the shutdown hook
- * of regular requests by spawning a dedicated Sync request instead which will trigger Sync to run.
+ * The purpose of this class is to provide the means to unblock Sync
+ * from running in the shutdown hook of regular requests by spawning a
+ * dedicated Sync request instead which will trigger Sync to run.
  */
 class Dedicated_Sender {
 
@@ -22,7 +23,8 @@ class Dedicated_Sender {
 	 *
 	 * @access public
 	 *
-	 * @return boolean True if this is a POST request and jetpack_dedicated_sync_request is set, false otherwise.
+	 * @return boolean True if this is a POST request and
+	 * jetpack_dedicated_sync_request is set, false otherwise.
 	 */
 	public static function is_dedicated_sync_request() {
 
@@ -54,6 +56,12 @@ class Dedicated_Sender {
 
 		if ( $queue->size() === 0 ) {
 			return new WP_Error( 'empty_queue_' . $queue->id );
+		}
+
+		$can_sync = Sender::get_instance()->can_sync_queue( $queue );
+
+		if ( is_wp_error( $can_sync ) ) {
+			return $can_sync;
 		}
 
 		$args = array(
