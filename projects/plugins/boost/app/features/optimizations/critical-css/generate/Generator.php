@@ -2,9 +2,9 @@
 
 namespace Automattic\Jetpack_Boost\Features\Optimizations\Critical_CSS\Generate;
 
-use Automattic\Jetpack_Boost\Features\Optimizations\Critical_CSS\Critical_CSS_State;
-use Automattic\Jetpack_Boost\Features\Optimizations\Critical_CSS\Source_Providers\Providers\Provider;
-use Automattic\Jetpack_Boost\Features\Optimizations\Critical_CSS\Source_Providers\Source_Providers;
+use Automattic\Jetpack_Boost\Lib\Critical_CSS\Critical_CSS_State;
+use Automattic\Jetpack_Boost\Lib\Critical_CSS\Source_Providers\Providers\Provider;
+use Automattic\Jetpack_Boost\Lib\Critical_CSS\Source_Providers\Source_Providers;
 use Automattic\Jetpack_Boost\Lib\Nonce;
 
 class Generator {

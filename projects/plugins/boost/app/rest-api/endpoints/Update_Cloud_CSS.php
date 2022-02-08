@@ -6,8 +6,8 @@
  */
 namespace Automattic\Jetpack_Boost\REST_API\Endpoints;
 
-use Automattic\Jetpack_Boost\Features\Optimizations\Cloud_CSS\Cloud_CSS_State;
-use Automattic\Jetpack_Boost\Features\Optimizations\Cloud_CSS\Cloud_CSS_Storage;
+use Automattic\Jetpack_Boost\Lib\Critical_CSS\Critical_CSS_State;
+use Automattic\Jetpack_Boost\Lib\Critical_CSS\Critical_CSS_Storage;
 use Automattic\Jetpack_Boost\REST_API\Contracts;
 use Automattic\Jetpack_Boost\REST_API\Permissions\Signed_With_Blog_Token;
 use WP_REST_Server;
@@ -29,8 +29,8 @@ class Update_Cloud_CSS implements Contracts\Endpoint {
 			$request_body = json_decode( $request_body );
 			$providers    = $request_body->providers;
 			foreach ( $providers as $provider => $data ) {
-				$state   = new Cloud_CSS_State();
-				$storage = new Cloud_CSS_Storage();
+				$state   = new Critical_CSS_State();
+				$storage = new Critical_CSS_Storage();
 
 				if ( $data->success ) {
 					$state->set_source_success( $provider );

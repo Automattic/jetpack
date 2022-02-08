@@ -2,10 +2,10 @@
 namespace Automattic\Jetpack_Boost\Features\Optimizations\Cloud_CSS;
 
 use Automattic\Jetpack_Boost\Contracts\Feature;
-use Automattic\Jetpack_Boost\Features\Optimizations\Critical_CSS\Critical_CSS_Storage;
-use Automattic\Jetpack_Boost\Features\Optimizations\Critical_CSS\Display_Critical_CSS;
 use Automattic\Jetpack_Boost\Features\Optimizations\Critical_CSS\Generate\Generator;
-use Automattic\Jetpack_Boost\Features\Optimizations\Critical_CSS\Source_Providers\Source_Providers;
+use Automattic\Jetpack_Boost\Lib\Critical_CSS\Critical_CSS_Storage;
+use Automattic\Jetpack_Boost\Lib\Critical_CSS\Display_Critical_CSS;
+use Automattic\Jetpack_Boost\Lib\Critical_CSS\Source_Providers\Source_Providers;
 use Automattic\Jetpack_Boost\REST_API\Contracts\Has_Endpoints;
 use Automattic\Jetpack_Boost\REST_API\Endpoints\Request_Cloud_CSS;
 use Automattic\Jetpack_Boost\REST_API\Endpoints\Update_Cloud_CSS;
@@ -29,7 +29,7 @@ class Cloud_CSS implements Feature, Has_Endpoints {
 
 	public function __construct() {
 
-		$this->storage = new Cloud_CSS_Storage();
+		$this->storage = new Critical_CSS_Storage();
 		$this->paths   = new Source_Providers();
 
 	}
