@@ -39,7 +39,7 @@ const Overlay = props => {
 		return () => {
 			// Cleanup on component dismount
 			window.removeEventListener( 'keydown', closeWithEscape );
-			window.addEventListener( 'click', closeWithOutsideClick );
+			window.removeEventListener( 'click', closeWithOutsideClick );
 		};
 	}, [ closeWithEscape, closeWithOutsideClick ] );
 
