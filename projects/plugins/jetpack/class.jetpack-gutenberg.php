@@ -747,8 +747,7 @@ class Jetpack_Gutenberg {
 						include_once $extension_file_path;
 					}
 				}
-			};
-
+			}
 		}
 	}
 

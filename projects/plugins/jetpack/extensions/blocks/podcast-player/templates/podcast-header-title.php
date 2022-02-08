@@ -5,6 +5,8 @@
  * @package automattic/jetpack
  */
 
+//phpcs:disable VariableAnalysis.CodeAnalysis.VariableAnalysis.UndefinedVariable -- This file expects $template_props set outside the file.
+
 namespace Automattic\Jetpack\Extensions\Podcast_Player;
 
 /**
@@ -43,7 +45,11 @@ $track_link = empty( $template_props['track']['link'] ) ? $template_props['track
 		<?php endif; // phpcs:enable ?>
 	</span>
 
-	<?php if ( ! empty( $template_props['title'] ) ) : ?>
+	<?php
+	// phpcs:disable VariableAnalysis.CodeAnalysis.VariableAnalysis.UndefinedVariable -- This file expects $template_props set outside the file.
+
+	if ( ! empty( $template_props['title'] ) ) :
+		?>
 		<span class="jetpack-podcast-player--visually-hidden"> - </span>
 
 		<?php

@@ -113,15 +113,21 @@ class WPCOM_JSON_API_List_Users_Endpoint extends WPCOM_JSON_API_Endpoint {
 		}
 
 		$query = array(
-			'number'    => $args['number'],
-			'offset'    => $args['offset'],
-			'order'     => $args['order'],
-			'orderby'   => $args['order_by'],
-			'fields'    => 'ID',
+			'number'  => $args['number'],
+			'offset'  => $args['offset'],
+			'order'   => $args['order'],
+			'orderby' => $args['order_by'],
+			'fields'  => 'ID',
 		);
 
 		if ( $authors_only ) {
-			$query['who'] = 'authors';
+			$query['capability'] = array( 'edit_posts' );
+			// To-do: remove this once Jetpack requires WordPress 5.9.
+			global $wp_version;
+			if ( version_compare( $wp_version, '5.9-alpha', '<' ) ) {
+				$query['who'] = 'authors';
+				unset( $query['capability'] );
+			}
 		}
 
 		if ( ! empty( $args['search'] ) ) {
