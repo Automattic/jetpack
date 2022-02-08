@@ -12,10 +12,10 @@ use Automattic\Jetpack_Boost\REST_API\Contracts;
 use Automattic\Jetpack_Boost\REST_API\Permissions\Signed_With_Blog_Token;
 use WP_REST_Server;
 
-class Update_Critical_CSS implements Contracts\Endpoint {
+class Update_Cloud_CSS implements Contracts\Endpoint {
 
 	public function name() {
-		return 'critical-css/update';
+		return 'cloud-css/update';
 	}
 
 	public function request_methods() {
