@@ -1,7 +1,7 @@
 /**
  * Internal dependencies
  */
-import { getJetpackData } from './get-jetpack-data';
+import getJetpackData from './get-jetpack-data';
 
 /**
  * Return whether a Jetpack Gutenberg extension is available or not.

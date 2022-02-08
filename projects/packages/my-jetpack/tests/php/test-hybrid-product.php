@@ -57,7 +57,7 @@ class Test_Hybrid_Product extends TestCase {
 		if ( ! file_exists( WP_PLUGIN_DIR . '/jetpack' ) ) {
 			mkdir( WP_PLUGIN_DIR . '/jetpack', 0777, true );
 		}
-		copy( __DIR__ . '/assets/backup-mock-plugin.txt', WP_PLUGIN_DIR . '/' . Backup::$plugin_filename );
+		copy( __DIR__ . '/assets/backup-mock-plugin.txt', WP_PLUGIN_DIR . '/jetpack-backup/jetpack-backup.php' );
 		copy( __DIR__ . '/assets/jetpack-mock-plugin.txt', WP_PLUGIN_DIR . '/jetpack/jetpack.php' );
 	}
 
@@ -85,7 +85,7 @@ class Test_Hybrid_Product extends TestCase {
 	 */
 	public function test_if_jetpack_inactive_and_backup_active_return_true() {
 		deactivate_plugins( 'jetpack/jetpack.php' );
-		activate_plugins( Backup::$plugin_filename );
+		activate_plugins( Backup::get_installed_plugin_filename() );
 		$this->assertTrue( Backup::is_active() );
 	}
 
@@ -94,7 +94,7 @@ class Test_Hybrid_Product extends TestCase {
 	 */
 	public function test_if_jetpack_inactive_and_backup_inactive_return_false() {
 		deactivate_plugins( 'jetpack/jetpack.php' );
-		deactivate_plugins( Backup::$plugin_filename );
+		deactivate_plugins( Backup::get_installed_plugin_filename() );
 		$this->assertFalse( Backup::is_active() );
 	}
 
