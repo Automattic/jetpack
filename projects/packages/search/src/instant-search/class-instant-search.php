@@ -315,6 +315,10 @@ class Instant_Search extends Classic_Search {
 		$this->auto_config_excluded_post_types();
 		$this->auto_config_overlay_sidebar_widgets();
 		$this->auto_config_woo_result_format();
+
+		if ( \current_theme_supports( 'block-templates' ) ) {
+			$this->add_search_block_above_footer();
+		}
 	}
 
 	/**
@@ -400,22 +404,18 @@ class Instant_Search extends Classic_Search {
 
 		update_option( $widget_opt_name, $widget_options );
 		update_option( 'sidebars_widgets', $sidebars );
-
-		if ( \current_theme_supports( 'block-templates' ) ) {
-			$this->add_search_block_below_header();
-		}
 	}
 
 	/**
-	 * Add a search widget below header for block templates.
+	 * Add a search widget above footer for block templates.
 	 */
-	public function add_search_block_below_header() {
+	public function add_search_block_above_footer() {
 		// Check whether block theme functions exist.
 		if ( ! function_exists( 'get_block_template' ) ) {
 			return;
 		}
 		$active_theme     = \wp_get_theme()->get_stylesheet();
-		$template_part_id = "{$active_theme}//header";
+		$template_part_id = "{$active_theme}//footer";
 		$teplate_part     = \get_block_template( $template_part_id, 'wp_template_part' );
 		if ( is_wp_error( $teplate_part ) || empty( $teplate_part ) ) {
 			return;
@@ -427,7 +427,7 @@ class Instant_Search extends Classic_Search {
 		}
 		$request = new \WP_REST_Request( 'PUT', "/wp/v2/template-parts/{$template_part_id}" );
 		$request->set_header( 'content-type', 'application/json' );
-		$request->set_param( 'content', $this->prepand_search_widget_to_block( $teplate_part->content ) );
+		$request->set_param( 'content', $this->prepend_search_widget_to_block( $teplate_part->content ) );
 		$request->set_param( 'id', $template_part_id );
 		$controller = new \WP_REST_Templates_Controller( 'wp_template_part' );
 		$controller->update_item( $request );
@@ -438,25 +438,17 @@ class Instant_Search extends Classic_Search {
 	 *
 	 * @param {string} $block_content - the content to append the search block.
 	 */
-	protected function prepand_search_widget_to_block( $block_content ) {
+	protected function prepend_search_widget_to_block( $block_content ) {
 		$search_block_group = <<<EOT
 
-		<!-- wp:group {"style":{"spacing":{"padding":{"top":"20px","bottom":"20px","right":"0px","left":"0px"}}},"layout":{"type":"flex","setCascadingProperties":true,"justifyContent":"center"}} -->
-		<div class="wp-block-group" style="padding-top:20px;padding-right:0px;padding-bottom:20px;padding-left:0px">
-			<!-- wp:columns -->
-			<div class="wp-block-columns">
-				<!-- wp:column -->
-				<div class="wp-block-column">
-					<!-- wp:search {"label":"Jetpack Search","width":325,"widthUnit":"px","buttonText":"Search"} /-->
-				</div>
-				<!-- /wp:column -->
-			</div>
-			<!-- /wp:columns -->
+<!-- wp:group {"style":{"spacing":{"padding":{"top":"10px","bottom":"10px","left":"10px","right":"10px"}}},"layout":{"type":"flex","setCascadingProperties":true,"justifyContent":"center"}} -->
+		<div class="wp-block-group jetpack-search-auto-config-search-container" style="padding-top:10px;padding-bottom:10px;padding-left:10px;padding-right:10px">
+				<!-- wp:search {"label":"Jetpack Search","buttonText":"Search"} /-->
 		</div>
 		<!-- /wp:group -->
 
 EOT;
-		return $block_content . $search_block_group;
+		return $search_block_group . $block_content;
 	}
 
 	/**
