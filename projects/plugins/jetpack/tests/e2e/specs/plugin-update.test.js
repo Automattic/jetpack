@@ -46,7 +46,7 @@ const test = baseTest.extend( {
 	},
 } );
 
-test.skip( 'Plugin updater', async ( { page } ) => {
+test( 'Update Jetpack plugin', async ( { page } ) => {
 	await test.step( 'Can login and navigate to Plugins page', async () => {
 		await ( await Sidebar.init( page ) ).selectInstalledPlugins();
 		await PluginsPage.init( page );

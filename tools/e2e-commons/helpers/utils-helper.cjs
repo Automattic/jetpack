@@ -47,7 +47,7 @@ async function resetWordpressInstall() {
 }
 
 async function prepareUpdaterTest() {
-	const cmd = `${ BASE_DOCKER_CMD } -v exec-silent /usr/local/src/jetpack-monorepo/tools/e2e-commons/bin/prep.sh`;
+	const cmd = `${ BASE_DOCKER_CMD } -v exec-silent /usr/local/src/jetpack-monorepo/projects/plugins/jetpack/tests/e2e/bin/prepare-plugin-update.sh`;
 
 	await execShellCommand( cmd );
 }
@@ -317,6 +317,7 @@ async function getJetpackVersion() {
 		const fileContent = fs.readFileSync( envFilePath, 'utf8' );
 		const env = JSON.parse( fileContent );
 
+		// eslint-disable-next-line
 		const jetpack = env.plugins.filter( function ( p ) {
 			return p.plugin.endsWith( '/jetpack' ) && p.status === 'active';
 		} );
