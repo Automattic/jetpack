@@ -103,6 +103,6 @@ class Search extends Module_Product {
 	 * @return boolean
 	 */
 	public static function has_required_plan() {
-		return ( new Search_PLan() )->supports_search();
+		return ( new Search_Plan() )->supports_search();
 	}
 }

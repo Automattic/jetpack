@@ -26,7 +26,6 @@ import { compose, withInstanceId } from '@wordpress/compose';
 import { __ } from '@wordpress/i18n';
 import {
 	BlockControls,
-	BlockIcon,
 	InspectorControls,
 	withColors,
 	PanelColorSettings,
@@ -270,7 +269,7 @@ const PodcastPlayerEdit = ( {
 	if ( state.isEditing ) {
 		return (
 			<Placeholder
-				icon={ <BlockIcon icon={ queueMusic } /> }
+				icon={ queueMusic }
 				label={ __( 'Podcast Player', 'jetpack' ) }
 				instructions={ __( 'Enter your podcast RSS feed URL.', 'jetpack' ) }
 				className={ 'jetpack-podcast-player__placeholder' }
@@ -303,7 +302,7 @@ const PodcastPlayerEdit = ( {
 	if ( ! state.feedData.tracks?.length ) {
 		return (
 			<Placeholder
-				icon={ <BlockIcon icon={ queueMusic } /> }
+				icon={ queueMusic }
 				label={ __( 'Podcast Player', 'jetpack' ) }
 				instructions={ __( 'Loading podcast feed…', 'jetpack' ) }
 			>
