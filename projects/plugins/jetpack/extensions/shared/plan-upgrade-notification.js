@@ -5,12 +5,11 @@ import apiFetch from '@wordpress/api-fetch';
 import { dispatch } from '@wordpress/data';
 import { __, sprintf } from '@wordpress/i18n';
 import '@wordpress/notices';
-import { parse as parseUrl } from 'url';
+import { getSiteFragment } from '@automattic/jetpack-shared-extension-utils';
 
 /**
  * Internal dependencies
  */
-import getSiteFragment from './get-site-fragment';
 import { isAtomicSite, isSimpleSite } from './site-type-utils';
 
 /**
