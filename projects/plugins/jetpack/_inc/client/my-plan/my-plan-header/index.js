@@ -23,7 +23,7 @@ import Card from 'components/card';
 import ExternalLink from 'components/external-link';
 import ProductExpiration from 'components/product-expiration';
 import UpgradeLink from 'components/upgrade-link';
-import { getPlanClass } from 'lib/plans/constants';
+import { getPlanClass, JETPACK_BACKUP_PRODUCTS, JETPACK_SCAN_PRODUCTS } from 'lib/plans/constants';
 import {
 	getUpgradeUrl,
 	getDateFormat,
@@ -40,7 +40,7 @@ const TIER_1_BACKUP_STORAGE_GB = 10;
 const TIER_2_BACKUP_STORAGE_TB = 1;
 
 class MyPlanHeader extends React.Component {
-	getProductProps( productSlug ) {
+	getProductProps( productSlug, activeProducts = [] ) {
 		const { displayBackups, dateFormat, purchases } = this.props;
 
 		const productProps = {
@@ -60,6 +60,8 @@ class MyPlanHeader extends React.Component {
 		if ( purchase ) {
 			expiration = (
 				<ProductExpiration
+					// Add key because this goes to `details` as array.
+					key="product-expiration"
 					dateFormat={ dateFormat }
 					expiryDate={ purchase.expiry_date }
 					purchaseDate={ purchase.subscribed_date }
@@ -67,30 +69,62 @@ class MyPlanHeader extends React.Component {
 				/>
 			);
 
-			activation = purchase.active === '1' ? <ProductActivated /> : null;
+			activation = purchase.active === '1' ? <ProductActivated key="product-activated" /> : null;
 		}
 
 		switch ( getPlanClass( productSlug ) ) {
-			case 'is-free-plan':
+			case 'is-free-plan': {
+				// Default tagline
+				let tagLineText = __(
+					'Worried about security? Get backups, automated security fixes and more.',
+					'jetpack'
+				);
+
+				if ( activeProducts.length ) {
+					const hasSiteJetpackBackup = activeProducts.some( ( { product_slug } ) =>
+						JETPACK_BACKUP_PRODUCTS.includes( product_slug )
+					);
+
+					const hasSiteJetpackScan = activeProducts.some( ( { product_slug } ) =>
+						JETPACK_SCAN_PRODUCTS.includes( product_slug )
+					);
+
+					if ( hasSiteJetpackBackup && hasSiteJetpackScan ) {
+						tagLineText = __(
+							'Upgrade your site to access additional features, including spam protection and priority support.',
+							'jetpack'
+						);
+					} else if ( hasSiteJetpackBackup ) {
+						tagLineText = __(
+							'Upgrade your site to access additional features, including spam protection, security scanning, and priority support.',
+							'jetpack'
+						);
+					} else if ( hasSiteJetpackScan ) {
+						tagLineText = __(
+							'Upgrade your site to access additional features, including spam protection, backups, and priority support.',
+							'jetpack'
+						);
+					}
+				}
+
 				return {
 					...productProps,
-					tagLine: createInterpolateElement(
-						__(
-							'Worried about security? Get backups, automated security fixes and more: <a>Upgrade now</a>',
-							'jetpack'
-						),
-						{
-							a: (
-								<UpgradeLink
-									source="my-plan-header-free-plan-text-link"
-									target="upgrade-now"
-									feature="my-plan-header-free-upgrade"
-								/>
-							),
-						}
+					tagLine: (
+						<>
+							{ tagLineText }
+							&nbsp;
+							<UpgradeLink
+								source="my-plan-header-free-plan-text-link"
+								target="upgrade-now"
+								feature="my-plan-header-free-upgrade"
+							>
+								{ __( 'Upgrade now', 'jetpack' ) }
+							</UpgradeLink>
+						</>
 					),
 					title: __( 'Jetpack Free', 'jetpack' ),
 				};
+			}
 
 			case 'is-personal-plan':
 				return {
@@ -317,7 +351,7 @@ class MyPlanHeader extends React.Component {
 				{ this.renderLicensingActions() }
 				<Card compact>
 					{ this.renderHeader( __( 'My Plan', 'jetpack' ) ) }
-					<MyPlanCard { ...this.getProductProps( this.props.plan ) } />
+					<MyPlanCard { ...this.getProductProps( this.props.plan, this.props.activeProducts ) } />
 				</Card>
 			</>
 		);
