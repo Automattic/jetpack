@@ -10,6 +10,7 @@
 		"env:start": "./bin/e2e-env.sh start",
 		"env:stop": "./bin/e2e-env.sh stop",
 		"env:reset": "./bin/e2e-env.sh reset",
+		"env:clean": "./bin/e2e-env.sh clean",
 		"tunnel:on": "./bin/tunnel.sh up",
 		"tunnel:reset": "./bin/tunnel.sh reset",
 		"tunnel:off": "./bin/tunnel.sh down",
