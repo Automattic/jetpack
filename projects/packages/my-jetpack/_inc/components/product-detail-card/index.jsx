@@ -15,6 +15,7 @@ import { useProduct } from '../../hooks/use-product';
 import { BackupIcon } from '../product-cards-section/backup-card';
 import styles from './style.module.scss';
 import { BoostIcon } from '../product-cards-section/boost-card';
+import getProductCheckoutUrl from '../../utils/get-product-checkout-url';
 
 /**
  * Simple react component to render the product icon,
@@ -61,17 +62,18 @@ function Price( { value, currency, isOld } ) {
 }
 
 /**
- * Product Interstitial component.
+ * Product Detail component.
  *
- * @param {object} props          - Component props.
- * @param {string} props.slug     - Product slug
- * @returns {object}                ProductDetailCard react component.
+ * @param {object} props                    - Component props.
+ * @param {string} props.slug               - Product slug
+ * @param {Function} props.trackButtonClick - Function to call for tracking clicks on Call To Action button
+ * @returns {object}                          ProductDetailCard react component.
  */
-export default function ProductDetailCard( { slug } ) {
+const ProductDetail = ( { slug, trackButtonClick } ) => {
 	const { detail } = useProduct( slug );
-	const { title, longDescription, features } = detail;
-	const price = 9;
-	const currencyCode = 'USD';
+	const { title, longDescription, features, pricingForUi = {} } = detail;
+	const { isFree, fullPrice, currencyCode } = pricingForUi;
+	const addProductUrl = getProductCheckoutUrl( `jetpack_${ slug }` ); // @ToDo: Remove this when we have a new product structure.
 
 	return (
 		<div className={ styles.container }>
@@ -87,15 +89,28 @@ export default function ProductDetailCard( { slug } ) {
 					</li>
 				) ) }
 			</ul>
-			<div className={ styles[ 'price-container' ] }>
-				<Price value={ price } currency={ currencyCode } isOld={ true } />
-				<Price value={ price } currency={ currencyCode } isOld={ false } />
-				<div className={ styles[ 'price-description' ] }>
-					{ __( '/month, paid yearly', 'jetpack-my-jetpack' ) }
-				</div>
-			</div>
 
-			<Button isLink isPrimary href="#" className={ styles[ 'checkout-button' ] }>
+			{ ! isFree && (
+				<div className={ styles[ 'price-container' ] }>
+					<Price value={ fullPrice } currency={ currencyCode } isOld={ true } />
+					<Price value={ fullPrice } currency={ currencyCode } isOld={ false } />
+					<div className={ styles[ 'price-description' ] }>
+						{ __( '/month, paid yearly', 'jetpack-my-jetpack' ) }
+					</div>
+				</div>
+			) }
+
+			{ isFree && (
+				<h3 className={ styles[ 'product-free' ] }>{ __( 'Free', 'jetpack-my-jetpack' ) }</h3>
+			) }
+
+			<Button
+				onClick={ trackButtonClick }
+				isLink
+				isPrimary
+				href={ addProductUrl }
+				className={ styles[ 'checkout-button' ] }
+			>
 				{
 					/* translators: placeholder is product name. */
 					sprintf( __( 'Add %s', 'jetpack-my-jetpack' ), title )
@@ -103,22 +118,25 @@ export default function ProductDetailCard( { slug } ) {
 			</Button>
 		</div>
 	);
-}
+};
+
+ProductDetail.defaultProps = {
+	trackButtonClick: () => {},
+};
+
+export { ProductDetail };
 
 /**
- * BackupDetailCard component
+ * ProductDetailCard component.
  *
- * @returns {object} BackupDetailCard react component.
+ * @param {object} props          - Component props.
+ * @param {string} props.slug     - Product slug
+ * @returns {object}                ProductDetailCard react component.
  */
-export function BackupDetailCard() {
-	return <ProductDetailCard slug="backup" />;
-}
-
-/**
- * BoostDetailCard component
- *
- * @returns {object} BoostDetailCard react component.
- */
-export function BoostDetailCard() {
-	return <ProductDetailCard slug="boost" />;
+export default function ProductDetailCard( { slug } ) {
+	return (
+		<div className={ styles.card }>
+			<ProductDetail slug={ slug } />
+		</div>
+	);
 }

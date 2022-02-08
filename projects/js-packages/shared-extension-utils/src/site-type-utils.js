@@ -1,9 +1,4 @@
 /**
- * External dependencies
- */
-import { get } from 'lodash';
-
-/**
  * Internal dependencies
  */
 import getJetpackData from './get-jetpack-data';
@@ -43,5 +38,6 @@ export function isAtomicSite() {
  * @returns {boolean} whether the current blog is set to private.
  */
 export function isPrivateSite() {
-	return get( getJetpackData(), [ 'jetpack', 'is_private_site' ], false );
+	const jetpackData = getJetpackData();
+	return jetpackData?.jetpack?.is_private_site ?? false;
 }

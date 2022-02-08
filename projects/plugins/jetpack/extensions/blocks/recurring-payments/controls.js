@@ -10,13 +10,13 @@ import {
 	SelectControl,
 } from '@wordpress/components';
 import { Fragment } from '@wordpress/element';
+import { getSiteFragment } from '@automattic/jetpack-shared-extension-utils';
 
 /**
  * Internal dependencies
  */
 import { flashIcon } from '../../shared/icons';
 import { formatProductAmount } from './util';
-import getSiteFragment from '../../shared/get-site-fragment';
 import useAutosaveAndRedirect from '../../shared/use-autosave-and-redirect/index';
 
 export function PanelControls( { attributes: { planId }, products, setMembershipAmount } ) {
