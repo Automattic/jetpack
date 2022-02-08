@@ -4,7 +4,7 @@
  * Critical CSS on the site front-end.
  */
 
-namespace Automattic\Jetpack_Boost\Features\Optimizations\Critical_CSS;
+namespace Automattic\Jetpack_Boost\Lib\Critical_CSS;
 
 class Display_Critical_CSS {
 

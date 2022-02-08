@@ -9,7 +9,8 @@
 
 namespace Automattic\Jetpack_Boost\Features\Optimizations\Cloud_CSS;
 
-use Automattic\Jetpack_Boost\Features\Optimizations\Critical_CSS\Source_Providers\Source_Providers;
+use Automattic\Jetpack_Boost\Lib\Critical_CSS\Critical_CSS_State;
+use Automattic\Jetpack_Boost\Lib\Critical_CSS\Source_Providers\Source_Providers;
 
 /**
  * Cloud CSS State
@@ -17,7 +18,7 @@ use Automattic\Jetpack_Boost\Features\Optimizations\Critical_CSS\Source_Provider
 class Cloud_CSS_Request {
 
 	/**
-	 * @var Cloud_CSS_State
+	 * @var Critical_CSS_State
 	 */
 	private $cloud_css_state;
 
@@ -28,21 +29,24 @@ class Cloud_CSS_Request {
 
 	public function __construct() {
 		$this->source_providers = new Source_Providers();
-		$this->cloud_css_state = new Cloud_CSS_State();
+		$this->cloud_css_state  = new Critical_CSS_State();
 	}
 
 	public function request_generate() {
 		$this->cloud_css_state->create_request( $this->source_providers->get_providers() );
 		$sources = $this->cloud_css_state->get_provider_urls();
 
-		$response = wp_remote_post( 'http://hydra-api:1982/v1/action/critical-css', [
-			'body' => wp_json_encode( [ 'providers' => $sources ] ),
-			'timeout' => 30,
-			'headers' => [
-				'Content-Type' => 'application/json',
-			],
-		] );
+		$response = wp_remote_post(
+			'http://hydra-api:1982/v1/action/critical-css',
+			array(
+				'body'    => wp_json_encode( array( 'providers' => $sources ) ),
+				'timeout' => 30,
+				'headers' => array(
+					'Content-Type' => 'application/json',
+				),
+			)
+		);
 
-		return [ $response, $sources ];
+		return array( $response, $sources );
 	}
 }
