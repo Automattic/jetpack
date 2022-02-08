@@ -36,7 +36,7 @@ const Edit = props => {
 			setEditedValue( newAmount );
 			const parsedAmount = parseAmount( newAmount, currency );
 			if ( parsedAmount && parsedAmount >= minimumTransactionAmountForCurrency( currency ) ) {
-				setAttributes( { amount: newAmount, currency } );
+				setAttributes( { amount: Number( newAmount ), currency } );
 				setIsInvalid( false );
 			} else if ( newAmount ) {
 				setIsInvalid( true );

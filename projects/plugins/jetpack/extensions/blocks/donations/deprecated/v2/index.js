@@ -53,7 +53,7 @@ const createDonationView = (
 							__( 'Tier %d', 'jetpack' ),
 							index + 1
 						),
-						amount: formatCurrency( amount, currency, { symbol: '' } ),
+						amount: Number( amount ),
 						currency,
 						baseAmountMultiplier: 2 * index,
 					} )

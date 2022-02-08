@@ -20,7 +20,7 @@ const settings = {
 	category: 'earn',
 	attributes: {
 		baseAmountMultiplier: {
-			type: 'string',
+			type: 'integer',
 		},
 		label: {
 			type: 'string',
@@ -29,7 +29,7 @@ const settings = {
 			type: 'string',
 		},
 		amount: {
-			type: 'string',
+			type: 'number',
 		},
 		disabled: {
 			type: 'boolean',
@@ -42,6 +42,7 @@ const settings = {
 		align: true,
 		alignWide: true,
 		html: false,
+		inserter: false,
 		lightBlockWrapper: true,
 		color: {
 			gradients: true,
