@@ -22,14 +22,17 @@ class Boost extends Product {
 	public static $slug = 'boost';
 
 	/**
-	 * The filename (id) of the plugin associated with this product. If not defined, it will default to the Jetpack plugin
+	 * The filename (id) of the plugin associated with this product.
 	 *
 	 * @var string
 	 */
-	public static $plugin_filename = 'boost/jetpack-boost.php';
-
+	public static $plugin_filename = array(
+		'jetpack-boost/jetpack-boost.php',
+		'boost/jetpack-boost.php',
+		'jetpack-boost-dev/jetpack-boost.php',
+	);
 	/**
-	 * The slug of the plugin associated with this product. If not defined, it will default to the Jetpack plugin
+	 * The slug of the plugin associated with this product.
 	 *
 	 * @var string
 	 */
