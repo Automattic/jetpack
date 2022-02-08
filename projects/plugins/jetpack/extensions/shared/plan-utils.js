@@ -2,7 +2,13 @@
  * External dependencies
  */
 import { compact, get, startsWith, map, filter, head } from 'lodash';
-import { getJetpackData, getSiteFragment } from '@automattic/jetpack-shared-extension-utils';
+import {
+	isAtomicSite,
+	isSimpleSite,
+	getJetpackData,
+	getJetpackExtensionAvailability,
+	getSiteFragment,
+} from '@automattic/jetpack-shared-extension-utils';
 
 /**
  * WordPress dependencies
@@ -13,8 +19,6 @@ import { __ } from '@wordpress/i18n';
 /**
  * Internal dependencies
  */
-import { isSimpleSite, isAtomicSite } from './site-type-utils';
-import getJetpackExtensionAvailability from './get-jetpack-extension-availability';
 import { requiresPaidPlan } from './register-jetpack-block';
 
 /**

@@ -385,8 +385,11 @@ importers:
 
   projects/js-packages/shared-extension-utils:
     specifiers:
+      '@wordpress/plugins': 4.1.0
       jetpack-js-test-runner: workspace:*
       nyc: 15.1.0
+    dependencies:
+      '@wordpress/plugins': 4.1.0
     devDependencies:
       jetpack-js-test-runner: link:../../../tools/js-test-runner
       nyc: 15.1.0
@@ -9090,6 +9093,21 @@ packages:
       lodash: 4.17.21
     transitivePeerDependencies:
       - react
+
+  /@wordpress/plugins/4.1.0:
+    resolution: {integrity: sha512-PbQ0T56BY9x47E9K1p88nW1f67JILhbVem/o/4dL/8CcpE6FBtNDe+jopT4zStL5wihlYejoZE6M+BAb4ZYvfQ==}
+    engines: {node: '>=12'}
+    dependencies:
+      '@babel/runtime': 7.16.7
+      '@wordpress/compose': 5.1.0
+      '@wordpress/element': 4.1.0
+      '@wordpress/hooks': 3.3.0
+      '@wordpress/icons': 6.2.0
+      lodash: 4.17.21
+      memize: 1.1.0
+    transitivePeerDependencies:
+      - react
+    dev: false
 
   /@wordpress/postcss-plugins-preset/3.3.0:
     resolution: {integrity: sha512-Yj6t+eATEObTyGUoMaxZfkHtKh9i59lAUKTz1NY47QDmNED+Gq5WBBuQJ7ddFIXeQ7LSJcpN1wWujvNexeVISA==}
