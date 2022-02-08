@@ -6,7 +6,7 @@ import { Disabled, Placeholder, Spinner, ToolbarButton, ToolbarGroup } from '@wo
 import { BlockControls } from '@wordpress/block-editor';
 import { __, sprintf } from '@wordpress/i18n';
 import { compose } from '@wordpress/compose';
-import { withSelect, withDispatch } from '@wordpress/data';
+import { select, withSelect, withDispatch } from '@wordpress/data';
 import { addQueryArgs, getQueryArg } from '@wordpress/url';
 import formatCurrency from '@automattic/format-currency';
 import apiFetch from '@wordpress/api-fetch';
@@ -91,6 +91,7 @@ function Edit( props ) {
 	// @ts-ignore needed in some upgrade flows - depending how we implement this
 	const [ siteSlug, setSiteSlug ] = useState( '' ); // eslint-disable-line
 	const { isPreview } = props.attributes;
+	const { clientId } = props;
 
 	/**
 	 * Hook to save a new plan.
@@ -216,6 +217,44 @@ function Edit( props ) {
 	useOutsideAlerter( wrapperRef, hasSelectedInnerBlock );
 
 	const { isSelected, className } = props;
+
+	useEffect( () => {
+		if ( isSelected ) {
+			return; // If this block is selected then leave the focused tab as it was.
+		}
+
+		const selectedBlock = select( 'core/block-editor' ).getSelectedBlock();
+		if ( ! selectedBlock ) {
+			return; // Sometimes there isn't a block selected, e.g. on page load.
+		}
+
+		// Confirm that the selected block is a descendant of this one.
+		if (
+			! select( 'core/block-editor' ).getBlockParents( selectedBlock.clientId ).includes( clientId )
+		) {
+			return;
+		}
+
+		if (
+			'premium-content/logged-out-view' === selectedBlock.name ||
+			select( 'core/block-editor' ).getBlockParentsByBlockName(
+				selectedBlock.clientId,
+				'premium-content/logged-out-view'
+			).length
+		) {
+			selectTab( tabs[ 1 ] );
+			return;
+		} else if (
+			'premium-content/subscriber-view' === selectedBlock.name ||
+			select( 'core/block-editor' ).getBlockParentsByBlockName(
+				selectedBlock.clientId,
+				'premium-content/subscriber-view'
+			).length
+		) {
+			selectTab( tabs[ 0 ] );
+			return;
+		}
+	}, [ clientId, isSelected ] );
 
 	useEffect( () => {
 		if ( isPreview ) {
@@ -457,8 +496,8 @@ function MaybeDisabledEdit( props ) {
 }
 
 export default compose( [
-	withSelect( select => {
-		const { getCurrentPostId } = select( 'core/editor' );
+	withSelect( selector => {
+		const { getCurrentPostId } = selector( 'core/editor' );
 		return {
 			postId: getCurrentPostId(),
 		};
