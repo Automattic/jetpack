@@ -8,6 +8,7 @@ import { compose } from '@wordpress/compose';
 import { InspectorControls } from '@wordpress/block-editor';
 import { withViewportMatch } from '@wordpress/viewport';
 import { getBlockDefaultClassName } from '@wordpress/blocks';
+import { isAtomicSite, isSimpleSite } from '@automattic/jetpack-shared-extension-utils';
 
 /**
  * Internal dependencies
@@ -15,7 +16,6 @@ import { getBlockDefaultClassName } from '@wordpress/blocks';
 import GoogleCalendarInspectorControls from './controls';
 import icon from './icon';
 import { URL_REGEX, parseEmbed } from './utils';
-import { isAtomicSite, isSimpleSite } from '../../shared/site-type-utils';
 
 export function GoogleCalendarEdit( props ) {
 	const {
