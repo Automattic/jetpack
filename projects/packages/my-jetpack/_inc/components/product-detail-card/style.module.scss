@@ -1,15 +1,23 @@
+.card {
+	// Card main wrapper
+	--product-card-bg-color: white;
+	--product-card-border-color: #d5d5d5;
+	--product-card-shadow: rgb(0 0 0 / 3%);
+	--product-card-border-radius: 4px;
+	
+	background-color: var(--product-card-bg-color);
+	border: 1px solid var(--product-card-border-color);
+	border-radius: var(--product-card-border-radius);
+	box-shadow: 0 2px 6px var(--product-card-shadow), 0 1px 2px var(--product-card-shadow);
+	max-width: 384px;
+}
+
 .container {
 	// @todo find a better way to change link color
 	// since this could affect more places
 	--wp-admin-theme-color: var(--jp-black);
 
 	// all css variables used down in product-detail-card
-
-	// Card main wrapper
-	--product-card-bg-color: white;
-	--product-card-border-color: #d5d5d5;
-	--product-card-shadow: rgb(0 0 0 / 3%);
-	--product-card-border-radius: 4px;
 
 	// Colors
 	--jp-green-primary: #069e08;
@@ -25,12 +33,7 @@
 	flex-direction: column;
 	justify-content: space-between;
 	max-width: 600px;
-	height: 100%;
 	padding: 60px 40px;
-	background-color: var(--product-card-bg-color);
-	border: 1px solid var(--product-card-border-color);
-	border-radius: var(--product-card-border-radius);
-	box-shadow: 0 2px 6px var(--product-card-shadow), 0 1px 2px var(--product-card-shadow);
 
 	h3 {
 		font-size: var(--font-title-large);
@@ -46,6 +49,12 @@
 		white-space: pre-line;
 		height: auto;
 		line-height: 26px;
+	}
+
+	// Product Icon
+	& > svg {
+		height: 30px;
+		line-height: 30px;
 	}
 }
 

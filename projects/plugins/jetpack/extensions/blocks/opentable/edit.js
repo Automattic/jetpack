@@ -4,11 +4,12 @@
 import 'url-polyfill';
 import classnames from 'classnames';
 import { isEmpty, isEqual, join } from 'lodash';
+import { isAtomicSite, isSimpleSite } from '@automattic/jetpack-shared-extension-utils';
 
 /**
  * WordPress dependencies
  */
-import { BlockIcon, InspectorControls, InspectorAdvancedControls } from '@wordpress/block-editor';
+import { InspectorControls, InspectorAdvancedControls } from '@wordpress/block-editor';
 import {
 	ExternalLink,
 	PanelBody,
@@ -30,7 +31,6 @@ import { useEffect } from '@wordpress/element';
  */
 import './editor.scss';
 import icon from './icon';
-import { isAtomicSite, isSimpleSite } from '../../shared/site-type-utils';
 import RestaurantPicker from './restaurant-picker';
 import usePrevious from './use-previous';
 
@@ -236,7 +236,7 @@ function OpenTableEdit( {
 	const blockPlaceholder = (
 		<Placeholder
 			label={ __( 'OpenTable Reservation', 'jetpack' ) }
-			icon={ <BlockIcon icon={ icon } /> }
+			icon={ icon }
 			instructions={ __(
 				'Enter your restaurant name, or paste an OpenTable Reservation Widget embed code.',
 				'jetpack'

@@ -1,8 +1,9 @@
 /**
  * External dependencies
  */
-import React from 'react';
+import React, { useCallback } from 'react';
 import PropTypes from 'prop-types';
+import { useNavigate } from 'react-router-dom';
 
 /**
  * Internal dependencies
@@ -19,6 +20,11 @@ export const BoostIcon = () => (
 const BoostCard = ( { admin } ) => {
 	const { status, activate, deactivate, detail, isFetching } = useProduct( 'boost' );
 	const { name, description } = detail;
+	const navigate = useNavigate();
+
+	const onAddHandler = useCallback( () => {
+		navigate( '/add-boost' );
+	}, [ navigate ] );
 
 	return (
 		<ProductCard
@@ -30,6 +36,7 @@ const BoostCard = ( { admin } ) => {
 			isFetching={ isFetching }
 			onDeactivate={ deactivate }
 			onActivate={ activate }
+			onAdd={ onAddHandler }
 		/>
 	);
 };

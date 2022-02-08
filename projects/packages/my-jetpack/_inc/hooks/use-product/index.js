@@ -17,13 +17,20 @@ import { mapObjectKeysToCamel } from '../../utils/to-camel';
  */
 export function useProduct( productId ) {
 	const { activateProduct, deactivateProduct } = useDispatch( STORE_ID );
-	const detail = useSelect( select => select( STORE_ID ).getProduct( productId ) );
+
+	/*
+	 * Re map object keys to camel case.
+	 * Consider to improve this in the process.
+	 */
+	let detail = useSelect( select => select( STORE_ID ).getProduct( productId ) );
+	detail = mapObjectKeysToCamel( detail, true );
+	detail.pricingForUi = mapObjectKeysToCamel( detail.pricingForUi, true );
 
 	return {
 		activate: () => activateProduct( productId ),
 		deactivate: () => deactivateProduct( productId ),
 		productsList: useSelect( select => select( STORE_ID ).getProducts() ),
-		detail: mapObjectKeysToCamel( detail, true ),
+		detail,
 		isActive: detail.status === 'active',
 		isFetching: useSelect( select => select( STORE_ID ).isFetching( productId ) ),
 		status: detail.status, // shorthand. Consider to remove.

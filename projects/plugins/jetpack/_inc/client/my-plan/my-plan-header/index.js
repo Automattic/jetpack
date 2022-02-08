@@ -314,7 +314,7 @@ class MyPlanHeader extends React.Component {
 	renderPlan() {
 		return (
 			<>
-				{ this.props.hasDetachedUserLicenses && this.renderLicensingActions() }
+				{ this.renderLicensingActions() }
 				<Card compact>
 					{ this.renderHeader( __( 'My Plan', 'jetpack' ) ) }
 					<MyPlanCard { ...this.getProductProps( this.props.plan ) } />
@@ -342,7 +342,13 @@ class MyPlanHeader extends React.Component {
 		return <h3 className="jp-landing__card-header">{ title }</h3>;
 	}
 
-	renderLicensingActions = () => {
+	/**
+	 * Renders license related actions
+	 *
+	 * @param {'header'|'footer'} position - Whether the actions are for header or footer
+	 * @returns {React.ReactElement} The licence actions
+	 */
+	renderLicensingActions = ( position = 'header' ) => {
 		const {
 			hasDetachedUserLicenses,
 			showRecommendations: showRecommendationsButton,
@@ -354,12 +360,12 @@ class MyPlanHeader extends React.Component {
 			return null;
 		}
 
-		const showPurchasesLink = !! purchases?.length || hasDetachedUserLicenses;
+		const showPurchasesLink = !! purchases?.length && 'header' === position;
 
 		return (
 			<Card compact>
 				<div className="jp-landing__licensing-actions">
-					{ hasDetachedUserLicenses && (
+					{ 'header' === position && (
 						<span>{ __( 'Got a license key? Activate it here.', 'jetpack' ) }</span>
 					) }
 					<div
@@ -379,7 +385,7 @@ class MyPlanHeader extends React.Component {
 								{ __( 'View all purchases', 'jetpack' ) }
 							</ExternalLink>
 						) }
-						{ hasDetachedUserLicenses ? (
+						{ 'header' === position ? (
 							<Button
 								href={ siteAdminUrl + 'admin.php?page=jetpack#/license/activation' }
 								onClick={ this.trackLicenseActivationClick }
@@ -426,7 +432,7 @@ class MyPlanHeader extends React.Component {
 		return (
 			// The activation label should be displayed in the footer only if
 			// there is no product to be activated.
-			! this.props.hasDetachedUserLicenses && this.renderLicensingActions()
+			! this.props.hasDetachedUserLicenses && this.renderLicensingActions( 'footer' )
 		);
 	}
 

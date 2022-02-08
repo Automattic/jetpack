@@ -12,6 +12,12 @@ export const backupProductData = {
 		'30-day archive & activity log',
 		'One-click restores',
 	],
+	pricingForUi: {
+		available: true,
+		currencyCode: 'EUR',
+		fullPrice: '9',
+		promotionPercentage: '50',
+	},
 };
 
 export const boostProductData = {
@@ -27,4 +33,8 @@ export const boostProductData = {
 		'Enable improvements in one click',
 		'Standalone free plugin for those focused on speed',
 	],
+	pricingForUi: {
+		available: true,
+		is_free: true,
+	},
 };
