@@ -1,4 +1,4 @@
 Significance: patch
 Type: changed
 
-E2E tests: restore plugin update test
+E2E tests: fix pnpm script
