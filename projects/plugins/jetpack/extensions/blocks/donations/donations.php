@@ -123,18 +123,21 @@ function render_block( $attr, $content, $block ) {
 		);
 	}
 
-	$navigation_items = array_map(
-		function ( $donation, $index ) {
-			return sprintf(
-				'<div role="button" tabindex="%1$u" class="donations__nav-item" data-interval="%2$s">%3$s</div>',
-				esc_attr( $index ),
-				esc_attr( $donation['interval'] ),
-				esc_html( $donation['title'] )
-			);
-		},
-		$donations,
-		array_keys( $donations )
-	);
+	$navigation_items = array();
+	if ( count( $donations ) > 1 ) {
+		$navigation_items = array_map(
+			function ( $donation, $index ) {
+				return sprintf(
+					'<div role="button" tabindex="%1$u" class="donations__nav-item" data-interval="%2$s">%3$s</div>',
+					esc_attr( $index ),
+					esc_attr( $donation['interval'] ),
+					esc_html( $donation['title'] )
+				);
+			},
+			$donations,
+			array_keys( $donations )
+		);
+	}
 
 	$template = '
 <div class="%1$s">
