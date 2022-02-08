@@ -1,8 +1,12 @@
 /**
+ * External dependencies
+ */
+import { isAtomicSite, isSimpleSite } from '@automattic/jetpack-shared-extension-utils';
+
+/**
  * Internal dependencies
  */
 import registerJetpackBlock from '../../shared/register-jetpack-block';
-import { isAtomicSite, isSimpleSite } from '../../shared/site-type-utils';
 import { name, settings } from '.';
 import {
 	name as loggedOutViewBlockName,
