@@ -139,6 +139,6 @@ class Search extends Module_Product {
 	 */
 	public static function has_required_plan() {
 		$search_state = static::get_state_from_wpcom();
-		return ( isset( $search_state->supports_search ) && $search_state->supports_search ) || ( isset( $search_state->supports_instant_search ) && $search_state->supports_instant_search );
+		return ! empty( $search_state->supports_search ) || ! empty( $search_state->supports_instant_search );
 	}
 }
