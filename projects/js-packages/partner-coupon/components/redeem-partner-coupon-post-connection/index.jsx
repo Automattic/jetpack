@@ -7,10 +7,14 @@ import { ActionButton, JetpackLogo } from '@automattic/jetpack-components';
 import { __, sprintf } from '@wordpress/i18n';
 
 /**
+ * Internal dependencies
+ */
+import { usePartnerCouponRedemption } from '../../hooks';
+
+/**
  * Import styles
  */
 import './style.scss';
-import { usePartnerCouponRedemption } from '../../hooks';
 
 const RedeemPartnerCouponPostConnection = props => {
 	const {

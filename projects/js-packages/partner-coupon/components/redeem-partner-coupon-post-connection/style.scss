@@ -115,21 +115,11 @@
 		list-style-type: none;
 		padding: 0;
 
-		@include break-xlarge {
-			display: flex;
-			flex-wrap: wrap;
-			justify-content: space-between;
-		}
-
 		li {
 			background: url(data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAADAAAAAwCAMAAABg3Am1AAAANlBMVEVHcEwFnwUInggGnggGnggHnAcAnwUFnQcAnwcGnwkFnQgGnQgFnwcGnQYFnQcFnAcGnQkDnwdhiL0pAAAAEnRSTlMAMF//f2Aw7yBQ3+9gcIBgcED+HDbkAAAAZklEQVR4Ae3LNwICARDDQC0+cv7/Y8mwV9odSfWIcf/+VegnGkIvDaGXKvTTn/Gz+Uf5xTL0K1XotS7fs5H6GHvvaO8d7c3j7rdgHne/A/PYt/cO+R42oYdN6OEQetiFHo4A//6dAXqtBEkmtWutAAAAAElFTkSuQmCC) no-repeat;
 			background-size: 24px;
 			padding-left: 30px;
 			margin-bottom: 9px;
-
-			@include break-xlarge {
-				flex: 0 1 calc( 50% - 12px );
-			}
 		}
 	}
 
