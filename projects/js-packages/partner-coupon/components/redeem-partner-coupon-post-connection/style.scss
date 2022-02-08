@@ -124,14 +124,61 @@
 	}
 
 	.jp-action-button {
-		margin-top: 20px;
-
 		button {
 			width: 100%;
 
 			@include break-medium {
 				width: auto;
 			}
+		}
+	}
+
+	&__actions {
+		display: flex;
+		flex-wrap: wrap;
+		justify-content: center;
+		align-items: center;
+		margin-top: 32px;
+
+		@include break-medium {
+			justify-content: left;
+		}
+
+		@include break-xlarge {
+			flex-wrap: nowrap;
+		}
+
+		> div {
+			flex: 1 0 100%;
+			text-align: center;
+
+			@include break-medium {
+				text-align: left;
+			}
+
+			@include break-xlarge {
+				flex: 0 0 auto;
+			}
+		}
+	}
+
+	&__remind-me-later {
+		margin: 24px 0 0 0;
+		padding: 2px 0;
+		border: 0;
+		background: transparent;
+		color: #000000;
+		font-weight: 600;
+		font-size: 1rem;
+		text-decoration: underline;
+		cursor: pointer;
+
+		&:hover {
+			text-decoration: none;
+		}
+
+		@include break-xlarge {
+			margin: 0 0 0 24px;
 		}
 	}
 }
