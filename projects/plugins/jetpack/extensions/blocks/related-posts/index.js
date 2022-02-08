@@ -66,6 +66,7 @@ export const settings = {
 		reusable: false,
 		color: {
 			gradients: true,
+			link: true,
 		},
 		spacing: {
 			margin: true,

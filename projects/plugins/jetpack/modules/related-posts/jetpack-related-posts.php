@@ -80,7 +80,7 @@ class Jetpack_RelatedPosts {
 				'supports'        => array(
 					'color'      => array(
 						'gradients' => true,
-						'links'     => true,
+						'link'      => true,
 					),
 					'spacing'    => array(
 						'margin'  => true,
