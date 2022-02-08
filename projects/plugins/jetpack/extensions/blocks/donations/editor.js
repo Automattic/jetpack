@@ -14,7 +14,6 @@ import {
 } from './custom-amount/index';
 
 registerJetpackBlock( donationsBlockName, donationsBlockSettings, [
-	{ name: donationsAmountName, settings: donationsAmountSettings },
 	{ name: donationsViewName, settings: donationsViewSettings },
 	{ name: donationsAmountName, settings: donationsAmountSettings },
 	{ name: customDonationsAmountName, settings: customDonationsAmountSettings },
