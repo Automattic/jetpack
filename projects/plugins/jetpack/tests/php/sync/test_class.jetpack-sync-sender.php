@@ -648,9 +648,9 @@ class WP_Test_Jetpack_Sync_Sender extends WP_Test_Jetpack_Sync_Base {
 	}
 
 	/**
-	 * Test do_dedicated_sync will NOT re-spawn a dedicated Sync request if queue is empty.
+	 * Test do_dedicated_sync_and_exit will NOT re-spawn a dedicated Sync request if queue is empty.
 	 */
-	public function test_do_dedicated_sync_will_not_re_spawn_dedicated_sync_request_with_empty_queue() {
+	public function test_do_dedicated_sync_and_exit_will_not_re_spawn_dedicated_sync_request_with_empty_queue() {
 		$this->expectException( ExitException::class );
 
 		Settings::update_settings( array( 'dedicated_sync_enabled' => 1 ) );
@@ -660,7 +660,7 @@ class WP_Test_Jetpack_Sync_Sender extends WP_Test_Jetpack_Sync_Base {
 		$_POST['jetpack_dedicated_sync_request'] = 1;
 
 		add_filter( 'pre_http_request', array( $this, 'pre_http_sync_request_spawned' ), 10, 3 );
-		$result = $this->sender->do_dedicated_sync();
+		$result = $this->sender->do_dedicated_sync_and_exit();
 		remove_filter( 'pre_http_request', array( $this, 'pre_http_sync_request_spawned' ) );
 
 		$this->assertFalse( $this->dedicated_sync_request_spawned );
@@ -672,9 +672,9 @@ class WP_Test_Jetpack_Sync_Sender extends WP_Test_Jetpack_Sync_Base {
 	}
 
 	/**
-	 * Test do_dedicated_sync will NOT re-spawn a dedicated Sync request Sync result if JETPACK_SYNC_READ_ONLY is defined and true.
+	 * Test do_dedicated_sync_and_exit will NOT re-spawn a dedicated Sync request Sync result if JETPACK_SYNC_READ_ONLY is defined and true.
 	 */
-	public function test_do_dedicated_sync_will_not_re_spawn_dedicated_sync_request_if_read_only() {
+	public function test_do_dedicated_sync_and_exit_will_not_re_spawn_dedicated_sync_request_if_read_only() {
 		$this->expectException( ExitException::class );
 
 		Settings::update_settings( array( 'dedicated_sync_enabled' => 1 ) );
@@ -685,7 +685,7 @@ class WP_Test_Jetpack_Sync_Sender extends WP_Test_Jetpack_Sync_Base {
 		$_POST['jetpack_dedicated_sync_request'] = 1;
 
 		add_filter( 'pre_http_request', array( $this, 'pre_http_sync_request_spawned' ), 10, 3 );
-		$result = $this->sender->do_dedicated_sync();
+		$result = $this->sender->do_dedicated_sync_and_exit();
 		remove_filter( 'pre_http_request', array( $this, 'pre_http_sync_request_spawned' ) );
 
 		$this->assertFalse( $this->dedicated_sync_request_spawned );
@@ -698,9 +698,9 @@ class WP_Test_Jetpack_Sync_Sender extends WP_Test_Jetpack_Sync_Base {
 	}
 
 	/**
-	 * Test do_dedicated_sync will re-spawn a dedicated Sync request.
+	 * Test do_dedicated_sync_and_exit will re-spawn a dedicated Sync request.
 	 */
-	public function test_do_dedicated_sync_will_re_spawn_dedicated_sync_request() {
+	public function test_do_dedicated_sync_and_exit_will_re_spawn_dedicated_sync_request() {
 		$this->expectException( ExitException::class );
 
 		Settings::update_settings( array( 'dedicated_sync_enabled' => 1 ) );
@@ -714,7 +714,7 @@ class WP_Test_Jetpack_Sync_Sender extends WP_Test_Jetpack_Sync_Base {
 		$_POST['jetpack_dedicated_sync_request'] = 1;
 
 		add_filter( 'pre_http_request', array( $this, 'pre_http_sync_request_spawned' ), 10, 3 );
-		$result = $this->sender->do_dedicated_sync();
+		$result = $this->sender->do_dedicated_sync_and_exit();
 		remove_filter( 'pre_http_request', array( $this, 'pre_http_sync_request_spawned' ) );
 
 		$this->assertTrue( $this->dedicated_sync_request_spawned );

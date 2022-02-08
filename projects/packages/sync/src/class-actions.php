@@ -186,7 +186,7 @@ class Actions {
 			self::should_initialize_sender()
 		) ) {
 			self::initialize_sender();
-			self::$sender->do_dedicated_sync();
+			self::$sender->do_dedicated_sync_and_exit();
 		}
 	}
 
