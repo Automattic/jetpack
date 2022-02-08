@@ -183,7 +183,7 @@ class Actions {
 	public static function add_dedicated_sync_sender_init() {
 		if ( apply_filters(
 			'jetpack_sync_sender_should_load',
-			self::should_initialize_sender()
+			true
 		) ) {
 			self::initialize_sender();
 			self::$sender->do_dedicated_sync_and_exit();
