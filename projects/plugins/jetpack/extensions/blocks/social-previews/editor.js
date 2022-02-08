@@ -3,6 +3,7 @@
  */
 import { registerPlugin } from '@wordpress/plugins';
 import {
+	isSimpleSite,
 	getJetpackExtensionAvailability,
 	registerJetpackPlugin,
 } from '@automattic/jetpack-shared-extension-utils';
@@ -11,7 +12,6 @@ import {
  * Internal dependencies
  */
 import { name, settings, SocialPreviews } from '.';
-import { isSimpleSite } from '../../shared/site-type-utils';
 
 /*
  * Register the main "social-previews" extension if the feature is available

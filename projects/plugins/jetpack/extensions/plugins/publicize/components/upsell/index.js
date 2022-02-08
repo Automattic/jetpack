@@ -2,6 +2,7 @@
  * External dependencies
  */
 import classNames from 'classnames';
+import { isAtomicSite, isSimpleSite } from '@automattic/jetpack-shared-extension-utils';
 
 /**
  * WordPress dependencies
@@ -16,7 +17,6 @@ import { external } from '@wordpress/icons';
 import { getRequiredPlan } from '../../../../shared/plan-utils';
 import useUpgradeFlow from '../../../../shared/use-upgrade-flow';
 import usePublicizeConfig from '../../hooks/use-publicize-config';
-import { isAtomicSite, isSimpleSite } from '../../../../shared/site-type-utils';
 import useSocialMediaConnections from '../../hooks/use-social-media-connections';
 
 function getPanelDescription(

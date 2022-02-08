@@ -2,6 +2,7 @@
  * External dependencies
  */
 import { isEqual } from 'lodash';
+import { isAtomicSite, isSimpleSite } from '@automattic/jetpack-shared-extension-utils';
 
 /**
  * WordPress dependencies
@@ -26,7 +27,6 @@ import defaultAttributes from './attributes';
 import JetpackFieldLabel from '../contact-form/components/jetpack-field-label';
 import icon from './icon';
 import { getValidatedAttributes } from '../../shared/get-validated-attributes';
-import { isAtomicSite, isSimpleSite } from '../../shared/site-type-utils';
 import './editor.scss';
 import './view.scss';
 

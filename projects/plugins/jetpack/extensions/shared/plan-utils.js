@@ -3,8 +3,11 @@
  */
 import { compact, get, startsWith, map, filter, head } from 'lodash';
 import {
+	isAtomicSite,
+	isSimpleSite,
 	getJetpackData,
 	getJetpackExtensionAvailability,
+	getSiteFragment,
 } from '@automattic/jetpack-shared-extension-utils';
 
 /**
@@ -16,8 +19,6 @@ import { __ } from '@wordpress/i18n';
 /**
  * Internal dependencies
  */
-import { isSimpleSite, isAtomicSite } from './site-type-utils';
-import getSiteFragment from './get-site-fragment';
 import { requiresPaidPlan } from './register-jetpack-block';
 
 /**

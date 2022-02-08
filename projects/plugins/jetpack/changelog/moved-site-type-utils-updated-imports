@@ -1,0 +1,4 @@
+Significance: minor
+Type: other
+
+Moved site-tyoe-utils file to js-package/shared-extension-utils and updated imports

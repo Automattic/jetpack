@@ -4,6 +4,7 @@
 import 'url-polyfill';
 import classnames from 'classnames';
 import { isEmpty, isEqual, join } from 'lodash';
+import { isAtomicSite, isSimpleSite } from '@automattic/jetpack-shared-extension-utils';
 
 /**
  * WordPress dependencies
@@ -30,7 +31,6 @@ import { useEffect } from '@wordpress/element';
  */
 import './editor.scss';
 import icon from './icon';
-import { isAtomicSite, isSimpleSite } from '../../shared/site-type-utils';
 import RestaurantPicker from './restaurant-picker';
 import usePrevious from './use-previous';
 
