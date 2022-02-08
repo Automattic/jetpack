@@ -420,7 +420,7 @@ class Jetpack_Subscriptions_Widget extends WP_Widget {
 				<p id="subscribe-submit"
 					<?php if ( ! empty( $submit_button_wrapper_styles ) ) { ?>
 						style="<?php echo esc_attr( $submit_button_wrapper_styles ); ?>"
-					<?php }; ?>
+					<?php } ?>
 				>
 					<input type="hidden" name="action" value="subscribe"/>
 					<input type="hidden" name="blog_id" value="<?php echo (int) $current_blog->blog_id; ?>"/>
@@ -431,10 +431,10 @@ class Jetpack_Subscriptions_Widget extends WP_Widget {
 					<button type="submit"
 						<?php if ( ! empty( $submit_button_classes ) ) { ?>
 							class="<?php echo esc_attr( $submit_button_classes ); ?>"
-						<?php }; ?>
+						<?php } ?>
 						<?php if ( ! empty( $submit_button_styles ) ) { ?>
 							style="<?php echo esc_attr( $submit_button_styles ); ?>"
-						<?php }; ?>
+						<?php } ?>
 					>
 						<?php
 						echo wp_kses(
@@ -494,10 +494,10 @@ class Jetpack_Subscriptions_Widget extends WP_Widget {
 						<input type="email" name="email" required="required"
 							<?php if ( ! empty( $email_field_classes ) ) { ?>
 								class="<?php echo esc_attr( $email_field_classes ); ?> required"
-							<?php }; ?>
+							<?php } ?>
 							<?php if ( ! empty( $email_field_styles ) ) { ?>
 								style="<?php echo esc_attr( $email_field_styles ); ?>"
-							<?php }; ?>
+							<?php } ?>
 							value="<?php echo esc_attr( $subscribe_email ); ?>"
 							id="<?php echo esc_attr( $subscribe_field_id . '-' . $widget_id ); ?>"
 							placeholder="<?php echo esc_attr( $subscribe_placeholder ); ?>"
@@ -507,7 +507,7 @@ class Jetpack_Subscriptions_Widget extends WP_Widget {
 					<p id="subscribe-submit"
 						<?php if ( ! empty( $submit_button_wrapper_styles ) ) { ?>
 							style="<?php echo esc_attr( $submit_button_wrapper_styles ); ?>"
-						<?php }; ?>
+						<?php } ?>
 					>
 						<input type="hidden" name="action" value="subscribe"/>
 						<input type="hidden" name="source" value="<?php echo esc_url( $referer ); ?>"/>
@@ -521,10 +521,10 @@ class Jetpack_Subscriptions_Widget extends WP_Widget {
 						<button type="submit"
 							<?php if ( ! empty( $submit_button_classes ) ) { ?>
 								class="<?php echo esc_attr( $submit_button_classes ); ?>"
-							<?php }; ?>
+							<?php } ?>
 							<?php if ( ! empty( $submit_button_styles ) ) { ?>
 								style="<?php echo esc_attr( $submit_button_styles ); ?>"
-							<?php }; ?>
+							<?php } ?>
 							name="jetpack_subscriptions_widget"
 						>
 							<?php
