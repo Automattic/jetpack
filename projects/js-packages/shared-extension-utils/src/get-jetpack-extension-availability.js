@@ -1,8 +1,7 @@
 /**
- * External dependencies
+ * Internal dependencies
  */
-import { getJetpackData } from '@automattic/jetpack-shared-extension-utils';
-import { get } from 'lodash';
+import { getJetpackData } from './get-jetpack-data';
 
 /**
  * Return whether a Jetpack Gutenberg extension is available or not.
@@ -13,13 +12,9 @@ import { get } from 'lodash';
  */
 export default function getJetpackExtensionAvailability( name ) {
 	const data = getJetpackData();
-	const available = get( data, [ 'available_blocks', name, 'available' ], false );
-	const unavailableReason = get(
-		data,
-		[ 'available_blocks', name, 'unavailable_reason' ],
-		'unknown'
-	);
-	const details = get( data, [ 'available_blocks', name, 'details' ], [] );
+	const available = data?.available_blocks?.[ name ]?.available ?? false;
+	const unavailableReason = data?.available_blocks?.[ name ]?.unavailable_reason ?? 'unknown';
+	const details = data?.available_blocks?.[ name ]?.details ?? [];
 	return {
 		available,
 		...( ! available && { details, unavailableReason } ),

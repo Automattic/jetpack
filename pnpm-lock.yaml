@@ -386,11 +386,9 @@ importers:
   projects/js-packages/shared-extension-utils:
     specifiers:
       jetpack-js-test-runner: workspace:*
-      lodash: 4.17.21
       nyc: 15.1.0
     devDependencies:
       jetpack-js-test-runner: link:../../../tools/js-test-runner
-      lodash: 4.17.21
       nyc: 15.1.0
 
   projects/js-packages/storybook:
