@@ -40,6 +40,10 @@ export const settings = {
 	],
 	supports: {
 		align: [ 'wide', 'full' ],
+		spacing: {
+			padding: true,
+			margin: true,
+		},
 		/*
 		 * When true, a new field in the block sidebar allows to define an id for
 		 * the block and a button to copy the direct link.
