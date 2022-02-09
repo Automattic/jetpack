@@ -12,6 +12,7 @@ import ProductInterstitial, {
 	BackupInterstitial,
 	BoostInterstitial,
 	SearchInterstitial,
+	ScanInterstitial,
 } from '../index.jsx';
 
 export default {
@@ -35,6 +36,10 @@ JetpackBackup.parameters = {};
 const BoostTemplate = args => <BoostInterstitial { ...args } />;
 export const JetpackBoost = BoostTemplate.bind( {} );
 JetpackBoost.parameters = {};
+
+const ScanTemplate = args => <ScanInterstitial { ...args } />;
+export const JetpackScan = ScanTemplate.bind( {} );
+JetpackScan.parameters = {};
 
 const SearchTemplate = args => <SearchInterstitial { ...args } />;
 export const JetpackSearch = SearchTemplate.bind( {} );

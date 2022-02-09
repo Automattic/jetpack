@@ -79,6 +79,19 @@ export function BoostInterstitial() {
  *
  * @returns {object} SearchInterstitial react component.
  */
+export function ScanInterstitial() {
+	return (
+		<ProductInterstitial slug="scan">
+			<img src={ searchImage } alt="Scan" />
+		</ProductInterstitial>
+	);
+}
+
+/**
+ * SearchInterstitial component
+ *
+ * @returns {object} SearchInterstitial react component.
+ */
 export function SearchInterstitial() {
 	return (
 		<ProductInterstitial slug="search">
