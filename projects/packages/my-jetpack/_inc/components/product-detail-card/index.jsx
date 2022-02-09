@@ -109,8 +109,7 @@ const ProductDetail = ( { slug, trackButtonClick } ) => {
 
 			<Button
 				onClick={ trackButtonClick }
-				isLink
-				isPrimary
+				isPressed
 				href={ addProductUrl }
 				className={ styles[ 'checkout-button' ] }
 			>
