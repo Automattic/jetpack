@@ -335,7 +335,7 @@
                 "automattic/jetpack-a8c-mc-stats": "^1.4",
                 "automattic/jetpack-constants": "^1.6",
                 "automattic/jetpack-heartbeat": "^1.4",
-                "automattic/jetpack-options": "^1.15",
+                "automattic/jetpack-options": "^1.14",
                 "automattic/jetpack-redirect": "^1.7",
                 "automattic/jetpack-roles": "^1.4",
                 "automattic/jetpack-status": "^1.10",
@@ -499,7 +499,7 @@
             },
             "require": {
                 "automattic/jetpack-a8c-mc-stats": "^1.4",
-                "automattic/jetpack-options": "^1.15"
+                "automattic/jetpack-options": "^1.14"
             },
             "require-dev": {
                 "automattic/jetpack-changelogger": "^3.0"
@@ -795,7 +795,7 @@
                 "reference": "441d91c5ba9f186c07b2272924d9a8ae715dc0c4"
             },
             "require": {
-                "automattic/jetpack-options": "^1.15",
+                "automattic/jetpack-options": "^1.14",
                 "automattic/jetpack-status": "^1.10"
             },
             "require-dev": {
@@ -849,7 +849,7 @@
             },
             "require": {
                 "automattic/jetpack-assets": "^1.17",
-                "automattic/jetpack-options": "^1.15",
+                "automattic/jetpack-options": "^1.14",
                 "automattic/jetpack-status": "^1.10",
                 "automattic/jetpack-terms-of-service": "^1.9"
             },

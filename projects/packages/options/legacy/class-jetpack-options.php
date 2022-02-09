@@ -622,7 +622,6 @@ class Jetpack_Options {
 			'jetpack-sitemap-state',
 			'jetpack_sitemap_post_types',
 			'jetpack_sitemap_location',
-			'jetpack_partner_coupon_last_check',
 			'jetpack_protect_key',
 			'jetpack_protect_blocked_attempts',
 			'jetpack_protect_activating',
