@@ -9,7 +9,7 @@ import withMock from 'storybook-addon-mock';
  * Internal dependencies
  */
 import ProductDetailCard, { ProductDetail } from '../index.jsx';
-import { backupProductData, boostProductData } from './mock-data.js';
+import { backupProductData, boostProductData, scanProductData } from './mock-data.js';
 
 export default {
 	title: 'Packages/My Jetpack/Product Detail Card',
@@ -24,6 +24,7 @@ const DefaultProductDetailCard = args => <ProductDetailCard { ...args } slug="ba
 const mapResponse = {
 	backup: backupProductData,
 	boost: boostProductData,
+	scan: scanProductData,
 };
 
 /**
@@ -56,8 +57,8 @@ JetpackBackup.parameters = {
 };
 
 const BoostTemplate = args => <ProductDetail { ...args } slug="boost" />;
-export const BoostBackup = BoostTemplate.bind( {} );
-BoostBackup.parameters = {
+export const jetpackBoost = BoostTemplate.bind( {} );
+jetpackBoost.parameters = {
 	mockData: getMockData( 'boost' ),
 };
 
@@ -68,7 +69,13 @@ JetpackBackupCard.parameters = {
 };
 
 const BoostCardTemplate = args => <ProductDetailCard { ...args } slug="boost" />;
-export const BoostBackupCard = BoostCardTemplate.bind( {} );
-BoostBackupCard.parameters = {
+export const JetpackBoostCard = BoostCardTemplate.bind( {} );
+JetpackBoostCard.parameters = {
 	mockData: getMockData( 'boost' ),
+};
+
+const ScanCardTemplate = args => <ProductDetailCard { ...args } slug="scan" />;
+export const JetpackScanCard = ScanCardTemplate.bind( {} );
+JetpackScanCard.parameters = {
+	mockData: getMockData( 'scan' ),
 };

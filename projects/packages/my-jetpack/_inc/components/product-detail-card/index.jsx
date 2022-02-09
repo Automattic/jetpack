@@ -16,6 +16,7 @@ import { BackupIcon } from '../product-cards-section/backup-card';
 import styles from './style.module.scss';
 import { BoostIcon } from '../product-cards-section/boost-card';
 import getProductCheckoutUrl from '../../utils/get-product-checkout-url';
+import useMyJetpackConnection from '../../hooks/use-my-jetpack-connection';
 
 /**
  * Simple react component to render the product icon,
@@ -73,7 +74,9 @@ const ProductDetail = ( { slug, trackButtonClick } ) => {
 	const { detail } = useProduct( slug );
 	const { title, longDescription, features, pricingForUi = {} } = detail;
 	const { isFree, fullPrice, currencyCode, discountedPrice } = pricingForUi;
-	const addProductUrl = getProductCheckoutUrl( `jetpack_${ slug }` ); // @ToDo: Remove this when we have a new product structure.
+	const { isUserConnected } = useMyJetpackConnection();
+
+	const addProductUrl = getProductCheckoutUrl( `jetpack_${ slug }`, isUserConnected ); // @ToDo: Remove this when we have a new product structure.
 
 	return (
 		<div className={ styles.container }>
