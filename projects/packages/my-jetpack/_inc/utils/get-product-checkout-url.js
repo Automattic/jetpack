@@ -14,8 +14,20 @@
  */
 export default function getProductCheckoutUrl( product, isUserConnected ) {
 	const { siteSuffix, redirectUrl } = window?.myJetpackInitialState || {};
-	const redirect_to = `${ encodeURIComponent( redirectUrl ) }${
-		! isUserConnected ? '&unlinked=1' : ''
-	}&site=${ siteSuffix }`;
-	return `https://wordpress.com/checkout/${ siteSuffix }/${ product }?redirect_to=${ redirect_to }`;
+
+	const checkoutUrl = new URL( 'https://wordpress.com/checkout/' );
+	const checkoutProductUrl = new URL( `${ siteSuffix }/${ product }`, checkoutUrl );
+
+	// Add redirect_to parameter
+	checkoutProductUrl.searchParams.set( 'redirect_to', redirectUrl );
+
+	// Add unlimited when user is not connected to Jetpack.
+	if ( ! isUserConnected ) {
+		checkoutProductUrl.searchParams.set( 'unlinked', 1 );
+	}
+
+	// Add site to query string.
+	checkoutProductUrl.searchParams.set( 'site', siteSuffix );
+
+	return checkoutProductUrl;
 }
