@@ -20,9 +20,8 @@
 	}
 
 	&__layout {
-		display: grid;
-
 		@include break-medium {
+			display: grid;
 			grid-template-columns: auto 34%;
 			grid-template-areas:
 "content aside"
