@@ -1,0 +1,4 @@
+Significance: patch
+Type: bugfix
+
+The user can now visualize the premium content during a 1 day grace period to take into account possiible delays between the actual renewal and the subscription expiry date.
