@@ -22,7 +22,7 @@ export const BackupIcon = () => (
 );
 
 const BackupCard = ( { admin } ) => {
-	const { status, activate, deactivate, detail, isFetching } = useProduct( 'backup' );
+	const { slug, status, activate, deactivate, detail, isFetching } = useProduct( 'backup' );
 	const { name, description } = detail;
 
 	return (
@@ -34,6 +34,7 @@ const BackupCard = ( { admin } ) => {
 			isFetching={ isFetching }
 			admin={ admin }
 			onDeactivate={ deactivate }
+			slug={ slug }
 			onActivate={ activate }
 		/>
 	);

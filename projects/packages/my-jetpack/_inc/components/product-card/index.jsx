@@ -211,6 +211,7 @@ ProductCard.propTypes = {
 	onActivate: PropTypes.func,
 	onAdd: PropTypes.func,
 	onLearn: PropTypes.func,
+	slug: PropTypes.string.isRequired,
 	status: PropTypes.oneOf( [
 		PRODUCT_STATUSES.ACTIVE,
 		PRODUCT_STATUSES.INACTIVE,

@@ -22,7 +22,7 @@ export const ScanIcon = () => (
 );
 
 const ScanCard = ( { admin } ) => {
-	const { status, activate, deactivate, detail, isFetching } = useProduct( 'scan' );
+	const { slug, status, activate, deactivate, detail, isFetching } = useProduct( 'scan' );
 	const { name, description } = detail;
 
 	return (
@@ -34,6 +34,7 @@ const ScanCard = ( { admin } ) => {
 			admin={ admin }
 			isFetching={ isFetching }
 			onDeactivate={ deactivate }
+			slug={ slug }
 			onActivate={ activate }
 		/>
 	);

@@ -26,7 +26,7 @@ export const VideopressIcon = () => (
 );
 
 const VideopressCard = ( { admin } ) => {
-	const { status, activate, deactivate, detail, isFetching } = useProduct( 'videopress' );
+	const { slug, status, activate, deactivate, detail, isFetching } = useProduct( 'videopress' );
 	const { name, description } = detail;
 
 	return (
@@ -39,6 +39,7 @@ const VideopressCard = ( { admin } ) => {
 			isFetching={ isFetching }
 			onDeactivate={ deactivate }
 			onActivate={ activate }
+			slug={ slug }
 		/>
 	);
 };
