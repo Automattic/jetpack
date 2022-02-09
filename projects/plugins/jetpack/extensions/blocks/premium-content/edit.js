@@ -6,7 +6,7 @@ import { Disabled, Placeholder, Spinner, ToolbarButton, ToolbarGroup } from '@wo
 import { BlockControls } from '@wordpress/block-editor';
 import { __, sprintf } from '@wordpress/i18n';
 import { compose } from '@wordpress/compose';
-import { select, withSelect, withDispatch } from '@wordpress/data';
+import { select, useSelect, withSelect, withDispatch } from '@wordpress/data';
 import { addQueryArgs, getQueryArg } from '@wordpress/url';
 import formatCurrency from '@automattic/format-currency';
 import apiFetch from '@wordpress/api-fetch';
@@ -218,12 +218,13 @@ function Edit( props ) {
 
 	const { isSelected, className } = props;
 
+	const selectedBlock = useSelect( selector => selector( 'core/block-editor' ).getSelectedBlock() );
+
 	useEffect( () => {
 		if ( isSelected ) {
 			return; // If this block is selected then leave the focused tab as it was.
 		}
 
-		const selectedBlock = select( 'core/block-editor' ).getSelectedBlock();
 		if ( ! selectedBlock ) {
 			return; // Sometimes there isn't a block selected, e.g. on page load.
 		}
@@ -254,7 +255,7 @@ function Edit( props ) {
 			selectTab( tabs[ 0 ] );
 			return;
 		}
-	}, [ clientId, isSelected ] );
+	}, [ clientId, isSelected, selectedBlock ] );
 
 	useEffect( () => {
 		if ( isPreview ) {
