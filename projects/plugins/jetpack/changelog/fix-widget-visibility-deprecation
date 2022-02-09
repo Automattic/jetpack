@@ -1,0 +1,4 @@
+Significance: patch
+Type: bugfix
+
+Widget Visibility: update to match new user query parameter introduced in WordPress 5.9.
