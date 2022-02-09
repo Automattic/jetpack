@@ -3,7 +3,6 @@
 namespace Automattic\Jetpack_Boost\Features\Optimizations\Critical_CSS;
 
 use Automattic\Jetpack_Boost\Contracts\Feature;
-use Automattic\Jetpack_Boost\Features\Optimizations\Critical_CSS\Generate\Generator;
 use Automattic\Jetpack_Boost\Lib\Critical_CSS\Critical_CSS_State;
 use Automattic\Jetpack_Boost\Lib\Critical_CSS\Critical_CSS_Storage;
 use Automattic\Jetpack_Boost\Lib\Critical_CSS\Display_Critical_CSS;

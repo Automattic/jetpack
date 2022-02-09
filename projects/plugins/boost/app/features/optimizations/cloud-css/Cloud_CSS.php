@@ -2,7 +2,7 @@
 namespace Automattic\Jetpack_Boost\Features\Optimizations\Cloud_CSS;
 
 use Automattic\Jetpack_Boost\Contracts\Feature;
-use Automattic\Jetpack_Boost\Features\Optimizations\Critical_CSS\Generate\Generator;
+use Automattic\Jetpack_Boost\Features\Optimizations\Critical_CSS\Generator;
 use Automattic\Jetpack_Boost\Lib\Critical_CSS\Critical_CSS_Storage;
 use Automattic\Jetpack_Boost\Lib\Critical_CSS\Display_Critical_CSS;
 use Automattic\Jetpack_Boost\Lib\Critical_CSS\Source_Providers\Source_Providers;
