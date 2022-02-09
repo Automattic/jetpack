@@ -221,10 +221,12 @@ class Partner_Coupon {
 		}
 
 		$response = $connection_client::wpcom_json_api_request_as_blog(
-			sprintf(
-				'/sites/%d/jetpack-partner/coupon/v1/site/coupon?coupon_code=%s',
-				$jetpack_id,
-				$coupon['coupon_code']
+			add_query_arg(
+				array( 'coupon_code' => $coupon['coupon_code'] ),
+				sprintf(
+					'/sites/%d/jetpack-partner/coupon/v1/site/coupon',
+					$jetpack_id
+				)
 			),
 			2,
 			array( 'method' => 'GET' ),
