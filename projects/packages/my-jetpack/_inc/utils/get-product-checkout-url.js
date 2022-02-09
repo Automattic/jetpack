@@ -28,5 +28,5 @@ export default function getProductCheckoutUrl( product, isUserConnected ) {
 	// Add site to query string.
 	checkoutProductUrl.searchParams.set( 'site', siteSuffix );
 
-	return checkoutProductUrl;
+	return checkoutProductUrl.toString();
 }
