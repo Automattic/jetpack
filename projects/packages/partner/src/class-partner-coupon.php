@@ -209,8 +209,9 @@ class Partner_Coupon {
 			$connection_client = Connection_Client::class;
 		}
 
-		$jetpack_id = Jetpack_Options::get_option( 'id', false );
-		if ( ! $jetpack_id ) {
+		$blog_id = Jetpack_Options::get_option( 'id', false );
+
+		if ( ! $blog_id ) {
 			return false;
 		}
 
@@ -225,7 +226,7 @@ class Partner_Coupon {
 				array( 'coupon_code' => $coupon['coupon_code'] ),
 				sprintf(
 					'/sites/%d/jetpack-partner/coupon/v1/site/coupon',
-					$jetpack_id
+					$blog_id
 				)
 			),
 			2,
