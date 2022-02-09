@@ -10,30 +10,30 @@ import React, { useEffect } from 'react';
 import { OVERLAY_CLASS_NAME } from '../lib/constants';
 import './overlay.scss';
 
-const callOnEscapeKey = callback => event => {
-	if ( event.key === 'Escape' ) {
-		event.preventDefault();
-		callback();
-	}
-};
-
-const callOnOutsideClick = callback => {
-	return event => {
-		const resultsContainer = document.getElementsByClassName(
-			'jetpack-instant-search__search-results'
-		)[ 0 ];
-		if ( resultsContainer && ! resultsContainer.contains( event.target ) ) {
-			callback();
-		}
-	};
-};
-
 const Overlay = props => {
 	const { children, closeOverlay, colorTheme, hasOverlayWidgets, isVisible } = props;
 
-	const closeWithEscape = callOnEscapeKey( closeOverlay );
-	const closeWithOutsideClick = callOnOutsideClick( closeOverlay );
 	useEffect( () => {
+		const closeWithEscape = event => {
+			if ( event.key === 'Escape' ) {
+				event.preventDefault();
+				closeOverlay();
+			}
+		};
+
+		const closeWithOutsideClick = event => {
+			const resultsContainer = document.getElementsByClassName(
+				'jetpack-instant-search__search-results'
+			)[ 0 ];
+			if (
+				event.target?.isConnected && // Ensure that the click target is still connected to DOM.
+				resultsContainer &&
+				! resultsContainer.contains( event.target )
+			) {
+				closeOverlay();
+			}
+		};
+
 		window.addEventListener( 'keydown', closeWithEscape );
 		window.addEventListener( 'click', closeWithOutsideClick );
 		return () => {
@@ -41,7 +41,7 @@ const Overlay = props => {
 			window.removeEventListener( 'keydown', closeWithEscape );
 			window.removeEventListener( 'click', closeWithOutsideClick );
 		};
-	}, [ closeWithEscape, closeWithOutsideClick ] );
+	}, [ closeOverlay ] );
 
 	return (
 		<div
