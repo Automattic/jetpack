@@ -19,7 +19,6 @@ import {
  * Internal dependencies
  */
 import Backups from './Backups';
-import MyPlan from './MyPlan';
 import useConnection from '../hooks/useConnection';
 import './admin-style.scss';
 import './masthead/masthead-style.scss';
@@ -194,10 +193,6 @@ const Admin = () => {
 									{ __( 'See all your backups', 'jetpack-backup' ) }
 								</a>
 							</p>
-							<MyPlan
-								purchaseType={ 'backup' }
-								redirectUrl={ getRedirectUrl( 'backup-plugin-my-plan', { site: domain } ) }
-							/>
 						</>
 					) }
 				</Col>
