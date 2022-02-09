@@ -26,7 +26,7 @@ import { STORE_ID } from '../store';
 
 /* eslint react/react-in-jsx-scope: 0 */
 const Admin = () => {
-	const [ connectionStatus, renderConnectScreen, renderConnectionStatusCard ] = useConnection();
+	const [ connectionStatus, renderConnectScreen ] = useConnection();
 	const [ capabilities, setCapabilities ] = useState( [] );
 	const [ capabilitiesError, setCapabilitiesError ] = useState( null );
 	const [ connectionLoaded, setConnectionLoaded ] = useState( false );
@@ -216,8 +216,6 @@ const Admin = () => {
 							</a>
 						</p>
 					) }
-
-					{ renderConnectionStatusCard() }
 				</Col>
 			</Container>
 		);
