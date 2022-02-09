@@ -20,15 +20,10 @@
 		"@wordpress/plugins": "4.1.0"
 	},
 	"devDependencies": {
+		"@babel/core": "7.16.0",
+		"@babel/preset-react": "7.16.0",
 		"jetpack-js-test-runner": "workspace:*",
-		"lodash": "4.17.21",
-		"nyc": "15.1.0",
-		"react": "17.0.2",
-		"react-dom": "17.0.2"
-	},
-	"peerDependencies": {
-		"react": "^17.0.2",
-		"react-dom": "^17.0.2"
+		"nyc": "15.1.0"
 	},
 	"engines": {
 		"node": "^14.18.3 || ^16.13.2",
