@@ -18,10 +18,10 @@ const callOnEscapeKey = callback => event => {
 };
 
 const callOnOutsideClick = callback => {
-	const resultsContainer = document.getElementsByClassName(
-		'jetpack-instant-search__search-results'
-	)[ 0 ];
 	return event => {
+		const resultsContainer = document.getElementsByClassName(
+			'jetpack-instant-search__search-results'
+		)[ 0 ];
 		if ( resultsContainer && ! resultsContainer.contains( event.target ) ) {
 			callback();
 		}
