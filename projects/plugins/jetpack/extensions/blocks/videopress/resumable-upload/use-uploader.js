@@ -58,7 +58,6 @@ export const resumableUploader = ( { onError, onProgress, onSuccess } ) => {
 				const headerMap = {
 					'x-videopress-upload-key-token': 'token',
 					'x-videopress-upload-key': 'key',
-					'x-videopress-upload-blog-id': 'blogId',
 				};
 
 				const tokenData = {};
