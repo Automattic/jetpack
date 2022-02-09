@@ -497,7 +497,7 @@ jQuery( function($) {
 			<?php
 			esc_html_e( 'Publicize:', 'jetpack' );
 
-			if ( 0 < count( $connections_data ) ) :
+			if ( ! empty( $connections_data ) ) :
 				$publicize_form = $this->get_metabox_form_connected( $connections_data );
 
 				$must_reauth = $this->get_must_reauth_connections();
