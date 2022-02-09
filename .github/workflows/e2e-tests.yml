@@ -84,10 +84,6 @@ jobs:
         COMPOSER_ROOT_VERSION: "dev-master"
         RUN_NAME: ${{ needs.create-test-matrix.outputs.runName }}
       run: |
-        echo "::group::Install e2e project"
-        pnpm install
-        echo "::endgroup::"
-
         echo "::group::Decrypt config"
         pnpm run config:decrypt
         echo "::endgroup::"
