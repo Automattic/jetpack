@@ -28,6 +28,15 @@
 	"minimum-stability": "dev",
 	"prefer-stable": true,
 	"extra": {
+		"dependencies": {
+			"build": [
+				"js-packages/base-styles",
+				"js-packages/components",
+				"js-packages/connection",
+				"js-packages/idc",
+				"packages/my-jetpack"
+			]
+		},
 		"mirror-repo": "Automattic/jetpack-storybook"
 	}
 }
