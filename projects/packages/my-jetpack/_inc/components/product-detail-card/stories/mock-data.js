@@ -48,12 +48,9 @@ export const scanProductData = {
 		'Automatic scanning and one-click fixes keep your site one step ahead of security threats and malware.',
 	status: 'inactive',
 	features: [
-		'Automated daily scanning',
-		'Scan Product Feature',
-		'One-click fixes for most issues',
-		'Scan Product Feature',
-		'Instant email notifications',
-		'Scan Product Feature',
+		'Automated daily scanning', 'Scan Product Feature',
+		'One-click fixes for most issues', 'Scan Product Feature',
+		'Instant email notifications', 'Scan Product Feature',
 	],
 	pricingForUi: {
 		available: true,
