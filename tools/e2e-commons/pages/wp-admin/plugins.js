@@ -33,7 +33,6 @@ export default class PluginsPage extends WpPage {
 	}
 
 	async updateJetpack() {
-		await this.waitForTimeout( 2000 );
 		const updateCard = 'tr.active#jetpack-update[data-plugin="jetpack/jetpack.php"]';
 		const updateLink = 'tr.active#jetpack-update[data-plugin="jetpack/jetpack.php"] .update-link';
 		const isUpdatingMessage =

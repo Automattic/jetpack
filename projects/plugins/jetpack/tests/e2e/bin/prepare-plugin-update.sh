@@ -24,6 +24,7 @@ rm /var/www/html/wp-content/plugins/vaultpress || true
 rm -rf $TMP_DIR $ZIP_FILE
 mkdir -p $TMP_DIR
 
+echo "Copy build files"
 FILES=$(ls -Ad $WORKING_DIR/* | grep -Ev "node_modules|packages|tests|_inc/client|docker|docs|extensions|.git")
 cp -r $FILES $TMP_DIR
 
@@ -32,16 +33,11 @@ if $(! type -t "zip" > /dev/null 2>&1); then
 		apt install zip -y > /dev/null
 fi
 
+echo "Create archive"
 cd /tmp
 zip -qr $ZIP_FILE jetpack
 rm -rf $TMP_DIR
 cd /var/www/html/
-
-# Install latest stable Jetpack from plugin repo
-
-wp --allow-root plugin install --activate jetpack
-wp --allow-root plugin activate e2e-plugin-updater
-# wp --allow-root option set e2e_jetpack_upgrader_update_version 99.9-alpha
 
 # Update FS permissions
 sudo chmod 755 /var/www/html/

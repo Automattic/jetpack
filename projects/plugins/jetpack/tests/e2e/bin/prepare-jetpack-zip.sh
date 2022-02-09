@@ -20,7 +20,7 @@ else
 	echo "Copying build files to $TMP_DIR"
 
 	echo "Creating build archive"
-  zip -r "$TMP_DIR/build" "$ZIP_FILE"
+  zip -r "$ZIP_FILE" "$TMP_DIR"
 fi
 
 

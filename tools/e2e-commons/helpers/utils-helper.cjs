@@ -46,12 +46,6 @@ async function resetWordpressInstall() {
 	execSyncShellCommand( cmd );
 }
 
-async function prepareUpdaterTest() {
-	const cmd = `${ BASE_DOCKER_CMD } -v exec-silent /usr/local/src/jetpack-monorepo/projects/plugins/jetpack/tests/e2e/bin/prepare-plugin-update.sh`;
-
-	await execShellCommand( cmd );
-}
-
 /**
  * Provisions Jetpack plan and connects the site through Jetpack Start flow
  *
@@ -339,7 +333,7 @@ module.exports = {
 	execShellCommand,
 	execSyncShellCommand,
 	resetWordpressInstall,
-	prepareUpdaterTest,
+	BASE_DOCKER_CMD,
 	provisionJetpackStartConnection,
 	activateModule,
 	execWpCommand,
