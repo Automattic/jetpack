@@ -90,6 +90,7 @@ jobs:
         run: .github/files/setup-wordpress-env.sh
 
       - name: Run project tests
+        continue-on-error: ${{ matrix.experimental }}
         env:
           EXPERIMENTAL: ${{ matrix.experimental && 'true' || 'false' }}
           CHANGED: ${{ steps.changed.outputs.projects }}
