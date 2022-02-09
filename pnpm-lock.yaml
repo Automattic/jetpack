@@ -389,14 +389,22 @@ importers:
 
   projects/js-packages/shared-extension-utils:
     specifiers:
+      '@wordpress/compose': 5.1.0
       '@wordpress/plugins': 4.1.0
       jetpack-js-test-runner: workspace:*
+      lodash: 4.17.21
       nyc: 15.1.0
+      react: 17.0.2
+      react-dom: 17.0.2
     dependencies:
-      '@wordpress/plugins': 4.1.0
+      '@wordpress/compose': 5.1.0_react@17.0.2
+      '@wordpress/plugins': 4.1.0_react@17.0.2
     devDependencies:
       jetpack-js-test-runner: link:../../../tools/js-test-runner
+      lodash: 4.17.21
       nyc: 15.1.0
+      react: 17.0.2
+      react-dom: 17.0.2_react@17.0.2
 
   projects/js-packages/storybook:
     specifiers:
@@ -8674,12 +8682,12 @@ packages:
     transitivePeerDependencies:
       - react
 
-  /@wordpress/plugins/4.1.0:
+  /@wordpress/plugins/4.1.0_react@17.0.2:
     resolution: {integrity: sha512-PbQ0T56BY9x47E9K1p88nW1f67JILhbVem/o/4dL/8CcpE6FBtNDe+jopT4zStL5wihlYejoZE6M+BAb4ZYvfQ==}
     engines: {node: '>=12'}
     dependencies:
       '@babel/runtime': 7.17.2
-      '@wordpress/compose': 5.1.0
+      '@wordpress/compose': 5.1.0_react@17.0.2
       '@wordpress/element': 4.1.0
       '@wordpress/hooks': 3.3.0
       '@wordpress/icons': 6.2.0

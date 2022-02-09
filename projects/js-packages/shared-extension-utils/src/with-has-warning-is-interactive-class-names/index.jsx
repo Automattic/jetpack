@@ -1,6 +1,7 @@
 /**
  * External dependencies
  */
+import React from 'react';
 import { createHigherOrderComponent } from '@wordpress/compose';
 
 import './style.scss';
