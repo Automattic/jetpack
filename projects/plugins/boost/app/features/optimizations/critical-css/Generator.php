@@ -1,6 +1,6 @@
 <?php
 
-namespace Automattic\Jetpack_Boost\Features\Optimizations\Critical_CSS\Generate;
+namespace Automattic\Jetpack_Boost\Features\Optimizations\Critical_CSS;
 
 use Automattic\Jetpack_Boost\Lib\Critical_CSS\Critical_CSS_State;
 use Automattic\Jetpack_Boost\Lib\Critical_CSS\Source_Providers\Providers\Provider;
