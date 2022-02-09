@@ -38,3 +38,27 @@ export const boostProductData = {
 		is_free: true,
 	},
 };
+
+export const scanProductData = {
+	slug: 'scan',
+	name: 'Scan',
+	title: 'Jepack Scan',
+	description: 'Stay one step ahead of threats',
+	long_description:
+		'Automatic scanning and one-click fixes keep your site one step ahead of security threats and malware.',
+	status: 'inactive',
+	features: [
+		'Automated daily scanning',
+		'Scan Product Feature',
+		'One-click fixes for most issues',
+		'Scan Product Feature',
+		'Instant email notifications',
+		'Scan Product Feature',
+	],
+	pricingForUi: {
+		available: true,
+		currency_code: 'USD',
+		full_price: 9.92,
+		promotion_percentage: 50,
+	},
+};
