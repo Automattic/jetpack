@@ -18,8 +18,8 @@ export const BoostIcon = () => (
 );
 
 const BoostCard = ( { admin } ) => {
-	const { slug, status, activate, deactivate, detail, isFetching } = useProduct( 'boost' );
-	const { name, description } = detail;
+	const { status, activate, deactivate, detail, isFetching } = useProduct( 'boost' );
+	const { name, description, slug } = detail;
 	const navigate = useNavigate();
 
 	const onAddHandler = useCallback( () => {

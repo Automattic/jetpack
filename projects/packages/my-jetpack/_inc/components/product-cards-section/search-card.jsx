@@ -19,8 +19,8 @@ export const SearchIcon = () => (
 );
 
 const SearchCard = ( { admin } ) => {
-	const { slug, status, activate, deactivate, detail, isFetching } = useProduct( 'search' );
-	const { name, description } = detail;
+	const { status, activate, deactivate, detail, isFetching } = useProduct( 'search' );
+	const { name, description, slug } = detail;
 
 	const navigate = useNavigate();
 	const onAddHandler = useCallback( () => navigate( '/add-search' ), [ navigate ] );

@@ -33,7 +33,6 @@ export function useProduct( productId ) {
 		detail,
 		isActive: detail.status === 'active',
 		isFetching: useSelect( select => select( STORE_ID ).isFetching( productId ) ),
-		slug: productId,
 		status: detail.status, // shorthand. Consider to remove.
 	};
 }

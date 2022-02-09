@@ -24,8 +24,8 @@ export const CrmIcon = () => (
 );
 
 const CrmCard = ( { admin } ) => {
-	const { slug, status, activate, deactivate, detail, isFetching } = useProduct( 'crm' );
-	const { name, description } = detail;
+	const { status, activate, deactivate, detail, isFetching } = useProduct( 'crm' );
+	const { name, description, slug } = detail;
 
 	return (
 		<ProductCard
