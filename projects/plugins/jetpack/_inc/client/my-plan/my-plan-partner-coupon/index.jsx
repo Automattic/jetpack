@@ -51,6 +51,9 @@ const MyPlanPartnerCoupon = ( { partnerCoupon, siteRawUrl } ) => {
 				partnerCoupon.product.title
 			) }
 			trackingId="jetpack-partner-coupon"
+			additionalEventProperties={ {
+				coupon: partnerCoupon.coupon_code,
+			} }
 		/>
 	);
 };

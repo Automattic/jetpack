@@ -25,8 +25,10 @@ const tests = {
 	'0.0000000005': '0.000',
 };
 
-for ( const [ k, v ] of Object.entries( tests ) ) {
-	it( `formats ${ k }`, () => {
-		chai.expect( formatDuration( Number( k ) ) ).to.equal( v );
-	} );
-}
+describe( 'format-duration', () => {
+	for ( const [ k, v ] of Object.entries( tests ) ) {
+		it( `formats ${ k }`, () => {
+			chai.expect( formatDuration( Number( k ) ) ).to.equal( v );
+		} );
+	}
+} );

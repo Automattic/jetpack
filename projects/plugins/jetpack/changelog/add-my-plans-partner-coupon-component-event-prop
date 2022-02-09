@@ -1,0 +1,5 @@
+Significance: patch
+Type: other
+Comment: Adding a new event property to a component that has not yet been shipped with Jetpack so it has no backwards impact
+
+

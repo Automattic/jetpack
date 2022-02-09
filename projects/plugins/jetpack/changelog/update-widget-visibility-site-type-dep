@@ -1,0 +1,4 @@
+Significance: patch
+Type: other
+
+Widget Visibility: switch to using shared js package utility instead of built-in site type check.

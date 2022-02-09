@@ -23,11 +23,11 @@ abstract class Product {
 	public static $slug = null;
 
 	/**
-	 * The filename (id) of the plugin associated with this product. If not defined, it will default to the Jetpack plugin
+	 * The filename (id) of the plugin associated with this product. Can be a string with a single value or a list of possible values
 	 *
-	 * @var string
+	 * @var string|string[]
 	 */
-	public static $plugin_filename = null;
+	protected static $plugin_filename = null;
 
 	/**
 	 * The slug of the plugin associated with this product. If not defined, it will default to the Jetpack plugin
@@ -48,7 +48,10 @@ abstract class Product {
 	 *
 	 * @var string
 	 */
-	const JETPACK_PLUGIN_FILENAME = 'jetpack/jetpack.php';
+	const JETPACK_PLUGIN_FILENAME = array(
+		'jetpack/jetpack.php',
+		'jetpack-dev/jetpack.php',
+	);
 
 	/**
 	 * Whether this product requires a user connection
@@ -73,6 +76,25 @@ abstract class Product {
 	 */
 	public static function get_plugin_filename() {
 		return static::$plugin_filename;
+	}
+
+	/**
+	 * Get the installed plugin filename
+	 *
+	 * @return ?string
+	 */
+	public static function get_installed_plugin_filename() {
+		$all_plugins = Plugins_Installer::get_plugins();
+		$filename    = static::get_plugin_filename();
+		if ( ! is_array( $filename ) ) {
+			$filename = array( $filename );
+		}
+		foreach ( $filename as $name ) {
+			$installed = array_key_exists( $name, $all_plugins );
+			if ( $installed ) {
+				return $name;
+			}
+		}
 	}
 
 	/**
@@ -188,8 +210,7 @@ abstract class Product {
 	 * @return boolean
 	 */
 	public static function is_plugin_installed() {
-		$all_plugins = Plugins_Installer::get_plugins();
-		return array_key_exists( static::get_plugin_filename(), $all_plugins );
+		return (bool) static::get_installed_plugin_filename();
 	}
 
 	/**
@@ -198,7 +219,7 @@ abstract class Product {
 	 * @return boolean
 	 */
 	public static function is_plugin_active() {
-		return Plugins_Installer::is_plugin_active( static::get_plugin_filename() );
+		return Plugins_Installer::is_plugin_active( static::get_installed_plugin_filename() );
 	}
 
 	/**
@@ -217,7 +238,13 @@ abstract class Product {
 	 * @return boolean
 	 */
 	public static function is_jetpack_plugin_active() {
-		return Plugins_Installer::is_plugin_active( self::JETPACK_PLUGIN_FILENAME );
+		foreach ( self::JETPACK_PLUGIN_FILENAME as $jetpack_filename ) {
+			$active = Plugins_Installer::is_plugin_active( $jetpack_filename );
+			if ( $active ) {
+				return true;
+			}
+		}
+		return false;
 	}
 
 	/**
@@ -241,7 +268,7 @@ abstract class Product {
 			return new WP_Error( 'not_allowed', __( 'You are not allowed to activate plugins on this site.', 'jetpack-my-jetpack' ) );
 		}
 
-		$result = activate_plugin( static::get_plugin_filename() );
+		$result = activate_plugin( static::get_installed_plugin_filename() );
 		if ( is_wp_error( $result ) ) {
 			return $result;
 		}
@@ -254,7 +281,7 @@ abstract class Product {
 	 * @return boolean
 	 */
 	public static function deactivate() {
-		deactivate_plugins( static::get_plugin_filename() );
+		deactivate_plugins( static::get_installed_plugin_filename() );
 		return true;
 	}
 }
