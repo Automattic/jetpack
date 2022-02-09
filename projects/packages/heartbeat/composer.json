@@ -5,7 +5,7 @@
 	"license": "GPL-2.0-or-later",
 	"require": {
 		"automattic/jetpack-a8c-mc-stats": "^1.4",
-		"automattic/jetpack-options": "^1.14"
+		"automattic/jetpack-options": "^1.15"
 	},
 	"require-dev": {
 		"automattic/jetpack-changelogger": "^3.0"
