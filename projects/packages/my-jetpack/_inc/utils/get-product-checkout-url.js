@@ -14,7 +14,7 @@
  */
 export default function getProductCheckoutUrl( product, isUserConnected ) {
 	const { siteSuffix, redirectUrl } = window?.myJetpackInitialState || {};
-	const redirect_to = `${ redirectUrl.replace( /=/g, '%3d' ) }${
+	const redirect_to = `${ encodeURIComponent( redirectUrl ) }${
 		! isUserConnected ? '&unlinked=1' : ''
 	}&site=${ siteSuffix }`;
 	return `https://wordpress.com/checkout/${ siteSuffix }/${ product }?redirect_to=${ redirect_to }`;
