@@ -31,6 +31,8 @@ const Edit = props => {
 	const [ isInvalid, setIsInvalid ] = useState( false );
 	const richTextRef = useRef( null );
 
+	useEffect( () => setAttributes( { currency } ), [ currency, setAttributes ] );
+
 	const setAmount = useCallback(
 		newAmount => {
 			setEditedValue( newAmount );
