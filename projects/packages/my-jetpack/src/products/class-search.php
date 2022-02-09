@@ -7,8 +7,10 @@
 
 namespace Automattic\Jetpack\My_Jetpack\Products;
 
+use Automattic\Jetpack\Connection\Client;
 use Automattic\Jetpack\My_Jetpack\Module_Product;
-use Automattic\Jetpack\Search\Plan as Search_Plan;
+use Jetpack_Options;
+use WP_Error;
 
 /**
  * Class responsible for handling the Search product
@@ -94,6 +96,39 @@ class Search extends Module_Product {
 	}
 
 	/**
+	 * Hits the wpcom api to check Search status.
+	 *
+	 * @todo Maybe add caching.
+	 *
+	 * @return Object|WP_Error
+	 */
+	private static function get_state_from_wpcom() {
+		static $status = null;
+
+		if ( ! is_null( $status ) ) {
+			return $status;
+		}
+
+		$blog_id = Jetpack_Options::get_option( 'id' );
+
+		$response = Client::wpcom_json_api_request_as_blog(
+			'/sites/' . $blog_id . '/jetpack-search/plan',
+			'2',
+			array(),
+			null,
+			'wpcom'
+		);
+
+		if ( 200 !== wp_remote_retrieve_response_code( $response ) ) {
+			return new WP_Error( 'search_state_fetch_failed' );
+		}
+
+		$body   = wp_remote_retrieve_body( $response );
+		$status = json_decode( $body );
+		return $status;
+	}
+
+	/**
 	 * Checks whether the current plan of the site already supports the product
 	 *
 	 * Returns true if it supports. Return false if a purchase is still required.
@@ -103,6 +138,7 @@ class Search extends Module_Product {
 	 * @return boolean
 	 */
 	public static function has_required_plan() {
-		return ( new Search_Plan() )->supports_search();
+		$search_state = static::get_state_from_wpcom();
+		return ! empty( $search_state->supports_search ) || ! empty( $search_state->supports_instant_search );
 	}
 }
