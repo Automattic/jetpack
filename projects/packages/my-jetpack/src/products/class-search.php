@@ -96,6 +96,15 @@ class Search extends Module_Product {
 	}
 
 	/**
+	 * Get the WPCOM product slug used to make the purchase
+	 *
+	 * @return ?string
+	 */
+	public static function get_wpcom_product_slug() {
+		return 'jetpack_search';
+	}
+
+	/**
 	 * Hits the wpcom api to check Search status.
 	 *
 	 * @todo Maybe add caching.

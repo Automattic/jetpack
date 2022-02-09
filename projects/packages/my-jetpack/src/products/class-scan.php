@@ -95,6 +95,15 @@ class Scan extends Module_Product {
 	}
 
 	/**
+	 * Get the WPCOM product slug used to make the purchase
+	 *
+	 * @return ?string
+	 */
+	public static function get_wpcom_product_slug() {
+		return 'jetpack_scan';
+	}
+
+	/**
 	 * Hits the wpcom api to check scan status.
 	 *
 	 * @todo Maybe add caching.

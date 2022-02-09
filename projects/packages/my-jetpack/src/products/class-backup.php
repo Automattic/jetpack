@@ -93,6 +93,15 @@ class Backup extends Hybrid_Product {
 	}
 
 	/**
+	 * Get the WPCOM product slug used to make the purchase
+	 *
+	 * @return ?string
+	 */
+	public static function get_wpcom_product_slug() {
+		return 'jetpack_backup_t1_yearly';
+	}
+
+	/**
 	 * Get the product princing details
 	 *
 	 * @return array Pricing details
