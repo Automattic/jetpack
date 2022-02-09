@@ -136,4 +136,22 @@ class Wpcom_Products {
 		}
 	}
 
+	/**
+	 * Get only the product currency code and price in an array
+	 *
+	 * @param string $product_slug The product slug.
+	 *
+	 * @return array An array with currency_code and full_price. Empty array if product not found.
+	 */
+	public static function get_product_currency_and_price( $product_slug ) {
+		$products = self::get_products();
+		if ( ! empty( $products->$product_slug ) ) {
+			return array(
+				'currency_code' => $products->$product_slug->currency_code,
+				'full_price'    => $products->$product_slug->cost,
+			);
+		}
+		return array();
+	}
+
 }

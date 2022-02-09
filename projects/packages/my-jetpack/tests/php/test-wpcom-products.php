@@ -188,4 +188,37 @@ class Test_Wpcom_Products extends TestCase {
 
 	}
 
+	/**
+	 * Test get product price
+	 */
+	public function test_get_product_price() {
+		$this->create_user_and_login();
+
+		add_filter( 'pre_http_request', array( $this, 'mock_success_response' ) );
+		$product_price = Wpcom_Products::get_product_currency_and_price( 'jetpack_videopress_monthly' );
+		remove_filter( 'pre_http_request', array( $this, 'mock_success_response' ) );
+
+		$expected = array(
+			'currency_code' => 'BRL',
+			'full_price'    => 4.9,
+		);
+
+		$this->assertSame( $expected, $product_price );
+
+	}
+
+	/**
+	 * Test get product price invalid product
+	 */
+	public function test_get_product_price_invalid() {
+		$this->create_user_and_login();
+
+		add_filter( 'pre_http_request', array( $this, 'mock_success_response' ) );
+		$product_price = Wpcom_Products::get_product_currency_and_price( 'invalid' );
+		remove_filter( 'pre_http_request', array( $this, 'mock_success_response' ) );
+
+		$this->assertSame( array(), $product_price );
+
+	}
+
 }
