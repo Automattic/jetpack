@@ -1,0 +1,4 @@
+Significance: minor
+Type: added
+
+Moved site-type-utils file from jetpack plugin shared extensions

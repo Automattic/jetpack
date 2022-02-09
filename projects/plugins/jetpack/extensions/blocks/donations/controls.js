@@ -1,4 +1,10 @@
 /**
+ * External dependencies
+ */
+import { CURRENCIES } from '@automattic/format-currency';
+import { getSiteFragment } from '@automattic/jetpack-shared-extension-utils';
+
+/**
  * WordPress dependencies
  */
 import {
