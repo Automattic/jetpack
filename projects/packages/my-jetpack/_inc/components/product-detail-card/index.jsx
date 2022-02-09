@@ -72,7 +72,7 @@ function Price( { value, currency, isOld } ) {
 const ProductDetail = ( { slug, trackButtonClick } ) => {
 	const { detail } = useProduct( slug );
 	const { title, longDescription, features, pricingForUi = {} } = detail;
-	const { isFree, fullPrice, currencyCode } = pricingForUi;
+	const { isFree, fullPrice, currencyCode, discountedPrice } = pricingForUi;
 	const addProductUrl = getProductCheckoutUrl( `jetpack_${ slug }` ); // @ToDo: Remove this when we have a new product structure.
 
 	return (
@@ -93,7 +93,7 @@ const ProductDetail = ( { slug, trackButtonClick } ) => {
 			{ ! isFree && (
 				<div className={ styles[ 'price-container' ] }>
 					<Price value={ fullPrice } currency={ currencyCode } isOld={ true } />
-					<Price value={ fullPrice } currency={ currencyCode } isOld={ false } />
+					<Price value={ discountedPrice } currency={ currencyCode } isOld={ false } />
 					<div className={ styles[ 'price-description' ] }>
 						{ __( '/month, paid yearly', 'jetpack-my-jetpack' ) }
 					</div>
