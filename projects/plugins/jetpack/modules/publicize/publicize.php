@@ -458,9 +458,9 @@ abstract class Publicize_Base {
 			}
 
 			return esc_url_raw( add_query_arg( 'id', rawurlencode( $id ), 'https://www.linkedin.com/profile/view' ) );
-		} else {
-			return false; // no fallback. we just won't link it.
 		}
+
+		return false; // no fallback. we just won't link it.
 	}
 
 	/**
@@ -540,11 +540,11 @@ abstract class Publicize_Base {
 		} else {
 			// Otherwise, just show if this is the completed step / first load.
 			// phpcs:disable WordPress.Security.NonceVerification.Recommended
-			$action  = sanitize_text_field( wp_unslash( $_GET['action'] ) );
-			$service = sanitize_text_field( wp_unslash( $_GET['service'] ) );
+			$is_completed = ! empty( $_GET['action'] ) && 'completed' === $_GET['action'];
+			$service      = ! empty( $_GET['service'] ) ? sanitize_text_field( wp_unslash( $_GET['service'] ) ) : false;
 			// phpcs:enable WordPress.Security.NonceVerification.Recommended
 
-			if ( ! empty( $action ) && 'completed' === $action && ! empty( $service ) && $service_name === $service && ! in_array( $service, array( 'facebook', 'tumblr' ), true ) ) {
+			if ( $is_completed && $service_name === $service && ! in_array( $service, array( 'facebook', 'tumblr' ), true ) ) {
 				return true;
 			}
 		}

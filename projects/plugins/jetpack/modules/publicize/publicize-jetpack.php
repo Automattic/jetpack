@@ -276,7 +276,7 @@ class Publicize extends Publicize_Base {
 	public function admin_page_load() {
 		$action = sanitize_text_field( wp_unslash( $_GET['action'] ) ); // phpcs:ignore WordPress.Security.NonceVerification.Recommended
 
-		if ( ! empty( $action ) ) {
+		if ( ! empty( $action ) && 'error' === $action ) {
 			add_action( 'pre_admin_screen_sharing', array( $this, 'display_connection_error' ), 9 );
 		}
 	}
@@ -287,15 +287,15 @@ class Publicize extends Publicize_Base {
 	public function display_connection_error() {
 		$code = false;
 		// phpcs:disable WordPress.Security.NonceVerification.Recommended
-		$service         = sanitize_text_field( wp_unslash( $_GET['service'] ) );
-		$publicize_error = sanitize_text_field( wp_unslash( $_GET['publicize_error'] ) );
+		$service         = isset( $_GET['service'] ) ? sanitize_text_field( wp_unslash( $_GET['service'] ) ) : null;
+		$publicize_error = isset( $_GET['publicize_error'] ) ? sanitize_text_field( wp_unslash( $_GET['publicize_error'] ) ) : null;
 		// phpcs:enable WordPress.Security.NonceVerification.Recommended
 
-		if ( isset( $service ) ) {
+		if ( $service ) {
 			/* translators: %s is the name of the Publicize service (e.g. Facebook, Twitter) */
 			$error = sprintf( __( 'There was a problem connecting to %s to create an authorized connection. Please try again in a moment.', 'jetpack' ), self::get_service_label( $service ) );
 		} else {
-			if ( isset( $publicize_error ) ) {
+			if ( $publicize_error ) {
 				$code = strtolower( $publicize_error );
 				switch ( $code ) {
 					case '400':
@@ -363,7 +363,7 @@ class Publicize extends Publicize_Base {
 	 * @param string $connection_id Connection ID.
 	 */
 	public function globalization( $connection_id ) {
-		if ( 'on' === $_REQUEST['global'] ) { // phpcs:ignore WordPress.Security.NonceVerification.Recommended
+		if ( 'on' === $_REQUEST['global'] ) { // phpcs:ignore WordPress.Security.NonceVerification.Recommended -- nonce check happens earlier in the process before we get here
 			if ( ! current_user_can( $this->GLOBAL_CAP ) ) { // phpcs:ignore WordPress.NamingConventions.ValidVariableName.UsedPropertyNotSnakeCase
 				return;
 			}
@@ -685,8 +685,7 @@ class Publicize extends Publicize_Base {
 			$found = false;
 			if ( $pages && isset( $pages->data ) && is_array( $pages->data ) ) {
 				foreach ( $pages->data as $page ) {
-					// phpcs:ignore WordPress.PHP.StrictComparisons.LooseComparison
-					if ( $page->id == $connection['connection_data']['meta']['facebook_page'] ) {
+					if ( $page->id === (int) $connection['connection_data']['meta']['facebook_page'] ) {
 						$found = true;
 						break;
 					}
@@ -866,7 +865,7 @@ class Publicize extends Publicize_Base {
 			}
 			?>
 
-			<p><?php wp_kses( __( 'Publicize to my <strong>Tumblr blog</strong>:', 'jetpack' ), array( 'strong' ) ); ?></p>
+			<p><?php echo wp_kses( __( 'Publicize to my <strong>Tumblr blog</strong>:', 'jetpack' ), array( 'strong' ) ); ?></p>
 
 			<ul id="option-tumblr-blog">
 
