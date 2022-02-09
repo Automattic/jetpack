@@ -410,27 +410,72 @@ class Instant_Search extends Classic_Search {
 	 * Add a search widget above footer for block templates.
 	 */
 	public function add_search_block_above_footer() {
-		// Check whether block theme functions exist.
-		if ( ! function_exists( 'get_block_template' ) ) {
-			return;
-		}
-		$active_theme     = \wp_get_theme()->get_stylesheet();
-		$template_part_id = "{$active_theme}//footer";
-		$teplate_part     = \get_block_template( $template_part_id, 'wp_template_part' );
-		if ( is_wp_error( $teplate_part ) || empty( $teplate_part ) ) {
-			return;
-		}
 		// We now only checks the standard search block.
 		// In the future we need to add Jetpack Search block when it's ready.
-		if ( false !== strpos( $teplate_part->content, 'wp:search' ) ) {
+		if ( $this->template_parts_have_search_block() ) {
 			return;
 		}
-		$request = new \WP_REST_Request( 'PUT', "/wp/v2/template-parts/{$template_part_id}" );
+
+		$footer = $this->get_template_part( 'footer' );
+		if ( ! $footer instanceof \WP_Block_Template ) {
+			return;
+		}
+
+		$template_part_id = $footer->id;
+		$request          = new \WP_REST_Request( 'PUT', "/wp/v2/template-parts/{$template_part_id}" );
 		$request->set_header( 'content-type', 'application/json' );
-		$request->set_param( 'content', $this->prepend_search_widget_to_block( $teplate_part->content ) );
+		$request->set_param( 'content', static::inject_search_widget_to_block( $footer->content ) );
 		$request->set_param( 'id', $template_part_id );
 		$controller = new \WP_REST_Templates_Controller( 'wp_template_part' );
-		$controller->update_item( $request );
+		return $controller->update_item( $request );
+	}
+
+	/**
+	 * Get template part for current theme.
+	 *
+	 * @param string $template_part_name - header, footer, home etc.
+	 *
+	 * @return \WP_Block_Template
+	 */
+	protected function get_template_part( $template_part_name ) {
+		// Check whether block theme functions exist.
+		if ( ! function_exists( 'get_block_template' ) ) {
+			return null;
+		}
+		$active_theme     = \wp_get_theme()->get_stylesheet();
+		$template_part_id = "{$active_theme}//{$template_part_name}";
+		$teplate_part     = \get_block_template( $template_part_id, 'wp_template_part' );
+		if ( is_wp_error( $teplate_part ) || empty( $teplate_part ) ) {
+			return null;
+		}
+		return $teplate_part;
+	}
+
+	/**
+	 * Returns true if  'header', 'footer' or 'home' has core search block
+	 *
+	 * @return boolean
+	 */
+	protected function template_parts_have_search_block() {
+		$template_part_names = array( 'header', 'footer', 'home' );
+		foreach ( $template_part_names as $part_name ) {
+			$part = $this->get_template_part( $part_name );
+			if ( $part instanceof \WP_Block_Template && static::has_search_block( $part->content ) ) {
+				return true;
+			}
+		}
+		return false;
+	}
+
+	/**
+	 * Returns true if $block_content has core search block
+	 *
+	 * @param string $block_content - Block content.
+	 *
+	 * @return boolean
+	 */
+	public static function has_search_block( $block_content ) {
+		return preg_match( '/(<!--\swp:search\s[^>]*-->)/i', $block_content );
 	}
 
 	/**
@@ -438,17 +483,22 @@ class Instant_Search extends Classic_Search {
 	 *
 	 * @param {string} $block_content - the content to append the search block.
 	 */
-	protected function prepend_search_widget_to_block( $block_content ) {
-		$search_block_group = <<<EOT
+	public static function inject_search_widget_to_block( $block_content ) {
+		$search_block = '<!-- wp:search {"label":"Jetpack Search","buttonText":"Search"} /-->';
 
-		<!-- wp:group {"style":{"spacing":{"padding":{"top":"10px","bottom":"10px","left":"10px","right":"10px"}}},"layout":{"type":"flex","setCascadingProperties":true,"justifyContent":"center"}} -->
-		<div class="wp-block-group jetpack-search-auto-config-search-container" style="padding-top:10px;padding-bottom:10px;padding-left:10px;padding-right:10px">
-				<!-- wp:search {"label":"Jetpack Search","buttonText":"Search"} /-->
-		</div>
-		<!-- /wp:group -->
+		// Place the search block on bottom of the first column if there's any.
+		$column_end_pattern = '/(<\s*\/div[^>]*>\s*<!--\s*\/wp:column\s+[^>]*-->)/i';
+		if ( preg_match( $column_end_pattern, $block_content ) ) {
+			return preg_replace( $column_end_pattern, "\n" . $search_block . "\n$1", $block_content, 1 );
+		}
 
-EOT;
-		return $search_block_group . $block_content;
+		// Place the search block on top of footer contents most inner group.
+		$group_start_pattern = '/((<!--\s*wp:group\s[^>]*-->[.\s]*<\s*div[^>]*>)+)/i';
+		if ( preg_match( $group_start_pattern, $block_content ) ) {
+			return preg_replace( $group_start_pattern, "$1\n" . $search_block . "\n", $block_content, 1 );
+		}
+
+		return $block_content;
 	}
 
 	/**
