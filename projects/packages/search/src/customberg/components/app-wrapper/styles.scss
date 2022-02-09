@@ -16,6 +16,9 @@
 		position: absolute;
 		padding-top: 2em;
 
+		// Adjusts z-index for customberg only, to allow colorpicker to display correctly.
+		z-index:90;
+
 		.jetpack-instant-search__search-results {
 			max-width: initial;
 		}
