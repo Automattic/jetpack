@@ -47,6 +47,13 @@ class Partner_Coupon {
 	public static $last_check_option = 'jetpack_partner_coupon_last_check';
 
 	/**
+	 * Callable that executes a blog-authenticated request.
+	 *
+	 * @var callable
+	 */
+	protected $request_as_blog;
+
+	/**
 	 * Jetpack_Partner_Coupon
 	 *
 	 * @var Partner_Coupon|null
@@ -74,14 +81,29 @@ class Partner_Coupon {
 	/**
 	 * Get singleton instance of class.
 	 *
+	 * @param callable|null $request_as_blog Callable that executes a blog-authenticated request.
+	 *
 	 * @return Partner_Coupon
 	 */
-	public static function get_instance() {
+	public static function get_instance( $request_as_blog = null ) {
 		if ( is_null( self::$instance ) ) {
-			self::$instance = new Partner_Coupon();
+			if ( ! $request_as_blog || ! is_callable( $request_as_blog ) ) {
+				$request_as_blog = array( Connection_Client::class, 'wpcom_json_api_request_as_blog' );
+			}
+
+			self::$instance = new Partner_Coupon( $request_as_blog );
 		}
 
 		return self::$instance;
+	}
+
+	/**
+	 * Constructor.
+	 *
+	 * @param callable $request_as_blog Callable that executes a blog-authenticated request.
+	 */
+	public function __construct( $request_as_blog ) {
+		$this->request_as_blog = $request_as_blog;
 	}
 
 	/**
@@ -196,19 +218,9 @@ class Partner_Coupon {
 	/**
 	 * Purge coupon based on availability check.
 	 *
-	 * @param string|null $connection_client The connection client to remotely look up availability.
 	 * @return bool Return whether we deleted coupon data.
 	 */
-	protected function maybe_purge_coupon_by_availability_check( $connection_client = null ) {
-		// Allow for client dependency injection to allow for mock client during unit testing.
-		if (
-			empty( $connection_client ) ||
-			! class_exists( $connection_client ) ||
-			! method_exists( $connection_client, 'wpcom_json_api_request_as_blog' )
-		) {
-			$connection_client = Connection_Client::class;
-		}
-
+	protected function maybe_purge_coupon_by_availability_check() {
 		$blog_id = Jetpack_Options::get_option( 'id', false );
 
 		if ( ! $blog_id ) {
@@ -221,18 +233,21 @@ class Partner_Coupon {
 			return false;
 		}
 
-		$response = $connection_client::wpcom_json_api_request_as_blog(
-			add_query_arg(
-				array( 'coupon_code' => $coupon['coupon_code'] ),
-				sprintf(
-					'/sites/%d/jetpack-partner/coupon/v1/site/coupon',
-					$blog_id
-				)
-			),
-			2,
-			array( 'method' => 'GET' ),
-			null,
-			'wpcom'
+		$response = call_user_func_array(
+			$this->request_as_blog,
+			array(
+				add_query_arg(
+					array( 'coupon_code' => $coupon['coupon_code'] ),
+					sprintf(
+						'/sites/%d/jetpack-partner/coupon/v1/site/coupon',
+						$blog_id
+					)
+				),
+				2,
+				array( 'method' => 'GET' ),
+				null,
+				'wpcom',
+			)
 		);
 
 		$body = json_decode( wp_remote_retrieve_body( $response ), true );
