@@ -35,16 +35,14 @@ export default function ProductInterstitial( { slug, children = null } ) {
 	}, [ recordEvent, slug ] );
 
 	return (
-		<div className={ styles.wrapper }>
-			<Container className={ styles.container } horizontalSpacing={ 0 } horizontalGap={ 0 }>
-				<Col sm={ 4 } md={ 4 } lg={ 5 }>
-					<ProductDetail slug={ slug } trackButtonClick={ trackProductClick } />
-				</Col>
-				<Col sm={ 4 } md={ 4 } lg={ 7 } className={ styles.imageContainer }>
-					{ children }
-				</Col>
-			</Container>
-		</div>
+		<Container className={ styles.container } horizontalSpacing={ 0 } horizontalGap={ 0 } fluid>
+			<Col sm={ 4 } md={ 4 } lg={ 5 }>
+				<ProductDetail slug={ slug } trackButtonClick={ trackProductClick } />
+			</Col>
+			<Col sm={ 4 } md={ 4 } lg={ 7 } className={ styles.imageContainer }>
+				{ children }
+			</Col>
+		</Container>
 	);
 }
 
@@ -62,7 +60,7 @@ export function BackupInterstitial() {
 }
 
 /**
- * SearchInterstitial component
+ * BoostInterstitial component
  *
  * @returns {object} BoostInterstitial react component.
  */
@@ -70,6 +68,19 @@ export function BoostInterstitial() {
 	return (
 		<ProductInterstitial slug="boost">
 			<img src={ boostImage } alt="Boost" />
+		</ProductInterstitial>
+	);
+}
+
+/**
+ * ScanInterstitial component
+ *
+ * @returns {object} ScanInterstitial react component.
+ */
+export function ScanInterstitial() {
+	return (
+		<ProductInterstitial slug="scan">
+			<h2>@todo Popular upgrade here</h2>
 		</ProductInterstitial>
 	);
 }
