@@ -24,15 +24,9 @@ import { BlockControls, InspectorControls } from '@wordpress/block-editor';
 import { DOWN } from '@wordpress/keycodes';
 
 /**
- * External dependencies
- */
-import getSiteFragment from '../../shared/get-site-fragment';
-
-/**
  * Internal dependencies
  */
 import { ANNUAL_DONATION, MONTHLY_DONATION } from './common/constants';
-import { CURRENCIES } from '@automattic/format-currency';
 import { SUPPORTED_CURRENCIES } from '../../shared/currencies';
 
 const Controls = props => {
