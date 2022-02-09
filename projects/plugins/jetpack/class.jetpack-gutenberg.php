@@ -705,7 +705,7 @@ class Jetpack_Gutenberg {
 	 *
 	 * This workaround is currently used by WordPress.com Simple sites.
 	 *
-	 * @since $$next-version$$
+	 * @since 10.7
 	 *
 	 * @return void
 	 */
