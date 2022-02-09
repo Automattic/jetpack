@@ -1,4 +1,0 @@
-Significance: minor
-Type: other
-
-Moved get-jetpack-extension-availability file to js-package/shared-extension-utils and updated imports
