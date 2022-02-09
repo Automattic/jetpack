@@ -9,7 +9,7 @@ import withMock from 'storybook-addon-mock';
  * Internal dependencies
  */
 import ProductDetailCard, { ProductDetail } from '../index.jsx';
-import { backupProductData, boostProductData, scanProductData } from './mock-data.js';
+import { backupProductData, boostProductData, scanProductData, searchProductData } from './mock-data.js';
 
 export default {
 	title: 'Packages/My Jetpack/Product Detail Card',
@@ -25,6 +25,7 @@ const mapResponse = {
 	backup: backupProductData,
 	boost: boostProductData,
 	scan: scanProductData,
+	search: searchProductData,
 };
 
 /**
@@ -33,13 +34,14 @@ const mapResponse = {
  * @param {string} product - Product slug
  * @returns {Array}          Story mock data
  */
-function getMockData( product ) {
+export function getMockData( product ) {
+	const response = mapResponse[ product ];
 	return [
 		{
 			url: `my-jetpack/v1/site/products/${ product }?_locale=user`,
 			method: 'GET',
 			status: 200,
-			response: mapResponse[ product ],
+			response,
 		},
 	];
 }
@@ -72,6 +74,12 @@ const BoostCardTemplate = args => <ProductDetailCard { ...args } slug="boost" />
 export const JetpackBoostCard = BoostCardTemplate.bind( {} );
 JetpackBoostCard.parameters = {
 	mockData: getMockData( 'boost' ),
+};
+
+const SearchCardTemplate = args => <ProductDetailCard { ...args } slug="search" />;
+export const JetpackSearchCard = SearchCardTemplate.bind( {} );
+JetpackSearchCard.parameters = {
+	mockData: getMockData( 'search' ),
 };
 
 const ScanCardTemplate = args => <ProductDetailCard { ...args } slug="scan" />;
