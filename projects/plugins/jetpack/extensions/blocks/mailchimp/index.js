@@ -60,6 +60,7 @@ export const settings = {
 		},
 		spacing: {
 			padding: true,
+			margin: true,
 		},
 	},
 	attributes: {

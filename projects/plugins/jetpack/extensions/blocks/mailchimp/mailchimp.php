@@ -38,6 +38,7 @@ function register_block() {
 					),
 					'spacing' => array(
 						'padding' => true,
+						'margin'  => true,
 					),
 				),
 			)
