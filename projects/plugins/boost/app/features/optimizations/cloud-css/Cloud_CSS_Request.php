@@ -9,6 +9,7 @@
 
 namespace Automattic\Jetpack_Boost\Features\Optimizations\Cloud_CSS;
 
+use Automattic\Jetpack_Boost\Lib\Boost_API;
 use Automattic\Jetpack_Boost\Lib\Critical_CSS\Critical_CSS_State;
 use Automattic\Jetpack_Boost\Lib\Critical_CSS\Source_Providers\Source_Providers;
 
@@ -36,17 +37,9 @@ class Cloud_CSS_Request {
 		$this->cloud_css_state->create_request( $this->source_providers->get_providers() );
 		$sources = $this->cloud_css_state->get_provider_urls();
 
-		$response = wp_remote_post(
-			'http://hydra-api:1982/v1/action/critical-css',
-			array(
-				'body'    => wp_json_encode( array( 'providers' => $sources ) ),
-				'timeout' => 30,
-				'headers' => array(
-					'Content-Type' => 'application/json',
-				),
-			)
-		);
+		$client = Boost_API::get_client();
 
+		$response = $client->post( '/v1/action/cloud-css', array( 'providers' => $sources ) );
 		return array( $response, $sources );
 	}
 }
