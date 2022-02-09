@@ -12,6 +12,7 @@ import {
 	withNotices,
 } from '@wordpress/components';
 import { BlockControls, InnerBlocks } from '@wordpress/block-editor';
+import { isAtomicSite, isSimpleSite } from '@automattic/jetpack-shared-extension-utils';
 
 /**
  * Internal dependencies
@@ -21,7 +22,6 @@ import attributeDetails from './attributes';
 import { convertToLink, eventIdFromUrl, normalizeUrlInput } from './utils';
 import { getValidatedAttributes } from '../../shared/get-validated-attributes';
 import { icon, URL_REGEX, EVENTBRITE_EXAMPLE_URL } from '.';
-import { isAtomicSite, isSimpleSite } from '../../shared/site-type-utils';
 import EventbriteInPageExample from './eventbrite-in-page-example.png';
 import BlockStylesSelector from '../../shared/components/block-styles-selector';
 import testEmbedUrl from '../../shared/test-embed-url';

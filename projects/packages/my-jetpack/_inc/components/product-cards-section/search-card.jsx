@@ -20,7 +20,7 @@ export const SearchIcon = () => (
 
 const SearchCard = ( { admin } ) => {
 	const { status, activate, deactivate, detail, isFetching } = useProduct( 'search' );
-	const { name, description } = detail;
+	const { name, description, slug } = detail;
 
 	const navigate = useNavigate();
 	const onAddHandler = useCallback( () => navigate( '/add-search' ), [ navigate ] );
@@ -36,6 +36,7 @@ const SearchCard = ( { admin } ) => {
 			onDeactivate={ deactivate }
 			onActivate={ activate }
 			onAdd={ onAddHandler }
+			slug={ slug }
 		/>
 	);
 };
