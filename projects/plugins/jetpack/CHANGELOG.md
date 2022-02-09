@@ -2,6 +2,50 @@
 
 ### This is a list detailing changes for all Jetpack releases.
 
+## 10.7-a.3 - 2022-02-09
+### Enhancements
+- Dashboard: the Backup banner CTA on the At-a-Glance page will now be replaced with a "Redeem Coupon" CTA when a partner coupon is detected.
+- Dashboard: updated the logic for "Activate a Product" button in "My Plan" to be always visible.
+- Payment Block: updated the Payment block Upgrade nudge description to include the plan name that's required to use the block.
+- Premium Content Block: remove option to transform a premium content block to a premium content block.
+- Premium Content Block: use 'Guest' rather than visitor/Logged-out.
+
+### Improved compatibility
+- Internet Defense League widget: Widget deprecation.
+- VideoPress: Added title and aria-label to VideoPress iframe embeds for better screen reader support.
+- WordAds: deprecate the legacy Ad Widget in favor of the Ad Block when adding new Ad Widgets via the block-based widget editor.
+
+### Bug fixes
+- Block Editor: cast selectedPlanId to boolean to remove a "0" character after block upgrade nudge.
+- Contact Form: ensure form validation uses the correct variable types.
+- Dashboard: fix broken image in plan loading placeholder in "My Plan"
+- Tiled Gallery Block: Fix performance issue affecting page views that use the Tiled Gallery.
+- Unroll Twitter Threads: ensure that only contributors can access the endpoint to unroll threads.
+- Widget Visibility: update to match new user query parameter introduced in WordPress 5.9.
+
+### Other changes <!-- Non-user-facing changes go here. This section will not be copied to readme.txt. -->
+- Added Jetpack Partner Coupon banner on My Plan page
+- Blocks: move plugin registering utility to standalone package.
+- Blocks: remove BlockIcon wrapper for multiple blocks.
+- Changes the default for the `Match video` setting to `true` for VideoPress videos.
+- Dashboard: hide the Scan card on Atomic sites.
+- E2E tests: merged Github workflows
+- E2E tests: update eslint configuration
+- Fixed some new PHPCS warnings.
+- Fix potential use of unexisting "allow_download" property in VideoPress media modal
+- Init Jetpack 10.7-a.2 cycle
+- Moved get-jetpack-data file to js-package/shared-extension-utils and updated imports
+- Moved get-jetpack-extension-availability file to js-package/shared-extension-utils and updated imports
+- Moved get-site-fragment file to js-package/shared-extension-utils and updated imports
+- Moved site-tyoe-utils file to js-package/shared-extension-utils and updated imports
+- Removed separate pnpm workspace for e2e tests.
+- Removed duplicate docblock for jetpack_relatedposts_returned_results filter and updated $post_id type to int
+- Search: move search widget to the search pacakge
+- Updated package dependencies.
+- Update lock file
+- Widget Visibility: switch to using shared js package utility instead of built-in site type check.
+- Added a new method to inline styles in the site editor.
+
 ## 10.7-a.1 - 2022-02-02
 ### Enhancements
 - Add an AMP-compatible version of the email share button.
