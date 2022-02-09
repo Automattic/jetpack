@@ -11,7 +11,7 @@ import { action } from '@storybook/addon-actions';
 import ConnectScreenVisual from '../visual';
 
 export default {
-	title: 'Connection/Connect Screen',
+	title: 'JS Packages/Connection/Connect Screen',
 	component: ConnectScreenVisual,
 };
 
