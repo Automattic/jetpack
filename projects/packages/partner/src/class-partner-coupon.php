@@ -40,7 +40,7 @@ class Partner_Coupon {
 	public static $added_option = 'partner_coupon_added';
 
 	/**
-	 * Name of the Jetpack_Option last check option.
+	 * Name of "last availability check" transient.
 	 *
 	 * @var string
 	 */
@@ -148,7 +148,7 @@ class Partner_Coupon {
 		// page for all Jetpack plugins and has hardcoded the settings page to be
 		// "jetpack", so we shouldn't need to allow for dynamic/custom values.
 		// phpcs:ignore WordPress.Security.NonceVerification.Recommended
-		if ( ! isset( $_GET['page'] ) || ! 'jetpack' === $_GET['page'] ) {
+		if ( ! isset( $_GET['page'] ) || 'jetpack' !== $_GET['page'] ) {
 			return;
 		}
 
@@ -156,14 +156,12 @@ class Partner_Coupon {
 			return;
 		}
 
-		$last_check = Jetpack_Options::get_raw_option( self::$last_check_option, 0 );
-
 		// Limit checks to happen every minute instead of on all page requests.
-		if ( $last_check && time() > $last_check + MINUTE_IN_SECONDS ) {
+		if ( get_transient( self::$last_check_option ) ) {
 			return;
 		}
 
-		Jetpack_Options::update_raw_option( self::$last_check_option, time() );
+		set_transient( self::$last_check_option, true, MINUTE_IN_SECONDS );
 
 		$this->maybe_purge_coupon_by_availability_check();
 	}
