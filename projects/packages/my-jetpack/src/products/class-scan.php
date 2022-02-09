@@ -46,7 +46,7 @@ class Scan extends Module_Product {
 	 * @return string
 	 */
 	public static function get_title() {
-		return ''; // @todo title
+		return __( 'Jetpack Scan', 'jetpack-my-jetpack' );
 	}
 
 	/**
@@ -64,7 +64,7 @@ class Scan extends Module_Product {
 	 * @return string
 	 */
 	public static function get_long_description() {
-		return ''; // @todo Add long description
+		return __( 'Automatic scanning and one-click fixes keep your site one step ahead of security threats and malware.', 'jetpack-my-jetpack' );
 	}
 
 	/**
@@ -73,7 +73,11 @@ class Scan extends Module_Product {
 	 * @return array Boost features list
 	 */
 	public static function get_features() {
-		return array();
+		return array(
+			_x( 'Automated daily scanning', 'Scan Product Feature', 'jetpack-my-jetpack' ),
+			_x( 'One-click fixes for most issues', 'Scan Product Feature', 'jetpack-my-jetpack' ),
+			_x( 'Instant email notifications', 'Scan Product Feature', 'jetpack-my-jetpack' ),
+		);
 	}
 
 	/**
@@ -83,8 +87,10 @@ class Scan extends Module_Product {
 	 */
 	public static function get_pricing_for_ui() {
 		return array(
-			'available' => true,
-			'is_free'   => true,
+			'available'            => true,
+			'currency_code'        => 'USD',
+			'full_price'           => 9.92,
+			'promotion_percentage' => 50,
 		);
 	}
 
