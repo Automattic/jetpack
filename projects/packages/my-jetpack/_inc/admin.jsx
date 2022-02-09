@@ -12,7 +12,11 @@ import { Container, Col, JetpackFooter } from '@automattic/jetpack-components';
 import MyJetpackScreen from './components/my-jetpack-screen';
 import ConnectionScreen from './components/connection-screen';
 import { initStore } from './state/store';
-import { BoostInterstitial } from './components/product-interstitial';
+import {
+	BoostInterstitial,
+	ScanInterstitial,
+	SearchInterstitial,
+} from './components/product-interstitial';
 import GoBackLink from './components/go-back-link';
 import styles from './style.module.scss';
 
@@ -33,26 +37,46 @@ function Layout( { nav = false, children } ) {
 		return children;
 	}
 
-	const headerNav = nav ? (
-		<Container horizontalSpacing={ 3 } horizontalGap={ 3 }>
-			<Col>
-				<GoBackLink />
-			</Col>
-		</Container>
-	) : null;
-
 	return (
 		<div className={ styles.layout }>
-			<div className={ styles.nav }>{ headerNav }</div>
-
-			<div className={ styles.primary }>{ children }</div>
-
-			<div className={ styles.footer }>
-				<JetpackFooter />
-			</div>
+			<Container horizontalSpacing={ 3 } horizontalGap={ 3 }>
+				<Col>
+					<GoBackLink />
+				</Col>
+				<Col>{ children }</Col>
+			</Container>
+			<Container horizontalSpacing={ 5 }>
+				<Col>
+					<JetpackFooter />
+				</Col>
+			</Container>
 		</div>
 	);
 }
+
+const MyJetpack = () => (
+	<HashRouter>
+		<Routes>
+			<Route path="/" element={ <MyJetpackScreen /> } />
+			<Route
+				path="/connection"
+				element={ <Layout nav={ true } children={ <ConnectionScreen /> } /> }
+			/>
+			<Route
+				path="/add-boost"
+				element={ <Layout nav={ true } children={ <BoostInterstitial /> } /> }
+			/>
+			<Route
+				path="/add-scan"
+				element={ <Layout nav={ true } children={ <ScanInterstitial /> } /> }
+			/>
+			<Route
+				path="/add-search"
+				element={ <Layout nav={ true } children={ <SearchInterstitial /> } /> }
+			/>
+		</Routes>
+	</HashRouter>
+);
 
 /**
  * The initial renderer function.
@@ -63,22 +87,7 @@ function render() {
 		return;
 	}
 
-	ReactDOM.render(
-		<HashRouter>
-			<Routes>
-				<Route path="/" element={ <MyJetpackScreen /> } />
-				<Route
-					path="/connection"
-					element={ <Layout nav={ true } children={ <ConnectionScreen /> } /> }
-				/>
-				<Route
-					path="/add-boost"
-					element={ <Layout nav={ true } children={ <BoostInterstitial /> } /> }
-				/>
-			</Routes>
-		</HashRouter>,
-		container
-	);
+	ReactDOM.render( <MyJetpack />, container );
 }
 
 render();

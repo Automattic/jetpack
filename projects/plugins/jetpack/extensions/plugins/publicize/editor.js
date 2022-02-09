@@ -1,7 +1,11 @@
 /**
+ * External dependencies
+ */
+import { registerJetpackPlugin } from '@automattic/jetpack-shared-extension-utils';
+
+/**
  * Internal dependencies
  */
 import { name, settings } from '.';
-import registerJetpackPlugin from '../../shared/register-jetpack-plugin';
 
 registerJetpackPlugin( name, settings );

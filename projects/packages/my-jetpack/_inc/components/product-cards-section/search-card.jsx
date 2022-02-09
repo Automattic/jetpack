@@ -1,8 +1,9 @@
 /**
  * External dependencies
  */
-import React from 'react';
+import React, { useCallback } from 'react';
 import PropTypes from 'prop-types';
+import { useNavigate } from 'react-router-dom';
 
 /**
  * Internal dependencies
@@ -19,7 +20,10 @@ export const SearchIcon = () => (
 
 const SearchCard = ( { admin } ) => {
 	const { status, activate, deactivate, detail, isFetching } = useProduct( 'search' );
-	const { name, description } = detail;
+	const { name, description, slug } = detail;
+
+	const navigate = useNavigate();
+	const onAddHandler = useCallback( () => navigate( '/add-search' ), [ navigate ] );
 
 	return (
 		<ProductCard
@@ -31,6 +35,8 @@ const SearchCard = ( { admin } ) => {
 			isFetching={ isFetching }
 			onDeactivate={ deactivate }
 			onActivate={ activate }
+			onAdd={ onAddHandler }
+			slug={ slug }
 		/>
 	);
 };

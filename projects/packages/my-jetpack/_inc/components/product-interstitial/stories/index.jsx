@@ -8,7 +8,12 @@ import withMock from 'storybook-addon-mock';
 /**
  * Internal dependencies
  */
-import ProductInterstitial, { BackupInterstitial, BoostInterstitial } from '../index.jsx';
+import ProductInterstitial, {
+	BackupInterstitial,
+	BoostInterstitial,
+	SearchInterstitial,
+	ScanInterstitial,
+} from '../index.jsx';
 
 export default {
 	title: 'Packages/My Jetpack/Product Interstitial',
@@ -31,3 +36,11 @@ JetpackBackup.parameters = {};
 const BoostTemplate = args => <BoostInterstitial { ...args } />;
 export const JetpackBoost = BoostTemplate.bind( {} );
 JetpackBoost.parameters = {};
+
+const ScanTemplate = args => <ScanInterstitial { ...args } />;
+export const JetpackScan = ScanTemplate.bind( {} );
+JetpackScan.parameters = {};
+
+const SearchTemplate = args => <SearchInterstitial { ...args } />;
+export const JetpackSearch = SearchTemplate.bind( {} );
+JetpackSearch.parameters = {};
