@@ -1,0 +1,5 @@
+Significance: patch
+Type: other
+Comment: Move PHPCS ignore to pass WP.com linting
+
+

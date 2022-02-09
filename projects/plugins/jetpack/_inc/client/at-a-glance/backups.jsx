@@ -10,7 +10,7 @@ import { get, isEmpty, noop } from 'lodash';
  * WordPress dependencies
  */
 import { createInterpolateElement } from '@wordpress/element';
-import { __ } from '@wordpress/i18n';
+import { __, sprintf } from '@wordpress/i18n';
 import { getRedirectUrl } from '@automattic/jetpack-components';
 
 /**
@@ -38,7 +38,7 @@ import {
 import { isPluginInstalled } from 'state/site/plugins';
 import { getVaultPressData } from 'state/at-a-glance';
 import { hasConnectedOwner, isOfflineMode, connectUser } from 'state/connection';
-import { showBackups } from 'state/initial-state';
+import { getPartnerCoupon, showBackups } from 'state/initial-state';
 
 /**
  * Displays a card for Backups based on the props given.
@@ -102,6 +102,84 @@ class DashBackups extends Component {
 		} );
 	};
 
+	trackRedeemCouponButtonView = () => {
+		const { partnerCoupon } = this.props;
+
+		analytics.tracks.recordEvent( 'jetpack_wpa_aag_redeem_partner_coupon_button_view', {
+			feature: 'backups',
+			coupon_preset: partnerCoupon.preset,
+		} );
+	};
+
+	getJetpackBackupBanner() {
+		const { partnerCoupon, upgradeUrl, siteRawUrl, trackUpgradeButtonView } = this.props;
+
+		if ( this.props.hasConnectedOwner ) {
+			if ( partnerCoupon && 'jetpack_backup_daily' === partnerCoupon.product.slug ) {
+				const checkoutUrl = getRedirectUrl( 'jetpack-plugin-partner-coupon-checkout', {
+					path: partnerCoupon.product.slug,
+					site: siteRawUrl,
+					query: `coupon=${ partnerCoupon.coupon_code }`,
+				} );
+
+				return (
+					<JetpackBanner
+						callToAction={ __( 'Redeem', 'jetpack' ) }
+						title={ sprintf(
+							/* translators: %s: Name of a Jetpack product. */
+							__(
+								'Redeem your coupon and get started with %s for free the first year!',
+								'jetpack'
+							),
+							partnerCoupon.product.title
+						) }
+						disableHref="false"
+						href={ checkoutUrl }
+						eventFeature="backups"
+						path="dashboard"
+						eventProps={ {
+							type: 'redeem_partner_coupon',
+							coupon_preset: partnerCoupon.preset,
+						} }
+						plan={ getJetpackProductUpsellByFeature( FEATURE_SITE_BACKUPS_JETPACK ) }
+						trackBannerDisplay={ this.trackRedeemCouponButtonView }
+					/>
+				);
+			}
+
+			return (
+				<JetpackBanner
+					callToAction={ __( 'Upgrade', 'jetpack' ) }
+					title={ __(
+						'Never worry about losing your site – automatic backups keep your content safe.',
+						'jetpack'
+					) }
+					disableHref="false"
+					href={ upgradeUrl }
+					eventFeature="backups"
+					path="dashboard"
+					plan={ getJetpackProductUpsellByFeature( FEATURE_SITE_BACKUPS_JETPACK ) }
+					trackBannerDisplay={ trackUpgradeButtonView }
+				/>
+			);
+		}
+
+		return (
+			<JetpackBanner
+				callToAction={ __( 'Connect', 'jetpack' ) }
+				title={ __(
+					'Connect your WordPress.com account to upgrade and get automatic backups that keep your content safe.',
+					'jetpack'
+				) }
+				disableHref="false"
+				onClick={ this.props.connectUser }
+				eventFeature="backups"
+				path="dashboard"
+				plan={ getJetpackProductUpsellByFeature( FEATURE_SITE_BACKUPS_JETPACK ) }
+			/>
+		);
+	}
+
 	getVPContent() {
 		const {
 			sitePlan,
@@ -163,34 +241,7 @@ class DashBackups extends Component {
 			return renderCard( {
 				className: 'jp-dash-item__is-inactive',
 				status: 'no-pro-uninstalled-or-inactive',
-				overrideContent: this.props.hasConnectedOwner ? (
-					<JetpackBanner
-						callToAction={ __( 'Upgrade', 'jetpack' ) }
-						title={ __(
-							'Never worry about losing your site – automatic backups keep your content safe.',
-							'jetpack'
-						) }
-						disableHref="false"
-						href={ this.props.upgradeUrl }
-						eventFeature="backups"
-						path="dashboard"
-						plan={ getJetpackProductUpsellByFeature( FEATURE_SITE_BACKUPS_JETPACK ) }
-						trackBannerDisplay={ this.props.trackUpgradeButtonView }
-					/>
-				) : (
-					<JetpackBanner
-						callToAction={ __( 'Connect', 'jetpack' ) }
-						title={ __(
-							'Connect your WordPress.com account to upgrade and get automatic backups that keep your content safe.',
-							'jetpack'
-						) }
-						disableHref="false"
-						onClick={ this.props.connectUser }
-						eventFeature="backups"
-						path="dashboard"
-						plan={ getJetpackProductUpsellByFeature( FEATURE_SITE_BACKUPS_JETPACK ) }
-					/>
-				),
+				overrideContent: this.getJetpackBackupBanner(),
 			} );
 		}
 
@@ -334,6 +385,7 @@ export default connect(
 			hasConnectedOwner: hasConnectedOwner( state ),
 			isFetchingSite: isFetchingSiteData( state ),
 			hasBackupPlan: siteHasBackupPlan( state ),
+			partnerCoupon: getPartnerCoupon( state ),
 		};
 	},
 	dispatch => ( {

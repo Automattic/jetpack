@@ -337,7 +337,7 @@ function Edit( props ) {
 						className="components-tab-button"
 						isPressed={ selectedTab.className === 'wp-premium-content-logged-out-view' }
 					>
-						<span>{ __( 'Visitor View', 'jetpack' ) }</span>
+						<span>{ __( 'Guest View', 'jetpack' ) }</span>
 					</ToolbarButton>
 					<ToolbarButton
 						onClick={ () => {
@@ -364,7 +364,7 @@ function Edit( props ) {
 				{ ( isSelected || selectedInnerBlock ) && apiState === API_STATE_CONNECTED && (
 					<Inspector { ...props } savePlan={ savePlan } siteSlug={ siteSlug } />
 				) }
-				{ props.attributes.selectedPlanId &&
+				{ !! props.attributes.selectedPlanId &&
 					! products.find( plan => plan.id === props.attributes.selectedPlanId ) && (
 						<InvalidSubscriptionWarning />
 					) }
