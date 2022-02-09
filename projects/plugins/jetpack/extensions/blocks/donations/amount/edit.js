@@ -31,7 +31,10 @@ const Edit = props => {
 	const [ isInvalid, setIsInvalid ] = useState( false );
 	const richTextRef = useRef( null );
 
-	useEffect( () => setAttributes( { currency } ), [ currency, setAttributes ] );
+	useEffect( () => {
+		const newAmount = minimumTransactionAmountForCurrency( currency ) * baseAmountMultiplier;
+		setAttributes( { amount: Number( newAmount ), currency } );
+	}, [ currency, setAttributes, baseAmountMultiplier ] );
 
 	const setAmount = useCallback(
 		newAmount => {
