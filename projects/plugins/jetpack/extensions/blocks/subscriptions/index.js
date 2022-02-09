@@ -97,5 +97,12 @@ export const settings = {
 	example: {
 		attributes: {},
 	},
+	supports: {
+		spacing: {
+			margin: true,
+			padding: true,
+		},
+		align: [ 'wide', 'full' ],
+	},
 	deprecated,
 };
