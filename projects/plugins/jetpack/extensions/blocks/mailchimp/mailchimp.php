@@ -67,14 +67,13 @@ function load_assets( $attr, $content ) {
 	Jetpack_Gutenberg::load_assets_as_required( FEATURE_NAME );
 	$wrapper_attributes = \WP_Block_Supports::get_instance()->apply_block_supports();
 	$classes            = ! empty( $wrapper_attributes['class'] ) ? $wrapper_attributes['class'] : '';
-	$styles             = ! empty( $wrapper_attributes['style'] ) ? $wrapper_attributes['style'] : '';
 	$amp_form_action    = sprintf( 'https://public-api.wordpress.com/rest/v1.1/sites/%s/email_follow/amp/subscribe/', $blog_id );
 	$is_amp_request     = Blocks::is_amp_request();
 
 	ob_start();
 	?>
 
-	<div class="<?php echo esc_attr( $classes ); ?>" style="<?php echo esc_attr( $styles ); ?>" data-blog-id="<?php echo esc_attr( $blog_id ); ?>">
+	<div class="<?php echo esc_attr( $classes ); ?>"<?php echo ! empty( $wrapper_attributes['style'] ) ? ' style="' . esc_attr( $wrapper_attributes['style'] ) . '"' : ''; ?> data-blog-id="<?php echo esc_attr( $blog_id ); ?>">
 		<form
 			aria-describedby="wp-block-jetpack-mailchimp_consent-text"
 			<?php if ( $is_amp_request ) : ?>
