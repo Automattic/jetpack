@@ -3,19 +3,24 @@
 set -e
 
 BASE_DIR="$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")" && pwd)"
-TMP_DIR="$BASE_DIR/../tmp"
+PLUGIN_DIR="$BASE_DIR/../../.."
+TMP_DIR="$BASE_DIR/../tmp/build"
 ZIP_FILE="$BASE_DIR/../tmp/jetpack.99.9.zip"
 
-# Clean-up old files
-rm -rf "$TMP_DIR"
-mkdir -p "$TMP_DIR"
+cd $PLUGIN_DIR
+pwd
 
-if [ "$SKIP_BUILD" == true ]; then
-	echo "Skipping Jetpack build. Jetpack archive expected to exist: $ZIP_FILE"
+if [ "$SKIP_ARCHIVE" == true ]; then
+	echo "Skipping archiving Jetpack build. Jetpack archive expected to exist: $ZIP_FILE"
 else
-	echo "Building production Jetpack"
-  pnpx jetpack build --no-pnpm-install --for-mirrors="$TMP_DIR" --production plugins/jetpack
+	echo "Cleaning up old files"
+#  rm -rf "$TMP_DIR"
+#  mkdir -p "$TMP_DIR"
+
+	echo "Copying build files to $TMP_DIR"
+
+	echo "Creating build archive"
+  zip -r "$TMP_DIR/build" "$ZIP_FILE"
 fi
 
-echo "Creating build archive"
-zip -r "$TMP_DIR/build/Automattic/jetpack-production" "$ZIP_FILE"
+

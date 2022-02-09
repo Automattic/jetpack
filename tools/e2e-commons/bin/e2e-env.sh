@@ -53,7 +53,8 @@ configure_wp_env() {
 	if [ "${1}" == "--activate-plugins" ]; then
 		shift
 		for var in "$@"; do
-			pnpx "$BASE_CMD" wp plugin activate "$var"
+			# shellcheck disable=SC2086
+			pnpx $BASE_CMD wp plugin activate "$var"
 		done
 	fi
 	$BASE_CMD wp option set permalink_structure ""
