@@ -90,8 +90,8 @@ class Search extends Module_Product {
 		return array(
 			'available'            => true,
 			'currency_code'        => 'EUR',
-			'full_price'           => '4.50',
-			'promotion_percentage' => '50',
+			'full_price'           => 4.50,
+			'promotion_percentage' => 50,
 		);
 	}
 
