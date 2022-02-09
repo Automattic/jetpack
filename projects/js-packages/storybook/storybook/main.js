@@ -49,12 +49,7 @@ module.exports = {
 		'@storybook/addon-viewport',
 		'@storybook/addon-a11y',
 		'@storybook/addon-essentials',
-		{
-			name: 'storybook-addon-turbo-build',
-			options: {
-				optimizationLevel: 2,
-			},
-		},
+		'storybook-addon-turbo-build',
 	],
 	managerWebpack: updateEmotionAliases,
 	// Workaround:
