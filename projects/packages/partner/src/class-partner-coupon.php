@@ -214,7 +214,12 @@ class Partner_Coupon {
 			return false;
 		}
 
-		$coupon   = self::get_coupon();
+		$coupon = self::get_coupon();
+
+		if ( ! $coupon ) {
+			return false;
+		}
+
 		$response = $connection_client::wpcom_json_api_request_as_blog(
 			sprintf(
 				'/sites/%d/jetpack-partner/coupon/v1/site/coupon?coupon_code=%s',
@@ -231,6 +236,7 @@ class Partner_Coupon {
 
 		if (
 			200 === wp_remote_retrieve_response_code( $response ) &&
+			is_array( $body ) &&
 			isset( $body['available'] ) &&
 			false === $body['available']
 		) {
