@@ -56,7 +56,6 @@ export const settings = {
 	supports: {
 		align: [ 'wide', 'full' ],
 		color: {
-			link: true,
 			gradients: true,
 		},
 		spacing: {
