@@ -28,10 +28,10 @@ class Update_Cloud_CSS implements Contracts\Endpoint {
 		try {
 			$request_body = json_decode( $request_body );
 			$providers    = $request_body->providers;
-			foreach ( $providers as $provider => $data ) {
-				$state   = new Critical_CSS_State();
-				$storage = new Critical_CSS_Storage();
+			$state        = new Critical_CSS_State();
+			$storage      = new Critical_CSS_Storage();
 
+			foreach ( $providers as $provider => $data ) {
 				if ( $data->success ) {
 					$state->set_source_success( $provider );
 					$storage->store_css( $provider, $data->css );
