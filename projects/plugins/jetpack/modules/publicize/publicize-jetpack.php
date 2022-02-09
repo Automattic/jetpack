@@ -201,7 +201,7 @@ class Publicize extends Publicize_Base {
 		if ( ! empty( $connections ) && is_array( $connections ) ) {
 			if ( ! empty( $connections[ $service_name ] ) ) {
 				foreach ( $connections[ $service_name ] as $id => $connection ) {
-					if ( 0 === (int) $connection['connection_data']['user_id'] || $_user_id === (int) $connection['connection_data']['user_id'] ) {
+					if ( $this->is_global_connection( $connection ) || $_user_id === (int) $connection['connection_data']['user_id'] ) {
 						$connections_to_return[ $id ] = $connection;
 					}
 				}
@@ -992,7 +992,7 @@ class Publicize extends Publicize_Base {
 		$connections = $this->get_connections( 'twitter' );
 		foreach ( $connections as $connection ) {
 			$connection_meta = $this->get_connection_meta( $connection );
-			if ( 0 === (int) $connection_meta['connection_data']['user_id'] ) {
+			if ( $this->is_global_connection( $connection_meta ) ) {
 				// If the connection is shared.
 				return $this->get_display_name( 'twitter', $connection );
 			}
@@ -1013,7 +1013,7 @@ class Publicize extends Publicize_Base {
 		if ( 'twitter' === $service_name && $submit_post ) {
 			$connection_meta        = $this->get_connection_meta( $connection );
 			$publicize_twitter_user = get_post_meta( $post_id, '_publicize_twitter_user' );
-			if ( empty( $publicize_twitter_user ) || 0 !== (int) $connection_meta['connection_data']['user_id'] ) {
+			if ( empty( $publicize_twitter_user ) || ! $this->is_global_connection( $connection_meta ) ) {
 				update_post_meta( $post_id, '_publicize_twitter_user', $this->get_display_name( 'twitter', $connection ) );
 			}
 		}
@@ -1051,7 +1051,7 @@ class Publicize extends Publicize_Base {
 		$connection_meta = $this->get_connection_meta( $connection );
 		if ( 'facebook' === $service_name && isset( $connection_meta['connection_data']['meta']['facebook_profile'] ) && $submit_post ) {
 			$publicize_facebook_user = get_post_meta( $post_id, '_publicize_facebook_user' );
-			if ( empty( $publicize_facebook_user ) || 0 !== (int) $connection_meta['connection_data']['user_id'] ) {
+			if ( empty( $publicize_facebook_user ) || ! $this->is_global_connection( $connection_meta ) ) {
 				$profile_link = $this->get_profile_link( 'facebook', $connection );
 
 				if ( false !== $profile_link ) {

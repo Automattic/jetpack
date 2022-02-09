@@ -553,6 +553,16 @@ abstract class Publicize_Base {
 	}
 
 	/**
+	 * Check if a connection is global
+	 *
+	 * @param array $connection Connection data.
+	 * @return bool Whether the connection is global.
+	 */
+	public function is_global_connection( $connection ) {
+		return empty( $connection['connection_data']['user_id'] );
+	}
+
+	/**
 	 * Whether the Connection is "valid" wrt Facebook's requirements.
 	 *
 	 * Must be connected to a Page (not a Profile).
@@ -820,7 +830,7 @@ abstract class Publicize_Base {
 				 * If this is a global connection and this user doesn't have enough permissions to modify
 				 * those connections, don't let them change it.
 				 */
-				if ( ! $done && ( 0 === (int) $connection_data['user_id'] && ! current_user_can( $this->GLOBAL_CAP ) ) ) {
+				if ( ! $done && $this->is_global_connection( $connection_meta ) && ! current_user_can( $this->GLOBAL_CAP ) ) {
 					$toggleable = false;
 
 					/**
