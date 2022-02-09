@@ -73,7 +73,11 @@ class Scan extends Module_Product {
 	 * @return array Boost features list
 	 */
 	public static function get_features() {
-		return array();
+		return array(
+			_x( 'Automated daily scanning', 'Scan Product Feature', 'jetpack-my-jetpack' ),
+			_x( 'One-click fixes for most issues', 'Scan Product Feature', 'jetpack-my-jetpack' ),
+			_x( 'Instant email notifications', 'Scan Product Feature', 'jetpack-my-jetpack' ),
+		);
 	}
 
 	/**
@@ -83,9 +87,20 @@ class Scan extends Module_Product {
 	 */
 	public static function get_pricing_for_ui() {
 		return array(
-			'available' => true,
-			'is_free'   => true,
+			'available'            => true,
+			'currency_code'        => 'EUR',
+			'full_price'           => '22',
+			'promotion_percentage' => '50',
 		);
+	}
+
+	/**
+	 * Get the WPCOM product slug used to make the purchase
+	 *
+	 * @return ?string
+	 */
+	public static function get_wpcom_product_slug() {
+		return 'jetpack_scan';
 	}
 
 	/**

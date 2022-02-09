@@ -94,6 +94,15 @@ class Search extends Module_Product {
 	}
 
 	/**
+	 * Get the WPCOM product slug used to make the purchase
+	 *
+	 * @return ?string
+	 */
+	public static function get_wpcom_product_slug() {
+		return 'jetpack_search';
+	}
+
+	/**
 	 * Checks whether the current plan of the site already supports the product
 	 *
 	 * Returns true if it supports. Return false if a purchase is still required.
