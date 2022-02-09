@@ -32,4 +32,11 @@ else
 	die "Unsupported GITHUB_EVENT_NAME \"$GITHUB_EVENT_NAME\""
 fi
 
+if [[ -n "$EXTRA" ]]; then
+	ARGS+=( --extra="$EXTRA" )
+	if [[ "$EXTRA" == "build" ]]; then
+		ARGS+=( --ignore-root )
+	fi
+fi
+
 pnpx jetpack dependencies list "${ARGS[@]}" | jq -ncR 'reduce inputs as $i ({}; .[$i] |= true)'

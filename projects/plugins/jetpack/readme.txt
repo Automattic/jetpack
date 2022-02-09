@@ -242,21 +242,26 @@ Jetpack Backup can do a full website migration to a new host, migrate theme file
 4. Promote your newest posts, pages, and products across your social media channels.
 
 == Changelog ==
-### 10.7-a.1 - 2022-02-02
+### 10.7-a.3 - 2022-02-09
 #### Enhancements
-- Add an AMP-compatible version of the email share button.
-- Add transformation from core/buttons to jetpack/recurring-payments block (requires gutenberg >= 11.5.0).
-- Business Hours: Add support for color & spacing design tool.
-- Changed the plan description for invalid plans and added a Warning message for Premium content blocks with invalid plans.
-- Dashboard: update the links used to purchase plans when in Jetpack settings.
+- Dashboard: the Backup banner CTA on the At-a-Glance page will now be replaced with a "Redeem Coupon" CTA when a partner coupon is detected.
+- Dashboard: updated the logic for "Activate a Product" button in "My Plan" to be always visible.
+- Payment Block: updated the Payment block Upgrade nudge description to include the plan name that's required to use the block.
+- Premium Content Block: remove option to transform a premium content block to a premium content block.
+- Premium Content Block: use 'Guest' rather than visitor/Logged-out.
 
 #### Improved compatibility
-- My Community widget: Hide widget from the block inserter and Legacy widget block drop-down menu
+- Internet Defense League widget: Widget deprecation.
+- VideoPress: Added title and aria-label to VideoPress iframe embeds for better screen reader support.
+- WordAds: deprecate the legacy Ad Widget in favor of the Ad Block when adding new Ad Widgets via the block-based widget editor.
 
 #### Bug fixes
-- Fixed several React warnings shown on the console when SCRIPT_DEBUG is active
-- Search: avoid PHP warning when using Search widget.
-- Widget Visibility: ensure role and logged in features are available.
+- Block Editor: cast selectedPlanId to boolean to remove a "0" character after block upgrade nudge.
+- Contact Form: ensure form validation uses the correct variable types.
+- Dashboard: fix broken image in plan loading placeholder in "My Plan"
+- Tiled Gallery Block: Fix performance issue affecting page views that use the Tiled Gallery.
+- Unroll Twitter Threads: ensure that only contributors can access the endpoint to unroll threads.
+- Widget Visibility: update to match new user query parameter introduced in WordPress 5.9.
 
 --------
 
