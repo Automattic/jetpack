@@ -5,8 +5,7 @@
  * Return the checkout URL for the given product.
  * It checkes whether the user is connected to Jetpack.
  * It doesn't use Jetpack redirect because
- * it's not possible to pass a valid redirect_to parameter.
- * In short, and to make it work, it replaces the `=` character with `%3D`.
+ * there is an issue with the `redirect_to` param.
  *
  * @param {string} product          - Checkout product name
  * @param {boolean} isUserConnected - True when the user is connected Jetpack
