@@ -1,4 +1,0 @@
-Significance: patch
-Type: bugfix
-
-Cast selectedPlanId to boolean to remove a "0" character after block upgrade nudge.

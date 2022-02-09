@@ -1,4 +1,0 @@
-Significance: patch
-Type: bugfix
-
-Unroll Twitter Threads: ensure that only contributors can access the endpoint to unroll threads.
