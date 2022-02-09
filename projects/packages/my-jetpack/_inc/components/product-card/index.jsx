@@ -108,6 +108,7 @@ const ProductCard = props => {
 		onActivate,
 		onAdd,
 		onDeactivate,
+		onManage,
 		isFetching,
 	} = props;
 	const isActive = status === PRODUCT_STATUSES.ACTIVE;
@@ -164,6 +165,16 @@ const ProductCard = props => {
 		onAdd();
 	}, [ name, onAdd, recordEvent ] );
 
+	/**
+	 * Calls the passed function onManage after firing Tracks event
+	 */
+	const manageHandler = useCallback( () => {
+		recordEvent( 'jetpack_myjetpack_product_card_manage_click', {
+			product: name,
+		} );
+		onManage();
+	}, [ name, onManage, recordEvent ] );
+
 	return (
 		<div className={ containerClassName }>
 			<div className={ styles.name }>
@@ -174,7 +185,11 @@ const ProductCard = props => {
 			<div className={ styles.actions }>
 				{ canDeactivate ? (
 					<ButtonGroup className={ styles.group }>
-						{ renderActionButton( { ...props, onActivate: activateHandler } ) }
+						{ renderActionButton( {
+							...props,
+							onActivate: activateHandler,
+							onManage: manageHandler,
+						} ) }
 						<DropdownMenu
 							className={ styles.dropdown }
 							toggleProps={ { isPressed: true, disabled: isFetching } }
@@ -191,7 +206,11 @@ const ProductCard = props => {
 						/>
 					</ButtonGroup>
 				) : (
-					renderActionButton( { ...props, onActivate: activateHandler, onAdd: addHandler } )
+					renderActionButton( {
+						...props,
+						onActivate: activateHandler,
+						onAdd: addHandler,
+					} )
 				) }
 				{ ! isAbsent && <div className={ statusClassName }>{ flagLabel }</div> }
 			</div>
