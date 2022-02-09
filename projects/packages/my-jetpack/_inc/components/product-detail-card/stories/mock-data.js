@@ -59,3 +59,25 @@ export const scanProductData = {
 		promotion_percentage: 50,
 	},
 };
+
+export const searchProductData = {
+	slug: 'search',
+	name: 'Search',
+	title: 'Jepack Search',
+	description: 'Help them find what they need',
+	long_description:
+		'Help your site visitors find answers instantly so they keep reading and buying. Great for sites with a lot of content.',
+	status: 'inactive',
+	features: [
+		'Instant search and indexing',
+		'Powerful filtering',
+		'Supports 29 languages',
+		'Spelling correction',
+	],
+	pricingForUi: {
+		available: true,
+		currency_code: 'EUR',
+		full_price: 4.5,
+		promotion_percentage: 50,
+	},
+};
