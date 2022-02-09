@@ -45,11 +45,16 @@ module.exports = {
 			name: '@storybook/addon-docs',
 			options: { configureJSX: true },
 		},
-		'@storybook/addon-knobs',
 		'@storybook/addon-storysource',
 		'@storybook/addon-viewport',
 		'@storybook/addon-a11y',
 		'@storybook/addon-essentials',
+		{
+			name: 'storybook-addon-turbo-build',
+			options: {
+				optimizationLevel: 2,
+			},
+		},
 	],
 	managerWebpack: updateEmotionAliases,
 	// Workaround:
