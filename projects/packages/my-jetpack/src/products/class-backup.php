@@ -58,7 +58,6 @@ class Backup extends Hybrid_Product {
 	 */
 	public static function get_title() {
 		return __( 'Jetpack Backup', 'jetpack-my-jetpack' );
-
 	}
 
 	/**

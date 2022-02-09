@@ -62,7 +62,7 @@ export function BackupInterstitial() {
 }
 
 /**
- * SearchInterstitial component
+ * BoostInterstitial component
  *
  * @returns {object} BoostInterstitial react component.
  */
@@ -70,6 +70,19 @@ export function BoostInterstitial() {
 	return (
 		<ProductInterstitial slug="boost">
 			<img src={ boostImage } alt="Boost" />
+		</ProductInterstitial>
+	);
+}
+
+/**
+ * ScanInterstitial component
+ *
+ * @returns {object} ScanInterstitial react component.
+ */
+export function ScanInterstitial() {
+	return (
+		<ProductInterstitial slug="scan">
+			<h2>@todo Popular upgrade here</h2>
 		</ProductInterstitial>
 	);
 }
