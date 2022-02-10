@@ -227,7 +227,7 @@ EOT;
 	 * Test replace_block_pattern_if_any
 	 */
 	public function test_wp_pattern_block_replace() {
-		$method = new ReflectionMethod( 'Automattic\Jetpack\Search\Instant_Search', 'get_block_pattern_content' );
+		$method = new ReflectionMethod( 'Automattic\Jetpack\Search\Instant_Search', 'replace_block_patterns' );
 		$method->setAccessible( true );
 		Instant_Search::initialize( 1 );
 		WP_Block_Patterns_Registry::get_instance()->register(
@@ -238,8 +238,8 @@ EOT;
 			)
 		);
 
-		$footer_content          = '<!-- wp:pattern {"slug":"jetpack-search/footer"} /-->';
-		$footer_content_replaced = '<!-- wp:group --><div class="wp-block-group"></div><!-- /wp:group -->';
+		$footer_content          = '<!-- wp:group --><div><!-- wp:pattern {"slug":"jetpack-search/footer"} /--></div><!-- /wp:group -->';
+		$footer_content_replaced = '<!-- wp:group --><div><!-- wp:group --><div class="wp-block-group"></div><!-- /wp:group --></div><!-- /wp:group -->';
 		$this->assertEquals( $footer_content_replaced, $method->invoke( Instant_Search::instance(), $footer_content ) );
 	}
 
