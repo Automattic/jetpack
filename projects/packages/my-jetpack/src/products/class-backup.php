@@ -58,7 +58,6 @@ class Backup extends Hybrid_Product {
 	 */
 	public static function get_title() {
 		return __( 'Jetpack Backup', 'jetpack-my-jetpack' );
-
 	}
 
 	/**
@@ -91,6 +90,15 @@ class Backup extends Hybrid_Product {
 			_x( '30-day archive & activity log', 'Backup Product Feature', 'jetpack-my-jetpack' ),
 			_x( 'One-click restores', 'Backup Product Feature', 'jetpack-my-jetpack' ),
 		);
+	}
+
+	/**
+	 * Get the WPCOM product slug used to make the purchase
+	 *
+	 * @return ?string
+	 */
+	public static function get_wpcom_product_slug() {
+		return 'jetpack_backup_t1_yearly';
 	}
 
 	/**

@@ -1,15 +1,15 @@
 /**
  * External dependencies
  */
-import React from 'react';
+import React, { useCallback } from 'react';
 import PropTypes from 'prop-types';
+import { useNavigate } from 'react-router-dom';
 
 /**
  * Internal dependencies
  */
 import ProductCard from '../product-card';
 import { useProduct } from '../../hooks/use-product';
-
 export const ScanIcon = () => (
 	<svg width="14" height="17" viewBox="0 0 14 17" fill="none" xmlns="http://www.w3.org/2000/svg">
 		<path
@@ -23,7 +23,12 @@ export const ScanIcon = () => (
 
 const ScanCard = ( { admin } ) => {
 	const { status, activate, deactivate, detail, isFetching } = useProduct( 'scan' );
-	const { name, description } = detail;
+	const { name, description, slug } = detail;
+	const navigate = useNavigate();
+
+	const onAddHandler = useCallback( () => {
+		navigate( '/add-scan' );
+	}, [ navigate ] );
 
 	return (
 		<ProductCard
@@ -34,7 +39,9 @@ const ScanCard = ( { admin } ) => {
 			admin={ admin }
 			isFetching={ isFetching }
 			onDeactivate={ deactivate }
+			slug={ slug }
 			onActivate={ activate }
+			onAdd={ onAddHandler }
 		/>
 	);
 };
