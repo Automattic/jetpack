@@ -53,10 +53,12 @@ class Jetpack_About_Page extends Jetpack_Admin_Page {
 	/**
 	 * Add page action
 	 *
-	 * @param string $hook Hook of current page, unused.
+	 * @param string $hook Hook of current page.
 	 */
-	public function add_page_actions( $hook ) { // phpcs:ignore VariableAnalysis.CodeAnalysis.VariableAnalysis.UnusedVariable
-		$this->a8c_data = $this->fetch_a8c_data();
+	public function add_page_actions( $hook ) {
+		if ( 'admin_page_jetpack_about' === $hook ) {
+			$this->a8c_data = $this->fetch_a8c_data();
+		}
 	}
 
 	/**
