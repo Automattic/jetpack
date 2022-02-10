@@ -13,6 +13,7 @@ import MyJetpackScreen from './components/my-jetpack-screen';
 import ConnectionScreen from './components/connection-screen';
 import { initStore } from './state/store';
 import {
+	BackupInterstitial,
 	BoostInterstitial,
 	ScanInterstitial,
 	SearchInterstitial,
@@ -78,12 +79,16 @@ const MyJetpack = () => (
 				element={ <Layout nav={ true } children={ <BoostInterstitial /> } slug={ 'boost' } /> }
 			/>
 			<Route
+				path="/add-backup"
+				element={ <Layout nav={ true } children={ <BackupInterstitial /> } slug={ 'backup' } /> }
+			/>
+			<Route
 				path="/add-scan"
 				element={ <Layout nav={ true } children={ <ScanInterstitial /> } slug={ 'scan' } /> }
 			/>
 			<Route
 				path="/add-search"
-				element={ <Layout nav={ true } children={ <SearchInterstitial /> } /> }
+				element={ <Layout nav={ true } children={ <SearchInterstitial /> } slug={ 'search' } /> }
 			/>
 		</Routes>
 	</HashRouter>
