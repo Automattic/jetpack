@@ -69,6 +69,11 @@ abstract class Base_Admin_Menu {
 		$this->is_api_request = defined( 'REST_REQUEST' ) && REST_REQUEST || 0 === strpos( $_SERVER['REQUEST_URI'], '/?rest_route=%2Fwpcom%2Fv2%2Fadmin-menu' );
 		$this->domain         = ( new Status() )->get_site_suffix();
 
+		// Special case: /wp-admin/?service-worker doesn't render a menu at all: skip all menu work
+		if ( isset( $_GET['service-worker'] ) ) {
+			return;
+		}
+
 		add_action( 'admin_menu', array( $this, 'reregister_menu_items' ), 99998 );
 		add_action( 'admin_menu', array( $this, 'hide_parent_of_hidden_submenus' ), 99999 );
 
