@@ -114,12 +114,18 @@ function requestProductStatus( productId, data, { select, dispatch } ) {
 				resolve( freshProduct?.status );
 			} )
 			.catch( error => {
-				const message = sprintf(
-					// translators: %$1s: Type of action, %$2s Product
-					__( 'Failed to %1$s jetpack %2$s. Please try again', 'jetpack-my-jetpack' ),
-					data.activate ? 'activate' : 'deactivate',
-					productId
-				);
+				const { name } = select.getProduct( productId );
+				const message = data.activate
+					? sprintf(
+							// translators: %$1s: Jetpack Product name
+							__( 'Failed to activate %1$s. Please try again', 'jetpack-my-jetpack' ),
+							name
+					  )
+					: sprintf(
+							// translators: %$1s: Jetpack Product name
+							__( 'Failed to deactivate %1$s. Please try again', 'jetpack-my-jetpack' ),
+							name
+					  );
 
 				dispatch( setIsFetchingProduct( productId, false ) );
 				dispatch( setRequestProductError( productId, error ) );
