@@ -36,6 +36,7 @@ const ExtrasCard = ( { admin } ) => {
 			onDeactivate={ deactivate }
 			slug={ slug }
 			onActivate={ activate }
+			showDeactivate={ false }
 		/>
 	);
 };

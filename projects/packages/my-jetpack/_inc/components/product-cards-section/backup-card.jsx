@@ -36,6 +36,7 @@ const BackupCard = ( { admin } ) => {
 			onDeactivate={ deactivate }
 			slug={ slug }
 			onActivate={ activate }
+			showDeactivate={ false }
 		/>
 	);
 };
