@@ -38,7 +38,7 @@ class Wpcom_Products {
 
 		$wpcom_request = Client::wpcom_json_api_request_as_blog(
 			'/products?_locale=' . get_user_locale() . '&type=jetpack',
-			'2',
+			'1.1',
 			array(
 				'method'  => 'GET',
 				'headers' => array(
@@ -78,6 +78,9 @@ class Wpcom_Products {
 	 * Checks if the cache is old, meaning we need to fetch new data from WPCOM
 	 */
 	private static function is_cache_old() {
+		if ( empty( self::get_products_from_cache() ) ) {
+			return true;
+		}
 		$cache_date = get_user_meta( get_current_user_id(), self::CACHE_DATE_META_NAME, true );
 		return time() - (int) $cache_date > ( 7 * DAY_IN_SECONDS );
 	}
@@ -95,14 +98,16 @@ class Wpcom_Products {
 	 * Attempts to retrieve the products list from the user cache if cache is not too old.
 	 * If cache is old, it will attempt to fetch information from WPCOM. If it fails, we return what we have in cache, if anything, otherwise we return an error.
 	 *
+	 * @param bool $skip_cache If true it will ignore the cache and attempt to fetch fresh information from WPCOM.
+	 *
 	 * @return Object|WP_Error
 	 */
-	public static function get_products() {
+	public static function get_products( $skip_cache = false ) {
 		// This is only available for logged in users.
 		if ( ! get_current_user_id() ) {
 			return null;
 		}
-		if ( ! self::is_cache_old() ) {
+		if ( ! self::is_cache_old() && ! $skip_cache ) {
 			return self::get_products_from_cache();
 		}
 
