@@ -11,34 +11,26 @@ use Automattic\Jetpack\Connection\Manager as Connection_Manager;
 use Jetpack_Options;
 
 /**
- * Initializer for the main Jetpack plugin. Instantiate to enable Jetpack Search functionality.
+ * Initializer for the Jetpack Search plugin. Instantiate to enable Jetpack Search functionality.
  */
-class Jetpack_Initializer extends Initializer {
+class Search_Plugin_Initializer extends Initializer {
 	/**
 	 * Initializes either the Classic Search or the Instant Search experience.
+	 * This function should be indempotent!
 	 */
 	public static function initialize() {
 		// Check whether Jetpack Search should be initialized in the first place.
 		if ( ! self::is_connected() || ! self::is_search_supported() ) {
-			/**
-			 * Fires when the Jetpack Search fails and would fallback to MySQL.
-			 *
-			 * @since Jetpack 7.9.0
-			 * @param string $reason Reason for Search fallback.
-			 * @param mixed  $data   Data associated with the request, such as attempted search parameters.
-			 */
-			do_action( 'jetpack_search_abort', 'inactive', null );
 			return;
 		}
 
 		$blog_id = Jetpack_Options::get_option( 'id' );
 		if ( ! $blog_id ) {
-			do_action( 'jetpack_search_abort', 'no_blog_id', null );
 			return;
 		}
 
 		// registers Jetpack Search widget.
-		add_action( 'widgets_init', array( 'Automattic\Jetpack\Search\Jetpack_Initializer', 'jetpack_search_widget_init' ) );
+		add_action( 'widgets_init', array( 'Automattic\Jetpack\Search\Search_Plugin_Initializer', 'jetpack_search_widget_init' ) );
 
 		if ( Options::is_instant_enabled() ) {
 			// Enable the instant search experience.

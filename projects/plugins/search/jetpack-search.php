@@ -13,4 +13,8 @@
  * @package automattic/jetpack-search
  */
 
-// Code some good stuff!
+define( 'JETPACK_SEARCH_PLUGIN__VERSION', '0.1.0-alpha' );
+define( 'JETPACK_SEARCH_PLUGIN__DIR', __DIR__ . '/' );
+define( 'JETPACK_SEARCH_PLUGIN__SLUG', 'search-plugin' );
+
+Automattic\Jetpack\Search\Search_Plugin_Initializer::initialize();
