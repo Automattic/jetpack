@@ -110,6 +110,7 @@ const ProductCard = props => {
 		onDeactivate,
 		onManage,
 		isFetching,
+		slug,
 	} = props;
 	const isActive = status === PRODUCT_STATUSES.ACTIVE;
 	const isError = status === PRODUCT_STATUSES.ERROR;
@@ -140,40 +141,40 @@ const ProductCard = props => {
 	 */
 	const deactivateHandler = useCallback( () => {
 		recordEvent( 'jetpack_myjetpack_product_card_deactivate_click', {
-			product: name,
+			product: slug,
 		} );
 		onDeactivate();
-	}, [ name, onDeactivate, recordEvent ] );
+	}, [ slug, onDeactivate, recordEvent ] );
 
 	/**
 	 * Calls the passed function onActivate after firing Tracks event
 	 */
 	const activateHandler = useCallback( () => {
 		recordEvent( 'jetpack_myjetpack_product_card_activate_click', {
-			product: name,
+			product: slug,
 		} );
 		onActivate();
-	}, [ name, onActivate, recordEvent ] );
+	}, [ slug, onActivate, recordEvent ] );
 
 	/**
 	 * Calls the passed function onAdd after firing Tracks event
 	 */
 	const addHandler = useCallback( () => {
 		recordEvent( 'jetpack_myjetpack_product_card_add_click', {
-			product: name,
+			product: slug,
 		} );
 		onAdd();
-	}, [ name, onAdd, recordEvent ] );
+	}, [ slug, onAdd, recordEvent ] );
 
 	/**
 	 * Calls the passed function onManage after firing Tracks event
 	 */
 	const manageHandler = useCallback( () => {
 		recordEvent( 'jetpack_myjetpack_product_card_manage_click', {
-			product: name,
+			product: slug,
 		} );
 		onManage();
-	}, [ name, onManage, recordEvent ] );
+	}, [ slug, onManage, recordEvent ] );
 
 	return (
 		<div className={ containerClassName }>
@@ -230,6 +231,7 @@ ProductCard.propTypes = {
 	onActivate: PropTypes.func,
 	onAdd: PropTypes.func,
 	onLearn: PropTypes.func,
+	slug: PropTypes.string.isRequired,
 	status: PropTypes.oneOf( [
 		PRODUCT_STATUSES.ACTIVE,
 		PRODUCT_STATUSES.INACTIVE,

@@ -1,0 +1,4 @@
+Significance: patch
+Type: added
+
+Set unlink=1 in the checkout URL when the user is not connected

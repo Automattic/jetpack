@@ -19,7 +19,7 @@ export const BoostIcon = () => (
 
 const BoostCard = ( { admin } ) => {
 	const { status, activate, deactivate, detail, isFetching } = useProduct( 'boost' );
-	const { name, description } = detail;
+	const { name, description, slug } = detail;
 	const navigate = useNavigate();
 
 	const onAddHandler = useCallback( () => {
@@ -36,6 +36,7 @@ const BoostCard = ( { admin } ) => {
 			isFetching={ isFetching }
 			onDeactivate={ deactivate }
 			onActivate={ activate }
+			slug={ slug }
 			onAdd={ onAddHandler }
 		/>
 	);

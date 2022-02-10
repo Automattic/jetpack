@@ -1,4 +1,0 @@
-Significance: patch
-Type: other
-
-Blocks: move plugin registering utility to standalone package.

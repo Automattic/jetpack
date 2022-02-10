@@ -2,29 +2,31 @@
 /* global myJetpackInitialState */
 
 /**
- * External dependencies
- */
-import { getRedirectUrl } from '@automattic/jetpack-components';
-
-/**
- * Internal dependencies
- */
-import { MY_JETPACK_PRODUCT_CHECKOUT } from '../constants';
-
-/**
- * Return the product redirect URL, according to
- * the Jetpack redirect source, site, path, and redirect_to params.
+ * Return the checkout URL for the given product.
+ * It checkes whether the user is connected to Jetpack.
+ * It doesn't use Jetpack redirect because
+ * there is an issue with the `redirect_to` param.
  *
- * @param {string} product - Checkout product name
+ * @param {string} product          - Checkout product name
+ * @param {boolean} isUserConnected - True when the user is connected Jetpack
  * @returns {string} the redirect URL
  */
-export default function getProductCheckoutUrl( product ) {
-	const { siteSuffix: site, redirectUrl } = window?.myJetpackInitialState || {};
-	const redirect_to = `${ redirectUrl }&product=${ product }`;
+export default function getProductCheckoutUrl( product, isUserConnected ) {
+	const { siteSuffix, redirectUrl } = window?.myJetpackInitialState || {};
 
-	return getRedirectUrl( MY_JETPACK_PRODUCT_CHECKOUT, {
-		site,
-		path: 'jetpack_search',
-		query: `redirect_to=${ redirect_to }`,
-	} );
+	const checkoutUrl = new URL( 'https://wordpress.com/checkout/' );
+	const checkoutProductUrl = new URL( `${ siteSuffix }/${ product }`, checkoutUrl );
+
+	// Add redirect_to parameter
+	checkoutProductUrl.searchParams.set( 'redirect_to', redirectUrl );
+
+	// Add unlimited when user is not connected to Jetpack.
+	if ( ! isUserConnected ) {
+		checkoutProductUrl.searchParams.set( 'unlinked', 1 );
+	}
+
+	// Add site to query string.
+	checkoutProductUrl.searchParams.set( 'site', siteSuffix );
+
+	return checkoutProductUrl.toString();
 }
