@@ -1,4 +1,9 @@
-<?php
+<?php // phpcs:ignore WordPress.Files.FileName.InvalidClassFileName
+/**
+ * A collection of helper functions used in the SSO module.
+ *
+ * @package automattic/jetpack
+ */
 
 use Automattic\Jetpack\Redirect;
 

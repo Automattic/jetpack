@@ -9,7 +9,7 @@
 	border: 1px solid var(--product-card-border-color);
 	border-radius: var(--product-card-border-radius);
 	box-shadow: 0 2px 6px var(--product-card-shadow), 0 1px 2px var(--product-card-shadow);
-	max-width: 384px;
+	max-width: 600px;
 }
 
 .container {
@@ -49,6 +49,12 @@
 		white-space: pre-line;
 		height: auto;
 		line-height: 26px;
+	}
+
+	// Product Icon
+	& > svg {
+		height: 30px;
+		line-height: 30px;
 	}
 }
 

@@ -29,6 +29,7 @@ import QuerySitePlugins from 'components/data/query-site-plugins';
 import QuerySite from 'components/data/query-site';
 import QueryScanStatus from 'components/data/query-scan-status';
 import {
+	isAtomicSite,
 	isMultisite,
 	userCanManageModules,
 	userCanManagePlugins,
@@ -87,7 +88,7 @@ class AtAGlance extends Component {
 		// Backup won't work with multi-sites, but Scan does if VaultPress is enabled
 		const hasVaultPressScanning =
 			! this.props.fetchingScanStatus && this.props.scanStatus?.reason === 'vp_active_on_site';
-		if ( ! this.props.multisite || hasVaultPressScanning ) {
+		if ( ! this.props.isAtomicSite && ( ! this.props.multisite || hasVaultPressScanning ) ) {
 			securityCards.push(
 				<DashScan
 					{ ...settingsProps }
@@ -210,6 +211,7 @@ export default connect( state => {
 		userCanViewStats: userCanViewStats( state ),
 		userCanManagePlugins: userCanManagePlugins( state ),
 		userIsSubscriber: userIsSubscriber( state ),
+		isAtomicSite: isAtomicSite( state ),
 		isOfflineMode: isOfflineMode( state ),
 		getModuleOverride: module_name => getModuleOverride( state, module_name ),
 		multisite: isMultisite( state ),
