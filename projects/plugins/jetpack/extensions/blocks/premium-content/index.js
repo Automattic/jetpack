@@ -14,17 +14,15 @@ import { blockContainsPremiumBlock, blockHasParentPremiumBlock } from './_inc/pr
 
 /**
  * A list of blocks that should be disallowed to be transformed to Premium content block since they are mostly markup blocks.
- *
- * @type {{"core/loginout": boolean, "core/nextpage": boolean, "core/more": boolean, "core/separator": boolean, "core/spacer": boolean, "core/post-navigation-link": boolean}}
  */
-const disallowFromTransformations = {
-	'core/nextpage': true,
-	'core/spacer': true,
-	'core/separator': true,
-	'core/more': true,
-	'core/loginout': true,
-	'core/post-navigation-link': true,
-};
+const disallowFromTransformations = [
+	'core/nextpage',
+	'core/spacer',
+	'core/separator',
+	'core/more',
+	'core/loginout',
+	'core/post-navigation-link',
+];
 
 /**
  * Check if the given blocks are transformable to premium-content block
@@ -52,7 +50,7 @@ const blocksCanBeTransformed = blocks => {
 	// Check if the blocks selected are all in the disallowFromTransformations.
 	// If  they are, they don't have any value in allowing them to be transformed to Premium Content.
 	const isInDisallowList = blocks.every( block =>
-		disallowFromTransformations.hasOwnProperty( block.name )
+		disallowFromTransformations.includes( block.name )
 	);
 
 	return ! isInDisallowList;
