@@ -6,6 +6,7 @@ import execa from 'execa';
 import fs from 'fs/promises';
 import { constants as fsconstants } from 'fs';
 import npath from 'path';
+import os from 'os';
 import readline from 'readline';
 import inquirer from 'inquirer';
 import Listr from 'listr';
@@ -140,7 +141,16 @@ export async function handler( argv ) {
 	for ( const [ k, v ] of dependencies ) {
 		bodeps.set( k, new Set( v ) );
 	}
-	const buildOrder = getBuildOrder( bodeps ).flat();
+	const buildOrderGroups = getBuildOrder( bodeps );
+	const buildOrder = buildOrderGroups.flat();
+
+	// Determine which builds are on the "slow path", defined as anything that's in the last build group or a dependency thereof.
+	const slowPathBuilds = new Set( buildOrderGroups[ buildOrderGroups.length - 1 ] );
+	for ( const slug of slowPathBuilds ) {
+		for ( const dep of dependencies.get( slug ) ) {
+			slowPathBuilds.add( dep );
+		}
+	}
 
 	// Avoid a node warning about too many event listeners.
 	if ( argv.v ) {
@@ -154,6 +164,7 @@ export async function handler( argv ) {
 			v.add( 'pnpm install' );
 		}
 		dependencies.set( 'pnpm install', new Set() );
+		slowPathBuilds.add( 'pnpm install' );
 		listr.add(
 			createBuildTask( 'pnpm install', argv, `Install pnpm dependencies`, async t => {
 				await t.setStatus( 'installing' );
@@ -180,6 +191,7 @@ export async function handler( argv ) {
 		concurrent: argv.concurrency > 1,
 		limit: pLimit( argv.concurrency ),
 		dependencies,
+		slowPathBuilds,
 		promises: {},
 		mirrorMutex: pLimit( 1 ),
 		versions: {},
@@ -277,6 +289,7 @@ function createBuildTask( project, argv, title, build ) {
 						ctx,
 						cwd: projectDir( project ),
 					};
+					const renice = argv.renice && ! t.ctx.slowPathBuilds.has( t.project );
 					if ( argv.v ) {
 						const streamArgs = { prefix: ctx.concurrent ? project : null, time: !! argv.timing };
 						const stdout = new PrefixStream( streamArgs );
@@ -297,6 +310,11 @@ function createBuildTask( project, argv, title, build ) {
 							if ( ! stdio[ 2 ] ) {
 								p.stderr.pipe( stderr, { end: false } );
 							}
+							if ( renice ) {
+								p.on( 'spawn', () =>
+									os.setPriority( p.pid, os.constants.priority.PRIORITY_BELOW_NORMAL )
+								);
+							}
 							return p;
 						};
 						t.output = m =>
@@ -315,6 +333,11 @@ function createBuildTask( project, argv, title, build ) {
 								...options,
 								stdio,
 							} );
+							if ( renice ) {
+								p.on( 'spawn', () =>
+									os.setPriority( p.pid, os.constants.priority.PRIORITY_BELOW_NORMAL )
+								);
+							}
 							return p;
 						};
 						t.output = () => Promise.resolve();
@@ -444,6 +467,7 @@ async function setupForMirroring( argv ) {
 	argv.production = true;
 	argv.p = true;
 	argv.timing = true;
+	argv.renice = true;
 	process.env.COMPOSER_MIRROR_PATH_REPOS = '1';
 	return true;
 }
