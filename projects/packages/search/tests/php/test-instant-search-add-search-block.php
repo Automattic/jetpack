@@ -10,13 +10,13 @@ use ReflectionMethod;
 use WP_Block_Patterns_Registry;
 
 /**
- * Unit tests for the REST_Controller class.
+ * Unit tests for the Instant Search - functionality to add search block.
  *
  * @package automattic/jetpack-search
  */
 class Test_Instant_Search_Add_Search_Block extends TestCase {
 	/**
-	 * Test inject_search_widget_to_block_single_group
+	 * Test inject_search_widget_to_block single group
 	 */
 	public function test_inject_search_widget_to_block_single_group() {
 		// 2022 theme.
@@ -44,7 +44,7 @@ EOT;
 	}
 
 	/**
-	 * Test inject_search_widget_to_block_nested_group
+	 * Test inject_search_widget_to_block nested group
 	 */
 	public function test_inject_search_widget_to_block_nested_group() {
 		// 2022 footer.
@@ -76,7 +76,7 @@ EOT;
 	}
 
 	/**
-	 * Test inject_search_widget_to_bottom_of_first_column
+	 * Test inject search block to bottom of first column
 	 */
 	public function test_inject_search_widget_to_bottom_of_first_column() {
 		// alara theme.
@@ -224,7 +224,7 @@ EOT;
 	}
 
 	/**
-	 * Test replace_block_pattern_if_any
+	 * Test replace_block_patterns
 	 */
 	public function test_wp_pattern_block_replace() {
 		$method = new ReflectionMethod( 'Automattic\Jetpack\Search\Instant_Search', 'replace_block_patterns' );
