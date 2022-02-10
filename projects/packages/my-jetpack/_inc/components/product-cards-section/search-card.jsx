@@ -1,23 +1,21 @@
 /**
  * External dependencies
  */
-import React, { useCallback } from 'react';
+import React from 'react';
 import PropTypes from 'prop-types';
-import { useNavigate } from 'react-router-dom';
 
 /**
  * Internal dependencies
  */
 import ProductCard from '../product-card';
 import { useProduct } from '../../hooks/use-product';
+import useMyJetpackNavigate from '../../hooks/use-my-jetpack-navigate';
 import { SearchIcon } from '../icons';
 
 const SearchCard = ( { admin } ) => {
 	const { status, activate, deactivate, detail, isFetching } = useProduct( 'search' );
 	const { name, description, slug } = detail;
-
-	const navigate = useNavigate();
-	const onAddHandler = useCallback( () => navigate( '/add-search' ), [ navigate ] );
+	const navToSearchPage = useMyJetpackNavigate( '/add-search' );
 
 	return (
 		<ProductCard
@@ -29,7 +27,7 @@ const SearchCard = ( { admin } ) => {
 			isFetching={ isFetching }
 			onDeactivate={ deactivate }
 			onActivate={ activate }
-			onAdd={ onAddHandler }
+			onAdd={ navToSearchPage }
 			slug={ slug }
 		/>
 	);
