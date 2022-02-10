@@ -29,6 +29,7 @@ import {
 	Dropdown,
 	Icon,
 } from '@wordpress/components';
+import { isSimpleSite } from '@automattic/jetpack-shared-extension-utils';
 
 /**
  * Internal dependencies
@@ -37,7 +38,6 @@ import HelpMessage from '../../shared/help-message';
 import defaultVariations from './variations';
 import CRMIntegrationSettings from './components/jetpack-crm-integration/jetpack-crm-integration-settings';
 import NewsletterIntegrationSettings from './components/jetpack-newsletter-integration-settings';
-import { isSimpleSite } from '../../shared/site-type-utils';
 
 const ALLOWED_BLOCKS = [
 	'jetpack/markdown',

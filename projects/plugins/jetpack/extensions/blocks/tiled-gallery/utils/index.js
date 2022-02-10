@@ -5,12 +5,12 @@ import photon from 'photon';
 import { format as formatUrl, parse as parseUrl } from 'url';
 import { isBlobURL } from '@wordpress/blob';
 import { range } from 'lodash';
+import { isAtomicSite, isPrivateSite } from '@automattic/jetpack-shared-extension-utils';
 
 /**
  * Internal dependencies
  */
 import { PHOTON_MAX_RESIZE } from '../constants';
-import { isAtomicSite, isPrivateSite } from '../../../shared/site-type-utils';
 import isOfflineMode from '../../../shared/is-offline-mode';
 
 export function isSquareishLayout( layout ) {

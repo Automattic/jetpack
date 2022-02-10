@@ -23,7 +23,7 @@ export const AntiSpamIcon = () => (
 
 const AntiSpamCard = ( { admin } ) => {
 	const { status, activate, deactivate, detail, isFetching } = useProduct( 'anti-spam' );
-	const { name, description } = detail;
+	const { name, description, slug } = detail;
 
 	return (
 		<ProductCard
@@ -34,6 +34,7 @@ const AntiSpamCard = ( { admin } ) => {
 			admin={ admin }
 			isFetching={ isFetching }
 			onDeactivate={ deactivate }
+			slug={ slug }
 			onActivate={ activate }
 		/>
 	);

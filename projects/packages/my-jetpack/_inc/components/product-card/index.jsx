@@ -1,7 +1,7 @@
 /**
  * External dependencies
  */
-import React from 'react';
+import React, { useCallback } from 'react';
 import PropTypes from 'prop-types';
 import classNames from 'classnames';
 import { __, sprintf } from '@wordpress/i18n';
@@ -18,11 +18,13 @@ export const PRODUCT_STATUSES = {
 	INACTIVE: 'inactive',
 	ERROR: 'error',
 	ABSENT: 'plugin_absent',
+	NEEDS_PURCHASE: 'needs_purchase',
 };
 
 const PRODUCT_STATUSES_LABELS = {
 	[ PRODUCT_STATUSES.ACTIVE ]: __( 'Active', 'jetpack-my-jetpack' ),
 	[ PRODUCT_STATUSES.INACTIVE ]: __( 'Inactive', 'jetpack-my-jetpack' ),
+	[ PRODUCT_STATUSES.NEEDS_PURCHASE ]: __( 'Inactive', 'jetpack-my-jetpack' ),
 	[ PRODUCT_STATUSES.ERROR ]: __( 'Error', 'jetpack-my-jetpack' ),
 };
 
@@ -65,6 +67,7 @@ const renderActionButton = ( {
 	};
 
 	switch ( status ) {
+		case PRODUCT_STATUSES.NEEDS_PURCHASE:
 		case PRODUCT_STATUSES.ABSENT:
 			return (
 				<Button variant="link" onClick={ onAdd }>
@@ -105,17 +108,21 @@ const ProductCard = props => {
 		onActivate,
 		onAdd,
 		onDeactivate,
+		onManage,
 		isFetching,
+		slug,
 	} = props;
 	const isActive = status === PRODUCT_STATUSES.ACTIVE;
 	const isError = status === PRODUCT_STATUSES.ERROR;
 	const isInactive = status === PRODUCT_STATUSES.INACTIVE;
-	const isAbsent = status === PRODUCT_STATUSES.ABSENT;
+	const isAbsent = status === PRODUCT_STATUSES.ABSENT || status === PRODUCT_STATUSES.NEEDS_PURCHASE;
+	const isPurchaseRequired = status === PRODUCT_STATUSES.NEEDS_PURCHASE;
 	const flagLabel = PRODUCT_STATUSES_LABELS[ status ];
 	const canDeactivate = ( isActive || isError ) && admin;
 
 	const containerClassName = classNames( styles.container, {
 		[ styles.plugin_absent ]: isAbsent,
+		[ styles[ 'is-purchase-required' ] ]: isPurchaseRequired,
 	} );
 
 	const statusClassName = classNames( styles.status, {
@@ -132,32 +139,42 @@ const ProductCard = props => {
 	/**
 	 * Calls the passed function onDeactivate after firing Tracks event
 	 */
-	const deactivateHandler = () => {
+	const deactivateHandler = useCallback( () => {
 		recordEvent( 'jetpack_myjetpack_product_card_deactivate_click', {
-			product: name,
+			product: slug,
 		} );
 		onDeactivate();
-	};
+	}, [ slug, onDeactivate, recordEvent ] );
 
 	/**
 	 * Calls the passed function onActivate after firing Tracks event
 	 */
-	const activateHandler = () => {
+	const activateHandler = useCallback( () => {
 		recordEvent( 'jetpack_myjetpack_product_card_activate_click', {
-			product: name,
+			product: slug,
 		} );
 		onActivate();
-	};
+	}, [ slug, onActivate, recordEvent ] );
 
 	/**
 	 * Calls the passed function onAdd after firing Tracks event
 	 */
-	const addHandler = () => {
+	const addHandler = useCallback( () => {
 		recordEvent( 'jetpack_myjetpack_product_card_add_click', {
-			product: name,
+			product: slug,
 		} );
 		onAdd();
-	};
+	}, [ slug, onAdd, recordEvent ] );
+
+	/**
+	 * Calls the passed function onManage after firing Tracks event
+	 */
+	const manageHandler = useCallback( () => {
+		recordEvent( 'jetpack_myjetpack_product_card_manage_click', {
+			product: slug,
+		} );
+		onManage();
+	}, [ slug, onManage, recordEvent ] );
 
 	return (
 		<div className={ containerClassName }>
@@ -169,7 +186,11 @@ const ProductCard = props => {
 			<div className={ styles.actions }>
 				{ canDeactivate ? (
 					<ButtonGroup className={ styles.group }>
-						{ renderActionButton( { ...props, onActivate: activateHandler } ) }
+						{ renderActionButton( {
+							...props,
+							onActivate: activateHandler,
+							onManage: manageHandler,
+						} ) }
 						<DropdownMenu
 							className={ styles.dropdown }
 							toggleProps={ { isPressed: true, disabled: isFetching } }
@@ -186,7 +207,11 @@ const ProductCard = props => {
 						/>
 					</ButtonGroup>
 				) : (
-					renderActionButton( { ...props, onActivate: activateHandler, onAdd: addHandler } )
+					renderActionButton( {
+						...props,
+						onActivate: activateHandler,
+						onAdd: addHandler,
+					} )
 				) }
 				{ ! isAbsent && <div className={ statusClassName }>{ flagLabel }</div> }
 			</div>
@@ -206,11 +231,13 @@ ProductCard.propTypes = {
 	onActivate: PropTypes.func,
 	onAdd: PropTypes.func,
 	onLearn: PropTypes.func,
+	slug: PropTypes.string.isRequired,
 	status: PropTypes.oneOf( [
 		PRODUCT_STATUSES.ACTIVE,
 		PRODUCT_STATUSES.INACTIVE,
 		PRODUCT_STATUSES.ERROR,
 		PRODUCT_STATUSES.ABSENT,
+		PRODUCT_STATUSES.NEEDS_PURCHASE,
 	] ).isRequired,
 };
 
