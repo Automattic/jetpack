@@ -2,12 +2,12 @@
  * External dependencies
  */
 import { registerBlockType } from '@wordpress/blocks';
+import { getJetpackExtensionAvailability } from '@automattic/jetpack-shared-extension-utils';
 
 /**
  * Internal dependencies
  */
 import extensionList from '../index.json';
-import { getJetpackExtensionAvailability } from '@automattic/jetpack-shared-extension-utils';
 
 const betaExtensions = extensionList.beta || [];
 
