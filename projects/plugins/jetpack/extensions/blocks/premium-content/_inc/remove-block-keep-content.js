@@ -3,6 +3,7 @@
  */
 import { PluginBlockSettingsMenuItem } from '@wordpress/edit-post';
 import { select, dispatch } from '@wordpress/data';
+import { __ } from '@wordpress/i18n';
 
 /**
  * Internal dependencies
@@ -26,7 +27,7 @@ function replaceBlockAndKeepContent() {
 export default () => (
 	<PluginBlockSettingsMenuItem
 		allowedBlocks={ [ name ] }
-		label="Remove block and keep content"
+		label={ __( 'Remove block and keep content', 'jetpack' ) }
 		onClick={ replaceBlockAndKeepContent }
 	/>
 );
