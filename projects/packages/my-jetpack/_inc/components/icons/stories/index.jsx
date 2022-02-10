@@ -50,7 +50,7 @@ function IconsStory() {
 									key={ key }
 								>
 									<Icon size={ size.value } />
-									<span>{ Icon.displayName }</span>
+									<span>{ Icon.displayName.replace( /icon/gi, '' ) }</span>
 								</div>
 							);
 						} ) }
