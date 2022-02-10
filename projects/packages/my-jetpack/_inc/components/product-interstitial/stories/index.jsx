@@ -10,6 +10,7 @@ import { getMockData } from '../../product-detail-card/stories/utils.js';
  * Internal dependencies
  */
 import ProductInterstitial, {
+	AntiSpamInterstitial,
 	BackupInterstitial,
 	BoostInterstitial,
 	SearchInterstitial,
@@ -29,6 +30,12 @@ const DefaultBackupDetailCard = args => <BackupInterstitial { ...args } />;
 export const _default = DefaultBackupDetailCard.bind( {} );
 _default.parameters = {};
 _default.args = DefaultArgs;
+
+const AntiSpamTemplate = args => <AntiSpamInterstitial { ...args } />;
+export const JetpackAntiSpam = AntiSpamTemplate.bind( {} );
+JetpackAntiSpam.parameters = {
+	mockData: getMockData( 'anti-spam' ),
+};
 
 const BackupTemplate = args => <BackupInterstitial { ...args } />;
 export const JetpackBackup = BackupTemplate.bind( {} );
