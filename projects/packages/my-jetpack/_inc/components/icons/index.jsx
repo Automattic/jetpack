@@ -4,19 +4,47 @@
 import React from 'react';
 import { Path, SVG } from '@wordpress/components';
 
-export const BackupIcon = ( { size = 24 } ) => (
-	<SVG
-		width={ size }
-		height={ size }
-		viewBox="0 0 22 16"
-		fill="none"
-		xmlns="http://www.w3.org/2000/svg"
-	>
+/**
+ * Icon Wrapper component.
+ *
+ * @param {object} props          - Component props.
+ * @param {number} props.size     - Icon size.
+ * @param {string} props.viewBox  - Icon viewBox.
+ * @param {object} props.children - Icon component children.
+ * @returns {object}                Icon Wrapper component.
+ */
+function IconWrapper( { size = 20, viewBox = '0 0 14 19', children } ) {
+	return (
+		<SVG
+			width={ size }
+			height={ size }
+			viewBox={ viewBox }
+			fill="none"
+			xmlns="http://www.w3.org/2000/svg"
+		>
+			{ children }
+		</SVG>
+	);
+}
+
+export const AntiSpamIcon = ( { size } ) => (
+	<IconWrapper size={ size } viewBox="0 0 14 19">
+		<Path
+			fillRule="evenodd"
+			clipRule="evenodd"
+			d="M3.45474 18.2069L11.4547 0.706896L10.5453 0.291138L9.2837 3.05081C8.59914 2.69873 7.82278 2.49999 7 2.49999C5.93853 2.49999 4.95431 2.83076 4.1448 3.39485L2.18994 1.44L1.12928 2.50066L3.05556 4.42694C2.49044 5.15127 2.12047 6.0353 2.02469 6.99999H0V8.49999H2V9.99999H0V11.5H2.10002C2.35089 12.7359 3.0576 13.8062 4.03703 14.5279L2.54526 17.7911L3.45474 18.2069ZM4.68024 13.1209C3.95633 12.4796 3.5 11.5431 3.5 10.5V7.49999C3.5 5.567 5.067 3.99999 7 3.99999C7.60028 3.99999 8.16526 4.15111 8.65898 4.41738L4.68024 13.1209ZM10.3555 6.50155L11.1645 4.73191C11.6053 5.39383 11.8926 6.16683 11.9753 6.99999H14V8.49999H12V9.99999H14V11.5H11.9C11.4367 13.7822 9.41896 15.5 7 15.5C6.75078 15.5 6.50582 15.4818 6.26638 15.4466L6.92799 13.9993C6.95194 13.9998 6.97594 14 7 14C8.933 14 10.5 12.433 10.5 10.5V7.49999C10.5 7.15307 10.4495 6.81794 10.3555 6.50155Z"
+			fill="#1E1E1E"
+		/>
+	</IconWrapper>
+);
+
+export const BackupIcon = ( { size = 20 } ) => (
+	<IconWrapper size={ size } viewBox="0 0 22 16">
 		<Path
 			fillRule="evenodd"
 			clipRule="evenodd"
 			d="m16.092 8.1635 0.0188-1.7025 1e-4 -0.03867c0-1.9752-1.8025-3.8666-4.4-3.8666-2.1696 0-3.828 1.3518-4.2735 2.9432l-0.42657 1.5238-1.581-0.06466c-0.0393-0.0016-0.07893-0.0024-0.11886-0.0024-1.587 0-2.9778 1.3444-2.9778 3.1333 0 1.7871 1.3878 3.1305 2.9728 3.1334l0.02863-2e-4h12.052l0.0123 2e-4c1.1943 0 2.2667-1.0162 2.2667-2.4 0-1.2351-0.8646-2.1899-1.8964-2.3684l-1.6776-0.2904zm-10.581-3.2038c-0.06651-0.00271-0.13335-0.00408-0.2005-0.00408-2.7492 0-4.9778 2.2983-4.9778 5.1333 0 2.8351 2.2286 5.1334 4.9778 5.1334l0.02962-2e-4h12.035l0.0236 2e-4c2.3564 0 4.2667-1.97 4.2667-4.4 0-2.1802-1.5375-3.99-3.5554-4.3392l3e-4 -0.0608c0-3.24-2.8653-5.8666-6.4-5.8666-2.9837 0-5.4905 1.8716-6.1994 4.404z"
 			fill="#1E1E1E"
 		/>
-	</SVG>
+	</IconWrapper>
 );
