@@ -269,7 +269,7 @@ export default function SubscriptionControls( {
 						value={ successMessage }
 						label={ __( 'Success message', 'jetpack' ) }
 						help={ __(
-							'Edit the message displayed when a user subscribes to the newsletter.',
+							'Edit the message displayed when a user subscribes.',
 							'jetpack'
 						) }
 						onChange={ newSuccessMessage => setAttributes( { successMessage: newSuccessMessage } ) }
