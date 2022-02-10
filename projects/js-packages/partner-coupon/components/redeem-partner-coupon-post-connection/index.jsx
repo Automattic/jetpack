@@ -17,7 +17,7 @@ import { usePartnerCouponRedemption } from '../../hooks';
  */
 import './style.scss';
 
-export const DISMISS_COOKIE_NAME = 'jp-redeem-partner-coupon-dismissed';
+export const DISMISS_COOKIE_NAME = 'jetpack-redeem-partner-coupon-dismissed';
 export const DISMISS_MAX_COOKIE_AGE = 24 * 60 * 60; // 1 day
 
 /**

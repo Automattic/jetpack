@@ -7,7 +7,8 @@ import PropTypes from 'prop-types';
 /**
  * Internal dependencies
  */
-import { RedeemPartnerCouponPostConnection, RedeemPartnerCouponPreConnection } from '../../index';
+import RedeemPartnerCouponPostConnection from '../redeem-partner-coupon-post-connection';
+import RedeemPartnerCouponPreConnection from '../redeem-partner-coupon-pre-connection';
 
 const PartnerCouponRedeem = props => {
 	const {
