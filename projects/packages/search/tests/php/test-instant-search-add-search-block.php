@@ -227,7 +227,7 @@ EOT;
 	 * Test replace_block_pattern_if_any
 	 */
 	public function test_wp_pattern_block_replace() {
-		$method = new ReflectionMethod( 'Automattic\Jetpack\Search\Instant_Search', 'replace_block_pattern_if_any' );
+		$method = new ReflectionMethod( 'Automattic\Jetpack\Search\Instant_Search', 'get_block_pattern_content' );
 		$method->setAccessible( true );
 		Instant_Search::initialize( 1 );
 		WP_Block_Patterns_Registry::get_instance()->register(

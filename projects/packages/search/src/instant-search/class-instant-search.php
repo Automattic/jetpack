@@ -423,7 +423,7 @@ class Instant_Search extends Classic_Search {
 			return;
 		}
 
-		$content          = $this->replace_block_pattern_if_any( $footer->content );
+		$content          = $this->replace_block_patterns( $footer->content );
 		$template_part_id = $footer->id;
 		$request          = new \WP_REST_Request( 'PUT', "/wp/v2/template-parts/{$template_part_id}" );
 		$request->set_header( 'content-type', 'application/json' );
@@ -434,14 +434,31 @@ class Instant_Search extends Classic_Search {
 	}
 
 	/**
+	 * Replace pattern block with its content.
+	 * We don't want to replace recursively for the sake of simplicity.
+	 *
+	 * @param string $block_content - Content of template part.
+	 */
+	protected function replace_block_patterns( $block_content ) {
+		$matches = array();
+		if ( preg_match( '/<!--\s*wp:pattern\s+{.*}\s*\/-->/', $block_content, $matches ) > 0 ) {
+			foreach ( $matches as $match ) {
+				$pattern_content = $this->get_block_pattern_content( $match );
+				$block_content   = str_replace( $match, $pattern_content, $block_content );
+			}
+		}
+		return $block_content;
+	}
+
+	/**
 	 * Replace block pattern with its content only if it is just one block pattern for the template part.
 	 *
-	 * @param string $block_content - Block content.
+	 * @param string $pattern_block - Block content.
 	 */
-	protected function replace_block_pattern_if_any( $block_content ) {
+	protected function get_block_pattern_content( $pattern_block ) {
 		// The following code block only deal with footer with only one pattern.
 		// Do not want to go too far, we might cause unknown issues.
-		$blocks = ( new WP_Block_Parser() )->parse( $block_content );
+		$blocks = ( new WP_Block_Parser() )->parse( $pattern_block );
 		if ( 1 === count( $blocks ) && 'core/pattern' === $blocks[0]['blockName'] ) {
 			$slug     = $blocks[0]['attrs']['slug'];
 			$registry = WP_Block_Patterns_Registry::get_instance();
@@ -450,7 +467,7 @@ class Instant_Search extends Classic_Search {
 				return $pattern['content'];
 			}
 		}
-		return $block_content;
+		return $pattern_block;
 	}
 
 	/**
