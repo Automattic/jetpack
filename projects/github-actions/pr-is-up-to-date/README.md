@@ -53,8 +53,8 @@ It will not work for pushes to anything else.
     # is reachable from the input branch.
     tag:
 
-    # GitHub Access Token. This token must allow for pushing to all relevant
-    # branches of all relevant mirror repos.
+    # GitHub Access Token. The user associated with this token will show up
+    # as the "creator" of the status check.
     token:
 ```
 
