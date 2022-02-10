@@ -1,0 +1,12 @@
+.icons-container {
+	display: flex;
+	justify-content: space-between;
+	max-width: 600px;
+}
+
+.icon-wrapper {
+	padding: 10px;
+	box-shadow: 0 0 1px inset rgba(0, 0, 0 , 0.5 );
+	background-color: white;
+	border-radius: 5px;
+}
