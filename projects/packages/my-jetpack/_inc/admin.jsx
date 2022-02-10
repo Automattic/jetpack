@@ -80,7 +80,7 @@ const MyJetpack = () => (
 			/>
 			<Route
 				path="/add-backup"
-				element={ <Layout nav={ true } children={ <BackupInterstitial /> } /> }
+				element={ <Layout nav={ true } children={ <BackupInterstitial /> } slug={ 'backup' } /> }
 			/>
 			<Route
 				path="/add-scan"
