@@ -12,12 +12,10 @@ import { __, sprintf } from '@wordpress/i18n';
  * Internal dependencies
  */
 import styles from './style.module.scss';
-import { BoostIcon } from '../product-cards-section/boost-card';
 import getProductCheckoutUrl from '../../utils/get-product-checkout-url';
 import useMyJetpackConnection from '../../hooks/use-my-jetpack-connection';
 import { useProduct } from '../../hooks/use-product';
-import { BackupIcon } from '../product-cards-section/backup-card';
-import { AntiSpamIcon } from '../product-cards-section/anti-spam-card';
+import { BackupIcon, BoostIcon, SearchIcon, ScanIcon } from '../icons';
 
 /**
  * Simple react component to render the product icon,
@@ -28,14 +26,17 @@ import { AntiSpamIcon } from '../product-cards-section/anti-spam-card';
  */
 function ProductIcon( { slug } ) {
 	switch ( slug ) {
-		case 'anti-spam':
-			return <AntiSpamIcon />;
-
 		case 'backup':
-			return <BackupIcon />;
+			return <BackupIcon size={ 24 } />;
 
 		case 'boost':
-			return <BoostIcon />;
+			return <BoostIcon size={ 24 } />;
+
+		case 'search':
+			return <SearchIcon size={ 24 } />;
+
+		case 'scan':
+			return <ScanIcon size={ 24 } />;
 
 		default:
 			return null;
@@ -114,7 +115,8 @@ const ProductDetail = ( { slug, trackButtonClick } ) => {
 
 			<Button
 				onClick={ trackButtonClick }
-				isPressed
+				isLink
+				isPrimary
 				href={ addProductUrl }
 				className={ styles[ 'checkout-button' ] }
 			>
