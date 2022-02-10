@@ -6,11 +6,6 @@
  */
 
 /**
- * Mock connection client.
- */
-require_once __DIR__ . '/connection-client-mock.php';
-
-/**
  * Composer's autoloader is all we need.
  */
 require_once __DIR__ . '/../../vendor/autoload.php';

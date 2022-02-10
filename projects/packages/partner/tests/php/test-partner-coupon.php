@@ -256,13 +256,20 @@ class Partner_Coupon_Test extends BaseTestCase {
 			$mock_response['body'] = wp_json_encode( $mock_response['body'] );
 		}
 
-		// Maybe purge the coupon.
-		Connection_Client_Mock::set_response( $mock_response );
-		$instance = Partner_Coupon::get_instance();
+		$mock_client = $this->getMockBuilder( \stdClass::class )
+							->addMethods( array( 'wpcom_json_api_request_as_blog' ) )
+							->getMock();
+
+		$mock_client
+			->expects( $this->once() )
+			->method( 'wpcom_json_api_request_as_blog' )
+			->willReturn( $mock_response );
+
+		$instance = new Partner_Coupon( array( $mock_client, 'wpcom_json_api_request_as_blog' ) );
 		$class    = new \ReflectionClass( $instance );
 		$method   = $class->getMethod( 'maybe_purge_coupon_by_availability_check' );
 		$method->setAccessible( true );
-		$status = $method->invokeArgs( $instance, array( Connection_Client_Mock::class ) );
+		$status = $method->invoke( $instance );
 
 		$this->assertSame( $status, $expectation );
 	}

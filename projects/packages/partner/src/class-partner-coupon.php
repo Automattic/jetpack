@@ -81,17 +81,11 @@ class Partner_Coupon {
 	/**
 	 * Get singleton instance of class.
 	 *
-	 * @param callable|null $request_as_blog Callable that executes a blog-authenticated request.
-	 *
 	 * @return Partner_Coupon
 	 */
-	public static function get_instance( $request_as_blog = null ) {
+	public static function get_instance() {
 		if ( is_null( self::$instance ) ) {
-			if ( ! $request_as_blog || ! is_callable( $request_as_blog ) ) {
-				$request_as_blog = array( Connection_Client::class, 'wpcom_json_api_request_as_blog' );
-			}
-
-			self::$instance = new Partner_Coupon( $request_as_blog );
+			self::$instance = new Partner_Coupon( array( Connection_Client::class, 'wpcom_json_api_request_as_blog' ) );
 		}
 
 		return self::$instance;
@@ -276,8 +270,6 @@ class Partner_Coupon {
 				self::$added_option,
 			)
 		);
-
-		Jetpack_Options::delete_raw_option( self::$last_check_option );
 	}
 
 	/**
