@@ -1,0 +1,4 @@
+Significance: patch
+Type: changed
+
+Pass slug prop to event firing on product card button actions instead of name
