@@ -2,7 +2,7 @@
  * External dependencies
  */
 import ReactDOM from 'react-dom';
-import React from 'react';
+import React, { useCallback } from 'react';
 import { HashRouter, Routes, Route } from 'react-router-dom';
 import { Container, Col, JetpackFooter } from '@automattic/jetpack-components';
 
@@ -19,6 +19,7 @@ import {
 } from './components/product-interstitial';
 import GoBackLink from './components/go-back-link';
 import styles from './style.module.scss';
+import useAnalytics from './hooks/use-analytics';
 
 initStore();
 
@@ -30,9 +31,19 @@ initStore();
  * @param {object} props          - Component props.
  * @param {boolean} props.nav     - Header navigation.
  * @param {object} props.children - Child components.
+ * @param {string} props.slug     - A product slug or undefined. Will Fire Tracks event with product:slug if not undefined
  * @returns {object}                Layout react component.
  */
-function Layout( { nav = false, children } ) {
+function Layout( { nav = false, children, slug } ) {
+	const {
+		tracks: { recordEvent },
+	} = useAnalytics();
+	const onClick = useCallback( () => {
+		if ( slug ) {
+			recordEvent( 'jetpack_myjetpack_product_interstitial_back_link_click', { product: slug } );
+		}
+	}, [ recordEvent, slug ] );
+
 	if ( ! nav ) {
 		return children;
 	}
@@ -41,7 +52,7 @@ function Layout( { nav = false, children } ) {
 		<div className={ styles.layout }>
 			<Container horizontalSpacing={ 3 } horizontalGap={ 3 }>
 				<Col>
-					<GoBackLink />
+					<GoBackLink onClick={ onClick } />
 				</Col>
 				<Col>{ children }</Col>
 			</Container>
@@ -64,11 +75,11 @@ const MyJetpack = () => (
 			/>
 			<Route
 				path="/add-boost"
-				element={ <Layout nav={ true } children={ <BoostInterstitial /> } /> }
+				element={ <Layout nav={ true } children={ <BoostInterstitial /> } slug={ 'boost' } /> }
 			/>
 			<Route
 				path="/add-scan"
-				element={ <Layout nav={ true } children={ <ScanInterstitial /> } /> }
+				element={ <Layout nav={ true } children={ <ScanInterstitial /> } slug={ 'scan' } /> }
 			/>
 			<Route
 				path="/add-search"

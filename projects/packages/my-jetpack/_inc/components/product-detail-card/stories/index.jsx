@@ -27,6 +27,12 @@ _default.parameters = {
 };
 _default.args = DefaultArgs;
 
+const AntiSpamTemplate = args => <ProductDetail { ...args } slug="anti-spam" />;
+export const JetpackAntiSpam = AntiSpamTemplate.bind( {} );
+JetpackAntiSpam.parameters = {
+	mockData: getMockData( 'anti-spam' ),
+};
+
 const BackupTemplate = args => <ProductDetail { ...args } slug="backup" />;
 export const JetpackBackup = BackupTemplate.bind( {} );
 JetpackBackup.parameters = {
@@ -37,6 +43,12 @@ const BoostTemplate = args => <ProductDetail { ...args } slug="boost" />;
 export const jetpackBoost = BoostTemplate.bind( {} );
 jetpackBoost.parameters = {
 	mockData: getMockData( 'boost' ),
+};
+
+const AntiSpamCardTemplate = args => <ProductDetailCard { ...args } slug="anti-spam" />;
+export const JetpackAntiSpamCard = AntiSpamCardTemplate.bind( {} );
+JetpackAntiSpamCard.parameters = {
+	mockData: getMockData( 'anti-spam' ),
 };
 
 const BackupCardTemplate = args => <ProductDetailCard { ...args } slug="backup" />;
