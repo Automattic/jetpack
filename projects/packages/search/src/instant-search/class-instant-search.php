@@ -8,6 +8,8 @@
 namespace Automattic\Jetpack\Search;
 
 use Automattic\Jetpack\Assets;
+use WP_Block_Parser;
+use WP_Block_Patterns_Registry;
 use WP_Error;
 
 /**
@@ -410,7 +412,7 @@ class Instant_Search extends Classic_Search {
 	 * Add a search widget above footer for block templates.
 	 */
 	public function add_search_block_above_footer() {
-		// We now only checks the standard search block.
+		// We now only checks the core search block.
 		// In the future we need to add Jetpack Search block when it's ready.
 		if ( $this->template_parts_have_search_block() ) {
 			return;
@@ -421,13 +423,34 @@ class Instant_Search extends Classic_Search {
 			return;
 		}
 
+		$content          = $this->replace_block_pattern_if_any( $footer->content );
 		$template_part_id = $footer->id;
 		$request          = new \WP_REST_Request( 'PUT', "/wp/v2/template-parts/{$template_part_id}" );
 		$request->set_header( 'content-type', 'application/json' );
-		$request->set_param( 'content', static::inject_search_widget_to_block( $footer->content ) );
+		$request->set_param( 'content', static::inject_search_widget_to_block( $content ) );
 		$request->set_param( 'id', $template_part_id );
 		$controller = new \WP_REST_Templates_Controller( 'wp_template_part' );
 		return $controller->update_item( $request );
+	}
+
+	/**
+	 * Replace block pattern with its content only if it is just one block pattern for the template part.
+	 *
+	 * @param string $block_content - Block content.
+	 */
+	protected function replace_block_pattern_if_any( $block_content ) {
+		// The following code block only deal with footer with only one pattern.
+		// Do not want to go too far, we might cause unknown issues.
+		$blocks = ( new WP_Block_Parser() )->parse( $block_content );
+		if ( 1 === count( $blocks ) && 'core/pattern' === $blocks[0]['blockName'] ) {
+			$slug     = $blocks[0]['attrs']['slug'];
+			$registry = WP_Block_Patterns_Registry::get_instance();
+			if ( $registry->is_registered( $slug ) ) {
+				$pattern = $registry->get_registered( $slug );
+				return $pattern['content'];
+			}
+		}
+		return $block_content;
 	}
 
 	/**
@@ -475,7 +498,7 @@ class Instant_Search extends Classic_Search {
 	 * @return boolean
 	 */
 	public static function has_search_block( $block_content ) {
-		return preg_match( '/(<!--\swp:search\s[^>]*-->)/i', $block_content );
+		return preg_match( '/(<!--\swp:search\s[^>]*-->)/i', $block_content ) > 0;
 	}
 
 	/**
@@ -487,14 +510,14 @@ class Instant_Search extends Classic_Search {
 		$search_block = '<!-- wp:search {"label":"Jetpack Search","buttonText":"Search"} /-->';
 
 		// Place the search block on bottom of the first column if there's any.
-		$column_end_pattern = '/(<\s*\/div[^>]*>\s*<!--\s*\/wp:column\s+[^>]*-->)/i';
+		$column_end_pattern = '/(<\s*\/div[^>]*>\s*<!--\s*\/wp:column\s+[^>]*-->)/';
 		if ( preg_match( $column_end_pattern, $block_content ) ) {
 			return preg_replace( $column_end_pattern, "\n" . $search_block . "\n$1", $block_content, 1 );
 		}
 
 		// Place the search block on top of footer contents most inner group.
-		$group_start_pattern = '/((<!--\s*wp:group\s[^>]*-->[.\s]*<\s*div[^>]*>)+)/i';
-		if ( preg_match( $group_start_pattern, $block_content ) ) {
+		$group_start_pattern = '/((<!--\s*wp:group\s[^>]*-->[.\s]*<\s*div[^>]*>\s*)+)/';
+		if ( preg_match( $group_start_pattern, $block_content, $matches ) ) {
 			return preg_replace( $group_start_pattern, "$1\n" . $search_block . "\n", $block_content, 1 );
 		}
 
