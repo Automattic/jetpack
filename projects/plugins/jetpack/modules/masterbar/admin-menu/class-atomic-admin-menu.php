@@ -116,20 +116,22 @@ class Atomic_Admin_Menu extends Admin_Menu {
 	 */
 	public function add_plugins_menu() {
 		global $submenu;
-		if (
-			isset( $submenu['plugins.php'] )
-			/**
-			 * Whether to enable the marketplace feature entrypoint.
-			 * This filter is specific to WPCOM, that's why there is no
-			 * need to use `jetpack_` prefix.
-			 *
-			 * @use add_filter( 'wpcom_marketplace_enabled', '__return_true' );
-			 * @module masterbar
-			 * @since 10.3
-			 * @param bool $wpcom_marketplace_enabled Load the WordPress.com Marketplace feature. Default to false.
-			 */
-			&& apply_filters( 'wpcom_marketplace_enabled', false )
-		) {
+
+		if ( ! isset( $submenu['plugins.php'] ) ) {
+			return;
+		}
+
+		/**
+		 * Whether to enable the marketplace feature entrypoint.
+		 * This filter is specific to WPCOM, that's why there is no
+		 * need to use `jetpack_` prefix.
+		 *
+		 * @use add_filter( 'wpcom_marketplace_enabled', '__return_true' );
+		 * @module masterbar
+		 * @since 10.3
+		 * @param bool $wpcom_marketplace_enabled Load the WordPress.com Marketplace feature. Default to false.
+		 */
+		if ( apply_filters( 'wpcom_marketplace_enabled', false ) ) {
 			$plugins_submenu = $submenu['plugins.php'];
 			$slug_to_update  = 'plugin-install.php';
 
@@ -142,6 +144,21 @@ class Atomic_Admin_Menu extends Admin_Menu {
 			}
 
 			$submenus_to_update = array( $slug_to_update => 'https://wordpress.com/plugins/' . $this->domain );
+			$this->update_submenus( 'plugins.php', $submenus_to_update );
+		}
+
+		/**
+		 * Whether to force the calypso plugin page.
+		 * This filter is specific to WPCOM.
+		 *
+		 * @use add_filter( 'wpcom_force_calpyso_plugin_screens', '__return_true' );
+		 * @since 10.6
+		 */
+		if ( apply_filters( 'wpcom_force_calpyso_plugin_screens', false ) ) {
+			$submenus_to_update = array(
+				'plugins.php' => 'https://wordpress.com/plugins/manage/' . $this->domain,
+			);
+
 			$this->update_submenus( 'plugins.php', $submenus_to_update );
 		}
 	}
