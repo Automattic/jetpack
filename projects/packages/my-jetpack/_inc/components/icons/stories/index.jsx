@@ -45,8 +45,12 @@ function IconsStory() {
 						{ Object.keys( allIcons ).map( key => {
 							const Icon = allIcons[ key ];
 							return (
-								<div className={ styles[ 'icon-wrapper' ] } key={ key }>
+								<div
+									className={ `${ styles[ 'icon-wrapper' ] } ${ styles[ size.label ] }` }
+									key={ key }
+								>
 									<Icon size={ size.value } />
+									<span>{ Icon.displayName }</span>
 								</div>
 							);
 						} ) }
