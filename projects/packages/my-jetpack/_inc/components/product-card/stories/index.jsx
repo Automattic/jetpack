@@ -54,6 +54,7 @@ const DefaultArgs = {
 	icon: <BackupIcon />,
 	status: PRODUCT_STATUSES.ACTIVE,
 	admin: true,
+	slug: 'backup',
 };
 
 export const Default = Template.bind( {} );

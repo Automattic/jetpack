@@ -10,7 +10,8 @@ import { STORE_ID } from '../../state/store';
 import { mapObjectKeysToCamel } from '../../utils/to-camel';
 
 /**
- * React custom hook to deal with a My Jetpack product.
+ * React custom hook that exposes data about Product,
+ * as well as methods to manipulate it.
  *
  * @param {string} productId - My Jetpack product ID.
  * @returns {object}         - Site product data.
@@ -25,6 +26,10 @@ export function useProduct( productId ) {
 	let detail = useSelect( select => select( STORE_ID ).getProduct( productId ) );
 	detail = mapObjectKeysToCamel( detail, true );
 	detail.pricingForUi = mapObjectKeysToCamel( detail.pricingForUi, true );
+
+	// Pricinf for UI.
+	const { fullPrice, promotionPercentage } = detail.pricingForUi;
+	detail.pricingForUi.discountedPrice = ( fullPrice * ( 100 - promotionPercentage ) ) / 100;
 
 	return {
 		activate: () => activateProduct( productId ),

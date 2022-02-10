@@ -11,11 +11,13 @@ import { __, sprintf } from '@wordpress/i18n';
 /**
  * Internal dependencies
  */
-import { useProduct } from '../../hooks/use-product';
-import { BackupIcon } from '../product-cards-section/backup-card';
 import styles from './style.module.scss';
 import { BoostIcon } from '../product-cards-section/boost-card';
 import getProductCheckoutUrl from '../../utils/get-product-checkout-url';
+import useMyJetpackConnection from '../../hooks/use-my-jetpack-connection';
+import { useProduct } from '../../hooks/use-product';
+import { BackupIcon } from '../product-cards-section/backup-card';
+import { AntiSpamIcon } from '../product-cards-section/anti-spam-card';
 
 /**
  * Simple react component to render the product icon,
@@ -26,11 +28,15 @@ import getProductCheckoutUrl from '../../utils/get-product-checkout-url';
  */
 function ProductIcon( { slug } ) {
 	switch ( slug ) {
+		case 'anti-spam':
+			return <AntiSpamIcon />;
+
 		case 'backup':
 			return <BackupIcon />;
 
 		case 'boost':
 			return <BoostIcon />;
+
 		default:
 			return null;
 	}
@@ -72,8 +78,10 @@ function Price( { value, currency, isOld } ) {
 const ProductDetail = ( { slug, trackButtonClick } ) => {
 	const { detail } = useProduct( slug );
 	const { title, longDescription, features, pricingForUi = {} } = detail;
-	const { isFree, fullPrice, currencyCode } = pricingForUi;
-	const addProductUrl = getProductCheckoutUrl( `jetpack_${ slug }` ); // @ToDo: Remove this when we have a new product structure.
+	const { isFree, fullPrice, currencyCode, discountedPrice } = pricingForUi;
+	const { isUserConnected } = useMyJetpackConnection();
+
+	const addProductUrl = getProductCheckoutUrl( `jetpack_${ slug }`, isUserConnected ); // @ToDo: Remove this when we have a new product structure.
 
 	return (
 		<div className={ styles.container }>
@@ -93,7 +101,7 @@ const ProductDetail = ( { slug, trackButtonClick } ) => {
 			{ ! isFree && (
 				<div className={ styles[ 'price-container' ] }>
 					<Price value={ fullPrice } currency={ currencyCode } isOld={ true } />
-					<Price value={ fullPrice } currency={ currencyCode } isOld={ false } />
+					<Price value={ discountedPrice } currency={ currencyCode } isOld={ false } />
 					<div className={ styles[ 'price-description' ] }>
 						{ __( '/month, paid yearly', 'jetpack-my-jetpack' ) }
 					</div>
@@ -106,8 +114,7 @@ const ProductDetail = ( { slug, trackButtonClick } ) => {
 
 			<Button
 				onClick={ trackButtonClick }
-				isLink
-				isPrimary
+				isPressed
 				href={ addProductUrl }
 				className={ styles[ 'checkout-button' ] }
 			>
