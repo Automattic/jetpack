@@ -98,7 +98,7 @@ class UI {
 		$idc_urls                  = Identity_Crisis::get_mismatched_urls();
 		$current_screen            = get_current_screen();
 		$is_admin                  = current_user_can( 'jetpack_disconnect' );
-		$dynamic_site_url_detected = Identity_Crisis::detect_dynamic_site_url();
+		$dynamic_site_url_detected = (bool) Identity_Crisis::detect_dynamic_site_url();
 
 		return array(
 			'WP_API_root'            => esc_url_raw( rest_url() ),
