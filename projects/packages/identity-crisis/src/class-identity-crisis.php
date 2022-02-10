@@ -380,6 +380,8 @@ class Identity_Crisis {
 				'migrate_for_idc',
 			)
 		);
+
+		delete_transient( 'jetpack_idc_dynamic_site_url_detected' );
 	}
 
 	/**
@@ -1220,5 +1222,68 @@ class Identity_Crisis {
 			'wpcom_url'   => $data['wpcom_home'],
 			'current_url' => $data['home'],
 		);
+	}
+
+	/**
+	 * Try to detect dynamic $_SERVER[] vars being used for WP_SITEURL or WP_HOME definitions by reading the wp-config.
+	 *
+	 * When a site URL is dynamic, it can lead to a Jetpack IDC. If dynamic usage is detected, helpful support info
+	 * will be shown on the IDC UI.
+	 *
+	 * The `jetpack_idc_dynamic_site_url_detected` transient is used to rate-limit this check to once per hour.
+	 *
+	 * @return bool True if dynamic site urls were detected in wp-config, false otherwise.
+	 */
+	public static function detect_dynamic_site_url() {
+		$transient_key = 'jetpack_idc_dynamic_site_url_detected';
+		$transient_val = get_transient( $transient_key );
+		if ( $transient_val ) {
+			return $transient_val;
+		}
+
+		$path      = self::locate_wp_config();
+		$wp_config = $path ? file_get_contents( $path ) : false; // phpcs:ignore WordPress.WP.AlternativeFunctions.file_get_contents_file_get_contents
+		if ( $wp_config ) {
+			$matched = preg_match(
+				'/define ?\( ?[\'"](?:WP_SITEURL|WP_HOME).+(?:HTTP_HOST).+\);/',
+				$wp_config
+			);
+
+			if ( $matched ) {
+				set_transient( $transient_key, true, HOUR_IN_SECONDS );
+				return true;
+			}
+		}
+
+		set_transient( $transient_key, false, HOUR_IN_SECONDS );
+		return false;
+	}
+
+	/**
+	 * Gets path to WordPress configuration.
+	 * Source: https://github.com/wp-cli/wp-cli/blob/master/php/utils.php
+	 *
+	 * @return string
+	 */
+	public static function locate_wp_config() {
+		static $path;
+
+		if ( null === $path ) {
+			$path = false;
+
+			if ( getenv( 'WP_CONFIG_PATH' ) && file_exists( getenv( 'WP_CONFIG_PATH' ) ) ) {
+				$path = getenv( 'WP_CONFIG_PATH' );
+			} elseif ( file_exists( ABSPATH . 'wp-config.php' ) ) {
+				$path = ABSPATH . 'wp-config.php';
+			} elseif ( file_exists( dirname( ABSPATH ) . '/wp-config.php' ) && ! file_exists( dirname( ABSPATH ) . '/wp-settings.php' ) ) {
+				$path = dirname( ABSPATH ) . '/wp-config.php';
+			}
+
+			if ( $path ) {
+				$path = realpath( $path );
+			}
+		}
+
+		return $path;
 	}
 }
