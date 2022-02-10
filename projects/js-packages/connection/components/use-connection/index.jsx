@@ -20,6 +20,7 @@ export default ( { registrationNonce, redirectUri, apiRoot, apiNonce, autoTrigge
 		userConnectionData,
 		isRegistered,
 		isUserConnected,
+		hasConnectedOwner,
 	} = useSelect( select => ( {
 		siteIsRegistering: select( STORE_ID ).getSiteIsRegistering(),
 		userIsConnecting: select( STORE_ID ).getUserIsConnecting(),
@@ -72,5 +73,6 @@ export default ( { registrationNonce, redirectUri, apiRoot, apiNonce, autoTrigge
 		userIsConnecting,
 		registrationError,
 		userConnectionData,
+		hasConnectedOwner,
 	};
 };

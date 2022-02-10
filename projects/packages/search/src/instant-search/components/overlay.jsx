@@ -10,25 +10,38 @@ import React, { useEffect } from 'react';
 import { OVERLAY_CLASS_NAME } from '../lib/constants';
 import './overlay.scss';
 
-const callOnEscapeKey = callback => event => {
-	// IE11 uses 'Esc'
-	if ( event.key === 'Escape' || event.key === 'Esc' ) {
-		event.preventDefault();
-		callback();
-	}
-};
-
 const Overlay = props => {
 	const { children, closeOverlay, colorTheme, hasOverlayWidgets, isVisible } = props;
 
-	const closeWithEscape = callOnEscapeKey( closeOverlay );
 	useEffect( () => {
-		window.addEventListener( 'keydown', closeWithEscape );
-		return () => {
-			// Cleanup after event
-			window.removeEventListener( 'keydown', closeWithEscape );
+		const closeWithEscape = event => {
+			if ( event.key === 'Escape' ) {
+				event.preventDefault();
+				closeOverlay();
+			}
 		};
-	}, [ closeWithEscape ] );
+
+		const closeWithOutsideClick = event => {
+			const resultsContainer = document.getElementsByClassName(
+				'jetpack-instant-search__search-results'
+			)[ 0 ];
+			if (
+				event.target?.isConnected && // Ensure that the click target is still connected to DOM.
+				resultsContainer &&
+				! resultsContainer.contains( event.target )
+			) {
+				closeOverlay();
+			}
+		};
+
+		window.addEventListener( 'keydown', closeWithEscape );
+		window.addEventListener( 'click', closeWithOutsideClick );
+		return () => {
+			// Cleanup on component dismount
+			window.removeEventListener( 'keydown', closeWithEscape );
+			window.removeEventListener( 'click', closeWithOutsideClick );
+		};
+	}, [ closeOverlay ] );
 
 	return (
 		<div

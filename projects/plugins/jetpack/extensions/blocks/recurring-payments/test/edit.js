@@ -6,7 +6,8 @@
  * External dependencies
  */
 import '@testing-library/jest-dom/extend-expect';
-import { queryByText, render, screen, waitFor, waitForElementToBeRemoved } from '@testing-library/react';
+import { render, screen, waitFor } from '@testing-library/react';
+import { JETPACK_DATA_PATH } from '@automattic/jetpack-shared-extension-utils';
 
 // We need to mock InnerBlocks before importing our edit component as it requires the Gutenberg store setup
 // to operate
@@ -22,7 +23,6 @@ import { MembershipsButtonEdit } from '../edit';
 
 import { settings } from '../../button';
 import { registerBlocks } from '../../../shared/test/block-fixtures';
-import { JETPACK_DATA_PATH } from '../../../shared/get-jetpack-data';
 import userEvent from '@testing-library/user-event';
 
 registerBlocks( [ { name: 'jetpack/button', settings } ] );
@@ -49,24 +49,24 @@ describe( 'MembershipsButtonEdit', () => {
 		postId: 1,
 		noticeList: [],
 		isSelected: true,
-		context: { },
+		context: {},
 	};
 
 	const defaultProducts = [
 		{
 			id: 1,
-			currency: "USD",
-			price: "10.00",
-			interval: "1 month",
-			title: "ten a month",
+			currency: 'USD',
+			price: '10.00',
+			interval: '1 month',
+			title: 'ten a month',
 		},
 		{
 			id: 2,
-			currency: "DKK",
-			price: "5.00",
-			interval: "1 year",
-			title: "five a year",
-		}
+			currency: 'DKK',
+			price: '5.00',
+			interval: '1 year',
+			title: 'five a year',
+		},
 	];
 
 	const defaultFetchData = {
@@ -117,7 +117,7 @@ describe( 'MembershipsButtonEdit', () => {
 		};
 		return Promise.resolve( {
 			status: 200,
-			json: () => Promise.resolve( data )
+			json: () => Promise.resolve( data ),
 		} );
 	}
 
@@ -133,7 +133,9 @@ describe( 'MembershipsButtonEdit', () => {
 			const props = { ...defaultProps, attributes: { planId: 1 } };
 			render( <MembershipsButtonEdit { ...props } /> );
 
-			await waitFor( () => expect( screen.queryByText( 'Upgrade your plan' ) ).not.toBeInTheDocument() );
+			await waitFor( () =>
+				expect( screen.queryByText( 'Upgrade your plan' ) ).not.toBeInTheDocument()
+			);
 		} );
 	} );
 
@@ -144,7 +146,9 @@ describe( 'MembershipsButtonEdit', () => {
 			);
 			render( <MembershipsButtonEdit { ...defaultProps } /> );
 
-			await waitFor( () => expect( screen.queryByText( 'Upgrade your plan' ) ).toBeInTheDocument() );
+			await waitFor( () =>
+				expect( screen.queryByText( 'Upgrade your plan' ) ).toBeInTheDocument()
+			);
 		} );
 
 		test( 'the upgrade nudge does not display if the jetpack nudge is already displayed', async () => {
@@ -157,15 +161,17 @@ describe( 'MembershipsButtonEdit', () => {
 			// block-specific nudge should not also display.
 			window[ JETPACK_DATA_PATH ] = {
 				available_blocks: {
-				  'recurring-payments': {
-					available: false,
-					unavailable_reason: 'missing_plan'
-				  },
-				}
-			  };
+					'recurring-payments': {
+						available: false,
+						unavailable_reason: 'missing_plan',
+					},
+				},
+			};
 			render( <MembershipsButtonEdit { ...defaultProps } /> );
 
-			await waitFor( () => expect( screen.queryByText( 'Upgrade your plan' ) ).not.toBeInTheDocument() );
+			await waitFor( () =>
+				expect( screen.queryByText( 'Upgrade your plan' ) ).not.toBeInTheDocument()
+			);
 		} );
 
 		test( 'the upgrade nudge does not display if the block is part of a Premium Content block', async () => {
@@ -175,15 +181,15 @@ describe( 'MembershipsButtonEdit', () => {
 			const props = { ...defaultProps, context: { isPremiumContentChild: true } };
 			render( <MembershipsButtonEdit { ...props } /> );
 
-			await waitFor( () => expect( screen.queryByText( 'Upgrade your plan' ) ).not.toBeInTheDocument() );
+			await waitFor( () =>
+				expect( screen.queryByText( 'Upgrade your plan' ) ).not.toBeInTheDocument()
+			);
 		} );
 	} );
 
 	describe( 'the Payments form', () => {
 		test( 'should not display if Stripe is not connected', async () => {
-			window.fetch.mockReturnValue(
-				getApiResponse( { connected_account_id: undefined } )
-			);
+			window.fetch.mockReturnValue( getApiResponse( { connected_account_id: undefined } ) );
 			render( <MembershipsButtonEdit { ...defaultProps } /> );
 
 			await waitFor( () => expect( screen.queryByText( 'Payments' ) ).not.toBeInTheDocument() );
@@ -197,23 +203,21 @@ describe( 'MembershipsButtonEdit', () => {
 		} );
 
 		test( 'displays formatted buttons for all existing plans', async () => {
-			window.fetch.mockReturnValue(
-				getApiResponse( { products: defaultProducts } )
-			);
+			window.fetch.mockReturnValue( getApiResponse( { products: defaultProducts } ) );
 
 			render( <MembershipsButtonEdit { ...defaultProps } /> );
 
-			await waitFor( () => expect(
-				screen.getByText( 'To use this block, select a previously created payment plan.' ) ).toBeInTheDocument()
+			await waitFor( () =>
+				expect(
+					screen.getByText( 'To use this block, select a previously created payment plan.' )
+				).toBeInTheDocument()
 			);
 			await waitFor( () => expect( screen.getByText( '$10.00 / month' ) ).toBeInTheDocument() );
 			await waitFor( () => expect( screen.getByText( 'kr.5,00 / year' ) ).toBeInTheDocument() );
 		} );
 
 		test( 'sets the planId when an existing plan button is clicked', async () => {
-			window.fetch.mockReturnValue(
-				getApiResponse( { products: defaultProducts } )
-			);
+			window.fetch.mockReturnValue( getApiResponse( { products: defaultProducts } ) );
 
 			const { rerender } = render( <MembershipsButtonEdit { ...defaultProps } /> );
 
@@ -228,9 +232,7 @@ describe( 'MembershipsButtonEdit', () => {
 
 		describe( 'the Add New Payment form', () => {
 			test( 'opens when the Add a Payment plan button is clicked', async () => {
-				window.fetch.mockReturnValue(
-					getApiResponse( { products: defaultProducts } )
-				);
+				window.fetch.mockReturnValue( getApiResponse( { products: defaultProducts } ) );
 
 				render( <MembershipsButtonEdit { ...defaultProps } /> );
 
@@ -239,9 +241,7 @@ describe( 'MembershipsButtonEdit', () => {
 			} );
 
 			test( 'closes when the cancel button is hit', async () => {
-				window.fetch.mockReturnValue(
-					getApiResponse( { products: defaultProducts } )
-				);
+				window.fetch.mockReturnValue( getApiResponse( { products: defaultProducts } ) );
 
 				render( <MembershipsButtonEdit { ...defaultProps } /> );
 
@@ -254,14 +254,26 @@ describe( 'MembershipsButtonEdit', () => {
 			test( 'is displayed by default when the site has no existing plans', async () => {
 				render( <MembershipsButtonEdit { ...defaultProps } /> );
 
-				await waitFor( () => expect(
-					screen.queryByText( 'To use this block, first add at least one payment plan.' ) ).toBeInTheDocument()
+				await waitFor( () =>
+					expect(
+						screen.queryByText( 'To use this block, first add at least one payment plan.' )
+					).toBeInTheDocument()
 				);
 				await waitFor( () => expect( screen.getByLabelText( 'Currency' ) ).toBeInTheDocument() );
 				await waitFor( () => expect( screen.getByLabelText( 'Price' ) ).toBeInTheDocument() );
-				await waitFor( () => expect( screen.getByLabelText( 'Describe your subscription in a few words' ) ).toBeInTheDocument() );
-				await waitFor( () => expect( screen.getByLabelText( 'Renew interval' ) ).toBeInTheDocument() );
-				await waitFor( () => expect( screen.getByText( 'Read more about Payments and related fees.' ) ).toBeInTheDocument() );
+				await waitFor( () =>
+					expect(
+						screen.getByLabelText( 'Describe your subscription in a few words' )
+					).toBeInTheDocument()
+				);
+				await waitFor( () =>
+					expect( screen.getByLabelText( 'Renew interval' ) ).toBeInTheDocument()
+				);
+				await waitFor( () =>
+					expect(
+						screen.getByText( 'Read more about Payments and related fees.' )
+					).toBeInTheDocument()
+				);
 			} );
 
 			test( 'formats and displays the minimum allowed price', async () => {
@@ -271,8 +283,8 @@ describe( 'MembershipsButtonEdit', () => {
 					userEvent.selectOptions( screen.getByLabelText( 'Currency' ), [ 'USD' ] );
 				} );
 
-				await waitFor( () => expect(
-					screen.queryByText( 'Minimum allowed price is $0.50.' ) ).toBeInTheDocument()
+				await waitFor( () =>
+					expect( screen.queryByText( 'Minimum allowed price is $0.50.' ) ).toBeInTheDocument()
 				);
 			} );
 
@@ -284,20 +296,18 @@ describe( 'MembershipsButtonEdit', () => {
 					userEvent.selectOptions( screen.getByLabelText( 'Currency' ), [ 'DKK' ] );
 				} );
 
-				await waitFor( () => expect(
-					screen.queryByText( 'Minimum allowed price is kr.2,50.' ) ).toBeInTheDocument()
+				await waitFor( () =>
+					expect( screen.queryByText( 'Minimum allowed price is kr.2,50.' ) ).toBeInTheDocument()
 				);
 			} );
 
 			test( 'adds a new plan and closes the form when the form is submitted', async () => {
-				window.fetch
-					.mockReturnValueOnce( defaultApiResponse )
-					.mockReturnValueOnce(
-						Promise.resolve( {
-							status: 200,
-							json: () => Promise.resolve( defaultProducts[ 0 ] ),
-						} )
-					);
+				window.fetch.mockReturnValueOnce( defaultApiResponse ).mockReturnValueOnce(
+					Promise.resolve( {
+						status: 200,
+						json: () => Promise.resolve( defaultProducts[ 0 ] ),
+					} )
+				);
 
 				const { rerender } = render( <MembershipsButtonEdit { ...defaultProps } /> );
 
@@ -307,7 +317,10 @@ describe( 'MembershipsButtonEdit', () => {
 				userEvent.clear( screen.getByLabelText( 'Price' ) );
 				userEvent.paste( screen.getByLabelText( 'Price' ), '10' );
 				userEvent.clear( screen.getByLabelText( 'Describe your subscription in a few words' ) );
-				userEvent.type( screen.getByLabelText( 'Describe your subscription in a few words' ), 'ten a month' );
+				userEvent.type(
+					screen.getByLabelText( 'Describe your subscription in a few words' ),
+					'ten a month'
+				);
 				userEvent.selectOptions( screen.getByLabelText( 'Renew interval' ), [ '1 month' ] );
 
 				userEvent.click( screen.getByText( 'Add this payment plan' ) );

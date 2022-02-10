@@ -1,4 +1,0 @@
-Significance: patch
-Type: added
-
-Add has_required_plan to product info and implement method in Search
