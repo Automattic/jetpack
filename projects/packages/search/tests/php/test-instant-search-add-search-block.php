@@ -20,7 +20,7 @@ class Test_Instant_Search_Add_Search_Block extends TestCase {
 	 */
 	public function test_inject_search_widget_to_block_single_group() {
 		// 2022 theme.
-		$footer_content          = <<<EOT
+		$footer_content                   = <<<EOT
 <!-- wp:group {"align":"wide","style":{"spacing":{"padding":{"top":"4rem","bottom":"4rem"}}},"layout":{"type":"flex","justifyContent":"space-between"}} -->
 <div class="wp-block-group alignwide" style="padding-top:4rem;padding-bottom:4rem">
 <!-- wp:site-title {"level":0} /-->
@@ -29,7 +29,7 @@ class Test_Instant_Search_Add_Search_Block extends TestCase {
 <!-- /wp:paragraph --></div>
 <!-- /wp:group -->
 EOT;
-		$footer_content_expected = <<<EOT
+		$footer_content_with_search_block = <<<EOT
 <!-- wp:group {"align":"wide","style":{"spacing":{"padding":{"top":"4rem","bottom":"4rem"}}},"layout":{"type":"flex","justifyContent":"space-between"}} -->
 <div class="wp-block-group alignwide" style="padding-top:4rem;padding-bottom:4rem">
 
@@ -40,7 +40,7 @@ EOT;
 <!-- /wp:paragraph --></div>
 <!-- /wp:group -->
 EOT;
-		$this->assertEquals( $footer_content_expected, Instant_Search::inject_search_widget_to_block( $footer_content ) );
+		$this->assertEquals( $footer_content_with_search_block, Instant_Search::inject_search_widget_to_block( $footer_content ) );
 	}
 
 	/**
@@ -48,7 +48,7 @@ EOT;
 	 */
 	public function test_inject_search_widget_to_block_nested_group() {
 		// 2022 footer.
-		$footer_content          = <<<EOT
+		$footer_content                   = <<<EOT
 <!-- wp:group {"align":"wide","style":{"spacing":{"padding":{"top":"4rem","bottom":"4rem"}}},"layout":{"type":"flex","justifyContent":"space-between"}} -->
 <div class="wp-block-group alignwide" style="padding-top:4rem;padding-bottom:4rem">
 <!-- wp:group -->
@@ -59,7 +59,7 @@ EOT;
 <!-- /wp:paragraph --></div></div>
 <!-- /wp:group -->
 EOT;
-		$footer_content_expected = <<<EOT
+		$footer_content_with_search_block = <<<EOT
 <!-- wp:group {"align":"wide","style":{"spacing":{"padding":{"top":"4rem","bottom":"4rem"}}},"layout":{"type":"flex","justifyContent":"space-between"}} -->
 <div class="wp-block-group alignwide" style="padding-top:4rem;padding-bottom:4rem">
 <!-- wp:group -->
@@ -72,7 +72,7 @@ EOT;
 <!-- /wp:paragraph --></div></div>
 <!-- /wp:group -->
 EOT;
-		$this->assertEquals( $footer_content_expected, Instant_Search::inject_search_widget_to_block( $footer_content ) );
+		$this->assertEquals( $footer_content_with_search_block, Instant_Search::inject_search_widget_to_block( $footer_content ) );
 	}
 
 	/**
@@ -80,7 +80,7 @@ EOT;
 	 */
 	public function test_inject_search_widget_to_bottom_of_first_column() {
 		// alara theme.
-		$footer_content          = <<<EOT
+		$footer_content                   = <<<EOT
 <!-- wp:group {"align":"full","backgroundColor":"foreground","className":"site-footer","style":{"spacing":{"padding":{"left":"0px","right":"0px"}}},"layout":{"inherit":true}} -->
 <div class="wp-block-group alignfull has-foreground-background-color has-background site-footer" style="padding-left:0px;padding-right:0px">
 
@@ -149,7 +149,7 @@ EOT;
 </div>
 <!-- /wp:group -->
 EOT;
-		$footer_content_expected = <<<EOT
+		$footer_content_with_search_block = <<<EOT
 <!-- wp:group {"align":"full","backgroundColor":"foreground","className":"site-footer","style":{"spacing":{"padding":{"left":"0px","right":"0px"}}},"layout":{"inherit":true}} -->
 <div class="wp-block-group alignfull has-foreground-background-color has-background site-footer" style="padding-left:0px;padding-right:0px">
 
@@ -220,7 +220,7 @@ EOT;
 </div>
 <!-- /wp:group -->
 EOT;
-		$this->assertEquals( $footer_content_expected, Instant_Search::inject_search_widget_to_block( $footer_content ) );
+		$this->assertEquals( $footer_content_with_search_block, Instant_Search::inject_search_widget_to_block( $footer_content ) );
 	}
 
 	/**
@@ -238,9 +238,9 @@ EOT;
 			)
 		);
 
-		$footer_content                   = '<!-- wp:pattern {"slug":"jetpack-search/footer"} /-->';
-		$footer_content_with_search_block = '<!-- wp:group --><div class="wp-block-group"></div><!-- /wp:group -->';
-		$this->assertEquals( $footer_content_with_search_block, $method->invoke( Instant_Search::instance(), $footer_content ) );
+		$footer_content          = '<!-- wp:pattern {"slug":"jetpack-search/footer"} /-->';
+		$footer_content_replaced = '<!-- wp:group --><div class="wp-block-group"></div><!-- /wp:group -->';
+		$this->assertEquals( $footer_content_replaced, $method->invoke( Instant_Search::instance(), $footer_content ) );
 	}
 
 	/**
