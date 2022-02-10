@@ -434,7 +434,7 @@ class Instant_Search extends Classic_Search {
 	}
 
 	/**
-	 * Replace pattern block with its content.
+	 * Replace pattern blocks with their content.
 	 * We don't want to replace recursively for the sake of simplicity.
 	 *
 	 * @param string $block_content - Content of template part.
@@ -456,8 +456,6 @@ class Instant_Search extends Classic_Search {
 	 * @param string $pattern_block - Block content.
 	 */
 	protected function get_block_pattern_content( $pattern_block ) {
-		// The following code block only deal with footer with only one pattern.
-		// Do not want to go too far, we might cause unknown issues.
 		$blocks = ( new WP_Block_Parser() )->parse( $pattern_block );
 		if ( 1 === count( $blocks ) && 'core/pattern' === $blocks[0]['blockName'] ) {
 			$slug     = $blocks[0]['attrs']['slug'];
