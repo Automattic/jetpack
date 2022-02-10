@@ -30,6 +30,10 @@ import InvalidSubscriptionWarning from './_inc/invalid-subscription-warning';
  */
 
 /**
+ * Tab definitions
+ *
+ * If changing or adding tabs, the _TAB constants below might need changing too.
+ *
  * @typedef { import('./tabs').Tab } Tab
  * @type { Tab[] }
  */
@@ -45,6 +49,9 @@ const tabs = [
 		className: 'wp-premium-content-logged-out-view',
 	},
 ];
+
+const CONTENT_TAB = 0;
+const WALL_TAB = 1;
 
 const API_STATE_LOADING = 0;
 const API_STATE_CONNECTED = 1;
@@ -82,7 +89,7 @@ const defaultString = null;
  */
 
 function Edit( props ) {
-	const [ selectedTab, selectTab ] = useState( tabs[ 1 ] );
+	const [ selectedTab, selectTab ] = useState( tabs[ WALL_TAB ] );
 	const [ selectedInnerBlock, hasSelectedInnerBlock ] = useState( false );
 	const [ products, setProducts ] = useState( emptyProducts );
 	const [ connectURL, setConnectURL ] = useState( defaultString );
@@ -243,9 +250,9 @@ function Edit( props ) {
 				'premium-content/logged-out-view'
 			).length
 		) {
-			selectTab( tabs[ 1 ] );
+			selectTab( tabs[ WALL_TAB ] );
 		} else {
-			selectTab( tabs[ 0 ] );
+			selectTab( tabs[ CONTENT_TAB ] );
 		}
 	}, [ clientId, isSelected, selectedBlock ] );
 
@@ -364,7 +371,7 @@ function Edit( props ) {
 				<ToolbarGroup>
 					<ToolbarButton
 						onClick={ () => {
-							selectTab( tabs[ 1 ] );
+							selectTab( tabs[ WALL_TAB ] );
 						} }
 						className="components-tab-button"
 						isPressed={ selectedTab.className === 'wp-premium-content-logged-out-view' }
@@ -373,7 +380,7 @@ function Edit( props ) {
 					</ToolbarButton>
 					<ToolbarButton
 						onClick={ () => {
-							selectTab( tabs[ 0 ] );
+							selectTab( tabs[ CONTENT_TAB ] );
 						} }
 						className="components-tab-button"
 						isPressed={ selectedTab.className !== 'wp-premium-content-logged-out-view' }
