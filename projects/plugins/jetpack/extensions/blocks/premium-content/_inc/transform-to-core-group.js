@@ -8,6 +8,8 @@ export const transformToCoreGroup = innerBlocks => {
 		block => 'premium-content/subscriber-view' === block.name
 	);
 
+	// If the Subscriber view contains only a core/group as a direct child, we'll return the block directly.
+	// Needed to avoid having a group in a group each time when we transform a group to Premium content and back to group.
 	if (
 		1 === subscriberViewContent.innerBlocks.length &&
 		'core/group' === subscriberViewContent.innerBlocks[ 0 ].name

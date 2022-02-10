@@ -23,12 +23,10 @@ function replaceBlockAndKeepContent() {
  *
  * @returns {Element} Remove block and keep content menu item.
  */
-export default () => {
-	return (
-		<PluginBlockSettingsMenuItem
-			allowedBlocks={ [ name ] }
-			label="Remove block and keep content"
-			onClick={ replaceBlockAndKeepContent }
-		/>
-	);
-};
+export default () => (
+	<PluginBlockSettingsMenuItem
+		allowedBlocks={ [ name ] }
+		label="Remove block and keep content"
+		onClick={ replaceBlockAndKeepContent }
+	/>
+);
