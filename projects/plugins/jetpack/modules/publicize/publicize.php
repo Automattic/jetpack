@@ -1140,7 +1140,8 @@ abstract class Publicize_Base {
 			$submit_post = false;
 		}
 
-		$admin_page = sanitize_text_field( wp_unslash( $_POST[ $this->ADMIN_PAGE ] ) ); // phpcs:ignore WordPress.Security.NonceVerification.Missing
+		// phpcs:ignore WordPress.Security.NonceVerification.Missing
+		$admin_page = isset( $_POST[ $this->ADMIN_PAGE ] ) ? sanitize_text_field( wp_unslash( $_POST[ $this->ADMIN_PAGE ] ) ) : null;
 
 		// Did this request happen via wp-admin?
 		$from_web = isset( $_SERVER['REQUEST_METHOD'] )
@@ -1149,7 +1150,8 @@ abstract class Publicize_Base {
 			&&
 			! empty( $admin_page );
 
-		$title = sanitize_text_field( wp_unslash( $_POST['title'] ) ); // phpcs:ignore WordPress.Security.NonceVerification.Missing
+		// phpcs:ignore WordPress.Security.NonceVerification.Missing
+		$title = isset( $_POST['title'] ) ? sanitize_text_field( wp_unslash( $_POST['title'] ) ) : null;
 
 		if ( ( $from_web || defined( 'POST_BY_EMAIL' ) ) && $title ) {
 			if ( empty( $title ) ) {
