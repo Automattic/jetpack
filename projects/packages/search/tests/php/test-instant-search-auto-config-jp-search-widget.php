@@ -12,7 +12,7 @@ use PHPUnit\Framework\TestCase;
  *
  * @package automattic/jetpack-search
  */
-class Test_Instant_Search extends TestCase {
+class Test_Instant_Search_Auto_Config_JP_Search_Widget extends TestCase {
 	/**
 	 * Hold `Instant_Search` instance.
 	 *
@@ -31,23 +31,23 @@ class Test_Instant_Search extends TestCase {
 	}
 
 	/**
-	 * Test `auto_config_overlay_sidebar_widgets` failed
+	 * Test `auto_config_overlay_sidebar_widgets` already configured
 	 */
 	public function test_auto_config_overlay_sidebar_widgets_already_configured() {
-		add_filter( 'option_sidebars_widgets', array( $this, 'sidebars_widgets_theme_sidebar_configured' ), 10, 2 );
-		$this->assertNotTrue( self::$instant_search->auto_config_overlay_sidebar_widgets() );
-		remove_filter( 'option_sidebars_widgets', array( $this, 'sidebars_widgets_theme_sidebar_configured' ) );
+		add_filter( 'option_sidebars_widgets', array( $this, 'sidebars_widgets_overlay_sidebar_configured' ) );
+		$this->assertNull( self::$instant_search->auto_config_overlay_sidebar_widgets() );
+		remove_filter( 'option_sidebars_widgets', array( $this, 'sidebars_widgets_overlay_sidebar_configured' ) );
 	}
 
 	/**
-	 * Test `auto_config_overlay_sidebar_widgets` success
+	 * Test `auto_config_overlay_sidebar_widgets` copy from theme sidebar
 	 */
-	public function test_auto_config_overlay_sidebar_widgets_success() {
-		add_filter( 'option_sidebars_widgets', array( $this, 'sidebars_widgets_theme_sidebar_configured' ), 10, 2 );
-		add_filter( 'option_' . Helper::get_widget_option_name(), array( $this, 'sidebars_widgets_jp_sidebar_configured' ), 10, 2 );
-		self::$instant_search->auto_config_overlay_sidebar_widgets();
+	public function test_auto_config_overlay_sidebar_widgets_copy_from_theme_sidebar() {
+		add_filter( 'option_sidebars_widgets', array( $this, 'sidebars_widgets_theme_sidebar_configured' ) );
+		add_filter( 'option_widget_jetpack-search-filters', array( $this, 'jp_search_widgets' ) );
+		$this->assertTrue( self::$instant_search->auto_config_overlay_sidebar_widgets() );
 		remove_filter( 'option_sidebars_widgets', array( $this, 'sidebars_widgets_theme_sidebar_configured' ) );
-		remove_filter( 'option_' . Helper::get_widget_option_name(), array( $this, 'sidebars_widgets_jp_sidebar_configured' ) );
+		remove_filter( 'option_widget_jetpack-search-filters', array( $this, 'jp_search_widgets' ) );
 
 		$sidebars_widgets = get_option( 'sidebars_widgets' );
 		$this->assertEquals( 'jetpack-search-filters-13', $sidebars_widgets['jetpack-instant-search-sidebar'][0] );
@@ -57,7 +57,7 @@ class Test_Instant_Search extends TestCase {
 	 * Test `auto_config_theme_sidebar_search_widget` failed - no sidebar
 	 */
 	public function test_auto_config_theme_sidebar_search_widget_no_sidebar() {
-		add_filter( 'option_sidebars_widgets', '__return_false', 10, 2 );
+		add_filter( 'option_sidebars_widgets', '__return_false' );
 		$this->assertNull( self::$instant_search->auto_config_theme_sidebar_search_widget() );
 		remove_filter( 'option_sidebars_widgets', '__return_false' );
 	}
@@ -66,18 +66,18 @@ class Test_Instant_Search extends TestCase {
 	 * Test `auto_config_theme_sidebar_search_widget` failed - already has JP search widget
 	 */
 	public function test_auto_config_theme_sidebar_search_widget_already_configured() {
-		add_filter( 'option_sidebars_widgets', array( $this, 'sidebars_widgets_theme_sidebar_configured' ), 10, 2 );
+		add_filter( 'option_sidebars_widgets', array( $this, 'sidebars_widgets_theme_sidebar_configured' ) );
 		$this->assertNull( self::$instant_search->auto_config_theme_sidebar_search_widget() );
 		remove_filter( 'option_sidebars_widgets', array( $this, 'sidebars_widgets_theme_sidebar_configured' ) );
 	}
 
 	/**
-	 * Test `auto_config_theme_sidebar_search_widget` failed - already has JP search widget
+	 * Test `auto_config_theme_sidebar_search_widget` replace core search widget
 	 */
 	public function test_auto_config_theme_sidebar_search_widget_replace_success() {
-		add_filter( 'option_sidebars_widgets', array( $this, 'sidebars_widgets_theme_has_core_search' ), 10, 2 );
-		add_filter( 'option_' . Helper::get_widget_option_name(), '__return_false', 10, 2 );
-		self::$instant_search->auto_config_theme_sidebar_search_widget();
+		add_filter( 'option_sidebars_widgets', array( $this, 'sidebars_widgets_theme_has_core_search' ) );
+		add_filter( 'option_' . Helper::get_widget_option_name(), '__return_false' );
+		$this->assertTrue( self::$instant_search->auto_config_theme_sidebar_search_widget() );
 		remove_filter( 'option_sidebars_widgets', array( $this, 'sidebars_widgets_theme_has_core_search' ) );
 		remove_filter( 'option_' . Helper::get_widget_option_name(), '__return_false' );
 
@@ -86,12 +86,12 @@ class Test_Instant_Search extends TestCase {
 	}
 
 	/**
-	 * Test `auto_config_theme_sidebar_search_widget` failed - no search widget
+	 * Test `auto_config_theme_sidebar_search_widget` - no search widget
 	 */
 	public function test_auto_config_theme_sidebar_search_widget_add_success() {
-		add_filter( 'option_sidebars_widgets', array( $this, 'sidebars_widgets_theme_empty_sidebar' ), 10, 2 );
-		add_filter( 'option_' . Helper::get_widget_option_name(), '__return_false', 10, 2 );
-		self::$instant_search->auto_config_theme_sidebar_search_widget();
+		add_filter( 'option_sidebars_widgets', array( $this, 'sidebars_widgets_theme_empty_sidebar' ) );
+		add_filter( 'option_' . Helper::get_widget_option_name(), '__return_false' );
+		$this->assertTrue( self::$instant_search->auto_config_theme_sidebar_search_widget() );
 		remove_filter( 'option_sidebars_widgets', array( $this, 'sidebars_widgets_theme_empty_sidebar' ) );
 		remove_filter( 'option_' . Helper::get_widget_option_name(), '__return_false' );
 
@@ -108,7 +108,7 @@ class Test_Instant_Search extends TestCase {
 		$return_expaned_result_format = function () {
 			return Options::RESULT_FORMAT_MINIMAL;
 		};
-		add_filter( 'option_' . $result_format_option_name, $return_expaned_result_format, 10, 2 );
+		add_filter( 'option_' . $result_format_option_name, $return_expaned_result_format );
 		$this->assertNull( self::$instant_search->auto_config_result_format() );
 		remove_filter( 'option_' . $result_format_option_name, $return_expaned_result_format );
 	}
@@ -119,8 +119,8 @@ class Test_Instant_Search extends TestCase {
 	public function test_auto_config_result_format_not_set() {
 		$result_format_option_name = Options::OPTION_PREFIX . 'result_format';
 
-		add_filter( 'option_' . $result_format_option_name, '__return_false', 10, 2 );
-		self::$instant_search->auto_config_result_format();
+		add_filter( 'option_' . $result_format_option_name, '__return_false' );
+		$this->assertTrue( self::$instant_search->auto_config_result_format() );
 		remove_filter( 'option_' . $result_format_option_name, '__return_false' );
 
 		$this->assertEquals( Options::RESULT_FORMAT_EXPANDED, get_option( $result_format_option_name, false ) );
@@ -132,9 +132,9 @@ class Test_Instant_Search extends TestCase {
 	public function test_auto_config_result_format_woocommerce() {
 		$result_format_option_name = Options::OPTION_PREFIX . 'result_format';
 
-		add_filter( 'option_' . $result_format_option_name, '__return_false', 10, 2 );
-		add_filter( 'active_plugins', array( $this, 'active_plugins_has_woocommerce' ), 10, 1 );
-		self::$instant_search->auto_config_result_format();
+		add_filter( 'option_' . $result_format_option_name, '__return_false' );
+		add_filter( 'active_plugins', array( $this, 'active_plugins_has_woocommerce' ) );
+		$this->assertTrue( self::$instant_search->auto_config_result_format() );
 		remove_filter( 'option_' . $result_format_option_name, '__return_false' );
 		remove_filter( 'active_plugins', array( $this, 'active_plugins_has_woocommerce' ) );
 
@@ -144,14 +144,32 @@ class Test_Instant_Search extends TestCase {
 	/**
 	 * Value for sidebars_widgets - jp_sidebar_configured
 	 */
-	public function sidebars_widgets_jp_sidebar_configured() {
+	public function jp_search_widgets() {
 		return array(
-			'12' => array(
-				'filters' => array(
+			'_multiwidget' => 1,
+			12             =>
+			array(
+				'title'   => '',
+				'filters' =>
+				array(
 					array(
-						'name'  => '',
-						'type'  => 'post_type',
-						'count' => 5,
+						'name'     => '',
+						'type'     => 'taxonomy',
+						'taxonomy' => 'category',
+						'count'    => 5,
+					),
+					array(
+						'name'     => '',
+						'type'     => 'taxonomy',
+						'taxonomy' => 'post_tag',
+						'count'    => 5,
+					),
+					array(
+						'name'     => '',
+						'type'     => 'date_histogram',
+						'count'    => 5,
+						'field'    => 'post_date',
+						'interval' => 'year',
 					),
 				),
 			),
@@ -162,7 +180,14 @@ class Test_Instant_Search extends TestCase {
 	 * Value for sidebars_widgets - theme_sidebar_configured
 	 */
 	public function sidebars_widgets_theme_sidebar_configured() {
-		return array( 'sidebar-1' => 'jetpack-search-filters-12' );
+		return array( 'sidebar-1' => array( 'jetpack-search-filters-12' ) );
+	}
+
+		/**
+		 * Value for sidebars_widgets - theme_sidebar_configured
+		 */
+	public function sidebars_widgets_overlay_sidebar_configured() {
+		return array( 'jetpack-instant-search-sidebar' => array( 'jetpack-search-filters-12' ) );
 	}
 
 	/**
