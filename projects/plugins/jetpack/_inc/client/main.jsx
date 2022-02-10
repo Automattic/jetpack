@@ -295,7 +295,7 @@ class Main extends React.Component {
 			 * parameter that JITMs will set (showCouponRedemption=true), and show the screen only
 			 * when the user came from a a JITM.
 			 */
-			if ( ! this.props.connectionStatus.hasConnectedOwner || forceShow ) {
+			if ( ! this.props.isSiteConnected || forceShow ) {
 				return (
 					<PartnerCouponRedeem
 						apiNonce={ this.props.apiNonce }
