@@ -50,16 +50,29 @@ export const settings = {
 		fallbackLinkUrl: {
 			type: 'string',
 		},
+		borderColor: {
+			type: 'string',
+			default: 'primary',
+		},
+		style: {
+			type: 'object',
+			default: {
+				border: {
+					width: '1px',
+				},
+			},
+		},
 	},
 	supports: {
 		align: true,
 		alignWide: false,
-		spacing: {
-			padding: true,
-		},
 		color: {
 			link: true,
 			gradients: true,
+		},
+		__experimentalBorder: {
+			color: true,
+			width: true,
 		},
 		typography: {
 			fontSize: true,
