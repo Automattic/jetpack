@@ -229,16 +229,16 @@ function Edit( props ) {
 			return; // Sometimes there isn't a block selected, e.g. on page load.
 		}
 
+		const editorStore = select( 'core/block-editor' );
+
 		// Confirm that the selected block is a descendant of this one.
-		if (
-			! select( 'core/block-editor' ).getBlockParents( selectedBlock.clientId ).includes( clientId )
-		) {
+		if ( ! editorStore.getBlockParents( selectedBlock.clientId ).includes( clientId ) ) {
 			return;
 		}
 
 		if (
 			'premium-content/logged-out-view' === selectedBlock.name ||
-			select( 'core/block-editor' ).getBlockParentsByBlockName(
+			editorStore.getBlockParentsByBlockName(
 				selectedBlock.clientId,
 				'premium-content/logged-out-view'
 			).length
