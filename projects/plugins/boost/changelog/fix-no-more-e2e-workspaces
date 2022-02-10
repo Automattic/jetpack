@@ -1,0 +1,4 @@
+Significance: patch
+Type: removed
+
+Removed separate pnpm workspace for e2e tests.
