@@ -5,6 +5,7 @@ import { __, _x } from '@wordpress/i18n';
 import { createBlock } from '@wordpress/blocks';
 import { filter } from 'lodash';
 import { Path, SVG } from '@wordpress/components';
+import { isSimpleSite } from '@automattic/jetpack-shared-extension-utils';
 
 /**
  * Internal dependencies
@@ -18,7 +19,6 @@ import {
 	LAYOUT_SQUARE,
 	LAYOUT_STYLES,
 } from './constants';
-import { isSimpleSite } from '../../shared/site-type-utils';
 import { getIconColor } from '../../shared/block-icons';
 import getCategoryWithFallbacks from '../../shared/get-category-with-fallbacks';
 
