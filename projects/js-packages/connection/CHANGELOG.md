@@ -2,6 +2,14 @@
 
 ### This is a list detailing changes for the Jetpack RNA Connection Component releases.
 
+## 0.15.1 - 2022-02-09
+### Added
+- Connection: Expose hasConnectedOwner in useConnection hook
+- Re organize components stories by project/name
+
+### Changed
+- Updated package dependencies
+
 ## 0.15.0 - 2022-02-02
 ### Added
 - Added user click tracking to disconnect dialog modal.
