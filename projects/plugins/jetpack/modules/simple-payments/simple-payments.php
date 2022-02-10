@@ -92,21 +92,21 @@ class Jetpack_Simple_Payments {
 			'paypal-checkout-js',
 			'https://www.paypalobjects.com/api/checkout.js',
 			array(),
-			self::$version,
+			JETPACK__VERSION,
 			true
 		);
 		wp_register_script(
 			'jetpack-paypal-express-checkout',
 			plugins_url( '/paypal-express-checkout.js', __FILE__ ),
 			array( 'jquery', 'paypal-checkout-js' ),
-			self::$version,
+			JETPACK__VERSION,
 			false
 		);
 		wp_register_style(
 			'jetpack-simple-payments',
 			plugins_url( '/simple-payments.css', __FILE__ ),
 			array( 'dashicons' ),
-			self::$version,
+			JETPACK__VERSION,
 			false
 		);
 	}
