@@ -453,10 +453,10 @@ class Instant_Search extends Classic_Search {
 	/**
 	 * Replace block pattern with its content only if it is just one block pattern for the template part.
 	 *
-	 * @param string $pattern_block - Block content.
+	 * @param string $block_pattern - Block content.
 	 */
-	protected function get_block_pattern_content( $pattern_block ) {
-		$blocks = ( new WP_Block_Parser() )->parse( $pattern_block );
+	protected function get_block_pattern_content( $block_pattern ) {
+		$blocks = ( new WP_Block_Parser() )->parse( $block_pattern );
 		if ( 1 === count( $blocks ) && 'core/pattern' === $blocks[0]['blockName'] ) {
 			$slug     = $blocks[0]['attrs']['slug'];
 			$registry = WP_Block_Patterns_Registry::get_instance();
@@ -465,7 +465,7 @@ class Instant_Search extends Classic_Search {
 				return $pattern['content'];
 			}
 		}
-		return $pattern_block;
+		return $block_pattern;
 	}
 
 	/**
@@ -530,7 +530,7 @@ class Instant_Search extends Classic_Search {
 			return preg_replace( $column_end_pattern, "\n" . $search_block . "\n$1", $block_content, 1 );
 		}
 
-		// Place the search block on top of footer contents most inner group.
+		// Place the search block on top of footer contents in the most inner group.
 		$group_start_pattern = '/((<!--\s*wp:group\s[^>]*-->[.\s]*<\s*div[^>]*>\s*)+)/';
 		if ( preg_match( $group_start_pattern, $block_content, $matches ) ) {
 			return preg_replace( $group_start_pattern, "$1\n" . $search_block . "\n", $block_content, 1 );
