@@ -1,6 +1,7 @@
 <?php
 
 use WPCOMSH_Feature_Manager\Manage_Additional_CSS_Feature;
+use WPCOMSH_Feature_Manager\Manage_Footer_Credit_Feature;
 
 /**
  * Class Atomic_Plan_Manager
@@ -67,6 +68,7 @@ class Atomic_Plan_Manager {
 		add_filter( 'map_meta_cap', array( $this, 'map_atomic_plan_cap' ), 10, 2 );
 
 		( new Manage_Additional_CSS_Feature( self::current_plan_slug() ) )->manage();
+		( new Manage_Footer_Credit_Feature( self::current_plan_slug() ) )->manage();
 	}
 
 	/**
