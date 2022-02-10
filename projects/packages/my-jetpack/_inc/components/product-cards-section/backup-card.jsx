@@ -9,6 +9,7 @@ import PropTypes from 'prop-types';
  */
 import ProductCard from '../product-card';
 import { useProduct } from '../../hooks/use-product';
+import useMyJetpackNavigate from '../../hooks/use-my-jetpack-navigate';
 
 export const BackupIcon = () => (
 	<svg width="24" height="24" fill="none" xmlns="http://www.w3.org/2000/svg">
@@ -24,6 +25,7 @@ export const BackupIcon = () => (
 const BackupCard = ( { admin } ) => {
 	const { status, activate, deactivate, detail, isFetching } = useProduct( 'backup' );
 	const { name, description, slug } = detail;
+	const navToAddBackupPage = useMyJetpackNavigate( '/add-backup' );
 
 	return (
 		<ProductCard
@@ -37,6 +39,7 @@ const BackupCard = ( { admin } ) => {
 			slug={ slug }
 			onActivate={ activate }
 			showDeactivate={ false }
+			onAdd={ navToAddBackupPage }
 		/>
 	);
 };
