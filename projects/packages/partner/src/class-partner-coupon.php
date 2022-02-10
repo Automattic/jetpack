@@ -44,7 +44,7 @@ class Partner_Coupon {
 	 *
 	 * @var string
 	 */
-	public static $last_check_option = 'jetpack_partner_coupon_last_check';
+	public static $last_check_transient = 'jetpack_partner_coupon_last_check';
 
 	/**
 	 * Callable that executes a blog-authenticated request.
@@ -172,12 +172,12 @@ class Partner_Coupon {
 			return;
 		}
 
-		// Limit checks to happen every minute instead of on all page requests.
-		if ( get_transient( self::$last_check_option ) ) {
+		// Limit checks to happen once a minute at most.
+		if ( get_transient( self::$last_check_transient ) ) {
 			return;
 		}
 
-		set_transient( self::$last_check_option, true, MINUTE_IN_SECONDS );
+		set_transient( self::$last_check_transient, true, MINUTE_IN_SECONDS );
 
 		$this->maybe_purge_coupon_by_availability_check();
 	}
