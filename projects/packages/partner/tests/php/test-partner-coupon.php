@@ -257,7 +257,7 @@ class Partner_Coupon_Test extends BaseTestCase {
 		}
 
 		$mock_client = $this->getMockBuilder( \stdClass::class )
-							->addMethods( array( 'wpcom_json_api_request_as_blog' ) )
+							->setMethods( array( 'wpcom_json_api_request_as_blog' ) )
 							->getMock();
 
 		$mock_client
