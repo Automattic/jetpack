@@ -244,16 +244,8 @@ function Edit( props ) {
 			).length
 		) {
 			selectTab( tabs[ 1 ] );
-			return;
-		} else if (
-			'premium-content/subscriber-view' === selectedBlock.name ||
-			select( 'core/block-editor' ).getBlockParentsByBlockName(
-				selectedBlock.clientId,
-				'premium-content/subscriber-view'
-			).length
-		) {
+		} else {
 			selectTab( tabs[ 0 ] );
-			return;
 		}
 	}, [ clientId, isSelected, selectedBlock ] );
 
