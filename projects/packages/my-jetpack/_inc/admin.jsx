@@ -88,7 +88,7 @@ const MyJetpack = () => (
 			/>
 			<Route
 				path="/add-search"
-				element={ <Layout nav={ true } children={ <SearchInterstitial /> } /> }
+				element={ <Layout nav={ true } children={ <SearchInterstitial /> } slug={ 'search' } /> }
 			/>
 		</Routes>
 	</HashRouter>
