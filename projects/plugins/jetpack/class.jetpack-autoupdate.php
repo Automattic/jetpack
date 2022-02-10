@@ -1,4 +1,10 @@
-<?php
+<?php // phpcs:ignore WordPress.Files.FileName.InvalidClassFileName
+/**
+ * Handles items that have been selected for automatic updates.
+ * Hooks into WP_Automatic_Updater
+ *
+ * @package automattic/jetpack
+ */
 
 /**
  * Handles items that have been selected for automatic updates.
@@ -6,23 +12,53 @@
  */
 class Jetpack_Autoupdate {
 
+	/**
+	 * Results.
+	 *
+	 * @var array
+	 */
 	private $results = array();
 
+	/**
+	 * Expected updates.
+	 *
+	 * @var array
+	 */
 	private $expected = array();
 
+	/**
+	 * Successful updates.
+	 *
+	 * @var array
+	 */
 	private $success = array(
 		'plugin' => array(),
 		'theme'  => array(),
 	);
 
+	/**
+	 * Failed updates.
+	 *
+	 * @var array
+	 */
 	private $failed = array(
 		'plugin' => array(),
 		'theme'  => array(),
 	);
 
+	/**
+	 * Static instance.
+	 *
+	 * @var self
+	 */
 	private static $instance = null;
 
-	static function init() {
+	/**
+	 * Initialize and fetch the static instance.
+	 *
+	 * @return self
+	 */
+	public static function init() {
 		if ( is_null( self::$instance ) ) {
 			self::$instance = new Jetpack_Autoupdate();
 		}
@@ -30,6 +66,7 @@ class Jetpack_Autoupdate {
 		return self::$instance;
 	}
 
+	/** Constructor. */
 	private function __construct() {
 		if (
 			/** This filter is documented in class.jetpack-json-api-endpoint.php */
@@ -42,44 +79,39 @@ class Jetpack_Autoupdate {
 		}
 	}
 
+	/**
+	 * Filter function for `auto_update_translation`.
+	 *
+	 * @param bool|null $update Whether to update.
+	 * @param object    $item  The update offer.
+	 * @return bool|null Whether to update.
+	 */
 	public function autoupdate_translation( $update, $item ) {
-		// Autoupdate all translations
+		// Autoupdate all translations.
 		if ( Jetpack_Options::get_option( 'autoupdate_translations', false ) ) {
 			return true;
 		}
 
-		// Themes
+		// Themes.
 		$autoupdate_themes_translations = Jetpack_Options::get_option( 'autoupdate_themes_translations', array() );
 		$autoupdate_theme_list          = Jetpack_Options::get_option( 'autoupdate_themes', array() );
 
-		/*
-		$item = {
-		  "type":"theme",
-		  "slug":"twentyfourteen",
-		  "language":"en_CA",
-		  "version":"1.8",
-		  "updated":"2015-07-18 11:27:20",
-		  "package":"https:\/\/downloads.wordpress.org\/translation\/theme\/twentyfourteen\/1.8\/en_CA.zip",
-		  "autoupdate":true
-		}
-		*/
-		if ( ( in_array( $item->slug, $autoupdate_themes_translations )
-			   || in_array( $item->slug, $autoupdate_theme_list ) )
-			 && 'theme' === $item->type
+		if ( ( in_array( $item->slug, $autoupdate_themes_translations, true ) || in_array( $item->slug, $autoupdate_theme_list, true ) )
+			&& 'theme' === $item->type
 		) {
 			$this->expect( $item->type . ':' . $item->slug, 'translation' );
 
 			return true;
 		}
 
-		// Plugins
+		// Plugins.
 		$autoupdate_plugin_translations = Jetpack_Options::get_option( 'autoupdate_plugins_translations', array() );
 		$autoupdate_plugin_list         = (array) get_site_option( 'auto_update_plugins', array() );
 		$plugin_files                   = array_unique( array_merge( $autoupdate_plugin_list, $autoupdate_plugin_translations ) );
 		$plugin_slugs                   = array_map( array( __CLASS__, 'get_plugin_slug' ), $plugin_files );
 
-		if ( in_array( $item->slug, $plugin_slugs )
-			 && 'plugin' === $item->type
+		if ( in_array( $item->slug, $plugin_slugs, true )
+			&& 'plugin' === $item->type
 		) {
 			$this->expect( $item->type . ':' . $item->slug, 'translation' );
 			return true;
@@ -88,9 +120,16 @@ class Jetpack_Autoupdate {
 		return $update;
 	}
 
+	/**
+	 * Filter function for `auto_update_theme`.
+	 *
+	 * @param bool|null $update Whether to update.
+	 * @param object    $item  The update offer.
+	 * @return bool|null Whether to update.
+	 */
 	public function autoupdate_theme( $update, $item ) {
 		$autoupdate_theme_list = Jetpack_Options::get_option( 'autoupdate_themes', array() );
-		if ( in_array( $item->theme, $autoupdate_theme_list ) ) {
+		if ( in_array( $item->theme, $autoupdate_theme_list, true ) ) {
 			$this->expect( $item->theme, 'theme' );
 			return true;
 		}
@@ -98,7 +137,13 @@ class Jetpack_Autoupdate {
 		return $update;
 	}
 
-	public function autoupdate_core( $update, $item ) {
+	/**
+	 * Filter function for `auto_update_core`.
+	 *
+	 * @param bool|null $update Whether to update.
+	 * @return bool|null Whether to update.
+	 */
+	public function autoupdate_core( $update ) {
 		$autoupdate_core = Jetpack_Options::get_option( 'autoupdate_core', false );
 		if ( $autoupdate_core ) {
 			return $autoupdate_core;
@@ -110,8 +155,8 @@ class Jetpack_Autoupdate {
 	/**
 	 * Stores the an item identifier to the expected array.
 	 *
-	 * @param string $item Example: 'jetpack/jetpack.php' for type 'plugin' or 'twentyfifteen' for type 'theme'
-	 * @param string $type 'plugin' or 'theme'
+	 * @param string $item Example: 'jetpack/jetpack.php' for type 'plugin' or 'twentyfifteen' for type 'theme'.
+	 * @param string $type 'plugin' or 'theme'.
 	 */
 	private function expect( $item, $type ) {
 		if ( ! isset( $this->expected[ $type ] ) ) {
@@ -123,7 +168,7 @@ class Jetpack_Autoupdate {
 	/**
 	 * On completion of an automatic update, let's store the results.
 	 *
-	 * @param $results - Sent by WP_Automatic_Updater after it completes an autoupdate action. Results may be empty.
+	 * @param mixed $results - Sent by WP_Automatic_Updater after it completes an autoupdate action. Results may be empty.
 	 */
 	public function automatic_updates_complete( $results ) {
 		if ( empty( $this->expected ) ) {
@@ -143,6 +188,11 @@ class Jetpack_Autoupdate {
 		Jetpack::log( 'autoupdates', $this->get_log() );
 	}
 
+	/**
+	 * Get log data.
+	 *
+	 * @return array Data.
+	 */
 	public function get_log() {
 		return array(
 			'results' => $this->results,
@@ -154,7 +204,7 @@ class Jetpack_Autoupdate {
 	/**
 	 * Iterates through expected items ( plugins or themes ) and compares them to actual results.
 	 *
-	 * @param $items 'plugin' or 'theme'
+	 * @param string $items 'plugin' or 'theme'.
 	 */
 	private function log_items( $items ) {
 		if ( ! isset( $this->expected[ $items ] ) ) {
@@ -165,7 +215,7 @@ class Jetpack_Autoupdate {
 
 		if ( is_array( $this->expected[ $items ] ) ) {
 			foreach ( $this->expected[ $items ] as $item ) {
-				if ( in_array( $item, $item_results ) ) {
+				if ( in_array( $item, $item_results, true ) ) {
 					$this->success[ $items ][] = $item;
 				} else {
 					$this->failed[ $items ][] = $item;
@@ -174,10 +224,13 @@ class Jetpack_Autoupdate {
 		}
 	}
 
+	/**
+	 * Bump stats.
+	 */
 	public function bump_stats() {
 		$instance = Jetpack::init();
 		$log      = array();
-		// Bump numbers
+		// Bump numbers.
 
 		if ( ! empty( $this->success['theme'] ) ) {
 			$instance->stat( 'autoupdates/theme-success', count( $this->success['theme'] ) );
@@ -191,7 +244,7 @@ class Jetpack_Autoupdate {
 
 		$instance->do_stats( 'server_side' );
 
-		// Send a more detailed log to logstash
+		// Send a more detailed log to logstash.
 		if ( ! empty( $log ) ) {
 			$xml            = new Jetpack_IXR_Client(
 				array(
@@ -204,10 +257,9 @@ class Jetpack_Autoupdate {
 	}
 
 	/**
-	 * Parses the autoupdate results generated by WP_Automatic_Updater and returns a simple array of successful items
+	 * Parses the autoupdate results generated by WP_Automatic_Updater and returns a simple array of successful items.
 	 *
-	 * @param string $type 'plugin' or 'theme'
-	 *
+	 * @param string $type 'plugin' or 'theme'.
 	 * @return array
 	 */
 	private function get_successful_updates( $type ) {
@@ -233,9 +285,14 @@ class Jetpack_Autoupdate {
 		return $successful_updates;
 	}
 
-	static function get_possible_failures() {
+	/**
+	 * Get possible failure codes.
+	 *
+	 * @return string[] Failure codes.
+	 */
+	public static function get_possible_failures() {
 		$result = array();
-		// Lets check some reasons why it might not be working as expected
+		// Lets check some reasons why it might not be working as expected.
 		include_once ABSPATH . '/wp-admin/includes/admin.php';
 		include_once ABSPATH . '/wp-admin/includes/class-wp-upgrader.php';
 		$upgrader = new WP_Automatic_Updater();
@@ -278,7 +335,13 @@ class Jetpack_Autoupdate {
 		return $result;
 	}
 
-	static function get_plugin_slug( $plugin_file ) {
+	/**
+	 * Get the plugin slug.
+	 *
+	 * @param string $plugin_file Plugin file.
+	 * @return string Slug.
+	 */
+	public static function get_plugin_slug( $plugin_file ) {
 		$update_plugins = get_site_transient( 'update_plugins' );
 		if ( isset( $update_plugins->no_update ) ) {
 			if ( isset( $update_plugins->no_update[ $plugin_file ] ) ) {
@@ -291,7 +354,7 @@ class Jetpack_Autoupdate {
 			}
 		}
 
-		// Try to infer from the plugin file if not cached
+		// Try to infer from the plugin file if not cached.
 		if ( empty( $slug ) ) {
 			$slug = dirname( $plugin_file );
 			if ( '.' === $slug ) {

@@ -5,6 +5,8 @@
  * @package automattic/jetpack
  */
 
+use Automattic\Jetpack\Search as Jetpack_Search;
+
 /**
  * Singleton class instantiated by Jetpack_Searc_Debug_Bar::instance() that handles
  * rendering the Jetpack Search debug bar menu item and panel.
@@ -91,11 +93,11 @@ class Jetpack_Search_Debug_Bar extends Debug_Bar_Panel {
 	 * @return void
 	 */
 	public function render() {
-		if ( ! class_exists( 'Jetpack_Search' ) ) {
-			return;
-		}
-
-		$jetpack_search  = Jetpack_Search::instance();
+		$jetpack_search  = (
+			Jetpack_Search\Options::is_instant_enabled() ?
+			Jetpack_Search\Instant_Search::instance() :
+			Jetpack_Search\Classic_Search::instance()
+		);
 		$last_query_info = $jetpack_search->get_last_query_info();
 
 		// If not empty, let's reshuffle the order of some things.

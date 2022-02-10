@@ -1,0 +1,8 @@
+.admin-page {
+	margin-left: -20px; // to neutralize the padding of #wpcontent.
+	background-color: var(--jp-white);
+
+	@media (max-width: 782px) {
+		margin-left: -10px; // to neutralize the padding of #wpcontent.
+	}
+}

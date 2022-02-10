@@ -1,0 +1,72 @@
+[
+	{
+		"filePath": "/tmp/x/t/bar.js",
+		"messages": [],
+		"errorCount": 0,
+		"fatalErrorCount": 0,
+		"warningCount": 0,
+		"fixableErrorCount": 0,
+		"fixableWarningCount": 0,
+		"usedDeprecatedRules": []
+	},
+	{
+		"filePath": "/tmp/x/t/foo.js",
+		"messages": [
+			{
+				"ruleId": "quotes",
+				"severity": 2,
+				"message": "Strings must use singlequote.",
+				"line": 3,
+				"column": 14,
+				"nodeType": "Literal",
+				"messageId": "wrongQuotes",
+				"endLine": 3,
+				"endColumn": 31,
+				"fix": { "range": [ 27, 44 ], "text": "'This is a thing'" }
+			},
+			{
+				"ruleId": "semi",
+				"severity": 2,
+				"message": "Missing semicolon.",
+				"line": 3,
+				"column": 33,
+				"nodeType": "ExpressionStatement",
+				"messageId": "missingSemi",
+				"endLine": 4,
+				"endColumn": 1,
+				"fix": { "range": [ 46, 46 ], "text": ";" }
+			},
+			{
+				"ruleId": "quotes",
+				"severity": 2,
+				"message": "Strings must use singlequote.",
+				"line": 4,
+				"column": 14,
+				"nodeType": "Literal",
+				"messageId": "wrongQuotes",
+				"endLine": 4,
+				"endColumn": 20,
+				"fix": { "range": [ 60, 66 ], "text": "'x = '" }
+			},
+			{
+				"ruleId": "semi",
+				"severity": 2,
+				"message": "Missing semicolon.",
+				"line": 4,
+				"column": 25,
+				"nodeType": "ExpressionStatement",
+				"messageId": "missingSemi",
+				"endLine": 5,
+				"endColumn": 1,
+				"fix": { "range": [ 71, 71 ], "text": ";" }
+			}
+		],
+		"errorCount": 4,
+		"fatalErrorCount": 0,
+		"warningCount": 0,
+		"fixableErrorCount": 4,
+		"fixableWarningCount": 0,
+		"source": "var x = 123;\n\nconsole.log( \"This is a thing\" )\nconsole.log( \"x = \", x )\n",
+		"usedDeprecatedRules": []
+	}
+]

@@ -3,13 +3,13 @@
  */
 import React, { Component } from 'react';
 import { __, _x } from '@wordpress/i18n';
+import { getRedirectUrl } from '@automattic/jetpack-components';
 
 /**
  * Internal dependencies
  */
 import CompactFormToggle from 'components/form/form-toggle/compact';
 import { FormFieldset } from 'components/forms';
-import getRedirectUrl from 'lib/jp-redirect';
 import { ModuleToggle } from 'components/module-toggle';
 import { withModuleSettingsFormHelpers } from 'components/module-settings/with-module-settings-form-helpers';
 import SettingsCard from 'components/settings-card';
@@ -66,7 +66,7 @@ export const SSO = withModuleSettingsFormHelpers(
 					<SettingsGroup
 						hasChild
 						disableInOfflineMode
-						disableInUserlessMode
+						disableInSiteConnectionMode
 						module={ this.props.getModule( 'sso' ) }
 						support={ {
 							text: __(
@@ -130,7 +130,7 @@ export const SSO = withModuleSettingsFormHelpers(
 						<ConnectUserBar
 							feature="sso"
 							featureLabel={ __( 'Secure Sign-On', 'jetpack' ) }
-							text={ __( 'Sign in to enable WordPress.com Secure Sign-On.', 'jetpack' ) }
+							text={ __( 'Connect to enable WordPress.com Secure Sign-On.', 'jetpack' ) }
 						/>
 					) }
 				</SettingsCard>

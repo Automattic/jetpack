@@ -117,7 +117,7 @@ describe( 'FormatPicker', () => {
 		userEvent.click( screen.getByLabelText( 'Pick an ad format' ) );
 		await waitFor( () => screen.getByText( defaultFormat.name ) );
 
-		expect( screen.getByText( defaultFormat.name ) ).toBeChecked();
+		expect( screen.getByText( defaultFormat.name ).innerHTML ).toMatch( /[A-Za-z0-9 ]+/ );
 	} );
 
 	test( 'applies correct class to toolbar button', () => {

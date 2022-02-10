@@ -33,7 +33,7 @@ class WP_Test_Post_By_Email_API extends WP_Test_Jetpack_REST_Testcase {
 
 	/**
 	 * Keys for the values from $_SERVER that need to be preserved.
-	 * The keys are going to be reverted to their original values by the `self::tearDown()` function.
+	 * The keys are going to be reverted to their original values by the `self::tear_down()` function.
 	 *
 	 * @var array
 	 */
@@ -75,8 +75,8 @@ class WP_Test_Post_By_Email_API extends WP_Test_Jetpack_REST_Testcase {
 	/**
 	 * Setup the environment for a test.
 	 */
-	public function setUp() {
-		parent::setUp();
+	public function set_up() {
+		parent::set_up();
 
 		foreach ( self::$save_server_keys as $key ) {
 			if ( isset( $_SERVER[ $key ] ) ) {
@@ -106,11 +106,11 @@ class WP_Test_Post_By_Email_API extends WP_Test_Jetpack_REST_Testcase {
 	/**
 	 * Reset the environment to its original state after the test.
 	 */
-	public function tearDown() {
+	public function tear_down() {
 		remove_filter( 'pre_option_jetpack_private_options', array( $this, 'mock_jetpack_private_options' ), 10 );
 		remove_filter( 'rest_pre_dispatch', array( $this, 'rest_pre_dispatch' ), 100 );
 
-		parent::tearDown();
+		parent::tear_down();
 
 		unset( $_SERVER['HTTP_CONTENT_TYPE'], $_GET['_for'], $_GET['token'], $_GET['timestamp'], $_GET['nonce'], $_GET['body-hash'], $_GET['signature'] ); // phpcs:ignore
 

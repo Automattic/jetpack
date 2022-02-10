@@ -33,7 +33,6 @@ export function allProjects() {
  *
  * @param {string} dir - the directory we're checking.
  * @param {string} newName - the name of the new project we're checking.
- *
  * @returns {boolean} - return true if we're newName matches an existing project name.
  */
 export function checkNameValid( dir, newName ) {
@@ -65,7 +64,6 @@ export function checkNameValid( dir, newName ) {
  * Returns an array of projects by the given type.
  *
  * @param {string} type - The project type. Must be one of projectTypes
- *
  * @returns {Error|Array} - Array of projects on success, error if an unknown type is passed.
  */
 export function allProjectsByType( type ) {

@@ -7,6 +7,7 @@
 
 use Automattic\Jetpack\Assets;
 use Automattic\Jetpack\Assets\Logo as Jetpack_Logo;
+use Automattic\Jetpack\Identity_Crisis;
 use Automattic\Jetpack\Tracking;
 
 /**
@@ -40,9 +41,18 @@ class Jetpack_Recommendations_Banner {
 
 	/**
 	 * Initialize hooks to display the banner
+	 *
+	 * @since 9.7 Added the $current_screen parameter.
+	 *
+	 * @param \WP_Screen $current_screen Current WordPress screen.
 	 */
-	public function maybe_initialize_hooks() {
+	public function maybe_initialize_hooks( $current_screen ) {
 		if ( ! $this->can_be_displayed() ) {
+			return;
+		}
+
+		if ( Jetpack_Connection_Banner::can_be_displayed( $current_screen ) ) {
+			// We don't want to overcrowd the screen with both the Connection banner and the Recommendations banner.
 			return;
 		}
 
@@ -80,6 +90,10 @@ class Jetpack_Recommendations_Banner {
 			),
 			true
 		) ) {
+			return false;
+		}
+
+		if ( Identity_Crisis::has_identity_crisis() ) {
 			return false;
 		}
 

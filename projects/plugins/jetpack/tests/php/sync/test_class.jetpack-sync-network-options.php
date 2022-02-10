@@ -10,19 +10,17 @@ class WP_Test_Jetpack_Sync_Network_Options extends WP_Test_Jetpack_Sync_Base {
 	protected $post;
 	protected $network_options_module;
 
-	public function setUp() {
-
-		parent::setUp();
+	/**
+	 * Set up.
+	 */
+	public function set_up() {
+		parent::set_up();
 
 		$this->network_options_module = Modules::get_module( "network_options" );
 
 		$this->network_options_module->set_network_options_whitelist( array( 'test_network_option' ) );
 		add_site_option( 'test_network_option', 'foo' );
 		$this->sender->do_sync();
-	}
-
-	public function tearDown() {
-		parent::tearDown();
 	}
 
 	public function test_added_network_option_is_synced() {

@@ -1,4 +1,4 @@
-/* global ajaxurl */
+/* global ajaxurl, jetpackAdminMenu */
 
 ( function () {
 	function init() {
@@ -17,6 +17,7 @@
 			}
 		}
 
+		setFocusOnActiveMenuItem();
 		setAriaExpanded( 'false' );
 
 		var adminbarBlog = adminbar.querySelector( '#wp-admin-bar-blog' );
@@ -57,16 +58,62 @@
 					}, 50 );
 				} );
 			}
+
+			const jitmDismissButton = adminMenu.querySelector( '.dismissible-card__close-icon' );
+			if ( jitmDismissButton ) {
+				jitmDismissButton.addEventListener( 'click', function ( event ) {
+					event.preventDefault();
+
+					const siteNotice = document.getElementById( 'toplevel_page_site-notices' );
+					if ( siteNotice ) {
+						siteNotice.style.display = 'none';
+					}
+
+					makeAjaxRequest(
+						'POST',
+						ajaxurl,
+						'application/x-www-form-urlencoded; charset=UTF-8',
+						'id=' +
+							encodeURIComponent( jitmDismissButton.dataset.feature_id ) +
+							'&feature_class=' +
+							encodeURIComponent( jitmDismissButton.dataset.feature_class ) +
+							'&action=jitm_dismiss' +
+							'&_ajax_nonce=' +
+							jetpackAdminMenu.jitmDismissNonce
+					);
+				} );
+			}
 		}
 	}
 
-	function saveSidebarIsExpanded( expanded ) {
+	function makeAjaxRequest( method, url, contentType, body ) {
 		var xhr = new XMLHttpRequest();
-		xhr.open( 'POST', ajaxurl, true );
+		xhr.open( method, url, true );
 		xhr.setRequestHeader( 'X-Requested-With', 'XMLHttpRequest' );
-		xhr.setRequestHeader( 'Content-Type', 'application/x-www-form-urlencoded; charset=UTF-8' );
+		if ( contentType ) {
+			xhr.setRequestHeader( 'Content-Type', contentType );
+		}
 		xhr.withCredentials = true;
-		xhr.send( 'action=sidebar_state&expanded=' + expanded );
+		xhr.send( body );
+	}
+
+	function saveSidebarIsExpanded( expanded ) {
+		makeAjaxRequest(
+			'POST',
+			ajaxurl,
+			'application/x-www-form-urlencoded; charset=UTF-8',
+			'action=sidebar_state&expanded=' + expanded
+		);
+	}
+
+	function setFocusOnActiveMenuItem() {
+		var currentMenuItem = document.querySelector( '.wp-submenu .current > a' );
+
+		if ( ! currentMenuItem ) {
+			return;
+		}
+
+		currentMenuItem.focus();
 	}
 
 	if ( document.readyState === 'loading' ) {

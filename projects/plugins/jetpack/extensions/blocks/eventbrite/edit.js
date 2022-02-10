@@ -11,7 +11,8 @@ import {
 	ExternalLink,
 	withNotices,
 } from '@wordpress/components';
-import { BlockControls, BlockIcon, InnerBlocks } from '@wordpress/block-editor';
+import { BlockControls, InnerBlocks } from '@wordpress/block-editor';
+import { isAtomicSite, isSimpleSite } from '@automattic/jetpack-shared-extension-utils';
 
 /**
  * Internal dependencies
@@ -21,7 +22,6 @@ import attributeDetails from './attributes';
 import { convertToLink, eventIdFromUrl, normalizeUrlInput } from './utils';
 import { getValidatedAttributes } from '../../shared/get-validated-attributes';
 import { icon, URL_REGEX, EVENTBRITE_EXAMPLE_URL } from '.';
-import { isAtomicSite, isSimpleSite } from '../../shared/site-type-utils';
 import EventbriteInPageExample from './eventbrite-in-page-example.png';
 import BlockStylesSelector from '../../shared/components/block-styles-selector';
 import testEmbedUrl from '../../shared/test-embed-url';
@@ -49,25 +49,31 @@ export class EventbriteEdit extends Component {
 			return;
 		}
 
-		const newAttributes = {
-			eventId: eventIdFromUrl( url ),
-			url,
-		};
+		const eventId = eventIdFromUrl( url );
 
-		testEmbedUrl( newAttributes.url, this.setIsResolvingUrl )
-			.then( resolvedUrl => {
-				const newValidatedAttributes = getValidatedAttributes( attributeDetails, {
-					...newAttributes,
-					url: resolvedUrl,
+		if ( ! eventId ) {
+			this.setErrorNotice();
+		} else {
+			const newAttributes = {
+				eventId,
+				url,
+			};
+
+			testEmbedUrl( newAttributes.url, this.setIsResolvingUrl )
+				.then( resolvedUrl => {
+					const newValidatedAttributes = getValidatedAttributes( attributeDetails, {
+						...newAttributes,
+						url: resolvedUrl,
+					} );
+					setAttributes( newValidatedAttributes );
+					this.setState( { editedUrl: resolvedUrl } );
+					noticeOperations.removeAllNotices();
+				} )
+				.catch( () => {
+					setAttributes( { eventId: undefined, url: undefined } );
+					this.setErrorNotice();
 				} );
-				setAttributes( newValidatedAttributes );
-				this.setState( { editedUrl: resolvedUrl } );
-				noticeOperations.removeAllNotices();
-			} )
-			.catch( () => {
-				setAttributes( { eventId: undefined, url: undefined } );
-				this.setErrorNotice();
-			} );
+		}
 	};
 
 	setIsResolvingUrl = isResolvingUrl => this.setState( { isResolvingUrl } );
@@ -170,7 +176,7 @@ export class EventbriteEdit extends Component {
 						'Paste a link to an Eventbrite event to embed ticket checkout.',
 						'jetpack'
 					) }
-					icon={ <BlockIcon icon={ icon } /> }
+					icon={ icon }
 					notices={ noticeUI }
 				>
 					<form onSubmit={ this.submitForm }>

@@ -24,8 +24,35 @@ class Main {
 			add_action( 'plugins_loaded', array( __CLASS__, 'on_plugins_loaded_early' ), 5 );
 			add_action( 'plugins_loaded', array( __CLASS__, 'on_plugins_loaded_late' ), 90 );
 		}
+
+		// Add REST endpoints.
+		add_action( 'rest_api_init', array( 'Automattic\\Jetpack\\Sync\\REST_Endpoints', 'initialize_rest_api' ) );
+
+		// Add IDC disconnect action.
+		add_action( 'jetpack_idc_disconnect', array( __CLASS__, 'on_jetpack_idc_disconnect' ), 100 );
+
 		// Any hooks below are special cases that need to be declared even if Sync is not allowed.
 		add_action( 'jetpack_site_registered', array( 'Automattic\\Jetpack\\Sync\\Actions', 'do_initial_sync' ), 10, 0 );
+
+		// Set up package version hook.
+		add_filter( 'jetpack_package_versions', __NAMESPACE__ . '\Package_Version::send_package_version_to_tracker' );
+	}
+
+	/**
+	 * Delete all sync related data on Identity Crisis disconnect.
+	 */
+	public static function on_jetpack_idc_disconnect() {
+		Sender::get_instance()->uninstall();
+	}
+
+	/**
+	 * Sets the Sync data settings.
+	 *
+	 * @param array $data_settings An array containing the Sync data options. An empty array indicates that the default
+	 *                             values will be used for all Sync data.
+	 */
+	public static function set_sync_data_options( $data_settings = array() ) {
+		( new Data_Settings() )->add_settings_list( $data_settings );
 	}
 
 	/**
@@ -41,6 +68,7 @@ class Main {
 		 * For now additional modules are enabled based on whether the third party plugin
 		 * class exists or not.
 		 */
+		Sync_Actions::initialize_search();
 		Sync_Actions::initialize_woocommerce();
 		Sync_Actions::initialize_wp_super_cache();
 
@@ -69,7 +97,7 @@ class Main {
 		 * Default value is false, filter to true to enable non-blocking mode which will have
 		 * WP.com return early and use the sync/close endpoint to check-in processed items.
 		 *
-		 * @since 8.6.0
+		 * @since 1.12.3
 		 *
 		 * @param bool $enabled Should non-blocking flow be enabled.
 		 */

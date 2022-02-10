@@ -137,13 +137,15 @@ class Jetpack_Blog_Stats_Widget extends WP_Widget {
 		echo $args['before_widget'];
 
 		if ( ! empty( $title ) ) {
-			echo $args['before_title'] . esc_html( $title ) . $args['after_title'];
+			echo $args['before_title'] . $title . $args['after_title']; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
 		}
 
 		// Get the Site Stats.
 		$views = $this->get_stats();
 
-		if ( ! empty( $views ) ) {
+		if ( 0 === $views ) {
+			esc_html_e( 'There is nothing to display yet', 'jetpack' );
+		} elseif ( $views ) {
 			printf(
 				'<ul><li>%1$s %2$s</li></ul>',
 				number_format_i18n( $views ),

@@ -36,6 +36,9 @@ function jetpack_notify_postauthor( $emails, $comment_id ) {
 	// Original function modified: Code before the comment_notification_recipients filter removed.
 
 	$comment = get_comment( $comment_id );
+	if ( ! $comment ) {
+		return $emails;
+	}
 
 	$post   = get_post( $comment->comment_post_ID );
 	$author = get_userdata( $post->post_author );
@@ -254,8 +257,12 @@ function jetpack_notify_moderator( $notify_moderator, $comment_id ) {
 	global $wpdb;
 
 	$comment = get_comment( $comment_id );
-	$post    = get_post( $comment->comment_post_ID );
-	$user    = get_userdata( $post->post_author );
+	if ( ! $comment ) {
+		return $notify_moderator;
+	}
+
+	$post = get_post( $comment->comment_post_ID );
+	$user = get_userdata( $post->post_author );
 	// Send to the administration and to the post author if the author can modify the comment.
 	$emails = array( get_option( 'admin_email' ) );
 	if ( $user && user_can( $user->ID, 'edit_comment', $comment_id ) && ! empty( $user->user_email ) ) {

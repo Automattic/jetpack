@@ -1,0 +1,19 @@
+/*
+ * Make our custom "Redeem" button look like the "Setup and redeem" button.
+ * We have to do this because it's not native to the ConnectScreen component.
+ */
+.jetpack-partner-coupon-redeem .components-button {
+	font-weight: 600;
+	font-size: 14px;
+	border-radius: 4px;
+	height: 40px;
+	justify-content: center;
+}
+
+/*
+ * We shouldn't display the ToS again since the customer
+ * already agreed to them.
+ */
+.jetpack-partner-coupon-redeem--connected .jp-connection__connect-screen__tos {
+	display: none !important;
+}

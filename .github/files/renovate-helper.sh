@@ -2,6 +2,8 @@
 
 set -eo pipefail
 
+. tools/includes/alpha-tag.sh
+
 function die {
 	echo "::error::$*"
 	exit 1
@@ -72,6 +74,9 @@ fi
 
 # Add a change file for every project touched in the PR, if any.
 BASE=$PWD
+echo "::group::Monorepo JS install, for prettier"
+pnpm install
+echo "::endgroup::"
 echo "::group::Installing changelogger"
 cd projects/packages/changelogger
 composer update
@@ -80,19 +85,20 @@ CL="$BASE/projects/packages/changelogger/bin/changelogger"
 echo "::endgroup::"
 
 ANY=false
-for DIR in $(git diff --name-only "$BASE_REF"..."$HEAD_REF" | sed -nE 's!^(projects/[^/]+/[^/]+)/.*!\1!p' | sort -u); do
+for DIR in $(git -c core.quotepath=off diff --name-only "$BASE_REF"..."$HEAD_REF" | sed -nE 's!^(projects/[^/]+/[^/]+)/.*!\1!p' | sort -u); do
 	ANY=true
 	SLUG="${DIR#projects/}"
 	echo "::group::Adding change file for $SLUG"
 	cd "$DIR"
 
 	ARGS=()
-	ARGS=( add --no-interaction --significance=patch )
-	if [[ "$SLUG" == "plugins/jetpack" ]]; then
-		ARGS+=( --type=other )
-	else
-		ARGS+=( --type=changed )
+	ARGS=( add --no-interaction --filename-auto-suffix --significance=patch )
+
+	CLTYPE="$(jq -r '.extra["changelogger-default-type"] // "changed"' composer.json)"
+	if [[ -n "$CLTYPE" ]]; then
+		ARGS+=( "--type=$CLTYPE" )
 	fi
+
 	ARGS+=( --entry="Updated package dependencies" )
 
 	CHANGES_DIR="$(jq -r '.extra.changelogger["changes-dir"] // "changelog"' composer.json)"
@@ -103,7 +109,8 @@ for DIR in $(git diff --name-only "$BASE_REF"..."$HEAD_REF" | sed -nE 's!^(proje
 		"$CL" "${ARGS[@]}"
 		echo "::endgroup::"
 		echo "::group::Updating version for $SLUG"
-		VER=$("$CL" version next --default-first-version --prerelease=alpha) || { echo "$VER"; exit 1; }
+		PRERELEASE=$(alpha_tag "$CL" composer.json 0)
+		VER=$("$CL" version next --default-first-version --prerelease=$PRERELEASE) || { echo "$VER"; exit 1; }
 		"$BASE/tools/project-version.sh" -v -u "$VER" "$SLUG"
 		echo "::endgroup::"
 	fi
@@ -117,8 +124,7 @@ fi
 
 # Update deps and lock files.
 echo "::group::Updating dependencies on changed packages"
-yarn install
-tools/check-composer-deps.sh -uv
+tools/check-intra-monorepo-deps.sh -uav
 echo "::endgroup::"
 
 # Create and push the commit.

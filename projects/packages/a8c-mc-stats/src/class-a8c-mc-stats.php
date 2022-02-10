@@ -167,7 +167,8 @@ class A8c_Mc_Stats {
 		/**
 		 * Filter the URL used as the Stats tracking pixel.
 		 *
-		 * @since 2.3.2
+		 * @since-jetpack 2.3.2
+		 * @since 1.0.0
 		 *
 		 * @param string $url Base URL used as the Stats tracking pixel.
 		 */

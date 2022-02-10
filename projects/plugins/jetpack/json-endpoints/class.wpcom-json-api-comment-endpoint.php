@@ -29,6 +29,7 @@ abstract class WPCOM_JSON_API_Comment_Endpoint extends WPCOM_JSON_API_Endpoint {
 		'i_like'       => '(bool) Does the current user like this comment?',
 		'meta'         => '(object) Meta data',
 		'can_moderate' => '(bool) Whether current user can moderate the comment.',
+		'i_replied'    => '(bool) Has the current user replied to this comment?',
 	);
 
 	// public $response_format =& $this->comment_object_format;
@@ -197,6 +198,15 @@ abstract class WPCOM_JSON_API_Comment_Endpoint extends WPCOM_JSON_API_Endpoint {
 			case 'can_moderate':
 				$response[ $key ] = (bool) current_user_can( 'edit_comment', $comment_id );
 				break;
+				case 'i_replied':
+					$response[ $key ] = (bool) 0 < get_comments(
+						array(
+							'user_id' => get_current_user_id(),
+							'parent'  => $comment->comment_ID,
+							'count'   => true,
+						)
+					);
+					break;
 			}
 		}
 

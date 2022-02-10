@@ -1,0 +1,4 @@
+**/external/*.js
+/build
+/src/widgets/js/search-widget-admin.js
+/src/widgets/js/search-widget.js

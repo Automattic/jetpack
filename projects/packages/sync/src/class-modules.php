@@ -116,7 +116,8 @@ class Modules {
 		 * If you add to this list, make sure any classes implement the
 		 * Jetpack_Sync_Module interface.
 		 *
-		 * @since 4.2.0
+		 * @since 1.6.3
+		 * @since-jetpack 4.2.0
 		 */
 		$modules = apply_filters( 'jetpack_sync_modules', self::DEFAULT_SYNC_MODULES );
 

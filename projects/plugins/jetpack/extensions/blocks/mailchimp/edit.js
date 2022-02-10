@@ -137,7 +137,7 @@ class MailchimpSubscribeEdit extends Component {
 				label={ __( 'Mailchimp', 'jetpack' ) }
 				notices={ notices }
 				instructions={ __(
-					'You need to connect your Mailchimp account and choose a list in order to start collecting Email subscribers.',
+					'You need to connect your Mailchimp account and choose an audience in order to start collecting Email subscribers.',
 					'jetpack'
 				) }
 			>

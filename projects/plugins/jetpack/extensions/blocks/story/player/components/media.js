@@ -3,15 +3,6 @@
  */
 import classNames from 'classnames';
 
-/**
- * WordPress dependencies
- */
-import { createElement } from '@wordpress/element';
-
-/**
- * Internal dependencies
- */
-
 export const Image = ( { title, alt, className, id, mediaRef, mime, sizes, srcset, url } ) => (
 	// eslint-disable-next-line jsx-a11y/media-has-caption
 	<img
@@ -37,6 +28,8 @@ export const Video = ( { title, className, id, mediaRef, mime, url, poster } ) =
 		type={ mime }
 		src={ url }
 		poster={ poster }
+		tabIndex={ -1 }
+		preload="auto"
 		playsInline
 	></video>
 );

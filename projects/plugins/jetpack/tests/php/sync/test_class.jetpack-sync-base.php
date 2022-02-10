@@ -1,6 +1,7 @@
 <?php
 
 use Automattic\Jetpack\Sync\Modules\Callables;
+use Automattic\Jetpack\Sync\Data_Settings;
 use Automattic\Jetpack\Sync\Listener;
 use Automattic\Jetpack\Sync\Modules;
 use Automattic\Jetpack\Sync\Main;
@@ -33,34 +34,51 @@ class WP_Test_Jetpack_Sync_Base extends WP_UnitTestCase {
 	protected $server_replica_storage;
 	protected $server_event_storage;
 
-	public function setUp() {
+	/**
+	 * Set up.
+	 */
+	public function set_up() {
 
 		$_SERVER['HTTP_USER_AGENT'] = 'Jetpack Unit Tests';
 		$this->listener = Listener::get_instance();
 		$this->sender   = Sender::get_instance();
 
-		parent::setUp();
+		parent::set_up();
 
 		$this->setSyncClientDefaults();
 
 		$this->server = new Server();
 
-		// bind the sender to the server
+		// Bind the sender to the server.
 		remove_all_filters( 'jetpack_sync_send_data' );
 		add_filter( 'jetpack_sync_send_data', array( $this, 'serverReceive' ), 10, 4 );
 
-		// bind the two storage systems to the server events
+		// Bind the two storage systems to the server events.
 		$this->server_replica_storage = new Jetpack_Sync_Test_Replicastore();
 		$this->server_replicator      = new Jetpack_Sync_Server_Replicator( $this->server_replica_storage );
 		$this->server_replicator->init();
 
 		$this->server_event_storage = new Jetpack_Sync_Server_Eventstore();
 		$this->server_event_storage->init();
+
+		// Set a blog token and id so the site is connected.
+		\Jetpack_Options::update_option( 'blog_token', 'asdasd.123123' );
+		\Jetpack_Options::update_option( 'id', 1234 );
+
+		$data_settings = new Data_Settings();
+		$data_settings->empty_data_settings_and_hooks();
+		$data_settings->add_settings_list( array() );
 	}
 
-	public function tearDown() {
-		parent::tearDown();
+	/**
+	 * Tear down.
+	 */
+	public function tear_down() {
+		parent::tear_down();
 		unset( $_SERVER['HTTP_USER_AGENT'] );
+
+		\Jetpack_Options::delete_option( 'blog_token' );
+		\Jetpack_Options::delete_option( 'id' );
 	}
 
 	public function setSyncClientDefaults() {

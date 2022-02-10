@@ -1,0 +1,12 @@
+[
+    {
+        "clientId": "_clientId_0",
+        "name": "jetpack/pinterest",
+        "isValid": true,
+        "attributes": {
+            "url": "https://www.pinterest.com.au/bakingamoment/bread-recipes/"
+        },
+        "innerBlocks": [],
+        "originalContent": "<div class=\"wp-block-jetpack-pinterest\"><a data-pin-do=\"embedBoard\" href=\"https://www.pinterest.com.au/bakingamoment/bread-recipes/\"></a></div>"
+    }
+]

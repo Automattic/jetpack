@@ -9,6 +9,11 @@ import '@testing-library/jest-dom/extend-expect';
 import userEvent from '@testing-library/user-event';
 import { render, screen, waitFor } from '@testing-library/react';
 
+// this is necessary because block editor store becomes unregistered during jest initialization
+import { register } from '@wordpress/data';
+import { store as blockEditorStore } from '@wordpress/block-editor';
+register( blockEditorStore );
+
 // Need to mock InnerBlocks before import the CalendlyEdit component as it
 // requires the Gutenberg store setup to operate.
 jest.mock( '@wordpress/block-editor', () => ( {
@@ -20,7 +25,7 @@ jest.mock( '@wordpress/block-editor', () => ( {
  * Internal dependencies
  */
 import testEmbedUrl from '../../../shared/test-embed-url';
-import CalendlyEdit from '../edit';
+import { CalendlyEdit } from '../edit';
 
 jest.mock( '../../../shared/test-embed-url', () => ( {
 	__esModule: true,
@@ -132,11 +137,11 @@ describe( 'CalendlyEdit', () => {
 		} );
 	} );
 
-	test( 'displays a spinner while the block is embedding', () => {
+	test( 'displays a spinner while the block is embedding', async () => {
 		const attributes = { ...defaultAttributes, url: 'https://calendly.com/invalid-url' };
 		render( <CalendlyEdit { ...{ ...defaultProps, attributes } } /> );
 
-		expect( screen.getByText( 'Embedding…' ) ).toBeInTheDocument();
+		await waitFor( () => expect( screen.getByText( 'Embedding…' ) ).toBeInTheDocument() );
 	} );
 
 	test( 'renders inline preview with iframe component', async () => {

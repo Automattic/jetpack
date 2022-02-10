@@ -1,13 +1,17 @@
 {
 	"name": "automattic/jetpack-connection-ui",
 	"description": "Jetpack Connection UI",
-	"type": "library",
+	"type": "jetpack-library",
 	"license": "GPL-2.0-or-later",
 	"require": {
-		"automattic/jetpack-connection": "^1.26"
+		"automattic/jetpack-assets": "^1.17",
+		"automattic/jetpack-connection": "^1.36",
+		"automattic/jetpack-constants": "^1.6",
+		"automattic/jetpack-device-detection": "^1.4",
+		"automattic/jetpack-identity-crisis": "^0.7"
 	},
 	"require-dev": {
-		"automattic/jetpack-changelogger": "^1.1"
+		"automattic/jetpack-changelogger": "^3.0"
 	},
 	"autoload": {
 		"classmap": [
@@ -25,12 +29,14 @@
 	],
 	"scripts": {
 		"build-development": [
-			"Composer\\Config::disableProcessTimeout",
-			"yarn build"
+			"pnpm run build"
 		],
 		"build-production": [
+			"NODE_ENV=production pnpm run build"
+		],
+		"watch": [
 			"Composer\\Config::disableProcessTimeout",
-			"yarn build"
+			"pnpm run watch"
 		]
 	},
 	"minimum-stability": "dev",
@@ -38,11 +44,12 @@
 	"extra": {
 		"autotagger": true,
 		"mirror-repo": "Automattic/jetpack-connection-ui",
+		"textdomain": "jetpack-connection-ui",
 		"changelogger": {
 			"link-template": "https://github.com/Automattic/jetpack-connection-ui/compare/v${old}...v${new}"
 		},
 		"branch-alias": {
-			"dev-master": "1.0.x-dev"
+			"dev-master": "2.3.x-dev"
 		}
 	}
 }

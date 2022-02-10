@@ -26,6 +26,14 @@ class WPCOM_REST_API_V2_Endpoint_Admin_Menu extends WP_REST_Controller {
 	public $rest_base = 'admin-menu';
 
 	/**
+	 *
+	 * Set of core dashicons.
+	 *
+	 * @var array
+	 */
+	private $dashicon_list;
+
+	/**
 	 * WPCOM_REST_API_V2_Endpoint_Admin_Menu constructor.
 	 */
 	public function __construct() {
@@ -113,13 +121,6 @@ class WPCOM_REST_API_V2_Endpoint_Admin_Menu extends WP_REST_Controller {
 			if ( ! empty( $submenu[ $menu_item[2] ] ) ) {
 				$submenu_items = array_values( $submenu[ $menu_item[2] ] );
 
-				// If the user doesn't have the caps for the top level menu item, let's promote the first submenu item.
-				if ( empty( $item ) ) {
-					$menu_item[1] = $submenu_items[0][1]; // Capability.
-					$menu_item[2] = $submenu_items[0][2]; // Menu slug.
-					$item         = $this->prepare_menu_item( $menu_item );
-				}
-
 				// Add submenu items.
 				foreach ( $submenu_items as $submenu_item ) {
 					$submenu_item = $this->prepare_submenu_item( $submenu_item, $menu_item );
@@ -153,18 +154,26 @@ class WPCOM_REST_API_V2_Endpoint_Admin_Menu extends WP_REST_Controller {
 			'title'      => 'Admin Menu',
 			'type'       => 'object',
 			'properties' => array(
-				'count'    => array(
+				'count'      => array(
 					'description' => 'Core/Plugin/Theme update count or unread comments count.',
 					'type'        => 'integer',
 				),
-				'icon'     => array(
+				'icon'       => array(
 					'description' => 'Menu item icon. Dashicon slug or base64-encoded SVG.',
 					'type'        => 'string',
 				),
-				'slug'     => array(
+				'inlineText' => array(
+					'description' => 'Additional text to be added inline with the menu title.',
+					'type'        => 'string',
+				),
+				'badge'      => array(
+					'description' => 'Badge to be added inline with the menu title.',
+					'type'        => 'string',
+				),
+				'slug'       => array(
 					'type' => 'string',
 				),
-				'children' => array(
+				'children'   => array(
 					'items' => array(
 						'count'  => array(
 							'description' => 'Core/Plugin/Theme update count or unread comments count.',
@@ -190,14 +199,14 @@ class WPCOM_REST_API_V2_Endpoint_Admin_Menu extends WP_REST_Controller {
 					),
 					'type'  => 'array',
 				),
-				'title'    => array(
+				'title'      => array(
 					'type' => 'string',
 				),
-				'type'     => array(
+				'type'       => array(
 					'enum' => array( 'separator', 'menu-item' ),
 					'type' => 'string',
 				),
-				'url'      => array(
+				'url'        => array(
 					'format' => 'uri',
 					'type'   => 'string',
 				),
@@ -214,8 +223,17 @@ class WPCOM_REST_API_V2_Endpoint_Admin_Menu extends WP_REST_Controller {
 	private function prepare_menu_item( array $menu_item ) {
 		global $submenu;
 
-		// Exclude unauthorized menu items.
-		if ( ! current_user_can( $menu_item[1] ) ) {
+		$current_user_can_access_menu = current_user_can( $menu_item[1] );
+		$submenu_items                = isset( $submenu[ $menu_item[2] ] ) ? array_values( $submenu[ $menu_item[2] ] ) : array();
+		$has_first_menu_item          = isset( $submenu_items[0] );
+
+		// Exclude unauthorized menu items when the user does not have access to the menu and the first submenu item.
+		if ( ! $current_user_can_access_menu && $has_first_menu_item && ! current_user_can( $submenu_items[0][1] ) ) {
+			return array();
+		}
+
+		// Exclude unauthorized menu items that don't have submenus.
+		if ( ! $current_user_can_access_menu && ! $has_first_menu_item ) {
 			return array();
 		}
 
@@ -312,11 +330,35 @@ class WPCOM_REST_API_V2_Endpoint_Admin_Menu extends WP_REST_Controller {
 			if ( 0 === strpos( $icon, 'data:image/svg+xml' ) ) {
 				$img = $icon;
 			} elseif ( 0 === strpos( $icon, 'dashicons-' ) ) {
-				$img = sanitize_html_class( $icon );
+				$img = $this->prepare_dashicon( $icon );
 			}
 		}
 
 		return $img;
+	}
+
+	/**
+	 * Prepares the dashicon for consumption by Calypso. If the dashicon isn't found in a list of known icons
+	 * we will return the default dashicon.
+	 *
+	 * @param string $icon The dashicon string to check.
+	 *
+	 * @return string If the dashicon exists in core we return the dashicon, otherwise we return the default dashicon.
+	 */
+	private function prepare_dashicon( $icon ) {
+		if ( empty( $this->dashicon_set ) ) {
+			if ( defined( 'IS_WPCOM' ) && IS_WPCOM ) {
+				$this->dashicon_list = include WP_CONTENT_DIR . '/mu-plugins/masterbar/admin-menu/dashicon-set.php';
+			} else {
+				$this->dashicon_list = include JETPACK__PLUGIN_DIR . '/modules/masterbar/admin-menu/dashicon-set.php';
+			}
+		}
+
+		if ( isset( $this->dashicon_list[ $icon ] ) && $this->dashicon_list[ $icon ] ) {
+			return $icon;
+		}
+
+		return 'dashicons-admin-generic';
 	}
 
 	/**
@@ -333,12 +375,14 @@ class WPCOM_REST_API_V2_Endpoint_Admin_Menu extends WP_REST_Controller {
 			if ( 0 === strpos( $url, 'https://wordpress.com/' ) ) {
 				// Calypso needs the domain removed so they're not interpreted as external links.
 				$url = str_replace( 'https://wordpress.com', '', $url );
-				return esc_url_raw( $url );
+				// Replace special characters with their correct entities e.g. &amp; to &.
+				return wp_specialchars_decode( esc_url_raw( $url ) );
 			}
 
 			// Allow URLs pointing to Jetpack.com.
 			if ( 0 === strpos( $url, 'https://jetpack.com/' ) ) {
-				return esc_url_raw( $url );
+				// Replace special characters with their correct entities e.g. &amp; to &.
+				return wp_specialchars_decode( esc_url_raw( $url ) );
 			}
 
 			// Disallow other external URLs.
@@ -358,8 +402,14 @@ class WPCOM_REST_API_V2_Endpoint_Admin_Menu extends WP_REST_Controller {
 				! file_exists( ABSPATH . "/wp-admin/$menu_file" )
 			)
 		) {
+			$admin_is_parent = false;
+			if ( ! empty( $parent_slug ) ) {
+				$menu_hook       = get_plugin_page_hook( $parent_slug, 'admin.php' );
+				$admin_is_parent = ! empty( $menu_hook ) || ( ( 'index.php' !== $parent_slug ) && file_exists( WP_PLUGIN_DIR . "/$parent_file" ) && ! file_exists( ABSPATH . "/wp-admin/$parent_file" ) );
+			}
+
 			if (
-				( 'admin.php' !== $parent_file && file_exists( WP_PLUGIN_DIR . "/$parent_file" ) && ! is_dir( WP_PLUGIN_DIR . "/$parent_file" ) ) ||
+				( false === $admin_is_parent && file_exists( WP_PLUGIN_DIR . "/$parent_file" ) && ! is_dir( WP_PLUGIN_DIR . "/$parent_file" ) ) ||
 				( file_exists( ABSPATH . "/wp-admin/$parent_file" ) && ! is_dir( ABSPATH . "/wp-admin/$parent_file" ) )
 			) {
 				$url = add_query_arg( array( 'page' => $url ), admin_url( $parent_slug ) );
@@ -370,7 +420,7 @@ class WPCOM_REST_API_V2_Endpoint_Admin_Menu extends WP_REST_Controller {
 			$url = admin_url( $url );
 		}
 
-		return esc_url_raw( $url );
+		return wp_specialchars_decode( esc_url_raw( $url ) );
 	}
 
 	/**
@@ -392,6 +442,32 @@ class WPCOM_REST_API_V2_Endpoint_Admin_Menu extends WP_REST_Controller {
 			if ( $count > 0 ) {
 				// Keep the counter in the item array.
 				$item['count'] = $count;
+			}
+
+			// Finally remove the markup.
+			$title = trim( str_replace( $matches[0], '', $title ) );
+		}
+
+		if ( false !== strpos( $title, 'inline-text' ) ) {
+			preg_match( '/<span class="inline-text".+\s?>(.+)<\/span>/', $title, $matches );
+
+			$text = $matches[1];
+			if ( $text ) {
+				// Keep the text in the item array.
+				$item['inlineText'] = $text;
+			}
+
+			// Finally remove the markup.
+			$title = trim( str_replace( $matches[0], '', $title ) );
+		}
+
+		if ( false !== strpos( $title, 'awaiting-mod' ) ) {
+			preg_match( '/<span class="awaiting-mod">(.+)<\/span>/', $title, $matches );
+
+			$text = $matches[1];
+			if ( $text ) {
+				// Keep the text in the item array.
+				$item['badge'] = $text;
 			}
 
 			// Finally remove the markup.

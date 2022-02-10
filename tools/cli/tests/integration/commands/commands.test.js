@@ -10,10 +10,10 @@ const test = child_process.execFileSync( 'node', [ './tools/cli/bin/jetpack', '-
 
 describe( 'verify commands are available', function () {
 	it( 'build command exists', () => {
-		chai.expect( test ).to.contain( 'jetpack build [project]' );
+		chai.expect( test ).to.contain( 'jetpack build [project...]' );
 	} );
 	it( 'changelog command exists', () => {
-		chai.expect( test ).to.contain( 'jetpack changelog <cmd> [project]' );
+		chai.expect( test ).to.contain( 'jetpack changelog [cmd]' );
 	} );
 	it( 'cli command exists', () => {
 		chai.expect( test ).to.contain( 'jetpack cli <cmd>' );
@@ -25,12 +25,15 @@ describe( 'verify commands are available', function () {
 		chai.expect( test ).to.contain( 'jetpack generate [type]' );
 	} );
 	it( 'install command exists', () => {
-		chai.expect( test ).to.contain( 'jetpack install [project]' );
+		chai.expect( test ).to.contain( 'jetpack install [project...]' );
 	} );
 	it( 'watch command exists', () => {
 		chai.expect( test ).to.contain( 'jetpack watch [project]' );
 	} );
 	it( 'completion command exists', () => {
 		chai.expect( test ).to.contain( 'jetpack completion' );
+	} );
+	it( 'draft command exists', () => {
+		chai.expect( test ).to.contain( 'jetpack draft <cmd>' );
 	} );
 } );

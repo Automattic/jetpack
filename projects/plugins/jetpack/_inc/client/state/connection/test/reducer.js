@@ -5,7 +5,8 @@ import {
 	status as statusReducer,
 	user as userReducer,
 	requests as requestsReducer,
-	connectionRequests
+	connectionRequests,
+	hasSeenWCConnectionModal
 } from '../reducer';
 
 describe( 'status reducer', () => {
@@ -186,23 +187,14 @@ describe( 'requests reducer', () => {
 		} );
 	} );
 
-	describe( '#authorizeUserInPlace', () => {
-		it( 'should set isAuthorizingUserInPlace to true when authorization iframe is loaded', () => {
+	describe( '#connectUser', () => {
+		it( 'should set isConnectingUser to true when connect ', () => {
 			const stateIn = {};
 			const action = {
-				type: 'AUTH_USER_IN_PLACE'
+				type: 'CONNECT_USER'
 			};
 			let stateOut = requestsReducer( stateIn, action );
-			expect( stateOut.authorizingUserInPlace ).to.be.true;
-		} );
-
-		it( 'should set isAuthorizingUserInPlace to false when when in-place authorization has completed', () => {
-			const stateIn = {};
-			const action = {
-				type: 'AUTH_USER_IN_PLACE_SUCCESS'
-			};
-			let stateOut = requestsReducer( stateIn, action );
-			expect( stateOut.authorizingUserInPlace ).to.be.false;
+			expect( stateOut.connectingUser ).to.be.true;
 		} );
 	} );
 
@@ -233,5 +225,16 @@ describe( 'requests reducer', () => {
 			let stateOut = requestsReducer( stateIn, action );
 			expect( stateOut.reconnectingSite ).to.be.false;
 		} );
+	} );
+} );
+
+describe( '#hasSeenWCConnectionModal', () => {
+	it( 'should set hasSeenWCConnectionModal to true when ', () => {
+		const stateIn = {};
+		const action = {
+			type: 'JETPACK_CONNECTION_HAS_SEEN_WC_CONNECTION_MODAL'
+		};
+		let stateOut = hasSeenWCConnectionModal( stateIn, action );
+		expect( stateOut ).to.be.true;
 	} );
 } );

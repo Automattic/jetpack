@@ -301,12 +301,6 @@
 								'//api.pinterest.com/v1/urls/count.json?callback=WPCOMSharing.update_pinterest_count&url=' +
 								encodeURIComponent( url ),
 						],
-						// Facebook protocol summing has been shown to falsely double counts, so we only request the current URL
-						facebook: [
-							window.location.protocol +
-								'//graph.facebook.com/?callback=WPCOMSharing.update_facebook_count&ids=' +
-								encodeURIComponent( url ),
-						],
 					};
 
 					for ( service in requests ) {
@@ -326,45 +320,6 @@
 					WPCOMSharing.done_urls[ id ] = true;
 				}
 			},
-
-			// get the version of the url that was stored in the dom
-			get_permalink: function ( url ) {
-				if ( 'https:' === window.location.protocol ) {
-					url = url.replace( /^http:\/\//i, 'https://' );
-				} else {
-					url = url.replace( /^https:\/\//i, 'http://' );
-				}
-
-				return url;
-			},
-			update_facebook_count: function ( data ) {
-				var url, permalink;
-
-				if ( ! data ) {
-					return;
-				}
-
-				for ( url in data ) {
-					if (
-						! Object.prototype.hasOwnProperty.call( data, url ) ||
-						! data[ url ].share ||
-						! data[ url ].share.share_count
-					) {
-						continue;
-					}
-
-					permalink = WPCOMSharing.get_permalink( url );
-
-					if ( ! ( permalink in WPCOM_sharing_counts ) ) {
-						continue;
-					}
-
-					WPCOMSharing.inject_share_count(
-						'sharing-facebook-' + WPCOM_sharing_counts[ permalink ],
-						data[ url ].share.share_count
-					);
-				}
-			},
 			update_pinterest_count: function ( data ) {
 				if ( 'undefined' !== typeof data.count && data.count * 1 > 0 ) {
 					WPCOMSharing.inject_share_count(
@@ -374,16 +329,17 @@
 				}
 			},
 			inject_share_count: function ( id, count ) {
-				forEachNode( document.querySelectorAll( 'a[data-shared=' + id + '] > span' ), function (
-					span
-				) {
-					var countNode = span.querySelector( '.share-count' );
-					removeNode( countNode );
-					var newNode = document.createElement( 'span' );
-					newNode.className = 'share-count';
-					newNode.textContent = WPCOMSharing.format_count( count );
-					span.appendChild( newNode );
-				} );
+				forEachNode(
+					document.querySelectorAll( 'a[data-shared=' + id + '] > span' ),
+					function ( span ) {
+						var countNode = span.querySelector( '.share-count' );
+						removeNode( countNode );
+						var newNode = document.createElement( 'span' );
+						newNode.className = 'share-count';
+						newNode.textContent = WPCOMSharing.format_count( count );
+						span.appendChild( newNode );
+					}
+				);
 			},
 			format_count: function ( count ) {
 				if ( count < 1000 ) {
@@ -457,11 +413,12 @@
 		// Touchscreen device: use click.
 		// Non-touchscreen device: use click if not already appearing due to a hover event
 
-		forEachNode( document.querySelectorAll( '.sharedaddy a.sharing-anchor' ), function (
-			buttonEl
-		) {
-			MoreButton.instantiateOrReuse( buttonEl );
-		} );
+		forEachNode(
+			document.querySelectorAll( '.sharedaddy a.sharing-anchor' ),
+			function ( buttonEl ) {
+				MoreButton.instantiateOrReuse( buttonEl );
+			}
+		);
 
 		if ( document.ontouchstart !== undefined ) {
 			document.body.classList.add( 'jp-sharing-input-touch' );

@@ -30,8 +30,7 @@ class Sharing_Service {
 	 * Gets a generic list of all services, without any config
 	 */
 	public function get_all_services_blog() {
-		$options = get_option( 'sharing-options' );
-
+		$options  = get_option( 'sharing-options' );
 		$all      = $this->get_all_services();
 		$services = array();
 
@@ -785,6 +784,11 @@ function sharing_display( $text = '', $echo = false ) {
 		$show = false;
 	}
 
+	// Hide on password protected posts unless password is provided.
+	if ( post_password_required( $post->ID ) ) {
+			$show = false;
+	}
+
 	/**
 	 * Filter the Sharing buttons' Ajax action name Jetpack checks for.
 	 * This allows the use of the buttons with your own Ajax implementation.
@@ -933,7 +937,7 @@ function sharing_display( $text = '', $echo = false ) {
 			if ( defined( 'JETPACK__VERSION' ) ) {
 				$ver = JETPACK__VERSION;
 			} else {
-				$ver = '20201124';
+				$ver = '20211226';
 			}
 
 			// @todo: Investigate if we can load this JS in the footer instead.

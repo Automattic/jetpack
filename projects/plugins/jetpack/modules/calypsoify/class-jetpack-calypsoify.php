@@ -77,6 +77,7 @@ class Jetpack_Calypsoify {
 	 * Enqueues scripts, data, and styles for Gutenberg.
 	 */
 	public function enqueue_for_gutenberg() {
+		$site_suffix = ( new Status() )->get_site_suffix();
 		wp_enqueue_style( 'calypsoify_wpadminmods_css', plugin_dir_url( __FILE__ ) . 'style-gutenberg.min.css', false, JETPACK__VERSION );
 		wp_style_add_data( 'calypsoify_wpadminmods_css', 'rtl', 'replace' );
 		wp_style_add_data( 'calypsoify_wpadminmods_css', 'suffix', '.min' );
@@ -87,7 +88,8 @@ class Jetpack_Calypsoify {
 			'calypsoifyGutenberg',
 			array(
 				'closeUrl'                => $this->get_close_gutenberg_url(),
-				'manageReusableBlocksUrl' => $this->get_calypso_origin() . '/types/wp_block/' . ( new Status() )->get_site_suffix(),
+				'manageReusableBlocksUrl' => $this->get_calypso_origin() . '/types/wp_block/' . $site_suffix,
+				'createNewPostUrl'        => $this->get_calypso_origin() . '/post/' . $site_suffix,
 			)
 		);
 	}

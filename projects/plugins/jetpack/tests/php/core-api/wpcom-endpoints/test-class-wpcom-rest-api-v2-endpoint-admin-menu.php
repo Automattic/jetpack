@@ -31,8 +31,8 @@ class WP_Test_WPCOM_REST_API_V2_Endpoint_Admin_Menu extends WP_Test_Jetpack_REST
 	/**
 	 * Setup the environment for a test.
 	 */
-	public function setUp() {
-		parent::setUp();
+	public function set_up() {
+		parent::set_up();
 
 		wp_set_current_user( static::$user_id );
 		add_action( 'admin_menu', array( $this, 'add_orphan_submenu' ) );
@@ -70,28 +70,52 @@ class WP_Test_WPCOM_REST_API_V2_Endpoint_Admin_Menu extends WP_Test_Jetpack_REST
 	}
 
 	/**
+	 * Basically just a data provider to other tests that rely on a successful response.
+	 *
+	 * Since the API endpoint relies on file inclusion to create its response,
+	 * it can't be run multiple times within the same "request". This test
+	 * makes that request once and then passes it on so other tests can depend
+	 * on it.
+	 *
+	 * @return WP_REST_Response
+	 */
+	public function test_successful_request() {
+		$request  = wp_rest_request( Requests::GET, '/wpcom/v2/admin-menu' );
+		$response = $this->server->dispatch( $request );
+
+		$this->assertSame( 200, $response->get_status() );
+
+		return $response;
+	}
+
+	/**
 	 * Tests get item.
 	 *
 	 * @covers ::get_item_permissions_check
 	 * @covers ::get_item
 	 * @covers ::prepare_menu_for_response
+	 * @depends test_successful_request
+	 *
+	 * @param WP_REST_Response $response Admin Menu API response.
 	 */
-	public function test_get_item() {
-		$request  = wp_rest_request( Requests::GET, '/wpcom/v2/admin-menu' );
-		$response = $this->server->dispatch( $request );
-
-		$this->assertTrue( rest_validate_value_from_schema( $response->get_data(), ( new WPCOM_REST_API_V2_Endpoint_Admin_Menu() )->get_public_item_schema() ) );
+	public function test_get_item( WP_REST_Response $response ) {
+		$this->assertTrue(
+			rest_validate_value_from_schema(
+				$response->get_data(),
+				( new WPCOM_REST_API_V2_Endpoint_Admin_Menu() )->get_public_item_schema()
+			)
+		);
 	}
 
 	/**
 	 * Tests that submenu items get promoted when the user doesn't have the caps for the top-level menu item.
 	 *
 	 * @covers ::prepare_menu_for_response
+	 * @depends test_successful_request
+	 *
+	 * @param WP_REST_Response $response Admin Menu API response.
 	 */
-	public function test_parent_menu_item_always_exists() {
-		$request  = wp_rest_request( Requests::GET, '/wpcom/v2/admin-menu' );
-		$response = $this->server->dispatch( $request );
-
+	public function test_parent_menu_item_always_exists( WP_REST_Response $response ) {
 		$menu      = wp_list_filter( $response->get_data(), array( 'title' => 'Settings' ) );
 		$menu_item = array_pop( $menu );
 
@@ -210,6 +234,8 @@ class WP_Test_WPCOM_REST_API_V2_Endpoint_Admin_Menu extends WP_Test_Jetpack_REST
 	 * @return \string[][][]
 	 */
 	public function submenu_item_data() {
+		$plugin_slug = defined( 'IS_WPCOM' ) && IS_WPCOM ? 'akismet/akismet.png' : 'jetpack/jetpack.php';
+
 		return array(
 			// User doesn't have necessary permissions.
 			array(
@@ -227,7 +253,7 @@ class WP_Test_WPCOM_REST_API_V2_Endpoint_Admin_Menu extends WP_Test_Jetpack_REST
 					'slug'   => 'upload-php',
 					'title'  => 'Library\'s',
 					'type'   => 'submenu-item',
-					'url'    => 'http://example.org/wp-admin/upload.php',
+					'url'    => admin_url( 'upload.php' ),
 				),
 			),
 			// Submenu item with update count.
@@ -249,6 +275,68 @@ class WP_Test_WPCOM_REST_API_V2_Endpoint_Admin_Menu extends WP_Test_Jetpack_REST
 				array( 'My Plugin', 'read', 'my-plugin', 'My Plugin', '', '', '' ),
 				array(),
 			),
+			array(
+				array(
+					0 => 'MYML',
+					1 => 'read',
+					2 => $plugin_slug,
+					3 => 'MYML',
+					4 => 'menu-top toplevel_page_my-multilingual-cms/menu/languages',
+					5 => 'toplevel_page_my-multilingual-cms/menu/languages',
+					6 => 'https://example.org/wp-content/plugins/my-multilingual-cms/icon16.png',
+				),
+				array(
+					0 => 'Troubleshooting',
+					1 => 'read',
+					2 => $plugin_slug,
+					3 => 'Troubleshooting',
+				),
+				array(
+					'parent' => sanitize_title_with_dashes( $plugin_slug ),
+					'slug'   => sanitize_title_with_dashes( $plugin_slug ),
+					'title'  => 'MYML',
+					'type'   => 'submenu-item',
+					'url'    => admin_url( 'admin.php?page=' . $plugin_slug ),
+				),
+			),
+		);
+	}
+
+	/**
+	 * Check if the menu URL is properly generated from the first submenu slug.
+	 */
+	public function test_if_the_first_submenu_url_is_used_for_menu_url() {
+		global $menu;
+
+		add_menu_page( '', 'Foo', 'read', 'foo' );
+		$fnc = function () { }; /// needed for the slug to register as a page.
+		add_submenu_page( 'foo', 'title', 'title', 'read', 'sharing', $fnc, 0 );
+
+		$foo_item = array();
+
+		foreach ( $menu as $menu_item ) {
+			if ( 'foo' === $menu_item[2] ) {
+				$foo_item = $menu_item;
+				break;
+			}
+		}
+
+		$class = new ReflectionClass( 'WPCOM_REST_API_V2_Endpoint_Admin_Menu' );
+
+		$prepare_menu_item = $class->getMethod( 'prepare_menu_item' );
+		$prepare_menu_item->setAccessible( true );
+
+		$expected = array(
+			'icon'  => 'dashicons-admin-generic',
+			'slug'  => 'foo',
+			'title' => 'Foo',
+			'type'  => 'menu-item',
+			'url'   => admin_url( 'admin.php?page=sharing' ),
+		);
+
+		$this->assertSame(
+			$expected,
+			$prepare_menu_item->invokeArgs( new WPCOM_REST_API_V2_Endpoint_Admin_Menu(), array( $foo_item ) )
 		);
 	}
 
@@ -261,6 +349,7 @@ class WP_Test_WPCOM_REST_API_V2_Endpoint_Admin_Menu extends WP_Test_Jetpack_REST
 	 * @throws \ReflectionException Noop.
 	 * @dataProvider menu_item_icon_data
 	 * @covers ::prepare_menu_item_icon
+	 * @covers ::prepare_dashicon
 	 */
 	public function test_prepare_menu_item_icon( $icon, $expected ) {
 		$class = new ReflectionClass( 'WPCOM_REST_API_V2_Endpoint_Admin_Menu' );
@@ -305,6 +394,10 @@ class WP_Test_WPCOM_REST_API_V2_Endpoint_Admin_Menu extends WP_Test_Jetpack_REST
 			array(
 				'dashicons-admin-media',
 				'dashicons-admin-media',
+			),
+			'When the dashicon does not exist in the core dashicon list, we expect the default dashicon.' => array(
+				'dashicons-admin-nope',
+				'dashicons-admin-generic',
 			),
 			// SVG.
 			array(
@@ -356,6 +449,8 @@ class WP_Test_WPCOM_REST_API_V2_Endpoint_Admin_Menu extends WP_Test_Jetpack_REST
 	 * @return \string[][]
 	 */
 	public function menu_item_url_data() {
+		$plugin_slug = defined( 'IS_WPCOM' ) && IS_WPCOM ? 'akismet/akismet.png' : 'jetpack/jetpack.php';
+
 		return array(
 			// Calypso URL.
 			array(
@@ -397,7 +492,7 @@ class WP_Test_WPCOM_REST_API_V2_Endpoint_Admin_Menu extends WP_Test_Jetpack_REST
 				'https://jetpack.com/redirect/?source=calypso-backups&#038;site=example.org',
 				'jetpack',
 				null,
-				'https://jetpack.com/redirect/?source=calypso-backups&#038;site=example.org',
+				'https://jetpack.com/redirect/?source=calypso-backups&site=example.org',
 			),
 			// WooCommerce URLs.
 			array(
@@ -410,13 +505,13 @@ class WP_Test_WPCOM_REST_API_V2_Endpoint_Admin_Menu extends WP_Test_Jetpack_REST
 				'wc-admin&amp;path=/analytics/products',
 				'wc-admin&amp;path=/analytics/overview',
 				'__return_true',
-				admin_url( 'admin.php?page=wc-admin&amp;path=/analytics/products' ),
+				admin_url( 'admin.php?page=wc-admin&path=/analytics/products' ),
 			),
 			array(
 				'wc-admin&amp;path=customers',
 				'woocommerce',
 				'__return_true',
-				admin_url( 'admin.php?page=wc-admin&amp;path=customers' ),
+				admin_url( 'admin.php?page=wc-admin&path=customers' ),
 			),
 			// Disallowed URLs.
 			array(
@@ -436,6 +531,12 @@ class WP_Test_WPCOM_REST_API_V2_Endpoint_Admin_Menu extends WP_Test_Jetpack_REST
 				'',
 				null,
 				'',
+			),
+			array(
+				$plugin_slug,
+				'',
+				null,
+				admin_url( 'admin.php?page=' . $plugin_slug ),
 			),
 		);
 	}
@@ -530,9 +631,16 @@ class WP_Test_WPCOM_REST_API_V2_Endpoint_Admin_Menu extends WP_Test_Jetpack_REST
 				),
 			),
 			array(
-				'<span class="unexpected-classname">badge name</span> Unexpected <font style="vertical-align: inherit;"><font style="vertical-align: inherit;">markup</font></font><span class="awaiting-mod"><font style="vertical-align: inherit;"><font style="vertical-align: inherit;"></font></font></span> <span class="unexpected-classname">badge name</span>',
+				'<span class="unexpected-classname">badge name</span> Unexpected <font style="vertical-align: inherit;"><font style="vertical-align: inherit;">markup</font></font><font style="vertical-align: inherit;"><font style="vertical-align: inherit;"></font></font> <span class="unexpected-classname">badge name</span>',
 				array(
 					'title' => 'Badge name Unexpected markup badge name',
+				),
+			),
+			array(
+				'Comments <span class="awaiting-mod">new feature</span>more title',
+				array(
+					'badge' => 'new feature',
+					'title' => 'Comments more title',
 				),
 			),
 		);

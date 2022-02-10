@@ -14,7 +14,6 @@
  */
 
 use Automattic\Jetpack\Constants;
-use Automattic\Jetpack\Connection\Utils as Connection_Utils;
 
 include_once JETPACK__PLUGIN_DIR . 'modules/protect/shared-functions.php';
 
@@ -380,9 +379,10 @@ class Jetpack_Protect_Module {
 	/**
 	 * Get all IP headers so that we can process on our server...
 	 *
-	 * @return string
+	 * @return array
 	 */
 	function get_headers() {
+		$output             = array();
 		$ip_related_headers = array (
 			'GD_PHP_HANDLER',
 			'HTTP_AKAMAI_ORIGIN_HOP',
@@ -857,19 +857,6 @@ class Jetpack_Protect_Module {
 		return get_transient( $transient );
 	}
 
-	/**
-	 * Get the API host.
-	 *
-	 * @return string
-	 *
-	 * @deprecated 9.1.0 Use constant `JETPACK_PROTECT__API_HOST` instead.
-	 */
-	function get_api_host() {
-		_deprecated_function( __METHOD__, 'jetpack-9.1.0' );
-
-		return JETPACK_PROTECT__API_HOST;
-	}
-
 	function get_local_host() {
 		if ( isset( $this->local_host ) ) {
 			return $this->local_host;
@@ -902,6 +889,6 @@ class Jetpack_Protect_Module {
 $jetpack_protect = Jetpack_Protect_Module::instance();
 
 global $pagenow;
-if ( isset( $pagenow ) && 'wp-login.php' == $pagenow ) {
+if ( isset( $pagenow ) && 'wp-login.php' === $pagenow ) {
 	$jetpack_protect->check_login_ability();
 }

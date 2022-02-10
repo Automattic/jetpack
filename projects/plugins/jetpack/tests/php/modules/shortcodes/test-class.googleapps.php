@@ -32,7 +32,6 @@ class WP_Test_Jetpack_Shortcodes_GoogleApps extends WP_UnitTestCase {
 		$this->assertEquals( $expected_shortcode, $shortcode );
 	}
 
-
 	function test_document_variation_1() {
 		$embed     = '<iframe src="https://docs.google.com/document/pub?id=1kDatklacdZ_tZUOpWtt_ONzY97Ldj2zFcuO9LBY2Ln4&amp;embedded=true"></iframe>';
 		$shortcode = googleapps_embed_to_shortcode( $embed );
@@ -50,7 +49,7 @@ class WP_Test_Jetpack_Shortcodes_GoogleApps extends WP_UnitTestCase {
 		add_shortcode( 'googleapps', 'googleapps_shortcode' );
 		$to_embed = do_shortcode( $shortcode );
 
-		$this->assertContains( $expected_output, $to_embed );
+		$this->assertStringContainsString( $expected_output, $to_embed );
 	}
 
 	function test_document_variation_2() {
@@ -88,7 +87,7 @@ class WP_Test_Jetpack_Shortcodes_GoogleApps extends WP_UnitTestCase {
 		add_shortcode( 'googleapps', 'googleapps_shortcode' );
 		$to_embed = do_shortcode( $shortcode );
 
-		$this->assertContains( $expected_output, $to_embed );
+		$this->assertStringContainsString( $expected_output, $to_embed );
 	}
 
 	function test_external_document() {
@@ -216,7 +215,7 @@ class WP_Test_Jetpack_Shortcodes_GoogleApps extends WP_UnitTestCase {
 		add_shortcode( 'googleapps', 'googleapps_shortcode' );
 		$to_embed = do_shortcode( $shortcode );
 
-		$this->assertContains( $expected_output, $to_embed );
+		$this->assertStringContainsString( $expected_output, $to_embed );
 	}
 
 }

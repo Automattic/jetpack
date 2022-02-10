@@ -7,14 +7,13 @@
 
 namespace Automattic\Jetpack\Analyzer\Differences;
 
-use Automattic\Jetpack\Analyzer\PersistentList\Item as PersistentListItem;
 use Automattic\Jetpack\Analyzer\Warnings\Warning;
 // TODO - subclasses?
 
 /**
  * Class Class_Moved.
  */
-class Class_Moved extends PersistentListItem implements Invocation_Warner {
+class Class_Moved extends Differences_List_Item implements Invocation_Warner {
 	/**
 	 * Old declaration.
 	 *
@@ -40,18 +39,15 @@ class Class_Moved extends PersistentListItem implements Invocation_Warner {
 	}
 
 	/**
-	 * Return array of declaration items.
+	 * Returns serializable object.
 	 *
 	 * @return array
 	 */
-	public function to_csv_array() {
+	protected function get_serializable() {
 		return array(
-			$this->type(),
-			$this->old_declaration->path,
-			$this->old_declaration->line,
-			$this->old_declaration->display_name(),
-		);
-	}
+			'old_declaration' => $this->old_declaration,
+			'new_declaration' => $this->new_declaration,
+		);  }
 
 	/**
 	 * Returns type of issue.

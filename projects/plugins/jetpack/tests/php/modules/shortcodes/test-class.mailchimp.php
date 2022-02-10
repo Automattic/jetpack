@@ -34,12 +34,12 @@ class WP_Test_Jetpack_Shortcodes_MailChimp extends WP_UnitTestCase {
 	 * @since 4.5.0
 	 */
 	public function test_shortcodes_mailchimp_form() {
-		$uuid = '1ca7856462585a934b8674c71';
-		$lid = '2d24f1898b';
+		$uuid    = '1ca7856462585a934b8674c71';
+		$lid     = '2d24f1898b';
 		$content = "[mailchimp_subscriber_popup baseUrl=mc.us11.list-manage.com uuid=$uuid lid=$lid]";
 
 		$shortcode_content = do_shortcode( $content );
 
-		$this->assertContains( '<script type="text/javascript" data-dojo-config="usePlainJson: true, isDebug: false">jQuery.getScript( "//downloads.mailchimp.com/js/signup-forms/popup/unique-methods/embed.js", function( data, textStatus, jqxhr ) { window.dojoRequire(["mojo/signup-forms/Loader"], function(L) { L.start({"baseUrl":"mc.us11.list-manage.com","uuid":"' . $uuid . '","lid":"' . $lid . '","uniqueMethods":true}) });} );</script>', $shortcode_content );
+		$this->assertStringContainsString( '<script type="text/javascript" data-dojo-config="usePlainJson: true, isDebug: false">jQuery.getScript( "//downloads.mailchimp.com/js/signup-forms/popup/unique-methods/embed.js", function( data, textStatus, jqxhr ) { window.dojoRequire(["mojo/signup-forms/Loader"], function(L) { L.start({"baseUrl":"mc.us11.list-manage.com","uuid":"' . $uuid . '","lid":"' . $lid . '","uniqueMethods":true}) });} );</script>', $shortcode_content );
 	}
 }

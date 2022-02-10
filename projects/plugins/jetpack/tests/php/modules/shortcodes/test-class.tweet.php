@@ -5,8 +5,11 @@ require_once __DIR__ . '/trait.http-request-cache.php';
 class WP_Test_Jetpack_Shortcodes_Tweet extends WP_UnitTestCase {
 	use Automattic\Jetpack\Tests\HttpRequestCacheTrait;
 
-	public function setUp() {
-		parent::setUp();
+	/**
+	 * Set up.
+	 */
+	public function set_up() {
+		parent::set_up();
 
 		if ( in_array( 'external-http', $this->getGroups(), true ) ) {
 			// Used by WordPress.com - does nothing in Jetpack.
@@ -99,7 +102,7 @@ BODY;
 
 		$shortcode_content = do_shortcode( $content );
 
-		$this->assertContains( '<blockquote class="twitter-tweet"', $shortcode_content );
+		$this->assertStringContainsString( '<blockquote class="twitter-tweet"', $shortcode_content );
 		// Not testing here for actual URL because wp_oembed_get might return a shortened Twitter URL with t.co domain
 	}
 
@@ -113,8 +116,8 @@ BODY;
 
 		$shortcode_content = do_shortcode( $content );
 
-		$this->assertContains( 'align="right"', $shortcode_content );
-		$this->assertContains( 'data-lang="es"', $shortcode_content );
+		$this->assertStringContainsString( 'align="right"', $shortcode_content );
+		$this->assertStringContainsString( 'data-lang="es"', $shortcode_content );
 	}
 
 	/**
@@ -127,7 +130,7 @@ BODY;
 
 		$shortcode_content = do_shortcode( $content );
 
-		$this->assertContains( '<blockquote class="twitter-tweet"', $shortcode_content );
+		$this->assertStringContainsString( '<blockquote class="twitter-tweet"', $shortcode_content );
 		// Not testing here for actual URL because wp_oembed_get might return a shortened Twitter URL with t.co domain
 	}
 
@@ -141,7 +144,7 @@ BODY;
 
 		$shortcode_content = do_shortcode( $content );
 
-		$this->assertContains( 'data-partner="jetpack"', $shortcode_content );
+		$this->assertStringContainsString( 'data-partner="jetpack"', $shortcode_content );
 	}
 
 	/**
@@ -155,7 +158,7 @@ BODY;
 
 		$shortcode_content = do_shortcode( $content );
 
-		$this->assertContains( '<blockquote class="twitter-tweet"', $shortcode_content );
+		$this->assertStringContainsString( '<blockquote class="twitter-tweet"', $shortcode_content );
 		// Not testing here for actual URL because wp_oembed_get might return a shortened Twitter URL with t.co domain
 	}
 
@@ -226,6 +229,6 @@ BODY;
 	 */
 	public function test_shortcodes_tweet_non_amp( $shortcode_content ) {
 		add_filter( 'jetpack_is_amp_request', '__return_false' );
-		$this->assertNotContains( 'amp-twitter', do_shortcode( $shortcode_content ) );
+		$this->assertStringNotContainsString( 'amp-twitter', do_shortcode( $shortcode_content ) );
 	}
 }

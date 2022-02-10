@@ -16,19 +16,20 @@ import {
 	withNotices,
 	SelectControl,
 } from '@wordpress/components';
-import { InspectorControls, InnerBlocks, BlockIcon, BlockControls } from '@wordpress/block-editor';
+import { InspectorControls, InnerBlocks, BlockControls } from '@wordpress/block-editor';
 import { Component } from '@wordpress/element';
 import { applyFilters } from '@wordpress/hooks';
+import { getJetpackExtensionAvailability } from '@automattic/jetpack-shared-extension-utils';
 
 /**
  * Internal dependencies
  */
-import getJetpackExtensionAvailability from '../../shared/get-jetpack-extension-availability';
 import {
 	CURRENCY_OPTIONS,
 	isPriceValid,
 	minimumTransactionAmountForCurrency,
 } from '../../shared/currencies';
+import getConnectUrl from '../../shared/get-connect-url';
 import { icon, removeInvalidProducts } from '.';
 import { PanelControls, ToolbarControls } from './controls';
 import { formatPriceForNumberInputValue, formatProductAmount } from './util';
@@ -377,7 +378,7 @@ export class MembershipsButtonEdit extends Component {
 				{ ! this.hasUpgradeNudge && this.state.shouldUpgrade && (
 					<div className="wp-block-jetpack-recurring-payments">
 						<Placeholder
-							icon={ <BlockIcon icon={ icon } /> }
+							icon={ icon }
 							label={ __( 'Payments', 'jetpack' ) }
 							notices={ notices }
 							instructions={ __(
@@ -405,7 +406,7 @@ export class MembershipsButtonEdit extends Component {
 				{ ( connected === API_STATE_LOADING ||
 					this.state.addingMembershipAmount === PRODUCT_FORM_SUBMITTED ) &&
 					! this.props.attributes.planId && (
-						<Placeholder icon={ <BlockIcon icon={ icon } /> } notices={ notices }>
+						<Placeholder icon={ icon } notices={ notices }>
 							<Spinner />
 						</Placeholder>
 					) }
@@ -414,11 +415,7 @@ export class MembershipsButtonEdit extends Component {
 					connected === API_STATE_CONNECTED &&
 					products.length === 0 && (
 						<div className="wp-block-jetpack-recurring-payments">
-							<Placeholder
-								icon={ <BlockIcon icon={ icon } /> }
-								label={ __( 'Payments', 'jetpack' ) }
-								notices={ notices }
-							>
+							<Placeholder icon={ icon } label={ __( 'Payments', 'jetpack' ) } notices={ notices }>
 								<div className="components-placeholder__instructions">
 									<p>
 										{ __( 'To use this block, first add at least one payment plan.', 'jetpack' ) }
@@ -435,11 +432,7 @@ export class MembershipsButtonEdit extends Component {
 					connected === API_STATE_CONNECTED &&
 					products.length > 0 && (
 						<div className="wp-block-jetpack-recurring-payments">
-							<Placeholder
-								icon={ <BlockIcon icon={ icon } /> }
-								label={ __( 'Payments', 'jetpack' ) }
-								notices={ notices }
-							>
+							<Placeholder icon={ icon } label={ __( 'Payments', 'jetpack' ) } notices={ notices }>
 								<div className="components-placeholder__instructions">
 									<p>
 										{ __(
@@ -487,9 +480,8 @@ export class MembershipsButtonEdit extends Component {
 		const blockControls = (
 			<BlockControls>
 				<ToolbarControls
-					autosaveAndRedirect={ this.props.autosaveAndRedirect }
 					connected={ connected !== API_STATE_NOTCONNECTED }
-					connectURL={ connectURL }
+					connectURL={ getConnectUrl( this.props.postId, connectURL ) }
 					hasUpgradeNudge={ this.hasUpgradeNudge }
 					shouldUpgrade={ this.state.shouldUpgrade }
 				/>

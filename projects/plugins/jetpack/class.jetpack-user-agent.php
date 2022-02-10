@@ -6,6 +6,9 @@
  *
  * @deprecated 8.7.0 Use Automattic\Jetpack\Device_Detection\User_Agent_Info
  *
+ * Note: we cannot get rid of the class and its methods yet as multiple plugins
+ * still use it. See https://github.com/Automattic/jetpack/pull/16434/files#r667190852
+ *
  * @phpcs:disable WordPress.NamingConventions.ValidVariableName.UsedPropertyNotSnakeCase
  * @phpcs:disable WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase
  * @phpcs:disable WordPress.NamingConventions.ValidVariableName.PropertyNotSnakeCase

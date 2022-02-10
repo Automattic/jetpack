@@ -18,12 +18,12 @@ class Status {
 	/**
 	 * Is Jetpack in development (offline) mode?
 	 *
-	 * @deprecated 8.8.0 Use Status->is_offline_mode().
+	 * @deprecated 1.3.0 Use Status->is_offline_mode().
 	 *
 	 * @return bool Whether Jetpack's offline mode is active.
 	 */
 	public function is_development_mode() {
-		_deprecated_function( __FUNCTION__, 'Jetpack 8.8.0', 'Automattic\Jetpack\Status->is_offline_mode' );
+		_deprecated_function( __FUNCTION__, '1.3.0', 'Automattic\Jetpack\Status->is_offline_mode' );
 		return $this->is_offline_mode();
 	}
 
@@ -32,7 +32,7 @@ class Status {
 	 *
 	 * This was formerly called "Development Mode", but sites "in development" aren't always offline/localhost.
 	 *
-	 * @since 8.8.0
+	 * @since 1.3.0
 	 *
 	 * @return bool Whether Jetpack's offline mode is active.
 	 */
@@ -53,12 +53,13 @@ class Status {
 		 * @see https://jetpack.com/support/development-mode/
 		 * @todo Update documentation ^^.
 		 *
-		 * @since 2.2.1
-		 * @deprecated 8.8.0
+		 * @since 1.1.1
+		 * @since-jetpack 2.2.1
+		 * @deprecated 1.3.0
 		 *
 		 * @param bool $offline_mode Is Jetpack's offline mode active.
 		 */
-		$offline_mode = (bool) apply_filters_deprecated( 'jetpack_development_mode', array( $offline_mode ), '8.8.0', 'jetpack_offline_mode' );
+		$offline_mode = (bool) apply_filters_deprecated( 'jetpack_development_mode', array( $offline_mode ), '1.3.0', 'jetpack_offline_mode' );
 
 		/**
 		 * Filters Jetpack's offline mode.
@@ -66,7 +67,7 @@ class Status {
 		 * @see https://jetpack.com/support/development-mode/
 		 * @todo Update documentation ^^.
 		 *
-		 * @since 8.8.0
+		 * @since 1.3.0
 		 *
 		 * @param bool $offline_mode Is Jetpack's offline mode active.
 		 */
@@ -80,27 +81,14 @@ class Status {
 	 *
 	 * This will make Jetpack act as if there were no connected users, but only a site connection (aka blog token)
 	 *
-	 * @since 9.2.0
+	 * @since 1.6.0
+	 * @deprecated 1.7.5 Since this version, Jetpack connection is considered active after registration, making no_user_testing_mode obsolete.
 	 *
 	 * @return bool Whether Jetpack's No User Testing Mode is active.
 	 */
 	public function is_no_user_testing_mode() {
-		$test_mode = false;
-		if ( defined( 'JETPACK_NO_USER_TEST_MODE' ) ) {
-			$test_mode = JETPACK_NO_USER_TEST_MODE;
-		}
-
-		/**
-		 * Filters Jetpack's No User testing mode.
-		 *
-		 * @since 9.2.0
-		 *
-		 * @param bool $test_mode Is Jetpack's No User testing mode active.
-		 */
-		$test_mode = (bool) apply_filters( 'jetpack_no_user_testing_mode', $test_mode );
-
-		return $test_mode;
-
+		_deprecated_function( __METHOD__, '1.7.5' );
+		return true;
 	}
 
 	/**
@@ -145,7 +133,7 @@ class Status {
 	/**
 	 * If the site is a local site.
 	 *
-	 * @since 8.8.0
+	 * @since 1.3.0
 	 *
 	 * @return bool
 	 */
@@ -153,8 +141,9 @@ class Status {
 		// Check for localhost and sites using an IP only first.
 		$is_local = site_url() && false === strpos( site_url(), '.' );
 
+		// @todo Remove function_exists when the package has a documented minimum WP version.
 		// Use Core's environment check, if available. Added in 5.5.0 / 5.5.1 (for `local` return value).
-		if ( 'local' === wp_get_environment_type() ) {
+		if ( function_exists( 'wp_get_environment_type' ) && 'local' === wp_get_environment_type() ) {
 			$is_local = true;
 		}
 
@@ -181,7 +170,7 @@ class Status {
 		/**
 		 * Filters is_local_site check.
 		 *
-		 * @since 8.8.0
+		 * @since 1.3.0
 		 *
 		 * @param bool $is_local If the current site is a local site.
 		 */
@@ -196,8 +185,9 @@ class Status {
 	 * @return bool
 	 */
 	public function is_staging_site() {
+		// @todo Remove function_exists when the package has a documented minimum WP version.
 		// Core's wp_get_environment_type allows for a few specific options. We should default to bowing out gracefully for anything other than production or local.
-		$is_staging = ! in_array( \wp_get_environment_type(), array( 'production', 'local' ), true );
+		$is_staging = function_exists( 'wp_get_environment_type' ) && ! in_array( wp_get_environment_type(), array( 'production', 'local' ), true );
 
 		$known_staging = array(
 			'urls'      => array(
@@ -225,7 +215,8 @@ class Status {
 		/**
 		 * Filters the flags of known staging sites.
 		 *
-		 * @since 3.9.0
+		 * @since 1.1.1
+		 * @since-jetpack 3.9.0
 		 *
 		 * @param array $known_staging {
 		 *     An array of arrays that each are used to check if the current site is staging.
@@ -253,14 +244,15 @@ class Status {
 		}
 
 		// Last, let's check if sync is erroring due to an IDC. If so, set the site to staging mode.
-		if ( ! $is_staging && method_exists( 'Jetpack', 'validate_sync_error_idc_option' ) && \Jetpack::validate_sync_error_idc_option() ) {
+		if ( ! $is_staging && method_exists( 'Automattic\\Jetpack\\Identity_Crisis', 'validate_sync_error_idc_option' ) && \Automattic\Jetpack\Identity_Crisis::validate_sync_error_idc_option() ) {
 			$is_staging = true;
 		}
 
 		/**
 		 * Filters is_staging_site check.
 		 *
-		 * @since 3.9.0
+		 * @since 1.1.1
+		 * @since-jetpack 3.9.0
 		 *
 		 * @param bool $is_staging If the current site is a staging site.
 		 */
@@ -272,7 +264,7 @@ class Status {
 	 *
 	 * Strips http:// or https:// from a url, replaces forward slash with ::.
 	 *
-	 * @since 9.2.0
+	 * @since 1.6.0
 	 *
 	 * @param string $url Optional. URL to build the site suffix from. Default: Home URL.
 	 *

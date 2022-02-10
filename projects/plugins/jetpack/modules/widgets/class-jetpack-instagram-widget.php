@@ -42,7 +42,8 @@ class Jetpack_Instagram_Widget extends WP_Widget {
 			/** This filter is documented in modules/widgets/facebook-likebox.php */
 			apply_filters( 'jetpack_widget_name', esc_html__( 'Instagram', 'jetpack' ) ),
 			array(
-				'description' => __( 'Display your latest Instagram photos.', 'jetpack' ),
+				'description'           => __( 'Display your latest Instagram photos.', 'jetpack' ),
+				'show_instance_in_rest' => true,
 			)
 		);
 
@@ -72,6 +73,19 @@ class Jetpack_Instagram_Widget extends WP_Widget {
 			'columns'  => 2,
 			'count'    => 6,
 		);
+
+		add_filter( 'widget_types_to_hide_from_legacy_widget_block', array( $this, 'hide_widget_in_block_editor' ) );
+	}
+
+	/**
+	 * Remove the "Instagram" widget from the Legacy Widget block
+	 *
+	 * @param array $widget_types List of widgets that are currently removed from the Legacy Widget block.
+	 * @return array $widget_types New list of widgets that will be removed.
+	 */
+	public function hide_widget_in_block_editor( $widget_types ) {
+		$widget_types[] = self::ID_BASE;
+		return $widget_types;
 	}
 
 	/**
@@ -270,7 +284,7 @@ class Jetpack_Instagram_Widget extends WP_Widget {
 
 		if ( ! empty( $instance['title'] ) ) {
 			echo $args['before_title']; //phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
-			echo esc_html( $instance['title'] );
+			echo $instance['title']; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
 			echo $args['after_title']; //phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
 		}
 
@@ -386,8 +400,8 @@ class Jetpack_Instagram_Widget extends WP_Widget {
 			echo '<p>';
 			printf(
 				// translators: %1$1 and %2$s are the opening and closing a tags creating a link to the Jetpack dashboard.
-				esc_html__( 'In order to use this widget you need %1$scomplete your Jetpack connection%2$s by authorizing your user.', 'jetpack' ),
-				'<a href="' . esc_url( Jetpack::admin_url() ) . '">',
+				esc_html__( 'In order to use this widget you need to %1$scomplete your Jetpack connection%2$s by authorizing your user.', 'jetpack' ),
+				'<a href="' . esc_url( Jetpack::admin_url( array( 'page' => 'jetpack#/connect-user' ) ) ) . '">',
 				'</a>'
 			);
 			echo '</p>';
@@ -624,3 +638,4 @@ add_action(
 		}
 	}
 );
+

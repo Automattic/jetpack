@@ -7,7 +7,8 @@ import classNames from 'classnames';
 /**
  * WordPress dependencies
  */
-import { createElement, useLayoutEffect, useEffect, useState, useRef } from '@wordpress/element';
+import { useLayoutEffect, useEffect, useState, useRef } from '@wordpress/element';
+import { useDispatch, useSelect } from '@wordpress/data';
 
 /**
  * Internal dependencies
@@ -15,155 +16,44 @@ import { createElement, useLayoutEffect, useEffect, useState, useRef } from '@wo
 import { Media, CalypsoSpinner } from './components';
 
 export const Slide = ( {
+	playerId,
 	media,
 	index,
-	currentSlideIndex,
 	playing,
 	uploading,
-	ended,
-	muted,
-	setMuted,
-	onEnd,
-	onProgress,
 	settings,
 	targetAspectRatio,
 } ) => {
+	const { currentSlideIndex, buffering } = useSelect(
+		select => ( {
+			currentSlideIndex: select( 'jetpack/story/player' ).getCurrentSlideIndex( playerId ),
+			buffering: select( 'jetpack/story/player' ).isBuffering( playerId ),
+		} ),
+		[]
+	);
+
+	const { slideReady } = useDispatch( 'jetpack/story/player' );
+
 	const visible = index === currentSlideIndex;
-	const currentSlidePlaying = visible && playing;
 	const mediaRef = useRef( null );
 	const [ preload, setPreload ] = useState( false );
 	const [ loading, setLoading ] = useState( true );
 	const isVideo = () =>
 		mediaRef.current && mediaRef.current.src && mediaRef.current.tagName.toLowerCase() === 'video';
 
-	const [ progressState, updateProgressState ] = useState( {
-		currentTime: 0,
-		duration: null,
-		timeout: null,
-	} );
-
-	const playVideoWithFallback = async mediaElement => {
-		try {
-			await mediaElement.play();
-		} catch ( err ) {
-			// try playing again when muted is set
-			setMuted( true );
-		}
-	};
-
-	// Sync muted state with underlying HTMLMediaElement
-	useLayoutEffect( () => {
-		if ( isVideo() ) {
-			mediaRef.current.muted = muted;
-			if ( ! muted ) {
-				mediaRef.current.volume = settings.volume;
-			}
-		}
-	}, [ muted ] );
-
-	// Sync playing state with underlying HTMLMediaElement
-	// AJAX loading will pause the video when the video src attribute is modified
 	useEffect( () => {
-		if ( isVideo() ) {
-			if ( currentSlidePlaying ) {
-				playVideoWithFallback( mediaRef.current );
-			} else {
-				mediaRef.current.pause();
-			}
-		}
-	}, [ currentSlidePlaying, loading, muted ] );
-
-	// Display end of video on last slide when story ends
-	useLayoutEffect( () => {
-		if ( isVideo() && ended && visible ) {
-			mediaRef.current.currentTime = mediaRef.current.duration;
-		}
-	}, [ ended, visible ] );
-
-	// Reset progress state for slides that aren't being displayed
-	useEffect( () => {
-		if ( ! visible ) {
-			updateProgressState( {
-				currentTime: 0,
-				duration: null,
-				timeout: null,
-				lastUpdate: null,
-			} );
-			if ( isVideo() ) {
-				mediaRef.current.pause();
-				mediaRef.current.currentTime = 0;
-			}
-		}
-	}, [ visible ] );
-
-	// Reset progress on replay for stories with one slide
-	useEffect( () => {
-		if ( currentSlidePlaying && ended ) {
-			updateProgressState( {
-				currentTime: 0,
-				duration: null,
-				timeout: null,
-				lastUpdate: null,
-			} );
-			if ( isVideo() ) {
-				mediaRef.current.currentTime = 0;
-			}
-		}
-	}, [ currentSlidePlaying, ended ] );
-
-	// Sync progressState with underlying media playback progress
-	useLayoutEffect( () => {
-		clearTimeout( progressState.timeout );
-		if ( loading ) {
-			return;
-		}
-		if ( playing && visible ) {
+		if ( visible && ! loading ) {
 			const video = isVideo() ? mediaRef.current : null;
-			const duration = video ? video.duration : settings.imageTime;
-			if ( progressState.currentTime >= duration ) {
-				return;
-			}
-			progressState.timeout = setTimeout( () => {
-				const delta = progressState.lastUpdate
-					? Date.now() - progressState.lastUpdate
-					: settings.renderInterval;
-				const currentTime = video ? video.currentTime : progressState.currentTime + delta;
-				updateProgressState( {
-					...progressState,
-					lastUpdate: Date.now(),
-					duration,
-					currentTime,
-				} );
-			}, settings.renderInterval );
+			slideReady( playerId, mediaRef.current, video ? video.duration : settings.imageTime );
 		}
-		const paused = visible && ! playing;
-		if ( paused && progressState.lastUpdate ) {
-			updateProgressState( {
-				...progressState,
-				lastUpdate: null,
-			} );
-		}
-	}, [ loading, playing, visible, progressState ] );
-
-	// Watch progressState and trigger events using onProgress and onEnd callbacks
-	useEffect( () => {
-		if ( ! currentSlidePlaying || ended || progressState.duration === null ) {
-			return;
-		}
-		const percentage =
-			Math.round( ( 1000 * progressState.currentTime ) / progressState.duration ) / 10;
-		if ( percentage >= 100 ) {
-			onProgress( 100 );
-			onEnd();
-		} else {
-			onProgress( percentage );
-		}
-	}, [ currentSlidePlaying, visible, progressState ] );
+		// eslint-disable-next-line react-hooks/exhaustive-deps
+	}, [ visible, loading ] );
 
 	useEffect( () => {
 		if ( index <= currentSlideIndex + ( playing ? 1 : 0 ) ) {
 			setPreload( true );
 		}
+		// eslint-disable-next-line react-hooks/exhaustive-deps
 	}, [ playing, currentSlideIndex ] );
 
 	// Sync media loading
@@ -171,21 +61,29 @@ export const Slide = ( {
 		if ( ! mediaRef.current ) {
 			return;
 		}
-		waitMediaReady( mediaRef.current, true ).then( () => {
+		waitMediaReady( mediaRef.current ).then( () => {
 			setLoading( false );
 		} );
 	}, [ preload, uploading ] );
 
+	/* eslint-disable jsx-a11y/no-noninteractive-tabindex */
 	return (
 		<>
-			{ visible && ( loading || uploading ) && (
-				<div className={ classNames( 'wp-story-slide', 'is-loading', { transparent: uploading } ) }>
+			{ visible && ( loading || uploading || buffering ) && (
+				<div
+					className={ classNames( 'wp-story-slide', 'is-loading', {
+						transparent: playing && buffering,
+						'semi-transparent': uploading || ( ! playing && buffering ),
+					} ) }
+				>
 					<CalypsoSpinner />
 				</div>
 			) }
 			<div
+				role="figure"
 				className="wp-story-slide"
 				style={ { display: visible && ! loading ? 'block' : 'none' } }
+				tabIndex={ visible ? 0 : -1 }
 			>
 				{ preload && (
 					<Media
@@ -199,6 +97,7 @@ export const Slide = ( {
 			</div>
 		</>
 	);
+	/* eslint-enable jsx-a11y/no-noninteractive-tabindex */
 };
 
 export default Slide;

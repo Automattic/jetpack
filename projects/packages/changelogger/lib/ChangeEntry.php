@@ -1,11 +1,9 @@
-<?php // phpcs:ignore WordPress.Files.FileName.NotHyphenatedLowercase
+<?php
 /**
  * Class representing a change entry.
  *
  * @package automattic/jetpack-changelogger
  */
-
-// phpcs:disable WordPress.NamingConventions.ValidFunctionName.MethodNameInvalid
 
 namespace Automattic\Jetpack\Changelog;
 
@@ -305,6 +303,7 @@ class ChangeEntry implements JsonSerializable {
 	 *
 	 * @return array
 	 */
+	#[\ReturnTypeWillChange]
 	public function jsonSerialize() {
 		return array(
 			'__class__'    => static::class,

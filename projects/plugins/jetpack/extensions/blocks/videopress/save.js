@@ -2,7 +2,7 @@
  * External dependencies
  */
 import { createHigherOrderComponent } from '@wordpress/compose';
-import { RichText } from '@wordpress/block-editor';
+import { RichText, useBlockProps } from '@wordpress/block-editor';
 import classnames from 'classnames';
 
 /**
@@ -28,8 +28,16 @@ const VideoPressSave = CoreVideoSave => props => {
 			seekbarColor,
 			seekbarPlayedColor,
 			seekbarLoadingColor,
+			useAverageColor,
+			maxWidth,
 		} = {},
 	} = props;
+
+	const blockProps = useBlockProps.save( {
+		className: classnames( 'wp-block-video', className, videoPressClassNames, {
+			[ `align${ align }` ]: align,
+		} ),
+	} );
 
 	if ( ! guid ) {
 		/**
@@ -55,15 +63,20 @@ const VideoPressSave = CoreVideoSave => props => {
 		seekbarColor,
 		seekbarPlayedColor,
 		seekbarLoadingColor,
+		useAverageColor,
 	} );
 
+	let embedWrapperStyle = {};
+	if ( maxWidth && maxWidth.length > 0 && '100%' !== maxWidth ) {
+		embedWrapperStyle = {
+			maxWidth,
+			margin: 'auto',
+		};
+	}
+
 	return (
-		<figure
-			className={ classnames( 'wp-block-video', className, videoPressClassNames, {
-				[ `align${ align }` ]: align,
-			} ) }
-		>
-			<div className="wp-block-embed__wrapper">
+		<figure { ...blockProps }>
+			<div className="wp-block-embed__wrapper" style={ embedWrapperStyle }>
 				{ `\n${ url }\n` /* URL needs to be on its own line. */ }
 			</div>
 			{ ! RichText.isEmpty( caption ) && (

@@ -1,4 +1,0 @@
-Significance: patch
-Type: compat
-
-Publicize: update Twitter text processing library to avoid errors when using PHP 8

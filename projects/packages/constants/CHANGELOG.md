@@ -5,6 +5,54 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.6.15] - 2022-01-25
+### Changed
+- Updated package dependencies.
+
+## [1.6.14] - 2022-01-04
+### Changed
+- Switch to pcov for code coverage.
+- Updated package dependencies
+
+## [1.6.13] - 2021-12-14
+### Changed
+- Updated package dependencies.
+
+## [1.6.12] - 2021-11-22
+### Changed
+- Updated package dependencies
+
+## [1.6.11] - 2021-11-02
+### Changed
+- Set `convertDeprecationsToExceptions` true in PHPUnit config.
+- Update PHPUnit configs to include just what needs coverage rather than include everything then try to exclude stuff that doesn't.
+
+## [1.6.10] - 2021-10-26
+### Fixed
+- Updated is_true docblock to be more accurate.
+
+## [1.6.9] - 2021-10-13
+### Changed
+- Updated package dependencies.
+
+## [1.6.8] - 2021-10-06
+### Changed
+- Updated package dependencies
+
+## [1.6.7] - 2021-09-28
+### Changed
+- Updated package dependencies.
+
+## [1.6.6] - 2021-08-30
+### Changed
+- Run composer update on test-php command instead of phpunit
+- Tests: update PHPUnit polyfills dependency (yoast/phpunit-polyfills).
+- Updated versions in annotations
+
+## [1.6.5] - 2021-05-25
+### Changed
+- Updated package dependencies.
+
 ## [1.6.4] - 2021-04-08
 ### Changed
 - Packaging and build changes, no change to the package itself.
@@ -74,6 +122,17 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - Packages: Finish the constants package
 
+[1.6.15]: https://github.com/Automattic/jetpack-constants/compare/v1.6.14...v1.6.15
+[1.6.14]: https://github.com/Automattic/jetpack-constants/compare/v1.6.13...v1.6.14
+[1.6.13]: https://github.com/Automattic/jetpack-constants/compare/v1.6.12...v1.6.13
+[1.6.12]: https://github.com/Automattic/jetpack-constants/compare/v1.6.11...v1.6.12
+[1.6.11]: https://github.com/Automattic/jetpack-constants/compare/v1.6.10...v1.6.11
+[1.6.10]: https://github.com/Automattic/jetpack-constants/compare/v1.6.9...v1.6.10
+[1.6.9]: https://github.com/Automattic/jetpack-constants/compare/v1.6.8...v1.6.9
+[1.6.8]: https://github.com/Automattic/jetpack-constants/compare/v1.6.7...v1.6.8
+[1.6.7]: https://github.com/Automattic/jetpack-constants/compare/v1.6.6...v1.6.7
+[1.6.6]: https://github.com/Automattic/jetpack-constants/compare/v1.6.5...v1.6.6
+[1.6.5]: https://github.com/Automattic/jetpack-constants/compare/v1.6.4...v1.6.5
 [1.6.4]: https://github.com/Automattic/jetpack-constants/compare/v1.6.3...v1.6.4
 [1.6.3]: https://github.com/Automattic/jetpack-constants/compare/v1.6.2...v1.6.3
 [1.6.2]: https://github.com/Automattic/jetpack-constants/compare/v1.6.1...v1.6.2

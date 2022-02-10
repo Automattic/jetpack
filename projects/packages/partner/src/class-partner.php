@@ -10,7 +10,7 @@ namespace Automattic\Jetpack;
 /**
  * This class introduces functionality used by Jetpack hosting partners.
  *
- * @since 8.1.0
+ * @since 1.0.0
  */
 class Partner {
 
@@ -27,7 +27,7 @@ class Partner {
 	/**
 	 * Singleton instance.
 	 *
-	 * @since 8.1.0
+	 * @since 1.0.0
 	 *
 	 * @var Partner This class instance.
 	 */
@@ -43,13 +43,18 @@ class Partner {
 	 * Initializes the class or returns the singleton.
 	 *
 	 * @return Partner | false
-	 * @since 8.1.0
+	 * @since 1.0.0
 	 */
 	public static function init() {
 		if ( is_null( self::$instance ) ) {
 			self::$instance = new Partner();
 			add_filter( 'jetpack_build_authorize_url', array( self::$instance, 'add_subsidiary_id_as_query_arg' ) );
 			add_filter( 'jetpack_build_authorize_url', array( self::$instance, 'add_affiliate_code_as_query_arg' ) );
+			add_filter( 'jetpack_build_connection_url', array( self::$instance, 'add_subsidiary_id_as_query_arg' ) );
+			add_filter( 'jetpack_build_connection_url', array( self::$instance, 'add_affiliate_code_as_query_arg' ) );
+
+			add_filter( 'jetpack_register_request_body', array( self::$instance, 'add_subsidiary_id_to_params_array' ) );
+			add_filter( 'jetpack_register_request_body', array( self::$instance, 'add_affiliate_code_to_params_array' ) );
 		}
 
 		return self::$instance;
@@ -78,15 +83,56 @@ class Partner {
 	}
 
 	/**
+	 * Adds the partner subsidiary code to the passed array.
+	 *
+	 * @param array $params The parameters array.
+	 *
+	 * @return array
+	 * @since 1.5.0
+	 */
+	public function add_subsidiary_id_to_params_array( $params ) {
+		if ( ! is_array( $params ) ) {
+			return $params;
+		}
+		return array_merge( $params, $this->get_code_as_array( self::SUBSIDIARY_CODE ) );
+	}
+
+	/**
+	 * Adds the affiliate code to the passed array.
+	 *
+	 * @param array $params The parameters array.
+	 *
+	 * @return array
+	 * @since 1.5.0
+	 */
+	public function add_affiliate_code_to_params_array( $params ) {
+		if ( ! is_array( $params ) ) {
+			return $params;
+		}
+		return array_merge( $params, $this->get_code_as_array( self::AFFILIATE_CODE ) );
+	}
+
+	/**
 	 * Returns the passed URL with the partner code added as a URL query arg.
 	 *
 	 * @param string $type The partner code.
 	 * @param string $url The URL where the partner subsidiary id will be added.
 	 *
 	 * @return string The passed URL with the partner code added.
-	 * @since 8.1.0
+	 * @since 1.0.0
 	 */
 	public function add_code_as_query_arg( $type, $url ) {
+		return add_query_arg( $this->get_code_as_array( $type ), $url );
+	}
+
+	/**
+	 * Gets the partner code in an associative array format
+	 *
+	 * @param string $type The partner code.
+	 * @return array
+	 * @since 1.5.0
+	 */
+	private function get_code_as_array( $type ) {
 		switch ( $type ) {
 			case self::AFFILIATE_CODE:
 				$query_arg_name = 'aff';
@@ -95,16 +141,16 @@ class Partner {
 				$query_arg_name = 'subsidiaryId';
 				break;
 			default:
-				return $url;
+				return array();
 		}
 
 		$code = $this->get_partner_code( $type );
 
 		if ( '' === $code ) {
-			return $url;
+			return array();
 		}
 
-		return add_query_arg( $query_arg_name, $code, $url );
+		return array( $query_arg_name => $code );
 	}
 
 	/**
@@ -113,7 +159,7 @@ class Partner {
 	 * @param string $type This can be either 'affiliate' or 'subsidiary'. Returns empty string when code is unknown.
 	 *
 	 * @return string The partner code.
-	 * @since 8.1.0
+	 * @since 1.0.0
 	 */
 	public function get_partner_code( $type ) {
 		switch ( $type ) {
@@ -123,7 +169,8 @@ class Partner {
 				 *
 				 * @param string $affiliate_code The affiliate code, blank by default.
 				 *
-				 * @since 6.9.0
+				 * @since 1.0.0
+				 * @since-jetpack 6.9.0
 				 */
 				return apply_filters( 'jetpack_affiliate_code', get_option( 'jetpack_affiliate_code', '' ) );
 			case self::SUBSIDIARY_CODE:
@@ -132,7 +179,7 @@ class Partner {
 				 *
 				 * @param string $subsidiary_id The partner subsidiary id, blank by default.
 				 *
-				 * @since 8.1.0
+				 * @since 1.0.0
 				 */
 				return apply_filters(
 					'jetpack_partner_subsidiary_id',

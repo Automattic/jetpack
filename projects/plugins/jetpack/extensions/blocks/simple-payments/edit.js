@@ -56,12 +56,12 @@ export class SimplePaymentsEdit extends Component {
 		// Try to get the simplePayment loaded into attributes if possible.
 		this.injectPaymentAttributes();
 
-		const { attributes, hasPublishAction, postLinkUrl, setAttributes } = this.props;
+		const { attributes, hasPublishAction, postLinkUrl, setAttributes, isPostEditor } = this.props;
 		const { productId } = attributes;
 
 		// If the user can publish save an empty product so that we have an ID and can save
 		// concurrently with the post that contains the Simple Payment.
-		if ( ! productId && hasPublishAction ) {
+		if ( ( ! productId && hasPublishAction ) || ! isPostEditor ) {
 			this.saveProduct();
 		}
 
@@ -619,7 +619,8 @@ const mapSelectToProps = withSelect( ( select, props ) => {
 		isSaving: !! isSavingPost(),
 		simplePayment,
 		featuredMedia: featuredMediaId ? getMedia( featuredMediaId ) : null,
-		postLinkUrl: post.link,
+		postLinkUrl: post?.link,
+		isPostEditor: Object.keys( getCurrentPost() ).length > 0,
 	};
 } );
 

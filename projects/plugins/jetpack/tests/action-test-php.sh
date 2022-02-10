@@ -2,6 +2,8 @@
 
 set -eo pipefail
 
+. tests/maybe-downgrade-phpunit.sh
+
 echo "::group::Jetpack tests"
 phpunit
 echo "::endgroup::"

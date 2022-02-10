@@ -57,11 +57,16 @@
 			margin: 0;
 			position: relative;
 			width: 100%;
+			.wp-block-jetpack-slideshow_image {
+				pointer-events: none;
+				user-select: none;
+			}
 		}
 	}
 
-	.swiper-container-fade .wp-block-jetpack-slideshow_slide {
-		background: var( --color-neutral-0 );
+	// When the slideshow transition is set to "fade", hide all slides that are not active.
+	.swiper-container-fade .wp-block-jetpack-slideshow_slide:not(.swiper-slide-active) {
+		opacity: 0 !important;
 	}
 
 	.wp-block-jetpack-slideshow_image {
@@ -238,7 +243,7 @@
 	}
 }
 
-@media only email {
+.is-email {
 	.wp-block-jetpack-slideshow .wp-block-jetpack-slideshow_container {
 		overflow: visible;
 		opacity: 1;

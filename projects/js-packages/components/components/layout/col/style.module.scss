@@ -1,0 +1,20 @@
+@mixin cols($size, $columns) {
+	@for $i from 1 through $columns {
+		.col-#{$size}-#{$i} {
+			grid-column-end: span #{$i};
+		}
+	}
+}
+
+@media ( min-width: 0px ) {
+	@include cols(sm, 4)
+}
+
+@media ( min-width: 600px ) {
+	@include cols(md, 8)
+}
+
+@media ( min-width: 960px ) {
+	@include cols(lg, 12)
+}
+

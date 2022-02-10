@@ -8,10 +8,10 @@ import child_process from 'child_process';
 /**
  * Internal dependencies
  */
-import promptForProject from '../helpers/promptForProject';
-import { readComposerJson } from '../helpers/json';
-import { chalkJetpackGreen } from '../helpers/styling';
-import { allProjects } from '../helpers/projectHelpers';
+import promptForProject from '../helpers/promptForProject.js';
+import { readComposerJson } from '../helpers/json.js';
+import { chalkJetpackGreen } from '../helpers/styling.js';
+import { allProjects } from '../helpers/projectHelpers.js';
 
 let output = true;
 
@@ -19,7 +19,6 @@ let output = true;
  * Command definition for the build subcommand.
  *
  * @param {object} yargs - The Yargs dependency.
- *
  * @returns {object} Yargs with the watch commands defined.
  */
 export function watchDefine( yargs ) {
@@ -107,7 +106,6 @@ export async function watch( project, packageJson ) {
  *
  * @param {string} project - The project.
  * @param {object} composerJson - The project's composer.json file, parsed.
- *
  * @returns {boolean} If the project has a watch step, the watch command or false.
  */
 function hasWatchStep( project, composerJson ) {

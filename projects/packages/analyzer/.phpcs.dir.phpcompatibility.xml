@@ -1,0 +1,8 @@
+<?xml version="1.0"?>
+
+<ruleset>
+	<rule ref="PHPCompatibility">
+		<!-- Analyzer doesn't follow the same requirements. -->
+		<exclude-pattern>/*</exclude-pattern>
+	</rule>
+</ruleset>

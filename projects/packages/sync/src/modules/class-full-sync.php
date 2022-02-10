@@ -92,7 +92,8 @@ class Full_Sync extends Module {
 			/**
 			 * Fires when a full sync is cancelled.
 			 *
-			 * @since 4.2.0
+			 * @since 1.6.3
+			 * @since-jetpack 4.2.0
 			 */
 			do_action( 'jetpack_full_sync_cancelled' );
 		}
@@ -152,9 +153,10 @@ class Full_Sync extends Module {
 		 * Fires when a full sync begins. This action is serialized
 		 * and sent to the server so that it knows a full sync is coming.
 		 *
-		 * @since 4.2.0
-		 * @since 7.3.0 Added $range arg.
-		 * @since 7.4.0 Added $empty arg.
+		 * @since 1.6.3
+		 * @since-jetpack 4.2.0
+		 * @since-jetpack 7.3.0 Added $range arg.
+		 * @since-jetpack 7.4.0 Added $empty arg.
 		 *
 		 * @param array $full_sync_config Sync configuration for all sync modules.
 		 * @param array $range            Range of the sync items, containing min and max IDs for some item types.
@@ -293,8 +295,9 @@ class Full_Sync extends Module {
 		 * Fires when a full sync ends. This action is serialized
 		 * and sent to the server.
 		 *
-		 * @since 4.2.0
-		 * @since 7.3.0 Added $range arg.
+		 * @since 1.6.3
+		 * @since-jetpack 4.2.0
+		 * @since-jetpack 7.3.0 Added $range arg.
 		 *
 		 * @param string $checksum Deprecated since 7.3.0 - @see https://github.com/Automattic/jetpack/pull/11945/
 		 * @param array  $range    Range of the sync items, containing min and max IDs for some item types.

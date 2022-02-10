@@ -28,7 +28,7 @@ async function status( state, description ) {
 	};
 
 	if ( process.env.CI ) {
-		await octokit.repos.createCommitStatus( req );
+		await octokit.rest.repos.createCommitStatus( req );
 	} else {
 		// eslint-disable-next-line no-console
 		console.dir( req );

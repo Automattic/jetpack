@@ -29,11 +29,9 @@ const API_STATE_REQUESTING = 1;
  * @property { string } newPlanName
  * @property { number } newPlanPrice
  * @property { string } newPlanInterval
- *
  * @typedef {object} Currency
  * @property { string } label
  * @property { string } symbol
- *
  * @typedef {object} Props
  * @property { PlanAttributes } attributes
  * @property { (attributes: object<PlanAttributes>) => void } setAttributes
@@ -41,9 +39,7 @@ const API_STATE_REQUESTING = 1;
  * @property { (attributes: PlanAttributes, onComplete:(isSuccesful: boolean)=>void) => void } savePlan
  * @property { Currency[] } currencies
  * @property { string } siteSlug
- *
  * @param { Props } props
- *
  * @returns {object} Toolbar settings for our block.
  */
 export default function Inspector( props ) {

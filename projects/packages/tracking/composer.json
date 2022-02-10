@@ -1,17 +1,18 @@
 {
 	"name": "automattic/jetpack-tracking",
 	"description": "Tracking for Jetpack",
-	"type": "library",
+	"type": "jetpack-library",
 	"license": "GPL-2.0-or-later",
 	"require": {
-		"automattic/jetpack-assets": "^1.11",
-		"automattic/jetpack-options": "^1.11",
-		"automattic/jetpack-status": "^1.7",
+		"automattic/jetpack-assets": "^1.17",
+		"automattic/jetpack-options": "^1.14",
+		"automattic/jetpack-status": "^1.10",
 		"automattic/jetpack-terms-of-service": "^1.9"
 	},
 	"require-dev": {
-		"yoast/phpunit-polyfills": "0.2.0",
-		"automattic/jetpack-changelogger": "^1.1"
+		"brain/monkey": "2.6.1",
+		"yoast/phpunit-polyfills": "1.0.3",
+		"automattic/jetpack-changelogger": "^3.0"
 	},
 	"autoload": {
 		"classmap": [
@@ -30,12 +31,10 @@
 	],
 	"scripts": {
 		"phpunit": [
-			"@composer update",
 			"./vendor/phpunit/phpunit/phpunit --colors=always"
 		],
 		"test-coverage": [
-			"@composer update",
-			"phpdbg -d memory_limit=2048M -d max_execution_time=900 -qrr ./vendor/bin/phpunit --coverage-clover \"$COVERAGE_DIR/clover.xml\""
+			"php -dpcov.directory=. ./vendor/bin/phpunit --coverage-clover \"$COVERAGE_DIR/clover.xml\""
 		],
 		"test-php": [
 			"@composer phpunit"
@@ -46,11 +45,12 @@
 	"extra": {
 		"autotagger": true,
 		"mirror-repo": "Automattic/jetpack-tracking",
+		"textdomain": "jetpack-tracking",
 		"changelogger": {
 			"link-template": "https://github.com/Automattic/jetpack-tracking/compare/v${old}...v${new}"
 		},
 		"branch-alias": {
-			"dev-master": "1.13.x-dev"
+			"dev-master": "1.14.x-dev"
 		}
 	}
 }

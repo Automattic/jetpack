@@ -2,10 +2,18 @@
 	display: inline-block;
 	margin: 0 auto;
 }
+
 .wp-block[data-align="center"] {
 	.wp-block-jetpack-button {
 		display: flex;
 		justify-content: center;
+	}
+}
+
+.wp-block[data-align="right"] {
+	.wp-block-jetpack-button {
+		display: flex;
+		justify-content: flex-end;
 	}
 }
 
@@ -15,6 +23,7 @@ div[data-type="jetpack/button"]:not([data-align='left']):not([data-align='right'
 
 div[data-type="jetpack/button"][data-align] {
 	z-index: 1;
+	width: 100%;
 
 	.wp-block > div {
 		max-width: 100%;

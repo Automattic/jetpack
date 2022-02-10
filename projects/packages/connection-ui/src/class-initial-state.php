@@ -7,27 +7,14 @@
 
 namespace Automattic\Jetpack\ConnectionUI;
 
-use Automattic\Jetpack\Connection\Manager;
-use Automattic\Jetpack\Connection\REST_Connector;
+use Automattic\Jetpack\Identity_Crisis;
 
 /**
  * The React initial state.
  */
 class Initial_State {
 
-	/**
-	 * The connection manager object.
-	 *
-	 * @var Manager
-	 */
-	private $manager;
-
-	/**
-	 * The constructor.
-	 */
-	public function __construct() {
-		$this->manager = new Manager();
-	}
+	const CONNECTION_MANAGER_URI = '/tools.php?page=wpcom-connection-manager';
 
 	/**
 	 * Get the initial state data.
@@ -36,7 +23,19 @@ class Initial_State {
 	 */
 	private function get_data() {
 		return array(
-			'connectionStatus' => REST_Connector::connection_status( false ),
+			'API'    => array(
+				'WP_API_root'       => esc_url_raw( rest_url() ),
+				'WP_API_nonce'      => wp_create_nonce( 'wp_rest' ),
+				'registrationNonce' => wp_create_nonce( 'jetpack-registration-nonce' ),
+			),
+			'assets' => array(
+				'buildUrl' => plugins_url( 'build/', __DIR__ ),
+			),
+			'IDC'    => array(
+				'hasIDC'              => Identity_Crisis::has_identity_crisis(),
+				'isSafeModeConfirmed' => Identity_Crisis::safe_mode_is_confirmed(),
+				'canManageConnection' => current_user_can( 'jetpack_disconnect' ),
+			),
 		);
 	}
 
@@ -46,6 +45,8 @@ class Initial_State {
 	 * @return string
 	 */
 	public function render() {
+		add_action( 'jetpack_use_iframe_authorization_flow', '__return_true' );
+
 		return 'var CUI_INITIAL_STATE=JSON.parse(decodeURIComponent("' . rawurlencode( wp_json_encode( $this->get_data() ) ) . '"));';
 	}
 

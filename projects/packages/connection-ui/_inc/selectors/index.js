@@ -1,5 +1,14 @@
+/**
+ * Internal dependencies
+ */
+import APISelectors from './api';
+import assetsSelectors from './assets';
+import IDC from './idc';
+
 const selectors = {
-	// We'll import selectors from other files in this directory, and merge them here.
+	...APISelectors,
+	...assetsSelectors,
+	...IDC,
 };
 
 export default selectors;

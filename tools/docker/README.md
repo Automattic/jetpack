@@ -5,51 +5,52 @@ Unified environment for developing Jetpack using Docker containers providing fol
 * An Ubuntu base operating system.
 * Latest stable version of WordPress.
 * All monorepo plugins will be available as plugins within the Docker WP instance.
-* PHPUnit setup.
 * Xdebug setup.
 * WP-CLI installed.
 * MailDev to catch all the emails leaving WordPress so that you can observe them from browser.
 * phpMyAdmin to aid in viewing the database.
-* Handy NPM/Yarn shorthand commands like `yarn docker:up` and `yarn docker:phpunit` to simplify the usage.
+* Handy shorthand commands like `jetpack docker up` and `jetpack docker phpunit` to simplify the usage.
 
 ## To get started
 
-_**All commands mentioned in this document should be run from the base Jetpack directory. Not from the `docker` directory!**_
-
 ### Prerequisites
 
-* [Docker](https://hub.docker.com/search/?type=edition&offering=community)
-* [NodeJS](https://nodejs.org)
-* [Yarn](https://yarnpkg.com/) — please make sure your version is higher than what is noted in the [development environment documentation](../../docs/development-environment.md#minimum-required-versions): `yarn --version`
-* Optionally [Ngrok](https://ngrok.com) client and account or some other service for creating a local HTTP tunnel. It’s fine to stay on the free pricing tier with Ngrok.
+To use Jetpack's Docker environment, you will need:
 
-Install prerequisites; you will need to open up Docker to install its dependencies.
+- A [local copy of the Jetpack repository](https://github.com/Automattic/jetpack/blob/master/docs/development-environment.md#clone-the-repository).
+- [Docker](https://hub.docker.com/search/?type=edition&offering=community) installed and running.
+- [Jetpack's required tools](https://github.com/Automattic/jetpack/blob/master/docs/development-environment.md#install-development-tools).
 
-Start by cloning the Jetpack repository:
+Our Docker instance comes with a default settings file. You can modify those defaults by copying the file:
 
-```sh
-git clone git@github.com:Automattic/jetpack.git && cd jetpack
-```
-
-Optionally, copy settings file to modify it:
 ```sh
 cp tools/docker/default.env tools/docker/.env
 ```
 
 Anything you put in `.env` overrides values in `default.env`. You should modify all the password fields for security, for example.
 
-Finally, spin up the containers:
+**Note**: in older versions of docker-compose (earlier than 1.28), you'll need to place that file at the root of the monorepo.
+
+## Quick start
+
+Once you're all set with the above, spin up the containers:
 ```sh
-yarn docker:up
+jetpack docker up
 ```
 
-Non-installed WordPress is running at [http://localhost](http://localhost) now.
+Non-installed WordPress is running at [http://localhost](http://localhost) now. To install WordPress and configure some useful defaults, run
+```sh
+jetpack docker install
+```
 
-You should establish a tunnel to your localhost with Ngrok or [other similar service](https://alternativeto.net/software/ngrok/) to be able to connect Jetpack. You cannot connect Jetpack when running WordPress via `http://localhost`. Read more from ["Using Ngrok with Jetpack"](#using-ngrok-with-jetpack) section below.
+At this point, to connect Jetpack, you'd need to set up a service that can create local HTTP tunnels, such as [the Jurassic Tube Tunneling Service](#jurassic-tube-tunneling-service) (available to Automatticians only), [ngrok](#using-ngrok-with-jetpack), or [another similar service](https://alternativeto.net/software/ngrok/).
+With such a service, your site will be publicly accessible and you will be able to connect Jetpack to WordPress.com.
+
+**Warning: These solutions create a public tunnel to your system. You should only activate the tunnel while actively needing it and deactivate when you are finished.**
 
 _You are now ready to login to your new WordPress install and connect Jetpack, congratulations!_
 
-You should follow [Jetpack’s development documentation](../../docs/development-environment.md) for installing Jetpack’s dependencies and building files. Docker setup does not build these for you.
+You should follow [Jetpack’s development documentation](../../docs/development-environment.md#development-workflow) for installing Jetpack’s dependencies and building files. Docker setup does not build these for you.
 
 ## Good to know
 
@@ -58,12 +59,12 @@ WordPress’ `WP_SITEURL` and `WP_HOME` constants are configured to be dynamic i
 ## Custom mounts, environment Variables, `.env` Files, and Ports
 
 You can control some of the behavior of Jetpack's Docker configuration with environment variables. Note, though, that there are two types of environments:
-1. The host environment in which the `yarn docker:*` (`docker-compose`) commands run when creating/managing the containers.
+1. The host environment in which the `jetpack docker *` (`docker-compose`) commands run when creating/managing the containers.
 2. The containers' environments.
 
 ### Host Environment
 
-You can set the following variables on a per-command basis (`PORT_WORDPRESS=8000 yarn docker:up`) or, preferably, in a `./.env` file in Jetpack's root directory.
+You can set the following variables on a per-command basis (`PORT_WORDPRESS=8000 jetpack docker up`) or, preferably, in the `tools/docker/.env` file you set up earlier.
 
 * `PORT_WORDPRESS`: (default=`80`) The port on your host machine connected to the WordPress container's HTTP server.
 * `PORT_MAILDEV`: (default=`1080`) The port on your host machine connected to the MailDev container's MailDev HTTP server.
@@ -73,23 +74,23 @@ You can set the following variables on a per-command basis (`PORT_WORDPRESS=8000
 ### Container Environments
 
 Configurable settings are documented in the [`./tools/docker/default.env` file](https://github.com/Automattic/jetpack/blob/master/docker/default.env).
-Customizations should go into a `./tools/docker/.env` file you create, though, not in the `./docker/default.env` file.
+Customizations should go into a `./tools/docker/.env` file you create, though, not in the `./tools/docker/default.env` file.
 
-### Mounting extra directories into the container
+### Docker configurations
 
-You can use the file `tools/docker/compose-extras.yml` to add mounts or alter the configuration provided by `docker/docker-compose.yml`.
+Jetpack Docker provides two types of configurations: `dev` and `e2e`. These configurations define lists of services to start, volumes to map, etc. Both of them extend default configuration `tools/docker/docker-compose.yml` via the config file: `tools/docker/jetpack-docker-config-default.yml`.
 
-You can use the file `tools/docker/compose-volumes.yml` to add additional mounts for WordPress plugins and themes. Refer to the section [Custom plugins & themes in the container](#custom-plugins--themes-in-the-container) for more details.
+* `dev` configuration is used by default, and is aimed for Jetpack development.
+* `e2e` configuration is created specifically for Jetpack E2E tests.
 
-### Building on M1 Macs
+Users can extended these configurations further via override config file `tools/docker/jetpack-docker-config.yml`, which is git-ignored.
 
-If you're using the new [M1/Apple Silicon version of Docker](https://docs.docker.com/docker-for-mac/apple-m1/), you will need to add the following to your `tools/docker/compose-extras.yml` file to ensure a successful build:
+#### Jetpack Docker config structure
 
-```
-services:
-  db:
-    platform: linux/x86_64
-```
+The default config file `tools/docker/jetpack-docker-config-default.yml` includes inline comments explaining the structure of config, but here's quick overview. The configuration is grouped per environment type: `default`, `dev`, `e2e`. Each type may define `volumeMappings` and `extras`:
+
+* `volumeMappings` - list of key value pairs which defines local directory mappings with following structure: local_path: wordpress_container_path
+* `extras` - basically any other configuration that is supported by `docker-compose`
 
 ## Working with containers
 
@@ -98,7 +99,7 @@ services:
 You can just quickly install WordPress and activate Jetpack via command line. Ensure you have your domain modified in `.env` file, spin up the containers and then run:
 
 ```sh
-yarn docker:install
+jetpack docker install
 ```
 
 This will give you a single site with user/pass `wordpress` (unless you changed these from `./tools/docker/.env` file). You will still have to connect Jetpack to WordPress.com manually.
@@ -106,41 +107,41 @@ This will give you a single site with user/pass `wordpress` (unless you changed 
 To convert installed single site into a multisite, run:
 
 ```sh
-yarn docker:multisite-convert
+jetpack docker multisite-convert
 ```
 
 To remove WordPress installation and start over, run:
 
 ```sh
-yarn docker:uninstall
+jetpack docker uninstall
 ```
 
 ### Start containers
 
 ```sh
-yarn docker:up
+jetpack docker up
 ```
 
-Start three containers (WordPress, MySQL and MailDev) defined in `docker-composer.yml`. Wrapper for `docker-composer up`.
+Start the containers (WordPress, MySQL and MailDev) defined in `docker-compose.yml`.
 
-This command will rebuild the WordPress container if you made any changes to `docker-composer.yml`.
+This command will rebuild the WordPress container if you made any changes to `docker-compose.yml`.
 
 For running the containers in the background, use:
 
 ```sh
-yarn docker:up -- -d
+jetpack docker up -d
 ```
 
 ### Stop containers
 
 ```sh
-yarn docker:stop
+jetpack docker stop
 ```
 
-Stops all containers. Wrapper for `docker-composer stop`.
+Stops all containers.
 
 ```sh
-yarn docker:down
+jetpack docker down
 ```
 
 Will stop all of the containers created by this docker-compose configuration and remove them, too. It won’t remove the images. Just the containers that have just been stopped.
@@ -150,18 +151,18 @@ Will stop all of the containers created by this docker-compose configuration and
 These commands require the WordPress container to be running.
 
 ```sh
-yarn docker:phpunit
+jetpack docker phpunit
 ```
 
 This will run unit tests for Jetpack. You can pass arguments to `phpunit` like so:
 
 ```sh
-yarn docker:phpunit --filter=Protect
+jetpack docker phpunit -- --filter=Protect
 ```
 
 This command runs the tests as a multi site install
 ```sh
-yarn docker:phpunit:multisite --filter=Protect
+jetpack docker phpunit-multisite -- --filter=Protect
 ```
 
 To run tests for specific packages, you can run the tests locally, from within the package's directory:
@@ -175,7 +176,7 @@ composer phpunit
 To remove all docker images, all MySQL data, and all docker-related files from your local machine run:
 
 ```sh
-yarn docker:clean
+jetpack docker clean
 ```
 
 **Note:** this command does not work in Windows.
@@ -185,22 +186,22 @@ yarn docker:clean
 You can run [WP CLI](https://make.wordpress.org/cli/) commands inside WordPress container:
 
 ```sh
-yarn docker:wp COMMAND
+jetpack docker wp COMMAND
 ```
 
 For example run [`cron event list`](https://developer.wordpress.org/cli/commands/cron/event/list/):
 
 ```sh
-yarn docker:wp cron event list
+jetpack docker wp cron event list
 ```
 
 [`shell`](https://developer.wordpress.org/cli/commands/shell/) is a handy WP-CLI command you can use like so:
 
 ```bash
-yarn docker:wp shell
+jetpack docker wp shell
 ```
 
-By default it will use rich REPL [`PsySH`](https://psysh.org/), to run the default REPL use `yarn docker:wp shell --basic`
+By default it will use rich REPL [`PsySH`](https://psysh.org/), to run the default REPL use `jetpack docker wp shell --basic`
 
 Shell allows you to evaluate PHP code while having your installed WordPress loaded, so you could do things like:
 
@@ -213,21 +214,13 @@ Note that each `wp shell` session counts as a single request, causing unexpected
 
 ## MySQL database
 
-Connecting to your MySQL database from outside the container, use:
-
-- Host: `127.0.0.1`
-- Port: `3306`
-- User: `wordpress`
-- Pass: `wordpress`
-- Database: `wordpress`
-
-You can also see your database files via local file system at `./tools/docker/data/mysql`
+You can see your database files via local file system at `./tools/docker/data/mysql`
 
 You can also access it via phpMyAdmin at [http://localhost:8181](http://localhost:8181).
 
 Another way to accessing the database is MySQL client using the following command:
 ```sh
-yarn docker:db
+jetpack docker db
 ```
 This command utilizes credentials from the config file (`~/.my.cnf`) to log you into MySQL without entering any connection information.
 
@@ -259,7 +252,38 @@ You can add your custom Jetpack constants (such as `JETPACK__SANDBOX_DOMAIN`) to
 define( 'JETPACK__SANDBOX_DOMAIN', '{your sandbox}.wordpress.com' );
 ```
 
+## Jurassic Tube Tunneling Service
+
+This is for Automatticians only. More information: PCYsg-snO-p2.
+
+If you have persistent trouble with the `jetpack docker jt-*` commands complaining that "Tunneling scripts are not installed", it could be because Docker wasn't running properly when you ran the installer.
+
+To solve this problem, run these commands from the repo root:
+
+```
+jetpack docker up -d
+chmod +x tools/docker/bin/jt/installer.sh && tools/docker/bin/jt/installer.sh
+```
+
+Once you have successfull installed Jurassic Tube, you can use these commands during development:
+
+* Start the tunnel: `jetpack docker jt-up your-username your-subdomain`
+* Break the connection: `jetpack docker jt-down`
+
+You can also set default values:
+
+```shell script
+jetpack docker jt-config username your-username
+jetpack docker jt-config subdomain your-subdomain
+```
+That will let you omit those parameters while initiating the connection:
+```shell script
+jetpack docker jt-up
+```
+
 ## Using Ngrok with Jetpack
+
+Note: While Ngrok is technically supported for everyone, Jurassic Tube is used by the Jetpack team and is available to all Automatticians.
 
 To be able to connect Jetpack you will need a domain - you can use [Ngrok.com](https://ngrok.com/) to assign one.
 
@@ -283,45 +307,12 @@ tunnels:
     proto: http
 ```
 
-You can start your ngrok tunnel like so:
+ngrok support is integrated into a jetpack cli, so to start a docker container with mapped tunnel, simply run:
 ```bash
-./ngrok start jetpack
+jetpack docker up --ngrok
 ```
 
-These two commands are all you need to run to get Docker running when you start your computer:
-```bash
-./ngrok start jetpack
-yarn docker:up -d
-```
-### Docker Ngrok
-
-Alternative to the above configuration file is running ngrok in the container with docker-compose file. That starts ngrok inside a container and you don't have to install it or configure as a standalone software on your machine.
-
-**1. Configure environment**
-
-Add these variables to your `tools/docker/.env` file:
-
-This configures `example.us.ngrok.io` reserved domain that is available on my basic plan.
-Possible values for `NGROK_REGION` are:  (United States, default), eu (Europe), ap (Asia/Pacific) or au (Australia).
-[Read more about ngrok regions](https://ngrok.com/docs#global-locations)
-```
-NGROK_AUTH=<your auth key>
-NGROK_SUBDOMAIN=example
-NGROK_REGION=us
-```
-
-**2. Start docker with Ngrok**
-
-Start container with `yarn docker:ngrok-up -d`
-Stop container with `yarn docker:ngrok-down -d`
-
-All the other docker-compose commands can be invoked via `yarn docker:ngrok COMMAND`
-
-### Configuration file
-
-If you need more granular control over the Ngrok tunnel, you could create a configuration file. See [default configuration file location](https://ngrok.com/docs#default-config-location) from Ngrok Docs or use `-config=your_config_file.yml` argument with `ngrok` to use your configuration file.
-
-## Ngrok SFTP Tunnel with Jetpack
+### Ngrok SFTP Tunnel with Jetpack
 A sample config for adding an sftp tunnel to your Ngrok setup would look like this:
 
 ```
@@ -341,7 +332,7 @@ See more configuration options from [Ngrok documentation](https://ngrok.com/docs
 
 You can now start both tunnels:
 ```bash
-ngrok start jetpack jetpack-sftp
+jetpack docker up --ngrok sftp
 ```
 
 You can inspect traffic between your WordPress/Jetpack container and WordPress.com using [the inspector](https://ngrok.com/docs#inspect).
@@ -357,42 +348,31 @@ You should now be able to configure [Jetpack Backup & Scan](https://jetpack.com/
 - Server password: `wordpress`
 - WordPress installation path: `/var/www/html`
 
-## Jurassic Tube Tunneling Service
-If you are an Automattician, you can use Jurassic Tube tunneling service with functionality similar to Ngrok.
-
-As it is developed internally, you can review the source code and participate in adding new features.
-
-* Start the tunnel: `yarn docker:jt-up your-username your-subdomain`
-* Break the connection: `yarn docker:jt-down`
-
-You can also set default values:
-
-```shell script
-yarn docker:jt-config username your-username
-yarn docker:jt-config subdomain your-subdomain
-```
-That will let you omit those parameters while initiating the connection:
-```shell script
-yarn docker:jt-up
-```
-
-More information: PCYsg-snO-p2.
-
 ## Custom plugins & themes in the container
 
 Jetpack Docker environment can be wonderful for developing your own plugins and themes, too.
 
 Since everything under `mu-plugins` and `wordpress/wp-content` is git-ignored, you'll want to keep those folders outside Jetpack repository folder and link them as volumes to your Docker instance.
 
-1. First ensure your containers are stopped (`yarn docker:stop`).
-2. Edit `tools/docker/compose-volumes.yml`. This file will be generated when running `yarn docker:up`, containing content from a sample file `tools/docker/compose-volumes.yml.sample`. But you can also copy it by hand. Changes to this file won't be tracked by git.
-3. Start containers and include your custom volumes by running:
+1. First ensure your containers are stopped (`jetpack docker stop`).
+2. Edit `tools/docker/jetpack-docker-config.yml`. Changes to this file won't be tracked by git.
+3. To add a single custom plugin, you would for example have this in that file:
+    ```yml
+    default:
+      # Volumes to mount inside the environment. Keys are the local paths, which may be absolute
+      # or relative to the monorepo root. Values are the paths inside the Docker environment, and
+      # must be absolute.
+      volumeMappings:
+        ## Gutenberg
+        /Users/you/code/gutenberg: /var/www/html/wp-content/plugins/gutenberg
+   ```
+4. Start containers and include your custom volumes by running:
    ```bash
-   yarn docker:up
+   jetpack docker up
    ```
 
 Note that any folder within the `projects/plugins` directory will be automatically linked.
-If you're starting a new monorepo plugin, you may need to `yarn docker:stop` and `yarn docker:up` to re-run the initial linking step so it can be added.
+If you're starting a new monorepo plugin, you may need to `jetpack docker stop` and `jetpack docker up` to re-run the initial linking step so it can be added.
 
 ## Debugging
 
@@ -405,7 +385,7 @@ Logs are stored in your file system under `./tools/docker/logs` directory.
 To `tail -f` the PHP error log, run:
 
 ```sh
-yarn docker:tail
+jetpack docker tail
 ```
 
 #### MySQL Slow Query Log
@@ -428,7 +408,7 @@ To debug emails via web-interface, open [http://localhost:1080](http://localhost
 You can use the [WP CLI](https://make.wordpress.org/cli/) to update the version of WordPress running inside the Docker container. Example command:
 
 ```
-yarn docker:wp core update --version=5.3.4 --force
+jetpack docker wp core update --version=5.3.4 --force
 ```
 
 This is useful if you want to check your code is compatible with the minimum version of WP Jetpack supports, which can be found in the [readme.txt](../readme.txt). We always support the latest patched version of the branch we specify as "Requires at least" in the readme file. You can match it with the exact version on the [WordPress Releases page](https://wordpress.org/download/releases/).
@@ -526,3 +506,25 @@ In your browser's Xdebug Helper preferences, look for the IDE Key setting:
 - Refresh the page at localhost
 
 For more context on remote debugging PHP with VSCode, see [this article](https://medium.com/@jasonterando/debugging-with-visual-studio-code-xdebug-and-docker-on-windows-b63a10b0dec).
+
+### Profiling requests in your Sandbox using XDEBUG
+
+If you want to profile requests to your Sandbox using XDEBUG (See PCYsg-21A-p2), you'll need to hook into the `jetpack_sandbox_add_profile_parameter` filter to add the `XDEBUG_PROFILE` parameter to the requests:
+
+```PHP
+add_filter( 'jetpack_sandbox_add_profile_parameter', '__return_true' );
+```
+
+The above will add the parameter to every request. If you want, you can narrow it down and add it only to certain requests:
+
+```PHP
+add_filter( 'jetpack_sandbox_add_profile_parameter', 'my_plugin_add_profile_parameter', 10, 3 );
+
+function my_plugin_add_profile_parameter( $should_add, $url, $host ) {
+	// parse the $url and $host the way you want
+	if ( $meets_my_criteria ) {
+		return true;
+	}
+	return $should_add;
+}
+```

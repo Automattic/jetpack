@@ -222,7 +222,7 @@ $jetpack-podcast-player-error: $alert-red;
 			display: block;
 			width: $track-status-icon-size;
 			height: $track-status-icon-size;
-			margin-top: ( $editor-font-size * $editor-line-height - $track-status-icon-size ) / 2; // center vertically
+			margin-top: ( $editor-font-size * $editor-line-height - $track-status-icon-size ) * 0.5; // center vertically
 			fill: inherit;
 		}
 	}
@@ -244,7 +244,7 @@ $jetpack-podcast-player-error: $alert-red;
 	.jetpack-podcast-player__track-title-link {
 		display: inline-block;
 		height: $current-track-title-icon-size;
-		margin-left: $gutter-s / 2;
+		margin-left: $gutter-s * 0.5;
 		vertical-align: top;
 
 		&,

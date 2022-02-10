@@ -6,7 +6,7 @@ import {
 	SCAN_STATUS_FETCH_RECEIVE,
 	SCAN_STATUS_FETCH_FAIL,
 } from 'state/action-types';
-import restApi from 'rest-api';
+import restApi from '@automattic/jetpack-api';
 
 export const fetchScanStatus = () => {
 	return dispatch => {

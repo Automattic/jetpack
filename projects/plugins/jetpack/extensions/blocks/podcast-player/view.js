@@ -96,9 +96,11 @@ const initializeBlock = function ( id ) {
 	block.setAttribute( 'data-jetpack-block-initialized', 'true' );
 };
 
-document
-	.querySelectorAll( '.wp-block-jetpack-podcast-player:not([data-jetpack-block-initialized])' )
-	.forEach( player => {
-		player.classList.remove( 'is-default' );
-		initializeBlock( player.id );
-	} );
+document.addEventListener( 'DOMContentLoaded', () => {
+	document
+		.querySelectorAll( '.wp-block-jetpack-podcast-player:not([data-jetpack-block-initialized])' )
+		.forEach( player => {
+			player.classList.remove( 'is-default' );
+			initializeBlock( player.id );
+		} );
+} );

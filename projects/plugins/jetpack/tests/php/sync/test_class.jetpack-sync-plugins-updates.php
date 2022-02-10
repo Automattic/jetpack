@@ -10,27 +10,39 @@ require_once dirname( __FILE__ ) . '/class.silent-upgrader-skin.php';
  */
 class WP_Test_Jetpack_Sync_Plugins_Updates extends WP_Test_Jetpack_Sync_Base {
 
-	public function setUp() {
-		parent::setUp();
+	/**
+	 * Set up.
+	 */
+	public function set_up() {
+		parent::set_up();
 
 		require ABSPATH . 'wp-includes/version.php';
 		$this->server_event_storage->reset();
 	}
 
-	public function tearDown() {
-		parent::tearDown();
+	/**
+	 * Tear down.
+	 */
+	public function tear_down() {
+		parent::tear_down();
 		Constants::clear_constants();
 	}
 
-	public static function setUpBeforeClass() {
-		parent::setUpBeforeClass();
+	/**
+	 * Set up before class.
+	 */
+	public static function set_up_before_class() {
+		parent::set_up_before_class();
 		if ( ! file_exists( WP_PLUGIN_DIR . '/the/the.php' ) ) {
 			WP_Test_Jetpack_Sync_Plugins::install_the_plugin();
 		}
 	}
 
-	public static function tearDownAfterClass() {
-		parent::tearDownAfterClass();
+	/**
+	 * Tear down after class.
+	 */
+	public static function tear_down_after_class() {
+		parent::tear_down_after_class();
 		if ( file_exists( WP_PLUGIN_DIR . '/the/the.php' ) ) {
 			WP_Test_Jetpack_Sync_Plugins::remove_plugin();
 		}

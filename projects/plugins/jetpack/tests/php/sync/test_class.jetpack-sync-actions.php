@@ -108,7 +108,7 @@ class WP_Test_Jetpack_Sync_Actions extends WP_UnitTestCase {
 		delete_option( 'jetpack_sync_full_status' );
 
 		$executions = Actions::do_cron_sync_by_type( 'full_sync' );
-		$this->assertEquals( $executions, 1 );
+		$this->assertSame( 1, $executions );
 	}
 
 	/**
@@ -124,7 +124,7 @@ class WP_Test_Jetpack_Sync_Actions extends WP_UnitTestCase {
 		$full_sync->start();
 
 		$executions = Actions::do_cron_sync_by_type( 'full_sync' );
-		$this->assertEquals( $executions, 1 );
+		$this->assertSame( 1, $executions );
 	}
 
 	/**
@@ -143,7 +143,7 @@ class WP_Test_Jetpack_Sync_Actions extends WP_UnitTestCase {
 		\Jetpack_Options::update_raw_option( 'jetpack_sync_full_status', $settings );
 
 		$executions = Actions::do_cron_sync_by_type( 'full_sync' );
-		$this->assertEquals( $executions, 1 );
+		$this->assertSame( 1, $executions );
 	}
 
 	/**
@@ -167,7 +167,7 @@ class WP_Test_Jetpack_Sync_Actions extends WP_UnitTestCase {
 		$this->assertNotFalse( ( new Lock() )->attempt( 'full_sync' ) );
 
 		$executions = Actions::do_cron_sync_by_type( 'full_sync' );
-		$this->assertEquals( $executions, 1 );
+		$this->assertSame( 1, $executions );
 
 		( new Lock() )->remove( 'full_sync', true );
 	}

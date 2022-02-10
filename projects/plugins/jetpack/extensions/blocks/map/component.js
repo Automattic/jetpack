@@ -12,7 +12,12 @@ import { Children, Component, createRef, Fragment } from '@wordpress/element';
 import MapMarker from './map-marker/';
 import InfoWindow from './info-window/';
 import { mapboxMapFormatter } from './mapbox-map-formatter/';
-
+import {
+	getLoadContext,
+	loadBlockEditorAssets,
+	waitForObject,
+} from '../../shared/block-editor-asset-loader';
+import editorAssets from './block-editor-assets.json';
 export class Map extends Component {
 	// Lifecycle
 	constructor() {
@@ -49,6 +54,7 @@ export class Map extends Component {
 			points.map( ( point, index ) => {
 				return (
 					<MapMarker
+						mapRef={ this.mapRef }
 						key={ index }
 						point={ point }
 						index={ index }
@@ -306,20 +312,27 @@ export class Map extends Component {
 		}
 		this.initMap( mapCenter );
 	};
+
 	loadMapLibraries() {
 		const { apiKey } = this.props;
-		Promise.all( [
-			import( /* webpackChunkName: "map/mapbox-gl" */ 'mapbox-gl' ),
-			import( /* webpackChunkName: "map/mapbox-gl" */ 'mapbox-gl/dist/mapbox-gl.css' ),
-		] ).then( ( [ { default: mapboxgl } ] ) => {
-			mapboxgl.accessToken = apiKey;
-			this.setState( { mapboxgl: mapboxgl }, this.scriptsLoaded );
-		} );
+		const { currentWindow } = getLoadContext( this.mapRef.current );
+		const callbacks = {
+			'mapbox-gl-js': () => {
+				waitForObject( currentWindow, 'mapboxgl' ).then( mapboxgl => {
+					mapboxgl.accessToken = apiKey;
+					this.setState( { mapboxgl: mapboxgl }, this.scriptsLoaded );
+				} );
+			},
+		};
+
+		loadBlockEditorAssets( editorAssets, callbacks, this.mapRef.current );
 	}
+
 	initMap( mapCenter ) {
 		const { mapboxgl } = this.state;
 		const { zoom, onMapLoaded, onError, scrollToZoom, showFullscreenButton, admin } = this.props;
 		let map = null;
+
 		try {
 			map = new mapboxgl.Map( {
 				container: this.mapRef.current,

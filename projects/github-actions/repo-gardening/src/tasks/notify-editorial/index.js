@@ -19,7 +19,6 @@ const sendSlackMessage = require( '../../send-slack-message' );
  * @param {string} owner   - Repository owner.
  * @param {string} repo    - Repository name.
  * @param {string} number  - PR number.
- *
  * @returns {Promise<boolean>} Promise resolving to boolean.
  */
 async function hasNeedsCopyReviewLabel( octokit, owner, repo, number ) {
@@ -35,7 +34,6 @@ async function hasNeedsCopyReviewLabel( octokit, owner, repo, number ) {
  * @param {string} owner   - Repository owner.
  * @param {string} repo    - Repository name.
  * @param {string} number  - PR number.
- *
  * @returns {Promise<boolean>} Promise resolving to boolean.
  */
 async function hasNeedsCopyLabel( octokit, owner, repo, number ) {
@@ -51,7 +49,6 @@ async function hasNeedsCopyLabel( octokit, owner, repo, number ) {
  * @param {string} owner   - Repository owner.
  * @param {string} repo    - Repository name.
  * @param {string} number  - PR number.
- *
  * @returns {Promise<boolean>} Promise resolving to boolean.
  */
 async function hasEditorialInputRequestedLabel( octokit, owner, repo, number ) {
@@ -131,7 +128,7 @@ async function notifyEditorial( payload, octokit ) {
 		debug(
 			`notify-editorial: Adding a label to PR #${ number } to show that design input was requested.`
 		);
-		await octokit.issues.addLabels( {
+		await octokit.rest.issues.addLabels( {
 			owner: ownerLogin,
 			repo,
 			issue_number: number,

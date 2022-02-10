@@ -196,6 +196,18 @@ export function getModules( state ) {
 }
 
 /**
+ * Returns an array of module slugs for all active modules on the site.
+ *
+ * @param  {object} state - Global state tree
+ * @returns {Array}         Array of module slugs.
+ */
+export function getActiveModules( state ) {
+	return Object.keys( state.jetpack.modules.items ).filter(
+		module_slug => state.jetpack.modules.items[ module_slug ].activated
+	);
+}
+
+/**
  * Returns a module object by its name as present in the state
  * @param  {Object} state Global state tree
  * @param  {String}  name module name

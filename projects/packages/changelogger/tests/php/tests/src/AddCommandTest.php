@@ -1,11 +1,9 @@
-<?php // phpcs:ignore WordPress.Files.FileName.InvalidClassFileName
+<?php
 /**
  * Tests for the changelogger add command.
  *
  * @package automattic/jetpack-changelogger
  */
-
-// phpcs:disable WordPress.WP.AlternativeFunctions, WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase
 
 namespace Automattic\Jetpack\Changelogger\Tests;
 
@@ -93,6 +91,39 @@ class AddCommandTest extends CommandTestCase {
 		$code   = $tester->execute( array( '--filename' => 'testing' ), array( 'interactive' => false ) );
 		$this->assertSame( 1, $code );
 		$this->assertMatchesRegularExpression( '{^File "/.*/phpunit-changelogger-[0-9a-f]{6}/changelog/testing" already exists. If you want to replace it, delete it manually.\n$}', $tester->getDisplay() );
+	}
+
+	/**
+	 * Test the try-harder logic for making a filename.
+	 */
+	public function testExecute_autoSuffix() {
+		mkdir( 'changelog' );
+		$tester = $this->getTester( 'add' );
+
+		// Create all the files first.
+		for ( $i = 1; $i < 10; $i++ ) {
+			$code = $tester->execute(
+				array(
+					'--filename'             => 'testing',
+					'--filename-auto-suffix' => true,
+					'--significance'         => 'patch',
+					'--type'                 => 'fixed',
+					'--entry'                => "Testing $i.",
+				),
+				array( 'interactive' => false )
+			);
+			$this->assertSame( 0, $code );
+		}
+
+		// Then validate them all.
+		for ( $i = 1; $i < 10; $i++ ) {
+			$file = 1 === $i ? 'changelog/testing' : "changelog/testing#$i";
+			$this->assertFileExists( $file );
+			$this->assertSame(
+				"Significance: patch\nType: fixed\n\nTesting $i.\n",
+				file_get_contents( $file )
+			);
+		}
 	}
 
 	/**

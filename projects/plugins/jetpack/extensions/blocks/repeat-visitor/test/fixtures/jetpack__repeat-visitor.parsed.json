@@ -1,0 +1,25 @@
+[
+    {
+        "blockName": "jetpack/repeat-visitor",
+        "attrs": {
+            "threshold": 5
+        },
+        "innerBlocks": [
+            {
+                "blockName": "core/paragraph",
+                "attrs": {},
+                "innerBlocks": [],
+                "innerHTML": "\n<p>You're a repeat visitor!</p>\n",
+                "innerContent": [
+                    "\n<p>You're a repeat visitor!</p>\n"
+                ]
+            }
+        ],
+        "innerHTML": "\n<div class=\"wp-block-jetpack-repeat-visitor\"></div>\n",
+        "innerContent": [
+            "\n<div class=\"wp-block-jetpack-repeat-visitor\">",
+            null,
+            "</div>\n"
+        ]
+    }
+]

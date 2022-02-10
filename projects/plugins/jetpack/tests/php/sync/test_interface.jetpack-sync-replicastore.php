@@ -1,6 +1,7 @@
 <?php
 
 use Automattic\Jetpack\Sync\Replicastore;
+use Yoast\PHPUnitPolyfills\TestCases\TestCase;
 
 if ( defined( 'IS_WPCOM' ) && IS_WPCOM ) {
 	require_once ABSPATH . 'wp-content/mu-plugins/jetpack/sync/class.jetpack-sync-test-object-factory.php';
@@ -9,18 +10,20 @@ if ( defined( 'IS_WPCOM' ) && IS_WPCOM ) {
 	require_once dirname( __FILE__ ) . '/server/class.jetpack-sync-test-object-factory.php';
 }
 
-/*
+/**
  * Tests all known implementations of the replicastore
  */
-
-class WP_Test_iJetpack_Sync_Replicastore extends PHPUnit_Framework_TestCase {
+class WP_Test_IJetpack_Sync_Replicastore extends TestCase {
 	/** @var JetpackSyncTestObjectFactory $factory */
 	static $factory;
 	static $token;
 	static $all_replicastores;
 
-	public static function setUpBeforeClass() {
-		parent::setUpBeforeClass();
+	/**
+	 * Set up before class.
+	 */
+	public static function set_up_before_class() {
+		parent::set_up_before_class();
 
 		self::$token = (object) array(
 			'blog_id'          => 101881278, //newsite16.goldsounds.com
@@ -32,8 +35,11 @@ class WP_Test_iJetpack_Sync_Replicastore extends PHPUnit_Framework_TestCase {
 		self::$factory = new JetpackSyncTestObjectFactory();
 	}
 
-	public function setUp() {
-		parent::setUp();
+	/**
+	 * Set up.
+	 */
+	public function set_up() {
+		parent::set_up();
 
 		if ( defined( 'IS_WPCOM' ) && IS_WPCOM ) {
 			switch_to_blog( self::$token->blog_id );
@@ -50,8 +56,11 @@ class WP_Test_iJetpack_Sync_Replicastore extends PHPUnit_Framework_TestCase {
 		}
 	}
 
-	public function tearDown() {
-		parent::tearDown();
+	/**
+	 * Tear down.
+	 */
+	public function tear_down() {
+		parent::tear_down();
 
 		if ( defined( 'IS_WPCOM' ) && IS_WPCOM ) {
 			restore_current_blog();
@@ -707,35 +716,7 @@ class WP_Test_iJetpack_Sync_Replicastore extends PHPUnit_Framework_TestCase {
 
 		$color_meta = $store->get_metadata( 'post', 1, 'colors' );
 
-		$this->assertTrue( $this->arrays_are_similar( $meta_array, $color_meta[0] ) );
-	}
-
-	/**
-	 * Determine if two associative arrays are similar
-	 *
-	 * Both arrays must have the same indexes with identical values
-	 * without respect to key ordering
-	 *
-	 * @param array $a
-	 * @param array $b
-	 *
-	 * @return bool
-	 */
-	function arrays_are_similar( $a, $b ) {
-		// if the indexes don't match, return immediately
-		if ( count( array_diff_assoc( $a, $b ) ) ) {
-			return false;
-		}
-		// we know that the indexes, but maybe not values, match.
-		// compare the values between the two arrays
-		foreach ( $a as $k => $v ) {
-			if ( $v !== $b[ $k ] ) {
-				return false;
-			}
-		}
-
-		// we have identical indexes, and no unequal values
-		return true;
+		$this->assertEquals( $meta_array, $color_meta[0] );
 	}
 
 	/**

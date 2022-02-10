@@ -52,6 +52,8 @@ class Jetpack_Gallery_Widget extends WP_Widget {
 	}
 
 	/**
+	 * Display the widget.
+	 *
 	 * @param array $args Display arguments including before_title, after_title, before_widget, and after_widget.
 	 * @param array $instance The settings for the particular instance of the widget.
 	 */
@@ -60,7 +62,10 @@ class Jetpack_Gallery_Widget extends WP_Widget {
 
 		$this->enqueue_frontend_scripts();
 
-		extract( $args );
+		$before_widget = isset( $args['before_widget'] ) ? $args['before_widget'] : '';
+		$before_title  = isset( $args['before_title'] ) ? $args['before_title'] : '';
+		$after_title   = isset( $args['after_title'] ) ? $args['after_title'] : '';
+		$after_widget  = isset( $args['after_widget'] ) ? $args['after_widget'] : '';
 
 		$instance['attachments'] = $this->get_attachments( $instance );
 
@@ -68,11 +73,14 @@ class Jetpack_Gallery_Widget extends WP_Widget {
 
 		$classes[] = 'widget-gallery-' . $instance['type'];
 
-		// Due to a bug in the carousel plugin, carousels will be triggered for all tiled galleries that exist on a page
-		// with other tiled galleries, regardless of whether or not the widget was set to Carousel mode. The onClick selector
-		// is simply too broad, since it was not written with widgets in mind. This special class prevents that behavior, via
-		// an override handler in gallery.js
-		if ( 'carousel' != $instance['link'] && 'slideshow' != $instance['type'] ) {
+		/*
+		 * Due to a bug in the carousel plugin,
+		 * carousels will be triggered for all tiled galleries that exist on a page with other tiled galleries,
+		 * regardless of whether or not the widget was set to Carousel mode.
+		 * The onClick selector is simply too broad, since it was not written with widgets in mind.
+		 * This special class prevents that behavior, via an override handler in gallery.js.
+		 */
+		if ( 'carousel' !== $instance['link'] && 'slideshow' !== $instance['type'] ) {
 			$classes[] = 'no-carousel';
 		} else {
 			$classes[] = 'carousel';
@@ -80,8 +88,8 @@ class Jetpack_Gallery_Widget extends WP_Widget {
 
 		$classes = implode( ' ', $classes );
 
-		if ( 'carousel' == $instance['link'] ) {
-			require_once plugin_dir_path( realpath( dirname( __FILE__ ) . '/../carousel/jetpack-carousel.php' ) ) . 'jetpack-carousel.php';
+		if ( 'carousel' === $instance['link'] ) {
+			require_once plugin_dir_path( realpath( __DIR__ . '/../carousel/jetpack-carousel.php' ) ) . 'jetpack-carousel.php';
 
 			if ( class_exists( 'Jetpack_Carousel' ) ) {
 				// Create new carousel so we can use the enqueue_assets() method. Not ideal, but there is a decent amount
@@ -93,13 +101,13 @@ class Jetpack_Gallery_Widget extends WP_Widget {
 			}
 		}
 
-		echo $before_widget . "\n";
+		echo $before_widget . "\n"; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
 
 		/** This filter is documented in core/src/wp-includes/default-widgets.php */
 		$title = apply_filters( 'widget_title', $instance['title'] );
 
 		if ( $title ) {
-			echo $before_title . esc_html( $title ) . $after_title . "\n";
+			echo $before_title . $title . $after_title . "\n"; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
 		}
 
 		echo '<div class="' . esc_attr( $classes ) . '">' . "\n";
@@ -124,18 +132,18 @@ class Jetpack_Gallery_Widget extends WP_Widget {
 		add_filter( 'tiled_gallery_content_width', array( $this, 'tiled_gallery_content_width' ) );
 
 		if ( method_exists( $this, $method ) ) {
-			echo $this->$method( $args, $instance );
+			echo $this->$method( $args, $instance ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
 		}
 
-		// Remove the stored $_instance_width, as it is no longer needed
+		// Remove the stored $_instance_width, as it is no longer needed.
 		$this->_instance_width = null;
 
-		// Remove the filter, so any Jetpack_Tiled_Gallery in a post is not affected
+		// Remove the filter, so any Jetpack_Tiled_Gallery in a post is not affected.
 		remove_filter( 'tiled_gallery_content_width', array( $this, 'tiled_gallery_content_width' ) );
 
 		echo "\n" . '</div>'; // .widget-gallery-$type
 
-		echo "\n" . $after_widget;
+		echo "\n" . $after_widget; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
 
 		/** This action is documented in modules/widgets/gravatar-profile.php */
 		do_action( 'jetpack_stats_extra', 'widget_view', 'gallery' );

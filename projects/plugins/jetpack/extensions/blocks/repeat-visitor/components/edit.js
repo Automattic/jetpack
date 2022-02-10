@@ -25,7 +25,7 @@ const RADIO_OPTIONS = [
 	},
 ];
 
-class RepeatVisitorEdit extends Component {
+export class RepeatVisitorEdit extends Component {
 	state = {
 		isThresholdValid: true,
 	};

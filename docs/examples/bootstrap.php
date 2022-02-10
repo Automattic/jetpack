@@ -3,6 +3,11 @@
  * PHPUnit bootstrap file to apply WordPress core's monkey-patching to versions
  * of PHPUnit that don't natively support PHP 8.0 for PHP 8.0.
  *
+ * WARNING: This is outdated as of September 2021. WordPress is in the midst of
+ * updating their stuff to stop being hacky, but have left WP 5.7 and 5.8 in a
+ * strange in-between state. Once we only support 5.9+ we should update this
+ * for whatever it turns out to be.
+ *
  * @package automattic/jetpack
  */
 
@@ -56,10 +61,12 @@ if ( version_compare( PHP_VERSION, '8.0', '>=' ) &&
 	if ( ! class_exists( PHPUnit\Framework\MockObject\InvocationMocker::class, false ) &&
 		file_exists( "$_tests_dir/includes/phpunit7/MockObject/InvocationMocker.php" )
 	) {
+		// phpcs:disable WordPressVIPMinimum.Files.IncludingFile.NotAbsolutePath
 		require "$_tests_dir/includes/phpunit7/MockObject/Builder/NamespaceMatch.php";
 		require "$_tests_dir/includes/phpunit7/MockObject/Builder/ParametersMatch.php";
 		require "$_tests_dir/includes/phpunit7/MockObject/InvocationMocker.php";
 		require "$_tests_dir/includes/phpunit7/MockObject/MockMethod.php";
+		// phpcs:enable
 	} else {
 		fprintf(
 			STDOUT,

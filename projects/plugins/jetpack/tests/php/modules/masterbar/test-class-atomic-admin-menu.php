@@ -75,8 +75,8 @@ class Test_Atomic_Admin_Menu extends WP_UnitTestCase {
 	/**
 	 * Set up data.
 	 */
-	public function setUp() {
-		parent::setUp();
+	public function set_up() {
+		parent::set_up();
 		global $menu, $submenu;
 
 		// Initialize in setUp so it registers hooks for every test.
@@ -86,22 +86,6 @@ class Test_Atomic_Admin_Menu extends WP_UnitTestCase {
 		$submenu = static::$submenu_data;
 
 		wp_set_current_user( static::$user_id );
-	}
-
-	/**
-	 * Test get_instance.
-	 *
-	 * @covers ::get_instance
-	 * @covers ::__construct
-	 */
-	public function test_get_instance() {
-		$instance = Atomic_Admin_Menu::get_instance();
-
-		$this->assertInstanceOf( Atomic_Admin_Menu::class, $instance );
-		$this->assertSame( $instance, static::$admin_menu );
-
-		$this->assertSame( 99998, has_action( 'admin_menu', array( $instance, 'reregister_menu_items' ) ) );
-		$this->assertSame( 10, has_action( 'admin_enqueue_scripts', array( $instance, 'enqueue_scripts' ) ) );
 	}
 
 	/**
@@ -229,19 +213,19 @@ class Test_Atomic_Admin_Menu extends WP_UnitTestCase {
 		static::$admin_menu->add_site_card_menu();
 
 		$menu = static::$admin_menu->set_site_card_menu_class( $menu );
-		$this->assertNotContains( 'has-site-icon', $menu[1][4] );
+		$this->assertStringNotContainsString( 'has-site-icon', $menu[1][4] );
 
 		// Atomic fallback site icon counts as no site icon.
 		add_filter( 'get_site_icon_url', array( $this, 'wpcomsh_site_icon_url' ) );
 		$menu = static::$admin_menu->set_site_card_menu_class( $menu );
 		remove_filter( 'get_site_icon_url', array( $this, 'wpcomsh_site_icon_url' ) );
-		$this->assertNotContains( 'has-site-icon', $menu[1][4] );
+		$this->assertStringNotContainsString( 'has-site-icon', $menu[1][4] );
 
 		// Custom site icon triggers CSS class.
 		add_filter( 'get_site_icon_url', array( $this, 'custom_site_icon_url' ) );
 		$menu = static::$admin_menu->set_site_card_menu_class( $menu );
 		remove_filter( 'get_site_icon_url', array( $this, 'custom_site_icon_url' ) );
-		$this->assertContains( 'has-site-icon', $menu[1][4] );
+		$this->assertStringContainsString( 'has-site-icon', $menu[1][4] );
 	}
 
 	/**
@@ -263,6 +247,15 @@ class Test_Atomic_Admin_Menu extends WP_UnitTestCase {
 	}
 
 	/**
+	 * Tests get_preferred_view
+	 *
+	 * @covers ::get_preferred_view
+	 */
+	public function test_get_preferred_view() {
+		$this->assertSame( 'classic', static::$admin_menu->get_preferred_view( 'export.php' ) );
+	}
+
+	/**
 	 * Tests add_upgrades_menu
 	 *
 	 * @covers ::add_upgrades_menu
@@ -272,21 +265,29 @@ class Test_Atomic_Admin_Menu extends WP_UnitTestCase {
 
 		static::$admin_menu->add_upgrades_menu();
 
-		$this->assertSame( 'https://wordpress.com/domains/manage/' . static::$domain, array_pop( $submenu['paid-upgrades.php'] )[2] );
+		$this->assertSame( 'https://wordpress.com/plans/' . static::$domain, $submenu['paid-upgrades.php'][1][2] );
+		$this->assertSame( 'https://wordpress.com/domains/manage/' . static::$domain, $submenu['paid-upgrades.php'][2][2] );
+
+		/** This filter is already documented in modules/masterbar/admin-menu/class-atomic-admin-menu.php */
+		if ( apply_filters( 'jetpack_show_wpcom_upgrades_email_menu', false ) ) {
+			$this->assertSame( 'https://wordpress.com/email/' . static::$domain, $submenu['paid-upgrades.php'][3][2] );
+			$this->assertSame( 'https://wordpress.com/purchases/subscriptions/' . static::$domain, $submenu['paid-upgrades.php'][4][2] );
+		} else {
+			$this->assertSame( 'https://wordpress.com/purchases/subscriptions/' . static::$domain, $submenu['paid-upgrades.php'][3][2] );
+		}
 	}
 
 	/**
-	 * Tests add_tools_menu
+	 * Tests add_inbox_menu
 	 *
-	 * @covers ::add_tools_menu
+	 * @covers ::add_inbox_menu
 	 */
-	public function test_add_tools_menu() {
-		global $submenu;
+	public function test_add_inbox_menu() {
+		global $menu;
 
-		static::$admin_menu->add_tools_menu();
+		static::$admin_menu->add_inbox_menu();
 
-		// Check Export menu item always links to WP Admin.
-		$this->assertSame( 'export.php', $submenu['tools.php'][5][2] );
+		$this->assertSame( 'https://wordpress.com/inbox/' . static::$domain, $menu['4.64424'][2] );
 	}
 
 	/**
@@ -295,70 +296,10 @@ class Test_Atomic_Admin_Menu extends WP_UnitTestCase {
 	 * @covers ::add_options_menu
 	 */
 	public function test_add_options_menu() {
-		global $submenu, $menu;
+		global $submenu;
 
 		static::$admin_menu->add_options_menu();
-		$this->assertSame( 'https://wordpress.com/hosting-config/' . static::$domain, $submenu['options-general.php'][6][2] );
-		$this->assertSame( 'options-writing.php', array_pop( $submenu['options-general.php'] )[2] );
-		$this->assertSame( 'options-general.php', array_pop( $submenu['options-general.php'] )[2] );
-
-		// Reset.
-		$menu    = static::$menu_data;
-		$submenu = static::$submenu_data;
-
-		static::$admin_menu->add_options_menu( true );
-		$last_submenu = array_pop( $submenu['options-general.php'] );
-		$this->assertNotSame( 'options-writing.php', $last_submenu[2] );
-		$this->assertNotSame( 'options-general.php', $last_submenu[2] );
-	}
-
-	/**
-	 * Tests add_plugins_menu
-	 *
-	 * @covers ::add_plugins_menu
-	 */
-	public function test_add_plugins_menu() {
-		global $menu;
-
-		static::$admin_menu->add_plugins_menu( false );
-
-		// Check Plugins menu always links to WP Admin.
-		$this->assertSame( 'plugins.php', $menu[65][2] );
-	}
-
-	/**
-	 * Tests add_appearance_menu
-	 *
-	 * @covers ::add_appearance_menu
-	 */
-	public function test_add_appearance_menu() {
-		global $submenu;
-
-		static::$admin_menu->add_appearance_menu();
-
-		// Multisite users don't have the `install_themes` capability by default,
-		// so we have to make a dynamic check based on whether the current user can
-		// install themes.
-		if ( current_user_can( 'install_themes' ) ) {
-			$this->assertSame( 'theme-install.php', $submenu['themes.php'][1][2] );
-			// Check Customize menu always links to WP Admin.
-			$this->assertSame( 'customize.php?return', $submenu['themes.php'][3][2] );
-		} else {
-			// Check Customize menu always links to WP Admin.
-			$this->assertSame( 'customize.php?return', $submenu['themes.php'][2][2] );
-		}
-	}
-
-	/**
-	 * Tests add_users_menu
-	 *
-	 * @covers ::add_users_menu
-	 */
-	public function test_add_users_menu() {
-		global $submenu;
-
-		static::$admin_menu->add_users_menu();
-		$this->assertSame( 'users.php', $submenu['users.php'][2][2] );
+		$this->assertSame( 'https://wordpress.com/hosting-config/' . static::$domain, $submenu['options-general.php'][11][2] );
 	}
 
 	/**
@@ -368,9 +309,36 @@ class Test_Atomic_Admin_Menu extends WP_UnitTestCase {
 	 */
 	public function test_add_gutenberg_menus() {
 		global $menu;
-		static::$admin_menu->add_gutenberg_menus( false );
+		static::$admin_menu->add_gutenberg_menus();
 
 		// Gutenberg plugin menu should not be visible.
 		$this->assertArrayNotHasKey( 101, $menu );
+	}
+
+	/**
+	 * Tests add_plugins_menu
+	 *
+	 * @covers ::add_plugins_menu
+	 */
+	public function test_add_plugins_menu() {
+		global $submenu;
+
+		// Make sure that nothing changes if wpcom_marketplace is not enabled.
+		static::$admin_menu->add_plugins_menu();
+		$this->assertSame( 'plugin-install.php', $submenu['plugins.php'][10][2] );
+
+		if ( ! is_multisite() ) {
+			// All Atomic sites are single site installations.
+			// Enable wpcom_marketplace and test again.
+			add_filter( 'wpcom_marketplace_enabled', '__return_true' );
+			static::$admin_menu->add_plugins_menu();
+
+			// Make sure that initial menu item is hidden.
+			$this->assertSame( 'hide-if-js', $submenu['plugins.php'][1][4] );
+			// Make sure that the new menu item is inserted.
+			$this->assertSame( 'https://wordpress.com/plugins/' . static::$domain, $submenu['plugins.php'][0][2] );
+			// Make sure that Installed Plugins menu item is still in place.
+			$this->assertSame( 'plugins.php', $submenu['plugins.php'][2][2] );
+		}
 	}
 }

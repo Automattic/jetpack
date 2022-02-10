@@ -1,0 +1,23 @@
+<?xml version="1.0"?>
+<phpunit
+	backupGlobals="false"
+	colors="true"
+	convertErrorsToExceptions="true"
+	convertNoticesToExceptions="true"
+	convertWarningsToExceptions="true"
+	convertDeprecationsToExceptions="true"
+	>
+
+	<testsuites>
+		<testsuite name="unit">
+			<directory suffix=".php">./tests/php/</directory>
+		</testsuite>
+	</testsuites>
+
+	<filter>
+		<whitelist processUncoveredFilesFromWhitelist="false">
+			<directory suffix=".php">app</directory>
+			<directory suffix=".php">compatibility</directory>
+		</whitelist>
+	</filter>
+</phpunit>

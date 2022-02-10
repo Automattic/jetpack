@@ -2,13 +2,14 @@
  * External dependencies
  */
 import { assign, get, merge } from 'lodash';
+import { getRedirectUrl } from '@automattic/jetpack-components';
 
 /**
  * Internal dependencies
  */
 import { JETPACK_SET_INITIAL_STATE, MOCK_SWITCH_USER_PERMISSIONS } from 'state/action-types';
 import { getPlanDuration } from 'state/plans/reducer';
-import { getSiteProducts } from 'state/site-products';
+import { getProducts } from 'state/products';
 import { isCurrentUserLinked } from 'state/connection';
 
 export const initialState = ( state = window.Initial_State, action ) => {
@@ -52,6 +53,26 @@ export function getSiteRoles( state ) {
 
 export function getInitialStateStatsData( state ) {
 	return get( state.jetpack.initialState.stats, 'data' );
+}
+
+/**
+ * Returns an object of plugins that are using the Jetpack connection.
+ *
+ * @param   {object}  state - Global state tree
+ * @returns {object}         Plugins that are using the Jetpack connection.
+ */
+export function getInitialStateConnectedPlugins( state ) {
+	return get( state.jetpack.initialState, 'connectedPlugins', {} );
+}
+
+/**
+ * Returns an array of benefits provided by the Jetpack plugin.
+ *
+ * @param   {object}  state - Global state tree
+ * @returns {Array}          Array of benefits provided by the Jetpack Plugin.
+ */
+export function getInitialStateJetpackBenefits( state ) {
+	return get( state.jetpack.initialState, 'jetpackBenefits', [] );
 }
 
 export function getAdminEmailAddress( state ) {
@@ -163,6 +184,16 @@ export function getUserWpComLogin( state ) {
 	return get( state.jetpack.initialState.userData.currentUser, [ 'wpcomUser', 'login' ], '' );
 }
 
+/**
+ * Returns the WPCOM ID of the connected user.
+ *
+ * @param {object} state - Global state tree
+ * @returns {number}        the ID of the user
+ */
+export function getUserWpComId( state ) {
+	return get( state.jetpack.initialState.userData.currentUser, [ 'wpcomUser', 'ID' ], '' );
+}
+
 export function getUserWpComEmail( state ) {
 	return get( state.jetpack.initialState.userData.currentUser, [ 'wpcomUser', 'email' ], '' );
 }
@@ -193,6 +224,16 @@ export function userCanViewStats( state ) {
 }
 
 /**
+ * Returns the WPCOM ID of a connected site.
+ *
+ * @param {object} state - Global state tree
+ * @returns {number}        the ID of the site
+ */
+export function getSiteId( state ) {
+	return get( state.jetpack.initialState.siteData, [ 'blog_id' ] );
+}
+
+/**
  * Returns the site icon as an image URL.
  *
  * @param {object} state Global state tree
@@ -220,6 +261,48 @@ export function getApiNonce( state ) {
 
 export function getApiRootUrl( state ) {
 	return get( state.jetpack.initialState, 'WP_API_root' );
+}
+
+/**
+ * Returns the registration nonce.
+ *
+ * @param {object} state - Global state tree
+ * @returns {string} The registration nonce
+ */
+export function getRegistrationNonce( state ) {
+	return get( state.jetpack.initialState, 'registrationNonce' );
+}
+
+/**
+ * Returns the plugin base URL.
+ *
+ * @param {object} state - Global state tree
+ * @returns {string} The registration nonce
+ */
+export function getPluginBaseUrl( state ) {
+	return get( state.jetpack.initialState, 'pluginBaseUrl' );
+}
+
+/**
+ * Returns a purchase token that is used for Jetpack logged out visitor checkout.
+ *
+ * @param {object} state - Global state tree
+ *
+ * @returns {string|boolean} purchase token or false if not the connection owner.
+ */
+export function getPurchaseToken( state ) {
+	return get( state.jetpack.initialState, 'purchaseToken' );
+}
+
+/**
+ * Returns current Calypso environment.
+ *
+ * @param {object} state - Global state tree
+ *
+ * @returns {string} Calypso environment name.
+ */
+export function getCalypsoEnv( state ) {
+	return get( state.jetpack.initialState, 'calypsoEnv' );
 }
 
 export function getTracksUserData( state ) {
@@ -255,12 +338,33 @@ export function arePromotionsActive( state ) {
 /**
  * Check if the site is an Automated Transfer site.
  *
- * @param {Object} state   Global state tree.
+ * @todo Deprecated soon for isWoASite();
+ * @param {object} state - Global state tree.
  *
- * @return {boolean} True if this is an Atomic site, false otherwise.
+ * @returns {boolean} True if this is an WoA site, false otherwise.
  */
 export function isAtomicSite( state ) {
 	return get( state.jetpack.initialState.siteData, 'isAtomicSite', false );
+}
+
+/**
+ * Check if the site is a WordPress.com-on-Atomic site.
+ *
+ * @param {object} state - Global state tree.
+ * @returns {boolean} True if this is an WoA site, false otherwise.
+ */
+export function isWoASite( state ) {
+	return get( state.jetpack.initialState.siteData, 'isWoASite', false );
+}
+
+/**
+ * Check if the site is an Atomic-hosted site.
+ *
+ * @param {object} state - Global state tree.
+ * @returns {boolean} True if this is an Atomic-hosted site, false otherwise.
+ */
+export function isAtomicPlatform( state ) {
+	return get( state.jetpack.initialState.siteData, 'isAtomicPlatform', false );
 }
 
 /**
@@ -353,6 +457,16 @@ export function getPartnerSubsidiaryId( state ) {
 }
 
 /**
+ * Returns the partner coupon associated with this site, if any.
+ *
+ * @param {object} state - Global state tree
+ * @returns {object|boolean} partner coupon if exists or false.
+ */
+export function getPartnerCoupon( state ) {
+	return get( state.jetpack.initialState, 'partnerCoupon' );
+}
+
+/**
  * Return an upgrade URL
  *
  * @param {object} state - Global state tree
@@ -366,19 +480,40 @@ export const getUpgradeUrl = ( state, source, userId = '', planDuration = false 
 	const affiliateCode = getAffiliateCode( state );
 	const subsidiaryId = getPartnerSubsidiaryId( state );
 	const uid = userId || getUserId( state );
+	const purchaseToken = getPurchaseToken( state );
+	const calypsoEnv = getCalypsoEnv( state );
 
 	if ( planDuration && 'monthly' === getPlanDuration( state ) ) {
 		source += '-monthly';
 	}
 
-	return (
-		'https://jetpack.com/redirect/?' +
-		`source=${ source }&site=${ getSiteRawUrl( state ) }` +
-		( affiliateCode ? `&aff=${ affiliateCode }` : '' ) +
-		( uid ? `&u=${ uid }` : '' ) +
-		( subsidiaryId ? `&subsidiaryId=${ subsidiaryId }` : '' ) +
-		( isCurrentUserLinked( state ) ? '' : '&unlinked=1' )
-	);
+	const redirectArgs = {
+		site: getSiteRawUrl( state ),
+	};
+
+	if ( affiliateCode ) {
+		redirectArgs.aff = affiliateCode;
+	}
+	if ( uid ) {
+		redirectArgs.u = uid;
+	}
+	if ( subsidiaryId ) {
+		redirectArgs.subsidiaryId = subsidiaryId;
+	}
+
+	redirectArgs.query = '';
+
+	if ( ! isCurrentUserLinked( state ) ) {
+		redirectArgs.query += 'unlinked=1&';
+	}
+	if ( purchaseToken ) {
+		redirectArgs.query += `purchasetoken=${ purchaseToken }`;
+	}
+	if ( calypsoEnv ) {
+		redirectArgs.calypso_env = calypsoEnv;
+	}
+
+	return getRedirectUrl( source, redirectArgs );
 };
 
 /**
@@ -388,48 +523,30 @@ export const getUpgradeUrl = ( state, source, userId = '', planDuration = false 
  * @returns Array of Products that you can purchase.
  */
 export function getProductsForPurchase( state ) {
-	const products = get( state.jetpack.initialState, 'products', [] );
-	const siteProducts = getSiteProducts( state );
+	const staticProducts = get( state.jetpack.initialState, 'products', {} );
+	const jetpackProducts = getProducts( state );
+	const products = {};
 
-	return products.map( product => {
-		const optionKey = product.options[ 0 ].key;
-		return {
+	for ( const [ key, product ] of Object.entries( staticProducts ) ) {
+		products[ key ] = {
 			title: product.title,
-			key: product.key,
-			shortDescription: product.short_description,
-			labelPopup: product.label_popup,
-			optionsLabel: product.options_label,
-			defaultOption: product.default_option,
-			options: getProductOptions( state, product, siteProducts ),
-			learnMore: product.learn_more,
-			learnMoreUrl: getUpgradeUrl( state, `aag-${ product.key }` ),
+			slug: product.slug,
+			key: key,
+			description: product.description,
+			features: product.features,
+			available: get( jetpackProducts, [ product.slug, 'available' ], false ),
+			currencyCode: get( jetpackProducts, [ product.slug, 'currency_code' ], '' ),
 			showPromotion: product.show_promotion,
 			promotionPercentage: product.discount_percent,
-			recordCount: get( siteProducts, [ optionKey, 'price_tier_usage_quantity' ], '0' ),
 			includedInPlans: product.included_in_plans,
+			fullPrice: get( jetpackProducts, [ product.slug, 'cost' ], '' ),
+			upgradeUrl: getRedirectUrl( 'jetpack-product-description-checkout', {
+				path: product.slug,
+			} ),
 		};
-	} );
-}
+	}
 
-function getProductOptions( state, product, siteProducts ) {
-	return product.options.map( option => {
-		return {
-			name: option.name,
-			type: option.type,
-			key: option.key,
-			slug: option.slug,
-			description: option.description,
-			currencyCode: get( siteProducts, [ option.key, 'currency_code' ], '' ),
-			yearly: {
-				fullPrice: get( siteProducts, [ option.key, 'cost' ], '' ),
-				upgradeUrl: getUpgradeUrl( state, option.slug ),
-			},
-			monthly: {
-				fullPrice: get( siteProducts, [ `${ option.key }_monthly`, 'cost' ], '' ),
-				upgradeUrl: getUpgradeUrl( state, `${ option.slug }-monthly` ),
-			},
-		};
-	} );
+	return products;
 }
 
 /**
@@ -475,4 +592,14 @@ export function isSafari( state ) {
  */
 export function doNotUseConnectionIframe( state ) {
 	return !! state.jetpack.initialState.doNotUseConnectionIframe;
+}
+
+/**
+ * Check if WooCommerce is currently installed and active
+ *
+ * @param {object} state - Global state tree.
+ * @returns {boolean} True, the plugin is installed and active
+ */
+export function isWooCommerceActive( state ) {
+	return !! state.jetpack.initialState.isWooCommerceActive;
 }

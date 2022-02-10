@@ -2,7 +2,7 @@
  * WordPress dependencies
  */
 // eslint-disable-next-line wpcalypso/import-docblock
-import { InnerBlocks, __experimentalBlock as Block } from '@wordpress/block-editor';
+import { InnerBlocks, useBlockProps } from '@wordpress/block-editor';
 import { compose } from '@wordpress/compose';
 import { withDispatch, withSelect } from '@wordpress/data';
 import { useEffect } from '@wordpress/element';
@@ -79,9 +79,12 @@ function ButtonsEdit( { context, subscribeButton, setSubscribeButtonPlan } ) {
 		);
 	}, [ subscribeButton ] );
 
+	const blockProps = useBlockProps( {
+		className: 'wp-block-buttons',
+	} );
+
 	return (
-		// eslint-disable-next-line wpcalypso/jsx-classname-namespace
-		<Block.div className="wp-block-buttons">
+		<div { ...blockProps }>
 			<InnerBlocks
 				allowedBlocks={ ALLOWED_BLOCKS }
 				template={ isPreview ? previewTemplate : template }
@@ -89,7 +92,7 @@ function ButtonsEdit( { context, subscribeButton, setSubscribeButtonPlan } ) {
 				__experimentalLayout={ { type: 'default', alignments: [] } }
 				__experimentalMoverDirection="horizontal"
 			/>
-		</Block.div>
+		</div>
 	);
 }
 

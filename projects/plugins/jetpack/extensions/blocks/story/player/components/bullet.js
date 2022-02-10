@@ -6,7 +6,6 @@ import classNames from 'classnames';
 /**
  * WordPress dependencies
  */
-import { createElement } from '@wordpress/element';
 import { __, sprintf } from '@wordpress/i18n';
 import { Button } from '@wordpress/components';
 
@@ -20,13 +19,13 @@ export default function Bullet( { isEllipsis, disabled, index, isSelected, progr
 	if ( ! isEllipsis ) {
 		label = isSelected
 			? sprintf(
-					/* Translators: placeholder is a number */
-					__( 'Slide %d, currently selected.', 'jetpack' ),
+					/* translators: %d: Slide number. */
+					__( 'Slide %d, currently selected', 'jetpack' ),
 					index + 1
 			  )
 			: sprintf(
-					/* Translators: placeholder is a number */
-					__( 'Slide %d', 'jetpack' ),
+					/* translators: %d: Slide number. */
+					__( 'Go to slide %d', 'jetpack' ),
 					index + 1
 			  );
 	}

@@ -11,6 +11,7 @@
  * Class WP_Test_Jetpack_Photon
  */
 class WP_Test_Jetpack_Photon extends Jetpack_Attachment_Test_Case {
+
 	/**
 	 * Test image.
 	 *
@@ -55,8 +56,8 @@ class WP_Test_Jetpack_Photon extends Jetpack_Attachment_Test_Case {
 	/**
 	 * Sets up the test.
 	 */
-	public function setUp() {
-		parent::setUp();
+	public function set_up() {
+		parent::set_up();
 
 		// Preserving global variables.
 		global $content_width;
@@ -66,20 +67,20 @@ class WP_Test_Jetpack_Photon extends Jetpack_Attachment_Test_Case {
 		// WP_UnitTestCase resets the action/filter state after every test:
 		// https://core.trac.wordpress.org/browser/trunk/tests/phpunit/includes/testcase.php?rev=43005#L273
 		// So we need to set these Photon filters for each test.
-		// see ::tearDown() ...
+		// see ::tear_down() ...
 		Jetpack_Photon::instance();
 	}
 
 	/**
 	 * Clean up after the test.
 	 */
-	public function tearDown() {
+	public function tear_down() {
 		// Restoring global variables.
 		global $content_width, $wp_the_query;
 		$content_width = $this->protected_globals['content_width'];
 		$wp_the_query  = new WP_Query(); // phpcs:ignore WordPress.WP.GlobalVariablesOverride.Prohibited
 
-		// ... see ::setUp()
+		// ... see ::set_up()
 		// Unfortunately Jetpack_Photon::instance() won't run Jetpack_Photon->setup()
 		// each time Jetpack_Photon::instance() is called, since it's gated by a
 		// static variable.
@@ -95,7 +96,7 @@ class WP_Test_Jetpack_Photon extends Jetpack_Attachment_Test_Case {
 		$instance->setAccessible( true );
 		$instance->setValue( null );
 
-		parent::tearDown();
+		parent::tear_down();
 	}
 
 	/**
@@ -1004,7 +1005,7 @@ class WP_Test_Jetpack_Photon extends Jetpack_Attachment_Test_Case {
 
 		$this->assertArrayNotHasKey( 'width', $attributes );
 		$this->assertArrayNotHasKey( 'height', $attributes );
-		$this->assertContains( 'data-recalc-dims', $filtered_content );
+		$this->assertStringContainsString( 'data-recalc-dims', $filtered_content );
 	}
 
 	/**
@@ -1054,7 +1055,7 @@ class WP_Test_Jetpack_Photon extends Jetpack_Attachment_Test_Case {
 		$sample_html      = '<img src="http://example.com/test.png" class="test" data-width="100" data-height="200" />';
 		$filtered_content = Jetpack_Photon::filter_the_content( $sample_html );
 		$attributes       = wp_kses_hair( $filtered_content, wp_allowed_protocols() );
-		$query_str        = wp_parse_url( $attributes['src']['value'], PHP_URL_QUERY );
+		$query_str        = (string) wp_parse_url( $attributes['src']['value'], PHP_URL_QUERY );
 		parse_str( $query_str, $query_params );
 
 		$this->assertArrayNotHasKey( 'resize', $query_params );
@@ -1085,7 +1086,7 @@ class WP_Test_Jetpack_Photon extends Jetpack_Attachment_Test_Case {
 	 */
 	public function photon_attributes_when_filtered_data_provider() {
 		$assert_details = function ( $details ) {
-			$this->assertInternalType( 'array', $details );
+			$this->assertIsArray( $details );
 			$this->assertArrayHasKey( 'tag', $details );
 			$this->assertArrayHasKey( 'src', $details );
 			$this->assertArrayHasKey( 'src_orig', $details );
@@ -1184,7 +1185,7 @@ class WP_Test_Jetpack_Photon extends Jetpack_Attachment_Test_Case {
 		$this->assertStringEndsWith( $photon_src, html_entity_decode( $attributes['src']['value'] ) );
 		$this->assertArrayHasKey( 'width', $attributes );
 		$this->assertArrayHasKey( 'height', $attributes );
-		$this->assertNotContains( 'data-recalc-dims', $filtered_content );
+		$this->assertStringNotContainsString( 'data-recalc-dims', $filtered_content );
 	}
 
 	/**
@@ -1233,7 +1234,7 @@ class WP_Test_Jetpack_Photon extends Jetpack_Attachment_Test_Case {
 
 		$filtered_content = apply_filters( 'the_content', $content, $post->ID );
 
-		$this->assertContains(
+		$this->assertStringContainsString(
 			'.wp.com/example.com/wp-content/uploads/2019/06/huge.jpg?h=1280&#038;ssl=1',
 			$filtered_content
 		);
@@ -1261,8 +1262,8 @@ class WP_Test_Jetpack_Photon extends Jetpack_Attachment_Test_Case {
 		$this->assertArrayHasKey( 'source_url', $data['media_details']['sizes']['full'] );
 		$this->assertArrayHasKey( 'source_url', $data['media_details']['sizes']['medium_large'] );
 
-		$this->assertContains( '?', $data['media_details']['sizes']['full']['source_url'] );
-		$this->assertContains( '?', $data['media_details']['sizes']['medium_large']['source_url'] );
+		$this->assertStringContainsString( '?', $data['media_details']['sizes']['full']['source_url'] );
+		$this->assertStringContainsString( '?', $data['media_details']['sizes']['medium_large']['source_url'] );
 	}
 
 	/**
@@ -1288,8 +1289,8 @@ class WP_Test_Jetpack_Photon extends Jetpack_Attachment_Test_Case {
 		$this->assertArrayHasKey( 'source_url', $data['media_details']['sizes']['full'] );
 		$this->assertArrayHasKey( 'source_url', $data['media_details']['sizes']['medium_large'] );
 
-		$this->assertNotContains( '?', $data['media_details']['sizes']['full']['source_url'] );
-		$this->assertNotContains( '?', $data['media_details']['sizes']['medium_large']['source_url'] );
+		$this->assertStringNotContainsString( '?', $data['media_details']['sizes']['full']['source_url'] );
+		$this->assertStringNotContainsString( '?', $data['media_details']['sizes']['medium_large']['source_url'] );
 
 		// Subsequent ?context=view requests should still be Photonized.
 		$request = new WP_REST_Request( 'GET', sprintf( '/wp/v2/media/%d', $test_image ) );
@@ -1304,8 +1305,8 @@ class WP_Test_Jetpack_Photon extends Jetpack_Attachment_Test_Case {
 		$this->assertArrayHasKey( 'source_url', $data['media_details']['sizes']['full'] );
 		$this->assertArrayHasKey( 'source_url', $data['media_details']['sizes']['medium_large'] );
 
-		$this->assertContains( '?', $data['media_details']['sizes']['full']['source_url'] );
-		$this->assertContains( '?', $data['media_details']['sizes']['medium_large']['source_url'] );
+		$this->assertStringContainsString( '?', $data['media_details']['sizes']['full']['source_url'] );
+		$this->assertStringContainsString( '?', $data['media_details']['sizes']['medium_large']['source_url'] );
 	}
 
 	/**
@@ -1370,7 +1371,7 @@ class WP_Test_Jetpack_Photon extends Jetpack_Attachment_Test_Case {
 		$data = $response->get_data();
 
 		$this->assertNotEmpty( $data );
-		$this->assertInternalType( 'array', $data[0] );
+		$this->assertIsArray( $data[0] );
 		$this->assertArrayHasKey( 'url', $data[0] );
 		$this->assertStringNotContainsString( 'wp.com', $data[0]['url'] );
 	}
@@ -1443,6 +1444,39 @@ class WP_Test_Jetpack_Photon extends Jetpack_Attachment_Test_Case {
 		$this->assertEquals( $expected, Jetpack_Photon::strip_image_dimensions_maybe( $url ) );
 
 		wp_delete_attachment( $id );
+	}
+
+	/**
+	 * Tests Photon's HTML parsing based on file type.
+	 *
+	 * @param string $url URL being validated.
+	 * @param bool   $expected If is valid Photon-able URL.
+	 *
+	 * @author kraftbj
+	 * @covers       Jetpack_Photon::validate_image_url
+	 * @dataProvider get_test_photon_validate_image_url_file_types_data_provider
+	 * @since 10.0.0
+	 */
+	public function test_photon_validate_image_url_file_types( $url, $expected ) {
+		$testable                    = new ReflectionClass( Jetpack_Photon::class );
+		$testable_validate_image_url = $testable->getMethod( 'validate_image_url' );
+		$testable_validate_image_url->setAccessible( true );
+		$this->assertEquals( $expected, $testable_validate_image_url->invoke( null, $url ) );
+	}
+
+	/**
+	 * Possible values for test_photon_validate_image_url_file_types.
+	 */
+	public function get_test_photon_validate_image_url_file_types_data_provider() {
+		return array(
+			'gif'     => array( 'http://example.com/example-150x150.gif', true ),
+			'jpg'     => array( 'http://example.com/example-150x150.jpg', true ),
+			'jpeg'    => array( 'http://example.com/example-150x150.jpeg', true ),
+			'png'     => array( 'http://example.com/example-150x150.png', true ),
+			'webp'    => array( 'http://example.com/example-150x150.webp', true ),
+			'invalid' => array( 'http://example.com/example-150x150.invalid', false ),
+
+		);
 	}
 }
 

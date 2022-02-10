@@ -1,0 +1,50 @@
+{
+	"name": "@automattic/jetpack-idc",
+	"version": "0.9.2",
+	"description": "Jetpack Connection Component",
+	"author": "Automattic",
+	"license": "GPL-2.0-or-later",
+	"dependencies": {
+		"@automattic/jetpack-analytics": "workspace:^0.1.7",
+		"@automattic/jetpack-api": "workspace:^0.8.4",
+		"@automattic/jetpack-base-styles": "workspace:^0.1.8",
+		"@automattic/jetpack-components": "workspace:^0.10.5",
+		"@wordpress/base-styles": "4.1.0",
+		"@wordpress/components": "19.3.0",
+		"@wordpress/compose": "5.1.0",
+		"@wordpress/data": "6.2.0",
+		"@wordpress/element": "4.1.0",
+		"@wordpress/i18n": "4.3.0",
+		"@wordpress/url": "3.4.0",
+		"prop-types": "^15.7.2"
+	},
+	"devDependencies": {
+		"@babel/core": "7.16.0",
+		"@babel/preset-react": "7.16.0",
+		"jetpack-js-test-runner": "workspace:*",
+		"nyc": "15.1.0",
+		"react": "17.0.2",
+		"react-dom": "17.0.2",
+		"react-test-renderer": "17.0.2"
+	},
+	"peerDependencies": {
+		"react": "^17.0.2",
+		"react-dom": "^17.0.2"
+	},
+	"type": "module",
+	"exports": {
+		".": "./index.jsx"
+	},
+	"sideEffects": [
+		"*.css",
+		"*.scss"
+	],
+	"scripts": {
+		"test": "NODE_ENV=test NODE_PATH=tests:. js-test-runner --jsdom --initfile=test-main.jsx 'glob:./!(node_modules)/**/test/*.jsx'"
+	},
+	"engines": {
+		"node": "^14.18.3 || ^16.13.2",
+		"pnpm": "^6.23.6",
+		"yarn": "use pnpm instead - see docs/yarn-upgrade.md"
+	}
+}

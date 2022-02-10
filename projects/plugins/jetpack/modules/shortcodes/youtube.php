@@ -182,6 +182,9 @@ function youtube_id( $url ) {
 	$url = youtube_sanitize_url( $url );
 	$url = wp_parse_url( $url );
 
+	$thumbnail = "https://i.ytimg.com/vi/$id/hqdefault.jpg";
+	$video_url = add_query_arg( 'v', $id, 'https://www.youtube.com/watch' );
+
 	$args = jetpack_shortcode_youtube_args( $url );
 	if ( empty( $args ) ) {
 		return sprintf( '<!--%s-->', esc_html__( 'YouTube Error: empty URL args', 'jetpack' ) );
@@ -223,20 +226,24 @@ function youtube_id( $url ) {
 	if ( isset( $args['start'] ) ) {
 		$start = (int) $args['start'];
 	} elseif ( isset( $args['t'] ) ) {
-		$time_pieces = preg_split( '/(?<=\D)(?=\d+)/', $args['t'] );
+		if ( is_numeric( $args['t'] ) ) {
+			$start = (int) $args['t'];
+		} else {
+			$time_pieces = preg_split( '/(?<=\D)(?=\d+)/', $args['t'] );
 
-		foreach ( $time_pieces as $time_piece ) {
-			$int = (int) $time_piece;
-			switch ( substr( $time_piece, -1 ) ) {
-				case 'h':
-					$start += $int * 3600;
-					break;
-				case 'm':
-					$start += $int * 60;
-					break;
-				case 's':
-					$start += $int;
-					break;
+			foreach ( $time_pieces as $time_piece ) {
+				$int = (int) $time_piece;
+				switch ( substr( $time_piece, - 1 ) ) {
+					case 'h':
+						$start += $int * 3600;
+						break;
+					case 'm':
+						$start += $int * 60;
+						break;
+					case 's':
+						$start += $int;
+						break;
+				}
 			}
 		}
 	}
@@ -296,8 +303,8 @@ function youtube_id( $url ) {
 		// Note that <amp-youtube> currently is not well suited for playlists that don't have an individual video selected, hence the $id check above.
 		$placeholder = sprintf(
 			'<a href="%1$s" placeholder><amp-img src="%2$s" alt="%3$s" layout="fill" object-fit="cover"><noscript><img src="%2$s" loading="lazy" decoding="async" alt="%3$s"></noscript></amp-img></a>',
-			esc_url( add_query_arg( 'v', $id, 'https://www.youtube.com/watch' ) ),
-			esc_url( "https://i.ytimg.com/vi/$id/hqdefault.jpg" ),
+			esc_url( $video_url ),
+			esc_url( $thumbnail ),
 			esc_attr__( 'YouTube Poster', 'jetpack' ) // Would be preferable to provide YouTube video title, but not available in this non-oEmbed context.
 		);
 
@@ -334,7 +341,13 @@ function youtube_id( $url ) {
 
 		$layout = $is_amp ? 'layout="responsive" ' : '';
 
-		$html = "<iframe class='youtube-player' width='$w' height='$h' {$layout}src='" . esc_url( $src ) . "' allowfullscreen='true' style='border:0;' sandbox='allow-scripts allow-same-origin allow-popups allow-presentation'></iframe>";
+		$html = sprintf(
+			'<iframe class="youtube-player" width="%s" height="%s" %ssrc="%s" allowfullscreen="true" style="border:0;" sandbox="allow-scripts allow-same-origin allow-popups allow-presentation"></iframe>',
+			esc_attr( $w ),
+			esc_attr( $h ),
+			$layout,
+			esc_url( $src )
+		);
 	}
 
 	// Let's do some alignment wonder in a span, unless we're producing a feed.
@@ -357,6 +370,22 @@ function youtube_id( $url ) {
 			$html
 		);
 
+	}
+
+	/**
+	 * Format output for Calypso Reader/Notifications/Comments
+	 */
+	if ( defined( 'IS_WPCOM' ) && IS_WPCOM ) {
+		require_once WP_CONTENT_DIR . '/lib/display-context.php';
+		$context = A8C\Display_Context\get_current_context();
+		if ( A8C\Display_Context\NOTIFICATIONS === $context ) {
+			return sprintf(
+				'<a href="%1$s" target="_blank" rel="noopener noreferrer"><img src="%2$s" alt="%3$s" /></a>',
+				esc_url( $video_url ),
+				esc_url( $thumbnail ),
+				esc_html__( 'YouTube video', 'jetpack' )
+			);
+		}
 	}
 
 	/**
@@ -410,38 +439,6 @@ function youtube_shortcode( $atts ) {
 	return youtube_id( $url );
 }
 add_shortcode( 'youtube', 'youtube_shortcode' );
-
-/**
- * Renders the [youtube] shortcode as an AMP component.
- *
- * @since 8.0.0
- * @deprecated Use youtube_id() instead.
- *
- * @param string $url The YouTube URL.
- *
- * @return string The AMP-compatible rendered shortcode.
- */
-function jetpack_amp_youtube_shortcode( $url ) {
-	_deprecated_function( __FUNCTION__, 'jetpack-9.1.0', 'youtube_id' );
-	$video_id = jetpack_get_youtube_id( $url );
-	if ( empty( $video_id ) ) {
-		return sprintf(
-			'<a href="%1$s" class="amp-wp-embed-fallback">%1$s</a>',
-			esc_url( $url )
-		);
-	}
-
-	$sanitized_url          = youtube_sanitize_url( $url );
-	$parsed_url             = wp_parse_url( $sanitized_url );
-	$args                   = jetpack_shortcode_youtube_args( $parsed_url );
-	list( $width, $height ) = jetpack_shortcode_youtube_dimensions( $args );
-	return sprintf(
-		'<amp-youtube data-videoid="%s" layout="responsive" width="%d" height="%d"></amp-youtube>',
-		esc_attr( $video_id ),
-		absint( $width ),
-		absint( $height )
-	);
-}
 
 /**
  * Gets the dimensions of the [youtube] shortcode.

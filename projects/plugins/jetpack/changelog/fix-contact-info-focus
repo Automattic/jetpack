@@ -1,4 +1,0 @@
-Significance: minor
-Type: bugfix
-
-Adding manual blur on inner text inputs in Address for Contact Info for mobile in order to stop focus from staying in the inner text inputs when clicking away.

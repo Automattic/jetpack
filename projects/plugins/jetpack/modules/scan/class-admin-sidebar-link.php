@@ -65,21 +65,22 @@ class Admin_Sidebar_Link {
 			return;
 		}
 
-		$has_scan   = $this->has_scan();
-		$has_backup = $this->has_backup();
+		$has_scan    = $this->has_scan();
+		$show_backup = $this->should_show_backup();
+		$url         = Redirect::get_url( 'calypso-backups' );
 
-		$url = Redirect::get_url( 'calypso-backups' );
-		if ( $has_scan && ! $has_backup ) {
+		if ( $has_scan && ! $show_backup ) {
 			$menu_label = __( 'Scan', 'jetpack' );
 			$url        = Redirect::get_url( 'calypso-scanner' );
-		} elseif ( ! $has_scan && $has_backup ) {
+		} elseif ( ! $has_scan && $show_backup ) {
 			$menu_label = __( 'Backup', 'jetpack' );
 		} else {
-			// Will be both, as the code won't get this far if neither is true.
+			// Will be both, as the code won't get this far if neither is true (see should_show_link()).
 			$menu_label = __( 'Backup & Scan', 'jetpack' );
 		}
 
 		add_submenu_page( 'jetpack', $menu_label, esc_html( $menu_label ) . ' <span class="dashicons dashicons-external"></span>', 'manage_options', esc_url( $url ), null, $this->get_link_offset() );
+
 	}
 
 	/**
@@ -92,6 +93,11 @@ class Admin_Sidebar_Link {
 	private function get_link_offset() {
 		global $submenu;
 		$offset = 0;
+
+		if ( ! array_key_exists( 'jetpack', $submenu ) ) {
+			return $offset;
+		}
+
 		foreach ( $submenu['jetpack'] as $link ) {
 			if ( 'jetpack_admin_page' !== $link[1] ) {
 				break;
@@ -127,7 +133,18 @@ class Admin_Sidebar_Link {
 			return false;
 		}
 
-		return $this->has_backup() || $this->has_scan();
+		return $this->has_scan() || $this->should_show_backup();
+	}
+
+	/**
+	 * Check if we should display the Backup menu item.
+	 *
+	 * It will only be displayed if site has Backup enabled and the stand-alone Backup plugin is not active, because it will have a menu item of its own.
+	 *
+	 * @return boolean
+	 */
+	private function should_show_backup() {
+		return $this->has_backup() && ! $this->has_backup_plugin();
 	}
 
 	/**
@@ -153,6 +170,15 @@ class Admin_Sidebar_Link {
 	}
 
 	/**
+	 * Detects if Backup plugin is active.
+	 *
+	 * @return boolean
+	 */
+	private function has_backup_plugin() {
+		return class_exists( 'Jetpack_Backup' );
+	}
+
+	/**
 	 * Triggers a cron job to refresh the Scan and Rewind state cache.
 	 */
 	private function maybe_refresh_transient_cache() {
@@ -172,5 +198,3 @@ class Admin_Sidebar_Link {
 		$this->schedule_refresh_checked = true;
 	}
 }
-
-

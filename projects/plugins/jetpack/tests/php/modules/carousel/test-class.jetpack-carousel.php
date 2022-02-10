@@ -24,8 +24,8 @@ class WP_Test_Jetpack_Carousel extends WP_UnitTestCase {
 	 *
 	 * @inheritDoc
 	 */
-	public function setUp() {
-		parent::setUp();
+	public function set_up() {
+		parent::set_up();
 		$this->instance = new Jetpack_Carousel();
 	}
 

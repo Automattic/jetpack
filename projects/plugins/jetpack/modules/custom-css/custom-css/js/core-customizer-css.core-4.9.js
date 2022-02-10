@@ -82,4 +82,4 @@
 		});
 	});
 
-})( jQuery, this.wp.customize );
+})( jQuery, window.wp.customize );

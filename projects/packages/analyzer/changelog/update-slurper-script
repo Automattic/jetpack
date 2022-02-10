@@ -1,0 +1,4 @@
+Significance: patch
+Type: changed
+
+Updated to Slurper example script to use new Docker location and not exclude vendor dir.

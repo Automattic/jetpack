@@ -1,43 +1,170 @@
-<?php
+<?php // phpcs:ignore WordPress.Files.FileName.InvalidClassFileName
+/**
+ * Jetpack JSON API.
+ *
+ * @package automattic/jetpack
+ */
 
-defined( 'WPCOM_JSON_API__DEBUG' ) or define( 'WPCOM_JSON_API__DEBUG', false );
+if ( ! defined( 'WPCOM_JSON_API__DEBUG' ) ) {
+	define( 'WPCOM_JSON_API__DEBUG', false );
+}
 
-require_once dirname( __FILE__ ) . '/sal/class.json-api-platform.php';
+require_once __DIR__ . '/sal/class.json-api-platform.php';
 
+/**
+ * Jetpack JSON API.
+ */
 class WPCOM_JSON_API {
-	static $self = null;
+	/**
+	 * Static instance.
+	 *
+	 * @todo This should be private.
+	 * @var self|null
+	 */
+	public static $self = null;
 
+	/**
+	 * Registered endpoints.
+	 *
+	 * @var WPCOM_JSON_API_Endpoint[]
+	 */
 	public $endpoints = array();
 
+	/**
+	 * Token details.
+	 *
+	 * @var array
+	 */
 	public $token_details = array();
 
-	public $method       = '';
-	public $url          = '';
-	public $path         = '';
-	public $version      = null;
-	public $query        = array();
-	public $post_body    = null;
-	public $files        = null;
-	public $content_type = null;
-	public $accept       = '';
+	/**
+	 * Request HTTP method.
+	 *
+	 * @var string
+	 */
+	public $method = '';
 
-	public $_server_https;
-	public $exit              = true;
+	/**
+	 * Request URL.
+	 *
+	 * @var string
+	 */
+	public $url = '';
+
+	/**
+	 * Path part of the request URL.
+	 *
+	 * @var string
+	 */
+	public $path = '';
+
+	/**
+	 * Version extracted from the request URL.
+	 *
+	 * @var string|null
+	 */
+	public $version = null;
+
+	/**
+	 * Parsed query data.
+	 *
+	 * @var array
+	 */
+	public $query = array();
+
+	/**
+	 * Post body, if the request is a POST.
+	 *
+	 * @var string|null
+	 */
+	public $post_body = null;
+
+	/**
+	 * Copy of `$_FILES` if the request is a POST.
+	 *
+	 * @var null|array
+	 */
+	public $files = null;
+
+	/**
+	 * Content type of the request.
+	 *
+	 * @var string|null
+	 */
+	public $content_type = null;
+
+	/**
+	 * Value of `$_SERVER['HTTP_ACCEPT']`, if any
+	 *
+	 * @var string
+	 */
+	public $accept = '';
+
+	/**
+	 * Value of `$_SERVER['HTTPS']`, or "--UNset--" if unset.
+	 *
+	 * @var string
+	 */
+	public $_server_https; // phpcs:ignore PSR2.Classes.PropertyDeclaration.Underscore
+
+	/**
+	 * Whether to exit after serving a response.
+	 *
+	 * @var bool
+	 */
+	public $exit = true;
+
+	/**
+	 * Public API scheme.
+	 *
+	 * @var string
+	 */
 	public $public_api_scheme = 'https';
 
+	/**
+	 * Output status code.
+	 *
+	 * @var int
+	 */
 	public $output_status_code = 200;
 
+	/**
+	 * Trapped error.
+	 *
+	 * @var null|array
+	 */
 	public $trapped_error = null;
-	public $did_output    = false;
 
+	/**
+	 * Whether output has been done.
+	 *
+	 * @var bool
+	 */
+	public $did_output = false;
+
+	/**
+	 * Extra HTTP headers.
+	 *
+	 * @var string
+	 */
 	public $extra_headers = array();
 
+	/**
+	 * AMP source origin.
+	 *
+	 * @var string
+	 */
 	public $amp_source_origin = null;
 
 	/**
+	 * Initialize.
+	 *
+	 * @param string|null $method As for `$this->setup_inputs()`.
+	 * @param string|null $url As for `$this->setup_inputs()`.
+	 * @param string|null $post_body As for `$this->setup_inputs()`.
 	 * @return WPCOM_JSON_API instance
 	 */
-	static function init( $method = null, $url = null, $post_body = null ) {
+	public static function init( $method = null, $url = null, $post_body = null ) {
 		if ( ! self::$self ) {
 			$class      = function_exists( 'get_called_class' ) ? get_called_class() : __CLASS__; // phpcs:ignore PHPCompatibility.PHP.NewFunctions.get_called_classFound
 			self::$self = new $class( $method, $url, $post_body );
@@ -45,7 +172,14 @@ class WPCOM_JSON_API {
 		return self::$self;
 	}
 
-	function add( WPCOM_JSON_API_Endpoint $endpoint ) {
+	/**
+	 * Add an endpoint.
+	 *
+	 * @param WPCOM_JSON_API_Endpoint $endpoint Endpoint to add.
+	 */
+	public function add( WPCOM_JSON_API_Endpoint $endpoint ) {
+		// @todo Determine if anything depends on this being serialized rather than e.g. JSON.
+		// phpcs:ignore WordPress.PHP.DiscouragedPHPFunctions.serialize_serialize -- Legacy, possibly depended on elsewhere.
 		$path_versions = serialize(
 			array(
 				$endpoint->path,
@@ -59,7 +193,13 @@ class WPCOM_JSON_API {
 		$this->endpoints[ $path_versions ][ $endpoint->method ] = $endpoint;
 	}
 
-	static function is_truthy( $value ) {
+	/**
+	 * Determine if a string is truthy.
+	 *
+	 * @param string $value "1", "t", and "true" (case insensitive) are falsey, everything else isn't.
+	 * @return bool
+	 */
+	public static function is_truthy( $value ) {
 		switch ( strtolower( (string) $value ) ) {
 			case '1':
 			case 't':
@@ -70,7 +210,13 @@ class WPCOM_JSON_API {
 		return false;
 	}
 
-	static function is_falsy( $value ) {
+	/**
+	 * Determine if a string is falsey.
+	 *
+	 * @param string $value "0", "f", and "false" (case insensitive) are falsey, everything else isn't.
+	 * @return bool
+	 */
+	public static function is_falsy( $value ) {
 		switch ( strtolower( (string) $value ) ) {
 			case '0':
 			case 'f':
@@ -81,11 +227,26 @@ class WPCOM_JSON_API {
 		return false;
 	}
 
-	function __construct( ...$args ) {
-		call_user_func_array( array( $this, 'setup_inputs' ), $args );
+	/**
+	 * Constructor.
+	 *
+	 * @todo This should be private.
+	 * @param string|null $method As for `$this->setup_inputs()`.
+	 * @param string|null $url As for `$this->setup_inputs()`.
+	 * @param string|null $post_body As for `$this->setup_inputs()`.
+	 */
+	public function __construct( $method = null, $url = null, $post_body = null ) {
+		$this->setup_inputs( $method, $url, $post_body );
 	}
 
-	function setup_inputs( $method = null, $url = null, $post_body = null ) {
+	/**
+	 * Setup inputs.
+	 *
+	 * @param string|null $method Request HTTP method. Fetched from `$_SERVER` if null.
+	 * @param string|null $url URL requested. Determined from `$_SERVER` if null.
+	 * @param string|null $post_body POST body. Read from `php://input` if null and method is POST.
+	 */
+	public function setup_inputs( $method = null, $url = null, $post_body = null ) {
 		if ( is_null( $method ) ) {
 			$this->method = strtoupper( $_SERVER['REQUEST_METHOD'] );
 		} else {
@@ -125,13 +286,14 @@ class WPCOM_JSON_API {
 				}
 
 				if ( 0 === strpos( strtolower( $this->content_type ), 'multipart/' ) ) {
+					// phpcs:ignore WordPress.Security.NonceVerification.Missing
 					$this->post_body    = http_build_query( stripslashes_deep( $_POST ) );
 					$this->files        = $_FILES;
 					$this->content_type = 'multipart/form-data';
 				}
 			} else {
 				$this->post_body    = $post_body;
-				$this->content_type = '{' === isset( $this->post_body[0] ) && $this->post_body[0] ? 'application/json' : 'application/x-www-form-urlencoded';
+				$this->content_type = isset( $this->post_body[0] ) && '{' === $this->post_body[0] ? 'application/json' : 'application/x-www-form-urlencoded';
 			}
 		} else {
 			$this->post_body    = null;
@@ -141,8 +303,14 @@ class WPCOM_JSON_API {
 		$this->_server_https = array_key_exists( 'HTTPS', $_SERVER ) ? $_SERVER['HTTPS'] : '--UNset--';
 	}
 
-	function initialize() {
+	/**
+	 * Initialize.
+	 *
+	 * @return null|WP_Error (although this implementation always returns null)
+	 */
+	public function initialize() {
 		$this->token_details['blog_id'] = Jetpack_Options::get_option( 'id' );
+		return null;
 	}
 
 	/**
@@ -179,14 +347,20 @@ class WPCOM_JSON_API {
 		return true;
 	}
 
-	function serve( $exit = true ) {
-		ini_set( 'display_errors', false );
+	/**
+	 * Serve.
+	 *
+	 * @param bool $exit Whether to exit.
+	 * @return string|null Content type (assuming it didn't exit), or null in certain error cases.
+	 */
+	public function serve( $exit = true ) {
+		ini_set( 'display_errors', false ); // phpcs:ignore WordPress.PHP.IniSet.display_errors_Blacklisted
 
 		$this->exit = (bool) $exit;
 
 		// This was causing problems with Jetpack, but is necessary for wpcom
 		// @see https://github.com/Automattic/jetpack/pull/2603
-		// @see r124548-wpcom
+		// @see r124548-wpcom .
 		if ( defined( 'IS_WPCOM' ) && IS_WPCOM ) {
 			add_filter( 'home_url', array( $this, 'ensure_http_scheme_of_home_url' ), 10, 3 );
 		}
@@ -196,7 +370,7 @@ class WPCOM_JSON_API {
 		add_filter( 'comment_edit_pre', array( $this, 'comment_edit_pre' ) );
 
 		$initialization = $this->initialize();
-		if ( 'OPTIONS' == $this->method ) {
+		if ( 'OPTIONS' === $this->method ) {
 			/**
 			 * Fires before the page output.
 			 * Can be used to specify custom header options.
@@ -214,7 +388,7 @@ class WPCOM_JSON_API {
 			return;
 		}
 
-		// Normalize path and extract API version
+		// Normalize path and extract API version.
 		$this->path = untrailingslashit( $this->path );
 		preg_match( '#^/rest/v(\d+(\.\d+)*)#', $this->path, $matches );
 		$this->path    = substr( $this->path, strlen( $matches[0] ) );
@@ -229,15 +403,15 @@ class WPCOM_JSON_API {
 		if ( $is_help ) {
 			$origin = get_http_origin();
 
-			if ( ! empty( $origin ) && 'GET' == $this->method ) {
+			if ( ! empty( $origin ) && 'GET' === $this->method ) {
 				header( 'Access-Control-Allow-Origin: ' . esc_url_raw( $origin ) );
 			}
 
 			$this->path = substr( rtrim( $this->path, '/' ), 0, -5 );
-			// Show help for all matching endpoints regardless of method
+			// Show help for all matching endpoints regardless of method.
 			$methods                     = $allowed_methods;
 			$find_all_matching_endpoints = true;
-			// How deep to truncate each endpoint's path to see if it matches this help request
+			// How deep to truncate each endpoint's path to see if it matches this help request.
 			$depth = substr_count( $this->path, '/' ) + 1;
 			if ( false !== stripos( $this->accept, 'javascript' ) || false !== stripos( $this->accept, 'json' ) ) {
 				$help_content_type = 'json';
@@ -245,27 +419,29 @@ class WPCOM_JSON_API {
 				$help_content_type = 'html';
 			}
 		} else {
-			if ( in_array( $this->method, $allowed_methods ) ) {
-				// Only serve requested method
+			if ( in_array( $this->method, $allowed_methods, true ) ) {
+				// Only serve requested method.
 				$methods                     = array( $this->method );
 				$find_all_matching_endpoints = false;
 			} else {
-				// We don't allow this requested method - find matching endpoints and send 405
+				// We don't allow this requested method - find matching endpoints and send 405.
 				$methods                     = $allowed_methods;
 				$find_all_matching_endpoints = true;
 				$four_oh_five                = true;
 			}
 		}
 
-		// Find which endpoint to serve
+		// Find which endpoint to serve.
 		$found = false;
 		foreach ( $this->endpoints as $endpoint_path_versions => $endpoints_by_method ) {
+			// @todo Determine if anything depends on this being serialized rather than e.g. JSON.
+			// phpcs:ignore WordPress.PHP.DiscouragedPHPFunctions.serialize_unserialize -- Legacy, possibly depended on elsewhere.
 			$endpoint_path_versions = unserialize( $endpoint_path_versions );
 			$endpoint_path          = $endpoint_path_versions[0];
 			$endpoint_min_version   = $endpoint_path_versions[1];
 			$endpoint_max_version   = $endpoint_path_versions[2];
 
-			// Make sure max_version is not less than min_version
+			// Make sure max_version is not less than min_version.
 			if ( version_compare( $endpoint_max_version, $endpoint_min_version, '<' ) ) {
 				$endpoint_max_version = $endpoint_min_version;
 			}
@@ -275,14 +451,14 @@ class WPCOM_JSON_API {
 					continue;
 				}
 
-				// Normalize
+				// Normalize.
 				$endpoint_path = untrailingslashit( $endpoint_path );
 				if ( $is_help ) {
-					// Truncate path at help depth
+					// Truncate path at help depth.
 					$endpoint_path = join( '/', array_slice( explode( '/', $endpoint_path ), 0, $depth ) );
 				}
 
-				// Generate regular expression from sprintf()
+				// Generate regular expression from sprintf().
 				$endpoint_path_regex = str_replace( array( '%s', '%d' ), array( '([^/?&]+)', '(\d+)' ), $endpoint_path );
 
 				if ( ! preg_match( "#^$endpoint_path_regex\$#", $this->path, $path_pieces ) ) {
@@ -300,7 +476,7 @@ class WPCOM_JSON_API {
 				if ( $find_all_matching_endpoints ) {
 					$matching_endpoints[] = array( $endpoints_by_method[ $method ], $path_pieces );
 				} else {
-					// The method parameters are now in $path_pieces
+					// The method parameters are now in $path_pieces.
 					$endpoint = $endpoints_by_method[ $method ];
 					break 2;
 				}
@@ -377,12 +553,26 @@ class WPCOM_JSON_API {
 		return $this->output( $output_status_code, $response, 'application/json', $this->extra_headers );
 	}
 
-	function process_request( WPCOM_JSON_API_Endpoint $endpoint, $path_pieces ) {
+	/**
+	 * Process a request.
+	 *
+	 * @param WPCOM_JSON_API_Endpoint $endpoint Endpoint.
+	 * @param array                   $path_pieces Path pieces.
+	 * @return array|WP_Error Return value from the endpoint's callback.
+	 */
+	public function process_request( WPCOM_JSON_API_Endpoint $endpoint, $path_pieces ) {
 		$this->endpoint = $endpoint;
 		return call_user_func_array( array( $endpoint, 'callback' ), $path_pieces );
 	}
 
-	function output_early( $status_code, $response = null, $content_type = 'application/json' ) {
+	/**
+	 * Output a response or error without exiting.
+	 *
+	 * @param int    $status_code HTTP status code.
+	 * @param mixed  $response Response data.
+	 * @param string $content_type Content type of the response.
+	 */
+	public function output_early( $status_code, $response = null, $content_type = 'application/json' ) {
 		$exit       = $this->exit;
 		$this->exit = false;
 		if ( is_wp_error( $response ) ) {
@@ -396,12 +586,28 @@ class WPCOM_JSON_API {
 		}
 	}
 
-	function set_output_status_code( $code = 200 ) {
+	/**
+	 * Set output status code.
+	 *
+	 * @param int $code HTTP status code.
+	 */
+	public function set_output_status_code( $code = 200 ) {
 		$this->output_status_code = $code;
 	}
 
-	function output( $status_code, $response = null, $content_type = 'application/json', $extra = array() ) {
-		// In case output() was called before the callback returned
+	/**
+	 * Output a response.
+	 *
+	 * @param int    $status_code HTTP status code.
+	 * @param mixed  $response Response data.
+	 * @param string $content_type Content type of the response.
+	 * @param array  $extra Additional HTTP headers.
+	 * @return string Content type (assuming it didn't exit).
+	 */
+	public function output( $status_code, $response = null, $content_type = 'application/json', $extra = array() ) {
+		$status_code = (int) $status_code;
+
+		// In case output() was called before the callback returned.
 		if ( $this->did_output ) {
 			if ( $this->exit ) {
 				exit;
@@ -411,7 +617,7 @@ class WPCOM_JSON_API {
 		$this->did_output = true;
 
 		// 400s and 404s are allowed for all origins
-		if ( 404 == $status_code || 400 == $status_code ) {
+		if ( 404 === $status_code || 400 === $status_code ) {
 			header( 'Access-Control-Allow-Origin: *' );
 		}
 
@@ -420,7 +626,6 @@ class WPCOM_JSON_API {
 			header( 'Access-Control-Allow-Origin: ' . wp_unslash( $this->amp_source_origin ) );
 			header( 'Access-Control-Allow-Credentials: true' );
 		}
-
 
 		if ( is_null( $response ) ) {
 			$response = new stdClass();
@@ -433,7 +638,7 @@ class WPCOM_JSON_API {
 			foreach ( $extra as $key => $value ) {
 				header( "$key: $value" );
 			}
-			echo $response;
+			echo $response; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
 			if ( $this->exit ) {
 				exit;
 			}
@@ -478,11 +683,11 @@ class WPCOM_JSON_API {
 		if ( $callback ) {
 			// Mitigate Rosetta Flash [1] by setting the Content-Type-Options: nosniff header
 			// and by prepending the JSONP response with a JS comment.
-			// [1] https://blog.miki.it/2014/7/8/abusing-jsonp-with-rosetta-flash/index.html
-			echo "/**/$callback(";
+			// [1] <https://blog.miki.it/2014/7/8/abusing-jsonp-with-rosetta-flash/index.html>.
+			echo "/**/$callback("; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- This is JSONP output, not HTML.
 
 		}
-		echo $this->json_encode( $response );
+		echo $this->json_encode( $response ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- This is JSON or JSONP output, not HTML.
 		if ( $callback ) {
 			echo ');';
 		}
@@ -494,6 +699,12 @@ class WPCOM_JSON_API {
 		return $content_type;
 	}
 
+	/**
+	 * Serialize an error.
+	 *
+	 * @param WP_Error $error Error.
+	 * @return array with 'status_code' and 'errors' data.
+	 */
 	public static function serializable_error( $error ) {
 
 		$status_code = $error->get_error_data();
@@ -510,7 +721,8 @@ class WPCOM_JSON_API {
 			'message' => $error->get_error_message(),
 		);
 
-		if ( $additional_data = $error->get_error_data( 'additional_data' ) ) {
+		$additional_data = $error->get_error_data( 'additional_data' );
+		if ( $additional_data ) {
 			$response['data'] = $additional_data;
 		}
 
@@ -520,13 +732,25 @@ class WPCOM_JSON_API {
 		);
 	}
 
-	function output_error( $error ) {
+	/**
+	 * Output an error.
+	 *
+	 * @param WP_Error $error Error.
+	 * @return string Content type (assuming it didn't exit).
+	 */
+	public function output_error( $error ) {
 		$error_response = $this->serializable_error( $error );
 
 		return $this->output( $error_response['status_code'], $error_response['errors'] );
 	}
 
-	function filter_fields( $response ) {
+	/**
+	 * Filter fields in a response.
+	 *
+	 * @param array|object $response Response.
+	 * @return array|object Filtered response.
+	 */
+	public function filter_fields( $response ) {
 		if ( empty( $this->query['fields'] ) || ( is_array( $response ) && ! empty( $response['error'] ) ) || ! empty( $this->endpoint->custom_fields_filtering ) ) {
 			return $response;
 		}
@@ -566,6 +790,7 @@ class WPCOM_JSON_API {
 				foreach ( $response[ $key_to_filter ] as $key => $values ) {
 					if ( is_object( $values ) ) {
 						if ( is_object( $response[ $key_to_filter ] ) ) {
+							// phpcs:ignore Squiz.PHP.DisallowMultipleAssignments.Found -- False positive.
 							$response[ $key_to_filter ]->$key = (object) array_intersect_key( ( (array) $values ), array_flip( $fields ) );
 						} elseif ( is_array( $response[ $key_to_filter ] ) ) {
 							$response[ $key_to_filter ][ $key ] = (object) array_intersect_key( ( (array) $values ), array_flip( $fields ) );
@@ -590,7 +815,17 @@ class WPCOM_JSON_API {
 		return $response;
 	}
 
-	function ensure_http_scheme_of_home_url( $url, $path, $original_scheme ) {
+	/**
+	 * Filter for `home_url`.
+	 *
+	 * If `$original_scheme` is null, turns an https URL to http.
+	 *
+	 * @param string      $url The complete home URL including scheme and path.
+	 * @param string      $path Path relative to the home URL. Blank string if no path is specified.
+	 * @param string|null $original_scheme Scheme to give the home URL context. Accepts 'http', 'https', 'relative', 'rest', or null.
+	 * @return string URL.
+	 */
+	public function ensure_http_scheme_of_home_url( $url, $path, $original_scheme ) {
 		if ( $original_scheme ) {
 			return $url;
 		}
@@ -598,29 +833,64 @@ class WPCOM_JSON_API {
 		return preg_replace( '#^https:#', 'http:', $url );
 	}
 
-	function comment_edit_pre( $comment_content ) {
+	/**
+	 * Decode HTML special characters in comment content.
+	 *
+	 * @param string $comment_content Comment content.
+	 * @return string
+	 */
+	public function comment_edit_pre( $comment_content ) {
 		return htmlspecialchars_decode( $comment_content, ENT_QUOTES );
 	}
 
-	function json_encode( $data ) {
+	/**
+	 * JSON encode.
+	 *
+	 * @param mixed $data Data.
+	 * @return string|false
+	 */
+	public function json_encode( $data ) {
 		return wp_json_encode( $data );
 	}
 
-	function ends_with( $haystack, $needle ) {
-		return $needle === substr( $haystack, -strlen( $needle ) );
+	/**
+	 * Test if a string ends with a string.
+	 *
+	 * @param string $haystack String to check.
+	 * @param string $needle Suffix to check.
+	 * @return bool
+	 */
+	public function ends_with( $haystack, $needle ) {
+		return substr( $haystack, -strlen( $needle ) ) === $needle;
 	}
 
-	// Returns the site's blog_id in the WP.com ecosystem
-	function get_blog_id_for_output() {
+	/**
+	 * Returns the site's blog_id in the WP.com ecosystem
+	 *
+	 * @return int
+	 */
+	public function get_blog_id_for_output() {
 		return $this->token_details['blog_id'];
 	}
 
-	// Returns the site's local blog_id
-	function get_blog_id( $blog_id ) {
+	/**
+	 * Returns the site's local blog_id.
+	 *
+	 * @param int $blog_id Blog ID.
+	 * @return int
+	 */
+	public function get_blog_id( $blog_id ) { // phpcs:ignore VariableAnalysis.CodeAnalysis.VariableAnalysis.UnusedVariable
 		return $GLOBALS['blog_id'];
 	}
 
-	function switch_to_blog_and_validate_user( $blog_id = 0, $verify_token_for_blog = true ) {
+	/**
+	 * Switch to blog and validate user.
+	 *
+	 * @param int  $blog_id Blog ID.
+	 * @param bool $verify_token_for_blog Whether to verify the token.
+	 * @return int Blog ID.
+	 */
+	public function switch_to_blog_and_validate_user( $blog_id = 0, $verify_token_for_blog = true ) { // phpcs:ignore VariableAnalysis.CodeAnalysis.VariableAnalysis.UnusedVariable
 		if ( $this->is_restricted_blog( $blog_id ) ) {
 			return new WP_Error( 'unauthorized', 'User cannot access this restricted blog', 403 );
 		}
@@ -639,8 +909,13 @@ class WPCOM_JSON_API {
 		return $blog_id;
 	}
 
-	// Returns true if the specified blog ID is a restricted blog
-	function is_restricted_blog( $blog_id ) {
+	/**
+	 * Returns true if the specified blog ID is a restricted blog
+	 *
+	 * @param int $blog_id Blog ID.
+	 * @return bool
+	 */
+	public function is_restricted_blog( $blog_id ) {
 		/**
 		 * Filters all REST API access and return a 403 unauthorized response for all Restricted blog IDs.
 		 *
@@ -651,30 +926,71 @@ class WPCOM_JSON_API {
 		 * @param array $array Array of Blog IDs.
 		 */
 		$restricted_blog_ids = apply_filters( 'wpcom_json_api_restricted_blog_ids', array() );
-		return true === in_array( $blog_id, $restricted_blog_ids );
+		return true === in_array( $blog_id, $restricted_blog_ids ); // phpcs:ignore WordPress.PHP.StrictInArray.MissingTrueStrict -- I don't trust filters to return the right types.
 	}
 
-	function post_like_count( $blog_id, $post_id ) {
+	/**
+	 * Post like count.
+	 *
+	 * @param int $blog_id Blog ID.
+	 * @param int $post_id Post ID.
+	 * @return int
+	 */
+	public function post_like_count( $blog_id, $post_id ) { // phpcs:ignore VariableAnalysis.CodeAnalysis.VariableAnalysis.UnusedVariable
 		return 0;
 	}
 
-	function is_liked( $blog_id, $post_id ) {
+	/**
+	 * Is liked?
+	 *
+	 * @param int $blog_id Blog ID.
+	 * @param int $post_id Post ID.
+	 * @return bool
+	 */
+	public function is_liked( $blog_id, $post_id ) { // phpcs:ignore VariableAnalysis.CodeAnalysis.VariableAnalysis.UnusedVariable
 		return false;
 	}
 
-	function is_reblogged( $blog_id, $post_id ) {
+	/**
+	 * Is reblogged?
+	 *
+	 * @param int $blog_id Blog ID.
+	 * @param int $post_id Post ID.
+	 * @return bool
+	 */
+	public function is_reblogged( $blog_id, $post_id ) { // phpcs:ignore VariableAnalysis.CodeAnalysis.VariableAnalysis.UnusedVariable
 		return false;
 	}
 
-	function is_following( $blog_id ) {
+	/**
+	 * Is following?
+	 *
+	 * @param int $blog_id Blog ID.
+	 * @return bool
+	 */
+	public function is_following( $blog_id ) { // phpcs:ignore VariableAnalysis.CodeAnalysis.VariableAnalysis.UnusedVariable
 		return false;
 	}
 
-	function add_global_ID( $blog_id, $post_id ) {
+	/**
+	 * Add global ID.
+	 *
+	 * @param int $blog_id Blog ID.
+	 * @param int $post_id Post ID.
+	 * @return string
+	 */
+	public function add_global_ID( $blog_id, $post_id ) { // phpcs:ignore VariableAnalysis.CodeAnalysis.VariableAnalysis.UnusedVariable, WordPress.NamingConventions.ValidFunctionName.MethodNameInvalid
 		return '';
 	}
 
-	function get_avatar_url( $email, $avatar_size = null ) {
+	/**
+	 * Get avatar URL.
+	 *
+	 * @param string $email Email.
+	 * @param array  $avatar_size Args for `get_avatar_url()`.
+	 * @return string|false
+	 */
+	public function get_avatar_url( $email, $avatar_size = null ) {
 		if ( function_exists( 'wpcom_get_avatar_url' ) ) {
 			return null === $avatar_size
 				? wpcom_get_avatar_url( $email )
@@ -689,7 +1005,7 @@ class WPCOM_JSON_API {
 	/**
 	 * Counts the number of comments on a site, excluding certain comment types.
 	 *
-	 * @param $post_id int Post ID.
+	 * @param int $post_id Post ID.
 	 * @return array Array of counts, matching the output of https://developer.wordpress.org/reference/functions/get_comment_count/.
 	 */
 	public function wp_count_comments( $post_id ) {
@@ -726,6 +1042,7 @@ class WPCOM_JSON_API {
 			implode( "','", $exclude )
 		);
 
+		// phpcs:disable WordPress.DB.PreparedSQL.InterpolatedNotPrepared -- `$where` is built with escaping just above.
 		$count = $wpdb->get_results(
 			"SELECT comment_approved, COUNT(*) AS num_comments
 				FROM $wpdb->comments
@@ -733,6 +1050,7 @@ class WPCOM_JSON_API {
 				GROUP BY comment_approved
 			"
 		);
+		// phpcs:enable WordPress.DB.PreparedSQL.InterpolatedNotPrepared
 
 		$approved = array(
 			'0'            => 'moderated',
@@ -742,7 +1060,7 @@ class WPCOM_JSON_API {
 			'post-trashed' => 'post-trashed',
 		);
 
-		// https://developer.wordpress.org/reference/functions/get_comment_count/#source
+		// <https://developer.wordpress.org/reference/functions/get_comment_count/#source>
 		foreach ( $count as $row ) {
 			if ( ! in_array( $row->comment_approved, array( 'post-trashed', 'trash', 'spam' ), true ) ) {
 				$counts['all']            += $row->num_comments;
@@ -767,13 +1085,13 @@ class WPCOM_JSON_API {
 	}
 
 	/**
-	 * traps `wp_die()` calls and outputs a JSON response instead.
+	 * Traps `wp_die()` calls and outputs a JSON response instead.
 	 * The result is always output, never returned.
 	 *
 	 * @param string|null $error_code  Call with string to start the trapping.  Call with null to stop.
 	 * @param int         $http_status  HTTP status code, 400 by default.
 	 */
-	function trap_wp_die( $error_code = null, $http_status = 400 ) {
+	public function trap_wp_die( $error_code = null, $http_status = 400 ) {
 		// Determine the filter name; based on the conditionals inside the wp_die function.
 		if ( wp_is_json_request() ) {
 			$die_handler = 'wp_die_json_handler';
@@ -787,7 +1105,7 @@ class WPCOM_JSON_API {
 
 		if ( is_null( $error_code ) ) {
 			$this->trapped_error = null;
-			// Stop trapping
+			// Stop trapping.
 			remove_filter( $die_handler, array( $this, 'wp_die_handler_callback' ) );
 			return;
 		}
@@ -808,15 +1126,27 @@ class WPCOM_JSON_API {
 			'code'    => $error_code,
 			'message' => '',
 		);
-		// Start trapping
+		// Start trapping.
 		add_filter( $die_handler, array( $this, 'wp_die_handler_callback' ) );
 	}
 
-	function wp_die_handler_callback() {
+	/**
+	 * Filter function for `wp_die_handler` and similar filters.
+	 *
+	 * @return callable
+	 */
+	public function wp_die_handler_callback() {
 		return array( $this, 'wp_die_handler' );
 	}
 
-	function wp_die_handler( $message, $title = '', $args = array() ) {
+	/**
+	 * Handler for `wp_die` calls.
+	 *
+	 * @param string|WP_Error  $message As for `wp_die()`.
+	 * @param string|int       $title As for `wp_die()`.
+	 * @param string|array|int $args As for `wp_die()`.
+	 */
+	public function wp_die_handler( $message, $title = '', $args = array() ) {
 		// Allow wp_die calls to override HTTP status code...
 		$args = wp_parse_args(
 			$args,
@@ -826,7 +1156,7 @@ class WPCOM_JSON_API {
 		);
 
 		// ... unless it's 500
-		if ( (int) $args['response'] !== 500 ) {
+		if ( 500 !== (int) $args['response'] ) {
 			$this->trapped_error['status'] = $args['response'];
 		}
 
@@ -847,12 +1177,15 @@ class WPCOM_JSON_API {
 		}
 
 		// We still want to exit so that code execution stops where it should.
-		// Attach the JSON output to the WordPress shutdown handler
+		// Attach the JSON output to the WordPress shutdown handler.
 		add_action( 'shutdown', array( $this, 'output_trapped_error' ), 0 );
 		exit;
 	}
 
-	function output_trapped_error() {
+	/**
+	 * Output the trapped error.
+	 */
+	public function output_trapped_error() {
 		$this->exit = false; // We're already exiting once.  Don't do it twice.
 		$this->output(
 			$this->trapped_error['status'],
@@ -863,7 +1196,10 @@ class WPCOM_JSON_API {
 		);
 	}
 
-	function finish_request() {
+	/**
+	 * Finish the request.
+	 */
+	public function finish_request() {
 		if ( function_exists( 'fastcgi_finish_request' ) ) {
 			return fastcgi_finish_request();
 		}

@@ -1,4 +1,0 @@
-Significance: patch
-Type: bugfix
-
-WhatsApp Button Block: Add box-sizing to view CSS to fix height issue with the block in FSE.

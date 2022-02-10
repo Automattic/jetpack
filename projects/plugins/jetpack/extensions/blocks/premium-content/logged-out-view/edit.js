@@ -3,24 +3,13 @@
  */
 import { InnerBlocks } from '@wordpress/block-editor';
 import { __ } from '@wordpress/i18n';
-import { useDispatch, withSelect } from '@wordpress/data';
-import { compose } from '@wordpress/compose';
-import { useEffect } from '@wordpress/element';
 
 /**
  * Internal dependencies
  */
 import Context from '../_inc/context';
 
-function Edit( { parentClientId, isSelected } ) {
-	const { selectBlock } = useDispatch( 'core/block-editor' );
-
-	useEffect( () => {
-		if ( isSelected ) {
-			selectBlock( parentClientId );
-		}
-	}, [ selectBlock, isSelected, parentClientId ] );
-
+export default function Edit() {
 	return (
 		<Context.Consumer>
 			{ ( { selectedTab, stripeNudge } ) => (
@@ -47,15 +36,3 @@ function Edit( { parentClientId, isSelected } ) {
 		</Context.Consumer>
 	);
 }
-
-export default compose(
-	withSelect( select => {
-		const { getSelectedBlockClientId, getBlockHierarchyRootClientId } = select(
-			'core/block-editor'
-		);
-		const selectedBlockClientId = getSelectedBlockClientId();
-		return {
-			parentClientId: getBlockHierarchyRootClientId( selectedBlockClientId ),
-		};
-	} )
-)( Edit );

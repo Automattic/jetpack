@@ -31,8 +31,16 @@ function renderPlayer( rootElement, settings ) {
 		metadata = parseMeta( metaWrapper );
 	}
 
+	const id = parseId( rootElement );
+
 	render(
-		<StoryPlayer slides={ slides } metadata={ metadata } disabled={ false } { ...settings } />,
+		<StoryPlayer
+			id={ id }
+			slides={ slides }
+			metadata={ metadata }
+			disabled={ false }
+			{ ...settings }
+		/>,
 		rootElement
 	);
 }
@@ -62,6 +70,10 @@ function parseMeta( metaWrapper ) {
 	};
 }
 
+function parseId( rootElement ) {
+	return rootElement.getAttribute( 'data-id' );
+}
+
 if ( typeof window !== 'undefined' ) {
 	const settingsFromUrl = Array.from( new URLSearchParams( window.location.search ).entries() )
 		.filter( searchParam => searchParam[ 0 ].startsWith( 'wp-story-' ) )
@@ -81,7 +93,7 @@ if ( typeof window !== 'undefined' ) {
 		}, {} );
 
 	domReady( function () {
-		const storyBlocks = [ ...document.getElementsByClassName( 'wp-story' ) ];
+		const storyBlocks = [ ...document.querySelectorAll( ':not(#debug-bar-wp-query) .wp-story' ) ];
 		storyBlocks.forEach( storyBlock => {
 			if ( storyBlock.getAttribute( 'data-block-initialized' ) === 'true' ) {
 				return;

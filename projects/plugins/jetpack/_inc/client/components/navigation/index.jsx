@@ -6,13 +6,13 @@ import PropTypes from 'prop-types';
 import { connect } from 'react-redux';
 import { withRouter } from 'react-router-dom';
 import { _x } from '@wordpress/i18n';
+import { getRedirectUrl } from '@automattic/jetpack-components';
 
 /**
  * Internal dependencies
  */
 import analytics from 'lib/analytics';
-import getRedirectUrl from 'lib/jp-redirect';
-import { isCurrentUserLinked, isOfflineMode } from 'state/connection';
+import { hasConnectedOwner, isCurrentUserLinked, isOfflineMode } from 'state/connection';
 import { isModuleActivated as _isModuleActivated } from 'state/modules';
 import NavTabs from 'components/section-nav/tabs';
 import NavItem from 'components/section-nav/item';
@@ -22,6 +22,7 @@ import {
 	showRecommendations,
 	userCanManageModules as _userCanManageModules,
 	userCanViewStats as _userCanViewStats,
+	getPurchaseToken,
 } from 'state/initial-state';
 
 export class Navigation extends React.Component {
@@ -50,6 +51,17 @@ export class Navigation extends React.Component {
 
 	render() {
 		let navTabs;
+
+		const jetpackPlansPath = getRedirectUrl(
+			this.props.hasConnectedOwner ? 'jetpack-plans' : 'jetpack-nav-site-only-plans',
+			{
+				site: this.props.siteUrl,
+				...( this.props.purchaseToken
+					? { query: `purchasetoken=${ this.props.purchaseToken }` }
+					: {} ),
+			}
+		);
+
 		if ( this.props.userCanManageModules ) {
 			navTabs = (
 				<NavTabs selectedText={ this.props.routeName }>
@@ -71,9 +83,9 @@ export class Navigation extends React.Component {
 							{ _x( 'My Plan', 'Navigation item.', 'jetpack' ) }
 						</NavItem>
 					) }
-					{ ! this.props.isOfflineMode && this.props.isLinked && (
+					{ ! this.props.isOfflineMode && (
 						<NavItem
-							path={ getRedirectUrl( 'jetpack-plans', { site: this.props.siteUrl } ) }
+							path={ jetpackPlansPath }
 							onClick={ this.trackPlansClick }
 							selected={ this.props.location.pathname === '/plans' }
 						>
@@ -115,7 +127,7 @@ export class Navigation extends React.Component {
 
 Navigation.propTypes = {
 	routeName: PropTypes.string.isRequired,
-	isOfflineMode: PropTypes.bool.isRequired,
+	isOfflineMode: PropTypes.bool,
 };
 
 export default connect( state => {
@@ -125,7 +137,9 @@ export default connect( state => {
 		isModuleActivated: module_name => _isModuleActivated( state, module_name ),
 		isOfflineMode: isOfflineMode( state ),
 		isLinked: isCurrentUserLinked( state ),
+		hasConnectedOwner: hasConnectedOwner( state ),
 		showRecommendations: showRecommendations( state ),
 		siteUrl: getSiteRawUrl( state ),
+		purchaseToken: getPurchaseToken( state ),
 	};
 } )( withRouter( Navigation ) );

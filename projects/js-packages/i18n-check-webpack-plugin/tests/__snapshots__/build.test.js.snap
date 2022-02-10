@@ -1,0 +1,423 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`Webpack \`basic-test\`: Webpack build error 1`] = `null`;
+
+exports[`Webpack \`basic-test\`: Webpack build files 1`] = `
+Array [
+  "main.asset.php",
+  "main.js",
+]
+`;
+
+exports[`Webpack \`basic-test\`: Webpack build stats 1`] = `
+Object {
+  "errors": Array [],
+  "warnings": Array [],
+}
+`;
+
+exports[`Webpack \`complex-test\`: Webpack build error 1`] = `null`;
+
+exports[`Webpack \`complex-test\`: Webpack build files 1`] = `
+Array [
+  "async.js",
+  "css.asset.php",
+  "css.css",
+  "css.js",
+  "css.rtl.css",
+  "main.asset.php",
+  "main.js",
+]
+`;
+
+exports[`Webpack \`complex-test\`: Webpack build stats 1`] = `
+Object {
+  "errors": Array [],
+  "warnings": Array [],
+}
+`;
+
+exports[`Webpack \`concatenated-modules\`: Webpack build error 1`] = `null`;
+
+exports[`Webpack \`concatenated-modules\`: Webpack build files 1`] = `
+Array [
+  "main.asset.php",
+  "main.js",
+]
+`;
+
+exports[`Webpack \`concatenated-modules\`: Webpack build stats 1`] = `
+Object {
+  "errors": Array [
+    Object {
+      "message": "main.js: Translator comments have gone missing for \\"A\\"
+ - Translators: A",
+    },
+    Object {
+      "message": "main.js: Translator comments have gone missing for \\"B\\"
+ - Translators: B",
+    },
+  ],
+  "warnings": Array [],
+}
+`;
+
+exports[`Webpack \`known-problems\`: Webpack build error 1`] = `null`;
+
+exports[`Webpack \`known-problems\`: Webpack build files 1`] = `
+Array [
+  "main.asset.php",
+  "main.js",
+]
+`;
+
+exports[`Webpack \`known-problems\`: Webpack build stats 1`] = `
+Object {
+  "errors": Array [
+    Object {
+      "message": "main.js:3:92: msgid argument is not a string literal: __(o?\\"Foo is set\\":\\"Foo is not set\\",\\"domain\\")",
+    },
+    Object {
+      "message": "main.js: Translator comments have gone missing for \\"The comment will be lost when the assignment is merged into the above const\\" (context \\"context\\")
+ - Translators: This comment will be lost",
+    },
+    Object {
+      "message": "main.js: Optimization seems to have broken the following translation strings:
+ - \\"Foo is not set\\"
+ - \\"Foo is set\\"",
+    },
+  ],
+  "warnings": Array [],
+}
+`;
+
+exports[`Webpack \`multiple-domains\`: Webpack build error 1`] = `null`;
+
+exports[`Webpack \`multiple-domains\`: Webpack build files 1`] = `
+Array [
+  "main.asset.php",
+  "main.js",
+]
+`;
+
+exports[`Webpack \`multiple-domains\`: Webpack build stats 1`] = `
+Object {
+  "errors": Array [
+    Object {
+      "message": "main.js: Multiple textdomains are used: \\"domain1\\", \\"domain2\\"
+You may want to use @automattic/babel-plugin-replace-textdomain to fix that.",
+    },
+  ],
+  "warnings": Array [],
+}
+`;
+
+exports[`Webpack \`options-filter\`: Webpack build error 1`] = `null`;
+
+exports[`Webpack \`options-filter\`: Webpack build files 1`] = `
+Array [
+  "array/main.asset.php",
+  "array/main.js",
+  "function/main.asset.php",
+  "function/main.js",
+  "regex/main.asset.php",
+  "regex/main.js",
+  "string/main.asset.php",
+  "string/main.js",
+  "undefined/main.asset.php",
+  "undefined/main.js",
+]
+`;
+
+exports[`Webpack \`options-filter\`: Webpack build stats 1`] = `
+Object {
+  "children": Array [
+    Object {
+      "errors": Array [
+        Object {
+          "message": "string/main.js:1:77: msgid argument is not a string literal: __(t?\\"arr is set\\":\\"arr is not set\\",\\"domain\\")",
+        },
+        Object {
+          "message": "string/main.js:1:187: msgid argument is not a string literal: __(t?\\"func is set\\":\\"func is not set\\",\\"domain\\")",
+        },
+        Object {
+          "message": "string/main.js:1:376: msgid argument is not a string literal: __(t?\\"regex is set\\":\\"regex is not set\\",\\"domain\\")",
+        },
+        Object {
+          "message": "string/main.js:1:490: msgid argument is not a string literal: __(t?\\"string is set\\":\\"string is not set\\",\\"domain\\")",
+        },
+        Object {
+          "message": "string/main.js: Optimization seems to have broken the following translation strings:
+ - \\"string is not set\\"
+ - \\"string is set\\"",
+        },
+      ],
+      "name": "string",
+      "warnings": Array [],
+    },
+    Object {
+      "errors": Array [
+        Object {
+          "message": "regex/main.js:1:77: msgid argument is not a string literal: __(t?\\"arr is set\\":\\"arr is not set\\",\\"domain\\")",
+        },
+        Object {
+          "message": "regex/main.js:1:187: msgid argument is not a string literal: __(t?\\"func is set\\":\\"func is not set\\",\\"domain\\")",
+        },
+        Object {
+          "message": "regex/main.js:1:376: msgid argument is not a string literal: __(t?\\"regex is set\\":\\"regex is not set\\",\\"domain\\")",
+        },
+        Object {
+          "message": "regex/main.js:1:490: msgid argument is not a string literal: __(t?\\"string is set\\":\\"string is not set\\",\\"domain\\")",
+        },
+        Object {
+          "message": "regex/main.js: Optimization seems to have broken the following translation strings:
+ - \\"regex is not set\\"
+ - \\"regex is set\\"",
+        },
+      ],
+      "name": "regex",
+      "warnings": Array [],
+    },
+    Object {
+      "errors": Array [
+        Object {
+          "message": "function/main.js:1:77: msgid argument is not a string literal: __(t?\\"arr is set\\":\\"arr is not set\\",\\"domain\\")",
+        },
+        Object {
+          "message": "function/main.js:1:187: msgid argument is not a string literal: __(t?\\"func is set\\":\\"func is not set\\",\\"domain\\")",
+        },
+        Object {
+          "message": "function/main.js:1:376: msgid argument is not a string literal: __(t?\\"regex is set\\":\\"regex is not set\\",\\"domain\\")",
+        },
+        Object {
+          "message": "function/main.js:1:490: msgid argument is not a string literal: __(t?\\"string is set\\":\\"string is not set\\",\\"domain\\")",
+        },
+        Object {
+          "message": "function/main.js: Optimization seems to have broken the following translation strings:
+ - \\"func is not set\\"
+ - \\"func is set\\"",
+        },
+      ],
+      "name": "function",
+      "warnings": Array [],
+    },
+    Object {
+      "errors": Array [
+        Object {
+          "message": "array/main.js:1:77: msgid argument is not a string literal: __(t?\\"arr is set\\":\\"arr is not set\\",\\"domain\\")",
+        },
+        Object {
+          "message": "array/main.js:1:187: msgid argument is not a string literal: __(t?\\"func is set\\":\\"func is not set\\",\\"domain\\")",
+        },
+        Object {
+          "message": "array/main.js:1:376: msgid argument is not a string literal: __(t?\\"regex is set\\":\\"regex is not set\\",\\"domain\\")",
+        },
+        Object {
+          "message": "array/main.js:1:490: msgid argument is not a string literal: __(t?\\"string is set\\":\\"string is not set\\",\\"domain\\")",
+        },
+        Object {
+          "message": "array/main.js: Optimization seems to have broken the following translation strings:
+ - \\"arr is not set\\"
+ - \\"arr is set\\"",
+        },
+      ],
+      "name": "array",
+      "warnings": Array [],
+    },
+    Object {
+      "errors": Array [
+        Object {
+          "message": "undefined/main.js:1:77: msgid argument is not a string literal: __(t?\\"arr is set\\":\\"arr is not set\\",\\"domain\\")",
+        },
+        Object {
+          "message": "undefined/main.js:1:187: msgid argument is not a string literal: __(t?\\"func is set\\":\\"func is not set\\",\\"domain\\")",
+        },
+        Object {
+          "message": "undefined/main.js:1:376: msgid argument is not a string literal: __(t?\\"regex is set\\":\\"regex is not set\\",\\"domain\\")",
+        },
+        Object {
+          "message": "undefined/main.js:1:490: msgid argument is not a string literal: __(t?\\"string is set\\":\\"string is not set\\",\\"domain\\")",
+        },
+        Object {
+          "message": "undefined/main.js: Optimization seems to have broken the following translation strings:
+ - \\"arr is not set\\"
+ - \\"arr is set\\"
+ - \\"func is not set\\"
+ - \\"func is set\\"
+ - \\"regex is not set\\"
+ - \\"regex is set\\"
+ - \\"string is not set\\"
+ - \\"string is set\\"",
+        },
+      ],
+      "name": "undefined",
+      "warnings": Array [],
+    },
+  ],
+  "errors": Array [
+    Object {
+      "compilerPath": "string",
+      "message": "string/main.js:1:77: msgid argument is not a string literal: __(t?\\"arr is set\\":\\"arr is not set\\",\\"domain\\")",
+    },
+    Object {
+      "compilerPath": "string",
+      "message": "string/main.js:1:187: msgid argument is not a string literal: __(t?\\"func is set\\":\\"func is not set\\",\\"domain\\")",
+    },
+    Object {
+      "compilerPath": "string",
+      "message": "string/main.js:1:376: msgid argument is not a string literal: __(t?\\"regex is set\\":\\"regex is not set\\",\\"domain\\")",
+    },
+    Object {
+      "compilerPath": "string",
+      "message": "string/main.js:1:490: msgid argument is not a string literal: __(t?\\"string is set\\":\\"string is not set\\",\\"domain\\")",
+    },
+    Object {
+      "compilerPath": "string",
+      "message": "string/main.js: Optimization seems to have broken the following translation strings:
+ - \\"string is not set\\"
+ - \\"string is set\\"",
+    },
+    Object {
+      "compilerPath": "regex",
+      "message": "regex/main.js:1:77: msgid argument is not a string literal: __(t?\\"arr is set\\":\\"arr is not set\\",\\"domain\\")",
+    },
+    Object {
+      "compilerPath": "regex",
+      "message": "regex/main.js:1:187: msgid argument is not a string literal: __(t?\\"func is set\\":\\"func is not set\\",\\"domain\\")",
+    },
+    Object {
+      "compilerPath": "regex",
+      "message": "regex/main.js:1:376: msgid argument is not a string literal: __(t?\\"regex is set\\":\\"regex is not set\\",\\"domain\\")",
+    },
+    Object {
+      "compilerPath": "regex",
+      "message": "regex/main.js:1:490: msgid argument is not a string literal: __(t?\\"string is set\\":\\"string is not set\\",\\"domain\\")",
+    },
+    Object {
+      "compilerPath": "regex",
+      "message": "regex/main.js: Optimization seems to have broken the following translation strings:
+ - \\"regex is not set\\"
+ - \\"regex is set\\"",
+    },
+    Object {
+      "compilerPath": "function",
+      "message": "function/main.js:1:77: msgid argument is not a string literal: __(t?\\"arr is set\\":\\"arr is not set\\",\\"domain\\")",
+    },
+    Object {
+      "compilerPath": "function",
+      "message": "function/main.js:1:187: msgid argument is not a string literal: __(t?\\"func is set\\":\\"func is not set\\",\\"domain\\")",
+    },
+    Object {
+      "compilerPath": "function",
+      "message": "function/main.js:1:376: msgid argument is not a string literal: __(t?\\"regex is set\\":\\"regex is not set\\",\\"domain\\")",
+    },
+    Object {
+      "compilerPath": "function",
+      "message": "function/main.js:1:490: msgid argument is not a string literal: __(t?\\"string is set\\":\\"string is not set\\",\\"domain\\")",
+    },
+    Object {
+      "compilerPath": "function",
+      "message": "function/main.js: Optimization seems to have broken the following translation strings:
+ - \\"func is not set\\"
+ - \\"func is set\\"",
+    },
+    Object {
+      "compilerPath": "array",
+      "message": "array/main.js:1:77: msgid argument is not a string literal: __(t?\\"arr is set\\":\\"arr is not set\\",\\"domain\\")",
+    },
+    Object {
+      "compilerPath": "array",
+      "message": "array/main.js:1:187: msgid argument is not a string literal: __(t?\\"func is set\\":\\"func is not set\\",\\"domain\\")",
+    },
+    Object {
+      "compilerPath": "array",
+      "message": "array/main.js:1:376: msgid argument is not a string literal: __(t?\\"regex is set\\":\\"regex is not set\\",\\"domain\\")",
+    },
+    Object {
+      "compilerPath": "array",
+      "message": "array/main.js:1:490: msgid argument is not a string literal: __(t?\\"string is set\\":\\"string is not set\\",\\"domain\\")",
+    },
+    Object {
+      "compilerPath": "array",
+      "message": "array/main.js: Optimization seems to have broken the following translation strings:
+ - \\"arr is not set\\"
+ - \\"arr is set\\"",
+    },
+    Object {
+      "compilerPath": "undefined",
+      "message": "undefined/main.js:1:77: msgid argument is not a string literal: __(t?\\"arr is set\\":\\"arr is not set\\",\\"domain\\")",
+    },
+    Object {
+      "compilerPath": "undefined",
+      "message": "undefined/main.js:1:187: msgid argument is not a string literal: __(t?\\"func is set\\":\\"func is not set\\",\\"domain\\")",
+    },
+    Object {
+      "compilerPath": "undefined",
+      "message": "undefined/main.js:1:376: msgid argument is not a string literal: __(t?\\"regex is set\\":\\"regex is not set\\",\\"domain\\")",
+    },
+    Object {
+      "compilerPath": "undefined",
+      "message": "undefined/main.js:1:490: msgid argument is not a string literal: __(t?\\"string is set\\":\\"string is not set\\",\\"domain\\")",
+    },
+    Object {
+      "compilerPath": "undefined",
+      "message": "undefined/main.js: Optimization seems to have broken the following translation strings:
+ - \\"arr is not set\\"
+ - \\"arr is set\\"
+ - \\"func is not set\\"
+ - \\"func is set\\"
+ - \\"regex is not set\\"
+ - \\"regex is set\\"
+ - \\"string is not set\\"
+ - \\"string is set\\"",
+    },
+  ],
+  "warnings": Array [],
+}
+`;
+
+exports[`Webpack \`options-warnOnly\`: Webpack build error 1`] = `null`;
+
+exports[`Webpack \`options-warnOnly\`: Webpack build files 1`] = `
+Array [
+  "main.asset.php",
+  "main.js",
+]
+`;
+
+exports[`Webpack \`options-warnOnly\`: Webpack build stats 1`] = `
+Object {
+  "errors": Array [],
+  "warnings": Array [
+    Object {
+      "message": "main.js:1:77: msgid argument is not a string literal: __(t?\\"X is set\\":\\"X is not set\\",\\"domain\\")",
+    },
+    Object {
+      "message": "main.js: Optimization seems to have broken the following translation strings:
+ - \\"X is not set\\"
+ - \\"X is set\\"",
+    },
+  ],
+}
+`;
+
+exports[`Webpack \`pruned-branches\`: Webpack build error 1`] = `null`;
+
+exports[`Webpack \`pruned-branches\`: Webpack build files 1`] = `
+Array [
+  "main.asset.php",
+  "main.js",
+]
+`;
+
+exports[`Webpack \`pruned-branches\`: Webpack build stats 1`] = `
+Object {
+  "errors": Array [
+    Object {
+      "message": "main.js: Optimization seems to have broken the following translation strings:
+ - \\"another thing\\"",
+    },
+  ],
+  "warnings": Array [],
+}
+`;

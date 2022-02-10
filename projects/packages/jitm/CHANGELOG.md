@@ -5,6 +5,140 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [2.2.5] - 2022-02-09
+### Changed
+- Updated package dependencies.
+
+## [2.2.4] - 2022-02-02
+### Changed
+- Build: remove unneeded files from production build.
+- Update use of old jQuery interfaces
+
+## [2.2.3] - 2022-01-25
+### Changed
+- Updated package dependencies.
+
+## [2.2.2] - 2022-01-18
+### Changed
+- General: update required node version to v16.13.2
+
+## [2.2.1] - 2022-01-11
+### Changed
+- Updated package dependencies.
+
+## [2.2.0] - 2022-01-04
+### Changed
+- Switch to pcov for code coverage.
+- Updated package dependencies.
+- Updated package textdomain from `jetpack` to `jetpack-jitm`.
+
+## [2.1.1] - 2021-12-14
+### Changed
+- Updated package dependencies.
+
+## [2.1.0] - 2021-11-30
+### Added
+- Add proper JS and CSS builder.
+- Adds filters to allow sideloading of the Jetpack Backup plugin through JITMs.
+- JITM: Added ability to sideload Jetpack Boost plugin.
+
+### Changed
+- Add `output.filename` in Webpack config to override changed default.
+- Colors: update Jetpack Primary color to match latest brand book.
+
+### Fixed
+- JITM: wrap CTA below text on small viewports
+
+## [2.0.8] - 2021-11-23
+### Changed
+- Updated package dependencies.
+
+## [2.0.7] - 2021-11-16
+### Added
+- Use monorepo `validate-es` script to validate Webpack builds.
+
+### Changed
+- Updated package dependencies.
+
+## [2.0.6] - 2021-11-09
+### Changed
+- Update webpack build config.
+
+## [2.0.5] - 2021-11-02
+### Changed
+- Set `convertDeprecationsToExceptions` true in PHPUnit config.
+- Update PHPUnit configs to include just what needs coverage rather than include everything then try to exclude stuff that doesn't.
+
+## [2.0.4] - 2021-10-26
+### Changed
+- Updated package dependencies.
+
+## [2.0.3] - 2021-10-19
+### Changed
+- Updated package dependencies.
+
+## [2.0.2] - 2021-10-12
+### Changed
+- Updated package dependencies
+
+## [2.0.1] - 2021-09-28
+### Changed
+- Allow Node ^14.17.6 to be used in this project. This shouldn't change the behavior of the code itself.
+- Updated package dependencies.
+
+## [2.0.0] - 2021-08-31
+### Changed
+- Run composer update on test-php command instead of phpunit.
+- Tests: update PHPUnit polyfills dependency (yoast/phpunit-polyfills).
+- Update annotations versions.
+- Updated package dependencies.
+- Update to latest webpack, webpack-cli and calypso-build.
+- Upgrade to Webpack 5.
+- Use Node 16.7.0 in tooling.
+
+### Removed
+- Removed IE11 support.
+
+## [1.16.2] - 2021-07-27
+### Changed
+- Updated package dependencies.
+
+## [1.16.1] - 2021-06-29
+### Changed
+- Update package dependencies.
+- Update node version requirement to 14.16.1
+- Update the usage of Redirect lib and passes the unlinked param as a query argument.
+
+## [1.16.0] - 2021-05-25
+### Added
+- JITM: allow the plugin to set the icon for pre-connection JITMs.
+- JITM: move sync updated option hook to the JITM package.
+
+### Changed
+- JITM: prevent JITMs from being registered more than once.
+- JITM: remove jetpack-constants dependency from composer.json
+- JITM: set the default values of the jetpack_just_in_time_msgs and jetpack_just_in_time_msg_cache filters to true.
+- JITM: Use an action instead of a property to prevent JITMs from being registered multiple times
+- JITM: Use the Device_Detection package to determine if the device is mobile.
+- Updated package dependencies
+- update jetpack-redirect dependency
+
+## [1.15.1] - 2021-05-03
+### Changed
+- JITM: Use manager::get_authorization_url to obtain the authorization url in the user deletion notice.
+
+## [1.15.0] - 2021-04-27
+### Added
+- Move JITM's REST API endpoints into the package
+
+### Changed
+- Always display pre-connection JITMs, without the need to set a filter.
+- Avoid wrapping text in the main CTA button.
+- Bump JITM package version requirement.
+- JITM: Update CTA redirect url with unlinked query arg to indicate current user is not connected.
+- Update package dependencies.
+- Use the a8c-mc-stats package to generate stats.
+
 ## [1.14.1] - 2021-03-30
 ### Added
 - Composer alias for dev-master, to improve dependencies
@@ -248,6 +382,28 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - Update Jetpack to use new JITM package
 
+[2.2.5]: https://github.com/Automattic/jetpack-jitm/compare/v2.2.4...v2.2.5
+[2.2.4]: https://github.com/Automattic/jetpack-jitm/compare/v2.2.3...v2.2.4
+[2.2.3]: https://github.com/Automattic/jetpack-jitm/compare/v2.2.2...v2.2.3
+[2.2.2]: https://github.com/Automattic/jetpack-jitm/compare/v2.2.1...v2.2.2
+[2.2.1]: https://github.com/Automattic/jetpack-jitm/compare/v2.2.0...v2.2.1
+[2.2.0]: https://github.com/Automattic/jetpack-jitm/compare/v2.1.1...v2.2.0
+[2.1.1]: https://github.com/Automattic/jetpack-jitm/compare/v2.1.0...v2.1.1
+[2.1.0]: https://github.com/Automattic/jetpack-jitm/compare/v2.0.8...v2.1.0
+[2.0.8]: https://github.com/Automattic/jetpack-jitm/compare/v2.0.7...v2.0.8
+[2.0.7]: https://github.com/Automattic/jetpack-jitm/compare/v2.0.6...v2.0.7
+[2.0.6]: https://github.com/Automattic/jetpack-jitm/compare/v2.0.5...v2.0.6
+[2.0.5]: https://github.com/Automattic/jetpack-jitm/compare/v2.0.4...v2.0.5
+[2.0.4]: https://github.com/Automattic/jetpack-jitm/compare/v2.0.3...v2.0.4
+[2.0.3]: https://github.com/Automattic/jetpack-jitm/compare/v2.0.2...v2.0.3
+[2.0.2]: https://github.com/Automattic/jetpack-jitm/compare/v2.0.1...v2.0.2
+[2.0.1]: https://github.com/Automattic/jetpack-jitm/compare/v2.0.0...v2.0.1
+[2.0.0]: https://github.com/Automattic/jetpack-jitm/compare/v1.16.2...v2.0.0
+[1.16.2]: https://github.com/Automattic/jetpack-jitm/compare/v1.16.1...v1.16.2
+[1.16.1]: https://github.com/Automattic/jetpack-jitm/compare/v1.16.0...v1.16.1
+[1.16.0]: https://github.com/Automattic/jetpack-jitm/compare/v1.15.1...v1.16.0
+[1.15.1]: https://github.com/Automattic/jetpack-jitm/compare/v1.15.0...v1.15.1
+[1.15.0]: https://github.com/Automattic/jetpack-jitm/compare/v1.14.1...v1.15.0
 [1.14.1]: https://github.com/Automattic/jetpack-jitm/compare/v1.14.0...v1.14.1
 [1.14.0]: https://github.com/Automattic/jetpack-jitm/compare/v1.13.5...v1.14.0
 [1.13.5]: https://github.com/Automattic/jetpack-jitm/compare/v1.13.4...v1.13.5

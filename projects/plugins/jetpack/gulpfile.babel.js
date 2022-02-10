@@ -8,30 +8,31 @@ import { spawn } from 'child_process';
 /**
  * Internal dependencies
  */
-import frontendcss from './tools/builder/frontend-css';
-import admincss from './tools/builder/admin-css';
+import frontendcss, {
+	frontendCSSSeparateFilesList,
+	frontendCSSConcatFilesList,
+} from './tools/builder/frontend-css';
+import admincss, { adminCSSFiles } from './tools/builder/admin-css';
 import { watch as react_watch, build as react_build } from './tools/builder/react';
-import {
-	watch as sass_watch,
-	build as sass_build,
-	watchPackages as sass_watch_packages,
-} from './tools/builder/sass';
+import { watch as sass_watch, build as sass_build } from './tools/builder/sass';
 
 gulp.task( 'old-styles:watch', function () {
-	return gulp.watch( 'scss/**/*.scss', gulp.parallel( 'old-styles' ) );
+	return gulp.watch(
+		[
+			'scss/**/*.scss',
+			...adminCSSFiles,
+			...frontendCSSSeparateFilesList,
+			...frontendCSSConcatFilesList,
+		],
+		gulp.parallel( 'old-styles' )
+	);
 } );
 
 gulp.task( 'blocks:watch', function () {
-	const child = require( 'child_process' ).execFile( 'yarn', [ 'build-extensions', '--watch' ] );
-
-	child.stdout.on( 'data', function ( data ) {
-		log( data.toString() );
-	} );
-} );
-
-gulp.task( 'search:watch', function () {
-	const child = require( 'child_process' ).execFile( 'yarn', [
-		'build-search:scripts',
+	const child = require( 'child_process' ).execFile( 'pnpm', [
+		'run',
+		'build-extensions',
+		'--',
 		'--watch',
 	] );
 
@@ -40,7 +41,17 @@ gulp.task( 'search:watch', function () {
 	} );
 } );
 
-gulp.task( 'php:module-headings', function ( callback ) {
+gulp.task( 'widget-visibility:watch', function () {
+	const child = require( 'child_process' ).execFile( 'pnpm', [
+		'run',
+		'build-widget-visibility',
+		'--',
+		'--watch',
+	] );
+	child.stdout.on( 'data', data => log( data.toString() ) );
+} );
+
+gulp.task( 'php:module-headings', function () {
 	const process = spawn( 'php', [ 'tools/build-module-headings-translations.php' ] );
 	process.stderr.on( 'data', function ( data ) {
 		log( data.toString() );
@@ -48,15 +59,10 @@ gulp.task( 'php:module-headings', function ( callback ) {
 	process.stdout.on( 'data', function ( data ) {
 		log( data.toString() );
 	} );
-	process.on( 'exit', function ( code ) {
-		if ( 0 !== code ) {
-			log( 'Failed building module headings translations: process exited with code ', code );
-		}
-		callback();
-	} );
+	return process;
 } );
 
-gulp.task( 'old-styles', gulp.parallel( frontendcss, admincss, 'sass:old', 'sass:packages' ) );
+gulp.task( 'old-styles', gulp.parallel( frontendcss, admincss, 'sass:old' ) );
 
 // Default task
 gulp.task(
@@ -68,15 +74,14 @@ gulp.task(
 	gulp.parallel(
 		react_watch,
 		sass_watch,
-		sass_watch_packages,
 		'old-styles:watch',
 		'blocks:watch',
-		'search:watch'
+		'widget-visibility:watch'
 	)
 );
 
 // Keeping explicit task names to allow for individual runs
 gulp.task( 'sass:build', sass_build );
 gulp.task( 'react:build', react_build );
-gulp.task( 'sass:watch', gulp.parallel( sass_watch, sass_watch_packages ) );
+gulp.task( 'sass:watch', sass_watch );
 gulp.task( 'react:watch', react_watch );

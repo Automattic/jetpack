@@ -11,12 +11,11 @@ import { media } from '@wordpress/icons';
 import MediaSources from './media-sources';
 
 function MediaButtonMenu( props ) {
-	const { mediaProps, open, setSelectedSource, isFeatured, isReplace } = props;
+	const { mediaProps, open, setSelectedSource, isFeatured, isReplace, hasImage } = props;
 	const originalComponent = mediaProps.render;
-
-	if ( isFeatured && mediaProps.value === undefined ) {
-		return originalComponent( { open } );
-	}
+	let isPrimary = isFeatured;
+	let isSecondary = false;
+	let isTertiary = ! isFeatured;
 
 	if ( isReplace ) {
 		return (
@@ -38,33 +37,55 @@ function MediaButtonMenu( props ) {
 		label = __( 'Select Media', 'jetpack' );
 	}
 
+	if ( isFeatured ) {
+		label = __( 'Replace Image', 'jetpack' );
+		isPrimary = false;
+		isTertiary = false;
+		isSecondary = true;
+	}
+
 	return (
 		<>
-			{ isFeatured && originalComponent( { open } ) }
-
 			<Dropdown
 				position="bottom right"
 				contentClassName="jetpack-external-media-button-menu__options"
-				renderToggle={ ( { isOpen, onToggle } ) => (
-					<Button
-						isTertiary={ ! isFeatured }
-						isPrimary={ isFeatured }
-						className="jetpack-external-media-button-menu"
-						aria-haspopup="true"
-						aria-expanded={ isOpen }
-						onClick={ onToggle }
-					>
-						{ label }
-					</Button>
-				) }
-				renderContent={ () => (
+				renderToggle={ ( { isOpen, onToggle } ) => {
+					// override original button only when it's a simple button with text, or a featured image
+					const originalButton = originalComponent && originalComponent( { open: onToggle } );
+					if (
+						( isFeatured && hasImage ) ||
+						( originalButton && typeof originalButton.props.children !== 'string' )
+					) {
+						return originalButton;
+					}
+					return (
+						<Button
+							isPrimary={ isPrimary }
+							isSecondary={ isSecondary }
+							isTertiary={ isTertiary }
+							className="jetpack-external-media-button-menu"
+							aria-haspopup="true"
+							aria-expanded={ isOpen }
+							onClick={ onToggle }
+						>
+							{ label }
+						</Button>
+					);
+				} }
+				renderContent={ ( { onClose } ) => (
 					<NavigableMenu aria-label={ label }>
 						<MenuGroup>
-							<MenuItem icon={ media } onClick={ open }>
+							<MenuItem
+								icon={ media }
+								onClick={ () => {
+									onClose();
+									open();
+								} }
+							>
 								{ __( 'Media Library', 'jetpack' ) }
 							</MenuItem>
 
-							<MediaSources open={ open } setSource={ setSelectedSource } />
+							<MediaSources open={ open } setSource={ setSelectedSource } onClick={ onClose } />
 						</MenuGroup>
 					</NavigableMenu>
 				) }

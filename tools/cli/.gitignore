@@ -1,5 +1,4 @@
 node_modules
-yarn.lock
 
 # Test file is copied to these locations. Can ignore it if not cleaned up by the test.
 tests/data/dest/

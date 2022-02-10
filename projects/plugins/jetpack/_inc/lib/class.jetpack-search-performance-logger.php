@@ -77,7 +77,7 @@ class Jetpack_Search_Performance_Logger {
 			$encoded_json = '{%22beacons%22:[' . implode(',', $beacons ) . ']}';
 			$encoded_site_url = urlencode( site_url() );
 			$url = "https://pixel.wp.com/boom.gif?v=0.9&u={$encoded_site_url}&json={$encoded_json}";
-			echo '<img src="' . $url . '" width="1" height="1" style="display:none;" alt=":)"/>';
+			echo '<img src="' . esc_url( $url ) . '" width="1" height="1" style="display:none;" alt=""/>';
 		}
 	}
 }

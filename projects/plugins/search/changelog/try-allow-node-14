@@ -1,0 +1,4 @@
+Significance: patch
+Type: changed
+
+Allow Node ^14.17.6 to be used in this project. This shouldn't change the behavior of the code itself.

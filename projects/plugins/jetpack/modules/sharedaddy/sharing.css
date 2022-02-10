@@ -562,8 +562,7 @@ body .sd-social-icon .sd-content li.share-custom a span {
 
 
 .sd-social-icon .sd-content ul li[class*='share-'] a.sd-button:before {
-	top: 1px;
-	top: 0px\9; /* IE8 and below */
+	top: 0;
 }
 
 .sd-social-icon .sd-content ul li[class*='share-'] a.sd-button.share-custom {
@@ -765,4 +764,10 @@ div.sharedaddy.sharedaddy-dark #sharing_email {
 .sd-content .share-customize-link a {
 	font-size: 11px;
 	font-family: "Open Sans", sans-serif;
+}
+
+@media print {
+	.sharedaddy.sd-sharing-enabled {
+		display: none;
+	}
 }

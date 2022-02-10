@@ -14,6 +14,7 @@ class VideoPress_Shortcode {
 
 		// By explicitly declaring the provider here, we can speed things up by not relying on oEmbed discovery.
 		wp_oembed_add_provider( '#^https?://videopress.com/v/.*#', 'https://public-api.wordpress.com/oembed/1.0/', true );
+		wp_oembed_add_provider( '|^https?://v\.wordpress\.com/([a-zA-Z\d]{8})(.+)?$|i', 'https://public-api.wordpress.com/oembed/1.0/', true ); // phpcs:ignore WordPress.WP.CapitalPDangit.Misspelled
 
 		add_shortcode( 'videopress', array( $this, 'shortcode_callback' ) );
 		add_shortcode( 'wpvideo', array( $this, 'shortcode_callback' ) );
@@ -80,6 +81,7 @@ class VideoPress_Shortcode {
 			'permalink'       => true,  // Whether to display the permalink to the video
 			'flashonly'       => false, // Whether to support the Flash player exclusively
 			'defaultlangcode' => false, // Default language code
+			'cover'           => true,  // Whether to scale the video to its container.
 		);
 
 		$attr = shortcode_atts( $defaults, $attr, 'videopress' );
@@ -90,6 +92,7 @@ class VideoPress_Shortcode {
 		$attr['width']   = absint( $attr['w'] );
 		$attr['hd']      = (bool) $attr['hd'];
 		$attr['freedom'] = (bool) $attr['freedom'];
+		$attr['cover']   = (bool) $attr['cover'];
 
 		/**
 		 * If the provided width is less than the minimum allowed
@@ -129,6 +132,7 @@ class VideoPress_Shortcode {
 			array(
 				'at'              => (int) $attr['at'],
 				'hd'              => $attr['hd'],
+				'cover'           => $attr['cover'],
 				'loop'            => $attr['loop'],
 				'freedom'         => $attr['freedom'],
 				'autoplay'        => $attr['autoplay'],
@@ -192,6 +196,11 @@ class VideoPress_Shortcode {
 						$videopress_guid = $matches[1];
 					}
 
+					// Also test for old v.wordpress.com oembed URL.
+					if ( ! $videopress_guid && preg_match( '|^https?://v\.wordpress\.com/([a-zA-Z\d]{8})(.+)?$|i', $url, $matches ) ) { // phpcs:ignore WordPress.WP.CapitalPDangit.Misspelled
+						$videopress_guid = $matches[1];
+					}
+
 					break;
 				}
 			}
@@ -223,10 +232,13 @@ class VideoPress_Shortcode {
 	 * @return String $ehnanced_oembed_provider
 	 */
 	public function add_oembed_for_parameter( $oembed_provider ) {
-		if ( false === stripos( $oembed_provider, 'videopress.com' ) ) {
-			return $oembed_provider;
+		$providers = array( 'videopress.com', 'v.wordpress.com' );
+		foreach ( $providers as $provider ) {
+			if ( false !== stripos( $oembed_provider, $provider ) ) {
+				return add_query_arg( 'for', wp_parse_url( home_url(), PHP_URL_HOST ), $oembed_provider );
+			}
 		}
-		return add_query_arg( 'for', wp_parse_url( home_url(), PHP_URL_HOST ), $oembed_provider );
+		return $oembed_provider;
 	}
 
 	/**

@@ -17,8 +17,8 @@ class WP_Test_Jetpack_Sync_Checksum_Smoke extends WP_UnitTestCase {
 	/**
 	 * Setup Test Data.
 	 */
-	public function setUp() {
-		parent::setUp();
+	public function set_up() {
+		parent::set_up();
 
 		// create user.
 		$user_id = $this->factory->user->create();

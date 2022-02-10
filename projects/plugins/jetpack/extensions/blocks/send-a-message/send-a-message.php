@@ -25,6 +25,7 @@ function register_block() {
 		BLOCK_NAME,
 		array(
 			'render_callback' => __NAMESPACE__ . '\render_block',
+			'plan_check'      => true,
 		)
 	);
 }

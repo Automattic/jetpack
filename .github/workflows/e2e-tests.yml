@@ -8,125 +8,156 @@ on:
     branches: [master]
     paths-ignore:
     - '**.md'
+  schedule:
+    - cron: '0 */12 * * *' # gutenberg run, every 12 hours - if you update this, also update it in .github/files/create-e2e-projects-matrix.sh
+    - cron: '30 */4 * * *' # atomic run, every 4 hours - if you update this, also update it in .github/files/create-e2e-projects-matrix.sh
+
+concurrency:
+  group: e2e-tests-${{ github.event_name }}-${{ github.ref }}
+  cancel-in-progress: true
 
 jobs:
-  e2e-tests:
-    name: "E2E tests: with ${{ matrix.gutenberg }} plugin"
+  create-test-matrix:
+    name: "Determine tests matrix"
     runs-on: ubuntu-latest
-    timeout-minutes: 20  # 2021-01-18: Successful runs seem to take 9-12 minutes
+    timeout-minutes: 3
+    outputs:
+      matrix: ${{ steps.evaluate.outputs.matrix }}
+      runName: ${{ steps.evaluate.outputs.runName }}
+    steps:
+      - uses: actions/checkout@v2
+
+      # For pull requests, list-changed-projects.sh needs the merge base.
+      - name: Deepen to merge base
+        if: github.event_name == 'pull_request'
+        uses: ./.github/actions/deepen-to-merge-base
+
+      - name: Setup tools
+        uses: ./.github/actions/tool-setup
+
+      # Required for list-changed-projects.sh
+      - name: Install monorepo
+        run: |
+          pnpm install
+
+      - name: Create test plan
+        id: evaluate
+        env:
+          CRON: ${{ github.event.schedule }}
+        run: |
+          TEST_PLAN="$(.github/files/create-e2e-projects-matrix.sh)"
+          echo "$TEST_PLAN"
+
+          MATRIX=$(jq -r -c ".matrix" <<<"$TEST_PLAN")
+          echo "$MATRIX"
+          echo "::set-output name=matrix::$MATRIX"
+
+          RUN_NAME=$(jq -r -c ".run" <<<"$TEST_PLAN")
+          echo "$RUN_NAME"
+          echo "::set-output name=runName::$RUN_NAME"
+
+  e2e-tests:
+    name: "${{ matrix.project }} e2e tests"
+    runs-on: ubuntu-latest
+    needs: create-test-matrix
+    timeout-minutes: 25
     strategy:
       fail-fast: false
       matrix:
-        gutenberg: [ 'no', 'latest' ]
-    env:
-      GUTENBERG: ${{ matrix.gutenberg }}
+        include: ${{ fromJson( needs.create-test-matrix.outputs.matrix ) }}
     if: github.event.pull_request.head.repo.full_name == github.event.pull_request.base.repo.full_name
 
     steps:
     - uses: actions/checkout@v2
 
-    - name: Read PHP and Node versions
-      id: versions
+    - name: Setup tools
+      uses: ./.github/actions/tool-setup
+
+    - name: Install monorepo
       run: |
-        echo "::set-output name=php-version::$(<.github/php-version)"
-        echo "::set-output name=node-version::$(<.nvmrc)"
+        pnpm install
 
-    - name: Setup PHP
-      uses: shivammathur/setup-php@v2
-      with:
-        php-version: ${{ steps.versions.outputs.php-version }}
-        tools: composer
-        extensions: mysql, imagick
-        coverage: none
-
-    - name: Setup Node
-      uses: actions/setup-node@v2
-      with:
-        node-version: ${{ steps.versions.outputs.node-version }}
-
-    - name: Get Composer cache directory
-      id: composer-cache
-      run: |
-        echo "::set-output name=dir::$(composer config cache-files-dir)"
-    - name: Use composer cache
-      uses: actions/cache@v2
-      with:
-        path: ${{ steps.composer-cache.outputs.dir }}
-        key: ${{ runner.os }}-composer-${{ hashFiles('**/composer.lock') }}
-        restore-keys: |
-          ${{ runner.os }}-composer-
-
-    - name: Get yarn cache directory path
-      id: yarn-cache-dir-path
-      run: echo "::set-output name=dir::$(yarn cache dir)"
-    - name: Use yarn cache
-      uses: actions/cache@v2
-      with:
-        path: ${{ steps.yarn-cache-dir-path.outputs.dir }}
-        key: ${{ runner.os }}-yarn-${{ hashFiles('**/yarn.lock') }}
-        restore-keys: |
-          ${{ runner.os }}-yarn-
-
-    - name: Tool versions
-      run: |
-        which php
-        php --version
-        which composer
-        composer --version
-        which node
-        node --version
-        which yarn
-        yarn --version
-        which jq
-        jq --version
-
-    - name: Build Production Jetpack
-      run: |
-        yarn install
-        yarn jetpack build plugins/jetpack -v --production
-
-    - name: Environment set-up
-      working-directory: projects/plugins/jetpack/tests/e2e
+    - name: Test environment set-up
+      working-directory: ${{ matrix.path }}
       env:
         CONFIG_KEY: ${{ secrets.E2E_CONFIG_KEY }}
+        COMPOSER_ROOT_VERSION: "dev-master"
+        RUN_NAME: ${{ needs.create-test-matrix.outputs.runName }}
       run: |
-        yarn install
-        yarn test-decrypt-config
-        yarn env-start
-        yarn tunnel-on
+        echo "::group::Decrypt config"
+        pnpm run config:decrypt
+        echo "::endgroup::"
 
-    - name: Run all tests
-      if: matrix.gutenberg == 'no'
-      working-directory: projects/plugins/jetpack/tests/e2e
-      run: yarn test-e2e
+        if [ "${RUN_NAME}" != atomic ]; then
+          echo "::group::Build plugin(s)"
+          pnpm run build
+          echo "::endgroup::"
 
-    - name: Run only blocks tests with latest Gutenberg
-      if: matrix.gutenberg == 'latest'
-      working-directory: projects/plugins/jetpack/tests/e2e
-      run: yarn test-e2e --testNamePattern=blocks
+          echo "::group::Start docker environment"
+          pnpm run env:up
+          echo "::endgroup::"
 
-    - name: Environment tear-down
+          echo "::group::Create tunnel"
+          pnpm run tunnel:up
+          echo "::endgroup::"
+        else
+          echo "TEST_SITE=atomic" >> $GITHUB_ENV
+        fi
+
+        if [ "${RUN_NAME}" == gutenberg ]; then
+            echo "::group::Setting up Gutenberg"
+            pnpx e2e-env gb-setup
+            echo "::endgroup::"
+        fi
+
+    - name: Run ${{ matrix.project }} tests
+      working-directory: ${{ matrix.path }}
+      env:
+        JSON_ARGS: ${{ toJSON(matrix.testArgs) }}
+      run: |
+        mapfile -t TEST_ARGS < <(jq -r '.[]' <<<"$JSON_ARGS")
+        pnpm run test:run -- "${TEST_ARGS[@]}"
+
+    - name: Send Slack notification
+      if: ${{ ! cancelled() }}
+      env:
+        GITHUB_CONTEXT: ${{ toJson(github) }}
+        SUITE: ${{ matrix.project }}
+        JSON_ARGS: ${{ toJSON(matrix.slackArgs) }}
+      working-directory: ${{ matrix.path }}
+      run: |
+        mapfile -t ARGS < <(jq -r '.[]' <<<"$JSON_ARGS")
+        pnpm run slack -- suite $SUITE "${ARGS[@]}"
+
+    - name: Test environment tear-down
       if: ${{ always() }}
-      working-directory: projects/plugins/jetpack/tests/e2e
+      working-directory: ${{ matrix.path }}
       continue-on-error: true
       run: |
-        yarn tunnel-off
-        yarn pm2 logs --nostream --lines 10000 > output/logs/tunnel.log
+        pnpm run tunnel:down
 
     - name: Upload test artifacts
       if: ${{ always() }}
       continue-on-error: true
       uses: actions/upload-artifact@v2
       with:
-        name: test-output-${{ matrix.gutenberg }}
-        path: projects/plugins/jetpack/tests/e2e/output
+        name: test-output-${{ matrix.project }}
+        path: ${{ matrix.path }}/output
 
-    - uses: testspace-com/setup-testspace@v1
-      with:
-        domain: ${{github.repository_owner}}
-      if: always()
-    - name: Publish to Testspace
-      working-directory: projects/plugins/jetpack/tests/e2e
-      run: |
-        testspace output/reports/junit-*.xml
-      if: always()
+  test-report:
+    name: "Test report"
+    runs-on: ubuntu-latest
+    if: ${{ ! cancelled() }}
+    needs: [create-test-matrix, e2e-tests]
+
+    steps:
+      - uses: actions/checkout@v2
+
+      - name: Trigger test report workflow
+        uses: ./.github/actions/test-report-dispatch
+        with:
+          token: ${{ secrets.E2E_TEST_REPORTS_TOKEN }}
+          event_type: e2e
+          report_name: ${{needs.create-test-matrix.outputs.runName}}
+
+

@@ -6,8 +6,8 @@ import { Disabled, Placeholder, Spinner, ToolbarButton, ToolbarGroup } from '@wo
 import { BlockControls } from '@wordpress/block-editor';
 import { __, sprintf } from '@wordpress/i18n';
 import { compose } from '@wordpress/compose';
-import { withSelect, withDispatch } from '@wordpress/data';
-import { addQueryArgs, getQueryArg, isURL } from '@wordpress/url';
+import { select, useSelect, withSelect, withDispatch } from '@wordpress/data';
+import { addQueryArgs, getQueryArg } from '@wordpress/url';
 import formatCurrency from '@automattic/format-currency';
 import apiFetch from '@wordpress/api-fetch';
 
@@ -20,13 +20,20 @@ import Inspector from './_inc/inspector';
 import Context from './_inc/context';
 import { flashIcon } from '../../shared/icons';
 import { isPriceValid, minimumTransactionAmountForCurrency } from '../../shared/currencies';
+import getConnectUrl from '../../shared/get-connect-url';
 import './editor.scss';
+import useAutosaveAndRedirect from '../../shared/use-autosave-and-redirect';
+import InvalidSubscriptionWarning from './_inc/invalid-subscription-warning';
 
 /**
  * @typedef { import('./plan').Plan } Plan
  */
 
 /**
+ * Tab definitions
+ *
+ * If changing or adding tabs, the _TAB constants below might need changing too.
+ *
  * @typedef { import('./tabs').Tab } Tab
  * @type { Tab[] }
  */
@@ -42,6 +49,9 @@ const tabs = [
 		className: 'wp-premium-content-logged-out-view',
 	},
 ];
+
+const CONTENT_TAB = 0;
+const WALL_TAB = 1;
 
 const API_STATE_LOADING = 0;
 const API_STATE_CONNECTED = 1;
@@ -74,14 +84,12 @@ const defaultString = null;
  * @property { (attributes: object<Attributes>) => void } setAttributes
  * @property { number } postId
  * @property { () => void } selectBlock
- *
  * @typedef { OwnProps } Props
- *
  * @param { Props } props
  */
 
 function Edit( props ) {
-	const [ selectedTab, selectTab ] = useState( tabs[ 1 ] );
+	const [ selectedTab, selectTab ] = useState( tabs[ WALL_TAB ] );
 	const [ selectedInnerBlock, hasSelectedInnerBlock ] = useState( false );
 	const [ products, setProducts ] = useState( emptyProducts );
 	const [ connectURL, setConnectURL ] = useState( defaultString );
@@ -90,6 +98,7 @@ function Edit( props ) {
 	// @ts-ignore needed in some upgrade flows - depending how we implement this
 	const [ siteSlug, setSiteSlug ] = useState( '' ); // eslint-disable-line
 	const { isPreview } = props.attributes;
+	const { clientId } = props;
 
 	/**
 	 * Hook to save a new plan.
@@ -172,24 +181,33 @@ function Edit( props ) {
 
 	/**
 	 * @param {Plan} plan - plan whose description will be retrieved
-	 *
 	 * @returns {?string} Plan description with price.
 	 */
 	function getPlanDescription( plan ) {
 		const amount = formatCurrency( parseFloat( plan.price ), plan.currency );
 		if ( plan.interval === '1 month' ) {
-			// translators: %s: amount
-			return sprintf( __( '%s / month', 'jetpack' ), amount );
+			return sprintf(
+				// translators: %s: amount
+				__( '%s / month', 'jetpack' ),
+				amount
+			);
 		}
 		if ( plan.interval === '1 year' ) {
-			// translators: %s: amount
-			return sprintf( __( '%s / year', 'jetpack' ), amount );
+			return sprintf(
+				// translators: %s: amount
+				__( '%s / year', 'jetpack' ),
+				amount
+			);
 		}
 		if ( plan.interval === 'one-time' ) {
 			return amount;
 		}
-		// translators: %s: amount, plan interval
-		return sprintf( __( '%1$s / %2$s', 'jetpack' ), amount, plan.interval );
+		return sprintf(
+			// translators: %s: amount, plan interval
+			__( '%1$s / %2$s', 'jetpack' ),
+			amount,
+			plan.interval
+		);
 	}
 
 	/**
@@ -206,6 +224,37 @@ function Edit( props ) {
 	useOutsideAlerter( wrapperRef, hasSelectedInnerBlock );
 
 	const { isSelected, className } = props;
+
+	const selectedBlock = useSelect( selector => selector( 'core/block-editor' ).getSelectedBlock() );
+
+	useEffect( () => {
+		if ( isSelected ) {
+			return; // If this block is selected then leave the focused tab as it was.
+		}
+
+		if ( ! selectedBlock ) {
+			return; // Sometimes there isn't a block selected, e.g. on page load.
+		}
+
+		const editorStore = select( 'core/block-editor' );
+
+		// Confirm that the selected block is a descendant of this one.
+		if ( ! editorStore.getBlockParents( selectedBlock.clientId ).includes( clientId ) ) {
+			return;
+		}
+
+		if (
+			'premium-content/logged-out-view' === selectedBlock.name ||
+			editorStore.getBlockParentsByBlockName(
+				selectedBlock.clientId,
+				'premium-content/logged-out-view'
+			).length
+		) {
+			selectTab( tabs[ WALL_TAB ] );
+		} else {
+			selectTab( tabs[ CONTENT_TAB ] );
+		}
+	}, [ clientId, isSelected, selectedBlock ] );
 
 	useEffect( () => {
 		if ( isPreview ) {
@@ -236,7 +285,7 @@ function Edit( props ) {
 					return;
 				}
 
-				setConnectURL( result.connect_url );
+				setConnectURL( getConnectUrl( props.postId, result.connect_url ) );
 				setShouldUpgrade( result.should_upgrade_to_access_memberships );
 				setSiteSlug( result.site_slug );
 
@@ -282,8 +331,13 @@ function Edit( props ) {
 		// Execution delayed with setTimeout to ensure it runs after any block auto-selection performed by inner blocks
 		// (such as the Recurring Payments block)
 		setTimeout( () => props.selectBlock(), 1000 );
-	// eslint-disable-next-line react-hooks/exhaustive-deps
+		// eslint-disable-next-line react-hooks/exhaustive-deps
 	}, [] );
+
+	const shouldShowConnectButton = () =>
+		! shouldUpgrade && apiState !== API_STATE_CONNECTED && connectURL;
+
+	const { autosaveAndRedirect } = useAutosaveAndRedirect( connectURL );
 
 	if ( apiState === API_STATE_LOADING && ! isPreview ) {
 		return (
@@ -299,14 +353,6 @@ function Edit( props ) {
 		);
 	}
 
-	const shouldShowConnectButton = () => {
-		if ( ! shouldUpgrade && apiState !== API_STATE_CONNECTED && connectURL ) {
-			return true;
-		}
-
-		return false;
-	};
-
 	return (
 		<>
 			<BlockControls>
@@ -314,9 +360,7 @@ function Edit( props ) {
 					<ToolbarGroup>
 						<ToolbarButton
 							icon={ flashIcon }
-							onClick={ e => {
-								props.autosaveAndRedirect( e, getConnectUrl( props, connectURL ) );
-							} }
+							onClick={ autosaveAndRedirect }
 							className="connect-stripe components-tab-button"
 						>
 							{ __( 'Connect Stripe', 'jetpack' ) }
@@ -327,16 +371,16 @@ function Edit( props ) {
 				<ToolbarGroup>
 					<ToolbarButton
 						onClick={ () => {
-							selectTab( tabs[ 1 ] );
+							selectTab( tabs[ WALL_TAB ] );
 						} }
 						className="components-tab-button"
 						isPressed={ selectedTab.className === 'wp-premium-content-logged-out-view' }
 					>
-						<span>{ __( 'Visitor View', 'jetpack' ) }</span>
+						<span>{ __( 'Guest View', 'jetpack' ) }</span>
 					</ToolbarButton>
 					<ToolbarButton
 						onClick={ () => {
-							selectTab( tabs[ 0 ] );
+							selectTab( tabs[ CONTENT_TAB ] );
 						} }
 						className="components-tab-button"
 						isPressed={ selectedTab.className !== 'wp-premium-content-logged-out-view' }
@@ -359,6 +403,10 @@ function Edit( props ) {
 				{ ( isSelected || selectedInnerBlock ) && apiState === API_STATE_CONNECTED && (
 					<Inspector { ...props } savePlan={ savePlan } siteSlug={ siteSlug } />
 				) }
+				{ !! props.attributes.selectedPlanId &&
+					! products.find( plan => plan.id === props.attributes.selectedPlanId ) && (
+						<InvalidSubscriptionWarning />
+					) }
 				<Context.Provider
 					value={ {
 						selectedTab,
@@ -424,40 +472,6 @@ function onSuccess( props, message ) {
 	props.createSuccessNotice( message, { type: 'snackbar' } );
 }
 
-/**
- * @param { Props } props - properties
- * @param { string } connectURL - Stripe connect URL
- * @returns { null | string } URL
- */
-function getConnectUrl( props, connectURL ) {
-	const { postId } = props;
-
-	if ( ! isURL( connectURL ) ) {
-		return null;
-	}
-
-	if ( ! postId ) {
-		return connectURL;
-	}
-
-	let decodedState;
-	try {
-		const state = getQueryArg( connectURL, 'state' );
-		if ( typeof state === 'string' ) {
-			decodedState = JSON.parse( window.atob( state ) );
-		}
-	} catch ( err ) {
-		if ( process.env.NODE_ENV !== 'production' ) {
-			console.error( err ); // eslint-disable-line no-console
-		}
-		return connectURL;
-	}
-
-	decodedState.from_editor_post_id = postId;
-
-	return addQueryArgs( connectURL, { state: window.btoa( JSON.stringify( decodedState ) ) } );
-}
-
 function MaybeDisabledEdit( props ) {
 	// The block transformations menu renders a block preview popover using real blocks
 	// for transformation. The block previews do not play nicely with useEffect and
@@ -466,7 +480,7 @@ function MaybeDisabledEdit( props ) {
 	// the isPreview flag accordingly.
 	return (
 		<Disabled.Consumer>
-			{ ( isDisabled ) => {
+			{ isDisabled => {
 				return (
 					<Edit
 						{ ...props }
@@ -482,8 +496,8 @@ function MaybeDisabledEdit( props ) {
 }
 
 export default compose( [
-	withSelect( select => {
-		const { getCurrentPostId } = select( 'core/editor' );
+	withSelect( selector => {
+		const { getCurrentPostId } = selector( 'core/editor' );
 		return {
 			postId: getCurrentPostId(),
 		};
@@ -495,12 +509,6 @@ export default compose( [
 			selectBlock() {
 				// @ts-ignore difficult to type via JSDoc
 				blockEditor.selectBlock( ownProps.clientId );
-			},
-			autosaveAndRedirect: async ( event, stripeConnectUrl ) => {
-				event.preventDefault(); // Don't follow the href before autosaving
-				await dispatch( 'core/editor' ).savePost();
-				// Using window.top to escape from the editor iframe on WordPress.com
-				window.top.location.href = stripeConnectUrl;
 			},
 			createErrorNotice: notices.createErrorNotice,
 			createSuccessNotice: notices.createSuccessNotice,

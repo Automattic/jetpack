@@ -94,7 +94,7 @@ export class DashConnections extends Component {
 					</div>
 					{ this.props.userCanDisconnectSite && (
 						<div className="jp-connection-settings__actions">
-							<ConnectButton asLink />
+							<ConnectButton asLink autoOpenInDisconnectRoute={ true } />
 						</div>
 					) }
 				</div>
@@ -146,10 +146,7 @@ export class DashConnections extends Component {
 			cardContent = (
 				<div>
 					<div className="jp-connection-settings__info">
-						{ __(
-							'Link your account to WordPress.com to get the most out of Jetpack.',
-							'jetpack'
-						) }
+						{ __( 'Get the most out of Jetpack.', 'jetpack' ) }
 					</div>
 					<div className="jp-connection-settings__actions">{ maybeShowLinkUnlinkBtn }</div>
 				</div>

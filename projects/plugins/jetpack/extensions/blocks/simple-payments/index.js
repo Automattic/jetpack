@@ -4,17 +4,17 @@
 import { __, _x } from '@wordpress/i18n';
 import { ExternalLink, Path, SVG } from '@wordpress/components';
 import { Fragment } from '@wordpress/element';
+import { isAtomicSite, isSimpleSite } from '@automattic/jetpack-shared-extension-utils';
 
 /**
  * Internal dependencies
  */
 import { DEFAULT_CURRENCY } from './constants';
-import { isAtomicSite, isSimpleSite } from '../../shared/site-type-utils';
 import { getIconColor } from '../../shared/block-icons';
 import edit from './edit';
 import save from './save';
-import deprecatedV1 from './depecrated/v1';
-import deprecatedV2 from './depecrated/v2';
+import deprecatedV1 from './deprecated/v1';
+import deprecatedV2 from './deprecated/v2';
 
 /**
  * Example image

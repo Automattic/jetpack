@@ -14,9 +14,12 @@ function usage {
 
 		  Check that the project's versions are updated to the specified version.
 
-		usage: $0 [-v] -u version <slug>
+		usage: $0 [-f] [-v] -u version <slug>
 
 		  Update the versions of the specified project.
+
+		  Specifying -f updates the referenced version in other packages that depend
+		  on the updated package (see tools/check-intra-monorepo-deps.sh -ua).
 
 		The following version numbers are updated:
 		   - Version in the WordPress plugin header, if applicable.
@@ -35,7 +38,8 @@ fi
 # Sets options.
 OP=
 VERBOSE=false
-while getopts ":c:u:vh" opt; do
+FIX_INTRA_MONOREPO_DEPS=false
+while getopts ":c:u:fvsh" opt; do
 	case ${opt} in
 		c)
 			[[ -z "$OP" ]] || die "Only one of -c or -u may be specified"
@@ -48,6 +52,9 @@ while getopts ":c:u:vh" opt; do
 			VERSION=$OPTARG
 			OP=update
 			OPING=Updating
+			;;
+		f)
+			FIX_INTRA_MONOREPO_DEPS=true
 			;;
 		v)
 			VERBOSE=true
@@ -84,6 +91,7 @@ if [[ ! -e "$BASE/projects/$SLUG/composer.json" ]]; then
 fi
 
 EXIT=0
+FIXHINT=false
 
 # Check/update version numbers with sed/grep.
 #  - $1: File.
@@ -117,10 +125,11 @@ function sedver {
 		LINE=$(grep --line-number --max-count=1 -E "$2" "$1" || true)
 		if [[ -n "$CI" ]]; then
 			echo "---" # Bracket message containing newlines for better visibility in GH's logs.
-			echo "::error file=${1#$BASE/},line=${LINE%%:*}::Version mismatch, expected $3 but found $VER!%0AYou might use \`tools/project-version.sh -u $VERSION $SLUG\` to fix this."
+			echo "::error file=${1#$BASE/},line=${LINE%%:*}::Version mismatch, expected $3 but found $VER!%0AYou might use \`tools/project-version.sh -f -u $VERSION $SLUG\` or \`tools/fixup-project-versions.sh\` to fix this."
 			echo "---"
 		else
 			error "${1#$BASE/}:${LINE%%:*}: Version mismatch, expected $3 but found $VER!"
+			FIXHINT=true
 		fi
 	fi
 }
@@ -132,7 +141,7 @@ function sedver {
 #  - $4: What is being looked for, if not finding it is a problem.
 function jsver {
 	if [[ "$OP" == "update" ]]; then
-		JSON=$(jq --arg v "$3" "if $2 then $2 |= \$v else . end" "$1" | "$BASE/tools/prettier" --parser=json-stringify)
+		JSON=$(jq --tab --arg v "$3" "if $2 then $2 |= \$v else . end" "$1")
 		if [[ "$JSON" != "$(<"$FILE")" ]]; then
 			echo "$JSON" > "$FILE"
 		fi
@@ -162,10 +171,11 @@ function jsver {
 		LINE=$(grep --line-number --max-count=1 -E "^	{$N}\"${X##*.}\": $VE,?$" "$1" || true)
 		if [[ -n "$CI" ]]; then
 			echo "---" # Bracket message containing newlines for better visibility in GH's logs.
-			echo "::error file=${1#$BASE/},line=${LINE%%:*}::Version mismatch, expected $3 but found $VER!%0AYou might use \`tools/project-version.sh -u $VERSION $SLUG\` to fix this."
+			echo "::error file=${1#$BASE/},line=${LINE%%:*}::Version mismatch, expected $3 but found $VER!%0AYou might use \`tools/project-version.sh -f -u $VERSION $SLUG\` or \`tools/fixup-project-versions.sh\` to fix this."
 			echo "---"
 		else
 			error "${1#$BASE/}:${LINE%%:*}: Version mismatch, expected $3 but found $VER!"
+			FIXHINT=true
 		fi
 	fi
 }
@@ -194,6 +204,14 @@ FILE="$BASE/projects/$SLUG/composer.json"
 debug "$OPING branch-alias version, if any"
 jsver "$FILE" '.extra["branch-alias"]["dev-master"]' "$(sed -E 's/\.[0-9]+([-+].*)?$/.x-dev/' <<<"$SEMVERSION")"
 
+# Update autoloader-suffix in composer.json
+FILE="$BASE/projects/$SLUG/composer.json"
+debug "$OPING autoloader-suffix version, if any"
+SUFFIX="$(jq -r '.config["autoloader-suffix"] // "" | split("ⓥ") | if length >= 2 then .[0] else "" end' "$FILE")"
+if [[ -n "$SUFFIX" ]]; then
+	jsver "$FILE" '.config["autoloader-suffix"]' "${SUFFIX}ⓥ$(sed -E 's/[^a-zA-Z0-9_]/_/g' <<<"$VERSION")"
+fi
+
 # Update declared constants
 FILE="$BASE/projects/$SLUG/composer.json"
 while IFS=" " read -r C F; do
@@ -218,5 +236,16 @@ while IFS=" " read -r C F; do
 	fi
 	sedver "$BASE/projects/$SLUG/$F" "$PAT" "$VERSION" "version constant $C"
 done < <(jq -r '.extra["version-constants"] // {} | to_entries | .[] | .key + " " + .value' "$FILE")
+
+# Update other dependencies
+
+if $FIX_INTRA_MONOREPO_DEPS; then
+	debug "checking and fixing any broken version dependencies"
+	"$BASE/tools/check-intra-monorepo-deps.sh" -u -a
+fi
+
+if $FIXHINT; then
+	green "You might use \`tools/project-version.sh -f -u $VERSION $SLUG\` or \`tools/fixup-project-versions.sh\` to fix this."
+fi
 
 exit $EXIT

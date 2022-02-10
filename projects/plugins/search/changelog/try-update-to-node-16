@@ -1,0 +1,4 @@
+Significance: patch
+Type: changed
+
+Use Node 16.7.0 in tooling. This shouldn't change the behavior of the code itself.

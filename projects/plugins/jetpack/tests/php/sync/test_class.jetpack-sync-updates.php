@@ -9,8 +9,11 @@ use Automattic\Jetpack\Sync\Modules;
 class WP_Test_Jetpack_Sync_Updates extends WP_Test_Jetpack_Sync_Base {
 	protected $post_id;
 
-	public function setUp() {
-		parent::setUp();
+	/**
+	 * Set up.
+	 */
+	public function set_up() {
+		parent::set_up();
 		$this->sender->reset_data();
 		wp_set_current_user( 1 );
 		$this->sender->do_sync();
@@ -171,6 +174,7 @@ class WP_Test_Jetpack_Sync_Updates extends WP_Test_Jetpack_Sync_Base {
 	public function test_sync_wp_version() {
 		global $wp_version;
 		$previous_version = $wp_version;
+		$this->sender->do_sync();
 		$this->assertEquals( $wp_version, $this->server_replica_storage->get_callable( 'wp_version' ) );
 
 		// Lets pretend that we updated the wp_version to bar.
@@ -277,5 +281,24 @@ class WP_Test_Jetpack_Sync_Updates extends WP_Test_Jetpack_Sync_Base {
 
 		$this->assertTrue( (bool) $event );
 		$this->assertEquals( $event->args[0], 'foo' ); // New version
+	}
+
+	/**
+	 * Verify that all updates are returned by get_objects_by_id.
+	 */
+	public function test_get_objects_by_id_all() {
+		$module      = Modules::get_module( 'updates' );
+		$all_updates = $module->get_objects_by_id( 'update', array( 'all' ) );
+		$this->assertEquals( $module->get_all_updates(), $all_updates );
+	}
+
+	/**
+	 * Verify that get_object_by_id returns an allowed update.
+	 */
+	public function test_get_objects_by_id_singular() {
+		$module      = Modules::get_module( 'updates' );
+		$updates     = $module->get_all_updates();
+		$get_updates = $module->get_objects_by_id( 'update', array( 'core' ) );
+		$this->assertEquals( $updates['core'], $get_updates['core'] );
 	}
 }

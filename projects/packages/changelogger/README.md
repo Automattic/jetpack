@@ -52,7 +52,7 @@ you can set the configuration using `composer config extra.changelogger.$setting
 
 ### Adding a change file
 
-The changelog file consists of named fileds, a blank line, and the changelog entry content.
+The changelog file consists of named fields, a blank line, and the changelog entry content.
 
 ```
 Significance: major

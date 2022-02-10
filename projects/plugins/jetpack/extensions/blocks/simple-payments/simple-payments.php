@@ -51,6 +51,11 @@ function render_block( $attr, $content ) {
 	}
 
 	$simple_payments = Jetpack_Simple_Payments::getInstance();
+
+	if ( ! $simple_payments->is_valid( $attr ) ) {
+		return '';
+	}
+
 	$simple_payments->enqueue_frontend_assets();
 
 	// For AMP requests, make sure the purchase link redirects to the non-AMP post URL.

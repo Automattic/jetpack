@@ -5,13 +5,7 @@ import apiFetch from '@wordpress/api-fetch';
 import { dispatch } from '@wordpress/data';
 import { __, sprintf } from '@wordpress/i18n';
 import '@wordpress/notices';
-import { parse as parseUrl } from 'url';
-
-/**
- * Internal dependencies
- */
-import getSiteFragment from './get-site-fragment';
-import { isAtomicSite, isSimpleSite } from './site-type-utils';
+import { getSiteFragment, isAtomicSite, isSimpleSite } from '@automattic/jetpack-shared-extension-utils';
 
 /**
  * Returns a URL where the current site's plan can be viewed from.
@@ -44,9 +38,9 @@ function getPlanUrl() {
  */
 ( async () => {
 	if ( undefined !== typeof window && window.location ) {
-		const { query } = parseUrl( window.location.href, true );
+		const queryParams = new URLSearchParams( window.location.search );
 
-		if ( query.plan_upgraded ) {
+		if ( queryParams.get( 'plan_upgraded' ) ) {
 			let planName = null;
 
 			getPlanNameFromApi: try {

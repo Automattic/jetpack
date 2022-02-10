@@ -8,6 +8,11 @@
 import { render, screen } from '@testing-library/react';
 import '@testing-library/jest-dom/extend-expect';
 
+// this is necessary because block editor store becomes unregistered during jest initialization
+import { register } from '@wordpress/data';
+import { store as blockEditorStore } from '@wordpress/block-editor';
+register( blockEditorStore );
+
 /**
  * Internal dependencies
  */

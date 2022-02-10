@@ -221,7 +221,7 @@ class Jetpack_Core_API_Site_Endpoint {
 		// Number of images in the library if Photon is active.
 		if ( Jetpack::is_module_active( 'photon' ) ) {
 			$photon_count = array_reduce(
-				get_object_vars( wp_count_attachments( array( 'image/jpeg', 'image/png', 'image/gif', 'image/bmp' ) ) ),
+				get_object_vars( wp_count_attachments( array( 'image/jpeg', 'image/png', 'image/gif', 'image/bmp', 'image/webp' ) ) ),
 				function ( $i, $j ) {
 					return $i + $j;
 				}

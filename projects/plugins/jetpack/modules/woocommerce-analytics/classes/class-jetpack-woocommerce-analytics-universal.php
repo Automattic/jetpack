@@ -53,6 +53,8 @@ class Jetpack_WooCommerce_Analytics_Universal {
 		// order confirmed.
 		add_action( 'woocommerce_thankyou', array( $this, 'order_process' ), 10, 1 );
 		add_action( 'woocommerce_after_cart', array( $this, 'remove_from_cart_via_quantity' ), 10, 1 );
+
+		add_filter( 'woocommerce_checkout_posted_data', array( $this, 'save_checkout_post_data' ), 10, 1 );
 	}
 
 	/**
@@ -102,7 +104,11 @@ class Jetpack_WooCommerce_Analytics_Universal {
 	private function render_properties_as_js( $properties ) {
 		$js_args_string = '';
 		foreach ( $properties as $key => $value ) {
-			$js_args_string = $js_args_string . "'$key': '" . esc_js( $value ) . "', ";
+			if ( is_array( $value ) ) {
+				$js_args_string = $js_args_string . "'$key': " . wp_json_encode( $value ) . ',';
+			} else {
+				$js_args_string = $js_args_string . "'$key': '" . esc_js( $value ) . "', ";
+			}
 		}
 		return $js_args_string;
 	}
@@ -113,8 +119,24 @@ class Jetpack_WooCommerce_Analytics_Universal {
 	 * @param string  $event_name The name of the event to record.
 	 * @param integer $product_id The id of the product relating to the event.
 	 * @param array   $properties Optional array of (key => value) event properties.
+	 *
+	 * @return string|void
 	 */
 	public function record_event( $event_name, $product_id, $properties = array() ) {
+		$js = $this->process_event_properties( $event_name, $product_id, $properties );
+		wc_enqueue_js( "_wca.push({$js});" );
+	}
+
+	/**
+	 * Compose event properties.
+	 *
+	 * @param string  $event_name The name of the event to record.
+	 * @param integer $product_id The id of the product relating to the event.
+	 * @param array   $properties Optional array of (key => value) event properties.
+	 *
+	 * @return string|void
+	 */
+	public function process_event_properties( $event_name, $product_id, $properties = array() ) {
 		$product = wc_get_product( $product_id );
 		if ( ! $product instanceof WC_Product ) {
 			return;
@@ -126,17 +148,17 @@ class Jetpack_WooCommerce_Analytics_Universal {
 			$this->get_common_properties()
 		);
 
-		wc_enqueue_js(
-			"_wca.push( {
-					'_en': '" . esc_js( $event_name ) . "',
-					'pi': '" . esc_js( $product_id ) . "',
-					'pn': '" . esc_js( $product_details['name'] ) . "',
-					'pc': '" . esc_js( $product_details['category'] ) . "',
-					'pp': '" . esc_js( $product_details['price'] ) . "',
-					'pt': '" . esc_js( $product_details['type'] ) . "'," .
-					$this->render_properties_as_js( $all_props ) . '
-				} );'
-		);
+		$js = "{
+			'_en': '" . esc_js( $event_name ) . "',
+			'pi': '" . esc_js( $product_id ) . "',
+			'pn': '" . esc_js( $product_details['name'] ) . "',
+			'pc': '" . esc_js( $product_details['category'] ) . "',
+			'pp': '" . esc_js( $product_details['price'] ) . "',
+			'pt': '" . esc_js( $product_details['type'] ) . "'," .
+			$this->render_properties_as_js( $all_props ) . '
+		}';
+
+		return $js;
 	}
 
 	/**
@@ -249,6 +271,33 @@ class Jetpack_WooCommerce_Analytics_Universal {
 	public function checkout_process() {
 		$cart = WC()->cart->get_cart();
 
+		$guest_checkout = ucfirst( get_option( 'woocommerce_enable_guest_checkout', 'No' ) );
+		$create_account = ucfirst( get_option( 'woocommerce_enable_signup_and_login_from_checkout', 'No' ) );
+
+		$enabled_payment_options = array_filter(
+			WC()->payment_gateways->get_available_payment_gateways(),
+			function ( $payment_gateway ) {
+				if ( ! $payment_gateway instanceof WC_Payment_Gateway ) {
+					return false;
+				}
+
+				return $payment_gateway->is_available();
+			}
+		);
+
+		$enabled_payment_options = array_keys( $enabled_payment_options );
+		$include_express_payment = false;
+
+		$wcpay_version              = get_option( 'woocommerce_woocommerce_payments_version' );
+		$has_required_wcpay_version = version_compare( $wcpay_version, '2.9.0', '>=' );
+		// Check express payment availablity only if WC Pay is enabled and express checkout (payment request) is enabled.
+		if ( in_array( 'woocommerce_payments', $enabled_payment_options, true ) && $has_required_wcpay_version ) {
+			$wcpay_settings = get_option( 'woocommerce_woocommerce_payments_settings', array() );
+			if ( array_key_exists( 'payment_request', $wcpay_settings ) && 'yes' === $wcpay_settings['payment_request'] ) {
+				$include_express_payment = true;
+			}
+		}
+
 		foreach ( $cart as $cart_item_key => $cart_item ) {
 			/**
 			* This filter is already documented in woocommerce/templates/cart/cart.php
@@ -259,13 +308,49 @@ class Jetpack_WooCommerce_Analytics_Universal {
 				continue;
 			}
 
-			$this->record_event(
-				'woocommerceanalytics_product_checkout',
-				$product->get_id(),
-				array(
-					'pq' => $cart_item['quantity'],
-				)
-			);
+			if ( true === $include_express_payment ) {
+				$properties = $this->process_event_properties(
+					'woocommerceanalytics_product_checkout',
+					$product->get_id(),
+					array(
+						'pq'               => $cart_item['quantity'],
+						'payment_options'  => $enabled_payment_options,
+						'device'           => wp_is_mobile() ? 'mobile' : 'desktop',
+						'guest_checkout'   => 'Yes' === $guest_checkout ? 'Yes' : 'No',
+						'create_account'   => 'Yes' === $create_account ? 'Yes' : 'No',
+						'express_checkout' => 'null',
+					)
+				);
+				wc_enqueue_js(
+					"
+					// wcpay.payment-request.availability event gets fired twice.
+					// make sure we push only one event.
+					var cartItem_{$cart_item_key}_logged = false;
+				    wp.hooks.addAction('wcpay.payment-request.availability', 'wcpay', function(args) {
+				        if ( true === cartItem_{$cart_item_key}_logged ) {
+				            return;
+				        }
+				        var properties = {$properties};
+				        properties.express_checkout = args.paymentRequestType;
+				        _wca.push(properties);
+						cartItem_{$cart_item_key}_logged = true;	
+				    });
+				"
+				);
+			} else {
+				$this->record_event(
+					'woocommerceanalytics_product_checkout',
+					$product->get_id(),
+					array(
+						'pq'               => $cart_item['quantity'],
+						'payment_options'  => $enabled_payment_options,
+						'device'           => wp_is_mobile() ? 'mobile' : 'desktop',
+						'guest_checkout'   => 'Yes' === $guest_checkout ? 'Yes' : 'No',
+						'create_account'   => 'Yes' === $create_account ? 'Yes' : 'No',
+						'express_checkout' => 'null',
+					)
+				);
+			}
 		}
 	}
 
@@ -277,6 +362,28 @@ class Jetpack_WooCommerce_Analytics_Universal {
 	public function order_process( $order_id ) {
 		$order = wc_get_order( $order_id );
 
+		$payment_option = $order->get_payment_method();
+
+		if ( is_object( WC()->session ) ) {
+			$create_account = true === WC()->session->get( 'wc_checkout_createaccount_used' ) ? 'Y' : 'N';
+		} else {
+			$create_account = 'N';
+		}
+
+		$guest_checkout = $order->get_user() ? 'N' : 'Y';
+
+		$express_checkout = 'null';
+		// When the payment option is woocommerce_payment
+		// See if Google Pay or Apple Pay was used.
+		if ( 'woocommerce_payments' === $payment_option ) {
+			$payment_option_title = $order->get_payment_method_title();
+			if ( 'Google Pay (WooCommerce Payments)' === $payment_option_title ) {
+				$express_checkout = array( 'google_pay' );
+			} elseif ( 'Apple Pay (WooCommerce Payments)' === $payment_option_title ) {
+				$express_checkout = array( 'apple_pay' );
+			}
+		}
+
 		// loop through products in the order and queue a purchase event.
 		foreach ( $order->get_items() as $order_item ) {
 			$product_id = is_callable( array( $order_item, 'get_product_id' ) ) ? $order_item->get_product_id() : -1;
@@ -285,8 +392,13 @@ class Jetpack_WooCommerce_Analytics_Universal {
 				'woocommerceanalytics_product_purchase',
 				$product_id,
 				array(
-					'oi' => $order->get_order_number(),
-					'pq' => $order_item->get_quantity(),
+					'oi'               => $order->get_order_number(),
+					'pq'               => $order_item->get_quantity(),
+					'device'           => wp_is_mobile() ? 'mobile' : 'desktop',
+					'payment_option'   => $payment_option,
+					'create_account'   => $create_account,
+					'guest_checkout'   => $guest_checkout,
+					'express_checkout' => $express_checkout,
 				)
 			);
 		}
@@ -494,5 +606,23 @@ class Jetpack_WooCommerce_Analytics_Universal {
 		}
 
 		return $info;
+	}
+
+	/**
+	 * Save createaccount post data to be used in $this->order_process.
+	 *
+	 * @param array $data post data from the checkout page.
+	 *
+	 * @return array
+	 */
+	public function save_checkout_post_data( array $data ) {
+		$session = WC()->session;
+		if ( is_object( $session ) ) {
+			if ( isset( $data['createaccount'] ) && ! empty( $data['createaccount'] ) ) {
+				$session->set( 'wc_checkout_createaccount_used', true );
+				$session->save_data();
+			}
+		}
+		return $data;
 	}
 }

@@ -2,7 +2,6 @@
  * WordPress dependencies
  */
 import { __, _x } from '@wordpress/i18n';
-import { Platform } from '@wordpress/element';
 
 /**
  * Internal dependencies
@@ -58,7 +57,6 @@ export const settings = {
 	attributes,
 	supports: {
 		html: false,
-		inserter: Platform.OS !== 'web', // false for web, true for mobile
 	},
 	icon: {
 		src: icon,

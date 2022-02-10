@@ -20,8 +20,7 @@ import './view.js';
 /* global juxtapose */
 
 const Edit = ( { attributes, className, clientId, isSelected, setAttributes } ) => {
-	const { imageBefore, imageAfter, caption, orientation } = attributes;
-
+	const { align, imageBefore, imageAfter, caption, orientation } = attributes;
 	// Check for useResizeObserver, not available in older Gutenberg.
 	let resizeListener = null;
 	let sizes = null;
@@ -59,7 +58,7 @@ const Edit = ( { attributes, className, clientId, isSelected, setAttributes } ) 
 		if ( imageBefore.url && imageAfter.url && typeof juxtapose !== 'undefined' ) {
 			juxtapose.makeSlider( juxtaposeRef?.current );
 		}
-	}, [ imageBefore, imageAfter, orientation ] );
+	}, [ align, imageBefore, imageAfter, orientation ] );
 
 	return (
 		<figure className={ className } id={ clientId }>

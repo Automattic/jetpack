@@ -44,9 +44,9 @@ class RedirectTest extends TestCase {
 		$url = Redirect::get_url( 'simple' );
 		$this->assertEquals( 'https://jetpack.com/redirect/?source=simple&site=example.org', $url );
 
-		// Test invalid parameter.
-		$url = Redirect::get_url( 'simple', array( 'invalid' => 'value' ) );
-		$this->assertEquals( 'https://jetpack.com/redirect/?source=simple&site=example.org', $url );
+		// Test a random parameter.
+		$url = Redirect::get_url( 'simple', array( 'random' => 'value' ) );
+		$this->assertEquals( 'https://jetpack.com/redirect/?source=simple&site=example.org&random=value', $url );
 
 		// Test path.
 		$url = Redirect::get_url( 'simple', array( 'path' => 'value' ) );

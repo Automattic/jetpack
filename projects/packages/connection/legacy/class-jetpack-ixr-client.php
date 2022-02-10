@@ -4,12 +4,17 @@
  *
  * @package automattic/jetpack-connection
  *
- * @since 1.5
- * @since 7.7 Moved to the jetpack-connection package.
+ * @since 1.7.0
+ * @since-jetpack 1.5
+ * @since-jetpack 7.7 Moved to the jetpack-connection package.
  */
 
 use Automattic\Jetpack\Connection\Client;
 use Automattic\Jetpack\Connection\Manager;
+
+if ( ! class_exists( IXR_Client::class ) ) {
+	require_once ABSPATH . WPINC . '/class-IXR.php';
+}
 
 /**
  * A Jetpack implementation of the WordPress core IXR client.

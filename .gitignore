@@ -2,6 +2,8 @@
 /.sass-cache/
 /node_modules
 vendor/
+jetpack_vendor/
+/.nova/
 /.vscode/
 /logs
 /allure-results/
@@ -14,6 +16,11 @@ vendor/
 /tools/docker/compose-extras.yml
 /tools/docker/compose-volumes.yml
 /tools/docker/compose-volumes.built.yml
+/tools/docker/compose-extras.built.yml
+/tools/docker/compose-mappings.built.yml
+/tools/docker/jetpack-docker-config.yml
+/tools/phpcs.log
+
 # File for personal customiziations, if desired.
 /tools/docker/mu-plugins/0-sandbox.php
 .idea
@@ -21,15 +28,15 @@ vendor/
 npm-debug.log
 *.unison.tmp
 .eslintcache
-.eslintignore-required
-yarn-error.log
 .phpcs.xml
+.pnpm-debug.log
 phpcs.xml
 .phpunit.result.cache
 
 ## Things for docker-composer
-/tools/docker/data/mysql/*
-!/tools/docker/data/mysql/.gitkeep
+/tools/docker/data/*
+!/tools/docker/data/.gitkeep
+!/tools/docker/data/ssh.keys/
 /tools/docker/logs/*
 !/tools/docker/logs/.gitkeep
 # Custom environment for docker containers
@@ -44,3 +51,7 @@ phpcs.xml
 /tools/tunnel.sh
 /tools/jt/
 /tools/docker/bin/jt/
+
+# This file indicates we're in draft mode, which reduces checks
+.jetpack-draft
+

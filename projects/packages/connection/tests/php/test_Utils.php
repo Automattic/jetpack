@@ -78,6 +78,12 @@ class UtilsTest extends TestCase {
 					'constant_name'   => 'JETPACK__API_VERSION',
 					'expected_output' => 20,
 				),
+			'jetpack__wpcom_json_api_base'           =>
+				array(
+					'constant_value'  => null,
+					'constant_name'   => 'JETPACK__WPCOM_JSON_API_BASE',
+					'expected_output' => 'https://public-api.wordpress.com',
+				),
 		);
 	}
 }

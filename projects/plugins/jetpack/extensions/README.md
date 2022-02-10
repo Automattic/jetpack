@@ -7,29 +7,54 @@ also known as Gutenberg, [that was introduced in WordPress 5.0](https://wordpres
 
 We define different types of block editor extensions:
 
-- Blocks are available in the editor itself.
-- Plugins are available in the Jetpack sidebar that appears on the right side of the block editor.
+### Blocks
+Blocks are available in the editor itself.
+Located in the `./blocks` folder.
+
+### Extended blocks
+Blocks, usually core blocks, extended by Jetpack plugin.
+Located in the `./extended-blocks` folder.
+
+### Plugins
+Core Editor [plugins](https://developer.wordpress.org/block-editor/reference-guides/packages/packages-plugins/), 
+registered by Jetpack to extend the application UI via [Slot&Fill](https://developer.wordpress.org/block-editor/reference-guides/slotfills/) components.
 
 ## Extension Structure
 
-Extensions in the `extensions/blocks` folder loosely follow this structure:
+Extensions in the `extensions/` folder loosely follow this structure:
 
-```
+```txt
 .
-└── block-or-plugin-name/
-	├── block-or-plugin-name.php ← PHP file where the block and its assets are registered.
-	├── editor.js                ← script loaded only in the editor
-	├── editor.scss              ← styles loaded only in the editor
-	├── view.js                  ← script loaded on the frontend
-	└── view.scss                ← styles loaded on the frontend
+├── blocks/
+│   └── block-name/
+│		├── editor.js                ← script loaded only in the editor
+│		├── editor.scss              ← styles loaded only in the editor
+│		├── view.js                  ← script loaded on the frontend
+│		└── view.scss                ← styles loaded on the frontend
+│
+├── extended-blocks/
+│   └── block-name/
+│		├── index.js                 ← entry point to extend.
+│		└── ...
+│
+├── plugins/
+│   └── plugin-name/
+│		├── index.js                 ← plugin registration
+│		└── ...
+│
+└── store/
+	└── store-name/
+		├── index.js                 ← plugin definition
+		└── ...
 ```
 
 If your block depends on another block, place them all in extensions folder:
 
-```
+```txt
 .
-├── block-name/
-└── sub-blockname/
+└── blocks/
+	├── block-name/
+	└── sub-blockname/
 ```
 
 ## Developing block editor extensions in Jetpack
@@ -38,11 +63,11 @@ If your block depends on another block, place them all in extensions folder:
 
 1. Use the [Jetpack Docker environment](https://github.com/Automattic/jetpack/tree/master/docker#readme).
 1. Start a new branch.
-1. Add your new extension's source files to the extensions/blocks directory.
+1. Add your new extension's source files to the extensions directory.
 And add your extensions' slug to the beta array in `extensions/index.json`. You can use Jetpack-CLI command to scaffold the block (see below).
 By keeping your extension in the beta array, it's safe to do small PRs and merge frequently.
 1. Or modify existing extensions in the same folder.
-1. Run `yarn build-extensions [--watch]` to compile your changes.
+1. Run `pnpm build-extensions [--watch]` to compile your changes.
 1. Now test your changes in your Docker environment's wp-admin.
 1. Open a PR, and a WordPress.com diff will be automatically generated with your changes.
 1. Test the WordPress.com diff
@@ -109,7 +134,7 @@ Since it's added to the beta array, you need to load the beta blocks as explaine
 
 ### Testing
 
-Run `yarn test-extensions [--watch]` to run tests written in [Jest](https://jestjs.io/en/).
+Run `pnpm test-extensions [--watch]` to run tests written in [Jest](https://jestjs.io/en/).
 
 Note that adding [Jest snapshot tests](https://jestjs.io/docs/en/snapshot-testing) for block's `save` methods is problematic because many core packages relying on `window` that is not present when testing with Jest. See [prior exploration](https://github.com/Automattic/wp-calypso/pull/30727).
 
@@ -139,8 +164,8 @@ Simply add branch name to the URL: jurassic.ninja/create/?jetpack-beta&branch=ma
 You can build extensions from the Jetpack folder to your local sandbox folder and sync the whole sandbox like you always do:
 
 ```bash
-yarn clean-extensions
-yarn build-extensions \
+pnpm clean-extensions
+pnpm build-extensions \
   --output-path /PATH_TO_YOUR_SANDBOX/wp-content/mu-plugins/jetpack/_inc/blocks/ \
   --watch
 ```
@@ -199,7 +224,7 @@ You can, however, use the following filter:
 add_filter( 'jetpack_block_editor_enable_upgrade_nudge', '__return_true' );
 ```
 
-This will allow you to take advantage of those registered blocks. They will not be rendered to logged out visitors on the frontend of the site, but the block will be available in the block picker in the editor. When you add a paid block to a post, an `UpgradeNudge` component will display above the block in the editor and on the front end of the site to inform users that this is a paid block.
+This will allow you to take advantage of those registered blocks. They will not be rendered to logged out visitors on the frontend of the site, but the block will be available in the block picker in the editor. When you add a paid block to a post, an `UpgradeNudge` component will display above the block in the editor and on the front end of the site to inform users that this is a paid block. If a paid block is nested within another paid block, only the parent block will display its upgrade nudge on the front end.
 
 ### Upgrades for Jetpack sidebar extensions
 
@@ -217,7 +242,6 @@ An example of this pattern is provided below:
 
 ```jsx
 const extensionName = 'my-extension-name';
-
 
 /*
  * Register the main "social-previews" extension if the feature is available

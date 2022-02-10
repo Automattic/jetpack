@@ -1,65 +1,63 @@
 /**
- **** WARNING: No ES6 modules here. Not transpiled! ****
+ *WARNING: No ES6 modules here. Not transpiled! ****
  */
-/* eslint-disable lodash/import-scope */
 
 /**
  * External dependencies
  */
-const _ = require( 'lodash' );
 const fs = require( 'fs' );
 const CopyWebpackPlugin = require( 'copy-webpack-plugin' );
-const getBaseWebpackConfig = require( '@automattic/calypso-build/webpack.config.js' );
+const jetpackWebpackConfig = require( '@automattic/jetpack-webpack-config/webpack' );
 const path = require( 'path' );
-const webpack = require( 'webpack' );
+const webpack = jetpackWebpackConfig.webpack;
 const StaticSiteGeneratorPlugin = require( 'static-site-generator-webpack-plugin' );
+const RemoveAssetWebpackPlugin = require( '@automattic/remove-asset-webpack-plugin' );
+const jsdom = require( 'jsdom' );
 
 /**
  * Internal dependencies
  */
-// const { workerCount } = require( './webpack.common' ); // todo: shard...
+const CopyBlockEditorAssetsPlugin = require( './copy-block-editor-assets' );
 
 /**
  * Internal variables
  */
-const editorSetup = path.join( path.dirname( __dirname ), 'extensions', 'editor' );
-const viewSetup = path.join( path.dirname( __dirname ), 'extensions', 'view' );
+const editorSetup = path.join( __dirname, '../extensions', 'editor' );
+const viewSetup = path.join( __dirname, '../extensions', 'view' );
+const blockEditorDirectories = [ 'plugins', 'blocks' ];
+const noop = function () {};
 
 /**
- * Filters block scripts
+ * Filters block editor scripts
  *
  * @param {string} type - script type
  * @param {string} inputDir - input directory
  * @param {Array} presetBlocks - preset blocks
  * @returns {Array} list of block scripts
  */
-function blockScripts( type, inputDir, presetBlocks ) {
+function presetProductionExtensions( type, inputDir, presetBlocks ) {
 	return presetBlocks
-		.map( block => path.join( inputDir, 'blocks', block, `${ type }.js` ) )
+		.flatMap( block =>
+			blockEditorDirectories.map( dir => path.join( inputDir, dir, block, `${ type }.js` ) )
+		)
 		.filter( fs.existsSync );
 }
 
-const presetPath = path.join( path.dirname( __dirname ), 'extensions', 'index.json' );
+const presetPath = path.join( __dirname, '../extensions', 'index.json' );
 const presetIndex = require( presetPath );
-const presetProductionBlocks = _.get( presetIndex, [ 'production' ], [] );
-const presetNoPostEditorBlocks = _.get( presetIndex, [ 'no-post-editor' ], [] );
+const presetProductionBlocks = presetIndex.production || [];
+const presetNoPostEditorBlocks = presetIndex[ 'no-post-editor' ] || [];
 
 const presetExperimentalBlocks = [
 	...presetProductionBlocks,
-	..._.get( presetIndex, [ 'experimental' ], [] ),
+	...( presetIndex.experimental || [] ),
 ];
 // Beta Blocks include all blocks: beta, experimental, and production blocks.
-const presetBetaBlocks = [ ...presetExperimentalBlocks, ..._.get( presetIndex, [ 'beta' ], [] ) ];
+const presetBetaBlocks = [ ...presetExperimentalBlocks, ...( presetIndex.beta || [] ) ];
 
 // Helps split up each block into its own folder view script
 const viewBlocksScripts = presetBetaBlocks.reduce( ( viewBlocks, block ) => {
-	const viewScriptPath = path.join(
-		path.dirname( __dirname ),
-		'extensions',
-		'blocks',
-		block,
-		'view.js'
-	);
+	const viewScriptPath = path.join( __dirname, '../extensions/blocks', block, 'view.js' );
 	if ( fs.existsSync( viewScriptPath ) ) {
 		viewBlocks[ block + '/view' ] = [ viewSetup, ...[ viewScriptPath ] ];
 	}
@@ -69,9 +67,9 @@ const viewBlocksScripts = presetBetaBlocks.reduce( ( viewBlocks, block ) => {
 // Combines all the different production blocks into one editor.js script
 const editorScript = [
 	editorSetup,
-	...blockScripts(
+	...presetProductionExtensions(
 		'editor',
-		path.join( path.dirname( __dirname ), 'extensions' ),
+		path.join( __dirname, '../extensions' ),
 		presetProductionBlocks
 	),
 ];
@@ -79,9 +77,9 @@ const editorScript = [
 // Combines all the different Experimental blocks into one editor.js script
 const editorExperimentalScript = [
 	editorSetup,
-	...blockScripts(
+	...presetProductionExtensions(
 		'editor',
-		path.join( path.dirname( __dirname ), 'extensions' ),
+		path.join( __dirname, '../extensions' ),
 		presetExperimentalBlocks
 	),
 ];
@@ -89,25 +87,87 @@ const editorExperimentalScript = [
 // Combines all the different blocks into one editor-beta.js script
 const editorBetaScript = [
 	editorSetup,
-	...blockScripts(
+	...presetProductionExtensions(
 		'editor',
-		path.join( path.dirname( __dirname ), 'extensions' ),
+		path.join( __dirname, '../extensions' ),
 		presetBetaBlocks
 	),
 ];
 
 const editorNoPostEditorScript = [
 	editorSetup,
-	...blockScripts(
+	...presetProductionExtensions(
 		'editor',
-		path.join( path.dirname( __dirname ), 'extensions' ),
+		path.join( __dirname, '../extensions' ),
 		presetNoPostEditorBlocks
 	),
 ];
 
-const extensionsWebpackConfig = getBaseWebpackConfig(
-	{ WP: true },
+const sharedWebpackConfig = {
+	mode: jetpackWebpackConfig.mode,
+	devtool: jetpackWebpackConfig.devtool,
+	output: {
+		...jetpackWebpackConfig.output,
+		path: path.join( __dirname, '../_inc/blocks' ),
+	},
+	optimization: {
+		...jetpackWebpackConfig.optimization,
+	},
+	resolve: {
+		...jetpackWebpackConfig.resolve,
+	},
+	node: {},
+	plugins: [
+		...jetpackWebpackConfig.StandardPlugins( {
+			DependencyExtractionPlugin: { injectPolyfill: true },
+		} ),
+	],
+	module: {
+		strictExportPresence: true,
+		rules: [
+			// Transpile JavaScript
+			jetpackWebpackConfig.TranspileRule( {
+				exclude: /node_modules\//,
+			} ),
+
+			// Transpile @automattic/* in node_modules too.
+			jetpackWebpackConfig.TranspileRule( {
+				includeNodeModules: [
+					'@automattic/',
+					'debug/',
+					'gridicons/',
+					'punycode/',
+					'query-string/',
+					'split-on-first/',
+					'strict-uri-encode/',
+				],
+			} ),
+
+			// Handle CSS.
+			jetpackWebpackConfig.CssRule( {
+				extensions: [ 'css', 'sass', 'scss' ],
+				extraLoaders: [
+					{
+						loader: 'postcss-loader',
+						options: {
+							postcssOptions: { config: path.join( __dirname, '../postcss.config.js' ) },
+						},
+					},
+					'sass-loader',
+				],
+			} ),
+
+			// Handle images.
+			jetpackWebpackConfig.FileRule(),
+		],
+	},
+};
+
+// We export two configuration files: One for admin.js, and one for components.jsx.
+// The latter produces pre-rendered components HTML.
+module.exports = [
 	{
+		...sharedWebpackConfig,
 		entry: {
 			editor: editorScript,
 			'editor-experimental': editorExperimentalScript,
@@ -115,49 +175,46 @@ const extensionsWebpackConfig = getBaseWebpackConfig(
 			'editor-no-post-editor': editorNoPostEditorScript,
 			...viewBlocksScripts,
 		},
-		'output-chunk-filename': '[name].[chunkhash].js',
-		'output-path': path.join( path.dirname( __dirname ), '_inc', 'blocks' ),
-	}
-);
-
-const componentsWebpackConfig = getBaseWebpackConfig(
-	{ WP: false },
-	{
-		entry: {
-			components: path.join(
-				path.dirname( __dirname ),
-				'./extensions/shared/components/index.jsx'
-			),
-		},
-		'output-chunk-filename': '[name].[chunkhash].js',
-		'output-library-target': 'commonjs2',
-		'output-path': path.join( path.dirname( __dirname ), '_inc', 'blocks' ),
-		'output-pathinfo': true,
-	}
-);
-
-// We export two configuration files: One for admin.js, and one for components.jsx.
-// The latter produces pre-rendered components HTML.
-module.exports = [
-	{
-		...extensionsWebpackConfig,
 		plugins: [
-			...extensionsWebpackConfig.plugins,
-			new CopyWebpackPlugin( [
-				{
-					from: presetPath,
-					to: 'index.json',
-				},
-			] ),
+			...sharedWebpackConfig.plugins,
+			new CopyWebpackPlugin( {
+				patterns: [
+					{
+						from: presetPath,
+						to: 'index.json',
+					},
+				],
+			} ),
+			new CopyBlockEditorAssetsPlugin(),
 		],
 	},
 	{
-		...componentsWebpackConfig,
+		...sharedWebpackConfig,
+		entry: {
+			components: path.join( __dirname, '../extensions/shared/components/index.jsx' ),
+		},
+		output: {
+			...sharedWebpackConfig.output,
+			libraryTarget: 'commonjs2',
+		},
 		plugins: [
-			...componentsWebpackConfig.plugins,
+			...jetpackWebpackConfig.StandardPlugins( {
+				DependencyExtractionPlugin: false,
+				I18nLoaderPlugin: false,
+				I18nCheckPlugin: false,
+			} ),
 			new webpack.NormalModuleReplacementPlugin(
 				/^@wordpress\/i18n$/,
-				path.join( path.dirname( __dirname ), './extensions/shared/i18n-to-php' )
+				// We want to exclude extensions/shared/i18n-to-php so we can import and re-export
+				// any methods that we are not overriding
+				resource => {
+					if ( ! resource.contextInfo.issuer.includes( 'extensions/shared/i18n-to-php' ) ) {
+						resource.request = path.join(
+							path.dirname( __dirname ),
+							'./extensions/shared/i18n-to-php'
+						);
+					}
+				}
 			),
 			new webpack.NormalModuleReplacementPlugin(
 				/^\.\/create-interpolate-element$/,
@@ -168,18 +225,17 @@ module.exports = [
 				// Hopefully, most of them can be dropped once https://github.com/WordPress/gutenberg/pull/16227 lands.
 				globals: {
 					Mousetrap: {
-						init: _.noop,
+						init: noop,
 						prototype: {},
 					},
-					document: {
-						addEventListener: _.noop,
-						createElement: _.noop,
-						documentElement: _.noop,
-						head: { appendChild: _.noop },
-					},
+					document: new jsdom.JSDOM().window.document,
 					navigator: {},
 					window: {
-						addEventListener: _.noop,
+						addEventListener: noop,
+						console: {
+							error: noop,
+							warn: noop,
+						},
 						// See https://github.com/WordPress/gutenberg/blob/f3b6379327ce3fb48a97cb52ffb7bf9e00e10130/packages/jest-preset-default/scripts/setup-globals.js
 						matchMedia: () => ( {
 							addListener: () => {},
@@ -191,10 +247,16 @@ module.exports = [
 							DOCUMENT_POSITION_PRECEDING: '',
 							DOCUMENT_POSITION_FOLLOWING: '',
 						},
-						removeEventListener: _.noop,
+						removeEventListener: noop,
 						URL: {},
 					},
+					CSS: {
+						supports: () => false,
+					},
 				},
+			} ),
+			new RemoveAssetWebpackPlugin( {
+				assets: [ 'components.js', 'components.js.map' ],
 			} ),
 		],
 	},

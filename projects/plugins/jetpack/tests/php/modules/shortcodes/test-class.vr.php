@@ -33,12 +33,12 @@ class WP_Test_Jetpack_Shortcodes_VR extends WP_UnitTestCase {
 	 * @since 4.5
 	 */
 	public function test_shortcodes_vr_url() {
-		$img = 'https://en-blog.files.wordpress.com/2016/12/regents_park.jpg';
+		$img     = 'https://en-blog.files.wordpress.com/2016/12/regents_park.jpg';
 		$content = '[vr url=' . $img . ' view=360]';
 
 		$shortcode_content = do_shortcode( $content );
 
-		$this->assertContains( $img, $shortcode_content );
+		$this->assertStringContainsString( $img, $shortcode_content );
 	}
 
 	/**
@@ -47,7 +47,7 @@ class WP_Test_Jetpack_Shortcodes_VR extends WP_UnitTestCase {
 	 * @since 4.5
 	 */
 	public function test_shortcodes_vr_url_missing() {
-		$content = '[vr]';
+		$content           = '[vr]';
 		$shortcode_content = do_shortcode( $content );
 		$this->assertEmpty( $shortcode_content );
 	}

@@ -14,6 +14,7 @@ const getFiles = require( '../../get-files' );
 const getLabels = require( '../../get-labels' );
 const getNextValidMilestone = require( '../../get-next-valid-milestone' );
 const getPluginNames = require( '../../get-plugin-names' );
+const getPrWorkspace = require( '../../get-pr-workspace' );
 
 /* global GitHub, WebhookPayloadPullRequest */
 
@@ -24,11 +25,10 @@ const getPluginNames = require( '../../get-plugin-names' );
  * @param {string} owner   - Repository owner.
  * @param {string} repo    - Repository name.
  * @param {string} number  - PR number.
- *
  * @returns {Promise<boolean>} Promise resolving to boolean.
  */
 async function hasUnverifiedCommit( octokit, owner, repo, number ) {
-	for await ( const response of octokit.paginate.iterator( octokit.pulls.listCommits, {
+	for await ( const response of octokit.paginate.iterator( octokit.rest.pulls.listCommits, {
 		owner,
 		repo,
 		pull_number: +number,
@@ -48,7 +48,6 @@ async function hasUnverifiedCommit( octokit, owner, repo, number ) {
  * @param {string} owner   - Repository owner.
  * @param {string} repo    - Repository name.
  * @param {string} number  - PR number.
- *
  * @returns {Promise<boolean>} Promise resolving to boolean.
  */
 async function hasStatusLabels( octokit, owner, repo, number ) {
@@ -64,7 +63,6 @@ async function hasStatusLabels( octokit, owner, repo, number ) {
  * @param {string} owner   - Repository owner.
  * @param {string} repo    - Repository name.
  * @param {string} number  - PR number.
- *
  * @returns {Promise<boolean>} Promise resolving to boolean.
  */
 async function hasNeedsReviewLabel( octokit, owner, repo, number ) {
@@ -80,7 +78,6 @@ async function hasNeedsReviewLabel( octokit, owner, repo, number ) {
  * @param {string} owner   - Repository owner.
  * @param {string} repo    - Repository name.
  * @param {string} number  - PR number.
- *
  * @returns {Promise<boolean>} Promise resolving to boolean.
  */
 async function hasProgressLabel( octokit, owner, repo, number ) {
@@ -94,13 +91,12 @@ async function hasProgressLabel( octokit, owner, repo, number ) {
  *
  * @param {string} plugin        - Plugin name.
  * @param {object} nextMilestone - Information about next milestone as returnde by GitHub.
- *
  * @returns {Promise<string>} Promise resolving to info about the release (code freeze, release date).
  */
 async function getMilestoneDates( plugin, nextMilestone ) {
 	let releaseDate;
 	let codeFreezeDate;
-	if ( nextMilestone ) {
+	if ( nextMilestone && nextMilestone.hasOwnProperty( 'due_on' ) && nextMilestone.due_on ) {
 		releaseDate = moment( nextMilestone.due_on ).format( 'LL' );
 
 		// Look for a code freeze date in the milestone description.
@@ -148,7 +144,6 @@ async function getMilestoneDates( plugin, nextMilestone ) {
  * @param {string} owner   - Repository owner.
  * @param {string} repo    - Repository name.
  * @param {string} number  - PR number.
- *
  * @returns {Promise<string>} Promise resolving to info about the next release for that plugin.
  */
 async function buildMilestoneInfo( octokit, owner, repo, number ) {
@@ -178,7 +173,6 @@ async function buildMilestoneInfo( octokit, owner, repo, number ) {
  * @param {string} owner   - Repository owner.
  * @param {string} repo    - Repository name.
  * @param {string} number  - PR number.
- *
  * @returns {Promise<number>} Promise resolving to boolean.
  */
 async function getCheckComment( octokit, owner, repo, number ) {
@@ -186,7 +180,7 @@ async function getCheckComment( octokit, owner, repo, number ) {
 
 	debug( `check-description: Looking for a previous comment from this task in our PR.` );
 
-	for await ( const response of octokit.paginate.iterator( octokit.issues.listComments, {
+	for await ( const response of octokit.paginate.iterator( octokit.rest.issues.listComments, {
 		owner,
 		repo,
 		issue_number: +number,
@@ -210,7 +204,6 @@ async function getCheckComment( octokit, owner, repo, number ) {
  * @param {boolean} isFailure - Boolean condition to determine if check failed.
  * @param {string} checkMessage - Sentence describing successful check.
  * @param {string} severity - Optional. Check severity. Could be one of `error`, `warning`, `notice`
- *
  * @returns {string} - List item with status emoji and a sentence describing check.
  */
 function statusEntry( isFailure, checkMessage, severity = 'error' ) {
@@ -232,23 +225,23 @@ function statusEntry( isFailure, checkMessage, severity = 'error' ) {
  * @param {string} owner   - Repository owner.
  * @param {string} repo    - Repository name.
  * @param {string} number  - PR number.
- *
  * @returns {Array} - list of affected projects without changelog entry
  */
 async function getChangelogEntries( octokit, owner, repo, number ) {
+	const baseDir = getPrWorkspace();
 	const files = await getFiles( octokit, owner, repo, number );
 	const affectedProjects = getAffectedChangeloggerProjects( files );
 	debug( `check-description: affected changelogger projects: ${ affectedProjects }` );
 
 	return affectedProjects.reduce( ( acc, project ) => {
-		const composerFile = process.env.GITHUB_WORKSPACE + `/projects/${ project }/composer.json`;
+		const composerFile = `${ baseDir }/projects/${ project }/composer.json`;
 		const json = JSON.parse( fs.readFileSync( composerFile ) );
 		// Changelog directory could customized via .extra.changelogger.changes-dir in composer.json. Lets check for it.
 		const changelogDir =
 			path.relative(
-				process.env.GITHUB_WORKSPACE,
+				baseDir,
 				path.resolve(
-					process.env.GITHUB_WORKSPACE + `/projects/${ project }`,
+					`${ baseDir }/projects/${ project }`,
 					( json.extra && json.extra.changelogger && json.extra.changelogger[ 'changes-dir' ] ) ||
 						'changelog'
 				)
@@ -275,7 +268,6 @@ async function getChangelogEntries( octokit, owner, repo, number ) {
  *
  * @param {WebhookPayloadPullRequest} payload - Pull request event payload.
  * @param {GitHub}                    octokit - Initialized Octokit REST client.
- *
  * @returns {string} List of checks with appropriate status emojis.
  */
 async function getStatusChecks( payload, octokit ) {
@@ -307,7 +299,6 @@ async function getStatusChecks( payload, octokit ) {
  * Compose a list of checks for the PR
  *
  * @param {object} statusChecks - Map of all checks with boolean as a value
- *
  * @returns {string} part of the comment with list of checks
  */
 function renderStatusChecks( statusChecks ) {
@@ -361,7 +352,6 @@ function renderStatusChecks( statusChecks ) {
  * Compose a list of recommendations based on failed checks
  *
  * @param {object} statusChecks - Map of all checks with boolean as a value
- *
  * @returns {string} part of the comment with recommendations
  */
 function renderRecommendations( statusChecks ) {
@@ -385,7 +375,7 @@ My PR adds *x* and *y*.
 			'`, `'
 		) }\`
 
-Go to that project and use \`vendor/bin/changelogger add\` to add a change file.
+Use [the Jetpack CLI tool](https://github.com/Automattic/jetpack/blob/master/docs/monorepo.md#first-time) to generate changelog entries by running the following command: \`jetpack changelog add\`.
 Guidelines: [/docs/writing-a-good-changelog-entry.md](https://github.com/Automattic/jetpack/blob/master/docs/writing-a-good-changelog-entry.md)
 `,
 	};
@@ -425,14 +415,14 @@ async function postComment( payload, octokit, comment ) {
 	// If there is a comment already, update it.
 	if ( existingComment !== 0 ) {
 		debug( `check-description: update comment ID ${ existingComment } with our new remarks` );
-		await octokit.issues.updateComment( {
+		await octokit.rest.issues.updateComment( {
 			...commentOpts,
 			comment_id: +existingComment,
 		} );
 	} else {
 		// If no comment was published before, publish one now.
 		debug( `check-description: Posting comment to PR #${ number }` );
-		await octokit.issues.createComment( {
+		await octokit.rest.issues.createComment( {
 			...commentOpts,
 			issue_number: +number,
 		} );
@@ -460,7 +450,7 @@ async function updateLabels( payload, octokit ) {
 	const hasNeedsReview = await hasNeedsReviewLabel( octokit, ownerLogin, repo, number );
 	if ( hasNeedsReview ) {
 		debug( `check-description: remove existing Needs review label.` );
-		await octokit.issues.removeLabel( {
+		await octokit.rest.issues.removeLabel( {
 			...labelOpts,
 			name: '[Status] Needs Review',
 		} );
@@ -470,7 +460,7 @@ async function updateLabels( payload, octokit ) {
 	const isInProgress = await hasProgressLabel( octokit, ownerLogin, repo, number );
 	if ( ! isInProgress ) {
 		debug( `check-description: add Needs Author Reply label.` );
-		await octokit.issues.addLabels( {
+		await octokit.rest.issues.addLabels( {
 			...labelOpts,
 			labels: [ '[Status] Needs Author Reply' ],
 		} );
@@ -511,6 +501,12 @@ When contributing to Jetpack, we have [a few suggestions](https://github.com/Aut
 
 
 This comment will be updated as you work on your PR and make changes. If you think that some of those checks are not needed for your PR, please explain why you think so. Thanks for cooperation :robot:
+
+******`;
+
+	comment += `
+
+The e2e test report can be found [here](https://automattic.github.io/jetpack-e2e-reports/${ number }/report/). Please note that it can take a few minutes after the e2e tests checks are complete for the report to be available.
 
 ******`;
 

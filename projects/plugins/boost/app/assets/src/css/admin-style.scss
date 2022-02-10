@@ -1,0 +1,18 @@
+// Main
+@import 'main/variables';
+@import 'main/mixins';
+@import 'main/wp-admin';
+@import 'main/dashboard';
+
+// Components
+@import 'components/connection';
+@import 'components/feature-toggle';
+@import 'components/benchmarks';
+@import 'components/score';
+@import 'components/progress-bar';
+@import 'components/error-message';
+@import 'components/critical-css';
+@import 'components/close-button';
+@import 'components/numbered-list';
+@import 'components/rating-card';
+@import 'components/button';
