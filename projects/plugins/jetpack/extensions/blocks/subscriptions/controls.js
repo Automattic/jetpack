@@ -9,6 +9,7 @@ import {
 	FontSizePicker,
 	__experimentalPanelColorGradientSettings as PanelColorGradientSettings,
 } from '@wordpress/block-editor';
+import { isSimpleSite } from '@automattic/jetpack-shared-extension-utils';
 
 /**
  * Internal dependencies
@@ -29,7 +30,6 @@ import {
 	DEFAULT_SPACING_VALUE,
 	DEFAULT_FONTSIZE_VALUE,
 } from './constants';
-import { isSimpleSite } from '../../shared/site-type-utils';
 
 export default function SubscriptionControls( {
 	buttonBackgroundColor,

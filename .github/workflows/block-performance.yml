@@ -55,7 +55,6 @@ jobs:
           echo "    gutenberg/packages/e2e-tests/plugins/disable-animations.php: /var/www/html/wp-content/plugins/disable-animations.php" >> ../docker/jetpack-docker-config.yml
 
           mkdir results
-          pnpm install
           pnpm config:decrypt
           pnpm env:start
 

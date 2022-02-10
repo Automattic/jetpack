@@ -9,6 +9,11 @@ import { useBlockEditContext } from '@wordpress/block-editor';
 import { addFilter } from '@wordpress/hooks';
 import { createHigherOrderComponent } from '@wordpress/compose';
 import { __ } from '@wordpress/i18n';
+import {
+	isAtomicSite,
+	isSimpleSite,
+	getJetpackExtensionAvailability,
+} from '@automattic/jetpack-shared-extension-utils';
 import { every } from 'lodash';
 
 /**
@@ -16,11 +21,10 @@ import { every } from 'lodash';
  */
 import withVideoPressEdit from './edit';
 import withVideoPressSave from './save';
-import getJetpackExtensionAvailability from '../../shared/get-jetpack-extension-availability';
 import deprecatedV1 from './deprecated/v1';
 import deprecatedV2 from './deprecated/v2';
 import deprecatedV3 from './deprecated/v3';
-import { isAtomicSite, isSimpleSite } from '../../shared/site-type-utils';
+import deprecatedV4 from './deprecated/v4';
 import withHasWarningIsInteractiveClassNames from '../../shared/with-has-warning-is-interactive-class-names';
 import './editor.scss';
 
@@ -230,6 +234,7 @@ const addVideoPressSupport = ( settings, name ) => {
 			},
 			useAverageColor: {
 				type: 'boolean',
+				default: true,
 			},
 			videoPressTracks: {
 				type: 'array',
@@ -303,6 +308,7 @@ const addVideoPressSupport = ( settings, name ) => {
 
 			deprecated: [
 				...( deprecated || [] ),
+				deprecatedV4,
 				deprecatedV3,
 				{
 					attributes: attributesDefinition,

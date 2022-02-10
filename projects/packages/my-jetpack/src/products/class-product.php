@@ -23,11 +23,11 @@ abstract class Product {
 	public static $slug = null;
 
 	/**
-	 * The filename (id) of the plugin associated with this product. If not defined, it will default to the Jetpack plugin
+	 * The filename (id) of the plugin associated with this product. Can be a string with a single value or a list of possible values
 	 *
-	 * @var string
+	 * @var string|string[]
 	 */
-	public static $plugin_filename = null;
+	protected static $plugin_filename = null;
 
 	/**
 	 * The slug of the plugin associated with this product. If not defined, it will default to the Jetpack plugin
@@ -48,7 +48,10 @@ abstract class Product {
 	 *
 	 * @var string
 	 */
-	const JETPACK_PLUGIN_FILENAME = 'jetpack/jetpack.php';
+	const JETPACK_PLUGIN_FILENAME = array(
+		'jetpack/jetpack.php',
+		'jetpack-dev/jetpack.php',
+	);
 
 	/**
 	 * Whether this product requires a user connection
@@ -76,6 +79,25 @@ abstract class Product {
 	}
 
 	/**
+	 * Get the installed plugin filename
+	 *
+	 * @return ?string
+	 */
+	public static function get_installed_plugin_filename() {
+		$all_plugins = Plugins_Installer::get_plugins();
+		$filename    = static::get_plugin_filename();
+		if ( ! is_array( $filename ) ) {
+			$filename = array( $filename );
+		}
+		foreach ( $filename as $name ) {
+			$installed = array_key_exists( $name, $all_plugins );
+			if ( $installed ) {
+				return $name;
+			}
+		}
+	}
+
+	/**
 	 * Get the Product info for the API
 	 *
 	 * @throws \Exception If required attribute is not declared in the child class.
@@ -94,6 +116,7 @@ abstract class Product {
 			'features'                 => static::get_features(),
 			'status'                   => static::get_status(),
 			'pricing_for_ui'           => static::get_pricing_for_ui(),
+			'wpcom_product_slug'       => static::get_wpcom_product_slug(),
 			'requires_user_connection' => static::$requires_user_connection,
 			'has_required_plan'        => static::has_required_plan(),
 			'class'                    => get_called_class(),
@@ -143,6 +166,15 @@ abstract class Product {
 	abstract public static function get_pricing_for_ui();
 
 	/**
+	 * Get the WPCOM product slug used to make the purchase
+	 *
+	 * @return ?string
+	 */
+	public static function get_wpcom_product_slug() {
+		return null;
+	}
+
+	/**
 	 * Checks whether the current plan (or purchases) of the site already supports the product
 	 *
 	 * Returns true if it supports. Return false if a purchase is still required.
@@ -161,11 +193,10 @@ abstract class Product {
 	 * @return string
 	 */
 	public static function get_status() {
-		if ( static::is_active() ) {
+		if ( ! static::has_required_plan() ) {
+			$status = 'needs_purchase';
+		} elseif ( static::is_active() ) {
 			$status = 'active';
-			if ( ! static::has_required_plan() ) {
-				$status = 'needs_purchase';
-			}
 		} elseif ( ! self::is_plugin_installed() ) {
 			$status = 'plugin_absent';
 		} else {
@@ -189,8 +220,7 @@ abstract class Product {
 	 * @return boolean
 	 */
 	public static function is_plugin_installed() {
-		$all_plugins = Plugins_Installer::get_plugins();
-		return array_key_exists( static::get_plugin_filename(), $all_plugins );
+		return (bool) static::get_installed_plugin_filename();
 	}
 
 	/**
@@ -199,7 +229,7 @@ abstract class Product {
 	 * @return boolean
 	 */
 	public static function is_plugin_active() {
-		return Plugins_Installer::is_plugin_active( static::get_plugin_filename() );
+		return Plugins_Installer::is_plugin_active( static::get_installed_plugin_filename() );
 	}
 
 	/**
@@ -218,7 +248,13 @@ abstract class Product {
 	 * @return boolean
 	 */
 	public static function is_jetpack_plugin_active() {
-		return Plugins_Installer::is_plugin_active( self::JETPACK_PLUGIN_FILENAME );
+		foreach ( self::JETPACK_PLUGIN_FILENAME as $jetpack_filename ) {
+			$active = Plugins_Installer::is_plugin_active( $jetpack_filename );
+			if ( $active ) {
+				return true;
+			}
+		}
+		return false;
 	}
 
 	/**
@@ -242,7 +278,7 @@ abstract class Product {
 			return new WP_Error( 'not_allowed', __( 'You are not allowed to activate plugins on this site.', 'jetpack-my-jetpack' ) );
 		}
 
-		$result = activate_plugin( static::get_plugin_filename() );
+		$result = activate_plugin( static::get_installed_plugin_filename() );
 		if ( is_wp_error( $result ) ) {
 			return $result;
 		}
@@ -255,7 +291,7 @@ abstract class Product {
 	 * @return boolean
 	 */
 	public static function deactivate() {
-		deactivate_plugins( static::get_plugin_filename() );
+		deactivate_plugins( static::get_installed_plugin_filename() );
 		return true;
 	}
 }

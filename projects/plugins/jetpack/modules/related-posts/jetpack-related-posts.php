@@ -859,7 +859,7 @@ EOT;
 		 * @since 2.8.0
 		 *
 		 * @param array $results Array of related posts matched by Elasticsearch.
-		 * @param string $post_id Post ID of the post for which we are retrieving Related Posts.
+		 * @param int $post_id Post ID of the post for which we are retrieving Related Posts.
 		 */
 		return apply_filters( 'jetpack_relatedposts_returned_results', $results, $post_id );
 	}
@@ -1255,16 +1255,7 @@ EOT;
 			),
 		);
 
-		/**
-		 * Filter the array of related posts.
-		 *
-		 * @module related-posts
-		 *
-		 * @since 2.8.0
-		 *
-		 * @param array $results Array of related posts.
-		 * @param int $post_id Post ID of the post for which we are retrieving Related Posts.
-		 */
+		/** This filter is already documented in modules/related-posts/jetpack-related-posts.php */
 		return apply_filters( 'jetpack_relatedposts_returned_results', $related_posts, $post_id );
 	}
 

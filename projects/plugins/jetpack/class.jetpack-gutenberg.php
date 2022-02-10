@@ -700,6 +700,62 @@ class Jetpack_Gutenberg {
 	}
 
 	/**
+	 * Add the Gutenberg editor stylesheet to iframed editors, such as the site editor,
+	 * which don't have access to stylesheets added with `wp_enqueue_style`.
+	 *
+	 * This workaround is currently used by WordPress.com Simple sites.
+	 *
+	 * @since 10.7
+	 *
+	 * @return void
+	 */
+	public static function add_iframed_editor_style() {
+		if ( ! self::should_load() ) {
+			return;
+		}
+
+		global $pagenow;
+		if ( ! isset( $pagenow ) ) {
+			return;
+		}
+
+		$allowed_pages       = array( 'admin.php', 'themes.php' );
+		$is_site_editor_page = in_array( $pagenow, $allowed_pages, true ) &&
+			isset( $_GET['page'] ) && 'gutenberg-edit-site' === $_GET['page']; // phpcs:ignore WordPress.Security.NonceVerification.Recommended
+
+		// WP 5.9 puts the site editor in `site-editor.php` when Gutenberg is not active.
+		if ( 'site-editor.php' !== $pagenow && ! $is_site_editor_page ) {
+			return;
+		}
+
+		$blocks_dir       = self::get_blocks_directory();
+		$blocks_variation = self::blocks_variation();
+
+		if ( 'production' !== $blocks_variation ) {
+			$blocks_env = '-' . esc_attr( $blocks_variation );
+		} else {
+			$blocks_env = '';
+		}
+
+		$path = "{$blocks_dir}editor{$blocks_env}.css";
+		$dir  = dirname( JETPACK__PLUGIN_FILE );
+
+		if ( file_exists( "$dir/$path" ) ) {
+			if ( is_rtl() ) {
+				$rtlcsspath = substr( $path, 0, -4 ) . '.rtl.css';
+				if ( file_exists( "$dir/$rtlcsspath" ) ) {
+					$path = $rtlcsspath;
+				}
+			}
+
+			$url = Assets::normalize_path( plugins_url( $path, JETPACK__PLUGIN_FILE ) );
+			$url = add_query_arg( 'minify', 'false', $url );
+
+			add_editor_style( $url );
+		}
+	}
+
+	/**
 	 * Some blocks do not depend on a specific module,
 	 * and can consequently be loaded outside of the usual modules.
 	 * We will look for such modules in the extensions/ directory.
