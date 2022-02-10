@@ -331,6 +331,10 @@ class Test_Atomic_Admin_Menu extends WP_UnitTestCase {
 			// All Atomic sites are single site installations.
 			// Enable wpcom_marketplace and test again.
 			add_filter( 'wpcom_marketplace_enabled', '__return_true' );
+
+			// Force calpyso plugin pages for Free Atomic sites
+			add_filter( 'wpcom_force_calpyso_plugin_screens', '__return_true' );
+
 			static::$admin_menu->add_plugins_menu();
 
 			// Make sure that initial menu item is hidden.
@@ -339,6 +343,12 @@ class Test_Atomic_Admin_Menu extends WP_UnitTestCase {
 			$this->assertSame( 'https://wordpress.com/plugins/' . static::$domain, $submenu['plugins.php'][0][2] );
 			// Make sure that Installed Plugins menu item is still in place.
 			$this->assertSame( 'plugins.php', $submenu['plugins.php'][2][2] );
+
+			// Make sure that manage plugins screen is forced to use calpyso screen
+			$this->assertSame( 'https://wordpress.com/plugins/manage/' . static::$domain, $submenu['plugins.php'][3][2] );
+
+			// Make sure that origin Installed Plugins menu is hidden.
+			$this->assertSame( 'hide-if-js', $submenu['plugins.php'][2][4] );
 		}
 	}
 }
