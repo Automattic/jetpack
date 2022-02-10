@@ -1,8 +1,16 @@
 /**
  * Internal dependencies
  */
-import { backupProductData, boostProductData, scanProductData, searchProductData } from './mock-data.js';
+import {
+	antiSpamProductData,
+	backupProductData,
+	boostProductData,
+	scanProductData,
+	searchProductData,
+} from './mock-data.js';
+
 const mapResponse = {
+	'anti-spam': antiSpamProductData,
 	backup: backupProductData,
 	boost: boostProductData,
 	scan: scanProductData,
