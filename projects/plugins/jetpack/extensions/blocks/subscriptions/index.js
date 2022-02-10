@@ -3,7 +3,7 @@
  */
 import { createInterpolateElement } from '@wordpress/element';
 import { __, _x } from '@wordpress/i18n';
-import { Path, SVG } from '@wordpress/components';
+import { ExternalLink, Path, SVG } from '@wordpress/components';
 import { createBlock } from '@wordpress/blocks';
 
 /**
@@ -39,10 +39,10 @@ export const settings = {
 			<p>
 				{ createInterpolateElement(
 					__(
-						'Subscribers can get notifications through email or <a>the Reader app</a>.',
+						'Subscribers can get notifications through email or <ExternalLink>the Reader app</ExternalLink>.',
 						'jetpack'
 					),
-					{ a: <a href={ 'https://wordpress.com/read' } /> }
+					{ ExternalLink: <ExternalLink href={ 'https://wordpress.com/read' } /> }
 				) }
 			</p>
 		</>
