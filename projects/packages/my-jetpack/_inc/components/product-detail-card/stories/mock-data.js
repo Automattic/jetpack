@@ -1,3 +1,25 @@
+export const antiSpamProductData = {
+	slug: 'anti-spam',
+	name: 'Anti-Spam',
+	title: 'Jepack Anti-Spam',
+	description: 'Stop comment and form spam',
+	long_description:
+		'Save time and get better responses by automatically blocking spam from your comments and forms.',
+	status: 'active',
+	features: [
+		'Comment and form spam protection',
+		'Powered by Akismet',
+		'Block spam without CAPTCHAs',
+		'Advanced stats',
+	],
+	pricingForUi: {
+		available: true,
+		currencyCode: 'EUR',
+		fullPrice: 9.92,
+		promotionPercentage: 50,
+	},
+};
+
 export const backupProductData = {
 	slug: 'backup',
 	name: 'Backup',
