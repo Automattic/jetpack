@@ -1,8 +1,7 @@
 /**
  * External dependencies
  */
-import { createInterpolateElement } from '@wordpress/element';
-import { __, sprintf } from '@wordpress/i18n';
+import { __, _n, sprintf } from '@wordpress/i18n';
 import { ToggleControl, PanelBody, RangeControl, TextareaControl } from '@wordpress/components';
 import {
 	ContrastChecker,
@@ -11,11 +10,11 @@ import {
 	__experimentalPanelColorGradientSettings as PanelColorGradientSettings,
 } from '@wordpress/block-editor';
 import { isSimpleSite } from '@automattic/jetpack-shared-extension-utils';
-import { JetpackLogo } from '@automattic/jetpack-components';
 
 /**
  * Internal dependencies
  */
+import InspectorNotice from '../../shared/components/inspector-notice';
 import { ButtonWidthControl } from '../button/button-width-panel';
 import {
 	MIN_BORDER_RADIUS_VALUE,
@@ -58,27 +57,6 @@ export default function SubscriptionControls( {
 } ) {
 	return (
 		<>
-			{ subscriberCount > 1 && (
-				<div
-					style={ {
-						margin: 20,
-						padding: 24,
-						background: '#f2f2f2',
-						borderRadius: '4px',
-						display: 'flex',
-						alignItems: 'center',
-						justifyContent: 'space-between',
-					} }
-				>
-					<span style={ { marginRight: 12 } }>
-						{ createInterpolateElement(
-							sprintf( '<span>%s readers</span> are\xA0subscribed', subscriberCount, 'jetpack' ),
-							{ span: <span style={ { textDecoration: 'underline' } } /> }
-						) }
-					</span>
-					<JetpackLogo height="16" logoColor="#1a1a1a" showText={ false } />
-				</div>
-			) }
 			{ isGradientAvailable && (
 				<PanelColorGradientSettings
 					title={ __( 'Color', 'jetpack' ) }
@@ -242,6 +220,20 @@ export default function SubscriptionControls( {
 				initialOpen={ false }
 				className="wp-block-jetpack-subscriptions__displaypanel"
 			>
+				{ subscriberCount > 1 && (
+					<InspectorNotice>
+						{ sprintf(
+							/* translators: %s is the number of subscribers */
+							_n(
+								'You have %s subscriber.',
+								'You have %s subscribers.',
+								subscriberCount,
+								'jetpack'
+							),
+							subscriberCount
+						) }
+					</InspectorNotice>
+				) }
 				<ToggleControl
 					label={ __( 'Show subscriber count', 'jetpack' ) }
 					checked={ showSubscribersTotal }
@@ -268,10 +260,7 @@ export default function SubscriptionControls( {
 					<TextareaControl
 						value={ successMessage }
 						label={ __( 'Success message', 'jetpack' ) }
-						help={ __(
-							'Edit the message displayed when a user subscribes.',
-							'jetpack'
-						) }
+						help={ __( 'Edit the message displayed when a user subscribes.', 'jetpack' ) }
 						onChange={ newSuccessMessage => setAttributes( { successMessage: newSuccessMessage } ) }
 					/>
 				) }
