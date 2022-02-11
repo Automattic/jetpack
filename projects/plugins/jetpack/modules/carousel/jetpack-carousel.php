@@ -83,7 +83,7 @@ class Jetpack_Carousel {
 			// Register the Carousel-related related settings.
 			add_action( 'admin_init', array( $this, 'register_settings' ), 5 );
 			if ( ! $this->in_jetpack ) {
-				if ( 0 == $this->test_1or0_option( get_option( 'carousel_enable_it' ), true ) ) {
+				if ( 0 === $this->test_1or0_option( get_option( 'carousel_enable_it' ), true ) ) {
 					return; // Carousel disabled, abort early, but still register setting so user can switch it back on.
 				}
 			}
@@ -94,7 +94,7 @@ class Jetpack_Carousel {
 			add_action( 'wp_ajax_nopriv_post_attachment_comment', array( $this, 'post_attachment_comment' ) );
 		} else {
 			if ( ! $this->in_jetpack ) {
-				if ( 0 == $this->test_1or0_option( get_option( 'carousel_enable_it' ), true ) ) {
+				if ( 0 === $this->test_1or0_option( get_option( 'carousel_enable_it' ), true ) ) {
 					return; // Carousel disabled, abort early.
 				}
 			}
@@ -767,7 +767,7 @@ class Jetpack_Carousel {
 		// Not yet providing geo-data, need to "fuzzify" for privacy.
 		if ( ! empty( $img_meta ) ) {
 			foreach ( $img_meta as $k => $v ) {
-				if ( 'latitude' == $k || 'longitude' == $k ) {
+				if ( 'latitude' === $k || 'longitude' === $k ) {
 					unset( $img_meta[ $k ] );
 				}
 			}
@@ -778,7 +778,7 @@ class Jetpack_Carousel {
 			unset( $img_meta['keywords'] );
 		}
 
-		$img_meta = json_encode( array_map( 'strval', array_filter( $img_meta, 'is_scalar' ) ) );
+		$img_meta = wp_json_encode( array_map( 'strval', array_filter( $img_meta, 'is_scalar' ) ) );
 
 		$attr['data-attachment-id']     = $attachment_id;
 		$attr['data-permalink']         = esc_attr( get_permalink( $attachment_id ) );
@@ -897,8 +897,8 @@ class Jetpack_Carousel {
 
 		do_action( 'jp_carousel_check_blog_user_privileges' );
 
-		$attachment_id = ( isset( $_REQUEST['id'] ) ) ? (int) $_REQUEST['id'] : 0;
-		$offset        = ( isset( $_REQUEST['offset'] ) ) ? (int) $_REQUEST['offset'] : 0;
+		$attachment_id = ( isset( $_REQUEST['id'] ) ) ? (int) $_REQUEST['id'] : 0; // phpcs:ignore WordPress.Security.NonceVerification.Recommended -- Some sanitisation does exist here.
+		$offset        = ( isset( $_REQUEST['offset'] ) ) ? (int) $_REQUEST['offset'] : 0; // phpcs:ignore WordPress.Security.NonceVerification.Recommended -- Some sanitisation does exist here.
 
 		if ( ! $attachment_id ) {
 			wp_send_json_error(
@@ -973,7 +973,7 @@ class Jetpack_Carousel {
 		$comments = get_comments(
 			array(
 				'status'  => 'approve',
-				'order'   => ( 'asc' == get_option( 'comment_order' ) ) ? 'ASC' : 'DESC',
+				'order'   => ( 'asc' === get_option( 'comment_order' ) ) ? 'ASC' : 'DESC',
 				'number'  => 10,
 				'offset'  => $offset,
 				'post_id' => $attachment_id,
@@ -998,7 +998,7 @@ class Jetpack_Carousel {
 			);
 		}
 
-		die( json_encode( $out ) );
+		die( wp_json_encode( $out ) );
 	}
 
 	/**
@@ -1012,7 +1012,7 @@ class Jetpack_Carousel {
 		}
 
 		if ( empty( $_POST['nonce'] ) || ! wp_verify_nonce( $_POST['nonce'], 'carousel_nonce' ) ) {
-			die( json_encode( array( 'error' => __( 'Nonce verification failed.', 'jetpack' ) ) ) );
+			die( wp_json_encode( array( 'error' => __( 'Nonce verification failed.', 'jetpack' ) ) ) );
 		}
 
 		$_blog_id = (int) $_POST['blog_id'];
@@ -1020,20 +1020,20 @@ class Jetpack_Carousel {
 		$comment  = $_POST['comment'];
 
 		if ( empty( $_blog_id ) ) {
-			die( json_encode( array( 'error' => __( 'Missing target blog ID.', 'jetpack' ) ) ) );
+			die( wp_json_encode( array( 'error' => __( 'Missing target blog ID.', 'jetpack' ) ) ) );
 		}
 
 		if ( empty( $_post_id ) ) {
-			die( json_encode( array( 'error' => __( 'Missing target post ID.', 'jetpack' ) ) ) );
+			die( wp_json_encode( array( 'error' => __( 'Missing target post ID.', 'jetpack' ) ) ) );
 		}
 
 		if ( empty( $comment ) ) {
-			die( json_encode( array( 'error' => __( 'No comment text was submitted.', 'jetpack' ) ) ) );
+			die( wp_json_encode( array( 'error' => __( 'No comment text was submitted.', 'jetpack' ) ) ) );
 		}
 
 		// Used in context like NewDash.
 		$switched = false;
-		if ( is_multisite() && get_current_blog_id() != $_blog_id ) {
+		if ( is_multisite() && get_current_blog_id() !== $_blog_id ) {
 			switch_to_blog( $_blog_id );
 			$switched = true;
 		}
@@ -1045,7 +1045,7 @@ class Jetpack_Carousel {
 			if ( $switched ) {
 				restore_current_blog();
 			}
-			die( json_encode( array( 'error' => __( 'Comments on this post are closed.', 'jetpack' ) ) ) );
+			die( wp_json_encode( array( 'error' => __( 'Comments on this post are closed.', 'jetpack' ) ) ) );
 		}
 
 		if ( is_user_logged_in() ) {
@@ -1059,7 +1059,7 @@ class Jetpack_Carousel {
 				if ( $switched ) {
 					restore_current_blog();
 				}
-				die( json_encode( array( 'error' => __( 'Sorry, but we could not authenticate your request.', 'jetpack' ) ) ) );
+				die( wp_json_encode( array( 'error' => __( 'Sorry, but we could not authenticate your request.', 'jetpack' ) ) ) );
 			}
 		} else {
 			$user_id      = 0;
@@ -1072,21 +1072,21 @@ class Jetpack_Carousel {
 					if ( $switched ) {
 						restore_current_blog();
 					}
-					die( json_encode( array( 'error' => __( 'Please provide your name.', 'jetpack' ) ) ) );
+					die( wp_json_encode( array( 'error' => __( 'Please provide your name.', 'jetpack' ) ) ) );
 				}
 
 				if ( empty( $email ) ) {
 					if ( $switched ) {
 						restore_current_blog();
 					}
-					die( json_encode( array( 'error' => __( 'Please provide an email address.', 'jetpack' ) ) ) );
+					die( wp_json_encode( array( 'error' => __( 'Please provide an email address.', 'jetpack' ) ) ) );
 				}
 
 				if ( ! is_email( $email ) ) {
 					if ( $switched ) {
 						restore_current_blog();
 					}
-					die( json_encode( array( 'error' => __( 'Please provide a valid email address.', 'jetpack' ) ) ) );
+					die( wp_json_encode( array( 'error' => __( 'Please provide a valid email address.', 'jetpack' ) ) ) );
 				}
 			}
 		}
@@ -1118,12 +1118,12 @@ class Jetpack_Carousel {
 		do_action( 'jp_carousel_post_attachment_comment' );
 		$comment_status = wp_get_comment_status( $comment_id );
 
-		if ( true == $switched ) {
+		if ( true === $switched ) {
 			restore_current_blog();
 		}
 
 		die(
-			json_encode(
+			wp_json_encode(
 				array(
 					'comment_id'     => $comment_id,
 					'comment_status' => $comment_status,
@@ -1163,7 +1163,6 @@ class Jetpack_Carousel {
 	 * Fulfill the settings section callback requirement by returning nothing.
 	 */
 	public function carousel_section_callback() {
-		return;
 	}
 
 	/**
@@ -1175,13 +1174,13 @@ class Jetpack_Carousel {
 	 * @return bool
 	 */
 	public function test_1or0_option( $value, $default_to_1 = true ) {
-		if ( true == $default_to_1 ) {
+		if ( true === $default_to_1 ) {
 			// Binary false (===) of $value means it has not yet been set, in which case we do want to default sites to 1.
 			if ( false === $value ) {
 				$value = 1;
 			}
 		}
-		return ( 1 == $value ) ? 1 : 0;
+		return ( 1 === $value ) ? 1 : 0;
 	}
 
 	/**
@@ -1193,7 +1192,7 @@ class Jetpack_Carousel {
 	 * @return int
 	 */
 	public function sanitize_1or0_option( $value ) {
-		return ( 1 == $value ) ? 1 : 0;
+		return ( 1 === $value ) ? 1 : 0;
 	}
 
 	/**
@@ -1322,7 +1321,7 @@ class Jetpack_Carousel {
 	 * @param string $value The color string to sanitize.
 	 */
 	public function carousel_background_color_sanitize( $value ) {
-		return ( 'white' == $value ) ? 'white' : 'black';
+		return ( 'white' === $value ) ? 'white' : 'black';
 	}
 
 	/**
