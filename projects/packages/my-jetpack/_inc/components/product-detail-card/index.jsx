@@ -132,18 +132,3 @@ ProductDetail.defaultProps = {
 };
 
 export { ProductDetail };
-
-/**
- * ProductDetailCard component.
- *
- * @param {object} props          - Component props.
- * @param {string} props.slug     - Product slug
- * @returns {object}                ProductDetailCard react component.
- */
-export default function ProductDetailCard( { slug } ) {
-	return (
-		<div className={ styles.card }>
-			<ProductDetail slug={ slug } />
-		</div>
-	);
-}
