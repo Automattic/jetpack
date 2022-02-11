@@ -42,6 +42,7 @@ const ScanCard = ( { admin } ) => {
 			slug={ slug }
 			onActivate={ activate }
 			onAdd={ onAddHandler }
+			showDeactivate={ false }
 		/>
 	);
 };

@@ -1,0 +1,4 @@
+Significance: patch
+Type: changed
+
+Only show the deactivate action when it makes sense

@@ -26,7 +26,7 @@ export const backupProductData = {
 	title: 'Jepack Backup',
 	description: 'Save every change',
 	long_description:
-		'Real-time backups save every change and one-click restores get you back online quickly.',
+		'Never lose a word, image, page, or time worrying about your site with automated backups & one-click restores.',
 	status: 'active',
 	features: [
 		'Real-time cloud backups',
@@ -37,8 +37,8 @@ export const backupProductData = {
 	pricingForUi: {
 		available: true,
 		currencyCode: 'EUR',
-		fullPrice: '9',
-		promotionPercentage: '50',
+		fullPrice: 9,
+		promotionPercentage: 50,
 	},
 };
 
