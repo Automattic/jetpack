@@ -446,19 +446,20 @@ class Instant_Search extends Classic_Search {
 	/**
 	 * Returns true if search widget or block exist in widgets
 	 *
-	 * @param array $widgets - array of widget ID.
+	 * @param string $widget_id - widget ID.
 	 */
-	protected function has_search_block( $widgets ) {
-		$widget_blocks = get_option( 'widget_block', array() );
-		foreach ( $widgets as $widget ) {
-			if ( 0 === strpos( $widget, 'search-' ) ) {
-				return true;
-			}
-			if ( 0 === strpos( $widget, 'block-' ) && isset( $widget_blocks[ $widget ] ) && false !== strpos( $widget_blocks[ $widget ], ' wp:search ' ) ) {
-				return true;
-			}
-			return false;
+	protected function has_search_block( $widget_id ) {
+		if ( 0 === strpos( $widget_id, 'search-' ) ) {
+			return true;
 		}
+			$widget_blocks = get_option( 'widget_block', array() );
+		if ( 0 === strpos( $widget_id, 'block-' ) ) {
+			$widget_index = str_replace( 'block-', '', $widget_id );
+			if ( isset( $widget_blocks[ $widget_index ] ) && false !== strpos( $widget_blocks[ $widget_index ], 'wp:search' ) ) {
+				return true;
+			}
+		}
+			return false;
 	}
 
 	/**
