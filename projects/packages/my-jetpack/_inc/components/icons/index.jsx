@@ -124,3 +124,29 @@ export const StarIcon = ( { size, className = styles[ 'star-icon' ] } ) => (
 		<Path d="M12 2l2.582 6.953L22 9.257l-5.822 4.602L18.18 21 12 16.89 5.82 21l2.002-7.14L2 9.256l7.418-.304" />
 	</IconWrapper>
 );
+
+const iconsMap = {
+	'anti-spam': AntiSpamIcon,
+	backup: BackupIcon,
+	boost: BoostIcon,
+	crm: CrmIcon,
+	extras: ExtrasIcon,
+	scan: ScanIcon,
+	search: SearchIcon,
+	star: StarIcon,
+	videopress: VideopressIcon,
+};
+
+/**
+ * Return icon component by slug.
+ *
+ * @param {string} slug       - Icon slug.
+ * @returns {React.Component}   Icon component.
+ */
+export function getIconBySlug( slug ) {
+	if ( ! iconsMap[ slug ] ) {
+		return null;
+	}
+
+	return iconsMap[ slug ];
+}
