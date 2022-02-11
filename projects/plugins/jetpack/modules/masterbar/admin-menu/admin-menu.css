@@ -456,15 +456,12 @@
 	}
 }
 
-/* Fixes the order of screen options,
- * showing the dashboard switcher button always first.
-*/
-#adv-settings {
-	display: flex;
-	flex-direction: column;
+/* Dashboard Switcher */
+#view-link-wrap {
+	float: left;
+	margin: 0 0 0 6px;
 }
 
-/* Dashboard Switcher */
 .screen-options-tab__wrapper {
 	position:relative
 }

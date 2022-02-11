@@ -556,7 +556,7 @@ abstract class Base_Admin_Menu {
 			return;
 		}
 		?>
-		<div id="view-link-wrap" class="hide-if-no-js screen-meta-toggle" style="float: left;margin: 0 0 0 6px;">
+		<div id="view-link-wrap" class="hide-if-no-js screen-meta-toggle">
 			<button type="button" id="view-link" class="button show-settings" aria-expanded="false"><?php _ex( 'View', 'View options to switch between', 'jetpack' ); ?></button>
 		</div>
 		<div id="view-wrap" class="screen-options-tab__wrapper hide-if-no-js hidden" tabindex="-1">
