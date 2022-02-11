@@ -36,8 +36,11 @@ class Wpcom_Products {
 	 */
 	private static function get_products_from_wpcom() {
 
+		$blog_id  = \Jetpack_Options::get_option( 'id' );
+		$endpoint = sprintf( '/sites/%d/products/?_locale=%s&type=jetpack', $blog_id, get_user_locale() );
+
 		$wpcom_request = Client::wpcom_json_api_request_as_blog(
-			'/products?_locale=' . get_user_locale() . '&type=jetpack',
+			$endpoint,
 			'1.1',
 			array(
 				'method'  => 'GET',
