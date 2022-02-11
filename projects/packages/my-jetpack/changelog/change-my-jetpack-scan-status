@@ -1,0 +1,4 @@
+Significance: patch
+Type: changed
+
+Adapt Scan actiavtion behavior as it is not a module
