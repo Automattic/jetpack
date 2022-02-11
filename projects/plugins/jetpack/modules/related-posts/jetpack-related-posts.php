@@ -77,6 +77,21 @@ class Jetpack_RelatedPosts {
 			'jetpack/related-posts',
 			array(
 				'render_callback' => array( $this, 'render_block' ),
+				'supports'        => array(
+					'color'      => array(
+						'gradients' => true,
+						'link'      => true,
+					),
+					'spacing'    => array(
+						'margin'  => true,
+						'padding' => true,
+					),
+					'typography' => array(
+						'fontSize'   => true,
+						'lineHeight' => true,
+					),
+					'align'      => array( 'wide', 'full' ),
+				),
 			)
 		);
 	}
@@ -409,8 +424,12 @@ EOT;
 			$rows_markup .= $this->render_block_row( $lower_row_posts, $block_attributes );
 		}
 
+		$wrapper_attributes = \WP_Block_Supports::get_instance()->apply_block_supports();
+
 		$display_markup = sprintf(
-			'<nav class="jp-relatedposts-i2" data-layout="%1$s">%2$s%3$s</nav>',
+			'<nav class="jp-relatedposts-i2%1$s"%2$s data-layout="%3$s">%4$s%5$s</nav>',
+			! empty( $wrapper_attributes['class'] ) ? ' ' . esc_attr( $wrapper_attributes['class'] ) : '',
+			! empty( $wrapper_attributes['style'] ) ? ' style="' . esc_attr( $wrapper_attributes['style'] ) . '"' : '',
 			esc_attr( $block_attributes['layout'] ),
 			$block_attributes['headline'],
 			$rows_markup
