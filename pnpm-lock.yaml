@@ -160,7 +160,7 @@ importers:
 
   projects/js-packages/connection:
     specifiers:
-      '@automattic/jetpack-analytics': workspace:^0.1.7
+      '@automattic/jetpack-analytics': workspace:^0.1.8-alpha
       '@automattic/jetpack-api': workspace:^0.8.4
       '@automattic/jetpack-base-styles': workspace:^0.1.8
       '@automattic/jetpack-components': workspace:^0.10.5
@@ -273,7 +273,7 @@ importers:
 
   projects/js-packages/idc:
     specifiers:
-      '@automattic/jetpack-analytics': workspace:^0.1.7
+      '@automattic/jetpack-analytics': workspace:^0.1.8-alpha
       '@automattic/jetpack-api': workspace:^0.8.4
       '@automattic/jetpack-base-styles': workspace:^0.1.8
       '@automattic/jetpack-components': workspace:^0.10.5
@@ -651,7 +651,7 @@ importers:
   projects/packages/my-jetpack:
     specifiers:
       '@automattic/format-currency': 1.0.0-alpha.0
-      '@automattic/jetpack-analytics': workspace:^0.1.7
+      '@automattic/jetpack-analytics': workspace:^0.1.8-alpha
       '@automattic/jetpack-base-styles': workspace:^0.1.8
       '@automattic/jetpack-components': workspace:^0.10.5
       '@automattic/jetpack-connection': workspace:^0.15.1
@@ -729,7 +729,7 @@ importers:
     specifiers:
       '@automattic/calypso-color-schemes': 2.1.1
       '@automattic/color-studio': 2.5.0
-      '@automattic/jetpack-analytics': workspace:^0.1.7
+      '@automattic/jetpack-analytics': workspace:^0.1.8-alpha
       '@automattic/jetpack-api': workspace:^0.8.4
       '@automattic/jetpack-components': workspace:^0.10.5
       '@automattic/jetpack-webpack-config': workspace:^1.1.3-alpha
@@ -962,7 +962,7 @@ importers:
       '@automattic/color-studio': 2.5.0
       '@automattic/components': 1.0.0-alpha.3
       '@automattic/format-currency': 1.0.0-alpha.0
-      '@automattic/jetpack-analytics': workspace:^0.1.7
+      '@automattic/jetpack-analytics': workspace:^0.1.8-alpha
       '@automattic/jetpack-api': workspace:^0.8.4
       '@automattic/jetpack-base-styles': workspace:^0.1.8
       '@automattic/jetpack-components': workspace:^0.10.5
