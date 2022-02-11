@@ -346,7 +346,7 @@ class Instant_Search extends Classic_Search {
 
 		$next_id = $this->get_next_jp_search_widget_id( $widget_options );
 
-		list($sidebar_jp_searchbox_wiget_id,  ) = $this->get_search_widget_indices( $sidebars, self::AUTO_CONFIG_SIDEBAR );
+		list(,$sidebar_jp_searchbox_wiget_id ) = $this->get_search_widget_indices( $sidebars, self::AUTO_CONFIG_SIDEBAR );
 		if ( false !== $sidebar_jp_searchbox_wiget_id && isset( $widget_options[ $sidebar_jp_searchbox_wiget_id ] ) ) {
 			// If there is a JP search widget in the theme sidebar, copy it over to the search overlay sidebar.
 			$widget_options[ $next_id ] = $widget_options[ $sidebar_jp_searchbox_wiget_id ];
@@ -381,9 +381,9 @@ class Instant_Search extends Classic_Search {
 		$widget_opt_name = Helper::get_widget_option_name();
 		$widget_options  = get_option( $widget_opt_name, array() );
 
-		list( ,$sidebar_searchbox_idx ) = $this->get_search_widget_indices( $sidebars );
-		$next_id                        = $this->get_next_jp_search_widget_id( $widget_options );
-		$preconfig_opts                 = $this->get_preconfig_widget_options();
+		list($sidebar_searchbox_idx, ) = $this->get_search_widget_indices( $sidebars );
+		$next_id                       = $this->get_next_jp_search_widget_id( $widget_options );
+		$preconfig_opts                = $this->get_preconfig_widget_options();
 
 		$widget_options[ $next_id ] = $preconfig_opts;
 		if ( false !== $sidebar_searchbox_idx ) {
@@ -430,7 +430,7 @@ class Instant_Search extends Classic_Search {
 		$sidebar_jp_searchbox_id = false;
 		if ( isset( $sidebars[ $sidebar_id ] ) ) {
 			foreach ( (array) $sidebars[ $sidebar_id ] as $idx => $widget_id ) {
-				if ( 0 === strpos( $widget_id, 'search-' ) ) {
+				if ( $this->has_search_block( $widget_id ) ) {
 					// The array index of wp search widget.
 					$sidebar_searchbox_idx = $idx;
 				}
@@ -441,6 +441,24 @@ class Instant_Search extends Classic_Search {
 			}
 		}
 		return array( $sidebar_searchbox_idx, $sidebar_jp_searchbox_id );
+	}
+
+	/**
+	 * Returns true if search widget or block exist in widgets
+	 *
+	 * @param array $widgets - array of widget ID.
+	 */
+	protected function has_search_block( $widgets ) {
+		$widget_blocks = get_option( 'widget_block', array() );
+		foreach ( $widgets as $widget ) {
+			if ( 0 === strpos( $widget, 'search-' ) ) {
+				return true;
+			}
+			if ( 0 === strpos( $widget, 'block-' ) && ! isset( $widget_blocks[ $widget ] ) && 0 === strpos( $widget_blocks[ $widget ], ' wp:search ' ) ) {
+				return true;
+			}
+			return false;
+		}
 	}
 
 	/**
