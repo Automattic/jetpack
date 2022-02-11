@@ -458,4 +458,20 @@ class WPcom_Admin_Menu extends Admin_Menu {
 			$_registered_pages[ 'admin_page_' . $page_slug ] = true; // phpcs:ignore
 		}
 	}
+
+	public function should_skip_menu_processing() {
+		$script_filename = ( ! empty( $_SERVER['SCRIPT_FILENAME'] ) ) ? basename( $_SERVER['SCRIPT_FILENAME'] ) : null;
+
+		// Special case: /wp-admin/?service-worker doesn't render a menu at all: skip all menu work
+		if ( 'index.php' === $script_filename && isset( $_GET['service-worker'] ) ) {
+			return true;
+		}
+
+		// Special case: index-yourstuff.php and index-hotstuff.php don't render menus
+		if ( 'index-yourstuff.php' === $script_filename || 'index-hotstuff.php' === $script_filename ) {
+			return true;
+		}
+
+		return false;
+	}
 }
