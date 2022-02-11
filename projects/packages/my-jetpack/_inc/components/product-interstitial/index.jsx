@@ -7,7 +7,7 @@ import { Container, Col } from '@automattic/jetpack-components';
 /**
  * Internal dependencies
  */
-import { ProductDetail } from '../product-detail-card';
+import { ProductDetail } from '../product-detail';
 import styles from './style.module.scss';
 import useAnalytics from '../../hooks/use-analytics';
 import boostImage from './boost.png';

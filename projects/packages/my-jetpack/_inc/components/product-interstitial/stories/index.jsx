@@ -4,7 +4,7 @@
  */
 import React from 'react';
 import withMock from 'storybook-addon-mock';
-import { getMockData } from '../../product-detail-card/stories/utils.js';
+import { getMockData } from '../../product-detail/stories/utils.js';
 
 /**
  * Internal dependencies
