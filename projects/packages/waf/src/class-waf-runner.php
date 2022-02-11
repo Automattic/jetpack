@@ -38,8 +38,6 @@ class WafRunner {
 		// and we're running as a plugin (meh). Otherwise, we're running via something
 		// like PHP's prepend_file setting (yay!).
 		define( 'JETPACK_WAF_RUN', defined( 'ABSPATH' ) ? 'plugin' : 'preload' );
-		// ToDo: Re-introduce silent mode.
-		define( 'JETPACK_WAF_MODE', 'normal' );
 
 		// if the WAF is being run before a command line script, don't try to execute rules (there's no request).
 		if ( PHP_SAPI === 'cli' ) {
