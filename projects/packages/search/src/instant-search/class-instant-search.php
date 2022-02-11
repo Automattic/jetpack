@@ -452,14 +452,14 @@ class Instant_Search extends Classic_Search {
 		if ( 0 === strpos( $widget_id, 'search-' ) ) {
 			return true;
 		}
-			$widget_blocks = get_option( 'widget_block', array() );
+		$widget_blocks = get_option( 'widget_block', array() );
 		if ( 0 === strpos( $widget_id, 'block-' ) ) {
 			$widget_index = str_replace( 'block-', '', $widget_id );
 			if ( isset( $widget_blocks[ $widget_index ] ) && false !== strpos( $widget_blocks[ $widget_index ], 'wp:search' ) ) {
 				return true;
 			}
 		}
-			return false;
+		return false;
 	}
 
 	/**
