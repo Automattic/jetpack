@@ -33,6 +33,7 @@ const ScreenMain = props => {
 		hasMigrateError,
 		hasFreshError,
 		hasStaySafeError,
+		dynamicSiteUrlDetected,
 	} = props;
 
 	return (
@@ -64,6 +65,34 @@ const ScreenMain = props => {
 					}
 				) }
 			</p>
+
+			{ dynamicSiteUrlDetected && (
+				<p>
+					{ createInterpolateElement(
+						customContent.dynamicSiteUrlText ||
+							__(
+								"<strong>Notice:</strong> It appears that your 'wp-config.php' file is using dynamic 'WP_SITEURL' or 'WP_HOME' values. " +
+									'Using dynamic values could cause Jetpack to enter Safe Mode, and might harm SEO. ' +
+									'<dynamicSiteUrlSupportLink>Learn how to set a static site URL instead.</dynamicSiteUrlSupportLink>',
+								'jetpack'
+							),
+						{
+							dynamicSiteUrlSupportLink: (
+								<a
+									href={
+										customContent.dynamicSiteUrlSupportLink ||
+										getRedirectUrl( 'jetpack-support-safe-mode' )
+									} // Todo: needs new section on Safe Mode support page and redirect.
+									rel="noopener noreferrer"
+									target="_blank"
+								/>
+							),
+							em: <em />,
+							strong: <strong />,
+						}
+					) }
+				</p>
+			) }
 
 			<h3>{ __( 'Please select an option', 'jetpack' ) }</h3>
 
@@ -118,6 +147,8 @@ ScreenMain.propTypes = {
 	hasFreshError: PropTypes.bool.isRequired,
 	/** Whether the component encountered the "Stay in Safe Mode" error. */
 	hasStaySafeError: PropTypes.bool.isRequired,
+	/** If dynamic HTTP_HOST usage has been detected for site/home URLs in wp-config which can lead to a JP IDC. */
+	dynamicSiteUrlDetected: PropTypes.bool,
 };
 
 ScreenMain.defaultProps = {
@@ -127,6 +158,7 @@ ScreenMain.defaultProps = {
 	hasMigrateError: false,
 	hasFreshError: false,
 	hasStaySafeError: false,
+	dynamicSiteUrlDetected: false,
 };
 
 export default ScreenMain;
