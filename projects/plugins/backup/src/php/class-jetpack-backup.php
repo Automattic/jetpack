@@ -303,7 +303,8 @@ class Jetpack_Backup {
 	 */
 	public static function plugin_deactivation() {
 		$manager = new Connection_Manager( 'jetpack-backup' );
-		$manager->remove_connection();
+		$manager->disconnect_site_wpcom();
+		$manager->delete_all_connection_tokens();
 	}
 
 	/**
