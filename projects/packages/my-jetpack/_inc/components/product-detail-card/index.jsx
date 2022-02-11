@@ -79,48 +79,59 @@ const ProductDetail = ( { slug, trackButtonClick } ) => {
 	const addProductUrl = getProductCheckoutUrl( `jetpack_${ slug }`, isUserConnected ); // @ToDo: Remove this when we have a new product structure.
 
 	return (
-		<div className={ styles.container }>
-			<ProductIcon slug={ slug } />
-
-			<h3>{ title }</h3>
-			<p className={ styles.name }>{ longDescription }</p>
-			<ul className={ styles.features }>
-				{ features.map( ( feature, id ) => (
-					<li key={ `feature-${ id }` }>
-						<Icon icon={ check } size={ 30 } />
-						{ feature }
-					</li>
-				) ) }
-			</ul>
-
-			{ ! isFree && (
-				<div className={ styles[ 'price-container' ] }>
-					<Price value={ fullPrice } currency={ currencyCode } isOld={ true } />
-					<Price value={ discountedPrice } currency={ currencyCode } isOld={ false } />
-					<div className={ styles[ 'price-description' ] }>
-						{ __( '/month, paid yearly', 'jetpack-my-jetpack' ) }
-					</div>
+		<>
+			{ isBundle && (
+				<div className={ styles[ 'card-header' ] }>
+					<StarIcon className={ styles[ 'product-bundle-icon' ] } size={ 16 } />
+					{ __( 'Popular upgrade', 'jetpack-my-jetpack' ) }
 				</div>
 			) }
 
-			{ isFree && (
-				<h3 className={ styles[ 'product-free' ] }>{ __( 'Free', 'jetpack-my-jetpack' ) }</h3>
-			) }
+			<div className={ styles.container }>
+				<ProductIcon slug={ slug } />
 
-			<Button
-				onClick={ trackButtonClick }
-				isLink
-				isPrimary={ ! isBundle }
-				isSecondary={ isBundle }
-				href={ addProductUrl }
-				className={ `${ styles[ 'checkout-button' ] } ${ isBundle ? styles[ 'is-bundle' ] : '' }` }
-			>
-				{
-					/* translators: placeholder is product name. */
-					sprintf( __( 'Add %s', 'jetpack-my-jetpack' ), title )
-				}
-			</Button>
-		</div>
+				<h3>{ title }</h3>
+				<p className={ styles.name }>{ longDescription }</p>
+				<ul className={ styles.features }>
+					{ features.map( ( feature, id ) => (
+						<li key={ `feature-${ id }` }>
+							<Icon icon={ check } size={ 30 } />
+							{ feature }
+						</li>
+					) ) }
+				</ul>
+
+				{ ! isFree && (
+					<div className={ styles[ 'price-container' ] }>
+						<Price value={ fullPrice } currency={ currencyCode } isOld={ true } />
+						<Price value={ discountedPrice } currency={ currencyCode } isOld={ false } />
+						<div className={ styles[ 'price-description' ] }>
+							{ __( '/month, paid yearly', 'jetpack-my-jetpack' ) }
+						</div>
+					</div>
+				) }
+
+				{ isFree && (
+					<h3 className={ styles[ 'product-free' ] }>{ __( 'Free', 'jetpack-my-jetpack' ) }</h3>
+				) }
+
+				<Button
+					onClick={ trackButtonClick }
+					isLink
+					isPrimary={ ! isBundle }
+					isSecondary={ isBundle }
+					href={ addProductUrl }
+					className={ `${ styles[ 'checkout-button' ] } ${
+						isBundle ? styles[ 'is-bundle' ] : ''
+					}` }
+				>
+					{
+						/* translators: placeholder is product name. */
+						sprintf( __( 'Add %s', 'jetpack-my-jetpack' ), title )
+					}
+				</Button>
+			</div>
+		</>
 	);
 };
 
@@ -138,18 +149,8 @@ export { ProductDetail };
  * @returns {object}                ProductDetailCard react component.
  */
 export default function ProductDetailCard( { slug } ) {
-	const { detail } = useProduct( slug );
-	const { isBundle } = detail;
-
 	return (
 		<div className={ styles.card }>
-			{ isBundle && (
-				<div className={ styles[ 'card-header' ] }>
-					<StarIcon className={ styles[ 'product-bundle-icon' ] } size={ 16 } />
-					{ __( 'Popular upgrade', 'jetpack-my-jetpack' ) }
-				</div>
-			) }
-
 			<ProductDetail slug={ slug } />
 		</div>
 	);
