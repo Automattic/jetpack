@@ -111,3 +111,12 @@ export const VideopressIcon = ( { size } ) => (
 		<Path d="M7 12V6L12 9L7 12Z" fill="#1E1E1E" />
 	</IconWrapper>
 );
+
+export const StarIcon = ( { size } ) => (
+	<IconWrapper size={ size } viewBox="0 0 24 24">
+		<Path
+			d="M12 2l2.582 6.953L22 9.257l-5.822 4.602L18.18 21 12 16.89 5.82 21l2.002-7.14L2 9.256l7.418-.304"
+			fill="#1E1E1E"
+		/>
+	</IconWrapper>
+);
