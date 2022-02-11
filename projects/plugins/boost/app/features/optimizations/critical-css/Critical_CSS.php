@@ -135,16 +135,13 @@ class Critical_CSS implements Feature, Has_Endpoints {
 	 *      To view notices: (new Admin_Notice())->get_all();
 	 * @return null|\Automattic\Jetpack_Boost\Admin\Admin_Notice[]
 	 */
-	public function get_admin_notices() {
 	public function add_admin_notices( $notices ) {
 		$reason = \get_option( self::RESET_REASON_STORAGE_KEY );
 
-		if ( ! $reason ) {
-			return array();
+		if ( $reason ) {
 			$notices[] = new Regenerate_Admin_Notice( $reason );
 		}
 
-		return array( new Regenerate_Admin_Notice( $reason ) );
 		return $notices;
 	}
 
