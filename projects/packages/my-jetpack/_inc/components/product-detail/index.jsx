@@ -131,4 +131,4 @@ ProductDetail.defaultProps = {
 	trackButtonClick: () => {},
 };
 
-export { ProductDetail };
+export default ProductDetail;

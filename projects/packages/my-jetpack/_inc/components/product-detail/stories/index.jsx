@@ -8,7 +8,7 @@ import withMock from 'storybook-addon-mock';
 /**
  * Internal dependencies
  */
-import { ProductDetail } from '../index.jsx';
+import ProductDetail from '../index.jsx';
 import { getMockData } from './utils.js';
 
 export default {
