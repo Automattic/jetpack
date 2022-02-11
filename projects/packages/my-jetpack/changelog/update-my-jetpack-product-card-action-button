@@ -1,0 +1,4 @@
+Significance: patch
+Type: changed
+
+Replace renderActionButton function for ActionButton component
