@@ -2,7 +2,6 @@
 namespace Automattic\Jetpack_Boost\Features\Optimizations\Cloud_CSS;
 
 use Automattic\Jetpack_Boost\Contracts\Feature;
-use Automattic\Jetpack_Boost\Features\Optimizations\Critical_CSS\Generator;
 use Automattic\Jetpack_Boost\Lib\Critical_CSS\Critical_CSS_Storage;
 use Automattic\Jetpack_Boost\Lib\Critical_CSS\Display_Critical_CSS;
 use Automattic\Jetpack_Boost\Lib\Critical_CSS\Source_Providers\Source_Providers;
@@ -62,10 +61,6 @@ class Cloud_CSS implements Feature, Has_Endpoints {
 
 		// Don't look for Critical CSS in the dashboard.
 		if ( is_admin() ) {
-			return;
-		}
-		// Don't display Critical CSS when generating Critical CSS.
-		if ( Generator::is_generating_critical_css() ) {
 			return;
 		}
 
