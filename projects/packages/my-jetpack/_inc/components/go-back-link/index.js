@@ -14,13 +14,21 @@ import styles from './styles.module.scss';
 /**
  * Simple component that renders a go back link
  *
- * @returns {object} GoBackLink component.
+ * @param {object} props           - Component props.
+ * @param {Function} props.onClick - A callback to execute on click
+ * @returns {object}                 GoBackLink component.
  */
-export default function GoBackLink() {
+function GoBackLink( { onClick } ) {
 	return (
-		<Link to="/" className={ styles.link }>
+		<Link to="/" className={ styles.link } onClick={ onClick }>
 			<Icon icon={ arrowLeft } className={ styles.icon } />
 			{ __( 'Go back', 'jetpack-my-jetpack' ) }
 		</Link>
 	);
 }
+
+GoBackLink.defaultProps = {
+	onClick: () => {},
+};
+
+export default GoBackLink;
