@@ -1065,12 +1065,16 @@ class Jetpack_Gutenberg {
 	 * @param string $slug Slug of the block.
 	 */
 	public static function set_availability_for_plan( $slug ) {
-		$is_available   = true;
-		$plan           = '';
-		$slug           = self::remove_extension_prefix( $slug );
-		$features_data  = array();
-		$is_simple_site = defined( 'IS_WPCOM' ) && IS_WPCOM;
-		$is_atomic_site = ( new Host() )->is_woa_site();
+		$is_available    = true;
+		$plan            = '';
+		$slug            = self::remove_extension_prefix( $slug );
+		$features_data   = array();
+		$is_simple_site  = defined( 'IS_WPCOM' ) && IS_WPCOM;
+		$is_atomic_site  = ( new Host() )->is_woa_site();
+		$current_blog_id = get_current_blog_id();
+
+		// keep track of specific features data per blog between calls.
+		static $site_specific_features = [];
 
 		// Check feature availability for Simple and Atomic sites.
 		if ( $is_simple_site || $is_atomic_site ) {
@@ -1080,7 +1084,12 @@ class Jetpack_Gutenberg {
 				if ( ! class_exists( 'Store_Product_List' ) ) {
 					require WP_CONTENT_DIR . '/admin-plugins/wpcom-billing/store-product-list.php';
 				}
-				$features_data = Store_Product_List::get_site_specific_features_data();
+
+				// memoize site specific features data to avoid excessive queries.
+				if ( empty( $site_specific_features_data[ $current_blog_id ] ) ) {
+					$site_specific_features[ $current_blog_id ] = Store_Product_List::get_site_specific_features_data( $current_blog_id );
+				}
+				$features_data = $site_specific_features[ $current_blog_id ];
 			} else {
 				// Atomic sites.
 				$option = get_option( 'jetpack_active_plan' );
