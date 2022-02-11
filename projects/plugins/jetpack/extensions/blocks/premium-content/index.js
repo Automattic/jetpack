@@ -11,6 +11,7 @@ import edit from './edit';
 import save from './save';
 import icon from './_inc/icon';
 import { blockContainsPremiumBlock, blockHasParentPremiumBlock } from './_inc/premium';
+import { transformToCoreGroup } from './_inc/transform-to-core-group';
 
 /**
  * Check if the given blocks are transformable to premium-content block
@@ -127,6 +128,15 @@ export const settings = {
 						createBlock( 'premium-content/logged-out-view' ),
 						createBlock( 'premium-content/subscriber-view', {}, innerBlocksSubscribe ),
 					] );
+				},
+			},
+		],
+		to: [
+			{
+				type: 'block',
+				blocks: [ 'core/group' ],
+				transform: ( attributes, innerBlocks ) => {
+					return transformToCoreGroup( innerBlocks );
 				},
 			},
 		],
