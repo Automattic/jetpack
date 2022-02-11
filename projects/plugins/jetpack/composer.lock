@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "daccecb9508ffb81b8ef04f75f87e57a",
+    "content-hash": "a6753be0a47ab741ae507d6ea4b4b177",
     "packages": [
         {
             "name": "automattic/jetpack-a8c-mc-stats",
@@ -926,7 +926,7 @@
             "dist": {
                 "type": "path",
                 "url": "../../packages/jitm",
-                "reference": "4f5248371ee496e39e648de3de062466c71807be"
+                "reference": "77c9f7a8e922bf208437916dd6bfcae293c1dd26"
             },
             "require": {
                 "automattic/jetpack-a8c-mc-stats": "^1.4",
@@ -935,7 +935,7 @@
                 "automattic/jetpack-device-detection": "^1.4",
                 "automattic/jetpack-logo": "^1.5",
                 "automattic/jetpack-options": "^1.14",
-                "automattic/jetpack-partner": "^1.7",
+                "automattic/jetpack-partner": "^1.6",
                 "automattic/jetpack-redirect": "^1.7",
                 "automattic/jetpack-status": "^1.10",
                 "automattic/jetpack-tracking": "^1.14"
@@ -1286,7 +1286,7 @@
             "dist": {
                 "type": "path",
                 "url": "../../packages/partner",
-                "reference": "93ed5926e0e26d7d017fa6373d234046bceb97f6"
+                "reference": "ebfaa48c46285aa4dcb541879d50130f7d922492"
             },
             "require-dev": {
                 "automattic/jetpack-changelogger": "^3.0",
@@ -1303,7 +1303,7 @@
                     "link-template": "https://github.com/Automattic/jetpack-partner/compare/v${old}...v${new}"
                 },
                 "branch-alias": {
-                    "dev-master": "1.7.x-dev"
+                    "dev-master": "1.6.x-dev"
                 }
             },
             "autoload": {
@@ -1546,7 +1546,7 @@
             "dist": {
                 "type": "path",
                 "url": "../../packages/search",
-                "reference": "7755f7ba56dd4ebd45432b82a54b4622eeee025b"
+                "reference": "a89165a040679943b525f8983b78b7f097a87dfd"
             },
             "require": {
                 "automattic/jetpack-assets": "^1.17",
@@ -1570,7 +1570,7 @@
                     "link-template": "https://github.com/Automattic/jetpack-search/compare/v${old}...v${new}"
                 },
                 "branch-alias": {
-                    "dev-master": "0.7.x-dev"
+                    "dev-master": "0.8.x-dev"
                 },
                 "version-constants": {
                     "JETPACK_SEARCH_PKG__VERSION": "search.php"
