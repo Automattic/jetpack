@@ -454,7 +454,7 @@ class Instant_Search extends Classic_Search {
 			if ( 0 === strpos( $widget, 'search-' ) ) {
 				return true;
 			}
-			if ( 0 === strpos( $widget, 'block-' ) && ! isset( $widget_blocks[ $widget ] ) && 0 === strpos( $widget_blocks[ $widget ], ' wp:search ' ) ) {
+			if ( 0 === strpos( $widget, 'block-' ) && isset( $widget_blocks[ $widget ] ) && false !== strpos( $widget_blocks[ $widget ], ' wp:search ' ) ) {
 				return true;
 			}
 			return false;
