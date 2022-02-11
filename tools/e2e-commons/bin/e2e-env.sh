@@ -37,7 +37,6 @@ reset_env() {
 
 clean_env() {
 	$BASE_CMD clean
-	start_env "$@"
 }
 
 gb_setup() {
