@@ -539,7 +539,7 @@ class Jetpack_About_Page extends Jetpack_Admin_Page {
 				true
 			);
 			if ( ! empty( $data ) && is_array( $data ) ) {
-				set_transient( 'jetpack_a8c_data', $data, DAY_IN_SECONDS );
+				set_transient( 'jetpack_a8c_data', $data, WEEK_IN_SECONDS );
 			} else {
 				// Fallback if everything fails.
 				$data = array(
