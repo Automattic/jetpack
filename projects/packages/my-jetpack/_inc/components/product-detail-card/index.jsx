@@ -15,7 +15,7 @@ import styles from './style.module.scss';
 import getProductCheckoutUrl from '../../utils/get-product-checkout-url';
 import useMyJetpackConnection from '../../hooks/use-my-jetpack-connection';
 import { useProduct } from '../../hooks/use-product';
-import { BackupIcon, BoostIcon, SearchIcon, ScanIcon } from '../icons';
+import { BackupIcon, ScanIcon } from '../icons';
 
 /**
  * Simple react component to render the product icon,
@@ -28,12 +28,6 @@ function ProductIcon( { slug } ) {
 	switch ( slug ) {
 		case 'backup':
 			return <BackupIcon size={ 24 } />;
-
-		case 'boost':
-			return <BoostIcon size={ 24 } />;
-
-		case 'search':
-			return <SearchIcon size={ 24 } />;
 
 		case 'scan':
 			return <ScanIcon size={ 24 } />;
