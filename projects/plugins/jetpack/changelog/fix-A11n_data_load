@@ -1,4 +1,4 @@
 Significance: patch
 Type: enhancement
 
-Limited fetching a11n data to Jetpack About page.
+About page: only fetch a11n data when page is active.
