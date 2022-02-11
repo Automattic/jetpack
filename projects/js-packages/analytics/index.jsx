@@ -89,6 +89,17 @@ const analytics = {
 		_superProps = superProps;
 	},
 
+	/**
+	 * Add global properties to be applied to all "tracks" events.
+	 * This function will add the new properties, overwrite the existing one.
+	 * Unlike `setSuperProps()`, it will not replace the whole object.
+	 *
+	 * @param {object} props - Super props to add.
+	 */
+	assignSuperProps: function ( props ) {
+		_superProps = assign( _superProps, props );
+	},
+
 	mc: {
 		bumpStat: function ( group, name ) {
 			const uriComponent = buildQuerystring( group, name ); // prints debug info

@@ -38,7 +38,7 @@
 	"dependencies": {
 		"@automattic/calypso-color-schemes": "2.1.1",
 		"@automattic/color-studio": "2.5.0",
-		"@automattic/jetpack-analytics": "workspace:^0.1.7",
+		"@automattic/jetpack-analytics": "workspace:^0.1.8-alpha",
 		"@automattic/jetpack-api": "workspace:^0.8.4",
 		"@automattic/jetpack-components": "workspace:^0.10.5",
 		"@wordpress/base-styles": "4.1.0",

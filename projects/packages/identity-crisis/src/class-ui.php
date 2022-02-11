@@ -10,6 +10,7 @@ namespace Automattic\Jetpack\IdentityCrisis;
 use Automattic\Jetpack\Assets;
 use Automattic\Jetpack\Identity_Crisis;
 use Automattic\Jetpack\Tracking as Tracking;
+use Jetpack_Options;
 use Jetpack_Tracks_Client;
 
 /**
@@ -109,6 +110,7 @@ class UI {
 			'tracksEventData'     => array(
 				'isAdmin'       => $is_admin,
 				'currentScreen' => $current_screen ? $current_screen->id : false,
+				'blogID'        => Jetpack_Options::get_option( 'id' ),
 			),
 			'isSafeModeConfirmed' => Identity_Crisis::$is_safe_mode_confirmed,
 			'consumerData'        => static::get_consumer_data(),

@@ -67,6 +67,10 @@ const IDCScreen = props => {
 		}
 
 		if ( tracksEventData ) {
+			if ( tracksEventData.hasOwnProperty( 'blogID' ) ) {
+				analytics.assignSuperProps( { blog_id: tracksEventData.blogID } );
+			}
+
 			if ( tracksEventData.hasOwnProperty( 'isAdmin' ) && tracksEventData.isAdmin ) {
 				trackAndBumpMCStats( 'notice_view' );
 			} else {
