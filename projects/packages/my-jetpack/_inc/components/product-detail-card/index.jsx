@@ -78,7 +78,7 @@ const ProductDetail = ( { slug, trackButtonClick } ) => {
 		features,
 		pricingForUi = {},
 		isBundle,
-		supportedProducts,
+		supportedProducts = [],
 	} = detail;
 	const { isFree, fullPrice, currencyCode, discountedPrice } = pricingForUi;
 	const { isUserConnected } = useMyJetpackConnection();
@@ -86,17 +86,19 @@ const ProductDetail = ( { slug, trackButtonClick } ) => {
 	const addProductUrl = getProductCheckoutUrl( `jetpack_${ slug }`, isUserConnected ); // @ToDo: Remove this when we have a new product structure.
 
 	// Suppported products icons.
-	const icons = supportedProducts
-		.join( '_plus_' )
-		.split( '_' )
-		.map( iconSlug => {
-			if ( iconSlug === 'plus' ) {
-				return <Icon className={ styles[ 'plus-icon' ] } icon={ plus } size={ 14 } />;
-			}
+	const icons = isBundle
+		? supportedProducts
+				.join( '_plus_' )
+				.split( '_' )
+				.map( iconSlug => {
+					if ( iconSlug === 'plus' ) {
+						return <Icon className={ styles[ 'plus-icon' ] } icon={ plus } size={ 14 } />;
+					}
 
-			const SupportedProductIcon = getIconBySlug( iconSlug );
-			return <SupportedProductIcon key={ iconSlug } size={ 24 } />;
-		} );
+					const SupportedProductIcon = getIconBySlug( iconSlug );
+					return <SupportedProductIcon key={ iconSlug } size={ 24 } />;
+				} )
+		: null;
 
 	return (
 		<>
@@ -108,7 +110,7 @@ const ProductDetail = ( { slug, trackButtonClick } ) => {
 			) }
 
 			<div className={ styles.container }>
-				<div className={ styles[ 'product-icons' ] }>{ icons }</div>
+				{ isBundle && <div className={ styles[ 'product-icons' ] }>{ icons }</div> }
 
 				<ProductIcon slug={ slug } />
 
