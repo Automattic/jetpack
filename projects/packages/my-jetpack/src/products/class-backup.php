@@ -58,7 +58,6 @@ class Backup extends Hybrid_Product {
 	 */
 	public static function get_title() {
 		return __( 'Jetpack Backup', 'jetpack-my-jetpack' );
-
 	}
 
 	/**
@@ -76,7 +75,7 @@ class Backup extends Hybrid_Product {
 	 * @return string
 	 */
 	public static function get_long_description() {
-		return __( 'Real-time backups save every change and one-click restores get you back online quickly.', 'jetpack-my-jetpack' );
+		return __( 'Never lose a word, image, page, or time worrying about your site with automated backups & one-click restores.', 'jetpack-my-jetpack' );
 	}
 
 	/**
@@ -94,6 +93,15 @@ class Backup extends Hybrid_Product {
 	}
 
 	/**
+	 * Get the WPCOM product slug used to make the purchase
+	 *
+	 * @return ?string
+	 */
+	public static function get_wpcom_product_slug() {
+		return 'jetpack_backup_t1_yearly';
+	}
+
+	/**
 	 * Get the product princing details
 	 *
 	 * @return array Pricing details
@@ -102,8 +110,8 @@ class Backup extends Hybrid_Product {
 		return array(
 			'available'            => true,
 			'currency_code'        => 'EUR',
-			'full_price'           => '9',
-			'promotion_percentage' => '50',
+			'full_price'           => 9,
+			'promotion_percentage' => 50,
 		);
 	}
 

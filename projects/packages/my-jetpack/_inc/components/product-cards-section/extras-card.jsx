@@ -23,7 +23,7 @@ export const ExtrasIcon = () => (
 
 const ExtrasCard = ( { admin } ) => {
 	const { status, activate, deactivate, detail, isFetching } = useProduct( 'extras' );
-	const { name, description } = detail;
+	const { name, description, slug } = detail;
 
 	return (
 		<ProductCard
@@ -34,7 +34,9 @@ const ExtrasCard = ( { admin } ) => {
 			admin={ admin }
 			isFetching={ isFetching }
 			onDeactivate={ deactivate }
+			slug={ slug }
 			onActivate={ activate }
+			showDeactivate={ false }
 		/>
 	);
 };
