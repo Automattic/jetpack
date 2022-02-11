@@ -137,8 +137,17 @@ export { ProductDetail };
  * @returns {object}                ProductDetailCard react component.
  */
 export default function ProductDetailCard( { slug } ) {
+	const { detail } = useProduct( slug );
+	const { isBundle } = detail;
+
 	return (
 		<div className={ styles.card }>
+			{ isBundle && (
+				<div className={ styles[ 'card-header' ] }>
+					{ __( 'Popular upgrade', 'jetpack-my-jetpack' ) }
+				</div>
+			) }
+
 			<ProductDetail slug={ slug } />
 		</div>
 	);
