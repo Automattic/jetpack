@@ -37,6 +37,11 @@ class WP_Test_Jetpack_Sync_Sender extends WP_Test_Jetpack_Sync_Base {
 	public function tear_down() {
 		parent::tear_down();
 
+		// Restore default setting.
+		Settings::update_settings( array( 'dedicated_sync_enabled' => 0 ) );
+		// Reset queue.
+		$this->sender->get_sync_queue()->reset();
+
 		unset( $_SERVER['REQUEST_METHOD'] );
 	}
 
@@ -613,8 +618,6 @@ class WP_Test_Jetpack_Sync_Sender extends WP_Test_Jetpack_Sync_Base {
 		remove_filter( 'pre_http_request', array( $this, 'pre_http_sync_request_spawned' ) );
 
 		$this->assertTrue( $this->dedicated_sync_request_spawned );
-
-		Settings::update_settings( array( 'dedicated_sync_enabled' => 0 ) );
 	}
 
 	/**
@@ -632,8 +635,6 @@ class WP_Test_Jetpack_Sync_Sender extends WP_Test_Jetpack_Sync_Base {
 		$this->assertFalse( $this->dedicated_sync_request_spawned );
 		$this->assertTrue( is_wp_error( $result ) );
 		$this->assertEquals( 'empty_queue_sync', $result->get_error_code() );
-
-		Settings::update_settings( array( 'dedicated_sync_enabled' => 0 ) );
 	}
 
 	/**
@@ -651,9 +652,6 @@ class WP_Test_Jetpack_Sync_Sender extends WP_Test_Jetpack_Sync_Base {
 		$this->assertFalse( $this->dedicated_sync_request_spawned );
 		$this->assertTrue( is_wp_error( $result ) );
 		$this->assertEquals( 'locked_queue_sync', $result->get_error_code() );
-
-		Settings::update_settings( array( 'dedicated_sync_enabled' => 0 ) );
-		$this->sender->get_sync_queue()->reset();
 	}
 
 	/**
@@ -675,9 +673,6 @@ class WP_Test_Jetpack_Sync_Sender extends WP_Test_Jetpack_Sync_Base {
 		$this->assertFalse( $this->dedicated_sync_request_spawned );
 		$this->assertTrue( is_wp_error( $result ) );
 		$this->assertEquals( 'empty_queue_sync', $result->get_error_code() );
-
-		Settings::update_settings( array( 'dedicated_sync_enabled' => 0 ) );
-		$this->sender->get_sync_queue()->reset();
 	}
 
 	/**
@@ -700,9 +695,6 @@ class WP_Test_Jetpack_Sync_Sender extends WP_Test_Jetpack_Sync_Base {
 		$this->assertFalse( $this->dedicated_sync_request_spawned );
 		$this->assertTrue( is_wp_error( $result ) );
 		$this->assertEquals( 'locked_queue_sync', $result->get_error_code() );
-
-		Settings::update_settings( array( 'dedicated_sync_enabled' => 0 ) );
-		$this->sender->get_sync_queue()->reset();
 	}
 
 	/**
@@ -727,9 +719,6 @@ class WP_Test_Jetpack_Sync_Sender extends WP_Test_Jetpack_Sync_Base {
 
 		$this->assertTrue( $this->dedicated_sync_request_spawned );
 		$this->assertTrue( $result );
-
-		Settings::update_settings( array( 'dedicated_sync_enabled' => 0 ) );
-		$this->sender->get_sync_queue()->reset();
 	}
 
 	function run_filter( $data ) {
