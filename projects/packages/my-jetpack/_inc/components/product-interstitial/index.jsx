@@ -47,6 +47,19 @@ export default function ProductInterstitial( { slug, children = null } ) {
 }
 
 /**
+ * AntiSpamInterstitial component
+ *
+ * @returns {object} AntiSpamInterstitial react component.
+ */
+export function AntiSpamInterstitial() {
+	return (
+		<ProductInterstitial slug="anti-spam">
+			<h2>@todo Popular upgrade here</h2>
+		</ProductInterstitial>
+	);
+}
+
+/**
  * BackupInterstitial component
  *
  * @returns {object} BackupInterstitial react component.

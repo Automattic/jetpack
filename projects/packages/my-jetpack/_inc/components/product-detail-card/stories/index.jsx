@@ -9,7 +9,7 @@ import withMock from 'storybook-addon-mock';
  * Internal dependencies
  */
 import ProductDetailCard, { ProductDetail } from '../index.jsx';
-import { backupProductData, boostProductData, scanProductData } from './mock-data.js';
+import { getMockData } from './utils.js';
 
 export default {
 	title: 'Packages/My Jetpack/Product Detail Card',
@@ -21,34 +21,17 @@ const DefaultArgs = {};
 
 const DefaultProductDetailCard = args => <ProductDetailCard { ...args } slug="backup" />;
 
-const mapResponse = {
-	backup: backupProductData,
-	boost: boostProductData,
-	scan: scanProductData,
-};
-
-/**
- * Helper function that returns the story mock data.
- *
- * @param {string} product - Product slug
- * @returns {Array}          Story mock data
- */
-function getMockData( product ) {
-	return [
-		{
-			url: `my-jetpack/v1/site/products/${ product }?_locale=user`,
-			method: 'GET',
-			status: 200,
-			response: mapResponse[ product ],
-		},
-	];
-}
-
 export const _default = DefaultProductDetailCard.bind( {} );
 _default.parameters = {
 	mockData: getMockData( 'backup' ),
 };
 _default.args = DefaultArgs;
+
+const AntiSpamTemplate = args => <ProductDetail { ...args } slug="anti-spam" />;
+export const JetpackAntiSpam = AntiSpamTemplate.bind( {} );
+JetpackAntiSpam.parameters = {
+	mockData: getMockData( 'anti-spam' ),
+};
 
 const BackupTemplate = args => <ProductDetail { ...args } slug="backup" />;
 export const JetpackBackup = BackupTemplate.bind( {} );
@@ -62,6 +45,12 @@ jetpackBoost.parameters = {
 	mockData: getMockData( 'boost' ),
 };
 
+const AntiSpamCardTemplate = args => <ProductDetailCard { ...args } slug="anti-spam" />;
+export const JetpackAntiSpamCard = AntiSpamCardTemplate.bind( {} );
+JetpackAntiSpamCard.parameters = {
+	mockData: getMockData( 'anti-spam' ),
+};
+
 const BackupCardTemplate = args => <ProductDetailCard { ...args } slug="backup" />;
 export const JetpackBackupCard = BackupCardTemplate.bind( {} );
 JetpackBackupCard.parameters = {
@@ -72,6 +61,12 @@ const BoostCardTemplate = args => <ProductDetailCard { ...args } slug="boost" />
 export const JetpackBoostCard = BoostCardTemplate.bind( {} );
 JetpackBoostCard.parameters = {
 	mockData: getMockData( 'boost' ),
+};
+
+const SearchCardTemplate = args => <ProductDetailCard { ...args } slug="search" />;
+export const JetpackSearchCard = SearchCardTemplate.bind( {} );
+JetpackSearchCard.parameters = {
+	mockData: getMockData( 'search' ),
 };
 
 const ScanCardTemplate = args => <ProductDetailCard { ...args } slug="scan" />;
