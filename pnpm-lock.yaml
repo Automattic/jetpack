@@ -357,7 +357,6 @@ importers:
       '@wordpress/base-styles': 4.0.4
       '@wordpress/i18n': 4.3.0
       classnames: 2.3.1
-      cookie: 0.4.1
       jetpack-js-test-runner: workspace:*
       nyc: 15.1.0
       prop-types: 15.7.2
@@ -367,7 +366,6 @@ importers:
       '@automattic/jetpack-connection': link:../connection
       '@wordpress/i18n': 4.3.0
       classnames: 2.3.1
-      cookie: 0.4.1
       prop-types: 15.7.2
     devDependencies:
       '@automattic/jetpack-base-styles': link:../base-styles

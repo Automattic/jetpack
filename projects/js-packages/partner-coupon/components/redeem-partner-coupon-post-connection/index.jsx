@@ -5,7 +5,6 @@ import React, { useCallback, useState } from 'react';
 import PropTypes from 'prop-types';
 import { ActionButton, JetpackLogo } from '@automattic/jetpack-components';
 import { __, sprintf } from '@wordpress/i18n';
-import cookie from 'cookie';
 
 /**
  * Internal dependencies
@@ -17,8 +16,8 @@ import { usePartnerCouponRedemption } from '../../hooks';
  */
 import './style.scss';
 
-export const DISMISS_COOKIE_NAME = 'jetpack-redeem-partner-coupon-dismissed';
-export const DISMISS_MAX_COOKIE_AGE = 24 * 60 * 60; // 1 day
+export const DISMISS_LS_ITEM_NAME = 'jetpackRedeemPartnerCouponDismissedAt';
+export const DISMISS_LS_ITEM_MAX_AGE = 3 * 24 * 60 * 60; // 3 days
 
 /**
  * Is partner coupon redeem CTA dismissed?
@@ -26,8 +25,16 @@ export const DISMISS_MAX_COOKIE_AGE = 24 * 60 * 60; // 1 day
  * @returns {boolean} Is the redeem CTA dismissed?
  */
 function isDismissed() {
-	const cookies = cookie.parse( document.cookie );
-	return !! cookies[ DISMISS_COOKIE_NAME ];
+	const dismissedAt = localStorage.getItem( DISMISS_LS_ITEM_NAME );
+
+	if (
+		! dismissedAt ||
+		new Date().getTime() > parseInt( dismissedAt ) + DISMISS_LS_ITEM_MAX_AGE * 1000
+	) {
+		return false;
+	}
+
+	return true;
 }
 
 /**
@@ -36,10 +43,7 @@ function isDismissed() {
  * @returns {void}
  */
 function dismiss() {
-	document.cookie = cookie.serialize( DISMISS_COOKIE_NAME, true, {
-		path: window.location.pathname,
-		maxAge: DISMISS_MAX_COOKIE_AGE,
-	} );
+	localStorage.setItem( DISMISS_LS_ITEM_NAME, new Date().getTime() );
 }
 
 const RedeemPartnerCouponPostConnection = props => {
