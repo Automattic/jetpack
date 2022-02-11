@@ -15,7 +15,6 @@ import { BackupIcon } from '../icons';
 const BackupCard = ( { admin } ) => {
 	const { status, activate, deactivate, detail, isFetching } = useProduct( 'backup' );
 	const { name, description, slug } = detail;
-	const navToAddBackupPage = useMyJetpackNavigate( '/add-backup' );
 
 	return (
 		<ProductCard
@@ -29,7 +28,7 @@ const BackupCard = ( { admin } ) => {
 			slug={ slug }
 			onActivate={ activate }
 			showDeactivate={ false }
-			onAdd={ navToAddBackupPage }
+			onAdd={ useMyJetpackNavigate( '/add-backup' ) }
 		/>
 	);
 };
