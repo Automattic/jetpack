@@ -163,3 +163,51 @@ function jetpack_boost_uninstall() {
  * Previous version compatibility files
  */
 require_once __DIR__ . '/compatibility/boost-1.3.1.php';
+
+use Automattic\Jetpack\Connection\Rest_Authentication;
+use Automattic\Jetpack_Boost\Lib\Url;
+use Automattic\Jetpack_Boost\Lib\Utils;
+
+function mock_cloud_css_request() {
+	if ( ! isset( $_GET['generate-css'] ) ) {
+		return;
+	}
+
+	$blog_id = (int) \Jetpack_Options::get_option( 'id' );
+
+	$response = Utils::send_wpcom_request(
+		'POST',
+		sprintf( '/sites/%d/jetpack-boost/cloud-css', $blog_id ),
+		null,
+		array(
+			'requestId' => 'uniquereqid123',
+			'providers' => array(
+				'archive' => array( Url::normalize( 'https://jetpack.com' ) ),
+			),
+		)
+	);
+
+	echo '<pre style="margin-left: 200px;">';
+	var_dump( $response );
+	echo '</pre>';
+}
+add_action( 'init', __NAMESPACE__ . '\mock_cloud_css_request' );
+
+function register_cloud_css_update() {
+	register_rest_route(
+		JETPACK_BOOST_REST_NAMESPACE,
+		JETPACK_BOOST_REST_PREFIX . '/cloud-css/update',
+		array(
+			'methods'             => \WP_REST_Server::EDITABLE,
+			'callback'            => function( $request ) {
+				error_log( wp_json_encode( $request->get_headers() ) );
+				error_log( wp_json_encode( $request->get_body() ) );
+				return new \WP_REST_Response( array( 'success' => true ), 200 );
+			},
+			'permission_callback' => function() {
+				return Rest_Authentication::is_signed_with_blog_token();
+			},
+		)
+	);
+}
+add_action( 'rest_api_init', __NAMESPACE__ . '\register_cloud_css_update' );
