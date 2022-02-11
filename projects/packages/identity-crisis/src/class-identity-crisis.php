@@ -1237,8 +1237,9 @@ class Identity_Crisis {
 	public static function detect_dynamic_site_url() {
 		$transient_key = 'jetpack_idc_dynamic_site_url_detected';
 		$transient_val = get_transient( $transient_key );
-		if ( $transient_val ) {
-			return $transient_val;
+
+		if ( false !== $transient_val ) {
+			return (bool) $transient_val;
 		}
 
 		$path      = self::locate_wp_config();
@@ -1250,12 +1251,12 @@ class Identity_Crisis {
 			);
 
 			if ( $matched ) {
-				set_transient( $transient_key, true, HOUR_IN_SECONDS );
+				set_transient( $transient_key, 1, HOUR_IN_SECONDS );
 				return true;
 			}
 		}
 
-		set_transient( $transient_key, false, HOUR_IN_SECONDS );
+		set_transient( $transient_key, 0, HOUR_IN_SECONDS );
 		return false;
 	}
 
