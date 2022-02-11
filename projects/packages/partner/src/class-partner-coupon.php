@@ -169,6 +169,10 @@ class Partner_Coupon {
 			return;
 		}
 
+		if ( ( new Status() )->is_offline_mode() ) {
+			return;
+		}
+
 		$connection = new Connection_Manager( $plugin_slug );
 		if ( ! $connection->is_connected() ) {
 			return;
