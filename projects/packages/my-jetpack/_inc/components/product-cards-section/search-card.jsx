@@ -15,7 +15,6 @@ import { SearchIcon } from '../icons';
 const SearchCard = ( { admin } ) => {
 	const { status, activate, deactivate, detail, isFetching } = useProduct( 'search' );
 	const { name, description, slug } = detail;
-	const navToSearchPage = useMyJetpackNavigate( '/add-search' );
 
 	return (
 		<ProductCard
@@ -27,7 +26,7 @@ const SearchCard = ( { admin } ) => {
 			isFetching={ isFetching }
 			onDeactivate={ deactivate }
 			onActivate={ activate }
-			onAdd={ navToSearchPage }
+			onAdd={ useMyJetpackNavigate( '/add-search' ) }
 			slug={ slug }
 		/>
 	);
