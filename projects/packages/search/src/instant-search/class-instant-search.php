@@ -552,9 +552,9 @@ class Instant_Search extends Classic_Search {
 		$enabled_post_types = array();
 		$widget_options     = get_option( Helper::get_widget_option_name(), array() );
 
-			// Prior to Jetpack 8.8, post types were enabled via Jetpack Search widgets rather than disabled via the Customizer.
-			// To continue supporting post types set up in the old way, we iterate through each Jetpack Search
-			// widget configuration and append each enabled post type to $enabled_post_types.
+		// Prior to Jetpack 8.8, post types were enabled via Jetpack Search widgets rather than disabled via the Customizer.
+		// To continue supporting post types set up in the old way, we iterate through each Jetpack Search
+		// widget configuration and append each enabled post type to $enabled_post_types.
 		foreach ( $widget_options as $widget_option ) {
 			if ( isset( $widget_option['post_types'] ) && is_array( $widget_option['post_types'] ) ) {
 				foreach ( $widget_option['post_types'] as $enabled_post_type ) {
