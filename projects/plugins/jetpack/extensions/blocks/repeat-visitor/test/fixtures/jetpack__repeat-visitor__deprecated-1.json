@@ -19,6 +19,6 @@
 				"originalContent": "<p>You're a repeat visitor!</p>"
 			}
 		],
-		"originalContent": "<div class=\"wp-block-jetpack-repeat-visitor\"><div class=\"wp-block-jetpack-repeat-visitor__inner-container\"></div></div>"
+		"originalContent": "<div class=\"wp-block-jetpack-repeat-visitor\"></div>"
 	}
 ]
