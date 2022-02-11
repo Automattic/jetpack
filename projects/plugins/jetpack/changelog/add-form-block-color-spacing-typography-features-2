@@ -1,0 +1,4 @@
+Significance: patch
+Type: bugfix
+
+Form block: custom CSS classes added to the block are now applied on the frontend.

@@ -39,25 +39,15 @@
 				"attrs": {
 					"element": "button",
 					"text": "Contact Us Today!",
-					"textColor": "tertiary",
-					"backgroundColor": "primary"
+					"textColor": "dark-gray",
+					"backgroundColor": "green"
 				},
 				"innerBlocks": [],
 				"innerHTML": "",
 				"innerContent": []
 			}
 		],
-		"innerHTML": "\n<div class=\"wp-block-jetpack-contact-form noodles\">\n\n\n    \n\n    \n</div>\n",
-		"innerContent": [
-			"\n<div class=\"wp-block-jetpack-contact-form noodles\">",
-			null,
-			"\n\n",
-			null,
-			"\n    \n",
-			null,
-			"\n    \n",
-			null,
-			"</div>\n"
-		]
+		"innerHTML": "\n\n\n\n\n\n\n\n",
+		"innerContent": [ "\n", null, "\n\n", null, "\n\n", null, "\n\n", null, "\n" ]
 	}
 ]
