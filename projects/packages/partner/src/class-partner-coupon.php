@@ -109,8 +109,6 @@ class Partner_Coupon {
 	public static function register_coupon_admin_hooks( $plugin_slug, $redirect_location ) {
 		$instance = self::get_instance();
 
-		add_action( 'admin_init', array( $instance, 'maybe_purge_coupon' ) );
-
 		// We have to use an anonymous function, so we can pass along relevant information
 		// and not have to hardcode values for a single plugin.
 		// This open up the opportunity for e.g. the "all-in-one" and backup plugins
@@ -119,6 +117,7 @@ class Partner_Coupon {
 			'admin_init',
 			function () use ( $plugin_slug, $redirect_location, $instance ) {
 				$instance->catch_coupon( $plugin_slug, $redirect_location );
+				$instance->maybe_purge_coupon( $plugin_slug );
 			}
 		);
 	}
@@ -157,14 +156,21 @@ class Partner_Coupon {
 	 * partner coupons after a certain amount of time to prevent unnecessary look-ups
 	 * and/or promoting a product for months or years in the future due to unknown
 	 * errors.
+	 *
+	 * @param string $plugin_slug The plugin slug to differentiate between Jetpack connections.
 	 */
-	public function maybe_purge_coupon() {
+	public function maybe_purge_coupon( $plugin_slug ) {
 		// Only run coupon checks on Jetpack admin pages.
 		// The "admin-ui" package is responsible for registering the Jetpack admin
 		// page for all Jetpack plugins and has hardcoded the settings page to be
 		// "jetpack", so we shouldn't need to allow for dynamic/custom values.
 		// phpcs:ignore WordPress.Security.NonceVerification.Recommended
 		if ( ! isset( $_GET['page'] ) || 'jetpack' !== $_GET['page'] ) {
+			return;
+		}
+
+		$connection = new Connection_Manager( $plugin_slug );
+		if ( ! $connection->is_connected() ) {
 			return;
 		}
 
