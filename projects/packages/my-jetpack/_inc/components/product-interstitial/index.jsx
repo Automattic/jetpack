@@ -7,7 +7,7 @@ import { Container, Col } from '@automattic/jetpack-components';
 /**
  * Internal dependencies
  */
-import { ProductDetail } from '../product-detail-card';
+import ProductDetailCard, { ProductDetail } from '../product-detail-card';
 import styles from './style.module.scss';
 import useAnalytics from '../../hooks/use-analytics';
 import boostImage from './boost.png';
@@ -54,7 +54,7 @@ export default function ProductInterstitial( { slug, children = null } ) {
 export function AntiSpamInterstitial() {
 	return (
 		<ProductInterstitial slug="anti-spam">
-			<h2>@todo Popular upgrade here</h2>
+			<ProductDetailCard slug="security" />
 		</ProductInterstitial>
 	);
 }
@@ -67,7 +67,7 @@ export function AntiSpamInterstitial() {
 export function BackupInterstitial() {
 	return (
 		<ProductInterstitial slug="backup">
-			<h2>@todo Popular upgrade here</h2>
+			<ProductDetailCard slug="security" />
 		</ProductInterstitial>
 	);
 }
@@ -93,7 +93,7 @@ export function BoostInterstitial() {
 export function ScanInterstitial() {
 	return (
 		<ProductInterstitial slug="scan">
-			<h2>@todo Popular upgrade here</h2>
+			<ProductDetailCard slug="security" />
 		</ProductInterstitial>
 	);
 }
