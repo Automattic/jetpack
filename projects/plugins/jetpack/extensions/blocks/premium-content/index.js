@@ -145,8 +145,8 @@ export const settings = {
 					} );
 
 					return createBlock( 'premium-content/container', {}, [
-						createBlock( 'premium-content/logged-out-view' ),
 						createBlock( 'premium-content/subscriber-view', {}, innerBlocksSubscribe ),
+						createBlock( 'premium-content/logged-out-view' ),
 					] );
 				},
 			},
