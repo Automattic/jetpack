@@ -49,13 +49,6 @@ class Jetpack_Simple_Payments {
 	public static $required_plan;
 
 	/**
-	 * Increase this number each time there's a change in CSS or JS to bust cache.
-	 *
-	 * @var string
-	 */
-	public static $version = '0.25';
-
-	/**
 	 * Instance of the class.
 	 *
 	 * @var Jetpack_Simple_Payments
