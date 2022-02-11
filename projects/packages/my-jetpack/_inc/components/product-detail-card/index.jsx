@@ -4,7 +4,7 @@
 import React from 'react';
 import classnames from 'classnames';
 import { Button } from '@wordpress/components';
-import { Icon, check } from '@wordpress/icons';
+import { Icon, check, plus } from '@wordpress/icons';
 import { getCurrencyObject } from '@automattic/format-currency';
 import { __, sprintf } from '@wordpress/i18n';
 
@@ -15,7 +15,7 @@ import styles from './style.module.scss';
 import getProductCheckoutUrl from '../../utils/get-product-checkout-url';
 import useMyJetpackConnection from '../../hooks/use-my-jetpack-connection';
 import { useProduct } from '../../hooks/use-product';
-import { BackupIcon, ScanIcon, StarIcon } from '../icons';
+import { BackupIcon, ScanIcon, StarIcon, getIconBySlug } from '../icons';
 
 /**
  * Simple react component to render the product icon,
@@ -72,11 +72,31 @@ function Price( { value, currency, isOld } ) {
  */
 const ProductDetail = ( { slug, trackButtonClick } ) => {
 	const { detail } = useProduct( slug );
-	const { title, longDescription, features, pricingForUi = {}, isBundle } = detail;
+	const {
+		title,
+		longDescription,
+		features,
+		pricingForUi = {},
+		isBundle,
+		supportedProducts,
+	} = detail;
 	const { isFree, fullPrice, currencyCode, discountedPrice } = pricingForUi;
 	const { isUserConnected } = useMyJetpackConnection();
 
 	const addProductUrl = getProductCheckoutUrl( `jetpack_${ slug }`, isUserConnected ); // @ToDo: Remove this when we have a new product structure.
+
+	// Suppported products icons.
+	const icons = supportedProducts
+		.join( '_plus_' )
+		.split( '_' )
+		.map( iconSlug => {
+			if ( iconSlug === 'plus' ) {
+				return <Icon className={ styles[ 'plus-icon' ] } icon={ plus } size={ 14 } />;
+			}
+
+			const SupportedProductIcon = getIconBySlug( iconSlug );
+			return <SupportedProductIcon key={ iconSlug } size={ 24 } />;
+		} );
 
 	return (
 		<>
@@ -88,6 +108,8 @@ const ProductDetail = ( { slug, trackButtonClick } ) => {
 			) }
 
 			<div className={ styles.container }>
+				<div className={ styles[ 'product-icons' ] }>{ icons }</div>
+
 				<ProductIcon slug={ slug } />
 
 				<h3>{ title }</h3>

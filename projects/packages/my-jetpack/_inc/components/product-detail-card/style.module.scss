@@ -15,6 +15,7 @@
 	border-radius: var(--product-card-border-radius);
 	box-shadow: 0 2px 6px var(--product-card-shadow), 0 1px 2px var(--product-card-shadow);
 	max-width: 600px;
+	position: relative;
 
 	.card-header {
 		display: flex;
@@ -26,6 +27,8 @@
 		letter-spacing: 0.3px;
 		border-top-left-radius: var(--product-card-border-radius);
 		border-top-right-radius: var(--product-card-border-radius);
+		position: absolute;
+		width: 100%;
 		padding: 0 10px;
 		height: var(--product-card-header-height);
 		line-height: var(--product-card-header-height);
@@ -62,6 +65,17 @@
 	justify-content: space-between;
 	max-width: 600px;
 	padding: 60px 40px;
+
+	.product-icons {
+		flex-direction: row;
+	}
+
+	.plus-icon {
+		fill: rgb(140, 143, 148);
+		height: 24px;
+		line-height: 24px;
+		margin: 0 1px;
+	}
 
 	h3 {
 		font-size: var(--font-title-large);
