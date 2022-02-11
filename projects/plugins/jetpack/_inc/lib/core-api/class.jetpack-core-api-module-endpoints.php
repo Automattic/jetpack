@@ -750,15 +750,7 @@ class Jetpack_Core_API_Data extends Jetpack_Core_API_XMLRPC_Consumer_Endpoint {
 								$updated = new WP_Error( 'instant_search_disabled', 'Instant Search is disabled', array( 'status' => 400 ) );
 								$error   = $updated->get_error_message();
 							} else {
-								$instance = Automattic\Jetpack\Search\Instant_Search::instance();
-
-								// Perform initialization. This should have already been executed in modules/search.php.
-								// In other words: This is a failsafe.
-								if ( ! $instance ) {
-									Automattic\Jetpack\Search\Jetpack_Initializer::initialize();
-									$instance = Automattic\Jetpack\Search\Instant_Search::instance();
-								}
-
+								$instance = Automattic\Jetpack\Search\Instant_Search::instance( Jetpack_Options::get_option( 'id' ) );
 								$instance->auto_config_search();
 								$updated = true;
 							}
