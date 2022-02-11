@@ -76,7 +76,7 @@ class MyPlanHeader extends React.Component {
 			case 'is-free-plan': {
 				// Default tagline
 				let tagLineText = __(
-					'Worried about security? Get backups, automated security fixes and more.',
+					'Worried about security? Get backups, automated security fixes and more: <a>Upgrade now</a>',
 					'jetpack'
 				);
 
@@ -91,17 +91,17 @@ class MyPlanHeader extends React.Component {
 
 					if ( hasSiteJetpackBackup && hasSiteJetpackScan ) {
 						tagLineText = __(
-							'Upgrade your site to access additional features, including spam protection and priority support.',
+							'Upgrade your site to access additional features, including spam protection and priority support: <a>Upgrade now</a>',
 							'jetpack'
 						);
 					} else if ( hasSiteJetpackBackup ) {
 						tagLineText = __(
-							'Upgrade your site to access additional features, including spam protection, security scanning, and priority support.',
+							'Upgrade your site to access additional features, including spam protection, security scanning, and priority support: <a>Upgrade now</a>',
 							'jetpack'
 						);
 					} else if ( hasSiteJetpackScan ) {
 						tagLineText = __(
-							'Upgrade your site to access additional features, including spam protection, backups, and priority support.',
+							'Upgrade your site to access additional features, including spam protection, backups, and priority support: <a>Upgrade now</a>',
 							'jetpack'
 						);
 					}
@@ -109,19 +109,15 @@ class MyPlanHeader extends React.Component {
 
 				return {
 					...productProps,
-					tagLine: (
-						<>
-							{ tagLineText }
-							&nbsp;
+					tagLine: createInterpolateElement( tagLineText, {
+						a: (
 							<UpgradeLink
 								source="my-plan-header-free-plan-text-link"
 								target="upgrade-now"
 								feature="my-plan-header-free-upgrade"
-							>
-								{ __( 'Upgrade now', 'jetpack' ) }
-							</UpgradeLink>
-						</>
-					),
+							/>
+						),
+					} ),
 					title: __( 'Jetpack Free', 'jetpack' ),
 				};
 			}
