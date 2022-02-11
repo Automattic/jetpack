@@ -552,23 +552,23 @@ abstract class Base_Admin_Menu {
 		$screen        = $this->get_current_screen();
 
 		// Let's show the switcher only in screens that we have a Calypso mapping to switch to.
-		if ( ! isset( $menu_mappings[ $screen ] ) ) {
+		if ( empty( $menu_mappings[ $screen ] ) ) {
 			return;
 		}
 		?>
 		<div id="view-link-wrap" class="hide-if-no-js screen-meta-toggle">
-			<button type="button" id="view-link" class="button show-settings" aria-expanded="false"><?php _ex( 'View', 'View options to switch between', 'jetpack' ); ?></button>
+			<button type="button" id="view-link" class="button show-settings" aria-expanded="false"><?php echo esc_html_x( 'View', 'View options to switch between', 'jetpack' ); ?></button>
 		</div>
 		<div id="view-wrap" class="screen-options-tab__wrapper hide-if-no-js hidden" tabindex="-1">
 			<div class="screen-options-tab__dropdown" data-testid="screen-options-dropdown">
 				<div class="screen-switcher">
 					<a class="screen-switcher__button" href="<?php echo esc_url( add_query_arg( 'preferred-view', 'default' ) ); ?>" data-view="default">
-						<strong><?php _e( 'Default view', 'jetpack' ); ?></strong>
-						<?php _e( 'Our WordPress.com redesign for a better experience.', 'jetpack' ); ?>
+						<strong><?php esc_html_e( 'Default view', 'jetpack' ); ?></strong>
+						<?php esc_html_e( 'Our WordPress.com redesign for a better experience.', 'jetpack' ); ?>
 					</a>
 					<button class="screen-switcher__button"  data-view="classic">
-						<strong><?php _e( 'Classic view', 'jetpack' ); ?></strong>
-						<?php _e( 'The classic WP-Admin WordPress interface.', 'jetpack' ); ?>
+						<strong><?php esc_html_e( 'Classic view', 'jetpack' ); ?></strong>
+						<?php esc_html_e( 'The classic WP-Admin WordPress interface.', 'jetpack' ); ?>
 					</button>
 				</div>
 			</div>
@@ -580,8 +580,9 @@ abstract class Base_Admin_Menu {
 	 * Adds a script to append the dashboard switcher to screen meta
 	 */
 	public function dashboard_switcher_scripts() {
-		wp_add_inline_script( 'common', "
-			(function( $ ) {
+		wp_add_inline_script(
+			'common',
+			"(function( $ ) {
 				$( '#view-link-wrap' ).appendTo( '#screen-meta-links' );
 
 				var viewLink = $( '#view-link' );
@@ -598,8 +599,8 @@ abstract class Base_Admin_Menu {
 						viewLink.removeClass( 'screen-meta-active' );
 					}
 				});
-			})( jQuery );
-		" );
+			})( jQuery );"
+		);
 	}
 
 	/**
