@@ -2,6 +2,7 @@
 namespace Automattic\Jetpack_Boost\Features\Optimizations\Cloud_CSS;
 
 use Automattic\Jetpack_Boost\Contracts\Feature;
+use Automattic\Jetpack_Boost\Lib\Critical_CSS\Critical_CSS_Invalidator;
 use Automattic\Jetpack_Boost\Lib\Critical_CSS\Critical_CSS_Storage;
 use Automattic\Jetpack_Boost\Lib\Critical_CSS\Display_Critical_CSS;
 use Automattic\Jetpack_Boost\Lib\Critical_CSS\Source_Providers\Source_Providers;
@@ -27,7 +28,6 @@ class Cloud_CSS implements Feature, Has_Endpoints {
 	protected $paths;
 
 	public function __construct() {
-
 		$this->storage = new Critical_CSS_Storage();
 		$this->paths   = new Source_Providers();
 
@@ -35,6 +35,7 @@ class Cloud_CSS implements Feature, Has_Endpoints {
 	public function setup() {
 		add_action( 'wp', array( $this, 'display_critical_css' ) );
 		REST_API::register( $this->get_endpoints() );
+		Critical_CSS_Invalidator::init();
 
 		return true;
 	}
