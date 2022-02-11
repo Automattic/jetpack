@@ -103,3 +103,26 @@ export const searchProductData = {
 		promotion_percentage: 50,
 	},
 };
+
+export const securityProductData = {
+	slug: 'security',
+	name: 'Security',
+	title: 'Security',
+	description: 'Comprehensive site security, including Backup, Scan, and Anti-spam.',
+	long_description: 'Comprehensive site security, including Backup, Scan, and Anti-spam.',
+	status: 'inactive',
+	is_bundle: true,
+	supportedProducts: [ 'backup', 'scan', 'anti-spam' ],
+	features: [
+		'Real-time cloud backups with 10GB storage',
+		'Automated real-time malware scan',
+		'One-click fixes for most threats',
+		'Comment & form spam protection',
+	],
+	pricingForUi: {
+		available: true,
+		show_promotion: true,
+		full_price: 24.92,
+		promotion_percentage: 50,
+	},
+};
