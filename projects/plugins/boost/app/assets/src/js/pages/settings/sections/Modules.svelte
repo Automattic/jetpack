@@ -40,7 +40,7 @@
 		</div>
 	</Module>
 
-	<Module slug={'cloud-css'}>
+	<Module slug={'cloud-css'} on:enabled={requestCloudCss}>
 		<h3 slot="title">
 			{__( 'Optimize CSS Loading from Cloud', 'jetpack-boost' )}
 		</h3>
