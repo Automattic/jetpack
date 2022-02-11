@@ -39,7 +39,7 @@ const DownIcon = () => (
 	</svg>
 );
 
-const renderActionButton = ( {
+const ActionButton = ( {
 	status,
 	admin,
 	name,
@@ -187,11 +187,7 @@ const ProductCard = props => {
 			<div className={ styles.actions }>
 				{ canDeactivate ? (
 					<ButtonGroup className={ styles.group }>
-						{ renderActionButton( {
-							...props,
-							onActivate: activateHandler,
-							onManage: manageHandler,
-						} ) }
+						<ActionButton { ...props } onActivate={ activateHandler } onManage={ manageHandler } />
 						<DropdownMenu
 							className={ styles.dropdown }
 							toggleProps={ { isPressed: true, disabled: isFetching } }
@@ -208,11 +204,7 @@ const ProductCard = props => {
 						/>
 					</ButtonGroup>
 				) : (
-					renderActionButton( {
-						...props,
-						onActivate: activateHandler,
-						onAdd: addHandler,
-					} )
+					<ActionButton { ...props } onActivate={ activateHandler } onAdd={ addHandler } />
 				) }
 				{ ! isAbsent && <div className={ statusClassName }>{ flagLabel }</div> }
 			</div>
