@@ -1,0 +1,4 @@
+Significance: patch
+Type: compat
+
+Search: Add deprecated class to prevent third-party integrations from failing after 10.6 updates.
