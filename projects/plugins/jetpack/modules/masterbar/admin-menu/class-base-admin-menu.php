@@ -563,12 +563,12 @@ abstract class Base_Admin_Menu {
 			<div class="screen-options-tab__dropdown" data-testid="screen-options-dropdown">
 				<div class="screen-switcher">
 					<a class="screen-switcher__button" href="<?php echo esc_url( add_query_arg( 'preferred-view', 'default' ) ); ?>" data-view="default">
-						<strong><?php _e( 'Default view' ); ?></strong>
-						<?php _e( 'Our WordPress.com redesign for a better experience.' ); ?>
+						<strong><?php _e( 'Default view', 'jetpack' ); ?></strong>
+						<?php _e( 'Our WordPress.com redesign for a better experience.', 'jetpack' ); ?>
 					</a>
 					<button class="screen-switcher__button"  data-view="classic">
-						<strong><?php _e( 'Classic view' ); ?></strong>
-						<?php _e( 'The classic WP-Admin WordPress interface.' ); ?>
+						<strong><?php _e( 'Classic view', 'jetpack' ); ?></strong>
+						<?php _e( 'The classic WP-Admin WordPress interface.', 'jetpack' ); ?>
 					</button>
 				</div>
 			</div>
