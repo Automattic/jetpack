@@ -40,7 +40,7 @@ function should_customize_nav( $admin_menu_class ) {
 		$script_filename = ( ! empty( $_SERVER['SCRIPT_FILENAME'] ) ) ? basename( $_SERVER['SCRIPT_FILENAME'] ) : null;
 
 		// Special case: /wp-admin/?service-worker doesn't render a menu at all: skip all menu work.
-		if ( 'index.php' === $script_filename && isset( $_GET['service-worker'] ) ) {
+		if ( 'index.php' === $script_filename && isset( $_GET['service-worker'] ) ) { // phpcs:ignore WordPress.Security.NonceVerification.Recommended
 			return false;
 		}
 
