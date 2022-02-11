@@ -54,6 +54,9 @@
 	--product-card-description-font-size: 16px;
 	--product-card-price-font-size: 4rem;
 
+	--product-card-action-button-color-hover: white;
+	--product-card-action-button-bg-color-hover: black;
+
 	display: flex;
 	flex-direction: column;
 	justify-content: space-between;
@@ -74,6 +77,13 @@
 		white-space: pre-line;
 		height: auto;
 		line-height: 26px;
+
+		&.is-bundle {
+			&:hover {
+				background-color: var(--product-card-action-button-bg-color-hover);
+				color: var(--product-card-action-button-color-hover);
+			}
+		}
 	}
 
 	// Product Icon

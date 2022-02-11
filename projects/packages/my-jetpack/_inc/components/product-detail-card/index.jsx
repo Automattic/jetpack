@@ -72,7 +72,7 @@ function Price( { value, currency, isOld } ) {
  */
 const ProductDetail = ( { slug, trackButtonClick } ) => {
 	const { detail } = useProduct( slug );
-	const { title, longDescription, features, pricingForUi = {} } = detail;
+	const { title, longDescription, features, pricingForUi = {}, isBundle } = detail;
 	const { isFree, fullPrice, currencyCode, discountedPrice } = pricingForUi;
 	const { isUserConnected } = useMyJetpackConnection();
 
@@ -110,9 +110,10 @@ const ProductDetail = ( { slug, trackButtonClick } ) => {
 			<Button
 				onClick={ trackButtonClick }
 				isLink
-				isPrimary
+				isPrimary={ ! isBundle }
+				isSecondary={ isBundle }
 				href={ addProductUrl }
-				className={ styles[ 'checkout-button' ] }
+				className={ `${ styles[ 'checkout-button' ] } ${ isBundle ? styles[ 'is-bundle' ] : '' }` }
 			>
 				{
 					/* translators: placeholder is product name. */
