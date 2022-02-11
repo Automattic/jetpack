@@ -62,8 +62,12 @@ export default function MyJetpackScreen() {
 	return (
 		<AdminPage>
 			<AdminSectionHero>
+				<Container horizontalSpacing={ 0 }>
+					<Col>
+						<div id="jp-admin-notices" className="my-jetpack-jitm-card" />
+					</Col>
+				</Container>
 				<Container horizontalSpacing={ 5 } horizontalGap={ message ? 3 : 6 }>
-					<div id="jp-admin-notices" />
 					<Col sm={ 4 } md={ 7 } lg={ 6 }>
 						<Text variant="headline-small">
 							{ __( 'Manage your Jetpack products', 'jetpack-my-jetpack' ) }
