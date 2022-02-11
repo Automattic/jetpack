@@ -69,10 +69,6 @@ abstract class Base_Admin_Menu {
 		$this->is_api_request = defined( 'REST_REQUEST' ) && REST_REQUEST || 0 === strpos( $_SERVER['REQUEST_URI'], '/?rest_route=%2Fwpcom%2Fv2%2Fadmin-menu' );
 		$this->domain         = ( new Status() )->get_site_suffix();
 
-		if ( $this->should_skip_menu_processing() ) {
-			return;
-		}
-
 		add_action( 'admin_menu', array( $this, 'reregister_menu_items' ), 99998 );
 		add_action( 'admin_menu', array( $this, 'hide_parent_of_hidden_submenus' ), 99999 );
 
@@ -695,18 +691,4 @@ abstract class Base_Admin_Menu {
 	 * Create the desired menu output.
 	 */
 	abstract public function reregister_menu_items();
-
-
-	/**
-	 * Whether all menu processing should be skipped.
-	 * If returns true, the constructor of the class does not
-	 * add any filters or actions.
-	 *
-	 * Overridable by children classes (like WPcom_Admin_Menu)
-	 *
-	 * @return bool
-	 */
-	public function should_skip_menu_processing() {
-		return false;
-	}
 }
