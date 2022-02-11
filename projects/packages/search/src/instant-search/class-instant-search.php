@@ -346,16 +346,13 @@ class Instant_Search extends Classic_Search {
 
 		$next_id = $this->get_next_jp_search_widget_id( $widget_options );
 
-		list($sidebar_jp_searchbox_idx,  ) = $this->get_search_widget_indices( $sidebars, self::AUTO_CONFIG_SIDEBAR );
-		if ( false !== $sidebar_jp_searchbox_idx ) {
-			$sidebar_jp_searchbox_id = str_replace( Helper::FILTER_WIDGET_BASE . '-', '', $sidebars[ self::AUTO_CONFIG_SIDEBAR ][ $sidebar_jp_searchbox_idx ] );
-			if ( isset( $widget_options[ $sidebar_jp_searchbox_id ] ) ) {
-				// If there is a JP search widget in the theme sidebar, copy it over to the search overlay sidebar.
-				$widget_options[ $next_id ] = $widget_options[ $sidebar_jp_searchbox_id ];
-			} else {
-				// If JP Search widget doesn't exist in the theme sidebar, we have nothing to copy from, so we create a new one within the overlay sidebar.
-				$widget_options[ $next_id ] = $this->get_preconfig_widget_options();
-			}
+		list($sidebar_jp_searchbox_wiget_id,  ) = $this->get_search_widget_indices( $sidebars, self::AUTO_CONFIG_SIDEBAR );
+		if ( false !== $sidebar_jp_searchbox_wiget_id && isset( $widget_options[ $sidebar_jp_searchbox_wiget_id ] ) ) {
+			// If there is a JP search widget in the theme sidebar, copy it over to the search overlay sidebar.
+			$widget_options[ $next_id ] = $widget_options[ $sidebar_jp_searchbox_wiget_id ];
+		} else {
+			// If JP Search widget doesn't exist in the theme sidebar, we have nothing to copy from, so we create a new one within the overlay sidebar.
+			$widget_options[ $next_id ] = $this->get_preconfig_widget_options();
 		}
 		array_unshift( $sidebars['jetpack-instant-search-sidebar'], Helper::build_widget_id( $next_id ) );
 		update_option( $widget_opt_name, $widget_options );
@@ -426,24 +423,24 @@ class Instant_Search extends Classic_Search {
 	 * @param array  $sidebars - theme `sidebars_widgets` option value.
 	 * @param string $sidebar_id - the sidebar id to search on.
 	 *
-	 * @return array - core search widget index and JP search widget index
+	 * @return array - core search widget index and JP search widget id.
 	 */
 	protected function get_search_widget_indices( $sidebars, $sidebar_id = 'sidebar-1' ) {
-		$sidebar_searchbox_idx    = false;
-		$sidebar_jp_searchbox_idx = false;
+		$sidebar_searchbox_idx   = false;
+		$sidebar_jp_searchbox_id = false;
 		if ( isset( $sidebars[ $sidebar_id ] ) ) {
 			foreach ( (array) $sidebars[ $sidebar_id ] as $idx => $widget_id ) {
 				if ( 0 === strpos( $widget_id, 'search-' ) ) {
-					// array index of wp search widget.
+					// The array index of wp search widget.
 					$sidebar_searchbox_idx = $idx;
 				}
 				if ( 0 === strpos( $widget_id, Helper::FILTER_WIDGET_BASE ) ) {
-					// array index of Jetpack Search widget.
-					$sidebar_jp_searchbox_idx = $idx;
+					// The id of Jetpack Search widget.
+					$sidebar_jp_searchbox_id = str_replace( Helper::FILTER_WIDGET_BASE . '-', '', $widget_id );
 				}
 			}
 		}
-		return array( $sidebar_searchbox_idx, $sidebar_jp_searchbox_idx );
+		return array( $sidebar_searchbox_idx, $sidebar_jp_searchbox_id );
 	}
 
 	/**
