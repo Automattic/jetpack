@@ -9,7 +9,7 @@ import PropTypes from 'prop-types';
  */
 import ProductCard from '../product-card';
 import { useProduct } from '../../hooks/use-product';
-import useMyJetpackNavigate from '../../hooks/use-my-
+import useMyJetpackNavigate from '../../hooks/use-my-jetpack-navigate';
 import { BackupIcon } from '../icons';
 
 const BackupCard = ( { admin } ) => {
