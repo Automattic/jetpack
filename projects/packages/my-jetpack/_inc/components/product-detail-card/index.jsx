@@ -11,12 +11,13 @@ import { __, sprintf } from '@wordpress/i18n';
 /**
  * Internal dependencies
  */
-import { useProduct } from '../../hooks/use-product';
-import { BackupIcon } from '../product-cards-section/backup-card';
 import styles from './style.module.scss';
 import { BoostIcon } from '../product-cards-section/boost-card';
 import getProductCheckoutUrl from '../../utils/get-product-checkout-url';
 import useMyJetpackConnection from '../../hooks/use-my-jetpack-connection';
+import { useProduct } from '../../hooks/use-product';
+import { BackupIcon } from '../product-cards-section/backup-card';
+import { AntiSpamIcon } from '../product-cards-section/anti-spam-card';
 
 /**
  * Simple react component to render the product icon,
@@ -27,11 +28,15 @@ import useMyJetpackConnection from '../../hooks/use-my-jetpack-connection';
  */
 function ProductIcon( { slug } ) {
 	switch ( slug ) {
+		case 'anti-spam':
+			return <AntiSpamIcon />;
+
 		case 'backup':
 			return <BackupIcon />;
 
 		case 'boost':
 			return <BoostIcon />;
+
 		default:
 			return null;
 	}
