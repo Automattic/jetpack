@@ -86,6 +86,24 @@ class Test_Instant_Search_Auto_Config_JP_Search_Widget extends TestCase {
 	}
 
 	/**
+	 * Test `auto_config_theme_sidebar_search_widget` replace core search widget.
+	 *
+	 * @see https://github.com/Automattic/jetpack/issues/22588
+	 */
+	public function test_auto_config_theme_sidebar_search_block_replace_success() {
+		add_filter( 'option_sidebars_widgets', array( $this, 'sidebars_widgets_theme_has_search_block' ) );
+		add_filter( 'option_' . Helper::get_widget_option_name(), '__return_false' );
+		add_filter( 'option_widget_block', array( $this, 'widget_block_widgets' ) );
+		$this->assertTrue( self::$instant_search->auto_config_theme_sidebar_search_widget() );
+		remove_filter( 'option_sidebars_widgets', array( $this, 'sidebars_widgets_theme_has_search_block' ) );
+		remove_filter( 'option_' . Helper::get_widget_option_name(), '__return_false' );
+		remove_filter( 'option_widget_block', array( $this, 'widget_block_widgets' ) );
+
+		$sidebars_widgets = get_option( 'sidebars_widgets' );
+		$this->assertEquals( 'jetpack-search-filters-1', $sidebars_widgets['sidebar-1'][0] );
+	}
+
+	/**
 	 * Test `auto_config_theme_sidebar_search_widget` success - no search widget
 	 */
 	public function test_auto_config_theme_sidebar_search_widget_add_success() {
@@ -195,6 +213,20 @@ class Test_Instant_Search_Auto_Config_JP_Search_Widget extends TestCase {
 	 */
 	public function sidebars_widgets_theme_has_core_search() {
 			return array( 'sidebar-1' => array( 'search-12' ) );
+	}
+
+	/**
+	 * Value for sidebars_widgets - theme_has_core_search
+	 */
+	public function sidebars_widgets_theme_has_search_block() {
+		return array( 'sidebar-1' => array( 'block-12' ) );
+	}
+
+	/**
+	 * Value for sidebars_widgets - theme_has_core_search
+	 */
+	public function widget_block_widgets() {
+		return array( '12' => '<!-- wp:search /-->' );
 	}
 
 	/**

@@ -30,6 +30,7 @@ function dbless_default_options() {
 		'sidebars_widgets'                       => array(),
 		Helper::get_widget_option_name()         => array(),
 		Options::OPTION_PREFIX . 'result_format' => false,
+		'widget_block'                           => array(),
 	);
 }
 
