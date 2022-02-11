@@ -27,9 +27,9 @@ Constants::$set_constants['JETPACK__API_BASE'] = 'https://jetpack.wordpress.com/
  */
 function dbless_default_options() {
 	return array(
-		'sidebars_widgets'                       => false,
-		Helper::get_widget_option_name()         => false,
-		Options::OPTION_PREFIX . 'result_format' => false,
+		'sidebars_widgets'                       => null,
+		Helper::get_widget_option_name()         => null,
+		Options::OPTION_PREFIX . 'result_format' => null,
 	);
 }
 
