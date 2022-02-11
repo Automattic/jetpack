@@ -1074,7 +1074,7 @@ class Jetpack_Gutenberg {
 		$current_blog_id = get_current_blog_id();
 
 		// keep track of specific features data per blog between calls.
-		static $site_specific_features = [];
+		static $site_specific_features = array();
 
 		// Check feature availability for Simple and Atomic sites.
 		if ( $is_simple_site || $is_atomic_site ) {
@@ -1086,7 +1086,7 @@ class Jetpack_Gutenberg {
 				}
 
 				// memoize site specific features data to avoid excessive queries.
-				if ( empty( $site_specific_features_data[ $current_blog_id ] ) ) {
+				if ( empty( $site_specific_features[ $current_blog_id ] ) ) {
 					$site_specific_features[ $current_blog_id ] = Store_Product_List::get_site_specific_features_data( $current_blog_id );
 				}
 				$features_data = $site_specific_features[ $current_blog_id ];
