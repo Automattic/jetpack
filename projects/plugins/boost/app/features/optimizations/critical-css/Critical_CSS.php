@@ -3,7 +3,7 @@
 namespace Automattic\Jetpack_Boost\Features\Optimizations\Critical_CSS;
 
 use Automattic\Jetpack_Boost\Contracts\Feature;
-use Automattic\Jetpack_Boost\Lib\Critical_CSS\Critical_CSS_State;
+use Automattic\Jetpack_Boost\Lib\Critical_CSS\Critical_CSS_Invalidator;
 use Automattic\Jetpack_Boost\Lib\Critical_CSS\Critical_CSS_Storage;
 use Automattic\Jetpack_Boost\Lib\Critical_CSS\Display_Critical_CSS;
 use Automattic\Jetpack_Boost\Lib\Critical_CSS\Recommendations;
@@ -62,9 +62,9 @@ class Critical_CSS implements Feature, Has_Endpoints {
 			$this->force_logged_out_render();
 		}
 
-		add_action( 'handle_theme_change', array( $this, 'clear_critical_css' ) );
-		add_action( 'jetpack_boost_clear_cache', array( $this, 'clear_critical_css' ) );
+		Critical_CSS_Invalidator::init();
 		add_filter( 'jetpack_boost_js_constants', array( $this, 'add_critical_css_constants' ) );
+		add_filter( 'jetpack_boost_admin_notices', array( $this, 'add_admin_notices' ) );
 
 		REST_API::register( $this->get_endpoints() );
 		return true;
@@ -111,16 +111,6 @@ class Critical_CSS implements Feature, Has_Endpoints {
 	}
 
 	/**
-	 * Clear Critical CSS.
-	 */
-	public function clear_critical_css() {
-		// Mass invalidate all cached values.
-		// ^^ Not true anymore. Mass invalidate __some__ cached values.
-		$this->storage->clear();
-		Critical_CSS_State::reset();
-	}
-
-	/**
 	 * Force the current page to render as viewed by a logged out user. Useful when generating
 	 * Critical CSS.
 	 */
@@ -146,13 +136,16 @@ class Critical_CSS implements Feature, Has_Endpoints {
 	 * @return null|\Automattic\Jetpack_Boost\Admin\Admin_Notice[]
 	 */
 	public function get_admin_notices() {
+	public function add_admin_notices( $notices ) {
 		$reason = \get_option( self::RESET_REASON_STORAGE_KEY );
 
 		if ( ! $reason ) {
 			return array();
+			$notices[] = new Regenerate_Admin_Notice( $reason );
 		}
 
 		return array( new Regenerate_Admin_Notice( $reason ) );
+		return $notices;
 	}
 
 	/**

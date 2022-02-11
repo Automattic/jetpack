@@ -24,13 +24,13 @@ class Optimizations implements Has_Setup {
 	 */
 	public function __construct() {
 
-		$critical_css = new Critical_CSS();
+		$critical_css_class = Critical_CSS::class;
 		if ( defined( 'JETPACK_BOOST_CLOUD_CSS' ) && true === JETPACK_BOOST_CLOUD_CSS ) {
-			$critical_css = new Cloud_CSS();
+			$critical_css_class = Cloud_CSS::class;
 		}
 
 		$features = array(
-			$critical_css,
+			new $critical_css_class(),
 			new Lazy_Images(),
 			new Render_Blocking_JS(),
 		);
