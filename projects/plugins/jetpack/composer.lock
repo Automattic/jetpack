@@ -1286,11 +1286,12 @@
             "dist": {
                 "type": "path",
                 "url": "../../packages/partner",
-                "reference": "19cd951f42f263f59318c3e5083bceafff6027e1"
+                "reference": "479fb85076a90f52dde0f76843679a8334d18b89"
             },
             "require": {
                 "automattic/jetpack-connection": "^1.36",
-                "automattic/jetpack-options": "^1.14"
+                "automattic/jetpack-options": "^1.14",
+                "automattic/jetpack-status": "^1.10"
             },
             "require-dev": {
                 "automattic/jetpack-changelogger": "^3.0",
