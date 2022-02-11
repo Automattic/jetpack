@@ -4,7 +4,7 @@
 	--product-card-border-color: #d5d5d5;
 	--product-card-shadow: rgb(0 0 0 / 3%);
 	--product-card-border-radius: 4px;
-	
+
 	background-color: var(--product-card-bg-color);
 	border: 1px solid var(--product-card-border-color);
 	border-radius: var(--product-card-border-radius);
@@ -19,25 +19,4 @@
 		object-fit: cover;
 		width: 100%;
 	}
-}
-
-// Wrapper
-
-@media (max-width: 768px) {
-	.wrapper {
-		margin-right: 12px;
-	}
-}
-
-@mixin container($width, $margin-right) {
-	@media ( min-width: #{$width} ) {
-		margin-right: $margin-right
-	}
-}
-
-.wrapper {
-	--margin-right-compensation-sm: 10px;
-	--margin-right-compensation-md: 20px;
-	@include container( 0px, var(--margin-right-compensation-sm) );
-	@include container( 782px, var(--margin-right-compensation-md) );
 }

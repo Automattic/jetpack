@@ -100,6 +100,7 @@ jobs:
               - '.phpcs.config.xml'
               - '.phpcs.xml.dist'
               - '.phpcsignore'
+              - '**/.phpcs.dir.xml'
               - '**/.phpcsignore'
               # If the excludelist changed, run to ensure newly non-excluded files pass.
               - 'tools/phpcs-excludelist.json'
@@ -109,20 +110,15 @@ jobs:
               - '.github/matchers/phpcs-problem-matcher.json'
               - '.github/matchers/php-lint-problem-matcher.json'
             misc_js:
-              # If package or eslint config changed, there may be new checks
+              # If package or eslint config changed, there may be new checks.
               - 'package.json'
               - 'tools/js-tools/package.json'
               - 'pnpm-lock.yaml'
               - '.eslintignore'
-              - '.eslintrc'
-              - '**/.eslintrc'
-              # Also changes to the E2E workspace package.json and pnpm lock have caused linting problems.
-              - 'projects/plugins/boost/tests/e2e/package.json'
-              - 'projects/plugins/boost/tests/e2e/pnpm-lock.yaml'
-              - 'projects/plugins/jetpack/tests/e2e/package.json'
-              - 'projects/plugins/jetpack/tests/e2e/pnpm-lock.yaml'
-              - 'tools/e2e-commons/package.json'
-              - 'tools/e2e-commons/pnpm-lock.yaml'
+              - '.eslintignore.root'
+              - '.eslintrc.*'
+              - '**/.eslintignore'
+              - '**/.eslintrc.*'
               # If the excludelist changed, run to ensure newly non-excluded files pass.
               - 'tools/eslint-excludelist.json'
             misc_excludelist:
@@ -309,12 +305,6 @@ jobs:
 
       - name: Monorepo pnpm install
         run: pnpm install
-      - name: Jetpack E2E tests pnpm install
-        working-directory: projects/plugins/jetpack/tests/e2e
-        run: pnpm install
-      - name: Jetpack Boost E2E tests pnpm install
-        working-directory: projects/plugins/boost/tests/e2e
-        run: pnpm install
       - run: pnpx jetpack install --all -v # Ensure there are no unresolved import errors.
       - run: pnpm run lint-required
 
@@ -343,12 +333,6 @@ jobs:
         uses: ./.github/actions/tool-setup
 
       - name: Monorepo pnpm install
-        run: pnpm install
-      - name: Jetpack E2E tests pnpm install
-        working-directory: projects/plugins/jetpack/tests/e2e
-        run: pnpm install
-      - name: Jetpack E2E tests pnpm install
-        working-directory: projects/plugins/boost/tests/e2e
         run: pnpm install
       - run: pnpx jetpack install --all -v # Ensure there are no unresolved import errors.
       - name: Run eslint-changed
@@ -404,9 +388,6 @@ jobs:
 
       - run: composer install
       - name: Monorepo pnpm install
-        run: pnpm install
-      - name: Jetpack E2E tests pnpm install
-        working-directory: projects/plugins/jetpack/tests/e2e
         run: pnpm install
       - run: pnpx jetpack install --all -v # Ensure there are no unresolved import errors.
 

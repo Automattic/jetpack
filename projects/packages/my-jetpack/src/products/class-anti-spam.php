@@ -57,7 +57,7 @@ class Anti_Spam extends Product {
 	 * @return string
 	 */
 	public static function get_title() {
-		return ''; // @todo title
+		return __( 'Jetpack Anti-Spam', 'jetpack-my-jetpack' );
 	}
 
 	/**
@@ -75,7 +75,7 @@ class Anti_Spam extends Product {
 	 * @return string
 	 */
 	public static function get_long_description() {
-		return ''; // @todo Add long description
+		return __( 'Save time and get better responses by automatically blocking spam from your comments and forms.', 'jetpack-my-jetpack' );
 	}
 
 	/**
@@ -84,7 +84,12 @@ class Anti_Spam extends Product {
 	 * @return array Boost features list
 	 */
 	public static function get_features() {
-		return array();
+		return array(
+			_x( 'Comment and form spam protection', 'Anti-Spam Product Feature', 'jetpack-my-jetpack' ),
+			_x( 'Powered by Akismet', 'Anti-Spam Product Feature', 'jetpack-my-jetpack' ),
+			_x( 'Block spam without CAPTCHAs', 'Anti-Spam Product Feature', 'jetpack-my-jetpack' ),
+			_x( 'Advanced stats', 'Anti-Spam Product Feature', 'jetpack-my-jetpack' ),
+		);
 	}
 
 	/**
@@ -96,8 +101,8 @@ class Anti_Spam extends Product {
 		return array(
 			'available'            => true,
 			'currency_code'        => 'EUR',
-			'full_price'           => '9',
-			'promotion_percentage' => '50',
+			'full_price'           => 9.92,
+			'promotion_percentage' => 50,
 		);
 	}
 }

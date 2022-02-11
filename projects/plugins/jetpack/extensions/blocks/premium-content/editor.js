@@ -4,6 +4,11 @@
 import { isAtomicSite, isSimpleSite } from '@automattic/jetpack-shared-extension-utils';
 
 /**
+ * WordPress dependencies
+ */
+import { registerPlugin } from '@wordpress/plugins';
+
+/**
  * Internal dependencies
  */
 import registerJetpackBlock from '../../shared/register-jetpack-block';
@@ -21,6 +26,7 @@ import {
 	name as loginButtonBlockName,
 	settings as loginButtonBlockSettings,
 } from './login-button/.';
+import RemoveBlockKeepContent from './_inc/remove-block-keep-content';
 
 const prefix = false;
 if ( isSimpleSite() || isAtomicSite() ) {
@@ -36,3 +42,7 @@ if ( isSimpleSite() || isAtomicSite() ) {
 		prefix
 	);
 }
+
+registerPlugin( 'block-settings-remove-block-keep-content', {
+	render: RemoveBlockKeepContent,
+} );
