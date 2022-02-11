@@ -7,6 +7,11 @@
 
 namespace Automattic\Jetpack\Waf;
 
+// We don't want to be anything in here outside WP context.
+if ( ! function_exists( 'add_action' ) ) {
+	return;
+}
+
 /**
  * Runs the WAF in the WP context.
  *
