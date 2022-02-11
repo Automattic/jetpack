@@ -17,6 +17,7 @@ class VideoPress_AJAX {
 	private function __construct() {
 		add_action( 'wp_ajax_videopress-get-upload-token', array( $this, 'wp_ajax_videopress_get_upload_token' ) );
 		add_action( 'wp_ajax_videopress-get-upload-jwt', array( $this, 'wp_ajax_videopress_get_upload_jwt' ) );
+		add_action( 'wp_ajax_videopress-get-playback-jwt', array( $this, 'wp_ajax_videopress_get_playback_jwt' ) );
 
 		add_action(
 			'wp_ajax_videopress-update-transcoding-status',
@@ -39,6 +40,52 @@ class VideoPress_AJAX {
 		}
 
 		return self::$instance;
+	}
+
+	/**
+	 * Ajax method that is used by the VideoPress player to get a token to play a video.
+	 *
+	 * @return void
+	 */
+	public function wp_ajax_videopress_get_playback_jwt() {
+
+		$options = VideoPress_Options::get_options();
+		$src = filter_input( INPUT_POST, 'src', FILTER_VALIDATE_URL );
+		if ( empty( $src ) ) {
+			wp_send_json_error( array( 'message' => __( 'need a source', 'jetpack' ) ) );
+			return;
+		}
+		$parsed = parse_url( $src );
+		if ( ! preg_match( '#/([[:alnum:]]+)$#', $parsed['path'], $matches ) ) {
+				wp_send_json_error( array( 'message' => __( 'need a source', 'jetpack' ) ) );
+				return;
+		}
+
+		$guid = $matches[1];
+		error_log( $guid );
+
+		$args = array(
+			'method' => 'POST',
+			// 'sslverify' => false,
+		);
+
+		$endpoint = "sites/{$options['shadow_blog_id']}/media/videopress-playback-jwt/{$guid}";
+		$result   = Client::wpcom_json_api_request_as_blog( $endpoint, 'v2', $args, null, 'wpcom' );
+		if ( is_wp_error( $result ) ) {
+			wp_send_json_error( array( 'message' => __( 'Could not obtain a VideoPress upload JWT. Please try again later.', 'jetpack' ) ) );
+			return;
+		}
+
+		$response = json_decode( $result['body'], true );
+
+		if ( empty( $response['metadata_token'] ) ) {
+			wp_send_json_error( array( 'message' => __( 'Could not obtain a VideoPress playback JWT. Please try again later. (empty upload token)', 'jetpack' ) ) );
+			return;
+		}
+
+		$response['src'] = $src . '&metadata_token=' . $response['metadata_token'];
+
+		wp_send_json_success( $response );
 	}
 
 	/**
