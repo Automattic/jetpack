@@ -111,6 +111,7 @@ const ProductCard = props => {
 		onManage,
 		isFetching,
 		slug,
+		showDeactivate,
 	} = props;
 	const isActive = status === PRODUCT_STATUSES.ACTIVE;
 	const isError = status === PRODUCT_STATUSES.ERROR;
@@ -118,7 +119,7 @@ const ProductCard = props => {
 	const isAbsent = status === PRODUCT_STATUSES.ABSENT || status === PRODUCT_STATUSES.NEEDS_PURCHASE;
 	const isPurchaseRequired = status === PRODUCT_STATUSES.NEEDS_PURCHASE;
 	const flagLabel = PRODUCT_STATUSES_LABELS[ status ];
-	const canDeactivate = ( isActive || isError ) && admin;
+	const canDeactivate = ( isActive || isError ) && admin && showDeactivate;
 
 	const containerClassName = classNames( styles.container, {
 		[ styles.plugin_absent ]: isAbsent,
@@ -232,6 +233,7 @@ ProductCard.propTypes = {
 	onAdd: PropTypes.func,
 	onLearn: PropTypes.func,
 	slug: PropTypes.string.isRequired,
+	showDeactivate: PropTypes.bool,
 	status: PropTypes.oneOf( [
 		PRODUCT_STATUSES.ACTIVE,
 		PRODUCT_STATUSES.INACTIVE,
@@ -250,6 +252,7 @@ ProductCard.defaultProps = {
 	onActivate: () => {},
 	onAdd: () => {},
 	onLearn: () => {},
+	showDeactivate: true,
 };
 
 export default ProductCard;
