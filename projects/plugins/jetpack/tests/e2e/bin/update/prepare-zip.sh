@@ -13,7 +13,7 @@ ZIP_FILE="$BASE_PATH/../../jetpack.zip"
 
 if [[ "$OSTYPE" == "linux-gnu"* ]]; then
 	# assuming Debian
-	apt-get update && apt-get install -qy zip
+	which zip || apt-get update && apt-get install -qy zip
 fi
 
 printf "\nPreparing zip file\n"
