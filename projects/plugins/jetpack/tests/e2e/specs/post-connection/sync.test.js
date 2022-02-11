@@ -43,14 +43,38 @@ test.describe( 'Sync', () => {
 		} );
 	} );
 
-	test( 'Normal Sync flow', async ( { page } ) => {
-		await test.step( 'Publish a post', async () => {
+	test( 'Sync', async ( { page } ) => {
+		await test.step( 'Publish post with title: Testing Sync', async () => {
 			await blockEditor.setTitle( 'Testing Sync' );
 			await blockEditor.selectPostTitle();
 			await blockEditor.publishPost();
 		} );
 
-		await test.step( 'Assert post is synced', async () => {
+		await test.step( 'Enable Dedicated Sync', async () => {
+			const dedicatedSyncEnabled = await enableDedicatedSync();
+			expect( dedicatedSyncEnabled ).toMatch( 'Success' );
+		} );
+
+		await test.step( 'Publish post with title: Dedicated Sync', async () => {
+			blockEditor = await BlockEditorPage.visit( page );
+			await blockEditor.setTitle( 'Dedicated Sync' );
+			await blockEditor.selectPostTitle();
+			await blockEditor.publishPost();
+		} );
+
+		await test.step( 'Disable Sync', async () => {
+			const syncDisabled = await disableSync();
+			expect( syncDisabled ).toMatch( 'Sync Disabled' );
+		} );
+
+		await test.step( 'Publish post with title: Disabled Sync', async () => {
+			blockEditor = await BlockEditorPage.visit( page );
+			await blockEditor.setTitle( 'Disabled Sync' );
+			await blockEditor.selectPostTitle();
+			await blockEditor.publishPost();
+		} );
+
+		await test.step( 'Assert posts are synced', async () => {
 			wpcomPostsResponse = await page.request.get( wpcomForcedPostsUrl );
 			expect( wpcomPostsResponse.ok() ).toBeTruthy();
 
@@ -60,26 +84,11 @@ test.describe( 'Sync', () => {
 					title: 'Testing Sync',
 				} )
 			);
-		} );
-	} );
-
-	test( 'Disabled Sync Flow', async ( { page } ) => {
-		await test.step( 'Disabled Sync', async () => {
-			const syncDisabled = await disableSync();
-			expect( syncDisabled ).toMatch( 'Sync Disabled' );
-		} );
-
-		await test.step( 'Publish a post', async () => {
-			await blockEditor.setTitle( 'Disabled Sync' );
-			await blockEditor.selectPostTitle();
-			await blockEditor.publishPost();
-		} );
-
-		await test.step( 'Assert post is not synced', async () => {
-			wpcomPostsResponse = await page.request.get( wpcomForcedPostsUrl );
-			expect( wpcomPostsResponse.ok() ).toBeTruthy();
-
-			wpcomPosts = await wpcomPostsResponse.json();
+			expect( wpcomPosts.posts ).toContainEqual(
+				expect.objectContaining( {
+					title: 'Dedicated Sync',
+				} )
+			);
 			expect( wpcomPosts.posts ).toContainEqual(
 				expect.not.objectContaining( {
 					title: 'Disabled Sync',
@@ -88,28 +97,53 @@ test.describe( 'Sync', () => {
 		} );
 	} );
 
-	test( 'Dedicated Sync Flow', async ( { page } ) => {
-		await test.step( 'Enable Dedicated Sync', async () => {
-			const dedicatedSyncEnabled = await enableDedicatedSync();
-			expect( dedicatedSyncEnabled ).toMatch( 'Success' );
-		} );
+	// test( 'Disabled Sync Flow', async ( { page } ) => {
+	// 	await test.step( 'Disabled Sync', async () => {
+	// 		const syncDisabled = await disableSync();
+	// 		expect( syncDisabled ).toMatch( 'Sync Disabled' );
+	// 	} );
 
-		await test.step( 'Publish a post', async () => {
-			await blockEditor.setTitle( 'Dedicated Sync' );
-			await blockEditor.selectPostTitle();
-			await blockEditor.publishPost();
-		} );
+	// 	await test.step( 'Publish a post', async () => {
+	// 		await blockEditor.setTitle( 'Disabled Sync' );
+	// 		await blockEditor.selectPostTitle();
+	// 		await blockEditor.publishPost();
+	// 	} );
 
-		await test.step( 'Assert post is synced', async () => {
-			wpcomPostsResponse = await page.request.get( wpcomForcedPostsUrl );
-			expect( wpcomPostsResponse.ok() ).toBeTruthy();
+	// 	await test.step( 'Assert post is not synced', async () => {
+	// 		wpcomPostsResponse = await page.request.get( wpcomForcedPostsUrl );
+	// 		expect( wpcomPostsResponse.ok() ).toBeTruthy();
 
-			wpcomPosts = await wpcomPostsResponse.json();
-			expect( wpcomPosts.posts ).toContainEqual(
-				expect.objectContaining( {
-					title: 'Dedicated Sync',
-				} )
-			);
-		} );
-	} );
+	// 		wpcomPosts = await wpcomPostsResponse.json();
+	// 		expect( wpcomPosts.posts ).toContainEqual(
+	// 			expect.not.objectContaining( {
+	// 				title: 'Disabled Sync',
+	// 			} )
+	// 		);
+	// 	} );
+	// } );
+
+	// test( 'Dedicated Sync Flow', async ( { page } ) => {
+	// 	await test.step( 'Enable Dedicated Sync', async () => {
+	// 		const dedicatedSyncEnabled = await enableDedicatedSync();
+	// 		expect( dedicatedSyncEnabled ).toMatch( 'Success' );
+	// 	} );
+
+	// 	await test.step( 'Publish a post', async () => {
+	// 		await blockEditor.setTitle( 'Dedicated Sync' );
+	// 		await blockEditor.selectPostTitle();
+	// 		await blockEditor.publishPost();
+	// 	} );
+
+	// 	await test.step( 'Assert post is synced', async () => {
+	// 		wpcomPostsResponse = await page.request.get( wpcomForcedPostsUrl );
+	// 		expect( wpcomPostsResponse.ok() ).toBeTruthy();
+
+	// 		wpcomPosts = await wpcomPostsResponse.json();
+	// 		expect( wpcomPosts.posts ).toContainEqual(
+	// 			expect.objectContaining( {
+	// 				title: 'Dedicated Sync',
+	// 			} )
+	// 		);
+	// 	} );
+	// } );
 } );
