@@ -99,6 +99,7 @@ class Publicize_UI {
 		<h4><?php
 			printf(
 				wp_kses(
+					/* translators: %s is the link to the Publicize page in Calypso */
 					__( "We've made some updates to Publicize. Please visit the <a href='%s' class='jptracks' data-jptracks-name='legacy_publicize_settings'>WordPress.com sharing page</a> to manage your publicize connections or use the button below.", 'jetpack' ),
 					array( 'a' => array( 'href' => array(), 'class' => array(), 'data-jptracks-name' => array() ) )
 				),

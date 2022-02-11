@@ -159,10 +159,6 @@ abstract class Publicize_Base {
 	 */
 	abstract function get_services( $filter = 'all', $_blog_id = false, $_user_id = false );
 
-	function can_connect_service( $service_name ) {
-		return true;
-	}
-
 	/**
 	 * Does the given user have a connection to the service on the given blog?
 	 *

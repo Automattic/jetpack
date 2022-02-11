@@ -122,11 +122,6 @@ export async function handler( argv ) {
 		argv.project = [ argv.project ];
 	}
 
-	// Mirroring needs changelogger.
-	if ( argv.forMirrors ) {
-		argv.project.push( 'changelogger' );
-	}
-
 	// Check for unknown projects.
 	argv.project = [ ...new Set( argv.project ) ];
 	const missing = new Set( argv.project.filter( p => ! dependencies.has( p ) ) );

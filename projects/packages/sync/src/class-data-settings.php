@@ -94,7 +94,7 @@ class Data_Settings {
 			 * Fires when the required settings have been adding to the static
 			 * data_settings array.
 			 *
-			 * @since $$next-version$$
+			 * @since 1.29.2
 			 *
 			 * @module sync
 			 */

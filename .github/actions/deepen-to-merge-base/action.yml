@@ -53,9 +53,10 @@ runs:
       id: end
       shell: bash
       env:
+        HEAD: ${{ inputs.head }}
         BRANCH: ${{ inputs.branch }}
       run: |
-        MERGE_BASE=$( /usr/bin/git merge-base HEAD "$BRANCH" )
+        MERGE_BASE=$( /usr/bin/git merge-base "$HEAD" "$BRANCH" )
         echo "Merge base is $MERGE_BASE"
         echo "::set-output name=merge-base::$MERGE_BASE"
 
