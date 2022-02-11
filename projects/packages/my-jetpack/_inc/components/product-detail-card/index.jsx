@@ -15,7 +15,7 @@ import styles from './style.module.scss';
 import getProductCheckoutUrl from '../../utils/get-product-checkout-url';
 import useMyJetpackConnection from '../../hooks/use-my-jetpack-connection';
 import { useProduct } from '../../hooks/use-product';
-import { BackupIcon, ScanIcon } from '../icons';
+import { BackupIcon, ScanIcon, StarIcon } from '../icons';
 
 /**
  * Simple react component to render the product icon,
@@ -144,6 +144,7 @@ export default function ProductDetailCard( { slug } ) {
 		<div className={ styles.card }>
 			{ isBundle && (
 				<div className={ styles[ 'card-header' ] }>
+					<StarIcon className={ styles[ 'product-bundle-icon' ] } size={ 16 } />
 					{ __( 'Popular upgrade', 'jetpack-my-jetpack' ) }
 				</div>
 			) }

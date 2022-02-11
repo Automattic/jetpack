@@ -29,6 +29,11 @@
 		padding: 0 10px;
 		height: var(--product-card-header-height);
 		line-height: var(--product-card-header-height);
+
+		.product-bundle-icon {
+			fill: var(--product-card-header-color);
+			margin-right: 5px;
+		}
 	}	
 }
 
