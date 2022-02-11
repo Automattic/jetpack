@@ -1286,7 +1286,7 @@
             "dist": {
                 "type": "path",
                 "url": "../../packages/partner",
-                "reference": "0db70b3a64af8d1962fc6ad1dda1528dc3d28a1c"
+                "reference": "19cd951f42f263f59318c3e5083bceafff6027e1"
             },
             "require": {
                 "automattic/jetpack-connection": "^1.36",
@@ -1296,7 +1296,7 @@
                 "automattic/jetpack-changelogger": "^3.0",
                 "automattic/wordbless": "@dev",
                 "brain/monkey": "2.6.1",
-                "yoast/phpunit-polyfills": "1.0.2"
+                "yoast/phpunit-polyfills": "1.0.3"
             },
             "type": "jetpack-library",
             "extra": {
