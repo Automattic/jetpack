@@ -8,7 +8,7 @@ namespace Automattic\Jetpack\Search;
 use PHPUnit\Framework\TestCase;
 
 /**
- * Unit tests for the REST_Controller class.
+ * Unit tests for the Instant_Search class auto config widgets.
  *
  * @package automattic/jetpack-search
  */
@@ -54,7 +54,7 @@ class Test_Instant_Search_Auto_Config_JP_Search_Widget extends TestCase {
 	}
 
 	/**
-	 * Test `auto_config_theme_sidebar_search_widget` failed - no sidebar
+	 * Test `auto_config_theme_sidebar_search_widget` skip - no sidebar
 	 */
 	public function test_auto_config_theme_sidebar_search_widget_no_sidebar() {
 		add_filter( 'option_sidebars_widgets', '__return_false' );
@@ -63,7 +63,7 @@ class Test_Instant_Search_Auto_Config_JP_Search_Widget extends TestCase {
 	}
 
 	/**
-	 * Test `auto_config_theme_sidebar_search_widget` failed - already has JP search widget
+	 * Test `auto_config_theme_sidebar_search_widget` skip - already has JP search widget
 	 */
 	public function test_auto_config_theme_sidebar_search_widget_already_configured() {
 		add_filter( 'option_sidebars_widgets', array( $this, 'sidebars_widgets_theme_sidebar_configured' ) );
@@ -86,7 +86,7 @@ class Test_Instant_Search_Auto_Config_JP_Search_Widget extends TestCase {
 	}
 
 	/**
-	 * Test `auto_config_theme_sidebar_search_widget` - no search widget
+	 * Test `auto_config_theme_sidebar_search_widget` success - no search widget
 	 */
 	public function test_auto_config_theme_sidebar_search_widget_add_success() {
 		add_filter( 'option_sidebars_widgets', array( $this, 'sidebars_widgets_theme_empty_sidebar' ) );
@@ -100,7 +100,7 @@ class Test_Instant_Search_Auto_Config_JP_Search_Widget extends TestCase {
 	}
 
 	/**
-	 * Test `auto_config_result_format` - already configured
+	 * Test `auto_config_result_format` skip - already configured
 	 */
 	public function test_auto_config_result_format_already_configured() {
 		$result_format_option_name = Options::OPTION_PREFIX . 'result_format';
@@ -114,7 +114,7 @@ class Test_Instant_Search_Auto_Config_JP_Search_Widget extends TestCase {
 	}
 
 	/**
-	 * Test `auto_config_result_format` - not set
+	 * Test `auto_config_result_format` default format - not set
 	 */
 	public function test_auto_config_result_format_not_set() {
 		$result_format_option_name = Options::OPTION_PREFIX . 'result_format';
@@ -127,7 +127,7 @@ class Test_Instant_Search_Auto_Config_JP_Search_Widget extends TestCase {
 	}
 
 	/**
-	 * Test `auto_config_result_format` - WooCommerce
+	 * Test `auto_config_result_format` product format - WooCommerce
 	 */
 	public function test_auto_config_result_format_woocommerce() {
 		$result_format_option_name = Options::OPTION_PREFIX . 'result_format';
