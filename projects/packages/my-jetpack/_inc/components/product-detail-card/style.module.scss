@@ -53,6 +53,7 @@
 	--jp-text-color: ###;
 
 	// Text
+	--font-title-large: 32px;
 	--product-card-description-line-height: 1.5;
 	--product-card-description-font-size: 16px;
 	--product-card-price-font-size: 4rem;
@@ -80,14 +81,14 @@
 	h3 {
 		font-size: var(--font-title-large);
 		font-weight: 700;
-		margin-top: 48px;
-		line-height: 1.1;
+		height: 46px;
+		line-height: 46px;
 		color: var( --jp-black );
-		margin: 10px 0;
+		margin: 18px 0;
 	}
 
 	.checkout-button {
-		margin-top: 20px;
+		margin: 40px 0 20px;
 		white-space: pre-line;
 		height: auto;
 		line-height: 26px;
