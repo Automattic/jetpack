@@ -12,6 +12,7 @@ import styles from './style.module.scss';
 import useAnalytics from '../../hooks/use-analytics';
 import boostImage from './boost.png';
 import searchImage from './search.png';
+import { useProduct } from '../../hooks/use-product';
 
 /**
  * Product Interstitial component.
@@ -22,6 +23,9 @@ import searchImage from './search.png';
  * @returns {object}                ProductInterstitial react component.
  */
 export default function ProductInterstitial( { slug, children = null } ) {
+	const { detail } = useProduct( slug );
+	const { isUpgradableByBundle } = detail;
+
 	const {
 		tracks: { recordEvent },
 	} = useAnalytics();
@@ -34,10 +38,17 @@ export default function ProductInterstitial( { slug, children = null } ) {
 		recordEvent( 'jetpack_myjetpack_product_interstitial_add_link_click', { product: slug } );
 	}, [ recordEvent, slug ] );
 
+	const Product = isUpgradableByBundle ? ProductDetailCard : ProductDetail;
+
 	return (
-		<Container className={ styles.container } horizontalSpacing={ 0 } horizontalGap={ 0 } fluid>
+		<Container
+			className={ ! isUpgradableByBundle ? styles.container : null }
+			horizontalSpacing={ 0 }
+			horizontalGap={ 0 }
+			fluid
+		>
 			<Col sm={ 4 } md={ 4 } lg={ 5 }>
-				<ProductDetail slug={ slug } trackButtonClick={ trackProductClick } />
+				<Product slug={ slug } trackButtonClick={ trackProductClick } />
 			</Col>
 			<Col sm={ 4 } md={ 4 } lg={ 7 } className={ styles.imageContainer }>
 				{ children }
