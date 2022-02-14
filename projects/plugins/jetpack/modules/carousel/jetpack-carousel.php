@@ -330,7 +330,6 @@ class Jetpack_Carousel {
 				'nonce'                           => wp_create_nonce( 'carousel_nonce' ),
 				'display_exif'                    => $this->test_1or0_option( Jetpack_Options::get_option_and_ensure_autoload( 'carousel_display_exif', true ) ),
 				'display_comments'                => $this->test_1or0_option( Jetpack_Options::get_option_and_ensure_autoload( 'carousel_display_comments', true ) ),
-				'display_geo'                     => $this->test_1or0_option( Jetpack_Options::get_option_and_ensure_autoload( 'carousel_display_geo', true ) ),
 				'single_image_gallery'            => $this->single_image_gallery_enabled,
 				'single_image_gallery_media_file' => $this->single_image_gallery_enabled_media_file,
 				'background_color'                => $this->carousel_background_color_sanitize( Jetpack_Options::get_option_and_ensure_autoload( 'carousel_background_color', '' ) ),
@@ -787,15 +786,6 @@ class Jetpack_Carousel {
 		$attachment_desc    = ! empty( $attachment ) ? wpautop( wptexturize( $attachment->post_content ) ) : '';
 		$attachment_caption = ! empty( $attachment ) ? wpautop( wptexturize( $attachment->post_excerpt ) ) : '';
 
-		// Not yet providing geo-data, need to "fuzzify" for privacy.
-		if ( ! empty( $img_meta ) ) {
-			foreach ( $img_meta as $k => $v ) {
-				if ( 'latitude' === $k || 'longitude' === $k ) {
-					unset( $img_meta[ $k ] );
-				}
-			}
-		}
-
 		// See https://github.com/Automattic/jetpack/issues/2765.
 		if ( isset( $img_meta['keywords'] ) ) {
 			unset( $img_meta['keywords'] );
@@ -1176,11 +1166,6 @@ class Jetpack_Carousel {
 		add_settings_field( 'carousel_display_comments', __( 'Comments', 'jetpack' ), array( $this, 'carousel_display_comments_callback' ), 'media', 'carousel_section' );
 		register_setting( 'media', 'carousel_display_comments', array( $this, 'carousel_display_comments_sanitize' ) );
 
-		/**
-		 * No geo setting yet, need to "fuzzify" data first, for privacy.
-		 * add_settings_field('carousel_display_geo', __( 'Geolocation', 'jetpack' ), array( $this, 'carousel_display_geo_callback' ), 'media', 'carousel_section' );
-		 * register_setting( 'media', 'carousel_display_geo', array( $this, 'carousel_display_geo_sanitize' ) );
-		 */
 	}
 
 	/**
@@ -1305,24 +1290,6 @@ class Jetpack_Carousel {
 	 * @return number Sanitized value, only 1 or 0.
 	 */
 	public function carousel_display_comments_sanitize( $value ) {
-		return $this->sanitize_1or0_option( $value );
-	}
-
-	/**
-	 * Callback to display text for the carousel_display_geo settings field.
-	 */
-	public function carousel_display_geo_callback() {
-		$this->settings_checkbox( 'carousel_display_geo', __( 'Show map of photo location in carousel, when available.', 'jetpack' ) );
-	}
-
-	/**
-	 * Calls the sanitize_1or0_option function to sanitize the passed value.
-	 *
-	 * @param number $value The carousel_display_geo data to sanitize.
-	 *
-	 * @return number Sanitized value, only 1 or 0.
-	 */
-	public function carousel_display_geo_sanitize( $value ) {
 		return $this->sanitize_1or0_option( $value );
 	}
 
