@@ -1,4 +1,4 @@
-<?php
+<?php // phpcs:ignore WordPress.Files.FileName.InvalidClassFileName
 /**
  * Module Name: Asset CDN
  * Module Description: Jetpack’s Site Accelerator loads your site faster by optimizing your images and serving your images and static files from our global network of servers.
@@ -10,6 +10,8 @@
  * Module Tags: Photos and Videos, Appearance, Recommended
  * Feature: Recommended, Appearance
  * Additional Search Queries: site accelerator, accelerate, static, assets, javascript, css, files, performance, cdn, bandwidth, content delivery network, pagespeed, combine js, optimize css
+ *
+ * @package automattic/jetpack
  */
 
 use Automattic\Jetpack\Assets;
@@ -18,6 +20,9 @@ $GLOBALS['concatenate_scripts'] = false;
 
 Assets::add_resource_hint( '//c0.wp.com', 'dns-prefetch' );
 
+/**
+ * Asset CDN module main class file.
+ */
 class Jetpack_Photon_Static_Assets_CDN {
 	const CDN = 'https://c0.wp.com/';
 
@@ -301,13 +306,13 @@ class Jetpack_Photon_Static_Assets_CDN {
 	 */
 	public static function is_public_version( $version, $include_beta_and_rc = false ) {
 		if ( preg_match( '/^\d+(\.\d+)+$/', $version ) ) {
-			// matches `1` `1.2` `1.2.3`.
+			/** Example matches: `1`, `1.2`, `1.2.3`. */
 			return true;
 		} elseif ( $include_beta_and_rc && preg_match( '/^\d+(\.\d+)+(-(beta|rc|pressable)\d?)$/i', $version ) ) {
-			// matches `1.2.3` `1.2.3-beta` `1.2.3-pressable` `1.2.3-beta1` `1.2.3-rc` `1.2.3-rc2`.
+			/** Example matches: `1.2.3`, `1.2.3-beta`, `1.2.3-pressable`, `1.2.3-beta1`, `1.2.3-rc`, `1.2.3-rc2`. */
 			return true;
 		}
-		// unrecognized version.
+		// Unrecognized version.
 		return false;
 	}
 }
