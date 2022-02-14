@@ -80,7 +80,9 @@ const ProductDetail = ( { slug, trackButtonClick } ) => {
 	const { isFree, fullPrice, currencyCode, discountedPrice } = pricingForUi;
 	const { isUserConnected } = useMyJetpackConnection();
 
-	const addProductUrl = getProductCheckoutUrl( `jetpack_${ slug }`, isUserConnected ); // @ToDo: Remove this when we have a new product structure.
+	const addProductUrl = isFree
+		? null
+		: getProductCheckoutUrl( `jetpack_${ slug }`, isUserConnected ); // @ToDo: Remove this when we have a new product structure.
 
 	// Suppported products icons.
 	const icons = isBundle
