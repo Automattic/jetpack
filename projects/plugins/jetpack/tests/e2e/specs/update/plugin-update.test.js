@@ -21,6 +21,8 @@ test( 'Update Jetpack plugin', async ( { page } ) => {
 
 	let pluginsPage;
 
+	await execShellCommand( `curl -I ${ resolveSiteUrl() }/wp-content/uploads/jetpack-next.zip` );
+
 	await test.step( 'Navigate to Plugins page', async () => {
 		pluginsPage = await PluginsPage.visit( page );
 	} );
