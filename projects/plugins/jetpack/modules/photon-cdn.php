@@ -66,7 +66,7 @@ class Jetpack_Photon_Static_Assets_CDN {
 		 *
 		 * @param array $values array( $version  = core assets version, i.e. 4.9.8, $locale = desired locale )
 		 */
-		list( $version, $locale ) = apply_filters(
+		list( $version, $locale ) = apply_filters( // phpcs:ignore VariableAnalysis.CodeAnalysis.VariableAnalysis.UnusedVariable
 			'jetpack_cdn_core_version_and_locale',
 			array( $wp_version, get_locale() )
 		);
@@ -140,7 +140,7 @@ class Jetpack_Photon_Static_Assets_CDN {
 	 *
 	 * @return string The transformed local languages path.
 	 */
-	public static function fix_local_script_translation_path( $file, $handle, $domain ) {
+	public static function fix_local_script_translation_path( $file, $handle, $domain ) { // phpcs:ignore VariableAnalysis.CodeAnalysis.VariableAnalysis.UnusedVariable
 		global $wp_scripts;
 
 		// This is a rewritten plugin URL, so load the language file from the plugins path.
