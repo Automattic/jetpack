@@ -83,6 +83,7 @@ SecurityBundle.parameters = {
 
 const VideoPressCardTemplate = args => <ProductDetailCard { ...args } slug="videopress" />;
 export const JetpackVideoPressCard = VideoPressCardTemplate.bind( {} );
+JetpackVideoPressCard.storyName = 'Jetpack VideoPress';
 JetpackVideoPressCard.parameters = {
 	mockData: getMockData( 'videopress' ),
 };
