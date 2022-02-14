@@ -105,4 +105,14 @@ class Anti_Spam extends Product {
 			'promotion_percentage' => 50,
 		);
 	}
+
+	/**
+	 * Return product bundles list
+	 * that supports the product.
+	 *
+	 * @return boolean|array Products bundle list.
+	 */
+	public static function is_upgradable_by_bundle() {
+		return array( 'security' );
+	}
 }
