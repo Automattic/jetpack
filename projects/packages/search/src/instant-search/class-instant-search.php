@@ -72,7 +72,7 @@ class Instant_Search extends Classic_Search {
 	 * Loads assets for Jetpack Instant Search Prototype featuring Search As You Type experience.
 	 */
 	public function load_assets() {
-			$this->load_assets_with_parameters( constant( 'JETPACK_SEARCH_PKG__DIR' ) );
+		$this->load_assets_with_parameters( constant( 'JETPACK_SEARCH_PKG__DIR' ) );
 	}
 
 	/**
@@ -250,8 +250,8 @@ class Instant_Search extends Classic_Search {
 		}
 
 		$took = is_array( $response ) && ! empty( $response['took'] )
-			? $response['took']
-			: null;
+		? $response['took']
+		: null;
 
 		$query = array(
 			'args'          => $args,
@@ -458,13 +458,10 @@ class Instant_Search extends Classic_Search {
 			$widget_blocks = get_option( 'widget_block', array() );
 			$widget_index  = str_replace( 'block-', '', $widget_id );
 			// A single block could be of type string or array.
-			if (
-				isset( $widget_blocks[ $widget_index ] ) &&
-				(
-					( isset( $widget_blocks[ $widget_index ]['content'] ) && false !== strpos( $widget_blocks[ $widget_index ]['content'], 'wp:search' ) ) ||
-					false !== strpos( $widget_blocks[ $widget_index ], 'wp:search' )
-				)
-			) {
+			if ( isset( $widget_blocks[ $widget_index ]['content'] ) && false !== strpos( (string) $widget_blocks[ $widget_index ]['content'], 'wp:search' ) ) {
+				return true;
+			}
+			if ( isset( $widget_blocks[ $widget_index ] ) && false !== strpos( (string) $widget_blocks[ $widget_index ], 'wp:search' ) ) {
 				return true;
 			}
 		}
