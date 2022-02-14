@@ -19,7 +19,6 @@ package.json                                             export-ignore
 /phpunit.xml.dist                                        production-exclude
 /tests/**                                                production-exclude
 /src/**/test/**                                          production-exclude
-/src/**/*.scss                                           production-exclude
 # JS scripts to integrate with customizer and wigets might need to be explicitly included.
 /src/customberg/*.{js,jsx,ts,scss}                       production-exclude
 /src/dashboard/*.{js,jsx,ts,scss}                        production-exclude
