@@ -39,8 +39,6 @@
 	"projects/plugins/jetpack/functions.gallery.php",
 	"projects/plugins/jetpack/functions.photon.php",
 	"projects/plugins/jetpack/json-endpoints.php",
-	"projects/plugins/jetpack/json-endpoints/class.wpcom-json-api-add-widget-endpoint.php",
-	"projects/plugins/jetpack/json-endpoints/class.wpcom-json-api-bulk-delete-post-endpoint.php",
 	"projects/plugins/jetpack/json-endpoints/class.wpcom-json-api-bulk-restore-post-endpoint.php",
 	"projects/plugins/jetpack/json-endpoints/class.wpcom-json-api-bulk-update-comments-endpoint.php",
 	"projects/plugins/jetpack/json-endpoints/class.wpcom-json-api-comment-endpoint.php",
