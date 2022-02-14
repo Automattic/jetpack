@@ -20,7 +20,7 @@ package.json                                             export-ignore
 /tests/**                                                production-exclude
 /src/**/test/**                                          production-exclude
 # JS scripts to integrate with customizer and wigets might need to be explicitly included.
-/src/customberg/*.{js,jsx,ts,scss}                       production-exclude
-/src/dashboard/*.{js,jsx,ts,scss}                        production-exclude
-/src/instant-search/*.{js,jsx,ts,scss}                   production-exclude
+/src/customberg/**/*.{js,jsx,ts,tsx,scss}                production-exclude
+/src/dashboard/**/*.{js,jsx,ts,tsx,scss}                 production-exclude
+/src/instant-search/**/*.{js,jsx,ts,tsx,scss}            production-exclude
 .phpcs.dir.xml                                           production-exclude
