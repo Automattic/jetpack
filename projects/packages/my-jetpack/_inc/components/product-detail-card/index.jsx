@@ -167,11 +167,6 @@ export { ProductDetail };
  * @returns {object}                ProductDetailCard react component.
  */
 export default function ProductDetailCard( { slug } ) {
-	// @todo: Temporary fix. Let's address security data in a follow-up PR.
-	if ( slug === 'security' ) {
-		return null;
-	}
-
 	return (
 		<div className={ styles.card }>
 			<ProductDetail slug={ slug } />
