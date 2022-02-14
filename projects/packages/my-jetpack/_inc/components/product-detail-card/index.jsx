@@ -72,14 +72,8 @@ function Price( { value, currency, isOld } ) {
  */
 const ProductDetail = ( { slug, trackButtonClick } ) => {
 	const { detail } = useProduct( slug );
-	const {
-		title,
-		longDescription,
-		features,
-		pricingForUi = {},
-		isBundle,
-		supportedProducts = [],
-	} = detail;
+	const { title, longDescription, features, pricingForUi, isBundle, supportedProducts } = detail;
+
 	const { isFree, fullPrice, currencyCode, discountedPrice } = pricingForUi;
 	const { isUserConnected } = useMyJetpackConnection();
 
@@ -173,6 +167,11 @@ export { ProductDetail };
  * @returns {object}                ProductDetailCard react component.
  */
 export default function ProductDetailCard( { slug } ) {
+	// @todo: Temporary fix. Let's address security data in a follow-up PR.
+	if ( slug === 'security' ) {
+		return null;
+	}
+
 	return (
 		<div className={ styles.card }>
 			<ProductDetail slug={ slug } />
