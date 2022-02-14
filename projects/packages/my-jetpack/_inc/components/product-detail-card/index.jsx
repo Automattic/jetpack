@@ -72,7 +72,14 @@ function Price( { value, currency, isOld } ) {
  */
 const ProductDetail = ( { slug, trackButtonClick } ) => {
 	const { detail } = useProduct( slug );
-	const { title, longDescription, features, pricingForUi, isBundle, supportedProducts } = detail;
+	const {
+		title,
+		longDescription,
+		features,
+		pricingForUi,
+		isBundle,
+		supportedProducts,
+	} = detail;
 
 	const { isFree, fullPrice, currencyCode, discountedPrice } = pricingForUi;
 	const { isUserConnected } = useMyJetpackConnection();
