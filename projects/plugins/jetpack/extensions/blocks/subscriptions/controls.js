@@ -1,6 +1,7 @@
 /**
  * External dependencies
  */
+import { createInterpolateElement } from '@wordpress/element';
 import { __, _n, sprintf } from '@wordpress/i18n';
 import { ToggleControl, PanelBody, RangeControl, TextareaControl } from '@wordpress/components';
 import {
@@ -59,18 +60,21 @@ export default function SubscriptionControls( {
 		<>
 			{ subscriberCount > 1 && (
 				<InspectorNotice>
-					{ sprintf(
-						/* translators: %s is the number of subscribers */
-						_n(
-							'You have %s subscriber.',
-							'You have %s subscribers.',
-							subscriberCount,
-							'jetpack'
+					{ createInterpolateElement(
+						sprintf(
+							/* translators: %s is the number of subscribers */
+							_n(
+								'<span>%s reader</span> are\xA0subscribed.',
+								'<span>%s readers</span> are\xA0subscribed.',
+								subscriberCount,
+								'jetpack'
+							),
+							subscriberCount
 						),
-						subscriberCount
+						{ span: <span style={ { textDecoration: 'underline' } } /> }
 					) }
 				</InspectorNotice>
-			) }		
+			) }
 			{ isGradientAvailable && (
 				<PanelColorGradientSettings
 					title={ __( 'Color', 'jetpack' ) }
