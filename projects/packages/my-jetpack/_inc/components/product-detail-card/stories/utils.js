@@ -7,6 +7,7 @@ import {
 	boostProductData,
 	scanProductData,
 	searchProductData,
+	securityProductData,
 } from './mock-data.js';
 
 const mapResponse = {
@@ -15,6 +16,7 @@ const mapResponse = {
 	boost: boostProductData,
 	scan: scanProductData,
 	search: searchProductData,
+	security: securityProductData,
 };
 
 /**

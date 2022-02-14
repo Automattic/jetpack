@@ -74,3 +74,9 @@ export const JetpackScanCard = ScanCardTemplate.bind( {} );
 JetpackScanCard.parameters = {
 	mockData: getMockData( 'scan' ),
 };
+
+const SecurityCardTemplate = args => <ProductDetailCard { ...args } slug="security" />;
+export const SecurityBundle = SecurityCardTemplate.bind( {} );
+SecurityBundle.parameters = {
+	mockData: getMockData( 'security' ),
+};
