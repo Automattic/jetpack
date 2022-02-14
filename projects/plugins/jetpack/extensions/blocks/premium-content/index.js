@@ -9,6 +9,7 @@ import { createBlock } from '@wordpress/blocks';
  */
 import edit from './edit';
 import save from './save';
+import deprecatedV1 from './deprecated/v1';
 import icon from './_inc/icon';
 import { blockContainsPremiumBlock, blockHasParentPremiumBlock } from './_inc/premium';
 import { transformToCoreGroup } from './_inc/transform-to-core-group';
@@ -145,8 +146,8 @@ export const settings = {
 					} );
 
 					return createBlock( 'premium-content/container', {}, [
-						createBlock( 'premium-content/logged-out-view' ),
 						createBlock( 'premium-content/subscriber-view', {}, innerBlocksSubscribe ),
+						createBlock( 'premium-content/logged-out-view' ),
 					] );
 				},
 			},
@@ -161,4 +162,5 @@ export const settings = {
 			},
 		],
 	},
+	deprecated: [ deprecatedV1 ],
 };

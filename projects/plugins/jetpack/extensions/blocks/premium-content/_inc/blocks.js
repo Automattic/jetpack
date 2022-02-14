@@ -10,8 +10,8 @@ export default function Blocks() {
 				allowedBlocks={ [ 'premium-content/subscriber-view', 'premium-content/logged-out-view' ] }
 				templateLock={ 'all' }
 				template={ [
-					[ 'premium-content/logged-out-view' ],
 					[ 'premium-content/subscriber-view' ],
+					[ 'premium-content/logged-out-view' ],
 				] }
 				__experimentalCaptureToolbars={ true }
 				templateInsertUpdatesSelection={ false }

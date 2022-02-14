@@ -3,12 +3,15 @@
 	"description": "Support functions for Jetpack hosting partners.",
 	"type": "jetpack-library",
 	"license": "GPL-2.0-or-later",
-	"require": {},
+	"require": {
+		"automattic/jetpack-connection": "^1.36",
+		"automattic/jetpack-options": "^1.14",
+		"automattic/jetpack-status": "^1.10"
+	},
 	"require-dev": {
 		"brain/monkey": "2.6.1",
 		"yoast/phpunit-polyfills": "1.0.3",
 		"automattic/jetpack-changelogger": "^3.0",
-		"automattic/jetpack-options": "^1.14",
 		"automattic/wordbless": "@dev"
 	},
 	"autoload": {
