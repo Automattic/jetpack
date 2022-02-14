@@ -220,7 +220,7 @@ export default function SubscriptionControls( {
 				initialOpen={ false }
 				className="wp-block-jetpack-subscriptions__displaypanel"
 			>
-				{ subscriberCount >= 1 && (
+				{ subscriberCount > 1 && (
 					<InspectorNotice>
 						{ sprintf(
 							/* translators: %s is the number of subscribers */
