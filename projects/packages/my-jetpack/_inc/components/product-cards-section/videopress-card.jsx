@@ -28,6 +28,7 @@ const VideopressCard = ( { admin } ) => {
 			onActivate={ activate }
 			slug={ slug }
 			onFixConnection={ useMyJetpackNavigate( '/connection' ) }
+			onAdd={ useMyJetpackNavigate( '/add-videopress' ) }
 		/>
 	);
 };
