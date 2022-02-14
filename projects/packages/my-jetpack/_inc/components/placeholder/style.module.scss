@@ -1,0 +1,18 @@
+@keyframes pulse {
+  0% {
+    opacity: .6;
+  }
+  50% {
+    opacity: 1;
+  }
+  100% {
+    opacity: .6;
+  }
+}
+
+.items {
+  background-color: #CDCDCD;
+  animation: pulse 1.5s infinite;
+  margin-bottom: 20px;
+  height: 30px;
+}
