@@ -13,6 +13,7 @@ import MyJetpackScreen from './components/my-jetpack-screen';
 import ConnectionScreen from './components/connection-screen';
 import { initStore } from './state/store';
 import {
+	AntiSpamInterstitial,
 	BackupInterstitial,
 	BoostInterstitial,
 	ScanInterstitial,
@@ -73,6 +74,10 @@ const MyJetpack = () => (
 			<Route
 				path="/connection"
 				element={ <Layout nav={ true } children={ <ConnectionScreen /> } /> }
+			/>
+			<Route
+				path="/add-anti-spam"
+				element={ <Layout nav={ true } children={ <AntiSpamInterstitial /> } slug="anti-spam" /> }
 			/>
 			<Route
 				path="/add-boost"
