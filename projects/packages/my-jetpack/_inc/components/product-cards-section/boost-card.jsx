@@ -1,9 +1,8 @@
 /**
  * External dependencies
  */
-import React, { useCallback } from 'react';
+import React from 'react';
 import PropTypes from 'prop-types';
-import { useNavigate } from 'react-router-dom';
 
 /**
  * Internal dependencies
@@ -16,11 +15,6 @@ import useMyJetpackNavigate from '../../hooks/use-my-jetpack-navigate';
 const BoostCard = ( { admin } ) => {
 	const { status, activate, deactivate, detail, isFetching } = useProduct( 'boost' );
 	const { name, description, slug } = detail;
-	const navigate = useNavigate();
-
-	const onAddHandler = useCallback( () => {
-		navigate( '/add-boost' );
-	}, [ navigate ] );
 
 	return (
 		<ProductCard
@@ -33,7 +27,7 @@ const BoostCard = ( { admin } ) => {
 			onDeactivate={ deactivate }
 			onActivate={ activate }
 			slug={ slug }
-			onAdd={ onAddHandler }
+			onAdd={ useMyJetpackNavigate( '/add-boost' ) }
 			onFixConnection={ useMyJetpackNavigate( '/connection' ) }
 		/>
 	);
