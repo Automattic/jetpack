@@ -89,9 +89,16 @@ const ProductDetail = ( { slug, trackButtonClick } ) => {
 		? supportedProducts
 				.join( '_plus_' )
 				.split( '_' )
-				.map( iconSlug => {
+				.map( ( iconSlug, i ) => {
 					if ( iconSlug === 'plus' ) {
-						return <Icon className={ styles[ 'plus-icon' ] } icon={ plus } size={ 14 } />;
+						return (
+							<Icon
+								className={ styles[ 'plus-icon' ] }
+								key={ `icon-plugs${ i }` }
+								icon={ plus }
+								size={ 14 }
+							/>
+						);
 					}
 
 					const SupportedProductIcon = getIconBySlug( iconSlug );
