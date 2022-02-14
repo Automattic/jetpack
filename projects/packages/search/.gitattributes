@@ -3,10 +3,6 @@
 .github/                                                 export-ignore
 package.json                                             export-ignore
 
-# Files to include in production build.
-/build/**                                                production-include
-/src/widgets/**                                          production-include
-
 # Files not needed in the production build.
 /changelog/**                                            production-exclude
 /.gitignore                                              production-exclude
@@ -26,3 +22,7 @@ package.json                                             export-ignore
 /src/**/*.jsx                                            production-exclude
 /src/**/*.ts                                             production-exclude
 .phpcs.dir.xml                                           production-exclude
+
+# Files to include in production build.
+/build/**                                                production-include
+/src/widgets/**                                          production-include
