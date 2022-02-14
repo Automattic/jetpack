@@ -179,7 +179,7 @@ function wpcom_shortcodereverse_parseattr( $attrs ) {
 
 	$attrs = shortcode_atts( $defaults, $attrs );
 
-	$attrs['src']    = strip_tags( $attrs['src'] ); // For sanity.
+	$attrs['src']    = wp_strip_all_tags( $attrs['src'] ); // For sanity.
 	$attrs['width']  = ( is_numeric( $attrs['width'] ) ) ? abs( (int) $attrs['width'] ) : $defaults['width'];
 	$attrs['height'] = ( is_numeric( $attrs['height'] ) ) ? abs( (int) $attrs['height'] ) : $defaults['height'];
 
