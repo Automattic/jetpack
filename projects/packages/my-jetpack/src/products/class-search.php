@@ -152,14 +152,4 @@ class Search extends Module_Product {
 		$search_state = static::get_state_from_wpcom();
 		return ! empty( $search_state->supports_search ) || ! empty( $search_state->supports_instant_search );
 	}
-
-	/**
-	 * Return product bundles list
-	 * that supports the product.
-	 *
-	 * @return boolean|array Products bundle list.
-	 */
-	public static function is_upgradable_by_bundle() {
-		return array( 'security' );
-	}
 }
