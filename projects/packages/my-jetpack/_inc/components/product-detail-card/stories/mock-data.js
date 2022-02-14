@@ -3,6 +3,7 @@ export const antiSpamProductData = {
 	name: 'Anti-Spam',
 	title: 'Jepack Anti-Spam',
 	description: 'Stop comment and form spam',
+	is_upgradable_by_bundle: [ 'security' ],
 	long_description:
 		'Save time and get better responses by automatically blocking spam from your comments and forms.',
 	status: 'active',
@@ -25,6 +26,7 @@ export const backupProductData = {
 	name: 'Backup',
 	title: 'Jepack Backup',
 	description: 'Save every change',
+	is_upgradable_by_bundle: [ 'security' ],
 	long_description:
 		'Never lose a word, image, page, or time worrying about your site with automated backups & one-click restores.',
 	status: 'active',
@@ -66,6 +68,7 @@ export const scanProductData = {
 	name: 'Scan',
 	title: 'Jepack Scan',
 	description: 'Stay one step ahead of threats',
+	is_upgradable_by_bundle: [ 'security' ],
 	long_description:
 		'Automatic scanning and one-click fixes keep your site one step ahead of security threats and malware.',
 	status: 'inactive',
