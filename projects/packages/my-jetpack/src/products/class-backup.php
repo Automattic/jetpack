@@ -9,6 +9,7 @@ namespace Automattic\Jetpack\My_Jetpack\Products;
 
 use Automattic\Jetpack\Connection\Client;
 use Automattic\Jetpack\My_Jetpack\Hybrid_Product;
+use Automattic\Jetpack\My_Jetpack\Wpcom_Products;
 use Jetpack_Options;
 use WP_Error;
 
@@ -107,11 +108,12 @@ class Backup extends Hybrid_Product {
 	 * @return array Pricing details
 	 */
 	public static function get_pricing_for_ui() {
-		return array(
-			'available'            => true,
-			'currency_code'        => 'EUR',
-			'full_price'           => 9,
-			'promotion_percentage' => 50,
+		return array_merge(
+			array(
+				'available'            => true,
+				'promotion_percentage' => 50,
+			),
+			Wpcom_Products::get_product_currency_and_price( static::get_wpcom_product_slug() )
 		);
 	}
 
