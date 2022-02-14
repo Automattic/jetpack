@@ -116,6 +116,7 @@ abstract class Product {
 			'features'                 => static::get_features(),
 			'status'                   => static::get_status(),
 			'pricing_for_ui'           => static::get_pricing_for_ui(),
+			'is_bundle'                => static::is_bundle_product(),
 			'wpcom_product_slug'       => static::get_wpcom_product_slug(),
 			'requires_user_connection' => static::$requires_user_connection,
 			'has_required_plan'        => static::has_required_plan(),
@@ -185,6 +186,15 @@ abstract class Product {
 	 */
 	public static function has_required_plan() {
 		return true;
+	}
+
+	/**
+	 * Checks whether product is a bundle.
+	 *
+	 * @return boolean True if product is a bundle. Otherwise, False.
+	 */
+	public static function is_bundle_product() {
+		return false;
 	}
 
 	/**
