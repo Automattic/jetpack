@@ -1,0 +1,4 @@
+Significance: patch
+Type: bugfix
+
+Search: Fix fatal "Uncaught Error: Call to a member function get_last_query_info() on null"
