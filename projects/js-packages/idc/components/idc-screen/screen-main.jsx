@@ -71,9 +71,9 @@ const ScreenMain = props => {
 					{ createInterpolateElement(
 						customContent.dynamicSiteUrlText ||
 							__(
-								"<strong>Notice:</strong> It appears that your 'wp-config.php' file is using dynamic 'WP_SITEURL' or 'WP_HOME' values. " +
-									'Using dynamic values could cause Jetpack to enter Safe Mode, and might harm SEO. ' +
-									'<dynamicSiteUrlSupportLink>Learn how to set a static site URL instead.</dynamicSiteUrlSupportLink>',
+								"<strong>Notice:</strong> It appears that your 'wp-config.php' file might be using dynamic site URL values. " +
+									'Dynamic site URLs could cause Jetpack to enter Safe Mode. ' +
+									'<dynamicSiteUrlSupportLink>Learn how to set a static site URL.</dynamicSiteUrlSupportLink>',
 								'jetpack'
 							),
 						{
