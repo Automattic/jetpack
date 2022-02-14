@@ -41,6 +41,10 @@ class Jetpack_Search {
 	 */
 	public static function instance() {
 		// Explicitly provide the blog ID, just in case.
-		return Classic_Search::instance( Jetpack_Options::get_option( 'id' ) );
+		return Classic_Search::instance(
+			( defined( 'IS_WPCOM' ) && constant( 'IS_WPCOM' ) ) ?
+			get_current_blog_id() :
+			Jetpack_Options::get_option( 'id' )
+		);
 	}
 }
