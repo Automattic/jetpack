@@ -1,0 +1,4 @@
+Significance: patch
+Type: added
+
+Set default values for product data in the client (custom hook)
