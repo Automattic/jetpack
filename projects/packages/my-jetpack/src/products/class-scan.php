@@ -145,4 +145,44 @@ class Scan extends Module_Product {
 		return is_object( $scan_data ) && isset( $scan_data->state ) && 'unavailable' !== $scan_data->state;
 	}
 
+	/**
+	 * Checks whether the Product is active
+	 *
+	 * Scan is not actually a module. Activation takes place on WPCOM. So lets consider it active if jetpack is active and has the plan.
+	 *
+	 * @return boolean
+	 */
+	public static function is_active() {
+		return static::is_jetpack_plugin_active() && static::has_required_plan();
+	}
+
+	/**
+	 * Activates the product by installing and activating its plugin
+	 *
+	 * @return boolean|\WP_Error
+	 */
+	public static function activate() {
+
+		$product_activation = parent::activate();
+
+		if ( is_wp_error( $product_activation ) && 'module_activation_failed' === $product_activation->get_error_code() ) {
+			// Scan is not a module. There's nothing in the plugin to be activated, so it's ok to fail to activate the module.
+			$product_activation = true;
+		}
+
+		return $product_activation;
+
+	}
+
+	/**
+	 * Checks whether the Jetpack module is active
+	 *
+	 * Scan is not a module. Nothing needs to be active. Let's always consider it active.
+	 *
+	 * @return bool
+	 */
+	public static function is_module_active() {
+		return true;
+	}
+
 }
