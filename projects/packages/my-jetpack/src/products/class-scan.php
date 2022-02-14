@@ -194,4 +194,22 @@ class Scan extends Module_Product {
 	public static function is_upgradable_by_bundle() {
 		return array( 'security' );
 	}
+
+	/**
+	 * Get the URL the user is taken after activating the product
+	 *
+	 * @return ?string
+	 */
+	public static function get_post_activation_url() {
+		return ''; // stay in My Jetpack page
+	}
+
+	/**
+	 * Get the URL where the user manages the product
+	 *
+	 * @return ?string
+	 */
+	public static function get_manage_url() {
+		return 'LINK TO CALYPSO';
+	}
 }

@@ -166,4 +166,17 @@ class Backup extends Hybrid_Product {
 	public static function is_upgradable_by_bundle() {
 		return array( 'security' );
 	}
+
+	/**
+	 * Get the URL where the user manages the product
+	 *
+	 * @return ?string
+	 */
+	public static function get_manage_url() {
+		if ( static::is_plugin_active() ) {
+			return 'LINK TO BACKUP PLUGIN';
+		} elseif ( static::is_jetpack_plugin_active() ) {
+			return 'LINK TO CALYPSO';
+		}
+	}
 }

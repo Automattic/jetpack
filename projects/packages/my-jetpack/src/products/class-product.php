@@ -169,6 +169,22 @@ abstract class Product {
 	abstract public static function get_pricing_for_ui();
 
 	/**
+	 * Get the URL where the user manages the product
+	 *
+	 * @return ?string
+	 */
+	abstract public static function get_manage_url();
+
+	/**
+	 * Get the URL the user is taken after activating the product
+	 *
+	 * @return ?string
+	 */
+	public static function get_post_activation_url() {
+		return static::get_manage_url();
+	}
+
+	/**
 	 * Get the WPCOM product slug used to make the purchase
 	 *
 	 * @return ?string

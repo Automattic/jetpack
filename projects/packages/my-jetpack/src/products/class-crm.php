@@ -98,4 +98,13 @@ class Crm extends Product {
 			'is_free'   => true,
 		);
 	}
+
+	/**
+	 * Get the URL where the user manages the product
+	 *
+	 * @return ?string
+	 */
+	public static function get_manage_url() {
+		return admin_url( 'admin.php?page=no-bs-crm' );
+	}
 }
