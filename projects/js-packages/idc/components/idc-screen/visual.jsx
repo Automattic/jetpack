@@ -41,7 +41,7 @@ const IDCScreenVisual = props => {
 		hasMigrateError,
 		hasFreshError,
 		hasStaySafeError,
-		dynamicSiteUrlDetected,
+		possibleDynamicSiteUrlDetected,
 	} = props;
 
 	const nonAdminBody = ! isAdmin ? <ScreenNonAdmin customContent={ customContent } /> : '';
@@ -70,7 +70,7 @@ const IDCScreenVisual = props => {
 				hasMigrateError={ hasMigrateError }
 				hasFreshError={ hasFreshError }
 				hasStaySafeError={ hasStaySafeError }
-				dynamicSiteUrlDetected={ dynamicSiteUrlDetected }
+				possibleDynamicSiteUrlDetected={ possibleDynamicSiteUrlDetected }
 			/>
 		);
 	}
@@ -131,8 +131,8 @@ IDCScreenVisual.propTypes = {
 	hasFreshError: PropTypes.bool.isRequired,
 	/** Whether the component encountered the "Stay in Safe Mode" error. */
 	hasStaySafeError: PropTypes.bool.isRequired,
-	/** If dynamic HTTP_HOST usage has been detected for site/home URLs in wp-config which can lead to a JP IDC. */
-	dynamicSiteUrlDetected: PropTypes.bool,
+	/** If potentially dynamic HTTP_HOST usage was detected for site URLs in wp-config which can lead to a JP IDC. */
+	possibleDynamicSiteUrlDetected: PropTypes.bool,
 };
 
 IDCScreenVisual.defaultProps = {
@@ -145,7 +145,7 @@ IDCScreenVisual.defaultProps = {
 	hasMigrateError: false,
 	hasFreshError: false,
 	hasStaySafeError: false,
-	dynamicSiteUrlDetected: false,
+	possibleDynamicSiteUrlDetected: false,
 };
 
 export default IDCScreenVisual;

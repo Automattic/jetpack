@@ -381,7 +381,7 @@ class Identity_Crisis {
 			)
 		);
 
-		delete_transient( 'jetpack_idc_dynamic_site_url_detected' );
+		delete_transient( 'jetpack_idc_possible_dynamic_site_url_detected' );
 	}
 
 	/**
@@ -1225,17 +1225,17 @@ class Identity_Crisis {
 	}
 
 	/**
-	 * Try to detect dynamic $_SERVER[] vars being used for WP_SITEURL or WP_HOME definitions by reading the wp-config.
+	 * Try to detect $_SERVER['HTTP_HOST'] being used within WP_SITEURL or WP_HOME definitions inside of wp-config.
 	 *
-	 * When a site URL is dynamic, it can lead to a Jetpack IDC. If dynamic usage is detected, helpful support info
-	 * will be shown on the IDC UI.
+	 * If `HTTP_HOST` usage is found, it's possbile (though not certain) that site URLs are dynamic.
 	 *
-	 * The `jetpack_idc_dynamic_site_url_detected` transient is used to rate-limit this check to once per hour.
+	 * When a site URL is dynamic, it can lead to a Jetpack IDC. If potentially dynamic usage is detected,
+	 * helpful support info will be shown on the IDC UI about setting a static site/home URL.
 	 *
-	 * @return bool True if dynamic site urls were detected in wp-config, false otherwise.
+	 * @return bool True if potentially dynamic site urls were detected in wp-config, false otherwise.
 	 */
-	public static function detect_dynamic_site_url() {
-		$transient_key = 'jetpack_idc_dynamic_site_url_detected';
+	public static function detect_possible_dynamic_site_url() {
+		$transient_key = 'jetpack_idc_possible_dynamic_site_url_detected';
 		$transient_val = get_transient( $transient_key );
 
 		if ( false !== $transient_val ) {

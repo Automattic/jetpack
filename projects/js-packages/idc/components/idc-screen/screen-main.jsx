@@ -33,7 +33,7 @@ const ScreenMain = props => {
 		hasMigrateError,
 		hasFreshError,
 		hasStaySafeError,
-		dynamicSiteUrlDetected,
+		possibleDynamicSiteUrlDetected,
 	} = props;
 
 	return (
@@ -66,7 +66,7 @@ const ScreenMain = props => {
 				) }
 			</p>
 
-			{ dynamicSiteUrlDetected && (
+			{ possibleDynamicSiteUrlDetected && (
 				<p>
 					{ createInterpolateElement(
 						customContent.dynamicSiteUrlText ||
@@ -147,8 +147,8 @@ ScreenMain.propTypes = {
 	hasFreshError: PropTypes.bool.isRequired,
 	/** Whether the component encountered the "Stay in Safe Mode" error. */
 	hasStaySafeError: PropTypes.bool.isRequired,
-	/** If dynamic HTTP_HOST usage has been detected for site/home URLs in wp-config which can lead to a JP IDC. */
-	dynamicSiteUrlDetected: PropTypes.bool,
+	/** If potentially dynamic HTTP_HOST usage was detected for site URLs in wp-config which can lead to a JP IDC. */
+	possibleDynamicSiteUrlDetected: PropTypes.bool,
 };
 
 ScreenMain.defaultProps = {
@@ -158,7 +158,7 @@ ScreenMain.defaultProps = {
 	hasMigrateError: false,
 	hasFreshError: false,
 	hasStaySafeError: false,
-	dynamicSiteUrlDetected: false,
+	possibleDynamicSiteUrlDetected: false,
 };
 
 export default ScreenMain;
