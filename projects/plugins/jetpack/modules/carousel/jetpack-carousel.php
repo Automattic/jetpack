@@ -122,49 +122,68 @@ class Jetpack_Carousel {
 	}
 
 	/**
-	 * Allow third-party plugins or themes to disable Carousel.
-	 *
-	 * @module carousel
+	 * Returns the value of the applied jp_carousel_maybe_disable filter
 	 *
 	 * @since 1.6.0
 	 *
-	 * @return bool
-	 */
+	 * @return bool - Should Carousel be disabled? Default to false.
+	 */
 	public function maybe_disable_jp_carousel() {
+		/**
+		 * Allow third-party plugins or themes to disable Carousel.
+		 *
+		 * @module carousel
+		 *
+		 * @since 1.6.0
+		 *
+		 * @param bool false Should Carousel be disabled? Default to false.
+		 */
 		return apply_filters( 'jp_carousel_maybe_disable', false );
 	}
 
 	/**
-	 * Allow third-party plugins or themes to disable Carousel for single images.
-	 *
-	 * @module carousel
+	 * Returns the value of the applied jp_carousel_maybe_disable_single_images filter
 	 *
 	 * @since 4.5.0
 	 *
-	 * @return bool
+	 * @return bool - Should Carousel be disabled for single images? Default to false.
 	 */
 	public function maybe_disable_jp_carousel_single_images() {
+		/**
+		 * Allow third-party plugins or themes to disable Carousel for single images.
+		 *
+		 * @module carousel
+		 *
+		 * @since 4.5.0
+		 *
+		 * @param bool false Should Carousel be disabled for single images? Default to false.
+		 */
 		return apply_filters( 'jp_carousel_maybe_disable_single_images', false );
 	}
 
 	/**
-	 * Allow third-party plugins or themes to enable Carousel
-	 * for single images linking to 'Media File' (full size image).
-	 *
-	 * @module carousel
+	 * Returns the value of the applied jp_carousel_load_for_images_linked_to_file filter
 	 *
 	 * @since 4.5.0
 	 *
-	 * @return bool
+	 * @return bool - Should Carousel be enabled for single images linking to 'Media File'? Default to false.
 	 */
 	public function maybe_enable_jp_carousel_single_images_media_file() {
+		/**
+		 * Allow third-party plugins or themes to enable Carousel
+		 * for single images linking to 'Media File' (full size image).
+		 *
+		 * @module carousel
+		 *
+		 * @since 4.5.0
+		 *
+		 * @param bool false Should Carousel be enabled for single images linking to 'Media File'? Default to false.
+		 */
 		return apply_filters( 'jp_carousel_load_for_images_linked_to_file', false );
 	}
 
 	/**
-	 * Filter the version string used when enqueuing Carousel assets.
-	 *
-	 * @module carousel
+	 * Returns the value of the applied jp_carousel_asset_version filter
 	 *
 	 * @since 1.6.0
 	 *
@@ -173,13 +192,20 @@ class Jetpack_Carousel {
 	 * @return string
 	 */
 	public function asset_version( $version ) {
+		/**
+		 * Filter the version string used when enqueuing Carousel assets.
+		 *
+		 * @module carousel
+		 *
+		 * @since 1.6.0
+		 *
+		 * @param string $version Asset version.
+		 */
 		return apply_filters( 'jp_carousel_asset_version', $version );
 	}
 
 	/**
 	 * Displays a message on top of gallery if carousel has bailed.
-	 *
-	 * @module carousel
 	 *
 	 * @param string $output Bail message output.
 	 *
@@ -196,8 +222,6 @@ class Jetpack_Carousel {
 
 	/**
 	 * Allow third-party plugins or themes to force-enable Carousel.
-	 *
-	 * @module carousel
 	 *
 	 * @since 1.9.0
 	 *
@@ -314,8 +338,12 @@ class Jetpack_Carousel {
 				'post_comment'                    => __( 'Post Comment', 'jetpack' ),
 				'write_comment'                   => __( 'Write a Comment...', 'jetpack' ),
 				'loading_comments'                => __( 'Loading Comments...', 'jetpack' ),
-				/* translators: %1s is applied to the photo-size span class as the full-size image width, and %2s is the height. */
-				'download_original'               => sprintf( __( 'View full size <span class="photo-size">%1$s<span class="photo-size-times">&times;</span>%2$s</span>', 'jetpack' ), '{0}', '{1}' ),
+				'download_original'               => sprintf(
+					/* translators: %1s is applied to the photo-size span class as the full-size image width, and %2s is the height. */
+					__( 'View full size <span class="photo-size">%1$s<span class="photo-size-times">&times;</span>%2$s</span>', 'jetpack' ),
+					'{0}',
+					'{1}'
+				),
 				'no_comment_text'                 => __( 'Please be sure to submit some text with your comment.', 'jetpack' ),
 				'no_comment_email'                => __( 'Please provide an email address to comment.', 'jetpack' ),
 				'no_comment_author'               => __( 'Please provide your name to comment.', 'jetpack' ),
@@ -875,13 +903,7 @@ class Jetpack_Carousel {
 	}
 
 	/**
-	 * Allows for the checking of privileges of the blog user before comments
-	 * are packaged as JSON and sent back from the get_attachment_comments
-	 * AJAX endpoint
-	 *
-	 * @module carousel
-	 *
-	 * @since 1.6.0
+	 * Retrieves comment information
 	 *
 	 * @return string
 	 */
@@ -890,6 +912,15 @@ class Jetpack_Carousel {
 			header( 'Content-type: text/javascript' );
 		}
 
+		/**
+		 * Allows for the checking of privileges of the blog user before comments
+		 * are packaged as JSON and sent back from the get_attachment_comments
+		 * AJAX endpoint
+		 *
+		 * @module carousel
+		 *
+		 * @since 1.6.0
+		 */
 		do_action( 'jp_carousel_check_blog_user_privileges' );
 
 		$attachment_id = ( isset( $_REQUEST['id'] ) ) ? (int) $_REQUEST['id'] : 0; // phpcs:ignore WordPress.Security.NonceVerification.Recommended -- Some sanitisation does exist here.
@@ -998,8 +1029,6 @@ class Jetpack_Carousel {
 
 	/**
 	 * Adds a new comment to the database
-	 *
-	 * @module carousel
 	 */
 	public function post_attachment_comment() {
 		if ( ! headers_sent() ) {
@@ -1314,6 +1343,8 @@ class Jetpack_Carousel {
 	 * Sanitizing the Carousel backgound color selection.
 	 *
 	 * @param string $value The color string to sanitize.
+	 *
+	 * @return string Sanitized value, 'white' or 'black'.
 	 */
 	public function carousel_background_color_sanitize( $value ) {
 		return ( 'white' === $value ) ? 'white' : 'black';
