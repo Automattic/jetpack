@@ -390,7 +390,8 @@ function grofiles_hovercards_data( $author ) {
 	$r = array();
 	foreach ( grofiles_hovercards_data_callbacks() as $key => $callback ) {
 		if ( ! is_callable( $callback ) ) {
-			continue;}
+			continue;
+		}
 		$data = call_user_func( $callback, $author, $key );
 		if ( ! is_null( $data ) ) {
 			$r[ $key ] = $data;
