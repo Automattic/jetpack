@@ -466,7 +466,6 @@ function jetpack_is_frontend() {
 	if (
 		is_admin() ||
 		wp_doing_ajax() ||
-		wp_doing_cron() ||
 		wp_is_json_request() ||
 		wp_is_jsonp_request() ||
 		wp_is_xml_request() ||
