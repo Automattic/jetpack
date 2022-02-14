@@ -176,7 +176,7 @@ class Partner_Coupon_Test extends BaseTestCase {
 	 * @param int  $added_date Timestamp for added date.
 	 * @param bool $purged If we expect the coupon to be purged or not.
 	 */
-	public function test_purge_coupon( $added_date, $purged ) {
+	public function test_maybe_purge_coupon_by_added_date( $added_date, $purged ) {
 		$this->setup_coupon();
 		$coupon_code = sprintf( '%s_%s_%s', self::PARTNER['prefix'], self::PRESET['code'], 'abc123' );
 
@@ -193,7 +193,10 @@ class Partner_Coupon_Test extends BaseTestCase {
 
 		// Maybe purge the coupon.
 		$instance = Partner_Coupon::get_instance();
-		$instance->purge_coupon();
+		$class    = new \ReflectionClass( $instance );
+		$method   = $class->getMethod( 'maybe_purge_coupon_by_added_date' );
+		$method->setAccessible( true );
+		$method->invoke( $instance );
 
 		// Confirm assertion.
 		$partner_coupon = Partner_Coupon::get_coupon();
@@ -224,6 +227,96 @@ class Partner_Coupon_Test extends BaseTestCase {
 			),
 			array(
 				strtotime( '-29 days' ),
+				false,
+			),
+		);
+	}
+
+	/**
+	 * Purge coupon: verify remote availability check is respected.
+	 *
+	 * @dataProvider dataprovider_availability_check_scenarios
+	 *
+	 * @param array $mock_response Data used to mock response.
+	 * @param bool  $expectation The expected assertion result.
+	 */
+	public function test_maybe_purge_coupon_by_availability_check( $mock_response, $expectation ) {
+		$this->setup_coupon();
+		$coupon_code = sprintf( '%s_%s_%s', self::PARTNER['prefix'], self::PRESET['code'], 'abc123' );
+
+		Jetpack_Options::update_options(
+			array(
+				Partner_Coupon::$coupon_option => $coupon_code,
+				Partner_Coupon::$added_option  => time(),
+				'id'                           => 123,
+			)
+		);
+
+		if ( isset( $mock_response['body'] ) ) {
+			$mock_response['body'] = wp_json_encode( $mock_response['body'] );
+		}
+
+		$mock_client = $this->getMockBuilder( \stdClass::class )
+							->setMethods( array( 'wpcom_json_api_request_as_blog' ) )
+							->getMock();
+
+		$mock_client
+			->expects( $this->once() )
+			->method( 'wpcom_json_api_request_as_blog' )
+			->willReturn( $mock_response );
+
+		$instance = new Partner_Coupon( array( $mock_client, 'wpcom_json_api_request_as_blog' ) );
+		$class    = new \ReflectionClass( $instance );
+		$method   = $class->getMethod( 'maybe_purge_coupon_by_availability_check' );
+		$method->setAccessible( true );
+		$status = $method->invoke( $instance );
+
+		$this->assertSame( $status, $expectation );
+	}
+
+	/**
+	 * DataProvider: Remote availability data and expectations.
+	 *
+	 * @return array[]
+	 */
+	public function dataprovider_availability_check_scenarios() {
+		return array(
+			'successful remote request | unavailable coupon' => array(
+				array(
+					'body'     => array( 'available' => false ),
+					'response' => array( 'code' => 200 ),
+				),
+				true,
+			),
+			'successful remote request | available coupon' => array(
+				array(
+					'body'     => array( 'available' => true ),
+					'response' => array( 'code' => 200 ),
+				),
+				false,
+			),
+			'unsuccessful remote request | 401'            => array(
+				array(
+					'response' => array( 'code' => 401 ),
+				),
+				false,
+			),
+			'unsuccessful remote request | 404'            => array(
+				array(
+					'response' => array( 'code' => 404 ),
+				),
+				false,
+			),
+			'unsuccessful remote request | 408'            => array(
+				array(
+					'response' => array( 'code' => 408 ),
+				),
+				false,
+			),
+			'unsuccessful remote request | 500'            => array(
+				array(
+					'response' => array( 'code' => 500 ),
+				),
 				false,
 			),
 		);
