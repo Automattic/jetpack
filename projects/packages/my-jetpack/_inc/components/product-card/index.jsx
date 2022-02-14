@@ -6,6 +6,7 @@ import PropTypes from 'prop-types';
 import classNames from 'classnames';
 import { __, sprintf } from '@wordpress/i18n';
 import { ButtonGroup, Button, DropdownMenu } from '@wordpress/components';
+import { useNavigate } from 'react-router-dom';
 
 /**
  * Internal dependencies
@@ -137,6 +138,7 @@ const ProductCard = props => {
 		tracks: { recordEvent },
 	} = useAnalytics();
 
+	const navigate = useNavigate();
 	/**
 	 * Calls the passed function onDeactivate after firing Tracks event
 	 */
@@ -177,6 +179,16 @@ const ProductCard = props => {
 		onManage();
 	}, [ slug, onManage, recordEvent ] );
 
+	/**
+	 * Calls the passed function onManage after firing Tracks event
+	 */
+	const fixConnectionHandler = useCallback( () => {
+		recordEvent( 'jetpack_myjetpack_product_card_fixconnection_click', {
+			product: slug,
+		} );
+		navigate( '/connection' );
+	}, [ slug, navigate, recordEvent ] );
+
 	return (
 		<div className={ containerClassName }>
 			<div className={ styles.name }>
@@ -187,7 +199,12 @@ const ProductCard = props => {
 			<div className={ styles.actions }>
 				{ canDeactivate ? (
 					<ButtonGroup className={ styles.group }>
-						<ActionButton { ...props } onActivate={ activateHandler } onManage={ manageHandler } />
+						<ActionButton
+							{ ...props }
+							onActivate={ activateHandler }
+							onFixConnection={ fixConnectionHandler }
+							onManage={ manageHandler }
+						/>
 						<DropdownMenu
 							className={ styles.dropdown }
 							toggleProps={ { isPressed: true, disabled: isFetching } }
@@ -204,7 +221,12 @@ const ProductCard = props => {
 						/>
 					</ButtonGroup>
 				) : (
-					<ActionButton { ...props } onActivate={ activateHandler } onAdd={ addHandler } />
+					<ActionButton
+						{ ...props }
+						onFixConnection={ fixConnectionHandler }
+						onActivate={ activateHandler }
+						onAdd={ addHandler }
+					/>
 				) }
 				{ ! isAbsent && <div className={ statusClassName }>{ flagLabel }</div> }
 			</div>
