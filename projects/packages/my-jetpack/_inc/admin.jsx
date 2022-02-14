@@ -81,19 +81,19 @@ const MyJetpack = () => (
 			/>
 			<Route
 				path="/add-boost"
-				element={ <Layout nav={ true } children={ <BoostInterstitial /> } slug={ 'boost' } /> }
+				element={ <Layout nav={ true } children={ <BoostInterstitial /> } slug="boost" /> }
 			/>
 			<Route
 				path="/add-backup"
-				element={ <Layout nav={ true } children={ <BackupInterstitial /> } slug={ 'backup' } /> }
+				element={ <Layout nav={ true } children={ <BackupInterstitial /> } slug="backup" /> }
 			/>
 			<Route
 				path="/add-scan"
-				element={ <Layout nav={ true } children={ <ScanInterstitial /> } slug={ 'scan' } /> }
+				element={ <Layout nav={ true } children={ <ScanInterstitial /> } slug="scan" /> }
 			/>
 			<Route
 				path="/add-search"
-				element={ <Layout nav={ true } children={ <SearchInterstitial /> } slug={ 'search' } /> }
+				element={ <Layout nav={ true } children={ <SearchInterstitial /> } slug="search" /> }
 			/>
 		</Routes>
 	</HashRouter>
