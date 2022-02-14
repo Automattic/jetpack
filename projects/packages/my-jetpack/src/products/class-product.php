@@ -117,6 +117,7 @@ abstract class Product {
 			'status'                   => static::get_status(),
 			'pricing_for_ui'           => static::get_pricing_for_ui(),
 			'is_bundle'                => static::is_bundle_product(),
+			'is_upgradable_by_bundle'  => static::is_upgradable_by_bundle(),
 			'supported_products'       => static::get_supported_products(),
 			'wpcom_product_slug'       => static::get_wpcom_product_slug(),
 			'requires_user_connection' => static::$requires_user_connection,
@@ -195,6 +196,16 @@ abstract class Product {
 	 * @return boolean True if product is a bundle. Otherwise, False.
 	 */
 	public static function is_bundle_product() {
+		return false;
+	}
+
+	/**
+	 * Check whether the product is upgradable
+	 * by a product bundle.
+	 *
+	 * @return boolean|array Bundles list or False if not upgradable by a bundle.
+	 */
+	public static function is_upgradable_by_bundle() {
 		return false;
 	}
 
