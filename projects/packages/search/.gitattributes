@@ -3,6 +3,9 @@
 .github/                                                 export-ignore
 package.json                                             export-ignore
 
+# Files to include in production build.
+/build/**                                                production-include
+
 # Files not needed in the production build.
 /changelog/**                                            production-exclude
 /.gitignore                                              production-exclude
@@ -18,11 +21,7 @@ package.json                                             export-ignore
 /src/**/test/**                                          production-exclude
 /src/**/*.scss                                           production-exclude
 # JS scripts to integrate with customizer and wigets might need to be explicitly included.
-/src/**/*.js                                             production-exclude
-/src/**/*.jsx                                            production-exclude
-/src/**/*.ts                                             production-exclude
+/src/customberg/*.{js,jsx,ts,scss}                       production-exclude
+/src/dashboard/*.{js,jsx,ts,scss}                        production-exclude
+/src/instant-search/*.{js,jsx,ts,scss}                   production-exclude
 .phpcs.dir.xml                                           production-exclude
-
-# Files to include in production build.
-/build/**                                                production-include
-/src/widgets/**                                          production-include
