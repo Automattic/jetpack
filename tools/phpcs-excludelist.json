@@ -39,7 +39,6 @@
 	"projects/plugins/jetpack/functions.gallery.php",
 	"projects/plugins/jetpack/functions.photon.php",
 	"projects/plugins/jetpack/json-endpoints.php",
-	"projects/plugins/jetpack/json-endpoints/class.wpcom-json-api-edit-media-v1-2-endpoint.php",
 	"projects/plugins/jetpack/json-endpoints/class.wpcom-json-api-get-comment-counts-endpoint.php",
 	"projects/plugins/jetpack/json-endpoints/class.wpcom-json-api-get-comment-endpoint.php",
 	"projects/plugins/jetpack/json-endpoints/class.wpcom-json-api-get-comment-history-endpoint.php",
