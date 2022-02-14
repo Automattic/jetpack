@@ -80,3 +80,9 @@ export const SecurityBundle = SecurityCardTemplate.bind( {} );
 SecurityBundle.parameters = {
 	mockData: getMockData( 'security' ),
 };
+
+const VideoPressCardTemplate = args => <ProductDetailCard { ...args } slug="videopress" />;
+export const JetpackVideoPressCard = VideoPressCardTemplate.bind( {} );
+JetpackVideoPressCard.parameters = {
+	mockData: getMockData( 'videopress' ),
+};
