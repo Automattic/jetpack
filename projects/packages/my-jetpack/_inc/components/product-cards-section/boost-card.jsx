@@ -15,7 +15,7 @@ import useMyJetpackNavigate from '../../hooks/use-my-jetpack-navigate';
 const BoostCard = ( { admin } ) => {
 	const { status, activate, deactivate, detail, isFetching } = useProduct( 'boost' );
 	const { name, description, slug } = detail;
-
+	
 	return (
 		<ProductCard
 			name={ name }
