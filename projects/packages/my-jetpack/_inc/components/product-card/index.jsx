@@ -6,7 +6,6 @@ import PropTypes from 'prop-types';
 import classNames from 'classnames';
 import { __, sprintf } from '@wordpress/i18n';
 import { ButtonGroup, Button, DropdownMenu } from '@wordpress/components';
-import { useNavigate } from 'react-router-dom';
 
 /**
  * Internal dependencies
@@ -109,6 +108,7 @@ const ProductCard = props => {
 		onActivate,
 		onAdd,
 		onDeactivate,
+		onFixConnection,
 		onManage,
 		isFetching,
 		slug,
@@ -138,7 +138,6 @@ const ProductCard = props => {
 		tracks: { recordEvent },
 	} = useAnalytics();
 
-	const navigate = useNavigate();
 	/**
 	 * Calls the passed function onDeactivate after firing Tracks event
 	 */
@@ -186,8 +185,8 @@ const ProductCard = props => {
 		recordEvent( 'jetpack_myjetpack_product_card_fixconnection_click', {
 			product: slug,
 		} );
-		navigate( '/connection' );
-	}, [ slug, navigate, recordEvent ] );
+		onFixConnection();
+	}, [ slug, onFixConnection, recordEvent ] );
 
 	return (
 		<div className={ containerClassName }>
