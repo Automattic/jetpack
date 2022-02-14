@@ -242,7 +242,7 @@ class Jetpack_Photon_Static_Assets_CDN {
 		 * @param array $assets The assets array for the plugin.
 		 * @param string $version The version of the plugin being requested.
 		 */
-		$assets = apply_filters( "jetpack_cdn_plugin_assets-{$plugin}", null, $version );
+		$assets = apply_filters( "jetpack_cdn_plugin_assets-{$plugin}", null, $version ); // phpcs:ignore WordPress.NamingConventions.ValidHookName.UseUnderscores
 		if ( is_array( $assets ) ) {
 			return $assets;
 		}
