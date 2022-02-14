@@ -103,7 +103,7 @@ class Classic_Search {
 	public static function instance( $blog_id = null ) {
 		if ( ! isset( self::$instance ) ) {
 			if ( null === $blog_id ) {
-				$blog_id = get_current_blog_id();
+				$blog_id = Helper::get_wpcom_site_id();
 			}
 			self::$instance = new static();
 			self::$instance->setup( $blog_id );

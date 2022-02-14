@@ -750,7 +750,7 @@ class Jetpack_Core_API_Data extends Jetpack_Core_API_XMLRPC_Consumer_Endpoint {
 								$updated = new WP_Error( 'instant_search_disabled', 'Instant Search is disabled', array( 'status' => 400 ) );
 								$error   = $updated->get_error_message();
 							} else {
-								$blog_id  = ( defined( 'IS_WPCOM' ) && constant( 'IS_WPCOM' ) ) ? get_current_blog_id() : Jetpack_Options::get_option( 'id' );
+								$blog_id  = Automattic\Jetpack\Search\Helper::get_wpcom_site_id();
 								$instance = Automattic\Jetpack\Search\Instant_Search::instance( $blog_id );
 								$instance->auto_config_search();
 								$updated = true;
