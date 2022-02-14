@@ -23,6 +23,13 @@ use Automattic\Jetpack\Tracking;
 class Initializer {
 
 	/**
+	 * My Jetpack package version
+	 *
+	 * @var string
+	 */
+	const PACKAGE_VERSION = '0.6.0';
+
+	/**
 	 * Initialize My Jetapack
 	 *
 	 * @return void
