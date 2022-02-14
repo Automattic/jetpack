@@ -120,4 +120,13 @@ class Security extends Module_Product {
 	public static function is_bundle_product() {
 		return true;
 	}
+
+	/**
+	 * Return all the products it contains.
+	 *
+	 * @return Array Product slugs
+	 */
+	public static function get_supported_products() {
+		return array( 'backup', 'scan', 'anti-spam' );
+	}
 }
