@@ -18,6 +18,7 @@ import {
 	BoostInterstitial,
 	ScanInterstitial,
 	SearchInterstitial,
+	VideoPressInterstitial,
 } from './components/product-interstitial';
 import GoBackLink from './components/go-back-link';
 import styles from './style.module.scss';
@@ -94,6 +95,12 @@ const MyJetpack = () => (
 			<Route
 				path="/add-search"
 				element={ <Layout nav={ true } children={ <SearchInterstitial /> } slug="search" /> }
+			/>
+			<Route
+				path="/add-videopress"
+				element={
+					<Layout nav={ true } children={ <VideoPressInterstitial /> } slug="videopress" />
+				}
 			/>
 		</Routes>
 	</HashRouter>
