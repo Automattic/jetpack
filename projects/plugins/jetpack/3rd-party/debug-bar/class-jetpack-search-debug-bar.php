@@ -93,7 +93,7 @@ class Jetpack_Search_Debug_Bar extends Debug_Bar_Panel {
 	 * @return void
 	 */
 	public function render() {
-		$jetpack_search  = (
+		$jetpack_search = (
 			Jetpack_Search\Options::is_instant_enabled() ?
 			Jetpack_Search\Instant_Search::instance() :
 			Jetpack_Search\Classic_Search::instance()
@@ -102,7 +102,6 @@ class Jetpack_Search_Debug_Bar extends Debug_Bar_Panel {
 		if ( ! $jetpack_search ) {
 			return;
 		}
-		
 		$last_query_info = $jetpack_search->get_last_query_info();
 
 		// If not empty, let's reshuffle the order of some things.
