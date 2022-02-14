@@ -69,6 +69,12 @@ class WPCOM_REST_API_V2_Endpoint_VideoPress extends WP_REST_Controller {
 						'required'          => false,
 						'sanitize_callback' => 'rest_sanitize_boolean',
 					),
+					'is_private'     => array(
+						'description'       => __( 'Requires the user to be a member of the site to view the video', 'jetpack' ),
+						'type'              => 'boolean',
+						'required'          => false,
+						'sanitize_callback' => 'rest_sanitize_boolean',
+					),
 				),
 				'methods'             => WP_REST_Server::EDITABLE,
 				'callback'            => array( $this, 'videopress_block_update_meta' ),
@@ -160,6 +166,14 @@ class WPCOM_REST_API_V2_Endpoint_VideoPress extends WP_REST_Controller {
 					if ( ! isset( $meta['videopress']['allow_download'] ) || $meta['videopress']['allow_download'] !== $allow_download ) {
 						$meta['videopress']['allow_download'] = $allow_download;
 						$should_update_meta                   = true;
+					}
+				}
+
+				if ( isset( $json_params['is_private'] ) ) {
+					$is_private = (bool) $json_params['is_private'];
+					if ( ! isset( $meta['videopress']['is_private'] ) || $meta['videopress']['is_private'] !== $is_private ) {
+						$meta['videopress']['is_private'] = $is_private;
+						$should_update_meta               = true;
 					}
 				}
 

@@ -2,7 +2,7 @@
 	$( document ).ready( function ( $ ) {
 		console.log( 'hi' );
 		setTimeout( function () {
-			var videoBlocks = $( '.is-provider-videopress iframe' );
+			var videoBlocks = $( 'iframe[src*="videopress.com"]' );
 			console.log( videoBlocks.attr( 'src' ) );
 			videoBlocks.each( function ( i, iframeElement ) {
 				console.log( i, iframeElement.src );

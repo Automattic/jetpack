@@ -83,6 +83,8 @@ class VideoPress_AJAX {
 			return;
 		}
 
+		// enforce video.wordpress.com
+		$src = str_replace( 'videopress.com', 'video.wordpress.com', $src );
 		$response['src'] = $src . '&metadata_token=' . $response['metadata_token'];
 
 		wp_send_json_success( $response );

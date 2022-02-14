@@ -352,11 +352,7 @@ function videopress_update_meta_data( $post_id ) {
 
 	$info = (object) $meta['videopress'];
 
-	$args = array(
-		// 'sslverify' => false,
-	);
-
-	$result = wp_remote_get( videopress_make_video_get_path( $info->guid ), $args );
+	$result = Client::wpcom_json_api_request_as_blog( 'videos/' . $info->guid );
 
 	if ( is_wp_error( $result ) ) {
 		return false;
@@ -500,6 +496,10 @@ function video_get_info_by_blogpostid( $blog_id, $post_id ) {
 			: null;
 		$video_info->allow_download = isset( $videopress_meta['allow_download'] )
 			? $videopress_meta['allow_download']
+			: 0;
+		$video_info->is_private     =
+			isset( $videopress_meta['is_private'] )
+			? $videopress_meta['is_private']
 			: 0;
 	}
 

@@ -617,11 +617,8 @@ const VideoPressEdit = CoreVideoEdit =>
 								disabled={ isFetchingMedia || isUpdatingAllowDownload }
 							/>
 							<ToggleControl
-								label={ this.renderControlLabelWithTooltip(
-									__( 'is Private', 'jetpack' ),
-									/* translators: Tooltip describing the "is Private" option for the VideoPress player */
-									__( 'Display Private option and is viewers to Private this video', 'jetpack' )
-								) }
+								label={ __( 'Private', 'jetpack' ) }
+								help={ __( 'Restrict views to members of this site', 'jetpack' ) }
 								onChange={ this.onChangeIsPrivate }
 								checked={ isPrivate }
 								disabled={ isFetchingMedia || isUpdatingIsPrivate }
