@@ -5,17 +5,24 @@ import React from 'react';
 import { Path, SVG, Circle, Rect } from '@wordpress/components';
 
 /**
+ * Internal dependencies
+ */
+import styles from './style.module.scss';
+
+/**
  * Icon Wrapper component.
  *
- * @param {object} props          - Component props.
- * @param {number} props.size     - Icon size.
- * @param {string} props.viewBox  - Icon viewBox.
- * @param {object} props.children - Icon component children.
- * @returns {object}                Icon Wrapper component.
+ * @param {object} props           - Component props.
+ * @param {number} props.size      - Icon size.
+ * @param {string} props.viewBox   - Icon viewBox.
+ * @param {object} props.children  - Icon component children.
+ * @param {string} props.className - Icon class name. Optional.
+ * @returns {object}                 Icon Wrapper component.
  */
-function IconWrapper( { size = 20, viewBox = '0 0 14 19', children } ) {
+function IconWrapper( { className, size = 20, viewBox = '0 0 14 19', children } ) {
 	return (
 		<SVG
+			className={ className }
 			width={ size }
 			height={ size }
 			viewBox={ viewBox }
@@ -111,3 +118,35 @@ export const VideopressIcon = ( { size } ) => (
 		<Path d="M7 12V6L12 9L7 12Z" fill="#1E1E1E" />
 	</IconWrapper>
 );
+
+export const StarIcon = ( { size, className = styles[ 'star-icon' ] } ) => (
+	<IconWrapper className={ className } size={ size } viewBox="0 0 24 24">
+		<Path d="M12 2l2.582 6.953L22 9.257l-5.822 4.602L18.18 21 12 16.89 5.82 21l2.002-7.14L2 9.256l7.418-.304" />
+	</IconWrapper>
+);
+
+const iconsMap = {
+	'anti-spam': AntiSpamIcon,
+	backup: BackupIcon,
+	boost: BoostIcon,
+	crm: CrmIcon,
+	extras: ExtrasIcon,
+	scan: ScanIcon,
+	search: SearchIcon,
+	star: StarIcon,
+	videopress: VideopressIcon,
+};
+
+/**
+ * Return icon component by slug.
+ *
+ * @param {string} slug       - Icon slug.
+ * @returns {React.Component}   Icon component.
+ */
+export function getIconBySlug( slug ) {
+	if ( ! iconsMap[ slug ] ) {
+		return null;
+	}
+
+	return iconsMap[ slug ];
+}
