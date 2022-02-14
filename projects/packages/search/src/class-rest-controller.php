@@ -234,7 +234,7 @@ class REST_Controller {
 	 *
 	 * GET `jetpack/v4/search/stats`
 	 */
-	public function get_search_stats() {
+	public function get_stats() {
 		$response = ( new Stats() )->get_stats_from_wpcom();
 		return $this->make_proper_response( $response );
 	}
