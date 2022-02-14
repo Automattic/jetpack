@@ -349,7 +349,7 @@ function grofiles_hovercards_data_html( $author ) {
 		return;
 	}
 	?>
-	<div class="grofile-hash-map-<?php echo esc_html( $hash ); ?>">
+	<div class="grofile-hash-map-<?php echo esc_attr( $hash ); ?>">
 	<?php	foreach ( $data as $key => $value ) : ?>
 		<span class="<?php echo esc_attr( $key ); ?>"><?php echo esc_html( $value ); ?></span>
 <?php	endforeach; ?>
