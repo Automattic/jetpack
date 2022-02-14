@@ -38,6 +38,7 @@ import {
 	hasConnectedOwner,
 	getHasSeenWCConnectionModal,
 	setHasSeenWCConnectionModal,
+	isOfflineMode,
 } from 'state/connection';
 import {
 	setInitialState,
@@ -295,7 +296,7 @@ class Main extends React.Component {
 			 * parameter that JITMs will set (showCouponRedemption=true), and show the screen only
 			 * when the user came from a a JITM.
 			 */
-			if ( ! this.props.isSiteConnected || forceShow ) {
+			if ( ! this.props.isOfflineMode && ( ! this.props.isSiteConnected || forceShow ) ) {
 				return (
 					<PartnerCouponRedeem
 						apiNonce={ this.props.apiNonce }
@@ -715,6 +716,7 @@ class Main extends React.Component {
 export default connect(
 	state => {
 		return {
+			isOfflineMode: isOfflineMode( state ),
 			connectionStatus: getConnectionStatus( state ),
 			siteConnectionStatus: getSiteConnectionStatus( state ),
 			isLinked: isCurrentUserLinked( state ),

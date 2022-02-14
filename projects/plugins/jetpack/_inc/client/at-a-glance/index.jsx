@@ -165,7 +165,7 @@ class AtAGlance extends Component {
 				performanceCards.push( <DashBoost siteAdminUrl={ this.props.siteAdminUrl } /> );
 			}
 
-			const redeemPartnerCoupon = this.props.partnerCoupon && (
+			const redeemPartnerCoupon = ! this.props.isOfflineMode && this.props.partnerCoupon && (
 				<PartnerCouponRedeem
 					apiNonce={ this.props.apiNonce }
 					registrationNonce={ this.props.registrationNonce }
