@@ -57,6 +57,20 @@ export default function SubscriptionControls( {
 } ) {
 	return (
 		<>
+			{ subscriberCount > 1 && (
+				<InspectorNotice>
+					{ sprintf(
+						/* translators: %s is the number of subscribers */
+						_n(
+							'You have %s subscriber.',
+							'You have %s subscribers.',
+							subscriberCount,
+							'jetpack'
+						),
+						subscriberCount
+					) }
+				</InspectorNotice>
+			) }		
 			{ isGradientAvailable && (
 				<PanelColorGradientSettings
 					title={ __( 'Color', 'jetpack' ) }
@@ -220,20 +234,6 @@ export default function SubscriptionControls( {
 				initialOpen={ false }
 				className="wp-block-jetpack-subscriptions__displaypanel"
 			>
-				{ subscriberCount > 1 && (
-					<InspectorNotice>
-						{ sprintf(
-							/* translators: %s is the number of subscribers */
-							_n(
-								'You have %s subscriber.',
-								'You have %s subscribers.',
-								subscriberCount,
-								'jetpack'
-							),
-							subscriberCount
-						) }
-					</InspectorNotice>
-				) }
 				<ToggleControl
 					label={ __( 'Show subscriber count', 'jetpack' ) }
 					checked={ showSubscribersTotal }
