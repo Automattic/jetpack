@@ -12,6 +12,8 @@ if [ -z "${1}" ]; then
 	exit 1
 fi
 
+VERSION="99.9-alpha"
+
 printf "\nDeactivating Jetpack and removing any related plugins\n"
 wp plugin --allow-root deactivate jetpack || true
 rm -rf /var/www/html/wp-content/plugins/jetpack || true
@@ -25,7 +27,6 @@ rm -rf /var/www/html/wp-content/plugins/vaultpress || true
 sudo chmod 755 /var/www/html/
 sudo chown -R www-data:www-data /var/www/html/
 
-ls -lh /var/www/html/wp-content/uploads
 printf "\nDone with jetpack.zip preparation!\n"
 
 printf "\nInstalling Jetpack stable\n"
@@ -38,9 +39,8 @@ cat /var/www/html/wp-content/uploads/jetpack-status-before-update
 
 printf "\nSetting the update version and URL\n"
 wp plugin --allow-root activate e2e-plugin-updater
-wp --allow-root option set e2e_jetpack_upgrader_update_version 99.9-alpha
-wp --allow-root option set e2e_jetpack_upgrader_plugin_url "${1}"/wp-content/uploads/jetpack.99.9.zip
-ls /var/www/html/wp-content/uploads/
-rm -rf /root/.wp-cli/cache/plugin/jetpack-99.9-alpha.zip
+wp --allow-root option set e2e_jetpack_upgrader_update_version "$VERSION"
+wp --allow-root option set e2e_jetpack_upgrader_plugin_url "${1}"/wp-content/uploads/jetpack-next.zip
+rm -rf /root/.wp-cli/cache/plugin/jetpack-"$VERSION".zip
 
 printf "\nReady for update!\n"

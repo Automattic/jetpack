@@ -1,8 +1,10 @@
 import WpPage from '../wp-page.js';
+import { resolveSiteUrl } from '../../helpers/utils-helper.cjs';
 
 export default class PluginsPage extends WpPage {
 	constructor( page ) {
-		super( page, { expectedSelectors: [ '.search-box' ] } );
+		const url = `${ resolveSiteUrl() }/wp-admin/plugins.php`;
+		super( page, { expectedSelectors: [ '.search-box' ], url } );
 	}
 
 	async deactivatePlugin( pluginSlug ) {
