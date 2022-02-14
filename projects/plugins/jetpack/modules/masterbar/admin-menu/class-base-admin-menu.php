@@ -77,7 +77,7 @@ abstract class Base_Admin_Menu {
 			add_action( 'admin_enqueue_scripts', array( $this, 'enqueue_scripts' ), 11 );
 			add_action( 'admin_head', array( $this, 'set_site_icon_inline_styles' ) );
 			add_action( 'in_admin_header', array( $this, 'add_dashboard_switcher' ) );
-			add_action( 'wp_enqueue_scripts', array( $this, 'dashboard_switcher_scripts' ) );
+			add_action( 'admin_footer', array( $this, 'dashboard_switcher_scripts' ) );
 			add_action( 'admin_menu', array( $this, 'handle_preferred_view' ), 99997 );
 			add_filter( 'admin_body_class', array( $this, 'admin_body_class' ) );
 		}
