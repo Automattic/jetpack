@@ -1,5 +1,10 @@
 <?php //phpcs:ignore WordPress.Files.FileName.InvalidClassFileName
-
+/**
+ * Comment endpoint.
+ *
+ * @todo - can this file be written without overriding global variables?
+ * @phpcs:disable WordPress.WP.GlobalVariablesOverride.Prohibited
+ */
 /**
  * Comment endpoint class.
  */
@@ -66,7 +71,9 @@ abstract class WPCOM_JSON_API_Comment_Endpoint extends WPCOM_JSON_API_Endpoint {
 		}
 
 		$types = array( '', 'comment', 'pingback', 'trackback', 'review' );
-		if ( ! in_array( $comment->comment_type, $types ) ) { // phpcs:ignore WordPress.PHP.StrictInArray.MissingTrueStrict
+		// @todo - can we make this comparison strict without breaking anything?
+		// phpcs:ignore WordPress.PHP.StrictInArray.MissingTrueStrict
+		if ( ! in_array( $comment->comment_type, $types ) ) {
 			return new WP_Error( 'unknown_comment', 'Unknown comment', 404 );
 		}
 
@@ -84,7 +91,7 @@ abstract class WPCOM_JSON_API_Comment_Endpoint extends WPCOM_JSON_API_Endpoint {
 					return new WP_Error( 'unauthorized', 'User cannot edit comment', 403 );
 				}
 
-				$GLOBALS['post'] = $post; // phpcs:ignore WordPress.WP.GlobalVariablesOverride.Prohibited
+				$GLOBALS['post'] = $post;
 				$comment         = get_comment_to_edit( $comment->comment_ID );
 				foreach ( array( 'comment_author', 'comment_author_email', 'comment_author_url' ) as $field ) {
 					$comment->$field = htmlspecialchars_decode( $comment->$field, ENT_QUOTES );
@@ -94,7 +101,9 @@ abstract class WPCOM_JSON_API_Comment_Endpoint extends WPCOM_JSON_API_Endpoint {
 				if ( 'approved' !== $status ) {
 					$current_user_id       = get_current_user_id();
 					$user_can_read_comment = false;
-					if ( $current_user_id && $comment->user_id && $current_user_id == $comment->user_id ) { // phpcs:ignore Universal.Operators.StrictComparisons.LooseEqual
+					// @todo - can we make this comparison strict without breaking anything?
+					// phpcs:ignore Universal.Operators.StrictComparisons.LooseEqual
+					if ( $current_user_id && $comment->user_id && $current_user_id == $comment->user_id ) {
 						$user_can_read_comment = true;
 					} elseif (
 					$comment->comment_author_email && $comment->comment_author
@@ -117,7 +126,7 @@ abstract class WPCOM_JSON_API_Comment_Endpoint extends WPCOM_JSON_API_Endpoint {
 					}
 				}
 
-				$GLOBALS['post'] = $post; // phpcs:ignore WordPress.WP.GlobalVariablesOverride.Prohibited
+				$GLOBALS['post'] = $post;
 				setup_postdata( $post );
 				break;
 			default:
@@ -129,7 +138,7 @@ abstract class WPCOM_JSON_API_Comment_Endpoint extends WPCOM_JSON_API_Endpoint {
 			return $can_view;
 		}
 
-		$GLOBALS['comment'] = $comment; // phpcs:ignore WordPress.WP.GlobalVariablesOverride.Prohibited
+		$GLOBALS['comment'] = $comment;
 		$response           = array();
 
 		foreach ( array_keys( $this->comment_object_format ) as $key ) {
