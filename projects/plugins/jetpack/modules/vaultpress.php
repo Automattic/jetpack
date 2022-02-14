@@ -1,4 +1,4 @@
-<?php
+<?php // phpcs:disable WordPress.WP.CapitalPDangit.Misspelled
 /**
  * Module Name: Backups and Scanning
  * Module Description: Protect your site with daily or real-time backups and automated virus scanning and threat detection.
@@ -9,7 +9,7 @@
  * Requires Connection: Yes
  * Auto Activate: No
  * Feature: Security, Health
- * Additional Search Queries: backup, cloud backup, database backup, restore, WordPress backup, backup plugin, WordPress backup plugin, back up, backup WordPress, backwpup, vaultpress, backups, off-site backups, offsite backup, offsite, off-site, antivirus, malware scanner, security, virus, viruses, prevent viruses, scan, anti-virus, antimalware, protection, safe browsing, malware, wp security, WordPress security
+ * Additional Search Queries: backup, cloud backup, database backup, restore, wordpress backup, backup plugin, wordpress backup plugin, back up, backup wordpress, backwpup, vaultpress, backups, off-site backups, offsite backup, offsite, off-site, antivirus, malware scanner, security, virus, viruses, prevent viruses, scan, anti-virus, antimalware, protection, safe browsing, malware, wp security, wordpress security
  * Plans: personal, business, premium, security, complete
  */
 
