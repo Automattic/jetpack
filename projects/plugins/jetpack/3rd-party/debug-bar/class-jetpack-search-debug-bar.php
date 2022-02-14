@@ -98,6 +98,11 @@ class Jetpack_Search_Debug_Bar extends Debug_Bar_Panel {
 			Jetpack_Search\Instant_Search::instance() :
 			Jetpack_Search\Classic_Search::instance()
 		);
+
+		if ( ! $jetpack_search ) {
+			return;
+		}
+		
 		$last_query_info = $jetpack_search->get_last_query_info();
 
 		// If not empty, let's reshuffle the order of some things.
