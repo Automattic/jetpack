@@ -82,7 +82,7 @@ class Initial_State {
 				'instant_search_enabled' => $this->module_control->is_instant_search_enabled(),
 			),
 			// phpcs:ignore WordPress.Security.NonceVerification.Recommended
-			'features'        => array_map( 'sanitize_text_field', explode( ',', $_GET['features'] ) ),
+			'features'        => array_map( 'sanitize_text_field', explode( ',', isset( $_GET['features'] ) ) ? $_GET['features'] : '' ),
 		);
 	}
 
