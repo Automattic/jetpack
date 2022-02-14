@@ -3,12 +3,7 @@ use Automattic\Jetpack\Assets;
 use Automattic\Jetpack\Status;
 
 /**
- * Plugin Name: Jetpack Carousel
- * Plugin URL: https://wordpress.com/
- * Description: Transform your standard image galleries into an immersive full-screen experience.
- * Version: 0.1
- * Author: Automattic
- * Text Domain: jetpack
+ * Module: Jetpack Carousel
  *
  * @package automattic/jetpack
  */
