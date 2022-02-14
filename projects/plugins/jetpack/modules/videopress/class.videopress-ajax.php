@@ -49,7 +49,6 @@ class VideoPress_AJAX {
 	 */
 	public function wp_ajax_videopress_get_playback_jwt() {
 
-		$options = VideoPress_Options::get_options();
 		$src = filter_input( INPUT_POST, 'src', FILTER_VALIDATE_URL );
 		if ( empty( $src ) ) {
 			wp_send_json_error( array( 'message' => __( 'need a source', 'jetpack' ) ) );
@@ -64,6 +63,30 @@ class VideoPress_AJAX {
 		$guid = $matches[1];
 		error_log( $guid );
 
+		$token = self::request_jwt_from_wpcom( $guid );
+
+
+		if ( empty( $token ) ) {
+			wp_send_json_error( array( 'message' => __( 'Could not obtain a VideoPress playback JWT. Please try again later. (empty upload token)', 'jetpack' ) ) );
+			return;
+		}
+
+		if ( is_wp_error( $token ) ) {
+			wp_send_json_error( array( 'message' => __( 'Could not obtain a VideoPress upload JWT. Please try again later.', 'jetpack' ) ) );
+			return;
+		}
+
+		// enforce video.wordpress.com
+		$src = str_replace( 'videopress.com', 'video.wordpress.com', $src );
+		$response['src'] = $src . '&metadata_token=' . $token;
+
+		wp_send_json_success( $response );
+	}
+
+
+	static function request_jwt_from_wpcom( $guid ) {
+		$options = VideoPress_Options::get_options();
+
 		$args = array(
 			'method' => 'POST',
 			// 'sslverify' => false,
@@ -72,22 +95,16 @@ class VideoPress_AJAX {
 		$endpoint = "sites/{$options['shadow_blog_id']}/media/videopress-playback-jwt/{$guid}";
 		$result   = Client::wpcom_json_api_request_as_blog( $endpoint, 'v2', $args, null, 'wpcom' );
 		if ( is_wp_error( $result ) ) {
-			wp_send_json_error( array( 'message' => __( 'Could not obtain a VideoPress upload JWT. Please try again later.', 'jetpack' ) ) );
-			return;
+			return $result;
 		}
 
 		$response = json_decode( $result['body'], true );
 
 		if ( empty( $response['metadata_token'] ) ) {
-			wp_send_json_error( array( 'message' => __( 'Could not obtain a VideoPress playback JWT. Please try again later. (empty upload token)', 'jetpack' ) ) );
-			return;
+			return false;
 		}
 
-		// enforce video.wordpress.com
-		$src = str_replace( 'videopress.com', 'video.wordpress.com', $src );
-		$response['src'] = $src . '&metadata_token=' . $response['metadata_token'];
-
-		wp_send_json_success( $response );
+		return $response['metadata_token'];
 	}
 
 	/**

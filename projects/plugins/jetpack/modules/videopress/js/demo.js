@@ -2,8 +2,10 @@
 	$( document ).ready( function ( $ ) {
 		console.log( 'hi' );
 		setTimeout( function () {
-			var videoBlocks = $( 'iframe[src*="videopress.com"]' );
-			console.log( videoBlocks.attr( 'src' ) );
+			var videoBlocks = $(
+				'iframe[src*="videopress.com/embed"], iframe[src*="video.wordpress.com/embed"]'
+			);
+			console.log( videoBlocks );
 			videoBlocks.each( function ( i, iframeElement ) {
 				console.log( i, iframeElement.src );
 
