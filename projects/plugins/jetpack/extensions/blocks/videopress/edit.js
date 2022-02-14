@@ -57,8 +57,10 @@ const VideoPressEdit = CoreVideoEdit =>
 				lastRequestedMediaId: null,
 				isUpdatingRating: false,
 				allowDownload: null,
+				isPrivate: null,
 				isUpdatingAllowDownload: false,
 				fileForUpload: props.fileForImmediateUpload,
+				isUpdatingIsPrivate: false,
 			};
 			this.posterImageButton = createRef();
 			this.previewCacheReloadTimer = null;
@@ -101,6 +103,7 @@ const VideoPressEdit = CoreVideoEdit =>
 			const media = await this.requestMedia( id );
 			let rating = get( media, 'jetpack_videopress.rating' );
 			const allowDownload = get( media, 'jetpack_videopress.allow_download' );
+			const isPrivate = get( media, 'jetpack_videopress.is_private' );
 
 			if ( rating ) {
 				// X-18 was previously supported but is now removed to better comply with our TOS.
@@ -112,6 +115,10 @@ const VideoPressEdit = CoreVideoEdit =>
 
 			if ( 'undefined' !== typeof allowDownload ) {
 				this.setState( { allowDownload: !! allowDownload } );
+			}
+
+			if ( 'undefined' !== typeof isPrivate ) {
+				this.setState( { isPrivate: !! isPrivate } );
 			}
 		};
 
@@ -346,6 +353,17 @@ const VideoPressEdit = CoreVideoEdit =>
 			);
 		};
 
+		onChangeIsPrivate = isPrivate => {
+			const originalValue = this.state.isPrivate;
+
+			this.updateMetaApiCall(
+				{ is_private: isPrivate ? 1 : 0 },
+				() => this.setState( { isUpdatingIsPrivate: true, isPrivate } ),
+				() => this.setState( { isPrivate: originalValue } ),
+				() => this.setState( { isUpdatingIsPrivate: false } )
+			);
+		};
+
 		updateMetaApiCall = ( requestData, onBeforeApiCall, onRevert, onAfterApiCall ) => {
 			const { invalidateCachedEmbedPreview, url } = this.props;
 			const { id } = this.props.attributes;
@@ -397,7 +415,9 @@ const VideoPressEdit = CoreVideoEdit =>
 				interactive,
 				rating,
 				allowDownload,
+				isPrivate,
 				isUpdatingAllowDownload,
+				isUpdatingIsPrivate,
 			} = this.state;
 
 			const {
@@ -595,6 +615,16 @@ const VideoPressEdit = CoreVideoEdit =>
 								onChange={ this.onChangeAllowDownload }
 								checked={ allowDownload }
 								disabled={ isFetchingMedia || isUpdatingAllowDownload }
+							/>
+							<ToggleControl
+								label={ this.renderControlLabelWithTooltip(
+									__( 'is Private', 'jetpack' ),
+									/* translators: Tooltip describing the "is Private" option for the VideoPress player */
+									__( 'Display Private option and is viewers to Private this video', 'jetpack' )
+								) }
+								onChange={ this.onChangeIsPrivate }
+								checked={ isPrivate }
+								disabled={ isFetchingMedia || isUpdatingIsPrivate }
 							/>
 						</PanelBody>
 					</InspectorControls>
