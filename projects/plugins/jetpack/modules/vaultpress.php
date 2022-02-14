@@ -9,7 +9,7 @@
  * Requires Connection: Yes
  * Auto Activate: No
  * Feature: Security, Health
- * Additional Search Queries: backup, cloud backup, database backup, restore, wordpress backup, backup plugin, wordpress backup plugin, back up, backup wordpress, backwpup, vaultpress, backups, off-site backups, offsite backup, offsite, off-site, antivirus, malware scanner, security, virus, viruses, prevent viruses, scan, anti-virus, antimalware, protection, safe browsing, malware, wp security, wordpress security
+ * Additional Search Queries: backup, cloud backup, database backup, restore, WordPress backup, backup plugin, WordPress backup plugin, back up, backup WordPress, backwpup, vaultpress, backups, off-site backups, offsite backup, offsite, off-site, antivirus, malware scanner, security, virus, viruses, prevent viruses, scan, anti-virus, antimalware, protection, safe browsing, malware, wp security, WordPress security
  * Plans: personal, business, premium, security, complete
  */
 
@@ -28,6 +28,6 @@ function vaultpress_jetpack_module_free_text() {
 }
 
 function vaultpress_jetpack_configure_url() {
-	include_once( ABSPATH . '/wp-admin/includes/plugin.php' );
+	include_once ABSPATH . '/wp-admin/includes/plugin.php';
 	return menu_page_url( 'vaultpress', false );
 }

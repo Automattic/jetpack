@@ -54,20 +54,19 @@ function latex_src( $matches ) {
 
 	$bg = latex_get_default_color( 'bg' );
 	$fg = latex_get_default_color( 'text', '000' );
-	$s = 0;
-
+	$s  = 0;
 
 	$latex = latex_entity_decode( $latex );
 	if ( preg_match( '/.+(&fg=[0-9a-f]{6}).*/i', $latex, $fg_matches ) ) {
-		$fg = substr( $fg_matches[1], 4 );
+		$fg    = substr( $fg_matches[1], 4 );
 		$latex = str_replace( $fg_matches[1], '', $latex );
 	}
 	if ( preg_match( '/.+(&bg=[0-9a-f]{6}).*/i', $latex, $bg_matches ) ) {
-		$bg = substr( $bg_matches[1], 4 );
+		$bg    = substr( $bg_matches[1], 4 );
 		$latex = str_replace( $bg_matches[1], '', $latex );
 	}
 	if ( preg_match( '/.+(&s=[0-9-]{1,2}).*/i', $latex, $s_matches ) ) {
-		$s = (int) substr( $s_matches[1], 3 );
+		$s     = (int) substr( $s_matches[1], 3 );
 		$latex = str_replace( $s_matches[1], '', $latex );
 	}
 
@@ -76,7 +75,7 @@ function latex_src( $matches ) {
 
 function latex_get_default_color( $color, $default_color = 'ffffff' ) {
 	global $themecolors;
-	return isset($themecolors[$color]) ? $themecolors[$color] : $default_color;
+	return isset( $themecolors[ $color ] ) ? $themecolors[ $color ] : $default_color;
 }
 
 function latex_entity_decode( $latex ) {

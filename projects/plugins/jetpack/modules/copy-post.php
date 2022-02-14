@@ -316,8 +316,8 @@ class Jetpack_Copy_Post {
 		);
 
 		// Insert the Copy action before the Trash action.
-		$edit_offset = array_search( 'trash', array_keys( $actions ), true );
-		$updated_actions     = array_merge(
+		$edit_offset     = array_search( 'trash', array_keys( $actions ), true );
+		$updated_actions = array_merge(
 			array_slice( $actions, 0, $edit_offset ),
 			$edit_action,
 			array_slice( $actions, $edit_offset )
