@@ -11,6 +11,7 @@ import { useNavigate } from 'react-router-dom';
 import ProductCard from '../product-card';
 import { useProduct } from '../../hooks/use-product';
 import { ScanIcon } from '../icons';
+import useMyJetpackNavigate from '../../hooks/use-my-jetpack-navigate';
 
 const ScanCard = ( { admin } ) => {
 	const { status, activate, deactivate, detail, isFetching } = useProduct( 'scan' );
@@ -34,6 +35,7 @@ const ScanCard = ( { admin } ) => {
 			onActivate={ activate }
 			onAdd={ onAddHandler }
 			showDeactivate={ false }
+			onFixConnection={ useMyJetpackNavigate( '/connection' ) }
 		/>
 	);
 };

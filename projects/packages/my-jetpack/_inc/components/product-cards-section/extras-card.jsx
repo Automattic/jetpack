@@ -10,6 +10,7 @@ import PropTypes from 'prop-types';
 import ProductCard from '../product-card';
 import { useProduct } from '../../hooks/use-product';
 import { ExtrasIcon } from '../icons';
+import useMyJetpackNavigate from '../../hooks/use-my-jetpack-navigate';
 
 const ExtrasCard = ( { admin } ) => {
 	const { status, activate, deactivate, detail, isFetching } = useProduct( 'extras' );
@@ -27,6 +28,7 @@ const ExtrasCard = ( { admin } ) => {
 			slug={ slug }
 			onActivate={ activate }
 			showDeactivate={ false }
+			onFixConnection={ useMyJetpackNavigate( '/connection' ) }
 		/>
 	);
 };
