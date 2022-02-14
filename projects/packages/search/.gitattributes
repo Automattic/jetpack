@@ -5,6 +5,7 @@ package.json                                             export-ignore
 
 # Files to include in production build.
 /build/**                                                production-include
+/src/widgets/**/*.js                                     production-include
 
 # Files not needed in the production build.
 /changelog/**                                            production-exclude
