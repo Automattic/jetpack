@@ -39,9 +39,9 @@ class WPCOM_JSON_API_GET_Post_Counts_V1_1_Endpoint extends WPCOM_JSON_API_Endpoi
 	/**
 	 * Whitelist array.
 	 *
-	 * @var $whitelist
+	 * @var allowlist
 	 */
-	private $whitelist = array( 'publish' );
+	private $allowlist = array( 'publish' );
 
 	/**
 	 * Build SQL query
@@ -79,7 +79,7 @@ class WPCOM_JSON_API_GET_Post_Counts_V1_1_Endpoint extends WPCOM_JSON_API_Endpoi
 			foreach ( (array) wp_count_posts( $post_type ) as $status => $count ) {
 				// @todo see if we can use a strict comparison here.
 				// phpcs:ignore WordPress.PHP.StrictInArray.MissingTrueStrict
-				if ( in_array( $status, $this->whitelist ) && $count > 0 ) {
+				if ( in_array( $status, $this->allowlist ) && $count > 0 ) {
 					$counts[ $status ] = (int) $count;
 				}
 			}
@@ -112,7 +112,7 @@ class WPCOM_JSON_API_GET_Post_Counts_V1_1_Endpoint extends WPCOM_JSON_API_Endpoi
 		foreach ( $in as $result ) {
 			// @todo see if we can use a strict comparison here.
 			// phpcs:ignore WordPress.PHP.StrictInArray.MissingTrueStrict
-			if ( in_array( $result->status, $this->whitelist ) ) {
+			if ( in_array( $result->status, $this->allowlist ) ) {
 				$return[ $result->status ] = (int) $result->count;
 			}
 		}
@@ -154,7 +154,7 @@ class WPCOM_JSON_API_GET_Post_Counts_V1_1_Endpoint extends WPCOM_JSON_API_Endpoi
 		$mine_ID = get_current_user_id(); // phpcs:ignore WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase
 
 		if ( current_user_can( 'edit_posts' ) ) {
-			array_push( $this->whitelist, 'draft', 'future', 'pending', 'private', 'trash' );
+			array_push( $this->allowlist, 'draft', 'future', 'pending', 'private', 'trash' );
 		}
 
 		$return = array(
