@@ -152,9 +152,7 @@ class WPCOM_JSON_API_Get_Comments_Tree_Endpoint extends WPCOM_JSON_API_Endpoint 
 	 * @return boolean
 	 */
 	public function validate_status_param( $status ) {
-		// @todo see if we can use a strict comparison here.
-		// phpcs:ignore WordPress.PHP.StrictInArray.MissingTrueStrict
-		return in_array( $status, array( 'all', 'approved', 'unapproved', 'pending', 'spam', 'trash' ) );
+		return in_array( $status, array( 'all', 'approved', 'unapproved', 'pending', 'spam', 'trash' ), true );
 	}
 
 	/**
@@ -165,9 +163,7 @@ class WPCOM_JSON_API_Get_Comments_Tree_Endpoint extends WPCOM_JSON_API_Endpoint 
 	 * @return string Sanitized comment type.
 	 */
 	public function get_sanitized_comment_type( $type = 'comment' ) {
-		// @todo see if we can use a strict comparison here.
-		// phpcs:ignore WordPress.PHP.StrictInArray.MissingTrueStrict
-		if ( in_array( $type, array( 'trackback', 'pingback', 'comment' ) ) ) {
+		if ( in_array( $type, array( 'trackback', 'pingback', 'comment' ), true ) ) {
 			return $type;
 		}
 		return 'comment';

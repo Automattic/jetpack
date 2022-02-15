@@ -73,9 +73,7 @@ class WPCOM_JSON_API_Get_Post_v1_1_Endpoint extends WPCOM_JSON_API_Post_v1_1_End
 		}
 
 		if ( defined( 'IS_WPCOM' ) && IS_WPCOM &&
-				// @todo see if we can use a strict comparison.
-				// phpcs:ignore WordPress.PHP.StrictInArray.MissingTrueStrict
-				! in_array( get_post_type( $post_id ), array( false, 'post', 'revision' ) ) ) {
+				! in_array( get_post_type( $post_id ), array( false, 'post', 'revision' ), true ) ) {
 			$this->load_theme_functions();
 		}
 
