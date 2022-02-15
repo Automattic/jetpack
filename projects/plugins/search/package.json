@@ -21,7 +21,10 @@
 		"build-production-js": "echo 'Not implemented.",
 		"clean": "true"
 	},
-	"devDependencies": {},
+	"dependencies": {},
+	"devDependencies": {
+		"node-wp-i18n": "1.2.6"
+	},
 	"engines": {
 		"node": "^14.18.3 || ^16.13.2",
 		"pnpm": "^6.23.6",
