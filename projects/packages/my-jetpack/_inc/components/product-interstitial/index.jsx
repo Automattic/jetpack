@@ -70,13 +70,9 @@ export default function ProductInterstitial( { installsPlugin = false, slug, chi
 
 	const clickHandler = useCallback( () => {
 		if ( installsPlugin ) {
-			activate()
-				.then( () => {
-					afterInstallation( isFree );
-				} )
-				.catch( () => {
-					afterInstallation( isFree );
-				} );
+			activate().finally( () => {
+				afterInstallation( isFree );
+			} );
 		}
 	}, [ activate, isFree, installsPlugin, afterInstallation ] );
 	return (
