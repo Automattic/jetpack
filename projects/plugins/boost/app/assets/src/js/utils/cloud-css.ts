@@ -1,8 +1,8 @@
-import api from "../api/api";
+/**
+ * Internal dependencies
+ */
+import api from '../api/api';
 
-export function requestCloudCss() {
-	api.post( '/cloud-css/request-generate' )
-		.then(response => {
-			console.log(response);
-		});
+export function requestCloudCss(): Promise< string > {
+	return api.post( '/cloud-css/request-generate' );
 }
