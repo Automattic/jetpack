@@ -13,7 +13,7 @@
 		"automattic/jetpack-partner": "^1.7",
 		"automattic/jetpack-redirect": "^1.7",
 		"automattic/jetpack-status": "^1.10",
-		"automattic/jetpack-tracking": "^1.14"
+		"automattic/jetpack-tracking": "^1.15"
 	},
 	"require-dev": {
 		"brain/monkey": "2.6.1",

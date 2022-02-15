@@ -9,7 +9,7 @@
 		"automattic/jetpack-connection": "^1.36",
 		"automattic/jetpack-plugins-installer": "^0.1",
 		"automattic/jetpack-terms-of-service": "^1.9",
-		"automattic/jetpack-tracking": "^1.14",
+		"automattic/jetpack-tracking": "^1.15",
 		"automattic/jetpack-redirect": "^1.7"
 	},
 	"require-dev": {
