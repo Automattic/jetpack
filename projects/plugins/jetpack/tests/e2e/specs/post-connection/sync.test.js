@@ -5,7 +5,7 @@ import {
 	disableSync,
 	enableDedicatedSync,
 	disableDedicatedSync,
-	waitTillSyncQueueisEmpty,
+	waitTillSyncQueueIsEmpty,
 } from '../../helpers/sync-helper.js';
 import { BlockEditorPage } from 'jetpack-e2e-commons/pages/wp-admin/index.js';
 import { prerequisitesBuilder } from 'jetpack-e2e-commons/env/index.js';
@@ -49,10 +49,11 @@ test.describe( 'Sync', () => {
 			await blockEditor.setTitle( 'Testing Sync' );
 			await blockEditor.selectPostTitle();
 			await blockEditor.publishPost();
+			await blockEditor.viewPost();
 		} );
 
 		await test.step( 'Assert post is synced', async () => {
-			await waitTillSyncQueueisEmpty();
+			await waitTillSyncQueueIsEmpty();
 			wpcomPostsResponse = await page.request.get( wpcomForcedPostsUrl );
 			expect( wpcomPostsResponse.ok() ).toBeTruthy();
 
@@ -75,10 +76,11 @@ test.describe( 'Sync', () => {
 			await blockEditor.setTitle( 'Disabled Sync' );
 			await blockEditor.selectPostTitle();
 			await blockEditor.publishPost();
+			await blockEditor.viewPost();
 		} );
 
 		await test.step( 'Assert post is not synced', async () => {
-			await waitTillSyncQueueisEmpty();
+			await waitTillSyncQueueIsEmpty();
 			wpcomPostsResponse = await page.request.get( wpcomForcedPostsUrl );
 			expect( wpcomPostsResponse.ok() ).toBeTruthy();
 
@@ -101,10 +103,11 @@ test.describe( 'Sync', () => {
 			await blockEditor.setTitle( 'Dedicated Sync' );
 			await blockEditor.selectPostTitle();
 			await blockEditor.publishPost();
+			await blockEditor.viewPost();
 		} );
 
 		await test.step( 'Assert post is synced', async () => {
-			await waitTillSyncQueueisEmpty();
+			await waitTillSyncQueueIsEmpty();
 			wpcomPostsResponse = await page.request.get( wpcomForcedPostsUrl );
 			expect( wpcomPostsResponse.ok() ).toBeTruthy();
 

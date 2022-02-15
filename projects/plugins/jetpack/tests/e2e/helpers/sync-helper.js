@@ -40,7 +40,9 @@ export async function isSyncQueueEmpty() {
  * @param {number} [maxAttempts=10] - An upper bound for the number of
  *                                  attempts to check if the Sync Queue is empty.
  */
-export async function waitTillSyncQueueisEmpty( interval = 1000, maxAttempts = 10 ) {
+export async function waitTillSyncQueueIsEmpty( interval = 1000, maxAttempts = 10 ) {
+	logger.action( `Waiting for Sync Queue to empty [maxAttempts: ${ maxAttempts }]` );
+
 	let attempts = 0;
 
 	const executeWait = async ( resolve, reject ) => {
@@ -48,10 +50,10 @@ export async function waitTillSyncQueueisEmpty( interval = 1000, maxAttempts = 1
 		attempts++;
 
 		if ( true === isEmpty ) {
-			logger.action( `waitTillSyncQueueisEmpty: Sync Queue is empty after ${ attempts } attempts` );
+			logger.info( `waitTillSyncQueueisEmpty: Sync Queue is empty after ${ attempts } attempts` );
 			return resolve();
 		} else if ( maxAttempts && attempts === maxAttempts ) {
-			logger.error( `waitTillSyncQueueisEmpty: Exceeded max attempts ( ${ maxAttempts } )` );
+			logger.warn( `waitTillSyncQueueisEmpty: Exceeded max attempts ( ${ maxAttempts } )` );
 			return reject();
 		}
 		setTimeout( executeWait, interval, resolve, reject );
