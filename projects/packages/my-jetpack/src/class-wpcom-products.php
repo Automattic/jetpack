@@ -162,7 +162,7 @@ class Wpcom_Products {
 			'full_price'    => $product->cost,
 		);
 
-		if ( ! $product->sale_coupon ) {
+		if ( ! isset( $product->sale_coupon ) ) {
 			return $pricing;
 		}
 
