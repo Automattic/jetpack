@@ -7,11 +7,13 @@ import { Container, Col } from '@automattic/jetpack-components';
 /**
  * Internal dependencies
  */
-import { ProductDetail } from '../product-detail-card';
+import ProductDetailCard, { ProductDetail } from '../product-detail-card';
 import styles from './style.module.scss';
 import useAnalytics from '../../hooks/use-analytics';
 import boostImage from './boost.png';
 import searchImage from './search.png';
+import videoPressImage from './videopress.png';
+import { useProduct } from '../../hooks/use-product';
 
 /**
  * Product Interstitial component.
@@ -22,6 +24,9 @@ import searchImage from './search.png';
  * @returns {object}                ProductInterstitial react component.
  */
 export default function ProductInterstitial( { slug, children = null } ) {
+	const { detail } = useProduct( slug );
+	const { isUpgradableByBundle } = detail;
+
 	const {
 		tracks: { recordEvent },
 	} = useAnalytics();
@@ -34,10 +39,17 @@ export default function ProductInterstitial( { slug, children = null } ) {
 		recordEvent( 'jetpack_myjetpack_product_interstitial_add_link_click', { product: slug } );
 	}, [ recordEvent, slug ] );
 
+	const Product = isUpgradableByBundle ? ProductDetailCard : ProductDetail;
+
 	return (
-		<Container className={ styles.container } horizontalSpacing={ 0 } horizontalGap={ 0 } fluid>
+		<Container
+			className={ ! isUpgradableByBundle ? styles.container : null }
+			horizontalSpacing={ 0 }
+			horizontalGap={ 0 }
+			fluid
+		>
 			<Col sm={ 4 } md={ 4 } lg={ 5 }>
-				<ProductDetail slug={ slug } trackButtonClick={ trackProductClick } />
+				<Product slug={ slug } trackButtonClick={ trackProductClick } />
 			</Col>
 			<Col sm={ 4 } md={ 4 } lg={ 7 } className={ styles.imageContainer }>
 				{ children }
@@ -54,7 +66,7 @@ export default function ProductInterstitial( { slug, children = null } ) {
 export function AntiSpamInterstitial() {
 	return (
 		<ProductInterstitial slug="anti-spam">
-			<h2>@todo Popular upgrade here</h2>
+			<ProductDetailCard slug="security" />
 		</ProductInterstitial>
 	);
 }
@@ -67,7 +79,7 @@ export function AntiSpamInterstitial() {
 export function BackupInterstitial() {
 	return (
 		<ProductInterstitial slug="backup">
-			<h2>@todo Popular upgrade here</h2>
+			<ProductDetailCard slug="security" />
 		</ProductInterstitial>
 	);
 }
@@ -93,7 +105,7 @@ export function BoostInterstitial() {
 export function ScanInterstitial() {
 	return (
 		<ProductInterstitial slug="scan">
-			<h2>@todo Popular upgrade here</h2>
+			<ProductDetailCard slug="security" />
 		</ProductInterstitial>
 	);
 }
@@ -107,6 +119,19 @@ export function SearchInterstitial() {
 	return (
 		<ProductInterstitial slug="search">
 			<img src={ searchImage } alt="Search" />
+		</ProductInterstitial>
+	);
+}
+
+/**
+ * VideoPressInterstitial component
+ *
+ * @returns {object} VideoPressInterstitial react component.
+ */
+export function VideoPressInterstitial() {
+	return (
+		<ProductInterstitial slug="videopress">
+			<img src={ videoPressImage } alt="VideoPress" />
 		</ProductInterstitial>
 	);
 }

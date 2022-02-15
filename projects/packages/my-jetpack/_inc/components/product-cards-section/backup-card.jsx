@@ -29,6 +29,7 @@ const BackupCard = ( { admin } ) => {
 			onActivate={ activate }
 			showDeactivate={ false }
 			onAdd={ useMyJetpackNavigate( '/add-backup' ) }
+			onFixConnection={ useMyJetpackNavigate( '/connection' ) }
 		/>
 	);
 };
