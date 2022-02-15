@@ -129,4 +129,13 @@ class Security extends Module_Product {
 	public static function get_supported_products() {
 		return array( 'backup', 'scan', 'anti-spam' );
 	}
+
+	/**
+	 * Get the URL where the user manages the product
+	 *
+	 * @return ?string
+	 */
+	public static function get_manage_url() {
+		return '';
+	}
 }
