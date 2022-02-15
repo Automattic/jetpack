@@ -7,11 +7,6 @@ import { InnerBlocks } from '@wordpress/block-editor';
 import { useSelect } from '@wordpress/data';
 
 /**
- * External dependencies
- */
-import classNames from 'classnames';
-
-/**
  * Internal dependencies
  */
 import {
@@ -54,14 +49,19 @@ const intervalMap = {
 	'1 year': ANNUAL_DONATION,
 };
 
-const DonationTabButton = ( { label, id, tabIndex, isActive, onActivateTab } ) => {
+const DonationTabButton = ( { label, id, tabIndex, isActive, onActivateTab, color } ) => {
+	const style = {
+		backgroundColor: isActive ? color : 'white',
+		color: isActive ? 'white' : 'inherit',
+		borderColor: isActive ? color : 'inherit',
+	};
+
 	return (
 		<div
 			role="button"
 			tabIndex={ tabIndex }
-			className={ classNames( 'donations__nav-item', {
-				'is-active': isActive,
-			} ) }
+			className={ 'donations__nav-item' }
+			style={ style }
 			onClick={ () => onActivateTab( id ) }
 			onKeyDown={ () => onActivateTab( id ) }
 			key={ `jetpack-donations-nav-item-${ tabIndex }` }
@@ -76,6 +76,7 @@ const Edit = props => {
 	const { currency, annualDonation, monthlyDonation, showCustomAmount } = attributes;
 
 	const [ loadingError, setLoadingError ] = useState( '' );
+	const [ computedBorderColor, setComputedBorderColor ] = useState( '' );
 	const [ shouldUpgrade, setShouldUpgrade ] = useState( false );
 	const [ stripeConnectUrl, setStripeConnectUrl ] = useState( false );
 	const [ products, setProducts ] = useState( defaultProducts );
@@ -83,6 +84,12 @@ const Edit = props => {
 
 	const fallbackLinkUrl = useSelect( select => select( 'core/editor' ).getCurrentPost(), [] ).link;
 	const postId = useSelect( select => select( 'core/editor' ).getCurrentPostId(), [] );
+
+	useEffect( () => {
+		const query = `[data-block="${ props.clientId }"]`;
+		const blockDomElement = document.querySelectorAll( query );
+		setComputedBorderColor( window.getComputedStyle( blockDomElement[ 0 ] ).borderColor );
+	}, [ props ] );
 
 	const resetActiveTab = ( controlTab, value ) => {
 		if ( value === false && activeTab === controlTab ) {
@@ -154,6 +161,7 @@ const Edit = props => {
 									<DonationTabButton
 										label={ label }
 										id={ id }
+										color={ computedBorderColor }
 										tabIndex={ index }
 										isActive={ activeTab === id }
 										onActivateTab={ setActiveTab }
