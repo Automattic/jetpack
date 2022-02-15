@@ -17,8 +17,8 @@ test( 'Update Jetpack plugin', async ( { page } ) => {
 	// Update
 	await prerequisitesBuilder( page ).withLoggedIn( true ).build();
 
+	// Check if zip is present - DELETE ME LATER
 	await execContainerShellCommand( `ls /var/www/html/wp-content/uploads` );
-	await execShellCommand( `curl -I ${ resolveSiteUrl() }/wp-content/uploads/jetpack-next.zip` );
 
 	let pluginsPage;
 
