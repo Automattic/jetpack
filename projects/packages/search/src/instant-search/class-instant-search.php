@@ -482,7 +482,7 @@ class Instant_Search extends Classic_Search {
 		}
 		$active_theme     = \wp_get_theme()->get_stylesheet();
 		$template_part_id = "{$active_theme}//{$template_part_name}";
-		$template_part     = \get_block_template( $template_part_id, 'wp_template_part' );
+		$template_part    = \get_block_template( $template_part_id, 'wp_template_part' );
 		if ( is_wp_error( $template_part ) || empty( $template_part ) ) {
 			return null;
 		}
