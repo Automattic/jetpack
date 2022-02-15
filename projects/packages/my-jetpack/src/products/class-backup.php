@@ -10,6 +10,7 @@ namespace Automattic\Jetpack\My_Jetpack\Products;
 use Automattic\Jetpack\Connection\Client;
 use Automattic\Jetpack\My_Jetpack\Hybrid_Product;
 use Automattic\Jetpack\My_Jetpack\Wpcom_Products;
+use Automattic\Jetpack\Redirect;
 use Jetpack_Options;
 use WP_Error;
 
@@ -165,5 +166,30 @@ class Backup extends Hybrid_Product {
 	 */
 	public static function is_upgradable_by_bundle() {
 		return array( 'security' );
+	}
+
+	/**
+	 * Get the URL the user is taken after activating the product
+	 *
+	 * @return ?string
+	 */
+	public static function get_post_activation_url() {
+		if ( static::is_plugin_active() ) {
+			return admin_url( 'admin.php?page=jetpack-backup' );
+		}
+		return ''; // stay in My Jetpack page.
+	}
+
+	/**
+	 * Get the URL where the user manages the product
+	 *
+	 * @return ?string
+	 */
+	public static function get_manage_url() {
+		if ( static::is_plugin_active() ) {
+			return admin_url( 'admin.php?page=jetpack-backup' );
+		} elseif ( static::is_jetpack_plugin_active() ) {
+			return Redirect::get_url( 'my-jetpack-manage-backup' );
+		}
 	}
 }

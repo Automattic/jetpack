@@ -102,4 +102,24 @@ class Videopress extends Module_Product {
 	public static function get_wpcom_product_slug() {
 		return 'jetpack_videopress';
 	}
+
+	/**
+	 * Get the URL the user is taken after activating the product
+	 *
+	 * @return ?string
+	 */
+	public static function get_post_activation_url() {
+		return ''; // stay in My Jetpack page.
+	}
+
+	/**
+	 * Get the URL where the user manages the product
+	 *
+	 * @return ?string
+	 */
+	public static function get_manage_url() {
+		if ( static::is_active() ) {
+			return admin_url( 'admin.php?page=jetpack#/settings?term=videopress' );
+		}
+	}
 }

@@ -103,4 +103,22 @@ class Crm extends Product {
 			'is_free'   => true,
 		);
 	}
+
+	/**
+	 * Get the URL the user is taken after activating the product
+	 *
+	 * @return ?string
+	 */
+	public static function get_post_activation_url() {
+		return admin_url( 'admin.php?page=zerobscrm-plugin' ); // Welcome page.
+	}
+
+	/**
+	 * Get the URL where the user manages the product
+	 *
+	 * @return ?string
+	 */
+	public static function get_manage_url() {
+		return admin_url( 'admin.php?page=zerobscrm-plugin-settings' );
+	}
 }

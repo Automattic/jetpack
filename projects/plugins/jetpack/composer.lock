@@ -1165,13 +1165,14 @@
             "dist": {
                 "type": "path",
                 "url": "../../packages/my-jetpack",
-                "reference": "c382abc4f170c5341f1dc5ff697fe1cdce78c4f4"
+                "reference": "d9c67455da0f3210b8aa25ed2a860a568bf03364"
             },
             "require": {
                 "automattic/jetpack-admin-ui": "^0.2",
                 "automattic/jetpack-assets": "^1.17",
                 "automattic/jetpack-connection": "^1.36",
                 "automattic/jetpack-plugins-installer": "^0.1",
+                "automattic/jetpack-redirect": "^1.7",
                 "automattic/jetpack-terms-of-service": "^1.9",
                 "automattic/jetpack-tracking": "^1.14"
             },

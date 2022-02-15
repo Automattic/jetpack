@@ -10,6 +10,7 @@ namespace Automattic\Jetpack\My_Jetpack\Products;
 use Automattic\Jetpack\Connection\Client;
 use Automattic\Jetpack\My_Jetpack\Module_Product;
 use Automattic\Jetpack\My_Jetpack\Wpcom_Products;
+use Automattic\Jetpack\Redirect;
 use Jetpack_Options;
 use WP_Error;
 
@@ -193,5 +194,23 @@ class Scan extends Module_Product {
 	 */
 	public static function is_upgradable_by_bundle() {
 		return array( 'security' );
+	}
+
+	/**
+	 * Get the URL the user is taken after activating the product
+	 *
+	 * @return ?string
+	 */
+	public static function get_post_activation_url() {
+		return ''; // stay in My Jetpack page.
+	}
+
+	/**
+	 * Get the URL where the user manages the product
+	 *
+	 * @return ?string
+	 */
+	public static function get_manage_url() {
+		return Redirect::get_url( 'my-jetpack-manage-scan' );
 	}
 }

@@ -123,6 +123,8 @@ abstract class Product {
 			'wpcom_product_slug'       => static::get_wpcom_product_slug(),
 			'requires_user_connection' => static::$requires_user_connection,
 			'has_required_plan'        => static::has_required_plan(),
+			'manage_url'               => static::get_manage_url(),
+			'post_activation_url'      => static::get_post_activation_url(),
 			'class'                    => get_called_class(),
 		);
 	}
@@ -168,6 +170,22 @@ abstract class Product {
 	 * @return array
 	 */
 	abstract public static function get_pricing_for_ui();
+
+	/**
+	 * Get the URL where the user manages the product
+	 *
+	 * @return ?string
+	 */
+	abstract public static function get_manage_url();
+
+	/**
+	 * Get the URL the user is taken after activating the product
+	 *
+	 * @return ?string
+	 */
+	public static function get_post_activation_url() {
+		return static::get_manage_url();
+	}
 
 	/**
 	 * Get the WPCOM product slug used to make the purchase

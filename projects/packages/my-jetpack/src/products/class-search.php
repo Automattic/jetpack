@@ -152,4 +152,24 @@ class Search extends Module_Product {
 		$search_state = static::get_state_from_wpcom();
 		return ! empty( $search_state->supports_search ) || ! empty( $search_state->supports_instant_search );
 	}
+
+	/**
+	 * Get the URL the user is taken after activating the product
+	 *
+	 * @return ?string
+	 */
+	public static function get_post_activation_url() {
+		return ''; // stay in My Jetpack page.
+	}
+
+	/**
+	 * Get the URL where the user manages the product
+	 *
+	 * @return ?string
+	 */
+	public static function get_manage_url() {
+		if ( static::is_active() ) {
+			return admin_url( 'admin.php?page=jetpack-search-configure' );
+		}
+	}
 }
