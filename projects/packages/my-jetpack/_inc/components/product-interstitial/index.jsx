@@ -32,7 +32,8 @@ export default function ProductInterstitial( { installsPlugin = false, slug, chi
 	const { activate, detail } = useProduct( slug );
 	const {
 		isUpgradableByBundle,
-		pricingForUi: { isFree },
+		pricingForUi: { isFree, wpcomProductSlug },
+		hasRequiredPlan,
 	} = detail;
 
 	const {
@@ -50,9 +51,12 @@ export default function ProductInterstitial( { installsPlugin = false, slug, chi
 	const Product = isUpgradableByBundle ? ProductDetailCard : ProductDetail;
 	const { isUserConnected } = useMyJetpackConnection();
 
-	const addProductUrl = isFree
-		? null
-		: getProductCheckoutUrl( `jetpack_${ slug }`, isUserConnected ); // @ToDo: Remove this when we have a new product structure.
+	const needsPurchase = ! isFree && ! hasRequiredPlan;
+
+	const addProductUrl =
+		! needsPurchase || ! wpcomProductSlug
+			? null
+			: getProductCheckoutUrl( wpcomProductSlug, isUserConnected ); // @ToDo: Remove this when we have a new product structure.
 
 	const navigateToMyJetpackOverviewPage = useMyJetpackNavigate( '/' );
 	const navigateToCheckoutPage = useCallback( () => {
