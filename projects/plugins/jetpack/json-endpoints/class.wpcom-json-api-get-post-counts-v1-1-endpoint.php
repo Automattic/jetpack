@@ -46,6 +46,8 @@ class WPCOM_JSON_API_GET_Post_Counts_V1_1_Endpoint extends WPCOM_JSON_API_Endpoi
 	/**
 	 * Build SQL query
 	 *
+	 * This function must `$wpdb->prepare` the query. The return is expected to be prepared by consuming functions.
+	 *
 	 * @param string $post_type - post type.
 	 * @param int    $user_id - the user ID.
 	 * @return string SQL query
@@ -62,8 +64,7 @@ class WPCOM_JSON_API_GET_Post_Counts_V1_1_Endpoint extends WPCOM_JSON_API_Endpoi
 
 		$query .= 'GROUP BY status';
 
-		// @todo see if this db query can be cleaned up.
-		// phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared
+		// phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared -- This is properly prepared, except the query is constructed in the variable, throwing the PHPCS error.
 		return $wpdb->prepare( $query, $post_type, $user_id );
 	}
 
@@ -92,8 +93,7 @@ class WPCOM_JSON_API_GET_Post_Counts_V1_1_Endpoint extends WPCOM_JSON_API_Endpoi
 		$counts = wp_cache_get( $key, 'counts' );
 
 		if ( false === $counts ) {
-			// @todo see if this db query can be cleaned up.
-			// phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared
+			// phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared -- buildCountsQuery prepares the query.
 			$results = $wpdb->get_results( $this->buildCountsQuery( $post_type, $id ) );
 			$counts  = $this->filterStatusesByWhiteslist( $results );
 			wp_cache_set( $key, $counts, 'counts' );
