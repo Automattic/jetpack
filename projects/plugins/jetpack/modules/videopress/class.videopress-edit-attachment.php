@@ -197,7 +197,7 @@ class VideoPress_Edit_Attachment {
 			$fields['videopress_original_file_url'] = array(
 				'label'         => _x( 'Original File URL', 'A header for the original file url field', 'jetpack' ),
 				'input'         => 'html',
-				'html'          => "<input type=\"text\" name=\"videopress_original_file_url\" value=\"{$original_file_url}\" readonly=\"readonly\"/>",
+				'html'          => '<input type="text" name="videopress_original_file_url" value="' . esc_url( $original_file_url ) . '" readonly="readonly"/>',
 				'show_in_modal' => true,
 				'show_in_edit'  => false,
 			);
