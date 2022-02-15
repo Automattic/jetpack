@@ -108,19 +108,21 @@
 		}
 	}
 
-	// Product Icon
-	& > svg {
-		margin-bottom: 24px;
-	}
-
 	.product-has-required-plan {
 		display: flex;
 		justify-content: center;
 		align-items: center;
 		font-size: 18px;
+		align-self: flex-end;
+		margin: 0 auto;
 		svg {
 			margin-right: 5px;
 		}
+	}
+
+	// Product Icon
+	& > svg {
+		margin-bottom: 24px;
 	}
 }
 
