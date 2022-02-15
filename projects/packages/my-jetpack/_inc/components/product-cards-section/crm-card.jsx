@@ -27,6 +27,7 @@ const CrmCard = ( { admin } ) => {
 			onDeactivate={ deactivate }
 			onActivate={ activate }
 			slug={ slug }
+			onAdd={ useMyJetpackNavigate( '/add-crm' ) }
 			onFixConnection={ useMyJetpackNavigate( '/connection' ) }
 		/>
 	);
