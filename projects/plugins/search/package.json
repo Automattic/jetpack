@@ -14,6 +14,7 @@
 	"license": "GPL-2.0-or-later",
 	"author": "Automattic",
 	"scripts": {
+		"add-textdomain": "wpi18n addtextdomain --textdomain=jetpack-search --glob-pattern='!(node_modules|tests|tools|vendor){*.php,**/*.php}'",
 		"build": "echo 'Not implemented.",
 		"build-js": "echo 'Not implemented.",
 		"build-production": "echo 'Not implemented.",
