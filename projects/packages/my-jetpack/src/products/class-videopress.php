@@ -104,7 +104,7 @@ class Videopress extends Module_Product {
 	 * @return ?string
 	 */
 	public static function get_post_activation_url() {
-		return ''; // stay in My Jetpack page
+		return ''; // stay in My Jetpack page.
 	}
 
 	/**
