@@ -23,4 +23,5 @@ printf "\nZip file created: %s\n" "$ZIP_FILE"
 
 printf "\nCopying zip file to docker container\n"
 pnpx jetpack docker --type e2e --name t1 exec-silent mkdir -- -p /var/www/html/wp-content/uploads
+docker ps
 docker cp "$ZIP_FILE" jetpack_t1-wordpress-1:/var/www/html/wp-content/uploads/jetpack-next.zip
