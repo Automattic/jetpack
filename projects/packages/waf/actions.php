@@ -18,7 +18,7 @@ if ( ! function_exists( 'add_action' ) ) {
  * @param  string $option The mode option.
  * @return bool
  */
-function jpwaf_is_allowed_mode( $option ) {
+function is_allowed_mode( $option ) {
 	$allowed_modes = array(
 		'normal',
 		'silent',
@@ -39,14 +39,14 @@ add_action(
 		if ( ! defined( 'JETPACK_WAF_MODE' ) ) {
 			$mode_option = get_option( 'jetpack_waf_mode' );
 
-			if ( ! jpwaf_is_allowed_mode( $mode_option ) ) {
+			if ( ! is_allowed_mode( $mode_option ) ) {
 				return;
 			}
 
 			define( 'JETPACK_WAF_MODE', $mode_option );
 		}
 
-		if ( ! jpwaf_is_allowed_mode( JETPACK_WAF_MODE ) ) {
+		if ( ! is_allowed_mode( JETPACK_WAF_MODE ) ) {
 			return;
 		}
 
