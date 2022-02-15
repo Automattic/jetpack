@@ -15,7 +15,7 @@ import styles from './style.module.scss';
 import getProductCheckoutUrl from '../../utils/get-product-checkout-url';
 import useMyJetpackConnection from '../../hooks/use-my-jetpack-connection';
 import { useProduct } from '../../hooks/use-product';
-import { BackupIcon, ScanIcon, StarIcon, getIconBySlug } from '../icons';
+import { BackupIcon, ScanIcon, StarIcon, getIconBySlug, AntiSpamIcon } from '../icons';
 
 /**
  * Simple react component to render the product icon,
@@ -26,6 +26,9 @@ import { BackupIcon, ScanIcon, StarIcon, getIconBySlug } from '../icons';
  */
 function ProductIcon( { slug } ) {
 	switch ( slug ) {
+		case 'anti-spam':
+			return <AntiSpamIcon size={ 24 } />;
+
 		case 'backup':
 			return <BackupIcon size={ 24 } />;
 
@@ -77,16 +80,25 @@ const ProductDetail = ( { slug, trackButtonClick } ) => {
 	const { isFree, fullPrice, currencyCode, discountedPrice } = pricingForUi;
 	const { isUserConnected } = useMyJetpackConnection();
 
-	const addProductUrl = getProductCheckoutUrl( `jetpack_${ slug }`, isUserConnected ); // @ToDo: Remove this when we have a new product structure.
+	const addProductUrl = isFree
+		? null
+		: getProductCheckoutUrl( `jetpack_${ slug }`, isUserConnected ); // @ToDo: Remove this when we have a new product structure.
 
 	// Suppported products icons.
 	const icons = isBundle
 		? supportedProducts
 				.join( '_plus_' )
 				.split( '_' )
-				.map( iconSlug => {
+				.map( ( iconSlug, i ) => {
 					if ( iconSlug === 'plus' ) {
-						return <Icon className={ styles[ 'plus-icon' ] } icon={ plus } size={ 14 } />;
+						return (
+							<Icon
+								className={ styles[ 'plus-icon' ] }
+								key={ `icon-plugs${ i }` }
+								icon={ plus }
+								size={ 14 }
+							/>
+						);
 					}
 
 					const SupportedProductIcon = getIconBySlug( iconSlug );
