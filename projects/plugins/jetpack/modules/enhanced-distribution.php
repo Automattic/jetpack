@@ -29,7 +29,7 @@ function jetpack_enhanced_distribution_before_activate_default_modules() {
 
 add_action( 'jetpack_before_activate_default_modules', 'jetpack_enhanced_distribution_before_activate_default_modules' );
 
-if ( isset( $_GET['get_freshly_pressed_data'] ) ) {
+if ( isset( $_GET['get_freshly_pressed_data'] ) ) { // phpcs:ignore WordPress.Security.NonceVerification.Recommended
 	/**
 	 * If a request has ?get_freshly_pressed_data=true appended
 	 * to the end, then let's provide the necessary data back via JSON.
