@@ -157,9 +157,26 @@ class Wpcom_Products {
 			return array();
 		}
 
-		return array(
+		$pricing = array(
 			'currency_code' => $product->currency_code,
 			'full_price'    => $product->cost,
 		);
+
+		if ( ! $product->sale_coupon ) {
+			return $pricing;
+		}
+
+		// Check whether the coupon is still valid.
+		$sale            = $product->sale_coupon;
+		$sale_start_date = strtotime( $sale->start_date );
+		$sale_expires    = strtotime( $sale->expires );
+		if ( $sale_start_date > time() || $sale_expires < time() ) {
+			return $pricing;
+		}
+
+		// Populate response with sale discount.
+		$pricing['discount'] = $sale->discount;
+
+		return $pricing;
 	}
 }
