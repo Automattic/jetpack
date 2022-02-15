@@ -57,7 +57,7 @@ class Crm extends Product {
 	 * @return string
 	 */
 	public static function get_title() {
-		return ''; // @todo title
+		return __( 'Jetpack CRM', 'jetpack-my-jetpack' );
 	}
 
 	/**
@@ -75,7 +75,7 @@ class Crm extends Product {
 	 * @return string
 	 */
 	public static function get_long_description() {
-		return ''; // @todo Add long description
+		return __( 'All of your contacts in one place. Build better relationships with your customers and clients.', 'jetpack-my-jetpack' );
 	}
 
 	/**
@@ -84,7 +84,12 @@ class Crm extends Product {
 	 * @return array CRM features list
 	 */
 	public static function get_features() {
-		return array();
+		return array(
+			__( 'Manage unlimited contacts', 'jetpack-my-jetpack' ),
+			__( 'Manage billing and create invoices', 'jetpack-my-jetpack' ),
+			__( 'Fully integrated with WordPress & WooCommerce', 'jetpack-my-jetpack' ),
+			__( 'Infinitely customizable with integrations and extensions', 'jetpack-my-jetpack' ),
+		);
 	}
 
 	/**

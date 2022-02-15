@@ -63,6 +63,26 @@ export const boostProductData = {
 	},
 };
 
+export const crmProductData = {
+	slug: 'crm',
+	name: 'CRM',
+	title: 'Jetpack CRM',
+	description: 'Connect with your people',
+	long_description:
+		'All of your contacts in one place. Build better relationships with your customers and clients.',
+	status: 'inactive',
+	features: [
+		'Manage unlimited contacts',
+		'Manage billing and create invoices',
+		'Fully integrated with WordPress & WooCommerce',
+		'Infinitely customizable with integrations and extensions',
+	],
+	pricingForUi: {
+		available: true,
+		is_free: true,
+	},
+};
+
 export const scanProductData = {
 	slug: 'scan',
 	name: 'Scan',

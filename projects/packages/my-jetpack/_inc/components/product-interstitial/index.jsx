@@ -13,10 +13,12 @@ import useAnalytics from '../../hooks/use-analytics';
 import boostImage from './boost.png';
 import searchImage from './search.png';
 import videoPressImage from './videopress.png';
+import crmImage from './crm.png';
 import { useProduct } from '../../hooks/use-product';
 import useMyJetpackNavigate from '../../hooks/use-my-jetpack-navigate';
 import getProductCheckoutUrl from '../../utils/get-product-checkout-url';
 import useMyJetpackConnection from '../../hooks/use-my-jetpack-connection';
+
 /**
  * Product Interstitial component.
  *
@@ -135,6 +137,19 @@ export function BoostInterstitial() {
 	return (
 		<ProductInterstitial slug="boost" installsPlugin={ true }>
 			<img src={ boostImage } alt="Boost" />
+		</ProductInterstitial>
+	);
+}
+
+/**
+ * CRMInterstitial component
+ *
+ * @returns {object} CRMInterstitial react component.
+ */
+export function CRMInterstitial() {
+	return (
+		<ProductInterstitial slug="crm">
+			<img src={ crmImage } alt="CRM" />
 		</ProductInterstitial>
 	);
 }
