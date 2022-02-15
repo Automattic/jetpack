@@ -90,8 +90,7 @@ class Search extends Module_Product {
 	public static function get_pricing_for_ui() {
 		return array_merge(
 			array(
-				'available'            => true,
-				'promotion_percentage' => 50,
+				'available' => true,
 			),
 			Wpcom_Products::get_product_pricing( static::get_wpcom_product_slug() )
 		);

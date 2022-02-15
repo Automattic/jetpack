@@ -8,6 +8,7 @@
 namespace Automattic\Jetpack\My_Jetpack\Products;
 
 use Automattic\Jetpack\My_Jetpack\Module_Product;
+use Automattic\Jetpack\My_Jetpack\Wpcom_Products;
 
 /**
  * Class responsible for handling the Security product
@@ -86,11 +87,9 @@ class Security extends Module_Product {
 	public static function get_pricing_for_ui() {
 		return array_merge(
 			array(
-				'available'            => true,
-				'show_promotion'       => true,
-				'full_price'           => 24.92,
-				'promotion_percentage' => 50,
-			)
+				'available' => true,
+			),
+			Wpcom_Products::get_product_pricing( static::get_wpcom_product_slug() )
 		);
 	}
 
