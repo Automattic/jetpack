@@ -204,6 +204,17 @@ class VideoPress_Gutenberg {
 			JETPACK__VERSION,
 			false
 		);
+
+		wp_enqueue_script(
+			'jetpack-videopress-gutenberg-playback-jwt',
+			Assets::get_file_url_for_environment(
+				'modules/videopress/js/demo.js',
+				'modules/videopress/js/demo.js'
+			),
+			array(),
+			JETPACK__VERSION,
+			false
+		);
 	}
 }
 

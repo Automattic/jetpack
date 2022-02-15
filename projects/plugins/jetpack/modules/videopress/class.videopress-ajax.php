@@ -49,22 +49,15 @@ class VideoPress_AJAX {
 	 */
 	public function wp_ajax_videopress_get_playback_jwt() {
 
-		$src = filter_input( INPUT_POST, 'src', FILTER_VALIDATE_URL );
-		if ( empty( $src ) ) {
-			wp_send_json_error( array( 'message' => __( 'need a source', 'jetpack' ) ) );
+		$guid = filter_input( INPUT_POST, 'guid' );
+		if ( empty( $guid ) ) {
+			wp_send_json_error( array( 'message' => __( 'need a guid', 'jetpack' ) ) );
 			return;
 		}
-		$parsed = parse_url( $src );
-		if ( ! preg_match( '#/([[:alnum:]]+)$#', $parsed['path'], $matches ) ) {
-				wp_send_json_error( array( 'message' => __( 'need a source', 'jetpack' ) ) );
-				return;
-		}
 
-		$guid = $matches[1];
 		error_log( $guid );
 
 		$token = self::request_jwt_from_wpcom( $guid );
-
 
 		if ( empty( $token ) ) {
 			wp_send_json_error( array( 'message' => __( 'Could not obtain a VideoPress playback JWT. Please try again later. (empty upload token)', 'jetpack' ) ) );
@@ -77,8 +70,7 @@ class VideoPress_AJAX {
 		}
 
 		// enforce video.wordpress.com
-		$src = str_replace( 'videopress.com', 'video.wordpress.com', $src );
-		$response['src'] = $src . '&metadata_token=' . $token;
+		$response['jwt'] = $token;
 
 		wp_send_json_success( $response );
 	}

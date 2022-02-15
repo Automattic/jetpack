@@ -1,34 +1,19 @@
 ( function ( $ ) {
-	$( document ).ready( function ( $ ) {
-		console.log( 'hi' );
-		setTimeout( function () {
-			var videoBlocks = $(
-				'iframe[src*="videopress.com/embed"], iframe[src*="video.wordpress.com/embed"]'
-			);
-			console.log( videoBlocks );
-			videoBlocks.each( function ( i, iframeElement ) {
-				console.log( i, iframeElement.src );
-
-				var src = iframeElement.src;
-				iframeElement.src = '';
+		window.addEventListener( 'message', function( event ) {
+			if (event.data.event === 'videopress_token_request' ) {
 				var data = {
 					action: 'videopress-get-playback-jwt',
-					src: src,
+					guid: event.data.guid,
 				};
-				// We can also pass the url value separately from ajaxurl for front end AJAX implementations
-				jQuery.post( videopressAjax.ajaxUrl, data, function ( response ) {
+				$.post( videopressAjax.ajaxUrl, data, function ( response ) {
 					console.log( 'Got this from the server: ', response );
 					if ( !! response.success && response.data ) {
-						iframeElement.src = response.data.src;
+						event.source.postMessage(
+							{ event: 'videopress_token_received', guid: data.guid, jwt: response.data.jwt },
+							'*'
+						);
 					}
 				} );
-				// console.log($(iframeElement).attr('src'))
-				// ajax for jwt,
-				//
-				//.then().(function () {
-				//iframeElement.src = //
-				// })
-			} );
-		}, 1000 );
-	} );
+			}
+		} );
 } )( jQuery );
