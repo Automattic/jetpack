@@ -274,7 +274,7 @@ class REST_Controller {
 
 		// Automatically configure necessary settings for instant search, unless `auto_config_search` is explicitly set to boolean `false`.
 		if ( ! isset( $payload['auto_config_search'] ) || false !== $payload['auto_config_search'] ) {
-			Instant_Search::instance()->auto_config_search();
+			Instant_Search::instance( $this->get_blog_id() )->auto_config_search();
 		}
 
 		return rest_ensure_response(
