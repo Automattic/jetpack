@@ -87,14 +87,9 @@ class Videopress extends Module_Product {
 	public static function get_pricing_for_ui() {
 		return array_merge(
 			array(
-<<<<<<< HEAD
 				'available'          => true,
 				'wpcom_product_slug' => static::get_wpcom_product_slug(),
-				'discount'           => 60, // hardcoded - it could be overwritten by the wpcom product.
-=======
-				'available' => true,
-				'discount'  => 50, // hardcoded - it could be overwritten by the wpcom product.
->>>>>>> bb4f3a70d7 (my-jetpack: tweak discount value to 50)
+				'discount'           => 50, // hardcoded - it could be overwritten by the wpcom product.
 			),
 			Wpcom_Products::get_product_pricing( static::get_wpcom_product_slug() )
 		);
