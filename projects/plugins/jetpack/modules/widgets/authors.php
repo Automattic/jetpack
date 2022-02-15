@@ -68,7 +68,7 @@ class Jetpack_Widget_Authors extends WP_Widget {
 	public function widget( $args, $instance ) {
 		$cache_bucket = is_ssl() ? 'widget_authors_ssl' : 'widget_authors';
 
-		if ( '%BEG_OF_TITLE%' != $args['before_title'] ) {
+		if ( '%BEG_OF_TITLE%' !== $args['before_title'] ) {
 			$output = wp_cache_get( $cache_bucket, 'widget' );
 			if ( $output ) {
 				echo $output;
@@ -188,7 +188,7 @@ class Jetpack_Widget_Authors extends WP_Widget {
 				echo '<strong>' . esc_html( $author->display_name ) . '</strong>';
 			}
 
-			if ( 0 == $instance['number'] ) {
+			if ( 0 === (int) $instance['number'] ) {
 				echo '</li>';
 				continue;
 			}
@@ -220,7 +220,7 @@ class Jetpack_Widget_Authors extends WP_Widget {
 
 		wp_reset_postdata();
 
-		if ( '%BEG_OF_TITLE%' != $args['before_title'] ) {
+		if ( '%BEG_OF_TITLE%' !== $args['before_title'] ) {
 			wp_cache_add( $cache_bucket, ob_get_flush(), 'widget' );
 		}
 
