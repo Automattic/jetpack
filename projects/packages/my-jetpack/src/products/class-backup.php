@@ -114,7 +114,7 @@ class Backup extends Hybrid_Product {
 				'available'            => true,
 				'promotion_percentage' => 50,
 			),
-			Wpcom_Products::get_product_currency_and_price( static::get_wpcom_product_slug() )
+			Wpcom_Products::get_product_pricing( static::get_wpcom_product_slug() )
 		);
 	}
 

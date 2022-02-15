@@ -151,7 +151,7 @@ class Wpcom_Products {
 	 *
 	 * @return array An array with currency_code and full_price. Empty array if product not found.
 	 */
-	public static function get_product_currency_and_price( $product_slug ) {
+	public static function get_product_pricing( $product_slug ) {
 		$product = self::get_product( $product_slug );
 		if ( empty( $product ) ) {
 			return array();
