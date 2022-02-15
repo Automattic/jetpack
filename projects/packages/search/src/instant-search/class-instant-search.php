@@ -451,7 +451,7 @@ class Instant_Search extends Classic_Search {
 	}
 
 	/**
-	 * Replace block pattern with its content only if it is just one block pattern for the template part.
+	 * Extracts block content only if it consists of a single pattern block.
 	 *
 	 * @param string $block_pattern - Block content.
 	 */
