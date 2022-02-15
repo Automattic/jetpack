@@ -27,6 +27,7 @@ const SearchCard = ( { admin } ) => {
 			onDeactivate={ deactivate }
 			onActivate={ activate }
 			onAdd={ useMyJetpackNavigate( '/add-search' ) }
+			onFixConnection={ useMyJetpackNavigate( '/connection' ) }
 			slug={ slug }
 		/>
 	);

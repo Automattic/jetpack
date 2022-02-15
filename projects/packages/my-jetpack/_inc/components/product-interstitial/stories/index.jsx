@@ -15,6 +15,7 @@ import ProductInterstitial, {
 	BoostInterstitial,
 	SearchInterstitial,
 	ScanInterstitial,
+	VideoPressInterstitial,
 } from '../index.jsx';
 
 export default {
@@ -57,4 +58,11 @@ const SearchTemplate = args => <SearchInterstitial { ...args } />;
 export const JetpackSearch = SearchTemplate.bind( {} );
 JetpackSearch.parameters = {
 	mockData: getMockData( 'search' ),
+};
+
+const VideoPressTemplate = args => <VideoPressInterstitial { ...args } />;
+export const JetpackVideoPress = VideoPressTemplate.bind( {} );
+JetpackVideoPress.storyName = 'Jetpack VideoPress';
+JetpackVideoPress.parameters = {
+	mockData: getMockData( 'videopress' ),
 };

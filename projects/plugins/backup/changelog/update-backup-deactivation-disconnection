@@ -1,0 +1,4 @@
+Significance: patch
+Type: added
+
+Do not disable plugin connection, and fix DB for those who have done it

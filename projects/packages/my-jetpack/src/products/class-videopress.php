@@ -44,7 +44,7 @@ class Videopress extends Module_Product {
 	 * @return string
 	 */
 	public static function get_title() {
-		return ''; // @todo title
+		return __( 'Jetpack VideoPress', 'jetpack-my-jetpack' );
 	}
 
 	/**
@@ -62,7 +62,7 @@ class Videopress extends Module_Product {
 	 * @return string
 	 */
 	public static function get_long_description() {
-		return ''; // @todo Add long description
+		return __( 'High-quality, ad-free video built specifically for WordPress.', 'jetpack-my-jetpack' );
 	}
 
 	/**
@@ -71,7 +71,12 @@ class Videopress extends Module_Product {
 	 * @return array Boost features list
 	 */
 	public static function get_features() {
-		return array();
+		return array(
+			_x( '1TB of storage', 'VideoPress Product Feature', 'jetpack-my-jetpack' ),
+			_x( 'Built into WordPress editor', 'VideoPress Product Feature', 'jetpack-my-jetpack' ),
+			_x( 'Ad-free and brandable player', 'VideoPress Product Feature', 'jetpack-my-jetpack' ),
+			_x( 'Unlimited users', 'VideoPress Product Feature', 'jetpack-my-jetpack' ),
+		);
 	}
 
 	/**
