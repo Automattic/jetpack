@@ -91,6 +91,7 @@ class Search extends Module_Product {
 		return array_merge(
 			array(
 				'available' => true,
+				'discount'  => 60, // hardcoded - it could be overwritten by the wpcom product.
 			),
 			Wpcom_Products::get_product_pricing( static::get_wpcom_product_slug() )
 		);
@@ -102,7 +103,7 @@ class Search extends Module_Product {
 	 * @return ?string
 	 */
 	public static function get_wpcom_product_slug() {
-		return 'jetpack_search';
+		return 'jetpack_search_monthly';
 	}
 
 	/**
