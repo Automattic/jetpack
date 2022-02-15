@@ -181,14 +181,15 @@ export { ProductDetail };
 /**
  * ProductDetailCard component.
  *
- * @param {object}  props                - Component props.
- * @param {string}  props.slug           - Product slug
+ * @param {object}   props                - Component props.
+ * @param {string}   props.slug           - Product slug
+ * @param {Function} props.onClick        - Product CTA button handler
  * @returns {object}                       ProductDetailCard react component.
  */
-export default function ProductDetailCard( { slug } ) {
+export default function ProductDetailCard( { onClick, slug } ) {
 	return (
 		<div className={ styles.card }>
-			<ProductDetail slug={ slug } />
+			<ProductDetail onClick={ onClick } slug={ slug } />
 		</div>
 	);
 }
