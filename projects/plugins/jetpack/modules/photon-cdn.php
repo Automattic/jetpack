@@ -78,7 +78,7 @@ class Jetpack_Photon_Static_Assets_CDN {
 					continue;
 				}
 				$src = ltrim( str_replace( $site_url, '', $thing->src ), '/' );
-				if ( self::is_js_or_css_file( $src ) && in_array( substr( $src, 0, 9 ), array( 'wp-admin/', 'wp-includ' ) ) ) {
+				if ( self::is_js_or_css_file( $src ) && in_array( substr( $src, 0, 9 ), array( 'wp-admin/', 'wp-includ' ), true ) ) {
 					$wp_scripts->registered[ $handle ]->src = sprintf( self::CDN . 'c/%1$s/%2$s', $version, $src );
 					$wp_scripts->registered[ $handle ]->ver = null;
 				}
@@ -88,7 +88,7 @@ class Jetpack_Photon_Static_Assets_CDN {
 					continue;
 				}
 				$src = ltrim( str_replace( $site_url, '', $thing->src ), '/' );
-				if ( self::is_js_or_css_file( $src ) && in_array( substr( $src, 0, 9 ), array( 'wp-admin/', 'wp-includ' ) ) ) {
+				if ( self::is_js_or_css_file( $src ) && in_array( substr( $src, 0, 9 ), array( 'wp-admin/', 'wp-includ' ), true ) ) {
 					$wp_styles->registered[ $handle ]->src = sprintf( self::CDN . 'c/%1$s/%2$s', $version, $src );
 					$wp_styles->registered[ $handle ]->ver = null;
 				}
