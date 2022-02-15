@@ -36,10 +36,8 @@ for FILE in projects/*/*/composer.json; do
 	FILES+=( "$(realpath -m --relative-to="$BASE" "$(jq -r '.extra.changelogger.changelog // "CHANGELOG.md"' composer.json)")" )
 done
 cd "$BASE"
-for F in $(git diff --name-only HEAD^..HEAD "${FILES[@]}"); do
+for F in $(git -c core.quotepath=off diff --name-only HEAD^..HEAD "${FILES[@]}"); do
 	update_tag "pr-update-to-${F%/*}"
-	# TODO: Remove this once the action uses the above tags.
-	update_tag "pr-update-to"
 done
 
 # If this commit changed tool versions, update the tag so PRs get rechecked with the new versions.
