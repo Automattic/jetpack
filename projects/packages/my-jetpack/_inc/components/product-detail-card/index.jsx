@@ -97,9 +97,9 @@ const ProductDetail = ( { slug, onClick, trackButtonClick } ) => {
 	const needsPurchase = ! isFree && ! hasRequiredPlan;
 
 	const addProductUrl =
-		! needsPurchase || ! wpcomProductSlug
-			? null
-			: getProductCheckoutUrl( wpcomProductSlug, isUserConnected ); // @ToDo: Remove this when we have a new product structure.
+		needsPurchase && wpcomProductSlug
+			? getProductCheckoutUrl( wpcomProductSlug, isUserConnected ) // @ToDo: Remove this when we have a new product structure.
+			: null;
 
 	// Suppported products icons.
 	const icons = isBundle
