@@ -31,7 +31,7 @@ export const icon = (
 );
 
 export const settings = {
-	title: __( 'Payments', 'jetpack' ),
+	title: __( 'Payment Button', 'jetpack' ),
 	icon: {
 		src: icon,
 		foreground: getIconColor(),

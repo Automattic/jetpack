@@ -18,7 +18,7 @@ import { getIconColor } from '../../shared/block-icons';
 import './editor.scss';
 
 export const name = 'one-payment';
-export const title = __( 'One payment', 'jetpack' );
+export const title = __( 'Payments', 'jetpack' );
 export const settings = {
 	title,
 	description: __( 'Sell products and services or receive donations on your website', 'jetpack' ),
