@@ -117,6 +117,10 @@ async function execWpCommand( wpCmd, sendUrl = true ) {
 	return result;
 }
 
+async function execContainerShellCommand( cmd ) {
+	return execShellCommand( `${ BASE_DOCKER_CMD } -v exec-silent ${ cmd }` );
+}
+
 async function logDebugLog() {
 	let log;
 	try {
@@ -332,6 +336,7 @@ async function getJetpackVersion() {
 module.exports = {
 	execShellCommand,
 	execSyncShellCommand,
+	execContainerShellCommand,
 	resetWordpressInstall,
 	BASE_DOCKER_CMD,
 	provisionJetpackStartConnection,

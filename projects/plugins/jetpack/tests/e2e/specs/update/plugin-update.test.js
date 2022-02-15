@@ -1,7 +1,7 @@
 import {
 	execShellCommand,
 	resolveSiteUrl,
-	BASE_DOCKER_CMD,
+	execContainerShellCommand,
 } from 'jetpack-e2e-commons/helpers/utils-helper.cjs';
 import { PluginsPage } from 'jetpack-e2e-commons/pages/wp-admin/index.js';
 import { test } from '../../fixtures/base-test.js';
@@ -12,16 +12,15 @@ test( 'Update Jetpack plugin', async ( { page } ) => {
 
 	// Prepare for update
 	await execShellCommand( `./bin/update/prepare-zip.sh` );
-	await execShellCommand(
-		`${ BASE_DOCKER_CMD } -v exec-silent ${ binPath }pre-update.sh ${ resolveSiteUrl() }`
-	);
+	await execContainerShellCommand( `${ binPath }pre-update.sh ${ resolveSiteUrl() }` );
 
 	// Update
 	await prerequisitesBuilder( page ).withLoggedIn( true ).build();
 
-	let pluginsPage;
-
+	await execContainerShellCommand( `ls /var/www/html/wp-content/uploads` );
 	await execShellCommand( `curl -I ${ resolveSiteUrl() }/wp-content/uploads/jetpack-next.zip` );
+
+	let pluginsPage;
 
 	await test.step( 'Navigate to Plugins page', async () => {
 		pluginsPage = await PluginsPage.visit( page );
@@ -32,5 +31,5 @@ test( 'Update Jetpack plugin', async ( { page } ) => {
 	} );
 
 	// Check Jetpack status after update
-	await execShellCommand( `${ BASE_DOCKER_CMD } -v exec-silent ${ binPath }post-update.sh` );
+	await execContainerShellCommand( `${ binPath }post-update.sh` );
 } );
