@@ -72,7 +72,8 @@ function jetpack_widgets_customizer_assets_preview() {
 		'jetpack-customizer-widget-utils',
 		plugins_url( '/widgets/customizer-utils.js', __FILE__ ),
 		array( 'customize-base' ),
-		JETPACK__VERSION
+		JETPACK__VERSION,
+		false
 	);
 }
 add_action( 'customize_preview_init', 'jetpack_widgets_customizer_assets_preview' );
