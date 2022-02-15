@@ -13,4 +13,11 @@
  * @package automattic/jetpack-search
  */
 
-// Code some good stuff!
+if ( ! defined( 'ABSPATH' ) ) {
+	exit;
+}
+
+// Constant definitions.
+define( 'JETPACK_SEARCH_PLUGIN__DIR', plugin_dir_path( __FILE__ ) );
+define( 'JETPACK_SEARCH_PLUGIN__SLUG', 'jetpack-backup' );
+define( 'JETPACK_SEARCH_PLUGIN__VERSION', '0.0.1-alpha' );

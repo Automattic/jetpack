@@ -6,7 +6,8 @@
 	"require": {},
 	"require-dev": {
 		"yoast/phpunit-polyfills": "1.0.3",
-		"automattic/jetpack-changelogger": "^3.0"
+		"automattic/jetpack-changelogger": "^3.0",
+		"automattic/jetpack-search": "0.8.x-dev"
 	},
 	"autoload": {
 		"classmap": [
@@ -44,6 +45,9 @@
 		"changelogger": {
 			"link-template": "https://github.com/Automattic/jetpack-search-plugin/compare/v${old}...v${new}"
 		},
-		"autotagger": true
+		"autotagger": true,
+		"version-constants": {
+			"JETPACK_SEARCH_PLUGIN__VERSION": "jetpack-search.php"
+		}
 	}
 }
