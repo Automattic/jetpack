@@ -76,12 +76,27 @@ function Price( { value, currency, isOld } ) {
  */
 const ProductDetail = ( { slug, onClick, trackButtonClick } ) => {
 	const { detail, isFetching } = useProduct( slug );
-	const { title, longDescription, features, pricingForUi, isBundle, supportedProducts } = detail;
+	const {
+		title,
+		longDescription,
+		features,
+		pricingForUi,
+		isBundle,
+		supportedProducts,
+		hasRequiredPlan,
+	} = detail;
 
 	const { isFree, fullPrice, currencyCode, discountedPrice } = pricingForUi;
 	const { isUserConnected } = useMyJetpackConnection();
 
-	const addProductUrl = isFree
+	/*
+	 * Product needs purchase when:
+	 * - it's not free
+	 * - it does not have a required plan
+	 */
+	const needsPurchase = ! isFree && ! hasRequiredPlan;
+
+	const addProductUrl = ! needsPurchase
 		? null
 		: getProductCheckoutUrl( `jetpack_${ slug }`, isUserConnected ); // @ToDo: Remove this when we have a new product structure.
 
@@ -113,6 +128,7 @@ const ProductDetail = ( { slug, onClick, trackButtonClick } ) => {
 			onClick();
 		}
 	}, [ onClick, trackButtonClick ] );
+
 	return (
 		<>
 			{ isBundle && (
@@ -138,7 +154,7 @@ const ProductDetail = ( { slug, onClick, trackButtonClick } ) => {
 					) ) }
 				</ul>
 
-				{ ! isFree && (
+				{ needsPurchase && (
 					<div className={ styles[ 'price-container' ] }>
 						<Price value={ fullPrice } currency={ currencyCode } isOld={ true } />
 						<Price value={ discountedPrice } currency={ currencyCode } isOld={ false } />
