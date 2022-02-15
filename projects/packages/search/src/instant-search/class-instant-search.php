@@ -412,8 +412,8 @@ class Instant_Search extends Classic_Search {
 	 * Add a search widget above footer for block templates.
 	 */
 	public function add_search_block_above_footer() {
-		// We now only checks the core search block.
-		// In the future we need to add Jetpack Search block when it's ready.
+		// We currently check only for a core search block.
+		// In the future, we will need to check for a Jetpack Search block once it's available.
 		if ( $this->template_parts_have_search_block() ) {
 			return;
 		}
