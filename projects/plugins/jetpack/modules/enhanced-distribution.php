@@ -62,7 +62,7 @@ add_action( 'rss2_item', 'jetpack_enhanced_distribution_post_id' );
  * Output feed identifier based on blog ID.
  */
 function jetpack_enhanced_distribution_feed_id() {
-	(int) $id = Jetpack_Options::get_option( 'id' );
+	$id = (int) Jetpack_Options::get_option( 'id' );
 	if ( $id > 0 ) {
 		$output = sprintf( '<site xmlns="com-wordpress:feed-additions:1">%d</site>', $id );
 		echo $output;
