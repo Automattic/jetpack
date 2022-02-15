@@ -12,7 +12,7 @@ class Highlander_Comments_Base {
 	/**
 	 * Constructor
 	 */
-	function __construct() {
+	public function __construct() {
 		$this->setup_globals();
 		$this->setup_actions();
 		$this->setup_filters();
@@ -55,7 +55,7 @@ class Highlander_Comments_Base {
 	 * @param mixed ...$args Comments credentials slugs.
 	 * @return false|string false if it's not a Highlander POST request.  The matching credentials slug if it is.
 	 */
-	function is_highlander_comment_post( ...$args ) {
+	public function is_highlander_comment_post( ...$args ) {
 		if ( empty( $_POST['hc_post_as'] ) ) {
 			return false;
 		}
@@ -69,7 +69,7 @@ class Highlander_Comments_Base {
 			return false;
 		}
 
-		return is_string( $_POST['hc_post_as'] ) && in_array( $_POST['hc_post_as'], $this->id_sources ) ? $_POST['hc_post_as'] : false;
+		return is_string( $_POST['hc_post_as'] ) && in_array( $_POST['hc_post_as'], $this->id_sources, true ) ? $_POST['hc_post_as'] : false;
 	}
 
 	/**
@@ -79,7 +79,7 @@ class Highlander_Comments_Base {
 	 * @param string $key Key used for generating the HMAC variant of the message digest.
 	 * @return string HMAC
 	 */
-	static function sign_remote_comment_parameters( $parameters, $key ) {
+	public static function sign_remote_comment_parameters( $parameters, $key ) {
 		unset(
 			$parameters['sig'],       // Don't sign the signature.
 			$parameters['replytocom'] // This parameter is unsigned - it changes dynamically as the comment form moves from parent comment to parent comment.
@@ -109,7 +109,7 @@ class Highlander_Comments_Base {
 	 *
 	 * @param array $comments All comment data.
 	 */
-	function comments_array( $comments ) {
+	public function comments_array( $comments ) {
 		global $wpdb, $post;
 
 		$commenter = $this->get_current_commenter();
@@ -151,7 +151,7 @@ class Highlander_Comments_Base {
 	 * @return int
 	 */
 	public function sort_comments_by_comment_date_gmt( $a, $b ) {
-		if ( $a->comment_date_gmt == $b->comment_date_gmt ) {
+		if ( $a->comment_date_gmt === $b->comment_date_gmt ) {
 			return 0;
 		}
 
@@ -198,7 +198,7 @@ class Highlander_Comments_Base {
 	 * @since JetpackComments (1.4)
 	 * @return If no
 	 */
-	function allow_logged_out_user_to_comment_as_external() {
+	public function allow_logged_out_user_to_comment_as_external() {
 		if ( ! $this->is_highlander_comment_post( 'facebook', 'twitter', 'googleplus' ) ) {
 			return;
 		}
@@ -216,14 +216,14 @@ class Highlander_Comments_Base {
 	 * @param array $comment_data All data for a specific comment.
 	 * @return int
 	 */
-	function allow_logged_in_user_to_comment_as_guest( $comment_data ) {
+	public function allow_logged_in_user_to_comment_as_guest( $comment_data ) {
 		// Bail if user registration is allowed.
 		if ( get_option( 'comment_registration' ) ) {
 			return $comment_data;
 		}
 
 		// Bail if user is not logged in or not a post request.
-		if ( 'POST' != strtoupper( $_SERVER['REQUEST_METHOD'] ) || ! is_user_logged_in() ) {
+		if ( 'POST' !== strtoupper( $_SERVER['REQUEST_METHOD'] ) || ! is_user_logged_in() ) {
 			return $comment_data;
 		}
 
@@ -239,16 +239,16 @@ class Highlander_Comments_Base {
 			'comment_author_email' => 'user_email',
 			'comment_author_url'   => 'user_url',
 		) as $comment_field => $user_field ) {
-			if ( $comment_data[ $comment_field ] != addslashes( $user->$user_field ) ) {
+			if ( addslashes( $user->$user_field ) !== $comment_data[ $comment_field ] ) {
 				return $comment_data; // some other plugin already did something funky.
 			}
 		}
 
 		if ( get_option( 'require_name_email' ) ) {
 			if ( 6 > strlen( $_POST['email'] ) || empty( $_POST['author'] ) ) {
-				wp_die( __( 'Error: please fill the required fields (name, email).', 'jetpack' ), 400 );
+				wp_die( esc_html__( 'Error: please fill the required fields (name, email).', 'jetpack' ), 400 );
 			} elseif ( ! is_email( $_POST['email'] ) ) {
-				wp_die( __( 'Error: please enter a valid email address.', 'jetpack' ), 400 );
+				wp_die( esc_html__( 'Error: please enter a valid email address.', 'jetpack' ), 400 );
 			}
 		}
 
@@ -258,7 +258,7 @@ class Highlander_Comments_Base {
 			'comment_author_email' => 'email',
 			'comment_author_url'   => 'url',
 		) as $comment_field => $post_field ) {
-			if ( $comment_data[ $comment_field ] != $_POST[ $post_field ] && 'url' != $post_field ) {
+			if ( $comment_data[ $comment_field ] !== $_POST[ $post_field ] && 'url' !== $post_field ) {
 				$author_change = true;
 			}
 			$comment_data[ $comment_field ] = $_POST[ $post_field ];
@@ -266,7 +266,8 @@ class Highlander_Comments_Base {
 
 		// Mark as guest comment if name or email were changed.
 		if ( $author_change ) {
-			$comment_data['user_id'] = $comment_data['user_ID'] = 0;
+			$comment_data['user_ID'] = 0;
+			$comment_data['user_id'] = $comment_data['user_ID'];
 		}
 
 		return $comment_data;
@@ -293,7 +294,7 @@ class Highlander_Comments_Base {
 
 		// Set comment author cookies.
 		// phpcs:ignore WordPress.WP.CapitalPDangit
-		if ( ( 'wordpress' != $id_source ) && is_user_logged_in() ) {
+		if ( ( 'wordpress' !== $id_source ) && is_user_logged_in() ) {
 			/** This filter is already documented in core/wp-includes/comment-functions.php */
 			$comment_cookie_lifetime = apply_filters( 'comment_cookie_lifetime', 30000000 );
 			setcookie( 'comment_author_' . COOKIEHASH, $comment->comment_author, time() + $comment_cookie_lifetime, COOKIEPATH, COOKIE_DOMAIN );
