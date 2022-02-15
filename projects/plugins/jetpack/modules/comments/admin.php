@@ -170,7 +170,7 @@ class Jetpack_Comments_Settings {
 	public function comment_form_greeting_sanitize( $val ) {
 
 		// Delete if empty or the default.
-		if ( empty( $val ) || ( $this->default_greeting == $val ) ) {
+		if ( empty( $val ) || ( $this->default_greeting === $val ) ) {
 			delete_option( 'highlander_comment_form_prompt' );
 			return false;
 		}
@@ -220,7 +220,7 @@ class Jetpack_Comments_Settings {
 		if (
 			empty( $val ) || ! array_key_exists( $val, $this->color_schemes )
 		||
-			$val == $this->jetpack_comments->default_color_scheme
+			$val === $this->jetpack_comments->default_color_scheme
 		) {
 			delete_option( 'jetpack_comment_form_color_scheme' );
 			return false;
