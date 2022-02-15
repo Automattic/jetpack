@@ -1,9 +1,17 @@
-<?php
-
+<?php //phpcs:ignore WordPress.Files.FileName.InvalidClassFileName
+/**
+ * Jetpack comments base file - where the code shared between WP.com Highlander and Jetpack Highlander is defined
+ *
+ * @package automattic/jetpack
+ */
 /**
  * All the code shared between WP.com Highlander and Jetpack Highlander
  */
 class Highlander_Comments_Base {
+
+	/**
+	 * Constructor
+	 */
 	function __construct() {
 		$this->setup_globals();
 		$this->setup_actions();
@@ -12,24 +20,27 @@ class Highlander_Comments_Base {
 
 	/**
 	 * Set any global variables or class variables
+	 *
 	 * @since JetpackComments (1.4)
 	 */
 	protected function setup_globals() {}
 
 	/**
 	 * Setup actions for methods in this class
+	 *
 	 * @since JetpackComments (1.4)
 	 */
 	protected function setup_actions() {
-		// Before a comment is posted
+		// Before a comment is posted.
 		add_action( 'pre_comment_on_post', array( $this, 'allow_logged_out_user_to_comment_as_external' ) );
 
-		// After a comment is posted
+		// After a comment is posted.
 		add_action( 'comment_post', array( $this, 'set_comment_cookies' ) );
 	}
 
 	/**
 	 * Setup filters for methods in this class
+	 *
 	 * @since JetpackComments (1.4)
 	 */
 	protected function setup_filters() {
@@ -41,8 +52,7 @@ class Highlander_Comments_Base {
 	 * Is this a Highlander POST request?
 	 * Optionally restrict to one or more credentials slug (facebook, twitter, ...)
 	 *
-	 * @param string Comment credentials slug
-	 * @param ...
+	 * @param mixed ...$args Comments credentials slugs.
 	 * @return false|string false if it's not a Highlander POST request.  The matching credentials slug if it is.
 	 */
 	function is_highlander_comment_post( ...$args ) {
@@ -65,14 +75,14 @@ class Highlander_Comments_Base {
 	/**
 	 * Signs an array of scalars with the self-hosted blog's Jetpack Token
 	 *
-	 * @param array $parameters
-	 * @param string $key
+	 * @param array  $parameters Comment parameters.
+	 * @param string $key Key used for generating the HMAC variant of the message digest.
 	 * @return string HMAC
 	 */
 	static function sign_remote_comment_parameters( $parameters, $key ) {
 		unset(
-			$parameters['sig'],       // Don't sign the signature
-			$parameters['replytocom'] // This parameter is unsigned - it changes dynamically as the comment form moves from parent comment to parent comment
+			$parameters['sig'],       // Don't sign the signature.
+			$parameters['replytocom'] // This parameter is unsigned - it changes dynamically as the comment form moves from parent comment to parent comment.
 		);
 
 		ksort( $parameters );
@@ -89,17 +99,16 @@ class Highlander_Comments_Base {
 		return hash_hmac( 'sha1', implode( ':', $signing ), $key );
 	}
 
-	/*
-	  * After commenting as a guest while logged in, the user needs to see both:
-	 *
+	/**
+	 * After commenting as a guest while logged in, the user needs to see both:
 	 * ( user_id = blah AND comment_approved = 0 )
 	 * and
 	 * ( comment_author_email = blah AND comment_approved = 0 )
+	 * Core only does the first since the user is logged in.
+	 * Add the second to the comments array.
 	 *
-	  * Core only does the first since the user is logged in.
-	  *
-	  * Add the second to the comments array.
-	  */
+	 * @param array $comments All comment data.
+	 */
 	function comments_array( $comments ) {
 		global $wpdb, $post;
 
@@ -137,8 +146,8 @@ class Highlander_Comments_Base {
 	 * Comment sort comparator: comment_date_gmt
 	 *
 	 * @since JetpackComments (1.4)
-	 * @param object $a
-	 * @param object $b
+	 * @param object $a The first comment to compare dates with.
+	 * @param object $b The second comment to compare dates with.
 	 * @return int
 	 */
 	public function sort_comments_by_comment_date_gmt( $a, $b ) {
@@ -156,7 +165,7 @@ class Highlander_Comments_Base {
 	 * @return array Commenters information from cookie
 	 */
 	protected function get_current_commenter() {
-		// Defaults
+		// Defaults.
 		$user_id              = 0;
 		$comment_author       = '';
 		$comment_author_email = '';
@@ -204,21 +213,21 @@ class Highlander_Comments_Base {
 	 * Respects comment_registration option.
 	 *
 	 * @since JetpackComments (1.4)
-	 * @param array $comment_data
+	 * @param array $comment_data All data for a specific comment.
 	 * @return int
 	 */
 	function allow_logged_in_user_to_comment_as_guest( $comment_data ) {
-		// Bail if user registration is allowed
+		// Bail if user registration is allowed.
 		if ( get_option( 'comment_registration' ) ) {
 			return $comment_data;
 		}
 
-		// Bail if user is not logged in or not a post request
+		// Bail if user is not logged in or not a post request.
 		if ( 'POST' != strtoupper( $_SERVER['REQUEST_METHOD'] ) || ! is_user_logged_in() ) {
 			return $comment_data;
 		}
 
-		// Bail if this is not a guest or external service credentialed request
+		// Bail if this is not a guest or external service credentialed request.
 		if ( ! $this->is_highlander_comment_post( 'guest', 'facebook', 'twitter', 'googleplus' ) ) {
 			return $comment_data;
 		}
@@ -231,7 +240,7 @@ class Highlander_Comments_Base {
 			'comment_author_url'   => 'user_url',
 		) as $comment_field => $user_field ) {
 			if ( $comment_data[ $comment_field ] != addslashes( $user->$user_field ) ) {
-				return $comment_data; // some other plugin already did something funky
+				return $comment_data; // some other plugin already did something funky.
 			}
 		}
 
@@ -255,7 +264,7 @@ class Highlander_Comments_Base {
 			$comment_data[ $comment_field ] = $_POST[ $post_field ];
 		}
 
-		// Mark as guest comment if name or email were changed
+		// Mark as guest comment if name or email were changed.
 		if ( $author_change ) {
 			$comment_data['user_id'] = $comment_data['user_ID'] = 0;
 		}
@@ -267,11 +276,11 @@ class Highlander_Comments_Base {
 	 * Set the comment cookies or bail if comment is invalid
 	 *
 	 * @since JetpackComments (1.4)
-	 * @param type $comment_id
-	 * @return If comment is invalid
+	 * @param type $comment_id The comment ID.
+	 * @return If comment is invalid.
 	 */
 	public function set_comment_cookies( $comment_id ) {
-		// Get comment and bail if it's invalid somehow
+		// Get comment and bail if it's invalid somehow.
 		$comment = get_comment( $comment_id );
 		if ( empty( $comment ) || is_wp_error( $comment ) ) {
 			return;
@@ -282,7 +291,7 @@ class Highlander_Comments_Base {
 			return;
 		}
 
-		// Set comment author cookies
+		// Set comment author cookies.
 		// phpcs:ignore WordPress.WP.CapitalPDangit
 		if ( ( 'wordpress' != $id_source ) && is_user_logged_in() ) {
 			/** This filter is already documented in core/wp-includes/comment-functions.php */
@@ -297,8 +306,8 @@ class Highlander_Comments_Base {
 	 * Get an avatar from Photon
 	 *
 	 * @since JetpackComments (1.4)
-	 * @param string $url
-	 * @param int $size
+	 * @param string $url The avatar URL.
+	 * @param int    $size The avatar size.
 	 * @return string
 	 */
 	protected function photon_avatar( $url, $size ) {
