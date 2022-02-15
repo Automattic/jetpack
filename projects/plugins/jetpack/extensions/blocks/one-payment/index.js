@@ -41,12 +41,11 @@ export const settings = {
 		_x( 'checkout', 'block search term', 'jetpack' ),
 	],
 	supports: {
-		// This block acts as a dumb wrapper and so should offer minimal capabilities for customisation. In general,
-		// individual feature support is up to the individual blocks wrapped. Exceptions to avoid confusion will exist
-		// such as `multiple` and `reusable` features.
+		// This block acts as a temporary placeholder before inserting a different block and so should not offer any
+		// customisation or mark-up specific to this block. Such things are up to the individual blocks inserted instead.
 		alignWide: false,
-		// Setting this to false suppress the ability to edit a block’s markup individually.
-		html: false,
+		className: false,
+		customClassName: false,
 	},
 	edit,
 	save: () => <InnerBlocks.Content />,
