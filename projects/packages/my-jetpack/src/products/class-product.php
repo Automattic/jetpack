@@ -7,6 +7,7 @@
 
 namespace Automattic\Jetpack\My_Jetpack;
 
+use Automattic\Jetpack\Connection\Manager as Connection_Manager;
 use Automattic\Jetpack\Plugins_Installer;
 use WP_Error;
 
@@ -116,6 +117,9 @@ abstract class Product {
 			'features'                 => static::get_features(),
 			'status'                   => static::get_status(),
 			'pricing_for_ui'           => static::get_pricing_for_ui(),
+			'is_bundle'                => static::is_bundle_product(),
+			'is_upgradable_by_bundle'  => static::is_upgradable_by_bundle(),
+			'supported_products'       => static::get_supported_products(),
 			'wpcom_product_slug'       => static::get_wpcom_product_slug(),
 			'requires_user_connection' => static::$requires_user_connection,
 			'has_required_plan'        => static::has_required_plan(),
@@ -188,17 +192,52 @@ abstract class Product {
 	}
 
 	/**
+	 * Checks whether product is a bundle.
+	 *
+	 * @return boolean True if product is a bundle. Otherwise, False.
+	 */
+	public static function is_bundle_product() {
+		return false;
+	}
+
+	/**
+	 * Check whether the product is upgradable
+	 * by a product bundle.
+	 *
+	 * @return boolean|array Bundles list or False if not upgradable by a bundle.
+	 */
+	public static function is_upgradable_by_bundle() {
+		return false;
+	}
+
+	/**
+	 * In case it's a bundle product,
+	 * return all the products it contains.
+	 * Empty array by default.
+	 *
+	 * @return Array Product slugs
+	 */
+	public static function get_supported_products() {
+		return array();
+	}
+
+	/**
 	 * Undocumented function
 	 *
 	 * @return string
 	 */
 	public static function get_status() {
-		if ( ! static::has_required_plan() ) {
+
+		if ( ! self::is_plugin_installed() ) {
+			$status = 'plugin_absent';
+		} elseif ( ! static::has_required_plan() ) {
 			$status = 'needs_purchase';
 		} elseif ( static::is_active() ) {
 			$status = 'active';
-		} elseif ( ! self::is_plugin_installed() ) {
-			$status = 'plugin_absent';
+			// We only consider missing user connection an error when the Product is active.
+			if ( static::$requires_user_connection && ! ( new Connection_Manager() )->has_connected_owner() ) {
+				$status = 'error';
+			}
 		} else {
 			$status = 'inactive';
 		}
