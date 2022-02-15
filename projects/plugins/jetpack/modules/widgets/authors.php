@@ -71,7 +71,7 @@ class Jetpack_Widget_Authors extends WP_Widget {
 		if ( '%BEG_OF_TITLE%' !== $args['before_title'] ) {
 			$output = wp_cache_get( $cache_bucket, 'widget' );
 			if ( $output ) {
-				echo $output;
+				echo $output; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- Cached widget display.
 				return;
 			}
 
@@ -134,7 +134,7 @@ class Jetpack_Widget_Authors extends WP_Widget {
 
 		$authors = get_users( $get_author_params );
 
-		echo $args['before_widget'];
+		echo $args['before_widget']; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
 		/** This filter is documented in core/src/wp-includes/default-widgets.php */
 		$title = apply_filters( 'widget_title', $instance['title'] );
 		echo $args['before_title'] . $title . $args['after_title']; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
@@ -172,7 +172,7 @@ class Jetpack_Widget_Authors extends WP_Widget {
 
 			// Display avatar and author name.
 			if ( $r->have_posts() ) {
-				echo '<a href="' . get_author_posts_url( $author->ID ) . '">';
+				echo '<a href="' . esc_url( get_author_posts_url( $author->ID ) ) . '">';
 
 				if ( $instance['avatar_size'] > 1 ) {
 					echo ' ' . get_avatar( $author->ID, $instance['avatar_size'], '', true ) . ' ';
@@ -216,7 +216,7 @@ class Jetpack_Widget_Authors extends WP_Widget {
 		}
 
 		echo '</ul>';
-		echo $args['after_widget'];
+		echo $args['after_widget']; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
 
 		wp_reset_postdata();
 
@@ -247,27 +247,27 @@ class Jetpack_Widget_Authors extends WP_Widget {
 		?>
 		<p>
 			<label>
-				<?php _e( 'Title:', 'jetpack' ); ?>
-				<input class="widefat" name="<?php echo $this->get_field_name( 'title' ); ?>" type="text" value="<?php echo esc_attr( $instance['title'] ); ?>" />
+				<?php esc_html_e( 'Title:', 'jetpack' ); ?>
+				<input class="widefat" name="<?php echo esc_attr( $this->get_field_name( 'title' ) ); ?>" type="text" value="<?php echo esc_attr( $instance['title'] ); ?>" />
 			</label>
 		</p>
 		<p>
 			<label>
-				<input class="checkbox" type="checkbox" <?php checked( $instance['all'] ); ?> name="<?php echo $this->get_field_name( 'all' ); ?>" />
-				<?php _e( 'Display all authors (including those who have not written any posts)', 'jetpack' ); ?>
+				<input class="checkbox" type="checkbox" <?php checked( $instance['all'] ); ?> name="<?php echo esc_attr( $this->get_field_name( 'all' ) ); ?>" />
+				<?php esc_html_e( 'Display all authors (including those who have not written any posts)', 'jetpack' ); ?>
 			</label>
 		</p>
 		<p>
 			<label>
-				<?php _e( 'Number of posts to show for each author:', 'jetpack' ); ?>
-				<input style="width: 50px; text-align: center;" name="<?php echo $this->get_field_name( 'number' ); ?>" type="text" value="<?php echo esc_attr( $instance['number'] ); ?>" />
-				<?php _e( '(at most 10)', 'jetpack' ); ?>
+				<?php esc_html_e( 'Number of posts to show for each author:', 'jetpack' ); ?>
+				<input style="width: 50px; text-align: center;" name="<?php echo esc_attr( $this->get_field_name( 'number' ) ); ?>" type="text" value="<?php echo esc_attr( $instance['number'] ); ?>" />
+				<?php esc_html_e( '(at most 10)', 'jetpack' ); ?>
 			</label>
 		</p>
 		<p>
 			<label>
-				<?php _e( 'Avatar Size (px):', 'jetpack' ); ?>
-				<select name="<?php echo $this->get_field_name( 'avatar_size' ); ?>">
+				<?php esc_html_e( 'Avatar Size (px):', 'jetpack' ); ?>
+				<select name="<?php echo esc_attr( $this->get_field_name( 'avatar_size' ) ); ?>">
 					<?php
 					foreach ( array(
 						'1'   => __( 'No Avatars', 'jetpack' ),
