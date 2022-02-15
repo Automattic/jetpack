@@ -890,7 +890,8 @@ class WPCOM_JSON_API_List_Post_Formats_Endpoint extends WPCOM_JSON_API_Endpoint 
 		$all_formats = get_post_format_strings();
 		$supported   = get_theme_support( 'post-formats' );
 
-		$supported_formats = $response['formats'] = array(); //phpcs:ignore
+		$response          = array();
+		$supported_formats = $response['formats'];
 
 		if ( isset( $supported[0] ) ) {
 			foreach ( $supported[0] as $format ) {
@@ -898,9 +899,9 @@ class WPCOM_JSON_API_List_Post_Formats_Endpoint extends WPCOM_JSON_API_Endpoint 
 			}
 		}
 
-		$response['formats'] = (object) $supported_formats; // phpcs:ignore VariableAnalysis.CodeAnalysis.VariableAnalysis.UndefinedVariable
+		$response['formats'] = (object) $supported_formats;
 
-		return $response; // phpcs:ignore VariableAnalysis.CodeAnalysis.VariableAnalysis.UndefinedVariable
+		return $response;
 	}
 }
 
