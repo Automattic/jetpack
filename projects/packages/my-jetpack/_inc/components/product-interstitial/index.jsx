@@ -61,11 +61,11 @@ export default function ProductInterstitial( { installsPlugin = false, slug, chi
 	const navigateToMyJetpackOverviewPage = useMyJetpackNavigate( '/' );
 	const navigateToCheckoutPage = useCallback( () => {
 		if ( ! addProductUrl ) {
-			return;
+			return navigateToMyJetpackOverviewPage();
 		}
 
 		window.location.href = addProductUrl;
-	}, [ addProductUrl ] );
+	}, [ addProductUrl, navigateToMyJetpackOverviewPage ] );
 
 	const afterInstallation = useCallback(
 		free => {
