@@ -37,9 +37,11 @@ class Cloud_CSS_Request {
 		$this->cloud_css_state->create_request( $this->source_providers->get_providers() );
 		$sources = $this->cloud_css_state->get_provider_urls();
 
-		$client = Boost_API::get_client();
+		$client               = Boost_API::get_client();
+		$payload              = array( 'providers' => $sources );
+		$payload['requestId'] = md5( wp_json_encode( $payload ) );
 
-		$response = $client->post( '/v1/action/cloud-css', array( 'providers' => $sources ) );
+		$response = $client->post( 'cloud-css', $payload );
 		return array( $response, $sources );
 	}
 }
