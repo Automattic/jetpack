@@ -9,8 +9,9 @@
 		"automattic/jetpack-search": "0.8.x-dev"
 	},
 	"require-dev": {
-		"yoast/phpunit-polyfills": "1.0.3",
-		"automattic/jetpack-changelogger": "^3.0"
+		"automattic/jetpack-changelogger": "^3.0",
+		"automattic/wordbless": "^0.3.1",
+		"yoast/phpunit-polyfills": "1.0.3"
 	},
 	"autoload": {
 		"classmap": [
@@ -46,7 +47,8 @@
 		"autoloader-suffix": "b462338fb66be23595d68a93345c9e3d_jetpack_searchⓥ0_1_0_alpha",
 		"allow-plugins": {
 			"automattic/jetpack-autoloader": true,
-			"automattic/jetpack-composer-plugin": true
+			"automattic/jetpack-composer-plugin": true,
+			"roots/wordpress-core-installer": true
 		}
 	},
 	"extra": {
