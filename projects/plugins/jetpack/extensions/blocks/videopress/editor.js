@@ -247,6 +247,10 @@ const addVideoPressSupport = ( settings, name ) => {
 			muted: {
 				type: 'boolean',
 			},
+			playbackJwt: {
+				type: 'string',
+				default: null,
+			},
 			playsinline: {
 				type: 'boolean',
 			},

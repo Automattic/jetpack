@@ -211,6 +211,7 @@ const VideoPressEdit = CoreVideoEdit =>
 		};
 
 		requestMedia = async id => {
+			const { setAttributes } = this.props;
 			if ( ! id ) {
 				return null;
 			}
@@ -239,6 +240,11 @@ const VideoPressEdit = CoreVideoEdit =>
 			}
 
 			this.setState( { media, lastRequestedMediaId: id } );
+
+			if ( media.jetpack_videopress_playback_jwt ) {
+				setAttributes( { playbackJwt: media.jetpack_videopress_playback_jwt } );
+			}
+
 			return media;
 		};
 
@@ -847,6 +853,7 @@ export default createHigherOrderComponent(
 				guid,
 				loop,
 				muted,
+				playbackJwt,
 				playsinline,
 				poster,
 				preload,
@@ -858,7 +865,7 @@ export default createHigherOrderComponent(
 			} = ownProps.attributes;
 			const { getEmbedPreview, isRequestingEmbedPreview } = select( 'core' );
 
-			const url = getVideoPressUrl( guid, {
+			let url = getVideoPressUrl( guid, {
 				autoplay,
 				controls,
 				loop,
@@ -871,6 +878,14 @@ export default createHigherOrderComponent(
 				seekbarPlayedColor,
 				useAverageColor,
 			} );
+
+			// TODO: Maybe just pass through `getVideoPressUrl`?
+			// TODO: This doesn't work to load the private video in the editor
+			//       Probably because the url is videopress.com/v/ when tokens only work on video.wordpress.com...
+			if ( null !== playbackJwt ) {
+				url = `${ url }&metadata_token=${ playbackJwt }`;
+			}
+
 			const preview = !! url && getEmbedPreview( url );
 
 			const isFetchingEmbedPreview = !! url && isRequestingEmbedPreview( url );

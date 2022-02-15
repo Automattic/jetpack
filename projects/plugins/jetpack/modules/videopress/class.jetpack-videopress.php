@@ -82,17 +82,18 @@ class Jetpack_VideoPress {
 		add_action( 'rest_api_init', function () {
 			register_rest_field( 'attachment', 'jetpack_videopress_playback_jwt', array(
 				'get_callback' => function( $attachment_arr ) {
+					if ( ! isset( $attachment_arr['jetpack_videopress_guid'] ) ) {
+						return;
+					}
+
 					return VideoPress_AJAX::request_jwt_from_wpcom( $attachment_arr['jetpack_videopress_guid']);
 				},
 				'schema' => array(
-					'description' => __( 'Playback jwt.' ),
+					'description' => __( 'VideoPress Playback JWT.', 'jetpack' ),
 					'type'        => 'string'
 				),
 			) );
 		} );
-
-
-
 	}
 
 	/**
