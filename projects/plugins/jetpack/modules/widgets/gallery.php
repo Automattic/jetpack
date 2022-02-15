@@ -6,6 +6,7 @@ Description: Gallery widget
 Author: Automattic Inc.
 Version: 1.0
 Author URI: https://automattic.com
+Text Domain: jetpack
 */
 
 use Automattic\Jetpack\Assets;
@@ -247,7 +248,7 @@ class Jetpack_Gallery_Widget extends WP_Widget {
 	public function slideshow_widget( $args, $instance ) {
 		global $content_width;
 
-		require_once plugin_dir_path( realpath( dirname( __FILE__ ) . '/../shortcodes/slideshow.php' ) ) . 'slideshow.php';
+		require_once plugin_dir_path( realpath( __DIR__ . '/../shortcodes/slideshow.php' ) ) . 'slideshow.php';
 
 		if ( ! class_exists( 'Jetpack_Slideshow_Shortcode' ) ) {
 			return;
@@ -323,7 +324,7 @@ class Jetpack_Gallery_Widget extends WP_Widget {
 
 		$instance = wp_parse_args( (array) $instance, $defaults );
 
-		include dirname( __FILE__ ) . '/gallery/templates/form.php';
+		include __DIR__ . '/gallery/templates/form.php';
 	}
 
 	public function update( $new_instance, $old_instance ) {

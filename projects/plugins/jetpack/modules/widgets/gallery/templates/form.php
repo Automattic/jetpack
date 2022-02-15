@@ -18,12 +18,15 @@
 		// Add the thumbnails to the widget box
 		$attachments = $this->get_attachments( $instance );
 
-		foreach( $attachments as $attachment ){
-			$url = add_query_arg( array(
-				'w' 	=> self::THUMB_SIZE,
-				'h' 	=> self::THUMB_SIZE,
-				'crop'	=> 'true'
-			), wp_get_attachment_url( $attachment->ID ) );
+		foreach ( $attachments as $attachment ) {
+			$url = add_query_arg(
+				array(
+					'w'    => self::THUMB_SIZE,
+					'h'    => self::THUMB_SIZE,
+					'crop' => 'true',
+				),
+				wp_get_attachment_url( $attachment->ID )
+			);
 
 			?>
 
@@ -42,12 +45,14 @@
 <p class="gallery-widget-link-wrapper">
 	<label for="<?php echo $this->get_field_id( 'link' ); ?>"><?php esc_html_e( 'Link To:', 'jetpack' ); ?></label>
 	<select name="<?php echo $this->get_field_name( 'link' ); ?>" id="<?php echo $this->get_field_id( 'link' ); ?>" class="widefat">
-		<?php foreach ( $allowed_values['link'] as $key => $label ) {
+		<?php
+		foreach ( $allowed_values['link'] as $key => $label ) {
 			$selected = '';
 
 			if ( $instance['link'] == $key ) {
 				$selected = "selected='selected' ";
-			} ?>
+			}
+			?>
 
 			<option value="<?php echo $key; ?>" <?php echo $selected; ?>><?php echo esc_html( $label, 'jetpack' ); ?></option>
 		<?php } ?>
@@ -56,10 +61,12 @@
 
 <p>
 	<label for="<?php echo $this->get_field_id( 'random' ); ?>"><?php esc_html_e( 'Random Order:', 'jetpack' ); ?></label>
-	<?php $checked = '';
+	<?php
+	$checked = '';
 
-	if ( isset( $instance['random'] ) && $instance['random'] )
+	if ( isset( $instance['random'] ) && $instance['random'] ) {
 		$checked = 'checked="checked"';
+	}
 
 	?>
 	<input name="<?php echo $this->get_field_name( 'random' ); ?>" id="<?php echo $this->get_field_id( 'random' ); ?>" type="checkbox" <?php echo $checked; ?>>
@@ -68,22 +75,20 @@
 <p class="gallery-widget-style-wrapper">
 	<label for="<?php echo $this->get_field_id( 'type' ); ?>"><?php esc_html_e( 'Style:', 'jetpack' ); ?></label>
 	<select name="<?php echo $this->get_field_name( 'type' ); ?>" id="<?php echo $this->get_field_id( 'type' ); ?>" class="widefat gallery-widget-style">
-		<?php foreach ( $allowed_values['type'] as $key => $label ) {
+		<?php
+		foreach ( $allowed_values['type'] as $key => $label ) {
 			$selected = '';
 
 			if ( $instance['type'] == $key ) {
 				$selected = "selected='selected' ";
-			} ?>
+			}
+			?>
 
 			<option value="<?php echo $key; ?>" <?php echo $selected; ?>><?php echo esc_html( $label, 'jetpack' ); ?></option>
 		<?php } ?>
 	</select>
 </p>
 
-<?php
-
-
-?>
 
 <?php // Hidden input to hold the selected image ids as a csv list ?>
 <input type="hidden" class="gallery-widget-ids" name="<?php echo $this->get_field_name( 'ids' ); ?>" id="<?php echo $this->get_field_id( 'ids' ); ?>" value="<?php echo esc_attr( $instance['ids'] ); ?>" />

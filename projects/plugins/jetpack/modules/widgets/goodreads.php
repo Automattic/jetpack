@@ -12,7 +12,6 @@ function jetpack_goodreads_widget_init() {
  * Goodreads widget class
  * Display a user's Goodreads shelf.
  * Customize user_id, title, and shelf
- *
  */
 class WPCOM_Widget_Goodreads extends WP_Widget {
 
@@ -93,7 +92,8 @@ class WPCOM_Widget_Goodreads extends WP_Widget {
 	function goodreads_user_id_exists( $user_id ) {
 		$url      = "https://www.goodreads.com/user/show/$user_id/";
 		$response = wp_remote_head(
-			$url, array(
+			$url,
+			array(
 				'httpversion' => '1.1',
 				'timeout'     => 10,
 				'redirection' => 2,
@@ -125,9 +125,10 @@ class WPCOM_Widget_Goodreads extends WP_Widget {
 	}
 
 	function form( $instance ) {
-		//Defaults
+		// Defaults
 		$instance = wp_parse_args(
-			(array) $instance, array(
+			(array) $instance,
+			array(
 				'user_id' => '',
 				'title'   => 'Goodreads',
 				'shelf'   => 'read',

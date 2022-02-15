@@ -14,7 +14,7 @@
 function jetpack_load_widgets() {
 	$widgets_include = array();
 
-	foreach ( Jetpack::glob_php( dirname( __FILE__ ) . '/widgets' ) as $file ) {
+	foreach ( Jetpack::glob_php( __DIR__ . '/widgets' ) as $file ) {
 		$widgets_include[] = $file;
 	}
 	/**
@@ -28,12 +28,12 @@ function jetpack_load_widgets() {
 	 */
 	$widgets_include = apply_filters( 'jetpack_widgets_to_include', $widgets_include );
 
-	foreach( $widgets_include as $include ) {
+	foreach ( $widgets_include as $include ) {
 		include_once $include;
 	}
 
-	include_once dirname( __FILE__ ) . '/widgets/migrate-to-core/image-widget.php';
-	include_once dirname( __FILE__ ) . '/widgets/migrate-to-core/gallery-widget.php';
+	include_once __DIR__ . '/widgets/migrate-to-core/image-widget.php';
+	include_once __DIR__ . '/widgets/migrate-to-core/gallery-widget.php';
 }
 
 add_action( 'jetpack_modules_loaded', 'jetpack_widgets_loaded' );
