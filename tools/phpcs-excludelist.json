@@ -39,7 +39,6 @@
 	"projects/plugins/jetpack/functions.gallery.php",
 	"projects/plugins/jetpack/functions.photon.php",
 	"projects/plugins/jetpack/json-endpoints.php",
-	"projects/plugins/jetpack/json-endpoints/class.wpcom-json-api-get-post-endpoint.php",
 	"projects/plugins/jetpack/json-endpoints/class.wpcom-json-api-get-post-v1-1-endpoint.php",
 	"projects/plugins/jetpack/json-endpoints/class.wpcom-json-api-get-site-endpoint.php",
 	"projects/plugins/jetpack/json-endpoints/class.wpcom-json-api-get-site-v1-2-endpoint.php",
