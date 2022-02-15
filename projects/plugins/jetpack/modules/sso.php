@@ -656,7 +656,9 @@ class Jetpack_SSO {
 	 * @since 10.7.0
 	 */
 	public static function disconnect() {
-		static::delete_connection_for_user( get_current_user_id() );
+		if ( Jetpack::connection()->is_user_connected() ) {
+			static::delete_connection_for_user( get_current_user_id() );
+		}
 	}
 
 	/**
