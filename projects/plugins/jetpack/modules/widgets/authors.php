@@ -1,4 +1,4 @@
-<?php
+<?php // phpcs:ignore WordPress.Files.FileName.InvalidClassFileName
 /**
  * Disable direct access/execution to/of the widget code.
  */
@@ -17,6 +17,9 @@ if ( ! defined( 'ABSPATH' ) ) {
  * @since 4.5.0
  */
 class Jetpack_Widget_Authors extends WP_Widget {
+	/**
+	 * Jetpack_Widget_Authors contructor.
+	 */
 	public function __construct() {
 		parent::__construct(
 			'authors',
@@ -43,16 +46,25 @@ class Jetpack_Widget_Authors extends WP_Widget {
 	 *
 	 * @since 4.5.0
 	 */
-	function enqueue_style() {
+	public function enqueue_style() {
 		wp_register_style( 'jetpack-authors-widget', plugins_url( 'authors/style.css', __FILE__ ), array(), '20161228' );
 		wp_enqueue_style( 'jetpack-authors-widget' );
 	}
 
+	/**
+	 * Flush Authors widget cached data.
+	 */
 	public static function flush_cache() {
 		wp_cache_delete( 'widget_authors', 'widget' );
 		wp_cache_delete( 'widget_authors_ssl', 'widget' );
 	}
 
+	/**
+	 * Echoes the widget content.
+	 *
+	 * @param array $args Display arguments.
+	 * @param array $instance Widget settings for the instance.
+	 */
 	public function widget( $args, $instance ) {
 		$cache_bucket = is_ssl() ? 'widget_authors_ssl' : 'widget_authors';
 
@@ -76,7 +88,7 @@ class Jetpack_Widget_Authors extends WP_Widget {
 		);
 		$instance['number'] = min( 10, max( 0, (int) $instance['number'] ) );
 
-		// We need to query at least one post to determine whether an author has written any posts or not
+		// We need to query at least one post to determine whether an author has written any posts or not.
 		$query_number = max( $instance['number'], 1 );
 
 		/**
@@ -157,7 +169,7 @@ class Jetpack_Widget_Authors extends WP_Widget {
 
 			echo '<li>';
 
-			// Display avatar and author name
+			// Display avatar and author name.
 			if ( $r->have_posts() ) {
 				echo '<a href="' . get_author_posts_url( $author->ID ) . '">';
 
@@ -215,6 +227,11 @@ class Jetpack_Widget_Authors extends WP_Widget {
 		do_action( 'jetpack_stats_extra', 'widget_view', 'authors' );
 	}
 
+	/**
+	 * Outputs the widget settings form.
+	 *
+	 * @param array $instance Current settings.
+	 */
 	public function form( $instance ) {
 		$instance = wp_parse_args(
 			$instance,
@@ -271,11 +288,11 @@ class Jetpack_Widget_Authors extends WP_Widget {
 	/**
 	 * Updates the widget on save and flushes cache.
 	 *
-	 * @param array $new_instance
-	 * @param array $old_instance
+	 * @param array $new_instance New widget instance data.
+	 * @param array $old_instance Old widget instance data.
 	 * @return array
 	 */
-	public function update( $new_instance, $old_instance ) {
+	public function update( $new_instance, $old_instance ) { // phpcs:ignore VariableAnalysis.CodeAnalysis.VariableAnalysis.UnusedVariable
 		$new_instance['title']       = strip_tags( $new_instance['title'] );
 		$new_instance['all']         = isset( $new_instance['all'] );
 		$new_instance['number']      = (int) $new_instance['number'];
@@ -288,6 +305,9 @@ class Jetpack_Widget_Authors extends WP_Widget {
 }
 
 add_action( 'widgets_init', 'jetpack_register_widget_authors' );
+/**
+ * Register the Authors widget.
+ */
 function jetpack_register_widget_authors() {
 	register_widget( 'Jetpack_Widget_Authors' );
 }
