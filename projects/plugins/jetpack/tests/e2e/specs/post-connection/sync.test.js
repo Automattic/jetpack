@@ -80,7 +80,6 @@ test.describe( 'Sync', () => {
 		} );
 
 		await test.step( 'Assert post is not synced', async () => {
-			await waitTillSyncQueueIsEmpty();
 			wpcomPostsResponse = await page.request.get( wpcomForcedPostsUrl );
 			expect( wpcomPostsResponse.ok() ).toBeTruthy();
 
