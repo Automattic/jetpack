@@ -54,9 +54,9 @@ export default function ProductInterstitial( { installsPlugin = false, slug, chi
 	const needsPurchase = ! isFree && ! hasRequiredPlan;
 
 	const addProductUrl =
-		! needsPurchase || ! wpcomProductSlug
-			? null
-			: getProductCheckoutUrl( wpcomProductSlug, isUserConnected );
+		needsPurchase && wpcomProductSlug
+			? getProductCheckoutUrl( wpcomProductSlug, isUserConnected )
+			: null;
 
 	const navigateToMyJetpackOverviewPage = useMyJetpackNavigate( '/' );
 	const navigateToCheckoutPage = useCallback( () => {
