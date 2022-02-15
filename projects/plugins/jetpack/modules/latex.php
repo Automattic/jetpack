@@ -42,7 +42,7 @@ function latex_markup( $content ) {
 	%ix';
 
 	foreach ( $textarr as &$element ) {
-		if ( '' == $element || '<' === $element[0] ) {
+		if ( '' === $element || '<' === $element[0] ) {
 			continue;
 		}
 
