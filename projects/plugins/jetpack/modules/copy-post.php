@@ -31,7 +31,7 @@ class Jetpack_Copy_Post {
 			return;
 		}
 
-		if ( ! empty( $_GET['jetpack-copy'] ) && 'post-new.php' === $GLOBALS['pagenow'] ) {
+		if ( ! empty( $_GET['jetpack-copy'] ) && 'post-new.php' === $GLOBALS['pagenow'] ) { // phpcs:ignore WordPress.Security.NonceVerification.Recommended -- update_post_data() handles access check.
 			add_action( 'wp_insert_post', array( $this, 'update_post_data' ), 10, 3 );
 			add_filter( 'pre_option_default_post_format', '__return_empty_string' );
 		}
@@ -51,7 +51,7 @@ class Jetpack_Copy_Post {
 			return;
 		}
 
-		$source_post = get_post( $_GET['jetpack-copy'] );
+		$source_post = get_post( $_GET['jetpack-copy'] ); // phpcs:ignore WordPress.Security.NonceVerification.Recommended
 		if ( ! $source_post instanceof WP_Post ||
 			! $this->user_can_access_post( $source_post->ID ) ||
 			! $this->validate_post_type( $source_post ) ) {
