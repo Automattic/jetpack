@@ -101,7 +101,7 @@ export const scanProductData = {
 		available: true,
 		currency_code: 'USD',
 		full_price: 9.92,
-		promotion_percentage: 50,
+		discount: 60,
 	},
 };
 
@@ -123,7 +123,7 @@ export const searchProductData = {
 		available: true,
 		currency_code: 'EUR',
 		full_price: 4.5,
-		promotion_percentage: 50,
+		discount: 60,
 	},
 };
 
@@ -146,7 +146,7 @@ export const securityProductData = {
 		available: true,
 		show_promotion: true,
 		full_price: 24.92,
-		promotion_percentage: 50,
+		discount: 60,
 	},
 };
 
