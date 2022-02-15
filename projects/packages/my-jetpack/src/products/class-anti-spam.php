@@ -115,4 +115,13 @@ class Anti_Spam extends Product {
 	public static function is_upgradable_by_bundle() {
 		return array( 'security' );
 	}
+
+	/**
+	 * Get the URL where the user manages the product
+	 *
+	 * @return ?string
+	 */
+	public static function get_manage_url() {
+		return admin_url( 'admin.php?page=akismet-key-config' );
+	}
 }

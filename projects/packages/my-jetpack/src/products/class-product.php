@@ -122,6 +122,8 @@ abstract class Product {
 			'wpcom_product_slug'       => static::get_wpcom_product_slug(),
 			'requires_user_connection' => static::$requires_user_connection,
 			'has_required_plan'        => static::has_required_plan(),
+			'manage_url'               => static::get_manage_url(),
+			'post_activation_url'      => static::get_post_activation_url(),
 			'class'                    => get_called_class(),
 		);
 	}

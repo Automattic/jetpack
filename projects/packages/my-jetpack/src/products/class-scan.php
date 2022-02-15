@@ -10,6 +10,7 @@ namespace Automattic\Jetpack\My_Jetpack\Products;
 use Automattic\Jetpack\Connection\Client;
 use Automattic\Jetpack\My_Jetpack\Module_Product;
 use Automattic\Jetpack\My_Jetpack\Wpcom_Products;
+use Automattic\Jetpack\Redirect;
 use Jetpack_Options;
 use WP_Error;
 
@@ -201,7 +202,7 @@ class Scan extends Module_Product {
 	 * @return ?string
 	 */
 	public static function get_post_activation_url() {
-		return ''; // stay in My Jetpack page
+		return ''; // stay in My Jetpack page.
 	}
 
 	/**
@@ -210,6 +211,6 @@ class Scan extends Module_Product {
 	 * @return ?string
 	 */
 	public static function get_manage_url() {
-		return 'LINK TO CALYPSO';
+		return Redirect::get_url( 'my-jetpack-manage-scan' );
 	}
 }
