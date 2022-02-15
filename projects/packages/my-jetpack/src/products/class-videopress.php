@@ -8,6 +8,7 @@
 namespace Automattic\Jetpack\My_Jetpack\Products;
 
 use Automattic\Jetpack\My_Jetpack\Module_Product;
+use Automattic\Jetpack\My_Jetpack\Wpcom_Products;
 
 /**
  * Class responsible for handling the VideoPress product
@@ -43,7 +44,7 @@ class Videopress extends Module_Product {
 	 * @return string
 	 */
 	public static function get_title() {
-		return ''; // @todo title
+		return __( 'Jetpack VideoPress', 'jetpack-my-jetpack' );
 	}
 
 	/**
@@ -61,7 +62,7 @@ class Videopress extends Module_Product {
 	 * @return string
 	 */
 	public static function get_long_description() {
-		return ''; // @todo Add long description
+		return __( 'High-quality, ad-free video built specifically for WordPress.', 'jetpack-my-jetpack' );
 	}
 
 	/**
@@ -70,7 +71,12 @@ class Videopress extends Module_Product {
 	 * @return array Boost features list
 	 */
 	public static function get_features() {
-		return array();
+		return array(
+			_x( '1TB of storage', 'VideoPress Product Feature', 'jetpack-my-jetpack' ),
+			_x( 'Built into WordPress editor', 'VideoPress Product Feature', 'jetpack-my-jetpack' ),
+			_x( 'Ad-free and brandable player', 'VideoPress Product Feature', 'jetpack-my-jetpack' ),
+			_x( 'Unlimited users', 'VideoPress Product Feature', 'jetpack-my-jetpack' ),
+		);
 	}
 
 	/**
@@ -79,11 +85,21 @@ class Videopress extends Module_Product {
 	 * @return array Pricing details
 	 */
 	public static function get_pricing_for_ui() {
-		return array(
-			'available'            => true,
-			'currency_code'        => 'EUR',
-			'full_price'           => '9',
-			'promotion_percentage' => '50',
+		return array_merge(
+			array(
+				'available'            => true,
+				'promotion_percentage' => 50,
+			),
+			Wpcom_Products::get_product_currency_and_price( static::get_wpcom_product_slug() )
 		);
+	}
+
+	/**
+	 * Get the WPCOM product slug used to make the purchase
+	 *
+	 * @return ?string
+	 */
+	public static function get_wpcom_product_slug() {
+		return 'jetpack_videopress';
 	}
 }

@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "a6753be0a47ab741ae507d6ea4b4b177",
+    "content-hash": "6162916b2efc7018b8c02cd92be33727",
     "packages": [
         {
             "name": "automattic/jetpack-a8c-mc-stats",
@@ -926,7 +926,7 @@
             "dist": {
                 "type": "path",
                 "url": "../../packages/jitm",
-                "reference": "77c9f7a8e922bf208437916dd6bfcae293c1dd26"
+                "reference": "4f5248371ee496e39e648de3de062466c71807be"
             },
             "require": {
                 "automattic/jetpack-a8c-mc-stats": "^1.4",
@@ -935,7 +935,7 @@
                 "automattic/jetpack-device-detection": "^1.4",
                 "automattic/jetpack-logo": "^1.5",
                 "automattic/jetpack-options": "^1.14",
-                "automattic/jetpack-partner": "^1.6",
+                "automattic/jetpack-partner": "^1.7",
                 "automattic/jetpack-redirect": "^1.7",
                 "automattic/jetpack-status": "^1.10",
                 "automattic/jetpack-tracking": "^1.14"
@@ -1165,7 +1165,7 @@
             "dist": {
                 "type": "path",
                 "url": "../../packages/my-jetpack",
-                "reference": "b7f4da28e31ec2691ee67b3be8dbc1a26a64a06e"
+                "reference": "ea864731958da9e136b49dc0c6c865f014a4553b"
             },
             "require": {
                 "automattic/jetpack-admin-ui": "^0.2",
@@ -1177,6 +1177,7 @@
             },
             "require-dev": {
                 "automattic/jetpack-changelogger": "^3.0",
+                "automattic/jetpack-constants": "^1.6",
                 "automattic/jetpack-options": "^1.14",
                 "automattic/wordbless": "@dev",
                 "yoast/phpunit-polyfills": "1.0.3"
@@ -1286,11 +1287,15 @@
             "dist": {
                 "type": "path",
                 "url": "../../packages/partner",
-                "reference": "ebfaa48c46285aa4dcb541879d50130f7d922492"
+                "reference": "479fb85076a90f52dde0f76843679a8334d18b89"
+            },
+            "require": {
+                "automattic/jetpack-connection": "^1.36",
+                "automattic/jetpack-options": "^1.14",
+                "automattic/jetpack-status": "^1.10"
             },
             "require-dev": {
                 "automattic/jetpack-changelogger": "^3.0",
-                "automattic/jetpack-options": "^1.14",
                 "automattic/wordbless": "@dev",
                 "brain/monkey": "2.6.1",
                 "yoast/phpunit-polyfills": "1.0.3"
@@ -1303,7 +1308,7 @@
                     "link-template": "https://github.com/Automattic/jetpack-partner/compare/v${old}...v${new}"
                 },
                 "branch-alias": {
-                    "dev-master": "1.6.x-dev"
+                    "dev-master": "1.7.x-dev"
                 }
             },
             "autoload": {

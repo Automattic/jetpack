@@ -74,3 +74,16 @@ export const JetpackScanCard = ScanCardTemplate.bind( {} );
 JetpackScanCard.parameters = {
 	mockData: getMockData( 'scan' ),
 };
+
+const SecurityCardTemplate = args => <ProductDetailCard { ...args } slug="security" />;
+export const SecurityBundle = SecurityCardTemplate.bind( {} );
+SecurityBundle.parameters = {
+	mockData: getMockData( 'security' ),
+};
+
+const VideoPressCardTemplate = args => <ProductDetailCard { ...args } slug="videopress" />;
+export const JetpackVideoPressCard = VideoPressCardTemplate.bind( {} );
+JetpackVideoPressCard.storyName = 'Jetpack VideoPress';
+JetpackVideoPressCard.parameters = {
+	mockData: getMockData( 'videopress' ),
+};

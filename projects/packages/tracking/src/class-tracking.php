@@ -145,7 +145,7 @@ class Tracking {
 		wp_enqueue_script(
 			'jptracks',
 			Assets::get_file_url_for_environment( 'js/tracks-ajax.js', 'js/tracks-ajax.js', __FILE__ ),
-			array(),
+			array( 'jquery' ),
 			self::ASSETS_VERSION,
 			true
 		);
