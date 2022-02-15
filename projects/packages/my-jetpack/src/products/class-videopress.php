@@ -8,6 +8,7 @@
 namespace Automattic\Jetpack\My_Jetpack\Products;
 
 use Automattic\Jetpack\My_Jetpack\Module_Product;
+use Automattic\Jetpack\My_Jetpack\Wpcom_Products;
 
 /**
  * Class responsible for handling the VideoPress product
@@ -79,11 +80,21 @@ class Videopress extends Module_Product {
 	 * @return array Pricing details
 	 */
 	public static function get_pricing_for_ui() {
-		return array(
-			'available'            => true,
-			'currency_code'        => 'EUR',
-			'full_price'           => '9',
-			'promotion_percentage' => '50',
+		return array_merge(
+			array(
+				'available'            => true,
+				'promotion_percentage' => 50,
+			),
+			Wpcom_Products::get_product_currency_and_price( static::get_wpcom_product_slug() )
 		);
+	}
+
+	/**
+	 * Get the WPCOM product slug used to make the purchase
+	 *
+	 * @return ?string
+	 */
+	public static function get_wpcom_product_slug() {
+		return 'jetpack_videopress';
 	}
 }
