@@ -90,12 +90,13 @@ const ProductDetail = ( { slug, onClick, trackButtonClick } ) => {
 	const { isUserConnected } = useMyJetpackConnection();
 
 	/*
-	 * Show prices only when the product is not free
-	 * and does not have the required plan.
+	 * Product needs purchase when:
+	 * - it's not free
+	 * - it does not have a required plan
 	 */
-	const showPrices = ! isFree && ! hasRequiredPlan;
+	const needsPurchase = ! isFree && ! hasRequiredPlan;
 
-	const addProductUrl = isFree
+	const addProductUrl = ! needsPurchase
 		? null
 		: getProductCheckoutUrl( `jetpack_${ slug }`, isUserConnected ); // @ToDo: Remove this when we have a new product structure.
 
@@ -153,7 +154,7 @@ const ProductDetail = ( { slug, onClick, trackButtonClick } ) => {
 					) ) }
 				</ul>
 
-				{ showPrices && (
+				{ needsPurchase && (
 					<div className={ styles[ 'price-container' ] }>
 						<Price value={ fullPrice } currency={ currencyCode } isOld={ true } />
 						<Price value={ discountedPrice } currency={ currencyCode } isOld={ false } />
