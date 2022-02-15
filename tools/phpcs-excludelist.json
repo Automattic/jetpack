@@ -223,7 +223,6 @@
 	"projects/plugins/jetpack/modules/sharedaddy/sharing-service.php",
 	"projects/plugins/jetpack/modules/sharedaddy/sharing-sources.php",
 	"projects/plugins/jetpack/modules/sharedaddy/sharing.php",
-	"projects/plugins/jetpack/modules/shortcodes.php",
 	"projects/plugins/jetpack/modules/sitemaps.php",
 	"projects/plugins/jetpack/modules/sitemaps/sitemap-buffer-fallback.php",
 	"projects/plugins/jetpack/modules/sitemaps/sitemap-buffer-image-fallback.php",
