@@ -60,6 +60,10 @@ export default function ProductInterstitial( { installsPlugin = false, slug, chi
 
 	const navigateToMyJetpackOverviewPage = useMyJetpackNavigate( '/' );
 	const navigateToCheckoutPage = useCallback( () => {
+		if ( ! addProductUrl ) {
+			return;
+		}
+
 		window.location.href = addProductUrl;
 	}, [ addProductUrl ] );
 
