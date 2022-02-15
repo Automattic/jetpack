@@ -1065,13 +1065,12 @@ class Jetpack_Gutenberg {
 	 * @param string $slug Slug of the block.
 	 */
 	public static function set_availability_for_plan( $slug ) {
-		$is_available    = true;
-		$plan            = '';
-		$slug            = self::remove_extension_prefix( $slug );
-		$features_data   = array();
-		$is_simple_site  = defined( 'IS_WPCOM' ) && IS_WPCOM;
-		$is_atomic_site  = ( new Host() )->is_woa_site();
-		$current_blog_id = get_current_blog_id();
+		$is_available   = true;
+		$plan           = '';
+		$slug           = self::remove_extension_prefix( $slug );
+		$features_data  = array();
+		$is_simple_site = defined( 'IS_WPCOM' ) && IS_WPCOM;
+		$is_atomic_site = ( new Host() )->is_woa_site();
 
 		// keep track of specific features data per blog between calls.
 		static $site_specific_features = array();
@@ -1081,6 +1080,7 @@ class Jetpack_Gutenberg {
 
 			// Simple sites.
 			if ( $is_simple_site ) {
+				$current_blog_id = get_current_blog_id();
 				if ( ! class_exists( 'Store_Product_List' ) ) {
 					require WP_CONTENT_DIR . '/admin-plugins/wpcom-billing/store-product-list.php';
 				}
