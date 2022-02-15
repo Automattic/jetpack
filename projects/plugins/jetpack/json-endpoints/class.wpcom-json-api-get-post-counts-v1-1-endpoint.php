@@ -77,6 +77,8 @@ class WPCOM_JSON_API_GET_Post_Counts_V1_1_Endpoint extends WPCOM_JSON_API_Endpoi
 		if ( ! isset( $id ) ) {
 			$counts = array();
 			foreach ( (array) wp_count_posts( $post_type ) as $status => $count ) {
+				// @todo see if we can use a strict comparison here.
+				// phpcs:ignore WordPress.PHP.StrictInArray.MissingTrueStrict
 				if ( in_array( $status, $this->whitelist ) && $count > 0 ) {
 					$counts[ $status ] = (int) $count;
 				}
