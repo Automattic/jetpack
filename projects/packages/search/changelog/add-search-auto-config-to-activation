@@ -1,4 +1,4 @@
 Significance: major
 Type: added
 
-Search: run auto config from activation API
+Search: refactor `auto_config_search` and run it from activation API
