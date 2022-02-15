@@ -4,6 +4,8 @@
 	"type": "wordpress-plugin",
 	"license": "GPL-2.0-or-later",
 	"require": {
+		"automattic/jetpack-autoloader": "2.10.x-dev",
+		"automattic/jetpack-composer-plugin": "1.1.x-dev",
 		"automattic/jetpack-search": "0.8.x-dev"
 	},
 	"require-dev": {
