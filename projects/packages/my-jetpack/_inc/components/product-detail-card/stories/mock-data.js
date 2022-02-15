@@ -3,6 +3,7 @@ export const antiSpamProductData = {
 	name: 'Anti-Spam',
 	title: 'Jepack Anti-Spam',
 	description: 'Stop comment and form spam',
+	is_upgradable_by_bundle: [ 'security' ],
 	long_description:
 		'Save time and get better responses by automatically blocking spam from your comments and forms.',
 	status: 'active',
@@ -25,6 +26,7 @@ export const backupProductData = {
 	name: 'Backup',
 	title: 'Jepack Backup',
 	description: 'Save every change',
+	is_upgradable_by_bundle: [ 'security' ],
 	long_description:
 		'Never lose a word, image, page, or time worrying about your site with automated backups & one-click restores.',
 	status: 'active',
@@ -61,11 +63,32 @@ export const boostProductData = {
 	},
 };
 
+export const crmProductData = {
+	slug: 'crm',
+	name: 'CRM',
+	title: 'Jetpack CRM',
+	description: 'Connect with your people',
+	long_description:
+		'All of your contacts in one place. Build better relationships with your customers and clients.',
+	status: 'inactive',
+	features: [
+		'Manage unlimited contacts',
+		'Manage billing and create invoices',
+		'Fully integrated with WordPress & WooCommerce',
+		'Infinitely customizable with integrations and extensions',
+	],
+	pricingForUi: {
+		available: true,
+		is_free: true,
+	},
+};
+
 export const scanProductData = {
 	slug: 'scan',
 	name: 'Scan',
 	title: 'Jepack Scan',
 	description: 'Stay one step ahead of threats',
+	is_upgradable_by_bundle: [ 'security' ],
 	long_description:
 		'Automatic scanning and one-click fixes keep your site one step ahead of security threats and malware.',
 	status: 'inactive',
@@ -85,7 +108,7 @@ export const scanProductData = {
 export const searchProductData = {
 	slug: 'search',
 	name: 'Search',
-	title: 'Jepack Search',
+	title: 'Jetpack Site Search',
 	description: 'Help them find what they need',
 	long_description:
 		'Help your site visitors find answers instantly so they keep reading and buying. Great for sites with a lot of content.',
@@ -101,5 +124,49 @@ export const searchProductData = {
 		currency_code: 'EUR',
 		full_price: 4.5,
 		promotion_percentage: 50,
+	},
+};
+
+export const securityProductData = {
+	slug: 'security',
+	name: 'Security',
+	title: 'Security',
+	description: 'Comprehensive site security, including Backup, Scan, and Anti-spam.',
+	long_description: 'Comprehensive site security, including Backup, Scan, and Anti-spam.',
+	status: 'inactive',
+	is_bundle: true,
+	supportedProducts: [ 'backup', 'scan', 'anti-spam' ],
+	features: [
+		'Real-time cloud backups with 10GB storage',
+		'Automated real-time malware scan',
+		'One-click fixes for most threats',
+		'Comment & form spam protection',
+	],
+	pricingForUi: {
+		available: true,
+		show_promotion: true,
+		full_price: 24.92,
+		promotion_percentage: 50,
+	},
+};
+
+export const videoPressProductData = {
+	slug: 'videopress',
+	name: 'VideoPress',
+	title: 'Jetpack Site VideoPress',
+	description: 'High quality, ad-free video',
+	long_description: 'High-quality, ad-free video built specifically for WordPress.',
+	status: 'inactive',
+	features: [
+		'1TB of storage',
+		'Built into WordPress editor',
+		'Ad-free and brandable player',
+		'Unlimited users',
+	],
+	pricingForUi: {
+		available: true,
+		currencyCode: 'USD',
+		fullPrice: 119,
+		promotionPercentage: 50,
 	},
 };

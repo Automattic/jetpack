@@ -13,10 +13,13 @@ import MyJetpackScreen from './components/my-jetpack-screen';
 import ConnectionScreen from './components/connection-screen';
 import { initStore } from './state/store';
 import {
+	AntiSpamInterstitial,
 	BackupInterstitial,
 	BoostInterstitial,
+	CRMInterstitial,
 	ScanInterstitial,
 	SearchInterstitial,
+	VideoPressInterstitial,
 } from './components/product-interstitial';
 import GoBackLink from './components/go-back-link';
 import styles from './style.module.scss';
@@ -75,20 +78,34 @@ const MyJetpack = () => (
 				element={ <Layout nav={ true } children={ <ConnectionScreen /> } /> }
 			/>
 			<Route
-				path="/add-boost"
-				element={ <Layout nav={ true } children={ <BoostInterstitial /> } slug={ 'boost' } /> }
+				path="/add-anti-spam"
+				element={ <Layout nav={ true } children={ <AntiSpamInterstitial /> } slug="anti-spam" /> }
 			/>
 			<Route
 				path="/add-backup"
-				element={ <Layout nav={ true } children={ <BackupInterstitial /> } slug={ 'backup' } /> }
+				element={ <Layout nav={ true } children={ <BackupInterstitial /> } slug="backup" /> }
+			/>
+			<Route
+				path="/add-boost"
+				element={ <Layout nav={ true } children={ <BoostInterstitial /> } slug="boost" /> }
+			/>
+			<Route
+				path="/add-crm"
+				element={ <Layout nav={ true } children={ <CRMInterstitial /> } slug="crm" /> }
 			/>
 			<Route
 				path="/add-scan"
-				element={ <Layout nav={ true } children={ <ScanInterstitial /> } slug={ 'scan' } /> }
+				element={ <Layout nav={ true } children={ <ScanInterstitial /> } slug="scan" /> }
 			/>
 			<Route
 				path="/add-search"
-				element={ <Layout nav={ true } children={ <SearchInterstitial /> } slug={ 'search' } /> }
+				element={ <Layout nav={ true } children={ <SearchInterstitial /> } slug="search" /> }
+			/>
+			<Route
+				path="/add-videopress"
+				element={
+					<Layout nav={ true } children={ <VideoPressInterstitial /> } slug="videopress" />
+				}
 			/>
 		</Routes>
 	</HashRouter>

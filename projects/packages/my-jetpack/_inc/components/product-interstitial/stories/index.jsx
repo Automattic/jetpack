@@ -13,8 +13,10 @@ import ProductInterstitial, {
 	AntiSpamInterstitial,
 	BackupInterstitial,
 	BoostInterstitial,
+	CRMInterstitial,
 	SearchInterstitial,
 	ScanInterstitial,
+	VideoPressInterstitial,
 } from '../index.jsx';
 
 export default {
@@ -49,6 +51,12 @@ JetpackBoost.parameters = {
 	mockData: getMockData( 'boost' ),
 };
 
+const CRMTemplate = args => <CRMInterstitial { ...args } />;
+export const JetpackCRM = CRMTemplate.bind( {} );
+JetpackCRM.parameters = {
+	mockData: getMockData( 'crm' ),
+};
+
 const ScanTemplate = args => <ScanInterstitial { ...args } />;
 export const JetpackScan = ScanTemplate.bind( {} );
 JetpackScan.parameters = {};
@@ -57,4 +65,11 @@ const SearchTemplate = args => <SearchInterstitial { ...args } />;
 export const JetpackSearch = SearchTemplate.bind( {} );
 JetpackSearch.parameters = {
 	mockData: getMockData( 'search' ),
+};
+
+const VideoPressTemplate = args => <VideoPressInterstitial { ...args } />;
+export const JetpackVideoPress = VideoPressTemplate.bind( {} );
+JetpackVideoPress.storyName = 'Jetpack VideoPress';
+JetpackVideoPress.parameters = {
+	mockData: getMockData( 'videopress' ),
 };

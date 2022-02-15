@@ -1,0 +1,4 @@
+Significance: patch
+Type: enhancement
+
+About page: only fetch a11n data when page is active.

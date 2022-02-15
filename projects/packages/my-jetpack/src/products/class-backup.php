@@ -9,6 +9,8 @@ namespace Automattic\Jetpack\My_Jetpack\Products;
 
 use Automattic\Jetpack\Connection\Client;
 use Automattic\Jetpack\My_Jetpack\Hybrid_Product;
+use Automattic\Jetpack\My_Jetpack\Wpcom_Products;
+use Automattic\Jetpack\Redirect;
 use Jetpack_Options;
 use WP_Error;
 
@@ -107,11 +109,12 @@ class Backup extends Hybrid_Product {
 	 * @return array Pricing details
 	 */
 	public static function get_pricing_for_ui() {
-		return array(
-			'available'            => true,
-			'currency_code'        => 'EUR',
-			'full_price'           => 9,
-			'promotion_percentage' => 50,
+		return array_merge(
+			array(
+				'available'            => true,
+				'promotion_percentage' => 50,
+			),
+			Wpcom_Products::get_product_currency_and_price( static::get_wpcom_product_slug() )
 		);
 	}
 
@@ -155,4 +158,38 @@ class Backup extends Hybrid_Product {
 		return is_object( $rewind_data ) && isset( $rewind_data->state ) && 'unavailable' !== $rewind_data->state;
 	}
 
+	/**
+	 * Return product bundles list
+	 * that supports the product.
+	 *
+	 * @return boolean|array Products bundle list.
+	 */
+	public static function is_upgradable_by_bundle() {
+		return array( 'security' );
+	}
+
+	/**
+	 * Get the URL the user is taken after activating the product
+	 *
+	 * @return ?string
+	 */
+	public static function get_post_activation_url() {
+		if ( static::is_plugin_active() ) {
+			return admin_url( 'admin.php?page=jetpack-backup' );
+		}
+		return ''; // stay in My Jetpack page.
+	}
+
+	/**
+	 * Get the URL where the user manages the product
+	 *
+	 * @return ?string
+	 */
+	public static function get_manage_url() {
+		if ( static::is_plugin_active() ) {
+			return admin_url( 'admin.php?page=jetpack-backup' );
+		} elseif ( static::is_jetpack_plugin_active() ) {
+			return Redirect::get_url( 'my-jetpack-manage-backup' );
+		}
+	}
 }

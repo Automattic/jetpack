@@ -105,4 +105,23 @@ class Anti_Spam extends Product {
 			'promotion_percentage' => 50,
 		);
 	}
+
+	/**
+	 * Return product bundles list
+	 * that supports the product.
+	 *
+	 * @return boolean|array Products bundle list.
+	 */
+	public static function is_upgradable_by_bundle() {
+		return array( 'security' );
+	}
+
+	/**
+	 * Get the URL where the user manages the product
+	 *
+	 * @return ?string
+	 */
+	public static function get_manage_url() {
+		return admin_url( 'admin.php?page=akismet-key-config' );
+	}
 }

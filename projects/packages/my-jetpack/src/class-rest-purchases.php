@@ -39,12 +39,12 @@ class REST_Purchases {
 	 */
 	public static function permissions_callback() {
 		$connection        = new Connection_Manager();
-		$is_user_connected = $connection->is_connected();
+		$is_site_connected = $connection->is_connected();
 
-		if ( ! $is_user_connected ) {
+		if ( ! $is_site_connected ) {
 			return new \WP_Error(
 				'not_connected',
-				__( 'You are not connected to Jetpack.', 'jetpack-my-jetpack' ),
+				__( 'Your site is not connected to Jetpack.', 'jetpack-my-jetpack' ),
 				array(
 					'status' => 400,
 				)
