@@ -175,31 +175,33 @@ const ProductDetail = ( { slug, onClick, trackButtonClick } ) => {
 					<h3 className={ styles[ 'product-free' ] }>{ __( 'Free', 'jetpack-my-jetpack' ) }</h3>
 				) }
 
-				{ ( ! isBundle || ( isBundle && ! hasRequiredPlan ) ) && (
-					<ProductDetailButton
-						onClick={ clickHandler }
-						isLink
-						isLoading={ isFetching }
-						isPrimary={ ! isBundle }
-						isSecondary={ isBundle }
-						href={ onClick ? undefined : addProductUrl }
-						className={ `${ styles[ 'checkout-button' ] } ${
-							isBundle ? styles[ 'is-bundle' ] : ''
-						}` }
-					>
-						{
-							/* translators: placeholder is product name. */
-							sprintf( __( 'Add %s', 'jetpack-my-jetpack' ), title )
-						}
-					</ProductDetailButton>
-				) }
+				<div className={ styles[ 'cta-container' ] }>
+					{ ( ! isBundle || ( isBundle && ! hasRequiredPlan ) ) && (
+						<ProductDetailButton
+							onClick={ clickHandler }
+							isLink
+							isLoading={ isFetching }
+							isPrimary={ ! isBundle }
+							isSecondary={ isBundle }
+							href={ onClick ? undefined : addProductUrl }
+							className={ `${ styles[ 'checkout-button' ] } ${
+								isBundle ? styles[ 'is-bundle' ] : ''
+							}` }
+						>
+							{
+								/* translators: placeholder is product name. */
+								sprintf( __( 'Add %s', 'jetpack-my-jetpack' ), title )
+							}
+						</ProductDetailButton>
+					) }
 
-				{ isBundle && hasRequiredPlan && (
-					<div className={ styles[ 'product-has-required-plan' ] }>
-						<CheckmarkIcon size={ 36 } />
-						{ __( 'Active on your site', 'jetpack-my-jetpack' ) }
-					</div>
-				) }
+					{ isBundle && hasRequiredPlan && (
+						<div className={ styles[ 'product-has-required-plan' ] }>
+							<CheckmarkIcon size={ 36 } />
+							{ __( 'Active on your site', 'jetpack-my-jetpack' ) }
+						</div>
+					) }
+				</div>
 			</div>
 		</>
 	);
