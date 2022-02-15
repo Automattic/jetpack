@@ -1,4 +1,4 @@
-Significance: major
-Type: added
+Significance: minor
+Type: changed
 
-Search: refactor `auto_config_search` and run it from activation API
+Search package: refactor `auto_config_search` and run it from activation API
