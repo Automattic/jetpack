@@ -10,7 +10,6 @@ import { Container, Col } from '@automattic/jetpack-components';
 import ProductDetailCard, { ProductDetail } from '../product-detail-card';
 import styles from './style.module.scss';
 import useAnalytics from '../../hooks/use-analytics';
-import { useProduct } from '../../hooks/use-product';
 import boostImage from './boost.png';
 import searchImage from './search.png';
 import videoPressImage from './videopress.png';
