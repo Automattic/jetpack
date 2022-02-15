@@ -107,6 +107,11 @@ class Test_Wpcom_Products extends TestCase {
 				'cost_display'           => 'R$4.90',
 				'cost'                   => 4.9,
 				'currency_code'          => 'BRL',
+				'sale_coupon'            => (object) array(
+					'start_date' => gmdate( 'Y' ) . '-01-01',
+					'expires'    => gmdate( 'Y' ) . '-12-31',
+					'discount'   => 20,
+				),
 			),
 		);
 	}
@@ -203,6 +208,7 @@ class Test_Wpcom_Products extends TestCase {
 		$expected = array(
 			'currency_code' => 'BRL',
 			'full_price'    => 4.9,
+			'discount'      => 20,
 		);
 
 		$this->assertSame( $expected, $product_price );
