@@ -65,7 +65,7 @@ function jetpack_enhanced_distribution_feed_id() {
 	$id = (int) Jetpack_Options::get_option( 'id' );
 	if ( $id > 0 ) {
 		$output = sprintf( '<site xmlns="com-wordpress:feed-additions:1">%d</site>', $id );
-		echo $output;
+		echo $output; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
 	}
 }
 
@@ -73,9 +73,9 @@ function jetpack_enhanced_distribution_feed_id() {
  * Output feed item identifier based on current post ID.
  */
 function jetpack_enhanced_distribution_post_id() {
-	$id = get_the_ID();
+	$id = (int) get_the_ID();
 	if ( $id ) {
 		$output = sprintf( '<post-id xmlns="com-wordpress:feed-additions:1">%d</post-id>', $id );
-		echo $output;
+		echo $output; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
 	}
 }
