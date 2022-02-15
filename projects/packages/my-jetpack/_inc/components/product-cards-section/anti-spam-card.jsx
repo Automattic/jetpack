@@ -10,6 +10,7 @@ import PropTypes from 'prop-types';
 import ProductCard from '../product-card';
 import { useProduct } from '../../hooks/use-product';
 import { AntiSpamIcon } from '../icons';
+import useMyJetpackNavigate from '../../hooks/use-my-jetpack-navigate';
 
 const AntiSpamCard = ( { admin } ) => {
 	const { status, activate, deactivate, detail, isFetching } = useProduct( 'anti-spam' );
@@ -26,6 +27,7 @@ const AntiSpamCard = ( { admin } ) => {
 			onDeactivate={ deactivate }
 			slug={ slug }
 			onActivate={ activate }
+			onFixConnection={ useMyJetpackNavigate( '/connection' ) }
 		/>
 	);
 };

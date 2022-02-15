@@ -7,6 +7,7 @@
 
 namespace Automattic\Jetpack\My_Jetpack;
 
+use Automattic\Jetpack\Connection\Manager as Connection_Manager;
 use Automattic\Jetpack\Plugins_Installer;
 use WP_Error;
 
@@ -226,12 +227,17 @@ abstract class Product {
 	 * @return string
 	 */
 	public static function get_status() {
-		if ( ! static::has_required_plan() ) {
+
+		if ( ! self::is_plugin_installed() ) {
+			$status = 'plugin_absent';
+		} elseif ( ! static::has_required_plan() ) {
 			$status = 'needs_purchase';
 		} elseif ( static::is_active() ) {
 			$status = 'active';
-		} elseif ( ! self::is_plugin_installed() ) {
-			$status = 'plugin_absent';
+			// We only consider missing user connection an error when the Product is active.
+			if ( static::$requires_user_connection && ! ( new Connection_Manager() )->has_connected_owner() ) {
+				$status = 'error';
+			}
 		} else {
 			$status = 'inactive';
 		}

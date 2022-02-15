@@ -129,3 +129,24 @@ export const securityProductData = {
 		promotion_percentage: 50,
 	},
 };
+
+export const videoPressProductData = {
+	slug: 'videopress',
+	name: 'VideoPress',
+	title: 'Jetpack Site VideoPress',
+	description: 'High quality, ad-free video',
+	long_description: 'High-quality, ad-free video built specifically for WordPress.',
+	status: 'inactive',
+	features: [
+		'1TB of storage',
+		'Built into WordPress editor',
+		'Ad-free and brandable player',
+		'Unlimited users',
+	],
+	pricingForUi: {
+		available: true,
+		currencyCode: 'USD',
+		fullPrice: 119,
+		promotionPercentage: 50,
+	},
+};

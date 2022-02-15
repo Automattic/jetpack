@@ -12,6 +12,7 @@ import styles from './style.module.scss';
 import useAnalytics from '../../hooks/use-analytics';
 import boostImage from './boost.png';
 import searchImage from './search.png';
+import videoPressImage from './videopress.png';
 import { useProduct } from '../../hooks/use-product';
 
 /**
@@ -118,6 +119,19 @@ export function SearchInterstitial() {
 	return (
 		<ProductInterstitial slug="search">
 			<img src={ searchImage } alt="Search" />
+		</ProductInterstitial>
+	);
+}
+
+/**
+ * VideoPressInterstitial component
+ *
+ * @returns {object} VideoPressInterstitial react component.
+ */
+export function VideoPressInterstitial() {
+	return (
+		<ProductInterstitial slug="videopress">
+			<img src={ videoPressImage } alt="VideoPress" />
 		</ProductInterstitial>
 	);
 }
