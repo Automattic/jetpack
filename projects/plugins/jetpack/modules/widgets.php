@@ -9,8 +9,13 @@
  * Module Tags: Social, Appearance
  * Feature: Appearance
  * Additional Search Queries: widget, widgets, facebook, gallery, twitter, gravatar, image, rss
+ *
+ * @package automattic/jetpack
  */
 
+/**
+ * Load Jetpack widget files.
+ */
 function jetpack_load_widgets() {
 	$widgets_include = array();
 
@@ -37,7 +42,9 @@ function jetpack_load_widgets() {
 }
 
 add_action( 'jetpack_modules_loaded', 'jetpack_widgets_loaded' );
-
+/**
+ * Actions to perform after Jetpack widgets are loaded.
+ */
 function jetpack_widgets_loaded() {
 	Jetpack::enable_module_configurable( __FILE__ );
 	add_filter( 'jetpack_module_configuration_url_widgets', 'jetpack_widgets_configuration_url' );
@@ -75,6 +82,9 @@ function jetpack_widgets_customizer_assets_controls() {
 }
 add_action( 'customize_controls_enqueue_scripts', 'jetpack_widgets_customizer_assets_controls' );
 
+/**
+ * Cleanup old Jetpack widgets data.
+ */
 function jetpack_widgets_remove_old_widgets() {
 	$old_widgets = array(
 		'googleplus-badge',
