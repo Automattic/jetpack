@@ -8,6 +8,7 @@
 namespace Automattic\Jetpack\My_Jetpack\Products;
 
 use Automattic\Jetpack\My_Jetpack\Product;
+use Automattic\Jetpack\My_Jetpack\Wpcom_Products;
 
 /**
  * Class responsible for handling the Anti_Spam product
@@ -98,12 +99,22 @@ class Anti_Spam extends Product {
 	 * @return array Pricing details
 	 */
 	public static function get_pricing_for_ui() {
-		return array(
-			'available'            => true,
-			'currency_code'        => 'EUR',
-			'full_price'           => 9.92,
-			'promotion_percentage' => 50,
+		return array_merge(
+			array(
+				'available' => true,
+				'discount'  => 60, // hardcoded - it could be overwritten by the wpcom product.
+			),
+			Wpcom_Products::get_product_pricing( static::get_wpcom_product_slug() )
 		);
+	}
+
+	/**
+	 * Get the WPCOM product slug used to make the purchase
+	 *
+	 * @return ?string
+	 */
+	public static function get_wpcom_product_slug() {
+		return 'jetpack_anti_spam_monthly';
 	}
 
 	/**

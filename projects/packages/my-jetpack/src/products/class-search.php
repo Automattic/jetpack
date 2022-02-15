@@ -90,10 +90,10 @@ class Search extends Module_Product {
 	public static function get_pricing_for_ui() {
 		return array_merge(
 			array(
-				'available'            => true,
-				'promotion_percentage' => 50,
+				'available' => true,
+				'discount'  => 60, // hardcoded - it could be overwritten by the wpcom product.
 			),
-			Wpcom_Products::get_product_currency_and_price( static::get_wpcom_product_slug() )
+			Wpcom_Products::get_product_pricing( static::get_wpcom_product_slug() )
 		);
 	}
 
@@ -103,7 +103,7 @@ class Search extends Module_Product {
 	 * @return ?string
 	 */
 	public static function get_wpcom_product_slug() {
-		return 'jetpack_search';
+		return 'jetpack_search_monthly';
 	}
 
 	/**
