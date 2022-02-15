@@ -76,10 +76,24 @@ function Price( { value, currency, isOld } ) {
  */
 const ProductDetail = ( { slug, onClick, trackButtonClick } ) => {
 	const { detail, isFetching } = useProduct( slug );
-	const { title, longDescription, features, pricingForUi, isBundle, supportedProducts } = detail;
+	const {
+		title,
+		longDescription,
+		features,
+		pricingForUi,
+		isBundle,
+		supportedProducts,
+		hasRequiredPlan,
+	} = detail;
 
 	const { isFree, fullPrice, currencyCode, discountedPrice } = pricingForUi;
 	const { isUserConnected } = useMyJetpackConnection();
+
+	/*
+	 * Show prices only when the product is not free
+	 * and does not have the required plan.
+	 */
+	const showPrices = ! isFree && ! hasRequiredPlan;
 
 	const addProductUrl = isFree
 		? null
@@ -113,6 +127,7 @@ const ProductDetail = ( { slug, onClick, trackButtonClick } ) => {
 			onClick();
 		}
 	}, [ onClick, trackButtonClick ] );
+
 	return (
 		<>
 			{ isBundle && (
@@ -138,7 +153,7 @@ const ProductDetail = ( { slug, onClick, trackButtonClick } ) => {
 					) ) }
 				</ul>
 
-				{ ! isFree && (
+				{ showPrices && (
 					<div className={ styles[ 'price-container' ] }>
 						<Price value={ fullPrice } currency={ currencyCode } isOld={ true } />
 						<Price value={ discountedPrice } currency={ currencyCode } isOld={ false } />
