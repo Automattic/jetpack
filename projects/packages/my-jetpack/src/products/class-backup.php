@@ -111,8 +111,9 @@ class Backup extends Hybrid_Product {
 	public static function get_pricing_for_ui() {
 		return array_merge(
 			array(
-				'available' => true,
-				'discount'  => 60, // hardcoded - it could be overwritten by the wpcom product.
+				'available'          => true,
+				'wpcom_product_slug' => static::get_wpcom_product_slug(),
+				'discount'           => 60, // hardcoded - it could be overwritten by the wpcom product.
 			),
 			Wpcom_Products::get_product_pricing( static::get_wpcom_product_slug() )
 		);

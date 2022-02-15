@@ -86,7 +86,7 @@ const ProductDetail = ( { slug, onClick, trackButtonClick } ) => {
 		hasRequiredPlan,
 	} = detail;
 
-	const { isFree, fullPrice, currencyCode, discountedPrice } = pricingForUi;
+	const { isFree, fullPrice, currencyCode, discountedPrice, wpcomProductSlug } = pricingForUi;
 	const { isUserConnected } = useMyJetpackConnection();
 
 	/*
@@ -96,9 +96,10 @@ const ProductDetail = ( { slug, onClick, trackButtonClick } ) => {
 	 */
 	const needsPurchase = ! isFree && ! hasRequiredPlan;
 
-	const addProductUrl = ! needsPurchase
-		? null
-		: getProductCheckoutUrl( `jetpack_${ slug }`, isUserConnected ); // @ToDo: Remove this when we have a new product structure.
+	const addProductUrl =
+		needsPurchase && wpcomProductSlug
+			? getProductCheckoutUrl( wpcomProductSlug, isUserConnected ) // @ToDo: Remove this when we have a new product structure.
+			: null;
 
 	// Suppported products icons.
 	const icons = isBundle
