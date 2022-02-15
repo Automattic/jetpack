@@ -20,4 +20,4 @@ if ( ! defined( 'ABSPATH' ) ) {
 // Constant definitions.
 define( 'JETPACK_SEARCH_PLUGIN__DIR', plugin_dir_path( __FILE__ ) );
 define( 'JETPACK_SEARCH_PLUGIN__SLUG', 'jetpack-backup' );
-define( 'JETPACK_SEARCH_PLUGIN__VERSION', '0.0.1-alpha' );
+define( 'JETPACK_SEARCH_PLUGIN__VERSION', '0.1.0-alpha' );

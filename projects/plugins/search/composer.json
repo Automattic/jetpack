@@ -38,6 +38,17 @@
 	],
 	"minimum-stability": "dev",
 	"prefer-stable": true,
+	"config": {
+		"sort-packages": true,
+		"platform": {
+			"ext-intl": "0.0.0"
+		},
+		"autoloader-suffix": "b462338fb66be23595d68a93345c9e3d_jetpack_searchⓥ0_1_0_alpha",
+		"allow-plugins": {
+			"automattic/jetpack-autoloader": true,
+			"automattic/jetpack-composer-plugin": true
+		}
+	},
 	"extra": {
 		"mirror-repo": "Automattic/jetpack-search-plugin",
 		"release-branch-prefix": "search",

@@ -1,6 +1,6 @@
 {
 	"name": "Jetpack Search",
-	"version": "0.0.1-alpha",
+	"version": "0.1.0-alpha",
 	"private": true,
 	"description": "A cloud-powered replacement for WordPress' search.",
 	"homepage": "https://jetpack.com/upgrade/search/",
