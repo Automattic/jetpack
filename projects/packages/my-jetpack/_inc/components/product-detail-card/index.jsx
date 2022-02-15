@@ -14,7 +14,14 @@ import styles from './style.module.scss';
 import getProductCheckoutUrl from '../../utils/get-product-checkout-url';
 import useMyJetpackConnection from '../../hooks/use-my-jetpack-connection';
 import { useProduct } from '../../hooks/use-product';
-import { BackupIcon, ScanIcon, StarIcon, getIconBySlug, AntiSpamIcon } from '../icons';
+import {
+	BackupIcon,
+	ScanIcon,
+	StarIcon,
+	getIconBySlug,
+	AntiSpamIcon,
+	CheckmarkIcon,
+} from '../icons';
 import ProductDetailButton from './button';
 
 /**
@@ -185,6 +192,13 @@ const ProductDetail = ( { slug, onClick, trackButtonClick } ) => {
 							sprintf( __( 'Add %s', 'jetpack-my-jetpack' ), title )
 						}
 					</ProductDetailButton>
+				) }
+
+				{ isBundle && hasRequiredPlan && (
+					<div className={ styles[ 'product-has-required-plan' ] }>
+						<CheckmarkIcon size={ 36 } />
+						{ __( 'Active on your site', 'jetpack-my-jetpack' ) }
+					</div>
 				) }
 			</div>
 		</>

@@ -105,6 +105,16 @@
 	& > svg {
 		margin-bottom: 24px;
 	}
+
+	.product-has-required-plan {
+		display: flex;
+		justify-content: center;
+		align-items: center;
+		font-size: 18px;
+		svg {
+			margin-right: 5px;
+		}
+	}
 }
 
 .name {
