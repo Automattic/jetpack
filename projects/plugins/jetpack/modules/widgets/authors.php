@@ -69,7 +69,8 @@ class Jetpack_Widget_Authors extends WP_Widget {
 		$cache_bucket = is_ssl() ? 'widget_authors_ssl' : 'widget_authors';
 
 		if ( '%BEG_OF_TITLE%' != $args['before_title'] ) {
-			if ( $output = wp_cache_get( $cache_bucket, 'widget' ) ) {
+			$output = wp_cache_get( $cache_bucket, 'widget' );
+			if ( $output ) {
 				echo $output;
 				return;
 			}
