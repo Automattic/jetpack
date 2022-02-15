@@ -64,7 +64,7 @@ export default function SubscriptionControls( {
 						sprintf(
 							/* translators: %s is the number of subscribers */
 							_n(
-								'<span>%s reader</span> are\xA0subscribed.',
+								'<span>%s reader</span> is\xA0subscribed.',
 								'<span>%s readers</span> are\xA0subscribed.',
 								subscriberCount,
 								'jetpack'
