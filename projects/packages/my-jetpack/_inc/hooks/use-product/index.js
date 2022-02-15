@@ -27,9 +27,16 @@ export function useProduct( productId ) {
 	detail = mapObjectKeysToCamel( detail, true );
 	detail.pricingForUi = mapObjectKeysToCamel( detail.pricingForUi, true );
 
+	// Features
+	detail.features = detail.features || [];
+
+	// Supported products.
+	detail.supportedProducts = detail.supportedProducts || [];
+
 	// Pricinf for UI.
-	const { fullPrice, promotionPercentage } = detail.pricingForUi;
-	detail.pricingForUi.discountedPrice = ( fullPrice * ( 100 - promotionPercentage ) ) / 100;
+	detail.pricingForUi = detail.pricingForUi || {};
+	const { fullPrice, discount } = detail.pricingForUi;
+	detail.pricingForUi.discountedPrice = ( fullPrice * ( 100 - discount ) ) / 100;
 
 	return {
 		activate: () => activateProduct( productId ),

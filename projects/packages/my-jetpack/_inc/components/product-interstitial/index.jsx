@@ -7,21 +7,34 @@ import { Container, Col } from '@automattic/jetpack-components';
 /**
  * Internal dependencies
  */
-import { ProductDetail } from '../product-detail-card';
+import ProductDetailCard, { ProductDetail } from '../product-detail-card';
 import styles from './style.module.scss';
 import useAnalytics from '../../hooks/use-analytics';
 import boostImage from './boost.png';
 import searchImage from './search.png';
+import videoPressImage from './videopress.png';
+import crmImage from './crm.png';
+import { useProduct } from '../../hooks/use-product';
+import useMyJetpackNavigate from '../../hooks/use-my-jetpack-navigate';
+import getProductCheckoutUrl from '../../utils/get-product-checkout-url';
+import useMyJetpackConnection from '../../hooks/use-my-jetpack-connection';
 
 /**
  * Product Interstitial component.
  *
- * @param {object} props          - Component props.
- * @param {string} props.slug     - Product slug
- * @param {object} props.children - Product additional content
- * @returns {object}                ProductInterstitial react component.
+ * @param {object} props                 - Component props.
+ * @param {string} props.slug            - Product slug
+ * @param {object} props.children        - Product additional content
+ * @param {boolean} props.installsPlugin - Whether the interstitial button installs a plugin*
+ * @returns {object}                       ProductInterstitial react component.
  */
-export default function ProductInterstitial( { slug, children = null } ) {
+export default function ProductInterstitial( { installsPlugin = false, slug, children = null } ) {
+	const { activate, detail } = useProduct( slug );
+	const {
+		isUpgradableByBundle,
+		pricingForUi: { isFree },
+	} = detail;
+
 	const {
 		tracks: { recordEvent },
 	} = useAnalytics();
@@ -34,10 +47,53 @@ export default function ProductInterstitial( { slug, children = null } ) {
 		recordEvent( 'jetpack_myjetpack_product_interstitial_add_link_click', { product: slug } );
 	}, [ recordEvent, slug ] );
 
+	const Product = isUpgradableByBundle ? ProductDetailCard : ProductDetail;
+	const { isUserConnected } = useMyJetpackConnection();
+
+	const addProductUrl = isFree
+		? null
+		: getProductCheckoutUrl( `jetpack_${ slug }`, isUserConnected ); // @ToDo: Remove this when we have a new product structure.
+
+	const navigateToMyJetpackOverviewPage = useMyJetpackNavigate( '/' );
+	const navigateToCheckoutPage = useCallback( () => {
+		window.location.href = addProductUrl;
+	}, [ addProductUrl ] );
+
+	const afterInstallation = useCallback(
+		free => {
+			if ( free ) {
+				navigateToMyJetpackOverviewPage();
+			} else {
+				navigateToCheckoutPage();
+			}
+		},
+		[ navigateToMyJetpackOverviewPage, navigateToCheckoutPage ]
+	);
+
+	const clickHandler = useCallback( () => {
+		if ( installsPlugin ) {
+			activate()
+				.then( () => {
+					afterInstallation( isFree );
+				} )
+				.catch( () => {
+					afterInstallation( isFree );
+				} );
+		}
+	}, [ activate, isFree, installsPlugin, afterInstallation ] );
 	return (
-		<Container className={ styles.container } horizontalSpacing={ 0 } horizontalGap={ 0 } fluid>
+		<Container
+			className={ ! isUpgradableByBundle ? styles.container : null }
+			horizontalSpacing={ 0 }
+			horizontalGap={ 0 }
+			fluid
+		>
 			<Col sm={ 4 } md={ 4 } lg={ 5 }>
-				<ProductDetail slug={ slug } trackButtonClick={ trackProductClick } />
+				<Product
+					slug={ slug }
+					trackButtonClick={ trackProductClick }
+					onClick={ installsPlugin ? clickHandler : undefined }
+				/>
 			</Col>
 			<Col sm={ 4 } md={ 4 } lg={ 7 } className={ styles.imageContainer }>
 				{ children }
@@ -54,7 +110,7 @@ export default function ProductInterstitial( { slug, children = null } ) {
 export function AntiSpamInterstitial() {
 	return (
 		<ProductInterstitial slug="anti-spam">
-			<h2>@todo Popular upgrade here</h2>
+			<ProductDetailCard slug="security" />
 		</ProductInterstitial>
 	);
 }
@@ -66,8 +122,8 @@ export function AntiSpamInterstitial() {
  */
 export function BackupInterstitial() {
 	return (
-		<ProductInterstitial slug="backup">
-			<h2>@todo Popular upgrade here</h2>
+		<ProductInterstitial slug="backup" installsPlugin={ true }>
+			<ProductDetailCard slug="security" />
 		</ProductInterstitial>
 	);
 }
@@ -79,8 +135,21 @@ export function BackupInterstitial() {
  */
 export function BoostInterstitial() {
 	return (
-		<ProductInterstitial slug="boost">
+		<ProductInterstitial slug="boost" installsPlugin={ true }>
 			<img src={ boostImage } alt="Boost" />
+		</ProductInterstitial>
+	);
+}
+
+/**
+ * CRMInterstitial component
+ *
+ * @returns {object} CRMInterstitial react component.
+ */
+export function CRMInterstitial() {
+	return (
+		<ProductInterstitial slug="crm">
+			<img src={ crmImage } alt="CRM" />
 		</ProductInterstitial>
 	);
 }
@@ -93,7 +162,7 @@ export function BoostInterstitial() {
 export function ScanInterstitial() {
 	return (
 		<ProductInterstitial slug="scan">
-			<h2>@todo Popular upgrade here</h2>
+			<ProductDetailCard slug="security" />
 		</ProductInterstitial>
 	);
 }
@@ -107,6 +176,19 @@ export function SearchInterstitial() {
 	return (
 		<ProductInterstitial slug="search">
 			<img src={ searchImage } alt="Search" />
+		</ProductInterstitial>
+	);
+}
+
+/**
+ * VideoPressInterstitial component
+ *
+ * @returns {object} VideoPressInterstitial react component.
+ */
+export function VideoPressInterstitial() {
+	return (
+		<ProductInterstitial slug="videopress">
+			<img src={ videoPressImage } alt="VideoPress" />
 		</ProductInterstitial>
 	);
 }

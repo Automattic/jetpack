@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "a6753be0a47ab741ae507d6ea4b4b177",
+    "content-hash": "81e4f6fdc653109cf322c4bd8069f919",
     "packages": [
         {
             "name": "automattic/jetpack-a8c-mc-stats",
@@ -926,7 +926,7 @@
             "dist": {
                 "type": "path",
                 "url": "../../packages/jitm",
-                "reference": "77c9f7a8e922bf208437916dd6bfcae293c1dd26"
+                "reference": "4f5248371ee496e39e648de3de062466c71807be"
             },
             "require": {
                 "automattic/jetpack-a8c-mc-stats": "^1.4",
@@ -935,7 +935,7 @@
                 "automattic/jetpack-device-detection": "^1.4",
                 "automattic/jetpack-logo": "^1.5",
                 "automattic/jetpack-options": "^1.14",
-                "automattic/jetpack-partner": "^1.6",
+                "automattic/jetpack-partner": "^1.7",
                 "automattic/jetpack-redirect": "^1.7",
                 "automattic/jetpack-status": "^1.10",
                 "automattic/jetpack-tracking": "^1.14"
@@ -1165,18 +1165,20 @@
             "dist": {
                 "type": "path",
                 "url": "../../packages/my-jetpack",
-                "reference": "b7f4da28e31ec2691ee67b3be8dbc1a26a64a06e"
+                "reference": "d9c67455da0f3210b8aa25ed2a860a568bf03364"
             },
             "require": {
                 "automattic/jetpack-admin-ui": "^0.2",
                 "automattic/jetpack-assets": "^1.17",
                 "automattic/jetpack-connection": "^1.36",
                 "automattic/jetpack-plugins-installer": "^0.1",
+                "automattic/jetpack-redirect": "^1.7",
                 "automattic/jetpack-terms-of-service": "^1.9",
                 "automattic/jetpack-tracking": "^1.14"
             },
             "require-dev": {
                 "automattic/jetpack-changelogger": "^3.0",
+                "automattic/jetpack-constants": "^1.6",
                 "automattic/jetpack-options": "^1.14",
                 "automattic/wordbless": "@dev",
                 "yoast/phpunit-polyfills": "1.0.3"
@@ -1191,6 +1193,9 @@
                 },
                 "branch-alias": {
                     "dev-master": "0.6.x-dev"
+                },
+                "version-constants": {
+                    "::PACKAGE_VERSION": "src/class-initializer.php"
                 }
             },
             "autoload": {
@@ -1286,11 +1291,15 @@
             "dist": {
                 "type": "path",
                 "url": "../../packages/partner",
-                "reference": "ebfaa48c46285aa4dcb541879d50130f7d922492"
+                "reference": "479fb85076a90f52dde0f76843679a8334d18b89"
+            },
+            "require": {
+                "automattic/jetpack-connection": "^1.36",
+                "automattic/jetpack-options": "^1.14",
+                "automattic/jetpack-status": "^1.10"
             },
             "require-dev": {
                 "automattic/jetpack-changelogger": "^3.0",
-                "automattic/jetpack-options": "^1.14",
                 "automattic/wordbless": "@dev",
                 "brain/monkey": "2.6.1",
                 "yoast/phpunit-polyfills": "1.0.3"
@@ -1303,7 +1312,7 @@
                     "link-template": "https://github.com/Automattic/jetpack-partner/compare/v${old}...v${new}"
                 },
                 "branch-alias": {
-                    "dev-master": "1.6.x-dev"
+                    "dev-master": "1.7.x-dev"
                 }
             },
             "autoload": {
@@ -1853,6 +1862,60 @@
             }
         },
         {
+            "name": "automattic/jetpack-waf",
+            "version": "dev-master",
+            "dist": {
+                "type": "path",
+                "url": "../../packages/waf",
+                "reference": "c64f994de535ce6d4d78dbd120ae95b3eb0cffd7"
+            },
+            "require": {
+                "wikimedia/aho-corasick": "^1.0"
+            },
+            "require-dev": {
+                "automattic/jetpack-changelogger": "^3.0",
+                "yoast/phpunit-polyfills": "1.0.3"
+            },
+            "type": "library",
+            "extra": {
+                "autotagger": true,
+                "mirror-repo": "Automattic/jetpack-waf",
+                "changelogger": {
+                    "link-template": "https://github.com/Automattic/jetpack-waf/compare/v${old}...v${new}"
+                },
+                "branch-alias": {
+                    "dev-master": "0.1.x-dev"
+                }
+            },
+            "autoload": {
+                "files": [
+                    "actions.php"
+                ],
+                "classmap": [
+                    "src/"
+                ]
+            },
+            "scripts": {
+                "phpunit": [
+                    "./vendor/phpunit/phpunit/phpunit --colors=always"
+                ],
+                "test-coverage": [
+                    "php -dpcov.directory=. ./vendor/bin/phpunit --coverage-clover \"$COVERAGE_DIR/clover.xml\""
+                ],
+                "test-php": [
+                    "@composer phpunit"
+                ]
+            },
+            "license": [
+                "GPL-2.0-or-later"
+            ],
+            "description": "Tools to assist with the Jetpack Web Application Firewall",
+            "transport-options": {
+                "monorepo": true,
+                "relative": true
+            }
+        },
+        {
             "name": "nojimage/twitter-text-php",
             "version": "v3.1.2",
             "source": {
@@ -1921,6 +1984,57 @@
                 "source": "https://github.com/nojimage/twitter-text-php/tree/v3.1.2"
             },
             "time": "2021-03-18T11:38:53+00:00"
+        },
+        {
+            "name": "wikimedia/aho-corasick",
+            "version": "v1.0.1",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/wikimedia/AhoCorasick.git",
+                "reference": "2f3a1bd765913637a66eade658d11d82f0e551be"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/wikimedia/AhoCorasick/zipball/2f3a1bd765913637a66eade658d11d82f0e551be",
+                "reference": "2f3a1bd765913637a66eade658d11d82f0e551be",
+                "shasum": ""
+            },
+            "require": {
+                "php": ">=5.5.9"
+            },
+            "require-dev": {
+                "jakub-onderka/php-console-highlighter": "0.3.2",
+                "jakub-onderka/php-parallel-lint": "1.0.0",
+                "mediawiki/mediawiki-codesniffer": "18.0.0",
+                "mediawiki/minus-x": "0.3.1",
+                "phpunit/phpunit": "4.8.36 || ^6.5"
+            },
+            "type": "library",
+            "autoload": {
+                "classmap": [
+                    "src/"
+                ]
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "Apache-2.0"
+            ],
+            "authors": [
+                {
+                    "name": "Ori Livneh",
+                    "email": "ori@wikimedia.org"
+                }
+            ],
+            "description": "An implementation of the Aho-Corasick string matching algorithm.",
+            "homepage": "https://gerrit.wikimedia.org/g/AhoCorasick",
+            "keywords": [
+                "ahocorasick",
+                "matcher"
+            ],
+            "support": {
+                "source": "https://github.com/wikimedia/AhoCorasick/tree/v1.0.1"
+            },
+            "time": "2018-05-01T18:13:32+00:00"
         }
     ],
     "packages-dev": [
@@ -5196,6 +5310,7 @@
         "automattic/jetpack-sync": 20,
         "automattic/jetpack-terms-of-service": 20,
         "automattic/jetpack-tracking": 20,
+        "automattic/jetpack-waf": 20,
         "automattic/jetpack-changelogger": 20
     },
     "prefer-stable": true,
