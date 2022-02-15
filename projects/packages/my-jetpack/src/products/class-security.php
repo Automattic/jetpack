@@ -88,6 +88,7 @@ class Security extends Module_Product {
 		return array_merge(
 			array(
 				'available' => true,
+				'discount'  => 50,
 			),
 			Wpcom_Products::get_product_pricing( static::get_wpcom_product_slug() )
 		);
@@ -99,7 +100,7 @@ class Security extends Module_Product {
 	 * @return ?string
 	 */
 	public static function get_wpcom_product_slug() {
-		return 'jetpack_security';
+		return 'jetpack_security_t2_monthly';
 	}
 
 	/**
