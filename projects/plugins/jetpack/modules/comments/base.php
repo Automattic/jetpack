@@ -56,19 +56,19 @@ class Highlander_Comments_Base {
 	 * @return false|string false if it's not a Highlander POST request.  The matching credentials slug if it is.
 	 */
 	public function is_highlander_comment_post( ...$args ) {
-		if ( empty( $_POST['hc_post_as'] ) ) {
+		if ( empty( $_POST['hc_post_as'] ) ) { // phpcs:ignore WordPress.Security.NonceVerification.Missing -- we are not using the raw $_POST data
 			return false;
 		}
 
 		if ( $args ) {
 			foreach ( $args as $id_source ) {
-				if ( $id_source === $_POST['hc_post_as'] ) {
+				if ( $id_source === $_POST['hc_post_as'] ) { // phpcs:ignore WordPress.Security.NonceVerification.Missing -- we are not using the raw $_POST data
 					return $id_source;
 				}
 			}
 			return false;
 		}
-
+		// phpcs:ignore WordPress.Security.NonceVerification.Missing -- Raw $_POST data only used if matches an existing id_source
 		return is_string( $_POST['hc_post_as'] ) && in_array( $_POST['hc_post_as'], $this->id_sources, true ) ? $_POST['hc_post_as'] : false;
 	}
 
@@ -245,9 +245,9 @@ class Highlander_Comments_Base {
 		}
 
 		if ( get_option( 'require_name_email' ) ) {
-			if ( 6 > strlen( $_POST['email'] ) || empty( $_POST['author'] ) ) {
+			if ( 6 > strlen( $_POST['email'] ) || empty( $_POST['author'] ) ) { // phpcs:ignore WordPress.Security.NonceVerification.Missing -- we are not using the raw $_POST data
 				wp_die( esc_html__( 'Error: please fill the required fields (name, email).', 'jetpack' ), 400 );
-			} elseif ( ! is_email( $_POST['email'] ) ) {
+			} elseif ( ! is_email( $_POST['email'] ) ) { // phpcs:ignore WordPress.Security.NonceVerification.Missing -- we are not using the raw $_POST data
 				wp_die( esc_html__( 'Error: please enter a valid email address.', 'jetpack' ), 400 );
 			}
 		}
@@ -258,9 +258,10 @@ class Highlander_Comments_Base {
 			'comment_author_email' => 'email',
 			'comment_author_url'   => 'url',
 		) as $comment_field => $post_field ) {
-			if ( $comment_data[ $comment_field ] !== $_POST[ $post_field ] && 'url' !== $post_field ) {
+			if ( $comment_data[ $comment_field ] !== $_POST[ $post_field ] && 'url' !== $post_field ) { // phpcs:ignore WordPress.Security.NonceVerification.Missing -- we are not using the raw $_POST data
 				$author_change = true;
 			}
+			// phpcs:ignore WordPress.Security.NonceVerification.Missing -- the comments form itself lives in an iFrame in comments.php to add additional complexity here
 			$comment_data[ $comment_field ] = $_POST[ $post_field ];
 		}
 
