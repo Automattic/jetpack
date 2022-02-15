@@ -16,7 +16,8 @@
 		position: absolute;
 		padding-top: 2em;
 
-		// Adjusts z-index for customberg only, to allow colorpicker to display correctly.
+		// Adjusts z-index for Customberg only, so color picker is not hidden behind overlay.
+		// Needs to have equal z-index to .interface-interface-skeleton__sidebar.
 		z-index: 90;
 
 		.jetpack-instant-search__search-results {
