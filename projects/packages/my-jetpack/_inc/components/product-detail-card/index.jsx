@@ -167,22 +167,25 @@ const ProductDetail = ( { slug, onClick, trackButtonClick } ) => {
 				{ isFree && (
 					<h3 className={ styles[ 'product-free' ] }>{ __( 'Free', 'jetpack-my-jetpack' ) }</h3>
 				) }
-				<ProductDetailButton
-					onClick={ clickHandler }
-					isLink
-					isLoading={ isFetching }
-					isPrimary={ ! isBundle }
-					isSecondary={ isBundle }
-					href={ onClick ? undefined : addProductUrl }
-					className={ `${ styles[ 'checkout-button' ] } ${
-						isBundle ? styles[ 'is-bundle' ] : ''
-					}` }
-				>
-					{
-						/* translators: placeholder is product name. */
-						sprintf( __( 'Add %s', 'jetpack-my-jetpack' ), title )
-					}
-				</ProductDetailButton>
+
+				{ ( ! isBundle || ( isBundle && ! hasRequiredPlan ) ) && (
+					<ProductDetailButton
+						onClick={ clickHandler }
+						isLink
+						isLoading={ isFetching }
+						isPrimary={ ! isBundle }
+						isSecondary={ isBundle }
+						href={ onClick ? undefined : addProductUrl }
+						className={ `${ styles[ 'checkout-button' ] } ${
+							isBundle ? styles[ 'is-bundle' ] : ''
+						}` }
+					>
+						{
+							/* translators: placeholder is product name. */
+							sprintf( __( 'Add %s', 'jetpack-my-jetpack' ), title )
+						}
+					</ProductDetailButton>
+				) }
 			</div>
 		</>
 	);
@@ -197,15 +200,13 @@ export { ProductDetail };
 /**
  * ProductDetailCard component.
  *
- * @param {object}   props                - Component props.
- * @param {string}   props.slug           - Product slug
- * @param {Function} props.onClick        - Product CTA button handler
- * @returns {object}                       ProductDetailCard react component.
+ * @param {object}   props - Component props.
+ * @returns {object}         ProductDetailCard react component.
  */
-export default function ProductDetailCard( { onClick, slug } ) {
+export default function ProductDetailCard( props ) {
 	return (
 		<div className={ styles.card }>
-			<ProductDetail onClick={ onClick } slug={ slug } />
+			<ProductDetail { ...props } />
 		</div>
 	);
 }
