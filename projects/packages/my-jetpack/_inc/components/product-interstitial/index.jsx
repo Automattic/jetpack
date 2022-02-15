@@ -60,22 +60,18 @@ export default function ProductInterstitial( { installsPlugin = false, slug, chi
 
 	const navigateToMyJetpackOverviewPage = useMyJetpackNavigate( '/' );
 	const navigateToCheckoutPage = useCallback( () => {
-		if ( ! addProductUrl ) {
-			return navigateToMyJetpackOverviewPage();
-		}
-
 		window.location.href = addProductUrl;
-	}, [ addProductUrl, navigateToMyJetpackOverviewPage ] );
+	}, [ addProductUrl ] );
 
 	const afterInstallation = useCallback(
 		free => {
-			if ( free ) {
+			if ( free || ! addProductUrl ) {
 				navigateToMyJetpackOverviewPage();
 			} else {
 				navigateToCheckoutPage();
 			}
 		},
-		[ navigateToMyJetpackOverviewPage, navigateToCheckoutPage ]
+		[ navigateToMyJetpackOverviewPage, navigateToCheckoutPage, addProductUrl ]
 	);
 
 	const clickHandler = useCallback( () => {
