@@ -749,6 +749,8 @@ importers:
       '@wordpress/element': 4.1.0
       '@wordpress/i18n': 4.3.0
       '@wordpress/icons': 6.2.0
+      chart.js: ^3.5.1
+      chartjs: ^0.3.24
       classnames: 2.3.1
       concurrently: 6.4.0
       fast-json-stable-stringify: 2.1.0
@@ -786,6 +788,8 @@ importers:
       '@wordpress/element': 4.1.0
       '@wordpress/i18n': 4.3.0
       '@wordpress/icons': 6.2.0
+      chart.js: 3.7.1
+      chartjs: 0.3.24
       classnames: 2.3.1
       fast-json-stable-stringify: 2.1.0
       gridicons: 3.3.1_react@17.0.2
@@ -10554,6 +10558,14 @@ packages:
   /charm/0.1.2:
     resolution: {integrity: sha1-BsIe7RobBq62dVPNxT4jJ0usIpY=}
     dev: true
+
+  /chart.js/3.7.1:
+    resolution: {integrity: sha512-8knRegQLFnPQAheZV8MjxIXc5gQEfDFD897BJgv/klO/vtIyFFmgMXrNfgrXpbTr/XbTturxRgxIXx/Y+ASJBA==}
+    dev: false
+
+  /chartjs/0.3.24:
+    resolution: {integrity: sha1-Ot3rWuNgaz6J40bCfVLKFYQW6T0=}
+    dev: false
 
   /check-error/1.0.2:
     resolution: {integrity: sha1-V00xLt2Iu13YkS6Sht1sCu1KrII=}
