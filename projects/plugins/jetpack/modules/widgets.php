@@ -68,7 +68,12 @@ jetpack_load_widgets();
  * @since 4.4.0
  */
 function jetpack_widgets_customizer_assets_preview() {
-	wp_enqueue_script( 'jetpack-customizer-widget-utils', plugins_url( '/widgets/customizer-utils.js', __FILE__ ), array( 'customize-base' ) );
+	wp_enqueue_script(
+		'jetpack-customizer-widget-utils',
+		plugins_url( '/widgets/customizer-utils.js', __FILE__ ),
+		array( 'customize-base' ),
+		JETPACK__VERSION
+	);
 }
 add_action( 'customize_preview_init', 'jetpack_widgets_customizer_assets_preview' );
 
@@ -78,7 +83,12 @@ add_action( 'customize_preview_init', 'jetpack_widgets_customizer_assets_preview
  * @since 4.4.0
  */
 function jetpack_widgets_customizer_assets_controls() {
-	wp_enqueue_style( 'jetpack-customizer-widget-controls', plugins_url( '/widgets/customizer-controls.css', __FILE__ ), array( 'customize-widgets' ) );
+	wp_enqueue_style(
+		'jetpack-customizer-widget-controls',
+		plugins_url( '/widgets/customizer-controls.css', __FILE__ ),
+		array( 'customize-widgets' ),
+		JETPACK__VERSION
+	);
 }
 add_action( 'customize_controls_enqueue_scripts', 'jetpack_widgets_customizer_assets_controls' );
 
