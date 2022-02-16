@@ -57,6 +57,10 @@ function ProductIcon( { slug } ) {
  * @returns {object}                Price react component.
  */
 function Price( { value, currency, isOld } ) {
+	if ( ! value || ! currency ) {
+		return null;
+	}
+
 	const priceObject = getCurrencyObject( value, currency );
 
 	const classNames = classnames( styles.price, {
