@@ -1,0 +1,4 @@
+Significance: patch
+Type: added
+
+Hit the wpcom product endpoint depending on whether the user is connected or not
