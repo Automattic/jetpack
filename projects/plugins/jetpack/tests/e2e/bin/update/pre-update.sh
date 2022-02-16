@@ -35,7 +35,6 @@ wp plugin --allow-root install --activate jetpack
 printf "\nCapture Jetpack status before update\n"
 mkdir -p update-test-output
 wp --allow-root jetpack status full > /var/www/html/wp-content/uploads/jetpack-status-before-update
-cat /var/www/html/wp-content/uploads/jetpack-status-before-update
 
 printf "\nSetting the update version and URL\n"
 wp plugin --allow-root activate e2e-plugin-updater
