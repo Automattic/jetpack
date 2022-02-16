@@ -58,7 +58,7 @@ const VideoPressEdit = CoreVideoEdit =>
 				lastRequestedMediaId: null,
 				isUpdatingRating: false,
 				allowDownload: null,
-				isPrivate: VIDEO_PRIVACY.SITE_DEFAULT,
+				privacySetting: VIDEO_PRIVACY.SITE_DEFAULT,
 				isUpdatingAllowDownload: false,
 				fileForUpload: props.fileForImmediateUpload,
 				isUpdatingIsPrivate: false,
@@ -104,7 +104,11 @@ const VideoPressEdit = CoreVideoEdit =>
 			const media = await this.requestMedia( id );
 			let rating = get( media, 'jetpack_videopress.rating' );
 			const allowDownload = get( media, 'jetpack_videopress.allow_download' );
-			const isPrivate = get( media, 'jetpack_videopress.is_private' );
+			const privacySetting = get(
+				media,
+				'jetpack_videopress.privacy_setting',
+				VIDEO_PRIVACY.SITE_DEFAULT
+			);
 
 			if ( rating ) {
 				// X-18 was previously supported but is now removed to better comply with our TOS.
@@ -118,8 +122,8 @@ const VideoPressEdit = CoreVideoEdit =>
 				this.setState( { allowDownload: !! allowDownload } );
 			}
 
-			if ( 'undefined' !== typeof isPrivate ) {
-				this.setState( { isPrivate } );
+			if ( 'undefined' !== typeof privacySetting ) {
+				this.setState( { privacySetting } );
 			}
 		};
 
@@ -355,14 +359,14 @@ const VideoPressEdit = CoreVideoEdit =>
 			);
 		};
 
-		onChangeIsPrivate = isPrivate => {
-			const originalValue = this.state.isPrivate;
+		onChangePrivacySetting = privacySetting => {
+			const originalValue = this.state.privacySetting;
 
 			this.updateMetaApiCall(
-				{ is_private: isPrivate },
-				() => this.setState( { isUpdatingIsPrivate: true, isPrivate } ),
-				() => this.setState( { isPrivate: originalValue } ),
-				() => this.setState( { isUpdatingIsPrivate: false } )
+				{ privacy_setting: privacySetting },
+				() => this.setState( { isUpdatingPrivacySetting: true, privacySetting } ),
+				() => this.setState( { privacySetting: originalValue } ),
+				() => this.setState( { isUpdatingPrivacySetting: false } )
 			);
 		};
 
@@ -417,9 +421,9 @@ const VideoPressEdit = CoreVideoEdit =>
 				interactive,
 				rating,
 				allowDownload,
-				isPrivate,
+				privacySetting,
 				isUpdatingAllowDownload,
-				isUpdatingIsPrivate,
+				isUpdatingPrivacySetting,
 			} = this.state;
 
 			const {
@@ -621,8 +625,8 @@ const VideoPressEdit = CoreVideoEdit =>
 							<SelectControl
 								label={ __( 'Privacy', 'jetpack' ) }
 								help={ __( 'Restrict views to members of this site', 'jetpack' ) }
-								onChange={ this.onChangeIsPrivate }
-								value={ isPrivate }
+								onChange={ this.onChangePrivacySetting }
+								value={ privacySetting }
 								options={ [
 									{
 										value: VIDEO_PRIVACY.SITE_DEFAULT,
@@ -637,7 +641,7 @@ const VideoPressEdit = CoreVideoEdit =>
 										label: _x( 'Private', 'VideoPress privacy setting', 'jetpack' ),
 									},
 								] }
-								disabled={ isFetchingMedia || isUpdatingIsPrivate }
+								disabled={ isFetchingMedia || isUpdatingPrivacySetting }
 							/>
 						</PanelBody>
 					</InspectorControls>

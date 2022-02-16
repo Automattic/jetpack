@@ -493,18 +493,14 @@ function video_get_info_by_blogpostid( $blog_id, $post_id ) {
 	$meta             = wp_get_attachment_metadata( $post_id );
 
 	if ( $meta && isset( $meta['videopress'] ) ) {
-		$videopress_meta            = $meta['videopress'];
-		$video_info->rating         = isset( $videopress_meta['rating'] )
-			? $videopress_meta['rating']
-			: null;
-		$video_info->allow_download = isset( $videopress_meta['allow_download'] )
-			? $videopress_meta['allow_download']
-			: 0;
-		$video_info->is_private     = ! isset( $videopress_meta['is_private'] ) ? VIDEOPRESS_PRIVACY_SITE_DEFAULT : $videopress_meta['is_private'];
+		$videopress_meta             = $meta['videopress'];
+		$video_info->rating          = isset( $videopress_meta['rating'] ) ? $videopress_meta['rating'] : null;
+		$video_info->allow_download  = isset( $videopress_meta['allow_download'] ) ? $videopress_meta['allow_download'] : 0;
+		$video_info->privacy_setting = ! isset( $videopress_meta['privacy_setting'] ) ? VIDEOPRESS_PRIVACY_SITE_DEFAULT : $videopress_meta['privacy_setting'];
 	}
 
 	if ( videopress_is_finished_processing( $post_id ) ) {
-		$video_info->finish_date_gmt = date( 'Y-m-d H:i:s' );
+		$video_info->finish_date_gmt = gmdate( 'Y-m-d H:i:s' );
 	}
 
 	return $video_info;
