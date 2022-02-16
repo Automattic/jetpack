@@ -1,0 +1,4 @@
+Significance: patch
+Type: enhancement
+
+Gutenberg: Cache site-specific features for the request lifetime
