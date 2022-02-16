@@ -1079,7 +1079,7 @@ class Jetpack_Gutenberg {
 	 *
 	 * @return array
 	 */
-	public static function get_site_specific_features() {
+	private static function get_site_specific_features() {
 		$current_blog_id = get_current_blog_id();
 
 		if ( isset( self::$site_specific_features[ $current_blog_id ] ) ) {
