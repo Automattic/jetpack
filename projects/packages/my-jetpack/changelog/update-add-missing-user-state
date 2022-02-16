@@ -1,4 +1,0 @@
-Significance: patch
-Type: added
-
-set product status as error if active and requiring a missing user connection

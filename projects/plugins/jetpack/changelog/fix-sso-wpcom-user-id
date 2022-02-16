@@ -1,4 +1,0 @@
-Significance: patch
-Type: bugfix
-
-Fix a bug with SSO not cleaning up wpcom_user_id.
