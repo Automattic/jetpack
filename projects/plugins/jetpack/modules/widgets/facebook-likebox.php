@@ -363,7 +363,7 @@ class WPCOM_Widget_Facebook_LikeBox extends WP_Widget {
 		// The height used to be dependent on other widget settings
 		// If the user changes those settings but doesn't customize the height,
 		// let's intelligently assign a new height.
-		if ( in_array( $args['height'], array( 580, 110, 432 ) ) ) {
+		if ( in_array( $args['height'], array( 580, 110, 432 ), true ) ) {
 			if ( $args['show_faces'] && $args['stream'] ) {
 				$args['height'] = 580;
 			} elseif ( ! $args['show_faces'] && ! $args['stream'] ) {
