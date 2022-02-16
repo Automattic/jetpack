@@ -8,6 +8,7 @@
 namespace Automattic\Jetpack\My_Jetpack;
 
 use Automattic\Jetpack\Connection\Client as Client;
+use Automattic\Jetpack\Connection\Manager as Connection_Manager;
 use Automattic\Jetpack\Status\Visitor;
 use WP_Error;
 /**
@@ -35,20 +36,29 @@ class Wpcom_Products {
 	 * @return Object|WP_Error
 	 */
 	private static function get_products_from_wpcom() {
+		$connection        = new Connection_Manager();
+		$is_user_connected = $connection->is_user_connected();
 
-		$blog_id  = \Jetpack_Options::get_option( 'id' );
-		$endpoint = sprintf( '/sites/%d/products/?_locale=%s&type=jetpack', $blog_id, get_user_locale() );
-
-		$wpcom_request = Client::wpcom_json_api_request_as_blog(
-			$endpoint,
-			'1.1',
-			array(
-				'method'  => 'GET',
-				'headers' => array(
-					'X-Forwarded-For' => ( new Visitor() )->get_ip( true ),
-				),
-			)
+		// Request parameters.
+		$params = array(
+			'method'  => 'GET',
+			'headers' => array(
+				'X-Forwarded-For' => ( new Visitor() )->get_ip( true ),
+			),
 		);
+
+		// Hit the endpoint depending on the user's connection status.
+		$wpcom_request = $is_user_connected
+			? Client::wpcom_json_api_request_as_user(
+				'/products?_locale=' . get_user_locale() . '&type=jetpack',
+				'2',
+				$params
+			)
+			: Client::wpcom_json_api_request_as_blog(
+				sprintf( '/sites/%d/products/?_locale=%s&type=jetpack', \Jetpack_Options::get_option( 'id' ), get_user_locale() ),
+				'1.1',
+				$params
+			);
 
 		$response_code = wp_remote_retrieve_response_code( $wpcom_request );
 
