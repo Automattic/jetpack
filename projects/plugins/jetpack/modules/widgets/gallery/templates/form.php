@@ -58,7 +58,7 @@
 		foreach ( $allowed_values['link'] as $key => $label ) {
 			$selected = '';
 
-			if ( $instance['link'] == $key ) {
+			if ( $instance['link'] === $key ) {
 				$selected = "selected='selected' ";
 			}
 			?>
@@ -88,7 +88,7 @@
 		foreach ( $allowed_values['type'] as $key => $label ) {
 			$selected = '';
 
-			if ( $instance['type'] == $key ) {
+			if ( $instance['type'] === $key ) {
 				$selected = "selected='selected' ";
 			}
 			?>
