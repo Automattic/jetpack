@@ -274,7 +274,7 @@ class Jetpack_Gallery_Widget extends WP_Widget {
 			$attachment_image_src = wp_get_attachment_image_src( $attachment->ID, 'full' );
 			$attachment_image_src = jetpack_photon_url( $attachment_image_src[0], array( 'w' => $this->_instance_width ) ); /** [url, width, height] */
 
-			$caption = wptexturize( strip_tags( $attachment->post_excerpt ) );
+			$caption = wptexturize( wp_strip_all_tags( $attachment->post_excerpt ) );
 
 			$gallery[] = (object) array(
 				'src'     => (string) esc_url_raw( $attachment_image_src ),
