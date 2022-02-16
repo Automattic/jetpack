@@ -74,24 +74,6 @@ class Jetpack_VideoPress {
 			);
 			wp_localize_script( 'media-video-widget-extensions', 'videopressAjax', admin_url( 'admin-ajax.php' ) );
 		}
-
-
-		require_once dirname( __FILE__ ) . '/class.videopress-ajax.php';
-		add_action( 'rest_api_init', function () {
-			register_rest_field( 'attachment', 'jetpack_videopress_playback_jwt', array(
-				'get_callback' => function( $attachment_arr ) {
-					if ( ! isset( $attachment_arr['jetpack_videopress_guid'] ) ) {
-						return;
-					}
-
-					return VideoPress_AJAX::request_jwt_from_wpcom( $attachment_arr['jetpack_videopress_guid']);
-				},
-				'schema' => array(
-					'description' => __( 'VideoPress Playback JWT.', 'jetpack' ),
-					'type'        => 'string'
-				),
-			) );
-		} );
 	}
 
 	/**
