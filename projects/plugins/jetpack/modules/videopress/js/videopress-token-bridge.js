@@ -1,23 +1,38 @@
-( function ( $ ) {
+( function () {
 	window.addEventListener( 'message', function ( event ) {
 		if ( event.data.event === 'videopress_token_request' ) {
 			if ( ! window.videopressAjax ) {
 				return;
 			}
 
-			var data = {
+			var fetchData = {
 				action: 'videopress-get-playback-jwt',
 				guid: event.data.guid,
 			};
-			$.post( window.videopressAjax.ajaxUrl, data, function ( response ) {
-				console.log( 'Got this from the server: ', response ); // eslint-disable-line no-console
-				if ( !! response.success && response.data ) {
-					event.source.postMessage(
-						{ event: 'videopress_token_received', guid: data.guid, jwt: response.data.jwt },
-						'*'
-					);
-				}
-			} );
+
+			fetch( window.videopressAjax.ajaxUrl, {
+				method: 'POST',
+				credentials: 'same-origin',
+				body: new URLSearchParams( fetchData ),
+			} )
+				.then( function ( response ) {
+					if ( response.ok ) {
+						return response.json();
+					}
+					throw Error( 'Response is not ok' );
+				} )
+				.then( function ( jsonResponse ) {
+					if ( !! jsonResponse.success && jsonResponse.data ) {
+						event.source.postMessage(
+							{
+								event: 'videopress_token_received',
+								guid: fetchData.guid,
+								jwt: jsonResponse.data.jwt,
+							},
+							'*'
+						);
+					}
+				} );
 		}
 	} );
-} )( jQuery );
+} )();
