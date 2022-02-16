@@ -57,7 +57,7 @@ const VideoPressEdit = CoreVideoEdit =>
 				lastRequestedMediaId: null,
 				isUpdatingRating: false,
 				allowDownload: null,
-				isPrivate: null,
+				isPrivate: 2,
 				isUpdatingAllowDownload: false,
 				fileForUpload: props.fileForImmediateUpload,
 				isUpdatingIsPrivate: false,
@@ -118,7 +118,7 @@ const VideoPressEdit = CoreVideoEdit =>
 			}
 
 			if ( 'undefined' !== typeof isPrivate ) {
-				this.setState( { isPrivate: !! isPrivate } );
+				this.setState( { isPrivate } );
 			}
 		};
 
@@ -211,7 +211,6 @@ const VideoPressEdit = CoreVideoEdit =>
 		};
 
 		requestMedia = async id => {
-			const { setAttributes } = this.props;
 			if ( ! id ) {
 				return null;
 			}
@@ -240,10 +239,6 @@ const VideoPressEdit = CoreVideoEdit =>
 			}
 
 			this.setState( { media, lastRequestedMediaId: id } );
-
-			if ( media.jetpack_videopress_playback_jwt ) {
-				setAttributes( { playbackJwt: media.jetpack_videopress_playback_jwt } );
-			}
 
 			return media;
 		};
@@ -363,7 +358,7 @@ const VideoPressEdit = CoreVideoEdit =>
 			const originalValue = this.state.isPrivate;
 
 			this.updateMetaApiCall(
-				{ is_private: isPrivate ? 1 : 0 },
+				{ is_private: isPrivate },
 				() => this.setState( { isUpdatingIsPrivate: true, isPrivate } ),
 				() => this.setState( { isPrivate: originalValue } ),
 				() => this.setState( { isUpdatingIsPrivate: false } )
@@ -622,11 +617,22 @@ const VideoPressEdit = CoreVideoEdit =>
 								checked={ allowDownload }
 								disabled={ isFetchingMedia || isUpdatingAllowDownload }
 							/>
-							<ToggleControl
-								label={ __( 'Private', 'jetpack' ) }
+							<SelectControl
+								label={ __( 'Privacy', 'jetpack' ) }
 								help={ __( 'Restrict views to members of this site', 'jetpack' ) }
 								onChange={ this.onChangeIsPrivate }
-								checked={ isPrivate }
+								value={ isPrivate }
+								options={ [
+									{
+										value: 2,
+										label: _x( 'Site Default', 'VideoPress privacy setting', 'jetpack' ),
+									},
+									{
+										value: 0,
+										label: _x( 'Public', 'VideoPress privacy setting', 'jetpack' ),
+									},
+									{ value: 1, label: _x( 'Private', 'VideoPress privacy setting', 'jetpack' ) },
+								] }
 								disabled={ isFetchingMedia || isUpdatingIsPrivate }
 							/>
 						</PanelBody>

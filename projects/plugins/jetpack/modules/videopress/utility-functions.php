@@ -497,10 +497,7 @@ function video_get_info_by_blogpostid( $blog_id, $post_id ) {
 		$video_info->allow_download = isset( $videopress_meta['allow_download'] )
 			? $videopress_meta['allow_download']
 			: 0;
-		$video_info->is_private     =
-			isset( $videopress_meta['is_private'] )
-			? $videopress_meta['is_private']
-			: 0;
+		$video_info->is_private     = ! isset( $videopress_meta['is_private'] ) ? 2 : $videopress_meta['is_private'];
 	}
 
 	if ( videopress_is_finished_processing( $post_id ) ) {
