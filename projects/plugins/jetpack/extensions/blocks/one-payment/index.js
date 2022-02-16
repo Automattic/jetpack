@@ -46,6 +46,7 @@ export const settings = {
 		alignWide: false,
 		className: false,
 		customClassName: false,
+		html: false,
 	},
 	edit,
 	save: () => <InnerBlocks.Content />,
