@@ -14,11 +14,6 @@ import { getIconColor } from '../../shared/block-icons';
 import { settings as donationSettings } from '../donations';
 import { settings as recurringPaymentSettings } from '../recurring-payments';
 
-/**
- * Style dependencies
- */
-import './editor.scss';
-
 export const name = 'one-payment';
 export const title = __( 'Payments', 'jetpack' );
 export const settings = {
