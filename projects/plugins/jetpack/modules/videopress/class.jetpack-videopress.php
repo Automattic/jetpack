@@ -66,8 +66,8 @@ class Jetpack_VideoPress {
 			wp_enqueue_script(
 				'media-video-widget-extensions',
 				Assets::get_file_url_for_environment(
-					'modules/videopress/js/demo.js',
-					'modules/videopress/js/demo.js'
+					'modules/videopress/js/videopress-token-bridge.js',
+					'modules/videopress/js/videopress-token-bridge.js'
 				),
 				array( 'jquery' ),
 				$this->version . 2 .uniqid()

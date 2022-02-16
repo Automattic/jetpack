@@ -208,8 +208,8 @@ class VideoPress_Gutenberg {
 		wp_enqueue_script(
 			'jetpack-videopress-gutenberg-playback-jwt',
 			Assets::get_file_url_for_environment(
-				'modules/videopress/js/demo.js',
-				'modules/videopress/js/demo.js'
+				'modules/videopress/js/videopress-token-bridge.js',
+				'modules/videopress/js/videopress-token-bridge.js'
 			),
 			array(),
 			JETPACK__VERSION,
