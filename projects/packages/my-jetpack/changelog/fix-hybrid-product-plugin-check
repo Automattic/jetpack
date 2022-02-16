@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Fix check for plugin installation for hybrid products

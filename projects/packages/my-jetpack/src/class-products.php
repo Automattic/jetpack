@@ -23,6 +23,7 @@ class Products {
 			'boost'      => self::get_boost_data(),
 			'scan'       => self::get_scan_data(),
 			'search'     => self::get_search_data(),
+			'security'   => self::get_security_data(),
 			'videopress' => self::get_videopress_data(),
 			'crm'        => self::get_crm_data(),
 			'extras'     => self::get_extras_data(),
@@ -168,6 +169,15 @@ class Products {
 	 */
 	public static function get_search_data() {
 		return Products\Search::get_info();
+	}
+
+	/**
+	 * Returns information about the Security product
+	 *
+	 * @return array Object with infromation about the product.
+	 */
+	public static function get_security_data() {
+		return Products\Security::get_info();
 	}
 
 	/**

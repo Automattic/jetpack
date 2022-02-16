@@ -9,6 +9,8 @@ namespace Automattic\Jetpack\My_Jetpack\Products;
 
 use Automattic\Jetpack\Connection\Client;
 use Automattic\Jetpack\My_Jetpack\Hybrid_Product;
+use Automattic\Jetpack\My_Jetpack\Wpcom_Products;
+use Automattic\Jetpack\Redirect;
 use Jetpack_Options;
 use WP_Error;
 
@@ -58,7 +60,6 @@ class Backup extends Hybrid_Product {
 	 */
 	public static function get_title() {
 		return __( 'Jetpack Backup', 'jetpack-my-jetpack' );
-
 	}
 
 	/**
@@ -76,7 +77,7 @@ class Backup extends Hybrid_Product {
 	 * @return string
 	 */
 	public static function get_long_description() {
-		return __( 'Real-time backups save every change and one-click restores get you back online quickly.', 'jetpack-my-jetpack' );
+		return __( 'Never lose a word, image, page, or time worrying about your site with automated backups & one-click restores.', 'jetpack-my-jetpack' );
 	}
 
 	/**
@@ -94,16 +95,27 @@ class Backup extends Hybrid_Product {
 	}
 
 	/**
+	 * Get the WPCOM product slug used to make the purchase
+	 *
+	 * @return ?string
+	 */
+	public static function get_wpcom_product_slug() {
+		return 'jetpack_backup_t1_monthly';
+	}
+
+	/**
 	 * Get the product princing details
 	 *
 	 * @return array Pricing details
 	 */
 	public static function get_pricing_for_ui() {
-		return array(
-			'available'            => true,
-			'currency_code'        => 'EUR',
-			'full_price'           => '9',
-			'promotion_percentage' => '50',
+		return array_merge(
+			array(
+				'available'          => true,
+				'wpcom_product_slug' => static::get_wpcom_product_slug(),
+				'discount'           => 50, // hardcoded - it could be overwritten by the wpcom product.
+			),
+			Wpcom_Products::get_product_pricing( static::get_wpcom_product_slug() )
 		);
 	}
 
@@ -147,4 +159,38 @@ class Backup extends Hybrid_Product {
 		return is_object( $rewind_data ) && isset( $rewind_data->state ) && 'unavailable' !== $rewind_data->state;
 	}
 
+	/**
+	 * Return product bundles list
+	 * that supports the product.
+	 *
+	 * @return boolean|array Products bundle list.
+	 */
+	public static function is_upgradable_by_bundle() {
+		return array( 'security' );
+	}
+
+	/**
+	 * Get the URL the user is taken after activating the product
+	 *
+	 * @return ?string
+	 */
+	public static function get_post_activation_url() {
+		if ( static::is_plugin_active() ) {
+			return admin_url( 'admin.php?page=jetpack-backup' );
+		}
+		return ''; // stay in My Jetpack page.
+	}
+
+	/**
+	 * Get the URL where the user manages the product
+	 *
+	 * @return ?string
+	 */
+	public static function get_manage_url() {
+		if ( static::is_plugin_active() ) {
+			return admin_url( 'admin.php?page=jetpack-backup' );
+		} elseif ( static::is_jetpack_plugin_active() ) {
+			return Redirect::get_url( 'my-jetpack-manage-backup' );
+		}
+	}
 }

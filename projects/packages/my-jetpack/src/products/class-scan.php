@@ -9,6 +9,8 @@ namespace Automattic\Jetpack\My_Jetpack\Products;
 
 use Automattic\Jetpack\Connection\Client;
 use Automattic\Jetpack\My_Jetpack\Module_Product;
+use Automattic\Jetpack\My_Jetpack\Wpcom_Products;
+use Automattic\Jetpack\Redirect;
 use Jetpack_Options;
 use WP_Error;
 
@@ -46,7 +48,7 @@ class Scan extends Module_Product {
 	 * @return string
 	 */
 	public static function get_title() {
-		return ''; // @todo title
+		return __( 'Jetpack Scan', 'jetpack-my-jetpack' );
 	}
 
 	/**
@@ -64,7 +66,7 @@ class Scan extends Module_Product {
 	 * @return string
 	 */
 	public static function get_long_description() {
-		return ''; // @todo Add long description
+		return __( 'Automatic scanning and one-click fixes keep your site one step ahead of security threats and malware.', 'jetpack-my-jetpack' );
 	}
 
 	/**
@@ -73,7 +75,11 @@ class Scan extends Module_Product {
 	 * @return array Boost features list
 	 */
 	public static function get_features() {
-		return array();
+		return array(
+			_x( 'Automated daily scanning', 'Scan Product Feature', 'jetpack-my-jetpack' ),
+			_x( 'One-click fixes for most issues', 'Scan Product Feature', 'jetpack-my-jetpack' ),
+			_x( 'Instant email notifications', 'Scan Product Feature', 'jetpack-my-jetpack' ),
+		);
 	}
 
 	/**
@@ -82,10 +88,23 @@ class Scan extends Module_Product {
 	 * @return array Pricing details
 	 */
 	public static function get_pricing_for_ui() {
-		return array(
-			'available' => true,
-			'is_free'   => true,
+		return array_merge(
+			array(
+				'available'          => true,
+				'wpcom_product_slug' => static::get_wpcom_product_slug(),
+				'discount'           => 50, // hardcoded - it could be overwritten by the wpcom product.
+			),
+			Wpcom_Products::get_product_pricing( static::get_wpcom_product_slug() )
 		);
+	}
+
+	/**
+	 * Get the WPCOM product slug used to make the purchase
+	 *
+	 * @return ?string
+	 */
+	public static function get_wpcom_product_slug() {
+		return 'jetpack_scan_monthly';
 	}
 
 	/**
@@ -128,4 +147,71 @@ class Scan extends Module_Product {
 		return is_object( $scan_data ) && isset( $scan_data->state ) && 'unavailable' !== $scan_data->state;
 	}
 
+	/**
+	 * Checks whether the Product is active
+	 *
+	 * Scan is not actually a module. Activation takes place on WPCOM. So lets consider it active if jetpack is active and has the plan.
+	 *
+	 * @return boolean
+	 */
+	public static function is_active() {
+		return static::is_jetpack_plugin_active() && static::has_required_plan();
+	}
+
+	/**
+	 * Activates the product by installing and activating its plugin
+	 *
+	 * @return boolean|\WP_Error
+	 */
+	public static function activate() {
+
+		$product_activation = parent::activate();
+
+		if ( is_wp_error( $product_activation ) && 'module_activation_failed' === $product_activation->get_error_code() ) {
+			// Scan is not a module. There's nothing in the plugin to be activated, so it's ok to fail to activate the module.
+			$product_activation = true;
+		}
+
+		return $product_activation;
+
+	}
+
+	/**
+	 * Checks whether the Jetpack module is active
+	 *
+	 * Scan is not a module. Nothing needs to be active. Let's always consider it active.
+	 *
+	 * @return bool
+	 */
+	public static function is_module_active() {
+		return true;
+	}
+
+	/**
+	 * Return product bundles list
+	 * that supports the product.
+	 *
+	 * @return boolean|array Products bundle list.
+	 */
+	public static function is_upgradable_by_bundle() {
+		return array( 'security' );
+	}
+
+	/**
+	 * Get the URL the user is taken after activating the product
+	 *
+	 * @return ?string
+	 */
+	public static function get_post_activation_url() {
+		return ''; // stay in My Jetpack page.
+	}
+
+	/**
+	 * Get the URL where the user manages the product
+	 *
+	 * @return ?string
+	 */
+	public static function get_manage_url() {
+		return Redirect::get_url( 'my-jetpack-manage-scan' );
+	}
 }

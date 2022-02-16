@@ -50,6 +50,11 @@ class Test_Product_Multiple_Filenames extends TestCase {
 			$this->markTestSkipped( 'avoid bug in PHP 5.6 that throws strict mode warnings for abstract static methods.' );
 		}
 
+		if ( file_exists( WP_PLUGIN_DIR . '/jetpack/jetpack.php' ) ) {
+			unlink( WP_PLUGIN_DIR . '/jetpack/jetpack.php' );
+			rmdir( WP_PLUGIN_DIR . '/jetpack' );
+		}
+
 	}
 
 	/**

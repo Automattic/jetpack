@@ -7,7 +7,6 @@
 
 namespace Automattic\Jetpack\Search;
 
-use \Jetpack_Options;
 use \WP_CLI;
 use \WP_CLI_Command;
 
@@ -24,9 +23,8 @@ class CLI extends WP_CLI_Command {
 	 */
 	public function auto_config() {
 		try {
-			$blog_id = ( defined( 'IS_WPCOM' ) && constant( 'IS_WPCOM' ) ) ? get_current_blog_id() : Jetpack_Options::get_option( 'id' );
-			Instant_Search::initialize( $blog_id );
-			Instant_Search::instance()->auto_config_search();
+			$blog_id = Helper::get_wpcom_site_id();
+			Instant_Search::instance( $blog_id )->auto_config_search();
 			WP_CLI::line( 'Jetpack Search: auto config success!' );
 		} catch ( \Exception $e ) {
 			WP_CLI::error( $e->getMessage() );
