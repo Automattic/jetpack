@@ -14,7 +14,13 @@ class Jetpack_Gallery_Widget extends WP_Widget {
 	const THUMB_SIZE    = 45;
 	const DEFAULT_WIDTH = 265;
 
-	protected $_instance_width;
+	/**
+	 * The width of the gallery widget.
+	 * May be customized by the 'gallery_widget_content_width' filter.
+	 *
+	 * @var int
+	 */
+	protected $instance_width;
 
 	/**
 	 * Jetpack_Gallery_Widget constructor.
@@ -128,7 +134,7 @@ class Jetpack_Gallery_Widget extends WP_Widget {
 		 * @param string $args Display arguments including before_title, after_title, before_widget, and after_widget.
 		 * @param array $instance The settings for the particular instance of the widget.
 		 */
-		$this->_instance_width = apply_filters( 'gallery_widget_content_width', self::DEFAULT_WIDTH, $args, $instance );
+		$this->instance_width = apply_filters( 'gallery_widget_content_width', self::DEFAULT_WIDTH, $args, $instance );
 
 		// Register a filter to modify the tiled_gallery_content_width, so Jetpack_Tiled_Gallery
 		// can appropriately size the tiles.
@@ -138,8 +144,8 @@ class Jetpack_Gallery_Widget extends WP_Widget {
 			echo $this->$method( $args, $instance ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
 		}
 
-		// Remove the stored $_instance_width, as it is no longer needed.
-		$this->_instance_width = null;
+		// Remove the stored $instance_width, as it is no longer needed.
+		$this->instance_width = null;
 
 		// Remove the filter, so any Jetpack_Tiled_Gallery in a post is not affected.
 		remove_filter( 'tiled_gallery_content_width', array( $this, 'tiled_gallery_content_width' ) );
@@ -272,7 +278,7 @@ class Jetpack_Gallery_Widget extends WP_Widget {
 
 		foreach ( $instance['attachments'] as $attachment ) {
 			$attachment_image_src = wp_get_attachment_image_src( $attachment->ID, 'full' );
-			$attachment_image_src = jetpack_photon_url( $attachment_image_src[0], array( 'w' => $this->_instance_width ) ); /** [url, width, height] */
+			$attachment_image_src = jetpack_photon_url( $attachment_image_src[0], array( 'w' => $this->instance_width ) ); /** [url, width, height] */
 
 			$caption = wptexturize( wp_strip_all_tags( $attachment->post_excerpt ) );
 
@@ -311,12 +317,12 @@ class Jetpack_Gallery_Widget extends WP_Widget {
 	/**
 	 * Used to adjust the content width of Jetpack_Tiled_Gallery's in sidebars
 	 *
-	 * $this->_instance_width is filtered in widget() and this filter is added then removed in widget()
+	 * $this->instance_width is filtered in widget() and this filter is added then removed in widget()
 	 *
 	 * @return int The filtered width
 	 */
 	public function tiled_gallery_content_width() {
-		return $this->_instance_width;
+		return $this->instance_width;
 	}
 
 	/**
