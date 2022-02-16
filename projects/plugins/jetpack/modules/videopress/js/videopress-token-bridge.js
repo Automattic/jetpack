@@ -1,5 +1,10 @@
 ( function () {
 	window.addEventListener( 'message', function ( event ) {
+		var allowed_origins = [ 'https://videopress.com', 'https://video.wordpress.com' ];
+		if ( -1 === allowed_origins.indexOf( event.origin ) ) {
+			return;
+		}
+
 		if ( event.data.event === 'videopress_token_request' ) {
 			if ( ! window.videopressAjax ) {
 				return;
