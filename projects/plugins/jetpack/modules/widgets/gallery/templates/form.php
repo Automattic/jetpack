@@ -1,3 +1,12 @@
+<?php
+/**
+ * Jetpack_Gallery_Widget backend settings form output.
+ *
+ * @package automattic/jetpack
+ */
+
+//phpcs:disable VariableAnalysis.CodeAnalysis.VariableAnalysis.UndefinedVariable
+?>
 <p>
 	<label for="<?php echo $this->get_field_id( 'title' ); ?>"><?php esc_html_e( 'Title:', 'jetpack' ); ?>
 		<input class="widefat" id="<?php echo $this->get_field_id( 'title' ); ?>" name="<?php echo $this->get_field_name( 'title' ); ?>"
@@ -15,7 +24,7 @@
 	<div class="gallery-widget-thumbs">
 		<?php
 
-		// Add the thumbnails to the widget box
+		// Add the thumbnails to the widget box.
 		$attachments = $this->get_attachments( $instance );
 
 		foreach ( $attachments as $attachment ) {
@@ -90,5 +99,5 @@
 </p>
 
 
-<?php // Hidden input to hold the selected image ids as a csv list ?>
+<?php // Hidden input to hold the selected image ids as a csv list. ?>
 <input type="hidden" class="gallery-widget-ids" name="<?php echo $this->get_field_name( 'ids' ); ?>" id="<?php echo $this->get_field_id( 'ids' ); ?>" value="<?php echo esc_attr( $instance['ids'] ); ?>" />
