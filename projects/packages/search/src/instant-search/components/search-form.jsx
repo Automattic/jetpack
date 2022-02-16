@@ -16,7 +16,7 @@ class SearchForm extends Component {
 
 	render() {
 		return (
-			<form autocomplete="off" onSubmit={ noop } role="search" className={ this.props.className }>
+			<form autoComplete="off" onSubmit={ noop } role="search" className={ this.props.className }>
 				<div className="jetpack-instant-search__search-form">
 					<SearchBox
 						isVisible={ this.props.isVisible }
