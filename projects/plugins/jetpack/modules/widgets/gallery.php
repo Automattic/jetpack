@@ -347,6 +347,11 @@ class Jetpack_Gallery_Widget extends WP_Widget {
 		$defaults       = $this->defaults();
 
 		foreach ( $instance as $key => $value ) {
+			if ( ! is_string( $value ) ) {
+				// $instance may hold other value types like Array for the Jetpack widget visibility feature.
+				continue;
+			}
+
 			$value = trim( $value );
 
 			if ( isset( $allowed_values[ $key ] ) && $allowed_values[ $key ] && ! array_key_exists( $value, $allowed_values[ $key ] ) ) {
