@@ -30,3 +30,9 @@ test( 'Update Jetpack plugin', async ( { page } ) => {
 	// Check Jetpack status after update
 	await execContainerShellCommand( `${ binPath }post-update.sh` );
 } );
+
+test( 'Update Jetpack plugin via CLI', async () => {
+	const binPath = '/usr/local/src/jetpack-monorepo/projects/plugins/jetpack/tests/e2e/bin/update/';
+
+	await execContainerShellCommand( `${ binPath }update-flow.sh ${ resolveSiteUrl() }` );
+} );
