@@ -2,7 +2,7 @@
  * External dependencies
  */
 import React from 'react';
-import { Path, SVG, Circle, Rect } from '@wordpress/components';
+import { Path, SVG, Circle, Rect, G } from '@wordpress/components';
 
 /**
  * Internal dependencies
@@ -122,6 +122,14 @@ export const VideopressIcon = ( { size } ) => (
 export const StarIcon = ( { size, className = styles[ 'star-icon' ] } ) => (
 	<IconWrapper className={ className } size={ size } viewBox="0 0 24 24">
 		<Path d="M12 2l2.582 6.953L22 9.257l-5.822 4.602L18.18 21 12 16.89 5.82 21l2.002-7.14L2 9.256l7.418-.304" />
+	</IconWrapper>
+);
+
+export const CheckmarkIcon = ( { size, className = styles[ 'checkmark-icon' ] } ) => (
+	<IconWrapper className={ className } size={ size } viewBox="0 0 24 24">
+		<G>
+			<Path d="M11 17.768l-4.884-4.884 1.768-1.768L11 14.232l8.658-8.658C17.823 3.39 15.075 2 12 2 6.477 2 2 6.477 2 12s4.477 10 10 10 10-4.477 10-10c0-1.528-.353-2.97-.966-4.266L11 17.768z" />
+		</G>
 	</IconWrapper>
 );
 
