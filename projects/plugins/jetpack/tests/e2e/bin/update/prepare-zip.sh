@@ -10,16 +10,20 @@ BASE_PATH=$(
 	pwd -P
 )
 
-UPLOADS_DIR="$BASE_PATH/../../../../../../../tools/docker/wordpress/wp-content/uploads"
-ZIP_FILE="$UPLOADS_DIR/jetpack-next.zip"
+ZIP_FILE="$BASE_PATH/../../jetpack-next.zip"
 
 if [[ "$OSTYPE" == "linux-gnu"* ]]; then
 	# assuming Debian
-	which zip || sudo apt-get update && sudo apt-get install -qy zip
+	if [[ -z $(which zip) ]]; then sudo apt-get update && sudo apt-get install -qy zip; fi
 fi
 
 printf "\nPreparing zip file\n"
-mkdir -p "$UPLOADS_DIR"
 cd "$BASE_PATH/../../../../.."
 find -L jetpack ! -path '**/node_modules/*' ! -path '**/\.cache/*' ! -path '**/tests/*' ! -path '**/changelog/*' ! -path '**/wordpress/*' ! -path '**/\.idea/*' -print | zip -q "$ZIP_FILE" -@
 printf "\nZip file created: %s\n" "$ZIP_FILE"
+
+printf "\nCopying zip file to docker container\n"
+pnpx jetpack docker --type e2e --name t1 -v exec-silent mkdir -- -p /var/www/html/wp-content/uploads
+pnpx jetpack docker --type e2e --name t1 exec-silent ls /var/www/html/wp-content/uploads
+docker cp "$ZIP_FILE" jetpack_t1-wordpress-1:/var/www/html/wp-content/uploads/jetpack-next.zip
+
