@@ -4,14 +4,8 @@
 
 ## 10.7-a.5 - 2022-02-16
 ### Enhancements
-- Form block: add support for color and spacing block options.
-- Mailchimp block: add align, color and spacing features
-- Podcast Player block: add Align (Wide and Full Width) and Spacing (Padding and Margin) tools
-- Premium Content Block: add a "Remove block and keep content" settings menu item and fixed transformations to groups.
-- Premium Content Block: don't allow core markup blocks to be transformed to Premium Content block (e.g. core/nextpage, core/spacer).
-- Premium Content Block: when content within a premium-content view is selected in the editor, switch to that view.
-- Related Posts block: add design tools (align, color, typography & spacing).
-- Repeat Visitor block: Add the Align tool (Wide and Full Width).
+- Blocks: add support for color and spacing block options for Form, Mailchimp, Podcast Player, and Related Posts blocks.
+- Blocks: add alignment block option for Form, Mailchimp, Podcast Player, Related Posts, and Repeat Visitor blocks.
 - Dashboard: update the Free plan description to consider the currently active products.
 
 ### Improved compatibility
@@ -20,9 +14,8 @@
 
 ### Bug fixes
 - Blocks: cron requests are now considered frontend requests, so blocks will no longer be rendered as fallbacks on those.
-- Form block: custom CSS classes added to the block are now applied on the frontend.
+- Form Block: custom CSS classes added to the block are now applied on the frontend.
 - Media Buttons: Fix issue where external medial modal cannot be closed.
-- Premium Content Block: fix accidental inversion of the block tabs.
 - Search: Make debug bar more reliable.
 - SSO: fix a bug with SSO not cleaning up wpcom_user_id.
 
@@ -33,6 +26,10 @@
 - PHPCS Changes for the first handful of JSON endpoints.
 - PHPCS: Gravatar Hovercards
 - Premium Content Block: restrict registration to WPcom.
+- Premium Content Block: add a "Remove block and keep content" settings menu item and fixed transformations to groups.
+- Premium Content Block: don't allow core markup blocks to be transformed to Premium Content block (e.g. core/nextpage, core/spacer).
+- Premium Content Block: when content within a premium-content view is selected in the editor, switch to that view.
+- Premium Content Block: fix accidental inversion of the block tabs.
 - Remove the unused can_connect_service method
 - Reworked the redeem partner coupon component implementation to match latest requirements for post-connection display
 - Unroll Twitter Threads: revert endpoint to public.
