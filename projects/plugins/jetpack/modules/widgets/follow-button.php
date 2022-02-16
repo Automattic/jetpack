@@ -72,7 +72,7 @@ class Jetpack_Follow_Button_Widget extends WP_Widget {
 			$attributes[] = 'data-show-follower-count="true"';
 		}
 
-		echo $args['before_widget'];
+		echo $args['before_widget']; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
 		?>
 
 		<a
@@ -82,15 +82,18 @@ class Jetpack_Follow_Button_Widget extends WP_Widget {
 			data-lang="<?php echo esc_attr( $wpcom_locale ); ?>"
 									<?php
 									if ( ! empty( $attributes ) ) {
-										echo implode( ' ', $attributes );}
+										echo implode( ' ', $attributes );} // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
 									?>
 		>
-			<?php sprintf( __( 'Follow %s on WordPress.com', 'jetpack' ), get_bloginfo( 'name' ) ); ?>
+			<?php
+			/* Translators: %s is the site name. */
+			sprintf( __( 'Follow %s on WordPress.com', 'jetpack' ), get_bloginfo( 'name' ) );
+			?>
 		</a>
 		<script type="text/javascript">(function(d){var f = d.getElementsByTagName('SCRIPT')[0], p = d.createElement('SCRIPT');p.type = 'text/javascript';p.async = true;p.src = '//widgets.wp.com/platform.js';f.parentNode.insertBefore(p,f);}(document));</script>
 
 		<?php
-		echo $args['after_widget'];
+		echo $args['after_widget']; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
 
 		/** This action is documented in modules/widgets/gravatar-profile.php */
 		do_action( 'jetpack_stats_extra', 'widget_view', 'follow_button' );
@@ -117,11 +120,11 @@ class Jetpack_Follow_Button_Widget extends WP_Widget {
 		?>
 
 		<p>
-		<input type="checkbox" class="checkbox" id="<?php echo $this->get_field_id( 'show_name' ); ?>" name="<?php echo $this->get_field_name( 'show_name' ); ?>"<?php checked( $show_name ); ?> />
-		<label for="<?php echo $this->get_field_id( 'show_name' ); ?>"><?php esc_html_e( 'Show blog name', 'jetpack' ); ?></label>
+		<input type="checkbox" class="checkbox" id="<?php echo esc_attr( $this->get_field_id( 'show_name' ) ); ?>" name="<?php echo esc_attr( $this->get_field_name( 'show_name' ) ); ?>"<?php checked( $show_name ); ?> />
+		<label for="<?php echo esc_attr( $this->get_field_id( 'show_name' ) ); ?>"><?php esc_html_e( 'Show blog name', 'jetpack' ); ?></label>
 		<br />
-		<input type="checkbox" class="checkbox" id="<?php echo $this->get_field_id( 'show_count' ); ?>" name="<?php echo $this->get_field_name( 'show_count' ); ?>"<?php checked( $show_count ); ?> />
-		<label for="<?php echo $this->get_field_id( 'show_count' ); ?>"><?php esc_html_e( 'Show follower count', 'jetpack' ); ?></label>
+		<input type="checkbox" class="checkbox" id="<?php echo esc_attr( $this->get_field_id( 'show_count' ) ); ?>" name="<?php echo esc_attr( $this->get_field_name( 'show_count' ) ); ?>"<?php checked( $show_count ); ?> />
+		<label for="<?php echo esc_attr( $this->get_field_id( 'show_count' ) ); ?>"><?php esc_html_e( 'Show follower count', 'jetpack' ); ?></label>
 		</p>
 
 		<?php
