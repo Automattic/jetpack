@@ -64,6 +64,7 @@ export function SubscriptionEdit( props ) {
 		fallbackTextColor,
 		setTextColor,
 		borderColor,
+		setBorderColor,
 		fontSize,
 	} = props;
 
@@ -218,6 +219,7 @@ export function SubscriptionEdit( props ) {
 					isGradientAvailable={ isGradientAvailable }
 					padding={ padding }
 					setAttributes={ setAttributes }
+					setBorderColor={ setBorderColor }
 					setButtonBackgroundColor={ setButtonBackgroundColor }
 					setTextColor={ setTextColor }
 					showSubscribersTotal={ showSubscribersTotal }
