@@ -16,6 +16,7 @@
 		"mailchimp",
 		"map",
 		"markdown",
+		"one-payment",
 		"opentable",
 		"pinterest",
 		"podcast-player",
@@ -39,7 +40,7 @@
 		"videopress",
 		"wordads"
 	],
-	"beta": [ "amazon", "one-payment" ],
+	"beta": [ "amazon" ],
 	"experimental": [ "anchor-fm", "premium-content", "conversation", "dialogue" ],
 	"no-post-editor": [
 		"business-hours",
