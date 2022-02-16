@@ -243,6 +243,8 @@ class Jetpack_Gallery_Widget extends WP_Widget {
 	/**
 	 * Generate HTML for a slideshow Widget
 	 *
+	 * @todo Is slideshow_widget() still used?
+	 *
 	 * @param array $args Display arguments including before_title, after_title, before_widget, and after_widget.
 	 * @param array $instance The Widget instance to generate HTML for.
 	 * @return string String of HTML representing a slideshow gallery
@@ -289,7 +291,7 @@ class Jetpack_Gallery_Widget extends WP_Widget {
 		}
 
 		$color     = Jetpack_Options::get_option( 'slideshow_background_color', 'black' );
-		$autostart = isset( $attr['autostart'] ) ? $attr['autostart'] : true;
+		$autostart = isset( $attr['autostart'] ) ? $attr['autostart'] : true; // phpcs:ignore VariableAnalysis.CodeAnalysis.VariableAnalysis.UndefinedVariable -- Todo: should read off the $instance? Also not sure if slideshow_widget() is used still.
 
 		$js_attr = array(
 			'gallery'   => $gallery,
