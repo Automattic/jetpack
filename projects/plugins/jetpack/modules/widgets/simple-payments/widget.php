@@ -12,7 +12,8 @@
 		<div class='jetpack-simple-payments-product-image' 
 		<?php
 		if ( empty( $instance['form_product_image_id'] ) ) {
-			echo 'style="display:none;"';}
+			echo 'style="display:none;"';
+		}
 		?>
 		>
 			<div class='jetpack-simple-payments-image'>
