@@ -242,26 +242,22 @@ Jetpack Backup can do a full website migration to a new host, migrate theme file
 4. Promote your newest posts, pages, and products across your social media channels.
 
 == Changelog ==
-### 10.7-a.3 - 2022-02-09
+### 10.7-a.5 - 2022-02-16
 #### Enhancements
-- Dashboard: the Backup banner CTA on the At-a-Glance page will now be replaced with a "Redeem Coupon" CTA when a partner coupon is detected.
-- Dashboard: updated the logic for "Activate a Product" button in "My Plan" to be always visible.
-- Payment Block: updated the Payment block Upgrade nudge description to include the plan name that's required to use the block.
-- Premium Content Block: remove option to transform a premium content block to a premium content block.
-- Premium Content Block: use 'Guest' rather than visitor/Logged-out.
+- Blocks: add support for color and spacing block options for Form, Mailchimp, Podcast Player, and Related Posts blocks.
+- Blocks: add alignment block option for Form, Mailchimp, Podcast Player, Related Posts, and Repeat Visitor blocks.
+- Dashboard: update the Free plan description to consider the currently active products.
 
 #### Improved compatibility
-- Internet Defense League widget: Widget deprecation.
-- VideoPress: Added title and aria-label to VideoPress iframe embeds for better screen reader support.
-- WordAds: deprecate the legacy Ad Widget in favor of the Ad Block when adding new Ad Widgets via the block-based widget editor.
+- Image CDN: ensure that SVG images added to posts thanks to the SVG Support plugin can be displayed even when Jetpack's Image CDN is active.
+- Search: Add deprecated class to prevent third-party integrations from failing after 10.6 updates.
 
 #### Bug fixes
-- Block Editor: cast selectedPlanId to boolean to remove a "0" character after block upgrade nudge.
-- Contact Form: ensure form validation uses the correct variable types.
-- Dashboard: fix broken image in plan loading placeholder in "My Plan"
-- Tiled Gallery Block: Fix performance issue affecting page views that use the Tiled Gallery.
-- Unroll Twitter Threads: ensure that only contributors can access the endpoint to unroll threads.
-- Widget Visibility: update to match new user query parameter introduced in WordPress 5.9.
+- Blocks: cron requests are now considered frontend requests, so blocks will no longer be rendered as fallbacks on those.
+- Form Block: custom CSS classes added to the block are now applied on the frontend.
+- Media Buttons: Fix issue where external medial modal cannot be closed.
+- Search: Make debug bar more reliable.
+- SSO: fix a bug with SSO not cleaning up wpcom_user_id.
 
 --------
 

@@ -66,6 +66,7 @@
 	flex-direction: column;
 	justify-content: space-between;
 	max-width: 600px;
+	height: 100%;
 	padding: 60px 40px;
 
 	.product-icons {
@@ -87,17 +88,35 @@
 		margin: 18px 0;
 	}
 
+	.cta-container {
+		flex-grow: 2;
+		display: flex;
+		min-height: 60px;
+	}
+
 	.checkout-button {
-		margin: 40px 0 20px;
 		white-space: pre-line;
 		height: auto;
 		line-height: 26px;
+		align-self: flex-end;
 
 		&.is-bundle {
 			&:hover {
 				background-color: var(--product-card-action-button-bg-color-hover);
 				color: var(--product-card-action-button-color-hover);
 			}
+		}
+	}
+
+	.product-has-required-plan {
+		display: flex;
+		justify-content: center;
+		align-items: center;
+		font-size: 18px;
+		align-self: flex-end;
+		margin: 0 auto;
+		svg {
+			margin-right: 5px;
 		}
 	}
 
