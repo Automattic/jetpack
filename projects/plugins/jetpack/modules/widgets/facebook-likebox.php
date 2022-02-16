@@ -89,7 +89,12 @@ class WPCOM_Widget_Facebook_LikeBox extends WP_Widget {
 	 */
 	public function enqueue_scripts() {
 		wp_enqueue_script( 'jetpack-facebook-embed' );
-		wp_enqueue_style( 'jetpack_facebook_likebox', plugins_url( 'facebook-likebox/style.css', __FILE__ ) );
+		wp_enqueue_style(
+			'jetpack_facebook_likebox',
+			plugins_url( 'facebook-likebox/style.css', __FILE__ ),
+			array(),
+			JETPACK__VERSION
+		);
 		wp_style_add_data( 'jetpack_facebook_likebox', 'jetpack-inline', true );
 	}
 
