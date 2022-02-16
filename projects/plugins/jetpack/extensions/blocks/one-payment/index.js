@@ -3,12 +3,12 @@
  */
 import { __, _x } from '@wordpress/i18n';
 import { InnerBlocks } from '@wordpress/block-editor';
+import { currencyDollar } from '@wordpress/icons';
 
 /**
  * Internal dependencies
  */
 import edit from './edit';
-import icon from './icon';
 import variations from './variations';
 import { getIconColor } from '../../shared/block-icons';
 
@@ -23,7 +23,7 @@ export const settings = {
 	title,
 	description: __( 'Sell products and services or receive donations on your website', 'jetpack' ),
 	icon: {
-		src: icon,
+		src: currencyDollar,
 		foreground: getIconColor(),
 	},
 	category: 'earn',
