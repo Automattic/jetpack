@@ -5,6 +5,63 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.6.1] - 2022-02-16
+### Added
+- Add Anti-Spam Product detail card
+- Add CRM interstitial page
+- Added wpcom plan slug to product info
+- add manage and post activation urls
+- Add Scan product: interstitial, route, data, etc...
+- Add Security Product Bundle
+- Add VideoPress data
+- Add VideoPress interstitial cmp. Story.
+- Add `#/add-videopress` route
+- Change the discount value for all Products to 50
+- checks and activation for Security Bundle
+- consume prices dynamically
+- Do not show Porduct price when plan has required plan
+- Finish Backup, Anti-Spam and Scan interstitial pages
+- Fire Tracks Event when user clicks on Product Interstitial Back link
+- Install proudcts from interstitial pages
+- Make click on Fix connection show connection route
+- package version to main class
+- Pull product discount from wpcom
+- Refactoring -> add icons component -> tweak icons for interstitial pages
+- Register `#/add-anti-spam` route. Connect with interstitial page
+- Restore Security bundle card in the UI
+- Set default values for product data in the client (custom hook)
+- set product status as error if active and requiring a missing user connection
+- Set properly the checkout link for Products
+- Set unlink=1 in the checkout URL when the user is not connected
+- Tidy Product stories
+- Update Backup product data. Tweak Icon.
+- Update mock data for Search product. useMyJetpackNavigate() hook
+
+### Changed
+- Adapt Scan actiavtion behavior as it is not a module
+- Add global notices for activate/deactivate failures
+- Add manage redirect
+- Apply correct style for CTA buttons on Interstitial
+- Avoid usage of 100vh on layout
+- Fix setting height of the Product title in the detail component
+- Implement is fulfilled handler for product resolver
+- Improve global notice layout
+- Reduce size of boost and search interstitial images
+- Update structure with Layout component
+- Only pass a productUrl if the product is not free on interstitial pages
+- Only show the deactivate action when it makes sense
+- Pass slug prop to event firing on product card button actions instead of name
+- Remove unnecessary payload from  request to activate or deactivate a product
+- Replace renderActionButton function for ActionButton component
+- Updated package dependencies.
+- Use useMyJetpackNavigate when it's worth it
+
+### Fixed
+- Fixed connection check labels and error message
+- Fix upgradability for anti-spam and backup products
+- Remove duplicted Icon in Product Card story
+- Use key when looping through product detail icons
+
 ## [0.6.0] - 2022-02-09
 ### Added
 - Add Boost interstitial cmp.
@@ -175,6 +232,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Added
 - Created package
 
+[0.6.1]: https://github.com/Automattic/jetpack-my-jetpack/compare/0.6.0...0.6.1
 [0.6.0]: https://github.com/Automattic/jetpack-my-jetpack/compare/0.5.0...0.6.0
 [0.5.0]: https://github.com/Automattic/jetpack-my-jetpack/compare/0.4.0...0.5.0
 [0.4.0]: https://github.com/Automattic/jetpack-my-jetpack/compare/0.3.3...0.4.0
