@@ -105,7 +105,8 @@ if ( empty( $product_posts ) ) {
 		<div class="placeholder" 
 		<?php
 		if ( ! empty( $instance['form_product_image_id'] ) ) {
-			echo 'style="display:none;"';}
+			echo 'style="display:none;"';
+		}
 		?>
 		>
 			<?php esc_html_e( 'Select an image', 'jetpack' ); ?>
