@@ -8,8 +8,8 @@
 //phpcs:disable VariableAnalysis.CodeAnalysis.VariableAnalysis.UndefinedVariable
 ?>
 <p>
-	<label for="<?php echo $this->get_field_id( 'title' ); ?>"><?php esc_html_e( 'Title:', 'jetpack' ); ?>
-		<input class="widefat" id="<?php echo $this->get_field_id( 'title' ); ?>" name="<?php echo $this->get_field_name( 'title' ); ?>"
+	<label for="<?php echo esc_attr( $this->get_field_id( 'title' ) ); ?>"><?php esc_html_e( 'Title:', 'jetpack' ); ?>
+		<input class="widefat" id="<?php echo esc_attr( $this->get_field_id( 'title' ) ); ?>" name="<?php echo esc_attr( $this->get_field_name( 'title' ) ); ?>"
 			type="text" value="<?php echo esc_attr( $instance['title'] ); ?>" />
 	</label>
 </p>
@@ -40,7 +40,7 @@
 			?>
 
 			<img src="<?php echo esc_url( $url ); ?>" title="<?php echo esc_attr( $attachment->post_title ); ?>" alt="<?php echo esc_attr( $attachment->post_title ); ?>"
-				width="<?php echo self::THUMB_SIZE; ?>" height="<?php echo self::THUMB_SIZE; ?>" class="thumb" />
+				width="<?php echo esc_attr( self::THUMB_SIZE ); ?>" height="<?php echo esc_attr( self::THUMB_SIZE ); ?>" class="thumb" />
 		<?php } ?>
 	</div>
 
@@ -52,8 +52,8 @@
 </p>
 
 <p class="gallery-widget-link-wrapper">
-	<label for="<?php echo $this->get_field_id( 'link' ); ?>"><?php esc_html_e( 'Link To:', 'jetpack' ); ?></label>
-	<select name="<?php echo $this->get_field_name( 'link' ); ?>" id="<?php echo $this->get_field_id( 'link' ); ?>" class="widefat">
+	<label for="<?php echo esc_attr( $this->get_field_id( 'link' ) ); ?>"><?php esc_html_e( 'Link To:', 'jetpack' ); ?></label>
+	<select name="<?php echo esc_attr( $this->get_field_name( 'link' ) ); ?>" id="<?php echo esc_attr( $this->get_field_id( 'link' ) ); ?>" class="widefat">
 		<?php
 		foreach ( $allowed_values['link'] as $key => $label ) {
 			$selected = '';
@@ -63,13 +63,13 @@
 			}
 			?>
 
-			<option value="<?php echo $key; ?>" <?php echo $selected; ?>><?php echo esc_html( $label ); ?></option>
+			<option value="<?php echo esc_attr( $key ); ?>" <?php echo $selected; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?>><?php echo esc_html( $label ); ?></option>
 		<?php } ?>
 	</select>
 </p>
 
 <p>
-	<label for="<?php echo $this->get_field_id( 'random' ); ?>"><?php esc_html_e( 'Random Order:', 'jetpack' ); ?></label>
+	<label for="<?php echo esc_attr( $this->get_field_id( 'random' ) ); ?>"><?php esc_html_e( 'Random Order:', 'jetpack' ); ?></label>
 	<?php
 	$checked = '';
 
@@ -78,12 +78,12 @@
 	}
 
 	?>
-	<input name="<?php echo $this->get_field_name( 'random' ); ?>" id="<?php echo $this->get_field_id( 'random' ); ?>" type="checkbox" <?php echo $checked; ?>>
+	<input name="<?php echo esc_attr( $this->get_field_name( 'random' ) ); ?>" id="<?php echo esc_attr( $this->get_field_id( 'random' ) ); ?>" type="checkbox" <?php echo $checked;// phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?>>
 </p>
 
 <p class="gallery-widget-style-wrapper">
-	<label for="<?php echo $this->get_field_id( 'type' ); ?>"><?php esc_html_e( 'Style:', 'jetpack' ); ?></label>
-	<select name="<?php echo $this->get_field_name( 'type' ); ?>" id="<?php echo $this->get_field_id( 'type' ); ?>" class="widefat gallery-widget-style">
+	<label for="<?php echo esc_attr( $this->get_field_id( 'type' ) ); ?>"><?php esc_html_e( 'Style:', 'jetpack' ); ?></label>
+	<select name="<?php echo esc_attr( $this->get_field_name( 'type' ) ); ?>" id="<?php echo esc_attr( $this->get_field_id( 'type' ) ); ?>" class="widefat gallery-widget-style">
 		<?php
 		foreach ( $allowed_values['type'] as $key => $label ) {
 			$selected = '';
@@ -93,11 +93,11 @@
 			}
 			?>
 
-			<option value="<?php echo $key; ?>" <?php echo $selected; ?>><?php echo esc_html( $label ); ?></option>
+			<option value="<?php echo esc_attr( $key ); ?>" <?php echo $selected; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?>><?php echo esc_html( $label ); ?></option>
 		<?php } ?>
 	</select>
 </p>
 
 
 <?php // Hidden input to hold the selected image ids as a csv list. ?>
-<input type="hidden" class="gallery-widget-ids" name="<?php echo $this->get_field_name( 'ids' ); ?>" id="<?php echo $this->get_field_id( 'ids' ); ?>" value="<?php echo esc_attr( $instance['ids'] ); ?>" />
+<input type="hidden" class="gallery-widget-ids" name="<?php echo esc_attr( $this->get_field_name( 'ids' ) ); ?>" id="<?php echo esc_attr( $this->get_field_id( 'ids' ) ); ?>" value="<?php echo esc_attr( $instance['ids'] ); ?>" />
