@@ -334,14 +334,4 @@ class WPCOM_Widget_Facebook_LikeBox extends WP_Widget {
 
 		return (int) $value;
 	}
-
-	function normalize_text_value( $value, $default = '', $allowed = array() ) {
-		$allowed = (array) $allowed;
-
-		if ( empty( $value ) || ( ! empty( $allowed ) && ! in_array( $value, $allowed ) ) ) {
-			$value = $default;
-		}
-
-		return $value;
-	}
 }
