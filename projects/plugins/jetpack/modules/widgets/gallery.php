@@ -434,7 +434,9 @@ class Jetpack_Gallery_Widget extends WP_Widget {
 			Assets::get_file_url_for_environment(
 				'_inc/build/widgets/gallery/js/gallery.min.js',
 				'modules/widgets/gallery/js/gallery.js'
-			)
+			),
+			array(),
+			JETPACK__VERSION
 		);
 
 		wp_enqueue_script( 'gallery-widget' );
@@ -467,7 +469,12 @@ class Jetpack_Gallery_Widget extends WP_Widget {
 			);
 
 			wp_localize_script( 'gallery-widget-admin', '_wpGalleryWidgetAdminSettings', $js_settings );
-			wp_enqueue_style( 'gallery-widget-admin', plugins_url( '/gallery/css/admin.css', __FILE__ ) );
+			wp_enqueue_style(
+				'gallery-widget-admin',
+				plugins_url( '/gallery/css/admin.css', __FILE__ ),
+				array(),
+				JETPACK__VERSION
+			);
 			wp_style_add_data( 'gallery-widget-admin', 'rtl', 'replace' );
 		}
 	}
