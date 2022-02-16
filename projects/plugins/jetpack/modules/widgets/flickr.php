@@ -141,7 +141,7 @@ if ( ! class_exists( 'Jetpack_Flickr_Widget' ) ) {
 				}
 			}
 
-			echo $args['before_widget'];
+			echo $args['before_widget']; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
 			if ( empty( $photos ) ) {
 				if ( current_user_can( 'edit_theme_options' ) ) {
 					printf(
@@ -154,7 +154,7 @@ if ( ! class_exists( 'Jetpack_Flickr_Widget' ) ) {
 				echo $args['before_title'] . $instance['title'] . $args['after_title']; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
 				require __DIR__ . '/flickr/widget.php';
 			}
-			echo $args['after_widget'];
+			echo $args['after_widget']; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
 			/** This action is already documented in modules/widgets/gravatar-profile.php */
 			do_action( 'jetpack_stats_extra', 'widget_view', 'flickr' );
 		}
