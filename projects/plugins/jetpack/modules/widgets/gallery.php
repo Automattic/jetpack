@@ -311,10 +311,9 @@ class Jetpack_Gallery_Widget extends WP_Widget {
 	 *
 	 * $this->_instance_width is filtered in widget() and this filter is added then removed in widget()
 	 *
-	 * @param int $width int The original width value.
 	 * @return int The filtered width
 	 */
-	public function tiled_gallery_content_width( $width ) {
+	public function tiled_gallery_content_width() {
 		return $this->_instance_width;
 	}
 
@@ -325,7 +324,7 @@ class Jetpack_Gallery_Widget extends WP_Widget {
 	 */
 	public function form( $instance ) {
 		$defaults       = $this->defaults();
-		$allowed_values = $this->allowed_values();
+		$allowed_values = $this->allowed_values(); // phpcs:ignore VariableAnalysis.CodeAnalysis.VariableAnalysis.UnusedVariable -- Used in included form template.
 
 		$instance = wp_parse_args( (array) $instance, $defaults );
 
@@ -339,7 +338,7 @@ class Jetpack_Gallery_Widget extends WP_Widget {
 	 * @param array $old_instance The old instance options.
 	 * @return array The saved options.
 	 */
-	public function update( $new_instance, $old_instance ) {
+	public function update( $new_instance, $old_instance ) { // phpcs:ignore VariableAnalysis.CodeAnalysis.VariableAnalysis.UnusedVariable
 		$instance = $this->sanitize( $new_instance );
 
 		return $instance;
