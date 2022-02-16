@@ -43,7 +43,8 @@ if ( empty( $product_posts ) ) {
 <p class="jetpack-simple-payments-products-warning" 
 	<?php
 	if ( ! empty( $product_posts ) ) {
-		echo 'style="display:none;"'; }
+		echo 'style="display:none;"';
+	}
 	?>
 >
 	<?php esc_html_e( "Looks like you don't have any products. You can create one using the Add New button below.", 'jetpack' ); ?>
