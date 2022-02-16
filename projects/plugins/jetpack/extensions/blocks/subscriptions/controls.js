@@ -62,7 +62,7 @@ export default function SubscriptionControls( {
 				<InspectorNotice>
 					{ createInterpolateElement(
 						sprintf(
-							/* translators: %s is the number of subscribers */
+							/* translators: %s is the number of subscribers. The \xA0 non-breaking space is to make sure the last two words are on the same line. */
 							_n(
 								'<span>%s reader</span> is\xA0subscribed.',
 								'<span>%s readers</span> are\xA0subscribed.',
