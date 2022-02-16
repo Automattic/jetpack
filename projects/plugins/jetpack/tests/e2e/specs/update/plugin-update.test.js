@@ -7,7 +7,7 @@ import { PluginsPage } from 'jetpack-e2e-commons/pages/wp-admin/index.js';
 import { test } from '../../fixtures/base-test.js';
 import { prerequisitesBuilder } from 'jetpack-e2e-commons/env/index.js';
 
-test( 'Update Jetpack plugin', async ( { page } ) => {
+test.skip( 'Update Jetpack plugin', async ( { page } ) => {
 	const binPath = '/usr/local/src/jetpack-monorepo/projects/plugins/jetpack/tests/e2e/bin/update/';
 
 	// Prepare for update
@@ -32,7 +32,5 @@ test( 'Update Jetpack plugin', async ( { page } ) => {
 } );
 
 test( 'Update Jetpack plugin via CLI', async () => {
-	const binPath = '/usr/local/src/jetpack-monorepo/projects/plugins/jetpack/tests/e2e/bin/update/';
-
-	await execContainerShellCommand( `${ binPath }update-flow.sh ${ resolveSiteUrl() }` );
+	await execShellCommand( `./bin/update/update-flow.sh ${ resolveSiteUrl() }` );
 } );
