@@ -161,7 +161,7 @@ class Jetpack_Gallery_Widget extends WP_Widget {
 	public function get_attachments( $instance ) {
 		$ids = explode( ',', $instance['ids'] );
 
-		if ( isset( $instance['random'] ) && 'on' == $instance['random'] ) {
+		if ( isset( $instance['random'] ) && 'on' === $instance['random'] ) {
 			shuffle( $ids );
 		}
 
@@ -450,7 +450,7 @@ class Jetpack_Gallery_Widget extends WP_Widget {
 	public function enqueue_admin_scripts() {
 		global $pagenow;
 
-		if ( 'widgets.php' == $pagenow || 'customize.php' == $pagenow ) {
+		if ( 'widgets.php' === $pagenow || 'customize.php' === $pagenow ) {
 			wp_enqueue_media();
 
 			wp_enqueue_script(
