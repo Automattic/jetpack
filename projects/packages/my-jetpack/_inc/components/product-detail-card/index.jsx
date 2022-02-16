@@ -97,7 +97,7 @@ const ProductDetail = ( { slug, onClick, trackButtonClick } ) => {
 		hasRequiredPlan,
 	} = detail;
 
-	const { isFree, fullPrice, currencyCode, discountedPrice, wpcomProductSlug } = pricingForUi;
+	const { isFree, fullPricePerMonth: price, currencyCode, discountPricePerMonth: discountPrice, wpcomProductSlug } = pricingForUi;
 	const { isUserConnected } = useMyJetpackConnection();
 
 	/*
@@ -168,8 +168,8 @@ const ProductDetail = ( { slug, onClick, trackButtonClick } ) => {
 
 				{ needsPurchase && (
 					<div className={ styles[ 'price-container' ] }>
-						<Price value={ fullPrice } currency={ currencyCode } isOld={ true } />
-						<Price value={ discountedPrice } currency={ currencyCode } isOld={ false } />
+						<Price value={ price } currency={ currencyCode } isOld={ true } />
+						<Price value={ discountPrice } currency={ currencyCode } isOld={ false } />
 						<div className={ styles[ 'price-description' ] }>
 							{ __( '/month, paid yearly', 'jetpack-my-jetpack' ) }
 						</div>
