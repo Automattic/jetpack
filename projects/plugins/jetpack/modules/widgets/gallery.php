@@ -436,7 +436,8 @@ class Jetpack_Gallery_Widget extends WP_Widget {
 				'modules/widgets/gallery/js/gallery.js'
 			),
 			array(),
-			JETPACK__VERSION
+			JETPACK__VERSION,
+			false
 		);
 
 		wp_enqueue_script( 'gallery-widget' );
@@ -461,7 +462,8 @@ class Jetpack_Gallery_Widget extends WP_Widget {
 					'media-models',
 					'media-views',
 				),
-				'20150501'
+				'20150501',
+				false
 			);
 
 			$js_settings = array(
