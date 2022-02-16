@@ -1,4 +1,0 @@
-Significance: patch
-Type: added
-
-Add the 'jetpack_site_before_disconnected' action hook.
