@@ -14,12 +14,12 @@ import { getBlockType } from '@wordpress/blocks';
 /**
  * Internal dependencies
  */
-import { settings as DonationSettings } from '../donations';
-import { settings as RecurringPaymentSettings } from '../recurring-payments';
+import { settings as donationSettings } from '../donations';
+import { settings as recurringPaymentSettings } from '../recurring-payments';
 
 const variations = [
-	[ 'donations', DonationSettings ],
-	[ 'recurring-payments', RecurringPaymentSettings ],
+	[ 'donations', donationSettings ],
+	[ 'recurring-payments', recurringPaymentSettings ],
 ];
 
 const variationDefinitions = variations
