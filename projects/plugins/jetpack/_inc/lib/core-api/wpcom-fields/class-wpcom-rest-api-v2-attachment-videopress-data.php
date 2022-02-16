@@ -97,7 +97,7 @@ class WPCOM_REST_API_V2_Attachment_VideoPress_Data extends WPCOM_REST_API_V2_Fie
 			'rating'         => $info->rating,
 			'allow_download' =>
 				isset( $info->allow_download ) && $info->allow_download ? 1 : 0,
-			'is_private'     => ! isset( $info->is_private ) ? 2 : ( $info->is_private ? 1 : 0 ),
+			'is_private'     => ! isset( $info->is_private ) ? VIDEOPRESS_PRIVACY_SITE_DEFAULT : ( $info->is_private ? VIDEOPRESS_PRIVACY_IS_PRIVATE : VIDEOPRESS_PRIVACY_IS_PUBLIC ),
 		);
 	}
 

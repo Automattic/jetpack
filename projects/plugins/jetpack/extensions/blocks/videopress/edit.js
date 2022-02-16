@@ -41,6 +41,7 @@ import ResumableUpload from './resumable-upload';
 import SeekbarColorSettings from './seekbar-color-settings';
 import TracksEditor from './tracks-editor';
 import { VideoPressBlockProvider } from './components';
+import { VIDEO_PRIVACY } from './constants';
 
 const VIDEO_POSTER_ALLOWED_MEDIA_TYPES = [ 'image' ];
 
@@ -57,7 +58,7 @@ const VideoPressEdit = CoreVideoEdit =>
 				lastRequestedMediaId: null,
 				isUpdatingRating: false,
 				allowDownload: null,
-				isPrivate: 2,
+				isPrivate: VIDEO_PRIVACY.SITE_DEFAULT,
 				isUpdatingAllowDownload: false,
 				fileForUpload: props.fileForImmediateUpload,
 				isUpdatingIsPrivate: false,
@@ -624,14 +625,17 @@ const VideoPressEdit = CoreVideoEdit =>
 								value={ isPrivate }
 								options={ [
 									{
-										value: 2,
+										value: VIDEO_PRIVACY.SITE_DEFAULT,
 										label: _x( 'Site Default', 'VideoPress privacy setting', 'jetpack' ),
 									},
 									{
-										value: 0,
+										value: VIDEO_PRIVACY.PUBLIC,
 										label: _x( 'Public', 'VideoPress privacy setting', 'jetpack' ),
 									},
-									{ value: 1, label: _x( 'Private', 'VideoPress privacy setting', 'jetpack' ) },
+									{
+										value: VIDEO_PRIVACY.PRIVATE,
+										label: _x( 'Private', 'VideoPress privacy setting', 'jetpack' ),
+									},
 								] }
 								disabled={ isFetchingMedia || isUpdatingIsPrivate }
 							/>

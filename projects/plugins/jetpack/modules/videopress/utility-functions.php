@@ -5,7 +5,10 @@ use Automattic\Jetpack\Connection\Client;
 /**
  * We won't have any videos less than sixty pixels wide. That would be silly.
  */
-defined( 'VIDEOPRESS_MIN_WIDTH' ) or define( 'VIDEOPRESS_MIN_WIDTH', 60 );
+defined( 'VIDEOPRESS_MIN_WIDTH' ) || define( 'VIDEOPRESS_MIN_WIDTH', 60 );
+defined( 'VIDEOPRESS_PRIVACY_IS_PUBLIC' ) || define( 'VIDEOPRESS_PRIVACY_IS_PUBLIC', 0 );
+defined( 'VIDEOPRESS_PRIVACY_IS_PRIVATE' ) || define( 'VIDEOPRESS_PRIVACY_IS_PRIVATE', 1 );
+defined( 'VIDEOPRESS_PRIVACY_SITE_DEFAULT' ) || define( 'VIDEOPRESS_PRIVACY_SITE_DEFAULT', 2 );
 
 /**
  * Validate user-supplied guid values against expected inputs
@@ -497,7 +500,7 @@ function video_get_info_by_blogpostid( $blog_id, $post_id ) {
 		$video_info->allow_download = isset( $videopress_meta['allow_download'] )
 			? $videopress_meta['allow_download']
 			: 0;
-		$video_info->is_private     = ! isset( $videopress_meta['is_private'] ) ? 2 : $videopress_meta['is_private'];
+		$video_info->is_private     = ! isset( $videopress_meta['is_private'] ) ? VIDEOPRESS_PRIVACY_SITE_DEFAULT : $videopress_meta['is_private'];
 	}
 
 	if ( videopress_is_finished_processing( $post_id ) ) {
