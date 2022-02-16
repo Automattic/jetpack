@@ -152,7 +152,7 @@ export function BoostInterstitial() {
  */
 export function CRMInterstitial() {
 	return (
-		<ProductInterstitial slug="crm">
+		<ProductInterstitial slug="crm" installsPlugin={ true }>
 			<img src={ crmImage } alt="CRM" />
 		</ProductInterstitial>
 	);
