@@ -63,7 +63,7 @@
 			}
 			?>
 
-			<option value="<?php echo $key; ?>" <?php echo $selected; ?>><?php echo esc_html( $label, 'jetpack' ); ?></option>
+			<option value="<?php echo $key; ?>" <?php echo $selected; ?>><?php echo esc_html( $label ); ?></option>
 		<?php } ?>
 	</select>
 </p>
@@ -93,7 +93,7 @@
 			}
 			?>
 
-			<option value="<?php echo $key; ?>" <?php echo $selected; ?>><?php echo esc_html( $label, 'jetpack' ); ?></option>
+			<option value="<?php echo $key; ?>" <?php echo $selected; ?>><?php echo esc_html( $label ); ?></option>
 		<?php } ?>
 	</select>
 </p>
