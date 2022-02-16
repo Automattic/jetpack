@@ -1,22 +1,24 @@
-<?php
-
-/*
-Plugin Name: Gallery
-Description: Gallery widget
-Author: Automattic Inc.
-Version: 1.0
-Author URI: https://automattic.com
-Text Domain: jetpack
-*/
+<?php // phpcs:ignore eWordPress.Files.FileName.InvalidClassFileName
+/**
+ * Module Name: Gallery widget
+ *
+ * @package automattic/jetpack
+ */
 
 use Automattic\Jetpack\Assets;
 
+/**
+ * Jetpack_Gallery_Widget main class.
+ */
 class Jetpack_Gallery_Widget extends WP_Widget {
 	const THUMB_SIZE    = 45;
 	const DEFAULT_WIDTH = 265;
 
 	protected $_instance_width;
 
+	/**
+	 * Jetpack_Gallery_Widget constructor.
+	 */
 	public function __construct() {
 		$widget_ops = array(
 			'classname'                   => 'widget-gallery',
@@ -153,7 +155,7 @@ class Jetpack_Gallery_Widget extends WP_Widget {
 	/**
 	 * Fetch the images attached to the gallery Widget
 	 *
-	 * @param array $instance The Widget instance for which you'd like attachments
+	 * @param array $instance The Widget instance for which you'd like attachments.
 	 * @return array Array of attachment objects for the Widget in $instance
 	 */
 	public function get_attachments( $instance ) {
@@ -185,7 +187,7 @@ class Jetpack_Gallery_Widget extends WP_Widget {
 	 * Generate HTML for a rectangular, tiled Widget
 	 *
 	 * @param array $args Display arguments including before_title, after_title, before_widget, and after_widget.
-	 * @param array $instance The Widget instance to generate HTML for
+	 * @param array $instance The Widget instance to generate HTML for.
 	 * @return string String of HTML representing a rectangular gallery
 	 */
 	public function rectangular_widget( $args, $instance ) {
@@ -204,7 +206,7 @@ class Jetpack_Gallery_Widget extends WP_Widget {
 	 * Generate HTML for a square (grid style) Widget
 	 *
 	 * @param array $args Display arguments including before_title, after_title, before_widget, and after_widget.
-	 * @param array $instance The Widget instance to generate HTML for
+	 * @param array $instance The Widget instance to generate HTML for.
 	 * @return string String of HTML representing a square gallery
 	 */
 	public function square_widget( $args, $instance ) {
@@ -223,7 +225,7 @@ class Jetpack_Gallery_Widget extends WP_Widget {
 	 * Generate HTML for a circular (grid style) Widget
 	 *
 	 * @param array $args Display arguments including before_title, after_title, before_widget, and after_widget.
-	 * @param array $instance The Widget instance to generate HTML for
+	 * @param array $instance The Widget instance to generate HTML for.
 	 * @return string String of HTML representing a circular gallery
 	 */
 	public function circle_widget( $args, $instance ) {
@@ -242,7 +244,7 @@ class Jetpack_Gallery_Widget extends WP_Widget {
 	 * Generate HTML for a slideshow Widget
 	 *
 	 * @param array $args Display arguments including before_title, after_title, before_widget, and after_widget.
-	 * @param array $instance The Widget instance to generate HTML for
+	 * @param array $instance The Widget instance to generate HTML for.
 	 * @return string String of HTML representing a slideshow gallery
 	 */
 	public function slideshow_widget( $args, $instance ) {
@@ -268,7 +270,7 @@ class Jetpack_Gallery_Widget extends WP_Widget {
 
 		foreach ( $instance['attachments'] as $attachment ) {
 			$attachment_image_src = wp_get_attachment_image_src( $attachment->ID, 'full' );
-			$attachment_image_src = jetpack_photon_url( $attachment_image_src[0], array( 'w' => $this->_instance_width ) ); // [url, width, height]
+			$attachment_image_src = jetpack_photon_url( $attachment_image_src[0], array( 'w' => $this->_instance_width ) ); /** [url, width, height] */
 
 			$caption = wptexturize( strip_tags( $attachment->post_excerpt ) );
 
@@ -305,19 +307,22 @@ class Jetpack_Gallery_Widget extends WP_Widget {
 	}
 
 	/**
-	 * tiled_gallery_content_width filter
-	 *
 	 * Used to adjust the content width of Jetpack_Tiled_Gallery's in sidebars
 	 *
 	 * $this->_instance_width is filtered in widget() and this filter is added then removed in widget()
 	 *
-	 * @param int $width int The original width value
+	 * @param int $width int The original width value.
 	 * @return int The filtered width
 	 */
 	public function tiled_gallery_content_width( $width ) {
 		return $this->_instance_width;
 	}
 
+	/**
+	 * Outputs the widget settings form.
+	 *
+	 * @param array $instance Current settings.
+	 */
 	public function form( $instance ) {
 		$defaults       = $this->defaults();
 		$allowed_values = $this->allowed_values();
@@ -327,6 +332,13 @@ class Jetpack_Gallery_Widget extends WP_Widget {
 		include __DIR__ . '/gallery/templates/form.php';
 	}
 
+	/**
+	 * Save the widget options.
+	 *
+	 * @param array $new_instance The new instance options.
+	 * @param array $old_instance The old instance options.
+	 * @return array The saved options.
+	 */
 	public function update( $new_instance, $old_instance ) {
 		$instance = $this->sanitize( $new_instance );
 
@@ -339,7 +351,7 @@ class Jetpack_Gallery_Widget extends WP_Widget {
 	 *
 	 * Helps keep things nice and secure by listing only allowed values.
 	 *
-	 * @param array $instance The Widget instance to sanitize values for
+	 * @param array $instance The Widget instance to sanitize values for.
 	 * @return array $instance The Widget instance with values sanitized
 	 */
 	public function sanitize( $instance ) {
@@ -376,7 +388,7 @@ class Jetpack_Gallery_Widget extends WP_Widget {
 		$max_columns = 5;
 
 		// Create an associative array of allowed column values. This just automates the generation of
-		// column <option>s, from 1 to $max_columns
+		// column <option>s, from 1 to $max_columns.
 		$allowed_columns = array_combine( range( 1, $max_columns ), range( 1, $max_columns ) );
 
 		return array(
@@ -413,6 +425,9 @@ class Jetpack_Gallery_Widget extends WP_Widget {
 		);
 	}
 
+	/**
+	 * Enqueue frontend scripts.
+	 */
 	public function enqueue_frontend_scripts() {
 		wp_register_script(
 			'gallery-widget',
@@ -425,6 +440,9 @@ class Jetpack_Gallery_Widget extends WP_Widget {
 		wp_enqueue_script( 'gallery-widget' );
 	}
 
+	/**
+	 * Enqueue admin scripts and styles.
+	 */
 	public function enqueue_admin_scripts() {
 		global $pagenow;
 
@@ -457,6 +475,9 @@ class Jetpack_Gallery_Widget extends WP_Widget {
 
 add_action( 'widgets_init', 'jetpack_gallery_widget_init' );
 
+/**
+ * Jetpack Gallery widget init; the widget is conditionally registered.
+ */
 function jetpack_gallery_widget_init() {
 	/**
 	 * Allow the Gallery Widget to be enabled even when Core supports the Media Gallery Widget
