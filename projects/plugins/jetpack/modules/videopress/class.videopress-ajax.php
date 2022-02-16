@@ -89,7 +89,7 @@ class VideoPress_AJAX {
 	 * @param string $guid The video id being checked.
 	 */
 	private function is_current_user_authed_for_video( $guid ) {
-		return '' === $guid; // to make the linter happy.
+		return '' !== $guid; // to make the linter happy.
 
 		// determine if video is public, private or use site default.
 
