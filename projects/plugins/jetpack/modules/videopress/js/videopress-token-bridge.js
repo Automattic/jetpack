@@ -18,7 +18,7 @@
 			guid: event.data.guid,
 		};
 
-		fetch( window.videopressAjax, {
+		fetch( window.videopressAjax.ajaxUrl, {
 			method: 'POST',
 			credentials: 'same-origin',
 			body: new URLSearchParams( fetchData ),

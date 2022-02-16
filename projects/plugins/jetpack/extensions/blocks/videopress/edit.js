@@ -811,9 +811,12 @@ const VpBlock = props => {
 		scripts = [];
 	}
 
-	const videopresAjaxURLBlob = new Blob( [ `var videopressAjax = '${ window.videopressAjax }';` ], {
-		type: 'text/javascript',
-	} );
+	const videopresAjaxURLBlob = new Blob(
+		[ `var videopressAjax = { ajaxUrl: '${ window.videopressAjax.ajaxUrl }' };` ],
+		{
+			type: 'text/javascript',
+		}
+	);
 
 	scripts.push(
 		URL.createObjectURL( videopresAjaxURLBlob ),
