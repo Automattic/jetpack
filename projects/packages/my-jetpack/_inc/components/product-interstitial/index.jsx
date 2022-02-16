@@ -165,7 +165,7 @@ export function CRMInterstitial() {
  */
 export function ScanInterstitial() {
 	return (
-		<ProductInterstitial slug="scan">
+		<ProductInterstitial slug="scan" installsPlugin={ true }>
 			<ProductDetailCard slug="security" />
 		</ProductInterstitial>
 	);
@@ -178,7 +178,7 @@ export function ScanInterstitial() {
  */
 export function SearchInterstitial() {
 	return (
-		<ProductInterstitial slug="search">
+		<ProductInterstitial slug="search" installsPlugin={ true }>
 			<img src={ searchImage } alt="Search" />
 		</ProductInterstitial>
 	);
