@@ -267,7 +267,25 @@ class WPCOM_Widget_Facebook_LikeBox extends WP_Widget {
 			<label for="<?php echo esc_attr( $this->get_field_id( 'width' ) ); ?>">
 				<?php esc_html_e( 'Width in pixels', 'jetpack' ); ?>
 				<input type="number" class="smalltext" min="<?php echo esc_attr( $this->min_width ); ?>" max="<?php echo esc_attr( $this->max_width ); ?>" maxlength="3" name="<?php echo esc_attr( $this->get_field_name( 'width' ) ); ?>" id="<?php echo esc_attr( $this->get_field_id( 'width' ) ); ?>" value="<?php echo esc_attr( $like_args['width'] ); ?>" style="text-align: center;" />
-				<small><?php echo sprintf( __( 'Minimum: %s', 'jetpack' ), $this->min_width ); ?> / <?php echo sprintf( __( 'Maximum: %s', 'jetpack' ), $this->max_width ); ?></small>
+				<small>
+					<?php
+					echo esc_html(
+						sprintf(
+							/* translators: %s is the minimum pixel width */
+							__( 'Minimum: %s', 'jetpack' ),
+							$this->min_width
+						)
+					);
+					echo ' / ';
+					echo esc_html(
+						sprintf(
+							/* translators: %s is the maximum pixel width */
+							__( 'Maximum: %s', 'jetpack' ),
+							$this->max_width
+						)
+					);
+					?>
+				</small>
 			</label>
 		</p>
 
@@ -275,7 +293,25 @@ class WPCOM_Widget_Facebook_LikeBox extends WP_Widget {
 			<label for="<?php echo esc_attr( $this->get_field_id( 'height' ) ); ?>">
 				<?php esc_html_e( 'Height in pixels', 'jetpack' ); ?>
 				<input type="number" class="smalltext" min="<?php echo esc_attr( $this->min_height ); ?>" max="<?php echo esc_attr( $this->max_height ); ?>" maxlength="3" name="<?php echo esc_attr( $this->get_field_name( 'height' ) ); ?>" id="<?php echo esc_attr( $this->get_field_id( 'height' ) ); ?>" value="<?php echo esc_attr( $like_args['height'] ); ?>" style="text-align: center;" />
-				<small><?php echo sprintf( __( 'Minimum: %s', 'jetpack' ), $this->min_height ); ?> / <?php echo sprintf( __( 'Maximum: %s', 'jetpack' ), $this->max_height ); ?></small>
+				<small>
+					<?php
+					echo esc_html(
+						sprintf(
+							/* translators: %s is the minimum pixel height */
+							__( 'Minimum: %s', 'jetpack' ),
+							$this->min_height
+						)
+					);
+					echo ' / ';
+					echo esc_html(
+						sprintf(
+							/* translators: %s is the maximum pixel height */
+							__( 'Maximum: %s', 'jetpack' ),
+							$this->max_height
+						)
+					);
+					?>
+				</small>
 			</label>
 		</p>
 
