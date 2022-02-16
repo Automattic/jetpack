@@ -1,6 +1,6 @@
 <?php // phpcs:ignore WordPress.Files.FileName.InvalidClassFileName
 
-require dirname( __FILE__ ) . '/base.php';
+require __DIR__ . '/base.php';
 use Automattic\Jetpack\Connection\Tokens;
 
 /**
@@ -45,7 +45,7 @@ class Jetpack_Comments extends Highlander_Comments_Base {
 		static $instance = false;
 
 		if ( ! $instance ) {
-			$instance = new Jetpack_Comments;
+			$instance = new Jetpack_Comments();
 		}
 
 		return $instance;
@@ -319,7 +319,7 @@ class Jetpack_Comments extends Highlander_Comments_Base {
 			}
 		}
 
-		$signature = Jetpack_Comments::sign_remote_comment_parameters( $params, $blog_token->secret );
+		$signature = self::sign_remote_comment_parameters( $params, $blog_token->secret );
 		if ( is_wp_error( $signature ) ) {
 			$signature = 'error';
 		}
@@ -327,7 +327,7 @@ class Jetpack_Comments extends Highlander_Comments_Base {
 		$params['sig']    = $signature;
 		$url_origin       = 'https://jetpack.wordpress.com';
 		$url              = "{$url_origin}/jetpack-comment/?" . http_build_query( $params );
-		$url              = "{$url}#parent=" . urlencode( set_url_scheme( 'http://' . $_SERVER['HTTP_HOST'] . $_SERVER['REQUEST_URI'] ) );
+		$url              = "{$url}#parent=" . rawurlencode( set_url_scheme( 'http://' . $_SERVER['HTTP_HOST'] . $_SERVER['REQUEST_URI'] ) );
 		$this->signed_url = $url;
 		$height           = $params['comment_registration'] || is_user_logged_in() ? '315' : '430'; // Iframe can be shorter if we're not allowing guest commenting.
 		$transparent      = ( $params['color_scheme'] == 'transparent' ) ? 'true' : 'false';
@@ -484,7 +484,7 @@ class Jetpack_Comments extends Highlander_Comments_Base {
 
 				// Do the post message bit after the dom has loaded.
 				document.addEventListener( 'DOMContentLoaded', function () {
-					var iframe_url = <?php echo json_encode( esc_url_raw( $url_origin ) ); ?>;
+					var iframe_url = <?php echo wp_json_encode( esc_url_raw( $url_origin ) ); ?>;
 					if ( window.postMessage ) {
 						if ( document.addEventListener ) {
 							window.addEventListener( 'message', function ( event ) {
@@ -537,7 +537,7 @@ class Jetpack_Comments extends Highlander_Comments_Base {
 		if ( ! $blog_token ) {
 			wp_die( __( 'Unknown security token.', 'jetpack' ), 400 );
 		}
-		$check = Jetpack_Comments::sign_remote_comment_parameters( $post_array, $blog_token->secret );
+		$check = self::sign_remote_comment_parameters( $post_array, $blog_token->secret );
 		if ( is_wp_error( $check ) ) {
 			wp_die( $check );
 		}
@@ -615,7 +615,7 @@ class Jetpack_Comments extends Highlander_Comments_Base {
 	 *
 	 * @param string $url The comment URL origin.
 	 */
-	function capture_comment_post_redirect_to_reload_parent_frame( $url ) {
+	public function capture_comment_post_redirect_to_reload_parent_frame( $url ) {
 		if ( ! isset( $_GET['for'] ) || 'jetpack' != $_GET['for'] ) {
 			return $url;
 		}
@@ -695,10 +695,10 @@ class Jetpack_Comments extends Highlander_Comments_Base {
 			</h1>
 		<script type="text/javascript">
 			try {
-				window.parent.location = <?php echo json_encode( $url ); ?>;
+				window.parent.location = <?php echo wp_json_encode( $url ); ?>;
 				window.parent.location.reload(true);
 			} catch (e) {
-				window.location = <?php echo json_encode( $url ); ?>;
+				window.location = <?php echo wp_json_encode( $url ); ?>;
 				window.location.reload(true);
 			}
 			ellipsis = document.getElementById('ellipsis');
