@@ -30,7 +30,6 @@
 		"pnpm": "^6.23.6",
 		"yarn": "use pnpm instead - see docs/yarn-upgrade.md"
 	},
-	"react-native": "./index.js",
 	"exports": {
 		".": "./index.js"
 	}
