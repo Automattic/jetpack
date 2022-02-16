@@ -97,7 +97,13 @@ const ProductDetail = ( { slug, onClick, trackButtonClick } ) => {
 		hasRequiredPlan,
 	} = detail;
 
-	const { isFree, fullPricePerMonth: price, currencyCode, discountPricePerMonth: discountPrice, wpcomProductSlug } = pricingForUi;
+	const {
+		isFree,
+		fullPricePerMonth: price,
+		currencyCode,
+		discountPricePerMonth: discountPrice,
+		wpcomProductSlug,
+	} = pricingForUi;
 	const { isUserConnected } = useMyJetpackConnection();
 
 	/*
