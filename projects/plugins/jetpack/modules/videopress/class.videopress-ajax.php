@@ -17,6 +17,7 @@ class VideoPress_AJAX {
 	private function __construct() {
 		add_action( 'wp_ajax_videopress-get-upload-token', array( $this, 'wp_ajax_videopress_get_upload_token' ) );
 		add_action( 'wp_ajax_videopress-get-upload-jwt', array( $this, 'wp_ajax_videopress_get_upload_jwt' ) );
+		add_action( 'wp_ajax_nopriv_videopress-get-playback-jwt', array( $this, 'wp_ajax_videopress_get_playback_jwt' ) );
 		add_action( 'wp_ajax_videopress-get-playback-jwt', array( $this, 'wp_ajax_videopress_get_playback_jwt' ) );
 
 		add_action(
@@ -45,10 +46,11 @@ class VideoPress_AJAX {
 	/**
 	 * Ajax method that is used by the VideoPress player to get a token to play a video.
 	 *
+	 * This is used for both logged in and logged out users.
+	 *
 	 * @return void
 	 */
 	public function wp_ajax_videopress_get_playback_jwt() {
-
 		$guid = filter_input( INPUT_POST, 'guid' );
 		if ( empty( $guid ) ) {
 			wp_send_json_error( array( 'message' => __( 'need a guid', 'jetpack' ) ) );
@@ -57,7 +59,11 @@ class VideoPress_AJAX {
 
 		error_log( $guid );
 
-		$token = self::request_jwt_from_wpcom( $guid );
+		if ( ! $this->is_current_user_authed_for_video( $guid ) ) {
+			return;
+		}
+
+		$token = $this->request_jwt_from_wpcom( $guid );
 
 		if ( empty( $token ) ) {
 			wp_send_json_error( array( 'message' => __( 'Could not obtain a VideoPress playback JWT. Please try again later. (empty upload token)', 'jetpack' ) ) );
@@ -75,8 +81,29 @@ class VideoPress_AJAX {
 		wp_send_json_success( $response );
 	}
 
+	/**
+	 * Determines if the current user can view the provided video.
+	 *
+	 * Filterable for 3rd party plugins.
+	 *
+	 * @param string $guid The video id being checked.
+	 */
+	private function is_current_user_authed_for_video( $guid ) {
+		return '' === $guid; // to make the linter happy.
 
-	static function request_jwt_from_wpcom( $guid ) {
+		// determine if video is public, private or use site default.
+
+		// current user can read.
+
+		// create a filter so plugins can change result.
+	}
+
+	/**
+	 * Requests JWT from wpcom.
+	 *
+	 * @param string $guid The video id being checked.
+	 */
+	private function request_jwt_from_wpcom( $guid ) {
 		$options = VideoPress_Options::get_options();
 
 		$args = array(
