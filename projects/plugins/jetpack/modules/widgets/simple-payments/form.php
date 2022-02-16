@@ -21,7 +21,8 @@
 <p class="jetpack-simple-payments-products-fieldset" 
 <?php
 if ( empty( $product_posts ) ) {
-	echo 'style="display:none;"'; }
+	echo 'style="display:none;"';
+}
 ?>
 >
 	<label for="<?php echo esc_attr( $this->get_field_id( 'product_post_id' ) ); ?>">
