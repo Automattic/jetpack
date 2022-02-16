@@ -99,6 +99,14 @@
 		height: auto;
 		line-height: 26px;
 		align-self: flex-end;
+
+		&.is-bundle {
+			&:hover {
+				background-color: var(--product-card-action-button-bg-color-hover);
+				color: var(--product-card-action-button-color-hover);
+				box-shadow: none;
+			}
+		}
 	}
 
 	.product-has-required-plan {
