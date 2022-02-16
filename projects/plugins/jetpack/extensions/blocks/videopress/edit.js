@@ -770,15 +770,7 @@ const VideoPressEdit = CoreVideoEdit =>
 // In a separate function component so that `useBlockProps` could be called.
 const VpBlock = props => {
 	let { scripts } = props;
-	const {
-		html,
-		interactive,
-		caption,
-		isSelected,
-		hideOverlay,
-		attributes,
-		setAttributes,
-	} = props;
+	const { html, interactive, caption, isSelected, hideOverlay, attributes, setAttributes } = props;
 
 	const { align, className, videoPressClassNames, maxWidth } = attributes;
 
@@ -805,8 +797,13 @@ const VpBlock = props => {
 		scripts = [];
 	}
 
+	const videopresAjaxURLBlob = new Blob( [ `var videopressAjax = '${ window.videopressAjax }';` ], {
+		type: 'text/javascript',
+	} );
+
 	scripts.push(
-		'/wp-content/plugins/jetpack/modules/videopress/js/gutenberg-videopress-sandbox-post-message.js'
+		URL.createObjectURL( videopresAjaxURLBlob ),
+		'/wp-content/plugins/jetpack/modules/videopress/js/videopress-token-bridge.js'
 	);
 
 	return (

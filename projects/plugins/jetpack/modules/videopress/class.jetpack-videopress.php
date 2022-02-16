@@ -72,8 +72,7 @@ class Jetpack_VideoPress {
 				array( 'jquery' ),
 				$this->version . 2 .uniqid()
 			);
-			wp_localize_script( 'media-video-widget-extensions', 'videopressAjax',
-				array( 'ajaxUrl' => admin_url( 'admin-ajax.php' ) ) );
+			wp_localize_script( 'media-video-widget-extensions', 'videopressAjax', admin_url( 'admin-ajax.php' ) );
 		}
 
 
