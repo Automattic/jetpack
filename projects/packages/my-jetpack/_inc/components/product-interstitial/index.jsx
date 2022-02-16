@@ -191,7 +191,7 @@ export function SearchInterstitial() {
  */
 export function VideoPressInterstitial() {
 	return (
-		<ProductInterstitial slug="videopress">
+		<ProductInterstitial slug="videopress" installsPlugin={ true }>
 			<img src={ videoPressImage } alt="VideoPress" />
 		</ProductInterstitial>
 	);
