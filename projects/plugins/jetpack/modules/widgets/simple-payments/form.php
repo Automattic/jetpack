@@ -114,7 +114,8 @@ if ( empty( $product_posts ) ) {
 		<div class="jetpack-simple-payments-image" 
 		<?php
 		if ( empty( $instance['form_product_image_id'] ) ) {
-			echo 'style="display:none;"';}
+			echo 'style="display:none;"';
+		}
 		?>
 		>
 			<img src="<?php echo esc_url( $instance['form_product_image_src'] ); ?>" />
