@@ -1,4 +1,4 @@
-<?php
+<?php // phpcs:ignore WordPress.Files.FileName.InvalidClassFileName
 /**
  * Disable direct access/execution to/of the widget code.
  */
@@ -16,7 +16,7 @@ if ( ! class_exists( 'Jetpack_Flickr_Widget' ) ) {
 		/**
 		 * Constructor.
 		 */
-		function __construct() {
+		public function __construct() {
 			parent::__construct(
 				'flickr',
 				/** This filter is documented in modules/widgets/facebook-likebox.php */
@@ -36,7 +36,7 @@ if ( ! class_exists( 'Jetpack_Flickr_Widget' ) ) {
 		/**
 		 * Enqueue style.
 		 */
-		function enqueue_style() {
+		public function enqueue_style() {
 			wp_enqueue_style( 'flickr-widget-style', plugins_url( 'flickr/style.css', __FILE__ ), array(), '20170405' );
 		}
 
@@ -69,7 +69,6 @@ if ( ! class_exists( 'Jetpack_Flickr_Widget' ) ) {
 			$image_size_string = 'small' == $instance['flickr_image_size'] ? '_m.jpg' : '_t.jpg';
 
 			if ( ! empty( $instance['flickr_rss_url'] ) ) {
-
 				/*
 				 * Parse the URL, and rebuild a URL that's sure to display images.
 				 * Some Flickr Feeds do not display images by default.
@@ -105,7 +104,7 @@ if ( ! class_exists( 'Jetpack_Flickr_Widget' ) ) {
 						);
 					}
 				}
-			} // End if().
+			}
 
 			// Still no RSS feed URL? Get a default feed from Flickr to grab interesting photos.
 			if ( empty( $rss_url ) ) {
@@ -218,7 +217,9 @@ if ( ! class_exists( 'Jetpack_Flickr_Widget' ) ) {
 		}
 	}
 
-	// Register Jetpack_Flickr_Widget widget.
+	/**
+	 * Register Jetpack_Flickr_Widget widget.
+	 */
 	function jetpack_register_flickr_widget() {
 		register_widget( 'Jetpack_Flickr_Widget' );
 	}
