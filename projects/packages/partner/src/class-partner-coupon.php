@@ -66,7 +66,14 @@ class Partner_Coupon {
 	 * @var array
 	 */
 	private static $supported_partners = array(
-		'IONOS' => 'IONOS',
+		'IONOS' => array(
+			'name' => 'IONOS',
+			'logo' => array(
+				'src'    => '/images/ionos-logo.jpg',
+				'width'  => 119,
+				'height' => 32,
+			),
+		),
 	);
 
 	/**
@@ -340,8 +347,9 @@ class Partner_Coupon {
 		}
 
 		return array(
-			'name'   => $supported_partners[ $prefix ],
+			'name'   => $supported_partners[ $prefix ]['name'],
 			'prefix' => $prefix,
+			'logo'   => isset( $supported_partners[ $prefix ]['logo'] ) ? $supported_partners[ $prefix ]['logo'] : null,
 		);
 	}
 

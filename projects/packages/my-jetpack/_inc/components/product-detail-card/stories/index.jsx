@@ -63,6 +63,12 @@ JetpackBoostCard.parameters = {
 	mockData: getMockData( 'boost' ),
 };
 
+const CRMCardTemplate = args => <ProductDetailCard { ...args } slug="crm" />;
+export const JetpackCRMCard = CRMCardTemplate.bind( {} );
+JetpackCRMCard.parameters = {
+	mockData: getMockData( 'crm' ),
+};
+
 const SearchCardTemplate = args => <ProductDetailCard { ...args } slug="search" />;
 export const JetpackSearchCard = SearchCardTemplate.bind( {} );
 JetpackSearchCard.parameters = {

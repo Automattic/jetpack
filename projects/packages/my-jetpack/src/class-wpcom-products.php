@@ -151,15 +151,32 @@ class Wpcom_Products {
 	 *
 	 * @return array An array with currency_code and full_price. Empty array if product not found.
 	 */
-	public static function get_product_currency_and_price( $product_slug ) {
-		$products = self::get_products();
-		if ( ! empty( $products->$product_slug ) ) {
-			return array(
-				'currency_code' => $products->$product_slug->currency_code,
-				'full_price'    => $products->$product_slug->cost,
-			);
+	public static function get_product_pricing( $product_slug ) {
+		$product = self::get_product( $product_slug );
+		if ( empty( $product ) ) {
+			return array();
 		}
-		return array();
-	}
 
+		$pricing = array(
+			'currency_code' => $product->currency_code,
+			'full_price'    => $product->cost,
+		);
+
+		if ( ! isset( $product->sale_coupon ) ) {
+			return $pricing;
+		}
+
+		// Check whether the coupon is still valid.
+		$sale            = $product->sale_coupon;
+		$sale_start_date = strtotime( $sale->start_date );
+		$sale_expires    = strtotime( $sale->expires );
+		if ( $sale_start_date > time() || $sale_expires < time() ) {
+			return $pricing;
+		}
+
+		// Populate response with sale discount.
+		$pricing['discount'] = $sale->discount;
+
+		return $pricing;
+	}
 }
