@@ -29,7 +29,7 @@ class CLI extends WP_CLI_Command {
 	public function auto_config( $args ) {
 		try {
 			if ( empty( $args ) ) {
-				WP_CLI::error( 'Jetpack Search: a user login or ID is required.' );
+				WP_CLI::error( 'A user login or ID is required.' );
 			}
 
 			// Some functions may require admin capabilities to run.
@@ -38,9 +38,10 @@ class CLI extends WP_CLI_Command {
 				WP_CLI::error( $ret->get_error_message() );
 			}
 
+			WP_CLI::line( 'Running as user ' . $ret->user_login . '…' );
 			$blog_id = Helper::get_wpcom_site_id();
 			Instant_Search::instance( $blog_id )->auto_config_search();
-			WP_CLI::success( 'Jetpack Search: auto config success!' );
+			WP_CLI::success( 'Auto config success!' );
 		} catch ( \Exception $e ) {
 			WP_CLI::error( $e->getMessage() );
 		}
