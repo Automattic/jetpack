@@ -1,7 +1,7 @@
 /**
  * External dependencies
  */
-import React from 'react';
+import React, { useState } from 'react';
 import { __ } from '@wordpress/i18n';
 
 /**
@@ -13,6 +13,9 @@ import { useSelect } from '@wordpress/data';
  * Internal dependencies
  */
 import { STORE_ID } from 'store';
+import { BarChart } from './barchart.jsx';
+import getRecordInfo from './lib/recordInfo.js';
+import createData from './lib/createData.js';
 
 import './style.scss';
 
@@ -24,6 +27,12 @@ import './style.scss';
 export default function RecordMeter() {
 	const tierMaximumRecords = useSelect( select => select( STORE_ID ).getTierMaximumRecords() );
 
+	// this.state = {
+	// 	recordInfo: getRecordInfo(createData().data, createData().planInfo),
+	//   };
+
+	const [ state ] = useState( getRecordInfo( createData().data, createData().planInfo ) );
+
 	return (
 		<div className="jp-search-record-meter jp-search-dashboard-wrap">
 			<div className="jp-search-dashboard-row">
@@ -32,6 +41,10 @@ export default function RecordMeter() {
 					{ tierMaximumRecords && (
 						<p>
 							Tier maximum records: <strong>{ tierMaximumRecords }</strong>
+							<BarChart
+								data={ this.state.recordInfo.data }
+								isValid={ this.state.recordInfo.isValid }
+							/>
 						</p>
 					) }
 				</div>
