@@ -1,5 +1,8 @@
 /**
  * The different payment blocks that can be chosen.
+ *
+ * Important note: This block must be loaded after the different blocks that can be chosen. This can be done by ensuring
+ * this is at the bottom of the block list at `projects/plugins/jetpack/extensions/index.json`.
  */
 
 /**
