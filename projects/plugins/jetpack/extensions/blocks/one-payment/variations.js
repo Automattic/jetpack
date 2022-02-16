@@ -24,20 +24,20 @@ const variations = [
 
 const variationDefinitions = variations
 	.map( blockNameSettings => {
-		const blockDefinition = {};
 		const [ blockName, settings ] = blockNameSettings;
 		if ( getBlockType( 'jetpack/' + blockName ) ) {
-			blockDefinition.name = 'jetpack/onepayment-' + blockName;
-			blockDefinition.title = settings.title;
-			blockDefinition.description = settings.description;
-			blockDefinition.icon = settings.icon.src;
-			blockDefinition.innerBlocks = [ [ 'jetpack/' + blockName, {} ] ];
-			// The inner block itself is already listed in the inserter in its own right, so just include in this blocks
-			// unified intro.
-			blockDefinition.scope = [ 'block' ];
+			return {
+				name: 'jetpack/onepayment-' + blockName,
+				title: settings.title,
+				description: settings.description,
+				icon: settings.icon.src,
+				innerBlocks: [ [ 'jetpack/' + blockName, {} ] ],
+				// The inner block itself is already listed in the inserter in its own right, so just include in this blocks
+				// unified intro.
+				scope: [ 'block' ],
+			};
 		}
-
-		return blockDefinition;
+		return {};
 	} )
 	.filter( blockDefinition => Object.entries( blockDefinition ).length > 0 );
 
