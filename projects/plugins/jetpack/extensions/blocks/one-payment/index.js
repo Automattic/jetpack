@@ -11,6 +11,8 @@ import { currencyDollar } from '@wordpress/icons';
 import edit from './edit';
 import variations from './variations';
 import { getIconColor } from '../../shared/block-icons';
+import { settings as donationSettings } from '../donations';
+import { settings as recurringPaymentSettings } from '../recurring-payments';
 
 /**
  * Style dependencies
@@ -28,17 +30,16 @@ export const settings = {
 	},
 	category: 'earn',
 	keywords: [
-		_x( 'sell', 'block search term', 'jetpack' ),
-		_x( 'subscriptions', 'block search term', 'jetpack' ),
-		_x( 'product', 'block search term', 'jetpack' ),
-		'stripe',
-		_x( 'memberships', 'block search term', 'jetpack' ),
-		_x( 'donations', 'block search term', 'jetpack' ),
-		_x( 'tip', 'block search term', 'jetpack' ),
-		_x( 'paid', 'block search term', 'jetpack' ),
-		_x( 'pay', 'block search term', 'jetpack' ),
-		_x( 'money', 'block search term', 'jetpack' ),
-		_x( 'checkout', 'block search term', 'jetpack' ),
+		...new Set( [
+			donationSettings.title,
+			...donationSettings.keywords,
+			recurringPaymentSettings.title,
+			...recurringPaymentSettings.keywords,
+			_x( 'paid', 'block search term', 'jetpack' ),
+			_x( 'pay', 'block search term', 'jetpack' ),
+			_x( 'money', 'block search term', 'jetpack' ),
+			_x( 'checkout', 'block search term', 'jetpack' ),
+		] ),
 	],
 	supports: {
 		// This block acts as a temporary placeholder before inserting a different block and so should not offer any
