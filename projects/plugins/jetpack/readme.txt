@@ -261,9 +261,9 @@ Jetpack Backup can do a full website migration to a new host, migrate theme file
 #### Bug fixes
 - Blocks: cron requests are now considered frontend requests, so blocks will no longer be rendered as fallbacks on those.
 - Form block: custom CSS classes added to the block are now applied on the frontend.
-- Media Buttons: Fix external medial modal cannot be closed
+- Media Buttons: Fix issue where external medial modal cannot be closed.
 - Premium Content Block: fix accidental inversion of the block tabs.
-- Search: Make debug bar more reliable
+- Search: Make debug bar more reliable.
 - SSO: fix a bug with SSO not cleaning up wpcom_user_id.
 
 --------
