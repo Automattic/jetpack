@@ -13,6 +13,7 @@ import ProductInterstitial, {
 	AntiSpamInterstitial,
 	BackupInterstitial,
 	BoostInterstitial,
+	CRMInterstitial,
 	SearchInterstitial,
 	ScanInterstitial,
 	VideoPressInterstitial,
@@ -48,6 +49,12 @@ const BoostTemplate = args => <BoostInterstitial { ...args } />;
 export const JetpackBoost = BoostTemplate.bind( {} );
 JetpackBoost.parameters = {
 	mockData: getMockData( 'boost' ),
+};
+
+const CRMTemplate = args => <CRMInterstitial { ...args } />;
+export const JetpackCRM = CRMTemplate.bind( {} );
+JetpackCRM.parameters = {
+	mockData: getMockData( 'crm' ),
 };
 
 const ScanTemplate = args => <ScanInterstitial { ...args } />;

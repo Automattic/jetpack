@@ -36,7 +36,7 @@ jobs:
                 elements: [
                   {
                     type: "plain_text",
-                    text: "Commit: \( $run.head_commit.id[0:8] ) \( $run.head_commit.message )",
+                    text: "Commit: \( $run.head_commit.id[0:8] ) \( $run.head_commit.message | sub( "\n.*"; ""; "m" ) )",
                     emoji: false
                   },
                   {
@@ -70,7 +70,7 @@ jobs:
                     url: "\( $run.head_repository.html_url )/commit/\( $run.head_commit.id )"
                   },
                   (
-                    $run.head_commit.message | match( " \\(#([0-9]+)\\)$" ).captures[0].string | {
+                    $run.head_commit.message | sub( "\n.*"; ""; "m" ) | match( " \\(#([0-9]+)\\)$" ).captures[0].string | {
                       type: "button",
                       text: {
                         type: "plain_text",

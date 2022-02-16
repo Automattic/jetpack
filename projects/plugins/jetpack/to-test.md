@@ -35,9 +35,35 @@ We've fixed some issues with the Widget Visibility feature. Could you try the fo
 - Head to Appearance > Customize > Widgets and do the same thing.
 - Deactivate the Classic Widgets plugin, then head to Appearance > Widgets; you should see the Visibility button for legacy widgets, and the Visibility rules in the "Advanced" panel for each block.
 
-### At-a-glance Partner Coupon Redemption
+### At-a-glance Partner Coupon Redemption CTA
 
-We've introduced a new callout to redeem a coupon that may have been provided by a partner.
+We've introduced a new CTA to redeem a coupon that may have been provided by a partner at the top of the At-a-glance page.
+
+- Make sure Jetpack is activated but not connected.
+- Visit `/wp-admin/?jetpack-partner-coupon=PARTNER_COUPON_CODE` to store a partner coupon code. Please reach out to team Avalon to get a coupon code.
+- Confirm you are redirected to `/wp-admin/admin.php?page=jetpack&showCouponRedemption=1#/` which matches screenshot 1 below.
+- For every step, make sure that the Redeem button redirects you to checkout with your partner coupon applied. The "Set up & redeem" buttons should first connect you and then redirect you to checkout instead.
+- Establish a site connection by bailing out of the connection flow before approving the connection to your account.
+- Go to Jetpack Dashboard and confirm it matches screenshot 2 below.
+- Establish a user connection.
+- Go to Jetpack Dashboard and confirm it matches screenshot 3 below.
+- Go to Jetpack Dashboard, add `&showCouponRedemption=1` to your URL and confirm it matches screenshot 4 below.
+
+Screenshot 1) No connection with and without showCouponRedemption=1:
+![Screen Shot 2022-01-20 at 19 28 40](https://user-images.githubusercontent.com/22746396/150391173-39ae5381-a9ce-4fb4-ae70-954a3d28266e.png)
+
+Screenshot 2) Site connection with and without showCouponRedemption=1:
+![Screen Shot 2022-01-20 at 19 29 41](https://user-images.githubusercontent.com/22746396/150391194-e9ce9d7d-a93c-4a4e-9e26-e631c0406517.png)
+
+Screenshot 3) User connection without showCouponRedemption=1:
+![Screen Shot 2022-02-08 at 21 43 14](https://user-images.githubusercontent.com/22746396/153063496-80f4423d-d9d3-456c-a19e-c2c3bb108163.png)
+
+Screenshot 4) User connection and showCouponRedemption=1:
+![Screen Shot 2022-02-08 at 21 43 41](https://user-images.githubusercontent.com/22746396/153063516-8d121e0a-0fb1-4a71-b296-5339965393f7.png)
+
+### At-a-glance Partner Coupon Redemption Backup Banner
+
+We've introduced a new callout to redeem a coupon that may have been provided by a partner replacing the Backup upgrade banner.
 
 - Make sure Jetpack is activated and connected, has Jetpack Free as its plan, and has no other products.
 - Visit `/wp-admin/admin.php?page=jetpack#/dashboard` and confirm the Backup feature section shows what is visible in screenshot 1 below.

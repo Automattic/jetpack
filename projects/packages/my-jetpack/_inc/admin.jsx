@@ -16,6 +16,7 @@ import {
 	AntiSpamInterstitial,
 	BackupInterstitial,
 	BoostInterstitial,
+	CRMInterstitial,
 	ScanInterstitial,
 	SearchInterstitial,
 	VideoPressInterstitial,
@@ -81,12 +82,16 @@ const MyJetpack = () => (
 				element={ <Layout nav={ true } children={ <AntiSpamInterstitial /> } slug="anti-spam" /> }
 			/>
 			<Route
+				path="/add-backup"
+				element={ <Layout nav={ true } children={ <BackupInterstitial /> } slug="backup" /> }
+			/>
+			<Route
 				path="/add-boost"
 				element={ <Layout nav={ true } children={ <BoostInterstitial /> } slug="boost" /> }
 			/>
 			<Route
-				path="/add-backup"
-				element={ <Layout nav={ true } children={ <BackupInterstitial /> } slug="backup" /> }
+				path="/add-crm"
+				element={ <Layout nav={ true } children={ <CRMInterstitial /> } slug="crm" /> }
 			/>
 			<Route
 				path="/add-scan"
