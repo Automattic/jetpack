@@ -19,6 +19,8 @@ export GIT_AUTHOR_DATE="1640995200 +0000"
 export GIT_AUTHOR_NAME=Test
 export GIT_AUTHOR_EMAIL=test@example.com
 export GIT_COMMITTER_DATE
+export GIT_COMMITTER_NAME=Test
+export GIT_COMMITTER_EMAIL=test@example.com
 
 # Variable mapping symbolic names to git hashes
 declare -A TEST_COMMITS
