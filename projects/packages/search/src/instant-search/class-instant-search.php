@@ -11,6 +11,7 @@ use Automattic\Jetpack\Assets;
 use WP_Block_Parser;
 use WP_Block_Patterns_Registry;
 use WP_Error;
+use WP_REST_Templates_Controller;
 
 /**
  * Class responsible for enabling the Instant Search experience on the site.
@@ -412,6 +413,9 @@ class Instant_Search extends Classic_Search {
 	 * Add a search widget above footer for block templates.
 	 */
 	public function add_search_block_above_footer() {
+		if ( ! class_exists( 'WP_REST_Templates_Controller' ) ) {
+			return;
+		}
 		// We currently check only for a core search block.
 		// In the future, we will need to check for a Jetpack Search block once it's available.
 		if ( $this->template_parts_have_search_block() ) {
@@ -429,7 +433,7 @@ class Instant_Search extends Classic_Search {
 		$request->set_header( 'content-type', 'application/json' );
 		$request->set_param( 'content', static::inject_search_widget_to_block( $content ) );
 		$request->set_param( 'id', $template_part_id );
-		$controller = new \WP_REST_Templates_Controller( 'wp_template_part' );
+		$controller = new WP_REST_Templates_Controller( 'wp_template_part' );
 		return $controller->update_item( $request );
 	}
 
@@ -456,6 +460,9 @@ class Instant_Search extends Classic_Search {
 	 * @param string $block_pattern - Block content.
 	 */
 	protected function get_block_pattern_content( $block_pattern ) {
+		if ( ! class_exists( 'WP_Block_Parser' ) || ! class_exists( 'WP_Block_Patterns_Registry' ) ) {
+			return $block_pattern;
+		}
 		$blocks = ( new WP_Block_Parser() )->parse( $block_pattern );
 		if ( 1 === count( $blocks ) && 'core/pattern' === $blocks[0]['blockName'] ) {
 			$slug     = $blocks[0]['attrs']['slug'];

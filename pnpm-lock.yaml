@@ -723,9 +723,6 @@ importers:
       storybook-addon-mock: 2.0.2_react-dom@17.0.2+react@17.0.2
       webpack: 5.65.0
 
-  projects/packages/plans:
-    specifiers: {}
-
   projects/packages/publicize:
     specifiers: {}
 
@@ -20455,7 +20452,7 @@ packages:
     dependencies:
       array.prototype.flat: 1.2.5
       global-cache: 1.2.1
-      react-with-styles: 3.2.3_react-dom@17.0.2+react@17.0.2
+      react-with-styles: 3.2.3
 
   /react-with-styles/3.2.3:
     resolution: {integrity: sha512-MTI1UOvMHABRLj5M4WpODfwnveHaip6X7QUMI2x6zovinJiBXxzhA9AJP7MZNaKqg1JRFtHPXZdroUC8KcXwlQ==}
