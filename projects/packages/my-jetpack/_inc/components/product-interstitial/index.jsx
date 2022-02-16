@@ -13,19 +13,28 @@ import useAnalytics from '../../hooks/use-analytics';
 import boostImage from './boost.png';
 import searchImage from './search.png';
 import videoPressImage from './videopress.png';
+import crmImage from './crm.png';
 import { useProduct } from '../../hooks/use-product';
+import useMyJetpackNavigate from '../../hooks/use-my-jetpack-navigate';
+import getProductCheckoutUrl from '../../utils/get-product-checkout-url';
+import useMyJetpackConnection from '../../hooks/use-my-jetpack-connection';
 
 /**
  * Product Interstitial component.
  *
- * @param {object} props          - Component props.
- * @param {string} props.slug     - Product slug
- * @param {object} props.children - Product additional content
- * @returns {object}                ProductInterstitial react component.
+ * @param {object} props                 - Component props.
+ * @param {string} props.slug            - Product slug
+ * @param {object} props.children        - Product additional content
+ * @param {boolean} props.installsPlugin - Whether the interstitial button installs a plugin*
+ * @returns {object}                       ProductInterstitial react component.
  */
-export default function ProductInterstitial( { slug, children = null } ) {
-	const { detail } = useProduct( slug );
-	const { isUpgradableByBundle } = detail;
+export default function ProductInterstitial( { installsPlugin = false, slug, children = null } ) {
+	const { activate, detail } = useProduct( slug );
+	const {
+		isUpgradableByBundle,
+		pricingForUi: { isFree, wpcomProductSlug },
+		hasRequiredPlan,
+	} = detail;
 
 	const {
 		tracks: { recordEvent },
@@ -40,7 +49,42 @@ export default function ProductInterstitial( { slug, children = null } ) {
 	}, [ recordEvent, slug ] );
 
 	const Product = isUpgradableByBundle ? ProductDetailCard : ProductDetail;
+	const { isUserConnected } = useMyJetpackConnection();
 
+	const needsPurchase = ! isFree && ! hasRequiredPlan;
+
+	const addProductUrl =
+		needsPurchase && wpcomProductSlug
+			? getProductCheckoutUrl( wpcomProductSlug, isUserConnected )
+			: null;
+
+	const navigateToMyJetpackOverviewPage = useMyJetpackNavigate( '/' );
+	const navigateToCheckoutPage = useCallback( () => {
+		window.location.href = addProductUrl;
+	}, [ addProductUrl ] );
+
+	const afterInstallation = useCallback(
+		free => {
+			if ( free || ! addProductUrl ) {
+				navigateToMyJetpackOverviewPage();
+			} else {
+				navigateToCheckoutPage();
+			}
+		},
+		[ navigateToMyJetpackOverviewPage, navigateToCheckoutPage, addProductUrl ]
+	);
+
+	const clickHandler = useCallback( () => {
+		if ( installsPlugin ) {
+			activate()
+				.then( () => {
+					afterInstallation( isFree );
+				} )
+				.catch( () => {
+					afterInstallation( isFree );
+				} );
+		}
+	}, [ activate, isFree, installsPlugin, afterInstallation ] );
 	return (
 		<Container
 			className={ ! isUpgradableByBundle ? styles.container : null }
@@ -49,7 +93,11 @@ export default function ProductInterstitial( { slug, children = null } ) {
 			fluid
 		>
 			<Col sm={ 4 } md={ 4 } lg={ 5 }>
-				<Product slug={ slug } trackButtonClick={ trackProductClick } />
+				<Product
+					slug={ slug }
+					trackButtonClick={ trackProductClick }
+					onClick={ installsPlugin ? clickHandler : undefined }
+				/>
 			</Col>
 			<Col sm={ 4 } md={ 4 } lg={ 7 } className={ styles.imageContainer }>
 				{ children }
@@ -78,7 +126,7 @@ export function AntiSpamInterstitial() {
  */
 export function BackupInterstitial() {
 	return (
-		<ProductInterstitial slug="backup">
+		<ProductInterstitial slug="backup" installsPlugin={ true }>
 			<ProductDetailCard slug="security" />
 		</ProductInterstitial>
 	);
@@ -91,8 +139,21 @@ export function BackupInterstitial() {
  */
 export function BoostInterstitial() {
 	return (
-		<ProductInterstitial slug="boost">
+		<ProductInterstitial slug="boost" installsPlugin={ true }>
 			<img src={ boostImage } alt="Boost" />
+		</ProductInterstitial>
+	);
+}
+
+/**
+ * CRMInterstitial component
+ *
+ * @returns {object} CRMInterstitial react component.
+ */
+export function CRMInterstitial() {
+	return (
+		<ProductInterstitial slug="crm">
+			<img src={ crmImage } alt="CRM" />
 		</ProductInterstitial>
 	);
 }

@@ -1,0 +1,5 @@
+Significance: patch
+Type: changed
+Comment: Only renamed the is_allowed_mode() function within the waf namespace.
+
+

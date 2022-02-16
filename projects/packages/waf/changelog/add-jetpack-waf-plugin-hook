@@ -1,0 +1,4 @@
+Significance: minor
+Type: added
+
+Added executing the WAF as part of the Jetpack plugin.
