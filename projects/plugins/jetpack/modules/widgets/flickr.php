@@ -193,7 +193,7 @@ if ( ! class_exists( 'Jetpack_Flickr_Widget' ) ) {
 
 			if (
 				isset( $new_instance['flickr_image_size'] ) &&
-				in_array( $new_instance['flickr_image_size'], array( 'thumbnail', 'small', 'large' ) )
+				in_array( $new_instance['flickr_image_size'], array( 'thumbnail', 'small', 'large' ), true )
 			) {
 				$instance['flickr_image_size'] = $new_instance['flickr_image_size'];
 			} else {
