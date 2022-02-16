@@ -93,25 +93,25 @@ class Jetpack_Simple_Payments {
 		 *
 		 * @see https://developer.paypal.com/docs/integration/direct/express-checkout/integration-jsv4/add-paypal-button/
 		 */
-		wp_register_script(
+		wp_register_script( // phpcs:ignore WordPress.WP.EnqueuedResourceParameters.MissingVersion
 			'paypal-checkout-js',
 			'https://www.paypalobjects.com/api/checkout.js',
 			array(),
-			JETPACK__VERSION,
+			null,
 			true
 		);
-		wp_register_script(
+		wp_register_script( // phpcs:ignore WordPress.WP.EnqueuedResourceParameters.MissingVersion
 			'jetpack-paypal-express-checkout',
 			plugins_url( '/paypal-express-checkout.js', __FILE__ ),
 			array( 'jquery', 'paypal-checkout-js' ),
-			JETPACK__VERSION,
+			null,
 			false
 		);
-		wp_register_style(
+		wp_register_style( // phpcs:ignore WordPress.WP.EnqueuedResourceParameters.MissingVersion
 			'jetpack-simple-payments',
 			plugins_url( '/simple-payments.css', __FILE__ ),
 			array( 'dashicons' ),
-			JETPACK__VERSION,
+			null,
 			false
 		);
 	}
