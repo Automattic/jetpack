@@ -29,15 +29,23 @@ import QuerySitePlugins from 'components/data/query-site-plugins';
 import QuerySite from 'components/data/query-site';
 import QueryScanStatus from 'components/data/query-scan-status';
 import {
+	isAtomicSite,
+	getApiNonce,
+	getApiRootUrl,
+	getPartnerCoupon,
+	getPluginBaseUrl,
+	getRegistrationNonce,
+	getTracksUserData,
 	isMultisite,
 	userCanManageModules,
 	userCanManagePlugins,
 	userCanViewStats,
 	userIsSubscriber,
 } from 'state/initial-state';
-import { isOfflineMode, hasConnectedOwner } from 'state/connection';
+import { isOfflineMode, hasConnectedOwner, getConnectionStatus } from 'state/connection';
 import { getModuleOverride } from 'state/modules';
 import { getScanStatus, isFetchingScanStatus } from 'state/scan';
+import { PartnerCouponRedeem } from '@automattic/jetpack-partner-coupon';
 
 class AtAGlance extends Component {
 	trackSecurityClick = () => analytics.tracks.recordJetpackClick( 'aag_manage_security_wpcom' );
@@ -87,7 +95,7 @@ class AtAGlance extends Component {
 		// Backup won't work with multi-sites, but Scan does if VaultPress is enabled
 		const hasVaultPressScanning =
 			! this.props.fetchingScanStatus && this.props.scanStatus?.reason === 'vp_active_on_site';
-		if ( ! this.props.multisite || hasVaultPressScanning ) {
+		if ( ! this.props.isAtomicSite && ( ! this.props.multisite || hasVaultPressScanning ) ) {
 			securityCards.push(
 				<DashScan
 					{ ...settingsProps }
@@ -157,11 +165,26 @@ class AtAGlance extends Component {
 				performanceCards.push( <DashBoost siteAdminUrl={ this.props.siteAdminUrl } /> );
 			}
 
+			const redeemPartnerCoupon = ! this.props.isOfflineMode && this.props.partnerCoupon && (
+				<PartnerCouponRedeem
+					apiNonce={ this.props.apiNonce }
+					registrationNonce={ this.props.registrationNonce }
+					apiRoot={ this.props.apiRoot }
+					assetBaseUrl={ this.props.pluginBaseUrl }
+					connectionStatus={ this.props.connectionStatus }
+					partnerCoupon={ this.props.partnerCoupon }
+					siteRawUrl={ this.props.siteRawUrl }
+					tracksUserData={ !! this.props.tracksUserData }
+					analytics={ analytics }
+				/>
+			);
+
 			return (
 				<div className="jp-at-a-glance">
 					<QuerySitePlugins />
 					<QuerySite />
 					<QueryScanStatus />
+					{ redeemPartnerCoupon }
 					<DashStats { ...settingsProps } { ...urls } />
 					<Section
 						header={ securityHeader }
@@ -210,12 +233,20 @@ export default connect( state => {
 		userCanViewStats: userCanViewStats( state ),
 		userCanManagePlugins: userCanManagePlugins( state ),
 		userIsSubscriber: userIsSubscriber( state ),
+		isAtomicSite: isAtomicSite( state ),
 		isOfflineMode: isOfflineMode( state ),
 		getModuleOverride: module_name => getModuleOverride( state, module_name ),
 		multisite: isMultisite( state ),
 		scanStatus: getScanStatus( state ),
 		fetchingScanStatus: isFetchingScanStatus( state ),
 		hasConnectedOwner: hasConnectedOwner( state ),
+		connectionStatus: getConnectionStatus( state ),
+		partnerCoupon: getPartnerCoupon( state ),
+		pluginBaseUrl: getPluginBaseUrl( state ),
+		tracksUserData: getTracksUserData( state ),
+		apiRoot: getApiRootUrl( state ),
+		apiNonce: getApiNonce( state ),
+		registrationNonce: getRegistrationNonce( state ),
 	};
 } )( withModuleSettingsFormHelpers( AtAGlance ) );
 

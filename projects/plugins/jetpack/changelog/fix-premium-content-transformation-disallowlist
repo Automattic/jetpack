@@ -1,0 +1,4 @@
+Significance: patch
+Type: enhancement
+
+Don't allow core markup blocks to be transformed to Premium Content block (e.g. core/nextpage, core/spacer)

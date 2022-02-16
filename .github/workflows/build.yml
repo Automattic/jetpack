@@ -15,27 +15,52 @@ jobs:
   build:
     name: Build all projects
     runs-on: ubuntu-latest
-    timeout-minutes: 30  # 2022-01-14: Timing out lately at 20 minutes. Improving this is near the top of Brad's list of things to do.
+    timeout-minutes: 20  # 2022-02-10: We've gotten the build down to ~9-15 minutes now! p9dueE-4dJ-p2
+    env:
+      # Hard-code a specific directory to avoid paths in vendor/composer/installed.json changing every build.
+      BUILD_BASE: /tmp/jetpack-build
 
     steps:
       - uses: actions/checkout@v2
 
+      # For pull requests, list-changed-projects.sh needs the merge base.
+      # But it doesn't have to be checked out.
+      - name: Deepen to merge base
+        if: github.event_name == 'pull_request'
+        uses: ./.github/actions/deepen-to-merge-base
+        with:
+          checkout: false
+
       - name: Setup tools
         uses: ./.github/actions/tool-setup
 
-      - name: Build all projects
+      - name: Pnpm install
+        run: pnpm install
+
+      - name: Detect changed projects
+        id: changed
+        run: |
+          CHANGED="$(EXTRA=build .github/files/list-changed-projects.sh)"
+          echo "::set-output name=projects::${CHANGED}"
+
+      - name: Build changed projects
         id: build
         env:
-          # Hard-code a specific directory to avoid paths in vendor/composer/installed.json changing every build.
-          BUILD_BASE: /tmp/jetpack-build
-        run: .github/files/build-all-projects.sh
+          CHANGED: ${{ steps.changed.outputs.projects }}
+        run: |
+          mapfile -t PROJECTS < <(jq -r 'to_entries[] | select( .value ) | .key' <<<"$CHANGED")
+          if [[ ${#PROJECTS[@]} -eq 0 ]]; then
+            echo "Nothing to build. Generating empty artifact."
+            mkdir "$BUILD_BASE"
+            touch "$BUILD_BASE/mirrors.txt"
+          else
+            pnpx jetpack build -v --no-pnpm-install --for-mirrors="$BUILD_BASE" "${PROJECTS[@]}"
+          fi
 
       # GitHub's artifact stuff doesn't preserve permissions or file case. Sigh.
       # This is the official workaround: https://github.com/actions/upload-artifact#maintaining-file-permissions-and-case-sensitive-files
       # It'll also make it faster to upload and download though, so maybe it's a win anyway.
       - name: Create archive
-        env:
-          BUILD_BASE: ${{ steps.build.outputs.build-base }}
         run: tar --owner=0 --group=0 --xz -cvvf build.tar.xz -C "$BUILD_BASE" --transform 's,^\.,build,' .
 
       - name: Store build as artifact

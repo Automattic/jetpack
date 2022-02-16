@@ -5,6 +5,45 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.6.0] - 2022-02-09
+### Added
+- Add Boost interstitial cmp.
+- Add has_required_plan to product info and implement method in Search
+- Add Product princign harcoded data
+- Add search product data
+- Add title and features to products data
+- anti spam product class
+- Connect Boost card with the interstitial page via /add-boost root
+- Fire Tracks event when clicking CTA button on product Interstitial page
+- Fire Tracks event when clicking Manage button on product card
+- Fire Tracks event when clickn Add link on My Jetpack product card
+- Fire Tracks event when showing the Interstitial page
+- Implement Free price for Boost product
+- Implement Search product interstitial
+- Introduce basic Layout component. Add GoBackLink component
+- Introduce ProductDetailCard component
+- My Jetpack: Add Connection screen
+- Pass slug prop to ProductCard'
+- Plan verification for Backup and Scan
+- Restore getProduct() resolver
+- Set the checkout URL for the Product detail component
+- useCallback for functions that are bound to onEvents
+
+### Changed
+- My Jetpack: Implement handler of connection notices
+- My Jetpack: Update notice style and implements redirect for connection route
+- Support multiple possible folder for each plugin
+- Updated package dependencies
+
+### Removed
+- dependency from search package
+
+### Fixed
+- Fix My Jetpack's reducer for SET_PRODUCT_STATUS
+- Fix the redirect URL value
+- Show discounted price in Product Detail card
+- typo
+
 ## [0.5.0] - 2022-02-02
 ### Added
 - Added plugin installation functionality
@@ -136,6 +175,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Added
 - Created package
 
+[0.6.0]: https://github.com/Automattic/jetpack-my-jetpack/compare/0.5.0...0.6.0
 [0.5.0]: https://github.com/Automattic/jetpack-my-jetpack/compare/0.4.0...0.5.0
 [0.4.0]: https://github.com/Automattic/jetpack-my-jetpack/compare/0.3.3...0.4.0
 [0.3.3]: https://github.com/Automattic/jetpack-my-jetpack/compare/0.3.2...0.3.3

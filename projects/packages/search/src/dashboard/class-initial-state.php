@@ -23,7 +23,7 @@ class Initial_State {
 	protected $connection_manager;
 
 	/**
-	 * Search Moduel Control
+	 * Search Module Control
 	 *
 	 * @var Module_Control
 	 */
@@ -80,6 +80,11 @@ class Initial_State {
 			'jetpackSettings' => array(
 				'search'                 => $this->module_control->is_active(),
 				'instant_search_enabled' => $this->module_control->is_instant_search_enabled(),
+			),
+			'features'        => array_map(
+				'sanitize_text_field',
+				// phpcs:ignore WordPress.Security.NonceVerification.Recommended
+				isset( $_GET['features'] ) ? explode( ',', $_GET['features'] ) : array()
 			),
 		);
 	}

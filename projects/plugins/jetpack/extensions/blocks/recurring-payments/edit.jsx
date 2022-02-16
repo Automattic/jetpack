@@ -19,11 +19,11 @@ import {
 import { InspectorControls, InnerBlocks, BlockControls } from '@wordpress/block-editor';
 import { Component } from '@wordpress/element';
 import { applyFilters } from '@wordpress/hooks';
+import { getJetpackExtensionAvailability } from '@automattic/jetpack-shared-extension-utils';
 
 /**
  * Internal dependencies
  */
-import getJetpackExtensionAvailability from '../../shared/get-jetpack-extension-availability';
 import {
 	CURRENCY_OPTIONS,
 	isPriceValid,

@@ -1,0 +1,4 @@
+Significance: patch
+Type: other
+
+Update the path to the extension-availability util function on native mobile, after it has been updated for the web.
