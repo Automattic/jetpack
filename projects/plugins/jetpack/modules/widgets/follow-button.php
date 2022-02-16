@@ -1,15 +1,24 @@
-<?php
+<?php // phpcs:ignore WordPress.Files.FileName.InvalidClassFileName
 
 // @todo Fix performance issues before shipping.
 // add_action( 'widgets_init', 'follow_button_register_widget' );
+/**
+ * Register the Follow Button widget.
+ */
 function follow_button_register_widget() {
 	if ( Jetpack::is_connection_ready() ) {
 		register_widget( 'Jetpack_Follow_Button_Widget' );
 	}
 }
 
+/**
+ * Jetpack_Follow_Button_Widget main class.
+ */
 class Jetpack_Follow_Button_Widget extends WP_Widget {
 
+	/**
+	 * Jetpack_Follow_Button_Widget constructor.
+	 */
 	public function __construct() {
 		parent::__construct(
 			'follow_button_widget',
@@ -22,6 +31,14 @@ class Jetpack_Follow_Button_Widget extends WP_Widget {
 		);
 	}
 
+	/**
+	 * Front-end display of widget.
+	 *
+	 * @see WP_Widget::widget() for more information on widget parameters.
+	 *
+	 * @param array $args     Widget arguments.
+	 * @param array $instance Saved values from database.
+	 */
 	public function widget( $args, $instance ) {
 		$attributes = array();
 		$instance   = wp_parse_args(
@@ -79,6 +96,13 @@ class Jetpack_Follow_Button_Widget extends WP_Widget {
 		do_action( 'jetpack_stats_extra', 'widget_view', 'follow_button' );
 	}
 
+	/**
+	 * Back-end widget form.
+	 *
+	 * @see WP_Widget::form() for more information on parameters.
+	 *
+	 * @param array $instance Previously saved values from database.
+	 */
 	public function form( $instance ) {
 		$instance = wp_parse_args(
 			(array) $instance,
@@ -103,6 +127,14 @@ class Jetpack_Follow_Button_Widget extends WP_Widget {
 		<?php
 	}
 
+	/**
+	 * Update widget.
+	 *
+	 * @see WP_Widget::update()
+	 *
+	 * @param array $new_instance New widget instance data.
+	 * @param array $old_instance Old widget instance data.
+	 */
 	public function update( $new_instance, $old_instance ) {
 		$old_instance['show_name']  = ! empty( $new_instance['show_name'] ) ? 1 : 0;
 		$old_instance['show_count'] = ! empty( $new_instance['show_count'] ) ? 1 : 0;
