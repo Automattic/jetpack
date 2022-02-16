@@ -113,7 +113,7 @@ export default function ProductInterstitial( { installsPlugin = false, slug, chi
  */
 export function AntiSpamInterstitial() {
 	return (
-		<ProductInterstitial slug="anti-spam">
+		<ProductInterstitial slug="anti-spam" installsPlugin={ true }>
 			<ProductDetailCard slug="security" />
 		</ProductInterstitial>
 	);
