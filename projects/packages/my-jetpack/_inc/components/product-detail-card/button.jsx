@@ -5,35 +5,16 @@ import React from 'react';
 import { Button } from '@wordpress/components';
 import { Spinner } from '@automattic/jetpack-components';
 
-const ProductDetailButton = ( {
-	children,
-	className,
-	href,
-	isLink,
-	isLoading,
-	onClick,
-	isPrimary,
-	isSecondary,
-} ) => {
+const ProductDetailButton = ( { children, className, href, isLoading, onClick } ) => {
 	return (
-		<Button
-			onClick={ onClick }
-			isLink={ isLink }
-			isPrimary={ isPrimary }
-			isSecondary={ isSecondary }
-			className={ className }
-			href={ href }
-		>
+		<Button isPressed onClick={ onClick } className={ className } href={ href }>
 			{ isLoading ? <Spinner /> : children }
 		</Button>
 	);
 };
 
 ProductDetailButton.defaultProps = {
-	isLink: true,
 	isLoading: false,
-	isPrimary: false,
-	isSecondary: false,
 };
 
 export default ProductDetailButton;

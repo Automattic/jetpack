@@ -180,10 +180,7 @@ const ProductDetail = ( { slug, onClick, trackButtonClick } ) => {
 					{ ( ! isBundle || ( isBundle && ! hasRequiredPlan ) ) && (
 						<ProductDetailButton
 							onClick={ clickHandler }
-							isLink
 							isLoading={ isFetching }
-							isPrimary={ ! isBundle }
-							isSecondary={ isBundle }
 							href={ onClick ? undefined : addProductUrl }
 							className={ `${ styles[ 'checkout-button' ] } ${
 								isBundle ? styles[ 'is-bundle' ] : ''

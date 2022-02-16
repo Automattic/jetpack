@@ -9,7 +9,7 @@
 	--product-card-header-color: white;
 	--product-card-header-bg-color: black;
 	--product-card-header-font-size: 13px;
-	
+
 	background-color: var(--product-card-bg-color);
 	border: 1px solid var(--product-card-border-color);
 	border-radius: var(--product-card-border-radius);
@@ -38,7 +38,7 @@
 			fill: var(--product-card-header-color);
 			margin-right: 5px;
 		}
-	}	
+	}
 }
 
 .container {
@@ -99,13 +99,6 @@
 		height: auto;
 		line-height: 26px;
 		align-self: flex-end;
-
-		&.is-bundle {
-			&:hover {
-				background-color: var(--product-card-action-button-bg-color-hover);
-				color: var(--product-card-action-button-color-hover);
-			}
-		}
 	}
 
 	.product-has-required-plan {
