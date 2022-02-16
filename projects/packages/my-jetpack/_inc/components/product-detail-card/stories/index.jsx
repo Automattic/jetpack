@@ -63,6 +63,12 @@ JetpackBoostCard.parameters = {
 	mockData: getMockData( 'boost' ),
 };
 
+const CRMCardTemplate = args => <ProductDetailCard { ...args } slug="crm" />;
+export const JetpackCRMCard = CRMCardTemplate.bind( {} );
+JetpackCRMCard.parameters = {
+	mockData: getMockData( 'crm' ),
+};
+
 const SearchCardTemplate = args => <ProductDetailCard { ...args } slug="search" />;
 export const JetpackSearchCard = SearchCardTemplate.bind( {} );
 JetpackSearchCard.parameters = {
@@ -79,4 +85,11 @@ const SecurityCardTemplate = args => <ProductDetailCard { ...args } slug="securi
 export const SecurityBundle = SecurityCardTemplate.bind( {} );
 SecurityBundle.parameters = {
 	mockData: getMockData( 'security' ),
+};
+
+const VideoPressCardTemplate = args => <ProductDetailCard { ...args } slug="videopress" />;
+export const JetpackVideoPressCard = VideoPressCardTemplate.bind( {} );
+JetpackVideoPressCard.storyName = 'Jetpack VideoPress';
+JetpackVideoPressCard.parameters = {
+	mockData: getMockData( 'videopress' ),
 };

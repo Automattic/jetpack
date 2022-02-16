@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Tracking script: add missing jQuery dependency.

@@ -1,7 +1,7 @@
 /**
  * External dependencies
  */
-import React from 'react';
+import React, { useCallback } from 'react';
 import PropTypes from 'prop-types';
 
 /**
@@ -10,10 +10,14 @@ import PropTypes from 'prop-types';
 import ProductCard from '../product-card';
 import { useProduct } from '../../hooks/use-product';
 import { VideopressIcon } from '../icons';
+import useMyJetpackNavigate from '../../hooks/use-my-jetpack-navigate';
 
 const VideopressCard = ( { admin } ) => {
 	const { status, activate, deactivate, detail, isFetching } = useProduct( 'videopress' );
-	const { name, description, slug } = detail;
+	const { name, description, slug, manageUrl } = detail;
+	const onManage = useCallback( () => {
+		window.location = manageUrl;
+	}, [ manageUrl ] );
 
 	return (
 		<ProductCard
@@ -26,6 +30,8 @@ const VideopressCard = ( { admin } ) => {
 			onDeactivate={ deactivate }
 			onActivate={ activate }
 			slug={ slug }
+			onFixConnection={ useMyJetpackNavigate( '/connection' ) }
+			onManage={ onManage }
 		/>
 	);
 };

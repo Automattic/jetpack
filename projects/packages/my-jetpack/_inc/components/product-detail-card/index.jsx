@@ -1,9 +1,8 @@
 /**
  * External dependencies
  */
-import React from 'react';
+import React, { useCallback } from 'react';
 import classnames from 'classnames';
-import { Button } from '@wordpress/components';
 import { Icon, check, plus } from '@wordpress/icons';
 import { getCurrencyObject } from '@automattic/format-currency';
 import { __, sprintf } from '@wordpress/i18n';
@@ -15,7 +14,8 @@ import styles from './style.module.scss';
 import getProductCheckoutUrl from '../../utils/get-product-checkout-url';
 import useMyJetpackConnection from '../../hooks/use-my-jetpack-connection';
 import { useProduct } from '../../hooks/use-product';
-import { BackupIcon, ScanIcon, StarIcon, getIconBySlug } from '../icons';
+import { BackupIcon, ScanIcon, StarIcon, getIconBySlug, AntiSpamIcon } from '../icons';
+import ProductDetailButton from './button';
 
 /**
  * Simple react component to render the product icon,
@@ -26,6 +26,9 @@ import { BackupIcon, ScanIcon, StarIcon, getIconBySlug } from '../icons';
  */
 function ProductIcon( { slug } ) {
 	switch ( slug ) {
+		case 'anti-spam':
+			return <AntiSpamIcon size={ 24 } />;
+
 		case 'backup':
 			return <BackupIcon size={ 24 } />;
 
@@ -67,38 +70,65 @@ function Price( { value, currency, isOld } ) {
  *
  * @param {object} props                    - Component props.
  * @param {string} props.slug               - Product slug
+ * @param {Function} props.onClick          - Callback for Call To Action button click
  * @param {Function} props.trackButtonClick - Function to call for tracking clicks on Call To Action button
  * @returns {object}                          ProductDetailCard react component.
  */
-const ProductDetail = ( { slug, trackButtonClick } ) => {
-	const { detail } = useProduct( slug );
+const ProductDetail = ( { slug, onClick, trackButtonClick } ) => {
+	const { detail, isFetching } = useProduct( slug );
 	const {
 		title,
 		longDescription,
 		features,
-		pricingForUi = {},
+		pricingForUi,
 		isBundle,
-		supportedProducts = [],
+		supportedProducts,
+		hasRequiredPlan,
 	} = detail;
-	const { isFree, fullPrice, currencyCode, discountedPrice } = pricingForUi;
+
+	const { isFree, fullPrice, currencyCode, discountedPrice, wpcomProductSlug } = pricingForUi;
 	const { isUserConnected } = useMyJetpackConnection();
 
-	const addProductUrl = getProductCheckoutUrl( `jetpack_${ slug }`, isUserConnected ); // @ToDo: Remove this when we have a new product structure.
+	/*
+	 * Product needs purchase when:
+	 * - it's not free
+	 * - it does not have a required plan
+	 */
+	const needsPurchase = ! isFree && ! hasRequiredPlan;
+
+	const addProductUrl =
+		needsPurchase && wpcomProductSlug
+			? getProductCheckoutUrl( wpcomProductSlug, isUserConnected ) // @ToDo: Remove this when we have a new product structure.
+			: null;
 
 	// Suppported products icons.
 	const icons = isBundle
 		? supportedProducts
 				.join( '_plus_' )
 				.split( '_' )
-				.map( iconSlug => {
+				.map( ( iconSlug, i ) => {
 					if ( iconSlug === 'plus' ) {
-						return <Icon className={ styles[ 'plus-icon' ] } icon={ plus } size={ 14 } />;
+						return (
+							<Icon
+								className={ styles[ 'plus-icon' ] }
+								key={ `icon-plugs${ i }` }
+								icon={ plus }
+								size={ 14 }
+							/>
+						);
 					}
 
 					const SupportedProductIcon = getIconBySlug( iconSlug );
 					return <SupportedProductIcon key={ iconSlug } size={ 24 } />;
 				} )
 		: null;
+
+	const clickHandler = useCallback( () => {
+		trackButtonClick();
+		if ( onClick ) {
+			onClick();
+		}
+	}, [ onClick, trackButtonClick ] );
 
 	return (
 		<>
@@ -125,7 +155,7 @@ const ProductDetail = ( { slug, trackButtonClick } ) => {
 					) ) }
 				</ul>
 
-				{ ! isFree && (
+				{ needsPurchase && (
 					<div className={ styles[ 'price-container' ] }>
 						<Price value={ fullPrice } currency={ currencyCode } isOld={ true } />
 						<Price value={ discountedPrice } currency={ currencyCode } isOld={ false } />
@@ -138,13 +168,13 @@ const ProductDetail = ( { slug, trackButtonClick } ) => {
 				{ isFree && (
 					<h3 className={ styles[ 'product-free' ] }>{ __( 'Free', 'jetpack-my-jetpack' ) }</h3>
 				) }
-
-				<Button
-					onClick={ trackButtonClick }
+				<ProductDetailButton
+					onClick={ clickHandler }
 					isLink
+					isLoading={ isFetching }
 					isPrimary={ ! isBundle }
 					isSecondary={ isBundle }
-					href={ addProductUrl }
+					href={ onClick ? undefined : addProductUrl }
 					className={ `${ styles[ 'checkout-button' ] } ${
 						isBundle ? styles[ 'is-bundle' ] : ''
 					}` }
@@ -153,7 +183,7 @@ const ProductDetail = ( { slug, trackButtonClick } ) => {
 						/* translators: placeholder is product name. */
 						sprintf( __( 'Add %s', 'jetpack-my-jetpack' ), title )
 					}
-				</Button>
+				</ProductDetailButton>
 			</div>
 		</>
 	);
@@ -168,14 +198,15 @@ export { ProductDetail };
 /**
  * ProductDetailCard component.
  *
- * @param {object} props          - Component props.
- * @param {string} props.slug     - Product slug
- * @returns {object}                ProductDetailCard react component.
+ * @param {object}   props                - Component props.
+ * @param {string}   props.slug           - Product slug
+ * @param {Function} props.onClick        - Product CTA button handler
+ * @returns {object}                       ProductDetailCard react component.
  */
-export default function ProductDetailCard( { slug } ) {
+export default function ProductDetailCard( { onClick, slug } ) {
 	return (
 		<div className={ styles.card }>
-			<ProductDetail slug={ slug } />
+			<ProductDetail onClick={ onClick } slug={ slug } />
 		</div>
 	);
 }

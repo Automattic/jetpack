@@ -1,0 +1,4 @@
+Significance: patch
+Type: compat
+
+Image CDN: ensure that SVG images added to posts thanks to the SVG Support plugin can be displayed even when Jetpack's Image CDN is active.

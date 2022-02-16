@@ -1,0 +1,4 @@
+Significance: minor
+Type: other
+
+Reworked the redeem partner coupon component implementation to match latest requirements for post-connection display

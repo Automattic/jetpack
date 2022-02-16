@@ -3,6 +3,7 @@ export const antiSpamProductData = {
 	name: 'Anti-Spam',
 	title: 'Jepack Anti-Spam',
 	description: 'Stop comment and form spam',
+	is_upgradable_by_bundle: [ 'security' ],
 	long_description:
 		'Save time and get better responses by automatically blocking spam from your comments and forms.',
 	status: 'active',
@@ -25,6 +26,7 @@ export const backupProductData = {
 	name: 'Backup',
 	title: 'Jepack Backup',
 	description: 'Save every change',
+	is_upgradable_by_bundle: [ 'security' ],
 	long_description:
 		'Never lose a word, image, page, or time worrying about your site with automated backups & one-click restores.',
 	status: 'active',
@@ -61,11 +63,32 @@ export const boostProductData = {
 	},
 };
 
+export const crmProductData = {
+	slug: 'crm',
+	name: 'CRM',
+	title: 'Jetpack CRM',
+	description: 'Connect with your people',
+	long_description:
+		'All of your contacts in one place. Build better relationships with your customers and clients.',
+	status: 'inactive',
+	features: [
+		'Manage unlimited contacts',
+		'Manage billing and create invoices',
+		'Fully integrated with WordPress & WooCommerce',
+		'Infinitely customizable with integrations and extensions',
+	],
+	pricingForUi: {
+		available: true,
+		is_free: true,
+	},
+};
+
 export const scanProductData = {
 	slug: 'scan',
 	name: 'Scan',
 	title: 'Jepack Scan',
 	description: 'Stay one step ahead of threats',
+	is_upgradable_by_bundle: [ 'security' ],
 	long_description:
 		'Automatic scanning and one-click fixes keep your site one step ahead of security threats and malware.',
 	status: 'inactive',
@@ -78,7 +101,7 @@ export const scanProductData = {
 		available: true,
 		currency_code: 'USD',
 		full_price: 9.92,
-		promotion_percentage: 50,
+		discount: 50,
 	},
 };
 
@@ -100,7 +123,7 @@ export const searchProductData = {
 		available: true,
 		currency_code: 'EUR',
 		full_price: 4.5,
-		promotion_percentage: 50,
+		discount: 50,
 	},
 };
 
@@ -123,6 +146,27 @@ export const securityProductData = {
 		available: true,
 		show_promotion: true,
 		full_price: 24.92,
-		promotion_percentage: 50,
+		discount: 50,
+	},
+};
+
+export const videoPressProductData = {
+	slug: 'videopress',
+	name: 'VideoPress',
+	title: 'Jetpack Site VideoPress',
+	description: 'High quality, ad-free video',
+	long_description: 'High-quality, ad-free video built specifically for WordPress.',
+	status: 'inactive',
+	features: [
+		'1TB of storage',
+		'Built into WordPress editor',
+		'Ad-free and brandable player',
+		'Unlimited users',
+	],
+	pricingForUi: {
+		available: true,
+		currencyCode: 'USD',
+		fullPrice: 119,
+		promotionPercentage: 50,
 	},
 };
