@@ -156,11 +156,10 @@ class Jetpack_Comments extends Highlander_Comments_Base {
 	 * @param string $avatar  Current avatar URL.
 	 * @param string $comment Comment for the avatar.
 	 * @param int    $size    Size of the avatar.
-	 * @param string $default Not used.
 	 *
 	 * @return string New avatar
 	 */
-	public function get_avatar( $avatar, $comment, $size, $default ) {
+	public function get_avatar( $avatar, $comment, $size ) {
 		if ( ! isset( $comment->comment_post_ID ) || ! isset( $comment->comment_ID ) ) {
 			// it's not a comment - bail.
 			return $avatar;
@@ -232,18 +231,20 @@ class Jetpack_Comments extends Highlander_Comments_Base {
 			 *
 			 * @param string $var Default is "You must log in to post a comment."
 			 */
-			echo '<p class="must-log-in">' . sprintf(
-				apply_filters(
-					'jetpack_must_log_in_to_comment',
-					/* translators: %s is the wp-login URL for the site */
-					__( 'You must <a href="%s">log in</a> to post a comment.', 'jetpack' )
-				),
-				wp_login_url( get_permalink() . '#respond' )
+			echo '<p class="must-log-in">' . wp_kses_post(
+				sprintf(
+					apply_filters(
+						'jetpack_must_log_in_to_comment',
+						/* translators: %s is the wp-login URL for the site */
+						__( 'You must <a href="%s">log in</a> to post a comment.', 'jetpack' )
+					),
+					wp_login_url( get_permalink() . '#respond' )
+				)
 			) . '</p>';
 			return;
 		}
 
-		if ( in_array( 'subscriptions', Jetpack::get_active_modules() ) ) {
+		if ( in_array( 'subscriptions', Jetpack::get_active_modules(), true ) ) {
 			$stb_enabled = get_option( 'stb_enabled', 1 );
 			$stb_enabled = empty( $stb_enabled ) ? 0 : 1;
 
@@ -330,7 +331,7 @@ class Jetpack_Comments extends Highlander_Comments_Base {
 		$url              = "{$url}#parent=" . rawurlencode( set_url_scheme( 'http://' . $_SERVER['HTTP_HOST'] . $_SERVER['REQUEST_URI'] ) );
 		$this->signed_url = $url;
 		$height           = $params['comment_registration'] || is_user_logged_in() ? '315' : '430'; // Iframe can be shorter if we're not allowing guest commenting.
-		$transparent      = ( $params['color_scheme'] == 'transparent' ) ? 'true' : 'false';
+		$transparent      = ( 'transparent' === $params['color_scheme'] ) ? 'true' : 'false';
 
 		if ( isset( $_GET['replytocom'] ) ) {
 			$url .= '&replytocom=' . (int) $_GET['replytocom'];
@@ -384,7 +385,7 @@ class Jetpack_Comments extends Highlander_Comments_Base {
 						document.addEventListener('DOMContentLoaded', function () {
 							var commentForms = document.getElementsByClassName('jetpack_remote_comment');
 							for (var i = 0; i < commentForms.length; i++) {
-								commentForms[i].allowTransparency = <?php echo $transparent; ?>;
+								commentForms[i].allowTransparency = <?php echo esc_html( $transparent ); ?>;
 								commentForms[i].scrolling = 'no';
 							}
 						});
@@ -516,10 +517,8 @@ class Jetpack_Comments extends Highlander_Comments_Base {
 	 * Verify the hash included in remote comments.
 	 *
 	 * @since JetpackComments (1.4)
-	 *
-	 * @param type $comment Not used.
 	 */
-	public function pre_comment_on_post( $comment ) {
+	public function pre_comment_on_post() {
 		$post_array = stripslashes_deep( $_POST );
 
 		// Bail if missing the Jetpack token.
@@ -535,16 +534,16 @@ class Jetpack_Comments extends Highlander_Comments_Base {
 
 		$blog_token = ( new Tokens() )->get_access_token( false, $post_array['token_key'] );
 		if ( ! $blog_token ) {
-			wp_die( __( 'Unknown security token.', 'jetpack' ), 400 );
+			wp_die( esc_html__( 'Unknown security token.', 'jetpack' ), 400 );
 		}
 		$check = self::sign_remote_comment_parameters( $post_array, $blog_token->secret );
 		if ( is_wp_error( $check ) ) {
-			wp_die( $check );
+			wp_die( esc_html( $check ) );
 		}
 
 		// Bail if token is expired or not valid.
 		if ( ! hash_equals( $check, $post_array['sig'] ) ) {
-			wp_die( __( 'Invalid security token.', 'jetpack' ), 400 );
+			wp_die( esc_html__( 'Invalid security token.', 'jetpack' ), 400 );
 		}
 
 		/** This filter is documented in modules/comments/comments.php */
@@ -552,7 +551,7 @@ class Jetpack_Comments extends Highlander_Comments_Base {
 			// In case the comment POST is legit, but the comments are
 			// now disabled, we don't allow the comment.
 
-			wp_die( __( 'Comments are not allowed.', 'jetpack' ), 403 );
+			wp_die( esc_html__( 'Comments are not allowed.', 'jetpack' ), 403 );
 		}
 	}
 
@@ -616,7 +615,7 @@ class Jetpack_Comments extends Highlander_Comments_Base {
 	 * @param string $url The comment URL origin.
 	 */
 	public function capture_comment_post_redirect_to_reload_parent_frame( $url ) {
-		if ( ! isset( $_GET['for'] ) || 'jetpack' != $_GET['for'] ) {
+		if ( ! isset( $_GET['for'] ) || 'jetpack' !== $_GET['for'] ) {
 			return $url;
 		}
 		?>
@@ -627,11 +626,13 @@ class Jetpack_Comments extends Highlander_Comments_Base {
 			<meta charset="<?php bloginfo( 'charset' ); ?>" />
 			<title>
 				<?php
-				printf(
-					/* translators: %s is replaced by an ellipsis */
-					__( 'Submitting Comment%s', 'jetpack' ),
-					'&hellip;'
-				);
+					wp_kses_post(
+						printf(
+							/* translators: %s is replaced by an ellipsis */
+							__( 'Submitting Comment%s', 'jetpack' ), // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
+							'&hellip;'
+						)
+					);
 				?>
 				</title>
 			<style type="text/css">
@@ -686,10 +687,12 @@ class Jetpack_Comments extends Highlander_Comments_Base {
 		<body>
 		<h1>
 			<?php
-				printf(
-					/* translators: %s is replaced by HTML markup to include an ellipsis */
-					__( 'Submitting Comment%s', 'jetpack' ),
-					'<span id="ellipsis" class="hidden">&hellip;</span>'
+				wp_kses_post(
+					printf(
+						/* translators: %s is replaced by HTML markup to include an ellipsis */
+						__( 'Submitting Comment%s', 'jetpack' ), // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
+						'<span id="ellipsis" class="hidden">&hellip;</span>'
+					)
 				);
 			?>
 			</h1>
