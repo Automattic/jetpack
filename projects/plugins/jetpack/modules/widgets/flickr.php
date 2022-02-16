@@ -66,8 +66,6 @@ if ( ! class_exists( 'Jetpack_Flickr_Widget' ) ) {
 		public function widget( $args, $instance ) {
 			$instance = wp_parse_args( $instance, $this->defaults() );
 
-			$image_size_string = 'small' == $instance['flickr_image_size'] ? '_m.jpg' : '_t.jpg';
-
 			if ( ! empty( $instance['flickr_rss_url'] ) ) {
 				/*
 				 * Parse the URL, and rebuild a URL that's sure to display images.
@@ -141,8 +139,6 @@ if ( ! class_exists( 'Jetpack_Flickr_Widget' ) ) {
 				if ( ! empty( $photos ) && class_exists( 'Jetpack_Photon' ) && Jetpack::is_module_active( 'photon' ) ) {
 					$photos = Jetpack_Photon::filter_the_content( $photos );
 				}
-
-				$flickr_home = $rss->get_link();
 			}
 
 			echo $args['before_widget'];
@@ -180,9 +176,8 @@ if ( ! class_exists( 'Jetpack_Flickr_Widget' ) ) {
 		 * @param  array $old_instance Previously saved values from database.
 		 * @return array Updated safe values to be saved.
 		 */
-		public function update( $new_instance, $old_instance ) {
+		public function update( $new_instance, $old_instance ) { // phpcs:ignore VariableAnalysis.CodeAnalysis.VariableAnalysis.UnusedVariable
 			$instance = array();
-			$defaults = $this->defaults();
 
 			if ( isset( $new_instance['title'] ) ) {
 				$instance['title'] = wp_kses( $new_instance['title'], array() );
