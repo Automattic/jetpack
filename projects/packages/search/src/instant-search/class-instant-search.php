@@ -469,7 +469,7 @@ class Instant_Search extends Classic_Search {
 			if ( isset( $widget_blocks[ $widget_index ]['content'] ) && false !== strpos( (string) $widget_blocks[ $widget_index ]['content'], 'wp:search' ) ) {
 				return true;
 			}
-			if ( isset( $widget_blocks[ $widget_index ] ) && false !== strpos( (string) $widget_blocks[ $widget_index ], 'wp:search' ) ) {
+			if ( isset( $widget_blocks[ $widget_index ] ) && is_string( $widget_blocks[ $widget_index ] ) && false !== strpos( $widget_blocks[ $widget_index ], 'wp:search' ) ) {
 				return true;
 			}
 		}
