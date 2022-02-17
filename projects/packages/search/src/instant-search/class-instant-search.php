@@ -119,7 +119,7 @@ class Instant_Search extends Classic_Search {
 	public function register_jetpack_instant_sidebar() {
 		$args = array(
 			'name'          => __( 'Jetpack Search Sidebar', 'jetpack-search-pkg' ),
-			'id'            => 'jetpack-instant-search-sidebar',
+			'id'            => self::INSTANT_SEARCH_SIDEBAR,
 			'description'   => __( 'Customize the sidebar inside the Jetpack Search overlay', 'jetpack-search-pkg' ),
 			'class'         => '',
 			'before_widget' => '<div id="%1$s" class="widget %2$s">',
@@ -340,8 +340,8 @@ class Instant_Search extends Classic_Search {
 		}
 
 		// Init overlay sidebar if it doesn't exists.
-		if ( ! isset( $sidebars['jetpack-instant-search-sidebar'] ) ) {
-			$sidebars['jetpack-instant-search-sidebar'] = array();
+		if ( ! isset( $sidebars[ self::INSTANT_SEARCH_SIDEBAR ] ) ) {
+			$sidebars[ self::INSTANT_SEARCH_SIDEBAR ] = array();
 		}
 
 		$widget_opt_name = Helper::get_widget_option_name();
@@ -357,7 +357,7 @@ class Instant_Search extends Classic_Search {
 			// If JP Search widget doesn't exist in the theme sidebar, we have nothing to copy from, so we create a new one within the overlay sidebar.
 			$widget_options[ $next_id ] = $this->get_preconfig_widget_options();
 		}
-		array_unshift( $sidebars['jetpack-instant-search-sidebar'], Helper::build_widget_id( $next_id ) );
+		array_unshift( $sidebars[ self::INSTANT_SEARCH_SIDEBAR ], Helper::build_widget_id( $next_id ) );
 		update_option( $widget_opt_name, $widget_options );
 		update_option( 'sidebars_widgets', $sidebars );
 		return true;
