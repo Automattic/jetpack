@@ -74,7 +74,7 @@ class Jetpack_Gravatar_Profile_Widget extends WP_Widget {
 
 		if ( ! $instance['email'] ) {
 			if ( current_user_can( 'edit_theme_options' ) ) {
-				echo $args['before_widget'];
+				echo $args['before_widget']; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
 				if ( ! empty( $title ) ) {
 					echo $args['before_title'] . $title . $args['after_title']; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
 				}
@@ -90,14 +90,14 @@ class Jetpack_Gravatar_Profile_Widget extends WP_Widget {
 						),
 					)
 				) . '</p>';
-				echo $args['after_widget'];
+				echo $args['after_widget']; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
 			}
 			return;
 		}
 
-		echo $args['before_widget'];
+		echo $args['before_widget']; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
 		if ( ! empty( $title ) ) {
-			echo $args['before_title'] . $title . $args['after_title'];
+			echo $args['before_title'] . $title . $args['after_title']; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
 		}
 
 		$profile = $this->get_profile( $instance['email'] );
@@ -165,7 +165,7 @@ class Jetpack_Gravatar_Profile_Widget extends WP_Widget {
 			}
 		}
 
-		echo $args['after_widget'];
+		echo $args['after_widget']; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
 	}
 
 	/**
@@ -311,19 +311,19 @@ class Jetpack_Gravatar_Profile_Widget extends WP_Widget {
 		if ( defined( 'IS_WPCOM' ) && IS_WPCOM ) {
 			$profile_url = admin_url( 'profile.php' );
 
-			if ( isset( $_REQUEST['calypso'] ) ) {
+			if ( isset( $_REQUEST['calypso'] ) ) { // phpcs:ignore WordPress.Security.NonceVerification.Recommended
 				$profile_url = 'https://wordpress.com/me';
 			}
 		}
 		?>
 		<p>
-			<label for="<?php echo $this->get_field_id( 'title' ); ?>">
-				<?php esc_html_e( 'Title', 'jetpack' ); ?> <input class="widefat" id="<?php echo $this->get_field_id( 'title' ); ?>" name="<?php echo $this->get_field_name( 'title' ); ?>" type="text" value="<?php echo esc_attr( $title ); ?>" />
+			<label for="<?php echo esc_attr( $this->get_field_id( 'title' ) ); ?>">
+				<?php esc_html_e( 'Title', 'jetpack' ); ?> <input class="widefat" id="<?php echo esc_attr( $this->get_field_id( 'title' ) ); ?>" name="<?php echo esc_attr( $this->get_field_name( 'title' ) ); ?>" type="text" value="<?php echo esc_attr( $title ); ?>" />
 			</label>
 		</p>
 
 		<p>
-			<label for="<?php echo $this->get_field_id( 'email_user' ); ?>">
+			<label for="<?php echo esc_attr( $this->get_field_id( 'email_user' ) ); ?>">
 				<?php esc_html_e( 'Select a user or pick "custom" and enter a custom email address.', 'jetpack' ); ?>
 				<br />
 
@@ -342,14 +342,14 @@ class Jetpack_Gravatar_Profile_Widget extends WP_Widget {
 		</p>
 
 		<p class="gprofile-email-container <?php echo empty( $email_user ) || -1 === (int) $email_user ? '' : 'hidden'; ?>">
-			<label for="<?php echo $this->get_field_id( 'email' ); ?>"><?php esc_html_e( 'Custom Email Address', 'jetpack' ); ?>
-				<input class="widefat" id="<?php echo $this->get_field_id( 'email' ); ?>" name="<?php echo $this->get_field_name( 'email' ); ?>" type="text" value="<?php echo esc_attr( $email ); ?>" />
+			<label for="<?php echo esc_attr( $this->get_field_id( 'email' ) ); ?>"><?php esc_html_e( 'Custom Email Address', 'jetpack' ); ?>
+				<input class="widefat" id="<?php echo esc_attr( $this->get_field_id( 'email' ) ); ?>" name="<?php echo esc_attr( $this->get_field_name( 'email' ) ); ?>" type="text" value="<?php echo esc_attr( $email ); ?>" />
 			</label>
 		</p>
 
 		<p>
-			<label for="<?php echo $this->get_field_id( 'show_personal_links' ); ?>">
-				<input type="checkbox" name="<?php echo $this->get_field_name( 'show_personal_links' ); ?>" id="<?php echo $this->get_field_id( 'show_personal_links' ); ?>" <?php checked( $show_personal_links ); ?> />
+			<label for="<?php echo esc_attr( $this->get_field_id( 'show_personal_links' ) ); ?>">
+				<input type="checkbox" name="<?php echo esc_attr( $this->get_field_name( 'show_personal_links' ) ); ?>" id="<?php echo esc_attr( $this->get_field_id( 'show_personal_links' ) ); ?>" <?php checked( $show_personal_links ); ?> />
 				<?php esc_html_e( 'Show Personal Links', 'jetpack' ); ?>
 				<br />
 				<small><?php esc_html_e( 'Links to your websites, blogs, or any other sites that help describe who you are.', 'jetpack' ); ?></small>
@@ -357,8 +357,8 @@ class Jetpack_Gravatar_Profile_Widget extends WP_Widget {
 		</p>
 
 		<p>
-			<label for="<?php echo $this->get_field_id( 'show_account_links' ); ?>">
-				<input type="checkbox" name="<?php echo $this->get_field_name( 'show_account_links' ); ?>" id="<?php echo $this->get_field_id( 'show_account_links' ); ?>" <?php checked( $show_account_links ); ?> />
+			<label for="<?php echo esc_attr( $this->get_field_id( 'show_account_links' ) ); ?>">
+				<input type="checkbox" name="<?php echo esc_attr( $this->get_field_name( 'show_account_links' ) ); ?>" id="<?php echo esc_attr( $this->get_field_id( 'show_account_links' ) ); ?>" <?php checked( $show_account_links ); ?> />
 				<?php esc_html_e( 'Show Account Links', 'jetpack' ); ?>
 				<br />
 				<small><?php esc_html_e( 'Links to services that you use across the web.', 'jetpack' ); ?></small>
