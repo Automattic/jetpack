@@ -6,7 +6,7 @@
 	"license": "GPL-2.0-or-later",
 	"dependencies": {
 		"@automattic/jetpack-analytics": "workspace:^0.1.8-alpha",
-		"@automattic/jetpack-api": "workspace:^0.8.4",
+		"@automattic/jetpack-api": "workspace:^0.8.5-alpha",
 		"@automattic/jetpack-base-styles": "workspace:^0.1.8",
 		"@automattic/jetpack-components": "workspace:^0.10.5",
 		"@wordpress/base-styles": "4.1.0",

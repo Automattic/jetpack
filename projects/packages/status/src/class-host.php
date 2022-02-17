@@ -17,7 +17,7 @@ class Host {
 	 * Determine if this site is an WordPress.com on Atomic site or not looking first at the 'at_options' option.
 	 * As a fallback, check for presence of wpcomsh plugin to determine if a current site has undergone AT.
 	 *
-	 * @since $$next_version$$
+	 * @since 1.9.0
 	 *
 	 * @return bool
 	 */
@@ -29,7 +29,7 @@ class Host {
 	/**
 	 * Determine if site is hosted on the Atomic hosting platform.
 	 *
-	 * @since $$next_version$$
+	 * @since 1.9.0
 	 *
 	 * @return bool;
 	 */
