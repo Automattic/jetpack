@@ -18,7 +18,6 @@ import {
 import defaultVariations from './variations';
 
 export function JetpackOnePaymentEdit( {
-	setAttributes,
 	hasInnerBlocks,
 	replaceBlock,
 	selectBlock,
@@ -36,14 +35,7 @@ export function JetpackOnePaymentEdit( {
 	};
 
 	const setVariation = variation => {
-		if ( variation.attributes ) {
-			setAttributes( variation.attributes );
-		}
-
-		if ( variation.innerBlocks ) {
-			replaceBlock( clientId, createBlocksFromInnerBlocksTemplate( variation.innerBlocks ) );
-		}
-
+		replaceBlock( clientId, createBlocksFromInnerBlocksTemplate( variation.innerBlocks ) );
 		selectBlock( clientId );
 	};
 
