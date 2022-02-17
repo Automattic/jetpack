@@ -18,9 +18,14 @@ class Stats {
 	 * Get stats from the WordPress.com API for the current blog ID.
 	 */
 	public function get_stats_from_wpcom() {
-		$blog_id  = Jetpack_Options::get_option( 'id' );
+		$blog_id = Jetpack_Options::get_option( 'id' );
+
+		if ( ! is_numeric( $blog_id ) ) {
+			return null;
+		}
+
 		$response = Client::wpcom_json_api_request_as_blog(
-			'/sites/' . $blog_id . '/jetpack-search/stats',
+			'/sites/' . (int) $blog_id . '/jetpack-search/stats',
 			'2',
 			array(),
 			null,
