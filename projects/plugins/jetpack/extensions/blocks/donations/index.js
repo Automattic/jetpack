@@ -59,6 +59,7 @@ export const settings = {
 			default: {
 				border: {
 					width: '1px',
+					style: 'solid',
 				},
 			},
 		},
@@ -73,6 +74,7 @@ export const settings = {
 		__experimentalBorder: {
 			color: true,
 			width: true,
+			style: true,
 		},
 		typography: {
 			fontSize: true,

@@ -45,7 +45,8 @@ const mapAttributesToTabs = attributes =>
 
 const Save = ( { attributes } ) => {
 	const className = classnames( 'donations__content', {
-		borderless: '0px' === attributes.style.border.width,
+		borderless:
+			attributes.style && attributes.style.border && '0px' === attributes.style.border.width,
 	} );
 
 	const blockProps = useBlockProps.save();

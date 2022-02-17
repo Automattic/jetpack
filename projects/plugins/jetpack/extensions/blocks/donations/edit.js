@@ -54,13 +54,17 @@ const intervalMap = {
 	'1 year': ANNUAL_DONATION,
 };
 
-const getColorClassesForState = ( color, isActive ) => ( {
-	textClass: isActive ? 'has-background-color' : 'has-foreground-color',
-	borderClass: `has-${ 'background' !== color ? color : 'foreground' }-border-color`,
-	backgroundClass: isActive
-		? `has-${ 'background' !== color ? color : 'foreground' }-background-color`
-		: 'has-background-background-color',
-} );
+const getColorClassesForState = ( color, isActive ) => {
+	const safeColor = color && 'background' !== color ? color : 'foreground';
+
+	return {
+		textClass: isActive ? 'has-background-color' : 'has-foreground-color',
+		borderClass: `has-${ safeColor }-border-color`,
+		backgroundClass: isActive
+			? `has-${ safeColor }-background-color`
+			: 'has-background-background-color',
+	};
+};
 
 const DonationTabButton = ( {
 	label,
@@ -120,7 +124,7 @@ const Edit = props => {
 		const computedColor = window.getComputedStyle( blockDomElement[ 0 ] ).borderColor;
 
 		setComputedBorderColor( computedColor );
-	}, [ borderColor, attributes.style.border, props.clientId ] );
+	}, [ borderColor, attributes.style, props.clientId ] );
 
 	const resetActiveTab = ( controlTab, value ) => {
 		if ( value === false && activeTab === controlTab ) {
@@ -204,7 +208,10 @@ const Edit = props => {
 				) }
 				<div
 					className={ classnames( 'donations__content', {
-						borderless: '0px' === attributes.style.border.width,
+						borderless:
+							attributes.style &&
+							attributes.style.border &&
+							'0px' === attributes.style.border.width,
 					} ) }
 				>
 					<Context.Provider
