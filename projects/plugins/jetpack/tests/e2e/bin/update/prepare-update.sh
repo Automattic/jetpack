@@ -35,9 +35,7 @@ wp --allow-root option set e2e_jetpack_upgrader_plugin_url "${1}"/wp-content/upl
 rm -rf /root/.wp-cli/cache/plugin/jetpack-"$VERSION".zip
 
 # Update FS permissions
-ls -lh /var/www/html/wp-content
 sudo chmod 755 /var/www/html/wp-content
 sudo chown -R www-data:www-data /var/www/html/wp-content
-ls -lh /var/www/html/wp-content
 
 printf "\nReady for update!\n"
