@@ -1,7 +1,7 @@
 /**
  * External dependencies
  */
-import React from 'react';
+import React, { useCallback } from 'react';
 import PropTypes from 'prop-types';
 
 /**
@@ -14,7 +14,10 @@ import useMyJetpackNavigate from '../../hooks/use-my-jetpack-navigate';
 
 const ScanCard = ( { admin } ) => {
 	const { status, activate, deactivate, detail, isFetching } = useProduct( 'scan' );
-	const { name, description, slug } = detail;
+	const { name, description, slug, manageUrl } = detail;
+	const onManage = useCallback( () => {
+		window.location = manageUrl;
+	}, [ manageUrl ] );
 
 	return (
 		<ProductCard
@@ -30,6 +33,7 @@ const ScanCard = ( { admin } ) => {
 			onAdd={ useMyJetpackNavigate( '/add-scan' ) }
 			showDeactivate={ false }
 			onFixConnection={ useMyJetpackNavigate( '/connection' ) }
+			onManage={ onManage }
 		/>
 	);
 };

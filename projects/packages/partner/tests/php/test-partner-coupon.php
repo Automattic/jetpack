@@ -35,6 +35,11 @@ class Partner_Coupon_Test extends BaseTestCase {
 	const PARTNER = array(
 		'name'   => 'Jetpack Test Partner',
 		'prefix' => 'JPTST',
+		'logo'   => array(
+			'src'    => '/images/ionos-logo.jpg',
+			'width'  => 119,
+			'height' => 32,
+		),
 	);
 
 	const PRESET = array(
@@ -49,7 +54,12 @@ class Partner_Coupon_Test extends BaseTestCase {
 		add_filter(
 			'jetpack_partner_coupon_supported_partners',
 			function ( $partners ) {
-				return array( self::PARTNER['prefix'] => self::PARTNER['name'] );
+				return array(
+					self::PARTNER['prefix'] => array(
+						'name' => self::PARTNER['name'],
+						'logo' => self::PARTNER['logo'],
+					),
+				);
 			}
 		);
 
@@ -88,10 +98,10 @@ class Partner_Coupon_Test extends BaseTestCase {
 		$partner_coupon = Partner_Coupon::get_coupon();
 
 		$this->assertTrue( is_array( $partner_coupon ) );
-		$this->assertSame( $partner_coupon['coupon_code'], $coupon_code );
-		$this->assertSame( $partner_coupon['partner'], self::PARTNER );
-		$this->assertSame( $partner_coupon['preset'], self::PRESET['code'] );
-		$this->assertSame( $partner_coupon['product'], self::PRODUCT );
+		$this->assertSame( $coupon_code, $partner_coupon['coupon_code'] );
+		$this->assertSame( self::PARTNER, $partner_coupon['partner'] );
+		$this->assertSame( self::PRESET['code'], $partner_coupon['preset'] );
+		$this->assertSame( self::PRODUCT, $partner_coupon['product'] );
 	}
 
 	/**

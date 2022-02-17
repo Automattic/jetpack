@@ -1,4 +1,4 @@
-<?php
+<?php // phpcs:ignore WordPress.Files.FileName.InvalidClassFileName
 
 new WPCOM_JSON_API_Get_Media_v1_1_Endpoint(
 	array(
@@ -48,8 +48,19 @@ new WPCOM_JSON_API_Get_Media_v1_1_Endpoint(
 	)
 );
 
-class WPCOM_JSON_API_Get_Media_v1_1_Endpoint extends WPCOM_JSON_API_Endpoint {
-	function callback( $path = '', $blog_id = 0, $media_id = 0 ) {
+/**
+ * GET Media v1_1 endpoint.
+ */
+class WPCOM_JSON_API_Get_Media_v1_1_Endpoint extends WPCOM_JSON_API_Endpoint { //phpcs:ignore
+	/**
+	 *
+	 * API callback.
+	 *
+	 * @param string $path - the path.
+	 * @param int    $blog_id - the blog ID.
+	 * @param int    $media_id - the media ID.
+	 */
+	public function callback( $path = '', $blog_id = 0, $media_id = 0 ) {
 		$blog_id = $this->api->switch_to_blog_and_validate_user( $this->api->get_blog_id( $blog_id ) );
 		if ( is_wp_error( $blog_id ) ) {
 			return $blog_id;
@@ -59,7 +70,7 @@ class WPCOM_JSON_API_Get_Media_v1_1_Endpoint extends WPCOM_JSON_API_Endpoint {
 			$this->load_theme_functions();
 		}
 
-		//upload_files can probably be used for other endpoints but we want contributors to be able to use media too
+		// upload_files can probably be used for other endpoints but we want contributors to be able to use media too.
 		if ( ! current_user_can( 'edit_posts', $media_id ) ) {
 			return new WP_Error( 'unauthorized', 'User cannot view media', 403 );
 		}
