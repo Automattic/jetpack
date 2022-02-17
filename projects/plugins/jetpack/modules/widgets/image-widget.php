@@ -75,23 +75,23 @@ class Jetpack_Image_Widget extends WP_Widget {
 			echo $args['before_title'] . $title . $args['after_title']; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
 		}
 
-		if ( '' != $instance['img_url'] ) {
+		if ( $instance['img_url'] ) {
 
 			$output = '<img src="' . esc_url( $instance['img_url'] ) . '" ';
 
-			if ( '' != $instance['alt_text'] ) {
+			if ( $instance['alt_text'] ) {
 				$output .= 'alt="' . esc_attr( $instance['alt_text'] ) . '" ';
 			}
-			if ( '' != $instance['img_title'] ) {
+			if ( $instance['img_title'] ) {
 				$output .= 'title="' . esc_attr( $instance['img_title'] ) . '" ';
 			}
-			if ( '' == $instance['caption'] ) {
+			if ( $instance['caption'] ) {
 				$output .= 'class="align' . esc_attr( $instance['align'] ) . '" ';
 			}
-			if ( '' != $instance['img_width'] ) {
+			if ( $instance['img_width'] ) {
 				$output .= 'width="' . esc_attr( $instance['img_width'] ) . '" ';
 			}
-			if ( '' != $instance['img_height'] ) {
+			if ( $instance['img_height'] ) {
 				$output .= 'height="' . esc_attr( $instance['img_height'] ) . '" ';
 			}
 			$output .= '/>';
@@ -100,13 +100,13 @@ class Jetpack_Image_Widget extends WP_Widget {
 				$output = Jetpack_Photon::filter_the_content( $output );
 			}
 
-			if ( '' != $instance['link'] ) {
+			if ( $instance['link'] ) {
 				$target = ! empty( $instance['link_target_blank'] )
 					? 'target="_blank"'
 					: '';
 				$output = '<a ' . $target . ' href="' . esc_url( $instance['link'] ) . '">' . $output . '</a>';
 			}
-			if ( '' != $instance['caption'] ) {
+			if ( $instance['caption'] ) {
 				/** This filter is documented in core/src/wp-includes/default-widgets.php */
 				$caption   = apply_filters( 'widget_text', $instance['caption'] );
 				$img_width = ( ! empty( $instance['img_width'] ) ? 'style="width: ' . esc_attr( $instance['img_width'] ) . 'px"' : '' );
@@ -264,7 +264,7 @@ class Jetpack_Image_Widget extends WP_Widget {
 			<select id="' . esc_attr( $this->get_field_id( 'align' ) ) . '" name="' . esc_attr( $this->get_field_name( 'align' ) ) . '">';
 		foreach ( $alignments as $alignment => $alignment_name ) {
 			echo '<option value="' . esc_attr( $alignment ) . '" ';
-			if ( $alignment == $align ) {
+			if ( $alignment === $align ) {
 				echo 'selected="selected" ';
 			}
 			echo '>' . esc_html( $alignment_name ) . "</option>\n";
