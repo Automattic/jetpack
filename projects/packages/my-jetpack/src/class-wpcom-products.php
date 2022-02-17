@@ -47,16 +47,21 @@ class Wpcom_Products {
 			),
 		);
 
+		$endpoint = sprintf( '/sites/%d/products/?_locale=%s&type=jetpack', \Jetpack_Options::get_option( 'id' ), get_user_locale() );
+		$version  = '1.1';
+
 		// Hit the endpoint depending on the user's connection status.
 		$wpcom_request = $is_user_connected
 			? Client::wpcom_json_api_request_as_user(
-				'/products?_locale=' . get_user_locale() . '&type=jetpack',
-				'2',
-				$params
+				$endpoint,
+				$version,
+				$params,
+				null,
+				'rest'
 			)
 			: Client::wpcom_json_api_request_as_blog(
-				sprintf( '/sites/%d/products/?_locale=%s&type=jetpack', \Jetpack_Options::get_option( 'id' ), get_user_locale() ),
-				'1.1',
+				$endpoint,
+				$version,
 				$params
 			);
 
@@ -128,7 +133,7 @@ class Wpcom_Products {
 		if ( is_wp_error( $products ) ) {
 			// Let's see if we have it cached.
 			$cached = self::get_products_from_cache();
-			if ( ! empty( $cached ) ) {
+			if ( ! $skip_cache && ! empty( $cached ) ) {
 				return $cached;
 			} else {
 				return $products;
