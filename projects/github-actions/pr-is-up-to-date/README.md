@@ -115,7 +115,7 @@ git push --force origin $TAG
 ```
 
 Or you might use another action to examine pushes to your branch and update the tags accordingly.
-In that case, you'd want to make sure to use a custom access tokan as [events triggered by the stock `GITHUB_TOKEN` will not trigger workflows](https://docs.github.com/en/actions/security-guides/automatic-token-authentication#using-the-github_token-in-a-workflow) and you'll want this workflow to be triggered by the the tag push.
+In that case, you'd want to make sure to use a custom access token as [events triggered by the stock `GITHUB_TOKEN` will not trigger workflows](https://docs.github.com/en/actions/security-guides/automatic-token-authentication#using-the-github_token-in-a-workflow) and you'll want this workflow to be triggered by the tag push.
 
 ### Multiple tags
 
