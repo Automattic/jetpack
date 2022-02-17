@@ -1132,7 +1132,7 @@ class Jetpack_Carousel {
 		do_action( 'jp_carousel_post_attachment_comment' );
 		$comment_status = wp_get_comment_status( $comment_id );
 
-		if ( true === $switched ) {
+		if ( $switched ) {
 			restore_current_blog();
 		}
 
@@ -1183,7 +1183,7 @@ class Jetpack_Carousel {
 	 * @return bool
 	 */
 	public function test_1or0_option( $value, $default_to_1 = true ) {
-		if ( true === $default_to_1 ) {
+		if ( $default_to_1 ) {
 			// Boolean false (===) of $value means it has not yet been set, in which case we do want to default to 1.
 			if ( false === $value ) {
 				$value = 1;
