@@ -164,10 +164,10 @@ class Jetpack_Image_Widget extends WP_Widget {
 
 		$instance = $old_instance;
 
-		$instance['title']             = strip_tags( $new_instance['title'] );
+		$instance['title']             = wp_strip_all_tags( $new_instance['title'] );
 		$instance['img_url']           = esc_url( trim( $new_instance['img_url'] ) );
-		$instance['alt_text']          = strip_tags( $new_instance['alt_text'] );
-		$instance['img_title']         = strip_tags( $new_instance['img_title'] );
+		$instance['alt_text']          = wp_strip_all_tags( $new_instance['alt_text'] );
+		$instance['img_title']         = wp_strip_all_tags( $new_instance['img_title'] );
 		$instance['caption']           = wp_kses( stripslashes( $new_instance['caption'] ), $allowed_caption_html );
 		$instance['align']             = $new_instance['align'];
 		$instance['link']              = esc_url( trim( $new_instance['link'] ) );
