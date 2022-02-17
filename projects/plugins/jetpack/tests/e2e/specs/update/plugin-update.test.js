@@ -12,7 +12,7 @@ test( 'Update Jetpack plugin', async ( { page } ) => {
 
 	// Prepare for update
 	await execShellCommand( `./bin/update/prepare-zip.sh` );
-	await execContainerShellCommand( `${ binPath }pre-update.sh ${ resolveSiteUrl() }` );
+	await execContainerShellCommand( `${ binPath }prepare-update.sh ${ resolveSiteUrl() }` );
 
 	// Update
 	await prerequisitesBuilder( page ).withLoggedIn( true ).withConnection( true ).build();
@@ -23,13 +23,18 @@ test( 'Update Jetpack plugin', async ( { page } ) => {
 		pluginsPage = await PluginsPage.visit( page );
 	} );
 
+	// Capture Jetpack status before update
+	await execContainerShellCommand( `${ binPath }pre-update.sh ${ resolveSiteUrl() }` );
+
 	await test.step( 'Can update Jetpack', async () => {
 		await pluginsPage.updateJetpack();
 	} );
 
-	// Check Jetpack status after update
+	// Capture Jetpack status after update
 	await execContainerShellCommand( `${ binPath }post-update.sh` );
 
-	const jetpackPage = await JetpackPage.visit( page );
-	expect( await jetpackPage.isConnected() ).toBeTruthy();
+	await test.step( 'Jetpack is still connected', async () => {
+		const jetpackPage = await JetpackPage.visit( page );
+		expect( await jetpackPage.isConnected() ).toBeTruthy();
+	} );
 } );
