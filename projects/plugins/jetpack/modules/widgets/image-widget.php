@@ -59,7 +59,7 @@ class Jetpack_Image_Widget extends WP_Widget {
 	 * @param array $instance Saved values from database.
 	 */
 	public function widget( $args, $instance ) {
-		echo $args['before_widget'];
+		echo $args['before_widget']; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
 
 		$instance = wp_parse_args(
 			$instance,
@@ -118,11 +118,22 @@ class Jetpack_Image_Widget extends WP_Widget {
 			echo '<div class="jetpack-image-container">' . do_shortcode( $output ) . '</div>';
 		} else {
 			if ( current_user_can( 'edit_theme_options' ) ) {
-				echo '<p>' . sprintf( __( 'Image missing or invalid URL. Please check the Image widget URL in your <a href="%s">widget settings</a>.', 'jetpack' ), admin_url( 'widgets.php' ) ) . '</p>';
+				echo '<p>' . wp_kses(
+					sprintf(
+						/* translators: %s link to the widget settings page. */
+						__( 'Image missing or invalid URL. Please check the Image widget URL in your <a href="%s">widget settings</a>.', 'jetpack' ),
+						admin_url( 'widgets.php' )
+					),
+					array(
+						'a' => array(
+							'href' => array(),
+						),
+					)
+				) . '</p>';
 			}
 		}
 
-		echo "\n" . $args['after_widget'];
+		echo "\n" . $args['after_widget']; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
 
 		/** This action is documented in modules/widgets/gravatar-profile.php */
 		do_action( 'jetpack_stats_extra', 'widget_view', 'image' );
@@ -227,20 +238,20 @@ class Jetpack_Image_Widget extends WP_Widget {
 
 		$link = esc_url( $instance['link'], null, 'display' );
 
-		echo '<p><label for="' . $this->get_field_id( 'title' ) . '">' . esc_html__( 'Widget title:', 'jetpack' ) . '
-			<input class="widefat" id="' . $this->get_field_id( 'title' ) . '" name="' . $this->get_field_name( 'title' ) . '" type="text" value="' . $title . '" />
+		echo '<p><label for="' . esc_attr( $this->get_field_id( 'title' ) ) . '">' . esc_html__( 'Widget title:', 'jetpack' ) . '
+			<input class="widefat" id="' . esc_attr( $this->get_field_id( 'title' ) ) . '" name="' . esc_attr( $this->get_field_name( 'title' ) ) . '" type="text" value="' . esc_attr( $title ) . '" />
 			</label></p>
-			<p><label for="' . $this->get_field_id( 'img_url' ) . '">' . esc_html__( 'Image URL:', 'jetpack' ) . '
-			<input class="widefat" id="' . $this->get_field_id( 'img_url' ) . '" name="' . $this->get_field_name( 'img_url' ) . '" type="text" value="' . $img_url . '" />
+			<p><label for="' . esc_attr( $this->get_field_id( 'img_url' ) ) . '">' . esc_html__( 'Image URL:', 'jetpack' ) . '
+			<input class="widefat" id="' . esc_attr( $this->get_field_id( 'img_url' ) ) . '" name="' . esc_attr( $this->get_field_name( 'img_url' ) ) . '" type="text" value="' . esc_attr( $img_url ) . '" />
 			</label></p>
-			<p><label for="' . $this->get_field_id( 'alt_text' ) . '">' . esc_html__( 'Alternate text:', 'jetpack' ) . '  <a href="https://support.wordpress.com/widgets/image-widget/#image-widget-alt-text" target="_blank">( ? )</a>
-			<input class="widefat" id="' . $this->get_field_id( 'alt_text' ) . '" name="' . $this->get_field_name( 'alt_text' ) . '" type="text" value="' . $alt_text . '" />
+			<p><label for="' . esc_attr( $this->get_field_id( 'alt_text' ) ) . '">' . esc_html__( 'Alternate text:', 'jetpack' ) . '  <a href="https://support.wordpress.com/widgets/image-widget/#image-widget-alt-text" target="_blank">( ? )</a>
+			<input class="widefat" id="' . esc_attr( $this->get_field_id( 'alt_text' ) ) . '" name="' . esc_attr( $this->get_field_name( 'alt_text' ) ) . '" type="text" value="' . esc_attr( $alt_text ) . '" />
 			</label></p>
-			<p><label for="' . $this->get_field_id( 'img_title' ) . '">' . esc_html__( 'Image title:', 'jetpack' ) . ' <a href="https://support.wordpress.com/widgets/image-widget/#image-widget-title" target="_blank">( ? )</a>
-			<input class="widefat" id="' . $this->get_field_id( 'img_title' ) . '" name="' . $this->get_field_name( 'img_title' ) . '" type="text" value="' . $img_title . '" />
+			<p><label for="' . esc_attr( $this->get_field_id( 'img_title' ) ) . '">' . esc_html__( 'Image title:', 'jetpack' ) . ' <a href="https://support.wordpress.com/widgets/image-widget/#image-widget-title" target="_blank">( ? )</a>
+			<input class="widefat" id="' . esc_attr( $this->get_field_id( 'img_title' ) ) . '" name="' . esc_attr( $this->get_field_name( 'img_title' ) ) . '" type="text" value="' . esc_attr( $img_title ) . '" />
 			</label></p>
-			<p><label for="' . $this->get_field_id( 'caption' ) . '">' . esc_html__( 'Caption:', 'jetpack' ) . ' <a href="https://support.wordpress.com/widgets/image-widget/#image-widget-caption" target="_blank">( ? )</a>
-			<textarea class="widefat" id="' . $this->get_field_id( 'caption' ) . '" name="' . $this->get_field_name( 'caption' ) . '" rows="2" cols="20">' . $caption . '</textarea>
+			<p><label for="' . esc_attr( $this->get_field_id( 'caption' ) ) . '">' . esc_html__( 'Caption:', 'jetpack' ) . ' <a href="https://support.wordpress.com/widgets/image-widget/#image-widget-caption" target="_blank">( ? )</a>
+			<textarea class="widefat" id="' . esc_attr( $this->get_field_id( 'caption' ) ) . '" name="' . esc_attr( $this->get_field_name( 'caption' ) ) . '" rows="2" cols="20">' . esc_textarea( $caption ) . '</textarea>
 			</label></p>';
 
 		$alignments = array(
@@ -249,8 +260,8 @@ class Jetpack_Image_Widget extends WP_Widget {
 			'center' => __( 'Center', 'jetpack' ),
 			'right'  => __( 'Right', 'jetpack' ),
 		);
-		echo '<p><label for="' . $this->get_field_id( 'align' ) . '">' . esc_html__( 'Image Alignment:', 'jetpack' ) . '
-			<select id="' . $this->get_field_id( 'align' ) . '" name="' . $this->get_field_name( 'align' ) . '">';
+		echo '<p><label for="' . esc_attr( $this->get_field_id( 'align' ) ) . '">' . esc_html__( 'Image Alignment:', 'jetpack' ) . '
+			<select id="' . esc_attr( $this->get_field_id( 'align' ) ) . '" name="' . esc_attr( $this->get_field_name( 'align' ) ) . '">';
 		foreach ( $alignments as $alignment => $alignment_name ) {
 			echo '<option value="' . esc_attr( $alignment ) . '" ';
 			if ( $alignment == $align ) {
@@ -260,18 +271,18 @@ class Jetpack_Image_Widget extends WP_Widget {
 		}
 		echo '</select></label></p>';
 
-		echo '<p><label for="' . $this->get_field_id( 'img_width' ) . '">' . esc_html__( 'Width in pixels:', 'jetpack' ) . '
-		<input size="3" id="' . $this->get_field_id( 'img_width' ) . '" name="' . $this->get_field_name( 'img_width' ) . '" type="text" value="' . $img_width . '" />
+		echo '<p><label for="' . esc_attr( $this->get_field_id( 'img_width' ) ) . '">' . esc_html__( 'Width in pixels:', 'jetpack' ) . '
+		<input size="3" id="' . esc_attr( $this->get_field_id( 'img_width' ) ) . '" name="' . esc_attr( $this->get_field_name( 'img_width' ) ) . '" type="text" value="' . esc_attr( $img_width ) . '" />
 		</label>
-		<label for="' . $this->get_field_id( 'img_height' ) . '">' . esc_html__( 'Height in pixels:', 'jetpack' ) . '
-		<input size="3" id="' . $this->get_field_id( 'img_height' ) . '" name="' . $this->get_field_name( 'img_height' ) . '" type="text" value="' . $img_height . '" />
+		<label for="' . esc_attr( $this->get_field_id( 'img_height' ) ) . '">' . esc_html__( 'Height in pixels:', 'jetpack' ) . '
+		<input size="3" id="' . esc_attr( $this->get_field_id( 'img_height' ) ) . '" name="' . esc_attr( $this->get_field_name( 'img_height' ) ) . '" type="text" value="' . esc_attr( $img_height ) . '" />
 		</label><br />
 		<small>' . esc_html__( 'If empty, we will attempt to determine the image size.', 'jetpack' ) . '</small></p>
-		<p><label for="' . $this->get_field_id( 'link' ) . '">' . esc_html__( 'Link URL (when the image is clicked):', 'jetpack' ) . '
-		<input class="widefat" id="' . $this->get_field_id( 'link' ) . '" name="' . $this->get_field_name( 'link' ) . '" type="text" value="' . $link . '" />
+		<p><label for="' . esc_attr( $this->get_field_id( 'link' ) ) . '">' . esc_html__( 'Link URL (when the image is clicked):', 'jetpack' ) . '
+		<input class="widefat" id="' . esc_attr( $this->get_field_id( 'link' ) ) . '" name="' . esc_attr( $this->get_field_name( 'link' ) ) . '" type="text" value="' . esc_attr( $link ) . '" />
 		</label>
-		<label for="' . $this->get_field_id( 'link_target_blank' ) . '">
-		<input type="checkbox" name="' . $this->get_field_name( 'link_target_blank' ) . '" id="' . $this->get_field_id( 'link_target_blank' ) . '" value="1"' . $link_target_blank . '/>
+		<label for="' . esc_attr( $this->get_field_id( 'link_target_blank' ) ) . '">
+		<input type="checkbox" name="' . esc_attr( $this->get_field_name( 'link_target_blank' ) ) . '" id="' . esc_attr( $this->get_field_id( 'link_target_blank' ) ) . '" value="1"' . esc_attr( $link_target_blank ) . '/>
 		' . esc_html__( 'Open link in a new window/tab', 'jetpack' ) . '
 		</label></p>';
 	}
