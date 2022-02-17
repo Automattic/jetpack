@@ -176,7 +176,7 @@ class Jetpack_Image_Widget extends WP_Widget {
 		$new_img_width  = absint( $new_instance['img_width'] );
 		$new_img_height = absint( $new_instance['img_height'] );
 
-		if ( ! empty( $instance['img_url'] ) && '' == $new_img_width && '' == $new_img_height ) {
+		if ( ! empty( $instance['img_url'] ) && 0 === $new_img_width && 0 === $new_img_height ) {
 			// Download the url to a local temp file and then process it with getimagesize so we can optimize browser layout.
 			$tmp_file = download_url( $instance['img_url'], 10 );
 			if ( ! is_wp_error( $tmp_file ) ) {
