@@ -58,7 +58,6 @@
 				"automattic/jetpack-partner",
 				"automattic/jetpack-password-checker",
 				"automattic/jetpack-phpcs-filter",
-				"automattic/jetpack-plans",
 				"automattic/jetpack-plugins-installer",
 				"automattic/jetpack-post-list",
 				"automattic/jetpack-publicize",

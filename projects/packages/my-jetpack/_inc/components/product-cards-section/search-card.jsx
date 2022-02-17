@@ -3,21 +3,21 @@
  */
 import React, { useCallback } from 'react';
 import PropTypes from 'prop-types';
-import { useNavigate } from 'react-router-dom';
 
 /**
  * Internal dependencies
  */
 import ProductCard from '../product-card';
 import { useProduct } from '../../hooks/use-product';
+import useMyJetpackNavigate from '../../hooks/use-my-jetpack-navigate';
 import { SearchIcon } from '../icons';
 
 const SearchCard = ( { admin } ) => {
 	const { status, activate, deactivate, detail, isFetching } = useProduct( 'search' );
-	const { name, description, slug } = detail;
-
-	const navigate = useNavigate();
-	const onAddHandler = useCallback( () => navigate( '/add-search' ), [ navigate ] );
+	const { name, description, slug, manageUrl } = detail;
+	const onManage = useCallback( () => {
+		window.location = manageUrl;
+	}, [ manageUrl ] );
 
 	return (
 		<ProductCard
@@ -29,7 +29,9 @@ const SearchCard = ( { admin } ) => {
 			isFetching={ isFetching }
 			onDeactivate={ deactivate }
 			onActivate={ activate }
-			onAdd={ onAddHandler }
+			onAdd={ useMyJetpackNavigate( '/add-search' ) }
+			onFixConnection={ useMyJetpackNavigate( '/connection' ) }
+			onManage={ onManage }
 			slug={ slug }
 		/>
 	);

@@ -1,7 +1,7 @@
 /**
  * External dependencies
  */
-import React from 'react';
+import React, { useCallback } from 'react';
 import PropTypes from 'prop-types';
 
 /**
@@ -14,8 +14,10 @@ import { BackupIcon } from '../icons';
 
 const BackupCard = ( { admin } ) => {
 	const { status, activate, deactivate, detail, isFetching } = useProduct( 'backup' );
-	const { name, description, slug } = detail;
-	const navToAddBackupPage = useMyJetpackNavigate( '/add-backup' );
+	const { name, description, slug, manageUrl } = detail;
+	const onManage = useCallback( () => {
+		window.location = manageUrl;
+	}, [ manageUrl ] );
 
 	return (
 		<ProductCard
@@ -29,7 +31,9 @@ const BackupCard = ( { admin } ) => {
 			slug={ slug }
 			onActivate={ activate }
 			showDeactivate={ false }
-			onAdd={ navToAddBackupPage }
+			onAdd={ useMyJetpackNavigate( '/add-backup' ) }
+			onFixConnection={ useMyJetpackNavigate( '/connection' ) }
+			onManage={ onManage }
 		/>
 	);
 };

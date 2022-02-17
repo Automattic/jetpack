@@ -1,6 +1,12 @@
+:global {
+	#my-jetpack-container {
+		height: 100%;
+	}
+}
+
 .layout {
 	display: flex;
-	height: calc(100vh - 100px); // to neutralize wp-footer (Thank you for creating with WordPress)
+	height: 100%;
 	flex-direction: column;
 	justify-content: space-between;
 	margin-left: -20px; // to neutralize the padding of #wpcontent.
