@@ -1,0 +1,4 @@
+Significance: patch
+Type: bugfix
+
+WordPress.com REST API: avoid errors when restoring the previous version of an image from the WordPress.com dashboard.
