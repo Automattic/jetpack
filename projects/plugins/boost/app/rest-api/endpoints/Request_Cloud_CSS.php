@@ -25,7 +25,7 @@ class Request_Cloud_CSS implements Contracts\Endpoint {
 
 	//phpcs:disable VariableAnalysis.CodeAnalysis.VariableAnalysis.UnusedVariable
 	public function response( $request ) {
-		$state            = new Critical_CSS_State();
+		$state            = new Critical_CSS_State( 'cloud' );
 		$source_providers = new Source_Providers();
 		$state->create_request( $source_providers->get_providers() );
 
