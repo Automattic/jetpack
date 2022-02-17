@@ -1,9 +1,9 @@
-<?php
+<?php // phpcs:ignore WordPress.Files.FileName.InvalidClassFileName
+
+add_action( 'widgets_init', 'jetpack_goodreads_widget_init' );
 /**
  * Register the widget for use in Appearance -> Widgets
  */
-add_action( 'widgets_init', 'jetpack_goodreads_widget_init' );
-
 function jetpack_goodreads_widget_init() {
 	register_widget( 'WPCOM_Widget_Goodreads' );
 }
@@ -14,10 +14,17 @@ function jetpack_goodreads_widget_init() {
  * Customize user_id, title, and shelf
  */
 class WPCOM_Widget_Goodreads extends WP_Widget {
-
+	/**
+	 * Widget ID based on Goodreads user ID and shelf.
+	 *
+	 * @var int
+	 */
 	private $goodreads_widget_id = 0;
 
-	function __construct() {
+	/**
+	 * WPCOM_Widget_Goodreads constructor.
+	 */
+	public function __construct() {
 		parent::__construct(
 			'wpcom-goodreads',
 			/** This filter is documented in modules/widgets/facebook-likebox.php */
@@ -28,7 +35,7 @@ class WPCOM_Widget_Goodreads extends WP_Widget {
 				'customize_selective_refresh' => true,
 			)
 		);
-		// For user input sanitization and display
+		// For user input sanitization and display.
 		$this->shelves = array(
 			'read'              => _x( 'Read', 'past participle: books I have read', 'jetpack' ),
 			'currently-reading' => __( 'Currently Reading', 'jetpack' ),
@@ -40,12 +47,21 @@ class WPCOM_Widget_Goodreads extends WP_Widget {
 		}
 	}
 
-	function enqueue_style() {
+	/**
+	 * Enqueue widget styles.
+	 */
+	public function enqueue_style() {
 		wp_enqueue_style( 'goodreads-widget', plugins_url( 'goodreads/css/goodreads.css', __FILE__ ) );
 		wp_style_add_data( 'goodreads-widget', 'rtl', 'replace' );
 	}
 
-	function widget( $args, $instance ) {
+	/**
+	 * Display the widget.
+	 *
+	 * @param array $args Display arguments including before_title, after_title, before_widget, and after_widget.
+	 * @param array $instance The settings for the particular instance of the widget.
+	 */
+	public function widget( $args, $instance ) {
 		/** This action is documented in modules/widgets/gravatar-profile.php */
 		do_action( 'jetpack_stats_extra', 'widget_view', 'goodreads' );
 
@@ -89,7 +105,12 @@ class WPCOM_Widget_Goodreads extends WP_Widget {
 		echo $args['after_widget'];
 	}
 
-	function goodreads_user_id_exists( $user_id ) {
+	/**
+	 * Check if given Goodreads user ID exists.
+	 *
+	 * @param string $user_id User ID.
+	 */
+	public function goodreads_user_id_exists( $user_id ) {
 		$url      = "https://www.goodreads.com/user/show/$user_id/";
 		$response = wp_remote_head(
 			$url,
@@ -106,7 +127,15 @@ class WPCOM_Widget_Goodreads extends WP_Widget {
 		}
 	}
 
-	function update( $new_instance, $old_instance ) {
+	/**
+	 * Update widget.
+	 *
+	 * @see WP_Widget::update()
+	 *
+	 * @param array $new_instance New widget instance data.
+	 * @param array $old_instance Old widget instance data.
+	 */
+	public function update( $new_instance, $old_instance ) {
 		$instance = $old_instance;
 
 		$instance['user_id'] = trim( wp_kses( stripslashes( $new_instance['user_id'] ), array() ) );
@@ -124,8 +153,13 @@ class WPCOM_Widget_Goodreads extends WP_Widget {
 		return $instance;
 	}
 
-	function form( $instance ) {
-		// Defaults
+	/**
+	 * Outputs the widget settings form.
+	 *
+	 * @param array $instance Current settings.
+	 */
+	public function form( $instance ) {
+		// Defaults.
 		$instance = wp_parse_args(
 			(array) $instance,
 			array(
