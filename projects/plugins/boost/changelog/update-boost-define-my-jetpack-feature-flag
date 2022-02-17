@@ -1,0 +1,4 @@
+Significance: minor
+Type: changed
+
+Remove check for My Jetpack feature flag
