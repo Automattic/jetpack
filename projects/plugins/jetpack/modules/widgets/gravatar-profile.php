@@ -1,10 +1,10 @@
-<?php
+<?php // phpcs:ignore WordPress.Files.FileName.InvalidClassFileName
 
+
+add_action( 'widgets_init', 'jetpack_gravatar_profile_widget_init' );
 /**
  * Register the widget for use in Appearance -> Widgets
  */
-add_action( 'widgets_init', 'jetpack_gravatar_profile_widget_init' );
-
 function jetpack_gravatar_profile_widget_init() {
 	register_widget( 'Jetpack_Gravatar_Profile_Widget' );
 }
@@ -14,8 +14,10 @@ function jetpack_gravatar_profile_widget_init() {
  * https://blog.gravatar.com/2010/03/26/gravatar-profiles/
  */
 class Jetpack_Gravatar_Profile_Widget extends WP_Widget {
-
-	function __construct() {
+	/**
+	 * Jetpack_Gravatar_Profile_Widget constructor.
+	 */
+	public function __construct() {
 		parent::__construct(
 			'grofile',
 			/** This filter is documented in modules/widgets/facebook-likebox.php */
@@ -36,7 +38,15 @@ class Jetpack_Gravatar_Profile_Widget extends WP_Widget {
 		}
 	}
 
-	function widget( $args, $instance ) {
+	/**
+	 * Display the Widget.
+	 *
+	 * @see WP_Widget::widget()
+	 *
+	 * @param array $args     Display arguments.
+	 * @param array $instance The settings for the particular instance of the widget.
+	 */
+	public function widget( $args, $instance ) {
 		/**
 		 * Fires when an item is displayed on the front end.
 		 *
@@ -93,7 +103,7 @@ class Jetpack_Gravatar_Profile_Widget extends WP_Widget {
 					'accounts'     => array(),
 				)
 			);
-			$gravatar_url = add_query_arg( 's', 320, $profile['thumbnailUrl'] ); // the default grav returned by grofiles is super small
+			$gravatar_url = add_query_arg( 's', 320, $profile['thumbnailUrl'] ); // The default grav returned by grofiles is super small.
 
 			// Enqueue front end assets.
 			$this->enqueue_scripts();
@@ -147,7 +157,12 @@ class Jetpack_Gravatar_Profile_Widget extends WP_Widget {
 		echo $args['after_widget'];
 	}
 
-	function display_personal_links( $personal_links = array() ) {
+	/**
+	 * Displays the "Personal Links" section.
+	 *
+	 * @param array $personal_links Array of links.
+	 */
+	public function display_personal_links( $personal_links = array() ) {
 		if ( empty( $personal_links ) ) {
 			return;
 		}
@@ -189,7 +204,12 @@ class Jetpack_Gravatar_Profile_Widget extends WP_Widget {
 		<?php
 	}
 
-	function display_accounts( $accounts = array() ) {
+	/**
+	 * Displays the "Verified Services" accounts.
+	 *
+	 * @param array $accounts Array of social accounts.
+	 */
+	public function display_accounts( $accounts = array() ) {
 		if ( empty( $accounts ) ) {
 			return;
 		}
@@ -242,7 +262,7 @@ class Jetpack_Gravatar_Profile_Widget extends WP_Widget {
 	 *
 	 * @since 4.0.0
 	 */
-	function enqueue_scripts() {
+	public function enqueue_scripts() {
 		wp_enqueue_style(
 			'gravatar-profile-widget',
 			plugins_url( 'gravatar-profile.css', __FILE__ ),
@@ -258,7 +278,12 @@ class Jetpack_Gravatar_Profile_Widget extends WP_Widget {
 		);
 	}
 
-	function form( $instance ) {
+	/**
+	 * Outputs the widget settings form.
+	 *
+	 * @param array $instance Current settings.
+	 */
+	public function form( $instance ) {
 		$title               = isset( $instance['title'] ) ? $instance['title'] : '';
 		$email               = isset( $instance['email'] ) ? $instance['email'] : '';
 		$email_user          = isset( $instance['email_user'] ) ? $instance['email_user'] : get_current_user_id();
@@ -328,7 +353,10 @@ class Jetpack_Gravatar_Profile_Widget extends WP_Widget {
 		<?php
 	}
 
-	function admin_script() {
+	/**
+	 * Inline admin script.
+	 */
+	public function admin_script() {
 		?>
 		<script>
 		jQuery( function( $ ) {
@@ -345,8 +373,15 @@ class Jetpack_Gravatar_Profile_Widget extends WP_Widget {
 		<?php
 	}
 
-	function update( $new_instance, $old_instance ) {
-
+	/**
+	 * Update widget.
+	 *
+	 * @see WP_Widget::update()
+	 *
+	 * @param array $new_instance New widget instance data.
+	 * @param array $old_instance Old widget instance data.
+	 */
+	public function update( $new_instance, $old_instance ) { // phpcs:ignore VariableAnalysis.CodeAnalysis.VariableAnalysis.UnusedVariable
 		$instance = array();
 
 		$instance['title']               = isset( $new_instance['title'] ) ? wp_kses( $new_instance['title'], array() ) : '';
@@ -367,6 +402,11 @@ class Jetpack_Gravatar_Profile_Widget extends WP_Widget {
 		return $instance;
 	}
 
+	/**
+	 * Get the Gravatar profile for a given email address.
+	 *
+	 * @param string $email Email address.
+	 */
 	private function get_profile( $email ) {
 		$hashed_email = md5( strtolower( trim( $email ) ) );
 		$cache_key    = 'grofile-' . $hashed_email;
@@ -388,14 +428,14 @@ class Jetpack_Gravatar_Profile_Widget extends WP_Widget {
 				$profile = json_decode( $profile, true );
 
 				if ( is_array( $profile ) && ! empty( $profile['entry'] ) && is_array( $profile['entry'] ) ) {
-					$expire  = 900; // cache for 15 minutes
+					$expire  = 900; // Cache for 15 minutes.
 					$profile = $profile['entry'][0];
 				} else {
 					// Something strange happened.  Cache for 5 minutes.
 					$profile = array();
 				}
 			} else {
-				$expire  = 900; // cache for 15 minutes
+				$expire  = 900; // Cache for 15 minutes.
 				$profile = array();
 			}
 
@@ -404,8 +444,15 @@ class Jetpack_Gravatar_Profile_Widget extends WP_Widget {
 		return $profile;
 	}
 
+	/**
+	 * Return properly capitalized service name.
+	 *
+	 * @param string $shortname The service.
+	 *
+	 * @return string
+	 */
 	private function get_sanitized_service_name( $shortname ) {
-		// Some services have stylized or mixed cap names *cough* WP *cough*
+		// Some services have stylized or mixed cap names *cough* WP *cough*.
 		switch ( $shortname ) {
 			case 'friendfeed':
 				return 'FriendFeed';
@@ -427,11 +474,9 @@ class Jetpack_Gravatar_Profile_Widget extends WP_Widget {
 			case 'google':
 				return 'Google+';
 			default:
-				// Others don't
+				// Others don't.
 				$shortname = ucwords( $shortname );
 		}
 		return $shortname;
 	}
 }
-
-// END
