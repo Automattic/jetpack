@@ -1,6 +1,8 @@
 <?php
 /**
  * Create a new request for cloud critical CSS.
+ *
+ * Handler for POST 'cloud-css/request-generate'.
  */
 namespace Automattic\Jetpack_Boost\REST_API\Endpoints;
 
