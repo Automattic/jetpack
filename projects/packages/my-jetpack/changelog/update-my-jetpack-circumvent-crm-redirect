@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Circumvent CRM page overriding behaviour when activating and deactivating the plugin
