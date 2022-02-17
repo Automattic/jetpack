@@ -28,7 +28,14 @@ class VideoPress_AJAX {
 			),
 			-1
 		);
+
+		// Example filter that overrides video auth check and makes all videos public
+		// add_filter( 'videopress_is_current_user_authed_for_video', array( $this, 'sensei_override_video_auth'), 10, 2 );
 	}
+
+	/*public function sensei_override_video_auth( $is_user_authed, $guid ) {
+		return true;
+	}*/
 
 	/**
 	 * Initialize the VideoPress_AJAX and get back a singleton instance.
@@ -89,13 +96,34 @@ class VideoPress_AJAX {
 	 * @param string $guid The video id being checked.
 	 */
 	private function is_current_user_authed_for_video( $guid ) {
-		return '' !== $guid; // to make the linter happy.
+		$attachment = videopress_get_post_by_guid( $guid );
+		if ( ! $attachment ) {
+			return false;
+		}
 
-		// determine if video is public, private or use site default.
+		$video_info = video_get_info_by_blogpostid( get_current_blog_id(), $attachment->ID );
+		if ( null === $video_info->guid ) {
+			return false;
+		}
 
-		// current user can read.
+		$is_user_authed = false;
+		// Determine if video is public, private or use site default.
+		switch ( $video_info->privacy_setting ) {
+			case VIDEOPRESS_PRIVACY_IS_PUBLIC:
+				$is_user_authed = true;
+				break;
+			case VIDEOPRESS_PRIVACY_IS_PRIVATE:
+				$is_user_authed = current_user_can( 'read' );
+				break;
+			case VIDEOPRESS_PRIVACY_SITE_DEFAULT:
+			default:
+				$is_videopress_private_for_site = get_option( 'videopress_private_enabled_for_site', false );
+				$is_user_authed                 = false === $is_videopress_private_for_site || ( $is_videopress_private_for_site && current_user_can( 'read' ) );
+				break;
+		}
 
 		// create a filter so plugins can change result.
+		return apply_filters( 'videopress_is_current_user_authed_for_video', $is_user_authed, $guid );
 	}
 
 	/**
