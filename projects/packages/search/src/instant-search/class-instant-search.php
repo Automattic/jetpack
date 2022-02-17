@@ -25,6 +25,14 @@ class Instant_Search extends Classic_Search {
 	const AUTO_CONFIG_SIDEBAR = 'sidebar-1';
 
 	/**
+	 * The singleton instance of this class.
+	 * Instant_Search shouldn't share the variable with its parent.
+	 *
+	 * @var Instant_Search
+	 */
+	private static $instance;
+
+	/**
 	 * Variable to save old sidebars_widgets value.
 	 *
 	 * The value is set when action `after_switch_theme` is applied and cleared on filter `pre_update_option_sidebars_widgets`.
