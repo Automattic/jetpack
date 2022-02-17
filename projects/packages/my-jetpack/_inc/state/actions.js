@@ -2,7 +2,7 @@
  * External dependencies
  */
 import apiFetch from '@wordpress/api-fetch';
-import { __ } from '@wordpress/i18n';
+import { __, sprintf } from '@wordpress/i18n';
 
 /**
  * Internal dependencies
@@ -49,6 +49,14 @@ const setProductStatus = ( productId, status ) => {
 	return { type: SET_PRODUCT_STATUS, productId, status };
 };
 
+const setGlobalNotice = ( message, options ) => ( {
+	type: 'SET_GLOBAL_NOTICE',
+	message,
+	options,
+} );
+
+const cleanGlobalNotice = () => ( { type: 'CLEAN_GLOBAL_NOTICE' } );
+
 /**
  * Action that set the `isFetching` state of the product,
  * when the client hits the server.
@@ -80,14 +88,15 @@ function requestProductStatus( productId, data, { select, dispatch } ) {
 	return new Promise( ( resolve, reject ) => {
 		// Check valid product.
 		const isValid = select.isValidProduct( productId );
+
 		if ( ! isValid ) {
-			dispatch( setProductStatus( productId, 'error' ) );
-			return dispatch(
-				setRequestProductError( productId, {
-					code: 'invalid_product',
-					message: __( 'Invalid product name', 'jetpack-my-jetpack' ),
-				} )
-			);
+			const message = __( 'Invalid product name', 'jetpack-my-jetpack' );
+			const error = new Error( message );
+
+			dispatch( setRequestProductError( productId, error ) );
+			dispatch( setGlobalNotice( message, { status: 'error', isDismissible: true } ) );
+			reject( error );
+			return;
 		}
 
 		const method = data.activate ? 'POST' : 'DELETE';
@@ -97,18 +106,30 @@ function requestProductStatus( productId, data, { select, dispatch } ) {
 		return apiFetch( {
 			path: `${ REST_API_SITE_PRODUCTS_ENDPOINT }/${ productId }`,
 			method,
-			data,
 		} )
 			.then( freshProduct => {
 				dispatch( setIsFetchingProduct( productId, false ) );
 				dispatch( setProduct( freshProduct ) );
-				resolve( status );
+				resolve( freshProduct?.status );
 			} )
 			.catch( error => {
-				dispatch( setProductStatus( productId, 'error' ) );
-				dispatch( setRequestProductError( productId, error ) );
-				reject( error );
+				const { name } = select.getProduct( productId );
+				const message = data.activate
+					? sprintf(
+							// translators: %$1s: Jetpack Product name
+							__( 'Failed to activate %1$s. Please try again', 'jetpack-my-jetpack' ),
+							name
+					  )
+					: sprintf(
+							// translators: %$1s: Jetpack Product name
+							__( 'Failed to deactivate %1$s. Please try again', 'jetpack-my-jetpack' ),
+							name
+					  );
+
 				dispatch( setIsFetchingProduct( productId, false ) );
+				dispatch( setRequestProductError( productId, error ) );
+				dispatch( setGlobalNotice( message, { status: 'error', isDismissible: true } ) );
+				reject( error );
 			} );
 	} );
 }
@@ -141,15 +162,12 @@ const productActions = {
 	deactivateProduct,
 	setIsFetchingProduct,
 	setRequestProductError,
+	setProductStatus,
 };
 
 const noticeActions = {
-	setGlobalNotice: ( message, options ) => ( {
-		type: 'SET_GLOBAL_NOTICE',
-		message,
-		options,
-	} ),
-	cleanGlobalNotice: () => ( { type: 'CLEAN_GLOBAL_NOTICE' } ),
+	setGlobalNotice,
+	cleanGlobalNotice,
 };
 
 const actions = {

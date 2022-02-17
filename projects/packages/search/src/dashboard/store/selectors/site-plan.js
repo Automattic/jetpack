@@ -7,6 +7,7 @@ const sitePlanSelectors = {
 	getUpgradeBillPeriod: state => state.sitePlan?.default_upgrade_bill_period,
 	supportsSearch: state =>
 		state.sitePlan.supports_instant_search || state.sitePlan.supports_only_classic_search,
+	getTierMaximumRecords: state => state.sitePlan.tier_maximum_records,
 };
 
 export default sitePlanSelectors;
