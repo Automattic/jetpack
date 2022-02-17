@@ -51,7 +51,12 @@ class WPCOM_Widget_Goodreads extends WP_Widget {
 	 * Enqueue widget styles.
 	 */
 	public function enqueue_style() {
-		wp_enqueue_style( 'goodreads-widget', plugins_url( 'goodreads/css/goodreads.css', __FILE__ ) );
+		wp_enqueue_style(
+			'goodreads-widget',
+			plugins_url( 'goodreads/css/goodreads.css', __FILE__ ),
+			array(),
+			JETPACK__VERSION
+		);
 		wp_style_add_data( 'goodreads-widget', 'rtl', 'replace' );
 	}
 
@@ -100,7 +105,7 @@ class WPCOM_Widget_Goodreads extends WP_Widget {
 		$goodreads_url = 'https://www.goodreads.com/review/custom_widget/' . urlencode( $instance['user_id'] ) . '.' . urlencode( $instance['title'] ) . ':%20' . urlencode( $instance['shelf'] ) . '?cover_position=&cover_size=small&num_books=5&order=d&shelf=' . urlencode( $instance['shelf'] ) . '&sort=date_added&widget_bg_transparent=&widget_id=' . esc_attr( $this->goodreads_widget_id );
 
 		echo '<div class="gr_custom_widget" id="gr_custom_widget_' . esc_attr( $this->goodreads_widget_id ) . '"></div>' . "\n";
-		echo '<script src="' . esc_url( $goodreads_url ) . '"></script>' . "\n";
+		echo '<script src="' . esc_url( $goodreads_url ) . '"></script>' . "\n"; // phpcs:ignore WordPress.WP.EnqueuedResources.NonEnqueuedScript
 
 		echo $args['after_widget'];
 	}
