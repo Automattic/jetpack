@@ -657,11 +657,14 @@ class Jetpack_Carousel {
 	/**
 	 * Sets the "in_gallery" flag when the first gallery is encountered (unless in AMP mode).
 	 *
+	 * @deprecated since $$next-version$$
+	 *
 	 * @param string $output Gallery shortcode output. Passed through unchanged.
 	 *
 	 * @return string
 	 */
 	public function set_in_gallery( $output ) {
+		_deprecated_function( __FUNCTION__, '10.7' );
 		if (
 			class_exists( 'Jetpack_AMP_Support' )
 			&& Jetpack_AMP_Support::is_amp_request()
