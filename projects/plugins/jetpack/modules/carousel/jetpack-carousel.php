@@ -1,13 +1,12 @@
 <?php // phpcs:ignore WordPress.Files.FileName.InvalidClassFileName
-use Automattic\Jetpack\Assets;
-use Automattic\Jetpack\Status;
-
 /**
  * Module: Jetpack Carousel
  *
  * @package automattic/jetpack
  */
 
+use Automattic\Jetpack\Assets;
+use Automattic\Jetpack\Status;
 /**
  * Jetpack_Carousel class.
  */
@@ -20,35 +19,35 @@ class Jetpack_Carousel {
 	public $prebuilt_widths = array( 370, 700, 1000, 1200, 1400, 2000 );
 
 	/**
-	 * Sets the $first_run variable to true
+	 * Represents whether or not this is the first load of Carousel on a page. Default is true.
 	 *
 	 * @var bool
 	 */
 	public $first_run = true;
 
 	/**
-	 * Sets the $in_gallery variable to false
+	 * Determines whether or not to set in the gallery. Default is false.
 	 *
 	 * @var bool
 	 */
 	public $in_gallery = false;
 
 	/**
-	 * Sets the $in_jetpack variable to true
+	 * Determines whether the Jetpack class and method exists. Default is true.
 	 *
 	 * @var bool
 	 */
 	public $in_jetpack = true;
 
 	/**
-	 * Sets the $single_image_gallery_enabled variable to false
+	 * Determines whether or not a single image gallery is enabled. Default is false.
 	 *
 	 * @var bool
 	 */
 	public $single_image_gallery_enabled = false;
 
 	/**
-	 * Sets the $single_image_gallery_enabled_media_file variable to false
+	 * Determines whether images that link to themselves should be replaced with a one image gallery. Default is false.
 	 *
 	 * @var bool
 	 */
@@ -221,13 +220,17 @@ class Jetpack_Carousel {
 	}
 
 	/**
-	 * Allow third-party plugins or themes to force-enable Carousel.
+	 * Determine whether Carousel is enabled, and adjust filters and enqueue assets accordingly.
+	 *
+	 * If no other filter hook produced output for the gallery shortcode or something returns true for
+	 * the `jp_carousel_force_enable` filter, Carousel is enabled and we queue our assets. Otherwise
+	 * it's disabled and we remove some of our subsequent filter hooks.
 	 *
 	 * @since 1.9.0
 	 *
-	 * @param bool $output Should we force enable Carousel? Default to false.
+	 * @param string $output Gallery shortcode output.
 	 *
-	 * @return bool
+	 * @return string Gallery shortcode output.
 	 */
 	public function check_if_shortcode_processed_and_enqueue_assets( $output ) {
 		if (
@@ -239,6 +242,15 @@ class Jetpack_Carousel {
 
 		if (
 			! empty( $output ) &&
+			/**
+			 * Allow third-party plugins or themes to force-enable Carousel.
+			 *
+			 * @module carousel
+			 *
+			 * @since 1.9.0
+			 *
+			 * @param bool false Should we force enable Carousel? Default to false.
+			 */
 			! apply_filters( 'jp_carousel_force_enable', false )
 		) {
 			// Bail because someone is overriding the [gallery] shortcode.
@@ -643,9 +655,9 @@ class Jetpack_Carousel {
 	}
 
 	/**
-	 * Unless AMP is enabled and active, sets the 'in_gallery' option to true and returns $output. Otherwise, returns $output.
+	 * Sets the "in_gallery" flag when the first gallery is encountered (unless in AMP mode).
 	 *
-	 * @param string $output Output which includes whether or not to set in the gallery.
+	 * @param string $output Gallery shortcode output. Passed through unchanged.
 	 *
 	 * @return string
 	 */
@@ -734,11 +746,12 @@ class Jetpack_Carousel {
 	 * Adds the data attributes themselves to img tags.
 	 *
 	 * @see add_data_img_tags_and_enqueue_assets()
+	 * @see https://developer.wordpress.org/reference/functions/wp_get_attachment_image/ Documentation about wp_get_attachment_image
 	 *
-	 * @param string $attr Data attributes to be added.
-	 * @param string $attachment Attachment data. Default is null.
+	 * @param string[] $attr Array of attribute values for the image markup, keyed by attribute name.
+	 * @param WP_Post  $attachment Image attachment post.
 	 *
-	 * @return string
+	 * @return string[] Modified image attributes.
 	 */
 	public function add_data_to_images( $attr, $attachment = null ) {
 		if (
