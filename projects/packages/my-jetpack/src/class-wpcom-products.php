@@ -157,11 +157,22 @@ class Wpcom_Products {
 			return array();
 		}
 
+		$default_discount = 50;
+		$cost             = $product->cost;
+		$discount_price   = $cost * $default_discount / 100; // default discount.
+
+		// Get/compute the discounted price.
+		if ( isset( $product->introductory_offer->cost_per_interval ) ) {
+			$discount_price = $product->introductory_offer->cost_per_interval;
+		}
+
 		$pricing = array(
-			'currency_code' => $product->currency_code,
-			'full_price'    => $product->cost,
+			'currency_code'  => $product->currency_code,
+			'full_price'     => $cost,
+			'discount_price' => $discount_price,
 		);
 
+		// Check whether the product has a coupon.
 		if ( ! isset( $product->sale_coupon ) ) {
 			return $pricing;
 		}

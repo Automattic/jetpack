@@ -100,7 +100,7 @@ class Backup extends Hybrid_Product {
 	 * @return ?string
 	 */
 	public static function get_wpcom_product_slug() {
-		return 'jetpack_backup_t1_monthly';
+		return 'jetpack_backup_t1_yearly';
 	}
 
 	/**
