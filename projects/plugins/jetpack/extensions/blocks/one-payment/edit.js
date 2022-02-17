@@ -2,7 +2,6 @@
  * External dependencies
  */
 import { get, map } from 'lodash';
-import classnames from 'classnames';
 import { __ } from '@wordpress/i18n';
 import { useEffect } from '@wordpress/element';
 import { compose, withInstanceId } from '@wordpress/compose';
@@ -24,13 +23,10 @@ export function JetpackOnePaymentEdit( {
 	replaceBlock,
 	selectBlock,
 	clientId,
-	className,
 	blockType,
 	variations,
 	defaultVariation,
 } ) {
-	const formClassnames = classnames( className, 'jetpackone-payment' );
-
 	const createBlocksFromInnerBlocksTemplate = innerBlocksTemplate => {
 		const blocks = map( innerBlocksTemplate, ( [ name, attr, innerBlocks = [] ] ) =>
 			createBlock( name, attr, createBlocksFromInnerBlocksTemplate( innerBlocks ) )
@@ -60,17 +56,15 @@ export function JetpackOnePaymentEdit( {
 
 	const renderVariationPicker = () => {
 		return (
-			<div className={ formClassnames }>
-				<BlockVariationPicker
-					icon={ get( blockType, [ 'icon', 'src' ] ) }
-					label={ get( blockType, [ 'title' ] ) }
-					instructions={ __( "Please select which kind of payment you'd like to add.", 'jetpack' ) }
-					variations={ variations }
-					onSelect={ ( nextVariation = defaultVariation ) => {
-						setVariation( nextVariation );
-					} }
-				/>
-			</div>
+			<BlockVariationPicker
+				icon={ get( blockType, [ 'icon', 'src' ] ) }
+				label={ get( blockType, [ 'title' ] ) }
+				instructions={ __( "Please select which kind of payment you'd like to add.", 'jetpack' ) }
+				variations={ variations }
+				onSelect={ ( nextVariation = defaultVariation ) => {
+					setVariation( nextVariation );
+				} }
+			/>
 		);
 	};
 
