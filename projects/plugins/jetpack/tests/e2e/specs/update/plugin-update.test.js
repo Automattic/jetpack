@@ -3,11 +3,11 @@ import {
 	resolveSiteUrl,
 	execContainerShellCommand,
 } from 'jetpack-e2e-commons/helpers/utils-helper.cjs';
-import { PluginsPage } from 'jetpack-e2e-commons/pages/wp-admin/index.js';
-import { test } from '../../fixtures/base-test.js';
+import { PluginsPage, JetpackPage } from 'jetpack-e2e-commons/pages/wp-admin/index.js';
+import { test, expect } from '../../fixtures/base-test.js';
 import { prerequisitesBuilder } from 'jetpack-e2e-commons/env/index.js';
 
-test.skip( 'Update Jetpack plugin', async ( { page } ) => {
+test( 'Update Jetpack plugin', async ( { page } ) => {
 	const binPath = '/usr/local/src/jetpack-monorepo/projects/plugins/jetpack/tests/e2e/bin/update/';
 
 	// Prepare for update
@@ -15,7 +15,7 @@ test.skip( 'Update Jetpack plugin', async ( { page } ) => {
 	await execContainerShellCommand( `${ binPath }pre-update.sh ${ resolveSiteUrl() }` );
 
 	// Update
-	await prerequisitesBuilder( page ).withLoggedIn( true ).build();
+	await prerequisitesBuilder( page ).withLoggedIn( true ).withConnection( true ).build();
 
 	let pluginsPage;
 
@@ -29,8 +29,7 @@ test.skip( 'Update Jetpack plugin', async ( { page } ) => {
 
 	// Check Jetpack status after update
 	await execContainerShellCommand( `${ binPath }post-update.sh` );
-} );
 
-test( 'Update Jetpack plugin via CLI', async () => {
-	await execShellCommand( `./bin/update/update-flow.sh ${ resolveSiteUrl() }` );
+	const jetpackPage = await JetpackPage.visit( page );
+	expect( await jetpackPage.isConnected() ).toBeTruthy();
 } );
