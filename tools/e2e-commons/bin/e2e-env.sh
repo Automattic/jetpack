@@ -79,7 +79,9 @@ elif [ "${1}" == "stop" ]; then
 elif [ "${1}" == "reset" ]; then
 	reset_env "${@:2}"
 elif [ "${1}" == "clean" ]; then
-	clean_env "${@:2}"
+	clean_env
+elif [ "${1}" == "new" ]; then
+	new_env "${@:2}"
 elif [ "${1}" == "gb-setup" ]; then
 	gb_setup
 elif [ "${1}" == "usage" ]; then

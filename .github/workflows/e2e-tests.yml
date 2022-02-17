@@ -83,6 +83,7 @@ jobs:
         CONFIG_KEY: ${{ secrets.E2E_CONFIG_KEY }}
         COMPOSER_ROOT_VERSION: "dev-master"
         RUN_NAME: ${{ needs.create-test-matrix.outputs.runName }}
+        PROJECT_NAME:  ${{ matrix.project }}
       run: |
         echo "::group::Decrypt config"
         pnpm run config:decrypt
@@ -108,6 +109,10 @@ jobs:
             echo "::group::Setting up Gutenberg"
             pnpx e2e-env gb-setup
             echo "::endgroup::"
+        fi
+
+        if [ "${PROJECT_NAME}" == "Jetpack update" ]; then
+            echo "SKIP_ENV_CLEAN=true" >> $GITHUB_ENV
         fi
 
     - name: Run ${{ matrix.project }} tests

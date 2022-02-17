@@ -38,3 +38,9 @@ test( 'Update Jetpack plugin', async ( { page } ) => {
 		expect( await jetpackPage.isConnected() ).toBeTruthy();
 	} );
 } );
+
+test.afterEach( async () => {
+	if ( ! process.env.SKIP_ENV_CLEAN ) {
+		await execShellCommand( `pnpm env:new` );
+	}
+} );

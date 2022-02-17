@@ -22,6 +22,7 @@
 		"env:down": "e2e-env stop",
 		"env:reset": "e2e-env reset",
 		"env:clean": "e2e-env clean",
+		"env:new": "e2e-env new",
 		"tunnel:up": "tunnel up",
 		"tunnel:reset": "tunnel reset",
 		"tunnel:down": "tunnel down",
