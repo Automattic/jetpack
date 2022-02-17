@@ -21,21 +21,21 @@ class Cloud_CSS_Request {
 	/**
 	 * @var Critical_CSS_State
 	 */
-	private $cloud_css_state;
+	private $state;
 
 	/**
 	 * @var Source_Providers
 	 */
 	private $source_providers;
 
-	public function __construct() {
+	public function __construct( $state ) {
 		$this->source_providers = new Source_Providers();
-		$this->cloud_css_state  = new Critical_CSS_State();
+		$this->state            = $state;
 	}
 
 	public function request_generate() {
-		$this->cloud_css_state->create_request( $this->source_providers->get_providers() );
-		$sources = $this->cloud_css_state->get_provider_urls();
+		$this->state->create_request( $this->source_providers->get_providers() );
+		$sources = $this->state->get_provider_urls();
 
 		$client               = Boost_API::get_client();
 		$payload              = array( 'providers' => $sources );
