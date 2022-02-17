@@ -21,7 +21,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 /**
  * Class Jetpack_Partner_Coupon
  *
- * @since $$next_version$$
+ * @since 1.6.0
  */
 class Partner_Coupon {
 
@@ -367,7 +367,7 @@ class Partner_Coupon {
 		/**
 		 * Allow for plugins to register supported products.
 		 *
-		 * @since $$next_version$$
+		 * @since 1.6.0
 		 *
 		 * @param array A list of product details.
 		 * @return array
@@ -436,7 +436,7 @@ class Partner_Coupon {
 		/**
 		 * Allow external code to add additional supported partners.
 		 *
-		 * @since $$next_version$$
+		 * @since 1.6.0
 		 *
 		 * @param array $supported_partners A list of supported partners.
 		 * @return array
@@ -453,7 +453,7 @@ class Partner_Coupon {
 		/**
 		 * Allow external code to add additional supported presets.
 		 *
-		 * @since $$next_version$$
+		 * @since 1.6.0
 		 *
 		 * @param array $supported_presets A list of supported presets.
 		 * @return array
