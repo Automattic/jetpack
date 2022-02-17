@@ -101,14 +101,14 @@ class Classic_Search {
 	 * @return static The class singleton.
 	 */
 	public static function instance( $blog_id = null ) {
-		if ( ! isset( static::$instance ) ) {
+		if ( ! isset( self::$instance ) ) {
 			if ( null === $blog_id ) {
 				$blog_id = Helper::get_wpcom_site_id();
 			}
-			static::$instance = new static();
-			static::$instance->setup( $blog_id );
+			self::$instance = new static();
+			self::$instance->setup( $blog_id );
 		}
-		return static::$instance;
+		return self::$instance;
 	}
 
 	/**
