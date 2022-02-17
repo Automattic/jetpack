@@ -50,7 +50,6 @@
             ],
             "description": "Used to record internal usage stats for Automattic. Not visible to site owners.",
             "transport-options": {
-                "monorepo": true,
                 "relative": true
             }
         },
@@ -106,7 +105,6 @@
             ],
             "description": "Generic Jetpack wp-admin UI elements",
             "transport-options": {
-                "monorepo": true,
                 "relative": true
             }
         },
@@ -173,7 +171,6 @@
             ],
             "description": "Asset management utilities for Jetpack ecosystem packages",
             "transport-options": {
-                "monorepo": true,
                 "relative": true
             }
         },
@@ -229,7 +226,6 @@
             ],
             "description": "Creates a custom autoloader for a plugin or theme.",
             "transport-options": {
-                "monorepo": true,
                 "relative": true
             }
         },
@@ -292,7 +288,6 @@
             ],
             "description": "Tools to assist with backing up Jetpack sites.",
             "transport-options": {
-                "monorepo": true,
                 "relative": true
             }
         },
@@ -345,7 +340,6 @@
             ],
             "description": "A custom installer plugin for Composer to move Jetpack packages out of `vendor/` so WordPress's translation infrastructure will find their strings.",
             "transport-options": {
-                "monorepo": true,
                 "relative": true
             }
         },
@@ -382,7 +376,6 @@
             ],
             "description": "Jetpack configuration package that initializes other packages and configures Jetpack's functionality. Can be used as a base for all variants of Jetpack package usage.",
             "transport-options": {
-                "monorepo": true,
                 "relative": true
             }
         },
@@ -451,7 +444,6 @@
             ],
             "description": "Everything needed to connect to the Jetpack infrastructure",
             "transport-options": {
-                "monorepo": true,
                 "relative": true
             }
         },
@@ -507,7 +499,6 @@
             ],
             "description": "Jetpack Connection UI",
             "transport-options": {
-                "monorepo": true,
                 "relative": true
             }
         },
@@ -556,7 +547,6 @@
             ],
             "description": "A wrapper for defining constants in a more testable way.",
             "transport-options": {
-                "monorepo": true,
                 "relative": true
             }
         },
@@ -604,7 +594,6 @@
             ],
             "description": "A way to detect device types based on User-Agent header.",
             "transport-options": {
-                "monorepo": true,
                 "relative": true
             }
         },
@@ -645,7 +634,6 @@
             ],
             "description": "This adds a cronjob that sends a batch of internal automattic stats to wp.com once a day",
             "transport-options": {
-                "monorepo": true,
                 "relative": true
             }
         },
@@ -720,7 +708,6 @@
             ],
             "description": "Identity Crisis.",
             "transport-options": {
-                "monorepo": true,
                 "relative": true
             }
         },
@@ -768,7 +755,6 @@
             ],
             "description": "A logo for Jetpack",
             "transport-options": {
-                "monorepo": true,
                 "relative": true
             }
         },
@@ -854,7 +840,6 @@
             ],
             "description": "WP Admin page with information and configuration shared among all Jetpack stand-alone plugins",
             "transport-options": {
-                "monorepo": true,
                 "relative": true
             }
         },
@@ -894,7 +879,6 @@
             ],
             "description": "A wrapper for wp-options to manage specific Jetpack options.",
             "transport-options": {
-                "monorepo": true,
                 "relative": true
             }
         },
@@ -947,7 +931,6 @@
             ],
             "description": "Password Checker.",
             "transport-options": {
-                "monorepo": true,
                 "relative": true
             }
         },
@@ -999,7 +982,6 @@
             ],
             "description": "Handle installation of plugins from WP.org",
             "transport-options": {
-                "monorepo": true,
                 "relative": true
             }
         },
@@ -1051,7 +1033,6 @@
             ],
             "description": "Utilities to build URLs to the jetpack.com/redirect/ service",
             "transport-options": {
-                "monorepo": true,
                 "relative": true
             }
         },
@@ -1100,7 +1081,6 @@
             ],
             "description": "Utilities, related with user roles and capabilities.",
             "transport-options": {
-                "monorepo": true,
                 "relative": true
             }
         },
@@ -1152,7 +1132,6 @@
             ],
             "description": "Used to retrieve information about the current status of Jetpack and the site overall.",
             "transport-options": {
-                "monorepo": true,
                 "relative": true
             }
         },
@@ -1218,7 +1197,6 @@
             ],
             "description": "Everything needed to allow syncing to the WP.com infrastructure.",
             "transport-options": {
-                "monorepo": true,
                 "relative": true
             }
         },
@@ -1271,7 +1249,6 @@
             ],
             "description": "Everything need to manage the terms of service state",
             "transport-options": {
-                "monorepo": true,
                 "relative": true
             }
         },
@@ -1328,7 +1305,6 @@
             ],
             "description": "Tracking for Jetpack",
             "transport-options": {
-                "monorepo": true,
                 "relative": true
             }
         }
@@ -1403,7 +1379,6 @@
             ],
             "description": "Jetpack Changelogger tool. Allows for managing changelogs by dropping change files into a changelog directory with each PR.",
             "transport-options": {
-                "monorepo": true,
                 "relative": true
             }
         },
