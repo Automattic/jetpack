@@ -1,20 +1,65 @@
-<?php
+<?php // phpcs:ignore WordPress.Files.FileName.InvalidClassFileName
 
+/**
+ * Jetpack_Internet_Defense_League_Widget main class.
+ */
 class Jetpack_Internet_Defense_League_Widget extends WP_Widget {
-
+	/**
+	 * Default widget settings.
+	 *
+	 * @var array
+	 */
 	public $defaults = array();
 
+	/**
+	 * Selected display variant.
+	 *
+	 * @var string
+	 */
 	public $variant;
+	/**
+	 * Display variants.
+	 *
+	 * @var array
+	 */
 	public $variants = array();
 
+	/**
+	 * Selected campaign.
+	 *
+	 * @var string
+	 */
 	public $campaign;
-	public $campaigns  = array();
+	/**
+	 * Campaign options.
+	 *
+	 * @var array
+	 */
+	public $campaigns = array();
+	/**
+	 * False when enabling campaigns other than 'none' or empty.
+	 *
+	 * @var bool
+	 */
 	public $no_current = true;
 
+	/**
+	 * Selected badge to display.
+	 *
+	 * @var string
+	 */
 	public $badge;
+	/**
+	 * Badge display options.
+	 *
+	 * @var array
+	 */
 	public $badges = array();
 
-	function __construct() {
+	/**
+	 * Jetpack_Internet_Defense_League_Widget constructor.
+	 */
+	public function __construct() {
 		parent::__construct(
 			'internet_defense_league_widget',
 			/** This filter is documented in modules/widgets/facebook-likebox.php */
@@ -66,6 +111,14 @@ class Jetpack_Internet_Defense_League_Widget extends WP_Widget {
 		return $widget_types;
 	}
 
+	/**
+	 * Display the Widget.
+	 *
+	 * @see WP_Widget::widget()
+	 *
+	 * @param array $args     Display arguments.
+	 * @param array $instance The settings for the particular instance of the widget.
+	 */
 	public function widget( $args, $instance ) {
 		$instance = wp_parse_args( $instance, $this->defaults );
 
@@ -91,6 +144,9 @@ class Jetpack_Internet_Defense_League_Widget extends WP_Widget {
 		do_action( 'jetpack_stats_extra', 'widget_view', 'internet_defense_league' );
 	}
 
+	/**
+	 * Inline footer script.
+	 */
 	public function footer_script() {
 		if ( ! isset( $this->campaigns[ $this->campaign ] ) ) {
 			$this->campaign = $this->defaults['campaign'];
@@ -120,6 +176,13 @@ class Jetpack_Internet_Defense_League_Widget extends WP_Widget {
 		<?php
 	}
 
+	/**
+	 * Widget form in the dashboard.
+	 *
+	 * @see WP_Widget::form()
+	 *
+	 * @param array $instance Previously saved values from database.
+	 */
 	public function form( $instance ) {
 		$instance = wp_parse_args( $instance, $this->defaults );
 
@@ -145,6 +208,13 @@ class Jetpack_Internet_Defense_League_Widget extends WP_Widget {
 		echo '<p>' . sprintf( _x( 'Learn more about the %s', 'the Internet Defense League', 'jetpack' ), '<a href="https://www.internetdefenseleague.org/">Internet Defense League</a>' ) . '</p>';
 	}
 
+	/**
+	 * Display a select form field.
+	 *
+	 * @param string $field_name Name of the field.
+	 * @param array  $options Array of options.
+	 * @param string $default Default option.
+	 */
 	public function select( $field_name, $options, $default = null ) {
 		echo '<select class="widefat" name="' . $this->get_field_name( $field_name ) . '">';
 		foreach ( $options as $option_slug => $option_name ) {
@@ -153,7 +223,15 @@ class Jetpack_Internet_Defense_League_Widget extends WP_Widget {
 		echo '</select>';
 	}
 
-	public function update( $new_instance, $old_instance ) {
+	/**
+	 * Update widget.
+	 *
+	 * @see WP_Widget::update()
+	 *
+	 * @param array $new_instance New widget instance data.
+	 * @param array $old_instance Old widget instance data.
+	 */
+	public function update( $new_instance, $old_instance ) { // phpcs:ignore VariableAnalysis.CodeAnalysis.VariableAnalysis.UnusedVariable
 		$instance = array();
 
 		$instance['campaign'] = ( isset( $new_instance['campaign'] ) && isset( $this->campaigns[ $new_instance['campaign'] ] ) ) ? $new_instance['campaign'] : $this->defaults['campaign'];
@@ -164,6 +242,9 @@ class Jetpack_Internet_Defense_League_Widget extends WP_Widget {
 	}
 }
 
+/**
+ * Register the widget.
+ */
 function jetpack_internet_defense_league_init() {
 	register_widget( 'Jetpack_Internet_Defense_League_Widget' );
 }
