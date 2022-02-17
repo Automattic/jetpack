@@ -43,6 +43,25 @@ class Crm extends Product {
 	public static $requires_user_connection = false;
 
 	/**
+	 * Activates CRM after circumventing its Wizard Mechanism
+	 *
+	 * @return boolean|WP_Error
+	 */
+	public static function activate() {
+		self::circumvent_wizard();
+		return parent::activate();
+	}
+
+	/**
+	 * Does what's necessary to avoid CRM hijacking REST requests and page loads
+	 *
+	 * @return boolean
+	 */
+	public static function circumvent_wizard() {
+		return update_option( 'jpcrm_skip_wizard', 1 );
+	}
+
+	/**
 	 * Get the internationalized product name
 	 *
 	 * @return string
