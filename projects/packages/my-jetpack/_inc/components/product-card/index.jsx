@@ -39,7 +39,7 @@ const DownIcon = () => (
 	</svg>
 );
 
-const renderActionButton = ( {
+const ActionButton = ( {
 	status,
 	admin,
 	name,
@@ -108,9 +108,11 @@ const ProductCard = props => {
 		onActivate,
 		onAdd,
 		onDeactivate,
+		onFixConnection,
 		onManage,
 		isFetching,
 		slug,
+		showDeactivate,
 	} = props;
 	const isActive = status === PRODUCT_STATUSES.ACTIVE;
 	const isError = status === PRODUCT_STATUSES.ERROR;
@@ -118,7 +120,7 @@ const ProductCard = props => {
 	const isAbsent = status === PRODUCT_STATUSES.ABSENT || status === PRODUCT_STATUSES.NEEDS_PURCHASE;
 	const isPurchaseRequired = status === PRODUCT_STATUSES.NEEDS_PURCHASE;
 	const flagLabel = PRODUCT_STATUSES_LABELS[ status ];
-	const canDeactivate = ( isActive || isError ) && admin;
+	const canDeactivate = ( isActive || isError ) && admin && showDeactivate;
 
 	const containerClassName = classNames( styles.container, {
 		[ styles.plugin_absent ]: isAbsent,
@@ -176,6 +178,16 @@ const ProductCard = props => {
 		onManage();
 	}, [ slug, onManage, recordEvent ] );
 
+	/**
+	 * Calls the passed function onManage after firing Tracks event
+	 */
+	const fixConnectionHandler = useCallback( () => {
+		recordEvent( 'jetpack_myjetpack_product_card_fixconnection_click', {
+			product: slug,
+		} );
+		onFixConnection();
+	}, [ slug, onFixConnection, recordEvent ] );
+
 	return (
 		<div className={ containerClassName }>
 			<div className={ styles.name }>
@@ -186,11 +198,12 @@ const ProductCard = props => {
 			<div className={ styles.actions }>
 				{ canDeactivate ? (
 					<ButtonGroup className={ styles.group }>
-						{ renderActionButton( {
-							...props,
-							onActivate: activateHandler,
-							onManage: manageHandler,
-						} ) }
+						<ActionButton
+							{ ...props }
+							onActivate={ activateHandler }
+							onFixConnection={ fixConnectionHandler }
+							onManage={ manageHandler }
+						/>
 						<DropdownMenu
 							className={ styles.dropdown }
 							toggleProps={ { isPressed: true, disabled: isFetching } }
@@ -207,11 +220,12 @@ const ProductCard = props => {
 						/>
 					</ButtonGroup>
 				) : (
-					renderActionButton( {
-						...props,
-						onActivate: activateHandler,
-						onAdd: addHandler,
-					} )
+					<ActionButton
+						{ ...props }
+						onFixConnection={ fixConnectionHandler }
+						onActivate={ activateHandler }
+						onAdd={ addHandler }
+					/>
 				) }
 				{ ! isAbsent && <div className={ statusClassName }>{ flagLabel }</div> }
 			</div>
@@ -232,6 +246,7 @@ ProductCard.propTypes = {
 	onAdd: PropTypes.func,
 	onLearn: PropTypes.func,
 	slug: PropTypes.string.isRequired,
+	showDeactivate: PropTypes.bool,
 	status: PropTypes.oneOf( [
 		PRODUCT_STATUSES.ACTIVE,
 		PRODUCT_STATUSES.INACTIVE,
@@ -250,6 +265,7 @@ ProductCard.defaultProps = {
 	onActivate: () => {},
 	onAdd: () => {},
 	onLearn: () => {},
+	showDeactivate: true,
 };
 
 export default ProductCard;
