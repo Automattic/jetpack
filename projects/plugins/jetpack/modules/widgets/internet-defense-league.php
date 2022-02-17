@@ -129,9 +129,9 @@ class Jetpack_Internet_Defense_League_Widget extends WP_Widget {
 			$badge_url        = esc_url( 'https://www.internetdefenseleague.org/images/badges/final/' . $instance['badge'] . '.png' );
 			$photon_badge_url = jetpack_photon_url( $badge_url );
 			$alt_text         = esc_html__( 'Member of The Internet Defense League', 'jetpack' );
-			echo $args['before_widget'];
-			echo '<p><a href="https://www.internetdefenseleague.org/"><img src="' . $photon_badge_url . '" alt="' . $alt_text . '" style="max-width: 100%; height: auto;" /></a></p>';
-			echo $args['after_widget'];
+			echo $args['before_widget']; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
+			echo '<p><a href="https://www.internetdefenseleague.org/"><img src="' . esc_url( $photon_badge_url ) . '" alt="' . esc_attr( $alt_text ) . '" style="max-width: 100%; height: auto;" /></a></p>';
+			echo $args['after_widget']; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
 		}
 
 		if ( 'none' !== $instance['campaign'] ) {
@@ -204,8 +204,18 @@ class Jetpack_Internet_Defense_League_Widget extends WP_Widget {
 		$this->select( 'badge', $this->badges, $instance['badge'] );
 		echo '</label></p>';
 
-		/* translators: %s is a name of an internet campaign called the "Internet Defense League" */
-		echo '<p>' . sprintf( _x( 'Learn more about the %s', 'the Internet Defense League', 'jetpack' ), '<a href="https://www.internetdefenseleague.org/">Internet Defense League</a>' ) . '</p>';
+		echo '<p>' . wp_kses(
+			sprintf(
+				/* translators: %s is a name of an internet campaign called the "Internet Defense League" */
+				_x( 'Learn more about the %s', 'the Internet Defense League', 'jetpack' ),
+				'<a href="https://www.internetdefenseleague.org/">Internet Defense League</a>'
+			),
+			array(
+				'a' => array(
+					'href' => array(),
+				),
+			)
+		) . '</p>';
 	}
 
 	/**
@@ -216,7 +226,7 @@ class Jetpack_Internet_Defense_League_Widget extends WP_Widget {
 	 * @param string $default Default option.
 	 */
 	public function select( $field_name, $options, $default = null ) {
-		echo '<select class="widefat" name="' . $this->get_field_name( $field_name ) . '">';
+		echo '<select class="widefat" name="' . esc_attr( $this->get_field_name( $field_name ) ) . '">';
 		foreach ( $options as $option_slug => $option_name ) {
 			echo '<option value="' . esc_attr( $option_slug ) . '"' . selected( $option_slug, $default, false ) . '>' . esc_html( $option_name ) . '</option>';
 		}
