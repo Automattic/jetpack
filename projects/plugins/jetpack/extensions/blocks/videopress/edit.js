@@ -818,10 +818,7 @@ const VpBlock = props => {
 		}
 	);
 
-	scripts.push(
-		URL.createObjectURL( videopresAjaxURLBlob ),
-		'/wp-content/plugins/jetpack/modules/videopress/js/videopress-token-bridge.js'
-	);
+	scripts.push( URL.createObjectURL( videopresAjaxURLBlob ), window.videopressAjax.bridgeUrl );
 
 	return (
 		<figure { ...blockProps }>
