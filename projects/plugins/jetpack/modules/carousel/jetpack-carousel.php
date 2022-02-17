@@ -207,9 +207,9 @@ class Jetpack_Carousel {
 	/**
 	 * Displays a message on top of gallery if carousel has bailed.
 	 *
-	 * @param string $output Bail message output.
+	 * @param string $output Gallery shortcode output.
 	 *
-	 * @return string
+	 * @return string Shortcode output with bail message prepended.
 	 */
 	public function display_bail_message( $output = '' ) {
 		$message  = '<div class="jp-carousel-msg"><p>';
@@ -338,7 +338,7 @@ class Jetpack_Carousel {
 				'write_comment'                   => __( 'Write a Comment...', 'jetpack' ),
 				'loading_comments'                => __( 'Loading Comments...', 'jetpack' ),
 				'download_original'               => sprintf(
-					/* translators: %1s is applied to the photo-size span class as the full-size image width, and %2s is the height. */
+					/* translators: %1s is the full-size image width, and %2s is the height. */
 					__( 'View full size <span class="photo-size">%1$s<span class="photo-size-times">&times;</span>%2$s</span>', 'jetpack' ),
 					'{0}',
 					'{1}'
@@ -809,9 +809,9 @@ class Jetpack_Carousel {
 	}
 
 	/**
-	 * Creates the additional Gallery container HTML
+	 * Add additional attributes to the Gallery container HTML.
 	 *
-	 * @param string $html The HTML to which the additional Gallery HTML is added.
+	 * @param string $html The HTML to which the additional attributes are added.
 	 *
 	 * @return string
 	 */
@@ -1184,7 +1184,7 @@ class Jetpack_Carousel {
 	 */
 	public function test_1or0_option( $value, $default_to_1 = true ) {
 		if ( true === $default_to_1 ) {
-			// Binary false (===) of $value means it has not yet been set, in which case we do want to default sites to 1.
+			// Boolean false (===) of $value means it has not yet been set, in which case we do want to default to 1.
 			if ( false === $value ) {
 				$value = 1;
 			}
@@ -1205,14 +1205,12 @@ class Jetpack_Carousel {
 	}
 
 	/**
-	 * Adds settings checkbox
+	 * Outputs a settings checkbox.
 	 *
 	 * @param string $name - For name attribute.
 	 * @param string $label_text - For label attribute.
 	 * @param string $extra_text - Additional checkbox description text. Defaults to empty.
 	 * @param bool   $default_to_checked - If the checkbox is checked. Default is true.
-	 *
-	 * @return string
 	 */
 	public function settings_checkbox( $name, $label_text, $extra_text = '', $default_to_checked = true ) {
 		if ( empty( $name ) ) {
@@ -1230,13 +1228,11 @@ class Jetpack_Carousel {
 	}
 
 	/**
-	 * Adds settings options
+	 * Output a selection list options
 	 *
 	 * @param string $name - For name attribute.
 	 * @param string $values - For the different option values.
 	 * @param string $extra_text - Additional option section description text. Defaults to empty.
-	 *
-	 * @return string
 	 */
 	public function settings_select( $name, $values, $extra_text = '' ) {
 		if ( empty( $name ) || ! is_array( $values ) || empty( $values ) ) {
@@ -1272,9 +1268,9 @@ class Jetpack_Carousel {
 	}
 
 	/**
-	 * Calls the sanitize_1or0_option function to sanitize the passed value.
+	 * Sanitize input for the `carousel_display_exif` setting.
 	 *
-	 * @param number $value The exif data to sanitize.
+	 * @param mixed $value User input setting value.
 	 *
 	 * @return number Sanitized value, only 1 or 0.
 	 */
@@ -1325,9 +1321,9 @@ class Jetpack_Carousel {
 	}
 
 	/**
-	 * Calls the sanitize_1or0_option function to sanitize the passed value.
+	 * Sanitize input for the `carousel_enable_it` setting.
 	 *
-	 * @param number $value The carousel_enable_it data to sanitize.
+	 * @param mixed $value User input.
 	 *
 	 * @return number Sanitized value, only 1 or 0.
 	 */
