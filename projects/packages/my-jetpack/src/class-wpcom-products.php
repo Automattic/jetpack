@@ -47,22 +47,22 @@ class Wpcom_Products {
 			),
 		);
 
-		$endpoint = sprintf( '/sites/%d/products/?_locale=%s&type=jetpack', \Jetpack_Options::get_option( 'id' ), get_user_locale() );
-		$version  = '1.1';
+		$endpoint = sprintf( '/products/?_locale=%s&type=jetpack', get_user_locale() );
+		$version  = '2';
 
 		// Hit the endpoint depending on the user's connection status.
 		$wpcom_request = $is_user_connected
 			? Client::wpcom_json_api_request_as_user(
 				$endpoint,
 				$version,
-				$params,
-				null,
-				'rest'
+				$params
 			)
 			: Client::wpcom_json_api_request_as_blog(
 				$endpoint,
 				$version,
-				$params
+				$params,
+				null,
+				'wpcom'
 			);
 
 		$response_code = wp_remote_retrieve_response_code( $wpcom_request );
