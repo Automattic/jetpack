@@ -238,7 +238,7 @@ class Jetpack_Gravatar_Profile_Widget extends WP_Widget {
 
 		<?php
 		foreach ( $accounts as $account ) :
-			if ( $account['verified'] != 'true' ) {
+			if ( 'true' != $account['verified'] ) {
 				continue;
 			}
 
@@ -324,7 +324,7 @@ class Jetpack_Gravatar_Profile_Widget extends WP_Widget {
 			</label>
 		</p>
 
-		<p class="gprofile-email-container <?php echo empty( $email_user ) || $email_user == -1 ? '' : 'hidden'; ?>">
+		<p class="gprofile-email-container <?php echo empty( $email_user ) || -1 == $email_user ? '' : 'hidden'; ?>">
 			<label for="<?php echo $this->get_field_id( 'email' ); ?>"><?php esc_html_e( 'Custom Email Address', 'jetpack' ); ?>
 				<input class="widefat" id="<?php echo $this->get_field_id( 'email' ); ?>" name="<?php echo $this->get_field_name( 'email' ); ?>" type="text" value="<?php echo esc_attr( $email ); ?>" />
 			</label>
@@ -410,8 +410,9 @@ class Jetpack_Gravatar_Profile_Widget extends WP_Widget {
 	private function get_profile( $email ) {
 		$hashed_email = md5( strtolower( trim( $email ) ) );
 		$cache_key    = 'grofile-' . $hashed_email;
+		$profile      = get_transient( $cache_key );
 
-		if ( ! $profile = get_transient( $cache_key ) ) {
+		if ( ! $profile ) {
 			$profile_url = sprintf(
 				'https://secure.gravatar.com/%s.json',
 				$hashed_email
