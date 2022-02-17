@@ -23,10 +23,6 @@ rm -rf /var/www/html/wp-content/plugins/debug-helper || true
 rm -rf /var/www/html/wp-content/plugins/backup || true
 rm -rf /var/www/html/wp-content/plugins/vaultpress || true
 
-# Update FS permissions
-sudo chmod 755 /var/www/html/
-sudo chown -R www-data:www-data /var/www/html/
-
 printf "\nDone with jetpack.zip preparation!\n"
 
 printf "\nInstalling Jetpack stable\n"
@@ -37,5 +33,11 @@ wp plugin --allow-root activate e2e-plugin-updater
 wp --allow-root option set e2e_jetpack_upgrader_update_version "$VERSION"
 wp --allow-root option set e2e_jetpack_upgrader_plugin_url "${1}"/wp-content/uploads/jetpack-next.zip
 rm -rf /root/.wp-cli/cache/plugin/jetpack-"$VERSION".zip
+
+# Update FS permissions
+ls -lh /var/www/html/wp-content
+sudo chmod 755 /var/www/html/wp-content
+sudo chown -R www-data:www-data /var/www/html/wp-content
+ls -lh /var/www/html/wp-content
 
 printf "\nReady for update!\n"

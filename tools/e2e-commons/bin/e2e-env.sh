@@ -11,7 +11,8 @@ usage() {
 	echo "  start [--activate-plugins plugin1 plugin2 ...]    Setup the docker containers for E2E tests and optionally activate additional plugins"
 	echo "  stop                                              Stop the docker containers for E2E tests"
 	echo "  reset [--activate-plugins plugin1 plugin2 ...]    Reset the containers state (reset db, re-installs WordPress) and optionally activate additional plugins"
-	echo "  clean [--activate-plugins plugin1 plugin2 ...]    Completely resets the environment (remove docker volumes, MySql and WordPress data and logs)"
+	echo "  clean                                             Completely resets the environment (remove docker volumes, MySql and WordPress data and logs)"
+	echo "  new [--activate-plugins plugin1 plugin2 ...]      Completely resets the running environment and starts a new fresh one"
 	echo "  gb-setup                                          Setup Gutenberg plugin"
 	echo "  -h | usage                                        Output this message"
 	exit 1
@@ -30,13 +31,19 @@ stop_env() {
 }
 
 reset_env() {
-	$BASE_CMD wp -- db reset --yes
-	$BASE_CMD install || true
+	$BASE_CMD uninstall
+	$BASE_CMD install
 	configure_wp_env "$@"
 }
 
 clean_env() {
+	$BASE_CMD uninstall || true
 	$BASE_CMD clean
+}
+
+new_env() {
+	clean_env
+	start_env "$@"
 }
 
 gb_setup() {
