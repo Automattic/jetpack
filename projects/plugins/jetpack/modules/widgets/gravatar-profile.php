@@ -238,7 +238,7 @@ class Jetpack_Gravatar_Profile_Widget extends WP_Widget {
 
 		<?php
 		foreach ( $accounts as $account ) :
-			if ( 'true' != $account['verified'] ) {
+			if ( 'true' !== $account['verified'] ) {
 				continue;
 			}
 
@@ -324,7 +324,7 @@ class Jetpack_Gravatar_Profile_Widget extends WP_Widget {
 			</label>
 		</p>
 
-		<p class="gprofile-email-container <?php echo empty( $email_user ) || -1 == $email_user ? '' : 'hidden'; ?>">
+		<p class="gprofile-email-container <?php echo empty( $email_user ) || -1 === (int) $email_user ? '' : 'hidden'; ?>">
 			<label for="<?php echo $this->get_field_id( 'email' ); ?>"><?php esc_html_e( 'Custom Email Address', 'jetpack' ); ?>
 				<input class="widefat" id="<?php echo $this->get_field_id( 'email' ); ?>" name="<?php echo $this->get_field_name( 'email' ); ?>" type="text" value="<?php echo esc_attr( $email ); ?>" />
 			</label>
@@ -424,7 +424,7 @@ class Jetpack_Gravatar_Profile_Widget extends WP_Widget {
 				array( 'User-Agent' => 'WordPress.com Gravatar Profile Widget' )
 			);
 			$response_code = wp_remote_retrieve_response_code( $response );
-			if ( 200 == $response_code ) {
+			if ( 200 === $response_code ) {
 				$profile = wp_remote_retrieve_body( $response );
 				$profile = json_decode( $profile, true );
 
