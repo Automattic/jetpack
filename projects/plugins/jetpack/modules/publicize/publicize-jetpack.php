@@ -340,8 +340,15 @@ class Publicize extends Publicize_Base {
 					?>
 				</h2>
 				<?php if ( $code ) : ?>
-					<?php /* translators: %s is the name of the error */ ?>
-					<p><?php printf( esc_html__( 'Error code: %s', 'jetpack' ), esc_html( stripslashes( $code ) ) ); ?></p>
+					<p>
+					<?php
+					printf(
+						/* translators: %s is the name of the error */
+						esc_html__( 'Error code: %s', 'jetpack' ),
+						esc_html( stripslashes( $code ) )
+					);
+					?>
+					</p>
 				<?php endif; ?>
 			</div>
 		</div>
