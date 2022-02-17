@@ -1202,7 +1202,7 @@ class Jetpack_Carousel {
 				$value = 1;
 			}
 		}
-		return ( 1 === $value ) ? 1 : 0;
+		return ( 1 == $value ) ? 1 : 0; // phpcs:ignore Universal.Operators.StrictComparisons.LooseEqual
 	}
 
 	/**
@@ -1214,7 +1214,7 @@ class Jetpack_Carousel {
 	 * @return int
 	 */
 	public function sanitize_1or0_option( $value ) {
-		return ( 1 === $value ) ? 1 : 0;
+		return ( 1 == $value ) ? 1 : 0; // phpcs:ignore Universal.Operators.StrictComparisons.LooseEqual
 	}
 
 	/**
