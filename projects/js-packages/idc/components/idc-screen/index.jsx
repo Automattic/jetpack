@@ -3,7 +3,6 @@
  */
 import React, { useEffect, useState, useCallback } from 'react';
 import PropTypes from 'prop-types';
-import analytics from '@automattic/jetpack-analytics';
 import restApi from '@automattic/jetpack-api';
 import { useSelect } from '@wordpress/data';
 
@@ -11,7 +10,7 @@ import { useSelect } from '@wordpress/data';
  * Internal dependencies
  */
 import IDCScreenVisual from './visual';
-import trackAndBumpMCStats from '../../tools/tracking';
+import trackAndBumpMCStats, { initializeAnalytics } from '../../tools/tracking';
 import useMigration from '../../hooks/use-migration';
 import useMigrationFinished from '../../hooks/use-migration-finished';
 import useStartFresh from '../../hooks/use-start-fresh';
@@ -58,19 +57,9 @@ const IDCScreen = props => {
 		restApi.setApiRoot( apiRoot );
 		restApi.setApiNonce( apiNonce );
 
-		if (
-			tracksUserData &&
-			tracksUserData.hasOwnProperty( 'userid' ) &&
-			tracksUserData.hasOwnProperty( 'username' )
-		) {
-			analytics.initialize( tracksUserData.userid, tracksUserData.username );
-		}
+		initializeAnalytics( tracksEventData, tracksUserData );
 
 		if ( tracksEventData ) {
-			if ( tracksEventData.hasOwnProperty( 'blogID' ) ) {
-				analytics.assignSuperProps( { blog_id: tracksEventData.blogID } );
-			}
-
 			if ( tracksEventData.hasOwnProperty( 'isAdmin' ) && tracksEventData.isAdmin ) {
 				trackAndBumpMCStats( 'notice_view' );
 			} else {
