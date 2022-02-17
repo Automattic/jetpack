@@ -1,4 +1,4 @@
-<?php
+<?php // phpcs:ignore WordPress.Files.FileName.InvalidClassFileName
 
 use Automattic\Jetpack\Assets;
 
@@ -15,20 +15,28 @@ if ( ! defined( 'ABSPATH' ) ) {
 	exit;
 }
 
+/**
+ * Jetpack_Google_Translate_Widget main class.
+ */
 class Jetpack_Google_Translate_Widget extends WP_Widget {
-	static $instance = null;
+	/**
+	 * Singleton instance of the widget, not to show more than once.
+	 *
+	 * @var array
+	 */
+	public static $instance = null;
 
 	/**
 	 * Default widget title.
 	 *
 	 * @var string $default_title
 	 */
-	var $default_title;
+	public $default_title;
 
 	/**
 	 * Register widget with WordPress.
 	 */
-	function __construct() {
+	public function __construct() {
 		parent::__construct(
 			'google_translate_widget',
 			/** This filter is documented in modules/widgets/facebook-likebox.php */
@@ -191,7 +199,7 @@ class Jetpack_Google_Translate_Widget extends WP_Widget {
 		$instance          = array();
 		$instance['title'] = wp_kses( $new_instance['title'], array() );
 		if ( $instance['title'] === $this->default_title ) {
-			$instance['title'] = false; // Store as false in case of language change
+			$instance['title'] = false; // Store as false in case of language change.
 		}
 		return $instance;
 	}
