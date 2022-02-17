@@ -81,8 +81,8 @@ const ScreenMain = props => {
 								<a
 									href={
 										customContent.dynamicSiteUrlSupportLink ||
-										getRedirectUrl( 'jetpack-support-safe-mode' )
-									} // Todo: needs new section on Safe Mode support page and redirect.
+										getRedirectUrl( 'jetpack-idcscreen-dynamic-site-urls' )
+									}
 									rel="noopener noreferrer"
 									target="_blank"
 								/>
