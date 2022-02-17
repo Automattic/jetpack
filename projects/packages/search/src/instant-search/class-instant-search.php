@@ -332,16 +332,11 @@ class Instant_Search extends Classic_Search {
 	 * @since  8.8.0
 	 */
 	public function auto_config_overlay_sidebar_widgets() {
-		$sidebars = get_option( 'sidebars_widgets', array() );
-
-		// If there's JP search widget in overly sidebar, skip.
-		if ( isset( $sidebars['jetpack-instant-search-sidebar'] ) ) {
-			foreach ( (array) $sidebars['jetpack-instant-search-sidebar'] as $widget_id ) {
-				if ( 0 === strpos( $widget_id, Helper::FILTER_WIDGET_BASE ) ) {
-					// Already configured.
-					return;
-				}
-			}
+		$sidebars                              = get_option( 'sidebars_widgets', array() );
+		list(,$sidebar_jp_searchbox_wiget_id ) = $this->get_search_widget_indices( $sidebars, self::INSTANT_SEARCH_SIDEBAR );
+		// If there's JP search widget in overly sidebar, abort.
+		if ( false !== $sidebar_jp_searchbox_wiget_id ) {
+			return;
 		}
 
 		// Init overlay sidebar if it doesn't exists.
