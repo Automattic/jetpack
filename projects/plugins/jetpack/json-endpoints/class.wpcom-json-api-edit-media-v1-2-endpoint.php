@@ -310,8 +310,12 @@ class WPCOM_JSON_API_Edit_Media_v1_2_Endpoint extends WPCOM_JSON_API_Update_Medi
 			return new WP_Error( 'invalid_url', 'No media provided in url.' );
 		}
 
+		if ( defined( 'IS_WPCOM' ) && IS_WPCOM ) {
+			$url = wpcom_get_private_file( $url );
+		}
+
 		// save the remote image into a tmp file.
-		$tmp = download_url( wpcom_get_private_file( $url ) );
+		$tmp = download_url( $url );
 		if ( is_wp_error( $tmp ) ) {
 			return $tmp;
 		}

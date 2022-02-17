@@ -1522,7 +1522,10 @@ abstract class WPCOM_JSON_API_Endpoint {
 				? $attachment_metadata['filesize']
 				: 0;
 		} else {
-			$filesize = filesize( $attachment_file );
+			// For VideoPress videos, $attachment_file is the video URL.
+			$filesize = file_exists( $attachment_file )
+				? filesize( $attachment_file )
+				: 0;
 		}
 
 		$response = array(

@@ -104,7 +104,7 @@ class Search extends Module_Product {
 	 * @return ?string
 	 */
 	public static function get_wpcom_product_slug() {
-		return 'jetpack_search_monthly';
+		return 'jetpack_search';
 	}
 
 	/**

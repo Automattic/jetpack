@@ -3,8 +3,11 @@
 namespace Automattic\Jetpack_Boost\Features\Optimizations\Critical_CSS;
 
 use Automattic\Jetpack_Boost\Contracts\Feature;
-use Automattic\Jetpack_Boost\Features\Optimizations\Critical_CSS\Generate\Generator;
-use Automattic\Jetpack_Boost\Features\Optimizations\Critical_CSS\Source_Providers\Source_Providers;
+use Automattic\Jetpack_Boost\Lib\Critical_CSS\Critical_CSS_Invalidator;
+use Automattic\Jetpack_Boost\Lib\Critical_CSS\Critical_CSS_Storage;
+use Automattic\Jetpack_Boost\Lib\Critical_CSS\Display_Critical_CSS;
+use Automattic\Jetpack_Boost\Lib\Critical_CSS\Recommendations;
+use Automattic\Jetpack_Boost\Lib\Critical_CSS\Source_Providers\Source_Providers;
 use Automattic\Jetpack_Boost\REST_API\Contracts\Endpoint;
 use Automattic\Jetpack_Boost\REST_API\Contracts\Has_Endpoints;
 use Automattic\Jetpack_Boost\REST_API\Endpoints\Generator_Error;
@@ -37,10 +40,8 @@ class Critical_CSS implements Feature, Has_Endpoints {
 	 * Prepare module. This is run irrespective of the module activation status.
 	 */
 	public function __construct() {
-
 		$this->storage = new Critical_CSS_Storage();
 		$this->paths   = new Source_Providers();
-
 	}
 
 	/**
@@ -61,9 +62,9 @@ class Critical_CSS implements Feature, Has_Endpoints {
 			$this->force_logged_out_render();
 		}
 
-		add_action( 'handle_theme_change', array( $this, 'clear_critical_css' ) );
-		add_action( 'jetpack_boost_clear_cache', array( $this, 'clear_critical_css' ) );
+		Critical_CSS_Invalidator::init();
 		add_filter( 'jetpack_boost_js_constants', array( $this, 'add_critical_css_constants' ) );
+		add_filter( 'jetpack_boost_admin_notices', array( $this, 'add_admin_notices' ) );
 
 		REST_API::register( $this->get_endpoints() );
 		return true;
@@ -83,7 +84,6 @@ class Critical_CSS implements Feature, Has_Endpoints {
 	}
 
 	public function display_critical_css() {
-
 		// Don't look for Critical CSS in the dashboard.
 		if ( is_admin() ) {
 			return;
@@ -111,16 +111,6 @@ class Critical_CSS implements Feature, Has_Endpoints {
 	}
 
 	/**
-	 * Clear Critical CSS.
-	 */
-	public function clear_critical_css() {
-		// Mass invalidate all cached values.
-		// ^^ Not true anymore. Mass invalidate __some__ cached values.
-		$this->storage->clear();
-		Critical_CSS_State::reset();
-	}
-
-	/**
 	 * Force the current page to render as viewed by a logged out user. Useful when generating
 	 * Critical CSS.
 	 */
@@ -139,26 +129,26 @@ class Critical_CSS implements Feature, Has_Endpoints {
 	/**
 	 * Override; returns an admin notice to show if there was a reset reason.
 	 *
-	 * @TODO:
+	 * @todo
 	 *      There should be an Admin_Notice class
 	 *      To create a notice, (new Admin_Notice())->create("notice text");
 	 *      To view notices: (new Admin_Notice())->get_all();
 	 * @return null|\Automattic\Jetpack_Boost\Admin\Admin_Notice[]
 	 */
-	public function get_admin_notices() {
+	public function add_admin_notices( $notices ) {
 		$reason = \get_option( self::RESET_REASON_STORAGE_KEY );
 
-		if ( ! $reason ) {
-			return array();
+		if ( $reason ) {
+			$notices[] = new Regenerate_Admin_Notice( $reason );
 		}
 
-		return array( new Regenerate_Admin_Notice( $reason ) );
+		return $notices;
 	}
 
 	/**
 	 * Clear Critical CSS reset reason option.
 	 *
-	 * @TODO: Admin notices need to be moved elsewhere.
+	 * @todo Admin notices need to be moved elsewhere.
 	 *        Note: Looks like we need a way to <construct> and <destroy> options throughout the app.
 	 *        This is why it's currently awkwardly using a static method with a constant
 	 *        If we could trust classes to use constructors properly - without performing actions
@@ -185,7 +175,7 @@ class Critical_CSS implements Feature, Has_Endpoints {
 	}
 
 	/**
-	 * @TODO: Facepalm. PHP Typehinting is broken.
+	 * @todo Facepalm. PHP Typehinting is broken.
 	 * @return Endpoint[]
 	 *
 	 */
