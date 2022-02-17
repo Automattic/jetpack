@@ -14,7 +14,14 @@ import styles from './style.module.scss';
 import getProductCheckoutUrl from '../../utils/get-product-checkout-url';
 import useMyJetpackConnection from '../../hooks/use-my-jetpack-connection';
 import { useProduct } from '../../hooks/use-product';
-import { BackupIcon, ScanIcon, StarIcon, getIconBySlug, AntiSpamIcon } from '../icons';
+import {
+	BackupIcon,
+	ScanIcon,
+	StarIcon,
+	getIconBySlug,
+	AntiSpamIcon,
+	CheckmarkIcon,
+} from '../icons';
 import ProductDetailButton from './button';
 
 /**
@@ -50,6 +57,10 @@ function ProductIcon( { slug } ) {
  * @returns {object}                Price react component.
  */
 function Price( { value, currency, isOld } ) {
+	if ( ! value || ! currency ) {
+		return null;
+	}
+
 	const priceObject = getCurrencyObject( value, currency );
 
 	const classNames = classnames( styles.price, {
@@ -86,7 +97,13 @@ const ProductDetail = ( { slug, onClick, trackButtonClick } ) => {
 		hasRequiredPlan,
 	} = detail;
 
-	const { isFree, fullPrice, currencyCode, discountedPrice, wpcomProductSlug } = pricingForUi;
+	const {
+		isFree,
+		fullPricePerMonth: price,
+		currencyCode,
+		discountPricePerMonth: discountPrice,
+		wpcomProductSlug,
+	} = pricingForUi;
 	const { isUserConnected } = useMyJetpackConnection();
 
 	/*
@@ -157,8 +174,8 @@ const ProductDetail = ( { slug, onClick, trackButtonClick } ) => {
 
 				{ needsPurchase && (
 					<div className={ styles[ 'price-container' ] }>
-						<Price value={ fullPrice } currency={ currencyCode } isOld={ true } />
-						<Price value={ discountedPrice } currency={ currencyCode } isOld={ false } />
+						<Price value={ price } currency={ currencyCode } isOld={ true } />
+						<Price value={ discountPrice } currency={ currencyCode } isOld={ false } />
 						<div className={ styles[ 'price-description' ] }>
 							{ __( '/month, paid yearly', 'jetpack-my-jetpack' ) }
 						</div>
@@ -168,22 +185,33 @@ const ProductDetail = ( { slug, onClick, trackButtonClick } ) => {
 				{ isFree && (
 					<h3 className={ styles[ 'product-free' ] }>{ __( 'Free', 'jetpack-my-jetpack' ) }</h3>
 				) }
-				<ProductDetailButton
-					onClick={ clickHandler }
-					isLink
-					isLoading={ isFetching }
-					isPrimary={ ! isBundle }
-					isSecondary={ isBundle }
-					href={ onClick ? undefined : addProductUrl }
-					className={ `${ styles[ 'checkout-button' ] } ${
-						isBundle ? styles[ 'is-bundle' ] : ''
-					}` }
-				>
-					{
-						/* translators: placeholder is product name. */
-						sprintf( __( 'Add %s', 'jetpack-my-jetpack' ), title )
-					}
-				</ProductDetailButton>
+
+				<div className={ styles[ 'cta-container' ] }>
+					{ ( ! isBundle || ( isBundle && ! hasRequiredPlan ) ) && (
+						<ProductDetailButton
+							onClick={ clickHandler }
+							isLoading={ isFetching }
+							isPressed={ ! isBundle }
+							isSecondary={ isBundle }
+							href={ onClick ? undefined : addProductUrl }
+							className={ `${ styles[ 'checkout-button' ] } ${
+								isBundle ? styles[ 'is-bundle' ] : ''
+							}` }
+						>
+							{
+								/* translators: placeholder is product name. */
+								sprintf( __( 'Add %s', 'jetpack-my-jetpack' ), title )
+							}
+						</ProductDetailButton>
+					) }
+
+					{ isBundle && hasRequiredPlan && (
+						<div className={ styles[ 'product-has-required-plan' ] }>
+							<CheckmarkIcon size={ 36 } />
+							{ __( 'Active on your site', 'jetpack-my-jetpack' ) }
+						</div>
+					) }
+				</div>
 			</div>
 		</>
 	);
@@ -198,15 +226,13 @@ export { ProductDetail };
 /**
  * ProductDetailCard component.
  *
- * @param {object}   props                - Component props.
- * @param {string}   props.slug           - Product slug
- * @param {Function} props.onClick        - Product CTA button handler
- * @returns {object}                       ProductDetailCard react component.
+ * @param {object}   props - Component props.
+ * @returns {object}         ProductDetailCard react component.
  */
-export default function ProductDetailCard( { onClick, slug } ) {
+export default function ProductDetailCard( props ) {
 	return (
 		<div className={ styles.card }>
-			<ProductDetail onClick={ onClick } slug={ slug } />
+			<ProductDetail { ...props } />
 		</div>
 	);
 }

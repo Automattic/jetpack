@@ -30,6 +30,7 @@ const AntiSpamCard = ( { admin } ) => {
 			onDeactivate={ deactivate }
 			slug={ slug }
 			onActivate={ activate }
+			onAdd={ useMyJetpackNavigate( '/add-anti-spam' ) }
 			onFixConnection={ useMyJetpackNavigate( '/connection' ) }
 			onManage={ onManage }
 		/>

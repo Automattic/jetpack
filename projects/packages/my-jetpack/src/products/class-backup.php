@@ -100,7 +100,7 @@ class Backup extends Hybrid_Product {
 	 * @return ?string
 	 */
 	public static function get_wpcom_product_slug() {
-		return 'jetpack_backup_t1_monthly';
+		return 'jetpack_backup_t1_yearly';
 	}
 
 	/**
@@ -113,7 +113,7 @@ class Backup extends Hybrid_Product {
 			array(
 				'available'          => true,
 				'wpcom_product_slug' => static::get_wpcom_product_slug(),
-				'discount'           => 60, // hardcoded - it could be overwritten by the wpcom product.
+				'discount'           => 50, // hardcoded - it could be overwritten by the wpcom product.
 			),
 			Wpcom_Products::get_product_pricing( static::get_wpcom_product_slug() )
 		);

@@ -148,12 +148,12 @@ function jetpack_get_future_removed_version( $version ) {
  * As a fallback, check for presence of wpcomsh plugin to determine if a current site has undergone AT.
  *
  * @since 4.8.1
- * @deprecated  $$next_version$$
+ * @deprecated 10.3.0
  *
  * @return bool
  */
 function jetpack_is_atomic_site() {
-	jetpack_deprecated_function( __FUNCTION__, 'Automattic/Jetpack/Status/Host::is_woa_site', '$$next_version$$' );
+	jetpack_deprecated_function( __FUNCTION__, 'Automattic/Jetpack/Status/Host::is_woa_site', 'jetpack-10.3.0' );
 	return ( new Host() )->is_woa_site();
 }
 
