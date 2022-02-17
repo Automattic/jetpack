@@ -65,10 +65,10 @@ describe( 'ConnectionStatusCard', () => {
 		it( 'renders the "Account not connected" error list item', () => {
 			expect(
 				wrapper.find( '.jp-connection-status-card--list-item-error' ).first().render().text()
-			).to.be.equal( 'Your WordPress.com account is not connected.' );
+			).to.be.equal( 'Requires user connection. Connect your user account' );
 		} );
 
-		it( 'renders the "Connect your WordPress.com account" button', () => {
+		it( 'renders the "Connect your user account" button', () => {
 			expect( wrapper.find( '.jp-connection-status-card--btn-connect-user' ) ).to.have.lengthOf(
 				1
 			);
