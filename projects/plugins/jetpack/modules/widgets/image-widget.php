@@ -1,4 +1,4 @@
-<?php
+<?php // phpcs:ignore WordPress.Files.FileName.InvalidClassFileName
 /**
  * Module Name: Image Widget
  * Module Description: Easily add images to your theme's sidebar.
@@ -6,10 +6,10 @@
  * First Introduced: 1.2
  */
 
+add_action( 'widgets_init', 'jetpack_image_widget_init', 11 );
 /**
  * Register the widget for use in Appearance -> Widgets
  */
-add_action( 'widgets_init', 'jetpack_image_widget_init', 11 );
 function jetpack_image_widget_init() {
 	if ( class_exists( 'WP_Widget_Media_Image' ) && Jetpack_Options::get_option( 'image_widget_migration' ) ) {
 		return;
@@ -17,6 +17,9 @@ function jetpack_image_widget_init() {
 	register_widget( 'Jetpack_Image_Widget' );
 }
 
+/**
+ * Jetpack_Image_Widget main class.
+ */
 class Jetpack_Image_Widget extends WP_Widget {
 	/**
 	 * Register widget with WordPress.
@@ -110,7 +113,7 @@ class Jetpack_Image_Widget extends WP_Widget {
 				$output    = '<figure ' . $img_width . ' class="wp-caption align' . esc_attr( $instance['align'] ) . '">
 					' . $output . '
 					<figcaption class="wp-caption-text">' . $caption . '</figcaption>
-				</figure>'; // wp_kses_post caption on update
+				</figure>'; // wp_kses_post caption on update.
 			}
 			echo '<div class="jetpack-image-container">' . do_shortcode( $output ) . '</div>';
 		} else {
@@ -136,55 +139,55 @@ class Jetpack_Image_Widget extends WP_Widget {
 	 * @return array Updated safe values to be saved.
 	 */
 	public function update( $new_instance, $old_instance ) {
-		 $allowed_caption_html = array(
-			 'a'      => array(
-				 'href'  => array(),
-				 'title' => array(),
-			 ),
-			 'b'      => array(),
-			 'em'     => array(),
-			 'i'      => array(),
-			 'p'      => array(),
-			 'strong' => array(),
-		 );
+		$allowed_caption_html = array(
+			'a'      => array(
+				'href'  => array(),
+				'title' => array(),
+			),
+			'b'      => array(),
+			'em'     => array(),
+			'i'      => array(),
+			'p'      => array(),
+			'strong' => array(),
+		);
 
-		 $instance = $old_instance;
+		$instance = $old_instance;
 
-		 $instance['title']             = strip_tags( $new_instance['title'] );
-		 $instance['img_url']           = esc_url( trim( $new_instance['img_url'] ) );
-		 $instance['alt_text']          = strip_tags( $new_instance['alt_text'] );
-		 $instance['img_title']         = strip_tags( $new_instance['img_title'] );
-		 $instance['caption']           = wp_kses( stripslashes( $new_instance['caption'] ), $allowed_caption_html );
-		 $instance['align']             = $new_instance['align'];
-		 $instance['link']              = esc_url( trim( $new_instance['link'] ) );
-		 $instance['link_target_blank'] = isset( $new_instance['link_target_blank'] ) ? (bool) $new_instance['link_target_blank'] : false;
+		$instance['title']             = strip_tags( $new_instance['title'] );
+		$instance['img_url']           = esc_url( trim( $new_instance['img_url'] ) );
+		$instance['alt_text']          = strip_tags( $new_instance['alt_text'] );
+		$instance['img_title']         = strip_tags( $new_instance['img_title'] );
+		$instance['caption']           = wp_kses( stripslashes( $new_instance['caption'] ), $allowed_caption_html );
+		$instance['align']             = $new_instance['align'];
+		$instance['link']              = esc_url( trim( $new_instance['link'] ) );
+		$instance['link_target_blank'] = isset( $new_instance['link_target_blank'] ) ? (bool) $new_instance['link_target_blank'] : false;
 
-		 $new_img_width  = absint( $new_instance['img_width'] );
-		 $new_img_height = absint( $new_instance['img_height'] );
+		$new_img_width  = absint( $new_instance['img_width'] );
+		$new_img_height = absint( $new_instance['img_height'] );
 
-		 if ( ! empty( $instance['img_url'] ) && '' == $new_img_width && '' == $new_img_height ) {
-			 // Download the url to a local temp file and then process it with getimagesize so we can optimize browser layout
-			 $tmp_file = download_url( $instance['img_url'], 10 );
-			 if ( ! is_wp_error( $tmp_file ) ) {
-				 $size = getimagesize( $tmp_file );
+		if ( ! empty( $instance['img_url'] ) && '' == $new_img_width && '' == $new_img_height ) {
+			// Download the url to a local temp file and then process it with getimagesize so we can optimize browser layout.
+			$tmp_file = download_url( $instance['img_url'], 10 );
+			if ( ! is_wp_error( $tmp_file ) ) {
+				$size = getimagesize( $tmp_file );
 
-				 $width                 = $size[0];
-				 $instance['img_width'] = absint( $width );
+				$width                 = $size[0];
+				$instance['img_width'] = absint( $width );
 
-				 $height                 = $size[1];
-				 $instance['img_height'] = absint( $height );
+				$height                 = $size[1];
+				$instance['img_height'] = absint( $height );
 
-				 unlink( $tmp_file );
-			 } else {
-				 $instance['img_width']  = $new_img_width;
-				 $instance['img_height'] = $new_img_height;
-			 }
-		 } else {
-			 $instance['img_width']  = $new_img_width;
-			 $instance['img_height'] = $new_img_height;
-		 }
+				unlink( $tmp_file );
+			} else {
+				$instance['img_width']  = $new_img_width;
+				$instance['img_height'] = $new_img_height;
+			}
+		} else {
+			$instance['img_width']  = $new_img_width;
+			$instance['img_height'] = $new_img_height;
+		}
 
-		 return $instance;
+		return $instance;
 	}
 
 	/**
@@ -195,7 +198,7 @@ class Jetpack_Image_Widget extends WP_Widget {
 	 * @param array $instance Previously saved values from database.
 	 */
 	public function form( $instance ) {
-		// Defaults
+		// Defaults.
 		$instance = wp_parse_args(
 			(array) $instance,
 			array(
