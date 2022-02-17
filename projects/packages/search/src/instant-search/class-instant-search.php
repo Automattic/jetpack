@@ -30,7 +30,7 @@ class Instant_Search extends Classic_Search {
 	 *
 	 * @var Instant_Search
 	 */
-	private static $instance;
+	protected static $instance;
 
 	/**
 	 * Variable to save old sidebars_widgets value.
@@ -378,12 +378,10 @@ class Instant_Search extends Classic_Search {
 			return;
 		}
 
-		// If there's JP search widget in theme sidebar, skip.
-		foreach ( (array) $sidebars[ self::AUTO_CONFIG_SIDEBAR ] as $widget_id ) {
-			if ( 0 === strpos( $widget_id, Helper::FILTER_WIDGET_BASE ) ) {
-				// Already configured.
-				return;
-			}
+		list( $sidebar_searchbox_idx,$sidebar_jp_searchbox_wiget_id ) = $this->get_search_widget_indices( $sidebars );
+		// If there's JP search widget in theme sidebar, abort.
+		if ( false !== $sidebar_jp_searchbox_wiget_id ) {
+			return;
 		}
 
 		$widget_opt_name = Helper::get_widget_option_name();
