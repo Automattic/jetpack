@@ -20,7 +20,7 @@ import {
  * @param {object} action
  * @returns {string}
  */
-export const error = ( state = window.Initial_State.licensing?.error ?? {}, action ) => {
+export const error = ( state = window.Initial_State.licensing?.error ?? '', action ) => {
 	switch ( action.type ) {
 		case JETPACK_LICENSING_ERROR_UPDATE:
 			return action.error;
