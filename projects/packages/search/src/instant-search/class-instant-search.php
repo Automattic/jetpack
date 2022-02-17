@@ -30,7 +30,7 @@ class Instant_Search extends Classic_Search {
 	 *
 	 * @var Instant_Search
 	 */
-	protected static $instance;
+	private static $instance;
 
 	/**
 	 * Variable to save old sidebars_widgets value.
@@ -43,6 +43,23 @@ class Instant_Search extends Classic_Search {
 	 * @var array
 	 */
 	protected $old_sidebars_widgets;
+
+	/**
+	 * Returns a class singleton. Initializes with first-time setup if given a blog ID parameter.
+	 *
+	 * @param string $blog_id Blog id.
+	 * @return static The class singleton.
+	 */
+	public static function instance( $blog_id = null ) {
+		if ( ! isset( static::$instance ) ) {
+			if ( null === $blog_id ) {
+				$blog_id = Helper::get_wpcom_site_id();
+			}
+			static::$instance = new static();
+			static::$instance->setup( $blog_id );
+		}
+		return static::$instance;
+	}
 
 	/**
 	 * Setup the various hooks needed for the plugin to take over search duties.
