@@ -75,14 +75,22 @@ class WPCOM_Widget_Goodreads extends WP_Widget {
 
 		if ( empty( $instance['user_id'] ) || 'invalid' === $instance['user_id'] ) {
 			if ( current_user_can( 'edit_theme_options' ) ) {
-				echo $args['before_widget'];
+				echo $args['before_widget']; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
 				echo '<p>' . sprintf(
-					/* translators: %1$s: link to the widget settings page. %2$s: support article URL for Goodreads widget. */
-					__( 'You need to enter your numeric user ID for the <a href="%1$s">Goodreads Widget</a> to work correctly. <a href="%2$s" target="_blank">Full instructions</a>.', 'jetpack' ),
+					wp_kses(
+						/* translators: %1$s: link to the widget settings page. %2$s: support article URL for Goodreads widget. */
+						__( 'You need to enter your numeric user ID for the <a href="%1$s">Goodreads Widget</a> to work correctly. <a href="%2$s" target="_blank">Full instructions</a>.', 'jetpack' ),
+						array(
+							'a' => array(
+								'href'   => array(),
+								'target' => array(),
+							),
+						)
+					),
 					esc_url( admin_url( 'widgets.php' ) ),
 					'https://wordpress.com/support/widgets/goodreads-widget/#set-up-the-widget'
 				) . '</p>';
-				echo $args['after_widget'];
+				echo $args['after_widget']; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
 			}
 			return;
 		}
@@ -100,7 +108,7 @@ class WPCOM_Widget_Goodreads extends WP_Widget {
 			$title = esc_html__( 'Goodreads', 'jetpack' );
 		}
 
-		echo $args['before_widget'];
+		echo $args['before_widget'];  // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
 		echo $args['before_title'] . $title . $args['after_title']; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
 
 		$goodreads_url = 'https://www.goodreads.com/review/custom_widget/' . rawurlencode( $instance['user_id'] ) . '.' . rawurlencode( $instance['title'] ) . ':%20' . rawurlencode( $instance['shelf'] ) . '?cover_position=&cover_size=small&num_books=5&order=d&shelf=' . rawurlencode( $instance['shelf'] ) . '&sort=date_added&widget_bg_transparent=&widget_id=' . esc_attr( $this->goodreads_widget_id );
@@ -108,7 +116,7 @@ class WPCOM_Widget_Goodreads extends WP_Widget {
 		echo '<div class="gr_custom_widget" id="gr_custom_widget_' . esc_attr( $this->goodreads_widget_id ) . '"></div>' . "\n";
 		echo '<script src="' . esc_url( $goodreads_url ) . '"></script>' . "\n"; // phpcs:ignore WordPress.WP.EnqueuedResources.NonEnqueuedScript
 
-		echo $args['after_widget'];
+		echo $args['after_widget']; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
 	}
 
 	/**
@@ -180,12 +188,20 @@ class WPCOM_Widget_Goodreads extends WP_Widget {
 		</label></p>
 		<p><label for="' . esc_attr( $this->get_field_id( 'user_id' ) ) . '">';
 		printf(
-			/* translators: %s: support article URL for Goodreads widget. */
-			__( 'Goodreads numeric user ID <a href="%s" target="_blank">(instructions)</a>:', 'jetpack' ),
+			wp_kses(
+				/* translators: %s: support article URL for Goodreads widget. */
+				__( 'Goodreads numeric user ID <a href="%s" target="_blank">(instructions)</a>:', 'jetpack' ),
+				array(
+					'a' => array(
+						'href'   => array(),
+						'target' => array(),
+					),
+				)
+			),
 			'https://wordpress.com/support/widgets/goodreads-widget/#set-up-the-widget'
 		);
 		if ( 'invalid' === $instance['user_id'] ) {
-			printf( '<br /><small class="error">%s</small>&nbsp;', __( 'Invalid User ID, please verify and re-enter your Goodreads numeric user ID.', 'jetpack' ) );
+			printf( '<br /><small class="error">%s</small>&nbsp;', esc_html( __( 'Invalid User ID, please verify and re-enter your Goodreads numeric user ID.', 'jetpack' ) ) );
 			$instance['user_id'] = '';
 		}
 		echo '<input class="widefat" id="' . esc_attr( $this->get_field_id( 'user_id' ) ) . '" name="' . esc_attr( $this->get_field_name( 'user_id' ) ) . '" type="text" value="' . esc_attr( $instance['user_id'] ) . '" />
@@ -193,7 +209,7 @@ class WPCOM_Widget_Goodreads extends WP_Widget {
 		<p><label for="' . esc_attr( $this->get_field_id( 'shelf' ) ) . '">' . esc_html__( 'Shelf:', 'jetpack' ) . '
 		<select class="widefat" id="' . esc_attr( $this->get_field_id( 'shelf' ) ) . '" name="' . esc_attr( $this->get_field_name( 'shelf' ) ) . '" >';
 		foreach ( $this->shelves as $_shelf_value => $_shelf_display ) {
-			echo "\t<option value='" . esc_attr( $_shelf_value ) . "'" . selected( $_shelf_value, $instance['shelf'] ) . '>' . $_shelf_display . "</option>\n";
+			echo "\t<option value='" . esc_attr( $_shelf_value ) . "'" . selected( $_shelf_value, $instance['shelf'] ) . '>' . $_shelf_display . "</option>\n"; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
 		}
 		echo '</select>
 		</label></p>
