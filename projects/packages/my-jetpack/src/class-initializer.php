@@ -59,7 +59,7 @@ class Initializer {
 		/**
 		 * Fires after the My Jetpack package is initialized
 		 *
-		 * @since $$next_version$$
+		 * @since 0.1.0
 		 */
 		do_action( 'my_jetpack_init' );
 	}
