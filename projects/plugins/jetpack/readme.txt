@@ -242,21 +242,22 @@ Jetpack Backup can do a full website migration to a new host, migrate theme file
 4. Promote your newest posts, pages, and products across your social media channels.
 
 == Changelog ==
-### 10.7-a.1 - 2022-02-02
+### 10.7-a.5 - 2022-02-16
 #### Enhancements
-- Add an AMP-compatible version of the email share button.
-- Add transformation from core/buttons to jetpack/recurring-payments block (requires gutenberg >= 11.5.0).
-- Business Hours: Add support for color & spacing design tool.
-- Changed the plan description for invalid plans and added a Warning message for Premium content blocks with invalid plans.
-- Dashboard: update the links used to purchase plans when in Jetpack settings.
+- Blocks: add support for color and spacing block options for Form, Mailchimp, Podcast Player, and Related Posts blocks.
+- Blocks: add alignment block option for Form, Mailchimp, Podcast Player, Related Posts, and Repeat Visitor blocks.
+- Dashboard: update the Free plan description to consider the currently active products.
 
 #### Improved compatibility
-- My Community widget: Hide widget from the block inserter and Legacy widget block drop-down menu
+- Image CDN: ensure that SVG images added to posts thanks to the SVG Support plugin can be displayed even when Jetpack's Image CDN is active.
+- Search: Add deprecated class to prevent third-party integrations from failing after 10.6 updates.
 
 #### Bug fixes
-- Fixed several React warnings shown on the console when SCRIPT_DEBUG is active
-- Search: avoid PHP warning when using Search widget.
-- Widget Visibility: ensure role and logged in features are available.
+- Blocks: cron requests are now considered frontend requests, so blocks will no longer be rendered as fallbacks on those.
+- Form Block: custom CSS classes added to the block are now applied on the frontend.
+- Media Buttons: Fix issue where external medial modal cannot be closed.
+- Search: Make debug bar more reliable.
+- SSO: fix a bug with SSO not cleaning up wpcom_user_id.
 
 --------
 

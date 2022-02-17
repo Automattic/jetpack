@@ -1,4 +1,0 @@
-Significance: patch
-Type: added
-
-useCallback for functions that are bound to onEvents
