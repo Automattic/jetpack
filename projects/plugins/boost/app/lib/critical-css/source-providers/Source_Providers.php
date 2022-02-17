@@ -1,14 +1,14 @@
 <?php
 
-namespace Automattic\Jetpack_Boost\Features\Optimizations\Critical_CSS\Source_Providers;
+namespace Automattic\Jetpack_Boost\Lib\Critical_CSS\Source_Providers;
 
-use Automattic\Jetpack_Boost\Features\Optimizations\Critical_CSS\Critical_CSS_Storage;
-use Automattic\Jetpack_Boost\Features\Optimizations\Critical_CSS\Source_Providers\Providers\Archive_Provider;
-use Automattic\Jetpack_Boost\Features\Optimizations\Critical_CSS\Source_Providers\Providers\Post_ID_Provider;
-use Automattic\Jetpack_Boost\Features\Optimizations\Critical_CSS\Source_Providers\Providers\Provider;
-use Automattic\Jetpack_Boost\Features\Optimizations\Critical_CSS\Source_Providers\Providers\Singular_Post_Provider;
-use Automattic\Jetpack_Boost\Features\Optimizations\Critical_CSS\Source_Providers\Providers\Taxonomy_Provider;
-use Automattic\Jetpack_Boost\Features\Optimizations\Critical_CSS\Source_Providers\Providers\WP_Core_Provider;
+use Automattic\Jetpack_Boost\Lib\Critical_CSS\Critical_CSS_Storage;
+use Automattic\Jetpack_Boost\Lib\Critical_CSS\Source_Providers\Providers\Archive_Provider;
+use Automattic\Jetpack_Boost\Lib\Critical_CSS\Source_Providers\Providers\Post_ID_Provider;
+use Automattic\Jetpack_Boost\Lib\Critical_CSS\Source_Providers\Providers\Provider;
+use Automattic\Jetpack_Boost\Lib\Critical_CSS\Source_Providers\Providers\Singular_Post_Provider;
+use Automattic\Jetpack_Boost\Lib\Critical_CSS\Source_Providers\Providers\Taxonomy_Provider;
+use Automattic\Jetpack_Boost\Lib\Critical_CSS\Source_Providers\Providers\WP_Core_Provider;
 
 class Source_Providers {
 

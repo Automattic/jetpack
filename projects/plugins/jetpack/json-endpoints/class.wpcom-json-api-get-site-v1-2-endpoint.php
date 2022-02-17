@@ -1,30 +1,40 @@
-<?php
+<?php // phpcs:ignore WordPress.Files.FileName.InvalidClassFileName
 
-new WPCOM_JSON_API_GET_Site_V1_2_Endpoint( array(
-	'description' => 'Get information about a site.',
-	'group'       => 'sites',
-	'stat'        => 'sites:X',
-	'allowed_if_flagged' => true,
-	'method'      => 'GET',
-	'min_version' => '1.2',
-	'path'        => '/sites/%s',
-	'path_labels' => array(
-		'$site' => '(int|string) Site ID or domain',
-	),
+new WPCOM_JSON_API_GET_Site_V1_2_Endpoint(
+	array(
+		'description'                          => 'Get information about a site.',
+		'group'                                => 'sites',
+		'stat'                                 => 'sites:X',
+		'allowed_if_flagged'                   => true,
+		'method'                               => 'GET',
+		'min_version'                          => '1.2',
+		'path'                                 => '/sites/%s',
+		'path_labels'                          => array(
+			'$site' => '(int|string) Site ID or domain',
+		),
 
-	'allow_fallback_to_jetpack_blog_token' => true,
+		'allow_fallback_to_jetpack_blog_token' => true,
 
-	'query_parameters' => array(
-		'context' => false,
-	),
+		'query_parameters'                     => array(
+			'context' => false,
+		),
 
-	'response_format' => WPCOM_JSON_API_GET_Site_V1_2_Endpoint::$site_format,
+		'response_format'                      => WPCOM_JSON_API_GET_Site_V1_2_Endpoint::$site_format,
 
-	'example_request' => 'https://public-api.wordpress.com/rest/v1.2/sites/en.blog.wordpress.com/',
-) );
+		'example_request'                      => 'https://public-api.wordpress.com/rest/v1.2/sites/en.blog.wordpress.com/',
+	)
+);
 
+/**
+ * GET Site v1_2 endpoint.
+ */
 class WPCOM_JSON_API_GET_Site_V1_2_Endpoint extends WPCOM_JSON_API_GET_Site_Endpoint {
 
+	/**
+	 * Site format array.
+	 *
+	 * @var array $site_format
+	 */
 	public static $site_format = array(
 		'ID'                          => '(int) Site ID',
 		'name'                        => '(string) Title of site',
@@ -60,14 +70,25 @@ class WPCOM_JSON_API_GET_Site_V1_2_Endpoint extends WPCOM_JSON_API_GET_Site_Endp
 		'is_wpcom_atomic'             => '(bool) If the site is a WP.com Atomic one.',
 	);
 
-
-	function callback( $path = '', $blog_id = 0 ) {
+	/**
+	 *
+	 * API callback.
+	 *
+	 * @param string $path - the path.
+	 * @param int    $blog_id - the blog ID.
+	 */
+	public function callback( $path = '', $blog_id = 0 ) {
 		add_filter( 'sites_site_format', array( $this, 'site_format' ) );
 
 		return parent::callback( $path, $blog_id );
 	}
 
-	public function site_format( $format ) {
+	/**
+	 * Site format.
+	 *
+	 * @param string $format - the format.
+	 */
+	public function site_format( $format ) { // phpcs:ignore VariableAnalysis.CodeAnalysis.VariableAnalysis.UnusedVariable
 		return self::$site_format;
 	}
 }

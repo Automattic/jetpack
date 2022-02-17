@@ -80,13 +80,15 @@ abstract class Product {
 	}
 
 	/**
-	 * Get the installed plugin filename
+	 * Get the installed plugin filename, considering all possible filenames a plugin might have
+	 *
+	 * @param string $plugin Which plugin to check. jetpack for the jetpack plugin or product for the product specific plugin.
 	 *
 	 * @return ?string
 	 */
-	public static function get_installed_plugin_filename() {
+	public static function get_installed_plugin_filename( $plugin = 'product' ) {
 		$all_plugins = Plugins_Installer::get_plugins();
-		$filename    = static::get_plugin_filename();
+		$filename    = 'jetpack' === $plugin ? self::JETPACK_PLUGIN_FILENAME : static::get_plugin_filename();
 		if ( ! is_array( $filename ) ) {
 			$filename = array( $filename );
 		}
@@ -246,7 +248,7 @@ abstract class Product {
 	 */
 	public static function get_status() {
 
-		if ( ! self::is_plugin_installed() ) {
+		if ( ! static::is_plugin_installed() ) {
 			$status = 'plugin_absent';
 		} elseif ( ! static::has_required_plan() ) {
 			$status = 'needs_purchase';
@@ -295,8 +297,7 @@ abstract class Product {
 	 * @return boolean
 	 */
 	public static function is_jetpack_plugin_installed() {
-		$all_plugins = Plugins_Installer::get_plugins();
-		return array_key_exists( self::JETPACK_PLUGIN_FILENAME, $all_plugins );
+		return (bool) static::get_installed_plugin_filename( 'jetpack' );
 	}
 
 	/**
@@ -305,13 +306,7 @@ abstract class Product {
 	 * @return boolean
 	 */
 	public static function is_jetpack_plugin_active() {
-		foreach ( self::JETPACK_PLUGIN_FILENAME as $jetpack_filename ) {
-			$active = Plugins_Installer::is_plugin_active( $jetpack_filename );
-			if ( $active ) {
-				return true;
-			}
-		}
-		return false;
+		return Plugins_Installer::is_plugin_active( static::get_installed_plugin_filename( 'jetpack' ) );
 	}
 
 	/**

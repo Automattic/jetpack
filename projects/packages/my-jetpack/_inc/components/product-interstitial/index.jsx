@@ -113,7 +113,7 @@ export default function ProductInterstitial( { installsPlugin = false, slug, chi
  */
 export function AntiSpamInterstitial() {
 	return (
-		<ProductInterstitial slug="anti-spam">
+		<ProductInterstitial slug="anti-spam" installsPlugin={ true }>
 			<ProductDetailCard slug="security" />
 		</ProductInterstitial>
 	);
@@ -152,7 +152,7 @@ export function BoostInterstitial() {
  */
 export function CRMInterstitial() {
 	return (
-		<ProductInterstitial slug="crm">
+		<ProductInterstitial slug="crm" installsPlugin={ true }>
 			<img src={ crmImage } alt="CRM" />
 		</ProductInterstitial>
 	);
@@ -165,7 +165,7 @@ export function CRMInterstitial() {
  */
 export function ScanInterstitial() {
 	return (
-		<ProductInterstitial slug="scan">
+		<ProductInterstitial slug="scan" installsPlugin={ true }>
 			<ProductDetailCard slug="security" />
 		</ProductInterstitial>
 	);
@@ -178,7 +178,7 @@ export function ScanInterstitial() {
  */
 export function SearchInterstitial() {
 	return (
-		<ProductInterstitial slug="search">
+		<ProductInterstitial slug="search" installsPlugin={ true }>
 			<img src={ searchImage } alt="Search" />
 		</ProductInterstitial>
 	);
@@ -191,7 +191,7 @@ export function SearchInterstitial() {
  */
 export function VideoPressInterstitial() {
 	return (
-		<ProductInterstitial slug="videopress">
+		<ProductInterstitial slug="videopress" installsPlugin={ true }>
 			<img src={ videoPressImage } alt="VideoPress" />
 		</ProductInterstitial>
 	);

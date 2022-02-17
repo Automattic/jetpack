@@ -3,6 +3,8 @@
 	 * Internal dependencies
 	 */
 	import { maybeGenerateCriticalCss } from '../../../utils/generate-critical-css';
+	import { requestCloudCss } from '../../../utils/cloud-css';
+	import RefreshIcon from '../../../svg/refresh.svg';
 	import GenerateCss from '../elements/GenerateCSS.svelte';
 	import Module from '../elements/Module.svelte';
 	import TemplatedString from '../../../elements/TemplatedString.svelte';
@@ -35,6 +37,28 @@
 
 		<div slot="meta">
 			<GenerateCss />
+		</div>
+	</Module>
+
+	<Module slug={'cloud-css'} on:enabled={requestCloudCss}>
+		<h3 slot="title">
+			{__( 'Optimize CSS Loading from Cloud', 'jetpack-boost' )}
+		</h3>
+		<p slot="description">
+			<TemplatedString
+				template={__(
+					`Move important styling information to the start of the page, which helps pages display your content sooner, so your users don’t have to wait for the entire page to load. Commonly referred to as <link>Critical CSS</link>.`,
+					'jetpack-boost'
+				)}
+				vars={externalLinkTemplateVar( 'https://web.dev/extract-critical-css/' )}
+			/>
+		</p>
+
+		<div slot="meta">
+			<button type="button" class="components-button is-link" on:click={requestCloudCss}>
+				<RefreshIcon />
+				{__( 'Regenerate', 'jetpack-boost' )}
+			</button>
 		</div>
 	</Module>
 
