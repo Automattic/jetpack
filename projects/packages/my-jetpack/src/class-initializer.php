@@ -23,6 +23,13 @@ use Automattic\Jetpack\Tracking;
 class Initializer {
 
 	/**
+	 * My Jetpack package version
+	 *
+	 * @var string
+	 */
+	const PACKAGE_VERSION = '0.6.2-alpha';
+
+	/**
 	 * Initialize My Jetapack
 	 *
 	 * @return void
@@ -110,6 +117,7 @@ class Initializer {
 				'redirectUrl'           => admin_url( 'admin.php?page=my-jetpack' ),
 				'topJetpackMenuItemUrl' => Admin_Menu::get_top_level_menu_item_url(),
 				'siteSuffix'            => ( new Status() )->get_site_suffix(),
+				'myJetpackVersion'      => self::PACKAGE_VERSION,
 			)
 		);
 

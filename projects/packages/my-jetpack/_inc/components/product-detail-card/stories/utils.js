@@ -5,16 +5,22 @@ import {
 	antiSpamProductData,
 	backupProductData,
 	boostProductData,
+	crmProductData,
 	scanProductData,
 	searchProductData,
+	securityProductData,
+	videoPressProductData,
 } from './mock-data.js';
 
 const mapResponse = {
 	'anti-spam': antiSpamProductData,
 	backup: backupProductData,
 	boost: boostProductData,
+	crm: crmProductData,
 	scan: scanProductData,
 	search: searchProductData,
+	security: securityProductData,
+	videopress: videoPressProductData,
 };
 
 /**

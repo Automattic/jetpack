@@ -106,7 +106,6 @@ function requestProductStatus( productId, data, { select, dispatch } ) {
 		return apiFetch( {
 			path: `${ REST_API_SITE_PRODUCTS_ENDPOINT }/${ productId }`,
 			method,
-			data,
 		} )
 			.then( freshProduct => {
 				dispatch( setIsFetchingProduct( productId, false ) );
