@@ -7,7 +7,7 @@
  * @package    automattic/jetpack-boost
  */
 
-namespace Automattic\Jetpack_Boost\Features\Optimizations\Critical_CSS;
+namespace Automattic\Jetpack_Boost\Lib\Critical_CSS;
 
 use Automattic\Jetpack_Boost\Lib\Transient;
 
@@ -21,21 +21,21 @@ class Critical_CSS_State {
 	const FAIL          = 'error';
 	const REQUESTING    = 'requesting';
 
-	const KEY = 'critical_css_state';
+	const KEY_PREFIX = 'critical_css_state:';
 
 	/**
 	 * Critical CSS state.
 	 *
 	 * @var mixed
 	 */
-	private $state;
+	protected $state;
 
 	/**
 	 * Critical CSS state error.
 	 *
 	 * @var mixed
 	 */
-	private $state_error;
+	protected $state_error;
 
 	/**
 	 * Formatted sources array created from providers.
@@ -44,22 +44,31 @@ class Critical_CSS_State {
 	 * @var array
 	 * @todo: Maybe rename to providers
 	 */
-	private $sources = array();
+	protected $sources = array();
 
 	/**
 	 * Epoch time when was Critical CSS last updated.
 	 *
 	 * @var int
 	 */
-	private $created;
+	protected $created;
+
+	/**
+	 * A string to identify between multiple requests for Critical CSS. Defaults to 'local'.
+	 *
+	 * @var string
+	 */
+	protected $request_name;
 
 	/**
 	 * Constructor.
 	 */
-	public function __construct() {
+	public function __construct( $request_name = 'local' ) {
+
+		$this->request_name = $request_name;
 
 		$state = Transient::get(
-			self::KEY,
+			$this->get_key(),
 			array(
 				'created'     => microtime( true ),
 				'state'       => null,
@@ -79,7 +88,7 @@ class Critical_CSS_State {
 	 */
 	public function save() {
 		Transient::set(
-			self::KEY,
+			$this->get_key(),
 			array(
 				'created'     => $this->created,
 				'state'       => $this->state,
@@ -137,6 +146,15 @@ class Critical_CSS_State {
 			$this->sources[ $key ]['error'] = $error;
 			$this->set_source_status( $key, self::FAIL );
 		}
+	}
+
+	/**
+	 * Get the transient key name.
+	 *
+	 * @return string
+	 */
+	public function get_key() {
+		return self::KEY_PREFIX . $this->request_name;
 	}
 
 	/**
@@ -377,7 +395,7 @@ class Critical_CSS_State {
 	 * Reset the Critical CSS state.
 	 */
 	public static function reset() {
-		Transient::delete( self::KEY );
+		Transient::delete_by_prefix( self::KEY_PREFIX );
 	}
 
 	/**

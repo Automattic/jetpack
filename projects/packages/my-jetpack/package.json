@@ -24,7 +24,7 @@
 		"@automattic/format-currency": "1.0.0-alpha.0",
 		"@automattic/jetpack-analytics": "workspace:^0.1.7",
 		"@automattic/jetpack-components": "workspace:^0.10.5",
-		"@automattic/jetpack-connection": "workspace:^0.15.1",
+		"@automattic/jetpack-connection": "workspace:^0.15.2-alpha",
 		"@wordpress/api-fetch": "6.0.0",
 		"@wordpress/components": "19.3.0",
 		"@wordpress/data": "6.2.0",

@@ -7,7 +7,7 @@
  * @package    automattic/jetpack-boost
  */
 
-namespace Automattic\Jetpack_Boost\Features\Optimizations\Critical_CSS;
+namespace Automattic\Jetpack_Boost\Lib\Critical_CSS;
 
 use Automattic\Jetpack_Boost\Lib\Storage_Post_Type;
 
@@ -21,7 +21,7 @@ class Critical_CSS_Storage {
 	 *
 	 * @var Storage_Post_Type
 	 */
-	private $storage;
+	protected $storage;
 
 	/**
 	 * Critical_CSS_Storage constructor.

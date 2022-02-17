@@ -1,5 +1,5 @@
 <?php
-namespace Automattic\Jetpack_Boost\Features\Optimizations\Critical_CSS;
+namespace Automattic\Jetpack_Boost\Lib\Critical_CSS;
 
 class Admin_Bar_Compatibilty {
 

@@ -52,5 +52,9 @@ if [[ ${#TAGS[*]} -le 0 ]]; then
 fi
 
 echo "Pushing tag updates..."
-git push --force origin "${!TAGS[@]}"
+# Push one at a time, as per https://docs.github.com/en/actions/using-workflows/events-that-trigger-workflows#push
+# "Note: An event will not be created when you push more than three tags at once."
+for TAG in "${!TAGS[@]}"; do
+	git push --force origin "$TAG"
+done
 echo 'Done!'
