@@ -675,6 +675,7 @@
             ],
             "description": "WP Admin page with information and configuration shared among all Jetpack stand-alone plugins",
             "transport-options": {
+                "monorepo": true,
                 "relative": true
             }
         },
@@ -766,6 +767,7 @@
             ],
             "description": "Handle installation of plugins from WP.org",
             "transport-options": {
+                "monorepo": true,
                 "relative": true
             }
         },
