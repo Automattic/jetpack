@@ -78,7 +78,18 @@ class Jetpack_Gravatar_Profile_Widget extends WP_Widget {
 				if ( ! empty( $title ) ) {
 					echo $args['before_title'] . $title . $args['after_title']; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
 				}
-				echo '<p>' . sprintf( __( 'You need to select what to show in this <a href="%s">Gravatar Profile widget</a>.', 'jetpack' ), admin_url( 'widgets.php' ) ) . '</p>';
+				echo '<p>' . wp_kses(
+					sprintf(
+						/* translators: %s is a link to the widget settings page. */
+						__( 'You need to select what to show in this <a href="%s">Gravatar Profile widget</a>.', 'jetpack' ),
+						admin_url( 'widgets.php' )
+					),
+					array(
+						'a' => array(
+							'href' => true,
+						),
+					)
+				) . '</p>';
 				echo $args['after_widget'];
 			}
 			return;
@@ -243,10 +254,16 @@ class Jetpack_Gravatar_Profile_Widget extends WP_Widget {
 			}
 
 			$sanitized_service_name = $this->get_sanitized_service_name( $account['shortname'] );
+			$link_title             = sprintf(
+				/* translators: %1$s: service username. %2$s: service name ( Facebook, Twitter, etc.) */
+				__( '%1$s on %2$s', 'jetpack' ),
+				esc_html( $account['display'] ),
+				esc_html( $sanitized_service_name )
+			);
 			?>
 
 			<li>
-				<a href="<?php echo esc_url( $account['url'] ); ?>" title="<?php echo sprintf( _x( '%1$s on %2$s', '1: User Name, 2: Service Name (Facebook, Twitter, ...)', 'jetpack' ), esc_html( $account['display'] ), esc_html( $sanitized_service_name ) ); ?>">
+				<a href="<?php echo esc_url( $account['url'] ); ?>" title="<?php echo esc_html( $link_title ); ?>">
 					<span class="grofile-accounts-logo grofile-accounts-<?php echo esc_attr( $account['shortname'] ); ?> accounts_<?php echo esc_attr( $account['shortname'] ); ?>"></span>
 				</a>
 			</li>
