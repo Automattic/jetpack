@@ -45,7 +45,7 @@ export default class PluginsPage extends WpPage {
 		await this.waitForElementToBeVisible( updateCard );
 		await this.click( updateLink );
 		await this.waitForElementToBeVisible( isUpdatingMessage );
-		await this.waitForElementToBeVisible( updatedMessage, 10 * 30000 );
+		await this.waitForElementToBeVisible( updatedMessage, 6 * 30000 );
 	}
 
 	async clickOnJetpackBoostSettingsLink() {
