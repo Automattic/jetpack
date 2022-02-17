@@ -101,6 +101,7 @@ class Jetpack_Boost {
 		// Fired when plugin ready.
 		do_action( 'jetpack_boost_loaded', $this );
 
+		define( 'JETPACK_ENABLE_MY_JETPACK', true );
 		My_Jetpack_Initializer::init();
 	}
 
