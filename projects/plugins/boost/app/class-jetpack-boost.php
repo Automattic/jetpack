@@ -13,6 +13,7 @@
 namespace Automattic\Jetpack_Boost;
 
 use Automattic\Jetpack\Config as Jetpack_Config;
+use Automattic\Jetpack\My_Jetpack\Initializer as My_Jetpack_Initializer;
 use Automattic\Jetpack_Boost\Admin\Admin;
 use Automattic\Jetpack_Boost\Lib\Analytics;
 use Automattic\Jetpack_Boost\Lib\CLI;
@@ -146,6 +147,8 @@ class Jetpack_Boost {
 
 		// Fired when plugin ready.
 		do_action( 'jetpack_boost_loaded', $this );
+
+		My_Jetpack_Initializer::init();
 	}
 
 	/**
