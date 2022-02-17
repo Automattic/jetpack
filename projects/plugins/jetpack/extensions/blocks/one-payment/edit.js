@@ -4,12 +4,12 @@
 import { get, map } from 'lodash';
 import { __ } from '@wordpress/i18n';
 import { useEffect } from '@wordpress/element';
-import { compose, withInstanceId } from '@wordpress/compose';
-import { createBlock, registerBlockVariation } from '@wordpress/blocks';
-import { withDispatch, withSelect } from '@wordpress/data';
+import { createBlock, registerBlockVariation, store as blocksStore } from '@wordpress/blocks';
+import { useDispatch, useSelect } from '@wordpress/data';
 import {
 	InnerBlocks,
 	__experimentalBlockVariationPicker as BlockVariationPicker,
+	store as blockEditorStore,
 } from '@wordpress/block-editor';
 
 /**
@@ -17,18 +17,24 @@ import {
  */
 import defaultVariations from './variations';
 
-export function JetpackOnePaymentEdit( {
-	hasInnerBlocks,
-	replaceBlock,
-	selectBlock,
-	clientId,
-	blockType,
-	variations,
-	defaultVariation,
-} ) {
+export default function JetpackOnePaymentEdit( { name, clientId } ) {
+	const { blockType, defaultVariation, variations, hasInnerBlocks } = useSelect( select => {
+		const { getBlockType, getBlockVariations, getDefaultBlockVariation } = select( blocksStore );
+		const { getBlocks } = select( blockEditorStore );
+
+		return {
+			blockType: getBlockType( name ),
+			defaultVariation: getDefaultBlockVariation( name, 'block' ),
+			variations: getBlockVariations( name, 'block' ),
+			hasInnerBlocks: getBlocks( clientId )?.length > 0,
+		};
+	} );
+
+	const { replaceBlock, selectBlock } = useDispatch( blockEditorStore );
+
 	const createBlocksFromInnerBlocksTemplate = innerBlocksTemplate => {
-		const blocks = map( innerBlocksTemplate, ( [ name, attr, innerBlocks = [] ] ) =>
-			createBlock( name, attr, createBlocksFromInnerBlocksTemplate( innerBlocks ) )
+		const blocks = map( innerBlocksTemplate, ( [ blockName, attr, innerBlocks = [] ] ) =>
+			createBlock( blockName, attr, createBlocksFromInnerBlocksTemplate( innerBlocks ) )
 		);
 
 		return blocks;
@@ -66,24 +72,3 @@ export function JetpackOnePaymentEdit( {
 
 	return <InnerBlocks />;
 }
-
-export default compose( [
-	withSelect( ( select, props ) => {
-		const { getBlockType, getBlockVariations, getDefaultBlockVariation } = select( 'core/blocks' );
-		const { getBlocks } = select( 'core/block-editor' );
-		const innerBlocks = getBlocks( props.clientId );
-
-		return {
-			blockType: getBlockType && getBlockType( props.name ),
-			defaultVariation: getDefaultBlockVariation && getDefaultBlockVariation( props.name, 'block' ),
-			variations: getBlockVariations && getBlockVariations( props.name, 'block' ),
-			innerBlocks,
-			hasInnerBlocks: innerBlocks.length > 0,
-		};
-	} ),
-	withDispatch( dispatch => {
-		const { replaceBlock, selectBlock } = dispatch( 'core/block-editor' );
-		return { replaceBlock, selectBlock };
-	} ),
-	withInstanceId,
-] )( JetpackOnePaymentEdit );
