@@ -1233,9 +1233,9 @@ class Jetpack_Carousel {
 		echo '<fieldset>';
 		echo '<input type="checkbox" name="' . esc_attr( $name ) . '" id="' . esc_attr( $name ) . '" value="1" ';
 		checked( '1', $option );
-		echo '/> <label for="' . esc_attr( $name ) . '">' . esc_html( $label_text ) . '</label>';
+		echo '/> <label for="' . esc_attr( $name ) . '">' . wp_kses_post( $label_text ) . '</label>';
 		if ( ! empty( $extra_text ) ) {
-			echo '<p class="description">' . esc_textarea( $extra_text ) . '</p>';
+			echo '<p class="description">' . wp_kses_post( $extra_text ) . '</p>';
 		}
 		echo '</fieldset>';
 	}
@@ -1261,7 +1261,7 @@ class Jetpack_Carousel {
 		}
 		echo '</select>';
 		if ( ! empty( $extra_text ) ) {
-			echo '<p class="description">' . esc_textarea( $extra_text ) . '</p>';
+			echo '<p class="description">' . wp_kses_post( $extra_text ) . '</p>';
 		}
 		echo '</fieldset>';
 	}
