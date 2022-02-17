@@ -23,12 +23,13 @@ pnpx jetpack docker --type e2e --name t1 exec-silent /usr/local/src/jetpack-mono
 
 ## Update
 printf "\nNow is a good time to configure Jetpack. Take your time, make some changes in the site config and come back here when ready."
+printf "\n\n"
+
 while true; do
 	read -r -p "Are you ready to update? [y] " input
 
 	case $input in
 	[yY][eE][sS] | [yY])
-		echo "Yes"
 		break
 		;;
 	*)

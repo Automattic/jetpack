@@ -10,7 +10,8 @@ BASE_PATH=$(
 	pwd -P
 )
 
-ZIP_FILE="$BASE_PATH/../../jetpack-next.zip"
+TMP_DIR="$BASE_PATH/../../tmp"
+ZIP_FILE="$TMP_DIR/jetpack-next.zip"
 
 if [[ "$OSTYPE" == "linux-gnu"* ]]; then
 	# assuming Debian
@@ -18,6 +19,7 @@ if [[ "$OSTYPE" == "linux-gnu"* ]]; then
 fi
 
 printf "\nPreparing zip file\n"
+mkdir -p "$TMP_DIR"
 cd "$BASE_PATH/../../../../.."
 find -L jetpack ! -path '**/node_modules/*' ! -path '**/\.cache/*' ! -path '**/tests/*' ! -path '**/changelog/*' ! -path '**/wordpress/*' ! -path '**/\.idea/*' -print | zip -q "$ZIP_FILE" -@
 printf "\nZip file created: %s\n" "$ZIP_FILE"
