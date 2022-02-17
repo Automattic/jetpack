@@ -38,40 +38,52 @@
 		&:first-child {
 		  border-width: 1px 1px 1px 1px;
 		}
-
-		&.is-active {
-			background: var( --wp-admin-theme-color );
-			color: $white;
-			cursor: default;
-		  	border-color: var( --wp-admin-theme-color );
-		}
 	}
 
-	.donations__content {
+	.donations__content:not( .borderless ) {
 		padding: 16px;
 
 		@include break-small() {
 			padding: 32px;
 		}
+	}
 
-		h4,
-		p {
-			margin: 0 0 16px;
+  	.donations__content.borderless {
+	  padding-top: 16px;
+	  padding-bottom: 18px;
 
-			@include break-small() {
-				margin: 0 0 24px;
-			}
+	  @include break-small() {
+		padding-top: 32px;
+		padding-bottom: 34px;
+	  }
+	}
+
+  	.donations__content {
+	  h4,
+	  p {
+		margin: 0 0 16px;
+
+		@include break-small() {
+		  margin: 0 0 24px;
 		}
+	  }
 	}
 
 	.donations__deprecated {
-	  & .donations__container {
+	  &.donations__container {
 		border: 1px solid $gray-400;
 	  }
 
 	  & .donations__nav {
 		display: flex;
 		border-bottom: 1px solid $gray-400;
+	  }
+
+	  & .is-active {
+		background: var( --wp-admin-theme-color );
+		color: $white;
+		cursor: default;
+		border-color: var( --wp-admin-theme-color );
 	  }
 
 	  & .donations__amount {

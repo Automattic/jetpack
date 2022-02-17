@@ -22,14 +22,23 @@ import JetpackDonationsV2 from './deprecated/v2/view';
  */
 import '../donations/view.scss';
 
+const ACTIVE_TAB = true;
+const INACTIVE_TAB = false;
+
 class JetpackDonations {
 	init( block ) {
 		this.block = block;
 		this.amount = null;
 		this.isCustomAmount = false;
 		this.interval = 'one-time';
+		this.navigationTabs = {
+			activeTabClasses: [],
+			activeTabStyles: [],
+			tabsBorderColorClass: '',
+		};
 
 		// Initialize block.
+		this.initClasses();
 		this.initNavigation();
 		this.handleCustomAmount();
 		this.handleChosenAmount();
@@ -131,10 +140,12 @@ class JetpackDonations {
 			const prevNavItem = this.getNavItem( prevInterval );
 			if ( prevNavItem ) {
 				prevNavItem.classList.remove( 'is-active' );
+				this.setTabActiveState( prevNavItem, INACTIVE_TAB );
 			}
 			const newNavItem = this.getNavItem( newInterval );
 			if ( newNavItem ) {
 				newNavItem.classList.add( 'is-active' );
+				this.setTabActiveState( newNavItem, ACTIVE_TAB );
 			}
 
 			// Toggle tab content.
@@ -160,6 +171,7 @@ class JetpackDonations {
 		const navItem = this.getNavItem( this.interval );
 		if ( navItem ) {
 			navItem.classList.add( 'is-active' );
+			this.setTabActiveState( navItem, ACTIVE_TAB );
 		}
 		tabContent.classList.add( tabContentClasses[ this.interval ] );
 	}
@@ -235,6 +247,54 @@ class JetpackDonations {
 		this.block
 			.querySelectorAll( '.donations__donate-button' )
 			.forEach( button => button.classList.add( 'is-disabled' ) );
+	}
+
+	initClasses() {
+		let color, customColor;
+
+		const matches = this.block.className.match( /.*has-(?<color>.+)-border-color.*/ );
+		if ( matches && matches.groups && matches.groups.color ) {
+			color = matches.groups.color;
+		}
+
+		const hasCustomColor = this.block.className.includes( 'has-border-color' );
+		if ( hasCustomColor ) {
+			customColor = this.block.style.borderColor;
+		}
+
+		const safeColor = color && 'background' !== color ? color : 'foreground';
+		const textClass = 'has-background-color';
+		const borderClass = `has-${ safeColor }-border-color`;
+		const backgroundClass = `has-${ safeColor }-background-color`;
+
+		this.navigationTabs.activeTabClasses.push( 'is-active' );
+		this.navigationTabs.activeTabClasses.push( textClass );
+		this.navigationTabs.tabsBorderColorClass = borderClass;
+		const navItems = this.block.querySelectorAll( '.donations__nav-item' );
+		if ( ! color && customColor ) {
+			this.navigationTabs.activeTabStyles.borderColor = customColor;
+			this.navigationTabs.activeTabStyles.backgroundColor = customColor;
+			navItems.forEach( navItem => ( navItem.style.borderColor = customColor ) );
+		} else {
+			this.navigationTabs.activeTabClasses.push( backgroundClass );
+			navItems.forEach( navItem =>
+				navItem.classList.add( this.navigationTabs.tabsBorderColorClass )
+			);
+		}
+	}
+
+	setTabActiveState( navItem, isActive ) {
+		const eitherAddOrRemove = isActive ? 'add' : 'remove';
+		const getPropertyValue = cssProperty =>
+			isActive ? this.navigationTabs.activeTabStyles[ cssProperty ] : 'inherit';
+
+		this.navigationTabs.activeTabClasses.forEach( className =>
+			navItem.classList[ eitherAddOrRemove ]( className )
+		);
+
+		Object.keys( this.navigationTabs.activeTabStyles ).forEach(
+			cssProperty => ( navItem.style[ cssProperty ] = getPropertyValue( cssProperty ) )
+		);
 	}
 }
 

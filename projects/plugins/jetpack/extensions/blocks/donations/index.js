@@ -52,7 +52,7 @@ export const settings = {
 		},
 		borderColor: {
 			type: 'string',
-			default: 'primary',
+			default: 'foreground',
 		},
 		style: {
 			type: 'object',

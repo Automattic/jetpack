@@ -7,6 +7,11 @@ import { InnerBlocks } from '@wordpress/block-editor';
 import { useSelect } from '@wordpress/data';
 
 /**
+ * External dependencies
+ */
+import classnames from 'classnames';
+
+/**
  * Internal dependencies
  */
 import {
@@ -49,18 +54,42 @@ const intervalMap = {
 	'1 year': ANNUAL_DONATION,
 };
 
-const DonationTabButton = ( { label, id, tabIndex, isActive, onActivateTab, color } ) => {
-	const style = {
-		backgroundColor: isActive ? color : 'white',
-		color: isActive ? 'white' : 'inherit',
-		borderColor: isActive ? color : 'inherit',
-	};
+const getColorClassesForState = ( color, isActive ) => ( {
+	textClass: isActive ? 'has-background-color' : 'has-foreground-color',
+	borderClass: `has-${ 'background' !== color ? color : 'foreground' }-border-color`,
+	backgroundClass: isActive
+		? `has-${ 'background' !== color ? color : 'foreground' }-background-color`
+		: 'has-background-background-color',
+} );
+
+const DonationTabButton = ( {
+	label,
+	id,
+	tabIndex,
+	isActive,
+	onActivateTab,
+	color,
+	computedColor,
+} ) => {
+	let style;
+
+	const classes = getColorClassesForState( color, isActive );
+	const { textClass } = classes;
+	let { borderClass, backgroundClass } = classes;
+
+	if ( ! color ) {
+		style = {
+			backgroundColor: isActive ? computedColor : 'inherit',
+			borderColor: computedColor,
+		};
+		borderClass = backgroundClass = undefined;
+	}
 
 	return (
 		<div
 			role="button"
 			tabIndex={ tabIndex }
-			className={ 'donations__nav-item' }
+			className={ classnames( 'donations__nav-item', textClass, borderClass, backgroundClass ) }
 			style={ style }
 			onClick={ () => onActivateTab( id ) }
 			onKeyDown={ () => onActivateTab( id ) }
@@ -73,7 +102,7 @@ const DonationTabButton = ( { label, id, tabIndex, isActive, onActivateTab, colo
 
 const Edit = props => {
 	const { attributes, className } = props;
-	const { currency, annualDonation, monthlyDonation, showCustomAmount } = attributes;
+	const { currency, annualDonation, monthlyDonation, showCustomAmount, borderColor } = attributes;
 
 	const [ loadingError, setLoadingError ] = useState( '' );
 	const [ computedBorderColor, setComputedBorderColor ] = useState( '' );
@@ -88,8 +117,10 @@ const Edit = props => {
 	useEffect( () => {
 		const query = `[data-block="${ props.clientId }"]`;
 		const blockDomElement = document.querySelectorAll( query );
-		setComputedBorderColor( window.getComputedStyle( blockDomElement[ 0 ] ).borderColor );
-	}, [ props ] );
+		const computedColor = window.getComputedStyle( blockDomElement[ 0 ] ).borderColor;
+
+		setComputedBorderColor( computedColor );
+	}, [ borderColor, attributes.style.border, props.clientId ] );
 
 	const resetActiveTab = ( controlTab, value ) => {
 		if ( value === false && activeTab === controlTab ) {
@@ -161,7 +192,8 @@ const Edit = props => {
 									<DonationTabButton
 										label={ label }
 										id={ id }
-										color={ computedBorderColor }
+										color={ borderColor }
+										computedColor={ computedBorderColor }
 										tabIndex={ index }
 										isActive={ activeTab === id }
 										onActivateTab={ setActiveTab }
@@ -170,7 +202,11 @@ const Edit = props => {
 						) }
 					</div>
 				) }
-				<div className="donations__content ">
+				<div
+					className={ classnames( 'donations__content', {
+						borderless: '0px' === attributes.style.border.width,
+					} ) }
+				>
 					<Context.Provider
 						value={ { activeTab, fallbackLinkUrl, products, currency, showCustomAmount } }
 					>

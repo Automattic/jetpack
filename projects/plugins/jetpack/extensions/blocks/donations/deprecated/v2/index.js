@@ -19,6 +19,12 @@ const mapAttributes = oldAttributes => ( {
 	showCustomAmount: oldAttributes.showCustomAmount,
 	currency: oldAttributes.currency,
 	fallbackLinkUrl: oldAttributes.fallbackLinkUrl,
+	style: {
+		border: {
+			width: '1px',
+		},
+	},
+	borderColor: 'foreground',
 } );
 
 const createDonationView = (

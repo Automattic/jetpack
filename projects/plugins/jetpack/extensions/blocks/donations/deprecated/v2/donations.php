@@ -159,9 +159,9 @@ function render_block_v2( $attr, $content ) {
 	return sprintf(
 		'
 <div class="%1$s">
-	<div class="donations__container">
+	<div class="donations__container donations__deprecated">
 		%2$s
-		<div class="donations__content donations__deprecated">
+		<div class="donations__content">
 			<div class="donations__tab">
 				%3$s
 				<p>%4$s</p>

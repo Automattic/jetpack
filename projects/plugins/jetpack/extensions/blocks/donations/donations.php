@@ -99,62 +99,7 @@ function render_block( $attr, $content, $block ) {
 
 	jetpack_require_lib( 'class-jetpack-currencies' );
 
-	$donations = array(
-		array(
-			'title'    => __( 'One-Time', 'jetpack' ),
-			'class'    => 'donations__one-time-item',
-			'interval' => 'one-time',
-		),
-	);
-
-	if ( $attr['monthlyDonation'] ) {
-		$donations[] = array(
-			'title'    => __( 'Monthly', 'jetpack' ),
-			'class'    => 'donations__monthly-item',
-			'interval' => '1 month',
-		);
-	}
-
-	if ( $attr['annualDonation'] ) {
-		$donations[] = array(
-			'title'    => __( 'Yearly', 'jetpack' ),
-			'class'    => 'donations__annual-item',
-			'interval' => '1 year',
-		);
-	}
-
-	$navigation_items = array();
-	if ( count( $donations ) > 1 ) {
-		$navigation_items = array_map(
-			function ( $donation, $index ) {
-				return sprintf(
-					'<div role="button" tabindex="%1$u" class="donations__nav-item" data-interval="%2$s">%3$s</div>',
-					esc_attr( $index ),
-					esc_attr( $donation['interval'] ),
-					esc_html( $donation['title'] )
-				);
-			},
-			$donations,
-			array_keys( $donations )
-		);
-	}
-
-	$template = '
-<div class="%1$s">
-	<div class="donations__container">
-		<div class="donations__nav">
-			%2$s
-		</div>
-		%3$s
-	</div>
-</div>';
-
-	return sprintf(
-		$template,
-		esc_attr( Blocks::classes( 'donations', $attr ) ),
-		implode( "\n", $navigation_items ),
-		$content
-	);
+	return $content;
 }
 
 /**
