@@ -91,7 +91,7 @@ class Jetpack_Sitemap_Librarian {
 					'post_title'   => $name,
 					'post_content' => base64_encode( $contents ),
 					'post_type'    => $type,
-					'post_date'    => date( 'Y-m-d H:i:s', strtotime( $timestamp ) ),
+					'post_date'    => gmdate( 'Y-m-d H:i:s', strtotime( $timestamp ) ),
 				)
 			);
 		} else {
@@ -102,7 +102,7 @@ class Jetpack_Sitemap_Librarian {
 					'post_title'   => $name,
 					'post_content' => base64_encode( $contents ),
 					'post_type'    => $type,
-					'post_date'    => date( 'Y-m-d H:i:s', strtotime( $timestamp ) ),
+					'post_date'    => gmdate( 'Y-m-d H:i:s', strtotime( $timestamp ) ),
 				)
 			);
 		}
@@ -391,7 +391,7 @@ class Jetpack_Sitemap_Librarian {
 	public function query_most_recent_posts( $num_posts ) {
 		global $wpdb;
 
-		$two_days_ago = date( 'Y-m-d', strtotime( '-2 days' ) );
+		$two_days_ago = gmdate( 'Y-m-d', strtotime( '-2 days' ) );
 
 		/**
 		 * Filter post types to be included in news sitemap.
