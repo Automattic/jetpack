@@ -401,8 +401,6 @@ DisconnectDialog.propTypes = {
 	connectedSiteId: PropTypes.number,
 	/** Whether or not the dialog modal should be open. */
 	isOpen: PropTypes.bool,
-	/** Whether or not the dialog is ready to display content */
-	isReady: PropTypes.bool,
 	/** Callback function for when the modal closes. */
 	onClose: PropTypes.func,
 };

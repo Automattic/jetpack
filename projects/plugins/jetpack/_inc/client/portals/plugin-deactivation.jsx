@@ -51,7 +51,6 @@ const PluginDeactivation = props => {
 		fetchUserConnectionData,
 	} = props;
 	const [ modalOpen, setModalOpen ] = useState( false );
-	const [ isReady, setIsReady ] = useState( false );
 
 	useEffect( () => {
 		fetchSiteBenefits();
@@ -98,12 +97,6 @@ const PluginDeactivation = props => {
 		window.location.href = deactivationLink.getAttribute( 'href' );
 	}, [ deactivationLink ] );
 
-	useEffect( () => {
-		if ( connectedPlugins && connectionUserData ) {
-			setIsReady( true );
-		}
-	}, [ connectedPlugins, connectionUserData ] );
-
 	const disconnectStepComponent = siteBenefits ? (
 		<JetpackBenefits siteBenefits={ siteBenefits } />
 	) : null;
@@ -120,7 +113,6 @@ const PluginDeactivation = props => {
 				} }
 				context={ 'plugins' }
 				isOpen={ modalOpen }
-				isReady={ isReady }
 				onClose={ toggleVisibility }
 				pluginScreenDisconnectCallback={ handleDeactivate }
 				disconnectStepComponent={ disconnectStepComponent }
