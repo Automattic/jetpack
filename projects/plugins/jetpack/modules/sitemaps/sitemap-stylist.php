@@ -1,4 +1,4 @@
-<?php
+<?php // phpcs:ignore WordPress.Files.FileName.InvalidClassFileName
 /**
  * The XSL used to style sitemaps is essentially a bunch of
  * static strings. This class handles the construction of
