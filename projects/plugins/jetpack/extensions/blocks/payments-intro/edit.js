@@ -1,7 +1,7 @@
 /**
  * External dependencies
  */
-import { get, map } from 'lodash';
+import { get } from 'lodash';
 import { __ } from '@wordpress/i18n';
 import { useEffect } from '@wordpress/element';
 import { createBlock, registerBlockVariation, store as blocksStore } from '@wordpress/blocks';
@@ -32,16 +32,8 @@ export default function JetpackPaymentsIntroEdit( { name, clientId } ) {
 
 	const { replaceBlock, selectBlock } = useDispatch( blockEditorStore );
 
-	const createBlocksFromInnerBlocksTemplate = innerBlocksTemplate => {
-		const blocks = map( innerBlocksTemplate, ( [ blockName, attr, innerBlocks = [] ] ) =>
-			createBlock( blockName, attr, createBlocksFromInnerBlocksTemplate( innerBlocks ) )
-		);
-
-		return blocks;
-	};
-
 	const setVariation = variation => {
-		replaceBlock( clientId, createBlocksFromInnerBlocksTemplate( variation.innerBlocks ) );
+		replaceBlock( clientId, createBlock( variation.name.replace( 'payments-intro', 'jetpack' ) ) );
 		selectBlock( clientId );
 	};
 

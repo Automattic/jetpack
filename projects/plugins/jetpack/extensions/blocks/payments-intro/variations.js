@@ -28,11 +28,10 @@ const variationDefinitions = variations
 			return {};
 		}
 		return {
-			name: 'jetpack/payments-intro-' + blockName,
+			name: 'payments-intro/' + blockName,
 			title: settings.title,
 			description: settings.description,
 			icon: settings.icon.src,
-			innerBlocks: [ [ 'jetpack/' + blockName, {} ] ],
 			// The inner block itself is already listed in the inserter in its own right, so just include in this blocks
 			// unified intro.
 			scope: [ 'block' ],
