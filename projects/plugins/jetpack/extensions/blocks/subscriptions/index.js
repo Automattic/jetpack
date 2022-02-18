@@ -23,13 +23,13 @@ export const icon = (
 			width="14.5"
 			height="10.5"
 			rx="1.25"
-			stroke={ getIconColor() }
+			stroke={ 'currentColor' }
 			strokeWidth="1.5"
 			fill="none"
 		/>
 		<Path
 			d="M19 7L13.3609 12.2363C12.5935 12.9489 11.4065 12.9489 10.6391 12.2363L5 7"
-			stroke={ getIconColor() }
+			stroke={ 'currentColor' }
 			strokeWidth="1.5"
 			strokeLinejoin="bevel"
 			fill="none"
