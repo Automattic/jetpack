@@ -49,6 +49,8 @@ abstract class SAL_Site {
 
 	abstract public function has_videopress();
 
+	abstract public function get_videopress_storage_used();
+
 	abstract public function upgraded_filetypes_enabled();
 
 	abstract public function is_mapped_domain();
@@ -191,6 +193,10 @@ abstract class SAL_Site {
 
 	public function woocommerce_is_active() {
 		return false;
+	}
+
+	public function editing_toolkit_is_active() {
+		return true;
 	}
 
 	public function is_cloud_eligible() {
@@ -693,9 +699,9 @@ abstract class SAL_Site {
 		return empty( $options[ 'designType'] ) ? null : $options[ 'designType' ];
 	}
 
-	function get_site_goals() {
+	public function get_site_goals() {
 		$options = get_option( 'options' );
-		return empty( $options[ 'siteGoals'] ) ? null : $options[ 'siteGoals' ];
+		return empty( $options['siteGoals'] ) ? null : $options['siteGoals'];
 	}
 
 	function get_launch_status() {
@@ -718,6 +724,10 @@ abstract class SAL_Site {
 		return get_option( 'selected_features' );
 	}
 
+	public function was_created_with_blank_canvas_design() {
+		return (bool) get_option( 'was_created_with_blank_canvas_design' );
+	}
+
 	/**
 	 * Get the option storing the Anchor podcast ID that identifies a site as a podcasting site.
 	 *
@@ -737,6 +747,15 @@ abstract class SAL_Site {
 		return false;
 	}
 
+		/**
+	 * The site options for DIFM lite in the design picker step
+	 *
+	 * @return string
+	 */
+	public function get_difm_lite_site_options() {
+		return get_option( 'difm_lite_site_options' );
+}
+
 	/**
 	 * Get the option of site intent which value is coming from the Hero Flow
 	 */
@@ -744,4 +763,3 @@ abstract class SAL_Site {
 		return get_option( 'site_intent', '' );
 	}
 }
-
