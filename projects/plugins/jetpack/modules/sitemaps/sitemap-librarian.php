@@ -59,7 +59,7 @@ class Jetpack_Sitemap_Librarian {
 				'timestamp' => $the_post->post_date,
 				'name'      => $the_post->post_title,
 				'type'      => $the_post->post_type,
-				'text'      => base64_decode( $the_post->post_content ),
+				'text'      => base64_decode( $the_post->post_content ), // phpcs:ignore WordPress.PHP.DiscouragedPHPFunctions.obfuscation_base64_decode
 			);
 		}
 	}
@@ -89,7 +89,7 @@ class Jetpack_Sitemap_Librarian {
 			wp_insert_post(
 				array(
 					'post_title'   => $name,
-					'post_content' => base64_encode( $contents ),
+					'post_content' => base64_encode( $contents ), // phpcs:ignore WordPress.PHP.DiscouragedPHPFunctions.obfuscation_base64_encode
 					'post_type'    => $type,
 					'post_date'    => gmdate( 'Y-m-d H:i:s', strtotime( $timestamp ) ),
 				)
@@ -100,7 +100,7 @@ class Jetpack_Sitemap_Librarian {
 				array(
 					'ID'           => $the_post['id'],
 					'post_title'   => $name,
-					'post_content' => base64_encode( $contents ),
+					'post_content' => base64_encode( $contents ), // phpcs:ignore WordPress.PHP.DiscouragedPHPFunctions.obfuscation_base64_encode
 					'post_type'    => $type,
 					'post_date'    => gmdate( 'Y-m-d H:i:s', strtotime( $timestamp ) ),
 				)
