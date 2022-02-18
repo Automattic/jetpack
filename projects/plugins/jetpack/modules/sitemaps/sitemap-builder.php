@@ -618,7 +618,7 @@ class Jetpack_Sitemap_Builder { // phpcs:ignore Generic.Files.OneObjectStructure
 				JP_SITEMAP_BATCH_SIZE
 			);
 
-			if ( null == $posts ) { // WPCS: loose comparison ok.
+			if ( null == $posts ) { // phpcs:ignore Universal.Operators.StrictComparisons.LooseEqual -- WPCS: loose comparison ok.
 				$any_posts_left = false;
 				break;
 			}
@@ -768,7 +768,7 @@ class Jetpack_Sitemap_Builder { // phpcs:ignore Generic.Files.OneObjectStructure
 				JP_SITEMAP_BATCH_SIZE
 			);
 
-			if ( null == $posts ) { // WPCS: loose comparison ok.
+			if ( null == $posts ) { // phpcs:ignore Universal.Operators.StrictComparisons.LooseEqual -- WPCS: loose comparison ok.
 				$any_posts_left = false;
 				break;
 			}
@@ -847,7 +847,7 @@ class Jetpack_Sitemap_Builder { // phpcs:ignore Generic.Files.OneObjectStructure
 				JP_SITEMAP_BATCH_SIZE
 			);
 
-			if ( null == $posts ) { // WPCS: loose comparison ok.
+			if ( null == $posts ) { // phpcs:ignore Universal.Operators.StrictComparisons.LooseEqual -- WPCS: loose comparison ok.
 				$any_posts_left = false;
 				break;
 			}
@@ -955,7 +955,7 @@ class Jetpack_Sitemap_Builder { // phpcs:ignore Generic.Files.OneObjectStructure
 			);
 
 			// If there were no posts to get, make a note.
-			if ( null == $posts ) { // WPCS: loose comparison ok.
+			if ( null == $posts ) { // phpcs:ignore Universal.Operators.StrictComparisons.LooseEqual -- WPCS: loose comparison ok.
 				$any_sitemaps_left = false;
 				break;
 			}
@@ -1228,7 +1228,7 @@ class Jetpack_Sitemap_Builder { // phpcs:ignore Generic.Files.OneObjectStructure
 		}
 
 		$parent_url = get_permalink( get_post( $post->post_parent ) );
-		if ( '' == $parent_url ) { // WPCS: loose comparison ok.
+		if ( '' == $parent_url ) { // phpcs:ignore Universal.Operators.StrictComparisons.LooseEqual -- WPCS: loose comparison ok.
 			$parent_url = get_permalink( $post );
 		}
 
@@ -1312,7 +1312,7 @@ class Jetpack_Sitemap_Builder { // phpcs:ignore Generic.Files.OneObjectStructure
 		}
 
 		$parent_url = esc_url( get_permalink( get_post( $post->post_parent ) ) );
-		if ( '' == $parent_url ) { // WPCS: loose comparison ok.
+		if ( '' == $parent_url ) { // phpcs:ignore Universal.Operators.StrictComparisons.LooseEqual -- WPCS: loose comparison ok.
 			$parent_url = esc_url( get_permalink( $post ) );
 		}
 
