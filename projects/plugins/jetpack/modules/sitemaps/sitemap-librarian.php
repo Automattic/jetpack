@@ -1,4 +1,4 @@
-<?php
+<?php // phpcs:ignore WordPress.Files.FileName.InvalidClassFileName
 /**
  * Sitemaps are stored in the database using a custom table. This class
  * provides a small API for storing and retrieving sitemap data so we can
