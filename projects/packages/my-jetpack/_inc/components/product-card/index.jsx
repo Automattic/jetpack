@@ -62,7 +62,7 @@ const ActionButton = ( {
 	}
 
 	const buttonState = {
-		isPressed: ! isFetching,
+		isPrimary: ! isFetching,
 		disabled: isFetching,
 	};
 
@@ -206,7 +206,7 @@ const ProductCard = props => {
 						/>
 						<DropdownMenu
 							className={ styles.dropdown }
-							toggleProps={ { isPressed: true, disabled: isFetching } }
+							toggleProps={ { isPrimary: true, disabled: isFetching } }
 							popoverProps={ { noArrow: false } }
 							icon={ DownIcon }
 							disableOpenOnArrowDown={ true }
