@@ -63,6 +63,7 @@ export const settings = {
 	supports: {
 		html: false,
 		align: true,
+		inserter: false, // Inserted by payments-intro block
 	},
 	deprecated: [ deprecatedV1 ],
 	transforms: {

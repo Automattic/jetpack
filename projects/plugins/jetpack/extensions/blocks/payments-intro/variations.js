@@ -32,9 +32,6 @@ const variationDefinitions = variations
 			title: settings.title,
 			description: settings.description,
 			icon: settings.icon.src,
-			// The inner block itself is already listed in the inserter in its own right, so just include in this blocks
-			// unified intro.
-			scope: [ 'block' ],
 		};
 	} )
 	.filter( blockDefinition => Object.entries( blockDefinition ).length > 0 );

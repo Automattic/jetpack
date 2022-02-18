@@ -27,6 +27,7 @@ export const settings = {
 	keywords: [ __( 'Donations', 'jetpack' ) ],
 	supports: {
 		html: false,
+		inserter: false, // Inserted by payments-intro block
 	},
 	edit,
 	save,
