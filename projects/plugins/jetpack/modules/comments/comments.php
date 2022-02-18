@@ -1,4 +1,9 @@
 <?php // phpcs:ignore WordPress.Files.FileName.InvalidClassFileName
+/**
+ * Module: Comments
+ *
+ * @package automattic/jetpack
+ */
 
 require __DIR__ . '/base.php';
 use Automattic\Jetpack\Connection\Tokens;
@@ -15,21 +20,21 @@ class Jetpack_Comments extends Highlander_Comments_Base {
 	/** Variables *************************************************************/
 
 	/**
-	 * Possible comment form sources
+	 * Possible comment form sources - empty array as default
 	 *
 	 * @var array
 	 */
 	public $id_sources = array();
 
 	/**
-	 * URL
+	 * Remote comment URL - empty string as default
 	 *
 	 * @var string
 	 */
 	public $signed_url = '';
 
 	/**
-	 * The default comment form color scheme
+	 * The default comment form color scheme - default is light
 	 *
 	 * @var string
 	 * @see ::set_default_color_theme_based_on_theme_settings()
@@ -98,6 +103,8 @@ class Jetpack_Comments extends Highlander_Comments_Base {
 
 	/**
 	 * Set any global variables or class variables
+	 *
+	 * This is primarily defining the comment form sources.
 	 *
 	 * @since JetpackComments (1.4)
 	 */
@@ -181,6 +188,8 @@ class Jetpack_Comments extends Highlander_Comments_Base {
 
 	/**
 	 * Start capturing the core comment_form() output
+	 *
+	 * Comment form output will only be captured if comments are enabled - we return otherwise.
 	 *
 	 * @since JetpackComments (1.4)
 	 */
@@ -405,6 +414,8 @@ class Jetpack_Comments extends Highlander_Comments_Base {
 	/**
 	 * Add some JS to wp_footer to watch for hierarchical reply parent change
 	 *
+	 * If AMP is enabled, we don't make any changes.
+	 *
 	 * @since JetpackComments (1.4)
 	 */
 	public function watch_comment_parent() {
@@ -515,6 +526,9 @@ class Jetpack_Comments extends Highlander_Comments_Base {
 
 	/**
 	 * Verify the hash included in remote comments.
+	 *
+	 * If the Jetpack toekn is missing we return nothing,
+	 * and if the token is unknown or invalid, or comments not allowed, an error is returned.
 	 *
 	 * @since JetpackComments (1.4)
 	 */
