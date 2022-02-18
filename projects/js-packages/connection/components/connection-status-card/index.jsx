@@ -194,7 +194,7 @@ ConnectionStatusCard.propTypes = {
 	/** The context in which this component is being used */
 	context: PropTypes.string,
 	/** Function to override default action for connect user account */
-	onConnectUser: PropTypes.string,
+	onConnectUser: PropTypes.func,
 };
 
 ConnectionStatusCard.defaultProps = {
