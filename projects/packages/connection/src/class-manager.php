@@ -116,6 +116,10 @@ class Manager {
 		if ( defined( 'JETPACK__SANDBOX_DOMAIN' ) && JETPACK__SANDBOX_DOMAIN ) {
 			( new Server_Sandbox() )->init();
 		}
+
+		if ( ! class_exists( 'Jetpack' ) ) {
+			add_action( 'load-toplevel_page_jetpack', array( $manager, 'handle_authorize_redirect' ) );
+		}
 	}
 
 	/**
@@ -2487,5 +2491,57 @@ class Manager {
 			}
 		}
 		return $stats;
+	}
+
+	/**
+	 * This method implements what's in Jetpack::admin_page_load when the Jetpack plugin is not present
+	 */
+	public function handle_authorize_redirect() {
+		add_filter(
+			'allowed_redirect_hosts',
+			function ( $domains ) {
+				$domains[] = 'jetpack.com';
+				$domains[] = 'jetpack.wordpress.com';
+				$domains[] = 'wordpress.com';
+				// TODO: Add support to different Calypso envs.
+				return array_unique( $domains );
+			}
+		);
+
+		// phpcs:ignore WordPress.Security.NonceVerification.Recommended
+		$dest_url = empty( $_GET['dest_url'] ) ? null : $_GET['dest_url'];
+
+		if ( ! $dest_url || ( 0 === stripos( $dest_url, 'https://jetpack.com/' ) && 0 === stripos( $dest_url, 'https://wordpress.com/' ) ) ) {
+			// The destination URL is missing or invalid, nothing to do here.
+			exit;
+		}
+
+		if ( $this->is_connected() && $this->is_user_connected() ) {
+			// The user is either already connected, or finished the connection process.
+			wp_safe_redirect( $dest_url );
+			exit;
+		} elseif ( ! empty( $_GET['done'] ) ) { // phpcs:ignore WordPress.Security.NonceVerification.Recommended
+			// The user decided not to proceed with setting up the connection.
+
+			// TODO: Redirect somewhere.
+			wp_safe_redirect( admin_url() );
+			exit;
+		}
+
+		$redirect_args = array(
+			'page'     => 'jetpack',
+			'action'   => 'authorize_redirect',
+			'dest_url' => rawurlencode( $dest_url ),
+			'done'     => '1',
+		);
+
+		// phpcs:ignore WordPress.Security.NonceVerification.Recommended
+		if ( ! empty( $_GET['from'] ) && 'jetpack_site_only_checkout' === $_GET['from'] ) {
+			$redirect_args['from'] = 'jetpack_site_only_checkout';
+		}
+
+		// TODO: verify if filters in Jetpack::::build_authorize_url are needed.
+		wp_safe_redirect( $this->get_authorization_url( wp_get_current_user(), self::admin_url( $redirect_args ) ) );
+		exit;
 	}
 }
