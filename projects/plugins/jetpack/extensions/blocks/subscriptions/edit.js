@@ -205,7 +205,10 @@ export function SubscriptionEdit( props ) {
 	const previousButtonBackgroundColor = usePrevious( buttonBackgroundColor );
 
 	useEffect( () => {
-		if ( ! borderColor || previousButtonBackgroundColor?.color !== borderColor?.color ) {
+		if (
+			previousButtonBackgroundColor?.color !== borderColor?.color ||
+			borderColor?.color === buttonBackgroundColor?.color
+		) {
 			return;
 		}
 		setBorderColor( buttonBackgroundColor.color );
