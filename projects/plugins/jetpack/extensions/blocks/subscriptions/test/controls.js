@@ -119,12 +119,12 @@ describe( 'Inspector controls', () => {
 		test( 'displays correctly', () => {
 			render( <SubscriptionsInspectorControls { ...defaultProps } /> );
 
-			expect( screen.getByText( 'Border' ) ).toBeInTheDocument();
+			expect( screen.getByText( 'Border', { selector: 'button' } ) ).toBeInTheDocument();
 		} );
 
 		test( 'set border radius', () => {
 			render( <SubscriptionsInspectorControls { ...defaultProps } /> );
-			userEvent.click( screen.getByText( 'Border' ), { selector: 'button' } );
+			userEvent.click( screen.getByText( 'Border', { selector: 'button' } ) );
 			const rangeControlElement = screen.getAllByLabelText( 'Border Radius' )[ 1 ];
 			userEvent.clear( rangeControlElement );
 			userEvent.type( rangeControlElement, '5' );
@@ -136,7 +136,7 @@ describe( 'Inspector controls', () => {
 
 		test( 'set border weight', () => {
 			render( <SubscriptionsInspectorControls { ...defaultProps } /> );
-			userEvent.click( screen.getByText( 'Border' ), { selector: 'button' } );
+			userEvent.click( screen.getByText( 'Border', { selector: 'button' } ) );
 			const rangeControlElement = screen.getAllByLabelText( 'Border Weight' )[ 1 ];
 			userEvent.clear( rangeControlElement );
 			userEvent.type( rangeControlElement, '5' );
