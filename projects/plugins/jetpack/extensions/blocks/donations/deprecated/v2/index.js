@@ -55,7 +55,7 @@ const createDonationView = (
 						),
 						amount: Number( amount ),
 						currency,
-						baseAmountMultiplier: 2 * amount,
+						baseAmountMultiplier: amount / minimumTransactionAmountForCurrency( currency ),
 					} )
 				)
 			),
