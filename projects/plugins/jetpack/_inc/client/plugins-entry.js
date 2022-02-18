@@ -8,7 +8,7 @@ import { Provider } from 'react-redux';
 /**
  * Internal dependencies
  */
-import store from 'state/redux-store';
+import store from 'state/plugins-store';
 import PluginDeactivation from './portals/plugin-deactivation';
 
 /**
