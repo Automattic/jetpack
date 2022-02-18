@@ -62,6 +62,26 @@ class Crm extends Product {
 	}
 
 	/**
+	 * Dectivates CRM after circumventing its deactivation survey
+	 *
+	 * @return boolean|WP_Error
+	 */
+	public static function deactivate() {
+		self::circumvent_deactivation_survey();
+		return parent::deactivate();
+	}
+
+	/**
+	 * Does what's necessary to avoid CRM hijacking REST requests and page loads
+	 * when being deactivated
+	 *
+	 * @return boolean
+	 */
+	public static function circumvent_deactivation_survey() {
+		return define( 'ZBSPHPVERDEACTIVATE', 1 );
+	}
+
+	/**
 	 * Get the internationalized product name
 	 *
 	 * @return string
