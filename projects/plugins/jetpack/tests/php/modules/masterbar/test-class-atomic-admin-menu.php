@@ -323,13 +323,17 @@ class Test_Atomic_Admin_Menu extends WP_UnitTestCase {
 	public function test_add_plugins_menu() {
 		global $submenu;
 
-		static::$admin_menu->add_plugins_menu();
+		$this->assertSame( 'plugin-install.php', $submenu['plugins.php'][10][2] );
 
-		// Make sure that initial menu item is hidden.
-		$this->assertSame( 'hide-if-js', $submenu['plugins.php'][1][4] );
-		// Make sure that the new menu item is inserted.
-		$this->assertSame( 'https://wordpress.com/plugins/' . static::$domain, $submenu['plugins.php'][0][2] );
-		// Make sure that Installed Plugins menu item is still in place.
-		$this->assertSame( 'plugins.php', $submenu['plugins.php'][2][2] );
+		if ( ! is_multisite() ) {
+			static::$admin_menu->add_plugins_menu();
+
+			// Make sure that initial menu item is hidden.
+			$this->assertSame( 'hide-if-js', $submenu['plugins.php'][1][4] );
+			// Make sure that the new menu item is inserted.
+			$this->assertSame( 'https://wordpress.com/plugins/' . static::$domain, $submenu['plugins.php'][0][2] );
+			// Make sure that Installed Plugins menu item is still in place.
+			$this->assertSame( 'plugins.php', $submenu['plugins.php'][2][2] );
+		}
 	}
 }
