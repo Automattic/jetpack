@@ -75,6 +75,8 @@ class Highlander_Comments_Base {
 	/**
 	 * Signs an array of scalars with the self-hosted blog's Jetpack Token
 	 *
+	 * If parameter values are not scalars a WP_Error is  returned, otherwise a keyed hash value is returned using the HMAC method.
+	 *
 	 * @param array  $parameters Comment parameters.
 	 * @param string $key Key used for generating the HMAC variant of the message digest.
 	 * @return string HMAC
@@ -100,14 +102,15 @@ class Highlander_Comments_Base {
 	}
 
 	/**
+	 * Adds comment author email and whether the comment is approved to the comments array
+	 *
 	 * After commenting as a guest while logged in, the user needs to see both:
 	 * ( user_id = blah AND comment_approved = 0 )
-	 * and
-	 * ( comment_author_email = blah AND comment_approved = 0 )
-	 * Core only does the first since the user is logged in.
-	 * Add the second to the comments array.
+	 * and ( comment_author_email = blah AND comment_approved = 0 )
+	 * Core only does the first since the user is logged in, so this adds the second to the comments array.
 	 *
 	 * @param array $comments All comment data.
+	 * @return array A modified array of comment data.
 	 */
 	public function comments_array( $comments ) {
 		global $wpdb, $post;
@@ -196,7 +199,6 @@ class Highlander_Comments_Base {
 	 * Overrides WordPress' core comment_registration option to treat these commenters as "registered" (verified) users.
 	 *
 	 * @since JetpackComments (1.4)
-	 * @return If no
 	 */
 	public function allow_logged_out_user_to_comment_as_external() {
 		if ( ! $this->is_highlander_comment_post( 'facebook', 'twitter', 'googleplus' ) ) {
@@ -214,7 +216,7 @@ class Highlander_Comments_Base {
 	 *
 	 * @since JetpackComments (1.4)
 	 * @param array $comment_data All data for a specific comment.
-	 * @return int
+	 * @return array Modified comment data, or an error if the required fields or a valid email address are not entered.
 	 */
 	public function allow_logged_in_user_to_comment_as_guest( $comment_data ) {
 		// Bail if user registration is allowed.
@@ -278,8 +280,7 @@ class Highlander_Comments_Base {
 	 * Set the comment cookies or bail if comment is invalid
 	 *
 	 * @since JetpackComments (1.4)
-	 * @param type $comment_id The comment ID.
-	 * @return If comment is invalid.
+	 * @param int $comment_id The comment ID.
 	 */
 	public function set_comment_cookies( $comment_id ) {
 		// Get comment and bail if it's invalid somehow.
