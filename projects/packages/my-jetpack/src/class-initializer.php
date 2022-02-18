@@ -27,7 +27,7 @@ class Initializer {
 	 *
 	 * @var string
 	 */
-	const PACKAGE_VERSION = '0.6.1-alpha';
+	const PACKAGE_VERSION = '0.6.2-alpha';
 
 	/**
 	 * Initialize My Jetapack
@@ -47,7 +47,11 @@ class Initializer {
 
 		$page_suffix = Admin_Menu::add_menu(
 			__( 'My Jetpack', 'jetpack-my-jetpack' ),
-			__( 'My Jetpack', 'jetpack-my-jetpack' ),
+			sprintf(
+			/* translators: %s: "beta" label on Menu item for My Jetpack. */
+				__( 'My Jetpack %s', 'jetpack-my-jetpack' ),
+				'<span style="margin: 8px; color: #bbb;">' . __( 'beta', 'jetpack-my-jetpack' ) . '</span>'
+			),
 			'manage_options',
 			'my-jetpack',
 			array( __CLASS__, 'admin_page' ),
@@ -59,7 +63,7 @@ class Initializer {
 		/**
 		 * Fires after the My Jetpack package is initialized
 		 *
-		 * @since $$next_version$$
+		 * @since 0.1.0
 		 */
 		do_action( 'my_jetpack_init' );
 	}

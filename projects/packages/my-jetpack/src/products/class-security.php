@@ -104,7 +104,7 @@ class Security extends Module_Product {
 	 * @return ?string
 	 */
 	public static function get_wpcom_product_slug() {
-		return 'jetpack_security_t2_monthly';
+		return 'jetpack_security_t1_yearly';
 	}
 
 	/**

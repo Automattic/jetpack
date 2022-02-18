@@ -115,7 +115,7 @@ class Anti_Spam extends Product {
 	 * @return ?string
 	 */
 	public static function get_wpcom_product_slug() {
-		return 'jetpack_anti_spam_monthly';
+		return 'jetpack_anti_spam';
 	}
 
 	/**

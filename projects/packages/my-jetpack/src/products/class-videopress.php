@@ -101,7 +101,7 @@ class Videopress extends Module_Product {
 	 * @return ?string
 	 */
 	public static function get_wpcom_product_slug() {
-		return 'jetpack_videopress_monthly';
+		return 'jetpack_videopress';
 	}
 
 	/**
