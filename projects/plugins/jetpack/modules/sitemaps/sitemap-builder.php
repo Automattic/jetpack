@@ -1,4 +1,4 @@
-<?php
+<?php // phpcs:ignore WordPress.Files.FileName.InvalidClassFileName
 /**
  * Build the sitemap tree.
  *
@@ -38,7 +38,9 @@ if ( defined( 'WP_DEBUG' ) && WP_DEBUG ) {
  * Simple class for rendering an empty sitemap with a short TTL
  */
 class Jetpack_Sitemap_Buffer_Empty extends Jetpack_Sitemap_Buffer {
-
+	/**
+	 * Jetpack_Sitemap_Buffer_Empty constructor.
+	 */
 	public function __construct() {
 		parent::__construct( JP_SITEMAP_MAX_ITEMS, JP_SITEMAP_MAX_BYTES, '1970-01-01 00:00:00' );
 
@@ -54,6 +56,9 @@ class Jetpack_Sitemap_Buffer_Empty extends Jetpack_Sitemap_Buffer {
 		);
 	}
 
+	/**
+	 * Returns a DOM element for an empty sitemap.
+	 */
 	protected function get_root_element() {
 		if ( ! isset( $this->root ) ) {
 			$this->root = $this->doc->createElement( 'sitemapindex' );
@@ -74,7 +79,7 @@ class Jetpack_Sitemap_Buffer_Empty extends Jetpack_Sitemap_Buffer {
  *
  * @since 4.8.0
  */
-class Jetpack_Sitemap_Builder {
+class Jetpack_Sitemap_Builder { // phpcs:ignore Generic.Files.OneObjectStructurePerFile.MultipleFound,Generic.Classes.OpeningBraceSameLine.ContentAfterBrace
 
 	/**
 	 * Librarian object for storing and retrieving sitemap data.
@@ -700,7 +705,7 @@ class Jetpack_Sitemap_Builder {
 		 * @param DOMDocument      $doc Data tree for sitemap.
 		 * @param string           $last_modified Date of last modification.
 		 */
-		$tree = apply_filters(
+		$tree = apply_filters( // phpcs:ignore VariableAnalysis.CodeAnalysis.VariableAnalysis.UnusedVariable
 			'jetpack_print_sitemap',
 			$buffer->get_document(),
 			$buffer->last_modified()
@@ -1319,7 +1324,7 @@ class Jetpack_Sitemap_Builder {
 		/** This filter is already documented in core/wp-includes/feed.php */
 		$content = apply_filters( 'the_content_feed', $content, 'rss2' );
 
-		// Include thumbnails for VideoPress videos, use blank image for others
+		// Include thumbnails for VideoPress videos, use blank image for others.
 		if ( 'complete' === get_post_meta( $post->ID, 'videopress_status', true ) && has_post_thumbnail( $post ) ) {
 			$video_thumbnail_url = get_the_post_thumbnail_url( $post );
 		} else {
