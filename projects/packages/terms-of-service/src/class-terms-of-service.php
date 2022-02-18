@@ -1,4 +1,4 @@
-<?php
+<?php // phpcs:ignore
 /**
  * A Terms of Service class for Jetpack.
  *
@@ -8,3 +8,5 @@
  * @deprecated $$next-version$$
  * @see automattic/jetpack-connection
  */
+
+require_once __DIR__ . '/../../jetpack-connection/src/class-terms-of-service.php';
