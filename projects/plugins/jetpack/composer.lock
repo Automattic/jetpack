@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "24468068c8b2230918dcd164ce978c04",
+    "content-hash": "dcaa88ed4500a44abd51d6889393acd5",
     "packages": [
         {
             "name": "automattic/jetpack-a8c-mc-stats",
@@ -50,6 +50,7 @@
             ],
             "description": "Used to record internal usage stats for Automattic. Not visible to site owners.",
             "transport-options": {
+                "monorepo": true,
                 "relative": true
             }
         },
@@ -105,6 +106,7 @@
             ],
             "description": "Provides an interface to the WP.com A/B tests.",
             "transport-options": {
+                "monorepo": true,
                 "relative": true
             }
         },
@@ -160,6 +162,7 @@
             ],
             "description": "Generic Jetpack wp-admin UI elements",
             "transport-options": {
+                "monorepo": true,
                 "relative": true
             }
         },
@@ -226,6 +229,7 @@
             ],
             "description": "Asset management utilities for Jetpack ecosystem packages",
             "transport-options": {
+                "monorepo": true,
                 "relative": true
             }
         },
@@ -281,6 +285,7 @@
             ],
             "description": "Creates a custom autoloader for a plugin or theme.",
             "transport-options": {
+                "monorepo": true,
                 "relative": true
             }
         },
@@ -343,6 +348,7 @@
             ],
             "description": "Tools to assist with backing up Jetpack sites.",
             "transport-options": {
+                "monorepo": true,
                 "relative": true
             }
         },
@@ -395,6 +401,7 @@
             ],
             "description": "Register and manage blocks within a plugin. Used to manage block registration, enqueues, and more.",
             "transport-options": {
+                "monorepo": true,
                 "relative": true
             }
         },
@@ -433,6 +440,7 @@
             ],
             "description": "Compatibility layer with previous versions of Jetpack",
             "transport-options": {
+                "monorepo": true,
                 "relative": true
             }
         },
@@ -485,6 +493,7 @@
             ],
             "description": "A custom installer plugin for Composer to move Jetpack packages out of `vendor/` so WordPress's translation infrastructure will find their strings.",
             "transport-options": {
+                "monorepo": true,
                 "relative": true
             }
         },
@@ -521,6 +530,7 @@
             ],
             "description": "Jetpack configuration package that initializes other packages and configures Jetpack's functionality. Can be used as a base for all variants of Jetpack package usage.",
             "transport-options": {
+                "monorepo": true,
                 "relative": true
             }
         },
@@ -530,7 +540,7 @@
             "dist": {
                 "type": "path",
                 "url": "../../packages/connection",
-                "reference": "5bf3bebadaec57d95df9dc6e01b9d4b7e20a2284"
+                "reference": "42a979e9ef9ac66e020e9300d7f79abdfdcea722"
             },
             "require": {
                 "automattic/jetpack-a8c-mc-stats": "^1.4",
@@ -540,7 +550,6 @@
                 "automattic/jetpack-redirect": "^1.7",
                 "automattic/jetpack-roles": "^1.4",
                 "automattic/jetpack-status": "^1.10",
-                "automattic/jetpack-terms-of-service": "^1.9",
                 "automattic/jetpack-tracking": "^1.14"
             },
             "require-dev": {
@@ -589,6 +598,7 @@
             ],
             "description": "Everything needed to connect to the Jetpack infrastructure",
             "transport-options": {
+                "monorepo": true,
                 "relative": true
             }
         },
@@ -644,6 +654,7 @@
             ],
             "description": "Jetpack Connection UI",
             "transport-options": {
+                "monorepo": true,
                 "relative": true
             }
         },
@@ -692,6 +703,7 @@
             ],
             "description": "A wrapper for defining constants in a more testable way.",
             "transport-options": {
+                "monorepo": true,
                 "relative": true
             }
         },
@@ -739,6 +751,7 @@
             ],
             "description": "A way to detect device types based on User-Agent header.",
             "transport-options": {
+                "monorepo": true,
                 "relative": true
             }
         },
@@ -786,6 +799,7 @@
             ],
             "description": "Jetpack Error - a wrapper around WP_Error.",
             "transport-options": {
+                "monorepo": true,
                 "relative": true
             }
         },
@@ -826,6 +840,7 @@
             ],
             "description": "This adds a cronjob that sends a batch of internal automattic stats to wp.com once a day",
             "transport-options": {
+                "monorepo": true,
                 "relative": true
             }
         },
@@ -900,6 +915,7 @@
             ],
             "description": "Identity Crisis.",
             "transport-options": {
+                "monorepo": true,
                 "relative": true
             }
         },
@@ -970,6 +986,7 @@
             ],
             "description": "Just in time messages for Jetpack",
             "transport-options": {
+                "monorepo": true,
                 "relative": true
             }
         },
@@ -1032,6 +1049,7 @@
             ],
             "description": "Speed up your site and create a smoother viewing experience by loading images as visitors scroll down the screen, instead of all at once.",
             "transport-options": {
+                "monorepo": true,
                 "relative": true
             }
         },
@@ -1088,6 +1106,7 @@
             ],
             "description": "Everything needed to manage Jetpack licenses client-side.",
             "transport-options": {
+                "monorepo": true,
                 "relative": true
             }
         },
@@ -1135,6 +1154,7 @@
             ],
             "description": "A logo for Jetpack",
             "transport-options": {
+                "monorepo": true,
                 "relative": true
             }
         },
@@ -1144,7 +1164,7 @@
             "dist": {
                 "type": "path",
                 "url": "../../packages/my-jetpack",
-                "reference": "d9c67455da0f3210b8aa25ed2a860a568bf03364"
+                "reference": "04c56e9a9e8deebadc10b1e259248fb81345ce4f"
             },
             "require": {
                 "automattic/jetpack-admin-ui": "^0.2",
@@ -1152,7 +1172,6 @@
                 "automattic/jetpack-connection": "^1.36",
                 "automattic/jetpack-plugins-installer": "^0.1",
                 "automattic/jetpack-redirect": "^1.7",
-                "automattic/jetpack-terms-of-service": "^1.9",
                 "automattic/jetpack-tracking": "^1.14"
             },
             "require-dev": {
@@ -1220,6 +1239,7 @@
             ],
             "description": "WP Admin page with information and configuration shared among all Jetpack stand-alone plugins",
             "transport-options": {
+                "monorepo": true,
                 "relative": true
             }
         },
@@ -1259,6 +1279,7 @@
             ],
             "description": "A wrapper for wp-options to manage specific Jetpack options.",
             "transport-options": {
+                "monorepo": true,
                 "relative": true
             }
         },
@@ -1316,6 +1337,7 @@
             ],
             "description": "Support functions for Jetpack hosting partners.",
             "transport-options": {
+                "monorepo": true,
                 "relative": true
             }
         },
@@ -1368,6 +1390,7 @@
             ],
             "description": "Password Checker.",
             "transport-options": {
+                "monorepo": true,
                 "relative": true
             }
         },
@@ -1419,6 +1442,7 @@
             ],
             "description": "Handle installation of plugins from WP.org",
             "transport-options": {
+                "monorepo": true,
                 "relative": true
             }
         },
@@ -1470,6 +1494,7 @@
             ],
             "description": "Utilities to build URLs to the jetpack.com/redirect/ service",
             "transport-options": {
+                "monorepo": true,
                 "relative": true
             }
         },
@@ -1518,6 +1543,7 @@
             ],
             "description": "Utilities, related with user roles and capabilities.",
             "transport-options": {
+                "monorepo": true,
                 "relative": true
             }
         },
@@ -1601,6 +1627,7 @@
             ],
             "description": "Tools to assist with enabling cloud search for Jetpack sites.",
             "transport-options": {
+                "monorepo": true,
                 "relative": true
             }
         },
@@ -1652,6 +1679,7 @@
             ],
             "description": "Used to retrieve information about the current status of Jetpack and the site overall.",
             "transport-options": {
+                "monorepo": true,
                 "relative": true
             }
         },
@@ -1717,58 +1745,7 @@
             ],
             "description": "Everything needed to allow syncing to the WP.com infrastructure.",
             "transport-options": {
-                "relative": true
-            }
-        },
-        {
-            "name": "automattic/jetpack-terms-of-service",
-            "version": "dev-master",
-            "dist": {
-                "type": "path",
-                "url": "../../packages/terms-of-service",
-                "reference": "706eb81842e2098c9f91b8cb911e396d905ad7a4"
-            },
-            "require": {
-                "automattic/jetpack-options": "^1.14",
-                "automattic/jetpack-status": "^1.10"
-            },
-            "require-dev": {
-                "automattic/jetpack-changelogger": "^3.0",
-                "brain/monkey": "2.6.1",
-                "yoast/phpunit-polyfills": "1.0.3"
-            },
-            "type": "jetpack-library",
-            "extra": {
-                "autotagger": true,
-                "mirror-repo": "Automattic/jetpack-terms-of-service",
-                "changelogger": {
-                    "link-template": "https://github.com/Automattic/jetpack-terms-of-service/compare/v${old}...v${new}"
-                },
-                "branch-alias": {
-                    "dev-master": "1.9.x-dev"
-                }
-            },
-            "autoload": {
-                "classmap": [
-                    "src/"
-                ]
-            },
-            "scripts": {
-                "phpunit": [
-                    "./vendor/phpunit/phpunit/phpunit --colors=always"
-                ],
-                "test-coverage": [
-                    "php -dpcov.directory=. ./vendor/bin/phpunit --coverage-clover \"$COVERAGE_DIR/clover.xml\""
-                ],
-                "test-php": [
-                    "@composer phpunit"
-                ]
-            },
-            "license": [
-                "GPL-2.0-or-later"
-            ],
-            "description": "Everything need to manage the terms of service state",
-            "transport-options": {
+                "monorepo": true,
                 "relative": true
             }
         },
@@ -1778,13 +1755,12 @@
             "dist": {
                 "type": "path",
                 "url": "../../packages/tracking",
-                "reference": "60dd2a4462221bcc460aadf9f86daeb308fd8027"
+                "reference": "89a4c4c91d25ae52fba56396394ceb5b63a3410f"
             },
             "require": {
                 "automattic/jetpack-assets": "^1.17",
                 "automattic/jetpack-options": "^1.14",
-                "automattic/jetpack-status": "^1.10",
-                "automattic/jetpack-terms-of-service": "^1.9"
+                "automattic/jetpack-status": "^1.10"
             },
             "require-dev": {
                 "automattic/jetpack-changelogger": "^3.0",
@@ -1825,6 +1801,7 @@
             ],
             "description": "Tracking for Jetpack",
             "transport-options": {
+                "monorepo": true,
                 "relative": true
             }
         },
@@ -1878,6 +1855,7 @@
             ],
             "description": "Tools to assist with the Jetpack Web Application Firewall",
             "transport-options": {
+                "monorepo": true,
                 "relative": true
             }
         },
@@ -2121,6 +2099,7 @@
             ],
             "description": "Jetpack Changelogger tool. Allows for managing changelogs by dropping change files into a changelog directory with each PR.",
             "transport-options": {
+                "monorepo": true,
                 "relative": true
             }
         },
@@ -2696,16 +2675,16 @@
         },
         {
             "name": "phpunit/php-code-coverage",
-            "version": "9.2.10",
+            "version": "9.2.11",
             "source": {
                 "type": "git",
                 "url": "https://github.com/sebastianbergmann/php-code-coverage.git",
-                "reference": "d5850aaf931743067f4bfc1ae4cbd06468400687"
+                "reference": "665a1ac0a763c51afc30d6d130dac0813092b17f"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/sebastianbergmann/php-code-coverage/zipball/d5850aaf931743067f4bfc1ae4cbd06468400687",
-                "reference": "d5850aaf931743067f4bfc1ae4cbd06468400687",
+                "url": "https://api.github.com/repos/sebastianbergmann/php-code-coverage/zipball/665a1ac0a763c51afc30d6d130dac0813092b17f",
+                "reference": "665a1ac0a763c51afc30d6d130dac0813092b17f",
                 "shasum": ""
             },
             "require": {
@@ -2761,7 +2740,7 @@
             ],
             "support": {
                 "issues": "https://github.com/sebastianbergmann/php-code-coverage/issues",
-                "source": "https://github.com/sebastianbergmann/php-code-coverage/tree/9.2.10"
+                "source": "https://github.com/sebastianbergmann/php-code-coverage/tree/9.2.11"
             },
             "funding": [
                 {
@@ -2769,7 +2748,7 @@
                     "type": "github"
                 }
             ],
-            "time": "2021-12-05T09:12:13+00:00"
+            "time": "2022-02-18T12:46:09+00:00"
         },
         {
             "name": "phpunit/php-file-iterator",
@@ -3014,16 +2993,16 @@
         },
         {
             "name": "phpunit/phpunit",
-            "version": "9.5.13",
+            "version": "9.5.14",
             "source": {
                 "type": "git",
                 "url": "https://github.com/sebastianbergmann/phpunit.git",
-                "reference": "597cb647654ede35e43b137926dfdfef0fb11743"
+                "reference": "1883687169c017d6ae37c58883ca3994cfc34189"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/sebastianbergmann/phpunit/zipball/597cb647654ede35e43b137926dfdfef0fb11743",
-                "reference": "597cb647654ede35e43b137926dfdfef0fb11743",
+                "url": "https://api.github.com/repos/sebastianbergmann/phpunit/zipball/1883687169c017d6ae37c58883ca3994cfc34189",
+                "reference": "1883687169c017d6ae37c58883ca3994cfc34189",
                 "shasum": ""
             },
             "require": {
@@ -3101,7 +3080,7 @@
             ],
             "support": {
                 "issues": "https://github.com/sebastianbergmann/phpunit/issues",
-                "source": "https://github.com/sebastianbergmann/phpunit/tree/9.5.13"
+                "source": "https://github.com/sebastianbergmann/phpunit/tree/9.5.14"
             },
             "funding": [
                 {
@@ -3113,7 +3092,7 @@
                     "type": "github"
                 }
             ],
-            "time": "2022-01-24T07:33:35+00:00"
+            "time": "2022-02-18T12:54:07+00:00"
         },
         {
             "name": "psr/container",
@@ -3669,16 +3648,16 @@
         },
         {
             "name": "sebastian/global-state",
-            "version": "5.0.3",
+            "version": "5.0.5",
             "source": {
                 "type": "git",
                 "url": "https://github.com/sebastianbergmann/global-state.git",
-                "reference": "23bd5951f7ff26f12d4e3242864df3e08dec4e49"
+                "reference": "0ca8db5a5fc9c8646244e629625ac486fa286bf2"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/sebastianbergmann/global-state/zipball/23bd5951f7ff26f12d4e3242864df3e08dec4e49",
-                "reference": "23bd5951f7ff26f12d4e3242864df3e08dec4e49",
+                "url": "https://api.github.com/repos/sebastianbergmann/global-state/zipball/0ca8db5a5fc9c8646244e629625ac486fa286bf2",
+                "reference": "0ca8db5a5fc9c8646244e629625ac486fa286bf2",
                 "shasum": ""
             },
             "require": {
@@ -3721,7 +3700,7 @@
             ],
             "support": {
                 "issues": "https://github.com/sebastianbergmann/global-state/issues",
-                "source": "https://github.com/sebastianbergmann/global-state/tree/5.0.3"
+                "source": "https://github.com/sebastianbergmann/global-state/tree/5.0.5"
             },
             "funding": [
                 {
@@ -3729,7 +3708,7 @@
                     "type": "github"
                 }
             ],
-            "time": "2021-06-11T13:31:12+00:00"
+            "time": "2022-02-14T08:28:10+00:00"
         },
         {
             "name": "sebastian/lines-of-code",
@@ -4574,12 +4553,12 @@
                 }
             },
             "autoload": {
-                "psr-4": {
-                    "Symfony\\Polyfill\\Mbstring\\": ""
-                },
                 "files": [
                     "bootstrap.php"
-                ]
+                ],
+                "psr-4": {
+                    "Symfony\\Polyfill\\Mbstring\\": ""
+                }
             },
             "notification-url": "https://packagist.org/downloads/",
             "license": [
@@ -5273,7 +5252,6 @@
         "automattic/jetpack-search": 20,
         "automattic/jetpack-status": 20,
         "automattic/jetpack-sync": 20,
-        "automattic/jetpack-terms-of-service": 20,
         "automattic/jetpack-tracking": 20,
         "automattic/jetpack-waf": 20,
         "automattic/jetpack-changelogger": 20
