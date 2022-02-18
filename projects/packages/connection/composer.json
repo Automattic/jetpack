@@ -10,7 +10,6 @@
 		"automattic/jetpack-options": "^1.14",
 		"automattic/jetpack-roles": "^1.4",
 		"automattic/jetpack-status": "^1.10",
-		"automattic/jetpack-terms-of-service": "^1.9",
 		"automattic/jetpack-tracking": "^1.14",
 		"automattic/jetpack-redirect": "^1.7"
 	},
