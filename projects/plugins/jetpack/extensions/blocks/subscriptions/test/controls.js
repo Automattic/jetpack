@@ -88,9 +88,7 @@ describe( 'Inspector controls', () => {
 
 		test( 'sets gradient background color', async () => {
 			render( <SubscriptionsInspectorControls { ...defaultProps } /> );
-			userEvent.click(
-				screen.getByText( 'Button Background Color', { ignore: '[aria-hidden=true]' } )
-			);
+			userEvent.click( screen.getByText( 'Button Background', { ignore: '[aria-hidden=true]' } ) );
 			userEvent.click( screen.getByText( 'Gradient', { ignore: '[aria-hidden=true]' } ) );
 			userEvent.click( screen.queryAllByLabelText( /Gradient\:/i, { selector: 'button' } )[ 0 ] );
 
