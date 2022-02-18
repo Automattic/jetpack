@@ -118,7 +118,7 @@ class Atomic_Admin_Menu extends Admin_Menu {
 		global $submenu;
 
 		// Hide Add new plugin and plugin file editor menu.
-		if ( ! \Atomic_Plan_Manager::has_atomic_supported_plan() ) {
+		if ( class_exists( 'Atomic_Plan_Manager' ) && ! \Atomic_Plan_Manager::has_atomic_supported_plan() ) {
 			parent::add_plugins_menu();
 
 			return;
