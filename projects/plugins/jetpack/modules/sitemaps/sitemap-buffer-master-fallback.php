@@ -1,4 +1,4 @@
-<?php
+<?php // phpcs:ignore WordPress.Files.FileName.InvalidClassFileName
 /**
  * Sitemaps (per the protocol) are essentially lists of XML fragments;
  * lists which are subject to size constraints. The Jetpack_Sitemap_Buffer_Master
@@ -16,6 +16,9 @@
  */
 class Jetpack_Sitemap_Buffer_Master extends Jetpack_Sitemap_Buffer_Fallback {
 
+	/**
+	 * Returns a DOM element that contains all master sitemap elements.
+	 */
 	protected function get_root_element() {
 
 		if ( ! isset( $this->root ) ) {
