@@ -14,7 +14,7 @@ import { getIconColor } from '../../shared/block-icons';
 import { settings as donationSettings } from '../donations';
 import { settings as recurringPaymentSettings } from '../recurring-payments';
 
-export const name = 'one-payment';
+export const name = 'payments-intro';
 export const title = __( 'Payments', 'jetpack' );
 export const settings = {
 	title,

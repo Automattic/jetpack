@@ -17,7 +17,7 @@ import {
  */
 import defaultVariations from './variations';
 
-export default function JetpackOnePaymentEdit( { name, clientId } ) {
+export default function JetpackPaymentsIntroEdit( { name, clientId } ) {
 	const { blockType, defaultVariation, variations, hasInnerBlocks } = useSelect( select => {
 		const { getBlockType, getBlockVariations, getDefaultBlockVariation } = select( blocksStore );
 		const { getBlocks } = select( blockEditorStore );

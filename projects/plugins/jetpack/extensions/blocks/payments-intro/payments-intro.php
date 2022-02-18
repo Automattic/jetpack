@@ -1,20 +1,19 @@
 <?php
 /**
- * OnePayments Block.
+ * Payments Intro Block.
  *
- * One payments block to introduce them all, one payments block to find them,
- * one payments block to bring them all and in gutenberg present them really pleasently.
+ * Acts as a menu for select payments blocks
  *
  * @since 10.x
  *
  * @package automattic/jetpack
  */
 
-namespace Automattic\Jetpack\Extensions\OnePayment;
+namespace Automattic\Jetpack\Extensions\PaymentsIntro;
 
 use Automattic\Jetpack\Blocks;
 
-const FEATURE_NAME = 'one-payment';
+const FEATURE_NAME = 'payments-intro';
 const BLOCK_NAME   = 'jetpack/' . FEATURE_NAME;
 
 /**

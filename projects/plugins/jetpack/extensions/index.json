@@ -38,7 +38,7 @@
 		"tiled-gallery",
 		"videopress",
 		"wordads",
-		"one-payment"
+		"payments-intro"
 	],
 	"beta": [ "amazon" ],
 	"experimental": [ "anchor-fm", "premium-content", "conversation", "dialogue" ],

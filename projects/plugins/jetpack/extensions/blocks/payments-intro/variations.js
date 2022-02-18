@@ -6,9 +6,8 @@
  */
 
 /**
- * External dependancies
+ * External dependencies
  */
-
 import { getBlockType } from '@wordpress/blocks';
 
 /**
@@ -29,7 +28,7 @@ const variationDefinitions = variations
 			return {};
 		}
 		return {
-			name: 'jetpack/onepayment-' + blockName,
+			name: 'jetpack/payments-intro-' + blockName,
 			title: settings.title,
 			description: settings.description,
 			icon: settings.icon.src,
