@@ -105,10 +105,12 @@ abstract class Jetpack_Sitemap_Buffer_Fallback extends Jetpack_Sitemap_Buffer {
 	/**
 	 * Legacy implementation of array to XML conversion without using DOMDocument.
 	 *
-	 * @param array $array Item to append to buffer.
+	 * @param array       $array Item to append to buffer.
+	 * @param DOMElement  $parent (optional) an element to which new children should be added.
+	 * @param DOMDocument $root (optional) the parent document.
 	 * @return String $result
 	 */
-	public function array_to_xml_string( $array, $parent = null, $root = null ) {
+	public function array_to_xml_string( $array, $parent = null, $root = null ) { // phpcs:ignore VariableAnalysis.CodeAnalysis.VariableAnalysis.UnusedVariable
 		$string = '';
 
 		foreach ( $array as $key => $value ) {
