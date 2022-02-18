@@ -531,7 +531,7 @@ abstract class Publicize_Base {
 		}
 
 		// if we have the specific connection info..
-		$id = ! empty( $_GET['id'] ) ? sanitize_text_field( wp_unslash( $_GET['id'] ) ) : false; // phpcs:ignore WordPress.Security.NonceVerification.Recommended
+		$id = ! empty( $_GET['id'] ) ? sanitize_text_field( wp_unslash( $_GET['id'] ) ) : ''; // phpcs:ignore WordPress.Security.NonceVerification.Recommended
 
 		if ( $id ) {
 			if ( $cmeta['connection_data']['id'] === $id ) {
