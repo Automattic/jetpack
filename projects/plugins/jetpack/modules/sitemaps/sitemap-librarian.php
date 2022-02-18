@@ -274,6 +274,7 @@ class Jetpack_Sitemap_Librarian {
 		}
 		$post_types_list = join( ',', $post_types );
 
+		// phpcs:disable WordPress.DB.PreparedSQL.InterpolatedNotPrepared -- WPCS: db call ok; no-cache ok.
 		return $wpdb->get_results(
 			$wpdb->prepare(
 				"SELECT *
@@ -286,7 +287,8 @@ class Jetpack_Sitemap_Librarian {
 				$from_id,
 				$num_posts
 			)
-		); // WPCS: db call ok; no-cache ok.
+		);
+		// phpcs:enable WordPress.DB.PreparedSQL.InterpolatedNotPrepared
 	}
 
 	/**
@@ -413,6 +415,7 @@ class Jetpack_Sitemap_Librarian {
 
 		$post_types_list = join( ',', $post_types );
 
+		// phpcs:disable WordPress.DB.PreparedSQLPlaceholders.QuotedSimplePlaceholder,WordPress.DB.PreparedSQL.InterpolatedNotPrepared -- WPCS: db call ok; no-cache ok.
 		return $wpdb->get_results(
 			$wpdb->prepare(
 				"SELECT *
@@ -425,7 +428,8 @@ class Jetpack_Sitemap_Librarian {
 				$two_days_ago,
 				$num_posts
 			)
-		); // WPCS: db call ok; no-cache ok.
+		);
+		// phpcs:enable WordPress.DB.PreparedSQLPlaceholders.QuotedSimplePlaceholder,WordPress.DB.PreparedSQL.InterpolatedNotPrepared
 	}
 
 }
