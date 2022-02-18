@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Fix Fatal error in the customizer while in sandbox mode.
