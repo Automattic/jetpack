@@ -7,11 +7,11 @@ import { HashRouter, Routes, Route } from 'react-router-dom';
 /**
  * Internal dependencies
  */
-import GoBackLink from '..';
+import CloseLink from '..';
 
 export default {
-	title: 'Packages/My Jetpack/GoBackLink',
-	component: GoBackLink,
+	title: 'Packages/My Jetpack/CloseLink',
+	component: CloseLink,
 };
 
 const DefaultArgs = {};
@@ -19,7 +19,7 @@ const DefaultArgs = {};
 const Template = args => (
 	<HashRouter>
 		<Routes>
-			<Route path="/" element={ <GoBackLink { ...args } /> } />
+			<Route path="/" element={ <CloseLink { ...args } /> } />
 		</Routes>
 	</HashRouter>
 );
