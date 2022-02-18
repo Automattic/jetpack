@@ -1023,7 +1023,6 @@ class Jetpack_Sitemap_Builder {
 		);
 	}
 
-
 	/**
 	 * This is served instead of a 404 when the master sitemap is requested
 	 * but not yet generated.
