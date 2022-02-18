@@ -2541,7 +2541,8 @@ class Manager {
 		}
 
 		// TODO: verify if filters in Jetpack::::build_authorize_url are needed.
-		wp_safe_redirect( $this->get_authorization_url( wp_get_current_user(), self::admin_url( $redirect_args ) ) );
+		// TODO: verify admin url.
+		wp_safe_redirect( $this->get_authorization_url( wp_get_current_user(), admin_url( $redirect_args ) ) );
 		exit;
 	}
 }
