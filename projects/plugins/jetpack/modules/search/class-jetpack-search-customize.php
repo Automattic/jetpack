@@ -271,9 +271,10 @@ class Jetpack_Search_Customize {
 	public function customize_controls_enqueue_scripts() {
 		$script_relative_path = 'customize-controls/customize-controls.js';
 		$script_version       = Automattic\Jetpack\Search\Helper::get_asset_version( $script_relative_path );
+		$script_path          = plugins_url( $script_relative_path, __FILE__ );
 		wp_enqueue_script(
 			'jetpack-instant-search-customizer',
-			__DIR__,
+			$script_path,
 			array( 'customize-controls' ),
 			$script_version,
 			true
