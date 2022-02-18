@@ -4,7 +4,7 @@
 	"type": "jetpack-library",
 	"license": "GPL-2.0-or-later",
 	"require": {
-		"automattic/jetpack-connection": "^1.36.x-dev"
+		"automattic/jetpack-connection": "^1.37"
 	},
 	"require-dev": {
 		"automattic/jetpack-changelogger": "^3.0"
@@ -41,7 +41,7 @@
 			"link-template": "https://github.com/Automattic/jetpack-terms-of-service/compare/v${old}...v${new}"
 		},
 		"branch-alias": {
-			"dev-master": "1.9.x-dev"
+			"dev-master": "1.10.x-dev"
 		}
 	}
 }
