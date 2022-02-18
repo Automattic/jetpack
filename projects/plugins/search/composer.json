@@ -4,9 +4,17 @@
 	"type": "wordpress-plugin",
 	"license": "GPL-2.0-or-later",
 	"require": {
+		"automattic/jetpack-admin-ui": "0.2.x-dev",
+		"automattic/jetpack-assets": "^1.17",
 		"automattic/jetpack-autoloader": "2.10.x-dev",
 		"automattic/jetpack-composer-plugin": "1.1.x-dev",
-		"automattic/jetpack-search": "0.8.x-dev"
+		"automattic/jetpack-constants": "^1.6",
+		"automattic/jetpack-my-jetpack": "0.6.x-dev",
+		"automattic/jetpack-options": "^1.14",
+		"automattic/jetpack-search": "0.8.x-dev",
+		"automattic/jetpack-status": "^1.10",
+		"automattic/jetpack-sync": "1.29.x-dev",
+		"automattic/jetpack-tracking": "^1.14"
 	},
 	"require-dev": {
 		"automattic/jetpack-changelogger": "^3.0",

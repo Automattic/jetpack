@@ -13,6 +13,8 @@
  * @package automattic/jetpack-search
  */
 
+use Automattic\Jetpack\Search\Jetpack_Search_Initializer;
+
 if ( ! defined( 'ABSPATH' ) ) {
 	exit;
 }
@@ -21,3 +23,60 @@ if ( ! defined( 'ABSPATH' ) ) {
 define( 'JETPACK_SEARCH_PLUGIN__DIR', plugin_dir_path( __FILE__ ) );
 define( 'JETPACK_SEARCH_PLUGIN__SLUG', 'jetpack-search' );
 define( 'JETPACK_SEARCH_PLUGIN__VERSION', '0.1.0-alpha' );
+
+/**
+ * Setup autoloading
+ */
+$autoload_packages_path = JETPACK_SEARCH_PLUGIN__DIR . '/vendor/autoload_packages.php';
+if ( is_readable( $autoload_packages_path ) ) {
+	require_once $autoload_packages_path;
+	if ( method_exists( \Automattic\Jetpack\Assets::class, 'alias_textdomains_from_file' ) ) {
+		\Automattic\Jetpack\Assets::alias_textdomains_from_file( JETPACK_SEARCH_PLUGIN__DIR . '/jetpack_vendor/i18n-map.php' );
+	}
+} else {
+	if ( defined( 'WP_DEBUG' ) && WP_DEBUG ) {
+		error_log( // phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_error_log
+			sprintf(
+			/* translators: Placeholder is a link to a support document. */
+				__( 'Your installation of Jetpack Search is incomplete. If you installed Jetpack Search from GitHub, please refer to this document to set up your development environment: %1$s', 'jetpack-search' ),
+				'https://github.com/Automattic/jetpack/blob/master/docs/development-environment.md'
+			)
+		);
+	}
+
+	/**
+	 * Outputs an admin notice for folks running Jetpack Search without having run composer install.
+	 *
+	 * @since 1.2.0
+	 */
+	function jetpack_search_admin_missing_files() {
+		?>
+		<div class="notice notice-error is-dismissible">
+			<p>
+				<?php
+				printf(
+					wp_kses(
+					/* translators: Placeholder is a link to a support document. */
+						__( 'Your installation of Jetpack Search is incomplete. If you installed Jetpack Search from GitHub, please refer to <a href="%1$s" target="_blank" rel="noopener noreferrer">this document</a> to set up your development environment. Jetpack Search must have Composer dependencies installed and built via the build command.', 'jetpack-search' ),
+						array(
+							'a' => array(
+								'href'   => array(),
+								'target' => array(),
+								'rel'    => array(),
+							),
+						)
+					),
+					'https://github.com/Automattic/jetpack/blob/master/docs/development-environment.md#building-your-project'
+				);
+				?>
+			</p>
+		</div>
+		<?php
+	}
+
+	add_action( 'admin_notices', 'jetpack_search_admin_missing_files' );
+	return;
+}
+
+// Initialize Jetpack Search plugin.
+add_action( 'plugins_loaded', array( Jetpack_Search_Initializer::class, 'initialize' ) );
