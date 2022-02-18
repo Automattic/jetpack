@@ -18,8 +18,14 @@ export function initializeAnalytics( tracksEventData, tracksUserData ) {
 		analytics.initialize( tracksUserData.userid, tracksUserData.username );
 	}
 
-	if ( tracksEventData && tracksEventData.hasOwnProperty( 'blogID' ) ) {
-		analytics.assignSuperProps( { blog_id: tracksEventData.blogID } );
+	if ( tracksEventData ) {
+		if ( tracksEventData.hasOwnProperty( 'blogID' ) ) {
+			analytics.assignSuperProps( { blog_id: tracksEventData.blogID } );
+		}
+
+		if ( tracksEventData.hasOwnProperty( 'platform' ) ) {
+			analytics.assignSuperProps( { platform: tracksEventData.platform } );
+		}
 	}
 
 	analytics.setMcAnalyticsEnabled( true );
