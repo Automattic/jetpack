@@ -1,4 +1,4 @@
-<?php
+<?php // phpcs:ignore WordPress.Files.FileName.InvalidClassFileName
 /**
  * Sitemaps (per the protocol) are essentially lists of XML fragments;
  * lists which are subject to size constraints. The Jetpack_Sitemap_Buffer_News
@@ -10,12 +10,14 @@
  */
 
 /**
- * A buffer for constructing sitemap image xml files for users without libxml support.
+ * A buffer for constructing sitemap news xml files for users without libxml support.
  *
  * @since 5.3.0
  */
 class Jetpack_Sitemap_Buffer_News extends Jetpack_Sitemap_Buffer_Fallback {
-
+	/**
+	 * Returns a DOM element that contains all news sitemap elements.
+	 */
 	protected function get_root_element() {
 		if ( ! isset( $this->root ) ) {
 
