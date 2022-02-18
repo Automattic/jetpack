@@ -250,13 +250,13 @@ abstract class Product {
 
 		if ( ! static::is_plugin_installed() ) {
 			$status = 'plugin_absent';
-		} elseif ( ! static::has_required_plan() ) {
-			$status = 'needs_purchase';
 		} elseif ( static::is_active() ) {
 			$status = 'active';
 			// We only consider missing user connection an error when the Product is active.
 			if ( static::$requires_user_connection && ! ( new Connection_Manager() )->has_connected_owner() ) {
 				$status = 'error';
+			} elseif ( ! static::has_required_plan() ) {
+				$status = 'needs_purchase';
 			}
 		} else {
 			$status = 'inactive';
