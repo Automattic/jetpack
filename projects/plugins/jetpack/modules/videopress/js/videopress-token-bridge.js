@@ -39,6 +39,14 @@
 						},
 						'*'
 					);
+				} else {
+					event.source.postMessage(
+						{
+							event: 'videopress_token_error',
+							guid: fetchData.guid,
+						},
+						'*'
+					);
 				}
 			} );
 	} );
