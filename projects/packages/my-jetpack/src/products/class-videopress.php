@@ -44,7 +44,7 @@ class Videopress extends Module_Product {
 	 * @return string
 	 */
 	public static function get_title() {
-		return ''; // @todo title
+		return __( 'Jetpack VideoPress', 'jetpack-my-jetpack' );
 	}
 
 	/**
@@ -62,7 +62,7 @@ class Videopress extends Module_Product {
 	 * @return string
 	 */
 	public static function get_long_description() {
-		return ''; // @todo Add long description
+		return __( 'High-quality, ad-free video built specifically for WordPress.', 'jetpack-my-jetpack' );
 	}
 
 	/**
@@ -71,7 +71,12 @@ class Videopress extends Module_Product {
 	 * @return array Boost features list
 	 */
 	public static function get_features() {
-		return array();
+		return array(
+			_x( '1TB of storage', 'VideoPress Product Feature', 'jetpack-my-jetpack' ),
+			_x( 'Built into WordPress editor', 'VideoPress Product Feature', 'jetpack-my-jetpack' ),
+			_x( 'Ad-free and brandable player', 'VideoPress Product Feature', 'jetpack-my-jetpack' ),
+			_x( 'Unlimited users', 'VideoPress Product Feature', 'jetpack-my-jetpack' ),
+		);
 	}
 
 	/**
@@ -82,10 +87,11 @@ class Videopress extends Module_Product {
 	public static function get_pricing_for_ui() {
 		return array_merge(
 			array(
-				'available'            => true,
-				'promotion_percentage' => 50,
+				'available'          => true,
+				'wpcom_product_slug' => static::get_wpcom_product_slug(),
+				'discount'           => 50, // hardcoded - it could be overwritten by the wpcom product.
 			),
-			Wpcom_Products::get_product_currency_and_price( static::get_wpcom_product_slug() )
+			Wpcom_Products::get_product_pricing( static::get_wpcom_product_slug() )
 		);
 	}
 
@@ -96,5 +102,25 @@ class Videopress extends Module_Product {
 	 */
 	public static function get_wpcom_product_slug() {
 		return 'jetpack_videopress';
+	}
+
+	/**
+	 * Get the URL the user is taken after activating the product
+	 *
+	 * @return ?string
+	 */
+	public static function get_post_activation_url() {
+		return ''; // stay in My Jetpack page.
+	}
+
+	/**
+	 * Get the URL where the user manages the product
+	 *
+	 * @return ?string
+	 */
+	public static function get_manage_url() {
+		if ( static::is_active() ) {
+			return admin_url( 'admin.php?page=jetpack#/settings?term=videopress' );
+		}
 	}
 }

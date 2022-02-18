@@ -1,0 +1,4 @@
+Significance: patch
+Type: compat
+
+Circumvent CRM Wizard when activating the plugin from the Jetpack dashboard

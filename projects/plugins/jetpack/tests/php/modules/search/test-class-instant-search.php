@@ -26,8 +26,7 @@ class WP_Test_Instant_Search extends WP_UnitTestCase {
 	 */
 	public function set_up() {
 		parent::set_up();
-		Automattic\Jetpack\Search\Instant_Search::initialize( get_current_blog_id() );
-		static::$instant_search = Automattic\Jetpack\Search\Instant_Search::instance();
+		static::$instant_search = Automattic\Jetpack\Search\Instant_Search::instance( get_current_blog_id() );
 	}
 
 	/**

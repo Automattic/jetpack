@@ -2,12 +2,8 @@
  * External dependencies
  */
 // import React from 'react';
-import chai, { expect } from 'chai';
-// import chaiFetch from 'chai-fetch';
-import chaiFetchMock from 'chai-fetch-mock';
+import { expect } from 'chai';
 import fetchMock from 'fetch-mock';
-chai.use( chaiFetchMock );
-// chai.use(chaiFetch);
 
 // import { shallow } from 'enzyme';
 // import ShallowRenderer from 'react-test-renderer/shallow';
@@ -57,7 +53,6 @@ describe( 'restApi', () => {
 
 		it( 'can fetchSiteConnectionStatus', async () => {
 			const connectionStatus = await restApi.fetchSiteConnectionStatus();
-			// expect(fetchMock).route('connection').to.have.been.called;
 			expect( connectionStatus ).to.equal( 'the body' );
 		} );
 
