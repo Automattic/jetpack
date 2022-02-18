@@ -52,8 +52,6 @@ export const settings = {
 		},
 	},
 	supports: {
-		align: true,
-		alignWide: false,
 		spacing: {
 			padding: true,
 		},
