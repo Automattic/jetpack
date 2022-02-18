@@ -310,6 +310,15 @@ abstract class Product {
 	}
 
 	/**
+	 * Activates the plugin
+	 *
+	 * @return null|WP_Error Null on success, WP_Error on invalid file.
+	 */
+	public static function activate_plugin() {
+		return activate_plugin( static::get_installed_plugin_filename() );
+	}
+
+	/**
 	 * Activates the product by installing and activating its plugin
 	 *
 	 * @return boolean|WP_Error
@@ -330,12 +339,7 @@ abstract class Product {
 			return new WP_Error( 'not_allowed', __( 'You are not allowed to activate plugins on this site.', 'jetpack-my-jetpack' ) );
 		}
 
-		/*
-		 * Silent mode True.
-		 * > Whether to prevent calling activation hooks.
-		 * > https://developer.wordpress.org/reference/functions/activate_plugin/
-		 */
-		$result = activate_plugin( static::get_installed_plugin_filename(), '', false, true );
+		$result = static::activate_plugin();
 		if ( is_wp_error( $result ) ) {
 			return $result;
 		}
