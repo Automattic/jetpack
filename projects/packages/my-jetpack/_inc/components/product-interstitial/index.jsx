@@ -92,14 +92,14 @@ export default function ProductInterstitial( { installsPlugin = false, slug, chi
 			horizontalGap={ 0 }
 			fluid
 		>
-			<Col sm={ 4 } md={ 4 } lg={ 5 }>
+			<Col sm={ 4 } md={ 4 } lg={ 7 }>
 				<Product
 					slug={ slug }
 					trackButtonClick={ trackProductClick }
 					onClick={ installsPlugin ? clickHandler : undefined }
 				/>
 			</Col>
-			<Col sm={ 4 } md={ 4 } lg={ 7 } className={ styles.imageContainer }>
+			<Col sm={ 4 } md={ 4 } lg={ 5 } className={ styles.imageContainer }>
 				{ children }
 			</Col>
 		</Container>
