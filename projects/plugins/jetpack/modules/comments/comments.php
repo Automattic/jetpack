@@ -342,8 +342,8 @@ class Jetpack_Comments extends Highlander_Comments_Base {
 		$height           = $params['comment_registration'] || is_user_logged_in() ? '315' : '430'; // Iframe can be shorter if we're not allowing guest commenting.
 		$transparent      = ( 'transparent' === $params['color_scheme'] ) ? 'true' : 'false';
 
-		if ( isset( $_GET['replytocom'] ) ) {
-			$url .= '&replytocom=' . (int) $_GET['replytocom'];
+		if ( isset( $_GET['replytocom'] ) ) { //phpcs:ignore WordPress.Security.NonceVerification.Recommended
+			$url .= '&replytocom=' . (int) $_GET['replytocom']; //phpcs:ignore WordPress.Security.NonceVerification.Recommended
 		}
 
 		/**
@@ -533,11 +533,11 @@ class Jetpack_Comments extends Highlander_Comments_Base {
 	 * @since JetpackComments (1.4)
 	 */
 	public function pre_comment_on_post() {
-		$post_array = stripslashes_deep( $_POST );
+		$post_array = stripslashes_deep( $_POST ); // phpcs:ignore WordPress.Security.NonceVerification.Missing
 
 		// Bail if missing the Jetpack token.
 		if ( ! isset( $post_array['sig'] ) || ! isset( $post_array['token_key'] ) ) {
-			unset( $_POST['hc_post_as'] );
+			unset( $_POST['hc_post_as'] ); // phpcs:ignore WordPress.Security.NonceVerification.Missing
 
 			return;
 		}
@@ -582,6 +582,7 @@ class Jetpack_Comments extends Highlander_Comments_Base {
 	public function add_comment_meta( $comment_id ) {
 		$comment_meta = array();
 
+		// phpcs:disable WordPress.Security.NonceVerification.Missing
 		switch ( $this->is_highlander_comment_post() ) {
 			case 'facebook':
 				$comment_meta['hc_post_as']         = 'facebook';
@@ -611,6 +612,7 @@ class Jetpack_Comments extends Highlander_Comments_Base {
 				break;
 
 		}
+		// phpcs:enable WordPress.Security.NonceVerification.Missing
 
 		// Bail if no extra comment meta.
 		if ( empty( $comment_meta ) ) {
@@ -629,7 +631,7 @@ class Jetpack_Comments extends Highlander_Comments_Base {
 	 * @param string $url The comment URL origin.
 	 */
 	public function capture_comment_post_redirect_to_reload_parent_frame( $url ) {
-		if ( ! isset( $_GET['for'] ) || 'jetpack' !== $_GET['for'] ) {
+		if ( ! isset( $_GET['for'] ) || 'jetpack' !== $_GET['for'] ) { // phpcs:ignore WordPress.Security.NonceVerification.Recommended
 			return $url;
 		}
 		?>
