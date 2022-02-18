@@ -9,6 +9,7 @@ namespace Automattic\Jetpack\My_Jetpack\Products;
 
 use Automattic\Jetpack\Connection\Client;
 use Automattic\Jetpack\My_Jetpack\Module_Product;
+use Automattic\Jetpack\My_Jetpack\Wpcom_Products;
 use Jetpack_Options;
 use WP_Error;
 
@@ -87,12 +88,23 @@ class Search extends Module_Product {
 	 * @return array Pricing details
 	 */
 	public static function get_pricing_for_ui() {
-		return array(
-			'available'            => true,
-			'currency_code'        => 'EUR',
-			'full_price'           => 4.50,
-			'promotion_percentage' => 50,
+		return array_merge(
+			array(
+				'available'          => true,
+				'wpcom_product_slug' => static::get_wpcom_product_slug(),
+				'discount'           => 50, // hardcoded - it could be overwritten by the wpcom product.
+			),
+			Wpcom_Products::get_product_pricing( static::get_wpcom_product_slug() )
 		);
+	}
+
+	/**
+	 * Get the WPCOM product slug used to make the purchase
+	 *
+	 * @return ?string
+	 */
+	public static function get_wpcom_product_slug() {
+		return 'jetpack_search';
 	}
 
 	/**
@@ -140,5 +152,25 @@ class Search extends Module_Product {
 	public static function has_required_plan() {
 		$search_state = static::get_state_from_wpcom();
 		return ! empty( $search_state->supports_search ) || ! empty( $search_state->supports_instant_search );
+	}
+
+	/**
+	 * Get the URL the user is taken after activating the product
+	 *
+	 * @return ?string
+	 */
+	public static function get_post_activation_url() {
+		return ''; // stay in My Jetpack page.
+	}
+
+	/**
+	 * Get the URL where the user manages the product
+	 *
+	 * @return ?string
+	 */
+	public static function get_manage_url() {
+		if ( static::is_active() ) {
+			return admin_url( 'admin.php?page=jetpack-search-configure' );
+		}
 	}
 }

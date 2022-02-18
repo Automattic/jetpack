@@ -1,6 +1,6 @@
 {
 	"name": "@automattic/i18n-check-webpack-plugin",
-	"version": "1.0.4",
+	"version": "1.0.5",
 	"description": "A Webpack plugin to check that WordPress i18n hasn't been mangled by Webpack optimizations.",
 	"homepage": "https://jetpack.com",
 	"bugs": {

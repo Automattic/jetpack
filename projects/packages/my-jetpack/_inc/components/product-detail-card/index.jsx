@@ -1,21 +1,28 @@
 /**
  * External dependencies
  */
-import React from 'react';
+import React, { useCallback } from 'react';
 import classnames from 'classnames';
-import { Button } from '@wordpress/components';
-import { Icon, check } from '@wordpress/icons';
+import { Icon, check, plus } from '@wordpress/icons';
 import { getCurrencyObject } from '@automattic/format-currency';
 import { __, sprintf } from '@wordpress/i18n';
 
 /**
  * Internal dependencies
  */
-import { useProduct } from '../../hooks/use-product';
-import { BackupIcon } from '../product-cards-section/backup-card';
 import styles from './style.module.scss';
-import { BoostIcon } from '../product-cards-section/boost-card';
 import getProductCheckoutUrl from '../../utils/get-product-checkout-url';
+import useMyJetpackConnection from '../../hooks/use-my-jetpack-connection';
+import { useProduct } from '../../hooks/use-product';
+import {
+	BackupIcon,
+	ScanIcon,
+	StarIcon,
+	getIconBySlug,
+	AntiSpamIcon,
+	CheckmarkIcon,
+} from '../icons';
+import ProductDetailButton from './button';
 
 /**
  * Simple react component to render the product icon,
@@ -26,11 +33,15 @@ import getProductCheckoutUrl from '../../utils/get-product-checkout-url';
  */
 function ProductIcon( { slug } ) {
 	switch ( slug ) {
-		case 'backup':
-			return <BackupIcon />;
+		case 'anti-spam':
+			return <AntiSpamIcon size={ 24 } />;
 
-		case 'boost':
-			return <BoostIcon />;
+		case 'backup':
+			return <BackupIcon size={ 24 } />;
+
+		case 'scan':
+			return <ScanIcon size={ 24 } />;
+
 		default:
 			return null;
 	}
@@ -46,6 +57,10 @@ function ProductIcon( { slug } ) {
  * @returns {object}                Price react component.
  */
 function Price( { value, currency, isOld } ) {
+	if ( ! value || ! currency ) {
+		return null;
+	}
+
 	const priceObject = getCurrencyObject( value, currency );
 
 	const classNames = classnames( styles.price, {
@@ -66,57 +81,139 @@ function Price( { value, currency, isOld } ) {
  *
  * @param {object} props                    - Component props.
  * @param {string} props.slug               - Product slug
+ * @param {Function} props.onClick          - Callback for Call To Action button click
  * @param {Function} props.trackButtonClick - Function to call for tracking clicks on Call To Action button
  * @returns {object}                          ProductDetailCard react component.
  */
-const ProductDetail = ( { slug, trackButtonClick } ) => {
-	const { detail } = useProduct( slug );
-	const { title, longDescription, features, pricingForUi = {} } = detail;
-	const { isFree, fullPrice, currencyCode, discountedPrice } = pricingForUi;
-	const addProductUrl = getProductCheckoutUrl( `jetpack_${ slug }` ); // @ToDo: Remove this when we have a new product structure.
+const ProductDetail = ( { slug, onClick, trackButtonClick } ) => {
+	const { detail, isFetching } = useProduct( slug );
+	const {
+		title,
+		longDescription,
+		features,
+		pricingForUi,
+		isBundle,
+		supportedProducts,
+		hasRequiredPlan,
+	} = detail;
+
+	const {
+		isFree,
+		fullPricePerMonth: price,
+		currencyCode,
+		discountPricePerMonth: discountPrice,
+		wpcomProductSlug,
+	} = pricingForUi;
+	const { isUserConnected } = useMyJetpackConnection();
+
+	/*
+	 * Product needs purchase when:
+	 * - it's not free
+	 * - it does not have a required plan
+	 */
+	const needsPurchase = ! isFree && ! hasRequiredPlan;
+
+	const addProductUrl =
+		needsPurchase && wpcomProductSlug
+			? getProductCheckoutUrl( wpcomProductSlug, isUserConnected ) // @ToDo: Remove this when we have a new product structure.
+			: null;
+
+	// Suppported products icons.
+	const icons = isBundle
+		? supportedProducts
+				.join( '_plus_' )
+				.split( '_' )
+				.map( ( iconSlug, i ) => {
+					if ( iconSlug === 'plus' ) {
+						return (
+							<Icon
+								className={ styles[ 'plus-icon' ] }
+								key={ `icon-plugs${ i }` }
+								icon={ plus }
+								size={ 14 }
+							/>
+						);
+					}
+
+					const SupportedProductIcon = getIconBySlug( iconSlug );
+					return <SupportedProductIcon key={ iconSlug } size={ 24 } />;
+				} )
+		: null;
+
+	const clickHandler = useCallback( () => {
+		trackButtonClick();
+		if ( onClick ) {
+			onClick();
+		}
+	}, [ onClick, trackButtonClick ] );
 
 	return (
-		<div className={ styles.container }>
-			<ProductIcon slug={ slug } />
-
-			<h3>{ title }</h3>
-			<p className={ styles.name }>{ longDescription }</p>
-			<ul className={ styles.features }>
-				{ features.map( ( feature, id ) => (
-					<li key={ `feature-${ id }` }>
-						<Icon icon={ check } size={ 30 } />
-						{ feature }
-					</li>
-				) ) }
-			</ul>
-
-			{ ! isFree && (
-				<div className={ styles[ 'price-container' ] }>
-					<Price value={ fullPrice } currency={ currencyCode } isOld={ true } />
-					<Price value={ discountedPrice } currency={ currencyCode } isOld={ false } />
-					<div className={ styles[ 'price-description' ] }>
-						{ __( '/month, paid yearly', 'jetpack-my-jetpack' ) }
-					</div>
+		<>
+			{ isBundle && (
+				<div className={ styles[ 'card-header' ] }>
+					<StarIcon className={ styles[ 'product-bundle-icon' ] } size={ 16 } />
+					{ __( 'Popular upgrade', 'jetpack-my-jetpack' ) }
 				</div>
 			) }
 
-			{ isFree && (
-				<h3 className={ styles[ 'product-free' ] }>{ __( 'Free', 'jetpack-my-jetpack' ) }</h3>
-			) }
+			<div className={ styles.container }>
+				{ isBundle && <div className={ styles[ 'product-icons' ] }>{ icons }</div> }
 
-			<Button
-				onClick={ trackButtonClick }
-				isLink
-				isPrimary
-				href={ addProductUrl }
-				className={ styles[ 'checkout-button' ] }
-			>
-				{
-					/* translators: placeholder is product name. */
-					sprintf( __( 'Add %s', 'jetpack-my-jetpack' ), title )
-				}
-			</Button>
-		</div>
+				<ProductIcon slug={ slug } />
+
+				<h3>{ title }</h3>
+				<p className={ styles.name }>{ longDescription }</p>
+				<ul className={ styles.features }>
+					{ features.map( ( feature, id ) => (
+						<li key={ `feature-${ id }` }>
+							<Icon icon={ check } size={ 30 } />
+							{ feature }
+						</li>
+					) ) }
+				</ul>
+
+				{ needsPurchase && (
+					<div className={ styles[ 'price-container' ] }>
+						<Price value={ price } currency={ currencyCode } isOld={ true } />
+						<Price value={ discountPrice } currency={ currencyCode } isOld={ false } />
+						<div className={ styles[ 'price-description' ] }>
+							{ __( '/month, paid yearly', 'jetpack-my-jetpack' ) }
+						</div>
+					</div>
+				) }
+
+				{ isFree && (
+					<h3 className={ styles[ 'product-free' ] }>{ __( 'Free', 'jetpack-my-jetpack' ) }</h3>
+				) }
+
+				<div className={ styles[ 'cta-container' ] }>
+					{ ( ! isBundle || ( isBundle && ! hasRequiredPlan ) ) && (
+						<ProductDetailButton
+							onClick={ clickHandler }
+							isLoading={ isFetching }
+							isPrimary={ ! isBundle }
+							isSecondary={ isBundle }
+							href={ onClick ? undefined : addProductUrl }
+							className={ `${ styles[ 'checkout-button' ] } ${
+								isBundle ? styles[ 'is-bundle' ] : ''
+							}` }
+						>
+							{
+								/* translators: placeholder is product name. */
+								sprintf( __( 'Add %s', 'jetpack-my-jetpack' ), title )
+							}
+						</ProductDetailButton>
+					) }
+
+					{ isBundle && hasRequiredPlan && (
+						<div className={ styles[ 'product-has-required-plan' ] }>
+							<CheckmarkIcon size={ 36 } />
+							{ __( 'Active on your site', 'jetpack-my-jetpack' ) }
+						</div>
+					) }
+				</div>
+			</div>
+		</>
 	);
 };
 
@@ -129,14 +226,13 @@ export { ProductDetail };
 /**
  * ProductDetailCard component.
  *
- * @param {object} props          - Component props.
- * @param {string} props.slug     - Product slug
- * @returns {object}                ProductDetailCard react component.
+ * @param {object}   props - Component props.
+ * @returns {object}         ProductDetailCard react component.
  */
-export default function ProductDetailCard( { slug } ) {
+export default function ProductDetailCard( props ) {
 	return (
 		<div className={ styles.card }>
-			<ProductDetail slug={ slug } />
+			<ProductDetail { ...props } />
 		</div>
 	);
 }

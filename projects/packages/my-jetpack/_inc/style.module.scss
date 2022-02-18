@@ -1,14 +1,20 @@
-.layout {
-	min-height: calc( 100vh - 100px ); // Thank you for creating with WordPress.Version 5.9
-	position: relative;
-	padding-bottom: 30px;
+:global {
+	#my-jetpack-container {
+		--wp-admin-theme-color: var(--jp-black);
+		--wp-admin-theme-color-darker-10: var(--jp-black-80);
+		--wp-admin-theme-color-darker-20: var(--jp-black-80);
+		height: 100%;
+	}
 }
 
-.footer {
-	position: absolute;
-    bottom: 0px;
-    width: 100%;
-	height: 30px;
-	line-height: 30px;
-    padding-right: 20px;
+.layout {
+	display: flex;
+	height: 100%;
+	flex-direction: column;
+	justify-content: space-between;
+	margin-left: -20px; // to neutralize the padding of #wpcontent.
+
+	@media (max-width: 782px) {
+		margin-left: -10px; // to neutralize the padding of #wpcontent.
+	}
 }
