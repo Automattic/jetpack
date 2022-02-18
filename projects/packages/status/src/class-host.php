@@ -52,6 +52,6 @@ class Host {
 	 * @return bool
 	 */
 	public function is_vip_site() {
-		return Constants::is_defined( 'VIP_GO_ENV' ) && false !== Constants::get_constant( 'VIP_GO_ENV' );
+		return Constants::is_defined( 'WPCOM_IS_VIP_ENV' ) && true === Constants::get_constant( 'WPCOM_IS_VIP_ENV' );
 	}
 }
