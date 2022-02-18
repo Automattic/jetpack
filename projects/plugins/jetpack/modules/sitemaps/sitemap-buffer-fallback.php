@@ -25,9 +25,9 @@ abstract class Jetpack_Sitemap_Buffer_Fallback extends Jetpack_Sitemap_Buffer {
 	/**
 	 * Jetpack_Sitemap_Buffer_Fallback constructor.
 	 *
-	 * @param int    $item_limit Largest number of items the buffer can hold.
-	 * @param int    $byte_limit Largest number of bytes the buffer can hold.
-	 * @param string $time The most recent timestamp seen by the buffer.
+	 * @param int    $item_limit The maximum size of the buffer in items.
+	 * @param int    $byte_limit The maximum size of the buffer in bytes.
+	 * @param string $time The initial datetime of the buffer. Must be in 'YYYY-MM-DD hh:mm:ss' format.
 	 */
 	public function __construct( $item_limit, $byte_limit, $time = '1970-01-01 00:00:00' ) {
 		$this->is_full_flag  = false;
