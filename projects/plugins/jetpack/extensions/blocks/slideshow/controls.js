@@ -20,7 +20,7 @@ import { Fragment } from '@wordpress/element';
 import EditButton from '../../shared/edit-button';
 
 export function PanelControls( {
-	attributes: { autoplay, delay, effect, images, sizeSlug },
+	attributes: { autoplay, delay, effect, images, sizeSlug, loop },
 	imageSizeOptions,
 	onChangeImageSize,
 	setAttributes,
@@ -64,6 +64,16 @@ export function PanelControls( {
 						) }
 					</span>
 				) }
+			</PanelBody>
+			<PanelBody title={ __( 'Loop', 'jetpack' ) }>
+				<ToggleControl
+					label={ __( 'Loop', 'jetpack' ) }
+					help={ __( 'Loop on slideshow end', 'jetpack' ) }
+					checked={ loop }
+					onChange={ value => {
+						setAttributes( { loop: value } );
+					} }
+				/>
 			</PanelBody>
 			<PanelBody title={ __( 'Effects', 'jetpack' ) }>
 				<SelectControl

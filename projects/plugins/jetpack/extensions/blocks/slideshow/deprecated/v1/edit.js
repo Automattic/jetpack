@@ -122,7 +122,7 @@ export class SlideshowEdit extends Component {
 	};
 	render() {
 		const { attributes, className, isSelected, noticeOperations, noticeUI } = this.props;
-		const { align, autoplay, delay, effect, images, loop } = attributes;
+		const { align, autoplay, delay, effect, images } = attributes;
 
 		const imageSizeOptions = this.getImageSizeOptions();
 		const controls = (
@@ -180,7 +180,6 @@ export class SlideshowEdit extends Component {
 					delay={ delay }
 					effect={ effect }
 					images={ images }
-					loop={ loop }
 					onError={ noticeOperations.createErrorNotice }
 				/>
 				<DropZone onFilesDrop={ this.addFiles } />

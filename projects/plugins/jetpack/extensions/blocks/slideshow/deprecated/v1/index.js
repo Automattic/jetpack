@@ -51,10 +51,6 @@ const attributes = {
 		type: 'boolean',
 		default: false,
 	},
-	loop: {
-		type: 'boolean',
-		default: true,
-	},
 	delay: {
 		type: 'number',
 		default: 3,
@@ -104,7 +100,6 @@ const attributes = {
 const exampleAttributes = {
 	align: 'center',
 	autoplay: true,
-	loop: true,
 	ids: [ 22, 23 ],
 	images: [
 		{

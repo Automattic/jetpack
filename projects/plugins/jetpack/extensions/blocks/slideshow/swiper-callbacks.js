@@ -43,7 +43,11 @@ function swiperResize( swiper ) {
 	if ( ! swiper || ! swiper.el ) {
 		return;
 	}
-	const img = swiper.el.querySelector( '.swiper-slide[data-swiper-slide-index="0"] img' );
+	// NOTE: loopedSlides property and [data-swiper-slide-index="0"] is only present when loop attribute is true.
+	const imgSelector = swiper.loopedSlides
+		? '.swiper-slide[data-swiper-slide-index="0"] img'
+		: '.swiper-slide img';
+	const img = swiper.el.querySelector( imgSelector );
 	if ( ! img ) {
 		return;
 	}

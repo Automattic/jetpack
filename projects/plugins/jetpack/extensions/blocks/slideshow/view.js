@@ -24,7 +24,7 @@ if ( typeof window !== 'undefined' ) {
 				return;
 			}
 
-			const { autoplay, delay, effect } = slideshowBlock.dataset;
+			const { autoplay, delay, effect, loop } = slideshowBlock.dataset;
 			const prefersReducedMotion = window.matchMedia( '(prefers-reduced-motion: reduce)' ).matches;
 			const shouldAutoplay = autoplay && ! prefersReducedMotion;
 			const slideshowContainer = slideshowBlock.getElementsByClassName( 'swiper-container' )[ 0 ];
@@ -41,7 +41,7 @@ if ( typeof window !== 'undefined' ) {
 					effect,
 					init: true,
 					initialSlide: 0,
-					loop: true,
+					loop: loop === 'true' ? true : false,
 					keyboard: {
 						enabled: true,
 						onlyInViewport: true,

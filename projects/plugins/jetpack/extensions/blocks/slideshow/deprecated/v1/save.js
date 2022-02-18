@@ -3,7 +3,7 @@
  */
 import Slideshow from './slideshow';
 
-export default ( { attributes: { align, autoplay, delay, effect, images, loop }, className } ) => (
+export default ( { attributes: { align, autoplay, delay, effect, images }, className } ) => (
 	<Slideshow
 		align={ align }
 		autoplay={ autoplay }
@@ -11,6 +11,5 @@ export default ( { attributes: { align, autoplay, delay, effect, images, loop },
 		delay={ delay }
 		effect={ effect }
 		images={ images }
-		loop={ loop }
 	/>
 );

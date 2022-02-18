@@ -51,6 +51,7 @@ describe( 'Panel controls', () => {
 		render( <PanelControls { ...panelProps } /> );
 
 		expect( screen.getByLabelText( 'Autoplay' ) ).toBeInTheDocument();
+		expect( screen.getByLabelText( 'Loop' ) ).toBeInTheDocument();
 		expect( screen.getByLabelText( 'Transition effect' ) ).toBeInTheDocument();
 		expect( screen.getByLabelText( 'Image Size' ) ).toBeInTheDocument();
 	} );
@@ -60,6 +61,13 @@ describe( 'Panel controls', () => {
 		userEvent.click( screen.getByLabelText( 'Autoplay' ) );
 
 		expect( setAttributes ).toHaveBeenCalledWith( { autoplay: true } );
+	} );
+
+	test( 'toggles loop attribute', () => {
+		render( <PanelControls { ...panelProps } /> );
+		userEvent.click( screen.getByLabelText( 'Loop' ) );
+
+		expect( setAttributes ).toHaveBeenCalledWith( { loop: true } );
 	} );
 
 	test( 'sets transition attribute', () => {

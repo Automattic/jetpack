@@ -55,7 +55,7 @@ class Slideshow extends Component {
 	}
 
 	componentDidUpdate( prevProps ) {
-		const { align, autoplay, delay, effect, images, onError } = this.props;
+		const { align, autoplay, delay, effect, images, onError, loop } = this.props;
 
 		/* A change in alignment or images only needs an update */
 		if ( align !== prevProps.align || ! isEqual( images, prevProps.images ) ) {
@@ -65,6 +65,7 @@ class Slideshow extends Component {
 		if (
 			effect !== prevProps.effect ||
 			autoplay !== prevProps.autoplay ||
+			loop !== prevProps.loop ||
 			delay !== prevProps.delay ||
 			images !== prevProps.images
 		) {
@@ -120,7 +121,7 @@ class Slideshow extends Component {
 			return null;
 		}
 
-		const { autoplay, className, delay, effect, images } = this.props;
+		const { autoplay, className, delay, effect, images, loop } = this.props;
 		// Note: React omits the data attribute if the value is null, but NOT if it is false.
 		// This is the reason for the unusual logic related to autoplay below.
 		/* eslint-disable jsx-a11y/anchor-is-valid */
@@ -130,6 +131,7 @@ class Slideshow extends Component {
 				data-autoplay={ autoplay || null }
 				data-delay={ autoplay ? delay : null }
 				data-effect={ effect }
+				data-loop={ loop }
 			>
 				<div
 					className="wp-block-jetpack-slideshow_container swiper-container"
@@ -213,7 +215,7 @@ class Slideshow extends Component {
 						  }
 						: false,
 				effect: this.props.effect,
-				loop: true,
+				loop: this.props.loop,
 				initialSlide,
 				navigation: {
 					nextEl: this.btnNextRef.current,
