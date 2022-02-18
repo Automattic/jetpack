@@ -63,6 +63,26 @@ export const boostProductData = {
 	},
 };
 
+export const crmProductData = {
+	slug: 'crm',
+	name: 'CRM',
+	title: 'Jetpack CRM',
+	description: 'Connect with your people',
+	long_description:
+		'All of your contacts in one place. Build better relationships with your customers and clients.',
+	status: 'inactive',
+	features: [
+		'Manage unlimited contacts',
+		'Manage billing and create invoices',
+		'Fully integrated with WordPress & WooCommerce',
+		'Infinitely customizable with integrations and extensions',
+	],
+	pricingForUi: {
+		available: true,
+		is_free: true,
+	},
+};
+
 export const scanProductData = {
 	slug: 'scan',
 	name: 'Scan',
@@ -81,7 +101,7 @@ export const scanProductData = {
 		available: true,
 		currency_code: 'USD',
 		full_price: 9.92,
-		promotion_percentage: 50,
+		discount: 50,
 	},
 };
 
@@ -103,7 +123,7 @@ export const searchProductData = {
 		available: true,
 		currency_code: 'EUR',
 		full_price: 4.5,
-		promotion_percentage: 50,
+		discount: 50,
 	},
 };
 
@@ -126,6 +146,27 @@ export const securityProductData = {
 		available: true,
 		show_promotion: true,
 		full_price: 24.92,
-		promotion_percentage: 50,
+		discount: 50,
+	},
+};
+
+export const videoPressProductData = {
+	slug: 'videopress',
+	name: 'VideoPress',
+	title: 'Jetpack Site VideoPress',
+	description: 'High quality, ad-free video',
+	long_description: 'High-quality, ad-free video built specifically for WordPress.',
+	status: 'inactive',
+	features: [
+		'1TB of storage',
+		'Built into WordPress editor',
+		'Ad-free and brandable player',
+		'Unlimited users',
+	],
+	pricingForUi: {
+		available: true,
+		currencyCode: 'USD',
+		fullPrice: 119,
+		promotionPercentage: 50,
 	},
 };

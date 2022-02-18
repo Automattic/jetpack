@@ -1,7 +1,7 @@
 /**
  * External dependencies
  */
-import React from 'react';
+import React, { useCallback } from 'react';
 import PropTypes from 'prop-types';
 
 /**
@@ -14,7 +14,10 @@ import { SearchIcon } from '../icons';
 
 const SearchCard = ( { admin } ) => {
 	const { status, activate, deactivate, detail, isFetching } = useProduct( 'search' );
-	const { name, description, slug } = detail;
+	const { name, description, slug, manageUrl } = detail;
+	const onManage = useCallback( () => {
+		window.location = manageUrl;
+	}, [ manageUrl ] );
 
 	return (
 		<ProductCard
@@ -27,6 +30,8 @@ const SearchCard = ( { admin } ) => {
 			onDeactivate={ deactivate }
 			onActivate={ activate }
 			onAdd={ useMyJetpackNavigate( '/add-search' ) }
+			onFixConnection={ useMyJetpackNavigate( '/connection' ) }
+			onManage={ onManage }
 			slug={ slug }
 		/>
 	);

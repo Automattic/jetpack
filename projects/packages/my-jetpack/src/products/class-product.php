@@ -7,6 +7,7 @@
 
 namespace Automattic\Jetpack\My_Jetpack;
 
+use Automattic\Jetpack\Connection\Manager as Connection_Manager;
 use Automattic\Jetpack\Plugins_Installer;
 use WP_Error;
 
@@ -79,13 +80,15 @@ abstract class Product {
 	}
 
 	/**
-	 * Get the installed plugin filename
+	 * Get the installed plugin filename, considering all possible filenames a plugin might have
+	 *
+	 * @param string $plugin Which plugin to check. jetpack for the jetpack plugin or product for the product specific plugin.
 	 *
 	 * @return ?string
 	 */
-	public static function get_installed_plugin_filename() {
+	public static function get_installed_plugin_filename( $plugin = 'product' ) {
 		$all_plugins = Plugins_Installer::get_plugins();
-		$filename    = static::get_plugin_filename();
+		$filename    = 'jetpack' === $plugin ? self::JETPACK_PLUGIN_FILENAME : static::get_plugin_filename();
 		if ( ! is_array( $filename ) ) {
 			$filename = array( $filename );
 		}
@@ -122,6 +125,8 @@ abstract class Product {
 			'wpcom_product_slug'       => static::get_wpcom_product_slug(),
 			'requires_user_connection' => static::$requires_user_connection,
 			'has_required_plan'        => static::has_required_plan(),
+			'manage_url'               => static::get_manage_url(),
+			'post_activation_url'      => static::get_post_activation_url(),
 			'class'                    => get_called_class(),
 		);
 	}
@@ -167,6 +172,22 @@ abstract class Product {
 	 * @return array
 	 */
 	abstract public static function get_pricing_for_ui();
+
+	/**
+	 * Get the URL where the user manages the product
+	 *
+	 * @return ?string
+	 */
+	abstract public static function get_manage_url();
+
+	/**
+	 * Get the URL the user is taken after activating the product
+	 *
+	 * @return ?string
+	 */
+	public static function get_post_activation_url() {
+		return static::get_manage_url();
+	}
 
 	/**
 	 * Get the WPCOM product slug used to make the purchase
@@ -226,12 +247,17 @@ abstract class Product {
 	 * @return string
 	 */
 	public static function get_status() {
-		if ( ! static::has_required_plan() ) {
+
+		if ( ! static::is_plugin_installed() ) {
+			$status = 'plugin_absent';
+		} elseif ( ! static::has_required_plan() ) {
 			$status = 'needs_purchase';
 		} elseif ( static::is_active() ) {
 			$status = 'active';
-		} elseif ( ! self::is_plugin_installed() ) {
-			$status = 'plugin_absent';
+			// We only consider missing user connection an error when the Product is active.
+			if ( static::$requires_user_connection && ! ( new Connection_Manager() )->has_connected_owner() ) {
+				$status = 'error';
+			}
 		} else {
 			$status = 'inactive';
 		}
@@ -271,8 +297,7 @@ abstract class Product {
 	 * @return boolean
 	 */
 	public static function is_jetpack_plugin_installed() {
-		$all_plugins = Plugins_Installer::get_plugins();
-		return array_key_exists( self::JETPACK_PLUGIN_FILENAME, $all_plugins );
+		return (bool) static::get_installed_plugin_filename( 'jetpack' );
 	}
 
 	/**
@@ -281,13 +306,7 @@ abstract class Product {
 	 * @return boolean
 	 */
 	public static function is_jetpack_plugin_active() {
-		foreach ( self::JETPACK_PLUGIN_FILENAME as $jetpack_filename ) {
-			$active = Plugins_Installer::is_plugin_active( $jetpack_filename );
-			if ( $active ) {
-				return true;
-			}
-		}
-		return false;
+		return Plugins_Installer::is_plugin_active( static::get_installed_plugin_filename( 'jetpack' ) );
 	}
 
 	/**

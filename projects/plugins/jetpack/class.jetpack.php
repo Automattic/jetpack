@@ -7239,7 +7239,7 @@ endif;
 	/**
 	 * Register product descriptions for partner coupon usage.
 	 *
-	 * @since $$next_version$$
+	 * @since 10.4.0
 	 *
 	 * @param array $products An array of registered products.
 	 *
