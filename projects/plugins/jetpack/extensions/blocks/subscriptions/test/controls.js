@@ -60,15 +60,13 @@ describe( 'Inspector controls', () => {
 		test( 'displays gradient settings control panel', () => {
 			render( <SubscriptionsInspectorControls { ...defaultProps } /> );
 
-			expect( screen.getByText( 'Color Settings' ) ).toBeInTheDocument();
+			expect( screen.getByText( 'Color' ) ).toBeInTheDocument();
 			expect( screen.queryByText( 'Background Colors' ) ).not.toBeInTheDocument();
 		} );
 
 		test( 'sets solid background color', async () => {
 			render( <SubscriptionsInspectorControls { ...defaultProps } /> );
-			userEvent.click(
-				screen.getByText( 'Button Background Color', { ignore: '[aria-hidden=true]' } )
-			);
+			userEvent.click( screen.getByText( 'Button Background', { ignore: '[aria-hidden=true]' } ) );
 			userEvent.click( screen.getByText( 'Solid', { ignore: '[aria-hidden=true]' } ) );
 			userEvent.click(
 				screen.queryAllByLabelText( /Color\: (?!Black)/i, { selector: 'button' } )[ 0 ]
@@ -100,16 +98,16 @@ describe( 'Inspector controls', () => {
 		} );
 	} );
 
-	describe( 'Text settings panel', () => {
+	describe( 'Typography panel', () => {
 		test( 'displays correctly', () => {
 			render( <SubscriptionsInspectorControls { ...defaultProps } /> );
 
-			expect( screen.getByText( 'Text Settings' ) ).toBeInTheDocument();
+			expect( screen.getByText( 'Typography' ) ).toBeInTheDocument();
 		} );
 
 		test( 'set custom text ', () => {
 			render( <SubscriptionsInspectorControls { ...defaultProps } /> );
-			userEvent.click( screen.getByText( 'Text Settings' ), { selector: 'button' } );
+			userEvent.click( screen.getByText( 'Typography' ), { selector: 'button' } );
 			userEvent.type( screen.getAllByLabelText( 'Custom Size' )[ 1 ], '18' );
 
 			expect( setAttributes ).toHaveBeenLastCalledWith( {
@@ -123,12 +121,12 @@ describe( 'Inspector controls', () => {
 		test( 'displays correctly', () => {
 			render( <SubscriptionsInspectorControls { ...defaultProps } /> );
 
-			expect( screen.getByText( 'Border Settings' ) ).toBeInTheDocument();
+			expect( screen.getByText( 'Border' ) ).toBeInTheDocument();
 		} );
 
 		test( 'set border radius', () => {
 			render( <SubscriptionsInspectorControls { ...defaultProps } /> );
-			userEvent.click( screen.getByText( 'Border Settings' ), { selector: 'button' } );
+			userEvent.click( screen.getByText( 'Border' ), { selector: 'button' } );
 			const rangeControlElement = screen.getAllByLabelText( 'Border Radius' )[ 1 ];
 			userEvent.clear( rangeControlElement );
 			userEvent.type( rangeControlElement, '5' );
@@ -140,7 +138,7 @@ describe( 'Inspector controls', () => {
 
 		test( 'set border weight', () => {
 			render( <SubscriptionsInspectorControls { ...defaultProps } /> );
-			userEvent.click( screen.getByText( 'Border Settings' ), { selector: 'button' } );
+			userEvent.click( screen.getByText( 'Border' ), { selector: 'button' } );
 			const rangeControlElement = screen.getAllByLabelText( 'Border Weight' )[ 1 ];
 			userEvent.clear( rangeControlElement );
 			userEvent.type( rangeControlElement, '5' );
@@ -155,12 +153,12 @@ describe( 'Inspector controls', () => {
 		test( 'displays correctly', () => {
 			render( <SubscriptionsInspectorControls { ...defaultProps } /> );
 
-			expect( screen.getByText( 'Spacing Settings' ) ).toBeInTheDocument();
+			expect( screen.getByText( 'Spacing' ) ).toBeInTheDocument();
 		} );
 
 		test( 'set space inside', () => {
 			render( <SubscriptionsInspectorControls { ...defaultProps } /> );
-			userEvent.click( screen.getByText( 'Spacing Settings' ), { selector: 'button' } );
+			userEvent.click( screen.getByText( 'Spacing' ), { selector: 'button' } );
 			const rangeControlElement = screen.getAllByLabelText( 'Space Inside' )[ 1 ];
 			userEvent.clear( rangeControlElement );
 			userEvent.type( rangeControlElement, '5' );
@@ -172,7 +170,7 @@ describe( 'Inspector controls', () => {
 
 		test( 'set space between', () => {
 			render( <SubscriptionsInspectorControls { ...defaultProps } /> );
-			userEvent.click( screen.getByText( 'Spacing Settings' ), { selector: 'button' } );
+			userEvent.click( screen.getByText( 'Spacing' ), { selector: 'button' } );
 			const rangeControlElement = screen.getAllByLabelText( 'Space Between' )[ 1 ];
 			userEvent.clear( rangeControlElement );
 			userEvent.type( rangeControlElement, '5' );
@@ -186,12 +184,12 @@ describe( 'Inspector controls', () => {
 	describe( 'Display settings panel', () => {
 		test( 'displays correctly', () => {
 			render( <SubscriptionsInspectorControls { ...defaultProps } /> );
-			expect( screen.getByText( 'Display Settings' ) ).toBeInTheDocument();
+			expect( screen.getByText( 'Settings' ) ).toBeInTheDocument();
 		} );
 
 		test( 'toggles subscriber count', () => {
 			render( <SubscriptionsInspectorControls { ...defaultProps } /> );
-			userEvent.click( screen.getByText( 'Display Settings' ), { selector: 'button' } );
+			userEvent.click( screen.getByText( 'Settings' ), { selector: 'button' } );
 			userEvent.click( screen.getByLabelText( 'Show subscriber count' ) );
 
 			expect( setAttributes ).toHaveBeenCalledWith( {
@@ -201,7 +199,7 @@ describe( 'Inspector controls', () => {
 
 		test( 'toggles place button on new line', () => {
 			render( <SubscriptionsInspectorControls { ...defaultProps } /> );
-			userEvent.click( screen.getByText( 'Display Settings' ), { selector: 'button' } );
+			userEvent.click( screen.getByText( 'Settings' ), { selector: 'button' } );
 			userEvent.click( screen.getByLabelText( 'Place button on new line' ) );
 
 			expect( setAttributes ).toHaveBeenCalledWith( {
