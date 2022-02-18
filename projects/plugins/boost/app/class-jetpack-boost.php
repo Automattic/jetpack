@@ -12,14 +12,15 @@
 
 namespace Automattic\Jetpack_Boost;
 
+use Automattic\Jetpack\My_Jetpack\Initializer as My_Jetpack_Initializer;
 use Automattic\Jetpack_Boost\Admin\Admin;
 use Automattic\Jetpack_Boost\Features\Optimizations\Critical_CSS\Critical_CSS;
-use Automattic\Jetpack_Boost\Features\Optimizations\Critical_CSS\Critical_CSS_Storage;
 use Automattic\Jetpack_Boost\Features\Optimizations\Critical_CSS\Regenerate_Admin_Notice;
 use Automattic\Jetpack_Boost\Features\Optimizations\Optimizations;
 use Automattic\Jetpack_Boost\Lib\Analytics;
 use Automattic\Jetpack_Boost\Lib\CLI;
 use Automattic\Jetpack_Boost\Lib\Connection;
+use Automattic\Jetpack_Boost\Lib\Critical_CSS\Critical_CSS_Storage;
 use Automattic\Jetpack_Boost\Lib\Setup;
 use Automattic\Jetpack_Boost\REST_API\Endpoints\Optimization_Status;
 use Automattic\Jetpack_Boost\REST_API\REST_API;
@@ -42,7 +43,7 @@ class Jetpack_Boost {
 	 * The unique identifier of this plugin.
 	 *
 	 * @since    1.0.0
-	 * @var      string $plugin_name The string used to uniquely identify this plugin.
+	 * @var string The string used to uniquely identify this plugin.
 	 */
 	private $plugin_name;
 
@@ -50,7 +51,7 @@ class Jetpack_Boost {
 	 * The current version of the plugin.
 	 *
 	 * @since    1.0.0
-	 * @var      string $version The current version of the plugin.
+	 * @var string The current version of the plugin.
 	 */
 	private $version;
 
@@ -59,7 +60,7 @@ class Jetpack_Boost {
 	 *
 	 * @since    1.0.0
 	 * @access   public
-	 * @var      Connection $connection The Jetpack Boost Connection manager instance.
+	 * @var Connection The Jetpack Boost Connection manager instance.
 	 */
 	public $connection;
 
@@ -99,6 +100,8 @@ class Jetpack_Boost {
 
 		// Fired when plugin ready.
 		do_action( 'jetpack_boost_loaded', $this );
+
+		My_Jetpack_Initializer::init();
 	}
 
 	/**
@@ -143,7 +146,7 @@ class Jetpack_Boost {
 	 * The name of the plugin used to uniquely identify it within the context of
 	 * WordPress and to define internationalization functionality.
 	 *
-	 * @return    string    The name of the plugin.
+	 * @return string The name of the plugin.
 	 * @since     1.0.0
 	 */
 	public function get_plugin_name() {
@@ -153,7 +156,7 @@ class Jetpack_Boost {
 	/**
 	 * Retrieve the version number of the plugin.
 	 *
-	 * @return    string    The version number of the plugin.
+	 * @return string The version number of the plugin.
 	 * @since     1.0.0
 	 */
 	public function get_version() {
@@ -174,7 +177,6 @@ class Jetpack_Boost {
 	 * Plugin uninstallation handler. Delete all settings and cache.
 	 */
 	public function uninstall() {
-
 		global $wpdb;
 
 		// When uninstalling, make sure all deactivation cleanups have run as well.
@@ -191,6 +193,5 @@ class Jetpack_Boost {
 
 		// Delete stored Critical CSS.
 		( new Critical_CSS_Storage() )->clear();
-
 	}
 }

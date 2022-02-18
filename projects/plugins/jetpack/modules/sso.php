@@ -50,6 +50,7 @@ class Jetpack_SSO {
 		add_action( 'jetpack_modules_loaded', array( $this, 'module_configure_button' ) );
 		add_action( 'login_form_logout', array( $this, 'store_wpcom_profile_cookies_on_logout' ) );
 		add_action( 'jetpack_unlinked_user', array( $this, 'delete_connection_for_user' ) );
+		add_action( 'jetpack_site_before_disconnected', array( static::class, 'disconnect' ) );
 		add_action( 'wp_login', array( 'Jetpack_SSO', 'clear_cookies_after_login' ) );
 
 		// Adding this action so that on login_init, the action won't be sanitized out of the $action global.
@@ -650,6 +651,17 @@ class Jetpack_SSO {
 	}
 
 	/**
+	 * Clean up after Jetpack gets disconnected.
+	 *
+	 * @since 10.7
+	 */
+	public static function disconnect() {
+		if ( Jetpack::connection()->is_user_connected() ) {
+			static::delete_connection_for_user( get_current_user_id() );
+		}
+	}
+
+	/**
 	 * Remove an SSO connection for a user.
 	 *
 	 * @param int $user_id The local user id.
@@ -769,6 +781,13 @@ class Jetpack_SSO {
 				$expected_id = get_user_meta( $user->ID, 'wpcom_user_id', true );
 				if ( $expected_id && $expected_id != $user_data->ID ) { // phpcs:ignore WordPress.PHP.StrictComparisons.LooseComparison, Universal.Operators.StrictComparisons.LooseNotEqual
 					$error = new WP_Error( 'expected_wpcom_user', __( 'Something got a little mixed up and an unexpected WordPress.com user logged in.', 'jetpack' ) );
+
+					$tracking->record_user_event(
+						'sso_login_failed',
+						array(
+							'error_message' => 'error_unexpected_wpcom_user',
+						)
+					);
 
 					/** This filter is documented in core/src/wp-includes/pluggable.php */
 					do_action( 'wp_login_failed', $user_data->login, $error );

@@ -35,8 +35,10 @@ export function useProduct( productId ) {
 
 	// Pricinf for UI.
 	detail.pricingForUi = detail.pricingForUi || {};
-	const { fullPrice, discount } = detail.pricingForUi;
-	detail.pricingForUi.discountedPrice = ( fullPrice * ( 100 - discount ) ) / 100;
+	detail.pricingForUi.fullPricePerMonth =
+		Math.ceil( ( detail.pricingForUi.fullPrice / 12 ) * 100 ) / 100;
+	detail.pricingForUi.discountPricePerMonth =
+		Math.ceil( ( detail.pricingForUi.discountPrice / 12 ) * 100 ) / 100;
 
 	return {
 		activate: () => activateProduct( productId ),

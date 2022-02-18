@@ -2,6 +2,40 @@
 
 ### This is a list detailing changes for all Jetpack releases.
 
+## 10.7-a.5 - 2022-02-16
+### Enhancements
+- Blocks: add support for color and spacing block options for Form, Mailchimp, Podcast Player, and Related Posts blocks.
+- Blocks: add alignment block option for Form, Mailchimp, Podcast Player, Related Posts, and Repeat Visitor blocks.
+- Dashboard: update the Free plan description to consider the currently active products.
+
+### Improved compatibility
+- Image CDN: ensure that SVG images added to posts thanks to the SVG Support plugin can be displayed even when Jetpack's Image CDN is active.
+- Search: Add deprecated class to prevent third-party integrations from failing after 10.6 updates.
+
+### Bug fixes
+- Blocks: cron requests are now considered frontend requests, so blocks will no longer be rendered as fallbacks on those.
+- Form Block: custom CSS classes added to the block are now applied on the frontend.
+- Media Buttons: Fix issue where external medial modal cannot be closed.
+- Search: Make debug bar more reliable.
+- SSO: fix a bug with SSO not cleaning up wpcom_user_id.
+
+### Other changes <!-- Non-user-facing changes go here. This section will not be copied to readme.txt. -->
+- Add note for translators.
+- Add executing the WAF as part of the Jetpack plugin.
+- Init 10.7-a.4 cycle
+- PHPCS Changes for the first handful of JSON endpoints.
+- PHPCS: Gravatar Hovercards
+- Premium Content Block: restrict registration to WPcom.
+- Premium Content Block: add a "Remove block and keep content" settings menu item and fixed transformations to groups.
+- Premium Content Block: don't allow core markup blocks to be transformed to Premium Content block (e.g. core/nextpage, core/spacer).
+- Premium Content Block: when content within a premium-content view is selected in the editor, switch to that view.
+- Premium Content Block: fix accidental inversion of the block tabs.
+- Remove the unused can_connect_service method
+- Reworked the redeem partner coupon component implementation to match latest requirements for post-connection display
+- Unroll Twitter Threads: revert endpoint to public.
+- Update the path to the extension-availability util function on native mobile, after it has been updated for the web.
+- About page: only fetch a11n data when page is active.
+
 ## 10.7-a.3 - 2022-02-09
 ### Enhancements
 - Dashboard: the Backup banner CTA on the At-a-Glance page will now be replaced with a "Redeem Coupon" CTA when a partner coupon is detected.

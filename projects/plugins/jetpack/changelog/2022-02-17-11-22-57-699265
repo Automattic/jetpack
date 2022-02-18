@@ -1,0 +1,4 @@
+Significance: patch
+Type: bugfix
+
+WordPress.com REST API: avoid PHP warnings when accessing videos from the WordPress.com dashboard.
