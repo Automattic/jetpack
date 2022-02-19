@@ -13,20 +13,12 @@
  */
 
 function jetpack_load_custom_css() {
-	// If WordPress has the core version of Custom CSS, load our new version.
-	// @see https://core.trac.wordpress.org/changeset/38829
-	if ( function_exists( 'wp_get_custom_css' ) ) {
-		if ( ! Jetpack_Options::get_option( 'custom_css_4.7_migration' ) ) {
-			include_once dirname( __FILE__ ) . '/custom-css/migrate-to-core.php';
-		}
-
-		include_once dirname( __FILE__ ) . '/custom-css/custom-css/preprocessors.php';
-		include_once dirname( __FILE__ ) . '/custom-css/custom-css-4.7.php';
-		return;
+	if ( ! Jetpack_Options::get_option( 'custom_css_4.7_migration' ) ) { // phpcs:ignore Generic.CodeAnalysis.EmptyStatement.DetectedIf
+		// Nothing here. Removing the migration script, but leaving this to remember to clean up the option.
 	}
 
-	include_once dirname( __FILE__ ) . "/custom-css/custom-css.php";
-	add_action( 'init', array( 'Jetpack_Custom_CSS', 'init' ) );
+	include_once __DIR__ . '/custom-css/custom-css/preprocessors.php';
+	include_once __DIR__ . '/custom-css/custom-css-4.7.php';
 }
 
 add_action( 'jetpack_modules_loaded', 'custom_css_loaded' );
