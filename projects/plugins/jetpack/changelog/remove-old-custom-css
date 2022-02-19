@@ -1,0 +1,4 @@
+Significance: major
+Type: compat
+
+Removed legacy Custom CSS code. This was the version of Custom CSS that Jetpack used prior to WordPress added similar capability in WordPress 4.7.
