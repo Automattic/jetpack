@@ -20,18 +20,6 @@ function jetpack_load_custom_css() {
 			include_once dirname( __FILE__ ) . '/custom-css/migrate-to-core.php';
 		}
 
-		// TODO: DELETE THIS
-		else {
-			if ( defined( 'WP_CLI' ) && WP_CLI ) {
-				function jetpack_custom_css_undo_data_migration_cli() {
-					Jetpack_Options::delete_option( 'custom_css_4.7_migration' );
-					WP_CLI::success( __( 'Option deleted, re-migrate via `wp jetpack custom-css migrate`.', 'jetpack' ) );
-				}
-				WP_CLI::add_command( 'jetpack custom-css undo-migrate', 'jetpack_custom_css_undo_data_migration_cli' );
-			}
-		}
-		// TODO: END DELETE THIS
-
 		include_once dirname( __FILE__ ) . '/custom-css/custom-css/preprocessors.php';
 		include_once dirname( __FILE__ ) . '/custom-css/custom-css-4.7.php';
 		return;
