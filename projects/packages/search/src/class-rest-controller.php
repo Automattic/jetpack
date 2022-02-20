@@ -9,7 +9,6 @@
 namespace Automattic\Jetpack\Search;
 
 use Automattic\Jetpack\Connection\Client;
-use Jetpack_Options;
 use WP_Error;
 use WP_REST_Request;
 use WP_REST_Server;
@@ -247,15 +246,23 @@ class REST_Controller {
 	 * @param WP_REST_Request $request - REST request.
 	 */
 	public function activate_plan( $request ) {
+		$default_options = array(
+			'search_plan_info'      => null,
+			'enable_search'         => true,
+			'enable_instant_search' => true,
+			'auto_config_search'    => true,
+		);
+		$payload         = $request->get_json_params();
+		$payload         = wp_parse_args( $payload, $default_options );
+
 		// Update plan data, plan info is in the request body.
 		// We do this to avoid another call to WPCOM and reduce latency.
-		$payload = $request->get_json_params();
-		if ( ! isset( $payload['search_plan_info'] ) || ! $this->plan->set_plan_options( $payload['search_plan_info'] ) ) {
+		if ( is_null( $payload['search_plan_info'] ) || ! $this->plan->set_plan_options( $payload['search_plan_info'] ) ) {
 			$this->plan->get_plan_info_from_wpcom();
 		}
 
 		// Enable search module by default, unless `enable_search` is explicitly set to boolean `false`.
-		if ( ! isset( $payload['enable_search'] ) || false !== $payload['enable_search'] ) {
+		if ( false !== $payload['enable_search'] ) {
 			// Eligibility is checked in `activate` function.
 			$ret = $this->search_module->activate();
 			if ( is_wp_error( $ret ) ) {
@@ -264,7 +271,7 @@ class REST_Controller {
 		}
 
 		// Enable instant search by default, unless `enable_instant_search` is explicitly set to boolean `false`.
-		if ( ! isset( $payload['enable_instant_search'] ) || false !== $payload['enable_instant_search'] ) {
+		if ( false !== $payload['enable_instant_search'] ) {
 			// Eligibility is checked in `enable_instant_search` function.
 			$ret = $this->search_module->enable_instant_search();
 			if ( is_wp_error( $ret ) ) {
@@ -273,7 +280,7 @@ class REST_Controller {
 		}
 
 		// Automatically configure necessary settings for instant search, unless `auto_config_search` is explicitly set to boolean `false`.
-		if ( ! isset( $payload['auto_config_search'] ) || false !== $payload['auto_config_search'] ) {
+		if ( false !== $payload['auto_config_search'] ) {
 			Instant_Search::instance( $this->get_blog_id() )->auto_config_search();
 		}
 
@@ -329,7 +336,7 @@ class REST_Controller {
 	 * Get blog id
 	 */
 	protected function get_blog_id() {
-		return $this->is_wpcom ? get_current_blog_id() : Jetpack_Options::get_option( 'id' );
+		return Helper::get_wpcom_site_id();
 	}
 
 }
