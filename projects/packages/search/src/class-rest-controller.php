@@ -9,6 +9,7 @@
 namespace Automattic\Jetpack\Search;
 
 use Automattic\Jetpack\Connection\Client;
+use Jetpack_Options;
 use WP_Error;
 use WP_REST_Request;
 use WP_REST_Server;
@@ -336,7 +337,7 @@ class REST_Controller {
 	 * Get blog id
 	 */
 	protected function get_blog_id() {
-		return Helper::get_wpcom_site_id();
+		return $this->is_wpcom ? get_current_blog_id() : Jetpack_Options::get_option( 'id' );
 	}
 
 }
