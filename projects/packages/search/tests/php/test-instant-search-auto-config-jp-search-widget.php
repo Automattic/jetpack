@@ -46,30 +46,30 @@ class Test_Instant_Search_Auto_Config_JP_Search_Widget extends TestCase {
 	}
 
 	/**
-	 * Test `auto_config_theme_sidebar_search_widget` skip - no sidebar
+	 * Test `auto_config_non_fse_theme_sidebar_search_widget` skip - no sidebar
 	 */
-	public function test_auto_config_theme_sidebar_search_widget_no_sidebar() {
+	public function test_auto_config_non_fse_theme_sidebar_search_widget_no_sidebar() {
 		add_filter( 'option_sidebars_widgets', '__return_false' );
-		$this->assertNull( Instant_Search::instance()->auto_config_theme_sidebar_search_widget() );
+		$this->assertNull( Instant_Search::instance()->auto_config_non_fse_theme_sidebar_search_widget() );
 		remove_filter( 'option_sidebars_widgets', '__return_false' );
 	}
 
 	/**
-	 * Test `auto_config_theme_sidebar_search_widget` skip - already has JP search widget
+	 * Test `auto_config_non_fse_theme_sidebar_search_widget` skip - already has JP search widget
 	 */
-	public function test_auto_config_theme_sidebar_search_widget_already_configured() {
+	public function test_auto_config_non_fse_theme_sidebar_search_widget_already_configured() {
 		add_filter( 'option_sidebars_widgets', array( $this, 'sidebars_widgets_theme_sidebar_configured' ) );
-		$this->assertNull( Instant_Search::instance()->auto_config_theme_sidebar_search_widget() );
+		$this->assertNull( Instant_Search::instance()->auto_config_non_fse_theme_sidebar_search_widget() );
 		remove_filter( 'option_sidebars_widgets', array( $this, 'sidebars_widgets_theme_sidebar_configured' ) );
 	}
 
 	/**
-	 * Test `auto_config_theme_sidebar_search_widget` replace core search widget
+	 * Test `auto_config_non_fse_theme_sidebar_search_widget` replace core search widget
 	 */
-	public function test_auto_config_theme_sidebar_search_widget_replace_success() {
+	public function test_auto_config_non_fse_theme_sidebar_search_widget_replace_success() {
 		add_filter( 'option_sidebars_widgets', array( $this, 'sidebars_widgets_theme_has_core_search' ) );
 		add_filter( 'option_' . Helper::get_widget_option_name(), '__return_false' );
-		$this->assertTrue( Instant_Search::instance()->auto_config_theme_sidebar_search_widget() );
+		$this->assertTrue( Instant_Search::instance()->auto_config_non_fse_theme_sidebar_search_widget() );
 		remove_filter( 'option_sidebars_widgets', array( $this, 'sidebars_widgets_theme_has_core_search' ) );
 		remove_filter( 'option_' . Helper::get_widget_option_name(), '__return_false' );
 
@@ -78,7 +78,7 @@ class Test_Instant_Search_Auto_Config_JP_Search_Widget extends TestCase {
 	}
 
 	/**
-	 * Test `auto_config_theme_sidebar_search_widget` replace core search widget.
+	 * Test `auto_config_non_fse_theme_sidebar_search_widget` replace core search widget.
 	 *
 	 * @see https://github.com/Automattic/jetpack/issues/22588
 	 */
@@ -86,7 +86,7 @@ class Test_Instant_Search_Auto_Config_JP_Search_Widget extends TestCase {
 		add_filter( 'option_sidebars_widgets', array( $this, 'sidebars_widgets_theme_has_search_block' ) );
 		add_filter( 'option_' . Helper::get_widget_option_name(), '__return_false' );
 		add_filter( 'option_widget_block', array( $this, 'widget_block_widgets' ) );
-		$this->assertTrue( Instant_Search::instance()->auto_config_theme_sidebar_search_widget() );
+		$this->assertTrue( Instant_Search::instance()->auto_config_non_fse_theme_sidebar_search_widget() );
 		remove_filter( 'option_sidebars_widgets', array( $this, 'sidebars_widgets_theme_has_search_block' ) );
 		remove_filter( 'option_' . Helper::get_widget_option_name(), '__return_false' );
 		remove_filter( 'option_widget_block', array( $this, 'widget_block_widgets' ) );
@@ -96,12 +96,12 @@ class Test_Instant_Search_Auto_Config_JP_Search_Widget extends TestCase {
 	}
 
 	/**
-	 * Test `auto_config_theme_sidebar_search_widget` success - no search widget
+	 * Test `auto_config_non_fse_theme_sidebar_search_widget` success - no search widget
 	 */
-	public function test_auto_config_theme_sidebar_search_widget_add_success() {
+	public function test_auto_config_non_fse_theme_sidebar_search_widget_add_success() {
 		add_filter( 'option_sidebars_widgets', array( $this, 'sidebars_widgets_theme_empty_sidebar' ) );
 		add_filter( 'option_' . Helper::get_widget_option_name(), '__return_false' );
-		$this->assertTrue( Instant_Search::instance()->auto_config_theme_sidebar_search_widget() );
+		$this->assertTrue( Instant_Search::instance()->auto_config_non_fse_theme_sidebar_search_widget() );
 		remove_filter( 'option_sidebars_widgets', array( $this, 'sidebars_widgets_theme_empty_sidebar' ) );
 		remove_filter( 'option_' . Helper::get_widget_option_name(), '__return_false' );
 
