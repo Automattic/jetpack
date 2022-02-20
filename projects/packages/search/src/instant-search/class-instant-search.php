@@ -500,7 +500,7 @@ class Instant_Search extends Classic_Search {
 		return false;
 	}
 
-		/**
+	/**
 	 * Returns true if $block_content has core search block
 	 *
 	 * @param string $block_content - Block content.
