@@ -749,7 +749,7 @@ importers:
       '@wordpress/element': 4.1.0
       '@wordpress/i18n': 4.3.0
       '@wordpress/icons': 6.2.0
-      chart.js: 3.7.1
+      chart.js: ^3.7.1
       classnames: 2.3.1
       concurrently: 6.4.0
       fast-json-stable-stringify: 2.1.0
@@ -20446,7 +20446,7 @@ packages:
     dependencies:
       array.prototype.flat: 1.2.5
       global-cache: 1.2.1
-      react-with-styles: 3.2.3_react-dom@17.0.2+react@17.0.2
+      react-with-styles: 3.2.3
 
   /react-with-styles/3.2.3:
     resolution: {integrity: sha512-MTI1UOvMHABRLj5M4WpODfwnveHaip6X7QUMI2x6zovinJiBXxzhA9AJP7MZNaKqg1JRFtHPXZdroUC8KcXwlQ==}
