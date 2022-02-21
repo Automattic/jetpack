@@ -1,7 +1,8 @@
 /**
  * External dependencies
  */
-import { __ } from '@wordpress/i18n';
+import { createInterpolateElement } from '@wordpress/element';
+import { __, _n, sprintf } from '@wordpress/i18n';
 import { ToggleControl, PanelBody, RangeControl, TextareaControl } from '@wordpress/components';
 import {
 	ContrastChecker,
@@ -14,6 +15,7 @@ import { isSimpleSite } from '@automattic/jetpack-shared-extension-utils';
 /**
  * Internal dependencies
  */
+import InspectorNotice from '../../shared/components/inspector-notice';
 import { ButtonWidthControl } from '../button/button-width-panel';
 import {
 	MIN_BORDER_RADIUS_VALUE,
@@ -56,9 +58,26 @@ export default function SubscriptionControls( {
 } ) {
 	return (
 		<>
+			{ subscriberCount > 1 && (
+				<InspectorNotice>
+					{ createInterpolateElement(
+						sprintf(
+							/* translators: %s is the number of subscribers. The \xA0 non-breaking space is to make sure the last two words are on the same line. */
+							_n(
+								'<span>%s reader</span> is\xA0subscribed.',
+								'<span>%s readers</span> are\xA0subscribed.',
+								subscriberCount,
+								'jetpack'
+							),
+							subscriberCount
+						),
+						{ span: <span style={ { textDecoration: 'underline' } } /> }
+					) }
+				</InspectorNotice>
+			) }
 			{ isGradientAvailable && (
 				<PanelColorGradientSettings
-					title={ __( 'Color Settings', 'jetpack' ) }
+					title={ __( 'Color', 'jetpack' ) }
 					className="wp-block-jetpack-subscriptions__backgroundpanel"
 					settings={ [
 						{
@@ -66,12 +85,12 @@ export default function SubscriptionControls( {
 							onColorChange: setButtonBackgroundColor,
 							gradientValue: buttonGradient.gradientValue,
 							onGradientChange: buttonGradient.setGradient,
-							label: __( 'Button Background Color', 'jetpack' ),
+							label: __( 'Button Background', 'jetpack' ),
 						},
 						{
 							colorValue: textColor.color,
 							onColorChange: setTextColor,
-							label: __( 'Button Text Color', 'jetpack' ),
+							label: __( 'Button Text', 'jetpack' ),
 						},
 						{
 							colorValue: borderColor.color,
@@ -83,7 +102,7 @@ export default function SubscriptionControls( {
 									customBorderColor: newBorderColor,
 								} );
 							},
-							label: __( 'Border Color', 'jetpack' ),
+							label: __( 'Border', 'jetpack' ),
 						},
 					] }
 					initialOpen={ true }
@@ -142,7 +161,7 @@ export default function SubscriptionControls( {
 			) }
 
 			<PanelBody
-				title={ __( 'Text Settings', 'jetpack' ) }
+				title={ __( 'Typography', 'jetpack' ) }
 				initialOpen={ false }
 				className="wp-block-jetpack-subscriptions__textpanel"
 			>
@@ -160,9 +179,8 @@ export default function SubscriptionControls( {
 					} }
 				/>
 			</PanelBody>
-
 			<PanelBody
-				title={ __( 'Border Settings', 'jetpack' ) }
+				title={ __( 'Border', 'jetpack' ) }
 				initialOpen={ false }
 				className="wp-block-jetpack-subscriptions__borderpanel"
 			>
@@ -186,9 +204,8 @@ export default function SubscriptionControls( {
 					onChange={ newBorderWeight => setAttributes( { borderWeight: newBorderWeight } ) }
 				/>
 			</PanelBody>
-
 			<PanelBody
-				title={ __( 'Spacing Settings', 'jetpack' ) }
+				title={ __( 'Spacing', 'jetpack' ) }
 				initialOpen={ false }
 				className="wp-block-jetpack-subscriptions__spacingpanel"
 			>
@@ -201,7 +218,6 @@ export default function SubscriptionControls( {
 					allowReset
 					onChange={ newPaddingValue => setAttributes( { padding: newPaddingValue } ) }
 				/>
-
 				<RangeControl
 					value={ spacing }
 					label={ __( 'Space Between', 'jetpack' ) }
@@ -217,9 +233,8 @@ export default function SubscriptionControls( {
 					onChange={ newButtonWidth => setAttributes( { buttonWidth: newButtonWidth } ) }
 				/>
 			</PanelBody>
-
 			<PanelBody
-				title={ __( 'Display Settings', 'jetpack' ) }
+				title={ __( 'Settings', 'jetpack' ) }
 				initialOpen={ false }
 				className="wp-block-jetpack-subscriptions__displaypanel"
 			>
@@ -232,13 +247,12 @@ export default function SubscriptionControls( {
 					help={ () => {
 						if ( ! subscriberCount || subscriberCount < 1 ) {
 							return __(
-								'This will remain hidden on your website until you have at least one subscriber.',
+								'This will remain hidden until there is at least one subscriber.',
 								'jetpack'
 							);
 						}
 					} }
 				/>
-
 				<ToggleControl
 					label={ __( 'Place button on new line', 'jetpack' ) }
 					checked={ buttonOnNewLine }
@@ -246,25 +260,15 @@ export default function SubscriptionControls( {
 						setAttributes( { buttonOnNewLine: ! buttonOnNewLine } );
 					} }
 				/>
-			</PanelBody>
-			{ ! isSimpleSite() && (
-				<PanelBody
-					title={ __( 'Success Message Text', 'jetpack' ) }
-					initialOpen={ false }
-					className="wp-block-jetpack-subscriptions__successpanel"
-				>
+				{ ! isSimpleSite() && (
 					<TextareaControl
 						value={ successMessage }
-						label={ __( 'Success Message Text', 'jetpack' ) }
-						hideLabelFromVision={ true }
-						help={ __(
-							'Save your custom message to display when a user subscribes your website.',
-							'jetpack'
-						) }
+						label={ __( 'Success message', 'jetpack' ) }
+						help={ __( 'Edit the message displayed when a user subscribes.', 'jetpack' ) }
 						onChange={ newSuccessMessage => setAttributes( { successMessage: newSuccessMessage } ) }
 					/>
-				</PanelBody>
-			) }
+				) }
+			</PanelBody>
 		</>
 	);
 }
