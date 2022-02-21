@@ -81,6 +81,15 @@ class REST_Controller {
 		);
 		register_rest_route(
 			'jetpack/v4',
+			'/search/stats',
+			array(
+				'methods'             => WP_REST_Server::READABLE,
+				'callback'            => array( $this, 'get_stats' ),
+				'permission_callback' => array( $this, 'require_admin_privilege_callback' ),
+			)
+		);
+		register_rest_route(
+			'jetpack/v4',
 			'/search',
 			array(
 				'methods'             => WP_REST_Server::READABLE,
@@ -221,6 +230,16 @@ class REST_Controller {
 	}
 
 	/**
+	 * Proxy the request to WPCOM and return the response.
+	 *
+	 * GET `jetpack/v4/search/stats`
+	 */
+	public function get_stats() {
+		$response = ( new Stats() )->get_stats_from_wpcom();
+		return $this->make_proper_response( $response );
+	}
+
+	/**
 	 * Search Endpoint for private sites.
 	 *
 	 * GET `jetpack/v4/search`
@@ -298,7 +317,7 @@ class REST_Controller {
 	/**
 	 * Forward remote response to client with error handling.
 	 *
-	 * @param array|WP_Error $response - Resopnse from WPCOM.
+	 * @param array|WP_Error $response - Response from WPCOM.
 	 */
 	protected function make_proper_response( $response ) {
 		if ( is_wp_error( $response ) ) {

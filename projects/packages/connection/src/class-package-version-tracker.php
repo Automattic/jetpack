@@ -38,7 +38,7 @@ class Package_Version_Tracker {
 		/**
 		 * Obtains the package versions.
 		 *
-		 * @since $$next_version$$
+		 * @since 1.30.2
 		 *
 		 * @param array An associative array of Jetpack package slugs and their corresponding versions as key/value pairs.
 		 */

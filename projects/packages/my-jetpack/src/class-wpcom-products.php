@@ -157,9 +157,8 @@ class Wpcom_Products {
 			return array();
 		}
 
-		$default_discount = 50;
-		$cost             = $product->cost;
-		$discount_price   = $cost * $default_discount / 100; // default discount.
+		$cost           = $product->cost;
+		$discount_price = $cost;
 
 		// Get/compute the discounted price.
 		if ( isset( $product->introductory_offer->cost_per_interval ) ) {
@@ -177,16 +176,19 @@ class Wpcom_Products {
 			return $pricing;
 		}
 
-		// Check whether the coupon is still valid.
-		$sale            = $product->sale_coupon;
-		$sale_start_date = strtotime( $sale->start_date );
-		$sale_expires    = strtotime( $sale->expires );
-		if ( $sale_start_date > time() || $sale_expires < time() ) {
+		// Check whether it is still valid.
+		$coupon            = $product->sale_coupon;
+		$coupon_start_date = strtotime( $coupon->start_date );
+		$coupon_expires    = strtotime( $coupon->expires );
+		if ( $coupon_start_date > time() || $coupon_expires < time() ) {
 			return $pricing;
 		}
 
-		// Populate response with sale discount.
-		$pricing['discount'] = $sale->discount;
+		// Populate response with coupon discount.
+		$pricing['coupon_discount'] = $coupon->discount;
+
+		// Apply coupon discount to discount price.
+		$pricing['discount_price'] = $discount_price * ( 100 - $coupon->discount ) / 100;
 
 		return $pricing;
 	}

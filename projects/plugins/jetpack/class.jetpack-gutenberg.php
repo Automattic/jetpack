@@ -60,6 +60,14 @@ class Jetpack_Gutenberg {
 	private static $cached_availability = null;
 
 	/**
+	 * Site-specific features available.
+	 * Their calculation can be expensive and slow, so we're caching it for the request.
+	 *
+	 * @var array Site-specific features
+	 */
+	private static $site_specific_features = array();
+
+	/**
 	 * Check to see if a minimum version of Gutenberg is available. Because a Gutenberg version is not available in
 	 * php if the Gutenberg plugin is not installed, if we know which minimum WP release has the required version we can
 	 * optionally fall back to that.
@@ -1059,6 +1067,36 @@ class Jetpack_Gutenberg {
 	}
 
 	/**
+	 * Retrieve site-specific features for Simple sites.
+	 *
+	 * We're caching the data for the lifetime of the request, because it can be slow to calculate,
+	 * and it can be called multiple times per single request.
+	 *
+	 * We intentionally don't use object caching or any other type of persistent caching,
+	 * in order to avoid complex cache invalidation on subscription addition or removal.
+	 *
+	 * @since 10.7
+	 *
+	 * @return array
+	 */
+	private static function get_site_specific_features() {
+		$current_blog_id = get_current_blog_id();
+
+		if ( isset( self::$site_specific_features[ $current_blog_id ] ) ) {
+			return self::$site_specific_features[ $current_blog_id ];
+		}
+
+		if ( ! class_exists( 'Store_Product_List' ) ) {
+			require WP_CONTENT_DIR . '/admin-plugins/wpcom-billing/store-product-list.php';
+		}
+
+		$site_specific_features                           = Store_Product_List::get_site_specific_features_data( $current_blog_id );
+		self::$site_specific_features[ $current_blog_id ] = $site_specific_features;
+
+		return $site_specific_features;
+	}
+
+	/**
 	 * Set the availability of the block as the editor
 	 * is loaded.
 	 *
@@ -1077,10 +1115,7 @@ class Jetpack_Gutenberg {
 
 			// Simple sites.
 			if ( $is_simple_site ) {
-				if ( ! class_exists( 'Store_Product_List' ) ) {
-					require WP_CONTENT_DIR . '/admin-plugins/wpcom-billing/store-product-list.php';
-				}
-				$features_data = Store_Product_List::get_site_specific_features_data();
+				$features_data = self::get_site_specific_features();
 			} else {
 				// Atomic sites.
 				$option = get_option( 'jetpack_active_plan' );
