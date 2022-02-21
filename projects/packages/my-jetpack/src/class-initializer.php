@@ -198,11 +198,6 @@ class Initializer {
 		 */
 		$should = apply_filters( 'jetpack_my_jetpack_should_initialize', true );
 
-		// Feature flag while we are developing it.
-		if ( ! defined( 'JETPACK_ENABLE_MY_JETPACK' ) || ! JETPACK_ENABLE_MY_JETPACK ) {
-			return false;
-		}
-
 		// Do not initialize My Jetpack if site is not connected.
 		if ( ! ( new Connection_Manager() )->is_connected() ) {
 			return false;
