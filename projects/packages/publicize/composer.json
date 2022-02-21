@@ -10,7 +10,8 @@
 	},
 	"autoload": {
 		"classmap": [
-			"src/"
+			"src/",
+			"legacy/"
 		]
 	},
 	"scripts": {
