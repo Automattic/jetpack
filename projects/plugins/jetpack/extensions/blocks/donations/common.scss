@@ -2,20 +2,15 @@
 @import '../../shared/styles/gutenberg-base-styles.scss';
 
 .wp-block-jetpack-donations {
-  	border-color: inherit;
-  	border-width: inherit;
 
-  	.donations__nav {
+	.donations__nav {
 		display: flex;
-	  	border-color: inherit;
-	  	border-width: inherit;
-	  	margin: -1px;
+		margin: -1px;
 	}
 
-  .donations__container {
-	border-color: inherit;
-	border-width: inherit;
-  }
+	.jetpack-block-nudge:not( .donations__deprecated ) {
+		margin: 15px;
+	}
 
 	.donations__nav-item {
 		font-weight: bold;
@@ -24,11 +19,9 @@
 		text-align: center;
 		font-size: 16px;
 		padding: 12px;
-	  	border-color: inherit;
-	  	border-width: 1px 1px 1px 0;
-	  	border-style: solid;
-	  	background: $white;
-		color: $gray-900;
+		border-color: inherit;
+		border-width: 1px 1px 1px 0;
+		border-style: solid;
 		cursor: pointer;
 
 		@include break-small() {
@@ -36,7 +29,7 @@
 		}
 
 		&:first-child {
-		  border-width: 1px 1px 1px 1px;
+			border-width: 1px 1px 1px 1px;
 		}
 	}
 
@@ -48,62 +41,85 @@
 		}
 	}
 
-  	.donations__content.borderless {
-	  padding-top: 16px;
-	  padding-bottom: 18px;
-
-	  @include break-small() {
-		padding-top: 32px;
-		padding-bottom: 34px;
-	  }
-	}
-
-  	.donations__content {
-	  h4,
-	  p {
-		margin: 0 0 16px;
+	.donations__content.borderless {
+		padding-top: 16px;
+		padding-bottom: 18px;
 
 		@include break-small() {
-		  margin: 0 0 24px;
+			padding-top: 32px;
+			padding-bottom: 34px;
 		}
-	  }
+	}
+
+	.donations__content {
+		h4, h3,
+		p {
+			margin: 0 0 16px;
+
+			@include break-small() {
+				margin: 0 0 24px;
+			}
+		}
 	}
 
 	.donations__deprecated {
-	  &.donations__container {
-		border: 1px solid $gray-400;
-	  }
+		& .donations__nav-item {
+			font-weight: bold;
+			display: inline-block;
+			flex: 1;
+			text-align: center;
+			font-size: 16px;
+			padding: 12px;
+			border-color: inherit;
+			border-width: 1px 1px 1px 0;
+			border-style: solid;
+			background: $white;
+			color: $gray-900;
+			cursor: pointer;
 
-	  & .donations__nav {
-		display: flex;
-		border-bottom: 1px solid $gray-400;
-	  }
+			@include break-small() {
+				padding: 16px 24px;
+			}
 
-	  & .is-active {
-		background: var( --wp-admin-theme-color );
-		color: $white;
-		cursor: default;
-		border-color: var( --wp-admin-theme-color );
-	  }
-
-	  & .donations__amount {
-		display: inline-block;
-		padding: 16px 24px;
-		background-color: $white;
-		color: $gray-900;
-		border: 1px solid $gray-400;
-		margin-right: 8px;
-		margin-bottom: 8px;
-		font-weight: 600;
-		font-size: 16px;
-		white-space: nowrap;
-
-		&.has-error {
-		  box-shadow: 0 0 0 1px $white, 0 0 0 3px $alert-red;
-		  outline: 2px solid transparent;
-		  outline-offset: -2px;
+			&:first-child {
+				border-width: 1px 1px 1px 1px;
+			}
 		}
-	  }
+
+		&.donations__container {
+			border: 1px solid $gray-400;
+		}
+
+		& .donations__nav {
+			display: flex;
+			border-bottom: 1px solid $gray-400;
+		}
+
+		& .is-active {
+			background: var(--wp-admin-theme-color);
+			color: $white;
+			cursor: default;
+			border-color: var(--wp-admin-theme-color);
+		}
+
+		& .donations__amount {
+			display: inline-block;
+			padding: 16px 24px;
+			background-color: $white;
+			color: $gray-900;
+			border: 1px solid $gray-400;
+			margin-right: 8px;
+			margin-bottom: 8px;
+			font-weight: 600;
+			font-size: 16px;
+			white-space: nowrap;
+
+			&.has-error {
+				box-shadow: 0 0 0 1px $white, 0 0 0 3px $alert-red;
+				outline: 2px solid transparent;
+				outline-offset: -2px;
+			}
+		}
 	}
 
 	.donations__amounts:not( .donations__deprecated ) {
@@ -116,8 +132,8 @@
 		}
 	}
 
-  	.wp-block-jetpack-donations-amount {
-	  	display: flex;
+	.wp-block-jetpack-donations-amount {
+		display: flex;
 	}
 
 	.has-error {

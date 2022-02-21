@@ -180,13 +180,6 @@ const Edit = props => {
 
 	return (
 		<div className="wp-block-jetpack-donations">
-			{ ! shouldUpgrade && stripeConnectUrl && (
-				<StripeNudge
-					blockName="donations"
-					postId={ postId }
-					stripeConnectUrl={ stripeConnectUrl }
-				/>
-			) }
 			<div className="donations__container">
 				{ ( annualDonation || monthlyDonation ) && (
 					<div className="donations__nav">
@@ -205,6 +198,13 @@ const Edit = props => {
 								)
 						) }
 					</div>
+				) }
+				{ ! shouldUpgrade && stripeConnectUrl && (
+					<StripeNudge
+						blockName="donations"
+						postId={ postId }
+						stripeConnectUrl={ stripeConnectUrl }
+					/>
 				) }
 				<div
 					className={ classnames( 'donations__content', {
