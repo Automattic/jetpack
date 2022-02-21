@@ -27,13 +27,12 @@ import './style.scss';
 export default function RecordMeter() {
 	const tierMaximumRecords = useSelect( select => select( STORE_ID ).getTierMaximumRecords() );
 
-	// this.state = {
-	// 	recordInfo: getRecordInfo(createData().data, createData().planInfo),
-	//   };
-
 	const [ recordInfo, setRecordInfo ] = useState(
 		getRecordInfo( createData().data, createData().planInfo )
 	);
+
+	console.log( recordInfo.data );
+	console.log( recordInfo.isValid );
 
 	return (
 		<div className="jp-search-record-meter jp-search-dashboard-wrap">

@@ -2,16 +2,11 @@
  * External dependencies
  */
 import React from 'react';
+const Chart = React.lazy( () => import( 'chart.js/auto' ) );
 
 /**
  * Internal dependencies
  */
-// const ChartJS = React.lazy( () => import( 'chart.js' ) );
-// const { Chart, registerables } = ChartJS;
-
-// Chart.register( ...registerables );
-
-const Chart = React.lazy( () => import( 'chart.js/auto' ) );
 
 export class BarChart extends React.Component {
 	constructor( props ) {
