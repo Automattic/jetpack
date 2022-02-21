@@ -151,7 +151,7 @@ function render_block( $attr, $content, $block ) {
 
 	return sprintf(
 		$template,
-		esc_attr( Blocks::classes( 'donations', $attr ) ),
+		esc_attr( Blocks::classes( FEATURE_NAME, $attr ) ),
 		implode( "\n", $navigation_items ),
 		$content
 	);

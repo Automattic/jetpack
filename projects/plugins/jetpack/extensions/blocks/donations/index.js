@@ -52,6 +52,7 @@ export const settings = {
 		},
 	},
 	supports: {
+		className: false,
 		spacing: {
 			padding: true,
 		},
