@@ -179,7 +179,7 @@ class Backup extends Hybrid_Product {
 		if ( ( new Connection_Manager() )->is_user_connected() ) {
 			return ''; // Continue on the purchase flow or stay in My Jetpack page.
 		} else {
-			// If the user is not connected, the Backup purchase flow will not work properly, let's redirect the user to a place where he can buy the plan from.
+			// If the user is not connected, the Backup purchase flow will not work properly. Let's redirect the user to a place where they can buy the plan from.
 			if ( static::is_plugin_active() ) {
 				return admin_url( 'admin.php?page=jetpack-backup' );
 			} elseif ( static::is_jetpack_plugin_active() ) {
