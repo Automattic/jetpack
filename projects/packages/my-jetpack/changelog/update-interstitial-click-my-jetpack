@@ -1,0 +1,4 @@
+Significance: patch
+Type: changed
+
+Check if product needs connection before redirecting to checkout
