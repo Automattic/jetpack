@@ -26,6 +26,8 @@ class Jetpack_Plugin_Compatibility {
 		add_filter( 'plugin_install_action_links', array( $this, 'disable_plugin_install_link' ), 10, 2 );
 		// Print any notices about plugin deactivation
 		add_action( 'admin_notices', array( $this, 'incompatible_plugin_notices' ) );
+		// Disable My Jetpack page
+		add_filter( 'jetpack_my_jetpack_should_initialize', '__return_false' );
 	}
 
 	protected $admin_notices = array();
