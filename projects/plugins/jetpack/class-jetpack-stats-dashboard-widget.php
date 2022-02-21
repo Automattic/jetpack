@@ -48,10 +48,16 @@ class Jetpack_Stats_Dashboard_Widget {
 				$jetpack_logo->get_jp_emblem( true )
 			);
 
+			$aria_label = sprintf(
+				// translators: placeholder is the product name.
+				__( 'Stats by %s', 'jetpack' ),
+				'Jetpack'
+			);
 			// Wrap title in span so Logo can be properly styled.
 			$widget_title = sprintf(
-				'<span>%s</span>',
-				$widget_title
+				'<span aria-label="%2$s">%1$s</span>',
+				$widget_title,
+				$aria_label
 			);
 
 			wp_add_dashboard_widget(

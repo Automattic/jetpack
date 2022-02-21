@@ -8,7 +8,10 @@
 namespace Automattic\Jetpack\Search;
 
 use Automattic\Jetpack\Assets;
+use WP_Block_Parser;
+use WP_Block_Patterns_Registry;
 use WP_Error;
+use WP_REST_Templates_Controller;
 
 /**
  * Class responsible for enabling the Instant Search experience on the site.
@@ -315,6 +318,10 @@ class Instant_Search extends Classic_Search {
 		$this->auto_config_excluded_post_types();
 		$this->auto_config_overlay_sidebar_widgets();
 		$this->auto_config_woo_result_format();
+
+		if ( \current_theme_supports( 'block-templates' ) ) {
+			$this->add_search_block_above_footer();
+		}
 	}
 
 	/**
@@ -400,6 +407,143 @@ class Instant_Search extends Classic_Search {
 
 		update_option( $widget_opt_name, $widget_options );
 		update_option( 'sidebars_widgets', $sidebars );
+	}
+
+	/**
+	 * Add a search widget above footer for block templates.
+	 */
+	public function add_search_block_above_footer() {
+		if ( ! class_exists( 'WP_REST_Templates_Controller' ) ) {
+			return;
+		}
+		// We currently check only for a core search block.
+		// In the future, we will need to check for a Jetpack Search block once it's available.
+		if ( $this->template_parts_have_search_block() ) {
+			return;
+		}
+
+		$footer = $this->get_template_part( 'footer' );
+		if ( ! $footer instanceof \WP_Block_Template ) {
+			return;
+		}
+
+		$content          = $this->replace_block_patterns( $footer->content );
+		$template_part_id = $footer->id;
+		$request          = new \WP_REST_Request( 'PUT', "/wp/v2/template-parts/{$template_part_id}" );
+		$request->set_header( 'content-type', 'application/json' );
+		$request->set_param( 'content', static::inject_search_widget_to_block( $content ) );
+		$request->set_param( 'id', $template_part_id );
+		$controller = new WP_REST_Templates_Controller( 'wp_template_part' );
+		return $controller->update_item( $request );
+	}
+
+	/**
+	 * Replace pattern blocks with their content.
+	 * We don't want to replace recursively for the sake of simplicity.
+	 *
+	 * @param string $block_content - Content of template part.
+	 */
+	protected function replace_block_patterns( $block_content ) {
+		$matches = array();
+		if ( preg_match( '/<!--\s*wp:pattern\s+{.*}\s*\/-->/', $block_content, $matches ) > 0 ) {
+			foreach ( $matches as $match ) {
+				$pattern_content = $this->get_block_pattern_content( $match );
+				$block_content   = str_replace( $match, $pattern_content, $block_content );
+			}
+		}
+		return $block_content;
+	}
+
+	/**
+	 * Extracts block content only if it consists of a single pattern block.
+	 *
+	 * @param string $block_pattern - Block content.
+	 */
+	protected function get_block_pattern_content( $block_pattern ) {
+		if ( ! class_exists( 'WP_Block_Parser' ) || ! class_exists( 'WP_Block_Patterns_Registry' ) ) {
+			return $block_pattern;
+		}
+		$blocks = ( new WP_Block_Parser() )->parse( $block_pattern );
+		if ( 1 === count( $blocks ) && 'core/pattern' === $blocks[0]['blockName'] ) {
+			$slug     = $blocks[0]['attrs']['slug'];
+			$registry = WP_Block_Patterns_Registry::get_instance();
+			if ( $registry->is_registered( $slug ) ) {
+				$pattern = $registry->get_registered( $slug );
+				return $pattern['content'];
+			}
+		}
+		return $block_pattern;
+	}
+
+	/**
+	 * Get template part for current theme.
+	 *
+	 * @param string $template_part_name - header, footer, home etc.
+	 *
+	 * @return \WP_Block_Template
+	 */
+	protected function get_template_part( $template_part_name ) {
+		// Check whether block theme functions exist.
+		if ( ! function_exists( 'get_block_template' ) ) {
+			return null;
+		}
+		$active_theme     = \wp_get_theme()->get_stylesheet();
+		$template_part_id = "{$active_theme}//{$template_part_name}";
+		$template_part    = \get_block_template( $template_part_id, 'wp_template_part' );
+		if ( is_wp_error( $template_part ) || empty( $template_part ) ) {
+			return null;
+		}
+		return $template_part;
+	}
+
+	/**
+	 * Returns true if  'header', 'footer' or 'home' has core search block
+	 *
+	 * @return boolean
+	 */
+	protected function template_parts_have_search_block() {
+		$template_part_names = array( 'header', 'footer', 'home' );
+		foreach ( $template_part_names as $part_name ) {
+			$part = $this->get_template_part( $part_name );
+			if ( $part instanceof \WP_Block_Template && static::has_search_block( $part->content ) ) {
+				return true;
+			}
+		}
+		return false;
+	}
+
+	/**
+	 * Returns true if $block_content has core search block
+	 *
+	 * @param string $block_content - Block content.
+	 *
+	 * @return boolean
+	 */
+	public static function has_search_block( $block_content ) {
+		return preg_match( '/(<!--\swp:search\s[^>]*-->)/i', $block_content ) > 0;
+	}
+
+	/**
+	 * Append Search block to block if no 'wp:search' exists already.
+	 *
+	 * @param {string} $block_content - the content to append the search block.
+	 */
+	public static function inject_search_widget_to_block( $block_content ) {
+		$search_block = '<!-- wp:search {"label":"Jetpack Search","buttonText":"Search"} /-->';
+
+		// Place the search block on bottom of the first column if there's any.
+		$column_end_pattern = '/(<\s*\/div[^>]*>\s*<!--\s*\/wp:column\s+[^>]*-->)/';
+		if ( preg_match( $column_end_pattern, $block_content ) ) {
+			return preg_replace( $column_end_pattern, "\n" . $search_block . "\n$1", $block_content, 1 );
+		}
+
+		// Place the search block on top of footer contents in the most inner group.
+		$group_start_pattern = '/((<!--\s*wp:group\s[^>]*-->[.\s]*<\s*div[^>]*>\s*)+)/';
+		if ( preg_match( $group_start_pattern, $block_content, $matches ) ) {
+			return preg_replace( $group_start_pattern, "$1\n" . $search_block . "\n", $block_content, 1 );
+		}
+
+		return $block_content;
 	}
 
 	/**

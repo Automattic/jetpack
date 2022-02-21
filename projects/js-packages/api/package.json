@@ -1,6 +1,6 @@
 {
 	"name": "@automattic/jetpack-api",
-	"version": "0.8.4",
+	"version": "0.9.0-alpha",
 	"description": "Jetpack Api Package",
 	"author": "Automattic",
 	"license": "GPL-2.0-or-later",
@@ -10,7 +10,6 @@
 		"lodash": "4.17.21"
 	},
 	"devDependencies": {
-		"chai-fetch-mock": "3.0.0",
 		"fetch-mock": "9.11.0",
 		"jetpack-js-test-runner": "workspace:*",
 		"nyc": "15.1.0"

@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Search package: fix auto config doesn't add search input for block themes
