@@ -3,7 +3,7 @@
  * Customizations for unsupported plan Atomic sites.
  *
  * To enable and disable specific functionality for unsupported plan Atomic sites.
- * 
+ *
  * @package wpcomsh
  */
 
@@ -61,3 +61,39 @@ function wpcomsh_restrict_mimetypes_unsupported_plan( $mimes ) {
 }
 
 add_filter( 'upload_mimes', 'wpcomsh_restrict_mimetypes_unsupported_plan', 3 );
+
+/**
+ * Force calypso plugins page when site don't have supported WPCOM plan
+ * Prevent users from directly accessing plugins page
+ */
+function wpcomsh_force_calypso_plugin_pages_on_unsupported_plan() {
+	if ( Atomic_Plan_Manager::has_atomic_supported_plan() ) {
+		return;
+	}
+
+	if ( ! class_exists( 'Automattic\Jetpack\Status' ) ) {
+		return;
+	}
+
+	$site = ( new Automattic\Jetpack\Status() )->get_site_suffix();
+
+	// Redirect to calypso when user is trying to install plugin.
+	add_action(
+		'load-plugin-install.php',
+		function() use ( $site ) {
+			wp_safe_redirect( 'https://wordpress.com/plugins/' . $site );
+			exit;
+		}
+	);
+
+	// Redirect to calypso when user wants to manage plugin.
+	add_action(
+		'load-plugins.php',
+		function() use ( $site ) {
+			wp_safe_redirect( 'https://wordpress.com/plugins/manage/' . $site );
+			exit;
+		}
+	);
+}
+
+add_action( 'plugins_loaded', 'wpcomsh_force_calypso_plugin_pages_on_unsupported_plan' );
