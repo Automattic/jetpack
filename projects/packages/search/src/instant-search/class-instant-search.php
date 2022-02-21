@@ -25,6 +25,16 @@ class Instant_Search extends Classic_Search {
 	 */
 	const INSTANT_SEARCH_SIDEBAR = 'jetpack-instant-search-sidebar';
 
+	const AUTO_CONFIG_SIDEBAR = 'sidebar-1';
+
+	/**
+	 * The singleton instance of this class.
+	 * Instant_Search shouldn't share the variable with its parent.
+	 *
+	 * @var Instant_Search
+	 */
+	private static $instance;
+
 	/**
 	 * Variable to save old sidebars_widgets value.
 	 *
@@ -36,6 +46,23 @@ class Instant_Search extends Classic_Search {
 	 * @var array
 	 */
 	protected $old_sidebars_widgets;
+
+	/**
+	 * Returns a class singleton. Initializes with first-time setup if given a blog ID parameter.
+	 *
+	 * @param string $blog_id Blog id.
+	 * @return static The class singleton.
+	 */
+	public static function instance( $blog_id = null ) {
+		if ( ! isset( self::$instance ) ) {
+			if ( null === $blog_id ) {
+				$blog_id = Helper::get_wpcom_site_id();
+			}
+			self::$instance = new static();
+			self::$instance->setup( $blog_id );
+		}
+		return self::$instance;
+	}
 
 	/**
 	 * Setup the various hooks needed for the plugin to take over search duties.
@@ -73,7 +100,7 @@ class Instant_Search extends Classic_Search {
 	 * Loads assets for Jetpack Instant Search Prototype featuring Search As You Type experience.
 	 */
 	public function load_assets() {
-			$this->load_assets_with_parameters( constant( 'JETPACK_SEARCH_PKG__DIR' ) );
+		$this->load_assets_with_parameters( constant( 'JETPACK_SEARCH_PKG__DIR' ) );
 	}
 
 	/**
@@ -112,7 +139,7 @@ class Instant_Search extends Classic_Search {
 	public function register_jetpack_instant_sidebar() {
 		$args = array(
 			'name'          => __( 'Jetpack Search Sidebar', 'jetpack-search-pkg' ),
-			'id'            => 'jetpack-instant-search-sidebar',
+			'id'            => self::INSTANT_SEARCH_SIDEBAR,
 			'description'   => __( 'Customize the sidebar inside the Jetpack Search overlay', 'jetpack-search-pkg' ),
 			'class'         => '',
 			'before_widget' => '<div id="%1$s" class="widget %2$s">',
@@ -251,8 +278,8 @@ class Instant_Search extends Classic_Search {
 		}
 
 		$took = is_array( $response ) && ! empty( $response['took'] )
-			? $response['took']
-			: null;
+		? $response['took']
+		: null;
 
 		$query = array(
 			'args'          => $args,
@@ -312,107 +339,182 @@ class Instant_Search extends Classic_Search {
 	 * @since  8.3.0
 	 */
 	public function auto_config_search() {
-		// Set default result format to "expanded".
-		update_option( Options::OPTION_PREFIX . 'result_format', Options::RESULT_FORMAT_EXPANDED );
-
 		$this->auto_config_excluded_post_types();
 		$this->auto_config_overlay_sidebar_widgets();
-		$this->auto_config_woo_result_format();
+		$this->auto_config_theme_sidebar_search_widget();
+		$this->auto_config_result_format();
+	}
 
+	/**
+	 * Auto config search widget or block for current theme.
+	 */
+	public function auto_config_theme_sidebar_search_widget() {
 		if ( \current_theme_supports( 'block-templates' ) ) {
-			$this->add_search_block_above_footer();
+			$this->auto_config_fse_theme_footer_search_block();
+		} else {
+			$this->auto_config_non_fse_theme_sidebar_search_widget();
 		}
 	}
 
 	/**
-	 * Automatically copy configured search widgets into the overlay sidebar
+	 * Automatically copy configured search widgets from theme sidebar to the overlay sidebar.
+	 * If there's nothing to copy, we create one.
 	 *
 	 * @since  8.8.0
 	 */
 	public function auto_config_overlay_sidebar_widgets() {
-		global $wp_registered_sidebars;
-		$sidebars = get_option( 'sidebars_widgets', array() );
-		$slug     = Helper::FILTER_WIDGET_BASE;
-
-		if ( isset( $sidebars['jetpack-instant-search-sidebar'] ) ) {
-			foreach ( (array) $sidebars['jetpack-instant-search-sidebar'] as $widget_id ) {
-				if ( 0 === strpos( $widget_id, $slug ) ) {
-					// Already configured.
-					return;
-				}
-			}
-		}
-
-		$has_sidebar           = isset( $wp_registered_sidebars['sidebar-1'] );
-		$sidebar_id            = false;
-		$sidebar_searchbox_idx = false;
-		if ( $has_sidebar ) {
-			if ( empty( $sidebars['sidebar-1'] ) ) {
-				// Adding to an empty sidebar is generally a bad idea.
-				$has_sidebar = false;
-			}
-			foreach ( (array) $sidebars['sidebar-1'] as $idx => $widget_id ) {
-				if ( 0 === strpos( $widget_id, 'search-' ) ) {
-					$sidebar_searchbox_idx = $idx;
-				}
-				if ( 0 === strpos( $widget_id, $slug ) ) {
-					$sidebar_id = (int) str_replace( Helper::FILTER_WIDGET_BASE . '-', '', $widget_id );
-					break;
-				}
-			}
-		}
-
-		$next_id         = 1;
-		$widget_opt_name = Helper::get_widget_option_name();
-		$widget_options  = get_option( $widget_opt_name, array() );
-		foreach ( $widget_options as $id => $w ) {
-			$id = intval( $id );
-			if ( $id >= $next_id ) {
-				$next_id = $id + 1;
-			}
-		}
-
-		// Copy sidebar settings to overlay.
-		if ( ( false !== $sidebar_id ) && isset( $widget_options[ $sidebar_id ] ) ) {
-			$widget_options[ $next_id ] = $widget_options[ $sidebar_id ];
-			update_option( $widget_opt_name, $widget_options );
-
-			if ( ! isset( $sidebars['jetpack-instant-search-sidebar'] ) ) {
-				$sidebars['jetpack-instant-search-sidebar'] = array();
-			}
-			array_unshift( $sidebars['jetpack-instant-search-sidebar'], Helper::build_widget_id( $next_id ) );
-			update_option( 'sidebars_widgets', $sidebars );
-
+		$sidebars                              = get_option( 'sidebars_widgets', array() );
+		list(,$sidebar_jp_searchbox_wiget_id ) = $this->get_search_widget_indices( $sidebars, self::INSTANT_SEARCH_SIDEBAR );
+		// If there's JP search widget in overly sidebar, abort.
+		if ( false !== $sidebar_jp_searchbox_wiget_id ) {
 			return;
 		}
 
-		// Configure overlay and sidebar (if it exists).
-		$preconfig_opts = $this->get_preconfig_widget_options();
-		if ( ! isset( $sidebars['jetpack-instant-search-sidebar'] ) ) {
-			$sidebars['jetpack-instant-search-sidebar'] = array();
+		// Init overlay sidebar if it doesn't exists.
+		if ( ! isset( $sidebars[ self::INSTANT_SEARCH_SIDEBAR ] ) ) {
+			$sidebars[ self::INSTANT_SEARCH_SIDEBAR ] = array();
 		}
-		if ( $has_sidebar ) {
-			$widget_options[ $next_id ] = $preconfig_opts;
-			if ( false !== $sidebar_searchbox_idx ) {
-				// Replace Core search box.
-				$sidebars['sidebar-1'][ $sidebar_searchbox_idx ] = Helper::build_widget_id( $next_id );
-			} else {
-				// Add to top.
-				array_unshift( $sidebars['sidebar-1'], Helper::build_widget_id( $next_id ) );
-			}
-			$next_id++;
+
+		$widget_opt_name = Helper::get_widget_option_name();
+		$widget_options  = get_option( $widget_opt_name, array() );
+
+		$next_id = $this->get_next_jp_search_widget_id( $widget_options );
+
+		list(,$sidebar_jp_searchbox_wiget_id ) = $this->get_search_widget_indices( $sidebars, self::AUTO_CONFIG_SIDEBAR );
+		if ( false !== $sidebar_jp_searchbox_wiget_id && isset( $widget_options[ $sidebar_jp_searchbox_wiget_id ] ) ) {
+			// If there is a JP search widget in the theme sidebar, copy it over to the search overlay sidebar.
+			$widget_options[ $next_id ] = $widget_options[ $sidebar_jp_searchbox_wiget_id ];
+		} else {
+			// If JP Search widget doesn't exist in the theme sidebar, we have nothing to copy from, so we create a new one within the overlay sidebar.
+			$widget_options[ $next_id ] = $this->get_preconfig_widget_options();
 		}
+		array_unshift( $sidebars[ self::INSTANT_SEARCH_SIDEBAR ], Helper::build_widget_id( $next_id ) );
+		update_option( $widget_opt_name, $widget_options );
+		update_option( 'sidebars_widgets', $sidebars );
+		return true;
+	}
+
+	/**
+	 * Add JP Search widget on top of theme sidebar.
+	 * Or Replace core search widget in theme sidebar if exists.
+	 */
+	public function auto_config_non_fse_theme_sidebar_search_widget() {
+		$sidebars = get_option( 'sidebars_widgets', array() );
+		if ( ! isset( $sidebars[ self::AUTO_CONFIG_SIDEBAR ] ) ) {
+			return;
+		}
+
+		list( $sidebar_searchbox_idx,$sidebar_jp_searchbox_wiget_id ) = $this->get_search_widget_indices( $sidebars );
+		// If there's JP search widget in theme sidebar, abort.
+		if ( false !== $sidebar_jp_searchbox_wiget_id ) {
+			return;
+		}
+
+		$widget_opt_name = Helper::get_widget_option_name();
+		$widget_options  = get_option( $widget_opt_name, array() );
+
+		list($sidebar_searchbox_idx, ) = $this->get_search_widget_indices( $sidebars );
+		$next_id                       = $this->get_next_jp_search_widget_id( $widget_options );
+		$preconfig_opts                = $this->get_preconfig_widget_options();
+
 		$widget_options[ $next_id ] = $preconfig_opts;
-		array_unshift( $sidebars['jetpack-instant-search-sidebar'], Helper::build_widget_id( $next_id ) );
+		if ( false !== $sidebar_searchbox_idx ) {
+			// Replace core search widget with JP search widget.
+			$sidebars[ self::AUTO_CONFIG_SIDEBAR ][ $sidebar_searchbox_idx ] = Helper::build_widget_id( $next_id );
+		} else {
+			// Add JP Search widget to top.
+			array_unshift( $sidebars[ self::AUTO_CONFIG_SIDEBAR ], Helper::build_widget_id( $next_id ) );
+		}
 
 		update_option( $widget_opt_name, $widget_options );
 		update_option( 'sidebars_widgets', $sidebars );
+		return true;
+	}
+
+	/**
+	 * Get the next ID for the Jetpack Search widget, which is equivalent to the last JP Search widget ID + 1.
+	 *
+	 * @param array $widget_options - jetpack widget option value.
+	 *
+	 * @return int
+	 */
+	public function get_next_jp_search_widget_id( $widget_options ) {
+		return ! empty( $widget_options ) ? max(
+			array_map(
+				function ( $val ) {
+					return intval( $val );
+				},
+				array_keys( $widget_options )
+			)
+		) + 1 : 1;
+	}
+
+	/**
+	 * Get search and JP Search widget indices in theme sidebar.
+	 *
+	 * @param array  $sidebars - theme `sidebars_widgets` option value.
+	 * @param string $sidebar_id - the sidebar id to search on.
+	 *
+	 * @return array - core search widget index and JP search widget id.
+	 */
+	protected function get_search_widget_indices( $sidebars, $sidebar_id = 'sidebar-1' ) {
+		$sidebar_searchbox_idx   = false;
+		$sidebar_jp_searchbox_id = false;
+		if ( isset( $sidebars[ $sidebar_id ] ) ) {
+			foreach ( (array) $sidebars[ $sidebar_id ] as $idx => $widget_id ) {
+				if ( $this->widget_has_search_block( $widget_id ) ) {
+					// The array index of wp search widget.
+					$sidebar_searchbox_idx = $idx;
+				}
+				if ( 0 === strpos( $widget_id, Helper::FILTER_WIDGET_BASE ) ) {
+					// The id of Jetpack Search widget.
+					$sidebar_jp_searchbox_id = str_replace( Helper::FILTER_WIDGET_BASE . '-', '', $widget_id );
+				}
+			}
+		}
+		return array( $sidebar_searchbox_idx, $sidebar_jp_searchbox_id );
+	}
+
+	/**
+	 * Returns true if search widget or block exists in widgets
+	 *
+	 * @param string $widget_id - widget ID.
+	 */
+	protected function widget_has_search_block( $widget_id ) {
+		// test search widget.
+		if ( 0 === strpos( $widget_id, 'search-' ) ) {
+			return true;
+		}
+		// test search block widget.
+		if ( 0 === strpos( $widget_id, 'block-' ) ) {
+			$widget_blocks = get_option( 'widget_block', array() );
+			$widget_index  = str_replace( 'block-', '', $widget_id );
+			// A single block could be of type string or array.
+			if ( isset( $widget_blocks[ $widget_index ]['content'] ) && false !== strpos( (string) $widget_blocks[ $widget_index ]['content'], 'wp:search' ) ) {
+				return true;
+			}
+			if ( isset( $widget_blocks[ $widget_index ] ) && is_string( $widget_blocks[ $widget_index ] ) && false !== strpos( $widget_blocks[ $widget_index ], 'wp:search' ) ) {
+				return true;
+			}
+		}
+		return false;
+	}
+
+	/**
+	 * Returns true if $block_content has core search block
+	 *
+	 * @param string $block_content - Block content.
+	 *
+	 * @return boolean
+	 */
+	public static function content_has_search_block( $block_content ) {
+		return preg_match( '/(<!--\swp:search\s[^>]*-->)/i', $block_content ) > 0;
 	}
 
 	/**
 	 * Add a search widget above footer for block templates.
 	 */
-	public function add_search_block_above_footer() {
+	public function auto_config_fse_theme_footer_search_block() {
 		if ( ! class_exists( 'WP_REST_Templates_Controller' ) ) {
 			return;
 		}
@@ -505,22 +607,11 @@ class Instant_Search extends Classic_Search {
 		$template_part_names = array( 'header', 'footer', 'home' );
 		foreach ( $template_part_names as $part_name ) {
 			$part = $this->get_template_part( $part_name );
-			if ( $part instanceof \WP_Block_Template && static::has_search_block( $part->content ) ) {
+			if ( $part instanceof \WP_Block_Template && static::content_has_search_block( $part->content ) ) {
 				return true;
 			}
 		}
 		return false;
-	}
-
-	/**
-	 * Returns true if $block_content has core search block
-	 *
-	 * @param string $block_content - Block content.
-	 *
-	 * @return boolean
-	 */
-	public static function has_search_block( $block_content ) {
-		return preg_match( '/(<!--\swp:search\s[^>]*-->)/i', $block_content ) > 0;
 	}
 
 	/**
@@ -621,7 +712,8 @@ class Instant_Search extends Classic_Search {
 	}
 
 	/**
-	 * Automatically configure post types to exclude from one of the search widgets
+	 * Automatically configure post types to exclude from one of the search widgets.
+	 * Used primarily for backward compatibility with older Jetpack plugins, which used to store excluded post type configuration within the Jetpack Search plugin instead of as an option.
 	 *
 	 * @since  8.8.0
 	 */
@@ -653,21 +745,31 @@ class Instant_Search extends Classic_Search {
 	}
 
 	/**
-	 * Automatically set result format to 'product' if WooCommerce is installed
+	 * Automatically set result format.
 	 *
 	 * @since  9.6.0
 	 */
-	public function auto_config_woo_result_format() {
+	public function auto_config_result_format() {
+		$result_format_option_name = Options::OPTION_PREFIX . 'result_format';
+		// Default format `expanded`.
+		$result_format_option_value = Options::RESULT_FORMAT_EXPANDED;
+
+		// Result format already set, skip.
+		if ( get_option( $result_format_option_name, false ) ) {
+			return;
+		}
+
 		// Check if WooCommerce plugin is active (based on https://docs.woocommerce.com/document/create-a-plugin/).
-		if ( ! in_array(
+		if ( in_array(
 			'woocommerce/woocommerce.php',
 			apply_filters( 'active_plugins', Helper::get_active_plugins() ),
 			true
 		) ) {
-			return false;
+			$result_format_option_value = Options::RESULT_FORMAT_PRODUCT;
 		}
 
-		update_option( Options::OPTION_PREFIX . 'result_format', Options::RESULT_FORMAT_PRODUCT );
+		update_option( $result_format_option_name, $result_format_option_value );
+		return true;
 	}
 
 	/**
