@@ -1,0 +1,4 @@
+Significance: patch
+Type: changed
+
+Add $check_for_feature_flag argument to My Jetpack init method defaulting to false
