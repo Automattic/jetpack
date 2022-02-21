@@ -30,12 +30,17 @@ class Initializer {
 	const PACKAGE_VERSION = '0.6.2-alpha';
 
 	/**
-	 * Initialize My Jetapack
+	 * Initialize My Jetpack
+	 *
+	 * If $check_for_feature_flag is true, My Jetpack will only be loaded if the constant JETPACK_ENABLE_MY_JETPACK is set to true.
+	 * This helps with integration on plugins that just started including the My Jetpack page.
+	 *
+	 * @param boolean $check_for_feature_flag Whether to check for presence of feature flag before deciding to load My Ketpack. Defaults to false.
 	 *
 	 * @return void
 	 */
-	public static function init() {
-		if ( ! self::should_initialize() ) {
+	public static function init( $check_for_feature_flag = false ) {
+		if ( ! self::should_initialize( $check_for_feature_flag ) ) {
 			return;
 		}
 
@@ -183,8 +188,10 @@ class Initializer {
 
 	/**
 	 * Return true if we should initialize the My Jetpack
+	 *
+	 * @param boolean $check_for_feature_flag Whether to check for presence of feature flag before returning true.
 	 */
-	public static function should_initialize() {
+	public static function should_initialize( $check_for_feature_flag ) {
 		if ( did_action( 'my_jetpack_init' ) ) {
 			return false;
 		}
@@ -199,7 +206,7 @@ class Initializer {
 		$should = apply_filters( 'jetpack_my_jetpack_should_initialize', true );
 
 		// Feature flag while we are developing it.
-		if ( ! defined( 'JETPACK_ENABLE_MY_JETPACK' ) || ! JETPACK_ENABLE_MY_JETPACK ) {
+		if ( $check_for_feature_flag && ( ! defined( 'JETPACK_ENABLE_MY_JETPACK' ) || ! JETPACK_ENABLE_MY_JETPACK ) ) {
 			return false;
 		}
 
