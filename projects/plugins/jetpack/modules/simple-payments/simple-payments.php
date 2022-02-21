@@ -100,18 +100,18 @@ class Jetpack_Simple_Payments {
 			null,
 			true
 		);
-		wp_register_script( // phpcs:ignore WordPress.WP.EnqueuedResourceParameters.MissingVersion
+		wp_register_script(
 			'jetpack-paypal-express-checkout',
 			plugins_url( '/paypal-express-checkout.js', __FILE__ ),
 			array( 'jquery', 'paypal-checkout-js' ),
-			null,
+			JETPACK__VERSION,
 			false
 		);
-		wp_register_style( // phpcs:ignore WordPress.WP.EnqueuedResourceParameters.MissingVersion
+		wp_register_style(
 			'jetpack-simple-payments',
 			plugins_url( '/simple-payments.css', __FILE__ ),
 			array( 'dashicons' ),
-			null,
+			JETPACK__VERSION,
 			false
 		);
 	}
