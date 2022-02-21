@@ -7,11 +7,13 @@
 	--product-card-actions-font-size: 12px;
 	--product-card-margin-base: 4px;
 	--product-card-actions-size: 36px;
+	--jp-black: #000;
 	--status-size: 8px;
 	--status-active: #008710;
 	--status-inactive: #646970;
 	--status-error: #B32D2E;
 	--status-plugin_absent: #C3C4C7;
+	--jp-underline-thickness: 2px;
 
 	padding: 24px;
 	background: var( --jp-white );
@@ -55,6 +57,11 @@
 	font-size: var(--product-card-actions-font-size);
 	font-weight: 600;
 	flex-wrap: wrap;
+
+	.action-link-button:hover {
+		color: var(--jp-black);
+		text-decoration-thickness: var(--jp-underline-thickness);
+	}
 }
 
 .group {
