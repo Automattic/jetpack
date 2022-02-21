@@ -40,9 +40,7 @@ class WP_Test_Jetpack_Sync_Updates extends WP_Test_Jetpack_Sync_Base {
 		$this->assertFalse( isset( $updates->no_update ) );
 		$this->assertTrue( is_int( $updates->last_checked ) );
 
-		$this->assertTrue( isset( $updates->response ) );
-		$plugin_name = array_key_first( $updates->response );
-		$this->assertSame( 'hello', $plugin_name );
+		$this->assertArrayHasKey( 'hello', $updates->response );
 	}
 
 	public function test_update_plugins_is_synced_once() {
