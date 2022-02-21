@@ -6,3 +6,15 @@
 		height: 100%;
 	}
 }
+
+.layout {
+	display: flex;
+	height: 100%;
+	flex-direction: column;
+	justify-content: space-between;
+	margin-left: -20px; // to neutralize the padding of #wpcontent.
+
+	@media (max-width: 782px) {
+		margin-left: -10px; // to neutralize the padding of #wpcontent.
+	}
+}
