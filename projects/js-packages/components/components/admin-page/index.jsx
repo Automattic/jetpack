@@ -4,7 +4,6 @@
 import React from 'react';
 import { __ } from '@wordpress/i18n';
 import PropTypes from 'prop-types';
-import classNames from 'classnames';
 
 /**
  * Internal dependencies
@@ -24,13 +23,10 @@ import Col from '../layout/col';
  * @returns {React.Component} AdminPage component.
  */
 const AdminPage = props => {
-	const { children, moduleName, a8cLogoHref, showHeader, showFooter, showBackground } = props;
-	const adminClassName = classNames( styles[ 'admin-page' ], {
-		[ styles.background ]: showBackground,
-	} );
+	const { children, moduleName, a8cLogoHref, showHeader, showFooter } = props;
 
 	return (
-		<div className={ adminClassName }>
+		<div className={ styles[ 'admin-page' ] }>
 			{ showHeader && (
 				<Container horizontalSpacing={ 5 }>
 					<Col>
@@ -57,7 +53,6 @@ AdminPage.defaultProps = {
 	moduleName: __( 'Jetpack', 'jetpack' ),
 	showHeader: true,
 	showFooter: true,
-	showBackground: true,
 };
 
 AdminPage.propTypes = {
@@ -69,8 +64,6 @@ AdminPage.propTypes = {
 	showHeader: PropTypes.bool,
 	/** Whether or not to display the Footer */
 	showFooter: PropTypes.bool,
-	/** Whether or not to display the background color */
-	showBackground: PropTypes.bool,
 };
 
 export default AdminPage;
