@@ -20,7 +20,7 @@ import {
  * @param {object} action
  * @returns {string}
  */
-export const error = ( state = window.Initial_State.licensing?.error ?? '', action ) => {
+export const error = ( state = window.Initial_State.licensing.error, action ) => {
 	switch ( action.type ) {
 		case JETPACK_LICENSING_ERROR_UPDATE:
 			return action.error;
@@ -37,7 +37,7 @@ export const error = ( state = window.Initial_State.licensing?.error ?? '', acti
  * @param {object} action - The action
  * @returns {object} - The counts of user licenses
  */
-export const userCounts = ( state = window.Initial_State.licensing?.userCounts ?? {}, action ) => {
+export const userCounts = ( state = window.Initial_State.licensing.userCounts ?? {}, action ) => {
 	switch ( action.type ) {
 		case JETPACK_LICENSING_USER_LICENSE_COUNTS_UPDATE:
 			return assign( {}, state, action.counts );
@@ -55,7 +55,7 @@ export const userCounts = ( state = window.Initial_State.licensing?.userCounts ?
  * @returns {object} - The 'last_detached_count' and 'last_dismissed_time'
  */
 export const activationNoticeDismiss = (
-	state = window.Initial_State.licensing?.activationNoticeDismiss ?? {
+	state = window.Initial_State.licensing.activationNoticeDismiss ?? {
 		last_detached_count: null,
 		last_dismissed_time: null,
 	},

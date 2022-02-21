@@ -7,7 +7,7 @@ import thunk from 'redux-thunk';
 /**
  * Internal dependencies
  */
-import reducer from 'state/plugins-reducer';
+import reducer from 'state/reducer-minimal';
 
 export default createJetpackStore();
 
