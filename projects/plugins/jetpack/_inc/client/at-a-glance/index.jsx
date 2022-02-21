@@ -14,6 +14,7 @@ import { withModuleSettingsFormHelpers } from 'components/module-settings/with-m
 import DashSectionHeader from 'components/dash-section-header';
 import DashActivity from './activity';
 import DashBoost from './boost';
+import DashCRM from './crm';
 import DashStats from './stats/index.jsx';
 import DashProtect from './protect';
 import DashMonitor from './monitor';
@@ -30,15 +31,22 @@ import QuerySite from 'components/data/query-site';
 import QueryScanStatus from 'components/data/query-scan-status';
 import {
 	isAtomicSite,
+	getApiNonce,
+	getApiRootUrl,
+	getPartnerCoupon,
+	getPluginBaseUrl,
+	getRegistrationNonce,
+	getTracksUserData,
 	isMultisite,
 	userCanManageModules,
 	userCanManagePlugins,
 	userCanViewStats,
 	userIsSubscriber,
 } from 'state/initial-state';
-import { isOfflineMode, hasConnectedOwner } from 'state/connection';
+import { isOfflineMode, hasConnectedOwner, getConnectionStatus } from 'state/connection';
 import { getModuleOverride } from 'state/modules';
 import { getScanStatus, isFetchingScanStatus } from 'state/scan';
+import { PartnerCouponRedeem } from '@automattic/jetpack-partner-coupon';
 
 class AtAGlance extends Component {
 	trackSecurityClick = () => analytics.tracks.recordJetpackClick( 'aag_manage_security_wpcom' );
@@ -155,14 +163,32 @@ class AtAGlance extends Component {
 			}
 
 			if ( this.props.userCanManagePlugins ) {
-				performanceCards.push( <DashBoost siteAdminUrl={ this.props.siteAdminUrl } /> );
+				performanceCards.push(
+					<DashBoost siteAdminUrl={ this.props.siteAdminUrl } />,
+					<DashCRM siteAdminUrl={ this.props.siteAdminUrl } />
+				);
 			}
+
+			const redeemPartnerCoupon = ! this.props.isOfflineMode && this.props.partnerCoupon && (
+				<PartnerCouponRedeem
+					apiNonce={ this.props.apiNonce }
+					registrationNonce={ this.props.registrationNonce }
+					apiRoot={ this.props.apiRoot }
+					assetBaseUrl={ this.props.pluginBaseUrl }
+					connectionStatus={ this.props.connectionStatus }
+					partnerCoupon={ this.props.partnerCoupon }
+					siteRawUrl={ this.props.siteRawUrl }
+					tracksUserData={ !! this.props.tracksUserData }
+					analytics={ analytics }
+				/>
+			);
 
 			return (
 				<div className="jp-at-a-glance">
 					<QuerySitePlugins />
 					<QuerySite />
 					<QueryScanStatus />
+					{ redeemPartnerCoupon }
 					<DashStats { ...settingsProps } { ...urls } />
 					<Section
 						header={ securityHeader }
@@ -218,6 +244,13 @@ export default connect( state => {
 		scanStatus: getScanStatus( state ),
 		fetchingScanStatus: isFetchingScanStatus( state ),
 		hasConnectedOwner: hasConnectedOwner( state ),
+		connectionStatus: getConnectionStatus( state ),
+		partnerCoupon: getPartnerCoupon( state ),
+		pluginBaseUrl: getPluginBaseUrl( state ),
+		tracksUserData: getTracksUserData( state ),
+		apiRoot: getApiRootUrl( state ),
+		apiNonce: getApiNonce( state ),
+		registrationNonce: getRegistrationNonce( state ),
 	};
 } )( withModuleSettingsFormHelpers( AtAGlance ) );
 

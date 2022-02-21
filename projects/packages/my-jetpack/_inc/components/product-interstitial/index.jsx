@@ -13,19 +13,28 @@ import useAnalytics from '../../hooks/use-analytics';
 import boostImage from './boost.png';
 import searchImage from './search.png';
 import videoPressImage from './videopress.png';
+import crmImage from './crm.png';
 import { useProduct } from '../../hooks/use-product';
+import useMyJetpackNavigate from '../../hooks/use-my-jetpack-navigate';
+import getProductCheckoutUrl from '../../utils/get-product-checkout-url';
+import useMyJetpackConnection from '../../hooks/use-my-jetpack-connection';
 
 /**
  * Product Interstitial component.
  *
- * @param {object} props          - Component props.
- * @param {string} props.slug     - Product slug
- * @param {object} props.children - Product additional content
- * @returns {object}                ProductInterstitial react component.
+ * @param {object} props                 - Component props.
+ * @param {string} props.slug            - Product slug
+ * @param {object} props.children        - Product additional content
+ * @param {boolean} props.installsPlugin - Whether the interstitial button installs a plugin*
+ * @returns {object}                       ProductInterstitial react component.
  */
-export default function ProductInterstitial( { slug, children = null } ) {
-	const { detail } = useProduct( slug );
-	const { isUpgradableByBundle } = detail;
+export default function ProductInterstitial( { installsPlugin = false, slug, children = null } ) {
+	const { activate, detail } = useProduct( slug );
+	const {
+		isUpgradableByBundle,
+		pricingForUi: { isFree, wpcomProductSlug },
+		hasRequiredPlan,
+	} = detail;
 
 	const {
 		tracks: { recordEvent },
@@ -40,6 +49,33 @@ export default function ProductInterstitial( { slug, children = null } ) {
 	}, [ recordEvent, slug ] );
 
 	const Product = isUpgradableByBundle ? ProductDetailCard : ProductDetail;
+	const { isUserConnected } = useMyJetpackConnection();
+
+	const needsPurchase = ! isFree && ! hasRequiredPlan;
+
+	const navigateToMyJetpackOverviewPage = useMyJetpackNavigate( '/' );
+
+	const clickHandler = useCallback( () => {
+		if ( ! installsPlugin ) {
+			return;
+		}
+
+		activate().finally( function () {
+			if ( ! needsPurchase || ! wpcomProductSlug ) {
+				return navigateToMyJetpackOverviewPage();
+			}
+
+			// Redirect to the checkout page.
+			window.location.href = getProductCheckoutUrl( wpcomProductSlug, isUserConnected );
+		} );
+	}, [
+		installsPlugin,
+		activate,
+		needsPurchase,
+		navigateToMyJetpackOverviewPage,
+		wpcomProductSlug,
+		isUserConnected,
+	] );
 
 	return (
 		<Container
@@ -48,10 +84,14 @@ export default function ProductInterstitial( { slug, children = null } ) {
 			horizontalGap={ 0 }
 			fluid
 		>
-			<Col sm={ 4 } md={ 4 } lg={ 5 }>
-				<Product slug={ slug } trackButtonClick={ trackProductClick } />
+			<Col sm={ 4 } md={ 4 } lg={ 7 }>
+				<Product
+					slug={ slug }
+					trackButtonClick={ trackProductClick }
+					onClick={ installsPlugin ? clickHandler : undefined }
+				/>
 			</Col>
-			<Col sm={ 4 } md={ 4 } lg={ 7 } className={ styles.imageContainer }>
+			<Col sm={ 4 } md={ 4 } lg={ 5 } className={ styles.imageContainer }>
 				{ children }
 			</Col>
 		</Container>
@@ -65,7 +105,7 @@ export default function ProductInterstitial( { slug, children = null } ) {
  */
 export function AntiSpamInterstitial() {
 	return (
-		<ProductInterstitial slug="anti-spam">
+		<ProductInterstitial slug="anti-spam" installsPlugin={ true }>
 			<ProductDetailCard slug="security" />
 		</ProductInterstitial>
 	);
@@ -78,7 +118,7 @@ export function AntiSpamInterstitial() {
  */
 export function BackupInterstitial() {
 	return (
-		<ProductInterstitial slug="backup">
+		<ProductInterstitial slug="backup" installsPlugin={ true }>
 			<ProductDetailCard slug="security" />
 		</ProductInterstitial>
 	);
@@ -91,8 +131,21 @@ export function BackupInterstitial() {
  */
 export function BoostInterstitial() {
 	return (
-		<ProductInterstitial slug="boost">
+		<ProductInterstitial slug="boost" installsPlugin={ true }>
 			<img src={ boostImage } alt="Boost" />
+		</ProductInterstitial>
+	);
+}
+
+/**
+ * CRMInterstitial component
+ *
+ * @returns {object} CRMInterstitial react component.
+ */
+export function CRMInterstitial() {
+	return (
+		<ProductInterstitial slug="crm" installsPlugin={ true }>
+			<img src={ crmImage } alt="CRM" />
 		</ProductInterstitial>
 	);
 }
@@ -104,7 +157,7 @@ export function BoostInterstitial() {
  */
 export function ScanInterstitial() {
 	return (
-		<ProductInterstitial slug="scan">
+		<ProductInterstitial slug="scan" installsPlugin={ true }>
 			<ProductDetailCard slug="security" />
 		</ProductInterstitial>
 	);
@@ -117,7 +170,7 @@ export function ScanInterstitial() {
  */
 export function SearchInterstitial() {
 	return (
-		<ProductInterstitial slug="search">
+		<ProductInterstitial slug="search" installsPlugin={ true }>
 			<img src={ searchImage } alt="Search" />
 		</ProductInterstitial>
 	);
@@ -130,7 +183,7 @@ export function SearchInterstitial() {
  */
 export function VideoPressInterstitial() {
 	return (
-		<ProductInterstitial slug="videopress">
+		<ProductInterstitial slug="videopress" installsPlugin={ true }>
 			<img src={ videoPressImage } alt="VideoPress" />
 		</ProductInterstitial>
 	);

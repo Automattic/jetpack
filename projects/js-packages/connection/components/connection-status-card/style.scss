@@ -45,10 +45,7 @@
 	}
 
 	&--btn-connect-user {
-		height: 40px;
 		font-size: var( --font-body-small );
-		border-radius: 4px;
-		background: var( --jp-black ) !important;
 	}
 
 	&--avatar {
@@ -75,7 +72,6 @@
 
 	&--list {
 		margin: 16px 0;
-
 		list-style-type: none;
 
 		li {

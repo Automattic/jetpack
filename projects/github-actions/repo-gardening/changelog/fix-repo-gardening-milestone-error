@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Milestone management: avoid throwing an error when a valid milestone cannot be found. Abort task instead.
