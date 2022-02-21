@@ -9,7 +9,6 @@ const ProductDetailButton = ( {
 	children,
 	className,
 	href,
-	isLink,
 	isLoading,
 	onClick,
 	isPrimary,
@@ -18,11 +17,10 @@ const ProductDetailButton = ( {
 	return (
 		<Button
 			onClick={ onClick }
-			isLink={ isLink }
-			isPrimary={ isPrimary }
-			isSecondary={ isSecondary }
 			className={ className }
 			href={ href }
+			isPrimary={ isPrimary }
+			isSecondary={ isSecondary }
 		>
 			{ isLoading ? <Spinner /> : children }
 		</Button>
@@ -30,10 +28,7 @@ const ProductDetailButton = ( {
 };
 
 ProductDetailButton.defaultProps = {
-	isLink: true,
 	isLoading: false,
-	isPrimary: false,
-	isSecondary: false,
 };
 
 export default ProductDetailButton;

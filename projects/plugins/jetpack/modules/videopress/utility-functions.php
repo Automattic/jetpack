@@ -481,9 +481,10 @@ function video_get_info_by_blogpostid( $blog_id, $post_id ) {
 
 	if ( $meta && isset( $meta['videopress'] ) ) {
 		$videopress_meta            = $meta['videopress'];
-		$video_info->rating         = $videopress_meta['rating'];
-		$video_info->allow_download =
-			isset( $videopress_meta['allow_download'] )
+		$video_info->rating         = isset( $videopress_meta['rating'] )
+			? $videopress_meta['rating']
+			: null;
+		$video_info->allow_download = isset( $videopress_meta['allow_download'] )
 			? $videopress_meta['allow_download']
 			: 0;
 	}

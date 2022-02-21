@@ -53,38 +53,30 @@ export default function ProductInterstitial( { installsPlugin = false, slug, chi
 
 	const needsPurchase = ! isFree && ! hasRequiredPlan;
 
-	const addProductUrl =
-		needsPurchase && wpcomProductSlug
-			? getProductCheckoutUrl( wpcomProductSlug, isUserConnected )
-			: null;
-
 	const navigateToMyJetpackOverviewPage = useMyJetpackNavigate( '/' );
-	const navigateToCheckoutPage = useCallback( () => {
-		window.location.href = addProductUrl;
-	}, [ addProductUrl ] );
-
-	const afterInstallation = useCallback(
-		free => {
-			if ( free || ! addProductUrl ) {
-				navigateToMyJetpackOverviewPage();
-			} else {
-				navigateToCheckoutPage();
-			}
-		},
-		[ navigateToMyJetpackOverviewPage, navigateToCheckoutPage, addProductUrl ]
-	);
 
 	const clickHandler = useCallback( () => {
-		if ( installsPlugin ) {
-			activate()
-				.then( () => {
-					afterInstallation( isFree );
-				} )
-				.catch( () => {
-					afterInstallation( isFree );
-				} );
+		if ( ! installsPlugin ) {
+			return;
 		}
-	}, [ activate, isFree, installsPlugin, afterInstallation ] );
+
+		activate().finally( function () {
+			if ( ! needsPurchase || ! wpcomProductSlug ) {
+				return navigateToMyJetpackOverviewPage();
+			}
+
+			// Redirect to the checkout page.
+			window.location.href = getProductCheckoutUrl( wpcomProductSlug, isUserConnected );
+		} );
+	}, [
+		installsPlugin,
+		activate,
+		needsPurchase,
+		navigateToMyJetpackOverviewPage,
+		wpcomProductSlug,
+		isUserConnected,
+	] );
+
 	return (
 		<Container
 			className={ ! isUpgradableByBundle ? styles.container : null }
@@ -92,14 +84,14 @@ export default function ProductInterstitial( { installsPlugin = false, slug, chi
 			horizontalGap={ 0 }
 			fluid
 		>
-			<Col sm={ 4 } md={ 4 } lg={ 5 }>
+			<Col sm={ 4 } md={ 4 } lg={ 7 }>
 				<Product
 					slug={ slug }
 					trackButtonClick={ trackProductClick }
 					onClick={ installsPlugin ? clickHandler : undefined }
 				/>
 			</Col>
-			<Col sm={ 4 } md={ 4 } lg={ 7 } className={ styles.imageContainer }>
+			<Col sm={ 4 } md={ 4 } lg={ 5 } className={ styles.imageContainer }>
 				{ children }
 			</Col>
 		</Container>
@@ -113,7 +105,7 @@ export default function ProductInterstitial( { installsPlugin = false, slug, chi
  */
 export function AntiSpamInterstitial() {
 	return (
-		<ProductInterstitial slug="anti-spam">
+		<ProductInterstitial slug="anti-spam" installsPlugin={ true }>
 			<ProductDetailCard slug="security" />
 		</ProductInterstitial>
 	);
@@ -152,7 +144,7 @@ export function BoostInterstitial() {
  */
 export function CRMInterstitial() {
 	return (
-		<ProductInterstitial slug="crm">
+		<ProductInterstitial slug="crm" installsPlugin={ true }>
 			<img src={ crmImage } alt="CRM" />
 		</ProductInterstitial>
 	);
@@ -165,7 +157,7 @@ export function CRMInterstitial() {
  */
 export function ScanInterstitial() {
 	return (
-		<ProductInterstitial slug="scan">
+		<ProductInterstitial slug="scan" installsPlugin={ true }>
 			<ProductDetailCard slug="security" />
 		</ProductInterstitial>
 	);
@@ -178,7 +170,7 @@ export function ScanInterstitial() {
  */
 export function SearchInterstitial() {
 	return (
-		<ProductInterstitial slug="search">
+		<ProductInterstitial slug="search" installsPlugin={ true }>
 			<img src={ searchImage } alt="Search" />
 		</ProductInterstitial>
 	);
@@ -191,7 +183,7 @@ export function SearchInterstitial() {
  */
 export function VideoPressInterstitial() {
 	return (
-		<ProductInterstitial slug="videopress">
+		<ProductInterstitial slug="videopress" installsPlugin={ true }>
 			<img src={ videoPressImage } alt="VideoPress" />
 		</ProductInterstitial>
 	);

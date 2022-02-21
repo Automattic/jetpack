@@ -1,0 +1,4 @@
+Significance: patch
+Type: bugfix
+
+Fix double escaping of connections in Classic Editor

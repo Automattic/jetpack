@@ -100,7 +100,7 @@ class Backup extends Hybrid_Product {
 	 * @return ?string
 	 */
 	public static function get_wpcom_product_slug() {
-		return 'jetpack_backup_t1_monthly';
+		return 'jetpack_backup_t1_yearly';
 	}
 
 	/**
@@ -192,5 +192,17 @@ class Backup extends Hybrid_Product {
 		} elseif ( static::is_jetpack_plugin_active() ) {
 			return Redirect::get_url( 'my-jetpack-manage-backup' );
 		}
+	}
+
+	/**
+	 * Activates the plugin
+	 *
+	 * @return null|WP_Error Null on success, WP_Error on invalid file.
+	 */
+	public static function activate_plugin() {
+		/*
+		 * Silent mode True to avoid redirect
+		 */
+		return activate_plugin( static::get_installed_plugin_filename(), '', false, true );
 	}
 }
