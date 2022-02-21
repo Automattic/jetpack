@@ -1,4 +1,7 @@
 .container {
+	--jp-black: #000;
+	--jp-underline-thickness: 2px;
+
 	h3 {
 		font-size: var(--font-title-large);
 		font-weight: 700;
@@ -29,4 +32,8 @@
 		line-height: 24px;
 	}
 
+	.external-link:hover {
+		color: var(--jp-black);
+		text-decoration-thickness: var(--jp-underline-thickness);
+	}
 }
