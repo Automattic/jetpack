@@ -37,7 +37,7 @@
 		"automattic/jetpack-plugins-installer": "0.1.x-dev",
 		"automattic/jetpack-redirect": "1.7.x-dev",
 		"automattic/jetpack-roles": "1.4.x-dev",
-		"automattic/jetpack-search": "0.8.x-dev",
+		"automattic/jetpack-search": "0.9.x-dev",
 		"automattic/jetpack-status": "1.10.x-dev",
 		"automattic/jetpack-sync": "1.30.x-dev",
 		"automattic/jetpack-terms-of-service": "1.9.x-dev",
