@@ -478,6 +478,10 @@ function JetpackRestApiClient( root, nonce ) {
 			} )
 				.then( checkStatus )
 				.then( parseJsonResponse ),
+		fetchSearchStats: () =>
+			getRequest( `${ apiRoot }jetpack/v4/search/stats`, getParams )
+				.then( checkStatus )
+				.then( parseJsonResponse ),
 	};
 
 	/**

@@ -321,7 +321,35 @@ class Sender {
 	 * @return boolean|WP_Error True if this sync sending was successful, error object otherwise.
 	 */
 	public function do_sync() {
-		return $this->do_sync_and_set_delays( $this->sync_queue );
+		if ( ! Settings::is_dedicated_sync_enabled() ) {
+			$result = $this->do_sync_and_set_delays( $this->sync_queue );
+		} else {
+			$result = Dedicated_Sender::spawn_sync( $this->sync_queue );
+		}
+
+		return $result;
+	}
+
+	/**
+	 * Trigger incremental sync and early exit on Dedicated Sync request.
+	 *
+	 * @access public
+	 */
+	public function do_dedicated_sync_and_exit() {
+		if ( ! Settings::is_dedicated_sync_enabled() ) {
+			return new WP_Error( 'dedicated_sync_disabled', 'Dedicated Sync flow is disabled.' );
+		}
+
+		if ( ! Dedicated_Sender::is_dedicated_sync_request() ) {
+			return new WP_Error( 'non_dedicated_sync_request', 'Not a Dedicated Sync request.' );
+		}
+
+		$result = $this->do_sync_and_set_delays( $this->sync_queue );
+		// If no errors occurred, re-spawn a dedicated Sync request.
+		if ( true === $result ) {
+			Dedicated_Sender::spawn_sync( $this->sync_queue );
+		}
+		exit;
 	}
 
 	/**
