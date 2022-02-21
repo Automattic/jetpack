@@ -228,5 +228,36 @@ class WP_Test_Jetpack_Sync_Base extends WP_UnitTestCase {
 
 		return $preempt;
 	}
+
+	/**
+	 * Intercept HTTP request to api.bruteprotect.com and return mocked results.
+	 * Those requests will occur when the `wp_login` action is fired during tests.
+	 *
+	 * @param false  $preempt A preemptive return value of an HTTP request.
+	 * @param array  $args The request arguments.
+	 * @param string $url The request URL.
+	 *
+	 * @return array
+	 */
+	public function pre_http_request_bruteprotect_api( $preempt, $args, $url ) { // phpcs:ignore VariableAnalysis.CodeAnalysis.VariableAnalysis.UnusedVariable
+		if ( strpos( $url, 'api.bruteprotect.com' ) > 0 ) {
+			return array(
+				'response'    => array(
+					'code' => 200,
+				),
+				'status_code' => 200,
+				'body'        => wp_json_encode(
+					array(
+						'status'            => 'ok',
+						'msg'               => 'API Key Required',
+						'seconds_remaining' => 60,
+						'error'             => 'API Key Required',
+					)
+				),
+			);
+		}
+
+		return $preempt;
+	}
 }
 
