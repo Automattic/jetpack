@@ -24,7 +24,6 @@ import {
 import GoBackLink from './components/go-back-link';
 import styles from './style.module.scss';
 import useAnalytics from './hooks/use-analytics';
-
 initStore();
 
 /**
@@ -76,6 +75,20 @@ const MyJetpack = () => (
 			<Route
 				path="/connection"
 				element={ <Layout nav={ true } children={ <ConnectionScreen /> } /> }
+			/>
+			<Route
+				path="/connection/backup"
+				element={
+					<Layout
+						nav={ true }
+						children={
+							<ConnectionScreen
+								from="jetpack-backup"
+								redirectUri={ encodeURI( 'admin.php?page=my-jetpack' ) }
+							/>
+						}
+					/>
+				}
 			/>
 			<Route
 				path="/add-anti-spam"

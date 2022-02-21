@@ -34,6 +34,7 @@ export default function ProductInterstitial( { installsPlugin = false, slug, chi
 		isUpgradableByBundle,
 		pricingForUi: { isFree, wpcomProductSlug },
 		hasRequiredPlan,
+		requiresUserConnection,
 	} = detail;
 
 	const {
@@ -54,6 +55,7 @@ export default function ProductInterstitial( { installsPlugin = false, slug, chi
 	const needsPurchase = ! isFree && ! hasRequiredPlan;
 
 	const navigateToMyJetpackOverviewPage = useMyJetpackNavigate( '/' );
+	const navigateToBackupConnection = useMyJetpackNavigate( '/connection/backup' );
 
 	const clickHandler = useCallback( () => {
 		if ( ! installsPlugin ) {
@@ -61,7 +63,9 @@ export default function ProductInterstitial( { installsPlugin = false, slug, chi
 		}
 
 		activate().finally( function () {
-			if ( ! needsPurchase || ! wpcomProductSlug ) {
+			if ( requiresUserConnection && ! isUserConnected ) {
+				return navigateToBackupConnection();
+			} else if ( ! needsPurchase || ! wpcomProductSlug ) {
 				return navigateToMyJetpackOverviewPage();
 			}
 
@@ -73,6 +77,8 @@ export default function ProductInterstitial( { installsPlugin = false, slug, chi
 		activate,
 		needsPurchase,
 		navigateToMyJetpackOverviewPage,
+		navigateToBackupConnection,
+		requiresUserConnection,
 		wpcomProductSlug,
 		isUserConnected,
 	] );

@@ -11,8 +11,9 @@ import { ConnectScreen } from '@automattic/jetpack-connection';
 import useMyJetpackConnection from '../../hooks/use-my-jetpack-connection';
 import connectImage from './connect.png';
 
-const ConnectionScreen = () => {
+const ConnectionScreen = ( { redirectUri } ) => {
 	const { apiRoot, apiNonce } = useMyJetpackConnection();
+
 	return (
 		<ConnectScreen
 			title={ __(
@@ -23,6 +24,8 @@ const ConnectionScreen = () => {
 			apiRoot={ apiRoot }
 			apiNonce={ apiNonce }
 			images={ [ connectImage ] }
+			from="connection-ui"
+			redirectUri={ redirectUri }
 		>
 			<ul>
 				<li>{ __( 'Receive instant downtime alerts', 'jetpack-my-jetpack' ) }</li>
