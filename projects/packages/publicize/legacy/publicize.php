@@ -639,7 +639,7 @@ abstract class Publicize_Base {
 				$id = $this->get_connection_id( $connection );
 
 				$connection_test_passed  = true;
-				$connection_test_message = __( 'This connection is working correctly.', 'jetpack' );
+				$connection_test_message = __( 'This connection is working correctly.', 'jetpack-publicize-pkg' );
 				$user_can_refresh        = false;
 				$refresh_text            = '';
 				$refresh_url             = '';
@@ -663,7 +663,7 @@ abstract class Publicize_Base {
 					if ( ! $this->is_valid_facebook_connection( $connection ) ) {
 						$connection_test_passed  = false;
 						$user_can_refresh        = false;
-						$connection_test_message = __( 'Please select a Facebook Page to publish updates.', 'jetpack' );
+						$connection_test_message = __( 'Please select a Facebook Page to publish updates.', 'jetpack-publicize-pkg' );
 					}
 				}
 
@@ -671,7 +671,7 @@ abstract class Publicize_Base {
 				if ( 'linkedin' === $service_name && $this->is_invalid_linkedin_connection( $connection ) ) {
 					$connection_test_passed  = 'must_reauth';
 					$user_can_refresh        = false;
-					$connection_test_message = esc_html__( 'Your LinkedIn connection needs to be reauthenticated to continue working – head to Sharing to take care of it.', 'jetpack' );
+					$connection_test_message = esc_html__( 'Your LinkedIn connection needs to be reauthenticated to continue working – head to Sharing to take care of it.', 'jetpack-publicize-pkg' );
 				}
 
 				$unique_id = null;
@@ -1018,7 +1018,7 @@ abstract class Publicize_Base {
 	public function register_post_meta() {
 		$message_args = array(
 			'type'          => 'string',
-			'description'   => __( 'The message to use instead of the title when sharing to Publicize Services', 'jetpack' ),
+			'description'   => __( 'The message to use instead of the title when sharing to Publicize Services', 'jetpack-publicize-pkg' ),
 			'single'        => true,
 			'default'       => '',
 			'show_in_rest'  => array(
@@ -1029,7 +1029,7 @@ abstract class Publicize_Base {
 
 		$tweetstorm_args = array(
 			'type'          => 'boolean',
-			'description'   => __( 'Whether or not the post should be treated as a Twitter thread.', 'jetpack' ),
+			'description'   => __( 'Whether or not the post should be treated as a Twitter thread.', 'jetpack-publicize-pkg' ),
 			'single'        => true,
 			'default'       => false,
 			'show_in_rest'  => array(
@@ -1040,7 +1040,7 @@ abstract class Publicize_Base {
 
 		$publicize_feature_enable_args = array(
 			'type'          => 'boolean',
-			'description'   => __( 'Whether or not the Share Post feature is enabled.', 'jetpack' ),
+			'description'   => __( 'Whether or not the Share Post feature is enabled.', 'jetpack-publicize-pkg' ),
 			'single'        => true,
 			'default'       => true,
 			'show_in_rest'  => array(
@@ -1267,7 +1267,7 @@ abstract class Publicize_Base {
 			$view_text = esc_html__( 'View post' ); // Intentionally omitted domain.
 
 			if ( 'jetpack-portfolio' === $post_type ) {
-				$view_text = esc_html__( 'View project', 'jetpack' );
+				$view_text = esc_html__( 'View project', 'jetpack-publicize-pkg' );
 			}
 
 			$view_post_link_html = sprintf(
@@ -1286,7 +1286,7 @@ abstract class Publicize_Base {
 		foreach ( $services as $service_name => $display_names ) {
 			$labels[] = sprintf(
 				/* translators: Service name is %1$s, and account name is %2$s. */
-				esc_html__( '%1$s (%2$s)', 'jetpack' ),
+				esc_html__( '%1$s (%2$s)', 'jetpack-publicize-pkg' ),
 				esc_html( $service_name ),
 				esc_html( is_array( $display_names ) ? implode( ', ', $display_names ) : $display_names )
 			);
@@ -1294,7 +1294,7 @@ abstract class Publicize_Base {
 
 		$messages['post'][6] = sprintf(
 			/* translators: %1$s is a comma-separated list of services and accounts. Ex. Facebook (@jetpack), Twitter (@jetpack) */
-			esc_html__( 'Post published and sharing on %1$s.', 'jetpack' ),
+			esc_html__( 'Post published and sharing on %1$s.', 'jetpack-publicize-pkg' ),
 			implode( ', ', $labels )
 		) . $view_post_link_html;
 
@@ -1303,7 +1303,7 @@ abstract class Publicize_Base {
 			if ( $subscription->should_email_post_to_subscribers( $post ) ) {
 				$messages['post'][6] = sprintf(
 					/* translators: %1$s is a comma-separated list of services and accounts. Ex. Facebook (@jetpack), Twitter (@jetpack) */
-					esc_html__( 'Post published, sending emails to subscribers and sharing post on %1$s.', 'jetpack' ),
+					esc_html__( 'Post published, sending emails to subscribers and sharing post on %1$s.', 'jetpack-publicize-pkg' ),
 					implode( ', ', $labels )
 				) . $view_post_link_html;
 			}
@@ -1311,7 +1311,7 @@ abstract class Publicize_Base {
 
 		$messages['jetpack-portfolio'][6] = sprintf(
 			/* translators: %1$s is a comma-separated list of services and accounts. Ex. Facebook (@jetpack), Twitter (@jetpack) */
-			esc_html__( 'Project published and sharing project on %1$s.', 'jetpack' ),
+			esc_html__( 'Project published and sharing project on %1$s.', 'jetpack-publicize-pkg' ),
 			implode( ', ', $labels )
 		) . $view_post_link_html;
 

@@ -64,8 +64,8 @@ class Publicize_UI {
 	public function sharing_menu() {
 		add_submenu_page(
 			'options-general.php',
-			esc_html__( 'Sharing Settings', 'jetpack' ),
-			esc_html__( 'Sharing', 'jetpack' ),
+			esc_html__( 'Sharing Settings', 'jetpack-publicize-pkg' ),
+			esc_html__( 'Sharing', 'jetpack-publicize-pkg' ),
 			'publish_posts',
 			'sharing',
 			array( $this, 'wrapper_admin_page' )
@@ -86,7 +86,7 @@ class Publicize_UI {
 		?>
 		<div class="wrap">
 			<div class="icon32" id="icon-options-general"><br /></div>
-			<h1><?php esc_html_e( 'Sharing Settings', 'jetpack' ); ?></h1>
+			<h1><?php esc_html_e( 'Sharing Settings', 'jetpack-publicize-pkg' ); ?></h1>
 
 			<?php
 			/** This action is documented in modules/sharedaddy/sharing.php */
@@ -110,14 +110,14 @@ class Publicize_UI {
 	 */
 	public function admin_page() {
 		?>
-		<h2 id="publicize"><?php esc_html_e( 'Publicize', 'jetpack' ); ?></h2>
-		<p><?php esc_html_e( 'Connect social media services to automatically share new posts.', 'jetpack' ); ?></p>
+		<h2 id="publicize"><?php esc_html_e( 'Publicize', 'jetpack-publicize-pkg' ); ?></h2>
+		<p><?php esc_html_e( 'Connect social media services to automatically share new posts.', 'jetpack-publicize-pkg' ); ?></p>
 		<h4>
 			<?php
 			printf(
 				wp_kses(
 					/* translators: %s is the link to the Publicize page in Calypso */
-					__( "We've made some updates to Publicize. Please visit the <a href='%s' class='jptracks' data-jptracks-name='legacy_publicize_settings'>WordPress.com sharing page</a> to manage your publicize connections or use the button below.", 'jetpack' ),
+					__( "We've made some updates to Publicize. Please visit the <a href='%s' class='jptracks' data-jptracks-name='legacy_publicize_settings'>WordPress.com sharing page</a> to manage your publicize connections or use the button below.", 'jetpack-publicize-pkg' ),
 					array(
 						'a' => array(
 							'href'               => array(),
@@ -131,7 +131,7 @@ class Publicize_UI {
 			?>
 		</h4>
 
-		<a href="<?php echo esc_url( publicize_calypso_url() ); ?>" class="button button-primary jptracks" data-jptracks-name='legacy_publicize_settings'><?php esc_html_e( 'Publicize Settings', 'jetpack' ); ?></a>
+		<a href="<?php echo esc_url( publicize_calypso_url() ); ?>" class="button button-primary jptracks" data-jptracks-name='legacy_publicize_settings'><?php esc_html_e( 'Publicize Settings', 'jetpack-publicize-pkg' ); ?></a>
 		<?php
 	}
 
@@ -319,7 +319,7 @@ jQuery( function($) {
 						.addClass( 'below-h2' )
 						.addClass( 'error' )
 						.addClass( 'publicize-token-refresh-message' )
-						.append( "<p><?php echo esc_html( __( 'Before you hit Publish, please refresh the following connection(s) to make sure we can Publicize your post:', 'jetpack' ) ); ?></p>" );
+						.append( "<p><?php echo esc_html( __( 'Before you hit Publish, please refresh the following connection(s) to make sure we can Publicize your post:', 'jetpack-publicize-pkg' ) ); ?></p>" );
 					somethingShownAlready = true;
 				}
 
@@ -344,7 +344,7 @@ jQuery( function($) {
 						+ testResult.connectionTestMessage
 						+ '</p><p>'
 						+ ' <a class="button" href="<?php echo esc_url( $this->publicize_settings_url ); ?>" rel="noopener noreferrer" target="_blank">'
-						+ '<?php echo esc_html( __( 'Update Your Sharing Settings', 'jetpack' ) ); ?>'
+						+ '<?php echo esc_html( __( 'Update Your Sharing Settings', 'jetpack-publicize-pkg' ) ); ?>'
 						+ '</a>'
 						+ '<p>';
 
@@ -444,7 +444,7 @@ jQuery( function($) {
 	private function connection_label( $service_label, $display_name ) {
 		return sprintf(
 			/* translators: %1$s: Service Name (Facebook, Twitter, ...), %2$s: Username on Service (@jetpack, ...) */
-			__( '%1$s: %2$s', 'jetpack' ),
+			__( '%1$s: %2$s', 'jetpack-publicize-pkg' ),
 			$service_label,
 			$display_name
 		);
@@ -495,7 +495,7 @@ jQuery( function($) {
 		<div id="publicize" class="misc-pub-section misc-pub-section-last">
 			<span id="publicize-title">
 			<?php
-			esc_html_e( 'Publicize:', 'jetpack' );
+			esc_html_e( 'Publicize:', 'jetpack-publicize-pkg' );
 
 			if ( ! empty( $connections_data ) ) :
 				$publicize_form = $this->get_metabox_form_connected( $connections_data );
@@ -510,7 +510,7 @@ jQuery( function($) {
 									/* translators: %s is the name of a Publicize service like "LinkedIn" */
 									esc_html__(
 										'Your %s connection needs to be reauthenticated to continue working – head to Sharing to take care of it.',
-										'jetpack'
+										'jetpack-publicize-pkg'
 									),
 									$connection_name // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
 								);
@@ -520,7 +520,7 @@ jQuery( function($) {
 								href="<?php echo esc_url( publicize_calypso_url() ); ?>"
 								target="_blank"
 							>
-								<span class="publicize-external-link__text"><?php esc_html_e( 'Go to Sharing settings', 'jetpack' ); ?></span>
+								<span class="publicize-external-link__text"><?php esc_html_e( 'Go to Sharing settings', 'jetpack-publicize-pkg' ); ?></span>
 								<span class="dashicons dashicons-external"></span>
 							</a>
 						</span>
@@ -544,14 +544,14 @@ jQuery( function($) {
 				?>
 					<?php // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- labels are already escaped above ?>
 					<span id="publicize-defaults"><?php echo join( ', ', $labels ); ?></span>
-					<a href="#" id="publicize-form-edit"><?php esc_html_e( 'Edit', 'jetpack' ); ?></a>&nbsp;<a href="<?php echo esc_url( $this->publicize_settings_url ); ?>" rel="noopener noreferrer" target="_blank"><?php esc_html_e( 'Settings', 'jetpack' ); ?></a><br />
+					<a href="#" id="publicize-form-edit"><?php esc_html_e( 'Edit', 'jetpack-publicize-pkg' ); ?></a>&nbsp;<a href="<?php echo esc_url( $this->publicize_settings_url ); ?>" rel="noopener noreferrer" target="_blank"><?php esc_html_e( 'Settings', 'jetpack-publicize-pkg' ); ?></a><br />
 				<?php
 
 			else :
 				$publicize_form = $this->get_metabox_form_disconnected( $available_services );
 				?>
-				<strong><?php esc_html_e( 'Not Connected', 'jetpack' ); ?></strong>
-				<a href="#" id="publicize-disconnected-form-show"><?php esc_html_e( 'Edit', 'jetpack' ); ?></a><br />
+				<strong><?php esc_html_e( 'Not Connected', 'jetpack-publicize-pkg' ); ?></strong>
+				<a href="#" id="publicize-disconnected-form-show"><?php esc_html_e( 'Edit', 'jetpack-publicize-pkg' ); ?></a><br />
 				<?php
 
 			endif;
@@ -648,10 +648,10 @@ jQuery( function($) {
 
 			</ul>
 
-			<label for="wpas-title"><?php esc_html_e( 'Custom Message:', 'jetpack' ); ?></label>
+			<label for="wpas-title"><?php esc_html_e( 'Custom Message:', 'jetpack-publicize-pkg' ); ?></label>
 			<span id="wpas-title-counter" class="alignright hide-if-no-js">0</span>
 			<textarea name="wpas_title" id="wpas-title"<?php disabled( $all_done ); ?>><?php echo esc_textarea( $title ); ?></textarea>
-			<a href="#" class="hide-if-no-js button" id="publicize-form-hide"><?php esc_html_e( 'OK', 'jetpack' ); ?></a>
+			<a href="#" class="hide-if-no-js button" id="publicize-form-hide"><?php esc_html_e( 'OK', 'jetpack-publicize-pkg' ); ?></a>
 			<input type="hidden" name="wpas[0]" value="1" />
 		</div>
 
@@ -674,19 +674,19 @@ jQuery( function($) {
 		<div id="publicize-form" class="hide-if-js">
 			<div id="add-publicize-check" style="display: none;"></div>
 
-			<?php esc_html_e( 'Connect to', 'jetpack' ); ?>:
+			<?php esc_html_e( 'Connect to', 'jetpack-publicize-pkg' ); ?>:
 
 			<ul class="not-connected">
 				<?php foreach ( $available_services as $service_name => $service ) : ?>
 				<li>
 					<?php /* translators: %s is the name of a Publicize service such as "LinkedIn" */ ?>
-					<a class="pub-service" data-service="<?php echo esc_attr( $service_name ); ?>" title="<?php echo esc_attr( sprintf( __( 'Connect and share your posts on %s', 'jetpack' ), $this->publicize->get_service_label( $service_name ) ) ); ?>" rel="noopener noreferrer" target="_blank" href="<?php echo esc_url( $this->publicize->connect_url( $service_name ) ); ?>">
+					<a class="pub-service" data-service="<?php echo esc_attr( $service_name ); ?>" title="<?php echo esc_attr( sprintf( __( 'Connect and share your posts on %s', 'jetpack-publicize-pkg' ), $this->publicize->get_service_label( $service_name ) ) ); ?>" rel="noopener noreferrer" target="_blank" href="<?php echo esc_url( $this->publicize->connect_url( $service_name ) ); ?>">
 						<?php echo esc_html( $this->publicize->get_service_label( $service_name ) ); ?>
 					</a>
 				</li>
 				<?php endforeach; ?>
 			</ul>
-			<a href="#" class="hide-if-no-js button" id="publicize-disconnected-form-hide"><?php esc_html_e( 'OK', 'jetpack' ); ?></a>
+			<a href="#" class="hide-if-no-js button" id="publicize-disconnected-form-hide"><?php esc_html_e( 'OK', 'jetpack-publicize-pkg' ); ?></a>
 		</div>
 		<?php
 

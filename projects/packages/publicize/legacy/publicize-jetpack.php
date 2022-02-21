@@ -105,18 +105,18 @@ class Publicize extends Publicize_Base {
 						<?php
 							printf(
 								/* translators: %s is the name of the blog */
-								esc_html( wptexturize( __( "To use Publicize, you'll need to link your %s account to your WordPress.com account using the link below.", 'jetpack' ) ) ),
+								esc_html( wptexturize( __( "To use Publicize, you'll need to link your %s account to your WordPress.com account using the link below.", 'jetpack-publicize-pkg' ) ) ),
 								'<strong>' . esc_html( $blog_name ) . '</strong>'
 							);
 						?>
 					</p>
-					<p><?php echo esc_html( wptexturize( __( "If you don't have a WordPress.com account yet, you can sign up for free in just a few seconds.", 'jetpack' ) ) ); ?></p>
+					<p><?php echo esc_html( wptexturize( __( "If you don't have a WordPress.com account yet, you can sign up for free in just a few seconds.", 'jetpack-publicize-pkg' ) ) ); ?></p>
 				</div>
 				<div class="jetpack-install-container">
 					<p class="submit"><a
 							href="<?php echo esc_url( $jetpack->build_connect_url( false, menu_page_url( 'sharing', false ) ) ); ?>"
 							class="button-connector"
-							id="wpcom-connect"><?php esc_html_e( 'Link account with WordPress.com', 'jetpack' ); ?></a>
+							id="wpcom-connect"><?php esc_html_e( 'Link account with WordPress.com', 'jetpack-publicize-pkg' ); ?></a>
 					</p>
 					<p class="jetpack-install-blurb">
 						<?php jetpack_render_tos_blurb(); ?>
@@ -293,30 +293,30 @@ class Publicize extends Publicize_Base {
 
 		if ( $service ) {
 			/* translators: %s is the name of the Publicize service (e.g. Facebook, Twitter) */
-			$error = sprintf( __( 'There was a problem connecting to %s to create an authorized connection. Please try again in a moment.', 'jetpack' ), self::get_service_label( $service ) );
+			$error = sprintf( __( 'There was a problem connecting to %s to create an authorized connection. Please try again in a moment.', 'jetpack-publicize-pkg' ), self::get_service_label( $service ) );
 		} else {
 			if ( $publicize_error ) {
 				$code = strtolower( $publicize_error );
 				switch ( $code ) {
 					case '400':
-						$error = __( 'An invalid request was made. This normally means that something intercepted or corrupted the request from your server to the Jetpack Server. Try again and see if it works this time.', 'jetpack' );
+						$error = __( 'An invalid request was made. This normally means that something intercepted or corrupted the request from your server to the Jetpack Server. Try again and see if it works this time.', 'jetpack-publicize-pkg' );
 						break;
 					case 'secret_mismatch':
-						$error = __( 'We could not verify that your server is making an authorized request. Please try again, and make sure there is nothing interfering with requests from your server to the Jetpack Server.', 'jetpack' );
+						$error = __( 'We could not verify that your server is making an authorized request. Please try again, and make sure there is nothing interfering with requests from your server to the Jetpack Server.', 'jetpack-publicize-pkg' );
 						break;
 					case 'empty_blog_id':
-						$error = __( 'No blog_id was included in your request. Please try disconnecting Jetpack from WordPress.com and then reconnecting it. Once you have done that, try connecting Publicize again.', 'jetpack' );
+						$error = __( 'No blog_id was included in your request. Please try disconnecting Jetpack from WordPress.com and then reconnecting it. Once you have done that, try connecting Publicize again.', 'jetpack-publicize-pkg' );
 						break;
 					case 'empty_state':
 						/* translators: %s is the URL of the Jetpack admin page */
-						$error = sprintf( __( 'No user information was included in your request. Please make sure that your user account has connected to Jetpack. Connect your user account by going to the <a href="%s">Jetpack page</a> within wp-admin.', 'jetpack' ), Jetpack::admin_url() );
+						$error = sprintf( __( 'No user information was included in your request. Please make sure that your user account has connected to Jetpack. Connect your user account by going to the <a href="%s">Jetpack page</a> within wp-admin.', 'jetpack-publicize-pkg' ), Jetpack::admin_url() );
 						break;
 					default:
-						$error = __( 'Something which should never happen, happened. Sorry about that. If you try again, maybe it will work.', 'jetpack' );
+						$error = __( 'Something which should never happen, happened. Sorry about that. If you try again, maybe it will work.', 'jetpack-publicize-pkg' );
 						break;
 				}
 			} else {
-				$error = __( 'There was a problem connecting with Publicize. Please try again in a moment.', 'jetpack' );
+				$error = __( 'There was a problem connecting with Publicize. Please try again in a moment.', 'jetpack-publicize-pkg' );
 			}
 		}
 		// Using the same formatting/style as Jetpack::admin_notices() error.
@@ -344,7 +344,7 @@ class Publicize extends Publicize_Base {
 					<?php
 					printf(
 						/* translators: %s is the name of the error */
-						esc_html__( 'Error code: %s', 'jetpack' ),
+						esc_html__( 'Error code: %s', 'jetpack-publicize-pkg' ),
 						esc_html( stripslashes( $code ) )
 					);
 					?>
@@ -360,7 +360,7 @@ class Publicize extends Publicize_Base {
 	 */
 	public function display_disconnected() {
 		echo "<div class='updated'>\n";
-		echo '<p>' . esc_html( __( 'That connection has been removed.', 'jetpack' ) ) . "</p>\n";
+		echo '<p>' . esc_html( __( 'That connection has been removed.', 'jetpack-publicize-pkg' ) ) . "</p>\n";
 		echo "</div>\n\n";
 	}
 
@@ -590,7 +590,7 @@ class Publicize extends Publicize_Base {
 		$user_can_refresh = current_user_can( $this->GLOBAL_CAP ); // phpcs:ignore WordPress.NamingConventions.ValidVariableName.UsedPropertyNotSnakeCase
 		if ( $user_can_refresh ) {
 			/* translators: %s is the name of a social media service */
-			$refresh_text = sprintf( _x( 'Refresh connection with %s', 'Refresh connection with {social media service}', 'jetpack' ), $this->get_service_label( $service_name ) );
+			$refresh_text = sprintf( _x( 'Refresh connection with %s', 'Refresh connection with {social media service}', 'jetpack-publicize-pkg' ), $this->get_service_label( $service_name ) );
 			$refresh_url  = $this->refresh_url( $service_name );
 		}
 
@@ -718,7 +718,7 @@ class Publicize extends Publicize_Base {
 			$page_info_message = sprintf(
 				wp_kses(
 					/* translators: %s is the link to the support page about using Facebook with Publicize */
-					__( 'Facebook supports Publicize connections to Facebook Pages, but not to Facebook Profiles. <a href="%s">Learn More about Publicize for Facebook</a>', 'jetpack' ),
+					__( 'Facebook supports Publicize connections to Facebook Pages, but not to Facebook Profiles. <a href="%s">Learn More about Publicize for Facebook</a>', 'jetpack-publicize-pkg' ),
 					array( 'a' => array( 'href' ) )
 				),
 				esc_url( Redirect::get_url( 'jetpack-support-publicize-facebook' ) )
@@ -729,7 +729,7 @@ class Publicize extends Publicize_Base {
 				<p>
 					<?php
 						echo wp_kses(
-							__( 'Publicize to my <strong>Facebook Page</strong>:', 'jetpack' ),
+							__( 'Publicize to my <strong>Facebook Page</strong>:', 'jetpack-publicize-pkg' ),
 							array( 'strong' )
 						);
 					?>
@@ -769,7 +769,7 @@ class Publicize extends Publicize_Base {
 
 				<?php Publicize_UI::global_checkbox( 'facebook', $_REQUEST['connection'] ); ?>
 				<p style="text-align: center;">
-					<input type="submit" value="<?php esc_attr_e( 'OK', 'jetpack' ); ?>"
+					<input type="submit" value="<?php esc_attr_e( 'OK', 'jetpack-publicize-pkg' ); ?>"
 						class="button fb-options save-options" name="save"
 						data-connection="<?php echo esc_attr( $_REQUEST['connection'] ); ?>"
 						rel="<?php echo esc_attr( wp_create_nonce( 'save_fb_token_' . $_REQUEST['connection'] ) ); ?>"/>
@@ -785,7 +785,7 @@ class Publicize extends Publicize_Base {
 							echo wp_kses(
 								sprintf(
 									/* translators: %1$s is the link to Facebook documentation to create a page, %2$s is the target of the link */
-									__( '<a class="button" href="%1$s" target="%2$s">Create a Facebook page</a> to get started.', 'jetpack' ),
+									__( '<a class="button" href="%1$s" target="%2$s">Create a Facebook page</a> to get started.', 'jetpack-publicize-pkg' ),
 									'https://www.facebook.com/pages/creation/',
 									'_blank noopener noreferrer'
 								),
@@ -872,7 +872,7 @@ class Publicize extends Publicize_Base {
 			}
 			?>
 
-			<p><?php echo wp_kses( __( 'Publicize to my <strong>Tumblr blog</strong>:', 'jetpack' ), array( 'strong' ) ); ?></p>
+			<p><?php echo wp_kses( __( 'Publicize to my <strong>Tumblr blog</strong>:', 'jetpack-publicize-pkg' ), array( 'strong' ) ); ?></p>
 
 			<ul id="option-tumblr-blog">
 
@@ -893,7 +893,7 @@ class Publicize extends Publicize_Base {
 			<?php Publicize_UI::global_checkbox( 'tumblr', $_REQUEST['connection'] ); ?>
 
 			<p style="text-align: center;">
-				<input type="submit" value="<?php esc_attr_e( 'OK', 'jetpack' ); ?>"
+				<input type="submit" value="<?php esc_attr_e( 'OK', 'jetpack-publicize-pkg' ); ?>"
 					class="button tumblr-options save-options" name="save"
 					data-connection="<?php echo esc_attr( $_REQUEST['connection'] ); ?>"
 					rel="<?php echo esc_attr( wp_create_nonce( 'save_tumblr_blog_' . $_REQUEST['connection'] ) ); ?>"/>

@@ -154,7 +154,7 @@ function enhanced_og_video( $tags ) {
 
 	if ( empty( $post->post_title ) ) {
 		/* translators: %s is the name of the site */
-		$tags['og:title'] = sprintf( __( 'Video on %s', 'jetpack' ), get_option( 'blogname' ) );
+		$tags['og:title'] = sprintf( __( 'Video on %s', 'jetpack-publicize-pkg' ), get_option( 'blogname' ) );
 	}
 
 	return $tags;
