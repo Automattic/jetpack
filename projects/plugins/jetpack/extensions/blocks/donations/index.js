@@ -53,16 +53,12 @@ export const settings = {
 	},
 	supports: {
 		className: false,
-		spacing: {
-			padding: true,
-		},
 		color: {
 			link: true,
 			gradients: true,
 		},
 		typography: {
 			fontSize: true,
-			lineHeight: true,
 		},
 		html: false,
 	},
