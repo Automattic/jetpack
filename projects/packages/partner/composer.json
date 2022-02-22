@@ -6,7 +6,7 @@
 	"require": {
 		"automattic/jetpack-connection": "^1.36",
 		"automattic/jetpack-options": "^1.14",
-		"automattic/jetpack-status": "^1.11"
+		"automattic/jetpack-status": "^1.12"
 	},
 	"require-dev": {
 		"brain/monkey": "2.6.1",

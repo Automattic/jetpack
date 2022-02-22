@@ -30,12 +30,27 @@ const useAnalytics = () => {
 		setProperties,
 		tracks,
 	} = jetpackAnalytics;
+
+	/**
+	 * Like tracks.recordEvent but provides specifics to My Jetpack
+	 *
+	 * @param {string} event       - event name
+	 * @param {object} properties  - event propeties
+	 */
+	const recordMyJetpackEvent = ( event, properties ) => {
+		tracks.recordEvent( event, {
+			...properties,
+			version: window?.myJetpackInitialState?.myJetpackVersion,
+		} );
+	};
+
 	return {
 		clearedIdentity,
 		ga,
 		mc,
 		pageView,
 		purchase,
+		recordEvent: recordMyJetpackEvent,
 		setGoogleAnalyticsEnabled,
 		setMcAnalyticsEnabled,
 		setProperties,
