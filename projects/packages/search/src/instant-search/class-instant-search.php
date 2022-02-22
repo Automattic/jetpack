@@ -621,8 +621,7 @@ class Instant_Search extends Classic_Search {
 	 */
 	public static function inject_search_widget_to_block( $block_content ) {
 		$search_block = sprintf(
-			'<!-- wp:search {"label":"%s","buttonText":"%s"} /-->',
-			__( 'Search', 'jetpack-search-pkg' ),
+			'<!-- wp:search {"label":"","buttonText":"%s"} /-->',
 			__( 'Search', 'jetpack-search-pkg' )
 		);
 
