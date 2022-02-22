@@ -226,7 +226,7 @@ class WPCOM_JSON_API_Update_Comment_Endpoint extends WPCOM_JSON_API_Comment_Endp
 		}
 
 		if (
-			-1 == get_option( 'blog_public' ) &&
+			-1 == get_option( 'blog_public' ) && // phpcs:ignore Universal.Operators.StrictComparisons.LooseEqual
 			/**
 			 * Filter allowing non-registered users on the site to comment.
 			 *
@@ -308,7 +308,7 @@ class WPCOM_JSON_API_Update_Comment_Endpoint extends WPCOM_JSON_API_Comment_Endp
 		);
 
 		if ( $comment_parent_id ) {
-			if ( $comment_parent->comment_approved === '0' && current_user_can( 'edit_comment', $comment_parent->comment_ID ) ) {
+			if ( '0' === $comment_parent->comment_approved && current_user_can( 'edit_comment', $comment_parent->comment_ID ) ) {
 				wp_set_comment_status( $comment_parent->comment_ID, 'approve' );
 			}
 		}
