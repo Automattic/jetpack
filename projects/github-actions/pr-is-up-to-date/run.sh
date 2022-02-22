@@ -2,6 +2,7 @@
 
 set -eo pipefail
 
+BASE=$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)
 source "$BASE/funcs.sh"
 
 GITHUB_API_URL="${GITHUB_API_URL:-https://api.github.com}"
