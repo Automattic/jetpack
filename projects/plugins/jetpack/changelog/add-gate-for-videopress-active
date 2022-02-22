@@ -1,0 +1,4 @@
+Significance: patch
+Type: compat
+
+Performance: improve performance for sites without VideoPress enabled.
