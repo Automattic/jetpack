@@ -11,7 +11,7 @@ const ProductDetailButton = ( {
 	href,
 	isLoading,
 	onClick,
-	isPressed,
+	isPrimary,
 	isSecondary,
 } ) => {
 	return (
@@ -19,7 +19,7 @@ const ProductDetailButton = ( {
 			onClick={ onClick }
 			className={ className }
 			href={ href }
-			isPressed={ isPressed }
+			isPrimary={ isPrimary }
 			isSecondary={ isSecondary }
 		>
 			{ isLoading ? <Spinner /> : children }

@@ -126,7 +126,7 @@ class Jetpack_AMP_Support {
 	/**
 	 * Determines whether the legacy AMP post templates are being used.
 	 *
-	 * @since $$next_version$$
+	 * @since 10.6.0
 	 *
 	 * @return bool
 	 */
