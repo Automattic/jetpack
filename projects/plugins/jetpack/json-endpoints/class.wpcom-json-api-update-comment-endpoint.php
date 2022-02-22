@@ -1,4 +1,13 @@
-<?php
+<?php // phpcs:ignore WordPress.Files.FileName.InvalidClassFileName
+/**
+ * Manage comments via the WordPress.com REST API.
+ *
+ * Endpoints;
+ * Create a comment on a post:                     /sites/%s/posts/%d/replies/new
+ * Create a comment as a reply to another comment: /sites/%s/comments/%d/replies/new
+ * Edit a comment:                                 /sites/%s/comments/%d
+ * Delete a comment:                               /sites/%s/comments/%d/delete
+ */
 
 new WPCOM_JSON_API_Update_Comment_Endpoint(
 	array(
@@ -14,7 +23,7 @@ new WPCOM_JSON_API_Update_Comment_Endpoint(
 		),
 
 		'request_format'                       => array(
-			// explicitly document all input
+			// explicitly document all input.
 			'content' => '(HTML) The comment text.',
 		// @todo Should we open this up to unauthenticated requests too?
 		// 'author'    => '(author object) The author of the comment.',
@@ -135,19 +144,37 @@ new WPCOM_JSON_API_Update_Comment_Endpoint(
 	)
 );
 
+/**
+ * Update comments endpoint class.
+ */
 class WPCOM_JSON_API_Update_Comment_Endpoint extends WPCOM_JSON_API_Comment_Endpoint {
-	function __construct( $args ) {
+	/**
+	 * WPCOM_JSON_API_Update_Comment_Endpoint constructor.
+	 *
+	 * @param array $args - Args.
+	 */
+	public function __construct( $args ) {
 		parent::__construct( $args );
 		if ( $this->api->ends_with( $this->path, '/delete' ) ) {
 			$this->comment_object_format['status']['deleted'] = 'The comment has been deleted permanently.';
 		}
 	}
 
-	// /sites/%s/posts/%d/replies/new    -> $blog_id, $post_id
-	// /sites/%s/comments/%d/replies/new -> $blog_id, $comment_id
-	// /sites/%s/comments/%d             -> $blog_id, $comment_id
-	// /sites/%s/comments/%d/delete      -> $blog_id, $comment_id
-	function callback( $path = '', $blog_id = 0, $object_id = 0 ) {
+	/**
+	 * Update comment API callback.
+	 *
+	 * /sites/%s/posts/%d/replies/new    -> $blog_id, $post_id
+	 * /sites/%s/comments/%d/replies/new -> $blog_id, $comment_id
+	 * /sites/%s/comments/%d             -> $blog_id, $comment_id
+	 * /sites/%s/comments/%d/delete      -> $blog_id, $comment_id
+	 *
+	 * @param string $path API path.
+	 * @param int    $blog_id The blog ID.
+	 * @param int    $object_id The object ID.
+	 *
+	 * @return bool|WP_Error|array
+	 */
+	public function callback( $path = '', $blog_id = 0, $object_id = 0 ) {
 		if ( $this->api->ends_with( $path, '/new' ) ) {
 			$blog_id = $this->api->switch_to_blog_and_validate_user( $this->api->get_blog_id( $blog_id ), false );
 		} else {
@@ -170,9 +197,20 @@ class WPCOM_JSON_API_Update_Comment_Endpoint extends WPCOM_JSON_API_Comment_Endp
 		return $this->update_comment( $path, $blog_id, $object_id );
 	}
 
-	// /sites/%s/posts/%d/replies/new    -> $blog_id, $post_id
-	// /sites/%s/comments/%d/replies/new -> $blog_id, $comment_id
-	function new_comment( $path, $blog_id, $post_id, $comment_parent_id ) {
+	/**
+	 * Add a new comment to a post or as a reply to another comment.
+	 *
+	 * /sites/%s/posts/%d/replies/new    -> $blog_id, $post_id
+	 * /sites/%s/comments/%d/replies/new -> $blog_id, $comment_id
+	 *
+	 * @param string $path API path.
+	 * @param int    $blog_id The blog ID.
+	 * @param int    $post_id The post ID.
+	 * @param int    $comment_parent_id The comment parent ID.
+	 *
+	 * @return bool|WP_Error|array
+	 */
+	public function new_comment( $path, $blog_id, $post_id, $comment_parent_id ) {
 		if ( ! $post_id ) {
 			$comment_parent = get_comment( $comment_parent_id );
 			if ( ! $comment_parent_id || ! $comment_parent || is_wp_error( $comment_parent ) ) {
@@ -292,8 +330,18 @@ class WPCOM_JSON_API_Update_Comment_Endpoint extends WPCOM_JSON_API_Comment_Endp
 		return $return;
 	}
 
-	// /sites/%s/comments/%d -> $blog_id, $comment_id
-	function update_comment( $path, $blog_id, $comment_id ) {
+	/**
+	 * Update a comment.
+	 *
+	 * /sites/%s/comments/%d -> $blog_id, $comment_id
+	 *
+	 * @param string $path API path.
+	 * @param int    $blog_id Blog ID.
+	 * @param int    $comment_id Comment ID.
+	 *
+	 * @return bool|WP_Error|array
+	 */
+	public function update_comment( $path, $blog_id, $comment_id ) {
 		$comment = get_comment( $comment_id );
 		if ( ! $comment || is_wp_error( $comment ) ) {
 			return new WP_Error( 'unknown_comment', 'Unknown comment', 404 );
@@ -373,8 +421,18 @@ class WPCOM_JSON_API_Update_Comment_Endpoint extends WPCOM_JSON_API_Comment_Endp
 		return $return;
 	}
 
-	// /sites/%s/comments/%d/delete -> $blog_id, $comment_id
-	function delete_comment( $path, $blog_id, $comment_id ) {
+	/**
+	 * Delete a comment.
+	 *
+	 * /sites/%s/comments/%d/delete -> $blog_id, $comment_id
+	 *
+	 * @param string $path API path.
+	 * @param int    $blog_id Blog ID.
+	 * @param int    $comment_id Comment ID.
+	 *
+	 * @return bool|WP_Error|array
+	 */
+	public function delete_comment( $path, $blog_id, $comment_id ) {
 		$comment = get_comment( $comment_id );
 		if ( ! $comment || is_wp_error( $comment ) ) {
 			return new WP_Error( 'unknown_comment', 'Unknown comment', 404 );
