@@ -114,4 +114,16 @@ class Extras extends Product {
 	public static function get_manage_url() {
 		return admin_url( 'admin.php?page=jetpack' );
 	}
+
+	/**
+	 * Activates the Jetpack plugin
+	 *
+	 * @return null|WP_Error Null on success, WP_Error on invalid file.
+	 */
+	public static function activate_plugin() {
+		/*
+		 * Silent mode True to avoid redirect
+		 */
+		return activate_plugin( static::get_installed_plugin_filename( 'jetpack' ), '', false, true );
+	}
 }
