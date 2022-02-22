@@ -78,5 +78,8 @@ if ( is_readable( $autoload_packages_path ) ) {
 	return;
 }
 
+// intialize i18n.
+\Automattic\Jetpack\Assets::alias_textdomains_from_file( __DIR__ . '/jetpack_vendor/i18n-map.php' );
+
 // Initialize Jetpack Search plugin.
 add_action( 'plugins_loaded', array( Jetpack_Search_Initializer::class, 'initialize' ) );
