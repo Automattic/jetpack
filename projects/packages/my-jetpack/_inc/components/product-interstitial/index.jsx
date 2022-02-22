@@ -13,6 +13,7 @@ import useAnalytics from '../../hooks/use-analytics';
 import boostImage from './boost.png';
 import searchImage from './search.png';
 import videoPressImage from './videopress.png';
+import extrasImage from './extras.png';
 import crmImage from './crm.png';
 import { useProduct } from '../../hooks/use-product';
 import useMyJetpackNavigate from '../../hooks/use-my-jetpack-navigate';
@@ -157,6 +158,19 @@ export function CRMInterstitial() {
 	return (
 		<ProductInterstitial slug="crm" installsPlugin={ true }>
 			<img src={ crmImage } alt="CRM" />
+		</ProductInterstitial>
+	);
+}
+
+/**
+ * ExtrasInterstitial component
+ *
+ * @returns {object} ExtrasInterstitial react component.
+ */
+export function ExtrasInterstitial() {
+	return (
+		<ProductInterstitial slug="extras" installsPlugin={ true }>
+			<img src={ extrasImage } alt="Extras" />
 		</ProductInterstitial>
 	);
 }
