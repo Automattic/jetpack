@@ -157,6 +157,10 @@ We also hide the bulk plugins deactivation on the wp-admin/plugins page for all 
 
 That version is managed by the Atomic platform, so does not need to be displayed to site owners. They always run the latest version, which may be a version that is not yet released in the WordPress.org directory.
 
+### Hiding the Jetpack page "My Jetpack"
+
+This page is mostly about upselling and cross-discovery of Jetpack feature plugins. Not needed on Atomic sites.
+
 ### Showing that a plugin is auto-managed
 
 We show a similar message to the update one under Akismet, Jetpack and VaultPress telling users that those plugins are auto-managed for them (an explanation why they can’t deactivate or edit them).
