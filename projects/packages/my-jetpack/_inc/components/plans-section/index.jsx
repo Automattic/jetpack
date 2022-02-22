@@ -46,7 +46,7 @@ function PlanSectionHeader( { purchases } ) {
 			</h3>
 			<p>{ __( 'The extra power you added to your Jetpack.', 'jetpack-my-jetpack' ) }</p>
 			<p>
-				<ExternalLink href={ getManageYourPlanUrl() }>
+				<ExternalLink className={ styles[ 'external-link' ] } href={ getManageYourPlanUrl() }>
 					{ purchases.length <= 1
 						? __( 'Manage your plan', 'jetpack-my-jetpack' )
 						: __( 'Manage your plans', 'jetpack-my-jetpack' ) }
