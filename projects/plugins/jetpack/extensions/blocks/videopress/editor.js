@@ -73,23 +73,25 @@ const videoPressMediaPlaceholder = createHigherOrderComponent(
 			return <OriginalPlaceholder { ...props } />;
 		}
 
-		// We will handle video uploads
-		props.handleUpload = false;
-		props.disableDropZone = true;
-
 		const { onFilesSelected, onMediaItemSelected } = useContext( VideoPressBlockContext );
 
-		props.onSelect = selected => {
-			if ( selected instanceof FileList ) {
-				onFilesSelected( selected );
-			} else {
-				onMediaItemSelected( selected );
-			}
+		// We will handle video uploads
+		const newProps = {
+			...props,
+			handleUpload: false,
+			disableDropZone: true,
+			onSelect: selected => {
+				if ( selected instanceof FileList ) {
+					onFilesSelected( selected );
+				} else {
+					onMediaItemSelected( selected );
+				}
+			},
 		};
 
 		return (
 			<OriginalPlaceholder
-				{ ...props }
+				{ ...newProps }
 				className="videopress-media-placeholder"
 			></OriginalPlaceholder>
 		);
