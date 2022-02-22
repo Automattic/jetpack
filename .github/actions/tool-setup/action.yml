@@ -61,7 +61,8 @@ runs:
         php-version: ${{ steps.versions.outputs.php-version }}
         ini-values: error_reporting=E_ALL, display_errors=On, zend.assertions=1
         tools: composer:${{ steps.versions.outputs.composer-version }}
-        extensions: mysql, imagick, pdo_mysql
+        extensions: mysql, imagick
+        extension-csv: pdo, sqlite, mysql
         coverage: ${{ inputs.coverage }}
 
     - run: printf "\n\e[1mSetup Node\e[0m\n"
