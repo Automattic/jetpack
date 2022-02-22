@@ -6,9 +6,9 @@ To test out Jetpack, we recommend setting up a publicly accessible test site. Te
 
 #### Jetpack Live branches
 
-**Jetpack Live Branches** is a [Tampermonkey](https://tampermonkey.net/) script that allows us to launch WordPress Sites with a Jetpack version coming from a changeset present on a Pull Request. This is achieved by installing the [Jetpack Beta Tester plugin](github.com/Automattic/jetpack-beta) on a fresh new WordPress site and switching to the branch matching the Pull Request.
+**Jetpack Live Branches** is a [Tampermonkey](https://tampermonkey.net/) script that allows us to launch WordPress Sites with a Jetpack version coming from a changeset present on a Pull Request. This is achieved by installing the [Jetpack Beta Tester plugin](https://github.com/Automattic/jetpack-beta) on a fresh new WordPress site and switching to the branch matching the Pull Request.
 
-More details on how to use in the [Jetpack Live Branches README](../../tools/jetpack-live-branches/README.md).
+More details on how to use in the [Jetpack Live Branches README](https://github.com/Automattic/jetpack/blob/master/tools/jetpack-live-branches/README.md#readme).
 
 ## Check for JavaScript errors and enable Debug
 
