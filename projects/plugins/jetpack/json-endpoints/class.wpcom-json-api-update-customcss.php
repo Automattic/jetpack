@@ -1,8 +1,8 @@
-<?php
+<?php // phpcs:ignore WordPress.Files.FileName.InvalidClassFileName
 /**
- * Custom Css update endpoint
+ * Custom CSS update endpoint.
  *
- * https://public-api.wordpress.com/rest/v1.1/sites/$site/customcss/
+ * Endpoint: /sites/%s/customcss
  */
 
 new WPCOM_JSON_API_Update_CustomCss_Endpoint(
@@ -43,11 +43,19 @@ new WPCOM_JSON_API_Update_CustomCss_Endpoint(
 	)
 );
 
+/**
+ * Custom CSS update endpoint class.
+ */
 class WPCOM_JSON_API_Update_CustomCss_Endpoint extends WPCOM_JSON_API_Endpoint {
 	/**
-	 * API callback.
+	 * Custom CSS update endpoint API callback.
+	 *
+	 * @param string $path API path.
+	 * @param int    $blog_id Blog ID.
+	 *
+	 * @return array|WP_Error
 	 */
-	function callback( $path = '', $blog_id = 0 ) {
+	public function callback( $path = '', $blog_id = 0 ) {
 		// Switch to the given blog.
 		$blog_id = $this->api->switch_to_blog_and_validate_user( $this->api->get_blog_id( $blog_id ) );
 		if ( is_wp_error( $blog_id ) ) {
