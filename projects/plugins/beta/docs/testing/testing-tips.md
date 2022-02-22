@@ -14,7 +14,7 @@ More details on how to use in the [Jetpack Live Branches README](https://github.
 
 During your tests, we encourage you to open your browser's Development Tools and keep the Console open, checking for any errors in the Console and the Network tabs.
 
-To open the Console in Chrome or Firefox, you can press CMD+Alt+i in macOS or F12 in Windows. You can find out more [here](http://codex.wordpress.org/Using_Your_Browser_to_Diagnose_JavaScript_Errors).
+To open the Console in Chrome or Firefox, you can press CMD+Alt+i in macOS or F12 in Windows. You can find out more [here](https://wordpress.org/support/article/using-your-browser-to-diagnose-javascript-errors/).
 
 We would also recommend that you check your site's `debug.log` as you test.
 To make sure errors are logged on your site, you can add the following to your site's `wp-config.php` file:
