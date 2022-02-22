@@ -429,6 +429,10 @@ class Atomic_Admin_Menu extends Admin_Menu {
 	 * Check if site has Atomic supported plan. `Atomic_Plan_Manager` lives in wpcomsh
 	 */
 	protected function has_atomic_supported_plan() {
-		return class_exists( 'Atomic_Plan_Manager' ) && \Atomic_Plan_Manager::has_atomic_supported_plan();
+		if ( ! class_exists( 'Atomic_Plan_Manager' ) ) {
+			return false;
+		}
+
+		return \Atomic_Plan_Manager::has_atomic_supported_plan();
 	}
 }
