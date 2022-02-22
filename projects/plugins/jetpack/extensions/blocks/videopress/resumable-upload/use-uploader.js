@@ -30,7 +30,6 @@ export const resumableUploader = ( { onError, onProgress, onSuccess } ) => {
 			onError: onError,
 			onProgress: onProgress,
 			endpoint: data.url,
-			resume: true,
 			removeFingerprintOnSuccess: true,
 			withCredentials: false,
 			autoRetry: true,
