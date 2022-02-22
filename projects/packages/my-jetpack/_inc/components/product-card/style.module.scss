@@ -57,11 +57,11 @@
 	font-size: var(--product-card-actions-font-size);
 	font-weight: 600;
 	flex-wrap: wrap;
+}
 
-	.action-link-button:hover {
-		color: var(--jp-black);
-		text-decoration-thickness: var(--jp-underline-thickness);
-	}
+.action-link-button:hover {
+	color: var(--jp-black);
+	text-decoration-thickness: var(--jp-underline-thickness);
 }
 
 .group {
