@@ -23,6 +23,14 @@ class Extras extends Product {
 	public static $slug = 'extras';
 
 	/**
+	 * The slug of the plugin associated with this product.
+	 * Extras, is in short, Jetpack plugin bridge so far.
+	 *
+	 * @var string
+	 */
+	public static $plugin_slug = 'jetpack';
+
+	/**
 	 * Whether this product requires a user connection
 	 *
 	 * @var string
