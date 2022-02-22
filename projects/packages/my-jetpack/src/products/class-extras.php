@@ -70,7 +70,7 @@ class Extras extends Product {
 	 * @return string
 	 */
 	public static function get_long_description() {
-		return '';
+		return __( "Secure and speed up your site for free with Jetpack's powerful WordPress tools.", 'jetpack-my-jetpack' );
 	}
 
 	/**
@@ -79,7 +79,13 @@ class Extras extends Product {
 	 * @return array Boost features list
 	 */
 	public static function get_features() {
-		return array();
+		return array(
+			__( 'Measure your impact with beautiful stats', 'jetpack-my-jetpack' ),
+			__( 'Speed up your site with optimized images', 'jetpack-my-jetpack' ),
+			__( 'Protect your site against bot attacks', 'jetpack-my-jetpack' ),
+			__( 'Get notifications if your site goes offline', 'jetpack-my-jetpack' ),
+			__( 'Enhance your site with dozens of other features', 'jetpack-my-jetpack' ),
+		);
 	}
 
 	/**
