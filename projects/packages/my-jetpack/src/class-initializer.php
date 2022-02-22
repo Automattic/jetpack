@@ -118,6 +118,8 @@ class Initializer {
 				'topJetpackMenuItemUrl' => Admin_Menu::get_top_level_menu_item_url(),
 				'siteSuffix'            => ( new Status() )->get_site_suffix(),
 				'myJetpackVersion'      => self::PACKAGE_VERSION,
+				'MyJetpackPlugin'       => get_plugin_data( __FILE__ ),
+				'fileSystemWriteAccess' => self::has_file_system_write_access(),
 			)
 		);
 
@@ -197,11 +199,6 @@ class Initializer {
 		 */
 		$should = apply_filters( 'jetpack_my_jetpack_should_initialize', true );
 
-		// Feature flag while we are developing it.
-		if ( ! defined( 'JETPACK_ENABLE_MY_JETPACK' ) || ! JETPACK_ENABLE_MY_JETPACK ) {
-			return false;
-		}
-
 		// Do not initialize My Jetpack if site is not connected.
 		if ( ! ( new Connection_Manager() )->is_connected() ) {
 			return false;
@@ -228,6 +225,47 @@ class Initializer {
 		}
 
 		return rest_ensure_response( $body, 200 );
+	}
+
+	/**
+	 * Returns true if the site has file write access to the plugins folder, false otherwise.
+	 *
+	 * @return bool
+	 **/
+	public static function has_file_system_write_access() {
+
+		$cache = get_transient( 'my_jetpack_write_access' );
+
+		if ( false !== $cache ) {
+			return $cache;
+		}
+
+		if ( ! function_exists( 'get_filesystem_method' ) ) {
+			require_once ABSPATH . 'wp-admin/includes/file.php';
+		}
+
+		require_once ABSPATH . 'wp-admin/includes/template.php';
+
+		$write_access = 'no';
+
+		$filesystem_method = get_filesystem_method( array(), WP_PLUGIN_DIR );
+		if ( 'direct' === $filesystem_method ) {
+			$write_access = 'yes';
+		}
+
+		if ( ! $write_access ) {
+			ob_start();
+			$filesystem_credentials_are_stored = request_filesystem_credentials( self_admin_url() );
+			ob_end_clean();
+
+			if ( $filesystem_credentials_are_stored ) {
+				$write_access = 'yes';
+			}
+		}
+
+		set_transient( 'my_jetpack_write_access', $write_access, 30 * MINUTE_IN_SECONDS );
+
+		return $write_access;
 	}
 
 }

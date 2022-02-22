@@ -542,7 +542,8 @@ jQuery( function($) {
 				}
 
 				?>
-					<span id="publicize-defaults"><?php echo esc_html( join( ', ', $labels ) ); ?></span>
+					<?php // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- labels are already escaped above ?>
+					<span id="publicize-defaults"><?php echo join( ', ', $labels ); ?></span>
 					<a href="#" id="publicize-form-edit"><?php esc_html_e( 'Edit', 'jetpack' ); ?></a>&nbsp;<a href="<?php echo esc_url( $this->publicize_settings_url ); ?>" rel="noopener noreferrer" target="_blank"><?php esc_html_e( 'Settings', 'jetpack' ); ?></a><br />
 				<?php
 

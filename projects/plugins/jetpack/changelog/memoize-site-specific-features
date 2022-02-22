@@ -1,0 +1,4 @@
+Significance: patch
+Type: other
+
+Memoize calls to store_subscription when setting available features for site in order to reduce duplicate uncached queries
