@@ -1,52 +1,56 @@
 <?php
 
-new WPCOM_JSON_API_Update_Site_Logo_Endpoint( array (
-	'description'      => 'Set site logo settings',
-	'group'            => '__do_not_document',
-	'stat'             => 'sites:1:logo',
-	'method'           => 'POST',
-	'min_version'      => '1.1',
-	'path'             => '/sites/%s/logo',
-	'path_labels'      => array(
-		'$site' => '(string) Site ID or domain.',
-	),
-	'request_format'  => array(
-		'id' => '(int) The ID of the logo post',
-		'url' => '(string) The URL of the logo post (deprecated)',
-	),
-	'response_format'  => array(
-		'id' => '(int) The ID of the logo post',
-		'url' => '(string) The URL of the logo post',
-	),
-	'example_request'  => 'https://public-api.wordpress.com/rest/v1.1/sites/82974409/logo',
-	'example_request_data' => array(
-		'headers' => array( 'authorization' => 'Bearer YOUR_API_TOKEN' ),
-		'body' => array(
-			'id' => 12345,
+new WPCOM_JSON_API_Update_Site_Logo_Endpoint(
+	array(
+		'description'          => 'Set site logo settings',
+		'group'                => '__do_not_document',
+		'stat'                 => 'sites:1:logo',
+		'method'               => 'POST',
+		'min_version'          => '1.1',
+		'path'                 => '/sites/%s/logo',
+		'path_labels'          => array(
+			'$site' => '(string) Site ID or domain.',
 		),
-	),
-	'example_response' => '
+		'request_format'       => array(
+			'id'  => '(int) The ID of the logo post',
+			'url' => '(string) The URL of the logo post (deprecated)',
+		),
+		'response_format'      => array(
+			'id'  => '(int) The ID of the logo post',
+			'url' => '(string) The URL of the logo post',
+		),
+		'example_request'      => 'https://public-api.wordpress.com/rest/v1.1/sites/82974409/logo',
+		'example_request_data' => array(
+			'headers' => array( 'authorization' => 'Bearer YOUR_API_TOKEN' ),
+			'body'    => array(
+				'id' => 12345,
+			),
+		),
+		'example_response'     => '
 	{
 		"id": 12345,
 		"url": "https:\/\/s.w.org\/about\/images\/logos\/codeispoetry-rgb.png"
-	}'
-) );
+	}',
+	)
+);
 
-new WPCOM_JSON_API_Update_Site_Logo_Endpoint( array (
-	'description'      => 'Delete site logo settings',
-	'group'            => '__do_not_document',
-	'stat'             => 'sites:1:logo:delete',
-	'method'           => 'POST',
-	'min_version'      => '1.1',
-	'path'             => '/sites/%s/logo/delete',
-	'path_labels'      => array(
-		'$site' => '(string) Site ID or domain.',
-	),
-	'example_request'  => 'https://public-api.wordpress.com/rest/v1.1/sites/82974409/logo/delete',
-	'example_request_data' => array(
-		'headers' => array( 'authorization' => 'Bearer YOUR_API_TOKEN' ),
-	),
-) );
+new WPCOM_JSON_API_Update_Site_Logo_Endpoint(
+	array(
+		'description'          => 'Delete site logo settings',
+		'group'                => '__do_not_document',
+		'stat'                 => 'sites:1:logo:delete',
+		'method'               => 'POST',
+		'min_version'          => '1.1',
+		'path'                 => '/sites/%s/logo/delete',
+		'path_labels'          => array(
+			'$site' => '(string) Site ID or domain.',
+		),
+		'example_request'      => 'https://public-api.wordpress.com/rest/v1.1/sites/82974409/logo/delete',
+		'example_request_data' => array(
+			'headers' => array( 'authorization' => 'Bearer YOUR_API_TOKEN' ),
+		),
+	)
+);
 
 class WPCOM_JSON_API_Update_Site_Logo_Endpoint extends WPCOM_JSON_API_Endpoint {
 	function callback( $path = '', $site_id = 0 ) {
@@ -65,7 +69,7 @@ class WPCOM_JSON_API_Update_Site_Logo_Endpoint extends WPCOM_JSON_API_Endpoint {
 			return array();
 		}
 
-		$args = $this->input();
+		$args          = $this->input();
 		$logo_settings = $this->get_current_settings();
 
 		if ( empty( $args ) || ! is_array( $args ) ) {

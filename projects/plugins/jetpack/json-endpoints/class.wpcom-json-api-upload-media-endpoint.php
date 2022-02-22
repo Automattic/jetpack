@@ -1,39 +1,41 @@
 <?php
 
-new WPCOM_JSON_API_Upload_Media_Endpoint( array(
-	'description' => 'Upload a new media item.',
-	'group'       => 'media',
-	'stat'        => 'media:new',
-	'method'      => 'POST',
-	'path'        => '/sites/%s/media/new',
-	'deprecated'  => true,
-	'new_version' => '1.1',
-	'max_version' => '1',
-	'path_labels' => array(
-		'$site' => '(int|string) Site ID or domain',
-	),
-
-	'request_format' => array(
-		'media'      => "(media) An array of media to attach to the post. To upload media, the entire request should be multipart/form-data encoded. Accepts images (image/gif, image/jpeg, image/png) only at this time.<br /><br /><strong>Example</strong>:<br />" .
-		                "<code>curl \<br />--form 'media[]=@/path/to/file.jpg' \<br />-H 'Authorization: BEARER your-token' \<br />'https://public-api.wordpress.com/rest/v1/sites/123/media/new'</code>",
-		'media_urls' => "(array) An array of URLs to upload to the post."
-	),
-
-	'example_request'      => 'https://public-api.wordpress.com/rest/v1/sites/82974409/media/new/',
-
-	'response_format' => array(
-		'media' => '(array) Array of uploaded media',
-		'errors' => '(array) Array of error messages of uploading media failures'
-	),
-	'example_request_data' =>  array(
-		'headers' => array(
-			'authorization' => 'Bearer YOUR_API_TOKEN'
+new WPCOM_JSON_API_Upload_Media_Endpoint(
+	array(
+		'description'          => 'Upload a new media item.',
+		'group'                => 'media',
+		'stat'                 => 'media:new',
+		'method'               => 'POST',
+		'path'                 => '/sites/%s/media/new',
+		'deprecated'           => true,
+		'new_version'          => '1.1',
+		'max_version'          => '1',
+		'path_labels'          => array(
+			'$site' => '(int|string) Site ID or domain',
 		),
-		'body' => array(
-			'media_urls' => "https://s.w.org/about/images/logos/codeispoetry-rgb.png"
-		)
+
+		'request_format'       => array(
+			'media'      => '(media) An array of media to attach to the post. To upload media, the entire request should be multipart/form-data encoded. Accepts images (image/gif, image/jpeg, image/png) only at this time.<br /><br /><strong>Example</strong>:<br />' .
+							"<code>curl \<br />--form 'media[]=@/path/to/file.jpg' \<br />-H 'Authorization: BEARER your-token' \<br />'https://public-api.wordpress.com/rest/v1/sites/123/media/new'</code>",
+			'media_urls' => '(array) An array of URLs to upload to the post.',
+		),
+
+		'example_request'      => 'https://public-api.wordpress.com/rest/v1/sites/82974409/media/new/',
+
+		'response_format'      => array(
+			'media'  => '(array) Array of uploaded media',
+			'errors' => '(array) Array of error messages of uploading media failures',
+		),
+		'example_request_data' => array(
+			'headers' => array(
+				'authorization' => 'Bearer YOUR_API_TOKEN',
+			),
+			'body'    => array(
+				'media_urls' => 'https://s.w.org/about/images/logos/codeispoetry-rgb.png',
+			),
+		),
 	)
-) );
+);
 
 class WPCOM_JSON_API_Upload_Media_Endpoint extends WPCOM_JSON_API_Endpoint {
 	function callback( $path = '', $blog_id = 0 ) {
@@ -79,8 +81,9 @@ class WPCOM_JSON_API_Upload_Media_Endpoint extends WPCOM_JSON_API_Endpoint {
 		if ( $has_media_urls ) {
 			foreach ( $input['media_urls'] as $url ) {
 				$id = $this->handle_media_sideload( $url );
-				if ( ! empty( $id ) && is_int( $id ) )
+				if ( ! empty( $id ) && is_int( $id ) ) {
 					$media_ids[] = $id;
+				}
 			}
 		}
 
@@ -89,6 +92,9 @@ class WPCOM_JSON_API_Upload_Media_Endpoint extends WPCOM_JSON_API_Endpoint {
 			$results[] = $this->get_media_item( $media_id );
 		}
 
-		return array( 'media' => $results, 'errors' => $errors );
+		return array(
+			'media'  => $results,
+			'errors' => $errors,
+		);
 	}
 }

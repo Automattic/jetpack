@@ -1,37 +1,39 @@
 <?php
 
-new WPCOM_JSON_API_Update_User_Endpoint( array(
-	'description' => 'Deletes or removes a user of a site.',
-	'group'       => 'users',
-	'stat'        => 'users:delete',
+new WPCOM_JSON_API_Update_User_Endpoint(
+	array(
+		'description'          => 'Deletes or removes a user of a site.',
+		'group'                => 'users',
+		'stat'                 => 'users:delete',
 
-	'method'      => 'POST',
-	'path'        => '/sites/%s/users/%d/delete',
-	'path_labels' => array(
-		'$site'       => '(int|string) The site ID or domain.',
-		'$user_ID'    => '(int) The user\'s ID'
-	),
-
-	'request_format' => array(
-		'reassign' => '(int) An optional id of a user to reassign posts to.',
-	),
-
-	'response_format' => array(
-		'success' => '(bool) Was the deletion of user successful?',
-	),
-
-	'example_request'      => 'https://public-api.wordpress.com/rest/v1/sites/82974409/users/1/delete',
-	'example_request_data' => array(
-		'headers' => array(
-			'authorization' => 'Bearer YOUR_API_TOKEN'
+		'method'               => 'POST',
+		'path'                 => '/sites/%s/users/%d/delete',
+		'path_labels'          => array(
+			'$site'    => '(int|string) The site ID or domain.',
+			'$user_ID' => '(int) The user\'s ID',
 		),
-	),
 
-	'example_response' => '
+		'request_format'       => array(
+			'reassign' => '(int) An optional id of a user to reassign posts to.',
+		),
+
+		'response_format'      => array(
+			'success' => '(bool) Was the deletion of user successful?',
+		),
+
+		'example_request'      => 'https://public-api.wordpress.com/rest/v1/sites/82974409/users/1/delete',
+		'example_request_data' => array(
+			'headers' => array(
+				'authorization' => 'Bearer YOUR_API_TOKEN',
+			),
+		),
+
+		'example_response'     => '
 	{
 		"success": true
-	}'
-) );
+	}',
+	)
+);
 
 class WPCOM_JSON_API_Update_User_Endpoint extends WPCOM_JSON_API_Endpoint {
 
@@ -56,6 +58,7 @@ class WPCOM_JSON_API_Update_User_Endpoint extends WPCOM_JSON_API_Endpoint {
 
 	/**
 	 * Checks if a user exists by checking to see if a WP_User object exists for a user ID.
+	 *
 	 * @param  int $user_id
 	 * @return bool
 	 */
@@ -91,6 +94,7 @@ class WPCOM_JSON_API_Update_User_Endpoint extends WPCOM_JSON_API_Endpoint {
 
 	/**
 	 * Validates user input and then decides whether to remove or delete a user.
+	 *
 	 * @param  int $user_id
 	 * @return array|WP_Error
 	 */
@@ -116,7 +120,7 @@ class WPCOM_JSON_API_Update_User_Endpoint extends WPCOM_JSON_API_Endpoint {
 			}
 		}
 
-    	if ( get_current_user_id() == $user_id ) {
+		if ( get_current_user_id() == $user_id ) {
 			return new WP_Error( 'invalid_input', 'User can not remove or delete self through this endpoint.', 400 );
 		}
 
@@ -129,6 +133,7 @@ class WPCOM_JSON_API_Update_User_Endpoint extends WPCOM_JSON_API_Endpoint {
 
 	/**
 	 * Removes a user from the current site.
+	 *
 	 * @param  int $user_id
 	 * @return array|WP_Error
 	 */
@@ -142,12 +147,13 @@ class WPCOM_JSON_API_Update_User_Endpoint extends WPCOM_JSON_API_Endpoint {
 		}
 
 		return array(
-			'success' => remove_user_from_blog( $user_id, get_current_blog_id() )
+			'success' => remove_user_from_blog( $user_id, get_current_blog_id() ),
 		);
 	}
 
 	/**
 	 * Deletes a user and optionally reassigns posts to another user.
+	 *
 	 * @param  int $user_id
 	 * @return array|WP_Error
 	 */
