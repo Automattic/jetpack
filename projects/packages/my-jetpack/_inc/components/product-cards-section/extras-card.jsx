@@ -33,6 +33,7 @@ const ExtrasCard = ( { admin } ) => {
 			showDeactivate={ false }
 			onFixConnection={ useMyJetpackNavigate( '/connection' ) }
 			onManage={ onManage }
+			onAdd={ activate }
 		/>
 	);
 };
