@@ -24,21 +24,26 @@ import useMyJetpackConnection from '../../hooks/use-my-jetpack-connection';
  *
  * @param {object} props                 - Component props.
  * @param {string} props.slug            - Product slug
+ * @param {string} props.bundle          - Bundle including this product
  * @param {object} props.children        - Product additional content
  * @param {boolean} props.installsPlugin - Whether the interstitial button installs a plugin*
  * @returns {object}                       ProductInterstitial react component.
  */
-export default function ProductInterstitial( { installsPlugin = false, slug, children = null } ) {
+export default function ProductInterstitial( {
+	bundle,
+	installsPlugin = false,
+	slug,
+	children = null,
+} ) {
 	const { activate, detail } = useProduct( slug );
 	const {
 		isUpgradableByBundle,
 		pricingForUi: { isFree, wpcomProductSlug },
 		hasRequiredPlan,
+		postActivationUrl,
 	} = detail;
 
-	const {
-		tracks: { recordEvent },
-	} = useAnalytics();
+	const { recordEvent } = useAnalytics();
 
 	useEffect( () => {
 		recordEvent( 'jetpack_myjetpack_product_interstitial_view', { product: slug } );
@@ -47,6 +52,10 @@ export default function ProductInterstitial( { installsPlugin = false, slug, chi
 	const trackProductClick = useCallback( () => {
 		recordEvent( 'jetpack_myjetpack_product_interstitial_add_link_click', { product: slug } );
 	}, [ recordEvent, slug ] );
+
+	const trackBundleClick = useCallback( () => {
+		recordEvent( 'jetpack_myjetpack_product_interstitial_add_link_click', { product: bundle } );
+	}, [ recordEvent, bundle ] );
 
 	const Product = isUpgradableByBundle ? ProductDetailCard : ProductDetail;
 	const { isUserConnected } = useMyJetpackConnection();
@@ -61,6 +70,11 @@ export default function ProductInterstitial( { installsPlugin = false, slug, chi
 		}
 
 		activate().finally( function () {
+			if ( postActivationUrl ) {
+				window.location.href = postActivationUrl;
+				return;
+			}
+
 			if ( ! needsPurchase || ! wpcomProductSlug ) {
 				return navigateToMyJetpackOverviewPage();
 			}
@@ -75,6 +89,7 @@ export default function ProductInterstitial( { installsPlugin = false, slug, chi
 		navigateToMyJetpackOverviewPage,
 		wpcomProductSlug,
 		isUserConnected,
+		postActivationUrl,
 	] );
 
 	return (
@@ -92,7 +107,11 @@ export default function ProductInterstitial( { installsPlugin = false, slug, chi
 				/>
 			</Col>
 			<Col sm={ 4 } md={ 4 } lg={ 5 } className={ styles.imageContainer }>
-				{ children }
+				{ bundle ? (
+					<ProductDetailCard slug="security" trackButtonClick={ trackBundleClick } />
+				) : (
+					children
+				) }
 			</Col>
 		</Container>
 	);
@@ -104,11 +123,7 @@ export default function ProductInterstitial( { installsPlugin = false, slug, chi
  * @returns {object} AntiSpamInterstitial react component.
  */
 export function AntiSpamInterstitial() {
-	return (
-		<ProductInterstitial slug="anti-spam" installsPlugin={ true }>
-			<ProductDetailCard slug="security" />
-		</ProductInterstitial>
-	);
+	return <ProductInterstitial slug="anti-spam" installsPlugin={ true } bundle="security" />;
 }
 
 /**
@@ -117,11 +132,7 @@ export function AntiSpamInterstitial() {
  * @returns {object} BackupInterstitial react component.
  */
 export function BackupInterstitial() {
-	return (
-		<ProductInterstitial slug="backup" installsPlugin={ true }>
-			<ProductDetailCard slug="security" />
-		</ProductInterstitial>
-	);
+	return <ProductInterstitial slug="backup" installsPlugin={ true } bundle="security" />;
 }
 
 /**
@@ -156,11 +167,7 @@ export function CRMInterstitial() {
  * @returns {object} ScanInterstitial react component.
  */
 export function ScanInterstitial() {
-	return (
-		<ProductInterstitial slug="scan" installsPlugin={ true }>
-			<ProductDetailCard slug="security" />
-		</ProductInterstitial>
-	);
+	return <ProductInterstitial slug="scan" installsPlugin={ true } bundle="security" />;
 }
 
 /**

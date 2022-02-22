@@ -249,7 +249,7 @@ EOT;
 	public function test_has_search_block() {
 		$block_content_with_search    = '<!-- wp:group --><div class="wp-block-group"><!-- wp:search --></div><!-- /wp:group -->';
 		$block_content_without_search = '';
-		$this->assertTrue( Instant_Search::has_search_block( $block_content_with_search ) );
-		$this->assertNotTrue( Instant_Search::has_search_block( $block_content_without_search ) );
+		$this->assertTrue( Instant_Search::content_has_search_block( $block_content_with_search ) );
+		$this->assertNotTrue( Instant_Search::content_has_search_block( $block_content_without_search ) );
 	}
 }

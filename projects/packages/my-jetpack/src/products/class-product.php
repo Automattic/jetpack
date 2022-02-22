@@ -256,8 +256,10 @@ abstract class Product {
 			if ( static::$requires_user_connection && ! ( new Connection_Manager() )->has_connected_owner() ) {
 				$status = 'error';
 			} elseif ( ! static::has_required_plan() ) {
-				$status = 'needs_purchase';
+				$status = 'needs_purchase'; // We need needs_purchase here as well because some products we consider active without the required plan.
 			}
+		} elseif ( ! static::has_required_plan() ) {
+			$status = 'needs_purchase';
 		} else {
 			$status = 'inactive';
 		}
