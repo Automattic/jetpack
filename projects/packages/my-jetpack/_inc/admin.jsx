@@ -46,16 +46,14 @@ function Layout( { nav = false, children, slug } ) {
 		}
 	}, [ recordEvent, slug ] );
 
-	if ( ! nav ) {
-		return children;
-	}
-
 	return (
 		<div className={ styles.layout }>
-			<Container horizontalSpacing={ 3 } horizontalGap={ 3 }>
-				<Col>
-					<GoBackLink onClick={ onClick } />
-				</Col>
+			<Container horizontalSpacing={ nav ? 3 : 8 } horizontalGap={ nav ? 3 : 0 }>
+				{ nav && (
+					<Col>
+						<GoBackLink onClick={ onClick } />
+					</Col>
+				) }
 				<Col>{ children }</Col>
 			</Container>
 			<Container horizontalSpacing={ 5 }>
@@ -73,7 +71,7 @@ const MyJetpack = () => (
 			<Route path="/" element={ <MyJetpackScreen /> } />
 			<Route
 				path="/connection"
-				element={ <Layout nav={ true } children={ <ConnectionScreen /> } /> }
+				element={ <Layout nav={ false } children={ <ConnectionScreen /> } /> }
 			/>
 			<Route
 				path="/add-anti-spam"
