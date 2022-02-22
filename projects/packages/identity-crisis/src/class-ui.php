@@ -185,7 +185,7 @@ class UI {
 			return 'newspack';
 		}
 
-		return 'standalone';
+		return 'self-hosted';
 	}
 
 }
