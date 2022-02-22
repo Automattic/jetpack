@@ -40,6 +40,7 @@ export default function ProductInterstitial( {
 		isUpgradableByBundle,
 		pricingForUi: { isFree, wpcomProductSlug },
 		hasRequiredPlan,
+		postActivationUrl,
 	} = detail;
 
 	const { recordEvent } = useAnalytics();
@@ -69,6 +70,11 @@ export default function ProductInterstitial( {
 		}
 
 		activate().finally( function () {
+			if ( postActivationUrl ) {
+				window.location.href = postActivationUrl;
+				return;
+			}
+
 			if ( ! needsPurchase || ! wpcomProductSlug ) {
 				return navigateToMyJetpackOverviewPage();
 			}
@@ -83,6 +89,7 @@ export default function ProductInterstitial( {
 		navigateToMyJetpackOverviewPage,
 		wpcomProductSlug,
 		isUserConnected,
+		postActivationUrl,
 	] );
 
 	return (
