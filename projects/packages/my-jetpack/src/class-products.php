@@ -145,12 +145,7 @@ class Products {
 	 * @return array Object with infromation about the product.
 	 */
 	public static function get_extras_data() {
-		return array(
-			'slug'        => 'extras',
-			'description' => __( 'Basic tools for a successful site', 'jetpack-my-jetpack' ),
-			'name'        => __( 'Extras', 'jetpack-my-jetpack' ),
-			'status'      => 'active',
-		);
+		return Products\Extras::get_info();
 	}
 
 	/**

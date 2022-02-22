@@ -12,6 +12,7 @@
 
 namespace Automattic\Jetpack_Boost;
 
+use Automattic\Jetpack\My_Jetpack\Initializer as My_Jetpack_Initializer;
 use Automattic\Jetpack_Boost\Admin\Admin;
 use Automattic\Jetpack_Boost\Features\Optimizations\Critical_CSS\Critical_CSS;
 use Automattic\Jetpack_Boost\Features\Optimizations\Critical_CSS\Regenerate_Admin_Notice;
@@ -99,6 +100,8 @@ class Jetpack_Boost {
 
 		// Fired when plugin ready.
 		do_action( 'jetpack_boost_loaded', $this );
+
+		My_Jetpack_Initializer::init();
 	}
 
 	/**

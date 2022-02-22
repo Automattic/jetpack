@@ -3,7 +3,12 @@
  */
 import React from 'react';
 import { ConnectionStatusCard } from '@automattic/jetpack-connection';
+
+/**
+ * Internal dependencies
+ */
 import useMyJetpackConnection from '../../hooks/use-my-jetpack-connection';
+import useMyJetpackNavigate from '../../hooks/use-my-jetpack-navigate';
 
 /**
  * Plan section component.
@@ -12,7 +17,13 @@ import useMyJetpackConnection from '../../hooks/use-my-jetpack-connection';
  */
 export default function ConnectionsSection() {
 	const { apiRoot, apiNonce, redirectUrl } = useMyJetpackConnection();
+	const navigate = useMyJetpackNavigate( '/connection' );
 	return (
-		<ConnectionStatusCard apiRoot={ apiRoot } apiNonce={ apiNonce } redirectUri={ redirectUrl } />
+		<ConnectionStatusCard
+			apiRoot={ apiRoot }
+			apiNonce={ apiNonce }
+			redirectUri={ redirectUrl }
+			onConnectUser={ navigate }
+		/>
 	);
 }

@@ -43,7 +43,7 @@ function render() {
 				apiRoot={ WP_API_root }
 				apiNonce={ WP_API_nonce }
 				redirectUri={ redirectUri }
-				tracksUserData={ tracksUserData }
+				tracksUserData={ tracksUserData || {} }
 				tracksEventData={ tracksEventData }
 				customContent={
 					consumerData.hasOwnProperty( 'customContent' ) ? consumerData.customContent : {}
