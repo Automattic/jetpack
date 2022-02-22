@@ -25,7 +25,6 @@ jobs:
         if: github.event_name != 'push'
         uses: ./.github/actions/deepen-to-merge-base
         with:
-          head: ${{ github.event.pull_request.head.ref }}
           checkout: false
 
       - name: Determine tags for PR or tag and paths for tag push
