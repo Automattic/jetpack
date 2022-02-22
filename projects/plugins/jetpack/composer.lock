@@ -295,10 +295,10 @@
             "dist": {
                 "type": "path",
                 "url": "../../packages/backup",
-                "reference": "e338b717cf1dc78b8b1570b87213fc91e25197ad"
+                "reference": "26be67ce4699b2a80cd477c9627b6fc48b3cdec0"
             },
             "require": {
-                "automattic/jetpack-connection": "^1.36",
+                "automattic/jetpack-connection": "^1.37",
                 "automattic/jetpack-sync": "^1.30"
             },
             "require-dev": {
