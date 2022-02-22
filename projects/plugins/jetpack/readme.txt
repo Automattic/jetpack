@@ -250,8 +250,7 @@ Jetpack Backup can do a full website migration to a new host, migrate theme file
 - Blocks: add support for color and spacing block options for Form, Mailchimp, Podcast Player, and Related Posts blocks.
 - Business Hours: Add support for color & spacing design tool.
 - Changed the plan description for invalid plans and added a Warning message for Premium content blocks with invalid plans.
-- Dashboard: improve loading of plugins page.
-- Dashboard: remove marketplace related add plugins menu redirect.
+- Dashboard: improve performance of plugins page.
 - Dashboard: the Backup banner CTA on the At-a-Glance page will now be replaced with a "Redeem Coupon" CTA when a partner coupon is detected.
 - Dashboard: updated the logic for "Activate a Product" button in "My Plan" to be always visible.
 - Dashboard: update the Free plan description to consider the currently active products.
@@ -259,14 +258,13 @@ Jetpack Backup can do a full website migration to a new host, migrate theme file
 - Payment Block: updated the Payment block Upgrade nudge description to include the plan name that's required to use the block.
 - Premium Content Block: remove option to transform a premium content block to a premium content block.
 - Premium Content Block: use 'Guest' rather than visitor/Logged-out.
-- Subscribe block: change border color automatically when button background color changes.
-- Subscribe block: several updates including name change, display of current subscribers, and a new style option.
+- Subscribe block: various changes, including a name change, how the display for current subscribers is shown, and new styling options and enhancements.
 
 #### Improved compatibility
 - Image CDN: ensure that SVG images added to posts thanks to the SVG Support plugin can be displayed even when Jetpack's Image CDN is active.
 - Internet Defense League widget: Widget deprecation.
 - My Community widget: Hide widget from the block inserter and Legacy widget block drop-down menu
-- Performance: improve performance for sites without VideoPress enabled.
+- Performance: improve performance of Jetpack dashboard for sites without VideoPress enabled.
 - Search: Add deprecated class to prevent third-party integrations from failing after 10.6 updates.
 - VideoPress: Added title and aria-label to VideoPress iframe embeds for better screen reader support.
 - WordAds: deprecate the legacy Ad Widget in favor of the Ad Block when adding new Ad Widgets via the block-based widget editor.
