@@ -1,8 +1,7 @@
 /**
  * External dependencies
  */
-import { minimumTransactionAmountForCurrency, parseAmount } from '../../shared/currencies';
-import { initializeMembershipButtons } from '../../shared/memberships';
+import formatCurrency from '@automattic/format-currency';
 
 /**
  * WordPress dependencies
@@ -10,12 +9,13 @@ import { initializeMembershipButtons } from '../../shared/memberships';
 import domReady from '@wordpress/dom-ready';
 import { ENTER } from '@wordpress/keycodes';
 import { addQueryArgs, removeQueryArgs } from '@wordpress/url';
-import formatCurrency from '@automattic/format-currency';
 
 /**
  * Internal dependencies
  */
 import JetpackDonationsV2 from './deprecated/v2/view';
+import { minimumTransactionAmountForCurrency, parseAmount } from '../../shared/currencies';
+import { initializeMembershipButtons } from '../../shared/memberships';
 
 /**
  * Style dependencies

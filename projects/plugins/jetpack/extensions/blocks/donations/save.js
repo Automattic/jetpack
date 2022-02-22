@@ -2,6 +2,10 @@
  * WordPress dependencies
  */
 import { InnerBlocks, useBlockProps } from '@wordpress/block-editor';
+
+/**
+ * External dependencies
+ */
 import classnames from 'classnames';
 
 const Save = () => {

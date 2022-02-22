@@ -33,6 +33,7 @@ const settings = {
 		},
 		disabled: {
 			type: 'boolean',
+			default: false,
 		},
 	},
 	__experimentalLabel: ( { disabled } ) =>

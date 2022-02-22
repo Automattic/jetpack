@@ -2,23 +2,23 @@
  * External dependencies
  */
 import classnames from 'classnames';
-import { minimumTransactionAmountForCurrency, parseAmount } from '../../../shared/currencies';
+import formatCurrency, { CURRENCIES } from '@automattic/format-currency';
 
 /**
  * Internal dependencies
  */
 import DonationsContext from '../common/context';
+import { minimumTransactionAmountForCurrency, parseAmount } from '../../../shared/currencies';
 
 /**
  * WordPress dependencies
  */
 import { RichText, useBlockProps } from '@wordpress/block-editor';
-import formatCurrency, { CURRENCIES } from '@automattic/format-currency';
 import { useCallback, useContext, useEffect, useMemo, useRef, useState } from '@wordpress/element';
 
-const Edit = props => {
+export default function AmountEdit( props ) {
 	const { attributes, setAttributes } = props;
-	const { baseAmountMultiplier, label, amount, disabled = false } = attributes;
+	const { baseAmountMultiplier, label, amount, disabled } = attributes;
 	const { currency } = useContext( DonationsContext );
 	const defaultValue = useMemo(
 		() => minimumTransactionAmountForCurrency( currency ) * baseAmountMultiplier,
@@ -115,6 +115,4 @@ const Edit = props => {
 			) }
 		</div>
 	);
-};
-
-export default Edit;
+}

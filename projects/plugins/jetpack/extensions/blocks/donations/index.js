@@ -2,7 +2,6 @@
  * WordPress dependencies
  */
 import { __ } from '@wordpress/i18n';
-import { DonationsIcon } from '../../shared/icons';
 
 /**
  * Internal dependencies
@@ -11,6 +10,7 @@ import edit from './edit';
 import save from './save';
 import { ANNUAL_DONATION, MONTHLY_DONATION, ONE_TIME_DONATION } from './common/constants';
 import { deprecated } from './deprecated';
+import { DonationsIcon } from '../../shared/icons';
 
 /**
  * Style dependencies

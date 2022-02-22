@@ -2,23 +2,27 @@
  * WordPress dependencies
  */
 import { useBlockProps } from '@wordpress/block-editor';
-import formatCurrency, { CURRENCIES } from '@automattic/format-currency';
 
 /**
  * External dependencies
  */
-import { minimumTransactionAmountForCurrency } from '../../../shared/currencies';
 import classnames from 'classnames';
+import formatCurrency, { CURRENCIES } from '@automattic/format-currency';
+
+/**
+ * Internal dependencies
+ */
+import { minimumTransactionAmountForCurrency } from '../../../shared/currencies';
 
 const Save = ( { attributes } ) => {
 	const { disabled, currency, amount } = attributes;
 
-	if ( disabled ) {
-		const className = classnames( 'donations__amount wp-block-button wp-block-button__link', {
-			'donations__custom-amount': disabled,
-		} );
-		const blockProps = useBlockProps.save( { className } );
+	const className = classnames( 'donations__amount wp-block-button wp-block-button__link', {
+		'donations__custom-amount': disabled,
+	} );
+	const blockProps = useBlockProps.save( { className } );
 
+	if ( disabled ) {
 		const defaultAmount = minimumTransactionAmountForCurrency( currency ) * 100;
 
 		return (
@@ -32,9 +36,6 @@ const Save = ( { attributes } ) => {
 			</div>
 		);
 	}
-
-	const className = 'donations__amount wp-block-button wp-block-button__link';
-	const blockProps = useBlockProps.save( { className } );
 
 	return (
 		<div { ...blockProps } data-amount={ amount }>

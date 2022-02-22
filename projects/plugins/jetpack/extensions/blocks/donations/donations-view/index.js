@@ -9,16 +9,12 @@ import {
 	MONTHLY_DONATION,
 	ONE_TIME_DONATION,
 } from '../common/constants';
+import { DonationsIcon } from '../../../shared/icons';
 
 /**
  * WordPress dependencies
  */
 import { __ } from '@wordpress/i18n';
-
-/**
- * External dependencies
- */
-import { DonationsIcon } from '../../../shared/icons';
 
 const name = 'donations-view';
 
