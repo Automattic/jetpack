@@ -2,7 +2,7 @@
 
 set -eo pipefail
 
-source ./funcs.sh
+source "$BASE/funcs.sh"
 
 GITHUB_API_URL="${GITHUB_API_URL:-https://api.github.com}"
 GITHUB_SERVER_URL="${GITHUB_SERVER_URL:-https://github.com}"
