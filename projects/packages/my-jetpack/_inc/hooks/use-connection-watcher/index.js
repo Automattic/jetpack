@@ -83,5 +83,10 @@ export default function useConnectionWatcher() {
 				],
 			} );
 		}
-	}, [ productsThatRequiresUserConnection, requiresUserConnection, navToConnection, setGlobalNotice ] );
+	}, [
+		productsThatRequiresUserConnection,
+		requiresUserConnection,
+		navToConnection,
+		setGlobalNotice,
+	] );
 }

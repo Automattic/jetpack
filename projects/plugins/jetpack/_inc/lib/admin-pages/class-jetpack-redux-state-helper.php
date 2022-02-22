@@ -23,6 +23,16 @@ use Automattic\Jetpack\Status\Host;
  */
 class Jetpack_Redux_State_Helper {
 	/**
+	 * Generate minimal state for React to fetch its own data
+	 */
+	public static function get_minimal_state() {
+		return array(
+			'WP_API_root'  => esc_url_raw( rest_url() ),
+			'WP_API_nonce' => wp_create_nonce( 'wp_rest' ),
+		);
+	}
+
+	/**
 	 * Generate the initial state array to be used by the Redux store.
 	 */
 	public static function get_initial_state() {

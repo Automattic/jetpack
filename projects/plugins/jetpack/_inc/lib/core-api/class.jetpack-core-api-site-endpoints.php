@@ -237,17 +237,19 @@ class Jetpack_Core_API_Site_Endpoint {
 		}
 
 		// Number of VideoPress videos on the site.
-		$videopress_attachments = wp_count_attachments( 'video/videopress' );
-		if (
-			isset( $videopress_attachments->{'video/videopress'} )
-			&& $videopress_attachments->{'video/videopress'} > 0
-		) {
-			$benefits[] = array(
-				'name'        => 'video-hosting',
-				'title'       => esc_html__( 'Video Hosting', 'jetpack' ),
-				'description' => esc_html__( 'Ad-free, lightning-fast videos delivered by Jetpack', 'jetpack' ),
-				'value'       => absint( $videopress_attachments->{'video/videopress'} ),
-			);
+		if ( Jetpack::is_module_active( 'videopress' ) ) {
+			$videopress_attachments = wp_count_attachments( 'video/videopress' );
+			if (
+				isset( $videopress_attachments->{'video/videopress'} )
+				&& $videopress_attachments->{'video/videopress'} > 0
+			) {
+				$benefits[] = array(
+					'name'        => 'video-hosting',
+					'title'       => esc_html__( 'Video Hosting', 'jetpack' ),
+					'description' => esc_html__( 'Ad-free, lightning-fast videos delivered by Jetpack', 'jetpack' ),
+					'value'       => absint( $videopress_attachments->{'video/videopress'} ),
+				);
+			}
 		}
 
 		// Number of active Publicize connections.

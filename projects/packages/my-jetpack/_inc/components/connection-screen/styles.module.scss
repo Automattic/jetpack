@@ -1,14 +1,10 @@
-.icon {
-	width: 16px;
-	margin-right: 4px;
+.relative-col {
+	position: relative;
 }
 
-.link {
-	--gray-70: #3C434A;
-
-	font-size: 14px;
-	color: var(--gray-70);
-	display: flex;
-	text-decoration: none;
-	align-items: center;
+.close-link {
+	position: absolute;
+	right: 32px;
+	top: 32px;
+	z-index: 1;
 }
