@@ -118,7 +118,7 @@ class Atomic_Admin_Menu extends Admin_Menu {
 		global $submenu;
 
 		// Hide Add new plugin and plugin file editor menu.
-		if ( class_exists( 'Atomic_Plan_Manager' ) && ! \Atomic_Plan_Manager::has_atomic_supported_plan() ) {
+		if ( ! $this->has_atomic_supported_plan() ) {
 			parent::add_plugins_menu();
 
 			return;
@@ -351,7 +351,10 @@ class Atomic_Admin_Menu extends Admin_Menu {
 			);
 		}
 		add_submenu_page( 'options-general.php', esc_attr__( 'Hosting Configuration', 'jetpack' ), __( 'Hosting Configuration', 'jetpack' ), 'manage_options', 'https://wordpress.com/hosting-config/' . $this->domain, null, 11 );
-		add_submenu_page( 'options-general.php', esc_attr__( 'Jetpack', 'jetpack' ), __( 'Jetpack', 'jetpack' ), 'manage_options', 'https://wordpress.com/settings/jetpack/' . $this->domain, null, 12 );
+
+		if ( $this->has_atomic_supported_plan() ) {
+			add_submenu_page( 'options-general.php', esc_attr__( 'Jetpack', 'jetpack' ), __( 'Jetpack', 'jetpack' ), 'manage_options', 'https://wordpress.com/settings/jetpack/' . $this->domain, null, 12 );
+		}
 
 		// Page Optimize is active by default on all Atomic sites and registers a Settings > Performance submenu which
 		// would conflict with our own Settings > Performance that links to Calypso, so we hide it it since the Calypso
@@ -420,5 +423,17 @@ class Atomic_Admin_Menu extends Admin_Menu {
 	 */
 	public function hide_search_menu_for_calypso() {
 		$this->hide_submenu_page( 'jetpack', 'https://wordpress.com/jetpack-search/' . $this->domain );
+	}
+
+	/**
+	 * Check if site has Atomic supported plan. `Atomic_Plan_Manager` lives in wpcomsh
+	 */
+	protected function has_atomic_supported_plan() {
+		// Fallback to default behavior if Atomic_Plan_Manager doesn't exists.
+		if ( ! class_exists( 'Atomic_Plan_Manager' ) ) {
+			return true;
+		}
+
+		return \Atomic_Plan_Manager::has_atomic_supported_plan();
 	}
 }
