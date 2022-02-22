@@ -1,4 +1,13 @@
-<?php
+<?php // phpcs:ignore WordPress.Files.FileName.InvalidClassFileName
+/**
+ * Update post endpoint.
+ *
+ * Endpoints:
+ * Create a post:  /sites/%s/posts/new
+ * Update a post:  /sites/%s/posts/%d
+ * Delete a post:  /sites/%s/posts/%d/delete
+ * Restore a post: /sites/%s/posts/%d/restore
+ */
 
 new WPCOM_JSON_API_Update_Post_Endpoint(
 	array(
@@ -14,7 +23,7 @@ new WPCOM_JSON_API_Update_Post_Endpoint(
 		),
 
 		'request_format'       => array(
-			// explicitly document all input
+			// explicitly document all input.
 			'date'              => "(ISO 8601 datetime) The post's creation time.",
 			'title'             => '(HTML) The post title.',
 			'content'           => '(HTML) The post content.',
@@ -186,19 +195,37 @@ new WPCOM_JSON_API_Update_Post_Endpoint(
 	)
 );
 
+/**
+ * Update post endpoint class.
+ */
 class WPCOM_JSON_API_Update_Post_Endpoint extends WPCOM_JSON_API_Post_Endpoint {
-	function __construct( $args ) {
+	/**
+	 * WPCOM_JSON_API_Update_Post_Endpoint class.
+	 *
+	 * @param array $args Args.
+	 */
+	public function __construct( $args ) {
 		parent::__construct( $args );
 		if ( $this->api->ends_with( $this->path, '/delete' ) ) {
 			$this->post_object_format['status']['deleted'] = 'The post has been deleted permanently.';
 		}
 	}
 
-	// /sites/%s/posts/new       -> $blog_id
-	// /sites/%s/posts/%d        -> $blog_id, $post_id
-	// /sites/%s/posts/%d/delete -> $blog_id, $post_id
-	// /sites/%s/posts/%d/restore -> $blog_id, $post_id
-	function callback( $path = '', $blog_id = 0, $post_id = 0 ) {
+	/**
+	 * Update post API callback.
+	 *
+	 * /sites/%s/posts/new        -> $blog_id
+	 * /sites/%s/posts/%d         -> $blog_id, $post_id
+	 * /sites/%s/posts/%d/delete  -> $blog_id, $post_id
+	 * /sites/%s/posts/%d/restore -> $blog_id, $post_id
+	 *
+	 * @param string $path API path.
+	 * @param int    $blog_id Blog ID.
+	 * @param int    $post_id Post ID.
+	 *
+	 * @return array|bool|WP_Error
+	 */
+	public function callback( $path = '', $blog_id = 0, $post_id = 0 ) {
 		$blog_id = $this->api->switch_to_blog_and_validate_user( $this->api->get_blog_id( $blog_id ) );
 		if ( is_wp_error( $blog_id ) ) {
 			return $blog_id;
@@ -213,13 +240,21 @@ class WPCOM_JSON_API_Update_Post_Endpoint extends WPCOM_JSON_API_Post_Endpoint {
 		}
 	}
 
-	// /sites/%s/posts/new       -> $blog_id
-	// /sites/%s/posts/%d        -> $blog_id, $post_id
-	function write_post( $path, $blog_id, $post_id ) {
+	/**
+	 * Create or update a post.
+	 *
+	 * /sites/%s/posts/new -> $blog_id
+	 * /sites/%s/posts/%d  -> $blog_id, $post_id
+	 *
+	 * @param string $path API path.
+	 * @param int    $blog_id Blog ID.
+	 * @param int    $post_id Post ID.
+	 */
+	public function write_post( $path, $blog_id, $post_id ) {
 		$new  = $this->api->ends_with( $path, '/new' );
 		$args = $this->query_args();
 
-		// unhook publicize, it's hooked again later -- without this, skipping services is impossible
+		// unhook publicize, it's hooked again later -- without this, skipping services is impossible.
 		if ( defined( 'IS_WPCOM' ) && IS_WPCOM ) {
 			remove_action( 'save_post', array( $GLOBALS['publicize_ui']->publicize, 'async_publicize_post' ), 100, 2 );
 			add_action( 'rest_api_inserted_post', array( $GLOBALS['publicize_ui']->publicize, 'async_publicize_post' ) );
@@ -232,13 +267,13 @@ class WPCOM_JSON_API_Update_Post_Endpoint extends WPCOM_JSON_API_Post_Endpoint {
 				if ( ! isset( $input['parent'] ) ) {
 					return new WP_Error( 'invalid_input', 'Invalid request input', 400 );
 				}
-				$input['status'] = 'inherit'; // force inherit for revision type
+				$input['status'] = 'inherit'; // force inherit for revision type.
 				$input['slug']   = $input['parent'] . '-autosave-v1';
 			} elseif ( ! isset( $input['title'] ) && ! isset( $input['content'] ) && ! isset( $input['excerpt'] ) ) {
 				return new WP_Error( 'invalid_input', 'Invalid request input', 400 );
 			}
 
-			// default to post
+			// default to post.
 			if ( empty( $input['type'] ) ) {
 				$input['type'] = 'post';
 			}
@@ -324,11 +359,11 @@ class WPCOM_JSON_API_Update_Post_Endpoint extends WPCOM_JSON_API_Post_Endpoint {
 		}
 
 		if ( function_exists( 'wpcom_switch_to_locale' ) ) {
-			// fixes calypso-pre-oss #12476: respect blog locale when creating the post slug
+			// fixes calypso-pre-oss #12476: respect blog locale when creating the post slug.
 			wpcom_switch_to_locale( get_blog_lang_code( $blog_id ) );
 		}
 
-		// If date was set, $this->input will set date_gmt, date still needs to be adjusted for the blog's offset
+		// If date was set, $this->input will set date_gmt, date still needs to be adjusted for the blog's offset.
 		if ( isset( $input['date_gmt'] ) ) {
 			$gmt_offset       = get_option( 'gmt_offset' );
 			$time_with_offset = strtotime( $input['date_gmt'] ) + $gmt_offset * HOUR_IN_SECONDS;
@@ -375,7 +410,7 @@ class WPCOM_JSON_API_Update_Post_Endpoint extends WPCOM_JSON_API_Post_Endpoint {
 				 * Consequence: To add a category/tag whose name is '123', the client must
 				 * first look up its ID.
 				 */
-				$term = (string) $term; // ctype_digit compat
+				$term = (string) $term; // ctype_digit compat.
 				if ( ctype_digit( $term ) ) {
 					$term = (int) $term;
 				}
@@ -387,10 +422,10 @@ class WPCOM_JSON_API_Update_Post_Endpoint extends WPCOM_JSON_API_Post_Endpoint {
 					if ( is_int( $term ) ) {
 						continue;
 					}
-					// only add a new tag/cat if the user has access to
+					// only add a new tag/cat if the user has access to.
 					$tax = get_taxonomy( $taxonomy );
 
-					// see https://core.trac.wordpress.org/ticket/26409
+					// see https://core.trac.wordpress.org/ticket/26409 .
 					if ( 'category' === $taxonomy && ! current_user_can( $tax->cap->edit_terms ) ) {
 						continue;
 					} elseif ( ! current_user_can( $tax->cap->assign_terms ) ) {
@@ -402,10 +437,10 @@ class WPCOM_JSON_API_Update_Post_Endpoint extends WPCOM_JSON_API_Post_Endpoint {
 
 				if ( ! is_wp_error( $term_info ) ) {
 					if ( $is_hierarchical ) {
-						// Categories must be added by ID
+						// Categories must be added by ID.
 						$tax_input[ $taxonomy ][] = (int) $term_info['term_id'];
 					} else {
-						// Tags must be added by name
+						// Tags must be added by name.
 						if ( is_int( $term ) ) {
 							$term                     = get_term( $term, $taxonomy );
 							$tax_input[ $taxonomy ][] = $term->name;
@@ -492,11 +527,11 @@ class WPCOM_JSON_API_Update_Post_Endpoint extends WPCOM_JSON_API_Post_Endpoint {
 						// No images - do nothing.
 						break;
 					case 1:
-						// 1 image - make it big
+						// 1 image - make it big.
 						$insert['post_content'] = $input['content'] = "[gallery size=full columns=1]\n\n" . $input['content'];
 						break;
 					default:
-						// Several images - 3 column gallery
+						// Several images - 3 column gallery.
 						$insert['post_content'] = $input['content'] = "[gallery]\n\n" . $input['content'];
 						break;
 				}
@@ -508,17 +543,17 @@ class WPCOM_JSON_API_Update_Post_Endpoint extends WPCOM_JSON_API_Post_Endpoint {
 
 			// wp_update_post ignores date unless edit_date is set
 			// See: https://codex.wordpress.org/Function_Reference/wp_update_post#Scheduling_posts
-			// See: https://core.trac.wordpress.org/browser/tags/3.9.2/src/wp-includes/post.php#L3302
+			// See: https://core.trac.wordpress.org/browser/tags/3.9.2/src/wp-includes/post.php#L3302 .
 			if ( isset( $input['date_gmt'] ) || isset( $input['date'] ) ) {
 				$insert['edit_date'] = true;
 			}
 
-			// this two-step process ensures any changes submitted along with status=trash get saved before trashing
+			// this two-step process ensures any changes submitted along with status=trash get saved before trashing.
 			if ( isset( $input['status'] ) && 'trash' === $input['status'] ) {
-				// if we insert it with status='trash', it will get double-trashed, so insert it as a draft first
+				// if we insert it with status='trash', it will get double-trashed, so insert it as a draft first.
 				unset( $insert['status'] );
 				$post_id = wp_update_post( (object) $insert );
-				// now call wp_trash_post so post_meta gets set and any filters get called
+				// now call wp_trash_post so post_meta gets set and any filters get called.
 				wp_trash_post( $post_id );
 			} else {
 				$post_id = wp_update_post( (object) $insert );
@@ -529,7 +564,7 @@ class WPCOM_JSON_API_Update_Post_Endpoint extends WPCOM_JSON_API_Post_Endpoint {
 			return $post_id;
 		}
 
-		// make sure this post actually exists and is not an error of some kind (ie, trying to load media in the posts endpoint)
+		// make sure this post actually exists and is not an error of some kind (ie, trying to load media in the posts endpoint).
 		$post_check = $this->get_post_by( 'ID', $post_id, $args['context'] );
 		if ( is_wp_error( $post_check ) ) {
 			return $post_check;
@@ -539,8 +574,8 @@ class WPCOM_JSON_API_Update_Post_Endpoint extends WPCOM_JSON_API_Post_Endpoint {
 			$this->api->trap_wp_die( 'upload_error' );
 			foreach ( $input['media'] as $media_item ) {
 				$_FILES['.api.media.item.'] = $media_item;
-				// check for WP_Error if we ever actually need $media_id
-				$media_id = media_handle_upload( '.api.media.item.', $post_id );
+				// check for WP_Error if we ever actually need $media_id .
+				$media_id = media_handle_upload( '.api.media.item.', $post_id ); // phpcs:ignore VariableAnalysis.CodeAnalysis.VariableAnalysis.UnusedVariable
 			}
 			$this->api->trap_wp_die( null );
 
@@ -553,7 +588,7 @@ class WPCOM_JSON_API_Update_Post_Endpoint extends WPCOM_JSON_API_Post_Endpoint {
 			}
 		}
 
-		// Set like status for the post
+		// Set like status for the post.
 		/** This filter is documented in modules/likes.php */
 		$sitewide_likes_enabled = (bool) apply_filters( 'wpl_is_enabled_sitewide', ! get_option( 'disabled_likes' ) );
 		if ( $new ) {
@@ -588,7 +623,7 @@ class WPCOM_JSON_API_Update_Post_Endpoint extends WPCOM_JSON_API_Post_Endpoint {
 			}
 		}
 
-		// Set sharing status of the post
+		// Set sharing status of the post.
 		if ( $new ) {
 			$sharing_enabled = isset( $sharing ) ? (bool) $sharing : true;
 			if ( false === $sharing_enabled ) {
@@ -612,7 +647,7 @@ class WPCOM_JSON_API_Update_Post_Endpoint extends WPCOM_JSON_API_Post_Endpoint {
 
 		// WPCOM Specific (Jetpack's will get bumped elsewhere
 		// Tracks how many posts are published and sets meta
-		// so we can track some other cool stats (like likes & comments on posts published)
+		// so we can track some other cool stats (like likes & comments on posts published).
 		if ( defined( 'IS_WPCOM' ) && IS_WPCOM ) {
 			if (
 				( $new && 'publish' == $input['status'] )
@@ -632,9 +667,9 @@ class WPCOM_JSON_API_Update_Post_Endpoint extends WPCOM_JSON_API_Post_Endpoint {
 
 		// We ask the user/dev to pass Publicize services he/she wants activated for the post, but Publicize expects us
 		// to instead flag the ones we don't want to be skipped. proceed with said logic.
-		// any posts coming from Path (client ID 25952) should also not publicize
+		// any posts coming from Path (client ID 25952) should also not publicize.
 		if ( $publicize === false || ( isset( $this->api->token_details['client_id'] ) && 25952 == $this->api->token_details['client_id'] ) ) {
-			// No publicize at all, skip all by ID
+			// No publicize at all, skip all by ID.
 			foreach ( $GLOBALS['publicize_ui']->publicize->get_services( 'all' ) as $name => $service ) {
 				delete_post_meta( $post_id, $GLOBALS['publicize_ui']->publicize->POST_SKIP . $name );
 				$service_connections = $GLOBALS['publicize_ui']->publicize->get_connections( $name );
@@ -648,39 +683,39 @@ class WPCOM_JSON_API_Update_Post_Endpoint extends WPCOM_JSON_API_Post_Endpoint {
 		} elseif ( is_array( $publicize ) && ( count( $publicize ) > 0 ) ) {
 			foreach ( $GLOBALS['publicize_ui']->publicize->get_services( 'all' ) as $name => $service ) {
 				/*
-				 * We support both indexed and associative arrays:
-				 * * indexed are to pass entire services
-				 * * associative are to pass specific connections per service
-				 *
-				 * We do support mixed arrays: mixed integer and string keys (see 3rd example below).
-				 *
-				 * EG: array( 'twitter', 'facebook') will only publicize to those, ignoring the other available services
-				 *      Form data: publicize[]=twitter&publicize[]=facebook
-				 * EG: array( 'twitter' => '(int) $pub_conn_id_0, (int) $pub_conn_id_3', 'facebook' => (int) $pub_conn_id_7 ) will publicize to two Twitter accounts, and one Facebook connection, of potentially many.
-				 *      Form data: publicize[twitter]=$pub_conn_id_0,$pub_conn_id_3&publicize[facebook]=$pub_conn_id_7
-				 * EG: array( 'twitter', 'facebook' => '(int) $pub_conn_id_0, (int) $pub_conn_id_3' ) will publicize to all available Twitter accounts, but only 2 of potentially many Facebook connections
-				 *      Form data: publicize[]=twitter&publicize[facebook]=$pub_conn_id_0,$pub_conn_id_3
-				 */
+				* We support both indexed and associative arrays:
+				* * indexed are to pass entire services
+				* * associative are to pass specific connections per service
+				*
+				* We do support mixed arrays: mixed integer and string keys (see 3rd example below).
+				*
+				* EG: array( 'twitter', 'facebook') will only publicize to those, ignoring the other available services
+				*      Form data: publicize[]=twitter&publicize[]=facebook
+				* EG: array( 'twitter' => '(int) $pub_conn_id_0, (int) $pub_conn_id_3', 'facebook' => (int) $pub_conn_id_7 ) will publicize to two Twitter accounts, and one Facebook connection, of potentially many.
+				*      Form data: publicize[twitter]=$pub_conn_id_0,$pub_conn_id_3&publicize[facebook]=$pub_conn_id_7
+				* EG: array( 'twitter', 'facebook' => '(int) $pub_conn_id_0, (int) $pub_conn_id_3' ) will publicize to all available Twitter accounts, but only 2 of potentially many Facebook connections
+				*      Form data: publicize[]=twitter&publicize[facebook]=$pub_conn_id_0,$pub_conn_id_3
+				*/
 
 				// Delete any stale SKIP value for the service by name. We'll add it back by ID.
 				delete_post_meta( $post_id, $GLOBALS['publicize_ui']->publicize->POST_SKIP . $name );
 
-				// Get the user's connections
+				// Get the user's connections.
 				$service_connections = $GLOBALS['publicize_ui']->publicize->get_connections( $name );
 
-				// if the user doesn't have any connections for this service, move on
+				// if the user doesn't have any connections for this service, move on.
 				if ( ! $service_connections ) {
 					continue;
 				}
 
 				if ( ! in_array( $name, $publicize ) && ! array_key_exists( $name, $publicize ) ) {
-					// Skip the whole service by adding each connection ID
+					// Skip the whole service by adding each connection ID.
 					foreach ( $service_connections as $service_connection ) {
 						update_post_meta( $post_id, $GLOBALS['publicize_ui']->publicize->POST_SKIP . $service_connection->unique_id, 1 );
 					}
 				} elseif ( ! empty( $publicize[ $name ] ) ) {
 					// Seems we're being asked to only push to [a] specific connection[s].
-					// Explode the list on commas, which will also support a single passed ID
+					// Explode the list on commas, which will also support a single passed ID.
 					$requested_connections = explode( ',', ( preg_replace( '/[\s]*/', '', $publicize[ $name ] ) ) );
 					// Flag the connections we can't match with the requested list to be skipped.
 					foreach ( $service_connections as $service_connection ) {
@@ -691,7 +726,7 @@ class WPCOM_JSON_API_Update_Post_Endpoint extends WPCOM_JSON_API_Post_Endpoint {
 						}
 					}
 				} else {
-					// delete all SKIP values; it's okay to publish to all connected IDs for this service
+					// delete all SKIP values; it's okay to publish to all connected IDs for this service.
 					foreach ( $service_connections as $service_connection ) {
 						delete_post_meta( $post_id, $GLOBALS['publicize_ui']->publicize->POST_SKIP . $service_connection->unique_id );
 					}
@@ -747,21 +782,21 @@ class WPCOM_JSON_API_Update_Post_Endpoint extends WPCOM_JSON_API_Post_Endpoint {
 					$meta->id           = absint( $meta->id );
 					$existing_meta_item = get_metadata_by_mid( 'post', $meta->id );
 					if ( $post_id !== (int) $existing_meta_item->post_id ) {
-						// Only allow updates for metadata on this post
+						// Only allow updates for metadata on this post.
 						continue;
 					}
 				}
 
-				$unslashed_meta_key           = wp_unslash( $meta->key ); // should match what the final key will be
+				$unslashed_meta_key           = wp_unslash( $meta->key ); // should match what the final key will be.
 				$meta->key                    = wp_slash( $meta->key );
 				$unslashed_existing_meta_key  = wp_unslash( $existing_meta_item->meta_key );
 				$existing_meta_item->meta_key = wp_slash( $existing_meta_item->meta_key );
 
-				// make sure that the meta id passed matches the existing meta key
+				// make sure that the meta id passed matches the existing meta key.
 				if ( ! empty( $meta->id ) && ! empty( $meta->key ) ) {
 					$meta_by_id = get_metadata_by_mid( 'post', $meta->id );
 					if ( $meta_by_id->meta_key !== $meta->key ) {
-						continue; // skip this meta
+						continue; // skip this meta.
 					}
 				}
 
@@ -823,7 +858,7 @@ class WPCOM_JSON_API_Update_Post_Endpoint extends WPCOM_JSON_API_Post_Endpoint {
 		}
 
 		if ( isset( $sticky ) ) {
-			// workaround for sticky test occasionally failing, maybe a race condition with stick_post() above
+			// workaround for sticky test occasionally failing, maybe a race condition with stick_post() above.
 			$return['sticky'] = ( true === $sticky );
 		}
 
@@ -833,8 +868,18 @@ class WPCOM_JSON_API_Update_Post_Endpoint extends WPCOM_JSON_API_Post_Endpoint {
 		return $return;
 	}
 
-	// /sites/%s/posts/%d/delete -> $blog_id, $post_id
-	function delete_post( $path, $blog_id, $post_id ) {
+	/**
+	 * Delete a post.
+	 *
+	 * /sites/%s/posts/%d/delete -> $blog_id, $post_id
+	 *
+	 * @param string $path API path.
+	 * @param array  $blog_id Blog ID.
+	 * @param array  $post_id Post ID.
+	 *
+	 * @return array|WP_Error
+	 */
+	public function delete_post( $path, $blog_id, $post_id ) {
 		$post = get_post( $post_id );
 		if ( ! $post || is_wp_error( $post ) ) {
 			return new WP_Error( 'unknown_post', 'Unknown post', 404 );
@@ -857,7 +902,7 @@ class WPCOM_JSON_API_Update_Post_Endpoint extends WPCOM_JSON_API_Post_Endpoint {
 		/** This action is documented in json-endpoints/class.wpcom-json-api-site-settings-endpoint.php */
 		do_action( 'wpcom_json_api_objects', 'posts' );
 
-		// we need to call wp_trash_post so that untrash will work correctly for all post types
+		// we need to call wp_trash_post so that untrash will work correctly for all post types.
 		if ( 'trash' === $post->post_status ) {
 			wp_delete_post( $post->ID );
 		} else {
@@ -873,8 +918,18 @@ class WPCOM_JSON_API_Update_Post_Endpoint extends WPCOM_JSON_API_Post_Endpoint {
 		return $this->get_post_by( 'ID', $post->ID, $args['context'] );
 	}
 
-	// /sites/%s/posts/%d/restore -> $blog_id, $post_id
-	function restore_post( $path, $blog_id, $post_id ) {
+	/**
+	 * Restore a post.
+	 *
+	 * /sites/%s/posts/%d/restore -> $blog_id, $post_id
+	 *
+	 * @param string $path API path.
+	 * @param int    $blog_id Blog ID.
+	 * @param int    $post_id Post ID.
+	 *
+	 * @return array|WP_Error
+	 */
+	public function restore_post( $path, $blog_id, $post_id ) {
 		$args = $this->query_args();
 		$post = get_post( $post_id );
 
@@ -894,6 +949,15 @@ class WPCOM_JSON_API_Update_Post_Endpoint extends WPCOM_JSON_API_Post_Endpoint {
 		return $this->get_post_by( 'ID', $post->ID, $args['context'] );
 	}
 
+	/**
+	 * Set or delete a post's featured image.
+	 *
+	 * @param int  $post_id Post ID.
+	 * @param bool $delete_featured_image Whether to delete the featured image.
+	 * @param int  $featured_image Thumbnail ID to attach.
+	 *
+	 * @return null|int|bool
+	 */
 	private function parse_and_set_featured_image( $post_id, $delete_featured_image, $featured_image ) {
 		if ( $delete_featured_image ) {
 			delete_post_thumbnail( $post_id );
@@ -902,7 +966,7 @@ class WPCOM_JSON_API_Update_Post_Endpoint extends WPCOM_JSON_API_Post_Endpoint {
 
 		$featured_image = (string) $featured_image;
 
-		// if we got a post ID, we can just set it as the thumbnail
+		// if we got a post ID, we can just set it as the thumbnail.
 		if ( ctype_digit( $featured_image ) && 'attachment' == get_post_type( $featured_image ) ) {
 			set_post_thumbnail( $post_id, $featured_image );
 			return $featured_image;
@@ -918,6 +982,14 @@ class WPCOM_JSON_API_Update_Post_Endpoint extends WPCOM_JSON_API_Post_Endpoint {
 		return $featured_image_id;
 	}
 
+	/**
+	 * Get the Author ID for a post.
+	 *
+	 * @param int|string $author Author ID.
+	 * @param string     $post_type Post type.
+	 *
+	 * @return int|WP_Error
+	 */
 	private function parse_and_set_author( $author = null, $post_type = 'post' ) {
 		if ( empty( $author ) || ! post_type_supports( $post_type, 'author' ) ) {
 			return get_current_user_id();
