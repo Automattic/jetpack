@@ -1,0 +1,4 @@
+Significance: minor
+Type: changed
+
+Transition from showing plan and connection status to relying on My Jetpack's presentation for that information

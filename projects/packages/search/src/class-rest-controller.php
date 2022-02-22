@@ -266,29 +266,43 @@ class REST_Controller {
 	 * @param WP_REST_Request $request - REST request.
 	 */
 	public function activate_plan( $request ) {
+		$default_options = array(
+			'search_plan_info'      => null,
+			'enable_search'         => true,
+			'enable_instant_search' => true,
+			'auto_config_search'    => true,
+		);
+		$payload         = $request->get_json_params();
+		$payload         = wp_parse_args( $payload, $default_options );
+
 		// Update plan data, plan info is in the request body.
 		// We do this to avoid another call to WPCOM and reduce latency.
-		$plan_info = $request->get_json_params();
-		if ( ! $this->plan->set_plan_options( $plan_info ) ) {
+		if ( is_null( $payload['search_plan_info'] ) || ! $this->plan->set_plan_options( $payload['search_plan_info'] ) ) {
 			$this->plan->get_plan_info_from_wpcom();
 		}
-		// Activate module.
-		// Eligibility is checked in `activate` function.
-		$ret = $this->search_module->activate();
-		if ( is_wp_error( $ret ) ) {
-			return $ret;
-		}
-		// Enable Instant Search.
-		// Eligibility is checked in `enable_instant_search` function.
-		$ret = $this->search_module->enable_instant_search();
-		if ( is_wp_error( $ret ) ) {
-			return $ret;
+
+		// Enable search module by default, unless `enable_search` is explicitly set to boolean `false`.
+		if ( false !== $payload['enable_search'] ) {
+			// Eligibility is checked in `activate` function.
+			$ret = $this->search_module->activate();
+			if ( is_wp_error( $ret ) ) {
+				return $ret;
+			}
 		}
 
-		// Automatically configure necessary settings for instant search.
-		// TODO: need to revist the logic here when Instant Search migration is finished.
-		// We will either to make sure the auto config process idempotent or call it only once.
-		// Automattic\Jetpack\Search\Instant_Search::instanace()->auto_config_search();//.
+		// Enable instant search by default, unless `enable_instant_search` is explicitly set to boolean `false`.
+		if ( false !== $payload['enable_instant_search'] ) {
+			// Eligibility is checked in `enable_instant_search` function.
+			$ret = $this->search_module->enable_instant_search();
+			if ( is_wp_error( $ret ) ) {
+				return $ret;
+			}
+		}
+
+		// Automatically configure necessary settings for instant search, unless `auto_config_search` is explicitly set to boolean `false`.
+		if ( false !== $payload['auto_config_search'] ) {
+			Instant_Search::instance( $this->get_blog_id() )->auto_config_search();
+		}
 
 		return rest_ensure_response(
 			array(
