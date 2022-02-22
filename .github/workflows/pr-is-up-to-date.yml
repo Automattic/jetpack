@@ -1,7 +1,7 @@
 name: PR is up-to-date
 on:
   pull_request_target:
-    branches: [ master ]
+    branches: [ master, 'fix/pr-up-to-date-diff' ]
   push:
     branches: [ master ]
     tags:
