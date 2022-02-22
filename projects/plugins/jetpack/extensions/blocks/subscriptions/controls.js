@@ -47,6 +47,7 @@ export default function SubscriptionControls( {
 	isGradientAvailable,
 	padding,
 	setAttributes,
+	setBorderColor,
 	setButtonBackgroundColor,
 	setTextColor,
 	showSubscribersTotal,
@@ -94,14 +95,7 @@ export default function SubscriptionControls( {
 						},
 						{
 							colorValue: borderColor.color,
-							onColorChange: newBorderColor => {
-								// Note: setBorderColor from withColors hook does not
-								// work correctly with shortcode border color rendering.
-								setAttributes( {
-									borderColor: newBorderColor,
-									customBorderColor: newBorderColor,
-								} );
-							},
+							onColorChange: setBorderColor,
 							label: __( 'Border', 'jetpack' ),
 						},
 					] }
@@ -135,14 +129,7 @@ export default function SubscriptionControls( {
 						},
 						{
 							value: borderColor.color,
-							onColorChange: newBorderColor => {
-								// Note: setBorderColor from withColors hook does not
-								// work correctly with shortcode border color rendering.
-								setAttributes( {
-									borderColor: newBorderColor,
-									customBorderColor: newBorderColor,
-								} );
-							},
+							onColorChange: setBorderColor,
 							label: __( 'Border Color', 'jetpack' ),
 						},
 					] }
