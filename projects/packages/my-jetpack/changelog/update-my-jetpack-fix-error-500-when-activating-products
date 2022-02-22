@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Use Jetpack namespace to fix fatal error
