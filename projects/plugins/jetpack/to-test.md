@@ -1,24 +1,33 @@
-## 10.6
+## 10.7
 
 ### Before you start
 
 - **At any point during your testing, remember to [check your browser's JavaScript console](https://codex.wordpress.org/Using_Your_Browser_to_Diagnose_JavaScript_Errors#Step_3:_Diagnosis) and see if there are any errors reported by Jetpack there.**
 - Use "Debug Bar" or "Query Monitor" to help make PHP notices and warnings more noticeable and report anything you see.
 
-### Instant Search
+### My Jetpack
 
-In this release, we've continued to make progress towards a Jetpack Search plugin. This involved making changes to the Search feature as it is packaged in the Jetpack plugin, so it's worth testing it still works as advertized. Try the following:
+This release contains the first iteration of My Jetpack, the new dashboard for managing standalone Jetpack plugins on the site. There's a lot to test here! 
 
-1. Purchase a Search plan.
-2. Go to Jetpack > Settings > Performance and toggle the feature on and off.
-3. Go to Jetpack > Search and toggle the feature on and off.
-4. Click the link there to go and customize the search page.
-5. Check that your changes still look good on the site's frontend.
-6. In Appearance > Widgets, add widgets to the Jetpack Search Sidebar area, and ensure those widgets appear when you view the Search results on your site's frontend.
 
-### Pay with PayPal Block
+### Color, Spacing, and Alignment Options for Various Blocks
 
-In this release we've fixed some bugs with this block. It's a good opportunity to test it again. You'll need to purchase a paid bundle first, such as the Complete plan. Then, head to Posts > Add New and try adding a Pay with PayPal block. Let us know if you run into any issues with the layout in the editor, currencies, or layout on the site's frontend.
+Color, spacing, and alignment options were added for the following blocks:
+
+- Form 
+- Mailchimp
+- Podcast Player
+- Related Posts
+
+Color and spacing options were added for:
+
+- Business Hours
+
+Alignment options were also added to:
+
+- Repeat Visitor blocks
+
+We can check and make sure those new features work as expected by adding them to posts and block widget areas and playing around with color, spacing and alignment.
 
 ### Tiled Gallery Block
 
