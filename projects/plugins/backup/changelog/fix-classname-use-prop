@@ -1,4 +1,0 @@
-Significance: patch
-Type: fixed
-
-Correct wrong use of class instead of className prop.
