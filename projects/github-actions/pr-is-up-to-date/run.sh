@@ -2,6 +2,7 @@
 
 set -eo pipefail
 
+# This is a comment to make a change to test that the real change is working.
 BASE=$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)
 source "$BASE/funcs.sh"
 
