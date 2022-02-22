@@ -118,6 +118,7 @@ class Initializer {
 				'topJetpackMenuItemUrl' => Admin_Menu::get_top_level_menu_item_url(),
 				'siteSuffix'            => ( new Status() )->get_site_suffix(),
 				'myJetpackVersion'      => self::PACKAGE_VERSION,
+				'MyJetpackPlugin'       => get_plugin_data( __FILE__ ),
 				'fileSystemWriteAccess' => self::has_file_system_write_access(),
 			)
 		);
