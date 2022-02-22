@@ -11,8 +11,6 @@ import edit from './edit';
 import save from './save';
 
 const name = 'donations-amount';
-const BUTTON_BEHAVIOUR_TITLE = __( 'Amount selector', 'jetpack' );
-const INPUT_BEHAVIOUR_TITLE = __( 'Custom amount field', 'jetpack' );
 
 const settings = {
 	title: __( 'Donations amount button', 'jetpack' ),
@@ -36,8 +34,13 @@ const settings = {
 			default: false,
 		},
 	},
-	__experimentalLabel: ( { disabled } ) =>
-		disabled ? INPUT_BEHAVIOUR_TITLE : BUTTON_BEHAVIOUR_TITLE,
+	__experimentalLabel: ( { disabled } ) => {
+		if ( disabled ) {
+			// The amount field behaves as a custom amount field.
+			return __( 'Custom amount field', 'jetpack' );
+		}
+		return __( 'Amount selector', 'jetpack' );
+	},
 	icon,
 	supports: {
 		align: true,
