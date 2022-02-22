@@ -1,0 +1,4 @@
+Significance: patch
+Type: compat
+
+Remove jetpack settings submenu from general settings menu when site doesn't have atomic supported plan.
