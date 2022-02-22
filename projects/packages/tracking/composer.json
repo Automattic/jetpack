@@ -6,7 +6,7 @@
 	"require": {
 		"automattic/jetpack-assets": "^1.17",
 		"automattic/jetpack-options": "^1.14",
-		"automattic/jetpack-status": "^1.10",
+		"automattic/jetpack-status": "^1.11",
 		"automattic/jetpack-terms-of-service": "^1.9"
 	},
 	"require-dev": {
