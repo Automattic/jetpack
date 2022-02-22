@@ -35,6 +35,7 @@ const ConnectionStatusCard = props => {
 		connectedPlugins,
 		connectedSiteId,
 		context,
+		onConnectUser,
 	} = props;
 
 	const { isRegistered, isUserConnected, userConnectionData } = useConnection( {
@@ -55,6 +56,7 @@ const ConnectionStatusCard = props => {
 	const [ isDisconnectDialogOpen, setIsDisconnectDialogOpen ] = useState( false );
 	const userIsConnecting = useSelect( select => select( STORE_ID ).getUserIsConnecting(), [] );
 	const { setConnectionStatus, setUserIsConnecting } = useDispatch( STORE_ID );
+	const handleConnectUser = onConnectUser || setUserIsConnecting;
 
 	/**
 	 * Initialize the REST API.
@@ -154,21 +156,18 @@ const ConnectionStatusCard = props => {
 
 				{ ! isUserConnected && (
 					<li className="jp-connection-status-card--list-item-error">
-						{ __( 'Your WordPress.com account is not connected.', 'jetpack' ) }
+						{ __( 'Requires user connection.', 'jetpack' ) }{ ' ' }
+						<Button
+							isLink
+							disabled={ userIsConnecting }
+							onClick={ handleConnectUser }
+							className="jp-connection-status-card--btn-connect-user"
+						>
+							{ __( 'Connect your user account', 'jetpack' ) }
+						</Button>
 					</li>
 				) }
 			</ul>
-
-			{ ! isUserConnected && (
-				<Button
-					isPrimary
-					disabled={ userIsConnecting }
-					onClick={ setUserIsConnecting }
-					className="jp-connection-status-card--btn-connect-user"
-				>
-					{ __( 'Connect your WordPress.com account', 'jetpack' ) }
-				</Button>
-			) }
 
 			{ userIsConnecting && <ConnectUser redirectUri={ redirectUri } /> }
 		</div>
@@ -194,6 +193,8 @@ ConnectionStatusCard.propTypes = {
 	onDisconnected: PropTypes.func,
 	/** The context in which this component is being used */
 	context: PropTypes.string,
+	/** Function to override default action for connect user account */
+	onConnectUser: PropTypes.func,
 };
 
 ConnectionStatusCard.defaultProps = {
@@ -203,6 +204,7 @@ ConnectionStatusCard.defaultProps = {
 		'jetpack'
 	),
 	redirectUri: null,
+	onConnectUser: null,
 };
 
 export default ConnectionStatusCard;

@@ -1,5 +1,8 @@
 :global {
 	#my-jetpack-container {
+		--wp-admin-theme-color: var(--jp-black);
+		--wp-admin-theme-color-darker-10: var(--jp-black-80);
+		--wp-admin-theme-color-darker-20: var(--jp-black-80);
 		height: 100%;
 	}
 }
