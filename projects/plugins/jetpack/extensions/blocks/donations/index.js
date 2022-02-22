@@ -67,18 +67,21 @@ export const settings = {
 	supports: {
 		align: true,
 		alignWide: false,
+		spacing: {
+			padding: true,
+		},
 		color: {
 			link: true,
 			gradients: true,
+		},
+		typography: {
+			fontSize: true,
+			lineHeight: true,
 		},
 		__experimentalBorder: {
 			color: true,
 			width: true,
 			style: true,
-		},
-		typography: {
-			fontSize: true,
-			lineHeight: true,
 		},
 		html: false,
 	},

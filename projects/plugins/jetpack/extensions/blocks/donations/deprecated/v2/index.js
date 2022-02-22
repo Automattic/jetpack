@@ -22,6 +22,7 @@ const mapAttributes = oldAttributes => ( {
 	style: {
 		border: {
 			width: '1px',
+			style: 'solid',
 		},
 	},
 	borderColor: 'foreground',

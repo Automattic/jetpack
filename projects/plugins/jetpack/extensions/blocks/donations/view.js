@@ -95,10 +95,7 @@ class JetpackDonations {
 		}
 	}
 
-	updateAmountFromCustomAmountInput() {
-		const input = this.block.querySelector( '.donations__custom-amount .donations__amount-value' );
-		const wrapper = this.block.querySelector( '.donations__custom-amount' );
-
+	updateAmountFromCustomAmountInput( input, wrapper ) {
 		const amount = input.innerHTML;
 		if ( ! amount ) {
 			this.amount = null;
@@ -177,47 +174,45 @@ class JetpackDonations {
 	}
 
 	handleCustomAmount() {
-		const input = this.block.querySelector( '.donations__custom-amount .donations__amount-value' );
-		if ( ! input ) {
-			return;
-		}
+		this.block.querySelectorAll( '.donations__custom-amount' ).forEach( wrapper => {
+			const input = wrapper.querySelector( '.donations__amount-value' );
+			// Make input editable.
+			input.setAttribute( 'contenteditable', '' );
 
-		const wrapper = this.block.querySelector( '.donations__custom-amount' );
-
-		// Make input editable.
-		input.setAttribute( 'contenteditable', '' );
-
-		// Prevent new lines.
-		input.addEventListener( 'keydown', event => {
-			if ( event.keyCode === ENTER ) {
-				event.preventDefault();
-			}
-		} );
-
-		input.addEventListener( 'focus', () => {
-			// Toggle selected amount.
-			this.resetSelectedAmount();
-			wrapper.classList.add( 'is-selected' );
-
-			if ( this.isCustomAmount ) {
-				return;
-			}
-			this.isCustomAmount = true;
-			this.updateAmountFromCustomAmountInput();
-		} );
-
-		input.addEventListener( 'blur', () => {
-			if ( ! this.isCustomAmount || ! this.amount ) {
-				return;
-			}
-
-			// Formats the entered amount.
-			input.innerHTML = formatCurrency( this.amount, input.dataset.currency, {
-				symbol: '',
+			// Prevent new lines.
+			input.addEventListener( 'keydown', event => {
+				if ( event.keyCode === ENTER ) {
+					event.preventDefault();
+				}
 			} );
-		} );
 
-		input.addEventListener( 'input', () => this.updateAmountFromCustomAmountInput() );
+			input.addEventListener( 'focus', () => {
+				// Toggle selected amount.
+				this.resetSelectedAmount();
+				wrapper.classList.add( 'is-selected' );
+
+				if ( this.isCustomAmount ) {
+					return;
+				}
+				this.isCustomAmount = true;
+				this.updateAmountFromCustomAmountInput( input, wrapper );
+			} );
+
+			input.addEventListener( 'blur', () => {
+				if ( ! this.isCustomAmount || ! this.amount ) {
+					return;
+				}
+
+				// Formats the entered amount.
+				input.innerHTML = formatCurrency( this.amount, input.dataset.currency, {
+					symbol: '',
+				} );
+			} );
+
+			input.addEventListener( 'input', () =>
+				this.updateAmountFromCustomAmountInput( input, wrapper )
+			);
+		} );
 	}
 
 	handleChosenAmount() {
