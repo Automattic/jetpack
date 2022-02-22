@@ -82,10 +82,7 @@ class VideoPress_AJAX {
 			return;
 		}
 
-		// enforce video.wordpress.com
-		$response['jwt'] = $token;
-
-		wp_send_json_success( $response );
+		wp_send_json_success( array( 'jwt' => $token ) );
 	}
 
 	/**
