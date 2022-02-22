@@ -1008,7 +1008,7 @@ class WP_Test_Jetpack_Sync_Functions extends WP_Test_Jetpack_Sync_Base {
 			),
 		);
 
-		add_filter( 'pre_http_request', array( $this, 'pre_http_request_wordpress_org_updates' ), 10, 3 );
+		add_filter( 'pre_http_request', array( 'WP_Test_Jetpack_Sync_Base', 'pre_http_request_wordpress_org_updates' ), 10, 3 );
 		do_action(
 			'upgrader_process_complete',
 			$upgrader,
@@ -1019,7 +1019,7 @@ class WP_Test_Jetpack_Sync_Functions extends WP_Test_Jetpack_Sync_Base {
 				'plugins' => array( 'the/the.php' ),
 			)
 		);
-		remove_filter( 'pre_http_request', array( $this, 'pre_http_request_wordpress_org_updates' ) );
+		remove_filter( 'pre_http_request', array( 'WP_Test_Jetpack_Sync_Base', 'pre_http_request_wordpress_org_updates' ) );
 
 		$this->sender->do_sync();
 		$synced_value3           = $this->server_replica_storage->get_callable( 'jetpack_foo' );
