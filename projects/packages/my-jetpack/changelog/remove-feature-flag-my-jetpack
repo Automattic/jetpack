@@ -1,0 +1,4 @@
+Significance: patch
+Type: changed
+
+Remove conditional loading depending on constant
