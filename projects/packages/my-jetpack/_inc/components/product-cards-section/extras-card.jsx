@@ -15,6 +15,7 @@ import useMyJetpackNavigate from '../../hooks/use-my-jetpack-navigate';
 const ExtrasCard = ( { admin } ) => {
 	const { status, activate, deactivate, detail, isFetching } = useProduct( 'extras' );
 	const { name, description, slug, manageUrl } = detail;
+
 	const onManage = useCallback( () => {
 		window.location = manageUrl;
 	}, [ manageUrl ] );
@@ -33,7 +34,7 @@ const ExtrasCard = ( { admin } ) => {
 			showDeactivate={ false }
 			onFixConnection={ useMyJetpackNavigate( '/connection' ) }
 			onManage={ onManage }
-			onAdd={ activate }
+			onAdd={ useMyJetpackNavigate( '/add-extras' ) }
 		/>
 	);
 };
