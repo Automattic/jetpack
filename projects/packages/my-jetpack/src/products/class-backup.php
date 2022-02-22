@@ -17,7 +17,7 @@ use Jetpack_Options;
 use WP_Error;
 
 /**
- * Class responsible for handling the CRM product
+ * Class responsible for handling the Backup product
  */
 class Backup extends Hybrid_Product {
 
