@@ -1,0 +1,4 @@
+Significance: minor
+Type: changed
+
+Disconnect dialog changes to cope with asynchronous data loading

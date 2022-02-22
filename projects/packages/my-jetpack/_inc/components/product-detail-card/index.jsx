@@ -57,6 +57,10 @@ function ProductIcon( { slug } ) {
  * @returns {object}                Price react component.
  */
 function Price( { value, currency, isOld } ) {
+	if ( ! value || ! currency ) {
+		return null;
+	}
+
 	const priceObject = getCurrencyObject( value, currency );
 
 	const classNames = classnames( styles.price, {
@@ -93,7 +97,13 @@ const ProductDetail = ( { slug, onClick, trackButtonClick } ) => {
 		hasRequiredPlan,
 	} = detail;
 
-	const { isFree, fullPrice, currencyCode, discountedPrice, wpcomProductSlug } = pricingForUi;
+	const {
+		isFree,
+		fullPricePerMonth: price,
+		currencyCode,
+		discountPricePerMonth: discountPrice,
+		wpcomProductSlug,
+	} = pricingForUi;
 	const { isUserConnected } = useMyJetpackConnection();
 
 	/*
@@ -164,8 +174,8 @@ const ProductDetail = ( { slug, onClick, trackButtonClick } ) => {
 
 				{ needsPurchase && (
 					<div className={ styles[ 'price-container' ] }>
-						<Price value={ fullPrice } currency={ currencyCode } isOld={ true } />
-						<Price value={ discountedPrice } currency={ currencyCode } isOld={ false } />
+						<Price value={ price } currency={ currencyCode } isOld={ true } />
+						<Price value={ discountPrice } currency={ currencyCode } isOld={ false } />
 						<div className={ styles[ 'price-description' ] }>
 							{ __( '/month, paid yearly', 'jetpack-my-jetpack' ) }
 						</div>
@@ -180,7 +190,6 @@ const ProductDetail = ( { slug, onClick, trackButtonClick } ) => {
 					{ ( ! isBundle || ( isBundle && ! hasRequiredPlan ) ) && (
 						<ProductDetailButton
 							onClick={ clickHandler }
-							isLink
 							isLoading={ isFetching }
 							isPrimary={ ! isBundle }
 							isSecondary={ isBundle }

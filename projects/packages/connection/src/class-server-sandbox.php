@@ -33,7 +33,7 @@ class Server_Sandbox {
 		 * Fires when the server sandbox is initialized. This action is used to ensure that
 		 * the server sandbox action hooks are set up only once.
 		 *
-		 * @since $$next_version$$
+		 * @since 1.30.7
 		 */
 		do_action( 'jetpack_server_sandbox_init' );
 	}
