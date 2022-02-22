@@ -82,7 +82,9 @@ export default function ResumableUpload( { file } ) {
 				tusUploaderRef.current.abort();
 			}
 		};
-	}, [ startUpload ] );
+		// We need to pass a blank array here to act as 'component mount/unmount'
+		// We don't want this effect to run again if `startUpload` changes.
+	}, [] ); // eslint-disable-line react-hooks/exhaustive-deps
 
 	const roundedProgress = Math.round( progress );
 	const cssWidth = { width: `${ roundedProgress }%` };
