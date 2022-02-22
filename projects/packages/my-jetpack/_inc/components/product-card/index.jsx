@@ -134,9 +134,7 @@ const ProductCard = props => {
 		[ styles[ 'is-fetching' ] ]: isFetching,
 	} );
 
-	const {
-		tracks: { recordEvent },
-	} = useAnalytics();
+	const { recordEvent } = useAnalytics();
 
 	/**
 	 * Calls the passed function onDeactivate after firing Tracks event

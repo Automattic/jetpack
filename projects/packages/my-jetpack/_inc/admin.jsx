@@ -39,9 +39,7 @@ initStore();
  * @returns {object}                Layout react component.
  */
 function Layout( { nav = false, children, slug } ) {
-	const {
-		tracks: { recordEvent },
-	} = useAnalytics();
+	const { recordEvent } = useAnalytics();
 	const onClick = useCallback( () => {
 		if ( slug ) {
 			recordEvent( 'jetpack_myjetpack_product_interstitial_back_link_click', { product: slug } );

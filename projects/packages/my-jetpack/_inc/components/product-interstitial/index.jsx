@@ -42,9 +42,7 @@ export default function ProductInterstitial( {
 		hasRequiredPlan,
 	} = detail;
 
-	const {
-		tracks: { recordEvent },
-	} = useAnalytics();
+	const { recordEvent } = useAnalytics();
 
 	useEffect( () => {
 		recordEvent( 'jetpack_myjetpack_product_interstitial_view', { product: slug } );
