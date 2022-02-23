@@ -16,12 +16,14 @@ class WPCOM_JSON_API_Date {
 	 *
 	 * @return string
 	 */
-	static function format_date( $date_gmt, $date = null ) {
+	public static function format_date( $date_gmt, $date = null ) {
 		$timestamp_gmt = strtotime( "$date_gmt+0000" );
 
 		if ( null === $date ) {
 			$timestamp = $timestamp_gmt;
-			$hours     = $minutes = $west = 0;
+			$west      = 0;
+			$minutes   = $west;
+			$hours     = $minutes;
 		} else {
 			$date_time = date_create( "$date+0000" );
 			if ( $date_time ) {
@@ -31,7 +33,7 @@ class WPCOM_JSON_API_Date {
 			}
 
 			// "0000-00-00 00:00:00" == -62169984000
-			if ( - 62169984000 == $timestamp_gmt ) {
+			if ( - 62169984000 === $timestamp_gmt ) {
 				// WordPress sets post_date=now, post_date_gmt="0000-00-00 00:00:00" for all drafts
 				// WordPress sets post_modified=now, post_modified_gmt="0000-00-00 00:00:00" for new drafts.
 
@@ -67,7 +69,7 @@ class WPCOM_JSON_API_Date {
 	 *
 	 * @return null|string
 	 */
-	static function format_duration( $time ) {
+	public static function format_duration( $time ) {
 		$timestamp = strtotime( $time, 0 );
 
 		// Bail early if we don't recognize a date.
