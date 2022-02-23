@@ -27,7 +27,7 @@ class Initializer {
 	 *
 	 * @var string
 	 */
-	const PACKAGE_VERSION = '0.6.2-alpha';
+	const PACKAGE_VERSION = '0.6.4-alpha';
 
 	/**
 	 * Initialize My Jetapack
@@ -118,6 +118,7 @@ class Initializer {
 				'topJetpackMenuItemUrl' => Admin_Menu::get_top_level_menu_item_url(),
 				'siteSuffix'            => ( new Status() )->get_site_suffix(),
 				'myJetpackVersion'      => self::PACKAGE_VERSION,
+				'MyJetpackPlugin'       => get_plugin_data( __FILE__ ),
 				'fileSystemWriteAccess' => self::has_file_system_write_access(),
 			)
 		);
@@ -197,11 +198,6 @@ class Initializer {
 		 * @param bool $shoud_initialize Should we initialize My Jetpack?
 		 */
 		$should = apply_filters( 'jetpack_my_jetpack_should_initialize', true );
-
-		// Feature flag while we are developing it.
-		if ( ! defined( 'JETPACK_ENABLE_MY_JETPACK' ) || ! JETPACK_ENABLE_MY_JETPACK ) {
-			return false;
-		}
 
 		// Do not initialize My Jetpack if site is not connected.
 		if ( ! ( new Connection_Manager() )->is_connected() ) {

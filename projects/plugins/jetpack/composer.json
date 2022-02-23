@@ -37,8 +37,8 @@
 		"automattic/jetpack-plugins-installer": "0.1.x-dev",
 		"automattic/jetpack-redirect": "1.7.x-dev",
 		"automattic/jetpack-roles": "1.4.x-dev",
-		"automattic/jetpack-search": "0.8.x-dev",
-		"automattic/jetpack-status": "1.10.x-dev",
+		"automattic/jetpack-search": "0.9.x-dev",
+		"automattic/jetpack-status": "1.11.x-dev",
 		"automattic/jetpack-sync": "1.30.x-dev",
 		"automattic/jetpack-terms-of-service": "1.9.x-dev",
 		"automattic/jetpack-tracking": "1.14.x-dev",
@@ -98,7 +98,7 @@
 		"platform": {
 			"ext-intl": "0.0.0"
 		},
-		"autoloader-suffix": "f11009ded9fc4592b6a05b61ce272b3c_jetpackⓥ10_7_a_6",
+		"autoloader-suffix": "f11009ded9fc4592b6a05b61ce272b3c_jetpackⓥ10_8_a_0",
 		"allow-plugins": {
 			"automattic/jetpack-autoloader": true,
 			"automattic/jetpack-composer-plugin": true
