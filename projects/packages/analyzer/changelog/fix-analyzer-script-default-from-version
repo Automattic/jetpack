@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Fix jetpack-svn.php script getting latest stable Jetpack version by default
