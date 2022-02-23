@@ -28,5 +28,9 @@
 		font-size: var( --font-body );
 		line-height: 24px;
 	}
+}
 
+.external-link:hover {
+	color: var(--jp-black);
+	text-decoration-thickness: var(--jp-underline-thickness);
 }
