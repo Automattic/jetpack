@@ -5,7 +5,7 @@
  * DANGER DANGER DANGER!!!
  * If you make any changes to this class you must MANUALLY update this file in both WPCOM and WPCOMSH.
  *
- * @package Purchases_Feature_Map
+ * @package WPCOM_Features
  */
 
 /**
@@ -55,6 +55,8 @@ class WPCOM_Features {
 	/**
 	 * Given an array of $purchases and a single feature name, consult the FEATURES_MAP to determine if the feature
 	 * is included in one of the $purchases.
+	 *
+	 * Use the function wpcom_blog_has_feature( $feature ) to determine if a blog has access to a certain feature.
 	 *
 	 * @param string $feature A singular feature.
 	 * @param array  $purchases A collection of purchases.
