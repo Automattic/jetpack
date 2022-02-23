@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "a9beed9119ac1aa6dc35e4f404cf1066",
+    "content-hash": "4a69b28a376cb541eec02baada95e4e1",
     "packages": [
         {
             "name": "automattic/jetpack-a8c-mc-stats",
@@ -1834,7 +1834,7 @@
             "dist": {
                 "type": "path",
                 "url": "../../packages/waf",
-                "reference": "9f7c69f0993f741ad1d3979943a84ace3cb30847"
+                "reference": "b8f77e80fe640b4155a6083660ec238207e66e93"
             },
             "require": {
                 "wikimedia/aho-corasick": "^1.0"
@@ -1851,7 +1851,7 @@
                     "link-template": "https://github.com/Automattic/jetpack-waf/compare/v${old}...v${new}"
                 },
                 "branch-alias": {
-                    "dev-master": "0.1.x-dev"
+                    "dev-master": "0.2.x-dev"
                 }
             },
             "autoload": {
@@ -1869,6 +1869,9 @@
                 ],
                 "test-coverage": [
                     "php -dpcov.directory=. ./vendor/bin/phpunit --coverage-clover \"$COVERAGE_DIR/clover.xml\""
+                ],
+                "test-coverage-html": [
+                    "php -dpcov.directory=. ./vendor/bin/phpunit --coverage-html ./coverage"
                 ],
                 "test-php": [
                     "@composer phpunit"
