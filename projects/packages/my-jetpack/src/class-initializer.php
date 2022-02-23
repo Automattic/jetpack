@@ -190,6 +190,10 @@ class Initializer {
 			return false;
 		}
 
+		if ( is_multisite() ) {
+			return false;
+		}
+
 		/**
 		 * Allows filtering whether My Jetpack should be initialized
 		 *
