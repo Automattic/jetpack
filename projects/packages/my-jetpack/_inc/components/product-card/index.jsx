@@ -52,7 +52,7 @@ const ActionButton = ( {
 } ) => {
 	if ( ! admin ) {
 		return (
-			<Button variant="link" onClick={ onLearn }>
+			<Button isLink onClick={ onLearn } className={ styles[ 'action-link-button' ] }>
 				{
 					/* translators: placeholder is product name. */
 					sprintf( __( 'Learn about %s', 'jetpack-my-jetpack' ), name )
@@ -62,7 +62,7 @@ const ActionButton = ( {
 	}
 
 	const buttonState = {
-		isPressed: ! isFetching,
+		isPrimary: ! isFetching,
 		disabled: isFetching,
 	};
 
@@ -70,7 +70,7 @@ const ActionButton = ( {
 		case PRODUCT_STATUSES.NEEDS_PURCHASE:
 		case PRODUCT_STATUSES.ABSENT:
 			return (
-				<Button variant="link" onClick={ onAdd }>
+				<Button isLink onClick={ onAdd } className={ styles[ 'action-link-button' ] }>
 					{
 						/* translators: placeholder is product name. */
 						sprintf( __( 'Add %s', 'jetpack-my-jetpack' ), name )
@@ -134,9 +134,7 @@ const ProductCard = props => {
 		[ styles[ 'is-fetching' ] ]: isFetching,
 	} );
 
-	const {
-		tracks: { recordEvent },
-	} = useAnalytics();
+	const { recordEvent } = useAnalytics();
 
 	/**
 	 * Calls the passed function onDeactivate after firing Tracks event
@@ -206,7 +204,7 @@ const ProductCard = props => {
 						/>
 						<DropdownMenu
 							className={ styles.dropdown }
-							toggleProps={ { isPressed: true, disabled: isFetching } }
+							toggleProps={ { isPrimary: true, disabled: isFetching } }
 							popoverProps={ { noArrow: false } }
 							icon={ DownIcon }
 							disableOpenOnArrowDown={ true }

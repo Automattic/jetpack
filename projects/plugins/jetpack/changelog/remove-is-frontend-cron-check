@@ -1,4 +1,0 @@
-Significance: patch
-Type: bugfix
-
-Blocks: Cron requests are now considered frontend requests, so blocks will no longer be rendered as fallbacks on those.

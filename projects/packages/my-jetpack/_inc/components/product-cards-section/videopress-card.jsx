@@ -30,6 +30,7 @@ const VideopressCard = ( { admin } ) => {
 			onDeactivate={ deactivate }
 			onActivate={ activate }
 			slug={ slug }
+			onAdd={ useMyJetpackNavigate( '/add-videopress' ) }
 			onFixConnection={ useMyJetpackNavigate( '/connection' ) }
 			onManage={ onManage }
 		/>

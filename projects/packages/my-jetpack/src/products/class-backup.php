@@ -8,14 +8,16 @@
 namespace Automattic\Jetpack\My_Jetpack\Products;
 
 use Automattic\Jetpack\Connection\Client;
+use Automattic\Jetpack\Connection\Manager as Connection_Manager;
 use Automattic\Jetpack\My_Jetpack\Hybrid_Product;
 use Automattic\Jetpack\My_Jetpack\Wpcom_Products;
 use Automattic\Jetpack\Redirect;
+use Jetpack;
 use Jetpack_Options;
 use WP_Error;
 
 /**
- * Class responsible for handling the CRM product
+ * Class responsible for handling the Backup product
  */
 class Backup extends Hybrid_Product {
 
@@ -100,7 +102,7 @@ class Backup extends Hybrid_Product {
 	 * @return ?string
 	 */
 	public static function get_wpcom_product_slug() {
-		return 'jetpack_backup_t1_monthly';
+		return 'jetpack_backup_t1_yearly';
 	}
 
 	/**
@@ -175,10 +177,16 @@ class Backup extends Hybrid_Product {
 	 * @return ?string
 	 */
 	public static function get_post_activation_url() {
-		if ( static::is_plugin_active() ) {
-			return admin_url( 'admin.php?page=jetpack-backup' );
+		if ( ( new Connection_Manager() )->is_user_connected() ) {
+			return ''; // Continue on the purchase flow or stay in My Jetpack page.
+		} else {
+			// If the user is not connected, the Backup purchase flow will not work properly. Let's redirect the user to a place where they can buy the plan from.
+			if ( static::is_plugin_active() ) {
+				return admin_url( 'admin.php?page=jetpack-backup' );
+			} elseif ( static::is_jetpack_plugin_active() ) {
+				return Jetpack::admin_url();
+			}
 		}
-		return ''; // stay in My Jetpack page.
 	}
 
 	/**
@@ -192,5 +200,17 @@ class Backup extends Hybrid_Product {
 		} elseif ( static::is_jetpack_plugin_active() ) {
 			return Redirect::get_url( 'my-jetpack-manage-backup' );
 		}
+	}
+
+	/**
+	 * Activates the plugin
+	 *
+	 * @return null|WP_Error Null on success, WP_Error on invalid file.
+	 */
+	public static function activate_plugin() {
+		/*
+		 * Silent mode True to avoid redirect
+		 */
+		return activate_plugin( static::get_installed_plugin_filename(), '', false, true );
 	}
 }

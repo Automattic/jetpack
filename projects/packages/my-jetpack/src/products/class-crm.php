@@ -119,6 +119,6 @@ class Crm extends Product {
 	 * @return ?string
 	 */
 	public static function get_manage_url() {
-		return admin_url( 'admin.php?page=zerobscrm-plugin-settings' );
+		return admin_url( 'admin.php?page=zerobscrm-dash' );
 	}
 }
