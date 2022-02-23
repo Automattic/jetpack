@@ -1,9 +1,11 @@
-<?php //phpcs:ignore WordPress.Files.FileName.InvalidClassFileName
+<?php
 /**
  * Publicize_UI class.
  *
  * @package automattic/jetpack
  */
+
+namespace Automattic\Jetpack\Publicize;
 
 /**
  * Only user facing pieces of Publicize are found here.

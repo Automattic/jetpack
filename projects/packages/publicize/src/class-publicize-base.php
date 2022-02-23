@@ -1,4 +1,4 @@
-<?php //phpcs:ignore WordPress.Files.FileName.InvalidClassFileName
+<?php
 /**
  * Publicize_Base class.
  *
@@ -6,6 +6,8 @@
  */
 
 // phpcs:disable WordPress.NamingConventions.ValidVariableName
+
+namespace Automattic\Jetpack\Publicize;
 
 use Automattic\Jetpack\Redirect;
 use Automattic\Jetpack\Status;

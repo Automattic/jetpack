@@ -1,9 +1,11 @@
-<?php //phpcs:ignore WordPress.Files.FileName.InvalidClassFileName
+<?php
 /**
  * Publicize class.
  *
  * @package automattic/jetpack
  */
+
+namespace Automattic\Jetpack\Publicize;
 
 use Automattic\Jetpack\Connection\Tokens;
 use Automattic\Jetpack\Redirect;
