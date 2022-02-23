@@ -1,4 +1,0 @@
-Significance: patch
-Type: fixed
-
-Products::get_products_names should not load all product information
