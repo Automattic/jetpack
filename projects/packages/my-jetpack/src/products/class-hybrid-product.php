@@ -36,4 +36,21 @@ abstract class Hybrid_Product extends Product {
 		return parent::is_plugin_installed() || static::is_jetpack_plugin_installed();
 	}
 
+	/**
+	 * Activates the plugin
+	 *
+	 * @return null|WP_Error Null on success, WP_Error on invalid file.
+	 */
+	public static function activate_plugin() {
+		// Activate self-installed plugin if it's installed.
+		if ( parent::is_plugin_installed() ) {
+			return activate_plugin( static::get_installed_plugin_filename() );
+		}
+
+		// Otherwise, activate Jetpack plugin.
+		if ( tatic::is_jetpack_plugin_installed() ) {
+			return activate_plugin( static::get_installed_plugin_filename( 'jetpack' ) );
+		}
+	}
+
 }
