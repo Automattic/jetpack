@@ -675,12 +675,12 @@ function videopress_get_attachment_url( $post_id, $ignore_compat = false ) {
 	// All other video file requests will receive the `compat` video (introduced Feb 2022), the 720p format (if it is not from an HLS playlist) or the originally uploaded file, stored on the wpcom cdn.
 	if ( ! $ignore_compat && isset( $meta['videopress']['files']['hd_1080p_compat']['mp4'] ) ) {
 		$return = $meta['videopress']['file_url_base']['https'] . $meta['videopress']['files']['hd_1080p_compat']['mp4'];
-	} elseif ( isset( $meta['videopress']['files']['hd']['mp4'] ) && ! isset( $meta['videopress']['files']['hd']['hls'] ) ) {
+	} elseif ( ! $ignore_compat && isset( $meta['videopress']['files']['hd']['mp4'] ) && ! isset( $meta['videopress']['files']['hd']['hls'] ) ) {
 		$return = $meta['videopress']['file_url_base']['https'] . $meta['videopress']['files']['hd']['mp4'];
 	} elseif ( ! isset( $meta['videopress']['original'] ) ) {
 		// Use the original file as the url if it isn't transcoded yet.
 		if ( isset( $meta['original'] ) ) {
-			$return = $meta['original'];
+			$return = isset( $meta['original']['url'] ) ? $meta['original']['url'] : $meta['original'];
 		} else {
 			// Otherwise, there isn't much we can do.
 			return null;
