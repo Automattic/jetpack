@@ -7,6 +7,8 @@
 
 namespace Automattic\Jetpack\My_Jetpack;
 
+use WP_Error;
+
 /**
  * Class responsible for handling the hybrid products
  *
@@ -48,8 +50,8 @@ abstract class Hybrid_Product extends Product {
 		}
 
 		// Otherwise, activate Jetpack plugin.
-		if ( tatic::is_jetpack_plugin_installed() ) {
-			return activate_plugin( static::get_installed_plugin_filename( 'jetpack' ) );
+		if ( static::is_jetpack_plugin_installed() ) {
+			return activate_plugin( static::get_installed_plugin_filename( 'jetpack' ), '', false, true );
 		}
 	}
 
