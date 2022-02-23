@@ -1,0 +1,4 @@
+Significance: minor
+Type: added
+
+Cache return values (per blog) from various status methods.

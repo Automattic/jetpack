@@ -72,7 +72,7 @@ export default function MyJetpackScreen() {
 					<Col sm={ 4 } md={ 7 } lg={ 6 }>
 						<h1 className={ styles.heading }>
 							{ __(
-								'Manage your Jetpack plan and products all in one place',
+								'Manage your Jetpack',
 								'jetpack-my-jetpack'
 							) }
 						</h1>
