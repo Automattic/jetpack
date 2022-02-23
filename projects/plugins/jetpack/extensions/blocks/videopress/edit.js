@@ -37,14 +37,16 @@ import { get, indexOf } from 'lodash';
 import Loading from './loading';
 import { getVideoPressUrl } from './url';
 import { getClassNames } from './utils';
+import ResumableUpload from './resumable-upload';
 import SeekbarColorSettings from './seekbar-color-settings';
 import TracksEditor from './tracks-editor';
+import { VideoPressBlockProvider } from './components';
 
 const VIDEO_POSTER_ALLOWED_MEDIA_TYPES = [ 'image' ];
 
 const VideoPressEdit = CoreVideoEdit =>
 	class extends Component {
-		constructor() {
+		constructor( props ) {
 			super( ...arguments );
 			this.state = {
 				media: null,
@@ -56,6 +58,7 @@ const VideoPressEdit = CoreVideoEdit =>
 				isUpdatingRating: false,
 				allowDownload: null,
 				isUpdatingAllowDownload: false,
+				fileForUpload: props.fileForImmediateUpload,
 			};
 			this.posterImageButton = createRef();
 			this.previewCacheReloadTimer = null;
@@ -382,11 +385,13 @@ const VideoPressEdit = CoreVideoEdit =>
 				isFetchingPreview,
 				isUploading,
 				preview,
+				resumableUploadEnabled,
 				setAttributes,
 			} = this.props;
 
 			const {
 				fallback,
+				fileForUpload,
 				isFetchingMedia,
 				isUpdatingRating,
 				interactive,
@@ -596,6 +601,38 @@ const VideoPressEdit = CoreVideoEdit =>
 				</Fragment>
 			);
 
+			const filesSelected = files => {
+				this.setState( { fileForUpload: files[ 0 ] } );
+			};
+
+			// Handle Media Library selection
+			const mediaItemSelected = item => {
+				if ( item && item.videopress_guid ) {
+					this.props.setAttributes( { guid: item.videopress_guid } );
+				} else {
+					this.props.setAttributes( { src: item.url } );
+				}
+			};
+
+			const uploadFinished = ( videoGuid = null ) => {
+				this.setState( { fileForUpload: null } );
+				if ( videoGuid ) {
+					setAttributes( { guid: videoGuid } );
+				}
+			};
+
+			const isResumableUploading = null !== fileForUpload && fileForUpload instanceof File;
+			if ( isResumableUploading ) {
+				return (
+					<VideoPressBlockProvider onUploadFinished={ uploadFinished }>
+						<Fragment>
+							{ blockSettings }
+							<ResumableUpload file={ fileForUpload } { ...this.props } />
+						</Fragment>
+					</VideoPressBlockProvider>
+				);
+			}
+
 			/*
 			 * The Loading/CoreVideoEdit blocks should be in the tree if :
 			 *     - We don't have a video GUID
@@ -603,6 +640,7 @@ const VideoPressEdit = CoreVideoEdit =>
 			 *     - Or we're in fallback mode (to display a video hosted locally for instance)
 			 * In all other cases, we should be able to safely display the Loading/VpBlock branch.
 			 */
+
 			const isFetchingVideo = isFetchingMedia || isFetchingPreview;
 			const renderCoreVideoAndLoadingBlocks = fallback || isUploading || ! guid;
 			const displayCoreVideoBlock =
@@ -610,26 +648,37 @@ const VideoPressEdit = CoreVideoEdit =>
 
 			// In order for the media placeholder to keep its state for error messages, we need to keep the CoreVideoEdit component in the tree during file uploads.
 			// Keep this section separate so the CoreVideoEdit stays in the tree, once we have a video, we don't need it anymore.
+			const coreVideoFragment = (
+				<Fragment>
+					<div className={ ! isUploading && ! isFetchingVideo ? 'videopress-block-hide' : '' }>
+						<Loading
+							text={
+								isUploading
+									? __( 'Uploading…', 'jetpack' )
+									: __(
+											'Generating preview…',
+											'jetpack',
+											/* dummy arg to avoid bad minification */ 0
+									  )
+							}
+						/>
+					</div>
+					<div className={ ! displayCoreVideoBlock ? 'videopress-block-hide' : '' }>
+						<CoreVideoEdit { ...this.props } />
+					</div>
+				</Fragment>
+			);
+
 			if ( renderCoreVideoAndLoadingBlocks ) {
-				return (
-					<Fragment>
-						<div className={ ! isUploading && ! isFetchingVideo ? 'videopress-block-hide' : '' }>
-							<Loading
-								text={
-									isUploading
-										? __( 'Uploading…', 'jetpack' )
-										: __(
-												'Generating preview…',
-												'jetpack',
-												/* dummy arg to avoid bad minification */ 0
-										  )
-								}
-							/>
-						</div>
-						<div className={ ! displayCoreVideoBlock ? 'videopress-block-hide' : '' }>
-							<CoreVideoEdit { ...this.props } />
-						</div>
-					</Fragment>
+				return resumableUploadEnabled ? (
+					<VideoPressBlockProvider
+						onFilesSelected={ filesSelected }
+						onMediaItemSelected={ mediaItemSelected }
+					>
+						{ coreVideoFragment }
+					</VideoPressBlockProvider>
+				) : (
+					<Fragment>{ coreVideoFragment }</Fragment>
 				);
 			}
 
@@ -750,6 +799,7 @@ export default createHigherOrderComponent(
 			const {
 				autoplay,
 				controls,
+				fileForImmediateUpload,
 				guid,
 				loop,
 				muted,
@@ -780,12 +830,15 @@ export default createHigherOrderComponent(
 			const preview = !! url && getEmbedPreview( url );
 
 			const isFetchingEmbedPreview = !! url && isRequestingEmbedPreview( url );
-			const isUploading = isBlobURL( src );
+			const resumableUploadEnabled = !! window.videoPressResumableEnabled;
+			const isUploading = ! resumableUploadEnabled && isBlobURL( src );
 
 			return {
+				fileForImmediateUpload,
 				isFetchingPreview: isFetchingEmbedPreview,
 				isUploading,
 				preview,
+				resumableUploadEnabled,
 				url,
 			};
 		} ),
