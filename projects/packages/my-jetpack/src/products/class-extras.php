@@ -23,6 +23,14 @@ class Extras extends Product {
 	public static $slug = 'extras';
 
 	/**
+	 * The slug of the plugin associated with this product.
+	 * Extras, is in short, Jetpack plugin bridge so far.
+	 *
+	 * @var string
+	 */
+	public static $plugin_slug = 'jetpack';
+
+	/**
 	 * Whether this product requires a user connection
 	 *
 	 * @var string
@@ -62,7 +70,7 @@ class Extras extends Product {
 	 * @return string
 	 */
 	public static function get_long_description() {
-		return '';
+		return __( "Secure and speed up your site for free with Jetpack's powerful WordPress tools.", 'jetpack-my-jetpack' );
 	}
 
 	/**
@@ -71,7 +79,13 @@ class Extras extends Product {
 	 * @return array Boost features list
 	 */
 	public static function get_features() {
-		return array();
+		return array(
+			__( 'Measure your impact with beautiful stats', 'jetpack-my-jetpack' ),
+			__( 'Speed up your site with optimized images', 'jetpack-my-jetpack' ),
+			__( 'Protect your site against bot attacks', 'jetpack-my-jetpack' ),
+			__( 'Get notifications if your site goes offline', 'jetpack-my-jetpack' ),
+			__( 'Enhance your site with dozens of other features', 'jetpack-my-jetpack' ),
+		);
 	}
 
 	/**
@@ -113,5 +127,17 @@ class Extras extends Product {
 	 */
 	public static function get_manage_url() {
 		return admin_url( 'admin.php?page=jetpack' );
+	}
+
+	/**
+	 * Activates the Jetpack plugin
+	 *
+	 * @return null|WP_Error Null on success, WP_Error on invalid file.
+	 */
+	public static function activate_plugin() {
+		/*
+		 * Silent mode True to avoid redirect
+		 */
+		return activate_plugin( static::get_installed_plugin_filename( 'jetpack' ), '', false, true );
 	}
 }
