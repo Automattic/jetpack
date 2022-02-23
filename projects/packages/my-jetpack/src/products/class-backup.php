@@ -12,11 +12,12 @@ use Automattic\Jetpack\Connection\Manager as Connection_Manager;
 use Automattic\Jetpack\My_Jetpack\Hybrid_Product;
 use Automattic\Jetpack\My_Jetpack\Wpcom_Products;
 use Automattic\Jetpack\Redirect;
+use Jetpack;
 use Jetpack_Options;
 use WP_Error;
 
 /**
- * Class responsible for handling the CRM product
+ * Class responsible for handling the Backup product
  */
 class Backup extends Hybrid_Product {
 
@@ -199,17 +200,5 @@ class Backup extends Hybrid_Product {
 		} elseif ( static::is_jetpack_plugin_active() ) {
 			return Redirect::get_url( 'my-jetpack-manage-backup' );
 		}
-	}
-
-	/**
-	 * Activates the plugin
-	 *
-	 * @return null|WP_Error Null on success, WP_Error on invalid file.
-	 */
-	public static function activate_plugin() {
-		/*
-		 * Silent mode True to avoid redirect
-		 */
-		return activate_plugin( static::get_installed_plugin_filename(), '', false, true );
 	}
 }
