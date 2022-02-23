@@ -71,10 +71,7 @@ export default function MyJetpackScreen() {
 				<Container horizontalSpacing={ 5 } horizontalGap={ message ? 3 : 6 }>
 					<Col sm={ 4 } md={ 7 } lg={ 6 }>
 						<h1 className={ styles.heading }>
-							{ __(
-								'Manage your Jetpack plan and products all in one place',
-								'jetpack-my-jetpack'
-							) }
+							{ __( 'Manage your Jetpack', 'jetpack-my-jetpack' ) }
 						</h1>
 					</Col>
 					{ message && (
