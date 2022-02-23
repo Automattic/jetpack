@@ -7,6 +7,7 @@
 
 namespace Automattic\Jetpack;
 
+use Automattic\Jetpack\Status\Cache;
 use WPCOM_Masterbar;
 
 /**
@@ -37,6 +38,11 @@ class Status {
 	 * @return bool Whether Jetpack's offline mode is active.
 	 */
 	public function is_offline_mode() {
+		$cached = Cache::get( 'is_offline_mode' );
+		if ( null !== $cached ) {
+			return $cached;
+		}
+
 		$offline_mode = false;
 
 		if ( defined( '\\JETPACK_DEV_DEBUG' ) ) {
@@ -73,6 +79,7 @@ class Status {
 		 */
 		$offline_mode = (bool) apply_filters( 'jetpack_offline_mode', $offline_mode );
 
+		Cache::set( 'is_offline_mode', $offline_mode );
 		return $offline_mode;
 	}
 
@@ -101,16 +108,24 @@ class Status {
 	public function is_multi_network() {
 		global $wpdb;
 
+		$cached = Cache::get( 'is_multi_network' );
+		if ( null !== $cached ) {
+			return $cached;
+		}
+
 		// If we don't have a multi site setup no need to do any more.
 		if ( ! is_multisite() ) {
+			Cache::set( 'is_multi_network', false );
 			return false;
 		}
 
 		$num_sites = $wpdb->get_var( "SELECT COUNT(*) FROM {$wpdb->site}" );
 		if ( $num_sites > 1 ) {
+			Cache::set( 'is_multi_network', true );
 			return true;
 		}
 
+		Cache::set( 'is_multi_network', false );
 		return false;
 	}
 
@@ -122,12 +137,17 @@ class Status {
 	public function is_single_user_site() {
 		global $wpdb;
 
-		$some_users = get_transient( 'jetpack_is_single_user' );
-		if ( false === $some_users ) {
-			$some_users = $wpdb->get_var( "SELECT COUNT(*) FROM (SELECT user_id FROM $wpdb->usermeta WHERE meta_key = '{$wpdb->prefix}capabilities' LIMIT 2) AS someusers" );
-			set_transient( 'jetpack_is_single_user', (int) $some_users, 12 * HOUR_IN_SECONDS );
+		$ret = Cache::get( 'is_single_user_site' );
+		if ( null === $ret ) {
+			$some_users = get_transient( 'jetpack_is_single_user' );
+			if ( false === $some_users ) {
+				$some_users = $wpdb->get_var( "SELECT COUNT(*) FROM (SELECT user_id FROM $wpdb->usermeta WHERE meta_key = '{$wpdb->prefix}capabilities' LIMIT 2) AS someusers" );
+				set_transient( 'jetpack_is_single_user', (int) $some_users, 12 * HOUR_IN_SECONDS );
+			}
+			$ret = 1 === (int) $some_users;
+			Cache::set( 'is_single_user_site', $ret );
 		}
-		return 1 === (int) $some_users;
+		return $ret;
 	}
 
 	/**
@@ -138,8 +158,15 @@ class Status {
 	 * @return bool
 	 */
 	public function is_local_site() {
+		$cached = Cache::get( 'is_local_site' );
+		if ( null !== $cached ) {
+			return $cached;
+		}
+
+		$site_url = site_url();
+
 		// Check for localhost and sites using an IP only first.
-		$is_local = site_url() && false === strpos( site_url(), '.' );
+		$is_local = $site_url && false === strpos( $site_url, '.' );
 
 		// @todo Remove function_exists when the package has a documented minimum WP version.
 		// Use Core's environment check, if available. Added in 5.5.0 / 5.5.1 (for `local` return value).
@@ -160,7 +187,7 @@ class Status {
 
 		if ( ! $is_local ) {
 			foreach ( $known_local as $url ) {
-				if ( preg_match( $url, site_url() ) ) {
+				if ( preg_match( $url, $site_url ) ) {
 					$is_local = true;
 					break;
 				}
@@ -174,7 +201,10 @@ class Status {
 		 *
 		 * @param bool $is_local If the current site is a local site.
 		 */
-		return apply_filters( 'jetpack_is_local_site', $is_local );
+		$is_local = apply_filters( 'jetpack_is_local_site', $is_local );
+
+		Cache::set( 'is_local_site', $is_local );
+		return $is_local;
 	}
 
 	/**
@@ -185,6 +215,11 @@ class Status {
 	 * @return bool
 	 */
 	public function is_staging_site() {
+		$cached = Cache::get( 'is_staging_site' );
+		if ( null !== $cached ) {
+			return $cached;
+		}
+
 		// @todo Remove function_exists when the package has a documented minimum WP version.
 		// Core's wp_get_environment_type allows for a few specific options. We should default to bowing out gracefully for anything other than production or local.
 		$is_staging = function_exists( 'wp_get_environment_type' ) && ! in_array( wp_get_environment_type(), array( 'production', 'local' ), true );
@@ -227,8 +262,9 @@ class Status {
 		$known_staging = apply_filters( 'jetpack_known_staging', $known_staging );
 
 		if ( isset( $known_staging['urls'] ) ) {
+			$site_url = site_url();
 			foreach ( $known_staging['urls'] as $url ) {
-				if ( preg_match( $url, wp_parse_url( site_url(), PHP_URL_HOST ) ) ) {
+				if ( preg_match( $url, wp_parse_url( $site_url, PHP_URL_HOST ) ) ) {
 					$is_staging = true;
 					break;
 				}
@@ -256,7 +292,10 @@ class Status {
 		 *
 		 * @param bool $is_staging If the current site is a staging site.
 		 */
-		return apply_filters( 'jetpack_is_staging_site', $is_staging );
+		$is_staging = apply_filters( 'jetpack_is_staging_site', $is_staging );
+
+		Cache::set( 'is_staging_site', $is_staging );
+		return $is_staging;
 	}
 
 	/**

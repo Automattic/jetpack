@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Handle plugin activating from Hybrid class
