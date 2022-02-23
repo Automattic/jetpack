@@ -1,4 +1,0 @@
-Significance: minor
-Type: changed
-
-Search package: refactor `auto_config_search` and run it from activation API

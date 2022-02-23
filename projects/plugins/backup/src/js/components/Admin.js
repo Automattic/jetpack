@@ -19,7 +19,6 @@ import {
  * Internal dependencies
  */
 import Backups from './Backups';
-import MyPlan from './MyPlan';
 import useConnection from '../hooks/useConnection';
 import './admin-style.scss';
 import './masthead/masthead-style.scss';
@@ -27,7 +26,7 @@ import { STORE_ID } from '../store';
 
 /* eslint react/react-in-jsx-scope: 0 */
 const Admin = () => {
-	const [ connectionStatus, renderConnectScreen, renderConnectionStatusCard ] = useConnection();
+	const [ connectionStatus, renderConnectScreen ] = useConnection();
 	const [ capabilities, setCapabilities ] = useState( [] );
 	const [ capabilitiesError, setCapabilitiesError ] = useState( null );
 	const [ connectionLoaded, setConnectionLoaded ] = useState( false );
@@ -194,10 +193,6 @@ const Admin = () => {
 									{ __( 'See all your backups', 'jetpack-backup' ) }
 								</a>
 							</p>
-							<MyPlan
-								purchaseType={ 'backup' }
-								redirectUrl={ getRedirectUrl( 'backup-plugin-my-plan', { site: domain } ) }
-							/>
 						</>
 					) }
 				</Col>
@@ -221,8 +216,6 @@ const Admin = () => {
 							</a>
 						</p>
 					) }
-
-					{ renderConnectionStatusCard() }
 				</Col>
 			</Container>
 		);
