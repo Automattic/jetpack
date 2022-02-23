@@ -7,6 +7,8 @@
 
 namespace Automattic\Jetpack\My_Jetpack;
 
+use WP_Error;
+
 /**
  * Class responsible for handling the hybrid products
  *
@@ -34,6 +36,29 @@ abstract class Hybrid_Product extends Product {
 	 */
 	public static function is_plugin_installed() {
 		return parent::is_plugin_installed() || static::is_jetpack_plugin_installed();
+	}
+
+	/**
+	 * Activates the plugin
+	 *
+	 * @return null|WP_Error Null on success, WP_Error on invalid file.
+	 */
+	public static function activate_plugin() {
+		/*
+		 * Activate self-installed plugin if it's installed.
+		 * Silent mode True to avoid redirects.
+		 */
+		if ( parent::is_plugin_installed() ) {
+			return activate_plugin( static::get_installed_plugin_filename(), '', false, true );
+		}
+
+		/*
+		 * Otherwise, activate Jetpack plugin.
+		 * Silent mode True to avoid redirects.
+		 */
+		if ( static::is_jetpack_plugin_installed() ) {
+			return activate_plugin( static::get_installed_plugin_filename( 'jetpack' ), '', false, true );
+		}
 	}
 
 }
