@@ -835,7 +835,7 @@ class Helper {
 
 		$is_wpcom                  = defined( 'IS_WPCOM' ) && constant( 'IS_WPCOM' );
 		$is_private_site           = '-1' === get_option( 'blog_public' );
-		$is_jetpack_photon_enabled = method_exists( 'Jetpack', 'is_module_active' ) && Jetpack::is_module_active( 'photon' );
+		$is_jetpack_photon_enabled = method_exists( 'Jetpack', 'is_module_active' ) && \Jetpack::is_module_active( 'photon' );
 
 		$options = array(
 			'overlayOptions'        => array(
