@@ -1,0 +1,4 @@
+Significance: minor
+Type: added
+
+Added Jetpack WAF standalone mode. In this mode, the WAF runs in front of WordPress and avoids the request even reaching WordPress if it is determined to be malicious by the WAF.

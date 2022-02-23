@@ -12,7 +12,8 @@ namespace Automattic\Jetpack\Waf;
  */
 class WafRunner {
 
-	const RULES_FILE = __DIR__ . '/../rules/rules.php';
+	const MODE_OPTION_NAME = 'jetpack_waf_mode';
+	const RULES_FILE       = __DIR__ . '/../rules/rules.php';
 
 	/**
 	 * Did the WAF run yet or not?
@@ -21,6 +22,21 @@ class WafRunner {
 	 */
 	public static function did_run() {
 		return defined( 'JETPACK_WAF_RUN' );
+	}
+
+	/**
+	 * Determines if the passed $option is one of the allowed WAF operation modes.
+	 *
+	 * @param  string $option The mode option.
+	 * @return bool
+	 */
+	public static function is_allowed_mode( $option ) {
+		$allowed_modes = array(
+			'normal',
+			'silent',
+		);
+
+		return in_array( $option, $allowed_modes, true );
 	}
 
 	/**
