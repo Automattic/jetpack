@@ -7,6 +7,7 @@
 
 namespace Automattic\Jetpack\Sync;
 
+use Automattic\Jetpack\Connection\Manager as Connection_Manager;
 use Automattic\Jetpack\Roles;
 
 /**
@@ -269,6 +270,11 @@ class Listener {
 	public function enqueue_action( $current_filter, $args, $queue ) {
 		// don't enqueue an action during the outbound http request - this prevents recursion.
 		if ( Settings::is_sending() ) {
+			return;
+		}
+
+		if ( ! ( new Connection_Manager() )->is_connected() ) {
+			// Don't enqueue an action if the site is disconnected.
 			return;
 		}
 

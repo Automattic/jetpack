@@ -28,7 +28,7 @@ class Identity_Crisis {
 	/**
 	 * Package Version
 	 */
-	const PACKAGE_VERSION = '0.6.0-alpha';
+	const PACKAGE_VERSION = '0.7.4';
 
 	/**
 	 * Instance of the object.
@@ -190,7 +190,11 @@ class Identity_Crisis {
 	 * @param string $url The remote request url.
 	 */
 	public function add_idc_query_args_to_url( $url ) {
-		if ( ! is_string( $url ) || self::validate_sync_error_idc_option() ) {
+		$status = new Status();
+		if ( ! is_string( $url )
+			|| $status->is_offline_mode()
+			|| $status->is_staging_site()
+			|| self::validate_sync_error_idc_option() ) {
 			return $url;
 		}
 
@@ -243,10 +247,15 @@ class Identity_Crisis {
 
 		$href = wp_nonce_url( $href, 'jetpack_idc_clear_confirmation' );
 
+		$consumer_data = UI::get_consumer_data();
+		$label         = isset( $consumer_data['customContent']['adminBarSafeModeLabel'] )
+			? esc_html( $consumer_data['customContent']['adminBarSafeModeLabel'] )
+			: esc_html__( 'Jetpack Safe Mode', 'jetpack-idc' );
+
 		$title = sprintf(
 			'<span class="jp-idc-admin-bar">%s %s</span>',
-			'<span class="dashicons dashicons-warning"></span>',
-			esc_html__( 'Jetpack Safe Mode', 'jetpack-idc' )
+			'<span class="dashicons dashicons-info-outline"></span>',
+			$label
 		);
 
 		$menu = array(

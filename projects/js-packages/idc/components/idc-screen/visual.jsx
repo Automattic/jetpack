@@ -3,6 +3,7 @@
  */
 import React from 'react';
 import PropTypes from 'prop-types';
+import { createInterpolateElement } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 import { JetpackLogo } from '@automattic/jetpack-components';
 
@@ -37,6 +38,9 @@ const IDCScreenVisual = props => {
 		isStartingFresh,
 		startFreshCallback,
 		isAdmin,
+		hasMigrateError,
+		hasFreshError,
+		hasStaySafeError,
 	} = props;
 
 	const nonAdminBody = ! isAdmin ? <ScreenNonAdmin customContent={ customContent } /> : '';
@@ -62,6 +66,9 @@ const IDCScreenVisual = props => {
 				migrateCallback={ migrateCallback }
 				isStartingFresh={ isStartingFresh }
 				startFreshCallback={ startFreshCallback }
+				hasMigrateError={ hasMigrateError }
+				hasFreshError={ hasFreshError }
+				hasStaySafeError={ hasStaySafeError }
 			/>
 		);
 	}
@@ -73,7 +80,12 @@ const IDCScreenVisual = props => {
 					{ renderLogoImage( logo, customContent.logoAlt || '' ) }
 				</div>
 				<div className="jp-idc__idc-screen__logo-label">
-					{ customContent.headerText || __( 'Safe Mode', 'jetpack' ) }
+					{ customContent.headerText
+						? createInterpolateElement( customContent.headerText, {
+								em: <em />,
+								strong: <strong />,
+						  } )
+						: __( 'Safe Mode', 'jetpack' ) }
 				</div>
 			</div>
 
@@ -111,6 +123,12 @@ IDCScreenVisual.propTypes = {
 	startFreshCallback: PropTypes.func,
 	/** Whether to display the "admin" or "non-admin" screen. */
 	isAdmin: PropTypes.bool.isRequired,
+	/** Whether the component encountered the migration error. */
+	hasMigrateError: PropTypes.bool.isRequired,
+	/** Whether the component encountered the "Fresh Connection" error. */
+	hasFreshError: PropTypes.bool.isRequired,
+	/** Whether the component encountered the "Stay in Safe Mode" error. */
+	hasStaySafeError: PropTypes.bool.isRequired,
 };
 
 IDCScreenVisual.defaultProps = {
@@ -120,6 +138,9 @@ IDCScreenVisual.defaultProps = {
 	isMigrating: false,
 	isStartingFresh: false,
 	customContent: {},
+	hasMigrateError: false,
+	hasFreshError: false,
+	hasStaySafeError: false,
 };
 
 export default IDCScreenVisual;

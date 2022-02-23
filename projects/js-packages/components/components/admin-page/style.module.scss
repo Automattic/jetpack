@@ -1,10 +1,11 @@
-@import '~@automattic/jetpack-base-styles/style';
-
-.jp-admin-page {
+.admin-page {
 	margin-left: -20px; // to neutralize the padding of #wpcontent.
-}
 
-.jp-admin-page-section {
-	padding: 40px 0px;
-	background-color: white;
+	@media (max-width: 782px) {
+		margin-left: -10px; // to neutralize the padding of #wpcontent.
+	}
+
+	&.background {
+		background-color: var(--jp-white);
+	}
 }

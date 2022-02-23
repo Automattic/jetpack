@@ -3,7 +3,8 @@
  */
 import React from 'react';
 import classNames from 'classnames';
-import { omit } from 'lodash';
+/*eslint lodash/import-scope: [2, "method"]*/
+import omit from 'lodash/omit';
 
 /**
  * Internal dependencies

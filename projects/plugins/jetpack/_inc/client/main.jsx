@@ -38,6 +38,7 @@ import {
 	hasConnectedOwner,
 	getHasSeenWCConnectionModal,
 	setHasSeenWCConnectionModal,
+	isOfflineMode,
 } from 'state/connection';
 import {
 	setInitialState,
@@ -51,6 +52,7 @@ import {
 	getCurrentVersion,
 	getTracksUserData,
 	showRecommendations,
+	getInitialRecommendationsStep,
 	getPluginBaseUrl,
 	getPartnerCoupon,
 	isWoASite,
@@ -294,13 +296,12 @@ class Main extends React.Component {
 			 * parameter that JITMs will set (showCouponRedemption=true), and show the screen only
 			 * when the user came from a a JITM.
 			 */
-			if ( ! this.props.isSiteConnected || forceShow ) {
+			if ( ! this.props.isOfflineMode && ( ! this.props.isSiteConnected || forceShow ) ) {
 				return (
 					<PartnerCouponRedeem
 						apiNonce={ this.props.apiNonce }
 						registrationNonce={ this.props.registrationNonce }
 						apiRoot={ this.props.apiRoot }
-						images={ [ '/images/connect-right-partner-backup.png' ] }
 						assetBaseUrl={ this.props.pluginBaseUrl }
 						connectionStatus={ this.props.connectionStatus }
 						partnerCoupon={ this.props.partnerCoupon }
@@ -477,6 +478,8 @@ class Main extends React.Component {
 							siteRawUrl={ this.props.siteRawUrl }
 							successImage="/images/jetpack-license-activation-with-success.png"
 							onActivationSuccess={ this.onLicenseActivationSuccess }
+							siteAdminUrl={ this.props.siteAdminUrl }
+							currentRecommendationsStep={ this.props.currentRecommendationsStep }
 						/>
 					);
 				} else {
@@ -713,6 +716,7 @@ class Main extends React.Component {
 export default connect(
 	state => {
 		return {
+			isOfflineMode: isOfflineMode( state ),
 			connectionStatus: getConnectionStatus( state ),
 			siteConnectionStatus: getSiteConnectionStatus( state ),
 			isLinked: isCurrentUserLinked( state ),
@@ -741,6 +745,7 @@ export default connect(
 			isWooCommerceActive: isWooCommerceActive( state ),
 			hasSeenWCConnectionModal: getHasSeenWCConnectionModal( state ),
 			partnerCoupon: getPartnerCoupon( state ),
+			currentRecommendationsStep: getInitialRecommendationsStep( state ),
 		};
 	},
 	dispatch => ( {

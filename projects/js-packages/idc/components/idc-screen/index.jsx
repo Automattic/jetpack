@@ -3,18 +3,19 @@
  */
 import React, { useEffect, useState, useCallback } from 'react';
 import PropTypes from 'prop-types';
-import analytics from '@automattic/jetpack-analytics';
 import restApi from '@automattic/jetpack-api';
+import { useSelect } from '@wordpress/data';
 
 /**
  * Internal dependencies
  */
 import IDCScreenVisual from './visual';
-import trackAndBumpMCStats from '../../tools/tracking';
+import trackAndBumpMCStats, { initializeAnalytics } from '../../tools/tracking';
 import useMigration from '../../hooks/use-migration';
 import useMigrationFinished from '../../hooks/use-migration-finished';
 import useStartFresh from '../../hooks/use-start-fresh';
 import customContentShape from '../../tools/custom-content-shape';
+import { STORE_ID } from '../../state/store';
 
 /**
  * The IDC screen component.
@@ -38,6 +39,8 @@ const IDCScreen = props => {
 
 	const [ isMigrated, setIsMigrated ] = useState( false );
 
+	const errorType = useSelect( select => select( STORE_ID ).getErrorType(), [] );
+
 	const { isMigrating, migrateCallback } = useMigration(
 		useCallback( () => {
 			setIsMigrated( true );
@@ -54,13 +57,7 @@ const IDCScreen = props => {
 		restApi.setApiRoot( apiRoot );
 		restApi.setApiNonce( apiNonce );
 
-		if (
-			tracksUserData &&
-			tracksUserData.hasOwnProperty( 'userid' ) &&
-			tracksUserData.hasOwnProperty( 'username' )
-		) {
-			analytics.initialize( tracksUserData.userid, tracksUserData.username );
-		}
+		initializeAnalytics( tracksEventData, tracksUserData );
 
 		if ( tracksEventData ) {
 			if ( tracksEventData.hasOwnProperty( 'isAdmin' ) && tracksEventData.isAdmin ) {
@@ -90,6 +87,9 @@ const IDCScreen = props => {
 			isStartingFresh={ isStartingFresh }
 			startFreshCallback={ startFreshCallback }
 			isAdmin={ isAdmin }
+			hasStaySafeError={ errorType === 'safe-mode' }
+			hasFreshError={ errorType === 'start-fresh' }
+			hasMigrateError={ errorType === 'migrate' }
 		/>
 	);
 };

@@ -149,15 +149,42 @@ class Jetpack_Simple_Payments {
 		return Jetpack::is_connection_ready() && Jetpack_Plan::supports( 'simple-payments' );
 	}
 
-	function parse_shortcode( $attrs, $content = false ) {
+	/**
+	 * Get a WP_Post representation of a product
+	 *
+	 * @param int $id The ID of the product.
+	 *
+	 * @return array|false|WP_Post
+	 */
+	private function get_product( $id ) {
+		if ( ! $id ) {
+			return false;
+		}
+
+		$product = get_post( $id );
+		if ( ! $product || is_wp_error( $product ) ) {
+			return false;
+		}
+		if ( $product->post_type !== self::$post_type_product || 'publish' !== $product->post_status ) {
+			return false;
+		}
+		return $product;
+	}
+
+	/**
+	 * Creates the content from a shortcode
+	 *
+	 * @param array $attrs Shortcode attributes.
+	 * @param mixed $content unused.
+	 *
+	 * @return string|void
+	 */
+	public function parse_shortcode( $attrs, $content = false ) { // phpcs:ignore VariableAnalysis.CodeAnalysis.VariableAnalysis.UnusedVariable
 		if ( empty( $attrs['id'] ) ) {
 			return;
 		}
-		$product = get_post( $attrs['id'] );
-		if ( ! $product || is_wp_error( $product ) ) {
-			return;
-		}
-		if ( $product->post_type !== self::$post_type_product || 'publish' !== $product->post_status ) {
+		$product = $this->get_product( $attrs['id'] );
+		if ( ! $product ) {
 			return;
 		}
 
@@ -541,6 +568,87 @@ class Jetpack_Simple_Payments {
 			'show_in_rest'          => true,
 		);
 		register_post_type( self::$post_type_product, $product_args );
+	}
+
+	/**
+	 * Validate the block attributes
+	 *
+	 * @param array $attrs The block attributes, expected to contain:
+	 *                      * email - an email address.
+	 *                      * price - a float between 0.01 and 9999999999.99.
+	 *                      * productId - the ID of the product being paid for.
+	 *
+	 * @return bool
+	 */
+	public function is_valid( $attrs ) {
+		if ( ! $this->validate_paypal_email( $attrs ) ) {
+			return false;
+		}
+
+		if ( ! $this->validate_price( $attrs ) ) {
+			return false;
+		}
+
+		if ( ! $this->validate_product( $attrs ) ) {
+			return false;
+		}
+
+		return true;
+	}
+
+	/**
+	 * Check that the email address to make a payment to is valid
+	 *
+	 * @param array $attrs Key-value array of attributes.
+	 *
+	 * @return boolean
+	 */
+	private function validate_paypal_email( $attrs ) {
+		if ( empty( $attrs['email'] ) ) {
+			return false;
+		}
+		return (bool) filter_var( $attrs['email'], FILTER_VALIDATE_EMAIL );
+	}
+
+	/**
+	 * Check that the price is valid
+	 *
+	 * @param array $attrs Key-value array of attributes.
+	 *
+	 * @return bool
+	 */
+	private function validate_price( $attrs ) {
+		if ( empty( $attrs['price'] ) ) {
+			return false;
+		}
+		return (bool) self::sanitize_price( $attrs['price'] );
+	}
+
+	/**
+	 * Check that the stored product is valid
+	 *
+	 * Valid means it has a title, and the currency is accepted.
+	 *
+	 * @param array $attrs Key-value array of attributes.
+	 *
+	 * @return bool
+	 */
+	private function validate_product( $attrs ) {
+		if ( empty( $attrs['productId'] ) ) {
+			return false;
+		}
+		$product = $this->get_product( $attrs['productId'] );
+		if ( ! $product ) {
+			return false;
+		}
+		// This title is the one used by paypal, it's set from the title set in the block content, unless the block
+		// content title is blank.
+		if ( ! get_the_title( $product ) ) {
+			return false;
+		}
+
+		$currency = get_post_meta( $product->ID, 'spay_currency', true );
+		return (bool) self::sanitize_currency( $currency );
 	}
 
 	/**

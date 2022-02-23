@@ -20,6 +20,7 @@
 # Files to exclude from Automattic/jetpack-production.
 # Remember to end all directories with `/**` to properly tag every file.
 .eslintrc.js                                             production-exclude
+.eslintignore                                            production-exclude
 /.gitattributes                                          production-exclude
 /.gitignore                                              production-exclude
 /.phpcs.dir.xml                                          production-exclude
@@ -54,8 +55,6 @@
 /modules/calypsoify/*.css.map                            production-exclude
 /modules/calypsoify/*.scss                               production-exclude
 /modules/masterbar/admin-color-schemes/colors/**/*.scss  production-exclude
-/modules/search/instant-search/**                        production-exclude
-/modules/search/customberg/**                            production-exclude
 /modules/widgets/follow-button.php                       production-exclude
 /modules/widget-visibility/editor/**                     production-exclude
 /node_modules/**                                         production-exclude

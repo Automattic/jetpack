@@ -1,4 +1,0 @@
-Significance: minor
-Type: changed
-
-Make the plugin use RNA Connection for connection state.

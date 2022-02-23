@@ -1,0 +1,5 @@
+Significance: patch
+Type: removed
+Comment: Tooling only: Build and test scripts no longer call `composer install` or `pnpm install`.
+
+

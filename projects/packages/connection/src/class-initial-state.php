@@ -26,10 +26,11 @@ class Initial_State {
 	 */
 	private static function get_data() {
 		return array(
-			'WP_API_root'       => esc_url_raw( rest_url() ),
-			'WP_API_nonce'      => wp_create_nonce( 'wp_rest' ),
-			'registrationNonce' => wp_create_nonce( 'jetpack-registration-nonce' ),
-			'connectionStatus'  => REST_Connector::connection_status( false ),
+			'apiRoot'            => esc_url_raw( rest_url() ),
+			'apiNonce'           => wp_create_nonce( 'wp_rest' ),
+			'registrationNonce'  => wp_create_nonce( 'jetpack-registration-nonce' ),
+			'connectionStatus'   => REST_Connector::connection_status( false ),
+			'userConnectionData' => REST_Connector::get_user_connection_data( false ),
 		);
 	}
 

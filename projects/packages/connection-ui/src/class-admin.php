@@ -8,6 +8,7 @@
 namespace Automattic\Jetpack\ConnectionUI;
 
 use Automattic\Jetpack\Assets;
+use Automattic\Jetpack\Connection\Initial_State as Connection_Initial_State;
 
 /**
  * The Connection UI Admin Area
@@ -73,6 +74,7 @@ class Admin {
 			);
 			Assets::enqueue_script( 'jetpack_connection_ui' );
 			wp_add_inline_script( 'jetpack_connection_ui', $this->get_initial_state(), 'before' );
+			wp_add_inline_script( 'jetpack_connection_ui', Connection_Initial_State::render(), 'before' );
 		}
 	}
 

@@ -110,6 +110,10 @@ class Plugin implements PluginInterface, EventSubscriberInterface {
 			if ( isset( $extra['branch-alias'][ $ver ] ) ) {
 				$ver = $extra['branch-alias'][ $ver ];
 			}
+
+			// Composer's `getVersion()` seems to like to return a 4-component version, while semver wants only 3 components. Strip any extra components.
+			$ver = preg_replace( '/^(\d+\.\d+\.\d+)(?:\.\d+)+/', '$1', $ver );
+
 			if ( ! preg_match( '/^\d+\.\d+\.\d+(?:-[0-9a-zA-Z-]+(?:\.[0-9a-zA-Z-]+)*)?(?:\+[0-9a-zA-Z-]+(?:\.[0-9a-zA-Z-]+)*)?$/', $ver ) ) {
 				// Invalid version, skip it.
 				$ver = '0.0.0';
@@ -119,8 +123,11 @@ class Plugin implements PluginInterface, EventSubscriberInterface {
 			if ( empty( $extra['textdomain'] ) ) {
 				$io->info( "  {$package->getName()} ($ver): no textdomain set" );
 			} else {
-				$data['packages'][ $extra['textdomain'] ] = $ver;
-				$io->info( "  {$package->getName()} ($ver): textdomain is {$extra['textdomain']}" );
+				$data['packages'][ $extra['textdomain'] ] = array(
+					'path' => 'jetpack_vendor/' . $package->getPrettyName(),
+					'ver'  => $ver,
+				);
+				$io->info( "  {$package->getName()} ($ver): textdomain is {$extra['textdomain']}, path is jetpack_vendor/{$package->getPrettyName()}" );
 			}
 		}
 

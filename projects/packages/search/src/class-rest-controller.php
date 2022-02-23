@@ -37,10 +37,12 @@ class REST_Controller {
 	 *
 	 * @param bool                $is_wpcom - Whether it's run on WPCOM.
 	 * @param Module_Control|null $module_control - Module_Control object if any.
+	 * @param Plan|null           $plan - Plan object if any.
 	 */
-	public function __construct( $is_wpcom = false, $module_control = null ) {
+	public function __construct( $is_wpcom = false, $module_control = null, $plan = null ) {
 		$this->is_wpcom      = $is_wpcom;
 		$this->search_module = is_null( $module_control ) ? new Module_Control() : $module_control;
+		$this->plan          = is_null( $plan ) ? new Plan() : $plan;
 	}
 
 	/**
@@ -56,7 +58,7 @@ class REST_Controller {
 			array(
 				'methods'             => WP_REST_Server::READABLE,
 				'callback'            => array( $this, 'get_search_plan' ),
-				'permission_callback' => array( $this, 'search_permissions_callback' ),
+				'permission_callback' => array( $this, 'require_admin_privilege_callback' ),
 			)
 		);
 		register_rest_route(
@@ -65,7 +67,7 @@ class REST_Controller {
 			array(
 				'methods'             => WP_REST_Server::EDITABLE,
 				'callback'            => array( $this, 'update_settings' ),
-				'permission_callback' => array( $this, 'search_permissions_callback' ),
+				'permission_callback' => array( $this, 'require_admin_privilege_callback' ),
 			)
 		);
 		register_rest_route(
@@ -74,7 +76,16 @@ class REST_Controller {
 			array(
 				'methods'             => WP_REST_Server::READABLE,
 				'callback'            => array( $this, 'get_settings' ),
-				'permission_callback' => array( $this, 'search_permissions_callback' ),
+				'permission_callback' => array( $this, 'require_admin_privilege_callback' ),
+			)
+		);
+		register_rest_route(
+			'jetpack/v4',
+			'/search/stats',
+			array(
+				'methods'             => WP_REST_Server::READABLE,
+				'callback'            => array( $this, 'get_stats' ),
+				'permission_callback' => array( $this, 'require_admin_privilege_callback' ),
 			)
 		);
 		register_rest_route(
@@ -86,6 +97,24 @@ class REST_Controller {
 				'permission_callback' => 'is_user_logged_in',
 			)
 		);
+		register_rest_route(
+			'jetpack/v4',
+			'/search/plan/activate',
+			array(
+				'methods'             => WP_REST_Server::EDITABLE,
+				'callback'            => array( $this, 'activate_plan' ),
+				'permission_callback' => array( $this, 'require_admin_privilege_callback' ),
+			)
+		);
+		register_rest_route(
+			'jetpack/v4',
+			'/search/plan/deactivate',
+			array(
+				'methods'             => WP_REST_Server::EDITABLE,
+				'callback'            => array( $this, 'deactivate_plan' ),
+				'permission_callback' => array( $this, 'require_admin_privilege_callback' ),
+			)
+		);
 	}
 
 	/**
@@ -93,7 +122,7 @@ class REST_Controller {
 	 *
 	 * @return bool|WP_Error True if a blog token was used to sign the request, WP_Error otherwise.
 	 */
-	public function search_permissions_callback() {
+	public function require_admin_privilege_callback() {
 		if ( current_user_can( 'manage_options' ) ) {
 			return true;
 		}
@@ -168,7 +197,7 @@ class REST_Controller {
 			);
 		}
 
-		return $this->get_settings();
+		return rest_ensure_response( $this->get_settings() );
 	}
 
 	/**
@@ -192,10 +221,22 @@ class REST_Controller {
 	 * GET `jetpack/v4/search/settings`
 	 */
 	public function get_settings() {
-		return array(
-			'module_active'          => $this->search_module->is_active(),
-			'instant_search_enabled' => $this->search_module->is_instant_search_enabled(),
+		return rest_ensure_response(
+			array(
+				'module_active'          => $this->search_module->is_active(),
+				'instant_search_enabled' => $this->search_module->is_instant_search_enabled(),
+			)
 		);
+	}
+
+	/**
+	 * Proxy the request to WPCOM and return the response.
+	 *
+	 * GET `jetpack/v4/search/stats`
+	 */
+	public function get_stats() {
+		$response = ( new Stats() )->get_stats_from_wpcom();
+		return $this->make_proper_response( $response );
 	}
 
 	/**
@@ -213,13 +254,84 @@ class REST_Controller {
 			sprintf( '/sites/%d/search', absint( $blog_id ) )
 		);
 		$response = Client::wpcom_json_api_request_as_user( $path, '1.3', array(), null, 'rest' );
-		return $this->make_proper_response( $response );
+		return rest_ensure_response( $this->make_proper_response( $response ) );
+	}
+
+	/**
+	 * Activate plan: activate the search module, instant search and do initial configuration.
+	 * Typically called from WPCOM.
+	 *
+	 * POST `jetpack/v4/search/plan/activate`
+	 *
+	 * @param WP_REST_Request $request - REST request.
+	 */
+	public function activate_plan( $request ) {
+		$default_options = array(
+			'search_plan_info'      => null,
+			'enable_search'         => true,
+			'enable_instant_search' => true,
+			'auto_config_search'    => true,
+		);
+		$payload         = $request->get_json_params();
+		$payload         = wp_parse_args( $payload, $default_options );
+
+		// Update plan data, plan info is in the request body.
+		// We do this to avoid another call to WPCOM and reduce latency.
+		if ( is_null( $payload['search_plan_info'] ) || ! $this->plan->set_plan_options( $payload['search_plan_info'] ) ) {
+			$this->plan->get_plan_info_from_wpcom();
+		}
+
+		// Enable search module by default, unless `enable_search` is explicitly set to boolean `false`.
+		if ( false !== $payload['enable_search'] ) {
+			// Eligibility is checked in `activate` function.
+			$ret = $this->search_module->activate();
+			if ( is_wp_error( $ret ) ) {
+				return $ret;
+			}
+		}
+
+		// Enable instant search by default, unless `enable_instant_search` is explicitly set to boolean `false`.
+		if ( false !== $payload['enable_instant_search'] ) {
+			// Eligibility is checked in `enable_instant_search` function.
+			$ret = $this->search_module->enable_instant_search();
+			if ( is_wp_error( $ret ) ) {
+				return $ret;
+			}
+		}
+
+		// Automatically configure necessary settings for instant search, unless `auto_config_search` is explicitly set to boolean `false`.
+		if ( false !== $payload['auto_config_search'] ) {
+			Instant_Search::instance( $this->get_blog_id() )->auto_config_search();
+		}
+
+		return rest_ensure_response(
+			array(
+				'code' => 'success',
+			)
+		);
+	}
+
+	/**
+	 * Deactivate plan: turn off search module and instant search.
+	 * If the plan is still valid then the function would simply deactivate the search module.
+	 * Typically called from WPCOM.
+	 *
+	 * POST `jetpack/v4/search/plan/deactivate`
+	 */
+	public function deactivate_plan() {
+		// Instant Search would be disabled along with search module.
+		$this->search_module->deactivate();
+		return rest_ensure_response(
+			array(
+				'code' => 'success',
+			)
+		);
 	}
 
 	/**
 	 * Forward remote response to client with error handling.
 	 *
-	 * @param array|WP_Error $response - Resopnse from WPCOM.
+	 * @param array|WP_Error $response - Response from WPCOM.
 	 */
 	protected function make_proper_response( $response ) {
 		if ( is_wp_error( $response ) ) {

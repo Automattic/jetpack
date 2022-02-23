@@ -12,7 +12,7 @@
 		"automattic/jetpack-autoloader": "2.10.x-dev"
 	},
 	"require-dev": {
-		"yoast/phpunit-polyfills": "1.0.2",
+		"yoast/phpunit-polyfills": "1.0.3",
 		"automattic/jetpack-changelogger": "^3.0"
 	},
 	"scripts": {
@@ -20,26 +20,10 @@
 			"./vendor/phpunit/phpunit/phpunit --colors=always"
 		],
 		"test-coverage": [
-			"@composer install",
 			"php -dpcov.directory=. ./vendor/bin/phpunit --coverage-clover \"$COVERAGE_DIR/clover.xml\""
 		],
 		"test-php": [
-			"@composer install",
 			"@composer phpunit"
-		],
-		"build-development": [
-			"Composer\\Config::disableProcessTimeout",
-			"@clean",
-			"@composer install"
-		],
-		"build-production": [
-			"Composer\\Config::disableProcessTimeout",
-			"@clean",
-			"@putenv COMPOSER_MIRROR_PATH_REPOS=1",
-			"@composer install -o --no-dev --classmap-authoritative --prefer-dist"
-		],
-		"clean": [
-			"rm -rf vendor/ jetpack_vendor/"
 		]
 	},
 	"repositories": [
@@ -54,7 +38,10 @@
 	"minimum-stability": "dev",
 	"prefer-stable": true,
 	"config": {
-		"autoloader-suffix": "9559eef123208b7d1b9c15b978567267_vaultpressⓥ2_2_1_alpha"
+		"autoloader-suffix": "9559eef123208b7d1b9c15b978567267_vaultpressⓥ2_2_2_alpha",
+		"allow-plugins": {
+			"automattic/jetpack-autoloader": true
+		}
 	},
 	"extra": {
 		"mirror-repo": "Automattic/vaultpress",

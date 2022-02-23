@@ -60,6 +60,14 @@ class Jetpack_Gutenberg {
 	private static $cached_availability = null;
 
 	/**
+	 * Site-specific features available.
+	 * Their calculation can be expensive and slow, so we're caching it for the request.
+	 *
+	 * @var array Site-specific features
+	 */
+	private static $site_specific_features = array();
+
+	/**
 	 * Check to see if a minimum version of Gutenberg is available. Because a Gutenberg version is not available in
 	 * php if the Gutenberg plugin is not installed, if we know which minimum WP release has the required version we can
 	 * optionally fall back to that.
@@ -700,6 +708,62 @@ class Jetpack_Gutenberg {
 	}
 
 	/**
+	 * Add the Gutenberg editor stylesheet to iframed editors, such as the site editor,
+	 * which don't have access to stylesheets added with `wp_enqueue_style`.
+	 *
+	 * This workaround is currently used by WordPress.com Simple sites.
+	 *
+	 * @since 10.7
+	 *
+	 * @return void
+	 */
+	public static function add_iframed_editor_style() {
+		if ( ! self::should_load() ) {
+			return;
+		}
+
+		global $pagenow;
+		if ( ! isset( $pagenow ) ) {
+			return;
+		}
+
+		$allowed_pages       = array( 'admin.php', 'themes.php' );
+		$is_site_editor_page = in_array( $pagenow, $allowed_pages, true ) &&
+			isset( $_GET['page'] ) && 'gutenberg-edit-site' === $_GET['page']; // phpcs:ignore WordPress.Security.NonceVerification.Recommended
+
+		// WP 5.9 puts the site editor in `site-editor.php` when Gutenberg is not active.
+		if ( 'site-editor.php' !== $pagenow && ! $is_site_editor_page ) {
+			return;
+		}
+
+		$blocks_dir       = self::get_blocks_directory();
+		$blocks_variation = self::blocks_variation();
+
+		if ( 'production' !== $blocks_variation ) {
+			$blocks_env = '-' . esc_attr( $blocks_variation );
+		} else {
+			$blocks_env = '';
+		}
+
+		$path = "{$blocks_dir}editor{$blocks_env}.css";
+		$dir  = dirname( JETPACK__PLUGIN_FILE );
+
+		if ( file_exists( "$dir/$path" ) ) {
+			if ( is_rtl() ) {
+				$rtlcsspath = substr( $path, 0, -4 ) . '.rtl.css';
+				if ( file_exists( "$dir/$rtlcsspath" ) ) {
+					$path = $rtlcsspath;
+				}
+			}
+
+			$url = Assets::normalize_path( plugins_url( $path, JETPACK__PLUGIN_FILE ) );
+			$url = add_query_arg( 'minify', 'false', $url );
+
+			add_editor_style( $url );
+		}
+	}
+
+	/**
 	 * Some blocks do not depend on a specific module,
 	 * and can consequently be loaded outside of the usual modules.
 	 * We will look for such modules in the extensions/ directory.
@@ -747,8 +811,7 @@ class Jetpack_Gutenberg {
 						include_once $extension_file_path;
 					}
 				}
-			};
-
+			}
 		}
 	}
 
@@ -1004,6 +1067,36 @@ class Jetpack_Gutenberg {
 	}
 
 	/**
+	 * Retrieve site-specific features for Simple sites.
+	 *
+	 * We're caching the data for the lifetime of the request, because it can be slow to calculate,
+	 * and it can be called multiple times per single request.
+	 *
+	 * We intentionally don't use object caching or any other type of persistent caching,
+	 * in order to avoid complex cache invalidation on subscription addition or removal.
+	 *
+	 * @since 10.7
+	 *
+	 * @return array
+	 */
+	private static function get_site_specific_features() {
+		$current_blog_id = get_current_blog_id();
+
+		if ( isset( self::$site_specific_features[ $current_blog_id ] ) ) {
+			return self::$site_specific_features[ $current_blog_id ];
+		}
+
+		if ( ! class_exists( 'Store_Product_List' ) ) {
+			require WP_CONTENT_DIR . '/admin-plugins/wpcom-billing/store-product-list.php';
+		}
+
+		$site_specific_features                           = Store_Product_List::get_site_specific_features_data( $current_blog_id );
+		self::$site_specific_features[ $current_blog_id ] = $site_specific_features;
+
+		return $site_specific_features;
+	}
+
+	/**
 	 * Set the availability of the block as the editor
 	 * is loaded.
 	 *
@@ -1022,10 +1115,7 @@ class Jetpack_Gutenberg {
 
 			// Simple sites.
 			if ( $is_simple_site ) {
-				if ( ! class_exists( 'Store_Product_List' ) ) {
-					require WP_CONTENT_DIR . '/admin-plugins/wpcom-billing/store-product-list.php';
-				}
-				$features_data = Store_Product_List::get_site_specific_features_data();
+				$features_data = self::get_site_specific_features();
 			} else {
 				// Atomic sites.
 				$option = get_option( 'jetpack_active_plan' );

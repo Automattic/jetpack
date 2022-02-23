@@ -446,6 +446,62 @@ class Test_Identity_Crisis extends BaseTestCase {
 	}
 
 	/**
+	 * Test the add_idc_query_args_to_url method with offline mode.
+	 */
+	public function test_add_idc_query_args_to_url_offline_mode() {
+		$this->set_up_for_test_add_idc_query_args_to_url();
+		add_filter( 'jetpack_offline_mode', '__return_true' );
+		\Jetpack_Options::update_option( 'migrate_for_idc', true );
+
+		$input_url = 'https://www.example.com';
+
+		$result     = Identity_Crisis::init()->add_idc_query_args_to_url( $input_url );
+		$url_parts  = wp_parse_url( $result );
+		$query_args = array();
+		if ( array_key_exists( 'query', $url_parts ) ) {
+			$query_args = wp_parse_args( $url_parts['query'] );
+		}
+
+		$this->tear_down_for_test_add_idc_query_args_to_url();
+		remove_filter( 'jetpack_offline_mode', '__return_true' );
+		\Jetpack_Options::delete_option( 'migrate_for_idc' );
+
+		$this->assertSame( $input_url, $url_parts['scheme'] . '://' . $url_parts['host'] );
+		$this->assertArrayNotHasKey( 'idc', $query_args );
+		$this->assertArrayNotHasKey( 'migrate_for_idc', $query_args );
+		$this->assertArrayNotHasKey( 'siteurl', $query_args );
+		$this->assertArrayNotHasKey( 'home', $query_args );
+	}
+
+	/**
+	 * Test the add_idc_query_args_to_url method with staging mode.
+	 */
+	public function test_add_idc_query_args_to_url_staging_mode() {
+		$this->set_up_for_test_add_idc_query_args_to_url();
+		add_filter( 'jetpack_is_staging_site', '__return_true' );
+		\Jetpack_Options::update_option( 'migrate_for_idc', true );
+
+		$input_url = 'https://www.example.com';
+
+		$result     = Identity_Crisis::init()->add_idc_query_args_to_url( $input_url );
+		$url_parts  = wp_parse_url( $result );
+		$query_args = array();
+		if ( array_key_exists( 'query', $url_parts ) ) {
+			$query_args = wp_parse_args( $url_parts['query'] );
+		}
+
+		$this->tear_down_for_test_add_idc_query_args_to_url();
+		remove_filter( 'jetpack_is_staging_site', '__return_true' );
+		\Jetpack_Options::delete_option( 'migrate_for_idc' );
+
+		$this->assertSame( $input_url, $url_parts['scheme'] . '://' . $url_parts['host'] );
+		$this->assertArrayNotHasKey( 'idc', $query_args );
+		$this->assertArrayNotHasKey( 'migrate_for_idc', $query_args );
+		$this->assertArrayNotHasKey( 'siteurl', $query_args );
+		$this->assertArrayNotHasKey( 'home', $query_args );
+	}
+
+	/**
 	 * Set up test_add_idc_query_args_to_url test environment.
 	 */
 	public function set_up_for_test_add_idc_query_args_to_url() {

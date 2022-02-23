@@ -1,5 +1,6 @@
 <?php
 
+use Automattic\Jetpack\Plugins_Installer;
 use Automattic\Jetpack\Status;
 
 /**
@@ -737,19 +738,24 @@ class Jetpack_Core_API_Data extends Jetpack_Core_API_XMLRPC_Consumer_Endpoint {
 
 				case 'search_auto_config':
 					if ( ! $value ) {
+						// Skip execution if no value is specified.
 						$updated = true;
-					} elseif ( class_exists( 'Jetpack_Search' ) ) {
-						$jps = Jetpack_Search::instance();
-						if ( is_a( $jps, 'Jetpack_Instant_Search' ) ) {
-							$jps->auto_config_search();
-							$updated = true;
-						} else {
-							$updated = new WP_Error( 'instant_search_disabled', 'Instant Search Disabled', array( 'status' => 400 ) );
-							$error   = $updated->get_error_message();
-						}
 					} else {
-						$updated = new WP_Error( 'search_disabled', 'Search Disabled', array( 'status' => 400 ) );
-						$error   = $updated->get_error_message();
+						$plan = new Automattic\Jetpack\Search\Plan();
+						if ( ! $plan->supports_instant_search() ) {
+							$updated = new WP_Error( 'instant_search_not_supported', 'Instant Search is not supported by this site', array( 'status' => 400 ) );
+							$error   = $updated->get_error_message();
+						} else {
+							if ( ! Automattic\Jetpack\Search\Options::is_instant_enabled() ) {
+								$updated = new WP_Error( 'instant_search_disabled', 'Instant Search is disabled', array( 'status' => 400 ) );
+								$error   = $updated->get_error_message();
+							} else {
+								$blog_id  = Automattic\Jetpack\Search\Helper::get_wpcom_site_id();
+								$instance = Automattic\Jetpack\Search\Instant_Search::instance( $blog_id );
+								$instance->auto_config_search();
+								$updated = true;
+							}
+						}
 					}
 					break;
 
@@ -1114,8 +1120,7 @@ class Jetpack_Core_API_Data extends Jetpack_Core_API_XMLRPC_Consumer_Endpoint {
 		}
 
 		if ( ! empty( $data['installWooCommerce'] ) ) {
-			jetpack_require_lib( 'plugins' );
-			$wc_install_result = Jetpack_Plugins::install_and_activate_plugin( 'woocommerce' );
+			$wc_install_result = Plugins_Installer::install_and_activate_plugin( 'woocommerce' );
 			delete_transient( '_wc_activation_redirect' ); // Redirecting to WC setup would kill our users' flow
 			if ( is_wp_error( $wc_install_result ) ) {
 				$error[] = 'woocommerce installation';

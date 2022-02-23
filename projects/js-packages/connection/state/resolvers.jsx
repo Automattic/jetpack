@@ -10,12 +10,6 @@ import actions from './actions';
 import { STORE_ID } from './store';
 
 const connectionResolvers = {
-	*getConnectionStatus() {
-		yield actions.setConnectionStatusIsFetching( true );
-		const result = yield actions.fetchConnectionStatus();
-		yield actions.setConnectionStatusIsFetching( false );
-		return actions.setConnectionStatus( result );
-	},
 	getAuthorizationUrl: {
 		isFulfilled: ( state, ...args ) => {
 			const hasAuthorization = Boolean( state.authorizationUrl );

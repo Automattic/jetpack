@@ -25,7 +25,7 @@
 			left: 62%;
 		}
 
-		.components-button  {
+		.jp-action-button--button.components-button  {
 			width: 100%;
 			height: auto;
 			font-size: 18px;
@@ -47,7 +47,7 @@
 			display: inline;
 		}
 
-		.jp-action-button--button {
+		.jp-action-button--button.components-button {
 			display: inline;
 			font-size: var( --font-title-small );
 			line-height: 20px;

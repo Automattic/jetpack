@@ -62,7 +62,9 @@ if ( ! defined( 'JETPACK__WPCOM_JSON_API_BASE' ) ) {
 $boost_packages_path = JETPACK_BOOST_DIR_PATH . '/vendor/autoload_packages.php';
 if ( is_readable( $boost_packages_path ) ) {
 	require_once $boost_packages_path;
-	\Automattic\Jetpack\Assets::alias_textdomains_from_file( JETPACK_BOOST_DIR_PATH . '/jetpack_vendor/i18n-map.php' );
+	if ( method_exists( \Automattic\Jetpack\Assets::class, 'alias_textdomains_from_file' ) ) {
+		\Automattic\Jetpack\Assets::alias_textdomains_from_file( JETPACK_BOOST_DIR_PATH . '/jetpack_vendor/i18n-map.php' );
+	}
 } else {
 	if ( defined( 'WP_DEBUG' ) && WP_DEBUG ) {
 		error_log( // phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_error_log
@@ -140,6 +142,10 @@ function include_compatibility_files() {
 	if ( class_exists( '\Elementor\TemplateLibrary\Source_Local' ) ) {
 		require_once __DIR__ . '/compatibility/elementor.php';
 	}
+
+	if ( function_exists( 'amp_is_request' ) ) {
+		require_once __DIR__ . '/compatibility/amp.php';
+	}
 }
 
 add_action( 'plugins_loaded', __NAMESPACE__ . '\include_compatibility_files' );
@@ -152,3 +158,8 @@ function jetpack_boost_uninstall() {
 	$boost = new Jetpack_Boost();
 	$boost->uninstall();
 }
+
+/**
+ * Previous version compatibility files
+ */
+require_once __DIR__ . '/compatibility/boost-1.3.1.php';

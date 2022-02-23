@@ -2,6 +2,274 @@
 
 ### This is a list detailing changes for all Jetpack releases.
 
+## 10.7-beta - 2022-02-22
+### Enhancements
+- Dashboard: improve performance of plugins page.
+- Subscribe block: various changes, including a name change, how the display for current subscribers is shown, and new styling options and enhancements.
+
+### Improved compatibility
+- Performance: improve performance of Jetpack dashboard for sites without VideoPress enabled.
+
+### Bug fixes
+- Subscribe block: address front-end rendering issues.
+- Dashboard: show Jetpack stats Screen Options label properly.
+
+### Other changes <!-- Non-user-facing changes go here. This section will not be copied to readme.txt. -->
+- Add Sync related unit tests.
+- Bump package versions.
+- Dashboard: remove marketplace related add plugins menu redirect.
+- E2E tests: update readme.
+- Fix PHPCS violations for the Publicize module.
+- Fix WPCOM-specific linting errors.
+- Fix double escaping of connections in Classic Editor.
+- Fix fatal error in the WP.com customizer while in sandbox mode.
+- Init 10.7-a.6 cycle.
+- Memoize calls to store_subscription when setting available features for site in order to reduce duplicate uncached queries.
+- PHPCS Changes for json-get endpoint files.
+- Re-introduce CRM card on At A Glance page for Jetpack.
+- Remove Jetpack settings submenu from general settings menu when site doesn't have atomic supported plan.
+- Subscribe block: Fix color serialization.
+- Updated package dependencies.
+- Update to-test.md.
+- WordPress.com REST API: avoid errors when restoring the previous version of an image from the WordPress.com dashboard.
+- WordPress.com REST API: avoid PHP warnings when accessing videos from the WordPress.com dashboard.
+
+## 10.7-a.5 - 2022-02-16
+### Enhancements
+- Blocks: add support for color and spacing block options for Form, Mailchimp, Podcast Player, and Related Posts blocks.
+- Blocks: add alignment block option for Form, Mailchimp, Podcast Player, Related Posts, and Repeat Visitor blocks.
+- Dashboard: update the Free plan description to consider the currently active products.
+
+### Improved compatibility
+- Image CDN: ensure that SVG images added to posts thanks to the SVG Support plugin can be displayed even when Jetpack's Image CDN is active.
+- Search: Add deprecated class to prevent third-party integrations from failing after 10.6 updates.
+
+### Bug fixes
+- Blocks: cron requests are now considered frontend requests, so blocks will no longer be rendered as fallbacks on those.
+- Form Block: custom CSS classes added to the block are now applied on the frontend.
+- Media Buttons: Fix issue where external medial modal cannot be closed.
+- Search: Make debug bar more reliable.
+- SSO: fix a bug with SSO not cleaning up wpcom_user_id.
+
+### Other changes <!-- Non-user-facing changes go here. This section will not be copied to readme.txt. -->
+- Add note for translators.
+- Add executing the WAF as part of the Jetpack plugin.
+- Init 10.7-a.4 cycle
+- PHPCS Changes for the first handful of JSON endpoints.
+- PHPCS: Gravatar Hovercards
+- Premium Content Block: restrict registration to WPcom.
+- Premium Content Block: add a "Remove block and keep content" settings menu item and fixed transformations to groups.
+- Premium Content Block: don't allow core markup blocks to be transformed to Premium Content block (e.g. core/nextpage, core/spacer).
+- Premium Content Block: when content within a premium-content view is selected in the editor, switch to that view.
+- Premium Content Block: fix accidental inversion of the block tabs.
+- Remove the unused can_connect_service method
+- Reworked the redeem partner coupon component implementation to match latest requirements for post-connection display
+- Unroll Twitter Threads: revert endpoint to public.
+- Update the path to the extension-availability util function on native mobile, after it has been updated for the web.
+- About page: only fetch a11n data when page is active.
+
+## 10.7-a.3 - 2022-02-09
+### Enhancements
+- Dashboard: the Backup banner CTA on the At-a-Glance page will now be replaced with a "Redeem Coupon" CTA when a partner coupon is detected.
+- Dashboard: updated the logic for "Activate a Product" button in "My Plan" to be always visible.
+- Payment Block: updated the Payment block Upgrade nudge description to include the plan name that's required to use the block.
+- Premium Content Block: remove option to transform a premium content block to a premium content block.
+- Premium Content Block: use 'Guest' rather than visitor/Logged-out.
+
+### Improved compatibility
+- Internet Defense League widget: Widget deprecation.
+- VideoPress: Added title and aria-label to VideoPress iframe embeds for better screen reader support.
+- WordAds: deprecate the legacy Ad Widget in favor of the Ad Block when adding new Ad Widgets via the block-based widget editor.
+
+### Bug fixes
+- Block Editor: cast selectedPlanId to boolean to remove a "0" character after block upgrade nudge.
+- Contact Form: ensure form validation uses the correct variable types.
+- Dashboard: fix broken image in plan loading placeholder in "My Plan"
+- Tiled Gallery Block: Fix performance issue affecting page views that use the Tiled Gallery.
+- Unroll Twitter Threads: ensure that only contributors can access the endpoint to unroll threads.
+- Widget Visibility: update to match new user query parameter introduced in WordPress 5.9.
+
+### Other changes <!-- Non-user-facing changes go here. This section will not be copied to readme.txt. -->
+- Added Jetpack Partner Coupon banner on My Plan page
+- Blocks: move plugin registering utility to standalone package.
+- Blocks: remove BlockIcon wrapper for multiple blocks.
+- Changes the default for the `Match video` setting to `true` for VideoPress videos.
+- Dashboard: hide the Scan card on Atomic sites.
+- E2E tests: merged Github workflows
+- E2E tests: update eslint configuration
+- Fixed some new PHPCS warnings.
+- Fix potential use of unexisting "allow_download" property in VideoPress media modal
+- Init Jetpack 10.7-a.2 cycle
+- Moved get-jetpack-data file to js-package/shared-extension-utils and updated imports
+- Moved get-jetpack-extension-availability file to js-package/shared-extension-utils and updated imports
+- Moved get-site-fragment file to js-package/shared-extension-utils and updated imports
+- Moved site-tyoe-utils file to js-package/shared-extension-utils and updated imports
+- Removed separate pnpm workspace for e2e tests.
+- Removed duplicate docblock for jetpack_relatedposts_returned_results filter and updated $post_id type to int
+- Search: move search widget to the search pacakge
+- Updated package dependencies.
+- Update lock file
+- Widget Visibility: switch to using shared js package utility instead of built-in site type check.
+- Added a new method to inline styles in the site editor.
+
+## 10.7-a.1 - 2022-02-02
+### Enhancements
+- Add an AMP-compatible version of the email share button.
+- Add transformation from core/buttons to jetpack/recurring-payments block (requires gutenberg >= 11.5.0).
+- Business Hours: Add support for color & spacing design tool.
+- Changed the plan description for invalid plans and added a Warning message for Premium content blocks with invalid plans.
+- Dashboard: update the links used to purchase plans when in Jetpack settings.
+
+### Improved compatibility
+- My Community widget: Hide widget from the block inserter and Legacy widget block drop-down menu
+
+### Bug fixes
+- Fixed several React warnings shown on the console when SCRIPT_DEBUG is active
+- Search: avoid PHP warning when using Search widget.
+- Widget Visibility: ensure role and logged in features are available.
+
+### Other changes <!-- Non-user-facing changes go here. This section will not be copied to readme.txt. -->
+- Added 'jetpack_related_posts_display_markup' filter to update the output HTML of Related Posts module
+- Extract Jetpack_Plugins class to its own package
+- Blocks: Update block fixture docs for running phpunit tests.
+- Build: remove unneeded files from production build.
+- Payments Block: remove wrapper around icons.
+- Updated package dependencies
+- Reduced the data set for the Search Sync tests to speed up the process.
+- Update internal logic for rendering Dashboard sections.
+
+## 10.6 - 2022-02-01
+### Enhancements
+- Contact Info and Markdown Blocks: add color, typography and spacing features.
+- Dashboard: support Beta versions of Automattic plugins in plugin cards.
+- Search: improve accessibility via headings hierarchy and aria roles.
+- Tiled Gallery Block: improve the block so it can be used within the mobile applications.
+
+### Improved compatibility
+- Instant Search: synchronize more meta data so the search feature can be used with more third-party plugins.
+- Sharing / AMP plugin: avoid adding sharing's CSS on AMP pages when the sharing feature is not active.
+
+### Bug fixes
+- Backups: hide backup preparation message for sites without backup.
+- Connection: correctly request list of active features so they can be activated on a reconnection.
+- Pay with Paypal Block: properly display the card icons below the button.
+- Scan: avoid PHP notice when non-admin users access the dashboard.
+- Search: Initialize debug bar using correct class
+- Widget Visibility: ensure it remains possible to edit visibility for legacy widgets in the block-based widget editor.
+
+### Other changes <!-- Non-user-facing changes go here. This section will not be copied to readme.txt. -->
+- Add a comment to explain the reasoning behind an empty scss file.
+- Change usage of filter_var to filter_input in markdown file.
+- Comment: phpcs linting cleanup.
+- Cover block: avoid the block's placeholder rendering on top of other blocks.
+- Dashboard: update CTAs (wording, layout) in the At A Glance section.
+- Fixed development mode prop type warning in UserLicenseActivationNotice component.
+- Fix PHPCS sniffs in root classes.
+- PHPCS fixes for site verification tools.
+- phpcs fixes for the markdown module
+- Search: add E2E tests for Customberg
+- Search: added E2E tests for the search dashboard
+- Updated package dependencies.
+- Use new Visitor class for determining IP address.
+
+## 10.6-a.3 - 2022-01-18
+### Enhancements
+- Embeds: add support for Descript.com embeds.
+- Image Compare Block: Add `wide` and `full` alignment options
+- Pay with PayPal Block: do not display the block on the frontend if PayPal is misconfigured.
+- Stats: add new filter allowing site owners to exclude IP addresses from being tracked in stats.
+
+### Other changes <!-- Non-user-facing changes go here. This section will not be copied to readme.txt. -->
+- Adds WooCommerce settings to the /v1.4/sites/$site/settings endpoint.
+- Changes the default value of woocommerce_onboarding_profile from array( 0 => false ) to array()
+- Fix various PHPCS warnings and errors in root classes.
+- General: update required node version to v16.13.2
+- Subscription Form block: hide custom success message setting for WordPress.com simple sites.
+- Update composer.lock
+- Update package dependencies
+
+## 10.6-a.1 - 2022-01-11
+### Improved compatibility
+- Subscription form: update the placeholder color to be the same as the text color of the site.
+
+### Bug fixes
+- Donations block: add a missing closing div for the front-end rendering.
+- Donations block: don't display the donations block to visitors unless Stripe is connected.
+- Donations block: fixed an issue which was invalidating existing blocks if they were edited by non-plan owners.
+- Donations block: tweak currency display for the edit control.
+- Protect: fixed math fallback's input accessibility and display.
+- Subscription form: adding a default line-height to avoid differences using different font-faces on input and button elements
+
+### Other changes <!-- Non-user-facing changes go here. This section will not be copied to readme.txt. -->
+- Dashboard: update the links to different Jetpack features in the dashboard.
+- Moved numberFormat component into components js package.
+- Refactor PluginDashItem component to be functional and add README.
+- Remove use of deprecated `~` in sass-loader imports.
+- Search: migrate Classic and Instant Search code to Search package.
+- Search: move search dashboard to the search package.
+- Social Menu: remove role navigation attribute from nav item.
+- VideoPress: change allow_download data path from API (wpcom compat).
+
+## 10.5.1 - 2022-01-24
+### Bug fixes
+- General: avoid Fatal Errors that may happen during the plugin update process.
+
+## 10.5 - 2022-01-11
+### Enhancements
+- Print Styles: additional interactive elements are now hidden when printing posts (e.g. Likes, Recommended Posts, Share this).
+- VideoPress: add "allow download" option on videos to allow viewers to download the video.
+- WordAds: add hook for header ad placement, and allow 'leaderboard' size when displaying an ad widget.
+
+### Improved compatibility
+- General: update WordPress version requirements to WordPress 5.8.
+- Pay with PayPal: update the name of the script enqueued when using the Pay with PayPal button as to avoid conflicts with other plugins that may use a similar script tag.
+- Stats: remove legacy option to display a Smiley face used for the tracking pixel since the pixel is hidden by default.
+- VideoPress: classic block embeds with old flash URLs can now be properly converted to VideoPress blocks.
+- VideoPress: hide the dedicated VideoPress embed block in favor of Video block.
+
+### Bug fixes
+- Cookies & Consents Banner: fix preview in Customizer and block widget editor.
+- Dashboard: fix logic that blocked one from enabling searchable features from the Jetpack settings.
+- General: prevent an E_NOTICE when running in non-web context.
+- Instant Search: ensure the hidden overlay doesn't add whitespace to printed pages.
+- Jetpack: activate the default modules when the site has already been connected before plugin activation.
+- Jetpack: do not display recommendations during an identity crisis.
+- Search: fix styling conflict for Blank Canvas theme.
+- Security: PDF embeds now only display a link, to avoid issues with malicious PDFss that may run arbitrary code.
+- Settings menu: add Jetpack item for sites with Scan product.
+- Sharing Buttons: rely on official sharing buttons only for Facebook share counts.
+- Stats: do not trigger views when post is embedded into another site.
+- VideoPress: reload embed preview on creation until the video size is known.
+- Vimeo Embeds: support more URL formats, such as videos in playlists.
+- WhatsApp block: fix country code for Cyprus.
+- Widget Visibility: fix "Match All" setting being overwritten on save in the block widget editor.
+
+### Other changes <!-- Non-user-facing changes go here. This section will not be copied to readme.txt. -->
+- AAG upgrade banner: do not display on WoA sites
+- Add get_current_plan() to the WPcom_Admin_Menu.
+- Admin Page: remove CRM card for now.
+- Dashboard: add Jetpack Security Bundle upsell to AAG.
+- Dashboard: add new cards to AAG Dashboard for Boost and CRM plugins.
+- Dashboard: updates the Apps card on the At a Glance page to display links to the Jetpack mobile apps.
+- E2E tests: update readme docs.
+- E2E tests renovate: bump dependencies.
+- Fix a legacy sync test in PHPUnit 9.5.
+- Fix modules using `this` to mean `window`.
+- Hide irrelevant menu items for P2 sites
+- Instant Search: Add missing translator comments and use ordered placeholders in JS sprintf.
+- Janitorial: fix phpcs warnings in multiple widget files.
+- Jetpack: provide recommendation step parameter to external package.
+- Load the Composer package assets i18n map.
+- Switch to pcov for code coverage.
+- Sync some E2E deps with the rest of the monorepo to avoid breaking eslint tests.
+- Updated package dependencies
+- Updated package dependencies.
+- Use `@automattic/i18n-loader-webpack-plugin` to remove the hack for Instant Search's lazy-loaded bundle.
+- VideoPress: add support for old v.wordpress.com URLs in VideoPress embed block.
+- Vimeo: tweak the regex used to fetch the Vimeo videos.
+- WordPress.com: identify admin menu dashicons that won't be rendered in Calypso and provide a default icon for them.
+- WordPress.com: provide a different support link for sites on the Atomic platform.
+
 ## 10.5-a.3 - 2021-12-14
 ### Enhancements
 - Secure Sign On: add filters for the error text when a local user cannot be found for a given WP.com account and for when SSO is disallowed when on a staging site.

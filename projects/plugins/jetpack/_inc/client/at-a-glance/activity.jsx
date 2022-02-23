@@ -11,6 +11,7 @@ import { getRedirectUrl } from '@automattic/jetpack-components';
 /**
  * Internal dependencies
  */
+import analytics from 'lib/analytics';
 import Card from 'components/card';
 import DashItem from 'components/dash-item';
 import { getSitePlan } from 'state/site';
@@ -28,6 +29,14 @@ class DashActivity extends Component {
 		inOfflineMode: false,
 		siteRawUrl: '',
 		sitePlan: '',
+	};
+
+	trackActivityClick = () => {
+		analytics.tracks.recordJetpackClick( {
+			type: 'activity-link',
+			target: 'at-a-glance',
+			feature: 'activity-log',
+		} );
 	};
 
 	render() {
@@ -74,6 +83,9 @@ class DashActivity extends Component {
 					className="jp-dash-item__manage-in-wpcom"
 					compact
 					href={ getRedirectUrl( 'calypso-activity-log', { site: this.props.siteRawUrl } ) }
+					target="_blank"
+					rel="noopener noreferrer"
+					onClick={ this.trackActivityClick }
 				>
 					{ __( 'View site activity', 'jetpack' ) }
 				</Card>

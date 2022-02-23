@@ -198,6 +198,28 @@ function stats_template_redirect() {
 		}
 	}
 
+	/**
+	 * Allow excluding specific IP addresses from being tracked in Stats.
+	 * Note: for this to work well, visitors' IP addresses must:
+	 * - be stored and returned properly in IP address headers;
+	 * - not be impacted by any caching setup on your site.
+	 *
+	 * @module stats
+	 *
+	 * @since 10.6
+	 *
+	 * @param array $excluded_ips An array of IP address strings to exclude from tracking.
+	 */
+	$excluded_ips = (array) apply_filters( 'jetpack_stats_excluded_ips', array() );
+
+	// Should we be counting views for this IP address?
+	if (
+		! empty( $excluded_ips )
+		&& in_array( Jetpack::current_user_ip( true ), $excluded_ips, true )
+	) {
+		return;
+	}
+
 	add_action( 'wp_footer', 'stats_footer', 101 );
 	add_action( 'web_stories_print_analytics', 'stats_footer' );
 

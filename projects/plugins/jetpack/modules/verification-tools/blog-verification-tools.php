@@ -1,6 +1,16 @@
 <?php
+/**
+ * Handles site verification services.
+ *
+ * @package jetpack
+ */
 
-// Edit here to add new services
+/**
+ * Return an array of supported verification services.
+ * Add new services to this function.
+ *
+ * @return array - an array of supported services.
+ */
 function jetpack_verification_services() {
 	return array(
 		'google'    => array(
@@ -36,6 +46,9 @@ function jetpack_verification_services() {
 	);
 }
 
+/**
+ * Register Jetpack verification settings.
+ */
 function jetpack_verification_options_init() {
 	register_setting(
 		'verification_services_codes_fields',
@@ -46,6 +59,9 @@ function jetpack_verification_options_init() {
 add_action( 'admin_init', 'jetpack_verification_options_init' );
 add_action( 'rest_api_init', 'jetpack_verification_options_init' );
 
+/**
+ * Print the site verification meta in the page head.
+ */
 function jetpack_verification_print_meta() {
 	$verification_services_codes = Jetpack_Options::get_option_and_ensure_autoload( 'verification_services_codes', '0' );
 	if ( is_array( $verification_services_codes ) ) {
@@ -71,7 +87,7 @@ function jetpack_verification_print_meta() {
 				$ver_output .= "\n";
 			}
 		}
-		echo $ver_output;
+		echo $ver_output; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
 	}
 }
 add_action( 'wp_head', 'jetpack_verification_print_meta', 1 );

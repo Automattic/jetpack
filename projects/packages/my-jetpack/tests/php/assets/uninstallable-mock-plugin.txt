@@ -1,0 +1,15 @@
+<?php
+/**
+ * Uninstallable Plugin
+ *
+ * Plugin Name:       Uninstallable
+ * Description:       You'll never install this plugin (oh well, maybe your grandson will)
+ * Version: 2.0.0-alpha
+ * Author:            Automattic
+ * Author URI:        https://automattic.com
+ * License:           GPL-2.0+
+ * License URI:       http://www.gnu.org/licenses/gpl-2.0.txt
+ * Text Domain:       jetpack-boost
+ * Requires PHP:      99.0
+ *
+ */

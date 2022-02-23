@@ -91,7 +91,10 @@ class WP_Test_Jetpack_Sync_Options extends WP_Test_Jetpack_Sync_Base {
 			'gmt_offset'                                   => 1,
 			'timezone_string'                              => 'America/Anchorage',
 			'jetpack_sync_non_public_post_stati'           => 'pineapple',
-			'jetpack_options'                              => array( 'food' => 'pineapple' ),
+			'jetpack_options'                              => array(
+				'food' => 'pineapple',
+				'id'   => 1234,
+			),
 			'site_icon'                                    => '1',
 			'default_post_format'                          => 'pineapple',
 			'default_category'                             => 0,
@@ -283,7 +286,7 @@ class WP_Test_Jetpack_Sync_Options extends WP_Test_Jetpack_Sync_Base {
 	}
 
 	function assertOptionIsSynced( $option_name, $value ) {
-		$this->assertEqualsObject( $value, $this->server_replica_storage->get_option( $option_name ), 'Option ' . $option_name . ' did\'t have the extected value of ' . json_encode( $value ) );
+		$this->assertEqualsObject( $value, $this->server_replica_storage->get_option( $option_name ), 'Option ' . $option_name . ' didn\'t have the expected value of ' . wp_json_encode( $value ) );
 	}
 
 	public function add_jetpack_options_whitelist_filter( $options ) {

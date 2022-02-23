@@ -11,7 +11,7 @@ import {
 	projectTypes,
 	allProjects,
 	allProjectsByType,
-} from '../../../helpers/projectHelpers';
+} from '../../../helpers/projectHelpers.js';
 
 describe( 'projectHelpers', function () {
 	// Begins tests for dirs.

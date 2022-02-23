@@ -73,7 +73,9 @@ jQuery( document ).ready( function ( $ ) {
 				html += '<div class="jitm-banner__action">';
 				html +=
 					'<a href="' +
-					( envelope.CTA.hasOwnProperty( 'link' ) && envelope.CTA.link.length ? envelope.CTA.link : envelope.url ) +
+					( envelope.CTA.hasOwnProperty( 'link' ) && envelope.CTA.link.length
+						? envelope.CTA.link
+						: envelope.url ) +
 					'" target="' +
 					( envelope.CTA.newWindow === false || ajaxAction ? '_self' : '_blank' ) +
 					'" rel="noopener noreferrer" title="' +
@@ -139,7 +141,7 @@ jQuery( document ).ready( function ( $ ) {
 		response.url = response.url + '&redirect=' + redirect;
 
 		var $template = templates[ template ]( response );
-		$template.find( '.jitm-banner__dismiss' ).click( render( $template ) );
+		$template.find( '.jitm-banner__dismiss' ).on( 'click', render( $template ) );
 
 		if ( $( '#jp-admin-notices' ).length > 0 ) {
 			// Add to Jetpack notices within the Jetpack settings app.
@@ -158,7 +160,7 @@ jQuery( document ).ready( function ( $ ) {
 		}
 
 		// Handle Module activation button if it exists.
-		$template.find( '#jitm-banner__activate a' ).click( function () {
+		$template.find( '#jitm-banner__activate a' ).on( 'click', function () {
 			var $activate_button = $( this );
 
 			// Do not allow any requests if the button is disabled.
@@ -193,7 +195,7 @@ jQuery( document ).ready( function ( $ ) {
 		} );
 
 		// Handle CTA ajax actions.
-		$template.find( '.jitm-button[data-ajax-action]' ).click( function ( e ) {
+		$template.find( '.jitm-button[data-ajax-action]' ).on( 'click', function ( e ) {
 			e.preventDefault();
 			var button = $( this );
 			button.attr( 'disabled', true );
@@ -253,7 +255,7 @@ jQuery( document ).ready( function ( $ ) {
 
 	reFetch();
 
-	$( window ).bind( 'hashchange', function ( e ) {
+	$( window ).on( 'hashchange', function ( e ) {
 		var newURL = e.originalEvent.newURL;
 
 		if ( newURL.indexOf( 'jetpack#/' ) >= 0 ) {

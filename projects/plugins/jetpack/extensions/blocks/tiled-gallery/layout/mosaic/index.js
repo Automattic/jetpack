@@ -1,7 +1,7 @@
 /**
  * External dependencies
  */
-import { Component, createRef } from '@wordpress/element';
+import { Component, createRef, Platform } from '@wordpress/element';
 import ResizeObserver from 'resize-observer-polyfill';
 
 /**
@@ -83,14 +83,33 @@ export default class Mosaic extends Component {
 		}
 	}
 
+	getColumnWidths( rows, images, width ) {
+		let cursor = 0;
+		const content = rows.map( row => {
+			return row.map( colSize => {
+				const columnImages = images.slice( cursor, cursor + colSize );
+				cursor += colSize;
+				return columnImages;
+			} );
+		} );
+
+		const result = content.map( row => handleRowResize( row, width ) );
+		return result;
+	}
+
 	render() {
-		const { align, columns, images, layoutStyle, renderedImages, columnWidths } = this.props;
+		const { align, columns, images, layoutStyle, renderedImages } = this.props;
 
 		const ratios = imagesToRatios( images );
 		const rows =
 			'columns' === layoutStyle
 				? ratiosToColumns( ratios, columns )
 				: ratiosToMosaicRows( ratios, { isWide: [ 'full', 'wide' ].includes( align ) } );
+
+		const columnWidths = Platform.select( {
+			web: () => this.props.columnWidths,
+			native: () => this.getColumnWidths( rows, renderedImages, 1000 ),
+		} )();
 
 		let cursor = 0;
 		return (

@@ -4,12 +4,12 @@
 import { __, _x } from '@wordpress/i18n';
 import { addFilter } from '@wordpress/hooks';
 import { registerBlockType } from '@wordpress/blocks';
+import { getJetpackExtensionAvailability } from '@automattic/jetpack-shared-extension-utils';
 
 /**
  * Internal dependencies
  */
 import extensionList from '../index.json';
-import getJetpackExtensionAvailability from './get-jetpack-extension-availability';
 import withHasWarningIsInteractiveClassNames from './with-has-warning-is-interactive-class-names';
 
 const availableBlockTags = {

@@ -75,6 +75,8 @@ class Jetpack_Backup {
 			}
 		);
 
+		add_action( 'plugins_loaded', array( $this, 'maybe_upgrade_db' ), 20 );
+
 		My_Jetpack_Initializer::init();
 	}
 
@@ -83,6 +85,17 @@ class Jetpack_Backup {
 	 */
 	public function admin_init() {
 		add_action( 'admin_enqueue_scripts', array( $this, 'enqueue_admin_scripts' ) );
+	}
+
+	/**
+	 * Checks current version against version in code and run upgrades if we are running a new version
+	 */
+	public function maybe_upgrade_db() {
+		$current_db_version = get_option( 'jetpack_backup_db_version' );
+		if ( version_compare( $current_db_version, JETPACK_BACKUP_DB_VERSION, '<' ) ) {
+			update_option( 'jetpack_backup_db_version', JETPACK_BACKUP_DB_VERSION );
+			Jetpack_Backup_Upgrades::upgrade();
+		}
 	}
 
 	/**
@@ -158,8 +171,30 @@ class Jetpack_Backup {
 			)
 		);
 
-	}
+		// Get information on site products.
+		// Backup plugin version of /site/purchases from JP plugin.
+		// Revert once this route and MyPlan component are extracted to a common package.
+		register_rest_route(
+			'jetpack/v4',
+			'/site/current-purchases',
+			array(
+				'methods'             => WP_REST_Server::READABLE,
+				'callback'            => __CLASS__ . '::get_site_current_purchases',
+				'permission_callback' => __CLASS__ . '::backups_permissions_callback',
+			)
+		);
 
+		// Get currently promoted product from the product's endpoint.
+			register_rest_route(
+				'jetpack/v4',
+				'/backup-promoted-product-info',
+				array(
+					'methods'             => WP_REST_Server::READABLE,
+					'callback'            => __CLASS__ . '::get_backup_promoted_product_info',
+					'permission_callback' => __CLASS__ . '::backups_permissions_callback',
+				)
+			);
+	}
 	/**
 	 * The backup calls should only occur from a signed in admin user
 	 *
@@ -233,6 +268,31 @@ class Jetpack_Backup {
 	}
 
 	/**
+	 * Gets information about the currently promoted backup product.
+	 *
+	 * @return string|WP_Error A JSON object of the current backup product being promoted if the request was successful, or a WP_Error otherwise.
+	 */
+	public static function get_backup_promoted_product_info() {
+		$request_url   = 'https://public-api.wordpress.com/rest/v1.1/products?locale=' . get_user_locale() . '&type=jetpack';
+		$wpcom_request = wp_remote_get( esc_url_raw( $request_url ) );
+		$response_code = wp_remote_retrieve_response_code( $wpcom_request );
+		if ( 200 === $response_code ) {
+			$products = json_decode( wp_remote_retrieve_body( $wpcom_request ) );
+			return $products->{JETPACK_BACKUP_PROMOTED_PRODUCT};
+		} else {
+			// Something went wrong so we'll just return the response without caching.
+			return new WP_Error(
+				'failed_to_fetch_data',
+				esc_html__( 'Unable to fetch the requested data.', 'jetpack-backup' ),
+				array(
+					'status'  => $response_code,
+					'request' => $wpcom_request,
+				)
+			);
+		}
+	}
+
+	/**
 	 * Redirects to plugin page when the plugin is activated
 	 *
 	 * @access public
@@ -256,6 +316,43 @@ class Jetpack_Backup {
 	 */
 	public static function plugin_deactivation() {
 		$manager = new Connection_Manager( 'jetpack-backup' );
-		$manager->remove_connection();
+		$manager->disconnect_site_wpcom();
+		$manager->delete_all_connection_tokens();
+	}
+
+	/**
+	 * Returns the result of `/sites/%d/purchases` endpoint call.
+	 *
+	 * @return array of site purchases.
+	 */
+	public static function get_site_current_purchases() {
+
+		$request  = sprintf( '/sites/%d/purchases', \Jetpack_Options::get_option( 'id' ) );
+		$response = Automattic\Jetpack\Connection\Client::wpcom_json_api_request_as_blog( $request, '1.1' );
+
+		// Bail if there was an error or malformed response.
+		if ( is_wp_error( $response ) || ! is_array( $response ) || ! isset( $response['body'] ) ) {
+			return self::get_failed_fetch_error();
+		}
+
+		if ( 200 !== (int) wp_remote_retrieve_response_code( $response ) ) {
+			return self::get_failed_fetch_error();
+		}
+
+		// Decode the results.
+		$results = json_decode( $response['body'], true );
+
+		// Bail if there were no results or purchase details returned.
+		if ( ! is_array( $results ) ) {
+			return self::get_failed_fetch_error();
+		}
+
+		return rest_ensure_response(
+			array(
+				'code'    => 'success',
+				'message' => esc_html__( 'Site purchases correctly received.', 'jetpack-backup' ),
+				'data'    => wp_remote_retrieve_body( $response ),
+			)
+		);
 	}
 }

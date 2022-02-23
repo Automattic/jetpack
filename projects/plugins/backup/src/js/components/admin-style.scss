@@ -1,4 +1,4 @@
-@import '~@automattic/jetpack-base-styles/style';
+@import '@automattic/jetpack-base-styles/style';
 
 .jp-header,
 .jp-footer {
@@ -9,7 +9,7 @@
 	}
 }
 
-#jetpack-backup-admin-container.jp-content {
+.jp-content {
 	position: relative;
 	font-size: var( --font-body );
 	line-height: 1.5;
@@ -44,7 +44,7 @@
 		line-height: 1.5;
 	}
 
-	.jp-connection-status-card h3 {
+	.jp-connection-status-card h3, .jpb-my-plan-container h3 {
 		margin-top: 48px;
 		font-size: var( --font-title-small );
 		font-weight: 500;
@@ -95,6 +95,14 @@
 			pointer-events: none;
 		}
 	}
+
+	ul.jp-product-promote li {
+		background: url(data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAADAAAAAwCAMAAABg3Am1AAAANlBMVEVHcEwFnwUInggGnggGnggHnAcAnwUFnQcAnwcGnwkFnQgGnQgFnwcGnQYFnQcFnAcGnQkDnwdhiL0pAAAAEnRSTlMAMF//f2Aw7yBQ3+9gcIBgcED+HDbkAAAAZklEQVR4Ae3LNwICARDDQC0+cv7/Y8mwV9odSfWIcf/+VegnGkIvDaGXKvTTn/Gz+Uf5xTL0K1XotS7fs5H6GHvvaO8d7c3j7rdgHne/A/PYt/cO+R42oYdN6OEQetiFHo4A//6dAXqtBEkmtWutAAAAAElFTkSuQmCC) no-repeat;
+		background-size: 24px;
+		padding-left: 30px;
+		margin-bottom: 9px;
+		color: var(--jp-black);
+	}
 }
 
 .jp-hero {
@@ -123,5 +131,6 @@
 }
 
 .jp-connection-status-card--status {
-	margin: 24px 0;
+	margin: 30px 0;
 }
+

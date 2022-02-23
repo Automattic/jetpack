@@ -14,12 +14,13 @@
 	"prefer-stable": true,
 	"require": {
 		"ext-json": "*",
-		"automattic/jetpack-assets": "1.16.x-dev",
+		"automattic/jetpack-assets": "1.17.x-dev",
 		"automattic/jetpack-admin-ui": "0.2.x-dev",
 		"automattic/jetpack-autoloader": "2.10.x-dev",
-		"automattic/jetpack-composer-plugin": "1.0.x-dev",
+		"automattic/jetpack-composer-plugin": "1.1.x-dev",
 		"automattic/jetpack-config": "1.6.x-dev",
-		"automattic/jetpack-connection": "1.34.x-dev",
+		"automattic/jetpack-connection": "1.36.x-dev",
+		"automattic/jetpack-my-jetpack": "0.6.x-dev",
 		"automattic/jetpack-device-detection": "1.4.x-dev",
 		"automattic/jetpack-lazy-images": "2.1.x-dev",
 		"automattic/jetpack-terms-of-service": "1.9.x-dev",
@@ -30,26 +31,22 @@
 		"automattic/jetpack-changelogger": "^3.0",
 		"automattic/wordbless": "0.3.1",
 		"brain/monkey": "2.6.1",
-		"yoast/phpunit-polyfills": "1.0.2"
+		"yoast/phpunit-polyfills": "1.0.3"
 	},
 	"scripts": {
 		"phpunit": [
 			"./vendor/phpunit/phpunit/phpunit --colors=always"
 		],
 		"test-coverage": [
-			"@composer install",
 			"php -dpcov.directory=. ./vendor/bin/phpunit --coverage-clover \"$COVERAGE_DIR/clover.xml\""
 		],
 		"test-php": [
-			"@composer install",
 			"@composer phpunit"
 		],
 		"build-production": [
-			"Composer\\Config::disableProcessTimeout",
 			"pnpm run build-production"
 		],
 		"build-development": [
-			"Composer\\Config::disableProcessTimeout",
 			"pnpm run build-development"
 		],
 		"watch": [
@@ -73,7 +70,12 @@
 		"platform": {
 			"ext-intl": "0.0.0"
 		},
-		"autoloader-suffix": "b1e77e6231d50e7663f84529b6a3dfda_jetpack_boostⓥ2_0_0_alpha"
+		"autoloader-suffix": "b1e77e6231d50e7663f84529b6a3dfda_jetpack_boostⓥ2_0_0_alpha",
+		"allow-plugins": {
+			"roots/wordpress-core-installer": true,
+			"automattic/jetpack-autoloader": true,
+			"automattic/jetpack-composer-plugin": true
+		}
 	},
 	"repositories": [
 		{

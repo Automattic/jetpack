@@ -3,7 +3,7 @@ use Automattic\Jetpack\Connection\Initial_State as Connection_Initial_State;
 use Automattic\Jetpack\Connection\Manager as Connection_Manager;
 use Automattic\Jetpack\Status;
 
-include_once( 'class.jetpack-admin-page.php' );
+require_once __DIR__ . '/class.jetpack-admin-page.php';
 require_once __DIR__ . '/class-jetpack-redux-state-helper.php';
 
 // Builds the landing page and its menu
@@ -19,7 +19,7 @@ class Jetpack_React_Page extends Jetpack_Admin_Page {
 	}
 
 	function add_page_actions( $hook ) {
-		/** This action is documented in class.jetpack.php */
+		/** This action is documented in class.jetpack-admin.php */
 		do_action( 'jetpack_admin_menu', $hook );
 
 		if ( ! isset( $_GET['page'] ) || 'jetpack' !== $_GET['page'] ) {

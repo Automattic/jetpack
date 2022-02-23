@@ -609,35 +609,43 @@ class WP_Test_Jetpack_Sync_Users extends WP_Test_Jetpack_Sync_Base {
 		}
 
 		// NOTE this is necessary because WPMU causes certain assumptions about transients
-		// to be wrong, and tests to explode. @see: https://github.com/sheabunge/WordPress/commit/ff4f1bb17095c6af8a0f35ac304f79074f3c3ff6
+		// to be wrong, and tests to explode. @see: https://github.com/sheabunge/WordPress/commit/ff4f1bb17095c6af8a0f35ac304f79074f3c3ff6.
 		global $wpdb;
 
 		$suppress = $wpdb->suppress_errors();
-		$blog_id = wpmu_create_blog( 'foo.com', '', "My Blog", $this->user_id );
+		$blog_id  = wpmu_create_blog( 'foo.com', '', 'My Blog', $this->user_id );
 		$wpdb->suppress_errors( $suppress );
 
 		add_user_to_blog( $this->user_id, $blog_id, 'administrator' );
+
+		switch_to_blog( $blog_id );
+		\Jetpack_Options::update_option( 'blog_token', 'asdasd.123123' );
+		\Jetpack_Options::update_option( 'id', 1234 );
+		restore_current_blog();
 
 		$this->server_event_storage->reset();
 
 		remove_user_from_blog( $this->user_id, $blog_id );
 
-		//Switch to blog user was removed from so we can send sync action from that blog
-		switch_to_blog($blog_id);
+		// Switch to blog user was removed from so we can send sync action from that blog.
+		switch_to_blog( $blog_id );
 
 		$this->sender->do_sync();
 
-		//Switch back to the blog we were on
+		\Jetpack_Options::delete_option( 'blog_token' );
+		\Jetpack_Options::delete_option( 'id' );
+
+		// Switch back to the blog we were on.
 		restore_current_blog();
 
 		$event = $this->server_event_storage->get_most_recent_event( 'jetpack_deleted_user' );
 		$this->assertFalse( $event );
 
-		//With current blog
+		// With current blog.
 		$event = $this->server_event_storage->get_most_recent_event( 'jetpack_removed_user_from_blog' );
 		$this->assertEmpty( $event );
 
-		//With blog user was removed from
+		// With blog user was removed from.
 		$event = $this->server_event_storage->get_most_recent_event( 'jetpack_removed_user_from_blog', $blog_id );
 		$this->assertNotEmpty( $event );
 		$this->assertEquals( $this->user_id, $event->args['0'] );
@@ -650,12 +658,17 @@ class WP_Test_Jetpack_Sync_Users extends WP_Test_Jetpack_Sync_Base {
 		}
 
 		// NOTE this is necessary because WPMU causes certain assumptions about transients
-		// to be wrong, and tests to explode. @see: https://github.com/sheabunge/WordPress/commit/ff4f1bb17095c6af8a0f35ac304f79074f3c3ff6
+		// to be wrong, and tests to explode. @see: https://github.com/sheabunge/WordPress/commit/ff4f1bb17095c6af8a0f35ac304f79074f3c3ff6.
 		global $wpdb;
 
 		$suppress = $wpdb->suppress_errors();
-		$blog_id = wpmu_create_blog( 'foo.com', '', "My Blog", $this->user_id );
+		$blog_id  = wpmu_create_blog( 'foo.com', '', 'My Blog', $this->user_id );
 		$wpdb->suppress_errors( $suppress );
+
+		switch_to_blog( $blog_id );
+		\Jetpack_Options::update_option( 'blog_token', 'asdasd.123123' );
+		\Jetpack_Options::update_option( 'id', 1234 );
+		restore_current_blog();
 
 		add_user_to_blog( $blog_id, $this->user_id, 'administrator' );
 
@@ -664,24 +677,27 @@ class WP_Test_Jetpack_Sync_Users extends WP_Test_Jetpack_Sync_Base {
 
 		$this->server_event_storage->reset();
 
-		remove_user_from_blog( $this->user_id, $blog_id, $other_user_id);
+		remove_user_from_blog( $this->user_id, $blog_id, $other_user_id );
 
-		//Switch to blog user was removed from so we can send sync action from that blog
-		switch_to_blog($blog_id);
+		// Switch to blog user was removed from so we can send sync action from that blog.
+		switch_to_blog( $blog_id );
 
 		$this->sender->do_sync();
 
-		//Switch back to the blog we were on
+		\Jetpack_Options::delete_option( 'blog_token' );
+		\Jetpack_Options::delete_option( 'id' );
+
+		// Switch back to the blog we were on.
 		restore_current_blog();
 
 		$event = $this->server_event_storage->get_most_recent_event( 'jetpack_deleted_user' );
 		$this->assertFalse( $event );
 
-		//With current blog
+		// With current blog.
 		$event = $this->server_event_storage->get_most_recent_event( 'jetpack_removed_user_from_blog' );
 		$this->assertEmpty( $event );
 
-		//With blog user was removed from
+		// With blog user was removed from.
 		$event = $this->server_event_storage->get_most_recent_event( 'jetpack_removed_user_from_blog', $blog_id );
 		$this->assertNotEmpty( $event );
 		$this->assertEquals( $this->user_id, $event->args['0'] );

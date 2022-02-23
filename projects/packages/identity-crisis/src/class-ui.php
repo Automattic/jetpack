@@ -9,13 +9,22 @@ namespace Automattic\Jetpack\IdentityCrisis;
 
 use Automattic\Jetpack\Assets;
 use Automattic\Jetpack\Identity_Crisis;
+use Automattic\Jetpack\Status\Host;
 use Automattic\Jetpack\Tracking as Tracking;
+use Jetpack_Options;
 use Jetpack_Tracks_Client;
 
 /**
  * The Identity Crisis UI handling.
  */
 class UI {
+
+	/**
+	 * Temporary storage for consumer data.
+	 *
+	 * @var array
+	 */
+	private static $consumers;
 
 	/**
 	 * Initialization.
@@ -28,7 +37,7 @@ class UI {
 		/**
 		 * Action called after initializing Identity Crisis UI.
 		 *
-		 * @since $$next-version$$
+		 * @since 0.6.0
 		 */
 		do_action( 'jetpack_identity_crisis_ui_init' );
 
@@ -69,7 +78,7 @@ class UI {
 	 */
 	public static function render_container() {
 		?>
-		<div id="jp-identity-crisis-container"></div>
+		<div id="jp-identity-crisis-container" class="notice"></div>
 		<?php
 	}
 
@@ -102,6 +111,8 @@ class UI {
 			'tracksEventData'     => array(
 				'isAdmin'       => $is_admin,
 				'currentScreen' => $current_screen ? $current_screen->id : false,
+				'blogID'        => Jetpack_Options::get_option( 'id' ),
+				'platform'      => static::get_platform(),
 			),
 			'isSafeModeConfirmed' => Identity_Crisis::$is_safe_mode_confirmed,
 			'consumerData'        => static::get_consumer_data(),
@@ -114,7 +125,11 @@ class UI {
 	 *
 	 * @return array
 	 */
-	private static function get_consumer_data() {
+	public static function get_consumer_data() {
+		if ( null !== static::$consumers ) {
+			return static::$consumers;
+		}
+
 		$consumers = apply_filters( 'jetpack_idc_consumers', array() );
 
 		if ( ! $consumers ) {
@@ -145,7 +160,32 @@ class UI {
 			}
 		}
 
-		return $consumer_chosen ? $consumer_chosen : array_shift( $consumers );
+		static::$consumers = $consumer_chosen ? $consumer_chosen : array_shift( $consumers );
+
+		return static::$consumers;
+	}
+
+	/**
+	 * Get the site platform.
+	 *
+	 * @return string
+	 */
+	private static function get_platform() {
+		$host = new Host();
+
+		if ( $host->is_woa_site() ) {
+			return 'woa';
+		}
+
+		if ( $host->is_vip_site() ) {
+			return 'vip';
+		}
+
+		if ( $host->is_newspack_site() ) {
+			return 'newspack';
+		}
+
+		return 'self-hosted';
 	}
 
 }

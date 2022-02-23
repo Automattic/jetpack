@@ -177,6 +177,9 @@ class Module_Control {
 		if ( ! $this->is_active() ) {
 			return new WP_Error( 'search_module_inactive', __( 'Search module needs to be activated before enabling instant search.', 'jetpack-search-pkg' ) );
 		}
+		if ( ! $this->plan->supports_instant_search() ) {
+			return new WP_Error( 'not_supported', __( 'Your plan does not support Instant Search.', 'jetpack-search-pkg' ) );
+		}
 		return update_option( self::SEARCH_MODULE_INSTANT_SEARCH_OPTION_KEY, true );
 	}
 

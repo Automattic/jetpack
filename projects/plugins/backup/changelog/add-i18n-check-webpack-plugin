@@ -1,4 +1,0 @@
-Significance: patch
-Type: fixed
-
-Use `@automattic/babel-plugin-replace-textdomain` to ensure proper textdomains in JS bundles.

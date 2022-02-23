@@ -89,6 +89,8 @@ class Actions {
 	/**
 	 * Initialize Sync for cron jobs, set up listeners for WordPress Actions,
 	 * and set up a shut-down action for sending actions to WordPress.com
+	 * If dedicated Sync is enabled and this is a dedicated Sync request
+	 * up an init action for sending actions to WordPress.com instead.
 	 *
 	 * @access public
 	 * @static
@@ -96,6 +98,15 @@ class Actions {
 	public static function init() {
 		// Everything below this point should only happen if we're a valid sync site.
 		if ( ! self::sync_allowed() ) {
+			return;
+		}
+
+		// If dedicated Sync is enabled and this is a dedicated Sync request, no need to
+		// initialize Sync for cron jobs, set up listeners or set up a shut-down action
+		// for sending actions to WordPress.com.
+		// We only need to set up an init action for sending actions to WordPress.com and exit early.
+		if ( Settings::is_dedicated_sync_enabled() && Dedicated_Sender::is_dedicated_sync_request() ) {
+			add_action( 'init', array( __CLASS__, 'add_dedicated_sync_sender_init' ), 90 );
 			return;
 		}
 
@@ -164,6 +175,22 @@ class Actions {
 	}
 
 	/**
+	 * Immediately sends actions on init for the current dedicated Sync request.
+	 *
+	 * @access public
+	 * @static
+	 */
+	public static function add_dedicated_sync_sender_init() {
+		if ( apply_filters(
+			'jetpack_sync_sender_should_load',
+			true
+		) ) {
+			self::initialize_sender();
+			self::$sender->do_dedicated_sync_and_exit();
+		}
+	}
+
+	/**
 	 * Define JETPACK_SYNC_READ_ONLY constant if not defined.
 	 * This notifies sync to not run in shutdown if it was initialized during init.
 	 *
@@ -192,6 +219,13 @@ class Actions {
 
 		if ( Constants::is_true( 'DOING_CRON' ) ) {
 			return self::sync_via_cron_allowed();
+		}
+
+		/**
+		 * For now, if dedicated Sync is enabled we will always initialize send, even for GET and unauthenticated requests.
+		 */
+		if ( Settings::is_dedicated_sync_enabled() ) {
+			return true;
 		}
 
 		if ( isset( $_SERVER['REQUEST_METHOD'] ) && 'POST' === $_SERVER['REQUEST_METHOD'] ) {
@@ -673,6 +707,36 @@ class Actions {
 			return;
 		}
 		add_filter( 'jetpack_sync_modules', array( __CLASS__, 'add_woocommerce_sync_module' ) );
+	}
+
+	/**
+	 * Initializes sync for Instant Search.
+	 *
+	 * @access public
+	 * @static
+	 */
+	public static function initialize_search() {
+		if ( false === class_exists( 'Automattic\\Jetpack\\Search\\Module_Control' ) ) {
+			return;
+		}
+		$search_module = new \Automattic\Jetpack\Search\Module_Control();
+		if ( $search_module->is_instant_search_enabled() ) {
+			add_filter( 'jetpack_sync_modules', array( __CLASS__, 'add_search_sync_module' ) );
+		}
+	}
+
+	/**
+	 * Add Search updates to Sync Filters.
+	 *
+	 * @access public
+	 * @static
+	 *
+	 * @param array $sync_modules The list of sync modules declared prior to this filter.
+	 * @return array A list of sync modules that now includes Search's modules.
+	 */
+	public static function add_search_sync_module( $sync_modules ) {
+		$sync_modules[] = 'Automattic\\Jetpack\\Sync\\Modules\\Search';
+		return $sync_modules;
 	}
 
 	/**

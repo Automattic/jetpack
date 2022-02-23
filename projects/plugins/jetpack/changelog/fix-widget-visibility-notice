@@ -1,4 +1,0 @@
-Significance: patch
-Type: bugfix
-
-Prevent an E_NOTICE when running in non-web context

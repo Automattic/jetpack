@@ -21,7 +21,7 @@ export default redirectUri => {
 	const [ isStartingFresh, setIsStartingFresh ] = useState( false );
 
 	const isActionInProgress = useSelect( select => select( STORE_ID ).getIsActionInProgress(), [] );
-	const { setIsActionInProgress } = useDispatch( STORE_ID );
+	const { setIsActionInProgress, setErrorType, clearErrorType } = useDispatch( STORE_ID );
 
 	/**
 	 * Initiate the migration.
@@ -32,6 +32,7 @@ export default redirectUri => {
 
 			setIsActionInProgress( true );
 			setIsStartingFresh( true );
+			clearErrorType();
 
 			restApi
 				.startIDCFresh( redirectUri )
@@ -41,10 +42,19 @@ export default redirectUri => {
 				.catch( error => {
 					setIsActionInProgress( false );
 					setIsStartingFresh( false );
+					setErrorType( 'start-fresh' );
+
 					throw error;
 				} );
 		}
-	}, [ setIsStartingFresh, isActionInProgress, setIsActionInProgress, redirectUri ] );
+	}, [
+		setIsStartingFresh,
+		isActionInProgress,
+		setIsActionInProgress,
+		redirectUri,
+		setErrorType,
+		clearErrorType,
+	] );
 
 	return {
 		isStartingFresh,

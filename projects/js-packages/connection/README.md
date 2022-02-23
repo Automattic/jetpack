@@ -5,7 +5,7 @@ The package encapsulates the Connection functionality.
 
 ## Initial State
 
-The Jetpack Connection composer package can provide the initial state for the connection components to save your application from having to do one additional API request to fetch information.
+In order to use this package, you must ensure that the Jetpack Connection composer package provides the initial state for the connection components.
 
 In order to do that, make sure to attach the Initial State inline script to your app when you enqueue it.
 

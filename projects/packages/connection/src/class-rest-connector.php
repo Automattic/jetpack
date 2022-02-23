@@ -323,7 +323,7 @@ class REST_Connector {
 				'filter'          => ( apply_filters( 'jetpack_development_mode', false ) || apply_filters( 'jetpack_offline_mode', false ) ), // jetpack_development_mode is deprecated.
 				'wpLocalConstant' => defined( 'WP_LOCAL_DEV' ) && WP_LOCAL_DEV,
 			),
-			'isPublic'          => '1' == get_option( 'blog_public' ), // phpcs:ignore WordPress.PHP.StrictComparisons.LooseComparison
+			'isPublic'          => '1' == get_option( 'blog_public' ), // phpcs:ignore Universal.Operators.StrictComparisons.LooseEqual
 		);
 
 		/**
@@ -425,11 +425,13 @@ class REST_Connector {
 	 * Information about the master/primary user.
 	 * Information about the current user.
 	 *
+	 * @param bool $rest_response Should we return a rest response or a simple array. Default to rest response.
+	 *
 	 * @since 1.30.1
 	 *
-	 * @return \WP_REST_Response
+	 * @return \WP_REST_Response|array
 	 */
-	public static function get_user_connection_data() {
+	public static function get_user_connection_data( $rest_response = true ) {
 		$connection = new Manager();
 
 		$current_user     = wp_get_current_user();
@@ -484,7 +486,13 @@ class REST_Connector {
 			'currentUser'     => $current_user_connection_data,
 			'connectionOwner' => $owner_display_name,
 		);
-		return rest_ensure_response( $response );
+
+		if ( $rest_response ) {
+			return rest_ensure_response( $response );
+		}
+
+		return $response;
+
 	}
 
 	/**
