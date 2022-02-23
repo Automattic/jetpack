@@ -7,7 +7,9 @@
 
 namespace Automattic\Jetpack\Search;
 
+use Automattic\Jetpack\Config;
 use Automattic\Jetpack\Connection\Manager as Connection_Manager;
+use Automattic\Jetpack\Connection\Rest_Authentication as Connection_Rest_Authentication;
 
 /**
  * Initializer for the main Jetpack plugin. Instantiate to enable Jetpack Search functionality.
@@ -20,7 +22,16 @@ class Jetpack_Initializer extends Initializer {
 		if ( static::$initialized ) {
 			return;
 		}
-		// Check whether Jetpack Search should be initialized in the first place.
+
+		// Set up the REST authentication hooks.
+		Connection_Rest_Authentication::init();
+
+		add_action( 'rest_api_init', array( new REST_Controller(), 'register_rest_routes' ) );
+
+		// The dashboard has to be initialized outside the module, otherwise which wouldn't load if module disabled.
+		( new Dashboard() )->init_hooks();
+
+		// Check whether Jetpack Search should be initialized in the first place .
 		if ( ! self::is_connected() || ! self::is_search_supported() ) {
 			/**
 			 * Fires when the Jetpack Search fails and would fallback to MySQL.
@@ -38,11 +49,6 @@ class Jetpack_Initializer extends Initializer {
 			do_action( 'jetpack_search_abort', 'no_blog_id', null );
 			return;
 		}
-
-		add_action( 'rest_api_init', array( new REST_Controller(), 'register_rest_routes' ) );
-
-		// The dashboard has to be initialized outside the module, otherwise which wouldn't load if module disabled.
-		( new Dashboard() )->init_hooks();
 
 		$module_control = new Module_Control();
 
@@ -76,6 +82,9 @@ class Jetpack_Initializer extends Initializer {
 		add_action( 'widgets_init', array( 'Automattic\Jetpack\Search\Jetpack_Initializer', 'jetpack_search_widget_init' ) );
 
 		static::$initialized = true;
+
+		// Fired when plugin ready.
+		do_action( 'jetpack_search_loaded' );
 	}
 
 	/**
@@ -108,5 +117,26 @@ class Jetpack_Initializer extends Initializer {
 		// There won't be multiple widgets registered when Search stand alone plugin registers it again.
 		// Because the function tests the hash of the class, if they are the same, just register again.
 		register_widget( 'Automattic\Jetpack\Search\Search_Widget' );
+	}
+
+	/**
+	 * Ensure jetpack packages depended are configured.
+	 */
+	public static function ensure_dependecies_configured() {
+		$config = new Config();
+		// Connection package.
+		$config->ensure(
+			'connection',
+			array(
+				'slug'     => JETPACK_SEARCH_PLUGIN__SLUG,
+				'name'     => 'Jetpack Search',
+				'url_info' => 'https://jetpack.com',
+			)
+		);
+		// Sync package.
+		$config->ensure( 'sync' );
+
+		// Identity crisis package.
+		$config->ensure( 'identity_crisis' );
 	}
 }

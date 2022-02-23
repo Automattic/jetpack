@@ -96,5 +96,12 @@ if ( is_readable( $autoload_packages_path ) ) {
 // intialize i18n.
 \Automattic\Jetpack\Assets::alias_textdomains_from_file( __DIR__ . '/jetpack_vendor/i18n-map.php' );
 
+// Init Jetpack packages and ConnectionUI.
+add_action(
+	'plugins_loaded',
+	array( Jetpack_Search_Initializer::class, 'ensure_dependecies_configured' ),
+	1
+);
+
 // Initialize Jetpack Search plugin.
 add_action( 'plugins_loaded', array( Jetpack_Search_Initializer::class, 'initialize' ) );

@@ -1,7 +1,7 @@
 /**
  * External dependencies
  */
-import React, { Fragment, useMemo } from 'react';
+import React, { Fragment, useMemo, useState, useEffect } from 'react';
 
 /**
  * WordPress dependencies
@@ -14,12 +14,20 @@ import { __ } from '@wordpress/i18n';
  */
 import analytics from '@automattic/jetpack-analytics';
 import restApi from '@automattic/jetpack-api';
-import { JetpackFooter, JetpackLogo, Spinner } from '@automattic/jetpack-components';
+import {
+	JetpackFooter,
+	JetpackLogo,
+	Spinner,
+	AdminSectionHero,
+	Container,
+	Col,
+} from '@automattic/jetpack-components';
 import ModuleControl from 'components/module-control';
 import MockedSearch from 'components/mocked-search';
 import { STORE_ID } from 'store';
 import NoticesList from 'components/global-notices';
 import RecordMeter from 'components/record-meter';
+import useConnection from '../../use-connection';
 
 import 'scss/rna-styles.scss';
 import './style.scss';
@@ -30,6 +38,19 @@ import './style.scss';
  * @returns {React.Component} Search dashboard component.
  */
 export default function SearchDashboard() {
+	const [ connectionStatus, renderConnectScreen ] = useConnection();
+	const [ connectionLoaded, setConnectionLoaded ] = useState( false );
+
+	const isFullyConnected = () => {
+		return connectionLoaded && connectionStatus.isUserConnected && connectionStatus.isRegistered;
+	};
+
+	useEffect( () => {
+		if ( 0 < Object.keys( connectionStatus ).length ) {
+			setConnectionLoaded( true );
+		}
+	}, [ connectionStatus ] );
+
 	useSelect( select => select( STORE_ID ).getSearchPlanInfo(), [] );
 	useSelect( select => select( STORE_ID ).getSearchModuleStatus(), [] );
 
@@ -173,6 +194,20 @@ export default function SearchDashboard() {
 	const isRecordMeterEnabled = useSelect( select =>
 		select( STORE_ID ).isFeatureEnabled( 'record-meter' )
 	);
+
+	if ( ! isFullyConnected() ) {
+		return (
+			<div className="content">
+				<AdminSectionHero>
+					<Container horizontalSpacing={ 3 } horizontalGap={ 3 }>
+						<Col lg={ 12 } md={ 8 } sm={ 4 }>
+							{ renderConnectScreen() }
+						</Col>
+					</Container>
+				</AdminSectionHero>
+			</div>
+		);
+	}
 
 	return (
 		<div className="jp-search-dashboard-page">
