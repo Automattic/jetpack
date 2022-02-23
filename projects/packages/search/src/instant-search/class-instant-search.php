@@ -620,7 +620,10 @@ class Instant_Search extends Classic_Search {
 	 * @param {string} $block_content - the content to append the search block.
 	 */
 	public static function inject_search_widget_to_block( $block_content ) {
-		$search_block = '<!-- wp:search {"label":"Jetpack Search","buttonText":"Search"} /-->';
+		$search_block = sprintf(
+			'<!-- wp:search {"label":"","buttonText":"%s"} /-->',
+			__( 'Search', 'jetpack-search-pkg' )
+		);
 
 		// Place the search block on bottom of the first column if there's any.
 		$column_end_pattern = '/(<\s*\/div[^>]*>\s*<!--\s*\/wp:column\s+[^>]*-->)/';
