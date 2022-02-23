@@ -24,17 +24,7 @@ class Products {
 			$products[ $name ] = call_user_func( array( __CLASS__, $method_name ) );
 		}
 
-		return array(
-			'anti-spam'  => self::get_anti_spam_data(),
-			'backup'     => self::get_backup_data(),
-			'boost'      => self::get_boost_data(),
-			'scan'       => self::get_scan_data(),
-			'search'     => self::get_search_data(),
-			'security'   => self::get_security_data(),
-			'videopress' => self::get_videopress_data(),
-			'crm'        => self::get_crm_data(),
-			'extras'     => self::get_extras_data(),
-		);
+		return $products;
 	}
 
 	/**
