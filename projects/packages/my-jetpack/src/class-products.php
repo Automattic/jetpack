@@ -17,6 +17,13 @@ class Products {
 	 * @return array Jetpack products on the site and their availability.
 	 */
 	public static function get_products() {
+		$names    = self::get_product_names();
+		$products = array();
+		foreach ( $names as $name ) {
+			$method_name       = 'get_' . str_replace( '-', '_', $name ) . '_data';
+			$products[ $name ] = call_user_func( array( __CLASS__, $method_name ) );
+		}
+
 		return array(
 			'anti-spam'  => self::get_anti_spam_data(),
 			'backup'     => self::get_backup_data(),
@@ -51,7 +58,17 @@ class Products {
 	 * @return array Product names array.
 	 */
 	public static function get_product_names() {
-		return array_keys( self::get_products() );
+		return array(
+			'anti-spam',
+			'backup',
+			'boost',
+			'scan',
+			'search',
+			'security',
+			'videopress',
+			'crm',
+			'extras',
+		);
 	}
 
 	/**
