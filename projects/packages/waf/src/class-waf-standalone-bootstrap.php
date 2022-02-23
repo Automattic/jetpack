@@ -50,18 +50,27 @@ class WafStandaloneBootstrap {
 	}
 
 	/**
+	 * Initialized the WP filesystem and serves as a mocking hook for tests.
+	 *
+	 * @return void
+	 */
+	protected function initialize_filesystem() {
+		WP_Filesystem();
+	}
+
+	/**
 	 * Generates the bootstrap file.
 	 *
-	 * @return string
+	 * @return string Absolute path to the bootstrap file.
 	 * @throws Exception In case the file can not be written.
 	 */
 	public function generate() {
 
-		WP_Filesystem();
+		$this->initialize_filesystem();
 
 		global $wp_filesystem;
 		if ( ! $wp_filesystem ) {
-			throw new Exception( 'Can not work without the file system being intialized.' );
+			throw new Exception( 'Can not work without the file system being initialized.' );
 		}
 
 		$bootstrap_file = JETPACK_WAF_DIR . '/bootstrap.php';
