@@ -132,14 +132,6 @@ class Test_Wpcom_Products extends TestCase {
 	}
 
 	/**
-	 * Test get products without user
-	 */
-	public function test_get_products_without_user() {
-		wp_set_current_user( 0 );
-		$this->assertEmpty( Wpcom_Products::get_products() );
-	}
-
-	/**
 	 * Test get products
 	 */
 	public function test_get_products() {
