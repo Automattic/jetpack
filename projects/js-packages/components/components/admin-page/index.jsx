@@ -24,7 +24,8 @@ import Col from '../layout/col';
  * @returns {React.Component} AdminPage component.
  */
 const AdminPage = props => {
-	const { children, moduleName, a8cLogoHref, showHeader, showFooter, showBackground } = props;
+	const { children, moduleName, a8cLogoHref, showHeader, showFooter, showBackground, logo } = props;
+
 	const rootClassName = classNames( styles[ 'admin-page' ], {
 		[ styles.background ]: showBackground,
 	} );
@@ -34,7 +35,7 @@ const AdminPage = props => {
 			{ showHeader && (
 				<Container horizontalSpacing={ 5 }>
 					<Col>
-						<JetpackLogo />
+						<JetpackLogo { ...logo } />
 					</Col>
 				</Container>
 			) }
@@ -58,6 +59,10 @@ AdminPage.defaultProps = {
 	showHeader: true,
 	showFooter: true,
 	showBackground: true,
+	logo: {
+		height: 32,
+		showText: true,
+	},
 };
 
 AdminPage.propTypes = {
@@ -71,6 +76,8 @@ AdminPage.propTypes = {
 	showFooter: PropTypes.bool,
 	/** Whether or not to display the Background Color */
 	showBackground: PropTypes.bool,
+	/** Jetpack Logo properties */
+	logo: PropTypes.object,
 };
 
 export default AdminPage;
