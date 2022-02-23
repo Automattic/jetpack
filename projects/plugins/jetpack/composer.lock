@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "51d27c1e729500c204c6afcfaffacebb",
+    "content-hash": "b45498e4c8c0ef953813a943496c6fed",
     "packages": [
         {
             "name": "automattic/jetpack-a8c-mc-stats",
@@ -597,14 +597,14 @@
             "dist": {
                 "type": "path",
                 "url": "../../packages/connection-ui",
-                "reference": "59acbda2f1375ef19d7d5db8bc8a90fecef8e787"
+                "reference": "a056d86f62db8d5f99a27bf69ded9387f56d365a"
             },
             "require": {
                 "automattic/jetpack-assets": "^1.17",
                 "automattic/jetpack-connection": "^1.37",
                 "automattic/jetpack-constants": "^1.6",
                 "automattic/jetpack-device-detection": "^1.4",
-                "automattic/jetpack-identity-crisis": "^0.7"
+                "automattic/jetpack-identity-crisis": "^0.8"
             },
             "require-dev": {
                 "automattic/jetpack-changelogger": "^3.0"
@@ -834,7 +834,7 @@
             "dist": {
                 "type": "path",
                 "url": "../../packages/identity-crisis",
-                "reference": "c19eaea6564bb1759d7c6e951e05c46295f8402e"
+                "reference": "f4d43f7894c20ed04ef10dfe599046fa99693a29"
             },
             "require": {
                 "automattic/jetpack-assets": "^1.17",
@@ -862,7 +862,7 @@
                     "link-template": "https://github.com/Automattic/jetpack-identity-crisis/compare/v${old}...v${new}"
                 },
                 "branch-alias": {
-                    "dev-master": "0.7.x-dev"
+                    "dev-master": "0.8.x-dev"
                 }
             },
             "autoload": {
@@ -1659,13 +1659,13 @@
             "dist": {
                 "type": "path",
                 "url": "../../packages/sync",
-                "reference": "406f1f70627f1b9eda6e052e19eed56fe53bebf0"
+                "reference": "99828cd54ef4cb7af35522e5347fdb13db6077c7"
             },
             "require": {
                 "automattic/jetpack-connection": "^1.37",
                 "automattic/jetpack-constants": "^1.6",
                 "automattic/jetpack-heartbeat": "^1.4",
-                "automattic/jetpack-identity-crisis": "^0.7",
+                "automattic/jetpack-identity-crisis": "^0.8",
                 "automattic/jetpack-options": "^1.14",
                 "automattic/jetpack-password-checker": "^0.2",
                 "automattic/jetpack-roles": "^1.4",
