@@ -7,7 +7,7 @@
 		"automattic/jetpack-connection": "^1.36",
 		"automattic/jetpack-constants": "^1.6",
 		"automattic/jetpack-options": "^1.14",
-		"automattic/jetpack-status": "^1.10",
+		"automattic/jetpack-status": "^1.11",
 		"automattic/jetpack-tracking": "^1.14",
 		"automattic/jetpack-logo": "^1.5",
 		"automattic/jetpack-assets": "^1.17"
