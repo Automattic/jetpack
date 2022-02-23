@@ -2,6 +2,10 @@
 
 ### This is a list detailing changes for the Jetpack RNA IDC package releases.
 
+## 0.10.0 - 2022-02-23
+### Added
+- IDCScreen: use possibleDynamicSiteUrlDetected prop from initial state to show a help notice.
+
 ## 0.9.3 - 2022-02-22
 ### Added
 - Add blog ID to event tracking.
