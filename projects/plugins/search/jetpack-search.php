@@ -24,6 +24,30 @@ define( 'JETPACK_SEARCH_PLUGIN__DIR', plugin_dir_path( __FILE__ ) );
 define( 'JETPACK_SEARCH_PLUGIN__SLUG', 'jetpack-search' );
 define( 'JETPACK_SEARCH_PLUGIN__VERSION', '0.1.0-alpha' );
 
+defined( 'JETPACK_CLIENT__AUTH_LOCATION' ) || define( 'JETPACK_CLIENT__AUTH_LOCATION', 'header' );// ?
+
+/**
+ * WP.com API no longer supports `http://` protocol.
+ * This means Jetpack can't function properly on servers that can't send outbound HTTPS requests.
+ * The constant is no longer used.
+ *
+ * @deprecated 9.1.0
+ */
+defined( 'JETPACK_CLIENT__HTTPS' ) || define( 'JETPACK_CLIENT__HTTPS', 'AUTO' );
+
+defined( 'JETPACK__API_BASE' ) || define( 'JETPACK__API_BASE', 'https://jetpack.wordpress.com/jetpack.' );
+defined( 'JETPACK__WPCOM_JSON_API_BASE' ) || define( 'JETPACK__WPCOM_JSON_API_BASE', 'https://public-api.wordpress.com' );
+
+defined( 'JETPACK__SANDBOX_DOMAIN' ) || define( 'JETPACK__SANDBOX_DOMAIN', '' );
+
+/*
+ * These constants can be set in wp-config.php to ensure sites behind proxies will still work.
+ * Setting these constants, though, is *not* the preferred method. It's better to configure
+ * the proxy to send the X-Forwarded-Port header.
+ */
+defined( 'JETPACK_SIGNATURE__HTTP_PORT' ) || define( 'JETPACK_SIGNATURE__HTTP_PORT', 80 );
+defined( 'JETPACK_SIGNATURE__HTTPS_PORT' ) || define( 'JETPACK_SIGNATURE__HTTPS_PORT', 443 );
+
 /**
  * Setup autoloading
  */
