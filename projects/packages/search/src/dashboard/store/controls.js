@@ -64,7 +64,7 @@ export default {
 	[ FETCH_SEARCH_PLAN_INFO ]: function () {
 		return restApi.fetchSearchPlanInfo();
 	},
-	// [ FETCH_SEARCH_STATS ]: function () {
-	// 	return restApi.fetchSearchStats();
-	// },
+	[ FETCH_SEARCH_STATS ]: function () {
+		return restApi.fetchSearchStats();
+	},
 };
