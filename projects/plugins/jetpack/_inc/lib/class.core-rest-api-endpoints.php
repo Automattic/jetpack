@@ -7,7 +7,6 @@ use Automattic\Jetpack\Connection\REST_Connector;
 use Automattic\Jetpack\Jetpack_CRM_Data;
 use Automattic\Jetpack\Licensing;
 use Automattic\Jetpack\Plugins_Installer;
-use Automattic\Jetpack\Search\REST_Controller as Search_REST_Controller;
 use Automattic\Jetpack\Status\Host;
 use Automattic\Jetpack\Status\Visitor;
 
@@ -32,9 +31,6 @@ add_action( 'rest_api_init', array( 'Jetpack_Core_Json_Api_Endpoints', 'register
 // Load API endpoints that are synced with WP.com
 // Each of these is a class that will register its own routes on 'rest_api_init'.
 require_once JETPACK__PLUGIN_DIR . '_inc/lib/core-api/load-wpcom-endpoints.php';
-
-// Load Search endpoints when WP REST API is initialized.
-add_action( 'rest_api_init', array( new Search_REST_Controller(), 'register_rest_routes' ) );
 
 /**
  * Class Jetpack_Core_Json_Api_Endpoints

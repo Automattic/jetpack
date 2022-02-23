@@ -17,6 +17,9 @@ class Jetpack_Initializer extends Initializer {
 	 * Initializes either the Classic Search or the Instant Search experience.
 	 */
 	public static function initialize() {
+		if ( static::$initialized ) {
+			return;
+		}
 		// Check whether Jetpack Search should be initialized in the first place.
 		if ( ! self::is_connected() || ! self::is_search_supported() ) {
 			/**
@@ -30,16 +33,25 @@ class Jetpack_Initializer extends Initializer {
 			return;
 		}
 
-		$blog_id = \Jetpack::get_option( 'id' );
+		$blog_id = Helper::get_wpcom_site_id();
 		if ( ! $blog_id ) {
 			do_action( 'jetpack_search_abort', 'no_blog_id', null );
 			return;
 		}
 
-		// registers Jetpack Search widget.
-		add_action( 'widgets_init', array( 'Automattic\Jetpack\Search\Jetpack_Initializer', 'jetpack_search_widget_init' ) );
+		add_action( 'rest_api_init', array( new REST_Controller(), 'register_rest_routes' ) );
 
-		if ( Options::is_instant_enabled() ) {
+		// The dashboard has to be initialized outside the module, otherwise which wouldn't load if module disabled.
+		( new Dashboard() )->init_hooks();
+
+		$module_control = new Module_Control();
+
+		if ( ! $module_control->is_active() ) {
+			do_action( 'jetpack_search_abort', 'module_inactive', null );
+			return;
+		}
+
+		if ( $module_control->is_instant_search_enabled() ) {
 			// Enable the instant search experience.
 			Instant_Search::initialize( $blog_id );
 
@@ -59,6 +71,11 @@ class Jetpack_Initializer extends Initializer {
 			// Enable the classic search experience.
 			Classic_Search::initialize( $blog_id );
 		}
+
+		// registers Jetpack Search widget.
+		add_action( 'widgets_init', array( 'Automattic\Jetpack\Search\Jetpack_Initializer', 'jetpack_search_widget_init' ) );
+
+		static::$initialized = true;
 	}
 
 	/**

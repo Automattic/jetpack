@@ -14,6 +14,13 @@ use WP_Error;
  */
 abstract class Initializer {
 	/**
+	 * Make sure we only initialize for once.
+	 *
+	 * @var boolean
+	 */
+	protected static $initialized = false;
+
+	/**
 	 * Perform necessary initialization steps for classic and instant search in the constructor.
 	 */
 	public static function initialize() {
