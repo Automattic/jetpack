@@ -8,6 +8,7 @@
 
 namespace Automattic\Jetpack;
 
+use Automattic\Jetpack\Status\Cache as StatusCache;
 use Jetpack_Options;
 use WorDBless\BaseTestCase;
 
@@ -25,6 +26,7 @@ class Test_Identity_Crisis extends BaseTestCase {
 	 */
 	public function set_up() {
 		Constants::set_constant( 'JETPACK_DISABLE_RAW_OPTIONS', true );
+		StatusCache::clear();
 	}
 
 	/**
@@ -34,6 +36,7 @@ class Test_Identity_Crisis extends BaseTestCase {
 	 */
 	public function tear_down() {
 		Constants::clear_constants();
+		StatusCache::clear();
 
 		// Reset IDC singleton.
 		$idc        = Identity_Crisis::init();
