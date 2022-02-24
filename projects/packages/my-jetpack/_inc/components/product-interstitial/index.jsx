@@ -3,6 +3,7 @@
  */
 import React, { useCallback, useEffect } from 'react';
 import { Container, Col, AdminPage } from '@automattic/jetpack-components';
+import { select } from '@wordpress/data';
 
 /**
  * Internal dependencies
