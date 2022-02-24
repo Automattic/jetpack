@@ -327,13 +327,14 @@ class WPCOM_JSON_API_Links {
 
 			// Does the last part of the path match the path key? (e.g. 'posts')
 			// If the last part contains a placeholder (e.g. %s), we want to carry on.
+			// phpcs:ignore Universal.Operators.StrictComparisons.LooseNotEqual
 			if ( $last_path_segment != $endpoint_last_path_segment && ! strstr( $endpoint_last_path_segment, '%' ) ) {
 				continue;
 			}
 
 			foreach ( $endpoints as $endpoint ) {
 				// Does the request method match?
-				if ( ! in_array( $request_method, $endpoint['request_methods'] ) ) {
+				if ( ! in_array( $request_method, $endpoint['request_methods'], true ) ) {
 					continue;
 				}
 
@@ -404,7 +405,7 @@ class WPCOM_JSON_API_Links {
 		foreach ( $this->api->endpoints as $key => $endpoint_objects ) {
 
 			// The key contains a serialized path, min_version and max_version.
-			list( $path, $min_version, $max_version ) = unserialize( $key );
+			list( $path, $min_version, $max_version ) = unserialize( $key );         // phpcs:ignore WordPress.PHP.DiscouragedPHPFunctions.serialize_unserialize -- Legacy, see serialization at See serialisation at class.json-api.php.
 
 			// Grab the last component of the relative path to use as the top-level key.
 			$last_path_segment = $this->get_last_segment_of_relative_path( $path );
