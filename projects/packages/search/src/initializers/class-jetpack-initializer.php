@@ -22,6 +22,7 @@ class Jetpack_Initializer extends Initializer {
 		if ( static::$initialized ) {
 			return;
 		}
+		static::$initialized = true;
 
 		// Set up the REST authentication hooks.
 		Connection_Rest_Authentication::init();
@@ -82,8 +83,6 @@ class Jetpack_Initializer extends Initializer {
 		add_action( 'widgets_init', array( 'Automattic\Jetpack\Search\Jetpack_Initializer', 'jetpack_search_widget_init' ) );
 
 		static::init_cli();
-
-		static::$initialized = true;
 
 		// Fired when plugin ready.
 		do_action( 'jetpack_search_loaded' );
