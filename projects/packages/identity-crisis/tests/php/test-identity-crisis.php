@@ -498,10 +498,10 @@ class Test_Identity_Crisis extends BaseTestCase {
 		\Jetpack_Options::delete_option( 'migrate_for_idc' );
 
 		$this->assertSame( $input_url, $url_parts['scheme'] . '://' . $url_parts['host'] );
-		$this->assertArrayNotHasKey( 'idc', $query_args );
-		$this->assertArrayNotHasKey( 'migrate_for_idc', $query_args );
-		$this->assertArrayNotHasKey( 'siteurl', $query_args );
-		$this->assertArrayNotHasKey( 'home', $query_args );
+		$this->assertSame( '1', $query_args['idc'] );
+		$this->assertSame( '1', $query_args['migrate_for_idc'] );
+		$this->assertSame( self::TEST_URL, $query_args['siteurl'] );
+		$this->assertSame( self::TEST_URL, $query_args['home'] );
 	}
 
 	/**

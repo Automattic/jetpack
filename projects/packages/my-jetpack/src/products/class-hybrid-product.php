@@ -46,7 +46,8 @@ abstract class Hybrid_Product extends Product {
 	public static function activate_plugin() {
 		/*
 		 * Activate self-installed plugin if it's installed.
-		 * Silent mode True to avoid redirects.
+		 * Silent mode True to avoid redirects in Backup.
+		 * @TODO When new Hybrid products are added, we might not want to go silent with all of them.
 		 */
 		if ( parent::is_plugin_installed() ) {
 			return activate_plugin( static::get_installed_plugin_filename(), '', false, true );
@@ -57,8 +58,10 @@ abstract class Hybrid_Product extends Product {
 		 * Silent mode True to avoid redirects.
 		 */
 		if ( static::is_jetpack_plugin_installed() ) {
-			return activate_plugin( static::get_installed_plugin_filename( 'jetpack' ), '', false, true );
+			return activate_plugin( static::get_installed_plugin_filename( 'jetpack' ) );
 		}
+
+		return new WP_Error( 'plugin_not_found', __( 'Activation failed. Plugin is not installed', 'jetpack-my-jetpack' ) );
 	}
 
 }

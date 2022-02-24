@@ -193,7 +193,6 @@ class Identity_Crisis {
 		$status = new Status();
 		if ( ! is_string( $url )
 			|| $status->is_offline_mode()
-			|| $status->is_staging_site()
 			|| self::validate_sync_error_idc_option() ) {
 			return $url;
 		}

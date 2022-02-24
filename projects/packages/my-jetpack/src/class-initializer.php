@@ -50,7 +50,7 @@ class Initializer {
 			sprintf(
 			/* translators: %s: "beta" label on Menu item for My Jetpack. */
 				__( 'My Jetpack %s', 'jetpack-my-jetpack' ),
-				'<span style="margin: 8px; color: #bbb;">' . __( 'beta', 'jetpack-my-jetpack' ) . '</span>'
+				'<span style="display:inline-block; margin: 0 8px; color: #bbb;">' . __( 'beta', 'jetpack-my-jetpack' ) . '</span>'
 			),
 			'manage_options',
 			'my-jetpack',
@@ -118,7 +118,6 @@ class Initializer {
 				'topJetpackMenuItemUrl' => Admin_Menu::get_top_level_menu_item_url(),
 				'siteSuffix'            => ( new Status() )->get_site_suffix(),
 				'myJetpackVersion'      => self::PACKAGE_VERSION,
-				'MyJetpackPlugin'       => get_plugin_data( __FILE__ ),
 				'fileSystemWriteAccess' => self::has_file_system_write_access(),
 			)
 		);
