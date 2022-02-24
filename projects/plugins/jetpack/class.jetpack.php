@@ -596,6 +596,18 @@ class Jetpack {
 		$new_current_modules  = array_diff( array_merge( $current_modules, $new_active_modules ), $new_inactive_modules );
 		$reindexed_modules    = array_values( $new_current_modules );
 		$success              = Jetpack_Options::update_option( 'active_modules', array_unique( $reindexed_modules ) );
+		// Let's take `pre_update_option_jetpack_active_modules` filter into account
+		// and actually decide for which modules we need to fire hooks by comparing
+		// the 'active_modules' option before and after the update.
+		$current_modules_post_update = Jetpack_Options::get_option( 'active_modules', array() );
+
+		$new_inactive_modules = array_diff( $current_modules, $current_modules_post_update );
+		$new_inactive_modules = array_unique( $new_inactive_modules );
+		$new_inactive_modules = array_values( $new_inactive_modules );
+
+		$new_active_modules = array_diff( $current_modules_post_update, $current_modules );
+		$new_active_modules = array_unique( $new_active_modules );
+		$new_active_modules = array_values( $new_active_modules );
 
 		foreach ( $new_active_modules as $module ) {
 			/**
