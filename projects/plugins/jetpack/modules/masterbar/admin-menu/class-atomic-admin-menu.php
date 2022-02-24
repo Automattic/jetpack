@@ -117,6 +117,7 @@ class Atomic_Admin_Menu extends Admin_Menu {
 	public function add_plugins_menu() {
 		global $submenu;
 
+		// Calypso plugins screens link.
 		$plugins_slug = 'https://wordpress.com/plugins/' . $this->domain;
 
 		// Hide Add new plugin and plugin file editor menu.
