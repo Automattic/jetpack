@@ -6,7 +6,11 @@ export default class SearchHomepage extends WpPage {
 
 	constructor( page ) {
 		const url = `${ resolveSiteUrl() }/?result_format=expanded`;
-		super( page, { expectedSelectors: [ '.site-title' ], url, explicitWaitMS: 30000 } );
+		super( page, {
+			expectedSelectors: [ '.wp-block-search__button' ],
+			url,
+			explicitWaitMS: 30000,
+		} );
 	}
 
 	async focusSearchInput() {
