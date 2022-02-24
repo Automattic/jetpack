@@ -50,7 +50,7 @@ class Initializer {
 			sprintf(
 			/* translators: %s: "beta" label on Menu item for My Jetpack. */
 				__( 'My Jetpack %s', 'jetpack-my-jetpack' ),
-				'<span style="margin: 8px; color: #bbb;">' . __( 'beta', 'jetpack-my-jetpack' ) . '</span>'
+				'<span style="display:inline-block; margin: 0 8px; color: #bbb;">' . __( 'beta', 'jetpack-my-jetpack' ) . '</span>'
 			),
 			'manage_options',
 			'my-jetpack',
