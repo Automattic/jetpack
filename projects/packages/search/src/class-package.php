@@ -51,7 +51,7 @@ class Package {
 	 */
 	public static function get_installed_path() {
 		if ( is_null( static::$installed_path ) ) {
-			static::$installed_path = dirname( __DIR__ ) . PATH_SEPARATOR;
+			static::$installed_path = dirname( __DIR__ ) . DIRECTORY_SEPARATOR;
 		}
 		return static::$installed_path;
 	}
