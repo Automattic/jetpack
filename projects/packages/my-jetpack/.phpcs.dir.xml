@@ -20,5 +20,13 @@
 			<property name="new_text_domain" value="jetpack-my-jetpack" />
 		</properties>
 	</rule>
+	 <rule ref="ImportDetection">
+		<properties>
+			<property name="ignoreWordPressSymbols" value="true"/>
+		</properties>
+	</rule>
+	<rule ref="ImportDetection.Imports.RequireImports.Symbol">
+		<type>error</type>
+	</rule>
 
 </ruleset>
