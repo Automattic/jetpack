@@ -3845,11 +3845,6 @@ class Jetpack_Core_Json_Api_Endpoints {
 			);
 		}
 
-		// Exception to circumvent the Jetpack CRM Wizard.
-		if ( 'zero-bs-crm' === $plugin ) {
-			update_option( 'jpcrm_skip_wizard', 1 );
-		}
-
 		// Now try to activate the plugin.
 		$activated = activate_plugin( $plugin );
 
