@@ -23,7 +23,6 @@ import {
 	VideoPressInterstitial,
 } from './components/product-interstitial';
 import GoBackLink from './components/go-back-link';
-import './style.scss';
 import styles from './style.module.scss';
 import useAnalytics from './hooks/use-analytics';
 
