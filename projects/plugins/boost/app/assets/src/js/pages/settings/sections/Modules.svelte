@@ -4,8 +4,8 @@
 	 */
 	import { maybeGenerateCriticalCss } from '../../../utils/generate-critical-css';
 	import { requestCloudCss } from '../../../utils/cloud-css';
-	import RefreshIcon from '../../../svg/refresh.svg';
 	import GenerateCss from '../elements/GenerateCSS.svelte';
+	import GenerateCloudCss from '../elements/GenerateCloudCSS.svelte';
 	import Module from '../elements/Module.svelte';
 	import TemplatedString from '../../../elements/TemplatedString.svelte';
 	import externalLinkTemplateVar from '../../../utils/external-link-template-var';
@@ -54,11 +54,8 @@
 			/>
 		</p>
 
-		<div slot="meta">
-			<button type="button" class="components-button is-link" on:click={requestCloudCss}>
-				<RefreshIcon />
-				{__( 'Regenerate', 'jetpack-boost' )}
-			</button>
+		<div slot="meta" class="jb-feature-toggle__meta">
+			<GenerateCloudCss />
 		</div>
 	</Module>
 
