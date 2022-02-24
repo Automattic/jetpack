@@ -27,7 +27,7 @@ class Initializer {
 	 *
 	 * @var string
 	 */
-	const PACKAGE_VERSION = '0.6.2-alpha';
+	const PACKAGE_VERSION = '0.6.4-alpha';
 
 	/**
 	 * Initialize My Jetapack
@@ -118,6 +118,7 @@ class Initializer {
 				'topJetpackMenuItemUrl' => Admin_Menu::get_top_level_menu_item_url(),
 				'siteSuffix'            => ( new Status() )->get_site_suffix(),
 				'myJetpackVersion'      => self::PACKAGE_VERSION,
+				'MyJetpackPlugin'       => get_plugin_data( __FILE__ ),
 				'fileSystemWriteAccess' => self::has_file_system_write_access(),
 			)
 		);
@@ -186,6 +187,10 @@ class Initializer {
 	 */
 	public static function should_initialize() {
 		if ( did_action( 'my_jetpack_init' ) ) {
+			return false;
+		}
+
+		if ( is_multisite() ) {
 			return false;
 		}
 

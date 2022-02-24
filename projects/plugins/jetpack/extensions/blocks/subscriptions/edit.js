@@ -14,7 +14,7 @@ import {
 	__experimentalUseGradient as useGradient,
 } from '@wordpress/block-editor';
 import { useEffect, useState } from '@wordpress/element';
-import { compose } from '@wordpress/compose';
+import { compose, usePrevious } from '@wordpress/compose';
 
 /**
  * Internal dependencies
@@ -201,6 +201,18 @@ export function SubscriptionEdit( props ) {
 	useEffect( () => {
 		getSubscriberCount();
 	}, [] );
+
+	const previousButtonBackgroundColor = usePrevious( buttonBackgroundColor );
+
+	useEffect( () => {
+		if (
+			previousButtonBackgroundColor?.color !== borderColor?.color ||
+			borderColor?.color === buttonBackgroundColor?.color
+		) {
+			return;
+		}
+		setBorderColor( buttonBackgroundColor.color );
+	}, [ buttonBackgroundColor, previousButtonBackgroundColor, borderColor, setBorderColor ] );
 
 	return (
 		<>

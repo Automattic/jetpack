@@ -2,6 +2,13 @@
 
 ### This is a list detailing changes for the Jetpack RNA Components package releases.
 
+## 0.9.0 - 2022-02-22
+### Added
+- API: add Jetpack Search stats endpoint
+
+### Removed
+- Removed testing dependency on `chai-fetch-mock`. It was unused.
+
 ## 0.8.4 - 2022-02-09
 ### Changed
 - Updated package dependencies
