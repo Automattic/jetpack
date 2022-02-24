@@ -230,7 +230,12 @@ function wpcomsh_is_site_sticker_active( $sticker_name ) {
  */
 function wpcomsh_update_plugin_link_destination( $url, $path, $scheme ) {
 	// Run only for plugin-install.php links.
-	if ( ! strpos( $url, '/plugin-install.php' ) ) {
+	if ( ! 0 === strpos( $path, 'plugin-install.php' ) ) {
+		return $url;
+	}
+
+	// Return WP Admin url for example: plugin-install.php?tab=plugin-information&plugin=classic-editor&TB_iframe=true&width=600&height=550
+	if ( strpos( $path, '?' ) ) {
 		return $url;
 	}
 
