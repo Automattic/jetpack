@@ -4,7 +4,7 @@
  *
  * @package automattic/jetpack
  */
-require_once dirname( __FILE__ ) . '/../class.json-api.php';
+require_once __DIR__ . '/../class.json-api.php';
 /**
  * Base class for WPCOM_JSON_API_Links.
  */
@@ -87,7 +87,7 @@ class WPCOM_JSON_API_Links {
 	 * @param mixed ...$args Optional arguments to be appended to URL.
 	 * @return string Endpoint URL
 	 **/
-	function get_link( ...$args ) {
+	public function get_link( ...$args ) {
 		$format = array_shift( $args );
 		$base   = WPCOM_JSON_API__BASE;
 
@@ -131,7 +131,7 @@ class WPCOM_JSON_API_Links {
 	 * @param string $path Optional path to be appended to the URL.
 	 * @return string /me endpoint URL
 	 **/
-	function get_me_link( $path = '' ) {
+	public function get_me_link( $path = '' ) {
 		return $this->get_link( '/me', $path );
 	}
 
@@ -146,7 +146,7 @@ class WPCOM_JSON_API_Links {
 	 * @param string $path Optional path to be appended to the URL.
 	 * @return string Endpoint URL including taxonomy information.
 	 **/
-	function get_taxonomy_link( $blog_id, $taxonomy_id, $taxonomy_type, $path = '' ) {
+	public function get_taxonomy_link( $blog_id, $taxonomy_id, $taxonomy_type, $path = '' ) {
 		switch ( $taxonomy_type ) {
 			case 'category':
 				return $this->get_link( '/sites/%d/categories/slug:%s', $blog_id, $taxonomy_id, $path );
@@ -169,7 +169,7 @@ class WPCOM_JSON_API_Links {
 	 * @param string $path Optional path to be appended to the URL.
 	 * @return string Endpoint URL including media information.
 	 **/
-	function get_media_link( $blog_id, $media_id, $path = '' ) {
+	public function get_media_link( $blog_id, $media_id, $path = '' ) {
 		return $this->get_link( '/sites/%d/media/%d', $blog_id, $media_id, $path );
 	}
 
@@ -182,7 +182,7 @@ class WPCOM_JSON_API_Links {
 	 * @param string $path Optional path to be appended to the URL.
 	 * @return string Endpoint URL including site information.
 	 **/
-	function get_site_link( $blog_id, $path = '' ) {
+	public function get_site_link( $blog_id, $path = '' ) {
 		return $this->get_link( '/sites/%d', $blog_id, $path );
 	}
 
@@ -196,7 +196,7 @@ class WPCOM_JSON_API_Links {
 	 * @param string $path Optional path to be appended to the URL.
 	 * @return string Endpoint URL including post information.
 	 **/
-	function get_post_link( $blog_id, $post_id, $path = '' ) {
+	public function get_post_link( $blog_id, $post_id, $path = '' ) {
 		return $this->get_link( '/sites/%d/posts/%d', $blog_id, $post_id, $path );
 	}
 
@@ -210,7 +210,7 @@ class WPCOM_JSON_API_Links {
 	 * @param string $path Optional path to be appended to the URL.
 	 * @return string Endpoint URL including comment information.
 	 **/
-	function get_comment_link( $blog_id, $comment_id, $path = '' ) {
+	public function get_comment_link( $blog_id, $comment_id, $path = '' ) {
 		return $this->get_link( '/sites/%d/comments/%d', $blog_id, $comment_id, $path );
 	}
 
@@ -224,7 +224,7 @@ class WPCOM_JSON_API_Links {
 	 * @param string $path Optional path to be appended to the URL.
 	 * @return string Endpoint URL including Publicize connection information.
 	 **/
-	function get_publicize_connection_link( $blog_id, $publicize_connection_id, $path = '' ) {
+	public function get_publicize_connection_link( $blog_id, $publicize_connection_id, $path = '' ) {
 		return $this->get_link( '.1/sites/%d/publicize-connections/%d', $blog_id, $publicize_connection_id, $path );
 	}
 
@@ -237,7 +237,7 @@ class WPCOM_JSON_API_Links {
 	 * @param string $path Optional path to be appended to the URL.
 	 * @return string Endpoint URL including specific Keyring connection information for a specific Publicize connection.
 	 **/
-	function get_publicize_connections_link( $keyring_token_id, $path = '' ) {
+	public function get_publicize_connections_link( $keyring_token_id, $path = '' ) {
 		return $this->get_link( '.1/me/publicize-connections/?keyring_connection_ID=%d', $keyring_token_id, $path );
 	}
 
@@ -250,7 +250,7 @@ class WPCOM_JSON_API_Links {
 	 * @param string $path Optional path to be appended to the URL.
 	 * @return string Endpoint URL including specific Keyring connection.
 	 **/
-	function get_keyring_connection_link( $keyring_token_id, $path = '' ) {
+	public function get_keyring_connection_link( $keyring_token_id, $path = '' ) {
 		return $this->get_link( '.1/me/keyring-connections/%d', $keyring_token_id, $path );
 	}
 
@@ -263,7 +263,7 @@ class WPCOM_JSON_API_Links {
 	 * @param string $path Optional path to be appended to the URL.
 	 * @return string Endpoint URL including information about an external service that WordPress.com or Jetpack sites can integrate with via keyring.
 	 **/
-	function get_external_service_link( $external_service, $path = '' ) {
+	public function get_external_service_link( $external_service, $path = '' ) {
 		return $this->get_link( '.1/meta/external-services/%s', $external_service, $path );
 	}
 
@@ -282,7 +282,7 @@ class WPCOM_JSON_API_Links {
 	 * @param string $request_method Request method used to access the endpoint path .
 	 * @return string The current version, or otherwise the maximum version available
 	 */
-	function get_closest_version_of_endpoint( $template_path, $path, $request_method = 'GET' ) {
+	public function get_closest_version_of_endpoint( $template_path, $path, $request_method = 'GET' ) {
 		$closest_endpoint_cache_by_version = & $this->closest_endpoint_cache_by_version;
 
 		$closest_endpoint_cache = & $closest_endpoint_cache_by_version[ $this->api->version ];
