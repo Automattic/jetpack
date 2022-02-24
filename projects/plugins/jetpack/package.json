@@ -67,6 +67,7 @@
 		"@wordpress/compose": "5.1.0",
 		"@wordpress/data": "6.2.0",
 		"@wordpress/date": "4.3.0",
+		"@wordpress/edit-post": "6.0.2",
 		"@wordpress/element": "4.1.0",
 		"@wordpress/hooks": "3.3.0",
 		"@wordpress/i18n": "4.3.0",
