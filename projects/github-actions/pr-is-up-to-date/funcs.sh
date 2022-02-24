@@ -24,6 +24,7 @@ function init_repo {
 	echo "::group::Initializing repo"
 	git init -q .
 	git remote add origin "${GITHUB_SERVER_URL}/${GITHUB_REPOSITORY}"
+	git config --local gc.auto 0
 	echo "::endgroup::"
 
 	echo "::group::Fetching tags"
@@ -134,7 +135,7 @@ function fetch_prs {
 #  ${PATHS[@]}: Paths that must be touched.
 # Returns: 0 if the PR should be processed, non-zero otherwise.
 function should_process_pr {
-	local MB, PR=$1
+	local MB PR=$1
 	if [[ ${#PATHS[@]} -gt 0 ]]; then
 		git rev-parse --verify "pulls/$PR" &>/dev/null || die "PR #$PR has not been fetched"
 		MB="$(git merge-base "pulls/$PR" "origin/$BRANCH")"

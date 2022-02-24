@@ -27,7 +27,7 @@ class Initializer {
 	 *
 	 * @var string
 	 */
-	const PACKAGE_VERSION = '0.6.3';
+	const PACKAGE_VERSION = '0.6.4-alpha';
 
 	/**
 	 * Initialize My Jetapack
@@ -187,6 +187,10 @@ class Initializer {
 	 */
 	public static function should_initialize() {
 		if ( did_action( 'my_jetpack_init' ) ) {
+			return false;
+		}
+
+		if ( is_multisite() ) {
 			return false;
 		}
 
