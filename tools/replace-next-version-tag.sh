@@ -19,7 +19,8 @@ function usage {
 		 - `@deprecated since $$next-version$$`
 		 - `_deprecated_function( ..., 'prefix-$$next-version$$' )`
 		   Other WordPress deprecation functions also work. The call must be on one
-		   line, and the '$$next-version$$' token must be in a single-quoted string.
+		   line, indented with tabs, and the '$$next-version$$' token must be in a
+		   single-quoted string.
 	EOH
 	exit 1
 }
