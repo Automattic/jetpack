@@ -230,7 +230,7 @@ function wpcomsh_is_site_sticker_active( $sticker_name ) {
  */
 function wpcomsh_update_plugin_link_destination( $url, $path, $scheme ) {
 	// Run only for plugin-install.php links.
-	if ( ! 0 === strpos( $path, 'plugin-install.php' ) ) {
+	if ( ! strpos( $url, '/plugin-install.php' ) ) {
 		return $url;
 	}
 
