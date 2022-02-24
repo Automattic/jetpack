@@ -5,8 +5,12 @@
 		--wp-admin-theme-color-darker-20: var(--jp-black-80);
 		height: 100%;
 
-		& .jetpack-logo {
+		.jetpack-logo {
 			height: 40px;
+		}
+
+		.jp-dashboard-footer__jetpack-symbol {
+			height: 16px;
 		}
 	}
 }
