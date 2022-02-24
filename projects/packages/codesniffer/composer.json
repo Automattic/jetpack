@@ -9,7 +9,8 @@
 		"phpcompatibility/phpcompatibility-wp": "^2.1",
 		"sirbrillig/phpcs-variable-analysis": "^2.10",
 		"wp-coding-standards/wpcs": "dev-develop as 2.3.1",
-		"automattic/vipwpcs": "^2.3"
+		"automattic/vipwpcs": "^2.3",
+		"sirbrillig/phpcs-import-detection": "^1.3"
 	},
 	"require-dev": {
 		"yoast/phpunit-polyfills": "1.0.3",
