@@ -29,7 +29,11 @@ class Package {
 	 * @return array The packge version array.
 	 */
 	public static function send_version_to_tracker( $package_versions ) {
-		$package_versions[ self::SLUG ] = self::VERSION;
+		// Multiple versions could co-exist, we want to send the version which is in use.
+		// `jetpack-autoloader` would load classes from the latest package, so we send the latest version here.
+		if ( empty( $package_versions[ self::SLUG ] ) || version_compare( $package_versions[ self::SLUG ], self::VERSION, '<' ) ) {
+			$package_versions[ self::SLUG ] = self::VERSION;
+		}
 		return $package_versions;
 	}
 
@@ -38,7 +42,7 @@ class Package {
 	 */
 	public static function is_development_version() {
 		return (bool) apply_filters(
-			'jetpack_search_pkg_version',
+			'jetpack_search_is_development_version',
 			! preg_match( '/^\d+(\.\d+)+$/', self::VERSION )
 		);
 	}
@@ -53,6 +57,6 @@ class Package {
 		if ( is_null( static::$installed_path ) ) {
 			static::$installed_path = dirname( __DIR__ ) . DIRECTORY_SEPARATOR;
 		}
-		return static::$installed_path;
+		return apply_filters( 'jetpack_search_installed_path', static::$installed_path );
 	}
 }
