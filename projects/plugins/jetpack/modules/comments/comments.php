@@ -531,6 +531,8 @@ class Jetpack_Comments extends Highlander_Comments_Base {
 	 * and if the token is unknown or invalid, or comments not allowed, an error is returned.
 	 *
 	 * @since JetpackComments (1.4)
+	 *
+	 * @todo We do need to add a nonce check here - internal ref for details: p1645643468937519/1645189749.180299-slack-C02HQGKMFJ8
 	 */
 	public function pre_comment_on_post() {
 		$post_array = stripslashes_deep( $_POST ); // phpcs:ignore WordPress.Security.NonceVerification.Missing
