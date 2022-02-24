@@ -52,7 +52,7 @@ const fetchAuthorizationUrl = redirectUri => {
  * @param {object} Object - contains from and redirectFunc
  * @param {string} Object.from - Value that represents the redirect origin
  * @param {Function} Object.redirectFunc - A function to handle the redirect, defaults to location.assign
- * @param {string} Object.redirectUri - A URI that the user will be redirected to
+ * @param {string} [Object.redirectUri] - A URI that the user will be redirected to
  * @yields {object} Action object that will be yielded
  */
 function* connectUser( { from, redirectFunc, redirectUri } = {} ) {
