@@ -120,8 +120,8 @@ class Atomic_Admin_Menu extends Admin_Menu {
 		// Calypso plugins screens link.
 		$plugins_slug = 'https://wordpress.com/plugins/' . $this->domain;
 
-		// `wpcomsh` restricts the plugins capabilities when the site doesn't have a 
-		// supported plan so the Plugins menu it's not registered. We still want the 
+		// `wpcomsh` restricts the plugins capabilities when the site doesn't have a
+		// supported plan so the Plugins menu it's not registered. We still want the
 		// menu to be available though, since it offers an opportunity to buy again
 		// the needed plan.
 		if ( ! $this->has_atomic_supported_plan() ) {
