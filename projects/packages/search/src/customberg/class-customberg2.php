@@ -97,7 +97,7 @@ class Customberg2 {
 	 * Loads assets for the customization experience.
 	 */
 	public function load_assets() {
-			$this->load_assets_with_parameters( constant( 'JETPACK_SEARCH_PKG__DIR' ) );
+			$this->load_assets_with_parameters( Package::get_installed_path() );
 	}
 
 	/**

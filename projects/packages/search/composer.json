@@ -76,7 +76,7 @@
 			"dev-master": "0.9.x-dev"
 		},
 		"version-constants": {
-			"JETPACK_SEARCH_PKG__VERSION": "search.php"
+			"::VERSION": "src/class-package.php"
 		}
 	},
 	"config": {

@@ -81,6 +81,8 @@ class Jetpack_Initializer extends Initializer {
 		// registers Jetpack Search widget.
 		add_action( 'widgets_init', array( 'Automattic\Jetpack\Search\Jetpack_Initializer', 'jetpack_search_widget_init' ) );
 
+		static::init_cli();
+
 		static::$initialized = true;
 
 		// Fired when plugin ready.
@@ -138,5 +140,16 @@ class Jetpack_Initializer extends Initializer {
 
 		// Identity crisis package.
 		$config->ensure( 'identity_crisis' );
+	}
+
+	/**
+	 * Register jetpack-search CLI if `\CLI` exists.
+	 *
+	 * @return void
+	 */
+	public static function init_cli() {
+		if ( defined( 'WP_CLI' ) && \WP_CLI ) {
+			\WP_CLI::add_command( 'jetpack-search', CLI::class );
+		}
 	}
 }
