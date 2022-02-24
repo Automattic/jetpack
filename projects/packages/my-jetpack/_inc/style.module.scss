@@ -5,6 +5,12 @@
 		--wp-admin-theme-color-darker-20: var(--jp-black-80);
 		height: 100%;
 	}
+
+	#wpbody-content {
+		& > .notice {
+			display: none;
+		}
+	}
 }
 
 .layout {
