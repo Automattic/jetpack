@@ -117,9 +117,11 @@ class Atomic_Admin_Menu extends Admin_Menu {
 	public function add_plugins_menu() {
 		global $submenu;
 
+		$plugins_slug = 'https://wordpress.com/plugins/' . $this->domain;
+
 		// Hide Add new plugin and plugin file editor menu.
 		if ( ! $this->has_atomic_supported_plan() ) {
-			parent::add_plugins_menu();
+			add_menu_page( 'Plugins', 'Plugins', 'manage_options', $plugins_slug, null, 'dashicons-admin-plugins', '65' );
 
 			return;
 		}
@@ -138,7 +140,7 @@ class Atomic_Admin_Menu extends Admin_Menu {
 			}
 		}
 
-		$submenus_to_update = array( 'plugin-install.php' => 'https://wordpress.com/plugins/' . $this->domain );
+		$submenus_to_update = array( 'plugin-install.php' => $plugins_slug );
 
 		$this->update_submenus( 'plugins.php', $submenus_to_update );
 	}
