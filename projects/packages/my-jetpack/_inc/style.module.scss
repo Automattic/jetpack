@@ -9,6 +9,12 @@
 			height: 40px;
 		}
 	}
+
+	#wpbody-content {
+		& > .notice {
+			display: none;
+		}
+	}
 }
 
 .layout {
