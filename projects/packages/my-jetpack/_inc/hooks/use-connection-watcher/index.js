@@ -2,30 +2,15 @@
  * External dependencies
  */
 import { __, sprintf } from '@wordpress/i18n';
-import { useEffect, useMemo } from 'react';
+import { useEffect } from 'react';
 import { useSelect, useDispatch } from '@wordpress/data';
 
 /**
  * Internal dependencies
  */
 import { STORE_ID } from '../../state/store';
-import { PRODUCT_STATUSES } from '../../components/product-card';
 import useMyJetpackConnection from '../use-my-jetpack-connection';
 import useMyJetpackNavigate from '../use-my-jetpack-navigate';
-
-const getProductsWithRequires = products => {
-	return Object.keys( products ).reduce( ( current, product ) => {
-		const currentProduct = products[ product ];
-		const requires =
-			currentProduct?.requiresUserConnection &&
-			( currentProduct?.status === PRODUCT_STATUSES.ACTIVE ||
-				currentProduct?.status === PRODUCT_STATUSES.ERROR );
-		if ( requires ) {
-			current.push( currentProduct?.name );
-		}
-		return current;
-	}, [] );
-};
 
 /**
  * React custom hook to watch connection.
@@ -35,13 +20,30 @@ const getProductsWithRequires = products => {
 export default function useConnectionWatcher() {
 	const navToConnection = useMyJetpackNavigate( '/connection' );
 	const { setGlobalNotice } = useDispatch( STORE_ID );
-	const products = useSelect( select => select( STORE_ID ).getProducts() );
+	const productsThatRequiresUserConnection = useSelect( select =>
+		select( STORE_ID ).getProductsThatRequiresUserConnection()
+	);
 	const { isSiteConnected, redirectUrl, hasConnectedOwner } = useMyJetpackConnection();
-	const productsThatRequiresUserConnection = useMemo( () => getProductsWithRequires( products ), [
-		products,
-	] );
+
 	const requiresUserConnection =
 		! hasConnectedOwner && productsThatRequiresUserConnection.length > 0;
+
+	const oneProductMessage = sprintf(
+		/* translators: placeholder is product name. */
+		__(
+			'Jetpack %s needs a user connection to WordPress.com to be able to work.',
+			'jetpack-my-jetpack'
+		),
+		productsThatRequiresUserConnection[ 0 ]
+	);
+
+	const message =
+		productsThatRequiresUserConnection.length > 1
+			? __(
+					'Some products need a user connection to WordPress.com to be able to work.',
+					'jetpack-my-jetpack'
+			  )
+			: oneProductMessage;
 
 	/*
 	 * When the site is not connect, redirect to the Jetpack dashboard.
@@ -54,23 +56,6 @@ export default function useConnectionWatcher() {
 
 	useEffect( () => {
 		if ( requiresUserConnection ) {
-			const oneProductMessage = sprintf(
-				/* translators: placeholder is product name. */
-				__(
-					'Jetpack %s needs a user connection to WordPress.com to be able to work.',
-					'jetpack-my-jetpack'
-				),
-				productsThatRequiresUserConnection[ 0 ]
-			);
-
-			const message =
-				productsThatRequiresUserConnection.length > 1
-					? __(
-							'Some products need a user connection to WordPress.com to be able to work.',
-							'jetpack-my-jetpack'
-					  )
-					: oneProductMessage;
-
 			setGlobalNotice( message, {
 				status: 'error',
 				actions: [
@@ -83,10 +68,5 @@ export default function useConnectionWatcher() {
 				],
 			} );
 		}
-	}, [
-		productsThatRequiresUserConnection,
-		requiresUserConnection,
-		navToConnection,
-		setGlobalNotice,
-	] );
+	}, [ message, requiresUserConnection, navToConnection, setGlobalNotice ] );
 }

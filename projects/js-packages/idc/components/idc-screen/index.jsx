@@ -35,6 +35,7 @@ const IDCScreen = props => {
 		tracksUserData,
 		tracksEventData,
 		isAdmin,
+		possibleDynamicSiteUrlDetected,
 	} = props;
 
 	const [ isMigrated, setIsMigrated ] = useState( false );
@@ -90,6 +91,7 @@ const IDCScreen = props => {
 			hasStaySafeError={ errorType === 'safe-mode' }
 			hasFreshError={ errorType === 'start-fresh' }
 			hasMigrateError={ errorType === 'migrate' }
+			possibleDynamicSiteUrlDetected={ possibleDynamicSiteUrlDetected }
 		/>
 	);
 };
@@ -115,6 +117,8 @@ IDCScreen.propTypes = {
 	tracksEventData: PropTypes.object,
 	/** Whether to display the "admin" or "non-admin" screen. */
 	isAdmin: PropTypes.bool.isRequired,
+	/** If potentially dynamic HTTP_HOST usage was detected for site URLs in wp-config which can lead to a JP IDC. */
+	possibleDynamicSiteUrlDetected: PropTypes.bool,
 };
 
 IDCScreen.defaultProps = {
