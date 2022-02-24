@@ -123,7 +123,7 @@ class Videopress_Attachment_Metadata {
 	 * @return bool
 	 */
 	private static function is_privacy_setting_valid( $privacy_setting ) {
-		return in_array( $privacy_setting, array( 0, 1, 2 ), true );
+		return in_array( $privacy_setting, array( VIDEOPRESS_PRIVACY::IS_PUBLIC, VIDEOPRESS_PRIVACY::IS_PRIVATE, VIDEOPRESS_PRIVACY::SITE_DEFAULT ), true );
 	}
 
 	/**

@@ -6,9 +6,15 @@ use Automattic\Jetpack\Connection\Client;
  * We won't have any videos less than sixty pixels wide. That would be silly.
  */
 defined( 'VIDEOPRESS_MIN_WIDTH' ) || define( 'VIDEOPRESS_MIN_WIDTH', 60 );
-defined( 'VIDEOPRESS_PRIVACY_IS_PUBLIC' ) || define( 'VIDEOPRESS_PRIVACY_IS_PUBLIC', 0 );
-defined( 'VIDEOPRESS_PRIVACY_IS_PRIVATE' ) || define( 'VIDEOPRESS_PRIVACY_IS_PRIVATE', 1 );
-defined( 'VIDEOPRESS_PRIVACY_SITE_DEFAULT' ) || define( 'VIDEOPRESS_PRIVACY_SITE_DEFAULT', 2 );
+
+/**
+ * VideoPress Privacy constants.
+ */
+abstract class VIDEOPRESS_PRIVACY {
+	const IS_PUBLIC    = 0;
+	const IS_PRIVATE   = 1;
+	const SITE_DEFAULT = 2;
+}
 
 /**
  * Validate user-supplied guid values against expected inputs
@@ -496,7 +502,7 @@ function video_get_info_by_blogpostid( $blog_id, $post_id ) {
 		$videopress_meta             = $meta['videopress'];
 		$video_info->rating          = isset( $videopress_meta['rating'] ) ? $videopress_meta['rating'] : null;
 		$video_info->allow_download  = isset( $videopress_meta['allow_download'] ) ? $videopress_meta['allow_download'] : 0;
-		$video_info->privacy_setting = ! isset( $videopress_meta['privacy_setting'] ) ? VIDEOPRESS_PRIVACY_SITE_DEFAULT : $videopress_meta['privacy_setting'];
+		$video_info->privacy_setting = ! isset( $videopress_meta['privacy_setting'] ) ? VIDEOPRESS_PRIVACY::SITE_DEFAULT : $videopress_meta['privacy_setting'];
 	}
 
 	if ( videopress_is_finished_processing( $post_id ) ) {

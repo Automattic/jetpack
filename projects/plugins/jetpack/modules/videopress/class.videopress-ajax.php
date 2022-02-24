@@ -106,13 +106,13 @@ class VideoPress_AJAX {
 		$is_user_authed = false;
 		// Determine if video is public, private or use site default.
 		switch ( $video_info->privacy_setting ) {
-			case VIDEOPRESS_PRIVACY_IS_PUBLIC:
+			case VIDEOPRESS_PRIVACY::IS_PUBLIC:
 				$is_user_authed = true;
 				break;
-			case VIDEOPRESS_PRIVACY_IS_PRIVATE:
+			case VIDEOPRESS_PRIVACY::IS_PRIVATE:
 				$is_user_authed = current_user_can( 'read' );
 				break;
-			case VIDEOPRESS_PRIVACY_SITE_DEFAULT:
+			case VIDEOPRESS_PRIVACY::SITE_DEFAULT:
 			default:
 				$is_videopress_private_for_site = get_option( 'videopress_private_enabled_for_site', false );
 				$is_user_authed                 = false === $is_videopress_private_for_site || ( $is_videopress_private_for_site && current_user_can( 'read' ) );
