@@ -75,25 +75,20 @@ function wpcomsh_force_calypso_plugin_pages_on_unsupported_plan() {
 		return;
 	}
 
+	$request_uri = wp_unslash( $_SERVER['REQUEST_URI'] ); // phpcs:ignore
+
 	$site = ( new Automattic\Jetpack\Status() )->get_site_suffix();
 
 	// Redirect to calypso when user is trying to install plugin.
-	add_action(
-		'load-plugin-install.php',
-		function() use ( $site ) {
-			wp_safe_redirect( 'https://wordpress.com/plugins/' . $site );
-			exit;
-		}
-	);
+	if ( 0 === strpos( $request_uri, '/wp-admin/plugin-install.php' ) ) {
+		wp_safe_redirect( 'https://wordpress.com/plugins/' . $site );
+		exit;
+	}
 
-	// Redirect to calypso when user wants to manage plugin.
-	add_action(
-		'load-plugins.php',
-		function() use ( $site ) {
-			wp_safe_redirect( 'https://wordpress.com/plugins/manage/' . $site );
-			exit;
-		}
-	);
+	if ( 0 === strpos( $request_uri, '/wp-admin/plugins.php' ) ) {
+		wp_safe_redirect( 'https://wordpress.com/plugins/manage/' . $site );
+		exit;
+	}
 }
 
 add_action( 'plugins_loaded', 'wpcomsh_force_calypso_plugin_pages_on_unsupported_plan' );
