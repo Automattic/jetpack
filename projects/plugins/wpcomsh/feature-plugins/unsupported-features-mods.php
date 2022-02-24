@@ -1,6 +1,6 @@
 <?php
 /**
- * Customizations for unsupported plan Atomic sites.
+ * Customizations for unsupported features and unsupported plan Atomic sites.
  *
  * To enable and disable specific functionality for unsupported plan Atomic sites.
  *
@@ -13,11 +13,11 @@ define( 'ALLOWED_MIMES', 'jpg jpeg png gif pdf doc ppt odt pptx docx pps ppsx xl
  * If this site has an unsupported WPCOM plan, remove the Settings > Permalinks submenu item.
  */
 function wpcomsh_remove_permalinks_menu_item_unsupported_plan() {
-    if ( Atomic_Plan_Manager::has_atomic_supported_plan() ) {
-        return;
-    }
+	if ( Atomic_Plan_Manager::has_atomic_supported_plan() ) {
+		return;
+	}
 
-    remove_submenu_page( 'options-general.php', 'options-permalink.php' );
+	remove_submenu_page( 'options-general.php', 'options-permalink.php' );
 }
 add_action( 'admin_menu', 'wpcomsh_remove_permalinks_menu_item_unsupported_plan' );
 
@@ -26,20 +26,27 @@ add_action( 'admin_menu', 'wpcomsh_remove_permalinks_menu_item_unsupported_plan'
  * Allows proxied users to access the page.
  */
 function wpcomsh_disable_permalink_page_unsupported_plan() {
-    if ( Atomic_Plan_Manager::has_atomic_supported_plan() ) {
-        return;
-    }
+	if ( Atomic_Plan_Manager::has_atomic_supported_plan() ) {
+		return;
+	}
 
-    if ( ! ( defined( 'AT_PROXIED_REQUEST' ) && AT_PROXIED_REQUEST ) ) {
-        wp_die( __( 'You do not have permission to access this page.', 'wpcomsh' ), '', array(
-            'back_link' => true,
-            'response' => 403,
-        ) );
-    } else {
-        add_action( 'admin_notices', function() {
-            echo '<div class="notice notice-warning"><p>' . esc_html__( 'Proxied only: You can see this because you are proxied. Do not use this if you don\'t know why you are here.', 'wpcomsh' ) . '</p></div>';
-        } );
-    }
+	if ( ! ( defined( 'AT_PROXIED_REQUEST' ) && AT_PROXIED_REQUEST ) ) {
+		wp_die(
+			__( 'You do not have permission to access this page.', 'wpcomsh' ),
+			'',
+			array(
+				'back_link' => true,
+				'response'  => 403,
+			)
+		);
+	} else {
+		add_action(
+			'admin_notices',
+			function() {
+				echo '<div class="notice notice-warning"><p>' . esc_html__( 'Proxied only: You can see this because you are proxied. Do not use this if you don\'t know why you are here.', 'wpcomsh' ) . '</p></div>';
+			}
+		);
+	}
 }
 add_action( 'load-options-permalink.php', 'wpcomsh_disable_permalink_page_unsupported_plan' );
 
@@ -47,8 +54,8 @@ function wpcomsh_restrict_mimetypes_unsupported_plan( $mimes ) {
 	if ( Atomic_Plan_Manager::has_atomic_supported_plan() ) {
 		return $mimes;
 	}
-	$site_exts = explode( ' ', ALLOWED_MIMES );
-	$free_mimes = [];
+	$site_exts  = explode( ' ', ALLOWED_MIMES );
+	$free_mimes = array();
 	foreach ( $site_exts as $ext ) {
 		foreach ( $mimes as $ext_pattern => $mime ) {
 			if ( $ext != '' && strpos( $ext_pattern, $ext ) !== false ) {
@@ -59,7 +66,6 @@ function wpcomsh_restrict_mimetypes_unsupported_plan( $mimes ) {
 
 	return $free_mimes;
 }
-
 add_filter( 'upload_mimes', 'wpcomsh_restrict_mimetypes_unsupported_plan', 3 );
 
 /**
@@ -92,3 +98,16 @@ function wpcomsh_force_calypso_plugin_pages_on_unsupported_plan() {
 }
 
 add_action( 'plugins_loaded', 'wpcomsh_force_calypso_plugin_pages_on_unsupported_plan' );
+
+/**
+ * This function manages the feature that allows the user to hide the "WP.com Footer Credit".
+ * The footer credit feature lives in a separate platform-agnostic repository, so we rely on filters to manage it.
+ * Pressable Footer Credit repository: https://github.com/Automattic/at-pressable-footer-credit
+ *
+ * @param bool $previous_value The previous value or default value of filter.
+ */
+function wpcomsh_gate_footer_credit_feature( $previous_value ) {
+	require_once __DIR__ . '/../wpcom-features/functions-wpcom-features.php';
+	return wpcom_site_has_feature( WPCOM_Features::NO_WPCOM_BRANDING );
+}
+add_filter( 'wpcom_better_footer_credit_can_customize', 'wpcomsh_gate_footer_credit_feature' );

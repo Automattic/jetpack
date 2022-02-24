@@ -9,4 +9,3 @@
  */
 
 require_once __DIR__ . '/class-manage-additional-css-feature.php';
-require_once __DIR__ . '/class-manage-footer-credit-feature.php';
