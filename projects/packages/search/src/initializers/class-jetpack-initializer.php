@@ -51,6 +51,8 @@ class Jetpack_Initializer extends Initializer {
 			return;
 		}
 
+		static::init_cli();
+
 		$module_control = new Module_Control();
 
 		if ( ! $module_control->is_active() ) {
@@ -81,8 +83,6 @@ class Jetpack_Initializer extends Initializer {
 
 		// registers Jetpack Search widget.
 		add_action( 'widgets_init', array( 'Automattic\Jetpack\Search\Jetpack_Initializer', 'jetpack_search_widget_init' ) );
-
-		static::init_cli();
 
 		// Fired when plugin ready.
 		do_action( 'jetpack_search_loaded' );
