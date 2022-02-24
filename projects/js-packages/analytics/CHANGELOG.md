@@ -2,6 +2,10 @@
 
 ### This is a list detailing changes for the Jetpack RNA Analytics package releases.
 
+## 0.1.8 - 2022-02-22
+### Added
+- Add the 'assignSuperProps()' method.
+
 ## 0.1.7 - 2022-01-25
 ### Changed
 - Updated package dependencies.

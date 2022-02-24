@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Memoized RecordEvent from usAnalytics hook

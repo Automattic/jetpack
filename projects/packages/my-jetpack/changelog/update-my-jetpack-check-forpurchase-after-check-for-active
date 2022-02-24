@@ -1,4 +1,0 @@
-Significance: patch
-Type: fixed
-
-Check if product is active before checking if requires plan

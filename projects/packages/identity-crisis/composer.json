@@ -7,7 +7,7 @@
 		"automattic/jetpack-connection": "^1.36",
 		"automattic/jetpack-constants": "^1.6",
 		"automattic/jetpack-options": "^1.14",
-		"automattic/jetpack-status": "^1.10",
+		"automattic/jetpack-status": "^1.12",
 		"automattic/jetpack-tracking": "^1.14",
 		"automattic/jetpack-logo": "^1.5",
 		"automattic/jetpack-assets": "^1.17"
@@ -66,7 +66,7 @@
 			"link-template": "https://github.com/Automattic/jetpack-identity-crisis/compare/v${old}...v${new}"
 		},
 		"branch-alias": {
-			"dev-master": "0.7.x-dev"
+			"dev-master": "0.8.x-dev"
 		}
 	},
 	"config": {
