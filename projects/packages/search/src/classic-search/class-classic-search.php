@@ -22,7 +22,7 @@ class Classic_Search {
 	 * @since 5.0.0
 	 * @var Classic_Search
 	 */
-	protected static $instance;
+	private static $instance;
 
 	/**
 	 * The number of found posts.
@@ -115,7 +115,7 @@ class Classic_Search {
 	 * Alias of the instance function.
 	 */
 	public static function initialize() {
-		return call_user_func_array( array( 'self', 'instance' ), func_get_args() );
+		return call_user_func_array( array( static::class, 'instance' ), func_get_args() );
 	}
 
 	/**

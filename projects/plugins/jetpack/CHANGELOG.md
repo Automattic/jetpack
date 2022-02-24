@@ -2,6 +2,38 @@
 
 ### This is a list detailing changes for all Jetpack releases.
 
+## 10.7-beta - 2022-02-22
+### Enhancements
+- Dashboard: improve performance of plugins page.
+- Subscribe block: various changes, including a name change, how the display for current subscribers is shown, and new styling options and enhancements.
+
+### Improved compatibility
+- Performance: improve performance of Jetpack dashboard for sites without VideoPress enabled.
+
+### Bug fixes
+- Subscribe block: address front-end rendering issues.
+- Dashboard: show Jetpack stats Screen Options label properly.
+
+### Other changes <!-- Non-user-facing changes go here. This section will not be copied to readme.txt. -->
+- Add Sync related unit tests.
+- Bump package versions.
+- Dashboard: remove marketplace related add plugins menu redirect.
+- E2E tests: update readme.
+- Fix PHPCS violations for the Publicize module.
+- Fix WPCOM-specific linting errors.
+- Fix double escaping of connections in Classic Editor.
+- Fix fatal error in the WP.com customizer while in sandbox mode.
+- Init 10.7-a.6 cycle.
+- Memoize calls to store_subscription when setting available features for site in order to reduce duplicate uncached queries.
+- PHPCS Changes for json-get endpoint files.
+- Re-introduce CRM card on At A Glance page for Jetpack.
+- Remove Jetpack settings submenu from general settings menu when site doesn't have atomic supported plan.
+- Subscribe block: Fix color serialization.
+- Updated package dependencies.
+- Update to-test.md.
+- WordPress.com REST API: avoid errors when restoring the previous version of an image from the WordPress.com dashboard.
+- WordPress.com REST API: avoid PHP warnings when accessing videos from the WordPress.com dashboard.
+
 ## 10.7-a.5 - 2022-02-16
 ### Enhancements
 - Blocks: add support for color and spacing block options for Form, Mailchimp, Podcast Player, and Related Posts blocks.

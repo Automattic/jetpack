@@ -52,9 +52,7 @@ export default function MyJetpackScreen() {
 	useConnectionWatcher();
 	const { message, options, clean } = useGlobalNotice();
 
-	const {
-		tracks: { recordEvent },
-	} = useAnalytics();
+	const { recordEvent } = useAnalytics();
 
 	useEffect( () => {
 		recordEvent( 'jetpack_myjetpack_page_view' );
@@ -74,7 +72,7 @@ export default function MyJetpackScreen() {
 					<Col sm={ 4 } md={ 7 } lg={ 6 }>
 						<h1 className={ styles.heading }>
 							{ __(
-								'Manage your Jetpack plan and products all in one place',
+								'Manage your Jetpack',
 								'jetpack-my-jetpack'
 							) }
 						</h1>

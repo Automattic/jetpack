@@ -256,8 +256,10 @@ abstract class Product {
 			if ( static::$requires_user_connection && ! ( new Connection_Manager() )->has_connected_owner() ) {
 				$status = 'error';
 			} elseif ( ! static::has_required_plan() ) {
-				$status = 'needs_purchase';
+				$status = 'needs_purchase'; // We need needs_purchase here as well because some products we consider active without the required plan.
 			}
+		} elseif ( ! static::has_required_plan() ) {
+			$status = 'needs_purchase';
 		} else {
 			$status = 'inactive';
 		}
@@ -310,6 +312,15 @@ abstract class Product {
 	}
 
 	/**
+	 * Activates the plugin
+	 *
+	 * @return null|WP_Error Null on success, WP_Error on invalid file.
+	 */
+	public static function activate_plugin() {
+		return activate_plugin( static::get_installed_plugin_filename() );
+	}
+
+	/**
 	 * Activates the product by installing and activating its plugin
 	 *
 	 * @return boolean|WP_Error
@@ -330,7 +341,7 @@ abstract class Product {
 			return new WP_Error( 'not_allowed', __( 'You are not allowed to activate plugins on this site.', 'jetpack-my-jetpack' ) );
 		}
 
-		$result = activate_plugin( static::get_installed_plugin_filename() );
+		$result = static::activate_plugin();
 		if ( is_wp_error( $result ) ) {
 			return $result;
 		}

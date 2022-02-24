@@ -1,4 +1,0 @@
-Significance: patch
-Type: fixed
-
-Purchases: ensure we retrieve translated version of active purchases.
