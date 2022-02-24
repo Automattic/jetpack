@@ -89,7 +89,7 @@ class WPCOM_JSON_API_Links {
 	 **/
 	function get_link( ...$args ) {
 		$format = array_shift( $args );
-		$base = WPCOM_JSON_API__BASE;
+		$base   = WPCOM_JSON_API__BASE;
 
 		$path = array_pop( $args );
 
@@ -286,9 +286,9 @@ class WPCOM_JSON_API_Links {
 		$closest_endpoint_cache_by_version = & $this->closest_endpoint_cache_by_version;
 
 		$closest_endpoint_cache = & $closest_endpoint_cache_by_version[ $this->api->version ];
-		if ( !$closest_endpoint_cache ) {
+		if ( ! $closest_endpoint_cache ) {
 			$closest_endpoint_cache_by_version[ $this->api->version ] = array();
-			$closest_endpoint_cache = & $closest_endpoint_cache_by_version[ $this->api->version ];
+			$closest_endpoint_cache                                   = & $closest_endpoint_cache_by_version[ $this->api->version ];
 		}
 
 		if ( ! isset( $closest_endpoint_cache[ $template_path ] ) ) {
@@ -320,8 +320,8 @@ class WPCOM_JSON_API_Links {
 		}
 
 		$endpoint_path_versions = $this->get_endpoint_path_versions();
-		$last_path_segment = $this->get_last_segment_of_relative_path( $path );
-		$max_version_found = null;
+		$last_path_segment      = $this->get_last_segment_of_relative_path( $path );
+		$max_version_found      = null;
 
 		foreach ( $endpoint_path_versions as $endpoint_last_path_segment => $endpoints ) {
 
@@ -337,7 +337,7 @@ class WPCOM_JSON_API_Links {
 					continue;
 				}
 
-				$endpoint_path = untrailingslashit( $endpoint['path'] );
+				$endpoint_path       = untrailingslashit( $endpoint['path'] );
 				$endpoint_path_regex = str_replace( array( '%s', '%d' ), array( '([^/?&]+)', '(\d+)' ), $endpoint_path );
 
 				if ( ! preg_match( "#^$endpoint_path_regex\$#", $path ) ) {
@@ -351,7 +351,10 @@ class WPCOM_JSON_API_Links {
 				) {
 					array_push(
 						$matches_by_version[ $this->api->version ],
-						(object) array( 'version' => $this->api->version, 'regex' => $endpoint_path_regex )
+						(object) array(
+							'version' => $this->api->version,
+							'regex'   => $endpoint_path_regex,
+						)
 					);
 					$closest_endpoint_cache[ $template_path ][ $request_method ] = $this->api->version;
 					return $this->api->version;
@@ -359,7 +362,10 @@ class WPCOM_JSON_API_Links {
 
 				// If the endpoint doesn't exist at the same version, record the max version we found.
 				if ( empty( $max_version_found ) || version_compare( $max_version_found['version'], $endpoint['max_version'], '<' ) ) {
-					$max_version_found = array( 'version' => $endpoint['max_version'], 'regex' => $endpoint_path_regex );
+					$max_version_found = array(
+						'version' => $endpoint['max_version'],
+						'regex'   => $endpoint_path_regex,
+					);
 				}
 			}
 		}
@@ -385,7 +391,7 @@ class WPCOM_JSON_API_Links {
 	 **/
 	protected function get_endpoint_path_versions() {
 
-		if ( ! empty ( $this->cache_result ) ) {
+		if ( ! empty( $this->cache_result ) ) {
 			return $this->cache_result;
 		}
 
@@ -404,10 +410,10 @@ class WPCOM_JSON_API_Links {
 			$last_path_segment = $this->get_last_segment_of_relative_path( $path );
 
 			$endpoint_path_versions[ $last_path_segment ][] = array(
-				'path' => $path,
-				'min_version' => $min_version,
-				'max_version' => $max_version,
-				'request_methods' => array_keys( $endpoint_objects )
+				'path'            => $path,
+				'min_version'     => $min_version,
+				'max_version'     => $max_version,
+				'request_methods' => array_keys( $endpoint_objects ),
 			);
 		}
 
@@ -422,7 +428,7 @@ class WPCOM_JSON_API_Links {
 	 * @param string $path Path.
 	 * @return string Last path segment
 	 */
-	protected function get_last_segment_of_relative_path( $path) {
+	protected function get_last_segment_of_relative_path( $path ) {
 		$path_parts = array_filter( explode( '/', $path ) );
 
 		if ( empty( $path_parts ) ) {
