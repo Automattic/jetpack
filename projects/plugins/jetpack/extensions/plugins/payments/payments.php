@@ -1,13 +1,13 @@
 <?php
 /**
- * Payments Post Publish plugin.
+ * Payments plugin.
  *
  * @since $$next-version$$
  *
  * @package automattic/jetpack
  */
 
-namespace Automattic\Jetpack\Extensions\PaymentsPostPublish;
+namespace Automattic\Jetpack\Extensions\Payments;
 
 use Automattic\Jetpack\Blocks;
 use Jetpack;
