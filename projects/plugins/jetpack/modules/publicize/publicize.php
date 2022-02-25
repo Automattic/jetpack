@@ -531,7 +531,7 @@ abstract class Publicize_Base {
 		}
 
 		// if we have the specific connection info..
-		$id = sanitize_text_field( wp_unslash( $_GET['id'] ) ); // phpcs:ignore WordPress.Security.NonceVerification.Recommended
+		$id = ! empty( $_GET['id'] ) ? sanitize_text_field( wp_unslash( $_GET['id'] ) ) : ''; // phpcs:ignore WordPress.Security.NonceVerification.Recommended
 
 		if ( $id ) {
 			if ( $cmeta['connection_data']['id'] === $id ) {
@@ -863,7 +863,7 @@ abstract class Publicize_Base {
 					'enabled'         => $enabled,
 					'done'            => $done,
 					'toggleable'      => $toggleable,
-					'global'          => 0 == $connection_data['user_id'], // phpcs:ignore Universal.Operators.StrictComparisons.LooseEqual -- Other types can be used at times.
+					'global'          => 0 == $connection_data['user_id'], // phpcs:ignore Universal.Operators.StrictComparisons.LooseEqual,WordPress.PHP.StrictComparisons.LooseComparison -- Other types can be used at times.
 				);
 			}
 		}
@@ -1140,18 +1140,18 @@ abstract class Publicize_Base {
 			$submit_post = false;
 		}
 
-		// phpcs:ignore WordPress.Security.NonceVerification.Missing
-		$admin_page = isset( $_POST[ $this->ADMIN_PAGE ] ) ? sanitize_text_field( wp_unslash( $_POST[ $this->ADMIN_PAGE ] ) ) : null;
+		// phpcs:ignore WordPress.Security.NonceVerification.Missing, WordPress.Security.ValidatedSanitizedInput.MissingUnslash, WordPress.Security.ValidatedSanitizedInput.InputNotSanitized -- We're only checking if a value is set
+		$admin_page = isset( $_POST[ $this->ADMIN_PAGE ] ) ? $_POST[ $this->ADMIN_PAGE ] : null;
 
 		// Did this request happen via wp-admin?
 		$from_web = isset( $_SERVER['REQUEST_METHOD'] )
 			&&
-			'post' === strtolower( $_SERVER['REQUEST_METHOD'] )
+			'post' === strtolower( sanitize_text_field( wp_unslash( $_SERVER['REQUEST_METHOD'] ) ) )
 			&&
 			! empty( $admin_page );
 
 		// phpcs:ignore WordPress.Security.NonceVerification.Missing
-		$title = isset( $_POST['title'] ) ? sanitize_text_field( wp_unslash( $_POST['title'] ) ) : null;
+		$title = isset( $_POST['wpas_title'] ) ? sanitize_text_field( wp_unslash( $_POST['wpas_title'] ) ) : null;
 
 		if ( ( $from_web || defined( 'POST_BY_EMAIL' ) ) && $title ) {
 			if ( empty( $title ) ) {

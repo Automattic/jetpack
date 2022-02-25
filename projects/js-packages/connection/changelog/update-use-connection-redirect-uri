@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Fix broken Jetpack Partner Coupon redeem flow for sites without a user connection
