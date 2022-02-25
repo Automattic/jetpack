@@ -3,6 +3,7 @@ namespace Automattic\Jetpack_Boost\Features\Optimizations\Cloud_CSS;
 
 use Automattic\Jetpack_Boost\Contracts\Feature;
 use Automattic\Jetpack_Boost\Lib\Critical_CSS\Critical_CSS_Invalidator;
+use Automattic\Jetpack_Boost\Lib\Critical_CSS\Critical_CSS_State;
 use Automattic\Jetpack_Boost\Lib\Critical_CSS\Critical_CSS_Storage;
 use Automattic\Jetpack_Boost\Lib\Critical_CSS\Display_Critical_CSS;
 use Automattic\Jetpack_Boost\Lib\Critical_CSS\Source_Providers\Source_Providers;
@@ -36,6 +37,9 @@ class Cloud_CSS implements Feature, Has_Endpoints {
 		add_action( 'wp', array( $this, 'display_critical_css' ) );
 		REST_API::register( $this->get_endpoints() );
 		Critical_CSS_Invalidator::init();
+
+		// Priority must be greater than 10 to run after invalidator.
+		add_action( 'handle_theme_change', array( $this, 'generate_generic_cloud_css' ), 11 );
 
 		return true;
 	}
@@ -80,5 +84,14 @@ class Cloud_CSS implements Feature, Has_Endpoints {
 		add_action( 'wp_head', array( $display, 'display_critical_css' ), 0 );
 		add_filter( 'style_loader_tag', array( $display, 'asynchronize_stylesheets' ), 10, 4 );
 		add_action( 'wp_footer', array( $display, 'onload_flip_stylesheets' ) );
+	}
+
+	public function generate_generic_cloud_css() {
+		$state            = new Critical_CSS_State( 'cloud' );
+		$source_providers = new Source_Providers();
+		$state->create_request( $source_providers->get_providers() );
+
+		$client = new Cloud_CSS_Request( $state );
+		return $client->request_generate();
 	}
 }
