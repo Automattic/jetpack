@@ -21,6 +21,7 @@
 		</properties>
 	</rule>
 	 <rule ref="ImportDetection">
+		<exclude-pattern type="relative-root">tests/*</exclude-pattern>
 		<properties>
 			<property name="ignoreWordPressSymbols" value="true"/>
 		</properties>
