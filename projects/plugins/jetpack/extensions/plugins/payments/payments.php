@@ -9,27 +9,27 @@
 
 namespace Automattic\Jetpack\Extensions\Payments;
 
-use Automattic\Jetpack\Blocks;
-use Jetpack;
+use Jetpack_Gutenberg;
 
 const FEATURE_NAME = 'payments';
-const BLOCK_NAME   = 'jetpack/' . FEATURE_NAME;
 
-/**
- * Registers the plugin for use in the block editor's plugin sidebar.
- * This is done via an action so that we can disable registration if we need to.
- */
-function register_plugin() {
-	if (
-		( defined( 'IS_WPCOM' ) && IS_WPCOM )
-		|| Jetpack::is_connection_ready()
-	) {
-		Blocks::jetpack_register_block(
-			BLOCK_NAME,
+// Populate the available extensions with our feature.
+add_filter(
+	'jetpack_set_available_extensions',
+	function ( $extensions ) {
+		return array_merge(
+			$extensions,
 			array(
-				'plan_check' => true,
+				FEATURE_NAME,
 			)
 		);
 	}
-}
-add_action( 'init', __NAMESPACE__ . '\register_plugin' );
+);
+
+// Set the feature availability, depending on the site plan.
+add_action(
+	'jetpack_register_gutenberg_extensions',
+	function () {
+		Jetpack_Gutenberg::set_availability_for_plan( FEATURE_NAME );
+	}
+);
