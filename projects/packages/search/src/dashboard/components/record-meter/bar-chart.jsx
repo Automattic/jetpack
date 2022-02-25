@@ -2,7 +2,7 @@
  * External dependencies
  */
 import React from 'react';
-const Chart = React.lazy( () => import( 'chart.js/auto' ) );
+import Chart from 'chart.js/auto';
 
 /**
  * Internal dependencies
@@ -57,7 +57,7 @@ export class BarChart extends React.Component {
 						display: false,
 
 						labels: {
-							filter: function ( legendItem, data ) {
+							filter: function ( legendItem ) {
 								return ! legendItem.text.includes( 'Remaining' );
 							},
 						},
@@ -72,7 +72,9 @@ export class BarChart extends React.Component {
 		} );
 
 		if ( this.props.isValid === true ) {
+			/* eslint-disable */
 			this.setState( { legendItems: this.myChart.legend.legendItems } );
+			/* eslint-disable */
 		}
 	}
 
@@ -81,8 +83,8 @@ export class BarChart extends React.Component {
 			return null;
 		}
 		return (
-			<div className="barChart">
-				<div className="chartContainer">
+			<div className="bar-chart">
+				<div className="bar-chart__container">
 					<canvas ref={ this.canvasRef }>
 						<p>Text alternative for this canvas graphic is in the data table below.</p>
 						<table
@@ -110,20 +112,20 @@ export class BarChart extends React.Component {
 						</table>
 					</canvas>
 				</div>
-				<div className="chartLegendContainer">
-					<ul className="chartLegend">
+				<div className="chart-legend__container">
+					<ul className="chart-legend">
 						{ this.state?.legendItems.length > 0 &&
 							this.state.legendItems.map( item => {
 								return (
 									<li key={ item.text }>
 										<div
-											className="chartLegendBox"
+											className="chart-legend__box"
 											style={ {
 												backgroundColor: item.fillStyle,
 											} }
 										/>
-										<span className="chartLegendLabel" children={ item.text } />
-										<span className="chartLegendCount">
+										<span className="chart-legend__label" children={ item.text } />
+										<span className="chart-legend__count">
 											({ this.props.data[ item.datasetIndex ].data.data })
 										</span>
 									</li>
