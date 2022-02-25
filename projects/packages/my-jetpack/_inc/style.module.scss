@@ -12,6 +12,27 @@
 		.jp-dashboard-footer__jetpack-symbol {
 			height: 16px;
 		}
+		
+		// Buttons
+		// button-group
+		.components-button {
+			border-radius: 4px;
+		}
+
+		.components-button-group {
+			> .components-button:first-child {
+				border-top-right-radius: 0;
+				border-bottom-right-radius: 0;
+			}
+
+			.components-dropdown-menu .components-button,
+			> .components-button:last-child {
+				border-top-left-radius: 0;
+				border-bottom-left-radius: 0;
+			}
+
+			
+		}
 	}
 
 	#wpbody-content {
