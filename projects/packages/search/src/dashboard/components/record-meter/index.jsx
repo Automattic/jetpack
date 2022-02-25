@@ -1,4 +1,5 @@
-/* * External dependencies
+/**
+ * External dependencies
  */
 import React, { useState } from 'react';
 import { __ } from '@wordpress/i18n';
@@ -12,9 +13,11 @@ import { useSelect } from '@wordpress/data';
  * Internal dependencies
  */
 import { STORE_ID } from 'store';
-import { BarChart } from './barchart';
-import getRecordInfo from './lib/recordInfo';
-import createData from './lib/createData';
+import { BarChart } from './bar-chart';
+import { RecordCount } from './record-count';
+import { NoticeBox } from './notice-box';
+import getRecordInfo from './lib/record-info';
+import createData from './lib/create-data';
 
 import './style.scss';
 
@@ -30,10 +33,6 @@ export default function RecordMeter() {
 		getRecordInfo( createData().data, createData().planInfo )
 	);
 
-	// quick console log for the moment, just to check the correct data & correct form is coming through the state
-	console.log( recordInfo.data );
-	console.log( recordInfo.isValid );
-
 	return (
 		<div className="jp-search-record-meter jp-search-dashboard-wrap">
 			<div className="jp-search-dashboard-row">
@@ -41,8 +40,18 @@ export default function RecordMeter() {
 					<h2>{ __( 'Your search records', 'jetpack-search-pkg' ) }</h2>
 					{ tierMaximumRecords && (
 						<p>
-							Tier maximum records: <strong>{ tierMaximumRecords }</strong>
+							<RecordCount
+								recordCount={ recordInfo.recordCount }
+								planRecordLimit={ tierMaximumRecords }
+							/>
 							<BarChart data={ recordInfo.data } isValid={ recordInfo.isValid } />
+							<NoticeBox
+								recordCount={ recordInfo.recordCount }
+								planRecordLimit={ tierMaximumRecords }
+								hasBeenIndexed={ recordInfo.hasBeenIndexed }
+								hasValidData={ recordInfo.hasValidData }
+								hasItems={ recordInfo.hasItems }
+							></NoticeBox>
 						</p>
 					) }
 				</div>
