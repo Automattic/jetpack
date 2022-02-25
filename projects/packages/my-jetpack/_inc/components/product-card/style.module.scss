@@ -38,7 +38,7 @@
 	width: 100%;
 	font-size: var(--product-card-name-font-size);
 	font-weight: 700;
-	margin-bottom: var(--product-card-margin-base);
+	margin-bottom: 8px;
 }
 
 .description {
@@ -51,7 +51,7 @@
     flex-grow: 2;
     flex-direction: column;
     justify-content: end;
-	margin-top: calc(var(--product-card-margin-base) * 4); // 16px
+	margin-top: 20px;
 }
 
 .actions {
