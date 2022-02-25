@@ -18,10 +18,7 @@ const variations = [
 	[ premiumContentName, premiumContentSettings ],
 ];
 
-const variationDefinitions = variations.map( blockNameSettings => {
-	let blockName = blockNameSettings[ 0 ];
-	const settings = blockNameSettings[ 1 ];
-
+const variationDefinitions = variations.map( ( [ blockName, settings ] ) => {
 	if ( ! blockName.includes( '/' ) ) {
 		blockName = 'jetpack/' + blockName;
 	}
