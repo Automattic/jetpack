@@ -19,12 +19,8 @@ const variations = [
 ];
 
 const variationDefinitions = variations.map( ( [ blockName, settings ] ) => {
-	if ( ! blockName.includes( '/' ) ) {
-		blockName = 'jetpack/' + blockName;
-	}
-
 	return {
-		name: blockName,
+		name: blockName.includes( '/' ) ? blockName : 'jetpack/' + blockName,
 		title: settings.title,
 		description: settings.description,
 		icon: settings.icon.src ?? settings.icon,
