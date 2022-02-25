@@ -82,7 +82,7 @@ class Jetpack_Initializer extends Initializer {
 		}
 
 		// registers Jetpack Search widget.
-		register_widget( 'Automattic\Jetpack\Search\Search_Widget' );
+		add_action( 'widgets_init', array( 'Automattic\Jetpack\Search\Jetpack_Initializer', 'jetpack_search_widget_init' ) );
 
 		// Fired when plugin ready.
 		do_action( 'jetpack_search_loaded' );
@@ -101,6 +101,13 @@ class Jetpack_Initializer extends Initializer {
 	 */
 	public static function is_search_supported() {
 		return ( new Plan() )->supports_search();
+	}
+
+	/**
+	 * Register the widget if Jetpack Search is available and enabled.
+	 */
+	public static function jetpack_search_widget_init() {
+		register_widget( 'Automattic\Jetpack\Search\Search_Widget' );
 	}
 
 	/**
