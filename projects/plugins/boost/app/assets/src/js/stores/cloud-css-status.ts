@@ -13,8 +13,7 @@ export interface CloudCssStatus {
 }
 /* eslint-enable camelcase */
 
-// eslint-disable-next-line camelcase
-const initialState = Jetpack_Boost.cloudCssStatus || {
+const resetState: CloudCssStatus = {
 	created: 0,
 	updated: 0,
 	total: 0,
@@ -22,22 +21,28 @@ const initialState = Jetpack_Boost.cloudCssStatus || {
 	pending: false,
 };
 
+// eslint-disable-next-line camelcase
+const initialState = Jetpack_Boost.cloudCssStatus || resetState;
+
 const { subscribe, update } = writable< CloudCssStatus >( initialState );
 
 /**
  * Helper method to update Cloud CSS generation progress status.
  *
- * @param {number}  completed Completed provider keys.
- * @param {number}  updated   Updated timestamp.
- * @param {boolean} pending   Cloud CSS generation pending status.
+ * @param {CloudCssStatus} status Cloud CSS generation status.
  */
-export function updateGenerateStatus( completed: number, updated: number, pending: boolean ): void {
+export function updateStatus( status: CloudCssStatus ): void {
+	const { completed, updated, pending } = status;
 	return update( state => ( {
 		...state,
 		completed,
 		updated,
 		pending,
 	} ) );
+}
+
+export function resetStatus(): void {
+	return update( () => resetState );
 }
 
 export const cloudCssStatus = {
