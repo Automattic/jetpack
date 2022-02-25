@@ -3,6 +3,7 @@
 		--wp-admin-theme-color: var(--jp-black);
 		--wp-admin-theme-color-darker-10: var(--jp-black-80);
 		--wp-admin-theme-color-darker-20: var(--jp-black-80);
+		--my-jetpack-button-height: 32px;
 		height: 100%;
 
 		.jetpack-logo {
@@ -15,8 +16,11 @@
 		
 		// Buttons
 		// button-group
+		.components-button-group,
 		.components-button {
 			border-radius: 4px;
+			height: var(--my-jetpack-button-height);
+			line-height: var(--my-jetpack-button-height);
 		}
 
 		.components-button-group {
@@ -25,13 +29,11 @@
 				border-bottom-right-radius: 0;
 			}
 
-			.components-dropdown-menu .components-button,
+			.components-dropdown-menu > .components-button,
 			> .components-button:last-child {
 				border-top-left-radius: 0;
 				border-bottom-left-radius: 0;
 			}
-
-			
 		}
 	}
 
