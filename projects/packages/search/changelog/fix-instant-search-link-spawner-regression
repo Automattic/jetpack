@@ -1,4 +1,0 @@
-Significance: patch
-Type: fixed
-
-Search: Fixed a regression that prevented modal from being spawned by link clicks
