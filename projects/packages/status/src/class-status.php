@@ -283,6 +283,6 @@ class Status {
 		$url = preg_replace( '#^.*?://#', '', $url );
 		$url = str_replace( '/', '::', $url );
 
-		return $url;
+		return rtrim( $url, ':' );
 	}
 }
