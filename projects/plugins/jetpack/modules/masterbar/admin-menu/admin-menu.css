@@ -479,6 +479,19 @@
 	z-index: 9999;
 }
 
+@media screen and  (max-width: 782px) {
+	.screen-options-tab__dropdown {
+		right: 10px;
+		top: 47px;
+	}
+}
+
+@media screen and  (max-width: 600px) {
+	.screen-options-tab__dropdown {
+		top: 93px;
+	}
+}
+
 .screen-switcher:not(:hover) .screen-switcher__button:nth-child(2) > strong {
 	color:var(--wp-admin-theme-color)
 }
