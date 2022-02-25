@@ -28,6 +28,8 @@ class Jetpack_Carousel {
 	/**
 	 * Determines whether or not to set in the gallery. Default is false.
 	 *
+	 * @deprecated since $$next-version$$
+	 *
 	 * @var bool
 	 */
 	public $in_gallery = false;
