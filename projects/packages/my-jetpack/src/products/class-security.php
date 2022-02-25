@@ -7,10 +7,13 @@
 
 namespace Automattic\Jetpack\My_Jetpack\Products;
 
+use Anti_Spam;
 use Automattic\Jetpack\Connection\Client;
 use Automattic\Jetpack\My_Jetpack\Module_Product;
 use Automattic\Jetpack\My_Jetpack\Wpcom_Products;
+use Backup;
 use Jetpack_Options;
+use Scan;
 use WP_Error;
 
 /**

@@ -7,6 +7,16 @@
 
 namespace Automattic\Jetpack\My_Jetpack;
 
+use Products\Anti_Spam;
+use Products\Backup;
+use Products\Boost;
+use Products\Crm;
+use Products\Extras;
+use Products\Scan;
+use Products\Search;
+use Products\Security;
+use Products\Videopress;
+
 /**
  * A class for everything related to product handling in My Jetpack
  */
@@ -116,7 +126,7 @@ class Products {
 	 * @return array Object with infromation about the product.
 	 */
 	public static function get_anti_spam_data() {
-		return Products\Anti_Spam::get_info();
+		return Anti_Spam::get_info();
 	}
 
 	/**
@@ -125,7 +135,7 @@ class Products {
 	 * @return array Object with infromation about the product.
 	 */
 	public static function get_backup_data() {
-		return Products\Backup::get_info();
+		return Backup::get_info();
 	}
 
 	/**
@@ -134,7 +144,7 @@ class Products {
 	 * @return array Object with infromation about the product.
 	 */
 	public static function get_boost_data() {
-		return Products\Boost::get_info();
+		return Boost::get_info();
 	}
 
 	/**
@@ -143,7 +153,7 @@ class Products {
 	 * @return array Object with infromation about the product.
 	 */
 	public static function get_crm_data() {
-		return Products\Crm::get_info();
+		return Crm::get_info();
 	}
 
 	/**
@@ -152,7 +162,7 @@ class Products {
 	 * @return array Object with infromation about the product.
 	 */
 	public static function get_extras_data() {
-		return Products\Extras::get_info();
+		return Extras::get_info();
 	}
 
 	/**
@@ -161,7 +171,7 @@ class Products {
 	 * @return array Object with infromation about the product.
 	 */
 	public static function get_scan_data() {
-		return Products\Scan::get_info();
+		return Scan::get_info();
 	}
 
 	/**
@@ -170,7 +180,7 @@ class Products {
 	 * @return array Object with infromation about the product.
 	 */
 	public static function get_search_data() {
-		return Products\Search::get_info();
+		return Search::get_info();
 	}
 
 	/**
@@ -179,7 +189,7 @@ class Products {
 	 * @return array Object with infromation about the product.
 	 */
 	public static function get_security_data() {
-		return Products\Security::get_info();
+		return Security::get_info();
 	}
 
 	/**
@@ -188,6 +198,6 @@ class Products {
 	 * @return array Object with infromation about the product.
 	 */
 	public static function get_videopress_data() {
-		return Products\Videopress::get_info();
+		return Videopress::get_info();
 	}
 }

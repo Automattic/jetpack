@@ -16,6 +16,9 @@ use Automattic\Jetpack\Connection\Rest_Authentication as Connection_Rest_Authent
 use Automattic\Jetpack\Status as Status;
 use Automattic\Jetpack\Terms_Of_Service;
 use Automattic\Jetpack\Tracking;
+use Products;
+use REST_Products;
+use REST_Purchases;
 
 /**
  * The main Initializer class that registers the admin menu and eneuque the assets.

@@ -7,6 +7,9 @@
 
 namespace Automattic\Jetpack\My_Jetpack;
 
+use Products;
+use WP_Error;
+
 /**
  * Registers the REST routes for Products.
  */

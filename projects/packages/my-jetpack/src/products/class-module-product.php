@@ -8,6 +8,7 @@
 namespace Automattic\Jetpack\My_Jetpack;
 
 use Jetpack;
+use Product;
 use WP_Error;
 
 /**
