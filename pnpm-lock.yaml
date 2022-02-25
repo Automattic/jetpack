@@ -753,7 +753,6 @@ importers:
       classnames: 2.3.1
       concurrently: 6.4.0
       fast-json-stable-stringify: 2.1.0
-      gridicons: 3.3.1
       jest: 27.3.1
       jest-environment-jsdom: 27.3.1
       lodash: 4.17.21
@@ -790,7 +789,6 @@ importers:
       chart.js: 3.7.1
       classnames: 2.3.1
       fast-json-stable-stringify: 2.1.0
-      gridicons: 3.3.1_react@17.0.2
       lodash: 4.17.21
       photon: 4.0.0
       preact: 10.5.15
