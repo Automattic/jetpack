@@ -1,0 +1,4 @@
+Significance: patch
+Type: added
+
+Make codesniffer detected unimported usage of symbols as errors
