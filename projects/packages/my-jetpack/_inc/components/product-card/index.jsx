@@ -193,39 +193,41 @@ const ProductCard = props => {
 				{ icon }
 			</div>
 			<p className={ styles.description }>{ description }</p>
-			<div className={ styles.actions }>
-				{ canDeactivate ? (
-					<ButtonGroup className={ styles.group }>
+			<div className={ styles[ 'actions-wrapper' ] }>
+				<div className={ styles.actions }>
+					{ canDeactivate ? (
+						<ButtonGroup className={ styles.group }>
+							<ActionButton
+								{ ...props }
+								onActivate={ activateHandler }
+								onFixConnection={ fixConnectionHandler }
+								onManage={ manageHandler }
+							/>
+							<DropdownMenu
+								className={ styles.dropdown }
+								toggleProps={ { isPrimary: true, disabled: isFetching } }
+								popoverProps={ { noArrow: false } }
+								icon={ DownIcon }
+								disableOpenOnArrowDown={ true }
+								controls={ [
+									{
+										title: __( 'Deactivate', 'jetpack-my-jetpack' ),
+										icon: null,
+										onClick: deactivateHandler,
+									},
+								] }
+							/>
+						</ButtonGroup>
+					) : (
 						<ActionButton
 							{ ...props }
-							onActivate={ activateHandler }
 							onFixConnection={ fixConnectionHandler }
-							onManage={ manageHandler }
+							onActivate={ activateHandler }
+							onAdd={ addHandler }
 						/>
-						<DropdownMenu
-							className={ styles.dropdown }
-							toggleProps={ { isPrimary: true, disabled: isFetching } }
-							popoverProps={ { noArrow: false } }
-							icon={ DownIcon }
-							disableOpenOnArrowDown={ true }
-							controls={ [
-								{
-									title: __( 'Deactivate', 'jetpack-my-jetpack' ),
-									icon: null,
-									onClick: deactivateHandler,
-								},
-							] }
-						/>
-					</ButtonGroup>
-				) : (
-					<ActionButton
-						{ ...props }
-						onFixConnection={ fixConnectionHandler }
-						onActivate={ activateHandler }
-						onAdd={ addHandler }
-					/>
-				) }
-				{ ! isAbsent && <div className={ statusClassName }>{ flagLabel }</div> }
+					) }
+					{ ! isAbsent && <div className={ statusClassName }>{ flagLabel }</div> }
+				</div>
 			</div>
 		</div>
 	);

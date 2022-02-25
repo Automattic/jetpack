@@ -22,7 +22,6 @@
 	height: 100%;
 	display: flex;
 	flex-direction: column;
-	justify-content: space-between;
 
 	&.is-purchase-required,
 	&.plugin_absent {
@@ -47,13 +46,20 @@
 	margin:0;
 }
 
+.actions-wrapper {
+	display: flex;
+    flex-grow: 2;
+    flex-direction: column;
+    justify-content: end;
+	margin-top: calc(var(--product-card-margin-base) * 4); // 16px
+}
+
 .actions {
 	display: flex;
 	align-items: center;
 	justify-content: space-between;
 	width: 100%;
 	min-height: var(--product-card-actions-size);
-	margin-top: calc(var(--product-card-margin-base) * 4); // 16px
 	font-size: var(--product-card-actions-font-size);
 	font-weight: 600;
 	flex-wrap: wrap;
