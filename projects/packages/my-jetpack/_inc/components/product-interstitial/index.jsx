@@ -3,6 +3,7 @@
  */
 import React, { useCallback, useEffect } from 'react';
 import { Container, Col } from '@automattic/jetpack-components';
+import { select } from '@wordpress/data';
 
 /**
  * Internal dependencies
@@ -13,11 +14,13 @@ import useAnalytics from '../../hooks/use-analytics';
 import boostImage from './boost.png';
 import searchImage from './search.png';
 import videoPressImage from './videopress.png';
+import extrasImage from './extras.png';
 import crmImage from './crm.png';
 import { useProduct } from '../../hooks/use-product';
 import useMyJetpackNavigate from '../../hooks/use-my-jetpack-navigate';
 import getProductCheckoutUrl from '../../utils/get-product-checkout-url';
 import useMyJetpackConnection from '../../hooks/use-my-jetpack-connection';
+import { STORE_ID } from '../../state/store';
 
 /**
  * Product Interstitial component.
@@ -36,12 +39,7 @@ export default function ProductInterstitial( {
 	children = null,
 } ) {
 	const { activate, detail } = useProduct( slug );
-	const {
-		isUpgradableByBundle,
-		pricingForUi: { isFree, wpcomProductSlug },
-		hasRequiredPlan,
-		postActivationUrl,
-	} = detail;
+	const { isUpgradableByBundle } = detail;
 
 	const { recordEvent } = useAnalytics();
 
@@ -60,16 +58,17 @@ export default function ProductInterstitial( {
 	const Product = isUpgradableByBundle ? ProductDetailCard : ProductDetail;
 	const { isUserConnected } = useMyJetpackConnection();
 
-	const needsPurchase = ! isFree && ! hasRequiredPlan;
-
 	const navigateToMyJetpackOverviewPage = useMyJetpackNavigate( '/' );
 
 	const clickHandler = useCallback( () => {
-		if ( ! installsPlugin ) {
-			return;
-		}
+		activate().finally( () => {
+			const product = select( STORE_ID ).getProduct( slug );
+			const postActivationUrl = product?.postActivationUrl;
+			const hasRequiredPlan = product?.hasRequiredPlan;
+			const isFree = product?.pricingForUi?.isFree;
+			const wpcomProductSlug = product?.pricingForUi?.wpcomProductSlug;
+			const needsPurchase = ! isFree && ! hasRequiredPlan;
 
-		activate().finally( function () {
 			if ( postActivationUrl ) {
 				window.location.href = postActivationUrl;
 				return;
@@ -82,15 +81,7 @@ export default function ProductInterstitial( {
 			// Redirect to the checkout page.
 			window.location.href = getProductCheckoutUrl( wpcomProductSlug, isUserConnected );
 		} );
-	}, [
-		installsPlugin,
-		activate,
-		needsPurchase,
-		navigateToMyJetpackOverviewPage,
-		wpcomProductSlug,
-		isUserConnected,
-		postActivationUrl,
-	] );
+	}, [ navigateToMyJetpackOverviewPage, activate, isUserConnected, slug ] );
 
 	return (
 		<Container
@@ -157,6 +148,19 @@ export function CRMInterstitial() {
 	return (
 		<ProductInterstitial slug="crm" installsPlugin={ true }>
 			<img src={ crmImage } alt="CRM" />
+		</ProductInterstitial>
+	);
+}
+
+/**
+ * ExtrasInterstitial component
+ *
+ * @returns {object} ExtrasInterstitial react component.
+ */
+export function ExtrasInterstitial() {
+	return (
+		<ProductInterstitial slug="extras" installsPlugin={ true }>
+			<img src={ extrasImage } alt="Extras" />
 		</ProductInterstitial>
 	);
 }
