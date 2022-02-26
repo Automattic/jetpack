@@ -50,6 +50,7 @@ import {
 	isLoading,
 } from '../store/selectors';
 import './search-app.scss';
+import { getSearchInputs } from '../lib/dom';
 
 class SearchApp extends Component {
 	static defaultProps = {
@@ -207,7 +208,7 @@ class SearchApp extends Component {
 		}
 
 		this.props.searchQuery !== null &&
-			document.querySelectorAll( this.props.themeOptions.searchInputSelector ).forEach( input => {
+			getSearchInputs().forEach( input => {
 				input.value = this.props.searchQuery;
 			} );
 	};

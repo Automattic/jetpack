@@ -6,6 +6,7 @@ import { Component } from 'react';
 //       Do not import the entire lodash library!
 // eslint-disable-next-line lodash/import-scope
 import debounce from 'lodash/debounce';
+import { getSearchInputs } from '../lib/dom';
 
 // This component is used primarily to bind DOM event handlers to elements outside of the Jetpack Search overlay.
 export default class DomEventHandler extends Component {
@@ -45,7 +46,7 @@ export default class DomEventHandler extends Component {
 		// Disables the following attributes:
 		// - autocomplete - leads to poor UX.
 		// - required - prevents Instant Search from spawning in certain scenarios.
-		document.querySelectorAll( this.props.themeOptions.searchInputSelector ).forEach( input => {
+		getSearchInputs().forEach( input => {
 			input.removeAttribute( 'required' );
 			input.removeAttribute( 'autocomplete' );
 			input.form.removeAttribute( 'autocomplete' );
@@ -56,7 +57,7 @@ export default class DomEventHandler extends Component {
 		window.addEventListener( 'popstate', this.handleHistoryNavigation );
 
 		// Add listeners for input and submit
-		document.querySelectorAll( this.props.themeOptions.searchInputSelector ).forEach( input => {
+		getSearchInputs().forEach( input => {
 			input.form.addEventListener( 'submit', this.handleSubmit );
 			// keydown handler is causing text duplication because it actively sets the search input
 			// value after system input method empty the input but before filling the input again.
@@ -79,7 +80,7 @@ export default class DomEventHandler extends Component {
 	removeEventListeners() {
 		window.removeEventListener( 'popstate', this.handleHistoryNavigation );
 
-		document.querySelectorAll( this.props.themeOptions.searchInputSelector ).forEach( input => {
+		getSearchInputs().forEach( input => {
 			input.form.removeEventListener( 'submit', this.handleSubmit );
 			input.removeEventListener( 'keyup', this.handleKeyup );
 			input.removeEventListener( 'input', this.handleInput );

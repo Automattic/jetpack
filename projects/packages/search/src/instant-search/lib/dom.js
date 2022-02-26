@@ -1,4 +1,15 @@
 /**
+ * External dependencies
+ */
+import memoize from 'timed-memoize';
+
+/**
+ * Internal dependencies
+ */
+import { SERVER_OBJECT_NAME } from './constants';
+import { hasSameHost } from './url';
+
+/**
  * Fetches the names of all checkbox elements contained within the parent element.
  *
  * @param {Element} parentDom - Parent element containing one or more checkboxes.
@@ -18,12 +29,9 @@ export function getCheckedInputNames( parentDom ) {
  */
 export function getThemeOptions( searchOptions ) {
 	const options = {
-		searchInputSelector: [
-			'input[name="s"]:not(.jetpack-instant-search__box-input)',
-			'#searchform input.search-field:not(.jetpack-instant-search__box-input)',
-			'.search-form input.search-field:not(.jetpack-instant-search__box-input)',
-			'.searchform input.search-field:not(.jetpack-instant-search__box-input)',
-		].join( ', ' ),
+		searchInputSelector: [ 'input[name="s"]', 'input.search-field', 'input.wp-block-search__input' ]
+			.map( s => s + ':not(.jetpack-instant-search__box-input)' )
+			.join( ', ' ),
 		filterInputSelector: [ 'a.jetpack-search-filter__link' ],
 		overlayTriggerSelector: [
 			'.jetpack-instant-search__open-overlay-button',
@@ -32,3 +40,44 @@ export function getThemeOptions( searchOptions ) {
 	};
 	return searchOptions.theme_options ? { ...options, ...searchOptions.theme_options } : options;
 }
+
+/**
+ * Returns an array of search inputs that should be listened to for spawning the overlay.
+ *
+ * This function is memoized with a timed expiry to avoid repeatedly querying the document and
+ * to ensure it can handle input addition or deletion.
+ *
+ * @param {any} args - Same format as getThemeOptions.
+ * @returns {Array<Node>} - Search inputs.
+ */
+export const getSearchInputs = memoize(
+	function ( ...args ) {
+		const { searchInputSelector } = getThemeOptions( ...args );
+
+		// Filter out various search inputs that may not be related to searching the site.
+		return [ ...document.querySelectorAll( searchInputSelector ) ].filter( input => {
+			// Exclude GeoDirectory plugin forms
+			if ( input.form?.name?.toLowerCase() === 'geodir-listing-search' ) {
+				return false;
+			}
+
+			if (
+				// Include search widget and search block inputs
+				input.classList.contains( 'search-field' ) ||
+				input.classList.contains( 'wp-block-search__input' ) ||
+				// Include if contained by form that has an action for the same host.
+				( input.form?.action && hasSameHost( input.form.action, SERVER_OBJECT_NAME?.homeUrl ) )
+			) {
+				return true;
+			}
+
+			// Exclude POST forms, which are typically not used for search form inputs.
+			if ( input.form?.method?.toLowerCase() === 'post' ) {
+				return false;
+			}
+
+			return true;
+		} );
+	},
+	{ timeout: 1000 }
+);
