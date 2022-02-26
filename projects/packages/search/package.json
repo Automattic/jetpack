@@ -63,6 +63,7 @@
 		"redux": "4.1.1",
 		"refx": "3.1.1",
 		"strip": "3.0.0",
+		"timed-memoize": "2.4.2",
 		"tiny-lru": "7.0.6"
 	},
 	"devDependencies": {

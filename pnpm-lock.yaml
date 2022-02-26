@@ -773,6 +773,7 @@ importers:
       sass-loader: 12.4.0
       size-limit: 6.0.3
       strip: 3.0.0
+      timed-memoize: 2.4.2
       tiny-lru: 7.0.6
       webpack: 5.65.0
     dependencies:
@@ -803,6 +804,7 @@ importers:
       redux: 4.1.1
       refx: 3.1.1
       strip: 3.0.0
+      timed-memoize: 2.4.2
       tiny-lru: 7.0.6
     devDependencies:
       '@automattic/jetpack-webpack-config': link:../../js-packages/webpack-config
@@ -21236,7 +21238,7 @@ packages:
     dependencies:
       array.prototype.flat: 1.2.5
       global-cache: 1.2.1
-      react-with-styles: 3.2.3
+      react-with-styles: 3.2.3_react-dom@17.0.2+react@17.0.2
 
   /react-with-styles/3.2.3:
     resolution: {integrity: sha512-MTI1UOvMHABRLj5M4WpODfwnveHaip6X7QUMI2x6zovinJiBXxzhA9AJP7MZNaKqg1JRFtHPXZdroUC8KcXwlQ==}
@@ -23784,6 +23786,10 @@ packages:
   /time-stamp/1.1.0:
     resolution: {integrity: sha1-dkpaEa9QVhkhsTPztE5hhofg9cM=}
     engines: {node: '>=0.10.0'}
+
+  /timed-memoize/2.4.2:
+    resolution: {integrity: sha512-V3ugWEYFa1aSr4nRWjJkn+fpX+qbx2fRXeHKgJbuRLiclQ0zM7LhFMJJUqib0tffEkRfyhoF8UHtcuWT8WMMjw==}
+    dev: false
 
   /timers-browserify/2.0.12:
     resolution: {integrity: sha512-9phl76Cqm6FhSX9Xe1ZUAMLtm1BLkKj2Qd5ApyWkXzsMRaA7dgr81kf4wJmQf/hAvg8EEyJxDo3du/0KlhPiKQ==}
