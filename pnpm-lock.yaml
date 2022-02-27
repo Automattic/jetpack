@@ -391,8 +391,6 @@ importers:
       '@wordpress/base-styles': 4.1.0
       '@wordpress/components': 19.3.0
       '@wordpress/data': 6.2.0
-      '@wordpress/dom-ready': 3.3.1
-      '@wordpress/edit-post': 6.0.2
       '@wordpress/element': 4.1.0
       '@wordpress/plugins': 4.1.0
       '@wordpress/url': 3.4.0
@@ -405,8 +403,6 @@ importers:
       '@wordpress/base-styles': 4.1.0
       '@wordpress/components': 19.3.0
       '@wordpress/data': 6.2.0
-      '@wordpress/dom-ready': 3.3.1
-      '@wordpress/edit-post': 6.0.2
       '@wordpress/element': 4.1.0
       '@wordpress/url': 3.4.0
       jetpack-js-test-runner: link:../../../tools/js-test-runner
@@ -4886,15 +4882,6 @@ packages:
   /@popperjs/core/2.11.2:
     resolution: {integrity: sha512-92FRmppjjqz29VMJ2dn+xdyXZBrMlE42AV6Kq6BwjWV7CNUW1hs2FtxSNLQE+gJhaZ6AAmYuO9y8dshhcBl7vA==}
 
-  /@react-spring/animated/9.4.2:
-    resolution: {integrity: sha512-Dzum5Ho8e+LIAegAqRyoQFakD2IVH3ZQ2nsFXJorAFq3Xjv6IVPz/+TNxb/wSvnsMludfoF+ZIf319FSFmgD5w==}
-    peerDependencies:
-      react: ^16.8.0  || ^17.0.0
-    dependencies:
-      '@react-spring/shared': 9.4.2
-      '@react-spring/types': 9.4.2
-    dev: true
-
   /@react-spring/animated/9.4.2_react@17.0.2:
     resolution: {integrity: sha512-Dzum5Ho8e+LIAegAqRyoQFakD2IVH3ZQ2nsFXJorAFq3Xjv6IVPz/+TNxb/wSvnsMludfoF+ZIf319FSFmgD5w==}
     peerDependencies:
@@ -4903,17 +4890,6 @@ packages:
       '@react-spring/shared': 9.4.2_react@17.0.2
       '@react-spring/types': 9.4.2
       react: 17.0.2
-
-  /@react-spring/core/9.4.2:
-    resolution: {integrity: sha512-Ej/ULwdx8rQtMAWEpLgwbKcQEx6vPfjyG3cxLP05zAInpCoWkYpl+sXOp9tn3r99mTNQPTTt7BgQsSnmQA8+rQ==}
-    peerDependencies:
-      react: ^16.8.0  || ^17.0.0
-    dependencies:
-      '@react-spring/animated': 9.4.2
-      '@react-spring/rafz': 9.4.2
-      '@react-spring/shared': 9.4.2
-      '@react-spring/types': 9.4.2
-    dev: true
 
   /@react-spring/core/9.4.2_react@17.0.2:
     resolution: {integrity: sha512-Ej/ULwdx8rQtMAWEpLgwbKcQEx6vPfjyG3cxLP05zAInpCoWkYpl+sXOp9tn3r99mTNQPTTt7BgQsSnmQA8+rQ==}
@@ -4929,15 +4905,6 @@ packages:
   /@react-spring/rafz/9.4.2:
     resolution: {integrity: sha512-rSm+G8E/XEEpnCGtT/xYN6o8VvEXlU8wN/hyKp4Q44XAZzGSMHLIFP7pY94/MmWsxCxjkw1AxUWhiFYxWrnI5Q==}
 
-  /@react-spring/shared/9.4.2:
-    resolution: {integrity: sha512-mZtbQLpMm6Vy5+O1MSlY9KuAcMO8rdUQvtdnC7Or7y7xiZlnzj8oAILyO6Y2rD2ZC1PmgVS0gMev/8T+MykW+Q==}
-    peerDependencies:
-      react: ^16.8.0  || ^17.0.0
-    dependencies:
-      '@react-spring/rafz': 9.4.2
-      '@react-spring/types': 9.4.2
-    dev: true
-
   /@react-spring/shared/9.4.2_react@17.0.2:
     resolution: {integrity: sha512-mZtbQLpMm6Vy5+O1MSlY9KuAcMO8rdUQvtdnC7Or7y7xiZlnzj8oAILyO6Y2rD2ZC1PmgVS0gMev/8T+MykW+Q==}
     peerDependencies:
@@ -4949,18 +4916,6 @@ packages:
 
   /@react-spring/types/9.4.2:
     resolution: {integrity: sha512-GGiIscTM+CEUNV52anj3g5FqAZKL2+eRKtvBOAlC99qGBbvJ3qTLImrUR/I3lXY7PRuLgzI6kh34quA1oUxWYQ==}
-
-  /@react-spring/web/9.4.2:
-    resolution: {integrity: sha512-sWfA9NkVuvVOpjSlMkD2zcF6X3i8NSHTeH/uHCGKsN3mYqgkhvAF+E8GASO/H4KKGNhbRvgCZiwJXOtOGyUg6A==}
-    peerDependencies:
-      react: ^16.8.0  || ^17.0.0
-      react-dom: ^16.8.0  || ^17.0.0
-    dependencies:
-      '@react-spring/animated': 9.4.2
-      '@react-spring/core': 9.4.2
-      '@react-spring/shared': 9.4.2
-      '@react-spring/types': 9.4.2
-    dev: true
 
   /@react-spring/web/9.4.2_react-dom@17.0.2+react@17.0.2:
     resolution: {integrity: sha512-sWfA9NkVuvVOpjSlMkD2zcF6X3i8NSHTeH/uHCGKsN3mYqgkhvAF+E8GASO/H4KKGNhbRvgCZiwJXOtOGyUg6A==}
@@ -8028,55 +7983,6 @@ packages:
       - '@types/react'
     dev: false
 
-  /@wordpress/block-editor/8.2.0:
-    resolution: {integrity: sha512-TfXUhsKt3ZlGpO+YMnQ6Szevhh3KEGcy4vWxjvranvl3GEHx4n63pAILBI/1JJzPqfn6kik17R3ycppnymmXeA==}
-    engines: {node: '>=12'}
-    peerDependencies:
-      react: ^17.0.0
-      react-dom: ^17.0.0
-    dependencies:
-      '@babel/runtime': 7.17.2
-      '@react-spring/web': 9.4.2
-      '@wordpress/a11y': 3.3.1
-      '@wordpress/api-fetch': 6.0.1
-      '@wordpress/blob': 3.3.1
-      '@wordpress/blocks': 11.2.2
-      '@wordpress/components': 19.5.0
-      '@wordpress/compose': 5.1.2
-      '@wordpress/data': 6.3.0
-      '@wordpress/deprecated': 3.3.1
-      '@wordpress/dom': 3.3.2
-      '@wordpress/element': 4.1.1
-      '@wordpress/hooks': 3.3.1
-      '@wordpress/html-entities': 3.3.1
-      '@wordpress/i18n': 4.3.1
-      '@wordpress/icons': 7.0.1
-      '@wordpress/is-shallow-equal': 4.3.1
-      '@wordpress/keyboard-shortcuts': 3.1.2
-      '@wordpress/keycodes': 3.3.1
-      '@wordpress/notices': 3.3.2
-      '@wordpress/rich-text': 5.1.2
-      '@wordpress/shortcode': 3.3.1
-      '@wordpress/style-engine': 0.2.0
-      '@wordpress/token-list': 2.3.1
-      '@wordpress/url': 3.4.1
-      '@wordpress/warning': 2.3.1
-      '@wordpress/wordcount': 3.3.1
-      classnames: 2.3.1
-      colord: 2.9.2
-      diff: 4.0.2
-      dom-scroll-into-view: 1.2.1
-      inherits: 2.0.4
-      lodash: 4.17.21
-      react-autosize-textarea: 7.1.0
-      react-easy-crop: 3.5.3
-      rememo: 3.0.0
-      traverse: 0.6.6
-    transitivePeerDependencies:
-      - '@babel/core'
-      - '@types/react'
-    dev: true
-
   /@wordpress/block-editor/8.2.0_aae888dfa296766acacf1a733aa50b3a:
     resolution: {integrity: sha512-TfXUhsKt3ZlGpO+YMnQ6Szevhh3KEGcy4vWxjvranvl3GEHx4n63pAILBI/1JJzPqfn6kik17R3ycppnymmXeA==}
     engines: {node: '>=12'}
@@ -9659,28 +9565,6 @@ packages:
       '@wordpress/icons': 6.2.0
       '@wordpress/notices': 3.3.0_react@17.0.2
       '@wordpress/url': 3.4.0
-      lodash: 4.17.21
-    transitivePeerDependencies:
-      - '@babel/core'
-      - '@types/react'
-      - react
-      - react-dom
-    dev: true
-
-  /@wordpress/reusable-blocks/3.1.3:
-    resolution: {integrity: sha512-dWRy1zNIKb7bahXTPiWRj0VWEjgr3bA8vXusza+0oZqnX+1yo4gpZSyArq7SA1r3RHzwaZR4HbvY9RWOFiMINQ==}
-    engines: {node: '>=12'}
-    dependencies:
-      '@wordpress/block-editor': 8.2.0
-      '@wordpress/blocks': 11.2.2
-      '@wordpress/components': 19.5.0
-      '@wordpress/core-data': 4.1.2
-      '@wordpress/data': 6.3.0
-      '@wordpress/element': 4.1.1
-      '@wordpress/i18n': 4.3.1
-      '@wordpress/icons': 7.0.1
-      '@wordpress/notices': 3.3.2
-      '@wordpress/url': 3.4.1
       lodash: 4.17.21
     transitivePeerDependencies:
       - '@babel/core'
@@ -20835,17 +20719,6 @@ packages:
     dependencies:
       object-assign: 4.1.1
 
-  /react-autosize-textarea/7.1.0:
-    resolution: {integrity: sha512-BHpjCDkuOlllZn3nLazY2F8oYO1tS2jHnWhcjTWQdcKiiMU6gHLNt/fzmqMSyerR0eTdKtfSIqtSeTtghNwS+g==}
-    peerDependencies:
-      react: ^0.14.0 || ^15.0.0 || ^16.0.0
-      react-dom: ^0.14.0 || ^15.0.0 || ^16.0.0
-    dependencies:
-      autosize: 4.0.4
-      line-height: 0.3.1
-      prop-types: 15.8.1
-    dev: true
-
   /react-autosize-textarea/7.1.0_react-dom@17.0.2+react@17.0.2:
     resolution: {integrity: sha512-BHpjCDkuOlllZn3nLazY2F8oYO1tS2jHnWhcjTWQdcKiiMU6gHLNt/fzmqMSyerR0eTdKtfSIqtSeTtghNwS+g==}
     peerDependencies:
@@ -21064,16 +20937,6 @@ packages:
       clsx: 1.1.1
       prop-types: 15.8.1
       react: 17.0.2
-    dev: true
-
-  /react-easy-crop/3.5.3:
-    resolution: {integrity: sha512-ApTbh+lzKAvKqYW81ihd5J6ZTNN3vPDwi6ncFuUrHPI4bko2DlYOESkRm+0NYoW0H8YLaD7bxox+Z3EvIzAbUA==}
-    peerDependencies:
-      react: '>=16.4.0'
-      react-dom: '>=16.4.0'
-    dependencies:
-      normalize-wheel: 1.0.1
-      tslib: 2.0.1
     dev: true
 
   /react-easy-crop/3.5.3_react-dom@17.0.2+react@17.0.2:
