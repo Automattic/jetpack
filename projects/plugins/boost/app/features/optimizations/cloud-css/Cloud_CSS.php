@@ -39,7 +39,8 @@ class Cloud_CSS implements Feature, Has_Endpoints {
 		Critical_CSS_Invalidator::init();
 
 		// Priority must be greater than 10 to run after invalidator.
-		add_action( 'handle_theme_change', array( $this, 'generate_generic_cloud_css' ), 11 );
+		add_action( 'handle_theme_change', array( $this, 'generate_cloud_css' ), 11, 0 );
+		add_action( 'save_post', array( $this, 'handle_save_post' ), 10, 2 );
 
 		return true;
 	}
@@ -86,12 +87,38 @@ class Cloud_CSS implements Feature, Has_Endpoints {
 		add_action( 'wp_footer', array( $display, 'onload_flip_stylesheets' ) );
 	}
 
-	public function generate_generic_cloud_css() {
+	/**
+	 * Create a Cloud CSS requests for provider groups.
+	 *
+	 * Initialize the Cloud CSS request. Provide $post parameter to limit generating to provider groups only associated
+	 * with a specific post.
+	 *
+	 * @param \WP_Post|null $post Post of any post type to limit provider groups.
+	 */
+	public function generate_cloud_css( $post = null ) {
 		$state            = new Critical_CSS_State( 'cloud' );
 		$source_providers = new Source_Providers();
+		if ( $post ) {
+			$state->add_request_context( $post );
+		}
 		$state->create_request( $source_providers->get_providers() );
 
 		$client = new Cloud_CSS_Request( $state );
 		return $client->request_generate();
+	}
+
+	/**
+	 * Handle regeneration of Cloud CSS when a post is saved.
+	 *
+	 * @param $post_id
+	 * @param $post
+	 * @return void
+	 */
+	public function handle_save_post( $post_id, $post ) {
+		if ( ! $post || ! isset( $post->post_type ) || ! is_post_type_viewable( $post->post_type ) ) {
+			return;
+		}
+
+		$this->generate_cloud_css( $post );
 	}
 }

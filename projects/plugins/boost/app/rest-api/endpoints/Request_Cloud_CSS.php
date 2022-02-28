@@ -24,7 +24,7 @@ class Request_Cloud_CSS implements Contracts\Endpoint {
 	//phpcs:disable VariableAnalysis.CodeAnalysis.VariableAnalysis.UnusedVariable
 	public function response( $request ) {
 		$feature = new Cloud_CSS();
-		return $feature->generate_generic_cloud_css();
+		return $feature->generate_cloud_css();
 	}
 
 	public function permissions() {
