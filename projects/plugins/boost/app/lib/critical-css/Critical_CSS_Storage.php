@@ -31,13 +31,6 @@ class Critical_CSS_Storage {
 	}
 
 	/**
-	 * Get the storage post type.
-	 */
-	public function get_post_type() {
-		return $this->storage->post_type_slug();
-	}
-
-	/**
 	 * Store Critical CSS for a specific provider.
 	 *
 	 * @param string $key   Provider key.
