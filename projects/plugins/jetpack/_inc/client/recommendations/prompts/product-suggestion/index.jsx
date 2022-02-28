@@ -7,7 +7,7 @@ import { connect } from 'react-redux';
 import { __, sprintf } from '@wordpress/i18n';
 import { getCurrencyObject } from '@automattic/format-currency';
 import { getRedirectUrl } from '@automattic/jetpack-components';
-import ExternalLink from '@wordpress/components';
+import { ExternalLink } from '@wordpress/components';
 
 /**
  * Internal dependencies

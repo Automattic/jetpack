@@ -4,7 +4,7 @@
 import classNames from 'classnames';
 import React, { useCallback, useState } from 'react';
 import { connect } from 'react-redux';
-import ExternalLink from '@wordpress/components';
+import { ExternalLink } from '@wordpress/components';
 
 /**
  * Internal dependencies
