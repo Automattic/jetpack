@@ -66,10 +66,12 @@ export function NoticeBox( props ) {
 		return null;
 	}
 
-	const noticeBoxClassName = notices[ 0 ].isImportant ? 'notice-box-red' : 'notice-box';
+	const noticeBoxClassName = notices[ 0 ].isImportant
+		? 'jp-search-notice-box-red'
+		: 'jp-search-notice-box';
 
 	return (
-		<div data-testid="notice" className={ noticeBoxClassName }>
+		<div data-testid="jp-search-notice-box" className={ noticeBoxClassName }>
 			<p>{ notices[ 0 ].message }</p>
 		</div>
 	);

@@ -82,8 +82,8 @@ export class BarChart extends React.Component {
 			return null;
 		}
 		return (
-			<div className="bar-chart">
-				<div className="bar-chart__container">
+			<div className="jp-search-bar-chart">
+				<div className="jp-search-bar-chart__container">
 					<canvas ref={ this.canvasRef }>
 						<p>Text alternative for this canvas graphic is in the data table below.</p>
 						<table
@@ -111,20 +111,20 @@ export class BarChart extends React.Component {
 						</table>
 					</canvas>
 				</div>
-				<div className="chart-legend__container">
-					<ul className="chart-legend">
+				<div className="jp-search-chart-legend__container">
+					<ul className="jp-search-chart-legend">
 						{ this.state?.legendItems.length > 0 &&
 							this.state.legendItems.map( item => {
 								return (
 									<li key={ item.text }>
 										<div
-											className="chart-legend__box"
+											className="jp-search-chart-legend__box"
 											style={ {
 												backgroundColor: item.fillStyle,
 											} }
 										/>
-										<span className="chart-legend__label" children={ item.text } />
-										<span className="chart-legend__count">
+										<span className="jp-search-chart-legend__label" children={ item.text } />
+										<span className="jp-search-chart-legend__count">
 											({ this.props.data[ item.datasetIndex ].data.data })
 										</span>
 									</li>

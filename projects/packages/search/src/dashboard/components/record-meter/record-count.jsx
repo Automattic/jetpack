@@ -15,7 +15,7 @@ export function RecordCount( props ) {
 	}
 
 	return (
-		<div data-testid="record-count" className="record-count">
+		<div data-testid="jp-search-record-count" className="jp-search-record-count">
 			{ props.recordCount && props.planRecordLimit && (
 				<p>
 					{ props.recordCount } records indexed out of the { props.planRecordLimit } alloted for
