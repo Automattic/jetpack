@@ -265,7 +265,10 @@
 .metabox-prefs {
 	label[for="jetpack_summary_widget-hide"] {
 		span {
- 			display: none;
+ 			svg {
+				 height: 1.2rem;
+				 vertical-align: text-bottom;
+			 }
 		}
 	}
 }

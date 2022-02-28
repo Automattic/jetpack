@@ -1,0 +1,4 @@
+Significance: patch
+Type: enhancement
+
+Take pre_update_option filter into account when firing active module hooks

@@ -1,4 +1,0 @@
-Significance: patch
-Type: added
-
-prevent calling activation hook when activating backup

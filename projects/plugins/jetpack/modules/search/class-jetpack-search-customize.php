@@ -37,8 +37,8 @@ class Jetpack_Search_Customize {
 	 * @param WP_Customize_Manager $wp_customize Customizer instance.
 	 */
 	public function customize_register( $wp_customize ) {
-		require_once dirname( JETPACK__PLUGIN_FILE ) . '/modules/search/customize-controls/class-label-control.php';
-		require_once dirname( JETPACK__PLUGIN_FILE ) . '/modules/search/customize-controls/class-excluded-post-types-control.php';
+		require_once __DIR__ . '/customize-controls/class-label-control.php';
+		require_once __DIR__ . '/customize-controls/class-excluded-post-types-control.php';
 		$section_id     = 'jetpack_search';
 		$setting_prefix = Options::OPTION_PREFIX;
 
@@ -269,9 +269,9 @@ class Jetpack_Search_Customize {
 	 * @since 9.6.0
 	 */
 	public function customize_controls_enqueue_scripts() {
-		$script_relative_path = 'modules/search/customize-controls/customize-controls.js';
+		$script_relative_path = 'customize-controls/customize-controls.js';
 		$script_version       = Automattic\Jetpack\Search\Helper::get_asset_version( $script_relative_path );
-		$script_path          = plugins_url( $script_relative_path, JETPACK__PLUGIN_FILE );
+		$script_path          = plugins_url( $script_relative_path, __FILE__ );
 		wp_enqueue_script(
 			'jetpack-instant-search-customizer',
 			$script_path,

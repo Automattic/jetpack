@@ -37,17 +37,11 @@
 		"subscriptions",
 		"tiled-gallery",
 		"videopress",
-		"wordads"
+		"wordads",
+		"payments-intro"
 	],
-	"beta": [
-		"amazon"
-	],
-	"experimental": [
-		"anchor-fm",
-		"premium-content",
-		"conversation",
-		"dialogue"
-	],
+	"beta": [ "amazon" ],
+	"experimental": [ "anchor-fm", "premium-content", "conversation", "dialogue" ],
 	"no-post-editor": [
 		"business-hours",
 		"button",
