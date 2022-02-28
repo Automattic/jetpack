@@ -2069,7 +2069,8 @@ abstract class WPCOM_JSON_API_Endpoint {
 	/**
 	 * Mobile apps are allowed free video uploads, but limited to 5 minutes in length.
 	 *
-	 * @param $media_item array the media item to evaluate.
+	 * @param array $media_item the media item to evaluate.
+	 *
 	 * @return bool true if the media item is a video that was uploaded via the mobile
 	 * app that is longer than 5 minutes.
 	 */
@@ -2078,25 +2079,25 @@ abstract class WPCOM_JSON_API_Endpoint {
 			return false;
 		}
 
-		// Verify file is a video
+		// Verify file is a video.
 		$is_video = preg_match( '@^video/@', $media_item['type'] );
 		if ( ! $is_video ) {
 			return false;
 		}
 
-		// Check if the request is from a mobile app, where we allow free video uploads at limited length
-		if ( ! in_array( $this->api->token_details['client_id'], VIDEOPRESS_ALLOWED_REST_API_CLIENT_IDS ) ) {
+		// Check if the request is from a mobile app, where we allow free video uploads at limited length.
+		if ( ! in_array( $this->api->token_details['client_id'], VIDEOPRESS_ALLOWED_REST_API_CLIENT_IDS, true ) ) {
 			return false;
 		}
 
-		// We're only worried about free sites
+		// We're only worried about free sites.
 		require_once WP_CONTENT_DIR . '/admin-plugins/wpcom-billing.php';
 		$current_plan = WPCOM_Store_API::get_current_plan( get_current_blog_id() );
 		if ( ! $current_plan['is_free'] ) {
 			return false;
 		}
 
-		// Check if video is longer than 5 minutes
+		// Check if video is longer than 5 minutes.
 		$video_meta = wp_read_video_metadata( $media_item['tmp_name'] );
 		if (
 			false !== $video_meta &&
