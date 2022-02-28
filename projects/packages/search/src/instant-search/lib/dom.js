@@ -4,12 +4,6 @@
 import memoize from 'timed-memoize';
 
 /**
- * Internal dependencies
- */
-import { SERVER_OBJECT_NAME } from './constants';
-import { hasSameHost } from './url';
-
-/**
  * Fetches the names of all checkbox elements contained within the parent element.
  *
  * @param {Element} parentDom - Parent element containing one or more checkboxes.
@@ -38,7 +32,7 @@ export function getThemeOptions( searchOptions ) {
 			'header#site-header .search-toggle[data-toggle-target]', // TwentyTwenty theme's search button
 		].join( ',' ),
 	};
-	return searchOptions.theme_options ? { ...options, ...searchOptions.theme_options } : options;
+	return searchOptions?.theme_options ? { ...options, ...searchOptions.theme_options } : options;
 }
 
 /**
@@ -59,16 +53,6 @@ export const getSearchInputs = memoize(
 			// Exclude GeoDirectory plugin forms
 			if ( input.form?.name?.toLowerCase() === 'geodir-listing-search' ) {
 				return false;
-			}
-
-			if (
-				// Include search widget and search block inputs
-				input.classList.contains( 'search-field' ) ||
-				input.classList.contains( 'wp-block-search__input' ) ||
-				// Include if contained by form that has an action for the same host.
-				( input.form?.action && hasSameHost( input.form.action, SERVER_OBJECT_NAME?.homeUrl ) )
-			) {
-				return true;
 			}
 
 			// Exclude POST forms, which are typically not used for search form inputs.
