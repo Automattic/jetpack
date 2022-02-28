@@ -193,7 +193,7 @@ class VideoPress_Edit_Attachment {
 			'show_in_edit'  => false,
 		);
 
-		if ( $file_statuses['hd_1080p_compat'] ) {
+		if ( isset( $file_statuses['hd_1080p_compat'] ) && 'DONE' === $file_statuses['hd_1080p_compat'] ) {
 			$fields['videopress_original_file_url'] = array(
 				'label'         => _x( 'Original File URL', 'A header for the original file url field', 'jetpack' ),
 				'input'         => 'html',
