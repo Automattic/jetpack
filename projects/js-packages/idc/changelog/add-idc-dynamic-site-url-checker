@@ -1,0 +1,4 @@
+Significance: minor
+Type: added
+
+IDCSCreen: use possibleDynamicSiteUrlDetected prop from initial state to show a helpful notice.

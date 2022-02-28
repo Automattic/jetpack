@@ -1,3 +1,4 @@
+/* global myJetpackInitialState */
 /**
  * External dependencies
  */
@@ -18,12 +19,14 @@ import useMyJetpackNavigate from '../../hooks/use-my-jetpack-navigate';
 export default function ConnectionsSection() {
 	const { apiRoot, apiNonce, redirectUrl } = useMyJetpackConnection();
 	const navigate = useMyJetpackNavigate( '/connection' );
+	const { connectedPlugins } = myJetpackInitialState;
 	return (
 		<ConnectionStatusCard
 			apiRoot={ apiRoot }
 			apiNonce={ apiNonce }
 			redirectUri={ redirectUrl }
 			onConnectUser={ navigate }
+			connectedPlugins={ connectedPlugins }
 		/>
 	);
 }
