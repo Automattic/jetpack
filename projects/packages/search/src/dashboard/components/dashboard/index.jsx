@@ -183,8 +183,8 @@ export default function SearchDashboard() {
 				<Fragment>
 					{ renderHeader() }
 					{ renderMockedSearchInterface() }
-					{ renderModuleControl() }
 					{ isRecordMeterEnabled && <RecordMeter /> }
+					{ renderModuleControl() }
 					{ renderFooter() }
 				</Fragment>
 			) }
