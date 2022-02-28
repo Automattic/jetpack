@@ -2,6 +2,10 @@
  * External dependencies
  */
 import { get } from 'lodash';
+
+/**
+ * WordPress dependencies
+ */
 import { __ } from '@wordpress/i18n';
 import { useEffect } from '@wordpress/element';
 import { createBlock, getBlockType, registerBlockVariation } from '@wordpress/blocks';
