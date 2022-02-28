@@ -9,14 +9,14 @@ import { getRedirectUrl } from '@automattic/jetpack-components';
 /**
  * Internal dependencies
  */
-import { MY_JETPACK_MY_PLANS_MANAGE_SOURCE } from '../constants';
+import { MY_JETPACK_MY_PLANS_PURCHASE_SOURCE } from '../constants';
 
 /**
- * Return the redurect URL, according to the Jetpack redurects source.
+ * Return the redurect URL for purchasing a plan, according to the Jetpack redurects source.
  *
  * @returns {string}            the redirect URL
  */
 export default function () {
 	const site = window?.myJetpackInitialState?.siteSuffix;
-	return getRedirectUrl( MY_JETPACK_MY_PLANS_MANAGE_SOURCE, { site } );
+	return getRedirectUrl( MY_JETPACK_MY_PLANS_PURCHASE_SOURCE, { site } );
 }
