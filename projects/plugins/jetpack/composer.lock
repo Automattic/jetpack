@@ -1458,16 +1458,16 @@
         },
         {
             "name": "automattic/jetpack-status",
-            "version": "v1.11.1",
+            "version": "v1.11.2",
             "source": {
                 "type": "git",
                 "url": "https://github.com/Automattic/jetpack-status.git",
-                "reference": "43070c181124a7b0c0196415c3afe9bba085e0d9"
+                "reference": "9cce559650d316e4112d9d3f3accd9be71cdf7d1"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/Automattic/jetpack-status/zipball/43070c181124a7b0c0196415c3afe9bba085e0d9",
-                "reference": "43070c181124a7b0c0196415c3afe9bba085e0d9",
+                "url": "https://api.github.com/repos/Automattic/jetpack-status/zipball/9cce559650d316e4112d9d3f3accd9be71cdf7d1",
+                "reference": "9cce559650d316e4112d9d3f3accd9be71cdf7d1",
                 "shasum": ""
             },
             "require": {
@@ -1486,7 +1486,7 @@
                     "link-template": "https://github.com/Automattic/jetpack-status/compare/v${old}...v${new}"
                 },
                 "branch-alias": {
-                    "dev-master": "1.12.x-dev"
+                    "dev-master": "1.11.x-dev"
                 }
             },
             "autoload": {
@@ -1500,9 +1500,9 @@
             ],
             "description": "Used to retrieve information about the current status of Jetpack and the site overall.",
             "support": {
-                "source": "https://github.com/Automattic/jetpack-status/tree/v1.11.1"
+                "source": "https://github.com/Automattic/jetpack-status/tree/v1.11.2"
             },
-            "time": "2022-02-28T16:55:32+00:00"
+            "time": "2022-02-28T18:56:14+00:00"
         },
         {
             "name": "automattic/jetpack-sync",
