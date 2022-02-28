@@ -498,16 +498,16 @@
         },
         {
             "name": "automattic/jetpack-my-jetpack",
-            "version": "v0.6.4",
+            "version": "v0.6.6",
             "source": {
                 "type": "git",
                 "url": "https://github.com/Automattic/jetpack-my-jetpack.git",
-                "reference": "d02e176666e566a387c35be7abd4879be31fd439"
+                "reference": "08518a32357c52829ffc6eab6dc06f80c2e94c3b"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/Automattic/jetpack-my-jetpack/zipball/d02e176666e566a387c35be7abd4879be31fd439",
-                "reference": "d02e176666e566a387c35be7abd4879be31fd439",
+                "url": "https://api.github.com/repos/Automattic/jetpack-my-jetpack/zipball/08518a32357c52829ffc6eab6dc06f80c2e94c3b",
+                "reference": "08518a32357c52829ffc6eab6dc06f80c2e94c3b",
                 "shasum": ""
             },
             "require": {
@@ -553,9 +553,9 @@
             ],
             "description": "WP Admin page with information and configuration shared among all Jetpack stand-alone plugins",
             "support": {
-                "source": "https://github.com/Automattic/jetpack-my-jetpack/tree/v0.6.4"
+                "source": "https://github.com/Automattic/jetpack-my-jetpack/tree/v0.6.6"
             },
-            "time": "2022-02-25T17:09:10+00:00"
+            "time": "2022-02-28T20:18:33+00:00"
         },
         {
             "name": "automattic/jetpack-options",
@@ -747,16 +747,16 @@
         },
         {
             "name": "automattic/jetpack-status",
-            "version": "v1.11.0",
+            "version": "v1.11.2",
             "source": {
                 "type": "git",
                 "url": "https://github.com/Automattic/jetpack-status.git",
-                "reference": "d140b6850ec949c3c92704a3e3231848fd93bfdb"
+                "reference": "c3b8e3ea6eb1888993df809f9b891a180e628050"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/Automattic/jetpack-status/zipball/d140b6850ec949c3c92704a3e3231848fd93bfdb",
-                "reference": "d140b6850ec949c3c92704a3e3231848fd93bfdb",
+                "url": "https://api.github.com/repos/Automattic/jetpack-status/zipball/c3b8e3ea6eb1888993df809f9b891a180e628050",
+                "reference": "c3b8e3ea6eb1888993df809f9b891a180e628050",
                 "shasum": ""
             },
             "require": {
@@ -789,9 +789,9 @@
             ],
             "description": "Used to retrieve information about the current status of Jetpack and the site overall.",
             "support": {
-                "source": "https://github.com/Automattic/jetpack-status/tree/v1.11.0"
+                "source": "https://github.com/Automattic/jetpack-status/tree/v1.11.2"
             },
-            "time": "2022-02-22T18:42:32+00:00"
+            "time": "2022-02-28T20:30:24+00:00"
         },
         {
             "name": "automattic/jetpack-terms-of-service",
