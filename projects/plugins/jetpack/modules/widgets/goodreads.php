@@ -209,7 +209,7 @@ class WPCOM_Widget_Goodreads extends WP_Widget {
 		<p><label for="' . esc_attr( $this->get_field_id( 'shelf' ) ) . '">' . esc_html__( 'Shelf:', 'jetpack' ) . '
 		<select class="widefat" id="' . esc_attr( $this->get_field_id( 'shelf' ) ) . '" name="' . esc_attr( $this->get_field_name( 'shelf' ) ) . '" >';
 		foreach ( $this->shelves as $_shelf_value => $_shelf_display ) {
-			echo "\t<option value='" . esc_attr( $_shelf_value ) . "'" . selected( $_shelf_value, $instance['shelf'] ) . '>' . $_shelf_display . "</option>\n"; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
+			echo "\t<option value='" . esc_attr( $_shelf_value ) . "'" . selected( $_shelf_value, $instance['shelf'], false ) . '>' . $_shelf_display . "</option>\n"; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
 		}
 		echo '</select>
 		</label></p>
