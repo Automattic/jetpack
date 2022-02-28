@@ -5,6 +5,35 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.6.4] - 2022-02-25
+### Added
+- Activate Jetpack plugin from Extras product card
+- Added list of connected plugins to Disconnect dialog in My Jetpack
+- Add Extras interstitial page
+- My Jetpack: Handle cosmetic tweaks
+- My Jetpack: Remove global notices when in my jetpack page
+- My Jetpack: set height of Jetpack logo in the footer
+- My Jetpack: tweak height of Jetpack Logo
+- My Jetpack: update Product logos
+
+### Changed
+- Disable My Jetpack on MS
+- My Jetpack: compress extras product image
+- Updated package dependencies.
+- Update My Jetpack dashboard headline
+
+### Removed
+- Remove unnecessary line from My Jetpack Initial state
+
+### Fixed
+- Fix beta badge for RTL languages
+- Handle plugin activating from Hybrid class
+- Memoized RecordEvent from usAnalytics hook
+- My Jetpack: Fix post activation url redirect
+- My Jetpack: Move product list that requires user connection to selector
+- Products::get_products_names should not load all product information
+- Update automattic logo href in the footer
+
 ## [0.6.3] - 2022-02-22
 ### Changed
 - Updated inline documentation
@@ -272,6 +301,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Added
 - Created package
 
+[0.6.4]: https://github.com/Automattic/jetpack-my-jetpack/compare/0.6.3...0.6.4
 [0.6.3]: https://github.com/Automattic/jetpack-my-jetpack/compare/0.6.2...0.6.3
 [0.6.2]: https://github.com/Automattic/jetpack-my-jetpack/compare/0.6.1...0.6.2
 [0.6.1]: https://github.com/Automattic/jetpack-my-jetpack/compare/0.6.0...0.6.1

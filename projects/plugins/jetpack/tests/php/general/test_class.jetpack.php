@@ -4,6 +4,7 @@ use Automattic\Jetpack\Connection\Manager as Connection_Manager;
 use Automattic\Jetpack\Constants;
 use Automattic\Jetpack\Partner;
 use Automattic\Jetpack\Status;
+use Automattic\Jetpack\Status\Cache as StatusCache;
 
 // Extend with a public constructor so that can be mocked in tests
 class MockJetpack extends Jetpack {
@@ -77,11 +78,20 @@ class WP_Test_Jetpack extends WP_UnitTestCase {
 	}
 
 	/**
+	 * Set up.
+	 */
+	public function set_up() {
+		parent::set_up();
+		StatusCache::clear();
+	}
+
+	/**
 	 * Tear down.
 	 */
 	public function tear_down() {
 		parent::tear_down();
 		Constants::clear_constants();
+		StatusCache::clear();
 	}
 
 	/**

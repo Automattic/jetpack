@@ -6,9 +6,8 @@
 	"require": {
 		"automattic/jetpack-admin-ui": "^0.2",
 		"automattic/jetpack-assets": "^1.17",
-		"automattic/jetpack-connection": "^1.36",
+		"automattic/jetpack-connection": "^1.37",
 		"automattic/jetpack-plugins-installer": "^0.1",
-		"automattic/jetpack-terms-of-service": "^1.9",
 		"automattic/jetpack-tracking": "^1.14",
 		"automattic/jetpack-redirect": "^1.7"
 	},

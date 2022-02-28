@@ -17,7 +17,7 @@ import { DonationsIcon } from '../../shared/icons';
 import './editor.scss';
 
 export const name = 'donations';
-export const title = __( 'Donations', 'jetpack' );
+export const title = __( 'Donations Form', 'jetpack' );
 
 export const settings = {
 	title,
