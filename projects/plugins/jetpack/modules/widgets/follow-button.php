@@ -82,7 +82,8 @@ class Jetpack_Follow_Button_Widget extends WP_Widget {
 			data-lang="<?php echo esc_attr( $wpcom_locale ); ?>"
 									<?php
 									if ( ! empty( $attributes ) ) {
-										echo implode( ' ', $attributes );} // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
+										echo implode( ' ', $attributes ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
+									}
 									?>
 		>
 			<?php
