@@ -59,7 +59,7 @@ function Layout( { nav = false, children, slug } ) {
 			</Container>
 			<Container horizontalSpacing={ 5 }>
 				<Col>
-					<JetpackFooter />
+					<JetpackFooter a8cLogoHref="https://automattic.com" />
 				</Col>
 			</Container>
 		</div>
