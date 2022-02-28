@@ -93,7 +93,7 @@
 			}
 			?>
 
-			<option value="<?php echo esc_attr( $key ); ?>" <?php echo $selected; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?>><?php echo esc_html( $label ); ?></option>
+			<option value="<?php echo esc_attr( $key ); ?>"<?php selected( $instance['type'], $key ); ?>><?php echo esc_html( $label ); ?></option>
 		<?php } ?>
 	</select>
 </p>
