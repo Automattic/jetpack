@@ -1,0 +1,4 @@
+Significance: minor
+Type: added
+
+Moved jetpack-plugin-sidebar file from plugin/jetpack to shared-extension-utils package. Updated import references
