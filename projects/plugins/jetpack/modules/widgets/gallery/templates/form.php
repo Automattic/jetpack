@@ -78,7 +78,7 @@
 	}
 
 	?>
-	<input name="<?php echo esc_attr( $this->get_field_name( 'random' ) ); ?>" id="<?php echo esc_attr( $this->get_field_id( 'random' ) ); ?>" type="checkbox" <?php echo $checked;// phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?>>
+	<input name="<?php echo esc_attr( $this->get_field_name( 'random' ) ); ?>" id="<?php echo esc_attr( $this->get_field_id( 'random' ) ); ?>" type="checkbox"<?php checked( ! empty( $instance['random'] ) ); ?>>
 </p>
 
 <p class="gallery-widget-style-wrapper">
