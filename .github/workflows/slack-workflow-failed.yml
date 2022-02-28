@@ -84,10 +84,20 @@ jobs:
             ]
           }'
 
-      - name: Send message
+      - name: Send message to alerts channel
         uses: slackapi/slack-github-action@v1.18.0
+        if: github.ref == 'refs/heads/master'
         with:
-          channel-id: ${{ secrets.SLACK_CI_CHANNEL }}
+          channel-id: ${{ secrets.SLACK_JP_ALERTS_CHANNEL }}
+          payload: ${{ steps.message.outputs.message }}
+        env:
+          SLACK_BOT_TOKEN: ${{ secrets.SLACK_TOKEN }}
+
+      - name: Send message to releases channel
+        uses: slackapi/slack-github-action@v1.18.0
+        if: contains( github.ref, '/branch-' )
+        with:
+          channel-id: ${{ secrets.SLACK_RELEASES_CHANNEL }}
           payload: ${{ steps.message.outputs.message }}
         env:
           SLACK_BOT_TOKEN: ${{ secrets.SLACK_TOKEN }}
