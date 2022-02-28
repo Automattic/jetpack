@@ -16,6 +16,7 @@ class VideoPress_AJAX {
 	 */
 	private function __construct() {
 		add_action( 'wp_ajax_videopress-get-upload-token', array( $this, 'wp_ajax_videopress_get_upload_token' ) );
+		add_action( 'wp_ajax_videopress-get-upload-jwt', array( $this, 'wp_ajax_videopress_get_upload_jwt' ) );
 
 		add_action(
 			'wp_ajax_videopress-update-transcoding-status',
@@ -45,13 +46,45 @@ class VideoPress_AJAX {
 	 *
 	 * @return void
 	 */
-	public function wp_ajax_videopress_get_upload_token() {
+	public function wp_ajax_videopress_get_upload_jwt() {
 
 		$options = VideoPress_Options::get_options();
 
 		$args = array(
 			'method' => 'POST',
 			// 'sslverify' => false,
+		);
+
+		$endpoint = "sites/{$options['shadow_blog_id']}/media/videopress-upload-jwt";
+		$result   = Client::wpcom_json_api_request_as_blog( $endpoint, 'v2', $args, null, 'wpcom' );
+		if ( is_wp_error( $result ) ) {
+			wp_send_json_error( array( 'message' => __( 'Could not obtain a VideoPress upload JWT. Please try again later.', 'jetpack' ) ) );
+			return;
+		}
+
+		$response = json_decode( $result['body'], true );
+
+		if ( empty( $response['upload_token'] ) ) {
+			wp_send_json_error( array( 'message' => __( 'Could not obtain a VideoPress upload JWT. Please try again later. (empty upload token)', 'jetpack' ) ) );
+			return;
+		}
+
+		$response['upload_action_url'] = videopress_make_resumable_upload_path( $options['shadow_blog_id'] );
+
+		wp_send_json_success( $response );
+	}
+
+	/**
+	 * Ajax method that is used by the VideoPress uploader to get a token to upload a file to the wpcom api.
+	 *
+	 * @return void
+	 */
+	public function wp_ajax_videopress_get_upload_token() {
+
+		$options = VideoPress_Options::get_options();
+
+		$args = array(
+			'method' => 'POST',
 		);
 
 		$endpoint = "sites/{$options['shadow_blog_id']}/media/token";

@@ -37,7 +37,7 @@ Jetpack E2E tests relies on 2 encrypted configuration files, one included in thi
 To decrypt the config files (a8c only):
 
 - Find a decryption key. Search secret store for "E2E Jetpack CONFIG_KEY"
-- Run `CONFIG_KEY=YOUR_KEY pnpm test-decrypt-all-config`. This command should create a new file [`config/local.cjs`](./config/local.cjs)
+- Run `CONFIG_KEY=YOUR_KEY pnpm config:decrypt`. This command should create a new file [`config/local.cjs`](./config/local.cjs)
 
 ### Docker environment
 
@@ -46,7 +46,7 @@ Tests expect to have a WordPress installation with Jetpack installed, accessible
 To start the environment:
 
 ```shell
-pnpm env-start
+pnpm env:up
 ```
 
 This will create the Docker environment and configure the WordPress installation. It will start one WordPress container and one database container. The WordPress installation is available at `localhost:8889`.
@@ -59,13 +59,13 @@ These tests use `localtunnel` library to expose `localhost:8889` via a public ur
 To start a tunnel
 
 ```
-pnpm tunnel-on
+pnpm tunnel:up
 ```
 
 To stop the tunnel
 
 ```
-pnpm tunnel-off
+pnpm tunnel:down
 ```
 
 The tunnel url will be stored in a file so that it can be read by the tests and then reused by the tunnel script. See config files for details.
@@ -73,48 +73,48 @@ The tunnel url will be stored in a file so that it can be read by the tests and 
 If you want a different url, use the `reset` command.
 
 ```
-pnpm tunnel-reset
+pnpm tunnel:reset
 ```
 
 ## Running tests
 
 Once your target WP environment is running on `localhost:8889` you can run the tests.
 
-Run all tests: `pnpm test-e2e`
+Run all tests: `pnpm test:run`
 
 Playwright runs headless by default (i.e. browser is not visible). However, sometimes it's useful to observe the browser while running tests. To see the browser window, and the running tests you can use the `--headed` flag:
 
 ```bash
-pnpm test-e2e -- --headed
+pnpm test:run -- --headed
 ```
 
 To run an individual test, use the direct path to the spec. For example:
 
 ```bash
-pnpm test-e2e -- ./specs/dummy.test.js
+pnpm test:run -- ./specs/dummy.test.js
 ```
 
 To run in debug mode, use the `--debug` flag. Debug mode uses a headed browser and opens the [Playwright inspector](https://playwright.dev/docs/inspector/).
 
 ```bash
-pnpm test-e2e -- --debug
+pnpm test:run -- --debug
 ```
 
 ### Selecting tests to run
 
 ```bash
 # One test file
-pnpm test-e2e -- ./specs/some.test.js
+pnpm test:run -- ./specs/some.test.js
 
 # All tests having 'blocks' in their name
-pnpm test-e2e blocks
+pnpm test:run blocks
 
 # Run only run tests matching a regular expression.
-pnpm test-e2e --grep "mailchimp"
-pnpm test-e2e -g "mailchimp"
+pnpm test:run --grep "mailchimp"
+pnpm test:run -g "mailchimp"
 
 # Run only run tests NOT matching a regular expression.
-pnpm test-e2e --grep-invert "mailchimp"
+pnpm test:run --grep-invert "mailchimp"
 ```
 
 ## Tests Architecture
