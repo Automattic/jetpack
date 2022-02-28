@@ -230,14 +230,14 @@ class Jetpack_Gravatar_Profile_Widget extends WP_Widget {
 		<?php
 		echo esc_html(
 			/**
-				 * Filter the Gravatar Profile widget's "Verified Services" section title.
-				 *
-				 * @module widgets
-				 *
-				 * @since 2.8.0
-				 *
-				 * @param string $str "Verified Services" section title.
-				 */
+			 * Filter the Gravatar Profile widget's "Verified Services" section title.
+			 *
+			 * @module widgets
+			 *
+			 * @since 2.8.0
+			 *
+			 * @param string $str "Verified Services" section title.
+			 */
 			apply_filters(
 				'jetpack_gravatar_verified_services_title',
 				__( 'Verified Services', 'jetpack' )
