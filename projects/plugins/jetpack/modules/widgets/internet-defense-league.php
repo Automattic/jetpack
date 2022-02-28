@@ -206,7 +206,7 @@ class Jetpack_Internet_Defense_League_Widget extends WP_Widget {
 
 		echo '<p>' . wp_kses(
 			sprintf(
-				/* translators: %s is a name of an internet campaign called the "Internet Defense League" */
+				/* translators: %s is an HTML link to the website of an internet campaign called the "Internet Defense League" */
 				_x( 'Learn more about the %s', 'the Internet Defense League', 'jetpack' ),
 				'<a href="https://www.internetdefenseleague.org/">Internet Defense League</a>'
 			),
