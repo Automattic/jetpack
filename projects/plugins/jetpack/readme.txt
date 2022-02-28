@@ -242,7 +242,7 @@ Jetpack Backup can do a full website migration to a new host, migrate theme file
 4. Promote your newest posts, pages, and products across your social media channels.
 
 == Changelog ==
-### 10.7-beta - 2022-02-22
+### 10.7 - 2022-02-28
 #### Enhancements
 - Add an AMP-compatible version of the email share button.
 - Add transformation from core/buttons to jetpack/recurring-payments block (requires gutenberg >= 11.5.0).
@@ -278,6 +278,7 @@ Jetpack Backup can do a full website migration to a new host, migrate theme file
 - Fixed several React warnings shown on the console when SCRIPT_DEBUG is active
 - Form Block: custom CSS classes added to the block are now applied on the frontend.
 - Media Buttons: Fix issue where external medial modal cannot be closed.
+- Publicize: fixed bugs when using Publicize with the Classic Editor.
 - Search: avoid PHP warning when using Search widget.
 - Search: Make debug bar more reliable.
 - SSO: fix a bug with SSO not cleaning up wpcom_user_id.
