@@ -2,6 +2,10 @@
 
 ### This is a list detailing changes for the Jetpack RNA Connection Component releases.
 
+## 0.16.1 - 2022-02-25
+### Fixed
+- Fix broken Jetpack Partner Coupon redeem flow for sites without a user connection
+
 ## 0.16.0 - 2022-02-22
 ### Changed
 - Bump package version.

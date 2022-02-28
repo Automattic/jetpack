@@ -498,6 +498,10 @@ class Test_Status extends TestCase {
 				'https://example.org/http://example.com',
 				'example.org::http:::::example.com',
 			),
+			'trailing_slash'   => array(
+				'https://example.org/',
+				'example.org',
+			),
 		);
 	}
 
