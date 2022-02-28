@@ -5,7 +5,7 @@
  * @package automattic/jetpack
  */
 
-//phpcs:disable VariableAnalysis.CodeAnalysis.VariableAnalysis.UndefinedVariable
+// phpcs:disable VariableAnalysis.CodeAnalysis.VariableAnalysis.UndefinedVariable
 ?>
 <p>
 	<label for="<?php echo esc_attr( $this->get_field_id( 'title' ) ); ?>"><?php esc_html_e( 'Title:', 'jetpack' ); ?>
@@ -54,47 +54,23 @@
 <p class="gallery-widget-link-wrapper">
 	<label for="<?php echo esc_attr( $this->get_field_id( 'link' ) ); ?>"><?php esc_html_e( 'Link To:', 'jetpack' ); ?></label>
 	<select name="<?php echo esc_attr( $this->get_field_name( 'link' ) ); ?>" id="<?php echo esc_attr( $this->get_field_id( 'link' ) ); ?>" class="widefat">
-		<?php
-		foreach ( $allowed_values['link'] as $key => $label ) {
-			$selected = '';
-
-			if ( $instance['link'] === $key ) {
-				$selected = "selected='selected' ";
-			}
-			?>
-
+		<?php foreach ( $allowed_values['link'] as $key => $label ) : ?>
 			<option value="<?php echo esc_attr( $key ); ?>"<?php selected( $instance['link'], $key ); ?>><?php echo esc_html( $label ); ?></option>
-		<?php } ?>
+		<?php endforeach; ?>
 	</select>
 </p>
 
 <p>
 	<label for="<?php echo esc_attr( $this->get_field_id( 'random' ) ); ?>"><?php esc_html_e( 'Random Order:', 'jetpack' ); ?></label>
-	<?php
-	$checked = '';
-
-	if ( isset( $instance['random'] ) && $instance['random'] ) {
-		$checked = 'checked="checked"';
-	}
-
-	?>
 	<input name="<?php echo esc_attr( $this->get_field_name( 'random' ) ); ?>" id="<?php echo esc_attr( $this->get_field_id( 'random' ) ); ?>" type="checkbox"<?php checked( ! empty( $instance['random'] ) ); ?>>
 </p>
 
 <p class="gallery-widget-style-wrapper">
 	<label for="<?php echo esc_attr( $this->get_field_id( 'type' ) ); ?>"><?php esc_html_e( 'Style:', 'jetpack' ); ?></label>
 	<select name="<?php echo esc_attr( $this->get_field_name( 'type' ) ); ?>" id="<?php echo esc_attr( $this->get_field_id( 'type' ) ); ?>" class="widefat gallery-widget-style">
-		<?php
-		foreach ( $allowed_values['type'] as $key => $label ) {
-			$selected = '';
-
-			if ( $instance['type'] === $key ) {
-				$selected = "selected='selected' ";
-			}
-			?>
-
+		<?php foreach ( $allowed_values['type'] as $key => $label ) : ?>
 			<option value="<?php echo esc_attr( $key ); ?>"<?php selected( $instance['type'], $key ); ?>><?php echo esc_html( $label ); ?></option>
-		<?php } ?>
+		<?php endforeach; ?>
 	</select>
 </p>
 
