@@ -384,12 +384,18 @@ importers:
       '@babel/core': 7.16.0
       '@babel/preset-react': 7.16.0
       '@wordpress/compose': 5.1.2
+      '@wordpress/i18n': 4.3.0
       '@wordpress/plugins': 4.1.1
+      '@wordpress/url': 3.4.0
       jetpack-js-test-runner: workspace:*
+      lodash: 4.17.21
       nyc: 15.1.0
     dependencies:
       '@wordpress/compose': 5.1.2
+      '@wordpress/i18n': 4.3.0
       '@wordpress/plugins': 4.1.1
+      '@wordpress/url': 3.4.0
+      lodash: 4.17.21
     devDependencies:
       '@babel/core': 7.16.0
       '@babel/preset-react': 7.16.0_@babel+core@7.16.0
@@ -8252,6 +8258,19 @@ packages:
       sprintf-js: 1.1.2
       tannin: 1.2.0
     dev: false
+
+  /@wordpress/i18n/4.3.0:
+    resolution: {integrity: sha512-VN0fPhhphX1EkVcCMxirLkwVhvdLNDTg5uYfLeK/e3OSUrKhlFFiI+JyfOXZOrD7LLRz6c6wzCPrCw3ehjmkrg==}
+    engines: {node: '>=12'}
+    hasBin: true
+    dependencies:
+      '@babel/runtime': 7.17.2
+      '@wordpress/hooks': 3.3.1
+      gettext-parser: 1.4.0
+      lodash: 4.17.21
+      memize: 1.1.0
+      sprintf-js: 1.1.2
+      tannin: 1.2.0
 
   /@wordpress/i18n/4.3.1:
     resolution: {integrity: sha512-4xeGUOhZL+Xl97VPSEslWJxCjQPuK2I8AEJWe5cb1u/YOcgTzOav2QN7T7wYzt3Os5bfqNBmTFMfOr+1goFPrw==}

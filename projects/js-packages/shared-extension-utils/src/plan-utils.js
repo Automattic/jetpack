@@ -2,13 +2,6 @@
  * External dependencies
  */
 import { compact, get, startsWith, map, filter, head } from 'lodash';
-import {
-	isAtomicSite,
-	isSimpleSite,
-	getJetpackData,
-	getJetpackExtensionAvailability,
-	getSiteFragment,
-} from '@automattic/jetpack-shared-extension-utils';
 
 /**
  * WordPress dependencies
@@ -19,7 +12,10 @@ import { __ } from '@wordpress/i18n';
 /**
  * Internal dependencies
  */
-import { requiresPaidPlan } from './register-jetpack-block';
+import { isAtomicSite, isSimpleSite } from './site-type-utils';
+import getJetpackData from './get-jetpack-data';
+import getJetpackExtensionAvailability from './get-jetpack-extension-availability';
+import getSiteFragment from './get-site-fragment';
 
 /**
  * Return the checkout URL to upgrade the site plan,
@@ -110,6 +106,20 @@ export function isUpgradable( name ) {
 	const { available, unavailableReason } = getJetpackExtensionAvailability( blockName );
 
 	return ! available && 'missing_plan' === unavailableReason;
+}
+
+/**
+ * Checks whether the block requires a paid plan or not.
+ *
+ * @param {string} unavailableReason - The reason why block is unavailable
+ * @param {object} details - The block details
+ * @returns {string|boolean} Either false if the block doesn't require a paid plan, or the actual plan name it requires.
+ */
+export function requiresPaidPlan( unavailableReason, details ) {
+	if ( unavailableReason === 'missing_plan' ) {
+		return details.required_plan;
+	}
+	return false;
 }
 
 /**
