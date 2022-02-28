@@ -7,12 +7,12 @@ import { connect } from 'react-redux';
 import { __, sprintf } from '@wordpress/i18n';
 import { getCurrencyObject } from '@automattic/format-currency';
 import { getRedirectUrl } from '@automattic/jetpack-components';
+import ExternalLink from '@wordpress/components';
 
 /**
  * Internal dependencies
  */
 import Button from 'components/button';
-import ExternalLink from 'components/external-link';
 import analytics from 'lib/analytics';
 import { getSiteAdminUrl, getSiteRawUrl } from 'state/initial-state';
 import { addSelectedRecommendation as addSelectedRecommendationAction } from 'state/recommendations';

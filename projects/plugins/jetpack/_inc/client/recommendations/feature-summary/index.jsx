@@ -4,6 +4,7 @@
 import classNames from 'classnames';
 import React, { useCallback, useState } from 'react';
 import { connect } from 'react-redux';
+import ExternalLink from '@wordpress/components';
 
 /**
  * Internal dependencies
@@ -14,7 +15,6 @@ import {
 	mapStateToSummaryFeatureProps,
 } from '../feature-utils';
 import Button from 'components/button';
-import ExternalLink from 'components/external-link';
 import Gridicon from 'components/gridicon';
 import InstallButton from 'components/install-button';
 import analytics from 'lib/analytics';

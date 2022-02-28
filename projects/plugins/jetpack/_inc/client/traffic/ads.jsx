@@ -9,6 +9,7 @@ import React from 'react';
 import { createInterpolateElement } from '@wordpress/element';
 import { __, _x } from '@wordpress/i18n';
 import { getRedirectUrl } from '@automattic/jetpack-components';
+import ExternalLink from '@wordpress/components';
 
 /**
  * Internal dependencies
@@ -16,7 +17,6 @@ import { getRedirectUrl } from '@automattic/jetpack-components';
 import analytics from 'lib/analytics';
 import Card from 'components/card';
 import CompactFormToggle from 'components/form/form-toggle/compact';
-import ExternalLink from 'components/external-link';
 import { FEATURE_WORDADS_JETPACK } from 'lib/plans/constants';
 import { FormFieldset, FormLegend } from 'components/forms';
 import Textarea from 'components/textarea';

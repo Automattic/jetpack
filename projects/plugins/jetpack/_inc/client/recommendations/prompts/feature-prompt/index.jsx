@@ -6,6 +6,7 @@ import { createInterpolateElement } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 import React, { useCallback, useEffect } from 'react';
 import { connect } from 'react-redux';
+import ExternalLink from '@wordpress/components';
 
 /**
  * Internal dependencies
@@ -13,7 +14,6 @@ import { connect } from 'react-redux';
 import { getStepContent, mapDispatchToProps } from '../../feature-utils';
 import { PromptLayout } from '../prompt-layout';
 import Button from 'components/button';
-import ExternalLink from 'components/external-link';
 import analytics from 'lib/analytics';
 import {
 	addSelectedRecommendation as addSelectedRecommendationAction,

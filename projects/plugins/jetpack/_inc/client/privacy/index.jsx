@@ -11,13 +11,13 @@ import { connect } from 'react-redux';
 import { createInterpolateElement } from '@wordpress/element';
 import { __, _x } from '@wordpress/i18n';
 import { getRedirectUrl } from '@automattic/jetpack-components';
+import ExternalLink from '@wordpress/components';
 
 /**
  * Internal dependencies
  */
 import analytics from 'lib/analytics';
 import CompactFormToggle from 'components/form/form-toggle/compact';
-import ExternalLink from 'components/external-link';
 import { fetchTrackingSettings, updateTrackingSettings } from 'state/tracking/actions';
 import {
 	getTrackingSettings,

@@ -10,12 +10,12 @@ import { connect } from 'react-redux';
  */
 import { createInterpolateElement } from '@wordpress/element';
 import { __, sprintf } from '@wordpress/i18n';
+import ExternalLink from '@wordpress/components';
 
 /**
  * Internal dependencies
  */
 import analytics from 'lib/analytics';
-import ExternalLink from 'components/external-link';
 import TextInput from 'components/text-input';
 import { isFetchingSiteData } from 'state/site';
 import { FormLabel } from 'components/forms';
