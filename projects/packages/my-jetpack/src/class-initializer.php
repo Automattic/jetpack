@@ -75,6 +75,10 @@ class Initializer {
 	 */
 	public static function admin_init() {
 		add_action( 'admin_enqueue_scripts', array( __CLASS__, 'enqueue_scripts' ) );
+		// Product statuses are constantly changing, so we never want to cache the page.
+		header( 'Cache-Control: no-cache, no-store, must-revalidate' );
+		header( 'Pragma: no-cache' );
+		header( 'Expires: 0' );
 	}
 
 	/**
