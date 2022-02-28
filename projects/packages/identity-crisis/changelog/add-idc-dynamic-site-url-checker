@@ -1,0 +1,4 @@
+Significance: minor
+Type: added
+
+IDC: add detection for possibly dynamic HTTP_HOST being used in WP_SITEURL or WP_HOME.

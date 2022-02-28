@@ -8,6 +8,7 @@ use Automattic\Jetpack\Connection\Plugin_Storage as Connection_Plugin_Storage;
 use Automattic\Jetpack\Connection\Rest_Authentication as Connection_Rest_Authentication;
 use Automattic\Jetpack\Constants;
 use Automattic\Jetpack\Redirect;
+use Automattic\Jetpack\Status\Cache as StatusCache;
 use Jetpack_Options;
 use PHPUnit\Framework\TestCase;
 use Requests_Utility_CaseInsensitiveDictionary;
@@ -175,6 +176,7 @@ class Test_REST_Endpoints extends TestCase {
 	 * Testing the `/jetpack/v4/connection` endpoint.
 	 */
 	public function test_connection() {
+		StatusCache::clear();
 		add_filter( 'jetpack_offline_mode', '__return_true' );
 		try {
 			$this->request = new WP_REST_Request( 'GET', '/jetpack/v4/connection' );
@@ -187,6 +189,7 @@ class Test_REST_Endpoints extends TestCase {
 			$this->assertTrue( $data['offlineMode']['isActive'] );
 		} finally {
 			remove_filter( 'jetpack_offline_mode', '__return_true' );
+			StatusCache::clear();
 		}
 	}
 

@@ -450,6 +450,20 @@ function videopress_make_media_upload_path( $blog_id ) {
 }
 
 /**
+ * Get the resumable upload api path.
+ *
+ * @since 4.4
+ * @param int $blog_id The id of the blog we're uploading to.
+ * @return string
+ */
+function videopress_make_resumable_upload_path( $blog_id ) {
+	return sprintf(
+		'https://public-api.wordpress.com/rest/v1.1/video-uploads/%s/',
+		$blog_id
+	);
+}
+
+/**
  * This is a mock of the internal VideoPress method, which is meant to duplicate the functionality
  * of the WPCOM API, so that the Jetpack REST API returns the same data with no modifications.
  *
