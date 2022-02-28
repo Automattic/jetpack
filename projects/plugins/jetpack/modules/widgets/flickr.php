@@ -139,6 +139,8 @@ if ( ! class_exists( 'Jetpack_Flickr_Widget' ) ) {
 				if ( ! empty( $photos ) && class_exists( 'Jetpack_Photon' ) && Jetpack::is_module_active( 'photon' ) ) {
 					$photos = Jetpack_Photon::filter_the_content( $photos );
 				}
+
+				$flickr_home = $rss->get_link(); // phpcs:ignore VariableAnalysis.CodeAnalysis.VariableAnalysis.UnusedVariable -- Used in flickr/widget.php template file.
 			}
 
 			echo $args['before_widget']; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
