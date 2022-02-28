@@ -102,7 +102,7 @@ class Google_Fonts_Provider extends \WP_Webfonts_Provider {
 		$urls = $this->build_collection_api_urls();
 
 		foreach ( $urls as $url ) {
-			$css .= $this->get_cached_remote_styles( 'google_fonts_' . md5( $url ), $url );
+			$css .= $this->get_cached_remote_styles( 'jetpack_google_fonts_' . md5( $url ), $url );
 		}
 
 		return $css;
