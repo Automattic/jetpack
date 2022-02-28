@@ -1,0 +1,4 @@
+Significance: patch
+Type: other
+
+Include the dependency of the WAF package in the plugin zip.

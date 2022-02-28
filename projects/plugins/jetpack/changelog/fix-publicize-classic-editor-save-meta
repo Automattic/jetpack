@@ -1,0 +1,4 @@
+Significance: patch
+Type: bugfix
+
+Removed wrong sanitation that was causing some Publicize options to not save in the Classic Editor
