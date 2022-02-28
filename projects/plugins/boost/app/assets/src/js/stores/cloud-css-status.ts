@@ -26,13 +26,20 @@ const initialState = Jetpack_Boost.cloudCssStatus || resetState;
 
 const { subscribe, update } = writable< CloudCssStatus >( initialState );
 
+let status;
+subscribe( state => ( status = state ) );
+
+export function getStatus(): CloudCssStatus {
+	return status;
+}
+
 /**
  * Helper method to update Cloud CSS generation progress status.
  *
- * @param {CloudCssStatus} status Cloud CSS generation status.
+ * @param {CloudCssStatus} cssStatus Cloud CSS generation status.
  */
-export function updateStatus( status: CloudCssStatus ): void {
-	const { completed, updated, pending } = status;
+export function updateStatus( cssStatus: CloudCssStatus ): void {
+	const { completed, updated, pending } = cssStatus;
 	return update( state => ( {
 		...state,
 		completed,
