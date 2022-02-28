@@ -5,11 +5,11 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
-## [1.4.0-beta] - 2022-02-22
+## [1.4.0] - 2022-02-28
 ### Added
 - UI: Adds My Jetpack functionality for consistent UI across all Jetpack plugins.
 
-## [1.3.1-beta] - 2021-12-02
+## [1.3.1] - 2021-12-02
 ### Added
 - Critical CSS: Added a filter to allow stylesheets to load synchronously, to avoid CLS issues on certain setups.
 - Critical CSS: Exclude "library" posts from Elementor plugin when generating Critical CSS.
@@ -32,7 +32,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Minor UI fixes for small screens and tooltip display.
 - Speed Scores: Do not show comparative scores when no modules are active.
 
-## [1.3.0-beta] - 2021-10-04
+## [1.3.0] - 2021-10-04
 ### Security
 - Critical CSS: Add permissions checks to AJAX endpoints used when dismissing Critical CSS Recommendations.
 
