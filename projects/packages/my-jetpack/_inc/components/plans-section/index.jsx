@@ -2,7 +2,7 @@
  * External dependencies
  */
 import React from 'react';
-import { __ } from '@wordpress/i18n';
+import { __, _n } from '@wordpress/i18n';
 import { ExternalLink } from '@wordpress/components';
 
 /**
@@ -37,6 +37,17 @@ function PlanSection( { purchase = {} } ) {
  * @returns {object} PlanSectionHeader react component.
  */
 function PlanSectionHeader( { purchases } ) {
+	let planLinkDescription = __( 'Purchase a plan', 'jetpack-my-jetpack' );
+	if ( purchases.length > 1 ) {
+		/* translators: %d: number of site plans. */
+		planLinkDescription = _n(
+			'Manage your plan.',
+			'Manage your plans',
+			purchases.length,
+			'jetpack-my-jetpack'
+		);
+	}
+
 	return (
 		<>
 			<h3>
@@ -47,9 +58,7 @@ function PlanSectionHeader( { purchases } ) {
 			<p>{ __( 'The extra power you added to your Jetpack.', 'jetpack-my-jetpack' ) }</p>
 			<p>
 				<ExternalLink className={ styles[ 'external-link' ] } href={ getManageYourPlanUrl() }>
-					{ purchases.length <= 1
-						? __( 'Manage your plan', 'jetpack-my-jetpack' )
-						: __( 'Manage your plans', 'jetpack-my-jetpack' ) }
+					{ planLinkDescription }
 				</ExternalLink>
 			</p>
 		</>

@@ -66,7 +66,7 @@ export default function MyJetpackScreen() {
 	}
 
 	return (
-		<AdminPage>
+		<AdminPage a8cLogoHref="https://automattic.com">
 			<AdminSectionHero>
 				<Container horizontalSpacing={ 5 } horizontalGap={ message ? 3 : 6 }>
 					<Col sm={ 4 } md={ 7 } lg={ 6 }>
