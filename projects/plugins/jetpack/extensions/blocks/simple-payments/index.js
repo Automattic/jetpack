@@ -74,7 +74,6 @@ export const settings = {
 		_x( 'ecommerce', 'block search term', 'jetpack' ),
 		_x( 'money', 'block search term', 'jetpack' ),
 		_x( 'paid', 'block search term', 'jetpack' ),
-		_x( 'pay', 'block search term', 'jetpack' ),
 		_x( 'payments', 'block search term', 'jetpack' ),
 		_x( 'products', 'block search term', 'jetpack' ),
 		_x( 'purchase', 'block search term', 'jetpack' ),
@@ -82,7 +81,6 @@ export const settings = {
 		_x( 'shop', 'block search term', 'jetpack' ),
 		'square',
 		_x( 'payments', 'block search term', 'jetpack' ),
-		'PayPal',
 	],
 
 	attributes: {
