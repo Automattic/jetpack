@@ -33,6 +33,13 @@ class Search extends Module_Product {
 	public static $module_name = 'search';
 
 	/**
+	 * The text domain of the plugin associated with this product.
+	 *
+	 * @var string
+	 */
+	public static $plugin_text_domain = 'jetpack-search';
+
+	/**
 	 * Get the internationalized product name
 	 *
 	 * @return string
