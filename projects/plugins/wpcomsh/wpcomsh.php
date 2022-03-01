@@ -1087,11 +1087,6 @@ function wpcomsh_get_at_site_info() {
 		return [];
 	}
 
-	if ( ! empty( $site_info['space_quota'] ) ) {
-		// Hardcode 200GB in bytes for now. Will update all space_quota soon.
-		$site_info['space_quota'] = 200 * GB_IN_BYTES;
-	}
-
 	return $site_info;
 }
 
