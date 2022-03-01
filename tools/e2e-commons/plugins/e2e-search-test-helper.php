@@ -9,8 +9,8 @@
  * @package automattic/jetpack
  */
 
-add_filter( 'pre_http_request', 'e2e_jetpack_search_intercept_plan_data_request', 1, 3 );
-add_action( 'wp_footer', 'e2e_jetpack_search_show_link_in_footer' );
+add_filter( 'pre_http_request', 'e2e_jetpack_search_intercept_plan_data_request', 3, 3 );
+add_action( 'wp_footer', 'e2e_jetpack_search_maybe_show_link_in_footer' );
 
 /**
  * Intercept WPCOM plan data request and replaces it with mocked data
@@ -19,7 +19,7 @@ add_action( 'wp_footer', 'e2e_jetpack_search_show_link_in_footer' );
  * @param r      $r not used.
  * @param string $url request URL.
  */
-function e2e_intercept_jetpack_search_plan_data_request( $return, $r, $url ) {
+function e2e_jetpack_search_intercept_plan_data_request( $return, $r, $url ) {
 	if ( ! class_exists( 'Jetpack_Options' ) ) {
 		return $return;
 	}
@@ -45,7 +45,7 @@ function e2e_intercept_jetpack_search_plan_data_request( $return, $r, $url ) {
  *
  * @return void
  */
-function e2e_jetpack_search_show_link_in_footer() {
+function e2e_jetpack_search_maybe_show_link_in_footer() {
 	// phpcs:disable WordPress.Security.NonceVerification.Recommended
 	if ( isset( $_GET['search_link_in_footer'] ) ) {
 		echo '<a href="#" class="wp-button jetpack-search-filter__link">Click to search</a>';
