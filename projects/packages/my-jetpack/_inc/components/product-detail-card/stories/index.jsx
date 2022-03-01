@@ -60,6 +60,10 @@ JetpackExtrasCard.parameters = { mockData };
 =======
 >>>>>>> f1fd288972 ([not verified] my-jetpack: refact mock data util helpers)
 
+const ExtrasCardTemplate = args => <ProductDetailCard { ...args } slug="extras" />;
+export const JetpackExtrasCard = ExtrasCardTemplate.bind( {} );
+JetpackExtrasCard.parameters = { mockData };
+
 const SearchCardTemplate = args => <ProductDetailCard { ...args } slug="search" />;
 export const JetpackSearchCard = SearchCardTemplate.bind( {} );
 JetpackSearchCard.parameters = { mockData };
