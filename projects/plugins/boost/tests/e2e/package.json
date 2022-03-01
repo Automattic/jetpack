@@ -25,7 +25,7 @@
 		"tunnel:reset": "tunnel reset",
 		"tunnel:down": "tunnel down",
 		"tunnel:write-logs": "tunnel logs output/logs/tunnel.log",
-		"pretest-e2e": "pnpm run clean",
+		"pretest": "pnpm run clean",
 		"test:run": ". ./node_modules/jetpack-e2e-commons/bin/app-password.sh && playwright install && NODE_CONFIG_DIR='./config' ALLURE_RESULTS_DIR=./output/allure-results playwright test --config=./playwright.config.cjs",
 		"slack": "NODE_CONFIG_DIR='./config' slack"
 	},

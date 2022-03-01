@@ -17,6 +17,7 @@ import {
 	BackupInterstitial,
 	BoostInterstitial,
 	CRMInterstitial,
+	ExtrasInterstitial,
 	ScanInterstitial,
 	SearchInterstitial,
 	VideoPressInterstitial,
@@ -58,7 +59,7 @@ function Layout( { nav = false, children, slug } ) {
 			</Container>
 			<Container horizontalSpacing={ 5 }>
 				<Col>
-					<JetpackFooter />
+					<JetpackFooter a8cLogoHref="https://automattic.com" />
 				</Col>
 			</Container>
 		</div>
@@ -88,6 +89,10 @@ const MyJetpack = () => (
 			<Route
 				path="/add-crm"
 				element={ <Layout nav={ true } children={ <CRMInterstitial /> } slug="crm" /> }
+			/>
+			<Route
+				path="/add-extras"
+				element={ <Layout nav={ true } children={ <ExtrasInterstitial /> } slug="extras" /> }
 			/>
 			<Route
 				path="/add-scan"

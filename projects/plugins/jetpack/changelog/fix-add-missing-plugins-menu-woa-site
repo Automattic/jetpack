@@ -1,0 +1,4 @@
+Significance: patch
+Type: bugfix
+
+Add missing plugins sidebar menu for Atomic site with unsupported plan
