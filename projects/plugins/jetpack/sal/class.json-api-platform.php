@@ -4,7 +4,7 @@
  *
  * @package automattic/jetpack
  */
-require_once dirname( __FILE__ ) . '/class.json-api-token.php';
+require_once __DIR__ . '/class.json-api-token.php';
 
 /**
  * Base class for SAL_Platform
@@ -22,7 +22,7 @@ abstract class SAL_Platform {
 	 *
 	 * @param SAL_Token $token The variable which will store the SAL_Token instance.
 	 */
-	function __construct( $token ) {
+	public function __construct( $token ) {
 		if ( is_array( $token ) ) {
 			$token = SAL_Token::from_rest_token( $token );
 		} else {
@@ -42,7 +42,7 @@ abstract class SAL_Platform {
 }
 
 if ( defined( 'IS_WPCOM' ) && IS_WPCOM ) {
-	require_once dirname( __FILE__ ) . '/class.json-api-platform-wpcom.php';
+	require_once __DIR__ . '/class.json-api-platform-wpcom.php';
 } else {
-	require_once dirname( __FILE__ ) . '/class.json-api-platform-jetpack.php';
+	require_once __DIR__ . '/class.json-api-platform-jetpack.php';
 }
