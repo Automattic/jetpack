@@ -597,10 +597,11 @@ class iCalendarReader {
 			return false;
 		}
 
+		$type = '';
 		foreach ( $lines as $line ) {
 			$add = $this->key_value_from_string( $line );
 			if ( ! $add ) {
-				$this->add_component( '', false, $line );
+				$this->add_component( $type, false, $line );
 				continue;
 			}
 			list( $keyword, $value ) = $add;
@@ -635,8 +636,7 @@ class iCalendarReader {
 					break;
 				case 'TZID':
 					if (
-						isset( $type )
-						&& 'VTIMEZONE' === $type
+						'VTIMEZONE' === $type
 						&& ! $this->timezone
 					) {
 						$this->timezone = $this->timezone_from_string( $value );
@@ -648,7 +648,7 @@ class iCalendarReader {
 					}
 					break;
 				default:
-					$this->add_component( '', $keyword, $value );
+					$this->add_component( $type, $keyword, $value );
 					break;
 			}
 		}
