@@ -36,7 +36,7 @@ class iCalendarReader {
 	public $cal = array();
 
 	/**
-	 * Site's timezone.
+	 * Timezone parsed from the iCalendar feed, if any.
 	 *
 	 * @var null|DateTimeZone
 	 */
