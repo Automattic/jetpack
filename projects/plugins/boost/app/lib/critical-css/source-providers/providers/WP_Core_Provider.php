@@ -21,7 +21,7 @@ class WP_Core_Provider extends Provider {
 	 */
 	protected static $name = 'core';
 
-	// phpcs:ignore Generic.Commenting.DocComment.MissingShort
+	// phpcs:ignore Generic.Commenting.DocComment.MissingShort,VariableAnalysis.CodeAnalysis.VariableAnalysis.UnusedVariable
 	/** @inheritdoc */
 	public static function get_critical_source_urls( $context_posts = array() ) {
 		$urls = array();

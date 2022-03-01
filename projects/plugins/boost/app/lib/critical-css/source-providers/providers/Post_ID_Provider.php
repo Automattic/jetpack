@@ -40,7 +40,7 @@ class Post_ID_Provider extends Provider {
 		}
 
 		foreach ( $query->posts as $post ) {
-			if ( empty( $context_post_ids ) || in_array( $post->ID, $context_post_ids ) ) {
+			if ( empty( $context_post_ids ) || in_array( $post->ID, $context_post_ids, true ) ) {
 				$results[ $post->ID ] = array( get_permalink( $post ) );
 			}
 		}
