@@ -5,6 +5,86 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.6.6] - 2022-02-28
+### Fixed
+- Re-doing 0.6.5 to fixup bad release.
+
+## [0.6.5] - 2022-02-28
+### Changed
+- Tweak product card box model.
+
+### Fixed
+- Use namespace in My Jetpack REST Products class to prevent fatal
+
+## [0.6.4] - 2022-02-25
+### Added
+- Activate Jetpack plugin from Extras product card
+- Added list of connected plugins to Disconnect dialog in My Jetpack
+- Add Extras interstitial page
+- My Jetpack: Handle cosmetic tweaks
+- My Jetpack: Remove global notices when in my jetpack page
+- My Jetpack: set height of Jetpack logo in the footer
+- My Jetpack: tweak height of Jetpack Logo
+- My Jetpack: update Product logos
+
+### Changed
+- Disable My Jetpack on MS
+- My Jetpack: compress extras product image
+- Updated package dependencies.
+- Update My Jetpack dashboard headline
+
+### Removed
+- Remove unnecessary line from My Jetpack Initial state
+
+### Fixed
+- Fix beta badge for RTL languages
+- Handle plugin activating from Hybrid class
+- Memoized RecordEvent from usAnalytics hook
+- My Jetpack: Fix post activation url redirect
+- My Jetpack: Move product list that requires user connection to selector
+- Products::get_products_names should not load all product information
+- Update automattic logo href in the footer
+
+## [0.6.3] - 2022-02-22
+### Changed
+- Updated inline documentation
+
+### Fixed
+- Use Jetpack namespace to fix fatal error
+
+## [0.6.2] - 2022-02-22
+### Added
+- Add Beta badge
+- Add Extras class
+- Apply coupon discount to Product price when it exists
+- Filesystem write access to the initial state
+- Improve Product detail layout
+- Implement close link on layout nav
+- Prevent calling activation hook when activating backup
+
+### Changed
+- Bump package versions.
+- Improve My Jetpack link styles
+- Improve redirect process after installing Product
+- Fix interstitial CTA buttons layout
+- Move from isPressed to CSS vars
+- Redirect connect user to connection interstitial
+- Point the link of the Manage button of CRM to its dashboard
+- Redirect to post_activation_url after product activation from iterstitial screen
+- Remove conditional loading depending on constant
+- Send My Jetpack version with fired events
+- Update the layout of interstitial page when it has an upgradable bundle
+
+### Fixed
+- Check if product is active before checking if requires plan
+- Fix check for plugin installation for hybrid products
+- Fix click on security and add click on My Jetpack interstitial
+- Fix clicks on VideoPress and CRM cards
+- Fix Product prices
+- Make Scan and Search interstitials install the plugin
+- Purchases: ensure we retrieve translated version of active purchases
+- Return needs purchase status for products module
+
 ## [0.6.1] - 2022-02-16
 ### Added
 - Add Anti-Spam Product detail card
@@ -232,6 +312,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Added
 - Created package
 
+[0.6.6]: https://github.com/Automattic/jetpack-my-jetpack/compare/0.6.5...0.6.6
+[0.6.5]: https://github.com/Automattic/jetpack-my-jetpack/compare/0.6.4...0.6.5
+[0.6.4]: https://github.com/Automattic/jetpack-my-jetpack/compare/0.6.3...0.6.4
+[0.6.3]: https://github.com/Automattic/jetpack-my-jetpack/compare/0.6.2...0.6.3
+[0.6.2]: https://github.com/Automattic/jetpack-my-jetpack/compare/0.6.1...0.6.2
 [0.6.1]: https://github.com/Automattic/jetpack-my-jetpack/compare/0.6.0...0.6.1
 [0.6.0]: https://github.com/Automattic/jetpack-my-jetpack/compare/0.5.0...0.6.0
 [0.5.0]: https://github.com/Automattic/jetpack-my-jetpack/compare/0.4.0...0.5.0

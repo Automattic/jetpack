@@ -23,11 +23,14 @@ function isSnake( string ) {
 /**
  * Map object keys to camel case, in case they have snake shape.
  *
- * @param {object}  object             - Object to be converted.
+ * @param {object}  originalObject             - Object to be converted.
  * @param {boolean} deleteOriginalProp - Whether to delete the original property. False by default.
  * @returns {object}                   - Converted object.
  */
-export function mapObjectKeysToCamel( object = {}, deleteOriginalProp = false ) {
+export function mapObjectKeysToCamel( originalObject = {}, deleteOriginalProp = false ) {
+	// avoid to override original object
+	const object = Object.assign( {}, originalObject );
+
 	for ( const key in object ) {
 		if ( object.hasOwnProperty( key ) && isSnake( key ) ) {
 			object[ snakeToCamel( key ) ] = object[ key ];

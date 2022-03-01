@@ -17,6 +17,7 @@ import {
 	BackupInterstitial,
 	BoostInterstitial,
 	CRMInterstitial,
+	ExtrasInterstitial,
 	ScanInterstitial,
 	SearchInterstitial,
 	VideoPressInterstitial,
@@ -39,30 +40,26 @@ initStore();
  * @returns {object}                Layout react component.
  */
 function Layout( { nav = false, children, slug } ) {
-	const {
-		tracks: { recordEvent },
-	} = useAnalytics();
+	const { recordEvent } = useAnalytics();
 	const onClick = useCallback( () => {
 		if ( slug ) {
 			recordEvent( 'jetpack_myjetpack_product_interstitial_back_link_click', { product: slug } );
 		}
 	}, [ recordEvent, slug ] );
 
-	if ( ! nav ) {
-		return children;
-	}
-
 	return (
 		<div className={ styles.layout }>
-			<Container horizontalSpacing={ 3 } horizontalGap={ 3 }>
-				<Col>
-					<GoBackLink onClick={ onClick } />
-				</Col>
+			<Container horizontalSpacing={ nav ? 3 : 8 } horizontalGap={ nav ? 3 : 0 }>
+				{ nav && (
+					<Col>
+						<GoBackLink onClick={ onClick } />
+					</Col>
+				) }
 				<Col>{ children }</Col>
 			</Container>
 			<Container horizontalSpacing={ 5 }>
 				<Col>
-					<JetpackFooter />
+					<JetpackFooter a8cLogoHref="https://automattic.com" />
 				</Col>
 			</Container>
 		</div>
@@ -75,7 +72,7 @@ const MyJetpack = () => (
 			<Route path="/" element={ <MyJetpackScreen /> } />
 			<Route
 				path="/connection"
-				element={ <Layout nav={ true } children={ <ConnectionScreen /> } /> }
+				element={ <Layout nav={ false } children={ <ConnectionScreen /> } /> }
 			/>
 			<Route
 				path="/add-anti-spam"
@@ -92,6 +89,10 @@ const MyJetpack = () => (
 			<Route
 				path="/add-crm"
 				element={ <Layout nav={ true } children={ <CRMInterstitial /> } slug="crm" /> }
+			/>
+			<Route
+				path="/add-extras"
+				element={ <Layout nav={ true } children={ <ExtrasInterstitial /> } slug="extras" /> }
 			/>
 			<Route
 				path="/add-scan"

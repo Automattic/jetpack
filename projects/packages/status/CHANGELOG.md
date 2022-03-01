@@ -5,6 +5,18 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.11.2] - 2022-02-28
+### Fixed
+- Re-doing 1.11.1 to fixup a bad release.
+
+## [1.11.1] - 2022-02-28
+### Fixed
+- Remove trailing semicolor form site suffix.
+
+## [1.11.0] - 2022-02-22
+### Added
+- Add methods to distinguish Newspack and VIP sites.
+
 ## [1.10.0] - 2022-01-25
 ### Added
 - Added Visitor class for status regarding the site visitor.
@@ -150,6 +162,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - Packages: Introduce a status package
 
+[1.11.2]: https://github.com/Automattic/jetpack-status/compare/v1.11.1...v1.11.2
+[1.11.1]: https://github.com/Automattic/jetpack-status/compare/v1.11.0...v1.11.1
+[1.11.0]: https://github.com/Automattic/jetpack-status/compare/v1.10.0...v1.11.0
 [1.10.0]: https://github.com/Automattic/jetpack-status/compare/v1.9.5...v1.10.0
 [1.9.5]: https://github.com/Automattic/jetpack-status/compare/v1.9.4...v1.9.5
 [1.9.4]: https://github.com/Automattic/jetpack-status/compare/v1.9.3...v1.9.4

@@ -2,6 +2,20 @@
 
 ### This is a list detailing changes for the Jetpack RNA Connection Component releases.
 
+## 0.16.1 - 2022-02-25
+### Fixed
+- Fix broken Jetpack Partner Coupon redeem flow for sites without a user connection
+
+## 0.16.0 - 2022-02-22
+### Changed
+- Bump package version.
+- Connection: Update ConnectionStatusCard to match figma
+- Disconnect dialog changes to cope with asynchronous data loading
+- Updated package dependencies.
+
+### Fixed
+- Connection: Fix ConnectionStatusCard prop
+
 ## 0.15.1 - 2022-02-09
 ### Added
 - Connection: Expose hasConnectedOwner in useConnection hook
