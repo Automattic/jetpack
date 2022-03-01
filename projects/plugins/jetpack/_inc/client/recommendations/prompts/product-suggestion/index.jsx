@@ -91,9 +91,6 @@ const ProductSuggestionComponent = props => {
 						<ExternalLink
 							className="jp-recommendations-product-suggestion-item__external-link"
 							href={ product.cta_link }
-							target="_blank"
-							icon={ true }
-							iconSize={ 16 }
 							onClick={ onExternalLinkClick }
 							children={ product.cta_text }
 						/>

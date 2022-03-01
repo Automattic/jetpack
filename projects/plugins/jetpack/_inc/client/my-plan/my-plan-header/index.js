@@ -409,8 +409,6 @@ class MyPlanHeader extends React.Component {
 								className="all-purchases__link"
 								href={ getRedirectUrl( 'calypso-purchases' ) }
 								onClick={ this.trackAllPurchasesClick }
-								target="_blank"
-								icon={ true }
 							>
 								{ __( 'View all purchases', 'jetpack' ) }
 							</ExternalLink>

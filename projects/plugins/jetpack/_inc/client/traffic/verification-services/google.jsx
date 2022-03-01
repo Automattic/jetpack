@@ -257,9 +257,6 @@ class GoogleVerificationServiceComponent extends React.Component {
 										{
 											a: (
 												<ExternalLink
-													icon
-													iconSize={ 16 }
-													target="_blank"
 													rel="noopener noreferrer"
 													href={ this.props.googleSearchConsoleUrl }
 												/>
@@ -275,18 +272,12 @@ class GoogleVerificationServiceComponent extends React.Component {
 										{
 											a1: (
 												<ExternalLink
-													icon
-													iconSize={ 16 }
-													target="_blank"
 													rel="noopener noreferrer"
 													href={ 'https://developers.google.com/web/fundamentals/security/hacked/' }
 												/>
 											),
 											a2: (
 												<ExternalLink
-													icon
-													iconSize={ 16 }
-													target="_blank"
 													rel="noopener noreferrer"
 													href={
 														'https://www.google.com/insidesearch/howsearchworks/crawling-indexing.html'

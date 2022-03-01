@@ -347,13 +347,11 @@ export const Ads = withModuleSettingsFormHelpers(
 												br: <br />,
 												link: (
 													<ExternalLink
-														icon={ true }
 														href={
 															this.props.isAtomicSite
 																? getRedirectUrl( 'wpcom-support-ccpa' )
 																: getRedirectUrl( 'jetpack-support-ads' )
 														}
-														target="_blank"
 														rel="noopener noreferrer"
 													/>
 												),

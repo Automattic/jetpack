@@ -215,8 +215,6 @@ export class MonitorSettings extends React.Component {
 							link: (
 								<ExternalLink
 									className="jp-module-settings__external-link"
-									icon={ true }
-									iconSize={ 16 }
 									href={ getRedirectUrl( 'calypso-settings-security', {
 										site: this.props.module.raw_url,
 									} ) }

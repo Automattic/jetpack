@@ -86,12 +86,7 @@ const FeatureSummaryComponent = props => {
 				</div>
 			) }
 			<div className="jp-recommendations-feature-summary__display-name">
-				<ExternalLink
-					href={ learnMoreLink }
-					onClick={ onLearnMoreClick }
-					target="_blank"
-					rel="noopener noreferrer"
-				>
+				<ExternalLink href={ learnMoreLink } onClick={ onLearnMoreClick } rel="noopener noreferrer">
 					{ displayName }
 				</ExternalLink>
 			</div>

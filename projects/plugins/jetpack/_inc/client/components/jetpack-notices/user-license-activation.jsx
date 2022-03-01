@@ -113,8 +113,6 @@ const UserLicenseActivationNotice = props => {
 							className: 'jp-license-activation-notice__external-link',
 							href: getRedirectUrl( 'calypso-purchases' ),
 							onClick: trackUserPurchasesClick,
-							target: '_blank',
-							icon: true,
 						} ),
 					}
 				) }

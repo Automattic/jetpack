@@ -129,40 +129,27 @@ class VerificationServicesComponent extends React.Component {
 								support: <a href={ getRedirectUrl( 'jetpack-support-site-verification-tools' ) } />,
 								google: (
 									<ExternalLink
-										icon={ true }
-										target="_blank"
 										rel="noopener noreferrer"
 										href="https://www.google.com/webmasters/tools/"
 									/>
 								),
 								bing: (
-									<ExternalLink
-										icon={ true }
-										target="_blank"
-										rel="noopener noreferrer"
-										href="https://www.bing.com/webmaster/"
-									/>
+									<ExternalLink rel="noopener noreferrer" href="https://www.bing.com/webmaster/" />
 								),
 								pinterest: (
 									<ExternalLink
-										icon={ true }
-										target="_blank"
 										rel="noopener noreferrer"
 										href="https://pinterest.com/website/verify/"
 									/>
 								),
 								yandex: (
 									<ExternalLink
-										icon={ true }
-										target="_blank"
 										rel="noopener noreferrer"
 										href="https://webmaster.yandex.com/sites/"
 									/>
 								),
 								facebook: (
 									<ExternalLink
-										icon={ true }
-										target="_blank"
 										rel="noopener noreferrer"
 										href="https://business.facebook.com/settings/"
 									/>

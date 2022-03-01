@@ -83,7 +83,6 @@ export default class SupportInfo extends Component {
 						<ExternalLink
 							href={ link }
 							onClick={ this.trackLearnMoreClick }
-							target="_blank"
 							rel="noopener noreferrer"
 						>
 							{ __( 'Learn more', 'jetpack' ) }
@@ -93,7 +92,6 @@ export default class SupportInfo extends Component {
 						<ExternalLink
 							href={ privacyLink }
 							onClick={ this.trackPrivacyInfoClick }
-							target="_blank"
 							rel="noopener noreferrer"
 						>
 							{ __( 'Privacy information', 'jetpack' ) }

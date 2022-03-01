@@ -40,8 +40,6 @@ export class Sitemaps extends React.Component {
 				<ExternalLink
 					// eslint-disable-next-line react/jsx-no-bind
 					onClick={ trackSitemapUrl }
-					icon={ true }
-					target="_blank"
 					rel="noopener noreferrer"
 					href={ sitemap }
 				/>

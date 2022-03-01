@@ -114,11 +114,8 @@ const SummaryComponent = props => {
 							ExternalLink: (
 								<ExternalLink
 									href="https://jetpack.com/features/comparison/"
-									target="_blank"
 									rel="noopener noreferrer"
 									onClick={ onLearnMoreClick }
-									icon={ true }
-									iconSize={ 16 }
 								/>
 							),
 						}

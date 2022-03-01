@@ -133,7 +133,6 @@ class Privacy extends React.Component {
 												<ExternalLink
 													href={ getRedirectUrl( 'a8c-cookies' ) }
 													onClick={ trackCookiePolicyView }
-													target="_blank"
 													rel="noopener noreferrer"
 												/>
 											),
@@ -152,7 +151,6 @@ class Privacy extends React.Component {
 											<ExternalLink
 												href={ getRedirectUrl( 'a8c-privacy' ) }
 												onClick={ trackPrivacyPolicyView }
-												target="_blank"
 												rel="noopener noreferrer"
 											/>
 										),
@@ -170,7 +168,6 @@ class Privacy extends React.Component {
 											<ExternalLink
 												href={ getRedirectUrl( 'a8c-cookies' ) }
 												onClick={ trackCookiePolicyView }
-												target="_blank"
 												rel="noopener noreferrer"
 											/>
 										),
@@ -188,7 +185,6 @@ class Privacy extends React.Component {
 											<ExternalLink
 												href={ getRedirectUrl( 'jetpack-support-privacy' ) }
 												onClick={ trackPrivacyCenterView }
-												target="_blank"
 												rel="noopener noreferrer"
 											/>
 										),
