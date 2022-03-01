@@ -55,6 +55,10 @@ const CRMCardTemplate = args => <ProductDetailCard { ...args } slug="crm" />;
 export const JetpackCRMCard = CRMCardTemplate.bind( {} );
 JetpackCRMCard.parameters = { mockData };
 
+const ExtrasCardTemplate = args => <ProductDetailCard { ...args } slug="extras" />;
+export const JetpackExtrasCard = ExtrasCardTemplate.bind( {} );
+JetpackExtrasCard.parameters = { mockData };
+
 const SearchCardTemplate = args => <ProductDetailCard { ...args } slug="search" />;
 export const JetpackSearchCard = SearchCardTemplate.bind( {} );
 JetpackSearchCard.parameters = { mockData };

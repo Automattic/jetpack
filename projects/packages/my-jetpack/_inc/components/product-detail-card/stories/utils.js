@@ -56,6 +56,7 @@ export function getAllMockData() {
 		'backup',
 		'boost',
 		'crm',
+		'extras',
 		'scan',
 		'search',
 		'security',
