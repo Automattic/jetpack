@@ -30,13 +30,33 @@ const mapResponse = {
  * @returns {Array}          Story mock data
  */
 export function getMockData( product ) {
-	const response = mapResponse[ product ];
-	return [
-		{
-			url: `my-jetpack/v1/site/products/${ product }?_locale=user`,
+	const isArray = product.constructor === Array;
+	const productSlugs = isArray ? product : [ product ];
+
+	return productSlugs.map( productSlug => {
+		return {
+			url: `my-jetpack/v1/site/products/${ productSlug }?_locale=user`,
 			method: 'GET',
 			status: 200,
-			response,
-		},
-	];
+			response: mapResponse[ productSlug ],
+		};
+	} );
+}
+
+/**
+ * Return all product mocked data.
+ *
+ * @returns {Array} All products mocked data.
+ */
+export function getAllMockData() {
+	return getMockData( [
+		'anti-spam',
+		'backup',
+		'boost',
+		'crm',
+		'scan',
+		'search',
+		'security',
+		'videopress',
+	] );
 }
