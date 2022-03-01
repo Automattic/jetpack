@@ -31,6 +31,11 @@ class Test_Wpcom_Products extends TestCase {
 	 */
 	public function set_up() {
 
+		// See https://stackoverflow.com/a/41611876.
+		if ( version_compare( phpversion(), '5.7', '<=' ) ) {
+			$this->markTestSkipped( 'avoid bug in PHP 5.6 that throws strict mode warnings for abstract static methods.' );
+		}
+
 		// Mock site connection.
 		( new Tokens() )->update_blog_token( 'test.test' );
 		Jetpack_Options::update_option( 'id', 123 );
@@ -129,6 +134,14 @@ class Test_Wpcom_Products extends TestCase {
 		unset( $_SERVER['REQUEST_METHOD'] );
 		$_GET = array();
 
+	}
+
+	/**
+	 * Test get products without user
+	 */
+	public function test_get_products_without_user() {
+		wp_set_current_user( 0 );
+		$this->assertEmpty( Wpcom_Products::get_products() );
 	}
 
 	/**
