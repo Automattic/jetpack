@@ -14,6 +14,7 @@
 class iCalendarReader {
 	// phpcs:enable PEAR.NamingConventions.ValidClassName.StartWithCapital
 	// phpcs:disable WordPress.DateTime.RestrictedFunctions.date_date -- we manually handle timezones all over the file.
+	// @todo Verify that we're manually handling timezones *correctly*. We probably need more `DateTime` with `$this->timezone` and maybe `wp_date()` and less `strtotime()` and `date()` and `date_i18n()`.
 	/**
 	 * Count To Do events in calendar.
 	 *
