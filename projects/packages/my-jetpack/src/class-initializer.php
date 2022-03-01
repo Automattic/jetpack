@@ -13,7 +13,6 @@ use Automattic\Jetpack\Connection\Client as Client;
 use Automattic\Jetpack\Connection\Initial_State as Connection_Initial_State;
 use Automattic\Jetpack\Connection\Manager as Connection_Manager;
 use Automattic\Jetpack\Connection\Rest_Authentication as Connection_Rest_Authentication;
-use Automattic\Jetpack\Plugins_Installer;
 use Automattic\Jetpack\Status as Status;
 use Automattic\Jetpack\Terms_Of_Service;
 use Automattic\Jetpack\Tracking;
@@ -39,9 +38,6 @@ class Initializer {
 		if ( ! self::should_initialize() ) {
 			return;
 		}
-
-		// Extend jetpack plugins action links.
-		self::extend_jetpack_plugins_action_links();
 
 		// Set up the REST authentication hooks.
 		Connection_Rest_Authentication::init();
@@ -239,60 +235,6 @@ class Initializer {
 		}
 
 		return $should;
-	}
-
-	/**
-	 * Extend the actions links with My Jetpack
-	 * for all Jetpack plugins.
-	 *
-	 * @return void
-	 */
-	public static function extend_jetpack_plugins_action_links() {
-		// Plugins list to add to the My Jetpack action link.
-		$jetpack_plugins = array_unique(
-			array(
-				Products\Backup::get_plugin_slug(),
-				Products\Boost::get_plugin_slug(),
-				Products\Crm::get_plugin_slug(),
-				Products\Search::get_plugin_slug(),
-				'jetpack',
-			)
-		);
-
-		$all_plugins = Plugins_Installer::get_plugins();
-
-		foreach ( $all_plugins as $plugin_filename => $plugin ) {
-			$plugin_text_domain = $plugin['TextDomain'];
-			if ( in_array( $plugin_text_domain, $jetpack_plugins, true ) ) {
-				add_filter(
-					'plugin_action_links_' . $plugin_filename,
-					array( __CLASS__, 'update_jetpack_plugin_actions_links' ),
-					20,
-					2
-				);
-			}
-		}
-	}
-
-	/**
-	 * Returns filtered Jetpack plugin actions links.
-	 *
-	 * @param array $actions - Jetpack plugin action links.
-	 * @return array           Filtered Jetpack plugin actions links.
-	 */
-	public static function update_jetpack_plugin_actions_links( $actions ) {
-		// My Jetpack action link.
-		$jetpack_home = array(
-			'jetpack-home' => sprintf(
-				'<a href="%1$s" title="%3$s">%2$s</a>',
-				admin_url( 'admin.php?page=my-jetpack' ),
-				__( 'My Jetpack', 'jetpack-my-jetpack' ),
-				__( 'My Jetpack dashboard', 'jetpack-my-jetpack' )
-			),
-		);
-
-		// Otherwise, add it to the beginning of the array.
-		return array_merge( $jetpack_home, $actions );
 	}
 
 	/**
