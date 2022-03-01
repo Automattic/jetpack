@@ -1,5 +1,5 @@
 /**
- * External dependencies
+ * WordPress dependencies
  */
 import { __, _x } from '@wordpress/i18n';
 import { InnerBlocks } from '@wordpress/block-editor';
@@ -9,10 +9,10 @@ import { currencyDollar } from '@wordpress/icons';
  * Internal dependencies
  */
 import edit from './edit';
-import variations from './variations';
 import { getIconColor } from '../../shared/block-icons';
 import { settings as donationSettings } from '../donations';
 import { settings as recurringPaymentSettings } from '../recurring-payments';
+import { settings as premiumContentSettings } from '../premium-content';
 
 export const name = 'payments-intro';
 export const title = __( 'Payments', 'jetpack' );
@@ -30,6 +30,8 @@ export const settings = {
 			...donationSettings.keywords,
 			recurringPaymentSettings.title,
 			...recurringPaymentSettings.keywords,
+			premiumContentSettings.title,
+			...premiumContentSettings.keywords,
 			_x( 'paid', 'block search term', 'jetpack' ),
 			_x( 'pay', 'block search term', 'jetpack' ),
 			_x( 'money', 'block search term', 'jetpack' ),
@@ -47,5 +49,4 @@ export const settings = {
 	},
 	edit,
 	save: () => <InnerBlocks.Content />,
-	variations,
 };
