@@ -106,7 +106,7 @@ class Jetpack_Search_Performance_Logger {
 	/**
 	 * Check if a query should be logged (a main query, or a jetpack search query).
 	 *
-	 * @param WP_Query $query The WP_Query instance (passed by reference).
+	 * @param WP_Query $query The WP_Query instance.
 	 */
 	private function should_log_query( $query ) {
 		return $query->is_main_query() && $query->is_search();
