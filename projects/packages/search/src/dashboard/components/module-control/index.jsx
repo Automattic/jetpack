@@ -33,7 +33,7 @@ const INSTANT_SEARCH_DESCRIPTION = __(
 );
 const RETURN_PATH = 'admin.php?page=jetpack-search';
 const SEARCH_CUSTOMIZE_URL = 'admin.php?page=jetpack-search-configure';
-const WIDGETS_EDITOR_URL = 'customize.php?autofocus[panel]=widgets&return=%s';
+const WIDGETS_EDITOR_URL = 'widgets.php';
 
 /**
  * Search settings component to be used within the Performance section.
