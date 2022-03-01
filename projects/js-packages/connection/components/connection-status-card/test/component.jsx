@@ -102,7 +102,7 @@ describe( 'ConnectionStatusCard', () => {
 			expect( wrapper.find( '.jp-connection-status-card--list-item-error' ) ).to.have.lengthOf( 0 );
 		} );
 
-		it( 'renders the "Connect your user account" button', () => {
+		it( 'Doesn\'t render the "Connect your user account" button', () => {
 			expect( wrapper.find( '.jp-connection-status-card--btn-connect-user' ) ).to.have.lengthOf(
 				0
 			);
