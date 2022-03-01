@@ -13,8 +13,8 @@
 use Automattic\Jetpack\Connection\Manager as Connection_Manager;
 use Automattic\Jetpack\Redirect;
 
-// phpcs:disable WordPress.WP.I18n.MissingArgDomain --reason: WP Core string.
-// phpcs:disable WordPress.Utils.I18nTextDomainFixer.MissingArgDomain --reason: WP Core string.
+// phpcs:disable WordPress.WP.I18n.MissingArgDomain --reason: Code copied from Core, so using Core strings.
+// phpcs:disable WordPress.Utils.I18nTextDomainFixer.MissingArgDomain --reason: Code copied from Core, so using Core strings.
 
 /**
  * Short circuits the {@see `wp_notify_postauthor`} function via the `comment_notification_recipients` filter.
