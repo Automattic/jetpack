@@ -304,7 +304,7 @@ class Jetpack_Media {
 		$metadata = wp_generate_attachment_metadata( $media_id, $pathname );
 
 		if ( isset( $metadata ) && isset( $metadata['sizes'] ) ) {
-			foreach ( $metadata['sizes'] as $size => $properties ) { // phpcs:ignore VariableAnalysis.CodeAnalysis.VariableAnalysis.UnusedVariable
+			foreach ( $metadata['sizes'] as $properties ) {
 				self::delete_file( $dirname . '/' . $properties['file'] );
 			}
 		}
