@@ -78,7 +78,11 @@ describe( 'ConnectionStatusCard', () => {
 	describe( 'When the user has connected their WordPress.com account', () => {
 		beforeEach( () => {
 			stubGetConnectionStatus.reset();
-			stubGetConnectionStatus.returns( { isRegistered: true, isUserConnected: true } );
+			stubGetConnectionStatus.returns( {
+				isRegistered: true,
+				isUserConnected: true,
+				hasConnectedOwner: true,
+			} );
 			wrapper = shallow( <ConnectionStatusCard { ...testProps } /> );
 		} );
 
