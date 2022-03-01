@@ -46,8 +46,8 @@ function e2e_intercept_jetpack_search_plan_data_request( $return, $r, $url ) {
  * @return void
  */
 function e2e_jetpack_search_show_link_in_footer() {
+	// phpcs:disable WordPress.Security.NonceVerification.Recommended
 	if ( isset( $_GET['search_link_in_footer'] ) ) {
-		// phpcs:disable WordPress.Security.NonceVerification.Recommended
 		echo '<a href="#" class="wp-button jetpack-search-filter__link">Click to search</a>';
 	}
 }
