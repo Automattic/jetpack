@@ -167,4 +167,6 @@ test.describe( 'Search', () => {
 			expect( await homepage.isExpandedImageVisible() ).toBeTruthy();
 		} );
 	} );
+
+	test( 'Can open overly by clicking an item in the page', async () => {} );
 } );
