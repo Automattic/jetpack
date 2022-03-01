@@ -16,7 +16,9 @@ class WP_Test_Jetpack_Sync_Plugins extends WP_Test_Jetpack_Sync_Base {
 
 		$this->server_event_storage->reset();
 
+		add_filter( 'pre_http_request', array( 'WP_Test_Jetpack_Sync_Base', 'pre_http_request_wordpress_org_updates' ), 10, 3 );
 		self::install_the_plugin();
+		remove_filter( 'pre_http_request', array( 'WP_Test_Jetpack_Sync_Base', 'pre_http_request_wordpress_org_updates' ) );
 		$this->sender->do_sync();
 		//Determine which action came first as between jetpack_installed_plugin and jetpack_sync_callable
 		$events = $this->server_event_storage->get_all_events();
@@ -192,8 +194,10 @@ class WP_Test_Jetpack_Sync_Plugins extends WP_Test_Jetpack_Sync_Base {
 		$upgrader = new Plugin_Upgrader(
 			new Automatic_Upgrader_Skin( $plugin_defaults )
 		);
+		add_filter( 'pre_http_request', array( 'WP_Test_Jetpack_Sync_Base', 'pre_http_request_wordpress_org_updates' ), 10, 3 );
 		// 'https://downloads.wordpress.org/plugin/the.1.1.zip' Install it from local disk
 		$upgrader->install( self::PLUGIN_ZIP );
+		remove_filter( 'pre_http_request', array( 'WP_Test_Jetpack_Sync_Base', 'pre_http_request_wordpress_org_updates' ) );
 	}
 
 	function set_update_plugin_transient( $transient ) {
@@ -208,7 +212,9 @@ class WP_Test_Jetpack_Sync_Plugins extends WP_Test_Jetpack_Sync_Base {
 
 	static function remove_plugin() {
 		if ( file_exists( WP_PLUGIN_DIR . '/the/the.php' ) ) {
+			add_filter( 'pre_http_request', array( 'WP_Test_Jetpack_Sync_Base', 'pre_http_request_wordpress_org_updates' ), 10, 3 );
 			delete_plugins( array( 'the/the.php' ) );
+			remove_filter( 'pre_http_request', array( 'WP_Test_Jetpack_Sync_Base', 'pre_http_request_wordpress_org_updates' ) );
 			wp_cache_delete( 'plugins', 'plugins' );
 		}
 	}
