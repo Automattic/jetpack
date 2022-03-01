@@ -38,6 +38,13 @@ abstract class Product {
 	public static $plugin_slug = null;
 
 	/**
+	 * The text domain of the plugin associated with this product.
+	 *
+	 * @var string
+	 */
+	public static $plugin_text_domain = null;
+
+	/**
 	 * The Jetpack plugin slug
 	 *
 	 * @var string
@@ -356,5 +363,65 @@ abstract class Product {
 	public static function deactivate() {
 		deactivate_plugins( static::get_installed_plugin_filename() );
 		return true;
+	}
+
+	/**
+	 * Returns filtered Jetpack plugin actions links.
+	 *
+	 * @param array $actions - Jetpack plugin action links.
+	 * @return array           Filtered Jetpack plugin actions links.
+	 */
+	public static function get_plugin_actions_links( $actions ) {
+		// My Jetpack action link.
+		$my_jetpack_home_link = array(
+			'jetpack-home' => sprintf(
+				'<a href="%1$s" title="%3$s">%2$s</a>',
+				admin_url( 'admin.php?page=my-jetpack' ),
+				__( 'My Jetpack', 'jetpack-my-jetpack' ),
+				__( 'My Jetpack dashboard', 'jetpack-my-jetpack' )
+			),
+		);
+
+		// Otherwise, add it to the beginning of the array.
+		return array_merge( $my_jetpack_home_link, $actions );
+	}
+
+	/**
+	 * Extend the plugin action links.
+	 *
+	 * @param string $plugin_id - Plugin file.
+	 */
+	public static function extend_plugin_action_links( $plugin_id = null ) {
+		// Use text domain when the id is not set.
+		$plugin_id = isset( $plugin_id )
+			? $plugin_id
+			: (
+				// Otherwise, try to use the plugin slug.
+				isset( static::$plugin_text_domain )
+					? static::$plugin_text_domain
+					: static::get_plugin_slug()
+			);
+
+		// Check whether the plugin is installed.
+		$all_plugins = Plugins_Installer::get_plugins();
+		$text_domain = array_column( $all_plugins, 'TextDomain' );
+		$index       = array_search( $plugin_id, $text_domain, true );
+		if ( false === $index ) {
+			return;
+		}
+
+		// Get the plugin filename from installed plugins list.
+		$plugins_filenames = array_keys( $all_plugins );
+		$plugin_filename   = isset( $plugins_filenames[ $index ] ) ? $plugins_filenames[ $index ] : null;
+		if ( ! array_key_exists( $plugin_filename, $all_plugins ) ) {
+			return;
+		}
+
+		add_filter(
+			'plugin_action_links_' . $plugin_filename,
+			array( __CLASS__, 'get_plugin_actions_links' ),
+			20,
+			2
+		);
 	}
 }
