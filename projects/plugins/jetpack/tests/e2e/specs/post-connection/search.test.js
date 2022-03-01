@@ -9,6 +9,8 @@ import {
 	getBlockWidgets,
 	setupBlockWidgets,
 	searchAPIRoute,
+	searchAutoConfig,
+	clearSearchPlanInfo,
 } from '../../helpers/search-helper.js';
 import { prerequisitesBuilder, Plans } from 'jetpack-e2e-commons/env/index.js';
 import { resolveSiteUrl } from 'jetpack-e2e-commons/helpers/utils-helper.cjs';
@@ -22,19 +24,21 @@ test.describe( 'Search', () => {
 
 	test.beforeAll( async ( { browser } ) => {
 		const page = await browser.newPage( playwrightConfig.use );
+		await clearSearchPlanInfo();
 		await prerequisitesBuilder( page )
 			.withLoggedIn( true )
 			.withConnection( true )
 			.withPlan( Plans.Complete )
 			.withActiveModules( [ 'search' ] )
 			.build();
+		await enableInstantSearch();
 
 		backupSidebarsWidgets = await getSidebarsWidgets();
 		backupBlockWidgets = await getBlockWidgets();
-		await enableInstantSearch();
 		await setupSidebarsWidgets();
 		await setupSearchWidget();
 		await setupBlockWidgets();
+		await searchAutoConfig();
 		await page.close();
 	} );
 
@@ -45,8 +49,8 @@ test.describe( 'Search', () => {
 	} );
 
 	test.beforeEach( async ( { page } ) => {
+		await searchAPIRoute( page );
 		homepage = await SearchHomepage.visit( page );
-		await searchAPIRoute( homepage.page );
 		await homepage.waitForPage();
 		await homepage.waitForNetworkIdle();
 	} );
