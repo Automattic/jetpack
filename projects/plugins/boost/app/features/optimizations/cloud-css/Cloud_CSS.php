@@ -115,7 +115,7 @@ class Cloud_CSS implements Feature, Has_Endpoints {
 	 * @return void
 	 */
 	public function handle_save_post( $post_id, $post ) {
-		if ( ! $post || ! isset( $post->post_type ) || ! is_post_type_viewable( $post->post_type ) ) {
+		if ( ! $post || ! isset( $post->post_type ) || ! is_post_publicly_viewable( $post ) ) {
 			return;
 		}
 
