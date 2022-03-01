@@ -201,4 +201,13 @@ class Backup extends Hybrid_Product {
 			return Redirect::get_url( 'my-jetpack-manage-backup' );
 		}
 	}
+
+	/**
+	 * Checks whether the Product is active
+	 *
+	 * @return boolean
+	 */
+	public static function is_active() {
+		return parent::is_active() && static::has_required_plan();
+	}
 }
