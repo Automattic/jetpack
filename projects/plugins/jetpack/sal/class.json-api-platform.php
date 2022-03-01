@@ -1,10 +1,27 @@
-<?php
-
+<?php  // phpcs:ignore WordPress.Files.FileName.InvalidClassFileName
+/**
+ * SAL_Platform class which defines a token to later be associated with a Jetpack site
+ *
+ * @package automattic/jetpack
+ */
 require_once dirname( __FILE__ ) . '/class.json-api-token.php';
 
+/**
+ * Base class for SAL_Platform
+ */
 abstract class SAL_Platform {
+	/**
+	 * A token that will represent a SAL_Token instance, default is empty.
+	 *
+	 * @var SAL_Token
+	 */
 	public $token;
 
+	/**
+	 * Contructs the SAL_Platform instance
+	 *
+	 * @param SAL_Token $token The variable which will store the SAL_Token instance.
+	 */
 	function __construct( $token ) {
 		if ( is_array( $token ) ) {
 			$token = SAL_Token::from_rest_token( $token );
@@ -15,6 +32,12 @@ abstract class SAL_Platform {
 		$this->token = $token;
 	}
 
+	/**
+	 * This is the get_site function declaration, initially not implemented.
+	 *
+	 * @param int $blog_id The sites Jetpack blog ID.
+	 * @see class.json-api-platform-jetpack.php for the implementation of this function.
+	 */
 	abstract public function get_site( $blog_id );
 }
 
