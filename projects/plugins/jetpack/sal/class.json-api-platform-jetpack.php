@@ -5,7 +5,7 @@
  * @package automattic/jetpack
  */
 
-require_once dirname( __FILE__ ) . '/class.json-api-platform.php';
+require_once __DIR__ . '/class.json-api-platform.php';
 /**
  * Base class for WPORG_Platform, which extends SAL_Platform
  */
@@ -18,7 +18,7 @@ class WPORG_Platform extends SAL_Platform {
 	 * @return Jetpack_Site A Jetpack_Site instance including all relevant details needed to define a Jetpack site.
 	 **/
 	public function get_site( $blog_id ) {
-		require_once dirname( __FILE__ ) . '/class.json-api-site-jetpack.php';
+		require_once __DIR__ . '/class.json-api-site-jetpack.php';
 		return new Jetpack_Site( $blog_id, $this );
 	}
 }
