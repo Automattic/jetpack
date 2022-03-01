@@ -94,7 +94,7 @@ class Version_Loader {
 		$path = rtrim( $path, '/' ) . '/';
 		$l    = strlen( $path );
 		foreach ( $this->classmap as $classname => $data ) {
-			if ( substr( $data['path'], 0, $l ) === $path ) {
+			if ( substr( $data['path'], 0, $l ) === $path && file_exists( $data['path'] ) ) {
 				// Use the autoloader instead of loading directly in case there's a PSR-4 class or
 				// something masking it.
 				class_exists( $classname, true );
