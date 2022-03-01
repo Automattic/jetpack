@@ -168,8 +168,8 @@ test.describe( 'Search', () => {
 		} );
 	} );
 
-	test( 'Can open overly by clicking an item in the page', async () => {
-		await homepage.goto( `${ siteUrl }?search_link_in_footer=1` );
+	test( 'Can open overlay by clicking a link', async () => {
+		await homepage.goto( `${ siteUrl }?jetpack_search_link_in_footer=1` );
 		await homepage.waitForPage();
 		await homepage.waitForNetworkIdle();
 
