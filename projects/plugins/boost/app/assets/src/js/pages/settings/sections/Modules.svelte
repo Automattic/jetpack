@@ -4,7 +4,6 @@
 	 */
 	import { maybeGenerateCriticalCss } from '../../../utils/generate-critical-css';
 	import { requestCloudCss } from '../../../utils/cloud-css';
-	import RefreshIcon from '../../../svg/refresh.svg';
 	import GenerateCss from '../elements/GenerateCSS.svelte';
 	import Module from '../elements/Module.svelte';
 	import TemplatedString from '../../../elements/TemplatedString.svelte';
@@ -53,13 +52,6 @@
 				vars={externalLinkTemplateVar( 'https://web.dev/extract-critical-css/' )}
 			/>
 		</p>
-
-		<div slot="meta">
-			<button type="button" class="components-button is-link" on:click={requestCloudCss}>
-				<RefreshIcon />
-				{__( 'Regenerate', 'jetpack-boost' )}
-			</button>
-		</div>
 	</Module>
 
 	<Module slug={'render-blocking-js'}>
