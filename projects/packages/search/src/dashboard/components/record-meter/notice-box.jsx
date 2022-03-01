@@ -2,6 +2,7 @@
  * External dependencies
  */
 import React from 'react';
+import { __ } from '@wordpress/i18n';
 
 /**
  * Returns a notice box for displaying notices about record count and plan limits
@@ -15,21 +16,28 @@ export function NoticeBox( props ) {
 	// check data is valid
 	if ( props.hasValidData === false ) {
 		notices.push( {
-			message: 'We weren’t able to properly locate your content for Search',
+			message: __(
+				"We weren't able to properly locate your content for Search",
+				'jetpack-search-pkg'
+			),
 			isImportant: true,
 		} );
 	}
 
 	// check site has been indexed
 	if ( props.hasBeenIndexed === false ) {
-		notices.push( { message: 'Your content has not yet been indexed for Search' } );
+		notices.push( {
+			message: __( 'Your content has not yet been indexed for Search', 'jetpack-search-pkg' ),
+		} );
 	}
 
 	// check at least one indexable item
 	if ( props.hasItems === false ) {
 		notices.push( {
-			message:
-				"We weren’t able to locate any content to Search to index. Perhaps you don't yet have any posts or pages?",
+			message: __(
+				"We weren't able to locate any content to Search to index. Perhaps you don't yet have any posts or pages?",
+				'jetpack-search-pkg'
+			),
 		} );
 	}
 
@@ -40,11 +48,14 @@ export function NoticeBox( props ) {
 	if ( props.recordCount > props.planRecordLimit ) {
 		notices.push( {
 			message:
-				'You recently surpassed ' +
+				__( 'You recently surpassed ', 'jetpack-search-pkg' ) +
 				props.planRecordLimit +
-				' records and will be automatically upgraded to the next billing tier of ' +
+				__(
+					' records and will be automatically upgraded to the next billing tier of ',
+					'jetpack-search-pkg'
+				) +
 				props.planRecordLimit * 10 +
-				' max records. Learn more.',
+				__( ' max records. Learn more.', 'jetpack-search-pkg' ),
 		} );
 	}
 
@@ -56,9 +67,15 @@ export function NoticeBox( props ) {
 	) {
 		notices.push( {
 			message:
-				'You’re close to the max amount of records for this billing tier. Once you hit ' +
+				__(
+					'You’re close to the max amount of records for this billing tier. Once you hit ',
+					'jetpack-search-pkg'
+				) +
 				props.planRecordLimit +
-				' indexed records, you’ll automatically be billed in the next tier. Learn more.',
+				__(
+					' indexed records, you’ll automatically be billed in the next tier. Learn more.',
+					'jetpack-search-pkg'
+				),
 		} );
 	}
 
