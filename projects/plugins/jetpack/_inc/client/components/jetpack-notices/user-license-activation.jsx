@@ -114,7 +114,6 @@ const UserLicenseActivationNotice = props => {
 							href: getRedirectUrl( 'calypso-purchases' ),
 							onClick: trackUserPurchasesClick,
 							target: '_blank',
-							icon: true,
 						} ),
 					}
 				) }
