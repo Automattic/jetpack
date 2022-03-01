@@ -168,5 +168,13 @@ test.describe( 'Search', () => {
 		} );
 	} );
 
-	test( 'Can open overly by clicking an item in the page', async () => {} );
+	test( 'Can open overly by clicking an item in the page', async () => {
+		await homepage.goto( `${ siteUrl }?search_link_in_footer=1` );
+		await homepage.waitForPage();
+		await homepage.waitForNetworkIdle();
+
+		expect( await homepage.isOverlayVisible() ).toBeFalsy();
+		await homepage.clickLink();
+		expect( await homepage.isOverlayVisible() ).toBeTruthy();
+	} );
 } );

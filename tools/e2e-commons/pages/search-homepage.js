@@ -126,4 +126,9 @@ export default class SearchHomepage extends WpPage {
 		const expandedImageSelector = '.jetpack-instant-search__search-result-expanded__image';
 		return this.isElementVisible( expandedImageSelector );
 	}
+
+	async clickLink() {
+		const linkSelector = '.wp-button.jetpack-search-filter__link';
+		return this.click(linkSelector);
+	}
 }
