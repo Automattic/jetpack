@@ -111,6 +111,19 @@ class Products {
 	}
 
 	/**
+	 * Extend actions links for plugins
+	 * tied to the Products.
+	 */
+	public static function extend_plugins_action_links() {
+		Products\Backup::extend_plugin_action_links();
+		Products\Boost::extend_plugin_action_links();
+		Products\Crm::extend_plugin_action_links();
+
+		// Extend Jetpack plugin using Videopress instance.
+		Products\Videopress::extend_plugin_action_links();
+	}
+
+	/**
 	 * Returns information about the Anti-spam product
 	 *
 	 * @return array Object with infromation about the product.

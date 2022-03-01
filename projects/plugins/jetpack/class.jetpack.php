@@ -4101,20 +4101,17 @@ p {
 	 * @return array
 	 */
 	public function plugin_action_links( $actions ) {
-
-		$jetpack_home = array( 'jetpack-home' => sprintf( '<a href="%s">%s</a>', self::admin_url( 'page=jetpack' ), __( 'My Jetpack', 'jetpack' ) ) );
 		$support_link = ( new Host() )->is_woa_site() ? 'https://wordpress.com/help/contact/' : self::admin_url( 'page=jetpack-debugger' );
 
 		if ( current_user_can( 'jetpack_manage_modules' ) && ( self::is_connection_ready() || ( new Status() )->is_offline_mode() ) ) {
 			return array_merge(
-				$jetpack_home,
 				array( 'settings' => sprintf( '<a href="%s">%s</a>', self::admin_url( 'page=jetpack#/settings' ), __( 'Settings', 'jetpack' ) ) ),
 				array( 'support' => sprintf( '<a href="%s">%s</a>', $support_link, __( 'Support', 'jetpack' ) ) ),
 				$actions
 			);
 		}
 
-		return array_merge( $jetpack_home, $actions );
+		return $actions;
 	}
 
 	/**

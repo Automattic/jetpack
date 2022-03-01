@@ -16,25 +16,20 @@ use Jetpack_Plan;
 /**
  * Responsible for adding a search customization interface to wp-admin.
  *
- * Note that this has been temporarily renamed Customberg2 in order to avoid namespace conflicts
- * with the existing Customberg class that may temporarily co-exist on WPCOM.
- *
- * TODO: Rename back to "Customberg" following WPCOM release.
- *
  * @package Automattic\Jetpack\Search
  */
-class Customberg2 {
+class Customberg {
 	/**
 	 * The singleton instance of this class.
 	 *
-	 * @var Customberg2
+	 * @var Customberg
 	 */
 	protected static $instance;
 
 	/**
 	 * Get the singleton instance of the class.
 	 *
-	 * @return Customberg2
+	 * @return Customberg
 	 */
 	public static function instance() {
 		if ( ! isset( self::$instance ) ) {

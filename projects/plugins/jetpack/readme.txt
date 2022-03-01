@@ -1,7 +1,7 @@
 === Jetpack - WP Security, Backup, Speed, & Growth ===
 Contributors: automattic, adamkheckler, adrianmoldovanwp, aduth, akirk, allendav, alternatekev, andy, annamcphee, annezazu, apeatling, arcangelini, azaozz, batmoo, barry, beaulebens, biskobe, blobaugh, bjorsch, brbrr, cainm, cena, cfinke, chaselivingston, chellycat, clickysteve, csonnek, danielbachhuber, davoraltman, daniloercoli, delawski, designsimply, dllh, drawmyface, dsmart, dzver, ebinnion, egregor, eliorivero, enej, eoigal, erania-pinnera, ethitter, fgiannar, gcorne, georgestephanis, gibrown, goldsounds, hew, hugobaeta, hypertextranch, iammattthomas, iandunn, jblz, jasmussen, jeffgolenski, jeherve, jenhooks, jenia, jessefriedman, jgs, jkudish, jmdodd, joanrho, johnjamesjacoby, jshreve, kbrownkd, keoshi, koke, kraftbj, lancewillett, leogermani, lschuyler, macmanx, martinremy, matt, matveb, mattwiebe, maverick3x6, mcsf, mdawaffe, mdbitz, MichaelArestad, migueluy, mikeyarce, mkaz, nancythanki, nickmomrik, obenland, oskosk, pento, professor44, rachelsquirrel, rdcoll, ryancowles, richardmuscat, richardmtl, robertbpugh, roccotripaldi, samhotchkiss, samiff, scarstocea, scottsweb, sdixon194, sdquirk, sermitr, simison, stephdau, tmoorewp, tyxla, Viper007Bond, westi, yoavf, zinigor
 Tags: Security, backup, Woo, malware, scan, spam, CDN, search, social
-Stable tag: 10.6
+Stable tag: 10.7
 Requires at least: 5.8
 Requires PHP: 5.6
 Tested up to: 5.9
@@ -242,7 +242,7 @@ Jetpack Backup can do a full website migration to a new host, migrate theme file
 4. Promote your newest posts, pages, and products across your social media channels.
 
 == Changelog ==
-### 10.7-beta - 2022-02-22
+### 10.7 - 2022-02-28
 #### Enhancements
 - Add an AMP-compatible version of the email share button.
 - Add transformation from core/buttons to jetpack/recurring-payments block (requires gutenberg >= 11.5.0).
@@ -278,6 +278,7 @@ Jetpack Backup can do a full website migration to a new host, migrate theme file
 - Fixed several React warnings shown on the console when SCRIPT_DEBUG is active
 - Form Block: custom CSS classes added to the block are now applied on the frontend.
 - Media Buttons: Fix issue where external medial modal cannot be closed.
+- Publicize: fixed bugs when using Publicize with the Classic Editor.
 - Search: avoid PHP warning when using Search widget.
 - Search: Make debug bar more reliable.
 - SSO: fix a bug with SSO not cleaning up wpcom_user_id.
