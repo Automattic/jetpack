@@ -13,7 +13,7 @@ namespace Automattic\Jetpack\Admin_UI;
  */
 class Admin_Menu {
 
-	const PACKAGE_VERSION = '0.1.1-alpha';
+	const PACKAGE_VERSION = '0.2.4';
 
 	/**
 	 * Whether this class has been initialized
@@ -37,7 +37,31 @@ class Admin_Menu {
 	public static function init() {
 		if ( ! self::$initialized ) {
 			self::$initialized = true;
+			self::handle_akismet_menu();
 			add_action( 'admin_menu', array( __CLASS__, 'admin_menu_hook_callback' ), 1000 ); // Jetpack uses 998.
+		}
+	}
+
+	/**
+	 * Handles the Akismet menu item when used alongside other stand-alone plugins
+	 *
+	 * When Jetpack plugin is present, Akismet menu item is moved under the Jetpack top level menu, but if Akismet is active alongside other stand-alone plugins,
+	 * we use this method to move the menu item.
+	 */
+	private static function handle_akismet_menu() {
+		if ( class_exists( 'Akismet_Admin' ) ) {
+			// Prevent Akismet from adding a menu item.
+			add_action(
+				'admin_menu',
+				function () {
+					remove_action( 'admin_menu', array( 'Akismet_Admin', 'admin_menu' ), 5 );
+				},
+				4
+			);
+
+			// Add an Anti-spam menu item for Jetpack.
+			self::add_menu( __( 'Anti-Spam', 'jetpack-admin-ui' ), __( 'Anti-Spam', 'jetpack-admin-ui' ), 'manage_options', 'akismet-key-config', array( 'Akismet_Admin', 'display_page' ) );
+
 		}
 	}
 
@@ -79,6 +103,22 @@ class Admin_Menu {
 			// If Jetpack plugin is not present, user will only be able to see this menu if they have enough capability to at least one of the sub menus being added.
 			$can_see_toplevel_menu = false;
 		}
+
+		/**
+		 * The add_sub_menu function has a bug and will not keep the right order of menu items.
+		 *
+		 * @see https://core.trac.wordpress.org/ticket/52035
+		 * Let's order the items before registering them.
+		 * Since this all happens after the Jetpack plugin menu items were added, all items will be added after Jetpack plugin items - unless position is very low number (smaller than the number of menu items present in Jetpack plugin).
+		 */
+		usort(
+			self::$menu_items,
+			function ( $a, $b ) {
+				$position_a = empty( $a['position'] ) ? 0 : $a['position'];
+				$position_b = empty( $b['position'] ) ? 0 : $b['position'];
+				return $position_a - $position_b;
+			}
+		);
 
 		foreach ( self::$menu_items as $menu_item ) {
 			if ( ! current_user_can( $menu_item['capability'] ) ) {
@@ -136,6 +176,39 @@ class Admin_Menu {
 		 * Using get_plugin_page_hookname here won't work because the top level page is not registered yet.
 		 */
 		return 'jetpack_page_' . $menu_slug;
+	}
+
+	/**
+	 * Gets the slug for the first item under the Jetpack top level menu
+	 *
+	 * @return string|null
+	 */
+	public static function get_top_level_menu_item_slug() {
+		global $submenu;
+		if ( ! empty( $submenu['jetpack'] ) ) {
+			$item = reset( $submenu['jetpack'] );
+			if ( isset( $item[2] ) ) {
+				return $item[2];
+			}
+		}
+	}
+
+	/**
+	 * Gets the URL for the first item under the Jetpack top level menu
+	 *
+	 * @param string $fallback If Jetpack menu is not there or no children is found, return this fallback instead. Default to admin_url().
+	 * @return string
+	 */
+	public static function get_top_level_menu_item_url( $fallback = false ) {
+		$slug = self::get_top_level_menu_item_slug();
+
+		if ( $slug ) {
+			$url = menu_page_url( $slug, false );
+			return $url;
+		}
+
+		$url = $fallback ? $fallback : admin_url();
+		return $url;
 	}
 
 }

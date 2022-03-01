@@ -21,14 +21,6 @@ function jetpack_inline_pdf_embed_handler( $matches, $attr, $url ) {
 	/** This action is documented in modules/widgets/social-media-icons.php */
 	do_action( 'jetpack_bump_stats_extras', 'embeds', 'inline-pdf' );
 
-	if ( class_exists( 'Jetpack_AMP_Support' ) && Jetpack_AMP_Support::is_amp_request() ) {
-		return sprintf(
-			'<p><a href="%1$s">%2$s</a></p>',
-			esc_url( $url ),
-			esc_html__( 'PDF Document', 'jetpack' )
-		);
-	}
-
 	$filename      = basename( wp_parse_url( $url, PHP_URL_PATH ) );
 	$fallback_text = sprintf(
 		/* translators: Placeholder is a file name, for example "file.pdf" */
@@ -37,10 +29,8 @@ function jetpack_inline_pdf_embed_handler( $matches, $attr, $url ) {
 	);
 
 	return sprintf(
-		'<object data="%1$s" type="application/pdf" width="100%%" height="800" style="height: 800px;">
-			<p><a href="%1$s">%2$s</a></p>
-		</object>',
-		esc_attr( $url ),
+		'<p><a href="%1$s" target="_blank" rel="noopener noreferrer nofollow">%2$s</a></p>',
+		esc_url( $url ),
 		$fallback_text
 	);
 }

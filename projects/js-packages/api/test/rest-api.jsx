@@ -2,12 +2,8 @@
  * External dependencies
  */
 // import React from 'react';
-import chai, { expect } from 'chai';
-// import chaiFetch from 'chai-fetch';
-import chaiFetchMock from 'chai-fetch-mock';
+import { expect } from 'chai';
 import fetchMock from 'fetch-mock';
-chai.use( chaiFetchMock );
-// chai.use(chaiFetch);
 
 // import { shallow } from 'enzyme';
 // import ShallowRenderer from 'react-test-renderer/shallow';
@@ -34,12 +30,20 @@ restApi.setCacheBusterCallback( route => {
 
 describe( 'restApi', () => {
 	describe( 'GET requests', () => {
-		before( () =>
+		before( () => {
+			fetchMock.mock(
+				{
+					method: 'POST',
+					url: /\/jetpack\/v4\/licensing\/attach-licenses/,
+					name: 'attach-licenses',
+				},
+				JSON.stringify( [ { activatedProductId: 1 } ] )
+			);
 			fetchMock.mock(
 				{ method: 'GET', url: /\/jetpack\/v4\/connection/, name: 'connection' },
 				JSON.stringify( 'the body' )
-			)
-		);
+			);
+		} );
 		after( () => fetchMock.restore() );
 
 		it( 'returns an object with methods', () => {
@@ -49,8 +53,12 @@ describe( 'restApi', () => {
 
 		it( 'can fetchSiteConnectionStatus', async () => {
 			const connectionStatus = await restApi.fetchSiteConnectionStatus();
-			// expect(fetchMock).route('connection').to.have.been.called;
 			expect( connectionStatus ).to.equal( 'the body' );
+		} );
+
+		it( 'can post attachLicenses', async () => {
+			const results = await restApi.attachLicenses();
+			expect( results ).to.deep.equal( [ { activatedProductId: 1 } ] );
 		} );
 	} );
 } );

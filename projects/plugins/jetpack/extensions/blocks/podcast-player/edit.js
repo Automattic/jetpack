@@ -3,6 +3,7 @@
  */
 import debugFactory from 'debug';
 import { debounce, noop } from 'lodash';
+import { isAtomicSite, isSimpleSite } from '@automattic/jetpack-shared-extension-utils';
 
 /**
  * WordPress dependencies
@@ -26,7 +27,6 @@ import { compose, withInstanceId } from '@wordpress/compose';
 import { __ } from '@wordpress/i18n';
 import {
 	BlockControls,
-	BlockIcon,
 	InspectorControls,
 	withColors,
 	PanelColorSettings,
@@ -42,19 +42,16 @@ import { isURL, prependHTTP } from '@wordpress/url';
 import { getValidatedAttributes } from '../../shared/get-validated-attributes';
 import './editor.scss';
 import { queueMusic } from './icons/';
-import { isAtomicSite, isSimpleSite } from '../../shared/site-type-utils';
 import attributesValidation from './attributes';
 import PodcastPlayer from './components/podcast-player';
 import { makeCancellable } from './utils';
-import { fetchPodcastFeed } from './api';
+import { fetchPodcastFeed, fetchTrackQuantity } from './api';
 import { podcastPlayerReducer, actions } from './state';
 import { applyFallbackStyles } from '../../shared/apply-fallback-styles';
 import { PODCAST_FEED, EMBED_BLOCK } from './constants';
 import { maybeCopyElementsToSiteEditorContext } from '../../shared/block-editor-asset-loader';
 
 const DEFAULT_MIN_ITEMS = 1;
-const DEFAULT_MAX_ITEMS = 10;
-
 const debug = debugFactory( 'jetpack:podcast-player:edit' );
 
 // Support page link.
@@ -96,6 +93,7 @@ const PodcastPlayerEdit = ( {
 	const playerId = `jetpack-podcast-player-block-${ instanceId }`;
 
 	const [ hasMigratedStyles, setHasMigratedStyles ] = useState( false );
+	const [ defaultMaxItems, setDefaultMaxItems ] = useState( 10 );
 
 	// State.
 	const cancellableFetch = useRef();
@@ -197,6 +195,13 @@ const PodcastPlayerEdit = ( {
 		return () => cancellableFetch?.current?.cancel?.();
 	}, [ fetchFeed, checkUrl, selectedGuid ] );
 
+	// Retrieve tracks quantity to fetch; the jetpack_podcast_helper_tracks_quantity filter value.
+	useEffect( () => {
+		fetchTrackQuantity().then( response => {
+			setDefaultMaxItems( response );
+		} );
+	}, [] );
+
 	// Make sure itemsToShow is 1 when we have a selected episode
 	useEffect( () => {
 		if ( selectedGuid && 1 !== itemsToShow ) {
@@ -264,7 +269,7 @@ const PodcastPlayerEdit = ( {
 	if ( state.isEditing ) {
 		return (
 			<Placeholder
-				icon={ <BlockIcon icon={ queueMusic } /> }
+				icon={ queueMusic }
 				label={ __( 'Podcast Player', 'jetpack' ) }
 				instructions={ __( 'Enter your podcast RSS feed URL.', 'jetpack' ) }
 				className={ 'jetpack-podcast-player__placeholder' }
@@ -297,7 +302,7 @@ const PodcastPlayerEdit = ( {
 	if ( ! state.feedData.tracks?.length ) {
 		return (
 			<Placeholder
-				icon={ <BlockIcon icon={ queueMusic } /> }
+				icon={ queueMusic }
 				label={ __( 'Podcast Player', 'jetpack' ) }
 				instructions={ __( 'Loading podcast feed…', 'jetpack' ) }
 			>
@@ -331,7 +336,7 @@ const PodcastPlayerEdit = ( {
 							value={ itemsToShow }
 							onChange={ value => setAttributes( { itemsToShow: selectedGuid ? 1 : value } ) }
 							min={ DEFAULT_MIN_ITEMS }
-							max={ DEFAULT_MAX_ITEMS }
+							max={ defaultMaxItems }
 							required
 							disabled={ !! selectedGuid }
 						/>

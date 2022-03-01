@@ -59,6 +59,9 @@ function render() {
 						<Route path="/plans">
 							<Main routeName={ getRouteName( '/plans' ) } />
 						</Route>
+						<Route path="/recommendations">
+							<Main routeName={ getRouteName( '/recommendations' ) } />
+						</Route>
 						<Route path="/plans-prompt">
 							<Main routeName={ getRouteName( '/plans-prompt' ) } />
 						</Route>
@@ -82,6 +85,9 @@ function render() {
 						</Route>
 						<Route path="/sharing">
 							<Main routeName={ getRouteName( '/sharing' ) } />
+						</Route>
+						<Route path="/license/activation">
+							<Main routeName={ getRouteName( '/license/activation' ) } />
 						</Route>
 						<Route path="/wpbody-content" component={ Main } />
 						<Route path="/wp-toolbar" component={ Main } />
@@ -113,6 +119,8 @@ export function getRouteName( path ) {
 			return _x( 'My Plan', 'Navigation item.', 'jetpack' );
 		case '/plans':
 			return _x( 'Plans', 'Navigation item.', 'jetpack' );
+		case '/recommendations':
+			return _x( 'Recommendations', 'Navigation item.', 'jetpack' );
 		case '/plans-prompt':
 			return _x( 'Plans', 'Navigation item.', 'jetpack' );
 		case '/settings':
@@ -129,6 +137,8 @@ export function getRouteName( path ) {
 			return _x( 'Writing', 'Navigation item.', 'jetpack' );
 		case '/sharing':
 			return _x( 'Sharing', 'Navigation item.', 'jetpack' );
+		case '/license/activation':
+			return _x( 'License', 'Navigation item.', 'jetpack' );
 		default:
 			return _x( 'At A Glance', 'Navigation item.', 'jetpack' );
 	}

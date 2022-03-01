@@ -35,17 +35,12 @@ case "$WP_BRANCH" in
 		;;
 	latest)
 		LATEST=$(php ./tools/get-wp-version.php)
-		# 5.8.1 does not have the polyfill stuff backported.
-		# @todo: Remove this once 5.8.1 is no longer "latest".
-		if [[ "$LATEST" == "5.8.1" ]]; then
-			LATEST=5.8
-		fi
 		git clone --depth=1 --branch "$LATEST" git://develop.git.wordpress.org/ /tmp/wordpress-latest
 		;;
 	previous)
 		# We hard-code the version here because there's a time near WP releases where
 		# we've dropped the old 'previous' but WP hasn't actually released the new 'latest'
-		git clone --depth=1 --branch 5.7 git://develop.git.wordpress.org/ /tmp/wordpress-previous
+		git clone --depth=1 --branch 5.8 git://develop.git.wordpress.org/ /tmp/wordpress-previous
 		;;
 	*)
 		echo "Unrecognized value for WP_BRANCH: $WP_BRANCH" >&2

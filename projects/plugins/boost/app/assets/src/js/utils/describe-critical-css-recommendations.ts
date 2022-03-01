@@ -2,6 +2,10 @@
  * External dependencies
  */
 import type { SvelteComponent } from 'svelte';
+
+/**
+ * WordPress dependencies
+ */
 import { __, _n, sprintf } from '@wordpress/i18n';
 
 /**
@@ -288,11 +292,11 @@ const errorTypeSpecs: { [ type: string ]: ErrorTypeSpec } = {
 					'If you believe the issue is resolved, please <retry>try again</retry>.',
 					'jetpack-boost'
 				),
-				__(
-					'If you think that the redirection is valid, then it is safe to ignore this issue.',
-					'jetpack-boost'
-				),
 			],
+			closingParagraph: __(
+				'If you think that the redirection is valid, then it is safe to ignore this issue.',
+				'jetpack-boost'
+			),
 		} ),
 	},
 

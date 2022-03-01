@@ -1,0 +1,8 @@
+<?php
+/**
+ * A dummy file to test the Jetpack.Functions.I18n sniff.
+ *
+ * @package automattic/jetpack-codesniffer
+ */
+
+wp_set_script_translations( 'handle', 'domain' );

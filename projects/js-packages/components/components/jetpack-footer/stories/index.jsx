@@ -10,7 +10,7 @@ import React from 'react';
 import JetpackFooter from '../index.jsx';
 
 export default {
-	title: 'Playground/Jetpack Footer',
+	title: 'JS Packages/Components/Jetpack Footer',
 	component: JetpackFooter,
 };
 

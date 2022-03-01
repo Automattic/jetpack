@@ -8,6 +8,7 @@
 
 namespace Automattic\Jetpack;
 
+use Automattic\Jetpack\Status\Cache as StatusCache;
 use Jetpack_Options;
 use WorDBless\BaseTestCase;
 
@@ -15,6 +16,9 @@ use WorDBless\BaseTestCase;
  * Test Identity_Crisis class
  */
 class Test_Identity_Crisis extends BaseTestCase {
+
+	const TEST_URL = 'https://www.example.org/test';
+
 	/**
 	 * Set up tests.
 	 *
@@ -22,6 +26,7 @@ class Test_Identity_Crisis extends BaseTestCase {
 	 */
 	public function set_up() {
 		Constants::set_constant( 'JETPACK_DISABLE_RAW_OPTIONS', true );
+		StatusCache::clear();
 	}
 
 	/**
@@ -31,6 +36,7 @@ class Test_Identity_Crisis extends BaseTestCase {
 	 */
 	public function tear_down() {
 		Constants::clear_constants();
+		StatusCache::clear();
 
 		// Reset IDC singleton.
 		$idc        = Identity_Crisis::init();
@@ -346,6 +352,182 @@ class Test_Identity_Crisis extends BaseTestCase {
 	}
 
 	/**
+	 * Test the add_idc_query_args_to_url with null input.
+	 */
+	public function test_add_idc_query_args_to_url_input_null() {
+		$this->set_up_for_test_add_idc_query_args_to_url();
+
+		$result = Identity_Crisis::init()->add_idc_query_args_to_url( null );
+
+		$this->tear_down_for_test_add_idc_query_args_to_url();
+
+		$this->assertNull( $result );
+	}
+
+	/**
+	 * Test the add_idc_query_args_to_url with a non-string input.
+	 */
+	public function test_add_idc_query_args_to_url_input_not_string() {
+		$this->set_up_for_test_add_idc_query_args_to_url();
+
+		$input  = 123;
+		$result = Identity_Crisis::init()->add_idc_query_args_to_url( $input );
+
+		$this->tear_down_for_test_add_idc_query_args_to_url();
+
+		$this->assertSame( $input, $result );
+	}
+
+	/**
+	 * Test the test_add_idc_query_args_to_url method with a valid url input.
+	 */
+	public function test_add_idc_query_args_to_url() {
+		$this->set_up_for_test_add_idc_query_args_to_url();
+		$input_url = 'https://www.example.com';
+
+		$result     = Identity_Crisis::init()->add_idc_query_args_to_url( $input_url );
+		$url_parts  = wp_parse_url( $result );
+		$query_args = wp_parse_args( $url_parts['query'] );
+
+		$this->tear_down_for_test_add_idc_query_args_to_url();
+
+		$this->assertSame( self::TEST_URL, $query_args['siteurl'] );
+		$this->assertSame( self::TEST_URL, $query_args['home'] );
+		$this->assertSame( $input_url, $url_parts['scheme'] . '://' . $url_parts['host'] );
+
+		$this->assertSame( '1', $query_args['idc'] );
+		$this->assertFalse( isset( $query_args['migrate_for_idc'] ) );
+	}
+
+	/**
+	 * Test the add_idc_query_args_to_url with idc disabled with the `jetpack_should_handle_idc`
+	 * filter.
+	 */
+	public function test_add_idc_query_args_to_url_no_idc() {
+		$this->set_up_for_test_add_idc_query_args_to_url();
+		add_filter( 'jetpack_should_handle_idc', '__return_false' );
+
+		$input_url = 'https://www.example.com';
+
+		$result     = Identity_Crisis::init()->add_idc_query_args_to_url( $input_url );
+		$url_parts  = wp_parse_url( $result );
+		$query_args = wp_parse_args( $url_parts['query'] );
+
+		$this->tear_down_for_test_add_idc_query_args_to_url();
+		remove_filter( 'jetpack_should_handle_idc', '__return_false' );
+
+		$this->assertSame( self::TEST_URL, $query_args['siteurl'] );
+		$this->assertSame( self::TEST_URL, $query_args['home'] );
+		$this->assertSame( $input_url, $url_parts['scheme'] . '://' . $url_parts['host'] );
+
+		$this->assertFalse( isset( $query_args['idc'] ) );
+		$this->assertFalse( isset( $query_args['migrate_for_idc'] ) );
+	}
+
+	/**
+	 * Test the add_idc_query_args_to_url with a migrade_for_idc option value of 1.
+	 */
+	public function test_add_idc_query_args_to_url_migrate_for_idc() {
+		$this->set_up_for_test_add_idc_query_args_to_url();
+		\Jetpack_Options::update_option( 'migrate_for_idc', true );
+
+		$input_url = 'https://www.example.com';
+
+		$result     = Identity_Crisis::init()->add_idc_query_args_to_url( $input_url );
+		$url_parts  = wp_parse_url( $result );
+		$query_args = wp_parse_args( $url_parts['query'] );
+
+		$this->tear_down_for_test_add_idc_query_args_to_url();
+		\Jetpack_Options::delete_option( 'migrate_for_idc' );
+
+		$this->assertSame( self::TEST_URL, $query_args['siteurl'] );
+		$this->assertSame( self::TEST_URL, $query_args['home'] );
+		$this->assertSame( $input_url, $url_parts['scheme'] . '://' . $url_parts['host'] );
+
+		$this->assertSame( '1', $query_args['idc'] );
+		$this->assertSame( '1', $query_args['migrate_for_idc'] );
+	}
+
+	/**
+	 * Test the add_idc_query_args_to_url method with offline mode.
+	 */
+	public function test_add_idc_query_args_to_url_offline_mode() {
+		$this->set_up_for_test_add_idc_query_args_to_url();
+		add_filter( 'jetpack_offline_mode', '__return_true' );
+		\Jetpack_Options::update_option( 'migrate_for_idc', true );
+
+		$input_url = 'https://www.example.com';
+
+		$result     = Identity_Crisis::init()->add_idc_query_args_to_url( $input_url );
+		$url_parts  = wp_parse_url( $result );
+		$query_args = array();
+		if ( array_key_exists( 'query', $url_parts ) ) {
+			$query_args = wp_parse_args( $url_parts['query'] );
+		}
+
+		$this->tear_down_for_test_add_idc_query_args_to_url();
+		remove_filter( 'jetpack_offline_mode', '__return_true' );
+		\Jetpack_Options::delete_option( 'migrate_for_idc' );
+
+		$this->assertSame( $input_url, $url_parts['scheme'] . '://' . $url_parts['host'] );
+		$this->assertArrayNotHasKey( 'idc', $query_args );
+		$this->assertArrayNotHasKey( 'migrate_for_idc', $query_args );
+		$this->assertArrayNotHasKey( 'siteurl', $query_args );
+		$this->assertArrayNotHasKey( 'home', $query_args );
+	}
+
+	/**
+	 * Test the add_idc_query_args_to_url method with staging mode.
+	 */
+	public function test_add_idc_query_args_to_url_staging_mode() {
+		$this->set_up_for_test_add_idc_query_args_to_url();
+		add_filter( 'jetpack_is_staging_site', '__return_true' );
+		\Jetpack_Options::update_option( 'migrate_for_idc', true );
+
+		$input_url = 'https://www.example.com';
+
+		$result     = Identity_Crisis::init()->add_idc_query_args_to_url( $input_url );
+		$url_parts  = wp_parse_url( $result );
+		$query_args = array();
+		if ( array_key_exists( 'query', $url_parts ) ) {
+			$query_args = wp_parse_args( $url_parts['query'] );
+		}
+
+		$this->tear_down_for_test_add_idc_query_args_to_url();
+		remove_filter( 'jetpack_is_staging_site', '__return_true' );
+		\Jetpack_Options::delete_option( 'migrate_for_idc' );
+
+		$this->assertSame( $input_url, $url_parts['scheme'] . '://' . $url_parts['host'] );
+		$this->assertSame( '1', $query_args['idc'] );
+		$this->assertSame( '1', $query_args['migrate_for_idc'] );
+		$this->assertSame( self::TEST_URL, $query_args['siteurl'] );
+		$this->assertSame( self::TEST_URL, $query_args['home'] );
+	}
+
+	/**
+	 * Set up test_add_idc_query_args_to_url test environment.
+	 */
+	public function set_up_for_test_add_idc_query_args_to_url() {
+		add_filter( 'jetpack_sync_site_url', array( $this, 'return_test_url' ) );
+		add_filter( 'jetpack_sync_home_url', array( $this, 'return_test_url' ) );
+	}
+
+	/**
+	 * Tear down test_add_idc_query_args_to_url test environment.
+	 */
+	public function tear_down_for_test_add_idc_query_args_to_url() {
+		remove_filter( 'jetpack_sync_site_url', array( $this, 'return_test_url' ) );
+		remove_filter( 'jetpack_sync_home_url', array( $this, 'return_test_url' ) );
+	}
+
+	/**
+	 * Returns the test url.
+	 */
+	public function return_test_url() {
+		return self::TEST_URL;
+	}
+
+	/**
 	 * Test the check_response_for_idc method when the response does not contain an error code.
 	 *
 	 * @param mixed $input  The input to the check_response_for_idc method.
@@ -587,6 +769,210 @@ class Test_Identity_Crisis extends BaseTestCase {
 
 		$this->assertFalse( $result );
 		$this->assertNull( Jetpack_Options::get_option( 'migrate_for_idc', null ) );
+	}
+
+	/**
+	 * Test the has_identity_crisis method.
+	 *
+	 * @param bool $check_identity_crisis The value that Identity_Crisis::check_identity_crisis should return.
+	 * @param bool $safe_mode_confirmed   The value of the Identity_Crisis::$safe_mode_confirmed property.
+	 * @param bool $expected_result       The value expected to be returned by the call to the has_identity_crisis method.
+	 *
+	 * @dataProvider data_provider_test_has_identity_crisis
+	 */
+	public function test_has_identity_crisis( $check_identity_crisis, $safe_mode_confirmed, $expected_result ) {
+		if ( $check_identity_crisis ) {
+			$this->check_identity_crisis_return_error( array( 'test' ) );
+		}
+
+		Identity_Crisis::$is_safe_mode_confirmed = $safe_mode_confirmed;
+
+		$result = Identity_Crisis::has_identity_crisis();
+
+		$this->clean_up_check_identity_crisis_return_error();
+		Identity_Crisis::$is_safe_mode_confirmed = false;
+
+		$this->assertSame( $expected_result, $result );
+	}
+
+	/**
+	 * Data provider for the test_has_identity_crisis method.
+	 *
+	 * @return array The test data with the format:
+	 *   [
+	 *     'check_identity_crisis' => (bool) The value that Identity_Crisis::check_identity_crisis should return.
+	 *     'safe_mode_confirmed'   => (bool) The value of the Identity_Crisis::$safe_mode_confirmed property.
+	 *     'expected_result'       => (bool) The value expected to be returned by the call to the has_identity_crisis method.
+	 *   ]
+	 */
+	public function data_provider_test_has_identity_crisis() {
+		return array(
+			'check idc is true and safe mode is true'   => array(
+				'check_identity_crisis' => true,
+				'safe_mode_confirmed'   => true,
+				'expected_result'       => false,
+			),
+			'check idc is true and safe mode is false'  => array(
+				'check_identity_crisis' => true,
+				'safe_mode_confirmed'   => false,
+				'expected_result'       => true,
+			),
+			'check idc is false and safe mode is true'  => array(
+				'check_identity_crisis' => false,
+				'safe_mode_confirmed'   => true,
+				'expected_result'       => false,
+			),
+			'check idc is false and safe mode is false' => array(
+				'check_identity_crisis' => false,
+				'safe_mode_confirmed'   => false,
+				'expected_result'       => false,
+			),
+		);
+	}
+
+	/**
+	 * Test the get_mismatched_urls method.
+	 *
+	 * @param mixed $idc_error       The value of the jetpack_sync_idc_error option.
+	 * @param mixed $expected_result The value that the get_mismatched_value method should return.
+	 *
+	 * @dataProvider data_provider_test_get_mismatched_urls
+	 */
+	public function test_get_mismatched_urls( $idc_error, $expected_result ) {
+		$this->check_identity_crisis_return_error( $idc_error );
+		$result = Identity_Crisis::get_mismatched_urls();
+		$this->clean_up_check_identity_crisis_return_error();
+
+		$this->assertSame( $expected_result, $result );
+	}
+
+	/**
+	 * Data providerd for the test_get_mismatched_urls method.
+	 *
+	 * @return array The test data with the format:
+	 *   [
+	 *     'idc_error'       => (mixed) The value of the jetpack_sync_idc_error option.
+	 *     'expected_result' => (mixed) The value that the get_mismatched_value method should return.
+	 *   ]
+	 */
+	public function data_provider_test_get_mismatched_urls() {
+		return array(
+			'false'                   => array(
+				'idc_error'       => false,
+				'expected_result' => false,
+			),
+			'empty array'             => array(
+				'idc_error'       => array(),
+				'expected_result' => false,
+			),
+			'no error_code key'       => array(
+				'idc_error'       => array(
+					'no_error_code' => 'test',
+					'wpcom_siteurl' => 'example.com/wpcom_siteurl',
+					'wpcom_home'    => 'example.com/wpcom_home',
+					'siteurl'       => 'example.com/remote_siteurl',
+					'home'          => 'example.com/remote_home',
+				),
+				'expected_result' => false,
+			),
+			'no wpcom_siteurl key'    => array(
+				'idc_error'       => array(
+					'error_code' => 'jetpack_url_mismatch',
+					'wpcom_home' => 'example.com/wpcom_home',
+					'siteurl'    => 'example.com/remote_siteurl',
+					'home'       => 'example.com/remote_home',
+				),
+				'expected_result' => false,
+			),
+			'no wpcom_home key'       => array(
+				'idc_error'       => array(
+					'error_code'    => 'jetpack_url_mismatch',
+					'wpcom_siteurl' => 'example.com/wpcom_siteurl',
+					'siteurl'       => 'example.com/remote_siteurl',
+					'home'          => 'example.com/remote_home',
+				),
+				'expected_result' => false,
+			),
+			'no siteurl key'          => array(
+				'idc_error'       => array(
+					'error_code'    => 'jetpack_url_mismatch',
+					'wpcom_siteurl' => 'example.com/wpcom_siteurl',
+					'wpcom_home'    => 'example.com/wpcom_home',
+					'home'          => 'example.com/remote_home',
+				),
+				'expected_result' => false,
+			),
+			'no home key'             => array(
+				'idc_error'       => array(
+					'error_code'    => 'jetpack_url_mismatch',
+					'wpcom_siteurl' => 'example.com/wpcom_siteurl',
+					'wpcom_home'    => 'example.com/wpcom_home',
+					'siteurl'       => 'example.com/remote_siteurl',
+				),
+				'expected_result' => false,
+			),
+			'site_url_mismatch_error' => array(
+				'idc_error'       => array(
+					'error_code'    => 'jetpack_site_url_mismatch',
+					'wpcom_siteurl' => 'example.com/wpcom_siteurl',
+					'wpcom_home'    => 'example.com/wpcom_home',
+					'siteurl'       => 'example.com/remote_siteurl',
+					'home'          => 'example.com/remote_home',
+				),
+				'expected_result' => array(
+					'wpcom_url'   => 'example.com/wpcom_siteurl',
+					'current_url' => 'example.com/remote_siteurl',
+				),
+			),
+			'home_url_mismatch_error' => array(
+				'idc_error'       => array(
+					'error_code'    => 'jetpack_home_url_mismatch',
+					'wpcom_siteurl' => 'example.com/wpcom_siteurl',
+					'wpcom_home'    => 'example.com/wpcom_home',
+					'siteurl'       => 'example.com/remote_siteurl',
+					'home'          => 'example.com/remote_home',
+				),
+				'expected_result' => array(
+					'wpcom_url'   => 'example.com/wpcom_home',
+					'current_url' => 'example.com/remote_home',
+				),
+			),
+			'url_mismatch_error'      => array(
+				'idc_error'       => array(
+					'error_code'    => 'jetpack_url_mismatch',
+					'wpcom_siteurl' => 'example.com/wpcom_siteurl',
+					'wpcom_home'    => 'example.com/wpcom_home',
+					'siteurl'       => 'example.com/remote_siteurl',
+					'home'          => 'example.com/remote_home',
+				),
+				'expected_result' => array(
+					'wpcom_url'   => 'example.com/wpcom_home',
+					'current_url' => 'example.com/remote_home',
+				),
+			),
+		);
+	}
+
+	/**
+	 * Forces the Identity_Crisis::check_identity_crisis method to return the input idc error array.
+	 *
+	 * @param array $idc_error The idc error array to be returned.
+	 */
+	private function check_identity_crisis_return_error( $idc_error ) {
+		\Jetpack_Options::update_option( 'id', 'test' );
+		\Jetpack_Options::update_option( 'blog_token', 'test' );
+		add_filter( 'jetpack_sync_error_idc_validation', '__return_true' );
+		update_option( 'jetpack_sync_error_idc', $idc_error );
+	}
+
+	/**
+	 * Clean up the settings from the check_identity_crisis_return_error method.
+	 */
+	private function clean_up_check_identity_crisis_return_error() {
+		\Jetpack_Options::delete_option( 'id', 'test' );
+		\Jetpack_Options::update_option( 'blog_token', 'test' );
+		remove_filter( 'jetpack_sync_error_idc_validation', '__return_true' );
+		delete_option( 'jetpack_sync_error_idc' );
 	}
 
 	/**

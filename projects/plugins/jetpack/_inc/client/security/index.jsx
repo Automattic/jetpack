@@ -119,7 +119,8 @@ export class Security extends Component {
 							? __( 'Security', 'jetpack' )
 							: __(
 									'Your site is protected by Jetpack. You’ll be notified if anything needs attention.',
-									'jetpack'
+									'jetpack',
+									/* dummy arg to avoid bad minification */ 0
 							  )
 					}
 					className="jp-settings-description"

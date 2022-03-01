@@ -5,6 +5,45 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.7.1] - 2022-02-22
+### Changed
+- Updated package dependencies.
+
+## [1.7.0] - 2022-02-16
+### Added
+- Added the ability to specify a partner logo for each supported partner
+- Remotely check if partner coupon looks valid
+
+## [1.6.4] - 2022-01-25
+### Changed
+- Updated package dependencies.
+
+## [1.6.3] - 2022-01-18
+### Changed
+- Updated package dependencies.
+
+## [1.6.2] - 2022-01-04
+### Changed
+- Switch to pcov for code coverage.
+- Updated package dependencies
+
+## [1.6.1] - 2021-12-14
+### Changed
+- Updated package dependencies.
+
+## [1.6.0] - 2021-11-30
+### Added
+- Addde partner coupon logic
+
+## [1.5.7] - 2021-11-23
+### Changed
+- Updated package dependencies
+
+## [1.5.6] - 2021-11-02
+### Changed
+- Set `convertDeprecationsToExceptions` true in PHPUnit config.
+- Update PHPUnit configs to include just what needs coverage rather than include everything then try to exclude stuff that doesn't.
+
 ## [1.5.5] - 2021-10-19
 ### Changed
 - Updated package dependencies.
@@ -86,6 +125,15 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - Add partner subsidiary id to upgrade URLs.
 
+[1.7.1]: https://github.com/Automattic/jetpack-partner/compare/v1.7.0...v1.7.1
+[1.7.0]: https://github.com/Automattic/jetpack-partner/compare/v1.6.4...v1.7.0
+[1.6.4]: https://github.com/Automattic/jetpack-partner/compare/v1.6.3...v1.6.4
+[1.6.3]: https://github.com/Automattic/jetpack-partner/compare/v1.6.2...v1.6.3
+[1.6.2]: https://github.com/Automattic/jetpack-partner/compare/v1.6.1...v1.6.2
+[1.6.1]: https://github.com/Automattic/jetpack-partner/compare/v1.6.0...v1.6.1
+[1.6.0]: https://github.com/Automattic/jetpack-partner/compare/v1.5.7...v1.6.0
+[1.5.7]: https://github.com/Automattic/jetpack-partner/compare/v1.5.6...v1.5.7
+[1.5.6]: https://github.com/Automattic/jetpack-partner/compare/v1.5.5...v1.5.6
 [1.5.5]: https://github.com/Automattic/jetpack-partner/compare/v1.5.4...v1.5.5
 [1.5.4]: https://github.com/Automattic/jetpack-partner/compare/v1.5.3...v1.5.4
 [1.5.3]: https://github.com/Automattic/jetpack-partner/compare/v1.5.2...v1.5.3

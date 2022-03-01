@@ -77,7 +77,7 @@ fi
 cd "$BASE"
 pnpx jetpack install --all
 
-DEPS="$(tools/find-project-deps.php)"
+DEPS="$(pnpx jetpack dependencies json)"
 declare -A RELEASED
 
 # Release a project
@@ -109,8 +109,6 @@ function releaseProject {
 	local CL
 	if [[ -x vendor/bin/changelogger ]]; then
 		CL=vendor/bin/changelogger
-	elif [[ -x bin/changelogger ]]; then
-		CL=bin/changelogger
 	else
 		yellow "${I}No changelogger! Skipping."
 		return
@@ -163,8 +161,7 @@ cd "$BASE"
 info "Updating dependencies..."
 SLUGS=()
 # Use a temp variable so pipefail works
-TMP="$(tools/get-build-order.php 2>/dev/null)"
-TMP=monorepo$'\n'"$TMP"
+TMP="$(pnpx jetpack dependencies build-order --pretty)"
 mapfile -t SLUGS <<<"$TMP"
 for SLUG in "${SLUGS[@]}"; do
 	if [[ -n "${RELEASED[$SLUG]}" ]]; then
@@ -175,6 +172,9 @@ for SLUG in "${SLUGS[@]}"; do
 		tools/check-intra-monorepo-deps.sh $VERBOSE -u "$SLUG"
 	fi
 done
+
+debug "  Updating pnpm.lock..."
+pnpm install --silent
 
 cat <<-EOM
 
@@ -191,8 +191,6 @@ if [[ "$SLUG" == plugins/* ]]; then
 	VER=
 	if [[ -x "projects/$SLUG/vendor/bin/changelogger" ]]; then
 		VER=$(cd "projects/$SLUG" && vendor/bin/changelogger version current)
-	elif [[ -x "projects/$SLUG/bin/changelogger" ]]; then
-		VER=$(cd "projects/$SLUG" && bin/changelogger version current)
 	fi
 	if [[ -n "$VER" ]]; then
 		cat <<-EOM

@@ -111,7 +111,7 @@ class PostByEmail extends React.Component {
 						>
 							{ emailAddress
 								? __( 'Regenerate address', 'jetpack' )
-								: __( 'Create address', 'jetpack' ) }
+								: __( 'Create address', 'jetpack', /* dummy arg to avoid bad minification */ 0 ) }
 						</Button>
 					</FormFieldset>
 				</SettingsGroup>

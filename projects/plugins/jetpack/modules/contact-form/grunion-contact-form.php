@@ -114,7 +114,7 @@ class Grunion_Contact_Form_Plugin {
 				$data_without_tags[ $index ] = $value;
 			}
 		} else {
-			$data_without_tags = wp_kses( $data_with_tags, array() );
+			$data_without_tags = wp_kses( (string) $data_with_tags, array() );
 			$data_without_tags = str_replace( '&amp;', '&', $data_without_tags ); // undo damage done by wp_kses_normalize_entities()
 		}
 
@@ -510,13 +510,17 @@ class Grunion_Contact_Form_Plugin {
 	 *
 	 * Conditionally attached to `template_redirect`
 	 */
-	function process_form_submission() {
-		// Add a filter to replace tokens in the subject field with sanitized field values
+	public function process_form_submission() {
+		// Add a filter to replace tokens in the subject field with sanitized field values.
 		add_filter( 'contact_form_subject', array( $this, 'replace_tokens_with_input' ), 10, 2 );
 
-		$id   = stripslashes( $_POST['contact-form-id'] );
-		$hash = isset( $_POST['contact-form-hash'] ) ? $_POST['contact-form-hash'] : '';
+		// phpcs:disable WordPress.Security.NonceVerification.Missing
+		$id   = isset( $_POST['contact-form-id'] ) ? wp_unslash( $_POST['contact-form-id'] ) : null;
+		$id   = is_string( $id ) ? $id : null;
+		$hash = isset( $_POST['contact-form-hash'] ) ? wp_unslash( $_POST['contact-form-hash'] ) : null;
+		$hash = is_string( $hash ) ? $hash : null;
 		$hash = preg_replace( '/[^\da-f]/i', '', $hash );
+		// phpcs:enable
 
 		if ( ! is_string( $id ) || ! is_string( $hash ) ) {
 			return false;
@@ -657,7 +661,10 @@ class Grunion_Contact_Form_Plugin {
 	}
 
 	static function sanitize_value( $value ) {
-		return preg_replace( '=((<CR>|<LF>|0x0A/%0A|0x0D/%0D|\\n|\\r)\S).*=i', null, $value );
+		if ( null === $value ) {
+			return '';
+		}
+		return preg_replace( '=((<CR>|<LF>|0x0A/%0A|0x0D/%0D|\\n|\\r)\S).*=i', '', $value );
 	}
 
 	/**
@@ -1811,9 +1818,9 @@ class Crunion_Contact_Form_Shortcode {
 	function parse_content( $content ) {
 		if ( is_null( $content ) ) {
 			$this->body = null;
+		} else {
+			$this->body = do_shortcode( $content );
 		}
-
-		$this->body = do_shortcode( $content );
 	}
 
 	/**
@@ -1857,7 +1864,8 @@ class Crunion_Contact_Form_Shortcode {
 		// For back-compat with old Grunion encoding
 		// Also, unencode commas
 		$value = strtr(
-			$value, array(
+			(string) $value,
+			array(
 				'%26' => '&',
 				'%25' => '%',
 			)
@@ -2206,6 +2214,8 @@ class Grunion_Contact_Form extends Crunion_Contact_Form_Shortcode {
 			}
 
 			$r .= "<form action='" . esc_url( $url ) . "' method='post' class='" . esc_attr( $form_classes ) . "'>\n";
+			$r .= self::get_script_for_form();
+
 			$r .= $form->body;
 
 			// In new versions of the contact form block the button is an inner block
@@ -2313,6 +2323,29 @@ class Grunion_Contact_Form extends Crunion_Contact_Form_Shortcode {
 	}
 
 	/**
+	 * Returns a script that disables the contact form button after a form submission.
+	 *
+	 * @return string The script.
+	 */
+	private static function get_script_for_form() {
+		return "<script>
+			( function () {
+				const contact_forms = document.getElementsByClassName('contact-form');
+
+				for ( const form of contact_forms ) {
+					form.onsubmit = function() {
+						const buttons = form.getElementsByTagName('button');
+
+						for( const button of buttons ) {
+							button.setAttribute('disabled', true);
+						}
+					}
+				}
+			} )();
+		</script>";
+	}
+
+	/**
 	 * Returns a compiled form with labels and values in a form of  an array
 	 * of lines.
 	 *
@@ -2351,6 +2384,11 @@ class Grunion_Contact_Form extends Crunion_Contact_Form_Shortcode {
 					$value         = $feedback->post_content;
 					list( $value ) = explode( '<!--more-->', $value );
 					$value         = trim( $value );
+				}
+
+				// If we still do not have any value, bail.
+				if ( empty( $value ) ) {
+					continue;
 				}
 
 				$field_index                   = array_search( $field_ids[ $type ], $field_ids['all'] );
@@ -2498,13 +2536,13 @@ class Grunion_Contact_Form extends Crunion_Contact_Form_Shortcode {
 			$form->fields[] = $field;
 		}
 
-		if (
+		if ( // phpcs:disable WordPress.Security.NonceVerification.Missing
 			isset( $_POST['action'] ) && 'grunion-contact-form' === $_POST['action']
 			&&
 			isset( $_POST['contact-form-id'] ) && $form->get_attribute( 'id' ) == $_POST['contact-form-id']
 			&&
-			isset( $_POST['contact-form-hash'] ) && hash_equals( $form->hash, $_POST['contact-form-hash'] )
-		) {
+			isset( $_POST['contact-form-hash'] ) && is_string( $_POST['contact-form-hash'] ) && hash_equals( $form->hash, $_POST['contact-form-hash'] )
+		) { // phpcs:enable
 			// If we're processing a POST submission for this contact form, validate the field value so we can show errors as necessary.
 			$field->validate();
 		}
@@ -2806,7 +2844,7 @@ class Grunion_Contact_Form extends Crunion_Contact_Form_Shortcode {
 
 		$vars = array( 'comment_author', 'comment_author_email', 'comment_author_url', 'contact_form_subject', 'comment_author_IP' );
 		foreach ( $vars as $var ) {
-			$$var = str_replace( array( "\n", "\r" ), '', $$var );
+			$$var = str_replace( array( "\n", "\r" ), '', (string) $$var );
 		}
 
 		// Ensure that Akismet gets all of the relevant information from the contact form,

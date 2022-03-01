@@ -1,0 +1,118 @@
+@import '@automattic/jetpack-base-styles/style';
+
+.jp-license-activation-screen-controls {
+	background: var(--jp-white);
+	padding: 32px;
+	display: flex;
+	flex-direction: column;
+	justify-content: space-between;
+
+	h1 {
+		//typography-exception
+		font-size: 44px;
+		font-weight: 700;
+	}
+
+	p {
+		font-size: var(--font-body);
+	}
+
+	label {
+		font-weight: 600;
+		font-size: var(--font-body);
+	}
+
+	@media screen and (min-width: 780px) {
+		padding: 64px;
+	}
+
+
+	.jp-license-activation-screen-controls--license-field,
+	.jp-license-activation-screen-controls--license-field-with-error {
+		label {
+			font-weight: 600;
+			font-size: var(--font-body);
+		}
+
+		input.components-text-control__input {
+			border-radius: var(--jp-border-radius);
+			font-size: 18px;
+			line-height: 24px;
+			margin: 0;
+			min-height: 48px;
+		}
+	}
+
+	.jp-license-activation-screen-controls--license-field {
+		input.components-text-control__input {
+			border: 1px solid var( --jp-gray-40 );
+		}
+	}
+
+	.jp-license-activation-screen-controls--license-field-with-error {
+		input.components-text-control__input {
+			border: 1px solid var(--jp-red);
+		}
+	}
+
+	.jp-license-activation-screen-controls--license-field-error {
+		display: flex;
+		flex-direction: row;
+		align-items: start;
+		color: var(--jp-red);
+
+		svg {
+			margin-right: 4px;
+			fill: var(--jp-red);
+			min-width: 24px;
+		}
+
+		span {
+			font-size: var(--font-body);
+		}
+	}
+
+	.jp-license-activation-screen-controls--button,
+	.jp-license-activation-screen-controls--button:active {
+		background-color: var( --jp-black );
+		border-radius: 4px;
+		color: var( --jp-white );
+		display: flex;
+		font-size: 16px;
+		font-size: var(--font-body);
+		font-style: normal;
+		font-weight: 600;
+		justify-content: center;
+		line-height: 24px;
+		margin-top: 24px;
+		min-height: 48px;
+		min-width: 158px;
+		padding: 13.5px 45px 13.5px 45px;
+		width: 100%;
+
+		@media screen and (min-width: 480px) {
+			width: auto;
+		}
+
+		&:hover {
+			background-color: var( --jp-black-80 );
+			color: var( --jp-white );
+		}
+
+		&:focus {
+			background-color: var( --jp-black-80 );
+			border: 1px solid var( --jp-white );
+			color: var( --jp-white );
+		}
+
+		&[disabled],
+		&:disabled {
+			background-color: var( --jp-gray );
+			color: var( --jp-gray-20 );;
+		}
+
+		.jp-components-spinner {
+			width: 100%;
+		}
+	}
+}

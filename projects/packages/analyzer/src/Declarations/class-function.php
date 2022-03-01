@@ -35,6 +35,39 @@ class Function_ extends Declaration {
 		);
 	}
 
+	/**
+	 * Returns a serializable representation of the object.
+	 *
+	 * @return array
+	 */
+	public function to_map() {
+		return array(
+			'decl_type'     => $this->type(),
+			'file_path'     => $this->path,
+			'file_line'     => $this->line,
+			'member_name'   => $this->func_name,
+			'fnc_params'    => $this->params,
+			'is_deprecated' => $this->deprecated,
+		);
+	}
+
+	/**
+	 * Create object from deserialized JSON object
+	 *
+	 * @param object $obj deserialized JSON object.
+	 */
+	public static function from_map( $obj ) {
+		$declaration = new Function_( $obj->file_path, $obj->file_line, $obj->member_name, $obj->is_deprecated );
+		if ( is_array( $obj->fnc_params ) ) {
+			foreach ( $obj->fnc_params as $param ) {
+				// phpcs:ignore WordPress.NamingConventions.ValidVariableName.UsedPropertyNotSnakeCase
+				$declaration->add_param( $param->name, $param->default, $param->type, $param->byRef, $param->variadic );
+			}
+		}
+
+		return $declaration;
+	}
+
 	function type() {
 		return 'function';
 	}

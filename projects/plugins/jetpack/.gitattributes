@@ -3,6 +3,7 @@
 /_inc/blocks/**                                          production-include
 /_inc/build/**                                           production-include
 /css/**                                                  production-include
+/jetpack_vendor/**                                       production-include
 /modules/**/*-rtl.css                                    production-include
 /modules/**/*.min.css                                    production-include
 /modules/**/*/block.js                                   production-include
@@ -15,12 +16,15 @@
 /vendor/composer/**                                      production-include
 /vendor/jetpack-autoloader/**                            production-include
 /vendor/nojimage/**                                      production-include
+/vendor/wikimedia/aho-corasick/**                        production-include
 
 # Files to exclude from Automattic/jetpack-production.
 # Remember to end all directories with `/**` to properly tag every file.
 .eslintrc.js                                             production-exclude
+.eslintignore                                            production-exclude
 /.gitattributes                                          production-exclude
 /.gitignore                                              production-exclude
+/.phpcs.dir.xml                                          production-exclude
 /.sass-cache/**                                          production-exclude
 /.size-limit.js                                          production-exclude
 /.wp-env.json                                            production-exclude
@@ -45,12 +49,13 @@
 /extensions/**/*.svg                                     production-exclude
 /extensions/**/test/**                                   production-exclude
 /gulpfile.babel.js                                       production-exclude
+/jetpack_vendor/automattic/**/README.md                  production-exclude
+/jetpack_vendor/automattic/**/src/css/*.scss             production-exclude
+/jetpack_vendor/automattic/**/composer.json              production-exclude
 /modules/**/test/**                                      production-exclude
 /modules/calypsoify/*.css.map                            production-exclude
 /modules/calypsoify/*.scss                               production-exclude
 /modules/masterbar/admin-color-schemes/colors/**/*.scss  production-exclude
-/modules/search/instant-search/**                        production-exclude
-/modules/search/customberg/**                            production-exclude
 /modules/widgets/follow-button.php                       production-exclude
 /modules/widget-visibility/editor/**                     production-exclude
 /node_modules/**                                         production-exclude
@@ -67,4 +72,5 @@
 /vendor/automattic/**/composer.json                      production-exclude
 /vendor/automattic/jetpack-autoloader/**                 production-exclude
 /vendor/automattic/jetpack-changelogger/**               production-exclude
+/vendor/automattic/jetpack-composer-plugin/**            production-exclude
 /wp-cli-templates/**                                     production-exclude

@@ -1,4 +1,0 @@
-Significance: patch
-Type: added
-
-Added an action to auto-create a GitHub release when a version is tagged.

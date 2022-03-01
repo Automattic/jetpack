@@ -1,0 +1,57 @@
+:global {
+	#my-jetpack-container {
+		--wp-admin-theme-color: var(--jp-black);
+		--wp-admin-theme-color-darker-10: var(--jp-black-80);
+		--wp-admin-theme-color-darker-20: var(--jp-black-80);
+		--my-jetpack-button-height: 32px;
+		height: 100%;
+
+		.jetpack-logo {
+			height: 40px;
+		}
+
+		.jp-dashboard-footer__jetpack-symbol {
+			height: 16px;
+		}
+		
+		// Buttons
+		// button-group
+		.components-button-group,
+		.components-button {
+			border-radius: 4px;
+			height: var(--my-jetpack-button-height);
+			line-height: var(--my-jetpack-button-height);
+		}
+
+		.components-button-group {
+			> .components-button:first-child {
+				border-top-right-radius: 0;
+				border-bottom-right-radius: 0;
+			}
+
+			.components-dropdown-menu > .components-button,
+			> .components-button:last-child {
+				border-top-left-radius: 0;
+				border-bottom-left-radius: 0;
+			}
+		}
+	}
+
+	#wpbody-content {
+		& > .notice {
+			display: none;
+		}
+	}
+}
+
+.layout {
+	display: flex;
+	height: 100%;
+	flex-direction: column;
+	justify-content: space-between;
+	margin-left: -20px; // to neutralize the padding of #wpcontent.
+
+	@media (max-width: 782px) {
+		margin-left: -10px; // to neutralize the padding of #wpcontent.
+	}
+}

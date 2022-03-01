@@ -1,6 +1,6 @@
 {
 	"name": "@automattic/eslint-changed",
-	"version": "1.0.2-alpha",
+	"version": "2.0.1",
 	"description": "Run eslint on files, but only report warnings and errors from lines that were changed.",
 	"homepage": "https://github.com/Automattic/jetpack/tree/HEAD/projects/js-packages/eslint-changed/README.md#readme",
 	"bugs": {
@@ -20,21 +20,22 @@
 		"test": "js-test-runner 'glob:tests/**/*.js'"
 	},
 	"dependencies": {
-		"chalk": "4.1.1",
+		"@babel/preset-react": "7.16.0",
+		"chalk": "4.1.2",
 		"commander": "7.2.0",
 		"parse-diff": "0.8.1"
 	},
 	"devDependencies": {
-		"eslint": "7.32.0",
+		"eslint": "8.8.0",
 		"jetpack-js-test-runner": "workspace:*",
 		"nyc": "15.1.0"
 	},
 	"peerDependencies": {
-		"eslint": ">=1.1.0"
+		"eslint": ">=7.0.0"
 	},
 	"engines": {
-		"node": "^14.17.6 || ^16.7.0",
-		"pnpm": "^6.5.0",
+		"node": "^14.18.3 || ^16.13.2",
+		"pnpm": "^6.23.6",
 		"yarn": "use pnpm instead - see docs/yarn-upgrade.md"
 	}
 }

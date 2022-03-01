@@ -183,7 +183,7 @@ class Secrets {
 				new WP_Error(
 					'verify_secret_1_missing',
 					/* translators: "%s" is the name of a paramter. It can be either "secret_1" or "state". */
-					sprintf( __( 'The required "%s" parameter is missing.', 'jetpack' ), 'secret_1' ),
+					sprintf( __( 'The required "%s" parameter is missing.', 'jetpack-connection' ), 'secret_1' ),
 					400
 				)
 			);
@@ -192,7 +192,7 @@ class Secrets {
 				new WP_Error(
 					'verify_secret_1_malformed',
 					/* translators: "%s" is the name of a paramter. It can be either "secret_1" or "state". */
-					sprintf( __( 'The required "%s" parameter is malformed.', 'jetpack' ), 'secret_1' ),
+					sprintf( __( 'The required "%s" parameter is malformed.', 'jetpack-connection' ), 'secret_1' ),
 					400
 				)
 			);
@@ -202,7 +202,7 @@ class Secrets {
 				new WP_Error(
 					'state_missing',
 					/* translators: "%s" is the name of a paramter. It can be either "secret_1" or "state". */
-					sprintf( __( 'The required "%s" parameter is missing.', 'jetpack' ), 'state' ),
+					sprintf( __( 'The required "%s" parameter is missing.', 'jetpack-connection' ), 'state' ),
 					400
 				)
 			);
@@ -211,7 +211,7 @@ class Secrets {
 				new WP_Error(
 					'state_malformed',
 					/* translators: "%s" is the name of a paramter. It can be either "secret_1" or "state". */
-					sprintf( __( 'The required "%s" parameter is malformed.', 'jetpack' ), 'state' ),
+					sprintf( __( 'The required "%s" parameter is malformed.', 'jetpack-connection' ), 'state' ),
 					400
 				)
 			);
@@ -219,7 +219,7 @@ class Secrets {
 			$error = $return_error(
 				new WP_Error(
 					'verify_secrets_missing',
-					__( 'Verification secrets not found', 'jetpack' ),
+					__( 'Verification secrets not found', 'jetpack-connection' ),
 					400
 				)
 			);
@@ -227,7 +227,7 @@ class Secrets {
 			$error = $return_error(
 				new WP_Error(
 					'verify_secrets_expired',
-					__( 'Verification took too long', 'jetpack' ),
+					__( 'Verification took too long', 'jetpack-connection' ),
 					400
 				)
 			);
@@ -235,7 +235,7 @@ class Secrets {
 			$error = $return_error(
 				new WP_Error(
 					'verify_secrets_empty',
-					__( 'Verification secrets are empty', 'jetpack' ),
+					__( 'Verification secrets are empty', 'jetpack-connection' ),
 					400
 				)
 			);
@@ -246,7 +246,7 @@ class Secrets {
 			$error = $return_error(
 				new WP_Error(
 					'verify_secrets_incomplete',
-					__( 'Verification secrets are incomplete', 'jetpack' ),
+					__( 'Verification secrets are incomplete', 'jetpack-connection' ),
 					400
 				)
 			);
@@ -254,7 +254,7 @@ class Secrets {
 			$error = $return_error(
 				new WP_Error(
 					'verify_secrets_mismatch',
-					__( 'Secret mismatch', 'jetpack' ),
+					__( 'Secret mismatch', 'jetpack-connection' ),
 					400
 				)
 			);

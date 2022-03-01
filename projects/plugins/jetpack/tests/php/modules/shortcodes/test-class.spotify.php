@@ -34,7 +34,7 @@ class WP_Test_Jetpack_Shortcodes_Spotify extends WP_UnitTestCase {
 	 */
 	public function test_shortcodes_spotify_player_id() {
 		$track_id = '55fQ9iIkC2qajnlvI1iMWO';
-		$content = "[spotify spotify:track:$track_id]";
+		$content  = "[spotify spotify:track:$track_id]";
 
 		$shortcode_content = do_shortcode( $content );
 
@@ -47,9 +47,9 @@ class WP_Test_Jetpack_Shortcodes_Spotify extends WP_UnitTestCase {
 	 * @since 4.5.0
 	 */
 	public function test_shortcodes_spotify_player_url() {
-		$track_id = '55fQ9iIkC2qajnlvI1iMWO';
+		$track_id  = '55fQ9iIkC2qajnlvI1iMWO';
 		$track_url = "https://play.spotify.com/track/$track_id";
-		$content = "[spotify $track_url]";
+		$content   = "[spotify $track_url]";
 
 		$shortcode_content = do_shortcode( $content );
 
@@ -63,7 +63,7 @@ class WP_Test_Jetpack_Shortcodes_Spotify extends WP_UnitTestCase {
 	 */
 	public function test_shortcodes_spotify_player_content() {
 		$track_id = '55fQ9iIkC2qajnlvI1iMWO';
-		$content = "spotify:track:$track_id";
+		$content  = "spotify:track:$track_id";
 
 		$content = apply_filters( 'the_content', $content );
 		$this->assertStringContainsString( 'https://embed.spotify.com/?uri=' . rawurlencode( "spotify:track:$track_id" ), $content );
@@ -76,7 +76,7 @@ class WP_Test_Jetpack_Shortcodes_Spotify extends WP_UnitTestCase {
 	 */
 	public function test_shortcodes_spotify_player_content_no_line() {
 		$track_id = '55fQ9iIkC2qajnlvI1iMWO';
-		$content = "This is another text spotify:track:$track_id surrounding this Spotify track.";
+		$content  = "This is another text spotify:track:$track_id surrounding this Spotify track.";
 
 		$content = apply_filters( 'the_content', $content );
 		$this->assertStringContainsString( "spotify:track:$track_id", $content );

@@ -1,10 +1,10 @@
 === Jetpack Backup ===
 Contributors: automattic, bjorsch, fgiannar, jeherve, jwebbdev, kraftbj, macbre, samiff, sermitr, williamvianas
 Tags: jetpack
-Requires at least: 5.7
+Requires at least: 5.8
 Requires PHP: 5.6
-Tested up to: 5.8
-Stable tag: 1.0.0
+Tested up to: 5.9
+Stable tag: 1.1.0
 License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
 
@@ -104,7 +104,7 @@ Jetpack’s off-site backup storage allows you to restore a clean version of you
 
 = How do I create a WordPress backup for my site? =
 
-If you don’t have Backups as part of your Jetpack plan, go to your WP Admin and then go to **Jetpack > Dashboard > Plans**. Depending on your plan, you can get daily or real-time WordPress backups. Daily backups are archived for 30 days, and real-time backups have unlimited storage.
+If you don’t have Backups as part of your Jetpack plan, [visit Jetpack.com to learn more and purchase](https://jetpack.com/upgrade/backup).
 
 As soon as you purchase Jetpack Backup, it will be activated, and the first backup will be completed. There are barely any settings to configure, and you don’t need coding experience.
 
@@ -158,21 +158,32 @@ No, Jetpack Backup does not currently support split site or split home URLs.
 2. Your site backups are stored in multiple locations on our world-class cloud infrastructure so you can recover them at any moment.
 
 == Changelog ==
-### 1.0.0 - 2021-10-13
+### 1.1.0 - 2022-01-26
 #### Added
-- Added link to the plugins list table for "Settings" to match other Jetpack plugins.
-- Plugin now disconnects Jetpack on deactivation if it's the last plugin using the connection.
-- Updated Backup plugin readme text and remove dummy tag.
-- Updated readme.md installation instructions.
-- Updated plugin menu structure.
+- Added My Jetpack page work in progress behind a feature flag.
+- Added pricing information to Jetpack Connection screen.
+- Pass connected plugin information to disconnect dialog flow, include analytics scripts.
+- Redirect to Jetpack Backup plugin page when the plugin is activated.
+- Use monorepo `validate-es` script to validate Webpack builds.
 
 #### Changed
-- Changed menu label.
-- Updated package dependencies.
-- Updated styles for buttons in backup panel and spacing for sections below.
+- Change initial screen for first backup.
+- Detect when a backup will retry and update error screen content.
+- Import RNA styles from base styles package.
+- Make Admin UI consume layout components.
+- The Admin page now promotes the new real-time Backup products.
+- Updated content shown on backup segments section.
+- Updated Jetpack Primary color to match latest brand book.
+- Updated upgrade button link target to point to checkout.
+- Use `Assets::register_script()` to load Webpack-built script.
+
+#### Removed
+- Remove use of deprecated `~` in sass-loader imports.
+- Remove use of `gulp` in build, all it was doing was wrapping `webpack`.
 
 #### Fixed
-- Adjust dashboard styling.
+- Removed backup-in-progress animation on small viewports
+- Use `@automattic/babel-plugin-replace-textdomain` to ensure proper textdomains in JS bundles.
 
 --------
 

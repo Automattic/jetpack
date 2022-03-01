@@ -10,7 +10,7 @@
 		"wikimedia/at-ease": "^1.2 | ^2.0"
 	},
 	"require-dev": {
-		"yoast/phpunit-polyfills": "1.0.2",
+		"yoast/phpunit-polyfills": "1.0.3",
 		"wikimedia/testing-access-wrapper": "^1.0 | ^2.0"
 	},
 	"autoload": {
@@ -33,13 +33,13 @@
 			"./vendor/phpunit/phpunit/phpunit --colors=always"
 		],
 		"test-coverage": [
-			"@composer update",
-			"phpdbg -d memory_limit=2048M -d max_execution_time=900 -qrr ./vendor/bin/phpunit --coverage-clover \"$COVERAGE_DIR/clover.xml\""
+			"php -dpcov.directory=. ./vendor/bin/phpunit --coverage-clover \"$COVERAGE_DIR/clover.xml\""
 		],
 		"test-php": [
-			"@composer update",
 			"@composer phpunit"
-		]
+		],
+		"post-install-cmd": "[ -e vendor/bin/changelogger ] || { cd vendor/bin && ln -s ../../bin/changelogger; }",
+		"post-update-cmd": "[ -e vendor/bin/changelogger ] || { cd vendor/bin && ln -s ../../bin/changelogger; }"
 	},
 	"repositories": [
 		{

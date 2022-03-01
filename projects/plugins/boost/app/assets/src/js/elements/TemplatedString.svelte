@@ -1,5 +1,12 @@
 <script>
+	/**
+	 * External dependencies
+	 */
 	import { onMount } from 'svelte';
+
+	/**
+	 * Internal dependencies
+	 */
 	import { copyDomTemplate } from '../utils/copy-dom-template';
 	import { parsePseudoHTML } from '../utils/parse-pseudo-html';
 
@@ -7,7 +14,7 @@
 	 * String template to display in this component. <pseudo-html/> tags will
 	 * be replaced with the relevant value specified in vars, preserving content
 	 *
-	 * @var {string} template
+	 * @member {string} template
 	 */
 	export let template;
 
@@ -16,7 +23,7 @@
 	 * <pseudo-html /> tag name to replace, each value should be an array with
 	 * two entries; the HTML tag type, and an object full of attributes.
 	 *
-	 * @var {TemplateVars} vars
+	 * @member {TemplateVars} vars
 	 */
 	export let vars;
 

@@ -214,7 +214,20 @@ class Jetpack_Admin_Menu extends Admin_Menu {
 		add_submenu_page( $slug, esc_attr__( 'Writing', 'jetpack' ), __( 'Writing', 'jetpack' ), 'manage_options', 'https://wordpress.com/settings/writing/' . $this->domain );
 		add_submenu_page( $slug, esc_attr__( 'Discussion', 'jetpack' ), __( 'Discussion', 'jetpack' ), 'manage_options', 'https://wordpress.com/settings/discussion/' . $this->domain );
 
-		$has_scan     = \Jetpack_Plan::supports( 'scan' );
+		$plan_supports_scan = \Jetpack_Plan::supports( 'scan' );
+		$products           = \Jetpack_Plan::get_products();
+		$has_scan_product   = false;
+
+		if ( is_array( $products ) ) {
+			foreach ( $products as $product ) {
+				if ( strpos( $product['product_slug'], 'jetpack_scan' ) === 0 ) {
+					$has_scan_product = true;
+					break;
+				}
+			}
+		}
+
+		$has_scan     = $plan_supports_scan || $has_scan_product;
 		$rewind_state = get_transient( 'jetpack_rewind_state' );
 		$has_backup   = $rewind_state && in_array( $rewind_state->state, array( 'awaiting_credentials', 'provisioning', 'active' ), true );
 		if ( $has_scan || $has_backup ) {

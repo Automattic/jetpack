@@ -89,7 +89,12 @@ export const SEO = withModuleSettingsFormHelpers(
 				<Button primary compact type="submit" disabled={ isSaving || ! props.isDirty() }>
 					{ isSaving
 						? _x( 'Saving…', 'Button caption', 'jetpack' )
-						: _x( 'Save settings', 'Button caption', 'jetpack' ) }
+						: _x(
+								'Save settings',
+								'Button caption',
+								'jetpack',
+								/* dummy arg to avoid bad minification */ 0
+						  ) }
 				</Button>
 			);
 		};

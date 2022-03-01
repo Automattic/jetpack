@@ -5,16 +5,23 @@
 	Automatically folds away with "...and x more" when the list exceeds showLimit.
 -->
 <script>
-	import { sprintf, __ } from '@wordpress/i18n';
+	/**
+	 * External dependencies
+	 */
 	import { slide } from 'svelte/transition';
 
 	/**
-	 * @var {array} entries List of objects to pass to each copy of the slot.
+	 * WordPress dependencies
+	 */
+	import { sprintf, __ } from '@wordpress/i18n';
+
+	/**
+	 * @member {Array} entries List of objects to pass to each copy of the slot.
 	 */
 	export let entries = [];
 
 	/**
-	 * @var {number} showLimit The maximum number of items to show before folding extras away.
+	 * @member {number} showLimit The maximum number of items to show before folding extras away.
 	 */
 	export let showLimit = 2;
 
@@ -36,7 +43,7 @@
 		<a on:click|preventDefault={toggle} transition:slide|local href={'#'}>
 			{sprintf(
 				/* translators: %d is the number of items in this list hidden behind this link */
-				__( '...and %d more', 'jetpack-boost' ),
+				__( '…and %d more', 'jetpack-boost' ),
 				entries.length - showLimit
 			)}
 		</a>

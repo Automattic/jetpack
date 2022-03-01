@@ -34,9 +34,9 @@ class WP_Test_Jetpack_Shortcodes_Brightcove extends WP_UnitTestCase {
 	 * @since 4.5.0
 	 */
 	public function test_shortcodes_brightcove_video_id() {
-		$video_id = '68143720001';
+		$video_id   = '68143720001';
 		$account_id = '57838016001';
-		$content = "[brightcove video_id='$video_id' account_id='$account_id']";
+		$content    = "[brightcove video_id='$video_id' account_id='$account_id']";
 
 		$shortcode_content = do_shortcode( $content );
 

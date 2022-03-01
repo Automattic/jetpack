@@ -670,7 +670,7 @@ class Users extends Module {
 	public function get_where_sql( $config ) {
 		global $wpdb;
 
-		$query = "meta_key = '{$wpdb->prefix}capabilities'";
+		$query = "meta_key = '{$wpdb->prefix}user_level' AND meta_value > 0";
 
 		// The $config variable is a list of user IDs to sync.
 		if ( is_array( $config ) ) {

@@ -1,12 +1,12 @@
 /**
- * External dependencies
+ * WordPress dependencies
  */
-import api from './api';
 import { __ } from '@wordpress/i18n';
 
 /**
  * Internal dependencies
  */
+import api from './api';
 import { standardizeError } from '../utils/standardize-error';
 import { isJsonObject, JSONObject } from '../utils/json-types';
 import { castToNumber } from '../utils/cast-to-number';
@@ -43,6 +43,7 @@ export async function requestSpeedScores( force = false ): Promise< SpeedScoresS
 	// Request metrics
 	const response = parseResponse(
 		await api.post( force ? '/speed-scores/refresh' : '/speed-scores', {
+			// eslint-disable-next-line camelcase
 			url: Jetpack_Boost.site.url,
 		} )
 	);
@@ -121,6 +122,7 @@ async function pollRequest(): Promise< SpeedScoresSet > {
 		timeoutError: __( 'Timed out while waiting for speed-score.', 'jetpack-boost' ),
 		callback: async resolve => {
 			const response = parseResponse(
+				// eslint-disable-next-line camelcase
 				await api.post( '/speed-scores', { url: Jetpack_Boost.site.url } )
 			);
 

@@ -1,4 +1,7 @@
 <script>
+	/**
+	 * Internal dependencies
+	 */
 	import Logo from '../svg/logo.svg';
 </script>
 

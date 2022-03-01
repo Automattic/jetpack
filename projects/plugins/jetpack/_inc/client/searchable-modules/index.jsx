@@ -56,7 +56,7 @@ export const SearchableModules = withModuleSettingsFormHelpers(
 						this.props.isUnavailableInSiteConnectionMode( moduleData.module );
 
 					// Not available in offline or SiteConnection mode.
-					if ( isUnavailableInOfflineMode || isUnavailableInSiteConnectionMode ) {
+					if ( isModuleUnavailableInOfflineMode || isModuleUnavailableInSiteConnectionMode ) {
 						return results.push(
 							<ActiveCard
 								key={ slug }

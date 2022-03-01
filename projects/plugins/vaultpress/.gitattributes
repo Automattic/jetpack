@@ -4,6 +4,7 @@
 package.json      export-ignore
 
 # Files to include in mirror repo: Automattic/vaultpress
+jetpack_vendor/**                           production-include
 vendor/autoload.php                         production-include
 vendor/autoload_packages.php                production-include
 vendor/automattic/**                        production-include
@@ -17,6 +18,7 @@ changelog/**                                production-exclude
 composer.lock                               production-exclude
 package.json                                production-exclude
 phpunit.xml.dist                            production-exclude
+.phpcs.dir.xml                              production-exclude
 tests/**                                    production-exclude
 /vendor/automattic/jetpack-autoloader/**    production-exclude
 /vendor/automattic/jetpack-changelogger/**  production-exclude

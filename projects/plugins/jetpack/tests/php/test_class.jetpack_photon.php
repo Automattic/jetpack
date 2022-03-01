@@ -1055,7 +1055,7 @@ class WP_Test_Jetpack_Photon extends Jetpack_Attachment_Test_Case {
 		$sample_html      = '<img src="http://example.com/test.png" class="test" data-width="100" data-height="200" />';
 		$filtered_content = Jetpack_Photon::filter_the_content( $sample_html );
 		$attributes       = wp_kses_hair( $filtered_content, wp_allowed_protocols() );
-		$query_str        = wp_parse_url( $attributes['src']['value'], PHP_URL_QUERY );
+		$query_str        = (string) wp_parse_url( $attributes['src']['value'], PHP_URL_QUERY );
 		parse_str( $query_str, $query_params );
 
 		$this->assertArrayNotHasKey( 'resize', $query_params );

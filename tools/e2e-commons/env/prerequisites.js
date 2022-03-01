@@ -1,19 +1,20 @@
-import logger from '../logger';
-import { syncJetpackPlanData, loginToWpCom, loginToWpSite } from '../flows';
+import logger from '../logger.cjs';
+import { syncJetpackPlanData, loginToWpCom, loginToWpSite } from '../flows/index.js';
 import {
 	execWpCommand,
 	getDotComCredentials,
 	isLocalSite,
 	provisionJetpackStartConnection,
 	resetWordpressInstall,
-} from '../helpers/utils-helper';
+} from '../helpers/utils-helper.cjs';
 import fs from 'fs';
 import config from 'config';
 import assert from 'assert';
 
-export function prerequisitesBuilder() {
+export function prerequisitesBuilder( page ) {
 	const state = {
 		clean: undefined,
+		plugins: { active: undefined, inactive: undefined },
 		loggedIn: undefined,
 		wpComLoggedIn: undefined,
 		connected: undefined,
@@ -22,6 +23,14 @@ export function prerequisitesBuilder() {
 	};
 
 	return {
+		withActivePlugins( plugins = [] ) {
+			state.plugins.active = plugins;
+			return this;
+		},
+		withInactivePlugins( plugins = [] ) {
+			state.plugins.inactive = plugins;
+			return this;
+		},
 		withLoggedIn( shouldBeLoggedIn ) {
 			state.loggedIn = shouldBeLoggedIn;
 			return this;
@@ -51,17 +60,18 @@ export function prerequisitesBuilder() {
 			return this;
 		},
 		async build() {
-			await buildPrerequisites( state );
+			await buildPrerequisites( state, page );
 		},
 	};
 }
 
-async function buildPrerequisites( state ) {
+async function buildPrerequisites( state, page ) {
 	const functions = {
-		loggedIn: () => ensureUserIsLoggedIn( state.loggedIn ),
-		wpComLoggedIn: () => ensureWpComUserIsLoggedIn( state.wpComLoggedIn ),
+		plugins: () => ensurePluginsState( state.plugins ),
+		loggedIn: () => ensureUserIsLoggedIn( page ),
+		wpComLoggedIn: () => ensureWpComUserIsLoggedIn( page ),
 		connected: () => ensureConnectedState( state.connected ),
-		plan: () => ensurePlan( state.plan ),
+		plan: () => ensurePlan( state.plan, page ),
 		modules: () => ensureModulesState( state.modules ),
 		clean: () => ensureCleanState( state.clean ),
 	};
@@ -107,7 +117,7 @@ async function connect() {
 	const creds = getDotComCredentials();
 	await execWpCommand( `user update wordpress --user_email=${ creds.email }` );
 
-	await provisionJetpackStartConnection( creds.userId, 'free' );
+	provisionJetpackStartConnection( creds.userId, 'free' );
 
 	assert.ok( await isBlogTokenSet() );
 
@@ -131,11 +141,12 @@ async function ensureCleanState( shouldReset ) {
 
 	if ( shouldReset ) {
 		logger.prerequisites( 'Resetting environment' );
+		await execWpCommand( 'jetpack disconnect blog' );
 		await resetWordpressInstall();
 	}
 }
 
-export async function ensurePlan( plan = undefined ) {
+export async function ensurePlan( plan = undefined, page ) {
 	if ( ! isLocalSite() ) {
 		logger.prerequisites(
 			'Site is not local, skipping plan setup. Assuming required plan is already in place.'
@@ -147,15 +158,15 @@ export async function ensurePlan( plan = undefined ) {
 		throw new Error( `Unsupported plan ${ plan }` );
 	}
 
-	await syncJetpackPlanData( plan, true );
+	await syncJetpackPlanData( page, plan, true );
 }
 
-export async function ensureUserIsLoggedIn() {
-	await loginToWpSite( true );
+export async function ensureUserIsLoggedIn( page ) {
+	await loginToWpSite( page, true );
 }
 
-export async function ensureWpComUserIsLoggedIn() {
-	await loginToWpCom( true );
+export async function ensureWpComUserIsLoggedIn( page ) {
+	await loginToWpCom( page, true );
 }
 
 export async function ensureModulesState( modules ) {
@@ -193,6 +204,63 @@ export async function deactivateModules( modulesList ) {
 		const result = await execWpCommand( `jetpack module deactivate ${ module }` );
 		assert.match( result, new RegExp( `Success: .* has been deactivated.`, 'i' ) );
 	}
+}
+
+export async function isModuleActive( module ) {
+	logger.prerequisites( `Checking if ${ module } module is active` );
+	const result = await execWpCommand( `jetpack options get active_modules` );
+	return result.includes( module );
+}
+
+export async function ensurePluginsState( plugins ) {
+	if ( ! isLocalSite() ) {
+		logger.prerequisites( 'Site is not local, skipping plugins setup.' );
+		return;
+	}
+
+	if ( plugins.active ) {
+		await activatePlugins( plugins.active );
+	} else {
+		logger.prerequisites( 'Cannot find list of plugins to activate!' );
+	}
+
+	if ( plugins.inactive ) {
+		await deactivatePlugins( plugins.inactive );
+	} else {
+		logger.prerequisites( 'Cannot find list of plugins to deactivate!' );
+	}
+}
+
+async function activatePlugins( pluginsList ) {
+	const activatedPlugins = [];
+	for ( const plugin of pluginsList ) {
+		logger.prerequisites( `Activating plugin ${ plugin }` );
+		const result = await execWpCommand( `plugin activate ${ plugin }` );
+		const txt = result.toString();
+		if (
+			txt.includes( `Plugin '${ plugin }' activated.` ) ||
+			txt.includes( `Plugin '${ plugin }' is already active.` )
+		) {
+			activatedPlugins.push( plugin );
+		}
+	}
+	assert.equal( pluginsList.length, activatedPlugins.length );
+}
+
+async function deactivatePlugins( pluginsList ) {
+	const deactivatedPlugins = [];
+	for ( const plugin of pluginsList ) {
+		logger.prerequisites( `Deactivating plugin ${ plugin }` );
+		const result = await execWpCommand( `plugin deactivate ${ plugin }` );
+		const txt = result.toString();
+		if (
+			txt.includes( `Plugin '${ plugin }' deactivated.` ) ||
+			txt.includes( `Plugin '${ plugin }' isn't active.` )
+		) {
+			deactivatedPlugins.push( plugin );
+		}
+	}
+	assert.equal( pluginsList.length, deactivatedPlugins.length );
 }
 
 export async function isBlogTokenSet() {

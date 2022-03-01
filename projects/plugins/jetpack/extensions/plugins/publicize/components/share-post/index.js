@@ -88,7 +88,7 @@ export function SharePostButton() {
 }
 
 export function SharePostRow() {
-	const { isRePublicizeFeatureEnabled, isRePublicizeFeatureUpgradable } = usePublicizeConfig();
+	const { isRePublicizeFeatureEnabled, isRePublicizeUpgradableViaUpsell } = usePublicizeConfig();
 	const isPostPublished = useSelect( select => select( editorStore ).isCurrentPostPublished(), [] );
 
 	// Do not render when RePublicize feature is not enabled.
@@ -105,7 +105,7 @@ export function SharePostRow() {
 	 * Do not render when the feature is upgradable.
 	 * We show the upsale notice instead.
 	 */
-	if ( isRePublicizeFeatureUpgradable ) {
+	if ( isRePublicizeUpgradableViaUpsell ) {
 		return null;
 	}
 

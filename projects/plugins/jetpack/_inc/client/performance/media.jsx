@@ -12,6 +12,7 @@ import { ProgressBar } from '@automattic/components';
  * Internal dependencies
  */
 import {
+	isVideoPressLegacySecurityPlan,
 	getPlanClass,
 	getJetpackProductUpsellByFeature,
 	FEATURE_VIDEOPRESS,
@@ -23,11 +24,17 @@ import { ModuleToggle } from 'components/module-toggle';
 import { withModuleSettingsFormHelpers } from 'components/module-settings/with-module-settings-form-helpers';
 import SettingsCard from 'components/settings-card';
 import SettingsGroup from 'components/settings-group';
-import { getUpgradeUrl } from 'state/initial-state';
+import { getProductDescriptionUrl } from 'product-descriptions/utils';
 import { getModule, getModuleOverride } from 'state/modules';
 import { isModuleFound as _isModuleFound } from 'state/search';
 import { hasConnectedOwner as hasConnectedOwnerSelector, isOfflineMode } from 'state/connection';
-import { getSitePlan, getVideoPressStorageUsed, hasActiveVideoPressPurchase } from 'state/site';
+import {
+	getSitePlan,
+	getSitePurchases,
+	getVideoPressStorageUsed,
+	hasActiveVideoPressPurchase,
+	isFetchingSitePurchases,
+} from 'state/site';
 
 class Media extends React.Component {
 	render() {
@@ -41,7 +48,9 @@ class Media extends React.Component {
 		const planClass = getPlanClass( this.props.sitePlan.product_slug );
 		const {
 			hasConnectedOwner,
+			hasVideoPressLegacySecurityPlan,
 			hasVideoPressPurchase,
+			isFetching,
 			isOffline,
 			upgradeUrl,
 			videoPressStorageUsed,
@@ -50,16 +59,9 @@ class Media extends React.Component {
 		const shouldDisplayStorage = hasVideoPressPurchase && null !== videoPressStorageUsed;
 
 		const hasUpgrade =
-			includes(
-				[
-					'is-premium-plan',
-					'is-business-plan',
-					'is-daily-security-plan',
-					'is-realtime-security-plan',
-					'is-complete-plan',
-				],
-				planClass
-			) || hasVideoPressPurchase;
+			includes( [ 'is-premium-plan', 'is-business-plan', 'is-complete-plan' ], planClass ) ||
+			hasVideoPressLegacySecurityPlan ||
+			hasVideoPressPurchase;
 
 		const bannerText =
 			! hasVideoPressPurchase && null !== videoPressStorageUsed && 0 === videoPressStorageUsed
@@ -69,7 +71,8 @@ class Media extends React.Component {
 				  )
 				: __(
 						'You have used your free video. Upgrade now to unlock more videos and 1TB of storage.',
-						'jetpack'
+						'jetpack',
+						/* dummy arg to avoid bad minification */ 0
 				  );
 
 		const videoPressSettings = (
@@ -112,7 +115,8 @@ class Media extends React.Component {
 		);
 
 		const videoPressForcedInactive = 'inactive' === this.props.getModuleOverride( 'videopress' );
-		const shouldDisplayBanner = foundVideoPress && ! hasUpgrade && hasConnectedOwner && ! isOffline;
+		const shouldDisplayBanner =
+			foundVideoPress && ! hasUpgrade && hasConnectedOwner && ! isOffline && ! isFetching;
 
 		return (
 			<SettingsCard
@@ -145,10 +149,14 @@ export default connect( state => {
 		isModuleFound: module_name => _isModuleFound( state, module_name ),
 		sitePlan: getSitePlan( state ),
 		hasVideoPressPurchase: hasActiveVideoPressPurchase( state ),
+		hasVideoPressLegacySecurityPlan: getSitePurchases( state ).find(
+			isVideoPressLegacySecurityPlan
+		),
 		hasConnectedOwner: hasConnectedOwnerSelector( state ),
 		isOffline: isOfflineMode( state ),
+		isFetching: isFetchingSitePurchases( state ),
 		getModuleOverride: module_name => getModuleOverride( state, module_name ),
-		upgradeUrl: getUpgradeUrl( state, 'videopress-upgrade' ),
+		upgradeUrl: getProductDescriptionUrl( state, 'videopress' ),
 		videoPressStorageUsed: getVideoPressStorageUsed( state ),
 	};
 } )( withModuleSettingsFormHelpers( Media ) );

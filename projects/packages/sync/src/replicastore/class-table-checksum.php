@@ -518,13 +518,13 @@ class Table_Checksum {
 	 *
 	 * @return string
 	 *
-	 * @throws Exception Throws and exception if validation fails in the internal function calls.
+	 * @throws Exception Throws an exception if validation fails in the internal function calls.
 	 */
 	protected function build_checksum_query( $range_from = null, $range_to = null, $filter_values = null, $granular_result = false ) {
 		global $wpdb;
 
 		// Escape the salt.
-		$salt = $wpdb->prepare( '%s', $this->salt ); // TODO escape or prepare statement.
+		$salt = $wpdb->prepare( '%s', $this->salt );
 
 		// Prepare the compound key.
 		$key_fields = array();

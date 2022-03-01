@@ -18,11 +18,10 @@ export default function useSocialMediaMessage() {
 	return {
 		message,
 		maxLength,
-		updateMessage: function ( text, hasEdited = true ) {
+		updateMessage: function ( text ) {
 			editPost( {
 				meta: {
 					jetpack_publicize_message: text,
-					jetpack_publicize_hasEditedShareMessage: hasEdited,
 				},
 			} );
 		},

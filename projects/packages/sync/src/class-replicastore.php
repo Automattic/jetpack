@@ -9,6 +9,7 @@ namespace Automattic\Jetpack\Sync;
 
 use Automattic\Jetpack\Sync\Replicastore\Table_Checksum;
 use Automattic\Jetpack\Sync\Replicastore\Table_Checksum_Usermeta;
+use Automattic\Jetpack\Sync\Replicastore\Table_Checksum_Users;
 use Exception;
 use WP_Error;
 
@@ -1444,6 +1445,9 @@ class Replicastore implements Replicastore_Interface {
 	 * @throws Exception Might throw an exception if any of the input parameters were invalid.
 	 */
 	public function get_table_checksum_instance( $table, $salt = null, $perform_text_conversion = false ) {
+		if ( 'users' === $table ) {
+			return new Table_Checksum_Users( $table, $salt, $perform_text_conversion );
+		}
 		if ( 'usermeta' === $table ) {
 			return new Table_Checksum_Usermeta( $table, $salt, $perform_text_conversion );
 		}

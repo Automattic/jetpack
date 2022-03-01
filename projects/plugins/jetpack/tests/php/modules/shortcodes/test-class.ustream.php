@@ -33,7 +33,7 @@ class WP_Test_Jetpack_Shortcodes_Ustream extends WP_UnitTestCase {
 	 * @since 4.5.0
 	 */
 	public function test_shortcodes_ustreamsocial() {
-		$content = '[ustreamsocial]';
+		$content           = '[ustreamsocial]';
 		$shortcode_content = do_shortcode( $content );
 		$this->assertNotEquals( $content, $shortcode_content );
 		$this->assertEquals( '<!-- ustreamsocial error: bad social stream ID -->', $shortcode_content );
@@ -45,7 +45,7 @@ class WP_Test_Jetpack_Shortcodes_Ustream extends WP_UnitTestCase {
 	 * @since 4.5.0
 	 */
 	public function test_shortcodes_ustream_video() {
-		$id = '1524';
+		$id      = '1524';
 		$content = "[ustream id='$id']";
 
 		$shortcode_content = do_shortcode( $content );
@@ -59,7 +59,7 @@ class WP_Test_Jetpack_Shortcodes_Ustream extends WP_UnitTestCase {
 	 * @since 4.5.0
 	 */
 	public function test_shortcodes_ustream_social_stream() {
-		$id = '12980237';
+		$id      = '12980237';
 		$content = "[ustreamsocial id='$id' width=500]";
 
 		$shortcode_content = do_shortcode( $content );

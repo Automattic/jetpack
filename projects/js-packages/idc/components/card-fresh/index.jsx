@@ -1,126 +1,139 @@
 /**
  * External dependencies
  */
-import React, { useState, useCallback } from 'react';
+import React from 'react';
 import PropTypes from 'prop-types';
 import { Button, Dashicon } from '@wordpress/components';
-import { compose } from '@wordpress/compose';
-import { withSelect, withDispatch } from '@wordpress/data';
+import { useSelect } from '@wordpress/data';
 import { createInterpolateElement } from '@wordpress/element';
 import { __, sprintf } from '@wordpress/i18n';
-import restApi from '@automattic/jetpack-api';
-import { Spinner } from '@automattic/jetpack-components';
+import { getRedirectUrl, Spinner } from '@automattic/jetpack-components';
 
 /**
  * Internal dependencies
  */
 import { STORE_ID } from '../../state/store';
 import extractHostname from '../../tools/extract-hostname';
+import customContentShape from '../../tools/custom-content-shape';
+import ErrorMessage from '../error-message';
 
 /**
- * The "migrate" card.
+ * Render the error message.
+ *
+ * @param {string} supportURL - The support page URL.
+ * @returns {React.Component} The error message.
+ */
+const renderError = supportURL => {
+	return (
+		<ErrorMessage>
+			{ createInterpolateElement(
+				__( 'Could not create the connection. Retry or find out more <a>here</a>.', 'jetpack' ),
+				{
+					a: (
+						<a
+							href={ supportURL || getRedirectUrl( 'jetpack-support-safe-mode' ) }
+							rel="noopener noreferrer"
+							target="_blank"
+						/>
+					),
+				}
+			) }
+		</ErrorMessage>
+	);
+};
+
+/**
+ * The "start fresh" card.
  *
  * @param {object} props - The properties.
- * @param {string} props.wpcomHomeUrl - The original site URL.
- * @param {string} props.currentUrl - The current site URL.
- * @param {string} props.redirectUri - The redirect URI to redirect users back to after connecting.
- * @param {boolean} props.isActionInProgress - Whether there's already an action in progress.
- * @param {Function} props.setIsActionInProgress - Function to set the "action in progress" flag.
  * @returns {React.Component} The `ConnectScreen` component.
  */
 const CardFresh = props => {
+	const { isStartingFresh, startFreshCallback, customContent, hasError } = props;
+
 	const wpcomHostName = extractHostname( props.wpcomHomeUrl );
 	const currentHostName = extractHostname( props.currentUrl );
-	const redirectUri = props.redirectUri;
 
-	const { isActionInProgress, setIsActionInProgress } = props;
+	const isActionInProgress = useSelect( select => select( STORE_ID ).getIsActionInProgress(), [] );
 
-	const buttonLabel = __( 'Create a fresh connection', 'jetpack' );
-
-	const [ isStartingFresh, setIsStartingFresh ] = useState( false );
-
-	/**
-	 * Initiate the migration.
-	 * Placeholder for now.
-	 *
-	 * @todo Add the actual migration functionality.
-	 */
-	const doStartFresh = useCallback( () => {
-		if ( ! isActionInProgress ) {
-			setIsActionInProgress( true );
-			setIsStartingFresh( true );
-
-			restApi
-				.startIDCFresh( redirectUri )
-				.then( connectUrl => {
-					window.location.href = connectUrl + '&from=idc-notice';
-				} )
-				.catch( error => {
-					setIsActionInProgress( false );
-					setIsStartingFresh( false );
-					throw error;
-				} );
-		}
-	}, [ setIsStartingFresh, isActionInProgress, setIsActionInProgress, redirectUri ] );
+	const buttonLabel =
+		customContent.startFreshButtonLabel || __( 'Create a fresh connection', 'jetpack' );
 
 	return (
-		<div className="jp-idc-card-action-base">
-			<div className="jp-idc-card-action-top">
-				<h4>{ __( 'Treat each site as independent sites', 'jetpack' ) }</h4>
+		<div
+			className={
+				'jp-idc__idc-screen__card-action-base' +
+				( hasError ? ' jp-idc__idc-screen__card-action-error' : '' )
+			}
+		>
+			<div className="jp-idc__idc-screen__card-action-top">
+				<h4>
+					{ customContent.startFreshCardTitle
+						? createInterpolateElement( customContent.startFreshCardTitle, { em: <em /> } )
+						: __( 'Treat each site as independent sites', 'jetpack' ) }
+				</h4>
 
 				<p>
 					{ createInterpolateElement(
-						sprintf(
-							/* translators: %1$s: The current site domain name. %2$s: The original site domain name. */
-							__(
-								'<hostname>%1$s</hostname> settings, stats, and subscribers will start fresh. <hostname>%2$s</hostname> will keep its data as is.',
-								'jetpack'
+						customContent.startFreshCardBodyText ||
+							sprintf(
+								/* translators: %1$s: The current site domain name. %2$s: The original site domain name. */
+								__(
+									'<hostname>%1$s</hostname> settings, stats, and subscribers will start fresh. <hostname>%2$s</hostname> will keep its data as is.',
+									'jetpack'
+								),
+								currentHostName,
+								wpcomHostName
 							),
-							currentHostName,
-							wpcomHostName
-						),
 						{
 							hostname: <strong />,
+							em: <em />,
+							strong: <strong />,
 						}
 					) }
 				</p>
 			</div>
 
-			<div className="jp-idc-card-action-bottom">
-				<div className="jp-idc-card-action-sitename">{ wpcomHostName }</div>
-				<Dashicon icon="minus" className="jp-idc-card-action-separator" />
-				<div className="jp-idc-card-action-sitename">{ currentHostName }</div>
+			<div className="jp-idc__idc-screen__card-action-bottom">
+				<div className="jp-idc__idc-screen__card-action-sitename">{ wpcomHostName }</div>
+				<Dashicon icon="minus" className="jp-idc__idc-screen__card-action-separator" />
+				<div className="jp-idc__idc-screen__card-action-sitename">{ currentHostName }</div>
 
 				<Button
-					className="jp-idc-card-action-button"
+					className="jp-idc__idc-screen__card-action-button"
 					label={ buttonLabel }
-					onClick={ doStartFresh }
+					onClick={ startFreshCallback }
 					disabled={ isActionInProgress }
 				>
 					{ isStartingFresh ? <Spinner /> : buttonLabel }
 				</Button>
+
+				{ hasError && renderError( customContent.supportURL ) }
 			</div>
 		</div>
 	);
 };
 
 CardFresh.propTypes = {
+	/** The original site URL. */
 	wpcomHomeUrl: PropTypes.string.isRequired,
+	/** The current site URL. */
 	currentUrl: PropTypes.string.isRequired,
-	redirectUri: PropTypes.string.isRequired,
-	isActionInProgress: PropTypes.bool,
-	setIsActionInProgress: PropTypes.func.isRequired,
+	/** Whether starting fresh is in progress. */
+	isStartingFresh: PropTypes.bool.isRequired,
+	/** "Start Fresh" callback. */
+	startFreshCallback: PropTypes.func.isRequired,
+	/** Custom text content. */
+	customContent: PropTypes.shape( customContentShape ),
+	/** Whether the component has an error. */
+	hasError: PropTypes.bool.isRequired,
 };
 
-export default compose( [
-	withSelect( select => {
-		return {
-			isActionInProgress: select( STORE_ID ).getIsActionInProgress(),
-		};
-	} ),
-	withDispatch( dispatch => {
-		return {
-			setIsActionInProgress: dispatch( STORE_ID ).setIsActionInProgress,
-		};
-	} ),
-] )( CardFresh );
+CardFresh.defaultProps = {
+	isStartingFresh: false,
+	startFreshCallback: () => {},
+	customContent: {},
+	hasError: false,
+};
+
+export default CardFresh;

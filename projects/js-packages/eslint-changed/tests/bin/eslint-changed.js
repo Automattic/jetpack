@@ -406,19 +406,6 @@ describe( 'bin/eslint-changed.js', () => {
 			);
 		} );
 
-		it( 'Fails gracefully without ESLint', async () => {
-			const proc = await runEslintChanged( [ '--format=json', '--git' ], {
-				cwd: tmpdir,
-				env: { GIT: 'true', ESLINT: 'this-command-really-should-not-exist-either' },
-			} );
-			const data = await awaitExit( proc );
-			assert.strictEqual( data.exitCode, 1, 'Exit code is 1' );
-			assert.strictEqual(
-				data.stderr,
-				'error: failed to execute ESLint as `this-command-really-should-not-exist-either`. Use environment variable `ESLINT` to override.\n'
-			);
-		} );
-
 		it( 'Works in git mode, --git-staged is the default', async () => {
 			await mktmpdirgit( ...standardRepo );
 
@@ -454,6 +441,7 @@ describe( 'bin/eslint-changed.js', () => {
 					fixableErrorCount: 1,
 					fixableWarningCount: 0,
 					source: 'console.log( "Hello, world?" );\n',
+					suppressedMessages: [],
 					usedDeprecatedRules: [],
 				},
 			];
@@ -497,6 +485,7 @@ describe( 'bin/eslint-changed.js', () => {
 					fixableErrorCount: 1,
 					fixableWarningCount: 0,
 					source: 'console.log( "Hello, world?" );\n',
+					suppressedMessages: [],
 					usedDeprecatedRules: [],
 				},
 			];
@@ -540,6 +529,7 @@ describe( 'bin/eslint-changed.js', () => {
 					fixableErrorCount: 1,
 					fixableWarningCount: 0,
 					source: "console.log( '¡Hola, mundo!' )\n",
+					suppressedMessages: [],
 					usedDeprecatedRules: [],
 				},
 			];
@@ -579,6 +569,7 @@ describe( 'bin/eslint-changed.js', () => {
 					fixableErrorCount: 0,
 					fixableWarningCount: 0,
 					source: "var x;\nconsole.log( 'Hello, world!' );\n",
+					suppressedMessages: [],
 					usedDeprecatedRules: [],
 				},
 			];
@@ -632,6 +623,7 @@ describe( 'bin/eslint-changed.js', () => {
 					fixableErrorCount: 0,
 					fixableWarningCount: 0,
 					source: 'var x = 1;\n',
+					suppressedMessages: [],
 					usedDeprecatedRules: [],
 				},
 				{
@@ -659,6 +651,7 @@ describe( 'bin/eslint-changed.js', () => {
 					fixableErrorCount: 1,
 					fixableWarningCount: 0,
 					source: 'var x = \'Hello\';\nx += ", world!";\nconsole.log( x );\n',
+					suppressedMessages: [],
 					usedDeprecatedRules: [],
 				},
 			];
@@ -701,6 +694,7 @@ describe( 'bin/eslint-changed.js', () => {
 					fixableErrorCount: 0,
 					fixableWarningCount: 0,
 					source: "var x = 'Hello, world!';\n\n\n\n\n\n\n\n\n\n\n\nconsole.log( x )\n",
+					suppressedMessages: [],
 					usedDeprecatedRules: [],
 				},
 				{
@@ -735,6 +729,7 @@ describe( 'bin/eslint-changed.js', () => {
 					fixableErrorCount: 0,
 					fixableWarningCount: 0,
 					source: "var y = 'Hello, world!';\n\n\n\n\n\n\n\n\n\n\n\nconsole.log( x )\n",
+					suppressedMessages: [],
 					usedDeprecatedRules: [],
 				},
 			];
@@ -792,6 +787,7 @@ describe( 'bin/eslint-changed.js', () => {
 					fixableErrorCount: 0,
 					fixableWarningCount: 0,
 					source: "var y = 'Hello, world!';\n\n\n\n\n\n\n\n\n\n\n\nconsole.log( x )\n",
+					suppressedMessages: [],
 					usedDeprecatedRules: [],
 				},
 			];

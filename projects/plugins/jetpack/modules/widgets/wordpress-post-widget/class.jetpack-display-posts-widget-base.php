@@ -1,6 +1,6 @@
-<?php
+<?php // phpcs:ignore WordPress.Files.FileName.InvalidClassFileName
 
-/*
+/**
  * For back-compat, the final widget class must be named
  * Jetpack_Display_Posts_Widget.
  *
@@ -16,21 +16,30 @@
  *
  * That this widget is currently implemented as these two classes
  * is an implementation detail and should not be depended on :)
+ *
+ * phpcs:disable PEAR.NamingConventions.ValidClassName.Invalid
  */
 abstract class Jetpack_Display_Posts_Widget__Base extends WP_Widget {
+	// phpcs:enable PEAR.NamingConventions.ValidClassName.Invalid
+
 	/**
-	 * @var string Remote service API URL prefix.
+	 * Remote service API URL prefix.
+	 *
+	 * @var string
 	 */
 	public $service_url = 'https://public-api.wordpress.com/rest/v1.1/';
 
+	/**
+	 * Jetpack_Display_Posts_Widget__Base constructor.
+	 */
 	public function __construct() {
 		parent::__construct(
-		// internal id
+		// Internal id.
 			'jetpack_display_posts_widget',
 			/** This filter is documented in modules/widgets/facebook-likebox.php */
 			apply_filters( 'jetpack_widget_name', __( 'Display WordPress Posts', 'jetpack' ) ),
 			array(
-				'description' => __( 'Displays a list of recent posts from another WordPress.com or Jetpack-enabled blog.', 'jetpack' ),
+				'description'                 => __( 'Displays a list of recent posts from another WordPress.com or Jetpack-enabled blog.', 'jetpack' ),
 				'customize_selective_refresh' => true,
 			)
 		);
@@ -46,16 +55,20 @@ abstract class Jetpack_Display_Posts_Widget__Base extends WP_Widget {
 	 * @since 4.0.0
 	 */
 	public function enqueue_scripts() {
-		wp_enqueue_style( 'jetpack_display_posts_widget', plugins_url( 'style.css', __FILE__ ) );
+		wp_enqueue_style(
+			'jetpack_display_posts_widget',
+			plugins_url( 'style.css', __FILE__ ),
+			array(),
+			JETPACK__VERSION
+		);
 	}
 
-
-	// DATA STORE: Must implement
+	// DATA STORE: Must implement.
 
 	/**
 	 * Gets blog data from the cache.
 	 *
-	 * @param string $site
+	 * @param string $site Site.
 	 *
 	 * @return array|WP_Error
 	 */
@@ -70,14 +83,13 @@ abstract class Jetpack_Display_Posts_Widget__Base extends WP_Widget {
 	 */
 	abstract public function update_instance( $site );
 
-
-	// WIDGET API
+	// WIDGET API.
 
 	/**
 	 * Set up the widget display on the front end.
 	 *
-	 * @param array $args
-	 * @param array $instance
+	 * @param array $args Widget args.
+	 * @param array $instance Widget instance.
 	 */
 	public function widget( $args, $instance ) {
 		/** This action is documented in modules/widgets/gravatar-profile.php */
@@ -97,17 +109,17 @@ abstract class Jetpack_Display_Posts_Widget__Base extends WP_Widget {
 			}
 			$content .= $args['after_widget'];
 
-			echo $content;
+			echo $content; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
 			return;
 		}
 
 		$data = $this->get_blog_data( $instance['url'] );
-		// check for errors
+		// Check for errors.
 		if ( is_wp_error( $data ) || empty( $data['site_info']['data'] ) ) {
 			$content .= '<p>' . __( 'Cannot load blog information at this time.', 'jetpack' ) . '</p>';
 			$content .= $args['after_widget'];
 
-			echo $content;
+			echo $content; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
 			return;
 		}
 
@@ -116,9 +128,8 @@ abstract class Jetpack_Display_Posts_Widget__Base extends WP_Widget {
 		if ( ! empty( $instance['title'] ) ) {
 			/** This filter is documented in core/src/wp-includes/default-widgets.php */
 			$instance['title'] = apply_filters( 'widget_title', $instance['title'] );
-			$content .= $args['before_title'] . esc_html( $instance['title'] . ': ' . $site_info->name ) . $args['after_title'];
-		}
-		else {
+			$content          .= $args['before_title'] . $instance['title'] . ': ' . $site_info->name . $args['after_title']; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
+		} else {
 			$content .= $args['before_title'] . esc_html( $site_info->name ) . $args['after_title'];
 		}
 
@@ -129,7 +140,7 @@ abstract class Jetpack_Display_Posts_Widget__Base extends WP_Widget {
 			$content .= '</div><!-- .jetpack-display-remote-posts -->';
 			$content .= $args['after_widget'];
 
-			echo $content;
+			echo $content; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
 			return;
 		}
 
@@ -146,11 +157,11 @@ abstract class Jetpack_Display_Posts_Widget__Base extends WP_Widget {
 			$post_title  = ( $single_post['title'] ) ? $single_post['title'] : '( No Title )';
 
 			$target = '';
-			if ( isset( $instance['open_in_new_window'] ) && $instance['open_in_new_window'] == true ) {
+			if ( isset( $instance['open_in_new_window'] ) && true === $instance['open_in_new_window'] ) {
 				$target = ' target="_blank" rel="noopener"';
 			}
 			$content .= '<h4><a href="' . esc_url( $single_post['url'] ) . '"' . $target . '>' . esc_html( $post_title ) . '</a></h4>' . "\n";
-			if ( ( $instance['featured_image'] == true ) && ( ! empty ( $single_post['featured_image'] ) ) ) {
+			if ( ( true === $instance['featured_image'] ) && ( ! empty( $single_post['featured_image'] ) ) ) {
 				$featured_image = $single_post['featured_image'];
 				/**
 				 * Allows setting up custom Photon parameters to manipulate the image output in the Display Posts widget.
@@ -164,10 +175,10 @@ abstract class Jetpack_Display_Posts_Widget__Base extends WP_Widget {
 				 * @param array $args Array of Photon Parameters.
 				 */
 				$image_params = apply_filters( 'jetpack_display_posts_widget_image_params', array() );
-				$content .= '<a title="' . esc_attr( $post_title ) . '" href="' . esc_url( $single_post['url'] ) . '"' . $target . '><img src="' . jetpack_photon_url( $featured_image, $image_params ) . '" alt="' . esc_attr( $post_title ) . '"/></a>';
+				$content     .= '<a title="' . esc_attr( $post_title ) . '" href="' . esc_url( $single_post['url'] ) . '"' . $target . '><img src="' . jetpack_photon_url( $featured_image, $image_params ) . '" alt="' . esc_attr( $post_title ) . '"/></a>';
 			}
 
-			if ( $instance['show_excerpts'] == true ) {
+			if ( true === $instance['show_excerpts'] ) {
 				$content .= $single_post['excerpt'];
 			}
 		}
@@ -184,7 +195,7 @@ abstract class Jetpack_Display_Posts_Widget__Base extends WP_Widget {
 		 *
 		 * @param string $content Widget content.
 		 */
-		echo apply_filters( 'jetpack_display_posts_widget_content', $content );
+		echo apply_filters( 'jetpack_display_posts_widget_content', $content ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
 	}
 
 	/**
@@ -206,7 +217,6 @@ abstract class Jetpack_Display_Posts_Widget__Base extends WP_Widget {
 		$featured_image     = ( isset( $instance['featured_image'] ) ) ? $instance['featured_image'] : false;
 		$show_excerpts      = ( isset( $instance['show_excerpts'] ) ) ? $instance['show_excerpts'] : false;
 
-
 		/**
 		 * Check if the widget instance has errors available.
 		 *
@@ -221,15 +231,15 @@ abstract class Jetpack_Display_Posts_Widget__Base extends WP_Widget {
 
 		?>
 		<p>
-			<label for="<?php echo $this->get_field_id( 'title' ); ?>"><?php _e( 'Title:', 'jetpack' ); ?></label>
-			<input class="widefat" id="<?php echo $this->get_field_id( 'title' ); ?>" name="<?php echo $this->get_field_name( 'title' ); ?>" type="text" value="<?php echo esc_attr( $title ); ?>" />
+			<label for="<?php echo esc_attr( $this->get_field_id( 'title' ) ); ?>"><?php esc_html_e( 'Title:', 'jetpack' ); ?></label>
+			<input class="widefat" id="<?php echo esc_attr( $this->get_field_id( 'title' ) ); ?>" name="<?php echo esc_attr( $this->get_field_name( 'title' ) ); ?>" type="text" value="<?php echo esc_attr( $title ); ?>" />
 		</p>
 
 		<p>
-			<label for="<?php echo $this->get_field_id( 'url' ); ?>"><?php _e( 'Blog URL:', 'jetpack' ); ?></label>
-			<input class="widefat" id="<?php echo $this->get_field_id( 'url' ); ?>" name="<?php echo $this->get_field_name( 'url' ); ?>" type="text" value="<?php echo esc_attr( $url ); ?>" />
+			<label for="<?php echo esc_attr( $this->get_field_id( 'url' ) ); ?>"><?php esc_html_e( 'Blog URL:', 'jetpack' ); ?></label>
+			<input class="widefat" id="<?php echo esc_attr( $this->get_field_id( 'url' ) ); ?>" name="<?php echo esc_attr( $this->get_field_name( 'url' ) ); ?>" type="text" value="<?php echo esc_attr( $url ); ?>" />
 			<i>
-				<?php _e( "Enter a WordPress.com or Jetpack WordPress site URL.", 'jetpack' ); ?>
+				<?php esc_html_e( 'Enter a WordPress.com or Jetpack WordPress site URL.', 'jetpack' ); ?>
 			</i>
 			<?php
 			/**
@@ -240,32 +250,32 @@ abstract class Jetpack_Display_Posts_Widget__Base extends WP_Widget {
 			if ( empty( $url ) && ! preg_match( '/__i__|%i%/', $this->id ) ) {
 				?>
 				<br />
-				<i class="error-message"><?php echo __( 'You must specify a valid blog URL!', 'jetpack' ); ?></i>
+				<i class="error-message"><?php esc_html_e( 'You must specify a valid blog URL!', 'jetpack' ); ?></i>
 				<?php
 			}
 			?>
 		</p>
 		<p>
-			<label for="<?php echo $this->get_field_id( 'number_of_posts' ); ?>"><?php _e( 'Number of Posts to Display:', 'jetpack' ); ?></label>
-			<select name="<?php echo $this->get_field_name( 'number_of_posts' ); ?>">
+			<label for="<?php echo esc_attr( $this->get_field_id( 'number_of_posts' ) ); ?>"><?php esc_html_e( 'Number of Posts to Display:', 'jetpack' ); ?></label>
+			<select name="<?php echo esc_attr( $this->get_field_name( 'number_of_posts' ) ); ?>">
 				<?php
 				for ( $i = 1; $i <= 10; $i ++ ) {
-					echo '<option value="' . $i . '" ' . selected( $number_of_posts, $i ) . '>' . $i . '</option>';
+					echo '<option value="' . esc_attr( $i ) . '" ' . selected( $number_of_posts, $i ) . '>' . esc_html( $i ) . '</option>';
 				}
 				?>
 			</select>
 		</p>
 		<p>
-			<label for="<?php echo $this->get_field_id( 'open_in_new_window' ); ?>"><?php _e( 'Open links in new window/tab:', 'jetpack' ); ?></label>
-			<input type="checkbox" name="<?php echo $this->get_field_name( 'open_in_new_window' ); ?>" <?php checked( $open_in_new_window, 1 ); ?> />
+			<label for="<?php echo esc_attr( $this->get_field_id( 'open_in_new_window' ) ); ?>"><?php esc_html_e( 'Open links in new window/tab:', 'jetpack' ); ?></label>
+			<input type="checkbox" name="<?php echo esc_attr( $this->get_field_name( 'open_in_new_window' ) ); ?>" <?php checked( $open_in_new_window, 1 ); ?> />
 		</p>
 		<p>
-			<label for="<?php echo $this->get_field_id( 'featured_image' ); ?>"><?php _e( 'Show Featured Image:', 'jetpack' ); ?></label>
-			<input type="checkbox" name="<?php echo $this->get_field_name( 'featured_image' ); ?>" <?php checked( $featured_image, 1 ); ?> />
+			<label for="<?php echo esc_attr( $this->get_field_id( 'featured_image' ) ); ?>"><?php esc_html_e( 'Show Featured Image:', 'jetpack' ); ?></label>
+			<input type="checkbox" name="<?php echo esc_attr( $this->get_field_name( 'featured_image' ) ); ?>" <?php checked( $featured_image, 1 ); ?> />
 		</p>
 		<p>
-			<label for="<?php echo $this->get_field_id( 'show_excerpts' ); ?>"><?php _e( 'Show Excerpts:', 'jetpack' ); ?></label>
-			<input type="checkbox" name="<?php echo $this->get_field_name( 'show_excerpts' ); ?>" <?php checked( $show_excerpts, 1 ); ?> />
+			<label for="<?php echo esc_attr( $this->get_field_id( 'show_excerpts' ) ); ?>"><?php esc_html_e( 'Show Excerpts:', 'jetpack' ); ?></label>
+			<input type="checkbox" name="<?php echo esc_attr( $this->get_field_name( 'show_excerpts' ) ); ?>" <?php checked( $show_excerpts, 1 ); ?> />
 		</p>
 
 		<?php
@@ -323,14 +333,19 @@ abstract class Jetpack_Display_Posts_Widget__Base extends WP_Widget {
 		}
 	}
 
-	public function update( $new_instance, $old_instance ) {
+	/**
+	 * Widget update function.
+	 *
+	 * @param array $new_instance New instance widget settings.
+	 * @param array $old_instance Old instance widget settings.
+	 */
+	public function update( $new_instance, $old_instance ) { // phpcs:ignore VariableAnalysis.CodeAnalysis.VariableAnalysis.UnusedVariable
 
 		$instance          = array();
-		$instance['title'] = ( ! empty( $new_instance['title'] ) ) ? strip_tags( $new_instance['title'] ) : '';
-		$instance['url']   = ( ! empty( $new_instance['url'] ) ) ? strip_tags( trim( $new_instance['url'] ) ) : '';
-		$instance['url']   = preg_replace( "!^https?://!is", "", $instance['url'] );
+		$instance['title'] = ( ! empty( $new_instance['title'] ) ) ? wp_strip_all_tags( $new_instance['title'] ) : '';
+		$instance['url']   = ( ! empty( $new_instance['url'] ) ) ? wp_strip_all_tags( trim( $new_instance['url'] ) ) : '';
+		$instance['url']   = preg_replace( '!^https?://!is', '', $instance['url'] );
 		$instance['url']   = untrailingslashit( $instance['url'] );
-
 
 		/**
 		 * Check if the URL should be with or without the www prefix before saving.
@@ -366,8 +381,7 @@ abstract class Jetpack_Display_Posts_Widget__Base extends WP_Widget {
 		return $instance;
 	}
 
-
-	// DATA PROCESSING
+	// DATA PROCESSING.
 
 	/**
 	 * Expiring transients have a name length maximum of 45 characters,
@@ -443,13 +457,11 @@ abstract class Jetpack_Display_Posts_Widget__Base extends WP_Widget {
 			);
 		}
 
-
 		/**
 		 * Extract service response body from the request.
 		 */
 
 		$service_response_body = wp_remote_retrieve_body( $service_response );
-
 
 		/**
 		 * No body has been set in the response. This should be pretty bad.
@@ -504,7 +516,7 @@ abstract class Jetpack_Display_Posts_Widget__Base extends WP_Widget {
 	 */
 	public function fetch_site_info( $site ) {
 
-		$response = $this->fetch_service_endpoint( sprintf( '/sites/%s', urlencode( $site ) ) );
+		$response = $this->fetch_service_endpoint( sprintf( '/sites/%s', rawurlencode( $site ) ) );
 
 		return $response;
 	}
@@ -629,7 +641,7 @@ abstract class Jetpack_Display_Posts_Widget__Base extends WP_Widget {
 					'title'          => $single_post->title ? $single_post->title : '',
 					'excerpt'        => $single_post->excerpt ? $single_post->excerpt : '',
 					'featured_image' => $single_post->featured_image ? $single_post->featured_image : '',
-					'url'            => $single_post->URL,
+					'url'            => $single_post->URL, // phpcs:ignore WordPress.NamingConventions.ValidVariableName.UsedPropertyNotSnakeCase
 				);
 
 				/**
@@ -659,8 +671,7 @@ abstract class Jetpack_Display_Posts_Widget__Base extends WP_Widget {
 		 */
 		if ( ! empty( $original_data ) ) {
 			$widget_data = $original_data;
-		}
-		else {
+		} else {
 			$widget_data = array(
 				'site_info' => array(
 					'last_check'  => null,
@@ -673,7 +684,7 @@ abstract class Jetpack_Display_Posts_Widget__Base extends WP_Widget {
 					'last_update' => null,
 					'error'       => null,
 					'data'        => array(),
-				)
+				),
 			);
 		}
 
@@ -685,7 +696,6 @@ abstract class Jetpack_Display_Posts_Widget__Base extends WP_Widget {
 		$site_info_raw_data    = $this->fetch_site_info( $site );
 		$site_info_parsed_data = $this->parse_site_info_response( $site_info_raw_data );
 
-
 		/**
 		 * If there is an error with the fetched site info, save the error and update the checked time.
 		 */
@@ -693,20 +703,17 @@ abstract class Jetpack_Display_Posts_Widget__Base extends WP_Widget {
 			$widget_data['site_info']['error'] = $site_info_parsed_data;
 
 			return $widget_data;
-		}
-		/**
-		 * If data is fetched successfully, update the data and set the proper time.
-		 *
-		 * Data is only updated if we have valid results. This is done this way so we can show
-		 * something if external service is down.
-		 *
-		 */
-		else {
+		} else {
+			/**
+			 * If data is fetched successfully, update the data and set the proper time.
+			 *
+			 * Data is only updated if we have valid results. This is done this way so we can show
+			 * something if external service is down.
+			 */
 			$widget_data['site_info']['last_update'] = time();
 			$widget_data['site_info']['data']        = $site_info_parsed_data;
 			$widget_data['site_info']['error']       = null;
 		}
-
 
 		/**
 		 * If only site data is needed, return it here, don't fetch posts data.
@@ -723,7 +730,6 @@ abstract class Jetpack_Display_Posts_Widget__Base extends WP_Widget {
 		$site_posts_raw_data    = $this->fetch_posts_for_site( $site_info_parsed_data->ID );
 		$site_posts_parsed_data = $this->parse_posts_response( $site_posts_raw_data );
 
-
 		/**
 		 * If there is an error with the fetched posts, save the error and update the checked time.
 		 */
@@ -731,15 +737,13 @@ abstract class Jetpack_Display_Posts_Widget__Base extends WP_Widget {
 			$widget_data['posts']['error'] = $site_posts_parsed_data;
 
 			return $widget_data;
-		}
-		/**
-		 * If data is fetched successfully, update the data and set the proper time.
-		 *
-		 * Data is only updated if we have valid results. This is done this way so we can show
-		 * something if external service is down.
-		 *
-		 */
-		else {
+		} else {
+			/**
+			 * If data is fetched successfully, update the data and set the proper time.
+			 *
+			 * Data is only updated if we have valid results. This is done this way so we can show
+			 * something if external service is down.
+			 */
 			$widget_data['posts']['last_update'] = time();
 			$widget_data['posts']['data']        = $site_posts_parsed_data;
 			$widget_data['posts']['error']       = null;
@@ -762,7 +766,6 @@ abstract class Jetpack_Display_Posts_Widget__Base extends WP_Widget {
 			'debug'   => '',
 			'where'   => '',
 		);
-
 
 		/**
 		 * When the cache result is an error. Usually when the cache is empty.
@@ -801,14 +804,12 @@ abstract class Jetpack_Display_Posts_Widget__Base extends WP_Widget {
 					$extra_data = $blog_data[ $info_key ]['error']->get_error_data();
 					if ( is_array( $extra_data ) ) {
 						$errors['debug'] = implode( '; ', $extra_data );
-					}
-					else {
+					} else {
 						$errors['debug'] = $extra_data;
 					}
 
 					break;
-				}
-				elseif ( is_array( $blog_data[ $info_key ]['error'] ) ) {
+				} elseif ( is_array( $blog_data[ $info_key ]['error'] ) ) {
 					/**
 					 * In this case we don't have debug information, because
 					 * we have no way to know the format. The widget works with
@@ -830,7 +831,7 @@ abstract class Jetpack_Display_Posts_Widget__Base extends WP_Widget {
 	/**
 	 * This is just to make method mocks in the unit tests easier.
 	 *
-	 * @param string $url  The URL to fetch
+	 * @param string $url  The URL to fetch.
 	 * @param array  $args Optional. Request arguments.
 	 *
 	 * @return array|WP_Error

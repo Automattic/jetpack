@@ -5,7 +5,7 @@ import { spawnSync } from 'child_process';
 import chalk from 'chalk';
 import * as envfile from 'envfile';
 import fs from 'fs';
-import { dockerFolder, setConfig } from '../helpers/docker-config';
+import { dockerFolder, setConfig } from '../helpers/docker-config.js';
 
 /**
  * Sets default options that are common for most of the commands
@@ -281,9 +281,9 @@ const defaultDockerCmdHandler = async argv => {
 	// TODO: Make it work with all container types, not only e2e
 	if ( argv.type === 'e2e' && argv._[ 1 ] === 'up' && argv.detached ) {
 		console.log( 'Waiting for WordPress to be ready...' );
-		const getContent = () =>
-			new Promise( ( resolve, reject ) => {
-				const https = require( 'http' );
+		const getContent = async () => {
+			const https = await import( 'http' );
+			return new Promise( ( resolve, reject ) => {
 				const request = https.get( `http://localhost:${ envOpts.PORT_WORDPRESS }/`, response => {
 					// handle http errors
 
@@ -300,6 +300,7 @@ const defaultDockerCmdHandler = async argv => {
 				// handle connection errors of the request
 				request.on( 'error', err => reject( err ) );
 			} );
+		};
 
 		await retry( getContent, { times: 24 } ); // 24 * 5000 = 120 sec
 	}
@@ -330,39 +331,34 @@ const buildExecCmd = argv => {
 	} else if ( cmd === 'db' ) {
 		opts.push( 'mysql', '--defaults-group-suffix=docker' );
 	} else if ( cmd === 'phpunit' ) {
-		// @todo: Fix this.
+		// @todo: Make this scale.
+		console.warn( chalk.yellow( 'This currently only run tests for the Jetpack plugin.' ) );
 		console.warn(
 			chalk.yellow(
-				"Due to recent changes to WordPress's test infrastructure, this command is currently broken."
-			)
-		);
-		console.warn(
-			chalk.yellow(
-				"You'll probably do better for the moment to do `jetpack docker sh` then run appropriate commands there."
+				'Other projects do not require a working database, so you can run them locally or directly within jetpadk docker sh'
 			)
 		);
 		const unitArgs = argv._.slice( 2 );
 
+		opts.splice( 1, 0, '-w', '/var/www/html/wp-content/plugins/jetpack' ); // Need to add this option to `exec` before the container name.
 		opts.push(
-			'phpunit',
+			'vendor/bin/phpunit',
 			'--configuration=/var/www/html/wp-content/plugins/jetpack/phpunit.xml.dist',
 			...unitArgs
 		);
 	} else if ( cmd === 'phpunit-multisite' ) {
-		// @todo: Fix this.
+		// @todo: Make this scale.
+		console.warn( chalk.yellow( 'This currently only run tests for the Jetpack plugin.' ) );
 		console.warn(
 			chalk.yellow(
-				"Due to recent changes to WordPress's test infrastructure, this command is currently broken."
-			)
-		);
-		console.warn(
-			chalk.yellow(
-				"You'll probably do better for the moment to do `jetpack docker sh` then run appropriate commands there."
+				'Other projects do not require a working database, so you can run them locally or directly within jetpadk docker sh'
 			)
 		);
 		const unitArgs = argv._.slice( 2 );
+
+		opts.splice( 1, 0, '-w', '/var/www/html/wp-content/plugins/jetpack' ); // Need to add this option to `exec` before the container name.
 		opts.push(
-			'phpunit',
+			'vendor/bin/phpunit',
 			'--configuration=/var/www/html/wp-content/plugins/jetpack/tests/php.multisite.xml',
 			...unitArgs
 		);
@@ -434,10 +430,20 @@ const execJtCmdHandler = argv => {
 		opts.push( 'break' );
 	} else if ( arg === 'jt-up' ) {
 		cmd = jtTunnelFile;
+		console.warn(
+			chalk.yellow(
+				'Remember! This is creating a tunnel to your local machine. Please use jetpack docker jt-down as soon as you are done with your testing.'
+			)
+		);
 	}
 
 	const jtResult = executor( argv, () => shellExecutor( argv, cmd, opts.concat( jtOpts ) ) );
 	checkProcessResult( jtResult );
+	console.warn(
+		chalk.yellow(
+			'Remember! This is creating a tunnel to your local machine. Please use jetpack docker jt-down as soon as you are done with your testing.'
+		)
+	);
 };
 
 /**
@@ -529,7 +535,7 @@ export function dockerDefine( yargs ) {
 					},
 				} )
 
-				// Wordpress exec commands
+				// WordPress exec commands
 				.command( {
 					command: 'exec',
 					description: 'Execute arbitrary shell command inside docker container',
@@ -557,7 +563,7 @@ export function dockerDefine( yargs ) {
 				} )
 				.command( {
 					command: 'sh',
-					description: 'Access shell on Wordpress container',
+					description: 'Access shell on WordPress container',
 					builder: yargExec => defaultOpts( yargExec ),
 					handler: argv => execDockerCmdHandler( argv ),
 				} )

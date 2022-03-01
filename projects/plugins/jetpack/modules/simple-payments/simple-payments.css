@@ -51,6 +51,11 @@ body .jetpack-simple-payments-wrapper .jetpack-simple-payments-product-image .je
 	display: flex;
 }
 
+.jetpack-simple-payments-button {
+	max-width: 340px;
+	width: 100%;
+}
+
 .jetpack-simple-payments-items {
 	flex: 0 0 auto;
 	margin-right: 10px;
@@ -61,6 +66,11 @@ input[type="number"].jetpack-simple-payments-items-number {
 	line-height: 1;
 	max-width: 60px;
 	padding: 4px 8px;
+}
+
+input[type=number].jetpack-simple-payments-items-number::-webkit-inner-spin-button,
+input[type=number].jetpack-simple-payments-items-number::-webkit-outer-spin-button {
+	opacity: 1;
 }
 
 .jetpack-simple-payments-button iframe {
@@ -149,6 +159,10 @@ body .jetpack-simple-payments-wrapper .jetpack-simple-payments-purchase-message 
 
 .is-email .jetpack-simple-payments-image figure {
 	margin: 0;
+}
+
+.jetpack-simple-payments-details {
+	width: 100%;
 }
 
 .is-email .jetpack-simple-payments-product-image + .jetpack-simple-payments-details {

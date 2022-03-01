@@ -7,7 +7,7 @@ Identity Crisis
 The Identity Crisis package can be initialized using the Config package as shown in the example below.
 
 ```php
-use Automattic/Jetpack/Config;
+use Automattic\Jetpack\Config;
 
 // Configuring as early as plugins_loaded priority 1
 // to make sure every action handler gets properly set.

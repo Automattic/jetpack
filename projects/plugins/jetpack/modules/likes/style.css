@@ -57,11 +57,6 @@ div.jetpack-likes-widget-wrapper .sd-link-color {
 	font-size: 12px;
 }
 
-div.jetpack-likes-widget-wrapper.slim-likes-widget {
-	width: 1px; /* initial default */
-	min-height: 0;
-}
-
 div.jetpack-comment-likes-widget-wrapper {
 	width: 100%;
 	position: relative;
@@ -194,11 +189,6 @@ div.sd-box {
 	color: #4E4E4E;
 }
 
-.slim-likes-widget .post-likes-widget {
-	width: auto;
-	float: none;
-}
-
 /* Like Special cases (display on it's own) */
 div.sharedaddy.sd-like-enabled .sd-like h3 {
 	display: none;
@@ -226,4 +216,10 @@ div.sharedaddy.sd-like-enabled .sd-like .post-likes-widget {
 /* Hide G+ title */
 .sd-gplus .sd-title {
 	display: none;
+}
+
+@media print {
+	.jetpack-likes-widget-wrapper {
+		display: none;
+	}
 }

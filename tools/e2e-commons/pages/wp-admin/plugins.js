@@ -1,22 +1,22 @@
-import { WpPage } from '..';
+import WpPage from '../wp-page.js';
+import { resolveSiteUrl } from '../../helpers/utils-helper.cjs';
 
 export default class PluginsPage extends WpPage {
 	constructor( page ) {
-		super( page, { expectedSelectors: [ '.search-box' ] } );
+		const url = `${ resolveSiteUrl() }/wp-admin/plugins.php`;
+		super( page, { expectedSelectors: [ '.search-box' ], url } );
 	}
 
-	async deactivateJetpack() {
-		const selector = "tr[data-slug='jetpack'] a[href*='=deactivate']";
-		const navigationPromise = this.waitForLoad();
+	async deactivatePlugin( pluginSlug ) {
+		const selector = `tr[data-slug='${ pluginSlug }'] a[href*='=deactivate']`;
 		await this.click( selector );
-		await navigationPromise;
+		await this.waitForLoad();
 	}
 
-	async activateJetpack() {
-		const selector = "tr[data-slug='jetpack'] a[href*='=activate']";
-		const navigationPromise = this.waitForLoad();
+	async activatePlugin( pluginSlug ) {
+		const selector = `tr[data-slug='${ pluginSlug }'] a[href*='=activate']`;
 		await this.click( selector );
-		await navigationPromise;
+		await this.waitForLoad();
 	}
 
 	async isFullScreenPopupShown() {
@@ -35,7 +35,6 @@ export default class PluginsPage extends WpPage {
 	}
 
 	async updateJetpack() {
-		await this.waitForTimeout( 2000 );
 		const updateCard = 'tr.active#jetpack-update[data-plugin="jetpack/jetpack.php"]';
 		const updateLink = 'tr.active#jetpack-update[data-plugin="jetpack/jetpack.php"] .update-link';
 		const isUpdatingMessage =
@@ -46,6 +45,11 @@ export default class PluginsPage extends WpPage {
 		await this.waitForElementToBeVisible( updateCard );
 		await this.click( updateLink );
 		await this.waitForElementToBeVisible( isUpdatingMessage );
-		await this.waitForElementToBeVisible( updatedMessage, 5 * 30000 );
+		await this.waitForElementToBeVisible( updatedMessage, 6 * 30000 );
+	}
+
+	async clickOnJetpackBoostSettingsLink() {
+		const selector = "tr[data-slug='jetpack-boost'] .row-actions a[href*='=jetpack-boost']";
+		return await this.page.click( selector );
 	}
 }

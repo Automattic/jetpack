@@ -8,6 +8,7 @@
 namespace Automattic\Jetpack\Connection;
 
 use Automattic\Jetpack\Constants;
+use Automattic\Jetpack\Status\Cache as StatusCache;
 use PHPUnit\Framework\TestCase;
 use WorDBless\Options as WorDBless_Options;
 use WorDBless\Users as WorDBless_Users;
@@ -286,6 +287,7 @@ class ManagerTest extends TestCase {
 	 */
 	public function test_jetpack_connection_custom_caps( $in_offline_mode, $owner_exists, $custom_cap, $expected_caps ) {
 		// Mock the apply_filters( 'jetpack_offline_mode', ) call in Status::is_offline_mode.
+		StatusCache::clear();
 		add_filter(
 			'jetpack_offline_mode',
 			function () use ( $in_offline_mode ) {
@@ -299,6 +301,7 @@ class ManagerTest extends TestCase {
 
 		$caps = $this->manager->jetpack_connection_custom_caps( self::DEFAULT_TEST_CAPS, $custom_cap, 1, array() );
 		$this->assertEquals( $expected_caps, $caps );
+		StatusCache::clear();
 	}
 
 	/**
@@ -429,7 +432,7 @@ class ManagerTest extends TestCase {
 			)
 		);
 
-		$expected = new WP_Error( 'new_owner_not_admin', __( 'New owner is not admin', 'jetpack' ), array( 'status' => 400 ) );
+		$expected = new WP_Error( 'new_owner_not_admin', __( 'New owner is not admin', 'jetpack-connection' ), array( 'status' => 400 ) );
 
 		$result = $this->manager->update_connection_owner( $editor_id );
 
@@ -455,7 +458,7 @@ class ManagerTest extends TestCase {
 			->withAnyParameters()
 			->willReturn( $admin_id );
 
-		$expected = new WP_Error( 'new_owner_is_existing_owner', __( 'New owner is same as existing owner', 'jetpack' ), array( 'status' => 400 ) );
+		$expected = new WP_Error( 'new_owner_is_existing_owner', __( 'New owner is same as existing owner', 'jetpack-connection' ), array( 'status' => 400 ) );
 
 		$result = $this->manager->update_connection_owner( $admin_id );
 
@@ -477,7 +480,7 @@ class ManagerTest extends TestCase {
 			)
 		);
 
-		$expected = new WP_Error( 'new_owner_not_connected', __( 'New owner is not connected', 'jetpack' ), array( 'status' => 400 ) );
+		$expected = new WP_Error( 'new_owner_not_connected', __( 'New owner is not connected', 'jetpack-connection' ), array( 'status' => 400 ) );
 
 		$result = $this->manager->update_connection_owner( $admin_id );
 
@@ -513,7 +516,7 @@ class ManagerTest extends TestCase {
 		$this->manager->method( 'update_connection_owner_wpcom' )
 			->willReturn( false );
 
-		$expected = new WP_Error( 'error_setting_new_owner', __( 'Could not confirm new owner.', 'jetpack' ), array( 'status' => 500 ) );
+		$expected = new WP_Error( 'error_setting_new_owner', __( 'Could not confirm new owner.', 'jetpack-connection' ), array( 'status' => 500 ) );
 
 		$result = $this->manager->update_connection_owner( $admin_id );
 
@@ -557,7 +560,7 @@ class ManagerTest extends TestCase {
 	/**
 	 * Test disconnecting the site will remove tracked package verions.
 	 *
-	 * @covers Automattic\Jetpack\Connection\Manager::test_disconnect_site
+	 * @covers Automattic\Jetpack\Connection\Manager::disconnect_site
 	 */
 	public function test_disconnect_site_will_remove_tracked_package_versions() {
 		$this->manager->method( 'disconnect_site_wpcom' )

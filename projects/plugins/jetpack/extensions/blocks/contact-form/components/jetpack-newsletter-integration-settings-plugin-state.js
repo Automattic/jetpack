@@ -1,10 +1,10 @@
 /**
  * External dependencies
  */
+import { getJetpackData } from '@automattic/jetpack-shared-extension-utils';
 import { Button, ExternalLink, Icon } from '@wordpress/components';
 import { __ } from '@wordpress/i18n';
 import { installAndActivatePlugin, activatePlugin } from './../../../shared/plugin-management';
-import getJetpackData from './../../../shared/get-jetpack-data';
 import { get } from 'lodash';
 
 const pluginPathWithoutPhp = 'creative-mail-by-constant-contact/creative-mail-plugin';
@@ -17,7 +17,9 @@ export const pluginStateEnum = Object.freeze( {
 } );
 
 const CreativeMailPluginIsInstalling = ( { isActivating } ) => {
-	const btnTxt = isActivating ? __( 'Activating…', 'jetpack' ) : __( 'Installing…', 'jetpack' );
+	const btnTxt = isActivating
+		? __( 'Activating…', 'jetpack' )
+		: __( 'Installing…', 'jetpack', /* dummy arg to avoid bad minification */ 0 );
 	return (
 		<Button
 			isSecondary

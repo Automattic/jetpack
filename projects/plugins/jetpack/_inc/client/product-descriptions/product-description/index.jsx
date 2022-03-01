@@ -52,7 +52,7 @@ const renderProduct = ( product, priority, hasRelatedPlan, arePromotionsActive )
 	let cta, icon;
 
 	switch ( product.slug ) {
-		case 'jetpack_backup_daily':
+		case 'jetpack_backup_t1_yearly':
 			icon = cloudIcon;
 			break;
 		case 'jetpack_scan':
@@ -61,7 +61,7 @@ const renderProduct = ( product, priority, hasRelatedPlan, arePromotionsActive )
 		case 'jetpack_anti_spam':
 			icon = bugIcon;
 			break;
-		case 'jetpack_security_daily':
+		case 'jetpack_security_t1_yearly':
 			icon = bundleIcon;
 
 			if ( 'secondary' === priority ) {

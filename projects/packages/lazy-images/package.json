@@ -15,26 +15,22 @@
 		"extends @wordpress/browserslist-config"
 	],
 	"scripts": {
-		"build": "pnpm run install-if-deps-outdated && pnpm run clean && pnpm run build-js",
-		"build-js": "calypso-build && cp ./node_modules/intersection-observer/intersection-observer.js ./dist/intersection-observer.src.js",
-		"build-production": "pnpm run distclean && pnpm run install-if-deps-outdated && pnpm run build-production-js",
+		"build": "pnpm run clean && pnpm run build-js",
+		"build-js": "webpack",
+		"build-production": "pnpm run clean && pnpm run build-production-js && pnpm run validate",
 		"build-production-js": "NODE_ENV=production BABEL_ENV=production pnpm run build-js",
 		"clean": "rm -rf dist",
-		"distclean": "rm -rf node_modules && pnpm run clean",
-		"install-if-deps-outdated": "pnpm install --no-prod --frozen-lockfile"
-	},
-	"dependencies": {
-		"intersection-observer": "0.12.0"
+		"validate": "pnpm exec validate-es dist/"
 	},
 	"devDependencies": {
-		"@automattic/calypso-build": "9.0.0",
-		"@wordpress/browserslist-config": "4.1.0",
-		"eslint": "7.32.0",
-		"webpack": "5.51.1"
+		"@automattic/jetpack-webpack-config": "workspace:^1.1.4-alpha",
+		"copy-webpack-plugin": "10.2.0",
+		"intersection-observer": "0.12.0",
+		"webpack": "5.65.0"
 	},
 	"engines": {
-		"node": "^14.17.6 || ^16.7.0",
-		"pnpm": "^6.5.0",
+		"node": "^14.18.3 || ^16.13.2",
+		"pnpm": "^6.23.6",
 		"yarn": "use pnpm instead - see docs/yarn-upgrade.md"
 	}
 }

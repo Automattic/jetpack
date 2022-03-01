@@ -48,7 +48,8 @@ function loadEslintExcludeList() {
 function parseGitDiffToPathArray( command ) {
 	return execSync( command, { encoding: 'utf8' } )
 		.split( '\n' )
-		.map( name => name.trim() );
+		.map( name => name.trim() )
+		.filter( file => file !== '' );
 }
 
 /**
@@ -72,7 +73,9 @@ function phpcsFilesToFilter( file ) {
  * @returns {boolean} If the file matches the requirelist.
  */
 function filterJsFiles( file ) {
-	return [ '.js', '.json', '.jsx', '.cjs', '.ts' ].some( extension => file.endsWith( extension ) );
+	return [ '.js', '.json', '.jsx', '.cjs', '.mjs', '.ts', '.tsx', '.svelte' ].some( extension =>
+		file.endsWith( extension )
+	);
 }
 
 /**
@@ -153,6 +156,21 @@ function capturePreCommitTreeHash() {
 }
 
 /**
+ * Run `prettier` over a list of files.
+ *
+ * @param {Array} toPrettify - List of files to prettify.
+ */
+function runPrettier( toPrettify ) {
+	if ( toPrettify.length > 0 ) {
+		execSync(
+			`pnpx prettier --config .prettierrc.js --ignore-path .eslintignore --write ${ toPrettify.join(
+				' '
+			) }`
+		);
+	}
+}
+
+/**
  * Spawns a eslint process against list of files
  *
  * @param {Array} toLintFiles - List of files to lint
@@ -185,6 +203,34 @@ function runEslint( toLintFiles ) {
 		// If we get here, required files have failed eslint. Let's return early and avoid the duplicate information.
 		checkFailed();
 		exit( exitCode );
+	}
+}
+
+/**
+ * Runs `eslint --fix` against checked JS files.
+ *
+ * @param {Array} toFixFiles - List of files to fix.
+ */
+function runEslintFix( toFixFiles ) {
+	if ( toFixFiles.length === 0 ) {
+		return;
+	}
+
+	spawnSync( 'pnpm', [ 'run', 'lint-file', '--', '--fix', ...toFixFiles ], {
+		shell: true,
+		stdio: 'inherit',
+	} );
+
+	// Unlike phpcbf, eslint seems to give no indication as to whether it did anything.
+	// It doesn't even print a summary of what it fixed. Sigh.
+	const newDirty = parseGitDiffToPathArray(
+		'git -c core.quotepath=off diff --name-only --diff-filter=ACMR'
+	).filter( file => checkFileAgainstDirtyList( file, dirtyFiles ) );
+	if ( newDirty.length > 0 ) {
+		// Re-prettify, just in case eslint unprettified.
+		runPrettier( newDirty );
+		spawnSync( 'git', [ 'add', '-v', '--', ...newDirty ], { shell: true, stdio: 'inherit' } );
+		console.log( chalk.yellow( 'JS issues detected and automatically fixed via eslint.' ) );
 	}
 }
 
@@ -390,22 +436,21 @@ dirtyFiles.forEach( file =>
 
 // Start JS work—linting, prettify, etc.
 
+const jsOnlyFiles = jsFiles.filter( file => ! file.endsWith( '.json' ) );
+const eslintFiles = jsOnlyFiles.filter( filterEslintFiles );
+const eslintFixFiles = eslintFiles.filter( file => checkFileAgainstDirtyList( file, dirtyFiles ) );
+
 const toPrettify = jsFiles.filter( file => checkFileAgainstDirtyList( file, dirtyFiles ) );
 toPrettify.forEach( file => console.log( `Prettier formatting staged file: ${ file }` ) );
 
 if ( toPrettify.length ) {
-	execSync(
-		`pnpx prettier --config .prettierrc.js --ignore-path .eslintignore --write ${ toPrettify.join(
-			' '
-		) }`
-	);
+	runPrettier( toPrettify );
 	execSync( `git add ${ toPrettify.join( ' ' ) }` );
 }
 
 // linting should happen after formatting
-const jsOnlyFiles = jsFiles.filter( file => ! file.endsWith( '.json' ) );
-const eslintFiles = jsOnlyFiles.filter( filterEslintFiles );
 if ( eslintFiles.length > 0 ) {
+	runEslintFix( eslintFixFiles );
 	runEslint( eslintFiles );
 }
 if ( jsOnlyFiles.length > 0 ) {

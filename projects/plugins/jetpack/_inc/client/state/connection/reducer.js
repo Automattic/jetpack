@@ -28,6 +28,7 @@ import {
 	SITE_RECONNECT,
 	SITE_RECONNECT_FAIL,
 	SITE_RECONNECT_SUCCESS,
+	JETPACK_CONNECTION_HAS_SEEN_WC_CONNECTION_MODAL,
 } from 'state/action-types';
 import {
 	getModulesThatRequireConnection,
@@ -74,7 +75,7 @@ export const connectUrl = ( state = '', action ) => {
 	}
 };
 
-export const user = ( state = window.Initial_State.userData, action ) => {
+export const user = ( state = window.Initial_State.userData || {}, action ) => {
 	switch ( action.type ) {
 		case USER_CONNECTION_DATA_FETCH_SUCCESS:
 			return assign( {}, state, action.userConnectionData );
@@ -144,11 +145,25 @@ export const requests = ( state = connectionRequests, action ) => {
 	}
 };
 
+export const hasSeenWCConnectionModal = (
+	state = window.Initial_State.hasSeenWCConnectionModal || false,
+	action
+) => {
+	switch ( action.type ) {
+		case JETPACK_CONNECTION_HAS_SEEN_WC_CONNECTION_MODAL:
+			return true;
+
+		default:
+			return state;
+	}
+};
+
 export const reducer = combineReducers( {
 	connectUrl,
 	status,
 	user,
 	requests,
+	hasSeenWCConnectionModal,
 } );
 
 /**
@@ -241,7 +256,7 @@ export function getConnectUrl( state ) {
  * @return {object}       Returns an object with information about the connected user
  */
 export function getConnectedWpComUser( state ) {
-	return state.jetpack.connection.user.currentUser.wpcomUser;
+	return state.jetpack.connection.user.currentUser?.wpcomUser;
 }
 
 /**
@@ -428,4 +443,14 @@ export function getSandboxDomain( state ) {
  */
 export function isReconnectingSite( state ) {
 	return !! state.jetpack.connection.requests.reconnectingSite;
+}
+
+/**
+ * Check if `hasSeenWCConnectionModal` (Jetpack option) is true.
+ *
+ * @param {object} state - Global state tree.
+ * @returns {boolean} If true, the site has already displayed the WooCommerce Connection Modal.
+ */
+export function getHasSeenWCConnectionModal( state ) {
+	return !! state.jetpack.connection.hasSeenWCConnectionModal;
 }

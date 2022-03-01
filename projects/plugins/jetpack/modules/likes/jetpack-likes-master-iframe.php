@@ -4,7 +4,7 @@
  * This function needs to get loaded after the like scripts get added to the page.
  */
 function jetpack_likes_master_iframe() {
-	$version = gmdate( 'YW' );
+	$version    = gmdate( 'YW' );
 	$in_jetpack = ( defined( 'IS_WPCOM' ) && IS_WPCOM ) ? false : true;
 
 	$_locale = get_locale();
@@ -18,7 +18,7 @@ function jetpack_likes_master_iframe() {
 		require_once JETPACK__GLOTPRESS_LOCALES_PATH;
 
 		$gp_locale = GP_Locales::by_field( 'wp_locale', $_locale );
-		$_locale = isset( $gp_locale->slug ) ? $gp_locale->slug : '';
+		$_locale   = isset( $gp_locale->slug ) ? $gp_locale->slug : '';
 	}
 
 	$likes_locale = ( '' == $_locale || 'en' == $_locale ) ? '' : '&amp;lang=' . strtolower( $_locale );

@@ -3,6 +3,25 @@ Connection Package
 
 The package encapsulates the Connection functionality.
 
+## Initial State
+
+In order to use this package, you must ensure that the Jetpack Connection composer package provides the initial state for the connection components.
+
+In order to do that, make sure to attach the Initial State inline script to your app when you enqueue it.
+
+Example:
+
+```PHP
+use Automattic\Jetpack\Connection\Initial_State as Connection_Initial_State;
+// ...
+function my_app_enqueue_script() {
+	// ...
+	wp_enqueue_script( 'my-app-script' );
+	wp_add_inline_script( 'my-app-script', Connection_Initial_State::render(), 'before' );
+}
+```
+
+# Components
 ## Component `ConnectScreen`
 The component implements the connection screen page, and loads the `ConnectButton` component to handle the whole connection flow.
 
@@ -27,10 +46,10 @@ import { ConnectScreen } from '@automattic/jetpack-connection';
 const [ connectionStatus, setConnectionStatus ] = useState( {} );
 
 const statusCallback = useCallback(
-		status => {
-			setConnectionStatus( status );
-		},
-		[ setConnectionStatus ]
+    status => {
+		setConnectionStatus( status );
+	},
+	[ setConnectionStatus ]
 );
 
 <ConnectScreen
@@ -53,7 +72,6 @@ The component displays the connection button and handles the connection process,
 - *apiRoot* - string (required), API root URL.
 - *apiNonce* - string (required), API Nonce.
 - *registrationNonce* - string (required), registration nonce.
-- *onRegistered* - callback, to be called upon registration success.
 - *from* - string, custom string parameter to identify where the request is coming from.
 - *redirectUrl* - string, wp-admin URI to redirect a user to after Calypso connection flow.
 - *statusCallback* - callback to pull connection status from the component.
@@ -66,80 +84,17 @@ The component displays the connection button and handles the connection process,
 import React, { useCallback } from 'react';
 import { ConnectButton } from '@automattic/jetpack-connection';
 
-const onRegistered = useCallback( () => alert( 'Site registered' ) );
 const onUserConnected = useCallback( () => alert( 'User Connected' ) );
 
 <ConnectButton
 	apiRoot="https://example.org/wp-json/" 
 	apiNonce="12345"
 	registrationNonce="54321"
-	onRegistered={ onRegistered }
 	from="connection-ui"
 	redirectUri="tools.php?page=wpcom-connection-manager"
 	connectionStatus={ connectionStatus }
 	connectionStatusIsFetching={ isFetching }
 />
-```
-
-### Higher-Order Component `withConnectionStatus`
-This HOC automatically fetches connection status via API, and passes it as a property to the component of your choosing.
-With this, you'll be able to skip the `connectionStatus` and `connectionStatusIsFetching` parameters.
-The `withConnectionStatus` HOC will pass them automatically.
-
-Here's an example:
-
-```jsx
-import ConnectButton from '../connect-button';
-import withConnectionStatus from '../with-connection-status';
-
-const ConnectButtonWithConnectionStatus = withConnectionStatus( ConnectButton );
-
-const SampleComponent = props => {
-    return <ConnectButtonWithConnectionStatus
-		apiRoot="https://example.org/wp-json/"
-		apiNonce="12345"
-		registrationNonce="54321"
-		from="connection-ui"
-	/>;
-};
-
-export default SampleComponent;
-```
-
-### Advanced Connection Status Handling
-
-You can use the component to keep the connection status updated in your application.
-
-To do that, you should pass a custom callback function into the `JetpackConnection` component:
-
-```jsx
-import React, { useState, useCallback } from 'react';
-import { ConnectButton } from '@automattic/jetpack-connection';
-import withConnectionStatus from '../with-connection-status';
-
-const ConnectButtonWithConnectionStatus = withConnectionStatus( ConnectButton );
-
-const SampleComponent = props => {
-    const [ connectionStatus, setConnectionStatus ] = useState( {} );
-
-    const statusCallback = useCallback(
-        status => {
-            setConnectionStatus( status );
-        },
-        [setConnectionStatus]
-    );
-
-    return <ConnectButtonWithConnectionStatus
-        apiRoot="https://example.org/wp-json/"
-        apiNonce="12345"
-        registrationNonce="54321"
-        from="connection-ui"
-        redirectUri="tools.php?page=wpcom-connection-manager"
-        statusCallback={statusCallback}
-    />;
-};
-
-export default SampleComponent;
 ```
 
 ## Component `ConnectUser`
@@ -264,8 +219,6 @@ In all cases, users are presented with a link to `Disconnect` (see `DisconnectDi
 ### Properties
 - *apiRoot* - string (required), API root URL.
 - *apiNonce* - string (required), API Nonce.
-- *isRegistered* - boolean (required), Whether a site level connection has already been established. If not, the component will not render.
-- *isUserConnected* - boolean (required), Whether the current user has connected their WordPress.com account.
 - *redirectUri* - string (required), The redirect admin URI after the user has connected their WordPress.com account.
 - *title* - string, The Card title. Defaults to "Connection".
 - *connectionInfoText* - string, The text that will be displayed under the title, containing info how to leverage the connection. Defaults to "Leverages the Jetpack Cloud for more features on your side."
@@ -285,25 +238,47 @@ const onDisconnectedCallback = useCallback( () => alert( 'Successfully Disconnec
 <ConnectionStatusCard
 	apiRoot={ APIRoot }
 	apiNonce={ APINonce }
-	isRegistered={ true }
-	isUserConnected={ true }
 	redirectUri="tools.php?page=wpcom-connection-manager"
 />
 ```
 
-## Helper `thirdPartyCookiesFallback`
-The helper encapsulates the redirect to the fallback URL you provide.
+## Fetching connection status and other data from the store
+The package relies on [controls](https://developer.wordpress.org/block-editor/reference-guides/packages/packages-data/#controls-2)
+and [resolvers](https://developer.wordpress.org/block-editor/reference-guides/packages/packages-data/#resolvers)
+to pull connection status from the API, and put it into the package's Redux store.
 
-### Parameters
-- *fallbackURL* - string (required), the URL to be redirected to (usually WP.com "authorize" URL)
+Once connection status is added to the store, consuming plugins can rely on it for the single source of truth regarding connection status. 
 
-### Usage
+### Basic Usage
+
+Let's say you have a component that requires connection data.
+You could pull that data directly from the REST API, but you'll likely run into the following problems:
+- If you're also using the Jetpack Connection components, you'll end up with two separate copies of connection status in two separate stores.
+- There'll be two API requests sent to the same endpoint, both retrieving connection status: your app and the Connection package.
+- It's just not as convenient. Why handle the data yourself, when you can simply load it from the Jetpack Connection store?
+
+So, we'll use the [`withSelect`](https://developer.wordpress.org/block-editor/reference-guides/packages/packages-data/#withselect) higher-order component to pull the data:
+
 ```jsx
-import InPlaceConnection from 'in-place-connection';
-import { thirdPartyCookiesFallbackHelper } from '@automattic/jetpack-connection/helpers';
+// Import the `withSelect` HOC.
+import { withSelect } from '@wordpress/data';
 
-<InPlaceConnection
-	onThirdPartyCookiesBlocked={ () => thirdPartyCookiesFallbackHelper( 'https://example.org/fallback-url/' ) }
-	// Other properties.
-/>
+// Import the Jetpack Connection store ID.
+import { CONNECTION_STORE_ID } from '@automattic/jetpack-connection';
+
+// The component requires the `connectionStatus` parameter.
+const SampleComponent = props => {
+	const { connectionStatus } = props;
+	return <div>{ JSON.stringify( connectionStatus ) }</div>;
+}
+
+// We wrap `SampleComponent` into the `withSelect` HOC,
+// which will pull the data from the store and pass as a parameter into the component.
+// Connection status object doesn't exist at the first render,
+// it's pulled from the API using WP Data controls and resolvers.
+export default withSelect( select => {
+	return {
+		connectionStatus: select( CONNECTION_STORE_ID ).getConnectionStatus(),
+	}
+} )( SampleComponent );
 ```

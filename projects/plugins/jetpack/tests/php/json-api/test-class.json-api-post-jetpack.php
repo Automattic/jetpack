@@ -16,7 +16,7 @@ class SalPostsTest extends WP_UnitTestCase {
 			'blog_id'          => get_current_blog_id(),
 			'user_id'          => get_current_user_id(),
 			'external_user_id' => 2,
-			'role'             => 'administrator'
+			'role'             => 'administrator',
 		);
 
 		$platform = wpcom_get_sal_platform( self::$token );
@@ -26,12 +26,14 @@ class SalPostsTest extends WP_UnitTestCase {
 
 	function test_returns_content_wrapped_in_a_post_object() {
 		// Insert the post into the database
-		$post_id = wp_insert_post( array(
-			'post_title'    => 'Title',
-			'post_content'  => 'The content.',
-			'post_status'   => 'publish',
-			'post_author'   => get_current_user_id()
-		) );
+		$post_id = wp_insert_post(
+			array(
+				'post_title'   => 'Title',
+				'post_content' => 'The content.',
+				'post_status'  => 'publish',
+				'post_author'  => get_current_user_id(),
+			)
+		);
 
 		$post = get_post( $post_id );
 

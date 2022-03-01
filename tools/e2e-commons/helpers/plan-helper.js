@@ -1,13 +1,13 @@
 import fs from 'fs';
-import { execWpCommand } from './utils-helper';
-import logger from '../logger';
+import { execWpCommand, resolveSiteUrl } from './utils-helper.cjs';
+import logger from '../logger.cjs';
 import config from 'config';
 import path from 'path';
 
 export async function persistPlanData( planType = 'jetpack_complete' ) {
 	const planDataOption = 'e2e_jetpack_plan_data';
 	const siteId = await getSiteId();
-	const planData = getPlanData( siteId, siteUrl, planType );
+	const planData = getPlanData( siteId, resolveSiteUrl(), planType );
 	const planDatafilePath = path.resolve( config.get( 'temp.planData' ) );
 
 	fs.writeFileSync( planDatafilePath, JSON.stringify( planData ) );
@@ -532,9 +532,8 @@ export async function syncPlanData( page ) {
 	do {
 		await page.reload( { waitFor: 'domcontentloaded' } );
 
-		/* eslint-disable no-undef */
+		// eslint-disable-next-line no-undef, camelcase
 		frPlan = await page.evaluate( () => Initial_State.siteData.plan.product_slug );
-		/* eslint-enable no-undef */
 		const planJson = await execWpCommand( 'option get jetpack_active_plan --format=json' );
 		bkPlan = JSON.parse( planJson );
 

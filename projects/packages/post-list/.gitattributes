@@ -4,6 +4,7 @@
 package.json      export-ignore
 webpack.config.js export-ignore
 gulpfile.babel.js export-ignore
+phpunit.xml.dist  export-ignore
 .babelrc          export-ignore
 
 # Files to include in the mirror repo
@@ -13,4 +14,5 @@ gulpfile.babel.js export-ignore
 /changelog/**     production-exclude
 /.eslintrc.js     production-exclude
 .gitignore        production-exclude
+.phpcs.dir.xml    production-exclude
 _inc/**           production-exclude

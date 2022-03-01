@@ -1,5 +1,5 @@
 <?php
-require_once __DIR__ . '/../../../../modules/subscriptions.php';
+require_jetpack_file( 'modules/subscriptions.php' );
 
 class WP_Test_Jetpack_Subscriptions extends WP_UnitTestCase {
 	/**

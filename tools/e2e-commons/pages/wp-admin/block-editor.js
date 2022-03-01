@@ -1,10 +1,10 @@
-import { WpPage } from '..';
-import logger from '../../logger';
-import { testStep } from '../../reporters';
+import WpPage from '../wp-page.js';
+import logger from '../../logger.cjs';
+import { resolveSiteUrl } from '../../helpers/utils-helper.cjs';
 
 export default class BlockEditorPage extends WpPage {
 	constructor( page ) {
-		const url = siteUrl + '/wp-admin/post-new.php';
+		const url = resolveSiteUrl() + '/wp-admin/post-new.php';
 		super( page, { expectedSelectors: [ '#editor' ], url } );
 	}
 
@@ -51,12 +51,12 @@ export default class BlockEditorPage extends WpPage {
 	//endregion
 
 	async resolveWelcomeGuide( show = false ) {
-		const isWelcomeGuideActive = await page.evaluate( () =>
+		const isWelcomeGuideActive = await this.page.evaluate( () =>
 			wp.data.select( 'core/edit-post' ).isFeatureActive( 'welcomeGuide' )
 		);
 
 		if ( show !== isWelcomeGuideActive ) {
-			await page.evaluate( () =>
+			await this.page.evaluate( () =>
 				wp.data.dispatch( 'core/edit-post' ).toggleFeature( 'welcomeGuide' )
 			);
 
@@ -66,20 +66,16 @@ export default class BlockEditorPage extends WpPage {
 	}
 
 	async searchForBlock( searchTerm ) {
-		await testStep( `Search for block: ${ searchTerm }`, async () => {
-			logger.step( `Search block: '${ searchTerm }'` );
-			await this.click( this.insertBlockBtnSel );
-			await this.fill( this.searchBlockFldSel, searchTerm );
-		} );
+		logger.step( `Search block: '${ searchTerm }'` );
+		await this.click( this.insertBlockBtnSel );
+		await this.fill( this.searchBlockFldSel, searchTerm );
 	}
 
 	async insertBlock( blockName, blockTitle ) {
 		await this.searchForBlock( blockTitle );
 
-		await testStep( `Insert block with name: ${ blockName }`, async () => {
-			logger.step( `Insert block {name: ${ blockName }, title: ${ blockTitle }}` );
-			await this.click( this.blockSel( blockName ) );
-		} );
+		logger.step( `Insert block {name: ${ blockName }, title: ${ blockTitle }}` );
+		await this.click( this.blockSel( blockName ) );
 		return await this.getInsertedBlock( blockName );
 	}
 
@@ -95,24 +91,19 @@ export default class BlockEditorPage extends WpPage {
 	}
 
 	async publishPost() {
-		await testStep( `Publish post`, async () => {
-			logger.step( `Publish post` );
-			await this.click( '.editor-post-save-draft' );
-			await this.waitForElementToBeVisible( '.editor-post-saved-state.is-saved' );
-			await this.click( this.publishPanelToggleBtnSel );
-			// Wait for animation :shrug:
-			await page.waitForTimeout( 100 );
-
-			await this.click( this.publishPostBtnSel );
-			await this.waitForElementToBeVisible( this.postPublishViewPostBtnSel );
-		} );
+		logger.step( `Publish post` );
+		await this.click( '.editor-post-save-draft' );
+		await this.waitForElementToBeVisible( '.editor-post-saved-state.is-saved' );
+		await this.click( this.publishPanelToggleBtnSel );
+		// Wait for animation :shrug:
+		await this.waitForTimeout( 100 );
+		await this.click( this.publishPostBtnSel );
+		await this.waitForElementToBeVisible( this.postPublishViewPostBtnSel );
 	}
 
 	async viewPost() {
-		await testStep( `View post`, async () => {
-			logger.step( `View post` );
-			await this.click( this.postPublishViewPostBtnSel );
-		} );
+		logger.step( `View post` );
+		await this.click( this.postPublishViewPostBtnSel );
 	}
 
 	async selectPostTitle() {

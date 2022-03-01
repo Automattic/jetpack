@@ -1,0 +1,4 @@
+Significance: patch
+Type: changed
+
+Update regular expression to ignore deferring js via ignore attribute with and without quotes.

@@ -1,0 +1,88 @@
+@import '../../scss/calypso-mixins';
+
+.dash-security-bundle {
+	display: flex;
+	flex-direction: column;
+	padding: 32px;
+
+	// match aag responsive styling
+	@include breakpoint( '>660px' ) {
+		flex-direction: row;
+	}
+
+	.dash-security-bundle--icon {
+		display: flex;
+		align-items: flex-start;
+		margin-bottom: 16px;
+		margin-right: 0;
+		margin-top: 16px;
+
+		@include breakpoint( '>660px' ) {
+			align-items: center;
+			margin-bottom: 0;
+			margin-right: 32px;
+			margin-top: 0;
+		}
+	}
+
+	.dash-security-bundle--content {
+		display: flex;
+		flex-direction: column;
+		flex: 1;
+		justify-content: space-between;
+
+		@include breakpoint( '>660px' ) {
+			flex-direction: row;
+		}
+
+		.dash-security-bundle--content-info {
+			display: flex;
+			flex-direction: column;
+
+			h3 {
+				font-size: 22px;
+				font-weight: 700;
+				margin-bottom: 0;
+			}
+
+			p {
+				font-size: 14px;
+			}
+
+			.dash-security-bundle--content-info-features {
+				display: flex;
+				flex-direction: row;
+		
+				.dash-security-bundle--content-info-features-single-feature {
+					display: flex;
+					flex-direction: row;
+		
+					img {
+						width: 24px;
+					}
+		
+					p {
+						font-weight: 700;
+					}
+		
+					&:not(:last-child) {
+						margin-right: 16px;
+					}
+				}
+			}
+		}
+
+		.dash-security-bundle--content-cta {
+			display: flex;
+			flex-direction: row;
+			align-items: center;
+			margin-top: 16px;
+			margin-left: 0;
+
+			@include breakpoint( '>660px' ) {
+				margin-top: 0;
+				margin-left: 16px;
+			}
+		}
+	}
+}

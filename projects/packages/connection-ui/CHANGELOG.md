@@ -5,6 +5,94 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [2.3.7] - 2022-02-22
+### Changed
+- Updated package dependencies.
+
+## [2.3.6] - 2022-02-16
+### Changed
+- Updated package dependencies.
+
+## [2.3.5] - 2022-02-09
+### Changed
+- Updated package dependencies
+
+## [2.3.4] - 2022-02-02
+### Changed
+- Updated package dependencies.
+
+## [2.3.3] - 2022-01-25
+### Added
+- connection initial state
+
+### Changed
+- Updated package dependencies.
+
+## [2.3.2] - 2022-01-18
+### Changed
+- General: update required node version to v16.13.2
+
+## [2.3.1] - 2022-01-11
+### Changed
+- Updated package dependencies.
+
+## [2.3.0] - 2022-01-04
+### Changed
+- Drop isRegistered and isUserConnected params from ConnectionStatusCard component
+- Replaced IDC screen rendering with site-wide IDC screen.
+- Updated package dependencies
+- Updated package textdomain from `jetpack` to `jetpack-connection-ui`.
+
+## [2.2.0] - 2021-12-14
+### Changed
+- Allow non-adimin access to the Connection Manager for proper IDC screen review.
+
+### Fixed
+- Build minimized JS for the production build.
+
+## [2.1.4] - 2021-12-07
+### Added
+- Pass tracking data into the RNA IDC package.
+
+### Changed
+- Updated package dependencies.
+
+## [2.1.3] - 2021-11-30
+### Changed
+- Remove now-redundant `output.filename` from Webpack config.
+
+## [2.1.2] - 2021-11-23
+### Changed
+- Updated package dependencies.
+
+## [2.1.1] - 2021-11-17
+### Changed
+- Updated package dependencies.
+
+## [2.1.0] - 2021-11-16
+### Added
+- Use monorepo `validate-es` script to validate Webpack builds.
+
+### Changed
+- Replace the withConnectionStatus HOC with withSelect HOC.
+- Updated package dependencies
+
+### Removed
+- Remove use of `gulp` in build, all it was doing was wrapping `webpack`.
+
+## [2.0.0] - 2021-11-09
+### Added
+- Initialize IDC package, properly display the RNA IDC screen.
+
+### Changed
+- Updated package dependencies.
+- Update webpack build config. Removes IE 11 support in the JavaScript.
+
+## [1.6.0] - 2021-11-02
+### Changed
+- Updated package dependencies
+- Use ConnectScreenRequiredPlan instead of ConnectScreen.
+
 ## [1.5.3] - 2021-10-26
 ### Added
 - Add the redirect URI for RNA IDC "Start Fresh" functionality.
@@ -105,6 +193,22 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - Connection UI: Building the Framework
 
+[2.3.7]: https://github.com/Automattic/jetpack-connection-ui/compare/v2.3.6...v2.3.7
+[2.3.6]: https://github.com/Automattic/jetpack-connection-ui/compare/v2.3.5...v2.3.6
+[2.3.5]: https://github.com/Automattic/jetpack-connection-ui/compare/v2.3.4...v2.3.5
+[2.3.4]: https://github.com/Automattic/jetpack-connection-ui/compare/v2.3.3...v2.3.4
+[2.3.3]: https://github.com/Automattic/jetpack-connection-ui/compare/v2.3.2...v2.3.3
+[2.3.2]: https://github.com/Automattic/jetpack-connection-ui/compare/v2.3.1...v2.3.2
+[2.3.1]: https://github.com/Automattic/jetpack-connection-ui/compare/v2.3.0...v2.3.1
+[2.3.0]: https://github.com/Automattic/jetpack-connection-ui/compare/v2.2.0...v2.3.0
+[2.2.0]: https://github.com/Automattic/jetpack-connection-ui/compare/v2.1.4...v2.2.0
+[2.1.4]: https://github.com/Automattic/jetpack-connection-ui/compare/v2.1.3...v2.1.4
+[2.1.3]: https://github.com/Automattic/jetpack-connection-ui/compare/v2.1.2...v2.1.3
+[2.1.2]: https://github.com/Automattic/jetpack-connection-ui/compare/v2.1.1...v2.1.2
+[2.1.1]: https://github.com/Automattic/jetpack-connection-ui/compare/v2.1.0...v2.1.1
+[2.1.0]: https://github.com/Automattic/jetpack-connection-ui/compare/v2.0.0...v2.1.0
+[2.0.0]: https://github.com/Automattic/jetpack-connection-ui/compare/v1.6.0...v2.0.0
+[1.6.0]: https://github.com/Automattic/jetpack-connection-ui/compare/v1.5.3...v1.6.0
 [1.5.3]: https://github.com/Automattic/jetpack-connection-ui/compare/v1.5.2...v1.5.3
 [1.5.2]: https://github.com/Automattic/jetpack-connection-ui/compare/v1.5.1...v1.5.2
 [1.5.1]: https://github.com/Automattic/jetpack-connection-ui/compare/v1.5.0...v1.5.1

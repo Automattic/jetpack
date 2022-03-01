@@ -1,4 +1,7 @@
 <script>
+	/**
+	 * WordPress dependencies
+	 */
 	import { __ } from '@wordpress/i18n';
 
 	const protocol = window.location.protocol.split( ':' )[ 0 ];

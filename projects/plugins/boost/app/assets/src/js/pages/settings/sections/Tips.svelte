@@ -1,7 +1,14 @@
 <script>
-	import { __ } from '@wordpress/i18n';
+	/**
+	 * Internal dependencies
+	 */
 	import TemplatedString from '../../../elements/TemplatedString.svelte';
 	import externalLinkTemplateVar from '../../../utils/external-link-template-var';
+
+	/**
+	 * WordPress dependencies
+	 */
+	import { __ } from '@wordpress/i18n';
 </script>
 
 <div class="jb-container--narrow">
@@ -15,8 +22,7 @@
 				<div class="item__description">
 					<TemplatedString
 						template={__(
-							`Pages that take over 3 seconds to load have 4x the bounce
-							rate of pages that load in 2 seconds or less. (source: <link>Pingdom</link>).`,
+							`Pages that take over 3 seconds to load have 4x the bounce rate of pages that load in 2 seconds or less. (source: <link>Pingdom</link>).`,
 							'jetpack-boost'
 						)}
 						vars={externalLinkTemplateVar(
@@ -30,8 +36,7 @@
 				<div class="item__description">
 					<TemplatedString
 						template={__(
-							`A one-second delay in loading times can reduce conversion
-							rates by 20%. (source: <link>Google</link>).`,
+							`A one-second delay in loading times can reduce conversion rates by 20%. (source: <link>Google</link>).`,
 							'jetpack-boost'
 						)}
 						vars={externalLinkTemplateVar( 'https://web.dev/why-speed-matters/' )}

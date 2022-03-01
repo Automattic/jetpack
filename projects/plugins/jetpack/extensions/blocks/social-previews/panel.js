@@ -17,8 +17,12 @@ import { AVAILABLE_SERVICES } from './constants';
 import { SocialServiceIcon } from '../../shared/icons';
 
 const SocialPreviewsPanel = function SocialPreviewsPanel( { openModal, showUpgradeNudge } ) {
-	const buttonText = showUpgradeNudge ? __( 'Learn more', 'jetpack' ) : __( 'Preview', 'jetpack' );
-	const buttonLabel = showUpgradeNudge ? __( 'Learn more about paid plans', 'jetpack' ) : __( 'Open Social Previews', 'jetpack' );
+	const buttonText = showUpgradeNudge
+		? __( 'Learn more', 'jetpack' )
+		: __( 'Preview', 'jetpack', /* dummy arg to avoid bad minification */ 0 );
+	const buttonLabel = showUpgradeNudge
+		? __( 'Learn more about paid plans', 'jetpack' )
+		: __( 'Open Social Previews', 'jetpack', /* dummy arg to avoid bad minification */ 0 );
 
 	return (
 		<div className="jetpack-social-previews__panel">
@@ -29,9 +33,7 @@ const SocialPreviewsPanel = function SocialPreviewsPanel( { openModal, showUpgra
 				) }
 			</p>
 
-			{ showUpgradeNudge && (
-				<p>{ __( 'Business or eCommerce plan required.', 'jetpack' ) }</p>
-			)}
+			{ showUpgradeNudge && <p>{ __( 'Business or eCommerce plan required.', 'jetpack' ) }</p> }
 
 			<div className="jetpack-gutenberg-social-icons">
 				{ AVAILABLE_SERVICES.map( service => (

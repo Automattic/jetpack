@@ -20,7 +20,7 @@ use Automattic\Jetpack\Status;
  */
 class JITM {
 
-	const PACKAGE_VERSION = '2.0.5-alpha';
+	const PACKAGE_VERSION = '2.2.8-alpha';
 
 	/**
 	 * The configuration method that is called from the jetpack-config package.
@@ -137,33 +137,25 @@ class JITM {
 		if ( $this->is_gutenberg_page() ) {
 			return;
 		}
-		$min = ( defined( 'SCRIPT_DEBUG' ) && SCRIPT_DEBUG ) ? '' : '.min';
-		wp_register_style(
-			'jetpack-jitm-css',
-			plugins_url( "css/jetpack-admin-jitm{$min}.css", __FILE__ ),
-			false,
-			self::PACKAGE_VERSION .
-			'-201243242'
-		);
-		wp_style_add_data( 'jetpack-jitm-css', 'rtl', 'replace' );
-		wp_style_add_data( 'jetpack-jitm-css', 'suffix', $min );
-		wp_enqueue_style( 'jetpack-jitm-css' );
 
-		wp_enqueue_script(
-			'jetpack-jitm-new',
-			Assets::get_file_url_for_environment( 'js/jetpack-jitm.min.js', 'js/jetpack-jitm.js', __FILE__ ),
-			array( 'jquery' ),
-			self::PACKAGE_VERSION,
-			true
+		Assets::register_script(
+			'jetpack-jitm',
+			'../build/index.js',
+			__FILE__,
+			array(
+				'in_footer'    => true,
+				'dependencies' => array( 'jquery' ),
+			)
 		);
+		Assets::enqueue_script( 'jetpack-jitm' );
 		wp_localize_script(
-			'jetpack-jitm-new',
+			'jetpack-jitm',
 			'jitm_config',
 			array(
 				'api_root'               => esc_url_raw( rest_url() ),
-				'activate_module_text'   => esc_html__( 'Activate', 'jetpack' ),
-				'activated_module_text'  => esc_html__( 'Activated', 'jetpack' ),
-				'activating_module_text' => esc_html__( 'Activating', 'jetpack' ),
+				'activate_module_text'   => esc_html__( 'Activate', 'jetpack-jitm' ),
+				'activated_module_text'  => esc_html__( 'Activated', 'jetpack-jitm' ),
+				'activating_module_text' => esc_html__( 'Activating', 'jetpack-jitm' ),
 				'nonce'                  => wp_create_nonce( 'wp_rest' ),
 			)
 		);

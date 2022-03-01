@@ -1,0 +1,4 @@
+Significance: patch
+Type: added
+
+Add a dependency on the automattic/jetpack-composer-plugin Composer package.

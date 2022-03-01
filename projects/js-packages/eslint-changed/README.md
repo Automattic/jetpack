@@ -34,8 +34,8 @@ The following options are used with manual mode:
 
 ### With git
 
-In git mode, `eslint-changed` needs to be able to run `git` and `eslint`. If these are not available by those names in the shell path,
-set environment variables `GIT` and/or `ESLINT` as appropriate.
+In git mode, `eslint-changed` needs to be able to run `git`. If this is not available by that name in the shell path,
+set environment variable `GIT` as appropriate.
 
 The following options are used with manual mode:
 

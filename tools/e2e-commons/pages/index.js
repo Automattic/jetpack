@@ -1,3 +1,3 @@
-export { default as PostFrontendPage } from './postFrontend';
-export { default as SearchHomepage } from './search-homepage';
-export { default as WpPage } from './wp-page';
+export { default as PostFrontendPage } from './postFrontend.js';
+export { default as SearchHomepage } from './search-homepage.js';
+export { default as WpPage } from './wp-page.js';

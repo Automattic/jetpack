@@ -1,15 +1,16 @@
-import { WpPage } from '..';
-import logger from '../../logger';
+import WpPage from '../wp-page.js';
+import logger from '../../logger.cjs';
+import { resolveSiteUrl } from '../../helpers/utils-helper.cjs';
 
 export default class JetpackPage extends WpPage {
 	constructor( page ) {
-		const url = siteUrl + '/wp-admin/admin.php?page=jetpack#/dashboard';
+		const url = resolveSiteUrl() + '/wp-admin/admin.php?page=jetpack#/dashboard';
 		super( page, { expectedSelectors: [ '#jp-plugin-container' ], url } );
 	}
 
 	async connect() {
 		logger.step( 'Starting Jetpack connection' );
-		const connectButtonSelector = '.jp-connect-screen .jp-action-button--button';
+		const connectButtonSelector = '.jp-connection__connect-screen .jp-action-button--button';
 		await this.click( connectButtonSelector );
 		await this.waitForElementToBeHidden( this.selectors[ 0 ], 60000 );
 	}
@@ -80,8 +81,8 @@ export default class JetpackPage extends WpPage {
 	async isConnectScreenVisible() {
 		logger.step( 'Checking if Connect screen is visible' );
 
-		const containerSelector = '.jp-connect-screen';
-		const buttonSelector = '.jp-connect-screen button.jp-action-button--button';
+		const containerSelector = '.jp-connection__connect-screen';
+		const buttonSelector = '.jp-connection__connect-screen button.jp-action-button--button';
 
 		await this.waitForElementToBeVisible( containerSelector );
 		return await this.isElementVisible( buttonSelector );

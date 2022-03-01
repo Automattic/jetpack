@@ -4,7 +4,7 @@
  */
 
 /**
- * External dependencies
+ * WordPress dependencies
  */
 import { __, sprintf } from '@wordpress/i18n';
 
@@ -15,6 +15,7 @@ import { ApiError } from './api-error';
 import type { JSONObject } from '../utils/json-types';
 
 function getEndpointUrl( path: string ): string {
+	// eslint-disable-next-line camelcase
 	return wpApiSettings.root + Jetpack_Boost.api.namespace + Jetpack_Boost.api.prefix + path;
 }
 

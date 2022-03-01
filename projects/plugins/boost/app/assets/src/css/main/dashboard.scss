@@ -57,6 +57,11 @@
 		display: flex;
 		height: 27px;
 
+		svg {
+			width: 100%;
+			height: auto;
+		}
+
 		@include breakpoint(md) {
 			height: 32px;
 		}

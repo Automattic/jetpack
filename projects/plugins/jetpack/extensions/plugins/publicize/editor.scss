@@ -1,5 +1,5 @@
 @import '../../shared/styles/gutenberg-base-styles.scss';
-@import "~@automattic/color-studio/dist/color-variables";
+@import "@automattic/color-studio/dist/color-variables";
 
 .jetpack-publicize__connections-list {
 	list-style-type: none;
@@ -13,6 +13,10 @@
 
 .publicize-jetpack-connection-container {
 	display: flex;
+
+	.components-disabled {
+		width: 100%;
+	}
 }
 
 .jetpack-publicize-gutenberg-social-icon {
@@ -61,8 +65,7 @@
 }
 
 .jetpack-publicize__upsell {
-	margin: 10px 0;
-	padding: 5px 0;
+	margin-bottom: 13px;
 }
 
 .jetpack-publicize__upsell-description {

@@ -136,7 +136,7 @@ class WP_Test_Jetpack_Shortcodes_Soundcloud extends WP_UnitTestCase {
 		$oembed_markup = '<amp-soundcloud></amp-soundcloud>';
 		add_filter(
 			'embed_oembed_html',
-			static function( $cache ) use ( $oembed_markup ) {
+			static function ( $cache ) use ( $oembed_markup ) {
 				unset( $cache );
 				return $oembed_markup;
 			}

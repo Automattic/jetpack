@@ -1,4 +1,4 @@
-import PageActions from './page-actions';
+import PageActions from './page-actions.js';
 
 export default class WpPage extends PageActions {
 	constructor( page, { pageName, expectedSelectors, url = undefined, explicitWaitMS = null } ) {
@@ -9,7 +9,7 @@ export default class WpPage extends PageActions {
 	/**
 	 * Static method which initialize a page object and checks the page loaded
 	 *
-	 * @param {page}    page           Playwright representation of the page.
+	 * @param {Object}  page           Playwright representation of the page.
 	 * @param {boolean} checkSelectors whether to also check for expected selectors
 	 * @return {WpPage} Instance of the Page Object class
 	 */
@@ -20,7 +20,7 @@ export default class WpPage extends PageActions {
 	}
 
 	/**
-	 * @param {page}    page           Playwright type representation of the page
+	 * @param {Object}  page           Playwright type representation of the page
 	 * @param {boolean} checkSelectors whether to also check for expected selectors
 	 */
 	static async visit( page, checkSelectors = true ) {

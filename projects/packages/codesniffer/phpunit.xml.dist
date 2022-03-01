@@ -6,11 +6,8 @@
 	</testsuites>
 	<filter>
 		<whitelist processUncoveredFilesFromWhitelist="false">
-			<directory suffix=".php">.</directory>
-			<exclude>
-				<directory suffix=".php">tests</directory>
-				<directory suffix=".php">vendor</directory>
-			</exclude>
+			<directory suffix=".php">hacks</directory>
+			<directory suffix=".php">Jetpack</directory>
 		</whitelist>
 	</filter>
 </phpunit>

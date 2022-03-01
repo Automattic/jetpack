@@ -1,21 +1,26 @@
 {
 	"name": "@automattic/jetpack-idc",
-	"version": "0.4.1-alpha",
+	"version": "0.10.0-alpha",
 	"description": "Jetpack Connection Component",
 	"author": "Automattic",
 	"license": "GPL-2.0-or-later",
 	"dependencies": {
-		"@automattic/jetpack-api": "workspace:^0.5.0",
-		"@automattic/jetpack-components": "workspace:^0.4.1-alpha",
-		"@wordpress/base-styles": "4.0.2",
-		"@wordpress/components": "19.0.0",
-		"@wordpress/compose": "5.0.4",
-		"@wordpress/data": "6.1.2",
-		"@wordpress/element": "4.0.3",
-		"@wordpress/i18n": "4.2.3",
+		"@automattic/jetpack-analytics": "workspace:^0.1.8",
+		"@automattic/jetpack-api": "workspace:^0.9.1-alpha",
+		"@automattic/jetpack-base-styles": "workspace:^0.1.9-alpha",
+		"@automattic/jetpack-components": "workspace:^0.10.7-alpha",
+		"@wordpress/base-styles": "4.1.1",
+		"@wordpress/components": "19.5.0",
+		"@wordpress/compose": "5.1.2",
+		"@wordpress/data": "6.3.0",
+		"@wordpress/element": "4.1.1",
+		"@wordpress/i18n": "4.3.1",
+		"@wordpress/url": "3.4.1",
 		"prop-types": "^15.7.2"
 	},
 	"devDependencies": {
+		"@babel/core": "7.16.0",
+		"@babel/preset-react": "7.16.0",
 		"jetpack-js-test-runner": "workspace:*",
 		"nyc": "15.1.0",
 		"react": "17.0.2",
@@ -38,8 +43,8 @@
 		"test": "NODE_ENV=test NODE_PATH=tests:. js-test-runner --jsdom --initfile=test-main.jsx 'glob:./!(node_modules)/**/test/*.jsx'"
 	},
 	"engines": {
-		"node": "^14.17.6 || ^16.7.0",
-		"pnpm": "^6.5.0",
+		"node": "^14.18.3 || ^16.13.2",
+		"pnpm": "^6.23.6",
 		"yarn": "use pnpm instead - see docs/yarn-upgrade.md"
 	}
 }

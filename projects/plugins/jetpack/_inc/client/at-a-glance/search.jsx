@@ -67,7 +67,7 @@ class DashSearch extends Component {
 
 		// Connected props
 		isOfflineMode: PropTypes.bool.isRequired,
-		hasConnectedOwner: PropTypes.string.isRequired,
+		hasConnectedOwner: PropTypes.bool.isRequired,
 	};
 
 	static defaultProps = {
@@ -76,13 +76,21 @@ class DashSearch extends Component {
 		trackUpgradeBanner: noop,
 	};
 
-	trackSearchLink() {
+	trackConfigureSearchLink = () => {
 		analytics.tracks.recordJetpackClick( {
-			type: 'upgrade-link',
+			type: 'configure-search-link',
 			target: 'at-a-glance',
 			feature: 'search',
 		} );
-	}
+	};
+
+	trackAddSearchWidgetLink = () => {
+		analytics.tracks.recordJetpackClick( {
+			type: 'search-widget-link',
+			target: 'at-a-glance',
+			feature: 'search',
+		} );
+	};
 
 	activateSearch = () => {
 		this.props.updateOptions( {
@@ -166,6 +174,7 @@ class DashSearch extends Component {
 							compact
 							className="jp-search-config-aag"
 							href="admin.php?page=jetpack-search-configure"
+							onClick={ this.trackConfigureSearchLink }
 						>
 							{ SEARCH_CUSTOMIZE_CTA }
 						</Card>
@@ -174,6 +183,7 @@ class DashSearch extends Component {
 							compact
 							className="jp-search-config-aag"
 							href="customize.php?autofocus[panel]=widgets"
+							onClick={ this.trackAddSearchWidgetLink }
 						>
 							{ __( 'Add Search (Jetpack) Widget', 'jetpack' ) }
 						</Card>

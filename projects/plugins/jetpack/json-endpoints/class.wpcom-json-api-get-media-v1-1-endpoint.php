@@ -1,4 +1,4 @@
-<?php
+<?php // phpcs:ignore WordPress.Files.FileName.InvalidClassFileName
 
 new WPCOM_JSON_API_Get_Media_v1_1_Endpoint(
 	array(
@@ -34,6 +34,7 @@ new WPCOM_JSON_API_Get_Media_v1_1_Endpoint(
 			'exif'                       => '(array) (Image & audio only) Exif (meta) information about the media item',
 			'rating'                     => '(string) (Video only) VideoPress rating of the video',
 			'display_embed'              => '(string) Video only. Whether to share or not the video.',
+			'allow_download'             => '(string) Video only. Whether the video can be downloaded or not.',
 			'videopress_guid'            => '(string) (Video only) VideoPress GUID of the video when uploaded on a blog with VideoPress',
 			'videopress_processing_done' => '(bool) (Video only) If the video is uploaded on a blog with VideoPress, this will return the status of processing on the video.',
 		),
@@ -47,8 +48,19 @@ new WPCOM_JSON_API_Get_Media_v1_1_Endpoint(
 	)
 );
 
-class WPCOM_JSON_API_Get_Media_v1_1_Endpoint extends WPCOM_JSON_API_Endpoint {
-	function callback( $path = '', $blog_id = 0, $media_id = 0 ) {
+/**
+ * GET Media v1_1 endpoint.
+ */
+class WPCOM_JSON_API_Get_Media_v1_1_Endpoint extends WPCOM_JSON_API_Endpoint { //phpcs:ignore
+	/**
+	 *
+	 * API callback.
+	 *
+	 * @param string $path - the path.
+	 * @param int    $blog_id - the blog ID.
+	 * @param int    $media_id - the media ID.
+	 */
+	public function callback( $path = '', $blog_id = 0, $media_id = 0 ) {
 		$blog_id = $this->api->switch_to_blog_and_validate_user( $this->api->get_blog_id( $blog_id ) );
 		if ( is_wp_error( $blog_id ) ) {
 			return $blog_id;
@@ -58,7 +70,7 @@ class WPCOM_JSON_API_Get_Media_v1_1_Endpoint extends WPCOM_JSON_API_Endpoint {
 			$this->load_theme_functions();
 		}
 
-		//upload_files can probably be used for other endpoints but we want contributors to be able to use media too
+		// upload_files can probably be used for other endpoints but we want contributors to be able to use media too.
 		if ( ! current_user_can( 'edit_posts', $media_id ) ) {
 			return new WP_Error( 'unauthorized', 'User cannot view media', 403 );
 		}

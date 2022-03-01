@@ -5,6 +5,77 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.30.0] - 2022-02-22
+### Added
+- Add Sync dedicated request flow.
+
+### Changed
+- Updated package dependencies.
+
+## [1.29.2] - 2022-02-09
+### Added
+- Allow sync package consumers to provide custom data settings.
+
+### Fixed
+- Fixed some new PHPCS warnings.
+
+## [1.29.1] - 2022-02-02
+### Changed
+- Updated package dependencies.
+
+## [1.29.0] - 2022-01-25
+### Added
+- Jetpack Search: update the allowed post meta when search is active to include all indexable meta.
+
+## [1.28.2] - 2022-01-18
+### Changed
+- Updated package dependencies.
+
+## [1.28.1] - 2022-01-13
+### Changed
+- Updated package dependencies.
+
+## [1.28.0] - 2022-01-04
+### Changed
+- Listener: Do not enqueue actions when the site is disconnected
+- Switch to pcov for code coverage.
+- Theme deletions: rely on Core WP hook now that the package requires WP 5.8.
+- Updated package dependencies
+- Updated package textdomain from `jetpack` to `jetpack-sync`.
+
+## [1.27.6] - 2021-12-14
+### Changed
+- Updated package dependencies.
+
+## [1.27.5] - 2021-11-30
+### Changed
+- Updated package dependencies.
+
+## [1.27.4] - 2021-11-23
+### Changed
+- Updated package dependencies.
+
+## [1.27.3] - 2021-11-16
+### Changed
+- Actions: add the do_only_first_initial_sync method which starts an initial sync only when one hasn't already been done
+
+## [1.27.2] - 2021-11-09
+### Added
+- Constants: Now syncing Atomic platform constant
+
+### Changed
+- Full Sync : limit included users to contributors and above (based on wp_user_limit)
+- Updated package dependencies.
+- User Checksums - limit scope to users with wp_user_level > 0
+
+### Fixed
+- Fix PHP 8.1 deprecation warnings.
+
+## [1.27.1] - 2021-11-02
+### Changed
+- Set `convertDeprecationsToExceptions` true in PHPUnit config.
+- Update PHPUnit configs to include just what needs coverage rather than include everything then try to exclude stuff that doesn't.
+
 ## [1.27.0] - 2021-10-26
 ### Added
 - Added the _wpas_feature_enabled meta key to the sync list
@@ -509,6 +580,19 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - Packages: Move sync to a classmapped package
 
+[1.30.0]: https://github.com/Automattic/jetpack-sync/compare/v1.29.2...v1.30.0
+[1.29.2]: https://github.com/Automattic/jetpack-sync/compare/v1.29.1...v1.29.2
+[1.29.1]: https://github.com/Automattic/jetpack-sync/compare/v1.29.0...v1.29.1
+[1.29.0]: https://github.com/Automattic/jetpack-sync/compare/v1.28.2...v1.29.0
+[1.28.2]: https://github.com/Automattic/jetpack-sync/compare/v1.28.1...v1.28.2
+[1.28.1]: https://github.com/Automattic/jetpack-sync/compare/v1.28.0...v1.28.1
+[1.28.0]: https://github.com/Automattic/jetpack-sync/compare/v1.27.6...v1.28.0
+[1.27.6]: https://github.com/Automattic/jetpack-sync/compare/v1.27.5...v1.27.6
+[1.27.5]: https://github.com/Automattic/jetpack-sync/compare/v1.27.4...v1.27.5
+[1.27.4]: https://github.com/Automattic/jetpack-sync/compare/v1.27.3...v1.27.4
+[1.27.3]: https://github.com/Automattic/jetpack-sync/compare/v1.27.2...v1.27.3
+[1.27.2]: https://github.com/Automattic/jetpack-sync/compare/v1.27.1...v1.27.2
+[1.27.1]: https://github.com/Automattic/jetpack-sync/compare/v1.27.0...v1.27.1
 [1.27.0]: https://github.com/Automattic/jetpack-sync/compare/v1.26.4...v1.27.0
 [1.26.4]: https://github.com/Automattic/jetpack-sync/compare/v1.26.3...v1.26.4
 [1.26.3]: https://github.com/Automattic/jetpack-sync/compare/v1.26.2...v1.26.3

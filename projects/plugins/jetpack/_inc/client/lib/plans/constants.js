@@ -96,6 +96,46 @@ export const JETPACK_BUNDLES = [
 	PLAN_JETPACK_SECURITY_REALTIME,
 	PLAN_JETPACK_SECURITY_REALTIME_MONTHLY,
 ];
+export const JETPACK_PLANS_WITH_BACKUP = [
+	PLAN_JETPACK_PREMIUM,
+	PLAN_JETPACK_BUSINESS,
+	PLAN_JETPACK_PERSONAL,
+	PLAN_JETPACK_PREMIUM_MONTHLY,
+	PLAN_JETPACK_BUSINESS_MONTHLY,
+	PLAN_JETPACK_PERSONAL_MONTHLY,
+	PLAN_JETPACK_SECURITY_T1_YEARLY,
+	PLAN_JETPACK_SECURITY_T1_MONTHLY,
+	PLAN_JETPACK_SECURITY_T2_YEARLY,
+	PLAN_JETPACK_SECURITY_T2_MONTHLY,
+	PLAN_JETPACK_COMPLETE,
+	PLAN_JETPACK_COMPLETE_MONTHLY,
+];
+
+export const JETPACK_SECURITY_BUNDLES = [
+	PLAN_JETPACK_SECURITY_T1_YEARLY,
+	PLAN_JETPACK_SECURITY_T1_MONTHLY,
+	PLAN_JETPACK_SECURITY_T2_YEARLY,
+	PLAN_JETPACK_SECURITY_T2_MONTHLY,
+
+	// WoA plans.
+	PLAN_BUSINESS,
+	PLAN_BUSINESS_2_YEARS,
+	PLAN_BUSINESS_MONTHLY,
+	PLAN_ECOMMERCE,
+	PLAN_ECOMMERCE_2_YEARS,
+	PLAN_ECOMMERCE_MONTHLY,
+
+	// VIP.
+	PLAN_VIP,
+	PLAN_WPCOM_ENTERPRISE,
+
+	// DEPRECATED: Daily and Real-time variations will soon be retired.
+	// Remove after all customers are migrated to new products.
+	PLAN_JETPACK_SECURITY_DAILY,
+	PLAN_JETPACK_SECURITY_DAILY_MONTHLY,
+	PLAN_JETPACK_SECURITY_REALTIME,
+	PLAN_JETPACK_SECURITY_REALTIME_MONTHLY,
+];
 
 export const JETPACK_BACKUP_PRODUCTS = [
 	PLAN_JETPACK_BACKUP_T1_YEARLY,
@@ -218,6 +258,22 @@ export function isNew( plan ) {
 	return includes( NEW_PLANS, plan );
 }
 
+/**
+ * Determines if a plan includes Jetpack Backup.
+ *
+ * @param {string} plan - The plan slug
+ * @returns {boolean} True if the plan includes Jetpack Backup
+ */
+export function isJetpackPlanWithBackup( plan ) {
+	return includes( JETPACK_PLANS_WITH_BACKUP, plan );
+}
+
+/**
+ * Determines if a product is Jetpack Backup.
+ *
+ * @param {string} product - The product slug
+ * @returns {boolean} True if the product is Jetpack Backup
+ */
 export function isJetpackBackup( product ) {
 	return includes( JETPACK_BACKUP_PRODUCTS, product );
 }
@@ -257,6 +313,15 @@ export function isJetpackProduct( product ) {
 export function isJetpackBundle( product ) {
 	return JETPACK_BUNDLES.includes( product );
 }
+/**
+ * Determine if the given product is a Security Bundle.
+ *
+ * @param {number} product - productId to check
+ * @returns {boolean} if the given product is a Security Bundle
+ */
+export function isJetpackSecurityBundle( product ) {
+	return JETPACK_SECURITY_BUNDLES.includes( product );
+}
 
 export function isJetpackLegacyPlan( product ) {
 	return JETPACK_LEGACY_PLANS.includes( product );
@@ -288,7 +353,6 @@ export function getPlanClass( plan ) {
 		case PLAN_BUSINESS_MONTHLY:
 		case PLAN_JETPACK_BUSINESS:
 		case PLAN_JETPACK_BUSINESS_MONTHLY:
-		case PLAN_VIP:
 		case PLAN_ECOMMERCE:
 		case PLAN_ECOMMERCE_2_YEARS:
 		case PLAN_ECOMMERCE_MONTHLY:
@@ -301,6 +365,7 @@ export function getPlanClass( plan ) {
 			return 'is-security-t2-plan';
 		case PLAN_JETPACK_COMPLETE:
 		case PLAN_JETPACK_COMPLETE_MONTHLY:
+		case PLAN_VIP:
 			return 'is-complete-plan';
 		case PLAN_JETPACK_BACKUP_T1_YEARLY:
 		case PLAN_JETPACK_BACKUP_T1_MONTHLY:
@@ -407,3 +472,23 @@ export function containsBackupRealtime( planClass ) {
 		'is-realtime-backup-plan',
 	].includes( planClass );
 }
+
+/**
+ * Security Daily/Realtime plan no longer includes VideoPress as of Oct 7 2021 00:00 UTC.
+ * This check identifies purchases of Security Daily/Realtime purchased before or after that date.
+ *
+ * @param {*} purchase - The site purchase object.
+ * @returns {boolean} True if legacy plan (VideoPress is included), false otherwise.
+ */
+export const isVideoPressLegacySecurityPlan = purchase =>
+	purchase.active &&
+	includes(
+		[
+			PLAN_JETPACK_SECURITY_DAILY_MONTHLY,
+			PLAN_JETPACK_SECURITY_DAILY,
+			PLAN_JETPACK_SECURITY_REALTIME_MONTHLY,
+			PLAN_JETPACK_SECURITY_REALTIME,
+		],
+		purchase.product_slug
+	) &&
+	new Date( purchase.subscribed_date ) < new Date( '2021-10-07T00:00:00+00:00' );

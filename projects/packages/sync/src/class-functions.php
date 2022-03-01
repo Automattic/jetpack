@@ -536,7 +536,7 @@ class Functions {
 		);
 
 		/* translators: %s is UTC offset, e.g. "+1" */
-		return sprintf( __( 'UTC%s', 'jetpack' ), $formatted_gmt_offset );
+		return sprintf( __( 'UTC%s', 'jetpack-sync' ), $formatted_gmt_offset );
 	}
 
 	/**

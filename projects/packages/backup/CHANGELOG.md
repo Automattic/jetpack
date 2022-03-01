@@ -5,6 +5,45 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.2.4] - 2022-02-22
+### Changed
+- Updated package dependencies.
+
+## [1.2.3] - 2022-01-25
+### Changed
+- Dependency Update - Sync from 1.29 to 1.29
+
+## [1.2.2] - 2022-01-18
+### Changed
+- Updated package dependencies.
+
+## [1.2.1] - 2022-01-13
+### Changed
+- Updated package dependencies.
+
+## [1.2.0] - 2022-01-04
+### Changed
+- Switch to pcov for code coverage.
+- Updated package dependencies
+- Updated package textdomain from `jetpack` to `jetpack-backup-pkg`.
+
+## [1.1.11] - 2021-12-14
+### Changed
+- Updated package dependencies.
+
+## [1.1.10] - 2021-11-30
+### Changed
+- Updated package dependencies.
+
+## [1.1.9] - 2021-11-23
+### Changed
+- Updated package dependencies.
+
+## [1.1.8] - 2021-11-02
+### Changed
+- Set `convertDeprecationsToExceptions` true in PHPUnit config.
+- Update PHPUnit configs to include just what needs coverage rather than include everything then try to exclude stuff that doesn't.
+
 ## [1.1.7] - 2021-10-26
 ### Changed
 - Updated package dependencies.
@@ -71,6 +110,15 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - Add API endpoints and Jetpack Backup package for managing Help…
 
+[1.2.4]: https://github.com/Automattic/jetpack-backup/compare/v1.2.3...v1.2.4
+[1.2.3]: https://github.com/Automattic/jetpack-backup/compare/v1.2.2...v1.2.3
+[1.2.2]: https://github.com/Automattic/jetpack-backup/compare/v1.2.1...v1.2.2
+[1.2.1]: https://github.com/Automattic/jetpack-backup/compare/v1.2.0...v1.2.1
+[1.2.0]: https://github.com/Automattic/jetpack-backup/compare/v1.1.11...v1.2.0
+[1.1.11]: https://github.com/Automattic/jetpack-backup/compare/v1.1.10...v1.1.11
+[1.1.10]: https://github.com/Automattic/jetpack-backup/compare/v1.1.9...v1.1.10
+[1.1.9]: https://github.com/Automattic/jetpack-backup/compare/v1.1.8...v1.1.9
+[1.1.8]: https://github.com/Automattic/jetpack-backup/compare/v1.1.7...v1.1.8
 [1.1.7]: https://github.com/Automattic/jetpack-backup/compare/v1.1.6...v1.1.7
 [1.1.6]: https://github.com/Automattic/jetpack-backup/compare/v1.1.5...v1.1.6
 [1.1.5]: https://github.com/Automattic/jetpack-backup/compare/v1.1.4...v1.1.5

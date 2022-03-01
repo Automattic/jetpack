@@ -3,6 +3,7 @@
  */
 import { Button } from '@wordpress/components';
 import { __ } from '@wordpress/i18n';
+import { getJetpackExtensionAvailability } from '@automattic/jetpack-shared-extension-utils';
 
 /**
  * Internal dependencies
@@ -10,7 +11,6 @@ import { __ } from '@wordpress/i18n';
 import analytics from '../../../_inc/client/lib/analytics';
 import upgradeImageUrl from './upgrade-illustration.svg';
 import useUpgradeFlow from '../../shared/use-upgrade-flow';
-import getJetpackExtensionAvailability from '../../shared/get-jetpack-extension-availability';
 import { name as block } from './index';
 
 export default function SocialPreviewsUpgrade() {
@@ -20,7 +20,9 @@ export default function SocialPreviewsUpgrade() {
 
 	const [ href, autosaveAndRedirect, isRedirecting ] = useUpgradeFlow( plan, trackClickEvent );
 
-	const buttonText = isRedirecting ? __( 'Redirecting…', 'jetpack' ) : __( 'Upgrade', 'jetpack' );
+	const buttonText = isRedirecting
+		? __( 'Redirecting…', 'jetpack' )
+		: __( 'Upgrade', 'jetpack', /* dummy arg to avoid bad minification */ 0 );
 
 	return (
 		<div className="jetpack-social-previews__modal-upgrade">

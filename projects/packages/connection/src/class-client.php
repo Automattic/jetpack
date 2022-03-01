@@ -23,6 +23,17 @@ class Client {
 	 * @return array|WP_Error WP HTTP response on success
 	 */
 	public static function remote_request( $args, $body = null ) {
+		if ( isset( $args['url'] ) ) {
+			/**
+			 * Filters the remote request url.
+			 *
+			 * @since 1.30.12
+			 *
+			 * @param string The remote request url.
+			 */
+			$args['url'] = apply_filters( 'jetpack_remote_request_url', $args['url'] );
+		}
+
 		$result = self::build_signed_request( $args, $body );
 		if ( ! $result || is_wp_error( $result ) ) {
 			return $result;
@@ -299,7 +310,7 @@ class Client {
 		$code = wp_remote_retrieve_response_code( $response );
 
 		// Only trust the Date header on some responses.
-		if ( 200 != $code && 304 != $code && 400 != $code && 401 != $code ) { // phpcs:ignore  WordPress.PHP.StrictComparisons.LooseComparison
+		if ( 200 != $code && 304 != $code && 400 != $code && 401 != $code ) { // phpcs:ignore  Universal.Operators.StrictComparisons.LooseNotEqual
 			return;
 		}
 

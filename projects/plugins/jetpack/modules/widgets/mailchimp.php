@@ -1,4 +1,10 @@
-<?php
+<?php // phpcs:ignore WordPress.Files.FileName.InvalidClassFileName
+/**
+ * MailChimp popup widget.
+ * It acts as a wrapper for the mailchimp_subscriber_popup shortcode.
+ *
+ * @package automattic/jetpack
+ */
 
 if ( ! class_exists( 'Jetpack_MailChimp_Subscriber_Popup_Widget' ) ) {
 
@@ -6,7 +12,9 @@ if ( ! class_exists( 'Jetpack_MailChimp_Subscriber_Popup_Widget' ) ) {
 		include_once JETPACK__PLUGIN_DIR . 'modules/shortcodes/mailchimp.php';
 	}
 
-	//register MailChimp Subscriber Popup widget
+	/**
+	 * Register MailChimp Subscriber Popup widget.
+	 */
 	function jetpack_mailchimp_subscriber_popup_widget_init() {
 		register_widget( 'Jetpack_MailChimp_Subscriber_Popup_Widget' );
 	}
@@ -21,7 +29,7 @@ if ( ! class_exists( 'Jetpack_MailChimp_Subscriber_Popup_Widget' ) ) {
 		/**
 		 * Constructor
 		 */
-		function __construct() {
+		public function __construct() {
 			parent::__construct(
 				'widget_mailchimp_subscriber_popup',
 				/** This filter is documented in modules/widgets/facebook-likebox.php */
@@ -37,12 +45,12 @@ if ( ! class_exists( 'Jetpack_MailChimp_Subscriber_Popup_Widget' ) ) {
 		/**
 		 * Outputs the HTML for this widget.
 		 *
-		 * @param array $args     An array of standard parameters for widgets in this theme
-		 * @param array $instance An array of settings for this widget instance
+		 * @param array $args     An array of standard parameters for widgets in this theme.
+		 * @param array $instance An array of settings for this widget instance.
 		 *
 		 * @return void Echoes it's output
-		 **/
-		function widget( $args, $instance ) {
+		 */
+		public function widget( $args, $instance ) {
 			$instance = wp_parse_args( $instance, array( 'code' => '' ) );
 
 			// Regular expresion that will match maichimp shortcode.
@@ -60,22 +68,20 @@ if ( ! class_exists( 'Jetpack_MailChimp_Subscriber_Popup_Widget' ) ) {
 			do_action( 'jetpack_stats_extra', 'widget_view', 'mailchimp_subscriber_popup' );
 		}
 
-
 		/**
 		 * Deals with the settings when they are saved by the admin.
 		 *
-		 * @param array $new_instance New configuration values
-		 * @param array $old_instance Old configuration values
+		 * @param array $new_instance New configuration values.
+		 * @param array $old_instance Old configuration values.
 		 *
 		 * @return array
 		 */
-		function update( $new_instance, $old_instance ) {
+		public function update( $new_instance, $old_instance ) { // phpcs:ignore VariableAnalysis.CodeAnalysis.VariableAnalysis.UnusedVariable
 			$instance         = array();
 			$instance['code'] = MailChimp_Subscriber_Popup::reversal( $new_instance['code'] );
 
 			return $instance;
 		}
-
 
 		/**
 		 * Displays the form for this widget on the Widgets page of the WP Admin area.
@@ -84,20 +90,30 @@ if ( ! class_exists( 'Jetpack_MailChimp_Subscriber_Popup_Widget' ) ) {
 		 *
 		 * @return void
 		 */
-		function form( $instance ) {
+		public function form( $instance ) {
 			$instance = wp_parse_args( $instance, array( 'code' => '' ) );
-			?>
 
-			<p>
-				<label for="<?php echo esc_attr( $this->get_field_id( 'code' ) ); ?>">
-					<?php printf( __( 'Code: <a href="%s" target="_blank">( ? )</a>', 'jetpack' ), 'https://en.support.wordpress.com/mailchimp/' ); ?>
-				</label>
-				<textarea class="widefat" id="<?php echo esc_attr( $this->get_field_id( 'code' ) ); ?>" name="<?php echo esc_attr( $this->get_field_name( 'code' ) ); ?>" rows="3"><?php echo esc_textarea( $instance['code'] ); ?></textarea>
-			</p>
+			$label = sprintf(
+				wp_kses(
+					/* Translators: %s is a link to the MailChimp support docs. */
+					__( 'Code: <a href="%s" target="_blank">( ? )</a>', 'jetpack' ),
+					array(
+						'a' => array(
+							'href'   => array(),
+							'target' => array(),
+						),
+					)
+				),
+				'https://en.support.wordpress.com/mailchimp/'
+			);
 
-			<?php
+			printf(
+				'<p><label for="%1$s">%4$s</label><textarea class="widefat" id="%1$s" name="%2$s" rows="3">%3$s</textarea></p>',
+				esc_attr( $this->get_field_id( 'code' ) ),
+				esc_attr( $this->get_field_name( 'code' ) ),
+				esc_textarea( $instance['code'] ),
+				$label // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- escaped above.
+			);
 		}
-
 	}
-
 }

@@ -2,11 +2,13 @@
 
 namespace Automattic\Jetpack\Connection;
 
+use Automattic\Jetpack\Connection\Package_Version_Tracker as Connection_Package_Version_Tracker;
 use Automattic\Jetpack\Connection\Plugin as Connection_Plugin;
 use Automattic\Jetpack\Connection\Plugin_Storage as Connection_Plugin_Storage;
 use Automattic\Jetpack\Connection\Rest_Authentication as Connection_Rest_Authentication;
 use Automattic\Jetpack\Constants;
 use Automattic\Jetpack\Redirect;
+use Automattic\Jetpack\Status\Cache as StatusCache;
 use Jetpack_Options;
 use PHPUnit\Framework\TestCase;
 use Requests_Utility_CaseInsensitiveDictionary;
@@ -174,6 +176,7 @@ class Test_REST_Endpoints extends TestCase {
 	 * Testing the `/jetpack/v4/connection` endpoint.
 	 */
 	public function test_connection() {
+		StatusCache::clear();
 		add_filter( 'jetpack_offline_mode', '__return_true' );
 		try {
 			$this->request = new WP_REST_Request( 'GET', '/jetpack/v4/connection' );
@@ -186,6 +189,7 @@ class Test_REST_Endpoints extends TestCase {
 			$this->assertTrue( $data['offlineMode']['isActive'] );
 		} finally {
 			remove_filter( 'jetpack_offline_mode', '__return_true' );
+			StatusCache::clear();
 		}
 	}
 
@@ -381,6 +385,9 @@ class Test_REST_Endpoints extends TestCase {
 
 		$this->assertEquals( 200, $response->get_status() );
 		$this->assertSame( 0, strpos( $data['authorizeUrl'], 'https://jetpack.wordpress.com/jetpack.authorize/' ) );
+
+		// Asserts that package_versions option will be populated on successful response.
+		$this->assertNotFalse( get_option( Connection_Package_Version_Tracker::PACKAGE_VERSION_OPTION ) );
 
 		// Asserts jetpack_register_site_rest_response filter is being properly hooked to add data from wpcom register endpoint response.
 		$this->assertFalse( $data['allowInplaceAuthorization'] );

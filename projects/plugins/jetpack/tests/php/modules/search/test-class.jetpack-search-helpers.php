@@ -1,14 +1,7 @@
 <?php
 
-if ( defined( 'IS_WPCOM' ) && IS_WPCOM ) {
-	require_once WPMU_PLUGIN_DIR . '/jetpack-plugin/vendor/autoload_packages.php';
-}
-
 use Automattic\Jetpack\Constants;
-
-require_jetpack_file( 'modules/search/class.jetpack-search.php' );
-require_jetpack_file( 'modules/search/class.jetpack-search-helpers.php' );
-require_jetpack_file( 'modules/search/class-jetpack-search-options.php' );
+use Automattic\Jetpack\Search\Helper as Jetpack_Search_Helpers;
 
 class WP_Test_Jetpack_Search_Helpers_Customize {
 	public $previewing = false;
@@ -41,26 +34,27 @@ class WP_Test_Jetpack_Search_Helpers extends WP_UnitTestCase {
 		parent::set_up();
 
 		$GLOBALS['wp_customize'] = new WP_Test_Jetpack_Search_Helpers_Customize();
-
-		$this->request_uri = $_SERVER['REQUEST_URI'];
-		$this->get = $_GET;
-		$this->get = $_POST;
+		// phpcs:disable WordPress.Security.NonceVerification
+		$this->request_uri        = $_SERVER['REQUEST_URI'];
+		$this->get                = $_GET;
+		$this->get                = $_POST;
 		$this->registered_widgets = $GLOBALS['wp_registered_widgets'];
-		$this->query = $GLOBALS['wp_query'];
-		$this->post_types = $GLOBALS['wp_post_types'];
+		$this->query              = $GLOBALS['wp_query'];
+		$this->post_types         = $GLOBALS['wp_post_types'];
 		delete_option( Jetpack_Search_Helpers::get_widget_option_name() );
+		// phpcs:enable
 	}
 
 	/**
 	 * Tear down.
 	 */
 	public function tear_down() {
-		$_SERVER['REQUEST_URI'] = $this->request_uri;
-		$_GET = $this->get;
-		$_POST = $this->post;
+		$_SERVER['REQUEST_URI']           = $this->request_uri;
+		$_GET                             = $this->get;
+		$_POST                            = $this->post;
 		$GLOBALS['wp_registered_widgets'] = $this->registered_widgets;
-		$GLOBALS['wp_query'] = $this->query;
-		$GLOBALS['wp_post_types'] = $this->post_types;
+		$GLOBALS['wp_query']              = $this->query;
+		$GLOBALS['wp_post_types']         = $this->post_types;
 		remove_filter( 'sidebars_widgets', array( $this, '_fake_out_search_widget' ) );
 
 		unset( $GLOBALS['wp_customize'] );
@@ -72,7 +66,7 @@ class WP_Test_Jetpack_Search_Helpers extends WP_UnitTestCase {
 	}
 
 	function test_get_search_url_removes_page_when_no_query_s() {
-		$_SERVER['REQUEST_URI'] = "http://example.com/search/test/page/2/";
+		$_SERVER['REQUEST_URI'] = 'http://example.com/search/test/page/2/';
 		set_query_var( 's', 'test' );
 
 		$url = Jetpack_Search_Helpers::get_search_url();
@@ -83,8 +77,8 @@ class WP_Test_Jetpack_Search_Helpers extends WP_UnitTestCase {
 	}
 
 	function test_get_search_url_removes_page() {
-		$_SERVER['REQUEST_URI'] = "http://example.com/page/2/?s=test";
-		$_GET['s'] = 'test';
+		$_SERVER['REQUEST_URI'] = 'http://example.com/page/2/?s=test';
+		$_GET['s']              = 'test';
 
 		$url = Jetpack_Search_Helpers::get_search_url();
 
@@ -93,9 +87,9 @@ class WP_Test_Jetpack_Search_Helpers extends WP_UnitTestCase {
 	}
 
 	function test_get_search_url_removes_paged_query_arg() {
-		$_SERVER['REQUEST_URI'] = "http://example.com/page/2/?s=test&paged=2";
-		$_GET['s'] = 'test';
-		$_GET['paged'] = '2';
+		$_SERVER['REQUEST_URI'] = 'http://example.com/page/2/?s=test&paged=2';
+		$_GET['s']              = 'test';
+		$_GET['paged']          = '2';
 
 		$url = Jetpack_Search_Helpers::get_search_url();
 
@@ -104,13 +98,15 @@ class WP_Test_Jetpack_Search_Helpers extends WP_UnitTestCase {
 	}
 
 	function test_add_query_arg_works_when_sending_array_of_args() {
-		$_SERVER['REQUEST_URI'] = "http://example.com/page/2/?s=test&post_type=page";
-		$_GET['s'] = 'test';
+		$_SERVER['REQUEST_URI'] = 'http://example.com/page/2/?s=test&post_type=page';
+		$_GET['s']              = 'test';
 
-		$url = Jetpack_Search_Helpers::add_query_arg( array(
-			'post_type' => 'page',
-			'category' => 'uncategorized',
-		) );
+		$url = Jetpack_Search_Helpers::add_query_arg(
+			array(
+				'post_type' => 'page',
+				'category'  => 'uncategorized',
+			)
+		);
 
 		$this->assertStringContainsString( 's=test', $url );
 		$this->assertStringContainsString( 'post_type=page', $url );
@@ -118,8 +114,8 @@ class WP_Test_Jetpack_Search_Helpers extends WP_UnitTestCase {
 	}
 
 	function test_add_query_arg_does_not_persist_page() {
-		$_SERVER['REQUEST_URI'] = "http://example.com/page/2/?s=test&post_type=page";
-		$_GET['s'] = 'test';
+		$_SERVER['REQUEST_URI'] = 'http://example.com/page/2/?s=test&post_type=page';
+		$_GET['s']              = 'test';
 
 		$url = Jetpack_Search_Helpers::add_query_arg( 'post_type', 'page' );
 
@@ -128,8 +124,8 @@ class WP_Test_Jetpack_Search_Helpers extends WP_UnitTestCase {
 	}
 
 	function test_remove_query_arg_does_not_persist_page() {
-		$_SERVER['REQUEST_URI'] = "http://example.com/page/2/?s=test";
-		$_GET['s'] = 'test';
+		$_SERVER['REQUEST_URI'] = 'http://example.com/page/2/?s=test';
+		$_GET['s']              = 'test';
 
 		$url = Jetpack_Search_Helpers::remove_query_arg( 'post_type' );
 
@@ -139,19 +135,19 @@ class WP_Test_Jetpack_Search_Helpers extends WP_UnitTestCase {
 	}
 
 	function test_add_query_arg_respects_url_passed() {
-		$input_url = 'http://example.com/page/2/?s=test';
+		$input_url              = 'http://example.com/page/2/?s=test';
 		$_SERVER['REQUEST_URI'] = $input_url;
-		$_GET['s'] = 'test';
+		$_GET['s']              = 'test';
 
 		$url = Jetpack_Search_Helpers::add_query_arg( 'post_type', 'page', $input_url );
 		$this->assertSame( 'http://example.com/page/2/?s=test&post_type=page', $url );
 	}
 
 	function test_remove_query_arg_respects_url_passed() {
-		$input_url = 'http://example.com/page/2/?s=test&post_type=post,page';
+		$input_url              = 'http://example.com/page/2/?s=test&post_type=post,page';
 		$_SERVER['REQUEST_URI'] = $input_url;
-		$_GET['s'] = 'test';
-		$_GET['post_type'] = 'post,page';
+		$_GET['s']              = 'test';
+		$_GET['post_type']      = 'post,page';
 
 		$url = Jetpack_Search_Helpers::remove_query_arg( 'post_type', $input_url );
 		$this->assertSame( 'http://example.com/page/2/?s=test', $url );
@@ -195,8 +191,8 @@ class WP_Test_Jetpack_Search_Helpers extends WP_UnitTestCase {
 	}
 
 	function test_get_filters_from_widgets() {
-		$raw_option = $this->get_sample_widgets_option();
-		$filters = $raw_option[22]['filters'];
+		$raw_option         = $this->get_sample_widgets_option();
+		$filters            = $raw_option[22]['filters'];
 		$additional_filters = array(
 			$this->get_cat_filter(),
 			$this->get_tag_filter(),
@@ -226,102 +222,102 @@ class WP_Test_Jetpack_Search_Helpers extends WP_UnitTestCase {
 		$this->register_fake_widgets();
 
 		$expected = array(
-			'taxonomy_0' => array(
-				'name' => 'Categories',
-				'type' => 'taxonomy',
-				'taxonomy' => 'category',
-				'count' => 4,
+			'taxonomy_0'        => array(
+				'name'      => 'Categories',
+				'type'      => 'taxonomy',
+				'taxonomy'  => 'category',
+				'count'     => 4,
 				'widget_id' => 'jetpack-search-filters-22',
 			),
-			'post_type_1' => array(
-				'name' => 'Post Type',
-				'type' => 'post_type',
-				'count' => 5,
+			'post_type_1'       => array(
+				'name'      => 'Post Type',
+				'type'      => 'post_type',
+				'count'     => 5,
 				'widget_id' => 'jetpack-search-filters-22',
 			),
-			'taxonomy_2' => array(
-				'type' => 'taxonomy',
-				'taxonomy' => 'category',
-				'count' => 4,
+			'taxonomy_2'        => array(
+				'type'      => 'taxonomy',
+				'taxonomy'  => 'category',
+				'count'     => 4,
 				'widget_id' => 'jetpack-search-filters-22',
-				'name' => 'Categories',
+				'name'      => 'Categories',
 			),
-			'taxonomy_3' => array(
-				'type' => 'taxonomy',
-				'taxonomy' => 'post_tag',
-				'count' => 2,
+			'taxonomy_3'        => array(
+				'type'      => 'taxonomy',
+				'taxonomy'  => 'post_tag',
+				'count'     => 2,
 				'widget_id' => 'jetpack-search-filters-22',
-				'name' => 'Tags',
+				'name'      => 'Tags',
 			),
-			'post_type_4' => array(
-				'type' => 'post_type',
-				'count' => 5,
+			'post_type_4'       => array(
+				'type'      => 'post_type',
+				'count'     => 5,
 				'widget_id' => 'jetpack-search-filters-22',
-				'name' => 'Post Types',
+				'name'      => 'Post Types',
 			),
-			'date_histogram_5' => array(
-				'type' => 'date_histogram',
-				'field' => 'post_date',
-				'interval' => 'month',
-				'count' => 10,
+			'date_histogram_5'  => array(
+				'type'      => 'date_histogram',
+				'field'     => 'post_date',
+				'interval'  => 'month',
+				'count'     => 10,
 				'widget_id' => 'jetpack-search-filters-22',
-				'name' => 'Month',
+				'name'      => 'Month',
 			),
-			'date_histogram_6' => array(
-				'type' => 'date_histogram',
-				'field' => 'post_date',
-				'interval' => 'year',
-				'count' => 10,
+			'date_histogram_6'  => array(
+				'type'      => 'date_histogram',
+				'field'     => 'post_date',
+				'interval'  => 'year',
+				'count'     => 10,
 				'widget_id' => 'jetpack-search-filters-22',
-				'name' => 'Year',
+				'name'      => 'Year',
 			),
-			'date_histogram_7' => array(
-				'type' => 'date_histogram',
-				'field' => 'post_modified',
-				'interval' => 'month',
-				'count' => 10,
+			'date_histogram_7'  => array(
+				'type'      => 'date_histogram',
+				'field'     => 'post_modified',
+				'interval'  => 'month',
+				'count'     => 10,
 				'widget_id' => 'jetpack-search-filters-22',
-				'name' => 'Month Updated',
+				'name'      => 'Month Updated',
 			),
-			'date_histogram_8' => array(
-				'type' => 'date_histogram',
-				'field' => 'post_modified',
-				'interval' => 'year',
-				'count' => 10,
+			'date_histogram_8'  => array(
+				'type'      => 'date_histogram',
+				'field'     => 'post_modified',
+				'interval'  => 'year',
+				'count'     => 10,
 				'widget_id' => 'jetpack-search-filters-22',
-				'name' => 'Year Updated',
+				'name'      => 'Year Updated',
 			),
-			'date_histogram_9' => array(
-				'type' => 'date_histogram',
-				'field' => 'post_date_gmt',
-				'interval' => 'month',
-				'count' => 10,
+			'date_histogram_9'  => array(
+				'type'      => 'date_histogram',
+				'field'     => 'post_date_gmt',
+				'interval'  => 'month',
+				'count'     => 10,
 				'widget_id' => 'jetpack-search-filters-22',
-				'name' => 'Month',
+				'name'      => 'Month',
 			),
 			'date_histogram_10' => array(
-				'type' => 'date_histogram',
-				'field' => 'post_date_gmt',
-				'interval' => 'year',
-				'count' => 10,
+				'type'      => 'date_histogram',
+				'field'     => 'post_date_gmt',
+				'interval'  => 'year',
+				'count'     => 10,
 				'widget_id' => 'jetpack-search-filters-22',
-				'name' => 'Year',
+				'name'      => 'Year',
 			),
 			'date_histogram_11' => array(
-				'type' => 'date_histogram',
-				'field' => 'post_modified_gmt',
-				'interval' => 'month',
-				'count' => 10,
+				'type'      => 'date_histogram',
+				'field'     => 'post_modified_gmt',
+				'interval'  => 'month',
+				'count'     => 10,
 				'widget_id' => 'jetpack-search-filters-22',
-				'name' => 'Month Updated',
+				'name'      => 'Month Updated',
 			),
 			'date_histogram_12' => array(
-				'type' => 'date_histogram',
-				'field' => 'post_modified_gmt',
-				'interval' => 'year',
-				'count' => 10,
+				'type'      => 'date_histogram',
+				'field'     => 'post_modified_gmt',
+				'interval'  => 'year',
+				'count'     => 10,
 				'widget_id' => 'jetpack-search-filters-22',
-				'name' => 'Year Updated',
+				'name'      => 'Year Updated',
 			),
 		);
 
@@ -354,9 +350,18 @@ class WP_Test_Jetpack_Search_Helpers extends WP_UnitTestCase {
 	 */
 	function test_post_types_differ_searchable( $expected, $post_types = array() ) {
 		$GLOBALS['wp_post_types'] = array(
-			'post'       => array( 'name' => 'post', 'exclude_from_search' => false ),
-			'page'       => array( 'name' => 'page', 'exclude_from_search' => false ),
-			'attachment' => array( 'name' => 'attachment', 'exclude_from_search' => false )
+			'post'       => array(
+				'name'                => 'post',
+				'exclude_from_search' => false,
+			),
+			'page'       => array(
+				'name'                => 'page',
+				'exclude_from_search' => false,
+			),
+			'attachment' => array(
+				'name'                => 'attachment',
+				'exclude_from_search' => false,
+			),
 		);
 		$this->assertSame( $expected, Jetpack_Search_Helpers::post_types_differ_searchable( $post_types ) );
 	}
@@ -432,7 +437,7 @@ class WP_Test_Jetpack_Search_Helpers extends WP_UnitTestCase {
 			add_filter( 'jetpack_search_has_vip_index', $filter );
 		}
 
-		$this->assertSame( $expected, Jetpack_Search_Options::site_has_vip_index() );
+		$this->assertSame( $expected, Automattic\Jetpack\Search\Options::site_has_vip_index() );
 	}
 
 	/**
@@ -456,7 +461,8 @@ class WP_Test_Jetpack_Search_Helpers extends WP_UnitTestCase {
 	 */
 	public function test_get_date_filter_type_name( $expected, $type, $is_updated ) {
 		$this->assertSame(
-			$expected, Jetpack_Search_Helpers::get_date_filter_type_name(
+			$expected,
+			Jetpack_Search_Helpers::get_date_filter_type_name(
 				$type,
 				$is_updated
 			)
@@ -465,12 +471,12 @@ class WP_Test_Jetpack_Search_Helpers extends WP_UnitTestCase {
 
 	public function get_date_filter_type_name_data() {
 		return array(
-			'default' => array(
+			'default'      => array(
 				'Month',
 				'something',
 				null,
 			),
-			'month' => array(
+			'month'        => array(
 				'Month',
 				'month',
 				false,
@@ -480,7 +486,7 @@ class WP_Test_Jetpack_Search_Helpers extends WP_UnitTestCase {
 				'month',
 				true,
 			),
-			'year' => array(
+			'year'         => array(
 				'Year',
 				'year',
 				false,
@@ -500,12 +506,12 @@ class WP_Test_Jetpack_Search_Helpers extends WP_UnitTestCase {
 		return array(
 			'jetpack-search-filters-22' => array(
 				22,
-				'jetpack-search-filters-22'
+				'jetpack-search-filters-22',
 			),
 			'jetpack-search-filters-10' => array(
 				10,
-				'jetpack-search-filters-10'
-			)
+				'jetpack-search-filters-10',
+			),
 		);
 	}
 
@@ -513,23 +519,23 @@ class WP_Test_Jetpack_Search_Helpers extends WP_UnitTestCase {
 		return array(
 			'jetpack-search-filters-22' => array(
 				22,
-				true
+				true,
 			),
 			'jetpack-search-filters-10' => array(
 				10,
-				false
-			)
+				false,
+			),
 		);
 	}
 
 	function get_should_rerun_search_in_customizer_preview_data() {
 		return array(
-			'not_previewing' => array(
-				false
-			),
-			'is_previewing_not_post' => array(
+			'not_previewing'                              => array(
 				false,
-				true
+			),
+			'is_previewing_not_post'                      => array(
+				false,
+				true,
 			),
 			'is_preview_and_post_filters_initially_empty' => array(
 				true,
@@ -541,12 +547,12 @@ class WP_Test_Jetpack_Search_Helpers extends WP_UnitTestCase {
 
 	function get_array_diff_data() {
 		return array(
-			'all_empty' => array(
+			'all_empty'                  => array(
 				array(),
 				array(),
 				array(),
 			),
-			'same_count_same_items' => array(
+			'same_count_same_items'      => array(
 				array(),
 				array( 'post' ),
 				array( 'post' ),
@@ -556,128 +562,128 @@ class WP_Test_Jetpack_Search_Helpers extends WP_UnitTestCase {
 				array( 'post' ),
 				array( 'page' ),
 			),
-			'array_1_more_items' => array(
+			'array_1_more_items'         => array(
 				array( 'jetpack-testimonial' ),
 				array( 'post', 'page', 'jetpack-testimonial' ),
 				array( 'post', 'page' ),
 			),
-			'array_2_more_items' => array(
+			'array_2_more_items'         => array(
 				array( 'jetpack-testimonial' ),
 				array( 'post', 'page' ),
 				array( 'post', 'page', 'jetpack-testimonial' ),
-			)
+			),
 		);
 	}
 
 	function get_post_types_differ_searchable_data() {
 		return array(
-			'no_post_types' => array(
+			'no_post_types'                         => array(
 				false,
 				array(),
 			),
-			'post_types_same' => array(
+			'post_types_same'                       => array(
 				false,
-				array( 'post', 'page', 'attachment' )
+				array( 'post', 'page', 'attachment' ),
 			),
 			'post_types_same_count_different_types' => array(
 				true,
-				array( 'post', 'page', 'jetpack-testimonial' )
+				array( 'post', 'page', 'jetpack-testimonial' ),
 			),
-			'post_types_has_fewer' => array(
+			'post_types_has_fewer'                  => array(
 				true,
-				'post_types' => array( 'post' )
+				'post_types' => array( 'post' ),
 			),
-			'post_types_has_more' => array(
+			'post_types_has_more'                   => array(
 				true,
-				array( 'post', 'page', 'attachment', 'jetpack-testimonial' )
+				array( 'post', 'page', 'attachment', 'jetpack-testimonial' ),
 			),
 		);
 	}
 
 	function get_post_types_differ_query_data() {
 		return array(
-			'no_post_types_on_instance' => array(
+			'no_post_types_on_instance'                 => array(
 				false,
 				array(),
 			),
-			'post_types_same' => array(
+			'post_types_same'                           => array(
 				false,
 				array( 'post', 'page', 'attachment' ),
-				array( 'post_type' => array( 'post', 'page', 'attachment' ) )
+				array( 'post_type' => array( 'post', 'page', 'attachment' ) ),
 			),
-			'post_types_same_count_different_types' => array(
+			'post_types_same_count_different_types'     => array(
 				true,
 				array( 'post', 'page', 'jetpack-testimonial' ),
-				array( 'post_type' => array( 'post', 'page', 'attachment' ) )
+				array( 'post_type' => array( 'post', 'page', 'attachment' ) ),
 			),
-			'post_types_instance_has_fewer' => array(
+			'post_types_instance_has_fewer'             => array(
 				true,
 				array( 'post' ),
-				array( 'post_type' => array( 'post', 'page' ) )
+				array( 'post_type' => array( 'post', 'page' ) ),
 			),
-			'post_types_instance_has_more' => array(
+			'post_types_instance_has_more'              => array(
 				true,
 				array( 'post', 'page', 'attachment', 'jetpack-testimonial' ),
-				array( 'post_type' => 'post,page' )
+				array( 'post_type' => 'post,page' ),
 			),
-			'post_types_same_csv' => array(
+			'post_types_same_csv'                       => array(
 				false,
 				array( 'post', 'page', 'attachment' ),
-				array( 'post_type' => 'post, page, attachment' )
+				array( 'post_type' => 'post, page, attachment' ),
 			),
 			'post_types_same_count_different_types_csv' => array(
 				true,
 				array( 'post', 'page', 'jetpack-testimonial' ),
-				array( 'post_type' => 'post, page, attachment' )
+				array( 'post_type' => 'post, page, attachment' ),
 			),
-			'post_types_instance_has_fewer_csv' => array(
+			'post_types_instance_has_fewer_csv'         => array(
 				true,
 				array( 'post' ),
-				array( 'post_type' => 'post, page' )
+				array( 'post_type' => 'post, page' ),
 			),
-			'post_types_instance_has_more_csv' => array(
+			'post_types_instance_has_more_csv'          => array(
 				true,
 				array( 'post', 'page', 'attachment', 'jetpack-testimonial' ),
-				array( 'post_type' => 'post, page' )
+				array( 'post_type' => 'post, page' ),
 			),
 		);
 	}
 
 	function get_filter_properties_for_tracks_data() {
 		return array(
-			'empty_filters' => array(
+			'empty_filters'    => array(
 				array(),
-				array()
+				array(),
 			),
-			'single_filter' => array(
+			'single_filter'    => array(
 				array(
-					'widget_filter_count' => 1,
+					'widget_filter_count'         => 1,
 					'widget_filter_type_taxonomy' => 1,
 				),
 				array(
-					$this->get_cat_filter()
-				)
+					$this->get_cat_filter(),
+				),
 			),
 			'multiple_filters' => array(
 				array(
-					'widget_filter_count' => 3,
-					'widget_filter_type_taxonomy' => 2,
+					'widget_filter_count'          => 3,
+					'widget_filter_type_taxonomy'  => 2,
 					'widget_filter_type_post_type' => 1,
 				),
 				array(
 					$this->get_cat_filter(),
 					$this->get_post_type_filter(),
-					$this->get_tag_filter()
-				)
-			)
+					$this->get_tag_filter(),
+				),
+			),
 		);
 	}
 
 	function get_widget_properties_for_tracks_data() {
 		return array(
-			'empty_instance' => array(
+			'empty_instance'                => array(
 				array(),
-				array()
+				array(),
 			),
 			'instance_with_only_multiwidet' => array(
 				array(),
@@ -685,64 +691,64 @@ class WP_Test_Jetpack_Search_Helpers extends WP_UnitTestCase {
 					'_multiwidget' => 1,
 				),
 			),
-			'instance_with_no_filters' => array(
+			'instance_with_no_filters'      => array(
 				array(
-					'widget_title' => 'Search',
+					'widget_title'              => 'Search',
 					'widget_search_box_enabled' => 1,
 				),
-				$this->get_sample_widget_instance( 0 )
+				$this->get_sample_widget_instance( 0 ),
 			),
-			'instance_with_filters' => array(
+			'instance_with_filters'         => array(
 				array(
-					'widget_title' => 'Search',
-					'widget_search_box_enabled' => 1,
-					'widget_filter_count' => 1,
+					'widget_title'                => 'Search',
+					'widget_search_box_enabled'   => 1,
+					'widget_filter_count'         => 1,
 					'widget_filter_type_taxonomy' => 1,
 				),
-				$this->get_sample_widget_instance( 1 )
+				$this->get_sample_widget_instance( 1 ),
 			),
 		);
 	}
 
 	function get_widget_tracks_value_data() {
-		$instance_with_filter_updated = $this->get_sample_widget_instance();
+		$instance_with_filter_updated               = $this->get_sample_widget_instance();
 		$instance_with_filter_updated['filters'][1] = $this->get_tag_filter();
 
 		return array(
-			'widget_updated_added_filters' => array(
+			'widget_updated_added_filters'       => array(
 				array(
 					'action' => 'widget_updated',
 					'widget' => array(
-						'widget_title' => 'Search',
-						'widget_search_box_enabled' => 1,
-						'widget_filter_count' => 1,
+						'widget_title'                => 'Search',
+						'widget_search_box_enabled'   => 1,
+						'widget_filter_count'         => 1,
 						'widget_filter_type_taxonomy' => 1,
-					)
+					),
 				),
 				array( $this->get_sample_widget_instance( 0 ) ),
 				array( $this->get_sample_widget_instance( 1 ) ),
 			),
-			'widget_updated_title_changed' => array(
+			'widget_updated_title_changed'       => array(
 				array(
 					'action' => 'widget_updated',
 					'widget' => array(
-						'widget_title' => 'changed',
-						'widget_search_box_enabled' => 1,
-						'widget_filter_count' => 2,
-						'widget_filter_type_taxonomy' => 1,
-						'widget_filter_type_post_type' => 1
-					)
+						'widget_title'                 => 'changed',
+						'widget_search_box_enabled'    => 1,
+						'widget_filter_count'          => 2,
+						'widget_filter_type_taxonomy'  => 1,
+						'widget_filter_type_post_type' => 1,
+					),
 				),
 				array( $this->get_sample_widget_instance() ),
 				array( array_merge( $this->get_sample_widget_instance(), array( 'title' => 'changed' ) ) ),
 			),
-			'widget_update_removed_filters' => array(
+			'widget_update_removed_filters'      => array(
 				array(
 					'action' => 'widget_updated',
 					'widget' => array(
-						'widget_title' => 'Search',
+						'widget_title'              => 'Search',
 						'widget_search_box_enabled' => 1,
-					)
+					),
 				),
 				array( $this->get_sample_widget_instance( 2 ) ),
 				array( $this->get_sample_widget_instance( 0 ) ),
@@ -751,123 +757,123 @@ class WP_Test_Jetpack_Search_Helpers extends WP_UnitTestCase {
 				array(
 					'action' => 'widget_updated',
 					'widget' => array(
-						'widget_title' => 'updated',
+						'widget_title'              => 'updated',
 						'widget_search_box_enabled' => 1,
-					)
+					),
 				),
 				array(
-					'0' => $this->get_sample_widget_instance( 0 ),
-					'1' => $this->get_sample_widget_instance( 1 ),
-					'2' => $this->get_sample_widget_instance( 2 ),
-					'_multiwidget' => 1
+					'0'            => $this->get_sample_widget_instance( 0 ),
+					'1'            => $this->get_sample_widget_instance( 1 ),
+					'2'            => $this->get_sample_widget_instance( 2 ),
+					'_multiwidget' => 1,
 				),
 				array(
-					'0' => array_merge( $this->get_sample_widget_instance( 0 ), array( 'title' => 'updated' ) ),
-					'1' => $this->get_sample_widget_instance( 1 ),
-					'2' => $this->get_sample_widget_instance( 2 ),
-					'_multiwidget' => 1
+					'0'            => array_merge( $this->get_sample_widget_instance( 0 ), array( 'title' => 'updated' ) ),
+					'1'            => $this->get_sample_widget_instance( 1 ),
+					'2'            => $this->get_sample_widget_instance( 2 ),
+					'_multiwidget' => 1,
 				),
 				array(
-					'_multiwidget' => 1
-				)
-			),
-			'multiple_widgets_filter_added' => array(
-				array(
-					'action' => 'widget_updated',
-					'widget' => array(
-						'widget_title' => 'Search',
-						'widget_search_box_enabled' => 1,
-						'widget_filter_count' => 2,
-						'widget_filter_type_taxonomy' => 1,
-						'widget_filter_type_post_type' => 1
-					)
-				),
-				array(
-					'0' => $this->get_sample_widget_instance( 0 ),
-					'1' => $this->get_sample_widget_instance( 1 ),
-					'2' => $this->get_sample_widget_instance( 2 ),
-					'_multiwidget' => 1
-				),
-				array(
-					'0' => $this->get_sample_widget_instance( 0 ),
-					'1' => $this->get_sample_widget_instance( 2 ),
-					'2' => $this->get_sample_widget_instance( 2 ),
-					'_multiwidget' => 1
-				),
-				array(
-					'_multiwidget' => 1
-				)
-			),
-			'multiple_widgets_filter_updated' => array(
-				array(
-					'action' => 'widget_updated',
-					'widget' => array(
-						'widget_title' => 'Search',
-
-						'widget_search_box_enabled' => 1,
-						'widget_filter_count' => 2,
-						'widget_filter_type_taxonomy' => 2,
-					)
-				),
-				array(
-					'0' => $this->get_sample_widget_instance( 0 ),
-					'1' => $this->get_sample_widget_instance( 1 ),
-					'2' => $this->get_sample_widget_instance( 2 ),
-					'_multiwidget' => 1
-				),
-				array(
-					'0' => $this->get_sample_widget_instance( 0 ),
-					'1' => $this->get_sample_widget_instance( 1 ),
-					'2' => $instance_with_filter_updated,
-					'_multiwidget' => 1
-				),
-				array(
-					'_multiwidget' => 1
-				)
-			),
-			'widget_added_from_empty' => array(
-				array(
-					'action' => 'widget_added',
-					'widget' => array(
-						'widget_title' => 'Search',
-						'widget_search_box_enabled' => 1,
-						'widget_filter_count' => 2,
-						'widget_filter_type_taxonomy' => 1,
-						'widget_filter_type_post_type' => 1,
-					)
-				),
-				array( '_multiwidget' => 1 ),
-				array(
-					'0' => $this->get_sample_widget_instance(),
 					'_multiwidget' => 1,
 				),
 			),
-			'widget_removed_none_to_empty' => array(
+			'multiple_widgets_filter_added'      => array(
 				array(
-					'action' => 'widget_deleted',
+					'action' => 'widget_updated',
 					'widget' => array(
-						'widget_title' => 'Search',
-						'widget_search_box_enabled' => 1,
-						'widget_filter_count' => 2,
-						'widget_filter_type_taxonomy' => 1,
+						'widget_title'                 => 'Search',
+						'widget_search_box_enabled'    => 1,
+						'widget_filter_count'          => 2,
+						'widget_filter_type_taxonomy'  => 1,
 						'widget_filter_type_post_type' => 1,
-					)
+					),
 				),
 				array(
-					'0' => $this->get_sample_widget_instance(),
-					'_multiwidget' => 1
+					'0'            => $this->get_sample_widget_instance( 0 ),
+					'1'            => $this->get_sample_widget_instance( 1 ),
+					'2'            => $this->get_sample_widget_instance( 2 ),
+					'_multiwidget' => 1,
 				),
-				array( '_multiwidget' => 1 ),
+				array(
+					'0'            => $this->get_sample_widget_instance( 0 ),
+					'1'            => $this->get_sample_widget_instance( 2 ),
+					'2'            => $this->get_sample_widget_instance( 2 ),
+					'_multiwidget' => 1,
+				),
+				array(
+					'_multiwidget' => 1,
+				),
 			),
-			'widget_added_one_to_two' => array(
+			'multiple_widgets_filter_updated'    => array(
+				array(
+					'action' => 'widget_updated',
+					'widget' => array(
+						'widget_title'                => 'Search',
+
+						'widget_search_box_enabled'   => 1,
+						'widget_filter_count'         => 2,
+						'widget_filter_type_taxonomy' => 2,
+					),
+				),
+				array(
+					'0'            => $this->get_sample_widget_instance( 0 ),
+					'1'            => $this->get_sample_widget_instance( 1 ),
+					'2'            => $this->get_sample_widget_instance( 2 ),
+					'_multiwidget' => 1,
+				),
+				array(
+					'0'            => $this->get_sample_widget_instance( 0 ),
+					'1'            => $this->get_sample_widget_instance( 1 ),
+					'2'            => $instance_with_filter_updated,
+					'_multiwidget' => 1,
+				),
+				array(
+					'_multiwidget' => 1,
+				),
+			),
+			'widget_added_from_empty'            => array(
 				array(
 					'action' => 'widget_added',
 					'widget' => array(
-						'widget_title' => 'Search',
-						'widget_search_box_enabled' => 1,
-						'widget_filter_count' => 1,
+						'widget_title'                 => 'Search',
+						'widget_search_box_enabled'    => 1,
+						'widget_filter_count'          => 2,
+						'widget_filter_type_taxonomy'  => 1,
+						'widget_filter_type_post_type' => 1,
+					),
+				),
+				array( '_multiwidget' => 1 ),
+				array(
+					'0'            => $this->get_sample_widget_instance(),
+					'_multiwidget' => 1,
+				),
+			),
+			'widget_removed_none_to_empty'       => array(
+				array(
+					'action' => 'widget_deleted',
+					'widget' => array(
+						'widget_title'                 => 'Search',
+						'widget_search_box_enabled'    => 1,
+						'widget_filter_count'          => 2,
+						'widget_filter_type_taxonomy'  => 1,
+						'widget_filter_type_post_type' => 1,
+					),
+				),
+				array(
+					'0'            => $this->get_sample_widget_instance(),
+					'_multiwidget' => 1,
+				),
+				array( '_multiwidget' => 1 ),
+			),
+			'widget_added_one_to_two'            => array(
+				array(
+					'action' => 'widget_added',
+					'widget' => array(
+						'widget_title'                => 'Search',
+						'widget_search_box_enabled'   => 1,
+						'widget_filter_count'         => 1,
 						'widget_filter_type_taxonomy' => 1,
-					)
+					),
 				),
 				array(
 					$this->get_sample_widget_instance(),
@@ -877,23 +883,23 @@ class WP_Test_Jetpack_Search_Helpers extends WP_UnitTestCase {
 					$this->get_sample_widget_instance(),
 					$this->get_sample_widget_instance( 1 ),
 					'_multiwidget' => 1,
-				)
+				),
 			),
-			'widget_added_two_to_one' => array(
+			'widget_added_two_to_one'            => array(
 				array(
 					'action' => 'widget_deleted',
 					'widget' => array(
-						'widget_title' => 'Search',
+						'widget_title'              => 'Search',
 						'widget_search_box_enabled' => 1,
-					)
+					),
 				),
 				array(
-					'1' => $this->get_sample_widget_instance( 0 ),
-					'2' => $this->get_sample_widget_instance( 1 ),
+					'1'            => $this->get_sample_widget_instance( 0 ),
+					'2'            => $this->get_sample_widget_instance( 1 ),
 					'_multiwidget' => 1,
 				),
 				array(
-					'2' => $this->get_sample_widget_instance( 1 ),
+					'2'            => $this->get_sample_widget_instance( 1 ),
 					'_multiwidget' => 1,
 				),
 			),
@@ -902,11 +908,11 @@ class WP_Test_Jetpack_Search_Helpers extends WP_UnitTestCase {
 
 	public function get_remove_active_from_post_type_buckets_data() {
 		return array(
-			'empty_array' => array(
+			'empty_array'                           => array(
 				array(),
 				array(),
 			),
-			'unchanged_if_not_post_type_filter' => array(
+			'unchanged_if_not_post_type_filter'     => array(
 				array(
 					'taxonomy_0' => array(
 						'type' => 'taxonomy',
@@ -930,10 +936,10 @@ class WP_Test_Jetpack_Search_Helpers extends WP_UnitTestCase {
 					),
 				),
 			),
-			'active_false_on_post_type_buckets' => array(
+			'active_false_on_post_type_buckets'     => array(
 				array(
 					'post_type_0' => array(
-						'type' => 'post_type',
+						'type'    => 'post_type',
 						'buckets' => array(
 							array(
 								'active' => false,
@@ -946,7 +952,7 @@ class WP_Test_Jetpack_Search_Helpers extends WP_UnitTestCase {
 				),
 				array(
 					'post_type_0' => array(
-						'type' => 'post_type',
+						'type'    => 'post_type',
 						'buckets' => array(
 							array(
 								'active' => true,
@@ -963,12 +969,12 @@ class WP_Test_Jetpack_Search_Helpers extends WP_UnitTestCase {
 
 	function get_add_post_types_to_url_data() {
 		return array(
-			'same_url_empty_post_types' => array(
+			'same_url_empty_post_types'     => array(
 				'http://jetpack.com?s=test',
 				'http://jetpack.com?s=test',
 				array(),
 			),
-			'no_post_types_on_url' => array(
+			'no_post_types_on_url'          => array(
 				'http://jetpack.com?s=test&post_type=post,page',
 				'http://jetpack.com?s=test',
 				array( 'post', 'page' ),
@@ -983,7 +989,7 @@ class WP_Test_Jetpack_Search_Helpers extends WP_UnitTestCase {
 
 	function get_ensure_post_types_on_remove_url_data() {
 		return array(
-			'unmodified_if_no_post_types' => array(
+			'unmodified_if_no_post_types'            => array(
 				array(
 					'taxonomy_0' => array(
 						'type' => 'taxonomy',
@@ -996,7 +1002,7 @@ class WP_Test_Jetpack_Search_Helpers extends WP_UnitTestCase {
 				),
 				array(),
 			),
-			'unmodified_if_post_type_no_buckets' => array(
+			'unmodified_if_post_type_no_buckets'     => array(
 				array(
 					'post_type_0' => array(
 						'type' => 'post_type',
@@ -1012,7 +1018,7 @@ class WP_Test_Jetpack_Search_Helpers extends WP_UnitTestCase {
 			'unmodified_if_remove_url_not_on_bucket' => array(
 				array(
 					'post_type_0' => array(
-						'type' => 'post_type',
+						'type'    => 'post_type',
 						'buckets' => array(
 							array(
 								'name' => 'test',
@@ -1022,7 +1028,7 @@ class WP_Test_Jetpack_Search_Helpers extends WP_UnitTestCase {
 				),
 				array(
 					'post_type_0' => array(
-						'type' => 'post_type',
+						'type'    => 'post_type',
 						'buckets' => array(
 							array(
 								'name' => 'test',
@@ -1032,13 +1038,13 @@ class WP_Test_Jetpack_Search_Helpers extends WP_UnitTestCase {
 				),
 				array(),
 			),
-			'unmodified_if_remove_url_bad' => array(
+			'unmodified_if_remove_url_bad'           => array(
 				array(
 					'post_type_0' => array(
-						'type' => 'post_type',
+						'type'    => 'post_type',
 						'buckets' => array(
 							array(
-								'name' => 'test',
+								'name'       => 'test',
 								'remove_url' => 'http://:80',
 							),
 						),
@@ -1046,10 +1052,10 @@ class WP_Test_Jetpack_Search_Helpers extends WP_UnitTestCase {
 				),
 				array(
 					'post_type_0' => array(
-						'type' => 'post_type',
+						'type'    => 'post_type',
 						'buckets' => array(
 							array(
-								'name' => 'test',
+								'name'       => 'test',
 								'remove_url' => 'http://:80',
 							),
 						),
@@ -1057,13 +1063,13 @@ class WP_Test_Jetpack_Search_Helpers extends WP_UnitTestCase {
 				),
 				array(),
 			),
-			'unmodified_if_no_query' => array(
+			'unmodified_if_no_query'                 => array(
 				array(
 					'post_type_0' => array(
-						'type' => 'post_type',
+						'type'    => 'post_type',
 						'buckets' => array(
 							array(
-								'name' => 'test',
+								'name'       => 'test',
 								'remove_url' => 'http://jetpack.com',
 							),
 						),
@@ -1071,10 +1077,10 @@ class WP_Test_Jetpack_Search_Helpers extends WP_UnitTestCase {
 				),
 				array(
 					'post_type_0' => array(
-						'type' => 'post_type',
+						'type'    => 'post_type',
 						'buckets' => array(
 							array(
-								'name' => 'test',
+								'name'       => 'test',
 								'remove_url' => 'http://jetpack.com',
 							),
 						),
@@ -1082,13 +1088,13 @@ class WP_Test_Jetpack_Search_Helpers extends WP_UnitTestCase {
 				),
 				array(),
 			),
-			'unmodified_if_query_has_post_type' => array(
+			'unmodified_if_query_has_post_type'      => array(
 				array(
 					'post_type_0' => array(
-						'type' => 'post_type',
+						'type'    => 'post_type',
 						'buckets' => array(
 							array(
-								'name' => 'test',
+								'name'       => 'test',
 								'remove_url' => 'http://jetpack.com?post_type=post,page',
 							),
 						),
@@ -1096,10 +1102,10 @@ class WP_Test_Jetpack_Search_Helpers extends WP_UnitTestCase {
 				),
 				array(
 					'post_type_0' => array(
-						'type' => 'post_type',
+						'type'    => 'post_type',
 						'buckets' => array(
 							array(
-								'name' => 'test',
+								'name'       => 'test',
 								'remove_url' => 'http://jetpack.com?post_type=post,page',
 							),
 						),
@@ -1110,10 +1116,10 @@ class WP_Test_Jetpack_Search_Helpers extends WP_UnitTestCase {
 			'adds_post_types_if_no_post_types_on_remove_url' => array(
 				array(
 					'post_type_0' => array(
-						'type' => 'post_type',
+						'type'    => 'post_type',
 						'buckets' => array(
 							array(
-								'name' => 'test',
+								'name'       => 'test',
 								'remove_url' => 'http://jetpack.com?post_type=post,page',
 							),
 						),
@@ -1121,10 +1127,10 @@ class WP_Test_Jetpack_Search_Helpers extends WP_UnitTestCase {
 				),
 				array(
 					'post_type_0' => array(
-						'type' => 'post_type',
+						'type'    => 'post_type',
 						'buckets' => array(
 							array(
-								'name' => 'test',
+								'name'       => 'test',
 								'remove_url' => 'http://jetpack.com',
 							),
 						),
@@ -1137,14 +1143,14 @@ class WP_Test_Jetpack_Search_Helpers extends WP_UnitTestCase {
 
 	public function get_site_has_vip_index_data() {
 		return array(
-			'default_constants_filter' => array(
+			'default_constants_filter'   => array(
 				false,
 			),
-			'constant_false_no_filter' => array(
+			'constant_false_no_filter'   => array(
 				false,
 				false,
 			),
-			'constant_true_no_filter' => array(
+			'constant_true_no_filter'    => array(
 				true,
 				true,
 			),
@@ -1162,7 +1168,7 @@ class WP_Test_Jetpack_Search_Helpers extends WP_UnitTestCase {
 	}
 
 	public function get_max_offset_data() {
-		return array (
+		return array(
 			'not_vip_index' => array(
 				1000,
 				false,
@@ -1175,7 +1181,7 @@ class WP_Test_Jetpack_Search_Helpers extends WP_UnitTestCase {
 	}
 
 	public function get_max_posts_per_page_data() {
-		return array (
+		return array(
 			'not_vip_index' => array(
 				100,
 				false,
@@ -1214,7 +1220,7 @@ class WP_Test_Jetpack_Search_Helpers extends WP_UnitTestCase {
 			'jetpack-search-filters-22',
 		);
 
-		foreach( $widget_ids as $id ) {
+		foreach ( $widget_ids as $id ) {
 			$GLOBALS['wp_registered_widgets'][ $id ] = array(
 				'id' => $id,
 			);
@@ -1223,20 +1229,20 @@ class WP_Test_Jetpack_Search_Helpers extends WP_UnitTestCase {
 
 	function get_sample_widgets_option() {
 		return array(
-			'15' => array(
-				'title' => 'Search',
+			'15'           => array(
+				'title'              => 'Search',
 				'search_box_enabled' => 0,
-				'filters' => array(
+				'filters'            => array(
 					array(
-						'name' => 'Categories',
-						'type' => 'taxonomy',
+						'name'     => 'Categories',
+						'type'     => 'taxonomy',
 						'taxonomy' => 'category',
-						'count' => 4
-					)
-				)
+						'count'    => 4,
+					),
+				),
 			),
-			'22' => $this->get_sample_widget_instance(),
-			'_multiwidget' => 1
+			'22'           => $this->get_sample_widget_instance(),
+			'_multiwidget' => 1,
 		);
 	}
 
@@ -1256,7 +1262,7 @@ class WP_Test_Jetpack_Search_Helpers extends WP_UnitTestCase {
 
 	function get_sample_widget_instance( $count_filters = 2, $count_cat = 4 ) {
 		$instance = array(
-			'title' => 'Search',
+			'title'              => 'Search',
 			'search_box_enabled' => 1,
 		);
 
@@ -1269,26 +1275,26 @@ class WP_Test_Jetpack_Search_Helpers extends WP_UnitTestCase {
 
 	function get_cat_filter( $count = 4 ) {
 		return array(
-			'name' => 'Categories',
-			'type' => 'taxonomy',
+			'name'     => 'Categories',
+			'type'     => 'taxonomy',
 			'taxonomy' => 'category',
-			'count' => $count,
+			'count'    => $count,
 		);
 	}
 
 	function get_tag_filter() {
 		return array(
-			'name' => 'Tags',
-			'type' => 'taxonomy',
+			'name'     => 'Tags',
+			'type'     => 'taxonomy',
 			'taxonomy' => 'post_tag',
-			'count' => 2,
+			'count'    => 2,
 		);
 	}
 
 	function get_post_type_filter() {
 		return array(
-			'name' => 'Post Type',
-			'type' => 'post_type',
+			'name'  => 'Post Type',
+			'type'  => 'post_type',
 			'count' => 5,
 		);
 	}

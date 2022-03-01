@@ -9,7 +9,7 @@ import { getRedirectUrl } from '@automattic/jetpack-components';
  */
 import { JETPACK_SET_INITIAL_STATE, MOCK_SWITCH_USER_PERMISSIONS } from 'state/action-types';
 import { getPlanDuration } from 'state/plans/reducer';
-import { getSiteProducts } from 'state/site-products';
+import { getProducts } from 'state/products';
 import { isCurrentUserLinked } from 'state/connection';
 
 export const initialState = ( state = window.Initial_State, action ) => {
@@ -53,6 +53,16 @@ export function getSiteRoles( state ) {
 
 export function getInitialStateStatsData( state ) {
 	return get( state.jetpack.initialState.stats, 'data' );
+}
+
+/**
+ * Returns an object of plugins that are using the Jetpack connection.
+ *
+ * @param   {object}  state - Global state tree
+ * @returns {object}         Plugins that are using the Jetpack connection.
+ */
+export function getInitialStateConnectedPlugins( state ) {
+	return get( state.jetpack.initialState, 'connectedPlugins', {} );
 }
 
 export function getAdminEmailAddress( state ) {
@@ -164,6 +174,16 @@ export function getUserWpComLogin( state ) {
 	return get( state.jetpack.initialState.userData.currentUser, [ 'wpcomUser', 'login' ], '' );
 }
 
+/**
+ * Returns the WPCOM ID of the connected user.
+ *
+ * @param {object} state - Global state tree
+ * @returns {number}        the ID of the user
+ */
+export function getUserWpComId( state ) {
+	return get( state.jetpack.initialState.userData.currentUser, [ 'wpcomUser', 'ID' ], '' );
+}
+
 export function getUserWpComEmail( state ) {
 	return get( state.jetpack.initialState.userData.currentUser, [ 'wpcomUser', 'email' ], '' );
 }
@@ -191,6 +211,16 @@ export function getUserId( state ) {
 
 export function userCanViewStats( state ) {
 	return get( state.jetpack.initialState.userData.currentUser.permissions, 'view_stats', false );
+}
+
+/**
+ * Returns the WPCOM ID of a connected site.
+ *
+ * @param {object} state - Global state tree
+ * @returns {number}        the ID of the site
+ */
+export function getSiteId( state ) {
+	return get( state.jetpack.initialState.siteData, [ 'blog_id' ] );
 }
 
 /**
@@ -417,6 +447,16 @@ export function getPartnerSubsidiaryId( state ) {
 }
 
 /**
+ * Returns the partner coupon associated with this site, if any.
+ *
+ * @param {object} state - Global state tree
+ * @returns {object|boolean} partner coupon if exists or false.
+ */
+export function getPartnerCoupon( state ) {
+	return get( state.jetpack.initialState, 'partnerCoupon' );
+}
+
+/**
  * Return an upgrade URL
  *
  * @param {object} state - Global state tree
@@ -474,7 +514,7 @@ export const getUpgradeUrl = ( state, source, userId = '', planDuration = false 
  */
 export function getProductsForPurchase( state ) {
 	const staticProducts = get( state.jetpack.initialState, 'products', {} );
-	const siteProducts = getSiteProducts( state );
+	const jetpackProducts = getProducts( state );
 	const products = {};
 
 	for ( const [ key, product ] of Object.entries( staticProducts ) ) {
@@ -484,12 +524,12 @@ export function getProductsForPurchase( state ) {
 			key: key,
 			description: product.description,
 			features: product.features,
-			available: get( siteProducts, [ product.slug, 'available' ], false ),
-			currencyCode: get( siteProducts, [ product.slug, 'currency_code' ], '' ),
+			available: get( jetpackProducts, [ product.slug, 'available' ], false ),
+			currencyCode: get( jetpackProducts, [ product.slug, 'currency_code' ], '' ),
 			showPromotion: product.show_promotion,
 			promotionPercentage: product.discount_percent,
 			includedInPlans: product.included_in_plans,
-			fullPrice: get( siteProducts, [ product.slug, 'cost' ], '' ),
+			fullPrice: get( jetpackProducts, [ product.slug, 'cost' ], '' ),
 			upgradeUrl: getRedirectUrl( 'jetpack-product-description-checkout', {
 				path: product.slug,
 			} ),
@@ -542,4 +582,14 @@ export function isSafari( state ) {
  */
 export function doNotUseConnectionIframe( state ) {
 	return !! state.jetpack.initialState.doNotUseConnectionIframe;
+}
+
+/**
+ * Check if WooCommerce is currently installed and active
+ *
+ * @param {object} state - Global state tree.
+ * @returns {boolean} True, the plugin is installed and active
+ */
+export function isWooCommerceActive( state ) {
+	return !! state.jetpack.initialState.isWooCommerceActive;
 }

@@ -6,6 +6,7 @@
  * @package automattic/jetpack
  */
 
+use Automattic\Jetpack\Assets;
 use Automattic\Jetpack\Blocks;
 use Automattic\Jetpack\Connection\Manager as Connection_Manager;
 use Automattic\Jetpack\Constants;
@@ -57,6 +58,14 @@ class Jetpack_Gutenberg {
 	 * @var array Extensions availability information.
 	 */
 	private static $cached_availability = null;
+
+	/**
+	 * Site-specific features available.
+	 * Their calculation can be expensive and slow, so we're caching it for the request.
+	 *
+	 * @var array Site-specific features
+	 */
+	private static $site_specific_features = array();
 
 	/**
 	 * Check to see if a minimum version of Gutenberg is available. Because a Gutenberg version is not available in
@@ -500,16 +509,17 @@ class Jetpack_Gutenberg {
 		}
 
 		// Enqueue styles.
-		$style_relative_path = self::get_blocks_directory() . $type . '/view.min' . ( is_rtl() ? '.rtl' : '' ) . '.css';
+		$style_relative_path = self::get_blocks_directory() . $type . '/view' . ( is_rtl() ? '.rtl' : '' ) . '.css';
 		if ( self::block_has_asset( $style_relative_path ) ) {
 			$style_version = self::get_asset_version( $style_relative_path );
 			$view_style    = plugins_url( $style_relative_path, JETPACK__PLUGIN_FILE );
+			$view_style    = add_query_arg( 'minify', 'false', $view_style );
 
 			// If this is a customizer preview, render the style directly to the preview after autosave.
 			// phpcs:ignore WordPress.Security.NonceVerification.Recommended
 			if ( is_customize_preview() && ! empty( $_GET['customize_autosaved'] ) ) {
 				// phpcs:ignore WordPress.WP.EnqueuedResources.NonEnqueuedStylesheet
-				echo '<link rel="stylesheet" id="jetpack-block-' . esc_attr( $type ) . '" href="' . esc_attr( $view_style ) . '?ver=' . esc_attr( $style_version ) . '" media="all">';
+				echo '<link rel="stylesheet" id="jetpack-block-' . esc_attr( $type ) . '" href="' . esc_attr( $view_style ) . '&amp;ver=' . esc_attr( $style_version ) . '" media="all">';
 			} else {
 				wp_enqueue_style( 'jetpack-block-' . $type, $view_style, array(), $style_version );
 			}
@@ -535,8 +545,8 @@ class Jetpack_Gutenberg {
 		}
 
 		// Enqueue script.
-		$script_relative_path  = self::get_blocks_directory() . $type . '/view.min.js';
-		$script_deps_path      = JETPACK__PLUGIN_DIR . self::get_blocks_directory() . $type . '/view.min.asset.php';
+		$script_relative_path  = self::get_blocks_directory() . $type . '/view.js';
+		$script_deps_path      = JETPACK__PLUGIN_DIR . self::get_blocks_directory() . $type . '/view.asset.php';
 		$script_dependencies[] = 'wp-polyfill';
 		if ( file_exists( $script_deps_path ) ) {
 			$asset_manifest      = include $script_deps_path;
@@ -546,6 +556,7 @@ class Jetpack_Gutenberg {
 		if ( ! Blocks::is_amp_request() && self::block_has_asset( $script_relative_path ) ) {
 			$script_version = self::get_asset_version( $script_relative_path );
 			$view_script    = plugins_url( $script_relative_path, JETPACK__PLUGIN_FILE );
+			$view_script    = add_query_arg( 'minify', 'false', $view_script );
 
 			// Enqueue dependencies.
 			wp_enqueue_script( 'jetpack-block-' . $type, $view_script, $script_dependencies, $script_version, false );
@@ -561,7 +572,7 @@ class Jetpack_Gutenberg {
 					echo 'Array.from(document.getElementsByClassName(\'wp-block-jetpack-map\')).forEach(function(element){element.style.display = \'none\';})';
 					echo '</script>';
 				} else {
-					echo '<script id="jetpack-block-' . esc_attr( $type ) . '" src="' . esc_attr( $view_script ) . '?ver=' . esc_attr( $script_version ) . '"></script>';
+					echo '<script id="jetpack-block-' . esc_attr( $type ) . '" src="' . esc_attr( $view_script ) . '&amp;ver=' . esc_attr( $script_version ) . '"></script>';
 				}
 			}
 		}
@@ -618,7 +629,6 @@ class Jetpack_Gutenberg {
 			wp_enqueue_script( 'jp-tracks', '//stats.wp.com/w.js', array(), gmdate( 'YW' ), true );
 		}
 
-		$rtl              = is_rtl() ? '.rtl' : '';
 		$blocks_dir       = self::get_blocks_directory();
 		$blocks_variation = self::blocks_variation();
 
@@ -628,27 +638,20 @@ class Jetpack_Gutenberg {
 			$blocks_env = '';
 		}
 
-		$editor_script = plugins_url( "{$blocks_dir}editor{$blocks_env}.min.js", JETPACK__PLUGIN_FILE );
-		$editor_style  = plugins_url( "{$blocks_dir}editor{$blocks_env}.min{$rtl}.css", JETPACK__PLUGIN_FILE );
-
-		$editor_deps_path = JETPACK__PLUGIN_DIR . $blocks_dir . "editor{$blocks_env}.min.asset.php";
-		$editor_deps      = array( 'wp-polyfill' );
-		if ( file_exists( $editor_deps_path ) ) {
-			$asset_manifest = include $editor_deps_path;
-			$editor_deps    = $asset_manifest['dependencies'];
-		}
-
-		$version = Jetpack::is_development_version() && file_exists( JETPACK__PLUGIN_DIR . $blocks_dir . 'editor.min.js' )
-			? filemtime( JETPACK__PLUGIN_DIR . $blocks_dir . 'editor.min.js' )
-			: JETPACK__VERSION;
-
-		wp_enqueue_script(
+		Assets::register_script(
 			'jetpack-blocks-editor',
-			$editor_script,
-			$editor_deps,
-			$version,
-			false
+			"{$blocks_dir}editor{$blocks_env}.js",
+			JETPACK__PLUGIN_FILE,
+			array( 'textdomain' => 'jetpack' )
 		);
+
+		// Hack around #20357 (specifically, that the editor bundle depends on
+		// wp-edit-post but wp-edit-post's styles break the Widget Editor and
+		// Site Editor) until a real fix gets unblocked.
+		// @todo Remove this once #20357 is properly fixed.
+		wp_styles()->query( 'jetpack-blocks-editor', 'registered' )->deps = array();
+
+		Assets::enqueue_script( 'jetpack-blocks-editor' );
 
 		wp_localize_script(
 			'jetpack-blocks-editor',
@@ -691,9 +694,9 @@ class Jetpack_Gutenberg {
 					 *
 					 * @since 10.3.0
 					 *
-					 * @param bool false Enable the RePublicize UI in the block editor context. Defaults to false.
+					 * @param bool true Enable the RePublicize UI in the block editor context. Defaults to true.
 					 */
-					'republicize_enabled'       => apply_filters( 'jetpack_block_editor_republicize_feature', false ),
+					'republicize_enabled'       => apply_filters( 'jetpack_block_editor_republicize_feature', true ),
 				),
 				'siteFragment'     => $status->get_site_suffix(),
 				'adminUrl'         => esc_url( admin_url() ),
@@ -702,10 +705,62 @@ class Jetpack_Gutenberg {
 				'allowedMimeTypes' => wp_get_mime_types(),
 			)
 		);
+	}
 
-		wp_set_script_translations( 'jetpack-blocks-editor', 'jetpack' );
+	/**
+	 * Add the Gutenberg editor stylesheet to iframed editors, such as the site editor,
+	 * which don't have access to stylesheets added with `wp_enqueue_style`.
+	 *
+	 * This workaround is currently used by WordPress.com Simple sites.
+	 *
+	 * @since 10.7
+	 *
+	 * @return void
+	 */
+	public static function add_iframed_editor_style() {
+		if ( ! self::should_load() ) {
+			return;
+		}
 
-		wp_enqueue_style( 'jetpack-blocks-editor', $editor_style, array(), $version );
+		global $pagenow;
+		if ( ! isset( $pagenow ) ) {
+			return;
+		}
+
+		$allowed_pages       = array( 'admin.php', 'themes.php' );
+		$is_site_editor_page = in_array( $pagenow, $allowed_pages, true ) &&
+			isset( $_GET['page'] ) && 'gutenberg-edit-site' === $_GET['page']; // phpcs:ignore WordPress.Security.NonceVerification.Recommended
+
+		// WP 5.9 puts the site editor in `site-editor.php` when Gutenberg is not active.
+		if ( 'site-editor.php' !== $pagenow && ! $is_site_editor_page ) {
+			return;
+		}
+
+		$blocks_dir       = self::get_blocks_directory();
+		$blocks_variation = self::blocks_variation();
+
+		if ( 'production' !== $blocks_variation ) {
+			$blocks_env = '-' . esc_attr( $blocks_variation );
+		} else {
+			$blocks_env = '';
+		}
+
+		$path = "{$blocks_dir}editor{$blocks_env}.css";
+		$dir  = dirname( JETPACK__PLUGIN_FILE );
+
+		if ( file_exists( "$dir/$path" ) ) {
+			if ( is_rtl() ) {
+				$rtlcsspath = substr( $path, 0, -4 ) . '.rtl.css';
+				if ( file_exists( "$dir/$rtlcsspath" ) ) {
+					$path = $rtlcsspath;
+				}
+			}
+
+			$url = Assets::normalize_path( plugins_url( $path, JETPACK__PLUGIN_FILE ) );
+			$url = add_query_arg( 'minify', 'false', $url );
+
+			add_editor_style( $url );
+		}
 	}
 
 	/**
@@ -756,8 +811,7 @@ class Jetpack_Gutenberg {
 						include_once $extension_file_path;
 					}
 				}
-			};
-
+			}
 		}
 	}
 
@@ -1013,6 +1067,36 @@ class Jetpack_Gutenberg {
 	}
 
 	/**
+	 * Retrieve site-specific features for Simple sites.
+	 *
+	 * We're caching the data for the lifetime of the request, because it can be slow to calculate,
+	 * and it can be called multiple times per single request.
+	 *
+	 * We intentionally don't use object caching or any other type of persistent caching,
+	 * in order to avoid complex cache invalidation on subscription addition or removal.
+	 *
+	 * @since 10.7
+	 *
+	 * @return array
+	 */
+	private static function get_site_specific_features() {
+		$current_blog_id = get_current_blog_id();
+
+		if ( isset( self::$site_specific_features[ $current_blog_id ] ) ) {
+			return self::$site_specific_features[ $current_blog_id ];
+		}
+
+		if ( ! class_exists( 'Store_Product_List' ) ) {
+			require WP_CONTENT_DIR . '/admin-plugins/wpcom-billing/store-product-list.php';
+		}
+
+		$site_specific_features                           = Store_Product_List::get_site_specific_features_data( $current_blog_id );
+		self::$site_specific_features[ $current_blog_id ] = $site_specific_features;
+
+		return $site_specific_features;
+	}
+
+	/**
 	 * Set the availability of the block as the editor
 	 * is loaded.
 	 *
@@ -1031,10 +1115,7 @@ class Jetpack_Gutenberg {
 
 			// Simple sites.
 			if ( $is_simple_site ) {
-				if ( ! class_exists( 'Store_Product_List' ) ) {
-					require WP_CONTENT_DIR . '/admin-plugins/wpcom-billing/store-product-list.php';
-				}
-				$features_data = Store_Product_List::get_site_specific_features_data();
+				$features_data = self::get_site_specific_features();
 			} else {
 				// Atomic sites.
 				$option = get_option( 'jetpack_active_plan' );

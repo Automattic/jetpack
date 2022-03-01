@@ -7,10 +7,14 @@
 
 namespace Automattic\Jetpack\ConnectionUI;
 
+use Automattic\Jetpack\Identity_Crisis;
+
 /**
  * The React initial state.
  */
 class Initial_State {
+
+	const CONNECTION_MANAGER_URI = '/tools.php?page=wpcom-connection-manager';
 
 	/**
 	 * Get the initial state data.
@@ -26,6 +30,11 @@ class Initial_State {
 			),
 			'assets' => array(
 				'buildUrl' => plugins_url( 'build/', __DIR__ ),
+			),
+			'IDC'    => array(
+				'hasIDC'              => Identity_Crisis::has_identity_crisis(),
+				'isSafeModeConfirmed' => Identity_Crisis::safe_mode_is_confirmed(),
+				'canManageConnection' => current_user_can( 'jetpack_disconnect' ),
 			),
 		);
 	}

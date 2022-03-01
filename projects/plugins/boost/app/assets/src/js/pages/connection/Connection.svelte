@@ -1,10 +1,17 @@
 <script>
+	/**
+	 * WordPress dependencies
+	 */
+	import { __ } from '@wordpress/i18n';
+
+	/**
+	 * Internal dependencies
+	 */
 	import CheckboxIcon from '../../svg/checkbox.svg';
 	import TemplatedString from '../../elements/TemplatedString.svelte';
 	import externalLinkTemplateVar from '../../utils/external-link-template-var';
 	import { connection } from '../../stores/connection';
 	import ErrorNotice from '../../elements/ErrorNotice.svelte';
-	import { __ } from '@wordpress/i18n';
 	import config from '../../stores/config';
 
 	function jetpackURL( url ) {
@@ -73,9 +80,7 @@
 			<p>
 				<TemplatedString
 					template={__(
-						`By clicking the button above, you agree to our
-						 <tosLink>Terms of Service</tosLink> and to
-						 <shareLink>share details</shareLink> with WordPress.com.`,
+						`By clicking the button above, you agree to our <tosLink>Terms of Service</tosLink> and to <shareLink>share details</shareLink> with WordPress.com.`,
 						'jetpack-boost'
 					)}
 					vars={{

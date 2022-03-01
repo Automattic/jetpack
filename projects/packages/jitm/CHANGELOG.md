@@ -5,6 +5,78 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [2.2.7] - 2022-02-22
+### Changed
+- Updated package dependencies.
+
+## [2.2.6] - 2022-02-16
+### Changed
+- Updated package dependencies.
+
+## [2.2.5] - 2022-02-09
+### Changed
+- Updated package dependencies.
+
+## [2.2.4] - 2022-02-02
+### Changed
+- Build: remove unneeded files from production build.
+- Update use of old jQuery interfaces
+
+## [2.2.3] - 2022-01-25
+### Changed
+- Updated package dependencies.
+
+## [2.2.2] - 2022-01-18
+### Changed
+- General: update required node version to v16.13.2
+
+## [2.2.1] - 2022-01-11
+### Changed
+- Updated package dependencies.
+
+## [2.2.0] - 2022-01-04
+### Changed
+- Switch to pcov for code coverage.
+- Updated package dependencies.
+- Updated package textdomain from `jetpack` to `jetpack-jitm`.
+
+## [2.1.1] - 2021-12-14
+### Changed
+- Updated package dependencies.
+
+## [2.1.0] - 2021-11-30
+### Added
+- Add proper JS and CSS builder.
+- Adds filters to allow sideloading of the Jetpack Backup plugin through JITMs.
+- JITM: Added ability to sideload Jetpack Boost plugin.
+
+### Changed
+- Add `output.filename` in Webpack config to override changed default.
+- Colors: update Jetpack Primary color to match latest brand book.
+
+### Fixed
+- JITM: wrap CTA below text on small viewports
+
+## [2.0.8] - 2021-11-23
+### Changed
+- Updated package dependencies.
+
+## [2.0.7] - 2021-11-16
+### Added
+- Use monorepo `validate-es` script to validate Webpack builds.
+
+### Changed
+- Updated package dependencies.
+
+## [2.0.6] - 2021-11-09
+### Changed
+- Update webpack build config.
+
+## [2.0.5] - 2021-11-02
+### Changed
+- Set `convertDeprecationsToExceptions` true in PHPUnit config.
+- Update PHPUnit configs to include just what needs coverage rather than include everything then try to exclude stuff that doesn't.
+
 ## [2.0.4] - 2021-10-26
 ### Changed
 - Updated package dependencies.
@@ -318,6 +390,20 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - Update Jetpack to use new JITM package
 
+[2.2.7]: https://github.com/Automattic/jetpack-jitm/compare/v2.2.6...v2.2.7
+[2.2.6]: https://github.com/Automattic/jetpack-jitm/compare/v2.2.5...v2.2.6
+[2.2.5]: https://github.com/Automattic/jetpack-jitm/compare/v2.2.4...v2.2.5
+[2.2.4]: https://github.com/Automattic/jetpack-jitm/compare/v2.2.3...v2.2.4
+[2.2.3]: https://github.com/Automattic/jetpack-jitm/compare/v2.2.2...v2.2.3
+[2.2.2]: https://github.com/Automattic/jetpack-jitm/compare/v2.2.1...v2.2.2
+[2.2.1]: https://github.com/Automattic/jetpack-jitm/compare/v2.2.0...v2.2.1
+[2.2.0]: https://github.com/Automattic/jetpack-jitm/compare/v2.1.1...v2.2.0
+[2.1.1]: https://github.com/Automattic/jetpack-jitm/compare/v2.1.0...v2.1.1
+[2.1.0]: https://github.com/Automattic/jetpack-jitm/compare/v2.0.8...v2.1.0
+[2.0.8]: https://github.com/Automattic/jetpack-jitm/compare/v2.0.7...v2.0.8
+[2.0.7]: https://github.com/Automattic/jetpack-jitm/compare/v2.0.6...v2.0.7
+[2.0.6]: https://github.com/Automattic/jetpack-jitm/compare/v2.0.5...v2.0.6
+[2.0.5]: https://github.com/Automattic/jetpack-jitm/compare/v2.0.4...v2.0.5
 [2.0.4]: https://github.com/Automattic/jetpack-jitm/compare/v2.0.3...v2.0.4
 [2.0.3]: https://github.com/Automattic/jetpack-jitm/compare/v2.0.2...v2.0.3
 [2.0.2]: https://github.com/Automattic/jetpack-jitm/compare/v2.0.1...v2.0.2

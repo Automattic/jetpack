@@ -110,13 +110,14 @@ class Plugin {
 	/**
 	 * Get instances for all known plugins.
 	 *
-	 * @param bool $no_cache Set true to bypass the transients cache.
+	 * @param bool $bypass_cache Set true to bypass the transients cache.
+	 *
 	 * @return Plugin[]
 	 * @throws PluginDataException If the plugin data cannot be fetched or is invalid.
 	 */
-	public static function get_all_plugins( $no_cache = false ) {
+	public static function get_all_plugins( $bypass_cache = false ) {
 		if ( null === self::$instances ) {
-			$data = Utils::get_remote_data( JETPACK_BETA_PLUGINS_URL, 'plugins_json', $no_cache );
+			$data = Utils::get_remote_data( JETPACK_BETA_PLUGINS_URL, 'plugins_json', $bypass_cache );
 			if ( ! is_object( $data ) ) {
 				throw new PluginDataException( __( 'Failed to download list of plugins. Check your Internet connection.', 'jetpack-beta' ) );
 			}
@@ -169,13 +170,16 @@ class Plugin {
 	 * Get a map of plugin files.
 	 *
 	 * @return string[] Map from dev to non-dev plugin files, and vice versa.
-	 * @throws PluginDataException If the plugin data cannot be fetched or is invalid.
 	 */
 	public static function get_plugin_file_map() {
 		if ( null === self::$file_map ) {
 			self::$file_map = get_option( 'jetpack_beta_plugin_file_map', null );
 			if ( null === self::$file_map ) {
-				self::get_all_plugins();
+				try {
+					self::get_all_plugins();
+				} catch ( PluginDataException $ex ) {
+					return array();
+				}
 			}
 		}
 		return self::$file_map;

@@ -1,12 +1,12 @@
 /**
  * External dependencies
  */
-import api from '../api/api';
 import { derived, writable } from 'svelte/store';
 
 /**
  * Internal dependencies
  */
+import api from '../api/api';
 import type { JSONObject } from '../utils/json-types';
 import type { ProviderKeyUrls, ProvidersSuccessRatio } from '../utils/generate-critical-css';
 import type { Viewport } from '../utils/types';
@@ -47,6 +47,7 @@ export interface CriticalCssStatus {
 const success = 'success';
 const fail = 'fail';
 
+// eslint-disable-next-line camelcase
 const initialState = Jetpack_Boost.criticalCssStatus || {
 	generating: false,
 	progress: 0,

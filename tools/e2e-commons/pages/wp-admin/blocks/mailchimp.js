@@ -1,7 +1,8 @@
-import { LoginPage, ConnectionsPage } from '../../wpcom';
-import logger from '../../../logger';
-import PageActions from '../../page-actions';
+import { LoginPage, ConnectionsPage } from '../../wpcom/index.js';
+import logger from '../../../logger.cjs';
+import PageActions from '../../page-actions.js';
 import axios from 'axios';
+import { resolveSiteUrl } from '../../../helpers/utils-helper.cjs';
 
 export default class MailchimpBlock extends PageActions {
 	constructor( blockId, page ) {
@@ -98,7 +99,7 @@ export default class MailchimpBlock extends PageActions {
 	async isMailchimpConnected() {
 		let connectionStatus = '';
 		try {
-			const url = `${ siteUrl }/index.php?rest_route=/wpcom/v2/mailchimp&_locale=user`;
+			const url = `${ resolveSiteUrl() }/index.php?rest_route=/wpcom/v2/mailchimp&_locale=user`;
 			const res = await axios.get( url );
 			logger.debug( JSON.stringify( res.data ) );
 			connectionStatus = res.data.code;

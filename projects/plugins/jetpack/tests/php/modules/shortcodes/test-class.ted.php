@@ -31,7 +31,7 @@ class WP_Test_Jetpack_Shortcodes_Ted extends WP_UnitTestCase {
 			return $response;
 		}
 
-		$oembed_query = wp_parse_url( $url, PHP_URL_QUERY );
+		$oembed_query      = wp_parse_url( $url, PHP_URL_QUERY );
 		$oembed_query_args = null;
 		wp_parse_str( $oembed_query, $oembed_query_args );
 		if ( ! isset( $oembed_query_args['maxheight'], $oembed_query_args['maxwidth'], $oembed_query_args['url'], $oembed_query_args['lang'] ) ) {
@@ -39,7 +39,7 @@ class WP_Test_Jetpack_Shortcodes_Ted extends WP_UnitTestCase {
 		}
 
 		switch ( $oembed_query_args['lang'] ) {
-			case 'en' :
+			case 'en':
 				$body = <<<BODY
 {
   "type": "video",
@@ -61,7 +61,7 @@ class WP_Test_Jetpack_Shortcodes_Ted extends WP_UnitTestCase {
 }
 BODY;
 				break;
-			case 'fr' :
+			case 'fr':
 				$body = <<<BODY
 {
   "type": "video",
@@ -83,7 +83,7 @@ BODY;
 }
 BODY;
 				break;
-			default :
+			default:
 				return new WP_Error( 'unexpected-http-request', 'Test is making an unexpected HTTP request.' );
 		}
 
@@ -91,7 +91,7 @@ BODY;
 			'response' => array(
 				'code' => 200,
 			),
-			'body' => $body,
+			'body'     => $body,
 		);
 	}
 
@@ -123,21 +123,23 @@ BODY;
 	 * @since 3.2
 	 */
 	public function test_shortcodes_ted_id() {
-		$ted_id = '1969';
+		$ted_id  = '1969';
 		$content = '[ted id=' . $ted_id . ']';
 
-		$post_id = $this->factory->post->create( array(
-			'post-content' => $content
-		) );
+		$post_id = $this->factory->post->create(
+			array(
+				'post-content' => $content,
+			)
+		);
 
-		$GLOBALS[ 'post' ] = get_post( $post_id );
+		$GLOBALS['post'] = get_post( $post_id );
 
 		$shortcode_content = do_shortcode( $content );
 
 		$this->assertStringContainsString( 'ted.com/talks/louie_schwartzberg_hidden_miracles_of_the_natural_world', $shortcode_content );
 		$this->assertStringContainsString( 'sandbox="allow-popups allow-scripts allow-same-origin"', $shortcode_content );
 
-		unset( $GLOBALS[ 'post' ] );
+		unset( $GLOBALS['post'] );
 	}
 
 	/**
@@ -146,22 +148,24 @@ BODY;
 	 * @since 3.2
 	 */
 	public function test_shortcodes_ted_width_height() {
-		$ted_id = '1969';
-		$width = '560';
-		$height = '315';
+		$ted_id  = '1969';
+		$width   = '560';
+		$height  = '315';
 		$content = '[ted id=' . $ted_id . ' width=' . $width . ' height=' . $height . ']';
 
-		$post_id = $this->factory->post->create( array(
-			'post-content' => $content
-		) );
-		$GLOBALS[ 'post' ] = get_post( $post_id );
+		$post_id         = $this->factory->post->create(
+			array(
+				'post-content' => $content,
+			)
+		);
+		$GLOBALS['post'] = get_post( $post_id );
 
 		$shortcode_content = do_shortcode( $content );
 
 		$this->assertStringContainsString( 'width="' . $width . '"', $shortcode_content );
 		$this->assertStringContainsString( 'height="' . $height . '"', $shortcode_content );
 
-		unset( $GLOBALS[ 'post' ] );
+		unset( $GLOBALS['post'] );
 	}
 
 	/**
@@ -170,20 +174,22 @@ BODY;
 	 * @since 3.2
 	 */
 	public function test_shortcodes_ted_lang() {
-		$ted_id = '1969';
-		$lang = 'fr';
+		$ted_id  = '1969';
+		$lang    = 'fr';
 		$content = '[ted id=' . $ted_id . ' lang=' . $lang . ']';
 
-		$post_id = $this->factory->post->create( array(
-			'post-content' => $content
-		) );
-		$GLOBALS[ 'post' ] = get_post( $post_id );
+		$post_id         = $this->factory->post->create(
+			array(
+				'post-content' => $content,
+			)
+		);
+		$GLOBALS['post'] = get_post( $post_id );
 
 		$shortcode_content = do_shortcode( $content );
 
 		$this->assertStringContainsString( '/lang/' . $lang . '/', $shortcode_content );
 
-		unset( $GLOBALS[ 'post' ] );
+		unset( $GLOBALS['post'] );
 	}
 
 	/**
@@ -196,19 +202,21 @@ BODY;
 	 * @since 7.4.0
 	 */
 	public function test_shortcodes_ted_id_via_oembed_http_request() {
-		$ted_id = '1969';
+		$ted_id  = '1969';
 		$content = '[ted id=' . $ted_id . ']';
 
-		$post_id = $this->factory->post->create( array(
-			'post-content' => $content
-		) );
+		$post_id = $this->factory->post->create(
+			array(
+				'post-content' => $content,
+			)
+		);
 
-		$GLOBALS[ 'post' ] = get_post( $post_id );
+		$GLOBALS['post'] = get_post( $post_id );
 
 		$shortcode_content = do_shortcode( $content );
 
 		$this->assertStringContainsString( 'ted.com/talks/louie_schwartzberg_hidden_miracles_of_the_natural_world', $shortcode_content );
 
-		unset( $GLOBALS[ 'post' ] );
+		unset( $GLOBALS['post'] );
 	}
 }

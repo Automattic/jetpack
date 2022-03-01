@@ -2,9 +2,9 @@
 
 use Automattic\Jetpack\Connection\Manager as Connection_Manager;
 use Automattic\Jetpack\Constants;
-use Automattic\Jetpack\Assets;
 use Automattic\Jetpack\Partner;
 use Automattic\Jetpack\Status;
+use Automattic\Jetpack\Status\Cache as StatusCache;
 
 // Extend with a public constructor so that can be mocked in tests
 class MockJetpack extends Jetpack {
@@ -46,17 +46,43 @@ class MockJetpack_XMLRPC_Server extends Jetpack_XMLRPC_Server {
 	}
 }
 
+/**
+ * Tests for the Jetpack monolith-class.
+ *
+ * @covers Jetpack
+ */
 class WP_Test_Jetpack extends WP_UnitTestCase {
 
 	static $admin_id = 0;
 
+	/**
+	 * Activated modules.
+	 *
+	 * @var array
+	 */
 	static $activated_modules = array();
+
+	/**
+	 * Deactivated modules.
+	 *
+	 * @var array
+	 */
 	static $deactivated_modules = array();
 
 	public static function wpSetupBeforeClass() {
-		self::$admin_id = self::factory()->user->create( array(
-			'role' => 'administrator',
-		) );
+		self::$admin_id = self::factory()->user->create(
+			array(
+				'role' => 'administrator',
+			)
+		);
+	}
+
+	/**
+	 * Set up.
+	 */
+	public function set_up() {
+		parent::set_up();
+		StatusCache::clear();
 	}
 
 	/**
@@ -65,6 +91,7 @@ class WP_Test_Jetpack extends WP_UnitTestCase {
 	public function tear_down() {
 		parent::tear_down();
 		Constants::clear_constants();
+		StatusCache::clear();
 	}
 
 	/**
@@ -77,7 +104,6 @@ class WP_Test_Jetpack extends WP_UnitTestCase {
 
 	/**
 	 * @author blobaugh
-	 * @covers Jetpack::init
 	 * @since 2.3.3
 	 */
 	public function test_init() {
@@ -86,7 +112,6 @@ class WP_Test_Jetpack extends WP_UnitTestCase {
 
 	/**
 	 * @author enkrates
-	 * @covers Jetpack::sort_modules
 	 * @since 3.2
 	 */
 	public function test_sort_modules_with_equal_sort_values() {
@@ -101,7 +126,6 @@ class WP_Test_Jetpack extends WP_UnitTestCase {
 
 	/**
 	 * @author enkrates
-	 * @covers Jetpack::sort_modules
 	 * @since 3.2
 	 */
 	public function test_sort_modules_with_different_sort_values() {
@@ -109,7 +133,7 @@ class WP_Test_Jetpack extends WP_UnitTestCase {
 		$first_file  = array( 'sort' => 10 );
 		$second_file = array( 'sort' => 5 );
 
-		$sort_value = Jetpack::sort_modules( $first_file, $second_file );
+		$sort_value          = Jetpack::sort_modules( $first_file, $second_file );
 		$reversed_sort_value = Jetpack::sort_modules( $second_file, $first_file );
 
 		$this->assertEquals( 1, $sort_value );
@@ -118,7 +142,6 @@ class WP_Test_Jetpack extends WP_UnitTestCase {
 
 	/**
 	 * @author georgestephanis
-	 * @covers Jetpack::absolutize_css_urls
 	 */
 	public function test_absolutize_css_urls_properly_handles_use_cases() {
 
@@ -173,7 +196,6 @@ EXPECTED;
 
 	/*
 	 * @author tonykova
-	 * @covers Jetpack::implode_frontend_css
 	 */
 	public function test_implode_frontend_css_enqueues_bundle_file_handle() {
 		global $wp_styles;
@@ -206,7 +228,6 @@ EXPECTED;
 
 	/**
 	 * @author tonykova
-	 * @covers Jetpack::implode_frontend_css
 	 * @since 3.2.0
 	 */
 	public function test_implode_frontend_css_does_not_enqueue_bundle_when_disabled_through_filter() {
@@ -244,7 +265,7 @@ EXPECTED;
 		Jetpack::update_active_modules( array( 'json-api' ) );
 
 		$this->assertEquals( self::$activated_modules, array( 'stats', 'json-api' ) );
-		$this->assertEquals(  self::$deactivated_modules, array( 'stats' ) );
+		$this->assertEquals( self::$deactivated_modules, array( 'stats' ) );
 
 		remove_action( 'jetpack_activate_module', array( __CLASS__, 'track_activated_modules' ) );
 		remove_action( 'jetpack_deactivate_module', array( __CLASS__, 'track_deactivated_modules' ) );
@@ -261,10 +282,32 @@ EXPECTED;
 		Jetpack::update_active_modules( array( 'json-api' ) );
 
 		$this->assertEquals( self::$activated_modules, array( 'stats' ) );
-		$this->assertEquals(  self::$deactivated_modules, array( 'stats' ) );
+		$this->assertEquals( self::$deactivated_modules, array( 'stats' ) );
 
 		remove_action( 'jetpack_activate_module_stats', array( __CLASS__, 'track_activated_modules' ) );
 		remove_action( 'jetpack_deactivate_module_stats', array( __CLASS__, 'track_deactivated_modules' ) );
+	}
+	/**
+	 * Test Jetpack::update_active_modules with pre_update_option_jetpack_active_modules filter.
+	 *
+	 * @author fgiannar
+	 */
+	public function test_activating_deactivating_modules_with_pre_update_filter() {
+		self::reset_tracking_of_module_activation();
+
+		add_action( 'jetpack_activate_module', array( __CLASS__, 'track_activated_modules' ) );
+		add_action( 'jetpack_deactivate_module', array( __CLASS__, 'track_deactivated_modules' ) );
+		add_filter( 'pre_update_option_jetpack_active_modules', array( __CLASS__, 'filter_pre_update_option_jetpack_active_modules' ), 10, 2 );
+
+		Jetpack::update_active_modules( array( 'json-api' ) );
+		Jetpack::update_active_modules( array( 'json-api' ) );
+
+		$this->assertEquals( self::$activated_modules, array( 'json-api', 'stats' ) );
+		$this->assertEmpty( self::$deactivated_modules );
+
+		remove_filter( 'pre_update_option_jetpack_active_modules', array( __CLASS__, 'filter_pre_update_option_jetpack_active_modules' ) );
+		remove_action( 'jetpack_activate_module', array( __CLASS__, 'track_activated_modules' ) );
+		remove_action( 'jetpack_deactivate_module', array( __CLASS__, 'track_deactivated_modules' ) );
 	}
 
 	public function test_active_modules_filter_restores_state() {
@@ -276,22 +319,22 @@ EXPECTED;
 
 		Jetpack::update_active_modules( array( 'monitor' ) );
 		$this->assertEquals( self::$activated_modules, array( 'monitor' ) );
-		$this->assertEquals(  self::$deactivated_modules, array() );
+		$this->assertEquals( self::$deactivated_modules, array() );
 
 		// Simce we override the 'monitor' module, verify it does not appear in get_active_modules().
 		$active_modules = Jetpack::get_active_modules();
-		$this->assertEquals(  $active_modules, array() );
+		$this->assertEquals( $active_modules, array() );
 
 		// Verify that activating a new module does not deactivate 'monitor' module.
 		Jetpack::update_active_modules( array( 'stats' ) );
-		$this->assertEquals( self::$activated_modules, array( 'monitor', 'stats') );
-		$this->assertEquals(  self::$deactivated_modules, array() );
+		$this->assertEquals( self::$activated_modules, array( 'monitor', 'stats' ) );
+		$this->assertEquals( self::$deactivated_modules, array() );
 
 		remove_filter( 'jetpack_active_modules', array( __CLASS__, 'e2e_test_filter' ) );
 
 		// With the module override filter removed, verify that monitor module appears in get_active_modules().
 		$active_modules = Jetpack::get_active_modules();
-		$this->assertEquals(  $active_modules, array( 'monitor', 'stats' ) );
+		$this->assertEquals( $active_modules, array( 'monitor', 'stats' ) );
 	}
 
 	 // This filter overrides the 'monitor' module.
@@ -317,14 +360,17 @@ EXPECTED;
 
 	public function test_get_other_linked_admins_more_than_one_not_false() {
 		delete_transient( 'jetpack_other_linked_admins' );
-		$master_user = $this->factory->user->create( array( 'role' => 'administrator' ) );
+		$master_user     = $this->factory->user->create( array( 'role' => 'administrator' ) );
 		$connected_admin = $this->factory->user->create( array( 'role' => 'administrator' ) );
 
 		Jetpack_Options::update_option( 'master_user', $master_user );
-		Jetpack_Options::update_option( 'user_tokens', array(
-			$connected_admin => 'apple.a.' . $connected_admin,
-			$master_user     => 'kiwi.a.' . $master_user
-		) );
+		Jetpack_Options::update_option(
+			'user_tokens',
+			array(
+				$connected_admin => 'apple.a.' . $connected_admin,
+				$master_user     => 'kiwi.a.' . $master_user,
+			)
+		);
 
 		$other_admins = Jetpack::get_other_linked_admins();
 		$this->assertIsInt( $other_admins );
@@ -334,7 +380,12 @@ EXPECTED;
 	public function test_promoting_admin_clears_other_linked_admins_transient() {
 		set_transient( 'jetpack_other_linked_admins', 2, HOUR_IN_SECONDS );
 		$editor_user = $this->factory->user->create( array( 'role' => 'editor' ) );
-		wp_update_user( array( 'ID' => $editor_user, 'role' => 'administrator' ) );
+		wp_update_user(
+			array(
+				'ID'   => $editor_user,
+				'role' => 'administrator',
+			)
+		);
 
 		$this->assertFalse( get_transient( 'jetpack_other_linked_admins' ) );
 	}
@@ -342,7 +393,12 @@ EXPECTED;
 	public function test_demoting_admin_clear_other_linked_admins_transiet() {
 		set_transient( 'jetpack_other_linked_admins', 2, HOUR_IN_SECONDS );
 		$admin_user = $this->factory->user->create( array( 'role' => 'administrator' ) );
-		wp_update_user( array( 'ID' => $admin_user, 'role' => 'editor' ) );
+		wp_update_user(
+			array(
+				'ID'   => $admin_user,
+				'role' => 'editor',
+			)
+		);
 
 		$this->assertFalse( get_transient( 'jetpack_other_linked_admins' ) );
 	}
@@ -350,7 +406,12 @@ EXPECTED;
 	public function test_null_old_roles_clears_linked_admins_transient() {
 		set_transient( 'jetpack_other_linked_admins', 2, HOUR_IN_SECONDS );
 		$admin_user = $this->factory->user->create( array( 'role' => 'administrator' ) );
-		wp_update_user( array( 'ID' => $admin_user, 'role' => 'editor' ) );
+		wp_update_user(
+			array(
+				'ID'   => $admin_user,
+				'role' => 'editor',
+			)
+		);
 
 		/** This action is documented in wp-includes/class-wp-user.php */
 		do_action( 'set_user_role', $admin_user, 'contributor' );
@@ -363,7 +424,12 @@ EXPECTED;
 		$user_id = $this->factory->user->create( array( 'role' => 'subscriber' ) );
 
 		foreach ( array( 'contributor', 'author', 'editor' ) as $role ) {
-			wp_update_user( array( 'ID' => $user_id, 'role' => $role) );
+			wp_update_user(
+				array(
+					'ID'   => $user_id,
+					'role' => $role,
+				)
+			);
 		}
 
 		$this->assertEquals( 2, get_transient( 'jetpack_other_linked_admins' ) );
@@ -401,8 +467,6 @@ EXPECTED;
 
 	/**
 	 * Tests is_offline_mode filter.
-	 *
-	 * @covers \Automattic\Jetpack\Status::is_offline_mode
 	 */
 	public function test_is_offline_mode_filter() {
 		add_filter( 'jetpack_offline_mode', '__return_true' );
@@ -412,8 +476,6 @@ EXPECTED;
 
 	/**
 	 * Tests is_offline_mode filter's bool type casting.
-	 *
-	 * @covers \Automattic\Jetpack\Status::is_offline_mode
 	 */
 	public function test_is_offline_mode_bool() {
 		add_filter( 'jetpack_offline_mode', '__return_zero' );
@@ -422,39 +484,39 @@ EXPECTED;
 	}
 
 	function test_normalize_url_protocol_agnostic_strips_protocol_and_www_for_subdir_subdomain() {
-		$url = 'https://www.subdomain.myfaketestsite.com/what';
+		$url            = 'https://www.subdomain.myfaketestsite.com/what';
 		$url_normalized = Jetpack::normalize_url_protocol_agnostic( $url );
 		$this->assertTrue( 'subdomain.myfaketestsite.com/what/' === $url_normalized );
 
-		$url = 'http://subdomain.myfaketestsite.com';
+		$url            = 'http://subdomain.myfaketestsite.com';
 		$url_normalized = Jetpack::normalize_url_protocol_agnostic( $url );
 		$this->assertTrue( 'subdomain.myfaketestsite.com/' === $url_normalized );
 
-		$url = 'www.subdomain.myfaketestsite.com';
+		$url            = 'www.subdomain.myfaketestsite.com';
 		$url_normalized = Jetpack::normalize_url_protocol_agnostic( $url );
 		$this->assertTrue( 'subdomain.myfaketestsite.com/' === $url_normalized );
 	}
 
 	function test_normalize_url_protocol_agnostic_strips_protocol_and_www_for_normal_urls() {
-		$url = 'https://www.myfaketestsite.com';
+		$url            = 'https://www.myfaketestsite.com';
 		$url_normalized = Jetpack::normalize_url_protocol_agnostic( $url );
 		$this->assertTrue( 'myfaketestsite.com/' === $url_normalized );
 
-		$url = 'www.myfaketestsite.com';
+		$url            = 'www.myfaketestsite.com';
 		$url_normalized = Jetpack::normalize_url_protocol_agnostic( $url );
 		$this->assertTrue( 'myfaketestsite.com/' === $url_normalized );
 
-		$url = 'myfaketestsite.com';
+		$url            = 'myfaketestsite.com';
 		$url_normalized = Jetpack::normalize_url_protocol_agnostic( $url );
 		$this->assertTrue( 'myfaketestsite.com/' === $url_normalized );
 	}
 
 	function test_normalize_url_protocol_agnostic_strips_protocol_for_ip() {
-		$url = 'http://123.456.789.0';
+		$url            = 'http://123.456.789.0';
 		$url_normalized = Jetpack::normalize_url_protocol_agnostic( $url );
 		$this->assertTrue( '123.456.789.0/' === $url_normalized );
 
-		$url = '123.456.789.0';
+		$url            = '123.456.789.0';
 		$url_normalized = Jetpack::normalize_url_protocol_agnostic( $url );
 		$this->assertTrue( '123.456.789.0/' === $url_normalized );
 	}
@@ -468,9 +530,9 @@ EXPECTED;
 	 * - other
 	 */
 	function test_get_activation_source() {
-		$plugins_url = admin_url( 'plugins.php' );
+		$plugins_url        = admin_url( 'plugins.php' );
 		$plugin_install_url = admin_url( 'plugin-install.php' );
-		$unknown_url = admin_url( 'unknown.php' );
+		$unknown_url        = admin_url( 'unknown.php' );
 
 		$this->assertEquals( array( 'list', null ), Jetpack::get_activation_source( $plugins_url . '?plugin_status=all&paged=1&s' ) );
 		$this->assertEquals( array( 'featured', null ), Jetpack::get_activation_source( $plugin_install_url ) );
@@ -485,16 +547,19 @@ EXPECTED;
 
 	/**
 	 * @author tyxla
-	 * @covers Jetpack::get_assumed_site_creation_date()
 	 */
 	function test_get_assumed_site_creation_date_user_earliest() {
-		$user_id = $this->factory->user->create( array(
-			'role'            => 'administrator',
-			'user_registered' => '1990-01-01 00:00:00',
-		) );
-		$post_id = $this->factory->post->create( array(
-			'post_date' => '1995-01-01 00:00:00',
-		) );
+		$user_id = $this->factory->user->create(
+			array(
+				'role'            => 'administrator',
+				'user_registered' => '1990-01-01 00:00:00',
+			)
+		);
+		$post_id = $this->factory->post->create(
+			array(
+				'post_date' => '1995-01-01 00:00:00',
+			)
+		);
 
 		$jetpack = new MockJetpack();
 		$this->assertEquals( '1990-01-01 00:00:00', $jetpack::connection()->get_assumed_site_creation_date() );
@@ -505,16 +570,19 @@ EXPECTED;
 
 	/**
 	 * @author tyxla
-	 * @covers Jetpack::get_assumed_site_creation_date()
 	 */
 	function test_get_assumed_site_creation_date_post_earliest() {
-		$user_id = $this->factory->user->create( array(
-			'role'            => 'administrator',
-			'user_registered' => '1994-01-01 00:00:00',
-		) );
-		$post_id = $this->factory->post->create( array(
-			'post_date' => '1991-01-01 00:00:00',
-		) );
+		$user_id = $this->factory->user->create(
+			array(
+				'role'            => 'administrator',
+				'user_registered' => '1994-01-01 00:00:00',
+			)
+		);
+		$post_id = $this->factory->post->create(
+			array(
+				'post_date' => '1991-01-01 00:00:00',
+			)
+		);
 
 		$jetpack = new MockJetpack();
 		$this->assertEquals( '1991-01-01 00:00:00', $jetpack::connection()->get_assumed_site_creation_date() );
@@ -525,17 +593,20 @@ EXPECTED;
 
 	/**
 	 * @author tyxla
-	 * @covers Jetpack::get_assumed_site_creation_date()
 	 */
 	function test_get_assumed_site_creation_date_only_admins() {
-		$admin_id = $this->factory->user->create( array(
-			'role'            => 'administrator',
-			'user_registered' => '1994-01-01 00:00:00',
-		) );
-		$editor_id = $this->factory->user->create( array(
-			'role'            => 'editor',
-			'user_registered' => '1992-01-01 00:00:00',
-		) );
+		$admin_id  = $this->factory->user->create(
+			array(
+				'role'            => 'administrator',
+				'user_registered' => '1994-01-01 00:00:00',
+			)
+		);
+		$editor_id = $this->factory->user->create(
+			array(
+				'role'            => 'editor',
+				'user_registered' => '1992-01-01 00:00:00',
+			)
+		);
 
 		$jetpack = new MockJetpack();
 		$this->assertEquals( '1994-01-01 00:00:00', $jetpack::connection()->get_assumed_site_creation_date() );
@@ -558,19 +629,19 @@ EXPECTED;
 
 	function get_file_url_for_environment_data_provider() {
 		return array(
-			'script-debug-true' => array(
+			'script-debug-true'  => array(
 				'_inc/build/shortcodes/js/recipes.js',
 				'modules/shortcodes/js/recipes.js',
 				true,
 				'non_min_path',
-				'min_path'
+				'min_path',
 			),
 			'script-debug-false' => array(
 				'_inc/build/shortcodes/js/recipes.js',
 				'modules/shortcodes/js/recipes.js',
 				false,
 				'min_path',
-				'non_min_path'
+				'non_min_path',
 			),
 		);
 	}
@@ -585,21 +656,21 @@ EXPECTED;
 
 	public function get_content_width_data() {
 		return array(
-			'zero' => array(
+			'zero'                  => array(
 				0,
 				0,
 			),
-			'int' => array(
+			'int'                   => array(
 				100,
 				100,
 			),
-			'numeric_string' => array(
+			'numeric_string'        => array(
 				'100',
 				'100',
 			),
-			'non_numeric_string' => array(
+			'non_numeric_string'    => array(
 				false,
-				'meh'
+				'meh',
 			),
 			'content_width_not_set' => array(
 				false,
@@ -665,6 +736,22 @@ EXPECTED;
 	 */
 	public static function track_deactivated_modules( $module ) {
 		self::$deactivated_modules[] = $module;
+	}
+
+	/**
+	 * Hooks the WP pre_update filter on the jetpack_active_modules option to
+	 * add 'stats' module to the array.
+	 *
+	 * @param array $modules An array of Jetpack module slugs.
+	 *
+	 * @return array An array of Jetpack module slugs
+	 */
+	public static function filter_pre_update_option_jetpack_active_modules( $modules ) {
+		$modules = array_merge( $modules, array( 'stats' ) );
+		$modules = array_unique( $modules );
+		$modules = array_values( $modules );
+
+		return $modules;
 	}
 
 	/**
@@ -1060,7 +1147,6 @@ EXPECTED;
 	 * @param string  $set_screen The $current_screen->base test value.
 	 * @param boolean $expected_output The expected output of Jetpack::should_set_cookie().
 	 *
-	 * @covers Jetpack::should_set_cookie
 	 * @dataProvider should_set_cookie_provider
 	 */
 	public function test_should_set_cookie( $key, $set_screen, $expected_output ) {
@@ -1115,5 +1201,16 @@ EXPECTED;
 		add_filter( 'jetpack_bail_on_shortcode', '__return_false' );
 		Jetpack::init()->deprecated_hooks();
 		remove_filter( 'jetpack_bail_on_shortcode', '__return_false' );
+	}
+
+	/**
+	 * Testing that the 'jetpack_version' option will be removed when Jetpack is deactivated.
+	 *
+	 * @group jetpack_deactivation
+	 */
+	public function test_jetpack_version_removed_on_jetpack_deactivation() {
+		Jetpack_Options::update_option( 'version', '10.5' );
+		Jetpack::plugin_deactivation();
+		$this->assertFalse( Jetpack_Options::get_option( 'version' ) );
 	}
 } // end class

@@ -7,6 +7,7 @@
 
 use Automattic\Jetpack\Assets;
 use Automattic\Jetpack\Assets\Logo as Jetpack_Logo;
+use Automattic\Jetpack\Identity_Crisis;
 use Automattic\Jetpack\Tracking;
 
 /**
@@ -89,6 +90,10 @@ class Jetpack_Recommendations_Banner {
 			),
 			true
 		) ) {
+			return false;
+		}
+
+		if ( Identity_Crisis::has_identity_crisis() ) {
 			return false;
 		}
 

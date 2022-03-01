@@ -1,7 +1,7 @@
 {
 	"name": "automattic/jetpack-compat",
 	"description": "Compatibility layer with previous versions of Jetpack",
-	"type": "library",
+	"type": "jetpack-library",
 	"license": "GPL-2.0-or-later",
 	"require": {},
 	"require-dev": {

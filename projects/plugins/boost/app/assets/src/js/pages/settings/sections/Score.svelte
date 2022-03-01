@@ -1,4 +1,7 @@
 <script>
+	/**
+	 * Internal dependencies
+	 */
 	import ComputerIcon from '../../../svg/computer.svg';
 	import MobileIcon from '../../../svg/mobile.svg';
 	import RefreshIcon from '../../../svg/refresh.svg';
@@ -12,12 +15,17 @@
 		getScoreImprovementPercentage,
 	} from '../../../api/speed-scores';
 	import debounce from '../../../utils/debounce';
-	import { __ } from '@wordpress/i18n';
 	import { criticalCssStatus } from '../../../stores/critical-css-status';
 	import { modules } from '../../../stores/modules';
 	import { derived, writable } from 'svelte/store';
 	import RatingCard from '../elements/RatingCard.svelte';
 
+	/**
+	 * WordPress dependencies
+	 */
+	import { __ } from '@wordpress/i18n';
+
+	// eslint-disable-next-line camelcase
 	const siteIsOnline = Jetpack_Boost.site.online;
 
 	let loadError;
@@ -83,6 +91,7 @@
 			showPrevScores = didScoresImprove( $scores ) && ! $scores.isStale;
 			currentScoreConfigString = $scoreConfigString;
 		} catch ( err ) {
+			// eslint-disable-next-line no-console
 			console.log( err );
 			loadError = err;
 		} finally {
@@ -90,11 +99,13 @@
 		}
 	}
 
+	// noinspection JSUnusedLocalSymbols
 	/**
 	 * A store that checks the speed score needs a refresh.
 	 */
 	const needRefresh = derived(
 		[ criticalCssStatus, modulesInSync, scoreConfigString, scores ],
+		// eslint-disable-next-line no-shadow
 		( [ $criticalCssStatus, $modulesInSync, $scoreConfigString, $scores ] ) => {
 			return (
 				! $criticalCssStatus.generating &&
@@ -110,10 +121,12 @@
 		}
 	}, 2000 );
 
+	// eslint-disable-next-line camelcase
 	const respawnRatingPrompt = writable( Jetpack_Boost.preferences.showRatingPrompt );
 
 	const showRatingCard = derived(
 		[ scores, respawnRatingPrompt, isLoading ],
+		// eslint-disable-next-line no-shadow
 		( [ $scores, $respawnRatingPrompt, $isLoading ] ) =>
 			didScoresImprove( $scores ) && $respawnRatingPrompt && ! $isLoading && ! $scores.isStale
 	);

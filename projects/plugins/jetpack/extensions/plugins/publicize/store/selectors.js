@@ -10,7 +10,6 @@ import createSelector from 'rememo';
 import { select } from '@wordpress/data';
 import { __ } from '@wordpress/i18n';
 import { store as editorStore } from '@wordpress/editor';
-
 /**
  * Internal dependencies
  */
@@ -258,21 +257,15 @@ export function getShareMessage() {
 	const meta = getEditedPostAttribute( 'meta' );
 	const postTitle = getEditedPostAttribute( 'title' );
 	const message = get( meta, [ 'jetpack_publicize_message' ], '' );
-	const hasEditedShareMessage = get( meta, [ 'jetpack_publicize_hasEditedShareMessage' ], false );
 
 	if ( message ) {
 		return message.substr( 0, getShareMessageMaxLength() );
 	}
 
-	if ( hasEditedShareMessage && message === '' ) {
-		return '';
-	}
-
-	if ( postTitle ) {
-		return (
-			postTitle.substr( 0, getShareMessageMaxLength() ) +
-			( isTweetStorm() ? DEFAULT_TWEETSTORM_MESSAGE : '' )
-		);
+	if ( isTweetStorm() ) {
+		if ( postTitle ) {
+			return postTitle.substr( 0, getShareMessageMaxLength() ) + DEFAULT_TWEETSTORM_MESSAGE;
+		}
 	}
 
 	return '';

@@ -97,8 +97,6 @@ for FILE in projects/*/*/composer.json; do
 
 	if [[ -x vendor/bin/changelogger ]]; then
 		CHANGELOGGER=vendor/bin/changelogger
-	elif [[ "$DIR" == "projects/packages/changelogger" ]]; then
-		CHANGELOGGER=bin/changelogger
 	elif jq -e '.["require"]["automattic/jetpack-changelogger"] // .["require-dev"]["automattic/jetpack-changelogger"] // false' composer.json > /dev/null; then
 		CHANGELOGGER="$BASE/projects/packages/changelogger/bin/changelogger"
 	else

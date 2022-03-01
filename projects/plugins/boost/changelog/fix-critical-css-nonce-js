@@ -1,4 +1,0 @@
-Significance: patch
-Type: fixed
-
-Make sure that the Critical CSS Nonce for dismissing recommendations is always available in the settings page

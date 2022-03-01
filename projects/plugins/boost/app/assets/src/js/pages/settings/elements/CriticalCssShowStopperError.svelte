@@ -1,8 +1,19 @@
 <script>
+	/**
+	 * External dependencies
+	 */
 	import { slide } from 'svelte/transition';
+
+	/**
+	 * WordPress dependencies
+	 */
+	import { __ } from '@wordpress/i18n';
+
+	/**
+	 * Internal dependencies
+	 */
 	import { criticalCssStatus } from '../../../stores/critical-css-status';
 	import ErrorNotice from '../../../elements/ErrorNotice.svelte';
-	import { __ } from '@wordpress/i18n';
 	import FoldingElement from '../../../elements/FoldingElement.svelte';
 	import generateCriticalCss from '../../../utils/generate-critical-css';
 	import { primaryErrorSet } from '../../../stores/critical-css-recommendations';
@@ -45,7 +56,8 @@
 				{#if showingProviderError}
 					<CriticalCssErrorDescription
 						errorSet={$primaryErrorSet}
-						showSuggestion={false}
+						showSuggestion={true}
+						showClosingParagraph={false}
 						foldRawErrors={false}
 						on:retry={generateCriticalCss}
 					/>

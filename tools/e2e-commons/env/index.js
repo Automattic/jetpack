@@ -7,8 +7,8 @@ import {
 	ensureModulesState,
 	activateModules,
 	deactivateModules,
-} from './prerequisites';
-import { Plans } from './types';
+} from './prerequisites.js';
+import { Plans } from './types.js';
 
 export {
 	prerequisitesBuilder,

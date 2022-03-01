@@ -1,9 +1,9 @@
 import fs from 'fs';
 import path from 'path';
-import { execWpCommand } from 'jetpack-e2e-commons/helpers/utils-helper';
+import { execWpCommand } from 'jetpack-e2e-commons/helpers/utils-helper.cjs';
 import config from 'config';
-import logger from 'jetpack-e2e-commons/logger';
-import SearchHomepage from 'jetpack-e2e-commons/pages/search-homepage';
+import logger from 'jetpack-e2e-commons/logger.cjs';
+import { SearchHomepage } from 'jetpack-e2e-commons/pages/index.js';
 
 export async function enableInstantSearch() {
 	return execWpCommand( 'option update instant_search_enabled 1' );
@@ -15,6 +15,18 @@ export async function disableInstantSearch() {
 
 export async function setResultFormat( format = 'expanded' ) {
 	return execWpCommand( `option update jetpack_search_result_format ${ format }` );
+}
+
+export async function setTheme( theme = 'light' ) {
+	return execWpCommand( `option update jetpack_search_result_format ${ theme }` );
+}
+
+export async function setHighlightColor( color = '"#FFFFFF"' ) {
+	return execWpCommand( `option update jetpack_search_highlight_color ${ color }` );
+}
+
+export async function setDefaultSort( defaultSort = 'relevance' ) {
+	return execWpCommand( `option update jetpack_search_default_sort ${ defaultSort }` );
 }
 
 export async function getSidebarsWidgets() {

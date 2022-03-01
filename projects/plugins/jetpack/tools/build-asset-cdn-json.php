@@ -18,6 +18,7 @@ $regex     = new RegexIterator( $iterator, '/^.+\.(css|js)$/i', RecursiveRegexIt
 $ignore_paths = array(
 	'_inc/client/',
 	'extensions/',
+	'jetpack_vendor/',
 	'logs/',
 	'node_modules/',
 	'tests/',

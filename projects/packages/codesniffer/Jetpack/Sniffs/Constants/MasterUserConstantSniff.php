@@ -1,4 +1,9 @@
-<?php // phpcs:ignore WordPress.Files.FileName.NotHyphenatedLowercase
+<?php
+/**
+ * Sniffer that looks for JETPACK_MASTER_USER constant usage
+ *
+ * @package automattic/jetpack-codesniffer
+ */
 
 namespace Automattic\Jetpack\Sniffs\Constants;
 

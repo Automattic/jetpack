@@ -1,6 +1,6 @@
 <?php
 
-require dirname( __FILE__ ) . '/../../../../modules/related-posts.php';
+require __DIR__ . '/../../../../modules/related-posts.php';
 
 class WP_Test_Jetpack_RelatedPosts extends WP_UnitTestCase {
 
@@ -74,15 +74,25 @@ class WP_Test_Jetpack_RelatedPosts extends WP_UnitTestCase {
 			'size'            => null,
 		);
 
-		$this->assertEquals( $options_after_parse, Jetpack_RelatedPosts::init()->parse_options( array(
-			'enabled'   => false,
-			'show_date' => true,
-		) ) );
+		$this->assertEquals(
+			$options_after_parse,
+			Jetpack_RelatedPosts::init()->parse_options(
+				array(
+					'enabled'   => false,
+					'show_date' => true,
+				)
+			)
+		);
 
 		$options_after_parse['show_date'] = false;
-		$this->assertEquals( $options_after_parse, Jetpack_RelatedPosts::init()->parse_options( array(
-			'show_date' => false,
-		) ) );
+		$this->assertEquals(
+			$options_after_parse,
+			Jetpack_RelatedPosts::init()->parse_options(
+				array(
+					'show_date' => false,
+				)
+			)
+		);
 	}
 
 	/**

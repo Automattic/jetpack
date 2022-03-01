@@ -1,5 +1,5 @@
 <?php
-require_once( dirname( __FILE__ ) . '/../../../../modules/sso/class.jetpack-sso-helpers.php' );
+require_once __DIR__ . '/../../../../modules/sso/class.jetpack-sso-helpers.php';
 
 /**
  * Testing functions in Jetpack_SSO_Helpers class.

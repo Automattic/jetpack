@@ -1,0 +1,32 @@
+.apps-badge {
+	display: flex;
+	max-width: 135px;
+	max-height: 40px;
+	overflow: hidden;
+	margin: 0;
+
+	&:first-child {
+		margin-right: 8px;
+	}
+
+	img {
+		max-width: 100%;
+		/* Avoids image blur with scaling */
+		/* Firefox */
+		image-rendering: -moz-crisp-edges;
+		/* Opera */
+		image-rendering: -o-crisp-edges;
+		/* Webkit (non-standard naming) */
+		image-rendering: -webkit-optimize-contrast;
+		image-rendering: crisp-edges;
+		/* IE (non-standard property) */
+		-ms-interpolation-mode: nearest-neighbor;
+	}
+
+	// Crops the Android badge in order to remove the transparent space around it and generate a size-equivalent image
+	// to the iOS badge.
+	&.android-app-badge img {
+		transform: scale( 1.13 ) translate( -7px, -5.1px );
+		transform-origin: left;
+	}
+}

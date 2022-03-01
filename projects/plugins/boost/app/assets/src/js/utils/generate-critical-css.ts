@@ -1,5 +1,5 @@
 /**
- * External dependencies
+ * WordPress dependencies
  */
 import { __ } from '@wordpress/i18n';
 
@@ -76,12 +76,12 @@ export default async function generateCriticalCss(
 	hasGenerateRun = true;
 	let cancelling = false;
 
-	if ( reset ) {
-		await clearDismissedRecommendations();
-		updateGenerateStatus( true, 0 );
-	}
-
 	try {
+		if ( reset ) {
+			await clearDismissedRecommendations();
+			updateGenerateStatus( true, 0 );
+		}
+
 		// Fetch a list of provider keys and URLs while loading the Critical CSS lib.
 		const cssStatus = await requestGeneration( reset, isShowstopperRetry );
 

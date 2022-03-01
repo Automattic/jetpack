@@ -4,11 +4,11 @@
  * Plugin URI: https://jetpack.com
  * Description: Security, performance, and marketing tools made by WordPress experts. Jetpack keeps your site protected so you can focus on more important things.
  * Author: Automattic
- * Version: 10.4-a.0
+ * Version: 10.8-a.0
  * Author URI: https://jetpack.com
  * License: GPL2+
  * Text Domain: jetpack
- * Requires at least: 5.7
+ * Requires at least: 5.8
  * Requires PHP: 5.6
  *
  * @package automattic/jetpack
@@ -30,9 +30,9 @@ along with this program; if not, write to the Free Software
 Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 */
 
-define( 'JETPACK__MINIMUM_WP_VERSION', '5.7' );
+define( 'JETPACK__MINIMUM_WP_VERSION', '5.8' );
 define( 'JETPACK__MINIMUM_PHP_VERSION', '5.6' );
-define( 'JETPACK__VERSION', '10.4-a.0' );
+define( 'JETPACK__VERSION', '10.8-a.0' );
 
 /**
  * Constant used to fetch the connection owner token
@@ -139,6 +139,9 @@ $jetpack_autoloader           = JETPACK__PLUGIN_DIR . 'vendor/autoload_packages.
 $jetpack_module_headings_file = JETPACK__PLUGIN_DIR . 'modules/module-headings.php'; // This file is loaded later in load-jetpack.php, but let's check here to pause before half-loading Jetpack.
 if ( is_readable( $jetpack_autoloader ) && is_readable( $jetpack_module_headings_file ) ) {
 	require_once $jetpack_autoloader;
+	if ( method_exists( '\Automattic\Jetpack\Assets', 'alias_textdomains_from_file' ) ) {
+		\Automattic\Jetpack\Assets::alias_textdomains_from_file( JETPACK__PLUGIN_DIR . 'jetpack_vendor/i18n-map.php' );
+	}
 } else {
 	if ( defined( 'WP_DEBUG' ) && WP_DEBUG ) {
 		error_log( // phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_error_log

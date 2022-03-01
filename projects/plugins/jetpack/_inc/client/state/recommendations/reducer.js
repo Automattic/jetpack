@@ -1,7 +1,7 @@
 /**
  * External dependencies
  */
-import { __ } from '@wordpress/i18n';
+import { _x } from '@wordpress/i18n';
 import { combineReducers } from 'redux';
 import { assign, difference, get, isArray, isEmpty, mergeWith, union } from 'lodash';
 
@@ -283,13 +283,13 @@ export const getSiteTypeDisplayName = state => {
 
 	const siteTypeDisplayNamesByKey = {
 		/* translators: A name for a website that sells things */
-		'site-type-store': __( 'store', 'jetpack' ),
+		'site-type-store': _x( 'store', 'Site type display name', 'jetpack' ),
 		/* translators: A name for a website for a business */
-		'site-type-business': __( 'business site', 'jetpack' ),
+		'site-type-business': _x( 'business site', 'Site type display name', 'jetpack' ),
 		/* translators: A name for a website for personal use */
-		'site-type-personal': __( 'personal site', 'jetpack' ),
+		'site-type-personal': _x( 'personal site', 'Site type display name', 'jetpack' ),
 		/* translators: A generic name for a website */
-		'site-type-other': __( 'site', 'jetpack' ),
+		'site-type-other': _x( 'site', 'Site type display name', 'jetpack' ),
 	};
 
 	for ( const key of siteTypeKeysInPreferenceOrder ) {

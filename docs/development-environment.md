@@ -110,7 +110,7 @@ You'll need all the tools below to work in the Jetpack monorepo.
 
 	Composer is a PHP package manager and it's used to install packages that are required to run development tools and build projects.
 
-	The monorepo requires version 2.0.x.
+	The monorepo requires version 2.2.x.
 
 	 * ##### Installing Composer on macOS
 
@@ -124,12 +124,6 @@ You'll need all the tools below to work in the Jetpack monorepo.
 
 		```sh
 		brew install composer
-		```
-
-		The latest composer in Homebrew at the time of writing is 2.1.x, but we currently require 2.0.x. If you need to downgrade to a specific version, we suggest these instructions:
-
-		```sh
-		composer self-update 2.0.14
 		```
 
 	 * ##### Installing Composer on other systems
@@ -307,7 +301,7 @@ To execute them in your local environment, you can use the following commands.
 
 We strongly recommend that you install tools to review your code in your IDE. It will make it easier for you to notice any missing documentation or coding standards you should respect. Most IDEs display warnings and notices inside the editor, making it even easier.
 
-- Jetpack's custom Code Sniffer ruleset is located at `./projects/packages/codesniffer/Jetpack/ruleset.xml`. You can use this path to set up Jetpack's custom ruleset in your IDE.
+- Jetpack's custom Code Sniffer ruleset is located at `./projects/packages/codesniffer/Jetpack/ruleset.xml`. Depending on your IDE, you can use this path or you may need to use `.phpcs.xml.dist` in the monorepo root. 
 - For JavaScript, we recommend installing ESLint. Most IDEs come with an ESLint plugin that you can use. Jetpack includes a `.eslintrc.js` file that defines our coding standards.
 
 ## Linting

@@ -5,7 +5,34 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
-## [1.3.0-beta] - 2021-10-04
+## 1.4.0 - 2022-02-28
+### Added
+- UI: Adds My Jetpack functionality for consistent UI across all Jetpack plugins.
+
+## 1.3.1 - 2021-12-02
+### Added
+- Critical CSS: Added a filter to allow stylesheets to load synchronously, to avoid CLS issues on certain setups.
+- Critical CSS: Exclude "library" posts from Elementor plugin when generating Critical CSS.
+- Critical CSS: Explicitly hide admin_bar during Critical CSS render, to improve compatability with custom admin bar setups.
+- Speed Scores: Automatically retry if a speed score request is stuck for more than 15 minutes.
+- Stability: New end-to-end testing system.
+
+### Changed
+- Critical CSS: Detect external CSS URLs from the client side, to improve compatibility with WAFs which modify HTML.
+- Move Boost admin menu into Jetpack submenu.
+- Speed Scores: Automatically refresh speed scores if the theme has changed.
+- Speed Scores: Include active modules and Jetpack Boost version with Speed Score requests.
+
+### Fixed
+- Critical CSS: Ensure CSS files still load when JavaScript is not enabled.
+- Critical CSS: Fixed issue with re-serving Critical CSS during generation process
+- Critical CSS: Fix handling for corrupted font-face rules.
+- Critical CSS: Fix issue with dismissing recommendations after enabling Critical CSS without page refresh.
+- Critical CSS: Use home_url instead of site_url when determining homepage during Critical CSS generation.
+- Minor UI fixes for small screens and tooltip display.
+- Speed Scores: Do not show comparative scores when no modules are active.
+
+## 1.3.0 - 2021-10-04
 ### Security
 - Critical CSS: Add permissions checks to AJAX endpoints used when dismissing Critical CSS Recommendations.
 
@@ -25,7 +52,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Critical CSS: Ensure generator process is resumed after module deactivated and reactivated without reload.
 - Speed Scores: Clear speed score on plugin deactivation and uninstallation.
 
-## [1.2.0] - 2021-08-12
+## 1.2.0 - 2021-08-12
 ### Added
 - Critical CSS: Added a new Advanced Critical CSS recommendations page.
 
@@ -95,5 +122,6 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - First public alpha release
 
+[1.3.1-beta]: https://github.com/Automattic/jetpack-boost-production/compare/v1.3.0-beta...v1.3.1-beta
 [1.3.0-beta]: https://github.com/Automattic/jetpack-boost-production/compare/v1.2.0...v1.3.0-beta
 [1.2.0]: https://github.com/Automattic/jetpack-boost-production/compare/v1.1.0...v1.2.0-beta

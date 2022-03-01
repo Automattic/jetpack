@@ -4,12 +4,12 @@
 import { __, _x } from '@wordpress/i18n';
 import { ExternalLink, Path, SVG } from '@wordpress/components';
 import { Fragment } from '@wordpress/element';
+import { isAtomicSite, isSimpleSite } from '@automattic/jetpack-shared-extension-utils';
 
 /**
  * Internal dependencies
  */
 import { DEFAULT_CURRENCY } from './constants';
-import { isAtomicSite, isSimpleSite } from '../../shared/site-type-utils';
 import { getIconColor } from '../../shared/block-icons';
 import edit from './edit';
 import save from './save';
@@ -68,13 +68,19 @@ export const settings = {
 	keywords: [
 		_x( 'buy', 'block search term', 'jetpack' ),
 		_x( 'commerce', 'block search term', 'jetpack' ),
+		_x( 'credit card', 'block search term', 'jetpack' ),
+		_x( 'debit card', 'block search term', 'jetpack' ),
+		_x( 'earn', 'block search term', 'jetpack' ),
+		_x( 'ecommerce', 'block search term', 'jetpack' ),
+		_x( 'money', 'block search term', 'jetpack' ),
+		_x( 'paid', 'block search term', 'jetpack' ),
+		_x( 'payments', 'block search term', 'jetpack' ),
 		_x( 'products', 'block search term', 'jetpack' ),
 		_x( 'purchase', 'block search term', 'jetpack' ),
 		_x( 'sell', 'block search term', 'jetpack' ),
 		_x( 'shop', 'block search term', 'jetpack' ),
-		_x( 'simple', 'block search term', 'jetpack' ),
+		'square',
 		_x( 'payments', 'block search term', 'jetpack' ),
-		'PayPal',
 	],
 
 	attributes: {

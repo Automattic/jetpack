@@ -36,6 +36,10 @@ export const settings = {
 		_x( 'slider', 'block search term', 'jetpack' ),
 	],
 
+	supports: {
+		align: [ 'wide', 'full' ],
+	},
+
 	attributes: {
 		imageBefore: {
 			type: 'object',

@@ -16,7 +16,7 @@ class SalSiteTest extends WP_UnitTestCase {
 			'blog_id'          => get_current_blog_id(),
 			'user_id'          => get_current_user_id(),
 			'external_user_id' => 2,
-			'role'             => 'administrator'
+			'role'             => 'administrator',
 		);
 
 		$platform = wpcom_get_sal_platform( self::$token );

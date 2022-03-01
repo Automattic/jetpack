@@ -11,7 +11,6 @@ import { get, noop } from 'lodash';
  */
 import { createInterpolateElement } from '@wordpress/element';
 import { __, _x } from '@wordpress/i18n';
-import { getRedirectUrl } from '@automattic/jetpack-components';
 
 /**
  * Internal dependencies
@@ -80,6 +79,18 @@ class DashAkismet extends Component {
 			} );
 
 		return false;
+	};
+
+	trackModerateClick() {
+		analytics.tracks.recordJetpackClick( {
+			type: 'moderate-link',
+			target: 'at-a-glance',
+			feature: 'anti-spam',
+		} );
+	}
+
+	onModerateClick = () => {
+		this.trackModerateClick();
 	};
 
 	getContent() {
@@ -267,7 +278,8 @@ class DashAkismet extends Component {
 					key="moderate-comments"
 					className="jp-dash-item__manage-in-wpcom"
 					compact
-					href={ getRedirectUrl( 'calypso-comments-all', { site: this.props.siteRawUrl } ) }
+					href={ `${ this.props.siteAdminUrl }edit-comments.php` }
+					onClick={ this.onModerateClick }
 				>
 					{ __( 'Moderate comments', 'jetpack' ) }
 				</Card>

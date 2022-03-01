@@ -1,3 +1,6 @@
+/**
+ * External dependencies
+ */
 import svelte from 'rollup-plugin-svelte';
 import commonjs from '@rollup/plugin-commonjs';
 import resolve from '@rollup/plugin-node-resolve';
@@ -14,16 +17,24 @@ const cssGenPath = path.dirname( require.resolve( 'jetpack-boost-critical-css-ge
 const production = ! process.env.ROLLUP_WATCH;
 const runServer = !! process.env.SERVE;
 
+// eslint-disable-next-line jsdoc/require-jsdoc
 function serve() {
 	let server;
 
+	// eslint-disable-next-line jsdoc/require-jsdoc
 	function toExit() {
-		if ( server ) server.kill( 0 );
+		if ( server ) {
+			server.kill( 0 );
+		}
 	}
 
 	return {
 		writeBundle() {
-			if ( server ) return;
+			if ( server ) {
+				return;
+			}
+
+			// eslint-disable-next-line @typescript-eslint/no-var-requires
 			server = require( 'child_process' ).spawn( 'npm', [ 'run', 'start', '--', '--dev' ], {
 				stdio: [ 'ignore', 'inherit', 'inherit' ],
 				shell: true,

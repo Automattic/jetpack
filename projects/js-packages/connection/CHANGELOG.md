@@ -2,6 +2,135 @@
 
 ### This is a list detailing changes for the Jetpack RNA Connection Component releases.
 
+## 0.16.1 - 2022-02-25
+### Fixed
+- Fix broken Jetpack Partner Coupon redeem flow for sites without a user connection
+
+## 0.16.0 - 2022-02-22
+### Changed
+- Bump package version.
+- Connection: Update ConnectionStatusCard to match figma
+- Disconnect dialog changes to cope with asynchronous data loading
+- Updated package dependencies.
+
+### Fixed
+- Connection: Fix ConnectionStatusCard prop
+
+## 0.15.1 - 2022-02-09
+### Added
+- Connection: Expose hasConnectedOwner in useConnection hook
+- Re organize components stories by project/name
+
+### Changed
+- Updated package dependencies
+
+## 0.15.0 - 2022-02-02
+### Added
+- Added user click tracking to disconnect dialog modal.
+
+### Changed
+- Updated package dependencies.
+
+### Fixed
+- Fix access to display_name property in connection status card.
+
+## 0.14.0 - 2022-01-25
+### Changed
+- Enforces the usage of initial state
+- Update h3 style for connection status card
+
+### Fixed
+- Fix Wrong spelling of propTypes in ConnectedPlugins
+- Make redirectUri property not be required in ConnectionStatusCard
+
+## 0.13.2 - 2022-01-18
+### Changed
+- General: update required node version to v16.13.2
+
+### Fixed
+- fixed babel/preset-react dependency
+
+## 0.13.1 - 2022-01-17
+### Changed
+- Updated package dependencies.
+
+### Fixed
+- Fixed styling on Required Plan button and Login link.
+
+## 0.13.0 - 2022-01-13
+### Changed
+- Added user data to initial state
+
+## 0.12.1 - 2022-01-11
+### Removed
+- Remove use of deprecated `~` in sass-loader imports.
+
+## 0.12.0 - 2022-01-04
+### Changed
+- Changed min-width of log in link
+- Connection: Extract connection logic for custom hook
+- Drop isRegistered and isUserConnected params from ConnectionStatusCard component
+- Updated package dependencies.
+
+## 0.11.3 - 2021-12-14
+### Fixed
+- Fix JavaScript i18n strings.
+
+## 0.11.2 - 2021-12-07
+### Changed
+- Updated package dependencies.
+
+## 0.11.1 - 2021-12-06
+### Fixed
+- Style updates to improve disconnect flow appearance when Gutenberg plugin is active
+
+## 0.11.0 - 2021-11-30
+### Added
+- Added a ContextualizedConnection component to display a connection screen that can be used to give context to the user why Jetpack would benefit them.
+- Fetches the initial state from the global variable provided by the connection package
+
+### Changed
+- Extend functionality of the disconnect modal to allow it to be used in more contexts
+- moved the registerSite logic into the store
+- Updated package dependencies.
+
+### Fixed
+- ConnectScreen: Fix custom grid and background color.
+- ConnectScreen: make button full width on small viewports
+
+## 0.10.2 - 2021-11-23
+### Changed
+- Import RNA styles from base styles package.
+- Updated package dependencies
+
+### Fixed
+- revert button width change in favor of the fix in the visual element
+
+## 0.10.1 - 2021-11-17
+### Changed
+- Updated package dependencies.
+
+## 0.10.0 - 2021-11-16
+### Added
+- Remove the withConnectionStatus HOC, export the store.
+
+### Changed
+- Updated package dependencies
+
+### Fixed
+- Button styles: ensure the button can accomodate longer text.
+
+## 0.9.1 - 2021-11-09
+### Changed
+- Updated package dependencies.
+
+## 0.9.0 - 2021-11-02
+### Added
+- Add ConnectScreenRequiredPlan component.
+
+### Changed
+- Updated package dependencies.
+
 ## 0.8.0 - 2021-10-26
 ### Changed
 - ConnectButton now uses ActionButton component
