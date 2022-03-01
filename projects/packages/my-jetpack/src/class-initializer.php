@@ -39,6 +39,9 @@ class Initializer {
 			return;
 		}
 
+		// Extend jetpack plugins action links.
+		Products::extend_plugins_action_links();
+
 		// Set up the REST authentication hooks.
 		Connection_Rest_Authentication::init();
 
