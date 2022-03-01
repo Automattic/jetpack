@@ -17,22 +17,26 @@ class WPCOM_JSON_API_Metadata {
 	 * @return bool True or false depending on whether the key meets the defined criteria.
 	 **/
 	public static function is_public( $key ) {
-		if ( empty( $key ) )
+		if ( empty( $key ) ) {
 			return false;
+		}
 
 		// Default whitelisted meta keys.
 		$whitelisted_meta = array( '_thumbnail_id' );
 
 		// whitelist of metadata that can be accessed.
 		/** This filter is documented in json-endpoints/class.wpcom-json-api-post-endpoint.php */
-		if ( in_array( $key, apply_filters( 'rest_api_allowed_public_metadata', $whitelisted_meta ) ) )
+		if ( in_array( $key, apply_filters( 'rest_api_allowed_public_metadata', $whitelisted_meta ), true ) ) {
 			return true;
+		}
 
-		if ( 0 === strpos( $key, 'geo_' ) )
+		if ( 0 === strpos( $key, 'geo_' ) ) {
 			return true;
+		}
 
-		if ( 0 === strpos( $key, '_wpas_' ) )
+		if ( 0 === strpos( $key, '_wpas_' ) ) {
 			return true;
+		}
 
 		return false;
 	}
@@ -45,11 +49,13 @@ class WPCOM_JSON_API_Metadata {
 	 **/
 	public static function is_internal_only( $key ) {
 
-		if ( 0 === strpos( $key, '_jetpack_' ) )
+		if ( 0 === strpos( $key, '_jetpack_' ) ) {
 			return true;
+		}
 
-		if ( 0 === strpos( $key, '_elasticsearch_' ) )
+		if ( 0 === strpos( $key, '_elasticsearch_' ) ) {
 			return true;
+		}
 
 		return false;
 	}
