@@ -19,13 +19,11 @@ export default {
 
 const mockData = getAllMockData();
 
-const DefaultArgs = {};
-
 const DefaultProductDetailCard = args => <ProductDetailCard { ...args } slug="backup" />;
 
-export const _default = DefaultProductDetailCard.bind( {} );
-_default.parameters = { mockData };
-_default.args = DefaultArgs;
+export const Default = DefaultProductDetailCard.bind( {} );
+Default.parameters = { mockData };
+Default.args = {};
 
 const AntiSpamTemplate = args => <ProductDetail { ...args } slug="anti-spam" />;
 export const JetpackAntiSpam = AntiSpamTemplate.bind( {} );
