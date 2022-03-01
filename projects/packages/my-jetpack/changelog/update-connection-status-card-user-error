@@ -1,4 +1,4 @@
 Significance: patch
 Type: added
 
-My Jetpack: Pass requiresConnection to ConnectionStatusCard
+My Jetpack: Pass requiresUserConnection to ConnectionStatusCard

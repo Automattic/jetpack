@@ -33,7 +33,7 @@ export default function ConnectionsSection() {
 			redirectUri={ redirectUrl }
 			onConnectUser={ navigate }
 			connectedPlugins={ connectedPlugins }
-			requiresConnection={ productsThatRequiresUserConnection.length > 0 }
+			requiresUserConnection={ productsThatRequiresUserConnection.length > 0 }
 		/>
 	);
 }
