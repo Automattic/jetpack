@@ -222,7 +222,7 @@ importers:
 
   projects/js-packages/eslint-config-target-es:
     specifiers:
-      '@mdn/browser-compat-data': 4.1.8
+      '@mdn/browser-compat-data': 4.1.9
       '@wordpress/browserslist-config': 4.1.1
       browserslist: ^4.17.6
       debug: ^4.3.2
@@ -231,7 +231,7 @@ importers:
       jest: 27.3.1
       semver: ^7.3.5
     dependencies:
-      '@mdn/browser-compat-data': 4.1.8
+      '@mdn/browser-compat-data': 4.1.9
       browserslist: 4.19.1
       debug: 4.3.3
       semver: 7.3.5
@@ -5138,8 +5138,8 @@ packages:
     engines: {node: '>=6.0.0'}
     dev: false
 
-  /@mdn/browser-compat-data/4.1.8:
-    resolution: {integrity: sha512-iY8qGU+yJvscccvWLyWPKfF9BSLmSFth5HBNjSNtIfoyUrQV3lTZml+zyKWRymMYCgvos6LiSqMj1RDEj3TehA==}
+  /@mdn/browser-compat-data/4.1.9:
+    resolution: {integrity: sha512-MGIACLLfhkuJ4rV5JPIOFNLJN+JWgYmV83NMBfx8EvRma+kcEAFivVgHHuEPJtdCba5zRpMx/cIGrXfVyGN56g==}
     dev: false
 
   /@mdx-js/loader/1.6.22_react@17.0.2:
