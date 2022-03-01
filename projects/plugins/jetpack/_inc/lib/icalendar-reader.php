@@ -724,7 +724,7 @@ class iCalendarReader {
 	 * @return void
 	 */
 	public function add_component( $component = '', $keyword = '', $value = '' ) {
-		if ( false === $keyword || empty( $keyword ) ) {
+		if ( ! $keyword ) {
 			$keyword = $this->last_keyword;
 			switch ( $component ) {
 				case 'VEVENT':
