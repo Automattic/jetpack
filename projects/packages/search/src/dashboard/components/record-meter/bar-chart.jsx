@@ -2,6 +2,7 @@
  * External dependencies
  */
 import React from 'react';
+import { __ } from '@wordpress/i18n';
 import Chart from 'chart.js/auto';
 
 /**
@@ -85,23 +86,30 @@ export class BarChart extends React.Component {
 			<div className="jp-search-bar-chart">
 				<div className="jp-search-bar-chart__container">
 					<canvas ref={ this.canvasRef }>
-						<p>Text alternative for this canvas graphic is in the data table below.</p>
+						<p>
+							{ __(
+								'Text alternative for this canvas graphic is in the data table below',
+								'jetpack-search-pkg'
+							) }
+						</p>
 						<table
 							border="0"
 							cellPadding="5"
 							summary="This is the text alternative for the canvas graphic."
 						>
-							<caption>Records Indexed for Jetpack Search</caption>
+							<caption>
+								{ __( 'Records Indexed for Jetpack Search', 'jetpack-search-pkg' ) }
+							</caption>
 							<tbody>
 								<tr>
-									<th scope="col">Post Type</th>
+									<th scope="col">{ __( 'Post type', 'jetpack-search-pkg' ) }</th>
 									{ this.state?.legendItems.length &&
 										this.state.legendItems.map( item => {
 											return <th scope="col">{ item.text }</th>;
 										} ) }
 								</tr>
 								<tr>
-									<th scope="row">Record Count</th>
+									<th scope="row">{ __( 'Record Count', 'jetpack-search-pkg' ) }</th>
 									{ this.state?.legendItems.length &&
 										this.state.legendItems.map( item => {
 											return <td>{ this.props.data[ item.datasetIndex ].data.data }</td>;
