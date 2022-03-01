@@ -1,0 +1,4 @@
+Significance: patch
+Type: added
+
+Connection: Adds requiresUserConnection prop and makes error message show only when hasConnectedOwner and requiresUserConnection are both true
