@@ -14,16 +14,16 @@ fi
 
 VERSION="99.9-alpha"
 
-printf "\nDeactivating Jetpack and removing any related plugins\n"
+printf "\nDeactivating Jetpack\n"
 wp plugin --allow-root deactivate jetpack || true
-rm -rf /var/www/html/wp-content/plugins/jetpack || true
-rm -rf /var/www/html/wp-content/plugins/boost || true
-rm -rf /var/www/html/wp-content/plugins/beta || true
-rm -rf /var/www/html/wp-content/plugins/debug-helper || true
-rm -rf /var/www/html/wp-content/plugins/backup || true
-rm -rf /var/www/html/wp-content/plugins/vaultpress || true
 
-printf "\nDone with jetpack.zip preparation!\n"
+printf "\nRemoving Jetpack plugins\n"
+# shellcheck disable=SC2012
+ls -d /usr/local/src/jetpack-monorepo/projects/plugins/*/ | while read -r path; do
+	PLUGIN_PATH="/var/www/html/wp-content/plugins/$(basename "$path")"
+	printf "Removing %s\n" "$PLUGIN_PATH"
+	rm -rf "$PLUGIN_PATH" || true
+done
 
 printf "\nInstalling Jetpack stable\n"
 wp plugin --allow-root install --activate jetpack
