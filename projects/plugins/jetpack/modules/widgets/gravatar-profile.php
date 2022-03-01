@@ -256,7 +256,7 @@ class Jetpack_Gravatar_Profile_Widget extends WP_Widget {
 			$sanitized_service_name = $this->get_sanitized_service_name( $account['shortname'] );
 			$link_title             = sprintf(
 				/* translators: %1$s: service username. %2$s: service name ( Facebook, Twitter, etc.) */
-				__( '%1$s on %2$s', 'jetpack' ),
+				_x( '%1$s on %2$s', '1: User Name, 2: Service Name (Facebook, Twitter, ...)', 'jetpack' ),
 				esc_html( $account['display'] ),
 				esc_html( $sanitized_service_name )
 			);
