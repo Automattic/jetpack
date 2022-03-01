@@ -138,7 +138,12 @@ function enrich_video_meta( $media_file ) {
 		return $media_file;
 	}
 
-	$video_url = ! empty( $video_meta['original']['url'] ) ? $video_meta['original']['url'] : wp_get_attachment_url( $attachment_id );
+	$video_url = '';
+	if ( is_videopress_attachment( $attachment_id ) ) {
+		$video_url = wp_get_attachment_url( $attachment_id );
+	} else {
+		$video_url = ! empty( $video_meta['original']['url'] ) ? $video_meta['original']['url'] : wp_get_attachment_url( $attachment_id );
+	}
 
 	// Set the poster attribute for the video tag if a poster image is available.
 	$poster_url = null;
