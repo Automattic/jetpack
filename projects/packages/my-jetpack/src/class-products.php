@@ -118,10 +118,9 @@ class Products {
 		Products\Backup::extend_plugin_action_links();
 		Products\Boost::extend_plugin_action_links();
 		Products\Crm::extend_plugin_action_links();
-		Products\Search::extend_plugin_action_links();
 
-		// Extend Jetpack plugin using Search instance.
-		Products\Search::extend_plugin_action_links( 'jetpack' );
+		// Extend Jetpack plugin using Videopress instance.
+		Products\Videopress::extend_plugin_action_links();
 	}
 
 	/**

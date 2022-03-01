@@ -38,13 +38,6 @@ abstract class Product {
 	public static $plugin_slug = null;
 
 	/**
-	 * The text domain of the plugin associated with this product.
-	 *
-	 * @var string
-	 */
-	public static $plugin_text_domain = null;
-
-	/**
 	 * The Jetpack plugin slug
 	 *
 	 * @var string
@@ -388,40 +381,21 @@ abstract class Product {
 
 	/**
 	 * Extend the plugin action links.
-	 *
-	 * @param string $plugin_id - Plugin file.
 	 */
-	public static function extend_plugin_action_links( $plugin_id = null ) {
-		// Use text domain when the id is not set.
-		$plugin_id = isset( $plugin_id )
-			? $plugin_id
-			: (
-				// Otherwise, try to use the plugin slug.
-				isset( static::$plugin_text_domain )
-					? static::$plugin_text_domain
-					: static::get_plugin_slug()
-			);
+	public static function extend_plugin_action_links() {
 
-		// Check whether the plugin is installed.
-		$all_plugins = Plugins_Installer::get_plugins();
-		$text_domain = array_column( $all_plugins, 'TextDomain' );
-		$index       = array_search( $plugin_id, $text_domain, true );
-		if ( false === $index ) {
-			return;
+		$filenames = static::get_plugin_filename();
+		if ( ! is_array( $filenames ) ) {
+			$filenames = array( $filenames );
 		}
 
-		// Get the plugin filename from installed plugins list.
-		$plugins_filenames = array_keys( $all_plugins );
-		$plugin_filename   = isset( $plugins_filenames[ $index ] ) ? $plugins_filenames[ $index ] : null;
-		if ( ! array_key_exists( $plugin_filename, $all_plugins ) ) {
-			return;
+		foreach ( $filenames as $filename ) {
+			$hook     = 'plugin_action_links_' . $filename;
+			$callback = array( static::class, 'get_plugin_actions_links' );
+			if ( ! has_filter( $hook, $callback ) ) {
+				add_filter( $hook, $callback, 20, 2 );
+			}
 		}
-
-		add_filter(
-			'plugin_action_links_' . $plugin_filename,
-			array( __CLASS__, 'get_plugin_actions_links' ),
-			20,
-			2
-		);
 	}
+
 }
