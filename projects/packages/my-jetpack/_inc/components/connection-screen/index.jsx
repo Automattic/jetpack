@@ -17,7 +17,7 @@ import styles from './styles.module.scss';
 const ConnectionScreen = () => {
 	const { apiRoot, apiNonce } = useMyJetpackConnection();
 	return (
-		<AdminPage showHeader={ false } showBackground={ false }>
+		<AdminPage showHeader={ false } showBackground={ false } a8cLogoHref="https://automattic.com">
 			<Container horizontalSpacing={ 8 } horizontalGap={ 0 }>
 				<Col className={ styles[ 'relative-col' ] }>
 					<CloseLink className={ styles[ 'close-link' ] } />
