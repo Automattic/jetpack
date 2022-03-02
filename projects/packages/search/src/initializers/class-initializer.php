@@ -7,6 +7,7 @@
 
 namespace Automattic\Jetpack\Search;
 
+use Automattic\Jetpack\Config;
 use Automattic\Jetpack\Connection\Manager as Connection_Manager;
 use Automattic\Jetpack\Connection\Rest_Authentication as Connection_Rest_Authentication;
 use WP_Error;
@@ -48,6 +49,9 @@ class Initializer {
 			return;
 		}
 
+		// Configure all dependencies.
+		add_action( 'plugins_loaded', array( $this, 'ensure_dependecies_configured' ), 1 );
+
 		$this->init_before_connection();
 
 		// Check whether Jetpack Search should be initialized in the first place .
@@ -73,6 +77,26 @@ class Initializer {
 
 		// Fired when plugin ready.
 		do_action( 'jetpack_search_loaded' );
+	}
+
+	/**
+	 * Ensure search dependencies are configured.
+	 */
+	public function ensure_dependecies_configured() {
+		$config = new Config();
+		// Connection package.
+		$config->ensure(
+			'connection',
+			array(
+				'slug'     => JETPACK_SEARCH_PLUGIN__SLUG,
+				'name'     => 'Jetpack Search',
+				'url_info' => 'https://jetpack.com/upgrade/search/',
+			)
+		);
+		// Sync package.
+		$config->ensure( 'sync' );
+		// Identity crisis package.
+		$config->ensure( 'identity_crisis' );
 	}
 
 	/**
