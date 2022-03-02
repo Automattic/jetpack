@@ -2,6 +2,7 @@
  * External dependencies
  */
 import React from 'react';
+import { __, sprintf } from '@wordpress/i18n';
 
 /**
  * Returns record count component showing curent records indexed and max records available for tier
@@ -18,8 +19,15 @@ export function RecordCount( props ) {
 		<div data-testid="jp-search-record-count" className="jp-search-record-count">
 			{ props.recordCount && props.planRecordLimit && (
 				<p>
-					{ props.recordCount } records indexed out of the { props.planRecordLimit } alloted for
-					your current plan
+					{ sprintf(
+						// translators: %1$d: site's current record count, %2$d: record limit of the curren plan
+						__(
+							'%1$d records indexed out of the %2$d alloted for your current plan',
+							'jetpack-search-pkg'
+						),
+						props.recordCount,
+						props.planRecordLimit
+					) }
 				</p>
 			) }
 		</div>
