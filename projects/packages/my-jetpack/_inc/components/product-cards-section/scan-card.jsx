@@ -21,6 +21,8 @@ const ScanCard = ( { admin } ) => {
 		window.location = manageUrl;
 	}, [ manageUrl ] );
 
+	const { isFree } = pricingForUi;
+
 	const discount =
 		status === PRODUCT_STATUSES.NEEDS_PURCHASE && ! hasRequiredPlan
 			? pricingForUi?.discount
@@ -42,6 +44,7 @@ const ScanCard = ( { admin } ) => {
 			onFixConnection={ useMyJetpackNavigate( '/connection' ) }
 			onManage={ onManage }
 			discount={ discount }
+			isFree={ isFree }
 		/>
 	);
 };

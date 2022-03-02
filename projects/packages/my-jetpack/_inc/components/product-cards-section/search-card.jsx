@@ -21,6 +21,8 @@ const SearchCard = ( { admin } ) => {
 		window.location = manageUrl;
 	}, [ manageUrl ] );
 
+	const { isFree } = pricingForUi;
+
 	const discount =
 		status === PRODUCT_STATUSES.NEEDS_PURCHASE && ! hasRequiredPlan
 			? pricingForUi?.discount
@@ -41,6 +43,7 @@ const SearchCard = ( { admin } ) => {
 			onManage={ onManage }
 			slug={ slug }
 			discount={ discount }
+			isFree={ isFree }
 		/>
 	);
 };
