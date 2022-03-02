@@ -217,7 +217,7 @@ export function changelogDefine( yargs ) {
 				)
 				// Squash subcommand.
 				.command(
-					'squash [project]',
+					'squash [project] [file]',
 					'Squashes changelog projects',
 					yargSquash => {
 						yargSquash
@@ -225,10 +225,10 @@ export function changelogDefine( yargs ) {
 								describe: 'Project in the form of type/name, e.g. plugins/jetpack',
 								type: 'string',
 							} )
-							.option( 'readme', {
-								describe: 'Indicates if we only want to squash the readme and not the changelog.',
-								alias: 'r',
-								type: 'boolean',
+							.option( 'file', {
+								describe: 'File that we want to squash, either changelog or readme',
+								type: 'string',
+								choices: [ 'changelog', 'readme' ],
 							} );
 					},
 					async argv => {
@@ -387,7 +387,7 @@ async function changelogArgs( argv ) {
 	argv.error = `Command '${ argv.cmd || argv._[ 1 ] }' for ${ argv.project } has failed! See error`;
 	argv.args = [ argv.cmd || argv._[ 1 ], ...process.argv.slice( 4 ) ];
 	const removeArg = [ argv.project, ...projectTypes ];
-	let readme = false;
+	let file;
 
 	if ( argv.auto ) {
 		argv.args.push( ...argv.pass );
@@ -413,12 +413,13 @@ async function changelogArgs( argv ) {
 			}
 			break;
 		case 'squash':
-			if ( typeof argv.readme === 'undefined' ) {
-				readme = await promptReadme( argv );
+			if ( typeof argv.file === 'undefined' ) {
+				file = await promptForFile( argv );
 			} else {
-				readme = argv.readme;
+				file = argv.file;
 			}
 			argv.args = [ 'squash' ];
+			console.log( 'Squashing changelog...' );
 			break;
 	}
 
@@ -429,7 +430,7 @@ async function changelogArgs( argv ) {
 	await changeloggerCli( argv );
 
 	// Squash just the readme if necessary.
-	if ( readme ) {
+	if ( file === 'readme' ) {
 		readmeSquash( argv );
 	}
 
@@ -607,14 +608,14 @@ async function promptCommand( argv ) {
  * @param {argv} argv - the arguments passed.
  * @returns {argv}.
  */
-async function promptReadme( argv ) {
+async function promptForFile( argv ) {
 	const response = await inquirer.prompt( {
-		type: 'confirm',
-		name: 'readme',
-		message: 'Are you only looking to squash the readme?',
-		default: true,
+		type: 'list',
+		name: 'file',
+		message: 'What are you looking to squash?',
+		choices: [ 'readme', 'changelog' ],
 	} );
-	return response.readme;
+	return response.file;
 }
 
 /**
