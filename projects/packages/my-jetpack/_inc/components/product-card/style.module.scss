@@ -44,6 +44,7 @@
 .description {
 	font-size: var(--product-card-description-font-size);
 	margin:0;
+	flex-grow: 1;
 }
 
 .actions {
