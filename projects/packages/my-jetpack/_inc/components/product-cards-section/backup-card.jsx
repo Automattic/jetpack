@@ -14,7 +14,7 @@ import { BackupIcon } from '../icons';
 
 const BackupCard = ( { admin } ) => {
 	const { status, activate, deactivate, detail, isFetching, hasRequiredPlan } = useProduct(
-		'anti-spam'
+		'backup'
 	);
 	const { name, description, slug, manageUrl, pricingForUi } = detail;
 	const onManage = useCallback( () => {
