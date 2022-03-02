@@ -447,7 +447,7 @@ class Jetpack_Memberships {
 	 */
 	public static function is_supported_jetpack_recurring_payments() {
 		return (
-			( Jetpack::is_connection_ready() || ( defined( 'IS_WPCOM' ) && IS_WPCOM ) ) &&
+			( ( defined( 'IS_WPCOM' ) && IS_WPCOM ) || Jetpack::is_connection_ready() ) &&
 			Jetpack_Plan::supports( 'recurring-payments' )
 		);
 	}
