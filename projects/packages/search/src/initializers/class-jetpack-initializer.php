@@ -47,7 +47,7 @@ class Jetpack_Initializer extends Initializer {
 			new Settings();
 
 			// Instantiate "Customberg", the live search configuration interface.
-			Customberg2::instance();
+			Customberg::instance();
 
 			// Enable configuring instant search within the Customizer.
 			if ( class_exists( 'WP_Customize_Manager' ) ) {
