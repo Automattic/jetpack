@@ -92,8 +92,7 @@ class Jetpack_Initializer extends Initializer {
 	 * Check if site has been connected.
 	 */
 	public static function is_connected() {
-		// TODO: 'jetpack-search' better to be the current plugin where the package is running.
-		return ( new Connection_Manager( 'jetpack-search' ) )->is_connected();
+		return ( new Connection_Manager( Package::SLUG ) )->is_connected();
 	}
 
 	/**

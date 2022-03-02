@@ -138,7 +138,7 @@ class Customberg2 {
 	 */
 	protected function should_add_page() {
 		$is_offline_mode = ( new Status() )->is_offline_mode();
-		$is_connected    = ( new Connection_Manager( 'jetpack-search' ) )->is_connected();
+		$is_connected    = ( new Connection_Manager( Package::SLUG ) )->is_connected();
 		$supports_search = ( new Plan() )->supports_instant_search();
 
 		return (
