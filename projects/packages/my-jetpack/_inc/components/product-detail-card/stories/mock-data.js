@@ -130,7 +130,7 @@ export const searchProductData = {
 	description: 'Help them find what they need',
 	long_description:
 		'Help your site visitors find answers instantly so they keep reading and buying. Great for sites with a lot of content.',
-	status: 'inactive',
+	status: 'needs_purchase',
 	features: [
 		'Instant search and indexing',
 		'Powerful filtering',
