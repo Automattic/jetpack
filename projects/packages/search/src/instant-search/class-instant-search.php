@@ -243,7 +243,7 @@ class Instant_Search extends Classic_Search {
 
 		$request_args = array(
 			'timeout'    => 10,
-			'user-agent' => "WordPress/{$wp_version} | Jetpack-Search/" . Package::PACKAGE_VERSION,
+			'user-agent' => "WordPress/{$wp_version} | Jetpack-Search/" . Package::VERSION,
 		);
 
 		$request  = wp_remote_get( esc_url_raw( $service_url ), $request_args );
