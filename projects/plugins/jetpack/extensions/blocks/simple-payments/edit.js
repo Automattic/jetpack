@@ -79,7 +79,7 @@ export class SimplePaymentsEdit extends Component {
 	}
 
 	componentDidUpdate( prevProps ) {
-		const { hasPublishAction, isSelected, postLinkUrl, setAttributes } = this.props;
+		const { hasPublishAction, isSelected, postLinkUrl, setAttributes, isPostEditor } = this.props;
 
 		if ( ! isEqual( prevProps.simplePayment, this.props.simplePayment ) ) {
 			this.injectPaymentAttributes();
@@ -88,7 +88,7 @@ export class SimplePaymentsEdit extends Component {
 		if (
 			! prevProps.isSaving &&
 			this.props.isSaving &&
-			hasPublishAction &&
+			( hasPublishAction || ! isPostEditor ) &&
 			this.validateAttributes()
 		) {
 			// Validate and save product on post save
@@ -595,6 +595,7 @@ export class SimplePaymentsEdit extends Component {
 const mapSelectToProps = withSelect( ( select, props ) => {
 	const { getEntityRecord, getMedia } = select( 'core' );
 	const { isSavingPost, getCurrentPost } = select( 'core/editor' );
+	const { isSavingWidgetAreas } = select( 'core/edit-widgets' );
 
 	const { productId, featuredMediaId } = props.attributes;
 
@@ -616,7 +617,7 @@ const mapSelectToProps = withSelect( ( select, props ) => {
 
 	return {
 		hasPublishAction: !! get( post, [ '_links', 'wp:action-publish' ] ),
-		isSaving: !! isSavingPost(),
+		isSaving: isSavingPost() || isSavingWidgetAreas(),
 		simplePayment,
 		featuredMedia: featuredMediaId ? getMedia( featuredMediaId ) : null,
 		postLinkUrl: post?.link,
