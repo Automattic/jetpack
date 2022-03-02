@@ -36,16 +36,16 @@ class WafStandaloneBootstrap {
 	}
 
 	/**
-	 * Does stuff?
+	 * Initializes the constants required for generating the bootstrap, if they have not been initialized yet.
 	 *
 	 * @return void
 	 */
 	private function initialize_constants() {
 		if ( ! defined( 'JETPACK_WAF_DIR' ) ) {
-			define( 'JETPACK_WAF_DIR', WP_CONTENT_DIR . '/jetpackwaf' );
+			define( 'JETPACK_WAF_DIR', trailingslashit( WP_CONTENT_DIR ) . 'jetpack-waf' );
 		}
 		if ( ! defined( 'JETPACK_WAF_WPCONFIG' ) ) {
-			define( 'JETPACK_WAF_WPCONFIG', dirname( WP_CONTENT_DIR ) . '/wp-config.php' );
+			define( 'JETPACK_WAF_WPCONFIG', trailingslashit( dirname( WP_CONTENT_DIR ) ) . 'wp-config.php' );
 		}
 	}
 
@@ -73,7 +73,7 @@ class WafStandaloneBootstrap {
 			throw new Exception( 'Can not work without the file system being initialized.' );
 		}
 
-		$bootstrap_file = JETPACK_WAF_DIR . '/bootstrap.php';
+		$bootstrap_file = trailingslashit( JETPACK_WAF_DIR ) . 'bootstrap.php';
 
 		// phpcs:disable
 		$code = "<?php\n"

@@ -5,6 +5,19 @@
  * @package automattic/jetpack-waf
  */
 
+if ( ! function_exists( 'trailingslashit' ) ) {
+
+	/**
+	 * A drop-in for a WordPress core function.
+	 *
+	 * @param String $string string.
+	 * @return String
+	 */
+	function trailingslashit( $string ) {
+		return rtrim( $string, '/\\' ) . '/';
+	}
+}
+
 if ( ! function_exists( 'get_option' ) ) {
 	/**
 	 * A drop-in for a WordPress core function.
