@@ -98,6 +98,29 @@ const ActionButton = ( {
 	}
 };
 
+const ProductPriceLabel = ( { isFree, discount } ) => {
+	if ( isFree ) {
+		return (
+			<div className={ `${ styles[ 'product-price-label' ] } ${ styles[ 'is-free' ] }` }>
+				{ __( 'Free', 'jetpack-my-jetpack' ) }
+			</div>
+		);
+	}
+
+	if ( ! discount ) {
+		return null;
+	}
+
+	return (
+		<div className={ styles[ 'product-price-label' ] }>
+			{
+				/* translators: placeholder is product discount in percentage. */
+				sprintf( __( '%s off', 'jetpack-my-jetpack' ), `${ discount }%` )
+			}
+		</div>
+	);
+};
+
 const ProductCard = props => {
 	const {
 		name,
@@ -105,6 +128,7 @@ const ProductCard = props => {
 		description,
 		discount,
 		icon,
+		isFree,
 		status,
 		onActivate,
 		onAdd,
@@ -189,14 +213,7 @@ const ProductCard = props => {
 
 	return (
 		<div className={ containerClassName }>
-			{ discount && (
-				<div className={ styles.discount }>
-					{
-						/* translators: placeholder is product discount in percentage. */
-						sprintf( __( '%s off', 'jetpack-my-jetpack' ), `${ discount }%` )
-					}
-				</div>
-			) }
+			{ isAbsent && <ProductPriceLabel isFree={ isFree } discount={ discount } /> }
 
 			<div className={ styles.name }>
 				<span>{ name }</span>
@@ -263,6 +280,7 @@ ProductCard.propTypes = {
 		PRODUCT_STATUSES.NEEDS_PURCHASE,
 	] ).isRequired,
 	discount: PropTypes.number,
+	isFree: PropTypes.bool,
 };
 
 ProductCard.defaultProps = {
