@@ -4,16 +4,12 @@
 
 ## 10.8-a.1 - 2022-03-02
 ### Enhancements
-- Contact Info Block: Update the block to include margins design tool.
-- Markdown Block: Update the block to include margins design tool.
 - Payment Blocks: add a unified introduction to payment blocks to make it easier to select the correct one.
 - Payment Blocks: add more keywords to payments blocks so they're easier to find.
 - Subscribe Block: add pre/post-publish notices.
 - Subscribe Block: block setting updates including name change, display of current subscribers, and a new style option.
-- Tiled Gallery: add background color and spacing (padding and margin) tools.
-
-### Bug fixes
-- WoA: add missing plugins sidebar menu for Atomic site with unsupported plan.
+- Tiled Gallery: add background color block setting.
+- Various Blocks: update Contact Info, Markdown, and Tiled Gallery blocks to include margin design tools.
 
 ### Other changes <!-- Non-user-facing changes go here. This section will not be copied to readme.txt. -->
 - E2E: add tests for clicking link to open overlay.
@@ -25,6 +21,7 @@
 - Sync: changes added to wpcom to Jetpack.
 - Sync: integration tests optimization.
 - Updated package dependencies.
+- WoA: add missing plugins sidebar menu for Atomic site with unsupported plan.
 
 ## 10.7 - 2022-02-28
 ### Enhancements

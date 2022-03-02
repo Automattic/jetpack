@@ -244,16 +244,12 @@ Jetpack Backup can do a full website migration to a new host, migrate theme file
 == Changelog ==
 ### 10.8-a.1 - 2022-03-02
 #### Enhancements
-- Contact Info Block: Update the block to include margins design tool.
-- Markdown Block: Update the block to include margins design tool.
 - Payment Blocks: add a unified introduction to payment blocks to make it easier to select the correct one.
 - Payment Blocks: add more keywords to payments blocks so they're easier to find.
 - Subscribe Block: add pre/post-publish notices.
 - Subscribe Block: block setting updates including name change, display of current subscribers, and a new style option.
-- Tiled Gallery: add background color and spacing (padding and margin) tools.
-
-#### Bug fixes
-- WoA: add missing plugins sidebar menu for Atomic site with unsupported plan.
+- Tiled Gallery: add background color block setting.
+- Various Blocks: update Contact Info, Markdown, and Tiled Gallery blocks to include margin design tools.
 
 --------
 
