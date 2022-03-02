@@ -31,6 +31,20 @@ class Google_Fonts_Provider extends \WP_Webfonts_Provider {
 	protected $root_url = 'https://fonts.googleapis.com/css2';
 
 	/**
+	 * Prints out a preconnect link for improving performance when downloading
+	 * Google Font files.
+	 *
+	 * Hook this function into `wp_head` to enable the preconnect link.
+	 *
+	 * @return void
+	 */
+	public static function preconnect_font_source() {
+		$fonts_url = set_url_scheme( 'https://fonts.gstatic.com' ); ?>
+<link rel="preconnect" href="<?php echo esc_url( $fonts_url ); ?>" crossorigin>
+		<?php
+	}
+
+	/**
 	 * Gets cached CSS from a remote URL.
 	 *
 	 * @param string $id   An ID used to cache the styles.

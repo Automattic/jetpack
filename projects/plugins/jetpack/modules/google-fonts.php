@@ -64,11 +64,15 @@ function jetpack_add_google_fonts_provider() {
 		wp_register_webfonts(
 			array(
 				array(
-					'font-family' => $font_family,
-					'provider'    => 'google-fonts',
+					'font-family'  => $font_family,
+					'font-display' => 'fallback',
+					'provider'     => 'google-fonts',
 				),
 			)
 		);
 	}
 }
 add_action( 'after_setup_theme', 'jetpack_add_google_fonts_provider' );
+
+// Run on an early priority to print this out as soon as possible.
+add_action( 'wp_head', '\Automattic\Jetpack\Fonts\Google_Fonts_Provider::preconnect_font_source', 0 );
