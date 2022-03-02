@@ -171,4 +171,14 @@ test.describe( 'Search', () => {
 			expect( await homepage.isExpandedImageVisible() ).toBeTruthy();
 		} );
 	} );
+
+	test( 'Can open overlay by clicking a link', async () => {
+		await homepage.goto( `${ siteUrl }?jetpack_search_link_in_footer=1` );
+		await homepage.waitForPage();
+		await homepage.waitForNetworkIdle();
+
+		expect( await homepage.isOverlayVisible() ).toBeFalsy();
+		await homepage.clickLink();
+		expect( await homepage.isOverlayVisible() ).toBeTruthy();
+	} );
 } );
