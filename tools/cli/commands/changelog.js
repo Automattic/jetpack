@@ -387,6 +387,7 @@ async function changelogArgs( argv ) {
 	argv.error = `Command '${ argv.cmd || argv._[ 1 ] }' for ${ argv.project } has failed! See error`;
 	argv.args = [ argv.cmd || argv._[ 1 ], ...process.argv.slice( 4 ) ];
 	const removeArg = [ argv.project, ...projectTypes ];
+	let readme = false;
 
 	if ( argv.auto ) {
 		argv.args.push( ...argv.pass );
@@ -412,9 +413,13 @@ async function changelogArgs( argv ) {
 			}
 			break;
 		case 'squash':
-			if ( ! argv.r && ! argv.readme ) {
-				argv = await promptReadme( argv );
+			if ( argv.r && argv.readme ) {
+				readme = true;
+			} else {
+				readme = await promptReadme( argv );
 			}
+			argv.args = [ 'squash' ];
+			break;
 	}
 
 	// Remove the project from the list of args we're passing to changelogger.
@@ -424,7 +429,7 @@ async function changelogArgs( argv ) {
 	await changeloggerCli( argv );
 
 	// Squash just the readme if necessary.
-	if ( argv.r ) {
+	if ( readme ) {
 		readmeSquash( argv );
 	}
 
@@ -604,7 +609,7 @@ async function promptCommand( argv ) {
  */
 async function promptReadme( argv ) {
 	const response = await inquirer.prompt( {
-		type: 'bool',
+		type: 'confirm',
 		name: 'readme',
 		message: 'Are you only looking to squash the readme?',
 		default: true,
