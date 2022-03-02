@@ -29,8 +29,6 @@ class Customizer {
 	 * @param WP_Customize_Manager $wp_customize Customizer instance.
 	 */
 	public function customize_register( $wp_customize ) {
-		require_once __DIR__ . '/customize-controls/class-label-control.php';
-		require_once __DIR__ . '/customize-controls/class-excluded-post-types-control.php';
 		$section_id     = 'jetpack_search';
 		$setting_prefix = Options::OPTION_PREFIX;
 
