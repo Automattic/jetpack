@@ -419,7 +419,7 @@ async function changelogArgs( argv ) {
 				file = argv.file;
 			}
 			argv.args = [ 'squash' ];
-			console.log( 'Squashing changelog...' );
+			await changeloggerSquash( argv, file );
 			break;
 	}
 
@@ -428,11 +428,6 @@ async function changelogArgs( argv ) {
 
 	// Run the changelogger command.
 	await changeloggerCli( argv );
-
-	// Squash just the readme if necessary.
-	if ( file === 'readme' ) {
-		await readmeSquash( argv );
-	}
 
 	// Add any newly added changelog files.
 	await gitAdd( argv );
@@ -444,12 +439,26 @@ async function changelogArgs( argv ) {
  * Handles squashing just the readme file.
  *
  * @param {object} argv - arguments passed as cli.
+ * @param {string} file - what file we want to squash.
  */
-async function readmeSquash( argv ) {
-	console.log( 'Updating readme...' );
-	await runCommand( 'tools/plugin-changelog-to-readme.sh', [ `${ argv.project }` ] );
-	console.log( 'Reverting changelog' );
-	await runCommand( 'git', [ 'checkout', '--', `projects/${ argv.project }/CHANGELOG.md` ] );
+async function changeloggerSquash( argv, file ) {
+	const changelogContents =
+		file === 'readme' ? fs.readFileSync( `projects/${ argv.project }/CHANGELOG.md` ) : null;
+	try {
+		if ( file === 'changelog' ) {
+			console.log( 'Squashing changelog...' );
+		}
+		await changeloggerCli( argv );
+
+		if ( file === 'readme' ) {
+			console.log( 'Updating readme...' );
+			await runCommand( 'tools/plugin-changelog-to-readme.sh', [ `${ argv.project }` ] );
+		}
+	} finally {
+		if ( changelogContents !== null ) {
+			fs.writeFileSync( `projects/${ argv.project }/CHANGELOG.md`, changelogContents );
+		}
+	}
 }
 
 /**
