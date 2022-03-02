@@ -13,14 +13,25 @@ export const getProduct = ( state, productId ) => {
 
 	const product = mapObjectKeysToCamel( stateProduct, true );
 	product.pricingForUi = mapObjectKeysToCamel( product.pricingForUi || {}, true );
+
+	// Default values.
 	product.features = product.features || [];
 	product.supportedProducts = product.supportedProducts || [];
 
-	product.pricingForUi.fullPricePerMonth =
-		Math.ceil( ( product.pricingForUi.fullPrice / 12 ) * 100 ) / 100;
+	// Compute pricing for UI.
+	const { pricingForUi } = product;
 
-	product.pricingForUi.discountPricePerMonth =
-		Math.ceil( ( product.pricingForUi.discountPrice / 12 ) * 100 ) / 100;
+	if ( pricingForUi?.fullPrice ) {
+		pricingForUi.fullPricePerMonth = Math.ceil( ( pricingForUi.fullPrice / 12 ) * 100 ) / 100;
+	}
+
+	if ( pricingForUi?.discountPrice ) {
+		pricingForUi.discountPricePerMonth =
+			Math.ceil( ( pricingForUi.discountPrice / 12 ) * 100 ) / 100;
+		pricingForUi.discount = Math.ceil(
+			( pricingForUi.discountPricePerMonth / pricingForUi.fullPricePerMonth ) * 100
+		);
+	}
 
 	return product;
 };
