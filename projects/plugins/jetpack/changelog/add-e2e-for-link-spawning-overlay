@@ -1,0 +1,4 @@
+Significance: patch
+Type: other
+
+E2E: add tests for clicking link to open overlay
