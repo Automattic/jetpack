@@ -49,8 +49,7 @@ class Initializer {
 			return;
 		}
 
-		// Configure all dependencies.
-		add_action( 'plugins_loaded', array( $this, 'ensure_dependecies_configured' ), 1 );
+		$this->ensure_dependecies_configured();
 
 		$this->init_before_connection();
 
