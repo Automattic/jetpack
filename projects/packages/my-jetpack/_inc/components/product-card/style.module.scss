@@ -48,9 +48,9 @@
 
 .actions-wrapper {
 	display: flex;
-    flex-grow: 2;
-    flex-direction: column;
-    justify-content: end;
+	flex-grow: 2;
+	flex-direction: column;
+	justify-content: end;
 	margin-top: calc(var(--product-card-margin-base) * 4); // 16px
 }
 
