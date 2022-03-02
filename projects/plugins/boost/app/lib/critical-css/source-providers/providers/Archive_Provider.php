@@ -40,7 +40,7 @@ class Archive_Provider extends Provider {
 
 	// phpcs:ignore Generic.Commenting.DocComment.MissingShort
 	/** @inheritdoc */
-	public static function get_current_storage_keys() { // phpcs:ignore Generic.Commenting.DocComment.MissingShort
+	public static function get_current_storage_keys() {
 		if ( ! is_archive() ) {
 			return array();
 		}
