@@ -68,7 +68,7 @@ export const crmProductData = {
 	description: 'Connect with your people',
 	long_description:
 		'All of your contacts in one place. Build better relationships with your customers and clients.',
-	status: 'inactive',
+	status: 'plugin_absent',
 	features: [
 		'Manage unlimited contacts',
 		'Manage billing and create invoices',
