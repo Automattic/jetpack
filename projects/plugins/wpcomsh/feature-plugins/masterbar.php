@@ -254,10 +254,6 @@ function wpcomsh_update_plugin_add_filter() {
 		return;
 	}
 
-	// Changes plugin-install.php destination to Calypso.
-	// Documented in https://github.com/Automattic/jetpack/blob/f04ffdb03421e16a513ccbe208fec1d7fef2354d/projects/plugins/jetpack/modules/masterbar/admin-menu/class-atomic-admin-menu.php#L116-L125
-	add_filter( 'wpcom_marketplace_enabled', '__return_true' );
-
 	// We also need to change the any plugin-install.php links appearing in /wp-admin/plugins.php or elsewhere.
 	add_filter( 'self_admin_url', 'wpcomsh_update_plugin_link_destination', 10, 3 );
 }
