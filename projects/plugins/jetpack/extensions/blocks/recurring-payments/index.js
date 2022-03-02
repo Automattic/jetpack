@@ -63,6 +63,7 @@ export const settings = {
 	supports: {
 		html: false,
 		align: true,
+		__experimentalExposeControlsToChildren: true,
 	},
 	deprecated: [ deprecatedV1 ],
 	transforms: {
