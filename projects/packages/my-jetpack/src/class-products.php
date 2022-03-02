@@ -11,54 +11,70 @@ namespace Automattic\Jetpack\My_Jetpack;
  * A class for everything related to product handling in My Jetpack
  */
 class Products {
+
+	/**
+	 * Get the list of Products classes
+	 *
+	 * Here's where all the existing Products are registered
+	 *
+	 * @return array List of class names
+	 */
+	public static function get_products_classes() {
+		return array(
+			Products\Anti_Spam::class,
+			Products\Backup::class,
+			Products\Boost::class,
+			Products\Crm::class,
+			Products\Extras::class,
+			Products\Scan::class,
+			Products\Search::class,
+			Products\Videopress::class,
+			Products\Security::class,
+		);
+	}
+
 	/**
 	 * Product data
 	 *
 	 * @return array Jetpack products on the site and their availability.
 	 */
 	public static function get_products() {
-		$names    = self::get_product_names();
 		$products = array();
-		foreach ( $names as $name ) {
-			$method_name       = 'get_' . str_replace( '-', '_', $name ) . '_data';
-			$products[ $name ] = call_user_func( array( __CLASS__, $method_name ) );
+		foreach ( self::get_products_classes() as $class ) {
+			$product_slug              = $class::$slug;
+			$products[ $product_slug ] = $class::get_info();
 		}
-
 		return $products;
 	}
 
 	/**
 	 * Get one product data by its slug
 	 *
-	 * @param string $slug The product slug.
+	 * @param string $product_slug The product slug.
 	 *
 	 * @return ?array
 	 */
-	public static function get_product( $slug ) {
-		$products = self::get_products();
-		if ( array_key_exists( $slug, $products ) ) {
-			return $products[ $slug ];
+	public static function get_product( $product_slug ) {
+		foreach ( self::get_products_classes() as $class ) {
+			$p_slug = $class::$slug;
+			if ( $p_slug === $product_slug ) {
+				return $class::get_info();
+			}
 		}
 		return null;
 	}
 
 	/**
-	 * Return product names list.
+	 * Return product slugs list.
 	 *
-	 * @return array Product names array.
+	 * @return array Product slugs array.
 	 */
-	public static function get_product_names() {
-		return array(
-			'anti-spam',
-			'backup',
-			'boost',
-			'scan',
-			'search',
-			'security',
-			'videopress',
-			'crm',
-			'extras',
-		);
+	public static function get_products_slugs() {
+		$slugs = array();
+		foreach ( self::get_products_classes() as $class ) {
+			$slugs[] = $class::$slug;
+		}
+		return $slugs;
 	}
 
 	/**
@@ -74,7 +90,7 @@ class Products {
 				'product'     => array(
 					'description'       => __( 'Product slug', 'jetpack-my-jetpack' ),
 					'type'              => 'string',
-					'enum'              => __CLASS__ . '::get_product_names',
+					'enum'              => __CLASS__ . '::get_product_slugs',
 					'required'          => false,
 					'validate_callback' => __CLASS__ . '::check_product_argument',
 				),
@@ -123,84 +139,4 @@ class Products {
 		Products\Videopress::extend_plugin_action_links();
 	}
 
-	/**
-	 * Returns information about the Anti-spam product
-	 *
-	 * @return array Object with infromation about the product.
-	 */
-	public static function get_anti_spam_data() {
-		return Products\Anti_Spam::get_info();
-	}
-
-	/**
-	 * Returns information about the Backup product
-	 *
-	 * @return array Object with infromation about the product.
-	 */
-	public static function get_backup_data() {
-		return Products\Backup::get_info();
-	}
-
-	/**
-	 * Returns information about the Boost product
-	 *
-	 * @return array Object with infromation about the product.
-	 */
-	public static function get_boost_data() {
-		return Products\Boost::get_info();
-	}
-
-	/**
-	 * Returns information about the CRM product
-	 *
-	 * @return array Object with infromation about the product.
-	 */
-	public static function get_crm_data() {
-		return Products\Crm::get_info();
-	}
-
-	/**
-	 * Returns information about  Extras
-	 *
-	 * @return array Object with infromation about the product.
-	 */
-	public static function get_extras_data() {
-		return Products\Extras::get_info();
-	}
-
-	/**
-	 * Returns information about the Scan product
-	 *
-	 * @return array Object with infromation about the product.
-	 */
-	public static function get_scan_data() {
-		return Products\Scan::get_info();
-	}
-
-	/**
-	 * Returns information about the Search product
-	 *
-	 * @return array Object with infromation about the product.
-	 */
-	public static function get_search_data() {
-		return Products\Search::get_info();
-	}
-
-	/**
-	 * Returns information about the Security product
-	 *
-	 * @return array Object with infromation about the product.
-	 */
-	public static function get_security_data() {
-		return Products\Security::get_info();
-	}
-
-	/**
-	 * Returns information about the VideoPress product
-	 *
-	 * @return array Object with infromation about the product.
-	 */
-	public static function get_videopress_data() {
-		return Products\Videopress::get_info();
-	}
 }

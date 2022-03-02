@@ -2,6 +2,10 @@
 
 ### This is a list detailing changes for the Jetpack RNA Components package releases.
 
+## 0.10.7 - 2022-03-02
+### Changed
+- Updated package dependencies.
+
 ## 0.10.6 - 2022-02-22
 ### Added
 - Components: Add showBackground prop

@@ -83,6 +83,27 @@ export const crmProductData = {
 	},
 };
 
+export const extrasProductData = {
+	slug: 'extras',
+	name: 'Extras',
+	title: 'Jetpack Extras',
+	description: 'Basic tools for a successful site',
+	long_description:
+		"Secure and speed up your site for free with Jetpack's powerful WordPress tools.",
+	status: 'active',
+	features: [
+		'Measure your impact with beautiful stats',
+		'Speed up your site with optimized images',
+		'Protect your site against bot attacks',
+		'Get notifications if your site goes offline',
+		'Enhance your site with dozens of other features',
+	],
+	pricingForUi: {
+		available: true,
+		is_free: true,
+	},
+};
+
 export const scanProductData = {
 	slug: 'scan',
 	name: 'Scan',
