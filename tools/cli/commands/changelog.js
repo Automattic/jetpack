@@ -228,7 +228,7 @@ export function changelogDefine( yargs ) {
 							.option( 'readme', {
 								describe: 'Indicates if we only want to squash the readme and not the changelog.',
 								alias: 'r',
-								type: 'bool',
+								type: 'boolean',
 							} );
 					},
 					async argv => {
