@@ -1,10 +1,9 @@
-<?php
+<?php // phpcs:ignore WordPress.Files.FileName.InvalidClassFileName
 
+add_action( 'widgets_init', 'jetpack_facebook_likebox_init' );
 /**
  * Register the widget for use in Appearance -> Widgets
  */
-add_action( 'widgets_init', 'jetpack_facebook_likebox_init' );
-
 function jetpack_facebook_likebox_init() {
 	register_widget( 'WPCOM_Widget_Facebook_LikeBox' );
 }
@@ -15,15 +14,52 @@ function jetpack_facebook_likebox_init() {
  * https://developers.facebook.com/docs/plugins/page-plugin
  */
 class WPCOM_Widget_Facebook_LikeBox extends WP_Widget {
-
+	/**
+	 * Default height.
+	 *
+	 * @var int
+	 */
 	private $default_height = 580;
-	private $default_width  = 340;
-	private $max_width      = 500;
-	private $min_width      = 180;
-	private $max_height     = 9999;
-	private $min_height     = 130;
 
-	function __construct() {
+	/**
+	 * Default width.
+	 *
+	 * @var int
+	 */
+	private $default_width = 340;
+
+	/**
+	 * Max width.
+	 *
+	 * @var int
+	 */
+	private $max_width = 500;
+
+	/**
+	 * Min width.
+	 *
+	 * @var int
+	 */
+	private $min_width = 180;
+
+	/**
+	 * Max height.
+	 *
+	 * @var int
+	 */
+	private $max_height = 9999;
+
+	/**
+	 * Min height/
+	 *
+	 * @var int
+	 */
+	private $min_height = 130;
+
+	/**
+	 * WPCOM_Widget_Facebook_LikeBox constructor.
+	 */
+	public function __construct() {
 		parent::__construct(
 			'facebook-likebox',
 			/**
@@ -53,7 +89,12 @@ class WPCOM_Widget_Facebook_LikeBox extends WP_Widget {
 	 */
 	public function enqueue_scripts() {
 		wp_enqueue_script( 'jetpack-facebook-embed' );
-		wp_enqueue_style( 'jetpack_facebook_likebox', plugins_url( 'facebook-likebox/style.css', __FILE__ ) );
+		wp_enqueue_style(
+			'jetpack_facebook_likebox',
+			plugins_url( 'facebook-likebox/style.css', __FILE__ ),
+			array(),
+			JETPACK__VERSION
+		);
 		wp_style_add_data( 'jetpack_facebook_likebox', 'jetpack-inline', true );
 	}
 
@@ -158,14 +199,22 @@ class WPCOM_Widget_Facebook_LikeBox extends WP_Widget {
 		do_action( 'jetpack_stats_extra', 'widget_view', 'facebook-likebox' );
 	}
 
-	function update( $new_instance, $old_instance ) {
+	/**
+	 * Update widget.
+	 *
+	 * @see WP_Widget::update()
+	 *
+	 * @param array $new_instance New widget instance data.
+	 * @param array $old_instance Old widget instance data.
+	 */
+	public function update( $new_instance, $old_instance ) { // phpcs:ignore VariableAnalysis.CodeAnalysis.VariableAnalysis.UnusedVariable
 		$instance = array();
 
-		$instance['title'] = trim( strip_tags( stripslashes( $new_instance['title'] ) ) );
+		$instance['title'] = trim( wp_strip_all_tags( stripslashes( $new_instance['title'] ) ) );
 
 		// Set up widget values.
 		$instance['like_args'] = array(
-			'href'         => trim( strip_tags( stripslashes( $new_instance['href'] ) ) ),
+			'href'         => trim( wp_strip_all_tags( stripslashes( $new_instance['href'] ) ) ),
 			'width'        => (int) $new_instance['width'],
 			'height'       => (int) $new_instance['height'],
 			'show_faces'   => isset( $new_instance['show_faces'] ),
@@ -182,9 +231,15 @@ class WPCOM_Widget_Facebook_LikeBox extends WP_Widget {
 		return $instance;
 	}
 
-	function form( $instance ) {
+	/**
+	 * Outputs the widget settings form.
+	 *
+	 * @param array $instance Current settings.
+	 */
+	public function form( $instance ) {
 		$instance  = wp_parse_args(
-			(array) $instance, array(
+			(array) $instance,
+			array(
 				'title'     => '',
 				'like_args' => $this->get_default_args(),
 			)
@@ -212,7 +267,25 @@ class WPCOM_Widget_Facebook_LikeBox extends WP_Widget {
 			<label for="<?php echo esc_attr( $this->get_field_id( 'width' ) ); ?>">
 				<?php esc_html_e( 'Width in pixels', 'jetpack' ); ?>
 				<input type="number" class="smalltext" min="<?php echo esc_attr( $this->min_width ); ?>" max="<?php echo esc_attr( $this->max_width ); ?>" maxlength="3" name="<?php echo esc_attr( $this->get_field_name( 'width' ) ); ?>" id="<?php echo esc_attr( $this->get_field_id( 'width' ) ); ?>" value="<?php echo esc_attr( $like_args['width'] ); ?>" style="text-align: center;" />
-				<small><?php echo sprintf( __( 'Minimum: %s', 'jetpack' ), $this->min_width ); ?> / <?php echo sprintf( __( 'Maximum: %s', 'jetpack' ), $this->max_width ); ?></small>
+				<small>
+					<?php
+					echo esc_html(
+						sprintf(
+							/* translators: %s is the minimum pixel width */
+							__( 'Minimum: %s', 'jetpack' ),
+							$this->min_width
+						)
+					);
+					echo ' / ';
+					echo esc_html(
+						sprintf(
+							/* translators: %s is the maximum pixel width */
+							__( 'Maximum: %s', 'jetpack' ),
+							$this->max_width
+						)
+					);
+					?>
+				</small>
 			</label>
 		</p>
 
@@ -220,7 +293,25 @@ class WPCOM_Widget_Facebook_LikeBox extends WP_Widget {
 			<label for="<?php echo esc_attr( $this->get_field_id( 'height' ) ); ?>">
 				<?php esc_html_e( 'Height in pixels', 'jetpack' ); ?>
 				<input type="number" class="smalltext" min="<?php echo esc_attr( $this->min_height ); ?>" max="<?php echo esc_attr( $this->max_height ); ?>" maxlength="3" name="<?php echo esc_attr( $this->get_field_name( 'height' ) ); ?>" id="<?php echo esc_attr( $this->get_field_id( 'height' ) ); ?>" value="<?php echo esc_attr( $like_args['height'] ); ?>" style="text-align: center;" />
-				<small><?php echo sprintf( __( 'Minimum: %s', 'jetpack' ), $this->min_height ); ?> / <?php echo sprintf( __( 'Maximum: %s', 'jetpack' ), $this->max_height ); ?></small>
+				<small>
+					<?php
+					echo esc_html(
+						sprintf(
+							/* translators: %s is the minimum pixel height */
+							__( 'Minimum: %s', 'jetpack' ),
+							$this->min_height
+						)
+					);
+					echo ' / ';
+					echo esc_html(
+						sprintf(
+							/* translators: %s is the maximum pixel height */
+							__( 'Maximum: %s', 'jetpack' ),
+							$this->max_height
+						)
+					);
+					?>
+				</small>
 			</label>
 		</p>
 
@@ -261,7 +352,10 @@ class WPCOM_Widget_Facebook_LikeBox extends WP_Widget {
 		<?php
 	}
 
-	function get_default_args() {
+	/**
+	 * Facebook Likebox default options.
+	 */
+	public function get_default_args() {
 		$defaults = array(
 			'href'         => '',
 			'width'        => $this->default_width,
@@ -284,10 +378,15 @@ class WPCOM_Widget_Facebook_LikeBox extends WP_Widget {
 		return apply_filters( 'jetpack_facebook_likebox_defaults', $defaults );
 	}
 
-	function normalize_facebook_args( $args ) {
+	/**
+	 * Normalize the Facebook Likebox options.
+	 *
+	 * @param array $args Array of arguments.
+	 */
+	public function normalize_facebook_args( $args ) {
 		$args = wp_parse_args( (array) $args, $this->get_default_args() );
 
-		// Validate the Facebook Page URL
+		// Validate the Facebook Page URL.
 		if ( $this->is_valid_facebook_url( $args['href'] ) ) {
 			$temp         = explode( '?', $args['href'] );
 			$args['href'] = str_replace( array( 'http://facebook.com', 'https://facebook.com' ), array( 'http://www.facebook.com', 'https://www.facebook.com' ), $temp[0] );
@@ -295,8 +394,8 @@ class WPCOM_Widget_Facebook_LikeBox extends WP_Widget {
 			$args['href'] = '';
 		}
 
-		$args['width']        = $this->normalize_int_value( (int) $args['width'], $this->default_width, $this->max_width, $this->min_width );
-		$args['height']       = $this->normalize_int_value( (int) $args['height'], $this->default_height, $this->max_height, $this->min_height );
+		$args['width']        = $this->normalize_int_value( (int) $args['width'], $this->max_width, $this->min_width );
+		$args['height']       = $this->normalize_int_value( (int) $args['height'], $this->max_height, $this->min_height );
 		$args['show_faces']   = (bool) $args['show_faces'];
 		$args['stream']       = (bool) $args['stream'];
 		$args['cover']        = (bool) $args['cover'];
@@ -305,7 +404,7 @@ class WPCOM_Widget_Facebook_LikeBox extends WP_Widget {
 		// The height used to be dependent on other widget settings
 		// If the user changes those settings but doesn't customize the height,
 		// let's intelligently assign a new height.
-		if ( in_array( $args['height'], array( 580, 110, 432 ) ) ) {
+		if ( in_array( $args['height'], array( 580, 110, 432 ), true ) ) {
 			if ( $args['show_faces'] && $args['stream'] ) {
 				$args['height'] = 580;
 			} elseif ( ! $args['show_faces'] && ! $args['stream'] ) {
@@ -318,11 +417,25 @@ class WPCOM_Widget_Facebook_LikeBox extends WP_Widget {
 		return $args;
 	}
 
-	function is_valid_facebook_url( $url ) {
+	/**
+	 * Check if URL is a valid Facebook Page URL.
+	 *
+	 * @param string $url URL to check.
+	 */
+	public function is_valid_facebook_url( $url ) {
 		return ( false !== strpos( $url, 'facebook.com' ) ) ? true : false;
 	}
 
-	function normalize_int_value( $value, $default = 0, $max = 0, $min = 0 ) {
+	/**
+	 * Normalize an integer value within a given range.
+	 *
+	 * @param int $value Value to normalize.
+	 * @param int $max Maximum value.
+	 * @param int $min Minimum value.
+	 *
+	 * @return int Normalized value.
+	 */
+	public function normalize_int_value( $value, $max = 0, $min = 0 ) {
 		$value = (int) $value;
 
 		if ( $value > $max ) {
@@ -332,15 +445,5 @@ class WPCOM_Widget_Facebook_LikeBox extends WP_Widget {
 		}
 
 		return (int) $value;
-	}
-
-	function normalize_text_value( $value, $default = '', $allowed = array() ) {
-		$allowed = (array) $allowed;
-
-		if ( empty( $value ) || ( ! empty( $allowed ) && ! in_array( $value, $allowed ) ) ) {
-			$value = $default;
-		}
-
-		return $value;
 	}
 }

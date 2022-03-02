@@ -83,6 +83,7 @@ jobs:
         CONFIG_KEY: ${{ secrets.E2E_CONFIG_KEY }}
         COMPOSER_ROOT_VERSION: "dev-master"
         RUN_NAME: ${{ needs.create-test-matrix.outputs.runName }}
+        PROJECT_NAME:  ${{ matrix.project }}
       run: |
         echo "::group::Decrypt config"
         pnpm run config:decrypt
@@ -110,6 +111,10 @@ jobs:
             echo "::endgroup::"
         fi
 
+        if [ "${PROJECT_NAME}" == "Jetpack update" ]; then
+            echo "SKIP_ENV_CLEAN=true" >> $GITHUB_ENV
+        fi
+
     - name: Run ${{ matrix.project }} tests
       working-directory: ${{ matrix.path }}
       env:
@@ -127,7 +132,7 @@ jobs:
       working-directory: ${{ matrix.path }}
       run: |
         mapfile -t ARGS < <(jq -r '.[]' <<<"$JSON_ARGS")
-        pnpm run slack -- suite $SUITE "${ARGS[@]}"
+        pnpm run slack -- suite "$SUITE" "${ARGS[@]}"
 
     - name: Test environment tear-down
       if: ${{ always() }}
