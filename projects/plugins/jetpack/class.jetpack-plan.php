@@ -322,6 +322,15 @@ class Jetpack_Plan {
 	 * @return bool True if plan supports feature, false if not
 	 */
 	public static function supports( $feature ) {
+		// Bypass modules that don't require any purchase.
+		$modules = Jetpack::get_available_modules();
+		if ( in_array( $feature, $modules, true ) ) {
+			$module = Jetpack::get_module( $feature );
+			if ( isset( $module ) && is_array( $module ) && in_array( 'free', $module['plan_classes'], true ) ) {
+				return true;
+			}
+		}
+
 		// Manually mapping WordPress.com features to Jetpack module slugs.
 		if ( 'wordads' === $feature ) {
 			$feature = 'wordads-jetpack';
