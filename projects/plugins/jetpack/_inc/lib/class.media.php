@@ -11,25 +11,25 @@ class Jetpack_Media {
 	 *
 	 * @var string
 	 */
-	public static $wp_original_media = '_wp_original_post_media';
+	const WP_ORIGINAL_MEDIA = '_wp_original_post_media';
 	/**
 	 * Revision history. Metadata key as stored by WP.
 	 *
 	 * @var string
 	 */
-	public static $wp_revision_history = '_wp_revision_history';
+	const WP_REVISION_HISTORY = '_wp_revision_history';
 	/**
 	 * Maximum amount of revisions.
 	 *
 	 * @var int
 	 */
-	public static $revision_history_maximum_amount = 0;
+	const REVISION_HISTORY_MAXIMUM_AMOUNT = 0;
 	/**
 	 * Image Alt. Metadata key as stored by WP.
 	 *
 	 * @var string
 	 */
-	public static $wp_attachment_image_alt = '_wp_attachment_image_alt';
+	const WP_ATTACHMENT_IMAGE_ALT = '_wp_attachment_image_alt';
 
 	/**
 	 * Generate a filename in function of the original filename of the media.
@@ -247,7 +247,7 @@ class Jetpack_Media {
 			return false;
 		}
 
-		add_post_meta( $media_item->ID, self::$wp_revision_history, self::get_snapshot( $media_item ) );
+		add_post_meta( $media_item->ID, self::WP_REVISION_HISTORY, self::get_snapshot( $media_item ) );
 	}
 	/**
 	 * Return the `revision_history` of the given media.
@@ -256,7 +256,7 @@ class Jetpack_Media {
 	 * @return array `revision_history` array
 	 */
 	public static function get_revision_history( $media_id ) {
-		return array_reverse( get_post_meta( $media_id, self::$wp_revision_history ) );
+		return array_reverse( get_post_meta( $media_id, self::WP_REVISION_HISTORY ) );
 	}
 
 	/**
@@ -265,7 +265,7 @@ class Jetpack_Media {
 	 * @param int $media_id Attachment ID.
 	 */
 	public static function get_original_media( $media_id ) {
-		$original = get_post_meta( $media_id, self::$wp_original_media, true );
+		$original = get_post_meta( $media_id, self::WP_ORIGINAL_MEDIA, true );
 		$original = $original ? $original : array();
 		return $original;
 	}
@@ -347,10 +347,10 @@ class Jetpack_Media {
 		}
 
 		// override all history items.
-		delete_post_meta( $media_id, self::$wp_revision_history );
+		delete_post_meta( $media_id, self::WP_REVISION_HISTORY );
 		$revision_history = array_reverse( $revision_history );
 		foreach ( $revision_history as &$item ) {
-			add_post_meta( $media_id, self::$wp_revision_history, $item );
+			add_post_meta( $media_id, self::WP_REVISION_HISTORY, $item );
 		}
 
 		return $revision_history;
@@ -367,7 +367,7 @@ class Jetpack_Media {
 	 */
 	public static function limit_revision_history( $media_id, $limit = null ) {
 		if ( is_null( $limit ) ) {
-			$limit = self::$revision_history_maximum_amount;
+			$limit = self::REVISION_HISTORY_MAXIMUM_AMOUNT;
 		}
 
 		$revision_history = self::get_revision_history( $media_id );
@@ -403,7 +403,7 @@ class Jetpack_Media {
 		}
 
 		self::delete_media_history_file( $media_id, $original_file->file );
-		return delete_post_meta( $media_id, self::$wp_original_media );
+		return delete_post_meta( $media_id, self::WP_ORIGINAL_MEDIA );
 	}
 
 	/**
@@ -459,7 +459,7 @@ class Jetpack_Media {
 			// The first time that the media is updated
 			// the original media is stored into the revision_history.
 			$snapshot = self::get_snapshot( $media_item );
-			add_post_meta( $media_id, self::$wp_original_media, $snapshot, true );
+			add_post_meta( $media_id, self::WP_ORIGINAL_MEDIA, $snapshot, true );
 		}
 
 		// Save temporary file in the correct location.
