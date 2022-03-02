@@ -5,7 +5,7 @@
 	import { maybeGenerateCriticalCss } from '../../../utils/generate-critical-css';
 	import { requestCloudCss, pollCloudCssStatus } from '../../../utils/cloud-css';
 	import GenerateCss from '../elements/GenerateCSS.svelte';
-	import GenerateCloudCss from '../elements/GenerateCloudCSS.svelte';
+	import CloudCssMeta from '../elements/CloudCssMeta.svelte';
 	import Module from '../elements/Module.svelte';
 	import TemplatedString from '../../../elements/TemplatedString.svelte';
 	import externalLinkTemplateVar from '../../../utils/external-link-template-var';
@@ -55,7 +55,7 @@
 		</p>
 
 		<div slot="meta" class="jb-feature-toggle__meta">
-			<GenerateCloudCss />
+			<CloudCssMeta />
 		</div>
 	</Module>
 
