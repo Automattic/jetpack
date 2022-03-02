@@ -107,7 +107,6 @@ add_action( 'plugins_loaded', 'wpcomsh_force_calypso_plugin_pages_on_unsupported
  * @param bool $previous_value The previous value or default value of filter.
  */
 function wpcomsh_gate_footer_credit_feature( $previous_value ) {
-	require_once __DIR__ . '/../wpcom-features/functions-wpcom-features.php';
 	return wpcom_site_has_feature( WPCOM_Features::NO_WPCOM_BRANDING );
 }
 add_filter( 'wpcom_better_footer_credit_can_customize', 'wpcomsh_gate_footer_credit_feature' );

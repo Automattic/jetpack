@@ -11,11 +11,7 @@
  * @package WPCOM_Features
  */
 
-if ( defined( 'IS_ATOMIC' ) && IS_ATOMIC ) {
-	require_once dirname( __FILE__ ) . '/class-wpcom-features.php';
-} else {
-	require_once WP_CONTENT_DIR . '/lib/wpcom-features/class-wpcom-features.php';
-}
+require_once __DIR__ . '/class-wpcom-features.php';
 
 /**
  * This function checks if we're on an Atomic (WPCOMSH) or Simple (WPCOM) site, and pulls the purchases for that current
@@ -64,7 +60,7 @@ function wpcom_site_has_feature( $feature, $blog_id = 0 ) {
 			/*
 			 * Cache the $purchases for 3 hours. Otherwise, the cache is invalidated when a purchase is made, using:
 			 * add_action( 'subscription_changed', 'clear_wp_cache_site_purchases', 10, 1 );
-			 * Found in ./wp-content/mu-plugins/wpcom-features-actions.php
+			 * Found in ./wp-content/mu-plugins/wpcom-features.php
 			 */
 			wp_cache_set( $blog_id, $purchases, $wp_cache_group, 60 * 60 * 3 );
 		}

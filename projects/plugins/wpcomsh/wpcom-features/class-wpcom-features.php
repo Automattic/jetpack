@@ -441,7 +441,7 @@ class WPCOM_Features {
 	 * Given an array of $purchases and a single feature name, consult the FEATURES_MAP to determine if the feature
 	 * is included in one of the $purchases.
 	 *
-	 * Use the function wpcom_blog_has_feature( $feature ) to determine if a blog has access to a certain feature.
+	 * Use the function wpcom_site_has_feature( $feature ) to determine if a site has access to a certain feature.
 	 *
 	 * @param string $feature A singular feature.
 	 * @param array  $purchases A collection of purchases.
