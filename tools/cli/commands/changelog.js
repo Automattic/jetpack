@@ -614,8 +614,7 @@ async function promptReadme( argv ) {
 		message: 'Are you only looking to squash the readme?',
 		default: true,
 	} );
-	argv.r = response.readme;
-	return argv;
+	return response.readme;
 }
 
 /**
