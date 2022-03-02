@@ -11,7 +11,6 @@
 - Subscribe Block: add pre/post-publish notices.
 - Subscribe Block: block setting updates including name change, display of current subscribers, and a new style option.
 - Tiled Gallery: add background color and spacing (padding and margin) tools.
-- VideoPress: add support for resumable uploads in the VideoPress block.
 
 ### Bug fixes
 - WoA: add missing plugins sidebar menu for Atomic site with unsupported plan.
