@@ -12,11 +12,12 @@ use Automattic\Jetpack\Connection\Manager as Connection_Manager;
 use Automattic\Jetpack\My_Jetpack\Hybrid_Product;
 use Automattic\Jetpack\My_Jetpack\Wpcom_Products;
 use Automattic\Jetpack\Redirect;
+use Jetpack;
 use Jetpack_Options;
 use WP_Error;
 
 /**
- * Class responsible for handling the CRM product
+ * Class responsible for handling the Backup product
  */
 class Backup extends Hybrid_Product {
 
@@ -114,7 +115,6 @@ class Backup extends Hybrid_Product {
 			array(
 				'available'          => true,
 				'wpcom_product_slug' => static::get_wpcom_product_slug(),
-				'discount'           => 50, // hardcoded - it could be overwritten by the wpcom product.
 			),
 			Wpcom_Products::get_product_pricing( static::get_wpcom_product_slug() )
 		);
@@ -202,14 +202,11 @@ class Backup extends Hybrid_Product {
 	}
 
 	/**
-	 * Activates the plugin
+	 * Checks whether the Product is active
 	 *
-	 * @return null|WP_Error Null on success, WP_Error on invalid file.
+	 * @return boolean
 	 */
-	public static function activate_plugin() {
-		/*
-		 * Silent mode True to avoid redirect
-		 */
-		return activate_plugin( static::get_installed_plugin_filename(), '', false, true );
+	public static function is_active() {
+		return parent::is_active() && static::has_required_plan();
 	}
 }
