@@ -81,6 +81,7 @@ export const settings = {
 		html: false,
 		spacing: {
 			padding: true,
+			margin: true,
 		},
 	},
 
