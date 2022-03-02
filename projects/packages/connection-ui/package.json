@@ -15,19 +15,19 @@
 	},
 	"browserslist": "extends @wordpress/browserslist-config",
 	"dependencies": {
-		"@automattic/jetpack-api": "workspace:^0.9.0",
+		"@automattic/jetpack-api": "workspace:^0.9.1-alpha",
 		"@automattic/jetpack-connection": "workspace:^0.17.0-alpha",
-		"@wordpress/data": "6.2.0"
+		"@wordpress/data": "6.3.0"
 	},
 	"devDependencies": {
-		"@automattic/jetpack-webpack-config": "workspace:^1.1.3",
+		"@automattic/jetpack-webpack-config": "workspace:^1.1.4-alpha",
 		"@babel/core": "7.16.0",
 		"@babel/preset-env": "7.16.4",
 		"@babel/register": "7.16.0",
 		"@babel/runtime": "7.16.3",
-		"@wordpress/browserslist-config": "4.1.0",
-		"@wordpress/data": "6.2.0",
-		"@wordpress/i18n": "4.3.0",
+		"@wordpress/browserslist-config": "4.1.1",
+		"@wordpress/data": "6.3.0",
+		"@wordpress/i18n": "4.3.1",
 		"enzyme": "3.11.0",
 		"jest": "27.3.1",
 		"react": "17.0.2",
