@@ -322,11 +322,6 @@ class Jetpack_Plan {
 	 * @return bool True if plan supports feature, false if not
 	 */
 	public static function supports( $feature ) {
-		// Manually mapping WordPress.com features to Jetpack module slugs.
-		if ( 'wordads' === $feature ) {
-			$feature = 'wordads-jetpack';
-		}
-
 		// Hijack the feature eligibility check on WordPress.com sites since they are gated differently.
 		if ( function_exists( 'wpcom_site_has_feature' ) ) {
 			return wpcom_site_has_feature( $feature );
