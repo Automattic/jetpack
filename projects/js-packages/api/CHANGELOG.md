@@ -2,6 +2,10 @@
 
 ### This is a list detailing changes for the Jetpack RNA Components package releases.
 
+## 0.9.1 - 2022-03-02
+### Changed
+- Updated package dependencies
+
 ## 0.9.0 - 2022-02-22
 ### Added
 - API: add Jetpack Search stats endpoint
