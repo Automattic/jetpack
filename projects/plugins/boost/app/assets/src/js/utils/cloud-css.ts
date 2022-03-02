@@ -8,16 +8,10 @@ export async function requestCloudCss(): Promise< void > {
 	// Todo: Debounce request.
 	resetStatus();
 	await api.post( '/cloud-css/request-generate' );
-	pollStatus( true );
+	pollCloudCssStatus();
 }
 
-export async function pollCloudCssStatus() {
-	if ( getStatus().pending ) {
-		pollStatus( true );
-	} else {
-		pollStatus();
-	}
-}
+let statusIntervalId = null;
 
 /**
  * Poll Cloud Critical CSS on regular intervals.
@@ -28,17 +22,23 @@ export async function pollCloudCssStatus() {
  * If there is an active request made to generate Cloud CSS from the client,
  * poll the status with a short interval. Once there are no pending responses,
  * poll the status with a long interval.
- *
- * @param {boolean} hasActiveRequest Active request made to generate Cloud CSS from the client.
  */
-function pollStatus( hasActiveRequest = false ): void {
-	const interval = hasActiveRequest ? 5000 : 2 * 60 * 1000;
-	const statusIntervalId = setInterval( async () => {
-		const status = await api.get< CloudCssStatus >( '/cloud-css/status' );
+export function pollCloudCssStatus() {
+	let status = getStatus();
+	const shortInterval = 5000;
+	const longInterval = 2 * 60 * 1000;
+	const interval = status.pending ? shortInterval : longInterval;
+
+	if ( statusIntervalId !== null ) {
+		clearInterval( statusIntervalId );
+	}
+
+	statusIntervalId = setInterval( async () => {
+		status = await api.get< CloudCssStatus >( '/cloud-css/status' );
 		updateStatus( status );
-		if ( ! status.pending && hasActiveRequest ) {
-			clearInterval( statusIntervalId );
-			pollStatus();
+
+		if ( ! status.pending && interval === shortInterval ) {
+			pollCloudCssStatus();
 		}
 	}, interval );
 }

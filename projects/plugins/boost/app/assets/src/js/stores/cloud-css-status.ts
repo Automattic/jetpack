@@ -18,7 +18,7 @@ const resetState: CloudCssStatus = {
 	updated: 0,
 	total: 0,
 	completed: 0,
-	pending: false,
+	pending: true,
 };
 
 // eslint-disable-next-line camelcase
