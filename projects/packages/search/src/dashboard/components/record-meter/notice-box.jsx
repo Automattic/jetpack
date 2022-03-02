@@ -2,7 +2,7 @@
  * External dependencies
  */
 import React from 'react';
-import { __ } from '@wordpress/i18n';
+import { __, sprintf } from '@wordpress/i18n';
 
 /**
  * Returns a notice box for displaying notices about record count and plan limits
@@ -41,41 +41,33 @@ export function NoticeBox( props ) {
 		} );
 	}
 
-	// check if current indexed items is over, their plan limit
-	// note: this currently hard codes in the number of records for the next tier.
-	// will need to be updated once this plan data is fetchable via API
-
 	if ( props.recordCount > props.planRecordLimit ) {
 		notices.push( {
-			message:
-				__( 'You recently surpassed ', 'jetpack-search-pkg' ) +
-				props.planRecordLimit +
+			message: sprintf(
+				// translators: %1$d: site's current plan record limit, %2$d: record limit of the next plan up
 				__(
-					' records and will be automatically upgraded to the next billing tier of ',
+					'You recently surpassed %1$d records and will be automatically upgraded to the next billing tier of %2$d max records',
 					'jetpack-search-pkg'
-				) +
-				props.planRecordLimit * 10 +
-				__( ' max records. Learn more.', 'jetpack-search-pkg' ),
+				),
+				props.planRecordLimit,
+				props.planRecordLimit * 10 //TODO: this is currently hard coded & incorrect. Needs to have the next tier plan record limit added
+			),
 		} );
 	}
 
-	// check if current indexed items is getting close to.
-	// currently calculates when at 80% of usage
 	if (
-		props.recordCount > props.planRecordLimit * 0.8 &&
+		props.recordCount > props.planRecordLimit * 0.8 && //TODO: currently 'close' is defined as 80%. This has not been decided/finalised to be the best number here yet
 		props.recordCount < props.planRecordLimit
 	) {
 		notices.push( {
-			message:
+			message: sprintf(
+				// translators: %d: site's current plan record limit
 				__(
-					'You’re close to the max amount of records for this billing tier. Once you hit ',
-					'jetpack-search-pkg'
-				) +
-				props.planRecordLimit +
-				__(
-					' indexed records, you’ll automatically be billed in the next tier. Learn more.',
+					"You're close to the max amount of records for this billing tier. Once you hit %d indexed records, you'll automatically be billed in the next tier",
 					'jetpack-search-pkg'
 				),
+				props.planRecordLimit
+			),
 		} );
 	}
 
