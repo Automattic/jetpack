@@ -431,7 +431,7 @@ async function changelogArgs( argv ) {
 
 	// Squash just the readme if necessary.
 	if ( file === 'readme' ) {
-		readmeSquash( argv );
+		await readmeSquash( argv );
 	}
 
 	// Add any newly added changelog files.
