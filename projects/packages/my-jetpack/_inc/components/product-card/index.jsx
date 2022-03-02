@@ -103,6 +103,7 @@ const ProductCard = props => {
 		name,
 		admin,
 		description,
+		discount,
 		icon,
 		status,
 		onActivate,
@@ -188,6 +189,15 @@ const ProductCard = props => {
 
 	return (
 		<div className={ containerClassName }>
+			{ discount && (
+				<div className={ styles.discount }>
+					{
+						/* translators: placeholder is product discount in percentage. */
+						sprintf( __( '%s off', 'jetpack-my-jetpack' ), `${ discount }%` )
+					}
+				</div>
+			) }
+
 			<div className={ styles.name }>
 				<span>{ name }</span>
 				{ icon }
@@ -252,6 +262,7 @@ ProductCard.propTypes = {
 		PRODUCT_STATUSES.ABSENT,
 		PRODUCT_STATUSES.NEEDS_PURCHASE,
 	] ).isRequired,
+	discount: PropTypes.number,
 };
 
 ProductCard.defaultProps = {

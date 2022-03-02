@@ -15,6 +15,9 @@
 	--status-error: #B32D2E;
 	--status-plugin_absent: #C3C4C7;
 	--jp-underline-thickness: 2px;
+	--product-card-discount-width: 200px;
+	--product-card-discount-bgcolor: #f2d76b;
+	--product-card-discount-offset: calc( Math.sqrt( var(--product-card-discount-width) ** 2 / 2 ) );
 
 	padding: calc( var( --product-card-spacing-base ) * 3 ); // 24px
 	background: var( --jp-white );
@@ -23,6 +26,8 @@
 	height: 100%;
 	display: flex;
 	flex-direction: column;
+	position: relative;
+	overflow: hidden;
 
 	&.is-purchase-required,
 	&.plugin_absent {
@@ -69,6 +74,23 @@
 	font-size: var(--product-card-description-font-size);
 	margin:0;
 	flex-grow: 1;
+}
+
+.discount {
+	position: absolute;
+	right: 10px;
+	top: 10px;
+	background-color: var(--product-card-discount-bgcolor);
+	z-index: 0;
+	// transform: rotate( 45deg );
+	// padding: 2px 8px;
+	font-weight: 700;
+	width: 140px;
+	height: 24px;
+	line-height: 24px;
+	text-align: center;
+	transform: rotate(45deg) translate( 50%, 50% );
+	transform-origin: top right;
 }
 
 .actions {
