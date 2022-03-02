@@ -446,7 +446,7 @@ async function changelogArgs( argv ) {
  */
 async function readmeSquash( argv ) {
 	console.log( 'Updating readme...' );
-	await runCommand( 'tools/plugin-changelog-to-readme.sh', `${ argv.project }` );
+	await runCommand( 'tools/plugin-changelog-to-readme.sh', [ `${ argv.project }` ] );
 	console.log( 'Reverting changelog' );
 	await runCommand( 'git', [ 'checkout', '--', `projects/${ argv.project }/CHANGELOG.md` ] );
 }
