@@ -1,6 +1,10 @@
 import { test, expect } from '../../fixtures/base-test.js';
 import { SearchDashboard } from 'jetpack-e2e-commons/pages/wp-admin/index.js';
-import { enableInstantSearch, disableInstantSearch } from '../../helpers/search-helper.js';
+import {
+	enableInstantSearch,
+	disableInstantSearch,
+	clearSearchPlanInfo,
+} from '../../helpers/search-helper.js';
 import { prerequisitesBuilder, Plans } from 'jetpack-e2e-commons/env/index.js';
 import playwrightConfig from '../../playwright.config.cjs';
 
@@ -9,6 +13,7 @@ test.describe( 'Search Dashboard', () => {
 
 	test.beforeAll( async ( { browser } ) => {
 		const page = await browser.newPage( playwrightConfig.use );
+		await clearSearchPlanInfo();
 		await prerequisitesBuilder( page )
 			.withLoggedIn( true )
 			.withConnection( true )
