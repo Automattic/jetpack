@@ -17,6 +17,7 @@ import { chalkJetpackGreen } from '../helpers/styling.js';
 import { normalizeProject } from '../helpers/normalizeArgv.js';
 import { allProjects, projectTypes } from '../helpers/projectHelpers.js';
 import { readComposerJson } from '../helpers/json.js';
+import { runCommand } from '../helpers/runCommand.js';
 
 /**
  * Comand definition for changelog subcommand.
@@ -213,6 +214,26 @@ export function changelogDefine( yargs ) {
 					async argv => {
 						await changelogArgs( argv );
 					}
+				)
+				// Squash subcommand.
+				.command(
+					'squash [project]',
+					'Squashes changelog projects',
+					yargSquash => {
+						yargSquash
+							.positional( 'project', {
+								describe: 'Project in the form of type/name, e.g. plugins/jetpack',
+								type: 'string',
+							} )
+							.option( 'readme', {
+								describe: 'Indicates if we only want to squash the readme and not the changelog.',
+								alias: 'r',
+								type: 'bool',
+							} );
+					},
+					async argv => {
+						await changelogArgs( argv );
+					}
 				);
 		},
 		async argv => {
@@ -232,7 +253,7 @@ async function changelogCommand( argv ) {
 		argv = await promptCommand( argv );
 	}
 
-	const commands = [ 'add', 'validate', 'version', 'write' ];
+	const commands = [ 'add', 'validate', 'version', 'write', 'squash' ];
 	if ( ! commands.includes( argv.cmd ) ) {
 		throw new Error( 'Unknown command' ); // Yargs should provide a helpful response before this, but to be safe.
 	}
@@ -390,16 +411,55 @@ async function changelogArgs( argv ) {
 				argv.args.push( argv.ver );
 			}
 			break;
+		case 'squash':
+			if ( ! argv.r && ! argv.readme ) {
+				argv = await promptReadme( argv );
+			}
 	}
 
-	// Remove project from arguments list we pass to the changelogger.
+	// Remove the project from the list of args we're passing to changelogger.
+	argv = await removeArgs( argv, removeArg );
+
+	// Run the changelogger command.
+	await changeloggerCli( argv );
+
+	// Squash just the readme if necessary.
+	if ( argv.r ) {
+		readmeSquash( argv );
+	}
+
+	// Add any newly added changelog files.
+	await gitAdd( argv );
+
+	console.log( chalkJetpackGreen( argv.success ) );
+}
+
+/**
+ * Handles squashing just the readme file.
+ *
+ * @param {object} argv - arguments passed as cli.
+ */
+async function readmeSquash( argv ) {
+	console.log( 'Updating readme...' );
+	await runCommand( 'tools/plugin-changelog-to-readme.sh', `${ argv.project }` );
+	console.log( 'Reverting changelog' );
+	await runCommand( 'git', [ 'checkout', '--', `projects/${ argv.project }/CHANGELOG.md` ] );
+}
+
+/**
+ * Remove project from arguments list we pass to the changelogger.
+ *
+ * @param {object} argv - arguments passed as cli.
+ * @param {Array} removeArg - the array of projects we want to remove.
+ * @returns {argv} - the arguemnts.
+ */
+async function removeArgs( argv, removeArg ) {
 	for ( const proj of removeArg ) {
 		if ( argv.args.includes( proj ) ) {
 			argv.args.splice( argv.args.indexOf( proj ), 1 );
 		}
 	}
-
-	await changeloggerCli( argv );
+	return argv;
 }
 
 /**
@@ -416,9 +476,6 @@ export async function changeloggerCli( argv ) {
 	if ( data.status !== 0 ) {
 		console.error( chalk.red( argv.error ) );
 		process.exit( data.status );
-	} else {
-		await gitAdd( argv );
-		console.log( chalkJetpackGreen( argv.success ) );
 	}
 }
 
@@ -533,9 +590,26 @@ async function promptCommand( argv ) {
 		type: 'list',
 		name: 'cmd',
 		message: 'What changelogger command do you want to run?',
-		choices: [ 'add', 'validate', 'version', 'write' ],
+		choices: [ 'add', 'validate', 'version', 'write', 'squash' ],
 	} );
 	argv.cmd = response.cmd;
+	return argv;
+}
+
+/**
+ * Prompts for for the readme
+ *
+ * @param {argv} argv - the arguments passed.
+ * @returns {argv}.
+ */
+async function promptReadme( argv ) {
+	const response = await inquirer.prompt( {
+		type: 'bool',
+		name: 'readme',
+		message: 'Are you only looking to squash the readme?',
+		default: true,
+	} );
+	argv.r = response.readme;
 	return argv;
 }
 
