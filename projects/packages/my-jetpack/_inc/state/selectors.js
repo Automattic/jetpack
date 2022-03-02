@@ -2,9 +2,12 @@
  * Internal dependencies
  */
 import { mapObjectKeysToCamel } from '../utils/to-camel';
+import { PRODUCT_STATUSES } from '../components/product-card';
 
 export const getProducts = state => state.products?.items || {};
+
 export const getProductNames = state => Object.keys( getProducts( state ) );
+
 export const getProduct = ( state, productId ) => {
 	const stateProduct = getProducts( state )?.[ productId ] || {};
 
@@ -21,8 +24,25 @@ export const getProduct = ( state, productId ) => {
 
 	return product;
 };
+
 export const isValidProduct = ( state, productId ) =>
 	getProductNames( state ).includes( productId );
+
+export const getProductsThatRequiresUserConnection = state => {
+	const products = getProducts( state );
+
+	return Object.keys( products ).reduce( ( current, product ) => {
+		const currentProduct = products[ product ];
+		const requires =
+			currentProduct?.requires_user_connection &&
+			( currentProduct?.status === PRODUCT_STATUSES.ACTIVE ||
+				currentProduct?.status === PRODUCT_STATUSES.ERROR );
+		if ( requires ) {
+			current.push( currentProduct?.name );
+		}
+		return current;
+	}, [] );
+};
 
 const productSelectors = {
 	getProducts,
@@ -30,6 +50,7 @@ const productSelectors = {
 	getProduct,
 	isValidProduct,
 	isFetching: ( state, productId ) => state.products?.isFetching?.[ productId ] || false,
+	getProductsThatRequiresUserConnection,
 };
 
 const purchasesSelectors = {

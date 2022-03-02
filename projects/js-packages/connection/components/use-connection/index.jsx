@@ -28,7 +28,7 @@ export default ( { registrationNonce, redirectUri, apiRoot, apiNonce, autoTrigge
 		...select( STORE_ID ).getConnectionStatus(),
 	} ) );
 
-	const handleConnectUser = () => connectUser( { from } );
+	const handleConnectUser = () => connectUser( { from, redirectUri } );
 
 	/**
 	 * Initialize the site registration process.

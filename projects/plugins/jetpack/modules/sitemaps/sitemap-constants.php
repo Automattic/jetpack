@@ -15,10 +15,10 @@
  * @since 7.7.0
  */
 if ( defined( 'JETPACK_DEV_DEBUG' ) && JETPACK_DEV_DEBUG ) {
-	if ( ! defined( 'JP_SITEMAP_INTERVAL') ) {
+	if ( ! defined( 'JP_SITEMAP_INTERVAL' ) ) {
 		define( 'JP_SITEMAP_INTERVAL', 60 );
 	}
-	if ( ! defined( 'JP_NEWS_SITEMAP_INTERVAL') ) {
+	if ( ! defined( 'JP_NEWS_SITEMAP_INTERVAL' ) ) {
 		define( 'JP_NEWS_SITEMAP_INTERVAL', 60 );
 	}
 }
