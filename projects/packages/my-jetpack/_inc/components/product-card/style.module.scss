@@ -81,8 +81,8 @@
 
 .product-price-label {
 	position: absolute;
-	right: 10px;
-	top: 10px;
+	right: 15px;
+	bottom: 15px;
 	background-color: var(--product-card-discount-bgcolor);
 	z-index: 0;
 	font-weight: 700;
@@ -90,8 +90,8 @@
 	height: 24px;
 	line-height: 24px;
 	text-align: center;
-	transform: rotate(45deg) translate( 50%, 50% );
-	transform-origin: top right;
+	transform: rotate(-45deg) translate( 50%, -50% );
+	transform-origin: bottom right;
 
 	&.is-free {
 		color: white;
