@@ -413,10 +413,10 @@ async function changelogArgs( argv ) {
 			}
 			break;
 		case 'squash':
-			if ( argv.r && argv.readme ) {
-				readme = true;
-			} else {
+			if ( typeof argv.readme === 'undefined' ) {
 				readme = await promptReadme( argv );
+			} else {
+				readme = argv.readme;
 			}
 			argv.args = [ 'squash' ];
 			break;
