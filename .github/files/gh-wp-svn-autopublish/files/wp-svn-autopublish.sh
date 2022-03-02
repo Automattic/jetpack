@@ -7,7 +7,7 @@ set -eo pipefail
 : "${WPSVN_PASSWORD:?Build argument needs to be set and non-empty.}"
 
 ## Determine tag
-if ! [[ "$GITHUB_REF" =~ ^refs/tags/v?[0-9]+(\.[0-9]+)+(-[a-z0-9._-]+)?$ ]]; then
+if [[ ! "$GITHUB_REF" =~ ^refs/tags/v?[0-9]+(\.[0-9]+)+(-[a-z0-9._-]+)?$ ]]; then
 	echo "::error::Expected GITHUB_REF like \`refs/tags/v1.2.3\` or \`refs/tags/1.2.3\`, got \`$GITHUB_REF\`"
 	exit 1
 fi
@@ -75,12 +75,12 @@ fi
 
 if [[ -n "$CI" ]]; then
 	echo "::group::Creating tag"
-	svn cp ^/$WPSLUG/trunk ^/$WPSLUG/tags/$TAG --no-auth-cache --non-interactive  --username "$WPSVN_USERNAME" --password "$WPSVN_PASSWORD"
+	svn cp "^/$WPSLUG/trunk" "^/$WPSLUG/tags/$TAG" --no-auth-cache --non-interactive  --username "$WPSVN_USERNAME" --password "$WPSVN_PASSWORD"
 	echo '::endgroup::'
 else
 	echo "----"
 	echo "Not running in CI, skipping commit"
-	echo "  svn cp ^/$WPSLUG/trunk ^/$WPSLUG/tags/$TAG --no-auth-cache --non-interactive  --username \"\$WPSVN_USERNAME\" --password \"\$WPSVN_PASSWORD\""
+	echo "  svn cp \"^/$WPSLUG/trunk\" \"^/$WPSLUG/tags/$TAG\" --no-auth-cache --non-interactive  --username \"\$WPSVN_USERNAME\" --password \"\$WPSVN_PASSWORD\""
 	echo "----"
 fi
 
@@ -88,7 +88,7 @@ fi
 if [[ "$TAG" =~ ^[0-9]+(\.[0-9]+)+$ ]]; then
 	if [[ -n "$CI" ]]; then
 		echo "::group::Checking out new tag"
-		svn up tags/$TAG
+		svn up "tags/$TAG"
 		echo '::endgroup::'
 		sed -i -e "s/Stable tag: .*/Stable tag: $TAG/" "tags/$TAG/readme.txt"
 		echo "::group::Committing to SVN"
@@ -97,7 +97,7 @@ if [[ "$TAG" =~ ^[0-9]+(\.[0-9]+)+$ ]]; then
 	else
 		echo "----"
 		echo "Not running in CI, skipping tag \"Stable tag\" update"
-		echo "  svn up tags/$TAG"
+		echo "  svn up \"tags/$TAG\""
 		echo "  sed -i -e \"s/Stable tag: .*/Stable tag: $TAG/\" \"tags/$TAG/readme.txt\""
 		echo "  svn commit -m \"Updating stable tag in version $TAG\" --no-auth-cache --non-interactive  --username \"\$WPSVN_USERNAME\" --password \"\$WPSVN_PASSWORD\""
 		echo "----"
