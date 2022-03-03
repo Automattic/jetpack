@@ -88,16 +88,16 @@ export function changelogDefine( yargs ) {
 							} )
 							.option( 'gh-action', {
 								describe: 'Output validation issues using GitHub Action command syntax.',
-								type: 'bool',
+								type: 'boolean',
 							} )
 							.option( 'base-dir', {
 								describe: 'Output file paths in this directory relative to it.',
-								type: 'bool',
+								type: 'boolean',
 							} )
 							.option( 'no-strict', {
 								alias: 'strict',
 								describe: 'Do not exit with a failure code if only warnings are found.',
-								type: 'bool',
+								type: 'boolean',
 							} );
 					},
 					async argv => {
@@ -120,7 +120,7 @@ export function changelogDefine( yargs ) {
 							.option( 'yes', {
 								describe:
 									'Default all questions to "yes" instead of "no". Particularly useful for non-interactive mode',
-								type: 'bool',
+								type: 'boolean',
 							} )
 							.option( 'use-version', {
 								describe:
@@ -135,12 +135,12 @@ export function changelogDefine( yargs ) {
 							.option( 'prerelease', {
 								alias: 'p',
 								describe: 'When determining the new version, include this prerelease suffix',
-								type: 'bool',
+								type: 'boolean',
 							} )
 							.option( 'buildinfo', {
 								alias: 'b',
 								describe: 'When fetching the next version, include this buildinfo suffix',
-								type: 'bool',
+								type: 'boolean',
 							} )
 							.option( 'release-date', {
 								describe: 'Release date, as a valid PHP date or "unreleased"',
@@ -153,7 +153,7 @@ export function changelogDefine( yargs ) {
 							} )
 							.option( 'deduplicate', {
 								describe: 'Deduplicate new changes against the last N versions',
-								type: 'bool',
+								type: 'boolean',
 							} )
 							.option( 'prologue', {
 								describe: 'Prologue text for the new changelog entry',
