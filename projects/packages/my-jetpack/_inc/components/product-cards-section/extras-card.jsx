@@ -8,17 +8,9 @@ import PropTypes from 'prop-types';
  * Internal dependencies
  */
 import ProductCard from '../product-card';
-import useMyJetpackNavigate from '../../hooks/use-my-jetpack-navigate';
 
 const ExtrasCard = ( { admin } ) => {
-	return (
-		<ProductCard
-			admin={ admin }
-			onAdd={ useMyJetpackNavigate( '/add-extras' ) }
-			showDeactivate={ false }
-			slug="extras"
-		/>
-	);
+	return <ProductCard admin={ admin } showDeactivate={ false } slug="extras" />;
 };
 
 ExtrasCard.propTypes = {

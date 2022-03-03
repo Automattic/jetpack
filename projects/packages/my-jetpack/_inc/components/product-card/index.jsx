@@ -102,7 +102,7 @@ const ActionButton = ( {
 };
 
 const ProductCard = props => {
-	const { admin, onAdd, slug, showDeactivate } = props;
+	const { admin, slug, showDeactivate } = props;
 	const { detail, status, activate, deactivate, isFetching } = useProduct( slug );
 	const { name, description, manageUrl } = detail;
 
@@ -126,10 +126,13 @@ const ProductCard = props => {
 		[ styles[ 'is-fetching' ] ]: isFetching,
 	} );
 
+	const navigateToConnectionPage = useMyJetpackNavigate( '/connection' );
+	const navigateToAddProductPage = useMyJetpackNavigate( `add-${ slug }` );
+
 	const { recordEvent } = useAnalytics();
 
 	/**
-	 * Redrect to manage URL after firing Tracks event
+	 * Redirect to manage URL after firing Tracks event
 	 */
 	const manageHandler = useCallback( () => {
 		recordEvent( 'jetpack_myjetpack_product_card_manage_click', {
@@ -160,19 +163,18 @@ const ProductCard = props => {
 	}, [ slug, activate, recordEvent ] );
 
 	/**
-	 * Calls the passed function onAdd after firing Tracks event
+	 * Navigate to add product page after firing Tracks event
 	 */
 	const addHandler = useCallback( () => {
 		recordEvent( 'jetpack_myjetpack_product_card_add_click', {
 			product: slug,
 		} );
-		onAdd();
-	}, [ slug, onAdd, recordEvent ] );
+		navigateToAddProductPage();
+	}, [ slug, navigateToAddProductPage, recordEvent ] );
 
 	/**
 	 * Calls the passed function onManage after firing Tracks event
 	 */
-	const navigateToConnectionPage = useMyJetpackNavigate( '/connection' );
 	const fixConnectionHandler = useCallback( () => {
 		recordEvent( 'jetpack_myjetpack_product_card_fixconnection_click', {
 			product: slug,
@@ -231,14 +233,12 @@ const ProductCard = props => {
 
 ProductCard.propTypes = {
 	admin: PropTypes.bool.isRequired,
-	onAdd: PropTypes.func,
 	onLearn: PropTypes.func,
 	slug: PropTypes.string.isRequired,
 	showDeactivate: PropTypes.bool,
 };
 
 ProductCard.defaultProps = {
-	onAdd: () => {},
 	onLearn: () => {},
 	showDeactivate: true,
 };

@@ -8,16 +8,9 @@ import PropTypes from 'prop-types';
  * Internal dependencies
  */
 import ProductCard from '../product-card';
-import useMyJetpackNavigate from '../../hooks/use-my-jetpack-navigate';
 
 const VideopressCard = ( { admin } ) => {
-	return (
-		<ProductCard
-			admin={ admin }
-			onAdd={ useMyJetpackNavigate( '/add-videopress' ) }
-			slug="videopress"
-		/>
-	);
+	return <ProductCard admin={ admin } slug="videopress" />;
 };
 
 VideopressCard.propTypes = {

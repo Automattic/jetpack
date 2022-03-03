@@ -8,10 +8,9 @@ import PropTypes from 'prop-types';
  * Internal dependencies
  */
 import ProductCard from '../product-card';
-import useMyJetpackNavigate from '../../hooks/use-my-jetpack-navigate';
 
 const CrmCard = ( { admin } ) => {
-	return <ProductCard admin={ admin } onAdd={ useMyJetpackNavigate( '/add-crm' ) } slug="crm" />;
+	return <ProductCard admin={ admin } slug="crm" />;
 };
 
 CrmCard.propTypes = {
