@@ -1,4 +1,0 @@
-Significance: patch
-Type: bugfix
-
-Corrected the wpas_title form field name to fix Publicize custom messages in the classic editor.

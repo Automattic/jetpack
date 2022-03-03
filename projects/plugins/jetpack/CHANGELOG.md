@@ -2,7 +2,28 @@
 
 ### This is a list detailing changes for all Jetpack releases.
 
-## 10.7-beta - 2022-02-22
+## 10.8-a.1 - 2022-03-02
+### Enhancements
+- Payment Blocks: add a unified introduction to payment blocks to make it easier to select the correct one.
+- Payment Blocks: add more keywords to payments blocks so they're easier to find.
+- Subscribe Block: add pre/post-publish notices.
+- Subscribe Block: block setting updates including name change, display of current subscribers, and a new style option.
+- Tiled Gallery: add background color block setting.
+- Various Blocks: update Contact Info, Markdown, and Tiled Gallery blocks to include margin design tools.
+
+### Other changes <!-- Non-user-facing changes go here. This section will not be copied to readme.txt. -->
+- E2E: add tests for clicking link to open overlay.
+- E2E: restore plugin update test.
+- WAF: include the dependency of the WAF package in the plugin zip.
+- Moved site benefits request out of PHP to React, and guard against no connected plugins.
+- My Jetpack: do not add My Jetpack action link to plugins page.
+- Search E2E: support block themes.
+- Sync: changes added to wpcom to Jetpack.
+- Sync: integration tests optimization.
+- Updated package dependencies.
+- WoA: add missing plugins sidebar menu for Atomic site with unsupported plan.
+
+## 10.7 - 2022-02-28
 ### Enhancements
 - Dashboard: improve performance of plugins page.
 - Subscribe block: various changes, including a name change, how the display for current subscribers is shown, and new styling options and enhancements.
@@ -11,24 +32,26 @@
 - Performance: improve performance of Jetpack dashboard for sites without VideoPress enabled.
 
 ### Bug fixes
-- Subscribe block: address front-end rendering issues.
 - Dashboard: show Jetpack stats Screen Options label properly.
+- Publicize: fixed bugs when using Publicize with the Classic Editor.
+- Subscribe block: address front-end rendering issues.
 
 ### Other changes <!-- Non-user-facing changes go here. This section will not be copied to readme.txt. -->
 - Add Sync related unit tests.
 - Bump package versions.
 - Dashboard: remove marketplace related add plugins menu redirect.
 - E2E tests: update readme.
-- Fix PHPCS violations for the Publicize module.
-- Fix WPCOM-specific linting errors.
 - Fix double escaping of connections in Classic Editor.
 - Fix fatal error in the WP.com customizer while in sandbox mode.
+- Fix PHPCS violations for the Publicize module.
+- Fix WPCOM-specific linting errors.
 - Init 10.7-a.6 cycle.
 - Memoize calls to store_subscription when setting available features for site in order to reduce duplicate uncached queries.
 - PHPCS Changes for json-get endpoint files.
 - Re-introduce CRM card on At A Glance page for Jetpack.
 - Remove Jetpack settings submenu from general settings menu when site doesn't have atomic supported plan.
 - Subscribe block: Fix color serialization.
+- Take pre_update_option filter into account when firing active module hooks
 - Updated package dependencies.
 - Update to-test.md.
 - WordPress.com REST API: avoid errors when restoring the previous version of an image from the WordPress.com dashboard.
