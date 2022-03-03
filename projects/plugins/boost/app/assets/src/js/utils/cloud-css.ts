@@ -13,6 +13,10 @@ export async function requestCloudCss(): Promise< void > {
 
 let statusIntervalId = null;
 
+function pollIntervalForStatus( status: CloudCssStatus ) {
+	return status.pending ? 5 * 1000 : 2 * 60 * 1000;
+}
+
 /**
  * Poll Cloud Critical CSS on regular intervals.
  *
@@ -25,9 +29,7 @@ let statusIntervalId = null;
  */
 export function pollCloudCssStatus() {
 	let status = getStatus();
-	const shortInterval = 5000;
-	const longInterval = 2 * 60 * 1000;
-	const interval = status.pending ? shortInterval : longInterval;
+	const interval = pollIntervalForStatus( getStatus() );
 
 	if ( statusIntervalId !== null ) {
 		clearInterval( statusIntervalId );
@@ -37,7 +39,7 @@ export function pollCloudCssStatus() {
 		status = await api.get< CloudCssStatus >( '/cloud-css/status' );
 		updateStatus( status );
 
-		if ( ! status.pending && interval === shortInterval ) {
+		if ( interval !== pollIntervalForStatus( status ) ) {
 			pollCloudCssStatus();
 		}
 	}, interval );
