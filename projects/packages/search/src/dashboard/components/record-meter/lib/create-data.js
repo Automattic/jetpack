@@ -1,5 +1,7 @@
 /**
+ * Generate dummy data for use with Record Meter
  *
+ * @returns {object} dummy data object
  */
 export default function createData() {
 	const data = {

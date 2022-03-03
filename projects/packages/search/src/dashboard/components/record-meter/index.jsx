@@ -12,9 +12,9 @@ import { useSelect } from '@wordpress/data';
  * Internal dependencies
  */
 import { STORE_ID } from 'store';
-import { BarChart } from './barchart';
-import getRecordInfo from './lib/recordInfo';
-import createData from './lib/createData';
+import { BarChart } from './bar-chart';
+import getRecordInfo from './lib/record-info';
+import createData from './lib/create-data';
 
 import './style.scss';
 
@@ -38,7 +38,6 @@ export default function RecordMeter() {
 					<h2>{ __( 'Your search records', 'jetpack-search-pkg' ) }</h2>
 					{ tierMaximumRecords && (
 						<p>
-							Tier maximum records: <strong>{ tierMaximumRecords }</strong>
 							<BarChart data={ recordInfo.data } isValid={ recordInfo.isValid } />
 						</p>
 					) }

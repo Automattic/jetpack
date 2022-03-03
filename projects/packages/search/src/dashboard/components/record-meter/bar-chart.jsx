@@ -2,12 +2,12 @@
  * External dependencies
  */
 import React from 'react';
-import { __ } from '@wordpress/i18n';
 import Chart from 'chart.js/auto';
 
 /**
- * Internal dependencies
+ * WordPress dependencies
  */
+import { __ } from '@wordpress/i18n';
 
 export class BarChart extends React.Component {
 	constructor( props ) {
