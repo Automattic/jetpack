@@ -3,6 +3,7 @@
  */
 import { ExternalLink } from '@wordpress/components';
 import { PluginPostPublishPanel } from '@wordpress/edit-post';
+import { currencyDollar } from '@wordpress/icons';
 import { __ } from '@wordpress/i18n';
 
 /**
@@ -25,6 +26,7 @@ const PaymentsPostPublish = () => {
 			className="jetpack-payments-post-publish-panel"
 			title={ __( 'Start accepting payments', 'jetpack' ) }
 			initialOpen
+			icon={ currencyDollar }
 		>
 			<p>
 				{ __(
