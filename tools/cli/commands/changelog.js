@@ -268,6 +268,10 @@ async function changelogCommand( argv ) {
  * @returns {Array} - array of projects with unique changelog configurations.
  */
 async function checkSpecialProjects( needChangelog ) {
+	if ( ! needChangelog ) {
+		return;
+	}
+
 	const specialProjects = [];
 	for ( const proj of needChangelog ) {
 		const composerJSON = readComposerJson( proj );
