@@ -13,7 +13,7 @@
 class Jetpack_Connection_Status {
 
 	/**
-	 * Initialize the main hooks.
+	 * Initialize the main hooks of things.
 	 */
 	public static function init() {
 		add_filter( 'jetpack_connection_status', array( __CLASS__, 'filter_connection_status' ) );
