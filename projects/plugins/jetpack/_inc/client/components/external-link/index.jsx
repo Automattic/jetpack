@@ -45,7 +45,7 @@ export default createReactClass( {
 
 		return (
 			<a { ...props }>
-				{ this.props.children }
+				<span class="dops-external-link__text">{ this.props.children }</span>
 				{ this.props.icon ? <Gridicon icon="external" size={ this.props.iconSize } /> : null }
 			</a>
 		);

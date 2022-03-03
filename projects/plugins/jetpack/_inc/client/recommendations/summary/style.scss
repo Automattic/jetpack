@@ -1,6 +1,7 @@
 @import 'node_modules/@automattic/color-studio/dist/color-variables.scss';
 @import '../../scss/mixin_breakpoint.scss';
 @import '../../scss/calypso-colors';
+@import '../../scss/typography';
 
 .jp-recommendations-summary {
 	display: grid;
@@ -15,36 +16,14 @@
 		display: flex;
 		flex-direction: column;
 	}
-
-	.dops-button.is-primary {
-		background-color: var( --jp-black );
-		border-color: var( --jp-black );
-		transition: all 150ms ease-in-out;
-
-		&:hover:not(:disabled),
-		&:active:not(:disabled) {
-			background: var( --jp-black-80 );
-			color: var( --jp-white );
-		}
-
-		&:focus:not(:disabled) {
-			box-shadow: 0 0 0 1px var( --jp-white ) inset, 0 0 0 1px var( --jp-black );
-		}
-
-		&:disabled,
-		&.disabled {
-			background: var( --jp-gray );
-			pointer-events: none;
-		}
-	}
-
-	a {
-		color: var( --jp-black );
-	}
 }
 
 .jp-recommendations-summary__content {
 	background: $white;
+
+	@include breakpoint( '<480px' ) {
+		padding-bottom: 1rem;
+	}
 
 	&.isLoading {
 		min-height: 730px;
@@ -62,25 +41,31 @@
 	}
 
 	h1 {
-		font-size: 1.5rem;
+		font-size: $font-title-medium;
+	
+		color: var( --jp-gray-80 );
 	}
 
 	h2 {
 		margin: 2rem 0 1rem 0;
-		font-size: 1rem;
+
+		color: var( --jp-gray-100 );
+
+		font-size: $font-body;
 	}
 }
 
 .jp-recommendations-summary__recommendation-notice {
-	font-size: 0.875rem;
+	font-size: $font-body-small;
+
 	color: var( --jp-gray-50 );
 }
 
 .jp-recommendations-summary__sidebar {
-	padding: 2rem 3rem;
+	padding: 2rem 2.5rem;
 
 	@include breakpoint( '<660px' ) {
-		padding: 0;
+		padding: 1rem;
 	}
 
 	&.isLoading {
@@ -91,27 +76,16 @@
 	}
 }
 
-.jp-recommendations-summary__more-features {
-	display: flex;
-	align-items: flex-start;
-	border-top: 1px solid $studio-gray-5;
-	padding: 2.5rem 3rem;
+.jp-recommendations-summary__footer {
+	padding-top: 2rem;
+}
 
-	@include breakpoint( '<480px' ) {
-		padding: 2.5rem 1rem;
-	}
+.jp-recommendations-summary__footnote {
+	margin-top: 0.625rem;
+	margin-bottom: 0;
 
-	.gridicons-info-outline {
-		fill: $studio-gray-40;
-		margin-right: 1.125rem;
-		flex: 0 0 1.5rem;
-	}
+	color: var( --jp-gray-30 );
 
-	.gridicons-external {
-		margin-left: 0.25rem;
-	}
-
-	> p {
-		margin: 1px 0 0 0;
-	}
+	font-size: $font-body-small;
+	text-align: center;
 }

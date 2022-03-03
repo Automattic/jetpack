@@ -1,14 +1,9 @@
-@import 'node_modules/@automattic/color-studio/dist/color-variables.scss';
 @import '../../scss/variables/colors';
+@import '../../scss/typography';
 
 .jp-recommendations-feature-summary {
-	display: grid;
-	grid-template-columns: auto 120px;
+	display: flex;
 	min-width: 275px;
-
-	&.is-feature-enabled {
-		grid-template-columns: 30px auto 120px;
-	}
 
 	border-bottom: 1px solid #e1e1e1;
 
@@ -31,6 +26,8 @@
 	display: flex;
 	align-items: center;
 	padding-left: 12px;
+
+	font-size: $font-body;
 }
 
 .jp-recommendations-summary .jp-recommendations-feature-summary__display-name a {
@@ -49,6 +46,7 @@
 }
 
 .jp-recommendations-feature-summary__actions {
+	margin-inline-start: auto;
 	padding: 8px;
 }
 
