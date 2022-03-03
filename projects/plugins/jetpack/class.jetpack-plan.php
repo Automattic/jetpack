@@ -323,7 +323,12 @@ class Jetpack_Plan {
 	 */
 	public static function supports( $feature ) {
 		// Hijack the feature eligibility check on WordPress.com sites since they are gated differently.
-		if ( function_exists( 'wpcom_site_has_feature' ) ) {
+		$should_wpcom_gate_feature = (
+			function_exists( 'wpcom_site_has_feature' ) &&
+			function_exists( 'wpcom_feature_exists' ) &&
+			wpcom_feature_exists( $feature )
+		);
+		if ( $should_wpcom_gate_feature ) {
 			return wpcom_site_has_feature( $feature );
 		}
 
