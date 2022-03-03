@@ -25,6 +25,7 @@ import './style.scss';
  */
 export default function RecordMeter() {
 	const tierMaximumRecords = useSelect( select => select( STORE_ID ).getTierMaximumRecords() );
+	// TODO: use setRecordInfo var
 	// eslint-disable-next-line no-unused-vars
 	const [ recordInfo, setRecordInfo ] = useState(
 		getRecordInfo( createData().data, createData().planInfo )

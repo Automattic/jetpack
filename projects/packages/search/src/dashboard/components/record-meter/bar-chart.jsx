@@ -73,6 +73,7 @@ export class BarChart extends React.Component {
 		} );
 
 		if ( this.props.isValid === true ) {
+			// TODO: move setState out of componentDidMount
 			// eslint-disable-next-line react/no-did-mount-set-state
 			this.setState( { legendItems: this.myChart.legend.legendItems } );
 		}
