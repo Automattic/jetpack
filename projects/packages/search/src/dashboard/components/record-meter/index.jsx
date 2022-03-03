@@ -21,22 +21,14 @@ import './style.scss';
 /**
  * Generate Record Meter showing how many records the user has indexed
  *
- * @param {object} props - Props
- * @param {number} props.postCount - Post count
- * @param {object} props.postTypeBreakdown - Post type breakdown (post type => number of posts)
- * @param {number} props.tierMaximumRecords - Max number of records allowed in user's current tier
  * @returns {React.Component} RecordMeter React component
  */
 export default function RecordMeter() {
 	const tierMaximumRecords = useSelect( select => select( STORE_ID ).getTierMaximumRecords() );
-
+	// eslint-disable-next-line no-unused-vars
 	const [ recordInfo, setRecordInfo ] = useState(
 		getRecordInfo( createData().data, createData().planInfo )
 	);
-
-	// quick console log for the moment, just to check the correct data & correct form is coming through the state
-	console.log( recordInfo.data );
-	console.log( recordInfo.isValid );
 
 	return (
 		<div className="jp-search-record-meter jp-search-dashboard-wrap">
@@ -48,26 +40,6 @@ export default function RecordMeter() {
 						<p>
 							Tier maximum records: <strong>{ tierMaximumRecords }</strong>
 							<BarChart data={ recordInfo.data } isValid={ recordInfo.isValid } />
-						</p>
-					) }
-					{ postCount && (
-						<p>
-							Post count: <strong>{ postCount }</strong>
-						</p>
-					) }
-					{ postTypeBreakdown && (
-						<p>
-							Post type breakdown:
-							<table>
-								{ Object.entries( postTypeBreakdown ).map( postType => (
-									<tr>
-										<td>{ postType[ 0 ] }</td>
-										<td>
-											<strong>{ postType[ 1 ] }</strong>
-										</td>
-									</tr>
-								) ) }
-							</table>
 						</p>
 					) }
 				</div>
