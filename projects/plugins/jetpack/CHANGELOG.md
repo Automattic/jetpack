@@ -1,4 +1,4 @@
-# Changelog 
+# Changelog
 
 ### This is a list detailing changes for all Jetpack releases.
 
