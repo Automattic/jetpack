@@ -1103,16 +1103,15 @@ class Jetpack_Gutenberg {
 	 * @param string $slug Slug of the block.
 	 */
 	public static function set_availability_for_plan( $slug ) {
-		$is_available   = true;
 		$plan           = '';
 		$slug           = self::remove_extension_prefix( $slug );
+		$is_available   = Jetpack_Plan::supports( $slug );
 		$features_data  = array();
 		$is_simple_site = defined( 'IS_WPCOM' ) && IS_WPCOM;
 		$is_atomic_site = ( new Host() )->is_woa_site();
 
 		// Check feature availability for Simple and Atomic sites.
 		if ( $is_simple_site || $is_atomic_site ) {
-
 			// Simple sites.
 			if ( $is_simple_site ) {
 				$features_data = self::get_site_specific_features();
@@ -1124,14 +1123,12 @@ class Jetpack_Gutenberg {
 				}
 			}
 
-			$is_available = isset( $features_data['active'] ) && in_array( $slug, $features_data['active'], true );
 			if ( ! empty( $features_data['available'][ $slug ] ) ) {
 				$plan = $features_data['available'][ $slug ][0];
 			}
 		} else {
 			// Jetpack sites.
-			$is_available = Jetpack_Plan::supports( $slug );
-			$plan         = Jetpack_Plan::get_minimum_plan_for_feature( $slug );
+			$plan = Jetpack_Plan::get_minimum_plan_for_feature( $slug );
 		}
 
 		if ( $is_available ) {
