@@ -7,9 +7,7 @@
 
 namespace Automattic\Jetpack\Search;
 
-use Automattic\Jetpack\Config;
 use Automattic\Jetpack\Connection\Manager as Connection_Manager;
-use Automattic\Jetpack\Connection\Rest_Authentication as Connection_Rest_Authentication;
 use WP_Error;
 /**
  * Base class for the initializer pattern.
@@ -49,8 +47,6 @@ class Initializer {
 			return;
 		}
 
-		$this->ensure_dependecies_configured();
-
 		$this->init_before_connection();
 
 		// Check whether Jetpack Search should be initialized in the first place .
@@ -79,26 +75,6 @@ class Initializer {
 	}
 
 	/**
-	 * Ensure search dependencies are configured.
-	 */
-	public function ensure_dependecies_configured() {
-		$config = new Config();
-		// Connection package.
-		$config->ensure(
-			'connection',
-			array(
-				'slug'     => JETPACK_SEARCH_PLUGIN__SLUG,
-				'name'     => 'Jetpack Search',
-				'url_info' => 'https://jetpack.com/upgrade/search/',
-			)
-		);
-		// Sync package.
-		$config->ensure( 'sync' );
-		// Identity crisis package.
-		$config->ensure( 'identity_crisis' );
-	}
-
-	/**
 	 * Check if site has been connected.
 	 */
 	public function is_connected() {
@@ -123,13 +99,9 @@ class Initializer {
 	 * Init functionality required for connection.
 	 */
 	protected function init_before_connection() {
-		// Set up the REST authentication hooks for connection.
-		Connection_Rest_Authentication::init();
-
 		if ( apply_filters( 'jetpack_search_init_rest_api', true ) ) {
 			// Set up Search API endpoints.
 			add_action( 'rest_api_init', array( new REST_Controller(), 'register_rest_routes' ) );
-
 		}
 
 		// The dashboard has to be initialized before connection.

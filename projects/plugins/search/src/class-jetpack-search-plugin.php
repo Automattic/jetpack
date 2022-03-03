@@ -19,13 +19,13 @@ class Jetpack_Search_Plugin {
 	 * Intialize Jetpack Search plugin
 	 */
 	public static function initiallize() {
-		add_action( 'plugins_loaded', array( self::class, 'ensure_dependecies_configured' ), 1 );
+		add_action( 'plugins_loaded', array( self::class, 'ensure_dependencies_configured' ), 1 );
 	}
 
 	/**
 	 * Ensure plugin dependencies are configured.
 	 */
-	public static function ensure_dependecies_configured() {
+	public static function ensure_dependencies_configured() {
 		$config = new Config();
 		// Connection package.
 		$config->ensure(
