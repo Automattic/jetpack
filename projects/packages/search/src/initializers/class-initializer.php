@@ -70,6 +70,9 @@ class Initializer {
 
 		$this->init_search_package();
 
+		// Set up package version hook.
+		add_filter( 'jetpack_package_versions', array( Package::class, 'send_version_to_tracker' ) );
+
 		// Fired when plugin ready.
 		do_action( 'jetpack_search_loaded' );
 	}
