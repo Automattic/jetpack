@@ -9,6 +9,8 @@ import {
 	getBlockWidgets,
 	setupBlockWidgets,
 	searchAPIRoute,
+	searchAutoConfig,
+	clearSearchPlanInfo,
 } from '../../helpers/search-helper.js';
 import { prerequisitesBuilder, Plans } from 'jetpack-e2e-commons/env/index.js';
 import { resolveSiteUrl } from 'jetpack-e2e-commons/helpers/utils-helper.cjs';
@@ -22,19 +24,21 @@ test.describe( 'Search', () => {
 
 	test.beforeAll( async ( { browser } ) => {
 		const page = await browser.newPage( playwrightConfig.use );
+		await clearSearchPlanInfo();
 		await prerequisitesBuilder( page )
 			.withLoggedIn( true )
 			.withConnection( true )
 			.withPlan( Plans.Complete )
 			.withActiveModules( [ 'search' ] )
 			.build();
+		await enableInstantSearch();
 
 		backupSidebarsWidgets = await getSidebarsWidgets();
 		backupBlockWidgets = await getBlockWidgets();
-		await enableInstantSearch();
 		await setupSidebarsWidgets();
 		await setupSearchWidget();
 		await setupBlockWidgets();
+		await searchAutoConfig();
 		await page.close();
 	} );
 
@@ -45,8 +49,8 @@ test.describe( 'Search', () => {
 	} );
 
 	test.beforeEach( async ( { page } ) => {
+		await searchAPIRoute( page );
 		homepage = await SearchHomepage.visit( page );
-		await searchAPIRoute( homepage.page );
 		await homepage.waitForPage();
 		await homepage.waitForNetworkIdle();
 	} );
@@ -166,5 +170,15 @@ test.describe( 'Search', () => {
 			expect( await homepage.isResultFormat( 'is-format-expanded' ) ).toBeTruthy();
 			expect( await homepage.isExpandedImageVisible() ).toBeTruthy();
 		} );
+	} );
+
+	test( 'Can open overlay by clicking a link', async () => {
+		await homepage.goto( `${ siteUrl }?jetpack_search_link_in_footer=1` );
+		await homepage.waitForPage();
+		await homepage.waitForNetworkIdle();
+
+		expect( await homepage.isOverlayVisible() ).toBeFalsy();
+		await homepage.clickLink();
+		expect( await homepage.isOverlayVisible() ).toBeTruthy();
 	} );
 } );

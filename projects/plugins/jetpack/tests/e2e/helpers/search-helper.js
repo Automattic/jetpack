@@ -70,6 +70,16 @@ export async function setupBlockWidgets( blockWidgets = getBlockWidgetsData() ) 
 	return await setWpOptionData( blockWidgetsOption, blockWidgets, blockWidgetsFilePath );
 }
 
+export async function searchAutoConfig() {
+	// Run auto config to add search widget / block with user ID `1`.
+	return await execWpCommand( 'jetpack-search auto_config 1' );
+}
+
+export async function clearSearchPlanInfo() {
+	// When running locally, sometimes there could be data in the option - better clear it.
+	return await execWpCommand( 'option delete jetpack_search_plan_info' );
+}
+
 async function setWpOptionData( optionName, value, tempFilePath ) {
 	fs.writeFileSync( tempFilePath, JSON.stringify( value ) );
 
