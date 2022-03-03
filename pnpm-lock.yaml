@@ -347,6 +347,7 @@ importers:
 
   projects/js-packages/partner-coupon:
     specifiers:
+      '@automattic/jetpack-analytics': workspace:^0.1.8
       '@automattic/jetpack-base-styles': workspace:^0.1.9
       '@automattic/jetpack-components': workspace:^0.10.7
       '@automattic/jetpack-connection': workspace:^0.17.0
@@ -359,6 +360,8 @@ importers:
       nyc: 15.1.0
       prop-types: 15.7.2
       react: 17.0.2
+      react-dom: 17.0.2
+      react-test-renderer: 17.0.2
     dependencies:
       '@automattic/jetpack-components': link:../components
       '@automattic/jetpack-connection': link:../connection
@@ -366,6 +369,7 @@ importers:
       classnames: 2.3.1
       prop-types: 15.7.2
     devDependencies:
+      '@automattic/jetpack-analytics': link:../analytics
       '@automattic/jetpack-base-styles': link:../base-styles
       '@babel/core': 7.16.0
       '@babel/preset-react': 7.16.0_@babel+core@7.16.0
@@ -373,6 +377,8 @@ importers:
       jetpack-js-test-runner: link:../../../tools/js-test-runner
       nyc: 15.1.0
       react: 17.0.2
+      react-dom: 17.0.2_react@17.0.2
+      react-test-renderer: 17.0.2_react@17.0.2
 
   projects/js-packages/remove-asset-webpack-plugin:
     specifiers:
@@ -971,7 +977,7 @@ importers:
       '@automattic/jetpack-components': workspace:^0.10.7
       '@automattic/jetpack-connection': workspace:^0.17.0
       '@automattic/jetpack-licensing': workspace:^0.4.8
-      '@automattic/jetpack-partner-coupon': workspace:^0.2.2
+      '@automattic/jetpack-partner-coupon': workspace:^0.2.3-alpha
       '@automattic/jetpack-shared-extension-utils': workspace:^0.1.1
       '@automattic/jetpack-webpack-config': workspace:^1.1.4
       '@automattic/popup-monitor': 1.0.0
