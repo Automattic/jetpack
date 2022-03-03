@@ -112,10 +112,15 @@
 		white-space: pre-line;
 		height: auto;
 
+		.components-spinner {
+			margin: 0;
+		}
+
 		&.is-bundle:hover {
 			background: var(--jp-black);
 			color: var(--jp-white);
 		}
+
 	}
 
 	// Product Icon
