@@ -2,7 +2,7 @@
  * External dependencies
  */
 import React, { useCallback, useEffect } from 'react';
-import { Container, Col } from '@automattic/jetpack-components';
+import { Container, Col, AdminPage } from '@automattic/jetpack-components';
 import { select } from '@wordpress/data';
 
 /**
@@ -21,6 +21,7 @@ import useMyJetpackNavigate from '../../hooks/use-my-jetpack-navigate';
 import getProductCheckoutUrl from '../../utils/get-product-checkout-url';
 import useMyJetpackConnection from '../../hooks/use-my-jetpack-connection';
 import { STORE_ID } from '../../state/store';
+import GoBackLink from '../go-back-link';
 
 /**
  * Product Interstitial component.
@@ -83,28 +84,43 @@ export default function ProductInterstitial( {
 		} );
 	}, [ navigateToMyJetpackOverviewPage, activate, isUserConnected, slug ] );
 
+	const onClickGoBack = useCallback( () => {
+		if ( slug ) {
+			recordEvent( 'jetpack_myjetpack_product_interstitial_back_link_click', { product: slug } );
+		}
+	}, [ recordEvent, slug ] );
+
 	return (
-		<Container
-			className={ ! isUpgradableByBundle ? styles.container : null }
-			horizontalSpacing={ 0 }
-			horizontalGap={ 0 }
-			fluid
-		>
-			<Col sm={ 4 } md={ 4 } lg={ 7 }>
-				<Product
-					slug={ slug }
-					trackButtonClick={ trackProductClick }
-					onClick={ installsPlugin ? clickHandler : undefined }
-				/>
-			</Col>
-			<Col sm={ 4 } md={ 4 } lg={ 5 } className={ styles.imageContainer }>
-				{ bundle ? (
-					<ProductDetailCard slug="security" trackButtonClick={ trackBundleClick } />
-				) : (
-					children
-				) }
-			</Col>
-		</Container>
+		<AdminPage showHeader={ false } showBackground={ false } a8cLogoHref="https://automattic.com">
+			<Container horizontalSpacing={ 3 } horizontalGap={ 3 }>
+				<Col>
+					<GoBackLink onClick={ onClickGoBack } />
+				</Col>
+				<Col>
+					<Container
+						className={ ! isUpgradableByBundle ? styles.container : null }
+						horizontalSpacing={ 0 }
+						horizontalGap={ 0 }
+						fluid
+					>
+						<Col sm={ 4 } md={ 4 } lg={ 7 }>
+							<Product
+								slug={ slug }
+								trackButtonClick={ trackProductClick }
+								onClick={ installsPlugin ? clickHandler : undefined }
+							/>
+						</Col>
+						<Col sm={ 4 } md={ 4 } lg={ 5 } className={ styles.imageContainer }>
+							{ bundle ? (
+								<ProductDetailCard slug="security" trackButtonClick={ trackBundleClick } />
+							) : (
+								children
+							) }
+						</Col>
+					</Container>
+				</Col>
+			</Container>
+		</AdminPage>
 	);
 }
 
