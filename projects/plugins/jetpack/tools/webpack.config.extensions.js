@@ -9,10 +9,6 @@ const fs = require( 'fs' );
 const CopyWebpackPlugin = require( 'copy-webpack-plugin' );
 const jetpackWebpackConfig = require( '@automattic/jetpack-webpack-config/webpack' );
 const path = require( 'path' );
-const webpack = jetpackWebpackConfig.webpack;
-const StaticSiteGeneratorPlugin = require( 'static-site-generator-webpack-plugin' );
-const RemoveAssetWebpackPlugin = require( '@automattic/remove-asset-webpack-plugin' );
-const jsdom = require( 'jsdom' );
 
 /**
  * Internal dependencies
@@ -25,7 +21,6 @@ const CopyBlockEditorAssetsPlugin = require( './copy-block-editor-assets' );
 const editorSetup = path.join( __dirname, '../extensions', 'editor' );
 const viewSetup = path.join( __dirname, '../extensions', 'view' );
 const blockEditorDirectories = [ 'plugins', 'blocks' ];
-const noop = function () {};
 
 /**
  * Filters block editor scripts
@@ -186,78 +181,6 @@ module.exports = [
 				],
 			} ),
 			new CopyBlockEditorAssetsPlugin(),
-		],
-	},
-	{
-		...sharedWebpackConfig,
-		entry: {
-			components: path.join( __dirname, '../extensions/shared/components/index.jsx' ),
-		},
-		output: {
-			...sharedWebpackConfig.output,
-			libraryTarget: 'commonjs2',
-		},
-		plugins: [
-			...jetpackWebpackConfig.StandardPlugins( {
-				DependencyExtractionPlugin: false,
-				I18nLoaderPlugin: false,
-				I18nCheckPlugin: false,
-			} ),
-			new webpack.NormalModuleReplacementPlugin(
-				/^@wordpress\/i18n$/,
-				// We want to exclude extensions/shared/i18n-to-php so we can import and re-export
-				// any methods that we are not overriding
-				resource => {
-					if ( ! resource.contextInfo.issuer.includes( 'extensions/shared/i18n-to-php' ) ) {
-						resource.request = path.join(
-							path.dirname( __dirname ),
-							'./extensions/shared/i18n-to-php'
-						);
-					}
-				}
-			),
-			new webpack.NormalModuleReplacementPlugin(
-				/^\.\/create-interpolate-element$/,
-				path.join( path.dirname( __dirname ), './extensions/shared/element-to-php' )
-			),
-			new StaticSiteGeneratorPlugin( {
-				// The following mocks are required to make `@wordpress/` npm imports work with server-side rendering.
-				// Hopefully, most of them can be dropped once https://github.com/WordPress/gutenberg/pull/16227 lands.
-				globals: {
-					Mousetrap: {
-						init: noop,
-						prototype: {},
-					},
-					document: new jsdom.JSDOM().window.document,
-					navigator: {},
-					window: {
-						addEventListener: noop,
-						console: {
-							error: noop,
-							warn: noop,
-						},
-						// See https://github.com/WordPress/gutenberg/blob/f3b6379327ce3fb48a97cb52ffb7bf9e00e10130/packages/jest-preset-default/scripts/setup-globals.js
-						matchMedia: () => ( {
-							addListener: () => {},
-						} ),
-						navigator: { platform: '', userAgent: '' },
-						Node: {
-							TEXT_NODE: '',
-							ELEMENT_NODE: '',
-							DOCUMENT_POSITION_PRECEDING: '',
-							DOCUMENT_POSITION_FOLLOWING: '',
-						},
-						removeEventListener: noop,
-						URL: {},
-					},
-					CSS: {
-						supports: () => false,
-					},
-				},
-			} ),
-			new RemoveAssetWebpackPlugin( {
-				assets: [ 'components.js', 'components.js.map' ],
-			} ),
 		],
 	},
 ];
