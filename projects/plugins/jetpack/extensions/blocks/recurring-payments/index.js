@@ -1,13 +1,15 @@
 /**
  * External dependencies
  */
-import { Path, Rect, SVG, G } from '@wordpress/components';
+import { isAtomicSite, isSimpleSite } from '@automattic/jetpack-shared-extension-utils';
 
 /**
  * WordPress dependencies
  */
 import { InnerBlocks } from '@wordpress/block-editor';
 import { createBlock } from '@wordpress/blocks';
+import { Path, Rect, SVG, G, ExternalLink } from '@wordpress/components';
+import { Fragment } from '@wordpress/element';
 
 /**
  * Internal dependencies
@@ -30,13 +32,23 @@ export const icon = (
 	</SVG>
 );
 
+const supportLink =
+	isSimpleSite() || isAtomicSite()
+		? 'https://wordpress.com/support/video-tutorials-add-payments-features-to-your-site-with-our-guides/#how-to-use-the-payments-block-video'
+		: 'https://jetpack.com/support/jetpack-blocks/payments-block/';
+
 export const settings = {
 	title: __( 'Payment Button', 'jetpack' ),
 	icon: {
 		src: icon,
 		foreground: getIconColor(),
 	},
-	description: __( 'Button allowing you to sell products and subscriptions.', 'jetpack' ),
+	description: (
+		<Fragment>
+			<p>{ __( 'Button allowing you to sell products and subscriptions.', 'jetpack' ) }</p>
+			<ExternalLink href={ supportLink }>{ __( 'Support reference', 'jetpack' ) }</ExternalLink>
+		</Fragment>
+	),
 	category: 'earn',
 	keywords: [
 		_x( 'buy', 'block search term', 'jetpack' ),
