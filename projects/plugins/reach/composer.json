@@ -7,6 +7,7 @@
 		"automattic/jetpack-assets": "1.17.x-dev",
 		"automattic/jetpack-admin-ui": "0.2.x-dev",
 		"automattic/jetpack-autoloader": "2.11.x-dev",
+		"automattic/jetpack-composer-plugin": "1.1.x-dev",
 		"automattic/jetpack-my-jetpack": "0.6.x-dev"
 	},
 	"require-dev": {
@@ -45,12 +46,15 @@
 	"minimum-stability": "dev",
 	"prefer-stable": true,
 	"extra": {
-		"release-branch-prefix": "reach"
+		"mirror-repo": "Automattic/jetpack-reach-plugin",
+		"release-branch-prefix": "reach",
+		"wp-plugin-slug": "jetpack-reach"
 	},
 	"config": {
 		"allow-plugins": {
 			"roots/wordpress-core-installer": true,
-			"automattic/jetpack-autoloader": true
+			"automattic/jetpack-autoloader": true,
+			"automattic/jetpack-composer-plugin": true
 		}
 	}
 }
