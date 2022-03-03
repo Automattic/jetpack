@@ -30,7 +30,7 @@ class Critical_CSS_Invalidator {
 	 * Clear cached data and trigger side effects.
 	 */
 	public static function handle_clear_cache() {
-		self::clear_all();
+		self::clear_data();
 		do_action( 'jetpack_boost_after_clear_cache' );
 	}
 
