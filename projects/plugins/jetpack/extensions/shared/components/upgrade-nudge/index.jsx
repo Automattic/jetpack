@@ -1,4 +1,10 @@
 /**
+ * When making changes to the markup of this nudge,
+ * you may want to also update the markup of the frontend nudge,
+ * generated in PHP (see projects/plugins/jetpack/_inc/lib/components.php)
+ */
+
+/**
  * External dependencies
  */
 import classNames from 'classnames';

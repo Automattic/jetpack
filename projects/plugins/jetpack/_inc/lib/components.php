@@ -23,10 +23,25 @@ class Jetpack_Components {
 		$rtl = is_rtl() ? '.rtl' : '';
 		wp_enqueue_style( 'jetpack-components', plugins_url( "_inc/blocks/components{$rtl}.css", JETPACK__PLUGIN_FILE ), array( 'wp-components' ), JETPACK__VERSION );
 
-		ob_start();
-		// `include` fails gracefully and throws a warning, but doesn't halt execution.
-		include JETPACK__PLUGIN_DIR . "_inc/blocks/$name.html";
-		$markup = ob_get_clean();
+		/*
+		 * When making changes to the markup here,
+		 * you may want to make similar changes to the editor markup,
+		 * generated in projects/plugins/jetpack/extensions/shared/components/upgrade-nudge/index.jsx
+		 */
+		$markup = '';
+		if ( 'frontend' === $name ) {
+			$markup = '<div class="jetpack-upgrade-plan-banner"><div class="jetpack-upgrade-plan-banner__wrapper"><span class="undefined__description banner-description">#description#</span><a href="#checkoutUrl#" target="_top" class="components-button is-primary">#buttonText#</a></div></div>';
+		} elseif ( 'upgrade' === $name ) {
+			$markup = sprintf(
+				'<div class="jetpack-upgrade-plan-banner"><div class="jetpack-upgrade-plan-banner__wrapper"><span class="undefined__description banner-description"><span>%1$s</span></span><a href="#checkoutUrl#" target="_top" class="components-button is-primary"><span>%2$s</span></a></div></div>',
+				esc_html__( 'Upgrade your plan to use this premium block', 'jetpack' ),
+				esc_html__( 'Upgrade', 'jetpack' )
+			);
+		}
+
+		if ( empty( $markup ) ) {
+			return $markup;
+		}
 
 		foreach ( $props as $key => $value ) {
 			$markup = str_replace(
