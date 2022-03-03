@@ -646,7 +646,7 @@ class WPCOM_JSON_API_Update_Post_v1_1_Endpoint extends WPCOM_JSON_API_Post_v1_1_
 			// Yes - this is really how wp-admin does it.
 			$wpdb->query(
 				$wpdb->prepare(
-					"UPDATE $wpdb->posts SET post_parent = %d WHERE post_type = 'attachment' AND ID IN ( $media_id_string )",
+					"UPDATE $wpdb->posts SET post_parent = %d WHERE post_type = 'attachment' AND ID IN ( $media_id_string )", // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared -- IDs are filtered to absint above.
 					$post_id
 				)
 			);
