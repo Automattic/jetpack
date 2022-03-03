@@ -347,6 +347,7 @@ importers:
 
   projects/js-packages/partner-coupon:
     specifiers:
+      '@automattic/jetpack-analytics': workspace:^0.1.8
       '@automattic/jetpack-base-styles': workspace:^0.1.9
       '@automattic/jetpack-components': workspace:^0.10.7
       '@automattic/jetpack-connection': workspace:^0.17.0
@@ -360,6 +361,8 @@ importers:
       nyc: 15.1.0
       prop-types: 15.7.2
       react: 17.0.2
+      react-dom: 17.0.2
+      react-test-renderer: 17.0.2
     dependencies:
       '@automattic/jetpack-components': link:../components
       '@automattic/jetpack-connection': link:../connection
@@ -367,6 +370,7 @@ importers:
       classnames: 2.3.1
       prop-types: 15.7.2
     devDependencies:
+      '@automattic/jetpack-analytics': link:../analytics
       '@automattic/jetpack-base-styles': link:../base-styles
       '@babel/core': 7.16.0
       '@babel/preset-react': 7.16.0_@babel+core@7.16.0
@@ -375,6 +379,8 @@ importers:
       jetpack-js-test-runner: link:../../../tools/js-test-runner
       nyc: 15.1.0
       react: 17.0.2
+      react-dom: 17.0.2_react@17.0.2
+      react-test-renderer: 17.0.2_react@17.0.2
 
   projects/js-packages/remove-asset-webpack-plugin:
     specifiers:
@@ -8942,28 +8948,6 @@ packages:
       use-memo-one: 1.1.2_react@17.0.2
     transitivePeerDependencies:
       - react
-    dev: false
-
-  /@wordpress/compose/5.1.2:
-    resolution: {integrity: sha512-JfJ4hPIyeukPHlJwCfKtF1Bw2aqK/z7GuFdyzXYzp6z2DpJSpTp+Qbbe9LsbKwpJ9pkb+Pras/As7xBVqCbq8g==}
-    engines: {node: '>=12'}
-    peerDependencies:
-      react: ^17.0.0
-    dependencies:
-      '@babel/runtime': 7.17.2
-      '@types/lodash': 4.14.178
-      '@types/mousetrap': 1.6.9
-      '@wordpress/deprecated': 3.3.1
-      '@wordpress/dom': 3.3.2
-      '@wordpress/element': 4.1.1
-      '@wordpress/is-shallow-equal': 4.3.1
-      '@wordpress/keycodes': 3.3.1
-      '@wordpress/priority-queue': 2.3.1
-      clipboard: 2.0.10
-      lodash: 4.17.21
-      mousetrap: 1.6.5
-      react-resize-aware: 3.1.1
-      use-memo-one: 1.1.2
     dev: false
 
   /@wordpress/compose/5.1.0_react@17.0.2:

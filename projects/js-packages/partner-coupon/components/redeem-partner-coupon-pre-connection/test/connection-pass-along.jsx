@@ -12,34 +12,38 @@ let stubConnectUser;
 let stubRegisterSite;
 let stubGetConnectionStatus;
 
-describe( 'RedeemPartnerCouponPreConnection', () => {
+describe( 'RedeemPartnerCouponPreConnection - pass through', () => {
 	before( () => {
 		const { result: dispatch } = renderHook( () => useDispatch( CONNECTION_STORE_ID ) );
 		renderHook( () => useSelect( select => ( storeSelect = select( CONNECTION_STORE_ID ) ) ) );
 
-		/*
-		 * Stubs.
-		 */
-		stubRegisterSite = sinon.stub( dispatch.current, 'registerSite' );
 		stubConnectUser = sinon.stub( dispatch.current, 'connectUser' );
 		stubGetConnectionStatus = sinon.stub( storeSelect, 'getConnectionStatus' );
+		stubRegisterSite = sinon.stub( dispatch.current, 'registerSite' );
 	} );
 
 	beforeEach( () => {
-		stubGetConnectionStatus.reset();
-		stubGetConnectionStatus.returns( {} );
-
-		stubRegisterSite.reset();
-		stubRegisterSite.resolves();
-
-		stubConnectUser.reset();
 		stubConnectUser.returns();
+		stubGetConnectionStatus.returns( {} );
+		stubRegisterSite.resolves();
+	} );
+
+	afterEach( () => {
+		stubConnectUser.reset();
+		stubGetConnectionStatus.reset();
+		stubRegisterSite.reset();
+	} );
+
+	after( () => {
+		stubConnectUser.restore();
+		stubGetConnectionStatus.restore();
+		stubRegisterSite.restore();
 	} );
 
 	it( 'connection: initial site + user set up includes coupon', done => {
 		const initialProps = {
 			registrationNonce: 'REGISTRATION',
-			redirectUri: 'admin.php?page=jetpack&partnerCoupon=TEST_TEST_1234',
+			redirectUri: 'admin.php?page=jetpack&partnerCoupon=TEST_TST_1234',
 			from: 'jetpack-partner-coupon',
 		};
 		const { result } = renderHook( props => useConnection( props ), { initialProps } );
@@ -50,18 +54,18 @@ describe( 'RedeemPartnerCouponPreConnection', () => {
 			expect(
 				stubRegisterSite.calledOnceWith( {
 					registrationNonce: 'REGISTRATION',
-					redirectUri: 'admin.php?page=jetpack&partnerCoupon=TEST_TEST_1234',
+					redirectUri: 'admin.php?page=jetpack&partnerCoupon=TEST_TST_1234',
 				} )
 			).to.be.true;
 
 			expect(
 				stubConnectUser.calledOnceWith( {
 					from: 'jetpack-partner-coupon',
-					redirectUri: 'admin.php?page=jetpack&partnerCoupon=TEST_TEST_1234',
+					redirectUri: 'admin.php?page=jetpack&partnerCoupon=TEST_TST_1234',
 				} )
 			).to.be.true;
 			done();
-		}, 100 );
+		}, 50 );
 	} );
 
 	it( 'connection: user only set up includes coupon', () => {
@@ -69,7 +73,7 @@ describe( 'RedeemPartnerCouponPreConnection', () => {
 		const { result } = renderHook( props => useConnection( props ), {
 			initialProps: {
 				from: 'jetpack-partner-coupon',
-				redirectUri: 'admin.php?page=jetpack&partnerCoupon=TEST_TEST_1234',
+				redirectUri: 'admin.php?page=jetpack&partnerCoupon=TEST_TST_1234',
 			},
 		} );
 
@@ -78,7 +82,7 @@ describe( 'RedeemPartnerCouponPreConnection', () => {
 		expect(
 			stubConnectUser.calledOnceWith( {
 				from: 'jetpack-partner-coupon',
-				redirectUri: 'admin.php?page=jetpack&partnerCoupon=TEST_TEST_1234',
+				redirectUri: 'admin.php?page=jetpack&partnerCoupon=TEST_TST_1234',
 			} )
 		).to.be.true;
 	} );
