@@ -35,12 +35,11 @@ class Cloud_CSS implements Feature, Has_Endpoints {
 	}
 	public function setup() {
 		add_action( 'wp', array( $this, 'display_critical_css' ) );
+		add_action( 'jetpack_boost_after_clear_cache', array( $this, 'generate_cloud_css' ), 10, 0 );
+		add_action( 'save_post', array( $this, 'handle_save_post' ), 10, 2 );
+
 		REST_API::register( $this->get_endpoints() );
 		Critical_CSS_Invalidator::init();
-
-		// Priority must be greater than 10 to run after invalidator.
-		add_action( 'handle_theme_change', array( $this, 'generate_cloud_css' ), 11, 0 );
-		add_action( 'save_post', array( $this, 'handle_save_post' ), 10, 2 );
 
 		return true;
 	}
