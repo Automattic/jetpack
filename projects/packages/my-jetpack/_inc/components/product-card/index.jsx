@@ -179,6 +179,19 @@ const ProductCard = props => {
 		navigateToConnectionPage();
 	}, [ slug, navigateToConnectionPage, recordEvent ] );
 
+	const ActionButtonInstance = actionButtonProps => (
+		<ActionButton
+			status={ status }
+			isFetching={ isFetching }
+			name={ name }
+			admin={ admin }
+			onActivate={ activateHandler }
+			onFixConnection={ fixConnectionHandler }
+			onManage={ manageHandler }
+			{ ...actionButtonProps }
+		/>
+	);
+
 	return (
 		<div className={ containerClassName }>
 			<div className={ styles.name }>
@@ -189,15 +202,7 @@ const ProductCard = props => {
 			<div className={ styles.actions }>
 				{ canDeactivate ? (
 					<ButtonGroup className={ styles.group }>
-						<ActionButton
-							status={ status }
-							isFetching={ isFetching }
-							name={ name }
-							admin={ admin }
-							onActivate={ activateHandler }
-							onFixConnection={ fixConnectionHandler }
-							onManage={ manageHandler }
-						/>
+						<ActionButtonInstance onManage={ manageHandler } />
 						<DropdownMenu
 							className={ styles.dropdown }
 							toggleProps={ { isPrimary: true, disabled: isFetching } }
@@ -214,15 +219,7 @@ const ProductCard = props => {
 						/>
 					</ButtonGroup>
 				) : (
-					<ActionButton
-						status={ status }
-						isFetching={ isFetching }
-						name={ name }
-						admin={ admin }
-						onFixConnection={ fixConnectionHandler }
-						onActivate={ activateHandler }
-						onAdd={ addHandler }
-					/>
+					<ActionButtonInstance onAdd={ addHandler } />
 				) }
 				{ ! isAbsent && <div className={ statusClassName }>{ flagLabel }</div> }
 			</div>
