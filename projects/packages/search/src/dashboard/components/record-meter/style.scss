@@ -1,8 +1,8 @@
-.bar-chart__container {
+.jp-search-bar-chart__container {
     max-height: 40px; 
   }
   
-  .chart-legend__box {
+  .jp-search-chart-legend__box {
     margin-right: 3px;
     margin-left: 6px;
     width: 15px;
@@ -11,22 +11,22 @@
     display:inline-block;
   }
   
-  .chart-legend {
+  .jp-search-chart-legend {
     list-style:none;
     display:inline-block;
   
   }
   
-  ul.chart-legend {
+  ul.jp-search-chart-legend {
     padding-left: 0;
   }
   
-  .chart-legend li {
+  .jp-search-chart-legend li {
     display:inherit;
     padding-bottom:15px;
   }
   
-  .chart-legend li .chart-legend__label, .chart-legend li .chart-legend__count {
+  .jp-search-chart-legend li .jp-search-chart-legend__label, .jp-search-chart-legend li .jp-search-chart-legend__count {
     max-width: 200px;
     padding-right:3px;
     white-space: nowrap;
@@ -43,20 +43,20 @@
     padding: 5px;
   }
   
-  .notice-box {
+  .jp-search-notice-box {
     border: solid .5px lightgrey;
     margin-left: 5px;
     padding: 0 5px;
   
   }
   
-  .notice-box__red {
+  .jp-search-notice-box__red {
     border: solid .5px red;
     color: red;
     margin-left: 5px;
     padding: 0px 5px;
   }
   
-  .record-count {
+  .jp-search-record-count {
     margin-left: 10px;
   }
