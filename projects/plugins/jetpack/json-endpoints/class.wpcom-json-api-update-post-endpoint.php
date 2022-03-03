@@ -200,7 +200,7 @@ new WPCOM_JSON_API_Update_Post_Endpoint(
  */
 class WPCOM_JSON_API_Update_Post_Endpoint extends WPCOM_JSON_API_Post_Endpoint {
 	/**
-	 * WPCOM_JSON_API_Update_Post_Endpoint class.
+	 * WPCOM_JSON_API_Update_Post_Endpoint constructor.
 	 *
 	 * @param array $args Args.
 	 */
