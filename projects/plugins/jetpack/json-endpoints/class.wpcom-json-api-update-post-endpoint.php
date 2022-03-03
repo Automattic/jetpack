@@ -759,7 +759,7 @@ class WPCOM_JSON_API_Update_Post_Endpoint extends WPCOM_JSON_API_Post_Endpoint {
 
 				$meta = (object) $meta;
 
-				if ( Jetpack_SEO_Posts::DESCRIPTION_META_KEY == $meta->key && ! Jetpack_SEO_Utils::is_enabled_jetpack_seo() ) { // phpcs:ignore Universal.Operators.StrictComparisons.LooseEqual
+				if ( Jetpack_SEO_Posts::DESCRIPTION_META_KEY === $meta->key && ! Jetpack_SEO_Utils::is_enabled_jetpack_seo() ) {
 					return new WP_Error( 'unauthorized', __( 'SEO tools are not enabled for this site.', 'jetpack' ), 403 );
 				}
 
