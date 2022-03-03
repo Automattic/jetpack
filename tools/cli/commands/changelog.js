@@ -517,6 +517,7 @@ async function gitAdd( argv ) {
  * @returns {Array} modifiedProjects - projects that need a changelog.
  */
 async function changedProjects() {
+	await checkChangelogFiles();
 	const re = /^projects\/([^/]+\/[^/]+)\//; // regex matches project file path, ie 'project/packages/connection/..'
 	const modifiedProjects = new Set();
 	const git = simpleGit();
@@ -531,6 +532,29 @@ async function changedProjects() {
 	return allProjects().filter( proj => modifiedProjects.has( proj ) );
 }
 
+/**
+ * Checks if changelog files are required.
+ */
+async function checkChangelogFiles() {
+	console.log( chalk.green( 'Checking if changelog files are needed. Just a sec...' ) );
+
+	// Bail if we're pushing to a release branch, like boost/branch-1.3.0
+	let currentBranch = child_process.spawnSync( 'git', [ 'branch', '--show-current' ] );
+	currentBranch = currentBranch.stdout.toString().trim();
+	const branchReg = /.*\/branch-(\d+).(\d+)(.(\d+))?/; // match example: jetpack/branch-1.2.3
+	if ( currentBranch.match( branchReg ) ) {
+		console.log( chalk.green( 'Release branch detected. No changelog required.' ) );
+		return;
+	}
+
+	// boost/branch-1.3.0
+	const needChangelog = await runCommand( 'tools/check-changelogger-use.php', [
+		'origin/master',
+		'HEAD',
+	] );
+	console.log( needChangelog );
+	process.exit();
+}
 /**
  * Checks if any projects already have a changelog file by that name.
  *
