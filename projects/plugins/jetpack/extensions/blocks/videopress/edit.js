@@ -606,18 +606,35 @@ const VideoPressEdit = CoreVideoEdit =>
 			};
 
 			// Handle Media Library selection
-			const mediaItemSelected = item => {
-				if ( item && item.videopress_guid ) {
-					this.props.setAttributes( { guid: item.videopress_guid } );
-				} else {
-					this.props.setAttributes( { src: item.url } );
+			// Same as core video block media selection while adding video guid to attributes
+			const mediaItemSelected = media => {
+				if ( ! media || ! media.url ) {
+					// In this case there was an error
+					// previous attributes should be removed
+					// because they may be temporary blob urls.
+					setAttributes( {
+						src: undefined,
+						id: undefined,
+						poster: undefined,
+					} );
+					return;
+				}
+
+				this.props.setAttributes( {
+					src: media.url,
+					id: media.id,
+					poster: media.image?.src !== media.icon ? media.image?.src : undefined,
+				} );
+
+				if ( media.videopress_guid ) {
+					this.props.setAttributes( { guid: media.videopress_guid } );
 				}
 			};
 
-			const uploadFinished = ( videoGuid = null ) => {
+			const uploadFinished = ( { mediaId, guid: videoGuid, src: videoSrc } ) => {
 				this.setState( { fileForUpload: null } );
-				if ( videoGuid ) {
-					setAttributes( { guid: videoGuid } );
+				if ( mediaId && videoGuid && videoSrc ) {
+					setAttributes( { id: mediaId, guid: videoGuid, src: videoSrc } );
 				}
 			};
 
