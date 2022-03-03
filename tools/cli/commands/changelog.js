@@ -268,10 +268,6 @@ async function changelogCommand( argv ) {
  * @returns {Array} - array of projects with unique changelog configurations.
  */
 async function checkSpecialProjects( needChangelog ) {
-	if ( ! needChangelog ) {
-		return;
-	}
-
 	const specialProjects = [];
 	for ( const proj of needChangelog ) {
 		const composerJSON = readComposerJson( proj );
@@ -535,7 +531,7 @@ async function checkChangelogFiles() {
 	const branchReg = /.*\/branch-(\d+).(\d+)(.(\d+))?/; // match example: jetpack/branch-1.2.3
 	if ( currentBranch.match( branchReg ) ) {
 		console.log( chalk.green( 'Release branch detected. No changelog required.' ) );
-		return;
+		return [];
 	}
 
 	const needChangelog = child_process.spawnSync( 'tools/check-changelogger-use.php', [
