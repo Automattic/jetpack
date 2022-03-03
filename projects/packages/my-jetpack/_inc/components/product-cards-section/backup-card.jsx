@@ -9,13 +9,11 @@ import PropTypes from 'prop-types';
  */
 import ProductCard from '../product-card';
 import useMyJetpackNavigate from '../../hooks/use-my-jetpack-navigate';
-import { BackupIcon } from '../icons';
 
 const BackupCard = ( { admin } ) => {
 	return (
 		<ProductCard
 			admin={ admin }
-			icon={ <BackupIcon /> }
 			onAdd={ useMyJetpackNavigate( '/add-backup' ) }
 			showDeactivate={ false }
 			slug="backup"

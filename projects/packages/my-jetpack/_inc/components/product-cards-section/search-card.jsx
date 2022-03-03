@@ -9,16 +9,10 @@ import PropTypes from 'prop-types';
  */
 import ProductCard from '../product-card';
 import useMyJetpackNavigate from '../../hooks/use-my-jetpack-navigate';
-import { SearchIcon } from '../icons';
 
 const SearchCard = ( { admin } ) => {
 	return (
-		<ProductCard
-			admin={ admin }
-			icon={ <SearchIcon /> }
-			onAdd={ useMyJetpackNavigate( '/add-search' ) }
-			slug="search"
-		/>
+		<ProductCard admin={ admin } onAdd={ useMyJetpackNavigate( '/add-search' ) } slug="search" />
 	);
 };
 

@@ -14,6 +14,7 @@ import styles from './style.module.scss';
 import useAnalytics from '../../hooks/use-analytics';
 import { useProduct } from '../../hooks/use-product';
 import useMyJetpackNavigate from '../../hooks/use-my-jetpack-navigate';
+import { getIconBySlug } from '../icons';
 
 export const PRODUCT_STATUSES = {
 	ACTIVE: 'active',
@@ -101,7 +102,7 @@ const ActionButton = ( {
 };
 
 const ProductCard = props => {
-	const { admin, icon, onAdd, slug, showDeactivate } = props;
+	const { admin, onAdd, slug, showDeactivate } = props;
 	const { detail, status, activate, deactivate, isFetching } = useProduct( slug );
 	const { name, description, manageUrl } = detail;
 
@@ -192,11 +193,12 @@ const ProductCard = props => {
 		/>
 	);
 
+	const ProductIcon = getIconBySlug( slug );
 	return (
 		<div className={ containerClassName }>
 			<div className={ styles.name }>
 				<span>{ name }</span>
-				{ icon }
+				<ProductIcon />
 			</div>
 			<p className={ styles.description }>{ description }</p>
 			<div className={ styles.actions }>
@@ -228,7 +230,6 @@ const ProductCard = props => {
 };
 
 ProductCard.propTypes = {
-	icon: PropTypes.element,
 	admin: PropTypes.bool.isRequired,
 	onAdd: PropTypes.func,
 	onLearn: PropTypes.func,
@@ -237,7 +238,6 @@ ProductCard.propTypes = {
 };
 
 ProductCard.defaultProps = {
-	icon: null,
 	onAdd: () => {},
 	onLearn: () => {},
 	showDeactivate: true,
