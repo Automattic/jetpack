@@ -2,14 +2,23 @@
  * WordPress dependencies
  */
 import { InnerBlocks } from '@wordpress/block-editor';
+import { useSelect } from '@wordpress/data';
 import { __ } from '@wordpress/i18n';
 
 /**
  * Internal dependencies
  */
 import Context from '../_inc/context';
+import { name } from '../index';
 
 export default function Edit() {
+	const allowedInnerBlocks = useSelect( select => {
+		return select( 'core/blocks' )
+			.getBlockTypes()
+			.filter( blockType => blockType.name !== name )
+			.map( block => block.name );
+	}, [] );
+
 	return (
 		<Context.Consumer>
 			{ ( { selectedTab, stripeNudge } ) => (
@@ -18,6 +27,7 @@ export default function Edit() {
 				<div hidden={ selectedTab.id === 'premium' } className={ selectedTab.className }>
 					{ stripeNudge }
 					<InnerBlocks
+						allowedBlocks={ allowedInnerBlocks }
 						templateLock={ false }
 						templateInsertUpdatesSelection={ false }
 						template={ [

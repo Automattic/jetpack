@@ -10,8 +10,9 @@ import { compose } from '@wordpress/compose';
  * Internal dependencies
  */
 import Context from '../_inc/context';
+import { name } from '../index';
 
-function Edit( { hasInnerBlocks } ) {
+function Edit( { hasInnerBlocks, allowedInnerBlocks } ) {
 	return (
 		<Context.Consumer>
 			{ ( { selectedTab, stripeNudge } ) => (
@@ -20,6 +21,7 @@ function Edit( { hasInnerBlocks } ) {
 				<div hidden={ selectedTab.id === 'wall' } className={ selectedTab.className }>
 					{ stripeNudge }
 					<InnerBlocks
+						allowedBlocks={ allowedInnerBlocks }
 						renderAppender={ ! hasInnerBlocks && InnerBlocks.ButtonBlockAppender }
 						templateLock={ false }
 						templateInsertUpdatesSelection={ false }
@@ -48,6 +50,10 @@ export default compose( [
 			// @ts-ignore difficult to type with JSDoc
 			hasInnerBlocks: !! select( 'core/block-editor' ).getBlocksByClientId( props.clientId )[ 0 ]
 				.innerBlocks.length,
+			allowedInnerBlocks: select( 'core/blocks' )
+				.getBlockTypes()
+				.filter( blockType => blockType.name !== name )
+				.map( block => block.name ),
 		};
 	} ),
 ] )( Edit );
