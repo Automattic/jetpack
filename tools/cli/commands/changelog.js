@@ -15,7 +15,7 @@ import simpleGit from 'simple-git';
 import promptForProject from '../helpers/promptForProject.js';
 import { chalkJetpackGreen } from '../helpers/styling.js';
 import { normalizeProject } from '../helpers/normalizeArgv.js';
-import { allProjects, projectTypes } from '../helpers/projectHelpers.js';
+import { projectTypes } from '../helpers/projectHelpers.js';
 import { readComposerJson } from '../helpers/json.js';
 import { runCommand } from '../helpers/runCommand.js';
 
@@ -292,7 +292,7 @@ async function checkSpecialProjects( needChangelog ) {
  */
 async function changelogAdd( argv ) {
 	if ( argv._[ 1 ] === 'add' && ! argv.project ) {
-		const needChangelog = await changedProjects();
+		const needChangelog = await checkChangelogFiles();
 		const uniqueProjects = await checkSpecialProjects( needChangelog );
 		// If we don't detect any modified projects, shortcircuit to default changelogger.
 		if ( needChangelog.length === 0 && uniqueProjects.length === 0 ) {
@@ -512,28 +512,9 @@ async function gitAdd( argv ) {
 }
 
 /**
- * Gets list of currently modified files.
- *
- * @returns {Array} modifiedProjects - projects that need a changelog.
- */
-async function changedProjects() {
-	await checkChangelogFiles();
-	const re = /^projects\/([^/]+\/[^/]+)\//; // regex matches project file path, ie 'project/packages/connection/..'
-	const modifiedProjects = new Set();
-	const git = simpleGit();
-	const gitStatus = await git.status();
-	for ( const file of gitStatus.files ) {
-		const match = file.path.match( re );
-		if ( match ) {
-			modifiedProjects.add( match[ 1 ] );
-		}
-	}
-
-	return allProjects().filter( proj => modifiedProjects.has( proj ) );
-}
-
-/**
  * Checks if changelog files are required.
+ *
+ * @returns {Array} matchedProjects - projects that need a changelog.
  */
 async function checkChangelogFiles() {
 	console.log( chalk.green( 'Checking if changelog files are needed. Just a sec...' ) );
@@ -547,13 +528,13 @@ async function checkChangelogFiles() {
 		return;
 	}
 
-	// boost/branch-1.3.0
-	const needChangelog = await runCommand( 'tools/check-changelogger-use.php', [
+	const needChangelog = child_process.spawnSync( 'tools/check-changelogger-use.php', [
 		'origin/master',
 		'HEAD',
 	] );
-	console.log( needChangelog );
-	process.exit();
+	const projReg = /\b\w+\b\/\b\w+\b(?= )/g; // match example: plugins/jetpack
+	const matchedProjects = needChangelog.stdout.toString().trim().match( projReg );
+	return matchedProjects;
 }
 /**
  * Checks if any projects already have a changelog file by that name.
