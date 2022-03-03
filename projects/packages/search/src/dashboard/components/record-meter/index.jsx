@@ -1,5 +1,4 @@
-/**
- * External dependencies
+/* * External dependencies
  */
 import React, { useState } from 'react';
 import { __ } from '@wordpress/i18n';
@@ -8,6 +7,7 @@ import { __ } from '@wordpress/i18n';
  * Internal dependencies
  */
 import { BarChart } from './bar-chart';
+import { RecordCount } from './record-count';
 import getRecordInfo from './lib/record-info';
 import createData from './lib/create-data';
 
@@ -37,12 +37,15 @@ export default function RecordMeter( { postCount, postTypeBreakdown, tierMaximum
 					<h2>{ __( 'Your search records', 'jetpack-search-pkg' ) }</h2>
 					{ tierMaximumRecords && (
 						<div>
+							<RecordCount
+								recordCount={ recordInfo.recordCount }
+								planRecordLimit={ tierMaximumRecords }
+							/>
 							<BarChart
 								data={ recordInfo.data }
 								isValid={ recordInfo.isValid }
 								postTypeBreakdown={ postTypeBreakdown }
 							/>
-							Tier maximum records: <strong>{ tierMaximumRecords }</strong>
 						</div>
 					) }
 					{ postCount && (
