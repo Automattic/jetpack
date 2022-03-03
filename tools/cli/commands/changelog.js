@@ -459,6 +459,7 @@ async function changeloggerSquash( argv, file ) {
 			fs.writeFileSync( `projects/${ argv.project }/CHANGELOG.md`, changelogContents );
 		}
 	}
+	process.exit();
 }
 
 /**
