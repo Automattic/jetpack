@@ -1,4 +1,4 @@
-# Jetpack Backup 
+# Jetpack Backup
 
 Easily restore or download a backup of your site from a specific moment in time.
 
