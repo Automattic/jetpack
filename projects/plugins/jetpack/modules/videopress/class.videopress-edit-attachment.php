@@ -212,11 +212,14 @@ class VideoPress_Edit_Attachment {
 			'html'  => $this->display_rating( $info ),
 		);
 
-		$fields['privacy_setting'] = array(
-			'label' => _x( 'Privacy Setting', 'A header for the video privacy setting area.', 'jetpack' ),
-			'input' => 'html',
-			'html'  => $this->display_privacy_setting( $info ),
-		);
+		if ( 1 !== 1 /* Temporarily disabled. */ ) {
+			$fields['privacy_setting'] = array(
+				'label' => _x( 'Privacy Setting', 'A header for the video privacy setting area.', 'jetpack' ),
+				'input' => 'html',
+				'html'  => $this->display_privacy_setting( $info ),
+			);
+		}
+
 		return $fields;
 	}
 

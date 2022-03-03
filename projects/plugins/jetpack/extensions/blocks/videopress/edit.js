@@ -622,27 +622,29 @@ const VideoPressEdit = CoreVideoEdit =>
 								checked={ allowDownload }
 								disabled={ isFetchingMedia || isUpdatingAllowDownload }
 							/>
-							<SelectControl
-								label={ __( 'Privacy', 'jetpack' ) }
-								help={ __( 'Restrict views to members of this site', 'jetpack' ) }
-								onChange={ this.onChangePrivacySetting }
-								value={ privacySetting }
-								options={ [
-									{
-										value: VIDEO_PRIVACY.SITE_DEFAULT,
-										label: _x( 'Site Default', 'VideoPress privacy setting', 'jetpack' ),
-									},
-									{
-										value: VIDEO_PRIVACY.PUBLIC,
-										label: _x( 'Public', 'VideoPress privacy setting', 'jetpack' ),
-									},
-									{
-										value: VIDEO_PRIVACY.PRIVATE,
-										label: _x( 'Private', 'VideoPress privacy setting', 'jetpack' ),
-									},
-								] }
-								disabled={ isFetchingMedia || isUpdatingPrivacySetting }
-							/>
+							{ !! window.jetpackFeatureVideoPrivacyEnabled && (
+								<SelectControl
+									label={ __( 'Privacy', 'jetpack' ) }
+									help={ __( 'Restrict views to members of this site', 'jetpack' ) }
+									onChange={ this.onChangePrivacySetting }
+									value={ privacySetting }
+									options={ [
+										{
+											value: VIDEO_PRIVACY.SITE_DEFAULT,
+											label: _x( 'Site Default', 'VideoPress privacy setting', 'jetpack' ),
+										},
+										{
+											value: VIDEO_PRIVACY.PUBLIC,
+											label: _x( 'Public', 'VideoPress privacy setting', 'jetpack' ),
+										},
+										{
+											value: VIDEO_PRIVACY.PRIVATE,
+											label: _x( 'Private', 'VideoPress privacy setting', 'jetpack' ),
+										},
+									] }
+									disabled={ isFetchingMedia || isUpdatingPrivacySetting }
+								/>
+							) }
 						</PanelBody>
 					</InspectorControls>
 				</Fragment>
