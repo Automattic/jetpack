@@ -2,9 +2,8 @@
  * External dependencies
  */
 import ReactDOM from 'react-dom';
-import React, { useCallback } from 'react';
+import React from 'react';
 import { HashRouter, Routes, Route } from 'react-router-dom';
-import { Container, Col, JetpackFooter } from '@automattic/jetpack-components';
 
 /**
  * Internal dependencies
@@ -22,92 +21,23 @@ import {
 	SearchInterstitial,
 	VideoPressInterstitial,
 } from './components/product-interstitial';
-import GoBackLink from './components/go-back-link';
-import styles from './style.module.scss';
-import useAnalytics from './hooks/use-analytics';
+import './style.module.scss';
 
 initStore();
-
-/**
- * Main layout component.
- * Takes it as an initil basic approach that
- * could get more complex in the future.
- *
- * @param {object} props          - Component props.
- * @param {boolean} props.nav     - Header navigation.
- * @param {object} props.children - Child components.
- * @param {string} props.slug     - A product slug or undefined. Will Fire Tracks event with product:slug if not undefined
- * @returns {object}                Layout react component.
- */
-function Layout( { nav = false, children, slug } ) {
-	const { recordEvent } = useAnalytics();
-	const onClick = useCallback( () => {
-		if ( slug ) {
-			recordEvent( 'jetpack_myjetpack_product_interstitial_back_link_click', { product: slug } );
-		}
-	}, [ recordEvent, slug ] );
-
-	return (
-		<div className={ styles.layout }>
-			<Container horizontalSpacing={ nav ? 3 : 8 } horizontalGap={ nav ? 3 : 0 }>
-				{ nav && (
-					<Col>
-						<GoBackLink onClick={ onClick } />
-					</Col>
-				) }
-				<Col>{ children }</Col>
-			</Container>
-			<Container horizontalSpacing={ 5 }>
-				<Col>
-					<JetpackFooter a8cLogoHref="https://automattic.com" />
-				</Col>
-			</Container>
-		</div>
-	);
-}
 
 const MyJetpack = () => (
 	<HashRouter>
 		<Routes>
 			<Route path="/" element={ <MyJetpackScreen /> } />
-			<Route
-				path="/connection"
-				element={ <Layout nav={ false } children={ <ConnectionScreen /> } /> }
-			/>
-			<Route
-				path="/add-anti-spam"
-				element={ <Layout nav={ true } children={ <AntiSpamInterstitial /> } slug="anti-spam" /> }
-			/>
-			<Route
-				path="/add-backup"
-				element={ <Layout nav={ true } children={ <BackupInterstitial /> } slug="backup" /> }
-			/>
-			<Route
-				path="/add-boost"
-				element={ <Layout nav={ true } children={ <BoostInterstitial /> } slug="boost" /> }
-			/>
-			<Route
-				path="/add-crm"
-				element={ <Layout nav={ true } children={ <CRMInterstitial /> } slug="crm" /> }
-			/>
-			<Route
-				path="/add-extras"
-				element={ <Layout nav={ true } children={ <ExtrasInterstitial /> } slug="extras" /> }
-			/>
-			<Route
-				path="/add-scan"
-				element={ <Layout nav={ true } children={ <ScanInterstitial /> } slug="scan" /> }
-			/>
-			<Route
-				path="/add-search"
-				element={ <Layout nav={ true } children={ <SearchInterstitial /> } slug="search" /> }
-			/>
-			<Route
-				path="/add-videopress"
-				element={
-					<Layout nav={ true } children={ <VideoPressInterstitial /> } slug="videopress" />
-				}
-			/>
+			<Route path="/connection" element={ <ConnectionScreen /> } />
+			<Route path="/add-anti-spam" element={ <AntiSpamInterstitial /> } />
+			<Route path="/add-backup" element={ <BackupInterstitial /> } />
+			<Route path="/add-boost" element={ <BoostInterstitial /> } />
+			<Route path="/add-crm" element={ <CRMInterstitial /> } />
+			<Route path="/add-extras" element={ <ExtrasInterstitial /> } />
+			<Route path="/add-scan" element={ <ScanInterstitial /> } />
+			<Route path="/add-search" element={ <SearchInterstitial /> } />
+			<Route path="/add-videopress" element={ <VideoPressInterstitial /> } />
 		</Routes>
 	</HashRouter>
 );
