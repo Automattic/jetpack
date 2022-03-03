@@ -710,7 +710,7 @@ class WPCOM_JSON_API_Update_Post_Endpoint extends WPCOM_JSON_API_Post_Endpoint {
 					continue;
 				}
 
-				if ( ! in_array( $name, $publicize ) && ! array_key_exists( $name, $publicize ) ) {
+				if ( ! in_array( $name, $publicize, true ) && ! array_key_exists( $name, $publicize ) ) {
 					// Skip the whole service by adding each connection ID.
 					foreach ( $service_connections as $service_connection ) {
 						update_post_meta( $post_id, $GLOBALS['publicize_ui']->publicize->POST_SKIP . $service_connection->unique_id, 1 );
@@ -721,7 +721,7 @@ class WPCOM_JSON_API_Update_Post_Endpoint extends WPCOM_JSON_API_Post_Endpoint {
 					$requested_connections = explode( ',', ( preg_replace( '/[\s]*/', '', $publicize[ $name ] ) ) );
 					// Flag the connections we can't match with the requested list to be skipped.
 					foreach ( $service_connections as $service_connection ) {
-						if ( ! in_array( $service_connection->meta['connection_data']->id, $requested_connections ) ) {
+						if ( ! in_array( $service_connection->meta['connection_data']->id, $requested_connections, true ) ) {
 							update_post_meta( $post_id, $GLOBALS['publicize_ui']->publicize->POST_SKIP . $service_connection->unique_id, 1 );
 						} else {
 							delete_post_meta( $post_id, $GLOBALS['publicize_ui']->publicize->POST_SKIP . $service_connection->unique_id );
