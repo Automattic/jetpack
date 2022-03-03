@@ -119,11 +119,7 @@ export class BarChart extends React.Component {
 										} ) }
 								</tr>
 								<tr>
-<<<<<<< HEAD
 									<th scope="row">{ __( 'Record count', 'jetpack-search-pkg' ) }</th>
-=======
-									<th scope="row">{ __( 'Record Count', 'jetpack-search-pkg' ) }</th>
->>>>>>> a31338dce3 ([not verified] add translatable strings to barchart)
 									{ this.state?.legendItems.length &&
 										this.state.legendItems.map( item => {
 											return (

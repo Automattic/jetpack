@@ -18,7 +18,12 @@ import './style.scss';
  *
  * @returns {React.Component} RecordMeter React component
  */
+<<<<<<< HEAD
 export default function RecordMeter( { postCount, postTypeBreakdown, tierMaximumRecords } ) {
+=======
+export default function RecordMeter() {
+	const tierMaximumRecords = useSelect( select => select( STORE_ID ).getTierMaximumRecords() );
+>>>>>>> 2868675b6d ([not verified] added todos)
 	// TODO: use setRecordInfo var
 	// eslint-disable-next-line no-unused-vars
 	const [ recordInfo, setRecordInfo ] = useState(
