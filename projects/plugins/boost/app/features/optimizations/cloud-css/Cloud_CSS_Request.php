@@ -42,7 +42,7 @@ class Cloud_CSS_Request {
 		$storage = new Critical_CSS_Storage();
 
 		foreach ( $this->state->get_provider_urls() as $provider => $urls ) {
-			$storage->store_css( $provider, '/* ' . __( 'Jetpack Boost is currently generating critical css for this page', 'jetpack-boost' ) . ' */' );
+			$storage->store_css( $provider, Cloud_CSS::get_pending_css_string() );
 		}
 	}
 }

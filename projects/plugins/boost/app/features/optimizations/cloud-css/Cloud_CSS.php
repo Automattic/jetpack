@@ -72,7 +72,7 @@ class Cloud_CSS implements Feature, Has_Endpoints {
 
 		// Get the Critical CSS to show.
 		$critical_css = $this->paths->get_current_request_css();
-		if ( ! $critical_css ) {
+		if ( ! $critical_css || self::get_pending_css_string() === $critical_css ) {
 			return;
 		}
 
@@ -80,5 +80,9 @@ class Cloud_CSS implements Feature, Has_Endpoints {
 		add_action( 'wp_head', array( $display, 'display_critical_css' ), 0 );
 		add_filter( 'style_loader_tag', array( $display, 'asynchronize_stylesheets' ), 10, 4 );
 		add_action( 'wp_footer', array( $display, 'onload_flip_stylesheets' ) );
+	}
+
+	public static function get_pending_css_string() {
+		return '/* ' . __( 'Jetpack Boost is currently generating critical css for this page', 'jetpack-boost' ) . ' */';
 	}
 }
