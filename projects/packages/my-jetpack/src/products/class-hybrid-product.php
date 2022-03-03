@@ -25,8 +25,8 @@ abstract class Hybrid_Product extends Product {
 	 *
 	 * @return boolean
 	 */
-	public static function is_active() {
-		return static::is_plugin_active() || static::is_jetpack_plugin_active();
+	public static function is_plugin_active() {
+		return parent::is_plugin_active() || parent::is_jetpack_plugin_active();
 	}
 
 	/**

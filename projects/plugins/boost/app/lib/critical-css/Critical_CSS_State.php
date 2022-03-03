@@ -66,21 +66,58 @@ class Critical_CSS_State {
 	public function __construct( $request_name = 'local' ) {
 
 		$this->request_name = $request_name;
-
-		$state = Transient::get(
-			$this->get_key(),
-			array(
-				'created'     => microtime( true ),
-				'state'       => null,
-				'state_error' => null,
-				'sources'     => array(),
-			)
-		);
+		$state              = $this->get_state_transient();
 
 		$this->created     = $state['created'];
 		$this->state       = $state['state'];
 		$this->state_error = empty( $state['state_error'] ) ? null : $state['state_error'];
 		$this->sources     = $this->verify_sources( $state['sources'] );
+	}
+
+	private function get_state_transient() {
+		return Transient::get(
+			$this->get_key(),
+			array(
+				'created'     => microtime( true ),
+				'updated'     => microtime( true ),
+				'state'       => null,
+				'state_error' => null,
+				'sources'     => array(),
+			)
+		);
+	}
+
+	public function get_generation_status() {
+		// Todo: created time may be different in browser.
+		$state  = $this->get_state_transient();
+		$status = $this->get_providers_status( $state['sources'] );
+
+		return array(
+			'created'   => $state['created'],
+			'updated'   => $state['updated'],
+			'completed' => $status['completed'],
+			'total'     => $status['total'],
+			'pending'   => $status['pending'],
+		);
+	}
+
+	private function get_providers_status( $providers ) {
+		$completed = 0;
+		$pending   = false;
+
+		foreach ( $providers as $provider ) {
+			if ( self::SUCCESS === $provider['status'] ) {
+				$completed++;
+			} elseif ( self::REQUESTING === $provider['status'] ) {
+				$pending = true;
+			}
+		}
+
+		return array(
+			'total'     => count( $providers ),
+			'completed' => $completed,
+			'pending'   => $pending,
+		);
 	}
 
 	/**
@@ -91,6 +128,7 @@ class Critical_CSS_State {
 			$this->get_key(),
 			array(
 				'created'     => $this->created,
+				'updated'     => microtime( true ),
 				'state'       => $this->state,
 				'state_error' => $this->state_error,
 				'sources'     => $this->sources,
