@@ -17,6 +17,7 @@ import { chalkJetpackGreen } from '../helpers/styling.js';
 import { normalizeProject } from '../helpers/normalizeArgv.js';
 import { allProjects, projectTypes } from '../helpers/projectHelpers.js';
 import { readComposerJson } from '../helpers/json.js';
+import { runCommand } from '../helpers/runCommand.js';
 
 /**
  * Comand definition for changelog subcommand.
@@ -213,6 +214,26 @@ export function changelogDefine( yargs ) {
 					async argv => {
 						await changelogArgs( argv );
 					}
+				)
+				// Squash subcommand.
+				.command(
+					'squash [project] [file]',
+					'Squashes changelog projects',
+					yargSquash => {
+						yargSquash
+							.positional( 'project', {
+								describe: 'Project in the form of type/name, e.g. plugins/jetpack',
+								type: 'string',
+							} )
+							.option( 'file', {
+								describe: 'File that we want to squash, either changelog or readme',
+								type: 'string',
+								choices: [ 'changelog', 'readme' ],
+							} );
+					},
+					async argv => {
+						await changelogArgs( argv );
+					}
 				);
 		},
 		async argv => {
@@ -232,7 +253,7 @@ async function changelogCommand( argv ) {
 		argv = await promptCommand( argv );
 	}
 
-	const commands = [ 'add', 'validate', 'version', 'write' ];
+	const commands = [ 'add', 'validate', 'version', 'write', 'squash' ];
 	if ( ! commands.includes( argv.cmd ) ) {
 		throw new Error( 'Unknown command' ); // Yargs should provide a helpful response before this, but to be safe.
 	}
@@ -366,6 +387,7 @@ async function changelogArgs( argv ) {
 	argv.error = `Command '${ argv.cmd || argv._[ 1 ] }' for ${ argv.project } has failed! See error`;
 	argv.args = [ argv.cmd || argv._[ 1 ], ...process.argv.slice( 4 ) ];
 	const removeArg = [ argv.project, ...projectTypes ];
+	let file;
 
 	if ( argv.auto ) {
 		argv.args.push( ...argv.pass );
@@ -390,16 +412,70 @@ async function changelogArgs( argv ) {
 				argv.args.push( argv.ver );
 			}
 			break;
+		case 'squash':
+			if ( typeof argv.file === 'undefined' ) {
+				file = await promptForFile( argv );
+			} else {
+				file = argv.file;
+			}
+			argv.args = [ 'squash' ];
+			await changeloggerSquash( argv, file );
+			break;
 	}
 
-	// Remove project from arguments list we pass to the changelogger.
+	// Remove the project from the list of args we're passing to changelogger.
+	argv = await removeArgs( argv, removeArg );
+
+	// Run the changelogger command.
+	await changeloggerCli( argv );
+
+	// Add any newly added changelog files.
+	await gitAdd( argv );
+
+	console.log( chalkJetpackGreen( argv.success ) );
+}
+
+/**
+ * Handles squashing just the readme file.
+ *
+ * @param {object} argv - arguments passed as cli.
+ * @param {string} file - what file we want to squash.
+ */
+async function changeloggerSquash( argv, file ) {
+	const changelogContents =
+		file === 'readme' ? fs.readFileSync( `projects/${ argv.project }/CHANGELOG.md` ) : null;
+	try {
+		if ( file === 'changelog' ) {
+			console.log( 'Squashing changelog...' );
+		}
+		await changeloggerCli( argv );
+
+		if ( file === 'readme' ) {
+			console.log( 'Updating readme...' );
+			await runCommand( 'tools/plugin-changelog-to-readme.sh', [ `${ argv.project }` ] );
+		}
+	} finally {
+		if ( changelogContents !== null ) {
+			fs.writeFileSync( `projects/${ argv.project }/CHANGELOG.md`, changelogContents );
+		}
+	}
+	process.exit();
+}
+
+/**
+ * Remove project from arguments list we pass to the changelogger.
+ *
+ * @param {object} argv - arguments passed as cli.
+ * @param {Array} removeArg - the array of projects we want to remove.
+ * @returns {argv} - the arguemnts.
+ */
+async function removeArgs( argv, removeArg ) {
 	for ( const proj of removeArg ) {
 		if ( argv.args.includes( proj ) ) {
 			argv.args.splice( argv.args.indexOf( proj ), 1 );
 		}
 	}
-
-	await changeloggerCli( argv );
+	return argv;
 }
 
 /**
@@ -416,9 +492,6 @@ export async function changeloggerCli( argv ) {
 	if ( data.status !== 0 ) {
 		console.error( chalk.red( argv.error ) );
 		process.exit( data.status );
-	} else {
-		await gitAdd( argv );
-		console.log( chalkJetpackGreen( argv.success ) );
 	}
 }
 
@@ -533,10 +606,26 @@ async function promptCommand( argv ) {
 		type: 'list',
 		name: 'cmd',
 		message: 'What changelogger command do you want to run?',
-		choices: [ 'add', 'validate', 'version', 'write' ],
+		choices: [ 'add', 'validate', 'version', 'write', 'squash' ],
 	} );
 	argv.cmd = response.cmd;
 	return argv;
+}
+
+/**
+ * Prompts for for the readme
+ *
+ * @param {argv} argv - the arguments passed.
+ * @returns {argv}.
+ */
+async function promptForFile( argv ) {
+	const response = await inquirer.prompt( {
+		type: 'list',
+		name: 'file',
+		message: 'What are you looking to squash?',
+		choices: [ 'readme', 'changelog' ],
+	} );
+	return response.file;
 }
 
 /**
