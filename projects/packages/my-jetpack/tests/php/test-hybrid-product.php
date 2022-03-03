@@ -78,7 +78,7 @@ class Test_Hybrid_Product extends TestCase {
 	 */
 	public function test_if_jetpack_active_return_true() {
 		activate_plugin( 'jetpack/jetpack.php' );
-		$this->assertTrue( Backup::is_active() );
+		$this->assertTrue( Backup::is_plugin_active() );
 	}
 
 	/**
@@ -87,7 +87,7 @@ class Test_Hybrid_Product extends TestCase {
 	public function test_if_jetpack_inactive_and_backup_active_return_true() {
 		deactivate_plugins( 'jetpack/jetpack.php' );
 		activate_plugins( Backup::get_installed_plugin_filename() );
-		$this->assertTrue( Backup::is_active() );
+		$this->assertTrue( Backup::is_plugin_active() );
 	}
 
 	/**
