@@ -358,7 +358,16 @@ class Jetpack_Plugin_Search {
 
 			// Try to match a passed search term with module's search terms.
 			foreach ( $jetpack_modules_list as $module_slug => $module_opts ) {
-				$is_supported_by_plan = Jetpack_Plan::supports( $module_slug );
+				// Does the site's current plan support the feature?
+				// TODO: We don't use Jetpack_Plan::supports() here because that check
+				// always returns Akismet as supported, since Akismet has a free version.
+				// As of D75985-code we don't report `akismet` as available on free
+				// sites in the new wpcom features mapping, but we cannot still use
+				// `Jetpack_Plan::supports` until `Store_Product_List::get_feature_list()`
+				// is refactored to use the new wpcom features mapping.
+				// @see https://github.com/Automattic/wp-calypso/issues/61542.
+				$current_plan         = Jetpack_Plan::get();
+				$is_supported_by_plan = in_array( $module_slug, $current_plan['supports'], true );
 
 				if (
 					false !== stripos( $module_opts['search_terms'] . ', ' . $module_opts['name'], $normalized_term )

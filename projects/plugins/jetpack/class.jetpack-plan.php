@@ -344,6 +344,22 @@ class Jetpack_Plan {
 
 		$plan = self::get();
 
+		// Manually mapping WordPress.com features to Jetpack module slugs.
+		foreach ( $plan['features']['active'] as $wpcom_feature ) {
+			switch ( $wpcom_feature ) {
+				// TODO: As of D75985-code we're reporting `wordads` as the active feature, but
+				// we cannot still remove this code until `Store_Product_List::get_feature_list()`
+				// is refactored to use the new wpcom features mapping.
+				// @see https://github.com/Automattic/wp-calypso/issues/61542.
+				case 'wordads-jetpack':
+					// WordAds are supported for this site.
+					if ( 'wordads' === $feature ) {
+						return true;
+					}
+					break;
+			}
+		}
+
 		if (
 			in_array( $feature, $plan['supports'], true )
 			|| in_array( $feature, $plan['features']['active'], true )
