@@ -1281,6 +1281,51 @@ importers:
       eslint-plugin-playwright: 0.8.0
       jetpack-e2e-commons: link:../../../../../tools/e2e-commons
 
+  projects/plugins/reach:
+    specifiers:
+      '@automattic/jetpack-base-styles': workspace:^0.1.9
+      '@automattic/jetpack-components': workspace:^0.10.7
+      '@automattic/jetpack-connection': workspace:^0.17.0
+      '@automattic/jetpack-webpack-config': workspace:^1.1.4
+      '@babel/core': 7.16.0
+      '@babel/preset-env': 7.16.4
+      '@babel/register': 7.16.0
+      '@babel/runtime': 7.16.3
+      '@wordpress/browserslist-config': 4.1.1
+      '@wordpress/data': 6.3.0
+      '@wordpress/date': 4.3.1
+      '@wordpress/element': 4.1.1
+      '@wordpress/i18n': 4.3.1
+      concurrently: 6.0.2
+      react: 17.0.2
+      react-dom: 17.0.2
+      sass: 1.43.3
+      sass-loader: 12.4.0
+      webpack: 5.65.0
+      webpack-cli: 4.9.1
+    dependencies:
+      '@automattic/jetpack-base-styles': link:../../js-packages/base-styles
+      '@automattic/jetpack-components': link:../../js-packages/components
+      '@automattic/jetpack-connection': link:../../js-packages/connection
+      '@wordpress/data': 6.3.0_react@17.0.2
+      '@wordpress/date': 4.3.1
+      '@wordpress/element': 4.1.1
+      '@wordpress/i18n': 4.3.1
+      react: 17.0.2
+      react-dom: 17.0.2_react@17.0.2
+    devDependencies:
+      '@automattic/jetpack-webpack-config': link:../../js-packages/webpack-config
+      '@babel/core': 7.16.0
+      '@babel/preset-env': 7.16.4_@babel+core@7.16.0
+      '@babel/register': 7.16.0_@babel+core@7.16.0
+      '@babel/runtime': 7.16.3
+      '@wordpress/browserslist-config': 4.1.1
+      concurrently: 6.0.2
+      sass: 1.43.3
+      sass-loader: 12.4.0_sass@1.43.3+webpack@5.65.0
+      webpack: 5.65.0_webpack-cli@4.9.1
+      webpack-cli: 4.9.1_webpack@5.65.0
+
   projects/plugins/search:
     specifiers: {}
 
@@ -7669,12 +7714,12 @@ packages:
     resolution: {integrity: sha512-PB3ldyrcnAicT35TWPs5IcwKD8S333HMaa2VVv4+wdvebJkjWuW/xESoB8IwRcog8HYVYamb1g/R31Qv5Bx03g==}
     dependencies:
       '@types/eslint': 8.4.1
-      '@types/estree': 0.0.50
+      '@types/estree': 0.0.51
 
   /@types/eslint/8.4.1:
     resolution: {integrity: sha512-GE44+DNEyxxh2Kc6ro/VkIj+9ma0pO0bwv9+uHSyBrikYOHr8zYcdPvnBOp1aw8s+CjRvuSx7CyWqRrNFQ59mA==}
     dependencies:
-      '@types/estree': 0.0.50
+      '@types/estree': 0.0.51
       '@types/json-schema': 7.0.9
 
   /@types/estree/0.0.39:
@@ -7686,7 +7731,6 @@ packages:
 
   /@types/estree/0.0.51:
     resolution: {integrity: sha512-CuPgU6f3eT/XgKKPqKd/gLZV1Xmvf1a2R5POBOGQa6uv82xpls89HU5zKeVoyR8XzHd1RGNOlQlvUe3CFkjWNQ==}
-    dev: true
 
   /@types/fs-extra/8.1.2:
     resolution: {integrity: sha512-SvSrYXfWSc7R4eqnOzbQF4TZmfpNSM9FrSWLU3EUnWBuyZqNBOrv1B1JA3byUDPUl9z4Ab3jeZG2eDdySlgNMg==}
