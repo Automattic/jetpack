@@ -3913,6 +3913,11 @@ p {
 			return new WP_Error( 'unknown_token', 'Unknown Jetpack token', 403 );
 		}
 
+		$upload_blocked = apply_filters( 'jetpack_upload_handler_block', false, $_FILES );
+		if ( is_wp_error( $upload_blocked ) ) {
+				return $upload_blocked;
+		}
+
 		$uploaded_files = array();
 		$global_post    = isset( $GLOBALS['post'] ) ? $GLOBALS['post'] : null;
 		unset( $GLOBALS['post'] );
