@@ -3,7 +3,7 @@
  *
  * Plugin Name: Jetpack Reach
  * Plugin URI: https://wordpress.org/plugins/reach
- * Description: Share your site’s posts on several social media networks automatically when you publish a new post
+ * Description: Share your site’s posts on several social media networks automatically when you publish a new post.
  * Version: 0.1.0-alpha
  * Author: Automattic
  * Author URI: https://jetpack.com/
