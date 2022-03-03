@@ -56,14 +56,14 @@ describe( 'RedeemPartnerCouponPreConnection - pass through', () => {
 					registrationNonce: 'REGISTRATION',
 					redirectUri: 'admin.php?page=jetpack&partnerCoupon=TEST_TST_1234',
 				} )
-			).to.be.true;
+			);
 
 			expect(
 				stubConnectUser.calledOnceWith( {
 					from: 'jetpack-partner-coupon',
 					redirectUri: 'admin.php?page=jetpack&partnerCoupon=TEST_TST_1234',
 				} )
-			).to.be.true;
+			);
 			done();
 		}, 50 );
 	} );
@@ -84,6 +84,6 @@ describe( 'RedeemPartnerCouponPreConnection - pass through', () => {
 				from: 'jetpack-partner-coupon',
 				redirectUri: 'admin.php?page=jetpack&partnerCoupon=TEST_TST_1234',
 			} )
-		).to.be.true;
+		);
 	} );
 } );

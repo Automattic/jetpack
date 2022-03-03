@@ -14,6 +14,7 @@ import RedeemPartnerCouponPreConnection from '../';
 import analytics from '@automattic/jetpack-analytics';
 import { useSelect } from '@wordpress/data';
 import { CONNECTION_STORE_ID } from '@automattic/jetpack-connection';
+import { getRedirectUrl } from '@automattic/jetpack-components';
 
 const { location } = window;
 const partnerCoupon = {
@@ -25,7 +26,7 @@ const partnerCoupon = {
 	},
 	product: {
 		title: 'Awesome Product',
-		slug: 'my-product',
+		slug: 'awesome-product',
 		features: [ 'Feature 1', 'Feature 2', 'Feature 3' ],
 	},
 };
@@ -41,6 +42,7 @@ const requiredProps = {
 	analytics: analytics,
 };
 
+let locationAssignSpy;
 let recordEventStub;
 let storeSelect;
 let stubGetConnectionStatus;
@@ -49,6 +51,7 @@ describe( 'RedeemPartnerCouponPreConnection - component', () => {
 	before( () => {
 		renderHook( () => useSelect( select => ( storeSelect = select( CONNECTION_STORE_ID ) ) ) );
 
+		locationAssignSpy = sinon.spy();
 		recordEventStub = sinon.stub( analytics.tracks, 'recordEvent' );
 		stubGetConnectionStatus = sinon.stub( storeSelect, 'getConnectionStatus' );
 	} );
@@ -57,13 +60,14 @@ describe( 'RedeemPartnerCouponPreConnection - component', () => {
 		// Spy on location.assign, so we don't get breaking errors when
 		// we trigger click events on buttons/links.
 		delete window.location;
-		window.location = { assign: sinon.spy() };
+		window.location = { assign: locationAssignSpy };
 
 		stubGetConnectionStatus.returns( {} );
 	} );
 
 	afterEach( () => {
 		window.location = location;
+		locationAssignSpy.resetHistory();
 
 		recordEventStub.reset();
 		stubGetConnectionStatus.reset();
@@ -80,7 +84,7 @@ describe( 'RedeemPartnerCouponPreConnection - component', () => {
 		expect( screen.getAllByText( 'Welcome to Jetpack Company name traveler!' ) ).to.exist;
 	} );
 
-	it( 'description is shown', () => {
+	it( 'description is shown with product name', () => {
 		render( <RedeemPartnerCouponPreConnection { ...requiredProps } /> );
 
 		expect(
@@ -99,7 +103,7 @@ describe( 'RedeemPartnerCouponPreConnection - component', () => {
 		}
 	} );
 
-	it( 'set up and redeem button is shown for new sites', () => {
+	it( 'set up and redeem button - is shown for new sites', () => {
 		stubGetConnectionStatus.returns( { isRegistered: false, isUserConnected: false } );
 
 		const props = {
@@ -123,7 +127,7 @@ describe( 'RedeemPartnerCouponPreConnection - component', () => {
 		expect( container.querySelector( 'button[aria-label="Redeem Awesome Product"]' ) ).to.not.exist;
 	} );
 
-	it( 'set up and redeem button is shown for userless connections', () => {
+	it( 'set up and redeem button - is shown for userless connections', () => {
 		stubGetConnectionStatus.returns( { isRegistered: true, isUserConnected: false } );
 
 		const { container } = render( <RedeemPartnerCouponPreConnection { ...requiredProps } /> );
@@ -140,7 +144,7 @@ describe( 'RedeemPartnerCouponPreConnection - component', () => {
 		expect( container.querySelector( 'button[aria-label="Redeem Awesome Product"]' ) ).to.not.exist;
 	} );
 
-	it( 'redeem button is shown for fully connected sites', () => {
+	it( 'redeem button - is shown for fully connected sites', () => {
 		stubGetConnectionStatus.returns( { isRegistered: true, isUserConnected: true } );
 
 		const props = {
@@ -165,6 +169,41 @@ describe( 'RedeemPartnerCouponPreConnection - component', () => {
 			.not.exist;
 	} );
 
+	it( 'redeem button - redirects with coupon (after tracking)', () => {
+		const props = {
+			...requiredProps,
+			connectionStatus: {
+				isRegistered: true,
+				hasConnectedOwner: true,
+			},
+		};
+
+		render( <RedeemPartnerCouponPreConnection { ...props } /> );
+
+		const redeemButton = screen.getByRole( 'button', {
+			name: 'Redeem Awesome Product',
+		} );
+		expect( redeemButton ).to.exist;
+		fireEvent.click( redeemButton );
+
+		// Make sure we only redirect once, and it's with the same value as getRedirectUrl.
+		expect( locationAssignSpy.calledOnce );
+		expect(
+			locationAssignSpy.withArgs(
+				sinon.match.same(
+					getRedirectUrl( 'jetpack-plugin-partner-coupon-checkout', {
+						path: 'awesome-product',
+						site: 'example.com',
+						query: 'coupon=TEST_TST_1234',
+					} )
+				)
+			).calledOnce
+		);
+
+		// Make sure we call track before calling location.assign.
+		expect( locationAssignSpy.calledAfter( recordEventStub ) );
+	} );
+
 	it( 'track event - jetpack_partner_coupon_redeem_view', () => {
 		expect( recordEventStub.callCount ).to.be.equal( 0 );
 
@@ -186,7 +225,7 @@ describe( 'RedeemPartnerCouponPreConnection - component', () => {
 		const props = {
 			...requiredProps,
 			connectionStatus: {
-				isRegistered: 'yes',
+				isRegistered: true,
 				hasConnectedOwner: true,
 			},
 		};
