@@ -8,6 +8,7 @@ import {
 	setHighlightColor,
 	setResultFormat,
 	setDefaultSort,
+	clearSearchPlanInfo,
 } from '../../helpers/search-helper.js';
 import { prerequisitesBuilder, Plans } from 'jetpack-e2e-commons/env/index.js';
 import playwrightConfig from '../../playwright.config.cjs';
@@ -17,6 +18,7 @@ test.describe( 'Search Configure', () => {
 
 	test.beforeAll( async ( { browser } ) => {
 		const page = await browser.newPage( playwrightConfig.use );
+		await clearSearchPlanInfo();
 		await prerequisitesBuilder( page )
 			.withLoggedIn( true )
 			.withConnection( true )

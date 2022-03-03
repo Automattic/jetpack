@@ -1,7 +1,7 @@
 {
 	"private": true,
 	"name": "@automattic/jetpack-partner-coupon",
-	"version": "0.2.2-alpha",
+	"version": "0.2.2",
 	"description": "This package aims to add components to make it easier to redeem partner coupons",
 	"homepage": "https://jetpack.com",
 	"bugs": {
@@ -17,10 +17,10 @@
 		"test": "NODE_ENV=test NODE_PATH=tests:. js-test-runner --jsdom --initfile=test-main.jsx 'glob:./!(node_modules)/**/test/*.@(jsx|js)'"
 	},
 	"devDependencies": {
-		"@automattic/jetpack-base-styles": "workspace:^0.1.8",
+		"@automattic/jetpack-base-styles": "workspace:^0.1.9",
 		"@babel/core": "7.16.0",
 		"@babel/preset-react": "7.16.0",
-		"@wordpress/base-styles": "4.0.4",
+		"@wordpress/base-styles": "4.1.1",
 		"jetpack-js-test-runner": "workspace:*",
 		"nyc": "15.1.0",
 		"react": "17.0.2"
@@ -29,9 +29,9 @@
 		"react": "^17.0.2"
 	},
 	"dependencies": {
-		"@automattic/jetpack-components": "workspace:^0.10.6",
-		"@automattic/jetpack-connection": "workspace:^0.16.1",
-		"@wordpress/i18n": "4.3.0",
+		"@automattic/jetpack-components": "workspace:^0.10.7",
+		"@automattic/jetpack-connection": "workspace:^0.17.0",
+		"@wordpress/i18n": "4.3.1",
 		"classnames": "2.3.1",
 		"prop-types": "15.7.2"
 	},
