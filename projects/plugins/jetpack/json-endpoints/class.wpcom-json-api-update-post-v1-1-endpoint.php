@@ -523,7 +523,7 @@ class WPCOM_JSON_API_Update_Post_v1_1_Endpoint extends WPCOM_JSON_API_Post_v1_1_
 					$discussion[ $discussion_status ] = $is_open ? 'open' : 'closed';
 				}
 
-				if ( in_array( $discussion[ $discussion_status ], array( 'open', 'closed' ) ) ) {
+				if ( in_array( $discussion[ $discussion_status ], array( 'open', 'closed' ), true ) ) {
 					$insert[ $discussion_status ] = $discussion[ $discussion_status ];
 				}
 			}
@@ -745,7 +745,7 @@ class WPCOM_JSON_API_Update_Post_v1_1_Endpoint extends WPCOM_JSON_API_Post_v1_1_
 		// We ask the user/dev to pass Publicize services he/she wants activated for the post, but Publicize expects us
 		// to instead flag the ones we don't want to be skipped. proceed with said logic.
 		// Any posts coming from Path (client ID 25952) should also not publicize.
-		if ( $publicize === false || ( isset( $this->api->token_details['client_id'] ) && 25952 == $this->api->token_details['client_id'] ) ) {
+		if ( false === $publicize || ( isset( $this->api->token_details['client_id'] ) && 25952 == $this->api->token_details['client_id'] ) ) {
 			// No publicize at all, skip all by ID.
 			foreach ( $GLOBALS['publicize_ui']->publicize->get_services( 'all' ) as $name => $service ) {
 				delete_post_meta( $post_id, $GLOBALS['publicize_ui']->publicize->POST_SKIP . $name );
@@ -785,7 +785,7 @@ class WPCOM_JSON_API_Update_Post_v1_1_Endpoint extends WPCOM_JSON_API_Post_v1_1_
 					continue;
 				}
 
-				if ( ! in_array( $name, $publicize ) && ! array_key_exists( $name, $publicize ) ) {
+				if ( ! in_array( $name, $publicize, true ) && ! array_key_exists( $name, $publicize ) ) {
 					// Skip the whole service by adding each connection ID.
 					foreach ( $service_connections as $service_connection ) {
 						update_post_meta( $post_id, $GLOBALS['publicize_ui']->publicize->POST_SKIP . $service_connection->unique_id, 1 );
@@ -797,7 +797,7 @@ class WPCOM_JSON_API_Update_Post_v1_1_Endpoint extends WPCOM_JSON_API_Post_v1_1_
 
 					// Flag the connections we can't match with the requested list to be skipped.
 					foreach ( $service_connections as $service_connection ) {
-						if ( ! in_array( $service_connection->meta['connection_data']->id, $requested_connections ) ) {
+						if ( ! in_array( $service_connection->meta['connection_data']->id, $requested_connections, true ) ) {
 							update_post_meta( $post_id, $GLOBALS['publicize_ui']->publicize->POST_SKIP . $service_connection->unique_id, 1 );
 						} else {
 							delete_post_meta( $post_id, $GLOBALS['publicize_ui']->publicize->POST_SKIP . $service_connection->unique_id );
@@ -1134,6 +1134,6 @@ class WPCOM_JSON_API_Update_Post_v1_1_Endpoint extends WPCOM_JSON_API_Post_v1_1_
 			$type = get_post_type( $post_id );
 		}
 
-		return ! empty( $type ) && ! in_array( $type, array( 'post', 'revision' ) );
+		return ! empty( $type ) && ! in_array( $type, array( 'post', 'revision' ), true );
 	}
 }
