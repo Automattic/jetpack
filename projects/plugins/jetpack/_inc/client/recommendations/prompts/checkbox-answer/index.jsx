@@ -38,7 +38,6 @@ const CheckboxAnswerComponent = ( { answerKey, checked, info, title, updateCheck
 					id={ answerKey }
 					class="jp-checkbox-answer__checkbox-input"
 					type="checkbox"
-					defaultChecked={ checked }
 					checked={ checked }
 					onChange={ toggleCheckbox }
 				/>
