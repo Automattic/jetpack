@@ -298,8 +298,14 @@ async function changelogAdd( argv ) {
 	if ( argv._[ 1 ] === 'add' && ! argv.project ) {
 		const needChangelog = await checkChangelogFiles();
 		const uniqueProjects = await checkSpecialProjects( needChangelog );
+
 		// If we don't detect any modified projects, shortcircuit to default changelogger.
 		if ( needChangelog.length === 0 && uniqueProjects.length === 0 ) {
+			console.log(
+				chalk.green(
+					'Did not detect a touched project that still need a changelog. You can still add a changelog manually.'
+				)
+			);
 			changelogArgs( argv );
 			return;
 		}
@@ -536,9 +542,10 @@ async function checkChangelogFiles() {
 		'origin/master',
 		'HEAD',
 	] );
+
 	const projReg = /\b\w+\b\/\b\w+\b(?= )/g; // match example: plugins/jetpack
 	const matchedProjects = needChangelog.stdout.toString().trim().match( projReg );
-	return matchedProjects;
+	return matchedProjects ?? [];
 }
 /**
  * Checks if any projects already have a changelog file by that name.
