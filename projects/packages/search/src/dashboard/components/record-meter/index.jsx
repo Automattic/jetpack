@@ -4,14 +4,8 @@ import React, { useState } from 'react';
 import { __ } from '@wordpress/i18n';
 
 /**
- * WordPress dependencies
- */
-import { useSelect } from '@wordpress/data';
-
-/**
  * Internal dependencies
  */
-import { STORE_ID } from 'store';
 import { BarChart } from './bar-chart';
 import getRecordInfo from './lib/record-info';
 import createData from './lib/create-data';
@@ -21,10 +15,13 @@ import './style.scss';
 /**
  * Generate Record Meter showing how many records the user has indexed
  *
+ * @param {object} props - Props
+ * @param {number} props.postCount - Post count
+ * @param {object} props.postTypeBreakdown - Post type breakdown (post type => number of posts)
+ * @param {number} props.tierMaximumRecords - Max number of records allowed in user's current tier
  * @returns {React.Component} RecordMeter React component
  */
-export default function RecordMeter() {
-	const tierMaximumRecords = useSelect( select => select( STORE_ID ).getTierMaximumRecords() );
+export default function RecordMeter( { postCount, postTypeBreakdown, tierMaximumRecords } ) {
 	// TODO: use setRecordInfo var
 	// eslint-disable-next-line no-unused-vars
 	const [ recordInfo, setRecordInfo ] = useState(
@@ -40,6 +37,27 @@ export default function RecordMeter() {
 					{ tierMaximumRecords && (
 						<p>
 							<BarChart data={ recordInfo.data } isValid={ recordInfo.isValid } />
+							Tier maximum records: <strong>{ tierMaximumRecords }</strong>
+						</p>
+					) }
+					{ postCount && (
+						<p>
+							Post count: <strong>{ postCount }</strong>
+						</p>
+					) }
+					{ postTypeBreakdown && (
+						<p>
+							Post type breakdown:
+							<table>
+								{ Object.entries( postTypeBreakdown ).map( postType => (
+									<tr>
+										<td>{ postType[ 0 ] }</td>
+										<td>
+											<strong>{ postType[ 1 ] }</strong>
+										</td>
+									</tr>
+								) ) }
+							</table>
 						</p>
 					) }
 				</div>
