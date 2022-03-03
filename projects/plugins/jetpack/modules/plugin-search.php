@@ -358,14 +358,7 @@ class Jetpack_Plugin_Search {
 
 			// Try to match a passed search term with module's search terms.
 			foreach ( $jetpack_modules_list as $module_slug => $module_opts ) {
-				/*
-				* Does the site's current plan support the feature?
-				* We don't use Jetpack_Plan::supports() here because
-				* that check always returns Akismet as supported,
-				* since Akismet has a free version.
-				*/
-				$current_plan         = Jetpack_Plan::get();
-				$is_supported_by_plan = in_array( $module_slug, $current_plan['supports'], true );
+				$is_supported_by_plan = Jetpack_Plan::supports( $module_slug );
 
 				if (
 					false !== stripos( $module_opts['search_terms'] . ', ' . $module_opts['name'], $normalized_term )
