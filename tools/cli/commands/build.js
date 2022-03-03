@@ -679,7 +679,8 @@ async function buildProject( t ) {
 	}
 
 	// HACK: Create stubs to avoid upgrade errors. See https://github.com/Automattic/jetpack/pull/22431.
-	// Ideally we'll have fixed the upgrade errors by the time something else breaks, in which case this should be removed instead of extended.
+	// This should no longer be needed for upgrades when jetpack-autoloader 2.11+ is in use, but we should probably
+	// keep it around for a few versions for people still upgrading from older versions.
 	if ( t.project === 'plugins/jetpack' || t.project === 'plugins/backup' ) {
 		t.output( '\n=== Stubbing old vendor files for backward compatibility ===\n\n' );
 		const files = [

@@ -226,8 +226,16 @@ export const settings = {
 	styles: layoutStylesWithLabels,
 	supports: {
 		align: [ 'center', 'wide', 'full' ],
+		color: {
+			gradients: true,
+			text: false,
+		},
 		customClassName: false,
 		html: false,
+		spacing: {
+			margin: true,
+			padding: true,
+		},
 		__experimentalHideChildBlockControls: true,
 	},
 	title: __( 'Tiled Gallery', 'jetpack' ),

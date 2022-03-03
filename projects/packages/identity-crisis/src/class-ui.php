@@ -97,26 +97,28 @@ class UI {
 	 * @return array
 	 */
 	private static function get_initial_state_data() {
-		$idc_urls       = Identity_Crisis::get_mismatched_urls();
-		$current_screen = get_current_screen();
-		$is_admin       = current_user_can( 'jetpack_disconnect' );
+		$idc_urls                           = Identity_Crisis::get_mismatched_urls();
+		$current_screen                     = get_current_screen();
+		$is_admin                           = current_user_can( 'jetpack_disconnect' );
+		$possible_dynamic_site_url_detected = (bool) Identity_Crisis::detect_possible_dynamic_site_url();
 
 		return array(
-			'WP_API_root'         => esc_url_raw( rest_url() ),
-			'WP_API_nonce'        => wp_create_nonce( 'wp_rest' ),
-			'wpcomHomeUrl'        => ( is_array( $idc_urls ) && array_key_exists( 'wpcom_url', $idc_urls ) ) ? $idc_urls['wpcom_url'] : null,
-			'currentUrl'          => ( is_array( $idc_urls ) && array_key_exists( 'current_url', $idc_urls ) ) ? $idc_urls['current_url'] : null,
-			'redirectUri'         => str_replace( '/wp-admin/', '/', $_SERVER['REQUEST_URI'] ),
-			'tracksUserData'      => Jetpack_Tracks_Client::get_connected_user_tracks_identity(),
-			'tracksEventData'     => array(
+			'WP_API_root'                    => esc_url_raw( rest_url() ),
+			'WP_API_nonce'                   => wp_create_nonce( 'wp_rest' ),
+			'wpcomHomeUrl'                   => ( is_array( $idc_urls ) && array_key_exists( 'wpcom_url', $idc_urls ) ) ? $idc_urls['wpcom_url'] : null,
+			'currentUrl'                     => ( is_array( $idc_urls ) && array_key_exists( 'current_url', $idc_urls ) ) ? $idc_urls['current_url'] : null,
+			'redirectUri'                    => str_replace( '/wp-admin/', '/', $_SERVER['REQUEST_URI'] ),
+			'tracksUserData'                 => Jetpack_Tracks_Client::get_connected_user_tracks_identity(),
+			'tracksEventData'                => array(
 				'isAdmin'       => $is_admin,
 				'currentScreen' => $current_screen ? $current_screen->id : false,
 				'blogID'        => Jetpack_Options::get_option( 'id' ),
 				'platform'      => static::get_platform(),
 			),
-			'isSafeModeConfirmed' => Identity_Crisis::$is_safe_mode_confirmed,
-			'consumerData'        => static::get_consumer_data(),
-			'isAdmin'             => $is_admin,
+			'isSafeModeConfirmed'            => Identity_Crisis::$is_safe_mode_confirmed,
+			'consumerData'                   => static::get_consumer_data(),
+			'isAdmin'                        => $is_admin,
+			'possibleDynamicSiteUrlDetected' => $possible_dynamic_site_url_detected,
 		);
 	}
 
