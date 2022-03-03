@@ -77,7 +77,7 @@ export default function useAutosaveAndRedirect( redirectUrl, onRedirect = noop )
 		}
 	};
 
-	const autosaveAndRedirect = async event => {
+	const autosaveAndRedirect = async ( event, shouldOpenNewWindow = false ) => {
 		event.preventDefault();
 
 		// Lock re-redirecting attempts.
@@ -87,8 +87,13 @@ export default function useAutosaveAndRedirect( redirectUrl, onRedirect = noop )
 
 		setIsRedirecting( true );
 
+		// Open in a new window if in the block-based widget editor.
+		if ( isWidgetEditor ) {
+			shouldOpenNewWindow = true;
+		}
+
 		autosave( event ).then( () => {
-			redirect( redirectUrl, onRedirect, isWidgetEditor );
+			redirect( redirectUrl, onRedirect, shouldOpenNewWindow );
 		} );
 	};
 

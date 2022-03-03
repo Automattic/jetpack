@@ -18,7 +18,7 @@ const PaymentsPostPublish = () => {
 	const trackClick = event => {
 		event.preventDefault();
 		analytics.tracks.recordEvent( 'jetpack_editor_payments_post_publish_click' );
-		autosaveAndRedirect( event );
+		autosaveAndRedirect( event, true );
 	};
 
 	return (
