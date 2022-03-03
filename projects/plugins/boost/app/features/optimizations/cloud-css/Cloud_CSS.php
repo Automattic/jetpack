@@ -108,10 +108,6 @@ class Cloud_CSS implements Feature, Has_Endpoints {
 
 	/**
 	 * Handle regeneration of Cloud CSS when a post is saved.
-	 *
-	 * @param $post_id
-	 * @param $post
-	 * @return void
 	 */
 	public function handle_save_post( $post_id, $post ) {
 		if ( ! $post || ! isset( $post->post_type ) || ! is_post_publicly_viewable( $post ) ) {
