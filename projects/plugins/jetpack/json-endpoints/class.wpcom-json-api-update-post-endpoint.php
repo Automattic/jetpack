@@ -367,7 +367,7 @@ class WPCOM_JSON_API_Update_Post_Endpoint extends WPCOM_JSON_API_Post_Endpoint {
 		if ( isset( $input['date_gmt'] ) ) {
 			$gmt_offset       = get_option( 'gmt_offset' );
 			$time_with_offset = strtotime( $input['date_gmt'] ) + $gmt_offset * HOUR_IN_SECONDS;
-			$input['date']    = date( 'Y-m-d H:i:s', $time_with_offset );
+			$input['date']    = gmdate( 'Y-m-d H:i:s', $time_with_offset );
 		}
 
 		if ( ! empty( $author_id ) && get_current_user_id() !== $author_id ) {
