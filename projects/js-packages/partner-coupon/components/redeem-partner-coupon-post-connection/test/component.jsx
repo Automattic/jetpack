@@ -146,6 +146,20 @@ describe( 'RedeemPartnerCouponPostConnection', () => {
 		expect( locationAssignSpy.calledAfter( recordEventStub ) );
 	} );
 
+	it( 'redeem button redirects after tracking event', () => {
+		render( <RedeemPartnerCouponPostConnection { ...requiredProps } /> );
+
+		const redeemButton = screen.getByRole( 'button', {
+			name: 'Redeem Awesome Product',
+		} );
+		expect( redeemButton ).to.exist;
+		fireEvent.click( redeemButton );
+		expect( locationAssignSpy.calledOnce );
+
+		// Make sure we trigger tracking event before redirecting.
+		expect( locationAssignSpy.calledAfter( recordEventStub ) );
+	} );
+
 	it( 'is triggering jetpack_partner_coupon_redeem_view tracking event', () => {
 		expect( recordEventStub.callCount ).to.be.equal( 0 );
 
