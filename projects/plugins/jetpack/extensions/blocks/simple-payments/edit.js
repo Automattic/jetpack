@@ -594,9 +594,8 @@ export class SimplePaymentsEdit extends Component {
 
 const mapSelectToProps = withSelect( ( select, props ) => {
 	const { getEntityRecord, getMedia } = select( 'core' );
-	const { isSavingPost, getCurrentPost } = select( 'core/editor' );
-	const isSavingWidgetAreas = select( 'core/edit-widgets' )?.isSavingWidgetAreas;
-
+	const { getCurrentPost } = select( 'core/editor' );
+	const { __experimentalGetDirtyEntityRecords, isSavingEntityRecord } = select( 'core' );
 	const { productId, featuredMediaId } = props.attributes;
 
 	const fields = [
@@ -617,7 +616,9 @@ const mapSelectToProps = withSelect( ( select, props ) => {
 
 	return {
 		hasPublishAction: !! get( post, [ '_links', 'wp:action-publish' ] ),
-		isSaving: isSavingPost() || ( isSavingWidgetAreas && isSavingWidgetAreas() ),
+		isSaving: __experimentalGetDirtyEntityRecords().some( record =>
+			isSavingEntityRecord( record.kind, record.name, record.key )
+		),
 		simplePayment,
 		featuredMedia: featuredMediaId ? getMedia( featuredMediaId ) : null,
 		postLinkUrl: post?.link,
