@@ -544,23 +544,35 @@ EOT;
 	 * @return array
 	 */
 	public function get_options() {
-		if ( null === $this->options ) {
-			$this->options = Jetpack_Options::get_option( 'relatedposts', array() );
-			if ( ! is_array( $this->options ) ) {
-				$this->options = array();
+		if ( null === $this->_options ) {
+			$this->_options = Jetpack_Options::get_option( 'relatedposts', array() );
+			if ( ! is_array( $this->_options ) ) {
+				$this->_options = array();
 			}
-			$default_options = array(
-				'enabled'         => true,
-				'show_headline'   => true,
-				'show_thumbnails' => false,
-				'show_date'       => true,
-				'show_context'    => true,
-				'layout'          => 'grid',
-				'headline'        => esc_html__( 'Related', 'jetpack' ),
-				'size'            => 3,
-			);
-
-			$this->options = wp_parse_args( $this->options, $default_options );
+			if ( ! isset( $this->_options['enabled'] ) ) {
+				$this->_options['enabled'] = true;
+			}
+			if ( ! isset( $this->_options['show_headline'] ) ) {
+				$this->_options['show_headline'] = true;
+			}
+			if ( ! isset( $this->_options['show_thumbnails'] ) ) {
+				$this->_options['show_thumbnails'] = false;
+			}
+			if ( ! isset( $this->_options['show_date'] ) ) {
+				$this->_options['show_date'] = true;
+			}
+			if ( ! isset( $this->_options['show_context'] ) ) {
+				$this->_options['show_context'] = true;
+			}
+			if ( ! isset( $this->_options['layout'] ) ) {
+				$this->_options['layout'] = 'grid';
+			}
+			if ( ! isset( $this->_options['headline'] ) ) {
+				$this->_options['headline'] = esc_html__( 'Related', 'jetpack' );
+			}
+			if ( empty( $this->_options['size'] ) || (int) $this->_options['size'] < 1 ) {
+				$this->_options['size'] = 3;
+			}
 
 			/**
 			 * Filter Related Posts basic options.
@@ -569,12 +581,12 @@ EOT;
 			 *
 			 * @since 2.8.0
 			 *
-			 * @param array $this->options Array of basic Related Posts options.
+			 * @param array $this->_options Array of basic Related Posts options.
 			 */
-			$this->options = apply_filters( 'jetpack_relatedposts_filter_options', $this->options );
+			$this->_options = apply_filters( 'jetpack_relatedposts_filter_options', $this->_options );
 		}
 
-		return $this->options;
+		return $this->_options;
 	}
 
 	/**
@@ -1311,13 +1323,8 @@ EOT;
 			 *
 			 * @since 3.0.0
 			 *
-<<<<<<< HEAD
-			 * @param string $this->to_utf8( $this->generate_related_post_context( $post->ID ) ) Context displayed below each related post.
-			 * @param string $post_id Post ID of the post for which we are retrieving Related Posts.
-=======
 			 * @param string $this->_to_utf8( $this->_generate_related_post_context( $post->ID ) ) Context displayed below each related post.
 			 * @param int $post_id Post ID of the post for which we are retrieving Related Posts.
->>>>>>> origin/master
 			 */
 			'context'  => apply_filters(
 				'jetpack_relatedposts_filter_post_context',
