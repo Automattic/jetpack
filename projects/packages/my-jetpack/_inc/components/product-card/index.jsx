@@ -12,9 +12,6 @@ import { ButtonGroup, Button, DropdownMenu } from '@wordpress/components';
  */
 import styles from './style.module.scss';
 import useAnalytics from '../../hooks/use-analytics';
-import { useProduct } from '../../hooks/use-product';
-import useMyJetpackNavigate from '../../hooks/use-my-jetpack-navigate';
-import { getIconBySlug } from '../icons';
 
 export const PRODUCT_STATUSES = {
 	ACTIVE: 'active',
@@ -102,10 +99,21 @@ const ActionButton = ( {
 };
 
 const ProductCard = props => {
-	const { admin, slug, showDeactivate } = props;
-	const { detail, status, activate, deactivate, isFetching } = useProduct( slug );
-	const { name, description, manageUrl } = detail;
-
+	const {
+		name,
+		admin,
+		description,
+		icon,
+		status,
+		onActivate,
+		onAdd,
+		onDeactivate,
+		onFixConnection,
+		onManage,
+		isFetching,
+		slug,
+		showDeactivate,
+	} = props;
 	const isActive = status === PRODUCT_STATUSES.ACTIVE;
 	const isError = status === PRODUCT_STATUSES.ERROR;
 	const isInactive = status === PRODUCT_STATUSES.INACTIVE;
@@ -126,51 +134,47 @@ const ProductCard = props => {
 		[ styles[ 'is-fetching' ] ]: isFetching,
 	} );
 
-	const navigateToConnectionPage = useMyJetpackNavigate( '/connection' );
-	const navigateToAddProductPage = useMyJetpackNavigate( `add-${ slug }` );
-
 	const { recordEvent } = useAnalytics();
 
 	/**
-	 * Redirect to manage URL after firing Tracks event
-	 */
-	const manageHandler = useCallback( () => {
-		recordEvent( 'jetpack_myjetpack_product_card_manage_click', {
-			product: slug,
-		} );
-
-		window.location = manageUrl;
-	}, [ slug, recordEvent, manageUrl ] );
-
-	/**
-	 * Calls the passed function deactivate after firing Tracks event
+	 * Calls the passed function onDeactivate after firing Tracks event
 	 */
 	const deactivateHandler = useCallback( () => {
 		recordEvent( 'jetpack_myjetpack_product_card_deactivate_click', {
 			product: slug,
 		} );
-		deactivate();
-	}, [ slug, deactivate, recordEvent ] );
+		onDeactivate();
+	}, [ slug, onDeactivate, recordEvent ] );
 
 	/**
-	 * Calls the passed function activate after firing Tracks event
+	 * Calls the passed function onActivate after firing Tracks event
 	 */
 	const activateHandler = useCallback( () => {
 		recordEvent( 'jetpack_myjetpack_product_card_activate_click', {
 			product: slug,
 		} );
-		activate();
-	}, [ slug, activate, recordEvent ] );
+		onActivate();
+	}, [ slug, onActivate, recordEvent ] );
 
 	/**
-	 * Navigate to add product page after firing Tracks event
+	 * Calls the passed function onAdd after firing Tracks event
 	 */
 	const addHandler = useCallback( () => {
 		recordEvent( 'jetpack_myjetpack_product_card_add_click', {
 			product: slug,
 		} );
-		navigateToAddProductPage();
-	}, [ slug, navigateToAddProductPage, recordEvent ] );
+		onAdd();
+	}, [ slug, onAdd, recordEvent ] );
+
+	/**
+	 * Calls the passed function onManage after firing Tracks event
+	 */
+	const manageHandler = useCallback( () => {
+		recordEvent( 'jetpack_myjetpack_product_card_manage_click', {
+			product: slug,
+		} );
+		onManage();
+	}, [ slug, onManage, recordEvent ] );
 
 	/**
 	 * Calls the passed function onManage after firing Tracks event
@@ -179,34 +183,25 @@ const ProductCard = props => {
 		recordEvent( 'jetpack_myjetpack_product_card_fixconnection_click', {
 			product: slug,
 		} );
-		navigateToConnectionPage();
-	}, [ slug, navigateToConnectionPage, recordEvent ] );
+		onFixConnection();
+	}, [ slug, onFixConnection, recordEvent ] );
 
-	const ActionButtonInstance = actionButtonProps => (
-		<ActionButton
-			status={ status }
-			isFetching={ isFetching }
-			name={ name }
-			admin={ admin }
-			onActivate={ activateHandler }
-			onFixConnection={ fixConnectionHandler }
-			onManage={ manageHandler }
-			{ ...actionButtonProps }
-		/>
-	);
-
-	const ProductIcon = getIconBySlug( slug );
 	return (
 		<div className={ containerClassName }>
 			<div className={ styles.name }>
 				<span>{ name }</span>
-				<ProductIcon />
+				{ icon }
 			</div>
 			<p className={ styles.description }>{ description }</p>
 			<div className={ styles.actions }>
 				{ canDeactivate ? (
 					<ButtonGroup className={ styles.group }>
-						<ActionButtonInstance onManage={ manageHandler } />
+						<ActionButton
+							{ ...props }
+							onActivate={ activateHandler }
+							onFixConnection={ fixConnectionHandler }
+							onManage={ manageHandler }
+						/>
 						<DropdownMenu
 							className={ styles.dropdown }
 							toggleProps={ { isPrimary: true, disabled: isFetching } }
@@ -223,7 +218,12 @@ const ProductCard = props => {
 						/>
 					</ButtonGroup>
 				) : (
-					<ActionButtonInstance onAdd={ addHandler } />
+					<ActionButton
+						{ ...props }
+						onFixConnection={ fixConnectionHandler }
+						onActivate={ activateHandler }
+						onAdd={ addHandler }
+					/>
 				) }
 				{ ! isAbsent && <div className={ statusClassName }>{ flagLabel }</div> }
 			</div>
@@ -232,13 +232,36 @@ const ProductCard = props => {
 };
 
 ProductCard.propTypes = {
+	name: PropTypes.string.isRequired,
+	description: PropTypes.string.isRequired,
+	icon: PropTypes.element,
 	admin: PropTypes.bool.isRequired,
+	isFetching: PropTypes.bool,
+	onDeactivate: PropTypes.func,
+	onManage: PropTypes.func,
+	onFixConnection: PropTypes.func,
+	onActivate: PropTypes.func,
+	onAdd: PropTypes.func,
 	onLearn: PropTypes.func,
 	slug: PropTypes.string.isRequired,
 	showDeactivate: PropTypes.bool,
+	status: PropTypes.oneOf( [
+		PRODUCT_STATUSES.ACTIVE,
+		PRODUCT_STATUSES.INACTIVE,
+		PRODUCT_STATUSES.ERROR,
+		PRODUCT_STATUSES.ABSENT,
+		PRODUCT_STATUSES.NEEDS_PURCHASE,
+	] ).isRequired,
 };
 
 ProductCard.defaultProps = {
+	icon: null,
+	isFetching: false,
+	onDeactivate: () => {},
+	onManage: () => {},
+	onFixConnection: () => {},
+	onActivate: () => {},
+	onAdd: () => {},
 	onLearn: () => {},
 	showDeactivate: true,
 };
