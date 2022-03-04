@@ -9,6 +9,7 @@ import React from 'react';
 import { createInterpolateElement } from '@wordpress/element';
 import { __, _x } from '@wordpress/i18n';
 import { getRedirectUrl } from '@automattic/jetpack-components';
+import { ExternalLink } from '@wordpress/components';
 
 /**
  * Internal dependencies
@@ -21,8 +22,6 @@ import {
 } from 'components/module-settings/form-components';
 
 import { withModuleSettingsFormHelpers } from 'components/module-settings/with-module-settings-form-helpers';
-
-import ExternalLink from 'components/external-link';
 
 export class VideoPressSettings extends React.Component {
 	render() {
@@ -216,8 +215,6 @@ export class MonitorSettings extends React.Component {
 							link: (
 								<ExternalLink
 									className="jp-module-settings__external-link"
-									icon={ true }
-									iconSize={ 16 }
 									href={ getRedirectUrl( 'calypso-settings-security', {
 										site: this.props.module.raw_url,
 									} ) }

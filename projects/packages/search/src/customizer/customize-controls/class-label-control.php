@@ -6,20 +6,17 @@
  * @since 8.6.0
  */
 
+namespace Automattic\Jetpack\Search;
+
+use WP_Customize_Control;
+
+if ( ! class_exists( 'WP_Customize_Control' ) ) {
+	return;
+}
 /**
  * Label Control class.
  */
 class Label_Control extends WP_Customize_Control {
-	/**
-	 * Enqueue styles related to this control.
-	 */
-	public function enqueue() {
-		$style_relative_path = 'modules/search/customize-controls/class-label-control.css';
-		$style_version       = Automattic\Jetpack\Search\Helper::get_asset_version( $style_relative_path );
-		$style_path          = plugins_url( $style_relative_path, JETPACK__PLUGIN_FILE );
-		wp_enqueue_style( 'jetpack-instant-search-customizer-label', $style_path, array( 'customize-controls' ), $style_version );
-	}
-
 	/**
 	 * Override rendering for custom class name; omit element ID.
 	 */
