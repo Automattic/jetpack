@@ -9,7 +9,7 @@
 	--product-card-header-color: white;
 	--product-card-header-bg-color: black;
 	--product-card-header-font-size: 13px;
-	
+
 	background-color: var(--product-card-bg-color);
 	border: 1px solid var(--product-card-border-color);
 	border-radius: var(--product-card-border-radius);
@@ -38,14 +38,10 @@
 			fill: var(--product-card-header-color);
 			margin-right: 5px;
 		}
-	}	
+	}
 }
 
 .container {
-	// @todo find a better way to change link color
-	// since this could affect more places
-	--wp-admin-theme-color: var(--jp-black);
-
 	// all css variables used down in product-detail-card
 
 	// Colors
@@ -58,9 +54,6 @@
 	--product-card-description-line-height: 1.5;
 	--product-card-description-font-size: 16px;
 	--product-card-price-font-size: 4rem;
-
-	--product-card-action-button-color-hover: white;
-	--product-card-action-button-bg-color-hover: black;
 
 	display: flex;
 	flex-direction: column;
@@ -94,20 +87,6 @@
 		min-height: 60px;
 	}
 
-	.checkout-button {
-		white-space: pre-line;
-		height: auto;
-		line-height: 26px;
-		align-self: flex-end;
-
-		&.is-bundle {
-			&:hover {
-				background-color: var(--product-card-action-button-bg-color-hover);
-				color: var(--product-card-action-button-color-hover);
-			}
-		}
-	}
-
 	.product-has-required-plan {
 		display: flex;
 		justify-content: center;
@@ -115,8 +94,27 @@
 		font-size: 18px;
 		align-self: flex-end;
 		margin: 0 auto;
+
 		svg {
 			margin-right: 5px;
+		}
+	}
+
+	.checkout-button {
+		min-height: 42px;
+		line-height: 26px;
+		align-self: flex-end;
+		font-size: var(--product-card-description-font-size);
+		padding: 8px 60px;
+		text-align: center;
+		width: 100%;
+		display: inline-block;
+		white-space: pre-line;
+		height: auto;
+
+		&.is-bundle:hover {
+			background: var(--jp-black);
+			color: var(--jp-white);
 		}
 	}
 
@@ -135,6 +133,7 @@
 .features {
 	margin: 0 0 30px;
 	padding: 0;
+
 	li {
 		list-style: none;
 		display: flex;
@@ -160,7 +159,7 @@
 
 .price {
 	font-size: var(--product-card-price-font-size);
-    display: flex;
+	display: flex;
 	margin: 0;
 	position: relative;
 
@@ -188,7 +187,8 @@
 	}
 
 	&.is-old {
-    	color: #a7aaad;
+		color: #a7aaad;
+
 		&:after {
 			content: " ";
 			display: block;
@@ -208,13 +208,4 @@
 	color: #787c82;
 	letter-spacing: 0.2px;
 	flex-grow: 2;
-}
-
-.checkout-button {
-	align-self: flex-start;
-	font-size: 16px;
-	padding: 8px 60px;
-    text-align: center;;
-	width: 100%;
-	display: inline-block;
 }
