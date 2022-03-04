@@ -596,6 +596,7 @@ const mapSelectToProps = withSelect( ( select, props ) => {
 	const { getEntityRecord, getMedia } = select( 'core' );
 	const { getCurrentPost } = select( 'core/editor' );
 	const { __experimentalGetDirtyEntityRecords, isSavingEntityRecord } = select( 'core' );
+	const getDirtyEntityRecords = __experimentalGetDirtyEntityRecords;
 	const { productId, featuredMediaId } = props.attributes;
 
 	const fields = [
@@ -616,7 +617,7 @@ const mapSelectToProps = withSelect( ( select, props ) => {
 
 	return {
 		hasPublishAction: !! get( post, [ '_links', 'wp:action-publish' ] ),
-		isSaving: __experimentalGetDirtyEntityRecords().some( record =>
+		isSaving: getDirtyEntityRecords().some( record =>
 			isSavingEntityRecord( record.kind, record.name, record.key )
 		),
 		simplePayment,
