@@ -544,34 +544,34 @@ EOT;
 	 * @return array
 	 */
 	public function get_options() {
-		if ( null === $this->_options ) {
-			$this->_options = Jetpack_Options::get_option( 'relatedposts', array() );
-			if ( ! is_array( $this->_options ) ) {
-				$this->_options = array();
+		if ( null === $this->options ) {
+			$this->options = Jetpack_Options::get_option( 'relatedposts', array() );
+			if ( ! is_array( $this->options ) ) {
+				$this->options = array();
 			}
-			if ( ! isset( $this->_options['enabled'] ) ) {
-				$this->_options['enabled'] = true;
+			if ( ! isset( $this->options['enabled'] ) ) {
+				$this->options['enabled'] = true;
 			}
-			if ( ! isset( $this->_options['show_headline'] ) ) {
-				$this->_options['show_headline'] = true;
+			if ( ! isset( $this->options['show_headline'] ) ) {
+				$this->options['show_headline'] = true;
 			}
-			if ( ! isset( $this->_options['show_thumbnails'] ) ) {
-				$this->_options['show_thumbnails'] = false;
+			if ( ! isset( $this->options['show_thumbnails'] ) ) {
+				$this->options['show_thumbnails'] = false;
 			}
-			if ( ! isset( $this->_options['show_date'] ) ) {
-				$this->_options['show_date'] = true;
+			if ( ! isset( $this->options['show_date'] ) ) {
+				$this->options['show_date'] = true;
 			}
-			if ( ! isset( $this->_options['show_context'] ) ) {
-				$this->_options['show_context'] = true;
+			if ( ! isset( $this->options['show_context'] ) ) {
+				$this->options['show_context'] = true;
 			}
-			if ( ! isset( $this->_options['layout'] ) ) {
-				$this->_options['layout'] = 'grid';
+			if ( ! isset( $this->options['layout'] ) ) {
+				$this->options['layout'] = 'grid';
 			}
-			if ( ! isset( $this->_options['headline'] ) ) {
-				$this->_options['headline'] = esc_html__( 'Related', 'jetpack' );
+			if ( ! isset( $this->options['headline'] ) ) {
+				$this->options['headline'] = esc_html__( 'Related', 'jetpack' );
 			}
-			if ( empty( $this->_options['size'] ) || (int) $this->_options['size'] < 1 ) {
-				$this->_options['size'] = 3;
+			if ( empty( $this->options['size'] ) || (int) $this->options['size'] < 1 ) {
+				$this->options['size'] = 3;
 			}
 
 			/**
@@ -583,10 +583,10 @@ EOT;
 			 *
 			 * @param array $this->_options Array of basic Related Posts options.
 			 */
-			$this->_options = apply_filters( 'jetpack_relatedposts_filter_options', $this->_options );
+			$this->options = apply_filters( 'jetpack_relatedposts_filter_options', $this->options );
 		}
 
-		return $this->_options;
+		return $this->options;
 	}
 
 	/**
