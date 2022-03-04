@@ -68,7 +68,7 @@ describe( 'RedeemPartnerCouponPostConnection', () => {
 		recordEventStub.restore();
 	} );
 
-	it( 'is shown partner logo', () => {
+	it( 'shows partner logo', () => {
 		render( <RedeemPartnerCouponPostConnection { ...requiredProps } /> );
 
 		const logo = screen.getByAltText(
