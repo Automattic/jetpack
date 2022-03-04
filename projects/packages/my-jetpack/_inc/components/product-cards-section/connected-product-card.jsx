@@ -9,7 +9,7 @@ import PropTypes from 'prop-types';
  */
 import ProductCard from '../product-card';
 import { useProduct } from '../../hooks/use-product';
-import { AntiSpamIcon } from '../icons';
+import { getIconBySlug } from '../icons';
 import useMyJetpackNavigate from '../../hooks/use-my-jetpack-navigate';
 
 const ConnectedProductCard = ( { admin, slug, showDeactivate } ) => {
@@ -26,12 +26,14 @@ const ConnectedProductCard = ( { admin, slug, showDeactivate } ) => {
 		window.location = manageUrl;
 	}, [ manageUrl ] );
 
+	const Icon = getIconBySlug( slug );
+
 	return (
 		<ProductCard
 			name={ name }
 			description={ description }
 			status={ status }
-			icon={ <AntiSpamIcon /> }
+			icon={ <Icon /> }
 			admin={ admin }
 			isFetching={ isFetching }
 			onDeactivate={ deactivate }
