@@ -1525,10 +1525,11 @@
             "dist": {
                 "type": "path",
                 "url": "../../packages/search",
-                "reference": "641b9528f1e8e84376fe2ff4b81cf4ad2b8222ff"
+                "reference": "bae6fe12e0874ed7f9a966053f17b7a64c8f0dee"
             },
             "require": {
                 "automattic/jetpack-assets": "^1.17",
+                "automattic/jetpack-config": "1.6.x-dev",
                 "automattic/jetpack-connection": "^1.37",
                 "automattic/jetpack-constants": "^1.6",
                 "automattic/jetpack-options": "^1.14",
@@ -1552,13 +1553,10 @@
                     "dev-master": "0.10.x-dev"
                 },
                 "version-constants": {
-                    "JETPACK_SEARCH_PKG__VERSION": "search.php"
+                    "::VERSION": "src/class-package.php"
                 }
             },
             "autoload": {
-                "files": [
-                    "search.php"
-                ],
                 "classmap": [
                     "src/"
                 ]
