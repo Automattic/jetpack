@@ -3913,9 +3913,21 @@ p {
 			return new WP_Error( 'unknown_token', 'Unknown Jetpack token', 403 );
 		}
 
-		$upload_blocked = apply_filters( 'jetpack_upload_handler_block', false, $_FILES );
-		if ( is_wp_error( $upload_blocked ) ) {
-				return $upload_blocked;
+		/**
+		 * Optionally block uploads processed through jetpack's upload_handler().
+		 * The filter may return false or WP_Error to block this particular upload.
+		 *
+		 * @since 10.8
+		 *
+		 * @param bool|WP_Error $allowed If false or WP_Error, block the upload. If true, allow the upload.
+		 * @param mixed $_FILES The $_FILES attempting to be uploaded.
+		 */
+		$can_upload = apply_filters( 'jetpack_upload_handler_can_upload', true, $_FILES );
+		if ( ! $can_upload || is_wp_error( $can_upload ) ) {
+			if ( is_wp_error( $can_upload ) ) {
+				return $can_upload;
+			}
+			return new WP_Error( 'handler_cannot_upload', 'The upload handler cannot upload files', 400 );
 		}
 
 		$uploaded_files = array();
