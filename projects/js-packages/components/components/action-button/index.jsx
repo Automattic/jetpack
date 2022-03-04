@@ -32,7 +32,7 @@ const ActionButton = props => {
 					className="jp-action-button--button"
 					label={ label }
 					onClick={ onClick }
-					isPrimary
+					variant="primary"
 					disabled={ isLoading }
 				>
 					{ isLoading ? <Spinner /> : label }
