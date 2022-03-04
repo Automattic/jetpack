@@ -7,7 +7,7 @@ import PropTypes from 'prop-types';
 /**
  * Internal dependencies
  */
-import ProductCard from '../product-card';
+import ProductCard from './connected-product-card';
 
 const CrmCard = ( { admin } ) => {
 	return <ProductCard admin={ admin } slug="crm" />;
