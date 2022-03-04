@@ -516,7 +516,7 @@ const VideoPressEdit = CoreVideoEdit =>
 										allowedTypes={ VIDEO_POSTER_ALLOWED_MEDIA_TYPES }
 										render={ ( { open } ) => (
 											<Button
-												isDefault
+												variant="secondary"
 												onClick={ open }
 												ref={ this.posterImageButton }
 												aria-describedby={ videoPosterDescription }
