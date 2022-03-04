@@ -4,7 +4,8 @@
 import React from 'react';
 import { __ } from '@wordpress/i18n';
 import { ConnectScreen } from '@automattic/jetpack-connection';
-import { Container, Col, AdminPage } from '@automattic/jetpack-components';
+import { Container, Col, AdminPage, getRedirectUrl } from '@automattic/jetpack-components';
+import { Icon, external } from '@wordpress/icons';
 
 /**
  * Internal dependencies
@@ -44,6 +45,18 @@ const ConnectionScreen = () => {
 							</li>
 							<li>
 								{ __( 'Let visitors share your content on social media', 'jetpack-my-jetpack' ) }
+							</li>
+							<li>
+								{ __( 'And more!', 'jetpack-my-jetpack' ) }{ ' ' }
+								<a
+									href={ getRedirectUrl( 'jetpack-features' ) }
+									target="_blank"
+									className={ styles[ 'all-features' ] }
+									rel="noreferrer"
+								>
+									{ __( 'See all Jetpack features', 'jetpack-my-jetpack' ) }
+									<Icon icon={ external } />
+								</a>
 							</li>
 						</ul>
 					</ConnectScreen>
