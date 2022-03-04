@@ -100,7 +100,7 @@ describe( 'RedeemPartnerCouponPostConnection', () => {
 		).to.not.exist;
 	} );
 
-	it( 'description is shown with product name', () => {
+	it( 'shows description and product name', () => {
 		render( <RedeemPartnerCouponPostConnection { ...requiredProps } /> );
 
 		expect(
