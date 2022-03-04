@@ -213,7 +213,7 @@ function MediaBrowser( props ) {
 
 				{ pageHandle && ! isLoading && (
 					<Button
-						isSecondary
+						variant="secondary"
 						className="jetpack-external-media-browser__loadmore"
 						disabled={ isLoading || isCopying }
 						onClick={ onLoadMoreClick }

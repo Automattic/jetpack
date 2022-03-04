@@ -184,7 +184,7 @@ const InstagramGalleryEdit = props => {
 						<Button
 							disabled={ isRequestingWpcomConnectUrl || ! wpcomConnectUrl }
 							href={ wpcomConnectUrl }
-							isSecondary
+							variant="secondary"
 						>
 							{ __( 'Connect to WordPress.com', 'jetpack' ) }
 						</Button>

@@ -39,7 +39,7 @@ export default function BlockNudge( {
 						href={ href } // Only for server-side rendering, since onClick doesn't work there.
 						onClick={ handleClick }
 						target="_top"
-						isSecondary
+						variant="secondary"
 					>
 						{ buttonLabel }
 					</Button>,

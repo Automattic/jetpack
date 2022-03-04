@@ -346,7 +346,7 @@ export class MembershipsButtonEdit extends Component {
 			{ this.state.products.map( product => (
 				<Button
 					className="membership-button__field-button"
-					isSecondary
+					variant="secondary"
 					key={ product.id }
 					onClick={ () => this.setMembershipAmount( product.id ) }
 				>
@@ -382,7 +382,7 @@ export class MembershipsButtonEdit extends Component {
 								'jetpack'
 							) }
 						>
-							<Button isSecondary href={ this.state.upgradeURL } target="_blank">
+							<Button variant="secondary" href={ this.state.upgradeURL } target="_blank">
 								{ __( 'Upgrade your plan', 'jetpack' ) }
 							</Button>
 							{ this.renderDisclaimer() }

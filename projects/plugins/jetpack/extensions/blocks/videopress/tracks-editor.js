@@ -338,7 +338,7 @@ function SingleTrackEditor( { track, guid, onChange, onClose, onCancel, trackExi
 					{ isSavingTrack ? (
 						<Spinner />
 					) : (
-						<Button isSecondary disabled={ ! track.tmpFile } onClick={ onSave }>
+						<Button variant="secondary" disabled={ ! track.tmpFile } onClick={ onSave }>
 							{ __( 'Save', 'jetpack' ) }
 						</Button>
 					) }

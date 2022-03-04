@@ -188,7 +188,7 @@ export class EventbriteEdit extends Component {
 							placeholder={ __( 'Enter an event URL to embed here…', 'jetpack' ) }
 							onChange={ event => this.setState( { editedUrl: event.target.value } ) }
 						/>
-						<Button isSecondary type="submit">
+						<Button variant="secondary" type="submit">
 							{ _x( 'Embed', 'submit button label', 'jetpack' ) }
 						</Button>
 					</form>

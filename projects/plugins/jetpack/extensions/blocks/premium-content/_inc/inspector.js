@@ -107,8 +107,7 @@ export default function Inspector( props ) {
 						</PanelRow>
 						<PanelRow>
 							<Button
-								// @ts-ignore isSecondary is missing from the type definition
-								isSecondary={ true }
+								variant="secondary"
 								onClick={
 									/**
 									 * @param { import('react').MouseEvent<HTMLElement> } e
