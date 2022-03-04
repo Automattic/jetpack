@@ -35,15 +35,15 @@ const requiredProps = {
 	analytics: {},
 };
 
-describe( 'PartnerCouponRedeem - component', () => {
-	it( 'show pre connection component for userless sites', () => {
+describe( 'PartnerCouponRedeem', () => {
+	it( 'uses pre connection component for registered sites', () => {
 		const { container } = render( <PartnerCouponRedeem { ...requiredProps } /> );
 		expect( container.querySelector( '.jetpack-redeem-partner-coupon-pre-connection' ) );
 		expect( container.querySelector( '.jetpack-redeem-partner-coupon-post-connection' ) ).to.be
 			.null;
 	} );
 
-	it( 'show post connection component for user connected site', () => {
+	it( 'uses post connection component for user connected site', () => {
 		const props = {
 			...requiredProps,
 			connectionStatus: { hasConnectedOwner: true },

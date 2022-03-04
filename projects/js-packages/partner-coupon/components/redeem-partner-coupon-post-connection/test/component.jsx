@@ -44,7 +44,7 @@ const requiredProps = {
 let locationAssignSpy;
 let recordEventStub;
 
-describe( 'RedeemPartnerCouponPostConnection - component', () => {
+describe( 'RedeemPartnerCouponPostConnection', () => {
 	before( () => {
 		locationAssignSpy = sinon.spy();
 		recordEventStub = sinon.stub( analytics.tracks, 'recordEvent' );
@@ -68,7 +68,7 @@ describe( 'RedeemPartnerCouponPostConnection - component', () => {
 		recordEventStub.restore();
 	} );
 
-	it( 'partner logo is shown', () => {
+	it( 'is shown partner logo', () => {
 		render( <RedeemPartnerCouponPostConnection { ...requiredProps } /> );
 
 		const logo = screen.getByAltText(
@@ -79,7 +79,7 @@ describe( 'RedeemPartnerCouponPostConnection - component', () => {
 		expect( logo.height ).equals( 100 );
 	} );
 
-	it( 'no partner logo', () => {
+	it( 'do not try to show partner logo if we do not have any', () => {
 		const partnerCouponCopyWithoutLogo = partnerCoupon;
 		delete partnerCouponCopyWithoutLogo.partner.logo;
 
@@ -110,7 +110,7 @@ describe( 'RedeemPartnerCouponPostConnection - component', () => {
 		).to.exist;
 	} );
 
-	it( 'features are shown', () => {
+	it( 'shows product features', () => {
 		render( <RedeemPartnerCouponPostConnection { ...requiredProps } /> );
 
 		// eslint-disable-next-line no-unused-vars
@@ -119,7 +119,7 @@ describe( 'RedeemPartnerCouponPostConnection - component', () => {
 		}
 	} );
 
-	it( 'redeem button - redirects with coupon (after tracking)', () => {
+	it( 'redeem button redirects with all expected parameters', () => {
 		render( <RedeemPartnerCouponPostConnection { ...requiredProps } /> );
 
 		const redeemButton = screen.getByRole( 'button', {
@@ -146,7 +146,7 @@ describe( 'RedeemPartnerCouponPostConnection - component', () => {
 		expect( locationAssignSpy.calledAfter( recordEventStub ) );
 	} );
 
-	it( 'track event - jetpack_partner_coupon_redeem_view', () => {
+	it( 'is triggering jetpack_partner_coupon_redeem_view tracking event', () => {
 		expect( recordEventStub.callCount ).to.be.equal( 0 );
 
 		render( <RedeemPartnerCouponPostConnection { ...requiredProps } /> );
@@ -161,7 +161,7 @@ describe( 'RedeemPartnerCouponPostConnection - component', () => {
 		).to.be.equal( 1 );
 	} );
 
-	it( 'track event - jetpack_partner_coupon_redeem_click', () => {
+	it( 'is triggering jetpack_partner_coupon_redeem_click tracking event', () => {
 		expect( recordEventStub.callCount ).to.be.equal( 0 );
 
 		render( <RedeemPartnerCouponPostConnection { ...requiredProps } /> );
