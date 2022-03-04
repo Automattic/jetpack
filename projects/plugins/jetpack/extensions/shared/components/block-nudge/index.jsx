@@ -40,7 +40,6 @@ export default function BlockNudge( {
 						onClick={ handleClick }
 						target="_top"
 						isSecondary
-						isLarge
 					>
 						{ buttonLabel }
 					</Button>,

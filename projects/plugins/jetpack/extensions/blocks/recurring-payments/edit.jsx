@@ -213,7 +213,6 @@ export class MembershipsButtonEdit extends Component {
 			return (
 				<Button
 					isPrimary
-					isLarge
 					onClick={ () => this.setState( { addingMembershipAmount: PRODUCT_FORM } ) }
 				>
 					{ __( 'Add a payment plan', 'jetpack' ) }
@@ -292,14 +291,12 @@ export class MembershipsButtonEdit extends Component {
 				<div>
 					<Button
 						isPrimary
-						isLarge
 						className="membership-button__field-button membership-button__add-amount"
 						onClick={ this.saveProduct }
 					>
 						{ __( 'Add this payment plan', 'jetpack' ) }
 					</Button>
 					<Button
-						isLarge
 						className="membership-button__field-button"
 						onClick={ () => this.setState( { addingMembershipAmount: PRODUCT_NOT_ADDING } ) }
 					>
@@ -349,7 +346,6 @@ export class MembershipsButtonEdit extends Component {
 			{ this.state.products.map( product => (
 				<Button
 					className="membership-button__field-button"
-					isLarge
 					isSecondary
 					key={ product.id }
 					onClick={ () => this.setMembershipAmount( product.id ) }
@@ -386,7 +382,7 @@ export class MembershipsButtonEdit extends Component {
 								'jetpack'
 							) }
 						>
-							<Button isSecondary isLarge href={ this.state.upgradeURL } target="_blank">
+							<Button isSecondary href={ this.state.upgradeURL } target="_blank">
 								{ __( 'Upgrade your plan', 'jetpack' ) }
 							</Button>
 							{ this.renderDisclaimer() }

@@ -87,7 +87,7 @@ function AmazonEdit( {
 					label={ __( 'Products', 'jetpack' ) }
 					onChange={ onChange }
 				/>
-				<Button isSecondary isLarge type="submit">
+				<Button isSecondary type="submit">
 					{ __( 'Preview', 'jetpack' ) }
 				</Button>
 			</form>

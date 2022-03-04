@@ -109,7 +109,6 @@ export default function Inspector( props ) {
 							<Button
 								// @ts-ignore isSecondary is missing from the type definition
 								isSecondary={ true }
-								isLarge={ true }
 								onClick={
 									/**
 									 * @param { import('react').MouseEvent<HTMLElement> } e
