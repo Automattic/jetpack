@@ -51,15 +51,14 @@ export function getMockData( product ) {
  * @returns {Array} All products mocked data.
  */
 export function getAllMockData() {
-	return getMockData( [
-		'anti-spam',
-		'backup',
-		'boost',
-		'crm',
-		'extras',
-		'scan',
-		'search',
-		'security',
-		'videopress',
-	] );
+	return getMockData( [ ...Object.keys( mapResponse ) ] );
+}
+
+/**
+ * Return product slugs list
+ *
+ * @returns {Array} product slugs list.
+ */
+export function getProductSlugs() {
+	return [ 'anti-spam', 'backup', 'boost', 'crm', 'extras', 'scan', 'search', 'videopress' ];
 }
