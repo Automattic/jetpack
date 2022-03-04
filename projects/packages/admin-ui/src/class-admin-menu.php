@@ -61,10 +61,19 @@ class Admin_Menu {
 				4
 			);
 
-			// Add an Anti-spam menu item for Jetpack. akismet-wpcom adds its own submenu item.
-			if ( ! ( new Host() )->is_woa_site() ) {
-				self::add_menu( __( 'Anti-Spam', 'jetpack-admin-ui' ), __( 'Anti-Spam', 'jetpack-admin-ui' ), 'manage_options', 'akismet-key-config', array( 'Akismet_Admin', 'display_page' ) );
+			// Remove Akismet submenu item added on WoA sites.
+			if ( ( new Host() )->is_woa_site() ) {
+				add_action(
+					'admin_menu',
+					function () {
+						remove_submenu_page( 'jetpack', 'akismet-key-config' );
+					},
+					999
+				);
 			}
+
+			// Add an Anti-spam menu item for Jetpack.
+			self::add_menu( __( 'Anti-Spam', 'jetpack-admin-ui' ), __( 'Anti-Spam', 'jetpack-admin-ui' ), 'manage_options', 'akismet-key-config', array( 'Akismet_Admin', 'display_page' ) );
 		}
 	}
 
