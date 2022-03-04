@@ -79,7 +79,7 @@ describe( 'RedeemPartnerCouponPostConnection', () => {
 		expect( logo.height ).equals( 100 );
 	} );
 
-	it( 'do not try to show partner logo if we do not have any', () => {
+	it( 'does not try to show partner logo if we do not have any', () => {
 		const partnerCouponCopyWithoutLogo = partnerCoupon;
 		delete partnerCouponCopyWithoutLogo.partner.logo;
 
