@@ -7,6 +7,8 @@
 
 namespace Automattic\Jetpack\Admin_UI;
 
+use Automattic\Jetpack\Status\Host;
+
 /**
  * This class offers a wrapper to add_submenu_page and makes sure stand-alone plugin's menu items are always added under the Jetpack top level menu.
  * If the Jetpack top level was not previously registered by other plugin, it will be registered here.
@@ -60,7 +62,7 @@ class Admin_Menu {
 			);
 
 			// Add an Anti-spam menu item for Jetpack. akismet-wpcom adds its own submenu item.
-			if ( ! defined( 'IS_WPCOM' ) || ! IS_WPCOM ) {
+			if ( ! ( new Host() )->is_woa_site() ) {
 				self::add_menu( __( 'Anti-Spam', 'jetpack-admin-ui' ), __( 'Anti-Spam', 'jetpack-admin-ui' ), 'manage_options', 'akismet-key-config', array( 'Akismet_Admin', 'display_page' ) );
 			}
 		}
