@@ -10,26 +10,24 @@
 define( 'ALLOWED_MIMES', 'jpg jpeg png gif pdf doc ppt odt pptx docx pps ppsx xls xlsx key' );
 
 /**
- * If this site has an unsupported WPCOM plan, remove the Settings > Permalinks submenu item.
+ * If this site does NOT have the 'options-permalink' feature, remove the Settings > Permalinks submenu item.
  */
-function wpcomsh_remove_permalinks_menu_item_unsupported_plan() {
-	if ( Atomic_Plan_Manager::has_atomic_supported_plan() ) {
+function wpcomsh_maybe_remove_permalinks_menu_item() {
+	if ( wpcom_site_has_feature( WPCOM_Features::OPTIONS_PERMALINK ) ) {
 		return;
 	}
-
 	remove_submenu_page( 'options-general.php', 'options-permalink.php' );
 }
-add_action( 'admin_menu', 'wpcomsh_remove_permalinks_menu_item_unsupported_plan' );
+add_action( 'admin_menu', 'wpcomsh_maybe_remove_permalinks_menu_item' );
 
 /**
- * Disables the Permalink options admin page when site has an unsupported WPCOM plan.
- * Allows proxied users to access the page.
+ * If this site does NOT have the 'options-permalink' feature, disable the /wp-admin/options-permalink.php page.
+ * But always allow proxied users to access the permalink options page.
  */
-function wpcomsh_disable_permalink_page_unsupported_plan() {
-	if ( Atomic_Plan_Manager::has_atomic_supported_plan() ) {
+function wpcomsh_maybe_disable_permalink_page() {
+	if ( wpcom_site_has_feature( WPCOM_Features::OPTIONS_PERMALINK ) ) {
 		return;
 	}
-
 	if ( ! ( defined( 'AT_PROXIED_REQUEST' ) && AT_PROXIED_REQUEST ) ) {
 		wp_die(
 			__( 'You do not have permission to access this page.', 'wpcomsh' ),
@@ -48,7 +46,7 @@ function wpcomsh_disable_permalink_page_unsupported_plan() {
 		);
 	}
 }
-add_action( 'load-options-permalink.php', 'wpcomsh_disable_permalink_page_unsupported_plan' );
+add_action( 'load-options-permalink.php', 'wpcomsh_maybe_disable_permalink_page' );
 
 function wpcomsh_restrict_mimetypes_unsupported_plan( $mimes ) {
 	if ( Atomic_Plan_Manager::has_atomic_supported_plan() ) {

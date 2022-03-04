@@ -136,6 +136,7 @@ class WPCOM_Features {
 	public const NO_ADVERTS_NO_ADVERTS_PHP     = 'no-adverts/no-adverts.php';
 	public const NO_WPCOM_BRANDING             = 'no-wpcom-branding';
 	public const OPENTABLE                     = 'opentable';
+	public const OPTIONS_PERMALINK             = 'options-permalink';
 	public const POLLDADDY                     = 'polldaddy';
 	public const PREMIUM_CONTENT_CONTAINER     = 'premium-content/container';
 	public const PREMIUM_THEMES                = 'premium-themes';
@@ -410,7 +411,11 @@ class WPCOM_Features {
 			self::WPCOM_BUSINESS_AND_HIGHER_PLANS,
 		),
 		// Enable the ability to hide the WP.com branding in the site footer.
-		self::NO_WPCOM_BRANDING     => array(
+		self::NO_WPCOM_BRANDING             => array(
+			self::WPCOM_BUSINESS_AND_HIGHER_PLANS,
+		),
+		// Atomic only feature. Enable the Settings -> Permalinks menu item and options-permalink page.
+		self::OPTIONS_PERMALINK             => array(
 			self::WPCOM_BUSINESS_AND_HIGHER_PLANS,
 		),
 	);
