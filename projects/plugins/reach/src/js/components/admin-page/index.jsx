@@ -29,14 +29,14 @@ const Admin = () => {
 		<AdminPage moduleName={ __( 'Jetpack Reach', 'jetpack-reach' ) }>
 			<AdminSectionHero>
 				{ showConnectionCard ? (
-					<Container horizontalSpacing={ 5 } horizontalGap={ 3 }>
+					<Container horizontalSpacing={ 3 } horizontalGap={ 3 }>
 						<Col sm={ 4 } md={ 8 } lg={ 12 }>
 							<ConnectionSection />
 						</Col>
 					</Container>
 				) : (
-					<Container horizontalSpacing={ 5 } horizontalGap={ 3 }>
-						<Col sm={ 4 } md={ 7 } lg={ 6 }>
+					<Container horizontalSpacing={ 3 } horizontalGap={ 3 }>
+						<Col sm={ 4 } md={ 6 } lg={ 6 }>
 							<h1 className={ styles.heading }>
 								{ __( 'Social Media Automation for WordPress Sites', 'jetpack-reach' ) }
 							</h1>
@@ -61,7 +61,8 @@ const Admin = () => {
 								</li>
 							</ul>
 						</Col>
-						<Col sm={ 4 } md={ 7 } lg={ 6 }>
+						<Col lg={ 1 } md={ 1 } sm={ 0 } />
+						<Col sm={ 4 } md={ 5 } lg={ 5 }>
 							<PricingCard
 								title={ __( 'Jetpack Reach', 'jetpack-reach' ) }
 								priceBefore={ 9 }
