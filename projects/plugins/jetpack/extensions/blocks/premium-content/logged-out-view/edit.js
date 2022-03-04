@@ -9,15 +9,10 @@ import { __ } from '@wordpress/i18n';
  * Internal dependencies
  */
 import Context from '../_inc/context';
-import { name } from '../index';
+import { blockSelectAllowedBlocks } from '../_inc/premium';
 
 export default function Edit() {
-	const allowedInnerBlocks = useSelect( select => {
-		return select( 'core/blocks' )
-			.getBlockTypes()
-			.filter( blockType => blockType.name !== name )
-			.map( block => block.name );
-	}, [] );
+	const allowedInnerBlocks = useSelect( blockSelectAllowedBlocks, [] );
 
 	return (
 		<Context.Consumer>

@@ -3,16 +3,18 @@
  */
 import { InnerBlocks } from '@wordpress/block-editor';
 import { __ } from '@wordpress/i18n';
-import { withSelect } from '@wordpress/data';
+import { useSelect, withSelect } from '@wordpress/data';
 import { compose } from '@wordpress/compose';
 
 /**
  * Internal dependencies
  */
 import Context from '../_inc/context';
-import { name } from '../index';
+import { blockSelectAllowedBlocks } from '../_inc/premium';
 
-function Edit( { hasInnerBlocks, allowedInnerBlocks } ) {
+function Edit( { hasInnerBlocks } ) {
+	const allowedInnerBlocks = useSelect( blockSelectAllowedBlocks, [] );
+
 	return (
 		<Context.Consumer>
 			{ ( { selectedTab, stripeNudge } ) => (
@@ -50,10 +52,6 @@ export default compose( [
 			// @ts-ignore difficult to type with JSDoc
 			hasInnerBlocks: !! select( 'core/block-editor' ).getBlocksByClientId( props.clientId )[ 0 ]
 				.innerBlocks.length,
-			allowedInnerBlocks: select( 'core/blocks' )
-				.getBlockTypes()
-				.filter( blockType => blockType.name !== name )
-				.map( block => block.name ),
 		};
 	} ),
 ] )( Edit );
