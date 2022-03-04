@@ -26,9 +26,6 @@ export default {
 	title: 'Packages/My Jetpack/Connected Product Card',
 	component: ConnectedProductCard,
 	decorators: [ withMock ],
-	parameters: {
-		actions: { argTypesRegex: '^on.*' },
-	},
 	argTypes: {
 		slug: {
 			options: getProductSlugs(),
