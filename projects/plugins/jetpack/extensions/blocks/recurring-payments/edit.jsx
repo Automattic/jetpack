@@ -212,7 +212,7 @@ export class MembershipsButtonEdit extends Component {
 		if ( this.state.addingMembershipAmount === PRODUCT_NOT_ADDING && ! forceShowForm ) {
 			return (
 				<Button
-					isPrimary
+					variant="primary"
 					onClick={ () => this.setState( { addingMembershipAmount: PRODUCT_FORM } ) }
 				>
 					{ __( 'Add a payment plan', 'jetpack' ) }
@@ -290,7 +290,7 @@ export class MembershipsButtonEdit extends Component {
 				/>
 				<div>
 					<Button
-						isPrimary
+						variant="primary"
 						className="membership-button__field-button membership-button__add-amount"
 						onClick={ this.saveProduct }
 					>

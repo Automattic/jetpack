@@ -222,7 +222,7 @@ function AmazonEdit( {
 					<Button
 						href={ detailPageUrl }
 						icon={ icon }
-						isPrimary
+						variant="primary"
 						className={ `${ defaultClassName }-button` }
 						style={ {
 							color: buttonTextColor,

@@ -131,7 +131,7 @@ export default function ResumableUpload( { file } ) {
 							'jetpack'
 						) }
 					</div>
-					<Button isPrimary onClick={ () => restartUpload() }>
+					<Button variant="primary" onClick={ () => restartUpload() }>
 						{ __( 'Try again', 'jetpack' ) }
 					</Button>
 					<Button

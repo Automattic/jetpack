@@ -158,7 +158,7 @@ const InstagramGalleryEdit = props => {
 						) }
 					</p>
 				) }
-				<Button disabled={ isButtonDisabled } isPrimary onClick={ connectBlockToInstagram }>
+				<Button disabled={ isButtonDisabled } variant="primary" onClick={ connectBlockToInstagram }>
 					{ isConnecting && __( 'Connecting…', 'jetpack' ) }
 					{ isRequestingUserConnections && __( 'Loading your connections…', 'jetpack' ) }
 					{ ! isConnecting &&

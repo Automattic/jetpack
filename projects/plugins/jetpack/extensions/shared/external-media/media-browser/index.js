@@ -180,7 +180,12 @@ function MediaBrowser( props ) {
 
 		return (
 			<div className="jetpack-external-media-browser__media__toolbar">
-				<Button isPrimary isBusy={ isCopying } disabled={ disabled } onClick={ onCopyAndInsert }>
+				<Button
+					variant="primary"
+					isBusy={ isCopying }
+					disabled={ disabled }
+					onClick={ onCopyAndInsert }
+				>
 					{ label }
 				</Button>
 			</div>
