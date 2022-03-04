@@ -8,10 +8,15 @@
 
 namespace Automattic\Jetpack\Search;
 
+use WP_Customize_Control;
+
+if ( ! class_exists( 'WP_Customize_Control' ) ) {
+	return;
+}
 /**
  * Label Control class.
  */
-class Label_Control extends \WP_Customize_Control {
+class Label_Control extends WP_Customize_Control {
 	/**
 	 * Override rendering for custom class name; omit element ID.
 	 */
