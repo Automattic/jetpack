@@ -48,13 +48,11 @@ export function usePartnerCouponRedemption(
 			} );
 		}
 
-		window.location.assign(
-			getRedirectUrl( 'jetpack-plugin-partner-coupon-checkout', {
-				path: partnerCoupon.product.slug,
-				site: siteRawUrl,
-				query: `coupon=${ partnerCoupon.coupon_code }`,
-			} )
-		);
+		window.location.href = getRedirectUrl( 'jetpack-plugin-partner-coupon-checkout', {
+			path: partnerCoupon.product.slug,
+			site: siteRawUrl,
+			query: `coupon=${ partnerCoupon.coupon_code }`,
+		} );
 	}, [ analytics, tracksUserData, connectionStatus, partnerCoupon, siteRawUrl ] );
 
 	return onClick;
