@@ -1,4 +1,4 @@
-<?php
+<?php // phpcs:ignore WordPress.Files.FileName.InvalidClassFileName
 
 use Automattic\Jetpack\Assets;
 
@@ -119,7 +119,7 @@ class Jetpack_Related_Posts_Customize {
 	 * @since 4.4.0
 	 */
 	public static function render_callback() {
-		echo Jetpack_RelatedPosts::init()->get_headline();
+		echo Jetpack_RelatedPosts::init()->get_headline(); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- content escaped in get_headline method
 	}
 
 	/**
@@ -294,8 +294,9 @@ class Jetpack_Related_Posts_Customize {
  * Control that displays a message in Customizer.
  *
  * @since 4.4.0
+ * @todo break this out into its own file.
  */
-class Jetpack_Message_Control extends WP_Customize_Control {
+class Jetpack_Message_Control extends WP_Customize_Control { // phpcs:ignore
 
 	/**
 	 * Render the message.
