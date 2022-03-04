@@ -8,11 +8,16 @@
 namespace Automattic\Jetpack\Search;
 
 use Automattic\Jetpack\Assets;
+use WP_Customize_Control;
+
+if ( ! class_exists( 'WP_Customize_Control' ) ) {
+	return;
+}
 
 /**
  * Label Control class.
  */
-class Excluded_Post_Types_Control extends \WP_Customize_Control {
+class Excluded_Post_Types_Control extends WP_Customize_Control {
 	/**
 	 * Control type.
 	 *
