@@ -121,9 +121,9 @@ jobs:
         JSON_ARGS: ${{ toJSON(matrix.testArgs) }}
         PR_NUMBER: ${{ github.event.pull_request.number }}
       run: |
+        echo "View results on E2E dashboard: https://automattic.github.io/jetpack-e2e-reports/${PR_NUMBER}/report/" &&
         mapfile -t TEST_ARGS < <(jq -r '.[]' <<<"$JSON_ARGS")
         pnpm run test:run -- "${TEST_ARGS[@]}"
-        echo "View results on E2E dashboard: https://automattic.github.io/jetpack-e2e-reports/$PR_NUMBER/report/"
 
     - name: Send Slack notification
       if: ${{ ! cancelled() }}
