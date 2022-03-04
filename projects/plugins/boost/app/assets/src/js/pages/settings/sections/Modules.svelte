@@ -3,8 +3,9 @@
 	 * Internal dependencies
 	 */
 	import { maybeGenerateCriticalCss } from '../../../utils/generate-critical-css';
-	import { requestCloudCss } from '../../../utils/cloud-css';
+	import { requestCloudCss, pollCloudCssStatus } from '../../../utils/cloud-css';
 	import GenerateCss from '../elements/GenerateCSS.svelte';
+	import CloudCssMeta from '../elements/CloudCssMeta.svelte';
 	import Module from '../elements/Module.svelte';
 	import TemplatedString from '../../../elements/TemplatedString.svelte';
 	import externalLinkTemplateVar from '../../../utils/external-link-template-var';
@@ -39,7 +40,7 @@
 		</div>
 	</Module>
 
-	<Module slug={'cloud-css'} on:enabled={requestCloudCss}>
+	<Module slug={'cloud-css'} on:enabled={requestCloudCss} on:mountEnabled={pollCloudCssStatus}>
 		<h3 slot="title">
 			{__( 'Optimize CSS Loading from Cloud', 'jetpack-boost' )}
 		</h3>
@@ -52,6 +53,9 @@
 				vars={externalLinkTemplateVar( 'https://web.dev/extract-critical-css/' )}
 			/>
 		</p>
+		<div slot="meta" class="jb-feature-toggle__meta">
+			<CloudCssMeta />
+		</div>
 	</Module>
 
 	<Module slug={'render-blocking-js'}>

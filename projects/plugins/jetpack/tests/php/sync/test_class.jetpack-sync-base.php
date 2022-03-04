@@ -53,6 +53,11 @@ class WP_Test_Jetpack_Sync_Base extends WP_UnitTestCase {
 		remove_all_filters( 'jetpack_sync_send_data' );
 		add_filter( 'jetpack_sync_send_data', array( $this, 'serverReceive' ), 10, 4 );
 
+		// Stop triggering 'jetpack.fetchPublicizeConnection' remote XML-RPC call to
+		// WPCOM on every `save_post` action.
+		$publicize = new Publicize();
+		$publicize->set_refresh_wait_transient( HOUR_IN_SECONDS );
+
 		// Bind the two storage systems to the server events.
 		$this->server_replica_storage = new Jetpack_Sync_Test_Replicastore();
 		$this->server_replicator      = new Jetpack_Sync_Server_Replicator( $this->server_replica_storage );
@@ -136,6 +141,123 @@ class WP_Test_Jetpack_Sync_Base extends WP_UnitTestCase {
 
 	function pre_http_request_success() {
 		return array( 'body' => json_encode( array( 'success' => true ) ) );
+	}
+
+	/**
+	 * Intercept HTTP request to api.wordpress.org endpoints and return mocked results.
+	 * Those requests will occur during plugin/theme or core updates or when we fire
+	 * `upgrader_process_complete` actions across Sync related integration tests.
+	 *
+	 * @param false  $preempt A preemptive return value of an HTTP request.
+	 * @param array  $args The request arguments.
+	 * @param string $url The request URL.
+	 *
+	 * @return array
+	 */
+	public static function pre_http_request_wordpress_org_updates( $preempt, $args, $url ) { // phpcs:ignore VariableAnalysis.CodeAnalysis.VariableAnalysis.UnusedVariable
+		if ( strpos( $url, 'api.wordpress.org/core/version-check' ) > 0 ) {
+			return array(
+				'response'    => array(
+					'code' => 200,
+				),
+				'status_code' => 200,
+				'body'        => wp_json_encode(
+					array(
+						'offers'       => array(
+							array(
+								'response' => 'upgrade',
+								'download' => 'dummy.zip',
+								'locale'   => 'en_US',
+								'packages' => array(
+									'full'        => 'dummy.zip',
+									'no_content'  => 'dummy-no-content.zip',
+									'new_bundled' => 'dummy-new-bundled.zip',
+									'partial'     => false,
+									'rollback'    => false,
+								),
+							),
+						),
+						'translations' => array(),
+					)
+				),
+			);
+		}
+
+		if ( strpos( $url, 'api.wordpress.org/themes/update-check' ) > 0 ) {
+			return array(
+				'response'    => array(
+					'code' => 200,
+				),
+				'status_code' => 200,
+				'body'        => wp_json_encode(
+					array(
+						'themes'       => array(
+							'hello' => array(
+								'new_version' => 1,
+								'name'        => 'hello',
+							),
+						),
+						'translations' => array(),
+						'no_update'    => array(),
+					)
+				),
+			);
+		}
+
+		if ( strpos( $url, 'api.wordpress.org/plugins/update-check' ) > 0 ) {
+			return array(
+				'response'    => array(
+					'code' => 200,
+				),
+				'status_code' => 200,
+				'body'        => wp_json_encode(
+					array(
+						'plugins'      => array(
+							'hello' => array(
+								'new_version' => 1,
+							),
+						),
+						'translations' => array(),
+						'no_update'    => array(
+							'jetpack/jetpack.php' => true,
+						),
+					)
+				),
+			);
+		}
+
+		return $preempt;
+	}
+
+	/**
+	 * Intercept HTTP request to api.bruteprotect.com and return mocked results.
+	 * Those requests will occur when the `wp_login` action is fired during tests.
+	 *
+	 * @param false  $preempt A preemptive return value of an HTTP request.
+	 * @param array  $args The request arguments.
+	 * @param string $url The request URL.
+	 *
+	 * @return array
+	 */
+	public static function pre_http_request_bruteprotect_api( $preempt, $args, $url ) { // phpcs:ignore VariableAnalysis.CodeAnalysis.VariableAnalysis.UnusedVariable
+		if ( strpos( $url, 'api.bruteprotect.com' ) > 0 ) {
+			return array(
+				'response'    => array(
+					'code' => 200,
+				),
+				'status_code' => 200,
+				'body'        => wp_json_encode(
+					array(
+						'status'            => 'ok',
+						'msg'               => 'API Key Required',
+						'seconds_remaining' => 60,
+						'error'             => 'API Key Required',
+					)
+				),
+			);
+		}
+
+		return $preempt;
 	}
 }
 

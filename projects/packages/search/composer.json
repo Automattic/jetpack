@@ -72,7 +72,7 @@
 			"link-template": "https://github.com/Automattic/jetpack-search/compare/v${old}...v${new}"
 		},
 		"branch-alias": {
-			"dev-master": "0.9.x-dev"
+			"dev-master": "0.11.x-dev"
 		},
 		"version-constants": {
 			"JETPACK_SEARCH_PKG__VERSION": "search.php"
