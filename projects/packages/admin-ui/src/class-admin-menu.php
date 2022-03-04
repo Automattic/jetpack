@@ -59,9 +59,10 @@ class Admin_Menu {
 				4
 			);
 
-			// Add an Anti-spam menu item for Jetpack.
-			self::add_menu( __( 'Anti-Spam', 'jetpack-admin-ui' ), __( 'Anti-Spam', 'jetpack-admin-ui' ), 'manage_options', 'akismet-key-config', array( 'Akismet_Admin', 'display_page' ) );
-
+			// Add an Anti-spam menu item for Jetpack. akismet-wpcom adds its own submenu item.
+			if ( ! defined( 'IS_WPCOM' ) || ! IS_WPCOM ) {
+				self::add_menu( __( 'Anti-Spam', 'jetpack-admin-ui' ), __( 'Anti-Spam', 'jetpack-admin-ui' ), 'manage_options', 'akismet-key-config', array( 'Akismet_Admin', 'display_page' ) );
+			}
 		}
 	}
 
