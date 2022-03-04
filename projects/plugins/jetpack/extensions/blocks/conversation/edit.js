@@ -216,7 +216,7 @@ function ConversationEdit( {
 					</FormFileUpload>
 
 					<Button
-						isTertiary
+						variant="tertiary"
 						disabled={ isProcessingFile }
 						onClick={ () => setAttributes( { skipUpload: true } ) }
 					>
