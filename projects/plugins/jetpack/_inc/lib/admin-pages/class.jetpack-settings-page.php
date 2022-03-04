@@ -61,18 +61,18 @@ class Jetpack_Settings_Page extends Jetpack_Admin_Page {
 		);
 		$noscript_notice = str_replace(
 			'#TEXT#',
-			esc_html( __( "Turn on JavaScript to unlock Jetpack's full potential!", 'jetpack' ) ),
+			esc_html__( "Turn on JavaScript to unlock Jetpack's full potential!", 'jetpack' ),
 			$noscript_notice
 		);
 
 		$rest_api_notice = str_replace(
 			'#HEADER_TEXT#',
-			esc_html__( 'WordPress REST API is disabled', 'jetpack' ),
+			esc_html( __( 'WordPress REST API is disabled', 'jetpack' ) ),
 			$rest_api_notice
 		);
 		$rest_api_notice = str_replace(
 			'#TEXT#',
-			esc_html__( "Enable WordPress REST API to unlock Jetpack's full potential!", 'jetpack' ),
+			esc_html( __( "Enable WordPress REST API to unlock Jetpack's full potential!", 'jetpack' ) ),
 			$rest_api_notice
 		);
 
