@@ -35,7 +35,7 @@ export function getMockData( product ) {
 	const isArray = product.constructor === Array;
 	const productSlugs = isArray ? product : [ product ];
 
-	return productSlugs.map( productSlug => {
+	const getRequests = productSlugs.map( productSlug => {
 		return {
 			url: `my-jetpack/v1/site/products/${ productSlug }?_locale=user`,
 			method: 'GET',
@@ -43,6 +43,20 @@ export function getMockData( product ) {
 			response: mapResponse[ productSlug ],
 		};
 	} );
+
+	const postRequests = productSlugs.map( productSlug => {
+		return {
+			url: `my-jetpack/v1/site/products/${ productSlug }?_locale=user`,
+			method: 'POST',
+			status: 200,
+			response: {
+				...mapResponse[ productSlug ],
+				status: mapResponse[ productSlug ].status === 'active' ? 'inactive' : 'active',
+			},
+		};
+	} );
+
+	return [ ...getRequests, ...postRequests ];
 }
 
 /**
