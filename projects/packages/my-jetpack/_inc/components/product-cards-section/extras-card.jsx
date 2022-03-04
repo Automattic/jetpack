@@ -7,7 +7,7 @@ import PropTypes from 'prop-types';
 /**
  * Internal dependencies
  */
-import ProductCard from './connected-product-card';
+import ProductCard from '../connected-product-card';
 
 const ExtrasCard = ( { admin } ) => {
 	return <ProductCard admin={ admin } showDeactivate={ false } slug="extras" />;
