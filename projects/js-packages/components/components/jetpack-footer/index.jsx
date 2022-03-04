@@ -54,7 +54,7 @@ JetpackFooter.defaultProps = {
 	a8cLogoHref: 'https://jetpack.com',
 	moduleName: __( 'Jetpack', 'jetpack' ),
 	className: '',
-	moduleNameHref: null,
+	moduleNameHref: 'https://jetpack.com',
 };
 
 JetpackFooter.propTypes = {
