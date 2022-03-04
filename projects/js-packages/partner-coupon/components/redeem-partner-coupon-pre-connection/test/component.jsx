@@ -217,11 +217,9 @@ describe( 'RedeemPartnerCouponPreConnection', () => {
 		} );
 		expect( redeemButton ).to.exist;
 		fireEvent.click( redeemButton );
-
-		// Make sure we only redirect once, and it's with the same value as getRedirectUrl.
 		expect( locationAssignSpy.calledOnce );
 
-		// Make sure we call track before calling location.assign.
+		// Make sure we trigger tracking event before redirecting.
 		expect( locationAssignSpy.calledAfter( recordEventStub ) );
 	} );
 
