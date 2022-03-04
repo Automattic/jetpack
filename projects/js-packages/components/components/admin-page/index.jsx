@@ -65,12 +65,10 @@ const AdminPage = props => {
 };
 
 AdminPage.defaultProps = {
-	a8cLogoHref: 'https://jetpack.com',
 	moduleName: __( 'Jetpack', 'jetpack' ),
 	showHeader: true,
 	showFooter: true,
 	showBackground: true,
-	moduleNameHref: null,
 };
 
 AdminPage.propTypes = {

@@ -91,12 +91,7 @@ export default function ProductInterstitial( {
 	}, [ recordEvent, slug ] );
 
 	return (
-		<AdminPage
-			showHeader={ false }
-			showBackground={ false }
-			a8cLogoHref="https://automattic.com"
-			moduleNameHref="https://jetpack.com"
-		>
+		<AdminPage showHeader={ false } showBackground={ false }>
 			<Container horizontalSpacing={ 3 } horizontalGap={ 3 }>
 				<Col>
 					<GoBackLink onClick={ onClickGoBack } />
