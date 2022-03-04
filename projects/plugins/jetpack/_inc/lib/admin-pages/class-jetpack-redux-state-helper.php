@@ -23,7 +23,9 @@ use Automattic\Jetpack\Status\Host;
  */
 class Jetpack_Redux_State_Helper {
 	/**
-	 * Generate minimal state for React to fetch its own data
+	 * Generate minimal state for React to fetch its own data asynchronously after load
+	 * This can improve user experience, reducing time spent on server requests before serving the page
+	 * e.g. used by React Disconnect Dialog on plugins page where the full initial state is not needed
 	 */
 	public static function get_minimal_state() {
 		return array(
@@ -110,10 +112,6 @@ class Jetpack_Redux_State_Helper {
 
 		$host = new Host();
 
-		// Get Jetpack benefits for this site.
-		$jetpack_benefits_response = Jetpack_Core_API_Site_Endpoint::get_benefits();
-		$jetpack_benefits          = 200 === $jetpack_benefits_response->status ? json_decode( $jetpack_benefits_response->data['data'] ) : array();
-
 		return array(
 			'WP_API_root'                 => esc_url_raw( rest_url() ),
 			'WP_API_nonce'                => wp_create_nonce( 'wp_rest' ),
@@ -180,7 +178,6 @@ class Jetpack_Redux_State_Helper {
 					'infinite-scroll' => current_theme_supports( 'infinite-scroll' ) || in_array( $current_theme->get_stylesheet(), $inf_scr_support_themes, true ),
 				),
 			),
-			'jetpackBenefits'             => $jetpack_benefits,
 			'jetpackStateNotices'         => array(
 				'messageCode'      => Jetpack::state( 'message' ),
 				'errorCode'        => Jetpack::state( 'error' ),

@@ -22,8 +22,8 @@
 	},
 	"browserslist": "extends @wordpress/browserslist-config",
 	"devDependencies": {
-		"@automattic/jetpack-webpack-config": "workspace:^1.1.3",
-		"@wordpress/browserslist-config": "4.1.0",
+		"@automattic/jetpack-webpack-config": "workspace:^1.1.4",
+		"@wordpress/browserslist-config": "4.1.1",
 		"sass": "1.43.3",
 		"sass-loader": "12.4.0",
 		"webpack": "5.65.0",

@@ -2,7 +2,7 @@
 
 set -eo pipefail
 
-PROJECTS=('{"project":"Jetpack","path":"projects/plugins/jetpack/tests/e2e","testArgs":[],"slackArgs":[]}' '{"project":"Boost","path":"projects/plugins/boost/tests/e2e","testArgs":[],"slackArgs":[]}')
+PROJECTS=('{"project":"Jetpack","path":"projects/plugins/jetpack/tests/e2e","testArgs":["--grep-invert", "plugin-update"],"slackArgs":[]}' '{"project":"Jetpack update","path":"projects/plugins/jetpack/tests/e2e","testArgs":["plugin-update"],"slackArgs":[]}' '{"project":"Boost","path":"projects/plugins/boost/tests/e2e","testArgs":[],"slackArgs":[]}')
 PROJECTS_MATRIX=()
 RUN_NAME=''
 
