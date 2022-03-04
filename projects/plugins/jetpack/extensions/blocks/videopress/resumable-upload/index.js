@@ -153,7 +153,7 @@ export default function ResumableUpload( { file } ) {
 					</div>
 					<div className="resumable-upload__actions">
 						<div className="videopress-upload__percent-complete">{ `${ roundedProgress }%` }</div>
-						<Button isLink onClick={ () => pauseOrResumeUpload() }>
+						<Button variant="link" onClick={ () => pauseOrResumeUpload() }>
 							{ hasPaused ? 'Resume' : 'Pause' }
 						</Button>
 					</div>

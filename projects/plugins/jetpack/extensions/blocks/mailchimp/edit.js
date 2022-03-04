@@ -145,7 +145,7 @@ class MailchimpSubscribeEdit extends Component {
 					{ __( 'Set up Mailchimp form', 'jetpack' ) }
 				</Button>
 				<div className={ `${ classPrefix }-recheck` }>
-					<Button isLink onClick={ this.apiCall }>
+					<Button variant="link" onClick={ this.apiCall }>
 						{ __( 'Re-check Connection', 'jetpack' ) }
 					</Button>
 				</div>

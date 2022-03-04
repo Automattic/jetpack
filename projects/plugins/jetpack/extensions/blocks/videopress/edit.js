@@ -541,7 +541,7 @@ const VideoPressEdit = CoreVideoEdit =>
 											: __( 'There is no poster image currently selected', 'jetpack' ) }
 									</p>
 									{ !! poster && (
-										<Button onClick={ this.onRemovePoster } isLink isDestructive>
+										<Button onClick={ this.onRemovePoster } variant="link" isDestructive>
 											{ __( 'Remove Poster Image', 'jetpack' ) }
 										</Button>
 									) }
