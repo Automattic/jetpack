@@ -167,6 +167,10 @@ class Speed_Score_Request extends Cacheable {
 		);
 
 		if ( is_wp_error( $response ) ) {
+			$this->status = 'error';
+			$this->error  = $response->get_error_message();
+			$this->store();
+
 			return $response;
 		}
 
