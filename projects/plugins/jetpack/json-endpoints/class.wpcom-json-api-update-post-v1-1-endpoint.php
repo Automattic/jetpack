@@ -393,7 +393,7 @@ class WPCOM_JSON_API_Update_Post_v1_1_Endpoint extends WPCOM_JSON_API_Post_v1_1_
 			$input['date']    = gmdate( 'Y-m-d H:i:s', $time_with_offset );
 		}
 
-		if ( ! empty( $author_id ) && get_current_user_id() != $author_id ) {
+		if ( ! empty( $author_id ) && get_current_user_id() !== $author_id ) {
 			if ( ! current_user_can( $post_type->cap->edit_others_posts ) ) {
 				return new WP_Error( 'unauthorized', "User is not allowed to publish others' posts.", 403 );
 			} elseif ( ! user_can( $author_id, $post_type->cap->edit_posts ) ) {
@@ -657,10 +657,10 @@ class WPCOM_JSON_API_Update_Post_v1_1_Endpoint extends WPCOM_JSON_API_Post_v1_1_
 		}
 
 		// set page template for this post..
-		if ( isset( $input['page_template'] ) && 'page' == $post_type->name ) {
+		if ( isset( $input['page_template'] ) && 'page' === $post_type->name ) {
 			$page_template  = $input['page_template'];
 			$page_templates = wp_get_theme()->get_page_templates( get_post( $post_id ) );
-			if ( empty( $page_template ) || 'default' == $page_template || isset( $page_templates[ $page_template ] ) ) {
+			if ( empty( $page_template ) || 'default' == $page_template || isset( $page_templates[ $page_template ] ) ) { // phpcs:ignore Universal.Operators.StrictComparisons.LooseEqual
 				update_post_meta( $post_id, '_wp_page_template', $page_template );
 			}
 		}
@@ -709,7 +709,7 @@ class WPCOM_JSON_API_Update_Post_v1_1_Endpoint extends WPCOM_JSON_API_Post_v1_1_
 		} else {
 			if ( isset( $sharing ) && true === $sharing ) {
 				delete_post_meta( $post_id, 'sharing_disabled' );
-			} elseif ( isset( $sharing ) && false == $sharing ) {
+			} elseif ( isset( $sharing ) && false == $sharing ) { // phpcs:ignore Universal.Operators.StrictComparisons.LooseEqual
 				update_post_meta( $post_id, 'sharing_disabled', 1 );
 			}
 		}
@@ -727,12 +727,12 @@ class WPCOM_JSON_API_Update_Post_v1_1_Endpoint extends WPCOM_JSON_API_Post_v1_1_
 		// so we can track some other cool stats (like likes & comments on posts published).
 		if ( defined( 'IS_WPCOM' ) && IS_WPCOM ) {
 			if (
-				( $new && 'publish' == $input['status'] )
+				( $new && 'publish' === $input['status'] )
 				|| (
 					! $new && isset( $last_status )
-					&& 'publish' != $last_status
+					&& 'publish' !== $last_status
 					&& isset( $new_status )
-					&& 'publish' == $new_status
+					&& 'publish' === $new_status
 				)
 			) {
 				/** This action is documented in modules/widgets/social-media-icons.php */
@@ -745,7 +745,7 @@ class WPCOM_JSON_API_Update_Post_v1_1_Endpoint extends WPCOM_JSON_API_Post_v1_1_
 		// We ask the user/dev to pass Publicize services he/she wants activated for the post, but Publicize expects us
 		// to instead flag the ones we don't want to be skipped. proceed with said logic.
 		// Any posts coming from Path (client ID 25952) should also not publicize.
-		if ( false === $publicize || ( isset( $this->api->token_details['client_id'] ) && 25952 == $this->api->token_details['client_id'] ) ) {
+		if ( false === $publicize || ( isset( $this->api->token_details['client_id'] ) && 25952 === (int) $this->api->token_details['client_id'] ) ) {
 			// No publicize at all, skip all by ID.
 			foreach ( $GLOBALS['publicize_ui']->publicize->get_services( 'all' ) as $name => $service ) {
 				delete_post_meta( $post_id, $GLOBALS['publicize_ui']->publicize->POST_SKIP . $name );
@@ -837,7 +837,7 @@ class WPCOM_JSON_API_Update_Post_v1_1_Endpoint extends WPCOM_JSON_API_Post_v1_1_
 
 				$meta = (object) $meta;
 
-				if ( Jetpack_SEO_Posts::DESCRIPTION_META_KEY == $meta->key && ! Jetpack_SEO_Utils::is_enabled_jetpack_seo() ) {
+				if ( Jetpack_SEO_Posts::DESCRIPTION_META_KEY === $meta->key && ! Jetpack_SEO_Utils::is_enabled_jetpack_seo() ) {
 					return new WP_Error( 'unauthorized', __( 'SEO tools are not enabled for this site.', 'jetpack' ), 403 );
 				}
 
@@ -848,10 +848,10 @@ class WPCOM_JSON_API_Update_Post_v1_1_Endpoint extends WPCOM_JSON_API_Post_v1_1_
 				}
 
 				if ( ! empty( $meta->value ) ) {
-					if ( 'true' == $meta->value ) {
+					if ( 'true' == $meta->value ) { // phpcs:ignore Universal.Operators.StrictComparisons.LooseEqual
 						$meta->value = true;
 					}
-					if ( 'false' == $meta->value ) {
+					if ( 'false' == $meta->value ) { // phpcs:ignore Universal.Operators.StrictComparisons.LooseEqual
 						$meta->value = false;
 					}
 				}
@@ -1044,7 +1044,7 @@ class WPCOM_JSON_API_Update_Post_v1_1_Endpoint extends WPCOM_JSON_API_Post_v1_1_
 		$featured_image = (string) $featured_image;
 
 		// if we got a post ID, we can just set it as the thumbnail.
-		if ( ctype_digit( $featured_image ) && 'attachment' == get_post_type( $featured_image ) ) {
+		if ( ctype_digit( $featured_image ) && 'attachment' === get_post_type( $featured_image ) ) {
 			set_post_thumbnail( $post_id, $featured_image );
 			return $featured_image;
 		}
