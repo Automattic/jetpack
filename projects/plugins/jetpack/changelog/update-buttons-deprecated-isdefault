@@ -1,4 +1,4 @@
 Significance: patch
 Type: compat
 
-Blocks: update all secondary buttons to use non-deprecated attribute.
+Blocks: remove deprecated attributes from Button components.
