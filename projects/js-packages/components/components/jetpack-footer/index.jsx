@@ -51,7 +51,7 @@ const JetpackFooter = props => {
 };
 
 JetpackFooter.defaultProps = {
-	a8cLogoHref: 'https://jetpack.com',
+	a8cLogoHref: 'https://automattic.com',
 	moduleName: __( 'Jetpack', 'jetpack' ),
 	className: '',
 	moduleNameHref: 'https://jetpack.com',
