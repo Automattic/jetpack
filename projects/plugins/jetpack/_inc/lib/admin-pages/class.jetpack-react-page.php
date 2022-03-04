@@ -13,19 +13,21 @@ class Jetpack_React_Page extends Jetpack_Admin_Page {
 	/**
 	 * Show the landing page only when Jetpack is connected.
 	 *
-	 * @var boolean
+	 * @var bool
 	 */
 	protected $dont_show_if_not_active = false;
 
 	/**
 	 * Used for fallback when REST API is disabled.
 	 *
-	 * @var boolean
+	 * @var bool
 	 */
 	protected $is_redirecting = false;
 
 	/**
 	 * Add the main admin Jetpack menu.
+	 *
+	 * @return string|false Return value from WordPress's `add_menu_page()`.
 	 */
 	public function get_page_hook() {
 		return add_menu_page( 'Jetpack', 'Jetpack', 'jetpack_admin_page', 'jetpack', array( $this, 'render' ), 'div', 3 );
@@ -41,7 +43,7 @@ class Jetpack_React_Page extends Jetpack_Admin_Page {
 		/** This action is documented in class.jetpack-admin.php */
 		do_action( 'jetpack_admin_menu', $hook );
 
-		if ( ! isset( $_GET['page'] ) || 'jetpack' !== $_GET['page'] ) {// phpcs:ignore WordPress.Security.NonceVerification.Recommended
+		if ( ! isset( $_GET['page'] ) || 'jetpack' !== $_GET['page'] ) { // phpcs:ignore WordPress.Security.NonceVerification.Recommended -- This is view logic.
 			return; // No need to handle the fallback redirection if we are not on the Jetpack page.
 		}
 

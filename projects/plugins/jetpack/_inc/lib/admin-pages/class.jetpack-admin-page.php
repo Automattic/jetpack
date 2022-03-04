@@ -22,6 +22,8 @@ abstract class Jetpack_Admin_Page {
 
 	/**
 	 * Create a menu item for the page and returns the hook.
+	 *
+	 * @return string|false Return value from WordPress's `add_menu_page()` or `add_submenu_page()`.
 	 */
 	abstract public function get_page_hook();
 
@@ -68,6 +70,7 @@ abstract class Jetpack_Admin_Page {
 			Identity_Crisis::validate_sync_error_idc_option() && ! Jetpack_Options::get_option( 'safe_mode_confirmed' )
 		);
 	}
+
 	/**
 	 * Add common page actions and attach page-specific actions.
 	 */
@@ -145,12 +148,13 @@ abstract class Jetpack_Admin_Page {
 		}
 
 		// Check if we are looking at the main dashboard.
-		if ( isset( $_GET['page'] ) && 'jetpack' === $_GET['page'] ) {// phpcs:ignore WordPress.Security.NonceVerification.Recommended
+		if ( isset( $_GET['page'] ) && 'jetpack' === $_GET['page'] ) { // phpcs:ignore WordPress.Security.NonceVerification.Recommended -- View logic.
 			$this->page_render();
 			return;
 		}
 		self::wrap_ui( array( $this, 'page_render' ) );
 	}
+
 	/**
 	 * Load Help tab.
 	 *
@@ -159,6 +163,7 @@ abstract class Jetpack_Admin_Page {
 	public function admin_help() {
 		$this->jetpack->admin_help();
 	}
+
 	/**
 	 * Call the existing admin page events.
 	 */
@@ -204,7 +209,7 @@ abstract class Jetpack_Admin_Page {
 	 *
 	 * @since 4.4.0
 	 *
-	 * @param Page $page string Pages related to paid modules.
+	 * @param WP_Screen $page Current WP_Screen object.
 	 *
 	 * @return array
 	 */
@@ -261,6 +266,7 @@ abstract class Jetpack_Admin_Page {
 			'deactivate' => $to_deactivate,
 		);
 	}
+
 	/**
 	 * Enqueue inline wrapper styles for the main container.
 	 */
@@ -310,11 +316,14 @@ abstract class Jetpack_Admin_Page {
 		';
 		wp_add_inline_style( 'dops-css', $custom_css );
 	}
+
 	/**
-	 * Build footer, content, and footer for admin page.
+	 * Build header, content, and footer for admin page.
 	 *
-	 * @param string $callback The callback sent to the Jetpack_Admin_Page::wrap_ui method. Callback is responsible for any needed escaping.
-	 * @param array  $args The arguments sent to the Jetpack_Admin_Page::wrap_ui method.
+	 * @param string $callback Callback to produce the content of the page. The callback is responsible for any needed escaping.
+	 * @param array  $args Options for the wrapping. Also passed to the `jetpack_admin_pages_wrap_ui_after_callback` action.
+	 *   - is-wide: (bool) Set the "is-wide" class on the wrapper div, which increases the max width. Default false.
+	 *   - show-nav: (bool) Whether to show the navigation bar at the top of the page. Default true.
 	 */
 	public static function wrap_ui( $callback, $args = array() ) {
 		$defaults          = array(

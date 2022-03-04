@@ -165,7 +165,7 @@ class Jetpack_Settings_Page extends Jetpack_Admin_Page {
 					</div>
 					<div class="manage-left" style="width: 100%;">
 						<form class="jetpack-modules-list-table-form" onsubmit="return false;">
-						<table class="<?php echo implode( ' ', $list_table->get_table_classes() ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- Escaped in class.jetpack-modules-list-table.php ?>">
+						<table class="<?php echo esc_attr( implode( ' ', $list_table->get_table_classes() ) ); ?>">
 							<tbody id="the-list">
 								<?php $list_table->display_rows_or_placeholder(); ?>
 							</tbody>
