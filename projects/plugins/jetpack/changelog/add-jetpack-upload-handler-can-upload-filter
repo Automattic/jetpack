@@ -1,0 +1,4 @@
+Significance: minor
+Type: other
+
+Added jetpack_upload_handler_can_upload filter for blocking specific file uploads

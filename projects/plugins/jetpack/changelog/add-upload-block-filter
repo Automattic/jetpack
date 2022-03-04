@@ -1,4 +1,0 @@
-Significance: minor
-Type: other
-
-Added jetpack_upload_handler_block filter for blocking certain file uploads
