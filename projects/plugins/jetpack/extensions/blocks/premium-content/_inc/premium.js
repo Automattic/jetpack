@@ -1,7 +1,12 @@
 /**
  * WordPress dependencies
  */
-import { select } from '@wordpress/data';
+import { select, useSelect } from '@wordpress/data';
+import { store as blocksStore } from '@wordpress/blocks';
+
+/**
+ * Internal dependencies
+ */
 import { name } from '../index';
 
 export const blockContainsPremiumBlock = block => {
@@ -18,9 +23,13 @@ export const blockHasParentPremiumBlock = block => {
 	return !! parents.find( parent => parent.name.indexOf( 'premium-content/' ) === 0 );
 };
 
-export const blockSelectAllowedBlocks = selector => {
-	return selector( 'core/blocks' )
-		.getBlockTypes()
-		.filter( blockType => blockType.name !== name )
-		.map( block => block.name );
-};
+export function usePremiumContentAllowedBlocks() {
+	const blockTypes = useSelect( selector => selector( blocksStore ).getBlockTypes(), [] );
+
+	return blockTypes.reduce( ( allowedBlocks, block ) => {
+		if ( block.name !== name ) {
+			allowedBlocks.push( block.name );
+		}
+		return allowedBlocks;
+	}, [] );
+}

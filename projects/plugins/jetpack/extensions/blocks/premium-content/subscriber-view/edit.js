@@ -3,17 +3,17 @@
  */
 import { InnerBlocks } from '@wordpress/block-editor';
 import { __ } from '@wordpress/i18n';
-import { useSelect, withSelect } from '@wordpress/data';
+import { withSelect } from '@wordpress/data';
 import { compose } from '@wordpress/compose';
 
 /**
  * Internal dependencies
  */
 import Context from '../_inc/context';
-import { blockSelectAllowedBlocks } from '../_inc/premium';
+import { usePremiumContentAllowedBlocks } from '../_inc/premium';
 
 function Edit( { hasInnerBlocks } ) {
-	const allowedInnerBlocks = useSelect( blockSelectAllowedBlocks, [] );
+	const allowedInnerBlocks = usePremiumContentAllowedBlocks();
 
 	return (
 		<Context.Consumer>
