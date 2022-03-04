@@ -47,7 +47,7 @@ let recordEventStub;
 let storeSelect;
 let stubGetConnectionStatus;
 
-describe( 'RedeemPartnerCouponPreConnection - component', () => {
+describe( 'RedeemPartnerCouponPreConnection', () => {
 	before( () => {
 		renderHook( () => useSelect( select => ( storeSelect = select( CONNECTION_STORE_ID ) ) ) );
 
@@ -78,13 +78,13 @@ describe( 'RedeemPartnerCouponPreConnection - component', () => {
 		stubGetConnectionStatus.restore();
 	} );
 
-	it( 'partner is shown', () => {
+	it( 'shows partner', () => {
 		render( <RedeemPartnerCouponPreConnection { ...requiredProps } /> );
 
 		expect( screen.getAllByText( 'Welcome to Jetpack Company name traveler!' ) ).to.exist;
 	} );
 
-	it( 'description is shown with product name', () => {
+	it( 'redeem description includes the product name', () => {
 		render( <RedeemPartnerCouponPreConnection { ...requiredProps } /> );
 
 		expect(
@@ -94,7 +94,7 @@ describe( 'RedeemPartnerCouponPreConnection - component', () => {
 		).to.exist;
 	} );
 
-	it( 'features are shown', () => {
+	it( 'shows product features', () => {
 		render( <RedeemPartnerCouponPreConnection { ...requiredProps } /> );
 
 		// eslint-disable-next-line no-unused-vars
@@ -103,7 +103,7 @@ describe( 'RedeemPartnerCouponPreConnection - component', () => {
 		}
 	} );
 
-	it( 'set up and redeem button - is shown for new sites', () => {
+	it( 'shows the set up and redeem button for unconnected sites', () => {
 		stubGetConnectionStatus.returns( { isRegistered: false, isUserConnected: false } );
 
 		const props = {
@@ -127,7 +127,7 @@ describe( 'RedeemPartnerCouponPreConnection - component', () => {
 		expect( container.querySelector( 'button[aria-label="Redeem Awesome Product"]' ) ).to.not.exist;
 	} );
 
-	it( 'set up and redeem button - is shown for userless connections', () => {
+	it( 'shows the set up and redeem button for registered sites', () => {
 		stubGetConnectionStatus.returns( { isRegistered: true, isUserConnected: false } );
 
 		const { container } = render( <RedeemPartnerCouponPreConnection { ...requiredProps } /> );
@@ -144,7 +144,7 @@ describe( 'RedeemPartnerCouponPreConnection - component', () => {
 		expect( container.querySelector( 'button[aria-label="Redeem Awesome Product"]' ) ).to.not.exist;
 	} );
 
-	it( 'redeem button - is shown for fully connected sites', () => {
+	it( 'shows redeem button for user connected sites', () => {
 		stubGetConnectionStatus.returns( { isRegistered: true, isUserConnected: true } );
 
 		const props = {
@@ -169,7 +169,7 @@ describe( 'RedeemPartnerCouponPreConnection - component', () => {
 			.not.exist;
 	} );
 
-	it( 'redeem button - redirects with coupon (after tracking)', () => {
+	it( 'redeem button redirects with all expected parameters', () => {
 		const props = {
 			...requiredProps,
 			connectionStatus: {
@@ -204,7 +204,7 @@ describe( 'RedeemPartnerCouponPreConnection - component', () => {
 		expect( locationAssignSpy.calledAfter( recordEventStub ) );
 	} );
 
-	it( 'track event - jetpack_partner_coupon_redeem_view', () => {
+	it( 'is triggering jetpack_partner_coupon_redeem_view tracking event', () => {
 		expect( recordEventStub.callCount ).to.be.equal( 0 );
 
 		render( <RedeemPartnerCouponPreConnection { ...requiredProps } /> );
@@ -219,7 +219,7 @@ describe( 'RedeemPartnerCouponPreConnection - component', () => {
 		).to.be.equal( 1 );
 	} );
 
-	it( 'track event - jetpack_partner_coupon_redeem_click', () => {
+	it( 'is triggering jetpack_partner_coupon_redeem_click tracking event', () => {
 		expect( recordEventStub.callCount ).to.be.equal( 0 );
 
 		const props = {

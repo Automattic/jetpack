@@ -12,7 +12,7 @@ let stubConnectUser;
 let stubRegisterSite;
 let stubGetConnectionStatus;
 
-describe( 'RedeemPartnerCouponPreConnection - pass through', () => {
+describe( 'RedeemPartnerCouponPreConnection', () => {
 	before( () => {
 		const { result: dispatch } = renderHook( () => useDispatch( CONNECTION_STORE_ID ) );
 		renderHook( () => useSelect( select => ( storeSelect = select( CONNECTION_STORE_ID ) ) ) );
@@ -40,7 +40,7 @@ describe( 'RedeemPartnerCouponPreConnection - pass through', () => {
 		stubRegisterSite.restore();
 	} );
 
-	it( 'connection: initial site + user set up includes coupon', done => {
+	it( 'passes along coupon when not connected', done => {
 		const initialProps = {
 			registrationNonce: 'REGISTRATION',
 			redirectUri: 'admin.php?page=jetpack&partnerCoupon=TEST_TST_1234',
@@ -68,7 +68,7 @@ describe( 'RedeemPartnerCouponPreConnection - pass through', () => {
 		}, 50 );
 	} );
 
-	it( 'connection: user only set up includes coupon', () => {
+	it( 'passes along coupon when only site is connected', () => {
 		stubGetConnectionStatus.returns( { isRegistered: true } );
 		const { result } = renderHook( props => useConnection( props ), {
 			initialProps: {
