@@ -1,4 +1,4 @@
-<?php
+<?php //phpcs:ignore WordPress.Files.FileName.InvalidClassFileName
 /**
  * Module Name: Related posts
  * Module Description: Keep visitors engaged on your blog by highlighting relevant and new content at the bottom of each published post.
