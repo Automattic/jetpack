@@ -117,7 +117,6 @@ class Jetpack_Boost {
 	 */
 	public function deactivate() {
 		do_action( 'jetpack_boost_deactivate' );
-		do_action( 'jetpack_boost_clear_cache' );
 		Analytics::record_user_event( 'clear_cache' );
 		Admin::clear_dismissed_notices();
 	}

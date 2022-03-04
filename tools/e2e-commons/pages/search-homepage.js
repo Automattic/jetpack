@@ -133,6 +133,6 @@ export default class SearchHomepage extends WpPage {
 
 	async clickLink() {
 		const linkSelector = '.wp-button.jetpack-search-filter__link';
-		return this.click(linkSelector);
+		return this.click( linkSelector );
 	}
 }
