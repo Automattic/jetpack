@@ -1,4 +1,4 @@
-<?php
+<?php //phpcs:ignore WordPress.Files.FileName.InvalidClassFileName
 /**
  * The Jetpack_RelatedPosts class.
  *
@@ -526,9 +526,9 @@ EOT;
 
 		if ( isset( $_GET[ $arg ] ) ) { // phpcs:ignore WordPress.Security.NonceVerification.Recommended
 			if ( is_string( $_GET[ $arg ] ) ) { // phpcs:ignore WordPress.Security.NonceVerification.Recommended
-				$result = explode( ',', $_GET[ $arg ] );
+				$result = explode( ',', $_GET[ $arg ] ); // phpcs:ignore WordPress.Security.NonceVerification.Recommended
 			} elseif ( is_array( $_GET[ $arg ] ) ) { // phpcs:ignore WordPress.Security.NonceVerification.Recommended
-				$result = array_values( $_GET[ $arg ] );
+				$result = array_values( $_GET[ $arg ] ); // phpcs:ignore WordPress.Security.NonceVerification.Recommended
 			}
 
 			$result = array_unique( array_filter( array_map( 'absint', $result ) ) );
@@ -616,12 +616,12 @@ EOT;
 			$input['enabled'] = '1';
 		}
 
-		if ( '1' == $input['enabled'] ) { // phpcs:ignore WordPress.PHP.StrictComparisons.LooseComparison -- expecting string, but may return bools.
+		if ( '1' == $input['enabled'] ) { // phpcs:ignore Universal.Operators.StrictComparisons.LooseEqual -- expecting string, but may return bools.
 			$current['enabled']         = true;
-			$current['show_headline']   = ( isset( $input['show_headline'] ) && '1' == $input['show_headline'] ); // phpcs:ignore WordPress.PHP.StrictComparisons.LooseComparison
-			$current['show_thumbnails'] = ( isset( $input['show_thumbnails'] ) && '1' == $input['show_thumbnails'] ); // phpcs:ignore WordPress.PHP.StrictComparisons.LooseComparison
-			$current['show_date']       = ( isset( $input['show_date'] ) && '1' == $input['show_date'] ); // phpcs:ignore WordPress.PHP.StrictComparisons.LooseComparison
-			$current['show_context']    = ( isset( $input['show_context'] ) && '1' == $input['show_context'] ); // phpcs:ignore WordPress.PHP.StrictComparisons.LooseComparison
+			$current['show_headline']   = ( isset( $input['show_headline'] ) && '1' == $input['show_headline'] ); // phpcs:ignore Universal.Operators.StrictComparisons.LooseEqual
+			$current['show_thumbnails'] = ( isset( $input['show_thumbnails'] ) && '1' == $input['show_thumbnails'] ); // phpcs:ignore Universal.Operators.StrictComparisons.LooseEqual
+			$current['show_date']       = ( isset( $input['show_date'] ) && '1' == $input['show_date'] ); // phpcs:ignore Universal.Operators.StrictComparisons.LooseEqual
+			$current['show_context']    = ( isset( $input['show_context'] ) && '1' == $input['show_context'] ); // phpcs:ignore Universal.Operators.StrictComparisons.LooseEqual
 			$current['layout']          = isset( $input['layout'] ) && in_array( $input['layout'], array( 'grid', 'list' ), true ) ? $input['layout'] : 'grid';
 			$current['headline']        = isset( $input['headline'] ) ? $input['headline'] : esc_html__( 'Related', 'jetpack' );
 		} else {
@@ -686,8 +686,8 @@ EOT;
 %s
 EOT;
 			printf(
-				$template,
-				$ui_settings
+				$template, // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
+				$ui_settings // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- data is escaped when variable is set.
 			);
 		} else {
 			$template = <<<EOT
@@ -702,12 +702,12 @@ EOT;
 </ul>
 EOT;
 			printf(
-				$template,
+				$template, // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
 				checked( $options['enabled'], false, false ),
 				esc_html__( 'Hide related content after posts', 'jetpack' ),
 				checked( $options['enabled'], true, false ),
 				esc_html__( 'Show related content after posts', 'jetpack' ),
-				$ui_settings
+				$ui_settings // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- data is escaped when variable is set.
 			);
 		}
 	}
@@ -795,7 +795,7 @@ EOT;
 		} else {
 			$extra_css = '';
 		}
-
+		// phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
 		echo <<<EOT
 <style type="text/css">
 	#settings-reading-relatedposts .disabled { opacity:.5; filter:Alpha(opacity=50); }
@@ -1091,17 +1091,17 @@ EOT;
 		$coalesce_time = $this->get_blog_id() % 86400;
 		$current_time  = $now - strtotime( 'today', $now );
 
-		if ( $current_time < $coalesce_time && '01' == date( 'd', $now ) ) {
+		if ( $current_time < $coalesce_time && '01' === date( 'd', $now ) ) { //phpcs:ignore WordPress.DateTime.RestrictedFunctions.date_date
 			// Move back 1 period.
 			return array(
-				'from' => date( 'Y-m-01', strtotime( '-1 month', $date_range['from'] ) ) . ' ' . date( 'H:i:s', $coalesce_time ),
-				'to'   => date( 'Y-m-01', $date_range['to'] ) . ' ' . date( 'H:i:s', $coalesce_time ),
+				'from' => date( 'Y-m-01', strtotime( '-1 month', $date_range['from'] ) ) . ' ' . date( 'H:i:s', $coalesce_time ), //phpcs:ignore WordPress.DateTime.RestrictedFunctions.date_date
+				'to'   => date( 'Y-m-01', $date_range['to'] ) . ' ' . date( 'H:i:s', $coalesce_time ), //phpcs:ignore WordPress.DateTime.RestrictedFunctions.date_date
 			);
 		} else {
 			// Use current period.
 			return array(
-				'from' => date( 'Y-m-01', $date_range['from'] ) . ' ' . date( 'H:i:s', $coalesce_time ),
-				'to'   => date( 'Y-m-01', strtotime( '+1 month', $date_range['to'] ) ) . ' ' . date( 'H:i:s', $coalesce_time ),
+				'from' => date( 'Y-m-01', $date_range['from'] ) . ' ' . date( 'H:i:s', $coalesce_time ), //phpcs:ignore WordPress.DateTime.RestrictedFunctions.date_date
+				'to'   => date( 'Y-m-01', strtotime( '+1 month', $date_range['to'] ) ) . ' ' . date( 'H:i:s', $coalesce_time ), //phpcs:ignore WordPress.DateTime.RestrictedFunctions.date_date
 			);
 		}
 	}
@@ -1543,7 +1543,7 @@ EOT;
 		}
 
 		// Build cache key.
-		$cache_key = md5( serialize( $body ) );
+		$cache_key = md5( serialize( $body ) ); // phpcs:ignore WordPress.PHP.DiscouragedPHPFunctions.serialize_serialize -- this is used for caching.
 
 		// Load all cached values.
 		if ( wp_using_ext_object_cache() ) {
@@ -1709,7 +1709,8 @@ EOT;
 		$comment_count = get_comments_number( $post_id );
 		if ( $comment_count > 0 ) {
 			return sprintf(
-				_n( 'With 1 comment', 'With %s comments', $comment_count, 'jetpack' ),
+				// Translators: amount of comments.
+				_n( 'With %s comment', 'With %s comments', $comment_count, 'jetpack' ),
 				number_format_i18n( $comment_count )
 			);
 		}
@@ -1820,7 +1821,7 @@ EOT;
 	 * Render AMP's reader mode CSS.
 	 */
 	public function render_amp_reader_mode_css() {
-		echo file_get_contents( plugin_dir_path( __FILE__ ) . 'related-posts.css' );
+		echo file_get_contents( plugin_dir_path( __FILE__ ) . 'related-posts.css' ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- this is loading a CSS file.
 	}
 
 	/**
@@ -1908,7 +1909,7 @@ EOT;
  * class and keep it enabled as calls to this class are done
  * programmatically.
  */
-class Jetpack_RelatedPosts_Raw extends Jetpack_RelatedPosts {
+class Jetpack_RelatedPosts_Raw extends Jetpack_RelatedPosts { //phpcs:ignore Generic.Classes.OpeningBraceSameLine.ContentAfterBrace, Generic.Files.OneObjectStructurePerFile.MultipleFound
 
 	/**
 	 * The query name we want to look up.
