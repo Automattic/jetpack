@@ -13,7 +13,8 @@ use Automattic\Jetpack\Status;
  * Shared logic between Jetpack admin pages.
  */
 abstract class Jetpack_Admin_Page {
-	/** Add page specific actions given the page hook.
+	/**
+	 * Add page specific actions given the page hook.
 	 *
 	 * @param string $hook Hook of current page.
 	 */
