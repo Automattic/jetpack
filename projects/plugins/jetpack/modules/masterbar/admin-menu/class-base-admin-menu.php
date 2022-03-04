@@ -76,7 +76,8 @@ abstract class Base_Admin_Menu {
 			add_filter( 'admin_menu', array( $this, 'override_svg_icons' ), 99999 );
 			add_action( 'admin_enqueue_scripts', array( $this, 'enqueue_scripts' ), 11 );
 			add_action( 'admin_head', array( $this, 'set_site_icon_inline_styles' ) );
-			add_filter( 'screen_settings', array( $this, 'register_dashboard_switcher' ), 99999 );
+			add_action( 'in_admin_header', array( $this, 'add_dashboard_switcher' ) );
+			add_action( 'admin_footer', array( $this, 'dashboard_switcher_scripts' ) );
 			add_action( 'admin_menu', array( $this, 'handle_preferred_view' ), 99997 );
 			add_filter( 'admin_body_class', array( $this, 'admin_body_class' ) );
 		}
@@ -541,6 +542,65 @@ abstract class Base_Admin_Menu {
 	 */
 	public function is_item_visible( $item ) {
 		return ! isset( $item[4] ) || false === strpos( $item[4], self::HIDE_CSS_CLASS );
+	}
+
+	/**
+	 * Adds a dashboard switcher to the list of screen meta links of the current page.
+	 */
+	public function add_dashboard_switcher() {
+		$menu_mappings = require __DIR__ . '/menu-mappings.php';
+		$screen        = $this->get_current_screen();
+
+		// Let's show the switcher only in screens that we have a Calypso mapping to switch to.
+		if ( empty( $menu_mappings[ $screen ] ) ) {
+			return;
+		}
+		?>
+		<div id="view-link-wrap" class="hide-if-no-js screen-meta-toggle">
+			<button type="button" id="view-link" class="button show-settings" aria-expanded="false"><?php echo esc_html_x( 'View', 'View options to switch between', 'jetpack' ); ?></button>
+		</div>
+		<div id="view-wrap" class="screen-options-tab__wrapper hide-if-no-js hidden" tabindex="-1">
+			<div class="screen-options-tab__dropdown" data-testid="screen-options-dropdown">
+				<div class="screen-switcher">
+					<a class="screen-switcher__button" href="<?php echo esc_url( add_query_arg( 'preferred-view', 'default' ) ); ?>" data-view="default">
+						<strong><?php esc_html_e( 'Default view', 'jetpack' ); ?></strong>
+						<?php esc_html_e( 'Our WordPress.com redesign for a better experience.', 'jetpack' ); ?>
+					</a>
+					<button class="screen-switcher__button"  data-view="classic">
+						<strong><?php esc_html_e( 'Classic view', 'jetpack' ); ?></strong>
+						<?php esc_html_e( 'The classic WP-Admin WordPress interface.', 'jetpack' ); ?>
+					</button>
+				</div>
+			</div>
+		</div>
+		<?php
+	}
+
+	/**
+	 * Adds a script to append the dashboard switcher to screen meta
+	 */
+	public function dashboard_switcher_scripts() {
+		wp_add_inline_script(
+			'common',
+			"(function( $ ) {
+				$( '#view-link-wrap' ).appendTo( '#screen-meta-links' );
+
+				var viewLink = $( '#view-link' );
+				var viewWrap = $( '#view-wrap' );
+
+				viewLink.on( 'click', function() {
+					viewWrap.toggle();
+					viewLink.toggleClass( 'screen-meta-active' );
+				} );
+
+				$( document ).on( 'mouseup', function( event ) {
+					if ( ! viewLink.is( event.target ) && ! viewWrap.is( event.target ) && viewWrap.has( event.target ).length === 0 ) {
+						viewWrap.hide();
+						viewLink.removeClass( 'screen-meta-active' );
+					}
+				});
+			})( jQuery );"
+		);
 	}
 
 	/**
