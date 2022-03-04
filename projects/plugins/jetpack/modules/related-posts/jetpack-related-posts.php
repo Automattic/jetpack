@@ -1133,7 +1133,7 @@ EOT;
 
 		$options = $this->get_options();
 
-		if ( isset( $_GET['jetpackrpcustomize'] ) ) {
+		if ( isset( $_GET['jetpackrpcustomize'] ) ) { // phpcs:ignore WordPress.Security.NonceVerification.Recommended
 
 			// If we're in the customizer, add dummy content.
 			$date_now      = current_time( get_option( 'date_format' ) );
@@ -1277,7 +1277,7 @@ EOT;
 			$response['items'] = $related_posts;
 		}
 
-		echo json_encode( $response );
+		echo wp_json_encode( $response );
 
 		exit();
 	}
@@ -1727,6 +1727,10 @@ EOT;
 
 	/**
 	 * Logs clicks for clickthrough analysis and related result tuning.
+	 *
+	 * @param int $post_id - the post ID.
+	 * @param int $to_post_id - the to post ID.
+	 * @param int $link_position - the link position.
 	 */
 	protected function log_click( $post_id, $to_post_id, $link_position ) { // phpcs:ignore VariableAnalysis.CodeAnalysis.VariableAnalysis.UnusedVariable
 
