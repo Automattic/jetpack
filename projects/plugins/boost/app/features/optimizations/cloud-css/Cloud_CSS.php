@@ -36,6 +36,8 @@ class Cloud_CSS implements Feature, Has_Endpoints {
 	}
 	public function setup() {
 		add_action( 'wp', array( $this, 'display_critical_css' ) );
+		add_action( 'jetpack_boost_after_clear_cache', array( $this, 'generate_cloud_css' ) );
+		add_action( 'save_post', array( $this, 'handle_save_post' ), 10, 2 );
 		add_filter( 'jetpack_boost_js_constants', array( $this, 'add_critical_css_constants' ) );
 
 		REST_API::register( $this->get_endpoints() );
@@ -85,6 +87,37 @@ class Cloud_CSS implements Feature, Has_Endpoints {
 		add_action( 'wp_head', array( $display, 'display_critical_css' ), 0 );
 		add_filter( 'style_loader_tag', array( $display, 'asynchronize_stylesheets' ), 10, 4 );
 		add_action( 'wp_footer', array( $display, 'onload_flip_stylesheets' ) );
+	}
+
+	/**
+	 * Create a Cloud CSS requests for provider groups.
+	 *
+	 * Initialize the Cloud CSS request. Provide $post parameter to limit generating to provider groups only associated
+	 * with a specific post.
+	 *
+	 * @param \WP_Post|null $post Post of any post type to limit provider groups.
+	 */
+	public function generate_cloud_css( $post = null ) {
+		$state            = new Critical_CSS_State( 'cloud' );
+		$source_providers = new Source_Providers();
+		if ( $post ) {
+			$state->add_request_context( $post );
+		}
+		$state->create_request( $source_providers->get_providers() );
+
+		$client = new Cloud_CSS_Request( $state );
+		return $client->request_generate();
+	}
+
+	/**
+	 * Handle regeneration of Cloud CSS when a post is saved.
+	 */
+	public function handle_save_post( $post_id, $post ) { // phpcs:ignore VariableAnalysis.CodeAnalysis.VariableAnalysis.UnusedVariable
+		if ( ! $post || ! isset( $post->post_type ) || ! is_post_publicly_viewable( $post ) ) {
+			return;
+		}
+
+		$this->generate_cloud_css( $post );
 	}
 
 	/**

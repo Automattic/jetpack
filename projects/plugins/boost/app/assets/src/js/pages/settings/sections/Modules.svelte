@@ -53,7 +53,6 @@
 				vars={externalLinkTemplateVar( 'https://web.dev/extract-critical-css/' )}
 			/>
 		</p>
-
 		<div slot="meta" class="jb-feature-toggle__meta">
 			<CloudCssMeta />
 		</div>

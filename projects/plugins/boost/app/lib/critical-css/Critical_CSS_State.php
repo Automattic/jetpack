@@ -61,6 +61,14 @@ class Critical_CSS_State {
 	protected $request_name;
 
 	/**
+	 * Posts for which the Critical CSS request is created. Limit provider groups to only the ones related to posts in
+	 * this array.
+	 *
+	 * @var int[]
+	 */
+	protected $context_posts = array();
+
+	/**
 	 * Constructor.
 	 */
 	public function __construct( $request_name = 'local' ) {
@@ -134,6 +142,15 @@ class Critical_CSS_State {
 				'sources'     => $this->sources,
 			)
 		);
+	}
+
+	/**
+	 * Add a context to the Critical CSS state.
+	 *
+	 * @return string
+	 */
+	public function add_request_context( $post ) {
+		$this->context_posts[] = $post;
 	}
 
 	/**
@@ -263,7 +280,7 @@ class Critical_CSS_State {
 
 			// For each provider,
 			// Gather a list of URLs that are going to be used as Critical CSS source.
-			foreach ( $provider::get_critical_source_urls() as $group => $urls ) {
+			foreach ( $provider::get_critical_source_urls( $this->context_posts ) as $group => $urls ) {
 				$key = $provider_name . '_' . $group;
 
 				// For each URL

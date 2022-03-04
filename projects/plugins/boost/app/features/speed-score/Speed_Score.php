@@ -21,7 +21,7 @@ class Speed_Score {
 		$this->modules = $modules;
 
 		add_action( 'rest_api_init', array( $this, 'register_rest_routes' ) );
-		add_action( 'jetpack_boost_clear_cache', array( $this, 'clear_speed_score_request_cache' ) );
+		add_action( 'jetpack_boost_deactivate', array( $this, 'clear_speed_score_request_cache' ) );
 	}
 
 	/**
@@ -241,7 +241,7 @@ class Speed_Score {
 	}
 
 	/**
-	 * Clear speed score request cache on jetpack_boost_clear_cache action.
+	 * Clear speed score request cache on jetpack_boost_deactivate action.
 	 */
 	public function clear_speed_score_request_cache() {
 		Speed_Score_Request::clear_cache();
