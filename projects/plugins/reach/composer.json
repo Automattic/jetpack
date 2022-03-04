@@ -66,6 +66,7 @@
 			"roots/wordpress-core-installer": true,
 			"automattic/jetpack-autoloader": true,
 			"automattic/jetpack-composer-plugin": true
-		}
+		},
+		"autoloader-suffix": "c4802e05bbcf59fd3b6350e8d3e5482c_reachⓥ0.1.0-alpha"
 	}
 }
