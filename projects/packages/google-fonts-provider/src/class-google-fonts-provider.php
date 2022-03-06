@@ -21,7 +21,7 @@ class Google_Fonts_Provider extends \WP_Webfonts_Provider {
 	 *
 	 * @var string
 	 */
-	protected $id = 'google';
+	protected $id = 'jetpack-google-fonts';
 
 	/**
 	 * The provider's root URL for retrieving font CSS.
@@ -39,7 +39,7 @@ class Google_Fonts_Provider extends \WP_Webfonts_Provider {
 	 * @return void
 	 */
 	public static function preconnect_font_source() {
-		$fonts_url = set_url_scheme( 'https://fonts.gstatic.com' ); ?>
+		$fonts_url = \set_url_scheme( 'https://fonts.gstatic.com' ); ?>
 <link rel="preconnect" href="<?php echo esc_url( $fonts_url ); ?>" crossorigin>
 		<?php
 	}
@@ -49,28 +49,27 @@ class Google_Fonts_Provider extends \WP_Webfonts_Provider {
 	 *
 	 * @param string $id   An ID used to cache the styles.
 	 * @param string $url  The URL to fetch.
-	 * @param array  $args Optional. The arguments to pass to `wp_safe_remote_get()`.
-	 *                     Default empty array.
+
 	 * @return string The styles.
 	 */
-	protected function get_cached_remote_styles( $id, $url, array $args = array() ) {
-		$css = get_site_transient( $id );
+	protected function get_cached_remote_styles( $id, $url ) {
+		$css = \get_site_transient( $id );
 
 		// Get remote response and cache the CSS if it hasn't been cached already.
 		if ( false === $css ) {
-			$css = $this->get_remote_styles( $url, $args );
+			$css = $this->get_remote_styles( $url );
 
 			/*
 			* Early return if the request failed.
 			* Cache an empty string for 60 seconds to avoid bottlenecks.
 			*/
 			if ( empty( $css ) ) {
-				set_site_transient( $id, '', MINUTE_IN_SECONDS );
+				\set_site_transient( $id, '', MINUTE_IN_SECONDS );
 				return '';
 			}
 
 			// Cache the CSS for a month.
-			set_site_transient( $id, $css, MONTH_IN_SECONDS );
+			\set_site_transient( $id, $css, MONTH_IN_SECONDS );
 		}
 
 		return $css;
@@ -80,24 +79,23 @@ class Google_Fonts_Provider extends \WP_Webfonts_Provider {
 	 * Gets styles from the remote font service via the given URL.
 	 *
 	 * @param string $url  The URL to fetch.
-	 * @param array  $args Optional. The arguments to pass to `wp_remote_get()`.
-	 *                     Default empty array.
+
 	 * @return string The styles on success. Empty string on failure.
 	 */
-	protected function get_remote_styles( $url, array $args = array() ) {
+	protected function get_remote_styles( $url ) {
 		// Use a modern user-agent, to get woff2 files.
-		$args['user-agent'] = 'Mozilla/5.0 (X11; Ubuntu; Linux x86_64; rv:73.0) Gecko/20100101 Firefox/73.0';
+		$args = array( 'user-agent' => 'Mozilla/5.0 (X11; Ubuntu; Linux x86_64; rv:73.0) Gecko/20100101 Firefox/73.0' );
 
 		// Get the remote URL contents.
-		$response = wp_safe_remote_get( $url, $args );
+		$response = \wp_safe_remote_get( $url, $args );
 
 		// Early return if the request failed.
-		if ( is_wp_error( $response ) || 200 !== wp_remote_retrieve_response_code( $response ) ) {
+		if ( \is_wp_error( $response ) || 200 !== \wp_remote_retrieve_response_code( $response ) ) {
 			return '';
 		}
 
 		// Get the response body.
-		return wp_remote_retrieve_body( $response );
+		return \wp_remote_retrieve_body( $response );
 	}
 
 	/**

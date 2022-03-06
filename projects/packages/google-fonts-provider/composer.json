@@ -6,7 +6,8 @@
 	"require": {},
 	"require-dev": {
 		"yoast/phpunit-polyfills": "1.0.3",
-		"automattic/jetpack-changelogger": "^3.0"
+		"automattic/jetpack-changelogger": "^3.0",
+		"brain/monkey": "^2.6"
 	},
 	"autoload": {
 		"classmap": [
