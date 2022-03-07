@@ -15,7 +15,7 @@
 
 use Automattic\Jetpack\Constants;
 
-include_once JETPACK__PLUGIN_DIR . 'modules/protect/shared-functions.php';
+require_once JETPACK__PLUGIN_DIR . 'modules/protect/shared-functions.php';
 
 class Jetpack_Protect_Module {
 
@@ -48,28 +48,28 @@ class Jetpack_Protect_Module {
 	 * Registers actions
 	 */
 	private function __construct() {
-		add_action( 'jetpack_activate_module_protect', array ( $this, 'on_activation' ) );
-		add_action( 'jetpack_deactivate_module_protect', array ( $this, 'on_deactivation' ) );
-		add_action( 'jetpack_modules_loaded', array ( $this, 'modules_loaded' ) );
-		add_action( 'login_form', array ( $this, 'check_use_math' ), 0 );
-		add_filter( 'authenticate', array ( $this, 'check_preauth' ), 10, 3 );
-		add_action( 'wp_login', array ( $this, 'log_successful_login' ), 10, 2 );
-		add_action( 'wp_login_failed', array ( $this, 'log_failed_attempt' ) );
-		add_action( 'admin_init', array ( $this, 'maybe_update_headers' ) );
-		add_action( 'admin_init', array ( $this, 'maybe_display_security_warning' ) );
+		add_action( 'jetpack_activate_module_protect', array( $this, 'on_activation' ) );
+		add_action( 'jetpack_deactivate_module_protect', array( $this, 'on_deactivation' ) );
+		add_action( 'jetpack_modules_loaded', array( $this, 'modules_loaded' ) );
+		add_action( 'login_form', array( $this, 'check_use_math' ), 0 );
+		add_filter( 'authenticate', array( $this, 'check_preauth' ), 10, 3 );
+		add_action( 'wp_login', array( $this, 'log_successful_login' ), 10, 2 );
+		add_action( 'wp_login_failed', array( $this, 'log_failed_attempt' ) );
+		add_action( 'admin_init', array( $this, 'maybe_update_headers' ) );
+		add_action( 'admin_init', array( $this, 'maybe_display_security_warning' ) );
 
 		// This is a backup in case $pagenow fails for some reason
-		add_action( 'login_form', array ( $this, 'check_login_ability' ), 1 );
+		add_action( 'login_form', array( $this, 'check_login_ability' ), 1 );
 
 		// Load math fallback after math page form submission
-		if ( isset( $_POST[ 'jetpack_protect_process_math_form' ] ) ) {
-			include_once dirname( __FILE__ ) . '/protect/math-fallback.php';
-			new Jetpack_Protect_Math_Authenticate;
+		if ( isset( $_POST['jetpack_protect_process_math_form'] ) ) {
+			include_once __DIR__ . '/protect/math-fallback.php';
+			new Jetpack_Protect_Math_Authenticate();
 		}
 
 		// Runs a script every day to clean up expired transients so they don't
 		// clog up our users' databases
-		require_once( JETPACK__PLUGIN_DIR . '/modules/protect/transient-cleanup.php' );
+		require_once JETPACK__PLUGIN_DIR . '/modules/protect/transient-cleanup.php';
 	}
 
 	/**
@@ -83,7 +83,7 @@ class Jetpack_Protect_Module {
 		update_site_option( 'jetpack_protect_activating', 'activating' );
 
 		// Get BruteProtect's counter number
-		Jetpack_Protect_Module::protect_call( 'check_key' );
+		self::protect_call( 'check_key' );
 	}
 
 	/**
@@ -125,7 +125,7 @@ class Jetpack_Protect_Module {
 			return;
 		}
 
-		$response = Jetpack_Protect_Module::protect_call( 'check_key' );
+		$response = self::protect_call( 'check_key' );
 		$this->set_transient( 'jpp_headers_updated_recently', 1, DAY_IN_SECONDS );
 
 		if ( isset( $response['msg'] ) && $response['msg'] ) {
@@ -137,7 +137,7 @@ class Jetpack_Protect_Module {
 	public function maybe_display_security_warning() {
 		if ( is_multisite() && current_user_can( 'manage_network' ) ) {
 			if ( ! function_exists( 'is_plugin_active_for_network' ) ) {
-				require_once( ABSPATH . '/wp-admin/includes/plugin.php' );
+				require_once ABSPATH . '/wp-admin/includes/plugin.php';
 			}
 
 			if ( ! is_plugin_active_for_network( plugin_basename( JETPACK__PLUGIN_FILE ) ) ) {
@@ -153,7 +153,7 @@ class Jetpack_Protect_Module {
 			return;
 		}
 
-		add_action( 'admin_notices', array ( $this, 'admin_jetpack_manage_notice' ) );
+		add_action( 'admin_notices', array( $this, 'admin_jetpack_manage_notice' ) );
 	}
 
 	public function ajax_dismiss_handler() {
@@ -184,7 +184,7 @@ class Jetpack_Protect_Module {
 					<?php esc_html_e( 'View Network Admin', 'jetpack' ); ?>
 				</a>
 				<a class="button" href="<?php echo esc_url( __( 'https://jetpack.com/support/multisite-protect', 'jetpack' ) ); ?>" target="_blank">
-					<?php esc_html_e( 'Learn More' ); ?>
+					<?php esc_html_e( 'Learn More', 'jetpack' ); ?>
 				</a>
 			</p>
 		</div>
@@ -198,9 +198,11 @@ class Jetpack_Protect_Module {
 						{
 							_wpnonce: $( event.delegateTarget ).data( 'dismiss-nonce' ),
 						}
-					).fail( function( error ) { <?php
+					).fail( function( error ) { 
+					<?php
 						// A failure here is really strange, and there's not really anything a site owner can do to fix one.
-						// Just log the error for now to help debugging. ?>
+						// Just log the error for now to help debugging.
+					?>
 
 						if ( 'function' === typeof error.done && '-1' === error.responseText ) {
 							console.error( 'Notice dismissal failed: check_ajax_referer' );
@@ -221,7 +223,7 @@ class Jetpack_Protect_Module {
 	 */
 	public function get_protect_key() {
 
-		$protect_blog_id = Jetpack_Protect_Module::get_main_blog_jetpack_id();
+		$protect_blog_id = self::get_main_blog_jetpack_id();
 
 		// If we can't find the the blog id, that means we are on multisite, and the main site never connected
 		// the protect api key is linked to the main blog id - instruct the user to connect their main blog
@@ -231,7 +233,7 @@ class Jetpack_Protect_Module {
 			return false;
 		}
 
-		$request = array (
+		$request = array(
 			'jetpack_blog_id'      => $protect_blog_id,
 			'bruteprotect_api_key' => get_site_option( 'bruteprotect_api_key' ),
 			'multisite'            => '0',
@@ -323,7 +325,6 @@ class Jetpack_Protect_Module {
 			} else {
 				$this->set_transient( 'jpp_math_pass_' . $_COOKIE['jpp_math_pass'], $transient, DAY_IN_SECONDS );
 			}
-
 		}
 		$this->protect_call( 'failed_attempt' );
 	}
@@ -345,9 +346,8 @@ class Jetpack_Protect_Module {
 			$user = get_user_by( 'login', $user_login );
 		}
 
-		$this->protect_call( 'successful_login', array ( 'roles' => $user->roles ) );
+		$this->protect_call( 'successful_login', array( 'roles' => $user->roles ) );
 	}
-
 
 	/**
 	 * Checks for loginability BEFORE authentication so that bots don't get to go around the log in form.
@@ -369,7 +369,7 @@ class Jetpack_Protect_Module {
 		}
 
 		if ( ( 1 == $use_math || 1 == $this->block_login_with_math ) && isset( $_POST['log'] ) ) {
-			include_once dirname( __FILE__ ) . '/protect/math-fallback.php';
+			include_once __DIR__ . '/protect/math-fallback.php';
 			Jetpack_Protect_Math_Authenticate::math_authenticate();
 		}
 
@@ -383,7 +383,7 @@ class Jetpack_Protect_Module {
 	 */
 	function get_headers() {
 		$output             = array();
-		$ip_related_headers = array (
+		$ip_related_headers = array(
 			'GD_PHP_HANDLER',
 			'HTTP_AKAMAI_ORIGIN_HOP',
 			'HTTP_CF_CONNECTING_IP',
@@ -400,7 +400,7 @@ class Jetpack_Protect_Module {
 			'HTTP_X_IP_TRAIL',
 			'HTTP_X_REAL_IP',
 			'HTTP_X_VARNISH',
-			'REMOTE_ADDR'
+			'REMOTE_ADDR',
 		);
 
 		foreach ( $ip_related_headers as $header ) {
@@ -428,7 +428,7 @@ class Jetpack_Protect_Module {
 		$whitelist = jetpack_protect_get_local_whitelist();
 
 		if ( is_multisite() ) {
-			$whitelist = array_merge( $whitelist, get_site_option( 'jetpack_protect_global_whitelist', array () ) );
+			$whitelist = array_merge( $whitelist, get_site_option( 'jetpack_protect_global_whitelist', array() ) );
 		}
 
 		if ( ! empty( $whitelist ) ) :
@@ -466,8 +466,8 @@ class Jetpack_Protect_Module {
 		}
 
 		if ( $this->is_current_ip_whitelisted() ) {
-		    return true;
-        }
+			return true;
+		}
 
 		$status = $this->get_cached_status();
 
@@ -477,8 +477,8 @@ class Jetpack_Protect_Module {
 			$response = $this->protect_call( $action = 'check_ip' );
 
 			if ( isset( $response['math'] ) && ! function_exists( 'brute_math_authenticate' ) ) {
-				include_once dirname( __FILE__ ) . '/protect/math-fallback.php';
-				new Jetpack_Protect_Math_Authenticate;
+				include_once __DIR__ . '/protect/math-fallback.php';
+				new Jetpack_Protect_Math_Authenticate();
 
 				return false;
 			}
@@ -533,26 +533,26 @@ class Jetpack_Protect_Module {
 		if ( $this->ip_is_whitelisted( $ip ) ) {
 			return true;
 		}
-    }
+	}
 
-    function has_login_ability() {
-	    if ( $this->is_current_ip_whitelisted() ) {
-		    return true;
-	    }
-	    $status = $this->get_cached_status();
-	    if ( empty( $status ) || $status === 'ok' ) {
-	        return true;
-        }
-        return false;
-    }
+	function has_login_ability() {
+		if ( $this->is_current_ip_whitelisted() ) {
+			return true;
+		}
+		$status = $this->get_cached_status();
+		if ( empty( $status ) || $status === 'ok' ) {
+			return true;
+		}
+		return false;
+	}
 
 	function get_cached_status() {
-		$transient_name  = $this->get_transient_name();
-		$value = $this->get_transient( $transient_name );
+		$transient_name = $this->get_transient_name();
+		$value          = $this->get_transient( $transient_name );
 		if ( isset( $value['status'] ) ) {
-		    return $value['status'];
-        }
-        return '';
+			return $value['status'];
+		}
+		return '';
 	}
 
 	function block_with_math() {
@@ -580,11 +580,11 @@ class Jetpack_Protect_Module {
 		 * @param bool true Should we fallback to the Math questions when an IP is blocked. Default to true.
 		 */
 		$allow_math_fallback_on_fail = apply_filters( 'jpp_use_captcha_when_blocked', true );
-		if ( ! $allow_math_fallback_on_fail  ) {
+		if ( ! $allow_math_fallback_on_fail ) {
 			$this->kill_login();
 		}
-		include_once dirname( __FILE__ ) . '/protect/math-fallback.php';
-		new Jetpack_Protect_Math_Authenticate;
+		include_once __DIR__ . '/protect/math-fallback.php';
+		new Jetpack_Protect_Math_Authenticate();
 
 		return false;
 	}
@@ -616,16 +616,16 @@ class Jetpack_Protect_Module {
 		 */
 		do_action( 'jpp_kill_login', $ip );
 
-		if( defined( 'XMLRPC_REQUEST' ) && XMLRPC_REQUEST ) {
+		if ( defined( 'XMLRPC_REQUEST' ) && XMLRPC_REQUEST ) {
 			$die_string = sprintf( __( 'Your IP (%1$s) has been flagged for potential security violations.', 'jetpack' ), str_replace( 'http://', '', esc_url( 'http://' . $ip ) ) );
 			wp_die(
 				$die_string,
 				__( 'Login Blocked by Jetpack', 'jetpack' ),
-				array ( 'response' => 403 )
+				array( 'response' => 403 )
 			);
 		}
 
-		require_once dirname( __FILE__ ) . '/protect/blocked-login-page.php';
+		require_once __DIR__ . '/protect/blocked-login-page.php';
 		$blocked_login_page = Jetpack_Protect_Blocked_Login_Page::instance( $ip );
 
 		if ( $blocked_login_page->is_blocked_user_valid() ) {
@@ -641,8 +641,8 @@ class Jetpack_Protect_Module {
 	public function check_use_math() {
 		$use_math = $this->get_transient( 'brute_use_math' );
 		if ( $use_math ) {
-			include_once dirname( __FILE__ ) . '/protect/math-fallback.php';
-			new Jetpack_Protect_Math_Authenticate;
+			include_once __DIR__ . '/protect/math-fallback.php';
+			new Jetpack_Protect_Math_Authenticate();
 		}
 	}
 
@@ -706,11 +706,11 @@ class Jetpack_Protect_Module {
 	 * Calls over to the api using wp_remote_post
 	 *
 	 * @param string $action 'check_ip', 'check_key', or 'failed_attempt'
-	 * @param array $request Any custom data to post to the api
+	 * @param array  $request Any custom data to post to the api
 	 *
 	 * @return array
 	 */
-	function protect_call( $action = 'check_ip', $request = array () ) {
+	function protect_call( $action = 'check_ip', $request = array() ) {
 		global $wp_version;
 
 		$api_key = $this->maybe_get_protect_key();
@@ -722,14 +722,13 @@ class Jetpack_Protect_Module {
 		$request['host']              = $this->get_local_host();
 		$request['headers']           = json_encode( $this->get_headers() );
 		$request['jetpack_version']   = constant( 'JETPACK__VERSION' );
-		$request['wordpress_version'] = (string) $wp_version ;
+		$request['wordpress_version'] = (string) $wp_version;
 		$request['api_key']           = $api_key;
-		$request['multisite']         = "0";
+		$request['multisite']         = '0';
 
 		if ( is_multisite() ) {
 			$request['multisite'] = get_blog_count();
 		}
-
 
 		/**
 		 * Filter controls maximum timeout in waiting for reponse from Protect servers.
@@ -742,11 +741,11 @@ class Jetpack_Protect_Module {
 		 */
 		$timeout = apply_filters( 'jetpack_protect_connect_timeout', 30 );
 
-		$args = array (
+		$args = array(
 			'body'        => $request,
 			'user-agent'  => $user_agent,
 			'httpversion' => '1.0',
-			'timeout'     => absint( $timeout )
+			'timeout'     => absint( $timeout ),
 		);
 
 		$response_json           = wp_remote_post( JETPACK_PROTECT__API_HOST, $args );
@@ -799,9 +798,9 @@ class Jetpack_Protect_Module {
 	 *
 	 * @param string $transient Transient name. Expected to not be SQL-escaped. Must be
 	 *                           45 characters or fewer in length.
-	 * @param mixed $value Transient value. Must be serializable if non-scalar.
-	 *                           Expected to not be SQL-escaped.
-	 * @param int $expiration Optional. Time until expiration in seconds. Default 0.
+	 * @param mixed  $value Transient value. Must be serializable if non-scalar.
+	 *                            Expected to not be SQL-escaped.
+	 * @param int    $expiration Optional. Time until expiration in seconds. Default 0.
 	 *
 	 * @return bool False if value was not set and true if value was set.
 	 */
