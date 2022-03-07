@@ -19,7 +19,7 @@ import QRCodeLib from 'qrcode.react';
  * @returns {React.Component}                     - React component.
  */
 export default function QRCode( {
-	value,
+	value = 'https://jetpack.com',
 	bgColor,
 	fgColor,
 	level,
