@@ -83,5 +83,5 @@ function jetpack_add_google_fonts_provider() {
 }
 add_action( 'after_setup_theme', 'jetpack_add_google_fonts_provider' );
 
-// Run on an early priority to print out the preconnect link tag early in the page source.
+// Run on an early priority to print out the preconnect link tag near the start of the page source.
 add_action( 'wp_head', '\Automattic\Jetpack\Fonts\Google_Fonts_Provider::preconnect_font_source', 0 );
