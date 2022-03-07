@@ -44,3 +44,10 @@ export function pollCloudCssStatus() {
 		}
 	}, interval );
 }
+
+export function stopPollingCloudCssStatus() {
+	if ( statusIntervalId !== null ) {
+		clearInterval( statusIntervalId );
+		statusIntervalId = null;
+	}
+}
