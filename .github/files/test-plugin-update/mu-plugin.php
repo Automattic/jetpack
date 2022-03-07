@@ -9,9 +9,6 @@
  * @package automattic/jetpack
  */
 
-// Avoid the redirect to https.
-$_SERVER['HTTPS'] = 'on';
-
 // Force user ID 1 as the logged in user.
 add_filter(
 	'determine_current_user',
