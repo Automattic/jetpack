@@ -71,7 +71,11 @@ jobs:
       - name: Determine plugins to publish
         id: plugins
         run: |
-          jq -r 'if .extra["mirror-repo"] and ( .extra["beta-plugin-slug"] // .extra["wp-plugin-slug"] ) then [ ( input_filename | sub( "/composer\\.json$"; "" ) ), .extra["mirror-repo"], .extra["beta-plugin-slug"] // .extra["wp-plugin-slug"] ] else empty end | @tsv' projects/plugins/*/composer.json > "$BUILD_BASE/plugins.tsv"
+          jq -r 'if .extra["mirror-repo"] and ( .extra["beta-plugin-slug"] // .extra["wp-plugin-slug"] ) then [ ( input_filename | sub( "/composer\\.json$"; "" ) ), .extra["mirror-repo"], .extra["beta-plugin-slug"] // .extra["wp-plugin-slug"] ] else empty end | @tsv' projects/plugins/*/composer.json | while IFS=$'\t' read -r SRC MIRROR SLUG; do
+            if [[ -e "$BUILD_BASE/$MIRROR" ]] && grep -q --fixed-strings --line-regexp "$MIRROR" "$BUILD_BASE/mirrors.txt"; then
+              printf '%s\t%s\t%s\n' "$SRC" "$MIRROR" "$SLUG"
+            fi
+          done > "$BUILD_BASE/plugins.tsv"
           if [[ -s "$BUILD_BASE/plugins.tsv" ]]; then
             cat "$BUILD_BASE/plugins.tsv"
             echo "::set-output name=any::true"
