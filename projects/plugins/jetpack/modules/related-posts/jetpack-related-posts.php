@@ -524,7 +524,7 @@ EOT;
 	public function parse_numeric_get_arg( $arg ) {
 		$result = array();
 
-		if ( isset( $_GET[ $arg ] ) ) { // phpcs:ignore WordPress.Security.NonceVerification.Recommended
+		if ( isset( $_GET[ $arg ] ) ) { // phpcs:ignore WordPress.Security.NonceVerification.Recommended -- requests are used to generate a list of related posts we want to exclude.
 			if ( is_string( $_GET[ $arg ] ) ) { // phpcs:ignore WordPress.Security.NonceVerification.Recommended
 				$result = explode( ',', $_GET[ $arg ] ); // phpcs:ignore WordPress.Security.NonceVerification.Recommended
 			} elseif ( is_array( $_GET[ $arg ] ) ) { // phpcs:ignore WordPress.Security.NonceVerification.Recommended
@@ -1133,7 +1133,7 @@ EOT;
 
 		$options = $this->get_options();
 
-		if ( isset( $_GET['jetpackrpcustomize'] ) ) { // phpcs:ignore WordPress.Security.NonceVerification.Recommended
+		if ( isset( $_GET['jetpackrpcustomize'] ) ) { // phpcs:ignore WordPress.Security.NonceVerification.Recommended -- adds dummy content if we're in the customizer.
 
 			// If we're in the customizer, add dummy content.
 			$date_now      = current_time( get_option( 'date_format' ) );
