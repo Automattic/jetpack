@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Do not handle Akismet submenu if Jetpack plugin is present
