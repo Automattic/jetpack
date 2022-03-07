@@ -1,28 +1,22 @@
 <?php
 /**
- * Jetpack Search Overlay Customization
+ * Jetpack Search Customizer Integration
  *
- * @package automattic/jetpack
+ * @package    @automattic/jetpack-search
  */
 
-use Automattic\Jetpack\Search\Options;
+namespace Automattic\Jetpack\Search;
 
-// Exit if file is accessed directly.
-if ( ! defined( 'ABSPATH' ) ) {
-	exit;
-}
+use Automattic\Jetpack\Assets;
+use WP_Customize_Color_Control;
 
 /**
  * Class to customize search on the site.
- *
- * @since 8.3.0
  */
-class Jetpack_Search_Customize {
+class Customizer {
 
 	/**
 	 * Class initialization.
-	 *
-	 * @since 8.3.0
 	 */
 	public function __construct() {
 		add_action( 'customize_register', array( $this, 'customize_register' ) );
@@ -32,20 +26,16 @@ class Jetpack_Search_Customize {
 	/**
 	 * Initialize Customizer controls.
 	 *
-	 * @since 8.3.0
-	 *
 	 * @param WP_Customize_Manager $wp_customize Customizer instance.
 	 */
 	public function customize_register( $wp_customize ) {
-		require_once __DIR__ . '/customize-controls/class-label-control.php';
-		require_once __DIR__ . '/customize-controls/class-excluded-post-types-control.php';
 		$section_id     = 'jetpack_search';
 		$setting_prefix = Options::OPTION_PREFIX;
 
 		$wp_customize->add_section(
 			$section_id,
 			array(
-				'title'      => esc_html__( 'Jetpack Search', 'jetpack' ),
+				'title'      => esc_html__( 'Jetpack Search', 'jetpack-search-pkg' ),
 				'capability' => 'edit_theme_options',
 				'priority'   => 200,
 			)
@@ -63,13 +53,13 @@ class Jetpack_Search_Customize {
 		$wp_customize->add_control(
 			$id,
 			array(
-				'label'       => __( 'Theme', 'jetpack' ),
-				'description' => __( 'Select a theme for your search overlay.', 'jetpack' ),
+				'label'       => __( 'Theme', 'jetpack-search-pkg' ),
+				'description' => __( 'Select a theme for your search overlay.', 'jetpack-search-pkg' ),
 				'section'     => $section_id,
 				'type'        => 'radio',
 				'choices'     => array(
-					'light' => __( 'Light', 'jetpack' ),
-					'dark'  => __( 'Dark', 'jetpack' ),
+					'light' => __( 'Light', 'jetpack-search-pkg' ),
+					'dark'  => __( 'Dark', 'jetpack-search-pkg' ),
 				),
 			)
 		);
@@ -86,14 +76,14 @@ class Jetpack_Search_Customize {
 		$wp_customize->add_control(
 			$id,
 			array(
-				'label'       => __( 'Result Format', 'jetpack' ),
-				'description' => __( 'Choose how the search results look.', 'jetpack' ),
+				'label'       => __( 'Result Format', 'jetpack-search-pkg' ),
+				'description' => __( 'Choose how the search results look.', 'jetpack-search-pkg' ),
 				'section'     => $section_id,
 				'type'        => 'select',
 				'choices'     => array(
-					'minimal'  => __( 'Minimal', 'jetpack' ),
-					'expanded' => __( 'Expanded (shows images)', 'jetpack' ),
-					'product'  => __( 'Product (for WooCommerce stores)', 'jetpack' ),
+					'minimal'  => __( 'Minimal', 'jetpack-search-pkg' ),
+					'expanded' => __( 'Expanded (shows images)', 'jetpack-search-pkg' ),
+					'product'  => __( 'Product (for WooCommerce stores)', 'jetpack-search-pkg' ),
 				),
 			)
 		);
@@ -110,12 +100,12 @@ class Jetpack_Search_Customize {
 			$id,
 			array(
 				'choices'     => array(
-					'relevance' => __( 'Relevance (recommended)', 'jetpack' ),
-					'newest'    => __( 'Newest first', 'jetpack' ),
-					'oldest'    => __( 'Oldest first', 'jetpack' ),
+					'relevance' => __( 'Relevance (recommended)', 'jetpack-search-pkg' ),
+					'newest'    => __( 'Newest first', 'jetpack-search-pkg' ),
+					'oldest'    => __( 'Oldest first', 'jetpack-search-pkg' ),
 				),
-				'description' => __( 'Pick the initial sort for your search results.', 'jetpack' ),
-				'label'       => __( 'Default Sort', 'jetpack' ),
+				'description' => __( 'Pick the initial sort for your search results.', 'jetpack-search-pkg' ),
+				'label'       => __( 'Default Sort', 'jetpack-search-pkg' ),
 				'section'     => $section_id,
 				'type'        => 'select',
 			)
@@ -133,14 +123,14 @@ class Jetpack_Search_Customize {
 		$wp_customize->add_control(
 			$id,
 			array(
-				'label'       => __( 'Search Input Overlay Trigger', 'jetpack' ),
-				'description' => __( 'Select when your overlay should appear.', 'jetpack' ),
+				'label'       => __( 'Search Input Overlay Trigger', 'jetpack-search-pkg' ),
+				'description' => __( 'Select when your overlay should appear.', 'jetpack-search-pkg' ),
 				'section'     => $section_id,
 				'type'        => 'select',
 				'choices'     => array(
-					Options::OVERLAY_TRIGGER_IMMEDIATE => __( 'Open when user starts typing', 'jetpack' ),
-					Options::OVERLAY_TRIGGER_RESULTS   => __( 'Open when results are available', 'jetpack' ),
-					Options::OVERLAY_TRIGGER_SUBMIT    => __( 'Open when user submits the form', 'jetpack' ),
+					Options::OVERLAY_TRIGGER_IMMEDIATE => __( 'Open when user starts typing', 'jetpack-search-pkg' ),
+					Options::OVERLAY_TRIGGER_RESULTS   => __( 'Open when results are available', 'jetpack-search-pkg' ),
+					Options::OVERLAY_TRIGGER_SUBMIT    => __( 'Open when user submits the form', 'jetpack-search-pkg' ),
 				),
 			)
 		);
@@ -158,8 +148,8 @@ class Jetpack_Search_Customize {
 				$wp_customize,
 				$id,
 				array(
-					'description' => __( 'Choose post types to exclude from search results. You must leave at least one post type unchecked.', 'jetpack' ),
-					'label'       => __( 'Excluded Post Types', 'jetpack' ),
+					'description' => __( 'Choose post types to exclude from search results. You must leave at least one post type unchecked.', 'jetpack-search-pkg' ),
+					'label'       => __( 'Excluded Post Types', 'jetpack-search-pkg' ),
 					'section'     => $section_id,
 				)
 			)
@@ -179,8 +169,8 @@ class Jetpack_Search_Customize {
 				$wp_customize,
 				$id,
 				array(
-					'label'       => __( 'Highlight Search Terms', 'jetpack' ),
-					'description' => __( 'Choose a color to highlight matching search terms.', 'jetpack' ),
+					'label'       => __( 'Highlight Search Terms', 'jetpack-search-pkg' ),
+					'description' => __( 'Choose a color to highlight matching search terms.', 'jetpack-search-pkg' ),
 					'section'     => $section_id,
 				)
 			)
@@ -196,7 +186,7 @@ class Jetpack_Search_Customize {
 				$wp_customize,
 				$id,
 				array(
-					'label'   => __( 'Additional Jetpack Search Settings', 'jetpack' ),
+					'label'   => __( 'Additional Jetpack Search Settings', 'jetpack-search-pkg' ),
 					'section' => $section_id,
 				)
 			)
@@ -216,7 +206,7 @@ class Jetpack_Search_Customize {
 		$wp_customize->add_control(
 			$id,
 			array(
-				'label'   => __( 'Show sort selector', 'jetpack' ),
+				'label'   => __( 'Show sort selector', 'jetpack-search-pkg' ),
 				'section' => $section_id,
 				'type'    => 'checkbox',
 			)
@@ -238,7 +228,7 @@ class Jetpack_Search_Customize {
 			array(
 				'type'    => 'checkbox',
 				'section' => $section_id,
-				'label'   => __( 'Enable infinite scrolling', 'jetpack' ),
+				'label'   => __( 'Enable infinite scrolling', 'jetpack-search-pkg' ),
 			)
 		);
 
@@ -258,26 +248,26 @@ class Jetpack_Search_Customize {
 			array(
 				'type'    => 'checkbox',
 				'section' => $section_id,
-				'label'   => __( 'Display "Powered by Jetpack"', 'jetpack' ),
+				'label'   => __( 'Display "Powered by Jetpack"', 'jetpack-search-pkg' ),
 			)
 		);
 	}
 
 	/**
 	 * Enqueue assets for Customizer controls.
-	 *
-	 * @since 9.6.0
 	 */
 	public function customize_controls_enqueue_scripts() {
-		$script_relative_path = 'customize-controls/customize-controls.js';
-		$script_version       = Automattic\Jetpack\Search\Helper::get_asset_version( $script_relative_path );
-		$script_path          = plugins_url( $script_relative_path, __FILE__ );
-		wp_enqueue_script(
+		Assets::register_script(
 			'jetpack-instant-search-customizer',
-			$script_path,
-			array( 'customize-controls' ),
-			$script_version,
-			true
+			'customize-controls/customize-controls.js',
+			__FILE__,
+			array(
+				'css_path'     => 'customize-controls/customize-controls.css',
+				'dependencies' => array( 'customize-controls' ),
+				'in_footer'    => true,
+				'textdomain'   => 'jetpack-search-pkg',
+			)
 		);
+		Assets::enqueue_script( 'jetpack-instant-search-customizer' );
 	}
 }

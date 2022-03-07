@@ -36,21 +36,5 @@
 		"node": "^14.18.3 || ^16.13.2",
 		"pnpm": "^6.23.6",
 		"yarn": "use pnpm instead - see docs/yarn-upgrade.md"
-	},
-	"pnpm": {
-		"overrides": {
-			"@automattic/format-currency>i18n-calypso": "^5",
-			"@storybook/addon-docs>@storybook/builder-webpack4": "npm:@storybook/builder-webpack5@^6",
-			"@storybook/core-common>webpack@4": ">= 4",
-			"@storybook/core-server>webpack@4": ">= 4",
-			"@storybook/core-server>@storybook/builder-webpack4": "npm:@storybook/builder-webpack5@^6",
-			"@storybook/core-server>@storybook/manager-webpack4": "npm:@storybook/manager-webpack5@^6",
-			"@storybook/react>webpack@4": ">= 4",
-			"i18n-calypso>interpolate-components": "npm:@automattic/interpolate-components@^1.2.0",
-			"jest-environment-enzyme>jest-environment-jsdom@^24.0.0": "^27",
-			"react-dev-utils>browserslist@^4": "^4",
-			"trim@0.0.1": "^0.0.3",
-			"yargs>yargs-parser@^5.0.1": "^20.0.0"
-		}
 	}
 }

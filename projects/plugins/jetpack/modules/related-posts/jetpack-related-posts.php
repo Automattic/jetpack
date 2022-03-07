@@ -1217,8 +1217,8 @@ EOT;
 	 * @return array
 	 */
 	public function get_related_post_data_for_post( $post_id, $position, $origin ) {
-		$post          = get_post( $post_id );
-		$related_posts = array(
+		$post = get_post( $post_id );
+		return array(
 			'id'       => $post->ID,
 			'url'      => get_permalink( $post->ID ),
 			'url_meta' => array(
@@ -1273,9 +1273,6 @@ EOT;
 				$post->ID
 			),
 		);
-
-		/** This filter is already documented in modules/related-posts/jetpack-related-posts.php */
-		return apply_filters( 'jetpack_relatedposts_returned_results', $related_posts, $post_id );
 	}
 
 	/**

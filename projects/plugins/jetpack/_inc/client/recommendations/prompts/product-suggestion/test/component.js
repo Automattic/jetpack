@@ -15,6 +15,7 @@ import * as recommendationsActions from 'state/recommendations/actions';
 import { fireEvent, render, screen } from 'test/test-utils';
 
 describe( 'Recommendations – Product Suggestion Item', () => {
+	const EXTERNAL_LINK_NEW_TAB = ' (opens in a new tab)';
 	const DUMMY_ACTION = { type: 'dummy' };
 	const initialState = buildInitialState();
 	// Backup Daily suggestion.

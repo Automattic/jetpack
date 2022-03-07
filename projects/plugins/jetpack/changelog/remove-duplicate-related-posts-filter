@@ -1,0 +1,4 @@
+Significance: patch
+Type: bugfix
+
+Remove the duplicated jetpack_relatedposts_returned_results filter

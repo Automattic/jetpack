@@ -2,11 +2,17 @@
 /**
  * A multi-checkbox Customizer control for use with Jetpack Search configuration
  *
- * @package automattic/jetpack
- * @since 8.8.0
+ * @package    @automattic/jetpack-search
  */
 
-use Automattic\Jetpack\Search\Helper;
+namespace Automattic\Jetpack\Search;
+
+use Automattic\Jetpack\Assets;
+use WP_Customize_Control;
+
+if ( ! class_exists( 'WP_Customize_Control' ) ) {
+	return;
+}
 
 /**
  * Label Control class.
@@ -24,15 +30,18 @@ class Excluded_Post_Types_Control extends WP_Customize_Control {
 	 * Enqueue styles related to this control.
 	 */
 	public function enqueue() {
-		$style_relative_path = 'modules/search/customize-controls/class-excluded-post-types-control.css';
-		$style_version       = Helper::get_asset_version( $style_relative_path );
-		$style_path          = plugins_url( $style_relative_path, JETPACK__PLUGIN_FILE );
-		wp_enqueue_style( 'jetpack-instant-search-customizer-excluded-post-types', $style_path, array(), $style_version );
-
-		$script_relative_path = 'modules/search/customize-controls/class-excluded-post-types-control.js';
-		$script_version       = Helper::get_asset_version( $script_relative_path );
-		$script_path          = plugins_url( $script_relative_path, JETPACK__PLUGIN_FILE );
-		wp_enqueue_script( 'jetpack-instant-search-customizer-excluded-post-types', $script_path, array( 'customize-controls' ), $script_version, true );
+		Assets::register_script(
+			'jetpack-instant-search-customizer-excluded-post-types',
+			'class-excluded-post-types-control.js',
+			__FILE__,
+			array(
+				'css_path'     => 'class-excluded-post-types-control.css',
+				'dependencies' => array( 'customize-controls' ),
+				'in_footer'    => true,
+				'textdomain'   => 'jetpack-search-pkg',
+			)
+		);
+		Assets::enqueue_script( 'jetpack-instant-search-customizer-excluded-post-types' );
 	}
 
 	/**
