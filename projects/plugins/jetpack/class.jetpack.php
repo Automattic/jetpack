@@ -3914,7 +3914,7 @@ p {
 		}
 
 		/**
-		 * Optionally block uploads processed through jetpack's upload_handler().
+		 * Optionally block uploads processed through Jetpack's upload_handler().
 		 * The filter may return false or WP_Error to block this particular upload.
 		 *
 		 * @since 10.8
