@@ -879,7 +879,7 @@ importers:
       '@wordpress/i18n': 4.3.1
       eslint-plugin-import: 2.25.4
       eslint-plugin-svelte3: 3.2.1
-      jetpack-boost-critical-css-gen: github:automattic/jetpack-boost-critical-css-gen#release-0.0.2
+      jetpack-boost-critical-css-gen: github:automattic/jetpack-boost-critical-css-gen#release-0.0.4
       node-wp-i18n: 1.2.6
       npm-run-all: 4.1.5
       prettier-plugin-svelte: 2.4.0
@@ -899,7 +899,7 @@ importers:
     dependencies:
       '@wordpress/components': 19.5.0_@babel+core@7.16.0
       '@wordpress/element': 4.1.1
-      jetpack-boost-critical-css-gen: github.com/automattic/jetpack-boost-critical-css-gen/0232a05d6681315f40365143c7ed93707933f7e3
+      jetpack-boost-critical-css-gen: github.com/automattic/jetpack-boost-critical-css-gen/91e0ed5e0cf6296fd06f525d1fc016d5d46af86f
     devDependencies:
       '@babel/core': 7.16.0
       '@babel/preset-env': 7.16.4_@babel+core@7.16.0
@@ -25470,10 +25470,10 @@ packages:
     resolution: {integrity: sha512-V50KMwwzqJV0NpZIZFwfOD5/lyny3WlSzRiXgA0G7VUnRlqttta1L6UQIHzd6EuBY/cHGfwTIck7w1yH6Q5zUw==}
     dev: true
 
-  github.com/automattic/jetpack-boost-critical-css-gen/0232a05d6681315f40365143c7ed93707933f7e3:
-    resolution: {tarball: https://codeload.github.com/automattic/jetpack-boost-critical-css-gen/tar.gz/0232a05d6681315f40365143c7ed93707933f7e3}
+  github.com/automattic/jetpack-boost-critical-css-gen/91e0ed5e0cf6296fd06f525d1fc016d5d46af86f:
+    resolution: {tarball: https://codeload.github.com/automattic/jetpack-boost-critical-css-gen/tar.gz/91e0ed5e0cf6296fd06f525d1fc016d5d46af86f}
     name: jetpack-boost-critical-css-gen
-    version: 0.0.1
+    version: 0.0.4
     prepare: true
     requiresBuild: true
     dependencies:
