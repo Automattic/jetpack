@@ -90,6 +90,10 @@
 			"groupName": "JS unit testing packages"
 		},
 		{
+			"groupName": "Size-limit",
+			"matchPackageNames": [ "size-limit", "@size-limit/preset-app" ]
+		},
+		{
 			"matchPaths": [ "packages/codesniffer/composer.json" ],
 			"rangeStrategy": "replace"
 		},
