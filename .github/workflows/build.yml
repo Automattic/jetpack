@@ -142,7 +142,7 @@ jobs:
         run: monorepo/.github/files/test-plugin-update/prepare-zips.sh
 
       - name: Test upgrades
-        run: monorepo/.github/files/test-plugin-update.sh
+        run: monorepo/.github/files/test-plugin-update/test.sh
 
   jetpack_beta:
     name: Create artifact for Jetpack Beta plugin
