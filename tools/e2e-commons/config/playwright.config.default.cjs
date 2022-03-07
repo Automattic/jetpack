@@ -28,7 +28,7 @@ if ( ! fs.existsSync( config.get( 'temp.storage' ) ) ) {
 }
 
 const playwrightConfig = {
-	timeout: 300000,
+	timeout: 600000,
 	retries: 0,
 	workers: 1,
 	outputDir: config.get( 'dirs.output' ),
@@ -37,7 +37,7 @@ const playwrightConfig = {
 		browserName: 'chromium',
 		channel: '',
 		headless: true,
-		viewport: { width: 1280, height: 720 },
+		viewport: { width: 1600, height: 1200 },
 		ignoreHTTPSErrors: true,
 		actionTimeout: 20000,
 		screenshot: 'only-on-failure',
