@@ -12,6 +12,7 @@ password=$MYSQL_PASSWORD
 EOF
 chmod 0600 ~/.my.cnf
 mysql -e "set global wait_timeout = 3600;"
+mysql -e "drop database if exists wordpress;"
 mysql -e "create database wordpress;"
 echo "::endgroup::"
 
@@ -25,7 +26,7 @@ echo "::endgroup::"
 
 echo "::group::Install WordPress"
 wp --allow-root core install --url="$WP_DOMAIN" --title="$WP_TITLE" --admin_user="$WP_ADMIN_USER" --admin_password="$WP_ADMIN_PASSWORD" --admin_email="$WP_ADMIN_EMAIL" --skip-email
-rm index.html
-mkdir wp-content/mu-plugins
+rm -f index.html
+mkdir -p wp-content/mu-plugins
 cp "$GITHUB_WORKSPACE/monorepo/.github/files/test-plugin-update/mu-plugin.php" wp-content/mu-plugins/hack.php
 echo "::endgroup::"
