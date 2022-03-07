@@ -8,7 +8,7 @@ EXIT=0
 SLUGS=()
 cd "$ZIPDIR"
 for ZIP in *-dev.zip; do
-	SLUGS+=( "${SLUG%-dev.zip}" )
+	SLUGS+=( "${ZIP%-dev.zip}" )
 done
 
 cd /var/www/html
