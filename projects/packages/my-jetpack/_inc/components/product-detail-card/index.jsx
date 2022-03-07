@@ -192,7 +192,6 @@ const ProductDetail = ( { slug, onClick, trackButtonClick } ) => {
 							onClick={ clickHandler }
 							isLoading={ isFetching }
 							isPrimary={ ! isBundle }
-							isSecondary={ isBundle }
 							href={ onClick ? undefined : addProductUrl }
 							className={ `${ styles[ 'checkout-button' ] } ${
 								isBundle ? styles[ 'is-bundle' ] : ''
