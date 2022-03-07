@@ -1,4 +1,5 @@
-<?php
+<?php // phpcs:ignore WordPress.Files.FileName.InvalidClassFileName
+// phpcs:disable Generic.Classes.DuplicateClassName.Found -- sitemap-builder.php will require correct class file.
 /**
  * Sitemaps (per the protocol) are essentially lists of XML fragments;
  * lists which are subject to size constraints. The Jetpack_Sitemap_Buffer_Page
@@ -15,7 +16,9 @@
  * @since 5.3.0
  */
 class Jetpack_Sitemap_Buffer_Page extends Jetpack_Sitemap_Buffer_Fallback {
-
+	/**
+	 * Returns a DOM element that contains all single page sitemap elements.
+	 */
 	protected function get_root_element() {
 		if ( ! isset( $this->root ) ) {
 

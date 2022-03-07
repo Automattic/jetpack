@@ -86,6 +86,23 @@ class Version_Loader {
 	}
 
 	/**
+	 * Load all of the (non-PSR-4) classes located under a path.
+	 *
+	 * @param string $path Path.
+	 */
+	public function load_classes_in_path( $path ) {
+		$path = rtrim( $path, '/' ) . '/';
+		$l    = strlen( $path );
+		foreach ( $this->classmap as $classname => $data ) {
+			if ( substr( $data['path'], 0, $l ) === $path && file_exists( $data['path'] ) ) {
+				// Use the autoloader instead of loading directly in case there's a PSR-4 class or
+				// something masking it.
+				class_exists( $classname, true );
+			}
+		}
+	}
+
+	/**
 	 * Compares different class sources and returns the newest.
 	 *
 	 * @param array|null $classmap_data The classmap class data.
