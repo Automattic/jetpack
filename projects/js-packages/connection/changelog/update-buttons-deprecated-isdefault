@@ -1,0 +1,4 @@
+Significance: patch
+Type: changed
+
+Components: update attributes used within the Button component to match recent deprecations and changes.

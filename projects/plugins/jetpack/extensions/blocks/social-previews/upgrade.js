@@ -59,7 +59,7 @@ export default function SocialPreviewsUpgrade() {
 				</ul>
 				<Button
 					href={ href } // Only for server-side rendering, since onClick doesn't work there.
-					isPrimary
+					variant="primary"
 					label={ __( 'Purchase a Business plan to access social previews', 'jetpack' ) }
 					onClick={ autosaveAndRedirect }
 					target="_top"

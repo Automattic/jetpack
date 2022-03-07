@@ -28,7 +28,7 @@ class Identity_Crisis {
 	/**
 	 * Package Version
 	 */
-	const PACKAGE_VERSION = '0.8.0-alpha';
+	const PACKAGE_VERSION = '0.8.1-alpha';
 
 	/**
 	 * Instance of the object.
@@ -193,7 +193,6 @@ class Identity_Crisis {
 		$status = new Status();
 		if ( ! is_string( $url )
 			|| $status->is_offline_mode()
-			|| $status->is_staging_site()
 			|| self::validate_sync_error_idc_option() ) {
 			return $url;
 		}

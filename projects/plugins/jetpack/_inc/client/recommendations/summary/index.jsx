@@ -7,6 +7,7 @@ import classNames from 'classnames';
 import { isEmpty } from 'lodash';
 import React, { useCallback, useEffect } from 'react';
 import { connect } from 'react-redux';
+import { ExternalLink } from '@wordpress/components';
 
 /**
  * Internal dependencies
@@ -18,7 +19,6 @@ import { Security } from '../sidebar/security';
 import { MobileApp } from '../sidebar/mobile-app';
 import { ProductCardUpsellNoPrice } from '../sidebar/product-card-upsell-no-price';
 import { ProductCardUpsell } from '../sidebar/product-card-upsell';
-import ExternalLink from 'components/external-link';
 import Gridicon from 'components/gridicon';
 import analytics from 'lib/analytics';
 import { getUpgradeUrl } from 'state/initial-state';
@@ -114,11 +114,8 @@ const SummaryComponent = props => {
 							ExternalLink: (
 								<ExternalLink
 									href="https://jetpack.com/features/comparison/"
-									target="_blank"
 									rel="noopener noreferrer"
 									onClick={ onLearnMoreClick }
-									icon={ true }
-									iconSize={ 16 }
 								/>
 							),
 						}
