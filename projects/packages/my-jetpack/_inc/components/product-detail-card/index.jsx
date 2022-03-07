@@ -22,7 +22,7 @@ import {
 	AntiSpamIcon,
 	CheckmarkIcon,
 } from '../icons';
-import ProductDetailButton from './button';
+import ProductDetailButton from '../product-detail-button';
 
 /**
  * Simple react component to render the product icon,

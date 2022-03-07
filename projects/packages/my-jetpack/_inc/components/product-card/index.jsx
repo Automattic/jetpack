@@ -95,6 +95,9 @@ const ActionButton = ( {
 					{ __( 'Activate', 'jetpack-my-jetpack' ) }
 				</Button>
 			);
+
+		default:
+			return null;
 	}
 };
 
