@@ -7,5 +7,4 @@ import { registerJetpackPlugin } from '@automattic/jetpack-shared-extension-util
  * Internal dependencies
  */
 import { name, settings } from '.';
-// console.log( 'EDITOR!' );
 registerJetpackPlugin( name, settings );
