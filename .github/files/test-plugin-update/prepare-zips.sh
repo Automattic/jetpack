@@ -12,6 +12,19 @@ while IFS=$'\t' read -r SRC MIRROR SLUG; do
 	rm -rf "work/$SLUG"
 	echo "::endgroup::"
 
+	echo "::group::Fetching $SLUG-master.zip..."
+	BETASLUG="$(jq -r '.extra["beta-plugin-slug"] // .extra["wp-plugin-slug"] // ""' "monorepo/projects/plugins/$SLUG/composer.json")"
+	if [[ -z "$BETASLUG" ]]; then
+		echo "No beta-plugin-slug or wp-plugin-slug in composer.json, skipping"
+	else
+		curl -L --fail --url "https://betadownload.jetpack.me/data/$BETASLUG/master/$BETASLUG-dev.zip" --output "work/tmp.zip" 2>&1
+		(cd work && unzip -q tmp.zip)
+		mv "work/$BETASLUG-dev" "work/$SLUG"
+		(cd work && zip -qr "../zips/${SLUG}-master.zip" "$SLUG")
+		rm -rf "work/$SLUG" "work/tmp.zip"
+	fi
+	echo "::endgroup::"
+
 	echo "::group::Fetching $SLUG-stable.zip..."
 	JSON="$(curl "https://api.wordpress.org/plugins/info/1.0/$SLUG.json")"
 	if jq -e --arg slug "$SLUG" '.slug == $slug' <<<"$JSON" &>/dev/null; then
