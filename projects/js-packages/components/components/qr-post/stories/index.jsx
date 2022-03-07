@@ -13,10 +13,7 @@ export default {
 	title: 'JS Packages/Components/Block Editor QR Post',
 	component: QRPost,
 	argTypes: {
-		title: {
-			control: { type: 'text' },
-		},
-		permalink: {
+		value: {
 			control: { type: 'text' },
 		},
 		size: {
@@ -30,6 +27,9 @@ export default {
 		},
 		bgColor: {
 			control: { type: 'color' },
+		},
+		renderAs: {
+			control: { type: 'select', options: [ 'canvas', 'svg' ] },
 		},
 	},
 };
