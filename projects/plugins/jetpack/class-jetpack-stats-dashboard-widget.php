@@ -153,10 +153,10 @@ class Jetpack_Stats_Dashboard_Widget {
 					esc_html_e( 'Configure stats', 'jetpack' );
 					?>
 			</a>
+			|
 					<?php
 					endif;
 				?>
-			|
 			<a href="<?php echo esc_url( Redirect::get_url( 'jetpack-support-wordpress-com-stats' ) ); ?>" target="_blank"><?php esc_html_e( 'Learn more', 'jetpack' ); ?></a>
 			</span>
 
