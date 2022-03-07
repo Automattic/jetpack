@@ -2,7 +2,7 @@
  * External dependencies
  */
 import React from 'react';
-import { __ } from '@wordpress/i18n';
+import { __, _n } from '@wordpress/i18n';
 import { ExternalLink } from '@wordpress/components';
 
 /**
@@ -10,8 +10,7 @@ import { ExternalLink } from '@wordpress/components';
  */
 import usePurchases from '../../hooks/use-purchases';
 import getManageYourPlanUrl from '../../utils/get-manage-your-plan-url';
-
-import './style.scss';
+import styles from './style.module.scss';
 
 /**
  * Basic plan section component.
@@ -38,6 +37,17 @@ function PlanSection( { purchase = {} } ) {
  * @returns {object} PlanSectionHeader react component.
  */
 function PlanSectionHeader( { purchases } ) {
+	let planLinkDescription = __( 'Purchase a plan', 'jetpack-my-jetpack' );
+	if ( purchases.length > 1 ) {
+		/* translators: %d: number of site plans. */
+		planLinkDescription = _n(
+			'Manage your plan.',
+			'Manage your plans',
+			purchases.length,
+			'jetpack-my-jetpack'
+		);
+	}
+
 	return (
 		<>
 			<h3>
@@ -47,10 +57,8 @@ function PlanSectionHeader( { purchases } ) {
 			</h3>
 			<p>{ __( 'The extra power you added to your Jetpack.', 'jetpack-my-jetpack' ) }</p>
 			<p>
-				<ExternalLink href={ getManageYourPlanUrl() }>
-					{ purchases.length <= 1
-						? __( 'Manage your plan', 'jetpack-my-jetpack' )
-						: __( 'Manage your plans', 'jetpack-my-jetpack' ) }
+				<ExternalLink className={ styles[ 'external-link' ] } href={ getManageYourPlanUrl() }>
+					{ planLinkDescription }
 				</ExternalLink>
 			</p>
 		</>
@@ -66,7 +74,7 @@ export default function PlansSection() {
 	const purchases = usePurchases();
 
 	return (
-		<div className="jp-plans-section">
+		<div className={ styles.container }>
 			<PlanSectionHeader purchases={ purchases } />
 
 			<div className="jp-plans-section__purchases-section">

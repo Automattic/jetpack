@@ -6,9 +6,15 @@ import { createBlobURL } from '@wordpress/blob';
 import { createBlock } from '@wordpress/blocks';
 import { mediaUpload } from '@wordpress/editor';
 import { useBlockEditContext } from '@wordpress/block-editor';
+import { useContext } from '@wordpress/element';
 import { addFilter } from '@wordpress/hooks';
 import { createHigherOrderComponent } from '@wordpress/compose';
 import { __ } from '@wordpress/i18n';
+import {
+	isAtomicSite,
+	isSimpleSite,
+	getJetpackExtensionAvailability,
+} from '@automattic/jetpack-shared-extension-utils';
 import { every } from 'lodash';
 
 /**
@@ -16,11 +22,11 @@ import { every } from 'lodash';
  */
 import withVideoPressEdit from './edit';
 import withVideoPressSave from './save';
-import getJetpackExtensionAvailability from '../../shared/get-jetpack-extension-availability';
+import { VideoPressBlockContext } from './components';
 import deprecatedV1 from './deprecated/v1';
 import deprecatedV2 from './deprecated/v2';
 import deprecatedV3 from './deprecated/v3';
-import { isAtomicSite, isSimpleSite } from '../../shared/site-type-utils';
+import deprecatedV4 from './deprecated/v4';
 import withHasWarningIsInteractiveClassNames from '../../shared/with-has-warning-is-interactive-class-names';
 import './editor.scss';
 
@@ -58,6 +64,39 @@ const videoPressNoPlanMediaPlaceholder = createHigherOrderComponent(
 		);
 	},
 	'videoPressNoPlanMediaPlaceholder'
+);
+
+const videoPressMediaPlaceholder = createHigherOrderComponent(
+	OriginalPlaceholder => props => {
+		const { name } = useBlockEditContext();
+		if ( name !== 'core/video' ) {
+			return <OriginalPlaceholder { ...props } />;
+		}
+
+		const { onFilesSelected, onMediaItemSelected } = useContext( VideoPressBlockContext );
+
+		// We will handle video uploads
+		const newProps = {
+			...props,
+			handleUpload: false,
+			disableDropZone: true,
+			onSelect: selected => {
+				if ( selected instanceof FileList ) {
+					onFilesSelected( selected );
+				} else {
+					onMediaItemSelected( selected );
+				}
+			},
+		};
+
+		return (
+			<OriginalPlaceholder
+				{ ...newProps }
+				className="videopress-media-placeholder"
+			></OriginalPlaceholder>
+		);
+	},
+	'videoPressMediaPlaceholder'
 );
 
 /**
@@ -132,12 +171,14 @@ const addVideoPressSupport = ( settings, name ) => {
 
 	const { deprecated, edit, save, supports, transforms } = settings;
 	const { available, unavailableReason } = getJetpackExtensionAvailability( 'videopress' );
+	const isNotAvailable =
+		( isSimpleSite() || isAtomicSite() ) &&
+		[ 'missing_plan', 'unknown' ].includes( unavailableReason );
+
+	const resumableUploadEnabled = !! window.videoPressResumableEnabled;
 
 	// Check if VideoPress is unavailable and filter the mediaplaceholder to limit options
-	if (
-		( isSimpleSite() || isAtomicSite() ) &&
-		[ 'missing_plan', 'unknown' ].includes( unavailableReason )
-	) {
+	if ( isNotAvailable ) {
 		addFilter( 'editor.MediaPlaceholder', 'jetpack/videopress', videoPressNoPlanMediaPlaceholder );
 		addFilter(
 			'editor.BlockListBlock',
@@ -145,6 +186,9 @@ const addVideoPressSupport = ( settings, name ) => {
 			withHasWarningIsInteractiveClassNames( `core/video` )
 		);
 	} else if ( available ) {
+		if ( resumableUploadEnabled ) {
+			addFilter( 'editor.MediaPlaceholder', 'jetpack/videopress', videoPressMediaPlaceholder );
+		}
 		// If VideoPress is available, we update the block description and example with VideoPress-specific content.
 		settings.description = __(
 			'Embed a video from your media library or upload a new one with VideoPress.',
@@ -230,6 +274,7 @@ const addVideoPressSupport = ( settings, name ) => {
 			},
 			useAverageColor: {
 				type: 'boolean',
+				default: true,
 			},
 			videoPressTracks: {
 				type: 'array',
@@ -240,6 +285,10 @@ const addVideoPressSupport = ( settings, name ) => {
 			},
 			videoPressClassNames: {
 				type: 'string',
+			},
+			fileForImmediateUpload: {
+				type: 'object',
+				default: null,
 			},
 		};
 
@@ -261,17 +310,29 @@ const addVideoPressSupport = ( settings, name ) => {
 						transform: ( files, onChange ) => {
 							const blocks = [];
 							files.forEach( file => {
-								const block = createBlock( 'core/video', {
-									src: createBlobURL( file ),
-								} );
-								mediaUpload( {
-									filesList: [ file ],
-									onFileChange: ( [ { id, url } ] ) => {
-										onChange( block.clientId, { id, src: url } );
-									},
-									allowedTypes: [ 'video' ],
-								} );
-								blocks.push( block );
+								if ( available && resumableUploadEnabled ) {
+									// VideoPress block handles the upload
+									const block = createBlock( 'core/video', {
+										fileForImmediateUpload: file,
+									} );
+
+									blocks.push( block );
+								} else {
+									// Use core block w/ standard mediaUpload
+									const block = createBlock( 'core/video', {
+										src: createBlobURL( file ),
+									} );
+
+									mediaUpload( {
+										filesList: [ file ],
+										onFileChange: ( [ { id, url } ] ) => {
+											onChange( block.clientId, { id, src: url } );
+										},
+										allowedTypes: [ 'video' ],
+									} );
+
+									blocks.push( block );
+								}
 							} );
 							return blocks;
 						},
@@ -303,6 +364,7 @@ const addVideoPressSupport = ( settings, name ) => {
 
 			deprecated: [
 				...( deprecated || [] ),
+				deprecatedV4,
 				deprecatedV3,
 				{
 					attributes: attributesDefinition,

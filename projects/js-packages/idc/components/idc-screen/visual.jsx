@@ -3,6 +3,7 @@
  */
 import React from 'react';
 import PropTypes from 'prop-types';
+import { createInterpolateElement } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 import { JetpackLogo } from '@automattic/jetpack-components';
 
@@ -40,6 +41,7 @@ const IDCScreenVisual = props => {
 		hasMigrateError,
 		hasFreshError,
 		hasStaySafeError,
+		possibleDynamicSiteUrlDetected,
 	} = props;
 
 	const nonAdminBody = ! isAdmin ? <ScreenNonAdmin customContent={ customContent } /> : '';
@@ -68,6 +70,7 @@ const IDCScreenVisual = props => {
 				hasMigrateError={ hasMigrateError }
 				hasFreshError={ hasFreshError }
 				hasStaySafeError={ hasStaySafeError }
+				possibleDynamicSiteUrlDetected={ possibleDynamicSiteUrlDetected }
 			/>
 		);
 	}
@@ -79,7 +82,12 @@ const IDCScreenVisual = props => {
 					{ renderLogoImage( logo, customContent.logoAlt || '' ) }
 				</div>
 				<div className="jp-idc__idc-screen__logo-label">
-					{ customContent.headerText || __( 'Safe Mode', 'jetpack' ) }
+					{ customContent.headerText
+						? createInterpolateElement( customContent.headerText, {
+								em: <em />,
+								strong: <strong />,
+						  } )
+						: __( 'Safe Mode', 'jetpack' ) }
 				</div>
 			</div>
 
@@ -123,6 +131,8 @@ IDCScreenVisual.propTypes = {
 	hasFreshError: PropTypes.bool.isRequired,
 	/** Whether the component encountered the "Stay in Safe Mode" error. */
 	hasStaySafeError: PropTypes.bool.isRequired,
+	/** If potentially dynamic HTTP_HOST usage was detected for site URLs in wp-config which can lead to a JP IDC. */
+	possibleDynamicSiteUrlDetected: PropTypes.bool,
 };
 
 IDCScreenVisual.defaultProps = {
@@ -135,6 +145,7 @@ IDCScreenVisual.defaultProps = {
 	hasMigrateError: false,
 	hasFreshError: false,
 	hasStaySafeError: false,
+	possibleDynamicSiteUrlDetected: false,
 };
 
 export default IDCScreenVisual;

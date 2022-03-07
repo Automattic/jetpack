@@ -23,6 +23,8 @@ class CLI {
 	 */
 	private $jetpack_boost;
 
+	const MAKE_E2E_TESTS_WORK_MODULES = array( 'critical-css', 'lazy-images', 'render-blocking-js' );
+
 	/**
 	 * CLI constructor.
 	 *
@@ -30,16 +32,6 @@ class CLI {
 	 */
 	public function __construct( $jetpack_boost ) {
 		$this->jetpack_boost = $jetpack_boost;
-	}
-
-	/**
-	 * Reset settings command.
-	 *
-	 * @subcommand reset-settings
-	 */
-	public function reset_settings() {
-		$this->jetpack_boost->config()->reset();
-		\WP_CLI::success( 'Reset settings successfully' );
 	}
 
 	/**
@@ -72,9 +64,9 @@ class CLI {
 
 		if ( isset( $args[1] ) ) {
 			$module_slug = $args[1];
-			if ( ! in_array( $module_slug, Jetpack_Boost::AVAILABLE_MODULES_DEFAULT, true ) ) {
+			if ( ! in_array( $module_slug, self::MAKE_E2E_TESTS_WORK_MODULES, true ) ) {
 				\WP_CLI::error(
-					/* translators: %s refers to the module slug like 'critical-css' */
+				/* translators: %s refers to the module slug like 'critical-css' */
 					sprintf( __( "The '%s' module slug is invalid", 'jetpack-boost' ), $module_slug )
 				);
 			}
@@ -85,10 +77,10 @@ class CLI {
 
 		switch ( $action ) {
 			case 'activate':
-				$this->set_module_status( $module_slug, 'active' );
+				$this->set_module_status( $module_slug, true );
 				break;
 			case 'deactivate':
-				$this->set_module_status( $module_slug, 'inactive' );
+				$this->set_module_status( $module_slug, false );
 				break;
 		}
 	}
@@ -100,10 +92,8 @@ class CLI {
 	 * @param string $status      Module status.
 	 */
 	private function set_module_status( $module_slug, $status ) {
-		$enable = 'active' === $status;
-
-		$this->jetpack_boost->set_module_status( $enable, $module_slug );
-		$status_label = $enable ? __( 'activated', 'jetpack-boost' ) : __( 'deactivated', 'jetpack-boost' );
+		( new Status( $module_slug ) )->update( $status );
+		$status_label = $status ? __( 'activated', 'jetpack-boost' ) : __( 'deactivated', 'jetpack-boost' );
 
 		/* translators: The %1$s refers to the module slug, %2$s refers to the module state (either activated or deactivated)*/
 		\WP_CLI::success(
@@ -142,7 +132,7 @@ class CLI {
 				if ( true === $result ) {
 					\WP_CLI::success( __( 'Boost is connected to WP.com', 'jetpack-boost' ) );
 				} else {
-					\WP_CLI::Error( __( 'Boost could not be connected to WP.com', 'jetpack-boost' ) );
+					\WP_CLI::error( __( 'Boost could not be connected to WP.com', 'jetpack-boost' ) );
 				}
 				break;
 			case 'deactivate':
@@ -177,7 +167,6 @@ class CLI {
 	public function reset() {
 		$this->jetpack_boost->deactivate();
 		$this->jetpack_boost->uninstall();
-		$this->jetpack_boost->config()->reset();
 		\WP_CLI::success( 'Reset successfully' );
 	}
 }

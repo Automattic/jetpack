@@ -64,7 +64,7 @@ const ConnectedPlugins = props => {
 	return null;
 };
 
-ConnectedPlugins.PropTypes = {
+ConnectedPlugins.propTypes = {
 	/** Plugins that are using the Jetpack connection. */
 	connectedPlugins: PropTypes.object,
 	/** Slug of the plugin that has initiated the disconnect. */

@@ -11,7 +11,7 @@ import React from 'react';
 import AutomatticBylineLogo from '../index.jsx';
 
 export default {
-	title: 'Playground/Automattic Byline Logo',
+	title: 'JS Packages/Components/Automattic Byline Logo',
 	component: AutomatticBylineLogo,
 };
 

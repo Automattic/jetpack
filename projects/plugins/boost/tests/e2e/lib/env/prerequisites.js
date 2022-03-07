@@ -11,6 +11,7 @@ export function boostPrerequisitesBuilder( page ) {
 		modules: { active: undefined, inactive: undefined },
 		connected: undefined,
 		jetpackDeactivated: undefined,
+		mockSpeedScore: undefined,
 	};
 
 	return {
@@ -30,6 +31,10 @@ export function boostPrerequisitesBuilder( page ) {
 			state.testPostTitles = testPostTitles;
 			return this;
 		},
+		withSpeedScoreMocked( shouldMockSpeedScore ) {
+			state.mockSpeedScore = shouldMockSpeedScore;
+			return this;
+		},
 		withCleanEnv() {
 			state.clean = true;
 			return this;
@@ -46,6 +51,7 @@ async function buildPrerequisites( state, page ) {
 		connected: () => ensureConnectedState( state.connected, page ),
 		testPostTitles: () => ensureTestPosts( state.testPostTitles ),
 		clean: () => ensureCleanState( state.clean ),
+		mockSpeedScore: () => ensureMockSpeedScoreState( state.mockSpeedScore ),
 	};
 
 	logger.prerequisites( JSON.stringify( state, null, 2 ) );
@@ -75,6 +81,18 @@ export async function ensureModulesState( modules ) {
 		logger.prerequisites( 'Cannot find list of modules to deactivate!' );
 	}
 }
+
+export async function ensureMockSpeedScoreState( mockSpeedScore ) {
+	if ( mockSpeedScore ) {
+		logger.prerequisites( 'Mocking Speed Score' );
+		// Enable the speed score mock plugin.
+		await execWpCommand( 'plugin activate e2e-mock-speed-score-api' );
+	} else {
+		logger.prerequisites( 'Unmocking Speed Score' );
+		await execWpCommand( 'plugin deactivate e2e-mock-speed-score-api' );
+	}
+}
+
 export async function activateModules( modules ) {
 	for ( const module of modules ) {
 		logger.prerequisites( `Activating module ${ module }` );
@@ -113,7 +131,6 @@ export async function connect( page ) {
 	// as a localhost site. The only solution is to do it via the site itself running under the localtunnel.
 	const jetpackBoostPage = await JetpackBoostPage.visit( page );
 	await jetpackBoostPage.connect();
-	await jetpackBoostPage.waitForApiResponse( 'connection' );
 	await jetpackBoostPage.isOverallScoreHeaderShown();
 }
 

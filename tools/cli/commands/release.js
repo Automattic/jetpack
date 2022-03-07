@@ -8,10 +8,10 @@ import inquirer from 'inquirer';
 /**
  * Internal dependencies
  */
-import promptForProject from '../helpers/promptForProject';
-import { chalkJetpackGreen } from '../helpers/styling';
-import { allProjects } from '../helpers/projectHelpers';
-import { readComposerJson } from '../helpers/json';
+import promptForProject from '../helpers/promptForProject.js';
+import { chalkJetpackGreen } from '../helpers/styling.js';
+import { allProjects } from '../helpers/projectHelpers.js';
+import { readComposerJson } from '../helpers/json.js';
 
 /**
  * Command definition for the release subcommand.

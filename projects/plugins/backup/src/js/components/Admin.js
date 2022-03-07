@@ -9,7 +9,7 @@ import {
 	AdminPage,
 	AdminSection,
 	AdminSectionHero,
-	Row,
+	Container,
 	Col,
 	getRedirectUrl,
 	PricingCard,
@@ -19,7 +19,6 @@ import {
  * Internal dependencies
  */
 import Backups from './Backups';
-import MyPlan from './MyPlan';
 import useConnection from '../hooks/useConnection';
 import './admin-style.scss';
 import './masthead/masthead-style.scss';
@@ -27,14 +26,14 @@ import { STORE_ID } from '../store';
 
 /* eslint react/react-in-jsx-scope: 0 */
 const Admin = () => {
-	const [ connectionStatus, renderConnectScreen, renderConnectionStatusCard ] = useConnection();
+	const [ connectionStatus, renderConnectScreen ] = useConnection();
 	const [ capabilities, setCapabilities ] = useState( [] );
 	const [ capabilitiesError, setCapabilitiesError ] = useState( null );
 	const [ connectionLoaded, setConnectionLoaded ] = useState( false );
 	const [ capabilitiesLoaded, setCapabilitiesLoaded ] = useState( false );
 	const [ showHeaderFooter, setShowHeaderFooter ] = useState( true );
-	const [ price, setPrice ] = useState( null );
-	const [ priceAfter, setPriceAfter ] = useState( null );
+	const [ price, setPrice ] = useState( 0 );
+	const [ priceAfter, setPriceAfter ] = useState( 0 );
 
 	const domain = useSelect( select => select( STORE_ID ).getCalypsoSlug(), [] );
 
@@ -84,7 +83,7 @@ const Admin = () => {
 			'jetpack-backup'
 		);
 		return (
-			<Row>
+			<Container horizontalSpacing={ 3 } horizontalGap={ 3 }>
 				<Col lg={ 6 } md={ 6 } sm={ 4 }>
 					<h1>{ __( 'Secure your site with a Backup subscription.', 'jetpack-backup' ) }</h1>
 					<p>
@@ -115,7 +114,7 @@ const Admin = () => {
 						title={ __( 'Jetpack Backup', 'jetpack-backup' ) }
 					/>
 				</Col>
-			</Row>
+			</Container>
 		);
 	};
 
@@ -130,11 +129,11 @@ const Admin = () => {
 			}
 
 			return (
-				<Row>
+				<Container horizontalSpacing={ 3 } horizontalGap={ 3 }>
 					<Col lg={ 12 } md={ 8 } sm={ 4 }>
 						{ renderConnectScreen() }
 					</Col>
-				</Row>
+				</Container>
 			);
 		}
 
@@ -148,17 +147,23 @@ const Admin = () => {
 		}
 
 		if ( hasBackupPlan() ) {
-			return <Backups />;
+			return (
+				<Container horizontalSpacing={ 5 } fluid>
+					<Col>
+						<Backups />
+					</Col>
+				</Container>
+			);
 		}
 
 		// Render an error state, this shouldn't occurr since we've passed userConnected checks
 		if ( capabilitiesError ) {
 			return (
-				<Row>
+				<Container horizontalSpacing={ 3 }>
 					<Col lg={ 12 } md={ 8 } sm={ 4 }>
 						{ capabilitiesError }
 					</Col>
-				</Row>
+				</Container>
 			);
 		}
 
@@ -168,7 +173,7 @@ const Admin = () => {
 	// Renders additional segments under the jp-hero area condition on having a backup plan
 	const renderBackupSegments = () => {
 		return (
-			<Row>
+			<Container horizontalSpacing={ 3 } horizontalGap={ 3 }>
 				<Col lg={ 6 } md={ 4 }>
 					<h2>{ __( 'Your cloud backups', 'jetpack-backup' ) }</h2>
 					<p>
@@ -188,10 +193,6 @@ const Admin = () => {
 									{ __( 'See all your backups', 'jetpack-backup' ) }
 								</a>
 							</p>
-							<MyPlan
-								purchaseType={ 'backup' }
-								redirectUrl={ getRedirectUrl( 'backup-plugin-my-plan', { site: domain } ) }
-							/>
 						</>
 					) }
 				</Col>
@@ -215,10 +216,8 @@ const Admin = () => {
 							</a>
 						</p>
 					) }
-
-					{ renderConnectionStatusCard() }
 				</Col>
-			</Row>
+			</Container>
 		);
 	};
 

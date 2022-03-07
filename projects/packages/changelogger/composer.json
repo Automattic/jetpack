@@ -33,11 +33,9 @@
 			"./vendor/phpunit/phpunit/phpunit --colors=always"
 		],
 		"test-coverage": [
-			"@composer update",
 			"php -dpcov.directory=. ./vendor/bin/phpunit --coverage-clover \"$COVERAGE_DIR/clover.xml\""
 		],
 		"test-php": [
-			"@composer update",
 			"@composer phpunit"
 		],
 		"post-install-cmd": "[ -e vendor/bin/changelogger ] || { cd vendor/bin && ln -s ../../bin/changelogger; }",

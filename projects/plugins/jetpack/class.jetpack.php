@@ -28,6 +28,7 @@ use Automattic\Jetpack\Plugin\Tracking as Plugin_Tracking;
 use Automattic\Jetpack\Redirect;
 use Automattic\Jetpack\Status;
 use Automattic\Jetpack\Status\Host;
+use Automattic\Jetpack\Status\Visitor;
 use Automattic\Jetpack\Sync\Actions as Sync_Actions;
 use Automattic\Jetpack\Sync\Health;
 use Automattic\Jetpack\Sync\Sender;
@@ -595,6 +596,18 @@ class Jetpack {
 		$new_current_modules  = array_diff( array_merge( $current_modules, $new_active_modules ), $new_inactive_modules );
 		$reindexed_modules    = array_values( $new_current_modules );
 		$success              = Jetpack_Options::update_option( 'active_modules', array_unique( $reindexed_modules ) );
+		// Let's take `pre_update_option_jetpack_active_modules` filter into account
+		// and actually decide for which modules we need to fire hooks by comparing
+		// the 'active_modules' option before and after the update.
+		$current_modules_post_update = Jetpack_Options::get_option( 'active_modules', array() );
+
+		$new_inactive_modules = array_diff( $current_modules, $current_modules_post_update );
+		$new_inactive_modules = array_unique( $new_inactive_modules );
+		$new_inactive_modules = array_values( $new_inactive_modules );
+
+		$new_active_modules = array_diff( $current_modules_post_update, $current_modules );
+		$new_active_modules = array_unique( $new_active_modules );
+		$new_active_modules = array_values( $new_active_modules );
 
 		foreach ( $new_active_modules as $module ) {
 			/**
@@ -1800,27 +1813,14 @@ class Jetpack {
 	 *
 	 * @param  bool $check_all_headers Check all headers? Default is `false`.
 	 *
+	 * @deprecated Jetpack 10.6
+	 *
 	 * @return string                  Current user IP address.
 	 */
 	public static function current_user_ip( $check_all_headers = false ) {
-		if ( $check_all_headers ) {
-			foreach ( array(
-				'HTTP_CF_CONNECTING_IP',
-				'HTTP_CLIENT_IP',
-				'HTTP_X_FORWARDED_FOR',
-				'HTTP_X_FORWARDED',
-				'HTTP_X_CLUSTER_CLIENT_IP',
-				'HTTP_FORWARDED_FOR',
-				'HTTP_FORWARDED',
-				'HTTP_VIA',
-			) as $key ) {
-				if ( ! empty( $_SERVER[ $key ] ) ) {
-					return $_SERVER[ $key ];
-				}
-			}
-		}
+		_deprecated_function( __METHOD__, 'jetpack-10.6', 'Automattic\\Jetpack\\Status\\Visitor::get_ip' );
 
-		return ! empty( $_SERVER['REMOTE_ADDR'] ) ? $_SERVER['REMOTE_ADDR'] : '';
+		return ( new Visitor() )->get_ip( $check_all_headers );
 	}
 
 	/**
@@ -1900,7 +1900,7 @@ class Jetpack {
 				continue;
 			}
 
-			if ( ! include_once self::get_module_path( $module ) ) {
+			if ( ! include_once self::get_module_path( $module ) ) { // phpcs:ignore WordPressVIPMinimum.Files.IncludingFile.NotAbsolutePath
 				unset( $modules[ $index ] );
 				self::update_active_modules( array_values( $modules ) );
 				continue;
@@ -3034,9 +3034,8 @@ class Jetpack {
 
 		self::catch_errors( true );
 		ob_start();
-		require self::get_module_path( $module );
-		/** This action is documented in class.jetpack.php */
-		do_action( 'jetpack_activate_module', $module );
+		require self::get_module_path( $module ); // phpcs:ignore WordPressVIPMinimum.Files.IncludingFile.NotAbsolutePath
+
 		$active[] = $module;
 		self::update_active_modules( $active );
 
@@ -4102,20 +4101,17 @@ p {
 	 * @return array
 	 */
 	public function plugin_action_links( $actions ) {
-
-		$jetpack_home = array( 'jetpack-home' => sprintf( '<a href="%s">%s</a>', self::admin_url( 'page=jetpack' ), __( 'My Jetpack', 'jetpack' ) ) );
 		$support_link = ( new Host() )->is_woa_site() ? 'https://wordpress.com/help/contact/' : self::admin_url( 'page=jetpack-debugger' );
 
 		if ( current_user_can( 'jetpack_manage_modules' ) && ( self::is_connection_ready() || ( new Status() )->is_offline_mode() ) ) {
 			return array_merge(
-				$jetpack_home,
 				array( 'settings' => sprintf( '<a href="%s">%s</a>', self::admin_url( 'page=jetpack#/settings' ), __( 'Settings', 'jetpack' ) ) ),
 				array( 'support' => sprintf( '<a href="%s">%s</a>', $support_link, __( 'Support', 'jetpack' ) ) ),
 				$actions
 			);
 		}
 
-		return array_merge( $jetpack_home, $actions );
+		return $actions;
 	}
 
 	/**
@@ -4152,7 +4148,7 @@ p {
 
 			// Add objects to be passed to the initial state of the app.
 			// Use wp_add_inline_script instead of wp_localize_script, see https://core.trac.wordpress.org/ticket/25280.
-			wp_add_inline_script( 'jetpack-plugins-page-js', 'var Initial_State=JSON.parse(decodeURIComponent("' . rawurlencode( wp_json_encode( Jetpack_Redux_State_Helper::get_initial_state() ) ) . '"));', 'before' );
+			wp_add_inline_script( 'jetpack-plugins-page-js', 'var Initial_State=JSON.parse(decodeURIComponent("' . rawurlencode( wp_json_encode( Jetpack_Redux_State_Helper::get_minimal_state() ) ) . '"));', 'before' );
 
 			add_action( 'admin_footer', array( $this, 'jetpack_plugin_portal_containers' ) );
 		}
@@ -7051,7 +7047,7 @@ endif;
 			: array();
 
 		if ( Jetpack_Options::get_option( 'active_modules_initialized' ) ) {
-			$active_modules = Jetpack_Options::get_option( 'active_modules' );
+			$active_modules = self::get_active_modules();
 			self::delete_active_modules();
 
 			self::activate_default_modules( 999, 1, array_merge( $active_modules, $other_modules ), $redirect_on_activation_error, $send_state_messages );
@@ -7251,7 +7247,7 @@ endif;
 	/**
 	 * Register product descriptions for partner coupon usage.
 	 *
-	 * @since $$next_version$$
+	 * @since 10.4.0
 	 *
 	 * @param array $products An array of registered products.
 	 *

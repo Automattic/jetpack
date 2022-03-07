@@ -1,0 +1,33 @@
+{
+	"name": "@automattic/jetpack-shared-extension-utils",
+	"version": "0.1.1",
+	"description": "Utility functions used by the block editor extensions",
+	"homepage": "https://jetpack.com",
+	"bugs": {
+		"url": "https://github.com/Automattic/jetpack/issues"
+	},
+	"repository": {
+		"type": "git",
+		"url": "https://github.com/Automattic/jetpack.git"
+	},
+	"license": "GPL-2.0-or-later",
+	"author": "Automattic",
+	"scripts": {
+		"test": "NODE_ENV=test NODE_PATH=tests:. js-test-runner --jsdom --initfile=test-main.jsx 'glob:./!(node_modules)/**/test/*.@(jsx|js)'"
+	},
+	"dependencies": {
+		"@wordpress/plugins": "4.1.3"
+	},
+	"devDependencies": {
+		"jetpack-js-test-runner": "workspace:*",
+		"nyc": "15.1.0"
+	},
+	"engines": {
+		"node": "^14.18.3 || ^16.13.2",
+		"pnpm": "^6.23.6",
+		"yarn": "use pnpm instead - see docs/yarn-upgrade.md"
+	},
+	"exports": {
+		".": "./index.js"
+	}
+}

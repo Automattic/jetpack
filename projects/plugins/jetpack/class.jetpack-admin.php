@@ -27,7 +27,8 @@ class Jetpack_Admin {
 	 * @return self
 	 */
 	public static function init() {
-		if ( isset( $_GET['page'] ) && $_GET['page'] === 'jetpack' ) {
+		// phpcs:ignore WordPress.Security.NonceVerification.Recommended
+		if ( isset( $_GET['page'] ) && 'jetpack' === $_GET['page'] ) {
 			add_filter( 'nocache_headers', array( 'Jetpack_Admin', 'add_no_store_header' ), 100 );
 		}
 
@@ -113,7 +114,8 @@ class Jetpack_Admin {
 	 * Jetpack Anti-Spam. Without this, we would have to change the logo from Akismet codebase and we want to avoid that.
 	 */
 	public function akismet_logo_replacement_styles() {
-		$logo            = new Jetpack_Logo();
+		$logo = new Jetpack_Logo();
+		// phpcs:ignore WordPress.PHP.DiscouragedPHPFunctions.obfuscation_base64_encode
 		$logo_base64     = base64_encode( $logo->get_jp_emblem_larger() );
 		$logo_base64_url = "data:image/svg+xml;base64,{$logo_base64}";
 		$style           = ".akismet-masthead__logo-container { background: url({$logo_base64_url}) no-repeat .25rem; height: 1.8125rem; } .akismet-masthead__logo { display: none; }";
@@ -128,7 +130,7 @@ class Jetpack_Admin {
 	 * @return int Indicating the relative ordering of module1 and module2.
 	 */
 	public static function sort_requires_connection_last( $module1, $module2 ) {
-		if ( $module1['requires_connection'] == $module2['requires_connection'] ) {
+		if ( (bool) $module1['requires_connection'] === (bool) $module2['requires_connection'] ) {
 			return 0;
 		} elseif ( $module1['requires_connection'] ) {
 			return 1;
@@ -151,7 +153,8 @@ class Jetpack_Admin {
 		$jetpack_active    = Jetpack::is_connection_ready() || ( new Status() )->is_offline_mode();
 		$overrides         = Jetpack_Modules_Overrides::instance();
 		foreach ( $available_modules as $module ) {
-			if ( $module_array = Jetpack::get_module( $module ) ) {
+			$module_array = Jetpack::get_module( $module );
+			if ( $module_array ) {
 				/**
 				 * Filters each module's short description.
 				 *
@@ -229,7 +232,7 @@ class Jetpack_Admin {
 				 *
 				 * @param string The search terms (comma separated).
 				 */
-				echo apply_filters( 'jetpack_search_terms_' . $module, $module_array['additional_search_queries'] );
+				echo apply_filters( 'jetpack_search_terms_' . $module, $module_array['additional_search_queries'] ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
 				$module_array['search_terms'] = ob_get_clean();
 
 				$module_array['configurable'] = false;
@@ -397,13 +400,13 @@ class Jetpack_Admin {
 	public function handle_unrecognized_action( $action ) {
 		switch ( $action ) {
 			case 'bulk-activate':
+				check_admin_referer( 'bulk-jetpack_page_jetpack_modules' );
 				if ( ! current_user_can( 'jetpack_activate_modules' ) ) {
 					break;
 				}
 
 				$modules = (array) $_GET['modules'];
 				$modules = array_map( 'sanitize_key', $modules );
-				check_admin_referer( 'bulk-jetpack_page_jetpack_modules' );
 				foreach ( $modules as $module ) {
 					Jetpack::log( 'activate', $module );
 					Jetpack::activate_module( $module, false );
@@ -412,13 +415,13 @@ class Jetpack_Admin {
 				wp_safe_redirect( wp_get_referer() );
 				exit;
 			case 'bulk-deactivate':
+				check_admin_referer( 'bulk-jetpack_page_jetpack_modules' );
 				if ( ! current_user_can( 'jetpack_deactivate_modules' ) ) {
 					break;
 				}
 
 				$modules = (array) $_GET['modules'];
 				$modules = array_map( 'sanitize_key', $modules );
-				check_admin_referer( 'bulk-jetpack_page_jetpack_modules' );
 				foreach ( $modules as $module ) {
 					Jetpack::log( 'deactivate', $module );
 					Jetpack::deactivate_module( $module );

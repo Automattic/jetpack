@@ -10,7 +10,9 @@ test.describe( 'Settings Page Connection', () => {
 		await prerequisitesBuilder().withActivePlugins( [ 'jetpack' ] ).withConnection( true ).build();
 		await boostPrerequisitesBuilder().withConnection( false ).build();
 		const jetpackBoostPage = await JetpackBoostPage.visit( page );
-		expect( await jetpackBoostPage.isFreshlyConnected() ).toBeTruthy();
+		expect( await jetpackBoostPage.isAwaitingConnection() ).toBeTruthy();
+		await jetpackBoostPage.connect();
+		expect( await jetpackBoostPage.isConnected() ).toBeTruthy();
 	} );
 
 	test( 'Should connect to WP.com on a fresh install with Jetpack plugin activated', async ( {
@@ -18,7 +20,9 @@ test.describe( 'Settings Page Connection', () => {
 	} ) => {
 		await boostPrerequisitesBuilder( page ).withCleanEnv( true ).withConnection( false ).build();
 		const jetpackBoostPage = await JetpackBoostPage.visit( page );
-		expect( await jetpackBoostPage.isFreshlyConnected() ).toBeTruthy();
+		expect( await jetpackBoostPage.isAwaitingConnection() ).toBeTruthy();
+		await jetpackBoostPage.connect();
+		expect( await jetpackBoostPage.isConnected() ).toBeTruthy();
 	} );
 
 	test( 'Should connect to WP.com on a fresh install without Jetpack plugin activated', async ( {
@@ -27,6 +31,8 @@ test.describe( 'Settings Page Connection', () => {
 		await prerequisitesBuilder().withInactivePlugins( [ 'jetpack' ] ).build();
 		await boostPrerequisitesBuilder( page ).withCleanEnv( true ).withConnection( false ).build();
 		const jetpackBoostPage = await JetpackBoostPage.visit( page );
-		expect( await jetpackBoostPage.isFreshlyConnected() ).toBeTruthy();
+		expect( await jetpackBoostPage.isAwaitingConnection() ).toBeTruthy();
+		await jetpackBoostPage.connect();
+		expect( await jetpackBoostPage.isConnected() ).toBeTruthy();
 	} );
 } );

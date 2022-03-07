@@ -36,7 +36,7 @@ class Jetpack_Plans {
 			array(
 				'method'  => 'GET',
 				'headers' => array(
-					'X-Forwarded-For' => Jetpack::current_user_ip( true ),
+					'X-Forwarded-For' => ( new Automattic\Jetpack\Status\Visitor() )->get_ip( true ),
 				),
 			),
 			null,

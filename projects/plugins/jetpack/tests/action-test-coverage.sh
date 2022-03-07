@@ -8,10 +8,6 @@ PLUGINDIR="$PWD"
 
 cd "$MONOREPO_BASE/projects/plugins/jetpack"
 
-echo "::group::Jetpack JS install"
-pnpm install
-echo "::endgroup::"
-
 echo "::group::Jetpack Admimnpage coverage"
 pnpx nyc --reporter=clover -x '_inc/**/**/test/*.js' --report-dir="$COVERAGE_DIR/adminpage" pnpm run test-adminpage
 echo "::endgroup::"

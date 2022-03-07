@@ -15,7 +15,7 @@ import peopleSvgUrl from './people.svg';
 import PluginDashItem from 'components/plugin-dash-item';
 
 const CRM_PLUGIN_DASH = 'admin.php?page=zerobscrm-dash';
-const CRM_PLUGIN_FILE = 'zero-bs-crm/ZeroBSCRM.php';
+const CRM_PLUGIN_FILES = [ 'zero-bs-crm/ZeroBSCRM.php' ];
 const CRM_PLUGIN_SLUG = 'zero-bs-crm';
 
 class DashCRM extends Component {
@@ -33,7 +33,7 @@ class DashCRM extends Component {
 					'The Jetpack CRM product name, without the Jetpack prefix',
 					'jetpack'
 				) }
-				pluginFile={ CRM_PLUGIN_FILE }
+				pluginFiles={ CRM_PLUGIN_FILES }
 				pluginSlug={ CRM_PLUGIN_SLUG }
 				pluginLink={ this.props.siteAdminUrl + CRM_PLUGIN_DASH }
 				installOrActivatePrompt={ createInterpolateElement(

@@ -17,6 +17,18 @@ export async function setResultFormat( format = 'expanded' ) {
 	return execWpCommand( `option update jetpack_search_result_format ${ format }` );
 }
 
+export async function setTheme( theme = 'light' ) {
+	return execWpCommand( `option update jetpack_search_result_format ${ theme }` );
+}
+
+export async function setHighlightColor( color = '"#FFFFFF"' ) {
+	return execWpCommand( `option update jetpack_search_highlight_color ${ color }` );
+}
+
+export async function setDefaultSort( defaultSort = 'relevance' ) {
+	return execWpCommand( `option update jetpack_search_default_sort ${ defaultSort }` );
+}
+
 export async function getSidebarsWidgets() {
 	try {
 		return await getWpOptionData( 'sidebars_widgets' );
@@ -56,6 +68,16 @@ export async function setupBlockWidgets( blockWidgets = getBlockWidgetsData() ) 
 	const blockWidgetsFilePath = path.resolve( config.get( 'temp.blockWidgetsFile' ) );
 
 	return await setWpOptionData( blockWidgetsOption, blockWidgets, blockWidgetsFilePath );
+}
+
+export async function searchAutoConfig() {
+	// Run auto config to add search widget / block with user ID `1`.
+	return await execWpCommand( 'jetpack-search auto_config 1' );
+}
+
+export async function clearSearchPlanInfo() {
+	// When running locally, sometimes there could be data in the option - better clear it.
+	return await execWpCommand( 'option delete jetpack_search_plan_info' );
 }
 
 async function setWpOptionData( optionName, value, tempFilePath ) {

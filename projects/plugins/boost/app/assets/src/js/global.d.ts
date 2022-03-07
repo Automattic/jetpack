@@ -11,8 +11,8 @@ import type { BrowserInterfaceIframe, generateCriticalCSS } from 'jetpack-boost-
  * Internal dependencies
  */
 import type { ConnectionStatus } from './stores/connection';
-import type { CriticalCssStatus } from './stores/critical-css-status';
-import type { ModulesState } from './stores/modules';
+import type { CriticalCssStatus, CloudCssStatus } from './stores/critical-css-status';
+import type { Optimizations } from './stores/modules';
 
 declare global {
 	const wpApiSettings: {
@@ -34,16 +34,19 @@ declare global {
 		connectionIframeOriginUrl: string;
 		connection: ConnectionStatus;
 		criticalCssStatus?: CriticalCssStatus;
+		cloudCssStatus?: CloudCssStatus;
 		showRatingPromptNonce?: string;
-		criticalCssDismissRecommendationsNonce?: string;
 		criticalCssDismissedRecommendations: string[];
 		site: {
 			url: string;
 			online: boolean;
 			assetPath: string;
 		};
-		config: ModulesState;
+		optimizations: Optimizations;
 		shownAdminNoticeIds: string[];
+		nonces: {
+			[ key: string ]: string;
+		};
 	};
 
 	// Critical CSS Generator library.

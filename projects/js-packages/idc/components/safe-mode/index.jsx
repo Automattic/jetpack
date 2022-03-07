@@ -19,6 +19,7 @@ import { STORE_ID } from '../../state/store';
 import trackAndBumpMCStats from '../../tools/tracking';
 import ErrorMessage from '../error-message';
 import './style.scss';
+import customContentShape from '../../tools/custom-content-shape';
 
 /**
  * Render the "Stay safe" button.
@@ -60,9 +61,10 @@ const renderStayingSafe = () => {
 /**
  * Render the error message.
  *
+ * @param {string} supportURL - The support page URL.
  * @returns {React.Component} The error message.
  */
-const renderError = () => {
+const renderError = supportURL => {
 	return (
 		<ErrorMessage>
 			{ createInterpolateElement(
@@ -70,7 +72,7 @@ const renderError = () => {
 				{
 					a: (
 						<a
-							href={ getRedirectUrl( 'jetpack-support-safe-mode' ) }
+							href={ supportURL || getRedirectUrl( 'jetpack-support-safe-mode' ) }
 							rel="noopener noreferrer"
 							target="_blank"
 						/>
@@ -88,6 +90,7 @@ const SafeMode = props => {
 		setErrorType,
 		clearErrorType,
 		hasError,
+		customContent,
 	} = props;
 	const [ isStayingSafe, setIsStayingSafe ] = useState( false );
 
@@ -123,7 +126,7 @@ const SafeMode = props => {
 				? renderStayingSafe()
 				: renderStaySafeButton( staySafeCallback, isActionInProgress ) }
 
-			{ hasError && renderError() }
+			{ hasError && renderError( customContent.supportURL ) }
 		</div>
 	);
 };
@@ -139,6 +142,8 @@ SafeMode.propTypes = {
 	clearErrorType: PropTypes.func.isRequired,
 	/** Whether the component has an error. */
 	hasError: PropTypes.bool.isRequired,
+	/** Custom text content. */
+	customContent: PropTypes.shape( customContentShape ),
 };
 
 SafeMode.defaultProps = {

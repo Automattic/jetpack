@@ -64,7 +64,7 @@ class AppsBadge extends PureComponent {
 		storeName: PropTypes.oneOf( [ 'ios', 'android' ] ).isRequired,
 		titleText: PropTypes.string,
 		onBadgeClick: PropTypes.func,
-		utm_source: PropTypes.string.isRequired,
+		utm_source: PropTypes.string,
 		utm_campaign: PropTypes.string,
 		utm_medium: PropTypes.string,
 	};

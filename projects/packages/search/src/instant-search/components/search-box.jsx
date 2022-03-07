@@ -36,9 +36,6 @@ const SearchBox = props => {
 			<div className="jetpack-instant-search__box">
 				{ /* TODO: Add support for preserving label text */ }
 				<label className="jetpack-instant-search__box-label" htmlFor={ inputId }>
-					<span className="screen-reader-text assistive-text">
-						{ __( 'Site Search', 'jetpack-search-pkg' ) }
-					</span>
 					<div className="jetpack-instant-search__box-gridicon">
 						<Gridicon icon="search" size={ 24 } />
 					</div>
@@ -58,7 +55,11 @@ const SearchBox = props => {
 
 					{ typeof props.searchQuery === 'string' && props.searchQuery.length > 0 && (
 						/* Translators: Button is used to clear the search input query. */
-						<input type="button" value={ __( 'clear', 'jetpack-search-pkg' ) } onClick={ props.onClear } />
+						<input
+							type="button"
+							value={ __( 'clear', 'jetpack-search-pkg' ) }
+							onClick={ props.onClear }
+						/>
 					) }
 
 					<button className="screen-reader-text assistive-text">

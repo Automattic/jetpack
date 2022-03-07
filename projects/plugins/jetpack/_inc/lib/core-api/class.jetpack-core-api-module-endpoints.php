@@ -1,5 +1,6 @@
 <?php
 
+use Automattic\Jetpack\Plugins_Installer;
 use Automattic\Jetpack\Status;
 
 /**
@@ -749,15 +750,8 @@ class Jetpack_Core_API_Data extends Jetpack_Core_API_XMLRPC_Consumer_Endpoint {
 								$updated = new WP_Error( 'instant_search_disabled', 'Instant Search is disabled', array( 'status' => 400 ) );
 								$error   = $updated->get_error_message();
 							} else {
-								$instance = Automattic\Jetpack\Search\Instant_Search::instance();
-
-								// Perform initialization. This should have already been executed in modules/search.php.
-								// In other words: This is a failsafe.
-								if ( ! $instance ) {
-									Automattic\Jetpack\Search\Jetpack_Initializer::initialize();
-									$instance = Automattic\Jetpack\Search\Instant_Search::instance();
-								}
-
+								$blog_id  = Automattic\Jetpack\Search\Helper::get_wpcom_site_id();
+								$instance = Automattic\Jetpack\Search\Instant_Search::instance( $blog_id );
 								$instance->auto_config_search();
 								$updated = true;
 							}
@@ -1126,8 +1120,7 @@ class Jetpack_Core_API_Data extends Jetpack_Core_API_XMLRPC_Consumer_Endpoint {
 		}
 
 		if ( ! empty( $data['installWooCommerce'] ) ) {
-			jetpack_require_lib( 'plugins' );
-			$wc_install_result = Jetpack_Plugins::install_and_activate_plugin( 'woocommerce' );
+			$wc_install_result = Plugins_Installer::install_and_activate_plugin( 'woocommerce' );
 			delete_transient( '_wc_activation_redirect' ); // Redirecting to WC setup would kill our users' flow
 			if ( is_wp_error( $wc_install_result ) ) {
 				$error[] = 'woocommerce installation';

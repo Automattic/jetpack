@@ -3,7 +3,7 @@
  * Plugin Name: Jetpack Debug Tools
  * Description: Give me a Jetpack connection, and I'll break it every way possible.
  * Author: Automattic - Jetpack Crew
- * Version: 1.3.0-alpha
+ * Version: 1.3.0
  * Text Domain: jetpack
  *
  * @package automattic/jetpack-debug-helper.
@@ -33,7 +33,7 @@ define( 'JETPACK_DEBUG_HELPER_BASE_PLUGIN_FILE', __FILE__ );
  * The plugin version.
  * Increase that if you do any edits to ensure refreshing the cached assets.
  */
-define( 'JETPACK_DEBUG_HELPER_VERSION', '1.3.0-alpha' );
+define( 'JETPACK_DEBUG_HELPER_VERSION', '1.3.0' );
 
 /**
  * Include file names from the modules directory here.
@@ -71,7 +71,7 @@ $jetpack_dev_debug_modules = array(
 	),
 );
 
-require_once 'class-admin.php';
+require_once __DIR__ . '/class-admin.php';
 
 foreach ( (array) Admin::get_active_modules() as $module ) {
 	if ( isset( $jetpack_dev_debug_modules[ $module ] ) ) {

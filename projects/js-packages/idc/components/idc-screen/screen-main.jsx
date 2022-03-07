@@ -33,31 +33,66 @@ const ScreenMain = props => {
 		hasMigrateError,
 		hasFreshError,
 		hasStaySafeError,
+		possibleDynamicSiteUrlDetected,
 	} = props;
 
 	return (
 		<React.Fragment>
-			<h2>{ customContent.mainTitle || __( 'Safe Mode has been activated', 'jetpack' ) }</h2>
+			<h2>
+				{ customContent.mainTitle
+					? createInterpolateElement( customContent.mainTitle, { em: <em /> } )
+					: __( 'Safe Mode has been activated', 'jetpack' ) }
+			</h2>
 
 			<p>
-				{ customContent.mainBodyText ||
-					createInterpolateElement(
+				{ createInterpolateElement(
+					customContent.mainBodyText ||
 						__(
 							'Your site is in Safe Mode because you have 2 Jetpack-powered sites that appear to be duplicates. ' +
 								'2 sites that are telling Jetpack they’re the same site. <safeModeLink>Learn more about safe mode.</safeModeLink>',
 							'jetpack'
 						),
+					{
+						safeModeLink: (
+							<a
+								href={ customContent.supportURL || getRedirectUrl( 'jetpack-support-safe-mode' ) }
+								rel="noopener noreferrer"
+								target="_blank"
+							/>
+						),
+						em: <em />,
+						strong: <strong />,
+					}
+				) }
+			</p>
+
+			{ possibleDynamicSiteUrlDetected && (
+				<p>
+					{ createInterpolateElement(
+						customContent.dynamicSiteUrlText ||
+							__(
+								"<strong>Notice:</strong> It appears that your 'wp-config.php' file might be using dynamic site URL values. " +
+									'Dynamic site URLs could cause Jetpack to enter Safe Mode. ' +
+									'<dynamicSiteUrlSupportLink>Learn how to set a static site URL.</dynamicSiteUrlSupportLink>',
+								'jetpack'
+							),
 						{
-							safeModeLink: (
+							dynamicSiteUrlSupportLink: (
 								<a
-									href={ getRedirectUrl( 'jetpack-support-safe-mode' ) }
+									href={
+										customContent.dynamicSiteUrlSupportLink ||
+										getRedirectUrl( 'jetpack-idcscreen-dynamic-site-urls' )
+									}
 									rel="noopener noreferrer"
 									target="_blank"
 								/>
 							),
+							em: <em />,
+							strong: <strong />,
 						}
 					) }
-			</p>
+				</p>
+			) }
 
 			<h3>{ __( 'Please select an option', 'jetpack' ) }</h3>
 
@@ -86,7 +121,7 @@ const ScreenMain = props => {
 				/>
 			</div>
 
-			<SafeMode hasError={ hasStaySafeError } />
+			<SafeMode hasError={ hasStaySafeError } customContent={ customContent } />
 		</React.Fragment>
 	);
 };
@@ -112,6 +147,8 @@ ScreenMain.propTypes = {
 	hasFreshError: PropTypes.bool.isRequired,
 	/** Whether the component encountered the "Stay in Safe Mode" error. */
 	hasStaySafeError: PropTypes.bool.isRequired,
+	/** If potentially dynamic HTTP_HOST usage was detected for site URLs in wp-config which can lead to a JP IDC. */
+	possibleDynamicSiteUrlDetected: PropTypes.bool,
 };
 
 ScreenMain.defaultProps = {
@@ -121,6 +158,7 @@ ScreenMain.defaultProps = {
 	hasMigrateError: false,
 	hasFreshError: false,
 	hasStaySafeError: false,
+	possibleDynamicSiteUrlDetected: false,
 };
 
 export default ScreenMain;

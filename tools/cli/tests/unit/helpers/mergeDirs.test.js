@@ -5,13 +5,14 @@ import chai from 'chai';
 import path from 'path';
 import fs from 'fs';
 import sinon from 'sinon';
+import { fileURLToPath } from 'url';
 
 /**
  * Internal dependencies
  */
-import mergeDirs from '../../../helpers/mergeDirs';
+import mergeDirs from '../../../helpers/mergeDirs.js';
 
-const dataDir = path.join( __dirname, '../../data/' );
+const dataDir = fileURLToPath( new URL( '../../data/', import.meta.url ) );
 const sourceDir = path.join( dataDir, 'source/' );
 const destDir = path.join( dataDir, 'dest/' );
 

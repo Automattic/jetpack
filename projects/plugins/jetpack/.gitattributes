@@ -16,10 +16,12 @@
 /vendor/composer/**                                      production-include
 /vendor/jetpack-autoloader/**                            production-include
 /vendor/nojimage/**                                      production-include
+/vendor/wikimedia/aho-corasick/**                        production-include
 
 # Files to exclude from Automattic/jetpack-production.
 # Remember to end all directories with `/**` to properly tag every file.
 .eslintrc.js                                             production-exclude
+.eslintignore                                            production-exclude
 /.gitattributes                                          production-exclude
 /.gitignore                                              production-exclude
 /.phpcs.dir.xml                                          production-exclude

@@ -11,7 +11,7 @@ import { action } from '@storybook/addon-actions';
 import ConnectScreenRequiredPlanVisual from '../visual';
 
 export default {
-	title: 'Connection/Connect Screen with Required Plan',
+	title: 'JS Packages/Connection/Connect Screen with Required Plan',
 	component: ConnectScreenRequiredPlanVisual,
 };
 

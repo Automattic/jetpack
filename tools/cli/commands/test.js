@@ -2,16 +2,21 @@
  * External dependencies
  */
 import chalk from 'chalk';
+import execa from 'execa';
 import inquirer from 'inquirer';
 import child_process from 'child_process';
 import path from 'path';
+import Listr from 'listr';
+import VerboseRenderer from 'listr-verbose-renderer';
+import UpdateRenderer from 'listr-update-renderer';
 
 /**
  * Internal dependencies
  */
-import promptForProject from '../helpers/promptForProject';
+import { getInstallArgs, projectDir } from '../helpers/install.js';
+import promptForProject from '../helpers/promptForProject.js';
 import { readComposerJson } from '../helpers/json.js';
-import { allProjects } from '../helpers/projectHelpers';
+import { allProjects } from '../helpers/projectHelpers.js';
 
 /**
  * Command definition for the test subcommand.
@@ -132,8 +137,34 @@ async function getTestInstructions( argv ) {
  * @param {object} argv - the arguments passed.
  */
 async function runTest( argv ) {
+	const installer = new Listr(
+		[
+			{
+				title: `Installing pnpm dependencies`,
+				task: async () =>
+					execa( 'pnpm', await getInstallArgs( 'monorepo', 'pnpm', argv ), {
+						cwd: process.cwd(),
+						stdio: argv.v ? 'inherit' : 'ignore',
+					} ),
+			},
+			{
+				title: `Installing composer dependencies`,
+				task: async () =>
+					execa( 'composer', await getInstallArgs( argv.project, 'composer', argv ), {
+						cwd: projectDir( argv.project ),
+						stdio: argv.v ? 'inherit' : 'ignore',
+					} ),
+			},
+		],
+		{
+			concurrent: ! argv.v,
+			renderer: argv.v ? VerboseRenderer : UpdateRenderer,
+		}
+	);
+	await installer.run();
+
 	console.log( chalk.green( `Running ${ argv.testScript } tests for ${ argv.project }` ) );
-	const res = child_process.spawnSync( 'composer', [ 'run', argv.testScript ], {
+	const res = child_process.spawnSync( 'composer', [ 'run', '--timeout=0', argv.testScript ], {
 		stdio: 'inherit',
 		cwd: path.resolve( `projects/${ argv.project }` ),
 	} );

@@ -20,9 +20,10 @@ import ErrorMessage from '../error-message';
 /**
  * Render the error message.
  *
+ * @param {string} supportURL - The support page URL.
  * @returns {React.Component} The error message.
  */
-const renderError = () => {
+const renderError = supportURL => {
 	return (
 		<ErrorMessage>
 			{ createInterpolateElement(
@@ -30,7 +31,7 @@ const renderError = () => {
 				{
 					a: (
 						<a
-							href={ getRedirectUrl( 'jetpack-support-safe-mode' ) }
+							href={ supportURL || getRedirectUrl( 'jetpack-support-safe-mode' ) }
 							rel="noopener noreferrer"
 							target="_blank"
 						/>
@@ -55,7 +56,8 @@ const CardFresh = props => {
 
 	const isActionInProgress = useSelect( select => select( STORE_ID ).getIsActionInProgress(), [] );
 
-	const buttonLabel = __( 'Create a fresh connection', 'jetpack' );
+	const buttonLabel =
+		customContent.startFreshButtonLabel || __( 'Create a fresh connection', 'jetpack' );
 
 	return (
 		<div
@@ -66,13 +68,14 @@ const CardFresh = props => {
 		>
 			<div className="jp-idc__idc-screen__card-action-top">
 				<h4>
-					{ customContent.startFreshCardTitle ||
-						__( 'Treat each site as independent sites', 'jetpack' ) }
+					{ customContent.startFreshCardTitle
+						? createInterpolateElement( customContent.startFreshCardTitle, { em: <em /> } )
+						: __( 'Treat each site as independent sites', 'jetpack' ) }
 				</h4>
 
 				<p>
-					{ customContent.startFreshCardBodyText ||
-						createInterpolateElement(
+					{ createInterpolateElement(
+						customContent.startFreshCardBodyText ||
 							sprintf(
 								/* translators: %1$s: The current site domain name. %2$s: The original site domain name. */
 								__(
@@ -82,10 +85,12 @@ const CardFresh = props => {
 								currentHostName,
 								wpcomHostName
 							),
-							{
-								hostname: <strong />,
-							}
-						) }
+						{
+							hostname: <strong />,
+							em: <em />,
+							strong: <strong />,
+						}
+					) }
 				</p>
 			</div>
 
@@ -103,7 +108,7 @@ const CardFresh = props => {
 					{ isStartingFresh ? <Spinner /> : buttonLabel }
 				</Button>
 
-				{ hasError && renderError() }
+				{ hasError && renderError( customContent.supportURL ) }
 			</div>
 		</div>
 	);

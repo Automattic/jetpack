@@ -19,6 +19,7 @@ import ModuleControl from 'components/module-control';
 import MockedSearch from 'components/mocked-search';
 import { STORE_ID } from 'store';
 import NoticesList from 'components/global-notices';
+import RecordMeter from 'components/record-meter';
 
 import 'scss/rna-styles.scss';
 import './style.scss';
@@ -31,6 +32,7 @@ import './style.scss';
 export default function SearchDashboard() {
 	useSelect( select => select( STORE_ID ).getSearchPlanInfo(), [] );
 	useSelect( select => select( STORE_ID ).getSearchModuleStatus(), [] );
+	useSelect( select => select( STORE_ID ).getSearchStats(), [] );
 
 	const siteAdminUrl = useSelect( select => select( STORE_ID ).getSiteAdminUrl() );
 	const aboutPageUrl = siteAdminUrl + 'admin.php?page=jetpack_about';
@@ -58,12 +60,19 @@ export default function SearchDashboard() {
 		select( STORE_ID ).isTogglingInstantSearch()
 	);
 
+	// Record Meter data
+	const tierMaximumRecords = useSelect( select => select( STORE_ID ).getTierMaximumRecords() );
+	const postCount = useSelect( select => select( STORE_ID ).getPostCount() );
+	const postTypeBreakdown = useSelect( select => select( STORE_ID ).getPostTypeBreakdown() );
+
 	const isLoading = useSelect(
 		select =>
 			select( STORE_ID ).isResolving( 'getSearchPlanInfo' ) ||
 			! select( STORE_ID ).hasStartedResolution( 'getSearchPlanInfo' ) ||
 			select( STORE_ID ).isResolving( 'getSearchModuleStatus' ) ||
-			! select( STORE_ID ).hasStartedResolution( 'getSearchModuleStatus' )
+			! select( STORE_ID ).hasStartedResolution( 'getSearchModuleStatus' ) ||
+			select( STORE_ID ).isResolving( 'getSearchStats' ) ||
+			! select( STORE_ID ).hasStartedResolution( 'getSearchStats' )
 	);
 
 	const handleLocalNoticeDismissClick = useDispatch( STORE_ID ).removeNotice;
@@ -169,6 +178,10 @@ export default function SearchDashboard() {
 		);
 	};
 
+	const isRecordMeterEnabled = useSelect( select =>
+		select( STORE_ID ).isFeatureEnabled( 'record-meter' )
+	);
+
 	return (
 		<div className="jp-search-dashboard-page">
 			{ isLoading && (
@@ -178,6 +191,13 @@ export default function SearchDashboard() {
 				<Fragment>
 					{ renderHeader() }
 					{ renderMockedSearchInterface() }
+					{ isRecordMeterEnabled && (
+						<RecordMeter
+							postCount={ postCount }
+							postTypeBreakdown={ postTypeBreakdown }
+							tierMaximumRecords={ tierMaximumRecords }
+						/>
+					) }
 					{ renderModuleControl() }
 					{ renderFooter() }
 				</Fragment>

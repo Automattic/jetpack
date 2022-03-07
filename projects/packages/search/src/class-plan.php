@@ -43,9 +43,12 @@ class Plan {
 	 */
 	public function get_plan_info_from_wpcom() {
 		$blog_id  = Jetpack_Options::get_option( 'id' );
-		$response = Client::wpcom_json_api_request_as_user(
+		$response = Client::wpcom_json_api_request_as_blog(
 			'/sites/' . $blog_id . '/jetpack-search/plan',
-			'2'
+			'2',
+			array(),
+			null,
+			'wpcom'
 		);
 
 		// store plan in options.
@@ -84,7 +87,7 @@ class Plan {
 	 */
 	public function supports_instant_search() {
 		$plan_info = $this->get_plan_info();
-		return isset( $plan_info['supports_instant_search'] ) && $plan_info['supports_instant_search'];
+		return ( isset( $plan_info['supports_instant_search'] ) && $plan_info['supports_instant_search'] ) || $this->has_jetpack_search_product();
 	}
 
 	/**
@@ -92,7 +95,7 @@ class Plan {
 	 */
 	public function supports_search() {
 		$plan_info = $this->get_plan_info();
-		return isset( $plan_info['supports_search'] ) && $plan_info['supports_search'];
+		return ( isset( $plan_info['supports_search'] ) && $plan_info['supports_search'] ) || $this->has_jetpack_search_product();
 	}
 
 	/**

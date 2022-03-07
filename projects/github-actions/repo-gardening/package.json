@@ -1,7 +1,7 @@
 {
 	"name": "repo-gardening",
-	"version": "2.0.1-alpha",
-	"description": "Manage PR and issues in your Open Source project (automate labelling, milestones, feedback to PR authors, ...)",
+	"version": "2.0.3-alpha",
+	"description": "Manage Pull Requests and issues in your Open Source project (automate labelling, milestones, feedback to PR authors, ...)",
 	"author": "Automattic",
 	"license": "GPL-2.0-or-later",
 	"keywords": [
@@ -18,7 +18,7 @@
 		"compare-versions": "3.6.0",
 		"glob": "7.1.6",
 		"moment": "2.29.1",
-		"node-fetch": "2.6.1"
+		"node-fetch": "2.6.7"
 	},
 	"devDependencies": {
 		"@vercel/ncc": "0.28.5"

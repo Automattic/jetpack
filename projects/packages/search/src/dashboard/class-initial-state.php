@@ -23,7 +23,7 @@ class Initial_State {
 	protected $connection_manager;
 
 	/**
-	 * Search Moduel Control
+	 * Search Module Control
 	 *
 	 * @var Module_Control
 	 */
@@ -36,6 +36,7 @@ class Initial_State {
 	 * @param Module_Control     $module_control - Module control instance.
 	 */
 	public function __construct( $connection_manager = null, $module_control = null ) {
+		// TODO: 'jetpack-search' better to be the current plugin where the package is running.
 		$this->connection_manager = $connection_manager ? $connection_manager : new Connection_Manager( 'jetpack-search' );
 		$this->module_control     = $module_control ? $module_control : new Module_Control();
 	}
@@ -79,6 +80,11 @@ class Initial_State {
 			'jetpackSettings' => array(
 				'search'                 => $this->module_control->is_active(),
 				'instant_search_enabled' => $this->module_control->is_instant_search_enabled(),
+			),
+			'features'        => array_map(
+				'sanitize_text_field',
+				// phpcs:ignore WordPress.Security.NonceVerification.Recommended
+				isset( $_GET['features'] ) ? explode( ',', $_GET['features'] ) : array()
 			),
 		);
 	}

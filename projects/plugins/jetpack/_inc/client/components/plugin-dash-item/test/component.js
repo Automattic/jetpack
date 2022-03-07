@@ -15,13 +15,13 @@ describe( 'PluginDashItem', () => {
 
 	const testProps = {
 		pluginName: 'Test',
-		pluginFile: 'test/test.php',
+		pluginFiles: [ 'test/test.php' ],
 		pluginSlug: 'test',
 		pluginLink: '/',
 		installOrActivatePrompt: <p>{ 'Install the test plugin.' }</p>,
 		isFetchingPluginsData: false,
-		pluginIsActive: false,
-		pluginIsInstalled: false
+		aPluginIsActive: false,
+		aPluginIsInstalled: false
 	};
 
 	it( 'should render loading while isFetching', () => {
@@ -42,7 +42,7 @@ describe( 'PluginDashItem', () => {
 	} );
 
 	it( 'should render activate prompt if plugin is installed but not active ', () => {
-		const localTestProps = { ...testProps, pluginIsInstalled: true };
+		const localTestProps = { ...testProps, aPluginIsInstalled: true };
 		const wrapper = shallow( <PluginDashItem { ...localTestProps } /> );
 		const content = wrapper.find( JetpackBanner );
 
@@ -51,7 +51,7 @@ describe( 'PluginDashItem', () => {
 	} );
 
 	it( 'should render manage prompt if plugin is installed and active ', () => {
-		const localTestProps = { ...testProps, pluginIsInstalled: true, pluginIsActive: true };
+		const localTestProps = { ...testProps, aPluginIsInstalled: true, aPluginIsActive: true };
 		const wrapper = shallow( <PluginDashItem { ...localTestProps } /> );
 		const content = wrapper.find( JetpackBanner );
 
