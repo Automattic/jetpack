@@ -6,6 +6,7 @@ import { createInterpolateElement } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 import React, { useCallback, useEffect } from 'react';
 import { connect } from 'react-redux';
+import { ExternalLink } from '@wordpress/components';
 
 /**
  * Internal dependencies
@@ -13,7 +14,6 @@ import { connect } from 'react-redux';
 import { getStepContent, mapDispatchToProps } from '../../feature-utils';
 import { PromptLayout } from '../prompt-layout';
 import Button from 'components/button';
-import ExternalLink from 'components/external-link';
 import analytics from 'lib/analytics';
 import {
 	addSelectedRecommendation as addSelectedRecommendationAction,
@@ -69,15 +69,7 @@ const FeaturePromptComponent = props => {
 			question={ question }
 			description={ createInterpolateElement( description, {
 				strong: <strong />,
-				ExternalLink: (
-					<ExternalLink
-						href={ descriptionLink }
-						target="_blank"
-						icon={ true }
-						iconSize={ 16 }
-						onClick={ onExternalLinkClick }
-					/>
-				),
+				ExternalLink: <ExternalLink href={ descriptionLink } onClick={ onExternalLinkClick } />,
 			} ) }
 			answer={
 				<div className="jp-recommendations-question__install-section">

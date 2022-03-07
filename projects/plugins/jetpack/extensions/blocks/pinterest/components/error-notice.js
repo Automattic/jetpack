@@ -18,7 +18,7 @@ export default function ErrorNotice( { fallbackUrl, onClick } ) {
 	return (
 		<>
 			{ __( 'Sorry, this content could not be embedded.', 'jetpack' ) }{ ' ' }
-			<Button isLink onClick={ handleOnButtonClick }>
+			<Button variant="link" onClick={ handleOnButtonClick }>
 				{ _x( 'Convert block to link', 'button label', 'jetpack' ) }
 			</Button>
 		</>

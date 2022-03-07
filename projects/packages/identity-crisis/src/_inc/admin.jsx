@@ -32,6 +32,7 @@ function render() {
 		isSafeModeConfirmed,
 		consumerData,
 		isAdmin,
+		possibleDynamicSiteUrlDetected,
 	} = window.JP_IDENTITY_CRISIS__INITIAL_STATE;
 
 	if ( ! isSafeModeConfirmed ) {
@@ -49,6 +50,7 @@ function render() {
 				}
 				isAdmin={ isAdmin }
 				logo={ consumerData.hasOwnProperty( 'logo' ) ? consumerData.logo : undefined }
+				possibleDynamicSiteUrlDetected={ possibleDynamicSiteUrlDetected }
 			/>,
 			container
 		);
