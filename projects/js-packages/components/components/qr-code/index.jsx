@@ -2,16 +2,13 @@
  * External dependencies
  */
 import React from 'react';
-import QRCode from 'qrcode.react';
-import { useSelect } from '@wordpress/data';
-import { store as editorStore } from '@wordpress/editor';
+import QRCodeLib from 'qrcode.react';
 
 /**
- * QRPost is a react component that renders
- * a QR code for a post, pulling the post data
- * from the editor store.
+ * QRCode is a react component.
  *
  * @param {object} props                          - Component props.
+ * @param {string} props.value                    - The value to encode.
  * @param {string} props.bgColor                  - Background color of the QR code.
  * @param {string} props.fgColor                  - Foreground color of the QR code.
  * @param {string} props.level                    - Error correction level of the QR code.
@@ -21,7 +18,8 @@ import { store as editorStore } from '@wordpress/editor';
  * @param {object} props.imageSettings            - Image settings for the QR code.
  * @returns {React.Component}                     - React component.
  */
-export default function QRPost( {
+export default function QRCode( {
+	value,
 	bgColor,
 	fgColor,
 	level,
@@ -30,26 +28,9 @@ export default function QRPost( {
 	renderAs = 'canvas',
 	size = 248,
 } ) {
-	const {
-		post: { title: postTitle },
-		permalink,
-		edits: { title: editTitle },
-	} = useSelect(
-		select => ( {
-			post: select( editorStore ).getCurrentPost(),
-			slug: select( editorStore ).getEditedPostSlug(),
-			permalink: select( editorStore ).getPermalink(),
-			edits: select( editorStore ).getPostEdits(),
-		} ),
-		[]
-	);
-
-	// Post title: edited value or current one.
-	const title = editTitle || postTitle;
-
 	return (
-		<QRCode
-			value={ `${ title } ${ permalink }` }
+		<QRCodeLib
+			value={ value }
 			size={ size }
 			bgColor={ bgColor }
 			fgColor={ fgColor }

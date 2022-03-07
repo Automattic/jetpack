@@ -7,11 +7,11 @@ import React from 'react';
 /**
  * Internal dependencies
  */
-import QRPost from '../index.jsx';
+import QRCode from '../index.jsx';
 
 export default {
-	title: 'JS Packages/Components/Block Editor QR Post',
-	component: QRPost,
+	title: 'JS Packages/Components/QRCode',
+	component: QRCode,
 	argTypes: {
 		value: {
 			control: { type: 'text' },
@@ -34,6 +34,6 @@ export default {
 	},
 };
 
-const Template = args => <QRPost { ...args } />;
+const Template = args => <QRCode { ...args } />;
 
 export const _default = Template.bind( {} );
