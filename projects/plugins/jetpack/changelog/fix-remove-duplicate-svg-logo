@@ -1,4 +1,4 @@
 Significance: patch
 Type: other
 
-Removed the SVG logo from the dashboard stats widget. Created a new footer section for the widget witlinks
+Stats: improve accessibility and performance for the admin dashboard widget.
