@@ -297,6 +297,18 @@ class Critical_CSS_State {
 		return $sources;
 	}
 
+	public function has_pending_provider( $providers ) {
+		$state   = $this->get_state_transient();
+		$pending = false;
+		foreach ( $state['sources'] as $name => $source_state ) {
+			if ( in_array( $name, $providers, true ) && self::REQUESTING === $source_state['status'] ) {
+				$pending = true;
+				break;
+			}
+		}
+		return $pending;
+	}
+
 	/**
 	 * Get providers errors.
 	 *

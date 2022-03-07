@@ -163,7 +163,7 @@ const ConnectionStatusCard = props => {
 					>
 						{ requiresUserConnection && __( 'Requires user connection.', 'jetpack' ) }{ ' ' }
 						<Button
-							isLink
+							variant="link"
 							disabled={ userIsConnecting }
 							onClick={ handleConnectUser }
 							className="jp-connection-status-card--btn-connect-user"
