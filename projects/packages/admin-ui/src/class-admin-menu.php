@@ -49,7 +49,7 @@ class Admin_Menu {
 	 * we use this method to move the menu item.
 	 */
 	private static function handle_akismet_menu() {
-		if ( class_exists( 'Akismet_Admin' ) ) {
+		if ( ! class_exists( 'Jetpack' ) && class_exists( 'Akismet_Admin' ) ) {
 			// Prevent Akismet from adding a menu item.
 			add_action(
 				'admin_menu',
