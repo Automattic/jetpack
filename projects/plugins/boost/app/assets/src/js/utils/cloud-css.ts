@@ -31,9 +31,8 @@ export function pollCloudCssStatus() {
 	let status = getStatus();
 	const interval = pollIntervalForStatus( getStatus() );
 
-	if ( statusIntervalId !== null ) {
-		clearInterval( statusIntervalId );
-	}
+	// If we are creating a new poll, clear the previous one.
+	stopPollingCloudCssStatus();
 
 	statusIntervalId = setInterval( async () => {
 		status = await api.get< CloudCssStatus >( '/cloud-css/status' );
