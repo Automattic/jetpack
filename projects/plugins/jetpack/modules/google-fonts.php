@@ -14,10 +14,10 @@
  * @package automattic/jetpack
  */
 
-if ( ! function_exists( 'wp_register_webfont_provider' ) || ! function_exists( 'wp_register_webfonts' ) ) {
-	return;
-}
-
+/**
+ * Curated list of Google Fonts
+ * See https://wp.me/p9Jlb4-22P
+ */
 const JETPACK_GOOGLE_FONTS_LIST = array(
 	'Arvo',
 	'Bodoni Moda',
@@ -56,6 +56,10 @@ const JETPACK_GOOGLE_FONTS_LIST = array(
  * @return void
  */
 function jetpack_add_google_fonts_provider() {
+	if ( ! function_exists( 'wp_register_webfont_provider' ) || ! function_exists( 'wp_register_webfonts' ) ) {
+		return;
+	}
+
 	wp_register_webfont_provider( 'jetpack-google-fonts', '\Automattic\Jetpack\Fonts\Google_Fonts_Provider' );
 
 	$fonts_to_register = apply_filters( 'jetpack_google_fonts_list', JETPACK_GOOGLE_FONTS_LIST );
