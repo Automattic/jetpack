@@ -98,9 +98,9 @@ class Jetpack_Protect_Module {
 	public $last_response;
 
 	/**
-	 * Whitelist
+	 * Block login with math, default is 1.
 	 *
-	 * @var 
+	 * @var int
 	 */
 	private $block_login_with_math;
 
@@ -131,17 +131,17 @@ class Jetpack_Protect_Module {
 		add_action( 'admin_init', array( $this, 'maybe_update_headers' ) );
 		add_action( 'admin_init', array( $this, 'maybe_display_security_warning' ) );
 
-		// This is a backup in case $pagenow fails for some reason
+		// This is a backup in case $pagenow fails for some reason.
 		add_action( 'login_form', array( $this, 'check_login_ability' ), 1 );
 
-		// Load math fallback after math page form submission
+		// Load math fallback after math page form submission.
 		if ( isset( $_POST['jetpack_protect_process_math_form'] ) ) {
 			include_once __DIR__ . '/protect/math-fallback.php';
 			new Jetpack_Protect_Math_Authenticate();
 		}
 
 		// Runs a script every day to clean up expired transients so they don't
-		// clog up our users' databases
+		// clog up our users' databases.
 		require_once JETPACK__PLUGIN_DIR . '/modules/protect/transient-cleanup.php';
 	}
 
@@ -149,13 +149,13 @@ class Jetpack_Protect_Module {
 	 * On module activation, try to get an api key
 	 */
 	public function on_activation() {
-		if ( is_multisite() && is_main_site() && get_site_option( 'jetpack_protect_active', 0 ) == 0 ) {
+		if ( is_multisite() && is_main_site() && get_site_option( 'jetpack_protect_active', 0 ) == 0 ) { // phpcs:ignore Universal.Operators.StrictComparisons.LooseEqual
 			update_site_option( 'jetpack_protect_active', 1 );
 		}
 
 		update_site_option( 'jetpack_protect_activating', 'activating' );
 
-		// Get BruteProtect's counter number
+		// Get BruteProtect's counter number.
 		self::protect_call( 'check_key' );
 	}
 
@@ -168,6 +168,9 @@ class Jetpack_Protect_Module {
 		}
 	}
 
+	/**
+	 * Get the protect key,
+	 */
 	public function maybe_get_protect_key() {
 		if ( get_site_option( 'jetpack_protect_activating', false ) && ! get_site_option( 'jetpack_protect_key', false ) ) {
 			$key = $this->get_protect_key();
@@ -182,6 +185,8 @@ class Jetpack_Protect_Module {
 	 * Sends a "check_key" API call once a day.  This call allows us to track IP-related
 	 * headers for this server via the Protect API, in order to better identify the source
 	 * IP for login attempts
+	 *
+	 * @param bool $force - if we're forcing the request.
 	 */
 	public function maybe_update_headers( $force = false ) {
 		$updated_recently = $this->get_transient( 'jpp_headers_updated_recently' );
@@ -193,7 +198,7 @@ class Jetpack_Protect_Module {
 		}
 
 		// check that current user is admin so we prevent a lower level user from adding
-		// a trusted header, allowing them to brute force an admin account
+		// a trusted header, allowing them to brute force an admin account.
 		if ( ( $updated_recently && ! $force ) || ! current_user_can( 'update_plugins' ) ) {
 			return;
 		}
@@ -207,6 +212,9 @@ class Jetpack_Protect_Module {
 
 	}
 
+	/**
+	 * Handle discplaying a security warning.
+	 */
 	public function maybe_display_security_warning() {
 		if ( is_multisite() && current_user_can( 'manage_network' ) ) {
 			if ( ! function_exists( 'is_plugin_active_for_network' ) ) {
@@ -220,6 +228,9 @@ class Jetpack_Protect_Module {
 		}
 	}
 
+	/**
+	 * Handles preparing the multisite notice.
+	 */
 	public function prepare_jetpack_protect_multisite_notice() {
 		$dismissed = get_site_option( 'jetpack_dismissed_protect_multisite_banner' );
 		if ( $dismissed ) {
@@ -229,6 +240,9 @@ class Jetpack_Protect_Module {
 		add_action( 'admin_notices', array( $this, 'admin_jetpack_manage_notice' ) );
 	}
 
+	/**
+	 * Handle dismissing the multisite banner.
+	 */
 	public function ajax_dismiss_handler() {
 		check_ajax_referer( 'jetpack_protect_multisite_banner_opt_out' );
 
@@ -299,7 +313,7 @@ class Jetpack_Protect_Module {
 		$protect_blog_id = self::get_main_blog_jetpack_id();
 
 		// If we can't find the the blog id, that means we are on multisite, and the main site never connected
-		// the protect api key is linked to the main blog id - instruct the user to connect their main blog
+		// the protect api key is linked to the main blog id - instruct the user to connect their main blog.
 		if ( ! $protect_blog_id ) {
 			$this->api_key_error = __( 'Your main blog is not connected to WordPress.com. Please connect to get an API key.', 'jetpack' );
 
@@ -312,7 +326,7 @@ class Jetpack_Protect_Module {
 			'multisite'            => '0',
 		);
 
-		// Send the number of blogs on the network if we are on multisite
+		// Send the number of blogs on the network if we are on multisite.
 		if ( is_multisite() ) {
 			$request['multisite'] = get_blog_count();
 			if ( ! $request['multisite'] ) {
@@ -321,14 +335,15 @@ class Jetpack_Protect_Module {
 			}
 		}
 
-		// Request the key
+		// Request the key.
 		$xml = new Jetpack_IXR_Client();
 		$xml->query( 'jetpack.protect.requestKey', $request );
 
-		// Hmm, can't talk to wordpress.com
+		// Hmm, can't talk to wordpress.com.
 		if ( $xml->isError() ) {
-			$code                = $xml->getErrorCode();
-			$message             = $xml->getErrorMessage();
+			$code    = $xml->getErrorCode();
+			$message = $xml->getErrorMessage();
+			// Translators: The xml error code, and the xml error message.
 			$this->api_key_error = sprintf( __( 'Error connecting to WordPress.com. Code: %1$s, %2$s', 'jetpack' ), $code, $message );
 
 			return false;
@@ -336,14 +351,14 @@ class Jetpack_Protect_Module {
 
 		$response = $xml->getResponse();
 
-		// Hmm. Can't talk to the protect servers ( api.bruteprotect.com )
+		// Hmm, can't talk to the protect servers ( api.bruteprotect.com ).
 		if ( ! isset( $response['data'] ) ) {
 			$this->api_key_error = __( 'No reply from Jetpack servers', 'jetpack' );
 
 			return false;
 		}
 
-		// There was an issue generating the key
+		// There was an issue generating the key.
 		if ( empty( $response['success'] ) ) {
 			$this->api_key_error = $response['data'];
 
@@ -353,8 +368,8 @@ class Jetpack_Protect_Module {
 		// Key generation successful!
 		$active_plugins = Jetpack::get_active_plugins();
 
-		// We only want to deactivate BruteProtect if we successfully get a key
-		if ( in_array( 'bruteprotect/bruteprotect.php', $active_plugins ) ) {
+		// We only want to deactivate BruteProtect if we successfully get a key.
+		if ( in_array( 'bruteprotect/bruteprotect.php', $active_plugins, true ) ) {
 			Jetpack_Client_Server::deactivate_plugin( 'bruteprotect/bruteprotect.php', 'BruteProtect' );
 		}
 
@@ -369,9 +384,10 @@ class Jetpack_Protect_Module {
 	 *
 	 * Fires custom, plugable action jpp_log_failed_attempt with the IP
 	 *
+	 * @param string $login_user - the user attempting to log in.
 	 * @return void
 	 */
-	function log_failed_attempt( $login_user = null ) {
+	public function log_failed_attempt( $login_user = null ) {
 
 		/**
 		 * Fires before every failed login attempt.
@@ -413,6 +429,9 @@ class Jetpack_Protect_Module {
 	 * Logs a successful login back to our servers, this allows us to make sure we're not blocking
 	 * a busy IP that has a lot of good logins along with some forgotten passwords. Also saves current user's ip
 	 * to the ip address whitelist
+	 *
+	 * @param string $user_login - the user loggign in.
+	 * @param string $user - the user.
 	 */
 	public function log_successful_login( $user_login, $user = null ) {
 		if ( ! $user ) { // For do_action( 'wp_login' ) calls that lacked passing the 2nd arg.
@@ -427,13 +446,13 @@ class Jetpack_Protect_Module {
 	 *
 	 * If we are using our math fallback, authenticate via math-fallback.php
 	 *
-	 * @param string $user
-	 * @param string $username
-	 * @param string $password
+	 * @param string $user     - the user.
+	 * @param string $username - the username.
+	 * @param string $password - the password.
 	 *
 	 * @return string $user
 	 */
-	function check_preauth( $user = 'Not Used By Protect', $username = 'Not Used By Protect', $password = 'Not Used By Protect' ) {
+	public function check_preauth( $user = 'Not Used By Protect', $username = 'Not Used By Protect', $password = 'Not Used By Protect' ) { // phpcs:ignore VariableAnalysis.CodeAnalysis.VariableAnalysis.UnusedVariable
 		$allow_login = $this->check_login_ability( true );
 		$use_math    = $this->get_transient( 'brute_use_math' );
 
@@ -441,7 +460,7 @@ class Jetpack_Protect_Module {
 			$this->block_with_math();
 		}
 
-		if ( ( 1 == $use_math || 1 == $this->block_login_with_math ) && isset( $_POST['log'] ) ) {
+		if ( ( 1 == $use_math || 1 == $this->block_login_with_math ) && isset( $_POST['log'] ) ) { // phpcs:ignore Universal.Operators.StrictComparisons.LooseEqual
 			include_once __DIR__ . '/protect/math-fallback.php';
 			Jetpack_Protect_Math_Authenticate::math_authenticate();
 		}
@@ -454,7 +473,7 @@ class Jetpack_Protect_Module {
 	 *
 	 * @return array
 	 */
-	function get_headers() {
+	public function get_headers() {
 		$output             = array();
 		$ip_related_headers = array(
 			'GD_PHP_HANDLER',
@@ -485,16 +504,16 @@ class Jetpack_Protect_Module {
 		return $output;
 	}
 
-	/*
+	/**
 	 * Checks if the IP address has been whitelisted
 	 *
-	 * @param string $ip
+	 * @param string $ip - the IP address.
 	 *
 	 * @return bool
 	 */
-	function ip_is_whitelisted( $ip ) {
-		// If we found an exact match in wp-config
-		if ( defined( 'JETPACK_IP_ADDRESS_OK' ) && JETPACK_IP_ADDRESS_OK == $ip ) {
+	public function ip_is_whitelisted( $ip ) {
+		// If we found an exact match in wp-config.
+		if ( defined( 'JETPACK_IP_ADDRESS_OK' ) && JETPACK_IP_ADDRESS_OK === $ip ) {
 			return true;
 		}
 
@@ -506,8 +525,8 @@ class Jetpack_Protect_Module {
 
 		if ( ! empty( $whitelist ) ) :
 			foreach ( $whitelist as $item ) :
-				// If the IPs are an exact match
-				if ( ! $item->range && isset( $item->ip_address ) && $item->ip_address == $ip ) {
+				// If the IPs are an exact match.
+				if ( ! $item->range && isset( $item->ip_address ) && $item->ip_address === $ip ) {
 					return true;
 				}
 
@@ -525,11 +544,11 @@ class Jetpack_Protect_Module {
 	/**
 	 * Checks the status for a given IP. API results are cached as transients
 	 *
-	 * @param bool $preauth Whether or not we are checking prior to authorization
+	 * @param bool $preauth - Whether or not we are checking prior to authorization.
 	 *
 	 * @return bool Either returns true, fires $this->kill_login, or includes a math fallback and returns false
 	 */
-	function check_login_ability( $preauth = false ) {
+	public function check_login_ability( $preauth = false ) { // phpcs:ignore VariableAnalysis.CodeAnalysis.VariableAnalysis.UnusedVariable
 
 		/**
 		 * JETPACK_ALWAYS_PROTECT_LOGIN will always disable the login page, and use a page provided by Jetpack.
@@ -546,7 +565,7 @@ class Jetpack_Protect_Module {
 
 		if ( empty( $status ) ) {
 			// If we've reached this point, this means that the IP isn't cached.
-			// Now we check with the Protect API to see if we should allow login
+			// Now we check with the Protect API to see if we should allow login.
 			$response = $this->protect_call( $action = 'check_ip' );
 
 			if ( isset( $response['math'] ) && ! function_exists( 'brute_math_authenticate' ) ) {
@@ -559,7 +578,7 @@ class Jetpack_Protect_Module {
 			$status = $response['status'];
 		}
 
-		if ( 'blocked' == $status ) {
+		if ( 'blocked' === $status ) {
 			$this->block_with_math();
 		}
 
@@ -570,10 +589,13 @@ class Jetpack_Protect_Module {
 		return true;
 	}
 
-	function is_current_ip_whitelisted() {
+	/**
+	 * Check if IP is whitelisted.
+	 */
+	public function is_current_ip_whitelisted() {
 		$ip = jetpack_protect_get_ip();
 
-		// Server is misconfigured and we can't get an IP
+		// Server is misconfigured and we can't get an IP.
 		if ( ! $ip && class_exists( 'Jetpack' ) ) {
 			Jetpack::deactivate_module( 'protect' );
 			ob_start();
@@ -783,7 +805,7 @@ class Jetpack_Protect_Module {
 	 *
 	 * @return array
 	 */
-	function protect_call( $action = 'check_ip', $request = array() ) {
+	public function protect_call( $action = 'check_ip', $request = array() ) {
 		global $wp_version;
 
 		$api_key = $this->maybe_get_protect_key();
