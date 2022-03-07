@@ -105,7 +105,10 @@ importers:
       '@babel/preset-react': 7.16.0
       '@wordpress/browserslist-config': 4.1.1
       '@wordpress/components': 19.5.0
+      '@wordpress/data': 6.3.0
       '@wordpress/date': 4.3.1
+      '@wordpress/editor': 12.2.2
+      '@wordpress/element': 4.1.1
       '@wordpress/i18n': 4.3.1
       classnames: 2.3.1
       jetpack-js-test-runner: workspace:*
@@ -120,7 +123,10 @@ importers:
       '@automattic/format-currency': 1.0.0-alpha.0_react@17.0.2
       '@wordpress/browserslist-config': 4.1.1
       '@wordpress/components': 19.5.0_aae888dfa296766acacf1a733aa50b3a
+      '@wordpress/data': 6.3.0_react@17.0.2
       '@wordpress/date': 4.3.1
+      '@wordpress/editor': 12.2.2_aae888dfa296766acacf1a733aa50b3a
+      '@wordpress/element': 4.1.1
       '@wordpress/i18n': 4.3.1
       classnames: 2.3.1
       lodash: 4.17.21
