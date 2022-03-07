@@ -36,7 +36,4 @@ export default {
 
 const Template = args => <QRPost { ...args } />;
 
-const DefaultArgs = {};
-
 export const _default = Template.bind( {} );
-_default.args = DefaultArgs;
