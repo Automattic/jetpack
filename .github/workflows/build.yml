@@ -214,7 +214,7 @@ jobs:
             PLUGIN_DATA=$( jq -c --arg slug "$SLUG" --arg ver "$CURRENT_VERSION" '.[ $slug ] = { version: $ver }' <<<"$PLUGIN_DATA" )
 
             echo "::endgroup::"
-          done < plugins.tsv
+          done < build/plugins.tsv
           if [[ "$PLUGIN_DATA" == "{}" ]]; then
             echo "No plugins were built"
           fi
