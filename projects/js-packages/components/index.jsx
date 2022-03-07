@@ -28,4 +28,5 @@ export { default as DecorativeCard } from './components/decorative-card';
 export { default as Col } from './components/layout/col';
 export { default as Container } from './components/layout/container';
 export { default as numberFormat } from './components/number-format';
+export { default as QRPost } from './components/qr-post';
 export { getUserLocale, cleanLocale } from './lib/locale';
