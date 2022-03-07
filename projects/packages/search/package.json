@@ -1,6 +1,6 @@
 {
 	"name": "jetpack-search",
-	"version": "0.10.0-alpha",
+	"version": "0.11.0-alpha",
 	"description": "Package for Jetpack Search products",
 	"main": "main.js",
 	"directories": {
@@ -39,8 +39,8 @@
 		"@automattic/calypso-color-schemes": "2.1.1",
 		"@automattic/color-studio": "2.5.0",
 		"@automattic/jetpack-analytics": "workspace:^0.1.8",
-		"@automattic/jetpack-api": "workspace:^0.9.1-alpha",
-		"@automattic/jetpack-components": "workspace:^0.10.7-alpha",
+		"@automattic/jetpack-api": "workspace:^0.9.1",
+		"@automattic/jetpack-components": "workspace:^0.10.8-alpha",
 		"@wordpress/base-styles": "4.1.1",
 		"@wordpress/block-editor": "8.2.0",
 		"@wordpress/data": "6.3.0",
@@ -66,7 +66,7 @@
 		"tiny-lru": "7.0.6"
 	},
 	"devDependencies": {
-		"@automattic/jetpack-webpack-config": "workspace:^1.1.4-alpha",
+		"@automattic/jetpack-webpack-config": "workspace:^1.1.4",
 		"@babel/core": "7.16.0",
 		"@babel/plugin-proposal-nullish-coalescing-operator": "7.16.0",
 		"@babel/preset-env": "7.16.4",

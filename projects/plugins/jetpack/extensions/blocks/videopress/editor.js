@@ -48,7 +48,7 @@ const videoPressNoPlanMediaPlaceholder = createHigherOrderComponent(
 				<Button
 					disabled={ true }
 					className="components-button no-videopress-disabled-button"
-					isSecondary
+					variant="secondary"
 				>
 					{ __( 'Media Library', 'jetpack' ) }
 				</Button>
@@ -56,7 +56,7 @@ const videoPressNoPlanMediaPlaceholder = createHigherOrderComponent(
 				<Button
 					disabled={ true }
 					className="components-button no-videopress-disabled-button"
-					isSecondary
+					variant="secondary"
 				>
 					{ __( 'Upload', 'jetpack' ) }
 				</Button>

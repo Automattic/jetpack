@@ -31,6 +31,7 @@ RUN \
 		sudo \
 		unzip \
 		vim \
+		zip \
 	&& rm -rf /var/lib/apt/lists/*
 
 # Enable mod_rewrite in Apache.

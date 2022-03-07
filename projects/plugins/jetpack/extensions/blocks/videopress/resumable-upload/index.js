@@ -131,11 +131,11 @@ export default function ResumableUpload( { file } ) {
 							'jetpack'
 						) }
 					</div>
-					<Button isPrimary onClick={ () => restartUpload() }>
+					<Button variant="primary" onClick={ () => restartUpload() }>
 						{ __( 'Try again', 'jetpack' ) }
 					</Button>
 					<Button
-						isSecondary
+						variant="secondary"
 						onClick={ () => onUploadFinished() }
 						className="resumable-upload__error-cancel"
 					>
@@ -153,7 +153,7 @@ export default function ResumableUpload( { file } ) {
 					</div>
 					<div className="resumable-upload__actions">
 						<div className="videopress-upload__percent-complete">{ `${ roundedProgress }%` }</div>
-						<Button isLink onClick={ () => pauseOrResumeUpload() }>
+						<Button variant="link" onClick={ () => pauseOrResumeUpload() }>
 							{ hasPaused ? 'Resume' : 'Pause' }
 						</Button>
 					</div>

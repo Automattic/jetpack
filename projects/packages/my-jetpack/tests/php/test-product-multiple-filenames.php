@@ -163,12 +163,12 @@ class Test_Product_Multiple_Filenames extends TestCase {
 
 		$filename = Backup::get_installed_plugin_filename();
 
-		$this->assertFalse( Backup::is_active() );
+		$this->assertFalse( Backup::is_plugin_active() );
 		$this->assertFalse( is_plugin_active( $filename ) );
 
 		Backup::activate();
 
-		$this->assertTrue( Backup::is_active() );
+		$this->assertTrue( Backup::is_plugin_active() );
 		$this->assertTrue( is_plugin_active( $filename ) );
 
 	}
