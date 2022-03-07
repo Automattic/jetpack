@@ -2,6 +2,9 @@
 
 set -eo pipefail
 
+BETAJSON="$(curl -L --fail --url "https://betadownload.jetpack.me/plugins.json")"
+jq -e '.' <<<"$BETAJSON" &>/dev/null
+
 mkdir work
 mkdir zips
 while IFS=$'\t' read -r SRC MIRROR SLUG; do
@@ -13,15 +16,32 @@ while IFS=$'\t' read -r SRC MIRROR SLUG; do
 	echo "::endgroup::"
 
 	echo "::group::Fetching $SLUG-master.zip..."
-	BETASLUG="$(jq -r '.extra["beta-plugin-slug"] // .extra["wp-plugin-slug"] // ""' "monorepo/projects/plugins/$SLUG/composer.json")"
+	BETASLUG="$(jq -r '.extra["beta-plugin-slug"] // .extra["wp-plugin-slug"] // ""' "monorepo/$SRC/composer.json")"
 	if [[ -z "$BETASLUG" ]]; then
 		echo "No beta-plugin-slug or wp-plugin-slug in composer.json, skipping"
 	else
-		curl -L --fail --url "https://betadownload.jetpack.me/data/$BETASLUG/master/$BETASLUG-dev.zip" --output "work/tmp.zip" 2>&1
-		(cd work && unzip -q tmp.zip)
-		mv "work/$BETASLUG-dev" "work/$SLUG"
-		(cd work && zip -qr "../zips/${SLUG}-master.zip" "$SLUG")
-		rm -rf "work/$SLUG" "work/tmp.zip"
+		URL="$(jq -r --arg slug "$BETASLUG" '.[$slug].manifest_url // ""' <<<"$BETAJSON")"
+		if [[ -z "$URL" ]]; then
+			echo "Beta slug $BETASLUG is not in plugins.json, skipping"
+		else
+			JSON="$(curl -L --fail --url "$URL")"
+			if jq -e '.' <<<"$JSON" &>/dev/null; then
+				URL="$(jq -r '.master.download_url // ""' <<<"$JSON")"
+				if [[ -z "$URL" ]]; then
+					echo "Plugin has no master build."
+				else
+					curl -L --fail --url "$URL" --output "work/tmp.zip" 2>&1
+					(cd work && unzip -q tmp.zip)
+					mv "work/$BETASLUG-dev" "work/$SLUG"
+					(cd work && zip -qr "../zips/${SLUG}-master.zip" "$SLUG")
+					rm -rf "work/$SLUG" "work/tmp.zip"
+				fi
+			else
+				echo "::error::Unexpected response from betadownload.jetpack.me for $SLUG"
+				echo "$JSON"
+				exit 1
+			fi
+		fi
 	fi
 	echo "::endgroup::"
 
