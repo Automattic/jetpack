@@ -1,7 +1,7 @@
 <?php
 /**
  * Module Name: Google Fonts
- * Module Description: A selection of Google fonts for Block enabled themes.
+ * Module Description: A selection of Google fonts for block enabled themes.
  * Sort Order: 1
  * Recommendation Order: 2
  * First Introduced: $$next-version$$
@@ -56,7 +56,7 @@ const JETPACK_GOOGLE_FONTS_LIST = array(
  * @return void
  */
 function jetpack_add_google_fonts_provider() {
-	wp_register_webfont_provider( 'google-fonts', '\Automattic\Jetpack\Fonts\Google_Fonts_Provider' );
+	wp_register_webfont_provider( 'jetpack-google-fonts', '\Automattic\Jetpack\Fonts\Google_Fonts_Provider' );
 
 	$fonts_to_register = apply_filters( 'jetpack_google_fonts_list', JETPACK_GOOGLE_FONTS_LIST );
 
@@ -65,8 +65,17 @@ function jetpack_add_google_fonts_provider() {
 			array(
 				array(
 					'font-family'  => $font_family,
+					'font-weight'  => '100 900',
+					'font-style'   => 'normal',
 					'font-display' => 'fallback',
-					'provider'     => 'google-fonts',
+					'provider'     => 'jetpack-google-fonts',
+				),
+				array(
+					'font-family'  => $font_family,
+					'font-weight'  => '100 900',
+					'font-style'   => 'italic',
+					'font-display' => 'fallback',
+					'provider'     => 'jetpack-google-fonts',
 				),
 			)
 		);
@@ -74,5 +83,5 @@ function jetpack_add_google_fonts_provider() {
 }
 add_action( 'after_setup_theme', 'jetpack_add_google_fonts_provider' );
 
-// Run on an early priority to print this out as soon as possible.
+// Run on an early priority to print out the preconnect link tag early in the page source.
 add_action( 'wp_head', '\Automattic\Jetpack\Fonts\Google_Fonts_Provider::preconnect_font_source', 0 );
