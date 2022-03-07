@@ -1787,7 +1787,6 @@ EOT;
 	}
 
 	/**
-	 *
 	 * Enqueues assets needed to do async loading of related posts.
 	 *
 	 * @param string $script - the script we're enqueing.
