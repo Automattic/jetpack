@@ -6,7 +6,6 @@ import classNames from 'classnames';
 import { isEmpty } from 'lodash';
 import React, { useEffect } from 'react';
 import { connect } from 'react-redux';
-import { ExternalLink } from '@wordpress/components';
 
 /**
  * Internal dependencies
