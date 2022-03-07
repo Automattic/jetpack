@@ -1103,7 +1103,7 @@ EOT;
 		$coalesce_time = $this->get_blog_id() % 86400;
 		$current_time  = $now - strtotime( 'today', $now );
 
-		if ( $current_time < $coalesce_time && '01' === date( 'd', $now ) ) { //phpcs:ignore WordPress.DateTime.RestrictedFunctions.date_date
+		if ( $current_time < $coalesce_time && '01' === date( 'd', $now ) ) { // phpcs:ignore WordPress.DateTime.RestrictedFunctions.date_date
 			// Move back 1 period.
 			return array(
 				'from' => date( 'Y-m-01', strtotime( '-1 month', $date_range['from'] ) ) . ' ' . date( 'H:i:s', $coalesce_time ), //phpcs:ignore WordPress.DateTime.RestrictedFunctions.date_date
