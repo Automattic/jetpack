@@ -1,4 +1,4 @@
-<?php
+<?php //phpcs:ignore WordPress.Files.FileName.InvalidClassFileName
 /**
  * Module Name: Protect
  * Module Description: Enabling brute force protection will prevent bots and hackers from attempting to log in to your website with common username and password combinations.
@@ -17,18 +17,91 @@ use Automattic\Jetpack\Constants;
 
 require_once JETPACK__PLUGIN_DIR . 'modules/protect/shared-functions.php';
 
+/**
+ * Jetpack project module class.
+ */
 class Jetpack_Protect_Module {
 
-	private static $__instance = null;
+	/**
+	 * Instance of the class.
+	 *
+	 * @var Jetpack_Protect_Module()
+	 */
+	private static $instance = null;
+
+	/**
+	 * API Key.
+	 *
+	 * @var string
+	 */
 	public $api_key;
+
+	/**
+	 * API Key error.
+	 *
+	 * @var string
+	 */
 	public $api_key_error;
+
+	/**
+	 * Whitelisted ips
+	 *
+	 * @var array
+	 */
 	public $whitelist;
+
+	/**
+	 * Whitelist error.
+	 *
+	 * @var string
+	 */
 	public $whitelist_error;
+
+	/**
+	 * Whitelist saved
+	 *
+	 * @todo find out if this is even used.
+	 *
+	 * @var array
+	 */
 	public $whitelist_saved;
+
+	/**
+	 * The URI.
+	 *
+	 * @var string
+	 */
 	private $local_host;
+
+	/**
+	 * Last request.
+	 *
+	 * @todo find out if this is even used.
+	 *
+	 * @var string
+	 */
 	public $last_request;
+
+	/**
+	 * Response fetched from wp_remote_post()
+	 *
+	 * @var array
+	 */
 	public $last_response_raw;
+
+	/**
+	 * Last response.
+	 *
+	 * @todo find out if this is used.
+	 * @var array
+	 */
 	public $last_response;
+
+	/**
+	 * Whitelist
+	 *
+	 * @var 
+	 */
 	private $block_login_with_math;
 
 	/**
@@ -37,11 +110,11 @@ class Jetpack_Protect_Module {
 	 * @return object
 	 */
 	public static function instance() {
-		if ( ! is_a( self::$__instance, 'Jetpack_Protect_Module' ) ) {
-			self::$__instance = new Jetpack_Protect_Module();
+		if ( ! is_a( self::$instance, 'Jetpack_Protect_Module' ) ) {
+			self::$instance = new Jetpack_Protect_Module();
 		}
 
-		return self::$__instance;
+		return self::$instance;
 	}
 
 	/**
