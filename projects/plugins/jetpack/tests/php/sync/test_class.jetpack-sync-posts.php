@@ -650,7 +650,7 @@ class WP_Test_Jetpack_Sync_Post extends WP_Test_Jetpack_Sync_Base {
 		// Clean up.
 		unregister_post_type( 'snitch' );
 
-		$this->assertFalse( $this->server_replica_storage->get_post( $post_id ) );
+		$this->assertNull( $this->server_replica_storage->get_post( $post_id ) );
 		$sync_event = $this->server_event_storage->get_most_recent_event( 'jetpack_sync_save_post' );
 		$this->assertFalse( $sync_event );
 	}
@@ -673,7 +673,7 @@ class WP_Test_Jetpack_Sync_Post extends WP_Test_Jetpack_Sync_Base {
 		// Clean up.
 		unregister_post_type( 'snitch' );
 
-		$this->assertFalse( $this->server_replica_storage->get_post( $post_id ) );
+		$this->assertNull( $this->server_replica_storage->get_post( $post_id ) );
 		$sync_event = $this->server_event_storage->get_most_recent_event( 'jetpack_published_post' );
 		$this->assertFalse( $sync_event );
 	}
@@ -716,7 +716,7 @@ class WP_Test_Jetpack_Sync_Post extends WP_Test_Jetpack_Sync_Base {
 		// Clean up.
 		unregister_post_type( 'snitch' );
 
-		$this->assertFalse( $this->server_replica_storage->get_post( $post_id ) );
+		$this->assertNull( $this->server_replica_storage->get_post( $post_id ) );
 
 		$this->assertEquals( null, $this->server_replica_storage->get_metadata( 'post', $post_id, 'hello', true ) );
 	}
@@ -743,7 +743,7 @@ class WP_Test_Jetpack_Sync_Post extends WP_Test_Jetpack_Sync_Base {
 		$this->sender->do_sync();
 		unregister_post_type( 'filter_me' );
 
-		$this->assertFalse( $this->server_replica_storage->get_post( $post_id ) );
+		$this->assertNull( $this->server_replica_storage->get_post( $post_id ) );
 
 		// also assert that the post types blacklist still contains the hard-coded values
 		$setting = Settings::get_setting( 'post_types_blacklist' );
