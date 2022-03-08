@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "6fe08ef64a05127890127033dcfbad5a",
+    "content-hash": "129a93eb9e543a165f3bcc5c53f87acd",
     "packages": [
         {
             "name": "automattic/jetpack-a8c-mc-stats",
@@ -794,14 +794,20 @@
             "dist": {
                 "type": "path",
                 "url": "../../packages/google-fonts-provider",
-                "reference": "368d54aa9cd7e62d0c10234d679ca763674585a3"
+                "reference": "7e38451311be498f1f51048519ab34aeec633433"
             },
             "require-dev": {
                 "automattic/jetpack-changelogger": "^3.0",
+                "brain/monkey": "^2.6",
                 "yoast/phpunit-polyfills": "1.0.3"
             },
             "type": "library",
             "extra": {
+                "autotagger": true,
+                "mirror-repo": "Automattic/jetpack-google-fonts-provider",
+                "changelogger": {
+                    "link-template": "https://github.com/Automattic/jetpack-google-fonts-provider/compare/v${old}...v${new}"
+                },
                 "branch-alias": {
                     "dev-master": "0.1.x-dev"
                 },
@@ -1812,6 +1818,59 @@
                 "GPL-2.0-or-later"
             ],
             "description": "Tracking for Jetpack",
+            "transport-options": {
+                "relative": true
+            }
+        },
+        {
+            "name": "automattic/jetpack-waf",
+            "version": "dev-master",
+            "dist": {
+                "type": "path",
+                "url": "../../packages/waf",
+                "reference": "c64f994de535ce6d4d78dbd120ae95b3eb0cffd7"
+            },
+            "require": {
+                "wikimedia/aho-corasick": "^1.0"
+            },
+            "require-dev": {
+                "automattic/jetpack-changelogger": "^3.0",
+                "yoast/phpunit-polyfills": "1.0.3"
+            },
+            "type": "library",
+            "extra": {
+                "autotagger": true,
+                "mirror-repo": "Automattic/jetpack-waf",
+                "changelogger": {
+                    "link-template": "https://github.com/Automattic/jetpack-waf/compare/v${old}...v${new}"
+                },
+                "branch-alias": {
+                    "dev-master": "0.1.x-dev"
+                }
+            },
+            "autoload": {
+                "files": [
+                    "actions.php"
+                ],
+                "classmap": [
+                    "src/"
+                ]
+            },
+            "scripts": {
+                "phpunit": [
+                    "./vendor/phpunit/phpunit/phpunit --colors=always"
+                ],
+                "test-coverage": [
+                    "php -dpcov.directory=. ./vendor/bin/phpunit --coverage-clover \"$COVERAGE_DIR/clover.xml\""
+                ],
+                "test-php": [
+                    "@composer phpunit"
+                ]
+            },
+            "license": [
+                "GPL-2.0-or-later"
+            ],
+            "description": "Tools to assist with the Jetpack Web Application Firewall",
             "transport-options": {
                 "relative": true
             }
