@@ -34,7 +34,6 @@
 - Update `@size-limit/preset-app` dependency to match `size-limit`.
 - Jetpack: add post-publish-qr-post-panel block editor plugin.
 
-
 ## 10.8-a.1 - 2022-03-02
 ### Enhancements
 - Payment Blocks: add a unified introduction to payment blocks to make it easier to select the correct one.
