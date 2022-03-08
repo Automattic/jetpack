@@ -75,10 +75,48 @@ describe( 'ConnectionStatusCard', () => {
 		} );
 	} );
 
+	describe( "When the user has not connected their WordPress.com account but the site has an owner and we don't need a user connection", () => {
+		beforeEach( () => {
+			stubGetConnectionStatus.reset();
+			stubGetConnectionStatus.returns( {
+				isRegistered: true,
+				isUserConnected: false,
+				hasConnectedOwner: true,
+			} );
+			wrapper = shallow(
+				<ConnectionStatusCard { ...testProps } requiresUserConnection={ false } />
+			);
+		} );
+
+		it( 'renders the "Site connected" success list item', () => {
+			expect(
+				wrapper.find( '.jp-connection-status-card--list-item-success' ).first().render().text()
+			).to.be.equal( 'Site connected.\u00a0Disconnect' );
+		} );
+
+		it( 'renders the "DisconnectDialog"', () => {
+			expect( wrapper.find( 'DisconnectDialog' ) ).to.exist;
+		} );
+
+		it( 'Doesn\'t render the "Account not connected" error list item', () => {
+			expect( wrapper.find( '.jp-connection-status-card--list-item-error' ) ).to.have.lengthOf( 0 );
+		} );
+
+		it( 'Doesn\'t render the "Connect your user account" button', () => {
+			expect( wrapper.find( '.jp-connection-status-card--btn-connect-user' ) ).to.have.lengthOf(
+				0
+			);
+		} );
+	} );
+
 	describe( 'When the user has connected their WordPress.com account', () => {
 		beforeEach( () => {
 			stubGetConnectionStatus.reset();
-			stubGetConnectionStatus.returns( { isRegistered: true, isUserConnected: true } );
+			stubGetConnectionStatus.returns( {
+				isRegistered: true,
+				isUserConnected: true,
+				hasConnectedOwner: true,
+			} );
 			wrapper = shallow( <ConnectionStatusCard { ...testProps } /> );
 		} );
 

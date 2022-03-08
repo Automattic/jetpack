@@ -1,4 +1,0 @@
-Significance: patch
-Type: removed
-
-Removed testing dependency on `chai-fetch-mock`. It was unused.

@@ -1,0 +1,4 @@
+Significance: patch
+Type: bugfix
+
+The Premium Content login button now redirects to the correct post instead of to a 404 page when the URL contains characters that have been previously encoded

@@ -217,10 +217,14 @@
 	}
 
 	footer {
-		background: #f6f7f7;
-		padding: .75em .75em 0 .75em;
 		overflow: hidden;
 		border-top: 1px solid #ccc;
+
+		.blocked-container {
+			background: #f6f7f7;
+			display: flex;
+			padding: .75em .75em 0 .75em;
+		}
 
 		.protect,
 		.akismet {
@@ -242,10 +246,18 @@
 		}
 
 		p.blocked-count {
-			font-size: 1.5em;
-			font-weight: normal;
-			margin: 0;
-			padding: 0;
+			margin-top: 0;
+			margin-bottom: 6px;
+			margin-right: 8px;
+			color: #3582c4;
+			font-weight: 500;
+			font-size: 2rem;
+			display: inline-block;
+			border: 1px solid #c3c4c7;
+			border-radius: 4px;
+			padding: 0 4px;
+			min-width: 36px;
+			text-align: center;
 		}
 
 		p {
@@ -258,6 +270,18 @@
 			padding: 0;
 			text-align: center;
 		}
+
+		.footer-links{
+			padding: 0.75em 0.75em 0.5em 0.75em;
+			border-top: 1px solid #f0f0f1;
+						
+			svg {
+				height: 20px;
+			}
+			span {
+				float: right;
+			}
+		}
 	}
 }
 
@@ -265,7 +289,10 @@
 .metabox-prefs {
 	label[for="jetpack_summary_widget-hide"] {
 		span {
- 			display: none;
+ 			svg {
+				 height: 1.2rem;
+				 vertical-align: text-bottom;
+			 }
 		}
 	}
 }

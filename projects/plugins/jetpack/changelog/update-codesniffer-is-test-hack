@@ -1,0 +1,4 @@
+Significance: patch
+Type: other
+
+Fix newly-detected PHPCS sniffs in some tests. Also fix a test mock that was returning false rather than null like the class it's mocking would.

@@ -375,6 +375,7 @@ class Defaults {
 	 * @var array Blacklisted post types.
 	 */
 	public static $blacklisted_post_types = array(
+		'_term_meta',
 		'ai1ec_event',
 		'ai_log', // Logger - https://github.com/alleyinteractive/logger.
 		'amp_validated_url', // AMP Validation Errors.
@@ -1268,5 +1269,12 @@ class Defaults {
 			'max_chunks' => 10,
 		),
 	);
+
+	/**
+	 * Default for enabling dedicated Sync flow.
+	 *
+	 * @var int Bool-ish. Default 0.
+	 */
+	public static $default_dedicated_sync_enabled = 0;
 
 }

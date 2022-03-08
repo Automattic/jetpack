@@ -5,6 +5,7 @@ use Automattic\Jetpack\Sync\Defaults;
 use Automattic\Jetpack\Sync\Lock;
 use Automattic\Jetpack\Sync\Modules\Callables;
 use Automattic\Jetpack\Sync\Settings;
+use Automattic\Jetpack\Constants;
 
 
 class WP_Test_Jetpack_Sync_Sender extends WP_Test_Jetpack_Sync_Base {
@@ -13,6 +14,36 @@ class WP_Test_Jetpack_Sync_Sender extends WP_Test_Jetpack_Sync_Base {
 	protected $action_timestamp;
 	protected $encoded_data;
 	protected $filter_ran;
+
+	/**
+	 * Whether a dedicated Sync request was spawned.
+	 *
+	 * @var bool
+	 */
+	protected $dedicated_sync_request_spawned;
+
+	/**
+	 * Setting up the testing environment.
+	 */
+	public function set_up() {
+		parent::set_up();
+
+		$this->dedicated_sync_request_spawned = false;
+	}
+
+	/**
+	 * Tear down.
+	 */
+	public function tear_down() {
+		parent::tear_down();
+
+		// Restore default setting.
+		Settings::update_settings( array( 'dedicated_sync_enabled' => 0 ) );
+		// Reset queue.
+		$this->sender->get_sync_queue()->reset();
+
+		unset( $_SERVER['REQUEST_METHOD'] );
+	}
 
 	function test_add_post_fires_sync_data_action_with_codec_and_timestamp_on_do_sync() {
 		// some trivial action so that there's an item in the queue
@@ -553,11 +584,11 @@ class WP_Test_Jetpack_Sync_Sender extends WP_Test_Jetpack_Sync_Base {
 	 * Validate that WP_Error is returned in do_sync if JETPACK_SYNC_READ_ONLY is defined and true.
 	 */
 	public function test_do_sync_errors_if_read_only() {
-		\Automattic\Jetpack\Constants::set_constant( 'JETPACK_SYNC_READ_ONLY', true );
+		Constants::set_constant( 'JETPACK_SYNC_READ_ONLY', true );
 
 		$this->factory->post->create();
 		$response = $this->sender->do_sync();
-		\Automattic\Jetpack\Constants::clear_single_constant( 'JETPACK_SYNC_READ_ONLY' );
+		Constants::clear_single_constant( 'JETPACK_SYNC_READ_ONLY' );
 
 		$this->assertTrue( is_wp_error( $response ) );
 	}
@@ -566,13 +597,128 @@ class WP_Test_Jetpack_Sync_Sender extends WP_Test_Jetpack_Sync_Base {
 	 * Validate that WP_Error is returned in do_full_sync if JETPACK_SYNC_READ_ONLY is defined and true.
 	 */
 	public function test_do_full_sync_errors_if_read_only() {
-		\Automattic\Jetpack\Constants::set_constant( 'JETPACK_SYNC_READ_ONLY', true );
+		Constants::set_constant( 'JETPACK_SYNC_READ_ONLY', true );
 
 		$this->factory->post->create();
 		$response = $this->sender->do_full_sync();
-		\Automattic\Jetpack\Constants::clear_single_constant( 'JETPACK_SYNC_READ_ONLY' );
+		Constants::clear_single_constant( 'JETPACK_SYNC_READ_ONLY' );
 
 		$this->assertTrue( is_wp_error( $response ) );
+	}
+
+	/**
+	 * Test do_sync will spawn a dedicated Sync request when the corresponding setting is enabled.
+	 */
+	public function test_do_sync_spawns_dedicated_sync_request() {
+		Settings::update_settings( array( 'dedicated_sync_enabled' => 1 ) );
+		$this->factory->post->create();
+
+		add_filter( 'pre_http_request', array( $this, 'pre_http_sync_request_spawned' ), 10, 3 );
+		$this->sender->do_sync();
+		remove_filter( 'pre_http_request', array( $this, 'pre_http_sync_request_spawned' ) );
+
+		$this->assertTrue( $this->dedicated_sync_request_spawned );
+	}
+
+	/**
+	 * Test do_sync will NOT spawn a dedicated Sync request when the corresponding setting is enabled if the Sync queue is empty.
+	 */
+	public function test_do_sync_will_not_spawn_dedicated_sync_request_with_empty_queue() {
+		$this->sender->get_sync_queue()->reset();
+
+		Settings::update_settings( array( 'dedicated_sync_enabled' => 1 ) );
+
+		add_filter( 'pre_http_request', array( $this, 'pre_http_sync_request_spawned' ), 10, 3 );
+		$result = $this->sender->do_sync();
+		remove_filter( 'pre_http_request', array( $this, 'pre_http_sync_request_spawned' ) );
+
+		$this->assertFalse( $this->dedicated_sync_request_spawned );
+		$this->assertTrue( is_wp_error( $result ) );
+		$this->assertEquals( 'empty_queue_sync', $result->get_error_code() );
+	}
+
+	/**
+	 * Test do_sync will NOT spawn a dedicated Sync request when the corresponding setting is enabled if the Sync queue is locked.
+	 */
+	public function test_do_sync_will_not_spawn_dedicated_sync_request_with_locked_queue() {
+		$this->sender->get_sync_queue()->lock( 0 );
+
+		Settings::update_settings( array( 'dedicated_sync_enabled' => 1 ) );
+
+		add_filter( 'pre_http_request', array( $this, 'pre_http_sync_request_spawned' ), 10, 3 );
+		$result = $this->sender->do_sync();
+		remove_filter( 'pre_http_request', array( $this, 'pre_http_sync_request_spawned' ) );
+
+		$this->assertFalse( $this->dedicated_sync_request_spawned );
+		$this->assertTrue( is_wp_error( $result ) );
+		$this->assertEquals( 'locked_queue_sync', $result->get_error_code() );
+	}
+
+	/**
+	 * Test do_dedicated_sync_and_exit will NOT re-spawn a dedicated Sync request if queue is empty.
+	 */
+	public function test_do_dedicated_sync_and_exit_will_not_re_spawn_dedicated_sync_request_with_empty_queue() {
+		$this->expectException( ExitException::class );
+
+		Settings::update_settings( array( 'dedicated_sync_enabled' => 1 ) );
+		$this->factory->post->create();
+		// Current "request" is dedicated Sync request.
+		$_SERVER['REQUEST_METHOD']               = 'POST';
+		$_POST['jetpack_dedicated_sync_request'] = 1;
+
+		add_filter( 'pre_http_request', array( $this, 'pre_http_sync_request_spawned' ), 10, 3 );
+		$result = $this->sender->do_dedicated_sync_and_exit();
+		remove_filter( 'pre_http_request', array( $this, 'pre_http_sync_request_spawned' ) );
+
+		$this->assertFalse( $this->dedicated_sync_request_spawned );
+		$this->assertTrue( is_wp_error( $result ) );
+		$this->assertEquals( 'empty_queue_sync', $result->get_error_code() );
+	}
+
+	/**
+	 * Test do_dedicated_sync_and_exit will NOT re-spawn a dedicated Sync request if queue is locked.
+	 */
+	public function test_do_dedicated_sync_and_exit_will_not_re_spawn_dedicated_sync_request_with_locked_queue() {
+		$this->expectException( ExitException::class );
+
+		Settings::update_settings( array( 'dedicated_sync_enabled' => 1 ) );
+		$this->sender->get_sync_queue()->lock( 0 );
+		$this->factory->post->create();
+		// Current "request" is dedicated Sync request.
+		$_SERVER['REQUEST_METHOD']               = 'POST';
+		$_POST['jetpack_dedicated_sync_request'] = 1;
+
+		add_filter( 'pre_http_request', array( $this, 'pre_http_sync_request_spawned' ), 10, 3 );
+		$result = $this->sender->do_dedicated_sync_and_exit();
+		remove_filter( 'pre_http_request', array( $this, 'pre_http_sync_request_spawned' ) );
+
+		$this->assertFalse( $this->dedicated_sync_request_spawned );
+		$this->assertTrue( is_wp_error( $result ) );
+		$this->assertEquals( 'locked_queue_sync', $result->get_error_code() );
+	}
+
+	/**
+	 * Test do_dedicated_sync_and_exit will re-spawn a dedicated Sync request.
+	 */
+	public function test_do_dedicated_sync_and_exit_will_re_spawn_dedicated_sync_request() {
+		$this->expectException( ExitException::class );
+
+		Settings::update_settings( array( 'dedicated_sync_enabled' => 1 ) );
+		// Process one action at each run.
+		$this->sender->set_upload_max_rows( 1 );
+		// Trigger two new actions.
+		$this->factory->post->create();
+		$this->factory->post->create();
+		// Current "request" is dedicated Sync request.
+		$_SERVER['REQUEST_METHOD']               = 'POST';
+		$_POST['jetpack_dedicated_sync_request'] = 1;
+
+		add_filter( 'pre_http_request', array( $this, 'pre_http_sync_request_spawned' ), 10, 3 );
+		$result = $this->sender->do_dedicated_sync_and_exit();
+		remove_filter( 'pre_http_request', array( $this, 'pre_http_sync_request_spawned' ) );
+
+		$this->assertTrue( $this->dedicated_sync_request_spawned );
+		$this->assertTrue( $result );
 	}
 
 	function run_filter( $data ) {
@@ -607,5 +753,24 @@ class WP_Test_Jetpack_Sync_Sender extends WP_Test_Jetpack_Sync_Base {
 		$this->encoded_data = $data;
 
 		return $data;
+	}
+
+	/**
+	 * Intercept HTTP request to run Sync and mock the response.
+	 * Should be hooked on the `pre_http_request` filter.
+	 *
+	 * @param false  $preempt A preemptive return value of an HTTP request.
+	 * @param array  $args The request arguments.
+	 * @param string $url The request URL.
+	 *
+	 * @return array
+	 */
+	public function pre_http_sync_request_spawned( $preempt, $args, $url ) { // phpcs:ignore VariableAnalysis.CodeAnalysis.VariableAnalysis.UnusedVariable
+		$this->dedicated_sync_request_spawned = 'POST' === $args['method'] &&
+			isset( $args['body']['jetpack_dedicated_sync_request'] );
+
+		return array(
+			'success' => true,
+		);
 	}
 }

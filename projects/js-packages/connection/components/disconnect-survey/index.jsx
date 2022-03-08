@@ -164,7 +164,7 @@ const DisconnectSurvey = props => {
 			<p>
 				<Button
 					disabled={ ! selectedAnswer || isSubmittingFeedback }
-					isPrimary
+					variant="primary"
 					onClick={ handleSurveySubmit }
 					className="jp-connection__disconnect-dialog__btn-back-to-wp"
 				>

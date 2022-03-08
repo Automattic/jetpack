@@ -1,7 +1,7 @@
 /**
  * External dependencies
  */
-import { useEffect } from 'react';
+import { useCallback, useEffect } from 'react';
 import jetpackAnalytics from '@automattic/jetpack-analytics';
 import useMyJetpackConnection from '../use-my-jetpack-connection';
 
@@ -30,12 +30,30 @@ const useAnalytics = () => {
 		setProperties,
 		tracks,
 	} = jetpackAnalytics;
+
+	/**
+	 * Like tracks.recordEvent but provides specifics to My Jetpack
+	 *
+	 * @param {string} event       - event name
+	 * @param {object} properties  - event propeties
+	 */
+	const recordMyJetpackEvent = useCallback(
+		( event, properties ) => {
+			tracks.recordEvent( event, {
+				...properties,
+				version: window?.myJetpackInitialState?.myJetpackVersion,
+			} );
+		},
+		[ tracks ]
+	);
+
 	return {
 		clearedIdentity,
 		ga,
 		mc,
 		pageView,
 		purchase,
+		recordEvent: recordMyJetpackEvent,
 		setGoogleAnalyticsEnabled,
 		setMcAnalyticsEnabled,
 		setProperties,

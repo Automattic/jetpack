@@ -4,17 +4,19 @@
 		--wp-admin-theme-color-darker-10: var(--jp-black-80);
 		--wp-admin-theme-color-darker-20: var(--jp-black-80);
 		height: 100%;
+
+		.jetpack-logo {
+			height: 40px;
+		}
+
+		.jp-dashboard-footer__jetpack-symbol {
+			height: 16px;
+		}
 	}
-}
 
-.layout {
-	display: flex;
-	height: 100%;
-	flex-direction: column;
-	justify-content: space-between;
-	margin-left: -20px; // to neutralize the padding of #wpcontent.
-
-	@media (max-width: 782px) {
-		margin-left: -10px; // to neutralize the padding of #wpcontent.
+	#wpbody-content {
+		& > .notice {
+			display: none;
+		}
 	}
 }

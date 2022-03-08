@@ -37,7 +37,7 @@ const NoConsentBlockSettings = () => {
 					'jetpack'
 				) }
 			</p>
-			<Button isSecondary onClick={ insertConsentBlock } style={ { marginBottom: '1em' } }>
+			<Button variant="secondary" onClick={ insertConsentBlock } style={ { marginBottom: '1em' } }>
 				{ __( 'Add email permission request', 'jetpack' ) }
 			</Button>
 			<br />
