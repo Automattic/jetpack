@@ -19,7 +19,7 @@
 ### Bug fixes
 - Jetpack: remove the duplicated `jetpack_relatedposts_returned_results filter`.
 - Premium Content Block: login button now redirects to the correct post instead of to a 404 page when the URL contains characters that have been previously encoded.
-- Payment Blocks: fixed and issue with the upgrade banner being obscured from all payment blocks.
+- Payment Blocks: fixes an issue with the upgrade banner being obscured from all payment blocks.
 
 ### Other changes <!-- Non-user-facing changes go here. This section will not be copied to readme.txt. -->
 - Jetpack: added jetpack_upload_handler_can_upload filter for blocking specific file uploads.
