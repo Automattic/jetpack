@@ -77,7 +77,7 @@ if ( ! class_exists( 'Jetpack_Simple_Payments_Widget' ) ) {
 				add_action( 'admin_enqueue_scripts', array( $this, 'admin_enqueue_styles' ) );
 			}
 
-			$jetpack_simple_payments = Jetpack_Simple_Payments::getInstance();
+			$jetpack_simple_payments = Jetpack_Simple_Payments::get_instance();
 			if ( is_customize_preview() && $jetpack_simple_payments->is_enabled_jetpack_simple_payments() ) {
 				add_action( 'admin_enqueue_scripts', array( $this, 'admin_enqueue_scripts' ) );
 
@@ -429,7 +429,7 @@ if ( ! class_exists( 'Jetpack_Simple_Payments_Widget' ) ) {
 			if ( ! empty( $instance['form_action'] ) && in_array( $instance['form_action'], array( 'add', 'edit' ), true ) && is_customize_preview() ) {
 				require __DIR__ . '/simple-payments/widget.php';
 			} else {
-				$jsp                    = Jetpack_Simple_Payments::getInstance();
+				$jsp                    = Jetpack_Simple_Payments::get_instance();
 				$simple_payments_button = $jsp->parse_shortcode(
 					array(
 						'id' => $instance['product_post_id'],
@@ -580,7 +580,7 @@ if ( ! class_exists( 'Jetpack_Simple_Payments_Widget' ) ) {
 		 * @param array $instance Previously saved values from database.
 		 */
 		public function form( $instance ) {
-			$jetpack_simple_payments = Jetpack_Simple_Payments::getInstance();
+			$jetpack_simple_payments = Jetpack_Simple_Payments::get_instance();
 			if ( ! method_exists( $jetpack_simple_payments, 'is_enabled_jetpack_simple_payments' ) ) {
 				return;
 			}
@@ -612,7 +612,7 @@ if ( ! class_exists( 'Jetpack_Simple_Payments_Widget' ) ) {
 			return;
 		}
 
-		$jetpack_simple_payments = Jetpack_Simple_Payments::getInstance();
+		$jetpack_simple_payments = Jetpack_Simple_Payments::get_instance();
 		if ( ! $jetpack_simple_payments->is_enabled_jetpack_simple_payments() ) {
 			return;
 		}

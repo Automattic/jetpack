@@ -802,4 +802,4 @@ class Jetpack_Simple_Payments {
 		return null;
 	}
 }
-Jetpack_Simple_Payments::getInstance();
+Jetpack_Simple_Payments::get_instance();
