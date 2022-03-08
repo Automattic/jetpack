@@ -5,7 +5,7 @@ Tags: performance, speed, pagespeed, web vitals, critical css, optimize, defer
 Requires at least: 5.5
 Tested up to: 5.9
 Requires PHP: 7.0
-Stable tag: 1.3.0
+Stable tag: 1.4.0
 License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
 
@@ -165,25 +165,19 @@ If you run into compatibility issues, please do let us know. You can drop us a l
 1. Manage your Jetpack Boost settings
 
 == Changelog ==
-### 1.3.0-beta - 2021-10-04
-#### Security
-- Critical CSS: Add permissions checks to AJAX endpoints used when dismissing Critical CSS Recommendations.
-
+### 1.4.1-beta - 2022-03-08
 #### Added
-- Critical CSS: Add extra information to "fetch" errors when generating Critical CSS.
-- Critical CSS: Added explanation for mod-security HTTP 418 errors.
-- Critical CSS: Added stats tracking for generation outcomes.
-- Critical CSS: Added step-by-step instructions for Advanced Recommendations.
-- Critical CSS: More descriptive error message if critical css is failing because of x-frame-options deny config.
-- Speed Scores: Added "without Boost" speed score indicator.
+- Added internal support for Cloud Critical CSS.
+- Added My Jetpack page.
+- Added suggested steps when Critical CSS fails due to page errors.
 
 #### Changed
-- Critical CSS: Take port numbers into account when comparing origins for proxying.
+- Critical CSS: Exclude animation keyframes from Critical CSS Generation.
+- Deferred JS: Attribute to exclude scripts from deferral now allows quotes.
+- General: Boost is now compatible with WordPress 5.9.
+- Tidy up Critical CSS class structure.
+- Updated Dashboard heading with new Horizontal logo.
 
-#### Fixed
-- Critical CSS: Clear generated CSS on theme change.
-- Critical CSS: Ensure generator process is resumed after module deactivated and reactivated without reload.
-- Speed Scores: Clear speed score on plugin deactivation.
 --------
 
 [See the previous changelogs here](https://github.com/Automattic/jetpack/blob/master/projects/plugins/boost/CHANGELOG.md#changelog)

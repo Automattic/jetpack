@@ -2,6 +2,13 @@
 
 ### This is a list detailing changes for the Jetpack RNA Connection Component releases.
 
+## 0.17.1 - 2022-03-08
+### Added
+- Connection: Add footer prop for ConnectScreen
+
+### Changed
+- Components: update attributes used within the Button component to match recent deprecations and changes.
+
 ## 0.17.0 - 2022-03-02
 ### Added
 - Connection: Adds requiresUserConnection prop and makes error message show only when hasConnectedOwner and requiresUserConnection are both true.
