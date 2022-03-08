@@ -1,0 +1,4 @@
+Significance: patch
+Type: compat
+
+Simple Payments: allow a filter to disable the CPTs and other init hooks.

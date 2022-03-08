@@ -53,8 +53,10 @@ class Jetpack_Simple_Payments {
 	}
 
 	private function register_init_hooks() {
-		add_action( 'init', array( $this, 'init_hook_action' ) );
-		add_action( 'rest_api_init', array( $this, 'register_meta_fields_in_rest_api' ) );
+		if ( $this->is_enabled_jetpack_simple_payments() ) {
+			add_action( 'init', array( $this, 'init_hook_action' ) );
+			add_action( 'rest_api_init', array( $this, 'register_meta_fields_in_rest_api' ) );
+		}
 	}
 
 	private function register_shortcode() {
@@ -127,7 +129,7 @@ class Jetpack_Simple_Payments {
 	 *
 	 * @return bool True if Simple Payments are enabled, false otherwise.
 	 */
-	function is_enabled_jetpack_simple_payments() {
+	public function is_enabled_jetpack_simple_payments() {
 		/**
 		 * Can be used by plugin authors to disable the conflicting output of Simple Payments.
 		 *
