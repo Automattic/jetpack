@@ -1,7 +1,7 @@
 /**
  * External dependencies
  */
-import { PluginPrePublishPanel } from '@wordpress/edit-post';
+import { PluginPostPublishPanel } from '@wordpress/edit-post';
 import { __ } from '@wordpress/i18n';
 
 /**
@@ -16,7 +16,7 @@ export const name = 'post-publish-qr-post-panel';
 export const settings = {
 	render: function PluginPostPublishPanelQRPost() {
 		return (
-			<PluginPrePublishPanel
+			<PluginPostPublishPanel
 				name="post-publish-qr-post-panel"
 				title={ __( 'QR Code', 'jetpack' ) }
 				className="post-publish-qr-post-panel"
@@ -26,7 +26,7 @@ export const settings = {
 				<div className="post-publish-qr-post-panel__container">
 					<QRPost />
 				</div>
-			</PluginPrePublishPanel>
+			</PluginPostPublishPanel>
 		);
 	},
 };
