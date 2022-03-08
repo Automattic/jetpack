@@ -5,6 +5,7 @@ import { PluginPostPublishPanel } from '@wordpress/edit-post';
 import { __ } from '@wordpress/i18n';
 import { useSelect } from '@wordpress/data';
 import { store as editorStore } from '@wordpress/editor';
+import { store as coreStore } from '@wordpress/core-data';
 import { SVG, Path, Component } from '@wordpress/components';
 import { QRCode } from '@automattic/jetpack-components';
 
@@ -20,13 +21,45 @@ const QRIcon = () => (
 );
 
 /**
+ * React hook that returns the site logo data.
+ *
+ * @returns {object} Site Logo object data.
+ */
+function useSiteLogo() {
+	const { id, mediaItemData } = useSelect( select => {
+		const { canUser, getEntityRecord, getEditedEntityRecord } = select( coreStore );
+		const siteSettings = getEditedEntityRecord( 'root', 'site' );
+		const siteData = getEntityRecord( 'root', '__unstableBase' );
+		const siteLogo = siteSettings?.site_logo;
+		const readOnlyLogo = siteData?.site_logo;
+		const canUserEdit = canUser( 'update', 'settings' );
+		const siteLogoId = canUserEdit ? siteLogo : readOnlyLogo;
+		const mediaItem =
+			siteLogoId &&
+			select( coreStore ).getMedia( siteLogoId, {
+				context: 'view',
+			} );
+
+		return {
+			id: siteLogoId,
+			mediaItemData: mediaItem && {
+				mediaId: mediaItem.id,
+				url: mediaItem.source_url,
+				alt: mediaItem.alt_text,
+			},
+		};
+	}, [] );
+
+	return { id, ...mediaItemData };
+}
+
+/**
  * React component that renders a QR code for the post,
  * pulling the post data from the editor store.
  *
- * @param {object} props   - Component props.
  * @returns {Component}   The react component.
  */
-function QRPost( props ) {
+function QRPost() {
 	const {
 		post: { title },
 		permalink,
@@ -39,8 +72,23 @@ function QRPost( props ) {
 	);
 
 	const codeContent = `${ title } ${ permalink }`;
+	const { url: siteLogologoUrl } = useSiteLogo();
 
-	return <QRCode value={ codeContent } size={ 248 } renderAs="canvas" { ...props } />;
+	return (
+		<QRCode
+			value={ codeContent }
+			size={ 248 }
+			imageSettings={
+				siteLogologoUrl && {
+					src: siteLogologoUrl,
+					width: 48,
+					height: 48,
+					excavate: true,
+				}
+			}
+			level="H"
+		/>
+	);
 }
 
 export const name = 'post-publish-qr-post-panel';
