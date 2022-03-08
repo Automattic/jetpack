@@ -2,6 +2,10 @@
 
 ### This is a list detailing changes for all Jetpack releases.
 
+## 10.8-a.5 - 2022-03-08
+### Bug Fixes
+- Fixes an issue preventing WooCommerce from upgrading to 6.3.0.
+ 
 ## 10.8-a.3 - 2022-03-08
 ### Enhancements
 - Jetpack: assistant style updates and other improvements.
