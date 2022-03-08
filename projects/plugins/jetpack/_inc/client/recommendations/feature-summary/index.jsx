@@ -63,11 +63,11 @@ const FeatureSummaryComponent = props => {
 	const ctaButton = (
 		<div className="jp-recommendations-feature-summary__cta">
 			{ props.isFeatureActive ? (
-				<Button href={ configLink } onClick={ onConfigureClick }>
+				<Button rna href={ configLink } onClick={ onConfigureClick }>
 					{ configureButtonLabel }
 				</Button>
 			) : (
-				<InstallButton primary isInstalling={ isInstalling } onClick={ onInstallClick }>
+				<InstallButton primary rna isInstalling={ isInstalling } onClick={ onInstallClick }>
 					{ summaryActivateButtonLabel }
 				</InstallButton>
 			) }

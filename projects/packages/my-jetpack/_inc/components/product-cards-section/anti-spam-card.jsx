@@ -7,7 +7,7 @@ import PropTypes from 'prop-types';
 /**
  * Internal dependencies
  */
-import ProductCard from './connected-product-card';
+import ProductCard from '../connected-product-card';
 import useMyJetpackNavigate from '../../hooks/use-my-jetpack-navigate';
 
 const AntiSpamCard = ( { admin } ) => {

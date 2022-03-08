@@ -1,19 +1,5 @@
 lockfileVersion: 5.3
 
-overrides:
-  '@automattic/format-currency>i18n-calypso': ^5
-  '@storybook/addon-docs>@storybook/builder-webpack4': npm:@storybook/builder-webpack5@^6
-  '@storybook/core-common>webpack@4': '>= 4'
-  '@storybook/core-server>webpack@4': '>= 4'
-  '@storybook/core-server>@storybook/builder-webpack4': npm:@storybook/builder-webpack5@^6
-  '@storybook/core-server>@storybook/manager-webpack4': npm:@storybook/manager-webpack5@^6
-  '@storybook/react>webpack@4': '>= 4'
-  i18n-calypso>interpolate-components: npm:@automattic/interpolate-components@^1.2.0
-  jest-environment-enzyme>jest-environment-jsdom@^24.0.0: ^27
-  react-dev-utils>browserslist@^4: ^4
-  trim@0.0.1: ^0.0.3
-  yargs>yargs-parser@^5.0.1: ^20.0.0
-
 importers:
 
   .:
@@ -114,7 +100,7 @@ importers:
   projects/js-packages/components:
     specifiers:
       '@automattic/format-currency': 1.0.0-alpha.0
-      '@automattic/jetpack-base-styles': workspace:^0.1.9
+      '@automattic/jetpack-base-styles': workspace:^0.1.10
       '@babel/core': 7.16.0
       '@babel/preset-react': 7.16.0
       '@wordpress/browserslist-config': 4.1.1
@@ -126,6 +112,7 @@ importers:
       lodash: 4.17.21
       nyc: 15.1.0
       prop-types: ^15.7.2
+      qrcode.react: 2.0.0
       react: 17.0.2
       react-dom: 17.0.2
       react-test-renderer: 17.0.2
@@ -138,6 +125,7 @@ importers:
       classnames: 2.3.1
       lodash: 4.17.21
       prop-types: 15.8.1
+      qrcode.react: 2.0.0_react@17.0.2
     devDependencies:
       '@automattic/jetpack-base-styles': link:../base-styles
       '@babel/core': 7.16.0
@@ -160,8 +148,8 @@ importers:
     specifiers:
       '@automattic/jetpack-analytics': workspace:^0.1.8
       '@automattic/jetpack-api': workspace:^0.9.1
-      '@automattic/jetpack-base-styles': workspace:^0.1.9
-      '@automattic/jetpack-components': workspace:^0.10.8-alpha
+      '@automattic/jetpack-base-styles': workspace:^0.1.10
+      '@automattic/jetpack-components': workspace:^0.10.8
       '@automattic/jetpack-config': workspace:^0.1.3
       '@babel/core': 7.16.0
       '@babel/preset-react': 7.16.0
@@ -273,8 +261,8 @@ importers:
     specifiers:
       '@automattic/jetpack-analytics': workspace:^0.1.8
       '@automattic/jetpack-api': workspace:^0.9.1
-      '@automattic/jetpack-base-styles': workspace:^0.1.9
-      '@automattic/jetpack-components': workspace:^0.10.8-alpha
+      '@automattic/jetpack-base-styles': workspace:^0.1.10
+      '@automattic/jetpack-components': workspace:^0.10.8
       '@babel/core': 7.16.0
       '@babel/preset-react': 7.16.0
       '@wordpress/base-styles': 4.1.1
@@ -315,8 +303,8 @@ importers:
   projects/js-packages/licensing:
     specifiers:
       '@automattic/jetpack-api': workspace:^0.9.1
-      '@automattic/jetpack-base-styles': workspace:^0.1.9
-      '@automattic/jetpack-components': workspace:^0.10.8-alpha
+      '@automattic/jetpack-base-styles': workspace:^0.1.10
+      '@automattic/jetpack-components': workspace:^0.10.8
       '@babel/core': 7.16.0
       '@babel/preset-react': 7.16.0
       '@wordpress/components': 19.5.0
@@ -347,18 +335,22 @@ importers:
 
   projects/js-packages/partner-coupon:
     specifiers:
-      '@automattic/jetpack-base-styles': workspace:^0.1.9
-      '@automattic/jetpack-components': workspace:^0.10.8-alpha
-      '@automattic/jetpack-connection': workspace:^0.17.1-alpha
+      '@automattic/jetpack-analytics': workspace:^0.1.8
+      '@automattic/jetpack-base-styles': workspace:^0.1.10
+      '@automattic/jetpack-components': workspace:^0.10.8
+      '@automattic/jetpack-connection': workspace:^0.17.1
       '@babel/core': 7.16.0
       '@babel/preset-react': 7.16.0
       '@wordpress/base-styles': 4.1.1
+      '@wordpress/data': 6.3.0
       '@wordpress/i18n': 4.3.1
       classnames: 2.3.1
       jetpack-js-test-runner: workspace:*
       nyc: 15.1.0
       prop-types: 15.7.2
       react: 17.0.2
+      react-dom: 17.0.2
+      react-test-renderer: 17.0.2
     dependencies:
       '@automattic/jetpack-components': link:../components
       '@automattic/jetpack-connection': link:../connection
@@ -366,13 +358,17 @@ importers:
       classnames: 2.3.1
       prop-types: 15.7.2
     devDependencies:
+      '@automattic/jetpack-analytics': link:../analytics
       '@automattic/jetpack-base-styles': link:../base-styles
       '@babel/core': 7.16.0
       '@babel/preset-react': 7.16.0_@babel+core@7.16.0
       '@wordpress/base-styles': 4.1.1
+      '@wordpress/data': 6.3.0_react@17.0.2
       jetpack-js-test-runner: link:../../../tools/js-test-runner
       nyc: 15.1.0
       react: 17.0.2
+      react-dom: 17.0.2_react@17.0.2
+      react-test-renderer: 17.0.2_react@17.0.2
 
   projects/js-packages/remove-asset-webpack-plugin:
     specifiers:
@@ -398,7 +394,7 @@ importers:
 
   projects/js-packages/storybook:
     specifiers:
-      '@automattic/jetpack-base-styles': workspace:^0.1.9
+      '@automattic/jetpack-base-styles': workspace:^0.1.10
       '@babel/core': 7.16.0
       '@babel/plugin-syntax-jsx': 7.16.0
       '@babel/preset-react': 7.16.0
@@ -551,7 +547,7 @@ importers:
   projects/packages/connection-ui:
     specifiers:
       '@automattic/jetpack-api': workspace:^0.9.1
-      '@automattic/jetpack-connection': workspace:^0.17.1-alpha
+      '@automattic/jetpack-connection': workspace:^0.17.1
       '@automattic/jetpack-webpack-config': workspace:^1.1.4
       '@babel/core': 7.16.0
       '@babel/preset-env': 7.16.4
@@ -589,9 +585,12 @@ importers:
       webpack: 5.65.0_webpack-cli@4.9.1
       webpack-cli: 4.9.1_webpack@5.65.0
 
+  projects/packages/google-fonts-provider:
+    specifiers: {}
+
   projects/packages/identity-crisis:
     specifiers:
-      '@automattic/jetpack-idc': workspace:^0.10.1-alpha
+      '@automattic/jetpack-idc': workspace:^0.10.1
       '@automattic/jetpack-webpack-config': workspace:^1.1.4
       '@babel/core': 7.16.0
       '@babel/preset-env': 7.16.4
@@ -654,9 +653,9 @@ importers:
     specifiers:
       '@automattic/format-currency': 1.0.0-alpha.0
       '@automattic/jetpack-analytics': workspace:^0.1.8
-      '@automattic/jetpack-base-styles': workspace:^0.1.9
-      '@automattic/jetpack-components': workspace:^0.10.8-alpha
-      '@automattic/jetpack-connection': workspace:^0.17.1-alpha
+      '@automattic/jetpack-base-styles': workspace:^0.1.10
+      '@automattic/jetpack-components': workspace:^0.10.8
+      '@automattic/jetpack-connection': workspace:^0.17.1
       '@automattic/jetpack-webpack-config': workspace:^1.1.4
       '@babel/core': 7.16.0
       '@babel/preset-env': 7.16.4
@@ -730,7 +729,7 @@ importers:
       '@automattic/color-studio': 2.5.0
       '@automattic/jetpack-analytics': workspace:^0.1.8
       '@automattic/jetpack-api': workspace:^0.9.1
-      '@automattic/jetpack-components': workspace:^0.10.8-alpha
+      '@automattic/jetpack-components': workspace:^0.10.8
       '@automattic/jetpack-webpack-config': workspace:^1.1.4
       '@babel/core': 7.16.0
       '@babel/plugin-proposal-nullish-coalescing-operator': 7.16.0
@@ -830,9 +829,9 @@ importers:
   projects/plugins/backup:
     specifiers:
       '@automattic/jetpack-api': workspace:^0.9.1
-      '@automattic/jetpack-base-styles': workspace:^0.1.9
-      '@automattic/jetpack-components': workspace:^0.10.8-alpha
-      '@automattic/jetpack-connection': workspace:^0.17.1-alpha
+      '@automattic/jetpack-base-styles': workspace:^0.1.10
+      '@automattic/jetpack-components': workspace:^0.10.8
+      '@automattic/jetpack-connection': workspace:^0.17.1
       '@automattic/jetpack-webpack-config': workspace:^1.1.4
       '@babel/core': 7.16.0
       '@babel/preset-env': 7.16.4
@@ -893,7 +892,7 @@ importers:
       '@wordpress/i18n': 4.3.1
       eslint-plugin-import: 2.25.4
       eslint-plugin-svelte3: 3.2.1
-      jetpack-boost-critical-css-gen: github:automattic/jetpack-boost-critical-css-gen#release-0.0.2
+      jetpack-boost-critical-css-gen: github:automattic/jetpack-boost-critical-css-gen#release-0.0.4
       node-wp-i18n: 1.2.6
       npm-run-all: 4.1.5
       prettier-plugin-svelte: 2.4.0
@@ -913,7 +912,7 @@ importers:
     dependencies:
       '@wordpress/components': 19.5.0_@babel+core@7.16.0
       '@wordpress/element': 4.1.1
-      jetpack-boost-critical-css-gen: github.com/automattic/jetpack-boost-critical-css-gen/0232a05d6681315f40365143c7ed93707933f7e3
+      jetpack-boost-critical-css-gen: github.com/automattic/jetpack-boost-critical-css-gen/91e0ed5e0cf6296fd06f525d1fc016d5d46af86f
     devDependencies:
       '@babel/core': 7.16.0
       '@babel/preset-env': 7.16.4_@babel+core@7.16.0
@@ -967,11 +966,11 @@ importers:
       '@automattic/format-currency': 1.0.0-alpha.0
       '@automattic/jetpack-analytics': workspace:^0.1.8
       '@automattic/jetpack-api': workspace:^0.9.1
-      '@automattic/jetpack-base-styles': workspace:^0.1.9
-      '@automattic/jetpack-components': workspace:^0.10.8-alpha
-      '@automattic/jetpack-connection': workspace:^0.17.1-alpha
-      '@automattic/jetpack-licensing': workspace:^0.4.9-alpha
-      '@automattic/jetpack-partner-coupon': workspace:^0.2.3-alpha
+      '@automattic/jetpack-base-styles': workspace:^0.1.10
+      '@automattic/jetpack-components': workspace:^0.10.8
+      '@automattic/jetpack-connection': workspace:^0.17.1
+      '@automattic/jetpack-licensing': workspace:^0.4.9
+      '@automattic/jetpack-partner-coupon': workspace:^0.2.3
       '@automattic/jetpack-shared-extension-utils': workspace:^0.1.1
       '@automattic/jetpack-webpack-config': workspace:^1.1.4
       '@automattic/popup-monitor': 1.0.0
@@ -988,7 +987,7 @@ importers:
       '@babel/preset-typescript': 7.16.0
       '@babel/register': 7.16.0
       '@babel/runtime': 7.16.3
-      '@size-limit/preset-app': 4.10.2
+      '@size-limit/preset-app': 5.0.3
       '@testing-library/dom': 7.31.2
       '@testing-library/jest-dom': 5.14.1
       '@testing-library/preact': 2.0.1
@@ -1221,7 +1220,7 @@ importers:
       '@babel/preset-typescript': 7.16.0_@babel+core@7.16.0
       '@babel/register': 7.16.0_@babel+core@7.16.0
       '@babel/runtime': 7.16.3
-      '@size-limit/preset-app': 4.10.2_size-limit@5.0.3
+      '@size-limit/preset-app': 5.0.3_size-limit@5.0.3
       '@testing-library/dom': 7.31.2
       '@testing-library/jest-dom': 5.14.1
       '@testing-library/preact': 2.0.1_preact@10.5.15
@@ -1547,8 +1546,8 @@ packages:
   /@automattic/components/1.0.0-alpha.3_react-dom@17.0.2+react@17.0.2:
     resolution: {integrity: sha512-6PgogtcbvKEM7dQDXMUBbnGkwhf+0h29p/6sd8jfNoDlSxJJylcfZCio0yWuVKiSLAm9KWozeY5cqgI0nRcuzg==}
     peerDependencies:
-      react: ^16.8
-      react-dom: ^16.8
+      react: ^16.8 || ^17
+      react-dom: ^16.8 || ^17
     dependencies:
       '@babel/runtime': 7.16.3
       classnames: 2.3.1
@@ -1597,7 +1596,7 @@ packages:
   /@automattic/social-previews/1.1.1_edc9d35b6fed41a4eb185f8d2d8c0f59:
     resolution: {integrity: sha512-yt15yIatJcGRJKhDVGpj7i7Q6l4uQnMvzjgoOU3uUC/wwLZRji+0tRrD8xfsq12hXwnx1cEkEQeSoSozZzsAtA==}
     peerDependencies:
-      react: ^16.12.0
+      react: ^16.12.0 || ^17
     dependencies:
       '@babel/runtime': 7.16.3
       '@wordpress/components': 12.0.9_edc9d35b6fed41a4eb185f8d2d8c0f59
@@ -5697,11 +5696,11 @@ packages:
       - supports-color
     dev: true
 
-  /@size-limit/file/4.10.2_size-limit@5.0.3:
-    resolution: {integrity: sha512-IrmEzZitNMTyGcbvIN5bMN6u8A5x8M1YVjfJnEiO3mukMtszGK2yOqVYltyyvB0Qm0Wvqcm4qXAxxRASXtDwVg==}
-    engines: {node: '>=10.0.0'}
+  /@size-limit/file/5.0.3_size-limit@5.0.3:
+    resolution: {integrity: sha512-tkxf5ntFdlZ1xHQAw4fYd+gIkH85S2D3Wb94upJhtOfPHwDsQoQycDFGQRwTgei07Eq5vA8Jj5f2mu/tAdoaXw==}
+    engines: {node: ^12.0.0 || ^14.0.0 || >=16.0.0}
     peerDependencies:
-      size-limit: 4.10.2
+      size-limit: 5.0.3
     dependencies:
       semver: 7.3.5
       size-limit: 5.0.3
@@ -5717,13 +5716,13 @@ packages:
       size-limit: 6.0.3
     dev: true
 
-  /@size-limit/preset-app/4.10.2_size-limit@5.0.3:
-    resolution: {integrity: sha512-B/+okE4Jn/N4rqIhy+ZpgdQ72BMQwpkxIHp+rCdFDib1H7VVbgLwyei9mfIco4cKNzk/EkQ6wd4Hyit6OsY0pQ==}
+  /@size-limit/preset-app/5.0.3_size-limit@5.0.3:
+    resolution: {integrity: sha512-5lJunj5TZ+i/VPUlBmKvTcxW6Q0blKWj70CpH1z+RfrWRrnbqUJBkmjKWFp0NPUrkOnoMErqr/2EPxqmfLlSZw==}
     peerDependencies:
-      size-limit: 4.10.2
+      size-limit: 5.0.3
     dependencies:
-      '@size-limit/file': 4.10.2_size-limit@5.0.3
-      '@size-limit/time': 4.10.2_size-limit@5.0.3
+      '@size-limit/file': 5.0.3_size-limit@5.0.3
+      '@size-limit/time': 5.0.3_size-limit@5.0.3
       size-limit: 5.0.3
     transitivePeerDependencies:
       - bufferutil
@@ -5747,10 +5746,11 @@ packages:
       - utf-8-validate
     dev: true
 
-  /@size-limit/time/4.10.2_size-limit@5.0.3:
-    resolution: {integrity: sha512-zvpCDojR0+B1gHCAiLWCm4eLlapLMZYuNLE+SVOn0QR1/L9UwERFvXy5/sIJO62qX/MNusyhBmC2NkqB9gOtjg==}
+  /@size-limit/time/5.0.3_size-limit@5.0.3:
+    resolution: {integrity: sha512-BGBR38hPPwlHRwa+p+yVDXZYdmyLZ8DT0InMBlnbrAa/FthF34zeccIAx7lh4NGp+8rntxT3VOL59PpcLn1fxQ==}
+    engines: {node: ^12.0.0 || ^14.0.0 || >=16.0.0}
     peerDependencies:
-      size-limit: 4.10.2
+      size-limit: 5.0.3
     dependencies:
       estimo: 2.3.3
       react: 17.0.2
@@ -6806,7 +6806,7 @@ packages:
       '@types/node': 14.18.10
       '@types/node-fetch': 2.5.12
       '@types/pretty-hrtime': 1.0.1
-      '@types/webpack': 4.41.32
+      '@types/webpack': 5.28.0
       better-opn: 2.1.1
       boxen: 5.1.2
       chalk: 4.1.2
@@ -6882,7 +6882,7 @@ packages:
       '@types/node': 14.18.10
       '@types/node-fetch': 2.5.12
       '@types/pretty-hrtime': 1.0.1
-      '@types/webpack': 4.41.32
+      '@types/webpack': 5.28.0
       better-opn: 2.1.1
       boxen: 5.1.2
       chalk: 4.1.2
@@ -7892,27 +7892,13 @@ packages:
   /@types/scheduler/0.16.2:
     resolution: {integrity: sha512-hppQEBDmlwhFAXKJX2KnWLYu5yMfi91yazPb2l+lbJiwW+wdo1gNeRA+3RgNSO39WYX2euey41KEwnqesU2Jew==}
 
-  /@types/source-list-map/0.1.2:
-    resolution: {integrity: sha512-K5K+yml8LTo9bWJI/rECfIPrGgxdpeNbj+d53lwN4QjW1MCwlkhUms+gtdzigTeUyBr09+u8BwOIY3MXvHdcsA==}
-    dev: true
-
   /@types/stack-utils/2.0.1:
     resolution: {integrity: sha512-Hl219/BT5fLAaz6NDkSuhzasy49dwQS/DSdu4MdggFB8zcXv7vflBI3xp7FEmkmdDkBUI2bPUNeMttp2knYdxw==}
-
-  /@types/tapable/1.0.8:
-    resolution: {integrity: sha512-ipixuVrh2OdNmauvtT51o3d8z12p6LtFW9in7U79der/kwejjdNchQC5UMn5u/KxNoM7VHHOs/l8KS8uHxhODQ==}
-    dev: true
 
   /@types/testing-library__jest-dom/5.14.2:
     resolution: {integrity: sha512-vehbtyHUShPxIa9SioxDwCvgxukDMH//icJG90sXQBUm5lJOHLT5kNeU9tnivhnA/TkOFMzGIXN2cTc4hY8/kg==}
     dependencies:
       '@types/jest': 27.4.0
-    dev: true
-
-  /@types/uglify-js/3.13.1:
-    resolution: {integrity: sha512-O3MmRAk6ZuAKa9CHgg0Pr0+lUOqoMLpc9AS4R8ano2auvsg7IE8syF3Xh/NPr26TWklxYcqoEEFdzLLs1fV9PQ==}
-    dependencies:
-      source-map: 0.6.1
     dev: true
 
   /@types/unist/2.0.6:
@@ -7923,23 +7909,17 @@ packages:
     resolution: {integrity: sha512-9gtOPPkfyNoEqCQgx4qJKkuNm/x0R2hKR7fdl7zvTJyHnIisuE/LfvXOsYWL0o3qq6uiBnKZNNNzi3l0y/X+xw==}
     dev: true
 
-  /@types/webpack-sources/3.2.0:
-    resolution: {integrity: sha512-Ft7YH3lEVRQ6ls8k4Ff1oB4jN6oy/XmU6tQISKdhfh+1mR+viZFphS6WL0IrtDOzvefmJg5a0s7ZQoRXwqTEFg==}
+  /@types/webpack/5.28.0:
+    resolution: {integrity: sha512-8cP0CzcxUiFuA9xGJkfeVpqmWTk9nx6CWwamRGCj95ph1SmlRRk9KlCZ6avhCbZd4L68LvYT6l1kpdEnQXrF8w==}
     dependencies:
-      '@types/node': 14.18.10
-      '@types/source-list-map': 0.1.2
-      source-map: 0.7.3
-    dev: true
-
-  /@types/webpack/4.41.32:
-    resolution: {integrity: sha512-cb+0ioil/7oz5//7tZUSwbrSAN/NWHrQylz5cW8G0dWTcF/g+/dSdMlKVZspBYuMAN1+WnwHrkxiRrLcwd0Heg==}
-    dependencies:
-      '@types/node': 14.18.10
-      '@types/tapable': 1.0.8
-      '@types/uglify-js': 3.13.1
-      '@types/webpack-sources': 3.2.0
-      anymatch: 3.1.2
-      source-map: 0.6.1
+      '@types/node': 17.0.16
+      tapable: 2.2.1
+      webpack: 5.65.0
+    transitivePeerDependencies:
+      - '@swc/core'
+      - esbuild
+      - uglify-js
+      - webpack-cli
     dev: true
 
   /@types/yargs-parser/20.2.1:
@@ -9806,8 +9786,8 @@ packages:
     peerDependencies:
       '@wordpress/i18n': '>=3.17.0'
       '@wordpress/icons': '>=2.9'
-      react: ^16.13.1
-      react-dom: ^16.13.1
+      react: ^16.13.1 || ^17
+      react-dom: ^16.13.1 || ^17
     dependencies:
       '@popperjs/core': 2.11.2
       '@wordpress/i18n': 3.20.0
@@ -9837,8 +9817,8 @@ packages:
   /@wp-g2/context/0.0.140_804a22dccc5a330b05aeb149a481f06e:
     resolution: {integrity: sha512-z32fxZ2tCVmYQC+wyyziyrhEvWBPFBQfUhUHF85JmTUPzQQeEPiLC3rgDAT0fUTFlJHinPJQq6871RDqFSwCUA==}
     peerDependencies:
-      react: ^16.13.1
-      react-dom: ^16.13.1
+      react: ^16.13.1 || ^17
+      react-dom: ^16.13.1 || ^17
     dependencies:
       '@wp-g2/styles': 0.0.140_804a22dccc5a330b05aeb149a481f06e
       '@wp-g2/utils': 0.0.140_react-dom@17.0.2+react@17.0.2
@@ -9856,8 +9836,8 @@ packages:
     peerDependencies:
       '@wordpress/data': '>=4.26'
       '@wordpress/is-shallow-equal': '>=3.0'
-      react: ^16.13.1
-      react-dom: ^16.13.1
+      react: ^16.13.1 || ^17
+      react-dom: ^16.13.1 || ^17
     dependencies:
       '@emotion/core': 10.3.1_react@17.0.2
       '@emotion/is-prop-valid': 0.8.8
@@ -9880,8 +9860,8 @@ packages:
   /@wp-g2/styles/0.0.140_804a22dccc5a330b05aeb149a481f06e:
     resolution: {integrity: sha512-wAvtqQOqX2zYpfEdVK4l4abH/hUUgw/+8+E5PvPgrsvqFg8IehNSksnjNF5/IloLRGAH70d8ytjMuMnUK8PVYA==}
     peerDependencies:
-      react: ^16.13.1
-      react-dom: ^16.13.1
+      react: ^16.13.1 || ^17
+      react-dom: ^16.13.1 || ^17
     dependencies:
       '@wp-g2/create-styles': 0.0.140_804a22dccc5a330b05aeb149a481f06e
       '@wp-g2/utils': 0.0.140_react-dom@17.0.2+react@17.0.2
@@ -9896,8 +9876,8 @@ packages:
   /@wp-g2/utils/0.0.140_react-dom@17.0.2+react@17.0.2:
     resolution: {integrity: sha512-a4uYi/XQEDrOAIO3JUQ+L/oeSkgp+08pSy41xxQ1nIRHs7X+Du84X2EFQrvZfGBRuXuVlVuUIlN2e0IE8yUZKw==}
     peerDependencies:
-      react: ^16.13.1
-      react-dom: ^16.13.1
+      react: ^16.13.1 || ^17
+      react-dom: ^16.13.1 || ^17
     dependencies:
       copy-to-clipboard: 3.3.1
       create-emotion: 10.0.27
@@ -10031,7 +10011,7 @@ packages:
   /airbnb-prop-types/2.16.0:
     resolution: {integrity: sha512-7WHOFolP/6cS96PhKNrslCLMYAI8yB1Pp6u6XmxozQOiZbsI5ycglZr5cHhBFfuRcQQjzCMith5ZPZdYiJCxUg==}
     peerDependencies:
-      react: ^0.14 || ^15.0.0 || ^16.0.0-alpha
+      react: ^0.14 || ^15.0.0 || ^16.0.0-alpha || ^17
     dependencies:
       array.prototype.find: 2.1.2
       function.prototype.name: 1.1.5
@@ -10047,7 +10027,7 @@ packages:
   /airbnb-prop-types/2.16.0_react@17.0.2:
     resolution: {integrity: sha512-7WHOFolP/6cS96PhKNrslCLMYAI8yB1Pp6u6XmxozQOiZbsI5ycglZr5cHhBFfuRcQQjzCMith5ZPZdYiJCxUg==}
     peerDependencies:
-      react: ^0.14 || ^15.0.0 || ^16.0.0-alpha
+      react: ^0.14 || ^15.0.0 || ^16.0.0-alpha || ^17
     dependencies:
       array.prototype.find: 2.1.2
       function.prototype.name: 1.1.5
@@ -13630,10 +13610,10 @@ packages:
   /eslint-config-wpcalypso/6.1.0_11dfa443dfb9bfd86a5486c959f4047a:
     resolution: {integrity: sha512-FMdXC+jjS4vPI2zJ6b+C0cevn75SBC35DDgOgrRd6a4KriIQAiKhXQz14d7ivFyT48nOX6rEfJQqb4keKD5z/w==}
     peerDependencies:
-      eslint: ^7.0.0
-      eslint-plugin-inclusive-language: ^1.2.0
-      eslint-plugin-jsdoc: ^18.0.0
-      eslint-plugin-wpcalypso: ^3.4.1 || ^4.0.0
+      eslint: ^8
+      eslint-plugin-inclusive-language: '*'
+      eslint-plugin-jsdoc: '*'
+      eslint-plugin-wpcalypso: '*'
     dependencies:
       eslint: 8.8.0
       eslint-plugin-inclusive-language: 2.2.0
@@ -15430,7 +15410,7 @@ packages:
   /gridicons/3.3.1_react@17.0.2:
     resolution: {integrity: sha512-eQsmujjLptLtyhGuu31US3mXkcptYHkgEE/s277HWv+j6c3Z2gYyjoHcBKwSFbQwxbfhToRd5uzYimR2ExWJdQ==}
     peerDependencies:
-      react: "^15.3.0 ||\_^16.0.0 "
+      react: "^15.3.0 ||\_^16.0.0  || ^17"
     dependencies:
       prop-types: 15.7.2
       react: 17.0.2
@@ -16023,7 +16003,7 @@ packages:
   /i18n-calypso/5.0.0_react@17.0.2:
     resolution: {integrity: sha512-YgqLgshNiBOiifWxr4s33ODWQ4JIaHoBPWtgFyqcRy0+WGMX2CmTDbXaeZHkHxuIjzsGP+YrVTPNp7lfbiot4g==}
     peerDependencies:
-      react: ^16.8
+      react: ^16.8 || ^17
     dependencies:
       '@babel/runtime': 7.17.2
       '@tannin/sprintf': 1.2.0
@@ -20563,6 +20543,21 @@ packages:
     resolution: {integrity: sha512-Ug+B6yajVE5HF7eAszOvAcYmQ+DbYaDcQlxYuW9RaAqwZTRZQq+lHMGqHlnaxKP7CfuGCpXQXOb4qymRYMkYEQ==}
     dev: false
 
+  /qr.js/0.0.0:
+    resolution: {integrity: sha1-ys6GOG9ZoNuAUPqQ2baw6IoeNk8=}
+    dev: false
+
+  /qrcode.react/2.0.0_react@17.0.2:
+    resolution: {integrity: sha512-1CCzwC4KHYCzOLb7M+lKYqHzDMVsppKJBhrU1ZDCuJRHKiD99LeDHOkuvUKCRvnJgDzp9SnB6/WNA7qp6I7ozA==}
+    peerDependencies:
+      react: ^16.3.0 || ^17.0.0
+    dependencies:
+      loose-envify: 1.4.0
+      prop-types: 15.8.1
+      qr.js: 0.0.0
+      react: 17.0.2
+    dev: false
+
   /qs/6.10.3:
     resolution: {integrity: sha512-wr7M2E0OFRfIfJZjKGieI8lBKb7fRCH4Fv5KNPEs7gJ8jadvotdsS08PzOKR7opXhZ/Xkjtt3WF9g38drmyRqQ==}
     engines: {node: '>=0.6'}
@@ -20704,8 +20699,8 @@ packages:
   /react-autosize-textarea/7.1.0_react-dom@17.0.2+react@17.0.2:
     resolution: {integrity: sha512-BHpjCDkuOlllZn3nLazY2F8oYO1tS2jHnWhcjTWQdcKiiMU6gHLNt/fzmqMSyerR0eTdKtfSIqtSeTtghNwS+g==}
     peerDependencies:
-      react: ^0.14.0 || ^15.0.0 || ^16.0.0
-      react-dom: ^0.14.0 || ^15.0.0 || ^16.0.0
+      react: ^0.14.0 || ^15.0.0 || ^16.0.0 || ^17
+      react-dom: ^0.14.0 || ^15.0.0 || ^16.0.0 || ^17
     dependencies:
       autosize: 4.0.4
       line-height: 0.3.1
@@ -20716,8 +20711,8 @@ packages:
   /react-autosize-textarea/7.1.0_react@17.0.2:
     resolution: {integrity: sha512-BHpjCDkuOlllZn3nLazY2F8oYO1tS2jHnWhcjTWQdcKiiMU6gHLNt/fzmqMSyerR0eTdKtfSIqtSeTtghNwS+g==}
     peerDependencies:
-      react: ^0.14.0 || ^15.0.0 || ^16.0.0
-      react-dom: ^0.14.0 || ^15.0.0 || ^16.0.0
+      react: ^0.14.0 || ^15.0.0 || ^16.0.0 || ^17
+      react-dom: ^0.14.0 || ^15.0.0 || ^16.0.0 || ^17
     dependencies:
       autosize: 4.0.4
       line-height: 0.3.1
@@ -20769,8 +20764,8 @@ packages:
     resolution: {integrity: sha512-RDlerU8DdRRrlYS0MQ7Z9igPWABGLDwz6+ykBNff67RM3Sset2TDqeuOr+R5o00Ggn5U47GeLsGcSDxlZd9cHw==}
     peerDependencies:
       moment: ^2.18.1
-      react: ^0.14 || ^15.5.4 || ^16.1.1
-      react-dom: ^0.14 || ^15.5.4 || ^16.1.1
+      react: ^0.14 || ^15.5.4 || ^16.1.1 || ^17
+      react-dom: ^0.14 || ^15.5.4 || ^16.1.1 || ^17
     dependencies:
       airbnb-prop-types: 2.16.0_react@17.0.2
       consolidated-events: 2.0.2
@@ -20793,8 +20788,8 @@ packages:
     resolution: {integrity: sha512-RDlerU8DdRRrlYS0MQ7Z9igPWABGLDwz6+ykBNff67RM3Sset2TDqeuOr+R5o00Ggn5U47GeLsGcSDxlZd9cHw==}
     peerDependencies:
       moment: ^2.18.1
-      react: ^0.14 || ^15.5.4 || ^16.1.1
-      react-dom: ^0.14 || ^15.5.4 || ^16.1.1
+      react: ^0.14 || ^15.5.4 || ^16.1.1 || ^17
+      react-dom: ^0.14 || ^15.5.4 || ^16.1.1 || ^17
     dependencies:
       airbnb-prop-types: 2.16.0
       consolidated-events: 2.0.2
@@ -20816,8 +20811,8 @@ packages:
     resolution: {integrity: sha512-RDlerU8DdRRrlYS0MQ7Z9igPWABGLDwz6+ykBNff67RM3Sset2TDqeuOr+R5o00Ggn5U47GeLsGcSDxlZd9cHw==}
     peerDependencies:
       moment: ^2.18.1
-      react: ^0.14 || ^15.5.4 || ^16.1.1
-      react-dom: ^0.14 || ^15.5.4 || ^16.1.1
+      react: ^0.14 || ^15.5.4 || ^16.1.1 || ^17
+      react-dom: ^0.14 || ^15.5.4 || ^16.1.1 || ^17
     dependencies:
       airbnb-prop-types: 2.16.0_react@17.0.2
       consolidated-events: 2.0.2
@@ -20893,7 +20888,7 @@ packages:
   /react-dom/16.14.0_react@16.14.0:
     resolution: {integrity: sha512-1gCeQXDLoIqMgqD3IO2Ah9bnf0w9kzhwN5q4FGnHZ67hBm9yePzB5JJAIQCc8x3pFnNlwFq4RidZggNAAkzWWw==}
     peerDependencies:
-      react: ^16.14.0
+      react: ^16.14.0 || ^17
     dependencies:
       loose-envify: 1.4.0
       object-assign: 4.1.1
@@ -21145,7 +21140,7 @@ packages:
   /react-redux/6.0.1_react@17.0.2+redux@4.0.5:
     resolution: {integrity: sha512-T52I52Kxhbqy/6TEfBv85rQSDz6+Y28V/pf52vDWs1YRXG19mcFOGfHnY2HsNFHyhP+ST34Aih98fvt6tqwVcQ==}
     peerDependencies:
-      react: ^16.4.0-0
+      react: ^16.4.0-0 || ^17
       redux: ^2.0.0 || ^3.0.0 || ^4.0.0-0
     dependencies:
       '@babel/runtime': 7.16.3
@@ -21317,7 +21312,7 @@ packages:
   /react-tagsinput/3.19.0_react@17.0.2:
     resolution: {integrity: sha512-ni+/qnZrYrvLg83LtTFHErKy1KQHL0fi0Y6C5jgC1dNUePE9cS/OlQ4XH6JRSjv9GGoeVE0R/ujSBaS1uzCRYQ==}
     peerDependencies:
-      react: ^16.0.0 || ^15.0.0 || ^0.14.0
+      react: ^16.0.0 || ^15.0.0 || ^0.14.0 || ^17
     dependencies:
       react: 17.0.2
     dev: false
@@ -21370,8 +21365,8 @@ packages:
   /react-with-direction/1.4.0:
     resolution: {integrity: sha512-ybHNPiAmaJpoWwugwqry9Hd1Irl2hnNXlo/2SXQBwbLn/jGMauMS2y9jw+ydyX5V9ICryCqObNSthNt5R94xpg==}
     peerDependencies:
-      react: ^0.14 || ^15 || ^16
-      react-dom: ^0.14 || ^15 || ^16
+      react: ^0.14 || ^15 || ^16 || ^17
+      react-dom: ^0.14 || ^15 || ^16 || ^17
     dependencies:
       airbnb-prop-types: 2.16.0
       brcast: 2.0.2
@@ -21386,8 +21381,8 @@ packages:
   /react-with-direction/1.4.0_react-dom@17.0.2+react@17.0.2:
     resolution: {integrity: sha512-ybHNPiAmaJpoWwugwqry9Hd1Irl2hnNXlo/2SXQBwbLn/jGMauMS2y9jw+ydyX5V9ICryCqObNSthNt5R94xpg==}
     peerDependencies:
-      react: ^0.14 || ^15 || ^16
-      react-dom: ^0.14 || ^15 || ^16
+      react: ^0.14 || ^15 || ^16 || ^17
+      react-dom: ^0.14 || ^15 || ^16 || ^17
     dependencies:
       airbnb-prop-types: 2.16.0_react@17.0.2
       brcast: 2.0.2
@@ -21403,8 +21398,8 @@ packages:
   /react-with-direction/1.4.0_react@17.0.2:
     resolution: {integrity: sha512-ybHNPiAmaJpoWwugwqry9Hd1Irl2hnNXlo/2SXQBwbLn/jGMauMS2y9jw+ydyX5V9ICryCqObNSthNt5R94xpg==}
     peerDependencies:
-      react: ^0.14 || ^15 || ^16
-      react-dom: ^0.14 || ^15 || ^16
+      react: ^0.14 || ^15 || ^16 || ^17
+      react-dom: ^0.14 || ^15 || ^16 || ^17
     dependencies:
       airbnb-prop-types: 2.16.0_react@17.0.2
       brcast: 2.0.2
@@ -21590,8 +21585,8 @@ packages:
   /reakit-system/0.13.1_react-dom@17.0.2+react@17.0.2:
     resolution: {integrity: sha512-qglfQ53FsJh5+VSkjMtBg7eZiowj9zXOyfJJxfaXh/XYTVe/5ibzWg6rvGHyvSm6C3D7Q2sg/NPCLmCtYGGvQA==}
     peerDependencies:
-      react: ^16.8.0
-      react-dom: ^16.8.0
+      react: ^16.8.0 || ^17
+      react-dom: ^16.8.0 || ^17
     dependencies:
       react: 17.0.2
       react-dom: 17.0.2_react@17.0.2
@@ -21629,8 +21624,8 @@ packages:
   /reakit-utils/0.13.1_react-dom@17.0.2+react@17.0.2:
     resolution: {integrity: sha512-NBKgsot3tU91gZgK5MTInI/PR0T3kIsTmbU5MbGggSOcwU2dG/kbE8IrM2lC6ayCSL2W2QWkijT6kewdrIX7Gw==}
     peerDependencies:
-      react: ^16.8.0
-      react-dom: ^16.8.0
+      react: ^16.8.0 || ^17
+      react-dom: ^16.8.0 || ^17
     dependencies:
       react: 17.0.2
       react-dom: 17.0.2_react@17.0.2
@@ -21639,8 +21634,8 @@ packages:
   /reakit-utils/0.14.4_react-dom@17.0.2+react@17.0.2:
     resolution: {integrity: sha512-jDEf/NmZVJ6fs10G16ifD+RFhQikSLN7VfjRHu0CPoUj4g6lFXd5PPcRXCY81qiqc9FVHjr2d2fmsw1hs6xUxA==}
     peerDependencies:
-      react: ^16.8.0
-      react-dom: ^16.8.0
+      react: ^16.8.0 || ^17
+      react-dom: ^16.8.0 || ^17
     dependencies:
       react: 17.0.2
       react-dom: 17.0.2_react@17.0.2
@@ -21673,7 +21668,7 @@ packages:
   /reakit-warning/0.4.1_react-dom@17.0.2+react@17.0.2:
     resolution: {integrity: sha512-AgnRN6cf8DYBF/mK2JEMFVL67Sbon8fDbFy1kfm0EDibtGsMOQtsFYfozZL7TwmJ4yg68VMhg8tmPHchVQRrlg==}
     peerDependencies:
-      react: ^16.8.0
+      react: ^16.8.0 || ^17
     dependencies:
       react: 17.0.2
       reakit-utils: 0.13.1_react-dom@17.0.2+react@17.0.2
@@ -21684,7 +21679,7 @@ packages:
   /reakit-warning/0.5.5_react-dom@17.0.2+react@17.0.2:
     resolution: {integrity: sha512-OuP1r7rlSSJZsoLuc0CPA2ACPKnWO8HDbFktiiidbT67UjuX6udYV1AUsIgMJ8ado9K5gZGjPj7IB/GDYo9Yjg==}
     peerDependencies:
-      react: ^16.8.0
+      react: ^16.8.0 || ^17
     dependencies:
       react: 17.0.2
       reakit-utils: 0.14.4_react-dom@17.0.2+react@17.0.2
@@ -21725,8 +21720,8 @@ packages:
   /reakit/1.1.0_react-dom@17.0.2+react@17.0.2:
     resolution: {integrity: sha512-d/ERtwgBndBPsyPBPUl5jueyfFgsglIfQCnLMKuxM0PaWiIZ6Ys3XsYaNy/AaG8k46Ee5cQPMdRrR30nVcSToQ==}
     peerDependencies:
-      react: ^16.8.0
-      react-dom: ^16.8.0
+      react: ^16.8.0 || ^17
+      react-dom: ^16.8.0 || ^17
     dependencies:
       '@popperjs/core': 2.11.2
       body-scroll-lock: 3.1.5
@@ -22942,7 +22937,7 @@ packages:
   /social-logos/2.3.0_react@17.0.2:
     resolution: {integrity: sha512-md5+ZgxAvODCQpMMhe8h7QtmmUIKLI78xjL3tfxTTqzzGIT7NaeVIiiLla/aF5kktxN1W7UGvEbse3Dn4CdYmw==}
     peerDependencies:
-      react: "^15.3.0 ||\_^16.0.0"
+      react: "^15.3.0 ||\_^16.0.0 || ^17"
     dependencies:
       prop-types: 15.7.2
       react: 17.0.2
@@ -24567,7 +24562,7 @@ packages:
   /use-enhanced-state/0.0.13_react@17.0.2:
     resolution: {integrity: sha512-RCtUQdhfUXu/0GAQqLnKPetUt3BheYFpOTogppHe9x1XGwluiu6DQLKVNnc3yMfj0HM3IOVBgw5nVJJuZS5TWQ==}
     peerDependencies:
-      react: ^16.8.0
+      react: ^16.8.0 || ^17
     dependencies:
       '@itsjonq/is': 0.0.2
       react: 17.0.2
@@ -25366,11 +25361,19 @@ packages:
   /yargs-parser/20.2.9:
     resolution: {integrity: sha512-y11nGElTIV+CT3Zv9t7VKl+Q3hTQoT9a1Qzezhhl6Rp21gJ/IVTW7Z3y9EWXhuUBC2Shnf+DX0antecpAwSP8w==}
     engines: {node: '>=10'}
+    dev: true
 
   /yargs-parser/21.0.0:
     resolution: {integrity: sha512-z9kApYUOCwoeZ78rfRYYWdiU/iNL6mwwYlkkZfJoyMR1xps+NEBX5X7XmRpxkZHhXJ6+Ey00IwKxBBSW9FIjyA==}
     engines: {node: '>=12'}
     dev: true
+
+  /yargs-parser/5.0.1:
+    resolution: {integrity: sha512-wpav5XYiddjXxirPoCTUPbqM0PXvJ9hiBMvuJgInvo4/lAOTZzUprArw17q2O1P2+GHhbBr18/iQwjL5Z9BqfA==}
+    dependencies:
+      camelcase: 3.0.0
+      object.assign: 4.1.2
+    dev: false
 
   /yargs-unparser/2.0.0:
     resolution: {integrity: sha512-7pRTIA9Qc1caZ0bZ6RYRGbHJthJWuakf+WmHK0rVeLkNrrGhfoabBNdue6kdINI6r4if7ocq9aD/n7xwKOdzOA==}
@@ -25466,7 +25469,7 @@ packages:
       string-width: 1.0.2
       which-module: 1.0.0
       y18n: 3.2.2
-      yargs-parser: 20.2.9
+      yargs-parser: 5.0.1
     dev: false
 
   /yauzl/2.10.0:
@@ -25495,10 +25498,10 @@ packages:
     resolution: {integrity: sha512-V50KMwwzqJV0NpZIZFwfOD5/lyny3WlSzRiXgA0G7VUnRlqttta1L6UQIHzd6EuBY/cHGfwTIck7w1yH6Q5zUw==}
     dev: true
 
-  github.com/automattic/jetpack-boost-critical-css-gen/0232a05d6681315f40365143c7ed93707933f7e3:
-    resolution: {tarball: https://codeload.github.com/automattic/jetpack-boost-critical-css-gen/tar.gz/0232a05d6681315f40365143c7ed93707933f7e3}
+  github.com/automattic/jetpack-boost-critical-css-gen/91e0ed5e0cf6296fd06f525d1fc016d5d46af86f:
+    resolution: {tarball: https://codeload.github.com/automattic/jetpack-boost-critical-css-gen/tar.gz/91e0ed5e0cf6296fd06f525d1fc016d5d46af86f}
     name: jetpack-boost-critical-css-gen
-    version: 0.0.1
+    version: 0.0.4
     prepare: true
     requiresBuild: true
     dependencies:
