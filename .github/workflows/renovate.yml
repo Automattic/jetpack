@@ -1,0 +1,33 @@
+name: Renovate
+on:
+  workflow_dispatch:
+    inputs:
+      dryRun:
+        description: 'Dry run?'
+        required: false
+        type: boolean
+  schedule:
+    - cron: '0/15 * * * *'
+  # TODO: Remove these two lines before merging.
+  push:
+    branches: [ 'add/renovate-self-hosted' ]
+concurrency:
+  group: renovate-${{ github.ref }}
+
+jobs:
+  renovate:
+    name: Renovate
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+        with:
+          path: monorepo
+      - run: mv monorepo /tmp/monorepo
+      - uses: renovatebot/github-action@v32.0.3
+        with:
+          configurationFile: /tmp/monorepo/.github/renovate-config.js
+          # TODO: We need to change this to a token that has the "workflow" scope.
+          token: ${{ secrets.API_TOKEN_GITHUB }}
+        env:
+          LOG_LEVEL: 'debug'
+          RENOVATE_DRY_RUN: ${{ github.event_name == 'push' || github.event.inputs.dryRun }}
