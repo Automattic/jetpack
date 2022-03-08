@@ -1,7 +1,5 @@
 <?php
 
-use WPCOMSH_Feature_Manager\Manage_Additional_CSS_Feature;
-
 /**
  * Class Atomic_Plan_Manager
  * The plan manager gets initialize after all mu-plugins are loaded and
@@ -65,8 +63,6 @@ class Atomic_Plan_Manager {
 	 */
 	private function add_hooks() {
 		add_filter( 'map_meta_cap', array( $this, 'map_atomic_plan_cap' ), 10, 2 );
-
-		( new Manage_Additional_CSS_Feature( self::current_plan_slug() ) )->manage();
 	}
 
 	/**
