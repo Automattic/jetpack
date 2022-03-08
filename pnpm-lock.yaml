@@ -112,6 +112,7 @@ importers:
       lodash: 4.17.21
       nyc: 15.1.0
       prop-types: ^15.7.2
+      qrcode.react: 2.0.0
       react: 17.0.2
       react-dom: 17.0.2
       react-test-renderer: 17.0.2
@@ -124,6 +125,7 @@ importers:
       classnames: 2.3.1
       lodash: 4.17.21
       prop-types: 15.8.1
+      qrcode.react: 2.0.0_react@17.0.2
     devDependencies:
       '@automattic/jetpack-base-styles': link:../base-styles
       '@babel/core': 7.16.0
@@ -333,18 +335,22 @@ importers:
 
   projects/js-packages/partner-coupon:
     specifiers:
+      '@automattic/jetpack-analytics': workspace:^0.1.8
       '@automattic/jetpack-base-styles': workspace:^0.1.10-alpha
       '@automattic/jetpack-components': workspace:^0.10.8-alpha
       '@automattic/jetpack-connection': workspace:^0.17.1-alpha
       '@babel/core': 7.16.0
       '@babel/preset-react': 7.16.0
       '@wordpress/base-styles': 4.1.1
+      '@wordpress/data': 6.3.0
       '@wordpress/i18n': 4.3.1
       classnames: 2.3.1
       jetpack-js-test-runner: workspace:*
       nyc: 15.1.0
       prop-types: 15.7.2
       react: 17.0.2
+      react-dom: 17.0.2
+      react-test-renderer: 17.0.2
     dependencies:
       '@automattic/jetpack-components': link:../components
       '@automattic/jetpack-connection': link:../connection
@@ -352,13 +358,17 @@ importers:
       classnames: 2.3.1
       prop-types: 15.7.2
     devDependencies:
+      '@automattic/jetpack-analytics': link:../analytics
       '@automattic/jetpack-base-styles': link:../base-styles
       '@babel/core': 7.16.0
       '@babel/preset-react': 7.16.0_@babel+core@7.16.0
       '@wordpress/base-styles': 4.1.1
+      '@wordpress/data': 6.3.0_react@17.0.2
       jetpack-js-test-runner: link:../../../tools/js-test-runner
       nyc: 15.1.0
       react: 17.0.2
+      react-dom: 17.0.2_react@17.0.2
+      react-test-renderer: 17.0.2_react@17.0.2
 
   projects/js-packages/remove-asset-webpack-plugin:
     specifiers:
@@ -879,7 +889,7 @@ importers:
       '@wordpress/i18n': 4.3.1
       eslint-plugin-import: 2.25.4
       eslint-plugin-svelte3: 3.2.1
-      jetpack-boost-critical-css-gen: github:automattic/jetpack-boost-critical-css-gen#release-0.0.2
+      jetpack-boost-critical-css-gen: github:automattic/jetpack-boost-critical-css-gen#release-0.0.4
       node-wp-i18n: 1.2.6
       npm-run-all: 4.1.5
       prettier-plugin-svelte: 2.4.0
@@ -899,7 +909,7 @@ importers:
     dependencies:
       '@wordpress/components': 19.5.0_@babel+core@7.16.0
       '@wordpress/element': 4.1.1
-      jetpack-boost-critical-css-gen: github.com/automattic/jetpack-boost-critical-css-gen/0232a05d6681315f40365143c7ed93707933f7e3
+      jetpack-boost-critical-css-gen: github.com/automattic/jetpack-boost-critical-css-gen/91e0ed5e0cf6296fd06f525d1fc016d5d46af86f
     devDependencies:
       '@babel/core': 7.16.0
       '@babel/preset-env': 7.16.4_@babel+core@7.16.0
@@ -20530,6 +20540,21 @@ packages:
     resolution: {integrity: sha512-Ug+B6yajVE5HF7eAszOvAcYmQ+DbYaDcQlxYuW9RaAqwZTRZQq+lHMGqHlnaxKP7CfuGCpXQXOb4qymRYMkYEQ==}
     dev: false
 
+  /qr.js/0.0.0:
+    resolution: {integrity: sha1-ys6GOG9ZoNuAUPqQ2baw6IoeNk8=}
+    dev: false
+
+  /qrcode.react/2.0.0_react@17.0.2:
+    resolution: {integrity: sha512-1CCzwC4KHYCzOLb7M+lKYqHzDMVsppKJBhrU1ZDCuJRHKiD99LeDHOkuvUKCRvnJgDzp9SnB6/WNA7qp6I7ozA==}
+    peerDependencies:
+      react: ^16.3.0 || ^17.0.0
+    dependencies:
+      loose-envify: 1.4.0
+      prop-types: 15.8.1
+      qr.js: 0.0.0
+      react: 17.0.2
+    dev: false
+
   /qs/6.10.3:
     resolution: {integrity: sha512-wr7M2E0OFRfIfJZjKGieI8lBKb7fRCH4Fv5KNPEs7gJ8jadvotdsS08PzOKR7opXhZ/Xkjtt3WF9g38drmyRqQ==}
     engines: {node: '>=0.6'}
@@ -25470,10 +25495,10 @@ packages:
     resolution: {integrity: sha512-V50KMwwzqJV0NpZIZFwfOD5/lyny3WlSzRiXgA0G7VUnRlqttta1L6UQIHzd6EuBY/cHGfwTIck7w1yH6Q5zUw==}
     dev: true
 
-  github.com/automattic/jetpack-boost-critical-css-gen/0232a05d6681315f40365143c7ed93707933f7e3:
-    resolution: {tarball: https://codeload.github.com/automattic/jetpack-boost-critical-css-gen/tar.gz/0232a05d6681315f40365143c7ed93707933f7e3}
+  github.com/automattic/jetpack-boost-critical-css-gen/91e0ed5e0cf6296fd06f525d1fc016d5d46af86f:
+    resolution: {tarball: https://codeload.github.com/automattic/jetpack-boost-critical-css-gen/tar.gz/91e0ed5e0cf6296fd06f525d1fc016d5d46af86f}
     name: jetpack-boost-critical-css-gen
-    version: 0.0.1
+    version: 0.0.4
     prepare: true
     requiresBuild: true
     dependencies:
