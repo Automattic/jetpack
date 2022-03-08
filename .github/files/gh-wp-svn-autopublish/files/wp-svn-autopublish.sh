@@ -3,8 +3,10 @@
 set -eo pipefail
 
 : "${GITHUB_REF:?Build argument needs to be set and non-empty.}"
-: "${WPSVN_USERNAME:?Build argument needs to be set and non-empty.}"
-: "${WPSVN_PASSWORD:?Build argument needs to be set and non-empty.}"
+if [[ -n "$CI" ]]; then
+	: "${WPSVN_USERNAME:?Build argument needs to be set and non-empty.}"
+	: "${WPSVN_PASSWORD:?Build argument needs to be set and non-empty.}"
+fi
 
 ## Determine tag
 if [[ ! "$GITHUB_REF" =~ ^refs/tags/v?[0-9]+(\.[0-9]+)+(-[a-z0-9._-]+)?$ ]]; then
@@ -61,6 +63,25 @@ while IFS=" " read -r FLAG FILE; do
 	fi
 done < <( svn status )
 echo '::endgroup::'
+
+# Check that the stable tag in trunk/readme.txt is not being changed. If it is, try to undo the change.
+CHECK="$(svn diff trunk/readme.txt | grep '^[+-]Stable tag:' || true)"
+if [[ -n "$CHECK" ]]; then
+	LINE="$(grep --line-number --max-count=1 '^Stable tag:' trunk/readme.txt)"
+	if [[ -n "$LINE" ]]; then
+		echo "::warning::Stable tag must be updated manually! Update would change it, attempting to undo the change.%0A%0A${CHECK/$'\n'/%0A}"
+		nl=$'\n'
+		patch -R trunk/readme.txt <<<"@@ -${LINE%%:*},1 +${LINE%%:*},1 @@$nl$CHECK"
+		CHECK2="$(svn diff trunk/readme.txt | grep '^[+-]Stable tag:' || true)"
+		if [[ -n "$CHECK2" ]]; then
+			echo "::error::Attempt to revert stable tag change failed! Remaining diff:%0A%0A${CHECK2/$'\n'/%0A}"
+			exit 1
+		fi
+	else
+		echo "::error::Stable tag must be updated manually! Update would change it.%0A%0A${CHECK/$'\n'/%0A}"
+		exit 1
+	fi
+fi
 
 if [[ -n "$CI" ]]; then
 	echo "::group::Committing to SVN"
