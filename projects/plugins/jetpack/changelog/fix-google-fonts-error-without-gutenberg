@@ -1,0 +1,4 @@
+Significance: patch
+Type: bugfix
+
+Google Fonts: prevent error when Webfonts API is not available
