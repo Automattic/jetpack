@@ -3917,7 +3917,7 @@ p {
 		 * Optionally block uploads processed through Jetpack's upload_handler().
 		 * The filter may return false or WP_Error to block this particular upload.
 		 *
-		 * @since 10.8
+		 * @since $$next-version$$
 		 *
 		 * @param bool|WP_Error $allowed If false or WP_Error, block the upload. If true, allow the upload.
 		 * @param mixed $_FILES The $_FILES attempting to be uploaded.
@@ -3927,7 +3927,7 @@ p {
 			if ( is_wp_error( $can_upload ) ) {
 				return $can_upload;
 			}
-			return new WP_Error( 'handler_cannot_upload', 'The upload handler cannot upload files', 400 );
+			return new WP_Error( 'handler_cannot_upload', __( 'The upload handler cannot upload files', 'jetpack' ), 400 );
 		}
 
 		$uploaded_files = array();
