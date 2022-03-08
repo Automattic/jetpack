@@ -6,6 +6,7 @@ import PropTypes from 'prop-types';
 import classNames from 'classnames';
 import { __, sprintf } from '@wordpress/i18n';
 import { ButtonGroup, Button, DropdownMenu } from '@wordpress/components';
+import { Text } from '@automattic/jetpack-components';
 
 /**
  * Internal dependencies
@@ -192,10 +193,12 @@ const ProductCard = props => {
 	return (
 		<div className={ containerClassName }>
 			<div className={ styles.name }>
-				<span>{ name }</span>
+				<Text variant="title-small">{ name }</Text>
 				{ icon }
 			</div>
-			<p className={ styles.description }>{ description }</p>
+			<Text variant="body-small" className={ styles.description }>
+				{ description }
+			</Text>
 			<div className={ styles.actions }>
 				{ canDeactivate ? (
 					<ButtonGroup className={ styles.group }>
@@ -228,7 +231,11 @@ const ProductCard = props => {
 						onAdd={ addHandler }
 					/>
 				) }
-				{ ! isAbsent && <div className={ statusClassName }>{ flagLabel }</div> }
+				{ ! isAbsent && (
+					<Text variant="label" className={ statusClassName }>
+						{ flagLabel }
+					</Text>
+				) }
 			</div>
 		</div>
 	);
