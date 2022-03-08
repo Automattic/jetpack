@@ -22,7 +22,7 @@ const useAnalytics = () => {
 	}, [ ID, isUserConnected, login ] );
 
 	// Concatenated plugins slugs in alphabetical order
-	const connectedPluginsSlugs = Object.keys( connectedPlugins )
+	const connectedPluginsSlugs = Object.keys( connectedPlugins || {} )
 		.sort()
 		.join( ',' )
 		.replaceAll( 'jetpack-', '' );
