@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Fixed Backup flow when Jetpack plugin is active
