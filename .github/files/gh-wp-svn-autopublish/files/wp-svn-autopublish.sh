@@ -111,7 +111,7 @@ if [[ "$TAG" =~ ^[0-9]+(\.[0-9]+)+$ ]]; then
 		echo "::group::Checking out new tag"
 		svn up "tags/$TAG"
 		echo '::endgroup::'
-		sed -i -e "s/Stable tag: .*/Stable tag: $TAG/" "tags/$TAG/readme.txt"
+		sed -i -e "s/^Stable tag: .*/Stable tag: $TAG/" "tags/$TAG/readme.txt"
 		echo "::group::Committing to SVN"
 		svn commit -m "Updating stable tag in version $TAG" --no-auth-cache --non-interactive  --username "$WPSVN_USERNAME" --password "$WPSVN_PASSWORD"
 		echo '::endgroup::'
@@ -119,7 +119,7 @@ if [[ "$TAG" =~ ^[0-9]+(\.[0-9]+)+$ ]]; then
 		echo "----"
 		echo "Not running in CI, skipping tag \"Stable tag\" update"
 		echo "  svn up \"tags/$TAG\""
-		echo "  sed -i -e \"s/Stable tag: .*/Stable tag: $TAG/\" \"tags/$TAG/readme.txt\""
+		echo "  sed -i -e \"s/^Stable tag: .*/Stable tag: $TAG/\" \"tags/$TAG/readme.txt\""
 		echo "  svn commit -m \"Updating stable tag in version $TAG\" --no-auth-cache --non-interactive  --username \"\$WPSVN_USERNAME\" --password \"\$WPSVN_PASSWORD\""
 		echo "----"
 	fi
