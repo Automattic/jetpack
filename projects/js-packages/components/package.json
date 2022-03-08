@@ -16,7 +16,7 @@
 		"qrcode.react": "2.0.0"
 	},
 	"devDependencies": {
-		"@automattic/jetpack-base-styles": "workspace:^0.1.9",
+		"@automattic/jetpack-base-styles": "workspace:^0.1.10-alpha",
 		"@babel/core": "7.16.0",
 		"@babel/preset-react": "7.16.0",
 		"jetpack-js-test-runner": "workspace:*",
