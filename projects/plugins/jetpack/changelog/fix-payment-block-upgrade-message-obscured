@@ -1,0 +1,4 @@
+Significance: patch
+Type: bugfix
+
+Fixed and issue with the upgrade banner being obscured from all payment blocks. Also, now the upgrade lin does not have any text decorations.
