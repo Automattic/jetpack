@@ -5,6 +5,34 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.10.0] - 2022-03-02
+### Added
+- Search: add chart.js package to dependencies
+- Search: fetch search stats endpoint in wp-admin dashboard
+
+### Changed
+- Search: Renamed Customberg class file name
+- Updated package dependencies.
+
+### Fixed
+- Fix various notices shown for Customberg
+- Search package: i18n support for auto added search block label and button
+
+## [0.9.1] - 2022-02-25
+### Fixed
+- Search: Fixed a regression that prevented modal from being spawned by link clicks
+
+## [0.9.0] - 2022-02-22
+### Added
+- Bump package versions.
+- Search: add stats endpoint to REST controller
+
+### Changed
+- Search package: refactor `auto_config_search` and run it from activation API
+
+### Fixed
+- Search package: fix auto config doesn't add search input for block themes
+
 ## [0.8.0] - 2022-02-16
 ### Added
 - Add babel/runtime to dev dependencies
@@ -113,6 +141,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Updated package dependencies.
 - Update PHPUnit configs to include just what needs coverage rather than include everything then try to exclude stuff that doesn't.
 
+[0.10.0]: https://github.com/Automattic/jetpack-search/compare/v0.9.1...v0.10.0
+[0.9.1]: https://github.com/Automattic/jetpack-search/compare/v0.9.0...v0.9.1
+[0.9.0]: https://github.com/Automattic/jetpack-search/compare/v0.8.0...v0.9.0
 [0.8.0]: https://github.com/Automattic/jetpack-search/compare/v0.7.0...v0.8.0
 [0.7.0]: https://github.com/Automattic/jetpack-search/compare/v0.6.0...v0.7.0
 [0.6.0]: https://github.com/Automattic/jetpack-search/compare/v0.5.4...v0.6.0

@@ -1,4 +1,0 @@
-Significance: patch
-Type: bugfix
-
-Fix Fatal error in the WP.com customizer while in sandbox mode.

@@ -40,9 +40,6 @@ class Cloud_CSS_Request {
 
 	private function reset_existing_css() {
 		$storage = new Critical_CSS_Storage();
-
-		foreach ( $this->state->get_provider_urls() as $provider => $urls ) {
-			$storage->store_css( $provider, '/* ' . __( 'Jetpack Boost is currently generating critical css for this page', 'jetpack-boost' ) . ' */' );
-		}
+		$storage->clear();
 	}
 }

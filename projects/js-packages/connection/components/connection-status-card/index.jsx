@@ -36,9 +36,10 @@ const ConnectionStatusCard = props => {
 		connectedSiteId,
 		context,
 		onConnectUser,
+		requiresUserConnection,
 	} = props;
 
-	const { isRegistered, isUserConnected, userConnectionData } = useConnection( {
+	const { isRegistered, isUserConnected, userConnectionData, hasConnectedOwner } = useConnection( {
 		apiRoot,
 		apiNonce,
 	} );
@@ -154,11 +155,15 @@ const ConnectionStatusCard = props => {
 					</li>
 				) }
 
-				{ ! isUserConnected && (
-					<li className="jp-connection-status-card--list-item-error">
-						{ __( 'Requires user connection.', 'jetpack' ) }{ ' ' }
+				{ ! hasConnectedOwner && (
+					<li
+						className={ `jp-connection-status-card--list-item-${
+							requiresUserConnection ? 'error' : 'info'
+						}` }
+					>
+						{ requiresUserConnection && __( 'Requires user connection.', 'jetpack' ) }{ ' ' }
 						<Button
-							isLink
+							variant="link"
 							disabled={ userIsConnecting }
 							onClick={ handleConnectUser }
 							className="jp-connection-status-card--btn-connect-user"
@@ -195,6 +200,8 @@ ConnectionStatusCard.propTypes = {
 	context: PropTypes.string,
 	/** Function to override default action for connect user account */
 	onConnectUser: PropTypes.func,
+	/** Shows an requires user connection message if true and a user connection is missing */
+	requiresUserConnection: PropTypes.bool,
 };
 
 ConnectionStatusCard.defaultProps = {
@@ -205,6 +212,7 @@ ConnectionStatusCard.defaultProps = {
 	),
 	redirectUri: null,
 	onConnectUser: null,
+	requiresUserConnection: true,
 };
 
 export default ConnectionStatusCard;

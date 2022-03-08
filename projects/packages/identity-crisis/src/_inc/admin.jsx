@@ -32,6 +32,7 @@ function render() {
 		isSafeModeConfirmed,
 		consumerData,
 		isAdmin,
+		possibleDynamicSiteUrlDetected,
 	} = window.JP_IDENTITY_CRISIS__INITIAL_STATE;
 
 	if ( ! isSafeModeConfirmed ) {
@@ -42,13 +43,14 @@ function render() {
 				apiRoot={ WP_API_root }
 				apiNonce={ WP_API_nonce }
 				redirectUri={ redirectUri }
-				tracksUserData={ tracksUserData }
+				tracksUserData={ tracksUserData || {} }
 				tracksEventData={ tracksEventData }
 				customContent={
 					consumerData.hasOwnProperty( 'customContent' ) ? consumerData.customContent : {}
 				}
 				isAdmin={ isAdmin }
 				logo={ consumerData.hasOwnProperty( 'logo' ) ? consumerData.logo : undefined }
+				possibleDynamicSiteUrlDetected={ possibleDynamicSiteUrlDetected }
 			/>,
 			container
 		);

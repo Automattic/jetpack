@@ -52,7 +52,7 @@ const ActionButton = ( {
 } ) => {
 	if ( ! admin ) {
 		return (
-			<Button variant="link" onClick={ onLearn }>
+			<Button variant="link" onClick={ onLearn } className={ styles[ 'action-link-button' ] }>
 				{
 					/* translators: placeholder is product name. */
 					sprintf( __( 'Learn about %s', 'jetpack-my-jetpack' ), name )
@@ -62,7 +62,7 @@ const ActionButton = ( {
 	}
 
 	const buttonState = {
-		isPrimary: ! isFetching,
+		variant: ! isFetching ? 'primary' : undefined,
 		disabled: isFetching,
 	};
 
@@ -70,7 +70,7 @@ const ActionButton = ( {
 		case PRODUCT_STATUSES.NEEDS_PURCHASE:
 		case PRODUCT_STATUSES.ABSENT:
 			return (
-				<Button variant="link" onClick={ onAdd }>
+				<Button variant="link" onClick={ onAdd } className={ styles[ 'action-link-button' ] }>
 					{
 						/* translators: placeholder is product name. */
 						sprintf( __( 'Add %s', 'jetpack-my-jetpack' ), name )
@@ -95,6 +95,9 @@ const ActionButton = ( {
 					{ __( 'Activate', 'jetpack-my-jetpack' ) }
 				</Button>
 			);
+
+		default:
+			return null;
 	}
 };
 
@@ -134,9 +137,7 @@ const ProductCard = props => {
 		[ styles[ 'is-fetching' ] ]: isFetching,
 	} );
 
-	const {
-		tracks: { recordEvent },
-	} = useAnalytics();
+	const { recordEvent } = useAnalytics();
 
 	/**
 	 * Calls the passed function onDeactivate after firing Tracks event

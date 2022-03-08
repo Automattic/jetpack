@@ -1,11 +1,10 @@
 /**
  * External dependencies
  */
-import { createInterpolateElement } from '@wordpress/element';
 import { __, sprintf } from '@wordpress/i18n';
 import classNames from 'classnames';
 import { isEmpty } from 'lodash';
-import React, { useCallback, useEffect } from 'react';
+import React, { useEffect } from 'react';
 import { connect } from 'react-redux';
 
 /**
@@ -13,18 +12,15 @@ import { connect } from 'react-redux';
  */
 import { FeatureSummary } from '../feature-summary';
 import { JetpackLoadingIcon } from 'components/jetpack-loading-icon';
+import { MoneyBackGuarantee } from 'components/money-back-guarantee';
 import { OneClickRestores } from '../sidebar/one-click-restores';
 import { Security } from '../sidebar/security';
 import { MobileApp } from '../sidebar/mobile-app';
 import { ProductCardUpsellNoPrice } from '../sidebar/product-card-upsell-no-price';
-import { ProductCardUpsell } from '../sidebar/product-card-upsell';
-import ExternalLink from 'components/external-link';
-import Gridicon from 'components/gridicon';
-import analytics from 'lib/analytics';
-import { getUpgradeUrl } from 'state/initial-state';
+import { ProductCardUpsell } from '../product-card-upsell';
+import { getUpgradeUrl, getSiteTitle } from 'state/initial-state';
 import {
 	getSidebarCardSlug,
-	getSiteTypeDisplayName,
 	getSummaryFeatureSlugs,
 	getUpsell,
 	updateRecommendationsStep as updateRecommendationsStepAction,
@@ -42,16 +38,12 @@ const SummaryComponent = props => {
 		isFetchingMainData,
 		isFetchingSidebarData,
 		sidebarCardSlug,
-		siteTypeDisplayName,
+		siteTitle,
 		summaryFeatureSlugs,
 		updateRecommendationsStep,
 		upgradeUrl,
 		upsell,
 	} = props;
-
-	const onLearnMoreClick = useCallback( () => {
-		analytics.tracks.recordEvent( 'jetpack_recommended_summary_learn_more_click' );
-	}, [] );
 
 	useEffect( () => {
 		updateRecommendationsStep( 'summary' );
@@ -64,12 +56,9 @@ const SummaryComponent = props => {
 			<div className="jp-recommendations-summary__configuration">
 				<h1>
 					{ sprintf(
-						/* translators: placeholder indicates the type of site, such as "personal site" or "store" */
-						__(
-							'Nice work! Let’s ensure the features you enabled are configured for your %s.',
-							'jetpack'
-						),
-						siteTypeDisplayName
+						/* translators: %s is the site name */
+						__( 'Nice work! Let’s recap what we enabled for %s.', 'jetpack' ),
+						siteTitle
 					) }
 				</h1>
 				<section aria-labelledby="enabled-recommendations">
@@ -80,7 +69,7 @@ const SummaryComponent = props => {
 								<FeatureSummary key={ slug } featureSlug={ slug } />
 							) )
 						) : (
-							<p>
+							<p className="jp-recommendations-summary__recommendation-notice">
 								<em>
 									{ __(
 										'You didn’t enable any recommended features. To get the most out of Jetpack, enable some recommendations or explore all Jetpack features.',
@@ -102,29 +91,6 @@ const SummaryComponent = props => {
 					</section>
 				) }
 			</div>
-			<div className="jp-recommendations-summary__more-features">
-				<Gridicon icon="info-outline" />
-				<p>
-					{ createInterpolateElement(
-						__(
-							'Curious what else Jetpack has to offer? <ExternalLink>View all Jetpack features</ExternalLink>',
-							'jetpack'
-						),
-						{
-							ExternalLink: (
-								<ExternalLink
-									href="https://jetpack.com/features/comparison/"
-									target="_blank"
-									rel="noopener noreferrer"
-									onClick={ onLearnMoreClick }
-									icon={ true }
-									iconSize={ 16 }
-								/>
-							),
-						}
-					) }
-				</p>
-			</div>
 		</>
 	);
 
@@ -140,7 +106,15 @@ const SummaryComponent = props => {
 				sidebarCard = upsell.hide_upsell ? (
 					<ProductCardUpsellNoPrice upgradeUrl={ upgradeUrl } />
 				) : (
-					<ProductCardUpsell { ...upsell } upgradeUrl={ upgradeUrl } />
+					<>
+						<ProductCardUpsell { ...upsell } isRecommended upgradeUrl={ upgradeUrl } />
+						<div className="jp-recommendations-summary__footer">
+							<MoneyBackGuarantee text={ __( '14-day money-back guarantee', 'jetpack' ) } />
+							<div className="jp-recommendations-summary__footnote">
+								{ __( 'Special introductory pricing, all renewals are at full price.', 'jetpack' ) }
+							</div>
+						</div>
+					</>
 				);
 				break;
 			case 'one-click-restores':
@@ -189,7 +163,7 @@ const Summary = connect(
 			isFetchingMainData,
 			isFetchingSidebarData,
 			sidebarCardSlug: getSidebarCardSlug( state ),
-			siteTypeDisplayName: getSiteTypeDisplayName( state ),
+			siteTitle: getSiteTitle( state ),
 			summaryFeatureSlugs: getSummaryFeatureSlugs( state ),
 			upgradeUrl: getUpgradeUrl( state, 'jetpack-recommendations-backups' ),
 			upsell,

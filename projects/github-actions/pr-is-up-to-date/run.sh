@@ -2,7 +2,8 @@
 
 set -eo pipefail
 
-source ./funcs.sh
+BASE=$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)
+source "$BASE/funcs.sh"
 
 GITHUB_API_URL="${GITHUB_API_URL:-https://api.github.com}"
 GITHUB_SERVER_URL="${GITHUB_SERVER_URL:-https://github.com}"
@@ -71,6 +72,7 @@ case "$GITHUB_EVENT_NAME" in
 		;;
 	push)
 		declare -i PAGE=1
+		declare -i DEEPENBY=100
 		while :; do
 			echo "::group::Fetching PRs (page $PAGE)"
 			JSON=$(curl --fail --get --header "authorization: Bearer $API_TOKEN" --data-urlencode "base=${BRANCH}" "${GITHUB_API_URL}/repos/${GITHUB_REPOSITORY}/pulls?state=open&per_page=100&page=${PAGE}")
