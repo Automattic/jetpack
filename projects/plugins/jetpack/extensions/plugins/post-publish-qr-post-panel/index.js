@@ -23,8 +23,8 @@ const QRIcon = () => (
  * React component that renders a QR code for the post,
  * pulling the post data from the editor store.
  *
- * @param {object} props      - Component props.
- * @returns {React.Component}   The react component.
+ * @param {object} props   - Component props.
+ * @returns {Component}   The react component.
  */
 function QRPost( props ) {
 	const {
