@@ -4,7 +4,7 @@
  * Module Description: A selection of Google fonts for block enabled themes.
  * Sort Order: 1
  * Recommendation Order: 2
- * First Introduced: $$next-version$$
+ * First Introduced: 10.8.0
  * Requires Connection: No
  * Auto Activate: No
  * Module Tags: Fonts, Recommended
