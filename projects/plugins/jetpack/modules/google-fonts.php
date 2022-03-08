@@ -67,7 +67,7 @@ function jetpack_add_google_fonts_provider() {
 	 *
 	 * @module google-fonts
 	 *
-	 * @since $$next-version$$
+	 * @since 10.8
 	 *
 	 * @param array $fonts_to_register Array of Google Font names to register.
 	 */
