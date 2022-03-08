@@ -28,10 +28,6 @@
 		border-color: currentColor;
 	}
 
-	&:focus {
-		border: 1px solid var( --jp-black );
-	}
-
 	&.checked {
 		background: var( --jp-gray-0 );
 	}
