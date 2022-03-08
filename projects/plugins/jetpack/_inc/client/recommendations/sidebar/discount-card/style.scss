@@ -1,85 +1,108 @@
 @import 'node_modules/@automattic/jetpack-base-styles/style';
-@import '../../../scss/mixin_breakpoint.scss';
+@import '../../../scss/mixins/ui';
+@import '../../../scss/mixin_breakpoint';
+@import '../../../scss/typography';
 
 .jp-recommendations-discount-card {
 	display: flex;
-	justify-content: center;
+	justify-content: flex-end;
 	align-items: center;
+
 	height: 100%;
-	padding: 1rem;
+	padding: 2rem 3rem 2rem 0;
 
 	@include breakpoint( '>1040px' ) {
-		background: radial-gradient( circle at 79%, rgba(6, 158, 8, 0.15) 0%, rgba( 255, 255, 255, 0) 56%), radial-gradient( circle at 30% 85%, rgba( 206, 217, 242, 0.7) 5%, rgba(255, 256, 255, 0) 25% );
+		background: radial-gradient( circle at 70%, rgba(6, 158, 8, 0.15) 0%, rgba( 255, 255, 255, 0) 56%), radial-gradient( circle at 35% 80%, rgba( 206, 217, 242, 0.5) 5%, rgba(255, 256, 255, 0) 25% );
 	}
 
-	&__card-container {
+	&__container {
 		width: 100%;
-		max-width: 360px;
-		border-radius: 8px;
-		overflow: hidden;
-		box-shadow: 0px 0px 40px rgba(0, 0, 0, 0.08);
+		max-width: 360px;		
+	}
+
+	&__card {
+		@include card( $borderless: true );
+
+		box-shadow: 0 0 40px rgba(0, 0, 0, 0.08);
 	}
 
 	&__card-header {
 		display: flex;
-		align-items: space-between;
+		justify-content: space-between;
+		align-items: flex-start;
+
+		height: 112px;
 		padding: 1rem;
-		padding-bottom: 2.5rem;
-		background-image: url(./header-background.png);
+
+		background-image: url("./header-background.jpg");
+		background-image: -webkit-image-set(
+			url("./header-background.jpg") 1x,
+			url("./header-background-2x.jpg") 2x);
+		background-image: image-set(
+			url("./header-background.jpg") 1x,
+			url("./header-background-2x.jpg") 2x);
+		background-repeat: no-repeat;
+		background-position: center center;
+		background-size: cover;
+		background-color: rgba(18, 11, 21);
+		border-top-left-radius: inherit;
+		border-top-right-radius: inherit;
+	}
+
+	&__header-icon {
+		width: 55px;
+	}
+
+	&__discount {
+		padding: 0.375rem 0.75rem;
+
+		background-color: var( --jp-yellow-10 );
+		border-radius: var( --jp-border-radius );
+		color: var( --jp-gray-100 );
+
+		font-size: $font-body-small;
+		font-weight: $bold;
+		line-height: 1;
+		text-align: center;
 	}
 
 	&__card-body {
 		display: flex;
 		flex-direction: column;
-		padding: 1.5rem 1rem 2rem;
-		background-color: var( --jp-white );
 
-		h3 {
-			margin-top: 0;
-		}
+		padding: 1.5rem 2rem 2rem;
+	}
+
+	&__heading {
+		margin: 0;
 	}
 
 	&__feature-list {
-		list-style-type: none;
-		padding: 0;
-
-		li {
-			background: url(data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAADAAAAAwCAMAAABg3Am1AAAANlBMVEVHcEwFnwUInggGnggGnggHnAcAnwUFnQcAnwcGnwkFnQgGnQgFnwcGnQYFnQcFnAcGnQkDnwdhiL0pAAAAEnRSTlMAMF//f2Aw7yBQ3+9gcIBgcED+HDbkAAAAZklEQVR4Ae3LNwICARDDQC0+cv7/Y8mwV9odSfWIcf/+VegnGkIvDaGXKvTTn/Gz+Uf5xTL0K1XotS7fs5H6GHvvaO8d7c3j7rdgHne/A/PYt/cO+R42oYdN6OEQetiFHo4A//6dAXqtBEkmtWutAAAAAElFTkSuQmCC) no-repeat;
-			background-size: 24px;
-			padding-left: 2.5rem;
-			margin-bottom: 0.5rem;
-			color: var( --jp-gray-80 );
-		}
+		@include features-list;	
 	}
 
-	&__button.dops-button {
-		display: block;
-		margin: auto;
-		margin-top: 2rem;
-		padding: 0.5rem 1.5rem;
-		background-color: var( --jp-white );
-		border: 2px solid var( --jp-black );
-		color: var( --jp-black );
-		transition: all 150ms ease-in-out;
+	&__button {
+		align-self: center;
 
-		&:hover:not(:disabled),
-		&:active:not(:disabled),
-		&:focus:not(:disabled) {
-			box-shadow: 0 0 0 1px var( --jp-black );
-			background-color: var(--jp-black);
-			color: var( --jp-white );
-		}
+		margin-top: 0.25rem;
 
-		&:disabled,
-		&.disabled {
-			background: var( --jp-gray );
-			pointer-events: none;
-		}
+		font-size: $font-body;
+	}
 
-		&:focus:not(:disabled) {
-			box-shadow:
-				0 0 0 1px var( --jp-white ),
-				0 0 0 3px var( --jp-black );
-		}
+	&__timer {
+		padding: 1.25rem 0.5rem 0.5rem;
+
+		color: var( --jp-gray-60 );
+
+		font-size: $font-body-small;
+		text-align: center;
+	}
+
+	&__time {
+		display: inline-block;
+
+		margin-inline-start: 0.5rem;
+
+		font-size: 18px;
 	}
 }
