@@ -335,18 +335,22 @@ importers:
 
   projects/js-packages/partner-coupon:
     specifiers:
+      '@automattic/jetpack-analytics': workspace:^0.1.8
       '@automattic/jetpack-base-styles': workspace:^0.1.9
       '@automattic/jetpack-components': workspace:^0.10.8-alpha
       '@automattic/jetpack-connection': workspace:^0.17.1-alpha
       '@babel/core': 7.16.0
       '@babel/preset-react': 7.16.0
       '@wordpress/base-styles': 4.1.1
+      '@wordpress/data': 6.3.0
       '@wordpress/i18n': 4.3.1
       classnames: 2.3.1
       jetpack-js-test-runner: workspace:*
       nyc: 15.1.0
       prop-types: 15.7.2
       react: 17.0.2
+      react-dom: 17.0.2
+      react-test-renderer: 17.0.2
     dependencies:
       '@automattic/jetpack-components': link:../components
       '@automattic/jetpack-connection': link:../connection
@@ -354,13 +358,17 @@ importers:
       classnames: 2.3.1
       prop-types: 15.7.2
     devDependencies:
+      '@automattic/jetpack-analytics': link:../analytics
       '@automattic/jetpack-base-styles': link:../base-styles
       '@babel/core': 7.16.0
       '@babel/preset-react': 7.16.0_@babel+core@7.16.0
       '@wordpress/base-styles': 4.1.1
+      '@wordpress/data': 6.3.0_react@17.0.2
       jetpack-js-test-runner: link:../../../tools/js-test-runner
       nyc: 15.1.0
       react: 17.0.2
+      react-dom: 17.0.2_react@17.0.2
+      react-test-renderer: 17.0.2_react@17.0.2
 
   projects/js-packages/remove-asset-webpack-plugin:
     specifiers:
