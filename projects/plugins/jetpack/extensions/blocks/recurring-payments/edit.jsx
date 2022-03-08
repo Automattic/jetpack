@@ -212,8 +212,7 @@ export class MembershipsButtonEdit extends Component {
 		if ( this.state.addingMembershipAmount === PRODUCT_NOT_ADDING && ! forceShowForm ) {
 			return (
 				<Button
-					isPrimary
-					isLarge
+					variant="primary"
 					onClick={ () => this.setState( { addingMembershipAmount: PRODUCT_FORM } ) }
 				>
 					{ __( 'Add a payment plan', 'jetpack' ) }
@@ -291,15 +290,13 @@ export class MembershipsButtonEdit extends Component {
 				/>
 				<div>
 					<Button
-						isPrimary
-						isLarge
+						variant="primary"
 						className="membership-button__field-button membership-button__add-amount"
 						onClick={ this.saveProduct }
 					>
 						{ __( 'Add this payment plan', 'jetpack' ) }
 					</Button>
 					<Button
-						isLarge
 						className="membership-button__field-button"
 						onClick={ () => this.setState( { addingMembershipAmount: PRODUCT_NOT_ADDING } ) }
 					>
@@ -349,8 +346,7 @@ export class MembershipsButtonEdit extends Component {
 			{ this.state.products.map( product => (
 				<Button
 					className="membership-button__field-button"
-					isLarge
-					isSecondary
+					variant="secondary"
 					key={ product.id }
 					onClick={ () => this.setMembershipAmount( product.id ) }
 				>
@@ -386,7 +382,7 @@ export class MembershipsButtonEdit extends Component {
 								'jetpack'
 							) }
 						>
-							<Button isSecondary isLarge href={ this.state.upgradeURL } target="_blank">
+							<Button variant="secondary" href={ this.state.upgradeURL } target="_blank">
 								{ __( 'Upgrade your plan', 'jetpack' ) }
 							</Button>
 							{ this.renderDisclaimer() }
@@ -478,7 +474,7 @@ export class MembershipsButtonEdit extends Component {
 		);
 
 		const blockControls = (
-			<BlockControls>
+			<BlockControls __experimentalShareWithChildBlocks>
 				<ToolbarControls
 					connected={ connected !== API_STATE_NOTCONNECTED }
 					connectURL={ getConnectUrl( this.props.postId, connectURL ) }

@@ -461,7 +461,6 @@ class Classic_Search {
 		$this->do_search( $query );
 
 		if ( ! is_array( $this->search_result ) ) {
-			/** This action is documented in modules/search/class.jetpack-search.php */
 			do_action( 'jetpack_search_abort', 'no_search_results_array', $this->search_result );
 			return $posts;
 		}
@@ -507,7 +506,6 @@ class Classic_Search {
 	public function do_search( WP_Query $query ) {
 		if ( ! $this->should_handle_query( $query ) ) {
 			// If we make it here, either 'filter__posts_pre_query' somehow allowed it or a different entry to do_search.
-			/** This action is documented in modules/search/class.jetpack-search.php */
 			do_action( 'jetpack_search_abort', 'search_attempted_non_search_query', $query );
 			return;
 		}

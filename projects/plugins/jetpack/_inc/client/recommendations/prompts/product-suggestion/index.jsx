@@ -7,12 +7,12 @@ import { connect } from 'react-redux';
 import { __, sprintf } from '@wordpress/i18n';
 import { getCurrencyObject } from '@automattic/format-currency';
 import { getRedirectUrl } from '@automattic/jetpack-components';
+import { ExternalLink } from '@wordpress/components';
 
 /**
  * Internal dependencies
  */
 import Button from 'components/button';
-import ExternalLink from 'components/external-link';
 import analytics from 'lib/analytics';
 import { getSiteAdminUrl, getSiteRawUrl } from 'state/initial-state';
 import { addSelectedRecommendation as addSelectedRecommendationAction } from 'state/recommendations';
@@ -91,9 +91,6 @@ const ProductSuggestionComponent = props => {
 						<ExternalLink
 							className="jp-recommendations-product-suggestion-item__external-link"
 							href={ product.cta_link }
-							target="_blank"
-							icon={ true }
-							iconSize={ 16 }
 							onClick={ onExternalLinkClick }
 							children={ product.cta_text }
 						/>

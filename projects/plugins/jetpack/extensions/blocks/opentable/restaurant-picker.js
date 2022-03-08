@@ -62,7 +62,7 @@ export default function RestaurantPicker( props ) {
 			{ props.onSubmit ? (
 				<form onSubmit={ onSubmit }>
 					{ formInput }
-					<Button isSecondary type="submit">
+					<Button variant="secondary" type="submit">
 						{ __( 'Embed', 'jetpack' ) }
 					</Button>
 				</form>

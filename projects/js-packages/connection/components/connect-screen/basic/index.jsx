@@ -30,6 +30,7 @@ const ConnectScreen = props => {
 		children,
 		assetBaseUrl,
 		autoTrigger,
+		footer,
 	} = props;
 
 	const {
@@ -62,6 +63,7 @@ const ConnectScreen = props => {
 			handleButtonClick={ handleRegisterSite }
 			displayButtonError={ displayButtonError }
 			buttonIsLoading={ buttonIsLoading }
+			footer={ footer }
 		>
 			{ children }
 		</ConnectScreenVisual>

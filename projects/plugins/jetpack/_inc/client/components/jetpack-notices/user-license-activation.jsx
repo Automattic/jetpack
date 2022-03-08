@@ -7,11 +7,11 @@ import { connect } from 'react-redux';
 import { createInterpolateElement } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 import { getRedirectUrl } from '@automattic/jetpack-components';
+import { ExternalLink } from '@wordpress/components';
 
 /**
  * Internal dependencies
  */
-import ExternalLink from 'components/external-link';
 import analytics from 'lib/analytics';
 import { getSiteAdminUrl } from 'state/initial-state';
 import {
@@ -113,8 +113,6 @@ const UserLicenseActivationNotice = props => {
 							className: 'jp-license-activation-notice__external-link',
 							href: getRedirectUrl( 'calypso-purchases' ),
 							onClick: trackUserPurchasesClick,
-							target: '_blank',
-							icon: true,
 						} ),
 					}
 				) }
