@@ -86,7 +86,7 @@ export default function RevueEdit( { attributes, className, setAttributes } ) {
 							value={ username }
 						/>
 						<div>
-							<Button disabled={ ! username } isDefault isLarge isSecondary type="submit">
+							<Button disabled={ ! username } variant="secondary" type="submit">
 								{ __( 'Add Form', 'jetpack' ) }
 							</Button>
 						</div>

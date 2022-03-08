@@ -62,7 +62,7 @@ const CRMJetpackFormsExtensionActivation = ( {
 	}
 
 	return (
-		<Button isSecondary onClick={ onExtensionActivationClick }>
+		<Button variant="secondary" onClick={ onExtensionActivationClick }>
 			{ __( 'Enable Jetpack Forms Extension', 'jetpack' ) }
 		</Button>
 	);

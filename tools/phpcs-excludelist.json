@@ -1,8 +1,4 @@
 [
-	"projects/plugins/jetpack/_inc/lib/admin-pages/class.jetpack-admin-page.php",
-	"projects/plugins/jetpack/_inc/lib/admin-pages/class.jetpack-landing-page.php",
-	"projects/plugins/jetpack/_inc/lib/admin-pages/class.jetpack-react-page.php",
-	"projects/plugins/jetpack/_inc/lib/admin-pages/class.jetpack-settings-page.php",
 	"projects/plugins/jetpack/_inc/lib/class.color.php",
 	"projects/plugins/jetpack/_inc/lib/class.core-rest-api-endpoints.php",
 	"projects/plugins/jetpack/_inc/lib/class.jetpack-iframe-embed.php",
