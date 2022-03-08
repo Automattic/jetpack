@@ -1,0 +1,88 @@
+@import 'node_modules/@automattic/jetpack-base-styles/style';
+@import '../../scss/mixins/ui';
+@import '../../scss/variables/colors';
+@import '../../scss/typography';
+@import '../../scss/mixin_breakpoint';
+
+.jp-recommendations-product-card-upsell {
+	@include card;
+
+	position: relative;
+
+	padding: 3.25rem 2rem 2rem;
+
+	@include breakpoint( '<480px' ) {
+		padding: 1rem;
+
+		&.with-header {
+			padding-top: 3rem;
+		}
+	}
+}
+
+.jp-recommendations-product-card-upsell__header {
+	position: absolute;
+	top: 0;
+	left: 0;
+	right: 0;
+}
+
+.jp-recommendations-product-card-upsell__heading {
+	margin: 0;
+
+	color: var( --jp-gray-100 );
+
+	font-size: $font-title-large;
+	font-weight: $bold;
+}
+
+.jp-recommendations-product-card-upsell__description {
+	margin-bottom: 1.5rem;
+
+	font-size: $font-body-small;
+}
+
+.jp-recommendations-product-card-upsell__features {
+	min-height: 7.5rem;
+}
+
+.jp-recommendations-product-card-upsell__raw-price {
+	h2 {
+		display: flex;
+		margin: 0;
+	}
+}
+
+.jp-recommendations-product-card-upsell__currency-symbol {
+	font-size: 1.5rem;
+	margin-top: -0.25rem;
+}
+
+.jp-recommendations-product-card-upsell__price-integer {
+	font-size: 3.375rem;
+	font-weight: 700;
+	line-height: 0.7;
+}
+
+.jp-recommendations-product-card-upsell__price-fraction {
+	font-size: 0.75rem;
+	margin-top: -0.25rem;
+}
+
+.jp-recommendations-product-card-upsell__billing-time-frame {
+	margin-top: 0.5rem;
+
+	color: var( --jp-gray-40 );
+}
+
+.jp-recommendations-product-card-upsell__cta-button {
+	margin-top: 2rem; 
+	padding-inline-start: 4rem !important;
+	padding-inline-end: 4rem !important;
+
+	font-size: $font-body;
+
+	.gridicons-external {
+		margin-left: 0.25rem;
+	}
+}

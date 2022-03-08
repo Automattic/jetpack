@@ -474,7 +474,7 @@ export class MembershipsButtonEdit extends Component {
 		);
 
 		const blockControls = (
-			<BlockControls>
+			<BlockControls __experimentalShareWithChildBlocks>
 				<ToolbarControls
 					connected={ connected !== API_STATE_NOTCONNECTED }
 					connectURL={ getConnectUrl( this.props.postId, connectURL ) }

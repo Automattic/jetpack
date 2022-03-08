@@ -200,9 +200,7 @@ class Jetpack_React_Page extends Jetpack_Admin_Page {
 		do_action( 'jetpack_notices' );
 
 		// Fetch static.html.
-		global $wp_filesystem;
-		WP_Filesystem();
-		$static_html = $wp_filesystem->get_contents( JETPACK__PLUGIN_DIR . '_inc/build/static.html' );
+		$static_html = @file_get_contents( JETPACK__PLUGIN_DIR . '_inc/build/static.html' ); //phpcs:ignore WordPress.PHP.NoSilencedErrors.Discouraged, WordPress.WP.AlternativeFunctions.file_get_contents_file_get_contents, Not fetching a remote file.
 
 		// Sanitize static.html data.
 		$allowed_html = wp_kses_allowed_html( 'post' );

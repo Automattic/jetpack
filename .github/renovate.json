@@ -47,6 +47,7 @@
 				"automattic/jetpack-constants",
 				"automattic/jetpack-device-detection",
 				"automattic/jetpack-error",
+				"automattic/jetpack-google-fonts-provider",
 				"automattic/jetpack-heartbeat",
 				"automattic/jetpack-identity-crisis",
 				"automattic/jetpack-jitm",
