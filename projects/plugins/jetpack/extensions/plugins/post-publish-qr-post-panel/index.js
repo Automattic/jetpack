@@ -1,12 +1,11 @@
 /**
  * External dependencies
  */
-import React from 'react';
 import { PluginPostPublishPanel } from '@wordpress/edit-post';
 import { __ } from '@wordpress/i18n';
 import { useSelect } from '@wordpress/data';
 import { store as editorStore } from '@wordpress/editor';
-import { SVG, Path } from '@wordpress/components';
+import { SVG, Path, Component } from '@wordpress/components';
 import { QRCode } from '@automattic/jetpack-components';
 
 /**
