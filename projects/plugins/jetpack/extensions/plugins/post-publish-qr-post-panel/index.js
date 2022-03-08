@@ -78,7 +78,6 @@ function QRPost() {
 		<QRCode
 			value={ codeContent }
 			size={ 248 }
-			renderAs="svg"
 			imageSettings={
 				siteLogologoUrl && {
 					src: siteLogologoUrl,
