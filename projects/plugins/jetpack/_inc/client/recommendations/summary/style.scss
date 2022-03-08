@@ -16,32 +16,6 @@
 		display: flex;
 		flex-direction: column;
 	}
-
-	.dops-button.is-primary {
-		background-color: var( --jp-black );
-		border-color: var( --jp-black );
-		transition: all 150ms ease-in-out;
-
-		&:hover:not(:disabled),
-		&:active:not(:disabled) {
-			background: var( --jp-black-80 );
-			color: var( --jp-white );
-		}
-
-		&:focus:not(:disabled) {
-			box-shadow: 0 0 0 1px var( --jp-white ) inset, 0 0 0 1px var( --jp-black );
-		}
-
-		&:disabled,
-		&.disabled {
-			background: var( --jp-gray );
-			pointer-events: none;
-		}
-	}
-
-	a {
-		color: var( --jp-black );
-	}
 }
 
 .jp-recommendations-summary__content {
