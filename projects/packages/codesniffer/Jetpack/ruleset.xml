@@ -3,7 +3,6 @@
 	<description>Jetpack coding standards. Based on the WordPress coding standards, with some additions.</description>
 
 	<rule ref="PHPCompatibilityWP" />
-	<rule ref="WordPress" />
 	<rule ref="WordPress-Core" />
 	<rule ref="WordPress-Docs" />
 	<rule ref="WordPress-Extra" />
