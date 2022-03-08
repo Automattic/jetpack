@@ -1,0 +1,4 @@
+Significance: patch
+Type: enhancement
+
+We now share the Payment Button block controls with it's InnerBlocks so that we can connect Stripe from any InnerBlock within the Payment Button block.
