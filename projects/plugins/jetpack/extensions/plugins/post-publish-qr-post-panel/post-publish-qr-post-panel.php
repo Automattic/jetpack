@@ -1,9 +1,12 @@
 <?php
 /**
- * Block Editor - Republicize feature.
+ * Block Editor - QR Post feature.
  *
  * @package automattic/jetpack
- **/
+ */
+
+// Feature name.
+const FEATURE_NAME = 'post-publish-qr-post-panel';
 
 // Populate the available extensions with post-publish-qr-post-panel.
 add_filter(
@@ -12,7 +15,7 @@ add_filter(
 		return array_merge(
 			$extensions,
 			array(
-				'post-publish-qr-post-panel',
+				FEATURE_NAME,
 			)
 		);
 	}
@@ -22,6 +25,6 @@ add_filter(
 add_action(
 	'jetpack_register_gutenberg_extensions',
 	function () {
-		\Jetpack_Gutenberg::set_availability_for_plan( 'post-publish-qr-post-panel' );
+		\Jetpack_Gutenberg::set_extension_available( FEATURE_NAME );
 	}
 );
