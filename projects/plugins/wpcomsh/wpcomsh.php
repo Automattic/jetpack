@@ -581,7 +581,7 @@ function wpcomsh_show_unmanaged_plugin_separator( $file ) {
 	$active = is_plugin_active( $file ) ? 'active' : '';
 
 	echo "<tr class=\"$active\">" .
-	        '<th colspan="4" scope="row" class="check-column"></th>' .
+		'<th colspan="4" scope="row" class="check-column"></th>' .
 	     '</tr>';
 }
 
@@ -1142,6 +1142,29 @@ function wpcomsh_debug_information_disk_usage( $args ) {
 	return $args;
 }
 add_filter( 'debug_information', 'wpcomsh_debug_information_disk_usage' );
+
+/**
+ * Do not allow uploads from Calypso's media section if it would cause our
+ * disk usage to go over the quota.
+ */
+function wpcomsh_jetpack_upload_handler_can_upload( $value, $files ) {
+	$site_info = wpcomsh_get_at_site_info();
+
+	if ( empty( $site_info['space_used'] ) || empty( $site_info['space_quota'] ) ) {
+		return $value;
+	}
+
+	$upload_size = 0;
+	if ( ! empty( $files['media']['size'] ) ) {
+		$upload_size = array_sum( $files['media']['size'] );
+		if ( $site_info['space_used'] + $upload_size > $site_info['space_quota'] ) {
+			return new WP_Error( 'insufficient_space_available', 'Uploaded file is too large.' );
+		}
+	}
+
+	return $value;
+}
+add_filter( 'jetpack_upload_handler_can_upload', 'wpcomsh_jetpack_upload_handler_can_upload', 10, 2 );
 
 /**
  * WordPress 5.3 adds "big image" processing, for images over 2560px (by default).
