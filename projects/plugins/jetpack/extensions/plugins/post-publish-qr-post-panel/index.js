@@ -1,9 +1,13 @@
 /**
  * External dependencies
  */
+import React from 'react';
 import { PluginPostPublishPanel } from '@wordpress/edit-post';
 import { __ } from '@wordpress/i18n';
+import { useSelect } from '@wordpress/data';
+import { store as editorStore } from '@wordpress/editor';
 import { SVG, Path } from '@wordpress/components';
+import { QRCode } from '@automattic/jetpack-components';
 
 /**
  * Internal dependencies
@@ -16,10 +20,34 @@ const QRIcon = () => (
 	</SVG>
 );
 
+/**
+ * React component that renders a QR code for the post,
+ * pulling the post data from the editor store.
+ *
+ * @param {object} props      - Component props.
+ * @returns {React.Component}   The react component.
+ */
+function QRPost( props ) {
+	const {
+		post: { title },
+		permalink,
+	} = useSelect(
+		select => ( {
+			post: select( editorStore ).getCurrentPost(),
+			permalink: select( editorStore ).getPermalink(),
+		} ),
+		[]
+	);
+
+	const codeContent = `${ title } ${ permalink }`;
+
+	return <QRCode value={ codeContent } size={ 248 } renderAs="canvas" { ...props } />;
+}
+
 export const name = 'post-publish-qr-post-panel';
 
 export const settings = {
-	render: function PluginPostPublishPanelQRPost() {
+	render: function PluginPrePublishPanelQRPost() {
 		return (
 			<PluginPostPublishPanel
 				name="post-publish-qr-post-panel"
@@ -28,7 +56,9 @@ export const settings = {
 				icon={ <QRIcon /> }
 				initialOpen={ true }
 			>
-				QR post code here...
+				<div className="post-publish-qr-post-panel__container">
+					<QRPost />
+				</div>
 			</PluginPostPublishPanel>
 		);
 	},
