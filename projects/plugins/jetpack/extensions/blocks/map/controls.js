@@ -201,7 +201,7 @@ export default ( {
 						type="button"
 						onClick={ removeAPIKey }
 						disabled={ 'wpcom' === state.apiKeySource }
-						isSecondary
+						variant="secondary"
 					>
 						{ __( 'Remove Token', 'jetpack' ) }
 					</Button>

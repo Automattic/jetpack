@@ -94,11 +94,7 @@ class Speed_Score {
 			$score_request->store( 1800 ); // Keep the request for 30 minutes even if no one access the results.
 
 			// Send the request.
-			$response = $score_request->execute();
-
-			if ( is_wp_error( $response ) ) {
-				return $response;
-			}
+			$score_request->execute();
 		}
 
 		$score_request_no_boost = $this->maybe_dispatch_no_boost_score_request( $url );
@@ -196,11 +192,7 @@ class Speed_Score {
 			$score_request->store( 3600 ); // Keep the request for 1 hour even if no one access the results. The value is persisted for 1 hour in wp.com from initial request.
 
 			// Send the request.
-			$response = $score_request->execute();
-
-			if ( is_wp_error( $response ) ) {
-				return $response;
-			}
+			$score_request->execute();
 		}
 		remove_filter( 'jetpack_boost_excluded_query_parameters', array( $this, 'allow_jb_disable_module' ) );
 
