@@ -2,7 +2,16 @@
  * WordPress dependencies
  */
 import { useEffect, useState, useRef } from '@wordpress/element';
-import { Disabled, Placeholder, Spinner, ToolbarButton, ToolbarGroup } from '@wordpress/components';
+import {
+	Disabled,
+	MenuGroup,
+	MenuItem,
+	Placeholder,
+	Spinner,
+	ToolbarButton,
+	ToolbarDropdownMenu,
+	ToolbarGroup,
+} from '@wordpress/components';
 import { BlockControls } from '@wordpress/block-editor';
 import { __, sprintf } from '@wordpress/i18n';
 import { compose } from '@wordpress/compose';
@@ -45,7 +54,7 @@ const tabs = [
 	},
 	{
 		id: 'wall',
-		label: <span>{ __( 'Non-subscriber View', 'jetpack' ) }</span>,
+		label: <span>{ __( 'Guest View', 'jetpack' ) }</span>,
 		className: 'wp-premium-content-logged-out-view',
 	},
 ];
@@ -367,26 +376,30 @@ function Edit( props ) {
 						</ToolbarButton>
 					</ToolbarGroup>
 				) }
-
 				<ToolbarGroup>
-					<ToolbarButton
-						onClick={ () => {
-							selectTab( tabs[ CONTENT_TAB ] );
-						} }
-						className="components-tab-button"
-						isPressed={ selectedTab.className !== 'wp-premium-content-logged-out-view' }
+					<ToolbarDropdownMenu
+						label={ __( 'Change view', 'jetpack' ) }
+						icon="arrow-down"
+						text={ selectedTab.label }
 					>
-						<span>{ __( 'Subscriber View', 'jetpack' ) }</span>
-					</ToolbarButton>
-					<ToolbarButton
-						onClick={ () => {
-							selectTab( tabs[ WALL_TAB ] );
-						} }
-						className="components-tab-button"
-						isPressed={ selectedTab.className === 'wp-premium-content-logged-out-view' }
-					>
-						<span>{ __( 'Guest View', 'jetpack' ) }</span>
-					</ToolbarButton>
+						{ ( { onClose } ) => (
+							<MenuGroup>
+								{ tabs.map( tabDefinition => (
+									<MenuItem
+										isSelected={ tabDefinition.id === selectedTab.id }
+										icon={ tabDefinition.id === selectedTab.id ? 'yes' : undefined }
+										onClick={ () => {
+											selectTab( tabDefinition );
+											onClose();
+										} }
+										key={ `jetpack-premium-content-tab-${ tabDefinition.id }` }
+									>
+										{ tabDefinition.label }
+									</MenuItem>
+								) ) }
+							</MenuGroup>
+						) }
+					</ToolbarDropdownMenu>
 				</ToolbarGroup>
 			</BlockControls>
 
