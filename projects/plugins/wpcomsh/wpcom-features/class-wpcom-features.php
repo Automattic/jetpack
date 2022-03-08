@@ -34,6 +34,7 @@ class WPCOM_Features {
 	private const PERSONAL_BUNDLE_2Y                = 'personal-bundle-2y'; // 1029
 	private const BLOGGER_BUNDLE_2Y                 = 'blogger-bundle-2y'; // 1030
 	private const ECOMMERCE_BUNDLE_2Y               = 'ecommerce-bundle-2y'; // 1031
+	private const MANAGED_BUNDLE                    = 'managed-bundle'; // 1032
 	private const WP_P2_PLUS_MONTHLY                = 'wp_p2_plus_monthly'; // 1040
 	private const JETPACK_PREMIUM                   = 'jetpack_premium'; // 2000
 	private const JETPACK_BUSINESS                  = 'jetpack_business'; // 2001
@@ -57,13 +58,14 @@ class WPCOM_Features {
 	private const WPCOM_BLOGGER_PLANS   = [ self::BLOGGER_BUNDLE, self::BLOGGER_BUNDLE_2Y ];
 	private const WPCOM_PERSONAL_PLANS  = [ self::PERSONAL_BUNDLE, self::PERSONAL_BUNDLE_MONTHLY, self::PERSONAL_BUNDLE_2Y ];
 	private const WPCOM_PREMIUM_PLANS   = [ self::BUNDLE_PRO, self::VALUE_BUNDLE, self::VALUE_BUNDLE_MONTHLY, self::VALUE_BUNDLE_2Y ];
+	private const WPCOM_MANAGED_PLANS   = [ self::MANAGED_BUNDLE ];
 	private const WPCOM_BUSINESS_PLANS  = [ self::BUSINESS_BUNDLE, self::BUSINESS_BUNDLE_MONTHLY, self::BUSINESS_BUNDLE_2Y ];
 	private const WPCOM_ECOMMERCE_PLANS = [ self::ECOMMERCE_BUNDLE, self::ECOMMERCE_BUNDLE_MONTHLY, self::ECOMMERCE_BUNDLE_2Y ];
 
 	// WPCOM "Level 3": Groups of level 2s
-	private const WPCOM_BLOGGER_AND_HIGHER_PLANS  = [ self::WPCOM_BLOGGER_PLANS, self::WPCOM_PERSONAL_PLANS, self::WPCOM_PREMIUM_PLANS, self::WPCOM_BUSINESS_PLANS, self::WPCOM_ECOMMERCE_PLANS ];
-	private const WPCOM_PERSONAL_AND_HIGHER_PLANS = [ self::WPCOM_PERSONAL_PLANS, self::WPCOM_PREMIUM_PLANS, self::WPCOM_BUSINESS_PLANS, self::WPCOM_ECOMMERCE_PLANS ];
-	private const WPCOM_PREMIUM_AND_HIGHER_PLANS  = [ self::WPCOM_PREMIUM_PLANS, self::WPCOM_BUSINESS_PLANS, self::WPCOM_ECOMMERCE_PLANS ];
+	private const WPCOM_BLOGGER_AND_HIGHER_PLANS  = [ self::WPCOM_BLOGGER_PLANS, self::WPCOM_PERSONAL_PLANS, self::WPCOM_PREMIUM_PLANS, self::WPCOM_MANAGED_PLANS, self::WPCOM_BUSINESS_PLANS, self::WPCOM_ECOMMERCE_PLANS ];
+	private const WPCOM_PERSONAL_AND_HIGHER_PLANS = [ self::WPCOM_PERSONAL_PLANS, self::WPCOM_PREMIUM_PLANS, self::WPCOM_MANAGED_PLANS, self::WPCOM_BUSINESS_PLANS, self::WPCOM_ECOMMERCE_PLANS ];
+	private const WPCOM_PREMIUM_AND_HIGHER_PLANS  = [ self::WPCOM_PREMIUM_PLANS, self::WPCOM_MANAGED_PLANS, self::WPCOM_BUSINESS_PLANS, self::WPCOM_ECOMMERCE_PLANS ];
 	private const WPCOM_BUSINESS_AND_HIGHER_PLANS = [ self::WPCOM_BUSINESS_PLANS, self::WPCOM_ECOMMERCE_PLANS ];
 
 	// Jetpack "Level 2": Groups of level 1s:
@@ -213,6 +215,7 @@ class WPCOM_Features {
 		self::PREMIUM_THEMES                => array(
 			self::WPCOM_BUSINESS_AND_HIGHER_PLANS,
 			self::JETPACK_BUSINESS_PLANS,
+			self::WPCOM_MANAGED_PLANS,
 		),
 		/*
 		 * `google-analytics` feature.
@@ -238,6 +241,7 @@ class WPCOM_Features {
 		self::SECURITY_SETTINGS             => array(
 			self::WPCOM_BUSINESS_AND_HIGHER_PLANS,
 			self::JETPACK_PLANS,
+			self::WPCOM_MANAGED_PLANS,
 		),
 		/*
 		 * `advanced-seo` feature.
@@ -251,6 +255,7 @@ class WPCOM_Features {
 		self::ADVANCED_SEO                  => array(
 			self::WPCOM_BUSINESS_AND_HIGHER_PLANS,
 			self::JETPACK_PLANS,
+			self::WPCOM_MANAGED_PLANS,
 		),
 		/*
 		 * `upload-video-files` feature.
@@ -328,7 +333,11 @@ class WPCOM_Features {
 		),
 		self::SIMPLE_PAYMENTS               => array(
 			self::WPCOM_PREMIUM_AND_HIGHER_PLANS,
-			self::PAID_JETPACK_PLANS, // Differs from Simple_Payments_Utils::get_enabled_plans by adding T1/T2 security
+			self::JETPACK_PREMIUM_PLANS,
+			self::JETPACK_BUSINESS_PLANS,
+			self::JETPACK_COMPLETE_PLANS,
+			self::JETPACK_SECURITY_DAILY_PLANS,
+			self::JETPACK_SECURITY_REALTIME_PLANS,
 		),
 		self::CALENDLY                      => array(
 			self::WPCOM_PREMIUM_AND_HIGHER_PLANS,
@@ -352,6 +361,7 @@ class WPCOM_Features {
 		self::SOCIAL_PREVIEWS               => array(
 			self::WPCOM_BUSINESS_AND_HIGHER_PLANS,
 			self::JETPACK_PLANS,
+			self::WPCOM_MANAGED_PLANS,
 		),
 		self::DONATIONS                     => array(
 			self::WPCOM_PERSONAL_AND_HIGHER_PLANS,
@@ -409,6 +419,7 @@ class WPCOM_Features {
 		 */
 		self::WOOP                          => array(
 			self::WPCOM_BUSINESS_AND_HIGHER_PLANS,
+			self::WPCOM_MANAGED_PLANS,
 		),
 		// Enable the ability to hide the WP.com branding in the site footer.
 		self::NO_WPCOM_BRANDING             => array(
@@ -463,5 +474,14 @@ class WPCOM_Features {
 			}
 		}
 		return false;
+	}
+
+	/**
+	 * Return a list of all possible feature slugs.
+	 *
+	 * @return array An array of strings like 'premium-themes', one for each possible feature slug.
+	 */
+	public static function get_feature_slugs() {
+		return array_keys( self::FEATURES_MAP );
 	}
 }
