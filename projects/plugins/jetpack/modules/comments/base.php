@@ -267,8 +267,8 @@ class Highlander_Comments_Base {
 				$author_change = true;
 			}
 			$comment_data[ $comment_field ] = $_POST[ $post_field ];
-			// phpcs:enable WordPress.Security.NonceVerification.Missing
 		}
+		// phpcs:enable WordPress.Security.NonceVerification.Missing
 
 		// Mark as guest comment if name or email were changed.
 		if ( $author_change ) {
