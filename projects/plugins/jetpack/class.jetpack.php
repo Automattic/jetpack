@@ -3917,7 +3917,7 @@ p {
 		 * Optionally block uploads processed through Jetpack's upload_handler().
 		 * The filter may return false or WP_Error to block this particular upload.
 		 *
-		 * @since $$next-version$$
+		 * @since 10.8
 		 *
 		 * @param bool|WP_Error $allowed If false or WP_Error, block the upload. If true, allow the upload.
 		 * @param mixed $_FILES The $_FILES attempting to be uploaded.

@@ -47,12 +47,9 @@ class Jetpack_Settings_Page extends Jetpack_Admin_Page {
 	public function page_render() {
 		$list_table = new Jetpack_Modules_List_Table();
 
-		WP_Filesystem();
-		global $wp_filesystem;
-
 		// We have static.html so let's continue trying to fetch the others.
-		$noscript_notice = $wp_filesystem->get_contents( JETPACK__PLUGIN_DIR . '_inc/build/static-noscript-notice.html' );
-		$rest_api_notice = $wp_filesystem->get_contents( JETPACK__PLUGIN_DIR . '_inc/build/static-version-notice.html' );
+		$noscript_notice = @file_get_contents( JETPACK__PLUGIN_DIR . '_inc/build/static-noscript-notice.html' ); //phpcs:ignore WordPress.PHP.NoSilencedErrors.Discouraged, WordPress.WP.AlternativeFunctions.file_get_contents_file_get_contents, Not fetching a remote file.
+		$rest_api_notice = @file_get_contents( JETPACK__PLUGIN_DIR . '_inc/build/static-version-notice.html' ); //phpcs:ignore WordPress.PHP.NoSilencedErrors.Discouraged, WordPress.WP.AlternativeFunctions.file_get_contents_file_get_contents, Not fetching a remote file.
 
 		$noscript_notice = str_replace(
 			'#HEADER_TEXT#',
