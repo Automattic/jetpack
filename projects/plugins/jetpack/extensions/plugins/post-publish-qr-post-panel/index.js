@@ -47,7 +47,7 @@ function QRPost( props ) {
 export const name = 'post-publish-qr-post-panel';
 
 export const settings = {
-	render: function PluginPrePublishPanelQRPost() {
+	render: function PluginPostPublishPanelQRPost() {
 		return (
 			<PluginPostPublishPanel
 				name="post-publish-qr-post-panel"
