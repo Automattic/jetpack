@@ -15,10 +15,36 @@ namespace WPCOMSH_Feature_Manager;
  * @package WPCOMSH_Feature_Manager
  */
 class Manage_Additional_CSS_Feature {
+
+	/**
+	 * Site plan
+	 *
+	 * @var string
+	 */
+	private $plan;
+
+	/**
+	 * Manage_Additional_CSS_Feature constructor.
+	 *
+	 * @param string $plan The site plan.
+	 */
+	public function __construct( $plan ) {
+		$this->plan = $plan;
+	}
+
+	/**
+	 * Manage the feature permissions.
+	 */
+	public function manage() {
+		if ( self::is_additional_css_nudge_enabled() ) {
+			add_action( 'jetpack_loaded', array( __CLASS__, 'disable_custom_css' ) );
+		}
+	}
+
 	/**
 	 * Disable the Core custom CSS and the Jetpack custom CSS module.
 	 */
-	public static function maybe_disable_custom_css() {
+	public static function disable_custom_css() {
 		// Do not run if Jetpack is not enabled.
 		if ( ! defined( 'JETPACK__VERSION' ) ) {
 			return;
@@ -29,12 +55,21 @@ class Manage_Additional_CSS_Feature {
 			return;
 		}
 
-		if ( wpcom_site_has_feature( \WPCOM_Features::CUSTOM_DESIGN ) ) {
-			return;
-		}
-
 		self::deactivate_module();
 		\add_filter( 'jetpack_customize_enable_additional_css_nudge', '__return_true' );
+	}
+
+	/**
+	 * Replace the core Additional CSS feature with an upgrade nudge.
+	 *
+	 * @return bool
+	 */
+	public function is_additional_css_nudge_enabled() {
+		if ( 2 !== wpcomsh_get_atomic_client_id() ) {
+			return false;
+		}
+
+		return \Atomic_Plan_Manager::FREE_PLAN_SLUG === $this->plan || \Atomic_Plan_Manager::PERSONAL_PLAN_SLUG === $this->plan;
 	}
 
 	/**

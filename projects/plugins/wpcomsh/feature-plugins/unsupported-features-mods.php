@@ -10,22 +10,23 @@
 define( 'ALLOWED_MIMES', 'jpg jpeg png gif pdf doc ppt odt pptx docx pps ppsx xls xlsx key' );
 
 /**
- * If this site does NOT have the 'options-permalink' feature, remove the Settings > Permalinks submenu item.
+ * If this site has an unsupported WPCOM plan, remove the Settings > Permalinks submenu item.
  */
-function wpcomsh_maybe_remove_permalinks_menu_item() {
-	if ( wpcom_site_has_feature( WPCOM_Features::OPTIONS_PERMALINK ) ) {
+function wpcomsh_remove_permalinks_menu_item_unsupported_plan() {
+	if ( Atomic_Plan_Manager::has_atomic_supported_plan() ) {
 		return;
 	}
+
 	remove_submenu_page( 'options-general.php', 'options-permalink.php' );
 }
-add_action( 'admin_menu', 'wpcomsh_maybe_remove_permalinks_menu_item' );
+add_action( 'admin_menu', 'wpcomsh_remove_permalinks_menu_item_unsupported_plan' );
 
 /**
- * If this site does NOT have the 'options-permalink' feature, disable the /wp-admin/options-permalink.php page.
- * But always allow proxied users to access the permalink options page.
+ * Disables the Permalink options admin page when site has an unsupported WPCOM plan.
+ * Allows proxied users to access the page.
  */
-function wpcomsh_maybe_disable_permalink_page() {
-	if ( wpcom_site_has_feature( WPCOM_Features::OPTIONS_PERMALINK ) ) {
+function wpcomsh_disable_permalink_page_unsupported_plan() {
+	if ( Atomic_Plan_Manager::has_atomic_supported_plan() ) {
 		return;
 	}
 	if ( ! ( defined( 'AT_PROXIED_REQUEST' ) && AT_PROXIED_REQUEST ) ) {
@@ -46,7 +47,7 @@ function wpcomsh_maybe_disable_permalink_page() {
 		);
 	}
 }
-add_action( 'load-options-permalink.php', 'wpcomsh_maybe_disable_permalink_page' );
+add_action( 'load-options-permalink.php', 'wpcomsh_disable_permalink_page_unsupported_plan' );
 
 function wpcomsh_restrict_mimetypes_unsupported_plan( $mimes ) {
 	if ( Atomic_Plan_Manager::has_atomic_supported_plan() ) {
@@ -108,8 +109,3 @@ function wpcomsh_gate_footer_credit_feature( $previous_value ) {
 	return wpcom_site_has_feature( WPCOM_Features::NO_WPCOM_BRANDING );
 }
 add_filter( 'wpcom_better_footer_credit_can_customize', 'wpcomsh_gate_footer_credit_feature' );
-
-/**
- * Gate the Additional CSS feature to eligible sites.
- */
-add_action( 'jetpack_loaded', array( '\WPCOMSH_Feature_Manager\Manage_Additional_CSS_Feature', 'maybe_disable_custom_css' ) );
