@@ -8,7 +8,7 @@ import React from 'react';
  */
 import Col from '../../layout/col';
 import Container from '../../layout/container';
-import ThemeProvider, { typography, colors, borders } from '../index.jsx';
+import ThemeProvider, { typography, colors, borders, spacing } from '../index.jsx';
 import styles from './style.module.scss';
 
 export default {
@@ -58,5 +58,6 @@ export const Tokens = () => (
 			) }
 		</Section>
 		<Section title="Borders" data={ borders } />
+		<Section title="Spacing" data={ spacing } />
 	</>
 );
