@@ -384,19 +384,22 @@ function Edit( props ) {
 					>
 						{ ( { onClose } ) => (
 							<MenuGroup>
-								{ tabs.map( tabDefinition => (
-									<MenuItem
-										isSelected={ tabDefinition.id === selectedTab.id }
-										icon={ tabDefinition.id === selectedTab.id ? 'yes' : undefined }
-										onClick={ () => {
-											selectTab( tabDefinition );
-											onClose();
-										} }
-										key={ `jetpack-premium-content-tab-${ tabDefinition.id }` }
-									>
-										{ tabDefinition.label }
-									</MenuItem>
-								) ) }
+								{ tabs.map( tabDefinition => {
+									const tabSelected = tabDefinition.id === selectedTab.id;
+									return (
+										<MenuItem
+											isSelected={ tabSelected }
+											icon={ tabSelected ? 'yes' : undefined }
+											onClick={ () => {
+												selectTab( tabDefinition );
+												onClose();
+											} }
+											key={ `jetpack-premium-content-tab-${ tabDefinition.id }` }
+										>
+											{ tabDefinition.label }
+										</MenuItem>
+									);
+								} ) }
 							</MenuGroup>
 						) }
 					</ToolbarDropdownMenu>
