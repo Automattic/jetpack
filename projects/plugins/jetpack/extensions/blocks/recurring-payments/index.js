@@ -1,13 +1,15 @@
 /**
  * External dependencies
  */
-import { Path, Rect, SVG, G } from '@wordpress/components';
+import { isAtomicSite, isSimpleSite } from '@automattic/jetpack-shared-extension-utils';
 
 /**
  * WordPress dependencies
  */
 import { InnerBlocks } from '@wordpress/block-editor';
 import { createBlock } from '@wordpress/blocks';
+import { Path, Rect, SVG, G, ExternalLink } from '@wordpress/components';
+import { Fragment } from '@wordpress/element';
 
 /**
  * Internal dependencies
@@ -30,20 +32,53 @@ export const icon = (
 	</SVG>
 );
 
+const supportLink =
+	isSimpleSite() || isAtomicSite()
+		? 'https://wordpress.com/support/video-tutorials-add-payments-features-to-your-site-with-our-guides/#how-to-use-the-payments-block-video'
+		: 'https://jetpack.com/support/jetpack-blocks/payments-block/';
+
 export const settings = {
 	title: __( 'Payment Button', 'jetpack' ),
 	icon: {
 		src: icon,
 		foreground: getIconColor(),
 	},
-	description: __( 'Button allowing you to sell products and subscriptions.', 'jetpack' ),
+	description: (
+		<Fragment>
+			<p>{ __( 'Button allowing you to sell products and subscriptions.', 'jetpack' ) }</p>
+			<ExternalLink href={ supportLink }>{ __( 'Support reference', 'jetpack' ) }</ExternalLink>
+		</Fragment>
+	),
 	category: 'earn',
 	keywords: [
-		_x( 'sell', 'block search term', 'jetpack' ),
-		_x( 'subscriptions', 'block search term', 'jetpack' ),
-		_x( 'product', 'block search term', 'jetpack' ),
-		'stripe',
+		_x( 'buy', 'block search term', 'jetpack' ),
+		_x( 'contribution', 'block search term', 'jetpack' ),
+		_x( 'commerce', 'block search term', 'jetpack' ),
+		_x( 'credit card', 'block search term', 'jetpack' ),
+		_x( 'debit card', 'block search term', 'jetpack' ),
+		_x( 'donate', 'block search term', 'jetpack' ),
+		_x( 'Donations', 'block search term', 'jetpack' ),
+		_x( 'earn', 'block search term', 'jetpack' ),
+		_x( 'ecommerce', 'block search term', 'jetpack' ),
+		'gofundme',
 		_x( 'memberships', 'block search term', 'jetpack' ),
+		_x( 'money', 'block search term', 'jetpack' ),
+		_x( 'paid', 'block search term', 'jetpack' ),
+		'patreon',
+		_x( 'pay', 'block search term', 'jetpack' ),
+		_x( 'payments', 'block search term', 'jetpack' ),
+		_x( 'products', 'block search term', 'jetpack' ),
+		_x( 'purchase', 'block search term', 'jetpack' ),
+		_x( 'recurring', 'block search term', 'jetpack' ),
+		_x( 'sell', 'block search term', 'jetpack' ),
+		_x( 'shop', 'block search term', 'jetpack' ),
+		'stripe',
+		_x( 'subscribe', 'block search term', 'jetpack' ),
+		_x( 'subscriptions', 'block search term', 'jetpack' ),
+		_x( 'sponsor', 'block search term', 'jetpack' ),
+		'square',
+		'toast',
+		'venmo',
 	],
 	usesContext: [ 'isPremiumContentChild' ],
 	attributes: {
@@ -62,7 +97,7 @@ export const settings = {
 	),
 	supports: {
 		html: false,
-		align: true,
+		__experimentalExposeControlsToChildren: true,
 	},
 	deprecated: [ deprecatedV1 ],
 	transforms: {
