@@ -905,7 +905,7 @@ class Jetpack_Color {
 
 		$h = ( $h + $amount ) % 360;
 		if ( $h < 0 ) {
-			$h = 360 - $h;
+			$h += 360;
 		}
 		return $this->fromHsl( $h, $s, $l );
 	}
