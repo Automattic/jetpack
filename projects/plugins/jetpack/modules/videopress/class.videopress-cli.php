@@ -67,7 +67,7 @@ if ( defined( 'WP_CLI' ) && WP_CLI ) {
 				WP_CLI::success( __( 'Found no available cron jobs.', 'jetpack' ) );
 
 			} else {
-				/* translators: %s is the number of crons */
+				/* translators: %d is the number of crons */
 				WP_CLI::success( sprintf( _n( 'Found %d available cron job.', 'Found %d available cron jobs.', count( $crons ), 'jetpack' ), count( $crons ) ) );
 			}
 
