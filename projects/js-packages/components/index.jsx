@@ -27,5 +27,7 @@ export { default as AdminPage } from './components/admin-page';
 export { default as DecorativeCard } from './components/decorative-card';
 export { default as Col } from './components/layout/col';
 export { default as Container } from './components/layout/container';
+export { default as ThemeProvider } from './components/theme-provider';
 export { default as numberFormat } from './components/number-format';
+export { default as QRCode } from './components/qr-code';
 export { getUserLocale, cleanLocale } from './lib/locale';

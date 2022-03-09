@@ -3,7 +3,11 @@
 	 * Internal dependencies
 	 */
 	import { maybeGenerateCriticalCss } from '../../../utils/generate-critical-css';
-	import { requestCloudCss, pollCloudCssStatus } from '../../../utils/cloud-css';
+	import {
+		requestCloudCss,
+		pollCloudCssStatus,
+		stopPollingCloudCssStatus,
+	} from '../../../utils/cloud-css';
 	import GenerateCss from '../elements/GenerateCSS.svelte';
 	import CloudCssMeta from '../elements/CloudCssMeta.svelte';
 	import Module from '../elements/Module.svelte';
@@ -40,7 +44,12 @@
 		</div>
 	</Module>
 
-	<Module slug={'cloud-css'} on:enabled={requestCloudCss} on:mountEnabled={pollCloudCssStatus}>
+	<Module
+		slug={'cloud-css'}
+		on:enabled={requestCloudCss}
+		on:disabled={stopPollingCloudCssStatus}
+		on:mountEnabled={pollCloudCssStatus}
+	>
 		<h3 slot="title">
 			{__( 'Optimize CSS Loading from Cloud', 'jetpack-boost' )}
 		</h3>
