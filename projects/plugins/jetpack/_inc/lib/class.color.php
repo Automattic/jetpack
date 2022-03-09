@@ -214,7 +214,7 @@ class Jetpack_Color {
 	 * @return string
 	 */
 	public function toHex() {
-		return str_pad( dechex( $this->color ), 6, '0', STR_PAD_LEFT );
+		return sprintf( '%06x', $this->color );
 	}
 
 	/**
