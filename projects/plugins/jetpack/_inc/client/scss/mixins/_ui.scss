@@ -1,0 +1,6 @@
+@mixin card( $borderless: false ) {
+	border-radius: 0.5rem;
+
+	background-color: var( --jp-white );
+	border: 1px solid var( --jp-gray-5 );
+}
