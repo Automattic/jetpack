@@ -74,14 +74,7 @@ class Jetpack_Color {
 		$hex_value = str_replace( '#', '', $hex_value );
 		// handle short hex codes like #fff.
 		if ( 3 === strlen( $hex_value ) ) {
-			$short     = $hex_value;
-			$i         = 0;
-			$hex_value = '';
-			while ( $i < 3 ) {
-				$chunk      = substr( $short, $i, 1 );
-				$hex_value .= $chunk . $chunk;
-				$i++;
-			}
+			$hex_value = $hex_value[0] . $hex_value[0] . $hex_value[1] . $hex_value[1] . $hex_value[2] . $hex_value[2];
 		}
 		return $this->fromInt( hexdec( $hex_value ) );
 	}
