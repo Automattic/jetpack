@@ -57,7 +57,13 @@ export default function useSiteLogo( { generateDataUrl = false } ) {
 		try {
 			setDataUrl( canvas.toDataURL( 'image/png' ) );
 		} catch ( error ) {
-			console.error( 'Error generating QR code image:', error ); // eslint-disable-line no-console
+			/* eslint-disable no-console */
+			console.error( 'Error generating QR code image:', error );
+			console.error(
+				"In case it's a cross-origin issue, take a look at https://developer.wordpress.org/block-editor/reference-guides/filters/editor-filters/#media-crossorigin"
+			);
+			/* eslint-enable no-console */
+
 			setDataUrl( null );
 		}
 	};
