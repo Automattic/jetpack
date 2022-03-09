@@ -2,16 +2,7 @@
  * WordPress dependencies
  */
 import { useEffect, useState, useRef } from '@wordpress/element';
-import {
-	Disabled,
-	MenuGroup,
-	MenuItem,
-	Placeholder,
-	Spinner,
-	ToolbarButton,
-	ToolbarDropdownMenu,
-	ToolbarGroup,
-} from '@wordpress/components';
+import { Disabled, Placeholder, Spinner, ToolbarButton, ToolbarGroup } from '@wordpress/components';
 import { BlockControls } from '@wordpress/block-editor';
 import { __, sprintf } from '@wordpress/i18n';
 import { compose, useViewportMatch } from '@wordpress/compose';
@@ -32,6 +23,7 @@ import { isPriceValid, minimumTransactionAmountForCurrency } from '../../shared/
 import getConnectUrl from '../../shared/get-connect-url';
 import './editor.scss';
 import useAutosaveAndRedirect from '../../shared/use-autosave-and-redirect';
+import ViewSelector from './_inc/view-selector';
 import InvalidSubscriptionWarning from './_inc/invalid-subscription-warning';
 
 /**
@@ -378,58 +370,13 @@ function Edit( props ) {
 						</ToolbarButton>
 					</ToolbarGroup>
 				) }
-				{ isSmallViewport && (
-					<ToolbarGroup>
-						<ToolbarDropdownMenu
-							label={ __( 'Change view', 'jetpack' ) }
-							icon="arrow-down"
-							text={ selectedTab.label }
-						>
-							{ ( { onClose } ) => (
-								<MenuGroup>
-									{ tabs.map( tabDefinition => {
-										const tabSelected = tabDefinition.id === selectedTab.id;
-										return (
-											<MenuItem
-												isSelected={ tabSelected }
-												icon={ tabSelected ? 'yes' : undefined }
-												onClick={ () => {
-													selectTab( tabDefinition );
-													onClose();
-												} }
-												key={ `jetpack-premium-content-tab-${ tabDefinition.id }` }
-											>
-												{ tabDefinition.label }
-											</MenuItem>
-										);
-									} ) }
-								</MenuGroup>
-							) }
-						</ToolbarDropdownMenu>
-					</ToolbarGroup>
-				) }
-				{ ! isSmallViewport && (
-					<ToolbarGroup>
-						<ToolbarButton
-							onClick={ () => {
-								selectTab( tabs[ CONTENT_TAB ] );
-							} }
-							className="components-tab-button"
-							isPressed={ selectedTab.className !== 'wp-premium-content-logged-out-view' }
-						>
-							<span>{ __( 'Subscriber View', 'jetpack' ) }</span>
-						</ToolbarButton>
-						<ToolbarButton
-							onClick={ () => {
-								selectTab( tabs[ WALL_TAB ] );
-							} }
-							className="components-tab-button"
-							isPressed={ selectedTab.className === 'wp-premium-content-logged-out-view' }
-						>
-							<span>{ __( 'Guest View', 'jetpack' ) }</span>
-						</ToolbarButton>
-					</ToolbarGroup>
-				) }
+				<ViewSelector
+					options={ tabs }
+					selectedOption={ selectedTab }
+					selectAction={ selectTab }
+					contractViewport={ isSmallViewport }
+					label={ __( 'Change view', 'jetpack' ) }
+				/>
 			</BlockControls>
 
 			<div className={ className } ref={ wrapperRef }>
