@@ -51,9 +51,7 @@ class Jetpack_Initializer extends Initializer {
 
 			// Enable configuring instant search within the Customizer.
 			if ( class_exists( 'WP_Customize_Manager' ) ) {
-				// TODO: Port this class to the package.
-				require_once JETPACK__PLUGIN_DIR . 'modules/search/class-jetpack-search-customize.php';
-				new \Jetpack_Search_Customize();
+				new Customizer();
 			}
 		} else {
 			// Enable the classic search experience.

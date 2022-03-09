@@ -45,7 +45,7 @@ const SocialPreviewsPanel = function SocialPreviewsPanel( { openModal, showUpgra
 				) ) }
 			</div>
 
-			<Button isSecondary onClick={ openModal } label={ buttonLabel }>
+			<Button variant="secondary" onClick={ openModal } label={ buttonLabel }>
 				{ buttonText }
 			</Button>
 		</div>

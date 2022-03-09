@@ -1,7 +1,10 @@
 name: Build
 on:
   push:
-    branches: [ 'master', '**/branch-**' ]
+    branches:
+      - 'master'
+      # The `**/*/` works around the fact that GitHub considers a leading `**/` as meaning "zero or more path components" where we want "one or more".
+      - '**/*/branch-**'
   pull_request:
 concurrency:
   # Cancel concurrent jobs on pull_request but not push, by including the run_id in the concurrency group for the latter.

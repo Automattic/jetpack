@@ -508,35 +508,4 @@ class Admin_Menu extends Base_Admin_Menu {
 			add_menu_page( esc_attr__( 'WooCommerce', 'jetpack' ), esc_attr__( 'WooCommerce', 'jetpack' ), 'activate_plugins', $menu_url, null, $icon_url, 55 );
 		}
 	}
-
-	/**
-	 * Prepend a dashboard swithcer to the "Screen Options" box of the current page.
-	 * Callback for the 'screen_settings' filter (available in WP 3.0 and up).
-	 *
-	 * @param string $current The currently added panels in screen options.
-	 *
-	 * @return string The HTML code to append to "Screen Options"
-	 */
-	public function register_dashboard_switcher( $current ) {
-		$menu_mappings = require __DIR__ . '/menu-mappings.php';
-		$screen        = $this->get_current_screen();
-
-		// Let's show the switcher only in screens that we have a Calypso mapping to switch to.
-		if ( ! isset( $menu_mappings[ $screen ] ) ) {
-			return;
-		}
-
-		$contents = sprintf(
-			'<div id="dashboard-switcher"><h5>%s</h5><p class="dashboard-switcher-text">%s</p><a class="button button-primary dashboard-switcher-button" href="%s">%s</a></div>',
-			__( 'Screen features', 'jetpack' ),
-			__( 'Currently you are seeing the classic WP-Admin view of this page. Would you like to see the default WordPress.com view?', 'jetpack' ),
-			add_query_arg( 'preferred-view', 'default' ),
-			__( 'Use WordPress.com view', 'jetpack' )
-		);
-
-		// Prepend the Dashboard swither to the other custom panels.
-		$current = $contents . $current;
-
-		return $current;
-	}
 }
