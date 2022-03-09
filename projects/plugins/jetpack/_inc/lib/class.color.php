@@ -348,8 +348,6 @@ class Jetpack_Color {
 		$max               = max( $r, $g, $b );
 		$min               = min( $r, $g, $b );
 		$l                 = ( $max + $min ) / 2;
-		$s                 = $l;
-		$h                 = $s;
 
 		if ( $max === $min ) {
 			// achromatic.
