@@ -28,7 +28,7 @@ if ( defined( 'WP_CLI' ) && WP_CLI ) {
 			$guid          = $args[0];
 			$attachment_id = create_local_media_library_for_videopress_guid( $guid );
 			if ( $attachment_id && ! is_wp_error( $attachment_id ) ) {
-				/* translators: %s: attachment id */
+				/* translators: %d: attachment id */
 				WP_CLI::success( sprintf( __( 'The video has been imported as Attachment ID %d', 'jetpack' ), $attachment_id ) );
 			} else {
 				WP_CLI::error( __( 'An error has been encountered.', 'jetpack' ) );
