@@ -6,7 +6,15 @@ import { PanelRow, Button } from '@wordpress/components';
 import { useSelect } from '@wordpress/data';
 import { store as editorStore } from '@wordpress/editor';
 
-function handleDownloadCode( slug, ref, download = true ) {
+/**
+ * Handler function to create an image from the QR code.
+ *
+ * @param {string} slug      - The slug of the image to create.
+ * @param {object} ref       - The ref of the QR code DOM element.
+ * @param {boolean} download - Whether to download the image. Defaults to true.
+ * @returns {void}           - Nothing when the image is not created.
+ */
+function handleDownloadQRCode( slug, ref, download = true ) {
 	if ( ! slug ) {
 		return;
 	}
@@ -20,11 +28,12 @@ function handleDownloadCode( slug, ref, download = true ) {
 		return;
 	}
 
-	// Convert to bitsmap, and download.
+	// Convert to canvas element to data URL image.
 	canvasElement.toBlob( imageBlob => {
 		const imageURL = URL.createObjectURL( imageBlob );
 		const tempLink = document.createElement( 'a' );
 		tempLink.href = imageURL;
+		// Download, or not.
 		tempLink.setAttribute( download ? 'download' : 'target', `qr-post-${ slug }.png` );
 		tempLink.click();
 	} );
@@ -43,11 +52,11 @@ export default function QRCodeImageActionsPanelRow( { qrCodeRef } ) {
 
 	return (
 		<PanelRow>
-			<Button isSecondary isSmall onClick={ () => handleDownloadCode( slug, qrCodeRef, false ) }>
+			<Button isSecondary isSmall onClick={ () => handleDownloadQRCode( slug, qrCodeRef, false ) }>
 				{ __( 'View', 'jetpack' ) }
 			</Button>
 
-			<Button isSecondary isSmall onClick={ () => handleDownloadCode( slug, qrCodeRef ) }>
+			<Button isSecondary isSmall onClick={ () => handleDownloadQRCode( slug, qrCodeRef ) }>
 				{ __( 'Download', 'jetpack' ) }
 			</Button>
 		</PanelRow>
