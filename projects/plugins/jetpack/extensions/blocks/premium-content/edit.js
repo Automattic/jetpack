@@ -14,7 +14,7 @@ import {
 } from '@wordpress/components';
 import { BlockControls } from '@wordpress/block-editor';
 import { __, sprintf } from '@wordpress/i18n';
-import { compose } from '@wordpress/compose';
+import { compose, useViewportMatch } from '@wordpress/compose';
 import { select, useSelect, withSelect, withDispatch } from '@wordpress/data';
 import { addQueryArgs, getQueryArg } from '@wordpress/url';
 import formatCurrency from '@automattic/format-currency';
@@ -348,6 +348,8 @@ function Edit( props ) {
 
 	const { autosaveAndRedirect } = useAutosaveAndRedirect( connectURL );
 
+	const isSmallViewport = useViewportMatch( 'medium', '<' );
+
 	if ( apiState === API_STATE_LOADING && ! isPreview ) {
 		return (
 			<div className={ className } ref={ wrapperRef }>
@@ -376,34 +378,58 @@ function Edit( props ) {
 						</ToolbarButton>
 					</ToolbarGroup>
 				) }
-				<ToolbarGroup>
-					<ToolbarDropdownMenu
-						label={ __( 'Change view', 'jetpack' ) }
-						icon="arrow-down"
-						text={ selectedTab.label }
-					>
-						{ ( { onClose } ) => (
-							<MenuGroup>
-								{ tabs.map( tabDefinition => {
-									const tabSelected = tabDefinition.id === selectedTab.id;
-									return (
-										<MenuItem
-											isSelected={ tabSelected }
-											icon={ tabSelected ? 'yes' : undefined }
-											onClick={ () => {
-												selectTab( tabDefinition );
-												onClose();
-											} }
-											key={ `jetpack-premium-content-tab-${ tabDefinition.id }` }
-										>
-											{ tabDefinition.label }
-										</MenuItem>
-									);
-								} ) }
-							</MenuGroup>
-						) }
-					</ToolbarDropdownMenu>
-				</ToolbarGroup>
+				{ isSmallViewport && (
+					<ToolbarGroup>
+						<ToolbarDropdownMenu
+							label={ __( 'Change view', 'jetpack' ) }
+							icon="arrow-down"
+							text={ selectedTab.label }
+						>
+							{ ( { onClose } ) => (
+								<MenuGroup>
+									{ tabs.map( tabDefinition => {
+										const tabSelected = tabDefinition.id === selectedTab.id;
+										return (
+											<MenuItem
+												isSelected={ tabSelected }
+												icon={ tabSelected ? 'yes' : undefined }
+												onClick={ () => {
+													selectTab( tabDefinition );
+													onClose();
+												} }
+												key={ `jetpack-premium-content-tab-${ tabDefinition.id }` }
+											>
+												{ tabDefinition.label }
+											</MenuItem>
+										);
+									} ) }
+								</MenuGroup>
+							) }
+						</ToolbarDropdownMenu>
+					</ToolbarGroup>
+				) }
+				{ ! isSmallViewport && (
+					<ToolbarGroup>
+						<ToolbarButton
+							onClick={ () => {
+								selectTab( tabs[ CONTENT_TAB ] );
+							} }
+							className="components-tab-button"
+							isPressed={ selectedTab.className !== 'wp-premium-content-logged-out-view' }
+						>
+							<span>{ __( 'Subscriber View', 'jetpack' ) }</span>
+						</ToolbarButton>
+						<ToolbarButton
+							onClick={ () => {
+								selectTab( tabs[ WALL_TAB ] );
+							} }
+							className="components-tab-button"
+							isPressed={ selectedTab.className === 'wp-premium-content-logged-out-view' }
+						>
+							<span>{ __( 'Guest View', 'jetpack' ) }</span>
+						</ToolbarButton>
+					</ToolbarGroup>
+				) }
 			</BlockControls>
 
 			<div className={ className } ref={ wrapperRef }>
