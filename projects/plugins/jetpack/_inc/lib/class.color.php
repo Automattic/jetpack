@@ -839,9 +839,9 @@ class Jetpack_Color {
 	}
 
 	/**
-	 * Transform -- Get hue-incremented color, 30 steps at a time, with a base of 180.
+	 * Transform -- To an analogous color of the complement.
 	 *
-	 * @param int $step How many times we should increment hue by 30.
+	 * @param int $step Pass `1` or `-1` to choose which direction around the color wheel.
 	 *
 	 * @return Jetpack_Color
 	 */
