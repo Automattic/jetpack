@@ -47,7 +47,6 @@ export default function useSiteLogo( { generateDataUrl = false } ) {
 	}
 
 	const image = new Image();
-	image.crossOrigin = 'Anonymous';
 
 	image.onload = function () {
 		const canvas = document.createElement( 'canvas' );
