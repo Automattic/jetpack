@@ -2,7 +2,10 @@
 
 set -eo pipefail
 
-BASE=$PWD
+BASE="$PWD"
+BRANCH="$1"
+CHANGEFILE="$(sed 's/[<>:"/\\|?*]/-/g' <<<"$BRANCH")"
+
 . "$BASE/tools/includes/alpha-tag.sh"
 
 function die {
@@ -10,22 +13,34 @@ function die {
 	exit 1
 }
 
-# Add a change file for every project touched in the PR, if any.
+# Renovate puts some cache dirs in different places.
+if [[ "$HOME" == "/" ]]; then
+    mkdir /var/tmp/home
+    export HOME=/var/tmp/home
+fi
+pnpm config set --location=user store-dir /tmp/renovate/cache/others/pnpm
+composer config --global cache-dir /tmp/renovate/cache/others/composer
+
+# Do the pnpm and changelogger installs.
+cd "$BASE"
 pnpm --quiet install
 cd projects/packages/changelogger
 composer --quiet update
 cd "$BASE"
 CL="$BASE/projects/packages/changelogger/bin/changelogger"
 
+# Add change files for anything that changed. But ignore .npmrc, renovate mangles those.
+echo "Changed files:"
+git -c core.quotepath=off diff --name-only HEAD | grep -E -v '(^|/)\.npmrc'
 ANY=false
-for DIR in $(git -c core.quotepath=off diff --name-only "$BASE_REF"..."$HEAD_REF" | sed -nE 's!^(projects/[^/]+/[^/]+)/.*!\1!p' | sort -u); do
+for DIR in $(git -c core.quotepath=off diff --name-only HEAD | grep -E -v '(^|/)\.npmrc' | sed -nE 's!^(projects/[^/]+/[^/]+)/.*!\1!p' | sort -u); do
 	ANY=true
 	SLUG="${DIR#projects/}"
 	echo "Adding change file for $SLUG"
 	cd "$DIR"
 
 	ARGS=()
-	ARGS=( add --no-interaction --filename-auto-suffix --significance=patch )
+	ARGS=( add --filename="${CHANGEFILE}" --no-interaction --filename-auto-suffix --significance=patch )
 
 	CLTYPE="$(jq -r '.extra["changelogger-default-type"] // "changed"' composer.json)"
 	if [[ -n "$CLTYPE" ]]; then
@@ -41,7 +56,7 @@ for DIR in $(git -c core.quotepath=off diff --name-only "$BASE_REF"..."$HEAD_REF
 		"$CL" "${ARGS[@]}"
 		echo "Updating version for $SLUG"
 		PRERELEASE=$(alpha_tag "$CL" composer.json 0)
-		VER=$("$CL" version next --default-first-version --prerelease=$PRERELEASE) || { echo "$VER"; exit 1; }
+		VER=$("$CL" version next --default-first-version --prerelease="$PRERELEASE") || { echo "$VER"; exit 1; }
 		"$BASE/tools/project-version.sh" -u "$VER" "$SLUG"
 	fi
 	cd "$BASE"
@@ -54,4 +69,4 @@ fi
 
 # Update deps and lock files.
 echo "Updating dependencies on changed projects"
-tools/check-intra-monorepo-deps.sh -ua
+tools/check-intra-monorepo-deps.sh -ua -n "${CHANGEFILE}"

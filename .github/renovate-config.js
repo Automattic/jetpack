@@ -14,9 +14,10 @@ module.exports = {
 	requireConfig: false,
 
 	// Extra code to run before creating a commit.
-	allowedPostUpgradeCommands: [ '/tmp/monorepo/.github/files/renovate-post-upgrade.sh' ],
+	allowPostUpgradeCommandTemplating: true,
+	allowedPostUpgradeCommands: [ '/tmp/monorepo/.github/files/renovate-post-upgrade-run.sh' ],
 	postUpgradeTasks: {
-		commands: [ '/tmp/monorepo/.github/files/renovate-post-upgrade.sh' ],
+		commands: [ '/tmp/monorepo/.github/files/renovate-post-upgrade-run.sh {{{branchName}}}' ],
 		// Anything might change thanks to version bumping.
 		fileFilters: [ '**' ],
 		executionMode: 'branch',
