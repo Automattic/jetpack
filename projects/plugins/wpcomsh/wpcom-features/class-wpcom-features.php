@@ -423,10 +423,12 @@ class WPCOM_Features {
 		),
 		// Enable the ability to hide the WP.com branding in the site footer.
 		self::NO_WPCOM_BRANDING             => array(
+			self::WPCOM_MANAGED_PLANS,
 			self::WPCOM_BUSINESS_AND_HIGHER_PLANS,
 		),
 		// Atomic only feature. Enable the Settings -> Permalinks menu item and options-permalink page.
 		self::OPTIONS_PERMALINK             => array(
+			self::WPCOM_MANAGED_PLANS,
 			self::WPCOM_BUSINESS_AND_HIGHER_PLANS,
 		),
 	);
