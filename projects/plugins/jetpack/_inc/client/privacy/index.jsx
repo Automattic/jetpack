@@ -11,13 +11,13 @@ import { connect } from 'react-redux';
 import { createInterpolateElement } from '@wordpress/element';
 import { __, _x } from '@wordpress/i18n';
 import { getRedirectUrl } from '@automattic/jetpack-components';
+import { ExternalLink } from '@wordpress/components';
 
 /**
  * Internal dependencies
  */
 import analytics from 'lib/analytics';
 import CompactFormToggle from 'components/form/form-toggle/compact';
-import ExternalLink from 'components/external-link';
 import { fetchTrackingSettings, updateTrackingSettings } from 'state/tracking/actions';
 import {
 	getTrackingSettings,
@@ -133,7 +133,6 @@ class Privacy extends React.Component {
 												<ExternalLink
 													href={ getRedirectUrl( 'a8c-cookies' ) }
 													onClick={ trackCookiePolicyView }
-													target="_blank"
 													rel="noopener noreferrer"
 												/>
 											),
@@ -152,7 +151,6 @@ class Privacy extends React.Component {
 											<ExternalLink
 												href={ getRedirectUrl( 'a8c-privacy' ) }
 												onClick={ trackPrivacyPolicyView }
-												target="_blank"
 												rel="noopener noreferrer"
 											/>
 										),
@@ -170,7 +168,6 @@ class Privacy extends React.Component {
 											<ExternalLink
 												href={ getRedirectUrl( 'a8c-cookies' ) }
 												onClick={ trackCookiePolicyView }
-												target="_blank"
 												rel="noopener noreferrer"
 											/>
 										),
@@ -188,7 +185,6 @@ class Privacy extends React.Component {
 											<ExternalLink
 												href={ getRedirectUrl( 'jetpack-support-privacy' ) }
 												onClick={ trackPrivacyCenterView }
-												target="_blank"
 												rel="noopener noreferrer"
 											/>
 										),

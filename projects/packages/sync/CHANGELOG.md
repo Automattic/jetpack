@@ -5,6 +5,14 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.30.2] - 2022-03-08
+### Changed
+- Disallow syncing of _term_meta post_type
+
+## [1.30.1] - 2022-03-02
+### Added
+- Dedicated Sync flow: Allow enabling or disabling via WPCOM response header
+
 ## [1.30.0] - 2022-02-22
 ### Added
 - Add Sync dedicated request flow.
@@ -580,6 +588,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - Packages: Move sync to a classmapped package
 
+[1.30.2]: https://github.com/Automattic/jetpack-sync/compare/v1.30.1...v1.30.2
+[1.30.1]: https://github.com/Automattic/jetpack-sync/compare/v1.30.0...v1.30.1
 [1.30.0]: https://github.com/Automattic/jetpack-sync/compare/v1.29.2...v1.30.0
 [1.29.2]: https://github.com/Automattic/jetpack-sync/compare/v1.29.1...v1.29.2
 [1.29.1]: https://github.com/Automattic/jetpack-sync/compare/v1.29.0...v1.29.1

@@ -158,7 +158,7 @@ const InstagramGalleryEdit = props => {
 						) }
 					</p>
 				) }
-				<Button disabled={ isButtonDisabled } isPrimary onClick={ connectBlockToInstagram }>
+				<Button disabled={ isButtonDisabled } variant="primary" onClick={ connectBlockToInstagram }>
 					{ isConnecting && __( 'Connecting…', 'jetpack' ) }
 					{ isRequestingUserConnections && __( 'Loading your connections…', 'jetpack' ) }
 					{ ! isConnecting &&
@@ -184,7 +184,7 @@ const InstagramGalleryEdit = props => {
 						<Button
 							disabled={ isRequestingWpcomConnectUrl || ! wpcomConnectUrl }
 							href={ wpcomConnectUrl }
-							isSecondary
+							variant="secondary"
 						>
 							{ __( 'Connect to WordPress.com', 'jetpack' ) }
 						</Button>

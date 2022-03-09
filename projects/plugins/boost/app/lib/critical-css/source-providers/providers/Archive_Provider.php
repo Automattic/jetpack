@@ -23,10 +23,15 @@ class Archive_Provider extends Provider {
 
 	// phpcs:ignore Generic.Commenting.DocComment.MissingShort
 	/** @inheritdoc */
-	public static function get_critical_source_urls() { // phpcs:ignore Generic.Commenting.DocComment.MissingShort
-		$links = array();
+	public static function get_critical_source_urls( $context_posts = array() ) { // phpcs:ignore Generic.Commenting.DocComment.MissingShort
+		$links              = array();
+		$context_post_types = wp_list_pluck( $context_posts, 'post_type' );
 
-		foreach ( self::get_post_types() as $post_type ) {
+		$post_types = self::get_post_types();
+		if ( ! empty( $context_post_types ) ) {
+			$post_types = array_intersect( $post_types, $context_post_types );
+		}
+		foreach ( $post_types as $post_type ) {
 			$links[ $post_type ][] = get_post_type_archive_link( $post_type );
 		}
 
@@ -35,7 +40,7 @@ class Archive_Provider extends Provider {
 
 	// phpcs:ignore Generic.Commenting.DocComment.MissingShort
 	/** @inheritdoc */
-	public static function get_current_storage_keys() { // phpcs:ignore Generic.Commenting.DocComment.MissingShort
+	public static function get_current_storage_keys() {
 		if ( ! is_archive() ) {
 			return array();
 		}

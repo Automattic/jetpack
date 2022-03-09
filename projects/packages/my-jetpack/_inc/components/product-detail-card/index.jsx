@@ -22,7 +22,7 @@ import {
 	AntiSpamIcon,
 	CheckmarkIcon,
 } from '../icons';
-import ProductDetailButton from './button';
+import ProductDetailButton from '../product-detail-button';
 
 /**
  * Simple react component to render the product icon,
@@ -192,7 +192,6 @@ const ProductDetail = ( { slug, onClick, trackButtonClick } ) => {
 							onClick={ clickHandler }
 							isLoading={ isFetching }
 							isPrimary={ ! isBundle }
-							isSecondary={ isBundle }
 							href={ onClick ? undefined : addProductUrl }
 							className={ `${ styles[ 'checkout-button' ] } ${
 								isBundle ? styles[ 'is-bundle' ] : ''

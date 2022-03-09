@@ -205,11 +205,10 @@ function ConversationEdit( {
 				<div className={ `${ baseClassName }__placeholder` }>
 					<FormFileUpload
 						multiple={ false }
-						isLarge
 						className="wp-block-jetpack-slideshow__add-item-button"
 						onChange={ uploadTranscriptFile }
 						accept={ ACCEPTED_FILE_EXTENSIONS }
-						isPrimary
+						variant="primary"
 						title={ `${ __( 'Accepted file formats:', 'jetpack' ) } ${ ACCEPTED_FILE_EXTENSIONS }` }
 						disabled={ isProcessingFile }
 					>
@@ -217,7 +216,7 @@ function ConversationEdit( {
 					</FormFileUpload>
 
 					<Button
-						isTertiary
+						variant="tertiary"
 						disabled={ isProcessingFile }
 						onClick={ () => setAttributes( { skipUpload: true } ) }
 					>

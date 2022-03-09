@@ -87,7 +87,7 @@ function AmazonEdit( {
 					label={ __( 'Products', 'jetpack' ) }
 					onChange={ onChange }
 				/>
-				<Button isSecondary isLarge type="submit">
+				<Button variant="secondary" type="submit">
 					{ __( 'Preview', 'jetpack' ) }
 				</Button>
 			</form>
@@ -222,7 +222,7 @@ function AmazonEdit( {
 					<Button
 						href={ detailPageUrl }
 						icon={ icon }
-						isPrimary
+						variant="primary"
 						className={ `${ defaultClassName }-button` }
 						style={ {
 							color: buttonTextColor,
