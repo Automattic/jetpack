@@ -83,7 +83,7 @@ class WP_Test_Jetpack_REST_API_Authentication extends WP_Test_Jetpack_REST_Testc
 		$expected_status_code = rest_authorization_required_code();
 
 		$this->assertErrorResponse( 'rest_forbidden', $response, $expected_status_code );
-		$this->assertEquals( 0, get_current_user_id() );
+		$this->assertSame( 0, get_current_user_id() );
 	}
 
 	/**
@@ -94,7 +94,7 @@ class WP_Test_Jetpack_REST_API_Authentication extends WP_Test_Jetpack_REST_Testc
 		$this->request     = new WP_REST_Request( 'GET', '/jetpack/v4/module/protect' );
 		$response          = $this->server->dispatch( $this->request );
 		$this->assertErrorResponse( 'rest_invalid_signature', $response, 400 );
-		$this->assertEquals( 0, get_current_user_id() );
+		$this->assertSame( 0, get_current_user_id() );
 	}
 
 	/**
@@ -105,7 +105,7 @@ class WP_Test_Jetpack_REST_API_Authentication extends WP_Test_Jetpack_REST_Testc
 		$this->request = new WP_REST_Request( 'GET', '/jetpack/v4/module/protect' );
 		$response      = $this->server->dispatch( $this->request );
 		$this->assertErrorResponse( 'rest_invalid_signature', $response, 400 );
-		$this->assertEquals( 0, get_current_user_id() );
+		$this->assertSame( 0, get_current_user_id() );
 	}
 
 	/**
@@ -117,7 +117,7 @@ class WP_Test_Jetpack_REST_API_Authentication extends WP_Test_Jetpack_REST_Testc
 		$this->request     = new WP_REST_Request( 'GET', '/jetpack/v4/module/protect' );
 		$response          = $this->server->dispatch( $this->request );
 		$this->assertErrorResponse( 'rest_invalid_signature', $response, 400 );
-		$this->assertEquals( 0, get_current_user_id() );
+		$this->assertSame( 0, get_current_user_id() );
 	}
 
 	/**
@@ -136,7 +136,7 @@ class WP_Test_Jetpack_REST_API_Authentication extends WP_Test_Jetpack_REST_Testc
 		$this->assertEquals( 400, $response->get_status() );
 		$data = $response->get_data();
 		$this->assertEquals( 'The request is not signed correctly.', $data['message'] );
-		$this->assertEquals( 0, get_current_user_id() );
+		$this->assertSame( 0, get_current_user_id() );
 	}
 
 	/**
@@ -152,7 +152,7 @@ class WP_Test_Jetpack_REST_API_Authentication extends WP_Test_Jetpack_REST_Testc
 		$this->request     = new WP_REST_Request( 'GET', '/jetpack/v4/module/protect' );
 		$response          = $this->server->dispatch( $this->request );
 		$this->assertErrorResponse( 'rest_invalid_signature', $response, 400 );
-		$this->assertEquals( 0, get_current_user_id() );
+		$this->assertSame( 0, get_current_user_id() );
 	}
 
 	/**
@@ -241,7 +241,7 @@ class WP_Test_Jetpack_REST_API_Authentication extends WP_Test_Jetpack_REST_Testc
 		$this->assertEquals( 500, $response->get_status() );
 		$data = $response->get_data();
 		$this->assertEquals( 'site_not_registered', $data['code'] );
-		$this->assertEquals( 0, get_current_user_id() );
+		$this->assertSame( 0, get_current_user_id() );
 	}
 
 	/**
@@ -259,7 +259,7 @@ class WP_Test_Jetpack_REST_API_Authentication extends WP_Test_Jetpack_REST_Testc
 		$this->request->set_body( '{"modules":[]}' );
 		$response = $this->server->dispatch( $this->request );
 		$this->assertErrorResponse( 'rest_invalid_signature', $response, 400 );
-		$this->assertEquals( 0, get_current_user_id() );
+		$this->assertSame( 0, get_current_user_id() );
 	}
 
 	/**
@@ -298,7 +298,7 @@ class WP_Test_Jetpack_REST_API_Authentication extends WP_Test_Jetpack_REST_Testc
 		$response = $this->server->dispatch( $this->request );
 		$this->assertErrorResponse( 'rest_invalid_signature', $response );
 		$this->assertEquals( 400, $response->get_status() );
-		$this->assertEquals( 0, get_current_user_id() );
+		$this->assertSame( 0, get_current_user_id() );
 	}
 
 	/**

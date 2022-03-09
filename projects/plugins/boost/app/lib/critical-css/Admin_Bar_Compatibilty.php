@@ -1,7 +1,7 @@
 <?php
 namespace Automattic\Jetpack_Boost\Lib\Critical_CSS;
 
-class Admin_Bar_Compatibilty {
+class Admin_Bar_Compatibility {
 
 	/**
 	 * Enforces the admin bar stylesheet to load late and synchronously

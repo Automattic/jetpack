@@ -73,7 +73,7 @@ const FeaturePromptComponent = props => {
 			} ) }
 			answer={
 				<div className="jp-recommendations-question__install-section">
-					<Button primary href={ nextRoute } onClick={ onInstallClick }>
+					<Button primary rna href={ nextRoute } onClick={ onInstallClick }>
 						{ ctaText }
 					</Button>
 					<a href={ nextRoute } onClick={ onDecideLaterClick }>
