@@ -1,0 +1,43 @@
+.section {
+	width: 100%;
+	margin: auto;
+	padding: 8px 32px;
+}
+
+.key {
+	background-color: var(--jp-green-80);
+	border-radius: var(--jp-border-radius);
+	padding: 8px;
+	color: var(--jp-white);
+	font-weight: 600;
+}
+
+.box {
+	border: 1px solid var(--jp-gray);
+	border-radius: var(--jp-border-radius);
+	padding: 16px;
+}
+
+.example {
+	height: 40px;
+	display: flex;
+	align-items: center;
+	border: 1px solid var(--jp-gray);
+	border-radius: var(--jp-border-radius);
+	padding: 8px;
+}
+
+.value-label {
+	font-weight: 600;
+	font-size: var(--font-label);
+	margin: 8px 0;
+}
+
+.value {
+	width: 100%;
+}
+
+.colors-example {
+	width: 100%;
+	height: 100%;
+}
