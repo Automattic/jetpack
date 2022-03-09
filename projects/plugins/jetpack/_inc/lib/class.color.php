@@ -880,9 +880,12 @@ class Jetpack_Color {
 	}
 
 	/**
-	 * Transform -- Get hue-incremented color, 120 steps at a time.
+	 * Transform -- To a triadic color.
 	 *
-	 * @param int $step How many times we should increment hue by 120.
+	 * A triadic color scheme uses three colors evenly spaced (180°) around the color wheel.
+	 * This transforms the color to one of its triadic colors.
+	 *
+	 * @param int $step Pass `1` or `-1` to choose which direction around the color wheel.
 	 *
 	 * @return Jetpack_Color
 	 */
