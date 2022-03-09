@@ -9,12 +9,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Added
 - Critical CSS: Added internal support for Cloud Critical CSS.
 - Critical CSS: Added suggested steps when Critical CSS fails due to page errors.
-- General: Added "My Jetpack" page.
 
 ### Changed
 - Critical CSS: Tidy up Critical CSS class structure.
 - Critical CSS: Updated Critical CSS generation to exclude animation keyframes.
 - Deferred JS: Updated exclusion attribute to allow quotes.
+- General: Reflect current status of Lazy Loading if already enabled in Jetpack on first install.
 - General: Tested compatibility with WordPress 5.9.
 - General: Updated Boost Dashboard heading logo.
 
