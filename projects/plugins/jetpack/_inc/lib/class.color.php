@@ -167,9 +167,9 @@ class Jetpack_Color {
 	/**
 	 * Helper function for Jetpack_Color::fromHsl()
 	 *
-	 * @param  int $p Hue. [0-360].
-	 * @param  int $q Saturation [0, 100].
-	 * @param  int $t Lightness [0, 100].
+	 * @param  float $p Minimum of R/G/B [0, 1].
+	 * @param  float $q Maximum of R/G/B [0, 1].
+	 * @param  float $t Adjusted hue [0, 1].
 	 */
 	private function hue2rgb( $p, $q, $t ) {
 		if ( $t < 0 ) {
