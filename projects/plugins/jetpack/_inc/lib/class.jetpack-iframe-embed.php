@@ -1,20 +1,29 @@
-<?php
+<?php // phpcs:ignore WordPress.Files.FileName.InvalidClassFileName
 /**
- * Tweak the preview when rendered in an iframe
+ * Tweak a preview when rendered in an iframe.
+ * This is used when rendering iFrames in the Calypso app.
+ *
+ * @package automattic/jetpack
  */
 
+/**
+ * Tweak a preview when rendered in an iframe.
+ */
 class Jetpack_Iframe_Embed {
-	static function init() {
+	/**
+	 * Initialize class.
+	 */
+	public static function init() {
 		if ( ! self::is_embedding_in_iframe() ) {
 			return;
 		}
 
-		// Disable the admin bar
+		// Disable the admin bar.
 		if ( ! defined( 'IFRAME_REQUEST' ) ) {
 			define( 'IFRAME_REQUEST', true );
 		}
 
-		// Prevent canonical redirects
+		// Prevent canonical redirects.
 		remove_filter( 'template_redirect', 'redirect_canonical' );
 
 		add_action( 'wp_head', array( 'Jetpack_Iframe_Embed', 'noindex' ), 1 );
@@ -24,33 +33,51 @@ class Jetpack_Iframe_Embed {
 		add_filter( 'shortcode_atts_audio', array( 'Jetpack_Iframe_Embed', 'disable_autoplay' ) );
 
 		if ( defined( 'IS_WPCOM' ) && IS_WPCOM ) {
-			wp_enqueue_script( 'jetpack-iframe-embed', WPMU_PLUGIN_URL . '/jetpack-iframe-embed/jetpack-iframe-embed.js', array( 'jquery' ) );
+			wp_enqueue_script(
+				'jetpack-iframe-embed',
+				WPMU_PLUGIN_URL . '/jetpack-iframe-embed/jetpack-iframe-embed.js',
+				array( 'jquery' ),
+				JETPACK__VERSION,
+				false
+			);
 		} else {
 			$ver = sprintf( '%s-%s', gmdate( 'oW' ), defined( 'JETPACK__VERSION' ) ? JETPACK__VERSION : '' );
-			wp_enqueue_script( 'jetpack-iframe-embed', '//s0.wp.com/wp-content/mu-plugins/jetpack-iframe-embed/jetpack-iframe-embed.js', array( 'jquery' ), $ver );
+			wp_enqueue_script(
+				'jetpack-iframe-embed',
+				'//s0.wp.com/wp-content/mu-plugins/jetpack-iframe-embed/jetpack-iframe-embed.js',
+				array( 'jquery' ),
+				$ver,
+				false
+			);
 		}
 		wp_localize_script( 'jetpack-iframe-embed', '_previewSite', array( 'siteURL' => get_site_url() ) );
 	}
 
-	static function is_embedding_in_iframe() {
+	/**
+	 * Check that we are in an iFrame.
+	 *
+	 * @return bool
+	 */
+	private static function is_embedding_in_iframe() {
 		return (
-			self::has_iframe_get_param() && (
-				self::has_preview_get_param() ||
-				self::has_preview_theme_preview_param()
+			// phpcs:disable WordPress.Security.NonceVerification.Recommended
+			self::has_get_param( $_GET['iframe'] )
+			&& (
+				self::has_get_param( $_GET['preview'] )
+				|| self::has_get_param( $_GET['theme_preview'] )
 			)
+			// phpcs:enable WordPress.Security.NonceVerification.Recommended
 		);
 	}
 
-	private static function has_iframe_get_param() {
-		return isset( $_GET['iframe'] ) && $_GET['iframe'] === 'true';
-	}
-
-	private static function has_preview_get_param() {
-		return isset( $_GET['preview'] ) && $_GET['preview'] === 'true';
-	}
-
-	private static function has_preview_theme_preview_param() {
-		return isset( $_GET['theme_preview'] ) && $_GET['theme_preview'] === 'true';
+	/**
+	 * Check if URL has specific parameter.
+	 *
+	 * @param string $parameter Parameter to check for.
+	 * @return bool
+	 */
+	private static function has_get_param( $parameter ) {
+		return isset( $parameter ) && 'true' === $parameter;
 	}
 
 	/**
@@ -61,7 +88,7 @@ class Jetpack_Iframe_Embed {
 	 *
 	 * @return array       The output array of shortcode attributes.
 	 */
-	static function disable_autoplay( $atts ) {
+	public static function disable_autoplay( $atts ) {
 		return array_merge( $atts, array( 'autoplay' => false ) );
 	}
 
@@ -69,7 +96,7 @@ class Jetpack_Iframe_Embed {
 	 * We don't want search engines to index iframe previews
 	 * Added via `wp_head` action in `init`
 	 */
-	static function noindex() {
+	public static function noindex() {
 		echo '<meta name="robots" content="noindex,nofollow" />';
 	}
 
@@ -78,7 +105,7 @@ class Jetpack_Iframe_Embed {
 	 * (unless overridden on client-side by JS)
 	 * Added via `wp_head` action in `init`
 	 */
-	static function base_target_blank() {
+	public static function base_target_blank() {
 		echo '<base target="_blank" />';
 	}
 }

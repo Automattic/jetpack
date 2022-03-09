@@ -1,10 +1,5 @@
 [
 	"projects/plugins/jetpack/_inc/lib/class.color.php",
-	"projects/plugins/jetpack/_inc/lib/class.core-rest-api-endpoints.php",
-	"projects/plugins/jetpack/_inc/lib/class.jetpack-iframe-embed.php",
-	"projects/plugins/jetpack/_inc/lib/class.jetpack-keyring-service-helper.php",
-	"projects/plugins/jetpack/_inc/lib/class.jetpack-photon-image-sizes.php",
-	"projects/plugins/jetpack/_inc/lib/class.jetpack-photon-image.php",
 	"projects/plugins/jetpack/_inc/lib/core-api/class-wpcom-rest-field-controller.php",
 	"projects/plugins/jetpack/_inc/lib/core-api/class.jetpack-core-api-module-endpoints.php",
 	"projects/plugins/jetpack/_inc/lib/core-api/class.jetpack-core-api-widgets-endpoints.php",
