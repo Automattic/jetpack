@@ -1,15 +1,46 @@
-<?php
-
+<?php // phpcs:ignore WordPress.Files.FileName.InvalidClassFileName
 /**
- * Gets and renders iCal feeds for the Upcoming Events widget and shortcode
+ * Get and render iCal feeds.
+ * Used by the Upcoming Events widget and the [upcomingevents] shortcode.
+ *
+ * @package automattic/jetpack
  */
 
+/**
+ * Calendar utilities class.
+ *
+ * phpcs:disable PEAR.NamingConventions.ValidClassName.StartWithCapital
+ */
 class iCalendarReader {
-
+	// phpcs:enable PEAR.NamingConventions.ValidClassName.StartWithCapital
+	// phpcs:disable WordPress.DateTime.RestrictedFunctions.date_date -- we manually handle timezones all over the file.
+	// @todo Verify that we're manually handling timezones *correctly*. We probably need more `DateTime` with `$this->timezone` and maybe `wp_date()` and less `strtotime()` and `date()` and `date_i18n()`.
+	/**
+	 * Count To Do events in calendar.
+	 *
+	 * @var int
+	 */
 	public $todo_count = 0;
+
+	/**
+	 * How many events can be found in calendar.
+	 *
+	 * @var int
+	 */
 	public $event_count = 0;
+
+	/**
+	 * Details about our calendar.
+	 *
+	 * @var array
+	 */
 	public $cal = array();
-	public $_lastKeyWord = '';
+
+	/**
+	 * Timezone parsed from the iCalendar feed, if any.
+	 *
+	 * @var null|DateTimeZone
+	 */
 	public $timezone = null;
 
 	/**
@@ -22,24 +53,28 @@ class iCalendarReader {
 	/**
 	 * Return an array of events
 	 *
-	 * @param string $url (default: '')
+	 * @param string $url   (default: '') URL of the iCal feed.
+	 * @param int    $count Count the number of events.
+	 *
 	 * @return array | false on failure
 	 */
 	public function get_events( $url = '', $count = 5 ) {
-		$count = (int) $count;
+		$count        = (int) $count;
 		$transient_id = 'icalendar_vcal_' . md5( $url ) . '_' . $count;
 
 		$vcal = get_transient( $transient_id );
-
+		$vcal = false;
 		if ( ! empty( $vcal ) ) {
-			if ( isset( $vcal['TIMEZONE'] ) )
+			if ( isset( $vcal['TIMEZONE'] ) ) {
 				$this->timezone = $this->timezone_from_string( $vcal['TIMEZONE'] );
+			}
 
 			if ( isset( $vcal['VEVENT'] ) ) {
 				$vevent = $vcal['VEVENT'];
 
-				if ( $count > 0 )
+				if ( $count > 0 ) {
 					$vevent = array_slice( $vevent, 0, $count );
+				}
 
 				$this->cal['VEVENT'] = $vevent;
 
@@ -47,8 +82,9 @@ class iCalendarReader {
 			}
 		}
 
-		if ( ! $this->parse( $url ) )
+		if ( ! $this->parse( $url ) ) {
 			return false;
+		}
 
 		$vcal = array();
 
@@ -61,13 +97,13 @@ class iCalendarReader {
 		if ( ! empty( $this->cal['VEVENT'] ) ) {
 			$vevent = $this->cal['VEVENT'];
 
-			// check for recurring events
-			// $vevent = $this->add_recurring_events( $vevent );
+			// check for recurring events.
+			// $vevent = $this->add_recurring_events( $vevent );.
 
-			// remove before caching - no sense in hanging onto the past
+			// remove before caching - no sense in hanging onto the past.
 			$vevent = $this->filter_past_and_recurring_events( $vevent );
 
-			// order by soonest start date
+			// order by soonest start date.
 			$vevent = $this->sort_by_recent( $vevent );
 
 			$vcal['VEVENT'] = $vevent;
@@ -75,16 +111,25 @@ class iCalendarReader {
 
 		set_transient( $transient_id, $vcal, HOUR_IN_SECONDS );
 
-		if ( !isset( $vcal['VEVENT'] ) )
+		if ( ! isset( $vcal['VEVENT'] ) ) {
 			return false;
+		}
 
-		if ( $count > 0 )
+		if ( $count > 0 ) {
 			return array_slice( $vcal['VEVENT'], 0, $count );
+		}
 
 		return $vcal['VEVENT'];
 	}
 
-	function apply_timezone_offset( $events ) {
+	/**
+	 * Adjust event's time based on site's timezone.
+	 *
+	 * @param array $events Array of events.
+	 *
+	 * @return array
+	 */
+	public function apply_timezone_offset( $events ) {
 		if ( ! $events ) {
 			return $events;
 		}
@@ -95,7 +140,7 @@ class iCalendarReader {
 		$offsetted_events = array();
 
 		foreach ( $events as $event ) {
-			// Don't handle all-day events
+			// Don't handle all-day events.
 			if ( 8 < strlen( $event['DTSTART'] ) ) {
 				$start_time = preg_replace( '/Z$/', '', $event['DTSTART'] );
 				$start_time = new DateTime( $start_time, $this->timezone );
@@ -106,7 +151,7 @@ class iCalendarReader {
 				$end_time->setTimeZone( $timezone );
 
 				$event['DTSTART'] = $start_time->format( 'YmdHis\Z' );
-				$event['DTEND'] = $end_time->format( 'YmdHis\Z' );
+				$event['DTEND']   = $end_time->format( 'YmdHis\Z' );
 			}
 
 			$offsetted_events[] = $event;
@@ -115,10 +160,16 @@ class iCalendarReader {
 		return $offsetted_events;
 	}
 
+	/**
+	 * Reorganize events into an array of events with standardized data.
+	 *
+	 * @param array $events Array of events.
+	 *
+	 * @return array
+	 */
 	protected function filter_past_and_recurring_events( $events ) {
-		$upcoming = array();
+		$upcoming             = array();
 		$set_recurring_events = array();
-		$recurrences = array();
 		/**
 		 * This filter allows any time to be passed in for testing or changing timezones, etc...
 		 *
@@ -139,31 +190,31 @@ class iCalendarReader {
 				$duration = 0;
 			}
 
-			if ( isset( $event['RRULE'] ) && $this->timezone->getName() && 8 != strlen( $event['DTSTART'] ) ) {
+			if ( isset( $event['RRULE'] ) && $this->timezone->getName() && 8 !== strlen( $event['DTSTART'] ) ) {
 				try {
-					$adjusted_time = new DateTime( $event['DTSTART'], new DateTimeZone('UTC') );
+					$adjusted_time = new DateTime( $event['DTSTART'], new DateTimeZone( 'UTC' ) );
 					$adjusted_time->setTimeZone( new DateTimeZone( $this->timezone->getName() ) );
-					$event['DTSTART'] = $adjusted_time->format('Ymd\THis');
-					$date_from_ics = strtotime( $event['DTSTART'] );
+					$event['DTSTART'] = $adjusted_time->format( 'Ymd\THis' );
+					$date_from_ics    = strtotime( $event['DTSTART'] );
 
 					$event['DTEND'] = date( 'Ymd\THis', strtotime( $event['DTSTART'] ) + $duration );
-				} catch ( Exception $e ) {
-					// Invalid argument to DateTime
+				} catch ( Exception $e ) { // phpcs:ignore Generic.CodeAnalysis.EmptyStatement.DetectedCatch
+					// Invalid argument to DateTime.
 				}
 
 				if ( isset( $event['EXDATE'] ) ) {
 					$exdates = array();
 					foreach ( (array) $event['EXDATE'] as $exdate ) {
 						try {
-							$adjusted_time = new DateTime( $exdate, new DateTimeZone('UTC') );
+							$adjusted_time = new DateTime( $exdate, new DateTimeZone( 'UTC' ) );
 							$adjusted_time->setTimeZone( new DateTimeZone( $this->timezone->getName() ) );
-							if ( 8 == strlen( $event['DTSTART'] ) ) {
+							if ( 8 === strlen( $event['DTSTART'] ) ) {
 								$exdates[] = $adjusted_time->format( 'Ymd' );
 							} else {
 								$exdates[] = $adjusted_time->format( 'Ymd\THis' );
 							}
-						} catch ( Exception $e ) {
-							// Invalid argument to DateTime
+						} catch ( Exception $e ) { // phpcs:ignore Generic.CodeAnalysis.EmptyStatement.DetectedCatch
+							// Invalid argument to DateTime.
 						}
 					}
 					$event['EXDATE'] = $exdates;
@@ -176,76 +227,95 @@ class iCalendarReader {
 				continue;
 			}
 
-			// Process events with RRULE before other events
-			$rrule = isset( $event['RRULE'] ) ? $event['RRULE'] : false ;
-			$uid = $event['UID'];
+			// Process events with RRULE before other events.
+			$rrule = isset( $event['RRULE'] ) ? $event['RRULE'] : false;
+			$uid   = $event['UID'];
 
-			if ( $rrule && ! in_array( $uid, $set_recurring_events ) ) {
+			if ( $rrule && ! in_array( $uid, $set_recurring_events, true ) ) {
 
-				// Break down the RRULE into digestible chunks
+				// Break down the RRULE into digestible chunks.
 				$rrule_array = array();
 
-				foreach ( explode( ";", $event['RRULE'] ) as $rline ) {
-					list( $rkey, $rvalue ) = explode( "=", $rline, 2 );
-					$rrule_array[$rkey] = $rvalue;
+				foreach ( explode( ';', $event['RRULE'] ) as $rline ) {
+					list( $rkey, $rvalue ) = explode( '=', $rline, 2 );
+					$rrule_array[ $rkey ]  = $rvalue;
 				}
 
-				$interval = ( isset( $rrule_array['INTERVAL'] ) ) ? $rrule_array['INTERVAL'] : 1;
+				$interval    = ( isset( $rrule_array['INTERVAL'] ) ) ? $rrule_array['INTERVAL'] : 1;
 				$rrule_count = ( isset( $rrule_array['COUNT'] ) ) ? $rrule_array['COUNT'] : 0;
-				$until = ( isset( $rrule_array['UNTIL'] ) ) ? strtotime( $rrule_array['UNTIL'] ) : strtotime( '+1 year', $current );
+				$until       = ( isset( $rrule_array['UNTIL'] ) ) ? strtotime( $rrule_array['UNTIL'] ) : strtotime( '+1 year', $current );
 
-				// Used to bound event checks
+				// Used to bound event checks.
 				$echo_limit = 10;
-				$noop = false;
+				$noop       = false;
 
-				// Set bydays for the event
+				// Set bydays for the event.
 				$weekdays = array( 'SU', 'MO', 'TU', 'WE', 'TH', 'FR', 'SA' );
-				$bydays = $weekdays;
+				$bydays   = $weekdays;
 
-				// Calculate a recent start date for incrementing depending on the frequency and interval
+				// Calculate a recent start date for incrementing depending on the frequency and interval.
 				switch ( $rrule_array['FREQ'] ) {
 
 					case 'DAILY':
-						$frequency = 'day';
+						$frequency  = 'day';
 						$echo_limit = 10;
 
 						if ( $date_from_ics >= $current ) {
 							$recurring_event_date_start = date( 'Ymd\THis', strtotime( $event['DTSTART'] ) );
 						} else {
-							// Interval and count
+							// Interval and count.
 							$catchup = floor( ( $current - strtotime( $event['DTSTART'] ) ) / ( $interval * DAY_IN_SECONDS ) );
 							if ( $rrule_count && $catchup > 0 ) {
 								if ( $catchup < $rrule_count ) {
-									$rrule_count = $rrule_count - $catchup;
-									$recurring_event_date_start = date( 'Ymd', strtotime( '+ ' . ( $interval * $catchup ) . ' days', strtotime( $event['DTSTART'] ) ) ) . date( '\THis', strtotime( $event['DTSTART'] ) );
+									$rrule_count                = $rrule_count - $catchup;
+									$recurring_event_date_start = date(
+										'Ymd',
+										strtotime(
+											'+ ' . ( $interval * $catchup ) . ' days',
+											strtotime( $event['DTSTART'] )
+										)
+									) . date(
+										'\THis',
+										strtotime( $event['DTSTART'] )
+									);
 								} else {
 									$noop = true;
 								}
 							} else {
-								$recurring_event_date_start = date( 'Ymd', strtotime( '+ ' . ( $interval * $catchup ) . ' days', strtotime( $event['DTSTART'] ) ) ) . date( '\THis', strtotime( $event['DTSTART'] ) );
+								$recurring_event_date_start = date(
+									'Ymd',
+									strtotime(
+										'+ ' . ( $interval * $catchup ) . ' days',
+										strtotime( $event['DTSTART'] )
+									)
+								) . date(
+									'\THis',
+									strtotime( $event['DTSTART'] )
+								);
 							}
 						}
 						break;
 
 					case 'WEEKLY':
-						$frequency = 'week';
+						$frequency  = 'week';
 						$echo_limit = 4;
 
-						// BYDAY exception to current date
+						// BYDAY exception to current date.
 						$day = false;
 						if ( ! isset( $rrule_array['BYDAY'] ) ) {
-							$day = $rrule_array['BYDAY'] = strtoupper( substr( date( 'D', strtotime( $event['DTSTART'] ) ), 0, 2 ) );
+							$rrule_array['BYDAY'] = strtoupper( substr( date( 'D', strtotime( $event['DTSTART'] ) ), 0, 2 ) );
+							$day                  = $rrule_array['BYDAY'];
 						}
 						$bydays = explode( ',', $rrule_array['BYDAY'] );
 
 						if ( $date_from_ics >= $current ) {
 							$recurring_event_date_start = date( 'Ymd\THis', strtotime( $event['DTSTART'] ) );
 						} else {
-							// Interval and count
+							// Interval and count.
 							$catchup = floor( ( $current - strtotime( $event['DTSTART'] ) ) / ( $interval * WEEK_IN_SECONDS ) );
 							if ( $rrule_count && $catchup > 0 ) {
 								if ( ( $catchup * count( $bydays ) ) < $rrule_count ) {
-									$rrule_count = $rrule_count - ( $catchup * count( $bydays ) ); // Estimate current event count
+									$rrule_count                = $rrule_count - ( $catchup * count( $bydays ) ); // Estimate current event count.
 									$recurring_event_date_start = date( 'Ymd', strtotime( '+ ' . ( $interval * $catchup ) . ' weeks', strtotime( $event['DTSTART'] ) ) ) . date( '\THis', strtotime( $event['DTSTART'] ) );
 								} else {
 									$noop = true;
@@ -255,34 +325,48 @@ class iCalendarReader {
 							}
 						}
 
-						// Set to Sunday start
+						// Set to Sunday start.
 						if ( ! $noop && 'SU' !== strtoupper( substr( date( 'D', strtotime( $recurring_event_date_start ) ), 0, 2 ) ) ) {
-							$recurring_event_date_start = date( 'Ymd', strtotime( "last Sunday", strtotime( $recurring_event_date_start ) ) ) . date( '\THis', strtotime( $event['DTSTART'] ) );
+							$recurring_event_date_start = date( 'Ymd', strtotime( 'last Sunday', strtotime( $recurring_event_date_start ) ) ) . date( '\THis', strtotime( $event['DTSTART'] ) );
 						}
 						break;
 
 					case 'MONTHLY':
-						$frequency = 'month';
+						$frequency  = 'month';
 						$echo_limit = 1;
 
 						if ( $date_from_ics >= $current ) {
 							$recurring_event_date_start = date( 'Ymd\THis', strtotime( $event['DTSTART'] ) );
 						} else {
-							// Describe the date in the month
+							// Describe the date in the month.
 							if ( isset( $rrule_array['BYDAY'] ) ) {
-								$day_number = substr( $rrule_array['BYDAY'], 0, 1 );
-								$week_day = substr( $rrule_array['BYDAY'], 1 );
-								$day_cardinals = array( 1 => 'first', 2 => 'second', 3 => 'third', 4 => 'fourth', 5 => 'fifth' );
-								$weekdays = array( 'SU' => 'Sunday', 'MO' => 'Monday', 'TU' => 'Tuesday', 'WE' => 'Wednesday', 'TH' => 'Thursday', 'FR' => 'Friday', 'SA' => 'Saturday' );
+								$day_number      = substr( $rrule_array['BYDAY'], 0, 1 );
+								$week_day        = substr( $rrule_array['BYDAY'], 1 );
+								$day_cardinals   = array(
+									1 => 'first',
+									2 => 'second',
+									3 => 'third',
+									4 => 'fourth',
+									5 => 'fifth',
+								);
+								$weekdays        = array(
+									'SU' => 'Sunday',
+									'MO' => 'Monday',
+									'TU' => 'Tuesday',
+									'WE' => 'Wednesday',
+									'TH' => 'Thursday',
+									'FR' => 'Friday',
+									'SA' => 'Saturday',
+								);
 								$event_date_desc = "{$day_cardinals[$day_number]} {$weekdays[$week_day]} of ";
 							} else {
 								$event_date_desc = date( 'd ', strtotime( $event['DTSTART'] ) );
 							}
 
-							// Interval only
+							// Interval only.
 							if ( $interval > 1 ) {
 								$catchup = 0;
-								$maybe = strtotime( $event['DTSTART'] );
+								$maybe   = strtotime( $event['DTSTART'] );
 								while ( $maybe < $current ) {
 									$maybe = strtotime( '+ ' . ( $interval * $catchup ) . ' months', strtotime( $event['DTSTART'] ) );
 									$catchup++;
@@ -292,7 +376,7 @@ class iCalendarReader {
 								$recurring_event_date_start = date( 'Ymd', strtotime( $event_date_desc . date( 'F Y', $current ) ) ) . date( '\THis', strtotime( $event['DTSTART'] ) );
 							}
 
-							// Add one interval if necessary
+							// Add one interval if necessary.
 							if ( strtotime( $recurring_event_date_start ) < $current ) {
 								if ( $interval > 1 ) {
 									$recurring_event_date_start = date( 'Ymd', strtotime( $event_date_desc . date( 'F Y', strtotime( '+ ' . ( $interval * $catchup ) . ' months', strtotime( $event['DTSTART'] ) ) ) ) ) . date( '\THis', strtotime( $event['DTSTART'] ) );
@@ -301,8 +385,8 @@ class iCalendarReader {
 										$adjustment = new DateTime( date( 'Y-m-d', $current ) );
 										$adjustment->modify( 'first day of next month' );
 										$recurring_event_date_start = date( 'Ymd', strtotime( $event_date_desc . $adjustment->format( 'F Y' ) ) ) . date( '\THis', strtotime( $event['DTSTART'] ) );
-									} catch ( Exception $e ) {
-										// Invalid argument to DateTime
+									} catch ( Exception $e ) { // phpcs:ignore Generic.CodeAnalysis.EmptyStatement.DetectedCatch
+										// Invalid argument to DateTime.
 									}
 								}
 							}
@@ -310,20 +394,20 @@ class iCalendarReader {
 						break;
 
 					case 'YEARLY':
-						$frequency = 'year';
+						$frequency  = 'year';
 						$echo_limit = 1;
 
 						if ( $date_from_ics >= $current ) {
-							$recurring_event_date_start = date( "Ymd\THis", strtotime( $event['DTSTART'] ) );
+							$recurring_event_date_start = date( 'Ymd\THis', strtotime( $event['DTSTART'] ) );
 						} else {
-							$recurring_event_date_start = date( 'Y', $current ) . date( "md\THis", strtotime( $event['DTSTART'] ) );
+							$recurring_event_date_start = date( 'Y', $current ) . date( 'md\THis', strtotime( $event['DTSTART'] ) );
 							if ( strtotime( $recurring_event_date_start ) < $current ) {
 								try {
 									$next = new DateTime( date( 'Y-m-d', $current ) );
 									$next->modify( 'first day of next year' );
-									$recurring_event_date_start = $next->format( 'Y' ) . date ( 'md\THis', strtotime( $event['DTSTART'] ) );
-								} catch ( Exception $e ) {
-									// Invalid argument to DateTime
+									$recurring_event_date_start = $next->format( 'Y' ) . date( 'md\THis', strtotime( $event['DTSTART'] ) );
+								} catch ( Exception $e ) { // phpcs:ignore Generic.CodeAnalysis.EmptyStatement.DetectedCatch
+									// Invalid argument to DateTime.
 								}
 							}
 						}
@@ -333,94 +417,107 @@ class iCalendarReader {
 						$frequency = false;
 				}
 
-				if ( $frequency !== false && ! $noop ) {
+				if ( false !== $frequency && ! $noop ) {
 					$count_counter = 1;
 
-					// If no COUNT limit, go to 10
+					// If no COUNT limit, go to 10.
 					if ( empty( $rrule_count ) ) {
 						$rrule_count = 10;
 					}
 
-					// Set up EXDATE handling for the event
+					// Set up EXDATE handling for the event.
 					$exdates = ( isset( $event['EXDATE'] ) ) ? $event['EXDATE'] : array();
 
 					for ( $i = 1; $i <= $echo_limit; $i++ ) {
 
-						// Weeks need a daily loop and must check for inclusion in BYDAYS
-						if ( 'week' == $frequency ) {
+						// Weeks need a daily loop and must check for inclusion in BYDAYS.
+						if ( 'week' === $frequency ) {
 							$byday_event_date_start = strtotime( $recurring_event_date_start );
 
 							foreach ( $weekdays as $day ) {
 
 								$event_start_timestamp = $byday_event_date_start;
-								$start_time = date( 'His', $event_start_timestamp );
-								$event_end_timestamp = $event_start_timestamp + $duration;
-								$end_time = date( 'His', $event_end_timestamp );
-								if ( 8 == strlen( $event['DTSTART'] ) ) {
+								$start_time            = date( 'His', $event_start_timestamp );
+								$event_end_timestamp   = $event_start_timestamp + $duration;
+								$end_time              = date( 'His', $event_end_timestamp );
+								if ( 8 === strlen( $event['DTSTART'] ) ) {
 									$exdate_compare = date( 'Ymd', $event_start_timestamp );
 								} else {
 									$exdate_compare = date( 'Ymd\THis', $event_start_timestamp );
 								}
 
-								if ( in_array( $day, $bydays ) && $event_end_timestamp > $current && $event_start_timestamp < $until && $count_counter <= $rrule_count && $event_start_timestamp >= $date_from_ics && ! in_array( $exdate_compare, $exdates ) ) {
-									if ( 8 == strlen( $event['DTSTART'] ) ) {
+								if (
+									in_array( $day, $bydays, true )
+									&& $event_end_timestamp > $current
+									&& $event_start_timestamp < $until
+									&& $count_counter <= $rrule_count
+									&& $event_start_timestamp >= $date_from_ics
+									&& ! in_array( $exdate_compare, $exdates, true )
+								) {
+									if ( 8 === strlen( $event['DTSTART'] ) ) {
 										$event['DTSTART'] = date( 'Ymd', $event_start_timestamp );
-										$event['DTEND'] = date( 'Ymd', $event_end_timestamp );
+										$event['DTEND']   = date( 'Ymd', $event_end_timestamp );
 									} else {
 										$event['DTSTART'] = date( 'Ymd\THis', $event_start_timestamp );
-										$event['DTEND'] = date( 'Ymd\THis', $event_end_timestamp );
+										$event['DTEND']   = date( 'Ymd\THis', $event_end_timestamp );
 									}
-									if ( $this->timezone->getName() && 8 != strlen( $event['DTSTART'] ) ) {
+									if ( $this->timezone->getName() && 8 !== strlen( $event['DTSTART'] ) ) {
 										try {
 											$adjusted_time = new DateTime( $event['DTSTART'], new DateTimeZone( $this->timezone->getName() ) );
 											$adjusted_time->setTimeZone( new DateTimeZone( 'UTC' ) );
-											$event['DTSTART'] = $adjusted_time->format('Ymd\THis');
+											$event['DTSTART'] = $adjusted_time->format( 'Ymd\THis' );
 
 											$event['DTEND'] = date( 'Ymd\THis', strtotime( $event['DTSTART'] ) + $duration );
-										} catch ( Exception $e ) {
-											// Invalid argument to DateTime
+										} catch ( Exception $e ) { // phpcs:ignore Generic.CodeAnalysis.EmptyStatement.DetectedCatch
+											// Invalid argument to DateTime.
 										}
 									}
 									$upcoming[] = $event;
 									$count_counter++;
 								}
 
-								// Move forward one day
+								// Move forward one day.
 								$byday_event_date_start = strtotime( date( 'Ymd\T', strtotime( '+ 1 day', $event_start_timestamp ) ) . $start_time );
 							}
 
-							// Restore first event timestamp
+							// Restore first event timestamp.
 							$event_start_timestamp = strtotime( $recurring_event_date_start );
 
 						} else {
 
 							$event_start_timestamp = strtotime( $recurring_event_date_start );
-							$start_time = date( 'His', $event_start_timestamp );
-							$event_end_timestamp = $event_start_timestamp + $duration;
-							$end_time = date( 'His', $event_end_timestamp );
-							if ( 8 == strlen( $event['DTSTART'] ) ) {
+							$start_time            = date( 'His', $event_start_timestamp );
+							$event_end_timestamp   = $event_start_timestamp + $duration;
+							$end_time              = date( 'His', $event_end_timestamp );
+							if ( 8 === strlen( $event['DTSTART'] ) ) {
 								$exdate_compare = date( 'Ymd', $event_start_timestamp );
 							} else {
 								$exdate_compare = date( 'Ymd\THis', $event_start_timestamp );
 							}
 
-							if ( $event_end_timestamp > $current && $event_start_timestamp < $until && $count_counter <= $rrule_count && $event_start_timestamp >= $date_from_ics && ! in_array( $exdate_compare, $exdates ) ) {
-								if ( 8 == strlen( $event['DTSTART'] ) ) {
+							if (
+								$event_end_timestamp > $current
+								&& $event_start_timestamp < $until
+								&& $count_counter <= $rrule_count
+								&& $event_start_timestamp >= $date_from_ics
+								&& ! in_array( $exdate_compare, $exdates, true )
+							) {
+								if ( 8 === strlen( $event['DTSTART'] ) ) {
 									$event['DTSTART'] = date( 'Ymd', $event_start_timestamp );
-									$event['DTEND'] = date( 'Ymd', $event_end_timestamp );
+									$event['DTEND']   = date( 'Ymd', $event_end_timestamp );
 								} else {
 									$event['DTSTART'] = date( 'Ymd\T', $event_start_timestamp ) . $start_time;
-									$event['DTEND'] = date( 'Ymd\T', $event_end_timestamp ) . $end_time;
+									$event['DTEND']   = date( 'Ymd\T', $event_end_timestamp ) . $end_time;
 								}
-								if ( $this->timezone->getName() && 8 != strlen( $event['DTSTART'] ) ) {
+								if ( $this->timezone->getName() && 8 !== strlen( $event['DTSTART'] ) ) {
 									try {
 										$adjusted_time = new DateTime( $event['DTSTART'], new DateTimeZone( $this->timezone->getName() ) );
 										$adjusted_time->setTimeZone( new DateTimeZone( 'UTC' ) );
-										$event['DTSTART'] = $adjusted_time->format('Ymd\THis');
+										$event['DTSTART'] = $adjusted_time->format( 'Ymd\THis' );
 
 										$event['DTEND'] = date( 'Ymd\THis', strtotime( $event['DTSTART'] ) + $duration );
-									} catch ( Exception $e ) {
-										// Invalid argument to DateTime
+									} catch ( Exception $e ) { // phpcs:ignore Generic.CodeAnalysis.EmptyStatement.DetectedCatch
+										// Invalid argument to DateTime.
 									}
 								}
 								$upcoming[] = $event;
@@ -428,25 +525,24 @@ class iCalendarReader {
 							}
 						}
 
-						// Set up next interval and reset $event['DTSTART'] and $event['DTEND'], keeping timestamps intact
+						// Set up next interval and reset $event['DTSTART'] and $event['DTEND'], keeping timestamps intact.
 						$next_start_timestamp = strtotime( "+ {$interval} {$frequency}s", $event_start_timestamp );
-						if ( 8 == strlen( $event['DTSTART'] ) ) {
+						if ( 8 === strlen( $event['DTSTART'] ) ) {
 							$event['DTSTART'] = date( 'Ymd', $next_start_timestamp );
-							$event['DTEND'] = date( 'Ymd', strtotime( $event['DTSTART'] ) + $duration );
+							$event['DTEND']   = date( 'Ymd', strtotime( $event['DTSTART'] ) + $duration );
 						} else {
 							$event['DTSTART'] = date( 'Ymd\THis', $next_start_timestamp );
-							$event['DTEND'] = date( 'Ymd\THis', strtotime( $event['DTSTART'] ) + $duration );
+							$event['DTEND']   = date( 'Ymd\THis', strtotime( $event['DTSTART'] ) + $duration );
 						}
 
-						// Move recurring event date forward
+						// Move recurring event date forward.
 						$recurring_event_date_start = $event['DTSTART'];
 					}
 					$set_recurring_events[] = $uid;
 
 				}
-
 			} else {
-				// Process normal events
+				// Process normal events.
 				if ( strtotime( isset( $event['DTEND'] ) ? $event['DTEND'] : $event['DTSTART'] ) >= $current ) {
 					$upcoming[] = $event;
 				}
@@ -458,42 +554,53 @@ class iCalendarReader {
 	/**
 	 * Parse events from an iCalendar feed
 	 *
-	 * @param string $url (default: '')
+	 * @param string $url (default: '').
 	 * @return array | false on failure
 	 */
 	public function parse( $url = '' ) {
-		$cache_group = 'icalendar_reader_parse';
+		$cache_group     = 'icalendar_reader_parse';
 		$disable_get_key = 'disable:' . md5( $url );
 
-		// Check to see if previous attempts have failed
-		if ( false !== wp_cache_get( $disable_get_key, $cache_group ) )
+		// Check to see if previous attempts have failed.
+		if ( false !== wp_cache_get( $disable_get_key, $cache_group ) ) {
 			return false;
+		}
 
-		// rewrite webcal: URI schem to HTTP
-		$url = preg_replace('/^webcal/', 'http', $url );
-		// try to fetch
-		$r = wp_remote_get( $url, array( 'timeout' => 3, 'sslverify' => false ) );
+		// rewrite webcal: URI schem to HTTP.
+		$url = preg_replace( '/^webcal/', 'http', $url );
+		// try to fetch.
+		$r = wp_remote_get(
+			$url,
+			array(
+				'timeout'   => 3,
+				'sslverify' => false,
+			)
+		);
 		if ( 200 !== wp_remote_retrieve_response_code( $r ) ) {
-			// We were unable to fetch any content, so don't try again for another 60 seconds
+			// We were unable to fetch any content, so don't try again for another 60 seconds.
 			wp_cache_set( $disable_get_key, 1, $cache_group, 60 );
 			return false;
 		}
 
 		$body = wp_remote_retrieve_body( $r );
-		if ( empty( $body ) )
+		if ( empty( $body ) ) {
 			return false;
+		}
 
-		$body = str_replace( "\r\n", "\n", $body );
+		$body  = str_replace( "\r\n", "\n", $body );
 		$lines = preg_split( "/\n(?=[A-Z])/", $body );
 
-		if ( empty( $lines ) )
+		if ( empty( $lines ) ) {
 			return false;
+		}
 
-		if ( false === stristr( $lines[0], 'BEGIN:VCALENDAR' ) )
+		if ( false === stristr( $lines[0], 'BEGIN:VCALENDAR' ) ) {
 			return false;
+		}
 
+		$type = '';
 		foreach ( $lines as $line ) {
-			$add  = $this->key_value_from_string( $line );
+			$add = $this->key_value_from_string( $line );
 			if ( ! $add ) {
 				$this->add_component( $type, false, $line );
 				continue;
@@ -529,12 +636,17 @@ class iCalendarReader {
 					}
 					break;
 				case 'TZID':
-					if ( 'VTIMEZONE' == $type && ! $this->timezone )
+					if (
+						'VTIMEZONE' === $type
+						&& ! $this->timezone
+					) {
 						$this->timezone = $this->timezone_from_string( $value );
+					}
 					break;
 				case 'X-WR-TIMEZONE':
-					if ( ! $this->timezone )
+					if ( ! $this->timezone ) {
 						$this->timezone = $this->timezone_from_string( $value );
+					}
 					break;
 				default:
 					$this->add_component( $type, $keyword, $value );
@@ -542,7 +654,7 @@ class iCalendarReader {
 			}
 		}
 
-		// Filter for RECURRENCE-IDs
+		// Filter for RECURRENCE-IDs.
 		$recurrences = array();
 		if ( array_key_exists( 'VEVENT', $this->cal ) ) {
 			foreach ( $this->cal['VEVENT'] as $event ) {
@@ -551,8 +663,12 @@ class iCalendarReader {
 				}
 			}
 			foreach ( $recurrences as $recurrence ) {
-				for ( $i = 0; $i < count( $this->cal['VEVENT'] ); $i++ ) {
-					if ( $this->cal['VEVENT'][ $i ]['UID'] == $recurrence['UID'] && ! isset( $this->cal['VEVENT'][ $i ]['RECURRENCE-ID'] ) ) {
+				$count_vevent = count( $this->cal['VEVENT'] );
+				for ( $i = 0; $i < $count_vevent; $i++ ) {
+					if (
+						$this->cal['VEVENT'][ $i ]['UID'] === $recurrence['UID']
+						&& ! isset( $this->cal['VEVENT'][ $i ]['RECURRENCE-ID'] )
+					) {
 						$this->cal['VEVENT'][ $i ]['EXDATE'][] = $recurrence['RECURRENCE-ID'];
 						break;
 					}
@@ -566,14 +682,15 @@ class iCalendarReader {
 	/**
 	 * Parse key:value from a string
 	 *
-	 * @param string $text (default: '')
+	 * @param string $text (default: '').
 	 * @return array
 	 */
 	public function key_value_from_string( $text = '' ) {
 		preg_match( '/([^:]+)(;[^:]+)?[:]([\w\W]*)/', $text, $matches );
 
-		if ( 0 == count( $matches ) )
+		if ( 0 === count( $matches ) ) {
 			return false;
+		}
 
 		return array( $matches[1], $matches[3] );
 	}
@@ -581,7 +698,7 @@ class iCalendarReader {
 	/**
 	 * Convert a timezone name into a timezone object.
 	 *
-	 * @param string $text Timezone name. Example: America/Chicago
+	 * @param string $text Timezone name. Example: America/Chicago.
 	 * @return object|null A DateTimeZone object if the conversion was successful.
 	 */
 	private function timezone_from_string( $text ) {
@@ -602,21 +719,21 @@ class iCalendarReader {
 	/**
 	 * Add a component to the calendar array
 	 *
-	 * @param string $component (default: '')
-	 * @param string $keyword (default: '')
-	 * @param string $value (default: '')
+	 * @param string      $component (default: '').
+	 * @param bool|string $keyword (default: '').
+	 * @param string      $value (default: '').
 	 * @return void
 	 */
 	public function add_component( $component = '', $keyword = '', $value = '' ) {
-		if ( false == $keyword ) {
+		if ( ! $keyword ) {
 			$keyword = $this->last_keyword;
 			switch ( $component ) {
-			case 'VEVENT':
-				$value = $this->cal[ $component ][ $this->event_count - 1 ][ $keyword ] . $value;
-				break;
-			case 'VTODO' :
-				$value = $this->cal[ $component ][ $this->todo_count - 1 ][ $keyword ] . $value;
-				break;
+				case 'VEVENT':
+					$value = $this->cal[ $component ][ $this->event_count - 1 ][ $keyword ] . $value;
+					break;
+				case 'VTODO':
+					$value = $this->cal[ $component ][ $this->todo_count - 1 ][ $keyword ] . $value;
+					break;
 			}
 		}
 
@@ -632,58 +749,58 @@ class iCalendarReader {
 		 * EXDATE;TZID=Pacific Standard Time:20120615T140000,20120629T140000,20120706T140000
 		 */
 
-		// Always store EXDATE as an array
+		// Always store EXDATE as an array.
 		if ( stristr( $keyword, 'EXDATE' ) ) {
 			$value = explode( ',', $value );
 		}
 
-		// Adjust DTSTART, DTEND, and EXDATE according to their TZID if set
+		// Adjust DTSTART, DTEND, and EXDATE according to their TZID if set.
 		if ( strpos( $keyword, ';' ) && ( stristr( $keyword, 'DTSTART' ) || stristr( $keyword, 'DTEND' ) || stristr( $keyword, 'EXDATE' ) || stristr( $keyword, 'RECURRENCE-ID' ) ) ) {
 			$keyword = explode( ';', $keyword );
 
 			$tzid = false;
-			if ( 2 == count( $keyword ) ) {
+			if ( 2 === count( $keyword ) ) {
 				$tparam = $keyword[1];
 
-				if ( strpos( $tparam, "TZID" ) !== false ) {
+				if ( strpos( $tparam, 'TZID' ) !== false ) {
 					$tzid = $this->timezone_from_string( str_replace( 'TZID=', '', $tparam ) );
 				}
 			}
 
-			// Normalize all times to default UTC
+			// Normalize all times to default UTC.
 			if ( $tzid ) {
 				$adjusted_times = array();
 				foreach ( (array) $value as $v ) {
 					try {
 						$adjusted_time = new DateTime( $v, $tzid );
 						$adjusted_time->setTimeZone( new DateTimeZone( 'UTC' ) );
-						$adjusted_times[] = $adjusted_time->format('Ymd\THis');
+						$adjusted_times[] = $adjusted_time->format( 'Ymd\THis' );
 					} catch ( Exception $e ) {
-						// Invalid argument to DateTime
+						// Invalid argument to DateTime.
 						return;
 					}
 				}
 				$value = $adjusted_times;
 			}
 
-			// Format for adding to event
+			// Format for adding to event.
 			$keyword = $keyword[0];
-			if ( 'EXDATE' != $keyword ) {
+			if ( 'EXDATE' !== $keyword ) {
 				$value = implode( (array) $value );
 			}
 		}
 
 		foreach ( (array) $value as $v ) {
-			switch ($component) {
+			switch ( $component ) {
 				case 'VTODO':
-					if ( 'EXDATE' == $keyword ) {
+					if ( 'EXDATE' === $keyword ) {
 						$this->cal[ $component ][ $this->todo_count - 1 ][ $keyword ][] = $v;
 					} else {
 						$this->cal[ $component ][ $this->todo_count - 1 ][ $keyword ] = $v;
 					}
 					break;
 				case 'VEVENT':
-					if ( 'EXDATE' == $keyword ) {
+					if ( 'EXDATE' === $keyword ) {
 						$this->cal[ $component ][ $this->event_count - 1 ][ $keyword ][] = $v;
 					} else {
 						$this->cal[ $component ][ $this->event_count - 1 ][ $keyword ] = $v;
@@ -700,19 +817,19 @@ class iCalendarReader {
 	/**
 	 * Escape strings with wp_kses, allow links
 	 *
-	 * @param string $string (default: '')
+	 * @param string $string (default: '') The string to escape.
 	 * @return string
 	 */
 	public function escape( $string = '' ) {
-		// Unfold content lines per RFC 5545
+		// Unfold content lines per RFC 5545.
 		$string = str_replace( "\n\t", '', $string );
 		$string = str_replace( "\n ", '', $string );
 
 		$allowed_html = array(
 			'a' => array(
 				'href'  => array(),
-				'title' => array()
-			)
+				'title' => array(),
+			),
 		);
 
 		$allowed_tags = '';
@@ -729,43 +846,62 @@ class iCalendarReader {
 	/**
 	 * Render the events
 	 *
-	 * @param string $url (default: '')
-	 * @param string $context (default: 'widget') or 'shortcode'
+	 * @param string $url  (default: '') URL of the iCal feed.
+	 * @param array  $args Event options.
+	 *
 	 * @return mixed bool|string false on failure, rendered HTML string on success.
 	 */
 	public function render( $url = '', $args = array() ) {
 
-		$args = wp_parse_args( $args, array(
-			'context' => 'widget',
-			'number' => 5
-		) );
+		$args = wp_parse_args(
+			$args,
+			array(
+				'context' => 'widget',
+				'number'  => 5,
+			)
+		);
 
 		$events = $this->get_events( $url, $args['number'] );
 		$events = $this->apply_timezone_offset( $events );
 
-		if ( empty( $events ) )
+		if ( empty( $events ) ) {
 			return false;
+		}
 
 		ob_start();
 
-		if ( 'widget' == $args['context'] ) : ?>
+		if ( 'widget' === $args['context'] ) : ?>
 		<ul class="upcoming-events">
 			<?php foreach ( $events as $event ) : ?>
 			<li>
-				<strong class="event-summary"><?php echo $this->escape( stripslashes( $event['SUMMARY'] ) ); ?></strong>
-				<span class="event-when"><?php echo $this->formatted_date( $event ); ?></span>
+				<strong class="event-summary">
+					<?php
+					echo $this->escape( stripslashes( $event['SUMMARY'] ) ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- this method is built to escape.
+					?>
+				</strong>
+				<span class="event-when"><?php echo esc_html( $this->formatted_date( $event ) ); ?></span>
 				<?php if ( ! empty( $event['LOCATION'] ) ) : ?>
-					<span class="event-location"><?php echo $this->escape( stripslashes( $event['LOCATION'] ) ); ?></span>
+					<span class="event-location">
+						<?php
+						echo $this->escape( stripslashes( $event['LOCATION'] ) ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- this method is built to escape.
+						?>
+					</span>
 				<?php endif; ?>
 				<?php if ( ! empty( $event['DESCRIPTION'] ) ) : ?>
-					<span class="event-description"><?php echo wp_trim_words( $this->escape( stripcslashes( $event['DESCRIPTION'] ) ) ); ?></span>
+					<span class="event-description">
+						<?php
+						echo wp_trim_words( $this->escape( stripcslashes( $event['DESCRIPTION'] ) ) ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- this method is built to escape.
+						?>
+						</span>
 				<?php endif; ?>
 			</li>
 			<?php endforeach; ?>
 		</ul>
-		<?php endif;
+			<?php
+		endif;
 
-		if ( 'shortcode' == $args['context'] ) : ?>
+		if ( 'shortcode' === $args['context'] ) :
+			?>
 		<table class="upcoming-events">
 			<thead>
 				<tr>
@@ -778,68 +914,102 @@ class iCalendarReader {
 			<tbody>
 			<?php foreach ( $events as $event ) : ?>
 				<tr>
-					<td><?php echo empty( $event['LOCATION'] ) ? '&nbsp;' : $this->escape( stripslashes( $event['LOCATION'] ) ); ?></td>
-					<td><?php echo $this->formatted_date( $event ); ?></td>
-					<td><?php echo empty( $event['SUMMARY'] ) ? '&nbsp;' : $this->escape( stripslashes( $event['SUMMARY'] ) ); ?></td>
-					<td><?php echo empty( $event['DESCRIPTION'] ) ? '&nbsp;' : wp_trim_words( $this->escape( stripcslashes( $event['DESCRIPTION'] ) ) ); ?></td>
+					<td>
+					<?php
+					echo empty( $event['LOCATION'] )
+						? '&nbsp;'
+						: $this->escape( stripslashes( $event['LOCATION'] ) ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- this method is built to escape.
+					?>
+					</td>
+					<td><?php echo esc_html( $this->formatted_date( $event ) ); ?></td>
+					<td>
+					<?php
+					echo empty( $event['SUMMARY'] )
+						? '&nbsp;'
+						: $this->escape( stripslashes( $event['SUMMARY'] ) ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- this method is built to escape.
+					?>
+					</td>
+					<td>
+					<?php
+					echo empty( $event['DESCRIPTION'] )
+						? '&nbsp;'
+						: wp_trim_words( $this->escape( stripcslashes( $event['DESCRIPTION'] ) ) ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- this method is built to escape.
+					?>
+					</td>
 				</tr>
 			<?php endforeach; ?>
 			</tbody>
 		</table>
-		<?php endif;
+			<?php
+		endif;
 
 		$rendered = ob_get_clean();
 
-		if ( empty( $rendered ) )
+		if ( empty( $rendered ) ) {
 			return false;
+		}
 
 		return $rendered;
 	}
 
+	/**
+	 * Return a localized string with information about the event's date and time,
+	 * or starting date and end date.
+	 *
+	 * @param array $event Info about the event.
+	 *
+	 * @return string
+	 */
 	public function formatted_date( $event ) {
-
 		$date_format = get_option( 'date_format' );
 		$time_format = get_option( 'time_format' );
-		$start = strtotime( $event['DTSTART'] );
-		$end = isset( $event['DTEND'] ) ? strtotime( $event['DTEND'] ) : false;
+		$start       = strtotime( $event['DTSTART'] );
+		$end         = isset( $event['DTEND'] ) ? strtotime( $event['DTEND'] ) : false;
 
-		$all_day = ( 8 == strlen( $event['DTSTART'] ) );
+		$all_day = ( 8 === strlen( $event['DTSTART'] ) );
 
-		if ( !$all_day && $this->timezone ) {
+		if ( ! $all_day && $this->timezone ) {
 			try {
-				$start_time = new DateTime( $event['DTSTART'] );
+				$start_time      = new DateTime( $event['DTSTART'] );
 				$timezone_offset = $this->timezone->getOffset( $start_time );
-				$start += $timezone_offset;
+				$start          += $timezone_offset;
 
 				if ( $end ) {
 					$end += $timezone_offset;
 				}
 			} catch ( Exception $e ) {
-				// Invalid argument to DateTime
+				// Invalid argument to DateTime.
+				return '';
 			}
 		}
 		$single_day = $end ? ( $end - $start ) <= DAY_IN_SECONDS : true;
 
 		/* translators: Date and time */
-		$date_with_time = __( '%1$s at %2$s' , 'jetpack' );
+		$date_with_time = __( '%1$s at %2$s', 'jetpack' );
 		/* translators: Two dates with a separator */
-		$two_dates = __( '%1$s &ndash; %2$s' , 'jetpack' );
+		$two_dates = __( '%1$s &ndash; %2$s', 'jetpack' );
 
-		// we'll always have the start date. Maybe with time
-		if ( $all_day )
+		// we'll always have the start date. Maybe with time.
+		if ( $all_day ) {
 			$date = date_i18n( $date_format, $start );
-		else
-			$date = sprintf( $date_with_time, date_i18n( $date_format, $start ), date_i18n( $time_format, $start ) );
+		} else {
+			$date = sprintf(
+				$date_with_time,
+				date_i18n( $date_format, $start ),
+				date_i18n( $time_format, $start )
+			);
+		}
 
-		// single day, timed
-		if ( $single_day && ! $all_day && false !== $end )
+		// single day, timed.
+		if ( $single_day && ! $all_day && false !== $end ) {
 			$date = sprintf( $two_dates, $date, date_i18n( $time_format, $end ) );
+		}
 
-		// multi-day
+		// multi-day.
 		if ( ! $single_day ) {
 
 			if ( $all_day ) {
-				// DTEND for multi-day events represents "until", not "including", so subtract one minute
+				// DTEND for multi-day events represents "until", not "including", so subtract one minute.
 				$end_date = date_i18n( $date_format, $end - 60 );
 			} else {
 				$end_date = sprintf( $date_with_time, date_i18n( $date_format, $end ), date_i18n( $time_format, $end ) );
@@ -852,35 +1022,48 @@ class iCalendarReader {
 		return $date;
 	}
 
+	/**
+	 * Sort list of events by event date.
+	 *
+	 * @param array $list List of events.
+	 *
+	 * @return array
+	 */
 	protected function sort_by_recent( $list ) {
-		$dates = $sorted_list = array();
+		$dates       = array();
+		$sorted_list = array();
 
 		foreach ( $list as $key => $row ) {
 			$date = $row['DTSTART'];
-			// pad some time onto an all day date
-			if ( 8 === strlen( $date ) )
+			// pad some time onto an all day date.
+			if ( 8 === strlen( $date ) ) {
 				$date .= 'T000000Z';
-			$dates[$key] = $date;
+			}
+			$dates[ $key ] = $date;
 		}
 		asort( $dates );
-		foreach( $dates as $key => $value ) {
-			$sorted_list[$key] = $list[$key];
+		foreach ( $dates as $key => $value ) {
+			$sorted_list[ $key ] = $list[ $key ];
 		}
-		unset($list);
+		unset( $list );
 		return $sorted_list;
 	}
 
+	// phpcs:enable WordPress.DateTime.RestrictedFunctions.date_date
 }
-
 
 /**
  * Wrapper function for iCalendarReader->get_events()
  *
- * @param string $url (default: '')
+ * @param string $url   (default: '').
+ * @param int    $count Number of events to fetch.
  * @return array
  */
 function icalendar_get_events( $url = '', $count = 5 ) {
-	// Find your calendar's address https://support.google.com/calendar/bin/answer.py?hl=en&answer=37103
+	/*
+	 * Find your calendar's address
+	 * https://support.google.com/calendar/bin/answer.py?hl=en&answer=37103
+	 */
 	$ical = new iCalendarReader();
 	return $ical->get_events( $url, $count );
 }
@@ -888,8 +1071,9 @@ function icalendar_get_events( $url = '', $count = 5 ) {
 /**
  * Wrapper function for iCalendarReader->render()
  *
- * @param string $url (default: '')
- * @param string $context (default: 'widget') or 'shortcode'
+ * @param string $url (default: '').
+ * @param array  $args Options when rendering events.
+ *
  * @return mixed bool|string false on failure, rendered HTML string on success.
  */
 function icalendar_render_events( $url = '', $args = array() ) {
