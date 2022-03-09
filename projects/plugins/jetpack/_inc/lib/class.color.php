@@ -851,9 +851,11 @@ class Jetpack_Color {
 	}
 
 	/**
-	 * Transform -- Get hue-incremented color, 30 steps at a time.
+	 * Transform -- To an analogous color.
 	 *
-	 * @param int $step How many times we should increment hue by 30.
+	 * Analogous colors are those adjacent on the color wheel, separated by 30°.
+	 *
+	 * @param int $step Pass `1` or `-1` to choose which direction around the color wheel.
 	 *
 	 * @return Jetpack_Color
 	 */
