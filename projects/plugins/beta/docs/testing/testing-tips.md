@@ -6,15 +6,15 @@ To test out Jetpack, we recommend setting up a publicly accessible test site. Te
 
 #### Jetpack Live branches
 
-**Jetpack Live Branches** is a [Tampermonkey](https://tampermonkey.net/) script that allows us to launch WordPress Sites with a Jetpack version coming from a changeset present on a Pull Request. This is achieved by installing the [Jetpack Beta Tester plugin](github.com/Automattic/jetpack-beta) on a fresh new WordPress site and switching to the branch matching the Pull Request.
+**Jetpack Live Branches** is a [Tampermonkey](https://tampermonkey.net/) script that allows us to launch WordPress Sites with a Jetpack version coming from a changeset present on a Pull Request. This is achieved by installing the [Jetpack Beta Tester plugin](https://github.com/Automattic/jetpack-beta) on a fresh new WordPress site and switching to the branch matching the Pull Request.
 
-More details on how to use in the [Jetpack Live Branches README](../../tools/jetpack-live-branches/README.md).
+More details on how to use in the [Jetpack Live Branches README](https://github.com/Automattic/jetpack/blob/master/tools/jetpack-live-branches/README.md#readme).
 
 ## Check for JavaScript errors and enable Debug
 
 During your tests, we encourage you to open your browser's Development Tools and keep the Console open, checking for any errors in the Console and the Network tabs.
 
-To open the Console in Chrome or Firefox, you can press CMD+Alt+i in macOS or F12 in Windows. You can find out more [here](http://codex.wordpress.org/Using_Your_Browser_to_Diagnose_JavaScript_Errors).
+To open the Console in Chrome or Firefox, you can press CMD+Alt+i in macOS or F12 in Windows. You can find out more [here](https://wordpress.org/support/article/using-your-browser-to-diagnose-javascript-errors/).
 
 We would also recommend that you check your site's `debug.log` as you test.
 To make sure errors are logged on your site, you can add the following to your site's `wp-config.php` file:
