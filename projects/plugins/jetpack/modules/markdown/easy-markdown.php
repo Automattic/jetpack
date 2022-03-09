@@ -411,8 +411,10 @@ class WPCom_Markdown {
 	 * @return string Current post_type
 	 */
 	protected function get_post_screen_post_type() {
+		_deprecated_function( __METHOD__, 'jetpack-10.8', '' );
+
 		global $pagenow;
-		$post_type = filter_input( INPUT_GET, 'post_type', FILTER_SANITIZE_STRING );
+		$post_type = filter_input( INPUT_GET, 'post_type', FILTER_UNSAFE_RAW );
 		$post_id   = filter_input( INPUT_GET, 'post', FILTER_SANITIZE_NUMBER_INT );
 
 		if ( 'post-new.php' === $pagenow ) {
