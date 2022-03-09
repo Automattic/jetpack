@@ -83,15 +83,7 @@ class Jetpack_Color {
 				$i++;
 			}
 		}
-		$int_value = hexdec( $hex_value );
-
-		if ( $int_value < 0 || $int_value > 16777215 ) {
-			throw new RangeException( $hex_value . ' out of valid color code range' );
-		}
-
-		$this->color = $int_value;
-
-		return $this;
+		return $this->fromInt( hexdec( $hex_value ) );
 	}
 
 	/**
