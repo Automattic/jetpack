@@ -54,8 +54,12 @@ export default function useSiteLogo( { generateDataUrl = false } ) {
 		canvas.height = this.naturalHeight;
 		canvas.width = this.naturalWidth;
 		context.drawImage( this, 0, 0 );
-		const generatedDataUrl = canvas.toDataURL( 'image/jpeg' );
-		setDataUrl( generatedDataUrl );
+		try {
+			setDataUrl( canvas.toDataURL( 'image/png' ) );
+		} catch ( error ) {
+			console.error( 'Error generating QR code image:', error ); // eslint-disable-line no-console
+			setDataUrl( null );
+		}
 	};
 
 	image.src = mediaItemData?.url;
