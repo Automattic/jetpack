@@ -1,6 +1,6 @@
 #!/bin/bash
 
-set -eo pipefail 
+set -eo pipefail
 
 BASE=$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)
 source "$BASE/funcs.sh"

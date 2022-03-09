@@ -15,7 +15,7 @@ import simpleGit from 'simple-git';
 import promptForProject from '../helpers/promptForProject.js';
 import { chalkJetpackGreen } from '../helpers/styling.js';
 import { normalizeProject } from '../helpers/normalizeArgv.js';
-import { projectTypes } from '../helpers/projectHelpers.js';
+import { projectTypes, allProjects } from '../helpers/projectHelpers.js';
 import { readComposerJson } from '../helpers/json.js';
 import { runCommand } from '../helpers/runCommand.js';
 
@@ -534,15 +534,28 @@ async function checkChangelogFiles() {
 		return [];
 	}
 
-	const needChangelog = child_process.spawnSync( 'tools/check-changelogger-use.php', [
-		'origin/master',
-		'HEAD',
+	const re = /^projects\/([^/]+\/[^/]+)\//; // regex matches project file path, ie 'project/packages/connection/..'
+	const modifiedProjects = new Set();
+	let touchedFiles = child_process.spawnSync( 'git', [
+		'-c',
+		'core.quotepath=off',
+		`diff`,
+		`--no-renames`,
+		`--name-only`,
+		`--merge-base`,
+		`origin/master`,
 	] );
+	touchedFiles = touchedFiles.stdout.toString().trim().split( '\n' );
+	for ( const file of touchedFiles ) {
+		const match = file.match( re );
+		if ( match ) {
+			modifiedProjects.add( match[ 1 ] );
+		}
+	}
 
-	const projReg = /\b\w+\b\/\b\w+\b(?= )/g; // match example: plugins/jetpack
-	const matchedProjects = needChangelog.stdout.toString().trim().match( projReg );
-	return matchedProjects ?? [];
+	return allProjects().filter( proj => modifiedProjects.has( proj ) );
 }
+
 /**
  * Checks if any projects already have a changelog file by that name.
  *
