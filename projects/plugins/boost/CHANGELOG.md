@@ -7,16 +7,16 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [1.4.1-beta] - 2022-03-08
 ### Added
-- Added internal support for Cloud Critical CSS.
-- Added My Jetpack page.
-- Added suggested steps when Critical CSS fails due to page errors.
+- Critical CSS: Added internal support for Cloud Critical CSS.
+- Critical CSS: Added suggested steps when Critical CSS fails due to page errors.
+- General: Added "My Jetpack" page.
 
 ### Changed
-- Critical CSS: Exclude animation keyframes from Critical CSS Generation.
-- Deferred JS: Attribute to exclude scripts from deferral now allows quotes.
-- General: Boost is now compatible with WordPress 5.9.
-- Tidy up Critical CSS class structure.
-- Updated Dashboard heading with new Horizontal logo.
+- Critical CSS: Tidy up Critical CSS class structure.
+- Critical CSS: Updated Critical CSS generation to exclude animation keyframes.
+- Deferred JS: Updated exclusion attribute to allow quotes.
+- General: Tested compatibility with WordPress 5.9.
+- General: Updated Boost Dashboard heading logo.
 
 ## 1.4.0 - 2022-02-28
 ### Added
