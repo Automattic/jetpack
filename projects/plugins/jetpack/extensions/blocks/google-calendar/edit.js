@@ -88,7 +88,7 @@ export function GoogleCalendarEdit( props ) {
 				placeholder={ __( 'Enter URL or iframe to embed here…', 'jetpack' ) }
 				onChange={ event => setEditedEmbed( event.target.value ) }
 			/>
-			<Button isSecondary type="submit">
+			<Button variant="secondary" type="submit">
 				{ _x( 'Embed', 'button label', 'jetpack' ) }
 			</Button>
 		</form>
