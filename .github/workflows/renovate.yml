@@ -2,6 +2,13 @@ name: Renovate
 on:
   workflow_dispatch:
     inputs:
+      logLevel:
+        description: 'Log level'
+        type: choice
+        default: debug
+        options:
+          - debug
+          - trace
       dryRun:
         description: 'Dry run?'
         required: false
@@ -29,5 +36,5 @@ jobs:
           # TODO: We need to change this to a token that has the "workflow" scope.
           token: ${{ secrets.API_TOKEN_GITHUB }}
         env:
-          LOG_LEVEL: 'debug'
+          LOG_LEVEL: ${{ github.event.inputs.logLevel || 'debug' }}
           RENOVATE_DRY_RUN: ${{ github.event_name == 'push' || github.event.inputs.dryRun }}
