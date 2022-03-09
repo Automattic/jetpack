@@ -536,7 +536,7 @@ async function checkChangelogFiles() {
 
 	const re = /^projects\/([^/]+\/[^/]+)\//; // regex matches project file path, ie 'project/packages/connection/..'
 	const modifiedProjects = new Set();
-	const changelogsAdded = [];
+	const changelogsAdded = new Set();
 	let touchedFiles = child_process.spawnSync( 'git', [
 		'-c',
 		'core.quotepath=off',
@@ -548,20 +548,18 @@ async function checkChangelogFiles() {
 	] );
 	touchedFiles = touchedFiles.stdout.toString().trim().split( '\n' );
 
+	// Check for any existing changelog files.
 	for ( const file of touchedFiles ) {
-		const match = file.match( re );
-		if (
-			match &&
-			file.includes( `${ match[ 1 ] }/changelog/` ) &&
-			! changelogsAdded.includes( match[ 1 ] )
-		) {
-			changelogsAdded.push( match[ 1 ] );
+		const match = file.match( /^projects\/([^/]+\/[^/]+)\/changelog\// );
+		if ( match ) {
+			changelogsAdded.add( match[ 1 ] );
 		}
 	}
 
+	// Check for any touched projects without a changelog.
 	for ( const file of touchedFiles ) {
 		const match = file.match( re );
-		if ( match && ! changelogsAdded.includes( match[ 1 ] ) ) {
+		if ( match && ! changelogsAdded.has( match[ 1 ] ) ) {
 			modifiedProjects.add( match[ 1 ] );
 		}
 	}
