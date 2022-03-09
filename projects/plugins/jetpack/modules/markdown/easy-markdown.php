@@ -408,6 +408,7 @@ class WPCom_Markdown {
 	/**
 	 * Figure out the post type of the post screen we're on
 	 *
+	 * @deprecated since 10.8
 	 * @return string Current post_type
 	 */
 	protected function get_post_screen_post_type() {
