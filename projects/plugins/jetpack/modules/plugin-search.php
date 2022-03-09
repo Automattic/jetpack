@@ -363,8 +363,6 @@ class Jetpack_Plugin_Search {
 				* We don't use Jetpack_Plan::supports() here because
 				* that check always returns Akismet as supported,
 				* since Akismet has a free version.
-				$current_plan         = Jetpack_Plan::get();
-				$is_supported_by_plan = in_array( $module_slug, $current_plan['supports'], true );
 				*/
 				$current_plan         = Jetpack_Plan::get();
 				$is_supported_by_plan = in_array( $module_slug, $current_plan['supports'], true );
