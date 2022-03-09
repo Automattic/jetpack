@@ -5,6 +5,8 @@ import { PanelBody } from '@wordpress/components';
 import { PluginPostPublishPanel } from '@wordpress/edit-post';
 import { __ } from '@wordpress/i18n';
 import { useRef } from '@wordpress/element';
+import { useSelect } from '@wordpress/data';
+import { store as editorStore } from '@wordpress/editor';
 
 /**
  * Internal dependencies
@@ -33,6 +35,11 @@ export const settings = {
 			initialOpen: true,
 		};
 
+		const isPostPublished = useSelect(
+			select => select( editorStore ).isCurrentPostPublished(),
+			[]
+		);
+
 		function QRPostPanelBodyContent() {
 			return (
 				<>
@@ -51,11 +58,13 @@ export const settings = {
 					<QRPostPanelBodyContent />
 				</PluginPostPublishPanel>
 
-				<JetpackPluginSidebar>
-					<PanelBody { ...panelBodyProps }>
-						<QRPostPanelBodyContent />
-					</PanelBody>
-				</JetpackPluginSidebar>
+				{ isPostPublished && (
+					<JetpackPluginSidebar>
+						<PanelBody { ...panelBodyProps }>
+							<QRPostPanelBodyContent />
+						</PanelBody>
+					</JetpackPluginSidebar>
+				) }
 			</>
 		);
 	},
