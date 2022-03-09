@@ -1,11 +1,27 @@
-<?php
+<?php // phpcs:ignore WordPress.Files.FileName
+/**
+ * VideoPress Options
+ *
+ * @package automattic/jetpack
+ */
 
+/**
+ * VideoPress Options class.
+ */
 class VideoPress_Options {
 
-	/** @var string */
+	/**
+	 * Option name.
+	 *
+	 * @var string
+	 */
 	public static $option_name = 'videopress';
 
-	/** @var array */
+	/**
+	 * VideoPress Options.
+	 *
+	 * @var array
+	 */
 	protected static $options = array();
 
 	/**
@@ -30,7 +46,7 @@ class VideoPress_Options {
 		// associated shadow blog id, if videopress is enabled.
 		self::$options['shadow_blog_id'] = 0;
 
-		// Use the Jetpack ID for the shadow blog ID if we have a plan that supports VideoPress
+		// Use the Jetpack ID for the shadow blog ID if we have a plan that supports VideoPress.
 		if ( Jetpack_Plan::supports( 'videopress' ) ) {
 			self::$options['shadow_blog_id'] = Jetpack_Options::get_option( 'id' );
 		}
@@ -40,6 +56,8 @@ class VideoPress_Options {
 
 	/**
 	 * Update VideoPress options
+	 *
+	 * @param mixed $options VideoPress options.
 	 */
 	public static function update_options( $options ) {
 		Jetpack_Options::update_option( self::$option_name, $options );
