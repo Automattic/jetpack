@@ -1,0 +1,46 @@
+{
+	"name": "automattic/jetpack-media",
+	"description": "Jetpack Media provides functionality to extract media and add Open Graph tags to your posts.",
+	"type": "library",
+	"license": "GPL-2.0-or-later",
+	"require": {},
+	"require-dev": {
+		"yoast/phpunit-polyfills": "1.0.3",
+		"automattic/jetpack-changelogger": "^3.0"
+	},
+	"autoload": {
+		"classmap": [
+			"src/"
+		]
+	},
+	"scripts": {
+		"phpunit": [
+			"./vendor/phpunit/phpunit/phpunit --colors=always"
+		],
+		"test-coverage": [
+			"php -dpcov.directory=. ./vendor/bin/phpunit --coverage-clover \"$COVERAGE_DIR/clover.xml\""
+		],
+		"test-php": [
+			"@composer phpunit"
+		],
+		"build-production": "echo 'Add your build step to composer.json, please!'",
+		"build-development": "echo 'Add your build step to composer.json, please!'"
+	},
+	"repositories": [
+		{
+			"type": "path",
+			"url": "../../packages/*",
+			"options": {
+				"monorepo": true
+			}
+		}
+	],
+	"minimum-stability": "dev",
+	"prefer-stable": true,
+	"extra": {
+		"branch-alias": {
+			"dev-master": "0.1.x-dev"
+		},
+		"textdomain": "jetpack-media"
+	}
+}
