@@ -209,11 +209,10 @@ class Tonesque {
 			$r[]   = $index['red'];
 			$g[]   = $index['green'];
 			$b[]   = $index['blue'];
-
-			$red   = round( array_sum( $r ) / 5 );
-			$green = round( array_sum( $g ) / 5 );
-			$blue  = round( array_sum( $b ) / 5 );
 		}
+		$red   = round( array_sum( $r ) / 5 );
+		$green = round( array_sum( $g ) / 5 );
+		$blue  = round( array_sum( $b ) / 5 );
 
 		// The average color of the image as rgb array.
 		$color = array(
