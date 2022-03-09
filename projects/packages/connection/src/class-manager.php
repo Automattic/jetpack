@@ -14,6 +14,7 @@ use Automattic\Jetpack\Roles;
 use Automattic\Jetpack\Status;
 use Automattic\Jetpack\Terms_Of_Service;
 use Automattic\Jetpack\Tracking;
+use GP_Locales;
 use Jetpack_IXR_Client;
 use WP_Error;
 use WP_User;
@@ -2524,6 +2525,8 @@ class Manager {
 			// The user decided not to proceed with setting up the connection.
 
 			// TODO: Redirect somewhere.
+			var_dump( $_REQUEST );
+			die;
 			wp_safe_redirect( admin_url() );
 			exit;
 		}
@@ -2542,7 +2545,126 @@ class Manager {
 
 		// TODO: verify if filters in Jetpack::::build_authorize_url are needed.
 		// TODO: verify admin url.
-		wp_safe_redirect( $this->get_authorization_url( wp_get_current_user(), admin_url( $redirect_args ) ) );
+		wp_safe_redirect( $this->__build_authorize_url( admin_url( $redirect_args ) ) );
 		exit;
+	}
+
+	/**
+	 * Create the Jetpack authorization URL.
+	 *
+	 * @param bool|string $redirect URL to redirect to.
+	 * @param bool        $iframe Whether to use the iframe version.
+	 *
+	 * @todo Update default value for redirect since the called function expects a string.
+	 *
+	 * @return mixed|void
+	 */
+	public function __build_authorize_url( $redirect = false, $iframe = false ) {
+
+		add_filter( 'jetpack_connect_request_body', array( __CLASS__, 'filter_connect_request_body' ) );
+		add_filter( 'jetpack_connect_redirect_url', array( __CLASS__, 'filter_connect_redirect_url' ) );
+
+		if ( $iframe ) {
+			add_filter( 'jetpack_use_iframe_authorization_flow', '__return_true' );
+		}
+
+		$url = $this->get_authorization_url( wp_get_current_user(), $redirect );
+
+		remove_filter( 'jetpack_connect_request_body', array( __CLASS__, 'filter_connect_request_body' ) );
+		remove_filter( 'jetpack_connect_redirect_url', array( __CLASS__, 'filter_connect_redirect_url' ) );
+
+		if ( $iframe ) {
+			remove_filter( 'jetpack_use_iframe_authorization_flow', '__return_true' );
+		}
+
+		/**
+		 * Filter the URL used when authorizing a user to a WordPress.com account.
+		 *
+		 * @since 8.9.0
+		 *
+		 * @param string $url Connection URL.
+		 */
+		return apply_filters( 'jetpack_build_authorize_url', $url );
+	}
+
+	/**
+	 * Filters the redirection URL that is used for connect requests. The redirect
+	 * URL should return the user back to the Jetpack console.
+	 *
+	 * @param String $redirect the default redirect URL used by the package.
+	 * @return String the modified URL.
+	 */
+	public static function filter_connect_redirect_url( $redirect ) {
+		$jetpack_admin_page = esc_url_raw( admin_url( 'admin.php?page=jetpack' ) );
+		$redirect           = $redirect
+			? wp_validate_redirect( esc_url_raw( $redirect ), $jetpack_admin_page )
+			: $jetpack_admin_page;
+
+		if ( isset( $_REQUEST['is_multisite'] ) ) {
+			$redirect = Jetpack_Network::init()->get_url( 'network_admin_page' );
+		}
+
+		return $redirect;
+	}
+
+	/**
+	 * Filters the connection URL parameter array.
+	 *
+	 * @param array $args default URL parameters used by the package.
+	 * @return array the modified URL arguments array.
+	 */
+	public static function filter_connect_request_body( $args ) {
+		if (
+			Constants::is_defined( 'JETPACK__GLOTPRESS_LOCALES_PATH' )
+			&& include_once Constants::get_constant( 'JETPACK__GLOTPRESS_LOCALES_PATH' )
+		) {
+			$gp_locale      = GP_Locales::by_field( 'wp_locale', get_locale() );
+			$args['locale'] = isset( $gp_locale ) && isset( $gp_locale->slug )
+				? $gp_locale->slug
+				: '';
+		}
+
+		$tracking        = new Tracking();
+		$tracks_identity = $tracking->tracks_get_identity( $args['state'] );
+
+		$args = array_merge(
+			$args,
+			array(
+				'_ui' => $tracks_identity['_ui'],
+				'_ut' => $tracks_identity['_ut'],
+			)
+		);
+
+		$calypso_env = self::get_calypso_env();
+
+		if ( ! empty( $calypso_env ) ) {
+			$args['calypso_env'] = $calypso_env;
+		}
+
+		return $args;
+	}
+
+	/**
+	 * Return Calypso environment value; used for developing Jetpack and pairing
+	 * it with different Calypso enrionments, such as localhost.
+	 *
+	 * @since 7.4.0
+	 *
+	 * @return string Calypso environment
+	 */
+	public static function get_calypso_env() {
+		if ( isset( $_GET['calypso_env'] ) ) {
+			return sanitize_key( $_GET['calypso_env'] );
+		}
+
+		if ( getenv( 'CALYPSO_ENV' ) ) {
+			return sanitize_key( getenv( 'CALYPSO_ENV' ) );
+		}
+
+		if ( defined( 'CALYPSO_ENV' ) && CALYPSO_ENV ) {
+			return sanitize_key( CALYPSO_ENV );
+		}
+
+		return '';
 	}
 }

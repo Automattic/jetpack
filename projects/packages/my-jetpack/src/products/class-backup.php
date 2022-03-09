@@ -176,6 +176,7 @@ class Backup extends Hybrid_Product {
 	 * @return ?string
 	 */
 	public static function get_post_activation_url() {
+		return '';
 		if ( ( new Connection_Manager() )->is_user_connected() ) {
 			return ''; // Continue on the purchase flow or stay in My Jetpack page.
 		} else {
