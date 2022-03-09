@@ -865,7 +865,7 @@ class Jetpack_Color {
 	/**
 	 * Transform -- To a triadic color.
 	 *
-	 * A triadic color scheme uses three colors evenly spaced (180°) around the color wheel.
+	 * A triadic color scheme uses three colors evenly spaced (120°) around the color wheel.
 	 * This transforms the color to one of its triadic colors.
 	 *
 	 * @param int $step Pass `1` or `-1` to choose which direction around the color wheel.
