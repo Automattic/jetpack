@@ -861,9 +861,12 @@ class Jetpack_Color {
 	}
 
 	/**
-	 * Transform -- Get hue-incremented color, 60 steps at a time.
+	 * Transform -- To a tetradic (rectangular) color.
 	 *
-	 * @param int $step How many times we should increment hue by 60.
+	 * A rectangular color scheme uses a color, its complement, and the colors 60° from each.
+	 * This transforms the color to its 60° "tetrad".
+	 *
+	 * @param int $step Pass `1` or `-1` to choose which direction around the color wheel.
 	 *
 	 * @return Jetpack_Color
 	 */
