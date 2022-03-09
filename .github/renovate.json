@@ -47,6 +47,7 @@
 				"automattic/jetpack-constants",
 				"automattic/jetpack-device-detection",
 				"automattic/jetpack-error",
+				"automattic/jetpack-google-fonts-provider",
 				"automattic/jetpack-heartbeat",
 				"automattic/jetpack-identity-crisis",
 				"automattic/jetpack-jitm",
@@ -88,6 +89,10 @@
 		{
 			"extends": [ "packages:jsUnitTest" ],
 			"groupName": "JS unit testing packages"
+		},
+		{
+			"groupName": "Size-limit",
+			"matchPackageNames": [ "size-limit", "@size-limit/preset-app" ]
 		},
 		{
 			"matchPaths": [ "packages/codesniffer/composer.json" ],

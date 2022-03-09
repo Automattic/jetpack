@@ -41,7 +41,7 @@ class Test_WPCOM_REST_API_V2_Subscribers_Endpoint extends WP_Test_Jetpack_REST_T
 		$response = $this->server->dispatch( $request );
 		$data     = $response->get_data();
 
-		$this->assertEquals( $data['count'], 100 );
+		$this->assertEquals( 100, $data['count'] );
 	}
 
 	public function test_get_subscriber_count_without_edit_permission() {
@@ -52,6 +52,6 @@ class Test_WPCOM_REST_API_V2_Subscribers_Endpoint extends WP_Test_Jetpack_REST_T
 		$data     = $response->get_data();
 
 		$this->assertFalse( isset( $data['count'] ) );
-		$this->assertEquals( $data['data']['status'], 401 );
+		$this->assertEquals( 401, $data['data']['status'] );
 	}
 }
