@@ -828,7 +828,9 @@ class Jetpack_Color {
 	}
 
 	/**
-	 * Transform -- Get hue-incremented color, by 180.
+	 * Transform -- To the complementary color.
+	 *
+	 * The complement is the color on the opposite side of the color wheel, 180° away.
 	 *
 	 * @return Jetpack_Color
 	 */
