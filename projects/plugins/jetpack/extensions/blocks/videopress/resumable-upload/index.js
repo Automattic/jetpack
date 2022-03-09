@@ -52,8 +52,8 @@ export default function ResumableUpload( { file } ) {
 			setProgress( percentage );
 		};
 
-		const onSuccess = guid => {
-			onUploadFinished( guid );
+		const onSuccess = args => {
+			onUploadFinished( args );
 		};
 
 		const uploader = resumableUploader( {
