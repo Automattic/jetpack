@@ -67,7 +67,7 @@ class Jetpack_Color {
 	 *
 	 * @param string $hex_value Color hex value.
 	 *
-	 * @return Jetpack_Color
+	 * @return $this
 	 * @throws RangeException Invalid color code range error.
 	 */
 	public function fromHex( $hex_value ) {
@@ -86,7 +86,7 @@ class Jetpack_Color {
 	 * @param int $green Green color code.
 	 * @param int $blue  Blue color code.
 	 *
-	 * @return Jetpack_Color
+	 * @return $this
 	 * @throws RangeException Invalid color code range error.
 	 */
 	public function fromRgbInt( $red, $green, $blue ) {
@@ -114,7 +114,7 @@ class Jetpack_Color {
 	 * @param string $green Green color code.
 	 * @param string $blue  Blue color code.
 	 *
-	 * @return Jetpack_Color
+	 * @return $this
 	 */
 	public function fromRgbHex( $red, $green, $blue ) {
 		return $this->fromRgbInt( hexdec( $red ), hexdec( $green ), hexdec( $blue ) );
@@ -180,7 +180,7 @@ class Jetpack_Color {
 	 *
 	 * @param int $int_value Color code.
 	 *
-	 * @return Jetpack_Color
+	 * @return $this
 	 * @throws RangeException Invalid color code range error.
 	 */
 	public function fromInt( $int_value ) {
@@ -578,7 +578,7 @@ class Jetpack_Color {
 	/**
 	 * Get maximum contrast color.
 	 *
-	 * @return Jetpack_Color
+	 * @return $this
 	 */
 	public function getMaxContrastColor() {
 		$with_black = $this->getDistanceLuminosityFrom( new Jetpack_Color( '#000' ) );
@@ -593,7 +593,7 @@ class Jetpack_Color {
 	 *
 	 * @param bool|int $contrast Contrast.
 	 *
-	 * @return Jetpack_Color
+	 * @return $this
 	 */
 	public function getGrayscaleContrastingColor( $contrast = false ) {
 		if ( ! $contrast ) {
@@ -708,7 +708,7 @@ class Jetpack_Color {
 	 *
 	 * @param int $amount Amount. Default to 5.
 	 *
-	 * @return Jetpack_Color
+	 * @return $this
 	 */
 	public function darken( $amount = 5 ) {
 		return $this->incrementLightness( - $amount );
@@ -719,7 +719,7 @@ class Jetpack_Color {
 	 *
 	 * @param int $amount Amount. Default to 5.
 	 *
-	 * @return Jetpack_Color
+	 * @return $this
 	 */
 	public function lighten( $amount = 5 ) {
 		return $this->incrementLightness( $amount );
@@ -730,7 +730,7 @@ class Jetpack_Color {
 	 *
 	 * @param int $amount Amount.
 	 *
-	 * @return Jetpack_Color
+	 * @return $this
 	 */
 	public function incrementLightness( $amount ) {
 		$hsl = $this->toHsl();
@@ -754,7 +754,7 @@ class Jetpack_Color {
 	 *
 	 * @param int $amount Amount. Default to 15.
 	 *
-	 * @return Jetpack_Color
+	 * @return $this
 	 */
 	public function saturate( $amount = 15 ) {
 		return $this->incrementSaturation( $amount );
@@ -765,7 +765,7 @@ class Jetpack_Color {
 	 *
 	 * @param int $amount Amount. Default to 15.
 	 *
-	 * @return Jetpack_Color
+	 * @return $this
 	 */
 	public function desaturate( $amount = 15 ) {
 		return $this->incrementSaturation( - $amount );
@@ -776,7 +776,7 @@ class Jetpack_Color {
 	 *
 	 * @param int $amount Amount.
 	 *
-	 * @return Jetpack_Color
+	 * @return $this
 	 */
 	public function incrementSaturation( $amount ) {
 		$hsl = $this->toHsl();
@@ -798,7 +798,7 @@ class Jetpack_Color {
 	/**
 	 * Transform -- To grayscale.
 	 *
-	 * @return Jetpack_Color
+	 * @return $this
 	 */
 	public function toGrayscale() {
 		$hsl = $this->toHsl();
@@ -815,7 +815,7 @@ class Jetpack_Color {
 	 *
 	 * The complement is the color on the opposite side of the color wheel, 180° away.
 	 *
-	 * @return Jetpack_Color
+	 * @return $this
 	 */
 	public function getComplement() {
 		return $this->incrementHue( 180 );
@@ -826,7 +826,7 @@ class Jetpack_Color {
 	 *
 	 * @param int $step Pass `1` or `-1` to choose which direction around the color wheel.
 	 *
-	 * @return Jetpack_Color
+	 * @return $this
 	 */
 	public function getSplitComplement( $step = 1 ) {
 		$incr = 180 + ( $step * 30 );
@@ -840,7 +840,7 @@ class Jetpack_Color {
 	 *
 	 * @param int $step Pass `1` or `-1` to choose which direction around the color wheel.
 	 *
-	 * @return Jetpack_Color
+	 * @return $this
 	 */
 	public function getAnalog( $step = 1 ) {
 		$incr = $step * 30;
@@ -855,7 +855,7 @@ class Jetpack_Color {
 	 *
 	 * @param int $step Pass `1` or `-1` to choose which direction around the color wheel.
 	 *
-	 * @return Jetpack_Color
+	 * @return $this
 	 */
 	public function getTetrad( $step = 1 ) {
 		$incr = $step * 60;
@@ -870,7 +870,7 @@ class Jetpack_Color {
 	 *
 	 * @param int $step Pass `1` or `-1` to choose which direction around the color wheel.
 	 *
-	 * @return Jetpack_Color
+	 * @return $this
 	 */
 	public function getTriad( $step = 1 ) {
 		$incr = $step * 120;
@@ -882,7 +882,7 @@ class Jetpack_Color {
 	 *
 	 * @param int $amount Amount.
 	 *
-	 * @return Jetpack_Color
+	 * @return $this
 	 */
 	public function incrementHue( $amount ) {
 		$hsl = $this->toHsl();
