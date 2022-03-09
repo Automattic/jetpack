@@ -36,7 +36,7 @@ export default function QRPost() {
 	return (
 		<QRCode
 			value={ codeContent }
-			size={ 248 }
+			size={ 238 }
 			imageSettings={ src && { src, width: 48, height: 48, excavate: true } }
 			renderAs="canvas"
 			level="H"
