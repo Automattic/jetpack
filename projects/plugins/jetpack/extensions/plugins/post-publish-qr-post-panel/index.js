@@ -35,10 +35,9 @@ export const settings = {
 			initialOpen: true,
 		};
 
-		const isPostPublished = useSelect(
-			select => select( editorStore ).isCurrentPostPublished(),
-			[]
-		);
+		const isPostPublished = useSelect( ( select ) => (
+			select( editorStore ).isCurrentPostPublished()
+		), [] );
 
 		function QRPostPanelBodyContent() {
 			return (
