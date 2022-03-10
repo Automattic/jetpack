@@ -1,13 +1,8 @@
 /**
  * WordPress dependencies
  */
-import {
-	MenuGroup,
-	MenuItem,
-	ToolbarButton,
-	ToolbarDropdownMenu,
-	ToolbarGroup,
-} from '@wordpress/components';
+import { BlockControls } from '@wordpress/block-editor';
+import { MenuGroup, MenuItem, ToolbarButton, ToolbarDropdownMenu } from '@wordpress/components';
 
 export default function ViewSelector( props ) {
 	const { options, selectedOption, selectAction, contractViewport, label } = props;
@@ -16,7 +11,7 @@ export default function ViewSelector( props ) {
 
 	if ( contractViewport ) {
 		return (
-			<ToolbarGroup>
+			<BlockControls group="block">
 				<ToolbarDropdownMenu label={ label } icon="arrow-down" text={ selectedOption.label }>
 					{ ( { onClose } ) => (
 						<MenuGroup>
@@ -39,12 +34,12 @@ export default function ViewSelector( props ) {
 						</MenuGroup>
 					) }
 				</ToolbarDropdownMenu>
-			</ToolbarGroup>
+			</BlockControls>
 		);
 	}
 
 	return (
-		<ToolbarGroup>
+		<BlockControls group="other">
 			{ options.map( optionDefinition => {
 				const isSelected = optionSelected( optionDefinition );
 				return (
@@ -60,6 +55,6 @@ export default function ViewSelector( props ) {
 					</ToolbarButton>
 				);
 			} ) }
-		</ToolbarGroup>
+		</BlockControls>
 	);
 }

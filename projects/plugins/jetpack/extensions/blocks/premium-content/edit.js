@@ -2,7 +2,7 @@
  * WordPress dependencies
  */
 import { useEffect, useState, useRef } from '@wordpress/element';
-import { Disabled, Placeholder, Spinner, ToolbarButton, ToolbarGroup } from '@wordpress/components';
+import { Disabled, Placeholder, Spinner, ToolbarButton } from '@wordpress/components';
 import { BlockControls } from '@wordpress/block-editor';
 import { __, sprintf } from '@wordpress/i18n';
 import { compose, useViewportMatch } from '@wordpress/compose';
@@ -358,36 +358,37 @@ function Edit( props ) {
 
 	return (
 		<>
-			<BlockControls>
-				{ shouldShowConnectButton() && (
-					<ToolbarGroup>
-						<ToolbarButton
-							icon={ flashIcon }
-							onClick={ autosaveAndRedirect }
-							className="connect-stripe components-tab-button"
-						>
-							{ __( 'Connect Stripe', 'jetpack' ) }
-						</ToolbarButton>
-					</ToolbarGroup>
-				) }
-				<ViewSelector
-					options={ tabs }
-					selectedOption={ selectedTab }
-					selectAction={ selectTab }
-					contractViewport={ isSmallViewport }
-					label={ __( 'Change view', 'jetpack' ) }
-				/>
-			</BlockControls>
+			{ shouldShowConnectButton() && (
+				<BlockControls group="block">
+					<ToolbarButton
+						icon={ flashIcon }
+						onClick={ autosaveAndRedirect }
+						className="connect-stripe components-tab-button"
+					>
+						{ __( 'Connect Stripe', 'jetpack' ) }
+					</ToolbarButton>
+				</BlockControls>
+			) }
+
+			<ViewSelector
+				options={ tabs }
+				selectedOption={ selectedTab }
+				selectAction={ selectTab }
+				contractViewport={ isSmallViewport }
+				label={ __( 'Change view', 'jetpack' ) }
+			/>
 
 			<div className={ className } ref={ wrapperRef }>
 				{ ( isSelected || selectedInnerBlock ) && apiState === API_STATE_CONNECTED && (
-					<Controls
-						{ ...props }
-						plans={ products }
-						selectedPlanId={ props.attributes.selectedPlanId }
-						onSelected={ selectPlan }
-						getPlanDescription={ getPlanDescription }
-					/>
+					<BlockControls group="block">
+						<Controls
+							{ ...props }
+							plans={ products }
+							selectedPlanId={ props.attributes.selectedPlanId }
+							onSelected={ selectPlan }
+							getPlanDescription={ getPlanDescription }
+						/>
+					</BlockControls>
 				) }
 				{ ( isSelected || selectedInnerBlock ) && apiState === API_STATE_CONNECTED && (
 					<Inspector { ...props } savePlan={ savePlan } siteSlug={ siteSlug } />
