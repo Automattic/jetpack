@@ -5,8 +5,6 @@
  * @package automattic/jetpack
  */
 
-
-
 require_once __DIR__ . '/class.json-api-token.php';
 
 /**
