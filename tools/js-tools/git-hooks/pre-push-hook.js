@@ -64,4 +64,4 @@ async function promptChangelog() {
 	return response.confirm;
 }
 
-async () => await checkChangelogFiles();
+checkChangelogFiles();
