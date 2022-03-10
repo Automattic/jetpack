@@ -1,4 +1,5 @@
 <?php // phpcs:ignore WordPress.Files.FileName.InvalidClassFileName
+use Automattic\Jetpack\Assets;
 use Automattic\Jetpack\Connection\Initial_State as Connection_Initial_State;
 use Automattic\Jetpack\Connection\Manager as Connection_Manager;
 use Automattic\Jetpack\Status;
@@ -263,35 +264,26 @@ class Jetpack_React_Page extends Jetpack_Admin_Page {
 			return; // No need for scripts on a fallback page.
 		}
 
-		$status              = new Status();
-		$is_offline_mode     = $status->is_offline_mode();
-		$site_suffix         = $status->get_site_suffix();
-		$script_deps_path    = JETPACK__PLUGIN_DIR . '_inc/build/admin.asset.php';
-		$script_dependencies = array( 'wp-polyfill' );
-		if ( file_exists( $script_deps_path ) ) {
-			$asset_manifest      = include $script_deps_path;
-			$script_dependencies = $asset_manifest['dependencies'];
-			$asset_version       = $asset_manifest['version'];
-		}
+		$status          = new Status();
+		$is_offline_mode = $status->is_offline_mode();
+		$site_suffix     = $status->get_site_suffix();
 
-		$version = ( defined( 'WP_DEBUG' ) && WP_DEBUG && isset( $asset_version ) )
-			? $asset_version
-			: JETPACK__VERSION;
-
-		wp_enqueue_script(
+		Assets::register_script(
 			'react-plugin',
-			plugins_url( '_inc/build/admin.js', JETPACK__PLUGIN_FILE ),
-			$script_dependencies,
-			$version,
-			true
+			'_inc/build/admin.js',
+			JETPACK__PLUGIN_FILE,
+			array(
+				'in_footer'    => true,
+				'textdomain'   => 'jetpack',
+				'dependencies' => array( 'wp-polyfill' ),
+			)
 		);
+		Assets::enqueue_script( 'react-plugin' );
 
 		if ( ! $is_offline_mode && Jetpack::is_connection_ready() ) {
 			// Required for Analytics.
 			wp_enqueue_script( 'jp-tracks', '//stats.wp.com/w.js', array(), gmdate( 'YW' ), true );
 		}
-
-		wp_set_script_translations( 'react-plugin', 'jetpack' );
 
 		// Add objects to be passed to the initial state of the app.
 		// Use wp_add_inline_script instead of wp_localize_script, see https://core.trac.wordpress.org/ticket/25280.
