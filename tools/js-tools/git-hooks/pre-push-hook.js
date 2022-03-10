@@ -41,7 +41,11 @@ async function checkChangelogFiles() {
 			)
 		);
 	} else {
-		return true;
+		const response = promptChangelog();
+		if ( response ) {
+			// run changelogger code
+		}
+		process.exit = 1;
 	}
 }
 
@@ -60,22 +64,4 @@ async function promptChangelog() {
 	return response.confirm;
 }
 
-/**
- * Run the pre-push hook.
- */
-async function prePushHook() {
-	const needChangelog = checkChangelogFiles();
-	let autoAdd = false;
-
-	if ( needChangelog ) {
-		autoAdd = await promptChangelog();
-	}
-
-	if ( autoAdd ) {
-		console.log( autoAdd );
-	} else {
-		process.exit = 1;
-	}
-}
-
-prePushHook();
+checkChangelogFiles();
