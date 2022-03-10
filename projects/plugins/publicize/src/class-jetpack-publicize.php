@@ -29,7 +29,7 @@ class Jetpack_Publicize {
 
 		$page_suffix = Admin_Menu::add_menu(
 			__( 'Jetpack Publicize', 'jetpack-publicize' ),
-			_x( 'Reach', 'The Jetpack Publicize product name, without the Jetpack prefix', 'jetpack-publicize' ),
+			_x( 'Publicize', 'The Jetpack Publicize product name, without the Jetpack prefix', 'jetpack-publicize' ),
 			'manage_options',
 			'jetpack-publicize',
 			array( $this, 'plugin_settings_page' ),
@@ -97,7 +97,7 @@ class Jetpack_Publicize {
 	 * @return string
 	 */
 	public function render_initial_state() {
-		return 'var jetpackReachInitialState=JSON.parse(decodeURIComponent("' . rawurlencode( wp_json_encode( $this->initial_state() ) ) . '"));';
+		return 'var jetpackPublicizeInitialState=JSON.parse(decodeURIComponent("' . rawurlencode( wp_json_encode( $this->initial_state() ) ) . '"));';
 	}
 
 	/**

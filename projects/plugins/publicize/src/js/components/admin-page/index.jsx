@@ -84,7 +84,7 @@ const Admin = () => {
 export default Admin;
 
 const ConnectionSection = () => {
-	const { apiNonce, apiRoot, registrationNonce } = window.jetpackReachInitialState;
+	const { apiNonce, apiRoot, registrationNonce } = window.jetpackPublicizeInitialState;
 	return (
 		<ConnectScreenRequiredPlan
 			buttonLabel={ __( 'Get Jetpack Publicize', 'jetpack-publicize' ) }
