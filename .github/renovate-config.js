@@ -119,4 +119,6 @@ module.exports = {
 	dependencyDashboard: true,
 	dependencyDashboardTitle: 'Renovate Dependency Updates',
 	dependencyDashboardLabels: [ 'Primary Issue', '[Type] Janitorial' ],
+	dependencyDashboardFooter:
+		'The bot runs every half-hour, and may be monitored or triggered ahead of schedule [here](https://github.com/Automattic/jetpack/actions/workflows/renovate.yml).',
 };

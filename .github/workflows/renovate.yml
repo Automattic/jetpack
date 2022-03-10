@@ -14,10 +14,7 @@ on:
         required: false
         type: boolean
   schedule:
-    - cron: '0/15 * * * *'
-  # TODO: Remove these two lines before merging.
-  push:
-    branches: [ 'add/renovate-self-hosted' ]
+    - cron: '0/30 * * * *'
 concurrency:
   group: renovate-${{ github.ref }}
 
