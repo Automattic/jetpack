@@ -1,8 +1,6 @@
 <?php
 /**
- * Customizations for unsupported features and unsupported plan Atomic sites.
- *
- * To enable and disable specific functionality for unsupported plan Atomic sites.
+ * Collection of hooks that apply feature checks on Atomic sites.
  *
  * @package wpcomsh
  */

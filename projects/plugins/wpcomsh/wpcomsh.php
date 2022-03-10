@@ -2,13 +2,13 @@
 /**
  * Plugin Name: WordPress.com Site Helper
  * Description: A helper for connecting WordPress.com sites to external host infrastructure.
- * Version: 2.8.84
+ * Version: 2.8.85
  * Author: Automattic
  * Author URI: http://automattic.com/
  */
 
 // Increase version number if you change something in wpcomsh.
-define( 'WPCOMSH_VERSION', '2.8.84' );
+define( 'WPCOMSH_VERSION', '2.8.85' );
 
 // If true, Typekit fonts will be available in addition to Google fonts
 add_filter( 'jetpack_fonts_enable_typekit', '__return_true' );
@@ -39,6 +39,7 @@ require_once __DIR__ . '/custom-colors/colors.php';
 
 // Load feature manager bootstrap file.
 require_once __DIR__ . '/feature-manager/bootstrap.php';
+require_once __DIR__ . '/feature-manager/feature-hooks.php';
 
 // Interoperability with the core WordPress data privacy functionality (See also "GDPR")
 require_once __DIR__ . '/privacy/participating-plugins.php';
@@ -90,7 +91,6 @@ require_once __DIR__ . '/feature-plugins/coblocks-mods.php';
 require_once __DIR__ . '/feature-plugins/autosave-revision.php';
 require_once __DIR__ . '/feature-plugins/masterbar.php';
 require_once __DIR__ . '/feature-plugins/jetpack-data.php';
-require_once __DIR__ . '/feature-plugins/unsupported-features-mods.php';
 require_once __DIR__ . '/feature-plugins/post-list.php';
 
 // wp-admin Notices
