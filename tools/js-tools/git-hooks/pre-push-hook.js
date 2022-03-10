@@ -9,7 +9,7 @@ const inquirer = require( 'inquirer' );
 /**
  * Checks if changelog files are required.
  */
-function checkChangelogFiles() {
+async function checkChangelogFiles() {
 	console.log( chalk.green( 'Checking if changelog files are needed. Just a sec...' ) );
 
 	// Bail if we're pushing to a release branch, like boost/branch-1.3.0
@@ -41,9 +41,7 @@ function checkChangelogFiles() {
 			)
 		);
 	} else {
-		const runChangelog = promptChangelog();
-		console.log( runChangelog );
-		process.exitCode = 1;
+		return true;
 	}
 }
 
@@ -62,4 +60,22 @@ async function promptChangelog() {
 	return response.confirm;
 }
 
-checkChangelogFiles();
+/**
+ * Run the pre-push hook.
+ */
+async function prePushHook() {
+	const needChangelog = checkChangelogFiles();
+	let autoAdd = false;
+
+	if ( needChangelog ) {
+		autoAdd = await promptChangelog();
+	}
+
+	if ( autoAdd ) {
+		console.log( autoAdd );
+	} else {
+		process.exit = 1;
+	}
+}
+
+prePushHook();
