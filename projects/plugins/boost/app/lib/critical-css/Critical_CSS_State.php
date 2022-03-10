@@ -61,26 +61,71 @@ class Critical_CSS_State {
 	protected $request_name;
 
 	/**
+	 * Posts for which the Critical CSS request is created. Limit provider groups to only the ones related to posts in
+	 * this array.
+	 *
+	 * @var int[]
+	 */
+	protected $context_posts = array();
+
+	/**
 	 * Constructor.
 	 */
 	public function __construct( $request_name = 'local' ) {
 
 		$this->request_name = $request_name;
-
-		$state = Transient::get(
-			$this->get_key(),
-			array(
-				'created'     => microtime( true ),
-				'state'       => null,
-				'state_error' => null,
-				'sources'     => array(),
-			)
-		);
+		$state              = $this->get_state_transient();
 
 		$this->created     = $state['created'];
 		$this->state       = $state['state'];
 		$this->state_error = empty( $state['state_error'] ) ? null : $state['state_error'];
 		$this->sources     = $this->verify_sources( $state['sources'] );
+	}
+
+	private function get_state_transient() {
+		return Transient::get(
+			$this->get_key(),
+			array(
+				'created'     => microtime( true ),
+				'updated'     => microtime( true ),
+				'state'       => null,
+				'state_error' => null,
+				'sources'     => array(),
+			)
+		);
+	}
+
+	public function get_generation_status() {
+		// Todo: created time may be different in browser.
+		$state  = $this->get_state_transient();
+		$status = $this->get_providers_status( $state['sources'] );
+
+		return array(
+			'created'   => $state['created'],
+			'updated'   => $state['updated'],
+			'completed' => $status['completed'],
+			'total'     => $status['total'],
+			'pending'   => $status['pending'],
+		);
+	}
+
+	private function get_providers_status( $providers ) {
+		$completed = 0;
+		$pending   = false;
+
+		foreach ( $providers as $provider ) {
+			if ( self::SUCCESS === $provider['status'] ) {
+				$completed++;
+			} elseif ( self::REQUESTING === $provider['status'] ) {
+				$pending = true;
+			}
+		}
+
+		return array(
+			'total'     => count( $providers ),
+			'completed' => $completed,
+			'pending'   => $pending,
+		);
 	}
 
 	/**
@@ -91,11 +136,21 @@ class Critical_CSS_State {
 			$this->get_key(),
 			array(
 				'created'     => $this->created,
+				'updated'     => microtime( true ),
 				'state'       => $this->state,
 				'state_error' => $this->state_error,
 				'sources'     => $this->sources,
 			)
 		);
+	}
+
+	/**
+	 * Add a context to the Critical CSS state.
+	 *
+	 * @return string
+	 */
+	public function add_request_context( $post ) {
+		$this->context_posts[] = $post;
 	}
 
 	/**
@@ -225,7 +280,7 @@ class Critical_CSS_State {
 
 			// For each provider,
 			// Gather a list of URLs that are going to be used as Critical CSS source.
-			foreach ( $provider::get_critical_source_urls() as $group => $urls ) {
+			foreach ( $provider::get_critical_source_urls( $this->context_posts ) as $group => $urls ) {
 				$key = $provider_name . '_' . $group;
 
 				// For each URL
@@ -240,6 +295,18 @@ class Critical_CSS_State {
 		}
 
 		return $sources;
+	}
+
+	public function has_pending_provider( $providers ) {
+		$state   = $this->get_state_transient();
+		$pending = false;
+		foreach ( $state['sources'] as $name => $source_state ) {
+			if ( in_array( $name, $providers, true ) && self::REQUESTING === $source_state['status'] ) {
+				$pending = true;
+				break;
+			}
+		}
+		return $pending;
 	}
 
 	/**

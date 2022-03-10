@@ -27,6 +27,7 @@ module.exports = {
 		alias: {
 			...jetpackWebpackConfig.resolve.alias,
 			fs: false,
+			'instant-search': path.join( __dirname, '../src/instant-search' ),
 		},
 		modules: [ path.resolve( __dirname, '../src/dashboard' ), 'node_modules' ],
 	},

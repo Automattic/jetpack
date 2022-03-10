@@ -47,7 +47,7 @@ const StepDisconnectConfirm = props => {
 						</p>
 						<p>
 							<Button
-								isPrimary
+								variant="primary"
 								onClick={ onProvideFeedback }
 								className="jp-connection__disconnect-dialog__btn-back-to-wp"
 							>
@@ -68,7 +68,7 @@ const StepDisconnectConfirm = props => {
 					<>
 						<p>
 							<Button
-								isPrimary
+								variant="primary"
 								onClick={ onExit }
 								className="jp-connection__disconnect-dialog__btn-back-to-wp"
 							>
