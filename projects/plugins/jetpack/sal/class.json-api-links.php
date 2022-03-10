@@ -404,6 +404,7 @@ class WPCOM_JSON_API_Links {
 
 		foreach ( $this->api->endpoints as $key => $endpoint_objects ) {
 
+			// @todo As with the todo in class.json-api.php, we need to determine if anything depends on this being serialized and hence unserialized, rather than e.g. JSON.
 			// The key contains a serialized path, min_version and max_version.
 			list( $path, $min_version, $max_version ) = unserialize( $key );         // phpcs:ignore WordPress.PHP.DiscouragedPHPFunctions.serialize_unserialize -- Legacy, see serialization at class.json-api.php.
 
