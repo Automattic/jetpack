@@ -32,6 +32,7 @@ export const settings = {
 			title: __( 'QR Code', 'jetpack' ),
 			className: 'post-publish-qr-post-panel',
 			icon: <QRIcon />,
+			initialOpen: true,
 		};
 
 		const isPostPublished = useSelect(
@@ -53,13 +54,13 @@ export const settings = {
 
 		return (
 			<>
-				<PluginPostPublishPanel { ...panelBodyProps } initialOpen={ true }>
+				<PluginPostPublishPanel { ...panelBodyProps }>
 					<QRPostPanelBodyContent />
 				</PluginPostPublishPanel>
 
 				{ isPostPublished && (
 					<JetpackPluginSidebar>
-						<PanelBody { ...panelBodyProps } initialOpen={ false }>
+						<PanelBody { ...panelBodyProps }>
 							<QRPostPanelBodyContent />
 						</PanelBody>
 					</JetpackPluginSidebar>
