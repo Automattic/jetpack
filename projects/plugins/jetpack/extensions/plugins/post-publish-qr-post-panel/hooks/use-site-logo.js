@@ -4,6 +4,7 @@
 import { useSelect } from '@wordpress/data';
 import { useState } from '@wordpress/element';
 import { store as coreStore } from '@wordpress/core-data';
+import { applyFilters } from '@wordpress/hooks';
 
 /**
  * React hook that returns the site logo data.
@@ -48,6 +49,13 @@ export default function useSiteLogo( { generateDataUrl = false } ) {
 
 	const image = new Image();
 
+	// Apply image crossorigin attribute to prevent CORS errors.
+	const imgCrossOrigin = applyFilters( 'media.crossOrigin', undefined, mediaItemData.url );
+
+	if ( typeof imgCrossOrigin === 'string' ) {
+		image.crossOrigin = imgCrossOrigin;
+	}
+
 	image.onload = function () {
 		const canvas = document.createElement( 'canvas' );
 		const context = canvas.getContext( '2d' );
@@ -68,7 +76,7 @@ export default function useSiteLogo( { generateDataUrl = false } ) {
 		}
 	};
 
-	image.src = mediaItemData?.url;
+	image.src = mediaItemData.url;
 
 	return { id, ...mediaItemData, dataUrl };
 }
