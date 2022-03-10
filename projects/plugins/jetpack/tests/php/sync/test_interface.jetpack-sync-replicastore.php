@@ -271,10 +271,10 @@ class WP_Test_IJetpack_Sync_Replicastore extends TestCase {
 		$generated_post_ids    = array();
 		$generated_comment_ids = array();
 
-		for ( $i = 1; $i <= 20; $i += 1 ) {
+		for ( $i = 1; $i <= 20; $i++ ) {
 			do {
-				$post_id = rand( 1, 1000000 );
-			} while ( in_array( $post_id, $generated_post_ids ) );
+				$post_id = wp_rand( 1, 1000000 );
+			} while ( in_array( $post_id, $generated_post_ids, true ) );
 
 			$generated_post_ids[] = $post_id;
 
@@ -289,8 +289,8 @@ class WP_Test_IJetpack_Sync_Replicastore extends TestCase {
 			}
 
 			do {
-				$comment_id = rand( 1, 1000000 );
-			} while ( in_array( $post_id, $generated_comment_ids ) );
+				$comment_id = wp_rand( 1, 1000000 );
+			} while ( in_array( $comment_id, $generated_comment_ids, true ) );
 
 			$generated_comment_ids[] = $comment_id;
 
@@ -304,7 +304,6 @@ class WP_Test_IJetpack_Sync_Replicastore extends TestCase {
 			if ( $max_comment_id < $comment_id ) {
 				$max_comment_id = $comment_id;
 			}
-
 		}
 
 		foreach ( array( 'posts', 'comments' ) as $object_type ) {
