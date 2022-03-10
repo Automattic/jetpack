@@ -1,0 +1,4 @@
+Significance: patch
+Type: added
+
+Create getConnectedPlugins resolver and add it to the useConnection hook

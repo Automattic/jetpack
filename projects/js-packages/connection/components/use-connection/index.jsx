@@ -18,6 +18,7 @@ export default ( { registrationNonce, redirectUri, apiRoot, apiNonce, autoTrigge
 		siteIsRegistering,
 		userIsConnecting,
 		userConnectionData,
+		connectedPlugins,
 		isRegistered,
 		isUserConnected,
 		hasConnectedOwner,
@@ -25,6 +26,7 @@ export default ( { registrationNonce, redirectUri, apiRoot, apiNonce, autoTrigge
 		siteIsRegistering: select( STORE_ID ).getSiteIsRegistering(),
 		userIsConnecting: select( STORE_ID ).getUserIsConnecting(),
 		userConnectionData: select( STORE_ID ).getUserConnectionData(),
+		connectedPlugins: select( STORE_ID ).getConnectedPlugins(),
 		...select( STORE_ID ).getConnectionStatus(),
 	} ) );
 
@@ -74,5 +76,6 @@ export default ( { registrationNonce, redirectUri, apiRoot, apiNonce, autoTrigge
 		registrationError,
 		userConnectionData,
 		hasConnectedOwner,
+		connectedPlugins,
 	};
 };

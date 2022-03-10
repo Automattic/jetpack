@@ -1,4 +1,3 @@
-/* global myJetpackInitialState */
 /**
  * External dependencies
  */
@@ -19,9 +18,8 @@ import { STORE_ID } from '../../state/store';
  * @returns {object} ConnectionsSection React component.
  */
 export default function ConnectionsSection() {
-	const { apiRoot, apiNonce, redirectUrl } = useMyJetpackConnection();
+	const { apiRoot, apiNonce, redirectUrl, connectedPlugins } = useMyJetpackConnection();
 	const navigate = useMyJetpackNavigate( '/connection' );
-	const { connectedPlugins } = myJetpackInitialState;
 	const productsThatRequiresUserConnection = useSelect( select =>
 		select( STORE_ID ).getProductsThatRequiresUserConnection()
 	);
