@@ -1,0 +1,4 @@
+Significance: patch
+Type: bugfix
+
+Tiled Gallery Block: Tighten Jetpack_Plan check during block rendering
