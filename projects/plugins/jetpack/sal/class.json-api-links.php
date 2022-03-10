@@ -20,7 +20,7 @@ class WPCOM_JSON_API_Links {
 	private $api;
 
 	/**
-	 * A WPCOM_JSON_API_Linksinstance.
+	 * A WPCOM_JSON_API_Links instance.
 	 *
 	 * @var WPCOM_JSON_API_Links
 	 */
