@@ -210,27 +210,10 @@ class Jetpack_React_Page extends Jetpack_Admin_Page {
 			echo '<code>pnpm run distclean && pnpx jetpack build plugins/jetpack</code>';
 			echo '</p>';
 		} else {
-			add_filter( 'wp_kses_allowed_html', array( $this, 'static_allowed' ), 10, 2 );
-			// We got the static.html so let's sanitize and display it.
-			echo wp_kses_post( $static_html );
+			// We got the static.html so let's display it.
+			echo $static_html; //phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
 		}
 	}
-	/**
-	 * Extends the 'post' context for wp_kses() by adding style tags.
-	 * Required for .vp-deactivated style in static.html.
-	 *
-	 * @param array  $allowed Extends 'post' context array with extra tags.
-	 * @param string $post Context name.
-	 * @return array Array of tags that extend wp_kses_post().
-	 */
-	public function static_allowed( $allowed, $post = 'post' ) { //phpcs:ignore VariableAnalysis.CodeAnalysis.VariableAnalysis.UnusedVariable
-
-		$allowed['style'] = array(
-			'type' => array(),
-		);
-		return $allowed;
-	}
-
 	/**
 	 * Allow robust deep links to React.
 	 *
