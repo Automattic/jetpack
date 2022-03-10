@@ -33,7 +33,7 @@ class WPCOM_JSON_API_Date {
 			}
 
 			// "0000-00-00 00:00:00" == -62169984000
-			if ( - 62169984000 === $timestamp_gmt ) {
+			if ( -62169984000 === $timestamp_gmt ) {
 				// WordPress sets post_date=now, post_date_gmt="0000-00-00 00:00:00" for all drafts
 				// WordPress sets post_modified=now, post_modified_gmt="0000-00-00 00:00:00" for new drafts.
 
