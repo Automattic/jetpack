@@ -4,7 +4,9 @@
  *
  * @package automattic/jetpack
  */
+
 require_once __DIR__ . '/../class.json-api.php';
+
 /**
  * Base class for WPCOM_JSON_API_Links.
  */
