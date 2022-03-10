@@ -95,8 +95,8 @@ const ConnectionSection = () => {
 			apiRoot={ apiRoot }
 			apiNonce={ apiNonce }
 			registrationNonce={ registrationNonce }
-			from="jetpack-reach"
-			redirectUri="admin.php?page=jetpack-reach"
+			from="jetpack-publicize"
+			redirectUri="admin.php?page=jetpack-publicize"
 		>
 			<h3>
 				{ __(

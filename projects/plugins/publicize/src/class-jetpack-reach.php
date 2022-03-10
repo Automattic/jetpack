@@ -2,7 +2,7 @@
 /**
  * Primary class file for the Jetpack Reach plugin.
  *
- * @package automattic/jetpack-reach-plugin
+ * @package automattic/jetpack-publicize-plugin
  */
 
 if ( ! defined( 'ABSPATH' ) ) {
@@ -76,7 +76,7 @@ class Jetpack_Reach {
 	public function enqueue_admin_scripts() {
 
 		Assets::register_script(
-			'jetpack-reach',
+			'jetpack-publicize',
 			'build/index.js',
 			JETPACK_REACH_PLUGIN_ROOT_FILE,
 			array(
@@ -84,10 +84,10 @@ class Jetpack_Reach {
 				'textdomain' => 'jetpack-publicize',
 			)
 		);
-		Assets::enqueue_script( 'jetpack-reach' );
+		Assets::enqueue_script( 'jetpack-publicize' );
 		// Initial JS state including JP Connection data.
-		wp_add_inline_script( 'jetpack-reach', Connection_Initial_State::render(), 'before' );
-		wp_add_inline_script( 'jetpack-reach', $this->render_initial_state(), 'before' );
+		wp_add_inline_script( 'jetpack-publicize', Connection_Initial_State::render(), 'before' );
+		wp_add_inline_script( 'jetpack-publicize', $this->render_initial_state(), 'before' );
 
 	}
 
@@ -118,7 +118,7 @@ class Jetpack_Reach {
 	 */
 	public function plugin_settings_page() {
 		?>
-			<div id="jetpack-reach-root"></div>
+			<div id="jetpack-publicize-root"></div>
 		<?php
 	}
 }

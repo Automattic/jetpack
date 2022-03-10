@@ -1,5 +1,5 @@
 {
-	"name": "automattic/jetpack-reach",
+	"name": "automattic/jetpack-publicize",
 	"description": "Reach plugin",
 	"type": "wordpress-plugin",
 	"license": "GPL-2.0-or-later",
@@ -57,9 +57,9 @@
 	"minimum-stability": "dev",
 	"prefer-stable": true,
 	"extra": {
-		"mirror-repo": "Automattic/jetpack-reach-plugin",
+		"mirror-repo": "Automattic/jetpack-publicize-plugin",
 		"release-branch-prefix": "reach",
-		"wp-plugin-slug": "jetpack-reach"
+		"wp-plugin-slug": "jetpack-publicize"
 	},
 	"config": {
 		"allow-plugins": {
