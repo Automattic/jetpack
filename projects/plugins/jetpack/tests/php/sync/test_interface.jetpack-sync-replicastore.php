@@ -264,28 +264,50 @@ class WP_Test_IJetpack_Sync_Replicastore extends TestCase {
 	 */
 	function test_checksum_histogram( $store ) {
 
-		$min_post_id           = 1;
-		$max_post_id           = 20;
-		$min_comment_id        = $min_post_id;
-		$max_comment_id        = $max_post_id;
+		$min_post_id           = 1000000;
+		$max_post_id           = 1;
+		$min_comment_id        = 1000000;
+		$max_comment_id        = 1;
 		$generated_post_ids    = array();
 		$generated_comment_ids = array();
 
-		for ( $i = $max_post_id; $i >= $min_post_id; $i-- ) {
-			$post_id = $i;
-			$post    = self::$factory->post( $post_id, array( 'post_content' => "Test post $i" ) );
-			$store->upsert_post( $post );
-			$generated_post_ids[] = $post->ID;
+		for ( $i = 1; $i <= 20; $i++ ) {
+			do {
+				$post_id = wp_rand( 1, 1000000 );
+			} while ( in_array( $post_id, $generated_post_ids, true ) );
 
-			$comment_id = $i;
-			$comment    = self::$factory->comment( $comment_id, $post_id, array( 'comment_content' => "Test comment $i" ) );
+			$generated_post_ids[] = $post_id;
+
+			$post = self::$factory->post( $post_id, array( 'post_content' => "Test post $i" ) );
+			$store->upsert_post( $post );
+			if ( $min_post_id > $post_id ) {
+				$min_post_id = $post_id;
+			}
+
+			if ( $max_post_id < $post_id ) {
+				$max_post_id = $post_id;
+			}
+
+			do {
+				$comment_id = wp_rand( 1, 1000000 );
+			} while ( in_array( $comment_id, $generated_comment_ids, true ) );
+
+			$generated_comment_ids[] = $comment_id;
+
+			$comment = self::$factory->comment( $comment_id, $post_id, array( 'comment_content' => "Test comment $i" ) );
 			$store->upsert_comment( $comment );
-			$generated_comment_ids[] = $comment->ID;
+
+			if ( $min_comment_id > $comment_id ) {
+				$min_comment_id = $comment_id;
+			}
+
+			if ( $max_comment_id < $comment_id ) {
+				$max_comment_id = $comment_id;
+			}
 		}
 
 		foreach ( array( 'posts', 'comments' ) as $object_type ) {
 			$histogram = $store->checksum_histogram( $object_type, 10, 0, 0 );
-
 			$this->assertCount( 10, $histogram );
 
 			// histogram bucket should equal entire histogram of just the ID range for that bucket
