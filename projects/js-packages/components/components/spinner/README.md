@@ -1,4 +1,7 @@
-# Spinner
+# Spinner (DEPRECATED)
+
+## We encourage to use [core Spinner](https://github.com/WordPress/gutenberg/tree/trunk/packages/components/src/spinner#readme) component instead
+---------
 
 Spinner is a React component for rendering a loading indicator.
 
