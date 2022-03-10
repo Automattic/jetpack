@@ -49,9 +49,9 @@ export default function QRPost() {
 		[]
 	);
 
-	const { url: siteLogoUrl } = useSiteLogo();
+	const { dataUrl: siteLogoUrl } = useSiteLogo( { generateDataUrl: true } );
 	const codeLogo = siteLogoUrl || jetpackLogoUrl;
-	
+
 	const codeContent = `${ title } ${ permalink }`;
 
 	return (
