@@ -36,37 +36,16 @@ class Google_Fonts_Provider extends \WP_Webfonts_Provider {
 	 *
 	 * Hook this function into `wp_head` to enable the preconnect link.
 	 *
-	 * @deprecated 0.2.0 Use Automattic\Jetpack\Fonts\Google_Fonts_Provider::font_source_resource_hint() instead.
+	 * @deprecated 0.2.0 Use Automattic\Jetpack\Fonts\Utils::font_source_resource_hint() instead.
 	 *
 	 * @return void
 	 */
 	public static function preconnect_font_source() {
-		_deprecated_function( __METHOD__, '0.2.0', 'Automattic\\Jetpack\\Fonts\\Google_Fonts_Provider::font_source_resource_hint' );
+		_deprecated_function( __METHOD__, '0.2.0', 'Automattic\\Jetpack\\Fonts\\Utils::font_source_resource_hint' );
 
 		$fonts_url = \set_url_scheme( 'https://fonts.gstatic.com' ); ?>
 <link rel="preconnect" href="<?php echo esc_url( $fonts_url ); ?>" crossorigin>
 		<?php
-	}
-
-	/**
-	 * Adds a preconnect link for improving performance when downloading Google Font files.
-	 * Only do so if the site supports the Webfonts API.
-	 *
-	 * @param array  $urls          Array of resources and their attributes, or URLs to print for resource hints.
-	 * @param string $relation_type The relation type the URLs are printed for, e.g. 'preconnect' or 'prerender'.
-	 */
-	public static function font_source_resource_hint( $urls, $relation_type ) {
-		if (
-			'preconnect' === $relation_type
-			&& class_exists( 'WP_Webfonts_Provider' )
-		) {
-			$urls[] = array(
-				'href' => 'https://fonts.gstatic.com',
-				'crossorigin',
-			);
-		}
-
-		return $urls;
 	}
 
 	/**
