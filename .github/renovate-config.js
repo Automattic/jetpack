@@ -5,7 +5,7 @@ module.exports = {
 	branchPrefix: 'renovate/',
 	allowPlugins: true,
 	allowScripts: true,
-	gitAuthor: 'Renovate Bot <bot@renovateapp.com>',
+	gitAuthor: 'Renovate Bot (self-hosted) <bot@renovateapp.com>',
 	platform: 'github',
 	repositories: [ 'Automattic/jetpack' ],
 
