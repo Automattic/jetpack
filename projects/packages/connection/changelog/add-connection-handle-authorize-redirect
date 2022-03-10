@@ -1,0 +1,4 @@
+Significance: patch
+Type: added
+
+Handle the Authorization Redirect from the Connection package
