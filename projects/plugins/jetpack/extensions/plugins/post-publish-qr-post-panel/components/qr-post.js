@@ -58,7 +58,7 @@ export default function QRPost() {
 		<div ref={ wrapperElementRef }>
 			<QRCode
 				value={ codeContent }
-				size={ 248 }
+				size={ 238 }
 				imageSettings={
 					codeLogo && {
 						src: codeLogo,
