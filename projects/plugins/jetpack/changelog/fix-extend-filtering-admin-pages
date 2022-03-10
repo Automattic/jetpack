@@ -1,4 +1,4 @@
 Significance: patch
 Type: other
 
-Admin pages: extend wp_kses() filter to allow inline style.
+Admin pages: remove wp_kses() as it's not needed for static.html.
