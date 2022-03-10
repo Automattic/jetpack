@@ -18,13 +18,12 @@ import Blocks from './_inc/blocks';
 import Controls from './_inc/controls';
 import Inspector from './_inc/inspector';
 import Context from './_inc/context';
-import { flashIcon } from '../../shared/icons';
 import { isPriceValid, minimumTransactionAmountForCurrency } from '../../shared/currencies';
 import getConnectUrl from '../../shared/get-connect-url';
 import './editor.scss';
-import useAutosaveAndRedirect from '../../shared/use-autosave-and-redirect';
 import ViewSelector from './_inc/view-selector';
 import InvalidSubscriptionWarning from './_inc/invalid-subscription-warning';
+import StripeConnectToolbarGroup from '../../shared/components/stripe-connect-toolbar-group';
 
 /**
  * @typedef { import('./plan').Plan } Plan
@@ -338,8 +337,6 @@ function Edit( props ) {
 	const shouldShowConnectButton = () =>
 		! shouldUpgrade && apiState !== API_STATE_CONNECTED && connectURL;
 
-	const { autosaveAndRedirect } = useAutosaveAndRedirect( connectURL );
-
 	const isSmallViewport = useViewportMatch( 'medium', '<' );
 
 	if ( apiState === API_STATE_LOADING && ! isPreview ) {
@@ -358,17 +355,13 @@ function Edit( props ) {
 
 	return (
 		<>
-			{ shouldShowConnectButton() && (
-				<BlockControls group="block">
-					<ToolbarButton
-						icon={ flashIcon }
-						onClick={ autosaveAndRedirect }
-						className="connect-stripe components-tab-button"
-					>
-						{ __( 'Connect Stripe', 'jetpack' ) }
-					</ToolbarButton>
-				</BlockControls>
-			) }
+			<BlockControls>
+				<StripeConnectToolbarGroup
+					blockName="premium-content"
+					connectUrl={ connectURL }
+					isVisible={ shouldShowConnectButton() }
+				/>
+			</BlockControls>
 
 			<ViewSelector
 				options={ tabs }
