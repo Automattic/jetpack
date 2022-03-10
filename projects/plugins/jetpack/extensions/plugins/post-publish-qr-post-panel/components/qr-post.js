@@ -30,20 +30,14 @@ export default function QRPost() {
 	);
 
 	const codeContent = `${ title } ${ permalink }`;
-	const { url: siteLogologoUrl } = useSiteLogo();
+	const data = useSiteLogo( { generateDataUrl: true } );
+	const { dataUrl: src } = data;
 
 	return (
 		<QRCode
 			value={ codeContent }
-			size={ 248 }
-			imageSettings={
-				siteLogologoUrl && {
-					src: siteLogologoUrl,
-					width: 48,
-					height: 48,
-					excavate: true,
-				}
-			}
+			size={ 238 }
+			imageSettings={ src && { src, width: 48, height: 48, excavate: true } }
 			renderAs="canvas"
 			level="H"
 		/>
