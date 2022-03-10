@@ -50,7 +50,7 @@ function render_block( $attr, $content ) {
 		return $content;
 	}
 
-	$simple_payments = Jetpack_Simple_Payments::getInstance();
+	$simple_payments = Jetpack_Simple_Payments::get_instance();
 
 	if ( ! $simple_payments->is_valid( $attr ) ) {
 		return '';

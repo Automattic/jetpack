@@ -2,6 +2,10 @@
 
 ### This is a list detailing changes for the Jetpack RNA Connection Component releases.
 
+## 0.17.2 - 2022-03-09
+### Changed
+- Updated package dependencies.
+
 ## 0.17.1 - 2022-03-08
 ### Added
 - Connection: Add footer prop for ConnectScreen
