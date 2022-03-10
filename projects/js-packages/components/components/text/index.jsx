@@ -31,7 +31,7 @@ const Text = ( { variant, children, component, className, ...componentProps } ) 
 Text.propTypes = {
 	variant: PropTypes.oneOf( Object.keys( VARIANTS_MAPPING ) ),
 	children: PropTypes.node,
-	component: PropTypes.elementType,
+	component: PropTypes.oneOfType( [ PropTypes.elementType, PropTypes.string ] ),
 };
 
 Text.defaultProps = {
