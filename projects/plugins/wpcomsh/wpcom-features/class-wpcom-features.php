@@ -15,6 +15,13 @@ class WPCOM_Features {
 	/*
 	 * Private const for every mapped purchase.
 	*/
+	private const SPACE_10GB                        = '1gb_space_upgrade'; // 9
+	private const SPACE_25GB                        = '5gb_space_upgrade'; // 10
+	private const SPACE_50GB                        = '10gb_space_upgrade'; // 11
+	private const SPACE_100GB                       = '50gb_space_upgrade'; // 19
+	private const SPACE_200GB                       = '100gb_space_upgrade'; // 20
+	private const SPACE_3GB                         = '3gb_space_upgrade'; // 21
+	private const SPACE_UNLIMITED                   = 'unlimited_space'; // 48
 	private const WPCOM_SEARCH                      = 'wpcom_search'; // 800
 	private const WPCOM_SEARCH_MONTHLY              = 'wpcom_search_monthly'; // 801
 	private const YOAST_PREMIUM                     = 'yoast_premium'; // 900
@@ -136,6 +143,7 @@ class WPCOM_Features {
 	public const SOCIAL_PREVIEWS               = 'social-previews';
 	public const SPACE                         = 'space';
 	public const SUPPORT                       = 'support';
+	public const UPGRADED_UPLOAD_FILETYPES     = 'upgraded_upload_filetypes';
 	public const UNLIMITED_THEMES              = 'unlimited_themes';
 	public const UPLOAD_VIDEO_FILES            = 'upload-video-files';
 	public const VAULTPRESS_AUTOMATED_RESTORES = 'vaultpress-automated-restores';
@@ -406,6 +414,17 @@ class WPCOM_Features {
 		self::SEARCH                        => array(
 			self::WPCOM_SEARCH,
 			self::WPCOM_SEARCH_MONTHLY,
+			self::WP_P2_PLUS_MONTHLY,
+		),
+		self::UPGRADED_UPLOAD_FILETYPES     => array(
+			self::SPACE_3GB,
+			self::SPACE_10GB,
+			self::SPACE_25GB,
+			self::SPACE_50GB,
+			self::SPACE_100GB,
+			self::SPACE_200GB,
+			self::SPACE_UNLIMITED,
+			self::WPCOM_PERSONAL_AND_HIGHER_PLANS,
 			self::WP_P2_PLUS_MONTHLY,
 		),
 	);

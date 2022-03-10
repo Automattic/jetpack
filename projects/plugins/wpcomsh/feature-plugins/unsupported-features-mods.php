@@ -7,8 +7,6 @@
  * @package wpcomsh
  */
 
-define( 'ALLOWED_MIMES', 'jpg jpeg png gif pdf doc ppt odt pptx docx pps ppsx xls xlsx key' );
-
 /**
  * If this site does NOT have the 'options-permalink' feature, remove the Settings > Permalinks submenu item.
  */
@@ -48,23 +46,37 @@ function wpcomsh_maybe_disable_permalink_page() {
 }
 add_action( 'load-options-permalink.php', 'wpcomsh_maybe_disable_permalink_page' );
 
-function wpcomsh_restrict_mimetypes_unsupported_plan( $mimes ) {
-	if ( Atomic_Plan_Manager::has_atomic_supported_plan() ) {
-		return $mimes;
+/**
+ * Restricts the allowed mime types if the site have does NOT have access to the required feature.
+ *
+ * @param array mimes Mime types keyed by the file extension regex corresponding to those types.
+ * @return array Allowed mime types.
+ */
+function wpcomsh_maybe_restrict_mimetypes( $mimes ) {
+	$disallowed_mimes = array();
+	if ( ! wpcom_site_has_feature( WPCOM_Features::UPGRADED_UPLOAD_FILETYPES ) ) {
+		// Copied from WPCOM (see `WPCOM_UPLOAD_FILETYPES_FOR_UPGRADES` in `.config/wpcom-options.php`).
+		$upgraded_upload_filetypes = 'mp3 m4a wav ogg zip txt tiff bmp';
+		$disallowed_mimes          = array_merge( $disallowed_mimes, explode( ' ', $upgraded_upload_filetypes ) );
 	}
-	$site_exts  = explode( ' ', ALLOWED_MIMES );
-	$free_mimes = array();
-	foreach ( $site_exts as $ext ) {
+
+	if ( ! wpcom_site_has_feature( WPCOM_Features::VIDEOPRESS ) ) {
+		// Copied from WPCOM (see `WPCOM_UPLOAD_FILETYPES_FOR_VIDEOS` in `.config/wpcom-options.php`).
+		// The `ttml` extension is set by `wp-content/mu-plugins/videopress/subtitles.php`.
+		$video_upload_filetypes = 'ogv mp4 m4v mov wmv avi mpg 3gp 3g2 ttml';
+		$disallowed_mimes       = array_merge( $disallowed_mimes, explode( ' ', $video_upload_filetypes ) );
+	}
+
+	foreach ( $disallowed_mimes as $disallowed_mime ) {
 		foreach ( $mimes as $ext_pattern => $mime ) {
-			if ( $ext != '' && strpos( $ext_pattern, $ext ) !== false ) {
-				$free_mimes[ $ext_pattern ] = $mime;
-			}
+			if ( strpos( $ext_pattern, $disallowed_mime ) !== false )
+				unset( $mimes[ $ext_pattern ] );
 		}
 	}
 
-	return $free_mimes;
+	return $mimes;
 }
-add_filter( 'upload_mimes', 'wpcomsh_restrict_mimetypes_unsupported_plan', 3 );
+add_filter( 'upload_mimes', 'wpcomsh_maybe_restrict_mimetypes', PHP_INT_MAX );
 
 /**
  * Force calypso plugins page when site don't have supported WPCOM plan
