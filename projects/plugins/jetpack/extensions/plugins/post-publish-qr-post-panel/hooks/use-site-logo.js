@@ -49,7 +49,10 @@ export default function useSiteLogo( { generateDataUrl = false } ) {
 
 	const image = new Image();
 
-	// Apply image crossorigin attribute to prevent CORS errors.
+	/*
+	 * Apply image crossorigin attribute to prevent CORS errors.
+	 * https://developer.wordpress.org/block-editor/reference-guides/filters/editor-filters/#media-crossorigin
+	 */
 	const imgCrossOrigin = applyFilters( 'media.crossOrigin', undefined, mediaItemData.url );
 
 	if ( typeof imgCrossOrigin === 'string' ) {
@@ -66,8 +69,8 @@ export default function useSiteLogo( { generateDataUrl = false } ) {
 			setDataUrl( canvas.toDataURL( 'image/png' ) );
 		} catch ( error ) {
 			/* eslint-disable no-console */
-			console.error( 'Error generating QR code image:', error );
-			console.error(
+			console.warn( 'Error generating QR code extensions post-publish-qr-post-panel: ', error );
+			console.warn(
 				"In case it's a cross-origin issue, take a look at https://developer.wordpress.org/block-editor/reference-guides/filters/editor-filters/#media-crossorigin"
 			);
 			/* eslint-enable no-console */
