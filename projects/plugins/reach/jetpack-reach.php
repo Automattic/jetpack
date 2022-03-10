@@ -37,7 +37,7 @@ define( 'JETPACK_REACH_PLUGIN_DIR', plugin_dir_path( __FILE__ ) );
 define( 'JETPACK_REACH_PLUGIN_ROOT_FILE', __FILE__ );
 define( 'JETPACK_REACH_PLUGIN_ROOT_FILE_RELATIVE_PATH', plugin_basename( __FILE__ ) );
 define( 'JETPACK_REACH_PLUGIN_SLUG', 'jetpack-reach' );
-define( 'JETPACK_REACH_PLUGIN_NAME', 'Jetpack reach' );
+define( 'JETPACK_REACH_PLUGIN_NAME', 'Jetpack Reach' );
 define( 'JETPACK_REACH_PLUGIN_URI', 'https://jetpack.com/jetpack-reach' );
 define( 'JETPACK_REACH_PLUGIN_FOLDER', dirname( plugin_basename( __FILE__ ) ) );
 
