@@ -1,0 +1,4 @@
+Significance: patch
+Type: bugfix
+
+Fix missing "Connect User" button after restoring connection.
