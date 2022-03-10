@@ -4,6 +4,7 @@
 const isJetpackDraftMode = require( './jetpack-draft' );
 const { spawnSync } = require( 'child_process' );
 const chalk = require( 'chalk' );
+const inquirer = require( 'inquirer' );
 
 /**
  * Checks if changelog files are required.
@@ -40,8 +41,25 @@ function checkChangelogFiles() {
 			)
 		);
 	} else {
+		const runChangelog = promptChangelog();
+		console.log( runChangelog );
 		process.exitCode = 1;
 	}
+}
+
+/**
+ * Prompts for for if we want to run the changelog automatically.
+ *
+ * @returns {boolean} - the confirmation answer.
+ */
+async function promptChangelog() {
+	const response = await inquirer.prompt( {
+		type: 'confirm',
+		name: 'confirm',
+		message: 'Projects needing changelog found. Run changelogger?',
+		default: true,
+	} );
+	return response.confirm;
 }
 
 checkChangelogFiles();
