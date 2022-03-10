@@ -2,6 +2,10 @@
 
 ### This is a list detailing changes for the Jetpack RNA Components package releases.
 
+## 0.10.9 - 2022-03-09
+### Added
+- RNA: Add ThemeProvider
+
 ## 0.10.8 - 2022-03-08
 ### Added
 - Add optional link to the Module name in the JetpackFooter component
