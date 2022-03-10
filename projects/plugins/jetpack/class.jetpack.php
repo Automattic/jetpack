@@ -865,6 +865,9 @@ class Jetpack {
 
 		// Register product descriptions for partner coupon usage.
 		add_filter( 'jetpack_partner_coupon_products', array( $this, 'get_partner_coupon_product_descriptions' ) );
+
+		// Actions for conditional recommendations.
+		add_action( 'plugins_loaded', array( 'Jetpack_Recommendations', 'init_conditional_recommendation_actions' ) );
 	}
 
 	/**

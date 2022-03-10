@@ -18,6 +18,7 @@ import analytics from 'lib/analytics';
 import {
 	addSelectedRecommendation as addSelectedRecommendationAction,
 	addSkippedRecommendation as addSkippedRecommendationAction,
+	addViewedRecommendation as addViewedRecommendationAction,
 	getNextRoute,
 	updateRecommendationsStep as updateRecommendationsStepAction,
 } from 'state/recommendations';
@@ -27,6 +28,7 @@ const FeaturePromptComponent = props => {
 		activateFeature,
 		addSelectedRecommendation,
 		addSkippedRecommendation,
+		addViewedRecommendation,
 		ctaText,
 		description,
 		descriptionLink,
@@ -40,7 +42,8 @@ const FeaturePromptComponent = props => {
 
 	useEffect( () => {
 		updateRecommendationsStep( stepSlug );
-	}, [ stepSlug, updateRecommendationsStep ] );
+		addViewedRecommendation( stepSlug );
+	}, [ stepSlug, updateRecommendationsStep, addViewedRecommendation ] );
 
 	const onExternalLinkClick = useCallback( () => {
 		analytics.tracks.recordEvent( 'jetpack_recommended_feature_learn_more_click', {
@@ -94,6 +97,7 @@ const FeaturePrompt = connect(
 	( dispatch, ownProps ) => ( {
 		addSelectedRecommendation: stepSlug => dispatch( addSelectedRecommendationAction( stepSlug ) ),
 		addSkippedRecommendation: stepSlug => dispatch( addSkippedRecommendationAction( stepSlug ) ),
+		addViewedRecommendation: stepSlug => dispatch( addViewedRecommendationAction( stepSlug ) ),
 		updateRecommendationsStep: step => dispatch( updateRecommendationsStepAction( step ) ),
 		...mapDispatchToProps( dispatch, ownProps.stepSlug ),
 	} )

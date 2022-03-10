@@ -18,6 +18,7 @@ import { Summary } from './summary';
 import QueryRecommendationsData from 'components/data/query-recommendations-data';
 import QueryRecommendationsProductSuggestions from 'components/data/query-recommendations-product-suggestions';
 import QueryRecommendationsUpsell from 'components/data/query-recommendations-upsell';
+import QueryRecommendationsConditional from 'components/data/query-recommendations-conditional';
 import QueryRewindStatus from 'components/data/query-rewind-status';
 import QuerySite from 'components/data/query-site';
 import QuerySitePlugins from 'components/data/query-site-plugins';
@@ -55,6 +56,9 @@ const RecommendationsComponent = props => {
 		case RECOMMENDATION_WIZARD_STEP.SITE_ACCELERATOR:
 			redirectPath = '/site-accelerator';
 			break;
+		case RECOMMENDATION_WIZARD_STEP.PUBLICIZE:
+			redirectPath = '/publicize';
+			break;
 		case RECOMMENDATION_WIZARD_STEP.SUMMARY:
 			redirectPath = '/summary';
 			break;
@@ -67,6 +71,7 @@ const RecommendationsComponent = props => {
 			<QueryRecommendationsData />
 			<QueryRecommendationsProductSuggestions />
 			<QueryRecommendationsUpsell />
+			<QueryRecommendationsConditional />
 			<QueryRewindStatus />
 			<QuerySite />
 			<QuerySitePlugins />
@@ -100,6 +105,9 @@ const RecommendationsComponent = props => {
 					</Route>
 					<Route path="/recommendations/site-accelerator">
 						<FeaturePrompt stepSlug="site-accelerator" />
+					</Route>
+					<Route path="/recommendations/publicize">
+						<FeaturePrompt stepSlug="publicize" />
 					</Route>
 					<Route path="/recommendations/summary">
 						<Summary />

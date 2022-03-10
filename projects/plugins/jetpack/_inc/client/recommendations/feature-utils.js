@@ -41,6 +41,13 @@ export const mapStateToSummaryFeatureProps = ( state, featureSlug ) => {
 				summaryActivateButtonLabel: __( 'Enable', 'jetpack' ),
 				configLink: '#/settings?term=cdn',
 			};
+		case 'publicize':
+			return {
+				configureButtonLabel: __( 'Settings', 'jetpack' ),
+				displayName: __( 'Publicize', 'jetpack' ),
+				summaryActivateButtonLabel: __( 'Enable', 'jetpack' ),
+				configLink: '#/settings?term=publicize',
+			};
 		case 'woocommerce':
 			return {
 				configureButtonLabel: __( 'Settings', 'jetpack' ),
@@ -88,6 +95,12 @@ export const mapDispatchToProps = ( dispatch, featureSlug ) => {
 							'tiled-gallery': true,
 						} )
 					);
+				},
+			};
+		case 'publicize':
+			return {
+				activateFeature: () => {
+					return dispatch( updateSettings( { publicize: true } ) );
 				},
 			};
 		case 'woocommerce':
@@ -150,7 +163,7 @@ export const getStepContent = stepSlug => {
 			};
 		case 'site-accelerator':
 			return {
-				progressValue: '99',
+				progressValue: '85',
 				question: __( 'Would you like your site to load faster?', 'jetpack' ),
 				description: __(
 					'Faster sites get better ranking in search engines and help keep visitors on your site longer. Jetpack will automatically optimize and load your images and files from our global Content Delivery Network (CDN). <ExternalLink>Learn more</ExternalLink>',
@@ -158,6 +171,21 @@ export const getStepContent = stepSlug => {
 				),
 				descriptionLink: 'https://jetpack.com/support/site-accelerator/',
 				ctaText: __( 'Enable Site Accelerator', 'jetpack' ),
+				illustrationPath: '/recommendations/site-accelerator-illustration.svg',
+			};
+		case 'publicize':
+			return {
+				progressValue: '99',
+				question: __(
+					'Automatically share your posts to social media to grow your audience.',
+					'jetpack'
+				),
+				description: __(
+					'It’s easy to share your content to a wider audience by connecting your social media accounts to Jetpack. When you publish a post, it will automatically appear on all your favorite platforms. Best of all, it’s free. <ExternalLink>Learn more</ExternalLink>',
+					'jetpack'
+				),
+				descriptionLink: 'https://jetpack.com/2020/04/01/automate-social-media-sharing-wordpress/',
+				ctaText: __( 'Enable social media sharing', 'jetpack' ),
 				illustrationPath: '/recommendations/site-accelerator-illustration.svg',
 			};
 		case 'woocommerce':

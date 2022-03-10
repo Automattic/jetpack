@@ -8,5 +8,6 @@ export const RECOMMENDATION_WIZARD_STEP = {
 	RELATED_POSTS: 'related-posts',
 	CREATIVE_MAIL: 'creative-mail',
 	SITE_ACCELERATOR: 'site-accelerator',
+	PUBLICIZE: 'publicize',
 	SUMMARY: 'summary',
 };
