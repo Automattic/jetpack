@@ -124,6 +124,7 @@ class WPCOM_Features {
 	public const DONATIONS                     = 'donations';
 	public const FREE_BLOG                     = 'free-blog';
 	public const GOOGLE_ANALYTICS              = 'google-analytics';
+	public const MANAGE_PLUGINS                = 'manage-plugins';
 	public const LIVE_SUPPORT                  = 'live_support';
 	public const NO_ADVERTS_NO_ADVERTS_PHP     = 'no-adverts/no-adverts.php';
 	public const NO_WPCOM_BRANDING             = 'no-wpcom-branding';
@@ -407,6 +408,11 @@ class WPCOM_Features {
 		self::OPTIONS_PERMALINK             => array(
 			self::WPCOM_MANAGED_PLANS,
 			self::WPCOM_BUSINESS_AND_HIGHER_PLANS,
+		),
+		// Atomic only feature. Can upload, install, and activate any 3rd party plugin.
+		self::MANAGE_PLUGINS                => array(
+			self::WPCOM_BUSINESS_AND_HIGHER_PLANS,
+			self::WPCOM_MANAGED_PLANS,
 		),
 		self::RECURRING_PAYMENTS            => array(
 			self::WPCOM_PERSONAL_AND_HIGHER_PLANS,

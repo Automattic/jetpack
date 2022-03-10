@@ -79,11 +79,11 @@ function wpcomsh_maybe_restrict_mimetypes( $mimes ) {
 add_filter( 'upload_mimes', 'wpcomsh_maybe_restrict_mimetypes', PHP_INT_MAX );
 
 /**
- * Force calypso plugins page when site don't have supported WPCOM plan
- * Prevent users from directly accessing plugins page
+ * Redirect plugins.php and plugin-install.php to their Calypso counterparts if this site doesn't have the
+ * MANAGE_PLUGINS feature.
  */
-function wpcomsh_force_calypso_plugin_pages_on_unsupported_plan() {
-	if ( Atomic_Plan_Manager::has_atomic_supported_plan() ) {
+function wpcomsh_maybe_redirect_to_calypso_plugin_pages() {
+	if ( wpcom_site_has_feature( WPCOM_Features::MANAGE_PLUGINS ) ) {
 		return;
 	}
 
@@ -107,7 +107,7 @@ function wpcomsh_force_calypso_plugin_pages_on_unsupported_plan() {
 	}
 }
 
-add_action( 'plugins_loaded', 'wpcomsh_force_calypso_plugin_pages_on_unsupported_plan' );
+add_action( 'plugins_loaded', 'wpcomsh_maybe_redirect_to_calypso_plugin_pages' );
 
 /**
  * This function manages the feature that allows the user to hide the "WP.com Footer Credit".
