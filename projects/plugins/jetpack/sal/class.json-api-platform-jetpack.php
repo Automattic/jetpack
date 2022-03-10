@@ -6,6 +6,7 @@
  */
 
 require_once __DIR__ . '/class.json-api-platform.php';
+
 /**
  * Base class for WPORG_Platform, which extends SAL_Platform
  */
