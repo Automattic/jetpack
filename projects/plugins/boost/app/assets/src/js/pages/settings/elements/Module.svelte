@@ -38,6 +38,8 @@
 		try {
 			if ( await updateModuleState( slug, ! $isEnabled ) ) {
 				dispatch( 'enabled' );
+			} else {
+				dispatch( 'disabled' );
 			}
 		} catch ( caughtError ) {
 			error = caughtError;

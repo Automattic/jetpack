@@ -29,7 +29,7 @@ const defaultOpts = yargs =>
 			describe: 'WP port',
 		} )
 		.option( 'ngrok', {
-			type: 'bool',
+			type: 'boolean',
 			describe: 'Flag to launch ngrok process',
 		} );
 
@@ -466,7 +466,7 @@ export function dockerDefine( yargs ) {
 						defaultOpts( yargCmd ).option( 'detached', {
 							alias: 'd',
 							describe: 'Launch in detached mode',
-							type: 'bool',
+							type: 'boolean',
 						} ),
 					handler: async argv => await defaultDockerCmdHandler( argv ),
 				} )

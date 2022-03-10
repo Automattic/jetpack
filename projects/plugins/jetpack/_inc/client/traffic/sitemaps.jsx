@@ -12,12 +12,12 @@ import { get } from 'lodash';
 import { createInterpolateElement } from '@wordpress/element';
 import { __, _x } from '@wordpress/i18n';
 import { getRedirectUrl } from '@automattic/jetpack-components';
+import { ExternalLink } from '@wordpress/components';
 
 /**
  * Internal dependencies
  */
 import analytics from 'lib/analytics';
-import ExternalLink from 'components/external-link';
 import { FormFieldset } from 'components/forms';
 import { withModuleSettingsFormHelpers } from 'components/module-settings/with-module-settings-form-helpers';
 import { ModuleToggle } from 'components/module-toggle';
@@ -40,8 +40,6 @@ export class Sitemaps extends React.Component {
 				<ExternalLink
 					// eslint-disable-next-line react/jsx-no-bind
 					onClick={ trackSitemapUrl }
-					icon={ true }
-					target="_blank"
 					rel="noopener noreferrer"
 					href={ sitemap }
 				/>

@@ -141,7 +141,7 @@ export function CalendlyEdit( props ) {
 					className="components-placeholder__input"
 				/>
 				<div>
-					<Button isSecondary type="submit">
+					<Button variant="secondary" type="submit">
 						{ _x( 'Embed', 'button label', 'jetpack' ) }
 					</Button>
 				</div>

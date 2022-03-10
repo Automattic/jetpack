@@ -19,20 +19,11 @@ import { getDataByKey, updateRecommendationsData } from 'state/recommendations';
 import './style.scss';
 
 const CheckboxAnswerComponent = ( { answerKey, checked, info, title, updateCheckboxAnswer } ) => {
-	const toggleCheckbox = useCallback(
-		e => {
-			if ( e.target.type !== 'checkbox' ) {
-				return;
-			}
-			const newCheckedValue = ! checked;
-			updateCheckboxAnswer( { [ answerKey ]: newCheckedValue } );
-		},
-		[ answerKey, checked, updateCheckboxAnswer ]
-	);
-
-	const stopEventPropagation = useCallback( e => {
-		e.stopPropagation();
-	}, [] );
+	const toggleCheckbox = useCallback( () => updateCheckboxAnswer( { [ answerKey ]: ! checked } ), [
+		answerKey,
+		checked,
+		updateCheckboxAnswer,
+	] );
 
 	const onPopoverClick = useCallback( () => {
 		analytics.tracks.recordEvent( 'jetpack_recommendations_site_type_popover_click', {
@@ -41,26 +32,20 @@ const CheckboxAnswerComponent = ( { answerKey, checked, info, title, updateCheck
 	}, [ answerKey ] );
 
 	return (
-		<div
-			className={ classNames( 'jp-checkbox-answer__container', { checked } ) }
-			onClick={ toggleCheckbox }
-			onKeyPress={ toggleCheckbox }
-			role="checkbox"
-			aria-checked={ checked }
-			tabIndex={ 0 }
-		>
-			<div className="jp-checkbox-answer__checkbox">
-				<input id={ answerKey } type="checkbox" defaultChecked={ checked } tabIndex={ -1 } />
+		<div className="jp-checkbox-answer__container">
+			<div className={ classNames( 'jp-checkbox-answer__checkbox', { checked } ) }>
+				<input
+					id={ answerKey }
+					class="jp-checkbox-answer__checkbox-input"
+					type="checkbox"
+					checked={ checked }
+					onChange={ toggleCheckbox }
+				/>
+				<label htmlFor={ answerKey } className="jp-checkbox-answer__title">
+					{ title }
+				</label>
 			</div>
-			<label htmlFor={ answerKey } className="jp-checkbox-answer__title">
-				{ title }
-			</label>
-			<div
-				className="jp-checkbox-answer__info"
-				onClick={ stopEventPropagation }
-				onKeyPress={ stopEventPropagation }
-				role="presentation"
-			>
+			<div className="jp-checkbox-answer__info">
 				<InfoPopover position="top right" onClick={ onPopoverClick }>
 					{ info }
 				</InfoPopover>
