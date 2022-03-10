@@ -46,9 +46,9 @@ class Jetpack_Publicize {
 				$config->ensure(
 					'connection',
 					array(
-						'slug'     => JETPACK_REACH_PLUGIN_SLUG,
-						'name'     => JETPACK_REACH_PLUGIN_NAME,
-						'url_info' => JETPACK_REACH_PLUGIN_URI,
+						'slug'     => JETPACK_PUBLICIZE_PLUGIN_SLUG,
+						'name'     => JETPACK_PUBLICIZE_PLUGIN_NAME,
+						'url_info' => JETPACK_PUBLICIZE_PLUGIN_URI,
 					)
 				);
 				// Sync package.
@@ -78,7 +78,7 @@ class Jetpack_Publicize {
 		Assets::register_script(
 			'jetpack-publicize',
 			'build/index.js',
-			JETPACK_REACH_PLUGIN_ROOT_FILE,
+			JETPACK_PUBLICIZE_PLUGIN_ROOT_FILE,
 			array(
 				'in_footer'  => true,
 				'textdomain' => 'jetpack-publicize',

@@ -33,20 +33,20 @@ if ( ! defined( 'ABSPATH' ) ) {
 	exit;
 }
 
-define( 'JETPACK_REACH_PLUGIN_DIR', plugin_dir_path( __FILE__ ) );
-define( 'JETPACK_REACH_PLUGIN_ROOT_FILE', __FILE__ );
-define( 'JETPACK_REACH_PLUGIN_ROOT_FILE_RELATIVE_PATH', plugin_basename( __FILE__ ) );
-define( 'JETPACK_REACH_PLUGIN_SLUG', 'jetpack-publicize' );
-define( 'JETPACK_REACH_PLUGIN_NAME', 'Jetpack Publicize' );
-define( 'JETPACK_REACH_PLUGIN_URI', 'https://jetpack.com/jetpack-publicize' );
-define( 'JETPACK_REACH_PLUGIN_FOLDER', dirname( plugin_basename( __FILE__ ) ) );
+define( 'JETPACK_PUBLICIZE_PLUGIN_DIR', plugin_dir_path( __FILE__ ) );
+define( 'JETPACK_PUBLICIZE_PLUGIN_ROOT_FILE', __FILE__ );
+define( 'JETPACK_PUBLICIZE_PLUGIN_ROOT_FILE_RELATIVE_PATH', plugin_basename( __FILE__ ) );
+define( 'JETPACK_PUBLICIZE_PLUGIN_SLUG', 'jetpack-publicize' );
+define( 'JETPACK_PUBLICIZE_PLUGIN_NAME', 'Jetpack Publicize' );
+define( 'JETPACK_PUBLICIZE_PLUGIN_URI', 'https://jetpack.com/jetpack-publicize' );
+define( 'JETPACK_PUBLICIZE_PLUGIN_FOLDER', dirname( plugin_basename( __FILE__ ) ) );
 
 // Jetpack Autoloader.
-$jetpack_autoloader = JETPACK_REACH_PLUGIN_DIR . 'vendor/autoload_packages.php';
+$jetpack_autoloader = JETPACK_PUBLICIZE_PLUGIN_DIR . 'vendor/autoload_packages.php';
 if ( is_readable( $jetpack_autoloader ) ) {
 	require_once $jetpack_autoloader;
 	if ( method_exists( \Automattic\Jetpack\Assets::class, 'alias_textdomains_from_file' ) ) {
-		\Automattic\Jetpack\Assets::alias_textdomains_from_file( JETPACK_REACH_PLUGIN_DIR . 'jetpack_vendor/i18n-map.php' );
+		\Automattic\Jetpack\Assets::alias_textdomains_from_file( JETPACK_PUBLICIZE_PLUGIN_DIR . 'jetpack_vendor/i18n-map.php' );
 	}
 } else { // Something very unexpected. Error out gently with an admin_notice and exit loading.
 	if ( defined( 'WP_DEBUG' ) && WP_DEBUG ) {
