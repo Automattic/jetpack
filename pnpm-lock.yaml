@@ -1282,7 +1282,7 @@ importers:
       eslint-plugin-playwright: 0.8.0
       jetpack-e2e-commons: link:../../../../../tools/e2e-commons
 
-  projects/plugins/reach:
+  projects/plugins/publicize:
     specifiers:
       '@automattic/jetpack-base-styles': workspace:^0.1.10
       '@automattic/jetpack-components': workspace:^0.10.10-alpha
