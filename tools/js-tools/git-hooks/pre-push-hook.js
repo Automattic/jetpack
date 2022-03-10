@@ -41,7 +41,7 @@ async function checkChangelogFiles() {
 			)
 		);
 	} else {
-		const response = promptChangelog();
+		const response = await promptChangelog();
 		if ( response ) {
 			// run changelogger code
 		}
