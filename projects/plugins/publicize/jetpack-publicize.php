@@ -87,4 +87,4 @@ if ( is_readable( $jetpack_autoloader ) ) {
 }
 
 // Main plugin class.
-new Jetpack_Reach();
+new Jetpack_Publicize();
