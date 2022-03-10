@@ -15,12 +15,11 @@ class WPCOM_Features {
 	/*
 	 * Private const for every mapped purchase.
 	*/
-	private const FREE_PLAN                         = 'free_plan'; // 1
+	private const WPCOM_SEARCH                      = 'wpcom_search'; // 800
+	private const WPCOM_SEARCH_MONTHLY              = 'wpcom_search_monthly'; // 801
 	private const YOAST_PREMIUM                     = 'yoast_premium'; // 900
 	private const VALUE_BUNDLE                      = 'value_bundle'; // 1003
 	private const BUNDLE_PRO                        = 'bundle_pro'; // 1004
-	private const BUNDLE_SUPER                      = 'bundle_super'; // 1005
-	private const WPCOM_ENTERPRISE                  = 'wpcom-enterprise'; // 1007
 	private const BUSINESS_BUNDLE                   = 'business-bundle'; // 1008
 	private const PERSONAL_BUNDLE                   = 'personal-bundle'; // 1009
 	private const BLOGGER_BUNDLE                    = 'blogger-bundle'; // 1010
@@ -80,8 +79,7 @@ class WPCOM_Features {
 	private const JETPACK_SECURITY_T2_PLANS       = [ self::JETPACK_SECURITY_T2_MONTHLY, self::JETPACK_SECURITY_T2_YEARLY ];
 
 	// Jetpack "Level 3": Groups of level 2:
-	private const JETPACK_PLANS                   = [
-		self::JETPACK_FREE,
+	private const JETPACK_PERSONAL_AND_HIGHER = [
 		self::JETPACK_PERSONAL_PLANS,
 		self::JETPACK_PREMIUM_PLANS,
 		self::JETPACK_BUSINESS_PLANS,
@@ -91,17 +89,7 @@ class WPCOM_Features {
 		self::JETPACK_SECURITY_T1_PLANS,
 		self::JETPACK_SECURITY_T2_PLANS,
 	];
-	private const PAID_JETPACK_PLANS              = [
-		self::JETPACK_PERSONAL_PLANS,
-		self::JETPACK_PREMIUM_PLANS,
-		self::JETPACK_BUSINESS_PLANS,
-		self::JETPACK_COMPLETE_PLANS,
-		self::JETPACK_SECURITY_DAILY_PLANS,
-		self::JETPACK_SECURITY_REALTIME_PLANS,
-		self::JETPACK_SECURITY_T1_PLANS,
-		self::JETPACK_SECURITY_T2_PLANS,
-	];
-	private const PAID_JETPACK_PREMIUM_AND_HIGHER = [
+	private const JETPACK_PREMIUM_AND_HIGHER = [
 		self::JETPACK_PREMIUM_PLANS,
 		self::JETPACK_BUSINESS_PLANS,
 		self::JETPACK_COMPLETE_PLANS,
@@ -111,14 +99,9 @@ class WPCOM_Features {
 		self::JETPACK_SECURITY_T2_PLANS,
 	];
 
-	// get_bundle_product_ids() from wpcomstore - This is all paid plans
-	const BUNDLE_PRODUCT_IDS = [
-		self::BUNDLE_SUPER,
-		self::WPCOM_ENTERPRISE,
-		self::WPCOM_BLOGGER_AND_HIGHER_PLANS,
-		self::WP_P2_PLUS_MONTHLY,
-		self::PAID_JETPACK_PLANS,
-	];
+	// Features automatically granted to all sites regardless of their purchases are mapped to these constants.
+	private const WPCOM_ALL_SITES   = 'wpcom-all-sites';
+	private const JETPACK_ALL_SITES = 'jetpack-all-sites';
 
 	/*
 	 * Public const for every mapped feature, sorted alphabetically.
@@ -143,7 +126,9 @@ class WPCOM_Features {
 	public const PREMIUM_CONTENT_CONTAINER     = 'premium-content/container';
 	public const PREMIUM_THEMES                = 'premium-themes';
 	public const PRIVATE_WHOIS                 = 'private_whois';
+	public const RECURRING_PAYMENTS            = 'recurring-payments';
 	public const REPUBLICIZE                   = 'republicize';
+	public const SEARCH                        = 'search';
 	public const SECURITY_SETTINGS             = 'security-settings';
 	public const SEND_A_MESSAGE                = 'send-a-message';
 	public const SET_PRIMARY_CUSTOM_DOMAIN     = 'set-primary-custom-domain';
@@ -162,6 +147,7 @@ class WPCOM_Features {
 	public const VIDEOPRESS                    = 'videopress';
 	public const WHATSAPP_BUTTON               = 'whatsapp-button';
 	public const WOOP                          = 'woop';
+	public const WORDADS                       = 'wordads';
 	public const WORDADS_JETPACK               = 'wordads-jetpack';
 
 	/*
@@ -169,8 +155,7 @@ class WPCOM_Features {
 	 */
 	private const FEATURES_MAP = array(
 		self::FREE_BLOG                     => array(
-			self::FREE_PLAN,
-			self::WPCOM_BLOGGER_AND_HIGHER_PLANS,
+			self::WPCOM_ALL_SITES,
 		),
 		self::CUSTOM_DOMAIN                 => array(
 			self::WPCOM_BLOGGER_AND_HIGHER_PLANS,
@@ -189,9 +174,7 @@ class WPCOM_Features {
 			self::YOAST_PREMIUM,
 		),
 		self::SPACE                         => array(
-			self::FREE_PLAN,
-			self::WPCOM_BLOGGER_AND_HIGHER_PLANS,
-			self::WP_P2_PLUS_MONTHLY,
+			self::WPCOM_ALL_SITES,
 		),
 		self::NO_ADVERTS_NO_ADVERTS_PHP     => array(
 			self::WPCOM_PREMIUM_AND_HIGHER_PLANS,
@@ -217,16 +200,9 @@ class WPCOM_Features {
 			self::JETPACK_BUSINESS_PLANS,
 			self::WPCOM_MANAGED_PLANS,
 		),
-		/*
-		 * `google-analytics` feature.
-		 *
-		 * Active for:
-		 * - Simple and Atomic sites with Premium or up plan.
-		 * - Jetpack sites with Premium or up plan.
-		 */
 		self::GOOGLE_ANALYTICS              => array(
 			self::WPCOM_PREMIUM_AND_HIGHER_PLANS,
-			self::PAID_JETPACK_PREMIUM_AND_HIGHER,
+			self::JETPACK_PREMIUM_AND_HIGHER,
 		),
 		/*
 		 * `security settings` feature.
@@ -240,7 +216,7 @@ class WPCOM_Features {
 		 */
 		self::SECURITY_SETTINGS             => array(
 			self::WPCOM_BUSINESS_AND_HIGHER_PLANS,
-			self::JETPACK_PLANS,
+			self::JETPACK_ALL_SITES,
 			self::WPCOM_MANAGED_PLANS,
 		),
 		/*
@@ -254,7 +230,7 @@ class WPCOM_Features {
 		 */
 		self::ADVANCED_SEO                  => array(
 			self::WPCOM_BUSINESS_AND_HIGHER_PLANS,
-			self::JETPACK_PLANS,
+			self::JETPACK_ALL_SITES,
 			self::WPCOM_MANAGED_PLANS,
 		),
 		/*
@@ -268,7 +244,7 @@ class WPCOM_Features {
 		 */
 		self::UPLOAD_VIDEO_FILES            => array(
 			self::WPCOM_PREMIUM_AND_HIGHER_PLANS,
-			self::JETPACK_PLANS,
+			self::JETPACK_ALL_SITES,
 		),
 		/*
 		 * `video-hosting` feature.
@@ -282,32 +258,25 @@ class WPCOM_Features {
 		 */
 		self::VIDEO_HOSTING                 => array(
 			self::WPCOM_PREMIUM_AND_HIGHER_PLANS,
-			self::PAID_JETPACK_PREMIUM_AND_HIGHER,
+			self::JETPACK_PREMIUM_AND_HIGHER,
+		),
+		self::WORDADS                       => array(
+			self::WPCOM_PREMIUM_AND_HIGHER_PLANS,
+			self::JETPACK_PREMIUM_AND_HIGHER,
 		),
 		/*
-		 * `wordads-jetpack` feature.
-		 *
-		 * WordAds is the official WordPress.com advertising program available for site owners.
-		 * https://wordpress.com/support/wordads-and-earn/
-		 *
-		 * Active for:
-		 * - Simple and Atomic sites with Premium or up plan.
-		 * - Jetpack sites with Premium or up plan.
-		 *
-		 * TODO:
-		 *  - wordads-jetpack is mapped to wordads in Jetpack plugin here: https://git.io/JRU4w -
-		 *     projects/plugins/jetpack/class.jetpack-plan.php Line 328
-		 *  - It's hardcoded as True (Jetpack and Atomic sites)
-		 *  - We can simplify Calypso here: https://git.io/JRU4F - client/my-sites/stats/site.jsx Line 210
+		 * `wordads-jetpack` is maintained as a legacy alias of `wordads` which was used to gate
+		 * the feature in old versions of Jetpack.
+		 * @see https://github.com/Automattic/jetpack/blob/c4f8fe120e1286e85f49e20e0f7fe22e44641449/projects/plugins/jetpack/class.jetpack-plan.php#L330.
 		 */
 		self::WORDADS_JETPACK               => array(
 			self::WPCOM_PREMIUM_AND_HIGHER_PLANS,
-			self::PAID_JETPACK_PREMIUM_AND_HIGHER,
+			self::JETPACK_PREMIUM_AND_HIGHER,
 		),
 		// Jetpack all the things
 		// @todo Jetpack free plans do not support Akismet.
 		self::AKISMET                       => array(
-			self::JETPACK_PLANS,
+			self::JETPACK_ALL_SITES,
 		),
 		self::VAULTPRESS_BACKUPS            => array(
 			self::JETPACK_PREMIUM_PLANS,
@@ -352,20 +321,20 @@ class WPCOM_Features {
 		),
 		self::SEND_A_MESSAGE                => array(
 			self::WPCOM_PREMIUM_AND_HIGHER_PLANS,
-			self::JETPACK_PLANS,
+			self::JETPACK_ALL_SITES,
 		),
 		self::WHATSAPP_BUTTON               => array(
 			self::WPCOM_PREMIUM_AND_HIGHER_PLANS,
-			self::JETPACK_PLANS,
+			self::JETPACK_ALL_SITES,
 		),
 		self::SOCIAL_PREVIEWS               => array(
 			self::WPCOM_BUSINESS_AND_HIGHER_PLANS,
-			self::JETPACK_PLANS,
+			self::JETPACK_ALL_SITES,
 			self::WPCOM_MANAGED_PLANS,
 		),
 		self::DONATIONS                     => array(
 			self::WPCOM_PERSONAL_AND_HIGHER_PLANS,
-			self::PAID_JETPACK_PLANS,
+			self::JETPACK_PERSONAL_AND_HIGHER,
 		),
 		// core/video requires a paid plan.
 		self::CORE_VIDEO                    => array(
@@ -385,7 +354,7 @@ class WPCOM_Features {
 		self::CORE_AUDIO                    => array(
 			self::WP_P2_PLUS_MONTHLY,
 			self::WPCOM_PERSONAL_AND_HIGHER_PLANS,
-			self::PAID_JETPACK_PLANS,
+			self::JETPACK_PERSONAL_AND_HIGHER,
 		),
 		/*
 		 * // RePublicize feature. feature.
@@ -397,18 +366,18 @@ class WPCOM_Features {
 		self::REPUBLICIZE                   => array(
 			self::WP_P2_PLUS_MONTHLY,
 			self::WPCOM_PREMIUM_AND_HIGHER_PLANS,
-			self::PAID_JETPACK_PREMIUM_AND_HIGHER,
+			self::JETPACK_PREMIUM_AND_HIGHER,
 		),
 		// premium-content requires a paid plan.
 		self::PREMIUM_CONTENT_CONTAINER     => array(
 			self::WPCOM_PERSONAL_AND_HIGHER_PLANS,
 			self::WP_P2_PLUS_MONTHLY,
-			self::PAID_JETPACK_PLANS,
+			self::JETPACK_PERSONAL_AND_HIGHER,
 		),
 		// Everybody needs somebody
 		self::SUPPORT                       => array(
-			self::FREE_PLAN,
-			self::BUNDLE_PRODUCT_IDS,
+			self::WPCOM_ALL_SITES,
+			self::JETPACK_PERSONAL_AND_HIGHER,
 		),
 		/*
 		 * WooCommerce on all Plans is available to install.
@@ -431,7 +400,26 @@ class WPCOM_Features {
 			self::WPCOM_MANAGED_PLANS,
 			self::WPCOM_BUSINESS_AND_HIGHER_PLANS,
 		),
+		self::RECURRING_PAYMENTS            => array(
+			self::WPCOM_PERSONAL_AND_HIGHER_PLANS,
+		),
+		self::SEARCH                        => array(
+			self::WPCOM_SEARCH,
+			self::WPCOM_SEARCH_MONTHLY,
+			self::WP_P2_PLUS_MONTHLY,
+		),
 	);
+
+	/**
+	 * Checks whether the given feature is declared in our map.
+	 *
+	 * @param string $feature The featue to check.
+	 *
+	 * @return bool Whether the given feature exists.
+	 */
+	public static function feature_exists( $feature ) {
+		return ! empty( self::FEATURES_MAP[ $feature ] );
+	}
 
 	/**
 	 * Given a primitive type $needle, and an array $haystack, recursively
@@ -455,6 +443,7 @@ class WPCOM_Features {
 		}
 		return false;
 	}
+
 	/**
 	 * Given an array of $purchases and a single feature name, consult the FEATURES_MAP to determine if the feature
 	 * is included in one of the $purchases.
@@ -463,15 +452,27 @@ class WPCOM_Features {
 	 *
 	 * @param string $feature A singular feature.
 	 * @param array  $purchases A collection of purchases.
+	 * @param bool   $is_wpcom_site Whether the site is a WP.com site. True for Simple/Atomic sites, false for self-hosted Jetpack sites.
 	 *
 	 * @return bool Is the feature included in one of the purchases.
 	 */
-	public static function has_feature( $feature, $purchases ) {
-		if ( empty( $purchases ) || empty( self::FEATURES_MAP[ $feature ] ) ) {
+	public static function has_feature( $feature, $purchases, $is_wpcom_site ) {
+		if ( ! self::feature_exists( $feature ) ) {
 			return false;
 		}
+
+		$eligible_purchases = self::FEATURES_MAP[ $feature ];
+
+		// Automatically grant features that don't require any purchase.
+		if (
+			( $is_wpcom_site && in_array( self::WPCOM_ALL_SITES, $eligible_purchases ) ) ||
+			( ! $is_wpcom_site && in_array( self::JETPACK_ALL_SITES, $eligible_purchases ) )
+		) {
+			return true;
+		}
+
 		foreach ( $purchases as $purchase ) {
-			if ( self::in_array_recursive( $purchase, self::FEATURES_MAP[ $feature ] ) ) {
+			if ( self::in_array_recursive( $purchase, $eligible_purchases ) ) {
 				return true;
 			}
 		}

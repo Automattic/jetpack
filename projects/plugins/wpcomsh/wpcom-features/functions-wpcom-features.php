@@ -34,10 +34,13 @@ function wpcom_site_has_feature( $feature, $blog_id = 0 ) {
 				'Atomic sites do not support looking up features for sites other than the current site.'
 			);
 		}
+
 		// Atomic site (WPCOMSH) purchases are stored in Atomic Persistent Data as a CSV string.
 		$persistent_data = new Atomic_Persistent_Data();
 		// Retrieves that CSV & convert it to an array.
 		$purchases = str_getcsv( $persistent_data->WPCOM_PURCHASES ); // phpcs:ignore WordPress.NamingConventions
+
+		$is_wpcom_site = true;
 	} else {
 		global $wpdb;
 
@@ -64,7 +67,21 @@ function wpcom_site_has_feature( $feature, $blog_id = 0 ) {
 			 */
 			wp_cache_set( $blog_id, $purchases, $wp_cache_group, 60 * 60 * 3 );
 		}
+
+		$blog          = get_blog_details( $blog_id, false );
+		$is_wpcom_site = is_blog_wpcom( $blog ) || is_blog_atomic( $blog );
 	}
 
-	return WPCOM_Features::has_feature( $feature, $purchases );
+	return WPCOM_Features::has_feature( $feature, $purchases, $is_wpcom_site );
+}
+
+/**
+ * Checks whether the given feature exists in WordPress.com.
+ *
+ * @param string $feature The name of the feature to check.
+ *
+ * @return bool Whether the feature exists.
+ */
+function wpcom_feature_exists( $feature ) {
+	return WPCOM_Features::feature_exists( $feature );
 }
