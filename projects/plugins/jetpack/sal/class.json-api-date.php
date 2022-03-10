@@ -22,8 +22,8 @@ class WPCOM_JSON_API_Date {
 		if ( null === $date ) {
 			$timestamp = $timestamp_gmt;
 			$west      = 0;
-			$minutes   = $west;
-			$hours     = $minutes;
+			$minutes   = 0;
+			$hours     = 0;
 		} else {
 			$date_time = date_create( "$date+0000" );
 			if ( $date_time ) {
