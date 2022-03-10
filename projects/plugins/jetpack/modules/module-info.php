@@ -888,4 +888,4 @@ add_action( 'jetpack_learn_more_button_google-fonts', 'jetpack_google_fonts_more
 function jetpack_more_info_google_fonts() {
 	esc_html_e( 'A selection of Google fonts for block enabled themes.', 'jetpack' );
 }
-add_action( 'jetpack_module_more_info_google-fonts', 'jetpack_more_info_google_fonts-fonts' );
+add_action( 'jetpack_module_more_info_google-fonts', 'jetpack_more_info_google_fonts' );
