@@ -12,7 +12,7 @@ import { store as coreStore } from '@wordpress/core-data';
  * @param {boolean} params.generateDataUrl - Whether to convert the data URL to a blob. Default: false.
  * @returns {object} Site Logo object data.
  */
-export default function useSiteLogo( { generateDataUrl = false } ) {
+export default function useSiteLogo( { generateDataUrl = false } = {} ) {
 	const [ dataUrl, setDataUrl ] = useState();
 	const { id, mediaItemData } = useSelect( select => {
 		const { canUser, getEntityRecord, getEditedEntityRecord } = select( coreStore );
