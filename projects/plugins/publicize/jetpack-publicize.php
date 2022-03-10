@@ -37,7 +37,7 @@ define( 'JETPACK_REACH_PLUGIN_DIR', plugin_dir_path( __FILE__ ) );
 define( 'JETPACK_REACH_PLUGIN_ROOT_FILE', __FILE__ );
 define( 'JETPACK_REACH_PLUGIN_ROOT_FILE_RELATIVE_PATH', plugin_basename( __FILE__ ) );
 define( 'JETPACK_REACH_PLUGIN_SLUG', 'jetpack-publicize' );
-define( 'JETPACK_REACH_PLUGIN_NAME', 'Jetpack Reach' );
+define( 'JETPACK_REACH_PLUGIN_NAME', 'Jetpack Publicize' );
 define( 'JETPACK_REACH_PLUGIN_URI', 'https://jetpack.com/jetpack-publicize' );
 define( 'JETPACK_REACH_PLUGIN_FOLDER', dirname( plugin_basename( __FILE__ ) ) );
 
@@ -51,7 +51,7 @@ if ( is_readable( $jetpack_autoloader ) ) {
 } else { // Something very unexpected. Error out gently with an admin_notice and exit loading.
 	if ( defined( 'WP_DEBUG' ) && WP_DEBUG ) {
 		error_log( // phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_error_log
-			__( 'Error loading autoloader file for Jetpack Reach plugin', 'jetpack-publicize' )
+			__( 'Error loading autoloader file for Jetpack Publicize plugin', 'jetpack-publicize' )
 		);
 	}
 
@@ -65,7 +65,7 @@ if ( is_readable( $jetpack_autoloader ) ) {
 				printf(
 					wp_kses(
 						/* translators: Placeholder is a link to a support document. */
-						__( 'Your installation of Jetpack Reach is incomplete. If you installed Jetpack Reach from GitHub, please refer to <a href="%1$s" target="_blank" rel="noopener noreferrer">this document</a> to set up your development environment. Jetpack Reach must have Composer dependencies installed and built via the build command.', 'jetpack-publicize' ),
+						__( 'Your installation of Jetpack Publicize is incomplete. If you installed Jetpack Publicize from GitHub, please refer to <a href="%1$s" target="_blank" rel="noopener noreferrer">this document</a> to set up your development environment. Jetpack Publicize must have Composer dependencies installed and built via the build command.', 'jetpack-publicize' ),
 						array(
 							'a' => array(
 								'href'   => array(),

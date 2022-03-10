@@ -1,6 +1,6 @@
 <?php
 /**
- * Primary class file for the Jetpack Reach plugin.
+ * Primary class file for the Jetpack Publicize plugin.
  *
  * @package automattic/jetpack-publicize-plugin
  */
@@ -28,8 +28,8 @@ class Jetpack_Publicize {
 		Connection_Rest_Authentication::init();
 
 		$page_suffix = Admin_Menu::add_menu(
-			__( 'Jetpack Reach', 'jetpack-publicize' ),
-			_x( 'Reach', 'The Jetpack Reach product name, without the Jetpack prefix', 'jetpack-publicize' ),
+			__( 'Jetpack Publicize', 'jetpack-publicize' ),
+			_x( 'Reach', 'The Jetpack Publicize product name, without the Jetpack prefix', 'jetpack-publicize' ),
 			'manage_options',
 			'jetpack-publicize',
 			array( $this, 'plugin_settings_page' ),

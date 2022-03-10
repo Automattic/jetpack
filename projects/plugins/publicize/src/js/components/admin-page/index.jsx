@@ -26,7 +26,7 @@ const Admin = () => {
 	const { isUserConnected, isRegistered } = connectionStatus;
 	const showConnectionCard = ! isRegistered || ! isUserConnected;
 	return (
-		<AdminPage moduleName={ __( 'Jetpack Reach', 'jetpack-publicize' ) }>
+		<AdminPage moduleName={ __( 'Jetpack Publicize', 'jetpack-publicize' ) }>
 			<AdminSectionHero>
 				{ showConnectionCard ? (
 					<Container horizontalSpacing={ 3 } horizontalGap={ 3 }>
@@ -64,10 +64,10 @@ const Admin = () => {
 						<Col lg={ 1 } md={ 1 } sm={ 0 } />
 						<Col sm={ 4 } md={ 5 } lg={ 5 }>
 							<PricingCard
-								title={ __( 'Jetpack Reach', 'jetpack-publicize' ) }
+								title={ __( 'Jetpack Publicize', 'jetpack-publicize' ) }
 								priceBefore={ 9 }
 								priceAfter={ 4.5 }
-								ctaText={ __( 'Get Jetpack Reach', 'jetpack-publicize' ) }
+								ctaText={ __( 'Get Jetpack Publicize', 'jetpack-publicize' ) }
 								infoText={ __(
 									'Special introductory pricing, all renewals are at full price. 14 day money back guarantee.',
 									'jetpack-publicize'
@@ -87,10 +87,10 @@ const ConnectionSection = () => {
 	const { apiNonce, apiRoot, registrationNonce } = window.jetpackReachInitialState;
 	return (
 		<ConnectScreenRequiredPlan
-			buttonLabel={ __( 'Get Jetpack Reach', 'jetpack-publicize' ) }
+			buttonLabel={ __( 'Get Jetpack Publicize', 'jetpack-publicize' ) }
 			priceAfter={ 4.5 }
 			priceBefore={ 9 }
-			pricingTitle={ __( 'Jetpack Reach', 'jetpack-publicize' ) }
+			pricingTitle={ __( 'Jetpack Publicize', 'jetpack-publicize' ) }
 			title={ __( 'Social Media Automation for WordPress Sites', 'jetpack-publicize' ) }
 			apiRoot={ apiRoot }
 			apiNonce={ apiNonce }

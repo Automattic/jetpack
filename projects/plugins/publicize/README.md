@@ -1,8 +1,8 @@
-# Jetpack Reach
+# Jetpack Publicize
 
-Jetpack Reach plugin
+Jetpack Publicize plugin
 
-## How to install reach
+## How to install Jetpack Publicize
 
 ### Installation From Git Repo
 
@@ -16,5 +16,5 @@ Need to report a security vulnerability? Go to [https://automattic.com/security/
 
 ## License
 
-reach is licensed under [GNU General Public License v2 (or later)](./LICENSE.txt)
+Jetpack Publicize is licensed under [GNU General Public License v2 (or later)](./LICENSE.txt)
 

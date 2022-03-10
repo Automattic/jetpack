@@ -1,4 +1,4 @@
-=== Jetpack Reach ===
+=== Jetpack Publicize ===
 Contributors: automattic,
 Tags: jetpack, stuff
 Requires at least: 5.8
@@ -8,11 +8,11 @@ Stable tag: 0.1.0-alpha
 License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
 
-Reach plugin
+Jetpack Publicize plugin
 
 == Description ==
  
-Jetpack Reach makes it easy to share your site’s posts on several social media networks automatically when you publish a new post
+Jetpack Publicize makes it easy to share your site’s posts on several social media networks automatically when you publish a new post
  
 == Installation ==
  
