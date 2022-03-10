@@ -11,11 +11,11 @@ module.exports = {
 		},
 	},
 	rules: {
-		// Enforce the use of the jetpack-reach textdomain.
+		// Enforce the use of the jetpack-publicize textdomain.
 		'@wordpress/i18n-text-domain': [
 			'error',
 			{
-				allowedTextDomain: 'jetpack-reach',
+				allowedTextDomain: 'jetpack-publicize',
 			},
 		],
 	},

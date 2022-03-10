@@ -28,10 +28,10 @@ class Jetpack_Reach {
 		Connection_Rest_Authentication::init();
 
 		$page_suffix = Admin_Menu::add_menu(
-			__( 'Jetpack Reach', 'jetpack-reach' ),
-			_x( 'Reach', 'The Jetpack Reach product name, without the Jetpack prefix', 'jetpack-reach' ),
+			__( 'Jetpack Reach', 'jetpack-publicize' ),
+			_x( 'Reach', 'The Jetpack Reach product name, without the Jetpack prefix', 'jetpack-publicize' ),
 			'manage_options',
-			'jetpack-reach',
+			'jetpack-publicize',
 			array( $this, 'plugin_settings_page' ),
 			99
 		);
@@ -81,7 +81,7 @@ class Jetpack_Reach {
 			JETPACK_REACH_PLUGIN_ROOT_FILE,
 			array(
 				'in_footer'  => true,
-				'textdomain' => 'jetpack-reach',
+				'textdomain' => 'jetpack-publicize',
 			)
 		);
 		Assets::enqueue_script( 'jetpack-reach' );

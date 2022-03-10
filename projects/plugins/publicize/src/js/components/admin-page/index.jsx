@@ -26,7 +26,7 @@ const Admin = () => {
 	const { isUserConnected, isRegistered } = connectionStatus;
 	const showConnectionCard = ! isRegistered || ! isUserConnected;
 	return (
-		<AdminPage moduleName={ __( 'Jetpack Reach', 'jetpack-reach' ) }>
+		<AdminPage moduleName={ __( 'Jetpack Reach', 'jetpack-publicize' ) }>
 			<AdminSectionHero>
 				{ showConnectionCard ? (
 					<Container horizontalSpacing={ 3 } horizontalGap={ 3 }>
@@ -38,25 +38,25 @@ const Admin = () => {
 					<Container horizontalSpacing={ 3 } horizontalGap={ 3 }>
 						<Col sm={ 4 } md={ 6 } lg={ 6 }>
 							<h1 className={ styles.heading }>
-								{ __( 'Social Media Automation for WordPress Sites', 'jetpack-reach' ) }
+								{ __( 'Social Media Automation for WordPress Sites', 'jetpack-publicize' ) }
 							</h1>
 							<ul className={ styles[ 'jp-product-promote' ] }>
 								<li>
 									{ __(
 										'Reach your maximum potential audience, not just those who visit your site',
-										'jetpack-reach'
+										'jetpack-publicize'
 									) }
 								</li>
 								<li>
 									{ __(
 										'Be found by prospective readers or customers on their preferred social site or network',
-										'jetpack-reach'
+										'jetpack-publicize'
 									) }
 								</li>
 								<li>
 									{ __(
 										'Allow people who like your content to easily share it with their own followers, giving you even greater visibility',
-										'jetpack-reach'
+										'jetpack-publicize'
 									) }
 								</li>
 							</ul>
@@ -64,13 +64,13 @@ const Admin = () => {
 						<Col lg={ 1 } md={ 1 } sm={ 0 } />
 						<Col sm={ 4 } md={ 5 } lg={ 5 }>
 							<PricingCard
-								title={ __( 'Jetpack Reach', 'jetpack-reach' ) }
+								title={ __( 'Jetpack Reach', 'jetpack-publicize' ) }
 								priceBefore={ 9 }
 								priceAfter={ 4.5 }
-								ctaText={ __( 'Get Jetpack Reach', 'jetpack-reach' ) }
+								ctaText={ __( 'Get Jetpack Reach', 'jetpack-publicize' ) }
 								infoText={ __(
 									'Special introductory pricing, all renewals are at full price. 14 day money back guarantee.',
-									'jetpack-reach'
+									'jetpack-publicize'
 								) }
 							/>
 						</Col>
@@ -87,11 +87,11 @@ const ConnectionSection = () => {
 	const { apiNonce, apiRoot, registrationNonce } = window.jetpackReachInitialState;
 	return (
 		<ConnectScreenRequiredPlan
-			buttonLabel={ __( 'Get Jetpack Reach', 'jetpack-reach' ) }
+			buttonLabel={ __( 'Get Jetpack Reach', 'jetpack-publicize' ) }
 			priceAfter={ 4.5 }
 			priceBefore={ 9 }
-			pricingTitle={ __( 'Jetpack Reach', 'jetpack-reach' ) }
-			title={ __( 'Social Media Automation for WordPress Sites', 'jetpack-reach' ) }
+			pricingTitle={ __( 'Jetpack Reach', 'jetpack-publicize' ) }
+			title={ __( 'Social Media Automation for WordPress Sites', 'jetpack-publicize' ) }
 			apiRoot={ apiRoot }
 			apiNonce={ apiNonce }
 			registrationNonce={ registrationNonce }
@@ -101,26 +101,26 @@ const ConnectionSection = () => {
 			<h3>
 				{ __(
 					'Share your site’s posts on several social media networks automatically when you publish a new post',
-					'jetpack-reach'
+					'jetpack-publicize'
 				) }
 			</h3>
 			<ul>
 				<li>
 					{ __(
 						'Reach your maximum potential audience, not just those who visit your site',
-						'jetpack-reach'
+						'jetpack-publicize'
 					) }
 				</li>
 				<li>
 					{ __(
 						'Be found by prospective readers or customers on their preferred social site or network',
-						'jetpack-reach'
+						'jetpack-publicize'
 					) }
 				</li>
 				<li>
 					{ __(
 						'Allow people who like your content to easily share it with their own followers, giving you even greater visibility',
-						'jetpack-reach'
+						'jetpack-publicize'
 					) }
 				</li>
 			</ul>

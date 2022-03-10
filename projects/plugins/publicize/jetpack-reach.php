@@ -1,16 +1,16 @@
 <?php
 /**
  *
- * Plugin Name: Jetpack Reach
- * Plugin URI: https://wordpress.org/plugins/reach
+ * Plugin Name: Jetpack Publicize
+ * Plugin URI: https://wordpress.org/plugins/publicize
  * Description: Share your site’s posts on several social media networks automatically when you publish a new post.
  * Version: 0.1.0-alpha
  * Author: Automattic
  * Author URI: https://jetpack.com/
  * License: GPLv2 or later
- * Text Domain: jetpack-reach
+ * Text Domain: jetpack-publicize
  *
- * @package automattic/jetpack-reach
+ * @package automattic/jetpack-publicize
  */
 
 /*
@@ -51,7 +51,7 @@ if ( is_readable( $jetpack_autoloader ) ) {
 } else { // Something very unexpected. Error out gently with an admin_notice and exit loading.
 	if ( defined( 'WP_DEBUG' ) && WP_DEBUG ) {
 		error_log( // phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_error_log
-			__( 'Error loading autoloader file for Jetpack Reach plugin', 'jetpack-reach' )
+			__( 'Error loading autoloader file for Jetpack Reach plugin', 'jetpack-publicize' )
 		);
 	}
 
@@ -65,7 +65,7 @@ if ( is_readable( $jetpack_autoloader ) ) {
 				printf(
 					wp_kses(
 						/* translators: Placeholder is a link to a support document. */
-						__( 'Your installation of Jetpack Reach is incomplete. If you installed Jetpack Reach from GitHub, please refer to <a href="%1$s" target="_blank" rel="noopener noreferrer">this document</a> to set up your development environment. Jetpack Reach must have Composer dependencies installed and built via the build command.', 'jetpack-reach' ),
+						__( 'Your installation of Jetpack Reach is incomplete. If you installed Jetpack Reach from GitHub, please refer to <a href="%1$s" target="_blank" rel="noopener noreferrer">this document</a> to set up your development environment. Jetpack Reach must have Composer dependencies installed and built via the build command.', 'jetpack-publicize' ),
 						array(
 							'a' => array(
 								'href'   => array(),
