@@ -1,7 +1,7 @@
 /**
  * External dependencies
  */
-import { PanelBody } from '@wordpress/components';
+import { PanelBody, PanelRow } from '@wordpress/components';
 import { PluginPostPublishPanel } from '@wordpress/edit-post';
 import { __ } from '@wordpress/i18n';
 import { useRef } from '@wordpress/element';
@@ -16,9 +16,7 @@ import JetpackPluginSidebar from '../../shared/jetpack-plugin-sidebar.js';
 /**
  * Internal dependencies
  */
-import QRIcon from './components/icon.js';
-import { QRPost } from './components/qr-post.js';
-import ImageActionsPanelRow from './components/image-actions-panel-row.js';
+import { QRPostButton } from './components/qr-post.js';
 import './editor.scss';
 
 export const name = 'post-publish-qr-post-panel';
@@ -31,7 +29,7 @@ export const settings = {
 			name: 'post-publish-qr-post-panel',
 			title: __( 'QR Code', 'jetpack' ),
 			className: 'post-publish-qr-post-panel',
-			icon: <QRIcon />,
+			icon: null,
 			initialOpen: true,
 		};
 
@@ -42,13 +40,17 @@ export const settings = {
 
 		function QRPostPanelBodyContent() {
 			return (
-				<>
-					<div className="post-publish-qr-post-panel__container" ref={ qrCodeRef }>
-						<QRPost />
-					</div>
-
-					<ImageActionsPanelRow qrCodeRef={ qrCodeRef } />
-				</>
+				<div className="post-publish-qr-post-panel__container" ref={ qrCodeRef }>
+					<PanelRow>
+						<p>
+							{ __(
+								'Take advantage of the QR code to open the post from different devices.',
+								'jetpack'
+							) }
+						</p>
+					</PanelRow>
+					<QRPostButton />
+				</div>
 			);
 		}
 
