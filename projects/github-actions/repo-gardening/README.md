@@ -57,7 +57,7 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
      - name: 'Run gardening action'
-       uses: automattic/action-repo-gardening@v2
+       uses: automattic/action-repo-gardening@v3
        with:
           github_token: ${{ secrets.GITHUB_TOKEN }}
           slack_token: ${{ secrets.SLACK_TOKEN }}
@@ -105,7 +105,7 @@ As the comment says, **do not** run any code in that checkout, not even an `npm 
 Then pass the path as environment variable to the repo-gardening action, like
 ```yaml
      - name: 'Run gardening action'
-       uses: automattic/action-repo-gardening@v2
+       uses: automattic/action-repo-gardening@v3
        env:
          PR_WORKSPACE: ${{ github.workspace }}${{ github.event_name == 'pull_request_target' && '/pr-checkout' || '' }}
        with:
