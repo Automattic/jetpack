@@ -1,7 +1,7 @@
 /**
  * WordPress dependencies
  */
-import { ToolbarButton, ToolbarGroup } from '@wordpress/components';
+import { ToolbarButton } from '@wordpress/components';
 import { __ } from '@wordpress/i18n';
 
 /**
@@ -13,12 +13,8 @@ import analytics from '../../../../_inc/client/lib/analytics';
 
 import './style.scss';
 
-export default function StripeConnectToolbarGroup( { blockName, connectUrl, isVisible } ) {
+export default function StripeConnectToolbarButton( { blockName, connectUrl } ) {
 	const { autosaveAndRedirect } = useAutosaveAndRedirect( connectUrl );
-
-	if ( ! isVisible ) {
-		return null;
-	}
 
 	const handleClick = event => {
 		event.preventDefault();
@@ -29,14 +25,12 @@ export default function StripeConnectToolbarGroup( { blockName, connectUrl, isVi
 	};
 
 	return (
-		<ToolbarGroup>
-			<ToolbarButton
-				className="connect-stripe components-tab-button"
-				icon={ flashIcon }
-				onClick={ handleClick }
-			>
-				{ __( 'Connect Stripe', 'jetpack' ) }
-			</ToolbarButton>
-		</ToolbarGroup>
+		<ToolbarButton
+			className="connect-stripe components-tab-button"
+			icon={ flashIcon }
+			onClick={ handleClick }
+		>
+			{ __( 'Connect Stripe', 'jetpack' ) }
+		</ToolbarButton>
 	);
 }

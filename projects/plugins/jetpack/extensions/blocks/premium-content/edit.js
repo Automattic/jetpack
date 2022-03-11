@@ -23,7 +23,7 @@ import getConnectUrl from '../../shared/get-connect-url';
 import './editor.scss';
 import ViewSelector from './_inc/view-selector';
 import InvalidSubscriptionWarning from './_inc/invalid-subscription-warning';
-import StripeConnectToolbarGroup from '../../shared/components/stripe-connect-toolbar-group';
+import StripeConnectToolbarButton from '../../shared/components/stripe-connect-toolbar-button';
 
 /**
  * @typedef { import('./plan').Plan } Plan
@@ -355,13 +355,11 @@ function Edit( props ) {
 
 	return (
 		<>
-			<BlockControls>
-				<StripeConnectToolbarGroup
-					blockName="premium-content"
-					connectUrl={ connectURL }
-					isVisible={ shouldShowConnectButton() }
-				/>
-			</BlockControls>
+			{ shouldShowConnectButton() && (
+				<BlockControls group="block">
+					<StripeConnectToolbarButton blockName="premium-content" connectUrl={ connectURL } />
+				</BlockControls>
+			) }
 
 			<ViewSelector
 				options={ tabs }

@@ -33,7 +33,7 @@ import getConnectUrl from '../../shared/get-connect-url';
 import { icon, removeInvalidProducts } from '.';
 import { PanelControls } from './controls';
 import { formatPriceForNumberInputValue, formatProductAmount } from './util';
-import StripeConnectToolbarGroup from '../../shared/components/stripe-connect-toolbar-group';
+import StripeConnectToolbarButton from '../../shared/components/stripe-connect-toolbar-button';
 
 const API_STATE_LOADING = 0;
 const API_STATE_CONNECTED = 1;
@@ -474,19 +474,16 @@ export class MembershipsButtonEdit extends Component {
 			</InspectorControls>
 		);
 
-		const blockControls = (
-			<BlockControls __experimentalShareWithChildBlocks>
-				<StripeConnectToolbarGroup
-					blockName="recurring-payments"
-					connectUrl={ getConnectUrl( this.props.postId, connectURL ) }
-					isVisible={
-						! this.hasUpgradeNudge &&
-						! this.state.shouldUpgrade &&
-						connected !== API_STATE_CONNECTED
-					}
-				/>
-			</BlockControls>
-		);
+		const blockControls = ! this.hasUpgradeNudge &&
+			! this.state.shouldUpgrade &&
+			connected !== API_STATE_CONNECTED && (
+				<BlockControls __experimentalShareWithChildBlocks group="block">
+					<StripeConnectToolbarButton
+						blockName="recurring-payments"
+						connectUrl={ getConnectUrl( this.props.postId, connectURL ) }
+					/>
+				</BlockControls>
+			);
 
 		return (
 			<>
