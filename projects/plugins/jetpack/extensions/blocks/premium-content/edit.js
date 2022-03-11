@@ -2,7 +2,7 @@
  * WordPress dependencies
  */
 import { useEffect, useState, useRef } from '@wordpress/element';
-import { Disabled, Placeholder, Spinner, ToolbarButton } from '@wordpress/components';
+import { Disabled, Placeholder, Spinner } from '@wordpress/components';
 import { BlockControls } from '@wordpress/block-editor';
 import { __, sprintf } from '@wordpress/i18n';
 import { compose, useViewportMatch } from '@wordpress/compose';
