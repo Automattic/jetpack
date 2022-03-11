@@ -1284,9 +1284,9 @@ importers:
 
   projects/plugins/reach:
     specifiers:
-      '@automattic/jetpack-base-styles': workspace:^0.1.9
-      '@automattic/jetpack-components': workspace:^0.10.7
-      '@automattic/jetpack-connection': workspace:^0.17.0
+      '@automattic/jetpack-base-styles': workspace:^0.1.10
+      '@automattic/jetpack-components': workspace:^0.10.10-alpha
+      '@automattic/jetpack-connection': workspace:^0.17.3-alpha
       '@automattic/jetpack-webpack-config': workspace:^1.1.4
       '@babel/core': 7.16.0
       '@babel/preset-env': 7.16.4
