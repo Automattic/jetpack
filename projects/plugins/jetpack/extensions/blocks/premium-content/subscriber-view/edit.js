@@ -10,8 +10,11 @@ import { compose } from '@wordpress/compose';
  * Internal dependencies
  */
 import Context from '../_inc/context';
+import { usePremiumContentAllowedBlocks } from '../_inc/premium';
 
 function Edit( { hasInnerBlocks } ) {
+	const allowedInnerBlocks = usePremiumContentAllowedBlocks();
+
 	return (
 		<Context.Consumer>
 			{ ( { selectedTab, stripeNudge } ) => (
@@ -20,6 +23,7 @@ function Edit( { hasInnerBlocks } ) {
 				<div hidden={ selectedTab.id === 'wall' } className={ selectedTab.className }>
 					{ stripeNudge }
 					<InnerBlocks
+						allowedBlocks={ allowedInnerBlocks }
 						renderAppender={ ! hasInnerBlocks && InnerBlocks.ButtonBlockAppender }
 						templateLock={ false }
 						templateInsertUpdatesSelection={ false }

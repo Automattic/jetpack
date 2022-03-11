@@ -191,7 +191,6 @@ export default function SearchDashboard() {
 				<Fragment>
 					{ renderHeader() }
 					{ renderMockedSearchInterface() }
-					{ renderModuleControl() }
 					{ isRecordMeterEnabled && (
 						<RecordMeter
 							postCount={ postCount }
@@ -199,6 +198,7 @@ export default function SearchDashboard() {
 							tierMaximumRecords={ tierMaximumRecords }
 						/>
 					) }
+					{ renderModuleControl() }
 					{ renderFooter() }
 				</Fragment>
 			) }

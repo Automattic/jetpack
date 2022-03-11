@@ -2,6 +2,23 @@
 
 ### This is a list detailing changes for the Jetpack RNA Components package releases.
 
+## 0.10.9 - 2022-03-09
+### Added
+- RNA: Add ThemeProvider
+
+## 0.10.8 - 2022-03-08
+### Added
+- Add optional link to the Module name in the JetpackFooter component
+- Components: replace Spinner with the core one
+- JS Components: Add QRPost component
+
+### Changed
+- Components: update attributes used within the Button component to match recent deprecations and changes.
+
+## 0.10.7 - 2022-03-02
+### Changed
+- Updated package dependencies.
+
 ## 0.10.6 - 2022-02-22
 ### Added
 - Components: Add showBackground prop

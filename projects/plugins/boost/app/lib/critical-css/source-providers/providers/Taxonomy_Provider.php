@@ -37,10 +37,15 @@ class Taxonomy_Provider extends Provider {
 
 	// phpcs:ignore Generic.Commenting.DocComment.MissingShort
 	/** @inheritdoc */
-	public static function get_critical_source_urls() {
+	public static function get_critical_source_urls( $context_posts = array() ) {
 		$results = array();
 
 		$taxonomies = self::get_available_taxonomies();
+		if ( ! empty( $context_posts ) ) {
+			$context_post_types = array_unique( wp_list_pluck( $context_posts, 'post_type' ) );
+			$context_taxonomies = get_object_taxonomies( $context_post_types, 'names' );
+			$taxonomies         = array_intersect( $taxonomies, $context_taxonomies );
+		}
 
 		foreach ( $taxonomies as $taxonomy ) {
 			$terms = self::get_terms( $taxonomy );
