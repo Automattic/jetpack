@@ -38,26 +38,14 @@ export default function QRPost() {
 	}, [ wrapperElementRef ] );
 
 	// Pick title and permalink post.
-	const {
-		post: { title },
-		permalink,
-	} = useSelect(
-		select => ( {
-			post: select( editorStore ).getCurrentPost(),
-			permalink: select( editorStore ).getPermalink(),
-		} ),
-		[]
-	);
-
+	const permalink = useSelect( select => select( editorStore ).getPermalink(), [] );
 	const { dataUrl: siteLogoUrl } = useSiteLogo( { generateDataUrl: true } );
 	const codeLogo = siteLogoUrl || jetpackLogoUrl;
-
-	const codeContent = `${ title } ${ permalink }`;
 
 	return (
 		<div ref={ wrapperElementRef }>
 			<QRCode
-				value={ codeContent }
+				value={ permalink }
 				size={ 238 }
 				imageSettings={
 					codeLogo && {
