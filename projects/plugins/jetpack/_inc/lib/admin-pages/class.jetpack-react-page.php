@@ -263,16 +263,18 @@ class Jetpack_React_Page extends Jetpack_Admin_Page {
 		$site_suffix         = $status->get_site_suffix();
 		$script_deps_path    = JETPACK__PLUGIN_DIR . '_inc/build/admin.asset.php';
 		$script_dependencies = array( 'wp-polyfill' );
+		$version             = JETPACK__VERSION;
 		if ( file_exists( $script_deps_path ) ) {
 			$asset_manifest      = include $script_deps_path;
 			$script_dependencies = $asset_manifest['dependencies'];
+			$version             = $asset_manifest['version'];
 		}
 
 		wp_enqueue_script(
 			'react-plugin',
 			plugins_url( '_inc/build/admin.js', JETPACK__PLUGIN_FILE ),
 			$script_dependencies,
-			JETPACK__VERSION,
+			$version,
 			true
 		);
 

@@ -4,7 +4,7 @@
 // const loadIgnorePatterns = require( '../../../tools/js-tools/load-eslint-ignore.js' );
 // module.exports = {
 // 	root: true,
-// 	extends: [ '../../../.eslintrc.normal.js' ],
+// 	extends: [ '../../../tools/js-tools/eslintrc/base.js' ],
 // 	ignorePatterns: loadIgnorePatterns( __dirname ),
 // 	parserOptions: {
 // 		babelOptions: {
@@ -15,7 +15,6 @@
 // ```
 
 module.exports = {
-	root: true,
 	parser: '@babel/eslint-parser',
 	extends: [
 		'wpcalypso',
