@@ -61,6 +61,10 @@ class Admin_Sidebar_Link {
 	 * Adds a link to the Scan and Backup page.
 	 */
 	public function maybe_add_admin_link() {
+		if ( defined( 'JETPACK__BACKUP_UI_BETA_ENABLED' ) && JETPACK__BACKUP_UI_BETA_ENABLED ) {
+			return; // Just rely on the Backup UI for the moment.
+		}
+
 		if ( ! $this->should_show_link() ) {
 			return;
 		}
