@@ -142,6 +142,12 @@ class Publicize_UI {
 	 * There is also some JavaScript for length counting and some basic display effects.
 	 */
 	public function post_page_metabox_assets() {
+		// We don't need those assets for the block editor pages.
+		$current_screen = get_current_screen();
+		if ( $current_screen && $current_screen->is_block_editor ) {
+			return;
+		}
+
 		$default_prefix = $this->publicize->default_prefix;
 		$default_prefix = preg_replace( '/%([0-9])\$s/', "' + %\\1\$s + '", esc_js( $default_prefix ) );
 

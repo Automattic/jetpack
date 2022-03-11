@@ -52,8 +52,8 @@ export default function ResumableUpload( { file } ) {
 			setProgress( percentage );
 		};
 
-		const onSuccess = guid => {
-			onUploadFinished( guid );
+		const onSuccess = args => {
+			onUploadFinished( args );
 		};
 
 		const uploader = resumableUploader( {
@@ -121,7 +121,7 @@ export default function ResumableUpload( { file } ) {
 		<div { ...blockProps }>
 			<div className="resumable-upload__logo">
 				<Icon icon={ VideoPressIcon } />
-				<div className="resumable-upload__logo-text">{ __( 'Video', 'jetpack' ) }</div>
+				<div className="resumable-upload__logo-text">{ __( 'VideoPress', 'jetpack' ) }</div>
 			</div>
 			{ null !== error ? (
 				<div className="resumable-upload__error">
@@ -131,11 +131,11 @@ export default function ResumableUpload( { file } ) {
 							'jetpack'
 						) }
 					</div>
-					<Button isPrimary onClick={ () => restartUpload() }>
+					<Button variant="primary" onClick={ () => restartUpload() }>
 						{ __( 'Try again', 'jetpack' ) }
 					</Button>
 					<Button
-						isSecondary
+						variant="secondary"
 						onClick={ () => onUploadFinished() }
 						className="resumable-upload__error-cancel"
 					>
@@ -146,6 +146,7 @@ export default function ResumableUpload( { file } ) {
 				<div className="resumable-upload__status">
 					<div className="resumable-upload__file-info">
 						<div className="resumable-upload__file-name">{ fileNameLabel }</div>
+						&nbsp;&#8212;&nbsp;
 						<div className="resumable-upload__file-size">{ fileSizeLabel }</div>
 					</div>
 					<div className="resumable-upload__progress">
@@ -153,7 +154,7 @@ export default function ResumableUpload( { file } ) {
 					</div>
 					<div className="resumable-upload__actions">
 						<div className="videopress-upload__percent-complete">{ `${ roundedProgress }%` }</div>
-						<Button isLink onClick={ () => pauseOrResumeUpload() }>
+						<Button variant="link" onClick={ () => pauseOrResumeUpload() }>
 							{ hasPaused ? 'Resume' : 'Pause' }
 						</Button>
 					</div>

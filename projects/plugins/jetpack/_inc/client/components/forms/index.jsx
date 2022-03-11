@@ -170,7 +170,7 @@ export class FormButton extends React.Component {
 		return (
 			<Button
 				{ ...omit( this.props, 'className' ) }
-				primary={ this.props.isPrimary }
+				variant={ this.props.isPrimary ? 'primary' : undefined }
 				className={ classNames( this.props.className, buttonClasses ) }
 			>
 				{ isEmpty( this.props.children ) ? this.getDefaultButtonAction() : this.props.children }

@@ -10,3 +10,4 @@
 # Ignored by default, but we should check it
 !.github/
 !.prettierrc.js
+!.pnpmfile.cjs
