@@ -1,6 +1,6 @@
 <?php
 /**
- * Primary class file for the Jetpack Reach plugin.
+ * Primary class file for the Jetpack Social plugin.
  *
  * @package automattic/jetpack-social-plugin
  */
@@ -29,7 +29,7 @@ class Jetpack_Reach {
 
 		$page_suffix = Admin_Menu::add_menu(
 			__( 'Jetpack Social', 'jetpack-social' ),
-			_x( 'Social', 'The Jetpack Reach product name, without the Jetpack prefix', 'jetpack-social' ),
+			_x( 'Social', 'The Jetpack Social product name, without the Jetpack prefix', 'jetpack-social' ),
 			'manage_options',
 			'jetpack-social',
 			array( $this, 'plugin_settings_page' ),
@@ -46,9 +46,9 @@ class Jetpack_Reach {
 				$config->ensure(
 					'connection',
 					array(
-						'slug'     => JETPACK_REACH_PLUGIN_SLUG,
-						'name'     => JETPACK_REACH_PLUGIN_NAME,
-						'url_info' => JETPACK_REACH_PLUGIN_URI,
+						'slug'     => JETPACK_SOCIAL_PLUGIN_SLUG,
+						'name'     => JETPACK_SOCIAL_PLUGIN_NAME,
+						'url_info' => JETPACK_SOCIAL_PLUGIN_URI,
 					)
 				);
 				// Sync package.
@@ -118,7 +118,7 @@ class Jetpack_Reach {
 	 */
 	public function plugin_settings_page() {
 		?>
-			<div id="jetpack-reach-root"></div>
+			<div id="jetpack-social-root"></div>
 		<?php
 	}
 }
