@@ -1,7 +1,7 @@
 /**
  * External dependencies
  */
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import { Redirect, Route, Switch } from 'react-router-dom';
 import { connect } from 'react-redux';
 import { __ } from '@wordpress/i18n';
@@ -22,14 +22,21 @@ import QueryRecommendationsConditional from 'components/data/query-recommendatio
 import QueryRewindStatus from 'components/data/query-rewind-status';
 import QuerySite from 'components/data/query-site';
 import QuerySitePlugins from 'components/data/query-site-plugins';
-import { getStep, isRecommendationsDataLoaded } from 'state/recommendations';
+import {
+	getStep,
+	isRecommendationsDataLoaded,
+	isRecommendationsConditionalLoaded,
+	getNewConditionalRecommendations,
+} from 'state/recommendations';
 import { JetpackLoadingIcon } from 'components/jetpack-loading-icon';
 import { RECOMMENDATION_WIZARD_STEP } from './constants';
 
 const RecommendationsComponent = props => {
-	const { isLoading, step } = props;
+	const { isLoading, isConditionalLoading, step, newConditionalRecommendations } = props;
 
 	let redirectPath;
+	const [ newRecommendations, setNewRecommendations ] = useState( [] );
+
 	switch ( step ) {
 		case RECOMMENDATION_WIZARD_STEP.NOT_STARTED:
 		case RECOMMENDATION_WIZARD_STEP.SITE_TYPE:
@@ -65,6 +72,21 @@ const RecommendationsComponent = props => {
 		default:
 			throw `Unknown step ${ step } in RecommendationsComponent`;
 	}
+
+	// Collect a snapshot of the new recommendations just after the data has loaded.
+	// This will allow us to persist which recommendations are "new" for this load even after they have been viewed and state has changed.
+	// This is used to show a "New" badge on the recommendation step and on the summary screen.
+	useEffect( () => {
+		// data has loaded
+		if ( ! isLoading && ! isConditionalLoading ) {
+			setNewRecommendations( [ ...newConditionalRecommendations ] );
+		}
+	}, [ isLoading, isConditionalLoading, newConditionalRecommendations ] );
+
+	// Check to see if a step slug is "new" - has not been viewed yet.
+	const isNew = stepSlug => {
+		return newRecommendations && newRecommendations.includes( stepSlug );
+	};
 
 	return (
 		<>
@@ -107,10 +129,10 @@ const RecommendationsComponent = props => {
 						<FeaturePrompt stepSlug="site-accelerator" />
 					</Route>
 					<Route path="/recommendations/publicize">
-						<FeaturePrompt stepSlug="publicize" />
+						<FeaturePrompt stepSlug="publicize" isNew={ isNew( 'publicize' ) } />
 					</Route>
 					<Route path="/recommendations/summary">
-						<Summary />
+						<Summary newRecommendations={ newRecommendations } />
 					</Route>
 				</Switch>
 			) }
@@ -142,5 +164,7 @@ const RecommendationsComponent = props => {
 
 export const Recommendations = connect( state => ( {
 	isLoading: ! isRecommendationsDataLoaded( state ),
+	isConditionalLoading: ! isRecommendationsConditionalLoaded( state ),
 	step: getStep( state ),
+	newConditionalRecommendations: getNewConditionalRecommendations( state ),
 } ) )( RecommendationsComponent );

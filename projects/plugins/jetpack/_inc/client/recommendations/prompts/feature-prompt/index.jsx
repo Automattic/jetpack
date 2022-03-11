@@ -38,6 +38,7 @@ const FeaturePromptComponent = props => {
 		question,
 		stepSlug,
 		updateRecommendationsStep,
+		isNew,
 	} = props;
 
 	useEffect( () => {
@@ -69,6 +70,7 @@ const FeaturePromptComponent = props => {
 	return (
 		<PromptLayout
 			progressBar={ <ProgressBar color={ '#00A32A' } value={ progressValue } /> }
+			isNew={ isNew }
 			question={ question }
 			description={ createInterpolateElement( description, {
 				strong: <strong />,

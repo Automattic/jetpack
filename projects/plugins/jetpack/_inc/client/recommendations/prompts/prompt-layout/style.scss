@@ -15,11 +15,19 @@
 	.progress-bar {
 		width: 70px;
 	}
+}
 
+.jp-recommendations-question__progress-bar-wrap {
+	display: flex;
+	align-items: center;
 	margin: 32px 32px 0 32px;
 
 	@include breakpoint( '<480px' ) {
 		margin: 16px 16px 32px 16px;
+	}
+
+	.jp-recommendations__new-badge {
+		margin-right: 1rem;
 	}
 }
 

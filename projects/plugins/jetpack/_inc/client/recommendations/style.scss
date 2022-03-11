@@ -39,3 +39,14 @@
 .jp-recommendations__loading {
 	padding-top: 48px;
 }
+
+.jp-recommendations__new-badge {
+	display: inline-block;
+	padding: 0.25rem 0.5rem;
+	color: var( --jp-green-30 );
+	border: 1px solid var( --jp-green-30 );
+	text-transform: uppercase;
+	font-weight: bold;
+	border-radius: 3px;
+	font-size: 12px;
+}

@@ -33,6 +33,7 @@ import { getSetting } from 'state/settings';
 import { getSitePlan, hasActiveProductPurchase, hasActiveScanPurchase } from 'state/site';
 import { hasConnectedOwner } from 'state/connection';
 import { isPluginActive } from 'state/site/plugins';
+import { getNewRecommendationsCount } from 'state/initial-state';
 
 const mergeArrays = ( x, y ) => {
 	if ( Array.isArray( x ) && Array.isArray( y ) ) {
@@ -88,6 +89,7 @@ const data = ( state = {}, action ) => {
 				},
 				mergeArrays
 			);
+
 			return viewedState;
 		}
 		default:
@@ -119,6 +121,10 @@ const requests = ( state = {}, action ) => {
 		case JETPACK_RECOMMENDATIONS_CONDITIONAL_FETCH:
 			return assign( {}, state, { isFetchingRecommendationsConditional: true } );
 		case JETPACK_RECOMMENDATIONS_CONDITIONAL_FETCH_RECEIVE:
+			return assign( {}, state, {
+				isRecommendationsConditionalLoaded: true,
+				isFetchingRecommendationsConditional: false,
+			} );
 		case JETPACK_RECOMMENDATIONS_CONDITIONAL_FETCH_FAIL:
 			return assign( {}, state, { isFetchingRecommendationsConditional: false } );
 		default:
@@ -158,7 +164,7 @@ const upsell = ( state = {}, action ) => {
 	}
 };
 
-const conditional = ( state = {}, action ) => {
+const conditional = ( state = [], action ) => {
 	switch ( action.type ) {
 		case JETPACK_RECOMMENDATIONS_CONDITIONAL_FETCH_RECEIVE:
 		case JETPACK_RECOMMENDATIONS_CONDITIONAL_FETCH_FAIL:
@@ -199,6 +205,10 @@ export const isFetchingRecommendationsUpsell = state => {
 
 export const isFetchingRecommendationsConditional = state => {
 	return !! state.jetpack.recommendations.requests.isFetchingRecommendationsConditional;
+};
+
+export const isRecommendationsConditionalLoaded = state => {
+	return !! state.jetpack.recommendations.requests.isRecommendationsConditionalLoaded;
 };
 
 export const getDataByKey = ( state, key ) => {
@@ -276,6 +286,38 @@ const isConditionalRecommendationEnabled = ( state, step ) => {
 	return (
 		Array.isArray( conditionalRecommendations ) && conditionalRecommendations.indexOf( step ) > -1
 	);
+};
+
+export const getNewConditionalRecommendations = state => {
+	const recommendations = [];
+
+	state.jetpack.recommendations.conditional.forEach( recommendation => {
+		if (
+			state.jetpack.recommendations.data.viewedRecommendations &&
+			! state.jetpack.recommendations.data.viewedRecommendations.includes( recommendation )
+		) {
+			recommendations.push( recommendation );
+		}
+	} );
+
+	return recommendations;
+};
+
+export const getNewConditionalRecommendationsCount = state => {
+	let recommendationCount = 0;
+	// Is the recommendations data defined yet?
+	if (
+		state.jetpack.recommendations.requests.isRecommendationsDataLoaded &&
+		state.jetpack.recommendations.requests.isRecommendationsConditionalLoaded
+	) {
+		recommendationCount = getNewConditionalRecommendations( state ).length;
+
+		// If not, get the count from the initial state.
+	} else {
+		recommendationCount = getNewRecommendationsCount( state );
+	}
+
+	return recommendationCount;
 };
 
 const isStepEligibleToShow = ( state, step ) => {
@@ -366,7 +408,7 @@ const isFeatureEligibleToShowInSummary = ( state, slug ) => {
 		case 'monitor':
 			return hasConnectedOwner( state );
 		case 'publicize':
-			return isConditionalRecommendationEnabled( state, slug ) || isFeatureActive( 'publicize' );
+			return isConditionalRecommendationEnabled( state, slug ) || isFeatureActive( state, slug );
 		default:
 			return true;
 	}

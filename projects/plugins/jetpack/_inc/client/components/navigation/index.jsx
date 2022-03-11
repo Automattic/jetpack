@@ -27,6 +27,7 @@ import {
 	userCanViewStats as _userCanViewStats,
 	getPurchaseToken,
 } from 'state/initial-state';
+import { getNewConditionalRecommendationsCount } from 'state/recommendations';
 
 export class Navigation extends React.Component {
 	trackNavClick = target => {
@@ -163,7 +164,7 @@ export default connect( state => {
 		isLinked: isCurrentUserLinked( state ),
 		hasConnectedOwner: hasConnectedOwner( state ),
 		showRecommendations: showRecommendations( state ),
-		newRecommendationsCount: getNewRecommendationsCount( state ),
+		newRecommendationsCount: getNewConditionalRecommendationsCount( state ),
 		siteUrl: getSiteRawUrl( state ),
 		adminUrl: getSiteAdminUrl( state ),
 		purchaseToken: getPurchaseToken( state ),

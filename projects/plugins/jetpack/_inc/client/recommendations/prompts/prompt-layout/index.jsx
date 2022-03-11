@@ -17,7 +17,7 @@ import { imagePath } from 'constants/urls';
 import './style.scss';
 
 const PromptLayout = props => {
-	const { answer, description, illustrationPath, progressBar, question } = props;
+	const { answer, description, illustrationPath, progressBar, question, isNew } = props;
 
 	return (
 		<div
@@ -26,7 +26,12 @@ const PromptLayout = props => {
 			} ) }
 		>
 			<div className="jp-recommendations-question__content">
-				<div className="jp-recommendations-question__progress-bar">{ progressBar }</div>
+				<div className="jp-recommendations-question__progress-bar-wrap">
+					{ isNew && (
+						<span className="jp-recommendations__new-badge">{ __( 'New', 'jetpack' ) }</span>
+					) }
+					<div className="jp-recommendations-question__progress-bar">{ progressBar }</div>
+				</div>
 				<h1 className="jp-recommendations-question__question">{ question }</h1>
 				<p className="jp-recommendations-question__description">{ description }</p>
 				<div className="jp-recommendations-question__answer">{ answer }</div>
