@@ -1,6 +1,6 @@
 {
-	"name": "automattic/jetpack-reach",
-	"description": "Reach plugin",
+	"name": "automattic/jetpack-social",
+	"description": "Social plugin",
 	"type": "wordpress-plugin",
 	"license": "GPL-2.0-or-later",
 	"require": {
@@ -57,9 +57,9 @@
 	"minimum-stability": "dev",
 	"prefer-stable": true,
 	"extra": {
-		"mirror-repo": "Automattic/jetpack-reach-plugin",
-		"release-branch-prefix": "reach",
-		"wp-plugin-slug": "jetpack-reach"
+		"mirror-repo": "Automattic/jetpack-social-plugin",
+		"release-branch-prefix": "social",
+		"wp-plugin-slug": "jetpack-social"
 	},
 	"config": {
 		"allow-plugins": {

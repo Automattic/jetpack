@@ -399,7 +399,7 @@ importers:
   projects/js-packages/storybook:
     specifiers:
       '@automattic/jetpack-base-styles': workspace:^0.1.10
-      '@automattic/jetpack-components': workspace:0.10.10-alpha
+      '@automattic/jetpack-components': workspace:^0.10.10-alpha
       '@babel/core': 7.16.0
       '@babel/plugin-syntax-jsx': 7.16.0
       '@babel/preset-react': 7.16.0
@@ -1284,7 +1284,10 @@ importers:
       eslint-plugin-playwright: 0.8.0
       jetpack-e2e-commons: link:../../../../../tools/e2e-commons
 
-  projects/plugins/reach:
+  projects/plugins/search:
+    specifiers: {}
+
+  projects/plugins/social:
     specifiers:
       '@automattic/jetpack-base-styles': workspace:^0.1.10
       '@automattic/jetpack-components': workspace:^0.10.10-alpha
@@ -1328,9 +1331,6 @@ importers:
       sass-loader: 12.4.0_sass@1.43.3+webpack@5.65.0
       webpack: 5.65.0_webpack-cli@4.9.1
       webpack-cli: 4.9.1_webpack@5.65.0
-
-  projects/plugins/search:
-    specifiers: {}
 
   tools/cli:
     specifiers:
@@ -8319,7 +8319,7 @@ packages:
     resolution: {integrity: sha512-Eyc5YYX8010Ihr6Ab4lq9G7J9DmPiLnGf6C4WwEMf0iQ9SBw8hcp2TCwkSyC12DU7iY0o11FYGfgdGW3UpPiYA==}
     engines: {node: '>=12'}
     dependencies:
-      '@babel/runtime': 7.16.3
+      '@babel/runtime': 7.17.2
 
   /@wordpress/html-entities/3.3.1:
     resolution: {integrity: sha512-vMF8XN7kE07fdqUB27PnvKbQsWXnJmSw1WEVhHGCSHZJcw2i29lDwUwdLxDwHi+M5R3y677bw1XAHnHH2JZ7Lg==}
@@ -24212,7 +24212,6 @@ packages:
   /yargs-parser/20.2.9:
     resolution: {integrity: sha512-y11nGElTIV+CT3Zv9t7VKl+Q3hTQoT9a1Qzezhhl6Rp21gJ/IVTW7Z3y9EWXhuUBC2Shnf+DX0antecpAwSP8w==}
     engines: {node: '>=10'}
-    dev: true
 
   /yargs-parser/21.0.1:
     resolution: {integrity: sha512-9BK1jFpLzJROCI5TzwZL/TU4gqjK5xiHV/RfWLOahrjAko/e4DJkRDZQXfvqAsiZzzYhgAzbgz6lg48jcm4GLg==}
@@ -24277,7 +24276,7 @@ packages:
       require-directory: 2.1.1
       string-width: 4.2.3
       y18n: 5.0.8
-      yargs-parser: 20.2.4
+      yargs-parser: 20.2.9
 
   /yargs/17.1.1:
     resolution: {integrity: sha512-c2k48R0PwKIqKhPMWjeiF6y2xY/gPMUlro0sgxqXpbOIohWiLNXWslsootttv7E1e73QPAMQSg5FeySbVcpsPQ==}

@@ -1,6 +1,6 @@
-# Jetpack Reach
+# Jetpack Social
 
-Jetpack Reach plugin
+Jetpack Social plugin
 
 ## How to install reach
 
