@@ -120,8 +120,8 @@ function validatePlugin( plugin ) {
  */
 export function rsyncDefine( yargs ) {
 	yargs.command(
-		'rsync [plugin]',
-		'rsyncs a plugin.',
+		'rsync [--plugin=PLUGIN] [--dest=DEST_PATH] [--watch]',
+		'Will rsync a plugin from projects/plugins/ to a remote destination. Useful for developing against a live site.',
 		yarg => {
 			yarg
 				.options( 'plugin', {
