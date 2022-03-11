@@ -155,7 +155,7 @@ class Admin_Sidebar_Link {
 	private function has_scan() {
 		$this->maybe_refresh_transient_cache();
 		$scan_state = get_transient( 'jetpack_scan_state' );
-		return ! $scan_state || 'unavailable' !== $scan_state->state;
+		return $scan_state && 'unavailable' !== $scan_state->state;
 	}
 
 	/**
@@ -166,7 +166,7 @@ class Admin_Sidebar_Link {
 	private function has_backup() {
 		$this->maybe_refresh_transient_cache();
 		$rewind_state = get_transient( 'jetpack_rewind_state' );
-		return ! $rewind_state || 'unavailable' !== $rewind_state->state;
+		return $rewind_state && 'unavailable' !== $rewind_state->state;
 	}
 
 	/**
