@@ -17,7 +17,7 @@ import JetpackPluginSidebar from '../../shared/jetpack-plugin-sidebar.js';
  * Internal dependencies
  */
 import QRIcon from './components/icon.js';
-import QRPost from './components/qr-post.js';
+import { QRPost } from './components/qr-post.js';
 import ImageActionsPanelRow from './components/image-actions-panel-row.js';
 import './editor.scss';
 
