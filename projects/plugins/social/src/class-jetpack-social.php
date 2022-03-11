@@ -16,9 +16,9 @@ use Automattic\Jetpack\Connection\Rest_Authentication as Connection_Rest_Authent
 use Automattic\Jetpack\My_Jetpack\Initializer as My_Jetpack_Initializer;
 
 /**
- * Class Jetpack_Reach
+ * Class Jetpack_Social
  */
-class Jetpack_Reach {
+class Jetpack_Social {
 
 	/**
 	 * Constructor.
