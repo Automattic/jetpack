@@ -101,8 +101,11 @@
 	&__time {
 		display: inline-block;
 
+		width: 8rem;
 		margin-inline-start: 0.5rem;
 
 		font-size: 18px;
+		text-align: left;
+		white-space: nowrap;
 	}
 }
