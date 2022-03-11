@@ -12,7 +12,7 @@ class Critical_CSS_Invalidator {
 	 */
 	public static function init() {
 		add_action( 'jetpack_boost_deactivate', array( __CLASS__, 'clear_data' ) );
-		add_action( 'handle_theme_change', array( __CLASS__, 'handle_clear_cache' ) );
+		add_action( 'handle_environment_change', array( __CLASS__, 'handle_clear_cache' ) );
 	}
 
 	/**
