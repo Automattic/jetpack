@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Fixed all PHPCS violations that could be fixed automatically

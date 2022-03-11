@@ -1,15 +1,15 @@
 <?php
 
-require_once( JETPACK__PLUGIN_DIR . 'sal/class.json-api-date.php' );
+require_once JETPACK__PLUGIN_DIR . 'sal/class.json-api-date.php';
 
 /**
  * Class to handle different actions related to media.
  */
 class Jetpack_Media {
-	public static $WP_ORIGINAL_MEDIA = '_wp_original_post_media';
-	public static $WP_REVISION_HISTORY = '_wp_revision_history';
+	public static $WP_ORIGINAL_MEDIA               = '_wp_original_post_media';
+	public static $WP_REVISION_HISTORY             = '_wp_revision_history';
 	public static $REVISION_HISTORY_MAXIMUM_AMOUNT = 0;
-	public static $WP_ATTACHMENT_IMAGE_ALT = '_wp_attachment_image_alt';
+	public static $WP_ATTACHMENT_IMAGE_ALT         = '_wp_attachment_image_alt';
 
 	/**
 	 * Generate a filename in function of the original filename of the media.
@@ -74,7 +74,7 @@ class Jetpack_Media {
 	 * @return string
 	 */
 	private static function get_time_string_from_guid( $media_id ) {
-		$time = date( "Y/m", strtotime( current_time( 'mysql' ) ) );
+		$time = date( 'Y/m', strtotime( current_time( 'mysql' ) ) );
 
 		if ( $media = get_post( $media_id ) ) {
 			$pattern = '/\/(\d{4}\/\d{2})\//';
@@ -92,17 +92,22 @@ class Jetpack_Media {
 	 * @return array mime_type array
 	 */
 	static function get_allowed_mime_types( $default_mime_types ) {
-		return array_unique( array_merge( $default_mime_types, array(
-			'application/msword',                                                         // .doc
-			'application/vnd.ms-powerpoint',                                              // .ppt, .pps
-			'application/vnd.ms-excel',                                                   // .xls
-			'application/vnd.openxmlformats-officedocument.presentationml.presentation',  // .pptx
-			'application/vnd.openxmlformats-officedocument.presentationml.slideshow',     // .ppsx
-			'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',          // .xlsx
-			'application/vnd.openxmlformats-officedocument.wordprocessingml.document',    // .docx
-			'application/vnd.oasis.opendocument.text',                                    // .odt
-			'application/pdf',                                                            // .pdf
-		) ) );
+		return array_unique(
+			array_merge(
+				$default_mime_types,
+				array(
+					'application/msword',                                                         // .doc
+					'application/vnd.ms-powerpoint',                                              // .ppt, .pps
+					'application/vnd.ms-excel',                                                   // .xls
+					'application/vnd.openxmlformats-officedocument.presentationml.presentation',  // .pptx
+					'application/vnd.openxmlformats-officedocument.presentationml.slideshow',     // .ppsx
+					'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',          // .xlsx
+					'application/vnd.openxmlformats-officedocument.wordprocessingml.document',    // .docx
+					'application/vnd.oasis.opendocument.text',                                    // .odt
+					'application/pdf',                                                            // .pdf
+				)
+			)
+		);
 	}
 
 	/**
@@ -123,7 +128,7 @@ class Jetpack_Media {
 	 * @return bool `true` if the file has been removed. `false` either the file doesn't exist or it couldn't be removed.
 	 */
 	private static function remove_tmp_file( $file_array ) {
-		if ( ! file_exists ( $file_array['tmp_name'] ) ) {
+		if ( ! file_exists( $file_array['tmp_name'] ) ) {
 			return false;
 		}
 		return @unlink( $file_array['tmp_name'] );
@@ -149,7 +154,7 @@ class Jetpack_Media {
 		// add additional mime_types through of the `jetpack_supported_media_sideload_types` filter
 		$mime_type_static_filter = array(
 			'Jetpack_Media',
-			'get_allowed_mime_types'
+			'get_allowed_mime_types',
 		);
 
 		add_filter( 'jetpack_supported_media_sideload_types', $mime_type_static_filter );
@@ -163,7 +168,7 @@ class Jetpack_Media {
 		remove_filter( 'jetpack_supported_media_sideload_types', $mime_type_static_filter );
 
 		// generate a new file name
-		$tmp_new_filename = self::generate_new_filename( $media_id, $file_array[ 'name' ] );
+		$tmp_new_filename = self::generate_new_filename( $media_id, $file_array['name'] );
 
 		// start to create the parameters to move the temporal file
 		$overrides = array( 'test_form' => false );
@@ -172,7 +177,7 @@ class Jetpack_Media {
 		$time = self::get_time_string_from_guid( $media_id );
 
 		$file_array['name'] = $tmp_new_filename;
-		$file = wp_handle_sideload( $file_array, $overrides, $time );
+		$file               = wp_handle_sideload( $file_array, $overrides, $time );
 
 		self::remove_tmp_file( $file_array );
 
@@ -191,15 +196,15 @@ class Jetpack_Media {
 	 */
 	public static function get_snapshot( $media_item ) {
 		$current_file = get_attached_file( $media_item->ID );
-		$file_paths = pathinfo( $current_file );
+		$file_paths   = pathinfo( $current_file );
 
 		$snapshot = array(
-			'date'             => (string) WPCOM_JSON_API_Date::format_date( $media_item->post_modified_gmt, $media_item->post_modified ),
-			'URL'              => (string) wp_get_attachment_url( $media_item->ID ),
-			'file'             => (string) $file_paths['basename'],
-			'extension'        => (string) $file_paths['extension'],
-			'mime_type'        => (string) $media_item->post_mime_type,
-			'size'             => (int) filesize( $current_file ),
+			'date'      => (string) WPCOM_JSON_API_Date::format_date( $media_item->post_modified_gmt, $media_item->post_modified ),
+			'URL'       => (string) wp_get_attachment_url( $media_item->ID ),
+			'file'      => (string) $file_paths['basename'],
+			'extension' => (string) $file_paths['extension'],
+			'mime_type' => (string) $media_item->post_mime_type,
+			'size'      => (int) filesize( $current_file ),
 		);
 
 		return (object) $snapshot;
@@ -209,8 +214,8 @@ class Jetpack_Media {
 	 * Add a new item into revision_history array.
 	 *
 	 * @param  object $media_item - media post object
-	 * @param  file $file - file recently added
-	 * @param  bool $has_original_media - condition is the original media has been already added
+	 * @param  file   $file - file recently added
+	 * @param  bool   $has_original_media - condition is the original media has been already added
 	 * @return bool `true` if the item has been added. Otherwise `false`.
 	 */
 	public static function register_revision( $media_item, $file, $has_original_media ) {
@@ -257,9 +262,9 @@ class Jetpack_Media {
 	 * @return bool `true` is the file has been removed, `false` if not.
 	 */
 	private static function delete_media_history_file( $media_id, $filename ) {
-		$attached_path = get_attached_file( $media_id );
+		$attached_path  = get_attached_file( $media_id );
 		$attached_parts = pathinfo( $attached_path );
-		$dirname = $attached_parts['dirname'];
+		$dirname        = $attached_parts['dirname'];
 
 		$pathname = $dirname . '/' . $filename;
 
@@ -285,18 +290,18 @@ class Jetpack_Media {
 	 *
 	 * Also, it removes the file defined in each item.
 	 *
-	 * @param  number $media_id - media post ID
-	 * @param  object $criteria - criteria to remove the items
-	 * @param  array [$revision_history] - revision history array
+	 * @param  number  $media_id - media post ID
+	 * @param  object  $criteria - criteria to remove the items
+	 * @param  array [ $revision_history] - revision history array
 	 * @return array `revision_history` array updated.
 	 */
 	public static function remove_items_from_revision_history( $media_id, $criteria, $revision_history ) {
-		if ( ! isset ( $revision_history ) ) {
+		if ( ! isset( $revision_history ) ) {
 			$revision_history = self::get_revision_history( $media_id );
 		}
 
 		$from = $criteria['from'];
-		$to = $criteria['to'] ? $criteria['to'] : ( $from + 1 );
+		$to   = $criteria['to'] ? $criteria['to'] : ( $from + 1 );
 
 		for ( $i = $from; $i < $to; $i++ ) {
 			$removed_item = array_slice( $revision_history, $from, 1 );
@@ -322,11 +327,11 @@ class Jetpack_Media {
 	 * Limit the number of items of the `revision_history` array.
 	 * When the stack is overflowing the oldest item is remove from there (FIFO).
 	 *
-	 * @param  number $media_id - media post ID
-	 * @param  number [$limit] - maximun amount of items. 20 as default.
+	 * @param  number   $media_id - media post ID
+	 * @param  number [ $limit] - maximun amount of items. 20 as default.
 	 * @return array items removed from `revision_history`
 	 */
-	public static function limit_revision_history( $media_id, $limit = null) {
+	public static function limit_revision_history( $media_id, $limit = null ) {
 		if ( is_null( $limit ) ) {
 			$limit = self::$REVISION_HISTORY_MAXIMUM_AMOUNT;
 		}
@@ -341,7 +346,10 @@ class Jetpack_Media {
 
 		self::remove_items_from_revision_history(
 			$media_id,
-			array( 'from' => $limit, 'to' => $total ),
+			array(
+				'from' => $limit,
+				'to'   => $total,
+			),
 			$revision_history
 		);
 
@@ -377,8 +385,8 @@ class Jetpack_Media {
 		self::clean_original_media( $media_id );
 
 		$revision_history = self::get_revision_history( $media_id );
-		$total = count( $revision_history );
-		$updated_history = array();
+		$total            = count( $revision_history );
+		$updated_history  = array();
 
 		if ( $total < 1 ) {
 			return $updated_history;
@@ -386,7 +394,10 @@ class Jetpack_Media {
 
 		$updated_history = self::remove_items_from_revision_history(
 			$media_id,
-			array( 'from' => 0, 'to' => $total ),
+			array(
+				'from' => 0,
+				'to'   => $total,
+			),
 			$revision_history
 		);
 
@@ -461,6 +472,6 @@ class Jetpack_Media {
 // hook: clean revision history when the media item is deleted
 function clean_revision_history( $media_id ) {
 	Jetpack_Media::clean_revision_history( $media_id );
-};
+}
 
 add_action( 'delete_attachment', 'clean_revision_history' );
