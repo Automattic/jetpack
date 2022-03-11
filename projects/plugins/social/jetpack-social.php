@@ -8,9 +8,9 @@
  * Author: Automattic
  * Author URI: https://jetpack.com/
  * License: GPLv2 or later
- * Text Domain: jetpack-reach
+ * Text Domain: jetpack-social
  *
- * @package automattic/jetpack-reach
+ * @package automattic/jetpack-social
  */
 
 /*
@@ -36,10 +36,10 @@ if ( ! defined( 'ABSPATH' ) ) {
 define( 'JETPACK_REACH_PLUGIN_DIR', plugin_dir_path( __FILE__ ) );
 define( 'JETPACK_REACH_PLUGIN_ROOT_FILE', __FILE__ );
 define( 'JETPACK_REACH_PLUGIN_ROOT_FILE_RELATIVE_PATH', plugin_basename( __FILE__ ) );
-define( 'JETPACK_REACH_PLUGIN_SLUG', 'jetpack-reach' );
-define( 'JETPACK_REACH_PLUGIN_NAME', 'Jetpack Reach' );
-define( 'JETPACK_REACH_PLUGIN_URI', 'https://jetpack.com/jetpack-reach' );
-define( 'JETPACK_REACH_PLUGIN_FOLDER', dirname( plugin_basename( __FILE__ ) ) );
+define( 'JETPACK_SOCIAL_PLUGIN_SLUG', 'jetpack-social' );
+define( 'JETPACK_SOCIAL_PLUGIN_NAME', 'Jetpack Social' );
+define( 'JETPACK_SOCIAL_PLUGIN_URI', 'https://jetpack.com/jetpack-social' );
+define( 'JETPACK_SOCIAL_PLUGIN_FOLDER', dirname( plugin_basename( __FILE__ ) ) );
 
 // Jetpack Autoloader.
 $jetpack_autoloader = JETPACK_REACH_PLUGIN_DIR . 'vendor/autoload_packages.php';
@@ -51,7 +51,7 @@ if ( is_readable( $jetpack_autoloader ) ) {
 } else { // Something very unexpected. Error out gently with an admin_notice and exit loading.
 	if ( defined( 'WP_DEBUG' ) && WP_DEBUG ) {
 		error_log( // phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_error_log
-			__( 'Error loading autoloader file for Jetpack Reach plugin', 'jetpack-reach' )
+			__( 'Error loading autoloader file for Jetpack Social plugin', 'jetpack-social' )
 		);
 	}
 
@@ -65,7 +65,7 @@ if ( is_readable( $jetpack_autoloader ) ) {
 				printf(
 					wp_kses(
 						/* translators: Placeholder is a link to a support document. */
-						__( 'Your installation of Jetpack Reach is incomplete. If you installed Jetpack Reach from GitHub, please refer to <a href="%1$s" target="_blank" rel="noopener noreferrer">this document</a> to set up your development environment. Jetpack Reach must have Composer dependencies installed and built via the build command.', 'jetpack-reach' ),
+						__( 'Your installation of Jetpack Reach is incomplete. If you installed Jetpack Reach from GitHub, please refer to <a href="%1$s" target="_blank" rel="noopener noreferrer">this document</a> to set up your development environment. Jetpack Social must have Composer dependencies installed and built via the build command.', 'jetpack-social' ),
 						array(
 							'a' => array(
 								'href'   => array(),

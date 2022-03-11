@@ -2,7 +2,7 @@
 /**
  * Primary class file for the Jetpack Reach plugin.
  *
- * @package automattic/jetpack-reach-plugin
+ * @package automattic/jetpack-social-plugin
  */
 
 if ( ! defined( 'ABSPATH' ) ) {
@@ -28,10 +28,10 @@ class Jetpack_Reach {
 		Connection_Rest_Authentication::init();
 
 		$page_suffix = Admin_Menu::add_menu(
-			__( 'Jetpack Reach', 'jetpack-reach' ),
-			_x( 'Reach', 'The Jetpack Reach product name, without the Jetpack prefix', 'jetpack-reach' ),
+			__( 'Jetpack Social', 'jetpack-social' ),
+			_x( 'Social', 'The Jetpack Reach product name, without the Jetpack prefix', 'jetpack-social' ),
 			'manage_options',
-			'jetpack-reach',
+			'jetpack-social',
 			array( $this, 'plugin_settings_page' ),
 			99
 		);
@@ -76,18 +76,18 @@ class Jetpack_Reach {
 	public function enqueue_admin_scripts() {
 
 		Assets::register_script(
-			'jetpack-reach',
+			'jetpack-social',
 			'build/index.js',
-			JETPACK_REACH_PLUGIN_ROOT_FILE,
+			JETPACK_SOCIAL_PLUGIN_ROOT_FILE,
 			array(
 				'in_footer'  => true,
-				'textdomain' => 'jetpack-reach',
+				'textdomain' => 'jetpack-social',
 			)
 		);
-		Assets::enqueue_script( 'jetpack-reach' );
+		Assets::enqueue_script( 'jetpack-social' );
 		// Initial JS state including JP Connection data.
-		wp_add_inline_script( 'jetpack-reach', Connection_Initial_State::render(), 'before' );
-		wp_add_inline_script( 'jetpack-reach', $this->render_initial_state(), 'before' );
+		wp_add_inline_script( 'jetpack-social', Connection_Initial_State::render(), 'before' );
+		wp_add_inline_script( 'jetpack-social', $this->render_initial_state(), 'before' );
 
 	}
 
@@ -97,7 +97,7 @@ class Jetpack_Reach {
 	 * @return string
 	 */
 	public function render_initial_state() {
-		return 'var jetpackReachInitialState=JSON.parse(decodeURIComponent("' . rawurlencode( wp_json_encode( $this->initial_state() ) ) . '"));';
+		return 'var jetpackSocialInitialState=JSON.parse(decodeURIComponent("' . rawurlencode( wp_json_encode( $this->initial_state() ) ) . '"));';
 	}
 
 	/**
