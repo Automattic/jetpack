@@ -200,12 +200,7 @@ class Jetpack_React_Page extends Jetpack_Admin_Page {
 		do_action( 'jetpack_notices' );
 
 		// Fetch static.html.
-		global $wp_filesystem;
-		WP_Filesystem();
-		$static_html = $wp_filesystem->get_contents( JETPACK__PLUGIN_DIR . '_inc/build/static.html' );
-
-		// Sanitize static.html data.
-		$allowed_html = wp_kses_allowed_html( 'post' );
+		$static_html = @file_get_contents( JETPACK__PLUGIN_DIR . '_inc/build/static.html' ); //phpcs:ignore WordPress.PHP.NoSilencedErrors.Discouraged, WordPress.WP.AlternativeFunctions.file_get_contents_file_get_contents, Not fetching a remote file.
 
 		if ( false === $static_html ) {
 
@@ -215,12 +210,10 @@ class Jetpack_React_Page extends Jetpack_Admin_Page {
 			echo '<code>pnpm run distclean && pnpx jetpack build plugins/jetpack</code>';
 			echo '</p>';
 		} else {
-
 			// We got the static.html so let's display it.
-			echo wp_kses( $static_html, $allowed_html );
+			echo $static_html; //phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
 		}
 	}
-
 	/**
 	 * Allow robust deep links to React.
 	 *
