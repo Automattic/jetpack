@@ -1,0 +1,21 @@
+@import "../../../scss/typography";
+@import 'node_modules/@automattic/jetpack-base-styles/style';
+
+.jp-recommendations-recommended-header {
+	display: flex;
+
+	padding: 0.5rem;
+
+	background: #F3F3EA;
+	border-top-left-radius: inherit;
+	border-top-right-radius: inherit;
+	color: var( --jp-black );
+
+	font-weight: $bold;
+
+	img {
+		margin-right: 0.5rem;
+		
+		filter: brightness(0);
+	}
+}

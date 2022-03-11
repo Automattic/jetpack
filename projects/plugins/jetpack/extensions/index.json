@@ -40,7 +40,7 @@
 		"wordads",
 		"payments-intro"
 	],
-	"beta": [ "amazon" ],
+	"beta": [ "amazon", "post-publish-qr-post-panel" ],
 	"experimental": [ "anchor-fm", "premium-content", "conversation", "dialogue" ],
 	"no-post-editor": [
 		"business-hours",

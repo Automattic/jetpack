@@ -239,12 +239,6 @@ for FILE in $(git -c core.quotepath=off ls-files 'projects/packages/**/.eslintrc
 	fi
 done
 
-# - Renovate should ignore all monorepo packages.
-debug "Checking renovate ignore list"
-if ! tools/js-tools/check-renovate-ignore-list.js; then
-	EXIT=1
-fi
-
 # - .nvmrc should match .github/versions.sh.
 . .github/versions.sh
 debug "Checking .nvmrc vs versions.sh"

@@ -94,7 +94,7 @@ jobs:
               - '.github/actions/*/action.{yml,yaml}'
               - 'projects/github-actions/*/action.{yml,yaml}'
             misc_php:
-              # If composer or phpcs config changed, there may be a new standard.
+              # If composer, phpcs config, or the codesniffer package itself changed, there may be a new standard.
               - 'composer.json'
               - 'composer.lock'
               - '.phpcs.config.xml'
@@ -102,6 +102,7 @@ jobs:
               - '.phpcsignore'
               - '**/.phpcs.dir.xml'
               - '**/.phpcsignore'
+              - 'projects/packages/codesniffer/**'
               # If the excludelist changed, run to ensure newly non-excluded files pass.
               - 'tools/phpcs-excludelist.json'
               # If other files used by this workflow changed, run it to test those changes.
