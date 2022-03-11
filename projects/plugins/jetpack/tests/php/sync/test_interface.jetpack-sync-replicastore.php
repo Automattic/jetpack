@@ -235,24 +235,31 @@ class WP_Test_IJetpack_Sync_Replicastore extends TestCase {
 	 * @dataProvider store_provider
 	 */
 	function test_strips_non_ascii_chars_for_checksum( $store ) {
-		$utf8_post = self::$factory->post( 1, array( 'post_content' => 'Panamá' ) );
-		$ascii_post = self::$factory->post( 1, array( 'post_content' => 'Panam' ) );
-		$utf8_comment = self::$factory->comment( 1, 1, array( 'comment_content' => 'Panamá' ) );
+		$utf8_post     = self::$factory->post( 1, array( 'post_content' => 'Panamá' ) );
+		$ascii_post    = self::$factory->post( 1, array( 'post_content' => 'Panam' ) );
+		$utf8_comment  = self::$factory->comment( 1, 1, array( 'comment_content' => 'Panamá' ) );
 		$ascii_comment = self::$factory->comment( 1, 1, array( 'comment_content' => 'Panam' ) );
 
-		// generate checksums just for utf8 content
+		// Generate checksums just for utf8 content.
 		$store->upsert_post( $utf8_post );
 		$store->upsert_comment( $utf8_comment );
 
-		$utf8_post_checksum = $store->posts_checksum();
+		$utf8_post_checksum    = $store->posts_checksum();
 		$utf8_comment_checksum = $store->comments_checksum();
 
-		// generate checksums just for ascii content
+		// Generate checksums just for ascii content.
+		// We need to set the $ascii_post post_modified field
+		// same as the $utf8_post post_modified, as post checksums take it into account, in order
+		// to avoid any flakiness caused by those two posts having different post_modified fields (defaults to now).
+		$ascii_post->post_modified = $utf8_post->post_modified;
 		$store->upsert_post( $ascii_post );
 		$store->upsert_comment( $ascii_comment );
 
-		$this->assertEquals( $utf8_post_checksum, $store->posts_checksum() );
-		$this->assertEquals( $utf8_comment_checksum, $store->comments_checksum() );
+		$ascii_post_checksum    = $store->posts_checksum();
+		$ascii_comment_checksum = $store->comments_checksum();
+
+		$this->assertEquals( $utf8_post_checksum, $ascii_post_checksum );
+		$this->assertEquals( $utf8_comment_checksum, $ascii_comment_checksum );
 	}
 
 	/**
