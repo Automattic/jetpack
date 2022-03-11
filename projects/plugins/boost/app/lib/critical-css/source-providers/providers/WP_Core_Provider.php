@@ -23,8 +23,11 @@ class WP_Core_Provider extends Provider {
 
 	// phpcs:ignore Generic.Commenting.DocComment.MissingShort
 	/** @inheritdoc */
-	public static function get_critical_source_urls() {
+	// phpcs:ignore VariableAnalysis.CodeAnalysis.VariableAnalysis.UnusedVariable
+	public static function get_critical_source_urls( $context_posts = array() ) {
 		$urls = array();
+
+		// TODO: Limit to provided context posts.
 
 		$front_page = get_option( 'page_on_front' );
 		if ( ! empty( $front_page ) ) {

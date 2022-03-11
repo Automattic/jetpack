@@ -1,36 +1,55 @@
-<?php
+<?php // phpcs:ignore WordPress.Files.FileName.InvalidClassFileName
+/**
+ * Main class file for Jetpack Admin pages.
+ *
+ * @package automattic/jetpack
+ */
 
 use Automattic\Jetpack\Identity_Crisis;
 use Automattic\Jetpack\Redirect;
 use Automattic\Jetpack\Status;
 
-// Shared logic between Jetpack admin pages
+/**
+ * Shared logic between Jetpack admin pages.
+ */
 abstract class Jetpack_Admin_Page {
-	// Add page specific actions given the page hook
-	abstract function add_page_actions( $hook );
+	/**
+	 * Add page specific actions given the page hook.
+	 *
+	 * @param string $hook Hook of current page.
+	 */
+	abstract public function add_page_actions( $hook );
 
-	// Create a menu item for the page and returns the hook
-	abstract function get_page_hook();
+	/**
+	 * Create a menu item for the page and returns the hook.
+	 *
+	 * @return string|false Return value from WordPress's `add_menu_page()` or `add_submenu_page()`.
+	 */
+	abstract public function get_page_hook();
 
-	// Enqueue and localize page specific scripts
-	abstract function page_admin_scripts();
+	/**
+	 * Enqueue and localize page specific scripts.
+	 */
+	abstract public function page_admin_scripts();
 
-	// Render page specific HTML
-	abstract function page_render();
+	/**
+	 * Render page specific HTML
+	 */
+	abstract public function page_render();
 
 	/**
 	 * Should we block the page rendering because the site is in IDC?
 	 *
 	 * @var bool
 	 */
-	static $block_page_rendering_for_idc;
+	public static $block_page_rendering_for_idc;
 
 	/**
 	 * Function called after admin_styles to load any additional needed styles.
 	 *
 	 * @since 4.3.0
 	 */
-	function additional_styles() {}
+	public function additional_styles() {}
 
 	/**
 	 * The constructor.
@@ -52,7 +71,10 @@ abstract class Jetpack_Admin_Page {
 		);
 	}
 
-	function add_actions() {
+	/**
+	 * Add common page actions and attach page-specific actions.
+	 */
+	public function add_actions() {
 		$is_offline_mode = ( new Status() )->is_offline_mode();
 
 		// If user is not an admin and site is in Offline Mode or not connected yet then don't do anything.
@@ -70,7 +92,7 @@ abstract class Jetpack_Admin_Page {
 			return;
 		}
 
-		// Initialize menu item for the page in the admin
+		// Initialize menu item for the page in the admin.
 		$hook = $this->get_page_hook();
 
 		// Attach hooks common to all Jetpack admin pages based on the created hook.
@@ -116,38 +138,51 @@ abstract class Jetpack_Admin_Page {
 
 	}
 
-	// Render the page with a common top and bottom part, and page specific content
-	function render() {
+	/**
+	 * Render the page with a common top and bottom part, and page specific content.
+	 */
+	public function render() {
 		// We're in an IDC: we need a decision made before we show the UI again.
 		if ( self::$block_page_rendering_for_idc ) {
 			return;
 		}
 
-		// Check if we are looking at the main dashboard
-		if ( isset( $_GET['page'] ) && 'jetpack' === $_GET['page'] ) {
+		// Check if we are looking at the main dashboard.
+		if ( isset( $_GET['page'] ) && 'jetpack' === $_GET['page'] ) { // phpcs:ignore WordPress.Security.NonceVerification.Recommended -- View logic.
 			$this->page_render();
 			return;
 		}
 		self::wrap_ui( array( $this, 'page_render' ) );
 	}
 
-	function admin_help() {
+	/**
+	 * Load Help tab.
+	 *
+	 * @todo This may no longer be used.
+	 */
+	public function admin_help() {
 		$this->jetpack->admin_help();
 	}
 
-	function admin_page_load() {
-		// This is big.  For the moment, just call the existing one.
+	/**
+	 * Call the existing admin page events.
+	 */
+	public function admin_page_load() {
 		$this->jetpack->admin_page_load();
 	}
 
-	// Add page specific scripts and jetpack stats for all menu pages
-	function admin_scripts() {
-		$this->page_admin_scripts(); // Delegate to inheriting class
+	/**
+	 * Add page specific scripts and jetpack stats for all menu pages.
+	 */
+	public function admin_scripts() {
+		$this->page_admin_scripts(); // Delegate to inheriting class.
 		add_action( 'admin_footer', array( $this->jetpack, 'do_stats' ) );
 	}
 
-	// Enqueue the Jetpack admin stylesheet
-	function admin_styles() {
+	/**
+	 * Enqueue the Jetpack admin stylesheet.
+	 */
+	public function admin_styles() {
 		$min = ( defined( 'SCRIPT_DEBUG' ) && SCRIPT_DEBUG ) ? '' : '.min';
 
 		wp_enqueue_style( 'jetpack-admin', plugins_url( "css/jetpack-admin{$min}.css", JETPACK__PLUGIN_FILE ), array( 'genericons' ), JETPACK__VERSION . '-20121016' );
@@ -162,7 +197,7 @@ abstract class Jetpack_Admin_Page {
 	 *
 	 * @return bool
 	 */
-	function is_rest_api_enabled() {
+	public function is_rest_api_enabled() {
 		return /** This filter is documented in wp-includes/rest-api/class-wp-rest-server.php */
 			apply_filters( 'rest_enabled', true ) &&
 			/** This filter is documented in wp-includes/rest-api/class-wp-rest-server.php */
@@ -174,11 +209,11 @@ abstract class Jetpack_Admin_Page {
 	 *
 	 * @since 4.4.0
 	 *
-	 * @param $page
+	 * @param WP_Screen $page Current WP_Screen object.
 	 *
 	 * @return array
 	 */
-	function check_plan_deactivate_modules( $page ) {
+	public function check_plan_deactivate_modules( $page ) {
 		if (
 			( new Status() )->is_offline_mode()
 			|| ! in_array(
@@ -189,7 +224,8 @@ abstract class Jetpack_Admin_Page {
 					'jetpack_page_vaultpress',
 					'jetpack_page_stats',
 					'jetpack_page_akismet-key-config',
-				)
+				),
+				true
 			)
 		) {
 			return false;
@@ -231,7 +267,10 @@ abstract class Jetpack_Admin_Page {
 		);
 	}
 
-	static function load_wrapper_styles() {
+	/**
+	 * Enqueue inline wrapper styles for the main container.
+	 */
+	public static function load_wrapper_styles() {
 		$rtl = is_rtl() ? '.rtl' : '';
 		wp_enqueue_style( 'dops-css', plugins_url( "_inc/build/admin{$rtl}.css", JETPACK__PLUGIN_FILE ), array(), JETPACK__VERSION );
 		wp_enqueue_style( 'components-css', plugins_url( "_inc/build/style.min{$rtl}.css", JETPACK__PLUGIN_FILE ), array( 'wp-components' ), JETPACK__VERSION );
@@ -278,6 +317,14 @@ abstract class Jetpack_Admin_Page {
 		wp_add_inline_style( 'dops-css', $custom_css );
 	}
 
+	/**
+	 * Build header, content, and footer for admin page.
+	 *
+	 * @param string $callback Callback to produce the content of the page. The callback is responsible for any needed escaping.
+	 * @param array  $args Options for the wrapping. Also passed to the `jetpack_admin_pages_wrap_ui_after_callback` action.
+	 *   - is-wide: (bool) Set the "is-wide" class on the wrapper div, which increases the max width. Default false.
+	 *   - show-nav: (bool) Whether to show the navigation bar at the top of the page. Default true.
+	 */
 	public static function wrap_ui( $callback, $args = array() ) {
 		$defaults          = array(
 			'is-wide'  => false,
@@ -356,7 +403,7 @@ abstract class Jetpack_Admin_Page {
 			call_user_func( $callback );
 			$callback_ui = ob_get_contents();
 			ob_end_clean();
-			echo $callback_ui;
+			echo $callback_ui;// phpcs:ignore WordPress.Security.EscapeOutput -- Callback is responsible for any needed escaping.
 			?>
 			<!-- END OF CALLBACK -->
 
@@ -417,6 +464,5 @@ abstract class Jetpack_Admin_Page {
 			</div>
 		</div>
 		<?php
-		return;
 	}
 }

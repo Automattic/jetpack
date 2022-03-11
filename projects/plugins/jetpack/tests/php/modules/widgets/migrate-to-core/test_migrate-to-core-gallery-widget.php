@@ -8,14 +8,14 @@ class WP_Test_Jetpack_Migrate_Gallery_Widget extends WP_UnitTestCase {
 	 * Test jetpack_migrate_gallery_widget_upgrade_widget when called with a non-array
 	 */
 	function test_jetpack_migrate_gallery_widget_upgrade_widget_with_string() {
-		$this->assertEquals( null, jetpack_migrate_gallery_widget_upgrade_widget( 'string' ) );
+		$this->assertNull( jetpack_migrate_gallery_widget_upgrade_widget( 'string' ) );
 	}
 
 	/**
 	 * Test jetpack_migrate_gallery_widget_upgrade_widget when called with an empty value
 	 */
 	function test_jetpack_migrate_gallery_widget_upgrade_widget_with_empty() {
-		$this->assertEquals( null, jetpack_migrate_gallery_widget_upgrade_widget( array() ) );
+		$this->assertNull( jetpack_migrate_gallery_widget_upgrade_widget( array() ) );
 	}
 
 	/**

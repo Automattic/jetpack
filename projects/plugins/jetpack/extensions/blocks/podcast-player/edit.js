@@ -284,7 +284,7 @@ const PodcastPlayerEdit = ( {
 						className={ 'components-placeholder__input' }
 						onChange={ editedUrl => dispatch( { type: actions.EDIT_URL, payload: editedUrl } ) }
 					/>
-					<Button isPrimary type="submit">
+					<Button variant="primary" type="submit">
 						{ __( 'Embed', 'jetpack' ) }
 					</Button>
 				</form>
