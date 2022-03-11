@@ -3,9 +3,10 @@
  */
 import { useSelect } from '@wordpress/data';
 import { store as editorStore } from '@wordpress/editor';
-import { Component } from '@wordpress/components';
-import { JetpackLogo, QRCode } from '@automattic/jetpack-components';
+import { Component, Button, Modal } from '@wordpress/components';
 import { useRef, useEffect, useState } from '@wordpress/element';
+import { __ } from '@wordpress/i18n';
+import { JetpackLogo, QRCode } from '@automattic/jetpack-components';
 
 /**
  * Internal dependencies
@@ -46,7 +47,7 @@ export function QRPost() {
 		<div ref={ wrapperElementRef }>
 			<QRCode
 				value={ permalink }
-				size={ 238 }
+				size={ 300 }
 				imageSettings={
 					codeLogo && {
 						src: codeLogo,
@@ -60,6 +61,37 @@ export function QRPost() {
 			/>
 
 			<JetpackLogo className="qr-post-jetpack-logo" width={ 48 } height={ 48 } showText={ false } />
+		</div>
+	);
+}
+
+export function QRPostButton() {
+	const [ isModalOpen, setIsModalOpen ] = useState( false );
+	const switchModal = () => setIsModalOpen( v => ! v );
+	const closeModal = () => setIsModalOpen( false );
+
+	return (
+		<div className="qr-post-button">
+			<Button
+				isSecondary
+				onClick={ switchModal }
+				help={ __(
+					'Get advantage of the QR code to open the post in different devices, on the fly.',
+					'jetpack'
+				) }
+			>
+				{ __( 'Get QR code', 'jetpack' ) }
+			</Button>
+
+			{ isModalOpen && (
+				<Modal title={ __( 'QR Post code', 'jetpack' ) } onRequestClose={ closeModal }>
+					<QRPost />
+
+					<Button variant="secondary" isSmall onClick={ closeModal }>
+						{ __( 'Close', 'jetpack' ) }
+					</Button>
+				</Modal>
+			) }
 		</div>
 	);
 }
