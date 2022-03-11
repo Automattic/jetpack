@@ -1,6 +1,7 @@
 /**
  * External dependencies
  */
+import { getRedirectUrl } from '@automattic/jetpack-components';
 import { ExternalLink } from '@wordpress/components';
 import { PluginPostPublishPanel } from '@wordpress/edit-post';
 import { currencyDollar } from '@wordpress/icons';
@@ -13,7 +14,7 @@ import analytics from '../../../_inc/client/lib/analytics';
 import useAutosaveAndRedirect from '../../shared/use-autosave-and-redirect/index';
 
 const PaymentsPostPublish = () => {
-	const paymentInfoUrl = 'https://wordpress.com/payments-donations/';
+	const paymentInfoUrl = getRedirectUrl( 'wpcom-payments-donations' );
 	const { autosaveAndRedirect } = useAutosaveAndRedirect( paymentInfoUrl );
 	const trackClick = event => {
 		event.preventDefault();
@@ -35,11 +36,7 @@ const PaymentsPostPublish = () => {
 				) }
 			</p>
 			<p>
-				<ExternalLink
-					href="https://wordpress.com/payments-donations/"
-					target="_blank"
-					onClick={ trackClick }
-				>
+				<ExternalLink href={ paymentInfoUrl } target="_blank" onClick={ trackClick }>
 					{ __( 'Learn more about these blocks', 'jetpack' ) }
 				</ExternalLink>
 			</p>
