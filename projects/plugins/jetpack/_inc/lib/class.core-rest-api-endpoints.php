@@ -32,6 +32,12 @@ add_action( 'rest_api_init', array( 'Jetpack_Core_Json_Api_Endpoints', 'register
 // Each of these is a class that will register its own routes on 'rest_api_init'.
 require_once JETPACK__PLUGIN_DIR . '_inc/lib/core-api/load-wpcom-endpoints.php';
 
+// Load Search endpoints when WP REST API is initialized.
+add_action( 'rest_api_init', array( new Search_REST_Controller(), 'register_rest_routes' ) );
+
+// Create discount after site has been successfully connected.
+add_action( 'jetpack_authorize_ending_authorized', array( 'Jetpack_Core_Json_Api_Endpoints', 'create_site_discount' ) );
+
 /**
  * Class Jetpack_Core_Json_Api_Endpoints
  *
@@ -258,6 +264,17 @@ class Jetpack_Core_Json_Api_Endpoints {
 			array(
 				'methods'             => WP_REST_Server::READABLE,
 				'callback'            => __CLASS__ . '::get_site_activity',
+				'permission_callback' => __CLASS__ . '::manage_modules_permission_check',
+			)
+		);
+
+		// Get potential discount for this site.
+		register_rest_route(
+			'jetpack/v4',
+			'/site/discount',
+			array(
+				'methods'             => WP_REST_Server::READABLE,
+				'callback'            => __CLASS__ . '::get_site_discount',
 				'permission_callback' => __CLASS__ . '::manage_modules_permission_check',
 			)
 		);
@@ -2156,6 +2173,107 @@ class Jetpack_Core_Json_Api_Endpoints {
 				'data' => $data->current->orderedItems,
 			)
 		);
+	}
+
+	/**
+	 * Fetch the discount for this site and return it.
+	 *
+	 * @since 10.8
+	 *
+	 * @return array|WP_Error
+	 */
+	public static function get_site_discount() {
+		$site_id = Jetpack_Options::get_option( 'id' );
+
+		if ( ! $site_id ) {
+			return new WP_Error(
+				'site_id_missing',
+				esc_html__( 'Site ID is missing.', 'jetpack' ),
+				array( 'status' => 400 )
+			);
+		}
+
+		$response = Client::wpcom_json_api_request_as_user(
+			"/sites/$site_id/discount",
+			'2',
+			array(
+				'method'  => 'GET',
+				'headers' => array(
+					'X-Forwarded-For' => ( new Visitor() )->get_ip( true ),
+				),
+			),
+			null,
+			'wpcom'
+		);
+
+		$response_code = wp_remote_retrieve_response_code( $response );
+		$data          = json_decode( wp_remote_retrieve_body( $response ) );
+
+		if ( 200 !== $response_code ) {
+			return new WP_Error(
+				'discount_fetch_failed',
+				is_object( $data ) && property_exists( $data, 'error' ) ? $data->error : esc_html__( 'Could not retrieve site discount.', 'jetpack' ),
+				array( 'status' => $response_code )
+			);
+		}
+
+		if ( ! isset( $data ) ) {
+			return new WP_Error(
+				'discount_parse_error',
+				esc_html__( 'Could not parse discount', 'jetpack' ),
+				array( 'status' => 204 ) // no content.
+			);
+		}
+
+		return rest_ensure_response(
+			array(
+				'code' => 'success',
+				'data' => $data,
+			)
+		);
+	}
+
+	/**
+	 * Create the discount for this site.
+	 *
+	 * @since 10.8
+	 *
+	 * @return array|WP_Error
+	 */
+	public static function create_site_discount() {
+		$site_id = Jetpack_Options::get_option( 'id' );
+
+		if ( ! $site_id ) {
+			return new WP_Error(
+				'site_id_missing',
+				esc_html__( 'Site ID is missing.', 'jetpack' ),
+				array( 'status' => 400 )
+			);
+		}
+
+		$response = Client::wpcom_json_api_request_as_user(
+			"/sites/$site_id/discount",
+			'2',
+			array(
+				'method'  => 'POST',
+				'headers' => array(
+					'X-Forwarded-For' => ( new Visitor() )->get_ip( true ),
+				),
+			),
+			null,
+			'wpcom'
+		);
+
+		$response_code = wp_remote_retrieve_response_code( $response );
+		$data          = json_decode( wp_remote_retrieve_body( $response ) );
+
+		if ( 200 !== $response_code ) {
+			return new WP_Error(
+				'discount_creation_failed',
+				is_object( $data ) && property_exists( $data, 'error' ) ? $data->error : esc_html__( 'Could not create site discount.', 'jetpack' ),
+				array( 'status' => $response_code )
+			);
+		}
 	}
 
 	/**
