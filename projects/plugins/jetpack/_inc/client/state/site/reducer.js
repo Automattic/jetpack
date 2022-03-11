@@ -12,6 +12,7 @@ import {
 	getPlanClass,
 	isJetpackProduct,
 	isJetpackBackup,
+	isJetpackPlanWithBackup,
 	isJetpackScan,
 	isJetpackSearch,
 	isJetpackSecurityBundle,
@@ -240,9 +241,19 @@ export function isFetchingSitePurchases( state ) {
 }
 
 /**
+ * Returns the products of this site.
+ *
+ * @param   {object} state - Global state tree
+ * @returns {Array} Site products
+ */
+export function getSiteProducts( state ) {
+	return get( state.jetpack.siteData, [ 'data', 'products' ], {} );
+}
+
+/**
  * Returns the plan of this site.
  * @param  {Object}  state Global state tree
- * @return {Object|Boolean}  Site plan
+ * @return {Object}  Site plan
  */
 export function getSitePlan( state ) {
 	return get( state.jetpack.siteData, [ 'data', 'plan' ], {} );
@@ -411,4 +422,46 @@ export function getConnectedPlugins( state ) {
 
 	const plugins = get( state.jetpack.siteData, [ 'data', 'site', 'connectedPlugins' ], [] );
 	return plugins.filter( plugin => 'jetpack' !== plugin.slug );
+}
+
+/**
+ * Returns Jetpack connected plugins converted to obj keyed by slug
+ * [ { name, slug }, ... ] -> { slug: { name }, ... }
+ *
+ * @param   {object} state - Global state tree
+ * @returns {object} Connected plugins
+ */
+export function getConnectedPluginsMap( state ) {
+	const plugins = getConnectedPlugins( state );
+
+	return (
+		plugins &&
+		plugins.reduce( ( map, plugin ) => {
+			map[ plugin.slug ] = { name: plugin.name };
+			return map;
+		}, {} )
+	);
+}
+
+/**
+ * Returns true if the site has a subscription to a Backup product or to a plan that includes Backup.
+ *
+ * @param   {object} state - Global state tree
+ * @returns {boolean} True if the site does have Backup
+ */
+export function siteHasBackupPlan( state ) {
+	const sitePlan = getSitePlan( state );
+	const siteProducts = getSiteProducts( state );
+
+	let hasBackup = false;
+
+	if ( sitePlan && sitePlan.product_slug ) {
+		hasBackup = hasBackup || isJetpackPlanWithBackup( sitePlan.product_slug );
+	}
+
+	if ( Array.isArray( siteProducts ) ) {
+		hasBackup = hasBackup || siteProducts.some( p => isJetpackProduct( p.product_slug ) );
+	}
+
+	return hasBackup;
 }

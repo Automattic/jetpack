@@ -2,6 +2,60 @@
 
 ### This is a list detailing changes for the Jetpack RNA IDC package releases.
 
+## 0.10.1 - 2022-03-08
+### Changed
+- Updated package dependencies.
+
+## 0.10.0 - 2022-03-02
+### Added
+- IDCSCreen: use possibleDynamicSiteUrlDetected prop from initial state to show a helpful notice.
+
+### Changed
+- Reorganize stories by project-type/project-name
+- Updated package dependencies
+
+## 0.9.3 - 2022-02-22
+### Added
+- Add blog ID to event tracking.
+
+### Changed
+- Updated package dependencies.
+
+## 0.9.2 - 2022-02-09
+### Changed
+- Updated package dependencies
+
+## 0.9.1 - 2022-02-02
+### Changed
+- Updated package dependencies.
+
+## 0.9.0 - 2022-01-25
+### Added
+- Additional package customization parameters.
+- Allow customized text to contain HTML tags.
+
+## 0.8.2 - 2022-01-18
+### Changed
+- General: update required node version to v16.13.2
+
+### Fixed
+- fixed babel/preset-react dependency
+
+## 0.8.1 - 2022-01-11
+### Changed
+- Updated package dependencies.
+
+## 0.8.0 - 2022-01-07
+### Added
+- Display IDC resolution errors.
+
+## 0.7.1 - 2022-01-04
+### Changed
+- Updated package dependencies.
+
+### Fixed
+- Remove the jetpack_idc_clear_confirmation GET parameter before reloading the page to avoid the endless loop in the UI.
+
 ## 0.7.0 - 2021-12-14
 ### Added
 - Add the non-admin IDC screen.

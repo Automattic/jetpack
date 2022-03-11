@@ -1,0 +1,14 @@
+{
+	"name": "automattic/jp-f",
+	"extra": {
+		"dependencies": {
+			"build": [
+				"packages/b"
+			],
+			"test": [
+				"js-packages/d",
+				"js-packages/e"
+			]
+		}
+	}
+}

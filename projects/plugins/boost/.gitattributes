@@ -29,6 +29,7 @@ vendor/tedivm/** 			  production-include
 /.eslintrc.js                                   production-exclude
 /.gitattributes                                 production-exclude
 /.gitignore                                     production-exclude
+/.phpcs.dir.xml                                 production-exclude
 /.phpunit.result.cache                          production-exclude
 /.prettierrc.js                                 production-exclude
 /babel.config.js                                production-exclude

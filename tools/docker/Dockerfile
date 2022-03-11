@@ -1,4 +1,4 @@
-FROM ubuntu:20.04
+FROM ubuntu:21.10
 
 VOLUME ["/var/www/html"]
 
@@ -31,6 +31,7 @@ RUN \
 		sudo \
 		unzip \
 		vim \
+		zip \
 	&& rm -rf /var/lib/apt/lists/*
 
 # Enable mod_rewrite in Apache.

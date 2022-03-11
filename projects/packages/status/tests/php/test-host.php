@@ -31,6 +31,9 @@ class Test_Host extends TestCase {
 	public function set_up() {
 		Monkey\setUp();
 
+		Functions\when( 'get_current_blog_id' )->justReturn( 1 );
+
+		Cache::clear();
 		$this->host_obj = new Host();
 	}
 
@@ -42,6 +45,7 @@ class Test_Host extends TestCase {
 	public function tear_down() {
 		Monkey\tearDown();
 		Constants::clear_constants();
+		Cache::clear();
 	}
 
 	/**
@@ -97,6 +101,16 @@ class Test_Host extends TestCase {
 		Constants::set_constant( 'ATOMIC_CLIENT_ID', false );
 		Constants::set_constant( 'ATOMIC_SITE_ID', false );
 		$this->assertFalse( $this->host_obj->is_atomic_platform() );
+	}
+
+	/**
+	 * Test result is cached.
+	 */
+	public function test_cached() {
+		$this->setup_atomic_constants();
+		Functions\expect( 'get_option' )->once()->andReturn( array( 'fruit' => 'apples' ) );
+		$this->assertTrue( $this->host_obj->is_woa_site() );
+		$this->assertTrue( $this->host_obj->is_woa_site() );
 	}
 
 }

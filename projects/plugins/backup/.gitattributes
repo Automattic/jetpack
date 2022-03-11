@@ -12,6 +12,7 @@ vendor/jetpack-autoloader/**                    production-include
 /.eslintrc.js                                   production-exclude
 .gitattributes                                  production-exclude
 .gitignore                                      production-exclude
+.phpcs.dir.xml                                  production-exclude
 babel.config.js                                 production-exclude
 build/**/*.js.map                               production-exclude
 changelog/**                                    production-exclude

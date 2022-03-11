@@ -1,3 +1,5 @@
+const fs = require( 'fs' );
+const path = require( 'path' );
 const webpack = require( 'webpack' );
 
 const CssMinimizerPlugin = require( 'css-minimizer-webpack-plugin' );
@@ -76,9 +78,33 @@ const i18nFilterFunction = file => {
 	const i = file.lastIndexOf( '/node_modules/' ) + 14;
 	return i < 14 || file.startsWith( '@automattic/', i );
 };
-const I18nCheckPlugin = options => [
-	new I18nCheckWebpackPlugin( { filter: i18nFilterFunction, ...options } ),
-];
+const I18nCheckPlugin = options => {
+	const opts = { filter: i18nFilterFunction, ...options };
+	if ( typeof opts.expectDomain === 'undefined' ) {
+		let dir = process.cwd(),
+			olddir;
+		do {
+			const file = path.join( dir, 'composer.json' );
+			if ( fs.existsSync( file ) ) {
+				const cfg = JSON.parse( fs.readFileSync( file, { encoding: 'utf8' } ) );
+				if ( cfg.extra ) {
+					if ( cfg.extra.textdomain ) {
+						opts.expectDomain = cfg.extra.textdomain;
+					} else if ( cfg.extra[ 'wp-plugin-slug' ] ) {
+						opts.expectDomain = cfg.extra[ 'wp-plugin-slug' ];
+					} else if ( cfg.extra[ 'wp-theme-slug' ] ) {
+						opts.expectDomain = cfg.extra[ 'wp-theme-slug' ];
+					}
+				}
+				break;
+			}
+
+			olddir = dir;
+			dir = path.dirname( dir );
+		} while ( dir !== olddir );
+	}
+	return [ new I18nCheckWebpackPlugin( opts ) ];
+};
 I18nCheckPlugin.defaultFilter = i18nFilterFunction;
 
 const StandardPlugins = ( options = {} ) => {

@@ -3,14 +3,12 @@
  */
 import React from 'react';
 import PropTypes from 'prop-types';
-import { useSelect } from '@wordpress/data';
 import { __ } from '@wordpress/i18n';
 
 /**
  * Internal dependencies
  */
 import ConnectScreenVisual from './visual';
-import { STORE_ID } from '../../../state/store';
 import useConnection from '../../use-connection';
 
 /**
@@ -32,6 +30,7 @@ const ConnectScreen = props => {
 		children,
 		assetBaseUrl,
 		autoTrigger,
+		footer,
 	} = props;
 
 	const {
@@ -50,9 +49,6 @@ const ConnectScreen = props => {
 		from,
 	} );
 
-	const connectionStatusIsFetching = useSelect( select =>
-		select( STORE_ID ).getConnectionStatusIsFetching()
-	);
 	const showConnectButton = ! isRegistered || ! isUserConnected;
 	const displayButtonError = Boolean( registrationError );
 	const buttonIsLoading = siteIsRegistering || userIsConnecting;
@@ -62,12 +58,12 @@ const ConnectScreen = props => {
 			title={ title }
 			images={ images }
 			assetBaseUrl={ assetBaseUrl }
-			isLoading={ connectionStatusIsFetching }
 			showConnectButton={ showConnectButton }
 			buttonLabel={ buttonLabel }
 			handleButtonClick={ handleRegisterSite }
 			displayButtonError={ displayButtonError }
 			buttonIsLoading={ buttonIsLoading }
+			footer={ footer }
 		>
 			{ children }
 		</ConnectScreenVisual>

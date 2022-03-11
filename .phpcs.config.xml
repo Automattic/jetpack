@@ -1,7 +1,14 @@
 <?xml version="1.0"?>
+<!-- This file configures everything except the list of rules. -->
+<!-- The separation is so .github/files/phpcompatibility-dev-phpcs.xml can use the same config with a different rule set. -->
 <ruleset>
 	<config name="minimum_supported_wp_version" value="5.8" />
 	<config name="testVersion" value="5.6-"/>
+
+	<!-- Use our custom filter for `.phpcsignore` and `.phpcs.dir.xml` support. -->
+	<arg name="filter" value="vendor/automattic/jetpack-phpcs-filter/src/PhpcsFilter.php" />
+	<!-- The bootstrap file is needed to get phpcs-changed to work right. -->
+	<arg name="bootstrap" value="vendor/automattic/jetpack-phpcs-filter/stdin-bootstrap.php" />
 
 	<!-- Check all PHP files in directory tree by default. -->
 	<arg name="extensions" value="php"/>
@@ -11,38 +18,5 @@
 	<arg value="s"/>
 
 	<arg name="colors"/>
-
-	<!-- Ignore git, in case someone created a branch ending in ".php" or something -->
-	<exclude-pattern>/.git/*</exclude-pattern>
-
-	<!-- Ignore external libraries -->
-	<exclude-pattern>/node_modules/*</exclude-pattern>
-	<exclude-pattern>/vendor/*</exclude-pattern>
-	<exclude-pattern>/jetpack_vendor/*</exclude-pattern>
-
-	<!-- Ignore WordPress and such checked out for Docker -->
-	<exclude-pattern>/tools/docker/data/*</exclude-pattern>
-	<exclude-pattern>/tools/docker/mu-plugins/0-sandbox.php</exclude-pattern>
-	<exclude-pattern>/tools/docker/wordpress-develop/*</exclude-pattern>
-	<exclude-pattern>/tools/docker/wordpress/*</exclude-pattern>
-
-	<!-- Ignore WordPress included in packages -->
-	<exclude-pattern>/projects/packages/*/wordpress/*</exclude-pattern>
-
-	<!-- Ignore WordPress included in plugins -->
-	<exclude-pattern>/projects/plugins/*/wordpress/*</exclude-pattern>
-
-	<!-- Ignore built files -->
-	<exclude-pattern>/projects/packages/connection-ui/build/*</exclude-pattern>
-	<exclude-pattern>/projects/packages/identity-crisis/build/*</exclude-pattern>
-	<exclude-pattern>/projects/packages/lazy-images/dist/*</exclude-pattern>
-	<exclude-pattern>/projects/plugins/backup/build/*</exclude-pattern>
-	<exclude-pattern>/projects/plugins/jetpack/_inc/blocks/*</exclude-pattern>
-	<exclude-pattern>/projects/plugins/jetpack/_inc/build/*</exclude-pattern>
-	<exclude-pattern>/projects/plugins/jetpack/modules/module-headings.php</exclude-pattern>
-	<exclude-pattern>/projects/plugins/jetpack/modules/photon-cdn/jetpack-manifest.php</exclude-pattern>
-
-	<!-- Ignore test fixture files -->
-	<exclude-pattern>/projects/packages/assets/tests/php/test-assets-files/*</exclude-pattern>
 
 </ruleset>

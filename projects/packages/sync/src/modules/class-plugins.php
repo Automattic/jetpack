@@ -205,7 +205,7 @@ class Plugins extends Module {
 		$plugins = get_plugins(); // Get the most up to date info.
 		if ( isset( $plugins[ $slug ] ) ) {
 			return array_merge( array( 'slug' => $slug ), $plugins[ $slug ] );
-		};
+		}
 		// Try grabbing the info from before the update.
 		return isset( $this->plugins[ $slug ] ) ? array_merge( array( 'slug' => $slug ), $this->plugins[ $slug ] ) : array( 'slug' => $slug );
 	}
@@ -242,7 +242,7 @@ class Plugins extends Module {
 			if ( empty( $skin->result ) ) {
 				return array(
 					'code'    => 'unknown',
-					'message' => __( 'Unknown Plugin Update Failure', 'jetpack' ),
+					'message' => __( 'Unknown Plugin Update Failure', 'jetpack-sync' ),
 				);
 			}
 		}

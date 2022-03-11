@@ -11,7 +11,7 @@ import { get, includes } from 'lodash';
  */
 import { createInterpolateElement } from '@wordpress/element';
 import { __, _x, _n, sprintf } from '@wordpress/i18n';
-import { getRedirectUrl } from '@automattic/jetpack-components';
+import { getRedirectUrl, numberFormat } from '@automattic/jetpack-components';
 
 /**
  * Internal dependencies
@@ -23,7 +23,6 @@ import { getPlanClass, FEATURE_SECURITY_SCANNING_JETPACK } from 'lib/plans/const
 import { getVaultPressData, getVaultPressScanThreatCount } from 'state/at-a-glance';
 import { getSitePlan } from 'state/site';
 import { isModuleActivated } from 'state/modules';
-import { numberFormat } from 'components/number-format';
 import QueryRewindStatus from 'components/data/query-rewind-status';
 import SettingsCard from 'components/settings-card';
 import SettingsGroup from 'components/settings-group';

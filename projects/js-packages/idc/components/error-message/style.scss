@@ -1,0 +1,38 @@
+@import '~@automattic/jetpack-base-styles/style';
+
+.jp-idc__idc-screen {
+  .jp-idc__error-message {
+	display: flex;
+	flex-direction: row;
+	align-items: center;
+	justify-content: center;
+	color: var(--jp-red);
+	margin: 15px 0;
+
+	.error-gridicon {
+	  margin-right: 8px;
+	  fill: var(--jp-red);
+	}
+
+	span, a {
+	  font-size: var(--font-body);
+	  color: var(--jp-red);
+	}
+  }
+
+  .jp-idc__safe-mode .jp-idc__error-message {
+	margin-top: 5px;
+  }
+
+  .jp-idc__idc-screen__cards.jp-idc__idc-screen__cards-error .jp-idc__idc-screen__card-action-base {
+	padding-bottom: 75px;
+
+	&.jp-idc__idc-screen__card-action-error {
+	  padding-bottom: 5px;
+	}
+
+	.jp-idc__error-message {
+	  height: 40px;
+	}
+  }
+}

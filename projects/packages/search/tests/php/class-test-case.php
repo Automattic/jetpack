@@ -16,6 +16,7 @@ use WorDBless\Users as WorDBless_Users;
  * Base Test_Case class which intercepts API calls and basic options.
  */
 class Test_Case extends TestCase {
+	const PLAN_INFO_FIXTURE = '{"search_subscriptions":[{"ID":"1","user_id":"1","blog_id":"1","product_id":"2001","expiry":"2117-06-30","subscribed_date":"2017-06-30 16:07:06","renew":true,"auto_renew":true,"ownership_id":"9698106","most_recent_renew_date":"","subscription_status":"active","product_name":"Jetpack Professional","product_name_en":"Jetpack Professional","product_slug":"jetpack_business","product_type":"bundle","cost":0,"currency":"USD","bill_period":"365","available":"yes","multi":false,"support_document":null,"is_instant_search":false,"tier":null}],"supports_instant_search":false,"supports_only_classic_search":true,"supports_search":true,"default_upgrade_bill_period":"yearly"}';
 	/**
 	 * An Admin user id
 	 *
@@ -111,7 +112,7 @@ class Test_Case extends TestCase {
 					'code'    => 200,
 					'message' => 'ok',
 				),
-				'body'     => '{"search_subscriptions":[{"ID":"1","user_id":"1","blog_id":"1","product_id":"2001","expiry":"2117-06-30","subscribed_date":"2017-06-30 16:07:06","renew":true,"auto_renew":true,"ownership_id":"9698106","most_recent_renew_date":"","subscription_status":"active","product_name":"Jetpack Professional","product_name_en":"Jetpack Professional","product_slug":"jetpack_business","product_type":"bundle","cost":0,"currency":"USD","bill_period":"365","available":"yes","multi":false,"support_document":null,"is_instant_search":false,"tier":null}],"supports_instant_search":false,"supports_only_classic_search":true,"supports_search":true,"default_upgrade_bill_period":"yearly"}',
+				'body'     => self::PLAN_INFO_FIXTURE,
 			);
 		}
 		if ( strpos( $url, '/search' ) !== false && strpos( $url, 'v1.3/sites/' ) !== false ) {

@@ -13,7 +13,7 @@ import { createInterpolateElement } from '@wordpress/element';
 import { Spinner } from '@wordpress/components';
 import { dateI18n } from '@wordpress/date';
 import { __, sprintf } from '@wordpress/i18n';
-import { getRedirectUrl } from '@automattic/jetpack-components';
+import { getRedirectUrl, numberFormat } from '@automattic/jetpack-components';
 
 /**
  * Internal dependencies
@@ -31,7 +31,6 @@ import { imagePath } from 'constants/urls';
 import { isOfflineMode, isCurrentUserLinked, getConnectUrl } from 'state/connection';
 import { isModuleAvailable, getModuleOverride } from 'state/modules';
 import ModuleOverriddenBanner from 'components/module-overridden-banner';
-import { numberFormat } from 'components/number-format';
 import QueryStatsData from 'components/data/query-stats-data';
 
 export class DashStats extends Component {

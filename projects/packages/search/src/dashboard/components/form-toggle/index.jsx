@@ -89,26 +89,29 @@ export default class FormToggle extends Component {
 
 		return (
 			<Fragment>
-				<input
-					className={ toggleClasses }
-					type="checkbox"
-					checked={ this.props.checked }
-					readOnly={ true }
-					disabled={ this.props.disabled }
-				/>
-
-				<span
-					className={ classNames( 'form-toggle__switch', this.props.switchClassNames ) }
-					disabled={ this.props.disabled }
-					id={ id }
-					onClick={ this.onClick }
-					onKeyDown={ this.onKeyDown }
-					role="checkbox"
-					aria-checked={ this.props.checked }
-					aria-label={ this.props[ 'aria-label' ] }
-					tabIndex={ this.props.disabled ? -1 : 0 }
-					ref="toggleSwitch"
-				/>
+				<div
+					className={ classNames( 'form-toggle__switch-container', this.props.switchClassNames ) }
+				>
+					<input
+						className={ toggleClasses }
+						type="checkbox"
+						checked={ this.props.checked }
+						readOnly={ true }
+						disabled={ this.props.disabled }
+					/>
+					<span
+						className={ classNames( 'form-toggle__switch', this.props.switchClassNames ) }
+						disabled={ this.props.disabled }
+						id={ id }
+						onClick={ this.onClick }
+						onKeyDown={ this.onKeyDown }
+						role="checkbox"
+						aria-checked={ this.props.checked }
+						aria-label={ this.props[ 'aria-label' ] }
+						tabIndex={ this.props.disabled ? -1 : 0 }
+						ref="toggleSwitch"
+					/>
+				</div>
 				<label
 					className={ classNames( 'form-toggle__label', this.props.labelClassNames ) }
 					htmlFor={ id }

@@ -1,4 +1,0 @@
-Significance: patch
-Type: other
-
-Use `@automattic/i18n-loader-webpack-plugin` to remove the hack for Instant Search's lazy-loaded bundle.

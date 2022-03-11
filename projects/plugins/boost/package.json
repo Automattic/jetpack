@@ -1,14 +1,14 @@
 {
 	"name": "jetpack-boost",
-	"version": "2.0.0-alpha",
+	"version": "1.4.2-alpha",
 	"description": "Boost your WordPress site's performance, from the creators of Jetpack",
 	"directories": {
 		"test": "tests"
 	},
 	"dependencies": {
-		"@wordpress/components": "19.1.1",
-		"@wordpress/element": "4.0.4",
-		"jetpack-boost-critical-css-gen": "github:automattic/jetpack-boost-critical-css-gen#release-0.0.2"
+		"@wordpress/components": "19.5.0",
+		"@wordpress/element": "4.1.1",
+		"jetpack-boost-critical-css-gen": "github:automattic/jetpack-boost-critical-css-gen#release-0.0.4"
 	},
 	"devDependencies": {
 		"@babel/core": "7.16.0",
@@ -18,12 +18,11 @@
 		"@rollup/plugin-typescript": "8.2.5",
 		"@sveltejs/eslint-config": "github:sveltejs/eslint-config",
 		"@tsconfig/svelte": "2.0.1",
-		"@typescript-eslint/eslint-plugin": "4.33.0",
-		"@typescript-eslint/parser": "4.33.0",
-		"@wordpress/e2e-test-utils": "5.4.8",
-		"@wordpress/eslint-plugin": "9.3.0",
-		"@wordpress/i18n": "4.2.4",
-		"eslint-plugin-import": "2.25.3",
+		"@typescript-eslint/eslint-plugin": "5.10.2",
+		"@typescript-eslint/parser": "5.10.2",
+		"@wordpress/e2e-test-utils": "6.0.2",
+		"@wordpress/i18n": "4.3.1",
+		"eslint-plugin-import": "2.25.4",
 		"eslint-plugin-svelte3": "3.2.1",
 		"node-wp-i18n": "1.2.6",
 		"npm-run-all": "4.1.5",
@@ -36,7 +35,7 @@
 		"rollup-plugin-svelte-svg": "0.2.3",
 		"rollup-plugin-terser": "7.0.2",
 		"sass": "1.39.0",
-		"sass-loader": "12.1.0",
+		"sass-loader": "12.4.0",
 		"svelte": "3.42.4",
 		"svelte-preprocess": "4.9.2",
 		"tslib": "2.3.1",
@@ -44,20 +43,17 @@
 	},
 	"scripts": {
 		"add-textdomain": "wpi18n addtextdomain --textdomain=jetpack-boost --exclude=node_modules,tests,vendor *.php **/*.php",
-		"build-development": "pnpm run clear-dist && pnpm run build-php && rollup -c",
-		"build-production": "pnpm run clear-dist && pnpm run install-if-deps-outdated && pnpm run build-production-php && NODE_ENV=production BABEL_ENV=production rollup -c",
-		"build-php": "composer install --ignore-platform-reqs",
-		"build-production-php": "rm -rf vendor/ jetpack_vendor/ && COMPOSER_MIRROR_PATH_REPOS=1 COMPOSER_ROOT_VERSION=dev-master composer install -o --no-dev --classmap-authoritative --prefer-dist",
-		"install-if-deps-outdated": "pnpm install --no-prod --frozen-lockfile",
+		"build-development": "pnpm run clear-dist && rollup -c",
+		"build-production": "pnpm run clear-dist && NODE_ENV=production BABEL_ENV=production rollup -c",
 		"dev-serve": "rollup -c -w --environment SERVE",
 		"dev": "pnpm run clear-dist && rollup -c -w",
 		"reformat-files": "../../../tools/js-tools/node_modules/.bin/prettier --ignore-path ../../../.eslintignore --write --plugin-search-dir=. ./**/*.{svelte,js,ts,json}",
 		"lint": "pnpm run reformat-files && echo 'Running eslint...' && ../../../tools/js-tools/node_modules/.bin/eslint app/assets/src/js tests/e2e --fix && echo '✔ prettier and eslint ran successfully.'",
 		"clear-dist": "rm -rf app/assets/dist/*",
-		"test-e2e:start": "pnpm --prefix tests/e2e run tunnel-on && pnpm --prefix tests/e2e run env-start",
-		"test-e2e:run": "pnpm --prefix tests/e2e run test-e2e",
-		"test-e2e:stop": "pnpm --prefix tests/e2e run tunnel-off && pnpm --prefix tests/e2e run env-stop",
-		"test-e2e:decrypt-config": "pnpm --prefix tests/e2e run test-decrypt-config"
+		"test-e2e:start": "pnpm --prefix tests/e2e run tunnel:up && pnpm --prefix tests/e2e run env:up",
+		"test-e2e:run": "pnpm --prefix tests/e2e run test:run",
+		"test-e2e:stop": "pnpm --prefix tests/e2e run tunnel:down && pnpm --prefix tests/e2e run env:down",
+		"test-e2e:decrypt-config": "pnpm --prefix tests/e2e run config:decrypt"
 	},
 	"private": true,
 	"repository": {
@@ -71,7 +67,7 @@
 	},
 	"homepage": "https://jetpack.com/boost/",
 	"engines": {
-		"node": "^14.17.6 || ^16.7.0",
+		"node": "^14.18.3 || ^16.13.2",
 		"pnpm": "^6.23.6",
 		"yarn": "use pnpm instead - see docs/yarn-upgrade.md"
 	}

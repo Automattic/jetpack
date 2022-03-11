@@ -9,13 +9,9 @@
 	},
 	"scripts": {
 		"test-js": [
-			"Composer\\Config::disableProcessTimeout",
-			"pnpm install",
 			"pnpm run test"
 		],
 		"test-coverage": [
-			"Composer\\Config::disableProcessTimeout",
-			"pnpm install",
 			"pnpx nyc --report-dir=\"$COVERAGE_DIR\" pnpm run test"
 		]
 	},

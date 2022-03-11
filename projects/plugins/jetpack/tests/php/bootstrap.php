@@ -42,10 +42,12 @@ if ( version_compare( PHP_VERSION, '8.0', '>=' ) &&
 	if ( ! class_exists( PHPUnit\Framework\MockObject\InvocationMocker::class, false ) &&
 		file_exists( "$test_root/includes/phpunit7/MockObject/InvocationMocker.php" )
 	) {
+		// phpcs:disable WordPressVIPMinimum.Files.IncludingFile.NotAbsolutePath
 		require "$test_root/includes/phpunit7/MockObject/Builder/NamespaceMatch.php";
 		require "$test_root/includes/phpunit7/MockObject/Builder/ParametersMatch.php";
 		require "$test_root/includes/phpunit7/MockObject/InvocationMocker.php";
 		require "$test_root/includes/phpunit7/MockObject/MockMethod.php";
+		// phpcs:enable
 	} else {
 		fprintf(
 			STDOUT,
@@ -58,7 +60,7 @@ if ( version_compare( PHP_VERSION, '8.0', '>=' ) &&
 	}
 }
 
-if ( '1' !== getenv( 'WP_MULTISITE' ) && ( defined( 'WP_TESTS_MULTISITE' ) && ! WP_TESTS_MULTISITE ) ) {
+if ( '1' !== getenv( 'WP_MULTISITE' ) && ( ! defined( 'WP_TESTS_MULTISITE' ) || ! WP_TESTS_MULTISITE ) ) {
 	echo 'To run Jetpack multisite, use -c tests/php.multisite.xml' . PHP_EOL;
 	echo "Disregard Core's -c tests/phpunit/multisite.xml notice below." . PHP_EOL;
 }

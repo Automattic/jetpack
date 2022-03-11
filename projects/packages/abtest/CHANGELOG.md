@@ -5,6 +5,23 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.9.21] - 2022-03-02
+### Changed
+- Updated package dependencies.
+
+## [1.9.20] - 2022-01-25
+### Changed
+- Updated package dependencies.
+
+## [1.9.19] - 2022-01-18
+### Changed
+- Updated package dependencies.
+
+## [1.9.18] - 2022-01-04
+### Changed
+- Switch to pcov for code coverage.
+- Updated package dependencies
+
 ## [1.9.17] - 2021-12-14
 ### Changed
 - Updated package dependencies.
@@ -199,6 +216,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - Packages: Introduce a simple A/B test package
 
+[1.9.21]: https://github.com/Automattic/jetpack-abtest/compare/v1.9.20...v1.9.21
+[1.9.20]: https://github.com/Automattic/jetpack-abtest/compare/v1.9.19...v1.9.20
+[1.9.19]: https://github.com/Automattic/jetpack-abtest/compare/v1.9.18...v1.9.19
+[1.9.18]: https://github.com/Automattic/jetpack-abtest/compare/v1.9.17...v1.9.18
 [1.9.17]: https://github.com/Automattic/jetpack-abtest/compare/v1.9.16...v1.9.17
 [1.9.16]: https://github.com/Automattic/jetpack-abtest/compare/v1.9.15...v1.9.16
 [1.9.15]: https://github.com/Automattic/jetpack-abtest/compare/v1.9.14...v1.9.15

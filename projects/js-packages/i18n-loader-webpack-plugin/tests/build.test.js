@@ -42,7 +42,7 @@ function lsFiles( dir ) {
 }
 
 beforeEach( () => {
-	fetch.urls = {};
+	global.jpI18nLoader.expect = {};
 } );
 
 const fixturesPath = path.join( __dirname, 'fixtures' );
@@ -104,10 +104,9 @@ describe.each( configFixtures )( 'Webpack `%s`', fixture => {
 			const data = {};
 			if ( file.endsWith( '.js' ) ) {
 				const content = fs.readFileSync( path.join( builddir, file ), { encoding: 'utf8' } );
-				data.wpI18n = extractSection( content, '/***/ "@wordpress/i18n":\n', '/***/ })' );
 				data.jpI18nState = extractSection(
 					content,
-					'/***/ "@wordpress/jp-i18n-state":\n',
+					'/***/ "@wordpress/jp-i18n-loader":\n',
 					'/***/ })'
 				);
 				data.loader = extractSection(

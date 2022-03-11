@@ -13,3 +13,4 @@ vendor/jetpack-autoloader/**                production-include
 /composer.lock                              production-exclude
 /vendor/automattic/jetpack-autoloader/**    production-exclude
 /vendor/automattic/jetpack-changelogger/**  production-exclude
+.phpcs.dir.xml   production-exclude

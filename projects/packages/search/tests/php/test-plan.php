@@ -87,9 +87,9 @@ class Test_Plan extends Search_Test_Case {
 	 * Test `update_search_plan_info`
 	 */
 	public function test_update_search_plan_info() {
-		$this->assertNull( static::$plan->update_search_plan_info( new WP_Error() ) );
-		$this->assertNull( static::$plan->update_search_plan_info( array( 'response' => array( 'code' => 500 ) ) ) );
-		$this->assertNull( static::$plan->update_search_plan_info( array() ) );
+		$this->assertFalse( static::$plan->update_search_plan_info( new WP_Error() ) );
+		$this->assertFalse( static::$plan->update_search_plan_info( array( 'response' => array( 'code' => 500 ) ) ) );
+		$this->assertFalse( static::$plan->update_search_plan_info( array() ) );
 
 		$response = $this->plan_http_response_fixture( null, null, '/jetpack-search/plan' );
 		static::$plan->update_search_plan_info( $response );

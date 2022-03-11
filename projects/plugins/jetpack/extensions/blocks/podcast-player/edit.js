@@ -3,6 +3,7 @@
  */
 import debugFactory from 'debug';
 import { debounce, noop } from 'lodash';
+import { isAtomicSite, isSimpleSite } from '@automattic/jetpack-shared-extension-utils';
 
 /**
  * WordPress dependencies
@@ -26,7 +27,6 @@ import { compose, withInstanceId } from '@wordpress/compose';
 import { __ } from '@wordpress/i18n';
 import {
 	BlockControls,
-	BlockIcon,
 	InspectorControls,
 	withColors,
 	PanelColorSettings,
@@ -42,7 +42,6 @@ import { isURL, prependHTTP } from '@wordpress/url';
 import { getValidatedAttributes } from '../../shared/get-validated-attributes';
 import './editor.scss';
 import { queueMusic } from './icons/';
-import { isAtomicSite, isSimpleSite } from '../../shared/site-type-utils';
 import attributesValidation from './attributes';
 import PodcastPlayer from './components/podcast-player';
 import { makeCancellable } from './utils';
@@ -270,7 +269,7 @@ const PodcastPlayerEdit = ( {
 	if ( state.isEditing ) {
 		return (
 			<Placeholder
-				icon={ <BlockIcon icon={ queueMusic } /> }
+				icon={ queueMusic }
 				label={ __( 'Podcast Player', 'jetpack' ) }
 				instructions={ __( 'Enter your podcast RSS feed URL.', 'jetpack' ) }
 				className={ 'jetpack-podcast-player__placeholder' }
@@ -285,7 +284,7 @@ const PodcastPlayerEdit = ( {
 						className={ 'components-placeholder__input' }
 						onChange={ editedUrl => dispatch( { type: actions.EDIT_URL, payload: editedUrl } ) }
 					/>
-					<Button isPrimary type="submit">
+					<Button variant="primary" type="submit">
 						{ __( 'Embed', 'jetpack' ) }
 					</Button>
 				</form>
@@ -303,7 +302,7 @@ const PodcastPlayerEdit = ( {
 	if ( ! state.feedData.tracks?.length ) {
 		return (
 			<Placeholder
-				icon={ <BlockIcon icon={ queueMusic } /> }
+				icon={ queueMusic }
 				label={ __( 'Podcast Player', 'jetpack' ) }
 				instructions={ __( 'Loading podcast feed…', 'jetpack' ) }
 			>

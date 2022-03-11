@@ -81,10 +81,10 @@ class Post_Connection_JITM extends JITM {
 
 		switch ( $base_location['country'] ) {
 			case 'US':
-				$content->message = esc_html__( 'New free service: Show USPS shipping rates on your store! Added bonus: print shipping labels without leaving WooCommerce.', 'jetpack' );
+				$content->message = esc_html__( 'New free service: Show USPS shipping rates on your store! Added bonus: print shipping labels without leaving WooCommerce.', 'jetpack-jitm' );
 				break;
 			case 'CA':
-				$content->message = esc_html__( 'New free service: Show Canada Post shipping rates on your store!', 'jetpack' );
+				$content->message = esc_html__( 'New free service: Show Canada Post shipping rates on your store!', 'jetpack-jitm' );
 				break;
 			default:
 				$content->message = '';
@@ -288,16 +288,16 @@ class Post_Connection_JITM extends JITM {
 		$user             = is_a( $connection_owner_userdata, 'WP_User' ) ? esc_html( $connection_owner_userdata->data->user_login ) : '';
 
 		echo "<div class='notice notice-warning' id='jetpack-notice-switch-connection-owner'>";
-		echo '<h2>' . esc_html__( 'Important notice about your Jetpack connection:', 'jetpack' ) . '</h2>';
+		echo '<h2>' . esc_html__( 'Important notice about your Jetpack connection:', 'jetpack-jitm' ) . '</h2>';
 		echo '<p>' . sprintf(
 			/* translators: WordPress User, if available. */
-			esc_html__( 'Warning! You are about to delete the Jetpack connection owner (%s) for this site, which may cause some of your Jetpack features to stop working.', 'jetpack' ),
+			esc_html__( 'Warning! You are about to delete the Jetpack connection owner (%s) for this site, which may cause some of your Jetpack features to stop working.', 'jetpack-jitm' ),
 			esc_html( $user )
 		) . '</p>';
 
 		if ( ! empty( $connected_admins ) && count( $connected_admins ) > 1 ) {
 			echo '<form id="jp-switch-connection-owner" action="" method="post">';
-			echo "<label for='owner'>" . esc_html__( 'You can choose to transfer connection ownership to one of these already-connected admins:', 'jetpack' ) . ' </label>';
+			echo "<label for='owner'>" . esc_html__( 'You can choose to transfer connection ownership to one of these already-connected admins:', 'jetpack-jitm' ) . ' </label>';
 
 			$connected_admin_ids = array_map(
 				function ( $connected_admin ) {
@@ -315,7 +315,7 @@ class Post_Connection_JITM extends JITM {
 			);
 
 			echo '<p>';
-			submit_button( esc_html__( 'Set new connection owner', 'jetpack' ), 'primary', 'jp-switch-connection-owner-submit', false );
+			submit_button( esc_html__( 'Set new connection owner', 'jetpack-jitm' ), 'primary', 'jp-switch-connection-owner-submit', false );
 			echo '</p>';
 
 			echo "<div id='jp-switch-user-results'></div>";
@@ -338,7 +338,7 @@ class Post_Connection_JITM extends JITM {
 								'X-WP-Nonce': "<?php echo esc_js( wp_create_nonce( 'wp_rest' ) ); ?>",
 							},
 							success: function() {
-								results.innerHTML = "<?php esc_html_e( 'Success!', 'jetpack' ); ?>";
+								results.innerHTML = "<?php esc_html_e( 'Success!', 'jetpack-jitm' ); ?>";
 								setTimeout( function() {
 									$( '#jetpack-notice-switch-connection-owner' ).hide( 'slow' );
 								}, 1000 );
@@ -354,17 +354,17 @@ class Post_Connection_JITM extends JITM {
 			</script>
 			<?php
 		} else {
-			echo '<p>' . esc_html__( 'Every Jetpack site needs at least one connected admin for the features to work properly. Please connect to your WordPress.com account via the button below. Once you connect, you may refresh this page to see an option to change the connection owner.', 'jetpack' ) . '</p>';
+			echo '<p>' . esc_html__( 'Every Jetpack site needs at least one connected admin for the features to work properly. Please connect to your WordPress.com account via the button below. Once you connect, you may refresh this page to see an option to change the connection owner.', 'jetpack-jitm' ) . '</p>';
 			$connect_url = $connection_manager->get_authorization_url();
 			$connect_url = add_query_arg( 'from', 'delete_connection_owner_notice', $connect_url );
-			echo "<a href='" . esc_url( $connect_url ) . "' target='_blank' rel='noopener noreferrer' class='button-primary'>" . esc_html__( 'Connect to WordPress.com', 'jetpack' ) . '</a>';
+			echo "<a href='" . esc_url( $connect_url ) . "' target='_blank' rel='noopener noreferrer' class='button-primary'>" . esc_html__( 'Connect to WordPress.com', 'jetpack-jitm' ) . '</a>';
 		}
 
 		echo '<p>';
 		printf(
 			wp_kses(
 				/* translators: URL to Jetpack support doc regarding the primary user. */
-				__( "<a href='%s' target='_blank' rel='noopener noreferrer'>Learn more</a> about the connection owner and what will break if you do not have one.", 'jetpack' ),
+				__( "<a href='%s' target='_blank' rel='noopener noreferrer'>Learn more</a> about the connection owner and what will break if you do not have one.", 'jetpack-jitm' ),
 				array(
 					'a' => array(
 						'href'   => true,
@@ -380,7 +380,7 @@ class Post_Connection_JITM extends JITM {
 		printf(
 			wp_kses(
 				/* translators: URL to contact Jetpack support. */
-				__( 'As always, feel free to <a href="%s" target="_blank" rel="noopener noreferrer">contact our support team</a> if you have any questions.', 'jetpack' ),
+				__( 'As always, feel free to <a href="%s" target="_blank" rel="noopener noreferrer">contact our support team</a> if you have any questions.', 'jetpack-jitm' ),
 				array(
 					'a' => array(
 						'href'   => true,

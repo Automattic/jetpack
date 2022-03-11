@@ -6,9 +6,10 @@ import { __ } from '@wordpress/i18n';
 /**
  * Internal dependencies
  */
-import { fetchJetpackSettings, fetchSearchPlanInfo } from './controls';
+import { fetchJetpackSettings, fetchSearchPlanInfo, fetchSearchStats } from './controls';
 import { setJetpackSettings } from './actions/jetpack-settings';
 import { setSearchPlanInfo } from './actions/site-plan';
+import { setSearchStats } from './actions/site-stats';
 import { errorNotice } from '../components/global-notices/store/actions';
 
 /**
@@ -24,7 +25,7 @@ export function* getSearchModuleStatus() {
 			return setJetpackSettings( settings );
 		}
 	} catch ( e ) {
-		return errorNotice( __( 'Error fetching settings…' ) );
+		return errorNotice( __( 'Error fetching settings…', 'jetpack-search-pkg' ) );
 	}
 }
 
@@ -41,8 +42,25 @@ export function* getSearchPlanInfo() {
 			return setSearchPlanInfo( planInfo );
 		}
 	} catch ( e ) {
-		return errorNotice( __( 'Error fetching search plan…' ) );
+		return errorNotice( __( 'Error fetching search plan…', 'jetpack-search-pkg' ) );
 	}
 }
 
-export default { getSearchModuleStatus, getSearchPlanInfo };
+/**
+ * Yield actions to get search stats
+ *
+ * @yields {object} - an action object.
+ * @returns {object} - an action object.
+ */
+export function* getSearchStats() {
+	try {
+		const stats = yield fetchSearchStats();
+		if ( stats ) {
+			return setSearchStats( stats );
+		}
+	} catch ( e ) {
+		return errorNotice( __( 'Error fetching search stats', 'jetpack-search-pkg' ) );
+	}
+}
+
+export default { getSearchModuleStatus, getSearchPlanInfo, getSearchStats };

@@ -1,8 +1,16 @@
-<?php
+<?php // phpcs:ignore WordPress.Files.FileName.InvalidClassFileName
+/**
+ * Jetpack Heartbeat.
+ *
+ * @package automattic/jetpack
+ */
 
 use Automattic\Jetpack\Connection\Manager;
 use Automattic\Jetpack\Heartbeat;
 
+/**
+ * Jetpack Heartbeat.
+ */
 class Jetpack_Heartbeat {
 
 	/**
@@ -41,7 +49,6 @@ class Jetpack_Heartbeat {
 	 * Constructor for singleton
 	 *
 	 * @since 2.3.3
-	 * @return Jetpack_Heartbeat
 	 */
 	private function __construct() {
 		add_filter( 'jetpack_heartbeat_stats_array', array( $this, 'add_stats_to_heartbeat' ) );

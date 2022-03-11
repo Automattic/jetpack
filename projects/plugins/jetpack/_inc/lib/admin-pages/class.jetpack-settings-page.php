@@ -1,21 +1,35 @@
-<?php
+<?php // phpcs:ignore WordPress.Files.FileName.InvalidClassFileName
 
-use Automattic\Jetpack\Tracking;
 use Automattic\Jetpack\Assets;
+use Automattic\Jetpack\Tracking;
 
-include_once( 'class.jetpack-admin-page.php' );
-include_once( JETPACK__PLUGIN_DIR . 'class.jetpack-modules-list-table.php' );
+require_once __DIR__ . '/class.jetpack-admin-page.php';
+require_once JETPACK__PLUGIN_DIR . 'class.jetpack-modules-list-table.php';
 
-// Builds the settings page and its menu
+/**
+ * Builds the settings page and its menu
+ */
 class Jetpack_Settings_Page extends Jetpack_Admin_Page {
 
-	// Show the settings page only when Jetpack is connected or in dev mode
+	/**
+	 * Show the settings page only when Jetpack is connected or in dev mode.
+	 *
+	 * @var boolean
+	 */
 	protected $dont_show_if_not_active = true;
 
-	function add_page_actions( $hook ) {}
+	/**
+	 * Add page action.
+	 *
+	 * @param string $hook Hook of current page.
+	 * @return void
+	 */
+	public function add_page_actions( $hook ) {} //phpcs:ignore VariableAnalysis.CodeAnalysis.VariableAnalysis.UnusedVariable
 
-	// Adds the Settings sub menu
-	function get_page_hook() {
+	/**
+	 * Adds the Settings sub menu.
+	 */
+	public function get_page_hook() {
 		return add_submenu_page(
 			null,
 			__( 'Jetpack Settings', 'jetpack' ),
@@ -26,14 +40,16 @@ class Jetpack_Settings_Page extends Jetpack_Admin_Page {
 		);
 	}
 
-	// Renders the module list table where you can use bulk action or row
-	// actions to activate/deactivate and configure modules
-	function page_render() {
-		$list_table = new Jetpack_Modules_List_Table;
+	/**
+	 * Renders the module list table where you can use bulk action or row
+	 * actions to activate/deactivate and configure modules
+	 */
+	public function page_render() {
+		$list_table = new Jetpack_Modules_List_Table();
 
-		// We have static.html so let's continue trying to fetch the others
-		$noscript_notice = @file_get_contents( JETPACK__PLUGIN_DIR . '_inc/build/static-noscript-notice.html' );
-		$rest_api_notice = @file_get_contents( JETPACK__PLUGIN_DIR . '_inc/build/static-version-notice.html' );
+		// We have static.html so let's continue trying to fetch the others.
+		$noscript_notice = @file_get_contents( JETPACK__PLUGIN_DIR . '_inc/build/static-noscript-notice.html' ); //phpcs:ignore WordPress.PHP.NoSilencedErrors.Discouraged, WordPress.WP.AlternativeFunctions.file_get_contents_file_get_contents, Not fetching a remote file.
+		$rest_api_notice = @file_get_contents( JETPACK__PLUGIN_DIR . '_inc/build/static-version-notice.html' ); //phpcs:ignore WordPress.PHP.NoSilencedErrors.Discouraged, WordPress.WP.AlternativeFunctions.file_get_contents_file_get_contents, Not fetching a remote file.
 
 		$noscript_notice = str_replace(
 			'#HEADER_TEXT#',
@@ -58,9 +74,9 @@ class Jetpack_Settings_Page extends Jetpack_Admin_Page {
 		);
 
 		if ( ! $this->is_rest_api_enabled() ) {
-			echo $rest_api_notice;
+			echo $rest_api_notice; //phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
 		}
-		echo $noscript_notice;
+		echo $noscript_notice; //phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
 		?>
 
 		<div class="page-content configure">
@@ -92,15 +108,52 @@ class Jetpack_Settings_Page extends Jetpack_Admin_Page {
 								<?php $list_table->search_box( __( 'Search', 'jetpack' ), 'srch-term' ); ?>
 								<p><?php esc_html_e( 'View:', 'jetpack' ); ?></p>
 								<div class="button-group filter-active">
-									<button type="button" class="button <?php if ( empty( $_GET['activated'] ) ) echo 'active'; ?>"><?php esc_html_e( 'All', 'jetpack' ); ?></button>
-									<button type="button" class="button <?php if ( ! empty( $_GET['activated'] ) && 'true' == $_GET['activated'] ) echo 'active'; ?>" data-filter-by="activated" data-filter-value="true"><?php esc_html_e( 'Active', 'jetpack' ); ?></button>
-									<button type="button" class="button <?php if ( ! empty( $_GET['activated'] ) && 'false' == $_GET['activated'] ) echo 'active'; ?>" data-filter-by="activated" data-filter-value="false"><?php esc_html_e( 'Inactive', 'jetpack' ); ?></button>
+									<button type="button" class="button 
+									<?php // phpcs:ignore WordPress.Security.NonceVerification.Recommended -- This is view logic.
+									if ( empty( $_GET['activated'] ) ) {
+										echo 'active';
+									}
+									?>
+										">
+									<?php esc_html_e( 'All', 'jetpack' ); ?></button>
+									<button type="button" class="button 
+									<?php // phpcs:ignore WordPress.Security.NonceVerification.Recommended -- This is view logic.
+									if ( ! empty( $_GET['activated'] ) && 'true' === $_GET['activated'] ) {
+										echo 'active';
+									}
+									?>
+									" data-filter-by="activated" data-filter-value="true"><?php esc_html_e( 'Active', 'jetpack' ); ?></button>
+									<button type="button" class="button 
+									<?php // phpcs:ignore WordPress.Security.NonceVerification.Recommended -- This is view logic.
+									if ( ! empty( $_GET['activated'] ) && 'false' === $_GET['activated'] ) {
+										echo 'active';
+									}
+									?>
+									" data-filter-by="activated" data-filter-value="false"><?php esc_html_e( 'Inactive', 'jetpack' ); ?></button>
 								</div>
 								<p><?php esc_html_e( 'Sort by:', 'jetpack' ); ?></p>
 								<div class="button-group sort">
-									<button type="button" class="button <?php if ( empty( $_GET['sort_by'] ) ) echo 'active'; ?>" data-sort-by="name"><?php esc_html_e( 'Alphabetical', 'jetpack' ); ?></button>
-									<button type="button" class="button <?php if ( ! empty( $_GET['sort_by'] ) && 'introduced' == $_GET['sort_by'] ) echo 'active'; ?>" data-sort-by="introduced" data-sort-order="reverse"><?php esc_html_e( 'Newest', 'jetpack' ); ?></button>
-									<button type="button" class="button <?php if ( ! empty( $_GET['sort_by'] ) && 'sort' == $_GET['sort_by'] ) echo 'active'; ?>" data-sort-by="sort"><?php esc_html_e( 'Popular', 'jetpack' ); ?></button>
+									<button type="button" class="button 
+									<?php // phpcs:ignore WordPress.Security.NonceVerification.Recommended -- This is view logic.
+									if ( empty( $_GET['sort_by'] ) ) {
+										echo 'active';
+									}
+									?>
+									" data-sort-by="name"><?php esc_html_e( 'Alphabetical', 'jetpack' ); ?></button>
+									<button type="button" class="button 
+									<?php // phpcs:ignore WordPress.Security.NonceVerification.Recommended -- This is view logic.
+									if ( ! empty( $_GET['sort_by'] ) && 'introduced' === $_GET['sort_by'] ) {
+										echo 'active';
+									}
+									?>
+									" data-sort-by="introduced" data-sort-order="reverse"><?php esc_html_e( 'Newest', 'jetpack' ); ?></button>
+									<button type="button" class="button 
+									<?php // phpcs:ignore WordPress.Security.NonceVerification.Recommended -- This is view logic.
+									if ( ! empty( $_GET['sort_by'] ) && 'sort' === $_GET['sort_by'] ) {
+										echo 'active';
+									}
+									?>
+									" data-sort-by="sort"><?php esc_html_e( 'Popular', 'jetpack' ); ?></button>
 								</div>
 								<p><?php esc_html_e( 'Show:', 'jetpack' ); ?></p>
 								<?php $list_table->views(); ?>
@@ -109,7 +162,7 @@ class Jetpack_Settings_Page extends Jetpack_Admin_Page {
 					</div>
 					<div class="manage-left" style="width: 100%;">
 						<form class="jetpack-modules-list-table-form" onsubmit="return false;">
-						<table class="<?php echo implode( ' ', $list_table->get_table_classes() ); ?>">
+						<table class="<?php echo esc_attr( implode( ' ', $list_table->get_table_classes() ) ); ?>">
 							<tbody id="the-list">
 								<?php $list_table->display_rows_or_placeholder(); ?>
 							</tbody>
@@ -130,17 +183,20 @@ class Jetpack_Settings_Page extends Jetpack_Admin_Page {
 	 *
 	 * @since 4.3.0
 	 */
-	function additional_styles() {
+	public function additional_styles() {
 		Jetpack_Admin_Page::load_wrapper_styles();
 	}
 
-	// Javascript logic specific to the list table
-	function page_admin_scripts() {
+	/**
+	 * Javascript logic specific to the list table
+	 */
+	public function page_admin_scripts() {
 		wp_enqueue_script(
 			'jetpack-admin-js',
 			Assets::get_file_url_for_environment( '_inc/build/jetpack-admin.min.js', '_inc/jetpack-admin.js' ),
 			array( 'jquery' ),
-			JETPACK__VERSION
+			JETPACK__VERSION,
+			true
 		);
 	}
 }

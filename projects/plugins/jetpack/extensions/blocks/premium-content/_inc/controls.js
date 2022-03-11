@@ -1,10 +1,10 @@
 /**
  * WordPress dependencies
  */
-import { Fragment } from '@wordpress/element';
 import { BlockControls } from '@wordpress/block-editor';
-import { DropdownMenu, ToolbarGroup, ToolbarItem } from '@wordpress/components';
-import { Icon, update } from '@wordpress/icons';
+import { Fragment } from '@wordpress/element';
+import { ToolbarDropdownMenu } from '@wordpress/components';
+import { update, warning } from '@wordpress/icons';
 import { __ } from '@wordpress/i18n';
 
 /**
@@ -31,37 +31,33 @@ export default function Controls( props ) {
 	if ( currentPlan ) {
 		planDescription = ' ' + getPlanDescription( currentPlan );
 	}
+
+	let subscriptionIcon = update;
+	if ( selectedPlanId && ! currentPlan ) {
+		planDescription = __( 'Subscription not found', 'jetpack' );
+		subscriptionIcon = warning;
+	}
+
 	return (
-		<BlockControls>
-			<ToolbarGroup>
-				<ToolbarItem>
-					{ () => (
-						<DropdownMenu
-							// @ts-ignore We want a label with our Dashicon.Icon
-							icon={
-								<Fragment>
-									<Icon icon={ update } />{ ' ' }
-									{ planDescription && <Fragment>{ planDescription }</Fragment> }
-								</Fragment>
-							}
-							label={ __( 'Select a plan', 'jetpack' ) }
-							className={ 'premium-content-toolbar-button' }
-						>
-							{ ( { onClose } ) => (
-								<Fragment>
-									<Plans
-										{ ...props }
-										onSelected={ onSelected }
-										onClose={ onClose }
-										selectedPlan={ currentPlan }
-									/>
-									<NewPlan { ...props } onClose={ onClose } />
-								</Fragment>
-							) }
-						</DropdownMenu>
-					) }
-				</ToolbarItem>
-			</ToolbarGroup>
+		<BlockControls group="block">
+			<ToolbarDropdownMenu
+				icon={ subscriptionIcon }
+				label={ __( 'Select a plan', 'jetpack' ) }
+				text={ planDescription }
+				className={ 'premium-content-toolbar-button' }
+			>
+				{ ( { onClose } ) => (
+					<Fragment>
+						<Plans
+							{ ...props }
+							onSelected={ onSelected }
+							onClose={ onClose }
+							selectedPlan={ currentPlan }
+						/>
+						<NewPlan { ...props } onClose={ onClose } />
+					</Fragment>
+				) }
+			</ToolbarDropdownMenu>
 		</BlockControls>
 	);
 }

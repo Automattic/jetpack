@@ -11,7 +11,7 @@ import { action } from '@storybook/addon-actions';
 import ConnectScreenVisual from '../visual';
 
 export default {
-	title: 'Connection/Connect Screen',
+	title: 'JS Packages/Connection/Connect Screen',
 	component: ConnectScreenVisual,
 };
 
@@ -56,4 +56,10 @@ export const Errored = Template.bind( {} );
 Errored.args = {
 	...DefaultArgs,
 	displayButtonError: true,
+};
+
+export const Footer = Template.bind( {} );
+Footer.args = {
+	...DefaultArgs,
+	footer: <div>Hi I'm a Footer</div>,
 };

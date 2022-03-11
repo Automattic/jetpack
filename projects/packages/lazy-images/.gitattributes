@@ -10,5 +10,6 @@ package.json      export-ignore
 /changelog/**     production-exclude
 .eslintrc.js      production-exclude
 .gitignore        production-exclude
+.phpcs.dir.xml    production-exclude
 phpunit.xml.dist  production-exclude
 tests/**          production-exclude

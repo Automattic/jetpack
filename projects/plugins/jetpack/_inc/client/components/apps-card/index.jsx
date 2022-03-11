@@ -5,11 +5,13 @@ import PropTypes from 'prop-types';
 import React from 'react';
 import { connect } from 'react-redux';
 import classNames from 'classnames';
+import { withRouter } from 'react-router-dom';
 import { __ } from '@wordpress/i18n';
 
 /**
  * Internal dependencies
  */
+import AppsBadge from 'components/apps-badge';
 import analytics from 'lib/analytics';
 import Button from 'components/button';
 import Card from 'components/card';
@@ -20,11 +22,12 @@ import { arePromotionsActive, userCanManageOptions } from 'state/initial-state';
 class AppsCard extends React.Component {
 	static displayName = 'AppsCard';
 
-	trackDownloadClick = () => {
+	trackDownloadClick = storeName => {
 		analytics.tracks.recordJetpackClick( {
 			target: 'apps-card',
 			button: 'apps-download',
-			page: this.props.path,
+			page: this.props.location.pathname,
+			store: storeName,
 		} );
 	};
 
@@ -33,7 +36,7 @@ class AppsCard extends React.Component {
 		analytics.tracks.recordJetpackClick( {
 			target: 'apps-card',
 			button: 'dismiss',
-			page: this.props.path,
+			page: this.props.location.pathname,
 		} );
 	};
 
@@ -52,7 +55,6 @@ class AppsCard extends React.Component {
 							borderless
 							compact
 							className="jp-apps-card__dismiss"
-							href="javascript:void(0)"
 							onClick={ this.dismissCard }
 						>
 							<span className="dashicons dashicons-no" />
@@ -63,24 +65,31 @@ class AppsCard extends React.Component {
 					</div>
 
 					<div className="jp-apps-card__description">
-						<h3 className="jp-apps-card__header">
-							{ __( 'Get WordPress Apps for every device', 'jetpack' ) }
-						</h3>
+						<h3 className="jp-apps-card__header">{ __( 'Jetpack in your pocket', 'jetpack' ) }</h3>
 
 						<p className="jp-apps-card__paragraph">
 							{ __(
-								'Manage all your sites from a single dashboard: publish content, track stats, moderate comments, and so much more from anywhere in the world.',
+								'Get powerful security and performance tools in your pocket with the Jetpack mobile app.',
 								'jetpack'
 							) }
 						</p>
 
-						<Button
-							className="is-primary"
-							onClick={ this.trackDownloadClick }
-							href="https://apps.wordpress.com/get?utm_source=jpdash&utm_medium=cta&utm_campaign=getappscard"
-						>
-							{ __( 'Download the free apps', 'jetpack' ) }
-						</Button>
+						<div className="jp-apps-card__apps-badges">
+							<AppsBadge
+								altText={ __( 'Google Play Store download badge.', 'jetpack' ) }
+								titleText={ __( 'Download the Jetpack Android mobile app.', 'jetpack' ) }
+								storeName="android"
+								storeLink="https://play.google.com/store/apps/details?id=com.jetpack.android&utm_source=jpdash&utm_medium=cta&utm_campaign=getappscard"
+								onBadgeClick={ this.trackDownloadClick }
+							/>
+							<AppsBadge
+								altText={ __( 'Apple App Store download badge.', 'jetpack' ) }
+								titleText={ __( 'Download the Jetpack iOS mobile app.', 'jetpack' ) }
+								storeName="ios"
+								storeLink="https://apps.apple.com/us/app/jetpack-wp-security-speed/id1565481562?pt=299112ct=jpdash&mt=8"
+								onBadgeClick={ this.trackDownloadClick }
+							/>
+						</div>
 					</div>
 				</Card>
 			</div>
@@ -107,4 +116,4 @@ export default connect(
 			},
 		};
 	}
-)( AppsCard );
+)( withRouter( AppsCard ) );

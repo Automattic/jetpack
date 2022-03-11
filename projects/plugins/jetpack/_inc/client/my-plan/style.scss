@@ -16,7 +16,7 @@
 	color: $gray-darken-20;
 }
 
-.jp-landing__card-footer {
+.jp-landing__licensing-actions {
 	display: flex;
 	align-items: center;
 	justify-content: center;
@@ -31,7 +31,7 @@
 		justify-content: space-between;
 	}
 
-	.jp-landing__card-footer-item {
+	.jp-landing__licensing-actions-item {
 		display: flex;
 		flex-direction: column;
 		align-items: center;
@@ -53,12 +53,12 @@
 		}
 	}
 
-	.jp-landing__card-footer-item.no-licenses {
+	.jp-landing__licensing-actions-item.no-licenses {
 		justify-content: space-between;
 		flex: 1;
 	}
 
-	.jp-landing__card-footer-item.no-purchases.no-licenses {
+	.jp-landing__licensing-actions-item.no-licenses {
 		justify-content: flex-end;
 	}
 }

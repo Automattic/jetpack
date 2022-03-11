@@ -4,7 +4,7 @@
  * Plugin Name: Jetpack Backup
  * Plugin URI: https://jetpack.com/jetpack-backup
  * Description: Easily restore or download a backup of your site from a specific moment in time.
- * Version: 1.1.0-alpha
+ * Version: 1.2.1-alpha
  * Author: Automattic
  * Author URI: https://jetpack.com/
  * License: GPLv2 or later
@@ -42,6 +42,8 @@ define( 'JETPACK_BACKUP_PLUGIN_NAME', 'Jetpack Backup' );
 define( 'JETPACK_BACKUP_PLUGIN_URI', 'https://jetpack.com/jetpack-backup' );
 define( 'JETPACK_BACKUP_REQUIRED_JETPACK_VERSION', '10.0' );
 define( 'JETPACK_BACKUP_PLUGIN_FOLDER', dirname( plugin_basename( __FILE__ ) ) );
+define( 'JETPACK_BACKUP_PROMOTED_PRODUCT', 'jetpack_backup_t1_yearly' );
+define( 'JETPACK_BACKUP_DB_VERSION', '2' );
 
 /**
  * Checks if Jetpack is installed and if yes, require version 10+
@@ -91,6 +93,9 @@ if ( is_wp_error( $jetpack_backup_meets_requirements ) ) {
 $jetpack_autoloader = JETPACK_BACKUP_PLUGIN_DIR . 'vendor/autoload_packages.php';
 if ( is_readable( $jetpack_autoloader ) ) {
 	require_once $jetpack_autoloader;
+	if ( method_exists( \Automattic\Jetpack\Assets::class, 'alias_textdomains_from_file' ) ) {
+		\Automattic\Jetpack\Assets::alias_textdomains_from_file( JETPACK_BACKUP_PLUGIN_DIR . 'jetpack_vendor/i18n-map.php' );
+	}
 } else { // Something very unexpected. Error out gently with an admin_notice and exit loading.
 	if ( defined( 'WP_DEBUG' ) && WP_DEBUG ) {
 		error_log( // phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_error_log

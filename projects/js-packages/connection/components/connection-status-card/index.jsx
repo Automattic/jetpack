@@ -14,6 +14,7 @@ import { useSelect, useDispatch } from '@wordpress/data';
 import ConnectUser from '../connect-user';
 import DisconnectDialog from '../disconnect-dialog';
 import { STORE_ID } from '../../state/store';
+import useConnection from '../use-connection';
 import './style.scss';
 
 /**
@@ -27,8 +28,6 @@ const ConnectionStatusCard = props => {
 	const {
 		apiRoot,
 		apiNonce,
-		isRegistered,
-		isUserConnected,
 		redirectUri,
 		title,
 		connectionInfoText,
@@ -36,14 +35,29 @@ const ConnectionStatusCard = props => {
 		connectedPlugins,
 		connectedSiteId,
 		context,
+		onConnectUser,
+		requiresUserConnection,
 	} = props;
 
-	const [ isFetchingConnectionData, setIsFetchingConnectionData ] = useState( false );
-	const [ connectedUserData, setConnectedUserData ] = useState( {} );
+	const { isRegistered, isUserConnected, userConnectionData, hasConnectedOwner } = useConnection( {
+		apiRoot,
+		apiNonce,
+	} );
+
+	const avatarRef = useRef();
+	const avatar = userConnectionData.currentUser?.wpcomUser?.avatar;
+
+	// Update avatar if we have one.
+	useEffect( () => {
+		if ( avatar ) {
+			avatarRef.current.style.backgroundImage = `url('${ avatar }')`;
+		}
+	}, [ avatar ] );
+
 	const [ isDisconnectDialogOpen, setIsDisconnectDialogOpen ] = useState( false );
 	const userIsConnecting = useSelect( select => select( STORE_ID ).getUserIsConnecting(), [] );
 	const { setConnectionStatus, setUserIsConnecting } = useDispatch( STORE_ID );
-	const avatarRef = useRef();
+	const handleConnectUser = onConnectUser || setUserIsConnecting;
 
 	/**
 	 * Initialize the REST API.
@@ -52,29 +66,6 @@ const ConnectionStatusCard = props => {
 		restApi.setApiRoot( apiRoot );
 		restApi.setApiNonce( apiNonce );
 	}, [ apiRoot, apiNonce ] );
-
-	/**
-	 * Fetch the connection data on the first render.
-	 * To be only run once.
-	 */
-	useEffect( () => {
-		setIsFetchingConnectionData( true );
-
-		restApi
-			.fetchSiteConnectionData()
-			.then( response => {
-				setIsFetchingConnectionData( false );
-				setConnectedUserData( response.currentUser?.wpcomUser );
-				const avatar = response.currentUser?.wpcomUser?.avatar;
-				if ( avatar ) {
-					avatarRef.current.style.backgroundImage = `url('${ avatar }')`;
-				}
-			} )
-			.catch( error => {
-				setIsFetchingConnectionData( false );
-				throw error;
-			} );
-	}, [ setIsFetchingConnectionData, setConnectedUserData ] );
 
 	/**
 	 * Open the Disconnect Dialog.
@@ -150,36 +141,38 @@ const ConnectionStatusCard = props => {
 						onDisconnected={ onDisconnectedCallback }
 						connectedPlugins={ connectedPlugins }
 						connectedSiteId={ connectedSiteId }
-						connectedUser={ connectedUserData }
+						connectedUser={ userConnectionData }
 						isOpen={ isDisconnectDialogOpen }
 						onClose={ closeDisconnectDialog }
 						context={ context }
 					/>
 				</li>
 
-				{ isUserConnected && ! isFetchingConnectionData && (
+				{ isUserConnected && (
 					<li className="jp-connection-status-card--list-item-success">
-						{ __( 'Logged in as', 'jetpack' ) } { connectedUserData?.display_name }
+						{ __( 'Logged in as', 'jetpack' ) }{ ' ' }
+						{ userConnectionData.currentUser?.wpcomUser?.display_name }
 					</li>
 				) }
 
-				{ ! isUserConnected && ! isFetchingConnectionData && (
-					<li className="jp-connection-status-card--list-item-error">
-						{ __( 'Your WordPress.com account is not connected.', 'jetpack' ) }
+				{ ! hasConnectedOwner && (
+					<li
+						className={ `jp-connection-status-card--list-item-${
+							requiresUserConnection ? 'error' : 'info'
+						}` }
+					>
+						{ requiresUserConnection && __( 'Requires user connection.', 'jetpack' ) }{ ' ' }
+						<Button
+							variant="link"
+							disabled={ userIsConnecting }
+							onClick={ handleConnectUser }
+							className="jp-connection-status-card--btn-connect-user"
+						>
+							{ __( 'Connect your user account', 'jetpack' ) }
+						</Button>
 					</li>
 				) }
 			</ul>
-
-			{ ! isUserConnected && ! isFetchingConnectionData && (
-				<Button
-					isPrimary
-					disabled={ userIsConnecting }
-					onClick={ setUserIsConnecting }
-					className="jp-connection-status-card--btn-connect-user"
-				>
-					{ __( 'Connect your WordPress.com account', 'jetpack' ) }
-				</Button>
-			) }
 
 			{ userIsConnecting && <ConnectUser redirectUri={ redirectUri } /> }
 		</div>
@@ -191,12 +184,8 @@ ConnectionStatusCard.propTypes = {
 	apiRoot: PropTypes.string.isRequired,
 	/** API Nonce, required. */
 	apiNonce: PropTypes.string.isRequired,
-	/** Whether a site level connection has already been established, required. If not, the component will not render. */
-	isRegistered: PropTypes.bool.isRequired,
-	/** Whether the current user has connected their WordPress.com account, required. */
-	isUserConnected: PropTypes.bool.isRequired,
 	/** The redirect admin URI after the user has connected their WordPress.com account. */
-	redirectUri: PropTypes.string.isRequired,
+	redirectUri: PropTypes.string,
 	/** An object of the plugins currently using the Jetpack connection. */
 	connectedPlugins: PropTypes.object,
 	/** ID of the currently connected site. */
@@ -209,6 +198,10 @@ ConnectionStatusCard.propTypes = {
 	onDisconnected: PropTypes.func,
 	/** The context in which this component is being used */
 	context: PropTypes.string,
+	/** Function to override default action for connect user account */
+	onConnectUser: PropTypes.func,
+	/** Shows an requires user connection message if true and a user connection is missing */
+	requiresUserConnection: PropTypes.bool,
 };
 
 ConnectionStatusCard.defaultProps = {
@@ -217,6 +210,9 @@ ConnectionStatusCard.defaultProps = {
 		'Leverages the Jetpack Cloud for more features on your side.',
 		'jetpack'
 	),
+	redirectUri: null,
+	onConnectUser: null,
+	requiresUserConnection: true,
 };
 
 export default ConnectionStatusCard;

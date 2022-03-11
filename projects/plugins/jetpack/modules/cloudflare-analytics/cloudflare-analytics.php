@@ -25,6 +25,7 @@ function insert_tracking_id() {
 		&& ( class_exists( 'Jetpack_AMP_Support' ) && ! \Jetpack_AMP_Support::is_amp_request() )
 		&& ( ( defined( 'IS_WPCOM' ) && IS_WPCOM ) || ( new Host() )->is_woa_site() )
 	) {
+		// phpcs:disable WordPress.WP.EnqueuedResources.NonEnqueuedScript
 		printf(
 			"<!-- Jetpack Cloudflare Web Analytics -->
 <script defer
@@ -34,6 +35,7 @@ function insert_tracking_id() {
 <!-- End Jetpack Cloudflare Web Analytics -->\r\n",
 			esc_html( $option['code'] )
 		);
+		// phpcs:enable WordPress.WP.EnqueuedResources.NonEnqueuedScript
 	}
 }
 add_action( 'wp_footer', __NAMESPACE__ . '\insert_tracking_id', 999 );

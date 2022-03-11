@@ -100,7 +100,7 @@ function jetpack_social_menu() {
 		if ( 'svg' === $menu_type ) {
 			$link_after .= jetpack_social_menu_get_svg( array( 'icon' => 'chain' ) );
 		} ?>
-		<nav class="jetpack-social-navigation jetpack-social-navigation-<?php echo esc_attr( $menu_type ); ?>" role="navigation" aria-label="<?php esc_html_e( 'Social Links Menu', 'jetpack' ); ?>">
+		<nav class="jetpack-social-navigation jetpack-social-navigation-<?php echo esc_attr( $menu_type ); ?>" aria-label="<?php esc_html_e( 'Social Links Menu', 'jetpack' ); ?>">
 			<?php
 				wp_nav_menu(
 					array(

@@ -214,30 +214,30 @@ class Password_Checker {
 			'preg_match'      => array(
 				'no_backslashes'   => array(
 					'pattern'          => '/^[^\\\\]*$/u',
-					'error'            => __( 'Passwords may not contain the character "\".', 'jetpack' ),
+					'error'            => __( 'Passwords may not contain the character "\".', 'jetpack-password-checker' ),
 					'required'         => true,
 					'fail_immediately' => true,
 				),
 				'minimum_length'   => array(
 					'pattern'          => '/^.{' . $this->minimum_password_length . ',}/u',
 					/* translators: %d is a number of characters in the password. */
-					'error'            => sprintf( __( 'Password must be at least %d characters.', 'jetpack' ), $this->minimum_password_length ),
+					'error'            => sprintf( __( 'Password must be at least %d characters.', 'jetpack-password-checker' ), $this->minimum_password_length ),
 					'required'         => true,
 					'fail_immediately' => true,
 				),
 				'has_mixed_case'   => array(
 					'pattern'  => '/([a-z].*?[A-Z]|[A-Z].*?[a-z])/u',
-					'error'    => __( 'This password is too easy to guess: you can improve it by adding additional uppercase letters, lowercase letters, or numbers.', 'jetpack' ),
+					'error'    => __( 'This password is too easy to guess: you can improve it by adding additional uppercase letters, lowercase letters, or numbers.', 'jetpack-password-checker' ),
 					'required' => false,
 				),
 				'has_digit'        => array(
 					'pattern'  => '/\d/u',
-					'error'    => __( 'This password is too easy to guess: you can improve it by mixing both letters and numbers.', 'jetpack' ),
+					'error'    => __( 'This password is too easy to guess: you can improve it by mixing both letters and numbers.', 'jetpack-password-checker' ),
 					'required' => false,
 				),
 				'has_special_char' => array(
 					'pattern'  => '/[^a-zA-Z\d]/u',
-					'error'    => __( 'This password is too easy to guess: you can improve it by including special characters such as !#=?*&.', 'jetpack' ),
+					'error'    => __( 'This password is too easy to guess: you can improve it by including special characters such as !#=?*&.', 'jetpack-password-checker' ),
 					'required' => false,
 				),
 			),
@@ -245,13 +245,13 @@ class Password_Checker {
 				'not_a_common_password'       => array(
 					'list_callback'    => 'get_common_passwords',
 					'compare_callback' => 'negative_in_array',
-					'error'            => __( 'This is a very common password. Choose something that will be harder for others to guess.', 'jetpack' ),
+					'error'            => __( 'This is a very common password. Choose something that will be harder for others to guess.', 'jetpack-password-checker' ),
 					'required'         => true,
 				),
 				'not_same_as_other_user_data' => array(
 					'list_callback'    => 'get_other_user_data',
 					'compare_callback' => 'test_not_same_as_other_user_data',
-					'error'            => __( 'Your password is too weak: Looks like you are including easy to guess information about yourself. Try something a little more unique.', 'jetpack' ),
+					'error'            => __( 'Your password is too weak: Looks like you are including easy to guess information about yourself. Try something a little more unique.', 'jetpack-password-checker' ),
 					'required'         => true,
 				),
 			),

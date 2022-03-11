@@ -72,6 +72,13 @@ const authorizationUrl = ( state, action ) => {
 	}
 };
 
+const userConnectionData = ( state, action ) => {
+	switch ( action.type ) {
+		default:
+			return state;
+	}
+};
+
 const reducers = combineReducers( {
 	connectionStatus,
 	connectionStatusIsFetching,
@@ -79,6 +86,7 @@ const reducers = combineReducers( {
 	userIsConnecting,
 	registrationError,
 	authorizationUrl,
+	userConnectionData,
 } );
 
 export default reducers;

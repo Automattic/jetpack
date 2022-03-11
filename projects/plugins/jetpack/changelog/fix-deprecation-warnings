@@ -1,0 +1,4 @@
+Significance: patch
+Type: compat
+
+Clean up use of deprecated FILTER_SANITIZE_STRING constant - and mark WPCom_Markdown::get_post_screen_post_type as deprecated due to lack of use

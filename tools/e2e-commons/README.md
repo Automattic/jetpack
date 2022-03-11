@@ -1,10 +1,10 @@
-
 # Jetpack e2e commons
 
 This project is intended to be used as a dependency by other e2e tests projects for Jetpack plugins.
 There are no tests defined here.
 
 The scope of this library is to:
+
 - provide a consistent way to launch and configure a Jetpack environment for e2e testing
 - create test results, send Slack notifications
 - provide the most common pages modeled as page objects (see [Page objects model](https://playwright.dev/docs/test-pom)).
@@ -34,12 +34,6 @@ Add this project as a dev dependency in your e2e tests project:
 pnpm add -D path/to/tools/e2e-commons
 ```
 
-Optionally, you can also add a `preinstall` script to install this project.
-
-```shell
-"preinstall": "pnpm --prefix path/to/tools/e2e-commons install"
-```
-
 Add Playwright
 
 ```shell
@@ -56,20 +50,18 @@ import { Sidebar, DashboardPage } from 'jetpack-e2e-commons/pages/wp-admin/index
 import { prerequisitesBuilder } from 'jetpack-e2e-commons/env/prerequisites.js';
 
 test.beforeEach( async () => {
-    await prerequisitesBuilder()
-		.withLoggedIn( true )
-		.build();
+	await prerequisitesBuilder().withLoggedIn( true ).build();
 } );
 
 test( 'Visit Jetpack page', async () => {
-    await DashboardPage.visit( page )
+	await DashboardPage.visit( page );
 	await ( await Sidebar.init( page ) ).selectJetpack();
 } );
-``` 
+```
 
 ### Create the test configuration files
 
-Several configuration files are required, even though to begin with they will only export the default ones from this project. 
+Several configuration files are required, even though to begin with they will only export the default ones from this project.
 
 Create the `config/default.cjs` and `playwright.config.cjs` files.
 
@@ -99,7 +91,7 @@ Assuming you're building tests for a standalone plugin, don't forget to also bui
 #### 1.3. Start the local environment
 
 Sensitive information like credentials and other secrets is stored in an encrypted config file. This file needs to be decrypted before starting the environment.
-If you're an a11n you can find the key in the secret store and set it in the `CONFIG_KEY` env var, as shown below. 
+If you're an a11n you can find the key in the secret store and set it in the `CONFIG_KEY` env var, as shown below.
 
 To bypass the offline mode you will need your site to have a publicly accessible url that will proxy all requests to your locally running WordPress installation.
 We use `localtunnel` library to expose `localhost:8889` via a public url.
@@ -112,7 +104,7 @@ CONFIG_KEY=secret_key openssl enc -md sha1 -aes-256-cbc -d -pass env:CONFIG_KEY 
 pnpm e2e-env start
 
 ## Create a tunnel
-pnpm tunnel on 
+pnpm tunnel on
 ```
 
 The tunnel url will be stored in a file in the config folder of your tests, so that it can be read by the tests and then reused by the tunnel script. See config files for details.
@@ -131,7 +123,7 @@ Edit the decrypted config file to add an entry in the `testSites` object with th
 
 ```js
 mySite: {
-    url: 'site-url', 
+    url: 'site-url',
     username: 'username',
     password: 'password',
     dotComAccount: ['username', 'password']

@@ -2,6 +2,98 @@
 
 ### This is a list detailing changes for the Jetpack RNA Connection Component releases.
 
+## 0.17.2 - 2022-03-09
+### Changed
+- Updated package dependencies.
+
+## 0.17.1 - 2022-03-08
+### Added
+- Connection: Add footer prop for ConnectScreen
+
+### Changed
+- Components: update attributes used within the Button component to match recent deprecations and changes.
+
+### Fixed
+- Updated link-button label from "Log In" to "Log In to get started"
+
+## 0.17.0 - 2022-03-02
+### Added
+- Connection: Adds requiresUserConnection prop and makes error message show only when hasConnectedOwner and requiresUserConnection are both true.
+
+### Changed
+- Moved site benefits request out of PHP to React, and guard against no connected plugins.
+- Updated package dependencies.
+
+## 0.16.1 - 2022-02-25
+### Fixed
+- Fix broken Jetpack Partner Coupon redeem flow for sites without a user connection
+
+## 0.16.0 - 2022-02-22
+### Changed
+- Bump package version.
+- Connection: Update ConnectionStatusCard to match figma
+- Disconnect dialog changes to cope with asynchronous data loading
+- Updated package dependencies.
+
+### Fixed
+- Connection: Fix ConnectionStatusCard prop
+
+## 0.15.1 - 2022-02-09
+### Added
+- Connection: Expose hasConnectedOwner in useConnection hook
+- Re organize components stories by project/name
+
+### Changed
+- Updated package dependencies
+
+## 0.15.0 - 2022-02-02
+### Added
+- Added user click tracking to disconnect dialog modal.
+
+### Changed
+- Updated package dependencies.
+
+### Fixed
+- Fix access to display_name property in connection status card.
+
+## 0.14.0 - 2022-01-25
+### Changed
+- Enforces the usage of initial state
+- Update h3 style for connection status card
+
+### Fixed
+- Fix Wrong spelling of propTypes in ConnectedPlugins
+- Make redirectUri property not be required in ConnectionStatusCard
+
+## 0.13.2 - 2022-01-18
+### Changed
+- General: update required node version to v16.13.2
+
+### Fixed
+- fixed babel/preset-react dependency
+
+## 0.13.1 - 2022-01-17
+### Changed
+- Updated package dependencies.
+
+### Fixed
+- Fixed styling on Required Plan button and Login link.
+
+## 0.13.0 - 2022-01-13
+### Changed
+- Added user data to initial state
+
+## 0.12.1 - 2022-01-11
+### Removed
+- Remove use of deprecated `~` in sass-loader imports.
+
+## 0.12.0 - 2022-01-04
+### Changed
+- Changed min-width of log in link
+- Connection: Extract connection logic for custom hook
+- Drop isRegistered and isUserConnected params from ConnectionStatusCard component
+- Updated package dependencies.
+
 ## 0.11.3 - 2021-12-14
 ### Fixed
 - Fix JavaScript i18n strings.

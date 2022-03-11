@@ -173,7 +173,14 @@ function stats_map_meta_caps( $caps, $cap, $user_id ) {
 function stats_template_redirect() {
 	global $current_user;
 
-	if ( is_feed() || is_robots() || is_trackback() || is_preview() || jetpack_is_dnt_enabled() ) {
+	if (
+		is_feed()
+		|| is_robots()
+		|| is_embed()
+		|| is_trackback()
+		|| is_preview()
+		|| jetpack_is_dnt_enabled()
+	) {
 		return;
 	}
 
@@ -189,6 +196,28 @@ function stats_template_redirect() {
 		if ( ! is_array( $count_roles ) || ! array_intersect( $current_user->roles, $count_roles ) ) {
 			return;
 		}
+	}
+
+	/**
+	 * Allow excluding specific IP addresses from being tracked in Stats.
+	 * Note: for this to work well, visitors' IP addresses must:
+	 * - be stored and returned properly in IP address headers;
+	 * - not be impacted by any caching setup on your site.
+	 *
+	 * @module stats
+	 *
+	 * @since 10.6
+	 *
+	 * @param array $excluded_ips An array of IP address strings to exclude from tracking.
+	 */
+	$excluded_ips = (array) apply_filters( 'jetpack_stats_excluded_ips', array() );
+
+	// Should we be counting views for this IP address?
+	if (
+		! empty( $excluded_ips )
+		&& in_array( Jetpack::current_user_ip( true ), $excluded_ips, true )
+	) {
+		return;
 	}
 
 	add_action( 'wp_footer', 'stats_footer', 101 );
@@ -370,7 +399,6 @@ function stats_upgrade_options( $options ) {
 		'count_roles'  => array(),
 		'blog_id'      => Jetpack_Options::get_option( 'id' ),
 		'do_not_track' => true, // @todo
-		'hide_smile'   => true,
 	);
 
 	if ( isset( $options['reg_users'] ) ) {
@@ -833,18 +861,16 @@ function stats_convert_post_title( $matches ) {
 }
 
 /**
- * Stats Hide Smile.
+ * CSS to hide the tracking pixel smiley.
+ * It is now hidden for everyone (used to be visible if you had set the hide_smile option).
  *
  * @access public
  * @return void
  */
 function stats_hide_smile_css() {
-	$options = stats_get_options();
-	if ( isset( $options['hide_smile'] ) && $options['hide_smile'] ) {
-		?>
+	?>
 <style type='text/css'>img#wpstats{display:none}</style>
-		<?php
-	}
+	<?php
 }
 
 /**

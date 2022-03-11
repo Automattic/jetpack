@@ -1,0 +1,5 @@
+# Ignore .git, in case someone created a branch ending in ".php" or something.
+/.git/
+
+# Same for changelog directories.
+**/changelog/

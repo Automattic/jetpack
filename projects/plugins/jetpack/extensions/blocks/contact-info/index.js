@@ -51,6 +51,18 @@ export const settings = {
 	supports: {
 		align: [ 'wide', 'full' ],
 		html: false,
+		color: {
+			link: true,
+			gradients: true,
+		},
+		spacing: {
+			padding: true,
+			margin: true,
+		},
+		typography: {
+			fontSize: true,
+			lineHeight: true,
+		},
 	},
 	// Transform from classic widget
 	transforms: {

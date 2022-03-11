@@ -1,15 +1,15 @@
 Apps Card
 ==============
 
-This component is used to display a WordPress apps card, quickly highlighting the vast device support, a few benefits, followed by a CTA.
+This component is used to display a card that highlights the Jetpack mobile app, a brief description of the app and links to the app stores.
 
 #### How to use:
 
 ```js
 
-var AppsCard = require( 'components/apps-card' )
+import AppsCard from 'components/apps-card';
 
-render: function() {
+render() {
     return (
         <AppsCard />
     );

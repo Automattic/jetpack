@@ -4,13 +4,15 @@
 import PropTypes from 'prop-types';
 import React from 'react';
 import classnames from 'classnames';
-import { assign, omit } from 'lodash';
+/*eslint lodash/import-scope: [2, "method"]*/
+import assign from 'lodash/assign';
+/*eslint lodash/import-scope: [2, "method"]*/
+import omit from 'lodash/omit';
 
 /**
  * Internal dependencies
  */
-// TODO change to our own gridicon component, when instant search is migrated.
-import Gridicon from 'gridicons';
+import Gridicon from 'instant-search/components/gridicon';
 
 import './style.scss';
 

@@ -1,4 +1,4 @@
-@import '~@automattic/jetpack-base-styles/style';
+@import '@automattic/jetpack-base-styles/style';
 
 .jp-license-activation-screen-controls {
 	background: var(--jp-white);
@@ -8,7 +8,8 @@
 	justify-content: space-between;
 
 	h1 {
-		font-size: var(--font-title-large);
+		//typography-exception
+		font-size: 44px;
 		font-weight: 700;
 	}
 
