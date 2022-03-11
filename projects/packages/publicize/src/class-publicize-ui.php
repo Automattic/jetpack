@@ -143,7 +143,8 @@ class Publicize_UI {
 	 */
 	public function post_page_metabox_assets() {
 		// We don't need those assets for the block editor pages.
-		if ( get_current_screen()->is_block_editor ) {
+		$current_screen = get_current_screen();
+		if ( $current_screen && $current_screen->is_block_editor ) {
 			return;
 		}
 
