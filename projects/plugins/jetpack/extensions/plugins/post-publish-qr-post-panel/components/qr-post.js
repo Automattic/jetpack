@@ -18,7 +18,7 @@ import useSiteLogo from '../hooks/use-site-logo.js';
  *
  * @returns {Component}   The react component.
  */
-export default function QRPost() {
+export function QRPost() {
 	const wrapperElementRef = useRef();
 
 	// Pick and convert Jetpack logo to data image.
