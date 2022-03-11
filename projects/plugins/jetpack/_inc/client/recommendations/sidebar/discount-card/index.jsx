@@ -10,13 +10,14 @@ import React, { useCallback } from 'react';
 import Button from 'components/button';
 import { imagePath } from 'constants/urls';
 import analytics from 'lib/analytics';
+import Timer from '../../timer';
 
 /**
  * Style dependencies
  */
 import './style.scss';
 
-const DiscountCard = () => {
+const DiscountCard = ( { discount, expiryDate } ) => {
 	const onViewDiscountClick = useCallback( () => {
 		analytics.tracks.recordJetpackClick(
 			'jetpack_recommendations_view_discounted_plans_button_click'
@@ -35,9 +36,9 @@ const DiscountCard = () => {
 						/>
 						<div className="jp-recommendations-discount-card__discount">
 							{ sprintf(
-								// translators: %s is a percentage
-								__( '%s off', 'jetpack' ),
-								'68%'
+								// translators: %d is the percentage value, %% the percentage symbol
+								__( '%d%% off', 'jetpack' ),
+								discount
 							) }
 						</div>
 					</div>
@@ -63,7 +64,7 @@ const DiscountCard = () => {
 				</div>
 				<div className="jp-recommendations-discount-card__timer">
 					{ __( 'Discounts ends in:', 'jetpack' ) }
-					<span className="jp-recommendations-discount-card__time">4d 5h 25m 36s</span>
+					<Timer className="jp-recommendations-discount-card__time" expiryDate={ expiryDate } />
 				</div>
 			</div>
 		</div>
