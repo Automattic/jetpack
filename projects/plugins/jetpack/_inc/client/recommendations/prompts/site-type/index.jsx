@@ -125,7 +125,7 @@ export const SiteTypeQuestion = connect(
 			store: getDataByKey( state, 'site-type-store' ),
 			other: getDataByKey( state, 'site-type-other' ),
 		},
-		canShowProductSuggestions: isProductSuggestionsAvailable( state ),
+		canShowProductSuggestions: false, // isProductSuggestionsAvailable( state ),
 	} ),
 	dispatch => ( {
 		updateRecommendationsStep: step => dispatch( updateRecommendationsStepAction( step ) ),
