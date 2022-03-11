@@ -21,7 +21,7 @@ class Environment_Change_Detector {
 		add_action(
 			'after_switch_theme',
 			function () {
-				self::handle_theme_change( 'switched_theme' );
+				self::handle_environment_change( 'switched_theme' );
 			}
 		);
 		// Add more action here handle changes that will require action by the plugin.
@@ -32,7 +32,7 @@ class Environment_Change_Detector {
 	 *
 	 * @param string $change_type The change type.
 	 */
-	public static function handle_theme_change( $change_type ) {
-		do_action( 'handle_theme_change', $change_type );
+	public static function handle_environment_change( $change_type ) {
+		do_action( 'handle_environment_change', $change_type );
 	}
 }
