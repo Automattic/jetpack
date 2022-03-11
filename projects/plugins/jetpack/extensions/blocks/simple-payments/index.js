@@ -5,6 +5,7 @@ import { __, _x } from '@wordpress/i18n';
 import { ExternalLink, Path, SVG } from '@wordpress/components';
 import { Fragment } from '@wordpress/element';
 import { isAtomicSite, isSimpleSite } from '@automattic/jetpack-shared-extension-utils';
+import { getRedirectUrl } from '@automattic/jetpack-components';
 
 /**
  * Internal dependencies
@@ -37,8 +38,8 @@ export const icon = (
 
 const supportLink =
 	isSimpleSite() || isAtomicSite()
-		? 'https://wordpress.com/support/pay-with-paypal/'
-		: 'https://jetpack.com/support/jetpack-blocks/pay-with-paypal/';
+		? getRedirectUrl( 'wpcom-support-simple-payments' )
+		: getRedirectUrl( 'jetpack-support-jetpack-blocks-simple-payments-block' );
 
 export const settings = {
 	title: __( 'Pay with PayPal', 'jetpack' ),
