@@ -31,7 +31,7 @@ export default async function promptForProject( options ) {
 		questions.push( {
 			type: 'list',
 			name: 'project',
-			message: 'Please choose which project',
+			message: options.message || 'Please choose which project',
 			choices: dirs( './projects/' + typeAnswer.type ),
 		} );
 	} else if ( ! allProjects().includes( options.project ) ) {

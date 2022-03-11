@@ -1,0 +1,7 @@
++ /vendor/
+- vendor/**/vendor
+- wordpress
+- .git
+- node_modules
+- .cache
+- *.css*map

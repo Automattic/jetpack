@@ -18,6 +18,7 @@ import { changelogDefine } from './commands/changelog.js';
 import { dockerDefine } from './commands/docker.js';
 import { testDefine } from './commands/test.js';
 import { releaseDefine } from './commands/release.js';
+import { rsyncDefine } from './commands/rsync.js';
 import * as dependenciesCommand from './commands/dependencies.js';
 
 /**
@@ -47,6 +48,7 @@ export async function cli() {
 	argv = generateDefine( argv );
 	argv.command( installCommand );
 	argv = releaseDefine( argv );
+	argv = rsyncDefine( argv );
 	argv = testDefine( argv );
 	argv = watchDefine( argv );
 
