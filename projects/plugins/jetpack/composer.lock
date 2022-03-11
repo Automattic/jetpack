@@ -796,11 +796,11 @@
             "dist": {
                 "type": "path",
                 "url": "../../packages/google-fonts-provider",
-                "reference": "7e38451311be498f1f51048519ab34aeec633433"
+                "reference": "238c99674377de4520898b84ed34234537c71eef"
             },
             "require-dev": {
                 "automattic/jetpack-changelogger": "^3.0",
-                "brain/monkey": "^2.6",
+                "brain/monkey": "2.6.1",
                 "yoast/phpunit-polyfills": "1.0.3"
             },
             "type": "library",
