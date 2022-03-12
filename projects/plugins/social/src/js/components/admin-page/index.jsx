@@ -84,7 +84,7 @@ const Admin = () => {
 export default Admin;
 
 const ConnectionSection = () => {
-	const { apiNonce, apiRoot, registrationNonce } = window.jetpackReachInitialState;
+	const { apiNonce, apiRoot, registrationNonce } = window.jetpackSocialInitialState;
 	return (
 		<ConnectScreenRequiredPlan
 			buttonLabel={ __( 'Get Jetpack Social', 'jetpack-social' ) }
