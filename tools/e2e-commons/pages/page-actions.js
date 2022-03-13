@@ -24,7 +24,7 @@ export default class PageActions {
 	 * @param {Object} options object. see: https://playwright.dev/docs/api/class-page?_highlight=goto#pagegotourl-options
 	 * @return {Promise<void>}
 	 */
-	async goto( url, options = { waitUntil: 'domcontentloaded' } ) {
+	async goto( url, options = { waitUntil: 'domcontentloaded', timeout: this.timeout } ) {
 		if ( ! url ) {
 			throw new Error( 'Cannot navigate! Page URL is not set' );
 		}
@@ -52,7 +52,7 @@ export default class PageActions {
 	 *
 	 * @param {Object} options page.reload options object
 	 */
-	async reload( options = {} ) {
+	async reload( options = { timeout: this.timeout } ) {
 		logger.action( 'Reloading page' );
 		await this.page.reload( options );
 		return await this.waitForPage();

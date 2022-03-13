@@ -29,47 +29,6 @@ export async function setDefaultSort( defaultSort = 'relevance' ) {
 	return execWpCommand( `option update jetpack_search_default_sort ${ defaultSort }` );
 }
 
-export async function getSidebarsWidgets() {
-	try {
-		return await getWpOptionData( 'sidebars_widgets' );
-	} catch ( e ) {
-		return getSidebarsWidgetsData();
-	}
-}
-
-export async function getBlockWidgets() {
-	try {
-		return await getWpOptionData( 'widget_block' );
-	} catch ( e ) {
-		return getBlockWidgetsData();
-	}
-}
-
-export async function setupSidebarsWidgets( sidebarsWidgetsValue = getSidebarsWidgetsData() ) {
-	const sidebarsWidgetsOption = 'sidebars_widgets';
-	const sidebarsWidgetsFilePath = path.resolve( config.get( 'temp.sidebarsWidgetsFile' ) );
-
-	return await setWpOptionData(
-		sidebarsWidgetsOption,
-		sidebarsWidgetsValue,
-		sidebarsWidgetsFilePath
-	);
-}
-
-export async function setupSearchWidget( searchWidgetValue = getSearchFiltersData() ) {
-	const searchWidgetOption = 'widget_jetpack-search-filters';
-	const searchWidgetFilePath = path.resolve( config.get( 'temp.searchWidgetFile' ) );
-
-	return await setWpOptionData( searchWidgetOption, searchWidgetValue, searchWidgetFilePath );
-}
-
-export async function setupBlockWidgets( blockWidgets = getBlockWidgetsData() ) {
-	const blockWidgetsOption = 'widget_block';
-	const blockWidgetsFilePath = path.resolve( config.get( 'temp.blockWidgetsFile' ) );
-
-	return await setWpOptionData( blockWidgetsOption, blockWidgets, blockWidgetsFilePath );
-}
-
 export async function searchAutoConfig() {
 	// Run auto config to add search widget / block with user ID `1`.
 	return await execWpCommand( 'jetpack-search auto_config 1' );
@@ -107,24 +66,6 @@ function getSearchFiltersData() {
 				{ name: '', type: 'taxonomy', taxonomy: 'post_tag', count: 5 },
 			],
 		},
-	};
-}
-
-function getBlockWidgetsData() {
-	return {
-		22: { content: '<!-- wp:search /-->' },
-		23: { content: '<!-- wp:search /-->' },
-		_multiwidget: 1,
-	};
-}
-
-function getSidebarsWidgetsData() {
-	return {
-		wp_inactive_widgets: [],
-		'sidebar-1': [ 'block-22' ],
-		'sidebar-2': [ 'block-23' ],
-		'jetpack-instant-search-sidebar': [ 'jetpack-search-filters-8' ],
-		array_version: 3,
 	};
 }
 
