@@ -41,7 +41,7 @@ test.describe( 'Instant Search', () => {
 		await homepage.waitForNetworkIdle();
 	} );
 
-	test( 'Can search using default settings', async () => {
+	test( 'Can perform search with default settings', async () => {
 		await test.step( 'Can open the overlay by entering a query', async () => {
 			await homepage.focusSearchInput();
 			await homepage.enterQuery();
@@ -103,51 +103,54 @@ test.describe( 'Instant Search', () => {
 		} );
 	} );
 
-	test( 'Can press enter to to open overlay', async () => {
-		await homepage.goto( `${ siteUrl }` );
-		await homepage.waitForNetworkIdle();
+	test( 'Can open and close overlay', async () => {
+		await test.step( 'Can press enter to to open overlay', async () => {
+			await homepage.pressEnterInSearchInput();
+			await homepage.waitForSearchResponse();
 
-		await homepage.pressEnterInSearchInput();
-		await homepage.waitForSearchResponse();
+			expect( await homepage.isOverlayVisible() ).toBeTruthy();
+		} );
 
-		expect( await homepage.isOverlayVisible() ).toBeTruthy();
+		await test.step( 'Can click the cross to close the overlay', async () => {
+			await homepage.clickCrossToCloseOverlay();
 
-		await homepage.clickCrossToCloseOverlay();
-
-		expect( await homepage.isOverlayVisible() ).toBeFalsy();
+			expect( await homepage.isOverlayVisible() ).toBeFalsy();
+		} );
 	} );
 
-	test( 'Can use minimal format', async () => {
-		await homepage.goto( `${ siteUrl }?result_format=minimal` );
-		await homepage.waitForNetworkIdle();
-		await homepage.focusSearchInput();
-		await homepage.enterQuery( 'random-string-1' );
-		await homepage.waitForSearchResponse();
+	test( 'Can display different result formats', async () => {
+		await test.step( 'Can use minimal format', async () => {
+			await homepage.goto( `${ siteUrl }?result_format=minimal` );
+			await homepage.waitForNetworkIdle();
+			await homepage.focusSearchInput();
+			await homepage.enterQuery( 'random-string-1' );
+			await homepage.waitForSearchResponse();
 
-		expect( await homepage.isOverlayVisible() ).toBeTruthy();
-		expect( await homepage.isResultFormat( 'is-format-minimal' ) ).toBeTruthy();
-	} );
+			expect( await homepage.isOverlayVisible() ).toBeTruthy();
+			expect( await homepage.isResultFormat( 'is-format-minimal' ) ).toBeTruthy();
+		} );
 
-	test( 'Can use product format', async () => {
-		await homepage.goto( `${ siteUrl }?result_format=product` );
-		await homepage.waitForNetworkIdle();
-		await homepage.focusSearchInput();
-		await homepage.enterQuery( 'random-string-2' );
-		await homepage.waitForSearchResponse();
+		await test.step( 'Can use product format', async () => {
+			await homepage.goto( `${ siteUrl }?result_format=product` );
+			await homepage.waitForNetworkIdle();
+			await homepage.focusSearchInput();
+			await homepage.enterQuery( 'random-string-2' );
+			await homepage.waitForSearchResponse();
 
-		expect( await homepage.isOverlayVisible() ).toBeTruthy();
-		expect( await homepage.isResultFormat( 'is-format-product' ) ).toBeTruthy();
-		expect( await homepage.isProductImageVisible() ).toBeTruthy();
-		expect( await homepage.isProductPriceVisible() ).toBeTruthy();
-	} );
+			expect( await homepage.isOverlayVisible() ).toBeTruthy();
+			expect( await homepage.isResultFormat( 'is-format-product' ) ).toBeTruthy();
+			expect( await homepage.isProductImageVisible() ).toBeTruthy();
+			expect( await homepage.isProductPriceVisible() ).toBeTruthy();
+		} );
 
-	test( 'Can use expanded format', async () => {
-		await homepage.goto( `${ siteUrl }?result_format=expanded&s=random-string-3` );
-		await homepage.waitForSearchResponse();
+		await test.step( 'Can use expanded format', async () => {
+			await homepage.goto( `${ siteUrl }?result_format=expanded&s=random-string-3` );
+			await homepage.waitForNetworkIdle();
 
-		expect( await homepage.isOverlayVisible() ).toBeTruthy();
-		expect( await homepage.isResultFormat( 'is-format-expanded' ) ).toBeTruthy();
-		expect( await homepage.isExpandedImageVisible() ).toBeTruthy();
+			expect( await homepage.isOverlayVisible() ).toBeTruthy();
+			expect( await homepage.isResultFormat( 'is-format-expanded' ) ).toBeTruthy();
+			expect( await homepage.isExpandedImageVisible() ).toBeTruthy();
+		} );
 	} );
 
 	test( 'Can open overlay by clicking a link', async () => {

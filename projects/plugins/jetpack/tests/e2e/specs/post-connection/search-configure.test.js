@@ -73,6 +73,7 @@ test.describe( 'Search Configure', () => {
 		await test.step( 'Settings stick after reload', async () => {
 			// Reload the page.
 			await searchConfigure.reload();
+			await searchConfigure.waitForNetworkIdle();
 
 			// Settings do stick.
 			expect( await searchConfigure.isDarkTheme() ).toBeTruthy();
