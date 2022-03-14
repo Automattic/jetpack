@@ -3826,7 +3826,7 @@ class Jetpack_Core_Json_Api_Endpoints {
 					'message' => esc_html(
 						sprintf(
 							/* Translators: placeholders are numbers. */
-							_n( '%s plugin need updating.', '%s plugins need updating.', $count, 'jetpack' ),
+							_n( '%s plugin needs updating.', '%s plugins need updating.', $count, 'jetpack' ),
 							$count
 						)
 					),
