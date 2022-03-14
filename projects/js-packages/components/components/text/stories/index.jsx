@@ -7,40 +7,34 @@ import React from 'react';
  * Internal dependencies
  */
 import Text from '../index.jsx';
-import styles from './style.module.scss';
 
 export default {
 	title: 'JS Packages/Components/Text',
 	component: Text,
 };
 
-export const Default = () => (
-	<>
-		<Text variant="title-large" className={ styles.heading }>
-			Examples
-		</Text>
-		<Text variant="title-large">Title Large</Text>
-		<Text variant="title-small">Title Small</Text>
-		<Text variant="body">Body</Text>
-		<Text variant="body-small">Body Small</Text>
-		<Text variant="label">Label</Text>
-	</>
-);
+const Template = args => <Text { ...args }>{ args.variant ?? 'body' }</Text>;
+
+export const Default = Template.bind( {} );
+
+Default.args = {
+	variant: 'headline-medium',
+};
+
+export const CustomTag = Template.bind( {} );
+
+CustomTag.args = {
+	variant: 'title-small',
+	component: 'div',
+};
 
 const Custom = ( { className, children } ) => (
 	<span className={ className }>{ children } Composition</span>
 );
 
-export const CustomComponent = () => (
-	<>
-		<Text variant="title-large" className={ styles.heading }>
-			Examples
-		</Text>
-		<Text variant="title-small" component="div">
-			Custom Tag
-		</Text>
-		<Text variant="body" component={ Custom }>
-			Custom Component
-		</Text>
-	</>
-);
+export const CustomComponent = Template.bind( {} );
+
+CustomComponent.args = {
+	variant: 'headline-small',
+	component: Custom,
+};
