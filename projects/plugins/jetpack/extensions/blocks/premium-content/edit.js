@@ -3,10 +3,10 @@
  */
 import { useEffect, useState, useRef } from '@wordpress/element';
 import { Disabled, Placeholder, Spinner } from '@wordpress/components';
-import { BlockControls } from '@wordpress/block-editor';
+import { BlockControls, store as blockEditorStore } from '@wordpress/block-editor';
 import { __ } from '@wordpress/i18n';
-import { compose, useViewportMatch } from '@wordpress/compose';
-import { select, useSelect, withSelect, withDispatch } from '@wordpress/data';
+import { useViewportMatch } from '@wordpress/compose';
+import { select, useSelect, useDispatch } from '@wordpress/data';
 
 /**
  * Internal dependencies
@@ -68,8 +68,6 @@ const WALL_TAB = 1;
  * @property { string } clientId
  * @property { Attributes } attributes
  * @property { (attributes: object<Attributes>) => void } setAttributes
- * @property { number } postId
- * @property { () => void } selectBlock
  * @typedef { OwnProps } Props
  * @param { Props } props
  */
@@ -80,10 +78,13 @@ function Edit( props ) {
 	const { isPreview } = props.attributes;
 	const { clientId } = props;
 
+	const { selectBlock } = useDispatch( blockEditorStore );
+
 	const { fetchProducts, saveProduct, selectProduct } = useProducts(
 		'selectedPlanId',
 		props.setAttributes
 	);
+
 	useEffect( () => {
 		if ( isPreview ) {
 			return;
@@ -93,9 +94,10 @@ function Edit( props ) {
 
 		// Execution delayed with setTimeout to ensure it runs after any block auto-selection performed by inner blocks
 		// (such as the Recurring Payments block)
-		setTimeout( () => props.selectBlock(), 1000 );
+		setTimeout( () => selectBlock( clientId ), 1000 );
 		// eslint-disable-next-line react-hooks/exhaustive-deps
 	}, [] );
+
 	const { products, apiState, connectUrl, shouldUpgrade } = useSelect( selector => {
 		const { getAllProperties, getProducts } = selector( jetpackMembershipProductsStore );
 		return {
@@ -240,7 +242,7 @@ function useOutsideAlerter( ref, callback ) {
 	} );
 }
 
-function MaybeDisabledEdit( props ) {
+export default function MaybeDisabledEdit( props ) {
 	// The block transformations menu renders a block preview popover using real blocks
 	// for transformation. The block previews do not play nicely with useEffect and
 	// updating content after a resolved API call. To disarm the block preview, we can
@@ -262,24 +264,3 @@ function MaybeDisabledEdit( props ) {
 		</Disabled.Consumer>
 	);
 }
-
-export default compose( [
-	withSelect( selector => {
-		const { getCurrentPostId } = selector( 'core/editor' );
-		return {
-			postId: getCurrentPostId(),
-		};
-	} ),
-	withDispatch( ( dispatch, ownProps ) => {
-		const blockEditor = dispatch( 'core/block-editor' );
-		const notices = dispatch( 'core/notices' );
-		return {
-			selectBlock() {
-				// @ts-ignore difficult to type via JSDoc
-				blockEditor.selectBlock( ownProps.clientId );
-			},
-			createErrorNotice: notices.createErrorNotice,
-			createSuccessNotice: notices.createSuccessNotice,
-		};
-	} ),
-] )( MaybeDisabledEdit );
