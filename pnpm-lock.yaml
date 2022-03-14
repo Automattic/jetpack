@@ -1006,7 +1006,6 @@ importers:
       bounding-client-rect: 1.0.5
       chai: 4.3.4
       chalk: 4.1.2
-      chart.js: ^3.5.1
       classnames: 2.3.1
       click-outside: 2.0.2
       clipboard: 2.0.6
@@ -1131,7 +1130,6 @@ importers:
       '@wordpress/url': 3.4.1
       '@wordpress/viewport': 4.1.2_react@17.0.2
       bounding-client-rect: 1.0.5
-      chart.js: 3.7.1
       classnames: 2.3.1
       click-outside: 2.0.2
       clipboard: 2.0.6
