@@ -30,6 +30,8 @@ export default function mergeDirs( src, dest, name ) {
 
 		if ( stats.isDirectory() ) {
 			mergeDirs( srcFile, destFile );
+		} else if ( stats.isSymbolicLink() ) {
+			return;
 		} else if ( ! fs.existsSync( destFile ) ) {
 			copyFile( destFile, srcFile );
 		} else {
