@@ -7,7 +7,7 @@ import ProductManagementToolbarControl from './toolbar-control';
 
 import './style.scss';
 
-export default function ProductManagementControl( {
+export default function ProductManagementControls( {
 	saveProduct,
 	selectProduct,
 	selectedProductId,

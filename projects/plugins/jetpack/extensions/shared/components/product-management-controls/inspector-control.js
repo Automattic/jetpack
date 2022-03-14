@@ -19,9 +19,11 @@ import { __ } from '@wordpress/i18n';
 /**
  * Internal dependencies
  */
-import { API_STATE_NOT_REQUESTING, API_STATE_REQUESTING } from './constants';
 import { jetpackMembershipProductsStore } from './store';
 import { CURRENCY_OPTIONS } from '../../currencies';
+
+export const API_STATE_NOT_REQUESTING = 0;
+export const API_STATE_REQUESTING = 1;
 
 export default function ProductManagementInspectorControl( { saveProduct } ) {
 	const siteSlug = useSelect( select => select( jetpackMembershipProductsStore ).getSiteSlug() );
