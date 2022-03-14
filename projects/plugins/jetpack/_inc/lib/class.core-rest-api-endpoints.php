@@ -3406,9 +3406,9 @@ class Jetpack_Core_Json_Api_Endpoints {
 			return new WP_Error( 'invalid_param', esc_html__( 'Failed loading required dependency Sharing_Service.', 'jetpack' ) );
 		}
 		$sharer   = new Sharing_Service();
-		$services = array_keys( $sharer->get_all_services() );
+		$services = $sharer->get_all_services();
 
-		if ( ! empty( $value ) && ! in_array( $value, $services, true ) ) {
+		if ( ! empty( $value ) && ! isset( $services[ $value ] ) ) {
 			return new WP_Error(
 				'invalid_param',
 				sprintf(
