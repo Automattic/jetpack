@@ -116,8 +116,8 @@ class Jetpack_Keyring_Service_Helper {
 	}
 
 	/**
-	 * Gets a URL to the public-api actions. Works like WP's admin_url
-	 * on WordPress.com this is/calls Keyring::admin_url
+	 * Gets a URL to the public-api actions. Works like WP's admin_url.
+	 * On WordPress.com this is/calls Keyring::admin_url.
 	 *
 	 * @param string $service Shortname of a specific service.
 	 * @param array  $params  Parameters to append to an API connection URL.
