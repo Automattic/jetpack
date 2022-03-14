@@ -31,12 +31,10 @@ final class WafStandaloneBootstrapTest extends PHPUnit\Framework\TestCase {
 		define( 'WP_CONTENT_DIR', '/pseudo/dir' );
 
 		$this->assertFalse( defined( 'JETPACK_WAF_DIR' ) );
-		$this->assertFalse( defined( 'JETPACK_WAF_WPCONFIG' ) );
 
 		new WafStandaloneBootstrap();
 
 		$this->assertSame( '/pseudo/dir/jetpack-waf', JETPACK_WAF_DIR );
-		$this->assertSame( '/pseudo/wp-config.php', JETPACK_WAF_WPCONFIG );
 	}
 
 	/**
@@ -78,7 +76,6 @@ final class WafStandaloneBootstrapTest extends PHPUnit\Framework\TestCase {
 					function ( $file_contents ) {
 						return strpos( $file_contents, "define( 'JETPACK_WAF_MODE', 'mockModeOption' );" ) !== false
 							&& strpos( $file_contents, "define( 'JETPACK_WAF_DIR', '/awesome/dir/jetpack-waf' );" ) !== false
-							&& strpos( $file_contents, "define( 'JETPACK_WAF_WPCONFIG', '/awesome/wp-config.php' );" ) !== false
 							// Checking the include path fuzzy because it will vary depending on the system that the test is executed on.
 							&& preg_match( '/include.*run\.php/', $file_contents ) === 1;
 					}

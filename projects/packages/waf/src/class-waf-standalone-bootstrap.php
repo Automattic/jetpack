@@ -44,9 +44,6 @@ class WafStandaloneBootstrap {
 		if ( ! defined( 'JETPACK_WAF_DIR' ) ) {
 			define( 'JETPACK_WAF_DIR', trailingslashit( WP_CONTENT_DIR ) . 'jetpack-waf' );
 		}
-		if ( ! defined( 'JETPACK_WAF_WPCONFIG' ) ) {
-			define( 'JETPACK_WAF_WPCONFIG', trailingslashit( dirname( WP_CONTENT_DIR ) ) . 'wp-config.php' );
-		}
 	}
 
 	/**
@@ -79,7 +76,6 @@ class WafStandaloneBootstrap {
 		$code = "<?php\n"
 			. sprintf( "define( 'JETPACK_WAF_MODE', %s );\n", var_export( get_option( WafRunner::MODE_OPTION_NAME, false ) ?: 'silent', true ) )
 			. sprintf( "define( 'JETPACK_WAF_DIR', %s );\n", var_export( JETPACK_WAF_DIR, true ) )
-			. sprintf( "define( 'JETPACK_WAF_WPCONFIG', %s );\n", var_export( JETPACK_WAF_WPCONFIG, true ) )
 			. "include " . var_export( dirname( __DIR__ ) . '/run.php', true ) . ";\n";
 		// phpcs:enable
 
