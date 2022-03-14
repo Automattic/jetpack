@@ -1571,7 +1571,7 @@ class Jetpack_Core_Json_Api_Endpoints {
 	 * @return bool
 	 */
 	public static function view_jetpack_connection_test_check() {
-		// phpcs:disable WordPress.Security.NonceVerification.Recommended
+		// phpcs:disable WordPress.Security.NonceVerification.Recommended -- This is verifying the trusted caller via a shared private key and timestamp.
 		if ( ! isset( $_GET['signature'], $_GET['timestamp'], $_GET['url'] ) ) {
 			return false;
 		}
