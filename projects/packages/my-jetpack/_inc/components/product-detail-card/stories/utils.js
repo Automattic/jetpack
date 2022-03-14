@@ -35,7 +35,7 @@ export function getMockData( product ) {
 	const isArray = product.constructor === Array;
 	const productSlugs = isArray ? product : [ product ];
 
-	return productSlugs.map( productSlug => {
+	const getRequests = productSlugs.map( productSlug => {
 		return {
 			url: `my-jetpack/v1/site/products/${ productSlug }?_locale=user`,
 			method: 'GET',
@@ -43,6 +43,20 @@ export function getMockData( product ) {
 			response: mapResponse[ productSlug ],
 		};
 	} );
+
+	const postRequests = productSlugs.map( productSlug => {
+		return {
+			url: `my-jetpack/v1/site/products/${ productSlug }?_locale=user`,
+			method: 'POST',
+			status: 200,
+			response: {
+				...mapResponse[ productSlug ],
+				status: mapResponse[ productSlug ].status === 'active' ? 'inactive' : 'active',
+			},
+		};
+	} );
+
+	return [ ...getRequests, ...postRequests ];
 }
 
 /**
@@ -51,15 +65,14 @@ export function getMockData( product ) {
  * @returns {Array} All products mocked data.
  */
 export function getAllMockData() {
-	return getMockData( [
-		'anti-spam',
-		'backup',
-		'boost',
-		'crm',
-		'extras',
-		'scan',
-		'search',
-		'security',
-		'videopress',
-	] );
+	return getMockData( [ ...Object.keys( mapResponse ) ] );
+}
+
+/**
+ * Return product slugs list
+ *
+ * @returns {Array} product slugs list.
+ */
+export function getProductSlugs() {
+	return [ 'anti-spam', 'backup', 'boost', 'crm', 'extras', 'scan', 'search', 'videopress' ];
 }

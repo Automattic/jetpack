@@ -14,10 +14,9 @@ export const antiSpamProductData = {
 		'Advanced stats',
 	],
 	pricingForUi: {
-		available: true,
-		currencyCode: 'EUR',
-		fullPrice: 9.92,
-		promotionPercentage: 50,
+		currency_code: 'USD',
+		full_price: 119,
+		discount_price: 59,
 	},
 };
 
@@ -37,10 +36,9 @@ export const backupProductData = {
 		'One-click restores',
 	],
 	pricingForUi: {
-		available: true,
-		currencyCode: 'EUR',
-		fullPrice: 9,
-		promotionPercentage: 50,
+		currency_code: 'USD',
+		full_price: 119,
+		discount_price: 59,
 	},
 };
 
@@ -119,10 +117,9 @@ export const scanProductData = {
 		'Instant email notifications',
 	],
 	pricingForUi: {
-		available: true,
 		currency_code: 'USD',
-		full_price: 9.92,
-		discount: 50,
+		full_price: 119,
+		discount_price: 59,
 	},
 };
 
@@ -141,10 +138,10 @@ export const searchProductData = {
 		'Spelling correction',
 	],
 	pricingForUi: {
-		available: true,
-		currency_code: 'EUR',
-		full_price: 4.5,
-		discount: 50,
+		currency_code: 'USD',
+		full_price: 59.95,
+		discount_price: 29.975,
+		coupon_discount: 50,
 	},
 };
 
@@ -164,10 +161,9 @@ export const securityProductData = {
 		'Comment & form spam protection',
 	],
 	pricingForUi: {
-		available: true,
-		show_promotion: true,
-		full_price: 24.92,
-		discount: 50,
+		currency_code: 'USD',
+		full_price: 299,
+		discount_price: 149,
 	},
 };
 
@@ -185,9 +181,8 @@ export const videoPressProductData = {
 		'Unlimited users',
 	],
 	pricingForUi: {
-		available: true,
-		currencyCode: 'USD',
-		fullPrice: 119,
-		promotionPercentage: 50,
+		currency_code: 'USD',
+		full_price: 119,
+		discount_price: 59,
 	},
 };

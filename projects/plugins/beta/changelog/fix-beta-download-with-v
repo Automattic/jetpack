@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Download from the correct URL when updating to a version tagged like "v3.1.1" rather than "3.1.1".

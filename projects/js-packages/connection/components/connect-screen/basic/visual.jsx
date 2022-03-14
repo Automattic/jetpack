@@ -48,6 +48,7 @@ const ConnectScreenVisual = props => {
 		handleButtonClick,
 		displayButtonError,
 		buttonIsLoading,
+		footer,
 	} = props;
 
 	return (
@@ -75,6 +76,8 @@ const ConnectScreenVisual = props => {
 						<div className="jp-connection__connect-screen__tos">{ ToS }</div>
 					</>
 				) }
+
+				{ footer && <div className="jp-connection__connect-screen__footer">{ footer }</div> }
 			</div>
 		</ConnectScreenLayout>
 	);
@@ -99,6 +102,8 @@ ConnectScreenVisual.propTypes = {
 	displayButtonError: PropTypes.bool,
 	/** Whether the button is loading or not. */
 	buttonIsLoading: PropTypes.bool,
+	/** Node that will be rendered after ToS */
+	footer: PropTypes.node,
 };
 
 ConnectScreenVisual.defaultProps = {
@@ -107,6 +112,7 @@ ConnectScreenVisual.defaultProps = {
 	buttonIsLoading: false,
 	displayButtonError: false,
 	handleButtonClick: () => {},
+	footer: null,
 };
 
 export default ConnectScreenVisual;

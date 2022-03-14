@@ -7,9 +7,6 @@
 /projects/packages/search @Automattic/jetpack-search
 /projects/packages/search/src/wpes @Automattic/prometheus
 
-# Individual Modules:
-/projects/plugins/jetpack/modules/search/ @Automattic/jetpack-search
-
 # Other bits of the Codebase
 /projects/plugins/jetpack/_inc/lib/debugger/ @kraftbj
 

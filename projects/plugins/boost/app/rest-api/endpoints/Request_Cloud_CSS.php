@@ -6,9 +6,7 @@
  */
 namespace Automattic\Jetpack_Boost\REST_API\Endpoints;
 
-use Automattic\Jetpack_Boost\Features\Optimizations\Cloud_CSS\Cloud_CSS_Request;
-use Automattic\Jetpack_Boost\Lib\Critical_CSS\Critical_CSS_State;
-use Automattic\Jetpack_Boost\Lib\Critical_CSS\Source_Providers\Source_Providers;
+use Automattic\Jetpack_Boost\Features\Optimizations\Cloud_CSS\Cloud_CSS;
 use Automattic\Jetpack_Boost\REST_API\Contracts;
 use Automattic\Jetpack_Boost\REST_API\Permissions\Current_User_Admin;
 use WP_REST_Server;
@@ -25,12 +23,8 @@ class Request_Cloud_CSS implements Contracts\Endpoint {
 
 	//phpcs:disable VariableAnalysis.CodeAnalysis.VariableAnalysis.UnusedVariable
 	public function response( $request ) {
-		$state            = new Critical_CSS_State( 'cloud' );
-		$source_providers = new Source_Providers();
-		$state->create_request( $source_providers->get_providers() );
-
-		$client = new Cloud_CSS_Request( $state );
-		return $client->request_generate();
+		$feature = new Cloud_CSS();
+		return $feature->generate_cloud_css();
 	}
 
 	public function permissions() {

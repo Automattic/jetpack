@@ -32,7 +32,7 @@ function Header( { enableSidebar } ) {
 				<Button
 					aria-label={ __( 'Show settings', 'jetpack-search-pkg' ) }
 					className="jp-search-configure-header__show-settings-button"
-					isSecondary
+					variant="secondary"
 					onClick={ () => enableSidebar() }
 				>
 					<Icon icon={ cog } />

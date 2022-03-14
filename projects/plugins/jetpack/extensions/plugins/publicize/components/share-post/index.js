@@ -68,7 +68,7 @@ export function SharePostButton() {
 
 	return (
 		<Button
-			isSecondary
+			variant="secondary"
 			onClick={ function () {
 				if ( ! isPostPublished ) {
 					return showErrorNotice(
