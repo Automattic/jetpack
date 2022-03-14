@@ -1,7 +1,6 @@
 /**
  * External dependencies
  */
-import { Chart, registerables } from 'chart.js';
 import Card from 'components/card';
 import React, { useState, useCallback, useMemo } from 'react';
 import { connect } from 'react-redux';
@@ -21,8 +20,6 @@ import RecordMeterBar from 'components/record-meter-bar';
 import { Popup } from './popup';
 
 import './style.scss';
-
-Chart.register( ...registerables );
 
 const BackupUpgrade = ( { comments, isFetchingData, plugins, posts } ) => {
 	const [ showPopup, setShowPopup ] = useState( true );
