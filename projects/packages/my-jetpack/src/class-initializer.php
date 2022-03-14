@@ -50,11 +50,7 @@ class Initializer {
 
 		$page_suffix = Admin_Menu::add_menu(
 			__( 'My Jetpack', 'jetpack-my-jetpack' ),
-			sprintf(
-			/* translators: %s: "beta" label on Menu item for My Jetpack. */
-				__( 'My Jetpack %s', 'jetpack-my-jetpack' ),
-				'<span style="display:inline-block; margin: 0 8px; color: #bbb;">' . __( 'beta', 'jetpack-my-jetpack' ) . '</span>'
-			),
+			__( 'My Jetpack', 'jetpack-my-jetpack' ),
 			'manage_options',
 			'my-jetpack',
 			array( __CLASS__, 'admin_page' ),

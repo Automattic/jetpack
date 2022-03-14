@@ -1,0 +1,4 @@
+Significance: patch
+Type: other
+
+If the mapbox API call returns a completely invalid response, treat it as a failure rather than a success.
