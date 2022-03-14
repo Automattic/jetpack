@@ -10,11 +10,15 @@ import classNames from 'classnames';
  */
 import styles from './style.module.scss';
 
-const VARIANTS_MAPPING = {
-	'title-large': 'h1',
-	'title-small': 'h2',
+export const VARIANTS_MAPPING = {
+	'headline-medium': 'h1',
+	'headline-small': 'h2',
+	'headline-small-regular': 'h2',
+	'title-medium': 'h3',
+	'title-small': 'h4',
 	body: 'p',
 	'body-small': 'p',
+	'body-extra-small': 'p',
 	label: 'p',
 };
 
