@@ -1,7 +1,5 @@
 import fs from 'fs';
-import path from 'path';
 import { execWpCommand } from 'jetpack-e2e-commons/helpers/utils-helper.cjs';
-import config from 'config';
 import logger from 'jetpack-e2e-commons/logger.cjs';
 import { SearchHomepage } from 'jetpack-e2e-commons/pages/index.js';
 
@@ -37,36 +35,6 @@ export async function searchAutoConfig() {
 export async function clearSearchPlanInfo() {
 	// When running locally, sometimes there could be data in the option - better clear it.
 	return await execWpCommand( 'option delete jetpack_search_plan_info' );
-}
-
-async function setWpOptionData( optionName, value, tempFilePath ) {
-	fs.writeFileSync( tempFilePath, JSON.stringify( value ) );
-
-	return await execWpCommand( `option update ${ optionName } --format=json <	${ tempFilePath }` );
-}
-
-async function getWpOptionData( optionName ) {
-	const value = await execWpCommand( `option get ${ optionName } --format=json` );
-	if ( typeof value === 'object' ) {
-		throw value;
-	}
-	return JSON.parse( value );
-}
-
-function getSearchFiltersData() {
-	return {
-		8: {
-			title: '',
-			search_box_enabled: '0',
-			user_sort_enabled: '0',
-			sort: null,
-			post_types: [],
-			filters: [
-				{ name: '', type: 'taxonomy', taxonomy: 'category', count: 5 },
-				{ name: '', type: 'taxonomy', taxonomy: 'post_tag', count: 5 },
-			],
-		},
-	};
 }
 
 /**

@@ -20,9 +20,9 @@ test.beforeAll( async ( { browser } ) => {
 		.withPlan( Plans.Complete )
 		.withActiveModules( [ 'search' ] )
 		.build();
-	await enableInstantSearch();
 
 	await searchAutoConfig();
+	await enableInstantSearch();
 	await page.close();
 } );
 
