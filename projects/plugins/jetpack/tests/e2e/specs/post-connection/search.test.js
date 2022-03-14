@@ -37,9 +37,7 @@ test.describe( 'Instant Search', () => {
 	test.beforeEach( async ( { page } ) => {
 		await searchAPIRoute( page );
 		homepage = await SearchHomepage.visit( page );
-		await homepage.waitForPage();
 		await homepage.waitForSearchMainPayload();
-		await homepage.waitForNetworkIdle();
 	} );
 
 	test( 'Can perform search with default settings', async () => {

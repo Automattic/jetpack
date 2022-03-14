@@ -73,8 +73,7 @@ export default class SearchHomepage extends WpPage {
 
 	async waitForSearchMainPayload() {
 		return await this.page.waitForResponse( resp =>
-			console.log(resp.url() )
-			// SearchHomepage.SEARCH_MAIN_PAYLOAD_PATTERN.test( resp.url() )
+			SearchHomepage.SEARCH_MAIN_PAYLOAD_PATTERN.test( resp.url() )
 		);
 	}
 
