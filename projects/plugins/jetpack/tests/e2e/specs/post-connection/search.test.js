@@ -25,8 +25,8 @@ test.describe( 'Instant Search', () => {
 			.withActiveModules( [ 'search' ] )
 			.build();
 
-		await searchAutoConfig();
 		await enableInstantSearch();
+		await searchAutoConfig();
 		await page.close();
 	} );
 
