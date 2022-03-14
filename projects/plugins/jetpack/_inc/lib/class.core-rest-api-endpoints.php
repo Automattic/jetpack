@@ -741,7 +741,6 @@ class Jetpack_Core_Json_Api_Endpoints {
 			)
 		);
 
-
 		/**
 		 * Get Jetpack user license counts.
 		 */
