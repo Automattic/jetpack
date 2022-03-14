@@ -1,0 +1,4 @@
+Significance: major
+Type: changed
+
+Use the node16 runner instead of the deprecated node12 runner.

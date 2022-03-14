@@ -5,22 +5,13 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import { Button, Spinner } from '@wordpress/components';
 
-const ProductDetailButton = ( {
-	children,
-	className,
-	href,
-	isLoading,
-	onClick,
-	isPrimary,
-	isSecondary,
-} ) => {
+const ProductDetailButton = ( { children, className, href, isLoading, onClick, isPrimary } ) => {
 	return (
 		<Button
 			onClick={ onClick }
 			className={ className }
 			href={ href }
-			isPrimary={ isPrimary }
-			isSecondary={ isSecondary }
+			variant={ isPrimary ? 'primary' : 'secondary' }
 			disabled={ isLoading }
 		>
 			{ isLoading ? <Spinner /> : children }
