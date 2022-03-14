@@ -91,19 +91,11 @@ export function QRPostButton() {
 					</div>
 
 					<div className="qr-post-modal__actions_buttons">
-						<Button
-							isSmall
-							isSecondary
-							onClick={ () => handleDownloadQRCode( slug, qrCodeRef, false ) }
-						>
-							{ __( 'View', 'jetpack' ) }
-						</Button>
-
-						<Button isSmall isSecondary onClick={ () => handleDownloadQRCode( slug, qrCodeRef ) }>
+						<Button isSecondary onClick={ () => handleDownloadQRCode( slug, qrCodeRef ) }>
 							{ __( 'Download', 'jetpack' ) }
 						</Button>
 
-						<Button isSmall isSecondary onClick={ closeModal }>
+						<Button isSecondary onClick={ closeModal }>
 							{ __( 'Close', 'jetpack' ) }
 						</Button>
 					</div>
