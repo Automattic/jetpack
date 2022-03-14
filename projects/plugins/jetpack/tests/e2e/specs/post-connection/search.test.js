@@ -37,7 +37,7 @@ test.describe( 'Instant Search', () => {
 	test.beforeEach( async ( { page } ) => {
 		await searchAPIRoute( page );
 		homepage = await SearchHomepage.visit( page );
-		await homepage.waitForSearchMainPayload();
+		await homepage.waitForInstantSearchReady();
 	} );
 
 	test( 'Can perform search with default settings', async () => {
@@ -122,7 +122,7 @@ test.describe( 'Instant Search', () => {
 	test( 'Can display different result formats', async () => {
 		await test.step( 'Can use minimal format', async () => {
 			await homepage.goto( `${ siteUrl }?result_format=minimal` );
-			await homepage.waitForSearchMainPayload();
+			await homepage.waitForInstantSearchReady();
 			await homepage.focusSearchInput();
 			await homepage.enterQuery( 'random-string-1' );
 			await homepage.waitForSearchResponse();
@@ -133,7 +133,7 @@ test.describe( 'Instant Search', () => {
 
 		await test.step( 'Can use product format', async () => {
 			await homepage.goto( `${ siteUrl }?result_format=product` );
-			await homepage.waitForSearchMainPayload();
+			await homepage.waitForInstantSearchReady();
 			await homepage.focusSearchInput();
 			await homepage.enterQuery( 'random-string-2' );
 			await homepage.waitForSearchResponse();
@@ -146,7 +146,7 @@ test.describe( 'Instant Search', () => {
 
 		await test.step( 'Can use expanded format', async () => {
 			await homepage.goto( `${ siteUrl }?result_format=expanded&s=random-string-3` );
-			await homepage.waitForSearchMainPayload();
+			await homepage.waitForInstantSearchReady();
 
 			expect( await homepage.isOverlayVisible() ).toBeTruthy();
 			expect( await homepage.isResultFormat( 'is-format-expanded' ) ).toBeTruthy();
@@ -156,7 +156,7 @@ test.describe( 'Instant Search', () => {
 
 	test( 'Can open overlay by clicking a link', async () => {
 		await homepage.goto( `${ siteUrl }?jetpack_search_link_in_footer=1` );
-		await homepage.waitForSearchMainPayload();
+		await homepage.waitForInstantSearchReady();
 
 		expect( await homepage.isOverlayVisible() ).toBeFalsy();
 		await homepage.clickLink();

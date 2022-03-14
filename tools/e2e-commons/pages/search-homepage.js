@@ -71,11 +71,8 @@ export default class SearchHomepage extends WpPage {
 		);
 	}
 
-	async waitForSearchMainPayload() {
-		await this.page.waitForResponse( resp =>
-			SearchHomepage.SEARCH_MAIN_PAYLOAD_PATTERN.test( resp.url() )
-		);
-		// wait for Instant Search to initialize.
+	async waitForInstantSearchReady() {
+		await this.waitForElementToBeAttached( '.jetpack-instant-search' );
 		return await this.waitForTimeout( 500 );
 	}
 
