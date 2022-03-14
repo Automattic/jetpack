@@ -1444,7 +1444,7 @@ importers:
       commander: 7.2.0
       enzyme: 3.11.0
       glob: 7.1.6
-      global-jsdom: 8.1.0
+      global-jsdom: 8.4.0
       identity-obj-proxy: 3.0.0
       jest: 27.3.1
       jsdom: 16.4.0
@@ -1472,7 +1472,7 @@ importers:
       commander: 7.2.0
       enzyme: 3.11.0
       glob: 7.1.6
-      global-jsdom: 8.1.0_jsdom@16.4.0
+      global-jsdom: 8.4.0_jsdom@16.4.0
       identity-obj-proxy: 3.0.0
       jest: 27.3.1
       jsdom: 16.4.0
@@ -14226,11 +14226,11 @@ packages:
       define-properties: 1.1.3
       is-symbol: 1.0.4
 
-  /global-jsdom/8.1.0_jsdom@16.4.0:
-    resolution: {integrity: sha512-FBi84GT/MrzP+H3aReBSWXGVz2kdPaDrK/DByKrOq16mRexWrcJNpV6SONCKXWQuzxRjA7UXMfIvxmGyQZS+2Q==}
+  /global-jsdom/8.4.0_jsdom@16.4.0:
+    resolution: {integrity: sha512-0wBpSA/uTbPwMUldVKvPkJmQ30PZacTY8LzXSnTYlptZl6c5OFAVXSb24o1vdvjUNAmIksj+BAJb/c/KSPlLCQ==}
     engines: {node: '>=12'}
     peerDependencies:
-      jsdom: '>=10.0.0 || <17'
+      jsdom: '>=10.0.0 || <20'
     dependencies:
       jsdom: 16.4.0
     dev: false
