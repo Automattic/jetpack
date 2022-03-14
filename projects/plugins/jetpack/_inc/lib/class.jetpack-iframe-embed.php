@@ -60,7 +60,7 @@ class Jetpack_Iframe_Embed {
 	 */
 	private static function is_embedding_in_iframe() {
 		return (
-			// phpcs:disable WordPress.Security.NonceVerification.Recommended
+			// phpcs:disable WordPress.Security.NonceVerification.Recommended -- No nonce needed, we're only checking for a specific screen view.
 			self::has_get_param( $_GET['iframe'] )
 			&& (
 				self::has_get_param( $_GET['preview'] )
