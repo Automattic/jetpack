@@ -31,12 +31,17 @@ test.describe( 'Instant Search', () => {
 	} );
 
 	test.afterAll( async () => {
-		// await disableInstantSearch();
+		await disableInstantSearch();
+	} );
+
+	test.beforeEach( async ( { page } ) => {
+		await searchAPIRoute( page );
+		homepage = await SearchHomepage.visit( page );
+		await homepage.waitForPage();
+		await homepage.waitForNetworkIdle();
 	} );
 
 	test( 'Can search using default settings', async ( { page } ) => {
-		await searchAPIRoute( page );
-		homepage = await SearchHomepage.visit( page );
 		await homepage.waitForNetworkIdle();
 
 		await test.step( 'Can open the overlay by entering a query', async () => {
