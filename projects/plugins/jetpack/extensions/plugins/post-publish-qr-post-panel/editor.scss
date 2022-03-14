@@ -16,7 +16,7 @@
 	}
 }
 
-.post-publish-qr-post-panel__container {
+.qr-post-modal__qr-code {
 	display: flex;
 	justify-content: center;
 }
@@ -28,7 +28,8 @@
 .qr-post-modal__actions_buttons {
 	display: flex;
 	justify-content: right;
-	margin-top: 10px;
+	margin: 10px auto;
+	max-width: 300px;
 	.components-button {
 		margin-left: 5px;
 	}
