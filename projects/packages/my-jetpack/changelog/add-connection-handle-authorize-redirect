@@ -1,0 +1,4 @@
+Significance: patch
+Type: changed
+
+Make Backup go through the purchase flow after activation

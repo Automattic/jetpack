@@ -1,4 +1,0 @@
-Significance: patch
-Type: compat
-
-Blocks: remove deprecated attributes from Button components.

@@ -5,6 +5,19 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.4.1-beta] - 2022-03-08
+### Added
+- Critical CSS: Added internal support for Cloud Critical CSS.
+- Critical CSS: Added suggested steps when Critical CSS fails due to page errors.
+
+### Changed
+- Critical CSS: Tidied up Critical CSS class structure.
+- Critical CSS: Updated Critical CSS generation to exclude animation keyframes.
+- Deferred JS: Updated exclusion attribute to allow quotes.
+- General: Tested compatibility with WordPress 5.9.
+- General: Updated Boost Dashboard heading logo.
+- Lazy Loading: Updated Image Lazy Loading to reflect Jetpack's Lazy Loading setting.
+
 ## 1.4.0 - 2022-02-28
 ### Added
 - UI: Adds My Jetpack functionality for consistent UI across all Jetpack plugins.
@@ -125,3 +138,4 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 [1.3.1-beta]: https://github.com/Automattic/jetpack-boost-production/compare/v1.3.0-beta...v1.3.1-beta
 [1.3.0-beta]: https://github.com/Automattic/jetpack-boost-production/compare/v1.2.0...v1.3.0-beta
 [1.2.0]: https://github.com/Automattic/jetpack-boost-production/compare/v1.1.0...v1.2.0-beta
+[1.4.1-beta]: https://github.com/Automattic/jetpack-boost-production/compare/v1.4.0...v1.4.1-beta

@@ -1,4 +1,0 @@
-Significance: minor
-Type: added
-
-On plugin update, pre-load all (non-PSR-4) classes from the plugin to avoid mid-upgrade fatals.
