@@ -2,7 +2,7 @@ const config = {
 	presets: [
 		[
 			'@automattic/jetpack-webpack-config/babel/preset',
-			{ pluginReplaceTextdomain: { textdomain: 'jetpack-reach' } },
+			{ pluginReplaceTextdomain: { textdomain: 'jetpack-social' } },
 		],
 	],
 };

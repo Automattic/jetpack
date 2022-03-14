@@ -11,7 +11,7 @@ jobs:
     if: github.event.pull_request.head.repo.full_name == github.event.pull_request.base.repo.full_name
     timeout-minutes: 1  # 2021-01-18: Successful runs seem to take ~15 seconds.
     steps:
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v3
       - name: Check for required review approval
         uses: automattic/action-required-review@v2
         with:
