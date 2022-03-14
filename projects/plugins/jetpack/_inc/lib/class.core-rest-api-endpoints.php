@@ -728,6 +728,19 @@ class Jetpack_Core_Json_Api_Endpoints {
 				),
 			)
 		);
+		/**
+		 * Get Jetpack user licenses.
+		 */
+		register_rest_route(
+			'jetpack/v4',
+			'licensing/user/licenses',
+			array(
+				'methods'             => WP_REST_Server::READABLE,
+				'callback'            => __CLASS__ . '::get_user_licenses',
+				'permission_callback' => __CLASS__ . '::user_licensing_permission_check',
+			)
+		);
+
 
 		/**
 		 * Get Jetpack user license counts.
@@ -1111,6 +1124,39 @@ class Jetpack_Core_Json_Api_Endpoints {
 		if ( 200 === $response_code ) {
 			$license_counts = json_decode( wp_remote_retrieve_body( $wpcom_request ) );
 			return $license_counts;
+		} else {
+			return new WP_Error(
+				'failed_to_fetch_data',
+				esc_html__( 'Unable to fetch the requested data.', 'jetpack' ),
+				array( 'status' => $response_code )
+			);
+		}
+	}
+
+	/**
+	 * Gets the users licenses.
+	 *
+	 * @since 10.4.0
+	 *
+	 * @return string|WP_Error A JSON object of user licenses if the request was successful, or a WP_Error otherwise.
+	 */
+	public static function get_user_licenses() {
+		$wpcom_request = Client::wpcom_json_api_request_as_user(
+			'/jetpack-licensing/user/licenses',
+			'2',
+			array(
+				'method'  => 'GET',
+				'headers' => array(
+					'Content-Type'    => 'application/json',
+					'X-Forwarded-For' => ( new Visitor() )->get_ip( true ),
+				),
+			)
+		);
+
+		$response_code = wp_remote_retrieve_response_code( $wpcom_request );
+		if ( 200 === $response_code ) {
+			$licenses = json_decode( wp_remote_retrieve_body( $wpcom_request ) );
+			return $licenses;
 		} else {
 			return new WP_Error(
 				'failed_to_fetch_data',
