@@ -3,7 +3,6 @@ import { resolveSiteUrl } from '../helpers/utils-helper.cjs';
 
 export default class SearchHomepage extends WpPage {
 	static SEARCH_API_PATTERN = /^https:\/\/public-api\.wordpress.com\/rest\/v1.3\/sites\/\d+\/search.*/;
-	static SEARCH_MAIN_PAYLOAD_PATTERN = /.*\/jetpack-search\/build\/instant-search\/jp-search\.chunk-main-payload\.js.*/;
 
 	constructor( page ) {
 		const url = `${ resolveSiteUrl() }/?result_format=expanded`;
