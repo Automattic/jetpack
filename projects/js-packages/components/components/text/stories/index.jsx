@@ -6,8 +6,6 @@ import React from 'react';
 /**
  * Internal dependencies
  */
-// import Col from '../../layout/col';
-// import Container from '../../layout/container';
 import Text from '../index.jsx';
 import styles from './style.module.scss';
 
