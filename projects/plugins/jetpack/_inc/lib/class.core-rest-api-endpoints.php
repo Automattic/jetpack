@@ -3104,9 +3104,11 @@ class Jetpack_Core_Json_Api_Endpoints {
 		}
 		$args = $attributes['args'][ $param ];
 		if ( ! empty( $args['enum'] ) ) {
-
 			// If it's an associative array, use the keys to check that the value is among those admitted.
-			$enum = ( count( array_filter( array_keys( $args['enum'] ), 'is_string' ) ) > 0 ) ? array_keys( $args['enum'] ) : $args['enum'];
+			$enum = ( count( array_filter( array_keys( $args['enum'] ), 'is_string' ) ) > 0 )
+				? array_keys( $args['enum'] )
+				: $args['enum'];
+			$enum = array_map( 'strval', $enum );
 			if ( ! in_array( $value, $enum, true ) ) {
 				return new WP_Error(
 					'invalid_param_value',
