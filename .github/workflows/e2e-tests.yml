@@ -122,18 +122,18 @@ jobs:
       run: |
         mapfile -t TEST_ARGS < <(jq -r '.[]' <<<"$JSON_ARGS")
         # pnpm run test:run -- "${TEST_ARGS[@]}"
-        pnpm run test:run -- search.test.js
+        pnpm run test:run -- search
 
-    # - name: Send Slack notification
-    #   if: ${{ ! cancelled() }}
-    #   env:
-    #     GITHUB_CONTEXT: ${{ toJson(github) }}
-    #     SUITE: ${{ matrix.project }}
-    #     JSON_ARGS: ${{ toJSON(matrix.slackArgs) }}
-    #   working-directory: ${{ matrix.path }}
-    #   run: |
-    #     mapfile -t ARGS < <(jq -r '.[]' <<<"$JSON_ARGS")
-    #     pnpm run slack -- suite "$SUITE" "${ARGS[@]}"
+    - name: Send Slack notification
+      if: ${{ ! cancelled() }}
+      env:
+        GITHUB_CONTEXT: ${{ toJson(github) }}
+        SUITE: ${{ matrix.project }}
+        JSON_ARGS: ${{ toJSON(matrix.slackArgs) }}
+      working-directory: ${{ matrix.path }}
+      run: |
+        mapfile -t ARGS < <(jq -r '.[]' <<<"$JSON_ARGS")
+        # pnpm run slack -- suite "$SUITE" "${ARGS[@]}"
 
     - name: Test environment tear-down
       if: ${{ always() }}
