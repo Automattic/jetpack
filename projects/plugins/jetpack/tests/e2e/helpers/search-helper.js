@@ -1,4 +1,3 @@
-import fs from 'fs';
 import { execWpCommand } from 'jetpack-e2e-commons/helpers/utils-helper.cjs';
 import logger from 'jetpack-e2e-commons/logger.cjs';
 import { SearchHomepage } from 'jetpack-e2e-commons/pages/index.js';
