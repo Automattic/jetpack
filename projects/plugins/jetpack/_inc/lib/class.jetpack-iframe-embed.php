@@ -3,6 +3,7 @@
  * Tweak a preview when rendered in an iframe.
  * This is used when rendering iFrames in the Calypso app.
  *
+ * This file is shared between WordPress.com and Jetpack. The canonical source is Jetpack and no WordPress.com-specific code should exist in this file.
  * @package automattic/jetpack
  */
 
