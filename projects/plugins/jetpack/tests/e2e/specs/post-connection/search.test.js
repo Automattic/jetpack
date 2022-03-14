@@ -96,7 +96,9 @@ test.describe( 'Instant Search', () => {
 			await homepage.waitForSearchResponse();
 
 			expect( await homepage.getFirstResultTitle() ).toBe( '<mark>Test2</mark> Record 3' );
+		} );
 
+		await test.step( 'Can close overlay by clicking the cross', async () => {
 			await homepage.clickCrossToCloseOverlay();
 
 			expect( await homepage.isOverlayVisible() ).toBeFalsy();
