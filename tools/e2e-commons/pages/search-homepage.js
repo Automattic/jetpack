@@ -3,6 +3,7 @@ import { resolveSiteUrl } from '../helpers/utils-helper.cjs';
 
 export default class SearchHomepage extends WpPage {
 	static SEARCH_API_PATTERN = /^https:\/\/public-api\.wordpress.com\/rest\/v1.3\/sites\/\d+\/search.*/;
+	static SEARCH_MAIN_PAYLOAD_PATTERN = /\/search\/build\/jp-search\.chunk-main-payload\.js.*/;
 
 	constructor( page ) {
 		const url = `${ resolveSiteUrl() }/?result_format=expanded`;
@@ -68,6 +69,14 @@ export default class SearchHomepage extends WpPage {
 		return this.page.waitForResponse( resp =>
 			SearchHomepage.SEARCH_API_PATTERN.test( resp.url() )
 		);
+	}
+
+	async waitForSearchMainPayload() {
+		return await this.page.waitForResponse( resp => {
+			console.log( resp );
+			return false;
+			// return SearchHomepage.SEARCH_MAIN_PAYLOAD_PATTERN.test(resp.url())
+		} );
 	}
 
 	async isSortingLinkSelected( sorting = 'relevance' ) {
