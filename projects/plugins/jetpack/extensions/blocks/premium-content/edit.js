@@ -2,10 +2,10 @@
  * WordPress dependencies
  */
 import { useEffect, useState, useRef } from '@wordpress/element';
-import { Disabled, Placeholder, Spinner, ToolbarButton, ToolbarGroup } from '@wordpress/components';
+import { Disabled, Placeholder, Spinner, ToolbarButton } from '@wordpress/components';
 import { BlockControls } from '@wordpress/block-editor';
 import { __, sprintf } from '@wordpress/i18n';
-import { compose } from '@wordpress/compose';
+import { compose, useViewportMatch } from '@wordpress/compose';
 import { select, useSelect, withSelect, withDispatch } from '@wordpress/data';
 import { addQueryArgs, getQueryArg } from '@wordpress/url';
 import formatCurrency from '@automattic/format-currency';
@@ -23,6 +23,7 @@ import { isPriceValid, minimumTransactionAmountForCurrency } from '../../shared/
 import getConnectUrl from '../../shared/get-connect-url';
 import './editor.scss';
 import useAutosaveAndRedirect from '../../shared/use-autosave-and-redirect';
+import ViewSelector from './_inc/view-selector';
 import InvalidSubscriptionWarning from './_inc/invalid-subscription-warning';
 
 /**
@@ -45,7 +46,7 @@ const tabs = [
 	},
 	{
 		id: 'wall',
-		label: <span>{ __( 'Non-subscriber View', 'jetpack' ) }</span>,
+		label: <span>{ __( 'Guest View', 'jetpack' ) }</span>,
 		className: 'wp-premium-content-logged-out-view',
 	},
 ];
@@ -339,6 +340,8 @@ function Edit( props ) {
 
 	const { autosaveAndRedirect } = useAutosaveAndRedirect( connectURL );
 
+	const isSmallViewport = useViewportMatch( 'medium', '<' );
+
 	if ( apiState === API_STATE_LOADING && ! isPreview ) {
 		return (
 			<div className={ className } ref={ wrapperRef }>
@@ -355,50 +358,37 @@ function Edit( props ) {
 
 	return (
 		<>
-			<BlockControls>
-				{ shouldShowConnectButton() && (
-					<ToolbarGroup>
-						<ToolbarButton
-							icon={ flashIcon }
-							onClick={ autosaveAndRedirect }
-							className="connect-stripe components-tab-button"
-						>
-							{ __( 'Connect Stripe', 'jetpack' ) }
-						</ToolbarButton>
-					</ToolbarGroup>
-				) }
+			{ shouldShowConnectButton() && (
+				<BlockControls group="block">
+					<ToolbarButton
+						icon={ flashIcon }
+						onClick={ autosaveAndRedirect }
+						className="connect-stripe components-tab-button"
+					>
+						{ __( 'Connect Stripe', 'jetpack' ) }
+					</ToolbarButton>
+				</BlockControls>
+			) }
 
-				<ToolbarGroup>
-					<ToolbarButton
-						onClick={ () => {
-							selectTab( tabs[ CONTENT_TAB ] );
-						} }
-						className="components-tab-button"
-						isPressed={ selectedTab.className !== 'wp-premium-content-logged-out-view' }
-					>
-						<span>{ __( 'Subscriber View', 'jetpack' ) }</span>
-					</ToolbarButton>
-					<ToolbarButton
-						onClick={ () => {
-							selectTab( tabs[ WALL_TAB ] );
-						} }
-						className="components-tab-button"
-						isPressed={ selectedTab.className === 'wp-premium-content-logged-out-view' }
-					>
-						<span>{ __( 'Guest View', 'jetpack' ) }</span>
-					</ToolbarButton>
-				</ToolbarGroup>
-			</BlockControls>
+			<ViewSelector
+				options={ tabs }
+				selectedOption={ selectedTab }
+				selectAction={ selectTab }
+				contractViewport={ isSmallViewport }
+				label={ __( 'Change view', 'jetpack' ) }
+			/>
 
 			<div className={ className } ref={ wrapperRef }>
 				{ ( isSelected || selectedInnerBlock ) && apiState === API_STATE_CONNECTED && (
-					<Controls
-						{ ...props }
-						plans={ products }
-						selectedPlanId={ props.attributes.selectedPlanId }
-						onSelected={ selectPlan }
-						getPlanDescription={ getPlanDescription }
-					/>
+					<BlockControls group="block">
+						<Controls
+							{ ...props }
+							plans={ products }
+							selectedPlanId={ props.attributes.selectedPlanId }
+							onSelected={ selectPlan }
+							getPlanDescription={ getPlanDescription }
+						/>
+					</BlockControls>
 				) }
 				{ ( isSelected || selectedInnerBlock ) && apiState === API_STATE_CONNECTED && (
 					<Inspector { ...props } savePlan={ savePlan } siteSlug={ siteSlug } />

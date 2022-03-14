@@ -4,7 +4,8 @@
 import { useSelect } from '@wordpress/data';
 import { store as editorStore } from '@wordpress/editor';
 import { Component } from '@wordpress/components';
-import { QRCode } from '@automattic/jetpack-components';
+import { JetpackLogo, QRCode } from '@automattic/jetpack-components';
+import { useRef, useEffect, useState } from '@wordpress/element';
 
 /**
  * Internal dependencies
@@ -18,34 +19,47 @@ import useSiteLogo from '../hooks/use-site-logo.js';
  * @returns {Component}   The react component.
  */
 export default function QRPost() {
-	const {
-		post: { title },
-		permalink,
-	} = useSelect(
-		select => ( {
-			post: select( editorStore ).getCurrentPost(),
-			permalink: select( editorStore ).getPermalink(),
-		} ),
-		[]
-	);
+	const wrapperElementRef = useRef();
 
-	const codeContent = `${ title } ${ permalink }`;
-	const { url: siteLogologoUrl } = useSiteLogo();
+	// Pick and convert Jetpack logo to data image.
+	const [ jetpackLogoUrl, setJetpackLogo ] = useState();
+	useEffect( () => {
+		if ( ! wrapperElementRef?.current ) {
+			return;
+		}
+
+		const svgJetpackLogo = wrapperElementRef.current.querySelector( 'svg' );
+		if ( ! svgJetpackLogo ) {
+			return;
+		}
+
+		const serializedSVG = new XMLSerializer().serializeToString( svgJetpackLogo );
+		setJetpackLogo( `data:image/svg+xml;base64,${ window.btoa( serializedSVG ) }` );
+	}, [ wrapperElementRef ] );
+
+	// Pick title and permalink post.
+	const permalink = useSelect( select => select( editorStore ).getPermalink(), [] );
+	const { dataUrl: siteLogoUrl } = useSiteLogo( { generateDataUrl: true } );
+	const codeLogo = siteLogoUrl || jetpackLogoUrl;
 
 	return (
-		<QRCode
-			value={ codeContent }
-			size={ 248 }
-			imageSettings={
-				siteLogologoUrl && {
-					src: siteLogologoUrl,
-					width: 48,
-					height: 48,
-					excavate: true,
+		<div ref={ wrapperElementRef }>
+			<QRCode
+				value={ permalink }
+				size={ 238 }
+				imageSettings={
+					codeLogo && {
+						src: codeLogo,
+						width: 48,
+						height: 48,
+						excavate: true,
+					}
 				}
-			}
-			renderAs="canvas"
-			level="H"
-		/>
+				renderAs="canvas"
+				level="H"
+			/>
+
+			<JetpackLogo className="qr-post-jetpack-logo" width={ 48 } height={ 48 } showText={ false } />
+		</div>
 	);
 }
