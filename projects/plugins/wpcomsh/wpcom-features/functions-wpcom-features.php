@@ -44,6 +44,9 @@ function wpcom_site_has_feature( $feature, $blog_id = 0 ) {
 	} else {
 		global $wpdb;
 
+		// Allow overriding the blog ID for feature checks.
+		$blog_id = apply_filters( 'wpcom_site_has_feature_blog_id', $blog_id );
+
 		// 'site_purchases' belong to $global_groups in ./wp-content/object-cache.php
 		$wp_cache_group = 'site_purchases';
 		$wp_cache_found = false;
