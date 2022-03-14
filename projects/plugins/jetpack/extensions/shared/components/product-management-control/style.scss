@@ -1,0 +1,41 @@
+@import '../../shared/styles/gutenberg-base-styles.scss';
+
+.product-management-control-toolbar__dropdown-button .components-dropdown-menu__toggle::after {
+	display: block;
+	content: '';
+	position: absolute;
+	bottom: 1px;
+	right: 0;
+	border-color: transparent currentColor currentColor transparent;
+	border-style: solid;
+	border-width: 4px;
+}
+
+.product-management-control-inspector__link-to-earn {
+	margin: 16px;
+	display: block;
+}
+
+.product-management-control-inspector__add-plan
+	.components-panel__row.plan-name
+	.components-base-control,
+.product-management-control-inspector__add-plan
+	.components-panel__row.plan-interval
+	.components-base-control {
+	width: 100%;
+}
+
+.product-management-control-inspector__add-plan
+	.components-panel__row.plan-price
+	.components-base-control {
+	width: 45%;
+	margin: 0;
+}
+
+.product-management-control-inspector__add-plan .components-panel__row:last-child {
+	margin-top: 25px;
+}
+
+.product-management-control-inspector__add-plan .components-base-control:last-child {
+	margin: 0;
+}
