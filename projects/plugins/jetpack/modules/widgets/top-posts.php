@@ -352,7 +352,7 @@ class Jetpack_Top_Posts_Widget extends WP_Widget {
 			$posts = $this->get_by_views( $count, $args, $types );
 		}
 
-		if ( ! $posts ) {
+		if ( ! $posts && current_user_can( 'edit_theme_options' ) ) {
 			$posts = $this->get_fallback_posts( $count, $types );
 		}
 
@@ -678,10 +678,6 @@ class Jetpack_Top_Posts_Widget extends WP_Widget {
 	 * @return array
 	 */
 	public function get_fallback_posts( $count = 10, $types = array( 'post', 'page' ) ) {
-		if ( current_user_can( 'edit_theme_options' ) ) {
-			return array();
-		}
-
 		$post_query = new WP_Query();
 
 		if ( ! is_array( $types ) || empty( $types ) ) {
