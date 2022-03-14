@@ -7,7 +7,7 @@ import { useEffect } from '@wordpress/element';
  * Internal dependencies
  */
 import './store';
-import useProducts from './use-product';
+import useProducts from './use-products';
 import ProductManagementInspectorControl from './inspector-control';
 import ProductManagementToolbarControl from './toolbar-control';
 
@@ -16,6 +16,7 @@ import './style.scss';
 export default function ProductManagementControls( {
 	allowOneTimeInterval = true,
 	isVisible = true,
+	preventFetchingProducts = false,
 	selectedProductId,
 	selectedProductIdAttribute,
 	setAttributes,
@@ -26,7 +27,7 @@ export default function ProductManagementControls( {
 	);
 
 	useEffect( () => {
-		if ( isVisible ) {
+		if ( preventFetchingProducts ) {
 			fetchProducts( selectedProductId );
 		}
 		// eslint-disable-next-line react-hooks/exhaustive-deps

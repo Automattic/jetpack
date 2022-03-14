@@ -17,11 +17,12 @@ import './editor.scss';
 import ViewSelector from './_inc/view-selector';
 import InvalidSubscriptionWarning from './_inc/invalid-subscription-warning';
 import ProductManagementControls from '../../shared/components/product-management-controls';
-import { jetpackMembershipProductsStore } from '../../shared/components/product-management-controls/store';
 import {
 	API_STATE_LOADING,
 	API_STATE_CONNECTED,
 } from '../../shared/components/product-management-controls/constants';
+import { jetpackMembershipProductsStore } from '../../shared/components/product-management-controls/store';
+import useProducts from '../../shared/components/product-management-controls/use-products';
 import StripeConnectToolbarButton from '../../shared/components/stripe-connect-toolbar-button';
 
 /**
@@ -76,6 +77,14 @@ function Edit( props ) {
 	const [ selectedInnerBlock, hasSelectedInnerBlock ] = useState( false );
 	const { isPreview } = props.attributes;
 	const { clientId } = props;
+
+	const { fetchProducts } = useProducts( 'selectedPlanId', props.setAttributes );
+	useEffect( () => {
+		if ( ! isPreview ) {
+			fetchProducts( props.attributes.selectedPlanId );
+		}
+		// eslint-disable-next-line react-hooks/exhaustive-deps
+	}, [] );
 
 	const { products, apiState, connectUrl, shouldUpgrade } = useSelect( selector => {
 		const { getAllProperties, getProducts } = selector( jetpackMembershipProductsStore );
@@ -163,9 +172,8 @@ function Edit( props ) {
 			<div className={ className } ref={ wrapperRef }>
 				<ProductManagementControls
 					allowOneTimeInterval={ false }
-					isVisible={
-						! isPreview && ( isSelected || selectedInnerBlock ) && apiState === API_STATE_CONNECTED
-					}
+					isVisible={ ( isSelected || selectedInnerBlock ) && apiState === API_STATE_CONNECTED }
+					preventFetchingProducts
 					selectedProductId={ props.attributes.selectedPlanId }
 					selectedProductIdAttribute="selectedPlanId"
 					setAttributes={ props.setAttributes }
