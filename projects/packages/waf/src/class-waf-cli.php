@@ -33,12 +33,18 @@ class CLI extends WP_CLI_Command {
 	public function mode( $args ) {
 		if ( count( $args ) > 1 ) {
 
-			return WP_CLI::error( 'Only one mode may be specified.' );
+			return WP_CLI::error( __( 'Only one mode may be specified.', 'jetpack-waf' ) );
 		}
 		if ( count( $args ) === 1 ) {
 			if ( ! WafRunner::is_allowed_mode( $args[0] ) ) {
 
-				return WP_CLI::error( "Invalid mode: \"{$args[0]}\". Expected \"silent\" or \"normal\"." );
+				return WP_CLI::error(
+					sprintf(
+						/* translators: %1$s is the mode that was actually found. Also note that the expected "silent" and "normal" are hard-coded strings and must therefore stay the same in any translation. */
+						__( 'Invalid mode: %1$s. Expected "silent" or "normal".', 'jetpack-waf' ),
+						$args[0]
+					)
+				);
 			}
 
 			update_option( WafRunner::MODE_OPTION_NAME, $args[0] );
@@ -46,11 +52,29 @@ class CLI extends WP_CLI_Command {
 			try {
 				( new WafStandaloneBootstrap() )->generate();
 			} catch ( \Exception $e ) {
-				WP_CLI::warning( 'Unable to generate waf bootstrap - standalone mode may not work properly: ' . $e->getMessage() );
+				WP_CLI::warning(
+					sprintf(
+						/* translators: %1$s is the unexpected error message. */
+						__( 'Unable to generate waf bootstrap - standalone mode may not work properly: %1$s', 'jetpack-waf' ),
+						$e->getMessage()
+					)
+				);
 			}
 
-			return WP_CLI::success( 'Jetpack WAF mode switched to "' . get_option( WafRunner::MODE_OPTION_NAME ) . '".' );
+			return WP_CLI::success(
+				sprintf(
+					/* translators: %1$s is the name of the mode that was just switched to. */
+					__( 'Jetpack WAF mode switched to "%1$s".', 'jetpack-waf' ),
+					get_option( WafRunner::MODE_OPTION_NAME )
+				)
+			);
 		}
-		WP_CLI::line( 'Jetpack WAF is running in "' . get_option( WafRunner::MODE_OPTION_NAME ) . '" mode.' );
+		WP_CLI::line(
+			sprintf(
+				/* translators: %1$s is the name of the mode that the waf is currently running in. */
+				__( 'Jetpack WAF is running in "%1$s" mode.', 'jetpack-waf' ),
+				get_option( WafRunner::MODE_OPTION_NAME )
+			)
+		);
 	}
 }
