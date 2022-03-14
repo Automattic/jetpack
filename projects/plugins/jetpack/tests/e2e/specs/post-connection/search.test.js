@@ -38,6 +38,7 @@ test.describe( 'Instant Search', () => {
 		await searchAPIRoute( page );
 		homepage = await SearchHomepage.visit( page );
 		await homepage.waitForPage();
+		await homepage.waitForSearchMainPayload();
 		await homepage.waitForNetworkIdle();
 	} );
 
