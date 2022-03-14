@@ -42,7 +42,7 @@ test.describe( 'Search Configure', () => {
 		await setHighlightColor();
 		await setResultFormat();
 		await setDefaultSort();
-		await disableInstantSearch();
+		// await disableInstantSearch();
 	} );
 
 	test.beforeEach( async ( { page } ) => {

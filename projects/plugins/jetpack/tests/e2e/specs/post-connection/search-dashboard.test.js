@@ -26,7 +26,7 @@ test.describe( 'Search Dashboard', () => {
 	} );
 
 	test.afterAll( async () => {
-		await disableInstantSearch();
+		// await disableInstantSearch();
 	} );
 
 	test.beforeEach( async ( { page } ) => {
