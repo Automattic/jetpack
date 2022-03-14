@@ -80,7 +80,7 @@ const SiteTypeQuestionComponent = props => {
 					) }
 				/>
 			</div>
-			<Button primary href={ nextRoute } onClick={ onContinueClick }>
+			<Button primary rna href={ nextRoute } onClick={ onContinueClick }>
 				{ __( 'Continue', 'jetpack' ) }
 			</Button>
 			<div className="jp-recommendations-site-type-question__continue-description">

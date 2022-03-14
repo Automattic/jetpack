@@ -1,0 +1,4 @@
+Significance: patch
+Type: enhancement
+
+Jetpack: QRPost: use only permalink to generate QR code

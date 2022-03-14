@@ -1,0 +1,56 @@
+// ==========================================================================
+// RNA mixins 
+//
+// See https://jetpackdesignhandbook.wordpress.com/rna-components/
+// ==========================================================================
+
+@mixin rna-link {
+	$resting-shadow: 0 1px 0 0 currentColor;
+	$hover-shadow: 0 3px 0 0 currentColor;
+
+	color: var( --jp-black );
+		
+	text-decoration: none;
+
+	&:not(.dops-external-link) {
+		box-shadow: $resting-shadow;
+		
+		&:hover,
+		&:active {
+			box-shadow: $hover-shadow;
+		}
+	}
+
+	&.dops-external-link {
+		.dops-external-link__text {
+			box-shadow: $resting-shadow;
+		}
+
+		&:hover,
+		&:active {
+			.dops-external-link__text {
+				box-shadow: $hover-shadow;
+			}
+		}
+
+		&:focus {
+			.dops-external-link__text {
+				box-shadow: none !important;
+			}	
+		}
+	}
+
+	&:focus {
+		border-radius: 2px;
+		box-shadow: none !important;
+		outline: 2px solid currentColor;
+		outline-offset: 3px;
+	}
+
+	&:disabled,
+	&.disabled {
+		color: var( --jp-gray-20);
+
+		pointer-events: none;
+	}
+}
