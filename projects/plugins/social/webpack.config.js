@@ -53,7 +53,7 @@ module.exports = [
 		externals: {
 			...jetpackWebpackConfig.externals,
 			jetpackConfig: JSON.stringify( {
-				consumer_slug: 'jetpack-reach',
+				consumer_slug: 'jetpack-social',
 			} ),
 		},
 	},
