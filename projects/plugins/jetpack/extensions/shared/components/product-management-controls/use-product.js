@@ -1,5 +1,5 @@
 /**
- * Internal dependencies
+ * External dependencies
  */
 import formatCurrency from '@automattic/format-currency';
 
@@ -21,7 +21,7 @@ import { jetpackMembershipProductsStore } from './store';
 import { isPriceValid, minimumTransactionAmountForCurrency } from '../../currencies';
 import getConnectUrl from '../../get-connect-url';
 
-export default function useProducts( productIdAttribute, setAttributes ) {
+export default function useProducts( selectedProductIdAttribute, setAttributes ) {
 	const { postId, products } = useSelect( select => {
 		const { getCurrentPostId } = select( editorStore );
 		const { getProducts } = select( jetpackMembershipProductsStore );
@@ -35,11 +35,10 @@ export default function useProducts( productIdAttribute, setAttributes ) {
 	);
 
 	const { createErrorNotice, createSuccessNotice } = useDispatch( noticesStore );
-
 	const onError = message => createErrorNotice( message, { type: 'snackbar' } );
 	const onSuccess = message => createSuccessNotice( message, { type: 'snackbar' } );
 
-	const selectProduct = product => setAttributes( { [ productIdAttribute ]: product.id } );
+	const selectProduct = product => setAttributes( { [ selectedProductIdAttribute ]: product.id } );
 
 	const saveProduct = ( product, callback = () => {} ) => {
 		const { title, price, currency } = product;

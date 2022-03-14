@@ -3,10 +3,10 @@
  */
 import { useEffect, useState, useRef } from '@wordpress/element';
 import { Disabled, Placeholder, Spinner } from '@wordpress/components';
-import { BlockControls, store as blockEditorStore } from '@wordpress/block-editor';
+import { BlockControls } from '@wordpress/block-editor';
 import { __ } from '@wordpress/i18n';
 import { useViewportMatch } from '@wordpress/compose';
-import { select, useSelect, useDispatch } from '@wordpress/data';
+import { select, useSelect } from '@wordpress/data';
 
 /**
  * Internal dependencies
@@ -17,7 +17,6 @@ import './editor.scss';
 import ViewSelector from './_inc/view-selector';
 import InvalidSubscriptionWarning from './_inc/invalid-subscription-warning';
 import ProductManagementControls from '../../shared/components/product-management-controls';
-import useProducts from '../../shared/components/product-management-controls/use-product';
 import { jetpackMembershipProductsStore } from '../../shared/components/product-management-controls/store';
 import {
 	API_STATE_LOADING,
@@ -77,26 +76,6 @@ function Edit( props ) {
 	const [ selectedInnerBlock, hasSelectedInnerBlock ] = useState( false );
 	const { isPreview } = props.attributes;
 	const { clientId } = props;
-
-	const { selectBlock } = useDispatch( blockEditorStore );
-
-	const { fetchProducts, saveProduct, selectProduct } = useProducts(
-		'selectedPlanId',
-		props.setAttributes
-	);
-
-	useEffect( () => {
-		if ( isPreview ) {
-			return;
-		}
-
-		fetchProducts( props.attributes.selectedPlanId );
-
-		// Execution delayed with setTimeout to ensure it runs after any block auto-selection performed by inner blocks
-		// (such as the Recurring Payments block)
-		setTimeout( () => selectBlock( clientId ), 1000 );
-		// eslint-disable-next-line react-hooks/exhaustive-deps
-	}, [] );
 
 	const { products, apiState, connectUrl, shouldUpgrade } = useSelect( selector => {
 		const { getAllProperties, getProducts } = selector( jetpackMembershipProductsStore );
@@ -182,13 +161,15 @@ function Edit( props ) {
 			/>
 
 			<div className={ className } ref={ wrapperRef }>
-				{ ( isSelected || selectedInnerBlock ) && apiState === API_STATE_CONNECTED && (
-					<ProductManagementControls
-						saveProduct={ saveProduct }
-						selectedProductId={ props.attributes.selectedPlanId }
-						selectProduct={ selectProduct }
-					/>
-				) }
+				<ProductManagementControls
+					allowOneTimeInterval={ false }
+					isVisible={
+						! isPreview && ( isSelected || selectedInnerBlock ) && apiState === API_STATE_CONNECTED
+					}
+					selectedProductId={ props.attributes.selectedPlanId }
+					selectedProductIdAttribute="selectedPlanId"
+					setAttributes={ props.setAttributes }
+				/>
 
 				{ !! props.attributes.selectedPlanId &&
 					! products.find( plan => plan.id === props.attributes.selectedPlanId ) && (

@@ -1,5 +1,5 @@
 /**
- * Internal dependencies
+ * External dependencies
  */
 import formatCurrency from '@automattic/format-currency';
 
@@ -18,7 +18,8 @@ import { update, warning } from '@wordpress/icons';
  */
 import { jetpackMembershipProductsStore } from './store';
 
-function getProductDescription( { currency, interval, price } ) {
+function getProductDescription( product ) {
+	const { currency, interval, price } = product;
 	const amount = formatCurrency( parseFloat( price ), currency );
 	switch ( interval ) {
 		case '1 month':
@@ -45,17 +46,16 @@ function getProductDescription( { currency, interval, price } ) {
 }
 
 function Product( { onClose, product, selectedProductId, selectProduct } ) {
+	const { id, title } = product;
+	const isSelected = selectedProductId && selectedProductId === id;
+	const icon = isSelected ? 'yes' : undefined;
+	const productDescription = product ? ' ' + getProductDescription( product ) : null;
+
 	const handleClick = event => {
 		event.preventDefault();
 		selectProduct( product );
 		onClose();
 	};
-
-	const { id, title } = product;
-
-	const isSelected = selectedProductId && selectedProductId === id;
-	const icon = isSelected ? 'yes' : undefined;
-	const productDescription = product ? ' ' + getProductDescription( product ) : null;
 
 	return (
 		<MenuItem icon={ icon } onClick={ handleClick } selected={ isSelected } value={ id }>
@@ -78,7 +78,7 @@ function NewProduct( { onClose } ) {
 		}
 		const input = document.getElementById( 'new-product-title' );
 		if ( input !== null ) {
-			//Focus on the new plan name input
+			//Focus on the new product title input
 			input.focus();
 		}
 		onClose();

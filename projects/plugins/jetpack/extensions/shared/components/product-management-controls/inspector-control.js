@@ -19,13 +19,11 @@ import { __ } from '@wordpress/i18n';
 /**
  * Internal dependencies
  */
+import { API_STATE_NOT_REQUESTING, API_STATE_REQUESTING } from './constants';
 import { jetpackMembershipProductsStore } from './store';
 import { CURRENCY_OPTIONS } from '../../currencies';
 
-export const API_STATE_NOT_REQUESTING = 0;
-export const API_STATE_REQUESTING = 1;
-
-export default function ProductManagementInspectorControl( { saveProduct } ) {
+export default function ProductManagementInspectorControl( { allowOneTimeInterval, saveProduct } ) {
 	const siteSlug = useSelect( select => select( jetpackMembershipProductsStore ).getSiteSlug() );
 
 	const [ apiState, setApiState ] = useState( API_STATE_NOT_REQUESTING );
@@ -33,6 +31,14 @@ export default function ProductManagementInspectorControl( { saveProduct } ) {
 	const [ currency, setCurrency ] = useState( 'USD' );
 	const [ price, setPrice ] = useState( 5 );
 	const [ interval, setInterval ] = useState( '1 month' );
+
+	const intervalOptions = [
+		{ label: __( 'Month', 'jetpack' ), value: '1 month' },
+		{ label: __( 'Year', 'jetpack' ), value: '1 year' },
+	];
+	if ( allowOneTimeInterval ) {
+		intervalOptions.concat( [ { label: __( 'One-Time Payment', 'jetpack' ), value: 'one-time' } ] );
+	}
 
 	const handleSubmit = event => {
 		event.preventDefault();
@@ -98,10 +104,7 @@ export default function ProductManagementInspectorControl( { saveProduct } ) {
 							<SelectControl
 								label={ __( 'Interval', 'jetpack' ) }
 								onChange={ value => setInterval( value ) }
-								options={ [
-									{ label: __( 'Month', 'jetpack' ), value: '1 month' },
-									{ label: __( 'Year', 'jetpack' ), value: '1 year' },
-								] }
+								options={ intervalOptions }
 								value={ interval }
 							/>
 						</PanelRow>
