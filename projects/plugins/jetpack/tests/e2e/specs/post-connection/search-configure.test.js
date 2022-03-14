@@ -46,9 +46,8 @@ test.describe( 'Search Configure', () => {
 	} );
 
 	test.beforeEach( async ( { page } ) => {
-		searchConfigure = await SearchConfigure.visit( page );
 		await searchAPIRoute( page );
-		await searchConfigure.waitForPage();
+		searchConfigure = await SearchConfigure.visit( page );
 		await searchConfigure.waitForNetworkIdle();
 	} );
 

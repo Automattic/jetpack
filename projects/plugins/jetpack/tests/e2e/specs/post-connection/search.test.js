@@ -41,9 +41,7 @@ test.describe( 'Instant Search', () => {
 		await homepage.waitForNetworkIdle();
 	} );
 
-	test( 'Can search using default settings', async ( { page } ) => {
-		await homepage.waitForNetworkIdle();
-
+	test( 'Can search using default settings', async () => {
 		await test.step( 'Can open the overlay by entering a query', async () => {
 			await homepage.focusSearchInput();
 			await homepage.enterQuery();
