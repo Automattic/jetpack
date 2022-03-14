@@ -1,0 +1,36 @@
+name: Renovate
+on:
+  workflow_dispatch:
+    inputs:
+      logLevel:
+        description: 'Log level'
+        type: choice
+        default: debug
+        options:
+          - debug
+          - trace
+      dryRun:
+        description: 'Dry run?'
+        required: false
+        type: boolean
+  schedule:
+    - cron: '0/30 * * * *'
+concurrency:
+  group: renovate-${{ github.ref }}
+
+jobs:
+  renovate:
+    name: Renovate
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+        with:
+          path: monorepo
+      - run: mv monorepo /tmp/monorepo
+      - uses: renovatebot/github-action@v32.4.1
+        with:
+          configurationFile: /tmp/monorepo/.github/renovate-config.js
+          token: ${{ secrets.RENOVATE_TOKEN }}
+        env:
+          LOG_LEVEL: ${{ github.event.inputs.logLevel || 'debug' }}
+          RENOVATE_DRY_RUN: ${{ github.event_name == 'push' || github.event.inputs.dryRun }}

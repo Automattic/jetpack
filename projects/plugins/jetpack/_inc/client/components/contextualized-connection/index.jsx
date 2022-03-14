@@ -61,7 +61,7 @@ const ContextualizedConnection = props => {
 
 				{ isSiteConnected && (
 					<Button
-						isPrimary
+						variant="primary"
 						className="jp-contextualized-connection__button"
 						label={ __( 'Continue to Jetpack', 'jetpack' ) }
 						href={ redirectTo }

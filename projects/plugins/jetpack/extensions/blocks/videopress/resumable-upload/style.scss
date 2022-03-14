@@ -35,16 +35,15 @@
 .resumable-upload__file-info {
 	display: flex;
 	flex-direction: row;
-	justify-content: space-between;
 	width: 100%;
-	margin-bottom: $grid-unit-30;
+	margin-bottom: $grid-unit-20;
 }
 
 .resumable-upload__progress {
-	height: 20px;
+	height: 8px;
 	background: #D2D2D2;
 	width: 100%;
-	border-radius: 2px;
+	border-radius: 4px;
 	box-sizing: border-box;
 	overflow: hidden;
 }
@@ -54,7 +53,7 @@
 	text-align: center;
 	color: white;
 	height: 100%;
-	min-height: 20px;
+	min-height: 8px;
 	transition: width 0.3s ease;
 }
 

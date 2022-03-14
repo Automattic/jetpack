@@ -52,7 +52,7 @@ done < <( sed -n -E -e 's/^## \[?([0-9.]+)(-beta)?\]? - .*$/\1/p' "projects/$1/C
 echo "Getting contributors from $PREVIOUS_VERSION to $CURRENT_VERSION..."
 
 # Display the list.
-TMP="$( git log --format='%an' --no-merges "origin/$PREFIX/branch-$PREVIOUS_VERSION..origin/$PREFIX/branch-$CURRENT_VERSION" | sort -u | grep -v 'renovate\[bot\]' )"
+TMP="$( git log --format='%an' --no-merges "origin/$PREFIX/branch-$PREVIOUS_VERSION..origin/$PREFIX/branch-$CURRENT_VERSION" | sort -u | grep -E -v 'renovate\[bot\]|Calypso Bot' )"
 mapfile -t NAMESARR <<<"$TMP"
 printf -v NAMES '%s, ' "${NAMESARR[@]}"
 NAMES="${NAMES%, }"

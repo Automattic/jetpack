@@ -24,6 +24,8 @@
 }
 
 .jp-recommendations-question__question {
+	color: var( --jp-gray-80 );
+
 	font-size: 1.5rem;
 	margin: 32px 32px 0 32px;
 
@@ -33,6 +35,8 @@
 }
 
 .jp-recommendations-question__description {
+	color: var( --jp-gray-100 );
+
 	font-size: 16px;
 
 	margin: 32px 32px 24px 32px;

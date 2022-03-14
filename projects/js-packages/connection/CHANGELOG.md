@@ -2,6 +2,28 @@
 
 ### This is a list detailing changes for the Jetpack RNA Connection Component releases.
 
+## 0.17.2 - 2022-03-09
+### Changed
+- Updated package dependencies.
+
+## 0.17.1 - 2022-03-08
+### Added
+- Connection: Add footer prop for ConnectScreen
+
+### Changed
+- Components: update attributes used within the Button component to match recent deprecations and changes.
+
+### Fixed
+- Updated link-button label from "Log In" to "Log In to get started"
+
+## 0.17.0 - 2022-03-02
+### Added
+- Connection: Adds requiresUserConnection prop and makes error message show only when hasConnectedOwner and requiresUserConnection are both true.
+
+### Changed
+- Moved site benefits request out of PHP to React, and guard against no connected plugins.
+- Updated package dependencies.
+
 ## 0.16.1 - 2022-02-25
 ### Fixed
 - Fix broken Jetpack Partner Coupon redeem flow for sites without a user connection

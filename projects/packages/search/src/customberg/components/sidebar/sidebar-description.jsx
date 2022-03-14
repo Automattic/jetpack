@@ -27,7 +27,7 @@ export default function SidebarDescription() {
 						'jetpack-search-pkg'
 					) }
 				</p>
-				<Button href={ 'widgets.php' } isTertiary>
+				<Button href={ 'widgets.php' } variant="tertiary">
 					{ __( 'Edit widgets', 'jetpack-search-pkg' ) }
 				</Button>
 				<Button
@@ -35,7 +35,7 @@ export default function SidebarDescription() {
 						'autofocus[section]': 'jetpack_search',
 						return: `${ window.location.pathname }${ window.location.search }`,
 					} ) }
-					isTertiary
+					variant="tertiary"
 				>
 					{ __( 'Configure in the Customizer', 'jetpack-search-pkg' ) }
 				</Button>

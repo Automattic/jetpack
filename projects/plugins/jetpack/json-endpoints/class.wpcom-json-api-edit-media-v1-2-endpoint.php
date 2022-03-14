@@ -342,8 +342,7 @@ class WPCOM_JSON_API_Edit_Media_v1_2_Endpoint extends WPCOM_JSON_API_Update_Medi
 			return false;
 		}
 
-		//phpcs:ignore WordPress.NamingConventions.ValidVariableName.UsedPropertyNotSnakeCase
-		add_post_meta( $media_item->ID, Jetpack_Media::$WP_REVISION_HISTORY, $this->get_snapshot( $media_item ) );
+		add_post_meta( $media_item->ID, Jetpack_Media::WP_REVISION_HISTORY, $this->get_snapshot( $media_item ) );
 	}
 
 	/**
@@ -393,8 +392,7 @@ class WPCOM_JSON_API_Edit_Media_v1_2_Endpoint extends WPCOM_JSON_API_Update_Medi
 				// The first time that the media is updated
 				// the original media is stored into the revision_history.
 				$snapshot = $this->get_snapshot( $media_item );
-				//phpcs:ignore WordPress.NamingConventions.ValidVariableName.UsedPropertyNotSnakeCase
-				add_post_meta( $media_id, Jetpack_Media::$WP_ORIGINAL_MEDIA, $snapshot, true );
+				add_post_meta( $media_id, Jetpack_Media::WP_ORIGINAL_MEDIA, $snapshot, true );
 			}
 
 			// save the temporal file locally.

@@ -3,7 +3,6 @@
 const path = require( 'path' );
 
 const projects = [
-	'../../base-styles',
 	'../../components/components',
 	'../../connection/components',
 	'../../idc/components',
