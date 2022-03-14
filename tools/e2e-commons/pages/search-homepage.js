@@ -3,7 +3,7 @@ import { resolveSiteUrl } from '../helpers/utils-helper.cjs';
 
 export default class SearchHomepage extends WpPage {
 	static SEARCH_API_PATTERN = /^https:\/\/public-api\.wordpress.com\/rest\/v1.3\/sites\/\d+\/search.*/;
-	static SEARCH_MAIN_PAYLOAD_PATTERN = /\/search\/build\/jp-search\.chunk-main-payload\.js.*/;
+	static SEARCH_MAIN_PAYLOAD_PATTERN = /.*\/jetpack-search\/build\/instant-search\/jp-search\.chunk-main-payload\.js.*/;
 
 	constructor( page ) {
 		const url = `${ resolveSiteUrl() }/?result_format=expanded`;
@@ -72,9 +72,11 @@ export default class SearchHomepage extends WpPage {
 	}
 
 	async waitForSearchMainPayload() {
-		return await this.page.waitForResponse( resp =>
+		await this.page.waitForResponse( resp =>
 			SearchHomepage.SEARCH_MAIN_PAYLOAD_PATTERN.test( resp.url() )
 		);
+		// wait for Instant Search to initialize.
+		return await this.waitForTimeout( 500 );
 	}
 
 	async isSortingLinkSelected( sorting = 'relevance' ) {
@@ -84,7 +86,8 @@ export default class SearchHomepage extends WpPage {
 
 	async isOverlayVisible() {
 		const overlaySelector = '.jetpack-instant-search__overlay';
-		this.waitForTimeout( 500 );
+		// Wait for running time to show the overlay.
+		await this.waitForTimeout( 500 );
 		const classes = await this.page.$eval( overlaySelector, e => e.getAttribute( 'class' ) );
 		return ! classes.includes( 'is-hidden' );
 	}
