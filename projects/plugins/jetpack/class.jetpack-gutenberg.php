@@ -703,18 +703,9 @@ class Jetpack_Gutenberg {
 				'tracksUserData'   => $user_data,
 				'wpcomBlogId'      => $blog_id,
 				'allowedMimeTypes' => wp_get_mime_types(),
+				'siteLocale'       => str_replace( '_', '-', get_locale() ),
 			)
 		);
-
-		/**
-		 * Adds an inline script which updates the block editor settings to
-		 * add the site locale. This feels sligktly better than calling back
-		 * to the API before registering the block. It also seemed better than
-		 * creating a global
-		 *
-		 * Used by Opentable and Pay with Paypal blocks.
-		 */
-		wp_add_inline_script( 'jetpack-blocks-editor', sprintf( "wp.data.dispatch( 'core/block-editor' ).updateSettings( { siteLocale: '%s' } )", str_replace( '_', '-', get_locale() ) ), 'before' );
 	}
 
 	/**
