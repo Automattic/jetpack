@@ -264,6 +264,11 @@ class Jetpack_Keyring_Service_Helper {
 					exit;
 
 				case 'completed':
+					/*
+					 * We do not use a nonce here,
+					 * since we're populating a local cache of
+					 * the Publicize connections that were created and stored on WordPress.com.
+					 */
 					$xml = new Jetpack_IXR_Client();
 					$xml->query( 'jetpack.fetchPublicizeConnections' );
 
