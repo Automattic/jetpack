@@ -1,5 +1,6 @@
 <?php
 
+use Automattic\Jetpack\Connection\REST_Connector;
 use Automattic\Jetpack\Plugins_Installer;
 use Automattic\Jetpack\Status;
 
@@ -604,7 +605,7 @@ class Jetpack_Core_API_Data extends Jetpack_Core_API_XMLRPC_Consumer_Endpoint {
 						$updated = true;
 					}
 				} else {
-					$error = Jetpack_Core_Json_Api_Endpoints::$user_permissions_error_msg;
+					$error = REST_Connector::get_user_permissions_error_msg();
 				}
 
 				// The module was not toggled.
