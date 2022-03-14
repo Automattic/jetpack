@@ -61,23 +61,13 @@ class Jetpack_Iframe_Embed {
 	private static function is_embedding_in_iframe() {
 		return (
 			// phpcs:disable WordPress.Security.NonceVerification.Recommended -- No nonce needed, we're only checking for a specific screen view.
-			self::has_get_param( $_GET['iframe'] )
+			isset( $_GET['iframe'] ) && 'true' === $_GET['iframe']
 			&& (
-				self::has_get_param( $_GET['preview'] )
-				|| self::has_get_param( $_GET['theme_preview'] )
+				isset( $_GET['preview'] ) && 'true' === $_GET['preview']
+				|| isset( $_GET['theme_preview'] ) && 'true' === $_GET['theme_preview']
 			)
 			// phpcs:enable WordPress.Security.NonceVerification.Recommended
 		);
-	}
-
-	/**
-	 * Check if URL has specific parameter.
-	 *
-	 * @param string $parameter Parameter to check for.
-	 * @return bool
-	 */
-	private static function has_get_param( $parameter ) {
-		return isset( $parameter ) && 'true' === $parameter;
 	}
 
 	/**
