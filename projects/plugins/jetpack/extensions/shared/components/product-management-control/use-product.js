@@ -42,9 +42,9 @@ export default function useProducts( productIdAttribute, setAttributes ) {
 	const selectProduct = product => setAttributes( { [ productIdAttribute ]: product.id } );
 
 	const saveProduct = ( product, callback = () => {} ) => {
-		const { name, price, currency } = product;
+		const { title, price, currency } = product;
 
-		if ( ! name || 0 === name.length ) {
+		if ( ! title || 0 === title.length ) {
 			onError( __( 'Plan requires a name', 'jetpack' ) );
 			callback( false );
 			return;
@@ -85,6 +85,7 @@ export default function useProducts( productIdAttribute, setAttributes ) {
 				setProducts( products.concat( [ newProduct ] ) );
 				selectProduct( newProduct );
 				onSuccess( __( 'Successfully created plan', 'jetpack' ) );
+				callback( true );
 			},
 			() => {
 				onError( __( 'There was an error when adding the plan.', 'jetpack' ) );
@@ -125,15 +126,23 @@ export default function useProducts( productIdAttribute, setAttributes ) {
 					result.connected_account_id
 				) {
 					// Is ready to use and has no product set up yet. Let's create one!
-					saveProduct( {}, () => {
-						setApiState(
-							result.connected_account_id ? API_STATE_CONNECTED : API_STATE_NOTCONNECTED
-						);
-					} );
+					saveProduct(
+						{
+							title: __( 'Monthly Subscription', 'jetpack' ),
+							currency: 'USD',
+							price: 5,
+							interval: '1 month',
+						},
+						() => {
+							setApiState(
+								result.connected_account_id ? API_STATE_CONNECTED : API_STATE_NOTCONNECTED
+							);
+						}
+					);
 					return;
 				}
 
-				if ( result.products && result.products.length > 1 ) {
+				if ( result.products && result.products.length > 0 ) {
 					setProducts( result.products );
 					if ( ! selectedProductId ) {
 						selectProduct( result.products[ 0 ] );

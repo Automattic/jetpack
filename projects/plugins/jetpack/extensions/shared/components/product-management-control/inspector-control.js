@@ -12,7 +12,7 @@ import {
 	Placeholder,
 	Spinner,
 } from '@wordpress/components';
-import { useDispatch, useSelect } from '@wordpress/data';
+import { useSelect } from '@wordpress/data';
 import { useState } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 
@@ -24,16 +24,10 @@ import { jetpackMembershipProductsStore } from './store';
 import { CURRENCY_OPTIONS } from '../../currencies';
 
 export default function ProductManagementInspectorControl( { saveProduct } ) {
-	const { apiState, siteSlug } = useSelect( select => {
-		const { getApiState, getSiteSlug } = select( jetpackMembershipProductsStore );
-		return {
-			apiState: getApiState(),
-			siteSlug: getSiteSlug(),
-		};
-	} );
-	const { setApiState } = useDispatch( jetpackMembershipProductsStore );
+	const siteSlug = useSelect( select => select( jetpackMembershipProductsStore ).getSiteSlug() );
 
-	const [ name, setName ] = useState( __( 'Monthly Subscription', 'jetpack' ) );
+	const [ apiState, setApiState ] = useState( API_STATE_NOT_REQUESTING );
+	const [ title, setTitle ] = useState( __( 'Monthly Subscription', 'jetpack' ) );
 	const [ currency, setCurrency ] = useState( 'USD' );
 	const [ price, setPrice ] = useState( 5 );
 	const [ interval, setInterval ] = useState( '1 month' );
@@ -41,11 +35,11 @@ export default function ProductManagementInspectorControl( { saveProduct } ) {
 	const handleSubmit = event => {
 		event.preventDefault();
 		setApiState( API_STATE_REQUESTING );
-		saveProduct( {}, success => {
+		saveProduct( { title, currency, price, interval }, success => {
 			setApiState( API_STATE_NOT_REQUESTING );
 			if ( success ) {
 				setPrice( 5 );
-				setName( '' );
+				setTitle( '' );
 			}
 		} );
 	};
@@ -76,12 +70,12 @@ export default function ProductManagementInspectorControl( { saveProduct } ) {
 				) }
 				{ apiState === API_STATE_NOT_REQUESTING && (
 					<>
-						<PanelRow className="product-management-control-inspector__product-name">
+						<PanelRow className="product-management-control-inspector__product-title">
 							<TextControl
-								id="product-name"
+								id="new-product-title"
 								label={ __( 'Name', 'jetpack' ) }
-								onChange={ value => setName( value ) }
-								value={ name }
+								onChange={ value => setTitle( value ) }
+								value={ title }
 							/>
 						</PanelRow>
 						<PanelRow className="product-management-control-inspector__product-price">

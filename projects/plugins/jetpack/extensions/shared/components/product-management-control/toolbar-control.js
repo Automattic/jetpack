@@ -44,10 +44,10 @@ function getProductDescription( { currency, interval, price } ) {
 	);
 }
 
-function Product( { onClose, onSelect, product, selectedProductId } ) {
+function Product( { onClose, product, selectedProductId, selectProduct } ) {
 	const handleClick = event => {
 		event.preventDefault();
-		onSelect( product );
+		selectProduct( product );
 		onClose();
 	};
 
@@ -76,7 +76,7 @@ function NewProduct( { onClose } ) {
 		if ( ! isEditorSidebarOpened ) {
 			openGeneralSidebar( 'edit-post/block' );
 		}
-		const input = document.getElementById( 'new-plan-name' );
+		const input = document.getElementById( 'new-product-title' );
 		if ( input !== null ) {
 			//Focus on the new plan name input
 			input.focus();
@@ -87,7 +87,7 @@ function NewProduct( { onClose } ) {
 	return <MenuItem onClick={ handleClick }>{ __( 'Add a new subscription', 'jetpack' ) }</MenuItem>;
 }
 
-export default function ProductManagementToolbarControl( { onSelect, selectedProductId } ) {
+export default function ProductManagementToolbarControl( { selectProduct, selectedProductId } ) {
 	const { products, selectedProduct } = useSelect( select => {
 		const { getProduct, getProducts } = select( jetpackMembershipProductsStore );
 		return {
@@ -122,13 +122,15 @@ export default function ProductManagementToolbarControl( { onSelect, selectedPro
 								<Product
 									key={ product.id }
 									onClose={ onClose }
-									onSelect={ onSelect }
 									product={ product }
 									selectedProductId={ selectedProductId }
+									selectProduct={ selectProduct }
 								/>
 							) ) }
 						</MenuGroup>
-						<NewProduct onClose={ onClose } />
+						<MenuGroup>
+							<NewProduct onClose={ onClose } />
+						</MenuGroup>
 					</>
 				) }
 			</ToolbarDropdownMenu>

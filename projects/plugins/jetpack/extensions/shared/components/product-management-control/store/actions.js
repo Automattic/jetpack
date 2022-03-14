@@ -1,5 +1,5 @@
 export const setProducts = products => ( {
-	type: 'SET_PRODUCT',
+	type: 'SET_PRODUCTS',
 	products,
 } );
 
