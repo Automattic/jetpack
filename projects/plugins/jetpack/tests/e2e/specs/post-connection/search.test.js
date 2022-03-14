@@ -12,8 +12,8 @@ import { resolveSiteUrl } from 'jetpack-e2e-commons/helpers/utils-helper.cjs';
 import playwrightConfig from '../../playwright.config.cjs';
 
 test.describe( 'Instant Search', () => {
-	const siteUrl = resolveSiteUrl();
 	let homepage;
+	const siteUrl = resolveSiteUrl();
 
 	test.beforeAll( async ( { browser } ) => {
 		const page = await browser.newPage( playwrightConfig.use );
