@@ -17,8 +17,8 @@ import { runCommand } from '../helpers/runCommand.js';
  * @param {object} argv - The argv for the command line.
  */
 export async function rsyncInit( argv ) {
-	argv = await promptForDest( argv );
 	argv = await promptForPlugin( argv );
+	argv = await promptForDest( argv );
 
 	try {
 		await runCommand( 'tools/rsync-plugins/rsync-plugins.sh', [
@@ -91,9 +91,9 @@ export async function promptForPlugin( argv ) {
 			message: 'Which plugin?',
 			choices: dirs( './projects/plugins' ),
 		} );
+		argv.plugin = whichPlugin.plugin;
 	}
 
-	argv.plugin = whichPlugin.plugin;
 	return argv;
 }
 

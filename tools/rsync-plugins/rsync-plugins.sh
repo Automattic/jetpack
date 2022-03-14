@@ -3,7 +3,7 @@
 # Print help and exit.
 function usage {
 	cat <<-EOH
-		usage: $0 [-p <slug>][-w]
+		usage: $0 [-p <slug>] [-w]
 
 		rsync changes to plugins
 
