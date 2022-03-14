@@ -1,15 +1,18 @@
 /**
  * WordPress dependencies
  */
+import { useSelect } from '@wordpress/data';
 import { useEffect } from '@wordpress/element';
 
 /**
  * Internal dependencies
  */
-import './store';
+// eslint-disable-next-line no-unused-vars
+import store, { jetpackMembershipProductsStore } from './store';
 import useProducts from './use-products';
 import ProductManagementInspectorControl from './inspector-control';
 import ProductManagementToolbarControl from './toolbar-control';
+import InvalidProductWarning from './invalid-product-warning';
 
 import './style.scss';
 
@@ -21,6 +24,11 @@ export default function ProductManagementControls( {
 	selectedProductIdAttribute,
 	setAttributes,
 } ) {
+	const isInvalidProduct = useSelect(
+		select =>
+			! selectedProductId ||
+			! select( jetpackMembershipProductsStore ).getProduct( selectedProductId )
+	);
 	const { fetchProducts, saveProduct, selectProduct } = useProducts(
 		selectedProductIdAttribute,
 		setAttributes
@@ -43,6 +51,7 @@ export default function ProductManagementControls( {
 				selectedProductId={ selectedProductId }
 				selectProduct={ selectProduct }
 			/>
+			{ isInvalidProduct && <InvalidProductWarning /> }
 		</>
 	) : null;
 }
