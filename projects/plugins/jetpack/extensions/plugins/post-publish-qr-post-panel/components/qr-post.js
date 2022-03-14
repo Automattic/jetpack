@@ -84,9 +84,8 @@ export function QRPostButton() {
 					title={ __( 'QR Post code', 'jetpack' ) }
 					onRequestClose={ closeModal }
 					className="qr-post-modal"
-					ref={ qrCodeRef }
 				>
-					<div className="qr-post-modal__qr-code">
+					<div className="qr-post-modal__qr-code" ref={ qrCodeRef }>
 						<QRPost />
 					</div>
 
