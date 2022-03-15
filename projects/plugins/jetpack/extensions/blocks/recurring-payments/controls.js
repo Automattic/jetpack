@@ -10,6 +10,7 @@ import { getSiteFragment } from '@automattic/jetpack-shared-extension-utils';
  * Internal dependencies
  */
 import { formatProductAmount } from './util';
+import StripeConnectToolbarButton from '../../shared/components/stripe-connect-toolbar-button';
 
 export function PanelControls( { attributes: { planId }, products, setMembershipAmount } ) {
 	return (
@@ -33,4 +34,11 @@ export function PanelControls( { attributes: { planId }, products, setMembership
 			</PanelBody>
 		</Fragment>
 	);
+}
+
+export function ToolbarControls( { connected, connectUrl, hasUpgradeNudge, shouldUpgrade } ) {
+	if ( hasUpgradeNudge || shouldUpgrade || connected ) {
+		return null;
+	}
+	return <StripeConnectToolbarButton blockName="recurring-payments" connectUrl={ connectUrl } />;
 }
