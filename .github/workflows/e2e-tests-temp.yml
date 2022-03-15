@@ -12,16 +12,8 @@ jobs:
     steps:
     - uses: actions/checkout@v3
 
-    - name: Setup Node
-      uses: actions/setup-node@v2
-      with:
-        node-version: 16.13.2
-
-    - name: Setup pnpm
-      if: steps.versions.outputs.node-version != 'false'
-      uses: pnpm/action-setup@v2.2.1
-      with:
-        version: 6.23.6
+    - name: Setup tools
+      uses: ./.github/actions/tool-setup
 
     - name: Install monorepo
       run: |
