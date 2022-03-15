@@ -1,5 +1,5 @@
 import { test, expect } from '../fixtures/base-test.js';
-import { SearchHomepage } from 'jetpack-e2e-commons/pages/index.js';
+import { SearchHomepage } from '../pages/index.js';
 import {
 	enableInstantSearch,
 	disableInstantSearch,

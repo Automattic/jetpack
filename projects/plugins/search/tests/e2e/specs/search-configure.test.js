@@ -1,5 +1,5 @@
 import { test, expect } from '../fixtures/base-test.js';
-import { SearchConfigure } from 'jetpack-e2e-commons/pages/wp-admin/index.js';
+import { SearchConfigure } from '../pages/wp-admin/index.js';
 import {
 	disableInstantSearch,
 	enableInstantSearch,

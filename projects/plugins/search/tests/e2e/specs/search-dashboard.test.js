@@ -1,5 +1,5 @@
 import { test, expect } from '../fixtures/base-test.js';
-import { SearchDashboard } from 'jetpack-e2e-commons/pages/wp-admin/index.js';
+import { SearchDashboard } from '../pages/wp-admin/index.js';
 import {
 	enableInstantSearch,
 	disableInstantSearch,
