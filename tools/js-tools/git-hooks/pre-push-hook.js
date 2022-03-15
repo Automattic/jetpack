@@ -43,9 +43,18 @@ async function checkChangelogFiles() {
 	} else {
 		const response = await promptChangelog();
 		if ( response ) {
-			// run changelogger code
+			try {
+				spawnSync( 'jetpack', [ 'changelog', 'add' ], {
+					stdio: 'inherit',
+				} );
+				console.log(
+					chalk.green( 'Changelog files added! Go ahead and commit them, then push again.' )
+				);
+			} catch ( e ) {
+				console.log( 'Something went wrong', e );
+			}
 		}
-		process.exit = 1;
+		process.exitCode = 1;
 	}
 }
 
