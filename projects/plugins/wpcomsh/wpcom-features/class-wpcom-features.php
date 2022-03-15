@@ -124,6 +124,7 @@ class WPCOM_Features {
 	public const DONATIONS                     = 'donations';
 	public const FREE_BLOG                     = 'free-blog';
 	public const GOOGLE_ANALYTICS              = 'google-analytics';
+	public const LEGACY_UNLIMITED_SPACE_2019   = 'legacy-unlimited-space-2019';
 	public const MANAGE_PLUGINS                = 'manage-plugins';
 	public const LIVE_SUPPORT                  = 'live_support';
 	public const NO_ADVERTS_NO_ADVERTS_PHP     = 'no-adverts/no-adverts.php';
@@ -184,6 +185,14 @@ class WPCOM_Features {
 		),
 		self::SPACE                         => array(
 			self::WPCOM_ALL_SITES,
+		),
+		/*
+		 * These plans provide unlimited upload space if initially purchased
+		 * before 2019-08-01. See mu-plugins/legacy-unlimited-space-plans.php
+		 */
+		self::LEGACY_UNLIMITED_SPACE_2019   => array(
+			self::WPCOM_BUSINESS_PLANS,
+			self::WPCOM_ECOMMERCE_PLANS,
 		),
 		self::NO_ADVERTS_NO_ADVERTS_PHP     => array(
 			self::WPCOM_PREMIUM_AND_HIGHER_PLANS,
