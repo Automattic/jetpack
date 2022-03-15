@@ -3,7 +3,9 @@
  * Tweak a preview when rendered in an iframe.
  * This is used when rendering iFrames in the Calypso app.
  *
- * This file is shared between WordPress.com and Jetpack. The canonical source is Jetpack and no WordPress.com-specific code should exist in this file.
+ * This file is shared between WordPress.com and Jetpack.
+ * The canonical source is Jetpack and no WordPress.com-specific code should exist in this file.
+ *
  * @package automattic/jetpack
  */
 
@@ -33,16 +35,16 @@ class Jetpack_Iframe_Embed {
 		add_filter( 'shortcode_atts_video', array( 'Jetpack_Iframe_Embed', 'disable_autoplay' ) );
 		add_filter( 'shortcode_atts_audio', array( 'Jetpack_Iframe_Embed', 'disable_autoplay' ) );
 
+		$ver = sprintf( '%s-%s', gmdate( 'oW' ), defined( 'JETPACK__VERSION' ) ? JETPACK__VERSION : '' );
 		if ( defined( 'IS_WPCOM' ) && IS_WPCOM ) {
 			wp_enqueue_script(
 				'jetpack-iframe-embed',
 				WPMU_PLUGIN_URL . '/jetpack-iframe-embed/jetpack-iframe-embed.js',
 				array( 'jquery' ),
-				JETPACK__VERSION,
+				$ver,
 				false
 			);
 		} else {
-			$ver = sprintf( '%s-%s', gmdate( 'oW' ), defined( 'JETPACK__VERSION' ) ? JETPACK__VERSION : '' );
 			wp_enqueue_script(
 				'jetpack-iframe-embed',
 				'//s0.wp.com/wp-content/mu-plugins/jetpack-iframe-embed/jetpack-iframe-embed.js',
