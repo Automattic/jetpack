@@ -7,8 +7,7 @@ import { useEffect } from '@wordpress/element';
 /**
  * Internal dependencies
  */
-// eslint-disable-next-line no-unused-vars
-import store, { jetpackMembershipProductsStore } from './store';
+import { jetpackMembershipProductsStore } from './store';
 import useProducts from './use-products';
 import ProductManagementInspectorControl from './inspector-control';
 import ProductManagementToolbarControl from './toolbar-control';
@@ -24,10 +23,8 @@ export default function ProductManagementControls( {
 	selectedProductIdAttribute,
 	setAttributes,
 } ) {
-	const isInvalidProduct = useSelect(
-		select =>
-			! selectedProductId ||
-			! select( jetpackMembershipProductsStore ).getProduct( selectedProductId )
+	const isInvalidProduct = useSelect( select =>
+		select( jetpackMembershipProductsStore ).isInvalidProduct( selectedProductId )
 	);
 	const { fetchProducts, saveProduct, selectProduct } = useProducts(
 		selectedProductIdAttribute,

@@ -12,8 +12,11 @@ export const getConnectUrl = state => state.connectUrl;
 export const getProducts = state => state.products;
 
 export const getProduct = ( state, productId ) =>
-	state.products.find( product => product.id === productId );
+	getProducts( state ).find( product => product.id === productId );
 
 export const getShouldUpgrade = state => state.getShouldUpgrade;
 
 export const getSiteSlug = state => state.siteSlug;
+
+export const isInvalidProduct = ( state, productId ) =>
+	! productId || ! getProduct( state, productId );
