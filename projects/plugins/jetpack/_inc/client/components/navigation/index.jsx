@@ -21,6 +21,7 @@ import {
 	getSiteAdminUrl,
 	getSiteRawUrl,
 	showRecommendations,
+	showMyJetpack,
 	userCanManageModules as _userCanManageModules,
 	userCanViewStats as _userCanViewStats,
 	getPurchaseToken,
@@ -106,14 +107,14 @@ export class Navigation extends React.Component {
 							{ _x( 'Recommendations', 'Navigation item.', 'jetpack' ) }
 						</NavItem>
 					) }
-					{
+					{ this.props.showMyJetpack && (
 						<NavItem
 							path={ this.props.adminUrl + 'admin.php?page=my-jetpack' }
 							onClick={ this.trackMyJetpackClick }
 						>
 							{ _x( 'My Jetpack', 'Navigation item.', 'jetpack' ) }
 						</NavItem>
-					}
+					) }
 				</NavTabs>
 			);
 		} else {
@@ -155,5 +156,6 @@ export default connect( state => {
 		siteUrl: getSiteRawUrl( state ),
 		adminUrl: getSiteAdminUrl( state ),
 		purchaseToken: getPurchaseToken( state ),
+		showMyJetpack: showMyJetpack( state ),
 	};
 } )( withRouter( Navigation ) );
