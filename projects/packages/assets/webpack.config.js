@@ -1,19 +1,16 @@
+/**
+ * External dependencies
+ */
 const jetpackWebpackConfig = require( '@automattic/jetpack-webpack-config/webpack' );
 const path = require( 'path' );
 
 module.exports = [
 	{
 		entry: {
-			'i18n-loader': {
-				import: './src/js/i18n-loader.js',
-				library: {
-					name: [ 'wp', 'jpI18nLoader' ],
-					type: 'window',
-				},
-			},
+			index: './src/js/index.js',
 		},
 		mode: jetpackWebpackConfig.mode,
-		devtool: jetpackWebpackConfig.isProduction ? false : 'source-map',
+		devtool: jetpackWebpackConfig.isDevelopment ? 'source-map' : false,
 		output: {
 			...jetpackWebpackConfig.output,
 			path: path.resolve( './build' ),
@@ -25,13 +22,39 @@ module.exports = [
 			...jetpackWebpackConfig.resolve,
 		},
 		node: false,
-		plugins: [ ...jetpackWebpackConfig.StandardPlugins() ],
+		plugins: [
+			...jetpackWebpackConfig.StandardPlugins( {
+				DependencyExtractionPlugin: { injectPolyfill: true },
+			} ),
+		],
 		module: {
 			strictExportPresence: true,
 			rules: [
-				// Transpile JavaScript, including node_modules.
-				jetpackWebpackConfig.TranspileRule(),
+				// Transpile JavaScript
+				jetpackWebpackConfig.TranspileRule( {
+					exclude: /node_modules\//,
+				} ),
+
+				// Transpile @automattic/jetpack-* in node_modules too.
+				jetpackWebpackConfig.TranspileRule( {
+					includeNodeModules: [ '@automattic/jetpack-' ],
+				} ),
+
+				// Handle CSS.
+				jetpackWebpackConfig.CssRule( {
+					extensions: [ 'css', 'sass', 'scss' ],
+					extraLoaders: [ 'sass-loader' ],
+				} ),
+
+				// Handle images.
+				jetpackWebpackConfig.FileRule(),
 			],
+		},
+		externals: {
+			...jetpackWebpackConfig.externals,
+			jetpackConfig: JSON.stringify( {
+				consumer_slug: 'jetpack-social',
+			} ),
 		},
 	},
 ];

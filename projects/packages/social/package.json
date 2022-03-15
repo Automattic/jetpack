@@ -1,6 +1,8 @@
 {
 	"private": true,
-	"description": "Share your site’s posts on several social media networks automatically when you publish a new post.",
+	"name": "@automattic/jetpack-social",
+	"version": "0.1.0-alpha",
+	"description": "Jetpack Social plugin funcionality",
 	"homepage": "https://jetpack.com",
 	"bugs": {
 		"url": "https://github.com/Automattic/jetpack/issues"
@@ -12,14 +14,14 @@
 	"license": "GPL-2.0-or-later",
 	"author": "Automattic",
 	"scripts": {
-		"build": "echo 'Not implemented.",
-		"build-js": "echo 'Not implemented.",
-		"build-production": "echo 'Not implemented.",
-		"build-production-js": "echo 'Not implemented."
+		"build": "pnpm run clean && pnpm run build-client",
+		"build-client": "pnpx webpack",
+		"build-concurrently": "pnpm run clean && pnpx concurrently 'pnpm:build-client' 'pnpm:build-php'",
+		"build-production-concurrently": "pnpm run clean && pnpx concurrently 'NODE_ENV=production BABEL_ENV=production pnpm run build-client' && pnpm run validate",
+		"clean": "rm -rf build/",
+		"validate": "pnpm exec validate-es build/",
+		"watch": "pnpm run build && pnpx webpack watch"
 	},
-	"browserslist": [
-		"extends @wordpress/browserslist-config"
-	],
 	"dependencies": {
 		"@automattic/jetpack-base-styles": "workspace:^0.1.10",
 		"@automattic/jetpack-components": "workspace:^0.10.10-alpha",

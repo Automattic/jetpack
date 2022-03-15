@@ -20,6 +20,12 @@ use Automattic\Jetpack\My_Jetpack\Initializer as My_Jetpack_Initializer;
  */
 class Jetpack_Social {
 
+	const JETPACK_SOCIAL_SLUG = '';
+
+	const JETPACK_SOCIAL_NAME = 'Jetpack Social';
+
+	const JETPACK_SOCIAL_URI = 'https://jetpack.com/jetpack-social';
+
 	/**
 	 * Constructor.
 	 */
@@ -46,9 +52,9 @@ class Jetpack_Social {
 				$config->ensure(
 					'connection',
 					array(
-						'slug'     => JETPACK_SOCIAL_PLUGIN_SLUG,
-						'name'     => JETPACK_SOCIAL_PLUGIN_NAME,
-						'url_info' => JETPACK_SOCIAL_PLUGIN_URI,
+						'slug'     => self::JETPACK_SOCIAL_SLUG,
+						'name'     => self::JETPACK_SOCIAL_NAME,
+						'url_info' => self::JETPACK_SOCIAL_URI,
 					)
 				);
 				// Sync package.
@@ -77,11 +83,11 @@ class Jetpack_Social {
 
 		Assets::register_script(
 			'jetpack-social',
-			'build/index.js',
-			JETPACK_SOCIAL_PLUGIN_ROOT_FILE,
+			'../build/index.js',
+			__FILE__,
 			array(
 				'in_footer'  => true,
-				'textdomain' => 'jetpack-social',
+				'textdomain' => 'package-name',
 			)
 		);
 		Assets::enqueue_script( 'jetpack-social' );
