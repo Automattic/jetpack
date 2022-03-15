@@ -8,14 +8,18 @@
 // Load tracking scripts
 window._tkq = window._tkq || [];
 
-var _user;
-var debug = console.error; // eslint-disable-line no-console
+let _user;
+const debug = console.error; // eslint-disable-line no-console
 
+/**
+ * @param group
+ * @param name
+ */
 function buildQuerystring( group, name ) {
-	var uriComponent = '';
+	let uriComponent = '';
 
 	if ( 'object' === typeof group ) {
-		for ( var key in group ) {
+		for ( const key in group ) {
 			uriComponent += '&x_' + encodeURIComponent( key ) + '=' + encodeURIComponent( group[ key ] );
 		}
 	} else {
@@ -33,7 +37,7 @@ var analytics = {
 
 	mc: {
 		bumpStat: function ( group, name ) {
-			var uriComponent = buildQuerystring( group, name ); // prints debug info
+			const uriComponent = buildQuerystring( group, name ); // prints debug info
 			new Image().src =
 				document.location.protocol +
 				'//pixel.wp.com/g.gif?v=wpcom-no-pv' +
