@@ -59,7 +59,7 @@ export class BarChart extends React.Component {
 
 						labels: {
 							filter: function ( legendItem ) {
-								return ! legendItem.text.includes( 'Remaining' );
+								return ! legendItem.text.includes( __( 'Remaining', 'jetpack-search-pkg' ) );
 							},
 						},
 					},
