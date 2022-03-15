@@ -1576,7 +1576,7 @@
             "dist": {
                 "type": "path",
                 "url": "../../packages/search",
-                "reference": "732bc89ebe441b2ee48e8aaab1ea39acde74ee97"
+                "reference": "5f72c34f7c203c1db024564caffbbbb6f7cb8bfb"
             },
             "require": {
                 "automattic/jetpack-assets": "^1.17",
@@ -1603,7 +1603,7 @@
                     "dev-master": "0.11.x-dev"
                 },
                 "version-constants": {
-                    "JETPACK_SEARCH_PLUGIN__VERSION": "jetpack-search.php"
+                    "::VERSION": "src/class-package.php"
                 }
             },
             "autoload": {
