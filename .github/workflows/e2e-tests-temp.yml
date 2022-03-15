@@ -25,10 +25,6 @@ jobs:
         CONFIG_KEY: ${{ secrets.E2E_CONFIG_KEY }}
         COMPOSER_ROOT_VERSION: "dev-master"
       run: |
-          echo "::group::Build plugin(s)"
-          pnpm run build
-          echo "::endgroup::"
-
           echo "::group::Start docker environment"
           pnpm run env:up
           echo "::endgroup::"
@@ -38,6 +34,7 @@ jobs:
       working-directory: projects/plugins/jetpack/tests/e2e
       continue-on-error: true
       run: |
+        sudo chown -R runner:docker tools/docker
         ls -lh ../../../../../tools/docker
         ls -lh ../../../../../tools/docker/wordpress
         ls -lh ../../../../../tools/docker/wordpress/wp-admin/admin-ajax.php
