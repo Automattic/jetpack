@@ -221,7 +221,6 @@ class Jetpack_Comments extends Highlander_Comments_Base {
 	 * @since JetpackComments (1.4)
 	 */
 	public function comment_form_after() {
-
 		/** This filter is documented in modules/comments/comments.php */
 		if ( ! apply_filters( 'jetpack_comment_form_enabled_for_' . get_post_type(), true ) ) {
 			return;
@@ -246,7 +245,7 @@ class Jetpack_Comments extends Highlander_Comments_Base {
 					apply_filters(
 						'jetpack_must_log_in_to_comment',
 						/* translators: %s is the wp-login URL for the site */
-						__( 'You must <a href="%s">log in</a> to post a comment please.', 'jetpack' )
+						__( 'You must <a href="%s">log in</a> to post a comment.', 'jetpack' )
 					),
 					wp_login_url( get_permalink() . '#respond' )
 				)
