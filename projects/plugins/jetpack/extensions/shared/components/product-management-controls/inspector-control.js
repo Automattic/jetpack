@@ -15,6 +15,7 @@ import {
 import { useSelect } from '@wordpress/data';
 import { useState } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
+import { lock } from '@wordpress/icons';
 
 /**
  * Internal dependencies
@@ -69,7 +70,7 @@ export default function ProductManagementInspectorControl( { allowOneTimeInterva
 			>
 				{ apiState === API_STATE_REQUESTING && (
 					<Placeholder
-						icon="lock"
+						icon={ lock }
 						label={ __( 'Premium Content', 'jetpack' ) }
 						instructions={ __( 'Saving plan…', 'jetpack' ) }
 					>

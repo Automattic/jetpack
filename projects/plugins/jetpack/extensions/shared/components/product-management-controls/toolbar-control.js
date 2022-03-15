@@ -11,7 +11,7 @@ import { MenuGroup, MenuItem, ToolbarDropdownMenu } from '@wordpress/components'
 import { useDispatch, useSelect } from '@wordpress/data';
 import { store as editPostStore } from '@wordpress/edit-post';
 import { __, sprintf } from '@wordpress/i18n';
-import { update, warning } from '@wordpress/icons';
+import { check, update, warning } from '@wordpress/icons';
 
 /**
  * Internal dependencies
@@ -48,7 +48,7 @@ function getProductDescription( product ) {
 function Product( { onClose, product, selectedProductId, selectProduct } ) {
 	const { id, title } = product;
 	const isSelected = selectedProductId && selectedProductId === id;
-	const icon = isSelected ? 'yes' : undefined;
+	const icon = isSelected ? check : undefined;
 	const productDescription = product ? ' ' + getProductDescription( product ) : null;
 
 	const handleClick = event => {
