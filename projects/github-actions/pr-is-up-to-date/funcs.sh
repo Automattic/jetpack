@@ -1,6 +1,6 @@
 #!/bin/bash
 
-set -eo pipefail
+set -eo pipefail 
 
 # Execute `git` with logging of commands.
 #
