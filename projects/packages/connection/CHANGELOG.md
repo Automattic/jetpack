@@ -5,6 +5,10 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.37.1] - 2022-03-15
+### Added
+- Handle the Authorization Redirect from the Connection package
+
 ## [1.37.0] - 2022-03-02
 ### Added
 - Moved the ToS package to Connection.
@@ -519,6 +523,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - Separate the connection library into its own package.
 
+[1.37.1]: https://github.com/Automattic/jetpack-connection/compare/v1.37.0...v1.37.1
 [1.37.0]: https://github.com/Automattic/jetpack-connection/compare/v1.36.4...v1.37.0
 [1.36.4]: https://github.com/Automattic/jetpack-connection/compare/v1.36.3...v1.36.4
 [1.36.3]: https://github.com/Automattic/jetpack-connection/compare/v1.36.2...v1.36.3
