@@ -141,7 +141,7 @@ jobs:
       run: |
         pnpm run tunnel:down
         ls -lh ../../../../../tools/docker
-        sudo pnpm run env:clean
+        pnpm run env:clean
 
     - name: Upload test artifacts
       if: ${{ always() }}
