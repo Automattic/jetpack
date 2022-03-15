@@ -78,6 +78,7 @@ async function checkChangelogFiles() {
 						] );
 						if ( commitFiles.status === 0 ) {
 							checkChangelogFiles();
+							await spawnSync( 'git', [ 'push' ] );
 						}
 					}
 				}
