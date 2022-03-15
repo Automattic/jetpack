@@ -131,8 +131,7 @@ class Search_Widget extends \WP_Widget {
 			)
 		);
 
-		// TODO: 'jetpack-search' better to be the current plugin where the package is running.
-		$dotcom_data = ( new Connection_Manager( 'jetpack-search' ) )->get_connected_user_data();
+		$dotcom_data = ( new Connection_Manager( Package::SLUG ) )->get_connected_user_data();
 
 		wp_localize_script(
 			'jetpack-search-widget-admin',
