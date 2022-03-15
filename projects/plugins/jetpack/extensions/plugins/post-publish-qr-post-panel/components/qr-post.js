@@ -52,9 +52,8 @@ export function QRPost() {
 				imageSettings={
 					codeLogo && {
 						src: codeLogo,
-						width: 48,
-						height: 48,
-						excavate: true,
+						width: 64,
+						height: 64,
 					}
 				}
 				renderAs="canvas"
