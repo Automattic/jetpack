@@ -34,8 +34,7 @@ jobs:
       working-directory: projects/plugins/jetpack/tests/e2e
       continue-on-error: true
       run: |
-        sudo chown -R runner:docker tools/docker
+        sudo chown -R runner:docker ../../../../../tools/docker
         ls -lh ../../../../../tools/docker
         ls -lh ../../../../../tools/docker/wordpress
-        ls -lh ../../../../../tools/docker/wordpress/wp-admin/admin-ajax.php
         pnpm run env:clean
