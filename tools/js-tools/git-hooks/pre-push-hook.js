@@ -49,7 +49,7 @@ async function checkChangelogFiles() {
 					stdio: 'inherit',
 				} );
 
-				// If the autochangelogger worked, commit the changelog files and push again.
+				// If the autochangelogger worked, commit the changelog files.
 				if ( autoChangelog.status === 0 ) {
 					const filesToCommit = [];
 					const changelogFiles = await spawnSync( 'git', [
@@ -77,20 +77,17 @@ async function checkChangelogFiles() {
 							'changelog',
 						] );
 						if ( commitFiles.status === 0 ) {
-							checkChangelogFiles();
-							await spawnSync( 'git', [ 'push' ] ),
-								{
-									stdio: 'inherit',
-								};
+							console.log(
+								chalk.green( 'Changelog file(s) committed! Go ahead and `git push` again.' )
+							);
 						}
 					}
 				}
 			} catch ( e ) {
 				console.log( 'Something went wrong', e );
 			}
-		} else {
-			process.exitCode = 1;
 		}
+		process.exitCode = 1;
 	}
 }
 
