@@ -81,7 +81,7 @@ class Jetpack_Starter_Plugin {
 			JETPACK_STARTER_PLUGIN_ROOT_FILE,
 			array(
 				'in_footer'  => true,
-				'textdomain' => 'jetpack-starter-plugin',
+				'textdomain' => 'no text domain is set in this in this project\'s .phpcs.dir.xml',
 			)
 		);
 		Assets::enqueue_script( 'jetpack-starter-plugin' );
@@ -97,7 +97,7 @@ class Jetpack_Starter_Plugin {
 	 * @return string
 	 */
 	public function render_initial_state() {
-		return 'var jetpackSocialInitialState=JSON.parse(decodeURIComponent("' . rawurlencode( wp_json_encode( $this->initial_state() ) ) . '"));';
+		return 'var jetpackStarterPluginInitialState=JSON.parse(decodeURIComponent("' . rawurlencode( wp_json_encode( $this->initial_state() ) ) . '"));';
 	}
 
 	/**

@@ -29,6 +29,7 @@ import {
 	transformToPhpClassName,
 	transformToPhpConstantName,
 	normalizeSlug,
+	transformToCamelCase,
 } from '../helpers/projectNameTransformations.js';
 import { chalkJetpackGreen } from '../helpers/styling.js';
 import { doesRepoExist } from '../helpers/github.js';
@@ -320,6 +321,7 @@ async function generatePluginFromStarter( projDir, answers ) {
 
 	// Replace strings.
 	await searchReplaceInFolder( projDir, 'jetpack-starter-plugin', normalizeSlug( answers.name ) );
+	await searchReplaceInFolder( projDir, 'starter-plugin', normalizeSlug( answers.name, false ) );
 	await searchReplaceInFolder(
 		projDir,
 		'Jetpack Starter Plugin',
@@ -339,6 +341,11 @@ async function generatePluginFromStarter( projDir, answers ) {
 		projDir,
 		'JETPACK_STARTER_PLUGIN',
 		transformToPhpConstantName( answers.name )
+	);
+	await searchReplaceInFolder(
+		projDir,
+		'jetpackStarterPlugin',
+		transformToCamelCase( answers.name )
 	);
 	await searchReplaceInFolder( projDir, '0.1.0-alpha', answers.version );
 

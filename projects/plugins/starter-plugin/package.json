@@ -1,6 +1,6 @@
 {
 	"private": true,
-	"description": "Share your site’s posts on several social media networks automatically when you publish a new post.",
+	"description": "Enter your plugin description here.",
 	"homepage": "https://jetpack.com",
 	"bugs": {
 		"url": "https://github.com/Automattic/jetpack/issues"
@@ -14,7 +14,7 @@
 	"scripts": {
 		"build": "pnpm run clean && pnpm run build-client",
 		"build-client": "pnpx webpack",
-		"build-concurrently": "pnpm run clean && pnpx concurrently 'pnpm:build-client' 'pnpm:build-php'",
+		"build-concurrently": "pnpm run clean && pnpx concurrently 'pnpm:build-client'",
 		"build-production-concurrently": "pnpm run clean && pnpx concurrently 'NODE_ENV=production BABEL_ENV=production pnpm run build-client' && pnpm run validate",
 		"clean": "rm -rf build/",
 		"validate": "pnpm exec validate-es build/",

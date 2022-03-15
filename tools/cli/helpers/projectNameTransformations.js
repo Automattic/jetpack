@@ -60,3 +60,22 @@ export function transformToPhpClassName( name, jetpackPrefix = true ) {
 export function transformToPhpConstantName( name, jetpackPrefix = true ) {
 	return transformToPhpClassName( name, jetpackPrefix ).toUpperCase();
 }
+
+/**
+ * Transforms a project name into javascript variable camel case
+ *
+ * Example: project-name into projectName
+ *
+ * @param {string} name - The project name
+ * @param {boolean} jetpackPrefix - Whether to prefix the name with Jetpack
+ * @returns {string} The transformed string
+ */
+export function transformToCamelCase( name, jetpackPrefix = true ) {
+	let slug = transformToReadableName( name, false ).replaceAll( ' ', '' );
+	if ( jetpackPrefix ) {
+		slug = 'jetpack' + slug;
+	} else {
+		slug = slug.charAt( 0 ).toLowerCase() + slug.slice( 1 );
+	}
+	return slug;
+}

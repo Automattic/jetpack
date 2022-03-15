@@ -58,7 +58,7 @@
 	"prefer-stable": true,
 	"extra": {
 		"mirror-repo": "Automattic/jetpack-starter-plugin-plugin",
-		"release-branch-prefix": "social",
+		"release-branch-prefix": "starter-plugin",
 		"wp-plugin-slug": "jetpack-starter-plugin"
 	},
 	"config": {
