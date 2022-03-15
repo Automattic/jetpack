@@ -82,6 +82,8 @@
 				{#if $isEnabled}
 					<slot name="meta" />
 				{/if}
+
+				<slot name="premium-cta" />
 			</div>
 		</div>
 	</div>
