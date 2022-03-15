@@ -91,7 +91,7 @@ class WPcom_Admin_Menu extends Admin_Menu {
 	 * Adds the site switcher link if user has more than one site.
 	 */
 	public function add_browse_sites_link() {
-		if ( count( get_blogs_of_user( get_current_user_id() ) ) < 2 ) {
+		if ( get_blog_count_for_user( get_current_user_id() ) < 2 ) {
 			return;
 		}
 
@@ -123,7 +123,7 @@ class WPcom_Admin_Menu extends Admin_Menu {
 	 * Adds a link to the menu to create a new site.
 	 */
 	public function add_new_site_link() {
-		if ( count( get_blogs_of_user( get_current_user_id() ) ) > 1 ) {
+		if ( get_blog_count_for_user( get_current_user_id() ) > 1 ) {
 			return;
 		}
 
