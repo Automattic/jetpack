@@ -33,8 +33,11 @@ const Text = ( { variant, children, component, className, ...componentProps } ) 
 };
 
 Text.propTypes = {
+	/** Variant name, based on our pre-defined names and design names. */
 	variant: PropTypes.oneOf( Object.keys( VARIANTS_MAPPING ) ),
+	/** The text itself that will be rendered. */
 	children: PropTypes.node,
+	/** Force an specific tag (span, div) or use a custom component that will receive className and children */
 	component: PropTypes.oneOfType( [ PropTypes.elementType, PropTypes.string ] ),
 };
 
