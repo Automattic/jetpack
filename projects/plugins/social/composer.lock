@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "74a437b626add45540b03f2e4f99647c",
+    "content-hash": "cd42c405875e054677224f0d9f74fe40",
     "packages": [
         {
             "name": "automattic/jetpack-a8c-mc-stats",
@@ -1167,16 +1167,16 @@
         },
         {
             "name": "automattic/wordbless",
-            "version": "dev-master",
+            "version": "0.3.1",
             "source": {
                 "type": "git",
                 "url": "https://github.com/Automattic/wordbless.git",
-                "reference": "5759b70fcdcfbbfc5bd562b898391034027fe61f"
+                "reference": "fc36fd22a43a9cfd2a47cd576a0584ee88afe521"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/Automattic/wordbless/zipball/5759b70fcdcfbbfc5bd562b898391034027fe61f",
-                "reference": "5759b70fcdcfbbfc5bd562b898391034027fe61f",
+                "url": "https://api.github.com/repos/Automattic/wordbless/zipball/fc36fd22a43a9cfd2a47cd576a0584ee88afe521",
+                "reference": "fc36fd22a43a9cfd2a47cd576a0584ee88afe521",
                 "shasum": ""
             },
             "require": {
@@ -1186,7 +1186,6 @@
             "require-dev": {
                 "phpunit/phpunit": "^5.7 || ^6.5 || ^7.5 || ^9.0"
             },
-            "default-branch": true,
             "type": "wordpress-dropin",
             "autoload": {
                 "psr-4": {
@@ -1205,9 +1204,9 @@
             "description": "WorDBless allows you to use WordPress core functions in your PHPUnit tests without having to set up a database and the whole WordPress environment",
             "support": {
                 "issues": "https://github.com/Automattic/wordbless/issues",
-                "source": "https://github.com/Automattic/wordbless/tree/master"
+                "source": "https://github.com/Automattic/wordbless/tree/0.3.1"
             },
-            "time": "2021-12-01T14:20:14+00:00"
+            "time": "2021-07-07T13:01:21+00:00"
         },
         {
             "name": "doctrine/instantiator",
@@ -4414,15 +4413,14 @@
     "aliases": [],
     "minimum-stability": "dev",
     "stability-flags": {
-        "automattic/jetpack-assets": 20,
         "automattic/jetpack-admin-ui": 20,
+        "automattic/jetpack-assets": 20,
         "automattic/jetpack-autoloader": 20,
         "automattic/jetpack-composer-plugin": 20,
         "automattic/jetpack-config": 20,
         "automattic/jetpack-identity-crisis": 20,
         "automattic/jetpack-my-jetpack": 20,
-        "automattic/jetpack-sync": 20,
-        "automattic/wordbless": 20
+        "automattic/jetpack-sync": 20
     },
     "prefer-stable": true,
     "prefer-lowest": false,

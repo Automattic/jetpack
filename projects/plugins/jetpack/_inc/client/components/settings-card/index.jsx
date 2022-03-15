@@ -113,9 +113,14 @@ export const SettingsCard = props => {
 				[
 					'is-premium-plan',
 					'is-business-plan',
+					'is-security-t1-plan',
+					'is-security-t2-plan',
+					'is-complete-plan',
+
+					// DEPRECATED: Daily and Real-time variations will soon be retired.
+					// Remove after all customers are migrated to new products.
 					'is-daily-security-plan',
 					'is-realtime-security-plan',
-					'is-complete-plan',
 				],
 				planClass
 			);
@@ -335,9 +340,14 @@ export const SettingsCard = props => {
 				[
 					'is-premium-plan',
 					'is-business-plan',
+					'is-security-t1-plan',
+					'is-security-t2-plan',
+					'is-complete-plan',
+
+					// DEPRECATED: Daily and Real-time variations will soon be retired.
+					// Remove after all customers are migrated to new products.
 					'is-daily-security-plan',
 					'is-realtime-security-plan',
-					'is-complete-plan',
 				],
 				planClass
 			);
