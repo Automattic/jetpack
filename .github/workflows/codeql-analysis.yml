@@ -23,6 +23,12 @@ jobs:
         language: ['javascript']
 
     steps:
+    # GitHub Support wants to see this for debugging.
+    - name: Check API rate limit pre-run
+      env:
+        TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      run: curl https://api.github.com/rate_limit -u "token:$TOKEN"
+
     - name: Checkout repository
       uses: actions/checkout@v3
       with:
@@ -41,3 +47,9 @@ jobs:
 
     - name: Perform CodeQL Analysis
       uses: github/codeql-action/analyze@v1
+
+    # GitHub Support wants to see this for debugging.
+    - name: Check API rate limit post-run
+      env:
+        TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      run: curl https://api.github.com/rate_limit -u "token:$TOKEN"
