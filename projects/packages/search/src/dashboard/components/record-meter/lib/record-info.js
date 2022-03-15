@@ -6,7 +6,7 @@ const PALETTE = require( '@automattic/color-studio' );
 /**
  * converts provided information into a chart consumable data form
  *
- * @param {object} data - data elements required to populate chart
+ * @param {object} data - contains record type breakdown, post count, last indexed date,
  * @param {object} planInfo - information about the users current plan
  * @returns {object} data in correct form to use in chart and notice-box
  */
