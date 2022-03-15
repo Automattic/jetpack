@@ -33,13 +33,12 @@ export const Popup = ( { posts, comments, onClose } ) => {
 				{ sprintf(
 					/* translators: 1 number of posts, 2 number of comments */
 					__(
-						'Be sure your %1$d posts, %2$d comments and more information is safely backed up with Jetpack',
+						'Be sure your %1$d posts, %2$d comments, and more information are safely backed up with Jetpack',
 						'jetpack'
 					),
 					posts,
 					comments
 				) }
-				{ '' }
 			</p>
 		</div>
 	);
