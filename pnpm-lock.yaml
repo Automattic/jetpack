@@ -736,7 +736,7 @@ importers:
       '@automattic/jetpack-analytics': workspace:^0.1.8
       '@automattic/jetpack-api': workspace:^0.9.1
       '@automattic/jetpack-components': workspace:^0.10.10-alpha
-			'@automattic/jetpack-connection': workspace:0.17.0-alpha
+      '@automattic/jetpack-connection': workspace:^0.17.3-alpha
       '@automattic/jetpack-webpack-config': workspace:^1.1.4
       '@babel/core': 7.16.0
       '@babel/plugin-proposal-nullish-coalescing-operator': 7.16.0
@@ -3044,15 +3044,6 @@ packages:
       '@babel/core': 7.16.0
       '@babel/helper-plugin-utils': 7.16.7
 
-  /@babel/plugin-transform-react-jsx-development/7.16.7:
-    resolution: {integrity: sha512-RMvQWvpla+xy6MlBpPlrKZCMRs2AGiHOGHY3xRwl0pEeim348dDyxeH4xBsMPbIMhujeq7ihE702eM2Ew0Wo+A==}
-    engines: {node: '>=6.9.0'}
-    peerDependencies:
-      '@babel/core': ^7.0.0-0
-    dependencies:
-      '@babel/plugin-transform-react-jsx': 7.16.7
-    dev: false
-
   /@babel/plugin-transform-react-jsx-development/7.16.7_@babel+core@7.16.0:
     resolution: {integrity: sha512-RMvQWvpla+xy6MlBpPlrKZCMRs2AGiHOGHY3xRwl0pEeim348dDyxeH4xBsMPbIMhujeq7ihE702eM2Ew0Wo+A==}
     engines: {node: '>=6.9.0'}
@@ -3448,21 +3439,6 @@ packages:
       '@babel/plugin-transform-react-jsx': 7.17.3_@babel+core@7.16.0
       '@babel/plugin-transform-react-jsx-development': 7.16.7_@babel+core@7.16.0
       '@babel/plugin-transform-react-pure-annotations': 7.16.7_@babel+core@7.16.0
-
-  /@babel/preset-react/7.16.7_@babel+core@7.16.0:
-    resolution: {integrity: sha512-fWpyI8UM/HE6DfPBzD8LnhQ/OcH8AgTaqcqP2nGOXEUV+VKBR5JRN9hCk9ai+zQQ57vtm9oWeXguBCPNUjytgA==}
-    engines: {node: '>=6.9.0'}
-    peerDependencies:
-      '@babel/core': ^7.0.0-0
-    dependencies:
-      '@babel/core': 7.16.0
-      '@babel/helper-plugin-utils': 7.16.7
-      '@babel/helper-validator-option': 7.16.7
-      '@babel/plugin-transform-react-display-name': 7.16.7_@babel+core@7.16.0
-      '@babel/plugin-transform-react-jsx': 7.16.7_@babel+core@7.16.0
-      '@babel/plugin-transform-react-jsx-development': 7.16.7_@babel+core@7.16.0
-      '@babel/plugin-transform-react-pure-annotations': 7.16.7_@babel+core@7.16.0
-    dev: true
 
   /@babel/preset-typescript/7.16.0_@babel+core@7.16.0:
     resolution: {integrity: sha512-txegdrZYgO9DlPbv+9QOVpMnKbOtezsLHWsnsRF4AjbSIsVaujrq1qg8HK0mxQpWv0jnejt0yEoW1uWpvbrDTg==}
