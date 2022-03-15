@@ -6,6 +6,50 @@
  */
 
 /**
+ * Disables theme and plugin related capabilities if the site doesn't have the required features.
+ *
+ * @param string[] $caps Primitive capabilities required of the user.
+ * @param string   $cap  Capability being checked.
+ * @return string[] Filtered primitive caps.
+ */
+function wpcomsh_map_feature_cap( $caps, $cap ) {
+
+	switch ( $cap ) {
+		case 'edit_themes':
+		case 'install_themes':
+		case 'update_themes':
+		case 'delete_themes':
+			if ( ! wpcom_site_has_feature( WPCOM_Features::INSTALL_THEMES ) ) {
+				$caps[] = 'do_not_allow';
+			}
+			break;
+
+		case 'upload_themes':
+			if ( ! wpcom_site_has_feature( WPCOM_Features::UPLOAD_THEMES ) ) {
+				$caps[] = 'do_not_allow';
+			}
+			break;
+
+		case 'activate_plugins':
+		case 'install_plugins':
+		case 'edit_plugins':
+			if ( ! wpcom_site_has_feature( WPCOM_Features::INSTALL_PLUGINS ) ) {
+				$caps[] = 'do_not_allow';
+			}
+			break;
+
+		case 'upload_plugins':
+			if ( ! wpcom_site_has_feature( WPCOM_Features::UPLOAD_PLUGINS ) ) {
+				$caps[] = 'do_not_allow';
+			}
+			break;
+	}
+
+	return $caps;
+}
+add_filter( 'map_meta_cap', 'wpcomsh_map_feature_cap', 10, 2 );
+
+/**
  * If this site does NOT have the 'options-permalink' feature, remove the Settings > Permalinks submenu item.
  */
 function wpcomsh_maybe_remove_permalinks_menu_item() {

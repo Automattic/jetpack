@@ -53,16 +53,8 @@ class Atomic_Plan_Manager {
 			return self::$instance;
 		}
 		self::$instance = new self();
-		self::$instance->add_hooks();
 
 		return self::$instance;
-	}
-
-	/**
-	 * Register any plan related hooks.
-	 */
-	private function add_hooks() {
-		add_filter( 'map_meta_cap', array( $this, 'map_atomic_plan_cap' ), 10, 2 );
 	}
 
 	/**
@@ -110,54 +102,5 @@ class Atomic_Plan_Manager {
 
 		$plan_slug = self::current_plan_slug();
 		return in_array( $plan_slug, $supported_plans, true );
-	}
-
-	/**
-	 * Disable theme and plugin related capabilities if the site
-	 * does not have an atomic supported plan.
-	 *
-	 * @param $caps
-	 * @param $cap
-	 *
-	 * @return array
-	 */
-	public function map_atomic_plan_cap( $caps, $cap ) {
-
-		if ( self::has_atomic_supported_plan() ) {
-			return $caps;
-		}
-
-		/*
-		 * Retain capabilities if this is not a WordPress.com-on-Atomic site. wpcomsh_get_atomic_client_id
-		 * returns an integer.
-		 */
-		if ( 2 !== wpcomsh_get_atomic_client_id() ) {
-			return $caps;
-		}
-
-		// Else the site is a free Atomic site
-		// so we need to disable atomic features caps.
-		$theme_caps = array(
-			'edit_themes',
-			'install_themes',
-			'update_themes',
-			'delete_themes',
-			'upload_themes',
-		);
-
-		$plugin_caps = array(
-			'activate_plugins',
-			'install_plugins',
-			'edit_plugins',
-			'upload_plugins',
-		);
-
-		$all_atomic_caps = array_merge( $theme_caps, $plugin_caps );
-
-		if ( in_array( $cap, $all_atomic_caps, true ) ) {
-			$caps[] = 'do_not_allow';
-		}
-
-		return $caps;
 	}
 }

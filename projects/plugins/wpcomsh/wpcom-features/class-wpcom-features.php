@@ -124,9 +124,11 @@ class WPCOM_Features {
 	public const DONATIONS                     = 'donations';
 	public const FREE_BLOG                     = 'free-blog';
 	public const GOOGLE_ANALYTICS              = 'google-analytics';
+	public const INSTALL_PLUGINS               = 'install-plugins';
+	public const INSTALL_THEMES                = 'install-themes';
 	public const LEGACY_UNLIMITED_SPACE_2019   = 'legacy-unlimited-space-2019';
-	public const MANAGE_PLUGINS                = 'manage-plugins';
 	public const LIVE_SUPPORT                  = 'live_support';
+	public const MANAGE_PLUGINS                = 'manage-plugins';
 	public const NO_ADVERTS_NO_ADVERTS_PHP     = 'no-adverts/no-adverts.php';
 	public const NO_WPCOM_BRANDING             = 'no-wpcom-branding';
 	public const OPENTABLE                     = 'opentable';
@@ -147,6 +149,8 @@ class WPCOM_Features {
 	public const SUPPORT                       = 'support';
 	public const UPGRADED_UPLOAD_FILETYPES     = 'upgraded_upload_filetypes';
 	public const UNLIMITED_THEMES              = 'unlimited_themes';
+	public const UPLOAD_PLUGINS                = 'upload-plugins';
+	public const UPLOAD_THEMES                 = 'upload-themes';
 	public const UPLOAD_VIDEO_FILES            = 'upload-video-files';
 	public const VAULTPRESS_AUTOMATED_RESTORES = 'vaultpress-automated-restores';
 	public const VAULTPRESS_BACKUP_ARCHIVE     = 'vaultpress-backup-archive';
@@ -423,6 +427,23 @@ class WPCOM_Features {
 			self::WPCOM_PRO_PLANS,
 			self::WPCOM_BUSINESS_AND_HIGHER_PLANS,
 		),
+		self::INSTALL_PLUGINS                => array(
+			self::WPCOM_BUSINESS_AND_HIGHER_PLANS,
+			self::WPCOM_PRO_PLANS,
+		),
+		self::UPLOAD_PLUGINS                => array(
+			self::WPCOM_BUSINESS_AND_HIGHER_PLANS,
+			self::WPCOM_PRO_PLANS,
+		),
+		self::INSTALL_THEMES                => array(
+			self::WPCOM_BUSINESS_AND_HIGHER_PLANS,
+			self::WPCOM_PRO_PLANS,
+		),
+		self::UPLOAD_THEMES                => array(
+			self::WPCOM_BUSINESS_AND_HIGHER_PLANS,
+			self::WPCOM_PRO_PLANS,
+		),
+
 		self::RECURRING_PAYMENTS            => array(
 			self::WPCOM_PERSONAL_AND_HIGHER_PLANS,
 		),
