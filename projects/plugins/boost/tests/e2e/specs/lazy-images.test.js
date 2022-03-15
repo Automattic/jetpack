@@ -1,4 +1,4 @@
-import { test, expect } from '../fixtures/base-test.js';
+import { test, expect } from 'jetpack-e2e-commons/fixtures/base-test.js';
 import { boostPrerequisitesBuilder } from '../lib/env/prerequisites.js';
 import { execWpCommand } from 'jetpack-e2e-commons/helpers/utils-helper.cjs';
 import { prerequisitesBuilder } from 'jetpack-e2e-commons/env/prerequisites.js';

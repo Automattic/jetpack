@@ -1,6 +1,6 @@
 import { test as baseTest } from '@playwright/test';
 import config from 'config';
-import logger from 'jetpack-e2e-commons/logger.cjs';
+import logger from '../logger.cjs';
 export { expect } from '@playwright/test';
 
 export const test = baseTest.extend( {

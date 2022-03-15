@@ -140,7 +140,6 @@ jobs:
       continue-on-error: true
       run: |
         pnpm run tunnel:down
-        pnpm run env:down
 
     - name: Upload test artifacts
       if: ${{ always() }}
