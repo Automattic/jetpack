@@ -27,7 +27,7 @@ class Initializer {
 	 *
 	 * @var string
 	 */
-	const PACKAGE_VERSION = '0.6.10-alpha';
+	const PACKAGE_VERSION = '0.6.10';
 
 	/**
 	 * Initialize My Jetapack
