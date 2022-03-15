@@ -43,7 +43,7 @@ class Initializer {
 	 */
 	protected function init() {
 		// Set up package version hook.
-		add_filter( 'jetpack_package_versions', array( Package::class, 'send_version_to_tracker' ) );
+		add_filter( 'jetpack_package_versions', __NAMESPACE__ . '\Package::send_version_to_tracker' );
 
 		if ( ! apply_filters( 'jetpack_search_initialize', true ) ) {
 			do_action( 'jetpack_search_abort', 'filter', null );
@@ -180,7 +180,7 @@ class Initializer {
 	 */
 	protected function init_cli() {
 		if ( apply_filters( 'jetpack_search_init_cli', true ) && defined( 'WP_CLI' ) && \WP_CLI ) {
-			\WP_CLI::add_command( 'jetpack-search', CLI::class );
+			\WP_CLI::add_command( 'jetpack-search', __NAMESPACE__ . '\CLI' );
 		}
 	}
 
