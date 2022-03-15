@@ -82,7 +82,6 @@ export default class SearchHomepage extends WpPage {
 
 	async isOverlayVisible() {
 		const overlaySelector = '.jetpack-instant-search__overlay';
-		// Wait for running time to show the overlay.
 		await this.waitForTimeout( 500 );
 		const classes = await this.page.$eval( overlaySelector, e => e.getAttribute( 'class' ) );
 		return ! classes.includes( 'is-hidden' );
