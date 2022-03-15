@@ -398,7 +398,7 @@ export function showRecommendations( state ) {
  * @returns {boolean} True if the My Jetpack should be referenced, false otherwise.
  */
 export function showMyJetpack( state ) {
-	return get( state.jetpack.initialState.siteData, 'showMyJetpack', false );
+	return get( state.jetpack.initialState.siteData, 'showMyJetpack', true );
 }
 
 /**

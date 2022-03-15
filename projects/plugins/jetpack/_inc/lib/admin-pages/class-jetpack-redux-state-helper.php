@@ -13,7 +13,6 @@ use Automattic\Jetpack\Constants;
 use Automattic\Jetpack\Device_Detection\User_Agent_Info;
 use Automattic\Jetpack\Identity_Crisis;
 use Automattic\Jetpack\Licensing;
-use Automattic\Jetpack\My_Jetpack\Initializer as My_Jetpack;
 use Automattic\Jetpack\Partner;
 use Automattic\Jetpack\Partner_Coupon as Jetpack_Partner_Coupon;
 use Automattic\Jetpack\Status;
@@ -169,7 +168,8 @@ class Jetpack_Redux_State_Helper {
 				'plan'                       => Jetpack_Plan::get(),
 				'showBackups'                => Jetpack::show_backups_ui(),
 				'showRecommendations'        => Jetpack_Recommendations::is_enabled(),
-				'showMyJetpack'              => My_Jetpack::should_initialize(),
+				/** This filter is documented in my-jetpack/src/class-initializer.php */
+				'showMyJetpack'              => apply_filters( 'jetpack_my_jetpack_should_initialize', true ) && ! is_multisite(),
 				'isMultisite'                => is_multisite(),
 				'dateFormat'                 => get_option( 'date_format' ),
 			),
