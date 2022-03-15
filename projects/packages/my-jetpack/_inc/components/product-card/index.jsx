@@ -193,7 +193,7 @@ const ProductCard = props => {
 	return (
 		<div className={ containerClassName }>
 			<div className={ styles.name }>
-				<Text variant="title-small">{ name }</Text>
+				<Text variant="title-medium">{ name }</Text>
 				{ icon }
 			</div>
 			<Text variant="body-small" className={ styles.description }>
