@@ -40,7 +40,7 @@ class WPCOM_Features {
 	private const PERSONAL_BUNDLE_2Y                = 'personal-bundle-2y'; // 1029
 	private const BLOGGER_BUNDLE_2Y                 = 'blogger-bundle-2y'; // 1030
 	private const ECOMMERCE_BUNDLE_2Y               = 'ecommerce-bundle-2y'; // 1031
-	private const MANAGED_BUNDLE                    = 'managed-bundle'; // 1032
+	private const PRO_PLAN                          = 'pro-plan'; // 1032
 	private const WP_P2_PLUS_MONTHLY                = 'wp_p2_plus_monthly'; // 1040
 	private const JETPACK_PREMIUM                   = 'jetpack_premium'; // 2000
 	private const JETPACK_BUSINESS                  = 'jetpack_business'; // 2001
@@ -64,14 +64,14 @@ class WPCOM_Features {
 	private const WPCOM_BLOGGER_PLANS   = [ self::BLOGGER_BUNDLE, self::BLOGGER_BUNDLE_2Y ];
 	private const WPCOM_PERSONAL_PLANS  = [ self::PERSONAL_BUNDLE, self::PERSONAL_BUNDLE_MONTHLY, self::PERSONAL_BUNDLE_2Y ];
 	private const WPCOM_PREMIUM_PLANS   = [ self::BUNDLE_PRO, self::VALUE_BUNDLE, self::VALUE_BUNDLE_MONTHLY, self::VALUE_BUNDLE_2Y ];
-	private const WPCOM_MANAGED_PLANS   = [ self::MANAGED_BUNDLE ];
+	private const WPCOM_PRO_PLANS       = [ self::PRO_PLAN ];
 	private const WPCOM_BUSINESS_PLANS  = [ self::BUSINESS_BUNDLE, self::BUSINESS_BUNDLE_MONTHLY, self::BUSINESS_BUNDLE_2Y ];
 	private const WPCOM_ECOMMERCE_PLANS = [ self::ECOMMERCE_BUNDLE, self::ECOMMERCE_BUNDLE_MONTHLY, self::ECOMMERCE_BUNDLE_2Y ];
 
 	// WPCOM "Level 3": Groups of level 2s
-	private const WPCOM_BLOGGER_AND_HIGHER_PLANS  = [ self::WPCOM_BLOGGER_PLANS, self::WPCOM_PERSONAL_PLANS, self::WPCOM_PREMIUM_PLANS, self::WPCOM_MANAGED_PLANS, self::WPCOM_BUSINESS_PLANS, self::WPCOM_ECOMMERCE_PLANS ];
-	private const WPCOM_PERSONAL_AND_HIGHER_PLANS = [ self::WPCOM_PERSONAL_PLANS, self::WPCOM_PREMIUM_PLANS, self::WPCOM_MANAGED_PLANS, self::WPCOM_BUSINESS_PLANS, self::WPCOM_ECOMMERCE_PLANS ];
-	private const WPCOM_PREMIUM_AND_HIGHER_PLANS  = [ self::WPCOM_PREMIUM_PLANS, self::WPCOM_MANAGED_PLANS, self::WPCOM_BUSINESS_PLANS, self::WPCOM_ECOMMERCE_PLANS ];
+	private const WPCOM_BLOGGER_AND_HIGHER_PLANS  = [ self::WPCOM_BLOGGER_PLANS, self::WPCOM_PERSONAL_PLANS, self::WPCOM_PREMIUM_PLANS, self::WPCOM_PRO_PLANS, self::WPCOM_BUSINESS_PLANS, self::WPCOM_ECOMMERCE_PLANS ];
+	private const WPCOM_PERSONAL_AND_HIGHER_PLANS = [ self::WPCOM_PERSONAL_PLANS, self::WPCOM_PREMIUM_PLANS, self::WPCOM_PRO_PLANS, self::WPCOM_BUSINESS_PLANS, self::WPCOM_ECOMMERCE_PLANS ];
+	private const WPCOM_PREMIUM_AND_HIGHER_PLANS  = [ self::WPCOM_PREMIUM_PLANS, self::WPCOM_PRO_PLANS, self::WPCOM_BUSINESS_PLANS, self::WPCOM_ECOMMERCE_PLANS ];
 	private const WPCOM_BUSINESS_AND_HIGHER_PLANS = [ self::WPCOM_BUSINESS_PLANS, self::WPCOM_ECOMMERCE_PLANS ];
 
 	// Jetpack "Level 2": Groups of level 1s:
@@ -205,9 +205,9 @@ class WPCOM_Features {
 			self::WPCOM_PREMIUM_AND_HIGHER_PLANS,
 		),
 		self::PREMIUM_THEMES                => array(
+			self::WPCOM_PRO_PLANS,
 			self::WPCOM_BUSINESS_AND_HIGHER_PLANS,
 			self::JETPACK_BUSINESS_PLANS,
-			self::WPCOM_MANAGED_PLANS,
 		),
 		self::GOOGLE_ANALYTICS              => array(
 			self::WPCOM_PREMIUM_AND_HIGHER_PLANS,
@@ -224,9 +224,9 @@ class WPCOM_Features {
 		 * - Jetpack sites with any plan.
 		 */
 		self::SECURITY_SETTINGS             => array(
+			self::WPCOM_PRO_PLANS,
 			self::WPCOM_BUSINESS_AND_HIGHER_PLANS,
 			self::JETPACK_ALL_SITES,
-			self::WPCOM_MANAGED_PLANS,
 		),
 		/*
 		 * `advanced-seo` feature.
@@ -238,9 +238,9 @@ class WPCOM_Features {
 		 * - Not VIP sites.
 		 */
 		self::ADVANCED_SEO                  => array(
+			self::WPCOM_PRO_PLANS,
 			self::WPCOM_BUSINESS_AND_HIGHER_PLANS,
 			self::JETPACK_ALL_SITES,
-			self::WPCOM_MANAGED_PLANS,
 		),
 		/*
 		 * `upload-video-files` feature.
@@ -337,9 +337,9 @@ class WPCOM_Features {
 			self::JETPACK_ALL_SITES,
 		),
 		self::SOCIAL_PREVIEWS               => array(
+			self::WPCOM_PRO_PLANS,
 			self::WPCOM_BUSINESS_AND_HIGHER_PLANS,
 			self::JETPACK_ALL_SITES,
-			self::WPCOM_MANAGED_PLANS,
 		),
 		self::DONATIONS                     => array(
 			self::WPCOM_PERSONAL_AND_HIGHER_PLANS,
@@ -396,23 +396,23 @@ class WPCOM_Features {
 		 * - Not Jetpack sites
 		 */
 		self::WOOP                          => array(
+			self::WPCOM_PRO_PLANS,
 			self::WPCOM_BUSINESS_AND_HIGHER_PLANS,
-			self::WPCOM_MANAGED_PLANS,
 		),
 		// Enable the ability to hide the WP.com branding in the site footer.
 		self::NO_WPCOM_BRANDING             => array(
-			self::WPCOM_MANAGED_PLANS,
+			self::WPCOM_PRO_PLANS,
 			self::WPCOM_BUSINESS_AND_HIGHER_PLANS,
 		),
 		// Atomic only feature. Enable the Settings -> Permalinks menu item and options-permalink page.
 		self::OPTIONS_PERMALINK             => array(
-			self::WPCOM_MANAGED_PLANS,
+			self::WPCOM_PRO_PLANS,
 			self::WPCOM_BUSINESS_AND_HIGHER_PLANS,
 		),
 		// Atomic only feature. Can upload, install, and activate any 3rd party plugin.
 		self::MANAGE_PLUGINS                => array(
+			self::WPCOM_PRO_PLANS,
 			self::WPCOM_BUSINESS_AND_HIGHER_PLANS,
-			self::WPCOM_MANAGED_PLANS,
 		),
 		self::RECURRING_PAYMENTS            => array(
 			self::WPCOM_PERSONAL_AND_HIGHER_PLANS,
