@@ -3,7 +3,7 @@
  *
  * Plugin Name: Jetpack Starter Plugin
  * Plugin URI: https://wordpress.org/plugins/jetpack-starter-plugin
- * Description: Share your site’s posts on several social media networks automatically when you publish a new post.
+ * Description: plugin--description.
  * Version: 0.1.0-alpha
  * Author: Automattic
  * Author URI: https://jetpack.com/

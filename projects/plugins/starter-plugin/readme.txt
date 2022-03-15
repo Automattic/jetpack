@@ -12,7 +12,7 @@ Jetpack Starter Plugin plugin
 
 == Description ==
 
-Add your plugin description here
+plugin--description
 
 == Installation ==
 

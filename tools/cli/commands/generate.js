@@ -343,6 +343,7 @@ async function generatePluginFromStarter( projDir, answers ) {
 		transformToCamelCase( answers.name )
 	);
 	await searchReplaceInFolder( projDir, '0.1.0-alpha', answers.version );
+	await searchReplaceInFolder( projDir, 'plugin--description', answers.description );
 
 	// Rename plugin files.
 	fs.renameSync(

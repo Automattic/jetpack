@@ -80,7 +80,7 @@ const ConnectionSection = () => {
 			priceAfter={ 4.5 }
 			priceBefore={ 9 }
 			pricingTitle={ __( 'Jetpack Starter Plugin', 'jetpack-starter-plugin' ) }
-			title={ __( 'Short description of the plugin', 'jetpack-starter-plugin' ) }
+			title={ __( 'plugin--description', 'jetpack-starter-plugin' ) }
 			apiRoot={ apiRoot }
 			apiNonce={ apiNonce }
 			registrationNonce={ registrationNonce }

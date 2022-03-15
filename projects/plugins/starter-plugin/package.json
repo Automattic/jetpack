@@ -1,6 +1,6 @@
 {
 	"private": true,
-	"description": "Enter your plugin description here.",
+	"description": "plugin--description.",
 	"homepage": "https://jetpack.com",
 	"bugs": {
 		"url": "https://github.com/Automattic/jetpack/issues"
