@@ -17,9 +17,6 @@
 		"automattic/wordbless": "0.3.1"
 	},
 	"autoload": {
-		"files": [
-			"search.php"
-		],
 		"classmap": [
 			"src/"
 		]
@@ -75,7 +72,7 @@
 			"dev-master": "0.11.x-dev"
 		},
 		"version-constants": {
-			"JETPACK_SEARCH_PKG__VERSION": "search.php"
+			"JETPACK_SEARCH_PLUGIN__VERSION": "jetpack-search.php"
 		}
 	},
 	"config": {

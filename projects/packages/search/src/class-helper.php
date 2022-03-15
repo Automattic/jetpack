@@ -712,9 +712,9 @@ class Helper {
 	 * @return string $script_version Version number.
 	 */
 	public static function get_asset_version( $file ) {
-		return is_development_version() && file_exists( JETPACK_SEARCH_PKG__DIR . $file )
-			? filemtime( JETPACK_SEARCH_PKG__DIR . $file )
-			: JETPACK_SEARCH_PKG__VERSION;
+		return Package::is_development_version() && file_exists( Package::get_installed_path() . $file )
+			? filemtime( Package::get_installed_path() . $file )
+			: Package::VERSION;
 	}
 
 	/**
