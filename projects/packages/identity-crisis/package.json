@@ -1,6 +1,6 @@
 {
 	"name": "jetpack-identity-crisis",
-	"version": "0.8.2-alpha",
+	"version": "0.8.2",
 	"description": "Jetpack Identity Crisis",
 	"main": "_inc/admin.jsx",
 	"repository": "https://github.com/Automattic/jetpack-identity-crisis",
@@ -15,7 +15,7 @@
 	},
 	"browserslist": "extends @wordpress/browserslist-config",
 	"dependencies": {
-		"@automattic/jetpack-idc": "workspace:^0.10.2-alpha",
+		"@automattic/jetpack-idc": "workspace:^0.10.2",
 		"@wordpress/data": "6.3.0"
 	},
 	"devDependencies": {

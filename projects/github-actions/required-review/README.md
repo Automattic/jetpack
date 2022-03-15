@@ -22,7 +22,7 @@ jobs:
     if: github.event.pull_request.head.repo.full_name == github.event.pull_request.base.repo.full_name
 
     steps:
-      - uses: Automattic/action-required-review@v2
+      - uses: Automattic/action-required-review@v3
         with:
           requirements: |
             - paths: unmatched

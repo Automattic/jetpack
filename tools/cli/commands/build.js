@@ -85,7 +85,9 @@ export function builder( yargs ) {
  */
 export async function handler( argv ) {
 	try {
-		await setupForMirroring( argv );
+		if ( ! ( await setupForMirroring( argv ) ) ) {
+			process.exit( 1 );
+		}
 	} catch ( e ) {
 		console.error( e.message );
 		process.exit( 1 );
@@ -637,12 +639,15 @@ async function buildProject( t ) {
 	// Copy standard .github.
 	await copyDirectory( '.github/files/mirror-.github', npath.join( buildDir, '.github' ) );
 
-	// Copy autotagger, autorelease, and/or npmjs-autopublisher if enabled.
+	// Copy autotagger, autorelease, wp-svn-autopublish, and/or npmjs-autopublisher if enabled.
 	if ( composerJson.extra?.autotagger ) {
 		await copyDirectory( '.github/files/gh-autotagger', npath.join( buildDir, '.github' ) );
 	}
 	if ( composerJson.extra?.autorelease ) {
 		await copyDirectory( '.github/files/gh-autorelease', npath.join( buildDir, '.github' ) );
+	}
+	if ( composerJson.extra?.[ 'wp-svn-autopublish' ] ) {
+		await copyDirectory( '.github/files/gh-wp-svn-autopublish', npath.join( buildDir, '.github' ) );
 	}
 	if ( composerJson.extra?.[ 'npmjs-autopublish' ] ) {
 		await copyDirectory(
