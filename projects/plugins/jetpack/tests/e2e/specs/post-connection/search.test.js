@@ -2,12 +2,7 @@ import { test, expect } from '../../fixtures/base-test.js';
 import { SearchHomepage } from 'jetpack-e2e-commons/pages/index.js';
 import {
 	enableInstantSearch,
-	getSidebarsWidgets,
-	setupSidebarsWidgets,
-	setupSearchWidget,
 	disableInstantSearch,
-	getBlockWidgets,
-	setupBlockWidgets,
 	searchAPIRoute,
 	searchAutoConfig,
 	clearSearchPlanInfo,
@@ -16,10 +11,8 @@ import { prerequisitesBuilder, Plans } from 'jetpack-e2e-commons/env/index.js';
 import { resolveSiteUrl } from 'jetpack-e2e-commons/helpers/utils-helper.cjs';
 import playwrightConfig from '../../playwright.config.cjs';
 
-test.describe( 'Search', () => {
+test.describe( 'Instant Search', () => {
 	let homepage;
-	let backupSidebarsWidgets;
-	let backupBlockWidgets;
 	const siteUrl = resolveSiteUrl();
 
 	test.beforeAll( async ( { browser } ) => {
@@ -31,28 +24,20 @@ test.describe( 'Search', () => {
 			.withPlan( Plans.Complete )
 			.withActiveModules( [ 'search' ] )
 			.build();
-		await enableInstantSearch();
 
-		backupSidebarsWidgets = await getSidebarsWidgets();
-		backupBlockWidgets = await getBlockWidgets();
-		await setupSidebarsWidgets();
-		await setupSearchWidget();
-		await setupBlockWidgets();
+		await enableInstantSearch();
 		await searchAutoConfig();
 		await page.close();
 	} );
 
 	test.afterAll( async () => {
-		await setupSidebarsWidgets( backupSidebarsWidgets );
-		await setupBlockWidgets( backupBlockWidgets );
 		await disableInstantSearch();
 	} );
 
 	test.beforeEach( async ( { page } ) => {
 		await searchAPIRoute( page );
 		homepage = await SearchHomepage.visit( page );
-		await homepage.waitForPage();
-		await homepage.waitForNetworkIdle();
+		await homepage.waitForInstantSearchReady();
 	} );
 
 	test( 'Can perform search with default settings', async () => {
@@ -137,8 +122,7 @@ test.describe( 'Search', () => {
 	test( 'Can display different result formats', async () => {
 		await test.step( 'Can use minimal format', async () => {
 			await homepage.goto( `${ siteUrl }?result_format=minimal` );
-			await homepage.waitForPage();
-			await homepage.waitForNetworkIdle();
+			await homepage.waitForInstantSearchReady();
 			await homepage.focusSearchInput();
 			await homepage.enterQuery( 'random-string-1' );
 			await homepage.waitForSearchResponse();
@@ -149,8 +133,7 @@ test.describe( 'Search', () => {
 
 		await test.step( 'Can use product format', async () => {
 			await homepage.goto( `${ siteUrl }?result_format=product` );
-			await homepage.waitForPage();
-			await homepage.waitForNetworkIdle();
+			await homepage.waitForInstantSearchReady();
 			await homepage.focusSearchInput();
 			await homepage.enterQuery( 'random-string-2' );
 			await homepage.waitForSearchResponse();
@@ -163,8 +146,7 @@ test.describe( 'Search', () => {
 
 		await test.step( 'Can use expanded format', async () => {
 			await homepage.goto( `${ siteUrl }?result_format=expanded&s=random-string-3` );
-			await homepage.waitForPage();
-			await homepage.waitForNetworkIdle();
+			await homepage.waitForInstantSearchReady();
 
 			expect( await homepage.isOverlayVisible() ).toBeTruthy();
 			expect( await homepage.isResultFormat( 'is-format-expanded' ) ).toBeTruthy();
@@ -174,11 +156,11 @@ test.describe( 'Search', () => {
 
 	test( 'Can open overlay by clicking a link', async () => {
 		await homepage.goto( `${ siteUrl }?jetpack_search_link_in_footer=1` );
-		await homepage.waitForPage();
-		await homepage.waitForNetworkIdle();
+		await homepage.waitForInstantSearchReady();
 
 		expect( await homepage.isOverlayVisible() ).toBeFalsy();
 		await homepage.clickLink();
+		await homepage.waitForSearchResponse();
 		expect( await homepage.isOverlayVisible() ).toBeTruthy();
 	} );
 } );
