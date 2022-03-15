@@ -21,7 +21,7 @@
 # - USER_EMAIL: Email address to use when making the commit to the mirror repo. Defaults to "$USER_NAME@users.noreply.github.com"
 
 # Halt on error
-set -eo pipefail 
+set -eo pipefail
 
 if [[ -n "$CI" ]]; then
 	export GIT_AUTHOR_NAME="$USER_NAME"
