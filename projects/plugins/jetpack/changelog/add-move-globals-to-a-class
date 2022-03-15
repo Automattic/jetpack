@@ -1,0 +1,4 @@
+Significance: patch
+Type: other
+
+Search: moved globals to a class for sake of autoloading correctly
