@@ -110,7 +110,7 @@ class Config {
 		}
 
 		if ( $this->config['search'] ) {
-			$this->ensure_class( 'Automattic\Jetpack\Search\Package' )
+			$this->ensure_class( 'Automattic\Jetpack\Search\Initializer' )
 				&& $this->ensure_feature( 'search' );
 		}
 	}
