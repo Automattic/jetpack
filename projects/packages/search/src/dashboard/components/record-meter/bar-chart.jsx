@@ -89,7 +89,7 @@ export class BarChart extends React.Component {
 					<canvas ref={ this.canvasRef }>
 						<p>
 							{ __(
-								'Text alternative for this canvas graphic is in the data table below',
+								'Text alternative for this chart is in the data table below',
 								'jetpack-search-pkg'
 							) }
 						</p>
