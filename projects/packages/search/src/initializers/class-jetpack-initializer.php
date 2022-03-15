@@ -17,6 +17,9 @@ class Jetpack_Initializer extends Initializer {
 	 * Initializes either the Classic Search or the Instant Search experience.
 	 */
 	public static function initialize() {
+		// Set up package version hook.
+		add_filter( 'jetpack_package_versions', __NAMESPACE__ . '\Package::send_version_to_tracker' );
+
 		// Check whether Jetpack Search should be initialized in the first place.
 		if ( ! self::is_connected() || ! self::is_search_supported() ) {
 			/**
@@ -34,6 +37,10 @@ class Jetpack_Initializer extends Initializer {
 		if ( ! $blog_id ) {
 			do_action( 'jetpack_search_abort', 'no_blog_id', null );
 			return;
+		}
+
+		if ( defined( 'WP_CLI' ) && \WP_CLI ) {
+			\WP_CLI::add_command( 'jetpack-search', __NAMESPACE__ . '\CLI' );
 		}
 
 		// registers Jetpack Search widget.
