@@ -41,15 +41,10 @@ jobs:
           pnpm run env:up
           echo "::endgroup::"
 
-          echo "::group::Create tunnel"
-          pnpm run tunnel:up
-          echo "::endgroup::"
-
     - name: Test environment tear-down
       if: ${{ always() }}
       working-directory: projects/plugins/jetpack/tests/e2e
       continue-on-error: true
       run: |
-        pnpm run tunnel:down
         ls -lh ../../../../../tools/docker
         pnpm run env:clean
