@@ -5,6 +5,46 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.6.9] - 2022-03-09
+### Changed
+- Updated package dependencies.
+
+## [0.6.8] - 2022-03-08
+### Added
+- Added connected plugins slugs to My Jetpack tracking events
+- Add link to jetpack.com in the footer
+- My Jetpack: Add jetpack features link on connection screen
+- My Jetpack: tidy Product card component
+- My Jetpack: update Spinner in checkout button
+
+### Changed
+- Components: update attributes used within the Button component to match recent deprecations and changes.
+- My Jetpack: Add Connected Product Card stories
+- My Jetpack: Add connection screen footer
+- My Jetpack: clean/tidy Product data
+- My Jetpack: Remove Layout component
+- Only consider Backup product active when the plan is purchased
+
+### Fixed
+- Fixed Backup flow when Jetpack plugin is active
+- My Jetpack: align CTA buttons of My Jetpack overview
+- My Jetpack: Fix button height in the Interstitial pages
+
+## [0.6.7] - 2022-03-02
+### Added
+- Add My Jetpack action link to all Jetpack plugins
+- My Jetpack: Handle cosmetic tweaks
+- My Jetpack: Pass requiresUserConnection to ConnectionStatusCard
+
+### Changed
+- Refactor and simplify Products class
+- Updated package dependencies.
+
+### Fixed
+- Disable browser cache for My Jetpack
+- My Jetpack: fix products card section story
+- My Jetpack: fix stories for the Interstitial pages
+
 ## [0.6.6] - 2022-02-28
 ### Fixed
 - Re-doing 0.6.5 to fixup bad release.
@@ -312,6 +352,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Added
 - Created package
 
+[0.6.9]: https://github.com/Automattic/jetpack-my-jetpack/compare/0.6.8...0.6.9
+[0.6.8]: https://github.com/Automattic/jetpack-my-jetpack/compare/0.6.7...0.6.8
+[0.6.7]: https://github.com/Automattic/jetpack-my-jetpack/compare/0.6.6...0.6.7
 [0.6.6]: https://github.com/Automattic/jetpack-my-jetpack/compare/0.6.5...0.6.6
 [0.6.5]: https://github.com/Automattic/jetpack-my-jetpack/compare/0.6.4...0.6.5
 [0.6.4]: https://github.com/Automattic/jetpack-my-jetpack/compare/0.6.3...0.6.4

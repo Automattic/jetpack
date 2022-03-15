@@ -96,7 +96,7 @@ const ProductPurchasedComponent = props => {
 						</li>
 					) ) }
 			</ul>
-			<Button primary className="jp-recommendations-product-purchased__next" href={ nextRoute }>
+			<Button primary rna className="jp-recommendations-product-purchased__next" href={ nextRoute }>
 				{ _x( 'Configure your site', 'Recommendations Product Purchased', 'jetpack' ) }
 			</Button>
 		</div>

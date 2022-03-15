@@ -22,7 +22,7 @@ const CreativeMailPluginIsInstalling = ( { isActivating } ) => {
 		: __( 'Installing…', 'jetpack', /* dummy arg to avoid bad minification */ 0 );
 	return (
 		<Button
-			isSecondary
+			variant="secondary"
 			icon={ <Icon style={ { animation: 'rotation 2s infinite linear' } } icon="update" /> }
 			disabled
 			aria-label={ btnTxt }
@@ -46,7 +46,7 @@ const CreativeMailPluginIsNotInstalled = ( {
 				<br />
 				{ isInstalling && <CreativeMailPluginIsInstalling /> }
 				{ ! isInstalling && (
-					<Button isSecondary onClick={ installAndActivateCreativeMailPlugin }>
+					<Button variant="secondary" onClick={ installAndActivateCreativeMailPlugin }>
 						{ __( 'Install Creative Mail plugin', 'jetpack' ) }
 					</Button>
 				) }
@@ -67,7 +67,7 @@ const CreativeMailPluginIsInstalled = ( { activateCreativeMailPlugin, isInstalli
 			<br />
 			{ isInstalling && <CreativeMailPluginIsInstalling isActivating /> }
 			{ ! isInstalling && (
-				<Button isSecondary onClick={ activateCreativeMailPlugin }>
+				<Button variant="secondary" onClick={ activateCreativeMailPlugin }>
 					{ __( 'Activate Creative Mail Plugin', 'jetpack' ) }
 				</Button>
 			) }

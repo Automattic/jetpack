@@ -1,4 +1,0 @@
-Significance: minor
-Type: changed
-
-Moved site benefits request out of PHP to React, and guard against no connected plugins

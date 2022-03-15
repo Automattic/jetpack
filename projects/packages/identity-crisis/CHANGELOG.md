@@ -5,6 +5,18 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.8.1] - 2022-03-08
+### Changed
+- Updated package dependencies.
+
+## [0.8.0] - 2022-03-02
+### Added
+- IDC: add detection for possibly dynamic HTTP_HOST being used in WP_SITEURL or WP_HOME.
+
+### Changed
+- Bring back the IDC screen in Staging mode.
+- Updated package dependencies.
+
 ## [0.7.4] - 2022-02-22
 ### Added
 - Add blog ID to event tracking.
@@ -157,6 +169,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Updated package dependencies.
 - Use Connection/Urls for home_url and site_url functions migrated from Sync.
 
+[0.8.1]: https://github.com/Automattic/jetpack-identity-crisis/compare/v0.8.0...v0.8.1
+[0.8.0]: https://github.com/Automattic/jetpack-identity-crisis/compare/v0.7.4...v0.8.0
 [0.7.4]: https://github.com/Automattic/jetpack-identity-crisis/compare/v0.7.3...v0.7.4
 [0.7.3]: https://github.com/Automattic/jetpack-identity-crisis/compare/v0.7.2...v0.7.3
 [0.7.2]: https://github.com/Automattic/jetpack-identity-crisis/compare/v0.7.1...v0.7.2
