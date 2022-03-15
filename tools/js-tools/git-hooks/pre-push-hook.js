@@ -70,13 +70,12 @@ async function checkChangelogFiles() {
 					}
 
 					if ( filesToCommit.length > 0 ) {
-						const commitFiles = await spawnSync(
-							'git',
-							[ 'commit', ...filesToCommit, '-m', 'changelog' ],
-							{
-								stdio: 'inherit',
-							}
-						);
+						const commitFiles = await spawnSync( 'git', [
+							'commit',
+							...filesToCommit,
+							'-m',
+							'changelog',
+						] );
 						if ( commitFiles.status === 0 ) {
 							checkChangelogFiles();
 						}
