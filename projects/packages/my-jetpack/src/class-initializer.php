@@ -35,7 +35,7 @@ class Initializer {
 	 * @return void
 	 */
 	public static function init() {
-		if ( ! self::should_initialize() ) {
+		if ( ! self::should_initialize() || did_action( 'my_jetpack_init' ) ) {
 			return;
 		}
 
@@ -211,9 +211,6 @@ class Initializer {
 	 * Return true if we should initialize the My Jetpack
 	 */
 	public static function should_initialize() {
-		if ( did_action( 'my_jetpack_init' ) ) {
-			return false;
-		}
 
 		if ( is_multisite() ) {
 			return false;
