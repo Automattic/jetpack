@@ -50,9 +50,9 @@ export default function useConnectionWatcher() {
 	 */
 	useEffect( () => {
 		if ( ! isSiteConnected && redirectUrl ) {
-			window.location = redirectUrl;
+			navToConnection();
 		}
-	}, [ isSiteConnected, redirectUrl ] );
+	}, [ isSiteConnected, redirectUrl, navToConnection ] );
 
 	useEffect( () => {
 		if ( requiresUserConnection ) {
