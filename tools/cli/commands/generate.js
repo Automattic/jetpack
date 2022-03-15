@@ -9,6 +9,7 @@ import fs from 'fs';
 import { fileURLToPath } from 'url';
 import semver from 'semver';
 import yaml from 'js-yaml';
+import { execSync } from 'child_process';
 
 /**
  * Internal dependencies
@@ -22,7 +23,7 @@ import {
 	writeComposerJson,
 } from '../helpers/json.js';
 import { normalizeGenerateArgv } from '../helpers/normalizeArgv.js';
-import mergeDirs from '../helpers/mergeDirs.js';
+import mergeDirs, { copyFile } from '../helpers/mergeDirs.js';
 import searchReplaceInFolder from '../helpers/searchReplaceInFolder.js';
 import {
 	transformToReadableName,
@@ -297,31 +298,25 @@ async function generatePluginFromStarter( projDir, answers ) {
 		new URL( '../../../projects/plugins/starter-plugin/', import.meta.url )
 	);
 
-	// Duplicate dir.
-	try {
-		mergeDirs( starterDir, projDir, answers.name, true );
-	} catch ( e ) {
-		console.error( e );
-	}
-
-	// Delete untracked folders.
-	const untrackedFolders = [
-		'/vendor',
-		'/jetpack_vendor',
-		'/node_modules',
-		'/build',
-		'/.cache',
-		'/wordpress',
-	];
-	untrackedFolders.forEach( folder => {
-		if ( fs.existsSync( path.join( projDir, folder ) ) ) {
-			fs.rmSync( path.join( projDir, folder ), { recursive: true } );
+	// Copy files.
+	let files = execSync( 'git -c core.quotepath=off ls-files', {
+		cwd: starterDir,
+		encoding: 'utf8',
+	} );
+	files = files.split( '\n' ).map( str => str.replace( 'projects/plugins/starter-plugin', '' ) );
+	files.forEach( file => {
+		if ( file ) {
+			copyFile( path.join( projDir, file ), path.join( starterDir, file ) );
 		}
 	} );
 
 	// Replace strings.
 	await searchReplaceInFolder( projDir, 'jetpack-starter-plugin', normalizeSlug( answers.name ) );
-	await searchReplaceInFolder( projDir, 'starter_plugin', normalizeSlug( answers.name, false, '_' ) );
+	await searchReplaceInFolder(
+		projDir,
+		'starter_plugin',
+		normalizeSlug( answers.name, false, '_' )
+	);
 	await searchReplaceInFolder(
 		projDir,
 		'Jetpack Starter Plugin',
