@@ -129,8 +129,9 @@ class Initializer {
 			'my_jetpack_main_app',
 			'myJetpackRest',
 			array(
-				'apiRoot'  => esc_url_raw( rest_url() ),
-				'apiNonce' => wp_create_nonce( 'wp_rest' ),
+				'apiRoot'           => esc_url_raw( rest_url() ),
+				'apiNonce'          => wp_create_nonce( 'wp_rest' ),
+				'registrationNonce' => wp_create_nonce( 'jetpack-registration-nonce' ),
 			)
 		);
 
