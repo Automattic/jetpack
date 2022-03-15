@@ -21,6 +21,8 @@ import { Popup } from './popup';
 
 import './style.scss';
 
+const MIN_POSTS_FOR_VISIBLE_BAR = 20;
+
 const BackupUpgrade = ( { comments, isFetchingData, plugins, posts } ) => {
 	const [ showPopup, setShowPopup ] = useState( true );
 
@@ -37,7 +39,7 @@ const BackupUpgrade = ( { comments, isFetchingData, plugins, posts } ) => {
 	return (
 		! isFetchingData &&
 		showPopup &&
-		posts > 20 && (
+		posts > MIN_POSTS_FOR_VISIBLE_BAR && (
 			<Card className="jp-dash-upgrade-backup">
 				<Popup posts={ posts } comments={ comments } onClose={ onClosePopup } />
 				<RecordMeterBar items={ items } />
