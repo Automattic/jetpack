@@ -47,8 +47,9 @@ class Dashboard {
 	 * @param Automattic\Jetpack\Search\Module_Control $module_control - Module_Control instance.
 	 */
 	public function __construct( $plan = null, $connection_manager = null, $module_control = null ) {
-		$this->plan               = $plan ? $plan : new Plan();
-		$this->connection_manager = $connection_manager ? $connection_manager : new Connection_Manager( Package::SLUG );
+		$this->plan = $plan ? $plan : new Plan();
+		// TODO: 'jetpack-search' better to be the current plugin where the package is running.
+		$this->connection_manager = $connection_manager ? $connection_manager : new Connection_Manager( 'jetpack-search' );
 		$this->module_control     = $module_control ? $module_control : new Module_Control( $this->plan );
 		$this->plan->init_hooks();
 	}
@@ -101,15 +102,15 @@ class Dashboard {
 	 */
 	protected function should_add_search_submenu() {
 		if ( ! current_user_can( 'manage_options' ) ) {
-			return false;
+			return apply_filters( 'jetpack_search_should_add_search_submenu', false );
 		}
 
 		// If site is in Offline Mode or not connected yet.
 		if ( ( new Status() )->is_offline_mode() || ! $this->connection_manager->is_connected() ) {
-			return false;
+			return apply_filters( 'jetpack_search_should_add_search_submenu', false );
 		}
 
-		return $this->plan->ever_supported_search();
+		return apply_filters( 'jetpack_search_should_add_search_submenu', $this->plan->ever_supported_search() );
 	}
 
 	/**
