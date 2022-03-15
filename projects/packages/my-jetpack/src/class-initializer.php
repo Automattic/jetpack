@@ -118,7 +118,6 @@ class Initializer {
 					'items' => array(),
 				),
 				'redirectUrl'           => admin_url( 'admin.php?page=my-jetpack' ),
-				'topJetpackMenuItemUrl' => Admin_Menu::get_top_level_menu_item_url(),
 				'siteSuffix'            => ( new Status() )->get_site_suffix(),
 				'myJetpackVersion'      => self::PACKAGE_VERSION,
 				'fileSystemWriteAccess' => self::has_file_system_write_access(),
@@ -214,11 +213,6 @@ class Initializer {
 		$should = true;
 
 		if ( is_multisite() ) {
-			$should = false;
-		}
-
-		// Do not initialize My Jetpack if site is not connected.
-		if ( ! ( new Connection_Manager() )->is_connected() ) {
 			$should = false;
 		}
 
