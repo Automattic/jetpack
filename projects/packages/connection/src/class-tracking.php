@@ -2,7 +2,7 @@
 /**
  * Nosara Tracks for Jetpack
  *
- * @package automattic/jetpack-tracking
+ * @package automattic/jetpack-connection
  */
 
 namespace Automattic\Jetpack;
@@ -74,14 +74,14 @@ class Tracking {
 			|| ! wp_verify_nonce( $_REQUEST['tracksNonce'], 'jp-tracks-ajax-nonce' )
 		) {
 			wp_send_json_error(
-				__( 'You aren’t authorized to do that.', 'jetpack-tracking' ),
+				__( 'You aren’t authorized to do that.', 'jetpack-connection' ),
 				403
 			);
 		}
 
 		if ( ! isset( $_REQUEST['tracksEventName'] ) || ! isset( $_REQUEST['tracksEventType'] ) ) {
 			wp_send_json_error(
-				__( 'No valid event name or type.', 'jetpack-tracking' ),
+				__( 'No valid event name or type.', 'jetpack-connection' ),
 				403
 			);
 		}

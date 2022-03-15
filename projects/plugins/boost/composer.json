@@ -23,7 +23,6 @@
 		"automattic/jetpack-my-jetpack": "0.6.x-dev",
 		"automattic/jetpack-device-detection": "1.4.x-dev",
 		"automattic/jetpack-lazy-images": "2.1.x-dev",
-		"automattic/jetpack-tracking": "1.14.x-dev",
 		"tedivm/jshrink": "1.4.0"
 	},
 	"require-dev": {
