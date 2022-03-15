@@ -1,0 +1,4 @@
+Significance: patch
+Type: changed
+
+Search: moved search initialization to config package
