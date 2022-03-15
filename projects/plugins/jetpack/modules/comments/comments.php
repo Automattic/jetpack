@@ -221,6 +221,7 @@ class Jetpack_Comments extends Highlander_Comments_Base {
 	 * @since JetpackComments (1.4)
 	 */
 	public function comment_form_after() {
+
 		/** This filter is documented in modules/comments/comments.php */
 		if ( ! apply_filters( 'jetpack_comment_form_enabled_for_' . get_post_type(), true ) ) {
 			return;
@@ -245,7 +246,7 @@ class Jetpack_Comments extends Highlander_Comments_Base {
 					apply_filters(
 						'jetpack_must_log_in_to_comment',
 						/* translators: %s is the wp-login URL for the site */
-						__( 'You must <a href="%s">log in</a> to post a comment.', 'jetpack' )
+						__( 'You must <a href="%s">log in</a> to post a comment please.', 'jetpack' )
 					),
 					wp_login_url( get_permalink() . '#respond' )
 				)
@@ -274,7 +275,7 @@ class Jetpack_Comments extends Highlander_Comments_Base {
 			'show_avatars'           => ( get_option( 'show_avatars' ) ? '1' : '0' ),
 			'avatar_default'         => get_option( 'avatar_default' ),
 			'greeting'               => get_option( 'highlander_comment_form_prompt', __( 'Leave a Reply', 'jetpack' ) ),
-			'jetpack_comments_nonce' => wp_create_nonce( 'jetpack_comments_nonce' ),
+			'jetpack_comments_nonce' => wp_create_nonce( 'jetpack_comments_nonce-' . get_the_ID() ),
 			/**
 			 * Changes the comment form prompt.
 			 *
@@ -528,19 +529,20 @@ class Jetpack_Comments extends Highlander_Comments_Base {
 	/**
 	 * Verify the hash included in remote comments.
 	 *
-	 * If the Jetpack toekn is missing we return nothing,
+	 * If the Jetpack token is missing we return nothing,
 	 * and if the token is unknown or invalid, or comments not allowed, an error is returned.
 	 *
 	 * @since JetpackComments (1.4)
-	 *
-	 * @todo We do need to add a nonce check here - internal ref for details: p1645643468937519/1645189749.180299-slack-C02HQGKMFJ8
 	 */
 	public function pre_comment_on_post() {
-		$post_array = stripslashes_deep( $_POST ); // phpcs:ignore WordPress.Security.NonceVerification.Missing
+		$post_array = stripslashes_deep( $_POST );
 
+		if ( empty( $post_array['jetpack_comments_nonce'] ) || ! wp_verify_nonce( $post_array['jetpack_comments_nonce'], "jetpack_comments_nonce-{$post_array['postid']}" ) ) {
+			die( wp_json_encode( array( 'error' => __( 'Nonce verification failed.', 'jetpack' ) ) ) );
+		}
 		// Bail if missing the Jetpack token.
 		if ( ! isset( $post_array['sig'] ) || ! isset( $post_array['token_key'] ) ) {
-			unset( $_POST['hc_post_as'] ); // phpcs:ignore WordPress.Security.NonceVerification.Missing
+			unset( $_POST['hc_post_as'] );
 
 			return;
 		}
