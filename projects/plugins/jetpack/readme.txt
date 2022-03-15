@@ -242,24 +242,23 @@ Jetpack Backup can do a full website migration to a new host, migrate theme file
 4. Promote your newest posts, pages, and products across your social media channels.
 
 == Changelog ==
-### 10.8-a.3 - 2022-03-08
+### 10.8-a.7 - 2022-03-15
 #### Enhancements
-- Jetpack: assistant style updates and other improvements.
-- Jetpack: using the new Webfont API in Gutenberg, registers a selection of Google fonts for use with block and Global styles.
-- Markdown block: add default spacing controls.
-- Masterbar: make the Desktop Switcher look the same between Calypso and wp-admin.
-- Payments Block: adds a link to the support reference page on the block configuration panel.
-- Payment Button Block: make Stripe connection button visible from child block elements.
+- Dashboard: add toggle to enable new Google Fonts feature.
+- Jetpack: add QRPost feature which generates QR codes for published posts. Currently a JETPACK_BETA_BLOCKS feature.
+- Premium Content block: use a drop down menu rather than two buttons to switch between the guest/subscriber views.
+- VideoPress: updated design of resumable uploader block.
 
 #### Improved compatibility
-- Premium Content Block: prevent block from being nested inside itself.
-- Various Blocks: remove deprecated attributes from Button components.
-- CLI Tools: ensure WP CLI is present before extending the class.
+- General: clean up use of deprecated FILTER_SANITIZE_STRING constant. Also mark WPCom_Markdown::get_post_screen_post_type as deprecated due to lack of use.
 
 #### Bug fixes
-- Jetpack: remove the duplicated `jetpack_relatedposts_returned_results filter`.
-- Premium Content Block: login button now redirects to the correct post instead of to a 404 page when the URL contains characters that have been previously encoded.
-- Payment Blocks: fixed an issue with the upgrade banner being obscured from all payment blocks.
+- Google Analytics: fix showing an upgrade button with the latest Jetpack security plans.
+- Jetpack: fix missing "Connect User" button after restoring a connection.
+- Pay with Paypal widget: enable widget to work in block-based widget editor and full site editor.
+- SEO Tools: ensure Twitter cards get correct description when a site has a blank tagline.
+- Payments: swap JETPACK_VERSION for the correct JETPACK__VERSION.
+- Premium Content block: when a visitor subscribes, they now see the premium content without needing to reload the page.
 
 --------
 

@@ -30,7 +30,7 @@ class Jetpack_Initializer extends Initializer {
 			return;
 		}
 
-		$blog_id = \Jetpack::get_option( 'id' );
+		$blog_id = Helper::get_wpcom_site_id();
 		if ( ! $blog_id ) {
 			do_action( 'jetpack_search_abort', 'no_blog_id', null );
 			return;
@@ -63,8 +63,7 @@ class Jetpack_Initializer extends Initializer {
 	 * Check if site has been connected.
 	 */
 	public static function is_connected() {
-		// TODO: 'jetpack-search' better to be the current plugin where the package is running.
-		return ( new Connection_Manager( 'jetpack-search' ) )->is_connected();
+		return ( new Connection_Manager( Package::SLUG ) )->is_connected();
 	}
 
 	/**
