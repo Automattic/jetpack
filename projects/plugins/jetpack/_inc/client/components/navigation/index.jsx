@@ -109,7 +109,7 @@ export class Navigation extends React.Component {
 					{
 						<NavItem
 							path={ this.props.adminUrl + 'admin.php?page=my-jetpack' }
-							onClick={ this.trackRecommendationsClick }
+							onClick={ this.trackMyJetpackClick }
 						>
 							{ _x( 'My Jetpack', 'Navigation item.', 'jetpack' ) }
 						</NavItem>
