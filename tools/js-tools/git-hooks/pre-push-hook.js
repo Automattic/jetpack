@@ -44,17 +44,50 @@ async function checkChangelogFiles() {
 		const response = await promptChangelog();
 		if ( response ) {
 			try {
-				spawnSync( 'jetpack', [ 'changelog', 'add' ], {
+				// Run the changelogger.
+				const autoChangelog = spawnSync( 'jetpack', [ 'changelog', 'add' ], {
 					stdio: 'inherit',
 				} );
-				console.log(
-					chalk.green( 'Changelog files added! Go ahead and commit them, then push again.' )
-				);
+
+				// If the autochangelogger worked, commit the changelog files and push again.
+				if ( autoChangelog.status === 0 ) {
+					const filesToCommit = [];
+					const changelogFiles = await spawnSync( 'git', [
+						'diff',
+						'--name-only',
+						'--diff-filter=A',
+						'--cached',
+					] )
+						.stdout.toString()
+						.trim()
+						.split( '\n' );
+
+					for ( const file of changelogFiles ) {
+						const match = file.match( /^projects\/([^/]+\/[^/]+)\/changelog\// );
+						if ( match ) {
+							filesToCommit.push( file );
+						}
+					}
+
+					if ( filesToCommit.length > 0 ) {
+						const commitFiles = await spawnSync(
+							'git',
+							[ 'commit', ...filesToCommit, '-m', 'changelog' ],
+							{
+								stdio: 'inherit',
+							}
+						);
+						if ( commitFiles.status === 0 ) {
+							checkChangelogFiles();
+						}
+					}
+				}
 			} catch ( e ) {
 				console.log( 'Something went wrong', e );
 			}
+		} else {
+			process.exitCode = 1;
 		}
-		process.exitCode = 1;
 	}
 }
 
