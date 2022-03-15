@@ -47,9 +47,8 @@ class Dashboard {
 	 * @param Automattic\Jetpack\Search\Module_Control $module_control - Module_Control instance.
 	 */
 	public function __construct( $plan = null, $connection_manager = null, $module_control = null ) {
-		$this->plan = $plan ? $plan : new Plan();
-		// TODO: 'jetpack-search' better to be the current plugin where the package is running.
-		$this->connection_manager = $connection_manager ? $connection_manager : new Connection_Manager( 'jetpack-search' );
+		$this->plan               = $plan ? $plan : new Plan();
+		$this->connection_manager = $connection_manager ? $connection_manager : new Connection_Manager( Package::SLUG );
 		$this->module_control     = $module_control ? $module_control : new Module_Control( $this->plan );
 		$this->plan->init_hooks();
 	}
