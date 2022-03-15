@@ -140,6 +140,8 @@ jobs:
       continue-on-error: true
       run: |
         pnpm run tunnel:down
+        ls -lh tools/docker
+        pnpm run env:clean
 
     - name: Upload test artifacts
       if: ${{ always() }}
