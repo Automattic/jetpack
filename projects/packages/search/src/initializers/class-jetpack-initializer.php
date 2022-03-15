@@ -30,7 +30,7 @@ class Jetpack_Initializer extends Initializer {
 			return;
 		}
 
-		$blog_id = \Jetpack::get_option( 'id' );
+		$blog_id = Helper::get_wpcom_site_id();
 		if ( ! $blog_id ) {
 			do_action( 'jetpack_search_abort', 'no_blog_id', null );
 			return;
