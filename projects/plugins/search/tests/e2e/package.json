@@ -42,6 +42,10 @@
 	},
 	"browserslist": [],
 	"ci": {
-		"targets": []
+		"targets": [
+			"plugins/search",
+			"packages/search",
+			"tools/e2e-commons"
+		]
 	}
 }
