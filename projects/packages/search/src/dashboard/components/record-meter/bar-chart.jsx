@@ -110,7 +110,7 @@ export class BarChart extends React.Component {
 										} ) }
 								</tr>
 								<tr>
-									<th scope="row">{ __( 'Record Count', 'jetpack-search-pkg' ) }</th>
+									<th scope="row">{ __( 'Record count', 'jetpack-search-pkg' ) }</th>
 									{ this.state?.legendItems.length &&
 										this.state.legendItems.map( item => {
 											return <td>{ this.props.data[ item.datasetIndex ].data.data }</td>;
