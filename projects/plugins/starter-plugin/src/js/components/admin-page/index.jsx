@@ -73,7 +73,7 @@ const Admin = () => {
 export default Admin;
 
 const ConnectionSection = () => {
-	const { apiNonce, apiRoot, registrationNonce } = window.jetpackSocialInitialState;
+	const { apiNonce, apiRoot, registrationNonce } = window.jetpackStarterPluginInitialState;
 	return (
 		<ConnectScreenRequiredPlan
 			buttonLabel={ __( 'Get Jetpack Starter Plugin', 'jetpack-starter-plugin' ) }
