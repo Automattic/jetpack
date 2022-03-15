@@ -15,7 +15,7 @@
 ### Bug fixes
 - Google Analytics: fix showing an upgrade button with the latest Jetpack security plans.
 - Jetpack: fix missing "Connect User" button after restoring a connection.
-- Pay with Paypal widget: enable widget to work in block-based widget editor and full site editor.
+- Pay with PayPal widget: enable widget to work in block-based widget editor and full site editor.
 - SEO Tools: ensure Twitter cards get correct description when a site has a blank tagline.
 - Payments: swap JETPACK_VERSION for the correct JETPACK__VERSION.
 - Premium Content block: when a visitor subscribes, they now see the premium content without needing to reload the page.
