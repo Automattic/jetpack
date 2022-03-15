@@ -52,6 +52,7 @@
 	>
 		<h3 slot="title">
 			{__( 'Optimize CSS Loading from Cloud', 'jetpack-boost' )}
+			<span class="jb-badge">Upgraded</span>
 		</h3>
 		<p slot="description">
 			<TemplatedString
