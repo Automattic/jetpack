@@ -1,8 +1,8 @@
 [![Reports status](https://img.shields.io/website?down_color=grey&down_message=Dashboard%20offline&style=for-the-badge&label=E2E%20TEST%20REPORTS&up_color=green&up_message=see%20dashboard&url=https%3A%2F%2Fautomattic.github.io%2Fjetpack-e2e-reports%2F%23%2F)](https://automattic.github.io/jetpack-e2e-reports)
 
-# Jetpack End-to-End tests
+# Jetpack Search end-to-end tests
 
-Automated end-to-end acceptance tests for the Jetpack plugin.
+Automated end-to-end acceptance tests for Jetpack Search.
 
 These tests are using the [e2e commons package](../../../../../tools/e2e-commons). Please refer to [their docs](../../../../../tools/e2e-commons/README.md) for more detailed information.
 
@@ -20,24 +20,30 @@ These tests are using the [e2e commons package](../../../../../tools/e2e-commons
 
 ## Pre-requisites
 
-- Make sure you built Jetpack first `pnpm install && pnpx jetpack build` in the monorepo root directory should walk you through it. You can also refer to the monorepo documentation in how to build Jetpack.
+Make sure you install the monorepo first. `pnpm install` will install the project and the monorepo.
 
 ```shell
-# run in the monorepo root
 pnpm install
-pnpx jetpack build plugins/jetpack
 ```
 
 ## Environment setup
 
+### Build the plugin
+
+The `build` npm script will build the Search package and the Jetpack plugin. 
+
+```shell
+pnpm build
+```
+
 ### Test configuration
 
-Jetpack E2E tests relies on 2 encrypted configuration files, one included in this repo as [`config/encrypted.enc`](./config/encrypted.enc), which extends on a default one from e2e-commons. To be able to successfully create a local environment and run the tests both files need to be decrypted first.
+The tests rely on an encrypted configuration file, which is included in the [e2e commons package](../../../../../tools/e2e-commons) config folder as [`encrypted.enc`](../../../../../tools/e2e-commons/config/encrypted.enc). To be able to run tests - that file should be decrypted first.
 
-To decrypt the config files (a8c only):
+To decrypt the config file (a8c only):
 
 - Find a decryption key. Search secret store for "E2E Jetpack CONFIG_KEY"
-- Run `CONFIG_KEY=YOUR_KEY pnpm config:decrypt`. This command should create a new file [`config/local.cjs`](./config/local.cjs)
+- From the Jetpack Boost E2E tests directory, run `CONFIG_KEY=YOUR_KEY pnpm config:decrypt`. This command should create a new file `local.cjs` in the Jetpack Boost E2E tests config folder.
 
 ### Docker environment
 
@@ -91,7 +97,7 @@ pnpm test:run -- --headed
 To run an individual test, use the direct path to the spec. For example:
 
 ```bash
-pnpm test:run -- ./specs/dummy.test.js
+pnpm test:run -- ./specs/search.test.js
 ```
 
 To run in debug mode, use the `--debug` flag. Debug mode uses a headed browser and opens the [Playwright inspector](https://playwright.dev/docs/inspector/).
@@ -100,32 +106,12 @@ To run in debug mode, use the `--debug` flag. Debug mode uses a headed browser a
 pnpm test:run -- --debug
 ```
 
-### Selecting tests to run
-
-```bash
-# One test file
-pnpm test:run -- ./specs/some.test.js
-
-# All tests having 'blocks' in their name
-pnpm test:run blocks
-
-# Run only run tests matching a regular expression.
-pnpm test:run --grep "mailchimp"
-pnpm test:run -g "mailchimp"
-
-# Run only run tests NOT matching a regular expression.
-pnpm test:run --grep-invert "mailchimp"
-```
-
 ## Tests Architecture
 
 ### Specs
 
 Tests are kept in `/specs` folder. Every file represents a test suite, which is designed around specific feature under test.
 Every test suite is responsible for setting up the environment configuration for the suite. [e2e-commons' prerequisites APIs](../../../../../tools/e2e-commons/env/prerequisites.js) provide an abstraction to set up the site the way is needed.
-
-Some specs require an active Jetpack connection.
-Its logic can be found in the [jetpack-connect.js](../../../../../tools/e2e-commons/flows/jetpack-connect.js).
 
 ### Pages
 
