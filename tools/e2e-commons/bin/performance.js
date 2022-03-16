@@ -7,8 +7,13 @@ const numAttempts = 3;
 
 function envReset() {
 	console.log( execSyncShellCommand( 'pwd' ) );
-	execSyncShellCommand( 'pnpm env:reset' );
-	execSyncShellCommand( 'pnpm tunnel:reset' );
+	console.log( './bin/e2e-env.sh reset' );
+	console.log( execSyncShellCommand( './bin/e2e-env.sh reset' ) );
+	// console.log( execSyncShellCommand( 'pnpm env:reset' ) );
+	console.log( './bin/tunnel.sh reset' );
+	console.log( execSyncShellCommand( './bin/tunnel.sh reset' ) );
+	// console.log( execSyncShellCommand( 'pnpm tunnel:reset' ) );
+	console.log( 'Done with env reset' );
 }
 
 async function envSetup( type ) {
