@@ -1,6 +1,6 @@
 {
 	"name": "@automattic/jetpack-shared-extension-utils",
-	"version": "0.2.0-alpha",
+	"version": "0.2.0",
 	"description": "Utility functions used by the block editor extensions",
 	"homepage": "https://jetpack.com",
 	"bugs": {

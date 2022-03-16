@@ -1,7 +1,7 @@
 {
 	"private": true,
 	"name": "@automattic/jetpack-google-fonts-provider",
-	"version": "0.2.0-alpha",
+	"version": "0.2.0",
 	"description": "WordPress Webfonts provider for Google Fonts",
 	"homepage": "https://jetpack.com",
 	"bugs": {
