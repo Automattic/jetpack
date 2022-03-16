@@ -1,7 +1,6 @@
 /**
  * External dependencies
  */
-import analytics from 'lib/analytics';
 import React, { useState, useCallback } from 'react';
 import { connect } from 'react-redux';
 
@@ -15,6 +14,7 @@ import {
 	isFetchingStatsData,
 } from 'state/at-a-glance';
 import BarChart from './bar-chart';
+import analytics from 'lib/analytics';
 
 import './style.scss';
 
