@@ -57,3 +57,9 @@ Errored.args = {
 	...DefaultArgs,
 	displayButtonError: true,
 };
+
+export const Footer = Template.bind( {} );
+Footer.args = {
+	...DefaultArgs,
+	footer: <div>Hi I'm a Footer</div>,
+};

@@ -2,6 +2,72 @@
 
 ### This is a list detailing changes for all Jetpack releases.
 
+## 10.8-a.7 - 2022-03-15
+### Enhancements
+- Dashboard: add toggle to enable new Google Fonts feature.
+- Jetpack: add QRPost feature which generates QR codes for published posts. Currently a JETPACK_BETA_BLOCKS feature.
+- Premium Content block: use a drop down menu rather than two buttons to switch between the guest/subscriber views.
+- VideoPress: updated design of resumable uploader block.
+
+### Improved compatibility
+- General: clean up use of deprecated FILTER_SANITIZE_STRING constant. Also mark WPCom_Markdown::get_post_screen_post_type as deprecated due to lack of use.
+
+### Bug fixes
+- Google Analytics: fix showing an upgrade button with the latest Jetpack security plans.
+- Jetpack: fix missing "Connect User" button after restoring a connection.
+- Pay with PayPal widget: enable widget to work in block-based widget editor and full site editor.
+- SEO Tools: ensure Twitter cards get correct description when a site has a blank tagline.
+- Payments: swap JETPACK_VERSION for the correct JETPACK__VERSION.
+- Premium Content block: when a visitor subscribes, they now see the premium content without needing to reload the page.
+
+### Other changes <!-- Non-user-facing changes go here. This section will not be copied to readme.txt. -->
+- Admin Page: use a dynamic version in cache buster on dev environment.
+- Admin Page: remove wp_kses() as it's not needed for static.html.
+- Fix Sync related flaky test.
+- Google Fonts: update the method used to preconnect Fonts source domain.
+- If the mapbox API call returns a completely invalid response, treat it as a failure rather than a success.
+- Moved with-has-warning-is-interactive-class-names folder to js-package/shared-extension-utils and updated imports.
+- PHPCS changes for the Pay with Paypal feature.
+- Search: improve Search E2E tests stability.
+- Search: moved globals to a class for sake of autoloading correctly.
+- Updated package dependencies.
+
+## 10.8-a.5 - 2022-03-08
+### Bug Fixes
+- Fixes an issue preventing WooCommerce from upgrading to 6.3.0.
+
+## 10.8-a.3 - 2022-03-08
+### Enhancements
+- Jetpack: assistant style updates and other improvements.
+- Jetpack: using the new Webfont API in Gutenberg, registers a selection of Google fonts for use with block and Global styles.
+- Markdown block: add default spacing controls.
+- Masterbar: make the Desktop Switcher look the same between Calypso and wp-admin.
+- Payments Block: adds a link to the support reference page on the block configuration panel.
+- Payment Button Block: make Stripe connection button visible from child block elements.
+
+### Improved compatibility
+- Premium Content Block: prevent block from being nested inside itself.
+- Various Blocks: remove deprecated attributes from Button components.
+- CLI Tools: ensure WP CLI is present before extending the class.
+
+### Bug fixes
+- Jetpack: remove the duplicated `jetpack_relatedposts_returned_results filter`.
+- Premium Content Block: login button now redirects to the correct post instead of to a 404 page when the URL contains characters that have been previously encoded.
+- Payment Blocks: fixes an issue with the upgrade banner being obscured from all payment blocks.
+
+### Other changes <!-- Non-user-facing changes go here. This section will not be copied to readme.txt. -->
+- Jetpack: added jetpack_upload_handler_can_upload filter for blocking specific file uploads.
+- Admin pages: reverting code added in #23219 to fix a bug.
+- Fix newly-detected PHPCS sniffs in some tests. Also fix a test mock that was returning false rather than null like the class it's mocking would.
+- PHPCS errors and notices fixed for admin pages
+- Protect: simplify the transient clean up process preparation.
+- QR Plugin: update registration
+- Refactor ExternalLink to use core package
+- Search: Move customizer integration into search package
+- Stats: improve accessibility and performance for the admin dashboard widget.
+- Update `@size-limit/preset-app` dependency to match `size-limit`.
+- Jetpack: add post-publish-qr-post-panel block editor plugin.
+
 ## 10.8-a.1 - 2022-03-02
 ### Enhancements
 - Payment Blocks: add a unified introduction to payment blocks to make it easier to select the correct one.

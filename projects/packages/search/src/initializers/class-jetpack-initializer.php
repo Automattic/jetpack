@@ -17,6 +17,9 @@ class Jetpack_Initializer extends Initializer {
 	 * Initializes either the Classic Search or the Instant Search experience.
 	 */
 	public static function initialize() {
+		// Set up package version hook.
+		add_filter( 'jetpack_package_versions', __NAMESPACE__ . '\Package::send_version_to_tracker' );
+
 		// Check whether Jetpack Search should be initialized in the first place.
 		if ( ! self::is_connected() || ! self::is_search_supported() ) {
 			/**
@@ -30,10 +33,14 @@ class Jetpack_Initializer extends Initializer {
 			return;
 		}
 
-		$blog_id = \Jetpack::get_option( 'id' );
+		$blog_id = Helper::get_wpcom_site_id();
 		if ( ! $blog_id ) {
 			do_action( 'jetpack_search_abort', 'no_blog_id', null );
 			return;
+		}
+
+		if ( defined( 'WP_CLI' ) && \WP_CLI ) {
+			\WP_CLI::add_command( 'jetpack-search', __NAMESPACE__ . '\CLI' );
 		}
 
 		// registers Jetpack Search widget.
@@ -51,9 +58,7 @@ class Jetpack_Initializer extends Initializer {
 
 			// Enable configuring instant search within the Customizer.
 			if ( class_exists( 'WP_Customize_Manager' ) ) {
-				// TODO: Port this class to the package.
-				require_once JETPACK__PLUGIN_DIR . 'modules/search/class-jetpack-search-customize.php';
-				new \Jetpack_Search_Customize();
+				new Customizer();
 			}
 		} else {
 			// Enable the classic search experience.
@@ -65,8 +70,7 @@ class Jetpack_Initializer extends Initializer {
 	 * Check if site has been connected.
 	 */
 	public static function is_connected() {
-		// TODO: 'jetpack-search' better to be the current plugin where the package is running.
-		return ( new Connection_Manager( 'jetpack-search' ) )->is_connected();
+		return ( new Connection_Manager( Package::SLUG ) )->is_connected();
 	}
 
 	/**

@@ -35,7 +35,7 @@ export default function Sidebar( props ) {
 				<Button
 					aria-label={ __( 'Show preview', 'jetpack-search-pkg' ) }
 					className="jp-search-configure-sidebar__hide-settings-button"
-					isSecondary
+					variant="secondary"
 					onClick={ disableSidebar }
 				>
 					<Icon icon={ image } />

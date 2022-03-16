@@ -48,9 +48,13 @@ export const resumableUploader = ( { onError, onProgress, onSuccess } ) => {
 				}
 
 				const GUID_HEADER = 'x-videopress-upload-guid';
+				const MEDIA_ID_HEADER = 'x-videopress-upload-media-id';
+				const SRC_URL_HEADER = 'x-videopress-upload-src-url';
 				const guid = res.getHeader( GUID_HEADER );
-				if ( guid ) {
-					onSuccess && onSuccess( guid );
+				const mediaId = res.getHeader( MEDIA_ID_HEADER );
+				const src = res.getHeader( SRC_URL_HEADER );
+				if ( guid && mediaId && src ) {
+					onSuccess && onSuccess( { mediaId: Number( mediaId ), guid, src } );
 					return;
 				}
 
