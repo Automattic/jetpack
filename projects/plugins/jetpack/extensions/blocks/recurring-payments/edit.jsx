@@ -474,10 +474,10 @@ export class MembershipsButtonEdit extends Component {
 		);
 
 		const blockControls = (
-			<BlockControls __experimentalShareWithChildBlocks>
+			<BlockControls __experimentalShareWithChildBlocks group="block">
 				<ToolbarControls
 					connected={ connected !== API_STATE_NOTCONNECTED }
-					connectURL={ getConnectUrl( this.props.postId, connectURL ) }
+					connectUrl={ getConnectUrl( this.props.postId, connectURL ) }
 					hasUpgradeNudge={ this.hasUpgradeNudge }
 					shouldUpgrade={ this.state.shouldUpgrade }
 				/>

@@ -46,9 +46,8 @@ test.describe( 'Search Configure', () => {
 	} );
 
 	test.beforeEach( async ( { page } ) => {
-		searchConfigure = await SearchConfigure.visit( page );
 		await searchAPIRoute( page );
-		await searchConfigure.waitForPage();
+		searchConfigure = await SearchConfigure.visit( page );
 		await searchConfigure.waitForNetworkIdle();
 	} );
 
@@ -74,8 +73,8 @@ test.describe( 'Search Configure', () => {
 		await test.step( 'Settings stick after reload', async () => {
 			// Reload the page.
 			await searchConfigure.reload();
-			await searchConfigure.waitForPage();
 			await searchConfigure.waitForNetworkIdle();
+
 			// Settings do stick.
 			expect( await searchConfigure.isDarkTheme() ).toBeTruthy();
 			expect( await searchConfigure.isHighlightPink() ).toBeTruthy();
