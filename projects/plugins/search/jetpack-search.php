@@ -41,16 +41,8 @@ defined( 'JETPACK__SANDBOX_DOMAIN' ) || define( 'JETPACK__SANDBOX_DOMAIN', '' );
 defined( 'JETPACK_SIGNATURE__HTTP_PORT' ) || define( 'JETPACK_SIGNATURE__HTTP_PORT', 80 );
 defined( 'JETPACK_SIGNATURE__HTTPS_PORT' ) || define( 'JETPACK_SIGNATURE__HTTPS_PORT', 443 );
 
-/**
- * Setup autoloading
- */
 $autoload_packages_path = JETPACK_SEARCH_PLUGIN__DIR . '/vendor/autoload_packages.php';
-if ( is_readable( $autoload_packages_path ) ) {
-	require_once $autoload_packages_path;
-	if ( method_exists( Assets::class, 'alias_textdomains_from_file' ) ) {
-		Assets::alias_textdomains_from_file( JETPACK_SEARCH_PLUGIN__DIR . '/jetpack_vendor/i18n-map.php' );
-	}
-} else {
+if ( ! is_readable( $autoload_packages_path ) ) {
 	if ( defined( 'WP_DEBUG' ) && WP_DEBUG ) {
 		error_log( // phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_error_log
 			sprintf(
@@ -103,7 +95,18 @@ function include_compatibility_files() {
 		require_once __DIR__ . '/compatibility/jetpack.php';
 	}
 }
-
 add_action( 'plugins_loaded', __NAMESPACE__ . '\include_compatibility_files' );
+
+/**
+ * Setup autoloading
+ */
+require_once $autoload_packages_path;
+
+/**
+ * Load jetpack packages i18n map.
+ */
+if ( method_exists( Assets::class, 'alias_textdomains_from_file' ) ) {
+	Assets::alias_textdomains_from_file( JETPACK_SEARCH_PLUGIN__DIR . '/jetpack_vendor/i18n-map.php' );
+}
 
 Jetpack_Search_Plugin::initiallize();
