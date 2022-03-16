@@ -149,9 +149,8 @@ class Initializer {
 		// Instantiate "Customberg", the live search configuration interface.
 		Customberg::instance();
 		// Enable configuring instant search within the Customizer.
-		if ( class_exists( 'WP_Customize_Manager' ) ) {
-			new Customizer();
-		}
+		// Not need to check existence of `WP_Customize_Manager`, because which is not loaded all the time.
+		new Customizer();
 	}
 
 	/**
@@ -159,6 +158,7 @@ class Initializer {
 	 */
 	protected function init_classic_search() {
 		if ( ! apply_filters( 'jetpack_search_init_classic_search', true ) ) {
+			do_action( 'jetpack_search_abort', 'jetpack_search_init_classic_search_filter', null );
 			return;
 		}
 		Classic_Search::initialize( $this->blog_id );
