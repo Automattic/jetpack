@@ -1,4 +1,4 @@
-<?php //phpcs:ignore WordPress.Files.FileName.InvalidClassFileName
+<?php // phpcs:ignore WordPress.Files.FileName.InvalidClassFileName
 /**
  * Module Name: Protect
  * Module Description: Enabling brute force protection will prevent bots and hackers from attempting to log in to your website with common username and password combinations.
@@ -135,7 +135,7 @@ class Jetpack_Protect_Module {
 		add_action( 'login_form', array( $this, 'check_login_ability' ), 1 );
 
 		// Load math fallback after math page form submission.
-		if ( isset( $_POST['jetpack_protect_process_math_form'] ) ) {
+		if ( isset( $_POST['jetpack_protect_process_math_form'] ) ) { // phpcs:ignore WordPress.Security.NonceVerification.Missing -- POST request just determines if we need to use Math for Authentication.
 			include_once __DIR__ . '/protect/math-fallback.php';
 			new Jetpack_Protect_Math_Authenticate();
 		}
@@ -192,7 +192,7 @@ class Jetpack_Protect_Module {
 		$updated_recently = $this->get_transient( 'jpp_headers_updated_recently' );
 
 		if ( ! $force ) {
-			if ( isset( $_GET['protect_update_headers'] ) ) {
+			if ( isset( $_GET['protect_update_headers'] ) ) { // phpcs:ignore WordPress.Security.NonceVerification.Recommended -- this doesn't change anything, just forces the once-a-day check to run via force if set.
 				$force = true;
 			}
 		}
@@ -460,7 +460,7 @@ class Jetpack_Protect_Module {
 			$this->block_with_math();
 		}
 
-		if ( ( 1 == $use_math || 1 == $this->block_login_with_math ) && isset( $_POST['log'] ) ) { // phpcs:ignore Universal.Operators.StrictComparisons.LooseEqual
+		if ( ( 1 == $use_math || 1 == $this->block_login_with_math ) && isset( $_POST['log'] ) ) { // phpcs:ignore Universal.Operators.StrictComparisons.LooseEqual, WordPress.Security.NonceVerification.Missing -- POST request just determines if we use math authentication.
 			include_once __DIR__ . '/protect/math-fallback.php';
 			Jetpack_Protect_Math_Authenticate::math_authenticate();
 		}
@@ -566,7 +566,7 @@ class Jetpack_Protect_Module {
 		if ( empty( $status ) ) {
 			// If we've reached this point, this means that the IP isn't cached.
 			// Now we check with the Protect API to see if we should allow login.
-			$response = $this->protect_call( $action = 'check_ip' );
+			$response = $this->protect_call( $action = 'check_ip' ); // phpcs:ignore Squiz.PHP.DisallowMultipleAssignments.Found
 
 			if ( isset( $response['math'] ) && ! function_exists( 'brute_math_authenticate' ) ) {
 				include_once __DIR__ . '/protect/math-fallback.php';
@@ -582,7 +582,7 @@ class Jetpack_Protect_Module {
 			$this->block_with_math();
 		}
 
-		if ( 'blocked-hard' == $status ) {
+		if ( 'blocked-hard' === $status ) {
 			$this->kill_login();
 		}
 
@@ -630,18 +630,24 @@ class Jetpack_Protect_Module {
 		}
 	}
 
-	function has_login_ability() {
+	/**
+	 * Check if someone is able to login based on IP.
+	 */
+	public function has_login_ability() {
 		if ( $this->is_current_ip_whitelisted() ) {
 			return true;
 		}
 		$status = $this->get_cached_status();
-		if ( empty( $status ) || $status === 'ok' ) {
+		if ( empty( $status ) || 'ok' === $status ) {
 			return true;
 		}
 		return false;
 	}
 
-	function get_cached_status() {
+	/**
+	 * Check the status of the cached transient.
+	 */
+	public function get_cached_status() {
 		$transient_name = $this->get_transient_name();
 		$value          = $this->get_transient( $transient_name );
 		if ( isset( $value['status'] ) ) {
@@ -650,7 +656,10 @@ class Jetpack_Protect_Module {
 		return '';
 	}
 
-	function block_with_math() {
+	/**
+	 * Check if we need to block with a math question to continue logging in.
+	 */
+	public function block_with_math() {
 		/**
 		 * By default, Protect will allow a user who has been blocked for too
 		 * many failed logins to start answering math questions to continue logging in
@@ -684,10 +693,10 @@ class Jetpack_Protect_Module {
 		return false;
 	}
 
-	/*
+	/**
 	 * Kill a login attempt
 	 */
-	function kill_login() {
+	public function kill_login() {
 		if (
 			isset( $_GET['action'], $_GET['_wpnonce'] ) &&
 			'logout' === $_GET['action'] &&
@@ -695,7 +704,7 @@ class Jetpack_Protect_Module {
 			wp_get_current_user()
 
 		) {
-			// Allow users to logout
+			// Allow users to logout.
 			return;
 		}
 
@@ -712,10 +721,11 @@ class Jetpack_Protect_Module {
 		do_action( 'jpp_kill_login', $ip );
 
 		if ( defined( 'XMLRPC_REQUEST' ) && XMLRPC_REQUEST ) {
+			// translators: variable is the IP address that was flagged.
 			$die_string = sprintf( __( 'Your IP (%1$s) has been flagged for potential security violations.', 'jetpack' ), str_replace( 'http://', '', esc_url( 'http://' . $ip ) ) );
 			wp_die(
-				$die_string,
-				__( 'Login Blocked by Jetpack', 'jetpack' ),
+				$die_string, // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- esc_url used when forming string.
+				__( 'Login Blocked by Jetpack', 'jetpack' ), // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
 				array( 'response' => 403 )
 			);
 		}
@@ -730,7 +740,7 @@ class Jetpack_Protect_Module {
 		$blocked_login_page->render_and_die();
 	}
 
-	/*
+	/**
 	 * Checks if the protect API call has failed, and if so initiates the math captcha fallback.
 	 */
 	public function check_use_math() {
@@ -774,6 +784,9 @@ class Jetpack_Protect_Module {
 		return $id;
 	}
 
+	/**
+	 * Checks the API key.
+	 */
 	public function check_api_key() {
 		$response = $this->protect_call( 'check_key' );
 
@@ -783,11 +796,11 @@ class Jetpack_Protect_Module {
 
 		if ( isset( $response['error'] ) ) {
 
-			if ( $response['error'] == 'Invalid API Key' ) {
+			if ( 'Invalid API Key' === $response['error'] ) {
 				$this->api_key_error = __( 'Your API key is invalid', 'jetpack' );
 			}
 
-			if ( $response['error'] == 'API Key Required' ) {
+			if ( 'API Key Required' === $response['error'] ) {
 				$this->api_key_error = __( 'No API key', 'jetpack' );
 			}
 		}
@@ -800,8 +813,8 @@ class Jetpack_Protect_Module {
 	/**
 	 * Calls over to the api using wp_remote_post
 	 *
-	 * @param string $action 'check_ip', 'check_key', or 'failed_attempt'
-	 * @param array  $request Any custom data to post to the api
+	 * @param string $action - 'check_ip', 'check_key', or 'failed_attempt'.
+	 * @param array  $request - Any custom data to post to the api.
 	 *
 	 * @return array
 	 */
@@ -815,7 +828,7 @@ class Jetpack_Protect_Module {
 		$request['action']            = $action;
 		$request['ip']                = jetpack_protect_get_ip();
 		$request['host']              = $this->get_local_host();
-		$request['headers']           = json_encode( $this->get_headers() );
+		$request['headers']           = wp_json_encode( $this->get_headers() );
 		$request['jetpack_version']   = constant( 'JETPACK__VERSION' );
 		$request['wordpress_version'] = (string) $wp_version;
 		$request['api_key']           = $api_key;
@@ -861,7 +874,7 @@ class Jetpack_Protect_Module {
 			$response['expire'] = time() + $response['seconds_remaining'];
 			$this->set_transient( $transient_name, $response, $response['seconds_remaining'] );
 			$this->delete_transient( 'brute_use_math' );
-		} else { // Fallback to Math Captcha if no response from API host
+		} else { // Fallback to Math Captcha if no response from API host.
 			$this->set_transient( 'brute_use_math', 1, 600 );
 			$response['status'] = 'ok';
 			$response['math']   = true;
@@ -876,9 +889,12 @@ class Jetpack_Protect_Module {
 		return $response;
 	}
 
-	function get_transient_name() {
+	/**
+	 * Gets the transient name.
+	 */
+	public function get_transient_name() {
 		$headers     = $this->get_headers();
-		$header_hash = md5( json_encode( $headers ) );
+		$header_hash = md5( wp_json_encode( $headers ) );
 
 		return 'jpp_li_' . $header_hash;
 	}
@@ -899,7 +915,7 @@ class Jetpack_Protect_Module {
 	 *
 	 * @return bool False if value was not set and true if value was set.
 	 */
-	function set_transient( $transient, $value, $expiration ) {
+	public function set_transient( $transient, $value, $expiration ) {
 		if ( is_multisite() && ! is_main_site() ) {
 			switch_to_blog( $this->get_main_blog_id() );
 			$return = set_transient( $transient, $value, $expiration );
@@ -919,7 +935,7 @@ class Jetpack_Protect_Module {
 	 *
 	 * @return bool true if successful, false otherwise
 	 */
-	function delete_transient( $transient ) {
+	public function delete_transient( $transient ) {
 		if ( is_multisite() && ! is_main_site() ) {
 			switch_to_blog( $this->get_main_blog_id() );
 			$return = delete_transient( $transient );
@@ -939,7 +955,7 @@ class Jetpack_Protect_Module {
 	 *
 	 * @return mixed Value of transient.
 	 */
-	function get_transient( $transient ) {
+	public function get_transient( $transient ) {
 		if ( is_multisite() && ! is_main_site() ) {
 			switch_to_blog( $this->get_main_blog_id() );
 			$return = get_transient( $transient );
@@ -951,7 +967,10 @@ class Jetpack_Protect_Module {
 		return get_transient( $transient );
 	}
 
-	function get_local_host() {
+	/**
+	 * Returns the local host.
+	 */
+	public function get_local_host() {
 		if ( isset( $this->local_host ) ) {
 			return $this->local_host;
 		}
@@ -966,7 +985,7 @@ class Jetpack_Protect_Module {
 
 		$domain = $uridata['host'];
 
-		// If we still don't have the site_url, get it
+		// If we still don't have the site_url, get it.
 		if ( ! $domain ) {
 			$uri     = get_site_url( 1 );
 			$uridata = wp_parse_url( $uri );
