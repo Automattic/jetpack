@@ -21,6 +21,13 @@ class Initializer {
 	protected $blog_id;
 
 	/**
+	 * Instance of Module_Control
+	 *
+	 * @var Module_Control
+	 */
+	protected $module_control;
+
+	/**
 	 * Initialize
 	 */
 	public static function init() {
