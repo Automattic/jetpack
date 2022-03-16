@@ -4,6 +4,8 @@
 import { getRedirectUrl } from '@automattic/jetpack-components';
 import { ExternalLink } from '@wordpress/components';
 import { PluginPostPublishPanel } from '@wordpress/edit-post';
+import { useSelect } from '@wordpress/data';
+import { store as editorStore } from '@wordpress/editor';
 import { currencyDollar } from '@wordpress/icons';
 import { __ } from '@wordpress/i18n';
 
@@ -21,6 +23,11 @@ const PaymentsPostPublish = () => {
 		analytics.tracks.recordEvent( 'jetpack_editor_payments_post_publish_click' );
 		autosaveAndRedirect( event, true );
 	};
+	const postType = useSelect( select => select( editorStore ).getCurrentPostType(), [] );
+
+	if ( 'page' !== postType ) {
+		return null;
+	}
 
 	return (
 		<PluginPostPublishPanel
