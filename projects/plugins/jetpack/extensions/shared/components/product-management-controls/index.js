@@ -16,7 +16,7 @@ import InvalidProductWarning from './invalid-product-warning';
 import './style.scss';
 
 export default function ProductManagementControls( {
-	allowOneTimeInterval = true,
+	allowCreateOneTimeInterval = true,
 	isVisible = true,
 	preventFetchingProducts = false,
 	selectedProductId,
@@ -41,7 +41,7 @@ export default function ProductManagementControls( {
 	return isVisible ? (
 		<>
 			<ProductManagementInspectorControl
-				allowOneTimeInterval={ allowOneTimeInterval }
+				allowCreateOneTimeInterval={ allowCreateOneTimeInterval }
 				saveProduct={ saveProduct }
 			/>
 			<ProductManagementToolbarControl

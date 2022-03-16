@@ -152,7 +152,7 @@ function Edit( props ) {
 		<>
 			{ shouldShowConnectButton() && (
 				<BlockControls group="block">
-					<StripeConnectToolbarButton blockName="premium-content" connectUrl={ connectURL } />
+					<StripeConnectToolbarButton blockName="premium-content" connectUrl={ connectUrl } />
 				</BlockControls>
 			) }
 
@@ -166,7 +166,7 @@ function Edit( props ) {
 
 			<div className={ className } ref={ wrapperRef }>
 				<ProductManagementControls
-					allowOneTimeInterval={ false }
+					allowCreateOneTimeInterval={ false }
 					isVisible={ ( isSelected || selectedInnerBlock ) && apiState === API_STATE_CONNECTED }
 					preventFetchingProducts
 					selectedProductId={ props.attributes.selectedPlanId }

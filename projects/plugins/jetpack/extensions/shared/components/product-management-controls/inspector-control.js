@@ -24,7 +24,10 @@ import { API_STATE_NOT_REQUESTING, API_STATE_REQUESTING } from './constants';
 import { jetpackMembershipProductsStore } from './store';
 import { CURRENCY_OPTIONS } from '../../currencies';
 
-export default function ProductManagementInspectorControl( { allowOneTimeInterval, saveProduct } ) {
+export default function ProductManagementInspectorControl( {
+	allowCreateOneTimeInterval,
+	saveProduct,
+} ) {
 	const siteSlug = useSelect( select => select( jetpackMembershipProductsStore ).getSiteSlug() );
 
 	const [ apiState, setApiState ] = useState( API_STATE_NOT_REQUESTING );
@@ -37,7 +40,7 @@ export default function ProductManagementInspectorControl( { allowOneTimeInterva
 		{ label: __( 'Month', 'jetpack' ), value: '1 month' },
 		{ label: __( 'Year', 'jetpack' ), value: '1 year' },
 	];
-	if ( allowOneTimeInterval ) {
+	if ( allowCreateOneTimeInterval ) {
 		intervalOptions.concat( [ { label: __( 'One-Time Payment', 'jetpack' ), value: 'one-time' } ] );
 	}
 
