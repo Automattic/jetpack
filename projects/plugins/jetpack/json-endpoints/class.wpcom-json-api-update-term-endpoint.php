@@ -1,4 +1,12 @@
-<?php
+<?php // phpcs:ignore WordPress.Files.FileName.InvalidClassFileName
+/**
+ * Update site terms API endpoints.
+ *
+ * Endpoints:
+ * Create a new term: /sites/%s/taxonomies/%s/terms/new
+ * Edit a term:       /sites/%s/taxonomies/%s/terms/slug:%s
+ * Delete a term:     /sites/%s/taxonomies/%s/terms/slug:%s/delete
+ */
 
 new WPCOM_JSON_API_Update_Term_Endpoint(
 	array(
@@ -82,11 +90,23 @@ new WPCOM_JSON_API_Update_Term_Endpoint(
 	)
 );
 
+/**
+ * Update site terms API endpoint class.
+ */
 class WPCOM_JSON_API_Update_Term_Endpoint extends WPCOM_JSON_API_Taxonomy_Endpoint {
-	// /sites/%s/taxonomies/%s/terms/new            -> $blog_id, $taxonomy
-	// /sites/%s/taxonomies/%s/terms/slug:%s        -> $blog_id, $taxonomy, $slug
-	// /sites/%s/taxonomies/%s/terms/slug:%s/delete -> $blog_id, $taxonomy, $slug
-	function callback( $path = '', $blog_id = 0, $taxonomy = 'category', $slug = 0 ) {
+	/**
+	 * Update site terms API callback.
+	 *
+	 * - /sites/%s/taxonomies/%s/terms/new            -> $blog_id, $taxonomy
+	 * - /sites/%s/taxonomies/%s/terms/slug:%s        -> $blog_id, $taxonomy, $slug
+	 * - /sites/%s/taxonomies/%s/terms/slug:%s/delete -> $blog_id, $taxonomy, $slug
+	 *
+	 * @param string     $path API path.
+	 * @param int        $blog_id Blog ID.
+	 * @param string     $taxonomy Taxonomy.
+	 * @param int|string $slug Slug, term name.
+	 */
+	public function callback( $path = '', $blog_id = 0, $taxonomy = 'category', $slug = 0 ) {
 		$slug    = urldecode( $slug );
 		$blog_id = $this->api->switch_to_blog_and_validate_user( $this->api->get_blog_id( $blog_id ) );
 		if ( is_wp_error( $blog_id ) ) {
@@ -120,8 +140,16 @@ class WPCOM_JSON_API_Update_Term_Endpoint extends WPCOM_JSON_API_Taxonomy_Endpoi
 		return $this->update_term( $path, $blog_id, $slug, $taxonomy );
 	}
 
-	// /sites/%s/taxonomies/%s/terms/new -> $blog_id, $taxonomy
-	function new_term( $path, $blog_id, $taxonomy ) {
+	/**
+	 * Create a new term.
+	 *
+	 * - /sites/%s/taxonomies/%s/terms/new -> $blog_id, $taxonomy
+	 *
+	 * @param string $path API path.
+	 * @param int    $blog_id Blog ID.
+	 * @param string $taxonomy Taxonomy.
+	 */
+	public function new_term( $path, $blog_id, $taxonomy ) {
 		$args  = $this->query_args();
 		$input = $this->input();
 		if ( ! is_array( $input ) || ! $input || ! strlen( $input['name'] ) ) {
@@ -138,7 +166,7 @@ class WPCOM_JSON_API_Update_Term_Endpoint extends WPCOM_JSON_API_Taxonomy_Endpoi
 		}
 
 		if ( $term = get_term_by( 'name', $input['name'], $taxonomy ) ) {
-			// the same name is allowed as long as the parents are different
+			// the same name is allowed as long as the parents are different.
 			if ( $input['parent'] === $term->parent ) {
 				return new WP_Error( 'duplicate', 'A taxonomy with that name already exists', 409 );
 			}
@@ -169,8 +197,17 @@ class WPCOM_JSON_API_Update_Term_Endpoint extends WPCOM_JSON_API_Taxonomy_Endpoi
 		return $return;
 	}
 
-	// /sites/%s/taxonomies/%s/terms/slug:%s -> $blog_id, $taxonomy, $slug
-	function update_term( $path, $blog_id, $slug, $taxonomy ) {
+	/**
+	 * Update a term.
+	 *
+	 * - /sites/%s/taxonomies/%s/terms/slug:%s -> $blog_id, $taxonomy, $slug
+	 *
+	 * @param string     $path API path.
+	 * @param int        $blog_id Blog ID.
+	 * @param int|string $slug Slug, term name.
+	 * @param string     $taxonomy Taxonomy.
+	 */
+	public function update_term( $path, $blog_id, $slug, $taxonomy ) {
 		$tax = get_taxonomy( $taxonomy );
 		if ( ! current_user_can( $tax->cap->edit_terms ) ) {
 			return new WP_Error( 'unauthorized', 'User cannot edit taxonomy', 403 );
@@ -217,8 +254,17 @@ class WPCOM_JSON_API_Update_Term_Endpoint extends WPCOM_JSON_API_Taxonomy_Endpoi
 		return $return;
 	}
 
-	// /sites/%s/taxonomies/%s/terms/slug:%s/delete -> $blog_id, $taxonomy, $slug
-	function delete_term( $path, $blog_id, $slug, $taxonomy ) {
+	/**
+	 * Delete a term.
+	 *
+	 * - /sites/%s/taxonomies/%s/terms/slug:%s/delete -> $blog_id, $taxonomy, $slug
+	 *
+	 * @param string     $path API path.
+	 * @param int        $blog_id Blog ID.
+	 * @param int|string $slug Slug, term name.
+	 * @param string     $taxonomy Taxonomy.
+	 */
+	public function delete_term( $path, $blog_id, $slug, $taxonomy ) {
 		$term = get_term_by( 'slug', $slug, $taxonomy );
 		$tax  = get_taxonomy( $taxonomy );
 		if ( ! current_user_can( $tax->cap->delete_terms ) ) {
