@@ -117,7 +117,7 @@ class Initializer {
 	 * Init the search package.
 	 */
 	protected function init_search_package() {
-		// We could possible provide CLI to enable search/instant search, so init them regardless whehter the module is active or not.
+		// We could provide CLI to enable search/instant search, so init them regardless of whether the module is active or not.
 		$this->init_cli();
 
 		$module_control = new Module_Control();
