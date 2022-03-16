@@ -83,8 +83,8 @@ async function checkChangelogFiles() {
 		} catch ( e ) {
 			console.log( 'Something went wrong', e );
 		}
+		process.exitCode = 1;
 	}
-	process.exitCode = 1;
 }
 
 checkChangelogFiles();
