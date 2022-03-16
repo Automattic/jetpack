@@ -11,6 +11,8 @@ export const getConnectUrl = state => state.connectUrl;
 
 export const getProducts = state => state.products;
 
+export const getProductsNoResolver = state => getProducts( state );
+
 export const getProduct = ( state, productId ) =>
 	getProducts( state ).find( product => product.id === productId );
 

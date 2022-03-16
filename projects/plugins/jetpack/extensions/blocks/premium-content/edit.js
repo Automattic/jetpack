@@ -1,7 +1,7 @@
 /**
  * WordPress dependencies
  */
-import { useEffect, useState, useRef } from '@wordpress/element';
+import { useEffect, useState } from '@wordpress/element';
 import { Disabled, Placeholder, Spinner } from '@wordpress/components';
 import { __ } from '@wordpress/i18n';
 import { useViewportMatch } from '@wordpress/compose';
@@ -15,15 +15,8 @@ import Context from './_inc/context';
 import './editor.scss';
 import ViewSelector from './_inc/view-selector';
 import ProductManagementControls from '../../shared/components/product-management-controls';
-import {
-	API_STATE_LOADING,
-	API_STATE_CONNECTED,
-} from '../../shared/components/product-management-controls/constants';
+import { API_STATE_LOADING } from '../../shared/components/product-management-controls/constants';
 import useProducts from '../../shared/components/product-management-controls/use-products';
-
-/**
- * @typedef { import('./plan').Plan } Plan
- */
 
 /**
  * Tab definitions
@@ -70,21 +63,15 @@ const WALL_TAB = 1;
 
 function Edit( props ) {
 	const [ selectedTab, selectTab ] = useState( tabs[ WALL_TAB ] );
-	const [ selectedInnerBlock, hasSelectedInnerBlock ] = useState( false );
 	const { isPreview } = props.attributes;
-	const { clientId } = props;
+	const { clientId, selectedPlanId, isSelected, className, setAttributes } = props;
 
-	const setSelectedProductId = productId => props.setAttributes( { selectedPlanId: productId } );
-	const { apiState } = useProducts( setSelectedProductId );
-
-	//We would like to hide the tabs and controls when user clicks outside the premium content block
-	/**
-	 * @type { ContainerRef }
-	 */
-	const wrapperRef = useRef( null );
-	useOutsideAlerter( wrapperRef, hasSelectedInnerBlock );
-
-	const { isSelected, className } = props;
+	const setSelectedProductId = productId => setAttributes( { selectedPlanId: productId } );
+	const { apiState } = useProducts( {
+		selectedProductId: selectedPlanId,
+		setSelectedProductId,
+		shouldSkipResolver: isPreview,
+	} );
 
 	const selectedBlock = useSelect( selector => selector( 'core/block-editor' ).getSelectedBlock() );
 
@@ -121,7 +108,7 @@ function Edit( props ) {
 
 	if ( apiState === API_STATE_LOADING && ! isPreview ) {
 		return (
-			<div className={ className } ref={ wrapperRef }>
+			<div className={ className }>
 				<Placeholder
 					icon="lock"
 					label={ __( 'Premium Content', 'jetpack' ) }
@@ -135,12 +122,13 @@ function Edit( props ) {
 
 	return (
 		<>
-			<ProductManagementControls
-				allowCreateOneTimeInterval={ false }
-				isVisible={ ( isSelected || selectedInnerBlock ) && apiState === API_STATE_CONNECTED }
-				selectedProductId={ props.attributes.selectedPlanId }
-				setSelectedProductId={ setSelectedProductId }
-			/>
+			{ ! isPreview && (
+				<ProductManagementControls
+					allowCreateOneTimeInterval={ false }
+					selectedProductId={ selectedPlanId }
+					setSelectedProductId={ setSelectedProductId }
+				/>
+			) }
 
 			<ViewSelector
 				options={ tabs }
@@ -150,53 +138,13 @@ function Edit( props ) {
 				label={ __( 'Change view', 'jetpack' ) }
 			/>
 
-			<div className={ className } ref={ wrapperRef }>
-				<Context.Provider
-					value={ {
-						selectedTab,
-					} }
-				>
+			<div className={ className }>
+				<Context.Provider value={ { selectedTab } }>
 					<Blocks />
 				</Context.Provider>
 			</div>
 		</>
 	);
-}
-
-/**
- * Hook that alerts clicks outside of the passed ref
- *
- * @param { ContainerRef } ref - container ref
- * @param { (clickedInside: boolean) => void } callback - callback function
- */
-function useOutsideAlerter( ref, callback ) {
-	/**
-	 * Alert if clicked on outside of element
-	 *
-	 * @param {object} event - click event
-	 */
-	function handleClickOutside( event ) {
-		if (
-			ref.current &&
-			event.target &&
-			// eslint-disable-next-line no-undef
-			event.target instanceof Node &&
-			! ref.current.contains( event.target )
-		) {
-			callback( false );
-		} else {
-			callback( true );
-		}
-	}
-
-	useEffect( () => {
-		// Bind the event listener
-		document.addEventListener( 'mousedown', handleClickOutside );
-		return () => {
-			// Unbind the event listener on clean up
-			document.removeEventListener( 'mousedown', handleClickOutside );
-		};
-	} );
 }
 
 export default function MaybeDisabledEdit( props ) {

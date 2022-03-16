@@ -18,7 +18,6 @@ import './style.scss';
 
 export default function ProductManagementControls( {
 	allowCreateOneTimeInterval = true,
-	isVisible = true,
 	selectedProductId = 0,
 	setSelectedProductId = () => {},
 } ) {
@@ -49,7 +48,7 @@ export default function ProductManagementControls( {
 					<StripeConnectToolbarButton blockName="premium-content" connectUrl={ connectUrl } />
 				</BlockControls>
 			) }
-			{ isVisible && (
+			{ apiState === API_STATE_CONNECTED && (
 				<>
 					<ProductManagementInspectorControl
 						allowCreateOneTimeInterval={ allowCreateOneTimeInterval }

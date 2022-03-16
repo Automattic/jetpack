@@ -8,15 +8,19 @@ import { useSelect } from '@wordpress/data';
  */
 import { jetpackMembershipProductsStore } from './store';
 
-export default function useProducts( selectedProductId = 0, setSelectedProductId = () => {} ) {
-	const products = useSelect(
-		select =>
-			select( jetpackMembershipProductsStore ).getProducts(
-				selectedProductId,
-				setSelectedProductId
-			),
-		[]
-	);
+export default function useProducts( {
+	selectedProductId = 0,
+	setSelectedProductId = () => {},
+	shouldSkipResolver = false,
+} ) {
+	const products = useSelect( select => {
+		const { getProducts, getProductsNoResolver } = select( jetpackMembershipProductsStore );
+		return {
+			products: shouldSkipResolver
+				? getProductsNoResolver()
+				: getProducts( selectedProductId, setSelectedProductId ),
+		};
+	}, [] );
 
 	const { apiState, connectUrl, shouldUpgrade } = useSelect( select => {
 		const { getApiState, getConnectUrl, getShouldUpgrade } = select(
