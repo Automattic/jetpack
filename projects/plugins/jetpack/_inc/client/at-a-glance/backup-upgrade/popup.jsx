@@ -10,6 +10,15 @@ import { __, sprintf } from '@wordpress/i18n';
 import Button from 'components/button';
 import React from 'react';
 
+/**
+ * The popup is a simple React component that displays a popup with a title, a lock icon, and a message
+ *
+ * @param {object} props - Props
+ * @param {number} props.posts - The post count.
+ * @param {number} props.comments - The comment count
+ * @param {Function} props.onClose - Callback when the popup is closed
+ * @returns {React.ReactElement} A React component.
+ */
 export const Popup = ( { posts, comments, onClose } ) => {
 	return (
 		<div className="jp-dash-upgrade-backup__popup">
