@@ -1,4 +1,9 @@
-<?php
+<?php // phpcs:ignore WordPress.Files.FileName.InvalidClassFileName
+/**
+ * Upload media item API endpoint.
+ *
+ * Endpoint: /sites/%s/media/new
+ */
 
 new WPCOM_JSON_API_Upload_Media_Endpoint(
 	array(
@@ -37,8 +42,17 @@ new WPCOM_JSON_API_Upload_Media_Endpoint(
 	)
 );
 
+/**
+ * Upload media item API class.
+ */
 class WPCOM_JSON_API_Upload_Media_Endpoint extends WPCOM_JSON_API_Endpoint {
-	function callback( $path = '', $blog_id = 0 ) {
+	/**
+	 * Upload media item API endpoint callback.
+	 *
+	 * @param string $path API path.
+	 * @param int    $blog_id Blog ID.
+	 */
+	public function callback( $path = '', $blog_id = 0 ) {
 		$blog_id = $this->api->switch_to_blog_and_validate_user( $this->api->get_blog_id( $blog_id ) );
 		if ( is_wp_error( $blog_id ) ) {
 			return $blog_id;
@@ -59,7 +73,7 @@ class WPCOM_JSON_API_Upload_Media_Endpoint extends WPCOM_JSON_API_Endpoint {
 			$this->api->trap_wp_die( 'upload_error' );
 			foreach ( $input['media'] as $index => $media_item ) {
 				$_FILES['.api.media.item.'] = $media_item;
-				// check for WP_Error if we ever actually need $media_id
+				// check for WP_Error if we ever actually need $media_id.
 				$media_id = media_handle_upload( '.api.media.item.', 0 );
 				if ( is_wp_error( $media_id ) ) {
 					if ( 1 === count( $input['media'] ) && ! $has_media_urls ) {
