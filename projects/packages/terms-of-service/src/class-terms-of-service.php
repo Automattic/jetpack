@@ -5,7 +5,7 @@
  * This package is now deprecated in favor of jetpack-connection
  *
  * @package automattic/jetpack-terms-of-service
- * @deprecated $$next-version$$
+ * @deprecated 1.10.0
  * @see automattic/jetpack-connection
  */
 
