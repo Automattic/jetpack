@@ -6,13 +6,14 @@ import { store as editorStore } from '@wordpress/editor';
 import { Component, Button, Modal } from '@wordpress/components';
 import { useRef, useEffect, useState } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
-import { JetpackLogo, QRCode } from '@automattic/jetpack-components';
+import { QRCode } from '@automattic/jetpack-components';
 
 /**
  * Internal dependencies
  */
 import useSiteLogo from '../hooks/use-site-logo.js';
 import { handleDownloadQRCode } from '../utils/handle-download-qr-code.js';
+import { JetpackLogo } from '../../../shared/icons.js';
 
 /**
  * React component that renders a QR code for the post,
@@ -60,7 +61,7 @@ export function QRPost() {
 				level="H"
 			/>
 
-			<JetpackLogo className="qr-post-jetpack-logo" width={ 48 } height={ 48 } showText={ false } />
+			<JetpackLogo className="qr-post-jetpack-logo" size={ 48 } border={ 2 } color="#000" />
 		</div>
 	);
 }
