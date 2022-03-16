@@ -18,7 +18,7 @@ usage() {
 	exit 1
 }
 
-BASE_CMD='jetpack docker --type e2e --name t1'
+BASE_CMD='pnpx jetpack docker --type e2e --name t1'
 
 start_env() {
 	$BASE_CMD up -d
