@@ -165,7 +165,8 @@ class WPCOM_JSON_API_Update_Term_Endpoint extends WPCOM_JSON_API_Taxonomy_Endpoi
 			$input['parent'] = 0;
 		}
 
-		if ( $term = get_term_by( 'name', $input['name'], $taxonomy ) ) {
+		$term = get_term_by( 'name', $input['name'], $taxonomy );
+		if ( $term ) {
 			// the same name is allowed as long as the parents are different.
 			if ( $input['parent'] === $term->parent ) {
 				return new WP_Error( 'duplicate', 'A taxonomy with that name already exists', 409 );
