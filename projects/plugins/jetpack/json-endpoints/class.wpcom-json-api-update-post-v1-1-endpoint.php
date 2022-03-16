@@ -656,11 +656,11 @@ class WPCOM_JSON_API_Update_Post_v1_1_Endpoint extends WPCOM_JSON_API_Post_v1_1_
 			clean_post_cache( $post_id );
 		}
 
-		// set page template for this post..
+		// set page template for this post.
 		if ( isset( $input['page_template'] ) && 'page' === $post_type->name ) {
 			$page_template  = $input['page_template'];
 			$page_templates = wp_get_theme()->get_page_templates( get_post( $post_id ) );
-			if ( empty( $page_template ) || 'default' == $page_template || isset( $page_templates[ $page_template ] ) ) { // phpcs:ignore Universal.Operators.StrictComparisons.LooseEqual
+			if ( empty( $page_template ) || 'default' === $page_template || isset( $page_templates[ $page_template ] ) ) {
 				update_post_meta( $post_id, '_wp_page_template', $page_template );
 			}
 		}
