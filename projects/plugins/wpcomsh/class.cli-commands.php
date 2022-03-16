@@ -52,9 +52,9 @@ function wpcomsh_cli_confirm( $question ) {
 
 /**
  * Get the names of plugins with the specified status.
- * 
+ *
  * @param string $status The plugin status to match
- * 
+ *
  * @return string[]|false An array of plugin names. `false` if there is an error
  */
 function wpcomsh_cli_get_plugins_with_status( $status ) {
@@ -113,13 +113,13 @@ function wpcomsh_cli_remove_expired_from_deactivation_record() {
 			$deactivated_plugins_to_remember[ $plugin_name ] = $timestamp;
 		}
 	}
-	
+
 	wpcomsh_cli_save_deactivated_plugins_record( $deactivated_plugins_to_remember );
 }
 
 /**
  * Keeps a single event scheduled to clean up the deactivated user plugin record.
- * 
+ *
  * @return boolean Whether the scheduling update succeeded.
  */
 function wpcomsh_cli_reschedule_deactivated_list_cleanup() {
@@ -153,10 +153,10 @@ function wpcomsh_cli_reschedule_deactivated_list_cleanup() {
 
 /**
  * Action hook for updating the deactivated plugin record when a plugin is deactivated.
- * 
+ *
  * This allows us to maintain the deactivated plugin record in response to both
  * the `wp plugin deactivate` and `wp wpcomsh deactivate-user-plugins` commands.
- * 
+ *
  * @param string $file Plugin file
  */
 function wpcomsh_cli_remember_plugin_deactivation( $file ) {
@@ -169,10 +169,10 @@ function wpcomsh_cli_remember_plugin_deactivation( $file ) {
 
 /**
  * Action hook for pruning the deactivated plugin record when a plugin is activated.
- * 
+ *
  * This allows us to neatly maintain the deactivated plugin record in response to both
  * the `wp plugin activate` and `wp wpcomsh reactivate-user-plugins` commands.
- * 
+ *
  * @param string $file Plugin file
  */
 function wpcomsh_cli_forget_plugin_deactivation( $file ) {
@@ -206,8 +206,8 @@ if ( class_exists( 'WP_CLI_Command' ) ) {
 			}
 
 			$plugins_to_skip = WPCOMSH_CLI_DONT_DEACTIVATE_PLUGINS;
-			if ( Atomic_Plan_Manager::current_plan_slug() === Atomic_Plan_Manager::ECOMMERCE_PLAN_SLUG ) {
-				// This site is on an e-commerce plan, so we don't want to deactivate the e-commerce plugins.
+			if ( wpcom_site_has_feature( WPCOM_Features::ECOMMERCE_MANAGED_PLUGINS ) ) {
+				// This site has access to the e-commerce plugin bundle, so we don't want to deactivate them.
 				$plugins_to_skip = array_unique( array_merge( $plugins_to_skip, WPCOMSH_CLI_ECOMMERCE_PLAN_PLUGINS ) );
 			}
 
@@ -264,7 +264,7 @@ if ( class_exists( 'WP_CLI_Command' ) ) {
 		function reactivate_user_installed_plugins( $args, $assoc_args = array() ) {
 			// Clean up before getting the deactivation list so there are only current entries
 			wpcomsh_cli_remove_expired_from_deactivation_record();
-			
+
 			$inactive_plugins = wpcomsh_cli_get_plugins_with_status( 'inactive' );
 			if ( false === $inactive_plugins ) {
 				WP_CLI::error( 'Failed to list inactive plugins for reactivation.' );

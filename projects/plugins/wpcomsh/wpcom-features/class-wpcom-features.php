@@ -124,6 +124,7 @@ class WPCOM_Features {
 	public const CUSTOM_DESIGN                 = 'custom-design';
 	public const CUSTOM_DOMAIN                 = 'custom-domain';
 	public const DONATIONS                     = 'donations';
+	public const ECOMMERCE_MANAGED_PLUGINS     = 'ecommerce-managed-plugins';
 	public const FREE_BLOG                     = 'free-blog';
 	public const GOOGLE_ANALYTICS              = 'google-analytics';
 	public const INSTALL_PLUGINS               = 'install-plugins';
@@ -445,7 +446,10 @@ class WPCOM_Features {
 			self::WPCOM_BUSINESS_AND_HIGHER_PLANS,
 			self::WPCOM_PRO_PLANS,
 		),
-
+		// Can install the plugin bundle that comes with eCommerce plans.
+		self::ECOMMERCE_MANAGED_PLUGINS     => array(
+			self::WPCOM_ECOMMERCE_PLANS,
+		),
 		self::RECURRING_PAYMENTS            => array(
 			self::WPCOM_PERSONAL_AND_HIGHER_PLANS,
 		),
