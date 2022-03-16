@@ -48,9 +48,9 @@ abstract class SAL_Post {
 	 * @param string       $context The post request context (for example 'edit' or 'display').
 	 */
 	public function __construct( $site, $post, $context ) {
-		$this->post = $post;
+		$this->post    = $post;
 		$this->context = $context;
-		$this->site = $site;
+		$this->site    = $site;
 	}
 
 	/**
@@ -181,7 +181,7 @@ abstract class SAL_Post {
 	 */
 	public function get_terms() {
 		$taxonomies = get_object_taxonomies( $this->post, 'objects' );
-		$terms = array();
+		$terms      = array();
 		foreach ( $taxonomies as $taxonomy ) {
 			if ( ! $taxonomy->public && ! current_user_can( $taxonomy->cap->assign_terms ) ) {
 				continue;
@@ -191,7 +191,7 @@ abstract class SAL_Post {
 
 			$taxonomy_terms = wp_get_object_terms( $this->post->ID, $taxonomy->name, array( 'fields' => 'all' ) );
 			foreach ( $taxonomy_terms as $term ) {
-				$formatted_term = $this->format_taxonomy( $term, $taxonomy->name, 'display' );
+				$formatted_term                          = $this->format_taxonomy( $term, $taxonomy->name, 'display' );
 				$terms[ $taxonomy->name ][ $term->name ] = $formatted_term;
 			}
 
@@ -207,11 +207,11 @@ abstract class SAL_Post {
 	 * @return object
 	 */
 	public function get_tags() {
-		$tags = array();
+		$tags  = array();
 		$terms = wp_get_post_tags( $this->post->ID );
 		foreach ( $terms as $term ) {
-			if ( !empty( $term->name ) ) {
-				$tags[$term->name] = $this->format_taxonomy( $term, 'post_tag', 'display' );
+			if ( ! empty( $term->name ) ) {
+				$tags[ $term->name ] = $this->format_taxonomy( $term, 'post_tag', 'display' );
 			}
 		}
 		return (object) $tags;
@@ -224,10 +224,10 @@ abstract class SAL_Post {
 	 */
 	public function get_categories() {
 		$categories = array();
-		$terms = wp_get_object_terms( $this->post->ID, 'category', array( 'fields' => 'all' ) );
+		$terms      = wp_get_object_terms( $this->post->ID, 'category', array( 'fields' => 'all' ) );
 		foreach ( $terms as $term ) {
-			if ( !empty( $term->name ) ) {
-				$categories[$term->name] = $this->format_taxonomy( $term, 'category', 'display' );
+			if ( ! empty( $term->name ) ) {
+				$categories[ $term->name ] = $this->format_taxonomy( $term, 'category', 'display' );
 			}
 		}
 		return (object) $categories;
@@ -239,10 +239,17 @@ abstract class SAL_Post {
 	 * @return array
 	 */
 	public function get_attachments_and_count() {
-		$attachments = array();
-		$_attachments = new WP_Query( array( 'post_parent' => $this->post->ID, 'post_status' => 'inherit', 'post_type' => 'attachment', 'posts_per_page' => '20' ) );
+		$attachments  = array();
+		$_attachments = new WP_Query(
+			array(
+				'post_parent'    => $this->post->ID,
+				'post_status   ' => 'inherit',
+				'post_type'      => 'attachment',
+				'posts_per_page' => '20',
+			)
+		);
 		foreach ( $_attachments->posts as $attachment ) {
-			$attachments[$attachment->ID] = $this->get_media_item_v1_1( $attachment->ID );
+			$attachments[ $attachment->ID ] = $this->get_media_item_v1_1( $attachment->ID );
 		}
 		return array( (object) $attachments, (int) $_attachments->found_posts );
 	}
@@ -258,12 +265,12 @@ abstract class SAL_Post {
 			// Don't expose protected fields.
 			$meta_key = $meta['meta_key'];
 
-			$show = !( WPCOM_JSON_API_Metadata::is_internal_only( $meta_key ) )
+			$show = ! ( WPCOM_JSON_API_Metadata::is_internal_only( $meta_key ) )
 				&&
 					(
 						WPCOM_JSON_API_Metadata::is_public( $meta_key )
 					||
-						current_user_can( 'edit_post_meta', $this->post->ID , $meta_key )
+						current_user_can( 'edit_post_meta', $this->post->ID, $meta_key )
 					);
 
 			if ( Jetpack_SEO_Posts::DESCRIPTION_META_KEY == $meta_key && ! Jetpack_SEO_Utils::is_enabled_jetpack_seo() ) {
@@ -306,7 +313,7 @@ abstract class SAL_Post {
 
 		// add autosave link if a more recent autosave exists.
 		if ( 'edit' === $this->context ) {
-			$autosave = wp_get_post_autosave( $this->post->ID );
+			$autosave                  = wp_get_post_autosave( $this->post->ID );
 			if ( $autosave && $autosave->post_modified > $this->post->post_modified )
 				$meta->links->autosave = (string) $this->get_post_link() . '/autosave';
 		}
@@ -323,7 +330,7 @@ abstract class SAL_Post {
 		return array(
 			'publish_post' => current_user_can( 'publish_post', $this->post->ID ),
 			'delete_post'  => current_user_can( 'delete_post', $this->post->ID ),
-			'edit_post'    => current_user_can( 'edit_post', $this->post->ID )
+			'edit_post'    => current_user_can( 'edit_post', $this->post->ID ),
 		);
 	}
 
@@ -337,7 +344,7 @@ abstract class SAL_Post {
 			return false;
 		}
 
-		$revisions = array();
+		$revisions      = array();
 		$post_revisions = wp_get_post_revisions( $this->post->ID );
 
 		foreach ( $post_revisions as $_post ) {
@@ -387,25 +394,27 @@ abstract class SAL_Post {
 	 * @return array
 	 */
 	public function get_publicize_urls() {
+		// phpcs:disable WordPress.NamingConventions.ValidVariableName
 		$publicize_URLs = array();
 		$publicize      = get_post_meta( $this->post->ID, 'publicize_results', true );
 		if ( $publicize ) {
 			foreach ( $publicize as $service => $data ) {
 				switch ( $service ) {
-				case 'twitter' :
-					foreach ( $data as $datum ) {
-						$publicize_URLs[] = esc_url_raw( "https://twitter.com/{$datum['user_id']}/status/{$datum['post_id']}" );
-					}
-					break;
-				case 'fb' :
-					foreach ( $data as $datum ) {
-						$publicize_URLs[] = esc_url_raw( "https://www.facebook.com/permalink.php?story_fbid={$datum['post_id']}&id={$datum['user_id']}" );
-					}
-					break;
+					case 'twitter':
+						foreach ( $data as $datum ) {
+							$publicize_URLs[] = esc_url_raw( "https://twitter.com/{$datum['user_id']}/status/{$datum['post_id']}" );
+						}
+						break;
+					case 'fb':
+						foreach ( $data as $datum ) {
+							$publicize_URLs[] = esc_url_raw( "https://www.facebook.com/permalink.php?story_fbid={$datum['post_id']}&id={$datum['user_id']}" );
+						}
+						break;
 				}
 			}
 		}
 		return (array) $publicize_URLs;
+		// phpcs:enable WordPress.NamingConventions.ValidVariableName
 	}
 
 	/**
@@ -444,7 +453,7 @@ abstract class SAL_Post {
 		$thumb_id = get_post_thumbnail_id( $this->post->ID );
 
 		if ( ! empty( $thumb_id ) ) {
-			$attachment = get_post( $thumb_id );
+			$attachment                = get_post( $thumb_id );
 			if ( ! empty( $attachment ) )
 				$featured_image_object = $this->get_attachment( $attachment );
 
@@ -463,7 +472,7 @@ abstract class SAL_Post {
 	 */
 	public function get_format() {
 		$format = (string) get_post_format( $this->post->ID );
-		if ( !$format ) {
+		if ( ! $format ) {
 			$format = 'standard';
 		}
 
@@ -485,7 +494,7 @@ abstract class SAL_Post {
 			'URL'       => (string) wp_get_attachment_url( $attachment->ID ),
 			'guid'      => (string) $attachment->guid,
 			'mime_type' => (string) $attachment->post_mime_type,
-			'width'     => (int) isset( $metadata['width']  ) ? $metadata['width']  : 0,
+			'width'     => (int) isset( $metadata['width'] ) ? $metadata['width'] : 0,
 			'height'    => (int) isset( $metadata['height'] ) ? $metadata['height'] : 0,
 		);
 
@@ -639,9 +648,9 @@ abstract class SAL_Post {
 				$parent_title = (string) htmlspecialchars_decode( $this->post->post_title, ENT_QUOTES );
 			}
 			return (object) array(
-				'ID'   => (int) $parent->ID,
-				'type' => (string) $parent->post_type,
-				'link' => (string) $this->links->get_post_link( $this->site->get_id(), $parent->ID ),
+				'ID'    => (int) $parent->ID,
+				'type'  => (string) $parent->post_type,
+				'link'  => (string) $this->links->get_post_link( $this->site->get_id(), $parent->ID ),
 				'title' => $parent_title,
 			);
 		} else {
@@ -698,7 +707,7 @@ abstract class SAL_Post {
 
 		$switched_status = get_post_meta( $this->post->ID, 'sharing_disabled', false );
 
-		if ( !empty( $switched_status ) )
+		if ( ! empty( $switched_status ) )
 			$show = false;
 
 		return (bool) $show;
@@ -752,6 +761,7 @@ abstract class SAL_Post {
 		}
 
 		// @todo: factor this out
+		// phpcs:disable WordPress.NamingConventions.ValidVariableName
 		if ( defined( 'IS_WPCOM' ) && IS_WPCOM ) {
 			$active_blog = get_active_blog_for_user( $user->ID );
 			$site_id     = $active_blog->blog_id;
@@ -771,10 +781,11 @@ abstract class SAL_Post {
 			'nice_name'   => (string) $user->user_nicename,
 			'URL'         => (string) esc_url_raw( $user->user_url ),
 			'avatar_URL'  => (string) esc_url_raw( $this->get_avatar_url( $user->user_email ) ),
-			'profile_URL' => (string) esc_url_raw( $profile_URL )
+			'profile_URL' => (string) esc_url_raw( $profile_URL ),
 		);
+		// phpcs:enable WordPress.NamingConventions.ValidVariableName
 
-		if ($site_id > -1) {
+		if ( $site_id > -1 ) {
 			$author['site_ID'] = (int) $site_id;
 		}
 
@@ -812,7 +823,7 @@ abstract class SAL_Post {
 	}
 
 	/**
- 	 * Returns an object with formatted taxonomy information such as slug and meta information.
+	 * Returns an object with formatted taxonomy information such as slug and meta information.
 	 *
 	 * Otherwise, returns an error if the edit or display permissions aren't correct.
 	 *
@@ -820,23 +831,23 @@ abstract class SAL_Post {
 	 * @param string  $taxonomy_type The current taxonomy type, for example 'category'.
 	 * @param string  $context The current context, for example 'edit' or 'display'.
 	 *
- 	 * @return object
- 	 */
+	 * @return object
+	 */
 	private function format_taxonomy( $taxonomy, $taxonomy_type, $context ) {
-		// Permissions
+		// Permissions.
 		switch ( $context ) {
-		case 'edit' :
-			$tax = get_taxonomy( $taxonomy_type );
-			if ( !current_user_can( $tax->cap->edit_terms ) )
-				return new WP_Error( 'unauthorized', 'User cannot edit taxonomy', 403 );
-			break;
-		case 'display' :
-			if ( -1 == get_option( 'blog_public' ) && ! current_user_can( 'read' ) ) {
-				return new WP_Error( 'unauthorized', 'User cannot view taxonomy', 403 );
-			}
-			break;
-		default :
-			return new WP_Error( 'invalid_context', 'Invalid API CONTEXT', 400 );
+			case 'edit':
+				$tax = get_taxonomy( $taxonomy_type );
+				if ( ! current_user_can( $tax->cap->edit_terms ) )
+					return new WP_Error( 'unauthorized', 'User cannot edit taxonomy', 403 );
+				break;
+			case 'display':
+				if ( -1 == get_option( 'blog_public' ) && ! current_user_can( 'read' ) ) {
+					return new WP_Error( 'unauthorized', 'User cannot view taxonomy', 403 );
+				}
+				break;
+			default:
+				return new WP_Error( 'invalid_context', 'Invalid API CONTEXT', 400 );
 		}
 
 		$response                = array();
@@ -875,32 +886,32 @@ abstract class SAL_Post {
 		if ( ! $media_item || is_wp_error( $media_item ) )
 			return new WP_Error( 'unknown_media', 'Unknown Media', 404 );
 
-		$file = basename( wp_get_attachment_url( $media_item->ID ) );
+		$file      = basename( wp_get_attachment_url( $media_item->ID ) );
 		$file_info = pathinfo( $file );
-		$ext  = $file_info['extension'];
+		$ext       = $file_info['extension'];
 
 		$response = array(
-			'ID'           => $media_item->ID,
-			'URL'          => wp_get_attachment_url( $media_item->ID ),
-			'guid'         => $media_item->guid,
-			'date'         => (string) WPCOM_JSON_API_Date::format_date( $media_item->post_date_gmt, $media_item->post_date ),
-			'post_ID'      => $media_item->post_parent,
-			'author_ID'    => (int) $media_item->post_author,
-			'file'         => $file,
-			'mime_type'    => $media_item->post_mime_type,
-			'extension'    => $ext,
-			'title'        => $media_item->post_title,
-			'caption'      => $media_item->post_excerpt,
-			'description'  => $media_item->post_content,
-			'alt'          => get_post_meta( $media_item->ID, '_wp_attachment_image_alt', true ),
-			'thumbnails'   => array()
+			'ID'          => $media_item->ID,
+			'URL'         => wp_get_attachment_url( $media_item->ID ),
+			'guid'        => $media_item->guid,
+			'date'        => (string) WPCOM_JSON_API_Date::format_date( $media_item->post_date_gmt, $media_item->post_date ),
+			'post_ID'     => $media_item->post_parent,
+			'author_ID'   => (int) $media_item->post_author,
+			'file'        => $file,
+			'mime_type'   => $media_item->post_mime_type,
+			'extension'   => $ext,
+			'title'       => $media_item->post_title,
+			'caption'     => $media_item->post_excerpt,
+			'description' => $media_item->post_content,
+			'alt'         => get_post_meta( $media_item->ID, '_wp_attachment_image_alt', true ),
+			'thumbnails'  => array(),
 		);
 
 		if ( in_array( $ext, array( 'jpg', 'jpeg', 'png', 'gif', 'webp' ), true ) ) {
 			$metadata = wp_get_attachment_metadata( $media_item->ID );
 			if ( isset( $metadata['height'], $metadata['width'] ) ) {
 				$response['height'] = $metadata['height'];
-				$response['width'] = $metadata['width'];
+				$response['width']  = $metadata['width'];
 			}
 
 			if ( isset( $metadata['sizes'] ) ) {
@@ -953,7 +964,11 @@ abstract class SAL_Post {
 
 				// Thumbnails.
 				if ( function_exists( 'video_format_done' ) && function_exists( 'video_image_url_by_guid' ) ) {
-					$response['thumbnails'] = array( 'fmt_hd' => '', 'fmt_dvd' => '', 'fmt_std' => '' );
+					$response['thumbnails'] = array(
+						'fmt_hd'  => '',
+						'fmt_dvd' => '',
+						'fmt_std' => '',
+					);
 					foreach ( $response['thumbnails'] as $size => $thumbnail_url ) {
 						if ( video_format_done( $info, $size ) ) {
 							$response['thumbnails'][ $size ] = video_image_url_by_guid( $info->guid, $size );
@@ -963,7 +978,7 @@ abstract class SAL_Post {
 					}
 				}
 
-				$response['videopress_guid'] = $info->guid;
+				$response['videopress_guid']            = $info->guid;
 				$response['videopress_processing_done'] = true;
 				if ( '0000-00-00 00:00:00' == $info->finish_date_gmt ) {
 					$response['videopress_processing_done'] = false;
