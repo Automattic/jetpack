@@ -42,9 +42,6 @@
 
 		<div slot="meta">
 			<GenerateCss />
-		</div>
-
-		<div slot="premium-cta">
 			<PremiumCTA />
 		</div>
 	</Module>
