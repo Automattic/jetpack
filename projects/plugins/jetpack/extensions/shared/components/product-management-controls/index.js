@@ -2,13 +2,11 @@
  * WordPress dependencies
  */
 import { useSelect } from '@wordpress/data';
-import { useEffect } from '@wordpress/element';
 
 /**
  * Internal dependencies
  */
 import { jetpackMembershipProductsStore } from './store';
-import useProducts from './use-products';
 import ProductManagementInspectorControl from './inspector-control';
 import ProductManagementToolbarControl from './toolbar-control';
 import InvalidProductWarning from './invalid-product-warning';
@@ -18,37 +16,33 @@ import './style.scss';
 export default function ProductManagementControls( {
 	allowCreateOneTimeInterval = true,
 	isVisible = true,
-	preventFetchingProducts = false,
-	selectedProductId,
-	selectedProductIdAttribute,
-	setAttributes,
+	selectedProductId = 0,
+	setSelectedProductId = () => {},
 } ) {
-	const isInvalidProduct = useSelect( select =>
+	const products = useSelect(
+		select =>
+			select( jetpackMembershipProductsStore ).getProducts(
+				selectedProductId,
+				setSelectedProductId
+			),
+		[]
+	);
+	const isSelectedProductInvalid = useSelect( select =>
 		select( jetpackMembershipProductsStore ).isInvalidProduct( selectedProductId )
 	);
-	const { fetchProducts, saveProduct, selectProduct } = useProducts(
-		selectedProductIdAttribute,
-		setAttributes
-	);
-
-	useEffect( () => {
-		if ( preventFetchingProducts ) {
-			fetchProducts( selectedProductId );
-		}
-		// eslint-disable-next-line react-hooks/exhaustive-deps
-	}, [] );
 
 	return isVisible ? (
 		<>
 			<ProductManagementInspectorControl
 				allowCreateOneTimeInterval={ allowCreateOneTimeInterval }
-				saveProduct={ saveProduct }
+				setSelectedProductId={ setSelectedProductId }
 			/>
 			<ProductManagementToolbarControl
+				products={ products }
 				selectedProductId={ selectedProductId }
-				selectProduct={ selectProduct }
+				setSelectedProductId={ setSelectedProductId }
 			/>
-			{ isInvalidProduct && <InvalidProductWarning /> }
+			{ isSelectedProductInvalid && <InvalidProductWarning /> }
 		</>
 	) : null;
 }

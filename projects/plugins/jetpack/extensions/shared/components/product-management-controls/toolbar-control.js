@@ -45,7 +45,7 @@ function getProductDescription( product ) {
 	);
 }
 
-function Product( { onClose, product, selectedProductId, selectProduct } ) {
+function Product( { onClose, product, selectedProductId, setSelectedProductId } ) {
 	const { id, title } = product;
 	const isSelected = selectedProductId && selectedProductId === id;
 	const icon = isSelected ? check : undefined;
@@ -53,7 +53,7 @@ function Product( { onClose, product, selectedProductId, selectProduct } ) {
 
 	const handleClick = event => {
 		event.preventDefault();
-		selectProduct( product );
+		setSelectedProductId( id );
 		onClose();
 	};
 
@@ -87,14 +87,14 @@ function NewProduct( { onClose } ) {
 	return <MenuItem onClick={ handleClick }>{ __( 'Add a new subscription', 'jetpack' ) }</MenuItem>;
 }
 
-export default function ProductManagementToolbarControl( { selectProduct, selectedProductId } ) {
-	const { products, selectedProduct } = useSelect( select => {
-		const { getProduct, getProducts } = select( jetpackMembershipProductsStore );
-		return {
-			products: getProducts(),
-			selectedProduct: getProduct( selectedProductId ),
-		};
-	} );
+export default function ProductManagementToolbarControl( {
+	products,
+	selectedProductId,
+	setSelectedProductId,
+} ) {
+	const selectedProduct = useSelect( select =>
+		select( jetpackMembershipProductsStore ).getProduct( selectedProductId )
+	);
 
 	let productDescription = null;
 	let subscriptionIcon = update;
@@ -124,7 +124,7 @@ export default function ProductManagementToolbarControl( { selectProduct, select
 									onClose={ onClose }
 									product={ product }
 									selectedProductId={ selectedProductId }
-									selectProduct={ selectProduct }
+									setSelectedProductId={ setSelectedProductId }
 								/>
 							) ) }
 						</MenuGroup>

@@ -20,7 +20,6 @@ import {
 	API_STATE_LOADING,
 	API_STATE_CONNECTED,
 } from '../../shared/components/product-management-controls/constants';
-import { jetpackMembershipProductsStore } from '../../shared/components/product-management-controls/store';
 import useProducts from '../../shared/components/product-management-controls/use-products';
 import StripeConnectToolbarButton from '../../shared/components/stripe-connect-toolbar-button';
 
@@ -77,17 +76,8 @@ function Edit( props ) {
 	const { isPreview } = props.attributes;
 	const { clientId } = props;
 
-	const { fetchProducts } = useProducts( 'selectedPlanId', props.setAttributes );
-	useEffect( () => {
-		if ( ! isPreview ) {
-			fetchProducts( props.attributes.selectedPlanId );
-		}
-		// eslint-disable-next-line react-hooks/exhaustive-deps
-	}, [] );
-
-	const { apiState, connectUrl, shouldUpgrade } = useSelect( selector => ( {
-		...selector( jetpackMembershipProductsStore ).getAllProperties(),
-	} ) );
+	const setSelectedProductId = productId => props.setAttributes( { selectedPlanId: productId } );
+	const { apiState, connectUrl, shouldUpgrade } = useProducts( setSelectedProductId );
 
 	//We would like to hide the tabs and controls when user clicks outside the premium content block
 	/**
@@ -168,10 +158,8 @@ function Edit( props ) {
 				<ProductManagementControls
 					allowCreateOneTimeInterval={ false }
 					isVisible={ ( isSelected || selectedInnerBlock ) && apiState === API_STATE_CONNECTED }
-					preventFetchingProducts
 					selectedProductId={ props.attributes.selectedPlanId }
-					selectedProductIdAttribute="selectedPlanId"
-					setAttributes={ props.setAttributes }
+					setSelectedProductId={ setSelectedProductId }
 				/>
 
 				<Context.Provider

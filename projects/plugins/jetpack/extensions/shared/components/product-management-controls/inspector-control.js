@@ -12,7 +12,7 @@ import {
 	Placeholder,
 	Spinner,
 } from '@wordpress/components';
-import { useSelect } from '@wordpress/data';
+import { useDispatch, useSelect } from '@wordpress/data';
 import { useState } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 import { lock } from '@wordpress/icons';
@@ -26,9 +26,10 @@ import { CURRENCY_OPTIONS } from '../../currencies';
 
 export default function ProductManagementInspectorControl( {
 	allowCreateOneTimeInterval,
-	saveProduct,
+	setSelectedProductId,
 } ) {
 	const siteSlug = useSelect( select => select( jetpackMembershipProductsStore ).getSiteSlug() );
+	const { saveProduct } = useDispatch( jetpackMembershipProductsStore );
 
 	const [ apiState, setApiState ] = useState( API_STATE_NOT_REQUESTING );
 	const [ title, setTitle ] = useState( __( 'Monthly Subscription', 'jetpack' ) );
@@ -47,7 +48,7 @@ export default function ProductManagementInspectorControl( {
 	const handleSubmit = event => {
 		event.preventDefault();
 		setApiState( API_STATE_REQUESTING );
-		saveProduct( { title, currency, price, interval }, success => {
+		saveProduct( { title, currency, price, interval }, setSelectedProductId, success => {
 			setApiState( API_STATE_NOT_REQUESTING );
 			if ( success ) {
 				setPrice( 5 );
