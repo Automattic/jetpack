@@ -9,8 +9,8 @@
  * @package automattic/jetpack
  */
 
-require_once dirname( __FILE__ ) . '/class.json-api-metadata.php';
-require_once dirname( __FILE__ ) . '/class.json-api-date.php';
+require_once __DIR__ . '/class.json-api-metadata.php';
+require_once __DIR__ . '/class.json-api-date.php';
 require_once ABSPATH . 'wp-admin/includes/post.php';
 require_once ABSPATH . 'wp-includes/post.php';
 
@@ -47,7 +47,7 @@ abstract class SAL_Post {
 	 * @param WP_Post      $post A WP_Post instance.
 	 * @param string       $context The post request context (for example 'edit' or 'display').
 	 */
-	function __construct( $site, $post, $context ) {
+	public function __construct( $site, $post, $context ) {
 		$this->post = $post;
 		$this->context = $context;
 		$this->site = $site;
@@ -72,7 +72,7 @@ abstract class SAL_Post {
 	 */
 	public function __get( $key ) {
 		if ( $key === 'links' ) {
-			require_once dirname( __FILE__ ) . '/class.json-api-links.php';
+			require_once __DIR__ . '/class.json-api-links.php';
 			return WPCOM_JSON_API_Links::getInstance();
 		}
 		return $this->post->{ $key };
@@ -654,7 +654,7 @@ abstract class SAL_Post {
 	 *
 	 * @return string
 	 */
-	function the_password_form() {
+	public function the_password_form() {
 		return __( 'This post is password protected.', 'jetpack' );
 	}
 
@@ -712,7 +712,7 @@ abstract class SAL_Post {
 	 *
 	 * @return string
 	 */
-	function get_the_post_content_for_display() {
+	public function get_the_post_content_for_display() {
 		global $pages, $page;
 
 		$old_pages = $pages;
