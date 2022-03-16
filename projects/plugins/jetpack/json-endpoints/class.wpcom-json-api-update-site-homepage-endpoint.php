@@ -1,4 +1,9 @@
-<?php
+<?php // phpcs:ignore WordPress.Files.FileName.InvalidClassFileName
+/**
+ * Set site homepage settings API endpoint.
+ *
+ * Endpoint: /sites/%s/homepage
+ */
 
 new WPCOM_JSON_API_Update_Site_Homepage_Endpoint(
 	array(
@@ -34,9 +39,17 @@ new WPCOM_JSON_API_Update_Site_Homepage_Endpoint(
 	)
 );
 
+/**
+ * Site homepage setting endpoint class.
+ */
 class WPCOM_JSON_API_Update_Site_Homepage_Endpoint extends WPCOM_JSON_API_Endpoint {
-
-	function callback( $path = '', $site_id = 0 ) {
+	/**
+	 * Set site homepage setting API callback.
+	 *
+	 * @param string $path API path.
+	 * @param int    $site_id Blog ID.
+	 */
+	public function callback( $path = '', $site_id = 0 ) {
 		$blog_id = $this->api->switch_to_blog_and_validate_user( $this->api->get_blog_id( $site_id ) );
 		if ( is_wp_error( $blog_id ) ) {
 			return $blog_id;
@@ -65,7 +78,12 @@ class WPCOM_JSON_API_Update_Site_Homepage_Endpoint extends WPCOM_JSON_API_Endpoi
 		return $this->get_current_settings();
 	}
 
-	function get_current_settings() {
+	/**
+	 * Get current site homepage settings.
+	 *
+	 * @return array
+	 */
+	public function get_current_settings() {
 		$is_page_on_front  = ( get_option( 'show_on_front' ) === 'page' );
 		$page_on_front_id  = get_option( 'page_on_front' );
 		$page_for_posts_id = get_option( 'page_for_posts' );
