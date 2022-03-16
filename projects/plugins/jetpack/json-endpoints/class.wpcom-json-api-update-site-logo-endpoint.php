@@ -1,4 +1,11 @@
-<?php
+<?php // phpcs:ignore WordPress.Files.FileName.InvalidClassFileName
+/**
+ * Set site logo settings API.
+ *
+ * Endpoints:
+ * Set site logo settings:    /sites/%s/logo
+ * Delete site logo settings: /sites/%s/logo/delete
+ */
 
 new WPCOM_JSON_API_Update_Site_Logo_Endpoint(
 	array(
@@ -52,8 +59,17 @@ new WPCOM_JSON_API_Update_Site_Logo_Endpoint(
 	)
 );
 
+/**
+ * Set site logo settings API class.
+ */
 class WPCOM_JSON_API_Update_Site_Logo_Endpoint extends WPCOM_JSON_API_Endpoint {
-	function callback( $path = '', $site_id = 0 ) {
+	/**
+	 * Set site logo settings API callback.
+	 *
+	 * @param string $path API path.
+	 * @param int    $site_id Blog ID.
+	 */
+	public function callback( $path = '', $site_id = 0 ) {
 		// Switch to the given blog.
 		$blog_id = $this->api->switch_to_blog_and_validate_user( $this->api->get_blog_id( $site_id ) );
 		if ( is_wp_error( $blog_id ) ) {
@@ -83,7 +99,10 @@ class WPCOM_JSON_API_Update_Site_Logo_Endpoint extends WPCOM_JSON_API_Endpoint {
 		return $this->get_current_settings();
 	}
 
-	function get_current_settings() {
+	/**
+	 * Get current logo settings.
+	 */
+	public function get_current_settings() {
 		$logo_id = get_option( 'site_logo' );
 
 		if ( ! $logo_id ) {
