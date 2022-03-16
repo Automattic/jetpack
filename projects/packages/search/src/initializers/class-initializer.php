@@ -46,7 +46,7 @@ class Initializer {
 		add_filter( 'jetpack_package_versions', __NAMESPACE__ . '\Package::send_version_to_tracker' );
 
 		if ( ! apply_filters( 'jetpack_search_initialize', true ) ) {
-			do_action( 'jetpack_search_abort', 'filter', null );
+			do_action( 'jetpack_search_abort', 'jetpack_search_initialize_filter', null );
 			return;
 		}
 
@@ -65,7 +65,7 @@ class Initializer {
 			return;
 		}
 
-		$this->blog_id = apply_filters( 'jetpack_search_initializer_blog_id', Helper::get_wpcom_site_id() );
+		$this->blog_id = Helper::get_wpcom_site_id();
 		if ( ! $this->blog_id ) {
 			do_action( 'jetpack_search_abort', 'no_blog_id', null );
 			return;
@@ -102,15 +102,10 @@ class Initializer {
 	 * Init functionality required for connection.
 	 */
 	protected function init_before_connection() {
-		if ( apply_filters( 'jetpack_search_init_rest_api', true ) ) {
-			// Set up Search API endpoints.
-			add_action( 'rest_api_init', array( new REST_Controller(), 'register_rest_routes' ) );
-		}
-
+		// Set up Search API endpoints.
+		add_action( 'rest_api_init', array( new REST_Controller(), 'register_rest_routes' ) );
 		// The dashboard has to be initialized before connection.
-		if ( apply_filters( 'jetpack_search_init_dashboard', true ) ) {
-			( new Dashboard() )->init_hooks();
-		}
+		( new Dashboard() )->init_hooks();
 	}
 
 	/**
@@ -143,23 +138,18 @@ class Initializer {
 	 * Init Instant Search and its dependencies.
 	 */
 	protected function init_instant_search() {
-		if ( apply_filters( 'jetpack_search_init_instant_search', true ) ) {
-			// Enable the instant search experience.
-			Instant_Search::initialize( $this->blog_id );
+		if ( ! apply_filters( 'jetpack_search_init_instant_search', true ) ) {
+			do_action( 'jetpack_search_abort', 'jetpack_search_init_instant_search_filter', null );
 		}
 
-		if ( apply_filters( 'jetpack_search_init_instant_search_settings', true ) ) {
-			// Register instant search configurables as WordPress settings.
-			new Settings();
-		}
-
-		if ( apply_filters( 'jetpack_search_init_instant_search_customberg', true ) ) {
-			// Instantiate "Customberg", the live search configuration interface.
-			Customberg::instance();
-		}
-
+		// Enable the instant search experience.
+		Instant_Search::initialize( $this->blog_id );
+		// Register instant search configurables as WordPress settings.
+		new Settings();
+		// Instantiate "Customberg", the live search configuration interface.
+		Customberg::instance();
 		// Enable configuring instant search within the Customizer.
-		if ( apply_filters( 'jetpack_search_init_instant_search_customize', true ) && class_exists( 'WP_Customize_Manager' ) ) {
+		if ( class_exists( 'WP_Customize_Manager' ) ) {
 			new Customizer();
 		}
 	}
@@ -169,8 +159,9 @@ class Initializer {
 	 */
 	protected function init_classic_search() {
 		if ( apply_filters( 'jetpack_search_init_classic_search', true ) ) {
-			Classic_Search::initialize( $this->blog_id );
+			return;
 		}
+		Classic_Search::initialize( $this->blog_id );
 	}
 
 	/**
@@ -179,7 +170,7 @@ class Initializer {
 	 * @return void
 	 */
 	protected function init_cli() {
-		if ( apply_filters( 'jetpack_search_init_cli', true ) && defined( 'WP_CLI' ) && \WP_CLI ) {
+		if ( defined( 'WP_CLI' ) && \WP_CLI ) {
 			\WP_CLI::add_command( 'jetpack-search', __NAMESPACE__ . '\CLI' );
 		}
 	}
