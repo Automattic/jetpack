@@ -1,4 +1,0 @@
-Significance: minor
-Type: changed
-
-E2E tests: removed duplicated base-test fixture and refered the e2e-commons one instead
