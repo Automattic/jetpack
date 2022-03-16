@@ -116,6 +116,8 @@ class WPCOM_Features {
 	public const ADVANCED_SEO                  = 'advanced-seo';
 	public const AKISMET                       = 'akismet';
 	public const CALENDLY                      = 'calendly';
+	public const CONCIERGE                     = 'concierge';
+	public const CONCIERGE_BUSINESS            = 'concierge-business';
 	public const CORE_AUDIO                    = 'core/audio';
 	public const CORE_COVER                    = 'core/cover';
 	public const CORE_VIDEO                    = 'core/video';
@@ -462,6 +464,13 @@ class WPCOM_Features {
 			self::SPACE_UNLIMITED,
 			self::WPCOM_PERSONAL_AND_HIGHER_PLANS,
 			self::WP_P2_PLUS_MONTHLY,
+		),
+		self::CONCIERGE                     => array(
+			self::WPCOM_BUSINESS_PLANS,
+			self::WPCOM_ECOMMERCE_PLANS,
+		),
+		self::CONCIERGE_BUSINESS            => array(
+			self::WPCOM_BUSINESS_PLANS,
 		),
 	);
 
