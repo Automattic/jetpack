@@ -54,7 +54,7 @@
 		"@automattic/jetpack-connection": "workspace:^0.17.4-alpha",
 		"@automattic/jetpack-licensing": "workspace:^0.4.11-alpha",
 		"@automattic/jetpack-partner-coupon": "workspace:^0.2.5-alpha",
-		"@automattic/jetpack-shared-extension-utils": "workspace:^0.2.0",
+		"@automattic/jetpack-shared-extension-utils": "workspace:^0.3.0-alpha",
 		"@automattic/popup-monitor": "1.0.0",
 		"@automattic/request-external-access": "1.0.0",
 		"@automattic/social-previews": "1.1.1",
