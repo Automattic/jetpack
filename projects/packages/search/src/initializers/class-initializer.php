@@ -34,15 +34,14 @@ class Initializer {
 		// Set up package version hook.
 		add_filter( 'jetpack_package_versions', __NAMESPACE__ . '\Package::send_version_to_tracker' );
 
-		if ( ! apply_filters( 'jetpack_search_initialize', true ) ) {
-			do_action( 'jetpack_search_abort', 'jetpack_search_initialize_filter', null );
-			return;
-		}
-
-		$this->init_before_connection();
-
-		// Check whether Jetpack Search should be initialized in the first place .
-		if ( ! $this->is_connected() || ! $this->is_search_supported() ) {
+		/**
+		 * The filter allows abortion of the Jetpack Search package initialization.
+		 *
+		 * @since 0.11.2
+		 *
+		 * @param boolean $init_jetpack_search_package Default value is true.
+		 */
+		if ( ! apply_filters( 'jetpack_search_init_jetpack_search_package', true ) ) {
 			/**
 			 * Fires when the Jetpack Search fails and would fallback to MySQL.
 			 *
@@ -50,19 +49,33 @@ class Initializer {
 			 * @param string $reason Reason for Search fallback.
 			 * @param mixed  $data   Data associated with the request, such as attempted search parameters.
 			 */
+			do_action( 'jetpack_search_abort', 'jetpack_search_init_jetpack_search_package_filter', null );
+			return;
+		}
+
+		$this->init_before_connection();
+
+		// Check whether Jetpack Search should be initialized in the first place .
+		if ( ! $this->is_connected() || ! $this->is_search_supported() ) {
+			/** This filter is documented in search/src/initalizers/class-initalizer.php */
 			do_action( 'jetpack_search_abort', 'inactive', null );
 			return;
 		}
 
 		$this->blog_id = Helper::get_wpcom_site_id();
 		if ( ! $this->blog_id ) {
+			/** This filter is documented in search/src/initalizers/class-initalizer.php */
 			do_action( 'jetpack_search_abort', 'no_blog_id', null );
 			return;
 		}
 
 		$this->init_search_package();
 
-		// Fired when the package loading is done.
+		/**
+		 * Fires when the Jetpack Search package initialization is finished.
+		 *
+		 * @since 0.11.2
+		 */
 		do_action( 'jetpack_search_loaded' );
 	}
 
@@ -86,6 +99,7 @@ class Initializer {
 		$module_control = new Module_Control();
 
 		if ( ! $module_control->is_active() ) {
+			/** This filter is documented in search/src/initalizers/class-initalizer.php */
 			do_action( 'jetpack_search_abort', 'module_inactive', null );
 			return;
 		}
@@ -106,8 +120,17 @@ class Initializer {
 	 * Init Instant Search and its dependencies.
 	 */
 	protected function init_instant_search() {
+		/**
+		 * The filter allows abortion of the Instant Search initialization.
+		 *
+		 * @since 0.11.2
+		 *
+		 * @param boolean $init_instant_search Default value is true.
+		 */
 		if ( ! apply_filters( 'jetpack_search_init_instant_search', true ) ) {
+			/** This filter is documented in search/src/initalizers/class-initalizer.php */
 			do_action( 'jetpack_search_abort', 'jetpack_search_init_instant_search_filter', null );
+			return;
 		}
 
 		// Enable the instant search experience.
@@ -125,7 +148,15 @@ class Initializer {
 	 * Init Classic Search.
 	 */
 	protected function init_classic_search() {
+		/**
+		 * The filter allows abortion of the Classic Search initialization.
+		 *
+		 * @since 0.11.2
+		 *
+		 * @param boolean $init_instant_search Default value is true.
+		 */
 		if ( ! apply_filters( 'jetpack_search_init_classic_search', true ) ) {
+			/** This filter is documented in search/src/initalizers/class-initalizer.php */
 			do_action( 'jetpack_search_abort', 'jetpack_search_init_classic_search_filter', null );
 			return;
 		}
