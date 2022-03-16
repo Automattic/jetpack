@@ -37,7 +37,7 @@ class Initializer {
 		/**
 		 * The filter allows abortion of the Jetpack Search package initialization.
 		 *
-		 * @since 0.11.2
+		 * @since $$next-version$$
 		 *
 		 * @param boolean $init_jetpack_search_package Default value is true.
 		 */
@@ -74,7 +74,7 @@ class Initializer {
 		/**
 		 * Fires when the Jetpack Search package initialization is finished.
 		 *
-		 * @since 0.11.2
+		 * @since $$next-version$$
 		 */
 		do_action( 'jetpack_search_loaded' );
 	}
@@ -123,7 +123,7 @@ class Initializer {
 		/**
 		 * The filter allows abortion of the Instant Search initialization.
 		 *
-		 * @since 0.11.2
+		 * @since $$next-version$$
 		 *
 		 * @param boolean $init_instant_search Default value is true.
 		 */
@@ -151,7 +151,7 @@ class Initializer {
 		/**
 		 * The filter allows abortion of the Classic Search initialization.
 		 *
-		 * @since 0.11.2
+		 * @since $$next-version$$
 		 *
 		 * @param boolean $init_instant_search Default value is true.
 		 */
