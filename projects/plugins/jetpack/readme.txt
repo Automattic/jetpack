@@ -242,14 +242,23 @@ Jetpack Backup can do a full website migration to a new host, migrate theme file
 4. Promote your newest posts, pages, and products across your social media channels.
 
 == Changelog ==
-### 10.8-a.1 - 2022-03-02
+### 10.8-a.7 - 2022-03-15
 #### Enhancements
-- Payment Blocks: add a unified introduction to payment blocks to make it easier to select the correct one.
-- Payment Blocks: add more keywords to payments blocks so they're easier to find.
-- Subscribe Block: add pre/post-publish notices.
-- Subscribe Block: block setting updates including name change, display of current subscribers, and a new style option.
-- Tiled Gallery: add background color block setting.
-- Various Blocks: update Contact Info, Markdown, and Tiled Gallery blocks to include margin design tools.
+- Dashboard: add toggle to enable new Google Fonts feature.
+- Jetpack: add QRPost feature which generates QR codes for published posts. Currently a JETPACK_BETA_BLOCKS feature.
+- Premium Content block: use a drop down menu rather than two buttons to switch between the guest/subscriber views.
+- VideoPress: updated design of resumable uploader block.
+
+#### Improved compatibility
+- General: clean up use of deprecated FILTER_SANITIZE_STRING constant. Also mark WPCom_Markdown::get_post_screen_post_type as deprecated due to lack of use.
+
+#### Bug fixes
+- Google Analytics: fix showing an upgrade button with the latest Jetpack security plans.
+- Jetpack: fix missing "Connect User" button after restoring a connection.
+- Pay with Paypal widget: enable widget to work in block-based widget editor and full site editor.
+- SEO Tools: ensure Twitter cards get correct description when a site has a blank tagline.
+- Payments: swap JETPACK_VERSION for the correct JETPACK__VERSION.
+- Premium Content block: when a visitor subscribes, they now see the premium content without needing to reload the page.
 
 --------
 

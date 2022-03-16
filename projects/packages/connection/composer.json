@@ -5,6 +5,7 @@
 	"license": "GPL-2.0-or-later",
 	"require": {
 		"automattic/jetpack-a8c-mc-stats": "^1.4",
+		"automattic/jetpack-admin-ui": "^0.2",
 		"automattic/jetpack-constants": "^1.6",
 		"automattic/jetpack-heartbeat": "^1.4",
 		"automattic/jetpack-options": "^1.14",
@@ -22,7 +23,8 @@
 	"autoload": {
 		"classmap": [
 			"legacy",
-			"src/"
+			"src/",
+			"src/webhooks"
 		]
 	},
 	"scripts": {
