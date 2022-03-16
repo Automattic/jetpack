@@ -41,9 +41,13 @@ export default function ProductManagementControls( {
 		};
 	} );
 
+	if ( shouldUpgrade ) {
+		return null;
+	}
+
 	return (
 		<>
-			{ ! shouldUpgrade && apiState !== API_STATE_CONNECTED && connectUrl && (
+			{ apiState !== API_STATE_CONNECTED && connectUrl && (
 				<BlockControls group="block">
 					<StripeConnectToolbarButton blockName="premium-content" connectUrl={ connectUrl } />
 				</BlockControls>
