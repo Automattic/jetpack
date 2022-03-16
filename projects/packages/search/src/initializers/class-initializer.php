@@ -73,7 +73,7 @@ class Initializer {
 
 		$this->init_search_package();
 
-		// Fired when plugin ready.
+		// Fired when the package loading is done.
 		do_action( 'jetpack_search_loaded' );
 	}
 
