@@ -61,7 +61,7 @@ export function QRPost() {
 				level="H"
 			/>
 
-			<JetpackLogo className="qr-post-jetpack-logo" size={ 48 } border={ 2 } color="#000" />
+			<JetpackLogo className="qr-post-jetpack-logo" size={ 48 } border={ 2 } />
 		</div>
 	);
 }
