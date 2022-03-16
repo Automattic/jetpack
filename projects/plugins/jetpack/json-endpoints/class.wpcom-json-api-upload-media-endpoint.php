@@ -67,7 +67,9 @@ class WPCOM_JSON_API_Upload_Media_Endpoint extends WPCOM_JSON_API_Endpoint {
 		$has_media      = isset( $input['media'] ) && $input['media'] ? count( $input['media'] ) : false;
 		$has_media_urls = isset( $input['media_urls'] ) && $input['media_urls'] ? count( $input['media_urls'] ) : false;
 
-		$media_ids = $files = $errors = array();
+		$errors    = array();
+		$files     = array();
+		$media_ids = array();
 
 		if ( $has_media ) {
 			$this->api->trap_wp_die( 'upload_error' );
