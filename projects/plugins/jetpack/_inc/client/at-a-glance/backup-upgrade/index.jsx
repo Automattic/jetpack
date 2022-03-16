@@ -1,6 +1,7 @@
 /**
  * External dependencies
  */
+import analytics from 'lib/analytics';
 import React, { useState, useCallback } from 'react';
 import { connect } from 'react-redux';
 
@@ -23,8 +24,18 @@ const BackupUpgrade = ( { comments, isFetchingData, plugins, posts } ) => {
 	const [ showPopup, setShowPopup ] = useState( true );
 
 	const onClosePopup = useCallback( () => {
+		const clickEventProps = {
+			comments,
+			plugins,
+			posts,
+			target: 'backup_bar_chart_close',
+			type: 'dismiss',
+		};
+
+		analytics.tracks.recordJetpackClick( clickEventProps );
+
 		setShowPopup( false );
-	}, [] );
+	}, [ comments, plugins, posts ] );
 
 	return (
 		! isFetchingData &&
