@@ -58,7 +58,7 @@ if ( ! class_exists( 'GP_Locale' ) ) :
 
 		public function combined_name() {
 			/* translators: combined name for locales: 1: name in English, 2: native name */
-			return sprintf( _x( '%1$s/%2$s', 'locales', 'jetpack' ), $this->english_name, $this->native_name );
+			return sprintf( _x( '%1$s/%2$s', 'locales', 'jetpack-compat' ), $this->english_name, $this->native_name );
 		}
 
 		public function numbers_for_index( $index, $how_many = 3, $test_up_to = 1000 ) {
