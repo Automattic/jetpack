@@ -158,7 +158,7 @@ class Initializer {
 	 * Init Classic Search.
 	 */
 	protected function init_classic_search() {
-		if ( apply_filters( 'jetpack_search_init_classic_search', true ) ) {
+		if ( ! apply_filters( 'jetpack_search_init_classic_search', true ) ) {
 			return;
 		}
 		Classic_Search::initialize( $this->blog_id );
