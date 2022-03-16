@@ -14,13 +14,6 @@ use WP_Error;
  */
 class Initializer {
 	/**
-	 * Store the instance.
-	 *
-	 * @var Initializer
-	 */
-	protected static $instance;
-
-	/**
 	 * WPCOM blog ID
 	 *
 	 * @var int
@@ -28,20 +21,16 @@ class Initializer {
 	protected $blog_id;
 
 	/**
-	 * Initialize and get instance
+	 * Initialize
 	 */
-	public static function instance() {
-		if ( is_null( static::$instance ) ) {
-			static::$instance = new static();
-			static::$instance->init();
-		}
-		return static::$instance;
+	public static function init() {
+		( new static() )->do_init();
 	}
 
 	/**
 	 * Initialize the search package.
 	 */
-	protected function init() {
+	public function do_init() {
 		// Set up package version hook.
 		add_filter( 'jetpack_package_versions', __NAMESPACE__ . '\Package::send_version_to_tracker' );
 
@@ -75,27 +64,6 @@ class Initializer {
 
 		// Fired when the package loading is done.
 		do_action( 'jetpack_search_loaded' );
-	}
-
-	/**
-	 * Check if site has been connected.
-	 */
-	public function is_connected() {
-		return ( new Connection_Manager( Package::SLUG ) )->is_connected();
-	}
-
-	/**
-	 * Check if search is supported by current plan.
-	 */
-	public function is_search_supported() {
-		return ( new Plan() )->supports_search();
-	}
-
-	/**
-	 * Register the widget if Jetpack Search is available and enabled.
-	 */
-	public function jetpack_search_widget_init() {
-		register_widget( 'Automattic\Jetpack\Search\Search_Widget' );
 	}
 
 	/**
@@ -173,6 +141,27 @@ class Initializer {
 		if ( defined( 'WP_CLI' ) && \WP_CLI ) {
 			\WP_CLI::add_command( 'jetpack-search', __NAMESPACE__ . '\CLI' );
 		}
+	}
+
+	/**
+	 * Register the widget if Jetpack Search is available and enabled.
+	 */
+	public function jetpack_search_widget_init() {
+		register_widget( 'Automattic\Jetpack\Search\Search_Widget' );
+	}
+
+	/**
+	 * Check if site has been connected.
+	 */
+	protected function is_connected() {
+		return ( new Connection_Manager( Package::SLUG ) )->is_connected();
+	}
+
+	/**
+	 * Check if search is supported by current plan.
+	 */
+	protected function is_search_supported() {
+		return ( new Plan() )->supports_search();
 	}
 
 	/**
