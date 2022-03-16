@@ -31,18 +31,22 @@ export default function ProductManagementControls( {
 		select( jetpackMembershipProductsStore ).isInvalidProduct( selectedProductId )
 	);
 
-	return isVisible ? (
+	return (
 		<>
-			<ProductManagementInspectorControl
-				allowCreateOneTimeInterval={ allowCreateOneTimeInterval }
-				setSelectedProductId={ setSelectedProductId }
-			/>
-			<ProductManagementToolbarControl
-				products={ products }
-				selectedProductId={ selectedProductId }
-				setSelectedProductId={ setSelectedProductId }
-			/>
+			{ isVisible && (
+				<>
+					<ProductManagementInspectorControl
+						allowCreateOneTimeInterval={ allowCreateOneTimeInterval }
+						setSelectedProductId={ setSelectedProductId }
+					/>
+					<ProductManagementToolbarControl
+						products={ products }
+						selectedProductId={ selectedProductId }
+						setSelectedProductId={ setSelectedProductId }
+					/>
+				</>
+			) }
 			{ isSelectedProductInvalid && <InvalidProductWarning /> }
 		</>
-	) : null;
+	);
 }
