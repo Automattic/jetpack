@@ -173,7 +173,7 @@ class Authorize_Redirect {
 	 * it with different Calypso enrionments, such as localhost.
 	 * Copied from Jetpack class.
 	 *
-	 * @since $$next-version$$
+	 * @since 1.37.1
 	 *
 	 * @return string Calypso environment
 	 */
