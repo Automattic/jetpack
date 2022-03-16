@@ -69,10 +69,13 @@ class Initializer {
 			return;
 		}
 
-		$this->init_search_package();
+		// Initialize search package.
+		if ( ! $this->init_search_package() ) {
+			return;
+		}
 
 		/**
-		 * Fires when the Jetpack Search package initialization is finished.
+		 * Fires when the Jetpack Search package has been initialized.
 		 *
 		 * @since $$next-version$$
 		 */
@@ -97,23 +100,27 @@ class Initializer {
 		$this->init_cli();
 
 		$module_control = new Module_Control();
-
 		if ( ! $module_control->is_active() ) {
 			/** This filter is documented in search/src/initalizers/class-initalizer.php */
 			do_action( 'jetpack_search_abort', 'module_inactive', null );
 			return;
 		}
 
+		$success = false;
 		if ( $module_control->is_instant_search_enabled() ) {
 			// Enable Instant search experience.
-			$this->init_instant_search( $this->blog_id );
+			$success = $this->init_instant_search( $this->blog_id );
 		} else {
 			// Enable the classic search experience.
-			$this->init_classic_search( $this->blog_id );
+			$success = $this->init_classic_search( $this->blog_id );
 		}
 
-		// registers Jetpack Search widget.
-		add_action( 'widgets_init', array( $this, 'jetpack_search_widget_init' ) );
+		if ( $success ) {
+			// registers Jetpack Search widget.
+			add_action( 'widgets_init', array( $this, 'jetpack_search_widget_init' ) );
+		}
+
+		return $success;
 	}
 
 	/**
@@ -142,6 +149,7 @@ class Initializer {
 		// Enable configuring instant search within the Customizer.
 		// Not need to check existence of `WP_Customize_Manager`, because which is not loaded all the time.
 		new Customizer();
+		return true;
 	}
 
 	/**
@@ -161,6 +169,7 @@ class Initializer {
 			return;
 		}
 		Classic_Search::initialize( $this->blog_id );
+		return true;
 	}
 
 	/**
