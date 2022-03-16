@@ -1,4 +1,15 @@
-<?php
+<?php // phpcs:ignore WordPress.Files.FileName.InvalidClassFileName
+/**
+ * Update site taxonomy API endpoints.
+ *
+ * Endpoints:
+ * Create a new category: /sites/%s/categories/new
+ * Create a new tag:      /sites/%s/tags/new
+ * Edit a category:       /sites/%s/categories/slug:%s
+ * Edit a tag:            /sites/%s/tags/slug:%s
+ * Delete a category:     /sites/%s/categories/slug:%s/delete
+ * Delete a tag:          /sites/%s/tags/slug:%s/delete
+ */
 
 new WPCOM_JSON_API_Update_Taxonomy_Endpoint(
 	array(
@@ -172,11 +183,22 @@ new WPCOM_JSON_API_Update_Taxonomy_Endpoint(
 	)
 );
 
+/**
+ * Update site taxonomy API class.
+ */
 class WPCOM_JSON_API_Update_Taxonomy_Endpoint extends WPCOM_JSON_API_Taxonomy_Endpoint {
-	// /sites/%s/tags|categories/new    -> $blog_id
-	// /sites/%s/tags|categories/slug:%s -> $blog_id, $taxonomy_id
-	// /sites/%s/tags|categories/slug:%s/delete -> $blog_id, $taxonomy_id
-	function callback( $path = '', $blog_id = 0, $object_id = 0 ) {
+	/**
+	 * Update site taxonomy API callback.
+	 *
+	 * - /sites/%s/tags|categories/new            -> $blog_id
+	 * - /sites/%s/tags|categories/slug:%s        -> $blog_id, $taxonomy_id
+	 * - /sites/%s/tags|categories/slug:%s/delete -> $blog_id, $taxonomy_id
+	 *
+	 * @param string     $path API path.
+	 * @param int        $blog_id Blog ID.
+	 * @param int|string $object_id Term.
+	 */
+	public function callback( $path = '', $blog_id = 0, $object_id = 0 ) {
 		$blog_id = $this->api->switch_to_blog_and_validate_user( $this->api->get_blog_id( $blog_id ) );
 		if ( is_wp_error( $blog_id ) ) {
 			return $blog_id;
@@ -197,8 +219,16 @@ class WPCOM_JSON_API_Update_Taxonomy_Endpoint extends WPCOM_JSON_API_Taxonomy_En
 		return $this->update_taxonomy( $path, $blog_id, $object_id, $taxonomy_type );
 	}
 
-	// /sites/%s/tags|categories/new    -> $blog_id
-	function new_taxonomy( $path, $blog_id, $taxonomy_type ) {
+	/**
+	 * Create a new taxonomy.
+	 *
+	 * - /sites/%s/tags|categories/new -> $blog_id
+	 *
+	 * @param string $path API path.
+	 * @param int    $blog_id Blog ID.
+	 * @param string $taxonomy_type Taxonomy type (category, post_tag).
+	 */
+	public function new_taxonomy( $path, $blog_id, $taxonomy_type ) {
 		$args  = $this->query_args();
 		$input = $this->input();
 		if ( ! is_array( $input ) || ! $input || ! strlen( $input['name'] ) ) {
@@ -220,7 +250,7 @@ class WPCOM_JSON_API_Update_Taxonomy_Endpoint extends WPCOM_JSON_API_Taxonomy_En
 		}
 
 		if ( $term = get_term_by( 'name', $input['name'], $taxonomy_type ) ) {
-			// the same name is allowed as long as the parents are different
+			// the same name is allowed as long as the parents are different.
 			if ( $input['parent'] === $term->parent ) {
 				return new WP_Error( 'duplicate', 'A taxonomy with that name already exists', 400 );
 			}
@@ -251,8 +281,17 @@ class WPCOM_JSON_API_Update_Taxonomy_Endpoint extends WPCOM_JSON_API_Taxonomy_En
 		return $return;
 	}
 
-	// /sites/%s/tags|categories/slug:%s -> $blog_id, $taxonomy_id
-	function update_taxonomy( $path, $blog_id, $object_id, $taxonomy_type ) {
+	/**
+	 * Update a taxonomy.
+	 *
+	 * - /sites/%s/tags|categories/slug:%s -> $blog_id, $taxonomy_id
+	 *
+	 * @param string     $path API path.
+	 * @param int        $blog_id Blog ID.
+	 * @param int|string $object_id Term.
+	 * @param string     $taxonomy_type Taxonomy type (category, post_tag).
+	 */
+	public function update_taxonomy( $path, $blog_id, $object_id, $taxonomy_type ) {
 		$taxonomy = get_term_by( 'slug', $object_id, $taxonomy_type );
 		$tax      = get_taxonomy( $taxonomy_type );
 		if ( ! current_user_can( $tax->cap->edit_terms ) ) {
@@ -299,8 +338,17 @@ class WPCOM_JSON_API_Update_Taxonomy_Endpoint extends WPCOM_JSON_API_Taxonomy_En
 		return $return;
 	}
 
-	// /sites/%s/tags|categories/%s/delete -> $blog_id, $taxonomy_id
-	function delete_taxonomy( $path, $blog_id, $object_id, $taxonomy_type ) {
+	/**
+	 * Delete a taxonomy.
+	 *
+	 * - /sites/%s/tags|categories/%s/delete -> $blog_id, $taxonomy_id
+	 *
+	 * @param string     $path API path.
+	 * @param int        $blog_id Blog ID.
+	 * @param int|string $object_id Term.
+	 * @param string     $taxonomy_type Taxonomy type (category, post_tag).
+	 */
+	public function delete_taxonomy( $path, $blog_id, $object_id, $taxonomy_type ) {
 		$taxonomy = get_term_by( 'slug', $object_id, $taxonomy_type );
 		$tax      = get_taxonomy( $taxonomy_type );
 		if ( ! current_user_can( $tax->cap->delete_terms ) ) {
