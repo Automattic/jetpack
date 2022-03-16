@@ -69,7 +69,7 @@ runs:
       if: steps.versions.outputs.node-version != 'false'
     - name: Setup Node
       if: steps.versions.outputs.node-version != 'false'
-      uses: actions/setup-node@v2
+      uses: actions/setup-node@v3
       with:
         node-version: ${{ steps.versions.outputs.node-version }}
 

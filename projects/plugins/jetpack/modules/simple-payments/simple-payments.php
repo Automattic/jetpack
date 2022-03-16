@@ -65,7 +65,7 @@ class Jetpack_Simple_Payments {
 	 *
 	 * @todo Remove this when nothing calles getInstance anymore.
 	 *
-	 * @deprecated $$next-version$$
+	 * @deprecated 10.8
 	 */
 	public static function getInstance() { // phpcs:ignore WordPress.NamingConventions.ValidFunctionName.MethodNameInvalid
 		_deprecated_function( __METHOD__, 'Jetpack 10.7.0', 'Jetpack_Simple_Payments::get_instance' );
