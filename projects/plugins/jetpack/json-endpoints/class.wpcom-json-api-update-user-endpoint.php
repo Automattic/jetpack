@@ -1,4 +1,9 @@
-<?php
+<?php // phpcs:ignore WordPress.Files.FileName.InvalidClassFileName
+/**
+ * Update site users API endpoint.
+ *
+ * Endpoint: /sites/%s/users/%d/delete
+ */
 
 new WPCOM_JSON_API_Update_User_Endpoint(
 	array(
@@ -35,9 +40,18 @@ new WPCOM_JSON_API_Update_User_Endpoint(
 	)
 );
 
+/**
+ * Update site users API class.
+ */
 class WPCOM_JSON_API_Update_User_Endpoint extends WPCOM_JSON_API_Endpoint {
-
-	function callback( $path = '', $blog_id = 0, $user_id = 0 ) {
+	/**
+	 * Update site users API callback.
+	 *
+	 * @param string $path API path.
+	 * @param int    $blog_id Blog ID.
+	 * @param int    $user_id User ID.
+	 */
+	public function callback( $path = '', $blog_id = 0, $user_id = 0 ) {
 		$blog_id = $this->api->switch_to_blog_and_validate_user( $this->api->get_blog_id( $blog_id ) );
 		if ( is_wp_error( $blog_id ) ) {
 			return $blog_id;
@@ -59,19 +73,19 @@ class WPCOM_JSON_API_Update_User_Endpoint extends WPCOM_JSON_API_Endpoint {
 	/**
 	 * Checks if a user exists by checking to see if a WP_User object exists for a user ID.
 	 *
-	 * @param  int $user_id
+	 * @param  int $user_id User ID.
 	 * @return bool
 	 */
-	function user_exists( $user_id ) {
+	public function user_exists( $user_id ) {
 		$user = get_user_by( 'id', $user_id );
 
 		return false != $user && is_a( $user, 'WP_User' );
 	}
 
 	/**
-	 * Return the domain name of a subscription
+	 * Return the domain name of a subscription.
 	 *
-	 * @param  Store_Subscription $subscription
+	 * @param  Store_Subscription $subscription Subscription object.
 	 * @return string
 	 */
 	protected function get_subscription_domain_name( $subscription ) {
@@ -81,7 +95,7 @@ class WPCOM_JSON_API_Update_User_Endpoint extends WPCOM_JSON_API_Endpoint {
 	/**
 	 * Get a list of the domains owned by the given user.
 	 *
-	 * @param  int $user_id
+	 * @param  int $user_id User ID.
 	 * @return array
 	 */
 	protected function domain_subscriptions_for_site_owned_by_user( $user_id ) {
@@ -95,10 +109,10 @@ class WPCOM_JSON_API_Update_User_Endpoint extends WPCOM_JSON_API_Endpoint {
 	/**
 	 * Validates user input and then decides whether to remove or delete a user.
 	 *
-	 * @param  int $user_id
+	 * @param  int $user_id User ID.
 	 * @return array|WP_Error
 	 */
-	function delete_or_remove_user( $user_id ) {
+	public function delete_or_remove_user( $user_id ) {
 		if ( 0 == $user_id ) {
 			return new WP_Error( 'invalid_input', 'A valid user ID must be specified.', 400 );
 		}
@@ -134,10 +148,10 @@ class WPCOM_JSON_API_Update_User_Endpoint extends WPCOM_JSON_API_Endpoint {
 	/**
 	 * Removes a user from the current site.
 	 *
-	 * @param  int $user_id
+	 * @param  int $user_id User ID.
 	 * @return array|WP_Error
 	 */
-	function remove_user( $user_id ) {
+	public function remove_user( $user_id ) {
 		if ( ! current_user_can( 'remove_users' ) ) {
 			return new WP_Error( 'unauthorized', 'User cannot remove users for specified site.', 403 );
 		}
@@ -154,10 +168,10 @@ class WPCOM_JSON_API_Update_User_Endpoint extends WPCOM_JSON_API_Endpoint {
 	/**
 	 * Deletes a user and optionally reassigns posts to another user.
 	 *
-	 * @param  int $user_id
+	 * @param  int $user_id User ID.
 	 * @return array|WP_Error
 	 */
-	function delete_user( $user_id ) {
+	public function delete_user( $user_id ) {
 		if ( ! current_user_can( 'delete_users' ) ) {
 			return new WP_Error( 'unauthorized', 'User cannot delete users for specified site.', 403 );
 		}
