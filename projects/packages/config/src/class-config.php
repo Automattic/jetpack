@@ -230,7 +230,7 @@ class Config {
 	 * Enables the search feature.
 	 */
 	protected function enable_search() {
-		Jetpack_Search_Main::instance();
+		Jetpack_Search_Main::init();
 	}
 
 	/**
