@@ -31,7 +31,6 @@ stop_env() {
 }
 
 reset_env() {
-	$BASE_CMD uninstall || true
 	$BASE_CMD install || true
 	configure_wp_env "$@"
 }
