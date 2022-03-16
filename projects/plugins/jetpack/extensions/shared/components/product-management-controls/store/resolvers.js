@@ -27,7 +27,6 @@ export const getProducts = ( selectedProductId = 0, setSelectedProductId = () =>
 } ) => {
 	const origin = getQueryArg( window.location.href, 'origin' );
 	const path = addQueryArgs( '/wpcom/v2/memberships/status', {
-		dispatch: 'getProducts',
 		source: origin === 'https://wordpress.com' ? 'gutenberg-wpcom' : 'gutenberg',
 	} );
 

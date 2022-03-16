@@ -1,15 +1,18 @@
 /**
  * WordPress dependencies
  */
+import { BlockControls } from '@wordpress/block-editor';
 import { useSelect } from '@wordpress/data';
 
 /**
  * Internal dependencies
  */
-import { jetpackMembershipProductsStore } from './store';
+import { API_STATE_CONNECTED } from './constants';
 import ProductManagementInspectorControl from './inspector-control';
+import { jetpackMembershipProductsStore } from './store';
 import ProductManagementToolbarControl from './toolbar-control';
 import InvalidProductWarning from './invalid-product-warning';
+import StripeConnectToolbarButton from '../stripe-connect-toolbar-button';
 
 import './style.scss';
 
@@ -27,12 +30,25 @@ export default function ProductManagementControls( {
 			),
 		[]
 	);
-	const isSelectedProductInvalid = useSelect( select =>
-		select( jetpackMembershipProductsStore ).isInvalidProduct( selectedProductId )
-	);
+	const { apiState, connectUrl, isSelectedProductInvalid, shouldUpgrade } = useSelect( select => {
+		const { getApiState, getConnectUrl, getShouldUpgrade, isInvalidProduct } = select(
+			jetpackMembershipProductsStore
+		);
+		return {
+			apiState: getApiState(),
+			connectUrl: getConnectUrl(),
+			isSelectedProductInvalid: isInvalidProduct( selectedProductId ),
+			shouldUpgrade: getShouldUpgrade(),
+		};
+	} );
 
 	return (
 		<>
+			{ ! shouldUpgrade && apiState !== API_STATE_CONNECTED && connectUrl && (
+				<BlockControls group="block">
+					<StripeConnectToolbarButton blockName="premium-content" connectUrl={ connectUrl } />
+				</BlockControls>
+			) }
 			{ isVisible && (
 				<>
 					<ProductManagementInspectorControl

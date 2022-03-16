@@ -3,7 +3,6 @@
  */
 import { useEffect, useState, useRef } from '@wordpress/element';
 import { Disabled, Placeholder, Spinner } from '@wordpress/components';
-import { BlockControls } from '@wordpress/block-editor';
 import { __ } from '@wordpress/i18n';
 import { useViewportMatch } from '@wordpress/compose';
 import { select, useSelect } from '@wordpress/data';
@@ -21,7 +20,6 @@ import {
 	API_STATE_CONNECTED,
 } from '../../shared/components/product-management-controls/constants';
 import useProducts from '../../shared/components/product-management-controls/use-products';
-import StripeConnectToolbarButton from '../../shared/components/stripe-connect-toolbar-button';
 
 /**
  * @typedef { import('./plan').Plan } Plan
@@ -77,7 +75,7 @@ function Edit( props ) {
 	const { clientId } = props;
 
 	const setSelectedProductId = productId => props.setAttributes( { selectedPlanId: productId } );
-	const { apiState, connectUrl, shouldUpgrade } = useProducts( setSelectedProductId );
+	const { apiState } = useProducts( setSelectedProductId );
 
 	//We would like to hide the tabs and controls when user clicks outside the premium content block
 	/**
@@ -119,9 +117,6 @@ function Edit( props ) {
 		}
 	}, [ clientId, isSelected, selectedBlock ] );
 
-	const shouldShowConnectButton = () =>
-		! shouldUpgrade && apiState !== API_STATE_CONNECTED && connectUrl;
-
 	const isSmallViewport = useViewportMatch( 'medium', '<' );
 
 	if ( apiState === API_STATE_LOADING && ! isPreview ) {
@@ -140,11 +135,12 @@ function Edit( props ) {
 
 	return (
 		<>
-			{ shouldShowConnectButton() && (
-				<BlockControls group="block">
-					<StripeConnectToolbarButton blockName="premium-content" connectUrl={ connectUrl } />
-				</BlockControls>
-			) }
+			<ProductManagementControls
+				allowCreateOneTimeInterval={ false }
+				isVisible={ ( isSelected || selectedInnerBlock ) && apiState === API_STATE_CONNECTED }
+				selectedProductId={ props.attributes.selectedPlanId }
+				setSelectedProductId={ setSelectedProductId }
+			/>
 
 			<ViewSelector
 				options={ tabs }
@@ -155,13 +151,6 @@ function Edit( props ) {
 			/>
 
 			<div className={ className } ref={ wrapperRef }>
-				<ProductManagementControls
-					allowCreateOneTimeInterval={ false }
-					isVisible={ ( isSelected || selectedInnerBlock ) && apiState === API_STATE_CONNECTED }
-					selectedProductId={ props.attributes.selectedPlanId }
-					setSelectedProductId={ setSelectedProductId }
-				/>
-
 				<Context.Provider
 					value={ {
 						selectedTab,
