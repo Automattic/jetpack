@@ -1,10 +1,10 @@
 /* global jpTracksAJAX */
 ( function ( $, jpTracksAJAX ) {
 	window.jpTracksAJAX = window.jpTracksAJAX || {};
-	const debugSet = localStorage.getItem( 'debug' ) === 'dops:analytics';
+	var debugSet = localStorage.getItem( 'debug' ) === 'dops:analytics';
 
 	window.jpTracksAJAX.record_ajax_event = function ( eventName, eventType, eventProp ) {
-		const data = {
+		var data = {
 			tracksNonce: jpTracksAJAX.jpTracksAJAX_nonce,
 			action: 'jetpack_tracks',
 			tracksEventType: eventType,
@@ -27,19 +27,19 @@
 
 	$( document ).ready( function () {
 		$( 'body' ).on( 'click', '.jptracks a, a.jptracks', function ( event ) {
-			const $this = $( event.target );
+			var $this = $( event.target );
 			// We know that the jptracks element is either this, or its ancestor
-			const $jptracks = $this.closest( '.jptracks' );
+			var $jptracks = $this.closest( '.jptracks' );
 			// We need an event name at least
-			const eventName = $jptracks.attr( 'data-jptracks-name' );
+			var eventName = $jptracks.attr( 'data-jptracks-name' );
 			if ( undefined === eventName ) {
 				return;
 			}
 
-			const eventProp = $jptracks.attr( 'data-jptracks-prop' ) || false;
+			var eventProp = $jptracks.attr( 'data-jptracks-prop' ) || false;
 
-			const url = $this.attr( 'href' );
-			const target = $this.get( 0 ).target;
+			var url = $this.attr( 'href' );
+			var target = $this.get( 0 ).target;
 			if ( url && target && '_self' !== target ) {
 				var newTabWindow = window.open( '', target );
 				newTabWindow.opener = null;
