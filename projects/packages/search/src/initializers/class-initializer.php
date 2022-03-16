@@ -39,9 +39,9 @@ class Initializer {
 		 *
 		 * @since $$next-version$$
 		 *
-		 * @param boolean $init_jetpack_search_package Default value is true.
+		 * @param boolean $init_search_package Default value is true.
 		 */
-		if ( ! apply_filters( 'jetpack_search_init_jetpack_search_package', true ) ) {
+		if ( ! apply_filters( 'jetpack_search_init_search_package', true ) ) {
 			/**
 			 * Fires when the Jetpack Search fails and would fallback to MySQL.
 			 *
@@ -49,7 +49,7 @@ class Initializer {
 			 * @param string $reason Reason for Search fallback.
 			 * @param mixed  $data   Data associated with the request, such as attempted search parameters.
 			 */
-			do_action( 'jetpack_search_abort', 'jetpack_search_init_jetpack_search_package_filter', null );
+			do_action( 'jetpack_search_abort', 'jetpack_search_init_search_package_filter', null );
 			return;
 		}
 
@@ -69,8 +69,17 @@ class Initializer {
 			return;
 		}
 
+		$this->module_control = new Module_Control();
+		if ( ! $this->module_control->is_active() ) {
+			/** This filter is documented in search/src/initalizers/class-initalizer.php */
+			do_action( 'jetpack_search_abort', 'module_inactive', null );
+			return;
+		}
+
 		// Initialize search package.
-		if ( ! $this->init_search_package() ) {
+		if ( ! $this->init_search() ) {
+			/** This filter is documented in search/src/initalizers/class-initalizer.php */
+			do_action( 'jetpack_search_abort', 'jetpack_search_init_search', null );
 			return;
 		}
 
@@ -95,19 +104,12 @@ class Initializer {
 	/**
 	 * Init the search package.
 	 */
-	protected function init_search_package() {
+	protected function init_search() {
 		// We could provide CLI to enable search/instant search, so init them regardless of whether the module is active or not.
 		$this->init_cli();
 
-		$module_control = new Module_Control();
-		if ( ! $module_control->is_active() ) {
-			/** This filter is documented in search/src/initalizers/class-initalizer.php */
-			do_action( 'jetpack_search_abort', 'module_inactive', null );
-			return;
-		}
-
 		$success = false;
-		if ( $module_control->is_instant_search_enabled() ) {
+		if ( $this->module_control->is_instant_search_enabled() ) {
 			// Enable Instant search experience.
 			$success = $this->init_instant_search( $this->blog_id );
 		} else {
@@ -135,8 +137,6 @@ class Initializer {
 		 * @param boolean $init_instant_search Default value is true.
 		 */
 		if ( ! apply_filters( 'jetpack_search_init_instant_search', true ) ) {
-			/** This filter is documented in search/src/initalizers/class-initalizer.php */
-			do_action( 'jetpack_search_abort', 'jetpack_search_init_instant_search_filter', null );
 			return;
 		}
 
@@ -164,8 +164,6 @@ class Initializer {
 		 * @param boolean $init_instant_search Default value is true.
 		 */
 		if ( ! apply_filters( 'jetpack_search_init_classic_search', true ) ) {
-			/** This filter is documented in search/src/initalizers/class-initalizer.php */
-			do_action( 'jetpack_search_abort', 'jetpack_search_init_classic_search_filter', null );
 			return;
 		}
 		Classic_Search::initialize( $this->blog_id );
