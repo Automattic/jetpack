@@ -106,14 +106,22 @@ export class BarChart extends React.Component {
 									<th scope="col">{ __( 'Post type', 'jetpack-search-pkg' ) }</th>
 									{ this.state?.legendItems.length &&
 										this.state.legendItems.map( item => {
-											return <th scope="col">{ item.text }</th>;
+											return (
+												<th key={ item.text } scope="col">
+													{ item.text }
+												</th>
+											);
 										} ) }
 								</tr>
 								<tr>
 									<th scope="row">{ __( 'Record count', 'jetpack-search-pkg' ) }</th>
 									{ this.state?.legendItems.length &&
 										this.state.legendItems.map( item => {
-											return <td>{ this.props.data[ item.datasetIndex ].data.data }</td>;
+											return (
+												<td key={ item.text }>
+													{ this.props.data[ item.datasetIndex ].data.data }
+												</td>
+											);
 										} ) }
 								</tr>
 							</tbody>
