@@ -75,9 +75,13 @@ async function checkChangelogFiles() {
 					] );
 					if ( commitFiles.status === 0 ) {
 						console.log(
-							chalk.green( 'Changelog file(s) committed! Go ahead and `git push` again.' )
+							'\r\n\r\n   _____ _____ _______   _____  _    _  _____ _    _            _____          _____ _   _ \r\n  / ____|_   _|__   __| |  __ \\| |  | |/ ____| |  | |     /\\   / ____|   /\\   |_   _| \\ | |\r\n | |  __  | |    | |    | |__) | |  | | (___ | |__| |    /  \\ | |  __   /  \\    | | |  \\| |\r\n | | |_ | | |    | |    |  ___/| |  | |\\___ \\|  __  |   / /\\ \\| | |_ | / /\\ \\   | | | . ` |\r\n | |__| |_| |_   | |    | |    | |__| |____) | |  | |  / ____ \\ |__| |/ ____ \\ _| |_| |\\  |\r\n  \\_____|_____|  |_|    |_|     \\____/|_____/|_|  |_| /_/    \\_\\_____/_/    \\_\\_____|_| \\_|\r\n                                                                                           \r\n                                                                                           \r\n\r\n'
 						);
-						throw new Error( 'Your changelog file was committed! Go ahead and `git push` again.' );
+						console.log(
+							chalk.green(
+								'Changelog file(s) committed! Ignore error below and `git push` again to include changelog files.'
+							)
+						);
 					}
 				}
 			}
