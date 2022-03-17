@@ -3,6 +3,10 @@
 		font-size: 16px;
 	}
 
+	&--padded {
+		padding: 24px;
+	}
+
 	min-height: calc(100vh - 60px);
 	display: flex;
 	flex-direction: column;
@@ -28,11 +32,6 @@
 
 .jb-section--main {
 	margin-top: $halfling;
-}
-
-.jb-section--subpage {
-	/* Shrink margin-top on sub-pages to bring <- go back button up */
-	margin-top: 8px;
 }
 
 .jb-container {

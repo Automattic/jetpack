@@ -11,6 +11,7 @@ import scss from 'rollup-plugin-scss';
 import svelteSVG from 'rollup-plugin-svelte-svg';
 import copy from 'rollup-plugin-copy';
 import path from 'path';
+import replace from '@rollup/plugin-replace';
 
 const cssGenPath = path.dirname( require.resolve( 'jetpack-boost-critical-css-gen' ) );
 
@@ -100,6 +101,9 @@ export default {
 			dedupe: [ 'svelte' ],
 		} ),
 		commonjs(),
+
+		replace( { 'process.env.NODE_ENV': JSON.stringify( 'production' ) } ),
+
 		typescript( {
 			sourceMap: ! production,
 			inlineSources: ! production,

@@ -13,9 +13,11 @@
 	import { criticalCssStatus, failedProviderKeyCount } from '../../../stores/critical-css-status';
 	import TemplatedString from '../../../elements/TemplatedString.svelte';
 	import actionLinkTemplateVar from '../../../utils/action-link-template-var';
-	import { navigateTo } from '../../../stores/url-fragment';
 	import CriticalCssShowStopperError from './CriticalCssShowStopperError.svelte';
 	import TimeAgo from '../../../elements/TimeAgo.svelte';
+	import routerHistory from '../../../utils/router-history.ts';
+
+	const { navigate } = routerHistory;
 
 	// Show an error if in error state, or if a success has 0 results.
 	let showError = false;
@@ -77,7 +79,7 @@
 							$failedProviderKeyCount
 						)}
 						vars={{
-							...actionLinkTemplateVar( () => navigateTo( 'critical-css-advanced' ), 'advanced' ),
+							...actionLinkTemplateVar( () => navigate( 'critical-css-advanced' ), 'advanced' ),
 						}}
 					/>
 				</div>
