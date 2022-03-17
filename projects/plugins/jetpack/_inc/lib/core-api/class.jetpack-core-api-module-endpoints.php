@@ -883,7 +883,7 @@ class Jetpack_Core_API_Data extends Jetpack_Core_API_XMLRPC_Consumer_Endpoint {
 				case 'akismet_show_user_comments_approved':
 					// Save Akismet option '1' or '0' like it's done in akismet/class.akismet-admin.php.
 					$updated = get_option( $option ) != $value // phpcs:ignore Universal.Operators.StrictComparisons.LooseNotEqual
-						? update_option( $option, (bool) $value ? '1' : '0' )
+						? update_option( $option, $value ? '1' : '0' )
 						: true;
 					break;
 
