@@ -11,7 +11,7 @@ import { currencyDollar } from '@wordpress/icons';
 import edit from './edit';
 import { getIconColor } from '../../shared/block-icons';
 import { settings as donationSettings } from '../donations';
-import { settings as recurringPaymentSettings } from '../recurring-payments-button';
+import { settings as recurringPaymentSettings } from '../recurring-payments';
 import { settings as premiumContentSettings } from '../premium-content';
 
 export const name = 'payments-intro';

@@ -10,7 +10,7 @@ import { Fragment } from '@wordpress/element';
  */
 import edit from './edit';
 import save from './save';
-import icon from '../recurring-payments-button/icon';
+import icon from './button/icon';
 import { getIconColor } from '../../shared/block-icons';
 
 import { isAtomicSite, isSimpleSite } from '@automattic/jetpack-shared-extension-utils';

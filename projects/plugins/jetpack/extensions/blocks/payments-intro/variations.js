@@ -10,7 +10,7 @@ import { name as donationsName, settings as donationSettings } from '../donation
 import {
 	name as recurringPaymentsName,
 	settings as recurringPaymentSettings,
-} from '../recurring-payments-button';
+} from '../recurring-payments';
 
 const variations = [
 	[ donationsName, donationSettings ],

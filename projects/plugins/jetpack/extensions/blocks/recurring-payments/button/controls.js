@@ -10,7 +10,7 @@ import { getSiteFragment } from '@automattic/jetpack-shared-extension-utils';
  * Internal dependencies
  */
 import { formatProductAmount } from './util';
-import StripeConnectToolbarButton from '../../shared/components/stripe-connect-toolbar-button';
+import StripeConnectToolbarButton from '../../../shared/components/stripe-connect-toolbar-button';
 
 export function PanelControls( { attributes: { planId }, products, setMembershipAmount } ) {
 	return (

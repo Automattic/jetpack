@@ -28,8 +28,8 @@ import {
 	CURRENCY_OPTIONS,
 	isPriceValid,
 	minimumTransactionAmountForCurrency,
-} from '../../shared/currencies';
-import getConnectUrl from '../../shared/get-connect-url';
+} from '../../../shared/currencies';
+import getConnectUrl from '../../../shared/get-connect-url';
 import { removeInvalidProducts } from '.';
 import icon from './icon';
 import { PanelControls, ToolbarControls } from './controls';
