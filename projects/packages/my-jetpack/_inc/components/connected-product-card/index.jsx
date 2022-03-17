@@ -49,12 +49,10 @@ const ConnectedProductCard = ( { admin, slug, showDeactivate, ...props } ) => {
 
 ConnectedProductCard.propTypes = {
 	admin: PropTypes.bool.isRequired,
-	onLearn: PropTypes.func,
 	slug: PropTypes.string.isRequired,
 	showDeactivate: PropTypes.bool,
 };
 ConnectedProductCard.defaultProps = {
-	onLearn: () => {},
 	showDeactivate: true,
 };
 

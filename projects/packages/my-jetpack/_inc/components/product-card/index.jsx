@@ -271,7 +271,6 @@ ProductCard.propTypes = {
 	onFixConnection: PropTypes.func,
 	onActivate: PropTypes.func,
 	onAdd: PropTypes.func,
-	onLearn: PropTypes.func,
 	slug: PropTypes.string.isRequired,
 	showDeactivate: PropTypes.bool,
 	status: PropTypes.oneOf( [
@@ -291,7 +290,6 @@ ProductCard.defaultProps = {
 	onFixConnection: () => {},
 	onActivate: () => {},
 	onAdd: () => {},
-	onLearn: () => {},
 	showDeactivate: true,
 };
 
