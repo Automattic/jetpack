@@ -1340,7 +1340,7 @@ importers:
       pluralize: 8.0.0
       process: 0.11.10
       semver: 7.3.5
-      simple-git: 2.37.0
+      simple-git: 3.3.0
       sinon: 9.2.4
       sprintf-js: 1.1.2
       yargs: 16.2.0
@@ -1365,7 +1365,7 @@ importers:
       pluralize: 8.0.0
       process: 0.11.10
       semver: 7.3.5
-      simple-git: 2.37.0
+      simple-git: 3.3.0
       sprintf-js: 1.1.2
       yargs: 16.2.0
     devDependencies:
@@ -21538,8 +21538,8 @@ packages:
   /signal-exit/3.0.7:
     resolution: {integrity: sha512-wnD2ZE+l+SPC/uoS0vXeE9L1+0wuaMqKlfz9AMUo38JsyLSBWSFcHR1Rri62LZc12vLr1gb3jl7iwQhgwpAbGQ==}
 
-  /simple-git/2.37.0:
-    resolution: {integrity: sha512-ZK6qRnP+Xa2v23UEZDNHUfzswsuNCDHOQpWZRkpqNaXn7V5wVBBx3zRJLji3pROJGzrzA7mXwY7preL5EKuAaQ==}
+  /simple-git/3.3.0:
+    resolution: {integrity: sha512-K9qcbbZwPHhk7MLi0k0ekvSFXJIrRoXgHhqMXAFM75qS68vdHTcuzmul1ilKI02F/4lXshVgBoDll2t++JK0PQ==}
     dependencies:
       '@kwsites/file-exists': 1.1.1
       '@kwsites/promise-deferred': 1.1.1
