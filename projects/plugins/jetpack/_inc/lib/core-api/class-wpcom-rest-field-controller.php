@@ -221,8 +221,8 @@ abstract class WPCOM_REST_API_V2_Field_Controller {
 	 *
 	 * @param mixed           $object_data Whatever the endpoint would return for its response.
 	 * @param WP_REST_Request $request     WP API request.
-	 * // phpcs:ignore Squiz.Commenting.FunctionComment.InvalidNoReturn -- this is to refer to how it must be implemented in inheriting classes.
-	 * @return true|WP_Error
+	 *
+	 * @return true|WP_Error|null
 	 */
 	public function get_permission_check( $object_data, $request ) { // phpcs:ignore VariableAnalysis.CodeAnalysis.VariableAnalysis.UnusedVariable
 		_doing_it_wrong(
@@ -234,6 +234,7 @@ abstract class WPCOM_REST_API_V2_Field_Controller {
 			),
 			'jetpack-6.8'
 		);
+		return null;
 	}
 
 	/**
@@ -261,8 +262,8 @@ abstract class WPCOM_REST_API_V2_Field_Controller {
 	 * @param mixed           $value The new value for the field.
 	 * @param mixed           $object_data Probably a WordPress object (e.g., WP_Post).
 	 * @param WP_REST_Request $request     WP API request.
-	 * // phpcs:ignore Squiz.Commenting.FunctionComment.InvalidNoReturn -- this is to refer to how it must be implemented in inheriting classes.
-	 * @return true|WP_Error
+	 *
+	 * @return true|WP_Error|null
 	 */
 	public function update_permission_check( $value, $object_data, $request ) { // phpcs:ignore VariableAnalysis.CodeAnalysis.VariableAnalysis.UnusedVariable
 		_doing_it_wrong(
@@ -274,6 +275,7 @@ abstract class WPCOM_REST_API_V2_Field_Controller {
 			),
 			'jetpack-6.8'
 		);
+		return null;
 	}
 
 	/**
@@ -319,8 +321,8 @@ abstract class WPCOM_REST_API_V2_Field_Controller {
 	 * As of WordPress 5.0, Core does not support:
 	 * * Multiple type: `type: [ 'string', 'integer' ]`
 	 * * $ref, allOf, anyOf, oneOf, not, const
-	 * // phpcs:ignore Squiz.Commenting.FunctionComment.InvalidNoReturn -- this is to refer to how it must be implemented in inheriting classes.
-	 * @return array
+	 *
+	 * @return array|null
 	 */
 	public function get_schema() {
 		_doing_it_wrong(
@@ -332,6 +334,7 @@ abstract class WPCOM_REST_API_V2_Field_Controller {
 			),
 			'jetpack-6.8'
 		);
+		return null;
 	}
 
 	/**
