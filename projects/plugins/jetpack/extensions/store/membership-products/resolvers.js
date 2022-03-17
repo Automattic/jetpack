@@ -18,8 +18,8 @@ import {
 	setSiteSlug,
 } from './actions';
 import { onError } from './utils';
-import { API_STATE_CONNECTED, API_STATE_NOTCONNECTED } from '../constants';
-import getConnectUrl from '../../../get-connect-url';
+import { API_STATE_CONNECTED, API_STATE_NOTCONNECTED } from './constants';
+import getConnectUrl from '../../shared/get-connect-url';
 
 export const getProducts = ( selectedProductId = 0, setSelectedProductId = () => {} ) => async ( {
 	dispatch,

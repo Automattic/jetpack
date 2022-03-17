@@ -15,8 +15,8 @@ import Context from './_inc/context';
 import './editor.scss';
 import ViewSelector from './_inc/view-selector';
 import ProductManagementControls from '../../shared/components/product-management-controls';
-import { API_STATE_LOADING } from '../../shared/components/product-management-controls/constants';
 import useProducts from '../../shared/components/product-management-controls/use-products';
+import { API_STATE_LOADING } from '../../store/membership-products/constants';
 
 /**
  * Tab definitions

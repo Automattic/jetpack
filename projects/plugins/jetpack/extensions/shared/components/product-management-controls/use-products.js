@@ -6,7 +6,7 @@ import { useSelect } from '@wordpress/data';
 /**
  * Internal dependencies
  */
-import { jetpackMembershipProductsStore } from './store';
+import { store as membershipProductsStore } from '../../../store/membership-products';
 
 export default function useProducts( {
 	selectedProductId = 0,
@@ -14,7 +14,7 @@ export default function useProducts( {
 	shouldSkipResolver = false,
 } ) {
 	const products = useSelect( select => {
-		const { getProducts, getProductsNoResolver } = select( jetpackMembershipProductsStore );
+		const { getProducts, getProductsNoResolver } = select( membershipProductsStore );
 		return {
 			products: shouldSkipResolver
 				? getProductsNoResolver()
@@ -23,9 +23,7 @@ export default function useProducts( {
 	}, [] );
 
 	const { apiState, connectUrl, shouldUpgrade } = useSelect( select => {
-		const { getApiState, getConnectUrl, getShouldUpgrade } = select(
-			jetpackMembershipProductsStore
-		);
+		const { getApiState, getConnectUrl, getShouldUpgrade } = select( membershipProductsStore );
 		return {
 			apiState: getApiState(),
 			connectUrl: getConnectUrl(),

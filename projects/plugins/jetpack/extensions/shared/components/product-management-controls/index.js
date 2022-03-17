@@ -8,10 +8,10 @@ import { useSelect } from '@wordpress/data';
  * Internal dependencies
  */
 import ProductManagementInspectorControl from './inspector-control';
-import { jetpackMembershipProductsStore } from './store';
 import ProductManagementToolbarControl from './toolbar-control';
 import InvalidProductWarning from './invalid-product-warning';
 import StripeConnectToolbarButton from '../stripe-connect-toolbar-button';
+import { store as membershipProductsStore } from '../../../store/membership-products';
 
 import './style.scss';
 
@@ -22,16 +22,13 @@ export default function ProductManagementControls( {
 } ) {
 	const products = useSelect(
 		select =>
-			select( jetpackMembershipProductsStore ).getProducts(
-				selectedProductId,
-				setSelectedProductId
-			),
+			select( membershipProductsStore ).getProducts( selectedProductId, setSelectedProductId ),
 		[]
 	);
 	const { connectUrl, isApiConnected, isSelectedProductInvalid, shouldUpgrade } = useSelect(
 		select => {
 			const { getConnectUrl, getShouldUpgrade, isApiStateConnected, isInvalidProduct } = select(
-				jetpackMembershipProductsStore
+				membershipProductsStore
 			);
 			return {
 				connectUrl: getConnectUrl(),

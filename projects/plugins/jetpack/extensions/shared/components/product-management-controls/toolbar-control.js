@@ -16,7 +16,7 @@ import { check, update, warning } from '@wordpress/icons';
 /**
  * Internal dependencies
  */
-import { jetpackMembershipProductsStore } from './store';
+import { store as membershipProductsStore } from '../../../store/membership-products';
 
 function getProductDescription( product ) {
 	const { currency, interval, price } = product;
@@ -93,7 +93,7 @@ export default function ProductManagementToolbarControl( {
 	setSelectedProductId,
 } ) {
 	const selectedProduct = useSelect( select =>
-		select( jetpackMembershipProductsStore ).getProduct( selectedProductId )
+		select( membershipProductsStore ).getProduct( selectedProductId )
 	);
 
 	let productDescription = null;

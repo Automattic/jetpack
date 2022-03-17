@@ -1,7 +1,7 @@
 /**
  * Internal dependencies
  */
-import { API_STATE_CONNECTED } from '../constants';
+import { API_STATE_CONNECTED } from './constants';
 
 export const getAllProperties = state => ( {
 	apiState: state.apiState,

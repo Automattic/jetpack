@@ -21,15 +21,15 @@ import { lock } from '@wordpress/icons';
  * Internal dependencies
  */
 import { API_STATE_NOT_REQUESTING, API_STATE_REQUESTING } from './constants';
-import { jetpackMembershipProductsStore } from './store';
 import { CURRENCY_OPTIONS } from '../../currencies';
+import { store as membershipProductsStore } from '../../../store/membership-products';
 
 export default function ProductManagementInspectorControl( {
 	allowCreateOneTimeInterval,
 	setSelectedProductId,
 } ) {
-	const siteSlug = useSelect( select => select( jetpackMembershipProductsStore ).getSiteSlug() );
-	const { saveProduct } = useDispatch( jetpackMembershipProductsStore );
+	const siteSlug = useSelect( select => select( membershipProductsStore ).getSiteSlug() );
+	const { saveProduct } = useDispatch( membershipProductsStore );
 
 	const [ apiState, setApiState ] = useState( API_STATE_NOT_REQUESTING );
 	const [ title, setTitle ] = useState( __( 'Monthly Subscription', 'jetpack' ) );

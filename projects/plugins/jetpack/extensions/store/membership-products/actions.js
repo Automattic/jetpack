@@ -12,9 +12,9 @@ import { __, sprintf } from '@wordpress/i18n';
 /**
  * Internal dependencies
  */
-import { jetpackMembershipProductsStore } from './';
+import { STORE_NAME } from './constants';
 import { onError, onSuccess } from './utils';
-import { isPriceValid, minimumTransactionAmountForCurrency } from '../../../currencies';
+import { isPriceValid, minimumTransactionAmountForCurrency } from '../../shared/currencies';
 
 export const setProducts = products => ( {
 	type: 'SET_PRODUCTS',
@@ -88,7 +88,7 @@ export const saveProduct = (
 			currency: response.currency,
 		};
 
-		const products = registry.select( jetpackMembershipProductsStore ).getProducts();
+		const products = registry.select( STORE_NAME ).getProducts();
 
 		dispatch( setProducts( products.concat( [ newProduct ] ) ) );
 		setSelectedProductId( newProduct.id );
