@@ -34,7 +34,7 @@ const PaymentsPostPublish = () => {
 		>
 			<p>
 				{ __(
-					'Insert the Payments button or the Donations form — no plugin required.',
+					'Insert the Payments Button or the Donations Form — no plugin required.',
 					'jetpack'
 				) }
 			</p>
