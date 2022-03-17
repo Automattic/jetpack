@@ -338,7 +338,14 @@ export class MembershipsButtonEdit extends Component {
 			} );
 		}
 
-		return setAttributes( { planId: parseInt( id ) } );
+		const planId = parseInt( id );
+		this.props.postLink.searchParams.set( 'recurring_payments', planId.toString() );
+		return setAttributes( {
+			planId,
+			// We need to use an absolute URL otherwise the reader won't be able to open the post.
+			url: this.props.postLink.toString(),
+			uniqueId: `recurring-payments-${ planId }`,
+		} );
 	};
 
 	renderMembershipAmounts = () => (
@@ -499,7 +506,10 @@ export class MembershipsButtonEdit extends Component {
 							'jetpack/button',
 							{
 								element: 'a',
-								uniqueId: 'recurring-payments-id',
+								passthroughAttributes: {
+									uniqueId: 'uniqueId',
+									url: 'url',
+								},
 							},
 						],
 					] }
@@ -515,6 +525,7 @@ export class MembershipsButtonEdit extends Component {
 export default compose( [
 	withSelect( select => ( {
 		postId: select( 'core/editor' ).getCurrentPostId(),
+		postLink: new URL( select( 'core/editor' ).getCurrentPost().link ),
 	} ) ),
 	withDispatch( dispatch => {
 		const { updateBlockAttributes } = dispatch( 'core/editor' );

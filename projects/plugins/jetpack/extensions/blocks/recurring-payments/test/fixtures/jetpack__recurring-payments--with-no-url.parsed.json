@@ -3,9 +3,7 @@
 		"blockName": "jetpack/recurring-payments",
 		"attrs": {
 			"planId": 12,
-			"align": "right",
-			"uniqueId": "recurring-payments-12",
-			"url": "?open_payment_plan=12"
+			"align": "right"
 		},
 		"innerBlocks": [
 			{
@@ -14,9 +12,7 @@
 					"element": "a",
 					"uniqueId": "recurring-payments-id",
 					"text": "Payment",
-					"borderRadius": 0,
-					"uniqueId": "recurring-payments-12",
-					"url": "?open_payment_plan=12"
+					"borderRadius": 0
 				},
 				"innerBlocks": [],
 				"innerHTML": "",
