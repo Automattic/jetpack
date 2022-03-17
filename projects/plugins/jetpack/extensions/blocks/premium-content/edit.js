@@ -63,8 +63,8 @@ const WALL_TAB = 1;
 
 function Edit( props ) {
 	const [ selectedTab, selectTab ] = useState( tabs[ WALL_TAB ] );
-	const { isPreview } = props.attributes;
-	const { clientId, selectedPlanId, isSelected, className, setAttributes } = props;
+	const { isPreview, selectedPlanId } = props.attributes;
+	const { clientId, isSelected, className, setAttributes } = props;
 
 	const setSelectedProductId = productId => setAttributes( { selectedPlanId: productId } );
 	const { apiState } = useProducts( {

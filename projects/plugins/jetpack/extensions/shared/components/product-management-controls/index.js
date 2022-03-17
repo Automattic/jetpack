@@ -7,7 +7,6 @@ import { useSelect } from '@wordpress/data';
 /**
  * Internal dependencies
  */
-import { API_STATE_CONNECTED } from './constants';
 import ProductManagementInspectorControl from './inspector-control';
 import { jetpackMembershipProductsStore } from './store';
 import ProductManagementToolbarControl from './toolbar-control';
@@ -29,17 +28,19 @@ export default function ProductManagementControls( {
 			),
 		[]
 	);
-	const { apiState, connectUrl, isSelectedProductInvalid, shouldUpgrade } = useSelect( select => {
-		const { getApiState, getConnectUrl, getShouldUpgrade, isInvalidProduct } = select(
-			jetpackMembershipProductsStore
-		);
-		return {
-			apiState: getApiState(),
-			connectUrl: getConnectUrl(),
-			isSelectedProductInvalid: isInvalidProduct( selectedProductId ),
-			shouldUpgrade: getShouldUpgrade(),
-		};
-	} );
+	const { connectUrl, isApiConnected, isSelectedProductInvalid, shouldUpgrade } = useSelect(
+		select => {
+			const { getConnectUrl, getShouldUpgrade, isApiStateConnected, isInvalidProduct } = select(
+				jetpackMembershipProductsStore
+			);
+			return {
+				connectUrl: getConnectUrl(),
+				isApiConnected: isApiStateConnected(),
+				isSelectedProductInvalid: isInvalidProduct( selectedProductId ),
+				shouldUpgrade: getShouldUpgrade(),
+			};
+		}
+	);
 
 	if ( shouldUpgrade ) {
 		return null;
@@ -47,12 +48,12 @@ export default function ProductManagementControls( {
 
 	return (
 		<>
-			{ apiState !== API_STATE_CONNECTED && connectUrl && (
+			{ ! isApiConnected && !! connectUrl && (
 				<BlockControls group="block">
 					<StripeConnectToolbarButton blockName="premium-content" connectUrl={ connectUrl } />
 				</BlockControls>
 			) }
-			{ apiState === API_STATE_CONNECTED && (
+			{ isApiConnected && (
 				<>
 					<ProductManagementInspectorControl
 						allowCreateOneTimeInterval={ allowCreateOneTimeInterval }
@@ -65,7 +66,7 @@ export default function ProductManagementControls( {
 					/>
 				</>
 			) }
-			{ isSelectedProductInvalid && <InvalidProductWarning /> }
+			{ isApiConnected && isSelectedProductInvalid && <InvalidProductWarning /> }
 		</>
 	);
 }

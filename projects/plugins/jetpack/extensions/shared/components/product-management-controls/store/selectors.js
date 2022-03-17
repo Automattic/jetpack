@@ -1,3 +1,8 @@
+/**
+ * Internal dependencies
+ */
+import { API_STATE_CONNECTED } from '../constants';
+
 export const getAllProperties = state => ( {
 	apiState: state.apiState,
 	connectUrl: state.connectUrl,
@@ -20,5 +25,7 @@ export const getShouldUpgrade = state => state.getShouldUpgrade;
 
 export const getSiteSlug = state => state.siteSlug;
 
+export const isApiStateConnected = state => state.apiState === API_STATE_CONNECTED;
+
 export const isInvalidProduct = ( state, productId ) =>
-	! productId || ! getProduct( state, productId );
+	!! productId && ! getProduct( state, productId );
