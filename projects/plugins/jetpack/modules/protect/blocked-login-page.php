@@ -10,15 +10,42 @@ use Automattic\Jetpack\Redirect;
  * is available, or during the login_head hook.
  *
  * Class will only be instanciated if Protect has detected a hard blocked IP address.
- *
- *
  */
 class Jetpack_Protect_Blocked_Login_Page {
 
+	/**
+	 * Instance of the class.
+	 *
+	 * @var Jetpack_Protect_Blocked_Login_Page
+	 */
 	private static $__instance = null;
+
+	/**
+	 * Can send recovery emails.
+	 *
+	 * @var bool - defaults to true.
+	 */
 	public $can_send_recovery_emails;
+
+	/**
+	 * The IP address.
+	 *
+	 * @var string
+	 */
 	public $ip_address;
+
+	/**
+	 * Valid blocked user ID.
+	 *
+	 * @var int - the user ID.
+	 */
 	public $valid_blocked_user_id;
+
+	/**
+	 * The email address.
+	 *
+	 * @var int - string.
+	 */
 	public $email_address;
 
 	/**
@@ -29,11 +56,13 @@ class Jetpack_Protect_Blocked_Login_Page {
 	 *
 	 * @var string string $HELP_URL
 	 */
-	const HELP_URL = 'https://jetpack.com/support/security-features/#unblock';
+	const HELP_URL                           = 'https://jetpack.com/support/security-features/#unblock';
 	const HTTP_STATUS_CODE_TOO_MANY_REQUESTS = 429;
 
 	/**
 	 * Singleton implementation
+	 *
+	 * @param string $ip_address - the IP address.
 	 *
 	 * @return object
 	 */
@@ -45,8 +74,12 @@ class Jetpack_Protect_Blocked_Login_Page {
 		return self::$__instance;
 	}
 
-
-	function __construct( $ip_address ) {
+	/**
+	 * Singleton implementation
+	 *
+	 * @param string $ip_address - the IP address.
+	 */
+	public function __construct( $ip_address ) {
 		/**
 		 * Filter controls if an email recovery form is shown to blocked IPs.
 		 *
@@ -81,6 +114,11 @@ class Jetpack_Protect_Blocked_Login_Page {
 		return Redirect::get_url( 'jetpack-support-security-features', array( 'anchor' => 'unblock' ) );
 	}
 
+	/**
+	 * Add arguments to lost password redirect url.
+	 *
+	 * @param string $url - the URL.
+	 */
 	public function add_args_to_lostpassword_redirect_url( $url ) {
 		if ( $this->valid_blocked_user_id ) {
 			$url = empty( $url ) ? wp_login_url() : $url;
@@ -97,6 +135,12 @@ class Jetpack_Protect_Blocked_Login_Page {
 		return $url;
 	}
 
+	/**
+	 * Add arguments to lost password redirect url.
+	 *
+	 * @param string $url - the URL.
+	 * @param string $redirect - where to redirect to.
+	 */
 	public function add_args_to_lostpassword_url( $url, $redirect ) {
 		if ( $this->valid_blocked_user_id ) {
 			$args = array(
@@ -113,6 +157,13 @@ class Jetpack_Protect_Blocked_Login_Page {
 		return $url;
 	}
 
+	/**
+	 * Add arguments to login post url.
+	 *
+	 * @param string $url - the URL.
+	 * @param string $path - the path.
+	 * @param string $scheme -the scheme(?).
+	 */
 	public function add_args_to_login_post_url( $url, $path, $scheme ) {
 		if ( $this->valid_blocked_user_id && ( 'login_post' === $scheme || 'login' === $scheme ) ) {
 			$url = add_query_arg(
@@ -128,6 +179,13 @@ class Jetpack_Protect_Blocked_Login_Page {
 		return $url;
 	}
 
+	/**
+	 * Add arguments to login post url.
+	 *
+	 * @param string $url - the URL.
+	 * @param string $redirect - where we want to redirect to.
+	 * @param string $force_reauth -if we're forcing reauthorization.
+	 */
 	public function add_args_to_login_url( $url, $redirect, $force_reauth ) {
 		if ( $this->valid_blocked_user_id ) {
 			$args = array(
@@ -148,14 +206,22 @@ class Jetpack_Protect_Blocked_Login_Page {
 		return $url;
 	}
 
+	/**
+	 * Check if user is blocked.
+	 *
+	 * @param string $user - the user.
+	 */
 	public function check_valid_blocked_user( $user ) {
-		if ( $this->valid_blocked_user_id && $this->valid_blocked_user_id != $user->ID ) {
+		if ( $this->valid_blocked_user_id && $this->valid_blocked_user_id != $user->ID ) { // phpcs:ignore Universal.Operators.StrictComparisons.LooseNotEqual
 			return new WP_Error( 'invalid_recovery_token', __( 'The recovery token is not valid for this user.', 'jetpack' ) );
 		}
 
 		return $user;
 	}
 
+	/**
+	 * Check if user is valid.
+	 */
 	public function is_blocked_user_valid() {
 		if ( ! $this->can_send_recovery_emails ) {
 			return false;
@@ -185,7 +251,7 @@ class Jetpack_Protect_Blocked_Login_Page {
 			$path,
 			'1.1',
 			array(
-				'method' => 'post'
+				'method' => 'post',
 			),
 			array(
 				'token'   => $key,
@@ -239,13 +305,13 @@ class Jetpack_Protect_Blocked_Login_Page {
 	}
 
 	function process_recovery_email() {
-		$sent = $this->send_recovery_email();
+		$sent               = $this->send_recovery_email();
 		$show_recovery_form = true;
 		if ( is_wp_error( $sent ) ) {
 			if ( 'email_already_sent' === $sent->get_error_code() ) {
 				$show_recovery_form = false;
 			}
-			$this->protect_die( $sent,null,true, $show_recovery_form );
+			$this->protect_die( $sent, null, true, $show_recovery_form );
 		} else {
 			$this->render_recovery_success();
 		}
@@ -264,16 +330,15 @@ class Jetpack_Protect_Blocked_Login_Page {
 		$this->email_address = $email;
 		$path                = sprintf( '/sites/%d/protect/recovery/request', Jetpack::get_option( 'id' ) );
 
-
 		$response = Client::wpcom_json_api_request_as_blog(
 			$path,
 			'1.1',
 			array(
-				'method' => 'post'
+				'method' => 'post',
 			),
 			array(
 				'user_id' => $user->ID,
-				'ip'      => $this->ip_address
+				'ip'      => $this->ip_address,
 			)
 		);
 
@@ -282,7 +347,7 @@ class Jetpack_Protect_Blocked_Login_Page {
 
 		if ( self::HTTP_STATUS_CODE_TOO_MANY_REQUESTS === $code ) {
 			return new WP_Error( 'email_already_sent', sprintf( __( 'Recovery instructions were sent to %s. Check your inbox!', 'jetpack' ), $this->email_address ) );
-		} else if ( is_wp_error( $result ) || empty( $result ) || isset( $result->error ) ) {
+		} elseif ( is_wp_error( $result ) || empty( $result ) || isset( $result->error ) ) {
 			return new WP_Error( 'email_send_error', __( 'Oops, we were unable to send a recovery email. Try again.', 'jetpack' ) );
 		}
 
@@ -294,14 +359,14 @@ class Jetpack_Protect_Blocked_Login_Page {
 			$title = __( 'Jetpack has locked your site\'s login page.', 'jetpack' );
 		}
 		if ( is_wp_error( $content ) ) {
-			$svg = '<svg class="gridicon gridicons-notice" height="24" width="24" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><g><path d="M12 2C6.477 2 2 6.477 2 12s4.477 10 10 10 10-4.477 10-10S17.523 2 12 2zm1 15h-2v-2h2v2zm0-4h-2l-.5-6h3l-.5 6z"/></g></svg>';
-			$content = '<span class="error"> '. $svg . $content->get_error_message() . '</span>';
+			$svg     = '<svg class="gridicon gridicons-notice" height="24" width="24" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><g><path d="M12 2C6.477 2 2 6.477 2 12s4.477 10 10 10 10-4.477 10-10S17.523 2 12 2zm1 15h-2v-2h2v2zm0-4h-2l-.5-6h3l-.5 6z"/></g></svg>';
+			$content = '<span class="error"> ' . $svg . $content->get_error_message() . '</span>';
 		}
-		$content =  '<p>'. $content .'</p>';
+		$content = '<p>' . $content . '</p>';
 
 		// If for some reason the login pop up box show up in the wp-admin.
 		if ( isset( $_GET['interim-login'] ) ) {
-			$content = "<style>html{ background-color: #fff; } #error-message { margin:0 auto; padding: 1em; box-shadow: none; } </style>" . $content;
+			$content = '<style>html{ background-color: #fff; } #error-message { margin:0 auto; padding: 1em; box-shadow: none; } </style>' . $content;
 		}
 		$this->display_page( $title, $content, $back_link, $recovery_form );
 
@@ -316,10 +381,9 @@ class Jetpack_Protect_Blocked_Login_Page {
 		$this->protect_die( sprintf( __( 'Recovery instructions were sent to %s. Check your inbox!', 'jetpack' ), $this->email_address ) );
 	}
 
-
 	function get_html_blocked_login_message() {
 		$icon = '<svg class="gridicon gridicons-spam" style="fill:#d94f4f" height="24" width="24" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><g><path d="M17 2H7L2 7v10l5 5h10l5-5V7l-5-5zm-4 15h-2v-2h2v2zm0-4h-2l-.5-6h3l-.5 6z"/></g></svg>';
-		$ip = str_replace( 'http://', '', esc_url( 'http://' . $this->ip_address ) );
+		$ip   = str_replace( 'http://', '', esc_url( 'http://' . $this->ip_address ) );
 		return sprintf(
 			__( '<p>Your IP address <code>%2$s</code> has been flagged for potential security violations. You can unlock your login by sending yourself a special link via email. <a href="%3$s">Learn More</a></p>', 'jetpack' ),
 			$icon,
@@ -330,16 +394,16 @@ class Jetpack_Protect_Blocked_Login_Page {
 
 	function get_html_recovery_form() {
 		ob_start(); ?>
-        <div>
-            <form method="post" action="?jetpack-protect-recovery=true">
+		<div>
+			<form method="post" action="?jetpack-protect-recovery=true">
 				<?php echo wp_nonce_field( 'bypass-protect' ); ?>
-                <p><label for="email"><?php esc_html_e( 'Your email', 'jetpack' ); ?><br/></label>
-                    <input type="email" name="email" class="text-input"/>
-                    <input type="submit" class="button"
-                           value="<?php esc_attr_e( 'Send email', 'jetpack' ); ?>"/>
-                </p>
-            </form>
-        </div>
+				<p><label for="email"><?php esc_html_e( 'Your email', 'jetpack' ); ?><br/></label>
+					<input type="email" name="email" class="text-input"/>
+					<input type="submit" class="button"
+						   value="<?php esc_attr_e( 'Send email', 'jetpack' ); ?>"/>
+				</p>
+			</form>
+		</div>
 
 		<?php
 		$contents = ob_get_contents();
@@ -361,11 +425,15 @@ class Jetpack_Protect_Blocked_Login_Page {
 		}
 		?>
 		<!DOCTYPE html>
-		<html xmlns="http://www.w3.org/1999/xhtml" <?php if ( function_exists( 'language_attributes' ) && function_exists( 'is_rtl' ) ) {
+		<html xmlns="http://www.w3.org/1999/xhtml" 
+		<?php
+		if ( function_exists( 'language_attributes' ) && function_exists( 'is_rtl' ) ) {
 			language_attributes();
 		} else {
 			echo "dir='$text_direction'";
-		} ?>>
+		}
+		?>
+		>
 		<head>
 			<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
 			<meta name="viewport" content="width=device-width">
@@ -376,7 +444,7 @@ class Jetpack_Protect_Blocked_Login_Page {
 				echo "<meta name='robots' content='noindex,nofollow' />\n";
 			}
 			?>
-			<title><?php echo $title ?></title>
+			<title><?php echo $title; ?></title>
 			<style type="text/css">
 				html {
 					background: #f6f6f6;
@@ -609,9 +677,11 @@ class Jetpack_Protect_Blocked_Login_Page {
 				</svg>
 
 				<?php echo $message; ?>
-				<?php if ( $recovery_form ) {
+				<?php
+				if ( $recovery_form ) {
 					echo $this->get_html_recovery_form();
-				} ?>
+				}
+				?>
 			</div>
 			<div id="error-footer">
 			<?php
@@ -633,7 +703,8 @@ class Jetpack_Protect_Blocked_Login_Page {
 				</a>
 				<?php
 			} else {
-				$help_icon = '<svg class="gridicon gridicons-help" height="24" width="24" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><g><path d="M12 2C6.477 2 2 6.477 2 12s4.477 10 10 10 10-4.477 10-10S17.523 2 12 2zm1 16h-2v-2h2v2zm0-4.14V15h-2v-2c0-.552.448-1 1-1 1.103 0 2-.897 2-2s-.897-2-2-2-2 .897-2 2H8c0-2.21 1.79-4 4-4s4 1.79 4 4c0 1.862-1.278 3.413-3 3.86z"/></g></svg>';?>
+				$help_icon = '<svg class="gridicon gridicons-help" height="24" width="24" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><g><path d="M12 2C6.477 2 2 6.477 2 12s4.477 10 10 10 10-4.477 10-10S17.523 2 12 2zm1 16h-2v-2h2v2zm0-4.14V15h-2v-2c0-.552.448-1 1-1 1.103 0 2-.897 2-2s-.897-2-2-2-2 .897-2 2H8c0-2.21 1.79-4 4-4s4 1.79 4 4c0 1.862-1.278 3.413-3 3.86z"/></g></svg>';
+				?>
 					<a href="<?php echo esc_url( self::get_help_url() ); ?>" rel="noopener noreferrer" target="_blank">
 						<?php
 						printf(
