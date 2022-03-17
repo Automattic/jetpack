@@ -949,7 +949,9 @@ class Jetpack_Core_API_Data extends Jetpack_Core_API_XMLRPC_Consumer_Endpoint {
 				case 'dismiss_dash_app_card':
 				case 'dismiss_empty_stats_card':
 					// If option value was the same, consider it done.
-					$updated = get_option( $option ) !== $value ? update_option( $option, (bool) $value ) : true;
+					$updated = get_option( $option ) != $value // phpcs:ignore Universal.Operators.StrictComparisons.LooseNotEqual -- ensure we support bools or strings saved by update_option.
+						? update_option( $option, (bool) $value )
+						: true;
 					break;
 
 				case 'onboarding':
@@ -977,7 +979,9 @@ class Jetpack_Core_API_Data extends Jetpack_Core_API_XMLRPC_Consumer_Endpoint {
 
 				default:
 					// If option value was the same, consider it done.
-					$updated = get_option( $option ) !== $value ? update_option( $option, $value ) : true;
+					$updated = get_option( $option ) != $value // phpcs:ignore Universal.Operators.StrictComparisons.LooseNotEqual -- ensure we support scalars or strings saved by update_option.
+						? update_option( $option, $value )
+						: true;
 					break;
 			}
 
