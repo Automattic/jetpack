@@ -13,7 +13,7 @@ import { initializeMembershipButtons } from '../../shared/memberships';
  */
 import './view.scss';
 
-const name = 'recurring-payments';
+const name = 'recurring-payments-button';
 const blockClassName = 'wp-block-jetpack-' + name;
 
 if ( typeof window !== 'undefined' ) {

@@ -30,7 +30,8 @@ import {
 	minimumTransactionAmountForCurrency,
 } from '../../shared/currencies';
 import getConnectUrl from '../../shared/get-connect-url';
-import { icon, removeInvalidProducts } from '.';
+import { removeInvalidProducts } from '.';
+import icon from './icon';
 import { PanelControls, ToolbarControls } from './controls';
 import { formatPriceForNumberInputValue, formatProductAmount } from './util';
 

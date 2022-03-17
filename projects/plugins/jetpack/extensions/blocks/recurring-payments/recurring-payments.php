@@ -1,4 +1,5 @@
-<?php // phpcs:disable Squiz.Commenting.FileComment.Missing
+<?php
+
 /**
  * Memberships block.
  *

@@ -1,4 +1,7 @@
 <?php
+
+// TODO: Re-examine the gutenberg and rendering parts of this
+
 /**
  * Jetpack_Memberships: wrapper for memberships functions.
  *
@@ -36,7 +39,7 @@ class Jetpack_Memberships {
 	 *
 	 * @var string
 	 */
-	private static $button_block_name = 'recurring-payments';
+	private static $button_block_name = 'recurring-payments-button';
 
 	/**
 	 * These are defaults for wp_kses ran on the membership button.
@@ -467,11 +470,14 @@ class Jetpack_Memberships {
 			$deprecated = function_exists( 'gutenberg_get_post_from_context' );
 			$uses       = $deprecated ? 'context' : 'uses_context';
 			Blocks::jetpack_register_block(
-				'jetpack/recurring-payments',
+				'jetpack/recurring-payments-button',
 				array(
 					'render_callback' => array( $this, 'render_button' ),
 					$uses             => array( 'isPremiumContentChild' ),
 				)
+			);
+			Blocks::jetpack_register_block(
+				'jetpack/recurring-payments'
 			);
 		} else {
 			Jetpack_Gutenberg::set_extension_unavailable(
