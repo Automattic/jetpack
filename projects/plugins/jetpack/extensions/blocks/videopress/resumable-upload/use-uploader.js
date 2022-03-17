@@ -54,7 +54,7 @@ export const resumableUploader = ( { onError, onProgress, onSuccess } ) => {
 				const mediaId = res.getHeader( MEDIA_ID_HEADER );
 				const src = res.getHeader( SRC_URL_HEADER );
 				if ( guid && mediaId && src ) {
-					onSuccess && onSuccess( { mediaId, guid, src } );
+					onSuccess && onSuccess( { mediaId: Number( mediaId ), guid, src } );
 					return;
 				}
 

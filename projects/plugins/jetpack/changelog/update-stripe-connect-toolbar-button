@@ -1,0 +1,4 @@
+Significance: patch
+Type: enhancement
+
+Move the Stripe Connect toolbar button into a shared component, and add event tracking on it.

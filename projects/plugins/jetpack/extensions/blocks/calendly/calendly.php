@@ -186,7 +186,9 @@ function enqueue_calendly_js() {
 				jQuery( 'body' ).on( 'ready_o2', function() { initCalendlyWidget() } );
 			// Else initialize widget without waiting.
 			} else {
-				initCalendlyWidget();
+				document.addEventListener('DOMContentLoaded', function() {
+					initCalendlyWidget();
+				});
 			}
 		};
 
