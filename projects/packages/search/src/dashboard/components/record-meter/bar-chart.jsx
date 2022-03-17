@@ -71,12 +71,10 @@ export class BarChart extends React.Component {
 				datasets: this.props.data.map( d => d.data ),
 			},
 		} );
+	}
 
-		if ( this.props.isValid === true ) {
-			// TODO: move setState out of componentDidMount
-			// eslint-disable-next-line react/no-did-mount-set-state
-			this.setState( { legendItems: this.myChart.legend.legendItems } );
-		}
+	getLegendItems() {
+		return this.myChart?.legend.legendItems ?? [];
 	}
 
 	render() {
@@ -130,23 +128,22 @@ export class BarChart extends React.Component {
 				</div>
 				<div className="jp-search-chart-legend__container">
 					<ul className="jp-search-chart-legend">
-						{ this.state?.legendItems.length > 0 &&
-							this.state.legendItems.map( item => {
-								return (
-									<li key={ item.text }>
-										<div
-											className="jp-search-chart-legend__box"
-											style={ {
-												backgroundColor: item.fillStyle,
-											} }
-										/>
-										<span className="jp-search-chart-legend__label" children={ item.text } />
-										<span className="jp-search-chart-legend__count">
-											({ this.props.data[ item.datasetIndex ].data.data })
-										</span>
-									</li>
-								);
-							} ) }
+						{ this.getLegendItems().map( item => {
+							return (
+								<li key={ item.text }>
+									<div
+										className="jp-search-chart-legend__box"
+										style={ {
+											backgroundColor: item.fillStyle,
+										} }
+									/>
+									<span className="jp-search-chart-legend__label" children={ item.text } />
+									<span className="jp-search-chart-legend__count">
+										({ this.props.data[ item.datasetIndex ].data.data })
+									</span>
+								</li>
+							);
+						} ) }
 					</ul>
 				</div>
 			</div>

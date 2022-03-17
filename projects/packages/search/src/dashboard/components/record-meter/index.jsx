@@ -1,4 +1,5 @@
-/* * External dependencies
+/**
+ * External dependencies
  */
 import React, { useState } from 'react';
 import { __ } from '@wordpress/i18n';
