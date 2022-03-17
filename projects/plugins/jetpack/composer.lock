@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "129a93eb9e543a165f3bcc5c53f87acd",
+    "content-hash": "7d16d267f450c67f3cc50c2af23cc594",
     "packages": [
         {
             "name": "automattic/jetpack-a8c-mc-stats",
@@ -169,7 +169,7 @@
             "dist": {
                 "type": "path",
                 "url": "../../packages/assets",
-                "reference": "810134d18a0baedd94aae5398f2f506f213bac7b"
+                "reference": "52fb1f734112badb778f56637476365c7c81af35"
             },
             "require": {
                 "automattic/jetpack-constants": "^1.6"
@@ -177,7 +177,7 @@
             "require-dev": {
                 "automattic/jetpack-changelogger": "^3.0",
                 "brain/monkey": "2.6.1",
-                "wikimedia/testing-access-wrapper": "^1.0 | ^2.0",
+                "wikimedia/testing-access-wrapper": "^1.0 || ^2.0",
                 "yoast/phpunit-polyfills": "1.0.3"
             },
             "type": "jetpack-library",
@@ -530,10 +530,11 @@
             "dist": {
                 "type": "path",
                 "url": "../../packages/connection",
-                "reference": "ca08b5be8d8fd5a28c1374a021222adc0f596c1b"
+                "reference": "698ca7b1f0cbdea17a5785472900ce31e1bb0d98"
             },
             "require": {
                 "automattic/jetpack-a8c-mc-stats": "^1.4",
+                "automattic/jetpack-admin-ui": "^0.2",
                 "automattic/jetpack-constants": "^1.6",
                 "automattic/jetpack-heartbeat": "^1.4",
                 "automattic/jetpack-options": "^1.14",
@@ -566,7 +567,8 @@
             "autoload": {
                 "classmap": [
                     "legacy",
-                    "src/"
+                    "src/",
+                    "src/webhooks"
                 ]
             },
             "scripts": {
@@ -794,11 +796,11 @@
             "dist": {
                 "type": "path",
                 "url": "../../packages/google-fonts-provider",
-                "reference": "7e38451311be498f1f51048519ab34aeec633433"
+                "reference": "f9841d756ad9081266d415f98216ecd2b35dc246"
             },
             "require-dev": {
                 "automattic/jetpack-changelogger": "^3.0",
-                "brain/monkey": "^2.6",
+                "brain/monkey": "2.6.1",
                 "yoast/phpunit-polyfills": "1.0.3"
             },
             "type": "library",
@@ -809,7 +811,7 @@
                     "link-template": "https://github.com/Automattic/jetpack-google-fonts-provider/compare/v${old}...v${new}"
                 },
                 "branch-alias": {
-                    "dev-master": "0.1.x-dev"
+                    "dev-master": "0.2.x-dev"
                 },
                 "textdomain": "jetpack-google-fonts-provider"
             },
@@ -1574,7 +1576,7 @@
             "dist": {
                 "type": "path",
                 "url": "../../packages/search",
-                "reference": "3b5e139473cb10ebd8d353d553990a40321c00d9"
+                "reference": "5f72c34f7c203c1db024564caffbbbb6f7cb8bfb"
             },
             "require": {
                 "automattic/jetpack-assets": "^1.17",
@@ -1601,13 +1603,10 @@
                     "dev-master": "0.11.x-dev"
                 },
                 "version-constants": {
-                    "JETPACK_SEARCH_PKG__VERSION": "search.php"
+                    "::VERSION": "src/class-package.php"
                 }
             },
             "autoload": {
-                "files": [
-                    "search.php"
-                ],
                 "classmap": [
                     "src/"
                 ]
@@ -2052,16 +2051,16 @@
             "dist": {
                 "type": "path",
                 "url": "../../packages/changelogger",
-                "reference": "3de69373c0ba949ee1f759b7db0bfe1d16b7c355"
+                "reference": "370ad5f2cc8af110c19227a87686028ae8e468b7"
             },
             "require": {
                 "php": ">=5.6",
-                "symfony/console": "^3.4 | ^5.2",
-                "symfony/process": "^3.4 | ^5.2",
-                "wikimedia/at-ease": "^1.2 | ^2.0"
+                "symfony/console": "^3.4 || ^5.2",
+                "symfony/process": "^3.4 || ^5.2",
+                "wikimedia/at-ease": "^1.2 || ^2.0"
             },
             "require-dev": {
-                "wikimedia/testing-access-wrapper": "^1.0 | ^2.0",
+                "wikimedia/testing-access-wrapper": "^1.0 || ^2.0",
                 "yoast/phpunit-polyfills": "1.0.3"
             },
             "bin": [

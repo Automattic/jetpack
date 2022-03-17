@@ -31,7 +31,6 @@ test.describe( 'Search Dashboard', () => {
 
 	test.beforeEach( async ( { page } ) => {
 		searchDashboard = await SearchDashboard.visit( page );
-		await searchDashboard.waitForPage();
 		await searchDashboard.waitForNetworkIdle();
 	} );
 

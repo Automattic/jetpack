@@ -298,9 +298,9 @@ class WPCOM_REST_API_V2_Endpoint_Service_API_Keys extends WP_REST_Controller {
 		$mapbox_geocode_response = wp_safe_remote_get( esc_url_raw( $mapbox_geocode_url ) );
 		$mapbox_geocode_body     = wp_remote_retrieve_body( $mapbox_geocode_response );
 		$mapbox_geocode_json     = json_decode( $mapbox_geocode_body );
-		if ( isset( $mapbox_geocode_json->message ) && ! isset( $mapbox_geocode_json->query ) ) {
+		if ( isset( $mapbox_geocode_json->message ) || ! isset( $mapbox_geocode_json->query ) ) {
 			$status = false;
-			$msg    = $mapbox_geocode_json->message;
+			$msg    = isset( $mapbox_geocode_json->message ) ? $mapbox_geocode_json->message : 'Unknown error';
 		}
 		return array(
 			'status'        => $status,

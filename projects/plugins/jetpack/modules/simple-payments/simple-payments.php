@@ -12,22 +12,70 @@
  */
 class Jetpack_Simple_Payments {
 	// These have to be under 20 chars because that is CPT limit.
-	static $post_type_order = 'jp_pay_order';
-	static $post_type_product = 'jp_pay_product';
 
-	static $shortcode = 'simple-payment';
+	/**
+	 * Post type order.
+	 *
+	 * @var string
+	 */
+	public static $post_type_order = 'jp_pay_order';
 
-	static $css_classname_prefix = 'jetpack-simple-payments';
+	/**
+	 * Post type product.
+	 *
+	 * @var string
+	 */
+	public static $post_type_product = 'jp_pay_product';
 
-	static $required_plan;
+	/**
+	 * Define simple payment shortcode.
+	 *
+	 * @var string
+	 */
+	public static $shortcode = 'simple-payment';
 
-	// Increase this number each time there's a change in CSS or JS to bust cache.
-	static $version = '0.25';
+	/**
+	 * Define simple payment CSS prefix.
+	 *
+	 * @var string
+	 */
+	public static $css_classname_prefix = 'jetpack-simple-payments';
 
-	// Classic singleton pattern:
+	/**
+	 * Which plan the user is on.
+	 *
+	 * @var string value_bundle or jetpack_premium
+	 */
+	public static $required_plan;
+
+	/**
+	 * Instance of the class.
+	 *
+	 * @var Jetpack_Simple_Payments
+	 */
 	private static $instance;
+
+	/**
+	 * Construction function.
+	 */
 	private function __construct() {}
-	static function getInstance() {
+
+	/**
+	 * Original singleton.
+	 *
+	 * @todo Remove this when nothing calles getInstance anymore.
+	 *
+	 * @deprecated 10.8
+	 */
+	public static function getInstance() { // phpcs:ignore WordPress.NamingConventions.ValidFunctionName.MethodNameInvalid
+		_deprecated_function( __METHOD__, 'Jetpack 10.7.0', 'Jetpack_Simple_Payments::get_instance' );
+		return self::get_instance();
+	}
+
+	/**
+	 * Create instance of class.
+	 */
+	public static function get_instance() {
 		if ( ! self::$instance ) {
 			self::$instance = new self();
 			self::$instance->register_init_hooks();
@@ -36,31 +84,56 @@ class Jetpack_Simple_Payments {
 		return self::$instance;
 	}
 
+	/**
+	 * Register scripts and styles.
+	 */
 	private function register_scripts_and_styles() {
 		/**
 		 * Paypal heavily discourages putting that script in your own server:
+		 *
 		 * @see https://developer.paypal.com/docs/integration/direct/express-checkout/integration-jsv4/add-paypal-button/
 		 */
-		wp_register_script( 'paypal-checkout-js', 'https://www.paypalobjects.com/api/checkout.js', array(), null, true );
+		wp_register_script( // phpcs:ignore WordPress.WP.EnqueuedResourceParameters.MissingVersion
+			'paypal-checkout-js',
+			'https://www.paypalobjects.com/api/checkout.js',
+			array(),
+			null,
+			true
+		);
 		wp_register_script(
 			'jetpack-paypal-express-checkout',
 			plugins_url( '/paypal-express-checkout.js', __FILE__ ),
 			array( 'jquery', 'paypal-checkout-js' ),
-			self::$version,
+			JETPACK__VERSION,
 			false
 		);
-		wp_register_style( 'jetpack-simple-payments', plugins_url( '/simple-payments.css', __FILE__ ), array( 'dashicons' ) );
+		wp_register_style(
+			'jetpack-simple-payments',
+			plugins_url( '/simple-payments.css', __FILE__ ),
+			array( 'dashicons' ),
+			JETPACK__VERSION,
+			false
+		);
 	}
 
+	/**
+	 * Register init hooks.
+	 */
 	private function register_init_hooks() {
 		add_action( 'init', array( $this, 'init_hook_action' ) );
 		add_action( 'rest_api_init', array( $this, 'register_meta_fields_in_rest_api' ) );
 	}
 
+	/**
+	 * Register the shortcode.
+	 */
 	private function register_shortcode() {
 		add_shortcode( self::$shortcode, array( $this, 'parse_shortcode' ) );
 	}
 
+	/**
+	 * Actions that are run on init.
+	 */
 	public function init_hook_action() {
 		add_filter( 'rest_api_allowed_post_types', array( $this, 'allow_rest_api_types' ) );
 		add_filter( 'jetpack_sync_post_meta_whitelist', array( $this, 'allow_sync_post_meta' ) );
@@ -106,7 +179,12 @@ class Jetpack_Simple_Payments {
 		);
 	}
 
-	function remove_auto_paragraph_from_product_description( $content ) {
+	/**
+	 * Remove auto paragraph from product description.
+	 *
+	 * @param string $content - the content of the post.
+	 */
+	public function remove_auto_paragraph_from_product_description( $content ) {
 		if ( get_post_type() === self::$post_type_product ) {
 			remove_filter( 'the_content', 'wpautop' );
 		}
@@ -114,7 +192,8 @@ class Jetpack_Simple_Payments {
 		return $content;
 	}
 
-	function get_blog_id() {
+	/** Return the blog ID */
+	public function get_blog_id() {
 		if ( defined( 'IS_WPCOM' ) && IS_WPCOM ) {
 			return get_current_blog_id();
 		}
@@ -127,7 +206,7 @@ class Jetpack_Simple_Payments {
 	 *
 	 * @return bool True if Simple Payments are enabled, false otherwise.
 	 */
-	function is_enabled_jetpack_simple_payments() {
+	public function is_enabled_jetpack_simple_payments() {
 		/**
 		 * Can be used by plugin authors to disable the conflicting output of Simple Payments.
 		 *
@@ -139,14 +218,10 @@ class Jetpack_Simple_Payments {
 			return false;
 		}
 
-		// For WPCOM sites
-		if ( defined( 'IS_WPCOM' ) && IS_WPCOM && function_exists( 'has_any_blog_stickers' ) ) {
-			$site_id = $this->get_blog_id();
-			return has_any_blog_stickers( array( 'premium-plan', 'business-plan', 'ecommerce-plan' ), $site_id );
-		}
-
-		// For all Jetpack sites
-		return Jetpack::is_connection_ready() && Jetpack_Plan::supports( 'simple-payments' );
+		return (
+			( ( defined( 'IS_WPCOM' ) && IS_WPCOM ) || Jetpack::is_connection_ready() ) &&
+			Jetpack_Plan::supports( 'simple-payments' )
+		);
 	}
 
 	/**
@@ -188,16 +263,19 @@ class Jetpack_Simple_Payments {
 			return;
 		}
 
-		// We allow for overriding the presentation labels
-		$data = shortcode_atts( array(
-			'blog_id'     => $this->get_blog_id(),
-			'dom_id'      => uniqid( self::$css_classname_prefix . '-' . $product->ID . '_', true ),
-			'class'       => self::$css_classname_prefix . '-' . $product->ID,
-			'title'       => get_the_title( $product ),
-			'description' => $product->post_content,
-			'cta'         => get_post_meta( $product->ID, 'spay_cta', true ),
-			'multiple'    => get_post_meta( $product->ID, 'spay_multiple', true ) || '0'
-		), $attrs );
+		// We allow for overriding the presentation labels.
+		$data = shortcode_atts(
+			array(
+				'blog_id'     => $this->get_blog_id(),
+				'dom_id'      => uniqid( self::$css_classname_prefix . '-' . $product->ID . '_', true ),
+				'class'       => self::$css_classname_prefix . '-' . $product->ID,
+				'title'       => get_the_title( $product ),
+				'description' => $product->post_content,
+				'cta'         => get_post_meta( $product->ID, 'spay_cta', true ),
+				'multiple'    => get_post_meta( $product->ID, 'spay_multiple', true ) || '0',
+			),
+			$attrs
+		);
 
 		$data['price'] = $this->format_price(
 			get_post_meta( $product->ID, 'spay_price', true ),
@@ -219,15 +297,22 @@ class Jetpack_Simple_Payments {
 		return $this->output_shortcode( $data );
 	}
 
-	function output_admin_warning( $data ) {
+	/**
+	 * Output an admin warning if user can't use Pay with PayPal.
+	 *
+	 * @param array $data unused.
+	 */
+	public function output_admin_warning( $data ) { // phpcs:ignore VariableAnalysis.CodeAnalysis.VariableAnalysis.UnusedVariable
 		if ( ! current_user_can( 'manage_options' ) ) {
 			return;
 		}
 
 		jetpack_require_lib( 'components' );
-		return Jetpack_Components::render_upgrade_nudge( array(
-			'plan' => self::$required_plan
-		) );
+		return Jetpack_Components::render_upgrade_nudge(
+			array(
+				'plan' => self::$required_plan,
+			)
+		);
 	}
 
 	/**
@@ -239,11 +324,12 @@ class Jetpack_Simple_Payments {
 	 * @return string
 	 */
 	public function output_purchase_box( $dom_id, $is_multiple ) {
-		$items = '';
+		$items      = '';
 		$css_prefix = self::$css_classname_prefix;
 
 		if ( $is_multiple ) {
-			$items = sprintf( '
+			$items = sprintf(
+				'
 				<div class="%1$s">
 					<input class="%2$s" type="number" value="1" min="1" id="%3$s" />
 				</div>
@@ -274,16 +360,18 @@ class Jetpack_Simple_Payments {
 	public function output_shortcode( $data ) {
 		$css_prefix = self::$css_classname_prefix;
 
-		$image = "";
-		if( has_post_thumbnail( $data['id'] ) ) {
-			$image = sprintf( '<div class="%1$s"><div class="%2$s">%3$s</div></div>',
+		$image = '';
+		if ( has_post_thumbnail( $data['id'] ) ) {
+			$image = sprintf(
+				'<div class="%1$s"><div class="%2$s">%3$s</div></div>',
 				esc_attr( "${css_prefix}-product-image" ),
 				esc_attr( "${css_prefix}-image" ),
 				get_the_post_thumbnail( $data['id'], 'full' )
 			);
 		}
 
-		return sprintf( '
+		return sprintf(
+			'
 <div class="%1$s">
 	<div class="%2$s">
 		%3$s
@@ -328,30 +416,39 @@ class Jetpack_Simple_Payments {
 
 	/**
 	 * Allows custom post types to be used by REST API.
-	 * @param $post_types
+	 *
+	 * @param array $post_types - the allows post types.
 	 * @see hook 'rest_api_allowed_post_types'
 	 * @return array
 	 */
-	function allow_rest_api_types( $post_types ) {
+	public function allow_rest_api_types( $post_types ) {
 		$post_types[] = self::$post_type_order;
 		$post_types[] = self::$post_type_product;
 		return $post_types;
 	}
 
-	function allow_sync_post_meta( $post_meta ) {
-		return array_merge( $post_meta, array(
-			'spay_paypal_id',
-			'spay_status',
-			'spay_product_id',
-			'spay_quantity',
-			'spay_price',
-			'spay_customer_email',
-			'spay_currency',
-			'spay_cta',
-			'spay_email',
-			'spay_multiple',
-			'spay_formatted_price',
-		) );
+	/**
+	 * Merge $post_meta with additional meta information.
+	 *
+	 * @param array $post_meta - the post's meta information.
+	 */
+	public function allow_sync_post_meta( $post_meta ) {
+		return array_merge(
+			$post_meta,
+			array(
+				'spay_paypal_id',
+				'spay_status',
+				'spay_product_id',
+				'spay_quantity',
+				'spay_price',
+				'spay_customer_email',
+				'spay_currency',
+				'spay_cta',
+				'spay_email',
+				'spay_multiple',
+				'spay_formatted_price',
+			)
+		);
 	}
 
 	/**
@@ -363,64 +460,90 @@ class Jetpack_Simple_Payments {
 	 * @link https://developer.wordpress.org/rest-api/extending-the-rest-api/modifying-responses/
 	 */
 	public function register_meta_fields_in_rest_api() {
-		register_meta( 'post', 'spay_price', array(
-			'description'       => esc_html__( 'Simple payments; price.', 'jetpack' ),
-			'object_subtype'    => self::$post_type_product,
-			'sanitize_callback' => array( $this, 'sanitize_price' ),
-			'show_in_rest'      => true,
-			'single'            => true,
-			'type'              => 'number',
-		) );
+		register_meta(
+			'post',
+			'spay_price',
+			array(
+				'description'       => esc_html__( 'Simple payments; price.', 'jetpack' ),
+				'object_subtype'    => self::$post_type_product,
+				'sanitize_callback' => array( $this, 'sanitize_price' ),
+				'show_in_rest'      => true,
+				'single'            => true,
+				'type'              => 'number',
+			)
+		);
 
-		register_meta( 'post', 'spay_currency', array(
-			'description'       => esc_html__( 'Simple payments; currency code.', 'jetpack' ),
-			'object_subtype'    => self::$post_type_product,
-			'sanitize_callback' => array( $this, 'sanitize_currency' ),
-			'show_in_rest'      => true,
-			'single'            => true,
-			'type'              => 'string',
-		) );
+		register_meta(
+			'post',
+			'spay_currency',
+			array(
+				'description'       => esc_html__( 'Simple payments; currency code.', 'jetpack' ),
+				'object_subtype'    => self::$post_type_product,
+				'sanitize_callback' => array( $this, 'sanitize_currency' ),
+				'show_in_rest'      => true,
+				'single'            => true,
+				'type'              => 'string',
+			)
+		);
 
-		register_meta( 'post', 'spay_cta', array(
-			'description'       => esc_html__( 'Simple payments; text with "Buy" or other CTA', 'jetpack' ),
-			'object_subtype'    => self::$post_type_product,
-			'sanitize_callback' => 'sanitize_text_field',
-			'show_in_rest'      => true,
-			'single'            => true,
-			'type'              => 'string',
-		) );
+		register_meta(
+			'post',
+			'spay_cta',
+			array(
+				'description'       => esc_html__( 'Simple payments; text with "Buy" or other CTA', 'jetpack' ),
+				'object_subtype'    => self::$post_type_product,
+				'sanitize_callback' => 'sanitize_text_field',
+				'show_in_rest'      => true,
+				'single'            => true,
+				'type'              => 'string',
+			)
+		);
 
-		register_meta( 'post', 'spay_multiple', array(
-			'description'       => esc_html__( 'Simple payments; allow multiple items', 'jetpack' ),
-			'object_subtype'    => self::$post_type_product,
-			'sanitize_callback' => 'rest_sanitize_boolean',
-			'show_in_rest'      => true,
-			'single'            => true,
-			'type'              => 'boolean',
-		) );
+		register_meta(
+			'post',
+			'spay_multiple',
+			array(
+				'description'       => esc_html__( 'Simple payments; allow multiple items', 'jetpack' ),
+				'object_subtype'    => self::$post_type_product,
+				'sanitize_callback' => 'rest_sanitize_boolean',
+				'show_in_rest'      => true,
+				'single'            => true,
+				'type'              => 'boolean',
+			)
+		);
 
-		register_meta( 'post', 'spay_email', array(
-			'description'       => esc_html__( 'Simple payments button; paypal email.', 'jetpack' ),
-			'sanitize_callback' => 'sanitize_email',
-			'show_in_rest'      => true,
-			'single'            => true,
-			'type'              => 'string',
-		) );
+		register_meta(
+			'post',
+			'spay_email',
+			array(
+				'description'       => esc_html__( 'Simple payments button; paypal email.', 'jetpack' ),
+				'sanitize_callback' => 'sanitize_email',
+				'show_in_rest'      => true,
+				'single'            => true,
+				'type'              => 'string',
+			)
+		);
 
-		register_meta( 'post', 'spay_status', array(
-			'description'       => esc_html__( 'Simple payments; status.', 'jetpack' ),
-			'object_subtype'    => self::$post_type_product,
-			'sanitize_callback' => 'sanitize_text_field',
-			'show_in_rest'      => true,
-			'single'            => true,
-			'type'              => 'string',
-		) );
+		register_meta(
+			'post',
+			'spay_status',
+			array(
+				'description'       => esc_html__( 'Simple payments; status.', 'jetpack' ),
+				'object_subtype'    => self::$post_type_product,
+				'sanitize_callback' => 'sanitize_text_field',
+				'show_in_rest'      => true,
+				'single'            => true,
+				'type'              => 'string',
+			)
+		);
 	}
 
 	/**
 	 * Sanitize three-character ISO-4217 Simple payments currency
 	 *
 	 * List has to be in sync with list at the block's client side and widget's backend side:
+	 *
+	 * @param array $currency - list of currencies.
 	 * @link https://github.com/Automattic/jetpack/blob/31efa189ad223c0eb7ad085ac0650a23facf9ef5/extensions/blocks/simple-payments/constants.js#L9-L39
 	 * @link https://github.com/Automattic/jetpack/blob/31efa189ad223c0eb7ad085ac0650a23facf9ef5/modules/widgets/simple-payments.php#L19-L44
 	 *
@@ -459,7 +582,7 @@ class Jetpack_Simple_Payments {
 			'THB',
 		);
 
-		return in_array( $currency, $valid_currencies ) ? $currency : false;
+		return in_array( $currency, $valid_currencies, true ) ? $currency : false;
 	}
 
 	/**
@@ -470,9 +593,10 @@ class Jetpack_Simple_Payments {
 	 * Maximum length: 10.
 	 *
 	 * See `price` from PayPal docs:
+	 *
 	 * @link https://developer.paypal.com/docs/api/orders/v1/#definition-item
 	 *
-	 * @param      $value
+	 * @param string $price - the price we want to sanitize.
 	 * @return null|string
 	 */
 	public static function sanitize_price( $price ) {
@@ -482,8 +606,7 @@ class Jetpack_Simple_Payments {
 	/**
 	 * Sets up the custom post types for the module.
 	 */
-	function setup_cpts() {
-
+	public function setup_cpts() {
 		/*
 		 * ORDER data structure. holds:
 		 * title = customer_name | 4xproduct_name
@@ -498,31 +621,31 @@ class Jetpack_Simple_Payments {
 		 * ... (WIP)
 		 */
 		$order_capabilities = array(
-			'edit_post'             => 'edit_posts',
-			'read_post'             => 'read_private_posts',
-			'delete_post'           => 'delete_posts',
-			'edit_posts'            => 'edit_posts',
-			'edit_others_posts'     => 'edit_others_posts',
-			'publish_posts'         => 'publish_posts',
-			'read_private_posts'    => 'read_private_posts',
+			'edit_post'          => 'edit_posts',
+			'read_post'          => 'read_private_posts',
+			'delete_post'        => 'delete_posts',
+			'edit_posts'         => 'edit_posts',
+			'edit_others_posts'  => 'edit_others_posts',
+			'publish_posts'      => 'publish_posts',
+			'read_private_posts' => 'read_private_posts',
 		);
-		$order_args = array(
-			'label'                 => esc_html_x( 'Order', 'noun: a quantity of goods or items purchased or sold', 'jetpack' ),
-			'description'           => esc_html__( 'Simple Payments orders', 'jetpack' ),
-			'supports'              => array( 'custom-fields', 'excerpt' ),
-			'hierarchical'          => false,
-			'public'                => false,
-			'show_ui'               => false,
-			'show_in_menu'          => false,
-			'show_in_admin_bar'     => false,
-			'show_in_nav_menus'     => false,
-			'can_export'            => true,
-			'has_archive'           => false,
-			'exclude_from_search'   => true,
-			'publicly_queryable'    => false,
-			'rewrite'               => false,
-			'capabilities'          => $order_capabilities,
-			'show_in_rest'          => true,
+		$order_args         = array(
+			'label'               => esc_html_x( 'Order', 'noun: a quantity of goods or items purchased or sold', 'jetpack' ),
+			'description'         => esc_html__( 'Simple Payments orders', 'jetpack' ),
+			'supports'            => array( 'custom-fields', 'excerpt' ),
+			'hierarchical'        => false,
+			'public'              => false,
+			'show_ui'             => false,
+			'show_in_menu'        => false,
+			'show_in_admin_bar'   => false,
+			'show_in_nav_menus'   => false,
+			'can_export'          => true,
+			'has_archive'         => false,
+			'exclude_from_search' => true,
+			'publicly_queryable'  => false,
+			'rewrite'             => false,
+			'capabilities'        => $order_capabilities,
+			'show_in_rest'        => true,
 		);
 		register_post_type( self::$post_type_order, $order_args );
 
@@ -541,31 +664,31 @@ class Jetpack_Simple_Payments {
 		 * spay_status - status. { enabled | disabled }
 		 */
 		$product_capabilities = array(
-			'edit_post'             => 'edit_posts',
-			'read_post'             => 'read_private_posts',
-			'delete_post'           => 'delete_posts',
-			'edit_posts'            => 'publish_posts',
-			'edit_others_posts'     => 'edit_others_posts',
-			'publish_posts'         => 'publish_posts',
-			'read_private_posts'    => 'read_private_posts',
+			'edit_post'          => 'edit_posts',
+			'read_post'          => 'read_private_posts',
+			'delete_post'        => 'delete_posts',
+			'edit_posts'         => 'publish_posts',
+			'edit_others_posts'  => 'edit_others_posts',
+			'publish_posts'      => 'publish_posts',
+			'read_private_posts' => 'read_private_posts',
 		);
-		$product_args = array(
-			'label'                 => esc_html__( 'Product', 'jetpack' ),
-			'description'           => esc_html__( 'Simple Payments products', 'jetpack' ),
-			'supports'              => array( 'title', 'editor','thumbnail', 'custom-fields', 'author' ),
-			'hierarchical'          => false,
-			'public'                => false,
-			'show_ui'               => false,
-			'show_in_menu'          => false,
-			'show_in_admin_bar'     => false,
-			'show_in_nav_menus'     => false,
-			'can_export'            => true,
-			'has_archive'           => false,
-			'exclude_from_search'   => true,
-			'publicly_queryable'    => false,
-			'rewrite'               => false,
-			'capabilities'          => $product_capabilities,
-			'show_in_rest'          => true,
+		$product_args         = array(
+			'label'               => esc_html__( 'Product', 'jetpack' ),
+			'description'         => esc_html__( 'Simple Payments products', 'jetpack' ),
+			'supports'            => array( 'title', 'editor', 'thumbnail', 'custom-fields', 'author' ),
+			'hierarchical'        => false,
+			'public'              => false,
+			'show_ui'             => false,
+			'show_in_menu'        => false,
+			'show_in_admin_bar'   => false,
+			'show_in_nav_menus'   => false,
+			'can_export'          => true,
+			'has_archive'         => false,
+			'exclude_from_search' => true,
+			'publicly_queryable'  => false,
+			'rewrite'             => false,
+			'capabilities'        => $product_capabilities,
+			'show_in_rest'        => true,
 		);
 		register_post_type( self::$post_type_product, $product_args );
 	}
@@ -675,4 +798,4 @@ class Jetpack_Simple_Payments {
 		return null;
 	}
 }
-Jetpack_Simple_Payments::getInstance();
+Jetpack_Simple_Payments::get_instance();
