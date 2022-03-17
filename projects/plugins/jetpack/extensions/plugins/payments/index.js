@@ -13,15 +13,11 @@ import { __ } from '@wordpress/i18n';
  * Internal dependencies
  */
 import analytics from '../../../_inc/client/lib/analytics';
-import useAutosaveAndRedirect from '../../shared/use-autosave-and-redirect/index';
 
 const PaymentsPostPublish = () => {
 	const paymentInfoUrl = getRedirectUrl( 'wpcom-payments-donations' );
-	const { autosaveAndRedirect } = useAutosaveAndRedirect( paymentInfoUrl );
-	const trackClick = event => {
-		event.preventDefault();
+	const trackClick = () => {
 		analytics.tracks.recordEvent( 'jetpack_editor_payments_post_publish_click' );
-		autosaveAndRedirect( event, true );
 	};
 	const postType = useSelect( select => select( editorStore ).getCurrentPostType(), [] );
 
@@ -43,7 +39,7 @@ const PaymentsPostPublish = () => {
 				) }
 			</p>
 			<p>
-				<ExternalLink href={ paymentInfoUrl } target="_blank" onClick={ trackClick }>
+				<ExternalLink href={ paymentInfoUrl } onClick={ trackClick }>
 					{ __( 'Learn more about these blocks', 'jetpack' ) }
 				</ExternalLink>
 			</p>
