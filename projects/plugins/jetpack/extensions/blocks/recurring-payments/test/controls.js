@@ -25,10 +25,10 @@ describe( 'PanelControls', () => {
 	const defaultProducts = [
 		{
 			id: 1,
-			currency: "USD",
-			price: "10.00",
-			interval: "1 month",
-			title: "ten a month",
+			currency: 'USD',
+			price: '10.00',
+			interval: '1 month',
+			title: 'ten a month',
 		},
 	];
 
@@ -60,14 +60,18 @@ describe( 'PanelControls', () => {
 		render( <PanelControls { ...defaultProps } /> );
 		userEvent.selectOptions( screen.getByLabelText( 'Payment plan' ), [ '$10.00 / month' ] );
 
-		expect( setMembershipAmount ).toHaveBeenCalledWith( "1" );
+		expect( setMembershipAmount ).toHaveBeenCalledWith( '1' );
 	} );
 
 	test( 'loads and displays link to manage payments', () => {
 		render( <PanelControls { ...defaultProps } /> );
 
-		expect( screen.getByText( 'See your earnings, subscriber list, and payment plans.' ) ).toBeInTheDocument();
-		expect( screen.getByRole( 'link' ).getAttribute( 'href' ) ).toMatch( /^https:\/\/wordpress.com\/earn\/payments?/ );
+		expect(
+			screen.getByText( 'See your earnings, subscriber list, and payment plans.' )
+		).toBeInTheDocument();
+		expect( screen.getByRole( 'link' ).getAttribute( 'href' ) ).toMatch(
+			/^https:\/\/wordpress.com\/earn\/payments?/
+		);
 	} );
 } );
 
@@ -76,7 +80,7 @@ describe( 'ToolbarControls', () => {
 
 	const defaultProps = {
 		connected: false,
-		connectURL: 'http://www.test.com',
+		connectUrl: 'http://www.test.com',
 		hasUpgradeNudge: false,
 		shouldUpgrade: false,
 	};
@@ -85,7 +89,7 @@ describe( 'ToolbarControls', () => {
 		useAutosaveAndRedirect.mockImplementation( () => ( {
 			autosave: jest.fn(),
 			isRedirecting: false,
-			autosaveAndRedirect
+			autosaveAndRedirect,
 		} ) );
 	} );
 
