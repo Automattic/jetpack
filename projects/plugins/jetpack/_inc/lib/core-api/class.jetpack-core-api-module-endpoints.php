@@ -962,7 +962,7 @@ class Jetpack_Core_API_Data extends Jetpack_Core_API_XMLRPC_Consumer_Endpoint {
 						$updated = true;
 					} else {
 						$error = sprintf(
-							/* Translators: placeholder is a list of activated features. */
+							/* Translators: placeholder is a list of error codes. */
 							esc_html__( 'Onboarding failed to process: %s', 'jetpack' ),
 							$result
 						);
