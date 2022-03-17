@@ -1,6 +1,5 @@
 .container {
-	--actions-size: 32px;
-	--actions-button-height: 32px;
+	--actions-size: 28px;
 	--status-size: 8px;
 
 	padding: calc( var( --spacing-base ) * 3 ); // 24px
@@ -17,29 +16,6 @@
 		box-shadow: none;
 		box-shadow: 0 0 0 1px var( --jp-gray-10 ) inset;
 	}
-
-	:global {
-		// Buttons
-		& .components-button-group,
-		& .components-button {
-			border-radius: var(--jp-border-radius);
-			height: var(--actions-button-height);
-			line-height: var(--actions-button-height);
-		}
-
-		& .components-button-group {
-			> .components-button:first-child {
-				border-top-right-radius: 0;
-				border-bottom-right-radius: 0;
-			}
-
-			.components-dropdown-menu > .components-button,
-			> .components-button:last-child {
-				border-top-left-radius: 0;
-				border-bottom-left-radius: 0;
-			}
-		}
-	}
 }
 
 .name {
@@ -52,6 +28,13 @@
 
 .description {
 	flex-grow: 1;
+}
+
+.button {
+	font-size: var(--font-body-extra-small);
+	border-radius: var(--jp-border-radius);
+	height: var(--actions-size);
+	line-height: var(--actions-size);
 }
 
 .actions {
@@ -72,6 +55,15 @@
 .group {
 	display: flex;
 	height: var(--actions-size);
+	border-radius: var(--jp-border-radius);
+
+	& > .button:first-child {
+		border-radius: var(--jp-border-radius) 0 0 var(--jp-border-radius);
+	}
+
+	& > :global(.components-dropdown) > .button {
+		border-radius: 0 var(--jp-border-radius) var(--jp-border-radius) 0;
+	}
 }
 
 .status {
