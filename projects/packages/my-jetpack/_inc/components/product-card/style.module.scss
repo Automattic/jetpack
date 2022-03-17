@@ -82,9 +82,16 @@
 	flex-wrap: wrap;
 }
 
-.action-link-button:hover {
-	color: var(--jp-black);
-	text-decoration-thickness: var(--jp-underline-thickness);
+.action-link-button {
+	text-decoration: underline;
+	font-size: 13px;
+    font-weight: 500;
+
+	&:hover {
+		color: var(--jp-black);
+		text-decoration-thickness: var(--jp-underline-thickness);
+		cursor: pointer;
+	}
 }
 
 .group {

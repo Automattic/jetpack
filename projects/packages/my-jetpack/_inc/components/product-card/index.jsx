@@ -44,23 +44,20 @@ const ActionButton = ( {
 	status,
 	admin,
 	name,
-	onLearn,
 	onActivate,
 	onManage,
 	onFixConnection,
 	isFetching,
 	className,
 } ) => {
-	const linkClassName = classNames( styles[ 'action-link-button' ], className );
-
 	if ( ! admin ) {
 		return (
-			<Button variant="link" onClick={ onLearn } className={ linkClassName }>
+			<span className={ styles[ 'action-link-button' ] }>
 				{
 					/* translators: placeholder is product name. */
 					sprintf( __( 'Learn about %s', 'jetpack-my-jetpack' ), name )
 				}
-			</Button>
+			</span>
 		);
 	}
 
@@ -74,12 +71,12 @@ const ActionButton = ( {
 		case PRODUCT_STATUSES.NEEDS_PURCHASE:
 		case PRODUCT_STATUSES.ABSENT:
 			return (
-				<>
+				<span className={ styles[ 'action-link-button' ] }>
 					{
 						/* translators: placeholder is product name. */
 						sprintf( __( 'Add %s', 'jetpack-my-jetpack' ), name )
 					}
-				</>
+				</span>
 			);
 		case PRODUCT_STATUSES.ACTIVE:
 			return (
