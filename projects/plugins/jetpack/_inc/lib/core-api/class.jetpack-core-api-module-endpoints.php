@@ -1770,7 +1770,7 @@ class Jetpack_Core_API_Module_Data_Endpoint {
 							esc_html__( 'Your site was successfully backed up %s ago.', 'jetpack' ),
 							human_time_diff(
 								$data->backups->last_backup,
-								current_time( 'timestamp' ) // phpcs:ignore WordPress.DateTime.CurrentTimeTimestamp.Requested -- We have to keep companing between "WP" timestamps here in human_time_diff, we cannot switch to time() or another "unix" timestamp option.
+								current_time( 'timestamp' ) // phpcs:ignore WordPress.DateTime.CurrentTimeTimestamp.Requested -- We can only compare between "WP" timestamps, so we cannot switch to time() or another "unix" timestamp option as long as $data->backups->last_backup uses WP timestamps.
 							)
 						)
 					),
