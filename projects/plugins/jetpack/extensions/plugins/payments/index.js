@@ -33,10 +33,7 @@ const PaymentsPostPublish = () => {
 			icon={ currencyDollar }
 		>
 			<p>
-				{ __(
-					'Insert the Payments Button or the Donations Form — no plugin required.',
-					'jetpack'
-				) }
+				{ __( 'Insert the Payment Button or the Donations Form — no plugin required.', 'jetpack' ) }
 			</p>
 			<p>
 				<ExternalLink href={ paymentInfoUrl } onClick={ trackClick }>
