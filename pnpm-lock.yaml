@@ -384,12 +384,18 @@ importers:
       '@babel/core': 7.16.0
       '@babel/preset-react': 7.16.0
       '@wordpress/compose': 5.1.2
+      '@wordpress/data': 6.3.0
+      '@wordpress/element': 4.1.1
       '@wordpress/plugins': 4.1.1
       jetpack-js-test-runner: workspace:*
+      lodash: 4.17.21
       nyc: 15.1.0
     dependencies:
       '@wordpress/compose': 5.1.2
+      '@wordpress/data': 6.3.0
+      '@wordpress/element': 4.1.1
       '@wordpress/plugins': 4.1.1
+      lodash: 4.17.21
     devDependencies:
       '@babel/core': 7.16.0
       '@babel/preset-react': 7.16.0_@babel+core@7.16.0
@@ -533,6 +539,43 @@ importers:
       jest: 27.3.1
       md5-es: 1.8.2
       webpack: 5.65.0
+
+  projects/packages/blocks:
+    specifiers:
+      '@automattic/color-studio': 2.5.0
+      '@automattic/jetpack-shared-extension-utils': workspace:^0.2.0
+      '@babel/core': 7.16.0
+      '@babel/preset-react': 7.16.0
+      '@wordpress/base-styles': 4.1.1
+      '@wordpress/components': 19.5.0
+      '@wordpress/data': 6.3.0
+      '@wordpress/hooks': 3.3.1
+      '@wordpress/i18n': 4.3.1
+      classnames: 2.3.1
+      jetpack-js-test-runner: workspace:*
+      lodash: 4.17.21
+      react: 17.0.2
+      react-dom: 17.0.2
+      sass: 1.43.3
+      sass-loader: 12.4.0
+    dependencies:
+      '@automattic/color-studio': 2.5.0
+      '@automattic/jetpack-shared-extension-utils': link:../../js-packages/shared-extension-utils
+      '@wordpress/base-styles': 4.1.1
+      '@wordpress/components': 19.5.0_aae888dfa296766acacf1a733aa50b3a
+      '@wordpress/data': 6.3.0_react@17.0.2
+      '@wordpress/hooks': 3.3.1
+      '@wordpress/i18n': 4.3.1
+      classnames: 2.3.1
+      lodash: 4.17.21
+    devDependencies:
+      '@babel/core': 7.16.0
+      '@babel/preset-react': 7.16.0_@babel+core@7.16.0
+      jetpack-js-test-runner: link:../../../tools/js-test-runner
+      react: 17.0.2
+      react-dom: 17.0.2_react@17.0.2
+      sass: 1.43.3
+      sass-loader: 12.4.0_sass@1.43.3
 
   projects/packages/connection-ui:
     specifiers:
@@ -955,6 +998,7 @@ importers:
       '@automattic/jetpack-analytics': workspace:^0.1.8
       '@automattic/jetpack-api': workspace:^0.9.1
       '@automattic/jetpack-base-styles': workspace:^0.1.10
+      '@automattic/jetpack-blocks': workspace:^0.1.0
       '@automattic/jetpack-components': workspace:^0.10.11-alpha
       '@automattic/jetpack-connection': workspace:^0.17.4-alpha
       '@automattic/jetpack-licensing': workspace:^0.4.11-alpha
@@ -1105,6 +1149,7 @@ importers:
       '@automattic/format-currency': 1.0.0-alpha.0_react@17.0.2
       '@automattic/jetpack-analytics': link:../../js-packages/analytics
       '@automattic/jetpack-api': link:../../js-packages/api
+      '@automattic/jetpack-blocks': link:../../packages/blocks
       '@automattic/jetpack-components': link:../../js-packages/components
       '@automattic/jetpack-connection': link:../../js-packages/connection
       '@automattic/jetpack-licensing': link:../../js-packages/licensing
@@ -3657,7 +3702,7 @@ packages:
     dependencies:
       '@emotion/memoize': 0.7.5
       '@emotion/sheet': 1.1.0
-      '@emotion/utils': 1.0.0
+      '@emotion/utils': 1.1.0
       '@emotion/weak-memoize': 0.2.5
       stylis: 4.0.13
 
@@ -3694,7 +3739,7 @@ packages:
       '@emotion/cache': 11.7.1
       '@emotion/serialize': 1.0.2
       '@emotion/sheet': 1.1.0
-      '@emotion/utils': 1.0.0
+      '@emotion/utils': 1.1.0
 
   /@emotion/hash/0.8.0:
     resolution: {integrity: sha512-kBJtf7PH6aWwZ6fka3zQ0p6SBYzx4fl1LoZXE2RrnYST9Xljm7WfKJrU4g/Xr3Beg72MLrp1AWNUmuYJTL7Cow==}
@@ -21225,6 +21270,27 @@ packages:
       klona: 2.0.5
       neo-async: 2.6.2
       sass: 1.39.0
+    dev: true
+
+  /sass-loader/12.4.0_sass@1.43.3:
+    resolution: {integrity: sha512-7xN+8khDIzym1oL9XyS6zP6Ges+Bo2B2xbPrjdMHEYyV3AQYhd/wXeru++3ODHF0zMjYmVadblSKrPrjEkL8mg==}
+    engines: {node: '>= 12.13.0'}
+    peerDependencies:
+      fibers: '>= 3.1.0'
+      node-sass: ^4.0.0 || ^5.0.0 || ^6.0.0 || ^7.0.0
+      sass: ^1.3.0
+      webpack: ^5.0.0
+    peerDependenciesMeta:
+      fibers:
+        optional: true
+      node-sass:
+        optional: true
+      sass:
+        optional: true
+    dependencies:
+      klona: 2.0.5
+      neo-async: 2.6.2
+      sass: 1.43.3
     dev: true
 
   /sass-loader/12.4.0_sass@1.43.3+webpack@5.65.0:

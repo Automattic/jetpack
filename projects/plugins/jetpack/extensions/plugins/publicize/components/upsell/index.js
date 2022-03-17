@@ -3,6 +3,7 @@
  */
 import classNames from 'classnames';
 import { isAtomicSite, isSimpleSite } from '@automattic/jetpack-shared-extension-utils';
+import { useUpgradeFlow } from '@automattic/jetpack-blocks/hooks'; // NOTE @manish: This is just for dummy import testing
 
 /**
  * WordPress dependencies
@@ -15,7 +16,7 @@ import { external } from '@wordpress/icons';
  * Internal dependencies
  */
 import { getRequiredPlan } from '../../../../shared/plan-utils';
-import useUpgradeFlow from '../../../../shared/use-upgrade-flow';
+// import useUpgradeFlow from '../../../../shared/use-upgrade-flow';
 import usePublicizeConfig from '../../hooks/use-publicize-config';
 import useSocialMediaConnections from '../../hooks/use-social-media-connections';
 

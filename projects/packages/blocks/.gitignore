@@ -1,3 +1,4 @@
 vendor
 wordpress
 composer.lock
+node_modules/
