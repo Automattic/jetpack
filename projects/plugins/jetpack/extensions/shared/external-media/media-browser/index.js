@@ -174,11 +174,18 @@ function MediaBrowser( props ) {
 
 	const SelectButton = () => {
 		const disabled = selected.length === 0 || isCopying;
-		const label = isCopying ? __( 'Inserting…', 'jetpack' ) : __( 'Select', 'jetpack' );
+		const label = isCopying
+			? __( 'Inserting…', 'jetpack' )
+			: __( 'Select', 'jetpack', /* dummy arg to avoid bad minification */ 0 );
 
 		return (
 			<div className="jetpack-external-media-browser__media__toolbar">
-				<Button isPrimary isBusy={ isCopying } disabled={ disabled } onClick={ onCopyAndInsert }>
+				<Button
+					variant="primary"
+					isBusy={ isCopying }
+					disabled={ disabled }
+					onClick={ onCopyAndInsert }
+				>
 					{ label }
 				</Button>
 			</div>
@@ -206,7 +213,7 @@ function MediaBrowser( props ) {
 
 				{ pageHandle && ! isLoading && (
 					<Button
-						isSecondary
+						variant="secondary"
 						className="jetpack-external-media-browser__loadmore"
 						disabled={ isLoading || isCopying }
 						onClick={ onLoadMoreClick }

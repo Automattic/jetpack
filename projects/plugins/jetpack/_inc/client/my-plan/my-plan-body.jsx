@@ -5,15 +5,15 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import { connect } from 'react-redux';
 import { __ } from '@wordpress/i18n';
+import { getRedirectUrl } from '@automattic/jetpack-components';
 
 /**
  * Internal dependencies
  */
 import analytics from 'lib/analytics';
 import Button from 'components/button';
-import { getPlanClass, FEATURE_UNLIMITED_PREMIUM_THEMES } from 'lib/plans/constants';
+import { getPlanClass } from 'lib/plans/constants';
 import { get, includes } from 'lodash';
-import getRedirectUrl from 'lib/jp-redirect';
 import { imagePath } from 'constants/urls';
 import {
 	fetchPluginsData,
@@ -80,17 +80,18 @@ class MyPlanBody extends React.Component {
 			[
 				'is-premium-plan',
 				'is-business-plan',
+				'is-security-t1-plan',
+				'is-security-t2-plan',
+				'is-complete-plan',
+
+				// DEPRECATED: Daily and Real-time variations will soon be retired.
+				// Remove after all customers are migrated to new products.
 				'is-daily-security-plan',
 				'is-realtime-security-plan',
-				'is-complete-plan',
 			],
 			planClass
 		);
-		const premiumThemesActive = includes(
-				this.props.activeFeatures,
-				FEATURE_UNLIMITED_PREMIUM_THEMES
-			),
-			rewindActive = 'active' === get( this.props.rewindStatus, [ 'state' ], false ),
+		const rewindActive = 'active' === get( this.props.rewindStatus, [ 'state' ], false ),
 			hideVaultPressCard =
 				! this.props.showBackups ||
 				( ! rewindActive && 'unavailable' !== get( this.props.rewindStatus, [ 'state' ], false ) );
@@ -114,7 +115,7 @@ class MyPlanBody extends React.Component {
 							onClick={ this.handleButtonClickForTracking( 'view_backup_dash' ) }
 							href={ getRedirectUrl( 'calypso-activity-log', { site: this.props.siteRawUrl } ) }
 						>
-							{ __( 'View Your Backups', 'jetpack' ) }
+							{ __( 'View your backups', 'jetpack' ) }
 						</Button>
 					</div>
 				</div>
@@ -138,7 +139,7 @@ class MyPlanBody extends React.Component {
 						</div>
 						<div className="jp-landing__plan-features-text">
 							<h3 className="jp-landing__plan-features-title">
-								{ __( 'Site Backups', 'jetpack' ) }
+								{ __( 'Site backups', 'jetpack' ) }
 							</h3>
 							<p>
 								{ __(
@@ -193,7 +194,7 @@ class MyPlanBody extends React.Component {
 					</div>
 					<div className="jp-landing__plan-features-text">
 						<h3 className="jp-landing__plan-features-title">
-							{ __( 'Site Security', 'jetpack' ) }
+							{ __( 'Site security', 'jetpack' ) }
 						</h3>
 						<p>{ description + __( ' (powered by VaultPress).', 'jetpack' ) }</p>
 						{ this.props.isPluginInstalled( 'vaultpress/vaultpress.php' ) &&
@@ -221,6 +222,9 @@ class MyPlanBody extends React.Component {
 		};
 
 		let jetpackBackupCard;
+
+		// DEPRECATED: Daily and Real-time variations will soon be retired.
+		// Remove after all customers are migrated to new products.
 		if ( 'is-daily-backup-plan' === planClass ) {
 			jetpackBackupCard = getJetpackBackupCard( {
 				title: __( 'Automated Daily Backups', 'jetpack' ),
@@ -231,9 +235,18 @@ class MyPlanBody extends React.Component {
 			} );
 		}
 
-		if ( 'is-realtime-backup-plan' === planClass ) {
+		if (
+			[
+				'is-backup-t1-plan',
+				'is-backup-t2-plan',
+
+				// DEPRECATED: Daily and Real-time variations will soon be retired.
+				// Remove after all customers are migrated to new products.
+				'is-realtime-backup-plan',
+			].includes( planClass )
+		) {
 			jetpackBackupCard = getJetpackBackupCard( {
-				title: __( 'Automated Real-time Backups', 'jetpack' ),
+				title: __( 'Automated real-time backups', 'jetpack' ),
 				description: __(
 					'We back up your website with every change you make, making it easy to fix your mistakes.',
 					'jetpack'
@@ -263,7 +276,7 @@ class MyPlanBody extends React.Component {
 						</p>
 						<Button
 							onClick={ this.handleButtonClickForTracking( 'view_search_customizer' ) }
-							href={ this.props.siteAdminUrl + 'customize.php?autofocus[section]=jetpack_search' }
+							href={ this.props.siteAdminUrl + 'admin.php?page=jetpack-search-configure' }
 						>
 							{ __( 'Customize Search', 'jetpack' ) }
 						</Button>
@@ -275,10 +288,14 @@ class MyPlanBody extends React.Component {
 		switch ( planClass ) {
 			case 'is-personal-plan':
 			case 'is-premium-plan':
-			case 'is-daily-security-plan':
-			case 'is-realtime-security-plan':
+			case 'is-security-t1-plan':
+			case 'is-security-t2-plan':
 			case 'is-business-plan':
 			case 'is-complete-plan':
+			// DEPRECATED: Daily and Real-time variations will soon be retired.
+			// Remove after all customers are migrated to new products.
+			case 'is-daily-security-plan':
+			case 'is-realtime-security-plan':
 				planCard = (
 					<div className="jp-landing__plan-features">
 						{ 'is-personal-plan' === planClass && getRewindVaultPressCard() }
@@ -362,7 +379,7 @@ class MyPlanBody extends React.Component {
 									</div>
 									<div className="jp-landing__plan-features-text">
 										<h3 className="jp-landing__plan-features-title">
-											{ __( 'Video Hosting', 'jetpack' ) }
+											{ __( 'VideoPress', 'jetpack' ) }
 										</h3>
 										<p>
 											{ __(
@@ -382,7 +399,7 @@ class MyPlanBody extends React.Component {
 												onClick={ this.activateVideoPress }
 												disabled={ this.props.isActivatingFeature( 'videopress' ) }
 											>
-												{ __( 'Activate video hosting', 'jetpack' ) }
+												{ __( 'Activate VideoPress', 'jetpack' ) }
 											</Button>
 										) }
 									</div>
@@ -401,7 +418,9 @@ class MyPlanBody extends React.Component {
 								/>
 							</div>
 							<div className="jp-landing__plan-features-text">
-								<h3 className="jp-landing__plan-features-title">{ __( 'Activity', 'jetpack' ) }</h3>
+								<h3 className="jp-landing__plan-features-title">
+									{ __( 'Site activity', 'jetpack' ) }
+								</h3>
 								<p>
 									{ __(
 										'View a chronological list of all the changes and updates to your site in an organized, readable way.',
@@ -501,37 +520,6 @@ class MyPlanBody extends React.Component {
 								</div>
 							) }
 
-						{ premiumThemesActive && (
-							<div className="jp-landing__plan-features-card">
-								<div className="jp-landing__plan-features-img">
-									<img
-										src={ imagePath + '/jetpack-themes.svg' }
-										className="jp-landing__plan-features-icon"
-										alt={ __( 'A secure site, locked and protected by Jetpack', 'jetpack' ) }
-									/>
-								</div>
-								<div className="jp-landing__plan-features-text">
-									<h3 className="jp-landing__plan-features-title">
-										{ __( 'Try a premium theme', 'jetpack' ) }
-									</h3>
-									<p>
-										{ __(
-											'Access beautifully designed premium themes at no extra cost.',
-											'jetpack'
-										) }
-									</p>
-									<Button
-										onClick={ this.handleButtonClickForTracking( 'premium_themes' ) }
-										href={ getRedirectUrl( 'calypso-themes-premium', {
-											site: this.props.siteRawUrl,
-										} ) }
-									>
-										{ __( 'Browse premium themes', 'jetpack' ) }
-									</Button>
-								</div>
-							</div>
-						) }
-
 						{ isPlanPremiumOrBetter && 'inactive' !== this.props.getModuleOverride( 'publicize' ) && (
 							<div className="jp-landing__plan-features-card">
 								<div className="jp-landing__plan-features-img">
@@ -543,7 +531,7 @@ class MyPlanBody extends React.Component {
 								</div>
 								<div className="jp-landing__plan-features-text">
 									<h3 className="jp-landing__plan-features-title">
-										{ __( 'Marketing Automation', 'jetpack' ) }
+										{ __( 'Marketing automation', 'jetpack' ) }
 									</h3>
 									<p>
 										{ __(
@@ -576,10 +564,14 @@ class MyPlanBody extends React.Component {
 				break;
 
 			case 'is-free-plan':
-			case 'is-daily-backup-plan':
-			case 'is-realtime-backup-plan':
+			case 'is-backup-t1-plan':
+			case 'is-backup-t2-plan':
 			case 'is-search-plan':
 			case 'offline':
+			// DEPRECATED: Daily and Real-time variations will soon be retired.
+			// Remove after all customers are migrated to new products.
+			case 'is-daily-backup-plan':
+			case 'is-realtime-backup-plan':
 				planCard = (
 					<div className="jp-landing__plan-features">
 						{ jetpackBackupCard }
@@ -654,7 +646,7 @@ class MyPlanBody extends React.Component {
 								</h3>
 								<p>
 									{ __(
-										'Get unlimited access to hundreds of professional themes, and customize your site exactly how you like it.',
+										'Get access to professionally crafted themes offered on WordPress.com, and customize your site exactly how you like it.',
 										'jetpack'
 									) }
 								</p>
@@ -662,7 +654,7 @@ class MyPlanBody extends React.Component {
 									onClick={ this.handleButtonClickForTracking( 'free_themes' ) }
 									href={ getRedirectUrl( 'calypso-themes', { site: this.props.siteRawUrl } ) }
 								>
-									{ __( 'Explore free themes', 'jetpack' ) }
+									{ __( 'Explore themes', 'jetpack' ) }
 								</Button>
 							</div>
 						</div>

@@ -4,7 +4,9 @@ on:
     branches: [ master ]
   push:
     branches: [ master ]
-    tags: [ pr-update-to ]
+    tags:
+      - pr-update-to
+      - pr-update-to-projects/**
 
 jobs:
   check:
@@ -13,17 +15,50 @@ jobs:
     timeout-minutes: 5  # 2021-03-23: The run on push to the tag might take a minute or two.
     steps:
       - name: Checkout master
-        uses: actions/checkout@v2
+        uses: actions/checkout@v3
         with:
           ref: master
+          # The "Check whether the tag needs updating for master commit" needs the previous commit for diffing.
           fetch-depth: 2
           token: ${{ secrets.API_TOKEN_GITHUB }}
+
+      # On a PR, we need to fetch (but not check out) the actual PR too.
+      - name: Deepen to merge base
+        if: github.event_name != 'push'
+        uses: ./.github/actions/deepen-to-merge-base
+        with:
+          checkout: false
+
+      - name: Determine tags for PR or tag and paths for tag push
+        id: determine
+        if: github.event_name != 'push' || github.ref != 'refs/heads/master'
+        env:
+          REF: ${{ github.event.pull_request.head.sha }}
+        run: |
+          TAGS=()
+          TAG=
+          PATHS=
+          if [[ "$GITHUB_EVENT_NAME" == "push" ]]; then
+            TAG="${GITHUB_REF#refs/tags/}"
+            if [[ "$TAG" == pr-update-to-* ]]; then
+              PATHS="${TAG#pr-update-to-}"
+            fi
+          else
+            TMP="$(git -c core.quotepath=off diff --name-only "origin/master...${REF}" projects/*/*/ | sed -nE 's!^(projects/[^/]+/[^/]+)/.*!pr-update-to-\1!p' | sort -u)"
+            mapfile -t TAGS <<<"$TMP"
+            TAGS+=( pr-update-to )
+          fi
+          echo "::set-output name=pr-tags::${TAGS[*]}"
+          echo "::set-output name=push-tag::$TAG"
+          echo "::set-output name=push-paths::$PATHS"
 
       - name: Check PR or tag push
         if: github.event_name != 'push' || github.ref != 'refs/heads/master'
         uses: ./projects/github-actions/pr-is-up-to-date
         with:
-          tag: pr-update-to
+          tags: ${{ steps.determine.outputs.pr-tags }}
+          tag: ${{ steps.determine.outputs.push-tag }}
+          paths: ${{ steps.determine.outputs.push-paths }}
           token: ${{ secrets.API_TOKEN_GITHUB }}
           status: PR is up to date
 

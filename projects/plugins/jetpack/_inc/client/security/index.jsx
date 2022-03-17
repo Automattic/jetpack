@@ -95,8 +95,12 @@ export class Security extends Component {
 		const isPersonalPlan = 'is-personal-plan' === planClass;
 		const isFreePlanWithBackup =
 			'is-free-plan' === planClass &&
-			( activePlanClasses.includes( 'is-daily-backup-plan' ) ||
-				activePlanClasses.includes( 'is-realtime-backup-plan' ) );
+			[
+				'is-daily-backup-plan',
+				'is-realtime-backup-plan',
+				'is-backup-t1-plan',
+				'is-backup-t2-plan',
+			].filter( plan => activePlanClasses.includes( plan ) ).length > 0;
 
 		const backupsOnly = isPersonalPlan || isFreePlanWithBackup;
 
@@ -115,7 +119,8 @@ export class Security extends Component {
 							? __( 'Security', 'jetpack' )
 							: __(
 									'Your site is protected by Jetpack. You’ll be notified if anything needs attention.',
-									'jetpack'
+									'jetpack',
+									/* dummy arg to avoid bad minification */ 0
 							  )
 					}
 					className="jp-settings-description"

@@ -18,8 +18,11 @@ class WP_Test_Jetpack_Sync_Meta extends WP_Test_Jetpack_Sync_Base {
 
 	protected $whitelisted_post_meta = 'foobar';
 
-	public function setUp() {
-		parent::setUp();
+	/**
+	 * Set up.
+	 */
+	public function set_up() {
+		parent::set_up();
 
 		// create a post
 		$this->meta_module = Modules::get_module( "meta" );
@@ -75,6 +78,9 @@ class WP_Test_Jetpack_Sync_Meta extends WP_Test_Jetpack_Sync_Base {
 		$this->assertEquals( array( 'foo', 'bar' ), $meta_key_array );
 	}
 
+	/**
+	 * Verify that update_post_meta is synced after an add_post_meta.
+	 */
 	public function test_add_then_updated_post_meta_is_synced() {
 		add_post_meta( $this->post_id, $this->whitelisted_post_meta, 'foo' );
 		update_post_meta( $this->post_id, $this->whitelisted_post_meta, 'bar', 'foo' );
@@ -85,6 +91,9 @@ class WP_Test_Jetpack_Sync_Meta extends WP_Test_Jetpack_Sync_Base {
 		$this->assertEquals( get_post_meta( $this->post_id, $this->whitelisted_post_meta ), $meta_key_array );
 	}
 
+	/**
+	 * Verify that update_post_meta is sycned.
+	 */
 	public function test_updated_post_meta_is_synced() {
 		update_post_meta( $this->post_id, $this->whitelisted_post_meta, 'foo' );
 		update_post_meta( $this->post_id, $this->whitelisted_post_meta, 'bar', 'foo' );
@@ -95,6 +104,9 @@ class WP_Test_Jetpack_Sync_Meta extends WP_Test_Jetpack_Sync_Base {
 		$this->assertEquals( get_post_meta( $this->post_id, $this->whitelisted_post_meta ), $meta_key_array );
 	}
 
+	/**
+	 * Verify that delete_post_meta triggers sync.
+	 */
 	public function test_deleted_post_meta_is_synced() {
 		add_post_meta( $this->post_id, $this->whitelisted_post_meta, 'foo' );
 
@@ -108,6 +120,9 @@ class WP_Test_Jetpack_Sync_Meta extends WP_Test_Jetpack_Sync_Base {
 		$this->assertEquals( get_post_meta( $this->post_id, $this->whitelisted_post_meta ), $meta_key_array );
 	}
 
+	/**
+	 * Verify deleting all post meta is synced.
+	 */
 	public function test_delete_all_post_meta_is_synced() {
 
 		add_post_meta( $this->post_id, $this->whitelisted_post_meta, 'foo' );
@@ -121,12 +136,32 @@ class WP_Test_Jetpack_Sync_Meta extends WP_Test_Jetpack_Sync_Base {
 		$this->assertEquals( get_post_meta( $this->post_id, $this->whitelisted_post_meta ), $meta_key_array );
 	}
 
+	/**
+	 * Verify private meta is not synced.
+	 */
 	public function test_doesn_t_sync_private_meta() {
 		add_post_meta( $this->post_id, '_private_meta', 'foo' );
 
 		$this->sender->do_sync();
 
 		$this->assertEquals( null, $this->server_replica_storage->get_metadata( 'post', $this->post_id, '_private_meta', true ) );
+	}
+
+	/**
+	 * Verify search allowed meta is not synced if Search module inactive.
+	 */
+	public function test_doesn_t_sync_search_meta() {
+		$this->assertFalse( \Jetpack::is_module_active( 'search' ) );
+
+		// A meta key that is only in Search module.
+		add_post_meta( $this->post_id, 'session_transcript1234', 'foo' );
+
+		$this->sender->do_sync();
+		$this->assertEquals(
+			array(),
+			$this->server_replica_storage->get_metadata( 'post', $this->post_id, 'session_transcript' )
+		);
+		delete_post_meta( $this->post_id, 'session_transcript1234', 'foo' );
 	}
 
 	public function test_post_meta_whitelist_cab_be_appened_in_settings() {
@@ -166,7 +201,7 @@ class WP_Test_Jetpack_Sync_Meta extends WP_Test_Jetpack_Sync_Base {
 		// check that these values exists in the whitelist options
 		$white_listed_post_meta = Defaults::$post_meta_whitelist;
 
-		// update all the opyions.
+		// update all the options.
 		foreach ( $white_listed_post_meta as $meta_key ) {
 			add_post_meta( $this->post_id, $meta_key, 'foo' );
 		}
@@ -258,8 +293,8 @@ class WP_Test_Jetpack_Sync_Meta extends WP_Test_Jetpack_Sync_Base {
 		update_post_meta( $this->post_id, $this->whitelisted_post_meta, $meta_test_value );
 
 		$module = Modules::get_module( 'meta' );
-		$meta   = $module->get_object_by_id( 'post', $this->post_id, $this->whitelisted_post_meta );
-		$this->assertEquals( '', $meta['meta_value'] );
+		$metas  = $module->get_object_by_id( 'post', $this->post_id, $this->whitelisted_post_meta );
+		$this->assertEquals( '', $metas[0]['meta_value'] );
 	}
 
 	/**
@@ -270,8 +305,8 @@ class WP_Test_Jetpack_Sync_Meta extends WP_Test_Jetpack_Sync_Base {
 		update_post_meta( $this->post_id, $this->whitelisted_post_meta, $meta_test_value );
 
 		$module = Modules::get_module( 'meta' );
-		$meta   = $module->get_object_by_id( 'post', $this->post_id, $this->whitelisted_post_meta );
-		$this->assertEquals( $meta_test_value, $meta['meta_value'] );
+		$metas  = $module->get_object_by_id( 'post', $this->post_id, $this->whitelisted_post_meta );
+		$this->assertEquals( $meta_test_value, $metas[0]['meta_value'] );
 	}
 
 }

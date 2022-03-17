@@ -54,8 +54,8 @@ function PexelsMedia( props ) {
 		[ getNextPage, searchQuery ]
 	);
 
-	// Load initial results for the random example query.
-	useEffect( getNextPage, [ getNextPage ] );
+	// Load initial results for the random example query. Only do it once.
+	useEffect( getNextPage, [] ); // eslint-disable-line react-hooks/exhaustive-deps
 
 	const searchFormEl = useRef( null );
 
@@ -91,7 +91,7 @@ function PexelsMedia( props ) {
 					disabled={ !! isCopying }
 				/>
 				<Button
-					isPrimary
+					variant="primary"
 					onClick={ onSearch }
 					type="submit"
 					disabled={

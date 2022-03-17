@@ -1,10 +1,11 @@
 /**
  * External dependencies
  */
-import { omit, uniq } from 'lodash';
+import { omit, uniq, pick } from 'lodash';
 import { format } from 'util';
 import fs from 'fs';
 import path from 'path';
+import { __, sprintf } from '@wordpress/i18n';
 
 /**
  * WordPress dependencies
@@ -94,6 +95,9 @@ export default function runBlockFixtureTests( blockName, blocks, fixturesPath ) 
 					/* eslint-enable no-console */
 				}
 
+
+
+				const validationIssues = gatherValidationIssues( blocksActual );
 				const blocksActualNormalized = normalizeParsedBlocks( blocksActual );
 				const { filename: jsonFixtureFileName, file: jsonFixtureContent } = getBlockFixtureJSON(
 					basename
@@ -104,6 +108,7 @@ export default function runBlockFixtureTests( blockName, blocks, fixturesPath ) 
 				if ( jsonFixtureContent ) {
 					blocksExpectedString = jsonFixtureContent;
 				} else if ( process.env.GENERATE_MISSING_FIXTURES ) {
+					// Validation issues add too much noise so they get removed.
 					blocksExpectedString = JSON.stringify( blocksActualNormalized, null, 4 ) + '\n';
 					writeBlockFixtureJSON( basename, blocksExpectedString );
 				} else {
@@ -113,7 +118,10 @@ export default function runBlockFixtureTests( blockName, blocks, fixturesPath ) 
 				const blocksExpected = JSON.parse( blocksExpectedString );
 
 				if ( blocksExpected?.length ) {
-					blocksExpected.forEach( block => checkParseValid( block, basename ) );
+					blocksExpected.forEach( ( block, index ) => {
+						// we need to look up validation messages here as they may be useful
+						return checkParseValid( block, basename, validationIssues[index] );
+					} );
 				}
 
 				try {
@@ -183,15 +191,49 @@ export default function runBlockFixtureTests( blockName, blocks, fixturesPath ) 
 		}
 	} );
 }
+
+/**
+ * Convert a nested object representing blocks into just the validation messages.
+ */
+function gatherValidationIssues( blocks ) {
+	return blocks.map( block => {
+		const innerBlocks = block.innerBlocks ? gatherValidationIssues( block.innerBlocks ) : [];
+		const validationIssues = block.validationIssues ? block.validationIssues.map( issue => sprintf( __( issue.args[0] ), ...issue.args.slice(1) ) ) : [];
+		return {
+			name: block.name || 'unknown',
+			validationIssues,
+			innerBlocks
+		}
+	} );
+}
+
 /* eslint-disable jest/no-export */
 
-function checkParseValid( block, fixtureName ) {
+function checkParseValid( block, fixtureName, validationIssues = null ) {
 	if ( ! block.isValid ) {
-		throw new Error( `Fixture ${ fixtureName } is invalid` );
+		const validationIssuesString = renderValidationIssuesString( validationIssues );
+		throw new Error( `Fixture ${ fixtureName } is invalid` + ( validationIssuesString ? `: ${validationIssuesString}` : '' ) );
 	}
 	if ( block.innerBlocks.length > 0 ) {
-		block.innerBlocks.forEach( block => checkParseValid( block, fixtureName ) );
+		block.innerBlocks.forEach( ( block, index ) => checkParseValid( block, fixtureName, validationIssues.innerBlocks[index] ) );
 	}
+}
+
+function renderValidationIssuesString( issues ) {
+	if ( ! issues ) {
+		return null;
+	}
+
+	let validationIssuesString = '';
+	if ( issues.validationIssues.length > 0 ) {
+		validationIssuesString += issues.name + "\n    " + issues.validationIssues.join("\n\n    ");
+	}
+
+	if ( issues.innerBlocks.length > 0 ) {
+		validationIssuesString += issues.innerBlocks.map( renderValidationIssuesString ).join("\n\n");
+	}
+
+	return validationIssuesString;
 }
 
 export function registerBlocks( blocks ) {

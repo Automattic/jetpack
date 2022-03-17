@@ -10,6 +10,7 @@
 namespace Automattic\Jetpack\Extensions\Map;
 
 use Automattic\Jetpack\Blocks;
+use Automattic\Jetpack\Status\Host;
 use Automattic\Jetpack\Tracking;
 use Jetpack;
 use Jetpack_Gutenberg;
@@ -51,7 +52,7 @@ function wpcom_load_event( $access_token_source ) {
 	if ( defined( 'IS_WPCOM' ) && IS_WPCOM ) {
 		jetpack_require_lib( 'tracks/client' );
 		tracks_record_event( wp_get_current_user(), $event_name );
-	} elseif ( jetpack_is_atomic_site() && Jetpack::is_connection_ready() ) {
+	} elseif ( ( new Host() )->is_woa_site() && Jetpack::is_connection_ready() ) {
 		$tracking = new Tracking();
 		$tracking->record_user_event( $event_name );
 	}

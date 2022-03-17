@@ -85,6 +85,7 @@ export default class Layout extends Component {
 			layoutStyle,
 			roundedCorners,
 			onResize,
+			style,
 			isSave,
 			columnWidths,
 		} = this.props;
@@ -95,6 +96,7 @@ export default class Layout extends Component {
 
 		return (
 			<div
+				style={ style }
 				className={ classnames( className, {
 					[ `has-rounded-corners-${ roundedCornersValue }` ]: roundedCornersValue > 0,
 				} ) }

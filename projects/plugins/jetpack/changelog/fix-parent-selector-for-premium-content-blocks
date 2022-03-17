@@ -1,4 +1,0 @@
-Significance: patch
-Type: bugfix
-
-Premium Content blocks: Fix parent block selector button when premium content blocks are nested within other blocks.

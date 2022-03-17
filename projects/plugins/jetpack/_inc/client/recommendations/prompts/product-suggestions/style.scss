@@ -1,0 +1,63 @@
+@import '_inc/client/scss/variables/_colors';
+@import '../../../scss/mixin_breakpoint';
+@import '../../../scss/typography';
+
+.jp-recommendations-product-suggestion__items {
+	display: flex;
+	flex-direction: column;
+
+	max-width: 660px;
+	margin: 0.5rem 1rem 1.5rem;
+
+	@include breakpoint( '>960px' ) {
+		display: grid;
+		gap: 1rem;
+		grid-template-rows: auto;
+		grid-template-columns: 1fr 1fr;
+
+		max-width: none;
+	}
+
+	@include breakpoint( '>480px' ) {
+		margin-left: 2rem;
+		margin-right: 2rem;
+	}
+}
+
+.jp-recommendations-product-suggestion__item {
+	@include breakpoint( '<960px' ) {
+		margin-bottom: 1rem;
+
+		&:last-of-type {
+			margin-bottom: 0;
+		}
+	}
+
+	.jp-recommendations-product-card-upsell,
+	.jp-recommendations-product-card-upsell__padding {
+		height: 100%;
+	}
+}
+
+.jp-recommendations-product-suggestion__money-back-guarantee {
+	margin-bottom: 1.5rem;
+}
+
+.jp-recommendations-product-suggestion__skip-container {
+	margin-bottom: 2rem;
+
+	text-align: center;
+}
+
+.jp-recommendations-product-suggestion__skip {
+	font-size: $font-body;
+}
+
+.jp-recommendations-product-suggestion__footer {
+	padding: 1rem 10%;
+
+	background: var( --jp-white-off );
+	color: var( --jp-gray-30 );
+
+	text-align: center;
+}

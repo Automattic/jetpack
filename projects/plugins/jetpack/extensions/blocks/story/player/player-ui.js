@@ -20,6 +20,7 @@ import Slide from './slide';
 import icon from '../icon';
 import ProgressBar from './progress-bar';
 import { Background, Controls, Header, Overlay } from './components';
+import useLongPress from './lib/use-long-press';
 
 export default function PlayerUI( { id, slides, metadata, disabled } ) {
 	const { setFullscreen, setEnded, setPlaying, setMuted, showSlide } = useDispatch(
@@ -83,6 +84,10 @@ export default function PlayerUI( { id, slides, metadata, disabled } ) {
 		}
 		// eslint-disable-next-line react-hooks/exhaustive-deps
 	}, [ playing, disabled, fullscreen ] );
+
+	const { onTouchStart, onTouchEnd } = useLongPress( isPressed => {
+		setPlaying( id, ! isPressed );
+	}, [] );
 
 	const tryPreviousSlide = useCallback( () => {
 		if ( currentSlideIndex > 0 ) {
@@ -151,7 +156,9 @@ export default function PlayerUI( { id, slides, metadata, disabled } ) {
 	if ( fullscreen ) {
 		label = [
 			__( 'You are currently playing a story.', 'jetpack' ),
-			playing ? __( 'Press space to pause.', 'jetpack' ) : __( 'Press space to play.', 'jetpack' ),
+			playing
+				? __( 'Press space to pause.', 'jetpack' )
+				: __( 'Press space to play.', 'jetpack', /* dummy arg to avoid bad minification */ 0 ),
 			__( 'Press escape to exit.', 'jetpack' ),
 		].join( ' ' );
 	} else {
@@ -182,6 +189,8 @@ export default function PlayerUI( { id, slides, metadata, disabled } ) {
 				} ) }
 				style={ { maxWidth: `${ maxSlideWidth }px` } }
 				onClick={ onPress }
+				onTouchStart={ onTouchStart }
+				onTouchEnd={ onTouchEnd }
 			>
 				<Header { ...metadata } fullscreen={ fullscreen } onExitFullscreen={ onExitFullscreen } />
 				<div ref={ slideContainerRef } className="wp-story-wrapper">
@@ -204,7 +213,6 @@ export default function PlayerUI( { id, slides, metadata, disabled } ) {
 					showSlideCount={ settings.showSlideCount }
 					ended={ ended }
 					hasPrevious={ currentSlideIndex > 0 }
-					hasNext={ currentSlideIndex < slides.length - 1 }
 					onPreviousSlide={ tryPreviousSlide }
 					onNextSlide={ tryNextSlide }
 				/>

@@ -1,0 +1,34 @@
+@mixin container($columns, $width, $padding) {
+	@media ( min-width: #{$width} ) {
+		padding: 0 #{$padding};
+		grid-template-columns: repeat( #{$columns}, minmax(0, 1fr) );
+	}
+}
+
+.container {
+	--max-container-width: 1128px;
+
+	// vertical spacing
+	--vertical-gutter: 24px;
+	--vertical-spacing-sm: 16px;
+	--vertical-spacing-md: 18px;
+	--vertical-spacing-lg: 24px;
+
+	// horizontal spacing
+	--horizontal-spacing: 8px;
+
+	display: grid;
+	column-gap: var(--vertical-gutter);
+	max-width: var(--max-container-width);
+	margin: 0 auto;
+	width: 100%;
+
+	@include container( 4, 0px, var(--vertical-spacing-sm) );
+	@include container( 8, 600px, var(--vertical-spacing-md) );
+	@include container( 12, 960px, var(--vertical-spacing-lg) );
+
+	&.fluid {
+		max-width: none;
+		padding: unset;
+	}
+}

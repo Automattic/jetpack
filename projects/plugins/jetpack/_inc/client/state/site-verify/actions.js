@@ -15,7 +15,7 @@ import {
 	JETPACK_SITE_VERIFY_GOOGLE_REQUEST_FAIL,
 } from 'state/action-types';
 
-import restApi from 'rest-api';
+import restApi from '@automattic/jetpack-api';
 import { createNotice } from 'components/global-notices/state/notices/actions';
 
 export const checkVerifyStatusGoogle = ( keyringId = null ) => {

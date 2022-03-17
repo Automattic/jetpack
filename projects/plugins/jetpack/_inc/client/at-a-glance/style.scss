@@ -174,7 +174,13 @@
 	margin: rem( 8px ) 0;
 }
 
-.jp-at-a-glance__stats-cta-buttons {
+.jp-at-a-glance__stats-ctas {
+
+	display: flex;
+	flex-direction: row;
+	align-items: center;
+	justify-content: flex-end;
+
 	@include breakpoint( '>660px' ) {
 		text-align: right;
 		flex-basis: 70%;
@@ -182,11 +188,16 @@
 
 	@include breakpoint( '<660px' ) {
 		text-align: center;
+		flex-direction: column;
 
 		.dops-button {
 			width: 100%;
 			margin-bottom: rem( 4px );
 		}
+	}
+
+	.jp-at-a-glance__stats-ctas-wpcom-stats {
+		margin-right: rem( 8px );
 	}
 
 	.dops-button {
@@ -439,4 +450,12 @@
 .jp-dash-item .dops-banner.dops-banner {
 	width: 100%;
 	margin-bottom: 0;
+}
+
+.jp-dash-item__videopress .jp-dash-item__card {
+	flex-direction: column;
+}
+
+.jp-dash-item__videopress-storage {
+	margin-top: 1em;
 }

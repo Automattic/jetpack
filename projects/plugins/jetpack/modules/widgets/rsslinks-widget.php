@@ -1,14 +1,26 @@
-<?php
+<?php // phpcs:ignore WordPress.Files.FileName.InvalidClassFileName
 /**
- * Module Name: RSS Links Widget
- * Module Description: Easily add RSS links to your theme's sidebar.
- * Sort Order: 20
- * First Introduced: 1.2
+ * RSS Links Widget
+ *
+ * @package automattic/jetpack
  */
 
-class Jetpack_RSS_Links_Widget extends WP_Widget {
+/**
+ * Register the widget.
+ */
+function jetpack_rss_links_widget_init() {
+	register_widget( Jetpack_RSS_Links_Widget::class );
+}
+add_action( 'widgets_init', 'jetpack_rss_links_widget_init' );
 
-	function __construct() {
+/**
+ * RSS Links Widget class.
+ */
+class Jetpack_RSS_Links_Widget extends WP_Widget {
+	/**
+	 * Constructor
+	 */
+	public function __construct() {
 		$widget_ops = array(
 			'classname'                   => 'widget_rss_links',
 			'description'                 => __( "Links to your blog's RSS feeds", 'jetpack' ),
@@ -22,37 +34,46 @@ class Jetpack_RSS_Links_Widget extends WP_Widget {
 		);
 	}
 
-	function widget( $args, $instance ) {
+	/**
+	 * Display the widget.
+	 *
+	 * @param array $args Display arguments including before_title, after_title, before_widget, and after_widget.
+	 * @param array $instance The settings for the particular instance of the widget.
+	 */
+	public function widget( $args, $instance ) {
 		$instance = wp_parse_args( (array) $instance, $this->defaults() );
 
-		extract( $args );
+		$before_widget = isset( $args['before_widget'] ) ? $args['before_widget'] : '';
+		$before_title  = isset( $args['before_title'] ) ? $args['before_title'] : '';
+		$after_title   = isset( $args['after_title'] ) ? $args['after_title'] : '';
+		$after_widget  = isset( $args['after_widget'] ) ? $args['after_widget'] : '';
 
 		/** This filter is documented in core/src/wp-includes/default-widgets.php */
 		$title = apply_filters( 'widget_title', $instance['title'] );
-		echo $before_widget;
+		echo $before_widget; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
 
 		if ( $title ) {
-			echo $before_title . stripslashes( $title ) . $after_title;
+			echo $before_title . $title . $after_title; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
 		}
 
-		if ( 'text' == $instance['format'] ) {
+		if ( 'text' === $instance['format'] ) {
 			echo '<ul>';
 		}
 
-		if ( 'posts' == $instance['display'] ) {
-			$this->_rss_link( 'posts', $instance );
-		} elseif ( 'comments' == $instance['display'] ) {
-			$this->_rss_link( 'comments', $instance );
-		} elseif ( 'posts-comments' == $instance['display'] ) {
-			$this->_rss_link( 'posts', $instance );
-			$this->_rss_link( 'comments', $instance );
+		if ( 'posts' === $instance['display'] ) {
+			$this->rss_link( 'posts', $instance );
+		} elseif ( 'comments' === $instance['display'] ) {
+			$this->rss_link( 'comments', $instance );
+		} elseif ( 'posts-comments' === $instance['display'] ) {
+			$this->rss_link( 'posts', $instance );
+			$this->rss_link( 'comments', $instance );
 		}
 
-		if ( 'text' == $instance['format'] ) {
+		if ( 'text' === $instance['format'] ) {
 			echo '</ul>';
 		}
 
-		echo "\n" . $after_widget;
+		echo "\n" . $after_widget; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
 
 		/** This action is documented in modules/widgets/gravatar-profile.php */
 		do_action( 'jetpack_stats_extra', 'widget_view', 'rss-links' );
@@ -64,7 +85,7 @@ class Jetpack_RSS_Links_Widget extends WP_Widget {
 	 *
 	 * @return array Array of default values for the Widget's options
 	 */
-	function defaults() {
+	public function defaults() {
 		return array(
 			'title'   => '',
 			'display' => 'posts-comments',
@@ -72,7 +93,17 @@ class Jetpack_RSS_Links_Widget extends WP_Widget {
 		);
 	}
 
-	function update( $new_instance, $old_instance ) {
+	/**
+	 * Sanitize widget form values as they are saved.
+	 *
+	 * @see WP_Widget::update()
+	 *
+	 * @param array $new_instance Values just sent to be saved.
+	 * @param array $old_instance Previously saved values from database.
+	 *
+	 * @return array Updated safe values to be saved.
+	 */
+	public function update( $new_instance, $old_instance ) { // phpcs:ignore VariableAnalysis.CodeAnalysis.VariableAnalysis.UnusedVariable
 		$instance = $old_instance;
 
 		$instance['title']      = wp_filter_nohtml_kses( $new_instance['title'] );
@@ -84,7 +115,16 @@ class Jetpack_RSS_Links_Widget extends WP_Widget {
 		return $instance;
 	}
 
-	function form( $instance ) {
+	/**
+	 * Back end widget form.
+	 *
+	 * @see WP_Widget::form()
+	 *
+	 * @param array $instance Previously saved values from database.
+	 *
+	 * @return string|void
+	 */
+	public function form( $instance ) {
 		$instance = wp_parse_args( (array) $instance, $this->defaults() );
 
 		$title       = stripslashes( $instance['title'] );
@@ -93,8 +133,8 @@ class Jetpack_RSS_Links_Widget extends WP_Widget {
 		$image_size  = isset( $instance['imagesize'] ) ? $instance['imagesize'] : 0;
 		$image_color = isset( $instance['imagecolor'] ) ? $instance['imagecolor'] : 'red';
 
-		echo '<p><label for="' . $this->get_field_id( 'title' ) . '">' . esc_html__( 'Title:', 'jetpack' ) . '
-		<input class="widefat" id="' . $this->get_field_id( 'title' ) . '" name="' . $this->get_field_name( 'title' ) . '" type="text" value="' . esc_attr( $title ) . '" />
+		echo '<p><label for="' . esc_attr( $this->get_field_id( 'title' ) ) . '">' . esc_html__( 'Title:', 'jetpack' ) . '
+		<input class="widefat" id="' . esc_attr( $this->get_field_id( 'title' ) ) . '" name="' . esc_attr( $this->get_field_name( 'title' ) ) . '" type="text" value="' . esc_attr( $title ) . '" />
 		</label></p>';
 
 		$displays = array(
@@ -102,11 +142,11 @@ class Jetpack_RSS_Links_Widget extends WP_Widget {
 			'comments'       => __( 'Comments', 'jetpack' ),
 			'posts-comments' => __( 'Posts & Comments', 'jetpack' ),
 		);
-		echo '<p><label for="' . $this->get_field_id( 'display' ) . '">' . esc_html__( 'Feed(s) to Display:', 'jetpack' ) . '
-		<select class="widefat" id="' . $this->get_field_id( 'display' ) . '" name="' . $this->get_field_name( 'display' ) . '">';
+		echo '<p><label for="' . esc_attr( $this->get_field_id( 'display' ) ) . '">' . esc_html__( 'Feed(s) to Display:', 'jetpack' ) . '
+		<select class="widefat" id="' . esc_attr( $this->get_field_id( 'display' ) ) . '" name="' . esc_attr( $this->get_field_name( 'display' ) ) . '">';
 		foreach ( $displays as $display_option => $label ) {
 			echo '<option value="' . esc_attr( $display_option ) . '"';
-			if ( $display_option == $display ) {
+			if ( $display_option === $display ) {
 				echo ' selected="selected"';
 			}
 			echo '>' . esc_html( $label ) . '</option>' . "\n";
@@ -118,19 +158,19 @@ class Jetpack_RSS_Links_Widget extends WP_Widget {
 			'image'      => __( 'Image Link', 'jetpack' ),
 			'text-image' => __( 'Text & Image Links', 'jetpack' ),
 		);
-		echo '<p><label for="' . $this->get_field_id( 'format' ) . '">' . _x( 'Format:', 'Noun', 'jetpack' ) . '
-		<select class="widefat" id="' . $this->get_field_id( 'format' ) . '" name="' . $this->get_field_name( 'format' ) . '" onchange="if ( this.value == \'text\' ) jQuery( \'#' . $this->get_field_id( 'image-settings' ) . '\' ).fadeOut(); else jQuery( \'#' . $this->get_field_id( 'image-settings' ) . '\' ).fadeIn();">';
+		echo '<p><label for="' . esc_attr( $this->get_field_id( 'format' ) ) . '">' . esc_html_x( 'Format:', 'Noun', 'jetpack' ) . '
+		<select class="widefat" id="' . esc_attr( $this->get_field_id( 'format' ) ) . '" name="' . esc_attr( $this->get_field_name( 'format' ) ) . '" onchange="if ( this.value == \'text\' ) jQuery( \'#' . esc_js( $this->get_field_id( 'image-settings' ) ) . '\' ).fadeOut(); else jQuery( \'#' . esc_js( $this->get_field_id( 'image-settings' ) ) . '\' ).fadeIn();">';
 		foreach ( $formats as $format_option => $label ) {
 			echo '<option value="' . esc_attr( $format_option ) . '"';
-			if ( $format_option == $format ) {
+			if ( $format_option === $format ) {
 				echo ' selected="selected"';
 			}
 			echo '>' . esc_html( $label ) . '</option>' . "\n";
 		}
 		echo '</select></label></p>';
 
-		echo '<div id="' . $this->get_field_id( 'image-settings' ) . '"';
-		if ( 'text' == $format ) {
+		echo '<div id="' . esc_attr( $this->get_field_id( 'image-settings' ) ) . '"';
+		if ( 'text' === $format ) {
 			echo ' style="display: none;"';
 		}
 		echo '><h3>' . esc_html__( 'Image Settings:', 'jetpack' ) . '</h3>';
@@ -140,11 +180,11 @@ class Jetpack_RSS_Links_Widget extends WP_Widget {
 			'medium' => __( 'Medium', 'jetpack' ),
 			'large'  => __( 'Large', 'jetpack' ),
 		);
-		echo '<p><label for="' . $this->get_field_id( 'imagesize' ) . '">' . esc_html__( 'Image Size:', 'jetpack' ) . '
-		<select class="widefat" id="' . $this->get_field_id( 'imagesize' ) . '" name="' . $this->get_field_name( 'imagesize' ) . '">';
+		echo '<p><label for="' . esc_attr( $this->get_field_id( 'imagesize' ) ) . '">' . esc_html__( 'Image Size:', 'jetpack' ) . '
+		<select class="widefat" id="' . esc_attr( $this->get_field_id( 'imagesize' ) ) . '" name="' . esc_attr( $this->get_field_name( 'imagesize' ) ) . '">';
 		foreach ( $sizes as $size => $label ) {
 			echo '<option value="' . esc_attr( $size ) . '"';
-			if ( $size == $image_size ) {
+			if ( $size === $image_size ) {
 				echo ' selected="selected"';
 			}
 			echo '>' . esc_html( $label ) . '</option>' . "\n";
@@ -160,11 +200,11 @@ class Jetpack_RSS_Links_Widget extends WP_Widget {
 			'pink'   => __( 'Pink', 'jetpack' ),
 			'silver' => __( 'Silver', 'jetpack' ),
 		);
-		echo '<p><label for="' . $this->get_field_id( 'imagecolor' ) . '">' . esc_html__( 'Image Color:', 'jetpack' ) . '
-		<select class="widefat" id="' . $this->get_field_id( 'imagecolor' ) . '" name="' . $this->get_field_name( 'imagecolor' ) . '">';
+		echo '<p><label for="' . esc_attr( $this->get_field_id( 'imagecolor' ) ) . '">' . esc_html__( 'Image Color:', 'jetpack' ) . '
+		<select class="widefat" id="' . esc_attr( $this->get_field_id( 'imagecolor' ) ) . '" name="' . esc_attr( $this->get_field_name( 'imagecolor' ) ) . '">';
 		foreach ( $colors as $color => $label ) {
 			echo '<option value="' . esc_attr( $color ) . '"';
-			if ( $color == $image_color ) {
+			if ( $color === $image_color ) {
 				echo ' selected="selected"';
 			}
 			echo '>' . esc_html( $label ) . '</option>' . "\n";
@@ -172,19 +212,22 @@ class Jetpack_RSS_Links_Widget extends WP_Widget {
 		echo '</select></label></p></div>';
 	}
 
-	function _rss_link( $type, $args ) {
-		if ( 'posts' == $type ) {
-			$type_text = __( 'Posts', 'jetpack' );
-			$rss_type  = 'rss2_url';
-		} elseif ( 'comments' == $type ) {
-			$type_text = __( 'Comments', 'jetpack' );
-			$rss_type  = 'comments_rss2_url';
+	/**
+	 * Output a link with a link to the feed.
+	 *
+	 * @param string $type Widget type (posts or comments).
+	 * @param array  $args Widget arguments.
+	 */
+	private function rss_link( $type, $args ) {
+		if ( 'posts' === $type ) {
+			$subscribe_to = esc_html__( 'Subscribe to posts', 'jetpack' );
+			$link_text    = esc_html__( 'RSS - Posts', 'jetpack' );
+			$rss_type     = 'rss2_url';
+		} elseif ( 'comments' === $type ) {
+			$subscribe_to = esc_html__( 'Subscribe to comments', 'jetpack' );
+			$link_text    = esc_html__( 'RSS - Comments', 'jetpack' );
+			$rss_type     = 'comments_rss2_url';
 		}
-
-		$subscribe_to = sprintf( __( 'Subscribe to %s', 'jetpack' ), $type_text );
-
-		$link_item = '';
-		$format    = $args['format'];
 
 		/**
 		 * Filters the target link attribute for the RSS link in the RSS widget.
@@ -201,42 +244,60 @@ class Jetpack_RSS_Links_Widget extends WP_Widget {
 			$link_target = '_self';
 		}
 
-		if ( 'image' == $format || 'text-image' == $format ) {
-			/**
-			 * Filters the image used as RSS icon in the RSS widget.
-			 *
-			 * @module widgets
-			 *
-			 * @since 3.6.0
-			 *
-			 * @param string $var URL of RSS Widget icon.
-			 */
-			$link_image = apply_filters( 'jetpack_rss_widget_icon', plugins_url( 'images/rss/' . $args['imagecolor'] . '-' . $args['imagesize'] . '.png', dirname( dirname( __FILE__ ) ) ) );
-			$link_item  = '<a target="' . $link_target . '" href="' . get_bloginfo( $rss_type ) . '" title="' . esc_attr( $subscribe_to ) . '"><img src="' . esc_url( $link_image ) . '" alt="RSS Feed" /></a>';
-		}
-		if ( 'text-image' == $format ) {
-			$link_item .= '&nbsp;<a target="' . $link_target . '" href="' . get_bloginfo( $rss_type ) . '" title="' . esc_attr( $subscribe_to ) . '">' . esc_html__( 'RSS - ' . $type_text, 'jetpack' ) . '</a>';
-		}
-		if ( 'text' == $format ) {
-			$link_item = '<a target="' . $link_target . '" href="' . get_bloginfo( $rss_type ) . '" title="' . esc_attr( $subscribe_to ) . '">' . esc_html__( 'RSS - ' . $type_text, 'jetpack' ) . '</a>';
+		$format = $args['format'];
+		if ( 'image' === $format ) {
+			$link_contents = $this->get_image_tag( $args );
+		} elseif ( 'text-image' === $format ) {
+			$link_contents = sprintf(
+				'%1$s&nbsp;%2$s',
+				$this->get_image_tag( $args ),
+				$link_text
+			);
+		} elseif ( 'text' === $format ) {
+			$link_contents = $link_text;
 		}
 
-		if ( 'text' == $format ) {
-			echo '<li>';
-		} else {
-			echo '<p>';
-		}
-		echo $link_item;
-		if ( 'text' == $format ) {
-			echo '</li>';
-		} else {
-			echo '</p>';
-		}
+		printf(
+			'%1$s<a target="%3$s" href="%4$s" title="%5$s">%6$s</a>%2$s',
+			'text' === $format ? '<li>' : '<p>', // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
+			'text' === $format ? '</li>' : '</p>', // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
+			esc_attr( $link_target ),
+			esc_url( get_bloginfo( $rss_type ) ),
+			esc_attr( $subscribe_to ),
+			$link_contents // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- we are escaping this above.
+		);
+	}
 
+	/**
+	 * Return an image tag for the RSS icon.
+	 *
+	 * @param array $args Widget arguments.
+	 */
+	private function get_image_tag( $args ) {
+		$image_path = sprintf(
+			'images/rss/%1$s-%2$s.png',
+			$args['imagecolor'],
+			$args['imagesize']
+		);
+
+		/**
+		 * Filters the image used as RSS icon in the RSS widget.
+		 *
+		 * @module widgets
+		 *
+		 * @since 3.6.0
+		 *
+		 * @param string $var URL of RSS Widget icon.
+		 */
+		$image = apply_filters(
+			'jetpack_rss_widget_icon',
+			plugins_url( $image_path, dirname( __DIR__ ) )
+		);
+
+		return sprintf(
+			'<img src="%1$s" alt="%2$s" />',
+			esc_url( $image ),
+			esc_attr__( 'RSS feed', 'jetpack' )
+		);
 	}
 } // Class Jetpack_RSS_Links_Widget
-
-function jetpack_rss_links_widget_init() {
-	register_widget( 'Jetpack_RSS_Links_Widget' );
-}
-add_action( 'widgets_init', 'jetpack_rss_links_widget_init' );

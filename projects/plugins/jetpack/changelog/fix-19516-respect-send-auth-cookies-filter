@@ -1,4 +1,0 @@
-Significance: patch
-Type: bugfix
-
-Ensures that the send_auth_cookies filter is respected

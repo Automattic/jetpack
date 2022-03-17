@@ -6,12 +6,26 @@ import Listr from 'listr';
 import VerboseRenderer from 'listr-verbose-renderer';
 import UpdateRenderer from 'listr-update-renderer';
 import execa from 'execa';
+import PATH from 'path-name';
+import { fileURLToPath } from 'url';
 
 /**
  * Internal dependencies
  */
-import { chalkJetpackGreen } from '../helpers/styling';
+import { chalkJetpackGreen } from '../helpers/styling.js';
 
+/**
+ * Show us the status of the cli, such as the currenet linked directory.
+ */
+function cliStatus() {
+	console.log(
+		chalkJetpackGreen(
+			'Jetpack CLI is currently linked to ' +
+				fileURLToPath( new URL( `../../../`, import.meta.url ) )
+		)
+	);
+	console.log( 'To change the linked directory of the CLI, run `pnpm cli-setup` ' );
+}
 /**
  * CLI link.
  *
@@ -30,11 +44,7 @@ function cliLink( options ) {
 						[
 							{
 								title: chalkJetpackGreen( `Enabling global access to the CLI` ),
-								task: () => command( 'yarn link', options.v, path.resolve( 'tools/cli' ) ),
-							},
-							{
-								title: chalkJetpackGreen( `Setting the monorepo to use the CLI` ),
-								task: () => command( 'yarn link jetpack-cli', options.v, process.cwd() ),
+								task: () => command( 'pnpm link --global', options.v, path.resolve( 'tools/cli' ) ),
 							},
 						],
 						opts
@@ -68,12 +78,8 @@ function cliUnlink( options ) {
 					return new Listr(
 						[
 							{
-								title: chalkJetpackGreen( `Disconnecting the CLI from the monorepo` ),
-								task: () => command( 'yarn unlink jetpack-cli', options.v, process.cwd() ),
-							},
-							{
 								title: chalkJetpackGreen( `Removing global access to the CLI` ),
-								task: () => command( 'yarn unlink', options.v, path.resolve( 'tools/cli' ) ),
+								task: () => command( 'pnpm unlink', options.v, path.resolve( 'tools/cli' ) ),
 							},
 						],
 						opts
@@ -94,7 +100,6 @@ function cliUnlink( options ) {
  * Command definition for the build subcommand.
  *
  * @param {object} yargs - The Yargs dependency.
- *
  * @returns {object} Yargs with the CLI commands defined.
  */
 export function cliDefine( yargs ) {
@@ -121,6 +126,17 @@ export function cliDefine( yargs ) {
 						console.log( argv );
 					}
 				}
+			)
+			.command(
+				'status',
+				'Get the status of the CLI',
+				() => {},
+				argv => {
+					cliStatus( argv );
+					if ( argv.v ) {
+						console.log( argv );
+					}
+				}
 			);
 	} );
 
@@ -133,11 +149,25 @@ export function cliDefine( yargs ) {
  * @param {string} cmd - The command to normalize.
  * @param {boolean} verbose - If verbose is enabled or not.
  * @param {string} cwd - Current working directory.
- *
  * @returns {object} - The execa command to run.
  */
 function command( cmd, verbose, cwd ) {
+	// If this is being run via the cli-link script from the monorepo root package.json, pnpm may
+	// have prepended node-gyp-bin and node_modules/.bin directories. Remove them so pnpm doesn't
+	// try to link the CLI into one of those.
+	const env = { ...process.env };
+	if ( env[ PATH ] ) {
+		const d = path.delimiter.replace( /[-[\]{}()*+?.\\^$|]/g, '\\$&' );
+		const s = path.sep.replace( /[-[\]{}()*+?.\\^$|]/g, '\\$&' );
+		env[ PATH ] = env[ PATH ].replace(
+			new RegExp(
+				`^(?:[^${ d }]*${ s }node-gyp-bin${ d })?(?:[^${ d }]*${ s }node_modules${ s }\\.bin${ d })+`
+			),
+			''
+		);
+	}
+
 	return verbose
-		? execa.commandSync( `${ cmd }`, { cwd: cwd, stdio: 'inherit' } )
-		: execa.command( `${ cmd }`, { cwd: cwd } );
+		? execa.commandSync( `${ cmd }`, { cwd: cwd, env: env, stdio: 'inherit' } )
+		: execa.command( `${ cmd }`, { cwd: cwd, env: env } );
 }

@@ -52,34 +52,43 @@ class WP_Test_Jetpack_Sync_Listener extends WP_Test_Jetpack_Sync_Base {
 
 		$this->listener->set_defaults(); // should pick up new queue size limit
 
-		$this->assertEquals( 2, $this->listener->get_queue_size_limit() );
-		$this->assertEquals( 3, $this->listener->get_queue_lag_limit() );
-		$this->assertEquals( 0, $this->listener->get_sync_queue()->size() );
+		try {
 
-		// now let's try exceeding the new limit
-		add_action( 'my_action', array( $this->listener, 'action_handler' ) );
+			$this->assertEquals( 2, $this->listener->get_queue_size_limit() );
+			$this->assertEquals( 3, $this->listener->get_queue_lag_limit() );
+			$this->assertEquals( 0, $this->listener->get_sync_queue()->size() );
 
-		$this->listener->force_recheck_queue_limit();
-		do_action( 'my_action' );
-		$this->assertEquals( 1, $this->listener->get_sync_queue()->size() );
+			// now let's try exceeding the new limit.
+			add_action( 'my_action', array( $this->listener, 'action_handler' ) );
 
-		$this->listener->force_recheck_queue_limit();
-		do_action( 'my_action' );
-		$this->assertEquals( 2, $this->listener->get_sync_queue()->size() );
+			$this->listener->force_recheck_queue_limit();
+			do_action( 'my_action' );
+			$this->assertEquals( 1, $this->listener->get_sync_queue()->size() );
 
-		$this->listener->force_recheck_queue_limit();
-		do_action( 'my_action' );
-		$this->assertEquals( 3, $this->listener->get_sync_queue()->size() );
+			$this->listener->force_recheck_queue_limit();
+			do_action( 'my_action' );
+			$this->assertEquals( 2, $this->listener->get_sync_queue()->size() );
 
-		// sleep for 3 seconds, so the oldest item in the queue is at least 3 seconds old -
-		// now our queue limit should kick in
-		sleep( 3 );
+			$this->listener->force_recheck_queue_limit();
+			do_action( 'my_action' );
+			$this->assertEquals( 3, $this->listener->get_sync_queue()->size() );
 
-		$this->listener->force_recheck_queue_limit();
-		do_action( 'my_action' );
-		$this->assertEquals( 3, $this->listener->get_sync_queue()->size() );
+			// sleep for 3 seconds, so the oldest item in the queue is at least 3 seconds old.
+			// now our queue limit should kick in.
+			sleep( 3 );
 
-		remove_action( 'my_action', array( $this->listener, 'action_handler' ) );
+			$this->listener->force_recheck_queue_limit();
+			do_action( 'my_action' );
+			$this->assertEquals( 3, $this->listener->get_sync_queue()->size() );
+
+		} finally {
+			// reset queue settings.
+			Settings::update_settings( array( 'max_queue_size' => Defaults::$default_max_queue_size ) );
+			Settings::update_settings( array( 'max_queue_lag' => Defaults::$default_max_queue_lag ) );
+			$this->listener->set_defaults(); // should reset queue size limit.
+
+			remove_action( 'my_action', array( $this->listener, 'action_handler' ) );
+		}
 	}
 
 	function test_does_listener_add_actor_to_queue() {

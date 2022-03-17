@@ -66,7 +66,8 @@ class Menus extends Module {
 		/**
 		 * Helps sync log that a nav menu was updated.
 		 *
-		 * @since 5.0.0
+		 * @since 1.6.3
+		 * @since-jetpack 5.0.0
 		 *
 		 * @param int   $menu_id ID of the menu.
 		 * @param array $menu_data An array of menu data.
@@ -89,7 +90,8 @@ class Menus extends Module {
 		/**
 		 * Helps sync log that a new menu item was added.
 		 *
-		 * @since 5.0.0
+		 * @since 1.6.3
+		 * @since-jetpack 5.0.0
 		 *
 		 * @param int   $menu_id       ID of the menu.
 		 * @param array $menu_data     An array of menu data.
@@ -116,7 +118,8 @@ class Menus extends Module {
 		/**
 		 * Helps sync log that an update to the menu item happened.
 		 *
-		 * @since 5.0.0
+		 * @since 1.6.3
+		 * @since-jetpack 5.0.0
 		 *
 		 * @param int   $menu_id       ID of the menu.
 		 * @param array $menu_data     An array of menu data.

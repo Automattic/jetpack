@@ -1,4 +1,0 @@
-Significance: minor
-Type: deprecated
-
-Changelogger `Config::setOutput()` is no longer needed. Config will throw a ConfigException instead of printing an error.

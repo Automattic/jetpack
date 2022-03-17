@@ -7,6 +7,7 @@
 
 namespace Automattic\Jetpack;
 
+use Brain\Monkey;
 use PHPUnit\Framework\TestCase;
 
 /**
@@ -20,6 +21,8 @@ class Test_Tracking extends TestCase {
 	 * @before
 	 */
 	public function set_up() {
+		Monkey\setUp();
+
 		$this->connection = $this->getMockBuilder( 'Automattic\Jetpack\Connection\Manager' )
 			->setMethods( array( 'is_user_connected' ) )
 			->getMock();
@@ -27,12 +30,21 @@ class Test_Tracking extends TestCase {
 	}
 
 	/**
-	 * Tests the  Automattic\Jetpack\Tracking::should_enabled_tracking() method.
+	 * Test teardown.
+	 *
+	 * @after
+	 */
+	public function tear_down() {
+		Monkey\tearDown();
+	}
+
+	/**
+	 * Tests the  Automattic\Jetpack\Tracking::should_enable_tracking() method.
 	 *
 	 * @param array   $inputs The test input values.
-	 * @param boolean $expected_output The expected output of Automattic\Jetpack\Tracking::should_enabled_tracking().
+	 * @param boolean $expected_output The expected output of Automattic\Jetpack\Tracking::should_enable_tracking().
 	 *
-	 * @covers Automattic\Jetpack\Tracking::should_enabled_tracking
+	 * @covers Automattic\Jetpack\Tracking::should_enable_tracking
 	 * @dataProvider data_provider_test_should_enable_tracking
 	 */
 	public function test_should_enable_tracking( $inputs, $expected_output ) {

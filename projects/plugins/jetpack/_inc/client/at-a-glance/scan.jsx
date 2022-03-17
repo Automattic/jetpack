@@ -4,18 +4,20 @@
 import PropTypes from 'prop-types';
 import React, { Component } from 'react';
 import { connect } from 'react-redux';
+import { get, isArray, noop } from 'lodash';
 
 /**
  * WordPress dependencies
  */
 import { createInterpolateElement } from '@wordpress/element';
 import { __, _n } from '@wordpress/i18n';
+import { getRedirectUrl, numberFormat } from '@automattic/jetpack-components';
 
 /**
  * Internal dependencies
  */
 import Card from 'components/card';
-import restApi from 'rest-api';
+import restApi from '@automattic/jetpack-api';
 import analytics from 'lib/analytics';
 import { getSitePlan, isFetchingSiteData } from 'state/site';
 import { getScanStatus, isFetchingScanStatus } from 'state/scan';
@@ -26,13 +28,13 @@ import {
 	getVaultPressData,
 } from 'state/at-a-glance';
 import {
-	getConnectUrl,
 	hasConnectedOwner as hasConnectedOwnerSelector,
 	isOfflineMode,
+	connectUser,
 } from 'state/connection';
 import DashItem from 'components/dash-item';
-import { get, isArray } from 'lodash';
-import { getUpgradeUrl, isAtomicSite, showBackups } from 'state/initial-state';
+import { isAtomicSite, showBackups } from 'state/initial-state';
+import { getProductDescriptionUrl } from 'product-descriptions/utils';
 import JetpackBanner from 'components/jetpack-banner';
 import { createNotice, removeNotice } from 'components/global-notices/state/notices/actions';
 import {
@@ -40,8 +42,6 @@ import {
 	getJetpackProductUpsellByFeature,
 	FEATURE_SECURITY_SCANNING_JETPACK,
 } from 'lib/plans/constants';
-import getRedirectUrl from 'lib/jp-redirect';
-import { numberFormat } from 'components/number-format';
 
 /**
  * Displays a card for Security Scan based on the props given.
@@ -85,6 +85,7 @@ class DashScan extends Component {
 	static propTypes = {
 		siteRawUrl: PropTypes.string.isRequired,
 		siteAdminUrl: PropTypes.string.isRequired,
+		trackUpgradeButtonView: PropTypes.func,
 
 		// Connected props
 		vaultPressData: PropTypes.any.isRequired,
@@ -94,7 +95,6 @@ class DashScan extends Component {
 		isVaultPressInstalled: PropTypes.bool.isRequired,
 		fetchingSiteData: PropTypes.bool.isRequired,
 		upgradeUrl: PropTypes.string.isRequired,
-		connectUrl: PropTypes.string.isRequired,
 		hasConnectedOwner: PropTypes.bool.isRequired,
 	};
 
@@ -107,6 +107,15 @@ class DashScan extends Component {
 		isOfflineMode: false,
 		isVaultPressInstalled: false,
 		fetchingSiteData: false,
+		trackUpgradeButtonView: noop,
+	};
+
+	trackScansClick = () => {
+		analytics.tracks.recordJetpackClick( {
+			type: 'scans-link',
+			target: 'at-a-glance',
+			feature: 'scans',
+		} );
 	};
 
 	onActivateVaultPressClick = () => {
@@ -260,6 +269,7 @@ class DashScan extends Component {
 				eventFeature="scan"
 				path="dashboard"
 				plan={ getJetpackProductUpsellByFeature( FEATURE_SECURITY_SCANNING_JETPACK ) }
+				trackBannerDisplay={ this.props.trackUpgradeButtonView }
 			/>
 		);
 	}
@@ -273,7 +283,7 @@ class DashScan extends Component {
 					'jetpack'
 				) }
 				disableHref="false"
-				href={ this.props.connectUrl }
+				onClick={ this.props.connectUser }
 				eventFeature="scan"
 				path="dashboard"
 				plan={ getJetpackProductUpsellByFeature( FEATURE_SECURITY_SCANNING_JETPACK ) }
@@ -294,6 +304,7 @@ class DashScan extends Component {
 				href={ url }
 				target="_blank"
 				rel="noopener noreferrer"
+				onClick={ this.trackScansClick }
 			>
 				{ message }
 			</Card>
@@ -445,13 +456,15 @@ export default connect(
 			sitePlan,
 			planClass: getPlanClass( get( sitePlan, 'product_slug', '' ) ),
 			showBackups: showBackups( state ),
-			upgradeUrl: getUpgradeUrl( state, 'aag-scan' ),
-			connectUrl: getConnectUrl( state ),
+			upgradeUrl: getProductDescriptionUrl( state, 'scan' ),
 			hasConnectedOwner: hasConnectedOwnerSelector( state ),
 		};
 	},
-	{
+	dispatch => ( {
 		createNotice,
 		removeNotice,
-	}
+		connectUser: () => {
+			return dispatch( connectUser() );
+		},
+	} )
 )( DashScan );

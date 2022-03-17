@@ -1,0 +1,47 @@
+{
+	"private": true,
+	"name": "@automattic/jetpack-licensing",
+	"version": "0.4.11-alpha",
+	"description": "Jetpack licensing flow",
+	"homepage": "https://jetpack.com",
+	"bugs": {
+		"url": "https://github.com/Automattic/jetpack/issues"
+	},
+	"repository": {
+		"type": "git",
+		"url": "https://github.com/Automattic/jetpack.git"
+	},
+	"license": "GPL-2.0-or-later",
+	"author": "Automattic",
+	"scripts": {
+		"test": "NODE_ENV=test NODE_PATH=tests:. js-test-runner --jsdom --initfile=test-main.jsx 'glob:./!(node_modules)/**/test/*.@(jsx|js)'"
+	},
+	"devDependencies": {
+		"@babel/core": "7.16.0",
+		"@babel/preset-react": "7.16.0",
+		"jetpack-js-test-runner": "workspace:*",
+		"nyc": "15.1.0",
+		"react": "17.0.2",
+		"react-test-renderer": "17.0.2",
+		"@automattic/jetpack-base-styles": "workspace:^0.1.10"
+	},
+	"engines": {
+		"node": "^14.18.3 || ^16.13.2",
+		"pnpm": "^6.23.6",
+		"yarn": "use pnpm instead - see docs/yarn-upgrade.md"
+	},
+	"exports": {
+		".": "./index.jsx",
+		"./state": "./src/state",
+		"./action-types": "./src/state/action-types"
+	},
+	"dependencies": {
+		"@automattic/jetpack-api": "workspace:^0.9.1",
+		"@automattic/jetpack-components": "workspace:^0.10.11-alpha",
+		"@wordpress/i18n": "4.3.1",
+		"@wordpress/element": "4.1.1",
+		"prop-types": "15.7.2",
+		"@wordpress/components": "19.5.0",
+		"@wordpress/icons": "7.0.1"
+	}
+}

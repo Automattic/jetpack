@@ -39,7 +39,8 @@ export default function withErrorBoundary( WrappedComponent ) {
 								  )
 								: __(
 										'An unexpected error occured within the Podcast Player. Reloading this page might fix the problem.',
-										'jetpack'
+										'jetpack',
+										/* dummy arg to avoid bad minification */ 0
 								  ) }
 						</p>
 					</section>

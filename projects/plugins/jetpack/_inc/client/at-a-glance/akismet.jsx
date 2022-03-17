@@ -4,7 +4,7 @@
 import PropTypes from 'prop-types';
 import React, { Component } from 'react';
 import { connect } from 'react-redux';
-import { get } from 'lodash';
+import { get, noop } from 'lodash';
 
 /**
  * WordPress dependencies
@@ -20,26 +20,25 @@ import Card from 'components/card';
 import { createNotice, removeNotice } from 'components/global-notices/state/notices/actions';
 import DashItem from 'components/dash-item';
 import { getAkismetData } from 'state/at-a-glance';
-import getRedirectUrl from 'lib/jp-redirect';
 import { getSitePlan } from 'state/site';
-import { getApiNonce, getUpgradeUrl } from 'state/initial-state';
+import { getApiNonce } from 'state/initial-state';
+import { getProductDescriptionUrl } from 'product-descriptions/utils';
 import { getJetpackProductUpsellByFeature, FEATURE_SPAM_AKISMET_PLUS } from 'lib/plans/constants';
-import { getConnectUrl, hasConnectedOwner, isOfflineMode } from 'state/connection';
+import { hasConnectedOwner, isOfflineMode, connectUser } from 'state/connection';
 import JetpackBanner from 'components/jetpack-banner';
-import { numberFormat } from 'components/number-format';
-import restApi from 'rest-api';
+import restApi from '@automattic/jetpack-api';
 import QueryAkismetData from 'components/data/query-akismet-data';
 
 class DashAkismet extends Component {
 	static propTypes = {
 		siteRawUrl: PropTypes.string.isRequired,
 		siteAdminUrl: PropTypes.string.isRequired,
+		trackUpgradeButtonView: PropTypes.func,
 
 		// Connected props
 		akismetData: PropTypes.oneOfType( [ PropTypes.string, PropTypes.object ] ).isRequired,
 		isOfflineMode: PropTypes.bool.isRequired,
 		upgradeUrl: PropTypes.string.isRequired,
-		connectUrl: PropTypes.string.isRequired,
 		hasConnectedOwner: PropTypes.bool.isRequired,
 	};
 
@@ -48,6 +47,7 @@ class DashAkismet extends Component {
 		siteAdminUrl: '',
 		akismetData: 'N/A',
 		isOfflineMode: '',
+		trackUpgradeButtonView: noop,
 	};
 
 	trackActivateClick() {
@@ -79,6 +79,18 @@ class DashAkismet extends Component {
 			} );
 
 		return false;
+	};
+
+	trackModerateClick() {
+		analytics.tracks.recordJetpackClick( {
+			type: 'moderate-link',
+			target: 'at-a-glance',
+			feature: 'anti-spam',
+		} );
+	}
+
+	onModerateClick = () => {
+		this.trackModerateClick();
 	};
 
 	getContent() {
@@ -114,6 +126,7 @@ class DashAkismet extends Component {
 					eventFeature="akismet"
 					path="dashboard"
 					plan={ getJetpackProductUpsellByFeature( FEATURE_SPAM_AKISMET_PLUS ) }
+					trackBannerDisplay={ this.props.trackUpgradeButtonView }
 				/>
 			);
 		};
@@ -127,7 +140,7 @@ class DashAkismet extends Component {
 						'jetpack'
 					) }
 					disableHref="false"
-					href={ this.props.connectUrl }
+					onClick={ this.props.connectUser }
 					eventFeature="akismet"
 					path="dashboard"
 					plan={ getJetpackProductUpsellByFeature( FEATURE_SPAM_AKISMET_PLUS ) }
@@ -136,7 +149,47 @@ class DashAkismet extends Component {
 		};
 
 		const getBanner = () => {
+			if ( this.props.isOfflineMode ) {
+				return (
+					<DashItem
+						label={ labelName }
+						module="akismet"
+						support={ support }
+						pro={ true }
+						className="jp-dash-item__is-inactive"
+					>
+						<p className="jp-dash-item__description">
+							{ __( 'Unavailable in Offline Mode.', 'jetpack' ) }
+						</p>
+					</DashItem>
+				);
+			}
+
 			return this.props.hasConnectedOwner ? getAkismetUpgradeBanner() : getConnectBanner();
+		};
+
+		const getAkismetCounter = () => {
+			if ( '0' !== this.props.akismetData ) {
+				return (
+					<>
+						<h2 className="jp-dash-item__count">{ this.props.akismetData }</h2>
+						<p className="jp-dash-item__description">
+							{ _x( 'Spam comments blocked.', 'Example: "412 Spam comments blocked"', 'jetpack' ) }
+						</p>
+					</>
+				);
+			}
+
+			return (
+				<div className="jp-dash-item__recently-activated">
+					<p className="jp-dash-item__description">
+						{ __(
+							'Jetpack and its Anti-spam currently monitor all comments on your site. Data will display here soon!',
+							'jetpack'
+						) }
+					</p>
+				</div>
+			);
 		};
 
 		if ( 'N/A' === akismetData ) {
@@ -218,17 +271,15 @@ class DashAkismet extends Component {
 				status="is-working"
 				pro={ true }
 			>
-				<h2 className="jp-dash-item__count">{ numberFormat( akismetData.all.spam ) }</h2>
-				<p className="jp-dash-item__description">
-					{ _x( 'Spam comments blocked.', 'Example: "412 Spam comments blocked"', 'jetpack' ) }
-				</p>
+				{ getAkismetCounter( akismetData ) }
 			</DashItem>,
 			! this.props.isOfflineMode && (
 				<Card
 					key="moderate-comments"
 					className="jp-dash-item__manage-in-wpcom"
 					compact
-					href={ getRedirectUrl( 'calypso-comments-all', { site: this.props.siteRawUrl } ) }
+					href={ `${ this.props.siteAdminUrl }edit-comments.php` }
+					onClick={ this.onModerateClick }
 				>
 					{ __( 'Moderate comments', 'jetpack' ) }
 				</Card>
@@ -252,14 +303,16 @@ export default connect(
 			akismetData: getAkismetData( state ),
 			sitePlan: getSitePlan( state ),
 			isOfflineMode: isOfflineMode( state ),
-			upgradeUrl: getUpgradeUrl( state, 'aag-akismet' ),
+			upgradeUrl: getProductDescriptionUrl( state, 'akismet' ),
 			nonce: getApiNonce( state ),
-			connectUrl: getConnectUrl( state ),
 			hasConnectedOwner: hasConnectedOwner( state ),
 		};
 	},
-	{
+	dispatch => ( {
 		createNotice,
 		removeNotice,
-	}
+		connectUser: () => {
+			return dispatch( connectUser() );
+		},
+	} )
 )( DashAkismet );

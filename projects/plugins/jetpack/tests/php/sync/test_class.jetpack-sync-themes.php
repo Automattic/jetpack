@@ -1,6 +1,7 @@
 <?php
 
 use Automattic\Jetpack\Sync\Defaults;
+use Automattic\Jetpack\Sync\Modules;
 
 require_once ABSPATH . 'wp-admin/includes/class-wp-upgrader.php';
 
@@ -47,8 +48,8 @@ class WP_Test_Jetpack_Sync_Themes extends WP_Test_Jetpack_Sync_Base {
 	/**
 	 * Move Dummy Themes to proper location for testing.
 	 */
-	public static function setUpBeforeClass() {
-		parent::setUpBeforeClass();
+	public static function set_up_before_class() {
+		parent::set_up_before_class();
 
 		// Copy themes from tests/php/files/ to wp-content/themes.
 		foreach ( static::$themes as $theme ) {
@@ -67,8 +68,8 @@ class WP_Test_Jetpack_Sync_Themes extends WP_Test_Jetpack_Sync_Base {
 	/**
 	 * Remove Dummy Themes.
 	 */
-	public static function tearDownAfterClass() {
-		parent::tearDownAfterClass();
+	public static function tear_down_after_class() {
+		parent::tear_down_after_class();
 
 		// Remove themes previously copied from tests/php/files/ to wp-content/themes.
 		foreach ( static::$themes as $theme ) {
@@ -83,8 +84,11 @@ class WP_Test_Jetpack_Sync_Themes extends WP_Test_Jetpack_Sync_Base {
 
 	}
 
-	public function setUp() {
-		parent::setUp();
+	/**
+	 * Set up.
+	 */
+	public function set_up() {
+		parent::set_up();
 
 		$current_theme = wp_get_theme();
 		$this->theme   = $current_theme->slug;
@@ -135,6 +139,9 @@ class WP_Test_Jetpack_Sync_Themes extends WP_Test_Jetpack_Sync_Base {
 	 * Test that we support syncing all the different theme features still.
 	 */
 	public function test_theme_callable_syncs_theme_supports_data() {
+		// @todo: Figure out why it's necessary for the sync to happen twice for the test to pass when run standalone or with WordPress 5.9.
+		set_theme_mod( 'foo', 'bar' );
+		$this->sender->do_sync();
 
 		$this->sender->do_sync();
 		$theme_supports = $this->server_replica_storage->get_callable( 'theme_support' );
@@ -300,8 +307,10 @@ class WP_Test_Jetpack_Sync_Themes extends WP_Test_Jetpack_Sync_Base {
 			'themes' => self::$themes,
 		);
 
+		add_filter( 'pre_http_request', array( 'WP_Test_Jetpack_Sync_Base', 'pre_http_request_wordpress_org_updates' ), 10, 3 );
 		/** This action is documented in /wp-admin/includes/class-wp-upgrader.php */
 		do_action( 'upgrader_process_complete', new Dummy_Sync_Test_WP_Upgrader(), $dummy_details );
+		remove_filter( 'pre_http_request', array( 'WP_Test_Jetpack_Sync_Base', 'pre_http_request_wordpress_org_updates' ) );
 
 		$this->sender->do_sync();
 
@@ -327,8 +336,10 @@ class WP_Test_Jetpack_Sync_Themes extends WP_Test_Jetpack_Sync_Base {
 			'theme'  => $theme,
 		);
 
+		add_filter( 'pre_http_request', array( 'WP_Test_Jetpack_Sync_Base', 'pre_http_request_wordpress_org_updates' ), 10, 3 );
 		/** This action is documented in /wp-admin/includes/class-wp-upgrader.php */
 		do_action( 'upgrader_process_complete', new Dummy_Sync_Test_WP_Upgrader(), $dummy_details );
+		remove_filter( 'pre_http_request', array( 'WP_Test_Jetpack_Sync_Base', 'pre_http_request_wordpress_org_updates' ) );
 
 		$this->sender->do_sync();
 
@@ -471,6 +482,17 @@ class WP_Test_Jetpack_Sync_Themes extends WP_Test_Jetpack_Sync_Base {
 		}
 
 		$upgrader = new Theme_Upgrader( new Silent_Upgrader_Skin() );
+		add_filter( 'pre_http_request', array( 'WP_Test_Jetpack_Sync_Base', 'pre_http_request_wordpress_org_updates' ), 10, 3 );
 		$upgrader->install( $api->download_link, array( 'overwrite_package' => $overwrite ) );
+		remove_filter( 'pre_http_request', array( 'WP_Test_Jetpack_Sync_Base', 'pre_http_request_wordpress_org_updates' ) );
+	}
+
+	/**
+	 * Verify that all constants are returned by get_objects_by_id.
+	 */
+	public function test_get_objects_by_id() {
+		$module     = Modules::get_module( 'themes' );
+		$theme_info = $module->get_objects_by_id( 'theme-info', array() );
+		$this->assertEquals( $module->expand_theme_data(), $theme_info );
 	}
 }

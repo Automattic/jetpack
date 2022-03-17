@@ -13,7 +13,6 @@ const getFiles = require( '../../get-files' );
  * - Capitalize.
  *
  * @param {string} name - Feature name.
- *
  * @returns {string} Cleaned up feature name.
  */
 function cleanName( name ) {
@@ -67,6 +66,11 @@ function cleanName( name ) {
 		name = 'Star Rating';
 	}
 
+	// render-blocking-js is a Boost feature.
+	if ( name === 'render-blocking-js' ) {
+		name = 'Defer JS';
+	}
+
 	return (
 		name
 			// Break up words
@@ -85,7 +89,6 @@ function cleanName( name ) {
  * @param {string} owner   - Repository owner.
  * @param {string} repo    - Repository name.
  * @param {string} number  - PR number.
- *
  * @returns {Promise<Array>} Promise resolving to an array of keywords we'll search for.
  */
 async function getLabelsToAdd( octokit, owner, repo, number ) {
@@ -126,6 +129,10 @@ async function getLabelsToAdd( octokit, owner, repo, number ) {
 			if ( project.groups.ptype === 'github-actions' ) {
 				keywords.add( 'Actions' );
 			}
+
+			if ( project.groups.ptype === 'js-packages' ) {
+				keywords.add( 'RNA' );
+			}
 		}
 
 		// Modules.
@@ -147,7 +154,7 @@ async function getLabelsToAdd( octokit, owner, repo, number ) {
 		}
 
 		// Docker.
-		const docker = file.match( /^tools\/docker\// );
+		const docker = file.match( /^(projects\/plugins\/boost\/docker|tools\/docker)\// );
 		if ( docker !== null ) {
 			keywords.add( 'Docker' );
 		}
@@ -162,17 +169,23 @@ async function getLabelsToAdd( octokit, owner, repo, number ) {
 			keywords.add( 'Docs' );
 		}
 
-		// Existing blocks.
+		// Existing blocks and block plugins.
 		const blocks = file.match(
-			/^projects\/plugins\/jetpack\/extensions\/blocks\/(?<block>[^/]*)\//
+			/^projects\/plugins\/jetpack\/extensions\/(?<type>blocks|plugins)\/(?<block>[^/]*)\//
 		);
-		const blockName = blocks && blocks.groups.block;
-		if ( blockName ) {
-			keywords.add( `[Block] ${ cleanName( blockName ) }` );
+		if ( blocks !== null ) {
+			const { groups: { type: blockType, block: blockName } = {} } = blocks;
+			if ( blockType && blockName ) {
+				keywords.add(
+					`[${ 'plugins' === blockType ? 'Extension' : 'Block' }] ${ cleanName( blockName ) }`
+				);
+			}
 		}
 
-		// React Dashboard.
-		const reactAdmin = file.match( /^projects\/plugins\/jetpack\/_inc\/client\// );
+		// React Dashboard and Boost Admin.
+		const reactAdmin = file.match(
+			/^(projects\/plugins\/boost\/app\/admin|projects\/plugins\/jetpack\/_inc\/client)\//
+		);
 		if ( reactAdmin !== null ) {
 			keywords.add( 'Admin Page' );
 		}
@@ -189,6 +202,29 @@ async function getLabelsToAdd( octokit, owner, repo, number ) {
 		const wpcomApi = file.match( /^projects\/plugins\/jetpack\/json-endpoints\// );
 		if ( wpcomApi !== null ) {
 			keywords.add( 'WPCOM API' );
+		}
+
+		// Boost Critical CSS.
+		const boostModules = file.match(
+			/^projects\/plugins\/boost\/app\/modules\/(?<boostModule>[^/]*)\//
+		);
+		const boostModuleName = boostModules && boostModules.groups.boostModule;
+		if ( boostModuleName ) {
+			keywords.add( `[Boost Feature] ${ cleanName( boostModuleName ) }` );
+		}
+
+		// Compatibility with 3rd party tools (Boost and Jetpack).
+		const compat = file.match(
+			/^(projects\/plugins\/boost\/compatibility|projects\/plugins\/jetpack\/3rd-party)\//
+		);
+		if ( compat ) {
+			keywords.add( 'Compatibility' );
+		}
+
+		// E2E tests.
+		const e2e = file.match( /\/tests\/e2e\/|^tools\/e2e-commons\// );
+		if ( e2e ) {
+			keywords.add( 'E2E Tests' );
 		}
 	} );
 
@@ -215,7 +251,7 @@ async function addLabels( payload, octokit ) {
 
 	debug( `add-labels: Adding labels to PR #${ number }` );
 
-	await octokit.issues.addLabels( {
+	await octokit.rest.issues.addLabels( {
 		owner: owner.login,
 		repo: name,
 		issue_number: number,

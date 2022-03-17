@@ -47,11 +47,11 @@ export const CalendlyInspectorControls = props => {
 						id="embedCode"
 						onChange={ event => setEmbedCode( event.target.value ) }
 						placeholder={ __( 'Calendly web address or embed code…', 'jetpack' ) }
-						value={ embedCode }
+						value={ embedCode || '' }
 						className="components-placeholder__input"
 					/>
 					<div>
-						<Button isSecondary type="submit">
+						<Button variant="secondary" type="submit">
 							{ _x( 'Embed', 'button label', 'jetpack' ) }
 						</Button>
 					</div>

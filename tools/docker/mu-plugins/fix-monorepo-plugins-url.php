@@ -14,6 +14,11 @@ namespace Jetpack\Docker\MuPlugin\FixMonorepoPluginsUrl;
 
 use Jetpack\Docker\MuPlugin\Monorepo;
 
+// This allows us to use the most unstable version of packages, e.g. the monorepo versions.
+if ( ! defined( 'JETPACK_AUTOLOAD_DEV' ) ) {
+	define( 'JETPACK_AUTOLOAD_DEV', true );
+}
+
 /**
  * Fix the plugins_url in the Docker dev environment.
  *
@@ -31,12 +36,16 @@ function jetpack_docker_plugins_url( $url, $path, $plugin ) {
 
 	if ( strpos( $url, $packages ) !== false && strpos( $plugin, $packages ) === 0 ) {
 		// Look through available monorepo plugins until we find one with the plugin symlink.
-		$suffix      = '/vendor/automattic/jetpack-' . substr( $plugin, strlen( $packages ) );
+		$suffix1     = '/jetpack_vendor/automattic/jetpack-' . substr( $plugin, strlen( $packages ) );
+		$suffix2     = '/vendor/automattic/jetpack-' . substr( $plugin, strlen( $packages ) );
 		$real_plugin = realpath( $plugin );
 		if ( false !== $real_plugin ) {
 			foreach ( $wp_plugin_paths as $dir ) {
-				if ( realpath( $dir . $suffix ) === $real_plugin ) {
-					return plugins_url( $path, $dir . $suffix );
+				if ( realpath( $dir . $suffix1 ) === $real_plugin ) {
+					return plugins_url( $path, $dir . $suffix1 );
+				}
+				if ( realpath( $dir . $suffix2 ) === $real_plugin ) {
+					return plugins_url( $path, $dir . $suffix2 );
 				}
 			}
 		}

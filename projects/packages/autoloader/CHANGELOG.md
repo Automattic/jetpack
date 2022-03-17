@@ -5,6 +5,60 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [2.11.1] - 2022-03-08
+### Removed
+- Removed the Upgrade Handler.
+
+## [2.11.0] - 2022-03-08
+### Added
+- On plugin update, pre-load all (non-PSR-4) classes from the plugin to avoid mid-upgrade fatals.
+
+## [2.10.13] - 2022-03-01
+### Fixed
+- Fix tests for upstream phpunit change.
+
+## [2.10.12] - 2022-01-25
+### Changed
+- Updated package dependencies.
+
+## [2.10.11] - 2022-01-04
+### Changed
+- Switch to pcov for code coverage.
+- Updated package dependencies
+
+## [2.10.10] - 2021-11-16
+### Added
+- Soft return if autoloader chain is not available.
+
+## [2.10.9] - 2021-11-02
+### Changed
+- Set `convertDeprecationsToExceptions` true in PHPUnit config.
+
+## [2.10.8] - 2021-10-13
+### Changed
+- Updated package dependencies.
+
+## [2.10.7] - 2021-10-07
+### Changed
+- Updated package dependencies
+
+## [2.10.6] - 2021-09-28
+### Changed
+- Updated package dependencies.
+
+## [2.10.5] - 2021-08-31
+### Changed
+- Run composer update on test-php command instead of phpunit
+- Tests: update PHPUnit polyfills dependency (yoast/phpunit-polyfills).
+
+## [2.10.4] - 2021-08-10
+### Changed
+- Updated package dependencies.
+
+## [2.10.3] - 2021-05-25
+### Changed
+- Updated package dependencies.
+
 ## [2.10.2] - 2021-04-27
 ### Changed
 - Updated package dependencies.
@@ -183,6 +237,19 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - Add Custom Autoloader
 
+[2.11.1]: https://github.com/Automattic/jetpack-autoloader/compare/v2.11.0...v2.11.1
+[2.11.0]: https://github.com/Automattic/jetpack-autoloader/compare/v2.10.13...v2.11.0
+[2.10.13]: https://github.com/Automattic/jetpack-autoloader/compare/v2.10.12...v2.10.13
+[2.10.12]: https://github.com/Automattic/jetpack-autoloader/compare/v2.10.11...v2.10.12
+[2.10.11]: https://github.com/Automattic/jetpack-autoloader/compare/v2.10.10...v2.10.11
+[2.10.10]: https://github.com/Automattic/jetpack-autoloader/compare/v2.10.9...v2.10.10
+[2.10.9]: https://github.com/Automattic/jetpack-autoloader/compare/v2.10.8...v2.10.9
+[2.10.8]: https://github.com/Automattic/jetpack-autoloader/compare/v2.10.7...v2.10.8
+[2.10.7]: https://github.com/Automattic/jetpack-autoloader/compare/v2.10.6...v2.10.7
+[2.10.6]: https://github.com/Automattic/jetpack-autoloader/compare/v2.10.5...v2.10.6
+[2.10.5]: https://github.com/Automattic/jetpack-autoloader/compare/v2.10.4...v2.10.5
+[2.10.4]: https://github.com/Automattic/jetpack-autoloader/compare/v2.10.3...v2.10.4
+[2.10.3]: https://github.com/Automattic/jetpack-autoloader/compare/v2.10.2...v2.10.3
 [2.10.2]: https://github.com/Automattic/jetpack-autoloader/compare/v2.10.1...v2.10.2
 [2.10.1]: https://github.com/Automattic/jetpack-autoloader/compare/v2.10.0...v2.10.1
 [2.10.0]: https://github.com/Automattic/jetpack-autoloader/compare/v2.9.1...v2.10.0

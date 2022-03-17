@@ -25,7 +25,7 @@ class WP_Test_Jetpack_Shortcodes_Sitemap extends WP_UnitTestCase {
 		$shortcode_content = do_shortcode( $content );
 
 		$this->assertNotEquals( $content, $shortcode_content );
-		$this->assertEquals( '', $shortcode_content );
+		$this->assertSame( '', $shortcode_content );
 	}
 
 	/**
@@ -36,24 +36,28 @@ class WP_Test_Jetpack_Shortcodes_Sitemap extends WP_UnitTestCase {
 	public function test_shortcodes_sitemap_image() {
 		$content = '[sitemap]';
 
-		$page_1_id = $this->factory->post->create( array(
-			'post_type'    => 'page',
-			'post_title'   => 'Jetpack Parent',
-			'post_content' => 'This is a parent page',
-		) );
+		$page_1_id = $this->factory->post->create(
+			array(
+				'post_type'    => 'page',
+				'post_title'   => 'Jetpack Parent',
+				'post_content' => 'This is a parent page',
+			)
+		);
 
-		$page_1_1_id = $this->factory->post->create( array(
-			'post_type'    => 'page',
-			'post_title'   => 'Jetpack Child',
-			'post_content' => 'This is another page, whose parent is ' . $page_1_id,
-			'post_parent'  => $page_1_id
-		) );
+		$page_1_1_id = $this->factory->post->create(
+			array(
+				'post_type'    => 'page',
+				'post_title'   => 'Jetpack Child',
+				'post_content' => 'This is another page, whose parent is ' . $page_1_id,
+				'post_parent'  => $page_1_id,
+			)
+		);
 
 		$shortcode_content = do_shortcode( $content );
 
-		$this->assertContains( '<ul class="jetpack-sitemap-shortcode"><li class="pagenav">', $shortcode_content );
-		$this->assertContains( '<ul><li class="page_item page-item-' . $page_1_id . ' page_item_has_children"><a href="http://example.org/?page_id=' . $page_1_id . '">Jetpack Parent</a>', $shortcode_content );
-		$this->assertContains( "<ul class='children'>", $shortcode_content );
-        $this->assertContains( '<li class="page_item page-item-' . $page_1_1_id . '"><a href="http://example.org/?page_id=' . $page_1_1_id . '">Jetpack Child</a></li>', $shortcode_content );
+		$this->assertStringContainsString( '<ul class="jetpack-sitemap-shortcode"><li class="pagenav">', $shortcode_content );
+		$this->assertStringContainsString( '<ul><li class="page_item page-item-' . $page_1_id . ' page_item_has_children"><a href="http://example.org/?page_id=' . $page_1_id . '">Jetpack Parent</a>', $shortcode_content );
+		$this->assertStringContainsString( "<ul class='children'>", $shortcode_content );
+		$this->assertStringContainsString( '<li class="page_item page-item-' . $page_1_1_id . '"><a href="http://example.org/?page_id=' . $page_1_1_id . '">Jetpack Child</a></li>', $shortcode_content );
 	}
 }

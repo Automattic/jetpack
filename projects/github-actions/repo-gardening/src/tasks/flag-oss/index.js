@@ -27,7 +27,7 @@ async function flagOss( payload, octokit ) {
 	}
 
 	debug( `flag-oss: Adding OSS Citizen label to PR #${ number }` );
-	await octokit.issues.addLabels( {
+	await octokit.rest.issues.addLabels( {
 		owner: owner.login,
 		repo: name,
 		issue_number: number,

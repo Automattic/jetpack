@@ -7,11 +7,11 @@ import { __, _x, _n, sprintf } from '@wordpress/i18n';
 import { FacebookPreview, TwitterPreview, SearchPreview } from '@automattic/social-previews';
 import SocialLogo from 'social-logos';
 import classNames from 'classnames';
+import { getRedirectUrl } from '@automattic/jetpack-components';
 
 /**
  * Internal dependencies
  */
-import getRedirectUrl from 'lib/jp-redirect';
 import { withModuleSettingsFormHelpers } from 'components/module-settings/with-module-settings-form-helpers';
 import SettingsCard from 'components/settings-card';
 import SettingsGroup from 'components/settings-group';
@@ -89,7 +89,12 @@ export const SEO = withModuleSettingsFormHelpers(
 				<Button primary compact type="submit" disabled={ isSaving || ! props.isDirty() }>
 					{ isSaving
 						? _x( 'Saving…', 'Button caption', 'jetpack' )
-						: _x( 'Save settings', 'Button caption', 'jetpack' ) }
+						: _x(
+								'Save settings',
+								'Button caption',
+								'jetpack',
+								/* dummy arg to avoid bad minification */ 0
+						  ) }
 				</Button>
 			);
 		};

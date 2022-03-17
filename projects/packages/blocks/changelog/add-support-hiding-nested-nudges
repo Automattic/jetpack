@@ -1,4 +1,0 @@
-Significance: patch
-Type: added
-
-Adds an attribute to paid blocks to support hiding nested upgrade nudges on the frontend.

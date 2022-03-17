@@ -50,6 +50,16 @@ function register_block() {
 				),
 			),
 			'render_callback' => __NAMESPACE__ . '\render_block',
+			'supports'        => array(
+				'align'   => array( 'wide', 'full' ),
+				'spacing' => array(
+					'padding' => true,
+					'margin'  => true,
+				),
+			),
+			// Since Gutenberg #31873.
+			'style'           => 'wp-mediaelement',
+
 		)
 	);
 }
@@ -156,13 +166,13 @@ function render_player( $player_data, $attributes ) {
 	$player_classes_name  = trim( "{$secondary_colors['class']} {$background_colors['class']}" );
 	$player_inline_style  = trim( "{$secondary_colors['style']} ${background_colors['style']}" );
 	$player_inline_style .= get_css_vars( $attributes );
-
-	$block_classname = Blocks::classes( FEATURE_NAME, $attributes, array( 'is-default' ) );
-	$is_amp          = Blocks::is_amp_request();
+	$wrapper_attributes   = \WP_Block_Supports::get_instance()->apply_block_supports();
+	$block_classname      = Blocks::classes( FEATURE_NAME, $attributes, array( 'is-default' ) );
+	$is_amp               = Blocks::is_amp_request();
 
 	ob_start();
 	?>
-	<div class="<?php echo esc_attr( $block_classname ); ?>" id="<?php echo esc_attr( $instance_id ); ?>">
+	<div class="<?php echo esc_attr( $block_classname ); ?>"<?php echo ! empty( $wrapper_attributes['style'] ) ? ' style="' . esc_attr( $wrapper_attributes['style'] ) . '"' : ''; ?> id="<?php echo esc_attr( $instance_id ); ?>">
 		<section
 			class="jetpack-podcast-player <?php echo esc_attr( $player_classes_name ); ?>"
 			style="<?php echo esc_attr( $player_inline_style ); ?>"
@@ -294,18 +304,6 @@ function render( $name, $template_props = array(), $print = true ) {
 
 	if ( ! file_exists( $template_path ) ) {
 		return '';
-	}
-
-	/*
-	 * Optionally provided an assoc array of data to pass to template.
-	 * IMPORTANT: It will be extracted into variables.
-	 */
-	if ( is_array( $template_props ) ) {
-		/*
-		 * It ignores the `discouraging` sniffer rule for extract, since it's needed
-		 * to make the templating system works.
-		 */
-		extract( $template_props ); // phpcs:ignore WordPress.PHP.DontExtract.extract_extract
 	}
 
 	if ( $print ) {

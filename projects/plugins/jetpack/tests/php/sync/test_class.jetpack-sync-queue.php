@@ -7,25 +7,28 @@ class WP_Test_Jetpack_Sync_Queue extends WP_UnitTestCase {
 
 	private $queue;
 
-	public function setUp() {
-		parent::setUp();
+	/**
+	 * Set up.
+	 */
+	public function set_up() {
+		parent::set_up();
 
 		$this->queue = new Queue( 'my_queue' );
 	}
 
 	function test_add_queue_items() {
-		$this->assertEquals( 0, $this->queue->size() );
+		$this->assertSame( 0, $this->queue->size() );
 
 		$this->queue->add( 'foo' );
 
-		$this->assertEquals( 1, $this->queue->size() );
+		$this->assertSame( 1, $this->queue->size() );
 		$this->assertEquals( array( 'foo' ), $this->queue->flush_all() );
-		$this->assertEquals( 0, $this->queue->size() );
+		$this->assertSame( 0, $this->queue->size() );
 	}
 
 	function test_add_queue_item_is_not_set_to_autoload() {
 		global $wpdb;
-		$this->assertEquals( 0, $this->queue->size() );
+		$this->assertSame( 0, $this->queue->size() );
 		$this->queue->add( 'foo' );
 
 		$queue = $wpdb->get_row( "SELECT * FROM $wpdb->options WHERE option_name LIKE 'jpsq_my_queue%'" );
@@ -57,13 +60,9 @@ class WP_Test_Jetpack_Sync_Queue extends WP_UnitTestCase {
 			->setConstructorArgs( array( 'my_queue' ) )
 			->getMock();
 
-		$queue->expects( $this->at( 0 ) )
+		$queue->expects( $this->exactly( 2 ) )
 			->method( 'generate_option_name_timestamp' )
-			->will( $this->returnValue( '1.5' ) );
-
-		$queue->expects( $this->at( 1 ) )
-			->method( 'generate_option_name_timestamp' )
-			->will( $this->returnValue( '3.0' ) );
+			->willReturnOnConsecutiveCalls( '1.5', '3.0' );
 
 		$queue->reset();
 		$queue->add( 'foo' );
@@ -107,7 +106,7 @@ class WP_Test_Jetpack_Sync_Queue extends WP_UnitTestCase {
 
 		$buffer = $this->queue->checkout_with_memory_limit( 2 * $large_string_memory );
 
-		$this->assertEquals( 2, count( $buffer->get_items() ) );
+		$this->assertCount( 2, $buffer->get_items() );
 	}
 
 	function test_checkout_with_memory_limit_wont_fetch_more_than_500_rows() {
@@ -120,7 +119,7 @@ class WP_Test_Jetpack_Sync_Queue extends WP_UnitTestCase {
 
 		$buffer = $this->queue->checkout_with_memory_limit( 500000 );
 
-		$this->assertEquals( 500, count( $buffer->get_items() ) );
+		$this->assertCount( 500, $buffer->get_items() );
 	}
 
 	function test_checkout_with_memory_limit_can_also_specify_rows() {
@@ -133,7 +132,7 @@ class WP_Test_Jetpack_Sync_Queue extends WP_UnitTestCase {
 
 		$buffer = $this->queue->checkout_with_memory_limit( 1000, 50 );
 
-		$this->assertEquals( 50, count( $buffer->get_items() ) );
+		$this->assertCount( 50, $buffer->get_items() );
 	}
 
 	function test_checkout_of_item_larger_than_memory_fetches_it_solo() {
@@ -147,7 +146,7 @@ class WP_Test_Jetpack_Sync_Queue extends WP_UnitTestCase {
 
 		$buffer = $this->queue->checkout_with_memory_limit( 100 ); // way smaller
 
-		$this->assertEquals( 2, count( $buffer->get_items() ) );
+		$this->assertCount( 2, $buffer->get_items() );
 
 		// close that buffer, fetch the next one
 		$this->queue->close( $buffer );
@@ -159,7 +158,7 @@ class WP_Test_Jetpack_Sync_Queue extends WP_UnitTestCase {
 
 		$buffer_items = $buffer->get_item_values();
 
-		$this->assertEquals( 1, count( $buffer_items ) );
+		$this->assertCount( 1, $buffer_items );
 
 		$this->assertEquals( $large_string, $buffer_items[0] );
 	}
@@ -236,26 +235,26 @@ class WP_Test_Jetpack_Sync_Queue extends WP_UnitTestCase {
 
 	function test_reset_removes_all_items() {
 		$this->queue->add( 'foo' );
-		$this->assertEquals( 1, $this->queue->size() );
+		$this->assertSame( 1, $this->queue->size() );
 
 		$this->queue->reset();
 
-		$this->assertEquals( 0, $this->queue->size() );
+		$this->assertSame( 0, $this->queue->size() );
 	}
 
 	function test_checkout_returns_false_if_checkout_zero_items() {
 		$this->queue->add_all( array( 1, 2, 3 ) );
 
 		$buffer = $this->queue->checkout( 2 );
-		$this->assertNotEquals( false, $buffer );
+		$this->assertNotFalse( $buffer );
 		$this->queue->close( $buffer );
 
 		$buffer = $this->queue->checkout( 2 );
-		$this->assertNotEquals( false, $buffer );
+		$this->assertNotFalse( $buffer );
 		$this->queue->close( $buffer );
 
 		$buffer = $this->queue->checkout( 2 );
-		$this->assertEquals( false, $buffer );
+		$this->assertFalse( $buffer );
 	}
 
 	/**
@@ -275,37 +274,37 @@ class WP_Test_Jetpack_Sync_Queue extends WP_UnitTestCase {
 
 		// Verify can retrieve items by ids.
 		$items = $this->queue->peek_by_id( $ids );
-		$this->assertEquals( 3, count( $items ) );
+		$this->assertCount( 3, $items );
 
 		// Verify null returns an empty array.
 		$items = $this->queue->peek_by_id( null );
 		$this->assertEmpty( $items );
-		$this->assertInternalType( 'array', $items );
+		$this->assertIsArray( $items );
 
 		// Verify empty array returns an empty array.
 		$items = $this->queue->peek_by_id( array() );
 		$this->assertEmpty( $items );
-		$this->assertInternalType( 'array', $items );
+		$this->assertIsArray( $items );
 
 		// Verify unknown ids array returns an empty array.
 		$items = $this->queue->peek_by_id( array( 'blue' ) );
 		$this->assertEmpty( $items );
-		$this->assertInternalType( 'array', $items );
+		$this->assertIsArray( $items );
 
 		// Verify string returns an empty array.
 		$items = $this->queue->peek_by_id( 'blue' );
 		$this->assertEmpty( $items );
-		$this->assertInternalType( 'array', $items );
+		$this->assertIsArray( $items );
 
 		// Verify number returns an empty array.
 		$items = $this->queue->peek_by_id( 18 );
 		$this->assertEmpty( $items );
-		$this->assertInternalType( 'array', $items );
+		$this->assertIsArray( $items );
 
 		// Verify Error returns and empty array.
 		$items = $this->queue->peek_by_id( new \Automattic\Jetpack\Error( 'random', 'something happened.' ) );
 		$this->assertEmpty( $items );
-		$this->assertInternalType( 'array', $items );
+		$this->assertIsArray( $items );
 	}
 
 	function test_queue_is_persisted() {

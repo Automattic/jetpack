@@ -103,7 +103,7 @@ new WPCOM_JSON_API_Site_Settings_Endpoint(
 			'jetpack_portfolio_posts_per_page'        => '(int) Number of portfolio projects to show per page',
 			Jetpack_SEO_Utils::FRONT_PAGE_META_OPTION => '(string) The seo meta description for the site.',
 			Jetpack_SEO_Titles::TITLE_FORMATS_OPTION  => '(array) SEO meta title formats. Allowed keys: front_page, posts, pages, groups, archives',
-			'verification_services_codes'             => '(array) Website verification codes. Allowed keys: google, pinterest, bing, yandex',
+			'verification_services_codes'             => '(array) Website verification codes. Allowed keys: google, pinterest, bing, yandex, facebook',
 			'markdown_supported'                      => '(bool) Whether markdown is supported for this site',
 			'wpcom_publish_posts_with_markdown'       => '(bool) Whether markdown is enabled for posts',
 			'wpcom_publish_comments_with_markdown'    => '(bool) Whether markdown is enabled for comments',
@@ -416,6 +416,12 @@ class WPCOM_JSON_API_Site_Settings_Endpoint extends WPCOM_JSON_API_Endpoint {
 						'date_format'                      => get_option( 'date_format' ),
 						'time_format'                      => get_option( 'time_format' ),
 						'start_of_week'                    => get_option( 'start_of_week' ),
+						'woocommerce_onboarding_profile'   => (array) get_option( 'woocommerce_onboarding_profile', array() ),
+						'woocommerce_store_address'        => (string) get_option( 'woocommerce_store_address' ),
+						'woocommerce_store_address_2'      => (string) get_option( 'woocommerce_store_address_2' ),
+						'woocommerce_store_city'           => (string) get_option( 'woocommerce_store_city' ),
+						'woocommerce_default_country'      => (string) get_option( 'woocommerce_default_country' ),
+						'woocommerce_store_postcode'       => (string) get_option( 'woocommerce_store_postcode' ),
 						'jetpack_testimonial'              => (bool) get_option( 'jetpack_testimonial', '0' ),
 						'jetpack_testimonial_posts_per_page' => (int) get_option( 'jetpack_testimonial_posts_per_page', '10' ),
 						'jetpack_portfolio'                => (bool) get_option( 'jetpack_portfolio', '0' ),
@@ -567,7 +573,7 @@ class WPCOM_JSON_API_Site_Settings_Endpoint extends WPCOM_JSON_API_Endpoint {
 					$coerce_value = ( $value ) ? 'open' : 'closed';
 					if ( update_option( $key, $coerce_value ) ) {
 						$updated[ $key ] = $value;
-					};
+					}
 					break;
 				case 'jetpack_protect_whitelist':
 					if ( function_exists( 'jetpack_protect_save_whitelist' ) ) {
@@ -751,6 +757,33 @@ class WPCOM_JSON_API_Site_Settings_Endpoint extends WPCOM_JSON_API_Endpoint {
 					}
 					break;
 
+				case 'woocommerce_onboarding_profile':
+					// Allow boolean values but sanitize_text_field everything else.
+					$sanitized_value = (array) $value;
+					array_walk_recursive(
+						$sanitized_value,
+						function ( &$value ) {
+							if ( ! is_bool( $value ) ) {
+								$value = sanitize_text_field( $value );
+							}
+						}
+					);
+					if ( update_option( $key, $sanitized_value ) ) {
+						$updated[ $key ] = $sanitized_value;
+					}
+					break;
+
+				case 'woocommerce_store_address':
+				case 'woocommerce_store_address_2':
+				case 'woocommerce_store_city':
+				case 'woocommerce_default_country':
+				case 'woocommerce_store_postcode':
+					$sanitized_value = sanitize_text_field( $value );
+					if ( update_option( $key, $sanitized_value ) ) {
+						$updated[ $key ] = $sanitized_value;
+					}
+					break;
+
 				case 'date_format':
 				case 'time_format':
 					// settings are stored as strings.
@@ -862,6 +895,18 @@ class WPCOM_JSON_API_Site_Settings_Endpoint extends WPCOM_JSON_API_Endpoint {
 				case 'instant_search_enabled':
 					update_option( 'instant_search_enabled', (bool) $value );
 					$updated[ $key ] = (bool) $value;
+					break;
+
+				case 'lang_id':
+					/*
+					 * Due to the fact that locale variants are set in a locale_variant option,
+					 * changing locale from variant to primary
+					 * would look like the same lang_id is being saved and update_option would return false,
+					 * even though the correct options would be set by pre_update_option_lang_id,
+					 * so we should always return lang_id as updated.
+					 */
+					update_option( 'lang_id', (int) $value );
+					$updated[ $key ] = (int) $value;
 					break;
 
 				default:

@@ -19,7 +19,7 @@ import {
 	MOCK_SWITCH_REWIND_STATE,
 	MOCK_SWITCH_SCAN_STATE,
 } from 'state/action-types';
-import restApi from 'rest-api';
+import restApi from '@automattic/jetpack-api';
 
 export const resetOptions = options => {
 	return dispatch => {

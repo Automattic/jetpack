@@ -1,0 +1,14 @@
+{
+	"file.php": [
+		"Line 4: Generic.ControlStructures.DisallowYodaConditions.Found",
+		"Line 5: Generic.PHP.ForbiddenFunctions.FoundWithAlternative"
+	],
+	"test/file.php": [
+		"Line 3: Generic.Arrays.DisallowLongArraySyntax.Found",
+		"Line 6: Generic.PHP.ForbiddenFunctions.FoundWithAlternative"
+	],
+	"control/file.php": [
+		"Line 4: Generic.ControlStructures.DisallowYodaConditions.Found",
+		"Line 5: Generic.PHP.ForbiddenFunctions.FoundWithAlternative"
+	]
+}

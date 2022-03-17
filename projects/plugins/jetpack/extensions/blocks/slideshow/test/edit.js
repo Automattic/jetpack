@@ -33,7 +33,9 @@ const defaultProps = {
 	setAttributes: jest.fn(),
 	className: 'wp-block-jetpack-slideshow',
 	clientId: 1,
-	noticeOperations: {},
+	noticeOperations: {
+		createErrorNotice: jest.fn(),
+	},
 };
 
 test( 'loads without slideshow structure if no images', () => {

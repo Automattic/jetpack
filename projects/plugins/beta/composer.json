@@ -7,11 +7,20 @@
 	"support": {
 		"issues": "https://github.com/Automattic/jetpack/issues"
 	},
-	"require": {},
-	"require-dev": {
-		"automattic/jetpack-changelogger": "1.2.x-dev"
+	"require": {
+		"automattic/jetpack-autoloader": "2.11.x-dev",
+		"composer/semver": "3.2.7",
+		"erusev/parsedown": "1.7.4"
 	},
-	"autoload": {},
+	"require-dev": {
+		"automattic/jetpack-changelogger": "3.0.x-dev"
+	},
+	"scripts": {},
+	"autoload": {
+		"classmap": [
+			"src/"
+		]
+	},
 	"repositories": [
 		{
 			"type": "path",
@@ -24,13 +33,22 @@
 	"minimum-stability": "dev",
 	"prefer-stable": true,
 	"config": {
-		"sort-packages": true
+		"sort-packages": true,
+		"autoloader-suffix": "567fa3f555de8fd218dfdc1688bb97b5_betaⓥ3_1_2_alpha",
+		"allow-plugins": {
+			"automattic/jetpack-autoloader": true
+		}
 	},
 	"extra": {
+		"autotagger": true,
+		"autorelease": {
+			"titlefmt": "Jetpack Beta %s"
+		},
 		"mirror-repo": "Automattic/jetpack-beta",
 		"release-branch-prefix": "jetpack-beta",
 		"version-constants": {
 			"JPBETA_VERSION": "jetpack-beta.php"
-		}
+		},
+		"beta-plugin-slug": "jetpack-beta"
 	}
 }

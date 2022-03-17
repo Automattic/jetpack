@@ -14,7 +14,7 @@ class Tracking {
 	/**
 	 * The assets version.
 	 *
-	 * @since 9.4.0
+	 * @since 1.13.1
 	 *
 	 * @var string Assets version.
 	 */
@@ -47,6 +47,19 @@ class Tracking {
 			// TODO We should always pass a Connection.
 			$this->connection = new Connection\Manager();
 		}
+
+		if ( ! did_action( 'jetpack_set_tracks_ajax_hook' ) ) {
+			add_action( 'wp_ajax_jetpack_tracks', array( $this, 'ajax_tracks' ) );
+
+			/**
+			 * Fires when the Tracking::ajax_tracks() callback has been hooked to the
+			 * wp_ajax_jetpack_tracks action. This action is used to ensure that
+			 * the callback is hooked only once.
+			 *
+			 * @since 1.13.11
+			 */
+			do_action( 'jetpack_set_tracks_ajax_hook' );
+		}
 	}
 
 	/**
@@ -61,14 +74,14 @@ class Tracking {
 			|| ! wp_verify_nonce( $_REQUEST['tracksNonce'], 'jp-tracks-ajax-nonce' )
 		) {
 			wp_send_json_error(
-				__( 'You aren’t authorized to do that.', 'jetpack' ),
+				__( 'You aren’t authorized to do that.', 'jetpack-tracking' ),
 				403
 			);
 		}
 
 		if ( ! isset( $_REQUEST['tracksEventName'] ) || ! isset( $_REQUEST['tracksEventType'] ) ) {
 			wp_send_json_error(
-				__( 'No valid event name or type.', 'jetpack' ),
+				__( 'No valid event name or type.', 'jetpack-tracking' ),
 				403
 			);
 		}
@@ -82,7 +95,7 @@ class Tracking {
 			}
 		}
 
-		$this->record_user_event( $_REQUEST['tracksEventName'], $tracks_data );
+		$this->record_user_event( $_REQUEST['tracksEventName'], $tracks_data, null, false );
 
 		wp_send_json_success();
 	}
@@ -132,7 +145,7 @@ class Tracking {
 		wp_enqueue_script(
 			'jptracks',
 			Assets::get_file_url_for_environment( 'js/tracks-ajax.js', 'js/tracks-ajax.js', __FILE__ ),
-			array(),
+			array( 'jquery' ),
 			self::ASSETS_VERSION,
 			true
 		);
@@ -150,11 +163,13 @@ class Tracking {
 	/**
 	 * Send an event in Tracks.
 	 *
-	 * @param string $event_type Type of the event.
-	 * @param array  $data       Data to send with the event.
-	 * @param mixed  $user       username, user_id, or WP_user object.
+	 * @param string $event_type         Type of the event.
+	 * @param array  $data               Data to send with the event.
+	 * @param mixed  $user               Username, user_id, or WP_user object.
+	 * @param bool   $use_product_prefix Whether to use the object's product name as a prefix to the event type. If
+	 *                                   set to false, the prefix will be 'jetpack_'.
 	 */
-	public function record_user_event( $event_type, $data = array(), $user = null ) {
+	public function record_user_event( $event_type, $data = array(), $user = null, $use_product_prefix = true ) {
 		if ( ! $user ) {
 			$user = wp_get_current_user();
 		}
@@ -168,7 +183,8 @@ class Tracking {
 
 		// Top level events should not be namespaced.
 		if ( '_aliasUser' !== $event_type ) {
-			$event_type = $this->product_name . '_' . $event_type;
+			$prefix     = $use_product_prefix ? $this->product_name : 'jetpack';
+			$event_type = $prefix . '_' . $event_type;
 		}
 
 		$data['jetpack_version'] = defined( 'JETPACK__VERSION' ) ? JETPACK__VERSION : '0';

@@ -145,7 +145,8 @@ class Updates extends Module {
 		/**
 		 * Sync event for when core wp network updates to a new db version
 		 *
-		 * @since 5.0.0
+		 * @since 1.6.3
+		 * @since-jetpack 5.0.0
 		 *
 		 * @param int $wp_db_version the latest wp_db_version
 		 * @param int $old_wp_db_version previous wp_db_version
@@ -172,7 +173,8 @@ class Updates extends Module {
 			/**
 			 * Sync event that fires when core reinstall was successful
 			 *
-			 * @since 5.0.0
+			 * @since 1.6.3
+			 * @since-jetpack 5.0.0
 			 *
 			 * @param string $new_wp_version the updated WordPress version
 			 */
@@ -188,7 +190,8 @@ class Updates extends Module {
 			/**
 			 * Sync event that fires when core autoupdate was successful
 			 *
-			 * @since 5.0.0
+			 * @since 1.6.3
+			 * @since-jetpack 5.0.0
 			 *
 			 * @param string $new_wp_version the updated WordPress version
 			 * @param string $old_wp_version the previous WordPress version
@@ -199,7 +202,8 @@ class Updates extends Module {
 		/**
 		 * Sync event that fires when core update was successful
 		 *
-		 * @since 5.0.0
+		 * @since 1.6.3
+		 * @since-jetpack 5.0.0
 		 *
 		 * @param string $new_wp_version the updated WordPress version
 		 * @param string $old_wp_version the previous WordPress version
@@ -308,7 +312,8 @@ class Updates extends Module {
 			/**
 			 * Trigger a change to core update that we want to sync.
 			 *
-			 * @since 5.1.0
+			 * @since 1.6.3
+			 * @since-jetpack 5.1.0
 			 *
 			 * @param array $value Contains info that tells us what needs updating.
 			 */
@@ -340,7 +345,8 @@ class Updates extends Module {
 			 * - jetpack_update_plugins_change
 			 * - jetpack_update_themes_change
 			 *
-			 * @since 5.1.0
+			 * @since 1.6.3
+			 * @since-jetpack 5.1.0
 			 *
 			 * @param array $value Contains info that tells us what needs updating.
 			 */
@@ -363,7 +369,8 @@ class Updates extends Module {
 		/**
 		 * Tells the client to sync all updates to the server
 		 *
-		 * @since 4.2.0
+		 * @since 1.6.3
+		 * @since-jetpack 4.2.0
 		 *
 		 * @param boolean Whether to expand updates (should always be true)
 		 */
@@ -522,6 +529,57 @@ class Updates extends Module {
 	 */
 	public function total( $config ) { // phpcs:ignore VariableAnalysis.CodeAnalysis.VariableAnalysis.UnusedVariable
 		return 3;
+	}
+
+	/**
+	 * Retrieve a set of updates by their IDs.
+	 *
+	 * @access public
+	 *
+	 * @param string $object_type Object type.
+	 * @param array  $ids         Object IDs.
+	 * @return array Array of objects.
+	 */
+	public function get_objects_by_id( $object_type, $ids ) {
+		if ( empty( $ids ) || empty( $object_type ) || 'update' !== $object_type ) {
+			return array();
+		}
+
+		$objects = array();
+		foreach ( (array) $ids as $id ) {
+			$object = $this->get_object_by_id( $object_type, $id );
+
+			if ( 'all' === $id ) {
+				// If all was requested it contains all updates and can simply be returned.
+				return $object;
+			}
+			$objects[ $id ] = $object;
+		}
+
+		return $objects;
+	}
+
+	/**
+	 * Retrieve a update by its id.
+	 *
+	 * @access public
+	 *
+	 * @param string $object_type Type of the sync object.
+	 * @param string $id          ID of the sync object.
+	 * @return mixed              Value of Update.
+	 */
+	public function get_object_by_id( $object_type, $id ) {
+		if ( 'update' === $object_type ) {
+
+			// Only whitelisted constants can be returned.
+			if ( in_array( $id, array( 'core', 'plugins', 'themes' ), true ) ) {
+				return get_site_transient( 'update_' . $id );
+			} elseif ( 'all' === $id ) {
+				return $this->get_all_updates();
+			}
+		}
+
+		return false;
 	}
 
 }

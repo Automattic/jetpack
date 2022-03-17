@@ -24,7 +24,7 @@ export default createHigherOrderComponent(
 		const { fileType } = usableBlocksProps;
 		const { onError } = props;
 
-		const onBannerVisibilityChange = useContext( PaidBlockContext );
+		const { onBannerVisibilityChange } = useContext( PaidBlockContext );
 
 		const checkUploadingVideoFiles = useCallback(
 			files => onBannerVisibilityChange( files?.length && isFileOfType( files[ 0 ], fileType ) ),

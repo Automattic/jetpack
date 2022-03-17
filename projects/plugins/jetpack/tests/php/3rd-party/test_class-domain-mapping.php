@@ -36,13 +36,13 @@ class WP_Test_Domain_Mapping extends \WP_UnitTestCase {
 	/**
 	 * Test Tear down.
 	 */
-	public function tearDown() {
+	public function tear_down() {
 		Constants::clear_constants();
 		foreach ( $this->get_jetpack_sync_filters() as $filter ) {
 			remove_all_filters( $filter );
 		}
 
-		parent::tearDown();
+		parent::tear_down();
 	}
 
 	/**

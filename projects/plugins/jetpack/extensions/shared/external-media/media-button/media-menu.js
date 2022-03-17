@@ -13,9 +13,7 @@ import MediaSources from './media-sources';
 function MediaButtonMenu( props ) {
 	const { mediaProps, open, setSelectedSource, isFeatured, isReplace, hasImage } = props;
 	const originalComponent = mediaProps.render;
-	let isPrimary = isFeatured;
-	let isSecondary = false;
-	let isTertiary = ! isFeatured;
+	let variant = 'tertiary';
 
 	if ( isReplace ) {
 		return (
@@ -37,30 +35,28 @@ function MediaButtonMenu( props ) {
 		label = __( 'Select Media', 'jetpack' );
 	}
 
-	if ( isFeatured && hasImage ) {
+	if ( isFeatured ) {
 		label = __( 'Replace Image', 'jetpack' );
-		isPrimary = false;
-		isTertiary = false;
-		isSecondary = true;
+		variant = 'secondary';
 	}
 
 	return (
 		<>
-			{ isFeatured && hasImage && originalComponent( { open } ) }
-
 			<Dropdown
 				position="bottom right"
 				contentClassName="jetpack-external-media-button-menu__options"
-				renderToggle={ ( { isOpen, onToggle } ) =>
-					// Featured image: when there's no image set, wrap the component, as it's already a (giant) button,
-					// there's no need to add a second button.
-					isFeatured && ! hasImage ? (
-						originalComponent( { open: onToggle } )
-					) : (
+				renderToggle={ ( { isOpen, onToggle } ) => {
+					// override original button only when it's a simple button with text, or a featured image
+					const originalButton = originalComponent && originalComponent( { open: onToggle } );
+					if (
+						( isFeatured && hasImage ) ||
+						( originalButton && typeof originalButton.props.children !== 'string' )
+					) {
+						return originalButton;
+					}
+					return (
 						<Button
-							isPrimary={ isPrimary }
-							isSecondary={ isSecondary }
-							isTertiary={ isTertiary }
+							variant={ variant }
 							className="jetpack-external-media-button-menu"
 							aria-haspopup="true"
 							aria-expanded={ isOpen }
@@ -68,8 +64,8 @@ function MediaButtonMenu( props ) {
 						>
 							{ label }
 						</Button>
-					)
-				}
+					);
+				} }
 				renderContent={ ( { onClose } ) => (
 					<NavigableMenu aria-label={ label }>
 						<MenuGroup>

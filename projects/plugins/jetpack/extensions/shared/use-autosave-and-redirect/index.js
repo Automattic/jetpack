@@ -9,11 +9,12 @@ import { noop } from 'lodash';
 import { useSelect, dispatch } from '@wordpress/data';
 import { useState } from '@wordpress/element';
 
-function redirect( url, callback ) {
+function redirect( url, callback, shouldOpenNewWindow = false ) {
 	if ( callback ) {
 		callback( url );
 	}
-	window.top.location.href = url;
+
+	return shouldOpenNewWindow ? window.open( url, '_blank' ) : ( window.top.location.href = url );
 }
 
 export default function useAutosaveAndRedirect( redirectUrl, onRedirect = noop ) {
@@ -30,6 +31,14 @@ export default function useAutosaveAndRedirect( redirectUrl, onRedirect = noop )
 	}, [] );
 
 	const isPostEditor = Object.keys( currentPost ).length > 0;
+
+	const isWidgetEditor = useSelect( select => {
+		if ( window.wp.customize ) {
+			return true;
+		}
+
+		return !! select( 'core/edit-widgets' );
+	} );
 
 	// Alias. Save post by dispatch.
 	const savePost = dispatch( 'core/editor' ).savePost;
@@ -79,7 +88,7 @@ export default function useAutosaveAndRedirect( redirectUrl, onRedirect = noop )
 		setIsRedirecting( true );
 
 		autosave( event ).then( () => {
-			redirect( redirectUrl, onRedirect );
+			redirect( redirectUrl, onRedirect, isWidgetEditor );
 		} );
 	};
 

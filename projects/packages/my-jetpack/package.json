@@ -1,0 +1,69 @@
+{
+	"private": true,
+	"name": "@automattic/jetpack-my-jetpack",
+	"version": "0.6.11-alpha",
+	"description": "WP Admin page with information and configuration shared among all Jetpack stand-alone plugins",
+	"homepage": "https://jetpack.com",
+	"bugs": {
+		"url": "https://github.com/Automattic/jetpack/issues"
+	},
+	"repository": {
+		"type": "git",
+		"url": "https://github.com/Automattic/jetpack.git"
+	},
+	"license": "GPL-2.0-or-later",
+	"author": "Automattic",
+	"scripts": {
+		"build": "pnpm run clean && pnpm run build-client",
+		"build-client": "pnpm webpack --config webpack.config.js",
+		"clean": "rm -rf build/",
+		"watch": "pnpm run build && pnpm webpack watch",
+		"test": "js-test-runner jest --passWithNoTests --setupFilesAfterEnv ./jest.setup.js"
+	},
+	"dependencies": {
+		"@automattic/format-currency": "1.0.0-alpha.0",
+		"@automattic/jetpack-analytics": "workspace:^0.1.8",
+		"@automattic/jetpack-components": "workspace:^0.10.11-alpha",
+		"@automattic/jetpack-connection": "workspace:^0.17.4-alpha",
+		"@wordpress/api-fetch": "6.0.1",
+		"@wordpress/components": "19.5.0",
+		"@wordpress/data": "6.3.0",
+		"@wordpress/i18n": "4.3.1",
+		"@wordpress/icons": "7.0.1",
+		"classnames": "2.3.1",
+		"prop-types": "15.8.1",
+		"react-router-dom": "6.2.2"
+	},
+	"sideEffects": [
+		"*.css",
+		"*.scss"
+	],
+	"devDependencies": {
+		"@automattic/jetpack-base-styles": "workspace:^0.1.10",
+		"@automattic/jetpack-webpack-config": "workspace:^1.1.4",
+		"@babel/core": "7.16.0",
+		"@babel/preset-env": "7.16.4",
+		"@babel/register": "7.16.0",
+		"@babel/runtime": "7.16.3",
+		"@storybook/testing-react": "1.2.3",
+		"@testing-library/dom": "8.11.1",
+		"@testing-library/jest-dom": "5.14.1",
+		"@testing-library/react": "11.2.7",
+		"@testing-library/react-hooks": "4.0.1",
+		"@testing-library/user-event": "12.8.3",
+		"enzyme": "3.11.0",
+		"jest": "27.3.1",
+		"jetpack-js-test-runner": "workspace:1.0.0",
+		"react": "17.0.2",
+		"react-dom": "17.0.2",
+		"sass": "1.43.3",
+		"sass-loader": "12.4.0",
+		"storybook-addon-mock": "2.0.2",
+		"webpack": "5.65.0"
+	},
+	"engines": {
+		"node": "^14.18.3 || ^16.13.2",
+		"pnpm": "^6.23.6",
+		"yarn": "use pnpm instead - see docs/yarn-upgrade.md"
+	}
+}

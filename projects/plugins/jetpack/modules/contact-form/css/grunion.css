@@ -196,3 +196,8 @@
 	display: inline-block;
 	margin-top: 7px;
 }
+
+/* Make sure the set height of the Spacer block nested inside the Contact Form block is respected */
+.wp-block-jetpack-contact-form .wp-block-spacer {
+	width: 100%;
+}

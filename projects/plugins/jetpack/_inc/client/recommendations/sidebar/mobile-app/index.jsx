@@ -8,9 +8,8 @@ import React, { useCallback, useEffect } from 'react';
 /**
  * Internal dependencies
  */
-import AppsBadge from './apps-badge';
+import AppsBadge from 'components/apps-badge';
 import { Layout } from '../layout';
-import Gridicon from 'components/gridicon';
 import { imagePath } from 'constants/urls';
 import analytics from 'lib/analytics';
 
@@ -37,6 +36,13 @@ const MobileApp = () => {
 	const onWpcomClick = useCallback( () => {
 		analytics.tracks.recordEvent( 'jetpack_recommendations_summary_sidebar_click', {
 			type: 'mobile_app_wpcom',
+		} );
+	}, [] );
+
+	const onAppBadgeClick = useCallback( storeName => {
+		analytics.tracks.recordEvent( 'jetpack_recommendations_summary_sidebar_click', {
+			type: 'mobile_app_badge',
+			store: storeName,
 		} );
 	}, [] );
 
@@ -67,15 +73,20 @@ const MobileApp = () => {
 					</p>
 					<ul className="jp-recommendations-sidebar-card__features">
 						{ features.map( feature => (
-							<li>
-								<Gridicon icon="checkmark-circle" />
-								{ feature }
-							</li>
+							<li>{ feature }</li>
 						) ) }
 					</ul>
 					<div className="jp-recommendations-sidebar-card__apps-badge">
-						<AppsBadge storeName={ 'ios' } utm_source={ 'jetpack-plugin-recommendations' } />
-						<AppsBadge storeName={ 'android' } utm_source={ 'jetpack-plugin-recommendations' } />
+						<AppsBadge
+							onBadgeClick={ onAppBadgeClick }
+							storeName={ 'ios' }
+							utm_source={ 'jetpack-plugin-recommendations' }
+						/>
+						<AppsBadge
+							onBadgeClick={ onAppBadgeClick }
+							storeName={ 'android' }
+							utm_source={ 'jetpack-plugin-recommendations' }
+						/>
 					</div>
 				</div>
 			}

@@ -11,7 +11,7 @@ import { Fragment } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 import { isBlobURL } from '@wordpress/blob';
 import { useDispatch } from '@wordpress/data';
-import { BlockIcon, MediaPlaceholder } from '@wordpress/block-editor';
+import { MediaPlaceholder } from '@wordpress/block-editor';
 import { withNotices } from '@wordpress/components';
 
 /**
@@ -37,10 +37,10 @@ export const pickRelevantMediaFiles = media => {
 		'height',
 	] );
 	mediaProps.url =
-		get( media, [ 'sizes', 'large', 'url' ] ) ||
-		get( media, [ 'media_details', 'sizes', 'large', 'source_url' ] ) ||
-		get( media, [ 'media_details', 'videopress', 'original' ] ) ||
 		get( media, [ 'media_details', 'original', 'url' ] ) ||
+		get( media, [ 'media_details', 'videopress', 'original' ] ) ||
+		get( media, [ 'media_details', 'sizes', 'large', 'source_url' ] ) ||
+		get( media, [ 'sizes', 'large', 'url' ] ) ||
 		media.url;
 	mediaProps.type = media.media_type || media.type;
 	mediaProps.mime = media.mime_type || media.mime;
@@ -101,7 +101,7 @@ export default withNotices( function StoryEdit( {
 			isAppender={ hasImages }
 			className={ className }
 			disableMediaButtons={ hasImages && ! isSelected }
-			icon={ ! hasImages && <BlockIcon icon={ icon } /> }
+			icon={ ! hasImages && icon }
 			labels={ {
 				title: ! hasImages && __( 'Story', 'jetpack' ),
 				instructions:
@@ -114,7 +114,7 @@ export default withNotices( function StoryEdit( {
 			onSelect={ onSelectMedia }
 			accept={ ALLOWED_MEDIA_TYPES.map( type => type + '/*' ).join( ',' ) }
 			allowedTypes={ ALLOWED_MEDIA_TYPES }
-			multiple
+			multiple="add"
 			value={ mediaFiles }
 			notices={ hasImages ? undefined : noticeUI }
 			onError={ noticeOperations.createErrorNotice }

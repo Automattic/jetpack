@@ -7,8 +7,9 @@
  */
 
 use Automattic\Jetpack\Connection\REST_Connector;
+use Automattic\Jetpack\Status\Cache as StatusCache;
 
-require_once( dirname( __FILE__ ) . '/../../../../modules/widgets/milestone.php' );
+require_once __DIR__ . '/../../../../modules/widgets/milestone.php';
 
 class WP_Test_Jetpack_REST_API_endpoints extends WP_UnitTestCase {
 
@@ -26,12 +27,13 @@ class WP_Test_Jetpack_REST_API_endpoints extends WP_UnitTestCase {
 	 *
 	 * @since 4.4.0
 	 */
-	public function setUp() {
+	public function set_up() {
 
-		parent::setUp();
+		parent::set_up();
 
 		global $wp_rest_server;
-		$this->server = $wp_rest_server = new WP_REST_Server;
+		$wp_rest_server = new WP_REST_Server();
+		$this->server   = $wp_rest_server;
 		do_action( 'rest_api_init' );
 	}
 
@@ -40,8 +42,8 @@ class WP_Test_Jetpack_REST_API_endpoints extends WP_UnitTestCase {
 	 *
 	 * @since 4.4.0
 	 */
-	public function tearDown() {
-		parent::tearDown();
+	public function tear_down() {
+		parent::tear_down();
 
 		global $wp_rest_server;
 		$wp_rest_server = null;
@@ -53,7 +55,7 @@ class WP_Test_Jetpack_REST_API_endpoints extends WP_UnitTestCase {
 	 * @since 4.4.0
 	 */
 	protected function load_rest_endpoints_direct() {
-		require_once dirname( __FILE__ ) . '/../../../../_inc/lib/class.core-rest-api-endpoints.php';
+		require_once __DIR__ . '/../../../../_inc/lib/class.core-rest-api-endpoints.php';
 	}
 
 	/**
@@ -78,9 +80,11 @@ class WP_Test_Jetpack_REST_API_endpoints extends WP_UnitTestCase {
 	 * @return WP_User
 	 */
 	protected function create_and_get_user( $role = '' ) {
-		return $this->factory->user->create_and_get( array(
-			'role' => empty( $role ) ? 'subscriber' : $role,
-		) );
+		return $this->factory->user->create_and_get(
+			array(
+				'role' => empty( $role ) ? 'subscriber' : $role,
+			)
+		);
 	}
 
 	/**
@@ -98,7 +102,7 @@ class WP_Test_Jetpack_REST_API_endpoints extends WP_UnitTestCase {
 	protected function create_and_get_request( $route = '', $json_params = array(), $method = 'GET', $params = array() ) {
 		$request = new WP_REST_Request( $method, "/jetpack/v4/$route" );
 
-		if ( 'GET' !== $method && !empty( $json_params ) ) {
+		if ( 'GET' !== $method && ! empty( $json_params ) ) {
 			$request->set_header( 'content-type', 'application/json' );
 		}
 		if ( ! empty( $json_params ) ) {
@@ -167,10 +171,10 @@ class WP_Test_Jetpack_REST_API_endpoints extends WP_UnitTestCase {
 		$response_data = $response->get_data();
 		$tested_data   = array();
 		foreach ( $data as $key => $value ) {
-			if ( isset( $response_data[$key] ) ) {
-				$tested_data[$key] = $response_data[$key];
+			if ( isset( $response_data[ $key ] ) ) {
+				$tested_data[ $key ] = $response_data[ $key ];
 			} else {
-				$tested_data[$key] = null;
+				$tested_data[ $key ] = null;
 			}
 		}
 		$this->assertEquals( $data, $tested_data );
@@ -183,6 +187,7 @@ class WP_Test_Jetpack_REST_API_endpoints extends WP_UnitTestCase {
 	 */
 	public function test_jetpack_admin_page_permission() {
 
+		StatusCache::clear();
 		$this->load_rest_endpoints_direct();
 
 		// Current user doesn't have credentials, so checking permissions should fail
@@ -201,6 +206,7 @@ class WP_Test_Jetpack_REST_API_endpoints extends WP_UnitTestCase {
 		$this->assertTrue( Jetpack_Core_Json_Api_Endpoints::view_admin_page_permission_check() );
 
 		// It should not work in Offline Mode.
+		StatusCache::clear();
 		add_filter( 'jetpack_offline_mode', '__return_true' );
 
 		// Subscribers only have access to connect, which is not available in Dev Mode so this should fail
@@ -217,6 +223,7 @@ class WP_Test_Jetpack_REST_API_endpoints extends WP_UnitTestCase {
 		$this->assertTrue( Jetpack_Core_Json_Api_Endpoints::view_admin_page_permission_check() );
 
 		remove_filter( 'jetpack_offline_mode', '__return_true' );
+		StatusCache::clear();
 	}
 
 	/**
@@ -226,11 +233,11 @@ class WP_Test_Jetpack_REST_API_endpoints extends WP_UnitTestCase {
 	 */
 	public function test_connection_permission() {
 
+		StatusCache::clear();
 		$this->load_rest_endpoints_direct();
 
 		// Current user doesn't have credentials, so checking permissions should fail
 		$this->assertInstanceOf( 'WP_Error', Jetpack_Core_Json_Api_Endpoints::connect_url_permission_callback() );
-		$this->assertInstanceOf( 'WP_Error', Jetpack_Core_Json_Api_Endpoints::get_user_connection_data_permission_callback() );
 
 		// Setup a new current user with specified capability
 		$user = $this->create_and_get_user();
@@ -243,7 +250,6 @@ class WP_Test_Jetpack_REST_API_endpoints extends WP_UnitTestCase {
 
 		// It should not work for non-admin users, except if a connection owner exists.
 		$this->assertInstanceOf( 'WP_Error', Jetpack_Core_Json_Api_Endpoints::connect_url_permission_callback() );
-		$this->assertInstanceOf( 'WP_Error', Jetpack_Core_Json_Api_Endpoints::get_user_connection_data_permission_callback() );
 
 		// Set user as admin.
 		$user->set_role( 'administrator' );
@@ -252,15 +258,15 @@ class WP_Test_Jetpack_REST_API_endpoints extends WP_UnitTestCase {
 		wp_set_current_user( $user->ID );
 		// User is admin and has capability so this should work this time.
 		$this->assertTrue( Jetpack_Core_Json_Api_Endpoints::connect_url_permission_callback() );
-		$this->assertTrue( Jetpack_Core_Json_Api_Endpoints::get_user_connection_data_permission_callback() );
 
 		// It should not work in Offline Mode.
+		StatusCache::clear();
 		add_filter( 'jetpack_offline_mode', '__return_true' );
 
 		$this->assertInstanceOf( 'WP_Error', Jetpack_Core_Json_Api_Endpoints::connect_url_permission_callback() );
-		$this->assertInstanceOf( 'WP_Error', Jetpack_Core_Json_Api_Endpoints::get_user_connection_data_permission_callback() );
 
 		remove_filter( 'jetpack_offline_mode', '__return_true' );
+		StatusCache::clear();
 	}
 
 	/**
@@ -421,17 +427,20 @@ class WP_Test_Jetpack_REST_API_endpoints extends WP_UnitTestCase {
 
 		// Success, connected site.
 		$this->assertResponseStatus( 200, $response );
-		$this->assertResponseData( array(
-			'isActive'    => true,
-			'isStaging'   => false,
-			'offlineMode' => array(
-				'isActive'        => false,
-				'constant'        => false,
-				'url'             => false,
-				'filter'          => false,
-				'wpLocalConstant' => false,
+		$this->assertResponseData(
+			array(
+				'isActive'    => true,
+				'isStaging'   => false,
+				'offlineMode' => array(
+					'isActive'        => false,
+					'constant'        => false,
+					'url'             => false,
+					'filter'          => false,
+					'wpLocalConstant' => false,
+				),
 			),
-		), $response );
+			$response
+		);
 	}
 
 	/**
@@ -441,6 +450,7 @@ class WP_Test_Jetpack_REST_API_endpoints extends WP_UnitTestCase {
 	 */
 	public function test_jetpack_connection_status_staging() {
 
+		StatusCache::clear();
 		Jetpack_Options::update_option( 'id', 1234 );
 		Jetpack_Options::update_option( 'blog_token', 'asd.qwe.1' );
 
@@ -451,19 +461,23 @@ class WP_Test_Jetpack_REST_API_endpoints extends WP_UnitTestCase {
 
 		// Success, connected site.
 		$this->assertResponseStatus( 200, $response );
-		$this->assertResponseData( array(
-			'isActive'    => true,
-			'isStaging'   => true,
-			'offlineMode' => array(
-				'isActive'        => false,
-				'constant'        => false,
-				'url'             => false,
-				'filter'          => false,
-				'wpLocalConstant' => false,
+		$this->assertResponseData(
+			array(
+				'isActive'    => true,
+				'isStaging'   => true,
+				'offlineMode' => array(
+					'isActive'        => false,
+					'constant'        => false,
+					'url'             => false,
+					'filter'          => false,
+					'wpLocalConstant' => false,
+				),
 			),
-		), $response );
+			$response
+		);
 
 		remove_filter( 'jetpack_is_staging_site', '__return_true' );
+		StatusCache::clear();
 	}
 
 	/**
@@ -477,6 +491,7 @@ class WP_Test_Jetpack_REST_API_endpoints extends WP_UnitTestCase {
 		$user = $this->create_and_get_user();
 		wp_set_current_user( $user->ID );
 
+		StatusCache::clear();
 		add_filter( 'jetpack_offline_mode', '__return_true' );
 
 		// Create REST request in JSON format and dispatch
@@ -484,53 +499,23 @@ class WP_Test_Jetpack_REST_API_endpoints extends WP_UnitTestCase {
 
 		// Success, authenticated user and connected site
 		$this->assertResponseStatus( 200, $response );
-		$this->assertResponseData( array(
-			'isActive'    => false,
-			'isStaging'   => false,
-			'offlineMode' => array(
-				'isActive'        => true,
-				'constant'        => false,
-				'url'             => false,
-				'filter'          => true,
-				'wpLocalConstant' => false,
+		$this->assertResponseData(
+			array(
+				'isActive'    => false,
+				'isStaging'   => false,
+				'offlineMode' => array(
+					'isActive'        => true,
+					'constant'        => false,
+					'url'             => false,
+					'filter'          => true,
+					'wpLocalConstant' => false,
+				),
 			),
-		), $response );
+			$response
+		);
 
 		remove_filter( 'jetpack_offline_mode', '__return_true' );
-	}
-
-	/**
-	 * Test site disconnection with not authenticated user
-	 *
-	 * @since 4.4.0
-	 */
-	public function test_disconnect_site_noauth() {
-
-		// Create REST request in JSON format and dispatch
-		$response = $this->create_and_get_request( 'connection', array(), 'POST' );
-
-		// Fails because user is not authenticated
-		$this->assertResponseStatus( 401, $response );
-		$this->assertResponseData( array( 'code' => 'invalid_user_permission_jetpack_disconnect' ), $response );
-	}
-
-	/**
-	 * Test site disconnection with authenticated user and disconnected site
-	 *
-	 * @since 4.4.0
-	 */
-	public function test_disconnect_site_auth_noparam() {
-
-		// Create a user and set it up as current.
-		$user = $this->create_and_get_user( 'administrator' );
-		wp_set_current_user( $user->ID );
-
-		// Create REST request in JSON format and dispatch
-		$response = $this->create_and_get_request( 'connection', array(), 'POST' );
-
-		// Fails because user is authenticated but missing a param
-		$this->assertResponseStatus( 404, $response );
-		$this->assertResponseData( array( 'code' => 'invalid_param' ), $response );
+		StatusCache::clear();
 	}
 
 	/**
@@ -613,10 +598,11 @@ class WP_Test_Jetpack_REST_API_endpoints extends WP_UnitTestCase {
 				'path'   => '/wp-admin/admin.php',
 				'query'  =>
 					array(
-						'page'     => 'jetpack',
-						'action'   => 'register',
-					)
-			), $response
+						'page'   => 'jetpack',
+						'action' => 'register',
+					),
+			),
+			$response
 		);
 	}
 
@@ -632,7 +618,7 @@ class WP_Test_Jetpack_REST_API_endpoints extends WP_UnitTestCase {
 
 		$this->assertTrue( Jetpack_Options::is_valid( array( 'onboarding' ) ) );
 		$this->assertTrue( ctype_alnum( Jetpack_Options::get_option( 'onboarding' ) ) );
-		$this->assertTrue( in_array( 'onboarding', Jetpack_Options::get_option_names( 'network' ) ) );
+		$this->assertContains( 'onboarding', Jetpack_Options::get_option_names( 'network' ) );
 	}
 
 	/**
@@ -668,8 +654,9 @@ class WP_Test_Jetpack_REST_API_endpoints extends WP_UnitTestCase {
 			array(
 				'scheme' => 'http',
 				'host'   => 'example.org',
-				'path'   => '/wp-admin/admin.php'
-			), $response
+				'path'   => '/wp-admin/admin.php',
+			),
+			$response
 		);
 	}
 
@@ -687,6 +674,8 @@ class WP_Test_Jetpack_REST_API_endpoints extends WP_UnitTestCase {
 
 		// Mock site already registered
 		Jetpack_Options::update_option( 'user_tokens', array( $user->ID => "honey.badger.$user->ID" ) );
+
+		add_filter( 'pre_http_request', array( $this, 'mock_xmlrpc_success' ), 10, 3 );
 
 		// Create REST request in JSON format and dispatch
 		$response = $this->create_and_get_request( 'connection/user', array( 'linked' => false ), 'POST' );
@@ -711,6 +700,8 @@ class WP_Test_Jetpack_REST_API_endpoints extends WP_UnitTestCase {
 		// Create REST request in JSON format and dispatch
 		$response = $this->create_and_get_request( 'connection/user', array( 'linked' => false ), 'POST' );
 
+		remove_filter( 'pre_http_request', array( $this, 'mock_xmlrpc_success' ), 10, 3 );
+
 		// No way. Master user can't be unlinked. This is intended
 		$this->assertResponseStatus( 403, $response );
 
@@ -733,8 +724,12 @@ class WP_Test_Jetpack_REST_API_endpoints extends WP_UnitTestCase {
 		$transient_key = "jetpack_connected_user_data_$user->ID";
 		set_transient( $transient_key, 'dummy', DAY_IN_SECONDS );
 
+		add_filter( 'pre_http_request', array( $this, 'mock_xmlrpc_success' ), 10, 3 );
+
 		// Create REST request in JSON format and dispatch.
 		$this->create_and_get_request( 'connection/user', array( 'linked' => false ), 'POST' );
+
+		remove_filter( 'pre_http_request', array( $this, 'mock_xmlrpc_success' ), 10, 3 );
 
 		// Transient should be deleted after unlinking user.
 		$this->assertFalse( get_transient( $transient_key ) );
@@ -792,7 +787,7 @@ class WP_Test_Jetpack_REST_API_endpoints extends WP_UnitTestCase {
 		$this->assertResponseStatus( 200, $response );
 
 		// It should also work correctly with a POST body that is not JSON encoded
-		$response = $this->create_and_get_request( 'settings', array(), 'POST',  array( 'show' => 'post' ) );
+		$response = $this->create_and_get_request( 'settings', array(), 'POST', array( 'show' => 'post' ) );
 		$this->assertResponseStatus( 400, $response );
 
 		$response = $this->create_and_get_request( 'settings', array(), 'POST', array( 'show' => array( 'post', 'page' ) ) );
@@ -817,7 +812,7 @@ class WP_Test_Jetpack_REST_API_endpoints extends WP_UnitTestCase {
 		Jetpack::update_active_modules( array( 'carousel' ) );
 		update_option( 'carousel_background_color', 'white' );
 
-		$response = $this->create_and_get_request( 'settings', array(), 'GET' );
+		$response      = $this->create_and_get_request( 'settings', array(), 'GET' );
 		$response_data = $response->get_data();
 
 		$this->assertResponseStatus( 200, $response );
@@ -841,33 +836,33 @@ class WP_Test_Jetpack_REST_API_endpoints extends WP_UnitTestCase {
 
 		$widget_instances = array(
 			3 => array(
-				'title' => 'Ouou',
-				'event' => 'The Biog Day',
-				'unit' => 'years',
-				'type' => 'until',
+				'title'   => 'Ouou',
+				'event'   => 'The Biog Day',
+				'unit'    => 'years',
+				'type'    => 'until',
 				'message' => 'The big day is here.',
-				'year' => date( 'Y' ) + 10,
-				'month' => date( 'm' ),
-				'hour' => '0',
-				'min' => '00',
-				'day' => date( 'd' )
-			)
+				'year'    => gmdate( 'Y' ) + 10,
+				'month'   => gmdate( 'm' ),
+				'hour'    => '0',
+				'min'     => '00',
+				'day'     => gmdate( 'd' ),
+			),
 		);
 
 		update_option( 'widget_milestone_widget', $widget_instances );
 
 		$sidebars = wp_get_sidebars_widgets();
-		foreach( $sidebars as $key => $sidebar ) {
+		foreach ( $sidebars as $key => $sidebar ) {
 			$sidebars[ $key ][] = 'milestone_widget-3';
 		}
 		$_wp_sidebars_widgets = $sidebars;
 		wp_set_sidebars_widgets( $sidebars );
 
 		$wp_registered_widgets['milestone_widget-3'] = array(
-			'name' => 'Milestone Widget',
-			'id' => 'milestone_widget-3',
+			'name'     => 'Milestone Widget',
+			'id'       => 'milestone_widget-3',
 			'callback' => array( 'Milestone_Widget', 'widget' ),
-			'params' => array()
+			'params'   => array(),
 		);
 
 		$response = $this->create_and_get_request( 'widgets/milestone_widget-3', array(), 'GET' );
@@ -876,7 +871,7 @@ class WP_Test_Jetpack_REST_API_endpoints extends WP_UnitTestCase {
 		$this->assertResponseStatus( 200, $response );
 		$this->assertResponseData(
 			array(
-				'message' => '<div class="milestone-countdown"><span class="difference">10</span> <span class="label">years to go.</span></div>'
+				'message' => '<div class="milestone-countdown"><span class="difference">10</span> <span class="label">years to go.</span></div>',
 			),
 			$response
 		);
@@ -894,14 +889,14 @@ class WP_Test_Jetpack_REST_API_endpoints extends WP_UnitTestCase {
 		$this->assertResponseStatus( 200, $response );
 		$this->assertResponseData(
 			array(
-				'message' => '<div class="milestone-countdown"><span class="difference">12</span> <span class="label">months to go.</span></div>'
+				'message' => '<div class="milestone-countdown"><span class="difference">12</span> <span class="label">months to go.</span></div>',
 			),
 			$response
 		);
 
 		// Cleaning up the sidebars
 		$sidebars = wp_get_sidebars_widgets();
-		foreach( $sidebars as $key => $sidebar ) {
+		foreach ( $sidebars as $key => $sidebar ) {
 			$sidebars[ $key ] = array_diff( $sidebar, array( 'milestone_widget-3' ) );
 		}
 		$_wp_sidebars_widgets = $sidebars;
@@ -952,11 +947,11 @@ class WP_Test_Jetpack_REST_API_endpoints extends WP_UnitTestCase {
 				3 => array(
 					'title' => 'Ouou',
 					'event' => 'The Biog Day',
-				)
+				),
 			)
 		);
 
-		foreach( wp_get_sidebars_widgets() as $sidebar ) {
+		foreach ( wp_get_sidebars_widgets() as $sidebar ) {
 			$this->assertFalse( array_search( 'milestone_widget-3', $sidebar ) );
 		}
 
@@ -964,48 +959,6 @@ class WP_Test_Jetpack_REST_API_endpoints extends WP_UnitTestCase {
 
 		// Fails because the widget is inactive
 		$this->assertResponseStatus( 404, $response );
-	}
-
-	/**
-	 * Test changing the master user.
-	 *
-	 * @since 6.2.0
-	 * @since 7.7.0 No longer need to be master user to update.
-	 */
-	public function test_change_owner() {
-
-		// Create a user and set it up as current.
-		$user = $this->create_and_get_user( 'administrator' );
-		$user->add_cap( 'jetpack_disconnect' );
-		wp_set_current_user( $user->ID );
-
-		// Mock site already registered
-		Jetpack_Options::update_option( 'user_tokens', array( $user->ID => "honey.badger.$user->ID" ) );
-
-		// Set up user as master user
-		Jetpack_Options::update_option( 'master_user', $user->ID );
-
-		// Attempt owner change with bad user
-		$response = $this->create_and_get_request( 'connection/owner', array( 'owner' => 999 ), 'POST' );
-		$this->assertResponseStatus( 400, $response );
-
-		// Attempt owner change to same user
-		$response = $this->create_and_get_request( 'connection/owner', array( 'owner' => $user->ID ), 'POST' );
-		$this->assertResponseStatus( 400, $response );
-
-		// Create another user
-		$new_owner = $this->create_and_get_user( 'administrator' );
-		Jetpack_Options::update_option( 'user_tokens', array(
-			$user->ID => "honey.badger.$user->ID",
-			$new_owner->ID => "honey.badger.$new_owner->ID",
-		) );
-
-		// Change owner to valid user
-		add_filter( 'pre_http_request', array( $this, 'mock_xmlrpc_success' ), 10, 3 );
-		$response = $this->create_and_get_request( 'connection/owner', array( 'owner' => $new_owner->ID ), 'POST' );
-		$this->assertResponseStatus( 200, $response );
-		$this->assertEquals( $new_owner->ID, Jetpack_Options::get_option( 'master_user' ), 'Master user not changed' );
-		remove_filter( 'pre_http_request', array( $this, 'mock_xmlrpc_success' ), 10 );
 	}
 
 	/**
@@ -1082,7 +1035,7 @@ class WP_Test_Jetpack_REST_API_endpoints extends WP_UnitTestCase {
 		$request  = new WP_REST_Request( 'GET', '/jetpack/v4/licensing/error' );
 		$response = $this->server->dispatch( $request );
 		$this->assertResponseStatus( 200, $response );
-		$this->assertEquals( '', $response->get_data() );
+		$this->assertSame( '', $response->get_data() );
 
 		// Should accept updates.
 		$response = $this->create_and_get_request(
@@ -1093,7 +1046,7 @@ class WP_Test_Jetpack_REST_API_endpoints extends WP_UnitTestCase {
 			'POST'
 		);
 		$this->assertResponseStatus( 200, $response );
-		$this->assertEquals( true, $response->get_data() );
+		$this->assertTrue( $response->get_data() );
 
 		// Should return updated value.
 		$request  = new WP_REST_Request( 'GET', '/jetpack/v4/licensing/error' );
@@ -1117,5 +1070,236 @@ class WP_Test_Jetpack_REST_API_endpoints extends WP_UnitTestCase {
 
 		$response_data = $response->get_data();
 		$this->assertNull( $response_data['connectionOwner'] );
+	}
+
+	/**
+	 * Test fetching user connection data with connected user.
+	 *
+	 * @covers Jetpack::filter_jetpack_current_user_connection_data
+	 * @since 10.0
+	 */
+	public function test_get_user_connection_data_with_connected_user() {
+		// Create a user and set it up as current.
+		$user = $this->create_and_get_user( 'administrator' );
+		wp_set_current_user( $user->ID );
+		// Mock a connection.
+		Jetpack_Options::update_option( 'master_user', $user->ID );
+		Jetpack_Options::update_option( 'id', 1234 );
+		Jetpack_Options::update_option( 'blog_token', 'asd.qwe.1' );
+		Jetpack_Options::update_option( 'user_tokens', array( $user->ID => "honey.badger.$user->ID" ) );
+
+		// Set up some dummy cached user connection data.
+		$dummy_wpcom_user_data = array(
+			'ID'           => 999,
+			'email'        => 'jane.doe@foobar.com',
+			'display_name' => 'Jane Doe',
+		);
+		$transient_key         = 'jetpack_connected_user_data_' . $user->ID;
+		set_transient( $transient_key, $dummy_wpcom_user_data );
+
+		$response = $this->create_and_get_request( 'connection/data' );
+		$this->assertResponseStatus( 200, $response );
+
+		delete_transient( $transient_key );
+
+		$this->assertEquals( 200, $response->get_status() );
+
+		$response_data = $response->get_data();
+		// Remove avatar as the url is random.
+		unset( $response_data['currentUser']['wpcomUser']['avatar'] );
+
+		$this->assertTrue( $response_data['currentUser']['isConnected'] );
+		$this->assertTrue( $response_data['currentUser']['isMaster'] );
+		$this->assertSame( $user->user_login, $response_data['currentUser']['username'] );
+		$this->assertSame( $user->ID, $response_data['currentUser']['id'] );
+		$this->assertSame( $dummy_wpcom_user_data, $response_data['currentUser']['wpcomUser'] );
+		$this->assertSame( $user->user_login, $response_data['connectionOwner'] );
+
+		$expected_permissions = array(
+			'connect',
+			'connect_user',
+			'disconnect',
+			'admin_page',
+			'manage_modules',
+			'network_admin',
+			'network_sites_page',
+			'edit_posts',
+			'publish_posts',
+			'view_stats',
+			'manage_plugins',
+		);
+		$this->assertEmpty( array_diff( $expected_permissions, array_keys( $response_data['currentUser']['permissions'] ) ) );
+	}
+
+	/**
+	 * Test fetching a site's purchase token.
+	 *
+	 * @since 9.9.0
+	 */
+	public function test_get_purchase_token() {
+		$purchase_token = '1ApurchaseToken1';
+		Jetpack_Options::update_option( 'id', 1234 );
+		Jetpack_Options::update_option( 'purchase_token', $purchase_token );
+
+		// Create a user and set it up as current.
+		$user = $this->create_and_get_user( 'administrator' );
+		wp_set_current_user( $user->ID );
+
+		// Fetch purchase token.
+		$response = $this->create_and_get_request( 'purchase-token', array(), 'GET' );
+
+		// Confirm purchase token exists.
+		$this->assertResponseStatus( 200, $response );
+		$this->assertEquals( $purchase_token, $response->get_data() );
+	}
+
+	/**
+	 * Test fetching a site's purchase token with a non-administrator user.
+	 *
+	 * @since 9.9.0
+	 */
+	public function test_get_purchase_token_non_admin_user() {
+		$purchase_token = '1ApurchaseToken1';
+		Jetpack_Options::update_option( 'id', 1234 );
+		Jetpack_Options::update_option( 'purchase_token', $purchase_token );
+
+		// Create a user and set it up as current.
+		$user = $this->create_and_get_user();
+		wp_set_current_user( $user->ID );
+
+		// Fetch purchase token.
+		$response = $this->create_and_get_request( 'purchase-token', array(), 'GET' );
+
+		// Request fails because the user doesn't have the `manage_options` permission.
+		$this->assertResponseStatus( 403, $response );
+		$this->assertResponseData( array( 'code' => 'invalid_permission_manage_purchase_token' ), $response );
+	}
+
+	/**
+	 * Test fetching a site's purchase token when no site is registered.
+	 *
+	 * @since 9.9.0
+	 */
+	public function test_get_purchase_token_no_site_registered() {
+		$purchase_token = '1ApurchaseToken1';
+		Jetpack_Options::update_option( 'purchase_token', $purchase_token );
+
+		// Create a user and set it up as current.
+		$user = $this->create_and_get_user( 'administrator' );
+		wp_set_current_user( $user->ID );
+
+		// Fetch purchase token.
+		$response = $this->create_and_get_request( 'purchase-token', array(), 'GET' );
+
+		// Confirm that the request failed.
+		$this->assertResponseStatus( 500, $response );
+		$this->assertResponseData( array( 'code' => 'site_not_registered' ), $response );
+	}
+
+	/**
+	 * Test deleting a site's purchase token.
+	 *
+	 * @since 9.9.0
+	 */
+	public function test_delete_purchase_token() {
+		$purchase_token = '1ApurchaseToken1';
+		Jetpack_Options::update_option( 'id', 1234 );
+		Jetpack_Options::update_option( 'purchase_token', $purchase_token );
+
+		// Create a user and set it up as current.
+		$user = $this->create_and_get_user( 'administrator' );
+		wp_set_current_user( $user->ID );
+
+		// Fetch the purchase token.
+		$response = $this->create_and_get_request( 'purchase-token', array(), 'GET' );
+
+		// Confirm the purchase token exists.
+		$this->assertResponseStatus( 200, $response );
+		$this->assertEquals( $purchase_token, $response->get_data() );
+
+		// Delete the purchase token.
+		$response = $this->create_and_get_request( 'purchase-token', array(), 'POST' );
+
+		$this->assertResponseStatus( 200, $response );
+		$this->assertTrue( $response->get_data() );
+
+		// Fetch purchase token again.
+		$response = $this->create_and_get_request( 'purchase-token', array(), 'GET' );
+
+		// Confirm the purchase token does not exist.
+		$this->assertResponseStatus( 200, $response );
+		$this->assertSame( '', $response->get_data() );
+	}
+
+	/**
+	 * Test deleting a site's purchase token with a non-administrator user.
+	 *
+	 * @since 9.9.0
+	 */
+	public function test_delete_purchase_token_non_admin_user() {
+		$purchase_token = '1ApurchaseToken1';
+		Jetpack_Options::update_option( 'id', 1234 );
+		Jetpack_Options::update_option( 'purchase_token', $purchase_token );
+
+		// Create a user and set it up as current.
+		$user = $this->create_and_get_user();
+		wp_set_current_user( $user->ID );
+
+		// Fetch the purchase token.
+		$response = $this->create_and_get_request( 'purchase-token', array(), 'GET' );
+
+		// Request fails because the user doesn't have the `manage_options` permission.
+		$this->assertResponseStatus( 403, $response );
+		$this->assertResponseData( array( 'code' => 'invalid_permission_manage_purchase_token' ), $response );
+	}
+
+	/**
+	 * Test deleting a site's purchase token when no site is registered.
+	 *
+	 * @since 9.9.0
+	 */
+	public function test_delete_purchase_token_no_site_registered() {
+		$purchase_token = '1ApurchaseToken1';
+		Jetpack_Options::update_option( 'purchase_token', $purchase_token );
+
+		// Create a user and set it up as current.
+		$user = $this->create_and_get_user( 'administrator' );
+		wp_set_current_user( $user->ID );
+
+		// Fetch purchase token.
+		$response = $this->create_and_get_request( 'purchase-token', array(), 'POST' );
+
+		// Confirm that the request failed.
+		$this->assertResponseStatus( 500, $response );
+		$this->assertResponseData( array( 'code' => 'site_not_registered' ), $response );
+	}
+
+	/**
+	 * Test the `/seen-wc-connection-modal` endpoint fails.
+	 *
+	 * @since 10.4.0
+	 */
+	public function test_post_seen_wc_connection_modal_with_invalid_user_permissions() {
+		wp_set_current_user( 0 );
+
+		$response = $this->create_and_get_request( 'seen-wc-connection-modal', array(), 'POST' );
+
+		$this->assertResponseStatus( rest_authorization_required_code(), $response );
+	}
+
+	/**
+	 * Test the `/seen-wc-connection-modal` endpoint succeeds.
+	 *
+	 * @since 10.4.0
+	 */
+	public function test_post_seen_wc_connection_modal_success() {
+		// Create a user and set it up as current.
+		$user = $this->create_and_get_user( 'administrator' );
+		wp_set_current_user( $user->ID );
+
+		$response = $this->create_and_get_request( 'seen-wc-connection-modal', array(), 'POST' );
+
+		$this->assertResponseStatus( 200, $response );
+		$this->assertResponseData( array( 'success' => true ), $response );
 	}
 } // class end

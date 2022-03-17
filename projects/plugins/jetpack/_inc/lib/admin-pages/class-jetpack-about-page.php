@@ -12,7 +12,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 	exit;
 }
 
-require_once 'class.jetpack-admin-page.php';
+require_once __DIR__ . '/class.jetpack-admin-page.php';
 
 /**
  * Builds the landing page and its menu.
@@ -53,10 +53,12 @@ class Jetpack_About_Page extends Jetpack_Admin_Page {
 	/**
 	 * Add page action
 	 *
-	 * @param string $hook Hook of current page, unused.
+	 * @param string $hook Hook of current page.
 	 */
-	public function add_page_actions( $hook ) { // phpcs:ignore VariableAnalysis.CodeAnalysis.VariableAnalysis.UnusedVariable
-		$this->a8c_data = $this->fetch_a8c_data();
+	public function add_page_actions( $hook ) {
+		if ( 'admin_page_jetpack_about' === $hook ) {
+			$this->a8c_data = $this->fetch_a8c_data();
+		}
 	}
 
 	/**
@@ -537,7 +539,7 @@ class Jetpack_About_Page extends Jetpack_Admin_Page {
 				true
 			);
 			if ( ! empty( $data ) && is_array( $data ) ) {
-				set_transient( 'jetpack_a8c_data', $data, DAY_IN_SECONDS );
+				set_transient( 'jetpack_a8c_data', $data, WEEK_IN_SECONDS );
 			} else {
 				// Fallback if everything fails.
 				$data = array(

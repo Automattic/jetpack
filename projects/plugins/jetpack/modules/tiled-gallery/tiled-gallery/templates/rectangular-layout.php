@@ -1,5 +1,12 @@
 <?php
-foreach ( $rows as $row ) : ?>
+/**
+ * Rectangular layout Tiled Gallery template.
+ *
+ * @package automattic/jetpack
+ */
+
+foreach ( $context['rows'] as $row ) : // phpcs:ignore VariableAnalysis.CodeAnalysis.VariableAnalysis.UndefinedVariable
+	?>
 	<div
 		class="gallery-row"
 		style="width: <?php echo esc_attr( $row->width ); ?>px; height: <?php echo esc_attr( $row->height ); ?>px;"
@@ -14,13 +21,13 @@ foreach ( $rows as $row ) : ?>
 			data-original-width="<?php echo esc_attr( $group->width ); ?>"
 			data-original-height="<?php echo esc_attr( $group->height ); ?>"
 		>
-			<?php foreach ( $group->items( $needs_attachment_link, $grayscale ) as $item ) : ?>
-				<?php
-				$this->partial(
+			<?php
+			foreach ( $group->items( $context['needs_attachment_link'], $context['grayscale'] ) as $item ) : // phpcs:ignore VariableAnalysis.CodeAnalysis.VariableAnalysis.UndefinedVariable
+				$this->partial( // phpcs:ignore VariableAnalysis.CodeAnalysis.VariableAnalysis.UndefinedVariable
 					'item',
 					array(
 						'item' => $item,
-						'link' => $link,
+						'link' => $context['link'], // phpcs:ignore VariableAnalysis.CodeAnalysis.VariableAnalysis.UndefinedVariable
 					)
 				);
 				?>

@@ -28,7 +28,7 @@ const GooglePhotosDisconnect = ( { setAuthenticated } ) => {
 
 	return (
 		<Button
-			isSecondary
+			variant="secondary"
 			className="jetpack-external-media-browser__disconnect"
 			onClick={ onDisconnect }
 			disabled={ isDisconnecting }

@@ -13,6 +13,8 @@ import analytics from 'lib/analytics';
 import { withModuleSettingsFormHelpers } from 'components/module-settings/with-module-settings-form-helpers';
 import DashSectionHeader from 'components/dash-section-header';
 import DashActivity from './activity';
+import DashBoost from './boost';
+import DashCRM from './crm';
 import DashStats from './stats/index.jsx';
 import DashProtect from './protect';
 import DashMonitor from './monitor';
@@ -21,33 +23,37 @@ import DashAkismet from './akismet';
 import DashBackups from './backups';
 import DashPhoton from './photon';
 import DashSearch from './search';
+import DashSecurityBundle from './security-bundle';
+import DashVideoPress from './videopress';
 import DashConnections from './connections';
 import QuerySitePlugins from 'components/data/query-site-plugins';
 import QuerySite from 'components/data/query-site';
 import QueryScanStatus from 'components/data/query-scan-status';
 import {
+	isAtomicSite,
+	getApiNonce,
+	getApiRootUrl,
+	getPartnerCoupon,
+	getPluginBaseUrl,
+	getRegistrationNonce,
+	getTracksUserData,
 	isMultisite,
 	userCanManageModules,
+	userCanManagePlugins,
 	userCanViewStats,
 	userIsSubscriber,
 } from 'state/initial-state';
-import { isOfflineMode, hasConnectedOwner } from 'state/connection';
+import { isOfflineMode, hasConnectedOwner, getConnectionStatus } from 'state/connection';
 import { getModuleOverride } from 'state/modules';
 import { getScanStatus, isFetchingScanStatus } from 'state/scan';
-
-const renderPairs = layout =>
-	layout.map( ( item, layoutIndex ) => [
-		item.header,
-		chunk( item.cards, 2 ).map( ( [ left, right ], cardIndex ) => (
-			<div className="jp-at-a-glance__item-grid" key={ `card-${ layoutIndex }-${ cardIndex }` }>
-				<div className="jp-at-a-glance__left">{ left }</div>
-				<div className="jp-at-a-glance__right">{ right }</div>
-			</div>
-		) ),
-	] );
+import { PartnerCouponRedeem } from '@automattic/jetpack-partner-coupon';
 
 class AtAGlance extends Component {
 	trackSecurityClick = () => analytics.tracks.recordJetpackClick( 'aag_manage_security_wpcom' );
+
+	trackUpgradeButtonView = ( feature = '' ) => {
+		return () => analytics.tracks.recordEvent( `jetpack_wpa_aag_upgrade_button_view`, { feature } );
+	};
 
 	render() {
 		const settingsProps = {
@@ -62,7 +68,6 @@ class AtAGlance extends Component {
 		};
 		const securityHeader = (
 			<DashSectionHeader
-				key="securityHeader"
 				label={ __( 'Security', 'jetpack' ) }
 				settingsPath={ this.props.userCanManageModules ? '#security' : undefined }
 				externalLink={
@@ -85,13 +90,20 @@ class AtAGlance extends Component {
 		);
 		// Status can be unavailable, active, provisioning, awaiting_credentials
 		const rewindStatus = get( this.props.rewindStatus, [ 'state' ], '' );
+		const rewindStatusReason = get( this.props.rewindStatus, [ 'reason' ], '' );
 		const securityCards = [];
 
 		// Backup won't work with multi-sites, but Scan does if VaultPress is enabled
 		const hasVaultPressScanning =
 			! this.props.fetchingScanStatus && this.props.scanStatus?.reason === 'vp_active_on_site';
-		if ( ! this.props.multisite || hasVaultPressScanning ) {
-			securityCards.push( <DashScan { ...settingsProps } { ...urls } /> );
+		if ( ! this.props.isAtomicSite && ( ! this.props.multisite || hasVaultPressScanning ) ) {
+			securityCards.push(
+				<DashScan
+					{ ...settingsProps }
+					{ ...urls }
+					trackUpgradeButtonView={ this.trackUpgradeButtonView( 'scan' ) }
+				/>
+			);
 		}
 
 		if ( ! this.props.multisite ) {
@@ -100,10 +112,17 @@ class AtAGlance extends Component {
 					{ ...settingsProps }
 					siteRawUrl={ this.props.siteRawUrl }
 					rewindStatus={ rewindStatus }
+					rewindStatusReason={ rewindStatusReason }
+					trackUpgradeButtonView={ this.trackUpgradeButtonView( 'backups' ) }
 				/>
 			);
 		}
-		securityCards.push( <DashAkismet { ...urls } /> );
+		securityCards.push(
+			<DashAkismet
+				{ ...urls }
+				trackUpgradeButtonView={ this.trackUpgradeButtonView( 'akismet' ) }
+			/>
+		);
 
 		if ( 'inactive' !== this.props.getModuleOverride( 'protect' ) ) {
 			securityCards.push( <DashProtect { ...settingsProps } /> );
@@ -120,36 +139,66 @@ class AtAGlance extends Component {
 
 		// If user can manage modules, we're in an admin view, otherwise it's a non-admin view.
 		if ( this.props.userCanManageModules ) {
-			const pairs = [
-				{
-					header: securityHeader,
-					cards: securityCards,
-				},
-			];
-
+			const canDisplaybundleCard =
+				! this.props.multisite && ! this.props.isOfflineMode && this.props.hasConnectedOwner;
 			const performanceCards = [];
 			if ( 'inactive' !== this.props.getModuleOverride( 'photon' ) ) {
 				performanceCards.push( <DashPhoton { ...settingsProps } /> );
 			}
 			if ( 'inactive' !== this.props.getModuleOverride( 'search' ) ) {
-				performanceCards.push( <DashSearch { ...settingsProps } /> );
+				performanceCards.push(
+					<DashSearch
+						{ ...settingsProps }
+						trackUpgradeButtonView={ this.trackUpgradeButtonView( 'search' ) }
+					/>
+				);
 			}
-			if ( performanceCards.length ) {
-				pairs.push( {
-					header: (
-						<DashSectionHeader key="performanceHeader" label={ __( 'Performance', 'jetpack' ) } />
-					),
-					cards: performanceCards,
-				} );
+			if ( 'inactive' !== this.props.getModuleOverride( 'videopress' ) ) {
+				performanceCards.push(
+					<DashVideoPress
+						{ ...settingsProps }
+						trackUpgradeButtonView={ this.trackUpgradeButtonView( 'videopress' ) }
+					/>
+				);
 			}
+
+			if ( this.props.userCanManagePlugins ) {
+				performanceCards.push(
+					<DashBoost siteAdminUrl={ this.props.siteAdminUrl } />,
+					<DashCRM siteAdminUrl={ this.props.siteAdminUrl } />
+				);
+			}
+
+			const redeemPartnerCoupon = ! this.props.isOfflineMode && this.props.partnerCoupon && (
+				<PartnerCouponRedeem
+					apiNonce={ this.props.apiNonce }
+					registrationNonce={ this.props.registrationNonce }
+					apiRoot={ this.props.apiRoot }
+					assetBaseUrl={ this.props.pluginBaseUrl }
+					connectionStatus={ this.props.connectionStatus }
+					partnerCoupon={ this.props.partnerCoupon }
+					siteRawUrl={ this.props.siteRawUrl }
+					tracksUserData={ !! this.props.tracksUserData }
+					analytics={ analytics }
+				/>
+			);
 
 			return (
 				<div className="jp-at-a-glance">
 					<QuerySitePlugins />
 					<QuerySite />
 					<QueryScanStatus />
+					{ redeemPartnerCoupon }
 					<DashStats { ...settingsProps } { ...urls } />
-					{ renderPairs( pairs ) }
+					<Section
+						header={ securityHeader }
+						cards={ securityCards }
+						pinnedBundle={ canDisplaybundleCard ? <DashSecurityBundle /> : null }
+					/>
+					<Section
+						header={ <DashSectionHeader label={ __( 'Performance and Growth', 'jetpack' ) } /> }
+						cards={ performanceCards }
+					/>
 					{ connections }
 				</div>
 			);
@@ -186,12 +235,39 @@ export default connect( state => {
 	return {
 		userCanManageModules: userCanManageModules( state ),
 		userCanViewStats: userCanViewStats( state ),
+		userCanManagePlugins: userCanManagePlugins( state ),
 		userIsSubscriber: userIsSubscriber( state ),
+		isAtomicSite: isAtomicSite( state ),
 		isOfflineMode: isOfflineMode( state ),
 		getModuleOverride: module_name => getModuleOverride( state, module_name ),
 		multisite: isMultisite( state ),
 		scanStatus: getScanStatus( state ),
 		fetchingScanStatus: isFetchingScanStatus( state ),
 		hasConnectedOwner: hasConnectedOwner( state ),
+		connectionStatus: getConnectionStatus( state ),
+		partnerCoupon: getPartnerCoupon( state ),
+		pluginBaseUrl: getPluginBaseUrl( state ),
+		tracksUserData: getTracksUserData( state ),
+		apiRoot: getApiRootUrl( state ),
+		apiNonce: getApiNonce( state ),
+		registrationNonce: getRegistrationNonce( state ),
 	};
 } )( withModuleSettingsFormHelpers( AtAGlance ) );
+
+const Section = ( { cards = [], header, pinnedBundle } ) => {
+	if ( ! cards.length ) {
+		return null;
+	}
+	return (
+		<>
+			{ header }
+			{ pinnedBundle }
+			{ chunk( cards, 2 ).map( ( [ left, right ], cardIndex ) => (
+				<div className="jp-at-a-glance__item-grid" key={ `card-${ cardIndex }` }>
+					<div className="jp-at-a-glance__left">{ left }</div>
+					<div className="jp-at-a-glance__right">{ right }</div>
+				</div>
+			) ) }
+		</>
+	);
+};

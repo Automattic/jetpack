@@ -1,7 +1,7 @@
 /**
  * Internal dependencies
  */
-import restApi from 'rest-api';
+import restApi from '@automattic/jetpack-api';
 import {
 	STATS_SWITCH_TAB,
 	STATS_DATA_FETCH,

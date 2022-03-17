@@ -22,7 +22,7 @@ jobs:
     if: github.event.pull_request.head.repo.full_name == github.event.pull_request.base.repo.full_name
 
     steps:
-      - uses: Automattic/action-required-review@v2
+      - uses: Automattic/action-required-review@v3
         with:
           requirements: |
             - paths: unmatched
@@ -80,6 +80,9 @@ The requirements consist of an array of requirement objects. A requirement objec
   `any-of`, and the value is an array as for `teams`. When the key is `all-of`, a review is required
   from every team (but if a person is a member of multiple teams, they can satisfy multiple
   requirements). When it's `any-of`, one review from any team is needed.
+
+  Additionally, you can specify a single user by prefixing their username with `@`. For example,
+  `@example` will be treated as a virtual team with one member; `example`.
 
 Paths are matched using the [picomatch](https://www.npmjs.com/package/picomatch#globbing-features) library.
 

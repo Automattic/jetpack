@@ -1,3 +1,4 @@
+#!/usr/bin/env php -d memory_limit=2048M
 <?php
 /**
  * A script to scan the entire WordPress.org plugins directory for breaking changes between
@@ -28,12 +29,14 @@
  * affected by the changes.
  */
 
+ini_set( 'memory_limit', '2048M' ); // phpcs:ignore WordPress.PHP.IniSet.memory_limit_Blacklisted
+
 require dirname( __DIR__ ) . '/vendor/autoload.php';
 
 $jetpack_new_path = '/path/to/new/jetpack';
 $jetpack_old_path = '/path/to/old/jetpack';
 $slurper_path     = '/path/to/slurper/plugins';
-$jetpack_exclude  = array( '.git', 'vendor', 'tests', 'docker', 'bin', 'scss', 'images', 'docs', 'languages', 'node_modules' );
+$jetpack_exclude  = array( '.git', 'tests', 'tools', 'bin', 'scss', 'images', 'docs', 'languages', 'node_modules' );
 
 echo "Scanning new declarations\n";
 $jetpack_new_declarations = new Automattic\Jetpack\Analyzer\Declarations();
@@ -57,6 +60,9 @@ foreach ( glob( $slurper_path . '/*' ) as $folder_name ) {
 	$warnings->generate( $invocations, $differences );
 	$warnings->output();
 	$warnings->save( __DIR__ . '/' . basename( $folder_name ) . '.csv', false );
+
+	// Faster to GC all the data before the next iteration.
+	unset( $invocations, $warnings );
 }
 
 // phpcs:enable

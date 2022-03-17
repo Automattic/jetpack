@@ -1,0 +1,5 @@
+<?xml version="1.0"?>
+<!-- This file won't actually be loaded. -->
+<ruleset>
+    <rule ref="Generic.Arrays.DisallowLongArraySyntax"/>
+</ruleset>

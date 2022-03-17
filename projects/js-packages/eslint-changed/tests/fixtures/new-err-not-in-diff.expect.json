@@ -1,0 +1,25 @@
+[
+	{
+		"filePath": "/tmp/x/t/foo.js",
+		"messages": [
+			{
+				"ruleId": "no-undef",
+				"severity": 2,
+				"message": "'x' is not defined.",
+				"line": 23,
+				"column": 14,
+				"nodeType": "Identifier",
+				"messageId": "undef",
+				"endLine": 23,
+				"endColumn": 15
+			}
+		],
+		"errorCount": 1,
+		"fatalErrorCount": 0,
+		"warningCount": 0,
+		"fixableErrorCount": 0,
+		"fixableWarningCount": 0,
+		"source": "// ...\n// ...\n// ...\n// ...\n// ...\n// ...\n// ...\n// ...\n// ...\n// ...\n// ...\n// ...\n// ...\n// ...\n// ...\n// ...\n// ...\n// ...\n// ...\n// ...\n// ...\n\nconsole.log( x )\n",
+		"usedDeprecatedRules": []
+	}
+]

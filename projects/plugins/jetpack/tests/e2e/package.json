@@ -1,6 +1,7 @@
 {
 	"name": "jetpack-e2e-tests",
 	"private": true,
+	"type": "module",
 	"description": "[Jetpack](https://jetpack.com/) is a WordPress plugin that supercharges your self-hosted WordPress site with the awesome cloud power of [WordPress.com](https://wordpress.com).",
 	"homepage": "https://jetpack.com",
 	"bugs": {
@@ -13,49 +14,42 @@
 	"license": "GPL-2.0-or-later",
 	"author": "Automattic",
 	"scripts": {
+		"build": "pnpx jetpack build packages/search plugins/jetpack -v --no-pnpm-install --production",
 		"clean": "rm -rf output",
-		"distclean": "rm -rf node_modules && yarn clean",
-		"env-start": "./bin/env.sh start",
-		"env-reset": "./bin/env.sh reset",
-		"tunnel-on": "pm2 start bin/ecosystem.config.js && yarn pm2 logs --nostream --lines 4",
-		"tunnel-reset": "rm -rf config/tmp && yarn tunnel-on",
-		"tunnel-off": "pm2 delete bin/ecosystem.config.js && NODE_ENV=test node bin/tunnel.js off",
-		"pretest-e2e": "yarn clean",
-		"test-e2e": "NODE_CONFIG_DIR='./config' jest --config jest.config.js --runInBand --verbose --detectOpenHandles --json --outputFile=output/summary.json",
-		"test-decrypt-config": "openssl enc -md sha1 -aes-256-cbc -d -pass env:CONFIG_KEY -in ./config/encrypted.enc -out ./config/local-test.js",
-		"test-encrypt-config": "openssl enc -md sha1 -aes-256-cbc -pass env:CONFIG_KEY -in ./config/local-test.js -out ./config/encrypted.enc"
+		"config:decrypt": "pnpm test-decrypt-default-config && pnpm test-decrypt-config",
+		"distclean": "rm -rf node_modules",
+		"env:up": "e2e-env start",
+		"env:down": "e2e-env stop",
+		"env:reset": "e2e-env reset",
+		"env:clean": "e2e-env clean",
+		"env:new": "e2e-env new",
+		"tunnel:up": "tunnel up",
+		"tunnel:reset": "tunnel reset",
+		"tunnel:down": "tunnel down",
+		"tunnel:write-logs": "tunnel logs output/logs/tunnel.log",
+		"pretest-e2e": "pnpm run clean",
+		"test:run": ". ./node_modules/jetpack-e2e-commons/bin/app-password.sh && playwright install && NODE_CONFIG_DIR='./config' ALLURE_RESULTS_DIR=./output/allure-results playwright test --config=playwright.config.cjs",
+		"test-decrypt-default-config": "openssl enc -md sha1 -aes-256-cbc -d -pass env:CONFIG_KEY -in ./node_modules/jetpack-e2e-commons/config/encrypted.enc -out ./node_modules/jetpack-e2e-commons/config/local.cjs",
+		"test-decrypt-config": "openssl enc -md sha1 -aes-256-cbc -d -pass env:CONFIG_KEY -in ./config/encrypted.enc -out config/local.cjs",
+		"test-decrypt-all-config": "pnpm test-decrypt-default-config && pnpm test-decrypt-config",
+		"test-encrypt-default-config": "openssl enc -md sha1 -aes-256-cbc -pass env:CONFIG_KEY -in ./node_modules/jetpack-e2e-commons/config/local.cjs -out ./node_modules/jetpack-e2e-commons/config/encrypted.enc",
+		"test-encrypt-config": "openssl enc -md sha1 -aes-256-cbc -pass env:CONFIG_KEY -in config/local.cjs -out ./config/encrypted.enc",
+		"slack": "NODE_CONFIG_DIR='./config' slack"
 	},
 	"devDependencies": {
-		"@babel/core": "7.13.16",
-		"@babel/preset-env": "7.13.15",
-		"@slack/web-api": "6.1.0",
-		"@wordpress/env": "4.0.2",
-		"@wordpress/eslint-plugin": "9.0.3",
-		"axios": "0.21.1",
-		"babel-jest": "26.6.3",
-		"chalk": "4.1.1",
-		"config": "3.3.6",
-		"eslint": "7.24.0",
-		"eslint-plugin-jest": "24.3.5",
-		"jest": "26.6.3",
-		"jest-circus": "26.6.3",
-		"jest-environment-node": "26.6.2",
-		"jest-junit": "12.0.0",
-		"jest-runner-groups": "2.0.1",
-		"jest-stare": "2.2.1",
-		"localtunnel": "2.0.1",
-		"lodash": "4.17.21",
-		"mkdirp": "1.0.4",
-		"playwright": "1.10.0",
-		"pm2": "4.5.6",
-		"rimraf": "3.0.2",
-		"shell-escape": "0.2.0",
-		"winston": "3.3.3",
-		"yargs": "16.2.0"
+		"@playwright/test": "1.17.2",
+		"allure-playwright": "2.0.0-beta.14",
+		"config": "3.3.7",
+		"eslint-plugin-playwright": "0.8.0",
+		"jetpack-e2e-commons": "*"
 	},
 	"engines": {
-		"node": "^14.16.0",
-		"yarn": "^1.3.2"
+		"node": "^14.18.3 || ^16.13.2",
+		"pnpm": "^6.23.6",
+		"yarn": "use pnpm instead - see docs/yarn-upgrade.md"
 	},
-	"dependencies": {}
+	"browserslist": [],
+	"ci": {
+		"targets": []
+	}
 }

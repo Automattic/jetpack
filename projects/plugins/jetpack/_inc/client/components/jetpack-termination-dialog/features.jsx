@@ -9,12 +9,12 @@ import PropTypes from 'prop-types';
  */
 import { createInterpolateElement } from '@wordpress/element';
 import { __, _n, sprintf } from '@wordpress/i18n';
+import { getRedirectUrl } from '@automattic/jetpack-components';
 
 /**
  * Internal dependencies
  */
 import Card from 'components/card';
-import getRedirectUrl from 'lib/jp-redirect';
 import Gridicon from 'components/gridicon';
 import { JETPACK_CONTACT_SUPPORT, JETPACK_CONTACT_BETA_SUPPORT } from 'constants/urls';
 import SingleFeature from './single-feature';
@@ -97,7 +97,7 @@ class JetpackTerminationDialogFeatures extends Component {
 
 	renderConnectedPlugins( plugins ) {
 		return (
-			<ul class="jetpack-termination-dialog__active-plugins-list">
+			<ul className="jetpack-termination-dialog__active-plugins-list">
 				{ plugins.map( plugin => (
 					<li key={ plugin.slug }>
 						<Gridicon icon="notice-outline" size={ 18 } />

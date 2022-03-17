@@ -1,11 +1,9 @@
-<?php // phpcs:ignore WordPress.Files.FileName.NotHyphenatedLowercase
+<?php
 /**
  * "Add" command for the changelogger tool CLI.
  *
  * @package automattic/jetpack-changelogger
  */
-
-// phpcs:disable WordPress.NamingConventions.ValidVariableName
 
 namespace Automattic\Jetpack\Changelogger;
 
@@ -272,7 +270,7 @@ EOF
 					$question = new Question( "Changelog entry. May not be empty.\n > ", $entry );
 					$question->setValidator(
 						function ( $v ) {
-							if ( trim( $v ) === '' ) {
+							if ( trim( (string) $v ) === '' ) {
 								throw new \RuntimeException( 'An empty changelog entry is only allowed when the significance is "patch".' );
 							}
 							return $v;

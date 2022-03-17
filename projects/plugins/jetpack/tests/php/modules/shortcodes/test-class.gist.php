@@ -1,16 +1,25 @@
 <?php
+/**
+ * Tests for the gist shortcode.
+ *
+ * @package automattic/jetpack
+ */
 
+// cache HTTP requests.
 require_once __DIR__ . '/trait.http-request-cache.php';
 
+/**
+ * Gist shortcode tests.
+ */
 class WP_Test_Jetpack_Shortcodes_Gist extends WP_UnitTestCase {
 	use Automattic\Jetpack\Tests\HttpRequestCacheTrait;
 
 	/**
 	 * After a test method runs, reset any state in WordPress the test method might have changed.
 	 */
-	public function tearDown() {
+	public function tear_down() {
 		wp_reset_postdata();
-		parent::tearDown();
+		parent::tear_down();
 	}
 
 	/**
@@ -40,595 +49,237 @@ class WP_Test_Jetpack_Shortcodes_Gist extends WP_UnitTestCase {
 	}
 
 	/**
-	 * Verify that calling the shortcode without an argument returns the error string.
+	 * Test gist embeds (links in content transformed into embeds).
 	 *
 	 * @covers ::github_gist_shortcode
+	 * @dataProvider gist_embed_data
 	 *
-	 * @since 6.6.0
+	 * @since 10.4.0
+	 *
+	 * @param string $content      Content added to post editor.
+	 * @param string $expected     Expected returned output.
+	 * @param string $expected_amp Expected returned output for AMP.
 	 */
-	public function test_shortcodes_empty_gist() {
-		$content = '[gist]';
+	public function test_gist_embeds( $content, $expected, $expected_amp ) {
+		global $post;
+
+		$post = $this->factory()->post->create_and_get( array( 'post_content' => $content ) );
+		setup_postdata( $post );
 
 		// Test HTML version.
-		$shortcode_content = do_shortcode( $content );
-		$this->assertEquals( '<!-- Missing Gist ID -->', $shortcode_content );
+		ob_start();
+		the_content();
+		$actual = ob_get_clean();
+		$this->assertStringContainsString( $expected, $actual );
 
 		// Test AMP version.
 		add_filter( 'jetpack_is_amp_request', '__return_true' );
-		$shortcode_content = do_shortcode( $content );
-		$this->assertEquals( '<!-- Missing Gist ID -->', $shortcode_content );
-	}
-
-	/**
-	 * Verify that calling the shortcode with an invalid character returns the error string.
-	 *
-	 * @covers ::github_gist_shortcode
-	 *
-	 * @since 7.3.0
-	 */
-	public function test_shortcodes_gist_invalid_id() {
-		$content = '[gist !^#*@$]';
-
-		// Test HTML version.
-		$shortcode_content = do_shortcode( $content );
-		$this->assertEquals( '<!-- Invalid Gist ID -->', $shortcode_content );
-
-		// Test AMP version.
-		add_filter( 'jetpack_is_amp_request', '__return_true' );
-		$shortcode_content = do_shortcode( $content );
-		$this->assertEquals( '<!-- Invalid Gist ID -->', $shortcode_content );
-	}
-
-	/**
-	 * Verify that a shortcode with only an ID returns the expected embed code.
-	 *
-	 * @covers ::github_gist_shortcode
-	 *
-	 * @since 6.6.0
-	 */
-	public function test_shortcodes_gist_public_id_in_content() {
-		$gist_id = '57cc50246aab776e110060926a2face2';
-		$content = '[gist]' . $gist_id . '[/gist]';
-
-		// Test HTML version.
-		$shortcode_content = do_shortcode( $content );
-		$this->assertContains( '<div style="tab-size: 8" id="gist', $shortcode_content );
-
-		// Test AMP version.
-		add_filter( 'jetpack_is_amp_request', '__return_true' );
-		$shortcode_content = do_shortcode( $content );
+		ob_start();
+		the_content();
+		$actual = ob_get_clean();
 		$this->assertEquals(
-			sprintf( '<amp-gist layout="fixed-height" data-gistid="%s" height="240"></amp-gist>', basename( $gist_id ) ),
-			$shortcode_content
+			wpautop( $expected_amp ),
+			$actual
 		);
 	}
 
 	/**
-	 * Verify that a shortcode with only an ID returns the expected embed code.
+	 * Test data for the gist embeds
+	 *
+	 * @since 10.4.0
 	 *
 	 * @covers ::github_gist_shortcode
-	 *
-	 * @since 7.3.0
 	 */
-	public function test_shortcodes_gist_public_id() {
-		$gist_id = '57cc50246aab776e110060926a2face2';
-		$content = '[gist ' . $gist_id . ']';
-
-		// Test HTML version.
-		$shortcode_content = do_shortcode( $content );
-		$this->assertContains( '<div style="tab-size: 8" id="gist', $shortcode_content );
-
-		// Test AMP version.
-		add_filter( 'jetpack_is_amp_request', '__return_true' );
-		$shortcode_content = do_shortcode( $content );
-		$this->assertEquals(
-			sprintf( '<amp-gist layout="fixed-height" data-gistid="%s" height="240"></amp-gist>', basename( $gist_id ) ),
-			$shortcode_content
+	public function gist_embed_data() {
+		$public_id                  = '57cc50246aab776e110060926a2face2';
+		$expected_html_markup       = '<div style="tab-size: 8" id="gist';
+		$expected_public_amp_markup = sprintf(
+			'<amp-gist layout="fixed-height" data-gistid="%s" height="240"></amp-gist>',
+			basename( $public_id )
 		);
-	}
 
-	/**
-	 * Verify that a shortcode with only a private ID in the content returns the expected embed code.
-	 *
-	 * @covers ::github_gist_shortcode
-	 *
-	 * @since 7.3.0
-	 */
-	public function test_shortcodes_gist_private_id_in_content() {
-		$gist_id = 'fc5891af153e2cf365c9';
-		$content = '[gist]' . $gist_id . '[/gist]';
-
-		// Test HTML version.
-		$shortcode_content = do_shortcode( $content );
-		$this->assertContains( '<div style="tab-size: 8" id="gist', $shortcode_content );
-
-		// Test AMP version.
-		add_filter( 'jetpack_is_amp_request', '__return_true' );
-		$shortcode_content = do_shortcode( $content );
-		$this->assertEquals(
-			sprintf( '<amp-gist layout="fixed-height" data-gistid="%s" height="240"></amp-gist>', basename( $gist_id ) ),
-			$shortcode_content
-		);
-	}
-
-	/**
-	 * Verify that a shortcode with only a private ID returns the expected embed code.
-	 *
-	 * @covers ::github_gist_shortcode
-	 *
-	 * @since 7.3.0
-	 */
-	public function test_shortcodes_gist_private_id() {
-		$gist_id = 'fc5891af153e2cf365c9';
-		$content = '[gist ' . $gist_id . ']';
-
-		// Test HTML version.
-		$shortcode_content = do_shortcode( $content );
-		$this->assertContains( '<div style="tab-size: 8" id="gist', $shortcode_content );
-
-		// Test AMP version.
-		add_filter( 'jetpack_is_amp_request', '__return_true' );
-		$shortcode_content = do_shortcode( $content );
-		$this->assertEquals(
-			sprintf( '<amp-gist layout="fixed-height" data-gistid="%s" height="240"></amp-gist>', basename( $gist_id ) ),
-			$shortcode_content
-		);
-	}
-
-	/**
-	 * Verify that a shortcode with a username and a public embed ID returns the expected embed code.
-	 *
-	 * @covers ::github_gist_shortcode
-	 *
-	 * @since 7.3.0
-	 */
-	public function test_shortcodes_gist_public_id_with_username() {
-		$gist_id = 'mjangda/2978185';
-		$content = '[gist ' . $gist_id . ']';
-
-		// Test HTML version.
-		$shortcode_content = do_shortcode( $content );
-		$this->assertContains( '<div style="tab-size: 8" id="gist', $shortcode_content );
-
-		// Test AMP version.
-		add_filter( 'jetpack_is_amp_request', '__return_true' );
-		$shortcode_content = do_shortcode( $content );
-		$this->assertEquals(
-			sprintf( '<amp-gist layout="fixed-height" data-gistid="%s" height="240"></amp-gist>', basename( $gist_id ) ),
-			$shortcode_content
-		);
-	}
-
-	/**
-	 * Verify that a shortcode with a username and a private embed ID returns the expected embed code.
-	 *
-	 * @covers ::github_gist_shortcode
-	 *
-	 * @since 7.3.0
-	 */
-	public function test_shortcodes_gist_private_id_with_username() {
-		$gist_id = 'xknown/fc5891af153e2cf365c9';
-		$content = '[gist ' . $gist_id . ']';
-
-		// Test HTML version.
-		$shortcode_content = do_shortcode( $content );
-		$this->assertContains( '<div style="tab-size: 8" id="gist', $shortcode_content );
-
-		// Test AMP version.
-		add_filter( 'jetpack_is_amp_request', '__return_true' );
-		$shortcode_content = do_shortcode( $content );
-		$this->assertEquals(
-			sprintf( '<amp-gist layout="fixed-height" data-gistid="%s" height="240"></amp-gist>', basename( $gist_id ) ),
-			$shortcode_content
-		);
-	}
-
-	/**
-	 * Verify that a shortcode linking to a specific file, with no username returns the expected embed code.
-	 *
-	 * @covers ::github_gist_shortcode
-	 *
-	 * @since 7.3.0
-	 */
-	public function test_shortcodes_gist_no_username_direct_file() {
-		$gist_id        = '57cc50246aab776e110060926a2face2';
-		$file_name_slug = '#file-wp-config-php';
-		$file_name      = 'wp-config.php';
-
-		$content = '[gist https://gist.github.com/' . $gist_id . $file_name_slug . ']';
-
-		$expected_gist_id = sprintf(
-			'%1$s.json?file=%2$s',
-			$gist_id,
-			$file_name
-		);
-		// Test HTML version.
-		$shortcode_content = do_shortcode( $content );
-		$this->assertContains( '<div style="tab-size: 8" id="gist', $shortcode_content );
-
-		// Test AMP version.
-		add_filter( 'jetpack_is_amp_request', '__return_true' );
-		$shortcode_content = do_shortcode( $content );
-		$this->assertEquals(
-			sprintf(
-				'<amp-gist layout="fixed-height" data-gistid="%1$s" height="240" data-file="%2$s"></amp-gist>',
-				$gist_id,
-				$file_name
+		return array(
+			'oembed'          => array(
+				sprintf( 'https://gist.github.com/%s/', $public_id ),
+				$expected_html_markup,
+				$expected_public_amp_markup,
 			),
-			$shortcode_content
-		);
-	}
-
-	/**
-	 * Verify that a shortcode linking to a specific file, with a username returns the expected embed code.
-	 *
-	 * @covers ::github_gist_shortcode
-	 *
-	 * @since 7.3.0
-	 */
-	public function test_shortcodes_gist_username_direct_file() {
-		$gist_id        = 'jeherve/57cc50246aab776e110060926a2face2';
-		$file_name_slug = '#file-wp-config-php';
-		$file_name      = 'wp-config.php';
-
-		$expected_gist_id = sprintf(
-			'%1$s.json?file=%2$s',
-			basename( $gist_id ),
-			$file_name
-		);
-
-		$content = '[gist https://gist.github.com/' . $gist_id . $file_name_slug . ']';
-
-		// Test HTML version.
-		$shortcode_content = do_shortcode( $content );
-		$this->assertContains( '<div style="tab-size: 8" id="gist', $shortcode_content );
-
-		// Test AMP version.
-		add_filter( 'jetpack_is_amp_request', '__return_true' );
-		$shortcode_content = do_shortcode( $content );
-		$this->assertEquals(
-			sprintf(
-				'<amp-gist layout="fixed-height" data-gistid="%1$s" height="240" data-file="%2$s"></amp-gist>',
-				basename( $gist_id ),
-				$file_name
+			'file to embed'   => array(
+				sprintf( 'https://gist.github.com/jeherve/%s#file-wp-config-php', $public_id ),
+				$expected_html_markup,
+				sprintf(
+					'<amp-gist layout="fixed-height" data-gistid="%1$s" height="240" data-file="wp-config.php"></amp-gist>',
+					basename( $public_id )
+				),
 			),
-			$shortcode_content
+			'custom tab size' => array(
+				sprintf( 'https://gist.github.com/%s/?ts=4', $public_id ),
+				'<div style="tab-size: 4" id="gist',
+				$expected_public_amp_markup,
+			),
 		);
 	}
 
 	/**
-	 * Verify that a shortcode with an invalid ID raw gist returns the "invalid" message.
+	 * Test the different potential ways to embed a gist.
 	 *
 	 * @covers ::github_gist_shortcode
+	 * @dataProvider gist_shortcode_data
 	 *
-	 * @since 7.3.0
+	 * @since 10.4.0
+	 *
+	 * @param string $content      Content added to post editor.
+	 * @param string $expected     Expected returned output.
+	 * @param string $expected_amp Expected returned output for AMP.
 	 */
-	public function test_shortcodes_gist_invalid_raw_gist() {
-		$gist_id = 'xknown/fc5891af153e2cf365c9/raw?';
-		$content = '[gist ' . $gist_id . ']';
+	public function test_gist_shortcode( $content, $expected, $expected_amp = null ) {
+		/*
+		 * If we did not specify an expected AMP output,
+		 * that means we expect it to be similar to the expected HTML output.
+		 */
+		if ( is_null( $expected_amp ) ) {
+			$expected_amp = $expected;
+		}
 
 		// Test HTML version.
 		$shortcode_content = do_shortcode( $content );
-		$this->assertEquals( '<!-- Invalid Gist ID -->', $shortcode_content );
+		$this->assertStringContainsString( $expected, $shortcode_content );
 
 		// Test AMP version.
 		add_filter( 'jetpack_is_amp_request', '__return_true' );
 		$shortcode_content = do_shortcode( $content );
-		$this->assertEquals( '<!-- Invalid Gist ID -->', $shortcode_content );
+		$this->assertEquals( $expected_amp, $shortcode_content );
 	}
 
 	/**
-	 * Verify that a shortcode with a non-gist URL returns the "invalid" message.
+	 * Test data for shortcode tests.
+	 *
+	 * @since 10.4.0
 	 *
 	 * @covers ::github_gist_shortcode
-	 *
-	 * @since 7.3.0
 	 */
-	public function test_shortcodes_gist_invalid_url() {
-		$content = '[gist http://wordpress.com/]';
-
-		// Test HTML version.
-		$shortcode_content = do_shortcode( $content );
-		$this->assertEquals( '<!-- Invalid Gist ID -->', $shortcode_content );
-
-		// Test AMP version.
-		add_filter( 'jetpack_is_amp_request', '__return_true' );
-		$shortcode_content = do_shortcode( $content );
-		$this->assertEquals( '<!-- Invalid Gist ID -->', $shortcode_content );
-	}
-
-	/**
-	 * Verify that a shortcode with a public URL returns the expected embed code.
-	 *
-	 * @covers ::github_gist_shortcode
-	 *
-	 * @since 6.6.0
-	 */
-	public function test_shortcodes_gist_public_full_url() {
-		$gist_id = '57cc50246aab776e110060926a2face2';
-		$content = '[gist https://gist.github.com/' . $gist_id . '/ ]';
-
-		// Test HTML version.
-		$shortcode_content = do_shortcode( $content );
-		$this->assertContains( '<div style="tab-size: 8" id="gist', $shortcode_content );
-
-		// Test AMP version.
-		add_filter( 'jetpack_is_amp_request', '__return_true' );
-		$shortcode_content = do_shortcode( $content );
-		$this->assertEquals(
-			sprintf( '<amp-gist layout="fixed-height" data-gistid="%s" height="240"></amp-gist>', basename( $gist_id ) ),
-			$shortcode_content
+	public function gist_shortcode_data() {
+		$public_id                   = '57cc50246aab776e110060926a2face2';
+		$private_id                  = 'fc5891af153e2cf365c9';
+		$public_w_username           = 'jeherve/' . $public_id;
+		$private_w_username          = 'xknown/' . $private_id;
+		$file_name_slug              = '#file-wp-config-php';
+		$file_name                   = 'wp-config.php';
+		$expected_html_markup        = '<div style="tab-size: 8" id="gist';
+		$expected_public_amp_markup  = sprintf(
+			'<amp-gist layout="fixed-height" data-gistid="%s" height="240"></amp-gist>',
+			basename( $public_id )
 		);
-	}
-
-	/**
-	 * Verify that a shortcode with a public URL in content returns the expected embed code.
-	 *
-	 * @covers ::github_gist_shortcode
-	 *
-	 * @since 7.3.0
-	 */
-	public function test_shortcodes_gist_public_full_url_in_content() {
-		$gist_id = '57cc50246aab776e110060926a2face2';
-		$content = '[gist]https://gist.github.com/' . $gist_id . '[/gist]';
-
-		// Test HTML version.
-		$shortcode_content = do_shortcode( $content );
-		$this->assertContains( '<div style="tab-size: 8" id="gist', $shortcode_content );
-
-		// Test AMP version.
-		add_filter( 'jetpack_is_amp_request', '__return_true' );
-		$shortcode_content = do_shortcode( $content );
-		$this->assertEquals(
-			sprintf( '<amp-gist layout="fixed-height" data-gistid="%s" height="240"></amp-gist>', basename( $gist_id ) ),
-			$shortcode_content
+		$expected_private_amp_markup = sprintf(
+			'<amp-gist layout="fixed-height" data-gistid="%s" height="240"></amp-gist>',
+			basename( $private_id )
 		);
-	}
 
-	/**
-	 * Verify that a shortcode with a private URL returns the expected embed code.
-	 *
-	 * @covers ::github_gist_shortcode
-	 *
-	 * @since 7.3.0
-	 */
-	public function test_shortcodes_gist_private_full_url() {
-		$gist_id = 'xknown/fc5891af153e2cf365c9';
-		$content = '[gist https://gist.github.com/' . $gist_id . '/ ]';
-
-		// Test HTML version.
-		$shortcode_content = do_shortcode( $content );
-		$this->assertContains( '<div style="tab-size: 8" id="gist', $shortcode_content );
-
-		// Test AMP version.
-		add_filter( 'jetpack_is_amp_request', '__return_true' );
-		$shortcode_content = do_shortcode( $content );
-		$this->assertEquals(
-			sprintf( '<amp-gist layout="fixed-height" data-gistid="%s" height="240"></amp-gist>', basename( $gist_id ) ),
-			$shortcode_content
-		);
-	}
-
-	/**
-	 * Verify that a shortcode with a private URL in content returns the expected embed code.
-	 *
-	 * @covers ::github_gist_shortcode
-	 *
-	 * @since 7.3.0
-	 */
-	public function test_shortcodes_gist_private_full_url_in_content() {
-		$gist_id = 'xknown/fc5891af153e2cf365c9';
-		$content = '[gist]https://gist.github.com/' . $gist_id . '[/gist]';
-
-		// Test HTML version.
-		$shortcode_content = do_shortcode( $content );
-		$this->assertContains( '<div style="tab-size: 8" id="gist', $shortcode_content );
-
-		// Test AMP version.
-		add_filter( 'jetpack_is_amp_request', '__return_true' );
-		$shortcode_content = do_shortcode( $content );
-		$this->assertEquals(
-			sprintf( '<amp-gist layout="fixed-height" data-gistid="%s" height="240"></amp-gist>', basename( $gist_id ) ),
-			$shortcode_content
-		);
-	}
-
-	/**
-	 * Verify that content with a full Gist URL on its own line gets replaced by the embed.
-	 *
-	 * @covers ::github_gist_shortcode
-	 *
-	 * @since 6.6.0
-	 */
-	public function test_shortcodes_gist_oembed_to_embed() {
-		global $post;
-
-		$gist_id = '57cc50246aab776e110060926a2face2';
-		$url     = 'https://gist.github.com/' . $gist_id;
-		$post    = $this->factory()->post->create_and_get( array( 'post_content' => $url ) );
-
-		do_action( 'init' );
-		setup_postdata( $post );
-
-		// Test HTML version.
-		ob_start();
-		the_content();
-		$actual = ob_get_clean();
-		$this->assertContains( '<div style="tab-size: 8" id="gist', $actual );
-
-		// Test AMP version.
-		add_filter( 'jetpack_is_amp_request', '__return_true' );
-		ob_start();
-		the_content();
-		$actual = ob_get_clean();
-		$this->assertEquals(
-			wpautop( sprintf( '<amp-gist layout="fixed-height" data-gistid="%s" height="240"></amp-gist>', basename( $gist_id ) ) ),
-			$actual
-		);
-	}
-
-	/**
-	 * Verify that content with a Gist URL pointing to a specific file gets replaced by the embed to that file.
-	 *
-	 * @covers ::github_gist_shortcode
-	 *
-	 * @since 6.6.0
-	 */
-	public function test_shortcodes_gist_file_to_embed() {
-		global $post;
-
-		$gist_id = 'jeherve/57cc50246aab776e110060926a2face2';
-		$file    = 'wp-config-php';
-		$url     = 'https://gist.github.com/' . $gist_id . '#file-' . $file;
-		$post    = $this->factory()->post->create_and_get( array( 'post_content' => $url ) );
-
-		do_action( 'init' );
-		setup_postdata( $post );
-
-		// Test HTML version.
-		ob_start();
-		the_content();
-		$actual = ob_get_clean();
-		$this->assertContains( '<div style="tab-size: 8" id="gist', $actual );
-
-		// Test AMP version.
-		add_filter( 'jetpack_is_amp_request', '__return_true' );
-		ob_start();
-		the_content();
-		$actual = ob_get_clean();
-		$this->assertEquals(
-			wpautop( sprintf( '<amp-gist layout="fixed-height" data-gistid="%s" height="240" data-file="wp-config.php"></amp-gist>', basename( $gist_id ) ) ),
-			$actual
-		);
-	}
-
-	/**
-	 * Verify that gist URLs in shortcode preserves tab spacing.
-	 *
-	 * @covers ::github_gist_shortcode
-	 *
-	 * @since 7.9.0
-	 */
-	public function test_shortcodes_gist_with_tab_size() {
-		$gist_id = '57cc50246aab776e110060926a2face2';
-		$content = '[gist https://gist.github.com/' . $gist_id . '/?ts=4]';
-
-		// Test HTML version.
-		$shortcode_content = do_shortcode( $content );
-		$this->assertContains( '<div style="tab-size: 4" id="gist', $shortcode_content );
-
-		// Test AMP version *lacks* tab size.
-		add_filter( 'jetpack_is_amp_request', '__return_true' );
-		$shortcode_content = do_shortcode( $content );
-		$this->assertEquals(
-			sprintf( '<amp-gist layout="fixed-height" data-gistid="%s" height="240"></amp-gist>', basename( $gist_id ) ),
-			$shortcode_content
-		);
-	}
-
-	/**
-	 * Verify that gist URLs in shortcode content preserves tab spacing.
-	 *
-	 * @covers ::github_gist_shortcode
-	 *
-	 * @since 7.9.0
-	 */
-	public function test_shortcodes_gist_full_url_with_tab_size_in_content() {
-		$gist_id = '57cc50246aab776e110060926a2face2';
-		$content = '[gist]https://gist.github.com/' . $gist_id . '/?ts=4[/gist]';
-
-		// Test HTML version.
-		$shortcode_content = do_shortcode( $content );
-		$this->assertContains( '<div style="tab-size: 4" id="gist', $shortcode_content );
-
-		// Test AMP version *lacks* tab size.
-		add_filter( 'jetpack_is_amp_request', '__return_true' );
-		$shortcode_content = do_shortcode( $content );
-		$this->assertEquals(
-			sprintf( '<amp-gist layout="fixed-height" data-gistid="%s" height="240"></amp-gist>', basename( $gist_id ) ),
-			$shortcode_content
-		);
-	}
-
-	/**
-	 * Verify that gist URLs in shortcode allows tab size as an attribute.
-	 *
-	 * @covers ::github_gist_shortcode
-	 *
-	 * @since 7.9.0
-	 */
-	public function test_shortcodes_gist_with_tab_size_in_attributes() {
-		$gist_id = '57cc50246aab776e110060926a2face2';
-		$content = '[gist https://gist.github.com/' . $gist_id . '/?ts=2 ts=4]';
-
-		// Test HTML version.
-		$shortcode_content = do_shortcode( $content );
-		$this->assertContains( '<div style="tab-size: 4" id="gist', $shortcode_content );
-
-		// Test AMP version *lacks* tab size.
-		add_filter( 'jetpack_is_amp_request', '__return_true' );
-		$shortcode_content = do_shortcode( $content );
-		$this->assertEquals(
-			sprintf( '<amp-gist layout="fixed-height" data-gistid="%s" height="240"></amp-gist>', basename( $gist_id ) ),
-			$shortcode_content
-		);
-	}
-
-	/**
-	 * Verify that gist URLs in shortcode has their tab size overridden by attributes.
-	 *
-	 * @covers ::github_gist_shortcode
-	 *
-	 * @since 7.9.0
-	 */
-	public function test_shortcodes_gist_with_tab_size_in_attributes_override() {
-		$gist_id = '57cc50246aab776e110060926a2face2';
-		$content = '[gist ' . $gist_id . ' ts=4]';
-
-		// Test HTML version.
-		$shortcode_content = do_shortcode( $content );
-		$this->assertContains( '<div style="tab-size: 4" id="gist', $shortcode_content );
-
-		// Test AMP version *lacks* tab size.
-		add_filter( 'jetpack_is_amp_request', '__return_true' );
-		$shortcode_content = do_shortcode( $content );
-		$this->assertEquals(
-			sprintf( '<amp-gist layout="fixed-height" data-gistid="%s" height="240"></amp-gist>', basename( $gist_id ) ),
-			$shortcode_content
-		);
-	}
-
-	/**
-	 * Verify that content with a full Gist URL on its own line preserves tab spacing.
-	 *
-	 * @covers ::github_gist_shortcode
-	 *
-	 * @since 7.9.0
-	 */
-	public function test_shortcodes_gist_oembed_with_tab_size() {
-		global $post;
-
-		$gist_id = '57cc50246aab776e110060926a2face2';
-		$url     = 'https://gist.github.com/' . $gist_id . '/?ts=4';
-		$post    = $this->factory()->post->create_and_get( array( 'post_content' => $url ) );
-
-		do_action( 'init' );
-		setup_postdata( $post );
-
-		// Test HTML version.
-		ob_start();
-		the_content();
-		$actual = ob_get_clean();
-		$this->assertContains( '<div style="tab-size: 4" id="gist', $actual );
-
-		// Test AMP version *lacks* tab size.
-		add_filter( 'jetpack_is_amp_request', '__return_true' );
-		ob_start();
-		the_content();
-		$actual = ob_get_clean();
-		$this->assertEquals(
-			wpautop( sprintf( '<amp-gist layout="fixed-height" data-gistid="%s" height="240"></amp-gist>', basename( $gist_id ) ) ),
-			$actual
+		return array(
+			'empty gist'                                   => array(
+				'[gist]',
+				'<!-- Missing Gist ID -->',
+			),
+			'invalid id'                                   => array(
+				'[gist !^#*@$]',
+				'<!-- Invalid Gist ID -->',
+			),
+			'public id'                                    => array(
+				sprintf( '[gist]%s[/gist]', $public_id ),
+				$expected_html_markup,
+				$expected_public_amp_markup,
+			),
+			'public id as attribute'                       => array(
+				sprintf( '[gist %s]', $public_id ),
+				$expected_html_markup,
+				$expected_public_amp_markup,
+			),
+			'private id'                                   => array(
+				sprintf( '[gist]%s[/gist]', $private_id ),
+				$expected_html_markup,
+				$expected_private_amp_markup,
+			),
+			'private id as attribute'                      => array(
+				sprintf( '[gist %s]', $private_id ),
+				$expected_html_markup,
+				$expected_private_amp_markup,
+			),
+			'public id with username'                      => array(
+				sprintf( '[gist %s]', $public_w_username ),
+				$expected_html_markup,
+				$expected_public_amp_markup,
+			),
+			'private id with username'                     => array(
+				sprintf( '[gist %s]', $private_w_username ),
+				$expected_html_markup,
+				$expected_private_amp_markup,
+			),
+			'no username, direct file'                     => array(
+				sprintf( '[gist https://gist.github.com/%1$s%2$s]', $public_id, $file_name_slug ),
+				$expected_html_markup,
+				sprintf(
+					'<amp-gist layout="fixed-height" data-gistid="%1$s" height="240" data-file="%2$s"></amp-gist>',
+					$public_id,
+					$file_name
+				),
+			),
+			'username, direct file'                        => array(
+				sprintf( '[gist https://gist.github.com/%1$s%2$s]', $public_w_username, $file_name_slug ),
+				$expected_html_markup,
+				sprintf(
+					'<amp-gist layout="fixed-height" data-gistid="%1$s" height="240" data-file="%2$s"></amp-gist>',
+					basename( $public_id ),
+					$file_name
+				),
+			),
+			'invalid raw'                                  => array(
+				sprintf( '[gist %s/raw?]', $private_w_username ),
+				'<!-- Invalid Gist ID -->',
+			),
+			'non-gist URL'                                 => array(
+				'[gist http://wordpress.com/]',
+				'<!-- Invalid Gist ID -->',
+			),
+			'public id in full URL as attribute'           => array(
+				sprintf( '[gist https://gist.github.com/%s/]', $public_id ),
+				$expected_html_markup,
+				$expected_public_amp_markup,
+			),
+			'public id in full URL in shortcode content'   => array(
+				sprintf( '[gist]https://gist.github.com/%s/[/gist]', $public_id ),
+				$expected_html_markup,
+				$expected_public_amp_markup,
+			),
+			'private id in full URL as attribute'          => array(
+				sprintf( '[gist https://gist.github.com/%s/]', $private_w_username ),
+				$expected_html_markup,
+				$expected_private_amp_markup,
+			),
+			'private id in full URL in shortcode content'  => array(
+				sprintf( '[gist]https://gist.github.com/%s/[/gist]', $private_w_username ),
+				$expected_html_markup,
+				$expected_private_amp_markup,
+			),
+			'custom tab size in full URL as attribute'     => array(
+				sprintf( '[gist https://gist.github.com/%s/?ts=4]', $public_id ),
+				'<div style="tab-size: 4" id="gist',
+				$expected_public_amp_markup,
+			),
+			'custom tab size in full URL in shortcode content' => array(
+				sprintf( '[gist]https://gist.github.com/%s/?ts=4[/gist]', $public_id ),
+				'<div style="tab-size: 4" id="gist',
+				$expected_public_amp_markup,
+			),
+			'tab attribute override on full url attribute' => array(
+				sprintf( '[gist https://gist.github.com/%s/?ts=2 ts=4]', $public_id ),
+				'<div style="tab-size: 4" id="gist',
+				$expected_public_amp_markup,
+			),
+			'tab attribute and id attribute'               => array(
+				sprintf( '[gist %s ts=4]', $public_id ),
+				'<div style="tab-size: 4" id="gist',
+				$expected_public_amp_markup,
+			),
 		);
 	}
 }

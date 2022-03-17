@@ -189,4 +189,4 @@
 		}
 	});
 
-})( this.wp, jQuery, this.wp.customize );
+})( window.wp, jQuery, window.wp.customize );

@@ -8,6 +8,8 @@
 namespace Automattic\Jetpack\Extensions\Premium_Content;
 
 use Automattic\Jetpack\Blocks;
+use Automattic\Jetpack\Extensions\Premium_Content\Subscription_Service\Token_Subscription_Service;
+use Automattic\Jetpack\Status\Host;
 use Jetpack_Gutenberg;
 
 require_once dirname( __DIR__ ) . '/_inc/subscription-service/include.php';
@@ -21,7 +23,7 @@ const LOGIN_BUTTON_NAME = 'premium-content/login-button';
  */
 function register_login_button_block() {
 	// Only load this block on WordPress.com.
-	if ( ( defined( 'IS_WPCOM' ) && IS_WPCOM ) || jetpack_is_atomic_site() ) {
+	if ( ( defined( 'IS_WPCOM' ) && IS_WPCOM ) || ( new Host() )->is_woa_site() ) {
 		Blocks::jetpack_register_block(
 			LOGIN_BUTTON_NAME,
 			array(
@@ -45,7 +47,11 @@ function render_login_button_block( $attributes, $content ) {
 		return '';
 	}
 
-	if ( is_user_logged_in() ) {
+	$has_auth_cookie = isset( $_COOKIE[ Token_Subscription_Service::JWT_AUTH_TOKEN_COOKIE_NAME ] );
+	// phpcs:ignore WordPress.Security.NonceVerification.Recommended
+	$has_token_parameter = isset( $_GET['token'] );
+
+	if ( is_user_logged_in() || $has_auth_cookie || $has_token_parameter ) {
 		// The viewer is logged it, so they shouldn't see the login button.
 		return '';
 	}

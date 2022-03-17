@@ -12,6 +12,7 @@ import { connect } from 'react-redux';
  */
 import { createInterpolateElement } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
+import { getRedirectUrl } from '@automattic/jetpack-components';
 
 /**
  * Internal dependencies
@@ -19,7 +20,6 @@ import { __ } from '@wordpress/i18n';
 import CompactFormToggle from 'components/form/form-toggle/compact';
 import CompactCard from 'components/card/compact';
 import { FormFieldset } from 'components/forms';
-import getRedirectUrl from 'lib/jp-redirect';
 import { withModuleSettingsFormHelpers } from 'components/module-settings/with-module-settings-form-helpers';
 import { getModule, getModuleOverride } from 'state/modules';
 import { isModuleFound as _isModuleFound } from 'state/search';

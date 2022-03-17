@@ -21,7 +21,7 @@ add_action( 'wp', array( 'Automattic\\Jetpack\\Jetpack_Lazy_Images', 'instance' 
 
 ## Development
 
-Running tests requires working `svn`, `composer` and `yarn` commands.
+Running tests requires working `svn`, `composer` and `pnpm` commands.
 
 Once these are installed, you install the composer dependencies by running:
 
@@ -35,7 +35,7 @@ The JavaScript file can be minified from the root of the Jetpack repository:
 
 ```bash
 $ cd ../../
-$ yarn build-packages
+$ pnpm build-packages
 ```
 
 ### Run PHP unit tests

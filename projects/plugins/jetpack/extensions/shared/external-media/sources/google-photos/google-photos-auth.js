@@ -51,8 +51,8 @@ function GooglePhotosAuth( props ) {
 		<div className="jetpack-external-media-auth">
 			{ isAuthing ? <AuthProgress /> : <AuthInstructions /> }
 
-			<Button isPrimary disabled={ isAuthing } onClick={ onAuthorize }>
-				{ __( 'Authorize', 'jetpack' ) }
+			<Button variant="primary" disabled={ isAuthing } onClick={ onAuthorize }>
+				{ __( 'Connect to Google Photos', 'jetpack' ) }
 			</Button>
 		</div>
 	);

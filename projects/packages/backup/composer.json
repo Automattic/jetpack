@@ -1,11 +1,16 @@
 {
 	"name": "automattic/jetpack-backup",
 	"description": "Tools to assist with backing up Jetpack sites.",
-	"type": "library",
+	"type": "jetpack-library",
 	"license": "GPL-2.0-or-later",
-	"require": {},
+	"require": {
+		"automattic/jetpack-connection": "^1.37",
+		"automattic/jetpack-sync": "^1.30"
+	},
 	"require-dev": {
-		"automattic/jetpack-changelogger": "^1.2"
+		"automattic/jetpack-changelogger": "^3.0",
+		"yoast/phpunit-polyfills": "1.0.3",
+		"automattic/wordbless": "@dev"
 	},
 	"autoload": {
 		"files": [
@@ -14,6 +19,18 @@
 		"classmap": [
 			"src/"
 		]
+	},
+	"scripts": {
+		"phpunit": [
+			"./vendor/phpunit/phpunit/phpunit --colors=always"
+		],
+		"test-coverage": [
+			"php -dpcov.directory=. ./vendor/bin/phpunit --coverage-clover \"$COVERAGE_DIR/clover.xml\""
+		],
+		"test-php": [
+			"@composer phpunit"
+		],
+		"post-update-cmd": "php -r \"copy('vendor/automattic/wordbless/src/dbless-wpdb.php', 'wordpress/wp-content/db.php');\""
 	},
 	"repositories": [
 		{
@@ -29,11 +46,20 @@
 	"extra": {
 		"autotagger": true,
 		"mirror-repo": "Automattic/jetpack-backup",
+		"textdomain": "jetpack-backup-pkg",
+		"version-constants": {
+			"::PACKAGE_VERSION": "src/class-package-version.php"
+		},
 		"changelogger": {
 			"link-template": "https://github.com/Automattic/jetpack-backup/compare/v${old}...v${new}"
 		},
 		"branch-alias": {
-			"dev-master": "1.0.x-dev"
+			"dev-master": "1.2.x-dev"
+		}
+	},
+	"config": {
+		"allow-plugins": {
+			"roots/wordpress-core-installer": true
 		}
 	}
 }

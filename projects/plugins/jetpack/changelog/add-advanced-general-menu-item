@@ -1,4 +1,0 @@
-Significance: patch
-Type: enhancement
-
-Adds Advanced General menu item that points to WP Admin regardless of whether the Advanced Dashboard toggle is enabled or not.

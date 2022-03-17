@@ -3,11 +3,14 @@
  */
 import React from 'react';
 import PropTypes from 'prop-types';
+import { __ } from '@wordpress/i18n';
 
 /**
  * Internal dependencies
  */
 import ErrorNoticeCycleConnection from './error-notice-cycle-connection';
+import { JETPACK_CONTACT_SUPPORT, JETPACK_CONTACT_BETA_SUPPORT } from 'constants/urls';
+import NoticeAction from 'components/notice/notice-action.jsx';
 import SimpleNotice from 'components/notice';
 
 export default class JetpackConnectionErrors extends React.Component {
@@ -15,7 +18,7 @@ export default class JetpackConnectionErrors extends React.Component {
 		errors: PropTypes.array.isRequired,
 	};
 
-	getAction( action, message, code, errorData ) {
+	getAction( action, message, code, errorData, link ) {
 		switch ( action ) {
 			case 'reconnect':
 				return (
@@ -26,14 +29,18 @@ export default class JetpackConnectionErrors extends React.Component {
 						action={ action }
 					/>
 				);
-			case 'display':
+			case 'support':
 				return (
 					<SimpleNotice
 						text={ message }
 						status={ 'is-error' }
 						icon={ 'link-break' }
 						showDismiss={ false }
-					/>
+					>
+						<NoticeAction href={ link } external={ true }>
+							{ __( 'Contact support', 'jetpack' ) }
+						</NoticeAction>
+					</SimpleNotice>
 				);
 		}
 
@@ -41,11 +48,16 @@ export default class JetpackConnectionErrors extends React.Component {
 	}
 
 	renderOne( error ) {
+		const supportURl = this.props.isDevVersion
+			? JETPACK_CONTACT_BETA_SUPPORT
+			: JETPACK_CONTACT_SUPPORT;
+
 		const action = this.getAction(
 			error.action,
 			error.message,
 			error.code,
-			error.hasOwnProperty( 'data' ) ? error.data : {}
+			error.hasOwnProperty( 'data' ) ? error.data : {},
+			supportURl
 		);
 
 		return null === action ? null : (

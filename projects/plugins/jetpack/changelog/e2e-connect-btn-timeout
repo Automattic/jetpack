@@ -1,4 +1,0 @@
-Significance: patch
-Type: enhancement
-
-E2E tests: Change the timeout to wait for loading animation in connection frame, before the approve button is displayed.

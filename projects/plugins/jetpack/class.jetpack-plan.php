@@ -46,6 +46,7 @@ class Jetpack_Plan {
 				'send-a-message',
 				'whatsapp-button',
 				'social-previews',
+				'videopress',
 
 				'core/video',
 				'core/cover',
@@ -64,6 +65,7 @@ class Jetpack_Plan {
 				'akismet',
 				'recurring-payments',
 				'premium-content/container',
+				'videopress',
 			),
 		),
 		'premium'  => array(
@@ -79,6 +81,7 @@ class Jetpack_Plan {
 				'simple-payments',
 				'vaultpress',
 				'videopress',
+				'republicize',
 			),
 		),
 		'security' => array(
@@ -87,6 +90,10 @@ class Jetpack_Plan {
 				'jetpack_security_daily_monthly',
 				'jetpack_security_realtime',
 				'jetpack_security_realtime_monthly',
+				'jetpack_security_t1_yearly',
+				'jetpack_security_t1_monthly',
+				'jetpack_security_t2_yearly',
+				'jetpack_security_t2_monthly',
 			),
 			'supports' => array(),
 		),
@@ -100,7 +107,6 @@ class Jetpack_Plan {
 				'ecommerce-bundle',
 				'ecommerce-bundle-monthly',
 				'ecommerce-bundle-2y',
-				'vip',
 			),
 			'supports' => array(),
 		),
@@ -109,6 +115,7 @@ class Jetpack_Plan {
 			'plans'    => array(
 				'jetpack_complete',
 				'jetpack_complete_monthly',
+				'vip',
 			),
 			'supports' => array(),
 		),
@@ -315,24 +322,27 @@ class Jetpack_Plan {
 	 * @return bool True if plan supports feature, false if not
 	 */
 	public static function supports( $feature ) {
+		// Hijack the feature eligibility check on WordPress.com sites since they are gated differently.
+		$should_wpcom_gate_feature = (
+			function_exists( 'wpcom_site_has_feature' ) &&
+			function_exists( 'wpcom_feature_exists' ) &&
+			wpcom_feature_exists( $feature )
+		);
+		if ( $should_wpcom_gate_feature ) {
+			return wpcom_site_has_feature( $feature );
+		}
+
 		// Search product bypasses plan feature check.
 		if ( 'search' === $feature && (bool) get_option( 'has_jetpack_search_product' ) ) {
 			return true;
 		}
 
-		$plan = self::get();
-
-		// Manually mapping WordPress.com features to Jetpack module slugs.
-		foreach ( $plan['features']['active'] as $wpcom_feature ) {
-			switch ( $wpcom_feature ) {
-				case 'wordads-jetpack':
-					// WordAds are supported for this site.
-					if ( 'wordads' === $feature ) {
-						return true;
-					}
-					break;
-			}
+		// As of Q3 2021 - a videopress free tier is available to all plans.
+		if ( 'videopress' === $feature ) {
+			return true;
 		}
+
+		$plan = self::get();
 
 		if (
 			in_array( $feature, $plan['supports'], true )

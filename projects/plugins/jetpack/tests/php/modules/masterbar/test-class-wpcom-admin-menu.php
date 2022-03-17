@@ -75,12 +75,18 @@ class Test_WPcom_Admin_Menu extends WP_UnitTestCase {
 	/**
 	 * Set up data.
 	 */
-	public function setUp() {
-		parent::setUp();
+	public function set_up() {
+		parent::set_up();
 		global $menu, $submenu;
 
+		$admin_menu = $this->getMockBuilder( WPcom_Admin_Menu::class )
+							->disableOriginalConstructor()
+							->setMethods( array( 'should_link_to_wp_admin' ) )
+							->getMock();
+		$admin_menu->method( 'should_link_to_wp_admin' )->willReturn( false );
+
 		// Initialize in setUp so it registers hooks for every test.
-		static::$admin_menu = WPcom_Admin_Menu::get_instance();
+		static::$admin_menu = $admin_menu::get_instance();
 
 		$menu    = static::$menu_data;
 		$submenu = static::$submenu_data;
@@ -89,19 +95,15 @@ class Test_WPcom_Admin_Menu extends WP_UnitTestCase {
 	}
 
 	/**
-	 * Test get_instance.
+	 * Tests get_preferred_view
 	 *
-	 * @covers ::get_instance
-	 * @covers ::__construct
+	 * @covers ::get_preferred_view
 	 */
-	public function test_get_instance() {
-		$instance = WPcom_Admin_Menu::get_instance();
-
-		$this->assertInstanceOf( WPcom_Admin_Menu::class, $instance );
-		$this->assertSame( $instance, static::$admin_menu );
-
-		$this->assertSame( 99998, has_action( 'admin_menu', array( $instance, 'reregister_menu_items' ) ) );
-		$this->assertSame( 10, has_action( 'admin_enqueue_scripts', array( $instance, 'enqueue_scripts' ) ) );
+	public function test_get_preferred_view() {
+		static::$admin_menu->set_preferred_view( 'themes.php', 'unknown' );
+		$this->assertSame( 'default', static::$admin_menu->get_preferred_view( 'themes.php' ) );
+		static::$admin_menu->set_preferred_view( 'plugins.php', 'classic' );
+		$this->assertSame( 'default', static::$admin_menu->get_preferred_view( 'plugins.php' ) );
 	}
 
 	/**
@@ -181,7 +183,9 @@ class Test_WPcom_Admin_Menu extends WP_UnitTestCase {
 			'
 <div class="site__info">
 	<div class="site__title">' . get_option( 'blogname' ) . '</div>
-	<div class="site__domain">' . static::$domain . "</div>\n\t</div>",
+	<div class="site__domain">' . static::$domain . '</div>
+
+</div>',
 			'read',
 			$home_url,
 			'site-card',
@@ -208,28 +212,13 @@ class Test_WPcom_Admin_Menu extends WP_UnitTestCase {
 		static::$admin_menu->add_site_card_menu();
 
 		$menu = static::$admin_menu->set_site_card_menu_class( $menu );
-		$this->assertNotContains( 'has-site-icon', $menu[1][4] );
-
-		// Atomic fallback site icon counts as no site icon.
-		add_filter( 'get_site_icon_url', array( $this, 'wpcomsh_site_icon_url' ) );
-		$menu = static::$admin_menu->set_site_card_menu_class( $menu );
-		remove_filter( 'get_site_icon_url', array( $this, 'wpcomsh_site_icon_url' ) );
-		$this->assertNotContains( 'has-site-icon', $menu[1][4] );
+		$this->assertStringNotContainsString( 'has-site-icon', $menu[1][4] );
 
 		// Custom site icon triggers CSS class.
 		add_filter( 'get_site_icon_url', array( $this, 'custom_site_icon_url' ) );
 		$menu = static::$admin_menu->set_site_card_menu_class( $menu );
 		remove_filter( 'get_site_icon_url', array( $this, 'custom_site_icon_url' ) );
-		$this->assertContains( 'has-site-icon', $menu[1][4] );
-	}
-
-	/**
-	 * Shim wpcomsh fallback site icon.
-	 *
-	 * @return string
-	 */
-	public function wpcomsh_site_icon_url() {
-		return 'https://s0.wp.com/i/webclip.png';
+		$this->assertStringContainsString( 'has-site-icon', $menu[1][4] );
 	}
 
 	/**
@@ -251,7 +240,7 @@ class Test_WPcom_Admin_Menu extends WP_UnitTestCase {
 
 		static::$admin_menu->add_upgrades_menu();
 
-		$this->assertSame( 'https://wordpress.com/plans/my-plan/' . static::$domain, $submenu['paid-upgrades.php'][1][2] );
+		$this->assertSame( 'https://wordpress.com/plans/' . static::$domain, $submenu['paid-upgrades.php'][1][2] );
 		$this->assertSame( 'https://wordpress.com/domains/manage/' . static::$domain, $submenu['paid-upgrades.php'][2][2] );
 
 		/** This filter is already documented in modules/masterbar/admin-menu/class-atomic-admin-menu.php */
@@ -264,6 +253,19 @@ class Test_WPcom_Admin_Menu extends WP_UnitTestCase {
 	}
 
 	/**
+	 * Tests add_inbox_menu
+	 *
+	 * @covers ::add_inbox_menu
+	 */
+	public function test_add_inbox_menu() {
+		global $menu;
+
+		static::$admin_menu->add_inbox_menu();
+
+		$this->assertSame( 'https://wordpress.com/inbox/' . static::$domain, $menu['4.64424'][2] );
+	}
+
+	/**
 	 * Tests add_users_menu
 	 *
 	 * @covers ::add_users_menu
@@ -271,36 +273,10 @@ class Test_WPcom_Admin_Menu extends WP_UnitTestCase {
 	public function test_add_users_menu() {
 		global $submenu;
 
-		static::$admin_menu->add_users_menu( true );
-
-		// Check that menu always links to Calypso.
+		// Check that menu always links to Calypso when no preferred view has been set.
+		static::$admin_menu->set_preferred_view( 'users.php', 'unknown' );
+		static::$admin_menu->add_users_menu();
 		$this->assertSame( 'https://wordpress.com/people/team/' . static::$domain, array_shift( $submenu['users.php'] )[2] );
-	}
-
-	/**
-	 * Tests add_tools_menu - "Show Advanced Dashboard Pages" off
-	 *
-	 * @covers ::add_tools_menu
-	 */
-	public function test_add_tools_menu() {
-		global $submenu;
-
-		static::$admin_menu->add_tools_menu( false, false );
-		$this->assertSame( 'https://wordpress.com/import/' . static::$domain, $submenu['tools.php'][3][2] );
-		$this->assertSame( 'https://wordpress.com/export/' . static::$domain, $submenu['tools.php'][4][2] );
-	}
-
-	/**
-	 * Tests add_tools_menu - "Show Advanced Dashboard Pages" on
-	 *
-	 * @covers ::add_tools_menu
-	 */
-	public function test_add_tools_menu_advanced() {
-		global $submenu;
-
-		static::$admin_menu->add_tools_menu( true, true );
-		$this->assertSame( 'import.php', $submenu['tools.php'][3][2] );
-		$this->assertSame( 'export.php', $submenu['tools.php'][4][2] );
 	}
 
 	/**
@@ -313,7 +289,7 @@ class Test_WPcom_Admin_Menu extends WP_UnitTestCase {
 
 		static::$admin_menu->add_options_menu();
 
-		$this->assertSame( 'https://wordpress.com/hosting-config/' . static::$domain, $submenu['options-general.php'][6][2] );
+		$this->assertSame( 'https://wordpress.com/hosting-config/' . static::$domain, $submenu['options-general.php'][10][2] );
 	}
 
 	/**
@@ -323,23 +299,9 @@ class Test_WPcom_Admin_Menu extends WP_UnitTestCase {
 	 */
 	public function test_add_gutenberg_menus() {
 		global $menu;
-		static::$admin_menu->add_gutenberg_menus( false );
+		static::$admin_menu->add_gutenberg_menus();
 
 		// Gutenberg plugin menu should not be visible.
 		$this->assertArrayNotHasKey( 101, $menu );
-	}
-
-	/**
-	 * Tests add_plugins_menu
-	 *
-	 * @covers ::add_plugins_menu
-	 */
-	public function test_add_plugins_menu() {
-		global $menu;
-
-		static::$admin_menu->add_plugins_menu( true );
-
-		// Check Plugins menu always links to Calypso.
-		$this->assertSame( 'https://wordpress.com/plugins/' . static::$domain, $menu[65][2] );
 	}
 }

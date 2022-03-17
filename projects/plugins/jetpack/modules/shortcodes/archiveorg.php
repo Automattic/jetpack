@@ -90,13 +90,13 @@ function jetpack_archiveorg_shortcode( $atts ) {
 		$poster = '';
 	}
 
-	$url = esc_url( "https://archive.org/embed/{$id}{$autoplay}{$poster}" );
-
-	$title = esc_html__( 'Archive.org', 'jetpack' );
-
-	$html = "<div class='embed-archiveorg' style='text-align:center;'><iframe title='$title' src='$url' width='$width' height='$height' style='border:0;' webkitallowfullscreen='true' mozallowfullscreen='true' allowfullscreen></iframe></div>";
-
-	return $html;
+	return sprintf(
+		'<div class="embed-archiveorg" style="text-align:center;"><iframe title="%s" src="%s" width="%s" height="%s" style="border:0;" webkitallowfullscreen="true" mozallowfullscreen="true" allowfullscreen></iframe></div>',
+		esc_attr__( 'Archive.org', 'jetpack' ),
+		esc_url( "https://archive.org/embed/{$id}{$autoplay}{$poster}" ),
+		esc_attr( $width ),
+		esc_attr( $height )
+	);
 }
 
 add_shortcode( 'archiveorg', 'jetpack_archiveorg_shortcode' );

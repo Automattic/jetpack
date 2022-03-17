@@ -9,8 +9,11 @@ use Automattic\Jetpack\Sync\Modules;
 class WP_Test_Jetpack_Sync_Updates extends WP_Test_Jetpack_Sync_Base {
 	protected $post_id;
 
-	public function setUp() {
-		parent::setUp();
+	/**
+	 * Set up.
+	 */
+	public function set_up() {
+		parent::set_up();
 		$this->sender->reset_data();
 		wp_set_current_user( 1 );
 		$this->sender->do_sync();
@@ -26,15 +29,18 @@ class WP_Test_Jetpack_Sync_Updates extends WP_Test_Jetpack_Sync_Base {
 			$this->markTestSkipped( 'Not compatible with multisite mode' );
 		}
 
+		add_filter( 'pre_http_request', array( 'WP_Test_Jetpack_Sync_Base', 'pre_http_request_wordpress_org_updates' ), 10, 3 );
 		wp_update_plugins();
+		remove_filter( 'pre_http_request', array( 'WP_Test_Jetpack_Sync_Base', 'pre_http_request_wordpress_org_updates' ) );
+
 		$this->check_for_updates_to_sync();
 		$this->sender->do_sync();
 		$updates = $this->server_replica_storage->get_updates( 'plugins' );
 
 		$this->assertFalse( isset( $updates->no_update ) );
-		$this->assertTrue( isset( $updates->response ) );
-
 		$this->assertTrue( is_int( $updates->last_checked ) );
+
+		$this->assertArrayHasKey( 'hello', $updates->response );
 	}
 
 	public function test_update_plugins_is_synced_once() {
@@ -86,14 +92,16 @@ class WP_Test_Jetpack_Sync_Updates extends WP_Test_Jetpack_Sync_Base {
 		if ( is_multisite() ) {
 			$this->markTestSkipped( 'Not compatible with multisite mode' );
 		}
-
+		add_filter( 'pre_http_request', array( 'WP_Test_Jetpack_Sync_Base', 'pre_http_request_wordpress_org_updates' ), 10, 3 );
 		wp_update_themes();
+		remove_filter( 'pre_http_request', array( 'WP_Test_Jetpack_Sync_Base', 'pre_http_request_wordpress_org_updates' ) );
+
 		$this->check_for_updates_to_sync();
 		$this->sender->do_sync();
 		$updates = $this->server_replica_storage->get_updates( 'themes' );
 		$theme = reset( $updates->response );
 
-		$this->assertTrue( (bool) $theme['name'] );
+		$this->assertSame( 'hello', $theme['name'] );
 		$this->assertTrue( is_int( $updates->last_checked ) );
 	}
 
@@ -152,11 +160,10 @@ class WP_Test_Jetpack_Sync_Updates extends WP_Test_Jetpack_Sync_Base {
 		delete_site_transient( 'update_core' );
 		$this->server_event_storage->reset();
 
+		add_filter( 'pre_http_request', array( 'WP_Test_Jetpack_Sync_Base', 'pre_http_request_wordpress_org_updates' ), 10, 3 );
 		_maybe_update_core();
-		$core_transiant = get_site_transient( 'update_core' );
-		if ( sizeof( $core_transiant->updates ) === 1 && $core_transiant->updates[0]->response === 'latest' ) {
-			$this->markTestSkipped( 'No new updates!' );
-		}
+		remove_filter( 'pre_http_request', array( 'WP_Test_Jetpack_Sync_Base', 'pre_http_request_wordpress_org_updates' ) );
+
 		$this->sender->do_sync();
 		$updates = $this->server_replica_storage->get_updates( 'core' );
 		$this->assertTrue( is_int( $updates->last_checked ) );
@@ -164,20 +171,27 @@ class WP_Test_Jetpack_Sync_Updates extends WP_Test_Jetpack_Sync_Base {
 		// Since the transient gets updates twice and we only care about the
 		// last update we only want to see 1 sync event.
 		$events = $this->server_event_storage->get_all_events( 'jetpack_update_core_change' );
-		$this->assertEquals( count( $events ) , 1 );
+		$this->assertEquals( 1, count( $events ) );
 
 	}
 
 	public function test_sync_wp_version() {
 		global $wp_version;
 		$previous_version = $wp_version;
+		$this->sender->do_sync();
 		$this->assertEquals( $wp_version, $this->server_replica_storage->get_callable( 'wp_version' ) );
 
 		// Lets pretend that we updated the wp_version to bar.
+
 		$wp_version = 'bar';
+
+		add_filter( 'pre_http_request', array( 'WP_Test_Jetpack_Sync_Base', 'pre_http_request_wordpress_org_updates' ), 10, 3 );
 		do_action( 'upgrader_process_complete', null, array( 'action' => 'update', 'type' => 'core' ) );
+		remove_filter( 'pre_http_request', array( 'WP_Test_Jetpack_Sync_Base', 'pre_http_request_wordpress_org_updates' ) );
+
 		$this->sender->do_sync();
 		$wp_version = $previous_version;
+
 		$this->assertEquals( 'bar', $this->server_replica_storage->get_callable( 'wp_version' ) );
 	}
 
@@ -277,5 +291,24 @@ class WP_Test_Jetpack_Sync_Updates extends WP_Test_Jetpack_Sync_Base {
 
 		$this->assertTrue( (bool) $event );
 		$this->assertEquals( $event->args[0], 'foo' ); // New version
+	}
+
+	/**
+	 * Verify that all updates are returned by get_objects_by_id.
+	 */
+	public function test_get_objects_by_id_all() {
+		$module      = Modules::get_module( 'updates' );
+		$all_updates = $module->get_objects_by_id( 'update', array( 'all' ) );
+		$this->assertEquals( $module->get_all_updates(), $all_updates );
+	}
+
+	/**
+	 * Verify that get_object_by_id returns an allowed update.
+	 */
+	public function test_get_objects_by_id_singular() {
+		$module      = Modules::get_module( 'updates' );
+		$updates     = $module->get_all_updates();
+		$get_updates = $module->get_objects_by_id( 'update', array( 'core' ) );
+		$this->assertEquals( $updates['core'], $get_updates['core'] );
 	}
 }

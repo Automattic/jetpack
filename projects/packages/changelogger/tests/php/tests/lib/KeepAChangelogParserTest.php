@@ -1,11 +1,11 @@
-<?php // phpcs:ignore WordPress.Files.FileName.InvalidClassFileName
+<?php
 /**
  * Tests for the keepachangelog.com parser.
  *
  * @package automattic/jetpack-changelogger
  */
 
-// phpcs:disable WordPress.NamingConventions.ValidVariableName, Squiz.Commenting.VariableComment.Missing
+// phpcs:disable Squiz.Commenting.VariableComment.Missing
 
 namespace Automattic\Jetpack\Changelog\Tests;
 

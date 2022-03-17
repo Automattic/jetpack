@@ -1,7 +1,7 @@
 /**
  * External dependencies
  */
-import getRedirectUrl from 'lib/jp-redirect';
+import { getRedirectUrl } from '@automattic/jetpack-components';
 
 export const imagePath = window.Initial_State.pluginBaseUrl + '/images/';
 export const JETPACK_CONTACT_SUPPORT = getRedirectUrl( 'jetpack-contact-support' );

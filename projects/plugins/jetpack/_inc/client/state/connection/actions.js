@@ -19,18 +19,16 @@ import {
 	DISCONNECT_SITE,
 	DISCONNECT_SITE_FAIL,
 	DISCONNECT_SITE_SUCCESS,
-	AUTH_USER_IN_PLACE,
-	AUTH_USER_IN_PLACE_SUCCESS,
+	CONNECT_USER,
+	RESET_CONNECT_USER,
 	UNLINK_USER,
 	UNLINK_USER_FAIL,
 	UNLINK_USER_SUCCESS,
 	SITE_RECONNECT,
 	SITE_RECONNECT_FAIL,
-	SITE_RECONNECT_SUCCESS,
+	JETPACK_CONNECTION_HAS_SEEN_WC_CONNECTION_MODAL,
 } from 'state/action-types';
-import restApi from 'rest-api';
-import { isSafari, doNotUseConnectionIframe } from 'state/initial-state';
-import { isReconnectingSite } from 'state/connection/reducer';
+import restApi from '@automattic/jetpack-api';
 
 export const fetchSiteConnectionStatus = () => {
 	return dispatch => {
@@ -151,6 +149,8 @@ export const disconnectSite = ( reloadAfter = false ) => {
 
 				if ( reloadAfter ) {
 					window.location.reload();
+				} else {
+					dispatch( fetchSiteConnectionStatus() );
 				}
 			} )
 			.catch( error => {
@@ -221,45 +221,25 @@ export const unlinkUser = () => {
 	};
 };
 
-export const authorizeUserInPlace = () => {
+export const connectUser = ( featureLabel = null ) => {
 	return dispatch => {
 		dispatch( {
-			type: AUTH_USER_IN_PLACE,
+			type: CONNECT_USER,
+			featureLabel,
 		} );
 	};
 };
 
-export const authorizeUserInPlaceSuccess = () => {
-	return ( dispatch, getState ) => {
-		// part of the reconnection flow
-		if ( isReconnectingSite( getState() ) ) {
-			// Some context on what is happening here:
-			// Normally, we would dispatch the above actions but there is an issue.
-			// Currently the following are bound to the initial state:
-			// - connection errors
-			// - whether the user is master (will become after reconnection)
-			// - wpcom user data etc
-			// In order to present the correct data after a reconnection we would need
-			// to either reload the page or proceed with a refactoring of the initial state
-			// and move all connection related functionality here.
-			// As a first step we are reloading the current page.
-			window.location.reload();
-		} else {
-			dispatch( {
-				type: AUTH_USER_IN_PLACE_SUCCESS,
-			} );
-			dispatch(
-				createNotice( 'is-success', __( 'Linked to WordPress.com.', 'jetpack' ), {
-					id: 'link-user-in-place',
-					duration: 2000,
-				} )
-			);
-		}
+export const resetConnectUser = () => {
+	return dispatch => {
+		dispatch( {
+			type: RESET_CONNECT_USER,
+		} );
 	};
 };
 
 export const reconnectSite = () => {
-	return ( dispatch, getState ) => {
+	return dispatch => {
 		dispatch( {
 			type: SITE_RECONNECT,
 		} );
@@ -275,16 +255,14 @@ export const reconnectSite = () => {
 				const authorizeUrl = connectionStatusData.authorizeUrl;
 				// status: in_progress, aka user needs to re-connect their WP.com account.
 				if ( 'in_progress' === status ) {
-					// Redirect user to authorize WP.com if in-place connection is restricted.
-					if ( isSafari( getState() ) || doNotUseConnectionIframe( getState() ) ) {
-						return window.location.replace( authorizeUrl );
-					}
-					// Set connectUrl and initiate in-place auth flow.
+					dispatch( { type: UNLINK_USER_SUCCESS } );
+
+					// Set connectUrl and initiate the connection flow.
 					dispatch( {
 						type: CONNECT_URL_FETCH_SUCCESS,
 						connectUrl: authorizeUrl,
 					} );
-					dispatch( authorizeUserInPlace() );
+					dispatch( connectUser() );
 				} else {
 					window.location.reload();
 				}
@@ -307,5 +285,15 @@ export const reconnectSite = () => {
 					)
 				);
 			} );
+	};
+};
+
+export const setHasSeenWCConnectionModal = () => {
+	return dispatch => {
+		dispatch( {
+			type: JETPACK_CONNECTION_HAS_SEEN_WC_CONNECTION_MODAL,
+		} );
+
+		return restApi.setHasSeenWCConnectionModal();
 	};
 };

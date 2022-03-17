@@ -1,9 +1,18 @@
 <?php
+/**
+ * Tracks class.
+ *
+ * @package automattic/jetpack
+ */
+
 namespace Automattic\Jetpack\Plugin;
 
-use Automattic\Jetpack\Tracking as Tracks;
 use Automattic\Jetpack\Connection\Manager as Connection_Manager;
+use Automattic\Jetpack\Tracking as Tracks;
 
+/**
+ * Tracks class.
+ */
 class Tracking {
 	/**
 	 * Tracking object.
@@ -20,6 +29,9 @@ class Tracking {
 	 */
 	private $initalized = false;
 
+	/**
+	 * Initialization function.
+	 */
 	public function init() {
 		if ( $this->initalized ) {
 			return;
@@ -29,9 +41,6 @@ class Tracking {
 
 		// For tracking stuff via js/ajax.
 		add_action( 'admin_enqueue_scripts', array( $this->tracking, 'enqueue_tracks_scripts' ) );
-
-		// Universal ajax callback for all tracking events triggered via js.
-		add_action( 'wp_ajax_jetpack_tracks', array( $this->tracking, 'ajax_tracks' ) );
 
 		add_action( 'jetpack_activate_module', array( $this, 'jetpack_activate_module' ), 1, 1 );
 		add_action( 'jetpack_deactivate_module', array( $this, 'jetpack_deactivate_module' ), 1, 1 );
@@ -104,7 +113,7 @@ class Tracking {
 	 *
 	 * @access public
 	 *
-	 * @param string $action Type of secret (one of 'register', 'authorize', 'publicize').
+	 * @param string   $action Type of secret (one of 'register', 'authorize', 'publicize').
 	 * @param \WP_User $user The user object.
 	 */
 	public function jetpack_verify_secrets_begin( $action, $user ) {
@@ -116,7 +125,7 @@ class Tracking {
 	 *
 	 * @access public
 	 *
-	 * @param string $action Type of secret (one of 'register', 'authorize', 'publicize').
+	 * @param string   $action Type of secret (one of 'register', 'authorize', 'publicize').
 	 * @param \WP_User $user The user object.
 	 */
 	public function jetpack_verify_secrets_success( $action, $user ) {
@@ -128,8 +137,8 @@ class Tracking {
 	 *
 	 * @access public
 	 *
-	 * @param string $action Type of secret (one of 'register', 'authorize', 'publicize').
-	 * @param \WP_User $user The user object.
+	 * @param string    $action Type of secret (one of 'register', 'authorize', 'publicize').
+	 * @param \WP_User  $user The user object.
 	 * @param \WP_Error $error Error object.
 	 */
 	public function jetpack_verify_secrets_fail( $action, $user, $error ) {
@@ -169,11 +178,14 @@ class Tracking {
 	 * @param string|int $error      The error code.
 	 * @param \WP_Error  $registered The error object.
 	 */
-	function jetpack_connection_register_fail( $error, $registered ) {
-		$this->tracking->record_user_event( 'jpc_register_fail', array(
-			'error_code'    => $error,
-			'error_message' => $registered->get_error_message()
-		) );
+	public function jetpack_connection_register_fail( $error, $registered ) {
+		$this->tracking->record_user_event(
+			'jpc_register_fail',
+			array(
+				'error_code'    => $error,
+				'error_message' => $registered->get_error_message(),
+			)
+		);
 	}
 
 	/**
@@ -183,10 +195,13 @@ class Tracking {
 	 *
 	 * @param string $from The 'from' GET parameter.
 	 */
-	function jetpack_connection_register_success( $from ) {
-		$this->tracking->record_user_event( 'jpc_register_success', array(
-			'from' => $from
-		) );
+	public function jetpack_connection_register_success( $from ) {
+		$this->tracking->record_user_event(
+			'jpc_register_success',
+			array(
+				'from' => $from,
+			)
+		);
 	}
 
 	/**
@@ -220,7 +235,7 @@ class Tracking {
 	 *
 	 * @access public
 	 */
-	function jetpack_verify_api_authorization_request_error_double_encode() {
+	public function jetpack_verify_api_authorization_request_error_double_encode() {
 		$this->tracking->record_user_event( 'error_double_encode' );
 	}
 }

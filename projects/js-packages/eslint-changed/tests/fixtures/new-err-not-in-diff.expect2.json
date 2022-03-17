@@ -1,0 +1,13 @@
+[
+	{
+		"filePath": "/tmp/x/t/foo.js",
+		"messages": [],
+		"errorCount": 0,
+		"fatalErrorCount": 0,
+		"warningCount": 0,
+		"fixableErrorCount": 0,
+		"fixableWarningCount": 0,
+		"source": "// ...\n// ...\n// ...\n// ...\n// ...\n// ...\n// ...\n// ...\n// ...\n// ...\n// ...\n// ...\n// ...\n// ...\n// ...\n// ...\n// ...\n// ...\n// ...\n// ...\n// ...\n\nconsole.log( x )\n",
+		"usedDeprecatedRules": []
+	}
+]

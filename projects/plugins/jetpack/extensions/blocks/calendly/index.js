@@ -20,7 +20,7 @@ import { getIconColor } from '../../shared/block-icons';
  */
 import './editor.scss';
 
-export const CALENDLY_EXAMPLE_URL = 'https://calendly.com/wordpresscom/jetpack-block-example';
+export const CALENDLY_EXAMPLE_URL = 'https://calendly.com/wpcom/jetpack-block-example';
 
 export const innerButtonBlock = {
 	name: 'jetpack/button',

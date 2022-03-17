@@ -21,7 +21,7 @@ import {
 	JETPACK_SITE_CONNECTED_PLUGINS_FETCH_RECEIVE,
 	JETPACK_SITE_CONNECTED_PLUGINS_FETCH_FAIL,
 } from 'state/action-types';
-import restApi from 'rest-api';
+import restApi from '@automattic/jetpack-api';
 
 export const fetchSiteData = () => {
 	return dispatch => {

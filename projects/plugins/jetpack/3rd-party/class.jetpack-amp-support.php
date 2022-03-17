@@ -96,6 +96,16 @@ class Jetpack_AMP_Support {
 	}
 
 	/**
+	 * Is AMP available for this request
+	 * This returns false for admin, CLI requests etc.
+	 *
+	 * @return bool is_amp_available
+	 */
+	public static function is_amp_available() {
+		return ( function_exists( 'amp_is_available' ) && amp_is_available() );
+	}
+
+	/**
 	 * Does the page return AMP content.
 	 *
 	 * @return bool $is_amp_request Are we on am AMP view.
@@ -111,6 +121,17 @@ class Jetpack_AMP_Support {
 		 * @param boolean $is_amp_request Is this request supposed to return valid AMP content?
 		 */
 		return apply_filters( 'jetpack_is_amp_request', $is_amp_request );
+	}
+
+	/**
+	 * Determines whether the legacy AMP post templates are being used.
+	 *
+	 * @since 10.6.0
+	 *
+	 * @return bool
+	 */
+	public static function is_amp_legacy() {
+		return ( function_exists( 'amp_is_legacy' ) && amp_is_legacy() );
 	}
 
 	/**
@@ -416,7 +437,10 @@ class Jetpack_AMP_Support {
 	 * Enqueues the AMP specific sharing styles for the sharing icons.
 	 */
 	public static function amp_enqueue_sharing_css() {
-		if ( self::is_amp_request() ) {
+		if (
+			self::is_amp_request()
+			&& ! self::is_amp_legacy()
+		) {
 			wp_enqueue_style( 'sharedaddy-amp', plugin_dir_url( __DIR__ ) . 'modules/sharedaddy/amp-sharing.css', array( 'social-logos' ), JETPACK__VERSION );
 		}
 	}
@@ -426,7 +450,7 @@ class Jetpack_AMP_Support {
 	 */
 	public static function amp_reader_sharing_css() {
 		// If sharing is not enabled, we should not proceed to render the CSS.
-		if ( ! defined( 'JETPACK_SOCIAL_LOGOS_DIR' ) | ! defined( 'JETPACK_SOCIAL_LOGOS_URL' ) || ! defined( 'WP_SHARING_PLUGIN_DIR' ) ) {
+		if ( ! defined( 'JETPACK_SOCIAL_LOGOS_DIR' ) || ! defined( 'JETPACK_SOCIAL_LOGOS_URL' ) || ! defined( 'WP_SHARING_PLUGIN_DIR' ) ) {
 			return;
 		}
 

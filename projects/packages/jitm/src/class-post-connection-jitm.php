@@ -13,13 +13,14 @@ use Automattic\Jetpack\Connection\Manager;
 use Automattic\Jetpack\Device_Detection;
 use Automattic\Jetpack\Partner;
 use Automattic\Jetpack\Redirect;
-use Automattic\Jetpack\Status;
 use Automattic\Jetpack\Tracking;
 
 /**
  * Jetpack just in time messaging through out the admin
  *
- * @since 5.6.0
+ * @since 1.1.0
+ *
+ * @since-jetpack 5.6.0
  */
 class Post_Connection_JITM extends JITM {
 
@@ -42,7 +43,8 @@ class Post_Connection_JITM extends JITM {
 	/**
 	 * Prepare actions according to screen and post type.
 	 *
-	 * @since 3.8.2
+	 * @since 1.1.0
+	 * @since-jetpack 3.8.2
 	 *
 	 * @uses Jetpack_Autoupdate::get_possible_failures()
 	 *
@@ -79,10 +81,10 @@ class Post_Connection_JITM extends JITM {
 
 		switch ( $base_location['country'] ) {
 			case 'US':
-				$content->message = esc_html__( 'New free service: Show USPS shipping rates on your store! Added bonus: print shipping labels without leaving WooCommerce.', 'jetpack' );
+				$content->message = esc_html__( 'New free service: Show USPS shipping rates on your store! Added bonus: print shipping labels without leaving WooCommerce.', 'jetpack-jitm' );
 				break;
 			case 'CA':
-				$content->message = esc_html__( 'New free service: Show Canada Post shipping rates on your store!', 'jetpack' );
+				$content->message = esc_html__( 'New free service: Show Canada Post shipping rates on your store!', 'jetpack-jitm' );
 				break;
 			default:
 				$content->message = '';
@@ -160,6 +162,74 @@ class Post_Connection_JITM extends JITM {
 	}
 
 	/**
+	 * A special filter used in the CTA of a JITM offering to install the Jetpack Backup plugin.
+	 *
+	 * @return string The new CTA
+	 */
+	public static function jitm_jetpack_backup_install() {
+		return wp_nonce_url(
+			add_query_arg(
+				array(
+					'jetpack-backup-action' => 'install',
+				),
+				admin_url( 'admin.php?page=jetpack' )
+			),
+			'jetpack-backup-install'
+		);
+	}
+
+	/**
+	 * A special filter used in the CTA of a JITM offering to activate the Jetpack Backup plugin.
+	 *
+	 * @return string The new CTA
+	 */
+	public static function jitm_jetpack_backup_activate() {
+		return wp_nonce_url(
+			add_query_arg(
+				array(
+					'jetpack-backup-action' => 'activate',
+				),
+				admin_url( 'admin.php?page=jetpack' )
+			),
+			'jetpack-backup-install'
+		);
+	}
+
+	/**
+	 * A special filter used in the CTA of a JITM offering to install the Jetpack Boost plugin.
+	 *
+	 * @return string The new CTA
+	 */
+	public static function jitm_jetpack_boost_install() {
+		return wp_nonce_url(
+			add_query_arg(
+				array(
+					'jetpack-boost-action' => 'install',
+				),
+				admin_url( 'admin.php?page=jetpack' )
+			),
+			'jetpack-boost-install'
+		);
+	}
+
+	/**
+	 * A special filter used in the CTA of a JITM offering to activate the Jetpack Boost plugin.
+	 *
+	 * @return string The new CTA
+	 */
+	public static function jitm_jetpack_boost_activate() {
+		return wp_nonce_url(
+			add_query_arg(
+				array(
+					'jetpack-boost-action' => 'activate',
+				),
+				admin_url( 'admin.php?page=jetpack' )
+			),
+			'jetpack-boost-install'
+		);
+	}
+
+	/**
 	 * This is an entire admin notice dedicated to messaging and handling of the case where a user is trying to delete
 	 * the connection owner.
 	 */
@@ -218,16 +288,16 @@ class Post_Connection_JITM extends JITM {
 		$user             = is_a( $connection_owner_userdata, 'WP_User' ) ? esc_html( $connection_owner_userdata->data->user_login ) : '';
 
 		echo "<div class='notice notice-warning' id='jetpack-notice-switch-connection-owner'>";
-		echo '<h2>' . esc_html__( 'Important notice about your Jetpack connection:', 'jetpack' ) . '</h2>';
+		echo '<h2>' . esc_html__( 'Important notice about your Jetpack connection:', 'jetpack-jitm' ) . '</h2>';
 		echo '<p>' . sprintf(
 			/* translators: WordPress User, if available. */
-			esc_html__( 'Warning! You are about to delete the Jetpack connection owner (%s) for this site, which may cause some of your Jetpack features to stop working.', 'jetpack' ),
+			esc_html__( 'Warning! You are about to delete the Jetpack connection owner (%s) for this site, which may cause some of your Jetpack features to stop working.', 'jetpack-jitm' ),
 			esc_html( $user )
 		) . '</p>';
 
 		if ( ! empty( $connected_admins ) && count( $connected_admins ) > 1 ) {
 			echo '<form id="jp-switch-connection-owner" action="" method="post">';
-			echo "<label for='owner'>" . esc_html__( 'You can choose to transfer connection ownership to one of these already-connected admins:', 'jetpack' ) . ' </label>';
+			echo "<label for='owner'>" . esc_html__( 'You can choose to transfer connection ownership to one of these already-connected admins:', 'jetpack-jitm' ) . ' </label>';
 
 			$connected_admin_ids = array_map(
 				function ( $connected_admin ) {
@@ -245,7 +315,7 @@ class Post_Connection_JITM extends JITM {
 			);
 
 			echo '<p>';
-			submit_button( esc_html__( 'Set new connection owner', 'jetpack' ), 'primary', 'jp-switch-connection-owner-submit', false );
+			submit_button( esc_html__( 'Set new connection owner', 'jetpack-jitm' ), 'primary', 'jp-switch-connection-owner-submit', false );
 			echo '</p>';
 
 			echo "<div id='jp-switch-user-results'></div>";
@@ -268,7 +338,7 @@ class Post_Connection_JITM extends JITM {
 								'X-WP-Nonce': "<?php echo esc_js( wp_create_nonce( 'wp_rest' ) ); ?>",
 							},
 							success: function() {
-								results.innerHTML = "<?php esc_html_e( 'Success!', 'jetpack' ); ?>";
+								results.innerHTML = "<?php esc_html_e( 'Success!', 'jetpack-jitm' ); ?>";
 								setTimeout( function() {
 									$( '#jetpack-notice-switch-connection-owner' ).hide( 'slow' );
 								}, 1000 );
@@ -284,17 +354,17 @@ class Post_Connection_JITM extends JITM {
 			</script>
 			<?php
 		} else {
-			echo '<p>' . esc_html__( 'Every Jetpack site needs at least one connected admin for the features to work properly. Please connect to your WordPress.com account via the button below. Once you connect, you may refresh this page to see an option to change the connection owner.', 'jetpack' ) . '</p>';
+			echo '<p>' . esc_html__( 'Every Jetpack site needs at least one connected admin for the features to work properly. Please connect to your WordPress.com account via the button below. Once you connect, you may refresh this page to see an option to change the connection owner.', 'jetpack-jitm' ) . '</p>';
 			$connect_url = $connection_manager->get_authorization_url();
 			$connect_url = add_query_arg( 'from', 'delete_connection_owner_notice', $connect_url );
-			echo "<a href='" . esc_url( $connect_url ) . "' target='_blank' rel='noopener noreferrer' class='button-primary'>" . esc_html__( 'Connect to WordPress.com', 'jetpack' ) . '</a>';
+			echo "<a href='" . esc_url( $connect_url ) . "' target='_blank' rel='noopener noreferrer' class='button-primary'>" . esc_html__( 'Connect to WordPress.com', 'jetpack-jitm' ) . '</a>';
 		}
 
 		echo '<p>';
 		printf(
 			wp_kses(
 				/* translators: URL to Jetpack support doc regarding the primary user. */
-				__( "<a href='%s' target='_blank' rel='noopener noreferrer'>Learn more</a> about the connection owner and what will break if you do not have one.", 'jetpack' ),
+				__( "<a href='%s' target='_blank' rel='noopener noreferrer'>Learn more</a> about the connection owner and what will break if you do not have one.", 'jetpack-jitm' ),
 				array(
 					'a' => array(
 						'href'   => true,
@@ -310,7 +380,7 @@ class Post_Connection_JITM extends JITM {
 		printf(
 			wp_kses(
 				/* translators: URL to contact Jetpack support. */
-				__( 'As always, feel free to <a href="%s" target="_blank" rel="noopener noreferrer">contact our support team</a> if you have any questions.', 'jetpack' ),
+				__( 'As always, feel free to <a href="%s" target="_blank" rel="noopener noreferrer">contact our support team</a> if you have any questions.', 'jetpack-jitm' ),
 				array(
 					'a' => array(
 						'href'   => true,
@@ -364,6 +434,14 @@ class Post_Connection_JITM extends JITM {
 		add_filter( 'jitm_jetpack_creative_mail_install', array( $this, 'jitm_jetpack_creative_mail_install' ) );
 		add_filter( 'jitm_jetpack_creative_mail_activate', array( $this, 'jitm_jetpack_creative_mail_activate' ) );
 
+		// Jetpack Backup.
+		add_filter( 'jitm_jetpack_backup_install', array( $this, 'jitm_jetpack_backup_install' ) );
+		add_filter( 'jitm_jetpack_backup_activate', array( $this, 'jitm_jetpack_backup_activate' ) );
+
+		// Jetpack Boost.
+		add_filter( 'jitm_jetpack_boost_install', array( $this, 'jitm_jetpack_boost_install' ) );
+		add_filter( 'jitm_jetpack_boost_activate', array( $this, 'jitm_jetpack_boost_activate' ) );
+
 		$user = wp_get_current_user();
 
 		// Unauthenticated or invalid requests just bail.
@@ -395,7 +473,8 @@ class Post_Connection_JITM extends JITM {
 		/**
 		 * Filter to turn off jitm caching
 		 *
-		 * @since 5.4.0
+		 * @since 1.1.0
+		 * @since-jetpack 5.4.0
 		 *
 		 * @param bool true Whether to cache just in time messages
 		 */
@@ -450,8 +529,9 @@ class Post_Connection_JITM extends JITM {
 		/**
 		 * Allow adding your own custom JITMs after a set of JITMs has been received.
 		 *
-		 * @since 6.9.0
-		 * @since 8.3.0 - Added Message path.
+		 * @since 1.1.0
+		 * @since-jetpack 6.9.0
+		 * @since-jetpack 8.3.0 - Added Message path.
 		 *
 		 * @param array  $envelopes    array of existing JITMs.
 		 * @param string $message_path The message path to ask for.
@@ -476,9 +556,7 @@ class Post_Connection_JITM extends JITM {
 			);
 
 			$url_params = array(
-				'source' => "jitm-$envelope->id",
-				'site'   => ( new Status() )->get_site_suffix(),
-				'u'      => $user->ID,
+				'u' => $user->ID,
 			);
 
 			// Get affiliate code and add it to the array of URL parameters.
@@ -490,9 +568,9 @@ class Post_Connection_JITM extends JITM {
 			// Check if the current user has connected their WP.com account
 			// and if not add this information to the the array of URL parameters.
 			if ( ! ( new Manager() )->is_user_connected( $user->ID ) ) {
-				$url_params['unlinked'] = 1;
+				$url_params['query'] = 'unlinked=1';
 			}
-			$envelope->url = add_query_arg( $url_params, 'https://jetpack.com/redirect/' );
+			$envelope->url = esc_url( Redirect::get_url( "jitm-$envelope->id", $url_params ) );
 
 			$stats = new A8c_Mc_Stats();
 

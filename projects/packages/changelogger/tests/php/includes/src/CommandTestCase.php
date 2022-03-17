@@ -1,4 +1,4 @@
-<?php // phpcs:ignore WordPress.Files.FileName.InvalidClassFileName
+<?php
 /**
  * Base test case for the changelogger tool commands.
  *

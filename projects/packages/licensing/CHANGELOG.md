@@ -5,6 +5,80 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.6.3] - 2022-03-02
+### Changed
+- Updated package dependencies.
+
+## [1.6.2] - 2022-01-25
+### Changed
+- Updated package dependencies.
+
+## [1.6.1] - 2022-01-18
+### Changed
+- Updated package dependencies.
+
+## [1.6.0] - 2022-01-04
+### Changed
+- Switch to pcov for code coverage.
+- Updated package dependencies
+- Updated package textdomain from `jetpack` to `jetpack-licensing`.
+
+## [1.5.4] - 2021-12-14
+### Changed
+- Updated package dependencies.
+
+## [1.5.3] - 2021-12-03
+### Changed
+- Increases the timeout of the license activation request from 10 to 30 seconds.
+
+## [1.5.2] - 2021-11-30
+### Changed
+- Updated package dependencies.
+
+## [1.5.1] - 2021-11-23
+### Changed
+- Updated package dependencies.
+
+## [1.5.0] - 2021-11-16
+### Added
+- Add a test for update to WPCOM return change.
+- Added get_license_activation_notice_dismiss() function.
+
+## [1.4.9] - 2021-11-02
+### Changed
+- Set `convertDeprecationsToExceptions` true in PHPUnit config.
+- Update PHPUnit configs to include just what needs coverage rather than include everything then try to exclude stuff that doesn't.
+
+## [1.4.8] - 2021-10-19
+### Changed
+- Updated package dependencies.
+
+## [1.4.7] - 2021-10-12
+### Changed
+- Updated package dependencies
+
+## [1.4.6] - 2021-09-28
+### Changed
+- Updated package dependencies.
+
+## [1.4.5] - 2021-08-31
+### Changed
+- Run composer update on test-php command instead of phpunit.
+- Tests: update PHPUnit polyfills dependency (yoast/phpunit-polyfills).
+- Updated versions in annotations.
+
+## [1.4.4] - 2021-07-27
+### Changed
+- Updated package dependencies.
+
+## [1.4.3] - 2021-06-29
+### Changed
+- Updated package dependencies.
+
+## [1.4.2] - 2021-05-25
+### Changed
+- Updated package dependencies.
+
 ## [1.4.1] - 2021-04-27
 ### Changed
 - Updated package dependencies.
@@ -89,6 +163,23 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - Licensing: Add support for Jetpack licenses
 
+[1.6.3]: https://github.com/Automattic/jetpack-licensing/compare/v1.6.2...v1.6.3
+[1.6.2]: https://github.com/Automattic/jetpack-licensing/compare/v1.6.1...v1.6.2
+[1.6.1]: https://github.com/Automattic/jetpack-licensing/compare/v1.6.0...v1.6.1
+[1.6.0]: https://github.com/Automattic/jetpack-licensing/compare/v1.5.4...v1.6.0
+[1.5.4]: https://github.com/Automattic/jetpack-licensing/compare/v1.5.3...v1.5.4
+[1.5.3]: https://github.com/Automattic/jetpack-licensing/compare/v1.5.2...v1.5.3
+[1.5.2]: https://github.com/Automattic/jetpack-licensing/compare/v1.5.1...v1.5.2
+[1.5.1]: https://github.com/Automattic/jetpack-licensing/compare/v1.5.0...v1.5.1
+[1.5.0]: https://github.com/Automattic/jetpack-licensing/compare/v1.4.9...v1.5.0
+[1.4.9]: https://github.com/Automattic/jetpack-licensing/compare/v1.4.8...v1.4.9
+[1.4.8]: https://github.com/Automattic/jetpack-licensing/compare/v1.4.7...v1.4.8
+[1.4.7]: https://github.com/Automattic/jetpack-licensing/compare/v1.4.6...v1.4.7
+[1.4.6]: https://github.com/Automattic/jetpack-licensing/compare/v1.4.5...v1.4.6
+[1.4.5]: https://github.com/Automattic/jetpack-licensing/compare/v1.4.4...v1.4.5
+[1.4.4]: https://github.com/Automattic/jetpack-licensing/compare/v1.4.3...v1.4.4
+[1.4.3]: https://github.com/Automattic/jetpack-licensing/compare/v1.4.2...v1.4.3
+[1.4.2]: https://github.com/Automattic/jetpack-licensing/compare/v1.4.1...v1.4.2
 [1.4.1]: https://github.com/Automattic/jetpack-licensing/compare/v1.4.0...v1.4.1
 [1.4.0]: https://github.com/Automattic/jetpack-licensing/compare/v1.3.4...v1.4.0
 [1.3.4]: https://github.com/Automattic/jetpack-licensing/compare/v1.3.3...v1.3.4

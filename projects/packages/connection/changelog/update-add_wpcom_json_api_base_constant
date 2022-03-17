@@ -1,4 +1,0 @@
-Significance: patch
-Type: added
-
-Connection: add the default value of JETPACK__WPCOM_JSON_API_BASE to the Connection Utils class.

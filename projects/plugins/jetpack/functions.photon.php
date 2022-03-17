@@ -153,18 +153,6 @@ function jetpack_photon_url( $image_url, $args = array(), $scheme = null ) {
 
 	$image_host_path = $image_url_parts['host'] . $image_url_parts['path'];
 
-	/*
-	 * Figure out which CDN subdomain to use.
-	 *
-	 * The goal is to have the same subdomain for any particular image to prevent multiple runs resulting in multiple
-	 * images needing to be downloaded by the browser.
-	 *
-	 * We are providing our own generated value by taking the modulus of the crc32 value of the URL.
-	 *
-	 * Valid values are 0, 1, and 2.
-	 */
-	$subdomain = abs( crc32( $image_host_path ) % 3 );
-
 	/**
 	 * Filters the domain used by the Photon module.
 	 *
@@ -172,10 +160,10 @@ function jetpack_photon_url( $image_url, $args = array(), $scheme = null ) {
 	 *
 	 * @since 3.4.2
 	 *
-	 * @param string https://i{$subdomain}.wp.com Domain used by Photon. $subdomain is a random number between 0 and 2.
+	 * @param string https://i0.wp.com Domain used by Photon.
 	 * @param string $image_url URL of the image to be photonized.
 	 */
-	$photon_domain = apply_filters( 'jetpack_photon_domain', "https://i{$subdomain}.wp.com", $image_url );
+	$photon_domain = apply_filters( 'jetpack_photon_domain', 'https://i0.wp.com', $image_url );
 	$photon_domain = trailingslashit( esc_url( $photon_domain ) );
 	$photon_url    = $photon_domain . $image_host_path;
 
@@ -305,24 +293,6 @@ function jetpack_photon_url_scheme( $url, $scheme ) {
 	return preg_replace( '#^([a-z:]+)?//#i', $scheme_slashes, $url );
 }
 
-/**
- * A wrapper for PHP's parse_url, prepending assumed scheme for network path
- * URLs. PHP versions 5.4.6 and earlier do not correctly parse without scheme.
- *
- * WP ships with a wrapper for parse_url, wp_parse_url, that should be used instead.
- *
- * @see https://php.net/manual/en/function.parse-url.php#refsect1-function.parse-url-changelog
- * @deprecated 7.8.0 Use wp_parse_url instead.
- *
- * @param string  $url The URL to parse.
- * @param integer $component Retrieve specific URL component.
- * @return mixed Result of parse_url
- */
-function jetpack_photon_parse_url( $url, $component = -1 ) {
-	_deprecated_function( 'jetpack_photon_parse_url', 'jetpack-7.8.0', 'wp_parse_url' );
-	return wp_parse_url( $url, $component );
-}
-
 add_filter( 'jetpack_photon_skip_for_url', 'jetpack_photon_banned_domains', 9, 2 );
 
 /**
@@ -343,6 +313,7 @@ function jetpack_photon_banned_domains( $skip, $image_url ) {
 		'/\.dropbox\.com$/',
 		'/\.cdninstagram\.com$/',
 		'/^(commons|upload)\.wikimedia\.org$/',
+		'/\.wikipedia\.org$/',
 	);
 
 	$host = wp_parse_url( $image_url, PHP_URL_HOST );

@@ -16,7 +16,6 @@ import { useRef, useCallback, useLayoutEffect } from '@wordpress/element';
  * with the same node.
  *
  * @param {Array<RefObject|RefCallback>} refs  - The refs to be merged.
- *
  * @returns {RefCallback} The merged ref callback.
  */
 export default function useMergeRefs( refs ) {

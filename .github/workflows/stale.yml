@@ -9,7 +9,7 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 1  # 2021-01-18: Successful runs seem to take a few seconds
     steps:
-      - uses: actions/stale@v3
+      - uses: actions/stale@v5
         with:
           repo-token: ${{ secrets.GITHUB_TOKEN }}
           # Get issues in ascending (oldest first) order.
@@ -22,7 +22,7 @@ jobs:
           days-before-pr-stale: 90
           # Issues and PRs with these labels will never be considered stale.
           exempt-issue-labels: '[Pri] High,[Pri] BLOCKER,[Type] Good For Community,[Type] Good First Bug,FixTheFlows'
-          exempt-pr-labels: '[Pri] High,[Pri] BLOCKER,[Type] Good For Community,[Type] Good First Bug,FixTheFlows'
+          exempt-pr-labels: '[Pri] High,[Pri] BLOCKER,FixTheFlows'
           # Label to use when marking an issue / PR as stale
           stale-pr-label: '[Status] Stale'
           stale-issue-label: '[Status] Stale'
@@ -51,4 +51,3 @@ jobs:
             testing instructions, is it up to date with master, and it is still valid.
             Feel free to close this PR if you think it's not valid anymore — if you
             do, please add a brief explanation.</p>
-          operations-per-run: 2

@@ -31,10 +31,16 @@
 			}
 		}
 
+		// Increased specificity to override placeholder styling.
+		.components-placeholder__instructions {
+			display: block;
+		}
+
 		label {
 			font-size: 13px;
 		}
 	}
+
 
 	.editor-rich-text__inline-toolbar {
 		pointer-events: none;

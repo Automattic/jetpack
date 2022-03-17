@@ -15,18 +15,12 @@ use Automattic\Jetpack\Status;
 /**
  * Jetpack just in time messaging through out the admin
  *
- * @since 5.6.0
+ * @since 1.1.0
+ * @since-jetpack 5.6.0
  */
 class JITM {
 
-	const PACKAGE_VERSION = '1.15.2-alpha';
-
-	/**
-	 * Whether the JITMs have been registered.
-	 *
-	 * @var bool
-	 */
-	private static $jitms_registered = false;
+	const PACKAGE_VERSION = '2.2.8';
 
 	/**
 	 * The configuration method that is called from the jetpack-config package.
@@ -54,12 +48,10 @@ class JITM {
 	 * Sets up JITM action callbacks if needed.
 	 */
 	public function register() {
-		if ( self::$jitms_registered ) {
+		if ( did_action( 'jetpack_registered_jitms' ) ) {
 			// JITMs have already been registered.
 			return;
 		}
-
-		self::$jitms_registered = true;
 
 		if ( ! $this->jitms_enabled() ) {
 			// Do nothing.
@@ -74,6 +66,14 @@ class JITM {
 		 * These are sync actions that we need to keep track of for jitms.
 		 */
 		add_filter( 'jetpack_sync_before_send_updated_option', array( $this, 'jetpack_track_last_sync_callback' ), 99 );
+
+		/**
+		 * Fires when the JITMs are registered. This action is used to ensure that
+		 * JITMs are registered only once.
+		 *
+		 * @since 1.16.0
+		 */
+		do_action( 'jetpack_registered_jitms' );
 	}
 
 	/**
@@ -86,8 +86,9 @@ class JITM {
 		/**
 		 * Filter to turn off all just in time messages
 		 *
-		 * @since 3.7.0
-		 * @since 5.4.0 Correct docblock to reflect default arg value
+		 * @since 1.1.0
+		 * @since-jetpack 3.7.0
+		 * @since-jetpack 5.4.0 Correct docblock to reflect default arg value
 		 *
 		 * @param bool true Whether to show just in time messages.
 		 */
@@ -106,7 +107,8 @@ class JITM {
 	/**
 	 * Prepare actions according to screen and post type.
 	 *
-	 * @since 3.8.2
+	 * @since 1.1.0
+	 * @since-jetpack 3.8.2
 	 *
 	 * @uses Jetpack_Autoupdate::get_possible_failures()
 	 *
@@ -116,7 +118,7 @@ class JITM {
 		/**
 		 * Filter to hide JITMs on certain screens.
 		 *
-		 * @since 9.5.0
+		 * @since 1.14.0
 		 *
 		 * @param bool true Whether to show just in time messages.
 		 * @param string $string->id The ID of the current screen.
@@ -135,33 +137,25 @@ class JITM {
 		if ( $this->is_gutenberg_page() ) {
 			return;
 		}
-		$min = ( defined( 'SCRIPT_DEBUG' ) && SCRIPT_DEBUG ) ? '' : '.min';
-		wp_register_style(
-			'jetpack-jitm-css',
-			plugins_url( "css/jetpack-admin-jitm{$min}.css", __FILE__ ),
-			false,
-			self::PACKAGE_VERSION .
-			'-201243242'
-		);
-		wp_style_add_data( 'jetpack-jitm-css', 'rtl', 'replace' );
-		wp_style_add_data( 'jetpack-jitm-css', 'suffix', $min );
-		wp_enqueue_style( 'jetpack-jitm-css' );
 
-		wp_enqueue_script(
-			'jetpack-jitm-new',
-			Assets::get_file_url_for_environment( 'js/jetpack-jitm.min.js', 'js/jetpack-jitm.js', __FILE__ ),
-			array( 'jquery' ),
-			self::PACKAGE_VERSION,
-			true
+		Assets::register_script(
+			'jetpack-jitm',
+			'../build/index.js',
+			__FILE__,
+			array(
+				'in_footer'    => true,
+				'dependencies' => array( 'jquery' ),
+			)
 		);
+		Assets::enqueue_script( 'jetpack-jitm' );
 		wp_localize_script(
-			'jetpack-jitm-new',
+			'jetpack-jitm',
 			'jitm_config',
 			array(
 				'api_root'               => esc_url_raw( rest_url() ),
-				'activate_module_text'   => esc_html__( 'Activate', 'jetpack' ),
-				'activated_module_text'  => esc_html__( 'Activated', 'jetpack' ),
-				'activating_module_text' => esc_html__( 'Activating', 'jetpack' ),
+				'activate_module_text'   => esc_html__( 'Activate', 'jetpack-jitm' ),
+				'activated_module_text'  => esc_html__( 'Activated', 'jetpack-jitm' ),
+				'activating_module_text' => esc_html__( 'Activating', 'jetpack-jitm' ),
 				'nonce'                  => wp_create_nonce( 'wp_rest' ),
 			)
 		);
@@ -170,7 +164,8 @@ class JITM {
 	/**
 	 * Is the current page a block editor page?
 	 *
-	 * @since 8.0.0
+	 * @since 1.1.0
+	 * @since-jetpack 8.0.0
 	 */
 	public function is_gutenberg_page() {
 		$current_screen = get_current_screen();

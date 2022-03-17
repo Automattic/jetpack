@@ -1,4 +1,4 @@
-<?php // phpcs:ignore WordPress.Files.FileName.InvalidClassFileName
+<?php
 /**
  * Tests for the changelogger CommandLoader class.
  *
@@ -51,7 +51,7 @@ class CommandLoaderTest extends TestCase {
 	public function testGetNames() {
 		$loader = new CommandLoader();
 		$this->assertSame(
-			array( 'add', 'validate', 'version', 'write' ),
+			array( 'add', 'squash', 'validate', 'version', 'write' ),
 			$loader->getNames()
 		);
 	}

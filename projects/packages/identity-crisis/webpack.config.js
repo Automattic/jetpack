@@ -1,35 +1,57 @@
 /**
  * External dependencies
  */
-const getBaseWebpackConfig = require( '@automattic/calypso-build/webpack.config.js' );
-const DependencyExtractionWebpackPlugin = require( '@wordpress/dependency-extraction-webpack-plugin' );
-const MinifyPlugin = require( 'babel-minify-webpack-plugin' );
+const jetpackWebpackConfig = require( '@automattic/jetpack-webpack-config/webpack' );
 const path = require( 'path' );
 
-const isDevelopment = process.env.NODE_ENV !== 'production';
-
-const baseConfig = getBaseWebpackConfig(
-	{ WP: false },
+module.exports = [
 	{
-		entry: {}, // We'll override later
-		'output-filename': '[name].js',
-		'output-path': path.join( __dirname, './build' ),
-	}
-);
+		entry: {
+			index: './src/_inc/admin.jsx',
+		},
+		mode: jetpackWebpackConfig.mode,
+		devtool: jetpackWebpackConfig.isDevelopment ? 'source-map' : false,
+		output: {
+			...jetpackWebpackConfig.output,
+			path: path.resolve( './build' ),
+		},
+		optimization: {
+			...jetpackWebpackConfig.optimization,
+		},
+		resolve: {
+			...jetpackWebpackConfig.resolve,
+		},
+		node: false,
+		plugins: [
+			...jetpackWebpackConfig.StandardPlugins( {
+				DependencyExtractionPlugin: { injectPolyfill: true },
+			} ),
+		],
+		module: {
+			strictExportPresence: true,
+			rules: [
+				// Transpile JavaScript
+				jetpackWebpackConfig.TranspileRule( {
+					exclude: /node_modules\//,
+				} ),
 
-const plugins = [ ...baseConfig.plugins, new DependencyExtractionWebpackPlugin() ];
+				// Transpile @automattic/jetpack-* in node_modules too.
+				jetpackWebpackConfig.TranspileRule( {
+					includeNodeModules: [ '@automattic/jetpack-' ],
+				} ),
 
-if ( ! isDevelopment ) {
-	plugins.push( new MinifyPlugin() );
-}
-
-module.exports = {
-	...baseConfig,
-	resolve: {
-		...baseConfig.resolve,
-		modules: [ 'node_modules' ],
+				// Handle CSS.
+				jetpackWebpackConfig.CssRule( {
+					extensions: [ 'css', 'sass', 'scss' ],
+					extraLoaders: [ 'sass-loader' ],
+				} ),
+			],
+		},
+		externals: {
+			...jetpackWebpackConfig.externals,
+			jetpackConfig: JSON.stringify( {
+				consumer_slug: 'identity_crisis',
+			} ),
+		},
 	},
-	devtool: isDevelopment ? 'source-map' : false,
-	entry: { index: path.join( __dirname, 'src/_inc/idc-notice.js' ) },
-	plugins,
-};
+];

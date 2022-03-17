@@ -1,0 +1,24 @@
+.numbered-list {
+	list-style-type: none;
+	margin-left: 0;
+
+	li {
+		margin-bottom: 0.5em;
+	  	display: flex;
+	}
+
+	.text {
+	  	flex: 1;
+	}
+
+	.index {
+		border: 1px solid #ccc;
+		border-radius: 50%;
+		display: block;
+		width: 1.5em;
+		height: 1.5em;
+		text-align: center;
+		line-height: 1.4em;
+		margin-right: 5px;
+	}
+}

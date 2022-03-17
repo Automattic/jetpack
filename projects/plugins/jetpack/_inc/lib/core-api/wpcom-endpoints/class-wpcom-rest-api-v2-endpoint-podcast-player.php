@@ -71,6 +71,30 @@ class WPCOM_REST_API_V2_Endpoint_Podcast_Player extends WP_REST_Controller {
 				),
 			)
 		);
+
+		// GET /sites/<blog_id>/podcast-player/track-quantity - Returns number of tracks.
+		register_rest_route(
+			$this->namespace,
+			'/' . $this->rest_base . '/track-quantity',
+			array(
+				array(
+					'methods'             => WP_REST_Server::READABLE,
+					'callback'            => array( $this, 'get_tracks_quantity' ),
+					'permission_callback' => function () {
+						return current_user_can( 'edit_posts' );
+					},
+				),
+			)
+		);
+	}
+
+	/**
+	 * Retrieves tracks quantity
+	 *
+	 * @return Integer number of tracks.
+	 * */
+	public function get_tracks_quantity() {
+		return rest_ensure_response( Jetpack_Podcast_Helper::get_tracks_quantity() );
 	}
 
 	/**

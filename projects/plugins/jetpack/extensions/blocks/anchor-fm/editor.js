@@ -83,7 +83,7 @@ const ConvertToAudio = () => {
 				onClick={ handleClick }
 				onKeyDown={ handleClick }
 			>
-				<Button isPrimary href="https://anchor.fm/wordpressdotcom" target="_top">
+				<Button variant="primary" href="https://anchor.fm/wordpressdotcom" target="_top">
 					{ __( 'Create a podcast episode', 'jetpack' ) }{ ' ' }
 					<Icon icon={ external } className="anchor-post-publish-outbound-link__external_icon" />
 				</Button>

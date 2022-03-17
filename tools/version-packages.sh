@@ -6,8 +6,8 @@ BASE=$(cd $(dirname "${BASH_SOURCE[0]}")/.. && pwd)
 . "$BASE/tools/includes/check-osx-bash-version.sh"
 . "$BASE/tools/includes/chalk-lite.sh"
 
-# This script updates the composer.json file in of whatever directory it is run.
-# It will update any packages prefixed with `automattic/jetpack-` to it's latest stable version.
+# This script updates the composer.json file in the specified directory.
+# It will update any monorepo packages their latest stable versions.
 #
 # Probably will be most useful in the release scripts that branch off, since we:
 # a. Want to ship Jetpack with specific versions of packages
@@ -73,22 +73,41 @@ if [[ -z "$DIR" ]]; then
 fi
 
 # Remove the monorepo repo from composer.json.
-JSON=$(jq 'if .repositories then .repositories |= map( select( .options.monorepo | not ) ) else . end' "$DIR/composer.json" | "$BASE/tools/prettier" --parser=json-stringify)
+JSON=$(jq --tab 'if .repositories then .repositories |= map( select( .options.monorepo | not ) ) else . end' "$DIR/composer.json")
 echo "$JSON" > "$DIR/composer.json"
 
 # Get the list of package names to update.
 PACKAGES=$(jq -nc 'reduce inputs as $in ([]; . + [ $in.name ])' "$BASE"/projects/packages/*/composer.json)
+
+# Get current versions from the package.
+OLD_VERSIONS=$(jq -r --argjson packages "$PACKAGES" '( .["require-dev"] // {} ) + ( .require // {} ) | with_entries( select( ( .value | test( "\\.x-dev$" ) ) and ( [ .key ] | inside( $packages ) ) ) )' "$DIR/composer.json")
 
 # Update the packages that appear in composer.json
 TO_UPDATE=()
 mapfile -t TO_UPDATE < <(jq -r --argjson packages "$PACKAGES" '.require // {} | to_entries[] | select( ( .value | test( "^@dev$|\\.x-dev$" ) ) and ( [ .key ] | inside( $packages ) ) ) | .key' "$DIR/composer.json")
 if [[ ${#TO_UPDATE[@]} -gt 0 ]]; then
 	info "Updating packages: ${TO_UPDATE[*]}..."
-	composer require "${COMPOSER_ARGS[@]}" --working-dir="$DIR" -- "${TO_UPDATE[@]}"
+	composer require "${COMPOSER_ARGS[@]}" --no-update --working-dir="$DIR" -- "${TO_UPDATE[@]}"
 fi
 TO_UPDATE=()
 mapfile -t TO_UPDATE < <(jq -r --argjson packages "$PACKAGES" '.["require-dev"] // {} | to_entries[] | select( ( .value | test( "^@dev$|\\.x-dev$" ) ) and ( [ .key ] | inside( $packages ) ) ) | .key' "$DIR/composer.json")
 if [[ ${#TO_UPDATE[@]} -gt 0 ]]; then
 	info "Updating dev packages: ${TO_UPDATE[*]}..."
-	composer require "${COMPOSER_ARGS[@]}" --working-dir="$DIR" --dev -- "${TO_UPDATE[@]}"
+	composer require "${COMPOSER_ARGS[@]}" --no-update --working-dir="$DIR" --dev -- "${TO_UPDATE[@]}"
 fi
+
+# Update any indirect dependencies too.
+"$BASE/tools/composer-update-monorepo.sh" "${COMPOSER_ARGS[@]}" "$DIR"
+
+# Compare new versus old versions to check for downgrades.
+EXIT=0
+while IFS=$'\t' read -r PKG OLDVER NEWVER; do
+	OV=$(sed -e 's/\.x-dev$/.0-alpha/' <<<"$OLDVER")
+	NV=$(sed -e 's/^\^//' -e 's/\.x-dev$/.0-alpha/' <<<"$NEWVER")
+	if ! pnpx semver -c -r ">$OV" "$NV" >/dev/null; then
+		EXIT=1
+		error "$PKG was not upgraded ($NEWVER <= $OLDVER)"
+	fi
+done < <(jq -r --argjson oldver "$OLD_VERSIONS" '( .["require-dev"] // {} ) + ( .require // {} ) | to_entries[] | select( $oldver[.key] ) | [ .key, $oldver[.key], .value ] | @tsv' "$DIR/composer.json")
+
+exit $EXIT

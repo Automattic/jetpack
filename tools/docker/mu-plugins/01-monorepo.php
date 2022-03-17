@@ -119,6 +119,7 @@ class Monorepo {
 			return $wp_plugins;
 		}
 
+		require_once ABSPATH . 'wp-admin/includes/plugin.php';
 		foreach ( $plugin_files as $plugin_file ) {
 			if ( ! is_readable( "$plugin_root/$plugin_file" ) ) {
 				continue;

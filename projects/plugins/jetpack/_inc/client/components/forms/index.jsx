@@ -157,7 +157,9 @@ export class FormButton extends React.Component {
 	};
 
 	getDefaultButtonAction = () => {
-		return this.props.isSubmitting ? __( 'Saving…', 'jetpack' ) : __( 'Save Settings', 'jetpack' );
+		return this.props.isSubmitting
+			? __( 'Saving…', 'jetpack' )
+			: __( 'Save Settings', 'jetpack', /* dummy arg to avoid bad minification */ 0 );
 	};
 
 	render() {
@@ -168,7 +170,7 @@ export class FormButton extends React.Component {
 		return (
 			<Button
 				{ ...omit( this.props, 'className' ) }
-				primary={ this.props.isPrimary }
+				variant={ this.props.isPrimary ? 'primary' : undefined }
 				className={ classNames( this.props.className, buttonClasses ) }
 			>
 				{ isEmpty( this.props.children ) ? this.getDefaultButtonAction() : this.props.children }

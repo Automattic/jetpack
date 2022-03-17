@@ -12,8 +12,11 @@ import {
 	getPlanClass,
 	isJetpackProduct,
 	isJetpackBackup,
+	isJetpackPlanWithBackup,
 	isJetpackScan,
 	isJetpackSearch,
+	isJetpackSecurityBundle,
+	isJetpackVideoPress,
 } from 'lib/plans/constants';
 import {
 	JETPACK_SITE_DATA_FETCH,
@@ -137,10 +140,10 @@ export const errors = ( state = {}, action ) => {
 					);
 					break;
 				case 'JsonParseError':
-					// We only display the error using `SimpleNotice`, reconnecting will not help here.
-					resolveAction = 'display';
+					// We offer a link to support to help them fix the issue.
+					resolveAction = 'support';
 					defaultErrorMessage = __(
-						"Jetpack Dashboard was unable to properly communicate with your website. Please check your website's error logs to see what's wrong.",
+						'Jetpack encountered an error and was unable to display the Dashboard. Please try refreshing the page.',
 						'jetpack'
 					);
 					break;
@@ -238,12 +241,32 @@ export function isFetchingSitePurchases( state ) {
 }
 
 /**
+ * Returns the products of this site.
+ *
+ * @param   {object} state - Global state tree
+ * @returns {Array} Site products
+ */
+export function getSiteProducts( state ) {
+	return get( state.jetpack.siteData, [ 'data', 'products' ], {} );
+}
+
+/**
  * Returns the plan of this site.
  * @param  {Object}  state Global state tree
- * @return {Object|Boolean}  Site plan
+ * @return {Object}  Site plan
  */
 export function getSitePlan( state ) {
 	return get( state.jetpack.siteData, [ 'data', 'plan' ], {} );
+}
+
+/**
+ * Returns the VideoPress storage used for this site.
+ *
+ * @param {object} state - Argv object for an install command. Must contain project and root at least.
+ * @returns {number|null} - Storage used in megabytes or null if not found.
+ */
+export function getVideoPressStorageUsed( state ) {
+	return get( state.jetpack.siteData, [ 'data', 'options', 'videopress_storage_used' ], null );
 }
 
 /**
@@ -322,6 +345,31 @@ export function hasActiveScanPurchase( state ) {
 	return !! getActiveScanPurchase( state );
 }
 
+/**
+ * Return any active security bundles on the site
+ *
+ * @param {*} state - Global state tree
+ * @returns {object} A active security bundle on the site, undefined otherwise
+ */
+export function getActiveSecurityPurchase( state ) {
+	return find( getActiveSitePurchases( state ), purchase =>
+		isJetpackSecurityBundle( purchase.product_slug )
+	);
+}
+
+/**
+ * Determines if the site has an active security or complete plan
+ *
+ * @param {*} state - Global state tree
+ * @returns {boolean} True if the site has an active security or complete plan, false otherwise.
+ */
+export function hasActiveSecurityPurchase( state ) {
+	return (
+		!! getActiveSecurityPurchase( state ) ||
+		'is-complete-plan' === getPlanClass( getSitePlan( state ).product_slug )
+	);
+}
+
 export function getActiveSearchPurchase( state ) {
 	return find( getActiveProductPurchases( state ), product =>
 		isJetpackSearch( product.product_slug )
@@ -333,6 +381,28 @@ export function hasActiveSearchPurchase( state ) {
 		!! getActiveSearchPurchase( state ) ||
 		'is-complete-plan' === getPlanClass( getSitePlan( state ).product_slug )
 	);
+}
+
+/**
+ * Searches active products for an active VideoPress product.
+ *
+ * @param {*} state - Global state tree
+ * @returns {boolean} True if the an active VideoPress plan was found, false otherwise.
+ */
+export function getActiveVideoPressPurchase( state ) {
+	return find( getActiveProductPurchases( state ), product =>
+		isJetpackVideoPress( product.product_slug )
+	);
+}
+
+/**
+ * Determines if the site has an active VideoPress product purchase
+ *
+ * @param {*} state - Global state tree
+ * @returns {boolean} True if the site has an active VideoPress product purchase, false otherwise.
+ */
+export function hasActiveVideoPressPurchase( state ) {
+	return !! getActiveVideoPressPurchase( state );
 }
 
 export function getSiteID( state ) {
@@ -352,4 +422,46 @@ export function getConnectedPlugins( state ) {
 
 	const plugins = get( state.jetpack.siteData, [ 'data', 'site', 'connectedPlugins' ], [] );
 	return plugins.filter( plugin => 'jetpack' !== plugin.slug );
+}
+
+/**
+ * Returns Jetpack connected plugins converted to obj keyed by slug
+ * [ { name, slug }, ... ] -> { slug: { name }, ... }
+ *
+ * @param   {object} state - Global state tree
+ * @returns {object} Connected plugins
+ */
+export function getConnectedPluginsMap( state ) {
+	const plugins = getConnectedPlugins( state );
+
+	return (
+		plugins &&
+		plugins.reduce( ( map, plugin ) => {
+			map[ plugin.slug ] = { name: plugin.name };
+			return map;
+		}, {} )
+	);
+}
+
+/**
+ * Returns true if the site has a subscription to a Backup product or to a plan that includes Backup.
+ *
+ * @param   {object} state - Global state tree
+ * @returns {boolean} True if the site does have Backup
+ */
+export function siteHasBackupPlan( state ) {
+	const sitePlan = getSitePlan( state );
+	const siteProducts = getSiteProducts( state );
+
+	let hasBackup = false;
+
+	if ( sitePlan && sitePlan.product_slug ) {
+		hasBackup = hasBackup || isJetpackPlanWithBackup( sitePlan.product_slug );
+	}
+
+	if ( Array.isArray( siteProducts ) ) {
+		hasBackup = hasBackup || siteProducts.some( p => isJetpackProduct( p.product_slug ) );
+	}
+
+	return hasBackup;
 }

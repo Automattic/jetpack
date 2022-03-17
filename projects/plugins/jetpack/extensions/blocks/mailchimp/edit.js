@@ -137,15 +137,15 @@ class MailchimpSubscribeEdit extends Component {
 				label={ __( 'Mailchimp', 'jetpack' ) }
 				notices={ notices }
 				instructions={ __(
-					'You need to connect your Mailchimp account and choose a list in order to start collecting Email subscribers.',
+					'You need to connect your Mailchimp account and choose an audience in order to start collecting Email subscribers.',
 					'jetpack'
 				) }
 			>
-				<Button isSecondary isLarge href={ connectURL } target="_blank">
+				<Button variant="secondary" href={ connectURL } target="_blank">
 					{ __( 'Set up Mailchimp form', 'jetpack' ) }
 				</Button>
 				<div className={ `${ classPrefix }-recheck` }>
-					<Button isLink onClick={ this.apiCall }>
+					<Button variant="link" onClick={ this.apiCall }>
 						{ __( 'Re-check Connection', 'jetpack' ) }
 					</Button>
 				</div>
@@ -162,7 +162,7 @@ class MailchimpSubscribeEdit extends Component {
 					'jetpack'
 				) }
 			>
-				<Button isSecondary isLarge href={ connectURL }>
+				<Button variant="secondary" href={ connectURL }>
 					{ __( 'Connect to WordPress.com', 'jetpack' ) }
 				</Button>
 			</Placeholder>

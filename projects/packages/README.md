@@ -61,26 +61,6 @@ use Automattic\Jetpack\Assets\Logo as Jetpack_Logo;
 $logo = new Jetpack_Logo();
 ```
 
-### Package textdomains
-
-Jetpack's packages use the 'jetpack' textdomain for translatable strings. Plugins that use these packages must change the textdomains in the packages when preparing the plugin for release. A few tools that can help automate this process are [node-wp-i18n](https://github.com/cedaro/node-wp-i18n) and [wp-textdomain](https://github.com/timelsass/wp-textdomain).
-
-For example, a plugin could change the textdomain during the Composer `post-autoload-dump` event with the following script in the plugin's `composer.json` file:
-
-`"post-autoload-dump": "node  {path_to_script}/update_textdomain.js"`
-
-where the `update_textdomain.js` file contains something like:
-
-```
-const wpTextdomain = require( 'wp-textdomain' );
-
-wpTextdomain( './vendor/automattic/**/*.php', {
-	domain: 'plugin-textdomain',
-	fix: true,
-	glob: { follow: true },
-} );
-```
-
 ## Deploying packages
 
 While the script we use to deploy the package takes care of everything, we might need to setup some stuff online in GitHub and Packagist. Let's use the Autoloader package as an example. 
@@ -123,3 +103,14 @@ All new Jetpack package development should use classmap autoloading, which allow
 ### Textdomains
 
 Jetpack packages must use the 'jetpack' textdomain. The consuming plugin is responsible for updating the packages to use the plugin's textdomain.
+
+### Package Version Annotations
+
+When needing to add a package version number inside a DocBlock, please use `$$next-version$$` as such:
+
+- `@since $$next-version$$`
+- `@deprecated $$next-version$$`
+- `@deprecated since $$next-version$$`
+- `_deprecated_function( __METHOD__, 'package-$$next-version$$' );` (other WordPress deprecation functions also work, but note it must be all on one line).
+
+The `$$next-version$$` specifier will be automatically replaced with the correct package version number the next time a new version of that package is released.

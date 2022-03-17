@@ -1,5 +1,5 @@
 @import '../../shared/styles/gutenberg-base-styles.scss';
-@import "~@automattic/color-studio/dist/color-variables";
+@import "@automattic/color-studio/dist/color-variables";
 
 $banner-height: 48px;
 $icon-size: 10px;
@@ -23,6 +23,7 @@ $icon-background-color: #fff;
 		.banner-title,
 		.banner-description {
 			color: $studio-white;
+			margin-right: 10px;
 		}
 
 		.jetpack-upgrade-plan-banner__title,
@@ -37,6 +38,7 @@ $icon-background-color: #fff;
 			height: 28px;
 
 			&.is-primary {
+				text-decoration: none;
 				background: $studio-pink-40;
 				color: $studio-white;
 
@@ -68,7 +70,7 @@ $icon-background-color: #fff;
 }
 
 .jetpack-upgrade-plan__hidden {
-	visibility: hidden;
+	display: none;
 }
 
 // Tweak Banner depending on the context.
@@ -79,11 +81,17 @@ $icon-background-color: #fff;
 	padding-top: $banner-height;
 }
 
+// Tweak Banner: More specific selector needed for Inspector Controls.
+.editor-styles-wrapper .block-editor-block-list__layout.is-root-container .is-upgradable {
+	margin-top: 0;
+	padding-top: $banner-height;
+}
+
 // Tweak Banner: Editor Canvas.
 // Banner height minus half the toolbar padding to center it.
 .block-editor-block-list__layout .jetpack-upgrade-plan-banner {
 	position: relative;
-	top: $banner-height - ( $grid-unit-15 / 2 );
+	top: $banner-height - ( $grid-unit-15 * 0.5 );
 	z-index: 10;
 }
 
@@ -120,7 +128,7 @@ $icon-background-color: #fff;
 
 	// Remove paid-block-media-placeholder from being a flexbox child
 	// when the cover block has a background set
-	.wp-block-cover &:not( :only-child ) {
+	.wp-block-cover:not( .is-placeholder ) & {
 		position: absolute;
 		top: 0;
 		right: 0;

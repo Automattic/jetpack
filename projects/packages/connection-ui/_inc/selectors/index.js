@@ -1,14 +1,14 @@
 /**
  * Internal dependencies
  */
-import connectionSelectors from './connection-status';
 import APISelectors from './api';
-import connectionData from './connection-data';
+import assetsSelectors from './assets';
+import IDC from './idc';
 
 const selectors = {
-	...connectionSelectors,
 	...APISelectors,
-	...connectionData,
+	...assetsSelectors,
+	...IDC,
 };
 
 export default selectors;

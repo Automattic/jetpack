@@ -54,3 +54,36 @@ div.jetpack-quiz pre {
 	padding: 0;
 }
 
+.jetpack-quiz-options {
+	margin-top: 12px;
+	text-align: right;
+}
+
+.jetpack-quiz-count {
+	color: #646970;
+	float: left;
+	font-size: 12px;
+}
+
+.jetpack-quiz-option-button {
+	cursor: pointer;
+	margin-left: 12px;
+}
+
+.jetpack-quiz-option-button:hover svg {
+	background: #3c434a;
+}
+
+.jetpack-quiz-option-button svg {
+	background: #000;
+	border-radius: 50%;
+	display: inline-block;
+	fill: #fff;
+	height: 24px;
+	width: 24px;
+}
+
+.jetpack-quiz-wrapper .jetpack-quiz:first-of-type .jetpack-quiz-option-button:first-of-type,
+.jetpack-quiz-wrapper .jetpack-quiz:last-of-type .jetpack-quiz-option-button:last-of-type {
+	display: none;
+}

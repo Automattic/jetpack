@@ -23,11 +23,11 @@ import {
 	getPlanClass,
 	getJetpackProductUpsellByFeature,
 } from 'lib/plans/constants';
-
+import { getProductDescriptionUrl } from 'product-descriptions/utils';
 import {
-	getConnectUrl,
 	hasConnectedOwner as hasConnectedOwnerSelector,
 	isOfflineMode,
+	connectUser,
 } from 'state/connection';
 import {
 	getSiteAdminUrl,
@@ -69,8 +69,11 @@ export const SettingsCard = props => {
 		} );
 	};
 
-	const handleClickForConnectTracking = feature => {
-		return () => trackConnectClick( feature );
+	const handleConnectClick = ( feature, featureLabel ) => {
+		return () => {
+			trackConnectClick( feature );
+			props.doConnectUser( featureLabel );
+		};
 	};
 
 	const module = props.module ? props.getModule( props.module ) : false,
@@ -110,39 +113,34 @@ export const SettingsCard = props => {
 				[
 					'is-premium-plan',
 					'is-business-plan',
+					'is-security-t1-plan',
+					'is-security-t2-plan',
+					'is-complete-plan',
+
+					// DEPRECATED: Daily and Real-time variations will soon be retired.
+					// Remove after all customers are migrated to new products.
 					'is-daily-security-plan',
 					'is-realtime-security-plan',
-					'is-complete-plan',
 				],
 				planClass
 			);
 
 		switch ( feature ) {
 			case FEATURE_VIDEO_HOSTING_JETPACK:
-				if ( hasPremiumOrBetter ) {
+				if ( props.hasConnectedOwner || hasPremiumOrBetter ) {
 					return '';
 				}
 
-				return props.hasConnectedOwner ? (
-					<JetpackBanner
-						title={ __( 'Get unlimited, ad-free video hosting.', 'jetpack' ) }
-						callToAction={ upgradeLabel }
-						plan={ getJetpackProductUpsellByFeature( FEATURE_VIDEO_HOSTING_JETPACK ) }
-						feature={ feature }
-						onClick={ handleClickForTracking( feature ) }
-						href={ props.videoPremiumUpgradeUrl }
-					/>
-				) : (
+				return (
 					<JetpackBanner
 						title={ __(
-							'Connect your WordPress.com account to upgrade for unlimited, ad-free video hosting.',
+							'Connect your WordPress.com account to enable high-quality, ad-free video.',
 							'jetpack'
 						) }
 						callToAction={ connectLabel }
 						plan={ getJetpackProductUpsellByFeature( FEATURE_VIDEO_HOSTING_JETPACK ) }
 						feature={ feature }
-						onClick={ handleClickForConnectTracking( feature ) }
-						href={ props.connectUrl }
+						onClick={ handleConnectClick( feature ) }
 					/>
 				);
 
@@ -166,14 +164,13 @@ export const SettingsCard = props => {
 				) : (
 					<JetpackBanner
 						title={ __(
-							'Connect your WordPress.com account to upgrade and generate income with high-quality adds.',
+							'Connect your WordPress.com account to upgrade and generate income with high-quality ads.',
 							'jetpack'
 						) }
 						callToAction={ connectLabel }
 						plan={ getJetpackProductUpsellByFeature( FEATURE_WORDADS_JETPACK ) }
 						feature={ feature }
-						onClick={ handleClickForConnectTracking( feature ) }
-						href={ props.connectUrl }
+						onClick={ handleConnectClick( feature ) }
 					/>
 				);
 
@@ -199,7 +196,7 @@ export const SettingsCard = props => {
 							callToAction={ upgradeLabel }
 							feature={ feature }
 							onClick={ handleClickForTracking( feature ) }
-							href={ props.securityProUpgradeUrl }
+							href={ props.securityUpgradeUrl }
 						/>
 					) : (
 						<JetpackBanner
@@ -210,8 +207,7 @@ export const SettingsCard = props => {
 							plan={ getJetpackProductUpsellByFeature( FEATURE_SITE_BACKUPS_JETPACK ) }
 							callToAction={ connectLabel }
 							feature={ feature }
-							onClick={ handleClickForConnectTracking( feature ) }
-							href={ props.connectUrl }
+							onClick={ handleConnectClick( feature ) }
 						/>
 					);
 				}
@@ -226,7 +222,7 @@ export const SettingsCard = props => {
 						plan={ getJetpackProductUpsellByFeature( FEATURE_SECURITY_SCANNING_JETPACK ) }
 						feature={ feature }
 						onClick={ handleClickForTracking( feature ) }
-						href={ props.securityPremiumUpgradeUrl }
+						href={ props.scanUpgradeUrl }
 					/>
 				) : (
 					<JetpackBanner
@@ -237,8 +233,7 @@ export const SettingsCard = props => {
 						) }
 						plan={ getJetpackProductUpsellByFeature( FEATURE_SECURITY_SCANNING_JETPACK ) }
 						feature={ feature }
-						onClick={ handleClickForConnectTracking( feature ) }
-						href={ props.connectUrl }
+						onClick={ handleConnectClick( feature ) }
 					/>
 				);
 
@@ -265,8 +260,7 @@ export const SettingsCard = props => {
 						) }
 						plan={ getJetpackProductUpsellByFeature( FEATURE_GOOGLE_ANALYTICS_JETPACK ) }
 						feature={ feature }
-						onClick={ handleClickForConnectTracking( feature ) }
-						href={ props.connectUrl }
+						onClick={ handleConnectClick( feature ) }
 					/>
 				);
 
@@ -296,8 +290,7 @@ export const SettingsCard = props => {
 						) }
 						plan={ getJetpackProductUpsellByFeature( FEATURE_SEARCH_JETPACK ) }
 						feature={ feature }
-						onClick={ handleClickForConnectTracking( feature ) }
-						href={ props.connectUrl }
+						onClick={ handleConnectClick( feature ) }
 					/>
 				);
 
@@ -328,7 +321,7 @@ export const SettingsCard = props => {
 						) }
 						plan={ getJetpackProductUpsellByFeature( FEATURE_SPAM_AKISMET_PLUS ) }
 						feature={ feature }
-						href={ props.connectUrl }
+						onclick={ props.doConnectUser }
 					/>
 				);
 
@@ -347,9 +340,14 @@ export const SettingsCard = props => {
 				[
 					'is-premium-plan',
 					'is-business-plan',
+					'is-security-t1-plan',
+					'is-security-t2-plan',
+					'is-complete-plan',
+
+					// DEPRECATED: Daily and Real-time variations will soon be retired.
+					// Remove after all customers are migrated to new products.
 					'is-daily-security-plan',
 					'is-realtime-security-plan',
-					'is-complete-plan',
 				],
 				planClass
 			);
@@ -450,7 +448,12 @@ export const SettingsCard = props => {
 						<Button primary compact type="submit" disabled={ isSaving || ! props.isDirty() }>
 							{ isSaving
 								? _x( 'Saving…', 'Button caption', 'jetpack' )
-								: _x( 'Save settings', 'Button caption', 'jetpack' ) }
+								: _x(
+										'Save settings',
+										'Button caption',
+										'jetpack',
+										/* dummy arg to avoid bad minification */ 0
+								  ) }
 						</Button>
 					) }
 					{ props.action && (
@@ -478,29 +481,32 @@ SettingsCard.defaultProps = {
 	saveDisabled: false,
 };
 
-export default connect( state => {
-	return {
-		sitePlan: getSitePlan( state ),
-		fetchingSiteData: isFetchingSiteData( state ),
-		siteAdminUrl: getSiteAdminUrl( state ),
-		userCanManageModules: userCanManageModules( state ),
-		isAkismetKeyValid: isAkismetKeyValid( state ),
-		isCheckingAkismetKey: isCheckingAkismetKey( state ),
-		vaultPressData: getVaultPressData( state ),
-		getModuleOverride: module_name => getModuleOverride( state, module_name ),
-		getModule: module_name => getModule( state, module_name ),
-		activeFeatures: getActiveFeatures( state ),
-		videoPremiumUpgradeUrl: getUpgradeUrl( state, 'settings-video-premium' ),
-		adsUpgradeUrl: getUpgradeUrl( state, 'settings-ads' ),
-		securityProUpgradeUrl: getUpgradeUrl( state, 'settings-security-pro' ),
-		securityPremiumUpgradeUrl: getUpgradeUrl( state, 'settings-security-premium' ),
-		gaUpgradeUrl: getUpgradeUrl( state, 'settings-ga' ),
-		searchUpgradeUrl: getUpgradeUrl( state, 'jetpack-search' ),
-		spamUpgradeUrl: getUpgradeUrl( state, 'settings-spam' ),
-		multisite: isMultisite( state ),
-		hasActiveSearchPurchase: hasActiveSearchPurchase( state ),
-		inOfflineMode: isOfflineMode( state ),
-		connectUrl: getConnectUrl( state ),
-		hasConnectedOwner: hasConnectedOwnerSelector( state ),
-	};
-} )( SettingsCard );
+export default connect(
+	state => {
+		return {
+			sitePlan: getSitePlan( state ),
+			fetchingSiteData: isFetchingSiteData( state ),
+			siteAdminUrl: getSiteAdminUrl( state ),
+			userCanManageModules: userCanManageModules( state ),
+			isAkismetKeyValid: isAkismetKeyValid( state ),
+			isCheckingAkismetKey: isCheckingAkismetKey( state ),
+			vaultPressData: getVaultPressData( state ),
+			getModuleOverride: module_name => getModuleOverride( state, module_name ),
+			getModule: module_name => getModule( state, module_name ),
+			activeFeatures: getActiveFeatures( state ),
+			adsUpgradeUrl: getUpgradeUrl( state, 'settings-ads' ),
+			securityUpgradeUrl: getProductDescriptionUrl( state, 'security' ),
+			scanUpgradeUrl: getProductDescriptionUrl( state, 'scan' ),
+			gaUpgradeUrl: getUpgradeUrl( state, 'settings-ga' ),
+			searchUpgradeUrl: getProductDescriptionUrl( state, 'search' ),
+			spamUpgradeUrl: getProductDescriptionUrl( state, 'akismet' ),
+			multisite: isMultisite( state ),
+			hasActiveSearchPurchase: hasActiveSearchPurchase( state ),
+			inOfflineMode: isOfflineMode( state ),
+			hasConnectedOwner: hasConnectedOwnerSelector( state ),
+		};
+	},
+	dispatch => ( {
+		doConnectUser: featureLabel => dispatch( connectUser( featureLabel ) ),
+	} )
+)( SettingsCard );

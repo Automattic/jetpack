@@ -1,0 +1,27 @@
+@import '../lib/styles/_helper.scss';
+
+.jetpack-instant-search__path-breadcrumb {
+	font-size: 0.9em;
+	margin: 0;
+	overflow-x: hidden;
+	text-overflow: ellipsis;
+	max-width: calc( 100vw - 2em );
+}
+
+.jetpack-instant-search__path-breadcrumb-link {
+	text-decoration: none;
+	max-width: 100%;
+	overflow: hidden;
+	text-overflow: ellipsis;
+	white-space: nowrap;
+
+	&:hover,
+	&:focus {
+		text-decoration: underline;
+	}
+}
+
+.jetpack-instant-search__path-breadcrumb,
+.jetpack-instant-search__path-breadcrumb-link {
+	color: $color-text-light;
+}

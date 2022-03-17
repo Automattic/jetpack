@@ -6,14 +6,14 @@ import { combineReducers } from '@wordpress/data';
 /**
  * Internal dependencies
  */
-import connectionStatus from './connection-status';
 import API from './api';
-import connectionData from './connection-data';
+import assets from './assets';
+import IDC from './idc';
 
 const reducer = combineReducers( {
-	connectionStatus,
 	API,
-	connectionData,
+	assets,
+	IDC,
 } );
 
 export default reducer;

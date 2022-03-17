@@ -6,14 +6,17 @@ class SalSiteTest extends WP_UnitTestCase {
 	static $token;
 	static $site;
 
-	static function setUpBeforeClass( ) {
-		parent::setUpBeforeClass();
+	/**
+	 * Set up before class.
+	 */
+	public static function set_up_before_class() {
+		parent::set_up_before_class();
 
 		self::$token = (object) array(
 			'blog_id'          => get_current_blog_id(),
 			'user_id'          => get_current_user_id(),
 			'external_user_id' => 2,
-			'role'             => 'administrator'
+			'role'             => 'administrator',
 		);
 
 		$platform = wpcom_get_sal_platform( self::$token );

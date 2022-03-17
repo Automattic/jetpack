@@ -1,4 +1,0 @@
-Significance: patch
-Type: bugfix
-
-Stripe Nudge: fix redirect for the Payments block, and for all blocks within the site-editor.

@@ -27,7 +27,7 @@ describe( 'CalendlyBlockControls', () => {
 		const wrapper = screen.getByText( 'Edit' );
 
 		expect( wrapper ).toBeInTheDocument();
-		expect( wrapper.firstChild ).toHaveAttribute( 'type', 'button' );
+		expect( wrapper ).toHaveAttribute( 'type', 'button' );
 	} );
 
 	test( 'triggers onEditClick when user clicks button', () => {

@@ -28,9 +28,11 @@ export default async function createSwiper(
 			el: '.swiper-pagination',
 			type: 'bullets',
 		},
-		preventClicksPropagation: false /* Necessary for normal block interactions */,
+		preventClicks: false,
+		preventClicksPropagation: false, // Necessary for normal block operations.
 		releaseFormElements: false,
 		setWrapperSize: true,
+		threshold: 5, // This value helps avoid clicks being treated as swipe actions.
 		touchStartPreventDefault: false,
 		on: mapValues(
 			callbacks,

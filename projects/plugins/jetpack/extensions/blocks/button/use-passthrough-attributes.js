@@ -16,9 +16,10 @@ export default function usePassthroughAttributes( { attributes, clientId, setAtt
 	const { passthroughAttributes } = attributes;
 
 	const { attributesToSync } = useSelect( select => {
-		const { getBlockAttributes, getBlockHierarchyRootClientId } = select( 'core/block-editor' );
-		const parentAttributes = getBlockAttributes( getBlockHierarchyRootClientId( clientId ) );
-
+		const { getBlockAttributes, getBlockRootClientId } = select( 'core/block-editor' );
+		// Check the root block from which the block is nested, that is, the immediate parent.
+		const parentClientId = getBlockRootClientId( clientId );
+		const parentAttributes = getBlockAttributes( parentClientId ) || {};
 		// Here we actually map the parent attribute value to the child attribute.
 		// E.g. { childAttribute: 'foobar' }
 		const mappedAttributes = mapValues( passthroughAttributes, key => parentAttributes[ key ] );

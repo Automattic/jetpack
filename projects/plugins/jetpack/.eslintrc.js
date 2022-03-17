@@ -1,11 +1,17 @@
 module.exports = {
-	// Use root level ESlint configuration.
-	// JavaScript files inside this folder are meant to be transpiled by Webpack.
-	root: true,
-	extends: [ '../../../.eslintrc.js' ],
-	settings: {
-		jest: {
-			version: 26,
+	extends: [ '../../../tools/js-tools/eslintrc/react.js' ],
+	parserOptions: {
+		babelOptions: {
+			configFile: require.resolve( './babel.config.js' ),
 		},
+	},
+	rules: {
+		// Enforce use of the correct textdomain.
+		'@wordpress/i18n-text-domain': [
+			'error',
+			{
+				allowedTextDomain: 'jetpack',
+			},
+		],
 	},
 };

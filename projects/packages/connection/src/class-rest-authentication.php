@@ -15,15 +15,25 @@ class Rest_Authentication {
 	/**
 	 * The rest authentication status.
 	 *
-	 * @since 8.9.0
+	 * @since 1.17.0
 	 * @var boolean
 	 */
 	private $rest_authentication_status = null;
 
 	/**
+	 * The rest authentication type.
+	 * Can be either 'user' or 'blog' depending on whether the request
+	 * is signed with a user or a blog token.
+	 *
+	 * @since 1.29.0
+	 * @var string
+	 */
+	private $rest_authentication_type = null;
+
+	/**
 	 * The Manager object.
 	 *
-	 * @since 8.9.0
+	 * @since 1.17.0
 	 * @var Object
 	 */
 	private $connection_manager = null;
@@ -31,7 +41,7 @@ class Rest_Authentication {
 	/**
 	 * Holds the singleton instance of this class
 	 *
-	 * @since 8.9.0
+	 * @since 1.17.0
 	 * @var Object
 	 */
 	private static $instance = false;
@@ -39,7 +49,7 @@ class Rest_Authentication {
 	/**
 	 * Flag used to avoid determine_current_user filter to enter an infinite loop
 	 *
-	 * @since 9.7.0
+	 * @since 1.26.0
 	 * @var boolean
 	 */
 	private $doing_determine_current_user_filter = false;
@@ -73,7 +83,7 @@ class Rest_Authentication {
 	 *
 	 * @param int|bool $user User ID if one has been determined, false otherwise.
 	 *
-	 * @return int|null The user id or null if the request was not authenticated.
+	 * @return int|null The user id or null if the request was authenticated via blog token, or not authenticated at all.
 	 */
 	public function wp_rest_authenticate( $user ) {
 		if ( $this->doing_determine_current_user_filter ) {
@@ -110,7 +120,7 @@ class Rest_Authentication {
 			if ( ! isset( $_SERVER['REQUEST_METHOD'] ) ) {
 				$this->rest_authentication_status = new \WP_Error(
 					'rest_invalid_request',
-					__( 'The request method is missing.', 'jetpack' ),
+					__( 'The request method is missing.', 'jetpack-connection' ),
 					array( 'status' => 400 )
 				);
 				return null;
@@ -123,7 +133,7 @@ class Rest_Authentication {
 			if ( 'GET' !== $_SERVER['REQUEST_METHOD'] && 'POST' !== $_SERVER['REQUEST_METHOD'] ) {
 				$this->rest_authentication_status = new \WP_Error(
 					'rest_invalid_request',
-					__( 'This request method is not supported.', 'jetpack' ),
+					__( 'This request method is not supported.', 'jetpack-connection' ),
 					array( 'status' => 400 )
 				);
 				return null;
@@ -131,7 +141,7 @@ class Rest_Authentication {
 			if ( 'POST' !== $_SERVER['REQUEST_METHOD'] && ! empty( file_get_contents( 'php://input' ) ) ) {
 				$this->rest_authentication_status = new \WP_Error(
 					'rest_invalid_request',
-					__( 'This request method does not support body parameters.', 'jetpack' ),
+					__( 'This request method does not support body parameters.', 'jetpack-connection' ),
 					array( 'status' => 400 )
 				);
 				return null;
@@ -142,18 +152,30 @@ class Rest_Authentication {
 			if (
 				$verified &&
 				isset( $verified['type'] ) &&
+				'blog' === $verified['type']
+			) {
+				// Site-level authentication successful.
+				$this->rest_authentication_status = true;
+				$this->rest_authentication_type   = 'blog';
+				return null;
+			}
+
+			if (
+				$verified &&
+				isset( $verified['type'] ) &&
 				'user' === $verified['type'] &&
 				! empty( $verified['user_id'] )
 			) {
-				// Authentication successful.
+				// User-level authentication successful.
 				$this->rest_authentication_status = true;
+				$this->rest_authentication_type   = 'user';
 				return $verified['user_id'];
 			}
 
 			// Something else went wrong.  Probably a signature error.
 			$this->rest_authentication_status = new \WP_Error(
 				'rest_invalid_signature',
-				__( 'The request is not signed correctly.', 'jetpack' ),
+				__( 'The request is not signed correctly.', 'jetpack-connection' ),
 				array( 'status' => 400 )
 			);
 			return null;
@@ -181,5 +203,18 @@ class Rest_Authentication {
 	public function reset_saved_auth_state() {
 		$this->rest_authentication_status = null;
 		$this->connection_manager->reset_saved_auth_state();
+	}
+
+	/**
+	 * Whether the request was signed with a blog token.
+	 *
+	 * @since 1.29.0
+	 *
+	 * @return bool True if the request was signed with a valid blog token, false otherwise.
+	 */
+	public static function is_signed_with_blog_token() {
+		$instance = self::init();
+
+		return true === $instance->rest_authentication_status && 'blog' === $instance->rest_authentication_type;
 	}
 }

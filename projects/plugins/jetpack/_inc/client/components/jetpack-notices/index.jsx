@@ -4,19 +4,22 @@
 import PropTypes from 'prop-types';
 import React from 'react';
 import { connect } from 'react-redux';
+import { withRouter } from 'react-router-dom';
+import SocialLogo from 'social-logos';
 
 /**
  * WordPress dependencies
  */
 import { createInterpolateElement } from '@wordpress/element';
 import { __, sprintf } from '@wordpress/i18n';
+import { getRedirectUrl } from '@automattic/jetpack-components';
 
 /**
  * Internal dependencies
  */
 import ConnectionBanner from 'components/connection-banner';
 import DismissableNotices from './dismissable';
-import getRedirectUrl from 'lib/jp-redirect';
+import UserLicenseActivationNotice from './user-license-activation';
 import {
 	getSiteConnectionStatus,
 	getSiteOfflineMode,
@@ -28,6 +31,7 @@ import {
 	hasConnectedOwner,
 } from 'state/connection';
 import {
+	isAtomicSite,
 	isDevVersion,
 	userCanConnectAccount,
 	userCanConnectSite,
@@ -191,7 +195,7 @@ export class UserUnlinked extends React.Component {
 						) }
 						callToAction={ __( 'Create account', 'jetpack' ) }
 						href={ `${ this.props.connectUrl }&from=unlinked-user-connect` }
-						icon="my-sites"
+						icon={ <SocialLogo icon="wordpress" size={ 24 } /> }
 						className="is-jetpack-info"
 						from="unlinked-user-connect"
 						connectUser={ true }
@@ -216,6 +220,9 @@ class JetpackNotices extends React.Component {
 		const siteDataErrors = this.props.siteDataErrors.filter( error =>
 			error.hasOwnProperty( 'action' )
 		);
+
+		const isUserConnectScreen = '/connect-user' === this.props.location.pathname;
+		const isUserLicenseActivationScreen = this.props.location.pathname.startsWith( '/license' );
 
 		return (
 			<div aria-live="polite">
@@ -247,7 +254,8 @@ class JetpackNotices extends React.Component {
 					this.props.userCanConnectAccount &&
 					this.props.hasConnectedOwner &&
 					! siteDataErrors.length &&
-					! this.props.connectionErrors.length && (
+					! this.props.connectionErrors.length &&
+					! isUserConnectScreen && (
 						<UserUnlinked
 							connectUrl={ this.props.connectUrl }
 							siteConnected={ true === this.props.siteConnectionStatus }
@@ -272,6 +280,9 @@ class JetpackNotices extends React.Component {
 						onDismissClick={ this.props.clearLicensingError }
 					/>
 				) }
+				{ ! isUserLicenseActivationScreen && ! this.props.isAtomicSite && (
+					<UserLicenseActivationNotice pathname={ this.props.location.pathname } />
+				) }
 			</div>
 		);
 	}
@@ -287,6 +298,7 @@ export default connect(
 			userIsSubscriber: userIsSubscriber( state ),
 			isLinked: isCurrentUserLinked( state ),
 			isDevVersion: isDevVersion( state ),
+			isAtomicSite: isAtomicSite( state ),
 			siteOfflineMode: getSiteOfflineMode( state ),
 			isStaging: isStaging( state ),
 			isInIdentityCrisis: isInIdentityCrisis( state ),
@@ -304,4 +316,4 @@ export default connect(
 			},
 		};
 	}
-)( JetpackNotices );
+)( withRouter( JetpackNotices ) );

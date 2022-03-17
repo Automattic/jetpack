@@ -25,7 +25,7 @@ const RADIO_OPTIONS = [
 	},
 ];
 
-class RepeatVisitorEdit extends Component {
+export class RepeatVisitorEdit extends Component {
 	state = {
 		isThresholdValid: true,
 	};
@@ -116,7 +116,9 @@ class RepeatVisitorEdit extends Component {
 				<Notice status="info" isDismissible={ false }>
 					{ this.getNoticeLabel() }
 				</Notice>
-				<InnerBlocks />
+				<div className="wp-block-jetpack-repeat-visitor__inner-container">
+					<InnerBlocks />
+				</div>
 			</div>
 		);
 	}

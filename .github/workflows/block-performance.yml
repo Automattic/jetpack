@@ -1,0 +1,94 @@
+name: Jetpack block performance
+
+on:
+  schedule:
+    - cron:  '0 */12 * * *'
+
+jobs:
+  block-performance:
+    name: "Performance tests"
+    runs-on: ubuntu-latest
+    timeout-minutes: 50  # 2021-12-13: Successful runs seem to take 40 minutes
+    steps:
+      - uses: actions/checkout@v3
+
+      - name: Setup tools for G
+        uses: ./.github/actions/tool-setup
+        with:
+          node: 14
+
+      - uses: actions/checkout@v3
+        with:
+          repository: 'WordPress/gutenberg'
+          path: 'gutenberg'
+
+      - name: Build Gutenberg
+        working-directory: gutenberg
+        run: |
+          npm ci
+          npm run build
+
+      - uses: actions/cache@v2
+        with:
+          path: ~/.npm
+          key: ${{ runner.os }}-node-${{ hashFiles('gutenberg/**/package-lock.json') }}
+          restore-keys: |
+            ${{ runner.os }}-node-
+
+      - name: Setup tools for J
+        uses: ./.github/actions/tool-setup
+
+      - name: Build Production Jetpack
+        run: |
+          pnpm install
+          pnpx jetpack build plugins/jetpack -v --production
+
+      - name: Environment set-up
+        working-directory: tools/e2e-commons
+        env:
+          CONFIG_KEY: ${{ secrets.E2E_CONFIG_KEY }}
+        run: |
+          # Gutenberg Performance tests require disable-animations.php test plugin to be available on a site. Below we inject the mapping for that plugin into a Docker config file
+
+          echo "e2e:" >> ../docker/jetpack-docker-config.yml
+          echo "  volumeMappings:" >> ../docker/jetpack-docker-config.yml
+          echo "    gutenberg/packages/e2e-tests/plugins/disable-animations.php: /var/www/html/wp-content/plugins/disable-animations.php" >> ../docker/jetpack-docker-config.yml
+
+          mkdir results
+          pnpm config:decrypt
+          pnpm env:start
+
+      - name: Run performance tests
+        working-directory: tools/e2e-commons
+        run: |
+          node ./bin/performance.js
+
+      - name: Environment tear-down
+        if: ${{ always() }}
+        working-directory: tools/e2e-commons
+        continue-on-error: true
+        run: |
+          pnpm run tunnel:off
+
+      - name: Upload test artifacts
+        if: ${{ always() }}
+        continue-on-error: true
+        uses: actions/upload-artifact@v3
+        with:
+          name: test-output-block-perf
+          path: tools/e2e-commons/results
+
+  test-reports:
+    name: "Trigger test report workflow"
+    runs-on: ubuntu-latest
+    if: ${{ ! cancelled() }}
+    needs: block-performance
+
+    steps:
+      - name: Repository Dispatch
+        uses: peter-evans/repository-dispatch@v1
+        with:
+          token: ${{ secrets.E2E_TEST_REPORTS_TOKEN }}
+          repository: automattic/jetpack-e2e-reports
+          event-type: block-perf
+          client-payload: '{"run_id": "${{github.run_id}}", "repository": "${{github.repository}}"}'

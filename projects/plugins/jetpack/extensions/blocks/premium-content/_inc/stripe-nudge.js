@@ -10,13 +10,11 @@ import { Icon, starFilled } from '@wordpress/icon';
 
 /**
  * @typedef { import('react').MouseEvent<HTMLElement> } MouseEvent
- *
  * @typedef {object} Props
  * @property { (event: MouseEvent) => void } autosaveAndRedirect
  * @property { string } stripeConnectUrl
  * @property { () => void } onClick
  * @param { Props } props
- *
  * @returns {object} Warning component.
  */
 export const StripeNudge = ( { autosaveAndRedirect, stripeConnectUrl } ) => (
@@ -29,7 +27,7 @@ export const StripeNudge = ( { autosaveAndRedirect, stripeConnectUrl } ) => (
 					href={ stripeConnectUrl } // Only for server-side rendering, since onClick doesn't work there.
 					onClick={ autosaveAndRedirect }
 					target="_top"
-					isDefault
+					variant="secondary"
 					className="premium-content-block-nudge__button stripe-nudge__button"
 				>
 					{ __( 'Connect', 'jetpack' ) }
@@ -62,18 +60,16 @@ export const StripeNudge = ( { autosaveAndRedirect, stripeConnectUrl } ) => (
  * @type { import('react').ComponentType }
  */
 export default compose( [
-	withDispatch(
-		( dispatch, { stripeConnectUrl } ) => ( {
-			/**
-			 * @param { MouseEvent } event
-			 * @returns { Promise<void> } When completed
-			 */
-			autosaveAndRedirect: async event => {
-				event.preventDefault(); // Don't follow the href before autosaving
-				await dispatch( 'core/editor' ).savePost();
-				// Using window.top to escape from the editor iframe on WordPress.com
-				window.top.location.href = stripeConnectUrl;
-			},
-		} )
-	),
+	withDispatch( ( dispatch, { stripeConnectUrl } ) => ( {
+		/**
+		 * @param { MouseEvent } event
+		 * @returns { Promise<void> } When completed
+		 */
+		autosaveAndRedirect: async event => {
+			event.preventDefault(); // Don't follow the href before autosaving
+			await dispatch( 'core/editor' ).savePost();
+			// Using window.top to escape from the editor iframe on WordPress.com
+			window.top.location.href = stripeConnectUrl;
+		},
+	} ) ),
 ] )( StripeNudge );

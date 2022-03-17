@@ -172,7 +172,7 @@ function latex_more_info() {
 		'LaTeX is a powerful markup language for writing complex mathematical equations and formulas.
 		Jetpack combines the power of LaTeX and the simplicity of WordPress to give you the ultimate
 		in math blogging platforms. Use $latex your latex code here$ or [latex]your latex code here[/latex]
-		to include  in your posts and comments. Enjoy all sorts of options and embrace your inner nerd.',
+		to include in your posts and comments. Enjoy all sorts of options and embrace your inner nerd.',
 		'jetpack'
 	);
 }
@@ -655,7 +655,7 @@ add_action( 'jetpack_learn_more_button_verification-tools', 'jetpack_verificatio
  */
 function jetpack_verification_tools_more_info() {
 	esc_html_e(
-		'Verify your site ownership with services like Google, Bing, Pinterest, and Yandex. This gives you access to
+		'Verify your site ownership with services like Google, Bing, Pinterest, Yandex, and Facebook. This gives you access to
 		advanced features on these services and get verification badges.',
 		'jetpack'
 	);
@@ -873,3 +873,19 @@ function jetpack_more_info_copy_post() {
 	esc_html_e( 'Create a new post based on an existing post.', 'jetpack' );
 }
 add_action( 'jetpack_module_more_info_copy-post', 'jetpack_more_info_copy_post' );
+
+/**
+ * Google Fonts support link.
+ */
+function jetpack_google_fonts_more_link() {
+	echo esc_url( Redirect::get_url( 'jetpack-support-google-fonts' ) );
+}
+add_action( 'jetpack_learn_more_button_google-fonts', 'jetpack_google_fonts_more_link' );
+
+/**
+ * Google Fonts description.
+ */
+function jetpack_more_info_google_fonts() {
+	esc_html_e( 'A selection of Google fonts for block enabled themes.', 'jetpack' );
+}
+add_action( 'jetpack_module_more_info_google-fonts', 'jetpack_more_info_google_fonts' );

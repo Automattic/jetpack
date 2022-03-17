@@ -236,6 +236,7 @@
 
 #jp-relatedposts .jp-relatedposts-items-visual .jp-relatedposts-post img.jp-relatedposts-post-img,
 #jp-relatedposts .jp-relatedposts-items-visual .jp-relatedposts-post span {
+	height: auto;
 	max-width: 100%;
 }
 
@@ -312,5 +313,15 @@
 		float: none;
 		max-width: 100%;
 		margin-right: 0;
+	}
+}
+
+/*
+ * Hide the related post section in the print view of a post
+ */
+
+@media print {
+	.jp-relatedposts {
+		display:none !important;
 	}
 }

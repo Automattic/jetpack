@@ -1,18 +1,8 @@
 #jetpack-connection-ui-container {
-	max-width: 800px;
-	margin-left: auto;
-	margin-right: auto;
+	margin: 40px;
 
 	p {
 		font-size: 1.23em;
 		line-height: 1.5em;
-	}
-
-	button {
-		border-radius: 3px;
-	}
-
-	.connection-status-card {
-		margin: 10px 0;
 	}
 }

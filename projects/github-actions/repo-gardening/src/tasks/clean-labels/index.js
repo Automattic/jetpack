@@ -58,7 +58,7 @@ async function cleanLabels( payload, octokit ) {
 	);
 	labelsToRemoveFromPr.map( name => {
 		debug( `clean-labels: removing the ${ name } label from PR #${ number }` );
-		octokit.issues.removeLabel( {
+		octokit.rest.issues.removeLabel( {
 			owner: ownerLogin,
 			repo,
 			issue_number: number,

@@ -56,5 +56,5 @@ export default function useUpgradeFlow( planSlug, onRedirect = noop ) {
 		autosaveAndRedirect( event );
 	};
 
-	return [ checkoutUrl, goToCheckoutPage, isRedirecting ];
+	return [ checkoutUrl, goToCheckoutPage, isRedirecting, planData ];
 }

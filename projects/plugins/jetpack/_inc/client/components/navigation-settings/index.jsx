@@ -106,7 +106,7 @@ export const NavigationSettings = createReactClass( {
 	},
 
 	render: function () {
-		let navItems, sharingTab;
+		let navItems, sharingTab, writingTab;
 		if ( this.props.userCanManageModules ) {
 			navItems = (
 				<NavTabs selectedText={ this.props.routeName }>
@@ -192,6 +192,7 @@ export const NavigationSettings = createReactClass( {
 		} else if ( this.props.isSubscriber ) {
 			navItems = false;
 		} else {
+			// Show a sharing tab if the Publicize module is active and the user can publish.
 			if ( ! this.props.isModuleActivated( 'publicize' ) || ! this.props.userCanPublish ) {
 				sharingTab = '';
 			} else {
@@ -199,30 +200,34 @@ export const NavigationSettings = createReactClass( {
 					<NavItem
 						path="#sharing"
 						onClick={ this.handleClickForTracking( 'sharing' ) }
-						selected={ this.props.location.pathname === '/sharing' }
+						selected={
+							this.props.location.pathname === '/sharing' ||
+							this.props.location.pathname === '/settings'
+						}
 					>
 						{ _x( 'Sharing', 'Navigation item.', 'jetpack' ) }
 					</NavItem>
 				);
 			}
+
+			// Show a Writing tab if the Post By Email module is active and the user can publish.
+			if ( ! this.props.isModuleActivated( 'post-by-email' ) || ! this.props.userCanPublish ) {
+				writingTab = '';
+			} else {
+				writingTab = this.props.hasAnyOfTheseModules( [ 'post-by-email' ] ) && (
+					<NavItem
+						path="#writing"
+						onClick={ this.handleClickForTracking( 'writing' ) }
+						selected={ this.props.location.pathname === '/writing' }
+					>
+						{ _x( 'Writing', 'Navigation item.', 'jetpack' ) }
+					</NavItem>
+				);
+			}
 			navItems = (
 				<NavTabs selectedText={ this.props.routeName }>
-					{ this.props.hasAnyOfTheseModules( [ 'post-by-email' ] ) && (
-						<NavItem
-							path="#writing"
-							onClick={ this.handleClickForTracking( 'writing' ) }
-							selected={
-								this.props.location.pathname === '/writing' ||
-								this.props.location.pathname === '/settings'
-							}
-						>
-							{ _x( 'Writing', 'Navigation item.', 'jetpack' ) }
-						</NavItem>
-					) }
-					{
-						// Give only Publicize to non admin users
-						sharingTab
-					}
+					{ writingTab }
+					{ sharingTab }
 				</NavTabs>
 			);
 		}

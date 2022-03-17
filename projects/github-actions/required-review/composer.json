@@ -1,16 +1,15 @@
 {
 	"name": "automattic/action-required-review",
-	"description": "GitHub Action to check that required reviewers have accepted the PR, setting a status check accordingly.",
+	"description": "GitHub Action to check that a Pull Request has reviews from required teams.",
 	"type": "project",
 	"license": "GPL-2.0-or-later",
 	"require": {},
 	"require-dev": {
-		"automattic/jetpack-changelogger": "1.2.x-dev"
+		"automattic/jetpack-changelogger": "3.0.x-dev"
 	},
 	"scripts": {
 		"build-development": [
-			"yarn install",
-			"yarn build"
+			"pnpm run build"
 		]
 	},
 	"repositories": [
