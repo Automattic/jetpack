@@ -12,7 +12,7 @@ import { useProduct } from '../../hooks/use-product';
 import { getIconBySlug } from '../icons';
 import useMyJetpackNavigate from '../../hooks/use-my-jetpack-navigate';
 
-const ConnectedProductCard = ( { admin, slug, showDeactivate } ) => {
+const ConnectedProductCard = ( { admin, slug, showDeactivate, ...props } ) => {
 	const { detail, status, activate, deactivate, isFetching } = useProduct( slug );
 	const { name, description, manageUrl } = detail;
 
@@ -32,7 +32,7 @@ const ConnectedProductCard = ( { admin, slug, showDeactivate } ) => {
 		<ProductCard
 			name={ name }
 			description={ description }
-			status={ status }
+			status={ props.status || status }
 			icon={ <Icon /> }
 			admin={ admin }
 			isFetching={ isFetching }
