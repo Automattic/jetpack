@@ -35,7 +35,16 @@ export const getProducts = ( selectedProductId = 0, setSelectedProductId = () =>
 		if ( ! response && typeof response !== 'object' ) {
 			return;
 		}
-		const wpError = response?.errors && Object.values( response?.errors )?.[ 0 ]?.[ 0 ];
+
+		/**
+		 * WP_Error returns a list of errors with custom names:
+		 * `errors: { foo: [ 'message' ], bar: [ 'message' ] }`
+		 * Since we don't know their names, to get the message, we transform the object
+		 * into an array, and just pick the first message of the first error.
+		 *
+		 * @see https://developer.wordpress.org/reference/classes/wp_error/
+		 */
+		const wpError = response?.errors && Object.values( response.errors )?.[ 0 ]?.[ 0 ];
 		if ( wpError ) {
 			dispatch( setApiState( API_STATE_NOTCONNECTED ) );
 			onError( wpError, registry );
