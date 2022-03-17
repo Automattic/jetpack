@@ -77,6 +77,7 @@ async function checkChangelogFiles() {
 						console.log(
 							chalk.green( 'Changelog file(s) committed! Go ahead and `git push` again.' )
 						);
+						throw new Error( 'Your changelog file was committed! Go ahead and `git push` again.' );
 					}
 				}
 			}
