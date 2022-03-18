@@ -41,11 +41,10 @@ wp_register_webfont(
 
 ### Add preconnect link
 
-Adding a preconnect link to the `<head>` of the page will help make sure the font files load as soon as possible, and reduce the layout shift when they are displayed. See [this list of webfont best practices](https://web.dev/font-best-practices/#preconnect-to-critical-third-party-origins) for more details.
+Adding a preconnect link to the `<head>` of the page will help make sure the font files load as soon as possible, and reduce the layout shift when they are displayed. See [this list of webfont best practices](https://web.dev/font-best-practices/#preconnect-to-critical-third-party-origins) for more details. To do so, we can rely on WordPress' `wp_resource_hints` filter like so:
 
 ```php
-// Run on an early priority to print out the preconnect link tag near the start of the page source.
-add_action( 'wp_head', '\Automattic\Jetpack\Fonts\Google_Fonts_Provider::preconnect_font_source', 0 );
+add_filter( 'wp_resource_hints', '\Automattic\Jetpack\Fonts\Utils::font_source_resource_hint', 10, 2 );
 ```
 
 ### Additional info

@@ -5,7 +5,7 @@ module.exports = {
 	parser: '@typescript-eslint/parser',
 	extends: [
 		'@sveltejs',
-		'../../../.eslintrc.normal.js',
+		'../../../tools/js-tools/eslintrc/base.js',
 		'plugin:@typescript-eslint/recommended',
 		'plugin:@wordpress/eslint-plugin/recommended',
 	],

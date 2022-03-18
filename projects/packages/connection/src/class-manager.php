@@ -116,6 +116,7 @@ class Manager {
 		if ( defined( 'JETPACK__SANDBOX_DOMAIN' ) && JETPACK__SANDBOX_DOMAIN ) {
 			( new Server_Sandbox() )->init();
 		}
+
 	}
 
 	/**
@@ -2488,4 +2489,5 @@ class Manager {
 		}
 		return $stats;
 	}
+
 }

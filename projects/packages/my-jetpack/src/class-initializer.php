@@ -27,7 +27,7 @@ class Initializer {
 	 *
 	 * @var string
 	 */
-	const PACKAGE_VERSION = '0.6.9-alpha';
+	const PACKAGE_VERSION = '0.6.11-alpha';
 
 	/**
 	 * Initialize My Jetapack
@@ -35,7 +35,7 @@ class Initializer {
 	 * @return void
 	 */
 	public static function init() {
-		if ( ! self::should_initialize() ) {
+		if ( ! self::should_initialize() || did_action( 'my_jetpack_init' ) ) {
 			return;
 		}
 
@@ -50,11 +50,7 @@ class Initializer {
 
 		$page_suffix = Admin_Menu::add_menu(
 			__( 'My Jetpack', 'jetpack-my-jetpack' ),
-			sprintf(
-			/* translators: %s: "beta" label on Menu item for My Jetpack. */
-				__( 'My Jetpack %s', 'jetpack-my-jetpack' ),
-				'<span style="display:inline-block; margin: 0 8px; color: #bbb;">' . __( 'beta', 'jetpack-my-jetpack' ) . '</span>'
-			),
+			__( 'My Jetpack', 'jetpack-my-jetpack' ),
 			'manage_options',
 			'my-jetpack',
 			array( __CLASS__, 'admin_page' ),
@@ -215,9 +211,6 @@ class Initializer {
 	 * Return true if we should initialize the My Jetpack
 	 */
 	public static function should_initialize() {
-		if ( did_action( 'my_jetpack_init' ) ) {
-			return false;
-		}
 
 		if ( is_multisite() ) {
 			return false;

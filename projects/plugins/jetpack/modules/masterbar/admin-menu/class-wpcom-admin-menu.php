@@ -88,10 +88,22 @@ class WPcom_Admin_Menu extends Admin_Menu {
 	}
 
 	/**
+	 * Retrieve the number of blogs that the current user has.
+	 *
+	 * @return int
+	 */
+	public function get_current_user_blog_count() {
+		if ( function_exists( '\get_blog_count_for_user' ) ) {
+			return \get_blog_count_for_user( get_current_user_id() );
+		}
+		return count( get_blogs_of_user( get_current_user_id() ) );
+	}
+
+	/**
 	 * Adds the site switcher link if user has more than one site.
 	 */
 	public function add_browse_sites_link() {
-		if ( count( get_blogs_of_user( get_current_user_id() ) ) < 2 ) {
+		if ( $this->get_current_user_blog_count() < 2 ) {
 			return;
 		}
 
@@ -123,7 +135,7 @@ class WPcom_Admin_Menu extends Admin_Menu {
 	 * Adds a link to the menu to create a new site.
 	 */
 	public function add_new_site_link() {
-		if ( count( get_blogs_of_user( get_current_user_id() ) ) > 1 ) {
+		if ( $this->get_current_user_blog_count() > 1 ) {
 			return;
 		}
 
