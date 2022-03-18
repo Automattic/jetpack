@@ -30,10 +30,10 @@ class Jetpack_Components {
 		 */
 		$markup = '';
 		if ( 'frontend-nudge' === $name ) {
-			$markup = '<div class="jetpack-upgrade-plan-banner"><div class="jetpack-upgrade-plan-banner__wrapper"><span class="undefined__description banner-description">#description#</span><a href="#checkoutUrl#" target="_top" class="components-button is-primary">#buttonText#</a></div></div>';
+			$markup = '<div class="jetpack-upgrade-plan-banner"><div class="jetpack-upgrade-plan-banner__wrapper"><span class="banner-description">#description#</span><a href="#checkoutUrl#" target="_top" class="components-button is-primary">#buttonText#</a></div></div>';
 		} elseif ( 'upgrade-nudge' === $name ) {
 			$markup = sprintf(
-				'<div class="jetpack-upgrade-plan-banner"><div class="jetpack-upgrade-plan-banner__wrapper"><span class="undefined__description banner-description"><span>%1$s</span></span><a href="#checkoutUrl#" target="_top" class="components-button is-primary"><span>%2$s</span></a></div></div>',
+				'<div class="jetpack-upgrade-plan-banner"><div class="jetpack-upgrade-plan-banner__wrapper"><span class="banner-description"><span>%1$s</span></span><a href="#checkoutUrl#" target="_top" class="components-button is-primary"><span>%2$s</span></a></div></div>',
 				esc_html__( 'Upgrade your plan to use this premium block', 'jetpack' ),
 				esc_html__( 'Upgrade', 'jetpack' )
 			);
