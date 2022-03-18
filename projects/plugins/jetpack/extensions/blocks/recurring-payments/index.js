@@ -93,7 +93,10 @@ export const settings = {
 			{
 				type: 'block',
 				blocks: [ 'core/buttons' ],
-				transform: ( _, fromInnerBlocks ) => {
+				transform: ( fromBlockAttribs, fromInnerBlocks ) => {
+					const toBlockAttribs = {
+						layout: fromBlockAttribs?.layout,
+					};
 					const transformedInnerBlocks = fromInnerBlocks.map( fromInnerBlock => {
 						const toButtonAttrs = {
 							element: 'a',
@@ -120,7 +123,7 @@ export const settings = {
 						return createBlock( 'jetpack/' + name + '-button', {}, [ toJetpackButton ] );
 					} );
 
-					return createBlock( 'jetpack/' + name, {}, transformedInnerBlocks );
+					return createBlock( 'jetpack/' + name, toBlockAttribs, transformedInnerBlocks );
 				},
 			},
 		],
