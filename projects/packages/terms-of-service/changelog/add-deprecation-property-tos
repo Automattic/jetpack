@@ -1,4 +1,0 @@
-Significance: patch
-Type: deprecated
-
-Added a deprecation property to composer.json.

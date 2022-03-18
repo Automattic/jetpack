@@ -1,0 +1,5 @@
+Significance: patch
+Type: fixed
+Comment: Composer prefers `||` in version ranges, use that instead of `|`.
+
+

@@ -1,0 +1,4 @@
+Significance: patch
+Type: changed
+
+Use Migrated GlotPress locale classes from compat pkg.
