@@ -1,0 +1,4 @@
+Significance: minor
+Type: added
+
+Migrated GlotPress locale classes into compat pkg
