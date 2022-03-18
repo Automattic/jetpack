@@ -13,6 +13,7 @@ import save from './save';
 import icon from './button/icon';
 import { getIconColor } from '../../shared/block-icons';
 import { getSupportLink } from './util';
+import { createBlock } from '@wordpress/blocks';
 
 export const name = 'recurring-payments';
 export const title = __( 'Payment Buttons', 'jetpack' );
@@ -87,4 +88,41 @@ export const settings = {
 	},
 	edit,
 	save,
+	transforms: {
+		from: [
+			{
+				type: 'block',
+				blocks: [ 'core/buttons' ],
+				transform: ( _, fromInnerBlocks ) => {
+					const transformedInnerBlocks = fromInnerBlocks.map( fromInnerBlock => {
+						const toButtonAttrs = {
+							element: 'a',
+							text: fromInnerBlock.attributes.text ?? '',
+							className: fromInnerBlock.attributes.className ?? '',
+						};
+
+						const width = fromInnerBlock.attributes.width;
+						if ( width ) {
+							toButtonAttrs.width = width.toString() + '%';
+						}
+
+						// Map borderRadius from nnpx to nn.
+						// core/button has a max button radius of 100, but jetpack/button has a max of 50
+						// this relies upon jetpack/button enforcing it's maximum.
+						const borderRadius = fromInnerBlock.attributes.style?.border?.radius;
+						if ( borderRadius ) {
+							toButtonAttrs.borderRadius = parseInt(
+								borderRadius.substring( 0, borderRadius.length - 2 )
+							);
+						}
+
+						const toJetpackButton = createBlock( 'jetpack/button', toButtonAttrs, [] );
+						return createBlock( 'jetpack/' + name + '-button', {}, [ toJetpackButton ] );
+					} );
+
+					return createBlock( 'jetpack/' + name, {}, transformedInnerBlocks );
+				},
+			},
+		],
+	},
 };
