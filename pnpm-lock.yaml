@@ -965,7 +965,7 @@ importers:
       '@automattic/jetpack-connection': workspace:^0.17.4-alpha
       '@automattic/jetpack-licensing': workspace:^0.4.11-alpha
       '@automattic/jetpack-partner-coupon': workspace:^0.2.5-alpha
-      '@automattic/jetpack-shared-extension-utils': workspace:^0.3.0-alpha
+      '@automattic/jetpack-shared-extension-utils': workspace:^0.2.0
       '@automattic/jetpack-webpack-config': workspace:^1.1.4
       '@automattic/popup-monitor': 1.0.0
       '@automattic/remove-asset-webpack-plugin': workspace:^1.0.3
