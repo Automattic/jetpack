@@ -75,7 +75,7 @@ export function ButtonWidthControl( { align, width, onChange } ) {
 								<Button
 									key={ widthValue }
 									isSmall
-									isPrimary={ widthValue === width }
+									variant={ widthValue === width ? 'primary' : undefined }
 									onClick={ () => handleChange( widthValue ) }
 								>
 									{ widthValue }

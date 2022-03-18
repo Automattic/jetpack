@@ -16,8 +16,7 @@ import { fireEvent, render, screen } from 'test/test-utils';
 
 describe( 'Recommendations – Product Suggestions', () => {
 	const DUMMY_ACTION = { type: 'dummy' };
-	let updateRecommendationsStepStub,
-		addSkippedRecommendationStub;
+	let updateRecommendationsStepStub, addSkippedRecommendationStub;
 
 	before( function () {
 		updateRecommendationsStepStub = sinon
@@ -40,7 +39,9 @@ describe( 'Recommendations – Product Suggestions', () => {
 
 		// Make sure we display all static data.
 		expect( screen.getAllByText( 'Choose a plan' ) ).to.be.not.null;
-		expect( screen.getAllByText( 'These are the most popular Jetpack plans for sites like yours:' ) ).to.be.not.null;
+		expect(
+			screen.getAllByText( 'These are the most popular Jetpack plans for sites like yours:' )
+		).to.be.not.null;
 		expect( screen.getAllByText( '14-day money-back guarantee' ) ).to.be.not.null;
 		expect( screen.getAllByText( 'Decide later' ) ).to.be.not.null;
 
@@ -64,17 +65,20 @@ describe( 'Recommendations – Product Suggestions', () => {
 		expect( skipLink ).to.be.not.null;
 
 		// Execute click event.
-		expect( recordEventStub.callCount ).to.be.equal( 0 );
 		fireEvent.click( skipLink );
 
 		// Verify that tracking is working.
-		expect( recordEventStub.withArgs( 'jetpack_recommendations_product_suggestions_decide_later_click' ).callCount ).to.be.equal( 1 );
+		expect(
+			recordEventStub.withArgs( 'jetpack_recommendations_product_suggestions_decide_later_click' )
+				.callCount
+		).to.be.equal( 1 );
 
 		// Make sure addSkippedRecommendation action is called with the right step slug.
-		expect( addSkippedRecommendationStub.withArgs( 'product-suggestions' ).callCount ).to.be.equal( 1 );
+		expect( addSkippedRecommendationStub.withArgs( 'product-suggestions' ).callCount ).to.be.equal(
+			1
+		);
 
 		// Restore stubs.
 		recordEventStub.restore();
 	} );
-
 } );

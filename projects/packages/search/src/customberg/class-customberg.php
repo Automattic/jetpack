@@ -8,10 +8,9 @@
 namespace Automattic\Jetpack\Search;
 
 use Automattic\Jetpack\Assets;
+use Automattic\Jetpack\Connection\Manager as Connection_Manager;
 use Automattic\Jetpack\Status;
 use Automattic\Jetpack\Tracking;
-use Jetpack;
-use Jetpack_Plan;
 
 /**
  * Responsible for adding a search customization interface to wp-admin.
@@ -93,7 +92,7 @@ class Customberg {
 	 * Loads assets for the customization experience.
 	 */
 	public function load_assets() {
-			$this->load_assets_with_parameters( constant( 'JETPACK_SEARCH_PKG__DIR' ) );
+			$this->load_assets_with_parameters( Package::get_installed_path() );
 	}
 
 	/**
@@ -134,10 +133,13 @@ class Customberg {
 	 */
 	protected function should_add_page() {
 		$is_offline_mode = ( new Status() )->is_offline_mode();
+		$is_connected    = ( new Connection_Manager( Package::SLUG ) )->is_connected();
+		$supports_search = ( new Plan() )->supports_instant_search();
+
 		return (
 			! $is_offline_mode && // Must be online.
-			Jetpack::is_connection_ready() && // Must be connected.
-			method_exists( 'Jetpack_Plan', 'supports' ) && Jetpack_Plan::supports( 'search' ) // Must have plan supporting Jetpack (Instant) Search.
+			$is_connected && // Must be connected.
+			$supports_search // Must have plan supporting Jetpack (Instant) Search.
 		);
 	}
 }

@@ -373,19 +373,6 @@ function runCheckCopiedFiles() {
 }
 
 /**
- * Check that renovate's ignore list is up to date. Runs in draft mode but does not block commit.
- */
-function runCheckRenovateIgnoreList() {
-	const result = spawnSync( './tools/js-tools/check-renovate-ignore-list.js', [], {
-		shell: true,
-		stdio: 'inherit',
-	} );
-	if ( result && result.status && ! isJetpackDraftMode() ) {
-		checkFailed( '' );
-	}
-}
-
-/**
  * Lints GitHub Actions yaml files.
  */
 function runCheckGitHubActionsYamlFiles() {
@@ -424,7 +411,6 @@ function exit( exitCodePassed ) {
 // Start of pre-commit checks execution.
 
 runCheckCopiedFiles();
-runCheckRenovateIgnoreList();
 runCheckGitHubActionsYamlFiles();
 sortPackageJson( jsFiles );
 

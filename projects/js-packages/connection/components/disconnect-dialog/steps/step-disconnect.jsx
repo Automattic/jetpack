@@ -69,7 +69,7 @@ const StepDisconnect = props => {
 
 		return (
 			<Button
-				isPrimary
+				variant="primary"
 				disabled={ isDisconnecting }
 				onClick={ handleDisconnectClick }
 				className="jp-connection__disconnect-dialog__btn-disconnect"
@@ -152,7 +152,7 @@ const StepDisconnect = props => {
 					</div>
 					<div className="jp-connection__disconnect-dialog__button-wrap lg-col-span-5 md-col-span-8 sm-col-span-4">
 						<Button
-							isPrimary
+							variant="primary"
 							disabled={ isDisconnecting }
 							onClick={ handleStayConnectedClick }
 							className="jp-connection__disconnect-dialog__btn-dismiss"
