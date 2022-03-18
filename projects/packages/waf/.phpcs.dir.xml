@@ -14,6 +14,13 @@
 		</properties>
 	</rule>
 
+	<rule ref="WordPress.Utils.I18nTextDomainFixer">
+		<properties>
+			<property name="old_text_domain" type="array" />
+			<property name="new_text_domain" value="jetpack-waf" />
+		</properties>
+	</rule>
+
 	<!-- This is not WordPress code. -->
 	<rule ref="WordPress.Files.FileName">
 		<severity>0</severity>
