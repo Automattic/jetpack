@@ -1,9 +1,4 @@
 /**
- * External dependencies
- */
-import { isAtomicSite, isSimpleSite } from '@automattic/jetpack-shared-extension-utils';
-
-/**
  * WordPress dependencies
  */
 import { InnerBlocks } from '@wordpress/block-editor';
@@ -21,13 +16,11 @@ import edit from './edit';
 import { isPriceValid } from '../../../shared/currencies';
 import './editor.scss';
 import icon from './icon';
+import { getSupportLink } from '../util';
 
 export const name = 'recurring-payments-button';
 
-const supportLink =
-	isSimpleSite() || isAtomicSite()
-		? 'https://wordpress.com/support/video-tutorials-add-payments-features-to-your-site-with-our-guides/#how-to-use-the-payments-block-video'
-		: 'https://jetpack.com/support/jetpack-blocks/payments-block/';
+const supportLink = getSupportLink();
 
 export const settings = {
 	title: __( 'Payment Button', 'jetpack' ),

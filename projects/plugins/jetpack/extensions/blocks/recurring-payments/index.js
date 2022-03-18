@@ -12,17 +12,12 @@ import edit from './edit';
 import save from './save';
 import icon from './button/icon';
 import { getIconColor } from '../../shared/block-icons';
-
-import { isAtomicSite, isSimpleSite } from '@automattic/jetpack-shared-extension-utils';
+import { getSupportLink } from './util';
 
 export const name = 'recurring-payments';
 export const title = __( 'Payment Buttons', 'jetpack' );
 
-// TODO: this is copied and pasted from -button
-const supportLink =
-	isSimpleSite() || isAtomicSite()
-		? 'https://wordpress.com/support/video-tutorials-add-payments-features-to-your-site-with-our-guides/#how-to-use-the-payments-block-video'
-		: 'https://jetpack.com/support/jetpack-blocks/payments-block/';
+const supportLink = getSupportLink();
 
 export const settings = {
 	title,
@@ -70,7 +65,6 @@ export const settings = {
 		'venmo',
 	],
 	usesContext: [ 'isPremiumContentChild' ],
-	// TODO: Check these all make sense
 	supports: {
 		align: true,
 		anchor: true,
