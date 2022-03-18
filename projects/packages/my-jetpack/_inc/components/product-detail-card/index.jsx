@@ -6,6 +6,7 @@ import classnames from 'classnames';
 import { Icon, check, plus } from '@wordpress/icons';
 import { getCurrencyObject } from '@automattic/format-currency';
 import { __, sprintf } from '@wordpress/i18n';
+import { Text, Container, Col } from '@automattic/jetpack-components';
 
 /**
  * Internal dependencies
@@ -156,62 +157,80 @@ const ProductDetail = ( { slug, onClick, trackButtonClick } ) => {
 				</div>
 			) }
 
-			<div className={ styles.container }>
-				{ isBundle && <div className={ styles[ 'product-icons' ] }>{ icons }</div> }
+			<Container horizontalSpacing={ 5 } horizontalGap={ 2 } className={ styles.container }>
+				<Col>
+					{ isBundle && <div className={ styles[ 'product-icons' ] }>{ icons }</div> }
 
-				<ProductIcon slug={ slug } />
+					<ProductIcon slug={ slug } />
+				</Col>
 
-				<h3>{ title }</h3>
-				<p className={ styles.name }>{ longDescription }</p>
-				<ul className={ styles.features }>
-					{ features.map( ( feature, id ) => (
-						<li key={ `feature-${ id }` }>
-							<Icon icon={ check } size={ 30 } />
-							{ feature }
-						</li>
-					) ) }
-				</ul>
+				<Col>
+					<Text variant="headline-small" className={ styles.title }>
+						{ title }
+					</Text>
+				</Col>
+
+				<Col>
+					<Text className={ styles.name }>{ longDescription }</Text>
+				</Col>
+
+				<Col>
+					<ul className={ styles.features }>
+						{ features.map( ( feature, id ) => (
+							<Text component="li" key={ `feature-${ id }` }>
+								<Icon icon={ check } size={ 30 } />
+								{ feature }
+							</Text>
+						) ) }
+					</ul>
+				</Col>
 
 				{ needsPurchase && (
-					<div className={ styles[ 'price-container' ] }>
-						<Price value={ price } currency={ currencyCode } isOld={ true } />
-						<Price value={ discountPrice } currency={ currencyCode } isOld={ false } />
-						<div className={ styles[ 'price-description' ] }>
-							{ __( '/month, paid yearly', 'jetpack-my-jetpack' ) }
+					<Col>
+						<div className={ styles[ 'price-container' ] }>
+							<Price value={ price } currency={ currencyCode } isOld={ true } />
+							<Price value={ discountPrice } currency={ currencyCode } isOld={ false } />
+							<Text className={ styles[ 'price-description' ] }>
+								{ __( '/month, paid yearly', 'jetpack-my-jetpack' ) }
+							</Text>
 						</div>
-					</div>
+					</Col>
 				) }
 
 				{ isFree && (
-					<h3 className={ styles[ 'product-free' ] }>{ __( 'Free', 'jetpack-my-jetpack' ) }</h3>
+					<Col>
+						<h3 className={ styles[ 'product-free' ] }>{ __( 'Free', 'jetpack-my-jetpack' ) }</h3>
+					</Col>
 				) }
 
-				<div className={ styles[ 'cta-container' ] }>
-					{ ( ! isBundle || ( isBundle && ! hasRequiredPlan ) ) && (
-						<ProductDetailButton
-							onClick={ clickHandler }
-							isLoading={ isFetching }
-							isPrimary={ ! isBundle }
-							href={ onClick ? undefined : addProductUrl }
-							className={ `${ styles[ 'checkout-button' ] } ${
-								isBundle ? styles[ 'is-bundle' ] : ''
-							}` }
-						>
-							{
-								/* translators: placeholder is product name. */
-								sprintf( __( 'Add %s', 'jetpack-my-jetpack' ), title )
-							}
-						</ProductDetailButton>
-					) }
+				<Col>
+					<div className={ styles[ 'cta-container' ] }>
+						{ ( ! isBundle || ( isBundle && ! hasRequiredPlan ) ) && (
+							<ProductDetailButton
+								onClick={ clickHandler }
+								isLoading={ isFetching }
+								isPrimary={ ! isBundle }
+								href={ onClick ? undefined : addProductUrl }
+								className={ `${ styles[ 'checkout-button' ] } ${
+									isBundle ? styles[ 'is-bundle' ] : ''
+								}` }
+							>
+								{
+									/* translators: placeholder is product name. */
+									sprintf( __( 'Add %s', 'jetpack-my-jetpack' ), title )
+								}
+							</ProductDetailButton>
+						) }
 
-					{ isBundle && hasRequiredPlan && (
-						<div className={ styles[ 'product-has-required-plan' ] }>
-							<CheckmarkIcon size={ 36 } />
-							{ __( 'Active on your site', 'jetpack-my-jetpack' ) }
-						</div>
-					) }
-				</div>
-			</div>
+						{ isBundle && hasRequiredPlan && (
+							<div className={ styles[ 'product-has-required-plan' ] }>
+								<CheckmarkIcon size={ 36 } />
+								{ __( 'Active on your site', 'jetpack-my-jetpack' ) }
+							</div>
+						) }
+					</div>
+				</Col>
+			</Container>
 		</>
 	);
 };
