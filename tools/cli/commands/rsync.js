@@ -3,6 +3,7 @@
  */
 import inquirer from 'inquirer';
 import chalk from 'chalk';
+import execa from 'execa';
 import process from 'process';
 
 /**
@@ -10,6 +11,8 @@ import process from 'process';
  */
 import { allProjectsByType, dirs } from '../helpers/projectHelpers.js';
 import { runCommand } from '../helpers/runCommand.js';
+import { listProjectFiles } from '../helpers/list-project-files.js';
+import { projectDir } from '../helpers/install.js';
 
 /**
  * Entry point for the CLI.
@@ -18,12 +21,32 @@ import { runCommand } from '../helpers/runCommand.js';
  */
 export async function rsyncInit( argv ) {
 	argv = await promptForPlugin( argv );
+
+	const pluginPath = projectDir( `plugins/${ argv.plugin }` );
+	let includeFiles = '';
+	for await ( const file of listProjectFiles( pluginPath, execa ) ) {
+		// eslint-disable-next-line
+		console.log( file );
+		includeFiles += `--include '${ file }' `;
+	}
+
+	// eslint-disable-next-line
+	console.log( includeFiles );
+	// eslint-disable-next-line
+	// console.log( files );
 	argv = await promptForDest( argv );
 
 	try {
-		await runCommand( 'tools/rsync-plugins/rsync-plugins.sh', [
-			`-p ${ argv.plugin } -d ${ argv.dest }`,
+		await runCommand( 'rsync', [
+			`-azLKvP --delete --delete-after --dry-run`,
+			includeFiles,
+			"--exclude 'jetpack_vendor/**/vendor' --exclude 'node_modules' --exclude 'vendor/**/vendor'",
+			pluginPath,
+			argv.dest,
 		] );
+		// await runCommand( 'tools/rsync-plugins/rsync-plugins.sh', [
+		// 	`-p ${ argv.plugin } -d ${ argv.dest }`,
+		// ] );
 	} catch ( e ) {
 		console.error( chalk.red( 'Uh oh! ' + e.message ) );
 		console.log( argv );
