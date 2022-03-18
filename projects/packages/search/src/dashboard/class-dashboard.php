@@ -64,14 +64,7 @@ class Dashboard {
 	 * The page to be added to submenu
 	 */
 	public function add_wp_admin_submenu() {
-		/**
-		 * The filter allows to ommit adding a submenu item for Jetpack Search.
-		 *
-		 * @since $$next-version$$
-		 *
-		 * @param boolean $should_add_search_submenu Default value is true.
-		 */
-		if ( ! apply_filters( 'jetpack_search_should_add_search_submenu', $this->should_add_search_submenu() ) ) {
+		if ( ! $this->should_add_search_submenu() ) {
 			return;
 		}
 
@@ -107,16 +100,14 @@ class Dashboard {
 	 * @return {boolean} Show search sub menu or not.
 	 */
 	protected function should_add_search_submenu() {
-		if ( ! current_user_can( 'manage_options' ) ) {
-			return false;
-		}
-
-		// If site is in Offline Mode or not connected yet.
-		if ( ( new Status() )->is_offline_mode() || ! $this->connection_manager->is_connected() ) {
-			return false;
-		}
-
-		return $this->plan->ever_supported_search();
+		/**
+		 * The filter allows to ommit adding a submenu item for Jetpack Search.
+		 *
+		 * @since $$next-version$$
+		 *
+		 * @param boolean $should_add_search_submenu Default value is true.
+		 */
+		return apply_filters( 'jetpack_search_should_add_search_submenu', current_user_can( 'manage_options' ) );
 	}
 
 	/**
