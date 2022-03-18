@@ -6,8 +6,8 @@
 		"attributes": {
 			"planId": 12,
 			"align": "right",
-			"uniqueId": "recurring-payments-12",
-			"url": "?open_payment_plan=12"
+			"uniqueId": "id",
+			"url": "#"
 		},
 		"innerBlocks": [
 			{
@@ -19,8 +19,7 @@
 					"saveInPostContent": false,
 					"text": "Payment",
 					"borderRadius": 0,
-					"uniqueId": "recurring-payments-12",
-					"url": "?open_payment_plan=12"
+					"uniqueId": "recurring-payments-id"
 				},
 				"innerBlocks": [],
 				"originalContent": ""
