@@ -18,7 +18,7 @@ class Jetpack_Protect_Blocked_Login_Page {
 	 *
 	 * @var Jetpack_Protect_Blocked_Login_Page
 	 */
-	private static $__instance = null;
+	private static $instance = null;
 
 	/**
 	 * Can send recovery emails.
@@ -67,11 +67,11 @@ class Jetpack_Protect_Blocked_Login_Page {
 	 * @return object
 	 */
 	public static function instance( $ip_address ) {
-		if ( ! is_a( self::$__instance, 'Jetpack_Protect_Blocked_Login_Page' ) ) {
-			self::$__instance = new Jetpack_Protect_Blocked_Login_Page( $ip_address );
+		if ( ! is_a( self::$instance, 'Jetpack_Protect_Blocked_Login_Page' ) ) {
+			self::$instance = new Jetpack_Protect_Blocked_Login_Page( $ip_address );
 		}
 
-		return self::$__instance;
+		return self::$instance;
 	}
 
 	/**
@@ -244,6 +244,12 @@ class Jetpack_Protect_Blocked_Login_Page {
 		return true;
 	}
 
+	/**
+	 * Checks if recovery key is valid.
+	 *
+	 * @param string $key - they recovery key.
+	 * @param string $user_id - the User ID.
+	 */
 	public function is_valid_protect_recovery_key( $key, $user_id ) {
 
 		$path     = sprintf( '/sites/%d/protect/recovery/confirm', Jetpack::get_option( 'id' ) );
@@ -269,6 +275,9 @@ class Jetpack_Protect_Blocked_Login_Page {
 		return true;
 	}
 
+	/**
+	 * Check if we should rediner the recovery form.
+	 */
 	public function render_and_die() {
 		if ( ! $this->can_send_recovery_emails ) {
 			$this->render_blocked_login_message();
@@ -300,11 +309,17 @@ class Jetpack_Protect_Blocked_Login_Page {
 		$this->render_recovery_form();
 	}
 
+	/**
+	 * Render the blocked login message.
+	 */
 	public function render_blocked_login_message() {
 		$this->protect_die( $this->get_html_blocked_login_message() );
 	}
 
-	function process_recovery_email() {
+	/**
+	 * Process sending a recovery email.
+	 */
+	public function process_recovery_email() {
 		$sent               = $this->send_recovery_email();
 		$show_recovery_form = true;
 		if ( is_wp_error( $sent ) ) {
@@ -317,7 +332,10 @@ class Jetpack_Protect_Blocked_Login_Page {
 		}
 	}
 
-	function send_recovery_email() {
+	/**
+	 * Send the recovery form.
+	 */
+	public function send_recovery_email() {
 		$email = isset( $_POST['email'] ) ? $_POST['email'] : '';
 		if ( sanitize_email( $email ) !== $email || ! is_email( $email ) ) {
 			return new WP_Error( 'invalid_email', __( "Oops, looks like that's not the right email address. Please try again!", 'jetpack' ) );
@@ -354,7 +372,15 @@ class Jetpack_Protect_Blocked_Login_Page {
 		return true;
 	}
 
-	function protect_die( $content, $title = null, $back_link = false, $recovery_form = false ) {
+	/**
+	 * Prevent login by locking the login page.
+	 *
+	 * @param string $content - the content of the page.
+	 * @param string $title - the page title.
+	 * @param string $back_link - the back link.
+	 * @param string $recovery_form - the recovery form.
+	 */
+	public function protect_die( $content, $title = null, $back_link = false, $recovery_form = false ) {
 		if ( empty( $title ) ) {
 			$title = __( 'Jetpack has locked your site\'s login page.', 'jetpack' );
 		}
@@ -372,35 +398,49 @@ class Jetpack_Protect_Blocked_Login_Page {
 
 	}
 
-	function render_recovery_form() {
+	/**
+	 * Render the recovery form.
+	 */
+	public function render_recovery_form() {
 		$content = $this->get_html_blocked_login_message();
 		$this->protect_die( $content, null, null, true );
 	}
 
-	function render_recovery_success() {
+	/**
+	 * Render the recovery instructions.
+	 */
+	public function render_recovery_success() {
+		// translators: the email address the recovery email was sent to.
 		$this->protect_die( sprintf( __( 'Recovery instructions were sent to %s. Check your inbox!', 'jetpack' ), $this->email_address ) );
 	}
 
-	function get_html_blocked_login_message() {
+	/**
+	 * Get the HTML for the blocked login message.
+	 */
+	public function get_html_blocked_login_message() {
 		$icon = '<svg class="gridicon gridicons-spam" style="fill:#d94f4f" height="24" width="24" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><g><path d="M17 2H7L2 7v10l5 5h10l5-5V7l-5-5zm-4 15h-2v-2h2v2zm0-4h-2l-.5-6h3l-.5 6z"/></g></svg>';
 		$ip   = str_replace( 'http://', '', esc_url( 'http://' . $this->ip_address ) );
 		return sprintf(
-			__( '<p>Your IP address <code>%2$s</code> has been flagged for potential security violations. You can unlock your login by sending yourself a special link via email. <a href="%3$s">Learn More</a></p>', 'jetpack' ),
+			// translators: the IP address that was flagged.
+			__( '<p>Your IP address <code>%2$s</code> has been flagged for potential security violations. You can unlock your login by sending yourself a special link via email. <a href="%3$s">Learn More</a></p>', 'jetpack' ), // phpcs:ignore WordPress.WP.I18n.NoHtmlWrappedStrings
 			$icon,
 			$ip,
 			esc_url( self::get_help_url() )
 		);
 	}
 
-	function get_html_recovery_form() {
+	/**
+	 * Get the HTML recovery form.
+	 */
+	public function get_html_recovery_form() {
 		ob_start(); ?>
 		<div>
 			<form method="post" action="?jetpack-protect-recovery=true">
-				<?php echo wp_nonce_field( 'bypass-protect' ); ?>
+				<?php echo wp_nonce_field( 'bypass-protect' ); //phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?> 
 				<p><label for="email"><?php esc_html_e( 'Your email', 'jetpack' ); ?><br/></label>
 					<input type="email" name="email" class="text-input"/>
 					<input type="submit" class="button"
-						   value="<?php esc_attr_e( 'Send email', 'jetpack' ); ?>"/>
+						value="<?php esc_attr_e( 'Send email', 'jetpack' ); ?>"/>
 				</p>
 			</form>
 		</div>
@@ -412,7 +452,15 @@ class Jetpack_Protect_Blocked_Login_Page {
 		return $contents;
 	}
 
-	function display_page( $title, $message, $back_button = false, $recovery_form = false ) {
+	/**
+	 * Display the page.
+	 *
+	 * @param string $title - the page title.
+	 * @param string $message - the message we're sending.
+	 * @param string $back_button - the back button.
+	 * @param string $recovery_form - the recovery form.
+	 */
+	public function display_page( $title, $message, $back_button = false, $recovery_form = false ) {
 
 		if ( ! headers_sent() ) {
 			nocache_headers();
@@ -430,7 +478,7 @@ class Jetpack_Protect_Blocked_Login_Page {
 		if ( function_exists( 'language_attributes' ) && function_exists( 'is_rtl' ) ) {
 			language_attributes();
 		} else {
-			echo "dir='$text_direction'";
+			echo "dir='$text_direction'"; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
 		}
 		?>
 		>
@@ -444,7 +492,7 @@ class Jetpack_Protect_Blocked_Login_Page {
 				echo "<meta name='robots' content='noindex,nofollow' />\n";
 			}
 			?>
-			<title><?php echo $title; ?></title>
+			<title><?php echo $title; //phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- we set the $title ourselves. ?></title>
 			<style type="text/css">
 				html {
 					background: #f6f6f6;
@@ -641,14 +689,14 @@ class Jetpack_Protect_Blocked_Login_Page {
 				}
 				<?php
 				$rtl_class = '';
-				if ( 'rtl' == $text_direction ) {
+				if ( 'rtl' === $text_direction ) {
 					$rtl_class = 'class="is-rtl"';
 					echo 'body { font-family: Tahoma, Arial; }';
 				}
 				?>
 			</style>
 		</head>
-		<body id="error-page" <?php echo $rtl_class; ?>>
+		<body id="error-page" <?php echo $rtl_class; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?>> 
 			<h1 id="error-title"><?php echo esc_html( $title ); ?></h1>
 			<div id="error-message">
 				<svg id="image" xmlns="http://www.w3.org/2000/svg" x="0px" y="0px" viewBox="0 0 250 134">
@@ -676,10 +724,10 @@ class Jetpack_Protect_Blocked_Login_Page {
 					<path fill="#86A6BD" d="M48.1,121.4l2.9-6.2c0.3-0.6,0.2-1.3-0.3-1.8c-1-1-1.5-2.5-1.2-4c0.3-1.7,1.7-3.1,3.4-3.4 c2.9-0.6,5.4,1.6,5.4,4.4c0,1.2-0.5,2.3-1.3,3.1c-0.5,0.5-0.6,1.2-0.3,1.8l2.9,6.2c0.1,0.2-0.1,0.5-0.3,0.5H48.4 C48.1,121.9,48,121.6,48.1,121.4"/>
 				</svg>
 
-				<?php echo $message; ?>
+				<?php echo $message; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?>
 				<?php
 				if ( $recovery_form ) {
-					echo $this->get_html_recovery_form();
+					echo $this->get_html_recovery_form(); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- content is escaped in the function.
 				}
 				?>
 			</div>
