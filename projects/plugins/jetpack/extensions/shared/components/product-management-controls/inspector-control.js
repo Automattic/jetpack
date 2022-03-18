@@ -42,7 +42,7 @@ export default function ProductManagementInspectorControl( {
 		{ label: __( 'Year', 'jetpack' ), value: '1 year' },
 	];
 	if ( allowCreateOneTimeInterval ) {
-		intervalOptions.push( [ { label: __( 'One-Time Payment', 'jetpack' ), value: 'one-time' } ] );
+		intervalOptions.push( { label: __( 'One-Time Payment', 'jetpack' ), value: 'one-time' } );
 	}
 
 	const handleSubmit = event => {
