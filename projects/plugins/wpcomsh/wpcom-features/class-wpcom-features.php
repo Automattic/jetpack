@@ -18,9 +18,11 @@ class WPCOM_Features {
 	private const SPACE_10GB                        = '1gb_space_upgrade'; // 9
 	private const SPACE_25GB                        = '5gb_space_upgrade'; // 10
 	private const SPACE_50GB                        = '10gb_space_upgrade'; // 11
+	private const WPCOM_VIDEOPRESS                  = 'videopress'; // 15
 	private const SPACE_100GB                       = '50gb_space_upgrade'; // 19
 	private const SPACE_200GB                       = '100gb_space_upgrade'; // 20
 	private const SPACE_3GB                         = '3gb_space_upgrade'; // 21
+	private const WPCOM_VIDEOPRESS_PRO              = 'videopress-pro'; // 47
 	private const SPACE_UNLIMITED                   = 'unlimited_space'; // 48
 	private const WPCOM_SEARCH                      = 'wpcom_search'; // 800
 	private const WPCOM_SEARCH_MONTHLY              = 'wpcom_search_monthly'; // 801
@@ -59,6 +61,8 @@ class WPCOM_Features {
 	private const JETPACK_SECURITY_T1_MONTHLY       = 'jetpack_security_t1_monthly'; // 2017
 	private const JETPACK_SECURITY_T2_YEARLY        = 'jetpack_security_t2_yearly'; // 2019
 	private const JETPACK_SECURITY_T2_MONTHLY       = 'jetpack_security_t2_monthly'; // 2020
+	private const JETPACK_VIDEOPRESS                = 'jetpack_videopress'; // 2116
+	private const JETPACK_VIDEOPRESS_MONTHLY        = 'jetpack_videopress_monthly'; // 2117
 
 	// WPCOM "Level 2": Groups of level 1s
 	private const WPCOM_BLOGGER_PLANS   = [ self::BLOGGER_BUNDLE, self::BLOGGER_BUNDLE_2Y ];
@@ -210,6 +214,11 @@ class WPCOM_Features {
 		self::VIDEOPRESS                    => array(
 			self::WPCOM_PREMIUM_AND_HIGHER_PLANS,
 			self::WP_P2_PLUS_MONTHLY,
+			self::JETPACK_PERSONAL_AND_HIGHER,
+			self::WPCOM_VIDEOPRESS,
+			self::WPCOM_VIDEOPRESS_PRO,
+			self::JETPACK_VIDEOPRESS,
+			self::JETPACK_VIDEOPRESS_MONTHLY,
 		),
 		self::UNLIMITED_THEMES              => array(
 			self::WPCOM_PREMIUM_AND_HIGHER_PLANS,
