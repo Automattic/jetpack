@@ -74,9 +74,6 @@ export const settings = {
 	supports: {
 		align: true,
 		anchor: true,
-		color: {
-			gradients: true,
-		},
 		__experimentalExposeControlsToChildren: true,
 		html: false,
 		__experimentalLayout: {
