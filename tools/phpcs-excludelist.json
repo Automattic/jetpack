@@ -108,7 +108,6 @@
 	"projects/plugins/jetpack/json-endpoints/jetpack/class.wpcom-json-api-get-option-endpoint.php",
 	"projects/plugins/jetpack/json-endpoints/jetpack/class.wpcom-json-api-update-option-endpoint.php",
 	"projects/plugins/jetpack/json-endpoints/jetpack/json-api-jetpack-endpoints.php",
-	"projects/plugins/jetpack/locales.php",
 	"projects/plugins/jetpack/modules/contact-form.php",
 	"projects/plugins/jetpack/modules/contact-form/admin.php",
 	"projects/plugins/jetpack/modules/contact-form/class-grunion-contact-form-endpoint.php",

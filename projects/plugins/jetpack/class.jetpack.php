@@ -901,6 +901,8 @@ class Jetpack {
 			)
 		);
 
+		$config->ensure( 'search' );
+
 		if ( ! $this->connection_manager ) {
 			$this->connection_manager = new Connection_Manager( 'jetpack' );
 		}
