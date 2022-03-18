@@ -34,12 +34,6 @@ if ( ! defined( 'ABSPATH' ) ) {
 }
 
 define( 'JETPACK_SOCIAL_PLUGIN_DIR', plugin_dir_path( __FILE__ ) );
-define( 'JETPACK_SOCIAL_PLUGIN_ROOT_FILE', __FILE__ );
-define( 'JETPACK_SOCIAL_PLUGIN_ROOT_FILE_RELATIVE_PATH', plugin_basename( __FILE__ ) );
-define( 'JETPACK_SOCIAL_PLUGIN_SLUG', 'jetpack-social' );
-define( 'JETPACK_SOCIAL_PLUGIN_NAME', 'Jetpack Social' );
-define( 'JETPACK_SOCIAL_PLUGIN_URI', 'https://jetpack.com/jetpack-social' );
-define( 'JETPACK_SOCIAL_PLUGIN_FOLDER', dirname( plugin_basename( __FILE__ ) ) );
 
 // Jetpack Autoloader.
 $jetpack_autoloader = JETPACK_SOCIAL_PLUGIN_DIR . 'vendor/autoload_packages.php';
@@ -87,4 +81,4 @@ if ( is_readable( $jetpack_autoloader ) ) {
 }
 
 // Main plugin class.
-new Jetpack_Social();
+Jetpack_Social::initialize();

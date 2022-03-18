@@ -20,7 +20,7 @@ use Automattic\Jetpack\My_Jetpack\Initializer as My_Jetpack_Initializer;
  */
 class Jetpack_Social {
 
-	const JETPACK_SOCIAL_SLUG = '';
+	const JETPACK_SOCIAL_SLUG = 'jetpack-social';
 
 	const JETPACK_SOCIAL_NAME = 'Jetpack Social';
 
@@ -29,7 +29,11 @@ class Jetpack_Social {
 	/**
 	 * Constructor.
 	 */
-	public function __construct() {
+	public static function initialize() {
+		if ( did_action( 'jetpack-social-init' ) ) {
+			return;
+		}
+
 		// Set up the REST authentication hooks.
 		Connection_Rest_Authentication::init();
 
@@ -38,10 +42,10 @@ class Jetpack_Social {
 			_x( 'Social', 'The Jetpack Social product name, without the Jetpack prefix', 'jetpack-social' ),
 			'manage_options',
 			'jetpack-social',
-			array( $this, 'plugin_settings_page' ),
+			array( __CLASS__, 'plugin_settings_page' ),
 			99
 		);
-		add_action( 'load-' . $page_suffix, array( $this, 'admin_init' ) );
+		add_action( 'load-' . $page_suffix, array( __CLASS__, 'admin_init' ) );
 
 		// Init Jetpack packages and ConnectionUI.
 		add_action(
@@ -66,20 +70,25 @@ class Jetpack_Social {
 			1
 		);
 
+		/**
+		 * Fires right after the Jetpack Social package is initialized.
+		 */
+		do_action( 'jetpack-social-init' );
+
 		My_Jetpack_Initializer::init();
 	}
 
 	/**
 	 * Initialize the admin resources.
 	 */
-	public function admin_init() {
-		add_action( 'admin_enqueue_scripts', array( $this, 'enqueue_admin_scripts' ) );
+	public static function admin_init() {
+		add_action( 'admin_enqueue_scripts', array( __CLASS__, 'enqueue_admin_scripts' ) );
 	}
 
 	/**
 	 * Enqueue plugin admin scripts and styles.
 	 */
-	public function enqueue_admin_scripts() {
+	public static function enqueue_admin_scripts() {
 
 		Assets::register_script(
 			'jetpack-social',
@@ -93,7 +102,7 @@ class Jetpack_Social {
 		Assets::enqueue_script( 'jetpack-social' );
 		// Initial JS state including JP Connection data.
 		wp_add_inline_script( 'jetpack-social', Connection_Initial_State::render(), 'before' );
-		wp_add_inline_script( 'jetpack-social', $this->render_initial_state(), 'before' );
+		wp_add_inline_script( 'jetpack-social', self::render_initial_state(), 'before' );
 
 	}
 
@@ -102,8 +111,8 @@ class Jetpack_Social {
 	 *
 	 * @return string
 	 */
-	public function render_initial_state() {
-		return 'var jetpackSocialInitialState=JSON.parse(decodeURIComponent("' . rawurlencode( wp_json_encode( $this->initial_state() ) ) . '"));';
+	public static function render_initial_state() {
+		return 'var jetpackSocialInitialState=JSON.parse(decodeURIComponent("' . rawurlencode( wp_json_encode( self::initial_state() ) ) . '"));';
 	}
 
 	/**
@@ -111,7 +120,7 @@ class Jetpack_Social {
 	 *
 	 * @return array
 	 */
-	public function initial_state() {
+	public static function initial_state() {
 		return array(
 			'apiRoot'           => esc_url_raw( rest_url() ),
 			'apiNonce'          => wp_create_nonce( 'wp_rest' ),
@@ -122,7 +131,7 @@ class Jetpack_Social {
 	/**
 	 * Main plugin settings page.
 	 */
-	public function plugin_settings_page() {
+	public static function plugin_settings_page() {
 		?>
 			<div id="jetpack-social-root"></div>
 		<?php
