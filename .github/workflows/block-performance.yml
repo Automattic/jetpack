@@ -1,11 +1,8 @@
 name: Jetpack block performance
 
 on:
-  # schedule:
-    # - cron:  '0 */12 * * *'
-  pull_request:
-    paths-ignore:
-    - '**.md'
+  schedule:
+    - cron:  '0 */12 * * *'
 
 jobs:
   block-performance:
@@ -44,7 +41,6 @@ jobs:
       - name: Build Production Jetpack
         run: |
           pnpm install
-          pnpm cli-link
           pnpx jetpack build plugins/jetpack -v --production
 
       - name: Environment set-up
