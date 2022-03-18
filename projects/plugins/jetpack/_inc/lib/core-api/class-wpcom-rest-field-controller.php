@@ -222,7 +222,7 @@ abstract class WPCOM_REST_API_V2_Field_Controller {
 	 * @param mixed           $object_data Whatever the endpoint would return for its response.
 	 * @param WP_REST_Request $request     WP API request.
 	 *
-	 * @return true|WP_Error|null
+	 * @return true|WP_Error
 	 */
 	public function get_permission_check( $object_data, $request ) { // phpcs:ignore VariableAnalysis.CodeAnalysis.VariableAnalysis.UnusedVariable
 		_doing_it_wrong(
@@ -263,7 +263,7 @@ abstract class WPCOM_REST_API_V2_Field_Controller {
 	 * @param mixed           $object_data Probably a WordPress object (e.g., WP_Post).
 	 * @param WP_REST_Request $request     WP API request.
 	 *
-	 * @return true|WP_Error|null
+	 * @return true|WP_Error
 	 */
 	public function update_permission_check( $value, $object_data, $request ) { // phpcs:ignore VariableAnalysis.CodeAnalysis.VariableAnalysis.UnusedVariable
 		_doing_it_wrong(
@@ -322,7 +322,7 @@ abstract class WPCOM_REST_API_V2_Field_Controller {
 	 * * Multiple type: `type: [ 'string', 'integer' ]`
 	 * * $ref, allOf, anyOf, oneOf, not, const
 	 *
-	 * @return array|null
+	 * @return array
 	 */
 	public function get_schema() {
 		_doing_it_wrong(
