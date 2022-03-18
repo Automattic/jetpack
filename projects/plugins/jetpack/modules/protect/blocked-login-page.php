@@ -231,11 +231,11 @@ class Jetpack_Protect_Blocked_Login_Page {
 			return true;
 		}
 
-		if ( ! isset( $_GET['validate_jetpack_protect_recovery'], $_GET['user_id'] ) ) {
+		if ( ! isset( $_GET['validate_jetpack_protect_recovery'], $_GET['user_id'] ) ) { // phpcs:ignore: WordPress.Security.NonceVerification.Recommended -- no changes made if this isn't set.
 			return false;
 		}
 
-		if ( ! $this->is_valid_protect_recovery_key( $_GET['validate_jetpack_protect_recovery'], $_GET['user_id'] ) ) {
+		if ( ! $this->is_valid_protect_recovery_key( $_GET['validate_jetpack_protect_recovery'], $_GET['user_id'] ) ) { // phpcs:ignore: WordPress.Security.NonceVerification.Recommended -- no changes made if this isn't set.
 			return false;
 		}
 
@@ -276,7 +276,7 @@ class Jetpack_Protect_Blocked_Login_Page {
 	}
 
 	/**
-	 * Check if we should rediner the recovery form.
+	 * Check if we should render the recovery form.
 	 */
 	public function render_and_die() {
 		if ( ! $this->can_send_recovery_emails ) {
@@ -285,7 +285,7 @@ class Jetpack_Protect_Blocked_Login_Page {
 			return;
 		}
 
-		if ( isset( $_GET['validate_jetpack_protect_recovery'] ) && $_GET['user_id'] ) {
+		if ( isset( $_GET['validate_jetpack_protect_recovery'] ) && $_GET['user_id'] ) { // phpcs:ignore WordPress.Security.NonceVerification.Recommended -- no site changes, just throws invalid token error.
 			$error = new WP_Error( 'invalid_token', __( "Oops, we couldn't validate the recovery token.", 'jetpack' ) );
 			$this->protect_die( $error );
 
@@ -336,7 +336,7 @@ class Jetpack_Protect_Blocked_Login_Page {
 	 * Send the recovery form.
 	 */
 	public function send_recovery_email() {
-		$email = isset( $_POST['email'] ) ? $_POST['email'] : '';
+		$email = isset( $_POST['email'] ) ? $_POST['email'] : ''; // phpcs:ignore WordPress.Security.NonceVerification.Missing -- no changes to the site, sends recovery email if email matches a user on the site.
 		if ( sanitize_email( $email ) !== $email || ! is_email( $email ) ) {
 			return new WP_Error( 'invalid_email', __( "Oops, looks like that's not the right email address. Please try again!", 'jetpack' ) );
 		}
@@ -364,6 +364,7 @@ class Jetpack_Protect_Blocked_Login_Page {
 		$result = json_decode( wp_remote_retrieve_body( $response ) );
 
 		if ( self::HTTP_STATUS_CODE_TOO_MANY_REQUESTS === $code ) {
+			// translators: email address the recovery instructions were sent to.
 			return new WP_Error( 'email_already_sent', sprintf( __( 'Recovery instructions were sent to %s. Check your inbox!', 'jetpack' ), $this->email_address ) );
 		} elseif ( is_wp_error( $result ) || empty( $result ) || isset( $result->error ) ) {
 			return new WP_Error( 'email_send_error', __( 'Oops, we were unable to send a recovery email. Try again.', 'jetpack' ) );
@@ -391,7 +392,7 @@ class Jetpack_Protect_Blocked_Login_Page {
 		$content = '<p>' . $content . '</p>';
 
 		// If for some reason the login pop up box show up in the wp-admin.
-		if ( isset( $_GET['interim-login'] ) ) {
+		if ( isset( $_GET['interim-login'] ) ) { // phpcs:ignore WordPress.Security.NonceVerification.Recommended -- no changes to the site itself, just rendering an error message.
 			$content = '<style>html{ background-color: #fff; } #error-message { margin:0 auto; padding: 1em; box-shadow: none; } </style>' . $content;
 		}
 		$this->display_page( $title, $content, $back_link, $recovery_form );
