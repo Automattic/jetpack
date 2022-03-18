@@ -33,6 +33,7 @@ use Automattic\Jetpack\Sync\Health;
 use Automattic\Jetpack\Sync\Sender;
 use Automattic\Jetpack\Terms_Of_Service;
 use Automattic\Jetpack\Tracking;
+use Jetpack_Social;
 
 /*
 Options:
@@ -963,6 +964,7 @@ class Jetpack {
 
 		Partner::init();
 		My_Jetpack_Initializer::init();
+		Jetpack_Social::initialize();
 
 		/**
 		 * Fires when Jetpack is fully loaded and ready. This is the point where it's safe
