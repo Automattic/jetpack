@@ -309,7 +309,7 @@ async function changelogAdd( argv ) {
 		const promptType = await changelogAddPrompt( argv, needChangelog, uniqueProjects );
 
 		// Bail if user doesn't want to auto-add.
-		if ( ! promptType.autoPrompt ) {
+		if ( ! promptType.autoAdd && ! promptType.autoPrompt ) {
 			console.log(
 				chalk.green(
 					`Auto changelog cancelled. You can run 'jetpack changelog add [project-type/project]' to add changelogs individually.`
