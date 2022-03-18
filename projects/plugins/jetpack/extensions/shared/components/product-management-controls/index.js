@@ -17,6 +17,7 @@ import './style.scss';
 
 export default function ProductManagementControls( {
 	allowCreateOneTimeInterval = true,
+	blockName,
 	selectedProductId = 0,
 	setSelectedProductId = () => {},
 } ) {
@@ -47,7 +48,7 @@ export default function ProductManagementControls( {
 		<>
 			{ ! isApiConnected && !! connectUrl && (
 				<BlockControls group="block">
-					<StripeConnectToolbarButton blockName="premium-content" connectUrl={ connectUrl } />
+					<StripeConnectToolbarButton blockName={ blockName } connectUrl={ connectUrl } />
 				</BlockControls>
 			) }
 			{ isApiConnected && (
