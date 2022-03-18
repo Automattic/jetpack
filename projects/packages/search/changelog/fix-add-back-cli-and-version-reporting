@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Search: fixed cli and package version reporting broken in #23435

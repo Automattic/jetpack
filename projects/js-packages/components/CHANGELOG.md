@@ -2,6 +2,14 @@
 
 ### This is a list detailing changes for the Jetpack RNA Components package releases.
 
+## 0.10.10 - 2022-03-15
+### Added
+- My Jetpack: Add new values to ThemeProvider
+
+### Changed
+- Bump version
+- Updated dependencies
+
 ## 0.10.9 - 2022-03-09
 ### Added
 - RNA: Add ThemeProvider

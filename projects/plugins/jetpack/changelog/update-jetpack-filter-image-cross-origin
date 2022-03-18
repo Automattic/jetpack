@@ -1,4 +1,0 @@
-Significance: patch
-Type: enhancement
-
-Jetpack: Filter image crossOrigin attribute to handle CORS issues
