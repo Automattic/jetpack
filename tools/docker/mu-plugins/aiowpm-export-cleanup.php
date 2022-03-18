@@ -12,7 +12,7 @@ add_filter( 'ai1wm_export', function( $params ) {
 	$start = 'INSERT INTO `' . ai1wm_servmask_prefix() . 'options` VALUES (';
 	$search = '/^' . preg_quote( $start ) . '\d{1,20}' . preg_quote( ",'jetpack_private_options'," ) . '/i';
 	while ( ! feof( $file_old ) ) {
-		$line = fgets( $file_old, 150 );
+		$line = fgets( $file_old );
 
 		if ( 0 === strpos( $line, $start ) && false !== strpos( $line, 'jetpack_private_options' )  && preg_match( $search, $line ) ) {
 			continue;
