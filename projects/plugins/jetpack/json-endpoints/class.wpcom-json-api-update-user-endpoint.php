@@ -58,7 +58,7 @@ class WPCOM_JSON_API_Update_User_Endpoint extends WPCOM_JSON_API_Endpoint {
 		}
 
 		if ( defined( 'IS_WPCOM' ) && IS_WPCOM ) {
-			if ( (int) wpcom_get_blog_owner( $blog_id ) === $user_id ) {
+			if ( (int) wpcom_get_blog_owner( $blog_id ) === (int) $user_id ) {
 				return new WP_Error( 'forbidden', 'A site owner can not be removed through this endpoint.', 403 );
 			}
 		}
@@ -113,7 +113,7 @@ class WPCOM_JSON_API_Update_User_Endpoint extends WPCOM_JSON_API_Endpoint {
 	 * @return array|WP_Error
 	 */
 	public function delete_or_remove_user( $user_id ) {
-		if ( 0 === $user_id ) {
+		if ( 0 === (int) $user_id ) {
 			return new WP_Error( 'invalid_input', 'A valid user ID must be specified.', 400 );
 		}
 
@@ -134,7 +134,7 @@ class WPCOM_JSON_API_Update_User_Endpoint extends WPCOM_JSON_API_Endpoint {
 			}
 		}
 
-		if ( get_current_user_id() === $user_id ) {
+		if ( get_current_user_id() === (int) $user_id ) {
 			return new WP_Error( 'invalid_input', 'User can not remove or delete self through this endpoint.', 400 );
 		}
 
@@ -179,7 +179,7 @@ class WPCOM_JSON_API_Update_User_Endpoint extends WPCOM_JSON_API_Endpoint {
 		$input = (array) $this->input();
 
 		if ( isset( $input['reassign'] ) ) {
-			if ( $user_id === (int) $input['reassign'] ) {
+			if ( (int) $user_id === (int) $input['reassign'] ) {
 				return new WP_Error( 'invalid_input', 'Can not reassign posts to user being deleted.', 400 );
 			}
 
