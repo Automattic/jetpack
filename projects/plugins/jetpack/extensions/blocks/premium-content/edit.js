@@ -6,6 +6,7 @@ import { Disabled, Placeholder, Spinner } from '@wordpress/components';
 import { __ } from '@wordpress/i18n';
 import { useViewportMatch } from '@wordpress/compose';
 import { select, useSelect } from '@wordpress/data';
+import { store as blockEditorStore } from '@wordpress/block-editor';
 
 /**
  * Internal dependencies
@@ -15,8 +16,7 @@ import Context from './_inc/context';
 import './editor.scss';
 import ViewSelector from './_inc/view-selector';
 import ProductManagementControls from '../../shared/components/product-management-controls';
-import useProducts from '../../shared/components/product-management-controls/use-products';
-import { API_STATE_LOADING } from '../../store/membership-products/constants';
+import { store as membershipProductsStore } from '../../store/membership-products';
 
 /**
  * Tab definitions
@@ -67,13 +67,11 @@ function Edit( props ) {
 	const { clientId, isSelected, className, setAttributes } = props;
 
 	const setSelectedProductId = productId => setAttributes( { selectedPlanId: productId } );
-	const { apiState } = useProducts( {
-		selectedProductId: selectedPlanId,
-		setSelectedProductId,
-		shouldSkipResolver: isPreview,
-	} );
 
-	const selectedBlock = useSelect( selector => selector( 'core/block-editor' ).getSelectedBlock() );
+	const { isApiLoading, selectedBlock } = useSelect( selector => ( {
+		selectedBlock: selector( blockEditorStore ).getSelectedBlock(),
+		isApiLoading: selector( membershipProductsStore ).isApiStateLoading(),
+	} ) );
 
 	useEffect( () => {
 		if ( isSelected ) {
@@ -84,7 +82,7 @@ function Edit( props ) {
 			return; // Sometimes there isn't a block selected, e.g. on page load.
 		}
 
-		const editorStore = select( 'core/block-editor' );
+		const editorStore = select( blockEditorStore );
 
 		// Confirm that the selected block is a descendant of this one.
 		if ( ! editorStore.getBlockParents( selectedBlock.clientId ).includes( clientId ) ) {
@@ -106,44 +104,39 @@ function Edit( props ) {
 
 	const isSmallViewport = useViewportMatch( 'medium', '<' );
 
-	if ( apiState === API_STATE_LOADING && ! isPreview ) {
-		return (
-			<div className={ className }>
-				<Placeholder
-					icon="lock"
-					label={ __( 'Premium Content', 'jetpack' ) }
-					instructions={ __( 'Loading data…', 'jetpack' ) }
-				>
-					<Spinner />
-				</Placeholder>
-			</div>
-		);
-	}
-
 	return (
-		<>
+		<div className={ className }>
 			{ ! isPreview && (
-				<ProductManagementControls
-					allowCreateOneTimeInterval={ false }
-					selectedProductId={ selectedPlanId }
-					setSelectedProductId={ setSelectedProductId }
-				/>
+				<>
+					{ isApiLoading && (
+						<Placeholder
+							icon="lock"
+							label={ __( 'Premium Content', 'jetpack' ) }
+							instructions={ __( 'Loading data…', 'jetpack' ) }
+						>
+							<Spinner />
+						</Placeholder>
+					) }
+					<ProductManagementControls
+						allowCreateOneTimeInterval={ false }
+						selectedProductId={ selectedPlanId }
+						setSelectedProductId={ setSelectedProductId }
+					/>
+					<ViewSelector
+						options={ tabs }
+						selectedOption={ selectedTab }
+						selectAction={ selectTab }
+						contractViewport={ isSmallViewport }
+						label={ __( 'Change view', 'jetpack' ) }
+					/>
+				</>
 			) }
-
-			<ViewSelector
-				options={ tabs }
-				selectedOption={ selectedTab }
-				selectAction={ selectTab }
-				contractViewport={ isSmallViewport }
-				label={ __( 'Change view', 'jetpack' ) }
-			/>
-
-			<div className={ className }>
+			{ ! isApiLoading && (
 				<Context.Provider value={ { selectedTab } }>
 					<Blocks />
 				</Context.Provider>
-			</div>
-		</>
+			) }
+		</div>
 	);
 }
 

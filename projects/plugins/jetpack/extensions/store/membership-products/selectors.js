@@ -1,14 +1,7 @@
 /**
  * Internal dependencies
  */
-import { API_STATE_CONNECTED } from './constants';
-
-export const getAllProperties = state => ( {
-	apiState: state.apiState,
-	connectUrl: state.connectUrl,
-	shouldUpgrade: state.shouldUpgrade,
-	siteSlug: state.siteSlug,
-} );
+import { API_STATE_CONNECTED, API_STATE_LOADING } from './constants';
 
 export const getApiState = state => state.apiState;
 
@@ -26,6 +19,8 @@ export const getShouldUpgrade = state => state.getShouldUpgrade;
 export const getSiteSlug = state => state.siteSlug;
 
 export const isApiStateConnected = state => state.apiState === API_STATE_CONNECTED;
+
+export const isApiStateLoading = state => state.apiState === API_STATE_LOADING;
 
 export const isInvalidProduct = ( state, productId ) =>
 	!! productId && ! getProduct( state, productId );
