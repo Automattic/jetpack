@@ -1,4 +1,0 @@
-Significance: patch
-Type: other
-
-Fix potential use of unexisting "allow_download" property in VideoPress media modal

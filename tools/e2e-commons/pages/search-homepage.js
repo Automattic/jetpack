@@ -6,16 +6,20 @@ export default class SearchHomepage extends WpPage {
 
 	constructor( page ) {
 		const url = `${ resolveSiteUrl() }/?result_format=expanded`;
-		super( page, { expectedSelectors: [ '.site-title' ], url, explicitWaitMS: 30000 } );
+		super( page, {
+			expectedSelectors: [ '.wp-block-search__input, .search-field' ],
+			url,
+			explicitWaitMS: 30000,
+		} );
 	}
 
 	async focusSearchInput() {
-		const searchInputSelector = 'input.wp-block-search__input';
+		const searchInputSelector = 'input.wp-block-search__input, input.search-field';
 		return this.focus( searchInputSelector );
 	}
 
 	async enterQuery( query = 'test1', clear = true ) {
-		const searchInputSelector = 'input.wp-block-search__input';
+		const searchInputSelector = 'input.wp-block-search__input, input.search-field';
 		if ( clear ) {
 			await this.clear( searchInputSelector );
 		}
@@ -31,7 +35,7 @@ export default class SearchHomepage extends WpPage {
 	}
 
 	async pressEnterInSearchInput() {
-		const searchInputSelector = 'input.wp-block-search__input';
+		const searchInputSelector = 'input.wp-block-search__input, input.search-field';
 		return this.page.press( searchInputSelector, 'Enter' );
 	}
 
@@ -66,6 +70,11 @@ export default class SearchHomepage extends WpPage {
 		);
 	}
 
+	async waitForInstantSearchReady() {
+		await this.waitForElementToBeAttached( '.jetpack-instant-search' );
+		return await this.waitForTimeout( 500 );
+	}
+
 	async isSortingLinkSelected( sorting = 'relevance' ) {
 		const sortingInputSelector = `.is-selected.jetpack-instant-search__search-sort-option[data-value="${ sorting }"]`;
 		return this.isElementVisible( sortingInputSelector );
@@ -73,7 +82,7 @@ export default class SearchHomepage extends WpPage {
 
 	async isOverlayVisible() {
 		const overlaySelector = '.jetpack-instant-search__overlay';
-		this.waitForTimeout( 500 );
+		await this.waitForTimeout( 500 );
 		const classes = await this.page.$eval( overlaySelector, e => e.getAttribute( 'class' ) );
 		return ! classes.includes( 'is-hidden' );
 	}
@@ -125,5 +134,10 @@ export default class SearchHomepage extends WpPage {
 	async isExpandedImageVisible() {
 		const expandedImageSelector = '.jetpack-instant-search__search-result-expanded__image';
 		return this.isElementVisible( expandedImageSelector );
+	}
+
+	async clickLink() {
+		const linkSelector = '.wp-button.jetpack-search-filter__link';
+		return this.click( linkSelector );
 	}
 }

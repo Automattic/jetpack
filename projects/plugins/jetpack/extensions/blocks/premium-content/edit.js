@@ -2,11 +2,11 @@
  * WordPress dependencies
  */
 import { useEffect, useState, useRef } from '@wordpress/element';
-import { Disabled, Placeholder, Spinner, ToolbarButton, ToolbarGroup } from '@wordpress/components';
+import { Disabled, Placeholder, Spinner } from '@wordpress/components';
 import { BlockControls } from '@wordpress/block-editor';
 import { __, sprintf } from '@wordpress/i18n';
-import { compose } from '@wordpress/compose';
-import { withSelect, withDispatch } from '@wordpress/data';
+import { compose, useViewportMatch } from '@wordpress/compose';
+import { select, useSelect, withSelect, withDispatch } from '@wordpress/data';
 import { addQueryArgs, getQueryArg } from '@wordpress/url';
 import formatCurrency from '@automattic/format-currency';
 import apiFetch from '@wordpress/api-fetch';
@@ -18,18 +18,22 @@ import Blocks from './_inc/blocks';
 import Controls from './_inc/controls';
 import Inspector from './_inc/inspector';
 import Context from './_inc/context';
-import { flashIcon } from '../../shared/icons';
 import { isPriceValid, minimumTransactionAmountForCurrency } from '../../shared/currencies';
 import getConnectUrl from '../../shared/get-connect-url';
 import './editor.scss';
-import useAutosaveAndRedirect from '../../shared/use-autosave-and-redirect';
+import ViewSelector from './_inc/view-selector';
 import InvalidSubscriptionWarning from './_inc/invalid-subscription-warning';
+import StripeConnectToolbarButton from '../../shared/components/stripe-connect-toolbar-button';
 
 /**
  * @typedef { import('./plan').Plan } Plan
  */
 
 /**
+ * Tab definitions
+ *
+ * If changing or adding tabs, the _TAB constants below might need changing too.
+ *
  * @typedef { import('./tabs').Tab } Tab
  * @type { Tab[] }
  */
@@ -41,10 +45,13 @@ const tabs = [
 	},
 	{
 		id: 'wall',
-		label: <span>{ __( 'Non-subscriber View', 'jetpack' ) }</span>,
+		label: <span>{ __( 'Guest View', 'jetpack' ) }</span>,
 		className: 'wp-premium-content-logged-out-view',
 	},
 ];
+
+const CONTENT_TAB = 0;
+const WALL_TAB = 1;
 
 const API_STATE_LOADING = 0;
 const API_STATE_CONNECTED = 1;
@@ -82,7 +89,7 @@ const defaultString = null;
  */
 
 function Edit( props ) {
-	const [ selectedTab, selectTab ] = useState( tabs[ 1 ] );
+	const [ selectedTab, selectTab ] = useState( tabs[ WALL_TAB ] );
 	const [ selectedInnerBlock, hasSelectedInnerBlock ] = useState( false );
 	const [ products, setProducts ] = useState( emptyProducts );
 	const [ connectURL, setConnectURL ] = useState( defaultString );
@@ -91,6 +98,7 @@ function Edit( props ) {
 	// @ts-ignore needed in some upgrade flows - depending how we implement this
 	const [ siteSlug, setSiteSlug ] = useState( '' ); // eslint-disable-line
 	const { isPreview } = props.attributes;
+	const { clientId } = props;
 
 	/**
 	 * Hook to save a new plan.
@@ -217,6 +225,37 @@ function Edit( props ) {
 
 	const { isSelected, className } = props;
 
+	const selectedBlock = useSelect( selector => selector( 'core/block-editor' ).getSelectedBlock() );
+
+	useEffect( () => {
+		if ( isSelected ) {
+			return; // If this block is selected then leave the focused tab as it was.
+		}
+
+		if ( ! selectedBlock ) {
+			return; // Sometimes there isn't a block selected, e.g. on page load.
+		}
+
+		const editorStore = select( 'core/block-editor' );
+
+		// Confirm that the selected block is a descendant of this one.
+		if ( ! editorStore.getBlockParents( selectedBlock.clientId ).includes( clientId ) ) {
+			return;
+		}
+
+		if (
+			'premium-content/logged-out-view' === selectedBlock.name ||
+			editorStore.getBlockParentsByBlockName(
+				selectedBlock.clientId,
+				'premium-content/logged-out-view'
+			).length
+		) {
+			selectTab( tabs[ WALL_TAB ] );
+		} else {
+			selectTab( tabs[ CONTENT_TAB ] );
+		}
+	}, [ clientId, isSelected, selectedBlock ] );
+
 	useEffect( () => {
 		if ( isPreview ) {
 			return;
@@ -298,7 +337,7 @@ function Edit( props ) {
 	const shouldShowConnectButton = () =>
 		! shouldUpgrade && apiState !== API_STATE_CONNECTED && connectURL;
 
-	const { autosaveAndRedirect } = useAutosaveAndRedirect( connectURL );
+	const isSmallViewport = useViewportMatch( 'medium', '<' );
 
 	if ( apiState === API_STATE_LOADING && ! isPreview ) {
 		return (
@@ -316,55 +355,36 @@ function Edit( props ) {
 
 	return (
 		<>
-			<BlockControls>
-				{ shouldShowConnectButton() && (
-					<ToolbarGroup>
-						<ToolbarButton
-							icon={ flashIcon }
-							onClick={ autosaveAndRedirect }
-							className="connect-stripe components-tab-button"
-						>
-							{ __( 'Connect Stripe', 'jetpack' ) }
-						</ToolbarButton>
-					</ToolbarGroup>
-				) }
+			{ shouldShowConnectButton() && (
+				<BlockControls group="block">
+					<StripeConnectToolbarButton blockName="premium-content" connectUrl={ connectURL } />
+				</BlockControls>
+			) }
 
-				<ToolbarGroup>
-					<ToolbarButton
-						onClick={ () => {
-							selectTab( tabs[ 1 ] );
-						} }
-						className="components-tab-button"
-						isPressed={ selectedTab.className === 'wp-premium-content-logged-out-view' }
-					>
-						<span>{ __( 'Visitor View', 'jetpack' ) }</span>
-					</ToolbarButton>
-					<ToolbarButton
-						onClick={ () => {
-							selectTab( tabs[ 0 ] );
-						} }
-						className="components-tab-button"
-						isPressed={ selectedTab.className !== 'wp-premium-content-logged-out-view' }
-					>
-						<span>{ __( 'Subscriber View', 'jetpack' ) }</span>
-					</ToolbarButton>
-				</ToolbarGroup>
-			</BlockControls>
+			<ViewSelector
+				options={ tabs }
+				selectedOption={ selectedTab }
+				selectAction={ selectTab }
+				contractViewport={ isSmallViewport }
+				label={ __( 'Change view', 'jetpack' ) }
+			/>
 
 			<div className={ className } ref={ wrapperRef }>
 				{ ( isSelected || selectedInnerBlock ) && apiState === API_STATE_CONNECTED && (
-					<Controls
-						{ ...props }
-						plans={ products }
-						selectedPlanId={ props.attributes.selectedPlanId }
-						onSelected={ selectPlan }
-						getPlanDescription={ getPlanDescription }
-					/>
+					<BlockControls group="block">
+						<Controls
+							{ ...props }
+							plans={ products }
+							selectedPlanId={ props.attributes.selectedPlanId }
+							onSelected={ selectPlan }
+							getPlanDescription={ getPlanDescription }
+						/>
+					</BlockControls>
 				) }
 				{ ( isSelected || selectedInnerBlock ) && apiState === API_STATE_CONNECTED && (
 					<Inspector { ...props } savePlan={ savePlan } siteSlug={ siteSlug } />
 				) }
-				{ props.attributes.selectedPlanId &&
+				{ !! props.attributes.selectedPlanId &&
 					! products.find( plan => plan.id === props.attributes.selectedPlanId ) && (
 						<InvalidSubscriptionWarning />
 					) }
@@ -457,8 +477,8 @@ function MaybeDisabledEdit( props ) {
 }
 
 export default compose( [
-	withSelect( select => {
-		const { getCurrentPostId } = select( 'core/editor' );
+	withSelect( selector => {
+		const { getCurrentPostId } = selector( 'core/editor' );
 		return {
 			postId: getCurrentPostId(),
 		};

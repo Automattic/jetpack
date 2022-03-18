@@ -446,14 +446,8 @@ class Jetpack_Memberships {
 	 * Whether the site's plan supports the Recurring Payments block.
 	 */
 	public static function is_supported_jetpack_recurring_payments() {
-		// For WPCOM sites.
-		if ( defined( 'IS_WPCOM' ) && IS_WPCOM && function_exists( 'has_any_blog_stickers' ) ) {
-			$site_id = get_current_blog_id();
-			return has_any_blog_stickers( array( 'personal-plan', 'premium-plan', 'business-plan', 'ecommerce-plan' ), $site_id );
-		}
-		// For Jetpack sites.
 		return (
-			Jetpack::is_connection_ready() &&
+			( ( defined( 'IS_WPCOM' ) && IS_WPCOM ) || Jetpack::is_connection_ready() ) &&
 			Jetpack_Plan::supports( 'recurring-payments' )
 		);
 	}

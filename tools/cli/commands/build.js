@@ -3,6 +3,10 @@
  */
 import chalk from 'chalk';
 import execa from 'execa';
+import fs from 'fs/promises';
+import { constants as fsconstants } from 'fs';
+import npath from 'path';
+import readline from 'readline';
 import inquirer from 'inquirer';
 import Listr from 'listr';
 import ListrState from 'listr/lib/state.js';
@@ -18,10 +22,10 @@ import { coerceConcurrency } from '../helpers/normalizeArgv.js';
 import formatDuration from '../helpers/format-duration.js';
 import { getDependencies, filterDeps, getBuildOrder } from '../helpers/dependencyAnalysis.js';
 import promptForProject from '../helpers/promptForProject.js';
-import { readComposerJson } from '../helpers/json.js';
 import { getInstallArgs, projectDir } from '../helpers/install.js';
 import { allProjects, allProjectsByType } from '../helpers/projectHelpers.js';
-import PrefixTransformStream from '../helpers/prefix-stream.js';
+import FilterStream from '../helpers/filter-stream.js';
+import PrefixStream from '../helpers/prefix-stream.js';
 
 export const command = 'build [project...]';
 export const describe = 'Builds one or more monorepo projects';
@@ -52,6 +56,13 @@ export function builder( yargs ) {
 			type: 'boolean',
 			description: 'Build dependencies of the specified projects too.',
 		} )
+		.option( 'for-mirrors', {
+			type: 'string',
+			normalize: true,
+			description:
+				'Build to an output directory for pushing to the mirrors. Value is the output directory.',
+			hidden: true,
+		} )
 		.option( 'production', {
 			alias: 'p',
 			type: 'boolean',
@@ -73,6 +84,15 @@ export function builder( yargs ) {
  * @param {object} argv - the arguments passed.
  */
 export async function handler( argv ) {
+	try {
+		if ( ! ( await setupForMirroring( argv ) ) ) {
+			process.exit( 1 );
+		}
+	} catch ( e ) {
+		console.error( e.message );
+		process.exit( 1 );
+	}
+
 	let dependencies = await getDependencies( process.cwd(), 'build' );
 	const listr = new Listr( [], {
 		renderer: argv.v ? SilentRenderer : UpdateRenderer,
@@ -94,6 +114,10 @@ export async function handler( argv ) {
 	}
 
 	if ( argv.project.length === 0 ) {
+		if ( argv.forMirrors ) {
+			console.error( 'Please specify projects on the command line with --for-mirrors' );
+			process.exit( 1 );
+		}
 		argv.project = '';
 		argv = await promptForProject( argv );
 		argv = await promptForDeps( argv );
@@ -144,33 +168,7 @@ export async function handler( argv ) {
 
 	// Add build tasks.
 	for ( const project of buildOrder ) {
-		const cwd = projectDir( project );
-		listr.add(
-			createBuildTask( project, argv, `Build ${ project }`, async t => {
-				await t.setStatus( 'installing' );
-				await t.execa( 'composer', await getInstallArgs( project, 'composer', argv ), { cwd } );
-
-				await t.setStatus( 'building' );
-				// Determine the composer script to run.
-				const composerJson = readComposerJson( project, false );
-				const scripts = argv.production
-					? [ 'build-production', 'build-development' ]
-					: [ 'build-development', 'build-production' ];
-				let script = null;
-				for ( const s of scripts ) {
-					if ( composerJson.scripts?.[ s ] ) {
-						script = s;
-						break;
-					}
-				}
-
-				if ( script === null ) {
-					await t.output( `No build scripts are defined for ${ project }\n` );
-				} else {
-					await t.execa( 'composer', [ 'run', '--timeout=0', script ], { cwd } );
-				}
-			} )
-		);
+		listr.add( createBuildTask( project, argv, `Build ${ project }`, buildProject ) );
 	}
 
 	// Run it!
@@ -185,8 +183,18 @@ export async function handler( argv ) {
 		limit: pLimit( argv.concurrency ),
 		dependencies,
 		promises: {},
+		mirrorMutex: pLimit( 1 ),
+		versions: {},
 	};
 	await listr.run( ctx ).catch( err => {
+		if ( argv.v && ctx.concurrent ) {
+			console.error( '\nThe following builds failed:' );
+			for ( const pkg of Object.keys( ctx.promises ).sort() ) {
+				if ( ctx.promises[ pkg ].status === 'rejected' && ctx.promises[ pkg ].buildStarted ) {
+					console.error( ` - ${ pkg }` );
+				}
+			}
+		}
 		process.exit( err.exitCode || 1 );
 	} );
 }
@@ -265,15 +273,20 @@ function createBuildTask( project, argv, title, build ) {
 					task.state = ListrState.PENDING;
 
 					// Create the task-functions object to pass to the builder.
-					const t = {};
+					const t = {
+						project,
+						argv,
+						ctx,
+						cwd: projectDir( project ),
+					};
 					if ( argv.v ) {
 						const streamArgs = { prefix: ctx.concurrent ? project : null, time: !! argv.timing };
-						const stdout = new PrefixTransformStream( streamArgs );
-						const stderr = new PrefixTransformStream( streamArgs );
+						const stdout = new PrefixStream( streamArgs );
+						const stderr = new PrefixStream( streamArgs );
 						stdout.pipe( process.stdout, { end: false } );
 						stderr.pipe( process.stderr, { end: false } );
 
-						t.execa = ( file, args, options ) => {
+						t.execa = ( file, args = [], options = {} ) => {
 							const stdio = options.stdio || [];
 							stdio[ 0 ] ||= 'ignore';
 							const p = execa( file, args, {
@@ -295,7 +308,7 @@ function createBuildTask( project, argv, title, build ) {
 						t.setStatus = s =>
 							t.output( '\n' + chalk.bold( `== ${ title } [${ s }] ==` ) + '\n\n' );
 					} else {
-						t.execa = ( file, args, options ) => {
+						t.execa = ( file, args = [], options = {} ) => {
 							const stdio = options.stdio || [];
 							stdio[ 0 ] ||= 'ignore';
 							stdio[ 1 ] ||= 'ignore';
@@ -315,6 +328,9 @@ function createBuildTask( project, argv, title, build ) {
 					buildStarted = true;
 					try {
 						await build( t );
+					} catch ( e ) {
+						await t.output( `\nBuild failed: ${ e.stack }\n` );
+						throw e;
 					} finally {
 						await t.setStatus( argv.timing ? formatDuration( Date.now() - t0 ) + 's' : 'complete' );
 					}
@@ -341,6 +357,9 @@ function createBuildTask( project, argv, title, build ) {
 			);
 			Object.defineProperty( promise, 'status', {
 				get: () => status,
+			} );
+			Object.defineProperty( promise, 'buildStarted', {
+				get: () => buildStarted,
 			} );
 			ctx.promises[ project ] = promise;
 			return promise;
@@ -370,4 +389,446 @@ async function promptForDeps( options ) {
 		...options,
 		deps: answers.deps,
 	};
+}
+
+/**
+ * Set up the environment for building for mirrors.
+ *
+ * @param {object} argv - Arguments. Will be modified in place.
+ * @returns {boolean} Whether to proceed.
+ */
+async function setupForMirroring( argv ) {
+	if ( ! argv.forMirrors ) {
+		return true;
+	}
+
+	if ( ! process.env.CI || process.env.CI === '' ) {
+		try {
+			await execa( 'git', [ 'diff', '--quiet' ], { stdio: 'inherit', cwd: process.cwd() } );
+		} catch {
+			console.error( chalk.bgRed( 'The working tree has unstaged changes!' ) );
+			console.error( 'Please stage, merge, or revert them before trying to use --for-mirrors.' );
+			return false;
+		}
+		const answers = await inquirer.prompt( [
+			{
+				type: 'confirm',
+				name: 'ok',
+				message: `Build with --for-mirrors is intended for a CI environment and will leave changes in the working tree. Proceed anyway?`,
+				default: false,
+			},
+		] );
+		if ( ! answers.ok ) {
+			console.error( 'Build cancelled!' );
+			return false;
+		}
+	}
+
+	if ( argv.forMirrors === '.' ) {
+		throw new Error( `Cannot mirror to ${ argv.forMirrors }` );
+	}
+	const stats = await fs.stat( argv.forMirrors ).catch( async e => {
+		if ( e.code !== 'ENOENT' ) {
+			throw e;
+		}
+		await fs.mkdir( argv.forMirrors, { recursive: true } );
+		return await fs.stat( argv.forMirrors );
+	} );
+	if ( ! stats.isDirectory() ) {
+		throw new Error( `${ argv.forMirrors } is not a directory` );
+	}
+	await fs.access( argv.forMirrors, fsconstants.R_OK | fsconstants.W_OK | fsconstants.X_OK );
+	if ( ( await fs.readdir( argv.forMirrors ).then( a => a.length ) ) > 0 ) {
+		throw new Error( `Directory ${ argv.forMirrors } is not empty` );
+	}
+
+	argv.deps = true;
+	argv.production = true;
+	argv.p = true;
+	argv.timing = true;
+	process.env.COMPOSER_MIRROR_PATH_REPOS = '1';
+	return true;
+}
+
+/**
+ * Test if a given path exists.
+ *
+ * @param {string|Buffer|URL} path - Path to check.
+ * @returns {boolean} Whether it exists.
+ */
+async function fsExists( path ) {
+	return fs.access( path ).then(
+		() => true,
+		() => false
+	);
+}
+
+/**
+ * Copy directories recursively.
+ *
+ * @param {string} src - Directory to copy from.
+ * @param {string} dest - Directory to copy to.
+ */
+async function copyDirectory( src, dest ) {
+	await fs.mkdir( dest, { recursive: true } );
+	for ( const dirent of await fs.readdir( src, { encoding: 'utf8', withFileTypes: true } ) ) {
+		const s = npath.join( src, dirent.name );
+		const d = npath.join( dest, dirent.name );
+		if ( dirent.isDirectory() ) {
+			await copyDirectory( s, d );
+		} else {
+			await fs.copyFile( s, d );
+		}
+	}
+}
+
+/**
+ * Build a project.
+ *
+ * @param {object} t - Task object.
+ */
+async function buildProject( t ) {
+	await t.setStatus( 'installing' );
+
+	const composerJson = JSON.parse(
+		await fs.readFile( `${ t.cwd }/composer.json`, { encoding: 'utf8' } )
+	);
+
+	if ( t.argv.forMirrors ) {
+		// Mirroring needs to munge the project's composer.json to point to the built files..
+		if ( composerJson.repositories && Object.keys( t.ctx.versions ).length > 0 ) {
+			const idx = composerJson.repositories.findIndex( r => r.options?.monorepo );
+			if ( idx >= 0 ) {
+				t.output( `\n=== Munging composer.json to fetch built packages ===\n\n` );
+				composerJson.repositories.splice( idx, 0, {
+					type: 'path',
+					url: t.argv.forMirrors + '/*/*',
+					options: {
+						monorepo: true,
+						versions: t.ctx.versions,
+					},
+				} );
+				await fs.writeFile(
+					`${ t.cwd }/composer.json`,
+					JSON.stringify( composerJson, null, '\t' ) + '\n',
+					{ encoding: 'utf8' }
+				);
+				// Update composer.lock too, if any.
+				if ( await fsExists( `${ t.cwd }/composer.lock` ) ) {
+					const res = await t.execa( 'composer', [ 'info', '--locked', '--name-only' ], {
+						cwd: t.cwd,
+						stdio: [ null, 'pipe', null ],
+					} );
+					const pkgs = res.stdout
+						.split( '\n' )
+						.map( s => s.trim() )
+						.filter( s => t.ctx.versions.hasOwnProperty( s ) );
+					if ( pkgs.length ) {
+						await t.execa( 'composer', [ 'update', '--no-install', ...pkgs ], { cwd: t.cwd } );
+					}
+				}
+			}
+		}
+		t.output( `\n=== Building ===\n\n` );
+	}
+
+	// Install.
+	await t.execa( 'composer', await getInstallArgs( t.project, 'composer', t.argv ), {
+		cwd: t.cwd,
+	} );
+
+	await t.setStatus( 'building' );
+	// Determine the composer script to run.
+	const scripts = t.argv.production
+		? [ 'build-production', 'build-development' ]
+		: [ 'build-development', 'build-production' ];
+	let script = null;
+	for ( const s of scripts ) {
+		if ( composerJson.scripts?.[ s ] ) {
+			script = s;
+			break;
+		}
+	}
+
+	// Build.
+	if ( script === null ) {
+		await t.output( `No build scripts are defined for ${ t.project }\n` );
+	} else {
+		await t.execa( 'composer', [ 'run', '--timeout=0', script ], { cwd: t.cwd } );
+	}
+
+	// If we're not mirroring, the build is done. Mirroring has a bunch of stuff to do yet.
+	if ( ! t.argv.forMirrors ) {
+		return;
+	}
+
+	// Update the changelog, if applicable.
+	if (
+		t.project === 'packages/changelogger' ||
+		composerJson.require?.[ 'automattic/jetpack-changelogger' ] ||
+		composerJson[ 'require-dev' ]?.[ 'automattic/jetpack-changelogger' ]
+	) {
+		const changelogger = npath.resolve( 'projects/packages/changelogger/bin/changelogger' );
+		const changesDir = npath.resolve(
+			t.cwd,
+			composerJson.extra?.changelogger?.[ 'changes-dir' ] || 'changelog'
+		);
+		t.output( '\n=== Updating changelog ===\n\n' );
+		if (
+			await fs.readdir( changesDir ).then(
+				a => a.filter( f => ! f.startsWith( '.' ) ).length > 0,
+				() => false
+			)
+		) {
+			let prerelease = 'alpha';
+			if ( composerJson.extra?.[ 'dev-releases' ] ) {
+				const m = (
+					await t.execa( changelogger, [ 'version', 'current', '--default-first-version' ], {
+						cwd: t.cwd,
+						stdio: [ null, 'pipe', null ],
+					} )
+				 ).stdout.match( /^.*-a\.(\d+)$/ );
+				prerelease = 'a.' + ( m ? ( parseInt( m[ 1 ] ) & ~1 ) + 2 : 0 );
+			}
+			await t.execa(
+				changelogger,
+				[
+					'write',
+					'--prologue=This is an alpha version! The changes listed here are not final.',
+					'--default-first-version',
+					`--prerelease=${ prerelease }`,
+					`--release-date=unreleased`,
+					`--no-interaction`,
+					`--yes`,
+					`-vvv`,
+				],
+				{ cwd: t.cwd }
+			);
+
+			t.output( '\n=== Updating $$next-version$$ ===\n\n' );
+			const ver = (
+				await t.execa( changelogger, [ 'version', 'current' ], {
+					cwd: t.cwd,
+					stdio: [ null, 'pipe', null ],
+				} )
+			 ).stdout;
+			await t.execa( npath.resolve( 'tools/replace-next-version-tag.sh' ), [
+				'-v',
+				t.project,
+				ver,
+			] );
+		} else {
+			t.output( 'Not updating changelog, there are no change files\n' );
+		}
+	}
+
+	// Read mirror repo from composer.json.
+	t.output( '\n=== Mirroring ===\n\n' );
+	const gitSlug = composerJson.extra?.[ 'mirror-repo' ];
+	if ( typeof gitSlug !== 'string' || gitSlug === '' ) {
+		t.output( `No mirror repo is configured for ${ t.project }\n` );
+		return;
+	}
+	t.output( `Repo name: ${ gitSlug }\n` );
+
+	// Init build dir.
+	const buildDir = npath.resolve( t.argv.forMirrors, gitSlug );
+	t.output( `Build dir: ${ buildDir }\n` );
+	await fs.mkdir( buildDir, { recursive: true } );
+
+	// Copy standard .github.
+	await copyDirectory( '.github/files/mirror-.github', npath.join( buildDir, '.github' ) );
+
+	// Copy autotagger, autorelease, wp-svn-autopublish, and/or npmjs-autopublisher if enabled.
+	if ( composerJson.extra?.autotagger ) {
+		await copyDirectory( '.github/files/gh-autotagger', npath.join( buildDir, '.github' ) );
+	}
+	if ( composerJson.extra?.autorelease ) {
+		await copyDirectory( '.github/files/gh-autorelease', npath.join( buildDir, '.github' ) );
+	}
+	if ( composerJson.extra?.[ 'wp-svn-autopublish' ] ) {
+		await copyDirectory( '.github/files/gh-wp-svn-autopublish', npath.join( buildDir, '.github' ) );
+	}
+	if ( composerJson.extra?.[ 'npmjs-autopublish' ] ) {
+		await copyDirectory(
+			'.github/files/gh-npmjs-autopublisher',
+			npath.join( buildDir, '.github' )
+		);
+	}
+
+	// Copy license.
+	if ( composerJson.license ) {
+		t.output( `License: ${ composerJson.license }\n` );
+		try {
+			await fs.copyFile(
+				`.github/licenses/${ composerJson.license }.txt`,
+				npath.join( buildDir, 'LICENSE.txt' )
+			);
+		} catch ( e ) {
+			throw e.code === 'ENOENT' ? new Error( 'License value not approved.' ) : e;
+		}
+	} else {
+		// @todo Make this an error?
+		t.output( 'No license declared.\n' );
+	}
+
+	// Copy SECURITY.md.
+	await fs.copyFile( `SECURITY.md`, npath.join( buildDir, 'SECURITY.md' ) );
+
+	// Copy project files.
+	for await ( const file of listProjectFiles( t.cwd, t.execa ) ) {
+		const srcfile = npath.join( t.cwd, file );
+		const destfile = npath.join( buildDir, file );
+		await fs.mkdir( npath.dirname( destfile ), { recursive: true } );
+		await fs.copyFile( srcfile, destfile );
+	}
+
+	// HACK: Create stubs to avoid upgrade errors. See https://github.com/Automattic/jetpack/pull/22431.
+	// Ideally we'll have fixed the upgrade errors by the time something else breaks, in which case this should be removed instead of extended.
+	if ( t.project === 'plugins/jetpack' || t.project === 'plugins/backup' ) {
+		t.output( '\n=== Stubbing old vendor files for backward compatibility ===\n\n' );
+		const files = [
+			'automattic/jetpack-roles/src/class-roles.php',
+			'automattic/jetpack-backup/src/class-package-version.php',
+			'automattic/jetpack-sync/src/class-package-version.php',
+			'automattic/jetpack-connection/src/class-package-version.php',
+			'automattic/jetpack-connection/src/class-urls.php',
+			'automattic/jetpack-sync/src/class-functions.php',
+			'automattic/jetpack-sync/src/class-queue-buffer.php',
+			'automattic/jetpack-sync/src/class-utils.php',
+			'automattic/jetpack-connection/legacy/class-jetpack-ixr-client.php',
+			'automattic/jetpack-connection/src/class-client.php',
+			'automattic/jetpack-connection/legacy/class-jetpack-signature.php',
+		];
+		for ( const file of files ) {
+			const newfile = npath.join( buildDir, 'jetpack_vendor', file );
+			if ( await fsExists( newfile ) ) {
+				const oldfile = npath.join( buildDir, 'vendor', file );
+				t.output( `Stubbing ${ oldfile } → ${ newfile }\n` );
+				await fs.mkdir( npath.dirname( oldfile ), { recursive: true } );
+				await fs.writeFile(
+					oldfile,
+					// prettier-ignore
+					`<?php // Stub to avoid errors during upgrades\nrequire_once __DIR__ . '/${ npath.relative( npath.dirname( oldfile ), newfile ) }';\n`,
+					{ encoding: 'utf8' }
+				);
+			}
+		}
+	}
+
+	// Remove monorepo repos from composer.json.
+	if ( composerJson.repositories && composerJson.repositories.some( r => r.options?.monorepo ) ) {
+		composerJson.repositories = composerJson.repositories.filter( r => ! r.options?.monorepo );
+		if ( composerJson.repositories.length === 0 ) {
+			delete composerJson.repositories;
+		}
+		await fs.writeFile(
+			`${ buildDir }/composer.json`,
+			JSON.stringify( composerJson, null, '\t' ) + '\n',
+			{ encoding: 'utf8' }
+		);
+	}
+
+	// Remove engines from package.json.
+	if ( await fsExists( `${ buildDir }/package.json` ) ) {
+		const packageJson = JSON.parse(
+			await fs.readFile( `${ buildDir }/package.json`, { encoding: 'utf8' } )
+		);
+		packageJson.engines = packageJson.publish_engines; // May be undefined, that's ok.
+		delete packageJson.publish_engines;
+		await fs.writeFile(
+			`${ buildDir }/package.json`,
+			JSON.stringify( packageJson, null, '\t' ) + '\n',
+			{ encoding: 'utf8' }
+		);
+	}
+
+	// If npmjs-autopublish is active, default to ignoring .github and composer.json (and not ignoring anything else) in the publish.
+	if ( composerJson.extra?.[ 'npmjs-autopublish' ] ) {
+		let ignore = '# Automatically generated ignore rules.\n/.github/\n/composer.json\n';
+		if ( await fsExists( `${ buildDir }/.npmignore` ) ) {
+			ignore +=
+				'\n# Package ignore file.\n' +
+				( await fs.readFile( `${ buildDir }/.npmignore`, { encoding: 'utf8' } ) );
+		}
+		await fs.writeFile( `${ buildDir }/.npmignore`, ignore, { encoding: 'utf8' } );
+	}
+
+	// If autorelease is active, flag .git files to be excluded from the archive.
+	if ( composerJson.extra?.autorelease ) {
+		let rules = '# Automatically generated rules.\n/.git*\texport-ignore\n';
+		if ( await fsExists( `${ buildDir }/.gitattributes` ) ) {
+			rules +=
+				'\n# Package attributes file.\n' +
+				( await fs.readFile( `${ buildDir }/.gitattributes`, { encoding: 'utf8' } ) );
+		}
+		await fs.writeFile( `${ buildDir }/.gitattributes`, rules, { encoding: 'utf8' } );
+	}
+
+	// Build succeeded! Now do some bookkeeping.
+	t.ctx.versions[ composerJson.name ] =
+		composerJson.extra?.[ 'branch-alias' ]?.[ 'dev-master' ] || 'dev-master';
+	await t.ctx.mirrorMutex( async () => {
+		// prettier-ignore
+		await fs.appendFile( `${ t.argv.forMirrors }/mirrors.txt`, `${ gitSlug }\n`, { encoding: 'utf8' } );
+	} );
+}
+
+/**
+ * List project files to be mirrored.
+ *
+ * @param {string} src - Source directory.
+ * @param {Function} spawn - `execa` spawn function.
+ * @yields {string} File name.
+ */
+async function* listProjectFiles( src, spawn ) {
+	// Lots of process plumbing going on here.
+	//  {
+	//    ls-files
+	//    ls-files --ignored | check-attr production-include | filter
+	//  } | check-attr production-exclude | filter
+
+	const lsFiles = spawn( 'git', [ '-c', 'core.quotepath=off', 'ls-files' ], {
+		cwd: src,
+		stdio: [ 'ignore', 'pipe', null ],
+	} );
+	const lsIgnoredFiles = spawn(
+		'git',
+		[ '-c', 'core.quotepath=off', 'ls-files', '--others', '--ignored', '--exclude-standard' ],
+		{ cwd: src, stdio: [ 'ignore', 'pipe', null ] }
+	);
+	const checkAttrInclude = spawn(
+		'git',
+		[ '-c', 'core.quotepath=off', 'check-attr', '--stdin', 'production-include' ],
+		{ cwd: src, stdio: [ lsIgnoredFiles.stdout, 'pipe', null ] }
+	);
+	const checkAttrExclude = spawn(
+		'git',
+		[ '-c', 'core.quotepath=off', 'check-attr', '--stdin', 'production-exclude' ],
+		{ cwd: src, stdio: [ 'pipe', 'pipe', null ] }
+	);
+	const filterProductionInclude = new FilterStream(
+		s => s.match( /^(.*): production-include: (?!unspecified|unset)/ )?.[ 1 ]
+	);
+	const filterProductionExclude = new FilterStream(
+		s => s.match( /^(.*): production-exclude: (?:unspecified|unset)/ )?.[ 1 ]
+	);
+
+	// Pipe lsFiles to checkAttrExclude first, then lsIgnoredFiles+checkAttrInclude+filterProductionInclude after that.
+	lsFiles.stdout.on( 'end', () => {
+		// prettier-ignore
+		checkAttrInclude.stdout
+			.pipe( filterProductionInclude )
+			.pipe( checkAttrExclude.stdin, { end: true } );
+	} );
+	lsFiles.stdout.pipe( checkAttrExclude.stdin, { end: false } );
+
+	const rl = readline.createInterface( {
+		input: checkAttrExclude.stdout.pipe( filterProductionExclude ),
+		crlfDelay: Infinity,
+	} );
+
+	yield* rl;
+
+	await Promise.all( [ lsFiles, lsIgnoredFiles, checkAttrInclude, checkAttrExclude ] );
 }

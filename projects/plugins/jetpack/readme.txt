@@ -1,7 +1,7 @@
 === Jetpack - WP Security, Backup, Speed, & Growth ===
 Contributors: automattic, adamkheckler, adrianmoldovanwp, aduth, akirk, allendav, alternatekev, andy, annamcphee, annezazu, apeatling, arcangelini, azaozz, batmoo, barry, beaulebens, biskobe, blobaugh, bjorsch, brbrr, cainm, cena, cfinke, chaselivingston, chellycat, clickysteve, csonnek, danielbachhuber, davoraltman, daniloercoli, delawski, designsimply, dllh, drawmyface, dsmart, dzver, ebinnion, egregor, eliorivero, enej, eoigal, erania-pinnera, ethitter, fgiannar, gcorne, georgestephanis, gibrown, goldsounds, hew, hugobaeta, hypertextranch, iammattthomas, iandunn, jblz, jasmussen, jeffgolenski, jeherve, jenhooks, jenia, jessefriedman, jgs, jkudish, jmdodd, joanrho, johnjamesjacoby, jshreve, kbrownkd, keoshi, koke, kraftbj, lancewillett, leogermani, lschuyler, macmanx, martinremy, matt, matveb, mattwiebe, maverick3x6, mcsf, mdawaffe, mdbitz, MichaelArestad, migueluy, mikeyarce, mkaz, nancythanki, nickmomrik, obenland, oskosk, pento, professor44, rachelsquirrel, rdcoll, ryancowles, richardmuscat, richardmtl, robertbpugh, roccotripaldi, samhotchkiss, samiff, scarstocea, scottsweb, sdixon194, sdquirk, sermitr, simison, stephdau, tmoorewp, tyxla, Viper007Bond, westi, yoavf, zinigor
 Tags: Security, backup, Woo, malware, scan, spam, CDN, search, social
-Stable tag: 10.6
+Stable tag: 10.7
 Requires at least: 5.8
 Requires PHP: 5.6
 Tested up to: 5.9
@@ -242,21 +242,23 @@ Jetpack Backup can do a full website migration to a new host, migrate theme file
 4. Promote your newest posts, pages, and products across your social media channels.
 
 == Changelog ==
-### 10.7-a.1 - 2022-02-02
+### 10.8-a.7 - 2022-03-15
 #### Enhancements
-- Add an AMP-compatible version of the email share button.
-- Add transformation from core/buttons to jetpack/recurring-payments block (requires gutenberg >= 11.5.0).
-- Business Hours: Add support for color & spacing design tool.
-- Changed the plan description for invalid plans and added a Warning message for Premium content blocks with invalid plans.
-- Dashboard: update the links used to purchase plans when in Jetpack settings.
+- Dashboard: add toggle to enable new Google Fonts feature.
+- Jetpack: add QRPost feature which generates QR codes for published posts. Currently a JETPACK_BETA_BLOCKS feature.
+- Premium Content block: use a drop down menu rather than two buttons to switch between the guest/subscriber views.
+- VideoPress: updated design of resumable uploader block.
 
 #### Improved compatibility
-- My Community widget: Hide widget from the block inserter and Legacy widget block drop-down menu
+- General: clean up use of deprecated FILTER_SANITIZE_STRING constant. Also mark WPCom_Markdown::get_post_screen_post_type as deprecated due to lack of use.
 
 #### Bug fixes
-- Fixed several React warnings shown on the console when SCRIPT_DEBUG is active
-- Search: avoid PHP warning when using Search widget.
-- Widget Visibility: ensure role and logged in features are available.
+- Google Analytics: fix showing an upgrade button with the latest Jetpack security plans.
+- Jetpack: fix missing "Connect User" button after restoring a connection.
+- Pay with Paypal widget: enable widget to work in block-based widget editor and full site editor.
+- SEO Tools: ensure Twitter cards get correct description when a site has a blank tagline.
+- Payments: swap JETPACK_VERSION for the correct JETPACK__VERSION.
+- Premium Content block: when a visitor subscribes, they now see the premium content without needing to reload the page.
 
 --------
 

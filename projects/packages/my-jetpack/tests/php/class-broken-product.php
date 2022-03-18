@@ -28,6 +28,15 @@ class Broken_Product extends Module_Product {
 	}
 
 	/**
+	 * Get the internationalized product title
+	 *
+	 * @return string
+	 */
+	public static function get_title() {
+		return __( 'Jetpack CRM', 'jetpack-my-jetpack' );
+	}
+
+	/**
 	 * Get the internationalized product description
 	 *
 	 * @return string
@@ -53,4 +62,23 @@ class Broken_Product extends Module_Product {
 	public static function get_features() {
 		return array();
 	}
+
+	/**
+	 * Get the product pricing
+	 *
+	 * @return array
+	 */
+	public static function get_pricing_for_ui() {
+		return array();
+	}
+
+	/**
+	 * Get the URL where the user manages the product
+	 *
+	 * @return ?string
+	 */
+	public static function get_manage_url() {
+		return '';
+	}
+
 }

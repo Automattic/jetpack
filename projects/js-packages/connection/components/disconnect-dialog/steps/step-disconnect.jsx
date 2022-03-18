@@ -69,7 +69,7 @@ const StepDisconnect = props => {
 
 		return (
 			<Button
-				isPrimary
+				variant="primary"
 				disabled={ isDisconnecting }
 				onClick={ handleDisconnectClick }
 				className="jp-connection__disconnect-dialog__btn-disconnect"
@@ -86,7 +86,11 @@ const StepDisconnect = props => {
 	 * @returns {React.ElementType} - Fallback message for when there are no connected plugins or passed components to show.
 	 */
 	const renderFallbackOutput = () => {
-		if ( ! connectedPlugins && ! disconnectStepComponent ) {
+		const hasOtherConnectedPlugins =
+			connectedPlugins &&
+			Object.keys( connectedPlugins ).filter( key => key !== disconnectingPlugin ).length;
+
+		if ( ! hasOtherConnectedPlugins && ! disconnectStepComponent ) {
 			return (
 				<div className="jp-connection__disconnect-dialog__step-copy">
 					<p className="jp-connection__disconnect-dialog__large-text">
@@ -148,7 +152,7 @@ const StepDisconnect = props => {
 					</div>
 					<div className="jp-connection__disconnect-dialog__button-wrap lg-col-span-5 md-col-span-8 sm-col-span-4">
 						<Button
-							isPrimary
+							variant="primary"
 							disabled={ isDisconnecting }
 							onClick={ handleStayConnectedClick }
 							className="jp-connection__disconnect-dialog__btn-dismiss"

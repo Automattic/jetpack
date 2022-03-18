@@ -7,12 +7,7 @@ import { __ } from '@wordpress/i18n';
 /**
  * WordPress dependencies
  */
-import {
-	BlockIcon,
-	ContrastChecker,
-	InspectorControls,
-	PanelColorSettings,
-} from '@wordpress/block-editor';
+import { ContrastChecker, InspectorControls, PanelColorSettings } from '@wordpress/block-editor';
 import {
 	Button,
 	ExternalLink,
@@ -80,7 +75,7 @@ function AmazonEdit( {
 		<Placeholder
 			label={ __( 'Amazon', 'jetpack' ) }
 			instructions={ __( 'Search by entering an Amazon product name or ID below.', 'jetpack' ) }
-			icon={ <BlockIcon icon={ icon } /> }
+			icon={ icon }
 			notices={ noticeUI } // TODO
 		>
 			<form>
@@ -92,7 +87,7 @@ function AmazonEdit( {
 					label={ __( 'Products', 'jetpack' ) }
 					onChange={ onChange }
 				/>
-				<Button isSecondary isLarge type="submit">
+				<Button variant="secondary" type="submit">
 					{ __( 'Preview', 'jetpack' ) }
 				</Button>
 			</form>
@@ -227,7 +222,7 @@ function AmazonEdit( {
 					<Button
 						href={ detailPageUrl }
 						icon={ icon }
-						isPrimary
+						variant="primary"
 						className={ `${ defaultClassName }-button` }
 						style={ {
 							color: buttonTextColor,

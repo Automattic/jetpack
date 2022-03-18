@@ -10,7 +10,7 @@ import ResizeObserver from 'resize-observer-polyfill';
 import Column from '../column';
 import Gallery from '../gallery';
 import Row from '../row';
-import { getGalleryRows, handleRowResize, getColumnWidths } from './resize';
+import { getGalleryRows, handleRowResize } from './resize';
 import { imagesToRatios, ratiosToColumns, ratiosToMosaicRows } from './ratios';
 
 export default class Mosaic extends Component {
@@ -83,6 +83,20 @@ export default class Mosaic extends Component {
 		}
 	}
 
+	getColumnWidths( rows, images, width ) {
+		let cursor = 0;
+		const content = rows.map( row => {
+			return row.map( colSize => {
+				const columnImages = images.slice( cursor, cursor + colSize );
+				cursor += colSize;
+				return columnImages;
+			} );
+		} );
+
+		const result = content.map( row => handleRowResize( row, width ) );
+		return result;
+	}
+
 	render() {
 		const { align, columns, images, layoutStyle, renderedImages } = this.props;
 
@@ -94,7 +108,7 @@ export default class Mosaic extends Component {
 
 		const columnWidths = Platform.select( {
 			web: () => this.props.columnWidths,
-			native: () => getColumnWidths( rows, renderedImages, 1000 ),
+			native: () => this.getColumnWidths( rows, renderedImages, 1000 ),
 		} )();
 
 		let cursor = 0;

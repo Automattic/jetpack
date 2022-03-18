@@ -1,14 +1,14 @@
 {
 	"name": "jetpack-boost",
-	"version": "2.0.0-alpha",
+	"version": "1.4.2-alpha",
 	"description": "Boost your WordPress site's performance, from the creators of Jetpack",
 	"directories": {
 		"test": "tests"
 	},
 	"dependencies": {
-		"@wordpress/components": "19.3.0",
-		"@wordpress/element": "4.1.0",
-		"jetpack-boost-critical-css-gen": "github:automattic/jetpack-boost-critical-css-gen#release-0.0.2"
+		"@wordpress/components": "19.5.0",
+		"@wordpress/element": "4.1.1",
+		"jetpack-boost-critical-css-gen": "github:automattic/jetpack-boost-critical-css-gen#release-0.0.4"
 	},
 	"devDependencies": {
 		"@babel/core": "7.16.0",
@@ -20,8 +20,8 @@
 		"@tsconfig/svelte": "2.0.1",
 		"@typescript-eslint/eslint-plugin": "5.10.2",
 		"@typescript-eslint/parser": "5.10.2",
-		"@wordpress/e2e-test-utils": "6.0.0",
-		"@wordpress/i18n": "4.3.0",
+		"@wordpress/e2e-test-utils": "6.0.2",
+		"@wordpress/i18n": "4.3.1",
 		"eslint-plugin-import": "2.25.4",
 		"eslint-plugin-svelte3": "3.2.1",
 		"node-wp-i18n": "1.2.6",

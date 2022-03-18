@@ -37,6 +37,7 @@ jobs:
               - '.phpcs.config.xml'
               - '.phpcs.xml.dist'
               - '.phpcsignore'
+              - '**/.phpcs.dir.xml'
               - '**/.phpcsignore'
               # If other files used by this workflow changed, run it to test those changes.
               - '.github/files/phpcompatibility-dev-phpcs.xml'
@@ -51,7 +52,7 @@ jobs:
     timeout-minutes: 5  # 2021-01-18: Successful runs seem to take ~1 minute.
 
     steps:
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v3
 
       - name: Setup tools
         uses: ./.github/actions/tool-setup

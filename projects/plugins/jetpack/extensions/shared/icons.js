@@ -184,22 +184,38 @@ export const GooglePhotosLogo = () => {
 	);
 };
 
-export const JetpackLogo = ( { size = 24, className } ) => (
-	<SVG
-		className={ classNames( 'jetpack-logo', className ) }
-		width={ size }
-		height={ size }
-		viewBox="0 0 32 32"
-	>
-		<Path
-			className="jetpack-logo__icon-circle"
-			fill={ COLOR_JETPACK }
-			d="M16,0C7.2,0,0,7.2,0,16s7.2,16,16,16s16-7.2,16-16S24.8,0,16,0z"
-		/>
-		<Polygon className="jetpack-logo__icon-triangle" fill="#fff" points="15,19 7,19 15,3 " />
-		<Polygon className="jetpack-logo__icon-triangle" fill="#fff" points="17,29 17,13 25,13 " />
-	</SVG>
-);
+export const JetpackLogo = ( { size = 24, border = 0, className, color = COLOR_JETPACK } ) => {
+	const borderOffset = border ? ( -border / size ) * 32 : 0;
+
+	return (
+		<SVG
+			className={ classNames( 'jetpack-logo', className ) }
+			width={ size }
+			height={ size }
+			viewBox={ `${ borderOffset } ${ borderOffset } ${ 32 - borderOffset * 2 } ${
+				32 - borderOffset * 2
+			}` }
+		>
+			<Path
+				className="jetpack-logo__icon-circle"
+				fill={ color }
+				stroke={ border ? '#fff' : 'transparent' }
+				strokeWidth={ border }
+				d="M16,0C7.2,0,0,7.2,0,16s7.2,16,16,16s16-7.2,16-16S24.8,0,16,0z"
+			/>
+			<Polygon
+				className="jetpack-logo__icon-triangle"
+				fill="#fff"
+				points={ `15,19 ${ 7 - borderOffset * 0.5 },19 15,${ 3 - borderOffset }` }
+			/>
+			<Polygon
+				className="jetpack-logo__icon-triangle"
+				fill="#fff"
+				points={ `17,${ 29 + borderOffset } 17,13 ${ 25 + borderOffset * 0.5 },13` }
+			/>
+		</SVG>
+	);
+};
 
 // @TODO: Import those from https://github.com/Automattic/social-logos when that's possible.
 // Currently we can't directly import icons from there, because all icons are bundled in a single file.
@@ -401,5 +417,16 @@ export const flashIcon = (
 	<SVG xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
 		<Path d="M0 0h24v24H0z" fill="none" />
 		<Path d="M7 2v11h3v9l7-12h-4l4-8z" fill="currentColor" />
+	</SVG>
+);
+
+export const VideoPressIcon = (
+	<SVG width="29" height="21" viewBox="0 0 29 21" fill="none" xmlns="http://www.w3.org/2000/svg">
+		<Path
+			fillRule="evenodd"
+			clipRule="evenodd"
+			d="M2.79037 0.59375C4.0363 0.59375 5.13102 1.41658 5.47215 2.60947L8.8452 14.4044C8.8486 14.4164 8.85411 14.4273 8.86124 14.4368L12.8572 0.59375H15.0927H21.2721C25.6033 0.59375 28.5066 3.39892 28.5066 7.64565C28.5066 11.9411 25.5272 14.6196 21.0818 14.6196H18.1499H14.3719L13.6379 16.8813C12.9796 18.9095 11.0827 20.2839 8.94152 20.2839C6.80035 20.2839 4.90341 18.9095 4.24517 16.8813L0.137069 4.22276C-0.444671 2.43022 0.898038 0.59375 2.79037 0.59375ZM15.7374 10.4119H20.0156C21.8718 10.4119 22.9856 9.35018 22.9856 7.64565C22.9856 5.93137 21.8718 4.91839 20.0156 4.91839H17.5202L15.7374 10.4119Z"
+			fill="#000000"
+		/>
 	</SVG>
 );

@@ -8,7 +8,7 @@ import queryString from 'query-string';
 /**
  * WordPress dependencies
  */
-import { BlockIcon, InnerBlocks } from '@wordpress/block-editor';
+import { InnerBlocks } from '@wordpress/block-editor';
 import { Button, ExternalLink, Placeholder, Spinner, withNotices } from '@wordpress/components';
 import { useEffect, useState } from '@wordpress/element';
 import { __, _x } from '@wordpress/i18n';
@@ -128,7 +128,7 @@ export function CalendlyEdit( props ) {
 		<Placeholder
 			label={ __( 'Calendly', 'jetpack' ) }
 			instructions={ __( 'Enter your Calendly web address or embed code below.', 'jetpack' ) }
-			icon={ <BlockIcon icon={ icon } /> }
+			icon={ icon }
 			notices={ noticeUI }
 		>
 			<form onSubmit={ parseEmbedCode }>
@@ -141,7 +141,7 @@ export function CalendlyEdit( props ) {
 					className="components-placeholder__input"
 				/>
 				<div>
-					<Button isSecondary type="submit">
+					<Button variant="secondary" type="submit">
 						{ _x( 'Embed', 'button label', 'jetpack' ) }
 					</Button>
 				</div>

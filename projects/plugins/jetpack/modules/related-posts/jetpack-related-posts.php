@@ -77,6 +77,21 @@ class Jetpack_RelatedPosts {
 			'jetpack/related-posts',
 			array(
 				'render_callback' => array( $this, 'render_block' ),
+				'supports'        => array(
+					'color'      => array(
+						'gradients' => true,
+						'link'      => true,
+					),
+					'spacing'    => array(
+						'margin'  => true,
+						'padding' => true,
+					),
+					'typography' => array(
+						'fontSize'   => true,
+						'lineHeight' => true,
+					),
+					'align'      => array( 'wide', 'full' ),
+				),
 			)
 		);
 	}
@@ -409,8 +424,12 @@ EOT;
 			$rows_markup .= $this->render_block_row( $lower_row_posts, $block_attributes );
 		}
 
+		$wrapper_attributes = \WP_Block_Supports::get_instance()->apply_block_supports();
+
 		$display_markup = sprintf(
-			'<nav class="jp-relatedposts-i2" data-layout="%1$s">%2$s%3$s</nav>',
+			'<nav class="jp-relatedposts-i2%1$s"%2$s data-layout="%3$s">%4$s%5$s</nav>',
+			! empty( $wrapper_attributes['class'] ) ? ' ' . esc_attr( $wrapper_attributes['class'] ) : '',
+			! empty( $wrapper_attributes['style'] ) ? ' style="' . esc_attr( $wrapper_attributes['style'] ) . '"' : '',
 			esc_attr( $block_attributes['layout'] ),
 			$block_attributes['headline'],
 			$rows_markup
@@ -859,7 +878,7 @@ EOT;
 		 * @since 2.8.0
 		 *
 		 * @param array $results Array of related posts matched by Elasticsearch.
-		 * @param string $post_id Post ID of the post for which we are retrieving Related Posts.
+		 * @param int $post_id Post ID of the post for which we are retrieving Related Posts.
 		 */
 		return apply_filters( 'jetpack_relatedposts_returned_results', $results, $post_id );
 	}
@@ -1198,8 +1217,8 @@ EOT;
 	 * @return array
 	 */
 	public function get_related_post_data_for_post( $post_id, $position, $origin ) {
-		$post          = get_post( $post_id );
-		$related_posts = array(
+		$post = get_post( $post_id );
+		return array(
 			'id'       => $post->ID,
 			'url'      => get_permalink( $post->ID ),
 			'url_meta' => array(
@@ -1254,18 +1273,6 @@ EOT;
 				$post->ID
 			),
 		);
-
-		/**
-		 * Filter the array of related posts.
-		 *
-		 * @module related-posts
-		 *
-		 * @since 2.8.0
-		 *
-		 * @param array $results Array of related posts.
-		 * @param int $post_id Post ID of the post for which we are retrieving Related Posts.
-		 */
-		return apply_filters( 'jetpack_relatedposts_returned_results', $related_posts, $post_id );
 	}
 
 	/**
