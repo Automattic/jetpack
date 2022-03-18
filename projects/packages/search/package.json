@@ -39,7 +39,7 @@
 		"@automattic/calypso-color-schemes": "2.1.1",
 		"@automattic/color-studio": "2.5.0",
 		"@automattic/jetpack-analytics": "workspace:^0.1.8",
-		"@automattic/jetpack-api": "workspace:^0.9.1",
+		"@automattic/jetpack-api": "workspace:^0.10.0-alpha",
 		"@automattic/jetpack-components": "workspace:^0.10.11-alpha",
 		"@wordpress/base-styles": "4.1.1",
 		"@wordpress/block-editor": "8.2.0",
