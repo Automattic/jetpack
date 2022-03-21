@@ -15,6 +15,7 @@ import SearchCard from './search-card';
 import VideopressCard from './videopress-card';
 import CrmCard from './crm-card';
 import ExtrasCard from './extras-card';
+import MonitorCard from './monitor-card';
 
 /**
  * Product cards section component.
@@ -47,6 +48,9 @@ const ProductCardsSection = () => {
 			</Col>
 			<Col sm={ 4 } md={ 4 } lg={ 3 }>
 				<ExtrasCard admin={ true } />
+			</Col>
+			<Col sm={ 4 } md={ 4 } lg={ 3 }>
+				<MonitorCard admin={ true } />
 			</Col>
 		</Container>
 	);
