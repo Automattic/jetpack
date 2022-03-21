@@ -1,18 +1,27 @@
 <?php
+/**
+ * Module: geo-location
+ *
+ * @package automattic/jetpack
+ */
+
+/**
+ * Adds support for geo-location features.
+ */
 
 require_once __DIR__ . '/geo-location/class.jetpack-geo-location.php';
 
 /**
- * Geo-location shortcode for display of location data associated with a post.
+ * Geo-location shortcode callback for display of location data associated with a post.
  *
  * Usage with current global $post:
  * [geo-location]
  *
  * Usage with specific post ID:
  * [geo-location post=5]
+ *
+ * @param array $attributes Shortcode attributes.
  */
-add_shortcode( 'geo-location', 'jetpack_geo_shortcode' );
-
 function jetpack_geo_shortcode( $attributes ) {
 	$attributes = shortcode_atts(
 		array(
@@ -23,6 +32,7 @@ function jetpack_geo_shortcode( $attributes ) {
 	);
 	return jetpack_geo_get_location( $attributes['post'] ? $attributes['post'] : $attributes['id'] );
 }
+add_shortcode( 'geo-location', 'jetpack_geo_shortcode' );
 
 /**
  * Get the geo-location data associated with the supplied post ID, if it's available
@@ -32,7 +42,7 @@ function jetpack_geo_shortcode( $attributes ) {
  * If you do not supply a value for $post_id, the global $post will be used, if
  * available.
  *
- * @param integer|null $post_id
+ * @param integer|null $post_id Post ID.
  *
  * @return array|null
  */
@@ -63,7 +73,7 @@ function jetpack_geo_get_data( $post_id = null ) {
  * If you do not supply a value for $post_id, the global $post will be used, if
  * available.
  *
- * @param integer|null $post_id
+ * @param integer|null $post_id Post ID.
  *
  * @return void
  */
@@ -78,7 +88,7 @@ function jetpack_geo_display_location( $post_id = null ) {
  * If you do not supply a value for $post_id, the global $post will be used, if
  * available.
  *
- * @param integer|null $post_id
+ * @param integer|null $post_id Post ID.
  *
  * @return string
  */
