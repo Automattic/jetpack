@@ -21,7 +21,6 @@ import { STORE_ID } from 'store';
 import NoticesList from 'components/global-notices';
 import RecordMeter from 'components/record-meter';
 
-import 'scss/rna-styles.scss';
 import './style.scss';
 
 /**

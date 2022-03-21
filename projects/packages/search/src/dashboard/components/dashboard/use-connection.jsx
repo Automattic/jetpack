@@ -11,7 +11,6 @@ import { __ } from '@wordpress/i18n';
  */
 import { STORE_ID } from '../../store';
 
-import '@automattic/jetpack-base-styles/style.scss';
 import './use-connection.scss';
 
 /**
