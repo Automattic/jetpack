@@ -69,7 +69,7 @@ const ActionButton = ( {
 			);
 		case PRODUCT_STATUSES.ACTIVE:
 			return (
-				<Button { ...buttonState } onClick={ onManage }>
+				<Button { ...buttonState } variant="secondary" onClick={ onManage }>
 					{ __( 'Manage', 'jetpack-my-jetpack' ) }
 				</Button>
 			);
