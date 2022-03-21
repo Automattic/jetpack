@@ -85,6 +85,16 @@ export const settings = {
 				blockGap: true,
 			},
 		},
+		url: {
+			type: 'string',
+			// Used for blocks created without the payment form auto open feature.
+			default: '#',
+		},
+		uniqueId: {
+			type: 'string',
+			// Used for blocks created without the payment form auto open feature.
+			default: 'id',
+		},
 	},
 	edit,
 	save,
