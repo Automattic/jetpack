@@ -23,8 +23,8 @@
 	"dependencies": {
 		"@automattic/format-currency": "1.0.0-alpha.0",
 		"@automattic/jetpack-analytics": "workspace:^0.1.8",
-		"@automattic/jetpack-components": "workspace:^0.10.10",
-		"@automattic/jetpack-connection": "workspace:^0.17.3",
+		"@automattic/jetpack-components": "workspace:^0.10.11-alpha",
+		"@automattic/jetpack-connection": "workspace:^0.17.4-alpha",
 		"@wordpress/api-fetch": "6.0.1",
 		"@wordpress/components": "19.5.0",
 		"@wordpress/data": "6.3.0",

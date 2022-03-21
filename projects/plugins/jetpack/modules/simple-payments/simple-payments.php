@@ -218,14 +218,10 @@ class Jetpack_Simple_Payments {
 			return false;
 		}
 
-		// For WPCOM sites.
-		if ( defined( 'IS_WPCOM' ) && IS_WPCOM && function_exists( 'has_any_blog_stickers' ) ) {
-			$site_id = $this->get_blog_id();
-			return has_any_blog_stickers( array( 'premium-plan', 'business-plan', 'ecommerce-plan' ), $site_id );
-		}
-
-		// For all Jetpack sites.
-		return Jetpack::is_connection_ready() && Jetpack_Plan::supports( 'simple-payments' );
+		return (
+			( ( defined( 'IS_WPCOM' ) && IS_WPCOM ) || Jetpack::is_connection_ready() ) &&
+			Jetpack_Plan::supports( 'simple-payments' )
+		);
 	}
 
 	/**
