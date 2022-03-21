@@ -7,6 +7,7 @@ on:
       - Build Docker
       - Tests
       - Gardening
+      - PR is up-to-date
     branches: [ 'master', '*/branch-*' ]
 
 jobs:

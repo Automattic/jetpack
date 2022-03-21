@@ -33,7 +33,7 @@ const ConnectedProductCard = ( { admin, slug, showDeactivate } ) => {
 			name={ name }
 			description={ description }
 			status={ status }
-			icon={ <Icon /> }
+			icon={ <Icon opacity={ 0.4 } /> }
 			admin={ admin }
 			isFetching={ isFetching }
 			onDeactivate={ deactivate }
@@ -49,12 +49,10 @@ const ConnectedProductCard = ( { admin, slug, showDeactivate } ) => {
 
 ConnectedProductCard.propTypes = {
 	admin: PropTypes.bool.isRequired,
-	onLearn: PropTypes.func,
 	slug: PropTypes.string.isRequired,
 	showDeactivate: PropTypes.bool,
 };
 ConnectedProductCard.defaultProps = {
-	onLearn: () => {},
 	showDeactivate: true,
 };
 
