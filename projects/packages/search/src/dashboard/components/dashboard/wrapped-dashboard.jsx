@@ -10,6 +10,8 @@ import { AdminSectionHero, Container, Col } from '@automattic/jetpack-components
 import useConnection from './use-connection';
 import SearchDashboard from './index';
 
+import './wrapped-dashboard.scss';
+
 /**
  * Return Search Dashboard if connected, otherwise the connection screen.
  *
@@ -25,7 +27,7 @@ export default function SearchDashboardWithConnection() {
 
 	if ( ! isFullyConnected ) {
 		return (
-			<div className="content">
+			<div className="jp-content">
 				<AdminSectionHero>
 					<Container horizontalSpacing={ 3 } horizontalGap={ 3 }>
 						<Col lg={ 12 } md={ 8 } sm={ 4 }>
