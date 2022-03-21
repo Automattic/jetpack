@@ -1,0 +1,4 @@
+Significance: minor
+Type: changed
+
+Backup plugin UI now lives in the Backup package
