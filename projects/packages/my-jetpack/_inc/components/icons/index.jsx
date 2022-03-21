@@ -14,6 +14,7 @@ import styles from './style.module.scss';
  *
  * @param {object} props           - Component props.
  * @param {number} props.size      - Icon size.
+ * @param {number} props.opacitiy  - Opacity for SVG shapes
  * @param {string} props.viewBox   - Icon viewBox.
  * @param {object} props.children  - Icon component children.
  * @param {string} props.className - Icon class name. Optional.
