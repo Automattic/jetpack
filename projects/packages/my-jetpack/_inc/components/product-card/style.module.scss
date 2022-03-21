@@ -22,7 +22,7 @@
 		}
 
 		&:focus {
-			box-shadow: 0 0 0 var( --wp-admin-border-width-focus ) var( --jp-black );
+			box-shadow: 0 0 0 1.5px var( --jp-black );
 			background-color: var( --jp-white );
 			outline: 3px solid transparent;
 		}
