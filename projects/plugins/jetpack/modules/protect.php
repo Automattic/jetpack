@@ -725,7 +725,7 @@ class Jetpack_Protect_Module {
 			$die_string = sprintf( __( 'Your IP (%1$s) has been flagged for potential security violations.', 'jetpack' ), str_replace( 'http://', '', esc_url( 'http://' . $ip ) ) );
 			wp_die(
 				$die_string, // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- esc_url used when forming string.
-				__( 'Login Blocked by Jetpack', 'jetpack' ), // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
+				esc_html__( 'Login Blocked by Jetpack', 'jetpack' ),
 				array( 'response' => 403 )
 			);
 		}
