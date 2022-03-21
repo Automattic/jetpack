@@ -31,6 +31,10 @@
 			outline: 3px solid transparent;
 		}
 	}
+
+	&.has-error {
+		box-shadow: 0 0 0 1.5px var( --jp-red-60 );
+	}
 }
 
 .name {
