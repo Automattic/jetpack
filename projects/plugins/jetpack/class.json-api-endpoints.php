@@ -2352,7 +2352,7 @@ abstract class WPCOM_JSON_API_Endpoint {
 		}
 
 		// bail early if they already have the upgrade..
-		if ( (string) get_option( 'video_upgrade' ) === '1' ) {
+		if ( wpcom_site_has_videopress() ) {
 			return $mimes;
 		}
 
