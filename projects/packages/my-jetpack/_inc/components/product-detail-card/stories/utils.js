@@ -7,6 +7,7 @@ import {
 	boostProductData,
 	crmProductData,
 	extrasProductData,
+	monitorProductData,
 	scanProductData,
 	searchProductData,
 	securityProductData,
@@ -19,6 +20,7 @@ const mapResponse = {
 	boost: boostProductData,
 	crm: crmProductData,
 	extras: extrasProductData,
+	monitor: monitorProductData,
 	scan: scanProductData,
 	search: searchProductData,
 	security: securityProductData,
@@ -74,5 +76,15 @@ export function getAllMockData() {
  * @returns {Array} product slugs list.
  */
 export function getProductSlugs() {
-	return [ 'anti-spam', 'backup', 'boost', 'crm', 'extras', 'scan', 'search', 'videopress' ];
+	return [
+		'anti-spam',
+		'backup',
+		'boost',
+		'crm',
+		'extras',
+		'monitor',
+		'scan',
+		'search',
+		'videopress',
+	];
 }
