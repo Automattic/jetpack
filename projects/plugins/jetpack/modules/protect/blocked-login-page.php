@@ -336,7 +336,7 @@ class Jetpack_Protect_Blocked_Login_Page {
 	 * Send the recovery form.
 	 */
 	public function send_recovery_email() {
-		$email = isset( $_POST['email'] ) ? $_POST['email'] : ''; // phpcs:ignore WordPress.Security.NonceVerification.Missing -- no changes to the site, sends recovery email if email matches a user on the site.
+		$email = isset( $_POST['email'] ) ? $_POST['email'] : ''; // phpcs:ignore WordPress.Security.NonceVerification.Missing -- only triggered after bypass-protect nonce check is done.
 		if ( sanitize_email( $email ) !== $email || ! is_email( $email ) ) {
 			return new WP_Error( 'invalid_email', __( "Oops, looks like that's not the right email address. Please try again!", 'jetpack' ) );
 		}
@@ -725,7 +725,7 @@ class Jetpack_Protect_Blocked_Login_Page {
 					<path fill="#86A6BD" d="M48.1,121.4l2.9-6.2c0.3-0.6,0.2-1.3-0.3-1.8c-1-1-1.5-2.5-1.2-4c0.3-1.7,1.7-3.1,3.4-3.4 c2.9-0.6,5.4,1.6,5.4,4.4c0,1.2-0.5,2.3-1.3,3.1c-0.5,0.5-0.6,1.2-0.3,1.8l2.9,6.2c0.1,0.2-0.1,0.5-0.3,0.5H48.4 C48.1,121.9,48,121.6,48.1,121.4"/>
 				</svg>
 
-				<?php echo $message; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?>
+				<?php echo $message; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- message includes HTML that's marked up ourselves. ?>
 				<?php
 				if ( $recovery_form ) {
 					echo $this->get_html_recovery_form(); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- content is escaped in the function.
