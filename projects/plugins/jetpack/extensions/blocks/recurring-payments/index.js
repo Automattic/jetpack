@@ -88,6 +88,16 @@ export const settings = {
 		align: {
 			type: 'string',
 		},
+		url: {
+			type: 'string',
+			// Used for blocks created without the payment form auto open feature.
+			default: '#',
+		},
+		uniqueId: {
+			type: 'string',
+			// Used for blocks created without the payment form auto open feature.
+			default: 'id',
+		},
 	},
 	edit,
 	save: ( { className } ) => (
