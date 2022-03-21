@@ -437,7 +437,7 @@ class Jetpack_Protect_Blocked_Login_Page {
 		ob_start(); ?>
 		<div>
 			<form method="post" action="?jetpack-protect-recovery=true">
-				<?php echo wp_nonce_field( 'bypass-protect' ); //phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?> 
+				<?php wp_nonce_field( 'bypass-protect' ); ?> 
 				<p><label for="email"><?php esc_html_e( 'Your email', 'jetpack' ); ?><br/></label>
 					<input type="email" name="email" class="text-input"/>
 					<input type="submit" class="button"
