@@ -202,7 +202,7 @@ class Jetpack_RelatedPosts {
 		} else {
 			if ( isset( $_GET['relatedposts_hit'], $_GET['relatedposts_origin'], $_GET['relatedposts_position'] ) ) { // phpcs:ignore WordPress.Security.NonceVerification.Recommended -- checking if fields are set to setup tracking.
 				$this->previous_post_id = (int) $_GET['relatedposts_origin']; // phpcs:ignore WordPress.Security.NonceVerification.Recommended -- fetching a previous post ID for tracking. 
-				$this->log_click( $this->previous_post_id, get_the_ID(), $_GET['relatedposts_position'] ); // phpcs:ignore WordPress.Security.NonceVerification.Recommended -- just logging the click for tracking.
+				$this->log_click( $this->previous_post_id, get_the_ID(), sanitize_text_field( wp_unslash( $_GET['relatedposts_position'] ) ) ); // phpcs:ignore WordPress.Security.NonceVerification.Recommended -- just logging the click for tracking.
 			}
 
 			$this->action_frontend_init_page();
@@ -526,9 +526,9 @@ EOT;
 
 		if ( isset( $_GET[ $arg ] ) ) { // phpcs:ignore WordPress.Security.NonceVerification.Recommended -- requests are used to generate a list of related posts we want to exclude.
 			if ( is_string( $_GET[ $arg ] ) ) { // phpcs:ignore WordPress.Security.NonceVerification.Recommended
-				$result = explode( ',', $_GET[ $arg ] ); // phpcs:ignore WordPress.Security.NonceVerification.Recommended
+				$result = explode( ',', sanitize_text_field( wp_unslash( $_GET[ $arg ] ) ) ); // phpcs:ignore WordPress.Security.NonceVerification.Recommended
 			} elseif ( is_array( $_GET[ $arg ] ) ) { // phpcs:ignore WordPress.Security.NonceVerification.Recommended
-				$result = array_values( $_GET[ $arg ] ); // phpcs:ignore WordPress.Security.NonceVerification.Recommended
+				$result = array_values( sanitize_text_field( wp_unslash( $_GET[ $arg ] ) ) ); // phpcs:ignore WordPress.Security.NonceVerification.Recommended
 			}
 
 			$result = array_unique( array_filter( array_map( 'absint', $result ) ) );
