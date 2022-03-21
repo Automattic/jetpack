@@ -71,12 +71,13 @@ class WafStandaloneBootstrap {
 		}
 
 		$bootstrap_file = trailingslashit( JETPACK_WAF_DIR ) . 'bootstrap.php';
+		$mode_option    = get_option( WafRunner::MODE_OPTION_NAME, false );
 
-		// phpcs:disable
+		// phpcs:disable WordPress.PHP.DevelopmentFunctions
 		$code = "<?php\n"
-			. sprintf( "define( 'JETPACK_WAF_MODE', %s );\n", var_export( get_option( WafRunner::MODE_OPTION_NAME, false ) ?: 'silent', true ) )
+			. sprintf( "define( 'JETPACK_WAF_MODE', %s );\n", var_export( $mode_option ? $mode_option : 'silent', true ) )
 			. sprintf( "define( 'JETPACK_WAF_DIR', %s );\n", var_export( JETPACK_WAF_DIR, true ) )
-			. "include " . var_export( dirname( __DIR__ ) . '/run.php', true ) . ";\n";
+			. 'include ' . var_export( dirname( __DIR__ ) . '/run.php', true ) . ";\n";
 		// phpcs:enable
 
 		if ( ! $wp_filesystem->put_contents( $bootstrap_file, $code ) ) {
