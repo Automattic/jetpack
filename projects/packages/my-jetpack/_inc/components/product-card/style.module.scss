@@ -13,33 +13,20 @@
 
 	&.is-link {
 		background: none;
-		box-shadow: none;
 		text-decoration: none;
 		background-color: var( --jp-white-off );
 		color: var( --jp-black-80 );
+
+		&:hover {
+			background-color: var( --jp-white );
+		}
+
+		&:focus {
+			box-shadow: 0 0 0 var( --wp-admin-border-width-focus ) var( --jp-black );
+			background-color: var( --jp-white );
+			outline: 3px solid transparent;
+		}
 	}
-
-	:global {
-		// Buttons
-		& .components-button-group,
-		& .components-button {
-			border-radius: 4px;
-			height: var(--product-card-actions-button-height);
-			line-height: var(--product-card-actions-button-height);
-		}
-
-		& .components-button-group {
-			> .components-button:first-child {
-				border-top-right-radius: 0;
-				border-bottom-right-radius: 0;
-			}
-
-			.components-dropdown-menu > .components-button,
-			> .components-button:last-child {
-				border-top-left-radius: 0;
-				border-bottom-left-radius: 0;
-			}
-		}
 }
 
 .name {
@@ -142,4 +129,3 @@
 		opacity: 0;
 	}
 }
-
