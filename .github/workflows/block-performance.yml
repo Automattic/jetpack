@@ -1,8 +1,11 @@
 name: Jetpack block performance
 
 on:
-  schedule:
-    - cron:  '0 */12 * * *'
+  # schedule:
+  #   - cron:  '0 */12 * * *'
+  pull_request:
+    paths-ignore:
+    - '**.md'
 
 jobs:
   block-performance:
@@ -69,6 +72,7 @@ jobs:
         continue-on-error: true
         run: |
           pnpm run tunnel:off
+          rm -rf $GITHUB_WORKSPACE/gutenberg
 
       - name: Upload test artifacts
         if: ${{ always() }}
