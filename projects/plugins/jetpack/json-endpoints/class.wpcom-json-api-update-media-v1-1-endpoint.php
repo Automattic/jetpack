@@ -1,4 +1,9 @@
-<?php
+<?php // phpcs:ignore WordPress.Files.FileName.InvalidClassFileName
+/**
+ * Update media item info v1.1 endpoint.
+ *
+ * Endpoint: v1.1/sites/%s/media/%d
+ */
 
 new WPCOM_JSON_API_Update_Media_v1_1_Endpoint(
 	array(
@@ -65,8 +70,21 @@ new WPCOM_JSON_API_Update_Media_v1_1_Endpoint(
 	)
 );
 
+// phpcs:disable PEAR.NamingConventions.ValidClassName.Invalid
+/**
+ * Update media item info v1.1 class.
+ */
 class WPCOM_JSON_API_Update_Media_v1_1_Endpoint extends WPCOM_JSON_API_Endpoint {
-	function callback( $path = '', $blog_id = 0, $media_id = 0 ) {
+	/**
+	 * Update media item info API v1.1 callback.
+	 *
+	 * @param string $path API path.
+	 * @param int    $blog_id Blog ID.
+	 * @param int    $media_id Media ID.
+	 *
+	 * @return object|WP_Error
+	 */
+	public function callback( $path = '', $blog_id = 0, $media_id = 0 ) {
 		$blog_id = $this->api->switch_to_blog_and_validate_user( $this->api->get_blog_id( $blog_id ) );
 		if ( is_wp_error( $blog_id ) ) {
 			return $blog_id;
