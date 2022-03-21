@@ -97,7 +97,7 @@ class JetpackTerminationDialogFeatures extends Component {
 
 	renderConnectedPlugins( plugins ) {
 		return (
-			<ul class="jetpack-termination-dialog__active-plugins-list">
+			<ul className="jetpack-termination-dialog__active-plugins-list">
 				{ plugins.map( plugin => (
 					<li key={ plugin.slug }>
 						<Gridicon icon="notice-outline" size={ 18 } />

@@ -19,9 +19,9 @@ jobs:
             exit 1
           fi
 
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v3
 
-      - uses: actions/setup-node@v2
+      - uses: actions/setup-node@v3
         with:
           # NPM version shouldn't matter, just use the LTS.
           node-version: 'lts/*'
