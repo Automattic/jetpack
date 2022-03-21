@@ -33,7 +33,7 @@ const ConnectedProductCard = ( { admin, slug, showDeactivate } ) => {
 			name={ name }
 			description={ description }
 			status={ status }
-			icon={ <Icon /> }
+			icon={ <Icon opacity={ 0.4 } /> }
 			admin={ admin }
 			isFetching={ isFetching }
 			onDeactivate={ deactivate }
