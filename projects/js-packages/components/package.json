@@ -24,7 +24,8 @@
 		"nyc": "15.1.0",
 		"react": "17.0.2",
 		"react-dom": "17.0.2",
-		"react-test-renderer": "17.0.2"
+		"react-test-renderer": "17.0.2",
+		"typescript": "4.3.5"
 	},
 	"peerDependencies": {
 		"react": "^17.0.2",
@@ -39,7 +40,7 @@
 		"*.scss"
 	],
 	"scripts": {
-		"test": "NODE_ENV=test NODE_PATH=tests:. js-test-runner --jsdom --initfile=test-main.jsx 'glob:./!(node_modules)/**/test/*.jsx'"
+		"test": "NODE_ENV=test NODE_PATH=tests:. js-test-runner --jsdom --initfile=test-main.jsx 'glob:./!(node_modules)/**/test/*.[jt]sx'"
 	},
 	"engines": {
 		"node": "^14.18.3 || ^16.13.2",
