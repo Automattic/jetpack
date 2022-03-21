@@ -740,8 +740,9 @@ abstract class SAL_Post {
 
 		$content = join( "\n\n", $pages );
 		$content = preg_replace( '/<!--more(.*?)?-->/', '', $content );
-		$pages   = array( $content );
-		$page    = 1;
+		// phpcs:disable WordPress.WP.GlobalVariablesOverride.Prohibited -- Assignment to globals is intentional
+		$pages = array( $content );
+		$page  = 1;
 
 		ob_start();
 		the_content();
@@ -749,6 +750,7 @@ abstract class SAL_Post {
 
 		$pages = $old_pages;
 		$page  = $old_page;
+		// phpcs:enable WordPress.WP.GlobalVariablesOverride.Prohibited 
 		return $return;
 	}
 
