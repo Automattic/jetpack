@@ -9,21 +9,21 @@ import { __, sprintf } from '@wordpress/i18n';
  */
 import Button from 'components/button';
 import { imagePath } from 'constants/urls';
+import { BarChartProps } from './types';
+
+type PopupProps = Omit< BarChartProps, 'plugins' >;
 
 /**
  * The popup is a simple React component that displays a popup with a title, a lock icon, and a message
  *
- * @param {object} props - Props
- * @param {number} props.posts - The post count.
- * @param {number} props.comments - The comment count
- * @param {Function} props.onClose - Callback when the popup is closed
- * @returns {React.ReactElement} A React component.
+ * @param {BarChartProps} props - Props
+ * @returns {React.ReactElement} - JSX Element
  */
-export const Popup = ( { posts, comments, onClose } ) => {
+export const Popup: React.FC< PopupProps > = ( { posts, comments, onClosePopup } ) => {
 	return (
 		<div className="jp-dash-upgrade-backup__popup">
 			<Button
-				onClick={ onClose }
+				onClick={ onClosePopup }
 				className="jp-dash-upgrade-backup__popup-close-icon"
 				compact
 				borderless
