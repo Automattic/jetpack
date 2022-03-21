@@ -71,7 +71,7 @@ abstract class SAL_Post {
 	 * @return WPCOM_JSON_API_Links|string
 	 */
 	public function __get( $key ) {
-		if ( $key === 'links' ) {
+		if ( 'links' === $key ) {
 			require_once __DIR__ . '/class.json-api-links.php';
 			return WPCOM_JSON_API_Links::getInstance();
 		}
@@ -313,9 +313,10 @@ abstract class SAL_Post {
 
 		// add autosave link if a more recent autosave exists.
 		if ( 'edit' === $this->context ) {
-			$autosave                  = wp_get_post_autosave( $this->post->ID );
-			if ( $autosave && $autosave->post_modified > $this->post->post_modified )
+			$autosave = wp_get_post_autosave( $this->post->ID );
+			if ( $autosave && $autosave->post_modified > $this->post->post_modified ) {
 				$meta->links->autosave = (string) $this->get_post_link() . '/autosave';
+			}
 		}
 
 		return $meta;
@@ -453,10 +454,10 @@ abstract class SAL_Post {
 		$thumb_id = get_post_thumbnail_id( $this->post->ID );
 
 		if ( ! empty( $thumb_id ) ) {
-			$attachment                = get_post( $thumb_id );
-			if ( ! empty( $attachment ) )
+			$attachment = get_post( $thumb_id );
+			if ( ! empty( $attachment ) ) {
 				$featured_image_object = $this->get_attachment( $attachment );
-
+			}
 			if ( ! empty( $featured_image_object ) ) {
 				$thumb = (object) $featured_image_object;
 			}
@@ -692,7 +693,7 @@ abstract class SAL_Post {
 		$sitewide_likes_enabled = (bool) apply_filters( 'wpl_is_enabled_sitewide', ! get_option( 'disabled_likes' ) );
 		$post_likes_switched    = get_post_meta( $this->post->ID, 'switch_like_status', true );
 
-		return $post_likes_switched || ( $sitewide_likes_enabled && $post_likes_switched !== '0' );
+		return $post_likes_switched || ( '0' !== $sitewide_likes_enabled && $post_likes_switched );
 	}
 
 	/**
@@ -707,8 +708,9 @@ abstract class SAL_Post {
 
 		$switched_status = get_post_meta( $this->post->ID, 'sharing_disabled', false );
 
-		if ( ! empty( $switched_status ) )
+		if ( ! empty( $switched_status ) ) {
 			$show = false;
+		}
 
 		return (bool) $show;
 	}
@@ -747,10 +749,11 @@ abstract class SAL_Post {
 	 * @return object
 	 */
 	public function get_author() {
-		if ( 0 == $this->post->post_author )
+		if ( 0 == $this->post->post_author ) {
 			return null;
+		}
 
-		$show_email = $this->context === 'edit' && current_user_can( 'edit_post', $this->post->ID );
+		$show_email = 'edit' === $this->context && current_user_can( 'edit_post', $this->post->ID );
 
 		$user = get_user_by( 'id', $this->post->post_author );
 
@@ -838,8 +841,9 @@ abstract class SAL_Post {
 		switch ( $context ) {
 			case 'edit':
 				$tax = get_taxonomy( $taxonomy_type );
-				if ( ! current_user_can( $tax->cap->edit_terms ) )
+				if ( ! current_user_can( $tax->cap->edit_terms ) ) {
 					return new WP_Error( 'unauthorized', 'User cannot edit taxonomy', 403 );
+				}
 				break;
 			case 'display':
 				if ( -1 == get_option( 'blog_public' ) && ! current_user_can( 'read' ) ) {
@@ -883,8 +887,9 @@ abstract class SAL_Post {
 	private function get_media_item_v1_1( $media_id ) {
 		$media_item = get_post( $media_id );
 
-		if ( ! $media_item || is_wp_error( $media_item ) )
+		if ( ! $media_item || is_wp_error( $media_item ) ) {
 			return new WP_Error( 'unknown_media', 'Unknown Media', 404 );
+		}
 
 		$file      = basename( wp_get_attachment_url( $media_item->ID ) );
 		$file_info = pathinfo( $file );
