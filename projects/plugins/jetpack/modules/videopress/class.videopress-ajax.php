@@ -119,8 +119,15 @@ class VideoPress_AJAX {
 				break;
 		}
 
-		// create a filter so plugins can change result.
-		return apply_filters( 'videopress_is_current_user_authed_for_video', $is_user_authed, $guid );
+		/**
+		 * Overrides video view authorization for current user.
+		 *
+		 * @param bool   $is_user_authed The current user authorization state.
+		 * @param string $guid           The video's unique identifier.
+		 *
+		 * @return bool
+		 */
+		return (bool) apply_filters( 'videopress_is_current_user_authed_for_video', $is_user_authed, $guid );
 	}
 
 	/**
