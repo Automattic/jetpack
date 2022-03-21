@@ -10,12 +10,6 @@ function wpcomsh_plan_notices() {
 		return;
 	}
 
-	$class       = 'notice';
-	$domain      = preg_replace( '#^https?://#', '', network_site_url() );
-	$renewal_url = esc_url(
-		'https://wordpress.com/checkout/business-bundle,ecommerce-bundle/renew/0/' . $domain
-	);
-
 	$persistent_data = new Atomic_Persistent_Data();
 	// phpcs:disable WordPress.NamingConventions.ValidVariableName
 	$plan                  = $persistent_data->WPCOM_PLAN;
@@ -23,73 +17,96 @@ function wpcomsh_plan_notices() {
 	$seconds_to_expiration = $persistent_data->WPCOM_PLAN_EXPIRATION - time();
 	// phpcs:enable
 
-	if ( ! empty( $plan_date ) && $seconds_to_expiration > 29 * DAY_IN_SECONDS ) {
+	if ( empty( $plan ) || empty( $plan_date ) ) {
 		return;
 	}
 
-	// Expired message for annual plans.
-	if ( ! empty( $plan ) && ! empty( $plan_date ) && $seconds_to_expiration < 0 ) {
-		$class .= ' notice-warning';
-
-		if ( Atomic_Plan_Manager::ECOMMERCE_PLAN_SLUG === $plan ) {
-			/* translators: %1$s is a link for plan renewal, %2$s human readable time e.g. January 1, 2021, %3$s site URL */
-			$text = __(
-				'The eCommerce plan for <strong>%3$s</strong> expired on %2$s. <a href="%1$s">Reactivate your plan</a> to retain eCommerce plan features such as custom plugins and themes, SFTP, and phpMyAdmin access.',
-				'wpcomsh'
-			);
-		} else {
-			/* translators: %1$s is a link for plan renewal, %2$s human readable time e.g. January 1, 2021, %3$s site URL */
-			$text = __(
-				'The Business plan for <strong>%3$s</strong> expired on %2$s. <a href="%1$s">Reactivate your plan</a> to retain Business plan features such as custom plugins and themes, SFTP, and phpMyAdmin access.',
-				'wpcomsh'
-			);
-		}
-
-		$message = sprintf( $text, $renewal_url, date_i18n( get_option( 'date_format' ), $plan_date ), $domain );
-
-		wpcomsh_record_tracks_event(
-			'atomic_wpcomsh_renewal_notice',
-			array(
-				'plan_slug' => $wpcom_plan,
-			)
-		);
-
-		printf( '<div class="%1$s"><p>%2$s</p></div>', esc_attr( $class ), $message );
-
+	if ( $seconds_to_expiration > 29 * DAY_IN_SECONDS ) {
 		return;
 	}
+
+	$domain      = preg_replace( '#^https?://#', '', network_site_url() );
+	$plan_slug   = 'pro-plan' === $plan ? $plan : "{$plan}-bundle";
+	$renewal_url = sprintf( 'https://wordpress.com/checkout/%1$s/%2$s', $plan_slug, $domain );
 
 	// Pre-expiration message for annual plans.
-	if ( ! empty( $plan ) && ! empty( $plan_date ) ) {
-		$class .= ' notice-warning';
+	$plan_messages = array(
+		/* translators: %1$s is a link for plan renewal, %2$s human readable time e.g. January 1, 2021, %3$s site URL */
+		'personal'  => __(
+			'The Personal plan for <strong>%3$s</strong> expires on %2$s. <a href="%1$s">Renew your plan</a> to retain Personal plan features such as 6 GB storage space, no WordPress.com ads, and Subscriber-only content.',
+			'wpcomsh'
+		),
+		/* translators: %1$s is a link for plan renewal, %2$s human readable time e.g. January 1, 2021, %3$s site URL */
+		'premium'  => __(
+			'The Premium plan for <strong>%3$s</strong> expires on %2$s. <a href="%1$s">Renew your plan</a> to retain Premium plan features such as site monetization, VideoPress, and Google Analytics support.',
+			'wpcomsh'
+		),
+		/* translators: %1$s is a link for plan renewal, %2$s human readable time e.g. January 1, 2021, %3$s site URL */
+		'business'  => __(
+			'The Business plan for <strong>%3$s</strong> expires on %2$s. <a href="%1$s">Renew your plan</a> to retain Business plan features such as custom plugins and themes, SFTP, and phpMyAdmin access.',
+			'wpcomsh'
+		),
+		/* translators: %1$s is a link for plan renewal, %2$s human readable time e.g. January 1, 2021, %3$s site URL */
+		'ecommerce' => __(
+			'The eCommerce plan for <strong>%3$s</strong> expires on %2$s. <a href="%1$s">Renew your plan</a> to retain eCommerce plan features such as custom plugins and themes, SFTP, and phpMyAdmin access.',
+			'wpcomsh'
+		),
+		/* translators: %1$s is a link for plan renewal, %2$s human readable time e.g. January 1, 2021, %3$s site URL */
+		'pro' => __(
+			'The Pro plan for <strong>%3$s</strong> expires on %2$s. <a href="%1$s">Renew your plan</a> to retain Pro plan features such as custom plugins and themes, SFTP, and phpMyAdmin access.',
+			'wpcomsh'
+		),
+	);
 
-		if ( Atomic_Plan_Manager::ECOMMERCE_PLAN_SLUG === $plan ) {
+	// Expired message for annual plans.
+	if ( $seconds_to_expiration < 0 ) {
+		$plan_messages = array(
 			/* translators: %1$s is a link for plan renewal, %2$s human readable time e.g. January 1, 2021, %3$s site URL */
-			$text = __(
-				'The eCommerce plan for <strong>%3$s</strong> expires on %2$s. <a href="%1$s">Renew your plan</a> to retain eCommerce plan features such as custom plugins and themes, SFTP, and phpMyAdmin access.',
+			'personal'  => __(
+				'The Personal plan for <strong>%3$s</strong> expired on %2$s. <a href="%1$s">Reactivate your plan</a> to retain Personal plan features such as 6 GB storage space, no WordPress.com ads, and Subscriber-only content.',
 				'wpcomsh'
-			);
-		} else {
+			),
 			/* translators: %1$s is a link for plan renewal, %2$s human readable time e.g. January 1, 2021, %3$s site URL */
-			$text = __(
-				'The Business plan for <strong>%3$s</strong> expires on %2$s. <a href="%1$s">Renew your plan</a> to retain Business plan features such as custom plugins and themes, SFTP, and phpMyAdmin access.',
+			'premium'  => __(
+				'The Premium plan for <strong>%3$s</strong> expired on %2$s. <a href="%1$s">Reactivate your plan</a> to retain Premium plan features such as site monetization, VideoPress, and Google Analytics support.',
 				'wpcomsh'
-			);
-		}
-
-		$message = sprintf( $text, $renewal_url, date_i18n( get_option( 'date_format' ), $plan_date ), $domain );
-
-		wpcomsh_record_tracks_event(
-			'atomic_wpcomsh_renewal_notice',
-			array(
-				'plan_slug' => $plan,
-			)
+			),
+			/* translators: %1$s is a link for plan renewal, %2$s human readable time e.g. January 1, 2021, %3$s site URL */
+			'business'  => __(
+				'The Business plan for <strong>%3$s</strong> expired on %2$s. <a href="%1$s">Reactivate your plan</a> to retain Business plan features such as custom plugins and themes, SFTP, and phpMyAdmin access.',
+				'wpcomsh'
+			),
+			/* translators: %1$s is a link for plan renewal, %2$s human readable time e.g. January 1, 2021, %3$s site URL */
+			'ecommerce' => __(
+				'The eCommerce plan for <strong>%3$s</strong> expired on %2$s. <a href="%1$s">Reactivate your plan</a> to retain eCommerce plan features such as custom plugins and themes, SFTP, and phpMyAdmin access.',
+				'wpcomsh'
+			),
+			/* translators: %1$s is a link for plan renewal, %2$s human readable time e.g. January 1, 2021, %3$s site URL */
+			'pro' => __(
+				'The Pro plan for <strong>%3$s</strong> expired on %2$s. <a href="%1$s">Reactivate your plan</a> to retain Pro plan features such as custom plugins and themes, SFTP, and phpMyAdmin access.',
+				'wpcomsh'
+			),
 		);
+	}
 
-		printf( '<div class="%1$s"><p>%2$s</p></div>', esc_attr( $class ), $message );
-
+	if ( empty( $plan_messages[ $plan ] ) ) {
 		return;
 	}
-}
 
+	wpcomsh_record_tracks_event(
+		'atomic_wpcomsh_renewal_notice',
+		array(
+			'plan_slug' => $plan,
+		)
+	);
+
+	$message = sprintf(
+		$plan_messages[ $plan ],
+		esc_url( $renewal_url ),
+		date_i18n( get_option( 'date_format' ), $plan_date ),
+		$domain
+	);
+
+	printf( '<div class="notice notice-warning"><p>%s</p></div>', $message );
+}
 add_action( 'admin_notices', 'wpcomsh_plan_notices' );
