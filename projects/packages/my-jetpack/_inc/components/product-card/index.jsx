@@ -123,14 +123,13 @@ const ProductCard = props => {
 	const isInactive = status === PRODUCT_STATUSES.INACTIVE;
 	const isAbsent = status === PRODUCT_STATUSES.ABSENT || status === PRODUCT_STATUSES.NEEDS_PURCHASE;
 	const isPurchaseRequired = status === PRODUCT_STATUSES.NEEDS_PURCHASE;
-	const isLinkCard = isPurchaseRequired || isAbsent;
 	const flagLabel = PRODUCT_STATUSES_LABELS[ status ];
 	const canDeactivate = ( isActive || isError ) && admin && showDeactivate;
 
 	const containerClassName = classNames( styles.container, {
 		[ styles.plugin_absent ]: isAbsent,
 		[ styles[ 'is-purchase-required' ] ]: isPurchaseRequired,
-		[ styles[ 'is-link' ] ]: isLinkCard,
+		[ styles[ 'is-link' ] ]: isAbsent,
 	} );
 
 	const statusClassName = classNames( styles.status, {
@@ -199,7 +198,7 @@ const ProductCard = props => {
 		onFixConnection();
 	}, [ slug, onFixConnection, recordEvent ] );
 
-	const CardWrapper = isLinkCard
+	const CardWrapper = isAbsent
 		? ( { children, ...cardProps } ) => (
 				<a { ...cardProps } href="#" onClick={ addHandler }>
 					{ children }
