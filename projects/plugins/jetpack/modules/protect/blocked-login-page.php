@@ -493,7 +493,7 @@ class Jetpack_Protect_Blocked_Login_Page {
 				echo "<meta name='robots' content='noindex,nofollow' />\n";
 			}
 			?>
-			<title><?php echo $title; //phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- we set the $title ourselves. ?></title>
+			<title><?php echo esc_html( $title ); ?></title>
 			<style type="text/css">
 				html {
 					background: #f6f6f6;

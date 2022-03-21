@@ -96,7 +96,7 @@ if ( ! class_exists( 'Jetpack_Protect_Math_Authenticate' ) ) {
 				<h3><?php esc_html_e( 'Your answer was incorrect, please try again.', 'jetpack' ); ?></h3>
 			<?php endif ?>
 
-			<form action="<?php echo wp_login_url();  // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?>" method="post" accept-charset="utf-8">
+			<form action="<?php echo esc_url( wp_login_url() ); ?>" method="post" accept-charset="utf-8">
 				<?php self::math_form(); ?>
 				<input type="hidden" name="jetpack_protect_process_math_form" value="1" id="jetpack_protect_process_math_form" />
 				<p><input type="submit" value="<?php esc_attr_e( 'Continue &rarr;', 'jetpack' ); ?>"></p>
