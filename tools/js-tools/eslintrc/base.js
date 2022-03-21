@@ -26,12 +26,13 @@ require( '@rushstack/eslint-patch/modern-module-resolution' );
  * @type {import("eslint").Linter.Config}
  */
 module.exports = {
-	parser: '@babel/eslint-parser',
+	parser: '@typescript-eslint/parser',
 	extends: [
 		'wpcalypso',
 		'plugin:@wordpress/eslint-plugin/i18n',
 		'plugin:jsx-a11y/recommended',
 		'plugin:prettier/recommended',
+		'plugin:@typescript-eslint/recommended',
 	],
 	env: {
 		browser: true,
@@ -53,7 +54,7 @@ module.exports = {
 			mode: 'typescript',
 		},
 	},
-	plugins: [ 'prettier', 'jsx-a11y', 'lodash', 'jsdoc' ],
+	plugins: [ 'prettier', 'jsx-a11y', 'lodash', 'jsdoc', '@typescript-eslint' ],
 	rules: {
 		// REST API objects include underscores
 		camelcase: 0,
@@ -183,5 +184,8 @@ module.exports = {
 
 		// Disabled pending #16099.
 		'inclusive-language/use-inclusive-words': 0,
+		// suppress errors for missing 'import React' in files
+		'react/react-in-jsx-scope': 'off',
+		'@typescript-eslint/no-var-requires': 'off',
 	},
 };
