@@ -72,8 +72,6 @@ jobs:
         continue-on-error: true
         run: |
           pnpm run tunnel:off
-          ls -la $GITHUB_WORKSPACE/gutenberg
-          rm -rf $GITHUB_WORKSPACE/gutenberg
 
       - name: Upload test artifacts
         if: ${{ always() }}
