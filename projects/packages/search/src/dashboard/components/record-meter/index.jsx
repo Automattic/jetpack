@@ -36,14 +36,14 @@ export default function RecordMeter( { postCount, postTypeBreakdown, tierMaximum
 				<div className="jp-search-record-meter__title lg-col-span-8 md-col-span-6 sm-col-span-4">
 					<h2>{ __( 'Your search records', 'jetpack-search-pkg' ) }</h2>
 					{ tierMaximumRecords && (
-						<p>
+						<div>
 							<BarChart
 								data={ recordInfo.data }
 								isValid={ recordInfo.isValid }
 								postTypeBreakdown={ postTypeBreakdown }
 							/>
 							Tier maximum records: <strong>{ tierMaximumRecords }</strong>
-						</p>
+						</div>
 					) }
 					{ postCount && (
 						<p>
