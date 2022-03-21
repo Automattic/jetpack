@@ -59,13 +59,12 @@ function OpenverseMedia( props ) {
 	const searchFormEl = useRef( null );
 
 	const focusSearchInput = () => {
-		if ( ! searchFormEl.current ) {
+		if ( ! searchFormEl?.current ) {
 			return;
 		}
 
-		const formElements = Array.from( searchFormEl.current.elements );
 		// TextControl does not support ref forwarding, so we need to find the input:
-		const searchInputEl = formElements.find( element => element.type === 'search' );
+		const searchInputEl = searchFormEl.current.querySelector( "input[type='search']" );
 
 		if ( searchInputEl ) {
 			searchInputEl.focus();
