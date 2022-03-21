@@ -900,9 +900,6 @@ export default createHigherOrderComponent(
 				useAverageColor,
 			} );
 
-			// TODO: Maybe just pass through `getVideoPressUrl`?
-			// TODO: This doesn't work to load the private video in the editor
-			//       Probably because the url is videopress.com/v/ when tokens only work on video.wordpress.com...
 			if ( null !== playbackJwt ) {
 				url = `${ url }&metadata_token=${ playbackJwt }`;
 			}
