@@ -1,4 +1,4 @@
-<?php
+<?php // phpcs:ignore - WordPress.Files.FileName.InvalidClassFileName
 
 use Automattic\Jetpack\Connection\Client;
 use Automattic\Jetpack\Redirect;
