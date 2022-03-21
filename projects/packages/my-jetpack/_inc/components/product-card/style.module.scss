@@ -10,11 +10,36 @@
 	display: flex;
 	flex-direction: column;
 
-	&.is-purchase-required,
-	&.plugin_absent {
+	&.is-link {
 		background: none;
 		box-shadow: none;
 		box-shadow: 0 0 0 1px var( --jp-gray-10 ) inset;
+		text-decoration: none;
+		background-color: var( --jp-white-off );
+		color: var( --jp-black-80 );
+	}
+
+	:global {
+		// Buttons
+		& .components-button-group,
+		& .components-button {
+			border-radius: 4px;
+			height: var(--product-card-actions-button-height);
+			line-height: var(--product-card-actions-button-height);
+		}
+
+		& .components-button-group {
+			> .components-button:first-child {
+				border-top-right-radius: 0;
+				border-bottom-right-radius: 0;
+			}
+
+			.components-dropdown-menu > .components-button,
+			> .components-button:last-child {
+				border-top-left-radius: 0;
+				border-bottom-left-radius: 0;
+			}
+		}
 	}
 }
 

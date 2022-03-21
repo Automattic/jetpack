@@ -46,7 +46,6 @@ const ActionButton = ( {
 	name,
 	onLearn,
 	onActivate,
-	onAdd,
 	onManage,
 	onFixConnection,
 	isFetching,
@@ -75,12 +74,12 @@ const ActionButton = ( {
 		case PRODUCT_STATUSES.NEEDS_PURCHASE:
 		case PRODUCT_STATUSES.ABSENT:
 			return (
-				<Button variant="link" onClick={ onAdd } className={ linkClassName }>
+				<>
 					{
 						/* translators: placeholder is product name. */
 						sprintf( __( 'Add %s', 'jetpack-my-jetpack' ), name )
 					}
-				</Button>
+				</>
 			);
 		case PRODUCT_STATUSES.ACTIVE:
 			return (
@@ -169,12 +168,19 @@ const ProductCard = props => {
 	/**
 	 * Calls the passed function onAdd after firing Tracks event
 	 */
-	const addHandler = useCallback( () => {
-		recordEvent( 'jetpack_myjetpack_product_card_add_click', {
-			product: slug,
-		} );
-		onAdd();
-	}, [ slug, onAdd, recordEvent ] );
+	const addHandler = useCallback(
+		ev => {
+			if ( ev?.preventDefault ) {
+				ev.preventDefault();
+			}
+
+			recordEvent( 'jetpack_myjetpack_product_card_add_click', {
+				product: slug,
+			} );
+			onAdd();
+		},
+		[ slug, onAdd, recordEvent ]
+	);
 
 	/**
 	 * Calls the passed function onManage after firing Tracks event
@@ -198,7 +204,7 @@ const ProductCard = props => {
 
 	const CardWrapper = isLinkCard
 		? ( { children, ...cardProps } ) => (
-				<a { ...cardProps } href="#">
+				<a { ...cardProps } href="#" onClick={ addHandler }>
 					{ children }
 				</a>
 		  )
