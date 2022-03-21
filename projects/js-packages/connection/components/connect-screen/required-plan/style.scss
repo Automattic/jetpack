@@ -1,5 +1,6 @@
 @import '@wordpress/base-styles/breakpoints';
 @import '@wordpress/base-styles/mixins';
+@import '@automattic/jetpack-base-styles/style';
 
 .jp-connection__connect-screen-layout__left {
 	@include break-xlarge {
@@ -73,8 +74,8 @@
 		}
 
 		.jp-components-spinner__inner, .jp-components-spinner__outer {
-			border-top-color: var( --jp-black ); 
-			border-right-color: var( --jp-black ); 
+			border-top-color: var( --jp-black );
+			border-right-color: var( --jp-black );
 		}
 	}
 }
