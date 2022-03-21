@@ -57,8 +57,6 @@ class VideoPress_AJAX {
 			return;
 		}
 
-		error_log( $guid );
-
 		if ( ! $this->is_current_user_authed_for_video( $guid ) ) {
 			return;
 		}
@@ -140,7 +138,6 @@ class VideoPress_AJAX {
 
 		$args = array(
 			'method' => 'POST',
-			// 'sslverify' => false,
 		);
 
 		$endpoint = "sites/{$options['shadow_blog_id']}/media/videopress-playback-jwt/{$guid}";
