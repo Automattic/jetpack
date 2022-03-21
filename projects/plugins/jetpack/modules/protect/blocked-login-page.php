@@ -37,7 +37,7 @@ class Jetpack_Protect_Blocked_Login_Page {
 	/**
 	 * Valid blocked user ID.
 	 *
-	 * @var int - the user ID.
+	 * @var int
 	 */
 	public $valid_blocked_user_id;
 
