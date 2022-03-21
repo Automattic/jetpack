@@ -30,7 +30,7 @@ export default function RecordMeter( { postCount, postTypeBreakdown, tierMaximum
 	);
 
 	return (
-		<div className="jp-search-record-meter jp-search-dashboard-wrap">
+		<div className="jp-search-record-meter jp-search-dashboard-wrap" data-testid="record-meter">
 			<div className="jp-search-dashboard-row">
 				<div className="lg-col-span-2 md-col-span-1 sm-col-span-0"></div>
 				<div className="jp-search-record-meter__title lg-col-span-8 md-col-span-6 sm-col-span-4">
