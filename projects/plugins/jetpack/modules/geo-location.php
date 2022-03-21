@@ -78,7 +78,7 @@ function jetpack_geo_get_data( $post_id = null ) {
  * @return void
  */
 function jetpack_geo_display_location( $post_id = null ) {
-	echo jetpack_geo_get_location( $post_id );
+	echo jetpack_geo_get_location( $post_id ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- Escaped in `Jetpack_Geo_Location::get_location_label`.
 }
 
 /**
