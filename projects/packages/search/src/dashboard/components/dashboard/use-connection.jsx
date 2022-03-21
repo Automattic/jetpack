@@ -11,6 +11,9 @@ import { __ } from '@wordpress/i18n';
  */
 import { STORE_ID } from '../../store';
 
+import '@automattic/jetpack-base-styles/style.scss';
+import './use-connection.scss';
+
 /**
  * Expose the `connectionStatus` state object and `renderConnectScreen()` to show a component used for connection.
  *
