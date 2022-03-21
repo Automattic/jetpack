@@ -19,6 +19,10 @@
 
 		&:hover {
 			background-color: var( --jp-white );
+
+			.action-link-button {
+				text-decoration-thickness: var(--jp-underline-thickness);
+			}
 		}
 
 		&:focus {
@@ -60,9 +64,6 @@
 
 .action-link-button{
 	text-decoration: underline;
-	&:hover {
-		text-decoration-thickness: var(--jp-underline-thickness);
-	}
 }
 
 .group {
