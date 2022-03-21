@@ -2,8 +2,13 @@
 /**
  * Jetpack Compatibility File
  * See: https://jetpack.com/
+ *
+ * @package automattic/jetpack
  */
 
+/**
+ * Add Jetpack theme supports for Twenty Nineteen.
+ */
 function twentynineteen_jetpack_setup() {
 
 	/**
@@ -64,6 +69,9 @@ function twentynineteen_infinite_scroll_render() {
 	}
 }
 
+/**
+ * Enqueue Jetpack compat styles for Twenty Nineteen.
+ */
 function twentynineteen_init_jetpack() {
 	/**
 	 * Add our compat CSS file for Infinite Scroll and custom widget stylings and such.
@@ -125,7 +133,7 @@ add_filter( 'twentynineteen_can_show_post_thumbnail', 'twentynineteen_override_p
  * @return array
  */
 function twentynineteen_jetpack_body_classes( $classes ) {
-	// Adds a class if we're in the Customizer
+	// Adds a class if we're in the Customizer.
 	if ( is_customize_preview() ) :
 		$classes[] = 'twentynineteen-customizer';
 	endif;
