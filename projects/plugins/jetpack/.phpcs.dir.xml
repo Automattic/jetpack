@@ -21,7 +21,4 @@
 		</properties>
 	</rule>
 
-	<!-- For now, since we are dirty-copying built files, exclude the whole directory -->
-	<exclude-pattern>modules/scan/build</exclude-pattern>
-
 </ruleset>
