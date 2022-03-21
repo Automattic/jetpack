@@ -26,6 +26,6 @@ if ( ! class_exists( 'Jetpack_Backup' ) && defined( 'JETPACK__BACKUP_UI_BETA_ENA
 	define( 'JETPACK_BACKUP_PROMOTED_PRODUCT', 'jetpack_backup_t1_yearly' );
 	define( 'JETPACK_BACKUP_DB_VERSION', '2' );
 
-	require_once 'class-jetpack-backup-ui.php';
+	require_once __DIR__ . '/class-jetpack-backup-ui.php';
 	new \Jetpack_Backup_UI();
 }

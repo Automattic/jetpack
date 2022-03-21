@@ -11,10 +11,10 @@ if ( ! defined( 'ABSPATH' ) ) {
 
 use Automattic\Jetpack\Admin_UI\Admin_Menu;
 use Automattic\Jetpack\Assets;
-use Automattic\Jetpack\Connection\Manager as Connection_Manager;
 use Automattic\Jetpack\Connection\Initial_State as Connection_Initial_State;
-use Automattic\Jetpack\Status;
+use Automattic\Jetpack\Connection\Manager as Connection_Manager;
 use Automattic\Jetpack\Connection\Plugin_Storage as Connection_Plugin_Storage;
+use Automattic\Jetpack\Status;
 
 /**
  * Class Jetpack_Backup_UI
@@ -33,8 +33,8 @@ class Jetpack_Backup_UI {
 		add_action( 'rest_api_init', array( $this, 'register_rest_routes' ) );
 
 		$page_suffix = Admin_Menu::add_menu(
-			__( 'Jetpack Backup', 'jetpack-backup' ),
-			_x( 'Backup', 'The Jetpack Backup product name, without the Jetpack prefix', 'jetpack-backup' ),
+			__( 'Jetpack Backup', 'jetpack' ),
+			_x( 'Backup', 'The Jetpack Backup product name, without the Jetpack prefix', 'jetpack' ),
 			'manage_options',
 			'jetpack-backup',
 			array( $this, 'plugin_settings_page' ),
@@ -63,7 +63,7 @@ class Jetpack_Backup_UI {
 			__FILE__,
 			array(
 				'in_footer'  => true,
-				'textdomain' => 'jetpack-backup',
+				'textdomain' => 'jetpack',
 			)
 		);
 		Assets::enqueue_script( 'jetpack-backup' );
@@ -121,7 +121,6 @@ class Jetpack_Backup_UI {
 				'permission_callback' => __CLASS__ . '::backups_permissions_callback',
 			)
 		);
-
 
 		// Get currently promoted product from the product's endpoint.
 		register_rest_route(
@@ -222,7 +221,7 @@ class Jetpack_Backup_UI {
 			// Something went wrong so we'll just return the response without caching.
 			return new WP_Error(
 				'failed_to_fetch_data',
-				esc_html__( 'Unable to fetch the requested data.', 'jetpack-backup' ),
+				esc_html__( 'Unable to fetch the requested data.', 'jetpack' ),
 				array(
 					'status'  => $response_code,
 					'request' => $wpcom_request,
@@ -230,7 +229,6 @@ class Jetpack_Backup_UI {
 			);
 		}
 	}
-
 
 	/**
 	 * Returns the result of `/sites/%d/purchases` endpoint call.
@@ -262,12 +260,17 @@ class Jetpack_Backup_UI {
 		return rest_ensure_response(
 			array(
 				'code'    => 'success',
-				'message' => esc_html__( 'Site purchases correctly received.', 'jetpack-backup' ),
+				'message' => esc_html__( 'Site purchases correctly received.', 'jetpack' ),
 				'data'    => wp_remote_retrieve_body( $response ),
 			)
 		);
 	}
 
+	/**
+	 * Get the backup status.
+	 *
+	 * @return array
+	 */
 	private function get_data() {
 		return array(
 			'API'              => array(
