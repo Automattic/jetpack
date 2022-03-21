@@ -1349,7 +1349,6 @@ importers:
       pluralize: 8.0.0
       process: 0.11.10
       semver: 7.3.5
-      simple-git: 2.37.0
       sinon: 9.2.4
       sprintf-js: 1.1.2
       yargs: 16.2.0
@@ -1374,7 +1373,6 @@ importers:
       pluralize: 8.0.0
       process: 0.11.10
       semver: 7.3.5
-      simple-git: 2.37.0
       sprintf-js: 1.1.2
       yargs: 16.2.0
     devDependencies:
@@ -4252,18 +4250,6 @@ packages:
       '@jridgewell/resolve-uri': 3.0.5
       '@jridgewell/sourcemap-codec': 1.4.11
     dev: true
-
-  /@kwsites/file-exists/1.1.1:
-    resolution: {integrity: sha512-m9/5YGR18lIwxSFDwfE3oA7bWuq9kdau6ugN4H2rJeyhFQZcG9AgSHkQtSD15a8WvTgfz9aikZMrKPHvbpqFiw==}
-    dependencies:
-      debug: 4.3.3
-    transitivePeerDependencies:
-      - supports-color
-    dev: false
-
-  /@kwsites/promise-deferred/1.1.1:
-    resolution: {integrity: sha512-GaHYm+c0O9MjZRu0ongGBRbinu8gVAMd2UZjji6jVmqKtZluZnptXGWhz1E8j8D2HJ3f/yMxKAUC0b+57wncIw==}
-    dev: false
 
   /@mapbox/geojson-rewind/0.5.1:
     resolution: {integrity: sha512-eL7fMmfTBKjrb+VFHXCGv9Ot0zc3C0U+CwXo1IrP+EPwDczLoXv34Tgq3y+2mPSFNVUXgU42ILWJTC7145KPTA==}
@@ -21568,16 +21554,6 @@ packages:
 
   /signal-exit/3.0.7:
     resolution: {integrity: sha512-wnD2ZE+l+SPC/uoS0vXeE9L1+0wuaMqKlfz9AMUo38JsyLSBWSFcHR1Rri62LZc12vLr1gb3jl7iwQhgwpAbGQ==}
-
-  /simple-git/2.37.0:
-    resolution: {integrity: sha512-ZK6qRnP+Xa2v23UEZDNHUfzswsuNCDHOQpWZRkpqNaXn7V5wVBBx3zRJLji3pROJGzrzA7mXwY7preL5EKuAaQ==}
-    dependencies:
-      '@kwsites/file-exists': 1.1.1
-      '@kwsites/promise-deferred': 1.1.1
-      debug: 4.3.3
-    transitivePeerDependencies:
-      - supports-color
-    dev: false
 
   /simple-html-tokenizer/0.5.11:
     resolution: {integrity: sha512-C2WEK/Z3HoSFbYq8tI7ni3eOo/NneSPRoPpcM7WdLjFOArFuyXEjAoCdOC3DgMfRyziZQ1hCNR4mrNdWEvD0og==}
