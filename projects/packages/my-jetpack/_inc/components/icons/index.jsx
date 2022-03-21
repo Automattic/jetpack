@@ -2,7 +2,7 @@
  * External dependencies
  */
 import React from 'react';
-import { Path, SVG, G } from '@wordpress/components';
+import { Circle, Path, SVG, G } from '@wordpress/components';
 
 /**
  * Internal dependencies
@@ -82,6 +82,16 @@ export const ExtrasIcon = ( { opacity = 1, size } ) => (
 	</IconWrapper>
 );
 
+export const MonitorIcon = ( { opacity = 1, size } ) => (
+	<IconWrapper size={ size } opacity={ opacity }>
+		<Circle cx="12" cy="12" r="7.25" fill="none" stroke="#1E1E1E" stroke-width="1.5" />
+		<Path
+			d="M10.5018 11.3502L14.9522 8.36511L13.5036 13.0934L9.04781 16.0467L10.5018 11.3502Z"
+			fill="#1E1E1E"
+		/>
+	</IconWrapper>
+);
+
 export const ScanIcon = ( { opacity = 1, size } ) => (
 	<IconWrapper size={ size } opacity={ opacity }>
 		<Path d="m12 3.176 6.75 3.068v4.574c0 3.9-2.504 7.59-6.035 8.755a2.283 2.283 0 0 1-1.43 0c-3.53-1.164-6.035-4.856-6.035-8.755V6.244L12 3.176ZM6.75 7.21v3.608c0 3.313 2.145 6.388 5.005 7.33.159.053.331.053.49 0 2.86-.942 5.005-4.017 5.005-7.33V7.21L12 4.824 6.75 7.21Z" />
@@ -118,6 +128,7 @@ const iconsMap = {
 	boost: BoostIcon,
 	crm: CrmIcon,
 	extras: ExtrasIcon,
+	monitor: MonitorIcon,
 	scan: ScanIcon,
 	search: SearchIcon,
 	star: StarIcon,
