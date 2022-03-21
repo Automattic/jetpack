@@ -120,20 +120,18 @@ class Media extends React.Component {
 								{ __( 'Enable VideoPress', 'jetpack' ) }
 							</span>
 						</ModuleToggle>
-						{ false /* Disabled until private videos are enabled for Jetpack users. */ && (
-							<FormFieldset>
-								<CompactFormToggle
-									id="videopress-site-privacy"
-									disabled={ ! this.props.getOptionValue( 'videopress' ) }
-									checked={ this.props.getOptionValue( 'videopress_private_enabled_for_site' ) }
-									onChange={ this.togglePrivacySetting }
-								>
-									<span className="jp-form-toggle-explanation">
-										{ __( 'Video Privacy: Restrict views to members of this site', 'jetpack' ) }
-									</span>
-								</CompactFormToggle>
-							</FormFieldset>
-						) }
+						<FormFieldset>
+							<CompactFormToggle
+								id="videopress-site-privacy"
+								disabled={ ! this.props.getOptionValue( 'videopress' ) }
+								checked={ this.props.getOptionValue( 'videopress_private_enabled_for_site' ) }
+								onChange={ this.togglePrivacySetting }
+							>
+								<span className="jp-form-toggle-explanation">
+									{ __( 'Video Privacy: Restrict views to members of this site', 'jetpack' ) }
+								</span>
+							</CompactFormToggle>
+						</FormFieldset>
 					</>
 				) }
 			</SettingsGroup>
