@@ -4,5 +4,5 @@ export interface BackupUpgradeBaseProps {
 	posts: number;
 }
 export interface BarChartProps extends BackupUpgradeBaseProps {
-	onClosePopup: VoidFunction;
+	onClosePopup: Function;
 }

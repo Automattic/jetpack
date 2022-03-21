@@ -32,7 +32,6 @@ module.exports = {
 		'plugin:@wordpress/eslint-plugin/i18n',
 		'plugin:jsx-a11y/recommended',
 		'plugin:prettier/recommended',
-		'plugin:@typescript-eslint/recommended',
 	],
 	env: {
 		browser: true,
@@ -186,6 +185,6 @@ module.exports = {
 		'inclusive-language/use-inclusive-words': 0,
 		// suppress errors for missing 'import React' in files
 		'react/react-in-jsx-scope': 'off',
-		'@typescript-eslint/no-var-requires': 'off',
+		'no-use-before-define': 'off',
 	},
 };
