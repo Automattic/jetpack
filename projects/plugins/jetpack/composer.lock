@@ -404,7 +404,7 @@
             "dist": {
                 "type": "path",
                 "url": "../../packages/compat",
-                "reference": "58a91c421de42eaab82bbe6eeef16f4d4e45bb40"
+                "reference": "b7df09e6dd884b03fb8b2198bf1a11371d05d40f"
             },
             "require-dev": {
                 "automattic/jetpack-changelogger": "^3.0"
@@ -413,11 +413,12 @@
             "extra": {
                 "autotagger": true,
                 "mirror-repo": "Automattic/jetpack-compat",
+                "textdomain": "jetpack-compat",
                 "changelogger": {
                     "link-template": "https://github.com/Automattic/jetpack-compat/compare/v${old}...v${new}"
                 },
                 "branch-alias": {
-                    "dev-master": "1.6.x-dev"
+                    "dev-master": "1.7.x-dev"
                 }
             },
             "autoload": {

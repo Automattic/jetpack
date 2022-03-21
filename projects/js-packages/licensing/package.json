@@ -36,7 +36,7 @@
 		"./action-types": "./src/state/action-types"
 	},
 	"dependencies": {
-		"@automattic/jetpack-api": "workspace:^0.9.1",
+		"@automattic/jetpack-api": "workspace:^0.10.0-alpha",
 		"@automattic/jetpack-components": "workspace:^0.10.11-alpha",
 		"@wordpress/i18n": "4.3.1",
 		"@wordpress/element": "4.1.1",
