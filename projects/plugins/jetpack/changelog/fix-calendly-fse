@@ -1,0 +1,4 @@
+Significance: patch
+Type: bugfix
+
+Calendly Block: ensure it can be displayed inline when using a block enabled theme. 

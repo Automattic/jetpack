@@ -51,9 +51,7 @@ class Webhooks {
 	 * actions from Calypso and WPCOM that reach that route regardless of the site having the Jetpack plugin or not. That's why we are still handling it here.
 	 */
 	public function fallback_jetpack_controller() {
-		if ( ! class_exists( 'Jetpack' ) ) {
-			$this->controller( true );
-		}
+		$this->controller( true );
 	}
 
 	/**
@@ -65,9 +63,14 @@ class Webhooks {
 		if ( ! $force ) {
 			// The nonce is verified in specific handlers.
 			// phpcs:ignore WordPress.Security.NonceVerification.Recommended
-			if ( empty( $_GET['handler'] ) || empty( $_GET['action'] ) || 'jetpack-connection-webhooks' !== $_GET['handler'] ) {
+			if ( empty( $_GET['handler'] ) || 'jetpack-connection-webhooks' !== $_GET['handler'] ) {
 				return;
 			}
+		}
+
+		// phpcs:ignore WordPress.Security.NonceVerification.Recommended
+		if ( empty( $_GET['action'] ) ) {
+			return;
 		}
 
 		// The nonce is verified in specific handlers.
