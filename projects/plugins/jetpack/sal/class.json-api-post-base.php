@@ -90,7 +90,16 @@ abstract class SAL_Post {
 		if ( is_callable( array( $this->post, $name ) ) ) {
 			return call_user_func_array( array( $this->post, $name ), $arguments );
 		} else {
-			trigger_error( "Call to undefined method '{$name}'" );
+			// phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_trigger_error
+			trigger_error(
+				esc_html(
+					sprintf(
+						/* translators: %s is the method name that has been called */
+						__( 'Call to undefined method %s', 'jetpack' ),
+						$name
+					)
+				)
+			);
 		}
 	}
 
@@ -758,7 +767,7 @@ abstract class SAL_Post {
 		$user = get_user_by( 'id', $this->post->post_author );
 
 		if ( ! $user || is_wp_error( $user ) ) {
-			trigger_error( 'Unknown user', E_USER_WARNING );
+			trigger_error( 'Unknown user', E_USER_WARNING ); // phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_trigger_error
 
 			return null;
 		}
