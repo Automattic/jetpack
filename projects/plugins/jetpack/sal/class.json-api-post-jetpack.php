@@ -75,9 +75,12 @@ class Jetpack_Post extends SAL_Post {
 	 * @return string
 	 */
 	protected function get_avatar_url( $email, $avatar_size = 96 ) {
-		$avatar_url = get_avatar_url( $email, array(
-			'size' => $avatar_size,
-		) );
+		$avatar_url = get_avatar_url(
+			$email,
+			array(
+				'size' => $avatar_size,
+			)
+		);
 
 		if ( ! $avatar_url || is_wp_error( $avatar_url ) ) {
 			return '';
