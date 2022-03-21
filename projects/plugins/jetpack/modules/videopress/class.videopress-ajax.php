@@ -28,14 +28,7 @@ class VideoPress_AJAX {
 			),
 			-1
 		);
-
-		// Example filter that overrides video auth check and makes all videos public
-		// add_filter( 'videopress_is_current_user_authed_for_video', array( $this, 'sensei_override_video_auth'), 10, 2 );
 	}
-
-	/*public function sensei_override_video_auth( $is_user_authed, $guid ) {
-		return true;
-	}*/
 
 	/**
 	 * Initialize the VideoPress_AJAX and get back a singleton instance.
@@ -121,6 +114,13 @@ class VideoPress_AJAX {
 
 		/**
 		 * Overrides video view authorization for current user.
+		 *
+		 * Example of making all videos public:
+		 *
+		 * function jp_example_override_video_auth( $is_user_authed, $guid ) {
+		 *  return true
+		 * };
+		 * add_filter( 'videopress_is_current_user_authed_for_video', 'jp_example_override_video_auth', 10, 2 );
 		 *
 		 * @param bool   $is_user_authed The current user authorization state.
 		 * @param string $guid           The video's unique identifier.
