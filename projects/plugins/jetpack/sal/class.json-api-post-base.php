@@ -273,7 +273,7 @@ abstract class SAL_Post {
 						current_user_can( 'edit_post_meta', $this->post->ID, $meta_key )
 					);
 
-			if ( Jetpack_SEO_Posts::DESCRIPTION_META_KEY == $meta_key && ! Jetpack_SEO_Utils::is_enabled_jetpack_seo() ) {
+			if ( Jetpack_SEO_Posts::DESCRIPTION_META_KEY === $meta_key && ! Jetpack_SEO_Utils::is_enabled_jetpack_seo() ) {
 				$show = false;
 			}
 
@@ -749,7 +749,7 @@ abstract class SAL_Post {
 	 * @return object
 	 */
 	public function get_author() {
-		if ( 0 == $this->post->post_author ) {
+		if ( 0 == $this->post->post_author ) { // phpcs:ignore Universal.Operators.StrictComparisons.LooseEqual -- numbers could be numeric strings.
 			return null;
 		}
 
@@ -846,7 +846,7 @@ abstract class SAL_Post {
 				}
 				break;
 			case 'display':
-				if ( -1 == get_option( 'blog_public' ) && ! current_user_can( 'read' ) ) {
+				if ( -1 === get_option( 'blog_public' ) && ! current_user_can( 'read' ) ) {
 					return new WP_Error( 'unauthorized', 'User cannot view taxonomy', 403 );
 				}
 				break;
@@ -943,7 +943,7 @@ abstract class SAL_Post {
 			}
 		}
 
-		if ( in_array( $ext, array( 'mp3', 'm4a', 'wav', 'ogg' ) ) ) {
+		if ( in_array( $ext, array( 'mp3', 'm4a', 'wav', 'ogg' ), true ) ) {
 			$metadata = wp_get_attachment_metadata( $media_item->ID );
 			if ( isset( $metadata['length'] ) ) {
 				$response['length'] = $metadata['length'];
@@ -952,7 +952,7 @@ abstract class SAL_Post {
 			$response['exif'] = $metadata;
 		}
 
-		if ( in_array( $ext, array( 'ogv', 'mp4', 'mov', 'wmv', 'avi', 'mpg', '3gp', '3g2', 'm4v' ) ) ) {
+		if ( in_array( $ext, array( 'ogv', 'mp4', 'mov', 'wmv', 'avi', 'mpg', '3gp', '3g2', 'm4v' ), true ) ) {
 			$metadata = wp_get_attachment_metadata( $media_item->ID );
 			if ( isset( $metadata['height'], $metadata['width'] ) ) {
 				$response['height'] = $metadata['height'];
@@ -985,7 +985,7 @@ abstract class SAL_Post {
 
 				$response['videopress_guid']            = $info->guid;
 				$response['videopress_processing_done'] = true;
-				if ( '0000-00-00 00:00:00' == $info->finish_date_gmt ) {
+				if ( '0000-00-00 00:00:00' === $info->finish_date_gmt ) {
 					$response['videopress_processing_done'] = false;
 				}
 			}
@@ -1002,7 +1002,7 @@ abstract class SAL_Post {
 		);
 
 		// add VideoPress link to the meta.
-		if ( in_array( $ext, array( 'ogv', 'mp4', 'mov', 'wmv', 'avi', 'mpg', '3gp', '3g2', 'm4v' ) ) ) {
+		if ( in_array( $ext, array( 'ogv', 'mp4', 'mov', 'wmv', 'avi', 'mpg', '3gp', '3g2', 'm4v' ), true ) ) {
 			if ( function_exists( 'video_get_info_by_blogpostid' ) ) {
 				$response['meta']->links->videopress = (string) $this->links->get_link( '/videos/%s', $response['videopress_guid'], '' );
 			}
