@@ -1,7 +1,7 @@
 /**
  * External dependencies
  */
-import React, { useEffect, useState } from 'react';
+import React from 'react';
 import { Redirect, Route, Switch } from 'react-router-dom';
 import { connect } from 'react-redux';
 import { __ } from '@wordpress/i18n';
@@ -26,16 +26,15 @@ import {
 	getStep,
 	isRecommendationsDataLoaded,
 	isRecommendationsConditionalLoaded,
-	getNewConditionalRecommendations,
 } from 'state/recommendations';
+import { getNewRecommendations } from 'state/initial-state';
 import { JetpackLoadingIcon } from 'components/jetpack-loading-icon';
 import { RECOMMENDATION_WIZARD_STEP } from './constants';
 
 const RecommendationsComponent = props => {
-	const { isLoading, isConditionalLoading, step, newConditionalRecommendations } = props;
+	const { isLoading, step, newRecommendations } = props;
 
 	let redirectPath;
-	const [ newRecommendations, setNewRecommendations ] = useState( [] );
 
 	switch ( step ) {
 		case RECOMMENDATION_WIZARD_STEP.NOT_STARTED:
@@ -72,16 +71,6 @@ const RecommendationsComponent = props => {
 		default:
 			throw `Unknown step ${ step } in RecommendationsComponent`;
 	}
-
-	// Collect a snapshot of the new recommendations just after the data has loaded.
-	// This will allow us to persist which recommendations are "new" for this load even after they have been viewed and state has changed.
-	// This is used to show a "New" badge on the recommendation step and on the summary screen.
-	useEffect( () => {
-		// data has loaded
-		if ( ! isLoading && ! isConditionalLoading ) {
-			setNewRecommendations( [ ...newConditionalRecommendations ] );
-		}
-	}, [ isLoading, isConditionalLoading, newConditionalRecommendations ] );
 
 	// Check to see if a step slug is "new" - has not been viewed yet.
 	const isNew = stepSlug => {
@@ -163,8 +152,8 @@ const RecommendationsComponent = props => {
 };
 
 export const Recommendations = connect( state => ( {
-	isLoading: ! isRecommendationsDataLoaded( state ),
-	isConditionalLoading: ! isRecommendationsConditionalLoaded( state ),
+	isLoading:
+		! isRecommendationsDataLoaded( state ) || ! isRecommendationsConditionalLoaded( state ),
 	step: getStep( state ),
-	newConditionalRecommendations: getNewConditionalRecommendations( state ),
+	newRecommendations: getNewRecommendations( state ),
 } ) )( RecommendationsComponent );

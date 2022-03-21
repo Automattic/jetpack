@@ -8,7 +8,6 @@ import { assign, difference, get, isArray, isEmpty, mergeWith, union } from 'lod
 /**
  * Internal dependencies
  */
-import { getInitialRecommendationsStep } from '../initial-state/reducer';
 import {
 	JETPACK_RECOMMENDATIONS_DATA_ADD_SELECTED_RECOMMENDATION,
 	JETPACK_RECOMMENDATIONS_DATA_ADD_SKIPPED_RECOMMENDATION,
@@ -33,7 +32,7 @@ import { getSetting } from 'state/settings';
 import { getSitePlan, hasActiveProductPurchase, hasActiveScanPurchase } from 'state/site';
 import { hasConnectedOwner } from 'state/connection';
 import { isPluginActive } from 'state/site/plugins';
-import { getNewRecommendationsCount } from 'state/initial-state';
+import { getNewRecommendations, getInitialRecommendationsStep } from 'state/initial-state';
 
 const mergeArrays = ( x, y ) => {
 	if ( Array.isArray( x ) && Array.isArray( y ) ) {
@@ -288,38 +287,6 @@ const isConditionalRecommendationEnabled = ( state, step ) => {
 	);
 };
 
-export const getNewConditionalRecommendations = state => {
-	const recommendations = [];
-
-	state.jetpack.recommendations.conditional.forEach( recommendation => {
-		if (
-			state.jetpack.recommendations.data.viewedRecommendations &&
-			! state.jetpack.recommendations.data.viewedRecommendations.includes( recommendation )
-		) {
-			recommendations.push( recommendation );
-		}
-	} );
-
-	return recommendations;
-};
-
-export const getNewConditionalRecommendationsCount = state => {
-	let recommendationCount = 0;
-	// Is the recommendations data defined yet?
-	if (
-		state.jetpack.recommendations.requests.isRecommendationsDataLoaded &&
-		state.jetpack.recommendations.requests.isRecommendationsConditionalLoaded
-	) {
-		recommendationCount = getNewConditionalRecommendations( state ).length;
-
-		// If not, get the count from the initial state.
-	} else {
-		recommendationCount = getNewRecommendationsCount( state );
-	}
-
-	return recommendationCount;
-};
-
 const isStepEligibleToShow = ( state, step ) => {
 	switch ( step ) {
 		case 'setup-wizard-completed':
@@ -350,10 +317,24 @@ const getNextEligibleStep = ( state, step ) => {
 	return nextStep;
 };
 
+// Gets the step to show when one has not been set in the state yet.
+const getInitialStep = state => {
+	// Gets new recommendations from initial state.
+	const newRecommendations = getNewRecommendations( state );
+
+	// Jump to a new recommendation if there is one to show.
+	if ( newRecommendations.length > 0 ) {
+		return newRecommendations[ 0 ];
+	}
+
+	// Return the step from the initial React state.
+	return getInitialRecommendationsStep( state );
+};
+
 export const getStep = state => {
 	const step =
 		'' === get( state.jetpack, [ 'recommendations', 'step' ], '' )
-			? getInitialRecommendationsStep( state )
+			? getInitialStep( state )
 			: state.jetpack.recommendations.step;
 
 	// These steps are special cases set on the server. There is technically no

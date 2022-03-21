@@ -398,7 +398,17 @@ export function showRecommendations( state ) {
  * @returns {boolean} True if the My Jetpack should be referenced, false otherwise.
  */
 export function showMyJetpack( state ) {
-	return get(state.jetpack.initialState.siteData, 'showMyJetpack', true);
+	return get( state.jetpack.initialState.siteData, 'showMyJetpack', true );
+}
+
+/**
+ * Get an array of new recommendations for this site
+ *
+ * @param {object} state - Global state tree
+ * @returns {Array} - Array of recommendation slugs
+ */
+export function getNewRecommendations( state ) {
+	return get( state.jetpack.initialState, 'newRecommendations', [] );
 }
 
 /**
@@ -408,7 +418,7 @@ export function showMyJetpack( state ) {
  * @returns {number} - Count of recommendations
  */
 export function getNewRecommendationsCount( state ) {
-	return get( state.jetpack.initialState, 'newRecommendationsCount', 0 );
+	return getNewRecommendations( state ).length;
 }
 
 /**

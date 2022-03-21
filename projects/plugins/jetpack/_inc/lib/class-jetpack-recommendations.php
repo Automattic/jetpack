@@ -197,16 +197,16 @@ class Jetpack_Recommendations {
 	}
 
 	/**
-	 * Get a count of conditional recommendations that are eligible to show, but have not been viewed yet.
+	 * Get an array of new conditional recommendations that have not been viewed.
 	 *
-	 * @return int
+	 * @return array
 	 */
-	public static function get_new_conditional_recommendations_count() {
+	public static function get_new_conditional_recommendations() {
 		$conditional_recommendations = self::get_conditional_recommendations();
 		$recommendations_data        = Jetpack_Options::get_option( 'recommendations_data', array() );
 		$viewed_recommendations      = $recommendations_data['viewedRecommendations'] ? $recommendations_data['viewedRecommendations'] : array();
 
-		return count( array_diff( $conditional_recommendations, $viewed_recommendations ) );
+		return array_diff( $conditional_recommendations, $viewed_recommendations );
 	}
 
 	/**
