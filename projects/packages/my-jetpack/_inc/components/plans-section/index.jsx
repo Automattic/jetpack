@@ -11,7 +11,6 @@ import { ExternalLink } from '@wordpress/components';
 import usePurchases from '../../hooks/use-purchases';
 import getManageYourPlanUrl from '../../utils/get-manage-your-plan-url';
 import getPurchasePlanUrl from '../../utils/get-purchase-plan-url';
-
 import styles from './style.module.scss';
 
 /**
