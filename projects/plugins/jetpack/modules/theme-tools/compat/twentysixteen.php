@@ -45,7 +45,7 @@ add_action( 'init', 'twentysixteen_init_jetpack' );
 /**
  * Alter gallery widget default width.
  */
-function twentysixteen_gallery_widget_content_width( $width ) {
+function twentysixteen_gallery_widget_content_width() {
 	return 390;
 }
 add_filter( 'gallery_widget_content_width', 'twentysixteen_gallery_widget_content_width' );
