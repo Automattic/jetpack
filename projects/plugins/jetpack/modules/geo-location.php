@@ -1,6 +1,6 @@
 <?php
 
-require_once dirname( __FILE__ ) . '/geo-location/class.jetpack-geo-location.php';
+require_once __DIR__ . '/geo-location/class.jetpack-geo-location.php';
 
 /**
  * Geo-location shortcode for display of location data associated with a post.
@@ -14,7 +14,13 @@ require_once dirname( __FILE__ ) . '/geo-location/class.jetpack-geo-location.php
 add_shortcode( 'geo-location', 'jetpack_geo_shortcode' );
 
 function jetpack_geo_shortcode( $attributes ) {
-	$attributes = shortcode_atts( array( 'post' => null, 'id' => null ), $attributes );
+	$attributes = shortcode_atts(
+		array(
+			'post' => null,
+			'id'   => null,
+		),
+		$attributes
+	);
 	return jetpack_geo_get_location( $attributes['post'] ? $attributes['post'] : $attributes['id'] );
 }
 
@@ -30,7 +36,7 @@ function jetpack_geo_shortcode( $attributes ) {
  *
  * @return array|null
  */
-function jetpack_geo_get_data( $post_id = null) {
+function jetpack_geo_get_data( $post_id = null ) {
 	$geo = Jetpack_Geo_Location::init();
 
 	if ( ! $post_id ) {
@@ -46,7 +52,7 @@ function jetpack_geo_get_data( $post_id = null) {
 	return array(
 		'latitude'  => $meta_values['latitude'],
 		'longitude' => $meta_values['longitude'],
-		'label'     => $meta_values['label']
+		'label'     => $meta_values['label'],
 	);
 }
 
