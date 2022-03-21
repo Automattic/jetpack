@@ -1,7 +1,7 @@
 /**
  * External dependencies
  */
-import React, { useEffect, useMemo } from 'react';
+import React, { useEffect, useMemo, useRef } from 'react';
 import { __ } from '@wordpress/i18n';
 
 /**
@@ -13,13 +13,20 @@ import analytics from 'lib/analytics';
 import { Popup } from './popup';
 
 const BarChart = ( { comments, plugins, posts, onClosePopup } ) => {
+	const barChartViews = useRef( false );
+
 	useEffect( () => {
+		if ( barChartViews.current ) {
+			return;
+		}
 		analytics.tracks.recordEvent( 'jetpack_wpa_aag_backup_bar_chart_view', {
 			comments,
 			plugins,
 			posts,
 		} );
-	// eslint-disable-next-line react-hooks/exhaustive-deps
+
+		barChartViews.current = true;
+		// eslint-disable-next-line react-hooks/exhaustive-deps
 	}, [] );
 
 	const items = useMemo( () => {

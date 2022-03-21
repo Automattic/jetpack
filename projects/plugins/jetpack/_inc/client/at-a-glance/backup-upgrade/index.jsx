@@ -60,4 +60,4 @@ export default connect( state => {
 		posts: stats?.posts,
 		isFetchingData: isFetchingPluginsData( state ) || isFetchingStatsData( state ),
 	};
-} )( React.memo( BackupUpgrade ) );
+} )( BackupUpgrade );
