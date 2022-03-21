@@ -26,7 +26,7 @@ jobs:
       any_plugins: ${{ steps.plugins.outputs.any }}
 
     steps:
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v3
 
       # For pull requests, list-changed-projects.sh needs the merge base.
       # But it doesn't have to be checked out.
@@ -89,7 +89,7 @@ jobs:
         run: tar --owner=0 --group=0 --xz -cvvf build.tar.xz -C "$BUILD_BASE" --transform 's,^\.,build,' .
 
       - name: Store build as artifact
-        uses: actions/upload-artifact@v2
+        uses: actions/upload-artifact@v3
         with:
           name: jetpack-build
           path: build.tar.xz
@@ -126,12 +126,12 @@ jobs:
       ports:
         - 80:80
     steps:
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v3
         with:
           path: monorepo
 
       - name: Download build artifact
-        uses: actions/download-artifact@v2
+        uses: actions/download-artifact@v3
         with:
           name: jetpack-build
       - name: Extract build archive
@@ -153,12 +153,12 @@ jobs:
     if: ( github.event_name != 'pull_request' || github.event.pull_request.head.repo.full_name == 'Automattic/jetpack' ) && needs.build.outputs.any_plugins == 'true'
     timeout-minutes: 10  # 2021-06-24: Successful runs should take just a few seconds now. But sometimes the upload is slow.
     steps:
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v3
         with:
           path: monorepo
 
       - name: Download build artifact
-        uses: actions/download-artifact@v2
+        uses: actions/download-artifact@v3
         with:
           name: jetpack-build
       - name: Extract build archive
@@ -223,7 +223,7 @@ jobs:
           echo "::set-output name=plugin-data::$PLUGIN_DATA"
 
       - name: Create plugins artifact
-        uses: actions/upload-artifact@v2
+        uses: actions/upload-artifact@v3
         if: steps.prepare.outputs.plugin-data != '{}'
         with:
           name: plugins
@@ -254,16 +254,16 @@ jobs:
 
     # Not setting a job-level timeout because it would be kind of pointless with the blocking step. Set a step timeout for all other steps instead.
     steps:
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v3
         with:
           path: monorepo
         timeout-minutes: 1  # 2021-01-18: Successful runs seem to take a few seconds
 
       - name: Download build artifact
-        uses: actions/download-artifact@v2
+        uses: actions/download-artifact@v3
         with:
           name: jetpack-build
-        timeout-minutes: 1  # 2021-01-18: Successful runs seem to take a few seconds
+        timeout-minutes: 2  # 2022-03-15: Successful runs normally take a few seconds, but on occasion they've been taking 60+ recently.
       - name: Extract build archive
         run: tar --xz -xvvf build.tar.xz
         timeout-minutes: 1  # 2021-01-18: Successful runs seem to take a few seconds
