@@ -84,11 +84,8 @@ export const ExtrasIcon = ( { opacity = 1, size } ) => (
 
 export const MonitorIcon = ( { opacity = 1, size } ) => (
 	<IconWrapper size={ size } opacity={ opacity }>
-		<Circle cx="12" cy="12" r="7.25" fill="none" stroke="#1E1E1E" strokeWidth="1.5" />
-		<Path
-			d="M10.5018 11.3502L14.9522 8.36511L13.5036 13.0934L9.04781 16.0467L10.5018 11.3502Z"
-			fill="#1E1E1E"
-		/>
+		<Circle cx="12" cy="12" r="7.25" fill="none" stroke="#2C3338" strokeWidth="1.5" />
+		<Path d="M10.5018 11.3502L14.9522 8.36511L13.5036 13.0934L9.04781 16.0467L10.5018 11.3502Z" />
 	</IconWrapper>
 );
 
