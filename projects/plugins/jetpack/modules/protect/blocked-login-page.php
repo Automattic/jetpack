@@ -44,7 +44,7 @@ class Jetpack_Protect_Blocked_Login_Page {
 	/**
 	 * The email address.
 	 *
-	 * @var int - string.
+	 * @var string
 	 */
 	public $email_address;
 
