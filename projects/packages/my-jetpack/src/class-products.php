@@ -26,7 +26,6 @@ class Products {
 			Products\Boost::class,
 			Products\Crm::class,
 			Products\Extras::class,
-			Products\Monitor::class,
 			Products\Scan::class,
 			Products\Search::class,
 			Products\Videopress::class,
