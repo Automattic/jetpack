@@ -723,7 +723,7 @@ if ( ! class_exists( 'Featured_Content' ) && isset( $GLOBALS['pagenow'] ) && 'pl
 	}
 
 	if ( Constants::is_true( 'IS_WPCOM' ) && Constants::is_true( 'REST_API_REQUEST' ) ) {
-		add_filter( 'rest_request_before_callbacks', 'wpcom_rest_request_before_callbacks');
+		add_filter( 'rest_request_before_callbacks', 'wpcom_rest_request_before_callbacks' );
 	}
 
 	Featured_Content::setup();

@@ -55,13 +55,12 @@ function jetpack_load_theme_compat() {
 }
 add_action( 'after_setup_theme', 'jetpack_load_theme_compat', -1 );
 
-
 /**
  * Requires a file once, if the passed key exists in the files array.
  *
  * @access private
  * @param string $key
- * @param array $files
+ * @param array  $files
  * @return void
  */
 function _jetpack_require_compat_file( $key, $files ) {

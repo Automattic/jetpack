@@ -31,7 +31,6 @@ function jetpack_responsive_videos_init() {
 }
 add_action( 'after_setup_theme', 'jetpack_responsive_videos_init', 99 );
 
-
 /**
  * Adds a wrapper to videos and enqueue script
  *

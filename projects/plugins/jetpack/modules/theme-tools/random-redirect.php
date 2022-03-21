@@ -6,6 +6,7 @@ Description: Allows you to create a link to yourblog.example.com/?random which w
 Version: 1.2-wpcom
 Author: Matt Mullenweg
 Author URI: https://ma.tt/
+Text Domain: jetpack
 */
 
 function jetpack_matt_random_redirect() {

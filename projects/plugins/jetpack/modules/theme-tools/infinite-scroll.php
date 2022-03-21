@@ -22,12 +22,12 @@ function jetpack_load_infinite_scroll_annotation() {
 		}
 
 		/** This filter is already documented in modules/infinite-scroll/infinity.php */
-		$customization_file = apply_filters( 'infinite_scroll_customization_file', dirname( __FILE__ ) . "/infinite-scroll/themes/{$theme['Stylesheet']}.php", $theme['Stylesheet'] );
+		$customization_file = apply_filters( 'infinite_scroll_customization_file', __DIR__ . "/infinite-scroll/themes/{$theme['Stylesheet']}.php", $theme['Stylesheet'] );
 
 		if ( is_readable( $customization_file ) ) {
 			require_once $customization_file;
 		} elseif ( ! empty( $theme['Template'] ) ) {
-			$customization_file = dirname( __FILE__ ) . "/infinite-scroll/themes/{$theme['Template']}.php";
+			$customization_file = __DIR__ . "/infinite-scroll/themes/{$theme['Template']}.php";
 
 			if ( is_readable( $customization_file ) ) {
 				require_once $customization_file;
