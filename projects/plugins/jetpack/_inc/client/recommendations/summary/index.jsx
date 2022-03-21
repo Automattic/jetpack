@@ -162,6 +162,10 @@ const SummaryComponent = props => {
 	);
 };
 
+SummaryComponent.defaultProps = {
+	newRecommendations: [],
+};
+
 const Summary = connect(
 	state => {
 		const pluginsData = getPluginsData( state );
