@@ -130,6 +130,7 @@ const ProductCard = props => {
 		[ styles.plugin_absent ]: isAbsent,
 		[ styles[ 'is-purchase-required' ] ]: isPurchaseRequired,
 		[ styles[ 'is-link' ] ]: isAbsent,
+		[ styles[ 'has-error' ] ]: isError,
 	} );
 
 	const statusClassName = classNames( styles.status, {
