@@ -16,7 +16,7 @@ export class BarChart extends React.Component {
 	}
 
 	componentDidMount() {
-		this.myChart = new Chart( this.canvasRef.current, {
+		const CHART_OPTIONS = {
 			type: 'bar',
 			options: {
 				borderRadius: 100,
@@ -65,7 +65,10 @@ export class BarChart extends React.Component {
 					},
 				},
 			},
+		};
 
+		this.myChart = new Chart( this.canvasRef.current, {
+			...CHART_OPTIONS,
 			data: {
 				labels: [ '' ], // this empty label must remain, if removed the entire chart breaks
 				datasets: this.props.data.map( d => d.data ),
