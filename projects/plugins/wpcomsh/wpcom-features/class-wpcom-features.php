@@ -83,6 +83,14 @@ class WPCOM_Features {
 	private const JETPACK_SECURITY_T1_MONTHLY                 = 'jetpack_security_t1_monthly'; // 2017
 	private const JETPACK_SECURITY_T2_YEARLY                  = 'jetpack_security_t2_yearly'; // 2019
 	private const JETPACK_SECURITY_T2_MONTHLY                 = 'jetpack_security_t2_monthly'; // 2020
+	private const JETPACK_BACKUP_DAILY                        = 'jetpack_backup_daily'; // 2100
+	private const JETPACK_BACKUP_DAILY_MONTHLY                = 'jetpack_backup_daily_monthly'; // 2101
+	private const JETPACK_BACKUP_REALTIME                     = 'jetpack_backup_realtime'; // 2102
+	private const JETPACK_BACKUP_REALTIME_MONTHLY             = 'jetpack_backup_realtime_monthly'; // 2103
+	private const JETPACK_BACKUP_T1_YEARLY                    = 'jetpack_backup_t1_yearly'; // 2112
+	private const JETPACK_BACKUP_T1_MONTHLY                   = 'jetpack_backup_t1_monthly'; // 2113
+	private const JETPACK_BACKUP_T2_YEARLY                    = 'jetpack_backup_t2_yearly'; // 2114
+	private const JETPACK_BACKUP_T2_MONTHLY                   = 'jetpack_backup_t2_monthly'; // 2115
 	private const JETPACK_VIDEOPRESS                          = 'jetpack_videopress'; // 2116
 	private const JETPACK_VIDEOPRESS_MONTHLY                  = 'jetpack_videopress_monthly'; // 2117
 	private const GAPPS                                       = 'gapps'; // 69
@@ -176,6 +184,7 @@ class WPCOM_Features {
 	public const ADVANCED_SEO                  = 'advanced-seo';
 	public const AKISMET                       = 'akismet';
 	public const ATOMIC                        = 'atomic';
+	public const BACKUPS                       = 'backups';
 	public const CALENDLY                      = 'calendly';
 	public const CONCIERGE                     = 'concierge';
 	public const CONCIERGE_BUSINESS            = 'concierge-business';
@@ -235,6 +244,20 @@ class WPCOM_Features {
 	private const FEATURES_MAP = array(
 		self::FREE_BLOG                     => array(
 			self::WPCOM_ALL_SITES,
+		),
+		// Site has *any* kind of backups.
+		self::BACKUPS                       => array(
+			self::JETPACK_BACKUP_DAILY,
+			self::JETPACK_BACKUP_DAILY_MONTHLY,
+			self::JETPACK_BACKUP_REALTIME,
+			self::JETPACK_BACKUP_REALTIME_MONTHLY,
+			self::JETPACK_BACKUP_T1_MONTHLY,
+			self::JETPACK_BACKUP_T1_YEARLY,
+			self::JETPACK_BACKUP_T2_MONTHLY,
+			self::JETPACK_BACKUP_T2_YEARLY,
+			self::JETPACK_PERSONAL_AND_HIGHER,
+			self::WPCOM_BUSINESS_AND_HIGHER_PLANS,
+			self::WPCOM_PRO_PLANS,
 		),
 		self::CUSTOM_DOMAIN                 => array(
 			self::WPCOM_BLOGGER_AND_HIGHER_PLANS,
