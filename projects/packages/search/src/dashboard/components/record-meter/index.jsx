@@ -37,28 +37,17 @@ export default function RecordMeter( { postCount, postTypeBreakdown, tierMaximum
 					<h2>{ __( 'Your search records', 'jetpack-search-pkg' ) }</h2>
 					{ tierMaximumRecords && (
 						<p>
-							<BarChart data={ recordInfo.data } isValid={ recordInfo.isValid } />
+							<BarChart
+								data={ recordInfo.data }
+								isValid={ recordInfo.isValid }
+								postTypeBreakdown={ postTypeBreakdown }
+							/>
 							Tier maximum records: <strong>{ tierMaximumRecords }</strong>
 						</p>
 					) }
 					{ postCount && (
 						<p>
 							Post count: <strong>{ postCount }</strong>
-						</p>
-					) }
-					{ postTypeBreakdown && (
-						<p>
-							Post type breakdown:
-							<table>
-								{ Object.entries( postTypeBreakdown ).map( postType => (
-									<tr>
-										<td>{ postType[ 0 ] }</td>
-										<td>
-											<strong>{ postType[ 1 ] }</strong>
-										</td>
-									</tr>
-								) ) }
-							</table>
 						</p>
 					) }
 				</div>
