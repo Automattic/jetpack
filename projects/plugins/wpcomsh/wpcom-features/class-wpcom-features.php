@@ -15,85 +15,90 @@ class WPCOM_Features {
 	/*
 	 * Private const for every mapped purchase.
 	 */
-	private const SPACE_10GB                              = '1gb_space_upgrade'; // 9
-	private const SPACE_25GB                              = '5gb_space_upgrade'; // 10
-	private const SPACE_50GB                              = '10gb_space_upgrade'; // 11
-	private const WPCOM_VIDEOPRESS                        = 'videopress'; // 15
-	private const SPACE_100GB                             = '50gb_space_upgrade'; // 19
-	private const SPACE_200GB                             = '100gb_space_upgrade'; // 20
-	private const SPACE_3GB                               = '3gb_space_upgrade'; // 21
-	private const WPCOM_VIDEOPRESS_PRO                    = 'videopress-pro'; // 47
-	private const SPACE_UNLIMITED                         = 'unlimited_space'; // 48
-	private const WPCOM_SEARCH                            = 'wpcom_search'; // 800
-	private const WPCOM_SEARCH_MONTHLY                    = 'wpcom_search_monthly'; // 801
-	private const YOAST_PREMIUM                           = 'yoast_premium'; // 900
-	private const WOOCOMMERCE_SUBSCRIPTIONS               = 'woocommerce_subscriptions_yearly'; // 902
-	private const WOOCOMMERCE_SUBSCRIPTIONS_MONTHLY       = 'woocommerce_subscriptions_monthly'; // 903
-	private const WOOCOMMERCE_BOOKINGS                    = 'woocommerce_bookings_yearly'; // 904
-	private const WOOCOMMERCE_BOOKINGS_MONTHLY            = 'woocommerce_bookings_monthly'; // 905
-	private const WOOCOMMERCE_TABLE_RATE_SHIPPING         = 'woocommerce_table_rate_shipping_yearly'; // 906
-	private const WOOCOMMERCE_TABLE_RATE_SHIPPING_MONTHLY = 'woocommerce_table_rate_shipping_monthly'; // 907
-	private const AUTOMATEWOO                             = 'automatewoo_yearly'; // 908
-	private const AUTOMATEWOO_MONTHLY                     = 'automatewoo_monthly'; // 909
-	private const WOOCOMMERCE_SHIPMENT_TRACKING           = 'woocommerce_shipment_tracking_yearly'; // 910
-	private const WOOCOMMERCE_SHIPMENT_TRACKING_MONTHLY   = 'woocommerce_shipment_tracking_monthly'; // 911
-	private const WOOCOMMERCE_XERO                        = 'woocommerce_xero_yearly'; // 912
-	private const WOOCOMMERCE_XERO_MONTHLY                = 'woocommerce_xero_monthly'; // 913
-	private const WORDPRESS_SEO_PREMIUM                   = 'wordpress_seo_premium_yearly'; // 914
-	private const WORDPRESS_SEO_PREMIUM_MONTHLY           = 'wordpress_seo_premium_monthly'; // 915
-	private const WOOCOMMERCE_POINTS_AND_REWARDS          = 'woocommerce_points_and_rewards_yearly'; // 916
-	private const WOOCOMMERCE_POINTS_AND_REWARDS_MONTHLY  = 'woocommerce_points_and_rewards_monthly'; // 917
-	private const WOOCOMMERCE_DEPOSITS                    = 'woocommerce_deposits_yearly'; // 918
-	private const WOOCOMMERCE_DEPOSITS_MONTHLY            = 'woocommerce_deposits_monthly'; // 919
-	private const WOOCOMMERCE_ONE_PAGE_CHECKOUT           = 'woocommerce_one_page_checkout_yearly'; // 920
-	private const WOOCOMMERCE_ONE_PAGE_CHECKOUT_MONTHLY   = 'woocommerce_one_page_checkout_monthly'; // 921
-	private const WOOTHEMES_SENSEI                        = 'woothemes_sensei_yearly'; // 924
-	private const WOOTHEMES_SENSEI_MONTHLY                = 'woothemes_sensei_monthly'; // 925
-	private const VALUE_BUNDLE                            = 'value_bundle'; // 1003
-	private const BUNDLE_PRO                              = 'bundle_pro'; // 1004
-	private const BUSINESS_BUNDLE                         = 'business-bundle'; // 1008
-	private const PERSONAL_BUNDLE                         = 'personal-bundle'; // 1009
-	private const BLOGGER_BUNDLE                          = 'blogger-bundle'; // 1010
-	private const ECOMMERCE_BUNDLE                        = 'ecommerce-bundle'; // 1011
-	private const VALUE_BUNDLE_MONTHLY                    = 'value_bundle_monthly'; // 1013
-	private const BUSINESS_BUNDLE_MONTHLY                 = 'business-bundle-monthly'; // 1018
-	private const PERSONAL_BUNDLE_MONTHLY                 = 'personal-bundle-monthly'; // 1019
-	private const ECOMMERCE_BUNDLE_MONTHLY                = 'ecommerce-bundle-monthly'; // 1021
-	private const VALUE_BUNDLE_2Y                         = 'value_bundle-2y'; // 1023
-	private const BUSINESS_BUNDLE_2Y                      = 'business-bundle-2y'; // 1028
-	private const PERSONAL_BUNDLE_2Y                      = 'personal-bundle-2y'; // 1029
-	private const BLOGGER_BUNDLE_2Y                       = 'blogger-bundle-2y'; // 1030
-	private const ECOMMERCE_BUNDLE_2Y                     = 'ecommerce-bundle-2y'; // 1031
-	private const PRO_PLAN                                = 'pro-plan'; // 1032
-	private const WP_P2_PLUS_MONTHLY                      = 'wp_p2_plus_monthly'; // 1040
-	private const JETPACK_PREMIUM                         = 'jetpack_premium'; // 2000
-	private const JETPACK_BUSINESS                        = 'jetpack_business'; // 2001
-	private const JETPACK_FREE                            = 'jetpack_free'; // 2002
-	private const JETPACK_PREMIUM_MONTHLY                 = 'jetpack_premium_monthly'; // 2003
-	private const JETPACK_BUSINESS_MONTHLY                = 'jetpack_business_monthly'; // 2004
-	private const JETPACK_PERSONAL                        = 'jetpack_personal'; // 2005
-	private const JETPACK_PERSONAL_MONTHLY                = 'jetpack_personal_monthly'; // 2006
-	private const JETPACK_SECURITY_DAILY                  = 'jetpack_security_daily'; // 2010
-	private const JETPACK_SECURITY_DAILY_MONTHLY          = 'jetpack_security_daily_monthly'; // 2011
-	private const JETPACK_SECURITY_REALTIME               = 'jetpack_security_realtime'; // 2012
-	private const JETPACK_SECURITY_REALTIME_MONTHLY       = 'jetpack_security_realtime_monthly'; // 2013
-	private const JETPACK_COMPLETE                        = 'jetpack_complete'; // 2014
-	private const JETPACK_COMPLETE_MONTHLY                = 'jetpack_complete_monthly'; // 2015
-	private const JETPACK_SECURITY_T1_YEARLY              = 'jetpack_security_t1_yearly'; // 2016
-	private const JETPACK_SECURITY_T1_MONTHLY             = 'jetpack_security_t1_monthly'; // 2017
-	private const JETPACK_SECURITY_T2_YEARLY              = 'jetpack_security_t2_yearly'; // 2019
-	private const JETPACK_SECURITY_T2_MONTHLY             = 'jetpack_security_t2_monthly'; // 2020
-	private const JETPACK_VIDEOPRESS                      = 'jetpack_videopress'; // 2116
-	private const JETPACK_VIDEOPRESS_MONTHLY              = 'jetpack_videopress_monthly'; // 2117
+	private const SPACE_10GB                                  = '1gb_space_upgrade'; // 9
+	private const SPACE_25GB                                  = '5gb_space_upgrade'; // 10
+	private const SPACE_50GB                                  = '10gb_space_upgrade'; // 11
+	private const WPCOM_VIDEOPRESS                            = 'videopress'; // 15
+	private const SPACE_100GB                                 = '50gb_space_upgrade'; // 19
+	private const SPACE_200GB                                 = '100gb_space_upgrade'; // 20
+	private const SPACE_3GB                                   = '3gb_space_upgrade'; // 21
+	private const WPCOM_VIDEOPRESS_PRO                        = 'videopress-pro'; // 47
+	private const SPACE_UNLIMITED                             = 'unlimited_space'; // 48
+	private const WPCOM_SEARCH                                = 'wpcom_search'; // 800
+	private const WPCOM_SEARCH_MONTHLY                        = 'wpcom_search_monthly'; // 801
+	private const YOAST_PREMIUM                               = 'yoast_premium'; // 900
+	private const WOOCOMMERCE_SUBSCRIPTIONS                   = 'woocommerce_subscriptions_yearly'; // 902
+	private const WOOCOMMERCE_SUBSCRIPTIONS_MONTHLY           = 'woocommerce_subscriptions_monthly'; // 903
+	private const WOOCOMMERCE_BOOKINGS                        = 'woocommerce_bookings_yearly'; // 904
+	private const WOOCOMMERCE_BOOKINGS_MONTHLY                = 'woocommerce_bookings_monthly'; // 905
+	private const WOOCOMMERCE_TABLE_RATE_SHIPPING             = 'woocommerce_table_rate_shipping_yearly'; // 906
+	private const WOOCOMMERCE_TABLE_RATE_SHIPPING_MONTHLY     = 'woocommerce_table_rate_shipping_monthly'; // 907
+	private const AUTOMATEWOO                                 = 'automatewoo_yearly'; // 908
+	private const AUTOMATEWOO_MONTHLY                         = 'automatewoo_monthly'; // 909
+	private const WOOCOMMERCE_SHIPMENT_TRACKING               = 'woocommerce_shipment_tracking_yearly'; // 910
+	private const WOOCOMMERCE_SHIPMENT_TRACKING_MONTHLY       = 'woocommerce_shipment_tracking_monthly'; // 911
+	private const WOOCOMMERCE_XERO                            = 'woocommerce_xero_yearly'; // 912
+	private const WOOCOMMERCE_XERO_MONTHLY                    = 'woocommerce_xero_monthly'; // 913
+	private const WORDPRESS_SEO_PREMIUM                       = 'wordpress_seo_premium_yearly'; // 914
+	private const WORDPRESS_SEO_PREMIUM_MONTHLY               = 'wordpress_seo_premium_monthly'; // 915
+	private const WOOCOMMERCE_POINTS_AND_REWARDS              = 'woocommerce_points_and_rewards_yearly'; // 916
+	private const WOOCOMMERCE_POINTS_AND_REWARDS_MONTHLY      = 'woocommerce_points_and_rewards_monthly'; // 917
+	private const WOOCOMMERCE_DEPOSITS                        = 'woocommerce_deposits_yearly'; // 918
+	private const WOOCOMMERCE_DEPOSITS_MONTHLY                = 'woocommerce_deposits_monthly'; // 919
+	private const WOOCOMMERCE_ONE_PAGE_CHECKOUT               = 'woocommerce_one_page_checkout_yearly'; // 920
+	private const WOOCOMMERCE_ONE_PAGE_CHECKOUT_MONTHLY       = 'woocommerce_one_page_checkout_monthly'; // 921
+	private const WOOTHEMES_SENSEI                            = 'woothemes_sensei_yearly'; // 924
+	private const WOOTHEMES_SENSEI_MONTHLY                    = 'woothemes_sensei_monthly'; // 925
+	private const VALUE_BUNDLE                                = 'value_bundle'; // 1003
+	private const BUNDLE_PRO                                  = 'bundle_pro'; // 1004
+	private const BUSINESS_BUNDLE                             = 'business-bundle'; // 1008
+	private const PERSONAL_BUNDLE                             = 'personal-bundle'; // 1009
+	private const BLOGGER_BUNDLE                              = 'blogger-bundle'; // 1010
+	private const ECOMMERCE_BUNDLE                            = 'ecommerce-bundle'; // 1011
+	private const VALUE_BUNDLE_MONTHLY                        = 'value_bundle_monthly'; // 1013
+	private const BUSINESS_BUNDLE_MONTHLY                     = 'business-bundle-monthly'; // 1018
+	private const PERSONAL_BUNDLE_MONTHLY                     = 'personal-bundle-monthly'; // 1019
+	private const ECOMMERCE_BUNDLE_MONTHLY                    = 'ecommerce-bundle-monthly'; // 1021
+	private const VALUE_BUNDLE_2Y                             = 'value_bundle-2y'; // 1023
+	private const BUSINESS_BUNDLE_2Y                          = 'business-bundle-2y'; // 1028
+	private const PERSONAL_BUNDLE_2Y                          = 'personal-bundle-2y'; // 1029
+	private const BLOGGER_BUNDLE_2Y                           = 'blogger-bundle-2y'; // 1030
+	private const ECOMMERCE_BUNDLE_2Y                         = 'ecommerce-bundle-2y'; // 1031
+	private const PRO_PLAN                                    = 'pro-plan'; // 1032
+	private const WP_P2_PLUS_MONTHLY                          = 'wp_p2_plus_monthly'; // 1040
+	private const JETPACK_PREMIUM                             = 'jetpack_premium'; // 2000
+	private const JETPACK_BUSINESS                            = 'jetpack_business'; // 2001
+	private const JETPACK_FREE                                = 'jetpack_free'; // 2002
+	private const JETPACK_PREMIUM_MONTHLY                     = 'jetpack_premium_monthly'; // 2003
+	private const JETPACK_BUSINESS_MONTHLY                    = 'jetpack_business_monthly'; // 2004
+	private const JETPACK_PERSONAL                            = 'jetpack_personal'; // 2005
+	private const JETPACK_PERSONAL_MONTHLY                    = 'jetpack_personal_monthly'; // 2006
+	private const JETPACK_SECURITY_DAILY                      = 'jetpack_security_daily'; // 2010
+	private const JETPACK_SECURITY_DAILY_MONTHLY              = 'jetpack_security_daily_monthly'; // 2011
+	private const JETPACK_SECURITY_REALTIME                   = 'jetpack_security_realtime'; // 2012
+	private const JETPACK_SECURITY_REALTIME_MONTHLY           = 'jetpack_security_realtime_monthly'; // 2013
+	private const JETPACK_COMPLETE                            = 'jetpack_complete'; // 2014
+	private const JETPACK_COMPLETE_MONTHLY                    = 'jetpack_complete_monthly'; // 2015
+	private const JETPACK_SECURITY_T1_YEARLY                  = 'jetpack_security_t1_yearly'; // 2016
+	private const JETPACK_SECURITY_T1_MONTHLY                 = 'jetpack_security_t1_monthly'; // 2017
+	private const JETPACK_SECURITY_T2_YEARLY                  = 'jetpack_security_t2_yearly'; // 2019
+	private const JETPACK_SECURITY_T2_MONTHLY                 = 'jetpack_security_t2_monthly'; // 2020
+	private const JETPACK_VIDEOPRESS                          = 'jetpack_videopress'; // 2116
+	private const JETPACK_VIDEOPRESS_MONTHLY                  = 'jetpack_videopress_monthly'; // 2117
+	private const GAPPS                                       = 'gapps'; // 69
+	private const GAPPS_UNLIMITED                             = 'gapps_unlimited'; // 70
+	private const WP_TITAN_MAIL_MONTHLY                       = 'wp_titan_mail_monthly'; // 400
+	private const WP_TITAN_MAIL_YEARLY                        = 'wp_titan_mail_yearly'; // 401
+	private const WP_GOOGLE_WORKSPACE_BUSINESS_STARTER_YEARLY = 'wp_google_workspace_business_starter_yearly'; // 690
 
 	// WPCOM "Level 2": Groups of level 1s
-	private const WPCOM_BLOGGER_PLANS     = [ self::BLOGGER_BUNDLE, self::BLOGGER_BUNDLE_2Y ];
-	private const WPCOM_PERSONAL_PLANS    = [ self::PERSONAL_BUNDLE, self::PERSONAL_BUNDLE_MONTHLY, self::PERSONAL_BUNDLE_2Y ];
-	private const WPCOM_PREMIUM_PLANS     = [ self::BUNDLE_PRO, self::VALUE_BUNDLE, self::VALUE_BUNDLE_MONTHLY, self::VALUE_BUNDLE_2Y ];
-	private const WPCOM_PRO_PLANS         = [ self::PRO_PLAN ];
-	private const WPCOM_BUSINESS_PLANS    = [ self::BUSINESS_BUNDLE, self::BUSINESS_BUNDLE_MONTHLY, self::BUSINESS_BUNDLE_2Y ];
-	private const WPCOM_ECOMMERCE_PLANS   = [ self::ECOMMERCE_BUNDLE, self::ECOMMERCE_BUNDLE_MONTHLY, self::ECOMMERCE_BUNDLE_2Y ];
-	private const WPCOM_MARKETPLACE_PLANS = [
+	private const WPCOM_BLOGGER_PLANS       = [ self::BLOGGER_BUNDLE, self::BLOGGER_BUNDLE_2Y ];
+	private const WPCOM_PERSONAL_PLANS      = [ self::PERSONAL_BUNDLE, self::PERSONAL_BUNDLE_MONTHLY, self::PERSONAL_BUNDLE_2Y ];
+	private const WPCOM_PREMIUM_PLANS       = [ self::BUNDLE_PRO, self::VALUE_BUNDLE, self::VALUE_BUNDLE_MONTHLY, self::VALUE_BUNDLE_2Y ];
+	private const WPCOM_PRO_PLANS           = [ self::PRO_PLAN ];
+	private const WPCOM_BUSINESS_PLANS      = [ self::BUSINESS_BUNDLE, self::BUSINESS_BUNDLE_MONTHLY, self::BUSINESS_BUNDLE_2Y ];
+	private const WPCOM_ECOMMERCE_PLANS     = [ self::ECOMMERCE_BUNDLE, self::ECOMMERCE_BUNDLE_MONTHLY, self::ECOMMERCE_BUNDLE_2Y ];
+	private const WPCOM_MARKETPLACE_PLANS   = [
 		self::YOAST_PREMIUM,
 		self::WOOCOMMERCE_SUBSCRIPTIONS,
 		self::WOOCOMMERCE_SUBSCRIPTIONS_MONTHLY,
@@ -118,12 +123,16 @@ class WPCOM_Features {
 		self::WOOTHEMES_SENSEI,
 		self::WOOTHEMES_SENSEI_MONTHLY,
 	];
+	private const GOOGLE_WORKSPACE_PRODUCTS = [ self::WP_GOOGLE_WORKSPACE_BUSINESS_STARTER_YEARLY ];
+	private const GSUITE_PRODUCTS           = [ self::GAPPS, self::GAPPS_UNLIMITED ];
+	private const WPCOM_TITAN_MAIL_PRODUCTS = [ self::WP_TITAN_MAIL_MONTHLY, self::WP_TITAN_MAIL_YEARLY ];
 
 	// WPCOM "Level 3": Groups of level 2s
 	private const WPCOM_BLOGGER_AND_HIGHER_PLANS  = [ self::WPCOM_BLOGGER_PLANS, self::WPCOM_PERSONAL_PLANS, self::WPCOM_PREMIUM_PLANS, self::WPCOM_PRO_PLANS, self::WPCOM_BUSINESS_PLANS, self::WPCOM_ECOMMERCE_PLANS ];
 	private const WPCOM_PERSONAL_AND_HIGHER_PLANS = [ self::WPCOM_PERSONAL_PLANS, self::WPCOM_PREMIUM_PLANS, self::WPCOM_PRO_PLANS, self::WPCOM_BUSINESS_PLANS, self::WPCOM_ECOMMERCE_PLANS ];
 	private const WPCOM_PREMIUM_AND_HIGHER_PLANS  = [ self::WPCOM_PREMIUM_PLANS, self::WPCOM_PRO_PLANS, self::WPCOM_BUSINESS_PLANS, self::WPCOM_ECOMMERCE_PLANS ];
 	private const WPCOM_BUSINESS_AND_HIGHER_PLANS = [ self::WPCOM_BUSINESS_PLANS, self::WPCOM_ECOMMERCE_PLANS ];
+	private const WPCOM_EMAIL_PRODUCTS            = [ self::GOOGLE_WORKSPACE_PRODUCTS, self::GSUITE_PRODUCTS, self::WPCOM_TITAN_MAIL_PRODUCTS ];
 
 	// Jetpack "Level 2": Groups of level 1s:
 	private const JETPACK_BUSINESS_PLANS = [ self::JETPACK_BUSINESS, self::JETPACK_BUSINESS_MONTHLY ];
@@ -177,6 +186,7 @@ class WPCOM_Features {
 	public const CUSTOM_DOMAIN                 = 'custom-domain';
 	public const DONATIONS                     = 'donations';
 	public const ECOMMERCE_MANAGED_PLUGINS     = 'ecommerce-managed-plugins';
+	public const EMAIL_SUBSCRIPTION            = 'email-subscription';
 	public const FREE_BLOG                     = 'free-blog';
 	public const GOOGLE_ANALYTICS              = 'google-analytics';
 	public const INSTALL_PLUGINS               = 'install-plugins';
@@ -537,6 +547,10 @@ class WPCOM_Features {
 		),
 		self::CONCIERGE_BUSINESS            => array(
 			self::WPCOM_BUSINESS_PLANS,
+		),
+		// Represents having at least one product providing email
+		self::EMAIL_SUBSCRIPTION            => array(
+			self::WPCOM_EMAIL_PRODUCTS,
 		),
 	);
 
