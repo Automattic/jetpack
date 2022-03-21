@@ -4,7 +4,7 @@
  *
  * Fetch plans data from WordPress.com.
  *
- * This file was copied and adapted from the Jetpack plugin on Jan 2022.
+ * This file was copied and adapted from the Jetpack plugin on Mar 2022.
  *
  * @package automattic/jetpack-plans
  */
