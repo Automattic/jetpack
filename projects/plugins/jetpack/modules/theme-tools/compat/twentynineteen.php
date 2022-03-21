@@ -92,7 +92,7 @@ add_action( 'init', 'twentynineteen_init_jetpack' );
 /**
  * Alter gallery widget default width.
  */
-function twentynineteen_gallery_widget_content_width( $width ) {
+function twentynineteen_gallery_widget_content_width() {
 	return 390;
 }
 add_filter( 'gallery_widget_content_width', 'twentynineteen_gallery_widget_content_width' );
@@ -100,7 +100,7 @@ add_filter( 'gallery_widget_content_width', 'twentynineteen_gallery_widget_conte
 /**
  * Alter featured-image default visibility for content-options.
  */
-function twentynineteen_override_post_thumbnail( $width ) {
+function twentynineteen_override_post_thumbnail() {
 	$options         = get_theme_support( 'jetpack-content-options' );
 	$featured_images = ( ! empty( $options[0]['featured-images'] ) ) ? $options[0]['featured-images'] : null;
 
