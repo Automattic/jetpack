@@ -1,0 +1,4 @@
+Significance: minor
+Type: added
+
+New API which returns the list of licenses from WPCOM

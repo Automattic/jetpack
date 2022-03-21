@@ -6,6 +6,7 @@ import PropTypes from 'prop-types';
 import classNames from 'classnames';
 import { __, sprintf } from '@wordpress/i18n';
 import { ButtonGroup, Button, DropdownMenu } from '@wordpress/components';
+import { Text } from '@automattic/jetpack-components';
 
 /**
  * Internal dependencies
@@ -43,39 +44,39 @@ const ActionButton = ( {
 	status,
 	admin,
 	name,
-	onLearn,
 	onActivate,
-	onAdd,
 	onManage,
 	onFixConnection,
 	isFetching,
+	className,
 } ) => {
 	if ( ! admin ) {
 		return (
-			<Button variant="link" onClick={ onLearn } className={ styles[ 'action-link-button' ] }>
+			<span className={ styles[ 'action-link-button' ] }>
 				{
 					/* translators: placeholder is product name. */
 					sprintf( __( 'Learn about %s', 'jetpack-my-jetpack' ), name )
 				}
-			</Button>
+			</span>
 		);
 	}
 
 	const buttonState = {
 		variant: ! isFetching ? 'primary' : undefined,
 		disabled: isFetching,
+		className,
 	};
 
 	switch ( status ) {
 		case PRODUCT_STATUSES.NEEDS_PURCHASE:
 		case PRODUCT_STATUSES.ABSENT:
 			return (
-				<Button variant="link" onClick={ onAdd } className={ styles[ 'action-link-button' ] }>
+				<span className={ styles[ 'action-link-button' ] }>
 					{
 						/* translators: placeholder is product name. */
 						sprintf( __( 'Add %s', 'jetpack-my-jetpack' ), name )
 					}
-				</Button>
+				</span>
 			);
 		case PRODUCT_STATUSES.ACTIVE:
 			return (
@@ -128,6 +129,7 @@ const ProductCard = props => {
 	const containerClassName = classNames( styles.container, {
 		[ styles.plugin_absent ]: isAbsent,
 		[ styles[ 'is-purchase-required' ] ]: isPurchaseRequired,
+		[ styles[ 'is-link' ] ]: isAbsent,
 	} );
 
 	const statusClassName = classNames( styles.status, {
@@ -162,12 +164,19 @@ const ProductCard = props => {
 	/**
 	 * Calls the passed function onAdd after firing Tracks event
 	 */
-	const addHandler = useCallback( () => {
-		recordEvent( 'jetpack_myjetpack_product_card_add_click', {
-			product: slug,
-		} );
-		onAdd();
-	}, [ slug, onAdd, recordEvent ] );
+	const addHandler = useCallback(
+		ev => {
+			if ( ev?.preventDefault ) {
+				ev.preventDefault();
+			}
+
+			recordEvent( 'jetpack_myjetpack_product_card_add_click', {
+				product: slug,
+			} );
+			onAdd();
+		},
+		[ slug, onAdd, recordEvent ]
+	);
 
 	/**
 	 * Calls the passed function onManage after firing Tracks event
@@ -189,13 +198,23 @@ const ProductCard = props => {
 		onFixConnection();
 	}, [ slug, onFixConnection, recordEvent ] );
 
+	const CardWrapper = isAbsent
+		? ( { children, ...cardProps } ) => (
+				<a { ...cardProps } href="#" onClick={ addHandler }>
+					{ children }
+				</a>
+		  )
+		: ( { children, ...cardProps } ) => <div { ...cardProps }>{ children }</div>;
+
 	return (
-		<div className={ containerClassName }>
+		<CardWrapper className={ containerClassName }>
 			<div className={ styles.name }>
-				<span>{ name }</span>
+				<Text variant="title-medium">{ name }</Text>
 				{ icon }
 			</div>
-			<p className={ styles.description }>{ description }</p>
+			<Text variant="body-small" className={ styles.description }>
+				{ description }
+			</Text>
 			<div className={ styles.actions }>
 				{ canDeactivate ? (
 					<ButtonGroup className={ styles.group }>
@@ -204,10 +223,11 @@ const ProductCard = props => {
 							onActivate={ activateHandler }
 							onFixConnection={ fixConnectionHandler }
 							onManage={ manageHandler }
+							className={ styles.button }
 						/>
 						<DropdownMenu
 							className={ styles.dropdown }
-							toggleProps={ { isPrimary: true, disabled: isFetching } }
+							toggleProps={ { isPrimary: true, disabled: isFetching, className: styles.button } }
 							popoverProps={ { noArrow: false } }
 							icon={ DownIcon }
 							disableOpenOnArrowDown={ true }
@@ -226,11 +246,16 @@ const ProductCard = props => {
 						onFixConnection={ fixConnectionHandler }
 						onActivate={ activateHandler }
 						onAdd={ addHandler }
+						className={ styles.button }
 					/>
 				) }
-				{ ! isAbsent && <div className={ statusClassName }>{ flagLabel }</div> }
+				{ ! isAbsent && (
+					<Text variant="label" className={ statusClassName }>
+						{ flagLabel }
+					</Text>
+				) }
 			</div>
-		</div>
+		</CardWrapper>
 	);
 };
 
@@ -245,7 +270,6 @@ ProductCard.propTypes = {
 	onFixConnection: PropTypes.func,
 	onActivate: PropTypes.func,
 	onAdd: PropTypes.func,
-	onLearn: PropTypes.func,
 	slug: PropTypes.string.isRequired,
 	showDeactivate: PropTypes.bool,
 	status: PropTypes.oneOf( [
@@ -265,7 +289,6 @@ ProductCard.defaultProps = {
 	onFixConnection: () => {},
 	onActivate: () => {},
 	onAdd: () => {},
-	onLearn: () => {},
 	showDeactivate: true,
 };
 

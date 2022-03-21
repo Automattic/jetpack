@@ -8,11 +8,9 @@
 namespace Automattic\Jetpack\My_Jetpack\Products;
 
 use Automattic\Jetpack\Connection\Client;
-use Automattic\Jetpack\Connection\Manager as Connection_Manager;
 use Automattic\Jetpack\My_Jetpack\Hybrid_Product;
 use Automattic\Jetpack\My_Jetpack\Wpcom_Products;
 use Automattic\Jetpack\Redirect;
-use Jetpack;
 use Jetpack_Options;
 use WP_Error;
 
@@ -176,16 +174,7 @@ class Backup extends Hybrid_Product {
 	 * @return ?string
 	 */
 	public static function get_post_activation_url() {
-		if ( ( new Connection_Manager() )->is_user_connected() ) {
-			return ''; // Continue on the purchase flow or stay in My Jetpack page.
-		} else {
-			// If the user is not connected, the Backup purchase flow will not work properly. Let's redirect the user to a place where they can buy the plan from.
-			if ( static::is_jetpack_plugin_active() ) {
-				return Jetpack::admin_url();
-			} elseif ( static::is_plugin_active() ) {
-				return admin_url( 'admin.php?page=jetpack-backup' );
-			}
-		}
+		return ''; // stay in My Jetpack page or continue the purchase flow if needed.
 	}
 
 	/**
