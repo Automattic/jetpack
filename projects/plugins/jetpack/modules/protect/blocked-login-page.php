@@ -21,9 +21,9 @@ class Jetpack_Protect_Blocked_Login_Page {
 	private static $instance = null;
 
 	/**
-	 * Can send recovery emails.
+	 * Can send recovery emails. defaults to true.
 	 *
-	 * @var bool - defaults to true.
+	 * @var bool
 	 */
 	public $can_send_recovery_emails;
 
