@@ -1,0 +1,4 @@
+Significance: patch
+Type: bugfix
+
+Added TypeScript support and fixed VS Code integration

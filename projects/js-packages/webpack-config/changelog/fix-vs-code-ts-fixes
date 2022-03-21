@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Fixed webpack resolution for internal js-packages by using resolve.alias
