@@ -42,7 +42,7 @@ function checkChangelogFiles() {
 	} else {
 		try {
 			// Run the changelogger.
-			const autoChangelog = spawnSync( 'jetpack', [ 'changelog', 'add' ], {
+			const autoChangelog = spawnSync( 'pnpx', [ 'jetpack', 'changelog', 'add' ], {
 				stdio: 'inherit',
 			} );
 
