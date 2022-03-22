@@ -492,6 +492,13 @@ class Jetpack_Memberships {
 				array(
 					'render_callback' => array( $this, 'render_container' ),
 					$uses             => array( 'isPremiumContentChild' ),
+					'supports'        => array(
+						'__experimentalLayout' => array(
+							'allowSwitching'  => false,
+							'allowInheriting' => false,
+							'default'         => array( 'type' => 'flex' ),
+						),
+					),
 				)
 			);
 		} else {
