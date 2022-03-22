@@ -3,10 +3,6 @@
 		font-size: 16px;
 	}
 
-	&--padded {
-		padding: 24px;
-	}
-
   	&--main {
 	  background-color: $primary-white;
 	}
@@ -46,6 +42,13 @@
 	&--narrow {
 		@extend .jb-container;
 		max-width: 744px;
+	}
+
+  	&--fixed {
+	  max-width: 1080px;
+	  width: auto;
+	  padding-left: $spacing-unit * 2;
+	  padding-right: $spacing-unit * 2;
 	}
 }
 
