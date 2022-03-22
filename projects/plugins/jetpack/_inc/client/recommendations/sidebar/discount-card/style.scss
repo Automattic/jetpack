@@ -11,6 +11,12 @@
 	height: 100%;
 	padding: 2rem 3rem 2rem 0;
 
+	@include breakpoint( '<782px' ) {
+		justify-content: center;
+		padding-inline-start: 1rem;
+		padding-inline-end: 1rem;
+	}
+
 	@include breakpoint( '>1040px' ) {
 		background: radial-gradient( circle at 70%, rgba(6, 158, 8, 0.15) 0%, rgba( 255, 255, 255, 0) 56%), radial-gradient( circle at 35% 80%, rgba( 206, 217, 242, 0.5) 5%, rgba(255, 256, 255, 0) 25% );
 	}
