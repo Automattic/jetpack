@@ -153,6 +153,11 @@ class WPCOM_Features {
 	private const JETPACK_SECURITY_T1_PLANS       = [ self::JETPACK_SECURITY_T1_MONTHLY, self::JETPACK_SECURITY_T1_YEARLY ];
 	private const JETPACK_SECURITY_T2_PLANS       = [ self::JETPACK_SECURITY_T2_MONTHLY, self::JETPACK_SECURITY_T2_YEARLY ];
 
+	private const JETPACK_BACKUP_DAILY_PLANS    = [ self::JETPACK_BACKUP_DAILY, self::JETPACK_BACKUP_DAILY_MONTHLY ];
+	private const JETPACK_BACKUP_REALTIME_PLANS = [ self::JETPACK_BACKUP_REALTIME, self::JETPACK_BACKUP_REALTIME_MONTHLY ];
+	private const JETPACK_BACKUP_T1_PLANS       = [ self::JETPACK_BACKUP_T1_MONTHLY, self::JETPACK_BACKUP_T1_YEARLY ];
+	private const JETPACK_BACKUP_T2_PLANS       = [ self::JETPACK_BACKUP_T2_MONTHLY, self::JETPACK_BACKUP_T2_YEARLY ];
+
 	// Jetpack "Level 3": Groups of level 2:
 	private const JETPACK_PERSONAL_AND_HIGHER = [
 		self::JETPACK_PERSONAL_PLANS,
@@ -211,6 +216,7 @@ class WPCOM_Features {
 	public const PREMIUM_CONTENT_CONTAINER     = 'premium-content/container';
 	public const PREMIUM_THEMES                = 'premium-themes';
 	public const PRIVATE_WHOIS                 = 'private_whois';
+	public const REAL_TIME_BACKUPS             = 'real-time-backups';
 	public const RECURRING_PAYMENTS            = 'recurring-payments';
 	public const REPUBLICIZE                   = 'republicize';
 	public const SEARCH                        = 'search';
@@ -247,15 +253,23 @@ class WPCOM_Features {
 		),
 		// Site has *any* kind of backups.
 		self::BACKUPS                       => array(
-			self::JETPACK_BACKUP_DAILY,
-			self::JETPACK_BACKUP_DAILY_MONTHLY,
-			self::JETPACK_BACKUP_REALTIME,
-			self::JETPACK_BACKUP_REALTIME_MONTHLY,
-			self::JETPACK_BACKUP_T1_MONTHLY,
-			self::JETPACK_BACKUP_T1_YEARLY,
-			self::JETPACK_BACKUP_T2_MONTHLY,
-			self::JETPACK_BACKUP_T2_YEARLY,
+			self::JETPACK_BACKUP_DAILY_PLANS,
+			self::JETPACK_BACKUP_REALTIME_PLANS,
+			self::JETPACK_BACKUP_T1_PLANS,
+			self::JETPACK_BACKUP_T2_PLANS,
 			self::JETPACK_PERSONAL_AND_HIGHER,
+			self::WPCOM_BUSINESS_AND_HIGHER_PLANS,
+			self::WPCOM_PRO_PLANS,
+		),
+		self::REAL_TIME_BACKUPS             => array(
+			self::JETPACK_BACKUP_REALTIME_PLANS,
+			self::JETPACK_BACKUP_T1_PLANS,
+			self::JETPACK_BACKUP_T2_PLANS,
+			self::JETPACK_BUSINESS_PLANS,
+			self::JETPACK_COMPLETE_PLANS,
+			self::JETPACK_SECURITY_REALTIME_PLANS,
+			self::JETPACK_SECURITY_T1_PLANS,
+			self::JETPACK_SECURITY_T2_PLANS,
 			self::WPCOM_BUSINESS_AND_HIGHER_PLANS,
 			self::WPCOM_PRO_PLANS,
 		),
