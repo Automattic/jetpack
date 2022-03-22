@@ -2,7 +2,7 @@
  * External dependencies
  */
 import { __, sprintf } from '@wordpress/i18n';
-import React, { useState, useEffect, useCallback, useRef } from 'react';
+import React, { useState, useEffect, useCallback, useRef, useMemo } from 'react';
 
 const Timer = ( { className, expiryDate } ) => {
 	const date = useMemo( () => new Date( expiryDate ), [ expiryDate ] );
