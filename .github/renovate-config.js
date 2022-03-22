@@ -67,9 +67,15 @@ module.exports = {
 			rangeStrategy: 'replace',
 		},
 
-		// We need to keep a wide version range to support for PHP 5.6.
+		// We need to keep a wide version range to support PHP 5.6.
 		{
-			matchPackageNames: [ 'johnkary/phpunit-speedtrap' ],
+			matchPackageNames: [
+				'johnkary/phpunit-speedtrap',
+				'symfony/console',
+				'symfony/process',
+				'wikimedia/at-ease',
+				'wikimedia/testing-access-wrapper',
+			],
 			rangeStrategy: 'widen',
 		},
 
