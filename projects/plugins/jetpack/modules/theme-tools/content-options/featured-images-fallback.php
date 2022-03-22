@@ -63,7 +63,7 @@ function jetpack_featured_images_fallback_get_image( $html, $post_id, $post_thum
 			// Use the theme's crop setting rather than forcing to true.
 			$image_src = add_query_arg( 'crop', $image['crop'], $image_src );
 
-			$html = '<img src="' . esc_url( $image_src ) . '" title="' . esc_attr( strip_tags( get_the_title() ) ) . '" class="attachment-' . esc_attr( $size ) . ' wp-post-image" />';
+			$html = '<img src="' . esc_url( $image_src ) . '" title="' . esc_attr( wp_strip_all_tags( get_the_title() ) ) . '" class="attachment-' . esc_attr( $size ) . ' wp-post-image" />';
 
 			return trim( $html );
 		}
