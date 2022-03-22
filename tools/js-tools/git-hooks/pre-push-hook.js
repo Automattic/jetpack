@@ -50,6 +50,8 @@ function checkChangelogFiles() {
 			if ( autoChangelog.status === 0 ) {
 				const filesToCommit = [];
 				const changelogFiles = spawnSync( 'git', [
+					'-c',
+					'core.quotepath=off',
 					'diff',
 					'--name-only',
 					'--diff-filter=A',
