@@ -8,7 +8,7 @@ const chalk = require( 'chalk' );
 /**
  * Checks if changelog files are required.
  */
-async function checkChangelogFiles() {
+function checkChangelogFiles() {
 	console.log( chalk.green( 'Checking if changelog files are needed. Just a sec...' ) );
 
 	// Bail if we're pushing to a release branch, like boost/branch-1.3.0
@@ -67,12 +67,7 @@ async function checkChangelogFiles() {
 				}
 
 				if ( filesToCommit.length > 0 ) {
-					const commitFiles = spawnSync( 'git', [
-						'commit',
-						...filesToCommit,
-						'-m',
-						'changelog',
-					] );
+					const commitFiles = spawnSync( 'git', [ 'commit', ...filesToCommit, '-m', 'changelog' ] );
 					if ( commitFiles.status === 0 ) {
 						console.log(
 							'\r\n\r\n   _____ _____ _______   _____  _    _  _____ _    _            _____          _____ _   _ \r\n  / ____|_   _|__   __| |  __ \\| |  | |/ ____| |  | |     /\\   / ____|   /\\   |_   _| \\ | |\r\n | |  __  | |    | |    | |__) | |  | | (___ | |__| |    /  \\ | |  __   /  \\    | | |  \\| |\r\n | | |_ | | |    | |    |  ___/| |  | |\\___ \\|  __  |   / /\\ \\| | |_ | / /\\ \\   | | | . ` |\r\n | |__| |_| |_   | |    | |    | |__| |____) | |  | |  / ____ \\ |__| |/ ____ \\ _| |_| |\\  |\r\n  \\_____|_____|  |_|    |_|     \\____/|_____/|_|  |_| /_/    \\_\\_____/_/    \\_\\_____|_| \\_|\r\n                                                                                           \r\n                                                                                           \r\n\r\n'
