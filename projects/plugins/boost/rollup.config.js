@@ -107,6 +107,7 @@ export default {
 			exclude: 'node_modules/**',
 			presets: [ '@babel/preset-react' ],
 			babelHelpers: 'bundled',
+			compact: true,
 		} ),
 
 		// we'll extract any component CSS out into
