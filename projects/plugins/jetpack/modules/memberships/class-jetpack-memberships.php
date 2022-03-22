@@ -1,7 +1,4 @@
 <?php
-
-// TODO: Re-examine the gutenberg and rendering parts of this
-
 /**
  * Jetpack_Memberships: wrapper for memberships functions.
  *
@@ -34,12 +31,6 @@ class Jetpack_Memberships {
 	 * @var string
 	 */
 	public static $connected_account_id_option_name = 'jetpack-memberships-connected-account-id';
-	/**
-	 * Button block type to use.
-	 *
-	 * @var string
-	 */
-	private static $button_block_name = 'recurring-payments-button';
 
 	/**
 	 * These are defaults for wp_kses ran on the membership button.
@@ -289,7 +280,7 @@ class Jetpack_Memberships {
 	 * @return string|void
 	 */
 	public function render_button( $attributes, $content = null, $block = null ) {
-		Jetpack_Gutenberg::load_assets_as_required( self::$button_block_name, array( 'thickbox', 'wp-polyfill' ) );
+		Jetpack_Gutenberg::load_assets_as_required( 'recurring-payments', array( 'thickbox', 'wp-polyfill' ) );
 
 		if ( $this->should_render_button_preview( $block ) ) {
 			return $this->render_button_preview( $attributes, $content );
@@ -381,7 +372,7 @@ class Jetpack_Memberships {
 			'<div class="%1$s"><a role="button" %6$s href="%2$s" class="%3$s" style="%4$s">%5$s</a></div>',
 			esc_attr(
 				Jetpack_Gutenberg::block_classes(
-					self::$button_block_name,
+					'recurring-payments',
 					$attrs,
 					array( 'wp-block-button' )
 				)
@@ -470,14 +461,14 @@ class Jetpack_Memberships {
 			$deprecated = function_exists( 'gutenberg_get_post_from_context' );
 			$uses       = $deprecated ? 'context' : 'uses_context';
 			Blocks::jetpack_register_block(
-				'jetpack/recurring-payments-button',
+				'jetpack/recurring-payments-button'
+			);
+			Blocks::jetpack_register_block(
+				'jetpack/recurring-payments',
 				array(
 					'render_callback' => array( $this, 'render_button' ),
 					$uses             => array( 'isPremiumContentChild' ),
 				)
-			);
-			Blocks::jetpack_register_block(
-				'jetpack/recurring-payments'
 			);
 		} else {
 			Jetpack_Gutenberg::set_extension_unavailable(
