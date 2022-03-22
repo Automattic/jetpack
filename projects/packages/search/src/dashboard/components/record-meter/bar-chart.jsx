@@ -9,6 +9,57 @@ import Chart from 'chart.js/auto';
  */
 import { __ } from '@wordpress/i18n';
 
+const CHART_OPTIONS = {
+	type: 'bar',
+	options: {
+		borderRadius: 100,
+		borderSkipped: 'middle',
+		indexAxis: 'y',
+		maintainAspectRatio: false,
+		aspectRatio: 1.3,
+		scales: {
+			x: {
+				stacked: true,
+				grid: {
+					display: false,
+					drawBorder: false,
+				},
+				ticks: {
+					display: false,
+				},
+			},
+			y: {
+				stacked: true,
+				grid: {
+					display: false,
+					drawBorder: false,
+				},
+				ticks: {
+					display: false,
+				},
+			},
+		},
+
+		plugins: {
+			title: {
+				display: false,
+			},
+			subtitle: {
+				display: false,
+			},
+			legend: {
+				display: false,
+
+				labels: {
+					filter: function ( legendItem ) {
+						return ! legendItem.text.includes( __( 'Remaining', 'jetpack-search-pkg' ) );
+					},
+				},
+			},
+		},
+	},
+};
+
 export class BarChart extends React.Component {
 	constructor( props ) {
 		super( props );
@@ -16,57 +67,6 @@ export class BarChart extends React.Component {
 	}
 
 	componentDidMount() {
-		const CHART_OPTIONS = {
-			type: 'bar',
-			options: {
-				borderRadius: 100,
-				borderSkipped: 'middle',
-				indexAxis: 'y',
-				maintainAspectRatio: false,
-				aspectRatio: 1.3,
-				scales: {
-					x: {
-						stacked: true,
-						grid: {
-							display: false,
-							drawBorder: false,
-						},
-						ticks: {
-							display: false,
-						},
-					},
-					y: {
-						stacked: true,
-						grid: {
-							display: false,
-							drawBorder: false,
-						},
-						ticks: {
-							display: false,
-						},
-					},
-				},
-
-				plugins: {
-					title: {
-						display: false,
-					},
-					subtitle: {
-						display: false,
-					},
-					legend: {
-						display: false,
-
-						labels: {
-							filter: function ( legendItem ) {
-								return ! legendItem.text.includes( __( 'Remaining', 'jetpack-search-pkg' ) );
-							},
-						},
-					},
-				},
-			},
-		};
-
 		this.myChart = new Chart( this.canvasRef.current, {
 			...CHART_OPTIONS,
 			data: {
@@ -87,6 +87,7 @@ export class BarChart extends React.Component {
 		if ( this.props.isValid === false ) {
 			return null;
 		}
+
 		return (
 			<div className="jp-search-bar-chart">
 				<div className="jp-search-bar-chart__container">
