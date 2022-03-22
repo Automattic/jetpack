@@ -1833,7 +1833,7 @@ EOT;
 	 * Render AMP's reader mode CSS.
 	 */
 	public function render_amp_reader_mode_css() {
-		echo file_get_contents( plugin_dir_path( __FILE__ ) . 'related-posts.css' ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- this is loading a CSS file.
+		echo wp_remote_get( __DIR__ . '/related-posts.css' ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- this is loading a CSS file.
 	}
 
 	/**
