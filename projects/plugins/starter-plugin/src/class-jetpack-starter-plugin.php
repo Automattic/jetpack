@@ -81,7 +81,7 @@ class Jetpack_Starter_Plugin {
 			JETPACK_STARTER_PLUGIN_ROOT_FILE,
 			array(
 				'in_footer'  => true,
-				'textdomain' => 'no text domain is set in this in this project\'s .phpcs.dir.xml',
+				'textdomain' => 'jetpack-starter-plugin',
 			)
 		);
 		Assets::enqueue_script( 'jetpack-starter-plugin' );
