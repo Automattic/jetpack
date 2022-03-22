@@ -157,4 +157,29 @@ export default {
 	watch: {
 		clearScreen: false,
 	},
+
+	onwarn: ( warning, defaultHandler ) => {
+		// Ignore unused external imports for known problem React / ReactDOM imports.
+		if ( warning.code === 'UNUSED_EXTERNAL_IMPORT' ) {
+			const ignoredImports = [
+				'createPortal',
+				'findDOMNode',
+				'render',
+				'unmountComponentAtNode',
+				'createRef',
+				'memo',
+				'useImperativeHandle',
+				'useDebugValue',
+				'lazy',
+				'Suspense',
+			];
+
+			const unignoredWarnings = warning.names.filter( name => ! ignoredImports.includes( name ) );
+			if ( unignoredWarnings.length === 0 ) {
+				return;
+			}
+		}
+
+		defaultHandler( warning );
+	},
 };
