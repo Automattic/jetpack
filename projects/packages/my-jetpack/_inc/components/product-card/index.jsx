@@ -44,24 +44,20 @@ const ActionButton = ( {
 	status,
 	admin,
 	name,
-	onLearn,
 	onActivate,
-	onAdd,
 	onManage,
 	onFixConnection,
 	isFetching,
 	className,
 } ) => {
-	const linkClassName = classNames( styles[ 'action-link-button' ], className );
-
 	if ( ! admin ) {
 		return (
-			<Button variant="link" onClick={ onLearn } className={ linkClassName }>
+			<span className={ styles[ 'action-link-button' ] }>
 				{
 					/* translators: placeholder is product name. */
 					sprintf( __( 'Learn about %s', 'jetpack-my-jetpack' ), name )
 				}
-			</Button>
+			</span>
 		);
 	}
 
@@ -75,12 +71,12 @@ const ActionButton = ( {
 		case PRODUCT_STATUSES.NEEDS_PURCHASE:
 		case PRODUCT_STATUSES.ABSENT:
 			return (
-				<Button variant="link" onClick={ onAdd } className={ linkClassName }>
+				<span className={ styles[ 'action-link-button' ] }>
 					{
 						/* translators: placeholder is product name. */
 						sprintf( __( 'Add %s', 'jetpack-my-jetpack' ), name )
 					}
-				</Button>
+				</span>
 			);
 		case PRODUCT_STATUSES.ACTIVE:
 			return (
@@ -133,6 +129,8 @@ const ProductCard = props => {
 	const containerClassName = classNames( styles.container, {
 		[ styles.plugin_absent ]: isAbsent,
 		[ styles[ 'is-purchase-required' ] ]: isPurchaseRequired,
+		[ styles[ 'is-link' ] ]: isAbsent,
+		[ styles[ 'has-error' ] ]: isError,
 	} );
 
 	const statusClassName = classNames( styles.status, {
@@ -167,12 +165,19 @@ const ProductCard = props => {
 	/**
 	 * Calls the passed function onAdd after firing Tracks event
 	 */
-	const addHandler = useCallback( () => {
-		recordEvent( 'jetpack_myjetpack_product_card_add_click', {
-			product: slug,
-		} );
-		onAdd();
-	}, [ slug, onAdd, recordEvent ] );
+	const addHandler = useCallback(
+		ev => {
+			if ( ev?.preventDefault ) {
+				ev.preventDefault();
+			}
+
+			recordEvent( 'jetpack_myjetpack_product_card_add_click', {
+				product: slug,
+			} );
+			onAdd();
+		},
+		[ slug, onAdd, recordEvent ]
+	);
 
 	/**
 	 * Calls the passed function onManage after firing Tracks event
@@ -194,8 +199,16 @@ const ProductCard = props => {
 		onFixConnection();
 	}, [ slug, onFixConnection, recordEvent ] );
 
+	const CardWrapper = isAbsent
+		? ( { children, ...cardProps } ) => (
+				<a { ...cardProps } href="#" onClick={ addHandler }>
+					{ children }
+				</a>
+		  )
+		: ( { children, ...cardProps } ) => <div { ...cardProps }>{ children }</div>;
+
 	return (
-		<div className={ containerClassName }>
+		<CardWrapper className={ containerClassName }>
 			<div className={ styles.name }>
 				<Text variant="title-medium">{ name }</Text>
 				{ icon }
@@ -243,7 +256,7 @@ const ProductCard = props => {
 					</Text>
 				) }
 			</div>
-		</div>
+		</CardWrapper>
 	);
 };
 
@@ -258,7 +271,6 @@ ProductCard.propTypes = {
 	onFixConnection: PropTypes.func,
 	onActivate: PropTypes.func,
 	onAdd: PropTypes.func,
-	onLearn: PropTypes.func,
 	slug: PropTypes.string.isRequired,
 	showDeactivate: PropTypes.bool,
 	status: PropTypes.oneOf( [
@@ -278,7 +290,6 @@ ProductCard.defaultProps = {
 	onFixConnection: () => {},
 	onActivate: () => {},
 	onAdd: () => {},
-	onLearn: () => {},
 	showDeactivate: true,
 };
 

@@ -40,7 +40,6 @@
 		"pluralize": "8.0.0",
 		"process": "0.11.10",
 		"semver": "7.3.5",
-		"simple-git": "2.37.0",
 		"sprintf-js": "1.1.2",
 		"yargs": "16.2.0"
 	},
