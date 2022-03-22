@@ -1095,6 +1095,8 @@ EOT;
 	/**
 	 * Takes a range and coalesces it into a month interval bracketed by a time as determined by the blog_id to enhance caching.
 	 *
+	 * @todo Rewrite this function with proper date handling rather than `strtotime()` and `date()`.
+	 *
 	 * @param array $date_range - the date range.
 	 * @return array
 	 */
