@@ -595,7 +595,16 @@ if ( ! class_exists( 'Featured_Content' ) && isset( $GLOBALS['pagenow'] ) && 'pl
 		 * Renders all form fields on the Settings -> Reading screen.
 		 */
 		public static function render_form() {
-			printf( __( 'The settings for Featured Content have <a href="%s">moved to Appearance &rarr; Customize</a>.', 'jetpack' ), admin_url( 'customize.php?#accordion-section-featured_content' ) );
+			printf(
+				wp_kses(
+					/* translators: %s: Link to the Featured Content settings in the Customizer. */
+					__( 'The settings for Featured Content have <a href="%s">moved to Appearance &rarr; Customize</a>.', 'jetpack' ),
+					array(
+						'a' => array( 'href' => array() ),
+					)
+				),
+				esc_url( admin_url( 'customize.php?#accordion-section-featured_content' ) )
+			);
 		}
 
 		/**
