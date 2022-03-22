@@ -102,7 +102,10 @@ export default {
 		} ),
 		commonjs(),
 
-		replace( { 'process.env.NODE_ENV': JSON.stringify( 'production' ) } ),
+		replace( {
+			'process.env.NODE_ENV': JSON.stringify( 'production' ),
+			preventAssignment: false,
+		} ),
 
 		typescript( {
 			sourceMap: ! production,
