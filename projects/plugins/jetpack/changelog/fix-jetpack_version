@@ -1,4 +1,0 @@
-Significance: patch
-Type: bugfix
-
-Swap JETPACK_VERSION for the correct JETPACK__VERSION

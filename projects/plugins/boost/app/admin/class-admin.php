@@ -113,7 +113,7 @@ class Admin {
 		wp_register_script(
 			$admin_js_handle,
 			plugins_url( $internal_path . 'jetpack-boost.js', JETPACK_BOOST_PATH ),
-			array(),
+			array( 'wp-i18n', 'wp-components' ),
 			JETPACK_BOOST_VERSION,
 			true
 		);
