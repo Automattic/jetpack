@@ -74,6 +74,9 @@ export class BarChart extends React.Component {
 				datasets: this.props.data.map( d => d.data ),
 			},
 		} );
+
+		// Force re-render after mounting chart to ensure correct value for this.getLegendItems().
+		this.forceUpdate();
 	}
 
 	getLegendItems() {
