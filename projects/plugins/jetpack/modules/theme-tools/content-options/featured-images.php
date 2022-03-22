@@ -1,6 +1,16 @@
 <?php
 /**
+ * Theme Tools: functions for Featured Images.
+ *
+ * @package automattic/jetpack
+ */
+
+/**
  * The function to prevent for Featured Images to be displayed in a theme.
+ *
+ * @param array  $metadata Post metadata.
+ * @param int    $object_id Post ID.
+ * @param string $meta_key Metadata key.
  */
 function jetpack_featured_images_remove_post_thumbnail( $metadata, $object_id, $meta_key, $single ) {
 	$opts = jetpack_featured_images_get_settings();
