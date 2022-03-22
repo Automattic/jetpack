@@ -907,12 +907,9 @@ importers:
       rollup-plugin-node-builtins: 2.1.2
       rollup-plugin-node-globals: 1.4.0
       rollup-plugin-postcss: 4.0.2
-      rollup-plugin-scss: 3.0.0
       rollup-plugin-svelte: 7.1.0
       rollup-plugin-svelte-svg: 0.2.3
       rollup-plugin-terser: 7.0.2
-      sass: 1.39.0
-      sass-loader: 12.4.0
       svelte: 3.42.4
       svelte-navigator: ^3.1.5
       svelte-preprocess: 4.9.2
@@ -958,14 +955,11 @@ importers:
       rollup-plugin-node-builtins: 2.1.2
       rollup-plugin-node-globals: 1.4.0
       rollup-plugin-postcss: 4.0.2_postcss@8.4.8
-      rollup-plugin-scss: 3.0.0
       rollup-plugin-svelte: 7.1.0_rollup@2.56.3+svelte@3.42.4
       rollup-plugin-svelte-svg: 0.2.3_svelte@3.42.4
       rollup-plugin-terser: 7.0.2_rollup@2.56.3
-      sass: 1.39.0
-      sass-loader: 12.4.0_sass@1.39.0+webpack@5.65.0
       svelte: 3.42.4
-      svelte-preprocess: 4.9.2_76287a2461958824a3af6c55ab458b68
+      svelte-preprocess: 4.9.2_08b55e1fade7627170f4889ba8d9869c
       tslib: 2.3.1
       typescript: 4.3.5
       webpack: 5.65.0
@@ -21405,12 +21399,6 @@ packages:
       - ts-node
     dev: true
 
-  /rollup-plugin-scss/3.0.0:
-    resolution: {integrity: sha512-UldNaNHEon2a5IusHvj/Nnwc7q13YDvbFxz5pfNbHBNStxGoUNyM+0XwAA/UafJ1u8XRPGdBMrhWFthrrGZdWQ==}
-    dependencies:
-      rollup-pluginutils: 2.8.2
-    dev: true
-
   /rollup-plugin-svelte-svg/0.2.3_svelte@3.42.4:
     resolution: {integrity: sha512-WH2KqihgVbcJT/PrjiJ/ipctrGueRdOLaaEuAIbXYqfsEzNb9krOVLyc5TL7to3cEKL6DiAa8IEe7IL1oqVolg==}
     peerDependencies:
@@ -21599,28 +21587,6 @@ packages:
       webpack: 5.65.0_webpack-cli@4.9.1
     dev: true
 
-  /sass-loader/12.4.0_sass@1.39.0+webpack@5.65.0:
-    resolution: {integrity: sha512-7xN+8khDIzym1oL9XyS6zP6Ges+Bo2B2xbPrjdMHEYyV3AQYhd/wXeru++3ODHF0zMjYmVadblSKrPrjEkL8mg==}
-    engines: {node: '>= 12.13.0'}
-    peerDependencies:
-      fibers: '>= 3.1.0'
-      node-sass: ^4.0.0 || ^5.0.0 || ^6.0.0 || ^7.0.0
-      sass: ^1.3.0
-      webpack: ^5.0.0
-    peerDependenciesMeta:
-      fibers:
-        optional: true
-      node-sass:
-        optional: true
-      sass:
-        optional: true
-    dependencies:
-      klona: 2.0.5
-      neo-async: 2.6.2
-      sass: 1.39.0
-      webpack: 5.65.0
-    dev: true
-
   /sass-loader/12.4.0_sass@1.43.3+webpack@5.65.0:
     resolution: {integrity: sha512-7xN+8khDIzym1oL9XyS6zP6Ges+Bo2B2xbPrjdMHEYyV3AQYhd/wXeru++3ODHF0zMjYmVadblSKrPrjEkL8mg==}
     engines: {node: '>= 12.13.0'}
@@ -21671,14 +21637,6 @@ packages:
     dependencies:
       chokidar: 3.5.3
     dev: false
-
-  /sass/1.39.0:
-    resolution: {integrity: sha512-F4o+RhJkNOIG0b6QudYU8c78ZADKZjKDk5cyrf8XTKWfrgbtyVVXImFstJrc+1pkQDCggyidIOytq6gS4gCCZg==}
-    engines: {node: '>=8.9.0'}
-    hasBin: true
-    dependencies:
-      chokidar: 3.5.3
-    dev: true
 
   /sass/1.43.3:
     resolution: {integrity: sha512-BJnLngqWpMeS65UvlYYEuCb3/fLxDxhHtOB/gWPxs6NKrslTxGt3ZxwIvOe/0Jm4tWwM/+tIpE3wj4dLEhPDeQ==}
@@ -22680,7 +22638,7 @@ packages:
       - typescript
     dev: false
 
-  /svelte-preprocess/4.9.2_76287a2461958824a3af6c55ab458b68:
+  /svelte-preprocess/4.9.2_08b55e1fade7627170f4889ba8d9869c:
     resolution: {integrity: sha512-Eu/09bEpcBD8a9pGxcILEAZssXifnWoi5ad5GgUAgoT4alblNikOIpKrWDFkepMqjgioXciWbIZOROoTX3ZLdA==}
     engines: {node: '>= 9.11.2'}
     requiresBuild: true
@@ -22727,7 +22685,6 @@ packages:
       detect-indent: 6.1.0
       magic-string: 0.25.9
       postcss: 8.4.8
-      sass: 1.39.0
       sorcery: 0.10.0
       strip-indent: 3.0.0
       svelte: 3.42.4
