@@ -23,8 +23,8 @@ class Functions {
 	 * @return array
 	 */
 	public static function get_modules() {
-		if ( defined( 'JETPACK_PROTECT_PLUGIN_DIR' ) ) {
-			require_once JETPACK_PROTECT_PLUGIN_DIR . 'class.jetpack-admin.php';
+		if ( defined( 'JETPACK__PLUGIN_DIR' ) ) {
+			require_once JETPACK__PLUGIN_DIR . 'class.jetpack-admin.php';
 
 			return \Jetpack_Admin::init()->get_modules();
 		}
