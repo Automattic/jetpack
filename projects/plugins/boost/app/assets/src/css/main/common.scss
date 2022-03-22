@@ -1,0 +1,14 @@
+@for $i from 1 through 3 {
+  .mt-#{$i} {
+	margin-top: $i * $spacing-unit;
+  }
+
+  .mb-#{$i} {
+	margin-bottom: $i * $spacing-unit;
+  }
+
+  .my-#{$i} {
+	margin-top: $i * $spacing-unit;
+	margin-bottom: $i * $spacing-unit;
+  }
+}

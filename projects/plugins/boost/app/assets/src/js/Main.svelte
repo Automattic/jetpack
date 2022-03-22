@@ -17,7 +17,7 @@
 <Router history={routerHistory}>
 	<Route path="upgrade" component={BenefitsInterstitial} />
 	<Route>
-		<div id="jb-settings" class="jb-settings">
+		<div id="jb-settings" class="jb-settings jb-settings--main">
 			<div class="jb-container">
 				<Header />
 			</div>

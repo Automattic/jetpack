@@ -7,6 +7,10 @@
 		padding: 24px;
 	}
 
+  	&--main {
+	  background-color: $primary-white;
+	}
+
 	min-height: calc(100vh - 60px);
 	display: flex;
 	flex-direction: column;

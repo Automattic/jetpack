@@ -1,0 +1,16 @@
+.jb-card {
+  background: #FFFFFF url("../src/images/color-shift.svg") no-repeat top right;
+  border: 1px solid #DCDCDE;
+  border-radius: $border-radius;
+
+  & &__content {
+	padding: 64px;
+	width: 50%; /* TODO: Remove on final design */
+	color: $primary-black;
+  }
+
+  & &__summary {
+	font-size: 1.2rem;
+	font-weight: 500;
+  }
+}
