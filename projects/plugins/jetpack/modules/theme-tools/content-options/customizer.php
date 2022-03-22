@@ -438,7 +438,7 @@ function jetpack_post_thumbnail_supports() {
  * @return boolean|string
  */
 function jetpack_content_options_sanitize_checkbox( $input ) {
-	return ( 1 == $input ) ? 1 : '';
+	return ( 1 === (int) $input ) ? 1 : '';
 }
 
 /**
