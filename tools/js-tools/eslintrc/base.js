@@ -183,8 +183,7 @@ module.exports = {
 
 		// Disabled pending #16099.
 		'inclusive-language/use-inclusive-words': 0,
-		// suppress errors for missing 'import React' in files
-		'react/react-in-jsx-scope': 'off',
+		// Misc
 		'no-use-before-define': 'off',
 	},
 };
