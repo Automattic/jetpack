@@ -1325,7 +1325,7 @@ EOT;
 			 *
 			 * @since 3.0.0
 			 *
-			 * @param string $this->_to_utf8( $this->_generate_related_post_context( $post->ID ) ) Context displayed below each related post.
+			 * @param string $this->to_utf8( $this->generate_related_post_context( $post->ID ) ) Context displayed below each related post.
 			 * @param int $post_id Post ID of the post for which we are retrieving Related Posts.
 			 */
 			'context'  => apply_filters(
