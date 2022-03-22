@@ -168,7 +168,7 @@ export class Composing extends React.Component {
 					>
 						<p className="jp-settings-card__blocks-description">
 							{ __(
-								'Jetpack blocks give you the power to deliver quality content that hook website visitors without needing to hire a developer or learn a single line of code.',
+								'Jetpack blocks give you the power to deliver quality content that hooks website visitors without needing to hire a developer or learn a single line of code.',
 								'jetpack'
 							) }
 						</p>
