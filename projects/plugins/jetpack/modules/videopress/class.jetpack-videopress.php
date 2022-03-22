@@ -11,7 +11,7 @@ class Jetpack_VideoPress {
 	public $module = 'videopress';
 
 	/** @var int */
-	public $version = 5;
+	public $version = 6;
 
 	/**
 	 * Singleton
@@ -66,14 +66,15 @@ class Jetpack_VideoPress {
 				'modules/videopress/js/videopress-token-bridge.js',
 				'modules/videopress/js/videopress-token-bridge.js'
 			);
-				// in JavaScript, object properties are accessed as ajax_object.ajax_url, ajax_object.we_value.
+
 			wp_enqueue_script(
 				'media-video-widget-extensions',
 				$bridge_url,
 				array(),
-				$this->version . 2 . uniqid(),
+				$this->version,
 				false
 			);
+
 			wp_localize_script(
 				'media-video-widget-extensions',
 				'videopressAjax',
