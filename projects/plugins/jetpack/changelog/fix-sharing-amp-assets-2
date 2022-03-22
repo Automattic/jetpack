@@ -1,0 +1,4 @@
+Significance: patch
+Type: compat
+
+Sharing: avoid warnings when the feature is not active on a site that uses the AMP plugin.

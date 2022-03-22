@@ -1,0 +1,4 @@
+Significance: patch
+Type: changed
+
+Enable syncing of dedicated_sync_enabled Sync setting
