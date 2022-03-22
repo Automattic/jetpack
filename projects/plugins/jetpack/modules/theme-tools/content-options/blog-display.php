@@ -54,7 +54,7 @@ function jetpack_blog_display_custom_excerpt( $content = '' ) {
 	if ( empty( $post->post_excerpt ) ) {
 		$text = strip_shortcodes( $post->post_content );
 		$text = str_replace( ']]>', ']]&gt;', $text );
-		$text = strip_tags( $text );
+		$text = wp_strip_all_tags( $text );
 		/** This filter is documented in wp-includes/formatting.php */
 		$excerpt_length = apply_filters( 'excerpt_length', 55 );
 		/** This filter is documented in wp-includes/formatting.php */
