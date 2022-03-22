@@ -5,7 +5,7 @@ import React, { useCallback } from 'react';
 import PropTypes from 'prop-types';
 import classNames from 'classnames';
 import { __, sprintf } from '@wordpress/i18n';
-import { ButtonGroup, Button, DropdownMenu } from '@wordpress/components';
+import { Button } from '@wordpress/components';
 import { Text } from '@automattic/jetpack-components';
 
 /**
@@ -28,17 +28,6 @@ const PRODUCT_STATUSES_LABELS = {
 	[ PRODUCT_STATUSES.NEEDS_PURCHASE ]: __( 'Inactive', 'jetpack-my-jetpack' ),
 	[ PRODUCT_STATUSES.ERROR ]: __( 'Error', 'jetpack-my-jetpack' ),
 };
-
-const DownIcon = () => (
-	<svg width="15" height="9" fill="none" xmlns="http://www.w3.org/2000/svg" viewBox="10 9 4 7">
-		<path
-			fillRule="evenodd"
-			clipRule="evenodd"
-			d="m18.004 10.555-6.005 5.459-6.004-5.459 1.009-1.11 4.995 4.542 4.996-4.542 1.009 1.11Z"
-			fill="#fff"
-		/>
-	</svg>
-);
 
 const ActionButton = ( {
 	status,
@@ -80,7 +69,7 @@ const ActionButton = ( {
 			);
 		case PRODUCT_STATUSES.ACTIVE:
 			return (
-				<Button { ...buttonState } onClick={ onManage }>
+				<Button { ...buttonState } variant="secondary" onClick={ onManage }>
 					{ __( 'Manage', 'jetpack-my-jetpack' ) }
 				</Button>
 			);
@@ -105,18 +94,15 @@ const ActionButton = ( {
 const ProductCard = props => {
 	const {
 		name,
-		admin,
 		description,
 		icon,
 		status,
 		onActivate,
 		onAdd,
-		onDeactivate,
 		onFixConnection,
 		onManage,
 		isFetching,
 		slug,
-		showDeactivate,
 	} = props;
 	const isActive = status === PRODUCT_STATUSES.ACTIVE;
 	const isError = status === PRODUCT_STATUSES.ERROR;
@@ -124,7 +110,6 @@ const ProductCard = props => {
 	const isAbsent = status === PRODUCT_STATUSES.ABSENT || status === PRODUCT_STATUSES.NEEDS_PURCHASE;
 	const isPurchaseRequired = status === PRODUCT_STATUSES.NEEDS_PURCHASE;
 	const flagLabel = PRODUCT_STATUSES_LABELS[ status ];
-	const canDeactivate = ( isActive || isError ) && admin && showDeactivate;
 
 	const containerClassName = classNames( styles.container, {
 		[ styles.plugin_absent ]: isAbsent,
@@ -141,16 +126,6 @@ const ProductCard = props => {
 	} );
 
 	const { recordEvent } = useAnalytics();
-
-	/**
-	 * Calls the passed function onDeactivate after firing Tracks event
-	 */
-	const deactivateHandler = useCallback( () => {
-		recordEvent( 'jetpack_myjetpack_product_card_deactivate_click', {
-			product: slug,
-		} );
-		onDeactivate();
-	}, [ slug, onDeactivate, recordEvent ] );
 
 	/**
 	 * Calls the passed function onActivate after firing Tracks event
@@ -217,39 +192,13 @@ const ProductCard = props => {
 				{ description }
 			</Text>
 			<div className={ styles.actions }>
-				{ canDeactivate ? (
-					<ButtonGroup className={ styles.group }>
-						<ActionButton
-							{ ...props }
-							onActivate={ activateHandler }
-							onFixConnection={ fixConnectionHandler }
-							onManage={ manageHandler }
-							className={ styles.button }
-						/>
-						<DropdownMenu
-							className={ styles.dropdown }
-							toggleProps={ { isPrimary: true, disabled: isFetching, className: styles.button } }
-							popoverProps={ { noArrow: false } }
-							icon={ DownIcon }
-							disableOpenOnArrowDown={ true }
-							controls={ [
-								{
-									title: __( 'Deactivate', 'jetpack-my-jetpack' ),
-									icon: null,
-									onClick: deactivateHandler,
-								},
-							] }
-						/>
-					</ButtonGroup>
-				) : (
-					<ActionButton
-						{ ...props }
-						onFixConnection={ fixConnectionHandler }
-						onActivate={ activateHandler }
-						onAdd={ addHandler }
-						className={ styles.button }
-					/>
-				) }
+				<ActionButton
+					{ ...props }
+					onActivate={ activateHandler }
+					onFixConnection={ fixConnectionHandler }
+					onManage={ manageHandler }
+					className={ styles.button }
+				/>
 				{ ! isAbsent && (
 					<Text variant="label" className={ statusClassName }>
 						{ flagLabel }
@@ -266,7 +215,6 @@ ProductCard.propTypes = {
 	icon: PropTypes.element,
 	admin: PropTypes.bool.isRequired,
 	isFetching: PropTypes.bool,
-	onDeactivate: PropTypes.func,
 	onManage: PropTypes.func,
 	onFixConnection: PropTypes.func,
 	onActivate: PropTypes.func,
@@ -285,7 +233,6 @@ ProductCard.propTypes = {
 ProductCard.defaultProps = {
 	icon: null,
 	isFetching: false,
-	onDeactivate: () => {},
 	onManage: () => {},
 	onFixConnection: () => {},
 	onActivate: () => {},
