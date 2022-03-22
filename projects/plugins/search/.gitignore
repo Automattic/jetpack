@@ -1,5 +1,2 @@
 vendor/
 node_modules/
-wordpress/
-.cache/
-build/

@@ -39,7 +39,6 @@ import { isPluginInstalled } from 'state/site/plugins';
 import { getVaultPressData } from 'state/at-a-glance';
 import { hasConnectedOwner, isOfflineMode, connectUser } from 'state/connection';
 import { getPartnerCoupon, showBackups } from 'state/initial-state';
-import BackupUpgrade from './backup-upgrade';
 
 /**
  * Displays a card for Backups based on the props given.
@@ -149,22 +148,19 @@ class DashBackups extends Component {
 			}
 
 			return (
-				<>
-					<BackupUpgrade />
-					<JetpackBanner
-						callToAction={ __( 'Upgrade', 'jetpack' ) }
-						title={ __(
-							'Never worry about losing your site – automatic backups keep your content safe.',
-							'jetpack'
-						) }
-						disableHref="false"
-						href={ upgradeUrl }
-						eventFeature="backups"
-						path="dashboard"
-						plan={ getJetpackProductUpsellByFeature( FEATURE_SITE_BACKUPS_JETPACK ) }
-						trackBannerDisplay={ trackUpgradeButtonView }
-					/>
-				</>
+				<JetpackBanner
+					callToAction={ __( 'Upgrade', 'jetpack' ) }
+					title={ __(
+						'Never worry about losing your site – automatic backups keep your content safe.',
+						'jetpack'
+					) }
+					disableHref="false"
+					href={ upgradeUrl }
+					eventFeature="backups"
+					path="dashboard"
+					plan={ getJetpackProductUpsellByFeature( FEATURE_SITE_BACKUPS_JETPACK ) }
+					trackBannerDisplay={ trackUpgradeButtonView }
+				/>
 			);
 		}
 

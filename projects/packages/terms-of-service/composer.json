@@ -1,0 +1,38 @@
+{
+	"name": "automattic/jetpack-terms-of-service",
+	"description": "Everything need to manage the terms of service state. This is a deprecated package, use automattic/jetpack-connection.",
+	"type": "jetpack-library",
+	"license": "GPL-2.0-or-later",
+	"require": {
+		"automattic/jetpack-connection": "^1.37"
+	},
+	"require-dev": {
+		"automattic/jetpack-changelogger": "^3.0"
+	},
+	"autoload": {
+		"classmap": []
+	},
+	"scripts": {},
+	"repositories": [
+		{
+			"type": "path",
+			"url": "../*",
+			"options": {
+				"monorepo": true
+			}
+		}
+	],
+	"minimum-stability": "dev",
+	"prefer-stable": true,
+	"extra": {
+		"autotagger": true,
+		"mirror-repo": "Automattic/jetpack-terms-of-service",
+		"changelogger": {
+			"link-template": "https://github.com/Automattic/jetpack-terms-of-service/compare/v${old}...v${new}"
+		},
+		"branch-alias": {
+			"dev-master": "1.10.x-dev"
+		}
+	},
+	"abandoned": "automattic/jetpack-connection"
+}

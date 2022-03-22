@@ -17,6 +17,8 @@
 use Automattic\Jetpack\Search\Classic_Search;
 use Automattic\Jetpack\Search\Helper as Search_Helper;
 
+Automattic\Jetpack\Search\Jetpack_Initializer::initialize();
+
 /**
  * These are old legacy class names that were deprecated due to the move to packages.
  *

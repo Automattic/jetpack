@@ -57,7 +57,7 @@ _If_ your search component should only be displayed dynamically, you can use `th
 		} );
 
 		return (
-			<div className={ containerClass } >
+			<div class={ containerClass } >
 				<Search onSearch={ this.doSearch } initialValue={ this.props.search } delaySearch={ true } ref="url-search"/>
 			</div>
 		);

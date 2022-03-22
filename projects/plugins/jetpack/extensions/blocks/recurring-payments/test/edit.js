@@ -47,7 +47,6 @@ describe( 'MembershipsButtonEdit', () => {
 		autosaveAndRedirect,
 		clientId: 1,
 		postId: 1,
-		postLink: new URL( 'https://anyposturl.com/' ),
 		noticeList: [],
 		isSelected: true,
 		context: {},
@@ -124,28 +123,14 @@ describe( 'MembershipsButtonEdit', () => {
 
 	describe( 'when a plan has been selected', () => {
 		test( 'the Payment Plan form does not display', async () => {
-			const props = {
-				...defaultProps,
-				attributes: {
-					planId: 1,
-					uniqueId: 'recurring-payments-1',
-					url: 'https://anyposturl.com/?recurring_payments=1',
-				},
-			};
+			const props = { ...defaultProps, attributes: { planId: 1 } };
 			render( <MembershipsButtonEdit { ...props } /> );
 
 			await waitFor( () => expect( screen.queryByText( 'Payments' ) ).not.toBeInTheDocument() );
 		} );
 
 		test( 'the Upgrade nudge does not display', async () => {
-			const props = {
-				...defaultProps,
-				attributes: {
-					planId: 1,
-					uniqueId: 'recurring-payments-1',
-					url: 'https://anyposturl.com/?recurring_payments=1',
-				},
-			};
+			const props = { ...defaultProps, attributes: { planId: 1 } };
 			render( <MembershipsButtonEdit { ...props } /> );
 
 			await waitFor( () =>
@@ -237,21 +222,9 @@ describe( 'MembershipsButtonEdit', () => {
 			const { rerender } = render( <MembershipsButtonEdit { ...defaultProps } /> );
 
 			await waitFor( () => userEvent.click( screen.getByText( '$10.00 / month' ) ) );
-			expect( setAttributes ).toHaveBeenCalledWith( {
-				planId: 1,
-				uniqueId: 'recurring-payments-1',
-				url: 'https://anyposturl.com/?recurring_payments=1',
-			} );
+			expect( setAttributes ).toHaveBeenCalledWith( { planId: 1 } );
 
-			const props = {
-				...defaultProps,
-				attributes: {
-					...defaultAttributes,
-					planId: 1,
-					uniqueId: 'recurring-payments-1',
-					url: 'https://anyposturl.com/?recurring_payments=1',
-				},
-			};
+			const props = { ...defaultProps, attributes: { ...defaultAttributes, planId: 1 } };
 			rerender( <MembershipsButtonEdit { ...props } /> );
 
 			expect( screen.queryByText( 'Payments' ) ).not.toBeInTheDocument();
@@ -352,23 +325,9 @@ describe( 'MembershipsButtonEdit', () => {
 
 				userEvent.click( screen.getByText( 'Add this payment plan' ) );
 
-				await waitFor( () =>
-					expect( setAttributes ).toHaveBeenCalledWith( {
-						planId: 1,
-						uniqueId: 'recurring-payments-1',
-						url: 'https://anyposturl.com/?recurring_payments=1',
-					} )
-				);
+				await waitFor( () => expect( setAttributes ).toHaveBeenCalledWith( { planId: 1 } ) );
 
-				const props = {
-					...defaultProps,
-					attributes: {
-						...defaultAttributes,
-						planId: 1,
-						uniqueId: 'recurring-payments-1',
-						url: 'https://anyposturl.com/?recurring_payments=1',
-					},
-				};
+				const props = { ...defaultProps, attributes: { ...defaultAttributes, planId: 1 } };
 				rerender( <MembershipsButtonEdit { ...props } /> );
 
 				expect( screen.queryByText( 'Payments' ) ).not.toBeInTheDocument();

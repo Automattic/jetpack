@@ -9,7 +9,7 @@
 	import Header from './sections/Header.svelte';
 	import { connection } from './stores/connection';
 	import config from './stores/config';
-	import { Router, Route } from './utils/router';
+	import { Router, Route } from 'svelte-navigator';
 
 	import routerHistory from './utils/router-history';
 </script>

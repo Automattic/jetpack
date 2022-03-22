@@ -13,11 +13,11 @@
             "dist": {
                 "type": "path",
                 "url": "projects/packages/ignorefile",
-                "reference": "b69a4e0a795222b6ca485926daf15c9bf7075955"
+                "reference": "ee085e0dad927e7eb17af98032904a28239faaf4"
             },
             "require-dev": {
                 "automattic/jetpack-changelogger": "^3.0",
-                "wikimedia/at-ease": "^1.2 || ^2.0",
+                "wikimedia/at-ease": "^1.2 | ^2.0",
                 "yoast/phpunit-polyfills": "1.0.3"
             },
             "type": "library",

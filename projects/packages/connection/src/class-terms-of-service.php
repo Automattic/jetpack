@@ -2,7 +2,7 @@
 /**
  * A Terms of Service class for Jetpack.
  *
- * @package automattic/jetpack-connection
+ * @package automattic/jetpack-terms-of-service
  */
 
 namespace Automattic\Jetpack;

@@ -70,11 +70,6 @@ export default class SearchHomepage extends WpPage {
 		);
 	}
 
-	async waitForInstantSearchReady() {
-		await this.waitForElementToBeAttached( '.jetpack-instant-search' );
-		return await this.waitForTimeout( 500 );
-	}
-
 	async isSortingLinkSelected( sorting = 'relevance' ) {
 		const sortingInputSelector = `.is-selected.jetpack-instant-search__search-sort-option[data-value="${ sorting }"]`;
 		return this.isElementVisible( sortingInputSelector );
@@ -82,7 +77,7 @@ export default class SearchHomepage extends WpPage {
 
 	async isOverlayVisible() {
 		const overlaySelector = '.jetpack-instant-search__overlay';
-		await this.waitForTimeout( 500 );
+		this.waitForTimeout( 500 );
 		const classes = await this.page.$eval( overlaySelector, e => e.getAttribute( 'class' ) );
 		return ! classes.includes( 'is-hidden' );
 	}

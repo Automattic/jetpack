@@ -3,6 +3,7 @@
  */
 import { getCurrencyDefaults } from '@automattic/format-currency';
 import { trimEnd } from 'lodash';
+import { select } from '@wordpress/data';
 
 /**
  * Internal dependencies
@@ -42,9 +43,7 @@ export const formatPrice = ( price = 0, currency, withSymbol = true ) => {
 	if ( ! window.Intl || 'function' !== typeof Intl.NumberFormat ) {
 		return formatPriceFallback( price, currency, withSymbol );
 	}
-
-	const siteLocale = window?.Jetpack_Editor_Initial_State?.siteLocale ?? 'en-US';
-
+	const { siteLocale } = select( 'core/block-editor' ).getSettings();
 	const tryLocales = [ siteLocale, getNavigatorLanguage(), 'en-US' ];
 
 	let formatOptions = {};

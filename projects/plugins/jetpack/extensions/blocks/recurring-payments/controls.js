@@ -2,15 +2,22 @@
  * External dependencies
  */
 import { __ } from '@wordpress/i18n';
-import { ExternalLink, PanelBody, SelectControl } from '@wordpress/components';
+import {
+	ExternalLink,
+	PanelBody,
+	ToolbarButton,
+	ToolbarGroup,
+	SelectControl,
+} from '@wordpress/components';
 import { Fragment } from '@wordpress/element';
 import { getSiteFragment } from '@automattic/jetpack-shared-extension-utils';
 
 /**
  * Internal dependencies
  */
+import { flashIcon } from '../../shared/icons';
 import { formatProductAmount } from './util';
-import StripeConnectToolbarButton from '../../shared/components/stripe-connect-toolbar-button';
+import useAutosaveAndRedirect from '../../shared/use-autosave-and-redirect/index';
 
 export function PanelControls( { attributes: { planId }, products, setMembershipAmount } ) {
 	return (
@@ -36,9 +43,21 @@ export function PanelControls( { attributes: { planId }, products, setMembership
 	);
 }
 
-export function ToolbarControls( { connected, connectUrl, hasUpgradeNudge, shouldUpgrade } ) {
-	if ( hasUpgradeNudge || shouldUpgrade || connected ) {
-		return null;
-	}
-	return <StripeConnectToolbarButton blockName="recurring-payments" connectUrl={ connectUrl } />;
+export function ToolbarControls( { connected, connectURL, hasUpgradeNudge, shouldUpgrade } ) {
+	const { autosaveAndRedirect } = useAutosaveAndRedirect( connectURL );
+	return (
+		<Fragment>
+			{ ! hasUpgradeNudge && ! shouldUpgrade && ! connected && (
+				<ToolbarGroup>
+					<ToolbarButton
+						icon={ flashIcon }
+						onClick={ autosaveAndRedirect }
+						className="connect-stripe components-tab-button"
+					>
+						{ __( 'Connect Stripe', 'jetpack' ) }
+					</ToolbarButton>
+				</ToolbarGroup>
+			) }
+		</Fragment>
+	);
 }

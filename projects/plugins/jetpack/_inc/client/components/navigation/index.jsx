@@ -18,10 +18,8 @@ import NavTabs from 'components/section-nav/tabs';
 import NavItem from 'components/section-nav/item';
 import SectionNav from 'components/section-nav';
 import {
-	getSiteAdminUrl,
 	getSiteRawUrl,
 	showRecommendations,
-	showMyJetpack,
 	userCanManageModules as _userCanManageModules,
 	userCanViewStats as _userCanViewStats,
 	getPurchaseToken,
@@ -49,10 +47,6 @@ export class Navigation extends React.Component {
 
 	trackRecommendationsClick = () => {
 		this.trackNavClick( 'recommendations' );
-	};
-
-	trackMyJetpackClick = () => {
-		this.trackNavClick( 'my-jetpack' );
 	};
 
 	render() {
@@ -107,14 +101,6 @@ export class Navigation extends React.Component {
 							{ _x( 'Recommendations', 'Navigation item.', 'jetpack' ) }
 						</NavItem>
 					) }
-					{ this.props.showMyJetpack && (
-						<NavItem
-							path={ this.props.adminUrl + 'admin.php?page=my-jetpack' }
-							onClick={ this.trackMyJetpackClick }
-						>
-							{ _x( 'My Jetpack', 'Navigation item.', 'jetpack' ) }
-						</NavItem>
-					) }
 				</NavTabs>
 			);
 		} else {
@@ -154,8 +140,6 @@ export default connect( state => {
 		hasConnectedOwner: hasConnectedOwner( state ),
 		showRecommendations: showRecommendations( state ),
 		siteUrl: getSiteRawUrl( state ),
-		adminUrl: getSiteAdminUrl( state ),
 		purchaseToken: getPurchaseToken( state ),
-		showMyJetpack: showMyJetpack( state ),
 	};
 } )( withRouter( Navigation ) );

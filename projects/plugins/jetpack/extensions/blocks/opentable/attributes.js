@@ -2,6 +2,7 @@
  * External dependencies
  */
 import { __ } from '@wordpress/i18n';
+import { select } from '@wordpress/data';
 import { compact, isEmpty } from 'lodash';
 
 const optionValues = options => options.map( option => option.value );
@@ -32,8 +33,7 @@ export const getStyleOptions = rid =>
 
 export const getStyleValues = rid => getStyleOptions( rid ).map( option => option.name );
 
-const siteLocale = window?.Jetpack_Editor_Initial_State?.siteLocale ?? 'en-US';
-
+const { siteLocale } = select( 'core/block-editor' ).getSettings();
 const defaultLanguage =
 	! isEmpty( siteLocale ) && languageValues.includes( siteLocale ) ? siteLocale : 'en-US';
 

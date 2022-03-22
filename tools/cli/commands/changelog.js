@@ -460,7 +460,6 @@ async function changeloggerSquash( argv, file ) {
 			console.log( 'Updating readme...' );
 			await runCommand( 'tools/plugin-changelog-to-readme.sh', [ `${ argv.project }` ] );
 		}
-		console.log( chalk.green( 'Squash complete!' ) );
 	} finally {
 		if ( changelogContents !== null ) {
 			fs.writeFileSync( `projects/${ argv.project }/CHANGELOG.md`, changelogContents );

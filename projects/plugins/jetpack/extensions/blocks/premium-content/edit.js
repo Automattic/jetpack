@@ -2,7 +2,7 @@
  * WordPress dependencies
  */
 import { useEffect, useState, useRef } from '@wordpress/element';
-import { Disabled, Placeholder, Spinner } from '@wordpress/components';
+import { Disabled, Placeholder, Spinner, ToolbarButton } from '@wordpress/components';
 import { BlockControls } from '@wordpress/block-editor';
 import { __, sprintf } from '@wordpress/i18n';
 import { compose, useViewportMatch } from '@wordpress/compose';
@@ -18,12 +18,13 @@ import Blocks from './_inc/blocks';
 import Controls from './_inc/controls';
 import Inspector from './_inc/inspector';
 import Context from './_inc/context';
+import { flashIcon } from '../../shared/icons';
 import { isPriceValid, minimumTransactionAmountForCurrency } from '../../shared/currencies';
 import getConnectUrl from '../../shared/get-connect-url';
 import './editor.scss';
+import useAutosaveAndRedirect from '../../shared/use-autosave-and-redirect';
 import ViewSelector from './_inc/view-selector';
 import InvalidSubscriptionWarning from './_inc/invalid-subscription-warning';
-import StripeConnectToolbarButton from '../../shared/components/stripe-connect-toolbar-button';
 
 /**
  * @typedef { import('./plan').Plan } Plan
@@ -337,6 +338,8 @@ function Edit( props ) {
 	const shouldShowConnectButton = () =>
 		! shouldUpgrade && apiState !== API_STATE_CONNECTED && connectURL;
 
+	const { autosaveAndRedirect } = useAutosaveAndRedirect( connectURL );
+
 	const isSmallViewport = useViewportMatch( 'medium', '<' );
 
 	if ( apiState === API_STATE_LOADING && ! isPreview ) {
@@ -357,7 +360,13 @@ function Edit( props ) {
 		<>
 			{ shouldShowConnectButton() && (
 				<BlockControls group="block">
-					<StripeConnectToolbarButton blockName="premium-content" connectUrl={ connectURL } />
+					<ToolbarButton
+						icon={ flashIcon }
+						onClick={ autosaveAndRedirect }
+						className="connect-stripe components-tab-button"
+					>
+						{ __( 'Connect Stripe', 'jetpack' ) }
+					</ToolbarButton>
 				</BlockControls>
 			) }
 

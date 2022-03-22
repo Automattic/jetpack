@@ -6,7 +6,6 @@ import PropTypes from 'prop-types';
 import classNames from 'classnames';
 import { __, sprintf } from '@wordpress/i18n';
 import { ButtonGroup, Button, DropdownMenu } from '@wordpress/components';
-import { Text } from '@automattic/jetpack-components';
 
 /**
  * Internal dependencies
@@ -50,13 +49,10 @@ const ActionButton = ( {
 	onManage,
 	onFixConnection,
 	isFetching,
-	className,
 } ) => {
-	const linkClassName = classNames( styles[ 'action-link-button' ], className );
-
 	if ( ! admin ) {
 		return (
-			<Button variant="link" onClick={ onLearn } className={ linkClassName }>
+			<Button variant="link" onClick={ onLearn } className={ styles[ 'action-link-button' ] }>
 				{
 					/* translators: placeholder is product name. */
 					sprintf( __( 'Learn about %s', 'jetpack-my-jetpack' ), name )
@@ -68,14 +64,13 @@ const ActionButton = ( {
 	const buttonState = {
 		variant: ! isFetching ? 'primary' : undefined,
 		disabled: isFetching,
-		className,
 	};
 
 	switch ( status ) {
 		case PRODUCT_STATUSES.NEEDS_PURCHASE:
 		case PRODUCT_STATUSES.ABSENT:
 			return (
-				<Button variant="link" onClick={ onAdd } className={ linkClassName }>
+				<Button variant="link" onClick={ onAdd } className={ styles[ 'action-link-button' ] }>
 					{
 						/* translators: placeholder is product name. */
 						sprintf( __( 'Add %s', 'jetpack-my-jetpack' ), name )
@@ -197,12 +192,10 @@ const ProductCard = props => {
 	return (
 		<div className={ containerClassName }>
 			<div className={ styles.name }>
-				<Text variant="title-medium">{ name }</Text>
+				<span>{ name }</span>
 				{ icon }
 			</div>
-			<Text variant="body-small" className={ styles.description }>
-				{ description }
-			</Text>
+			<p className={ styles.description }>{ description }</p>
 			<div className={ styles.actions }>
 				{ canDeactivate ? (
 					<ButtonGroup className={ styles.group }>
@@ -211,11 +204,10 @@ const ProductCard = props => {
 							onActivate={ activateHandler }
 							onFixConnection={ fixConnectionHandler }
 							onManage={ manageHandler }
-							className={ styles.button }
 						/>
 						<DropdownMenu
 							className={ styles.dropdown }
-							toggleProps={ { isPrimary: true, disabled: isFetching, className: styles.button } }
+							toggleProps={ { isPrimary: true, disabled: isFetching } }
 							popoverProps={ { noArrow: false } }
 							icon={ DownIcon }
 							disableOpenOnArrowDown={ true }
@@ -234,14 +226,9 @@ const ProductCard = props => {
 						onFixConnection={ fixConnectionHandler }
 						onActivate={ activateHandler }
 						onAdd={ addHandler }
-						className={ styles.button }
 					/>
 				) }
-				{ ! isAbsent && (
-					<Text variant="label" className={ statusClassName }>
-						{ flagLabel }
-					</Text>
-				) }
+				{ ! isAbsent && <div className={ statusClassName }>{ flagLabel }</div> }
 			</div>
 		</div>
 	);

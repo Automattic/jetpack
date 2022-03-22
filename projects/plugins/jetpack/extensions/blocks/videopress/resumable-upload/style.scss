@@ -1,15 +1,13 @@
 @import '../../../shared/styles/gutenberg-base-styles.scss';
 
 .resumable-upload {
-	background: $white;
-	color: $gray-900;
-	font-family: $default-font;
+	background: #FFFFFF;
 	box-sizing: border-box;
 	display: flex;
 	flex-direction: column;
 	align-items: flex-start;
 	padding: 20px;
-	border: 1px solid $gray-900;
+	border: 1px solid #1E1E1E;
 	border-radius: 2px;
 	font-size: $default-font-size;
 }

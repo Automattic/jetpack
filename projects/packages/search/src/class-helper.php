@@ -7,7 +7,7 @@
 
 namespace Automattic\Jetpack\Search;
 
-use GP_Locales;
+use GP_Locales; // TODO: Migrate this to the package, or find an alternative.
 use Jetpack; // TODO: Remove this once migrated.
 
 /**
@@ -692,9 +692,14 @@ class Helper {
 	 * @return bool
 	 */
 	public static function is_valid_locale( $locale ) {
+		// TODO: Replace JETPACK__GLOTPRESS_LOCALES_PATH.
 		if ( ! class_exists( 'GP_Locales' ) ) {
-			// Assume locale to be valid if we can't check with GlotPress.
-			return true;
+			if ( defined( 'JETPACK__GLOTPRESS_LOCALES_PATH' ) && file_exists( JETPACK__GLOTPRESS_LOCALES_PATH ) ) {
+				require JETPACK__GLOTPRESS_LOCALES_PATH;
+			} else {
+				// Assume locale to be valid if we can't check with GlotPress.
+				return true;
+			}
 		}
 		return false !== GP_Locales::by_field( 'wp_locale', $locale );
 	}

@@ -27,7 +27,7 @@ class Initializer {
 	 *
 	 * @var string
 	 */
-	const PACKAGE_VERSION = '0.6.11-alpha';
+	const PACKAGE_VERSION = '0.6.10-alpha';
 
 	/**
 	 * Initialize My Jetapack
@@ -35,7 +35,7 @@ class Initializer {
 	 * @return void
 	 */
 	public static function init() {
-		if ( ! self::should_initialize() || did_action( 'my_jetpack_init' ) ) {
+		if ( ! self::should_initialize() ) {
 			return;
 		}
 
@@ -211,6 +211,9 @@ class Initializer {
 	 * Return true if we should initialize the My Jetpack
 	 */
 	public static function should_initialize() {
+		if ( did_action( 'my_jetpack_init' ) ) {
+			return false;
+		}
 
 		if ( is_multisite() ) {
 			return false;

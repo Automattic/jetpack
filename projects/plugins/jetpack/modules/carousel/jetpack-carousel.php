@@ -28,7 +28,7 @@ class Jetpack_Carousel {
 	/**
 	 * Determines whether or not to set in the gallery. Default is false.
 	 *
-	 * @deprecated since 10.8
+	 * @deprecated since $$next-version$$
 	 *
 	 * @var bool
 	 */
@@ -659,7 +659,7 @@ class Jetpack_Carousel {
 	/**
 	 * Sets the "in_gallery" flag when the first gallery is encountered (unless in AMP mode).
 	 *
-	 * @deprecated since 10.8
+	 * @deprecated since $$next-version$$
 	 *
 	 * @param string $output Gallery shortcode output. Passed through unchanged.
 	 *
