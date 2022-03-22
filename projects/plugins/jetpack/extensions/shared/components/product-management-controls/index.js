@@ -7,6 +7,7 @@ import { useSelect } from '@wordpress/data';
 /**
  * Internal dependencies
  */
+import { PRODUCT_TYPE_PAYMENT_PLAN } from './constants';
 import ProductManagementInspectorControl from './inspector-control';
 import ProductManagementToolbarControl from './toolbar-control';
 import InvalidProductWarning from './invalid-product-warning';
@@ -18,6 +19,7 @@ import './style.scss';
 export default function ProductManagementControls( {
 	allowCreateOneTimeInterval = true,
 	blockName,
+	productType = PRODUCT_TYPE_PAYMENT_PLAN,
 	selectedProductId = 0,
 	setSelectedProductId = () => {},
 } ) {
@@ -55,10 +57,12 @@ export default function ProductManagementControls( {
 				<>
 					<ProductManagementInspectorControl
 						allowCreateOneTimeInterval={ allowCreateOneTimeInterval }
+						productType={ productType }
 						setSelectedProductId={ setSelectedProductId }
 					/>
 					<ProductManagementToolbarControl
 						products={ products }
+						productType={ productType }
 						selectedProductId={ selectedProductId }
 						setSelectedProductId={ setSelectedProductId }
 					/>
