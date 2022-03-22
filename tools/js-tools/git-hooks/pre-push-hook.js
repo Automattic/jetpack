@@ -67,7 +67,7 @@ async function checkChangelogFiles() {
 				}
 
 				if ( filesToCommit.length > 0 ) {
-					const commitFiles = await spawnSync( 'git', [
+					const commitFiles = spawnSync( 'git', [
 						'commit',
 						...filesToCommit,
 						'-m',
