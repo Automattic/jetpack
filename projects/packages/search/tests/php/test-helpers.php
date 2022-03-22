@@ -97,34 +97,6 @@ class Test_Helpers extends TestCase {
 	}
 
 	/**
-	 * Polyfill assertion for older Phpunit versions.
-	 *
-	 * @param {any} $needle - Needle.
-	 * @param {any} $haystack - Haystack.
-	 */
-	public function assert_string_contains_string( $needle, $haystack ) {
-		if ( method_exists( $this, 'assertStringContainsString' ) ) {
-			$this->assertStringContainsString( $needle, $haystack );
-		} else {
-			$this->assertTrue( strpos( $haystack, $needle ) !== false );
-		}
-	}
-
-	/**
-	 * Polyfill assertion for older Phpunit versions.
-	 *
-	 * @param {any} $needle - Needle.
-	 * @param {any} $haystack - Haystack.
-	 */
-	public function assert_string_not_contains_string( $needle, $haystack ) {
-		if ( method_exists( $this, 'assertStringNotContainsString' ) ) {
-			$this->assertStringNotContainsString( $needle, $haystack );
-		} else {
-			$this->assertFalse( strpos( $haystack, $needle ) !== false );
-		}
-	}
-
-	/**
 	 * Test case
 	 */
 	public function test_get_search_url_removes_page_when_no_query_s() {
@@ -133,9 +105,9 @@ class Test_Helpers extends TestCase {
 
 		$url = Helper::get_search_url();
 
-		$this->assert_string_not_contains_string( '/search/test/', $url );
-		$this->assert_string_not_contains_string( '/page/', $url );
-		$this->assert_string_contains_string( 's=test', $url );
+		$this->assertStringNotContainsString( '/search/test/', $url );
+		$this->assertStringNotContainsString( '/page/', $url );
+		$this->assertStringContainsString( 's=test', $url );
 	}
 
 	/**
@@ -147,8 +119,8 @@ class Test_Helpers extends TestCase {
 
 		$url = Helper::get_search_url();
 
-		$this->assert_string_not_contains_string( '/page/', $url );
-		$this->assert_string_contains_string( 's=test', $url );
+		$this->assertStringNotContainsString( '/page/', $url );
+		$this->assertStringContainsString( 's=test', $url );
 	}
 
 	/**
@@ -161,8 +133,8 @@ class Test_Helpers extends TestCase {
 
 		$url = Helper::get_search_url();
 
-		$this->assert_string_not_contains_string( 'paged=', $url );
-		$this->assert_string_contains_string( 's=test', $url );
+		$this->assertStringNotContainsString( 'paged=', $url );
+		$this->assertStringContainsString( 's=test', $url );
 	}
 
 	/**
@@ -179,9 +151,9 @@ class Test_Helpers extends TestCase {
 			)
 		);
 
-		$this->assert_string_contains_string( 's=test', $url );
-		$this->assert_string_contains_string( 'post_type=page', $url );
-		$this->assert_string_contains_string( 'category=uncategorized', $url );
+		$this->assertStringContainsString( 's=test', $url );
+		$this->assertStringContainsString( 'post_type=page', $url );
+		$this->assertStringContainsString( 'category=uncategorized', $url );
 	}
 
 	/**
@@ -193,8 +165,8 @@ class Test_Helpers extends TestCase {
 
 		$url = Helper::add_query_arg( 'post_type', 'page' );
 
-		$this->assert_string_not_contains_string( '/page/', $url );
-		$this->assert_string_contains_string( 's=test', $url );
+		$this->assertStringNotContainsString( '/page/', $url );
+		$this->assertStringContainsString( 's=test', $url );
 	}
 
 	/**
@@ -206,9 +178,9 @@ class Test_Helpers extends TestCase {
 
 		$url = Helper::remove_query_arg( 'post_type' );
 
-		$this->assert_string_not_contains_string( '/page/', $url );
-		$this->assert_string_contains_string( 's=test', $url );
-		$this->assert_string_not_contains_string( 'post_type=', $url );
+		$this->assertStringNotContainsString( '/page/', $url );
+		$this->assertStringContainsString( 's=test', $url );
+		$this->assertStringNotContainsString( 'post_type=', $url );
 	}
 
 	/**
@@ -220,7 +192,7 @@ class Test_Helpers extends TestCase {
 		$_GET['s']              = 'test';
 
 		$url = Helper::add_query_arg( 'post_type', 'page', $input_url );
-		$this->assertEquals( 'http://example.com/page/2/?s=test&post_type=page', $url );
+		$this->assertSame( 'http://example.com/page/2/?s=test&post_type=page', $url );
 	}
 
 	/**
@@ -233,21 +205,21 @@ class Test_Helpers extends TestCase {
 		$_GET['post_type']      = 'post,page';
 
 		$url = Helper::remove_query_arg( 'post_type', $input_url );
-		$this->assertEquals( 'http://example.com/page/2/?s=test', $url );
+		$this->assertSame( 'http://example.com/page/2/?s=test', $url );
 	}
 
 	/**
 	 * Test case
 	 */
 	public function test_get_widget_option_name() {
-		$this->assertEquals( 'widget_jetpack-search-filters', Helper::get_widget_option_name() );
+		$this->assertSame( 'widget_jetpack-search-filters', Helper::get_widget_option_name() );
 	}
 
 	/**
 	 * Test case
 	 */
 	public function test_get_widgets_from_option_empty_widget_option() {
-		$this->assertEquals( array(), Helper::get_widgets_from_option() );
+		$this->assertSame( array(), Helper::get_widgets_from_option() );
 	}
 
 	/**
@@ -261,7 +233,7 @@ class Test_Helpers extends TestCase {
 		$expected = $this->get_sample_widgets_option();
 		unset( $expected['_multiwidget'] );
 
-		$this->assertEquals( $expected, $filters );
+		$this->assertSame( $expected, $filters );
 	}
 
 	/**
@@ -273,7 +245,7 @@ class Test_Helpers extends TestCase {
 	 * @dataProvider get_build_widget_id_data
 	 */
 	public function test_build_widget_id( $number, $expected ) {
-		$this->assertEquals( $expected, Helper::build_widget_id( $number ) );
+		$this->assertSame( $expected, Helper::build_widget_id( $number ) );
 	}
 
 	/**
@@ -289,7 +261,7 @@ class Test_Helpers extends TestCase {
 
 		$widget_id = Helper::build_widget_id( $number );
 
-		$this->assertEquals( $expected, Helper::is_active_widget( $widget_id ) );
+		$this->assertSame( $expected, Helper::is_active_widget( $widget_id ) );
 
 	}
 
@@ -427,7 +399,7 @@ class Test_Helpers extends TestCase {
 			),
 		);
 
-		$this->assertEquals( $expected, Helper::get_filters_from_widgets() );
+		$this->assertSame( $expected, Helper::get_filters_from_widgets() );
 	}
 
 	/**
@@ -447,7 +419,7 @@ class Test_Helpers extends TestCase {
 			$_POST = array( 'test' => 1 );
 		}
 
-		$this->assertEquals( $expected, Helper::should_rerun_search_in_customizer_preview() );
+		$this->assertSame( $expected, Helper::should_rerun_search_in_customizer_preview() );
 	}
 
 	/**
@@ -460,7 +432,7 @@ class Test_Helpers extends TestCase {
 	 * @dataProvider get_array_diff_data
 	 */
 	public function test_array_diff( $expected, $array_1, $array_2 ) {
-		$this->assertEquals( $expected, Helper::array_diff( $array_1, $array_2 ) );
+		$this->assertSame( $expected, Helper::array_diff( $array_1, $array_2 ) );
 	}
 
 	/**
@@ -487,7 +459,7 @@ class Test_Helpers extends TestCase {
 				'exclude_from_search' => false,
 			),
 		);
-		$this->assertEquals( $expected, Helper::post_types_differ_searchable( $post_types ) );
+		$this->assertSame( $expected, Helper::post_types_differ_searchable( $post_types ) );
 	}
 
 	/**
@@ -501,7 +473,7 @@ class Test_Helpers extends TestCase {
 	 */
 	public function test_post_types_differ_query( $expected, $post_types = array(), $get = array() ) {
 		$_GET = $get;
-		$this->assertEquals( $expected, Helper::post_types_differ_query( $post_types ) );
+		$this->assertSame( $expected, Helper::post_types_differ_query( $post_types ) );
 	}
 
 	/**
@@ -513,7 +485,7 @@ class Test_Helpers extends TestCase {
 	 * @dataProvider get_filter_properties_for_tracks_data
 	 */
 	public function test_get_filter_properties_for_tracks( $expected, $filters ) {
-		$this->assertEquals( $expected, Helper::get_filter_properties_for_tracks( $filters ) );
+		$this->assertSame( $expected, Helper::get_filter_properties_for_tracks( $filters ) );
 	}
 
 	/**
@@ -525,7 +497,7 @@ class Test_Helpers extends TestCase {
 	 * @dataProvider get_widget_properties_for_tracks_data
 	 */
 	public function test_get_widget_properties_for_tracks( $expected, $widget ) {
-		$this->assertEquals( $expected, Helper::get_widget_properties_for_tracks( $widget ) );
+		$this->assertSame( $expected, Helper::get_widget_properties_for_tracks( $widget ) );
 	}
 
 	/**
@@ -538,7 +510,7 @@ class Test_Helpers extends TestCase {
 	 * @dataProvider get_widget_tracks_value_data
 	 */
 	public function test_get_widget_tracks_value( $expected, $old_value, $new_value ) {
-		$this->assertEquals( $expected, Helper::get_widget_tracks_value( $old_value, $new_value ) );
+		$this->assertSame( $expected, Helper::get_widget_tracks_value( $old_value, $new_value ) );
 	}
 
 	/**
@@ -550,7 +522,7 @@ class Test_Helpers extends TestCase {
 	 * @dataProvider get_remove_active_from_post_type_buckets_data
 	 */
 	public function test_remove_active_from_post_type_buckets( $expected, $input ) {
-		$this->assertEquals(
+		$this->assertSame(
 			$expected,
 			Helper::remove_active_from_post_type_buckets( $input )
 		);
@@ -566,7 +538,7 @@ class Test_Helpers extends TestCase {
 	 * @dataProvider get_add_post_types_to_url_data
 	 */
 	public function test_add_post_types_to_url( $expected, $url, $post_types ) {
-		$this->assertEquals(
+		$this->assertSame(
 			$expected,
 			Helper::add_post_types_to_url( $url, $post_types )
 		);
@@ -582,7 +554,7 @@ class Test_Helpers extends TestCase {
 	 * @dataProvider get_ensure_post_types_on_remove_url_data
 	 */
 	public function test_ensure_post_types_on_remove_url( $expected, $filters, $post_types ) {
-		$this->assertEquals(
+		$this->assertSame(
 			$expected,
 			Helper::ensure_post_types_on_remove_url( $filters, $post_types )
 		);
@@ -606,7 +578,7 @@ class Test_Helpers extends TestCase {
 			add_filter( 'jetpack_search_has_vip_index', $filter );
 		}
 
-		$this->assertEquals( $expected, Options::site_has_vip_index() );
+		$this->assertSame( $expected, Options::site_has_vip_index() );
 	}
 
 	/**
@@ -619,7 +591,7 @@ class Test_Helpers extends TestCase {
 	 */
 	public function test_get_max_posts_per_page( $expected, $has_vip_index ) {
 		Constants::set_constant( 'JETPACK_SEARCH_VIP_INDEX', $has_vip_index );
-		$this->assertEquals( $expected, Helper::get_max_posts_per_page() );
+		$this->assertSame( $expected, Helper::get_max_posts_per_page() );
 	}
 
 	/**
@@ -632,7 +604,7 @@ class Test_Helpers extends TestCase {
 	 */
 	public function test_get_max_offset( $expected, $has_vip_index ) {
 		Constants::set_constant( 'JETPACK_SEARCH_VIP_INDEX', $has_vip_index );
-		$this->assertEquals( $expected, Helper::get_max_offset() );
+		$this->assertSame( $expected, Helper::get_max_offset() );
 	}
 
 	/**
@@ -645,7 +617,7 @@ class Test_Helpers extends TestCase {
 	 * @dataProvider get_date_filter_type_name_data
 	 */
 	public function test_get_date_filter_type_name( $expected, $type, $is_updated ) {
-		$this->assertEquals(
+		$this->assertSame(
 			$expected,
 			Helper::get_date_filter_type_name(
 				$type,
