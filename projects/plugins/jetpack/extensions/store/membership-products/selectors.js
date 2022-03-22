@@ -18,6 +18,8 @@ export const getShouldUpgrade = state => state.getShouldUpgrade;
 
 export const getSiteSlug = state => state.siteSlug;
 
+export const getUpgradeUrl = state => !! getShouldUpgrade( state ) && state.upgradeUrl;
+
 export const isApiStateConnected = state => state.apiState === API_STATE_CONNECTED;
 
 export const isApiStateLoading = state => state.apiState === API_STATE_LOADING;

@@ -41,6 +41,11 @@ export const setSiteSlug = siteSlug => ( {
 	siteSlug,
 } );
 
+export const setUpgradeUrl = upgradeUrl => ( {
+	type: 'SET_UPGRADE_URL',
+	upgradeUrl,
+} );
+
 export const saveProduct = (
 	product,
 	setSelectedProductId = () => {},

@@ -9,6 +9,7 @@ export const DEFAULT_STATE = {
 	connectUrl: null,
 	shouldUpgrade: false,
 	siteSlug: '',
+	upgradeUrl: null,
 };
 
 export default function reducer( state = DEFAULT_STATE, action ) {
@@ -23,6 +24,8 @@ export default function reducer( state = DEFAULT_STATE, action ) {
 			return { ...state, shouldUpgrade: action.shouldUpgrade };
 		case 'SET_SITE_SLUG':
 			return { ...state, siteSlug: action.siteSlug };
+		case 'SET_UPGRADE_URL':
+			return { ...state, upgradeUrl: action.upgradeUrl };
 	}
 	return state;
 }

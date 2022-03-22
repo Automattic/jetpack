@@ -16,6 +16,7 @@ import {
 	setProducts,
 	setShouldUpgrade,
 	setSiteSlug,
+	setUpgradeUrl,
 } from './actions';
 import { onError } from './utils';
 import { API_STATE_CONNECTED, API_STATE_NOTCONNECTED } from './constants';
@@ -56,6 +57,7 @@ export const getProducts = ( selectedProductId = 0, setSelectedProductId = () =>
 		dispatch( setConnectUrl( getConnectUrl( postId, response.connect_url ) ) );
 		dispatch( setShouldUpgrade( response.should_upgrade_to_access_memberships ) );
 		dispatch( setSiteSlug( response.site_slug ) );
+		dispatch( setUpgradeUrl( response.upgrade_url ) );
 
 		if (
 			! response?.products?.length &&
