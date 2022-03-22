@@ -38,9 +38,10 @@
 		"tiled-gallery",
 		"videopress",
 		"wordads",
-		"payments-intro"
+		"payments-intro",
+		"post-publish-qr-post-panel"
 	],
-	"beta": [ "amazon", "post-publish-qr-post-panel" ],
+	"beta": [ "amazon" ],
 	"experimental": [ "anchor-fm", "premium-content", "conversation", "dialogue" ],
 	"no-post-editor": [
 		"business-hours",

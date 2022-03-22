@@ -2,6 +2,11 @@
  * External dependencies
  */
 import { uniq } from 'lodash';
+import {
+	isUpgradeNudgeEnabled,
+	isUpgradable,
+	isStillUsableWithFreePlan,
+} from '@automattic/jetpack-shared-extension-utils';
 
 /**
  * WordPress dependencies
@@ -14,11 +19,6 @@ import { __ } from '@wordpress/i18n';
  * Internal dependencies
  */
 import withUpgradeBanner from './with-upgrade-banner';
-import {
-	isUpgradeNudgeEnabled,
-	isUpgradable,
-	isStillUsableWithFreePlan,
-} from '../../shared/plan-utils';
 import renderPaidIcon from './render-paid-icon.js';
 
 import './editor.scss';
