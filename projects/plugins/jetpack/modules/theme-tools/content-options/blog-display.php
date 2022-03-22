@@ -26,7 +26,7 @@ $blog_display = ( 'content, excerpt' === $blog_display ) ? 'mixed' : $blog_displ
 /**
  * If the theme doesn't support 'jetpack-content-options[ 'blog-display' ]', don't continue.
  */
-if ( ! in_array( $blog_display, array( 'content', 'excerpt', 'mixed' ) ) ) {
+if ( ! in_array( $blog_display, array( 'content', 'excerpt', 'mixed' ), true ) ) {
 	return;
 }
 
