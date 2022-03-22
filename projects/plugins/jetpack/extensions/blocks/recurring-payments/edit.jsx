@@ -3,6 +3,7 @@
  */
 import { useSelect } from '@wordpress/data';
 import { InnerBlocks } from '@wordpress/block-editor';
+import { applyFilters } from '@wordpress/hooks';
 
 /**
  * Internal dependencies
@@ -10,7 +11,7 @@ import { InnerBlocks } from '@wordpress/block-editor';
 import ProductManagementControls from '../../shared/components/product-management-controls';
 
 export default function Edit( props ) {
-	const { setAttributes, attributes } = props;
+	const { setAttributes, attributes, clientId } = props;
 	const { planId } = attributes;
 	const postLink = useSelect(
 		select => new URL( select( 'core/editor' ).getCurrentPost().link ),
@@ -27,13 +28,24 @@ export default function Edit( props ) {
 		} );
 	};
 
+	/**
+	 * Filters the flag that determines if the Recurring Payments block controls should be shown in the inspector.
+	 * We supply true as the first argument since we should always show the controls by default.
+	 *
+	 * @param {boolean} showControls - Whether inspectors controls are shown.
+	 * @param {string} showControls - Block ID.
+	 */
+	const showControls = applyFilters( 'jetpack.RecurringPayments.showControls', true, clientId );
+
 	return (
 		<>
-			<ProductManagementControls
-				allowCreateOneTimeInterval={ true }
-				selectedProductId={ planId }
-				setSelectedProductId={ updateSubscriptionPlan }
-			/>
+			{ showControls && (
+				<ProductManagementControls
+					allowCreateOneTimeInterval={ true }
+					selectedProductId={ planId }
+					setSelectedProductId={ updateSubscriptionPlan }
+				/>
+			) }
 			<InnerBlocks
 				template={ [
 					[
