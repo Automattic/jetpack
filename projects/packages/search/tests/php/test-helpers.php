@@ -55,6 +55,13 @@ class Test_Helpers extends TestCase {
 	protected $post_types;
 
 	/**
+	 * Used to backup and restore Jetpack Constants
+	 *
+	 * @var array
+	 */
+	protected static $constants_backup;
+
+	/**
 	 * Setup test instance
 	 *
 	 * @before
@@ -70,6 +77,7 @@ class Test_Helpers extends TestCase {
 		$this->query              = $GLOBALS['wp_query'];
 		$this->post_types         = $GLOBALS['wp_post_types'];
 		delete_option( Helper::get_widget_option_name() );
+		static::$constants_backup = Constants::$set_constants;
 		// phpcs:enable
 	}
 
@@ -92,7 +100,7 @@ class Test_Helpers extends TestCase {
 		unset( $GLOBALS['wp_customize'] );
 		// phpcs:enable WordPress.WP.GlobalVariablesOverride.Prohibited
 
-		Constants::clear_constants();
+		Constants::$set_constants = static::$constants_backup;
 		remove_all_filters( 'jetpack_search_has_vip_index' );
 	}
 
