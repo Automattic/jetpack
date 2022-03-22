@@ -58,7 +58,7 @@ function jetpack_blog_display_custom_excerpt( $content = '' ) {
 		/** This filter is documented in wp-includes/formatting.php */
 		$excerpt_length = apply_filters( 'excerpt_length', 55 );
 		/** This filter is documented in wp-includes/formatting.php */
-		$excerpt_more = apply_filters( 'excerpt_more', ' ' . '[...]' );
+		$excerpt_more = apply_filters( 'excerpt_more', ' [...]' );
 
 		/*
 		 * translators: If your word count is based on single characters (e.g. East Asian characters),
