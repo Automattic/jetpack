@@ -30,7 +30,7 @@ function MediaItem( props ) {
 
 	const { item, focus, isSelected, isCopying = false } = props;
 	const { thumbnails, caption, name, title, type, children = 0 } = item;
-	const { medium = null, fmt_hd = null } = thumbnails;
+	const { medium = null, fmt_hd = null, thumbnail = null } = thumbnails;
 	const alt = title || caption || name;
 	const classes = classnames( {
 		'jetpack-external-media-browser__media__item': true,
@@ -68,7 +68,7 @@ function MediaItem( props ) {
 				</div>
 			) }
 
-			<img src={ medium || fmt_hd } alt={ alt } />
+			<img src={ medium || fmt_hd || thumbnail } alt={ alt } />
 
 			{ type === 'folder' && (
 				<div className="jetpack-external-media-browser__media__info">

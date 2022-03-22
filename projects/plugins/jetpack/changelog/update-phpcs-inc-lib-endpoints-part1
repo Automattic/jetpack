@@ -1,0 +1,4 @@
+Significance: patch
+Type: other
+
+WP API endpoints: fix PHPCS linting errors, part 1.
