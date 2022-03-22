@@ -49,7 +49,7 @@ async function checkChangelogFiles() {
 			// If the autochangelogger worked, commit the changelog files.
 			if ( autoChangelog.status === 0 ) {
 				const filesToCommit = [];
-				const changelogFiles = await spawnSync( 'git', [
+				const changelogFiles = spawnSync( 'git', [
 					'diff',
 					'--name-only',
 					'--diff-filter=A',
