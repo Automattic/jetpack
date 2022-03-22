@@ -1,6 +1,8 @@
 <?php
 /**
- * INFINITE SCROLL
+ * Theme Tools: Infinite Scroll functions.
+ *
+ * @package automattic/jetpack
  */
 
 /**
@@ -14,7 +16,7 @@
  * @return null
  */
 function jetpack_load_infinite_scroll_annotation() {
-	if ( is_admin() && isset( $_GET['page'] ) && 'jetpack' == $_GET['page'] ) {
+	if ( is_admin() && isset( $_GET['page'] ) && 'jetpack' === $_GET['page'] ) { // phpcs:ignore WordPress.Security.NonceVerification.Recommended -- Function loads theme specific IS file provided by Jetpack if possible.
 			$theme = wp_get_theme();
 
 		if ( ! is_a( $theme, 'WP_Theme' ) && ! is_array( $theme ) ) {
@@ -40,7 +42,6 @@ add_action( 'setup_theme', 'jetpack_load_infinite_scroll_annotation' );
 /**
  * Prevent IS from being activated if theme doesn't support it
  *
- * @param bool $can_activate
  * @filter jetpack_can_activate_infinite-scroll
  * @return bool
  */
