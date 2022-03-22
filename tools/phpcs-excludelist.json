@@ -4,8 +4,6 @@
 	"projects/plugins/jetpack/_inc/lib/class.jetpack-keyring-service-helper.php",
 	"projects/plugins/jetpack/_inc/lib/class.jetpack-photon-image-sizes.php",
 	"projects/plugins/jetpack/_inc/lib/class.jetpack-photon-image.php",
-	"projects/plugins/jetpack/_inc/lib/core-api/class-wpcom-rest-field-controller.php",
-	"projects/plugins/jetpack/_inc/lib/core-api/class.jetpack-core-api-module-endpoints.php",
 	"projects/plugins/jetpack/_inc/lib/core-api/class.jetpack-core-api-widgets-endpoints.php",
 	"projects/plugins/jetpack/_inc/lib/core-api/class.jetpack-core-api-xmlrpc-consumer-endpoint.php",
 	"projects/plugins/jetpack/_inc/lib/core-api/load-wpcom-endpoints.php",
