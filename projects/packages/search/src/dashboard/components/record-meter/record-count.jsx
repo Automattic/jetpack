@@ -17,19 +17,17 @@ export function RecordCount( props ) {
 
 	return (
 		<div data-testid="record-count" className="jp-search-record-count">
-			{ props.recordCount && props.planRecordLimit && (
-				<p>
-					{ sprintf(
-						// translators: %1$d: site's current record count, %2$d: record limit of the current plan
-						__(
-							'%1$d records indexed out of the %2$d allotted for your current plan',
-							'jetpack-search-pkg'
-						),
-						props.recordCount,
-						props.planRecordLimit
-					) }
-				</p>
-			) }
+			<p>
+				{ sprintf(
+					// translators: %1$d: site's current record count, %2$d: record limit of the current plan
+					__(
+						'%1$d records indexed out of the %2$d allotted for your current plan',
+						'jetpack-search-pkg'
+					),
+					props.recordCount,
+					props.planRecordLimit
+				) }
+			</p>
 		</div>
 	);
 }
