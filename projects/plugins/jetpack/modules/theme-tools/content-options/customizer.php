@@ -38,7 +38,7 @@ function jetpack_content_options_customize_register( $wp_customize ) {
 	$fi_fallback_default  = ( isset( $featured_images['fallback-default'] ) && false === $featured_images['fallback-default'] ) ? '' : 1;
 
 	// If the theme doesn't support 'jetpack-content-options[ 'blog-display' ]', 'jetpack-content-options[ 'author-bio' ]', 'jetpack-content-options[ 'post-details' ]' and 'jetpack-content-options[ 'featured-images' ]', don't continue.
-	if ( ( ! in_array( $blog_display, array( 'content', 'excerpt', 'mixed' ) ) )
+	if ( ( ! in_array( $blog_display, array( 'content', 'excerpt', 'mixed' ), true ) )
 		&& ( true !== $author_bio )
 		&& ( ( empty( $post_details['stylesheet'] ) )
 			&& ( empty( $date )
@@ -82,7 +82,7 @@ function jetpack_content_options_customize_register( $wp_customize ) {
 	);
 
 	// Add Blog Display option.
-	if ( in_array( $blog_display, array( 'content', 'excerpt', 'mixed' ) ) ) {
+	if ( in_array( $blog_display, array( 'content', 'excerpt', 'mixed' ), true ) ) {
 		if ( 'mixed' === $blog_display ) {
 			$blog_display_choices = array(
 				'content' => esc_html__( 'Full post', 'jetpack' ),
@@ -448,7 +448,7 @@ function jetpack_content_options_sanitize_checkbox( $input ) {
  * @return string.
  */
 function jetpack_content_options_sanitize_blog_display( $display ) {
-	if ( ! in_array( $display, array( 'content', 'excerpt', 'mixed' ) ) ) {
+	if ( ! in_array( $display, array( 'content', 'excerpt', 'mixed' ), true ) ) {
 		$display = 'content';
 	}
 	return $display;
