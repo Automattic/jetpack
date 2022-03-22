@@ -5,7 +5,7 @@ import { __, sprintf } from '@wordpress/i18n';
 import React, { useState, useEffect, useCallback, useRef } from 'react';
 
 const Timer = ( { className, expiryDate } ) => {
-	const date = new Date( expiryDate );
+	const date = useMemo( () => new Date( expiryDate ), [ expiryDate ] );
 	const [ duration, setDuration ] = useState( date - Date.now() );
 	const intervalRef = useRef();
 
