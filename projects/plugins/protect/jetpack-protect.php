@@ -40,6 +40,7 @@ define( 'JETPACK_PROTECT_PLUGIN_SLUG', 'jetpack-protect' );
 define( 'JETPACK_PROTECT_PLUGIN_NAME', 'Jetpack Protect' );
 define( 'JETPACK_PROTECT_PLUGIN_URI', 'https://jetpack.com/jetpack-protect' );
 define( 'JETPACK_PROTECT_PLUGIN_FOLDER', dirname( plugin_basename( __FILE__ ) ) );
+defined( 'JETPACK_PROTECT__API_HOST' ) || define( 'JETPACK_PROTECT__API_HOST', 'https://api.bruteprotect.com/' );
 
 // Jetpack Autoloader.
 $jetpack_autoloader = JETPACK_PROTECT_PLUGIN_DIR . 'vendor/autoload_packages.php';
