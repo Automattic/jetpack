@@ -72,7 +72,7 @@ class Jetpack_VideoPress {
 				$bridge_url,
 				array(),
 				$this->version . 2 . uniqid(),
-				true
+				false
 			);
 			wp_localize_script(
 				'media-video-widget-extensions',
