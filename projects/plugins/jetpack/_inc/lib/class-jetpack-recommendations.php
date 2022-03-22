@@ -119,6 +119,9 @@ class Jetpack_Recommendations {
 		// Monitor for the publishing of a new post.
 		add_action( 'transition_post_status', array( get_called_class(), 'post_transition' ), 10, 3 );
 		add_action( 'jetpack_activate_module', array( get_called_class(), 'jetpack_module_activated' ), 10, 2 );
+
+		// Monitor for activating a new plugin.
+		add_action( 'activated_plugin', array( 'Jetpack_Recommendations', 'recommendations_activated_plugin' ), 10 );
 	}
 
 	/**
@@ -146,6 +149,50 @@ class Jetpack_Recommendations {
 		if ( 'post' === $post->post_type && 'publish' === $new_status && 'publish' !== $old_status && ! Jetpack::is_module_active( 'publicize' ) ) {
 			// Set the publicize recommendation to have met criteria to be shown.
 			self::enable_conditional_recommendation( self::PUBLICIZE_RECOMMENDATION );
+		}
+	}
+
+	/**
+	 * Runs when a plugin gets activated
+	 *
+	 * @param string $plugin Path to the plugins file relative to the plugins directory.
+	 */
+	public static function recommendations_activated_plugin( $plugin ) {
+		// If the plugin is in this list, don't enable the recommendation.
+		$plugin_whitelist = array(
+			'jetpack.php',
+			'akismet.php',
+		);
+
+		$path_parts  = explode( '/', $plugin );
+		$plugin_file = $path_parts ? array_pop( $path_parts ) : $plugin;
+
+		if ( ! in_array( $plugin_file, $plugin_whitelist, true ) ) {
+			$has_anti_spam = is_plugin_active( 'akismet/akismet.php' );
+
+			// Check the backup state.
+			$rewind_state = get_transient( 'jetpack_rewind_state' );
+			$has_backup   = $rewind_state && in_array( $rewind_state->state, array( 'awaiting_credentials', 'provisioning', 'active' ), true );
+
+			// Check for a plan or product that enables scan.
+			$plan_supports_scan = \Jetpack_Plan::supports( 'scan' );
+			$products           = \Jetpack_Plan::get_products();
+			$has_scan_product   = false;
+
+			if ( is_array( $products ) ) {
+				foreach ( $products as $product ) {
+					if ( strpos( $product['product_slug'], 'jetpack_scan' ) === 0 ) {
+						$has_scan_product = true;
+						break;
+					}
+				}
+			}
+			$has_scan = $plan_supports_scan || $has_scan_product;
+
+			// This site does not have backup, scan or anti-spam.
+			if ( ! $has_scan && ! $has_backup && ! $has_anti_spam ) {
+				self::enable_conditional_recommendation( 'security-plan' );
+			}
 		}
 	}
 

@@ -30,6 +30,7 @@ import {
 import { getNewRecommendations } from 'state/initial-state';
 import { JetpackLoadingIcon } from 'components/jetpack-loading-icon';
 import { RECOMMENDATION_WIZARD_STEP } from './constants';
+import { ResourcePrompt } from './prompts/resource-prompt';
 
 const RecommendationsComponent = props => {
 	const { isLoading, step, newRecommendations } = props;
@@ -64,6 +65,9 @@ const RecommendationsComponent = props => {
 			break;
 		case RECOMMENDATION_WIZARD_STEP.PUBLICIZE:
 			redirectPath = '/publicize';
+			break;
+		case RECOMMENDATION_WIZARD_STEP.SECURITY_PLAN:
+			redirectPath = '/security-plan';
 			break;
 		case RECOMMENDATION_WIZARD_STEP.SUMMARY:
 			redirectPath = '/summary';
@@ -119,6 +123,9 @@ const RecommendationsComponent = props => {
 					</Route>
 					<Route path="/recommendations/publicize">
 						<FeaturePrompt stepSlug="publicize" isNew={ isNew( 'publicize' ) } />
+					</Route>
+					<Route path="/recommendations/security-plan">
+						<ResourcePrompt stepSlug="security-plan" isNew={ isNew( 'security-plan' ) } />
 					</Route>
 					<Route path="/recommendations/summary">
 						<Summary newRecommendations={ newRecommendations } />

@@ -191,6 +191,26 @@ export const getStepContent = stepSlug => {
 				illustrationPath: '/recommendations/general-illustration.png',
 				rnaIllustration: true,
 			};
+		case 'security-plan':
+			return {
+				question: __( 'With more plugins comes more responsibility.', 'jetpack' ),
+				description: __(
+					'As you add plugins to your site, you have to start thinking about vulnerabilities, failed updates, and incompatible plugins. You should ensure that the plugins you install:',
+					'jetpack'
+				),
+				descriptionList: [
+					__( 'Have good user ratings', 'jetpack' ),
+					__( 'Are compatible with the most recent version of WordPress', 'jetpack' ),
+					__( 'Are developed by teams that respond to support requests promptly', 'jetpack' ),
+				],
+				descriptionSecondary: __(
+					'Or let Jetpack handle your security and backups so you can focus on your business.',
+					'jetpack'
+				),
+				ctaText: __( 'Read WordPress Security for Beginners', 'jetpack' ),
+				ctaLink: 'https://jetpack.com/2021/10/15/wordpress-security-for-beginners-2/',
+				illustrationPath: '/recommendations/site-accelerator-illustration.svg',
+			};
 		case 'woocommerce':
 			return {
 				progressValue: '33',

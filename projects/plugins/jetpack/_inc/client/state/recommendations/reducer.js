@@ -237,6 +237,7 @@ const stepToNextStep = {
 	'creative-mail': 'site-accelerator',
 	'site-accelerator': 'publicize',
 	publicize: 'summary',
+	'security-plan': 'summary',
 	summary: 'summary',
 };
 
@@ -250,6 +251,7 @@ const stepToRoute = {
 	'creative-mail': '#/recommendations/creative-mail',
 	'site-accelerator': '#/recommendations/site-accelerator',
 	publicize: '#/recommendations/publicize',
+	'security-plan': '#/recommendations/security-plan',
 	summary: '#/recommendations/summary',
 };
 
@@ -315,6 +317,8 @@ const isStepEligibleToShow = ( state, step ) => {
 			return hasConnectedOwner( state ) && ! isFeatureActive( state, step );
 		case 'publicize':
 			return isConditionalRecommendationEnabled( state, step ) && ! isFeatureActive( state, step );
+		case 'security-plan':
+			return isConditionalRecommendationEnabled( state, step );
 		default:
 			return ! isFeatureActive( state, step );
 	}
@@ -401,6 +405,8 @@ const isFeatureEligibleToShowInSummary = ( state, slug ) => {
 			return hasConnectedOwner( state );
 		case 'publicize':
 			return isConditionalRecommendationEnabled( state, slug ) || isFeatureActive( state, slug );
+		case 'security-plan':
+			return isConditionalRecommendationEnabled( state, slug );
 		default:
 			return true;
 	}
@@ -435,6 +441,12 @@ export const getSummaryFeatureSlugs = state => {
 		selected,
 		skipped,
 	};
+};
+
+export const getSummaryResourceSlugs = state => {
+	const resourceSlugs = [ 'security-plan' ];
+
+	return resourceSlugs.filter( slug => isFeatureEligibleToShowInSummary( state, slug ) );
 };
 
 export const getSidebarCardSlug = state => {
