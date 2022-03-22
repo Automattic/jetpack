@@ -271,13 +271,13 @@ class Jetpack_Memberships {
 	}
 
 	/**
-	 * Callback that parses the membership purchase shortcode.
+	 * Callback that parses the recurring-payments-button block.
 	 *
-	 * @param array    $attributes - attributes in the shortcode. `id` here is the CPT id of the plan.
-	 * @param string   $content - Recurring Payment block content.
-	 * @param WP_Block $block - Recurring Payment block instance.
+	 * @param array    $attributes - The block attributes. `planId` here is the CPT id of the plan.
+	 * @param string   $content - The block content.
+	 * @param WP_Block $block - The block instance.
 	 *
-	 * @return string|void
+	 * @return string|void The modified block content, or void if the block should not be displayed.
 	 */
 	public function render_button( $attributes, $content = null, $block = null ) {
 		Jetpack_Gutenberg::load_assets_as_required( 'recurring-payments', array( 'thickbox', 'wp-polyfill' ) );
@@ -302,14 +302,34 @@ class Jetpack_Memberships {
 		add_thickbox();
 
 		if ( ! empty( $content ) ) {
-			$block_id      = esc_attr( wp_unique_id( 'recurring-payments-block-' ) );
-			$content       = str_replace( 'recurring-payments-id', $block_id, $content );
-			$content       = str_replace( 'wp-block-jetpack-recurring-payments', 'wp-block-jetpack-recurring-payments wp-block-button', $content );
+			$block_id = esc_attr( wp_unique_id( 'recurring-payments-block-' ) );
+			$content  = str_replace( 'recurring-payments-id', $block_id, $content );
+			// In V1&V2 add `wp-block-button` to the wrapper around the single button.
+			$content       = preg_replace( '/wp-block-jetpack-recurring-payments([ \'"])/', 'wp-block-jetpack-recurring-payments wp-block-button$1', $content );
 			$subscribe_url = $this->get_subscription_url( $plan_id );
 			return preg_replace( '/(href=".*")/', 'href="' . $subscribe_url . '"', $content );
 		}
 
 		return $this->deprecated_render_button_v1( $attributes, $plan_id );
+	}
+
+	/**
+	 * Server rendering for recurring-payments block
+	 *
+	 * @param array    $attributes The block attributes.
+	 * @param string   $content The block contents.
+	 * @param WP_Block $block The block instance.
+	 * @return string The modified block content
+	 */
+	public function render_container( $attributes, $content = null, $block = null ) {
+		if ( strpos( $content, 'jetpack-recurring-payments-button' ) ) {
+			// V3 block. Add the `wp-block-button` to the container of all the buttons.
+			$content = preg_replace( '/wp-block-jetpack-recurring-payments([ \'"])/', 'wp-block-jetpack-recurring-payments wp-block-button$1', $content );
+			return $content;
+		}
+
+		// V1/V2 block, need to call render_button explicitly as the button was known as recurring-payments then.
+		return $this->render_button( $attributes, $content, $block );
 	}
 
 	/**
@@ -461,12 +481,16 @@ class Jetpack_Memberships {
 			$deprecated = function_exists( 'gutenberg_get_post_from_context' );
 			$uses       = $deprecated ? 'context' : 'uses_context';
 			Blocks::jetpack_register_block(
-				'jetpack/recurring-payments-button'
+				'jetpack/recurring-payments-button',
+				array(
+					'render_callback' => array( $this, 'render_button' ),
+					$uses             => array( 'isPremiumContentChild' ),
+				)
 			);
 			Blocks::jetpack_register_block(
 				'jetpack/recurring-payments',
 				array(
-					'render_callback' => array( $this, 'render_button' ),
+					'render_callback' => array( $this, 'render_container' ),
 					$uses             => array( 'isPremiumContentChild' ),
 				)
 			);
