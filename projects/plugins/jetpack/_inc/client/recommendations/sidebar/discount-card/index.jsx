@@ -35,11 +35,13 @@ const DiscountCard = ( { discount, expiryDate } ) => {
 							alt=""
 						/>
 						<div className="jp-recommendations-discount-card__discount">
+							{ /* eslint-disable */ }
 							{ sprintf(
 								// translators: %d is the percentage value, %% the percentage symbol
-								__( '%d%% off', 'jetpack' ),
+								__( '%d%% off', 'jetpack' ), // @wordpress/valid-sprintf doesn't understand that the % symbol must be escaped
 								discount
 							) }
+							{ /* eslint-enable */ }
 						</div>
 					</div>
 					<div className="jp-recommendations-discount-card__card-body">
