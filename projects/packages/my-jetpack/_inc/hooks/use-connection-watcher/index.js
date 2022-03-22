@@ -45,15 +45,6 @@ export default function useConnectionWatcher() {
 			  )
 			: oneProductMessage;
 
-	/*
-	 * When the site is not connect, redirect to the Jetpack dashboard.
-	 */
-	useEffect( () => {
-		if ( ! isSiteConnected && redirectUrl ) {
-			window.location = redirectUrl;
-		}
-	}, [ isSiteConnected, redirectUrl ] );
-
 	useEffect( () => {
 		if ( requiresUserConnection ) {
 			setGlobalNotice( message, {

@@ -58,13 +58,6 @@ export default function MyJetpackScreen() {
 		recordEvent( 'jetpack_myjetpack_page_view' );
 	}, [ recordEvent ] );
 
-	// No render when site is not connected.
-	const { isSiteConnected } = useMyJetpackConnection();
-
-	if ( ! isSiteConnected ) {
-		return null;
-	}
-
 	return (
 		<AdminPage>
 			<AdminSectionHero>
