@@ -13,16 +13,16 @@
             "dist": {
                 "type": "path",
                 "url": "../../packages/changelogger",
-                "reference": "370ad5f2cc8af110c19227a87686028ae8e468b7"
+                "reference": "bf0f69b50eaca78be3acaa954cd53181d418bcea"
             },
             "require": {
                 "php": ">=5.6",
                 "symfony/console": "^3.4 || ^5.2",
                 "symfony/process": "^3.4 || ^5.2",
-                "wikimedia/at-ease": "^1.2 || ^2.0"
+                "wikimedia/at-ease": "2.1.0"
             },
             "require-dev": {
-                "wikimedia/testing-access-wrapper": "^1.0 || ^2.0",
+                "wikimedia/testing-access-wrapper": "2.0.0",
                 "yoast/phpunit-polyfills": "1.0.3"
             },
             "bin": [
