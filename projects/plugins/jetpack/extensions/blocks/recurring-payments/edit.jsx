@@ -42,6 +42,7 @@ export default function Edit( props ) {
 			{ showControls && (
 				<ProductManagementControls
 					allowCreateOneTimeInterval={ true }
+					blockName="recurring-payments"
 					selectedProductId={ planId }
 					setSelectedProductId={ updateSubscriptionPlan }
 				/>
