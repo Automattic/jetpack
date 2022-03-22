@@ -196,13 +196,13 @@ class Jetpack_RelatedPosts {
 			return;
 		}
 
-		if ( isset( $_GET['relatedposts'] ) ) { // phpcs:ignore WordPress.Security.NonceVerification.Recommended -- Checks if we need to generate a list of excuded posts.
+		if ( isset( $_GET['relatedposts'] ) ) { // phpcs:ignore WordPress.Security.NonceVerification.Recommended -- Reading and checking if we need to generate a list of excuded posts, does not update anything on the site.
 			$excludes = $this->parse_numeric_get_arg( 'relatedposts_exclude' );
 			$this->action_frontend_init_ajax( $excludes );
 		} else {
-			if ( isset( $_GET['relatedposts_hit'], $_GET['relatedposts_origin'], $_GET['relatedposts_position'] ) ) { // phpcs:ignore WordPress.Security.NonceVerification.Recommended -- checking if fields are set to setup tracking.
-				$this->previous_post_id = (int) $_GET['relatedposts_origin']; // phpcs:ignore WordPress.Security.NonceVerification.Recommended -- fetching a previous post ID for tracking. 
-				$this->log_click( $this->previous_post_id, get_the_ID(), sanitize_text_field( wp_unslash( $_GET['relatedposts_position'] ) ) ); // phpcs:ignore WordPress.Security.NonceVerification.Recommended -- just logging the click for tracking.
+			if ( isset( $_GET['relatedposts_hit'], $_GET['relatedposts_origin'], $_GET['relatedposts_position'] ) ) { // phpcs:ignore WordPress.Security.NonceVerification.Recommended -- checking if fields are set to setup tracking, nothing is changing on the site.
+				$this->previous_post_id = (int) $_GET['relatedposts_origin']; // phpcs:ignore WordPress.Security.NonceVerification.Recommended -- fetching a previous post ID for tracking, nothing is changing on the site. 
+				$this->log_click( $this->previous_post_id, get_the_ID(), sanitize_text_field( wp_unslash( $_GET['relatedposts_position'] ) ) ); // phpcs:ignore WordPress.Security.NonceVerification.Recommended -- logging the click for tracking, nothing is changing on the site.
 			}
 
 			$this->action_frontend_init_page();
