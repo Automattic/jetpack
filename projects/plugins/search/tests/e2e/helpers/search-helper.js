@@ -1,6 +1,6 @@
 import { execWpCommand } from 'jetpack-e2e-commons/helpers/utils-helper.cjs';
 import logger from 'jetpack-e2e-commons/logger.cjs';
-import { SearchHomepage } from 'jetpack-e2e-commons/pages/index.js';
+import { SearchHomepage } from '../pages/index.js';
 
 export async function enableInstantSearch() {
 	return execWpCommand( 'option update instant_search_enabled 1' );

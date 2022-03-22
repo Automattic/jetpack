@@ -1,5 +1,5 @@
-import WpPage from './wp-page.js';
-import { resolveSiteUrl } from '../helpers/utils-helper.cjs';
+import WpPage from 'jetpack-e2e-commons/pages/wp-page.js';
+import { resolveSiteUrl } from 'jetpack-e2e-commons/helpers/utils-helper.cjs';
 
 export default class SearchHomepage extends WpPage {
 	static SEARCH_API_PATTERN = /^https:\/\/public-api\.wordpress.com\/rest\/v1.3\/sites\/\d+\/search.*/;

@@ -1,15 +1,15 @@
-import { test, expect } from '../../fixtures/base-test.js';
-import { SearchHomepage } from 'jetpack-e2e-commons/pages/index.js';
+import { test, expect } from 'jetpack-e2e-commons/fixtures/base-test.js';
+import { SearchHomepage } from '../pages/index.js';
 import {
 	enableInstantSearch,
 	disableInstantSearch,
 	searchAPIRoute,
 	searchAutoConfig,
 	clearSearchPlanInfo,
-} from '../../helpers/search-helper.js';
+} from '../helpers/search-helper.js';
 import { prerequisitesBuilder, Plans } from 'jetpack-e2e-commons/env/index.js';
 import { resolveSiteUrl } from 'jetpack-e2e-commons/helpers/utils-helper.cjs';
-import playwrightConfig from '../../playwright.config.cjs';
+import playwrightConfig from '../playwright.config.cjs';
 
 test.describe( 'Instant Search', () => {
 	let homepage;
