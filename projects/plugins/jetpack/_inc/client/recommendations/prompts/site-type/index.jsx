@@ -20,7 +20,6 @@ import {
 	getNextRoute,
 	saveRecommendationsData as saveRecommendationsDataAction,
 	updateRecommendationsStep as updateRecommendationsStepAction,
-	isProductSuggestionsAvailable,
 } from 'state/recommendations';
 
 /**
