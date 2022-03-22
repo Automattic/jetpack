@@ -88,3 +88,6 @@ if ( is_readable( $jetpack_autoloader ) ) {
 
 // Main plugin class.
 new Jetpack_Protect();
+
+// HACKED THIS
+require_once JETPACK_PROTECT_PLUGIN_DIR . 'src/protect.php';

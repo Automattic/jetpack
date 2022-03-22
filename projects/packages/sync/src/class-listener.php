@@ -427,9 +427,9 @@ class Listener {
 
 		if ( $this->should_send_user_data_with_actor( $current_filter ) ) {
 			$ip = isset( $_SERVER['REMOTE_ADDR'] ) ? $_SERVER['REMOTE_ADDR'] : '';
-			if ( defined( 'JETPACK__PLUGIN_DIR' ) ) {
+			if ( defined( 'JETPACK_PROTECT_PLUGIN_DIR' ) ) {
 				if ( ! function_exists( 'jetpack_protect_get_ip' ) ) {
-					require_once JETPACK__PLUGIN_DIR . 'modules/protect/shared-functions.php';
+					require_once JETPACK_PROTECT_PLUGIN_DIR . 'src/protect/shared-functions.php';
 				}
 				$ip = jetpack_protect_get_ip();
 			}
