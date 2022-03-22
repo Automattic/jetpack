@@ -84,7 +84,7 @@
 .jp-recommendations-question__main--with-sidebar .jp-recommendations-question__description {
 	margin-right: 0;
 
-	@include breakpoint( '<660px' ) {
+	@include breakpoint( '<782px' ) {
 		margin-right: 32px;
 	}
 }
@@ -105,7 +105,7 @@
 		right: 0;
 	}
 
-	@include breakpoint( '<660px' ) {
+	@include breakpoint( '<782px' ) {
 		display: none;
 	}
 }
