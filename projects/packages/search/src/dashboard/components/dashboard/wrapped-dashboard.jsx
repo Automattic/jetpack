@@ -26,19 +26,24 @@ export default function SearchDashboardWithConnection() {
 
 	const renderFooter = () => {
 		return (
-			<div className="jp-search-connection-screen__footer">
-				<p>
+			<div className="jp-search-dashboard-connection-footer">
+				<p className="jp-search-dashboard-connection-footer__text">
 					{ __(
 						'Special introductory pricing, all renewals are at full price. 14 day money back guarantee.',
 						'jetpack-search-pkg'
 					) }
 				</p>
-				<p>
+				<p className="jp-search-dashboard-connection-footer__text">
 					{ __(
 						'*Pricing will automatically adjust based on the number of records in your search index. ',
 						'jetpack-search-pkg'
 					) }
-					<a href="https://jetpack.com/support/search/product-pricing/">Learn more</a>
+					<a
+						href="https://jetpack.com/support/search/product-pricing/"
+						className="jp-search-dashboard-connection-footer__link"
+					>
+						Learn more
+					</a>
 				</p>
 			</div>
 		);
@@ -46,16 +51,18 @@ export default function SearchDashboardWithConnection() {
 
 	if ( ! isFullyConnected ) {
 		return (
-			<AdminSectionHero>
-				<Container horizontalSpacing={ 3 } horizontalGap={ 3 }>
-					<Col lg={ 12 } md={ 8 } sm={ 4 }>
-						{ renderConnectScreen() }
-					</Col>
-					<Col lg={ 12 } md={ 8 } sm={ 4 }>
-						{ renderFooter() }
-					</Col>
-				</Container>
-			</AdminSectionHero>
+			<div className="jp-search-dashboard-connection-screen">
+				<AdminSectionHero>
+					<Container horizontalSpacing={ 3 } horizontalGap={ 3 }>
+						<Col lg={ 12 } md={ 8 } sm={ 4 }>
+							{ renderConnectScreen() }
+						</Col>
+						<Col lg={ 12 } md={ 8 } sm={ 4 }>
+							{ renderFooter() }
+						</Col>
+					</Container>
+				</AdminSectionHero>
+			</div>
 		);
 	}
 
