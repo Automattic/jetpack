@@ -17,6 +17,10 @@ import './style.scss';
 /**
  * Generate Record Meter showing how many records the user has indexed
  *
+ * @param {object} props - Props
+ * @param {number} props.postCount - Post count
+ * @param {object} props.postTypeBreakdown - Post type breakdown (post type => number of posts)
+ * @param {number} props.tierMaximumRecords - Max number of records allowed in user's current tier
  * @returns {React.Component} RecordMeter React component
  */
 export default function RecordMeter( { postCount, postTypeBreakdown, tierMaximumRecords } ) {
