@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Dedicated Sync: Allow spawning request with expired Retry-After

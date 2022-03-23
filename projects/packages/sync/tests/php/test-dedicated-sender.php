@@ -123,6 +123,23 @@ class Test_Dedicated_Sender extends BaseTestCase {
 	}
 
 	/**
+	 * Tests Dedicated_Sender::spawn_sync with Retry-After expired.
+	 */
+	public function test_spawn_sync_with_retry_after_expired() {
+		Settings::update_settings( array( 'dedicated_sync_enabled' => 1 ) );
+
+		// Simulate WPCOM sending us a response with `Retry-After` header that has now expired.
+		update_option( Actions::RETRY_AFTER_PREFIX . $this->queue->id, microtime( true ) - 10 * 60 );
+
+		add_filter( 'pre_http_request', array( $this, 'pre_http_request_success' ), 10, 3 );
+		$result = Dedicated_Sender::spawn_sync( $this->queue );
+		remove_filter( 'pre_http_request', array( $this, 'pre_http_request_success' ) );
+
+		$this->assertTrue( $result );
+		$this->assertTrue( $this->dedicated_sync_request_spawned );
+	}
+
+	/**
 	 * Tests Dedicated_Sender::spawn_sync with Sync throttled.
 	 */
 	public function test_spawn_sync_with_throttled() {

@@ -23,8 +23,8 @@
 		"lodash": "4.17.21"
 	},
 	"devDependencies": {
-		"@babel/core": "7.16.0",
-		"@babel/preset-react": "7.16.0",
+		"@babel/core": "7.17.8",
+		"@babel/preset-react": "7.16.7",
 		"jetpack-js-test-runner": "workspace:*",
 		"nyc": "15.1.0"
 	},
