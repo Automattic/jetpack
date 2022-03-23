@@ -1,11 +1,8 @@
 name: Jetpack block performance
 
 on:
-  # schedule:
-  #   - cron:  '0 */12 * * *'
-  pull_request:
-    paths-ignore:
-    - '**.md'
+  schedule:
+    - cron:  '0 */12 * * *'
 
 jobs:
   block-performance:
