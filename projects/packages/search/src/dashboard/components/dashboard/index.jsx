@@ -42,8 +42,8 @@ export default function SearchDashboard() {
 	const domain = useSelect( select => select( STORE_ID ).getCalypsoSlug() );
 	const upgradeBillPeriod = useSelect( select => select( STORE_ID ).getUpgradeBillPeriod() );
 
-	const supportsOnlyClassicSearch = useSelect(
-		select => select( STORE_ID ).supportsOnlyClassicSearch
+	const supportsOnlyClassicSearch = useSelect( select =>
+		select( STORE_ID ).supportsOnlyClassicSearch()
 	);
 	const supportsSearch = useSelect( select => select( STORE_ID ).supportsSearch() );
 	const supportsInstantSearch = useSelect( select => select( STORE_ID ).supportsInstantSearch() );
