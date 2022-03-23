@@ -124,8 +124,8 @@ class Jetpack_Protect_Blocked_Login_Page {
 			$url = empty( $url ) ? wp_login_url() : $url;
 			$url = add_query_arg(
 				array(
-					'validate_jetpack_protect_recovery' => $_GET['validate_jetpack_protect_recovery'],
-					'user_id'                           => $_GET['user_id'],
+					'validate_jetpack_protect_recovery' => $_GET['validate_jetpack_protect_recovery'], // phpcs:ignore WordPress.Security.NonceVerification.Recommended -- Nothing on the site is changed in response to this request.
+					'user_id'                           => $_GET['user_id'], // phpcs:ignore WordPress.Security.NonceVerification.Recommended -- Nothing on the site is changed in response to this request.
 					'checkemail'                        => 'confirm',
 				),
 				$url
@@ -144,8 +144,8 @@ class Jetpack_Protect_Blocked_Login_Page {
 	public function add_args_to_lostpassword_url( $url, $redirect ) {
 		if ( $this->valid_blocked_user_id ) {
 			$args = array(
-				'validate_jetpack_protect_recovery' => $_GET['validate_jetpack_protect_recovery'],
-				'user_id'                           => $_GET['user_id'],
+				'validate_jetpack_protect_recovery' => $_GET['validate_jetpack_protect_recovery'], // phpcs:ignore WordPress.Security.NonceVerification.Recommended -- Nothing on the site is changed in response to this request.
+				'user_id'                           => $_GET['user_id'], // phpcs:ignore WordPress.Security.NonceVerification.Recommended -- Nothing on the site is changed in response to this request.
 				'action'                            => 'lostpassword',
 			);
 			if ( ! empty( $redirect ) ) {
@@ -168,8 +168,8 @@ class Jetpack_Protect_Blocked_Login_Page {
 		if ( $this->valid_blocked_user_id && ( 'login_post' === $scheme || 'login' === $scheme ) ) {
 			$url = add_query_arg(
 				array(
-					'validate_jetpack_protect_recovery' => $_GET['validate_jetpack_protect_recovery'],
-					'user_id'                           => $_GET['user_id'],
+					'validate_jetpack_protect_recovery' => $_GET['validate_jetpack_protect_recovery'], // phpcs:ignore WordPress.Security.NonceVerification.Recommended -- Nothing on the site is changed in response to this request.
+					'user_id'                           => $_GET['user_id'], // phpcs:ignore WordPress.Security.NonceVerification.Recommended -- Nothing on the site is changed in response to this request.
 				),
 				$url
 			);
@@ -189,8 +189,8 @@ class Jetpack_Protect_Blocked_Login_Page {
 	public function add_args_to_login_url( $url, $redirect, $force_reauth ) {
 		if ( $this->valid_blocked_user_id ) {
 			$args = array(
-				'validate_jetpack_protect_recovery' => $_GET['validate_jetpack_protect_recovery'],
-				'user_id'                           => $_GET['user_id'],
+				'validate_jetpack_protect_recovery' => $_GET['validate_jetpack_protect_recovery'], // phpcs:ignore WordPress.Security.NonceVerification.Recommended -- Nothing on the site is changed in response to this request.
+				'user_id'                           => $_GET['user_id'], // phpcs:ignore WordPress.Security.NonceVerification.Recommended -- Nothing on the site is changed in response to this request.
 			);
 
 			if ( ! empty( $redirect ) ) {
@@ -239,7 +239,7 @@ class Jetpack_Protect_Blocked_Login_Page {
 			return false;
 		}
 
-		$this->valid_blocked_user_id = (int) $_GET['user_id'];
+		$this->valid_blocked_user_id = (int) $_GET['user_id']; // phpcs:ignore WordPress.Security.NonceVerification.Recommended -- Nothing on the site is changed in response to this request.
 
 		return true;
 	}
