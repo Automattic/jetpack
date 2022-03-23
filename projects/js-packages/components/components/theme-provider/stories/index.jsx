@@ -109,7 +109,7 @@ export const Typographies = args => (
 );
 
 Typographies.args = {
-	[ 'Text Instance' ]: 'text',
+	[ 'Text Instance' ]: '',
 };
 
 export const Colors = () => (
