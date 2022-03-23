@@ -12,7 +12,7 @@ import { useProduct } from '../../hooks/use-product';
 import { getIconBySlug } from '../icons';
 import useMyJetpackNavigate from '../../hooks/use-my-jetpack-navigate';
 
-const ConnectedProductCard = ( { admin, slug, showDeactivate } ) => {
+const ConnectedProductCard = ( { admin, slug } ) => {
 	const { detail, status, activate, deactivate, isFetching } = useProduct( slug );
 	const { name, description, manageUrl } = detail;
 
@@ -42,7 +42,6 @@ const ConnectedProductCard = ( { admin, slug, showDeactivate } ) => {
 			onAdd={ navigateToAddProductPage }
 			onFixConnection={ navigateToConnectionPage }
 			onManage={ onManage }
-			showDeactivate={ showDeactivate }
 		/>
 	);
 };
@@ -50,10 +49,6 @@ const ConnectedProductCard = ( { admin, slug, showDeactivate } ) => {
 ConnectedProductCard.propTypes = {
 	admin: PropTypes.bool.isRequired,
 	slug: PropTypes.string.isRequired,
-	showDeactivate: PropTypes.bool,
-};
-ConnectedProductCard.defaultProps = {
-	showDeactivate: true,
 };
 
 export default ConnectedProductCard;
