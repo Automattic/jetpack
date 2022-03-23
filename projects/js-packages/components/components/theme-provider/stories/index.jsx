@@ -98,15 +98,19 @@ export const Tokens = () => (
 	</>
 );
 
-export const Typographies = () => (
+export const Typographies = args => (
 	<div className={ styles[ 'font-instances-wrapper' ] }>
 		{ Object.keys( typography ).map( key => (
 			<div className={ styles[ 'font-instance' ] } style={ { fontSize: typography[ key ] } }>
-				{ `${ key } (${ typography[ key ] } )` }
+				{ args?.[ 'Text Instance' ] || `${ key } (${ typography[ key ] } )` }
 			</div>
 		) ) }
 	</div>
 );
+
+Typographies.args = {
+	[ 'Text Instance' ]: 'text',
+};
 
 export const Colors = () => (
 	<div className={ styles[ 'instances-wrapper' ] }>
