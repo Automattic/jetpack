@@ -167,7 +167,6 @@ export class Banner extends Component {
 				href={ callToAction ? null : this.getHref() }
 				onClick={ callToAction ? noop : this.handleClick }
 			>
-				{ this.getIcon() }
 				{ this.getContent() }
 			</Card>
 		);
