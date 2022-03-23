@@ -24,7 +24,7 @@
 </script>
 
 <div id="jb-settings" class="jb-settings">
-	<div class="jb-container jb-container--fixed">
+	<div class="jb-container jb-container--fixed mt-3">
 		<BackButton />
 		<div class="jb-card">
 			<div class="jb-card__content">
