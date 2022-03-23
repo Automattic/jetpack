@@ -104,7 +104,7 @@ class Dashboard {
 		/**
 		 * The filter allows to ommit adding a submenu item for Jetpack Search.
 		 *
-		 * @since $$next-version$$
+		 * @since 0.11.2
 		 *
 		 * @param boolean $should_add_search_submenu Default value is true.
 		 */

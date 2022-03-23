@@ -242,23 +242,27 @@ Jetpack Backup can do a full website migration to a new host, migrate theme file
 4. Promote your newest posts, pages, and products across your social media channels.
 
 == Changelog ==
-### 10.8-a.7 - 2022-03-15
+### 10.8-a.9 - 2022-03-23
+#### Major Enhancements
+- QR Post: add new feature which automatically generates QR codes for published posts. When scanned, the QR code will link visitors to the post. If a site has a custom logo set, it will be shown in the generated QR code image.
+
 #### Enhancements
-- Dashboard: add toggle to enable new Google Fonts feature.
-- Jetpack: add QRPost feature which generates QR codes for published posts. Currently a JETPACK_BETA_BLOCKS feature.
-- Premium Content block: use a drop down menu rather than two buttons to switch between the guest/subscriber views.
-- VideoPress: updated design of resumable uploader block.
+- External Media: add Openverse as an external Media provider.
+- Payment Block: clicking on payment links from email or WordPress.com Notifications/Reader will correctly open the corresponding payment form.
+- Dashboard: show Search benefits on the Jetpack disconnection screen.
 
 #### Improved compatibility
-- General: clean up use of deprecated FILTER_SANITIZE_STRING constant. Also mark WPCom_Markdown::get_post_screen_post_type as deprecated due to lack of use.
+- Sharing: avoid warnings when the feature is not active on a site that uses the AMP plugin.
 
 #### Bug fixes
-- Google Analytics: fix showing an upgrade button with the latest Jetpack security plans.
-- Jetpack: fix missing "Connect User" button after restoring a connection.
-- Pay with Paypal widget: enable widget to work in block-based widget editor and full site editor.
-- SEO Tools: ensure Twitter cards get correct description when a site has a blank tagline.
-- Payments: swap JETPACK_VERSION for the correct JETPACK__VERSION.
-- Premium Content block: when a visitor subscribes, they now see the premium content without needing to reload the page.
+- Calendly Block: ensure it can be displayed inline when using a block enabled theme.
+- VideoPress: fix broken styles on resumable uploader component.
+- Pay with Paypal Block: fix inconsistent currency formatting.
+- WordAds: fix defaulting to "house ad" mode for new activations.
+- Publicize: prevent newlines from being stripped from a custom Publicize message in the classic editor.
+- QR Post: improve the inner logo sizing.
+- Shortlinks: display the shortlinks interface in the block editor for all post types that support shortlinks.
+- Top Posts Widget: display a fallback list of posts to admins when there are no popular posts to display.
 
 --------
 
