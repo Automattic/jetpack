@@ -67,9 +67,15 @@ module.exports = {
 			rangeStrategy: 'replace',
 		},
 
-		// We need to keep a wide version range to support for PHP 5.6.
+		// We need to keep a wide version range to support PHP 5.6.
 		{
-			matchPackageNames: [ 'johnkary/phpunit-speedtrap' ],
+			matchPackageNames: [
+				'johnkary/phpunit-speedtrap',
+				'symfony/console',
+				'symfony/process',
+				'wikimedia/at-ease',
+				'wikimedia/testing-access-wrapper',
+			],
 			rangeStrategy: 'widen',
 		},
 
@@ -120,5 +126,5 @@ module.exports = {
 	dependencyDashboardTitle: 'Renovate Dependency Updates',
 	dependencyDashboardLabels: [ 'Primary Issue', '[Type] Janitorial' ],
 	dependencyDashboardFooter:
-		'The bot runs every half-hour, and may be monitored or triggered ahead of schedule [here](https://github.com/Automattic/jetpack/actions/workflows/renovate.yml).',
+		'The bot runs every two hours, and may be monitored or triggered ahead of schedule [here](https://github.com/Automattic/jetpack/actions/workflows/renovate.yml).',
 };

@@ -1,0 +1,4 @@
+Significance: patch
+Type: bugfix
+
+Shortlinks: display the shortlinks interface in the block editor for all post types that support shortlinks.
