@@ -6,17 +6,14 @@ const PALETTE = require( '@automattic/color-studio' );
 /**
  * converts provided information into a chart consumable data form
  *
- * @param {object} data - contains record type breakdown, post count, last indexed date,
- * @param {object} planInfo - information about the users current plan
+ * @param {object} data - contains record type breakdown, post count, last indexed date, and tierMaximumRecords
  * @returns {object} data in correct form to use in chart and notice-box
  */
-export default function getRecordInfo( data, planInfo ) {
-	// set max number of record types to display
-	const maxRecordCount = 5;
-
-	// sets up some basic counts and arrays
+export default function getRecordInfo( data ) {
+	const maxRecordCount = 5; // this value determines when to cut off displaying post times & compound into an 'other'
 	const recordInfo = [];
 	const postTypeBreakdown = [];
+
 	let currentCount = 0;
 	let hasValidData = true;
 	let hasBeenIndexed = true;
@@ -26,7 +23,7 @@ export default function getRecordInfo( data, planInfo ) {
 	if (
 		'object' !== typeof data ||
 		'object' !== typeof data.post_type_breakdown ||
-		'object' !== typeof planInfo
+		'number' !== typeof data.tier
 	) {
 		hasValidData = false;
 	}
@@ -43,8 +40,6 @@ export default function getRecordInfo( data, planInfo ) {
 	if ( numItems === 0 ) {
 		hasItems = false;
 	}
-
-	const tier = Object.values( planInfo.search_subscriptions[ 0 ] )[ 22 ];
 
 	const colors = [
 		PALETTE.colors[ 'Blue 30' ],
@@ -91,9 +86,9 @@ export default function getRecordInfo( data, planInfo ) {
 		}
 
 		// if there is remaining unused space in tier, add filler spacing to chart
-		if ( tier - currentCount > 0 ) {
+		if ( data.tier - currentCount > 0 ) {
 			recordInfo.push( {
-				data: createData( tier - currentCount, PALETTE.colors[ 'Gray 0' ], 'Remaining' ),
+				data: createData( data.tier - currentCount, PALETTE.colors[ 'Gray 0' ], 'Remaining' ),
 			} );
 		}
 	}
@@ -103,7 +98,7 @@ export default function getRecordInfo( data, planInfo ) {
 
 	return {
 		data: recordInfo,
-		tier: tier,
+		tier: data.tier,
 		recordCount: currentCount,
 		hasBeenIndexed,
 		hasValidData,

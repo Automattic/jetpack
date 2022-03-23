@@ -10,7 +10,6 @@ import { BarChart } from './bar-chart';
 import { RecordCount } from './record-count';
 import { NoticeBox } from './notice-box';
 import getRecordInfo from './lib/record-info';
-import createData from './lib/create-data';
 
 import './style.scss';
 
@@ -32,9 +31,7 @@ export default function RecordMeter( {
 } ) {
 	// TODO: use setRecordInfo var
 	// eslint-disable-next-line no-unused-vars
-	const [ recordInfo, setRecordInfo ] = useState(
-		getRecordInfo( createData().data, createData().planInfo )
-	);
+	const [ recordInfo, setRecordInfo ] = useState( getRecordInfo( recordInfoData ) );
 
 	return (
 		<div className="jp-search-record-meter jp-search-dashboard-wrap" data-testid="record-meter">
