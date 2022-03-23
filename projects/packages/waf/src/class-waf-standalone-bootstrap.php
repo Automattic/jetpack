@@ -77,8 +77,15 @@ class WafStandaloneBootstrap {
 		$code = "<?php\n"
 			. sprintf( "define( 'JETPACK_WAF_MODE', %s );\n", var_export( $mode_option ? $mode_option : 'silent', true ) )
 			. sprintf( "define( 'JETPACK_WAF_DIR', %s );\n", var_export( JETPACK_WAF_DIR, true ) )
+			. 'require_once ' . var_export( trailingslashit( WP_CONTENT_DIR ) . 'plugins/jetpack/vendor/autoload.php', true ) . ";\n"
 			. 'include ' . var_export( dirname( __DIR__ ) . '/run.php', true ) . ";\n";
 		// phpcs:enable
+
+		if ( ! $wp_filesystem->is_dir( JETPACK_WAF_DIR ) ) {
+			if ( ! $wp_filesystem->mkdir( JETPACK_WAF_DIR ) ) {
+				throw new Exception( 'Failed creating WAF standalone bootstrap file directory: ' . JETPACK_WAF_DIR );
+			}
+		}
 
 		if ( ! $wp_filesystem->put_contents( $bootstrap_file, $code ) ) {
 			throw new Exception( 'Failed writing WAF standalone bootstrap file to: ' . $bootstrap_file );

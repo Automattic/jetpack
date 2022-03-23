@@ -8,8 +8,6 @@
 
 namespace Automattic\Jetpack\Waf;
 
-require_once __DIR__ . '/vendor/autoload.php';
-
 if ( ! defined( 'JETPACK_WAF_MODE' ) ) {
 	$mode_option = get_option( WafRunner::MODE_OPTION_NAME );
 

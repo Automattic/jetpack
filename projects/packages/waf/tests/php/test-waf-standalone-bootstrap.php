@@ -64,9 +64,13 @@ final class WafStandaloneBootstrapTest extends PHPUnit\Framework\TestCase {
 		define( 'WP_CONTENT_DIR', '/awesome/dir' );
 
 		$filesystem_mock_builder = $this->getMockBuilder( stdClass::class );
-		$filesystem_mock_builder->setMethods( array( 'put_contents' ) );
+		$filesystem_mock_builder->setMethods( array( 'is_dir', 'put_contents' ) );
 
 		$filesystem_mock = $filesystem_mock_builder->getMock();
+
+		$filesystem_mock->expects( $this->once() )
+			->method( 'is_dir' )
+			->willReturn( true );
 
 		$filesystem_mock->expects( $this->once() )
 			->method( 'put_contents' )
@@ -76,7 +80,8 @@ final class WafStandaloneBootstrapTest extends PHPUnit\Framework\TestCase {
 					function ( $file_contents ) {
 						return strpos( $file_contents, "define( 'JETPACK_WAF_MODE', 'mockModeOption' );" ) !== false
 							&& strpos( $file_contents, "define( 'JETPACK_WAF_DIR', '/awesome/dir/jetpack-waf' );" ) !== false
-							// Checking the include path fuzzy because it will vary depending on the system that the test is executed on.
+							// Checking the require and include paths fuzzy because it will vary depending on the system that the test is executed on.
+							&& preg_match( '/require_once.*autoload\.php/', $file_contents ) === 1
 							&& preg_match( '/include.*run\.php/', $file_contents ) === 1;
 					}
 				)
@@ -110,9 +115,13 @@ final class WafStandaloneBootstrapTest extends PHPUnit\Framework\TestCase {
 		define( 'WP_CONTENT_DIR', '/awesome/dir' );
 
 		$filesystem_mock_builder = $this->getMockBuilder( stdClass::class );
-		$filesystem_mock_builder->setMethods( array( 'put_contents' ) );
+		$filesystem_mock_builder->setMethods( array( 'is_dir', 'put_contents' ) );
 
 		$filesystem_mock = $filesystem_mock_builder->getMock();
+		$filesystem_mock->expects( $this->once() )
+			->method( 'is_dir' )
+			->willReturn( true );
+
 		$filesystem_mock->expects( $this->once() )
 			->method( 'put_contents' )
 			->willReturn( false );
@@ -128,6 +137,81 @@ final class WafStandaloneBootstrapTest extends PHPUnit\Framework\TestCase {
 		$sut = $mock_builder->getMock();
 
 		$this->expectExceptionMessage( 'Failed writing WAF standalone bootstrap file to: /awesome/dir/jetpack-waf/bootstrap.php' );
+		$sut->generate();
+	}
+
+	/**
+	 * Test creating the jetpack WAF directory successfully if it does not exist.
+	 *
+	 * @runInSeparateProcess
+	 */
+	public function testGenerateCreatesTheJetpackWafDirectoryIfItDoesNotExistYet() {
+		define( 'ABSPATH', '/awesome' );
+		define( 'WP_CONTENT_DIR', '/awesome/dir' );
+
+		$filesystem_mock_builder = $this->getMockBuilder( stdClass::class );
+		$filesystem_mock_builder->setMethods( array( 'is_dir', 'mkdir', 'put_contents' ) );
+
+		$filesystem_mock = $filesystem_mock_builder->getMock();
+
+		$filesystem_mock->expects( $this->once() )
+			->method( 'is_dir' )
+			->willReturn( false );
+
+		$filesystem_mock->expects( $this->once() )
+			->method( 'mkdir' )
+			->with( '/awesome/dir/jetpack-waf' )
+			->willReturn( true );
+
+		$filesystem_mock->expects( $this->once() )
+			->method( 'put_contents' )
+			->willReturn( true );
+
+		global $wp_filesystem;
+		$wp_filesystem = $filesystem_mock;
+
+		$mock_builder = $this->getMockBuilder( WafStandaloneBootstrap::class );
+		$mock_builder->setMethods( array( 'initialize_filesystem' ) );
+
+		$sut = $mock_builder->getMock();
+		$sut->expects( $this->once() )->method( 'initialize_filesystem' );
+
+		$sut->generate();
+	}
+
+	/**
+	 * Test not being able to create the jetpack WAF directory.
+	 *
+	 * @runInSeparateProcess
+	 */
+	public function testGenerateThrowsAnExceptionIfUnableToCreateJetpackWafDirectory() {
+		define( 'ABSPATH', '/awesome' );
+		define( 'WP_CONTENT_DIR', '/awesome/dir' );
+
+		$filesystem_mock_builder = $this->getMockBuilder( stdClass::class );
+		$filesystem_mock_builder->setMethods( array( 'is_dir', 'mkdir' ) );
+
+		$filesystem_mock = $filesystem_mock_builder->getMock();
+
+		$filesystem_mock->expects( $this->once() )
+			->method( 'is_dir' )
+			->willReturn( false );
+
+		$filesystem_mock->expects( $this->once() )
+			->method( 'mkdir' )
+			->with( '/awesome/dir/jetpack-waf' )
+			->willReturn( false );
+
+		global $wp_filesystem;
+		$wp_filesystem = $filesystem_mock;
+
+		$mock_builder = $this->getMockBuilder( WafStandaloneBootstrap::class );
+		$mock_builder->setMethods( array( 'initialize_filesystem' ) );
+
+		$sut = $mock_builder->getMock();
+		$sut->expects( $this->once() )->method( 'initialize_filesystem' );
+
+		$this->expectExceptionMessage( 'Failed creating WAF standalone bootstrap file directory: /awesome/dir/jetpack-waf' );
 		$sut->generate();
 	}
 
