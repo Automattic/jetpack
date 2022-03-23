@@ -1,0 +1,4 @@
+Significance: patch
+Type: bugfix
+
+Fixed a Redux store middleware regression on older Gutenberg versions
