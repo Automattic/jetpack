@@ -25,7 +25,7 @@ describe( 'with notices to display', () => {
 				hasItems={ true }
 			></NoticeBox>
 		);
-		expect( screen.getByText( 'Your content has not yet been indexed for Search' ) ).toBeVisible();
+		expect( screen.getByText( 'not yet been indexed' ) ).toBeVisible();
 	} );
 
 	test( 'unable to access data notice is displayed', () => {
@@ -39,9 +39,7 @@ describe( 'with notices to display', () => {
 			></NoticeBox>
 		);
 
-		expect(
-			screen.getByText( "We weren't able to properly locate your content for Search" )
-		).toBeVisible();
+		expect( screen.getByText( 'locate your content' ) ).toBeVisible();
 	} );
 
 	test( 'unable to locate content notice is displayed', () => {
@@ -55,11 +53,7 @@ describe( 'with notices to display', () => {
 			></NoticeBox>
 		);
 
-		expect(
-			screen.getByText(
-				"We weren't able to locate any content to Search to index. Perhaps you don't yet have any posts or pages?"
-			)
-		).toBeVisible();
+		expect( screen.getByText( 'locate any content' ) ).toBeVisible();
 	} );
 
 	test( 'recently surpassed record limit notice is displayed', () => {
@@ -73,11 +67,7 @@ describe( 'with notices to display', () => {
 			></NoticeBox>
 		);
 
-		expect(
-			screen.getByText(
-				'You recently surpassed 100 records and will be automatically upgraded to the next billing tier of 1000 max records'
-			)
-		).toBeVisible();
+		expect( screen.getByText( 'automatically upgraded to the next billing tier' ) ).toBeVisible();
 	} );
 
 	test( 'getting close to record limit notice is displayed', () => {
@@ -91,11 +81,7 @@ describe( 'with notices to display', () => {
 			></NoticeBox>
 		);
 
-		expect(
-			screen.getByText(
-				"You're close to the max amount of records for this billing tier. Once you hit 100 indexed records, you'll automatically be billed in the next tier"
-			)
-		).toBeVisible();
+		expect( screen.getByText( 'close to the max amount of records' ) ).toBeVisible();
 	} );
 } );
 
