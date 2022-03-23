@@ -1,4 +1,4 @@
-import { getRedirectUrl } from '@automattic/jetpack-components';
+import { getIconBySlug, getRedirectUrl } from '@automattic/jetpack-components';
 import { __, _x } from '@wordpress/i18n';
 import classNames from 'classnames';
 import Button from 'components/button';
@@ -20,6 +20,7 @@ import { getModule as _getModule } from 'state/modules';
 
 export class DashItem extends Component {
 	static propTypes = {
+		headerIcon: PropTypes.string,
 		label: PropTypes.string,
 		status: PropTypes.string,
 		statusText: PropTypes.string,
@@ -136,10 +137,16 @@ export class DashItem extends Component {
 		if ( this.props.module && this.props.getModule ) {
 			module = this.props.getModule( this.props.module );
 		}
-
+		const HeaderIcon = this.props.headerIcon && getIconBySlug( this.props.headerIcon );
+		const label = (
+			<>
+				{ this.props.headerIcon && <HeaderIcon /> }
+				{ this.props.label }
+			</>
+		);
 		return (
 			<div className={ classes }>
-				<SectionHeader label={ this.props.label } cardBadge={ proButton }>
+				<SectionHeader label={ label } cardBadge={ proButton }>
 					{ this.props.userCanToggle ? toggle : '' }
 				</SectionHeader>
 				{ this.props.overrideContent ? (

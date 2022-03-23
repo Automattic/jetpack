@@ -140,6 +140,7 @@ class DashAkismet extends Component {
 			if ( this.props.isOfflineMode ) {
 				return (
 					<DashItem
+						headerIcon="anti-spam"
 						label={ labelName }
 						module="akismet"
 						support={ support }
@@ -182,7 +183,13 @@ class DashAkismet extends Component {
 
 		if ( 'N/A' === akismetData ) {
 			return (
-				<DashItem label={ labelName } module="akismet" support={ support } pro={ true }>
+				<DashItem
+					headerIcon="anti-spam"
+					label={ labelName }
+					module="akismet"
+					support={ support }
+					pro={ true }
+				>
 					<p className="jp-dash-item__description">{ __( 'Loading…', 'jetpack' ) }</p>
 				</DashItem>
 			);
@@ -192,6 +199,7 @@ class DashAkismet extends Component {
 			if ( 'not_installed' === akismetData ) {
 				return (
 					<DashItem
+						headerIcon="anti-spam"
 						label={ labelName }
 						module="akismet"
 						support={ support }
@@ -205,6 +213,7 @@ class DashAkismet extends Component {
 			if ( 'not_active' === akismetData ) {
 				return (
 					<DashItem
+						headerIcon="anti-spam"
 						label={ labelName }
 						module="akismet"
 						support={ support }
@@ -218,6 +227,7 @@ class DashAkismet extends Component {
 			if ( 'invalid_key' === akismetData ) {
 				return (
 					<DashItem
+						headerIcon="anti-spam"
 						label={ labelName }
 						module="akismet"
 						support={ support }
@@ -232,6 +242,7 @@ class DashAkismet extends Component {
 		if ( [ 'not_installed', 'not_active', 'invalid_key' ].includes( akismetData ) ) {
 			return (
 				<DashItem
+					headerIcon="anti-spam"
 					label={ labelName }
 					module="akismet"
 					support={ support }
@@ -248,6 +259,7 @@ class DashAkismet extends Component {
 
 		return [
 			<DashItem
+				headerIcon="anti-spam"
 				key="comment-moderation"
 				label={ labelName }
 				module="akismet"

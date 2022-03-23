@@ -9,6 +9,7 @@ import PluginDashItem from 'components/plugin-dash-item';
 
 export default BoostDashItem = () =>
 	<PluginDashItem
+		headerIcon="boost"
 		pluginName="Boost"
 		pluginFiles={ [ 'jetpack-boost/jetpack-boost.php' ] }
 		pluginSlug={ 'jetpack-boost' }

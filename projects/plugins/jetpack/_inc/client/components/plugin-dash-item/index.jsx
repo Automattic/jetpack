@@ -1,4 +1,5 @@
 import restApi from '@automattic/jetpack-api';
+import { getIconBySlug } from '@automattic/jetpack-components';
 import { Spinner } from '@wordpress/components';
 import { __, sprintf } from '@wordpress/i18n';
 import Card from 'components/card';
@@ -19,6 +20,7 @@ import './style.scss';
 
 export const PluginDashItem = ( {
 	fetchPluginsData,
+	headerIcon,
 	iconAlt,
 	iconSrc,
 	installOrActivatePrompt,
@@ -141,15 +143,25 @@ export const PluginDashItem = ( {
 		);
 	};
 
+	const Icon = getIconBySlug( headerIcon );
+	const label = Icon ? (
+		<>
+			{ Icon && <Icon /> }
+			{ pluginName }
+		</>
+	) : (
+		pluginName
+	);
 	return (
 		<div className="plugin-dash-item">
-			<SectionHeader className="plugin-dash-item__section-header" label={ pluginName } />
+			<SectionHeader className="plugin-dash-item__section-header" label={ label } />
 			{ renderContent() }
 		</div>
 	);
 };
 
 PluginDashItem.propTypes = {
+	headerIcon: PropTypes.string,
 	pluginName: PropTypes.string.isRequired,
 	pluginFiles: PropTypes.arrayOf( PropTypes.string ).isRequired,
 	pluginSlug: PropTypes.string.isRequired,

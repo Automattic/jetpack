@@ -22,6 +22,7 @@ class DashBoost extends Component {
 	render() {
 		return (
 			<PluginDashItem
+				headerIcon="boost"
 				iconAlt={ __( 'Plugin icon', 'jetpack' ) }
 				iconSrc={ boostSvgUrl }
 				pluginName={ _x(

@@ -40,6 +40,7 @@ import { isPluginInstalled } from 'state/site/plugins';
  */
 const renderCard = props => (
 	<DashItem
+		headerIcon="scan"
 		label={ __( 'Scan', 'jetpack' ) }
 		module={ props.feature || 'scan' }
 		support={ {

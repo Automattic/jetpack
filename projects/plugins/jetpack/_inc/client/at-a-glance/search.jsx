@@ -29,6 +29,7 @@ const SEARCH_SUPPORT = __( 'Search supports many customizations. ', 'jetpack' );
  */
 const renderCard = props => (
 	<DashItem
+		headerIcon="search"
 		label={ __( 'Search', 'jetpack' ) }
 		module="search"
 		support={ {

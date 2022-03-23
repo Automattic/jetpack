@@ -30,6 +30,11 @@
 	.dops-card.dops-section-header
 		.dops-section-header__label-text {
 			font-weight: 500;
+			display: flex;
+			align-items: center;
+			svg {
+				margin-right:8px;
+			}
 	}
 
 	.dops-card.jp-dash-item__card {

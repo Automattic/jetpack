@@ -20,10 +20,15 @@
 	}
 
 	.dops-card.dops-section-header
-		.dops-section-header__label-text {
+	.dops-section-header__label-text {
 			font-weight: 500;
+			display: flex;
+			align-items: center;
+			svg {
+				margin-right:8px;
+			}
 	}
-		
+
 	.dops-banner.dops-card {
 		border-left: none;
 

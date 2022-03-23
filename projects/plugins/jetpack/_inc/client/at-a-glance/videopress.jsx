@@ -78,6 +78,7 @@ class DashVideoPress extends Component {
 		if ( this.props.getOptionValue( 'videopress' ) && hasConnectedOwner ) {
 			return (
 				<DashItem
+					headerIcon="videopress"
 					className="jp-dash-item__videopress"
 					label={ labelName }
 					module="videopress"
