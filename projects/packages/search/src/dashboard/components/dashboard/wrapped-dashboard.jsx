@@ -1,15 +1,18 @@
 /**
  * External dependencies
  */
-import React from 'react';
-import { __ } from '@wordpress/i18n';
+import React, { useMemo } from 'react';
+import { select as syncSelect } from '@wordpress/data';
 
 /**
  * Internal dependencies
  */
+import analytics from '@automattic/jetpack-analytics';
+import restApi from '@automattic/jetpack-api';
 import { AdminSectionHero, Container, Col } from '@automattic/jetpack-components';
 import useConnection from './use-connection';
 import SearchDashboard from './index';
+import { STORE_ID } from 'store';
 
 /**
  * Return Search Dashboard if connected, otherwise the connection screen.
@@ -17,37 +20,34 @@ import SearchDashboard from './index';
  * @returns {React.Component} SearchDashboardWithConnection component.
  */
 export default function SearchDashboardWithConnection() {
-	const [ connectionStatus, renderConnectScreen ] = useConnection();
+	const { connectionStatus, renderConnectScreen, renderConnectionFooter } = useConnection();
 
 	const isFullyConnected =
 		Object.keys( connectionStatus ).length &&
 		connectionStatus.isUserConnected &&
 		connectionStatus.isRegistered;
 
-	const renderFooter = () => {
-		return (
-			<div className="jp-search-dashboard-connection-footer">
-				<p className="jp-search-dashboard-connection-footer__text">
-					{ __(
-						'Special introductory pricing, all renewals are at full price. 14 day money back guarantee.',
-						'jetpack-search-pkg'
-					) }
-				</p>
-				<p className="jp-search-dashboard-connection-footer__text">
-					{ __(
-						'*Pricing will automatically adjust based on the number of records in your search index. ',
-						'jetpack-search-pkg'
-					) }
-					<a
-						href="https://jetpack.com/support/search/product-pricing/"
-						className="jp-search-dashboard-connection-footer__link"
-					>
-						Learn more
-					</a>
-				</p>
-			</div>
-		);
+	const initializeAnalytics = () => {
+		const tracksUser = syncSelect( STORE_ID ).getWpcomUser();
+		const blogId = syncSelect( STORE_ID ).getBlogId();
+
+		if ( tracksUser ) {
+			analytics.initialize( tracksUser.ID, tracksUser.login, {
+				blog_id: blogId,
+			} );
+		}
 	};
+
+	useMemo( () => {
+		const apiRootUrl = syncSelect( STORE_ID ).getAPIRootUrl();
+		const apiNonce = syncSelect( STORE_ID ).getAPINonce();
+		apiRootUrl && restApi.setApiRoot( apiRootUrl );
+		apiNonce && restApi.setApiNonce( apiNonce );
+		initializeAnalytics();
+		analytics.tracks.recordEvent( 'jetpack_search_admin_page_view', {
+			current_version: syncSelect( STORE_ID ).getVersion(),
+		} );
+	}, [] );
 
 	if ( ! isFullyConnected ) {
 		return (
@@ -58,7 +58,7 @@ export default function SearchDashboardWithConnection() {
 							{ renderConnectScreen() }
 						</Col>
 						<Col lg={ 12 } md={ 8 } sm={ 4 }>
-							{ renderFooter() }
+							{ renderConnectionFooter() }
 						</Col>
 					</Container>
 				</AdminSectionHero>

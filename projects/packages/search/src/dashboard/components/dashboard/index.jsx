@@ -1,19 +1,17 @@
 /**
  * External dependencies
  */
-import React, { Fragment, useMemo } from 'react';
+import React, { Fragment } from 'react';
 
 /**
  * WordPress dependencies
  */
-import { useSelect, useDispatch, select as syncSelect } from '@wordpress/data';
+import { useSelect, useDispatch } from '@wordpress/data';
 import { __ } from '@wordpress/i18n';
 
 /**
  * Internal dependencies
  */
-import analytics from '@automattic/jetpack-analytics';
-import restApi from '@automattic/jetpack-api';
 import { JetpackFooter, JetpackLogo, Spinner } from '@automattic/jetpack-components';
 import ModuleControl from 'components/module-control';
 import MockedSearch from 'components/mocked-search';
@@ -76,28 +74,6 @@ export default function SearchDashboard() {
 
 	const handleLocalNoticeDismissClick = useDispatch( STORE_ID ).removeNotice;
 	const notices = useSelect( select => select( STORE_ID ).getNotices(), [] );
-
-	const initializeAnalytics = () => {
-		const tracksUser = syncSelect( STORE_ID ).getWpcomUser();
-		const blogId = syncSelect( STORE_ID ).getBlogId();
-
-		if ( tracksUser ) {
-			analytics.initialize( tracksUser.ID, tracksUser.login, {
-				blog_id: blogId,
-			} );
-		}
-	};
-
-	useMemo( () => {
-		const apiRootUrl = syncSelect( STORE_ID ).getAPIRootUrl();
-		const apiNonce = syncSelect( STORE_ID ).getAPINonce();
-		apiRootUrl && restApi.setApiRoot( apiRootUrl );
-		apiNonce && restApi.setApiNonce( apiNonce );
-		initializeAnalytics();
-		analytics.tracks.recordEvent( 'jetpack_search_admin_page_view', {
-			current_version: syncSelect( STORE_ID ).getVersion(),
-		} );
-	}, [] );
 
 	const renderHeader = () => {
 		return (

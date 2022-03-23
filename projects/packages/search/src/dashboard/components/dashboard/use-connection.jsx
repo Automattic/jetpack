@@ -39,7 +39,7 @@ export default function useConnection() {
 				apiRoot={ APIRoot }
 				apiNonce={ APINonce }
 				registrationNonce={ registrationNonce }
-				from="jetpack-search"
+				from="search"
 				redirectUri="admin.php?page=jetpack-search"
 			>
 				<h3>
@@ -68,5 +68,30 @@ export default function useConnection() {
 		);
 	};
 
-	return [ connectionStatus, renderConnectScreen ];
+	const renderConnectionFooter = () => {
+		return (
+			<div className="jp-search-dashboard-connection-footer">
+				<p className="jp-search-dashboard-connection-footer__text">
+					{ __(
+						'Special introductory pricing, all renewals are at full price. 14 day money back guarantee.',
+						'jetpack-search-pkg'
+					) }
+				</p>
+				<p className="jp-search-dashboard-connection-footer__text">
+					{ __(
+						'*Pricing will automatically adjust based on the number of records in your search index. ',
+						'jetpack-search-pkg'
+					) }
+					<a
+						href="https://jetpack.com/support/search/product-pricing/"
+						className="jp-search-dashboard-connection-footer__link"
+					>
+						Learn more
+					</a>
+				</p>
+			</div>
+		);
+	};
+
+	return { connectionStatus, renderConnectScreen, renderConnectionFooter };
 }
