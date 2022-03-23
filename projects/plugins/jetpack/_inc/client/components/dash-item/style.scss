@@ -22,10 +22,14 @@
 			font-weight: normal;
 		}
 	}
-
 	.dops-card.dops-section-header.is-compact,
 	.dops-card.is-card-link.is-compact {
 		padding: 8px 16px;
+	}
+
+	.dops-card.dops-section-header
+		.dops-section-header__label-text {
+			font-weight: 500;
 	}
 
 	.dops-card.jp-dash-item__card {
