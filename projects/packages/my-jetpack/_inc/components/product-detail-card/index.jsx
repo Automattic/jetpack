@@ -69,11 +69,15 @@ function Price( { value, currency, isOld } ) {
 	} );
 
 	return (
-		<div className={ classNames }>
-			<sup className={ styles[ 'price-symbol' ] }>{ priceObject.symbol }</sup>
-			<span className={ styles[ 'price-number' ] }>{ priceObject.integer }</span>
-			<sup className={ styles[ 'price-fraction' ] }>{ priceObject.fraction }</sup>
-		</div>
+		<Text className={ classNames } variant="headline-medium" component="p">
+			<Text component="sup" variant="title-medium">
+				{ priceObject.symbol }
+			</Text>
+			{ priceObject.integer }
+			<Text component="sup" variant="title-medium">
+				{ priceObject.fraction }
+			</Text>
+		</Text>
 	);
 }
 
@@ -84,9 +88,10 @@ function Price( { value, currency, isOld } ) {
  * @param {string} props.slug               - Product slug
  * @param {Function} props.onClick          - Callback for Call To Action button click
  * @param {Function} props.trackButtonClick - Function to call for tracking clicks on Call To Action button
+ * @param {string} props.className					- A className to be concat with default ones
  * @returns {object}                          ProductDetailCard react component.
  */
-const ProductDetail = ( { slug, onClick, trackButtonClick } ) => {
+const ProductDetailCard = ( { slug, onClick, trackButtonClick, className } ) => {
 	const { detail, isFetching } = useProduct( slug );
 	const {
 		title,
@@ -149,108 +154,95 @@ const ProductDetail = ( { slug, onClick, trackButtonClick } ) => {
 	}, [ onClick, trackButtonClick ] );
 
 	return (
-		<>
+		<Container
+			className={ classnames( styles.card, className ) }
+			fluid
+			horizontalGap={ 0 }
+			horizontalSpacing={ 0 }
+		>
 			{ isBundle && (
-				<div className={ styles[ 'card-header' ] }>
+				<Col className={ styles[ 'card-header' ] }>
 					<StarIcon className={ styles[ 'product-bundle-icon' ] } size={ 16 } />
-					{ __( 'Popular upgrade', 'jetpack-my-jetpack' ) }
-				</div>
+					<Text variant="label">{ __( 'Popular upgrade', 'jetpack-my-jetpack' ) }</Text>
+				</Col>
 			) }
 
-			<Container horizontalSpacing={ 5 } horizontalGap={ 2 } className={ styles.container }>
-				<Col>
-					{ isBundle && <div className={ styles[ 'product-icons' ] }>{ icons }</div> }
+			<Col>
+				<Container horizontalSpacing={ 5 } horizontalGap={ 2 } className={ styles.container }>
+					<Col>
+						{ isBundle && <div>{ icons }</div> }
 
-					<ProductIcon slug={ slug } />
-				</Col>
+						<ProductIcon slug={ slug } />
+					</Col>
 
-				<Col>
-					<Text variant="headline-small" className={ styles.title }>
+					<Text variant="headline-small" className={ styles.title } component={ Col }>
 						{ title }
 					</Text>
-				</Col>
 
-				<Col>
-					<Text className={ styles.name }>{ longDescription }</Text>
-				</Col>
+					<Text className={ styles.name } component={ Col }>
+						{ longDescription }
+					</Text>
 
-				<Col>
-					<ul className={ styles.features }>
-						{ features.map( ( feature, id ) => (
-							<Text component="li" key={ `feature-${ id }` }>
-								<Icon icon={ check } size={ 30 } />
-								{ feature }
-							</Text>
-						) ) }
-					</ul>
-				</Col>
-
-				{ needsPurchase && (
 					<Col>
-						<div className={ styles[ 'price-container' ] }>
+						<ul className={ styles.features }>
+							{ features.map( ( feature, id ) => (
+								<Text component="li" key={ `feature-${ id }` } variant="body-extra-small">
+									<Icon icon={ check } size={ 30 } />
+									{ feature }
+								</Text>
+							) ) }
+						</ul>
+					</Col>
+
+					{ needsPurchase && (
+						<Col className={ styles[ 'price-container' ] }>
 							<Price value={ price } currency={ currencyCode } isOld={ true } />
 							<Price value={ discountPrice } currency={ currencyCode } isOld={ false } />
 							<Text className={ styles[ 'price-description' ] }>
 								{ __( '/month, paid yearly', 'jetpack-my-jetpack' ) }
 							</Text>
-						</div>
-					</Col>
-				) }
+						</Col>
+					) }
 
-				{ isFree && (
+					{ isFree && (
+						<Text variant="title-small" component={ Col }>
+							{ __( 'Free', 'jetpack-my-jetpack' ) }
+						</Text>
+					) }
+
 					<Col>
-						<h3 className={ styles[ 'product-free' ] }>{ __( 'Free', 'jetpack-my-jetpack' ) }</h3>
-					</Col>
-				) }
-
-				<Col>
-					<div className={ styles[ 'cta-container' ] }>
 						{ ( ! isBundle || ( isBundle && ! hasRequiredPlan ) ) && (
-							<ProductDetailButton
+							<Text
+								component={ ProductDetailButton }
 								onClick={ clickHandler }
 								isLoading={ isFetching }
 								isPrimary={ ! isBundle }
 								href={ onClick ? undefined : addProductUrl }
-								className={ `${ styles[ 'checkout-button' ] } ${
-									isBundle ? styles[ 'is-bundle' ] : ''
-								}` }
+								className={ styles[ 'checkout-button' ] }
+								variant="body"
 							>
 								{
 									/* translators: placeholder is product name. */
 									sprintf( __( 'Add %s', 'jetpack-my-jetpack' ), title )
 								}
-							</ProductDetailButton>
+							</Text>
 						) }
 
 						{ isBundle && hasRequiredPlan && (
 							<div className={ styles[ 'product-has-required-plan' ] }>
 								<CheckmarkIcon size={ 36 } />
-								{ __( 'Active on your site', 'jetpack-my-jetpack' ) }
+								<Text>{ __( 'Active on your site', 'jetpack-my-jetpack' ) }</Text>
 							</div>
 						) }
-					</div>
-				</Col>
-			</Container>
-		</>
+					</Col>
+				</Container>
+			</Col>
+		</Container>
 	);
 };
 
-ProductDetail.defaultProps = {
+ProductDetailCard.defaultProps = {
 	trackButtonClick: () => {},
 };
 
-export { ProductDetail };
-
-/**
- * ProductDetailCard component.
- *
- * @param {object}   props - Component props.
- * @returns {object}         ProductDetailCard react component.
- */
-export default function ProductDetailCard( props ) {
-	return (
-		<div className={ styles.card }>
-			<ProductDetail { ...props } />
-		</div>
-	);
-}
+export default ProductDetailCard;
