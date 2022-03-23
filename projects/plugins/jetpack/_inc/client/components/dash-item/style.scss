@@ -14,6 +14,23 @@
 			margin: 0;
 		}
 	}
+
+	.dops-card.dops-banner {
+		border-left: none;
+
+		.dops-banner__info .dops-banner__title {
+			font-weight: normal;
+		}
+	}
+
+	.dops-card.dops-section-header.is-compact,
+	.dops-card.is-card-link.is-compact {
+		padding: 8px 16px;
+	}
+
+	.dops-card.jp-dash-item__card {
+		padding:16px;
+	}
 }
 
 .jp-dash-item__content {
