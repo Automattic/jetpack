@@ -59,14 +59,6 @@ export default function ProductManagementInspectorControl( {
 
 	return (
 		<InspectorControls>
-			{ siteSlug && (
-				<ExternalLink
-					href={ `https://wordpress.com/earn/payments/${ siteSlug }` }
-					className={ 'product-management-control-inspector__link-to-earn' }
-				>
-					{ __( 'Manage your subscriptions.', 'jetpack' ) }
-				</ExternalLink>
-			) }
 			<PanelBody
 				title={ __( 'Add a new subscription', 'jetpack' ) }
 				initialOpen={ true }
@@ -118,6 +110,20 @@ export default function ProductManagementInspectorControl( {
 								{ __( 'Add subscription', 'jetpack' ) }
 							</Button>
 						</PanelRow>
+						{ siteSlug && (
+							<>
+								<PanelRow>
+									<ExternalLink href={ `https://wordpress.com/earn/payments/${ siteSlug }` }>
+										{ __( 'Manage your subscriptions.', 'jetpack' ) }
+									</ExternalLink>
+								</PanelRow>
+								<PanelRow>
+									<ExternalLink href="https://wordpress.com/support/wordpress-editor/blocks/payments/#related-fees">
+										{ __( 'Read more about Payments and related fees.', 'jetpack' ) }
+									</ExternalLink>
+								</PanelRow>
+							</>
+						) }
 					</>
 				) }
 			</PanelBody>
