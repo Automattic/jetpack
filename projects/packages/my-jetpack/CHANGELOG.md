@@ -11,7 +11,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - My Jetpack: Make whole Product card clickable
 
 ### Changed
-- Chage opacity of product icons to 40%
+- Changed opacity of product icons to 40%
 - Changed title
 - Improved should_initialize method
 - My Jetpack: remove dropdown from CTA button in Product cards
