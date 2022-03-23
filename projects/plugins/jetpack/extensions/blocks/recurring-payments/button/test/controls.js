@@ -13,9 +13,9 @@ import { render, screen } from '@testing-library/react';
  * Internal dependencies
  */
 import { PanelControls, ToolbarControls } from '../controls';
-import useAutosaveAndRedirect from '../../../shared/use-autosave-and-redirect/index';
+import useAutosaveAndRedirect from '../../../../shared/use-autosave-and-redirect/index';
 
-jest.mock( '../../../shared/use-autosave-and-redirect/index' );
+jest.mock( '../../../../shared/use-autosave-and-redirect/index' );
 
 describe( 'PanelControls', () => {
 	const defaultAttributes = {
