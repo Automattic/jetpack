@@ -284,7 +284,7 @@ class Jetpack_Core_API_Site_Endpoint {
 		if ( Jetpack::is_module_active( 'search' ) && ! Jetpack::is_plugin_active( 'search/jetpack-search.php' ) && class_exists( 'Automattic\Jetpack\Search\Initializer' ) ) {
 			$benefits[] = array(
 				'name'        => 'search',
-				'title'       => esc_html__( 'Jetpack Search', 'jetpack' ),
+				'title'       => esc_html__( 'Search', 'jetpack' ),
 				'description' => esc_html__( 'Help your visitors find exactly what they are looking for, fast', 'jetpack' ),
 			);
 		}
