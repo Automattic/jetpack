@@ -8,6 +8,15 @@ import { __ } from '@wordpress/i18n';
  */
 import { PRODUCT_TYPE_PAYMENT_PLAN, PRODUCT_TYPE_SUBSCRIPTION } from './constants';
 
+/**
+ * This list is supposed to be used by the ProductManagementControls component
+ * and the jetpack/membership-products store, based on a given product type.
+ * We've chosen this centralized approach instead of the more common `sprintf`
+ * because it's a bit clearer, generates less cognitive load on the
+ * component's consumers, and it's easier to maintain.
+ *
+ * @see p1648029677784879-slack-CDLH4C1UZ
+ */
 const messages = {
 	'add a new product': {
 		[ PRODUCT_TYPE_PAYMENT_PLAN ]: __( 'Add a new payment plan', 'jetpack' ),
@@ -22,6 +31,7 @@ const messages = {
 		[ PRODUCT_TYPE_SUBSCRIPTION ]: __( 'Select a subscription', 'jetpack' ),
 	},
 	'default new product title': {
+		// The PAYMENT_PLAN message is intentionally the same as SUBSCRIPTION.
 		[ PRODUCT_TYPE_PAYMENT_PLAN ]: __( 'Monthly Subscription', 'jetpack' ),
 		[ PRODUCT_TYPE_SUBSCRIPTION ]: __( 'Monthly Subscription', 'jetpack' ),
 	},
