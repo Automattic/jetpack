@@ -10,7 +10,6 @@ import { Fragment } from '@wordpress/element';
  */
 import { __ } from '@wordpress/i18n';
 import { getIconColor } from '../../../shared/block-icons';
-import deprecatedV1 from './deprecated/v1';
 import edit from './edit';
 import { isPriceValid } from '../../../shared/currencies';
 import './editor.scss';
@@ -55,7 +54,6 @@ export const settings = {
 		html: false,
 		__experimentalExposeControlsToChildren: true,
 	},
-	deprecated: [ deprecatedV1 ],
 	transforms: {},
 };
 

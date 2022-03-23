@@ -14,6 +14,8 @@ import icon from './button/icon';
 import { getIconColor } from '../../shared/block-icons';
 import { getSupportLink } from './util';
 import { createBlock } from '@wordpress/blocks';
+import deprecatedV2 from './deprecated/v2';
+import deprecatedV1 from './deprecated/v1';
 
 export const name = 'recurring-payments';
 export const title = __( 'Payment Buttons', 'jetpack' );
@@ -98,6 +100,7 @@ export const settings = {
 	},
 	edit,
 	save,
+	deprecated: [ deprecatedV2, deprecatedV1 ],
 	transforms: {
 		from: [
 			{
