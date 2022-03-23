@@ -5,7 +5,11 @@ import apiFetch from '@wordpress/api-fetch';
 import { dispatch } from '@wordpress/data';
 import { __, sprintf } from '@wordpress/i18n';
 import '@wordpress/notices';
-import { getSiteFragment, isAtomicSite, isSimpleSite } from '@automattic/jetpack-shared-extension-utils';
+import {
+	getSiteFragment,
+	isAtomicSite,
+	isSimpleSite,
+} from '@automattic/jetpack-shared-extension-utils';
 
 /**
  * Returns a URL where the current site's plan can be viewed from.

@@ -55,10 +55,10 @@ export const settings = {
 				type: 'block',
 				blocks: [ 'core/paragraph' ],
 				isMultiBlock: true,
-				transform: ( blocks ) => {
+				transform: blocks => {
 					const innerBlocksTemplate = blocks.map( ( { content } ) => [
-							'jetpack/dialogue',
-							{ content },
+						'jetpack/dialogue',
+						{ content },
 					] );
 
 					return createBlock(

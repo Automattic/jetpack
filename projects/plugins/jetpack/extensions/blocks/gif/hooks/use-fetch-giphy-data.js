@@ -21,7 +21,7 @@ const useFetchGiphyData = ( initialValue = [] ) => {
 			setIsFetching( true );
 
 			const giphyFetch = await fetch( fetchUrl )
-				.then( ( response ) => {
+				.then( response => {
 					if ( response.ok ) {
 						return response;
 					}
@@ -35,7 +35,10 @@ const useFetchGiphyData = ( initialValue = [] ) => {
 				const giphyResponse = await giphyFetch.json();
 				// If there is only one result, Giphy's API does not return an array.
 				// The following statement normalizes the data into an array with one member in this case.
-				const giphyResults = typeof giphyResponse.data.images !== 'undefined' ? [ giphyResponse.data ] : giphyResponse.data;
+				const giphyResults =
+					typeof giphyResponse.data.images !== 'undefined'
+						? [ giphyResponse.data ]
+						: giphyResponse.data;
 
 				// Try to grab the first result. We're going to show this as the main image.
 				const firstResult = giphyResults[ 0 ];

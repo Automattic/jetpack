@@ -44,7 +44,7 @@ import BackupUpgrade from './backup-upgrade';
 /**
  * Displays a card for Backups based on the props given.
  *
- * @param   {object} props Settings to render the card.
+ * @param   {object} props - Settings to render the card.
  * @returns {object}       Backups card
  */
 const renderCard = props => (
