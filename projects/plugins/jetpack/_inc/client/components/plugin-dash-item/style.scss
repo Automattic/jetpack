@@ -15,8 +15,22 @@
 		margin-bottom: 0;
 	}
 
+	.dops-card.dops-section-header.is-compact {
+		padding: 8px 16px;
+	}
+
+	.dops-card.dops-section-header
+		.dops-section-header__label-text {
+			font-weight: 500;
+	}
+		
 	.dops-banner.dops-card {
-		border-left-color: $color-product;
+		border-left: none;
+
+		.dops-banner__info .dops-banner__title {
+			font-weight: normal;
+		}
+
 		height: 100%;
 		.dops-banner__icons {
 
