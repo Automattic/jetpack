@@ -63,7 +63,7 @@ export function NoticeBox( props ) {
 			message: sprintf(
 				// translators: %d: site's current plan record limit
 				__(
-					"You're close to the max amount of records for this billing tier. Once you hit %d indexed records, you'll automatically be billed in the next tier",
+					"You're close to the max amount of records for this billing tier. Once you hit %d indexed records, you'll automatically be billed for the next tier",
 					'jetpack-search-pkg'
 				),
 				props.planRecordLimit
