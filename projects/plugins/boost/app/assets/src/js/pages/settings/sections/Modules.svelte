@@ -11,6 +11,7 @@
 	import GenerateCss from '../elements/GenerateCSS.svelte';
 	import CloudCssMeta from '../elements/CloudCssMeta.svelte';
 	import Module from '../elements/Module.svelte';
+	import PremiumCTA from '../elements/PremiumCTA.svelte';
 	import TemplatedString from '../../../elements/TemplatedString.svelte';
 	import externalLinkTemplateVar from '../../../utils/external-link-template-var';
 
@@ -41,6 +42,7 @@
 
 		<div slot="meta">
 			<GenerateCss />
+			<PremiumCTA />
 		</div>
 	</Module>
 

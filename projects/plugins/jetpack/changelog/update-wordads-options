@@ -1,0 +1,4 @@
+Significance: patch
+Type: bugfix
+
+Fix WordAds defaulting to "house ad" mode for new activations

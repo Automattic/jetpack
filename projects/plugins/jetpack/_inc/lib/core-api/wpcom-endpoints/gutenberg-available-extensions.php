@@ -1,6 +1,12 @@
-<?php
+<?php // phpcs:ignore WordPress.Files.FileName.InvalidClassFileName
+/**
+ * Interact with the list of available block editor extensions (blocks, plugins)
+ * made available by the Jetpack plugin.
+ *
+ * @package automattic/jetpack
+ */
 
-/*
+/**
  * Gutenberg: List Available Gutenberg Extensions (Blocks and Plugins)
  *
  * [
@@ -14,23 +20,33 @@
  * @since 6.9
  */
 class WPCOM_REST_API_V2_Endpoint_Gutenberg_Available_Extensions extends WP_REST_Controller {
-	function __construct() {
-		$this->namespace = 'wpcom/v2';
-		$this->rest_base = 'gutenberg';
+	/**
+	 * Constructor.
+	 */
+	public function __construct() {
+		$this->namespace                       = 'wpcom/v2';
+		$this->rest_base                       = 'gutenberg';
 		$this->wpcom_is_site_specific_endpoint = true;
 
 		add_action( 'rest_api_init', array( $this, 'register_routes' ) );
 	}
 
+	/**
+	 * Register the endpoint route.
+	 */
 	public function register_routes() {
-		register_rest_route( $this->namespace, $this->rest_base . '/available-extensions', array(
+		register_rest_route(
+			$this->namespace,
+			$this->rest_base . '/available-extensions',
 			array(
-				'methods'             => WP_REST_Server::READABLE,
-				'callback'            => array( 'Jetpack_Gutenberg', 'get_availability' ),
-				'permission_callback' => array( $this, 'get_items_permission_check' ),
-			),
-			'schema' => array( $this, 'get_item_schema' ),
-		 ) );
+				array(
+					'methods'             => WP_REST_Server::READABLE,
+					'callback'            => array( 'Jetpack_Gutenberg', 'get_availability' ),
+					'permission_callback' => array( $this, 'get_items_permission_check' ),
+				),
+				'schema' => array( $this, 'get_item_schema' ),
+			)
+		);
 	}
 
 	/**

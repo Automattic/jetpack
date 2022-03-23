@@ -392,6 +392,16 @@ export function showRecommendations( state ) {
 }
 
 /**
+ * Determines if My Jetpack should be referenced.
+ *
+ * @param {object} state - Global state tree
+ * @returns {boolean} True if the My Jetpack should be referenced, false otherwise.
+ */
+export function showMyJetpack( state ) {
+	return get( state.jetpack.initialState.siteData, 'showMyJetpack', true );
+}
+
+/**
  * Determines if the Jetpack Licensing UI should be displayed
  *
  * @param {object} state - Global state tree
