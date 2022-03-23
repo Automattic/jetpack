@@ -8,6 +8,7 @@
 namespace Automattic\Jetpack\Search;
 
 use Automattic\Jetpack\Connection\Manager as Connection_Manager;
+use Automattic\Jetpack\My_Jetpack\Wpcom_Products;
 use Automattic\Jetpack\Status;
 use Jetpack_Options;
 
@@ -69,9 +70,9 @@ class Initial_State {
 				'showPromotions'    => apply_filters( 'jetpack_show_promotions', true ),
 				'adminUrl'          => esc_url( admin_url() ),
 				'blogId'            => Jetpack_Options::get_option( 'id', 0 ),
-				// TODO: add JETPACK_SEARCH_PACKAGE_VERSION to a proper place after major PRs merged.
-				'version'           => defined( 'JETPACK_SEARCH_PACKAGE_VERSION' ) ? JETPACK_SEARCH_PACKAGE_VERSION : 'dev',
+				'version'           => Package::VERSION,
 				'calypsoSlug'       => ( new Status() )->get_site_suffix(),
+				'pricing'           => Wpcom_Products::get_product_pricing( 'jetpack_search' ),
 			),
 			'userData'        => array(
 				'currentUser' => $this->current_user_data(),
