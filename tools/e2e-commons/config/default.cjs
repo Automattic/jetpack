@@ -34,6 +34,7 @@ const config = {
 		'elements with non-unique id #_wpnonce',
 		'is deprecated',
 		'SharedArrayBuffer will require cross-origin isolation as of M91, around May 2021',
+		'Warning: getDefaultProps is only used on classic React.createClass definitions',
 	],
 	repository: {
 		url: 'https://github.com/Automattic/jetpack',

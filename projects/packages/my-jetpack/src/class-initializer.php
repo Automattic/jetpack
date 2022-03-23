@@ -208,29 +208,28 @@ class Initializer {
 	}
 
 	/**
-	 * Return true if we should initialize the My Jetpack
+	 * Return true if we should initialize the My Jetpack admin page.
 	 */
 	public static function should_initialize() {
+		$should = true;
 
 		if ( is_multisite() ) {
-			return false;
+			$should = false;
+		}
+
+		// Do not initialize My Jetpack if site is not connected.
+		if ( ! ( new Connection_Manager() )->is_connected() ) {
+			$should = false;
 		}
 
 		/**
-		 * Allows filtering whether My Jetpack should be initialized
+		 * Allows filtering whether My Jetpack should be initialized.
 		 *
 		 * @since 0.5.0-alpha
 		 *
 		 * @param bool $shoud_initialize Should we initialize My Jetpack?
 		 */
-		$should = apply_filters( 'jetpack_my_jetpack_should_initialize', true );
-
-		// Do not initialize My Jetpack if site is not connected.
-		if ( ! ( new Connection_Manager() )->is_connected() ) {
-			return false;
-		}
-
-		return $should;
+		return apply_filters( 'jetpack_my_jetpack_should_initialize', $should );
 	}
 
 	/**

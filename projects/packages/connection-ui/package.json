@@ -20,11 +20,11 @@
 		"@wordpress/data": "6.3.0"
 	},
 	"devDependencies": {
-		"@automattic/jetpack-webpack-config": "workspace:^1.1.4",
-		"@babel/core": "7.16.0",
-		"@babel/preset-env": "7.16.4",
-		"@babel/register": "7.16.0",
-		"@babel/runtime": "7.16.3",
+		"@automattic/jetpack-webpack-config": "workspace:^1.1.5-alpha",
+		"@babel/core": "7.17.8",
+		"@babel/preset-env": "7.16.11",
+		"@babel/register": "7.17.7",
+		"@babel/runtime": "7.17.8",
 		"@wordpress/browserslist-config": "4.1.1",
 		"@wordpress/data": "6.3.0",
 		"@wordpress/i18n": "4.3.1",
