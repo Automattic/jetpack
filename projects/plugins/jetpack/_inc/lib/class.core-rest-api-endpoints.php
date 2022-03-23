@@ -32,9 +32,6 @@ add_action( 'rest_api_init', array( 'Jetpack_Core_Json_Api_Endpoints', 'register
 // Each of these is a class that will register its own routes on 'rest_api_init'.
 require_once JETPACK__PLUGIN_DIR . '_inc/lib/core-api/load-wpcom-endpoints.php';
 
-// Load Search endpoints when WP REST API is initialized.
-add_action( 'rest_api_init', array( new Search_REST_Controller(), 'register_rest_routes' ) );
-
 // Create discount after site has been successfully connected.
 add_action( 'jetpack_authorize_ending_authorized', array( 'Jetpack_Core_Json_Api_Endpoints', 'create_site_discount' ) );
 
