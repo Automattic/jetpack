@@ -37,8 +37,8 @@ export const PluginDashItem = ( {
 	iconSrc,
 	installOrActivatePrompt,
 	isFetchingPluginsData,
-	pluginIsActive,
-	pluginIsInstalled,
+	aPluginIsActive,
+	aPluginIsInstalled,
 	pluginLink,
 	pluginName,
 	pluginSlug,
@@ -47,17 +47,17 @@ export const PluginDashItem = ( {
 	const [ isInstalling, setIsInstalling ] = useState( false );
 
 	const activateOrInstallPlugin = useCallback( () => {
-		if ( ! pluginIsInstalled ) {
+		if ( ! aPluginIsInstalled ) {
 			setIsInstalling( true );
-		} else if ( ! pluginIsActive ) {
+		} else if ( ! aPluginIsActive ) {
 			setIsActivating( true );
-		} else if ( pluginIsInstalled && pluginIsActive ) {
+		} else if ( aPluginIsInstalled && aPluginIsActive ) {
 			// do not try to do anything to an installed, active plugin
 			return Promise.resolve();
 		}
 		analytics.tracks.recordJetpackClick( {
 			target: 'plugin_dash_item',
-			type: pluginIsInstalled ? 'install' : 'activate',
+			type: aPluginIsInstalled ? 'install' : 'activate',
 			feature: pluginSlug,
 		} );
 		return (
@@ -73,7 +73,7 @@ export const PluginDashItem = ( {
 					setIsInstalling( false );
 				} )
 		);
-	}, [ fetchPluginsData, pluginIsActive, pluginIsInstalled, pluginSlug ] );
+	}, [ fetchPluginsData, aPluginIsActive, aPluginIsInstalled, pluginSlug ] );
 
 	const renderContent = () => {
 		if ( isFetchingPluginsData ) {
@@ -108,7 +108,7 @@ export const PluginDashItem = ( {
 					</p>
 				</Card>
 			);
-		} else if ( ! pluginIsInstalled ) {
+		} else if ( ! aPluginIsInstalled ) {
 			return (
 				<JetpackBanner
 					callToAction={ sprintf(
@@ -123,7 +123,7 @@ export const PluginDashItem = ( {
 					onClick={ activateOrInstallPlugin }
 				/>
 			);
-		} else if ( ! pluginIsActive ) {
+		} else if ( ! aPluginIsActive ) {
 			return (
 				<JetpackBanner
 					callToAction={ sprintf(
@@ -165,7 +165,7 @@ export const PluginDashItem = ( {
 
 PluginDashItem.propTypes = {
 	pluginName: PropTypes.string.isRequired,
-	pluginFile: PropTypes.string.isRequired,
+	pluginFiles: PropTypes.arrayOf( PropTypes.string ).isRequired,
 	pluginSlug: PropTypes.string.isRequired,
 	pluginLink: PropTypes.string.isRequired,
 	installOrActivatePrompt: PropTypes.element.isRequired,
@@ -174,15 +174,15 @@ PluginDashItem.propTypes = {
 
 	// connected properties
 	isFetchingPluginsData: PropTypes.bool,
-	pluginIsActive: PropTypes.bool,
-	pluginIsInstalled: PropTypes.bool,
+	aPluginIsActive: PropTypes.bool,
+	aPluginIsInstalled: PropTypes.bool,
 };
 
 export default connect(
-	( state, { pluginFile } ) => ( {
+	( state, { pluginFiles } ) => ( {
 		isFetchingPluginsData: getIsFetchingPluginsData( state ),
-		pluginIsInstalled: isPluginInstalled( state, pluginFile ),
-		pluginIsActive: isPluginActive( state, pluginFile ),
+		aPluginIsInstalled: pluginFiles.some( pluginFile => isPluginInstalled( state, pluginFile ) ),
+		aPluginIsActive: pluginFiles.some( pluginFile => isPluginActive( state, pluginFile ) ),
 	} ),
 	dispatch => ( { fetchPluginsData: () => dispatch( dispatchFetchPluginsData() ) } )
 )( PluginDashItem );

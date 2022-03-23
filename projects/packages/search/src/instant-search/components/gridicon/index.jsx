@@ -71,7 +71,7 @@ class Gridicon extends Component {
 				return <title>{ __( 'Post', 'jetpack-search-pkg' ) }</title>;
 			case 'gridicons-jetpack-search':
 			case 'gridicons-search':
-				return <title>{ __( 'Search', 'jetpack-search-pkg' ) }</title>;
+				return <title>{ __( 'Magnifying Glass', 'jetpack-search-pkg' ) }</title>;
 			case 'gridicons-tag':
 				return <title>{ __( 'Tag', 'jetpack-search-pkg' ) }</title>;
 			case 'gridicons-video':
@@ -105,6 +105,12 @@ class Gridicon extends Component {
 				return (
 					<g>
 						<path d="M9 20c0 1.1-.9 2-2 2s-1.99-.9-1.99-2S5.9 18 7 18s2 .9 2 2zm8-2c-1.1 0-1.99.9-1.99 2s.89 2 1.99 2 2-.9 2-2-.9-2-2-2zm.396-5c.937 0 1.75-.65 1.952-1.566L21 5H7V4c0-1.105-.895-2-2-2H3v2h2v11c0 1.105.895 2 2 2h12c0-1.105-.895-2-2-2H7v-2h10.396z" />
+					</g>
+				);
+			case 'gridicons-checkmark':
+				return (
+					<g>
+						<path d="M11 17.768l-4.884-4.884 1.768-1.768L11 14.232l8.658-8.658C17.823 3.39 15.075 2 12 2 6.477 2 2 6.477 2 12s4.477 10 10 10 10-4.477 10-10c0-1.528-.353-2.97-.966-4.266L11 17.768z" />
 					</g>
 				);
 			case 'gridicons-chevron-down':

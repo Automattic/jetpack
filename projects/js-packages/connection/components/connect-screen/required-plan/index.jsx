@@ -3,14 +3,12 @@
  */
 import React from 'react';
 import PropTypes from 'prop-types';
-import { useSelect } from '@wordpress/data';
 import { __ } from '@wordpress/i18n';
 
 /**
  * Internal dependencies
  */
 import ConnectScreenRequiredPlanVisual from './visual';
-import { STORE_ID } from '../../../state/store';
 import useConnection from '../../use-connection';
 
 /**
@@ -54,9 +52,6 @@ const ConnectScreenRequiredPlan = props => {
 	} );
 
 	const showConnectButton = ! isRegistered || ! isUserConnected;
-	const connectionStatusIsFetching = useSelect( select =>
-		select( STORE_ID ).getConnectionStatusIsFetching()
-	);
 	const displayButtonError = Boolean( registrationError );
 	const buttonIsLoading = siteIsRegistering || userIsConnecting;
 
@@ -69,7 +64,6 @@ const ConnectScreenRequiredPlan = props => {
 			pricingIcon={ pricingIcon }
 			pricingTitle={ pricingTitle }
 			pricingCurrencyCode={ pricingCurrencyCode }
-			isLoading={ connectionStatusIsFetching }
 			handleButtonClick={ handleRegisterSite }
 			showConnectButton={ showConnectButton }
 			displayButtonError={ displayButtonError }

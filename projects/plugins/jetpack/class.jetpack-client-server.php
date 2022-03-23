@@ -80,7 +80,7 @@ class Jetpack_Client_Server {
 			$active_plugins = Jetpack::get_active_plugins();
 			foreach ( $active_plugins as $plugin ) {
 				$data = get_plugin_data( WP_PLUGIN_DIR . '/' . $plugin );
-				if ( $data['Name'] == $probable_title ) {
+				if ( $data['Name'] === $probable_title ) {
 					deactivate_plugins( $plugin );
 					return 1;
 				}

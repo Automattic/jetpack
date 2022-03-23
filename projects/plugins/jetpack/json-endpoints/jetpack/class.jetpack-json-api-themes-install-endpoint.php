@@ -3,6 +3,7 @@
 include_once ABSPATH . 'wp-admin/includes/class-wp-upgrader.php';
 include_once ABSPATH . 'wp-admin/includes/file.php';
 
+use Automattic\Jetpack\Automatic_Install_Skin;
 use Automattic\Jetpack\Connection\Client;
 
 class Jetpack_JSON_API_Themes_Install_Endpoint extends Jetpack_JSON_API_Themes_Endpoint {
@@ -40,8 +41,7 @@ class Jetpack_JSON_API_Themes_Install_Endpoint extends Jetpack_JSON_API_Themes_E
 
 			// If the alternative install method was not used, use the standard method.
 			if ( ! $result ) {
-				jetpack_require_lib( 'class.jetpack-automatic-install-skin' );
-				$skin     = new Jetpack_Automatic_Install_Skin();
+				$skin     = new Automatic_Install_Skin();
 				$upgrader = new Theme_Upgrader( $skin );
 
 				$link   = $this->download_links[ $theme ];

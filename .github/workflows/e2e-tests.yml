@@ -1,4 +1,4 @@
-name: Jetpack E2E Tests
+name: E2E Tests
 
 on:
   pull_request:
@@ -9,138 +9,162 @@ on:
     paths-ignore:
     - '**.md'
   schedule:
-    - cron:  '0 */12 * * *'
+    - cron: '0 */12 * * *' # gutenberg run, every 12 hours - if you update this, also update it in .github/files/create-e2e-projects-matrix.sh
+    - cron: '30 */4 * * *' # atomic run, every 4 hours - if you update this, also update it in .github/files/create-e2e-projects-matrix.sh
+
 concurrency:
   group: e2e-tests-${{ github.event_name }}-${{ github.ref }}
   cancel-in-progress: true
 
 jobs:
-  create-matrix:
+  create-test-matrix:
     name: "Determine tests matrix"
     runs-on: ubuntu-latest
-    timeout-minutes: 1  # 2021-02-03: Should only take a second.
+    timeout-minutes: 3
     outputs:
-      matrix: ${{ steps.create-matrix.outputs.matrix }}
+      matrix: ${{ steps.evaluate.outputs.matrix }}
+      runName: ${{ steps.evaluate.outputs.runName }}
     steps:
-      - uses: actions/checkout@v2
-      - id: create-matrix
+      - uses: actions/checkout@v3
+
+      # For pull requests, list-changed-projects.sh needs the merge base.
+      - name: Deepen to merge base
+        if: github.event_name == 'pull_request'
+        uses: ./.github/actions/deepen-to-merge-base
+
+      - name: Setup tools
+        uses: ./.github/actions/tool-setup
+
+      # Required for list-changed-projects.sh
+      - name: Install monorepo
         run: |
-          MATRIX='[{"group":"pre-connection","tests":"specs/pre-connection"},{"group":"connection","tests":"specs/connection"},{"group":"post-connection","tests":"specs/post-connection"}]'
-          if [ "$GITHUB_EVENT_NAME" == schedule ]; then
-            MATRIX=$(echo $MATRIX | jq '. + [{"group": "gutenberg","tests": "blocks"}]' | jq -c .)
-          fi
-          echo $MATRIX
+          pnpm install
+
+      - name: Create test plan
+        id: evaluate
+        env:
+          CRON: ${{ github.event.schedule }}
+        run: |
+          TEST_PLAN="$(.github/files/create-e2e-projects-matrix.sh)"
+          echo "$TEST_PLAN"
+
+          MATRIX=$(jq -r -c ".matrix" <<<"$TEST_PLAN")
+          echo "$MATRIX"
           echo "::set-output name=matrix::$MATRIX"
 
+          RUN_NAME=$(jq -r -c ".run" <<<"$TEST_PLAN")
+          echo "$RUN_NAME"
+          echo "::set-output name=runName::$RUN_NAME"
+
   e2e-tests:
-    name: "E2E ${{ matrix.group }} tests"
+    name: "${{ matrix.project }} e2e tests"
     runs-on: ubuntu-latest
-    needs: create-matrix
-    timeout-minutes: 25  # 2021-04-16: Successful runs seem to take 11-17 minutes
+    needs: create-test-matrix
+    timeout-minutes: 25
     strategy:
       fail-fast: false
       matrix:
-        include: ${{ fromJson( needs.create-matrix.outputs.matrix ) }}
-    env:
-      GROUP: ${{ matrix.group }}
-      TESTS: ${{ matrix.tests }}
-      GUTENBERG: bundle # default value. Can be overridden later based on matrix.group value
+        include: ${{ fromJson( needs.create-test-matrix.outputs.matrix ) }}
     if: github.event.pull_request.head.repo.full_name == github.event.pull_request.base.repo.full_name
 
     steps:
-    - uses: actions/checkout@v2
+    - uses: actions/checkout@v3
 
     - name: Setup tools
       uses: ./.github/actions/tool-setup
 
-    - name: Build Production Jetpack
-      env:
-        COMPOSER_ROOT_VERSION: "dev-master"
+    - name: Install monorepo
       run: |
         pnpm install
-        pnpx jetpack build packages/search -v --production
-        pnpx jetpack build plugins/jetpack -v --production
-        # composer ingores the build folder when mirroring the package, so we manually copy it.
-        cp -Rfp projects/packages/search/build projects/plugins/jetpack/jetpack_vendor/automattic/jetpack-search
 
-    - name: Environment set-up
-      working-directory: projects/plugins/jetpack/tests/e2e
+    - name: Test environment set-up
+      working-directory: ${{ matrix.path }}
       env:
         CONFIG_KEY: ${{ secrets.E2E_CONFIG_KEY }}
+        COMPOSER_ROOT_VERSION: "dev-master"
+        RUN_NAME: ${{ needs.create-test-matrix.outputs.runName }}
+        PROJECT_NAME:  ${{ matrix.project }}
       run: |
-        pnpm install
-        pnpm run test-decrypt-all-config
-        pnpm run env-start
-        pnpm run tunnel-on
+        echo "::group::Decrypt config"
+        pnpm run config:decrypt
+        echo "::endgroup::"
 
-    - name: Set up Gutenberg
-      if: matrix.group == 'gutenberg'
-      working-directory: projects/plugins/jetpack/tests/e2e
-      run: pnpx e2e-env gb-setup
+        if [ "${RUN_NAME}" != atomic ]; then
+          echo "::group::Build plugin(s)"
+          pnpm run build
+          echo "::endgroup::"
 
-    - name: Run ${{ matrix.group }} tests
-      working-directory: projects/plugins/jetpack/tests/e2e
-      run: pnpm run test-e2e -- $TESTS
+          echo "::group::Start docker environment"
+          pnpm run env:up
+          echo "::endgroup::"
 
-    - name: Environment tear-down
+          echo "::group::Create tunnel"
+          pnpm run tunnel:up
+          echo "::endgroup::"
+        else
+          echo "TEST_SITE=atomic" >> $GITHUB_ENV
+        fi
+
+        if [ "${RUN_NAME}" == gutenberg ]; then
+            echo "::group::Setting up Gutenberg"
+            pnpx e2e-env gb-setup
+            echo "::endgroup::"
+        fi
+
+        if [ "${PROJECT_NAME}" == "Jetpack update" ]; then
+            echo "SKIP_ENV_CLEAN=true" >> $GITHUB_ENV
+        fi
+
+    - name: Run ${{ matrix.project }} tests
+      working-directory: ${{ matrix.path }}
+      env:
+        JSON_ARGS: ${{ toJSON(matrix.testArgs) }}
+      run: |
+        mapfile -t TEST_ARGS < <(jq -r '.[]' <<<"$JSON_ARGS")
+        pnpm run test:run -- "${TEST_ARGS[@]}"
+
+    - name: Send Slack notification
+      if: ${{ ! cancelled() }}
+      env:
+        GITHUB_CONTEXT: ${{ toJson(github) }}
+        SUITE: ${{ matrix.project }}
+        JSON_ARGS: ${{ toJSON(matrix.slackArgs) }}
+      working-directory: ${{ matrix.path }}
+      run: |
+        mapfile -t ARGS < <(jq -r '.[]' <<<"$JSON_ARGS")
+        pnpm run slack -- suite "$SUITE" "${ARGS[@]}"
+
+    - name: Test environment tear-down
       if: ${{ always() }}
-      working-directory: projects/plugins/jetpack/tests/e2e
+      working-directory: ${{ matrix.path }}
       continue-on-error: true
       run: |
-        pnpm run tunnel-off
-        pnpm run tunnel-write-logs
+        pnpm run tunnel:down
+        # Update permissions to workaround https://github.com/actions/cache/issues/753
+        sudo chown -R runner:docker "$GITHUB_WORKSPACE/tools/docker"
 
     - name: Upload test artifacts
       if: ${{ always() }}
       continue-on-error: true
-      uses: actions/upload-artifact@v2
+      uses: actions/upload-artifact@v3
       with:
-        name: test-output-${{ matrix.group }}
-        path: projects/plugins/jetpack/tests/e2e/output
+        name: test-output-${{ matrix.project }}
+        path: ${{ matrix.path }}/output
 
-    - name: Send Slack notification
-      if: ${{ failure() }}
-      env:
-        GITHUB_CONTEXT: ${{ toJson(github) }}
-      working-directory: projects/plugins/jetpack/tests/e2e
-      run: pnpm slack -- suite $GROUP
-
-  slack-notification:
-    name: "Slack notification"
-    runs-on: ubuntu-latest
-    needs: e2e-tests
-    env:
-      CONFIG_KEY: ${{ secrets.E2E_CONFIG_KEY }}
-      GITHUB_CONTEXT: ${{ toJson(github) }}
-
-    steps:
-      - uses: actions/checkout@v2
-
-      - name: Setup tools
-        uses: ./.github/actions/tool-setup
-        with:
-          php: false
-
-      - name: Send Slack notification
-        working-directory: projects/plugins/jetpack/tests/e2e
-        env:
-          RESULT: ${{ needs.e2e-tests.result }}
-        run: |
-          pnpm install
-          pnpm run test-decrypt-all-config
-          pnpm slack -- status $RESULT
-
-  test-reports:
-    name: "Trigger test report workflow"
+  test-report:
+    name: "Test report"
     runs-on: ubuntu-latest
     if: ${{ ! cancelled() }}
-    needs: e2e-tests
+    needs: [create-test-matrix, e2e-tests]
 
     steps:
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v3
 
       - name: Trigger test report workflow
         uses: ./.github/actions/test-report-dispatch
         with:
           token: ${{ secrets.E2E_TEST_REPORTS_TOKEN }}
           event_type: e2e
+          report_name: ${{needs.create-test-matrix.outputs.runName}}
+
+

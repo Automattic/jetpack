@@ -108,12 +108,9 @@ export const getStepContent = stepSlug => {
 		case 'creative-mail':
 			return {
 				progressValue: '83',
-				question: __(
-					'Would you like to turn site visitors into subscribers with Creative Mail?',
-					'jetpack'
-				),
+				question: __( 'Would you like to turn site visitors into subscribers?', 'jetpack' ),
 				description: __(
-					'The Jetpack <strong>Newsletter Form</strong> combined with <strong>Creative Mail</strong> by Constant Contact can help automatically gather subscribers and send them beautiful emails. <ExternalLink>Learn more</ExternalLink>',
+					'The Jetpack Newsletter Form combined with Creative Mail by Constant Contact can help automatically gather subscribers and send them beautiful emails. <ExternalLink>Learn more</ExternalLink>',
 					'jetpack'
 				),
 				descriptionLink:
@@ -129,7 +126,7 @@ export const getStepContent = stepSlug => {
 					'jetpack'
 				),
 				description: __(
-					'If your site ever goes down, <strong>Downtime Monitoring</strong> will send you an email or push notitification to let you know. <ExternalLink>Learn more</ExternalLink>',
+					'If your site ever goes down, Downtime Monitoring will send you an email or push notitification to let you know. <ExternalLink>Learn more</ExternalLink>',
 					'jetpack'
 				),
 				descriptionLink: 'https://jetpack.com/support/monitor/',
@@ -144,7 +141,7 @@ export const getStepContent = stepSlug => {
 					'jetpack'
 				),
 				description: __(
-					'Displaying <strong>Related Posts</strong> at the end of your content keeps visitors engaged and on your site longer. <ExternalLink>Learn more</ExternalLink>',
+					'Displaying Related Posts at the end of your content keeps visitors engaged and on your site. <ExternalLink>Learn more</ExternalLink>',
 					'jetpack'
 				),
 				descriptionLink: 'https://jetpack.com/support/related-posts/',
@@ -154,9 +151,9 @@ export const getStepContent = stepSlug => {
 		case 'site-accelerator':
 			return {
 				progressValue: '99',
-				question: __( 'Would you like Site Accelerator to help your site load faster?', 'jetpack' ),
+				question: __( 'Would you like your site to load faster?', 'jetpack' ),
 				description: __(
-					'Faster sites get better ranking in search engines and help keep visitors on your site longer. <strong>Site Accelerator</strong> will automatically optimize your image and files. <ExternalLink>Learn more</ExternalLink>',
+					'Faster sites get better ranking in search engines and help keep visitors on your site longer. Jetpack will automatically optimize and load your images and files from our global Content Delivery Network (CDN). <ExternalLink>Learn more</ExternalLink>',
 					'jetpack'
 				),
 				descriptionLink: 'https://jetpack.com/support/site-accelerator/',

@@ -1,6 +1,10 @@
+/* eslint-env node */
+const loadIgnorePatterns = require( '../../../../tools/js-tools/load-eslint-ignore.js' );
+
 module.exports = {
 	root: true,
 	extends: [ 'eslint:recommended' ],
+	ignorePatterns: loadIgnorePatterns( __dirname ),
 	env: {
 		browser: true,
 		jquery: true,

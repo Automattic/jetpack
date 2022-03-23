@@ -16,14 +16,14 @@ import {
 	withNotices,
 	SelectControl,
 } from '@wordpress/components';
-import { InspectorControls, InnerBlocks, BlockIcon, BlockControls } from '@wordpress/block-editor';
+import { InspectorControls, InnerBlocks, BlockControls } from '@wordpress/block-editor';
 import { Component } from '@wordpress/element';
 import { applyFilters } from '@wordpress/hooks';
+import { getJetpackExtensionAvailability } from '@automattic/jetpack-shared-extension-utils';
 
 /**
  * Internal dependencies
  */
-import getJetpackExtensionAvailability from '../../shared/get-jetpack-extension-availability';
 import {
 	CURRENCY_OPTIONS,
 	isPriceValid,
@@ -212,8 +212,7 @@ export class MembershipsButtonEdit extends Component {
 		if ( this.state.addingMembershipAmount === PRODUCT_NOT_ADDING && ! forceShowForm ) {
 			return (
 				<Button
-					isPrimary
-					isLarge
+					variant="primary"
 					onClick={ () => this.setState( { addingMembershipAmount: PRODUCT_FORM } ) }
 				>
 					{ __( 'Add a payment plan', 'jetpack' ) }
@@ -291,15 +290,13 @@ export class MembershipsButtonEdit extends Component {
 				/>
 				<div>
 					<Button
-						isPrimary
-						isLarge
+						variant="primary"
 						className="membership-button__field-button membership-button__add-amount"
 						onClick={ this.saveProduct }
 					>
 						{ __( 'Add this payment plan', 'jetpack' ) }
 					</Button>
 					<Button
-						isLarge
 						className="membership-button__field-button"
 						onClick={ () => this.setState( { addingMembershipAmount: PRODUCT_NOT_ADDING } ) }
 					>
@@ -341,7 +338,14 @@ export class MembershipsButtonEdit extends Component {
 			} );
 		}
 
-		return setAttributes( { planId: parseInt( id ) } );
+		const planId = parseInt( id );
+		this.props.postLink.searchParams.set( 'recurring_payments', planId.toString() );
+		return setAttributes( {
+			planId,
+			// We need to use an absolute URL otherwise the reader won't be able to open the post.
+			url: this.props.postLink.toString(),
+			uniqueId: `recurring-payments-${ planId }`,
+		} );
 	};
 
 	renderMembershipAmounts = () => (
@@ -349,8 +353,7 @@ export class MembershipsButtonEdit extends Component {
 			{ this.state.products.map( product => (
 				<Button
 					className="membership-button__field-button"
-					isLarge
-					isSecondary
+					variant="secondary"
 					key={ product.id }
 					onClick={ () => this.setMembershipAmount( product.id ) }
 				>
@@ -378,7 +381,7 @@ export class MembershipsButtonEdit extends Component {
 				{ ! this.hasUpgradeNudge && this.state.shouldUpgrade && (
 					<div className="wp-block-jetpack-recurring-payments">
 						<Placeholder
-							icon={ <BlockIcon icon={ icon } /> }
+							icon={ icon }
 							label={ __( 'Payments', 'jetpack' ) }
 							notices={ notices }
 							instructions={ __(
@@ -386,7 +389,7 @@ export class MembershipsButtonEdit extends Component {
 								'jetpack'
 							) }
 						>
-							<Button isSecondary isLarge href={ this.state.upgradeURL } target="_blank">
+							<Button variant="secondary" href={ this.state.upgradeURL } target="_blank">
 								{ __( 'Upgrade your plan', 'jetpack' ) }
 							</Button>
 							{ this.renderDisclaimer() }
@@ -406,7 +409,7 @@ export class MembershipsButtonEdit extends Component {
 				{ ( connected === API_STATE_LOADING ||
 					this.state.addingMembershipAmount === PRODUCT_FORM_SUBMITTED ) &&
 					! this.props.attributes.planId && (
-						<Placeholder icon={ <BlockIcon icon={ icon } /> } notices={ notices }>
+						<Placeholder icon={ icon } notices={ notices }>
 							<Spinner />
 						</Placeholder>
 					) }
@@ -415,11 +418,7 @@ export class MembershipsButtonEdit extends Component {
 					connected === API_STATE_CONNECTED &&
 					products.length === 0 && (
 						<div className="wp-block-jetpack-recurring-payments">
-							<Placeholder
-								icon={ <BlockIcon icon={ icon } /> }
-								label={ __( 'Payments', 'jetpack' ) }
-								notices={ notices }
-							>
+							<Placeholder icon={ icon } label={ __( 'Payments', 'jetpack' ) } notices={ notices }>
 								<div className="components-placeholder__instructions">
 									<p>
 										{ __( 'To use this block, first add at least one payment plan.', 'jetpack' ) }
@@ -436,11 +435,7 @@ export class MembershipsButtonEdit extends Component {
 					connected === API_STATE_CONNECTED &&
 					products.length > 0 && (
 						<div className="wp-block-jetpack-recurring-payments">
-							<Placeholder
-								icon={ <BlockIcon icon={ icon } /> }
-								label={ __( 'Payments', 'jetpack' ) }
-								notices={ notices }
-							>
+							<Placeholder icon={ icon } label={ __( 'Payments', 'jetpack' ) } notices={ notices }>
 								<div className="components-placeholder__instructions">
 									<p>
 										{ __(
@@ -486,10 +481,10 @@ export class MembershipsButtonEdit extends Component {
 		);
 
 		const blockControls = (
-			<BlockControls>
+			<BlockControls __experimentalShareWithChildBlocks group="block">
 				<ToolbarControls
 					connected={ connected !== API_STATE_NOTCONNECTED }
-					connectURL={ getConnectUrl( this.props.postId, connectURL ) }
+					connectUrl={ getConnectUrl( this.props.postId, connectURL ) }
 					hasUpgradeNudge={ this.hasUpgradeNudge }
 					shouldUpgrade={ this.state.shouldUpgrade }
 				/>
@@ -511,7 +506,10 @@ export class MembershipsButtonEdit extends Component {
 							'jetpack/button',
 							{
 								element: 'a',
-								uniqueId: 'recurring-payments-id',
+								passthroughAttributes: {
+									uniqueId: 'uniqueId',
+									url: 'url',
+								},
 							},
 						],
 					] }
@@ -527,6 +525,7 @@ export class MembershipsButtonEdit extends Component {
 export default compose( [
 	withSelect( select => ( {
 		postId: select( 'core/editor' ).getCurrentPostId(),
+		postLink: new URL( select( 'core/editor' ).getCurrentPost().link ),
 	} ) ),
 	withDispatch( dispatch => {
 		const { updateBlockAttributes } = dispatch( 'core/editor' );

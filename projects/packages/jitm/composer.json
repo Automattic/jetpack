@@ -5,14 +5,14 @@
 	"license": "GPL-2.0-or-later",
 	"require": {
 		"automattic/jetpack-a8c-mc-stats": "^1.4",
-		"automattic/jetpack-assets": "^1.16",
-		"automattic/jetpack-connection": "^1.36",
+		"automattic/jetpack-assets": "^1.17",
+		"automattic/jetpack-connection": "^1.37",
 		"automattic/jetpack-device-detection": "^1.4",
 		"automattic/jetpack-logo": "^1.5",
 		"automattic/jetpack-options": "^1.14",
-		"automattic/jetpack-partner": "^1.6",
+		"automattic/jetpack-partner": "^1.7",
 		"automattic/jetpack-redirect": "^1.7",
-		"automattic/jetpack-status": "^1.9",
+		"automattic/jetpack-status": "^1.12",
 		"automattic/jetpack-tracking": "^1.14"
 	},
 	"require-dev": {
@@ -36,22 +36,18 @@
 	],
 	"scripts": {
 		"build-production": [
-			"Composer\\Config::disableProcessTimeout",
 			"pnpm run build-production"
 		],
 		"build-development": [
-			"Composer\\Config::disableProcessTimeout",
 			"pnpm run build"
 		],
 		"phpunit": [
 			"./vendor/phpunit/phpunit/phpunit --colors=always"
 		],
 		"test-coverage": [
-			"@composer update",
 			"php -dpcov.directory=. ./vendor/bin/phpunit --coverage-clover \"$COVERAGE_DIR/clover.xml\""
 		],
 		"test-php": [
-			"@composer update",
 			"@composer phpunit"
 		]
 	},

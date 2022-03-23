@@ -1,7 +1,7 @@
 {
 	"private": true,
 	"description": "A cloud-powered replacement for WordPress' search.",
-	"homepage": "https://jetpack.com",
+	"homepage": "https://jetpack.com/upgrade/search/",
 	"bugs": {
 		"url": "https://github.com/Automattic/jetpack/issues"
 	},
@@ -12,15 +12,16 @@
 	"license": "GPL-2.0-or-later",
 	"author": "Automattic",
 	"scripts": {
+		"add-textdomain": "wpi18n addtextdomain --textdomain=jetpack-search --glob-pattern='!(node_modules|tests|tools|vendor){*.php,**/*.php}'",
 		"build": "echo 'Not implemented.",
 		"build-js": "echo 'Not implemented.",
 		"build-production": "echo 'Not implemented.",
 		"build-production-js": "echo 'Not implemented.",
-		"clean": "true",
-		"distclean": "rm -rf node_modules && pnpm run clean",
-		"install-if-deps-outdated": "pnpm install --no-prod --frozen-lockfile"
+		"clean": "true"
 	},
-	"devDependencies": {},
+	"devDependencies": {
+		"node-wp-i18n": "1.2.6"
+	},
 	"engines": {
 		"node": "^14.18.3 || ^16.13.2",
 		"pnpm": "^6.23.6",

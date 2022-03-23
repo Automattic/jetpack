@@ -32,6 +32,8 @@ const defaultConfig = {
 		'**/*.{js,jsx}',
 		'!**/node_modules/**',
 		'!**/vendor/**',
+		'!**/jetpack_vendor/**',
+		'!**/wordpress/**', // WorDBless.
 		'!**/__tests__/**',
 		'!**/coverage/**',
 		'!test-main.{js,jsx}',

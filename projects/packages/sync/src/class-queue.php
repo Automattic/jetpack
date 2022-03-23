@@ -478,6 +478,15 @@ class Queue {
 	}
 
 	/**
+	 * Checks if the queue is locked.
+	 *
+	 * @return bool
+	 */
+	public function is_locked() {
+		return (bool) $this->get_checkout_id();
+	}
+
+	/**
 	 * Locks checkouts from the queue
 	 * tries to wait up to $timeout seconds for the queue to be empty.
 	 *
@@ -735,7 +744,7 @@ class Queue {
 		}
 
 		// TODO: change to strict comparison.
-		if ( $checkout_id != $buffer->id ) { // phpcs:ignore WordPress.PHP.StrictComparisons.LooseComparison
+		if ( $checkout_id != $buffer->id ) { // phpcs:ignore Universal.Operators.StrictComparisons.LooseNotEqual
 			return new WP_Error( 'buffer_mismatch', 'The buffer you checked in was not checked out' );
 		}
 

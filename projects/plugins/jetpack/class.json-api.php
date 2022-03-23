@@ -5,7 +5,9 @@
  * @package automattic/jetpack
  */
 
-defined( 'WPCOM_JSON_API__DEBUG' ) or define( 'WPCOM_JSON_API__DEBUG', false );
+if ( ! defined( 'WPCOM_JSON_API__DEBUG' ) ) {
+	define( 'WPCOM_JSON_API__DEBUG', false );
+}
 
 require_once __DIR__ . '/sal/class.json-api-platform.php';
 
@@ -103,7 +105,7 @@ class WPCOM_JSON_API {
 	 *
 	 * @var string
 	 */
-	public $_server_https;
+	public $_server_https; // phpcs:ignore PSR2.Classes.PropertyDeclaration.Underscore
 
 	/**
 	 * Whether to exit after serving a response.
@@ -176,6 +178,8 @@ class WPCOM_JSON_API {
 	 * @param WPCOM_JSON_API_Endpoint $endpoint Endpoint to add.
 	 */
 	public function add( WPCOM_JSON_API_Endpoint $endpoint ) {
+		// @todo Determine if anything depends on this being serialized rather than e.g. JSON.
+		// phpcs:ignore WordPress.PHP.DiscouragedPHPFunctions.serialize_serialize -- Legacy, possibly depended on elsewhere.
 		$path_versions = serialize(
 			array(
 				$endpoint->path,
@@ -282,14 +286,14 @@ class WPCOM_JSON_API {
 				}
 
 				if ( 0 === strpos( strtolower( $this->content_type ), 'multipart/' ) ) {
+					// phpcs:ignore WordPress.Security.NonceVerification.Missing
 					$this->post_body    = http_build_query( stripslashes_deep( $_POST ) );
 					$this->files        = $_FILES;
 					$this->content_type = 'multipart/form-data';
 				}
 			} else {
-				$this->post_body = $post_body;
-				// @todo I think this is broken, since d0dc307bc1d in 2014.
-				$this->content_type = '{' === isset( $this->post_body[0] ) && $this->post_body[0] ? 'application/json' : 'application/x-www-form-urlencoded';
+				$this->post_body    = $post_body;
+				$this->content_type = isset( $this->post_body[0] ) && '{' === $this->post_body[0] ? 'application/json' : 'application/x-www-form-urlencoded';
 			}
 		} else {
 			$this->post_body    = null;
@@ -350,7 +354,7 @@ class WPCOM_JSON_API {
 	 * @return string|null Content type (assuming it didn't exit), or null in certain error cases.
 	 */
 	public function serve( $exit = true ) {
-		ini_set( 'display_errors', false );
+		ini_set( 'display_errors', false ); // phpcs:ignore WordPress.PHP.IniSet.display_errors_Blacklisted
 
 		$this->exit = (bool) $exit;
 
@@ -366,7 +370,7 @@ class WPCOM_JSON_API {
 		add_filter( 'comment_edit_pre', array( $this, 'comment_edit_pre' ) );
 
 		$initialization = $this->initialize();
-		if ( 'OPTIONS' == $this->method ) {
+		if ( 'OPTIONS' === $this->method ) {
 			/**
 			 * Fires before the page output.
 			 * Can be used to specify custom header options.
@@ -399,7 +403,7 @@ class WPCOM_JSON_API {
 		if ( $is_help ) {
 			$origin = get_http_origin();
 
-			if ( ! empty( $origin ) && 'GET' == $this->method ) {
+			if ( ! empty( $origin ) && 'GET' === $this->method ) {
 				header( 'Access-Control-Allow-Origin: ' . esc_url_raw( $origin ) );
 			}
 
@@ -415,7 +419,7 @@ class WPCOM_JSON_API {
 				$help_content_type = 'html';
 			}
 		} else {
-			if ( in_array( $this->method, $allowed_methods ) ) {
+			if ( in_array( $this->method, $allowed_methods, true ) ) {
 				// Only serve requested method.
 				$methods                     = array( $this->method );
 				$find_all_matching_endpoints = false;
@@ -430,6 +434,8 @@ class WPCOM_JSON_API {
 		// Find which endpoint to serve.
 		$found = false;
 		foreach ( $this->endpoints as $endpoint_path_versions => $endpoints_by_method ) {
+			// @todo Determine if anything depends on this being serialized rather than e.g. JSON.
+			// phpcs:ignore WordPress.PHP.DiscouragedPHPFunctions.serialize_unserialize -- Legacy, possibly depended on elsewhere.
 			$endpoint_path_versions = unserialize( $endpoint_path_versions );
 			$endpoint_path          = $endpoint_path_versions[0];
 			$endpoint_min_version   = $endpoint_path_versions[1];
@@ -599,6 +605,8 @@ class WPCOM_JSON_API {
 	 * @return string Content type (assuming it didn't exit).
 	 */
 	public function output( $status_code, $response = null, $content_type = 'application/json', $extra = array() ) {
+		$status_code = (int) $status_code;
+
 		// In case output() was called before the callback returned.
 		if ( $this->did_output ) {
 			if ( $this->exit ) {
@@ -609,7 +617,7 @@ class WPCOM_JSON_API {
 		$this->did_output = true;
 
 		// 400s and 404s are allowed for all origins
-		if ( 404 == $status_code || 400 == $status_code ) {
+		if ( 404 === $status_code || 400 === $status_code ) {
 			header( 'Access-Control-Allow-Origin: *' );
 		}
 
@@ -630,7 +638,7 @@ class WPCOM_JSON_API {
 			foreach ( $extra as $key => $value ) {
 				header( "$key: $value" );
 			}
-			echo $response;
+			echo $response; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
 			if ( $this->exit ) {
 				exit;
 			}
@@ -676,10 +684,10 @@ class WPCOM_JSON_API {
 			// Mitigate Rosetta Flash [1] by setting the Content-Type-Options: nosniff header
 			// and by prepending the JSONP response with a JS comment.
 			// [1] <https://blog.miki.it/2014/7/8/abusing-jsonp-with-rosetta-flash/index.html>.
-			echo "/**/$callback(";
+			echo "/**/$callback("; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- This is JSONP output, not HTML.
 
 		}
-		echo $this->json_encode( $response );
+		echo $this->json_encode( $response ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- This is JSON or JSONP output, not HTML.
 		if ( $callback ) {
 			echo ');';
 		}
@@ -713,7 +721,8 @@ class WPCOM_JSON_API {
 			'message' => $error->get_error_message(),
 		);
 
-		if ( $additional_data = $error->get_error_data( 'additional_data' ) ) {
+		$additional_data = $error->get_error_data( 'additional_data' );
+		if ( $additional_data ) {
 			$response['data'] = $additional_data;
 		}
 
@@ -781,6 +790,7 @@ class WPCOM_JSON_API {
 				foreach ( $response[ $key_to_filter ] as $key => $values ) {
 					if ( is_object( $values ) ) {
 						if ( is_object( $response[ $key_to_filter ] ) ) {
+							// phpcs:ignore Squiz.PHP.DisallowMultipleAssignments.Found -- False positive.
 							$response[ $key_to_filter ]->$key = (object) array_intersect_key( ( (array) $values ), array_flip( $fields ) );
 						} elseif ( is_array( $response[ $key_to_filter ] ) ) {
 							$response[ $key_to_filter ][ $key ] = (object) array_intersect_key( ( (array) $values ), array_flip( $fields ) );
@@ -851,7 +861,7 @@ class WPCOM_JSON_API {
 	 * @return bool
 	 */
 	public function ends_with( $haystack, $needle ) {
-		return $needle === substr( $haystack, -strlen( $needle ) );
+		return substr( $haystack, -strlen( $needle ) ) === $needle;
 	}
 
 	/**
@@ -916,7 +926,7 @@ class WPCOM_JSON_API {
 		 * @param array $array Array of Blog IDs.
 		 */
 		$restricted_blog_ids = apply_filters( 'wpcom_json_api_restricted_blog_ids', array() );
-		return true === in_array( $blog_id, $restricted_blog_ids );
+		return true === in_array( $blog_id, $restricted_blog_ids ); // phpcs:ignore WordPress.PHP.StrictInArray.MissingTrueStrict -- I don't trust filters to return the right types.
 	}
 
 	/**
@@ -1032,6 +1042,7 @@ class WPCOM_JSON_API {
 			implode( "','", $exclude )
 		);
 
+		// phpcs:disable WordPress.DB.PreparedSQL.InterpolatedNotPrepared -- `$where` is built with escaping just above.
 		$count = $wpdb->get_results(
 			"SELECT comment_approved, COUNT(*) AS num_comments
 				FROM $wpdb->comments
@@ -1039,6 +1050,7 @@ class WPCOM_JSON_API {
 				GROUP BY comment_approved
 			"
 		);
+		// phpcs:enable WordPress.DB.PreparedSQL.InterpolatedNotPrepared
 
 		$approved = array(
 			'0'            => 'moderated',
@@ -1144,7 +1156,7 @@ class WPCOM_JSON_API {
 		);
 
 		// ... unless it's 500
-		if ( (int) $args['response'] !== 500 ) {
+		if ( 500 !== (int) $args['response'] ) {
 			$this->trapped_error['status'] = $args['response'];
 		}
 

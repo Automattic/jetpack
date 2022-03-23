@@ -8,9 +8,9 @@ import child_process from 'child_process';
 /**
  * Internal dependencies
  */
-import promptForProject, { promptForType } from '../helpers/promptForProject';
-import { normalizeCleanArgv } from '../helpers/normalizeArgv';
-import { allProjects } from '../helpers/projectHelpers';
+import promptForProject, { promptForType } from '../helpers/promptForProject.js';
+import { normalizeCleanArgv } from '../helpers/normalizeArgv.js';
+import { allProjects } from '../helpers/projectHelpers.js';
 import fs from 'fs';
 
 /**

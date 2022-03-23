@@ -49,6 +49,19 @@ class Jetpack_My_Community_Widget extends WP_Widget {
 		}
 
 		$this->default_title = esc_html__( 'Community', 'jetpack' );
+
+		add_filter( 'widget_types_to_hide_from_legacy_widget_block', array( $this, 'hide_widget_in_block_editor' ) );
+	}
+
+	/**
+	 * Remove the "My Community" widget from the Legacy Widget block
+	 *
+	 * @param array $widget_types List of widgets that are currently removed from the Legacy Widget block.
+	 * @return array $widget_types New list of widgets that will be removed.
+	 */
+	public function hide_widget_in_block_editor( $widget_types ) {
+		$widget_types[] = 'jetpack_my_community';
+		return $widget_types;
 	}
 
 	/**

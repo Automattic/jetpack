@@ -37,17 +37,12 @@
 		"subscriptions",
 		"tiled-gallery",
 		"videopress",
-		"wordads"
+		"wordads",
+		"payments-intro",
+		"post-publish-qr-post-panel"
 	],
-	"beta": [
-		"amazon"
-	],
-	"experimental": [
-		"anchor-fm",
-		"premium-content",
-		"conversation",
-		"dialogue"
-	],
+	"beta": [ "amazon" ],
+	"experimental": [ "anchor-fm", "premium-content", "conversation", "dialogue" ],
 	"no-post-editor": [
 		"business-hours",
 		"button",
@@ -71,7 +66,6 @@
 		"revue",
 		"simple-payments",
 		"slideshow",
-		"subscriptions",
 		"tiled-gallery",
 		"videopress",
 		"wordads"

@@ -14,7 +14,7 @@ import child_process from 'child_process';
 /**
  * Internal dependencies
  */
-import { chalkJetpackGreen } from '../helpers/styling';
+import { chalkJetpackGreen } from '../helpers/styling.js';
 
 /**
  * Returns the path to the .jetpack-draft file

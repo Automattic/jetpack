@@ -31,8 +31,12 @@ const schema = {
 		},
 	},
 	properties: {
-		stateModule: {
-			description: 'Externalized module supplying the i18n state.',
+		loaderModule: {
+			description: 'Externalized module supplying the i18n loader.',
+			type: 'string',
+		},
+		loaderMethod: {
+			description: 'Method on the loader module to call to load the i18n.',
 			type: 'string',
 		},
 		textdomain: {
@@ -44,7 +48,7 @@ const schema = {
 			enum: [ 'plugin', 'theme', 'core' ],
 		},
 		path: {
-			description: 'Path (relative to the plugin) to locate the output assets.',
+			description: 'Path (relative to the package or plugin) to locate the output assets.',
 			type: 'string',
 		},
 		ignoreModules: {
@@ -79,7 +83,8 @@ class I18nLoaderPlugin {
 
 		this.options = {
 			target: 'plugin',
-			stateModule: '@wordpress/jp-i18n-state',
+			loaderModule: '@wordpress/jp-i18n-loader',
+			loaderMethod: 'downloadI18n',
 			...options,
 		};
 
@@ -114,51 +119,30 @@ class I18nLoaderPlugin {
 		} );
 
 		// At the "make" hook, inject Dependency objects into the build so we can get the modules we need.
-		const stateModuleDep = new I18nLoaderModuleDependency( this.options.stateModule );
-		stateModuleDep.optional = true;
-		const i18nModuleDep = new I18nLoaderModuleDependency( '@wordpress/i18n' );
-		i18nModuleDep.optional = true;
+		const loaderModuleDep = new I18nLoaderModuleDependency( this.options.loaderModule );
+		loaderModuleDep.optional = true;
 		compiler.hooks.make.tapPromise( PLUGIN_NAME, compilation => {
-			return Promise.all( [
-				new Promise( ( resolve, reject ) => {
-					compilation.addModuleChain( compiler.context, stateModuleDep, ( err, module ) => {
-						if ( err ) {
-							return reject( err );
+			return new Promise( ( resolve, reject ) => {
+				compilation.addModuleChain( compiler.context, loaderModuleDep, ( err, module ) => {
+					if ( err ) {
+						return reject( err );
+					}
+					// Webpack bug; Until 5.51.0 it didn't pass the module to the callback.
+					if ( ! module && ! compilation.moduleGraph.getModule( loaderModuleDep ) ) {
+						// prettier-ignore
+						let msg = `${ PLUGIN_NAME }:\nFailed to add loader module ${ this.options.loaderModule } to the build.\n`;
+						if ( this.options.loaderModule.startsWith( '@wordpress/' ) ) {
+							msg +=
+								"You'll need to add @wordpress/dependency-extraction-webpack-plugin or an appropriate externals directive to your Webpack config.";
+						} else {
+							msg +=
+								"You'll need to add the appropriate externals directive to your Webpack config.";
 						}
-						// Webpack bug; Until 5.51.0 it didn't pass the module to the callback.
-						if ( ! module && ! compilation.moduleGraph.getModule( stateModuleDep ) ) {
-							// prettier-ignore
-							let msg = `${ PLUGIN_NAME }:\nFailed to add state module ${ this.options.stateModule } to the build.\n`;
-							if ( this.options.stateModule.startsWith( '@wordpress/' ) ) {
-								msg +=
-									"You'll need to add @wordpress/dependency-extraction-webpack-plugin or an appropriate externals directive to your Webpack config.";
-							} else {
-								msg +=
-									"You'll need to add the appropriate externals directive to your Webpack config.";
-							}
-							compilation.errors.push( new webpack.WebpackError( msg ) );
-						}
-						resolve();
-					} );
-				} ),
-				new Promise( ( resolve, reject ) => {
-					compilation.addModuleChain( compiler.context, i18nModuleDep, ( err, module ) => {
-						if ( err ) {
-							return reject( err );
-						}
-						// Webpack bug; Until 5.51.0 it didn't pass the module to the callback.
-						if ( ! module && ! compilation.moduleGraph.getModule( i18nModuleDep ) ) {
-							compilation.errors.push(
-								new webpack.WebpackError(
-									`${ PLUGIN_NAME }:\nFailed to add i18n module @wordpress/i18n to the build.\n` +
-										"You'll need to add @wordpress/dependency-extraction-webpack-plugin or an appropriate externals directive to your Webpack config, or add @wordpress/i18n to your package.json."
-								)
-							);
-						}
-						resolve();
-					} );
-				} ),
-			] );
+						compilation.errors.push( new webpack.WebpackError( msg ) );
+					}
+					resolve();
+				} );
+			} );
 		} );
 
 		compiler.hooks.thisCompilation.tap( PLUGIN_NAME, compilation => {
@@ -168,10 +152,9 @@ class I18nLoaderPlugin {
 			 * @returns {object} Stuff.
 			 */
 			function getStuff() {
-				const stateModule = compilation.moduleGraph.getModule( stateModuleDep );
-				const i18nModule = compilation.moduleGraph.getModule( i18nModuleDep );
+				const loaderModule = compilation.moduleGraph.getModule( loaderModuleDep );
 
-				const i18nModules = new Set( [ i18nModule ] );
+				const i18nModules = new Set();
 				for ( const module of compilation.modules ) {
 					// rawRequest is for a NormalModule. userRequest is for an ExternalModule. Other types we don't really care about.
 					if (
@@ -183,18 +166,18 @@ class I18nLoaderPlugin {
 				}
 				const i18nModulesArr = [ ...i18nModules ];
 
-				return { stateModule, i18nModule, i18nModulesArr, chunkGraph: compilation.chunkGraph };
+				return { loaderModule, i18nModulesArr, chunkGraph: compilation.chunkGraph };
 			}
 
 			// After chunks have been optimized (e.g. chunk splitting happened), determine which chunks need
 			// our deps and inject them.
 			compilation.hooks.afterOptimizeChunks.tap( PLUGIN_NAME, chunks => {
-				const { stateModule, i18nModule, i18nModulesArr, chunkGraph } = getStuff();
-				if ( ! stateModule ) {
-					debug( "State module is missing, can't run." );
+				const { loaderModule, i18nModulesArr, chunkGraph } = getStuff();
+				if ( ! loaderModule ) {
+					debug( "Loader module is missing, can't run." );
 					return;
 				}
-				if ( ! i18nModule || i18nModulesArr.length <= 0 ) {
+				if ( i18nModulesArr.length <= 0 ) {
 					debug( "I18n module is missing, can't run." );
 					return;
 				}
@@ -239,19 +222,15 @@ class I18nLoaderPlugin {
 					}
 
 					// Inject into the chunk!
-					if ( chunkGraph.isModuleInChunk( stateModule, chunk ) ) {
-						debug( `    Already had ${ this.options.stateModule }` );
+					if ( chunkGraph.isModuleInChunk( loaderModule, chunk ) ) {
+						debug( `    Already had ${ this.options.loaderModule }` );
 					} else {
-						chunkGraph.connectChunkAndModule( chunk, stateModule );
+						chunkGraph.connectChunkAndModule( chunk, loaderModule );
 						chunkGraph.addModuleRuntimeRequirements(
-							stateModule,
+							loaderModule,
 							chunk.runtime,
 							new Set( [ RuntimeGlobals.module ] )
 						);
-					}
-					if ( ! i18nModulesArr.some( m => chunkGraph.isModuleInChunk( m, chunk ) ) ) {
-						debug( "    Didn't itself use @wordpress/i18n" );
-						chunkGraph.connectChunkAndModule( chunk, i18nModule );
 					}
 
 					// Any chunk using this as a runtime doesn't itself need the injected modules.
@@ -259,21 +238,12 @@ class I18nLoaderPlugin {
 						if ( c === chunk ) {
 							continue;
 						}
-						if ( chunkGraph.isModuleInChunk( stateModule, c ) ) {
+						if ( chunkGraph.isModuleInChunk( loaderModule, c ) ) {
 							debug(
 								// prettier-ignore
-								`    Removing redundant ${ this.options.stateModule } from chunk ${ c.name || c.id || c.debugId }`
+								`    Removing redundant ${ this.options.loaderModule } from chunk ${ c.name || c.id || c.debugId }`
 							);
-							chunkGraph.disconnectChunkAndModule( c, stateModule );
-						}
-						for ( const m of i18nModulesArr ) {
-							if ( chunkGraph.isModuleInChunk( m, c ) ) {
-								debug(
-									// prettier-ignore
-									`    Removing redundant @wordpress/i18n from chunk ${ c.name || c.id || c.debugId }`
-								);
-								chunkGraph.disconnectChunkAndModule( c, m );
-							}
+							chunkGraph.disconnectChunkAndModule( c, loaderModule );
 						}
 					}
 				}
@@ -281,22 +251,22 @@ class I18nLoaderPlugin {
 
 			// This is just for debugging, to see if later optimizations removed our modules.
 			compilation.hooks.afterOptimizeChunkModules.tap( PLUGIN_NAME, chunks => {
-				const { stateModule, i18nModulesArr, chunkGraph } = getStuff();
-				if ( ! stateModule || i18nModulesArr.length <= 0 ) {
+				const { loaderModule, i18nModulesArr, chunkGraph } = getStuff();
+				if ( ! loaderModule || i18nModulesArr.length <= 0 ) {
 					return;
 				}
 
 				debug( 'After optimizations,' );
 				for ( const chunk of chunks ) {
-					if ( chunkGraph.isModuleInChunk( stateModule, chunk ) ) {
+					if ( chunkGraph.isModuleInChunk( loaderModule, chunk ) ) {
 						debug(
 							// prettier-ignore
-							` ✅ Chunk ${ chunk.name || chunk.id || chunk.debugId } contains ${ this.options.stateModule }`
+							` ✅ Chunk ${ chunk.name || chunk.id || chunk.debugId } contains ${ this.options.loaderModule }`
 						);
 					} else {
 						debug(
 							// prettier-ignore
-							` ❌ Chunk ${ chunk.name || chunk.id || chunk.debugId } does not contain ${ this.options.stateModule }`
+							` ❌ Chunk ${ chunk.name || chunk.id || chunk.debugId } does not contain ${ this.options.loaderModule }`
 						);
 					}
 					if ( i18nModulesArr.some( m => chunkGraph.isModuleInChunk( m, chunk ) ) ) {
@@ -317,18 +287,19 @@ class I18nLoaderPlugin {
 			compilation.hooks.runtimeRequirementInTree
 				.for( webpack.RuntimeGlobals.ensureChunkHandlers )
 				.tap( PLUGIN_NAME, ( chunk, set ) => {
-					const { stateModule, i18nModulesArr } = getStuff();
-					if ( ! stateModule || i18nModulesArr.length <= 0 ) {
+					const { loaderModule, i18nModulesArr } = getStuff();
+					if ( ! loaderModule || i18nModulesArr.length <= 0 ) {
 						return;
 					}
 
 					debug( `Queuing runtime module for ${ chunk.name || chunk.id || chunk.debugId }.` );
+					set.add( webpack.RuntimeGlobals.getChunkScriptFilename );
 					compilation.addRuntimeModule(
 						chunk,
 						new I18nLoaderRuntimeModule( set, {
 							...this.options,
-							stateModuleName: this.options.stateModule,
-							stateModule,
+							loaderModuleName: this.options.loaderModule,
+							loaderModule,
 							i18nModulesArr,
 						} )
 					);

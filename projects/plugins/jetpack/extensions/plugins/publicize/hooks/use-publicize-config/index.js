@@ -3,12 +3,10 @@
  */
 import { useSelect, useDispatch } from '@wordpress/data';
 import { store as editorStore } from '@wordpress/editor';
-
-/*
- * Internal dependencies
- */
-import getJetpackExtensionAvailability from '../../../../shared/get-jetpack-extension-availability';
-import { isUpgradable } from '../../../../shared/plan-utils';
+import {
+	getJetpackExtensionAvailability,
+	isUpgradable,
+} from '@automattic/jetpack-shared-extension-utils';
 
 const republicizeFeatureName = 'republicize';
 

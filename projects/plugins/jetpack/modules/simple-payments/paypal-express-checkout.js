@@ -159,6 +159,7 @@ var PaypalExpressCheckout = {
 					label: 'pay',
 					shape: 'rect',
 					color: 'silver',
+					size: 'responsive',
 					fundingicons: true,
 				},
 

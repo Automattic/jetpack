@@ -1,5 +1,5 @@
 /**
- * WordPress dependencies
+ * External dependencies
  */
 import { Fragment, useCallback, useMemo } from '@wordpress/element';
 import { BaseControl, Button, SelectControl, ToggleControl } from '@wordpress/components';
@@ -7,9 +7,14 @@ import { __, _x } from '@wordpress/i18n';
 import { InspectorAdvancedControls } from '@wordpress/block-editor'; // eslint-disable-line import/no-unresolved
 import { createHigherOrderComponent } from '@wordpress/compose';
 import { useSelect } from '@wordpress/data';
+import { isSimpleSite } from '@automattic/jetpack-shared-extension-utils';
+
+/**
+ * Internal dependencies
+ */
 import analytics from '../../../_inc/client/lib/analytics';
 
-/* global widget_conditions_data, wpcom */
+/* global widget_conditions_data */
 /* eslint-disable react/react-in-jsx-scope */
 
 //// Unescape utility
@@ -132,7 +137,6 @@ const VisibilityRule = props => {
 		{ label: __( 'User', 'jetpack' ), value: 'loggedin' },
 		{ label: __( 'Role', 'jetpack' ), value: 'role' },
 	];
-	const isWpcom = typeof wpcom !== 'undefined';
 
 	// "Taxonomy" is shown if there is at least one taxonomy (or if the current
 	// rule is taxonomy, so they can delete an invalid rule after removing
@@ -148,7 +152,7 @@ const VisibilityRule = props => {
 		{ label: __( 'Category', 'jetpack' ), value: 'category' },
 		{ label: __( 'Author', 'jetpack' ), value: 'author' },
 	]
-		.concat( isWpcom ? [] : optionsDisabledOnWpcom )
+		.concat( isSimpleSite() ? [] : optionsDisabledOnWpcom )
 		.concat( [
 			{ label: __( 'Tag', 'jetpack' ), value: 'tag' },
 			{ label: __( 'Date', 'jetpack' ), value: 'date' },
@@ -203,7 +207,7 @@ const VisibilityRule = props => {
 				</div>
 			) }
 			<div className="widget-vis__delete-rule">
-				<Button onClick={ onDelete } isSmall isSecondary>
+				<Button onClick={ onDelete } isSmall variant="secondary">
 					{ _x( 'Remove', 'Delete this visibility rule', 'jetpack' ) }
 				</Button>
 			</div>
@@ -350,7 +354,7 @@ const visibilityAdvancedControls = createHigherOrderComponent(
 						'jetpack'
 					) }
 				>
-					<Button isSecondary onClick={ addNewRule } className="widget-vis__add-new-rule">
+					<Button variant="secondary" onClick={ addNewRule } className="widget-vis__add-new-rule">
 						{ __( 'Add new rule', 'jetpack' ) }
 					</Button>
 				</BaseControl>
@@ -391,7 +395,7 @@ const visibilityAdvancedControls = createHigherOrderComponent(
 							onChange={ toggleMatchAll }
 						/>
 					) }
-					<Button isSecondary onClick={ addNewRule }>
+					<Button variant="secondary" onClick={ addNewRule }>
 						{ __( 'Add new rule', 'jetpack' ) }
 					</Button>
 				</BaseControl>

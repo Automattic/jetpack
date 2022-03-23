@@ -19,11 +19,9 @@
 			"./vendor/phpunit/phpunit/phpunit --colors=always"
 		],
 		"test-coverage": [
-			"@composer install",
 			"php -dpcov.directory=. ./vendor/bin/phpunit --coverage-clover \"$COVERAGE_DIR/clover.xml\""
 		],
 		"test-php": [
-			"@composer install",
 			"@composer phpunit"
 		],
 		"post-update-cmd": "php -r \"copy('vendor/automattic/wordbless/src/dbless-wpdb.php', 'wordpress/wp-content/db.php');\""
@@ -42,6 +40,7 @@
 	"extra": {
 		"autotagger": true,
 		"mirror-repo": "Automattic/jetpack-admin-ui",
+		"textdomain": "jetpack-admin-ui",
 		"changelogger": {
 			"link-template": "https://github.com/Automattic/jetpack-admin-ui/compare/${old}...${new}"
 		},

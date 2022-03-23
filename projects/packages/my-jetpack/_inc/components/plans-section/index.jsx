@@ -2,7 +2,7 @@
  * External dependencies
  */
 import React from 'react';
-import { __ } from '@wordpress/i18n';
+import { __, _n } from '@wordpress/i18n';
 import { ExternalLink } from '@wordpress/components';
 
 /**
@@ -10,8 +10,7 @@ import { ExternalLink } from '@wordpress/components';
  */
 import usePurchases from '../../hooks/use-purchases';
 import getManageYourPlanUrl from '../../utils/get-manage-your-plan-url';
-
-import './style.scss';
+import styles from './style.module.scss';
 
 /**
  * Basic plan section component.
@@ -42,18 +41,40 @@ function PlanSectionHeader( { purchases } ) {
 		<>
 			<h3>
 				{ purchases.length <= 1
-					? __( 'My plan', 'jetpack-my-jetpack' )
-					: __( 'My plans', 'jetpack-my-jetpack' ) }
+					? __( 'Your plan', 'jetpack-my-jetpack' )
+					: __( 'Your plans', 'jetpack-my-jetpack' ) }
 			</h3>
-			<p>{ __( 'The extra power you added to your Jetpack.', 'jetpack-my-jetpack' ) }</p>
-			<p>
-				<ExternalLink href={ getManageYourPlanUrl() }>
-					{ purchases.length <= 1
-						? __( 'Manage your plan', 'jetpack-my-jetpack' )
-						: __( 'Manage your plans', 'jetpack-my-jetpack' ) }
-				</ExternalLink>
-			</p>
+			{ purchases.length === 0 && (
+				<p>{ __( 'The extra power you added to your Jetpack.', 'jetpack-my-jetpack' ) }</p>
+			) }
 		</>
+	);
+}
+
+/**
+ * Plan section Footer component.
+ *
+ * @param {object} props          - Component props.
+ * @param {Array} props.purchases - Purchases array.
+ * @returns {object} PlanSectionFooter react component.
+ */
+function PlanSectionFooter( { purchases } ) {
+	let planLinkDescription = __( 'Purchase a plan', 'jetpack-my-jetpack' );
+	if ( purchases.length >= 1 ) {
+		planLinkDescription = _n(
+			'Manage your plan',
+			'Manage your plans',
+			purchases.length,
+			'jetpack-my-jetpack'
+		);
+	}
+
+	return (
+		<p>
+			<ExternalLink className={ styles[ 'external-link' ] } href={ getManageYourPlanUrl() }>
+				{ planLinkDescription }
+			</ExternalLink>
+		</p>
 	);
 }
 
@@ -66,14 +87,16 @@ export default function PlansSection() {
 	const purchases = usePurchases();
 
 	return (
-		<div className="jp-plans-section">
+		<div className={ styles.container }>
 			<PlanSectionHeader purchases={ purchases } />
 
-			<div className="jp-plans-section__purchases-section">
+			<div className={ styles.purchasesSection }>
 				{ purchases.map( purchase => (
 					<PlanSection key={ `purchase-${ purchase.product_name }` } purchase={ purchase } />
 				) ) }
 			</div>
+
+			<PlanSectionFooter purchases={ purchases } />
 		</div>
 	);
 }

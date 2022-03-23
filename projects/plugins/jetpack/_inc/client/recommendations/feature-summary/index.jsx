@@ -4,6 +4,7 @@
 import classNames from 'classnames';
 import React, { useCallback, useState } from 'react';
 import { connect } from 'react-redux';
+import { ExternalLink } from '@wordpress/components';
 
 /**
  * Internal dependencies
@@ -14,7 +15,6 @@ import {
 	mapStateToSummaryFeatureProps,
 } from '../feature-utils';
 import Button from 'components/button';
-import ExternalLink from 'components/external-link';
 import Gridicon from 'components/gridicon';
 import InstallButton from 'components/install-button';
 import analytics from 'lib/analytics';
@@ -63,11 +63,11 @@ const FeatureSummaryComponent = props => {
 	const ctaButton = (
 		<div className="jp-recommendations-feature-summary__cta">
 			{ props.isFeatureActive ? (
-				<Button href={ configLink } onClick={ onConfigureClick }>
+				<Button rna href={ configLink } onClick={ onConfigureClick }>
 					{ configureButtonLabel }
 				</Button>
 			) : (
-				<InstallButton primary isInstalling={ isInstalling } onClick={ onInstallClick }>
+				<InstallButton primary rna isInstalling={ isInstalling } onClick={ onInstallClick }>
 					{ summaryActivateButtonLabel }
 				</InstallButton>
 			) }
@@ -86,12 +86,7 @@ const FeatureSummaryComponent = props => {
 				</div>
 			) }
 			<div className="jp-recommendations-feature-summary__display-name">
-				<ExternalLink
-					href={ learnMoreLink }
-					onClick={ onLearnMoreClick }
-					target="_blank"
-					rel="noopener noreferrer"
-				>
+				<ExternalLink href={ learnMoreLink } onClick={ onLearnMoreClick } rel="noopener noreferrer">
 					{ displayName }
 				</ExternalLink>
 			</div>

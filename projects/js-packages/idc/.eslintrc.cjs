@@ -1,11 +1,9 @@
 module.exports = {
-	// This project uses react, so load the shared react config.
-	root: true,
-	extends: [ '../../../.eslintrc.react.js' ],
+	extends: [ '../../../tools/js-tools/eslintrc/react.js' ],
 	parserOptions: {
 		requireConfigFile: false,
 		babelOptions: {
-			presets: [ '@babel/preset-react' ],
+			presets: [ require.resolve( '@babel/preset-react' ) ],
 		},
 	},
 	rules: {
