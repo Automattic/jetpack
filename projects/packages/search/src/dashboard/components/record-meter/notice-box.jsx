@@ -80,7 +80,7 @@ export function NoticeBox( props ) {
 		: 'jp-search-notice-box';
 
 	return (
-		<div data-testid="notice" className={ noticeBoxClassName }>
+		<div data-testid="notice-box" className={ noticeBoxClassName }>
 			<p>{ notices[ 0 ].message }</p>
 		</div>
 	);
