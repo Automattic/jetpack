@@ -29,6 +29,7 @@ module.exports = {
 		'plugin:@wordpress/eslint-plugin/i18n',
 		'plugin:jsx-a11y/recommended',
 		'plugin:prettier/recommended',
+		'plugin:jest/recommended',
 	],
 	env: {
 		browser: true,
