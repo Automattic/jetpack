@@ -1,6 +1,5 @@
-import classNames from 'classnames';
 import Card from 'components/card';
-import PropTypes from 'prop-types';
+import classNames from 'classnames';
 import React from 'react';
 
 import './style.scss';
