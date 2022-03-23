@@ -33,6 +33,7 @@ const FeaturePromptComponent = props => {
 		description,
 		descriptionLink,
 		illustrationPath,
+		rnaIllustration,
 		nextRoute,
 		progressValue,
 		question,
@@ -69,7 +70,9 @@ const FeaturePromptComponent = props => {
 
 	return (
 		<PromptLayout
-			progressBar={ <ProgressBar color={ '#00A32A' } value={ progressValue } /> }
+			progressBar={
+				progressValue ? <ProgressBar color={ '#00A32A' } value={ progressValue } /> : null
+			}
 			isNew={ isNew }
 			question={ question }
 			description={ createInterpolateElement( description, {
@@ -87,6 +90,7 @@ const FeaturePromptComponent = props => {
 				</div>
 			}
 			illustrationPath={ illustrationPath }
+			rna={ rnaIllustration }
 		/>
 	);
 };

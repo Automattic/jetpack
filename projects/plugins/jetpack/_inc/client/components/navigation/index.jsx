@@ -5,7 +5,8 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import { connect } from 'react-redux';
 import { withRouter } from 'react-router-dom';
-import { _x } from '@wordpress/i18n';
+import { createInterpolateElement } from '@wordpress/element';
+import { _x, sprintf } from '@wordpress/i18n';
 import { getRedirectUrl } from '@automattic/jetpack-components';
 
 /**
@@ -105,15 +106,27 @@ export class Navigation extends React.Component {
 							onClick={ this.trackRecommendationsClick }
 							selected={ this.props.location.pathname.startsWith( '/recommendations' ) }
 						>
-							{ _x( 'Recommendations ', 'Navigation item.', 'jetpack' ) }
-							{ this.props.newRecommendationsCount > 0 && (
-								<span
-									className={
-										'dops-section-nav-tab__update-badge count-' + this.props.newRecommendationsCount
-									}
-								>
-									<span className="update-count">{ this.props.newRecommendationsCount }</span>
-								</span>
+							{ createInterpolateElement(
+								sprintf(
+									/* translators: %s is a count of how many new (unread) recommendations are available. */
+									_x(
+										'Recommendations <CountWrap><span>%d</span></CountWrap>',
+										'Navigation item.',
+										'jetpack'
+									),
+									this.props.newRecommendationsCount
+								),
+								{
+									CountWrap: (
+										<span
+											className={
+												'dops-section-nav-tab__update-badge count-' +
+												this.props.newRecommendationsCount
+											}
+										></span>
+									),
+									span: <span className="update-count"></span>,
+								}
 							) }
 						</NavItem>
 					) }

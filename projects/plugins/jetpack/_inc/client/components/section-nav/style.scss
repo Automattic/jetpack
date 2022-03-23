@@ -348,18 +348,23 @@
 // Mimic style of WP plugin update badge
 .dops-section-nav-tab__update-badge {
 	display: inline-block;
-	vertical-align: top;
+	vertical-align: middle;
 	box-sizing: border-box;
-	margin: 1px 0 -1px 2px;
+	margin-block-start: 2px;
+	margin-top: -1px;
 	padding: 0 5px;
 	min-width: 18px;
 	height: 18px;
 	border-radius: 9px;
-	background-color: #d63638;
+	background-color: $orange-fire;
 	color: #fff;
 	font-size: 11px;
 	line-height: 1.6;
 	text-align: center;
+
+	&.count-0 {
+		display: none;
+	}
 }
 
 .dops-section-nav-tab__text {

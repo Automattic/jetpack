@@ -92,6 +92,7 @@ const FeatureSummaryComponent = props => {
 					{ displayName }
 				</ExternalLink>
 				{ isNew && (
+					/* translators: 'New' is shown as a badge to indicate that this content has not been viewed before. */
 					<span className="jp-recommendations__new-badge">{ __( 'New', 'jetpack' ) }</span>
 				) }
 			</div>

@@ -3,11 +3,12 @@
  */
 import { __ } from '@wordpress/i18n';
 import restApi from '@automattic/jetpack-api';
+import { getRedirectUrl } from '@automattic/jetpack-components';
 
 /**
  * Internal dependencies
  */
-import { getSiteAdminUrl } from 'state/initial-state';
+import { getSiteAdminUrl, getSiteRawUrl } from 'state/initial-state';
 import { updateSettings } from 'state/settings';
 import { fetchPluginsData } from 'state/site/plugins';
 
@@ -46,7 +47,9 @@ export const mapStateToSummaryFeatureProps = ( state, featureSlug ) => {
 				configureButtonLabel: __( 'Settings', 'jetpack' ),
 				displayName: __( 'Publicize', 'jetpack' ),
 				summaryActivateButtonLabel: __( 'Enable', 'jetpack' ),
-				configLink: '#/settings?term=publicize',
+				configLink: getRedirectUrl( 'calypso-marketing-connections', {
+					site: getSiteRawUrl( state ),
+				} ),
 			};
 		case 'woocommerce':
 			return {
@@ -163,7 +166,7 @@ export const getStepContent = stepSlug => {
 			};
 		case 'site-accelerator':
 			return {
-				progressValue: '85',
+				progressValue: '99',
 				question: __( 'Would you like your site to load faster?', 'jetpack' ),
 				description: __(
 					'Faster sites get better ranking in search engines and help keep visitors on your site longer. Jetpack will automatically optimize and load your images and files from our global Content Delivery Network (CDN). <ExternalLink>Learn more</ExternalLink>',
@@ -175,7 +178,6 @@ export const getStepContent = stepSlug => {
 			};
 		case 'publicize':
 			return {
-				progressValue: '99',
 				question: __(
 					'Automatically share your posts to social media to grow your audience.',
 					'jetpack'
@@ -184,9 +186,10 @@ export const getStepContent = stepSlug => {
 					'It’s easy to share your content to a wider audience by connecting your social media accounts to Jetpack. When you publish a post, it will automatically appear on all your favorite platforms. Best of all, it’s free. <ExternalLink>Learn more</ExternalLink>',
 					'jetpack'
 				),
-				descriptionLink: 'https://jetpack.com/2020/04/01/automate-social-media-sharing-wordpress/',
+				descriptionLink: getRedirectUrl( 'jetpack-blog-social-sharing' ),
 				ctaText: __( 'Enable social media sharing', 'jetpack' ),
-				illustrationPath: '/recommendations/site-accelerator-illustration.svg',
+				illustrationPath: '/recommendations/general-illustration.png',
+				rnaIllustration: true,
 			};
 		case 'woocommerce':
 			return {

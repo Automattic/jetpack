@@ -117,8 +117,8 @@ class Jetpack_Recommendations {
 		}
 
 		// Monitor for the publishing of a new post.
-		add_action( 'transition_post_status', array( 'Jetpack_Recommendations', 'publicize_recommendation_post_transition' ), 10, 3 );
-		add_action( 'jetpack_activate_module', array( 'Jetpack_Recommendations', 'jetpack_module_activated' ), 10, 2 );
+		add_action( 'transition_post_status', array( get_called_class(), 'post_transition' ), 10, 3 );
+		add_action( 'jetpack_activate_module', array( get_called_class(), 'jetpack_module_activated' ), 10, 2 );
 	}
 
 	/**
@@ -141,7 +141,7 @@ class Jetpack_Recommendations {
 	 * @param string  $old_status old status of post.
 	 * @param WP_Post $post the post object being updated.
 	 */
-	public static function publicize_recommendation_post_transition( $new_status, $old_status, $post ) {
+	public static function post_transition( $new_status, $old_status, $post ) {
 		// Check for condition when post has been published.
 		if ( 'post' === $post->post_type && 'publish' === $new_status && 'publish' !== $old_status && ! Jetpack::is_module_active( 'publicize' ) ) {
 			// Set the publicize recommendation to have met criteria to be shown.
