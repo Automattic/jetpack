@@ -1,22 +1,33 @@
 /**
+ * External dependencies
+ */
+import { getJetpackExtensionAvailability } from '@automattic/jetpack-shared-extension-utils';
+
+/**
  * WordPress dependencies
  */
-import { useSelect } from '@wordpress/data';
 import { InnerBlocks } from '@wordpress/block-editor';
+import { Button, ExternalLink, Placeholder } from '@wordpress/components';
+import { useSelect } from '@wordpress/data';
+import { store as editorStore } from '@wordpress/editor';
 import { applyFilters } from '@wordpress/hooks';
+import { __ } from '@wordpress/i18n';
 
 /**
  * Internal dependencies
  */
+import { icon, title } from './';
 import ProductManagementControls from '../../shared/components/product-management-controls';
+import { store as membershipProductsStore } from '../../store/membership-products';
 
-export default function Edit( props ) {
-	const { setAttributes, attributes, clientId } = props;
+export default function Edit( { attributes, clientId, context, setAttributes } ) {
 	const { planId } = attributes;
+	const { isPremiumContentChild } = context;
 	const postLink = useSelect(
-		select => new URL( select( 'core/editor' ).getCurrentPost().link ),
+		select => new URL( select( editorStore ).getCurrentPost().link ),
 		[]
 	);
+	const upgradeUrl = useSelect( select => select( membershipProductsStore ).getUpgradeUrl() );
 
 	const updateSubscriptionPlan = newPlanId => {
 		postLink.searchParams.set( 'recurring_payments', newPlanId );
@@ -37,8 +48,14 @@ export default function Edit( props ) {
 	 */
 	const showControls = applyFilters( 'jetpack.RecurringPayments.showControls', true, clientId );
 
+	const availability = getJetpackExtensionAvailability( 'recurring-payments' );
+	const hasWpcomUpgradeNudge =
+		! availability.available && 'missing_plan' === availability.unavailableReason;
+	const showJetpackUpgradeNudge =
+		!! upgradeUrl && ! hasWpcomUpgradeNudge && ! isPremiumContentChild;
+
 	return (
-		<>
+		<div className="wp-block-jetpack-recurring-payments">
 			{ showControls && (
 				<ProductManagementControls
 					allowCreateOneTimeInterval={ true }
@@ -47,6 +64,27 @@ export default function Edit( props ) {
 					setSelectedProductId={ updateSubscriptionPlan }
 				/>
 			) }
+
+			{ showJetpackUpgradeNudge && (
+				<Placeholder
+					icon={ icon }
+					instructions={ __(
+						"You'll need to upgrade your plan to use the Payments block.",
+						'jetpack'
+					) }
+					label={ title }
+				>
+					<Button href={ upgradeUrl } target="_blank" variant="secondary">
+						{ __( 'Upgrade your plan', 'jetpack' ) }
+					</Button>
+					<div className="membership-button__disclaimer">
+						<ExternalLink href="https://wordpress.com/support/wordpress-editor/blocks/payments/#related-fees">
+							{ __( 'Read more about Payments and related fees.', 'jetpack' ) }
+						</ExternalLink>
+					</div>
+				</Placeholder>
+			) }
+
 			<InnerBlocks
 				template={ [
 					[
@@ -64,6 +102,6 @@ export default function Edit( props ) {
 				__experimentalCaptureToolbars={ true }
 				templateInsertUpdatesSelection={ false }
 			/>
-		</>
+		</div>
 	);
 }
