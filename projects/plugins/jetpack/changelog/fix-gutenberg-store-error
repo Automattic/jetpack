@@ -1,4 +1,0 @@
-Significance: patch
-Type: bugfix
-
-Premium Content Block: fix a Redux store middleware regression on older Gutenberg versions.
