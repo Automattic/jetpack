@@ -9,6 +9,10 @@ namespace Automattic\Jetpack\Connection;
 
 use Automattic\Jetpack\Constants;
 use Automattic\Jetpack\Roles;
+use DateInterval;
+use DateTime;
+use DateTimeInterface;
+use Exception;
 use Jetpack_Options;
 use WP_Error;
 
@@ -30,6 +34,8 @@ class Tokens {
 				'user_tokens',
 			)
 		);
+
+		$this->remove_site_lock();
 	}
 
 	/**
@@ -357,6 +363,11 @@ class Tokens {
 	 * @return object|false
 	 */
 	public function get_access_token( $user_id = false, $token_key = false, $suppress_errors = true ) {
+		if ( $this->is_site_locked() ) {
+			$this->delete_all();
+			return false;
+		}
+
 		$possible_special_tokens = array();
 		$possible_normal_tokens  = array();
 		$user_tokens             = $this->get_user_tokens();
@@ -591,5 +602,69 @@ class Tokens {
 	 */
 	public function update_user_tokens( $tokens ) {
 		return Jetpack_Options::update_option( 'user_tokens', $tokens );
+	}
+
+	/**
+	 * Lock the tokens to the current site URL.
+	 *
+	 * @param int $timespan How long the tokens should be locked, in seconds.
+	 *
+	 * @return bool
+	 */
+	public function set_site_lock( $timespan = HOUR_IN_SECONDS ) {
+		try {
+			$expires = ( new DateTime() )->add( new DateInterval( (int) $timespan . 'S' ) );
+		} catch ( Exception $e ) {
+			return false;
+		}
+
+		if ( false === $expires ) {
+			return false;
+		}
+
+		return Jetpack_Options::update_option( 'token_site_lock', Urls::site_url() )
+			&& Jetpack_Options::update_option( 'token_site_lock_expires', $expires->format( DateTimeInterface::ATOM ) );
+	}
+
+	/**
+	 * Remove the site lock from tokens.
+	 *
+	 * @return bool
+	 */
+	public function remove_site_lock() {
+		Jetpack_Options::delete_option( 'token_site_lock' );
+		Jetpack_Options::delete_option( 'token_site_lock_expires' );
+
+		return true;
+	}
+
+	/**
+	 * Check if the domain is locked, remove the lock if needed.
+	 *
+	 * @return bool
+	 */
+	public function is_site_locked() {
+		$locked_site_url = Jetpack_Options::get_option( 'token_site_lock' );
+		if ( ! $locked_site_url || Urls::site_url() === $locked_site_url ) {
+			// Not locked, or the site URL matches.
+			return false;
+		}
+
+		$expires = Jetpack_Options::get_option( 'token_site_lock_expires' );
+		if ( ! $expires ) {
+			// Expiration date/time not set, lock is invalid.
+			$this->remove_site_lock();
+			return false;
+		}
+
+		if ( new DateTime() > DateTime::createFromFormat( DateTimeInterface::ATOM, $expires ) && Urls::site_url() === $locked_site_url ) {
+			// Site lock expired.
+			// Site URL matches, removing the lock.
+			$this->remove_site_lock();
+			return false;
+		}
+
+		// Site URL doesn't match.
+		return true;
 	}
 }

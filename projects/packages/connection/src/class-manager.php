@@ -117,6 +117,7 @@ class Manager {
 			( new Server_Sandbox() )->init();
 		}
 
+		$manager->setup_migration_hooks();
 	}
 
 	/**
@@ -2490,4 +2491,15 @@ class Manager {
 		return $stats;
 	}
 
+	/**
+	 * Initialize the site migration hooks.
+	 *
+	 * @return void
+	 */
+	public function setup_migration_hooks() {
+		$tokens = $this->get_tokens();
+
+		add_filter( 'ai1wm_export', array( $tokens, 'set_site_lock' ), 1 );
+		add_filter( 'ai1wm_export', array( $tokens, 'remove_site_lock' ), 290 );
+	}
 }
