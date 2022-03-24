@@ -12,6 +12,7 @@ import usePurchases from '../../hooks/use-purchases';
 import getManageYourPlanUrl from '../../utils/get-manage-your-plan-url';
 import getPurchasePlanUrl from '../../utils/get-purchase-plan-url';
 import styles from './style.module.scss';
+import { H2, Title2 } from '../heading';
 
 /**
  * Basic plan section component.
@@ -24,7 +25,7 @@ function PlanSection( { purchase = {} } ) {
 	const { product_name, expiry_message } = purchase;
 	return (
 		<>
-			<h4>{ product_name }</h4>
+			<Title2>{ product_name }</Title2>
 			<p>{ expiry_message }</p>
 		</>
 	);
@@ -40,11 +41,11 @@ function PlanSection( { purchase = {} } ) {
 function PlanSectionHeader( { purchases } ) {
 	return (
 		<>
-			<h3>
+			<H2>
 				{ purchases.length <= 1
 					? __( 'Your plan', 'jetpack-my-jetpack' )
 					: __( 'Your plans', 'jetpack-my-jetpack' ) }
-			</h3>
+			</H2>
 			{ purchases.length === 0 && (
 				<p>{ __( 'The extra power you added to your Jetpack.', 'jetpack-my-jetpack' ) }</p>
 			) }
