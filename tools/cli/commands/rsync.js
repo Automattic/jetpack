@@ -3,7 +3,7 @@
  */
 import inquirer from 'inquirer';
 import chalk from 'chalk';
-import execa from 'execa';
+import watch from 'node-watch';
 import process from 'process';
 
 /**
@@ -11,7 +11,6 @@ import process from 'process';
  */
 import { allProjectsByType, dirs } from '../helpers/projectHelpers.js';
 import { runCommand } from '../helpers/runCommand.js';
-import { listProjectFiles } from '../helpers/list-project-files.js';
 import { projectDir } from '../helpers/install.js';
 
 /**
@@ -21,35 +20,39 @@ import { projectDir } from '../helpers/install.js';
  */
 export async function rsyncInit( argv ) {
 	argv = await promptForPlugin( argv );
-
-	const pluginPath = projectDir( `plugins/${ argv.plugin }` );
-	let includeFiles = '';
-	for await ( const file of listProjectFiles( pluginPath, execa ) ) {
-		// eslint-disable-next-line
-		console.log( file );
-		includeFiles += `--include '${ file }' `;
-	}
-
-	// eslint-disable-next-line
-	console.log( includeFiles );
-	// eslint-disable-next-line
-	// console.log( files );
 	argv = await promptForDest( argv );
+	const sourcePluginPath = projectDir( `plugins/${ argv.plugin }` );
 
+	if ( true === argv.watch ) {
+		console.log( chalk.yellow( `Watching for changes in ${ argv.plugin } to rsync` ) );
+		watch( sourcePluginPath, { recursive: true }, ( eventType, fileName ) => {
+			if ( fileName && 'update' === eventType ) {
+				// console.log( chalk.yellow( `Changed detected in ${ fileName }...` ) );
+				rsyncToDest( sourcePluginPath, argv.dest );
+			}
+		} );
+	} else {
+		await rsyncToDest( sourcePluginPath, argv.dest );
+	}
+}
+
+/**
+ * Function that does the actual work of rsync.
+ *
+ * @param {string} source - Source path.
+ * @param {string} dest - Destination path.
+ * @returns {Promise<void>}
+ */
+async function rsyncToDest( source, dest ) {
 	try {
 		await runCommand( 'rsync', [
-			`-azLKvP --delete --delete-after --dry-run`,
-			includeFiles,
-			"--exclude 'jetpack_vendor/**/vendor' --exclude 'node_modules' --exclude 'vendor/**/vendor'",
-			pluginPath,
-			argv.dest,
+			`-azLKP --delete --delete-after`,
+			"--exclude='jetpack_vendor/**/vendor' --exclude='node_modules' --exclude='vendor/**/vendor' --exclude='.cache' --exclude='tests' --exclude='*.map'",
+			source,
+			dest,
 		] );
-		// await runCommand( 'tools/rsync-plugins/rsync-plugins.sh', [
-		// 	`-p ${ argv.plugin } -d ${ argv.dest }`,
-		// ] );
 	} catch ( e ) {
 		console.error( chalk.red( 'Uh oh! ' + e.message ) );
-		console.log( argv );
 		process.exit( 1 );
 	}
 }

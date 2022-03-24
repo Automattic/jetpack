@@ -1351,6 +1351,7 @@ importers:
       listr-update-renderer: 0.5.0
       listr-verbose-renderer: 0.6.0
       mocha: 8.4.0
+      node-watch: 0.7.3
       p-limit: 4.0.0
       path-name: 1.0.0
       pluralize: 8.0.0
@@ -1376,6 +1377,7 @@ importers:
       listr-silent-renderer: 1.1.1
       listr-update-renderer: 0.5.0_listr@0.14.3
       listr-verbose-renderer: 0.6.0
+      node-watch: 0.7.3
       p-limit: 4.0.0
       path-name: 1.0.0
       pluralize: 8.0.0
@@ -17700,6 +17702,11 @@ packages:
 
   /node-releases/2.0.2:
     resolution: {integrity: sha512-XxYDdcQ6eKqp/YjI+tb2C5WM2LgjnZrfYg4vgQt49EK268b6gYCHsBLrK2qvJo4FmCtqmKezb0WZFK4fkrZNsg==}
+
+  /node-watch/0.7.3:
+    resolution: {integrity: sha512-3l4E8uMPY1HdMMryPRUAl+oIHtXtyiTlIiESNSVSNxcPfzAFzeTbXFQkZfAwBbo0B1qMSG8nUABx+Gd+YrbKrQ==}
+    engines: {node: '>=6'}
+    dev: false
 
   /node-wp-i18n/1.2.4:
     resolution: {integrity: sha512-pIeFi+ATRTEmWgpmCV+wIkELYZ8bGVzWlLZ6gw1kBQmp9gHBHgDD/eMNK2mIIEFPAsG4DoBH+r0w6kvNB7Pw/w==}
