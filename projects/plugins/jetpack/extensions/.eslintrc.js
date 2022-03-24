@@ -1,7 +1,6 @@
 const loadIgnorePatterns = require( '../../../../tools/js-tools/load-eslint-ignore.js' );
 
 module.exports = {
-	extends: [ '../../../../tools/js-tools/eslintrc/tests' ],
 	ignorePatterns: loadIgnorePatterns( __dirname ),
 	env: { jest: true },
 	rules: {
@@ -43,10 +42,6 @@ module.exports = {
 			{
 				allowedTextDomain: 'jetpack',
 			},
-		],
-		'jsdoc/check-tag-names': [
-			1, // Recommended
-			{ definedTags: [ 'jest-environment' ] },
 		],
 	},
 	settings: {
