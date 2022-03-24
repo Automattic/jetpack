@@ -1882,7 +1882,7 @@
             "dist": {
                 "type": "path",
                 "url": "../../packages/wordads",
-                "reference": "296a2fec85e793d50dbbc00004847e305e74a37c"
+                "reference": "553f7ccb528117d6ff38001ffc11fa0eee26c622"
             },
             "require": {
                 "automattic/jetpack-assets": "^1.17",
