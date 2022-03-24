@@ -7,7 +7,7 @@ import { getJetpackExtensionAvailability } from '@automattic/jetpack-shared-exte
  * WordPress dependencies
  */
 import { InnerBlocks } from '@wordpress/block-editor';
-import { Button, Placeholder } from '@wordpress/components';
+import { Button, ExternalLink, Placeholder } from '@wordpress/components';
 import { useSelect } from '@wordpress/data';
 import { store as editorStore } from '@wordpress/editor';
 import { applyFilters } from '@wordpress/hooks';
@@ -20,8 +20,9 @@ import { icon, title } from './';
 import ProductManagementControls from '../../shared/components/product-management-controls';
 import { store as membershipProductsStore } from '../../store/membership-products';
 
-export default function Edit( { attributes, clientId, setAttributes } ) {
+export default function Edit( { attributes, clientId, context, setAttributes } ) {
 	const { planId } = attributes;
+	const { isPremiumContentChild } = context;
 	const postLink = useSelect(
 		select => new URL( select( editorStore ).getCurrentPost().link ),
 		[]
@@ -48,8 +49,10 @@ export default function Edit( { attributes, clientId, setAttributes } ) {
 	const showControls = applyFilters( 'jetpack.RecurringPayments.showControls', true, clientId );
 
 	const availability = getJetpackExtensionAvailability( 'recurring-payments' );
+	const hasWpcomUpgradeNudge =
+		! availability.available && 'missing_plan' === availability.unavailableReason;
 	const showJetpackUpgradeNudge =
-		!! upgradeUrl && 'missing_plan' !== availability?.unavailableReason;
+		!! upgradeUrl && ! hasWpcomUpgradeNudge && ! isPremiumContentChild;
 
 	return (
 		<div className="wp-block-jetpack-recurring-payments">
@@ -74,6 +77,11 @@ export default function Edit( { attributes, clientId, setAttributes } ) {
 					<Button href={ upgradeUrl } target="_blank" variant="secondary">
 						{ __( 'Upgrade your plan', 'jetpack' ) }
 					</Button>
+					<div className="membership-button__disclaimer">
+						<ExternalLink href="https://wordpress.com/support/wordpress-editor/blocks/payments/#related-fees">
+							{ __( 'Read more about Payments and related fees.', 'jetpack' ) }
+						</ExternalLink>
+					</div>
 				</Placeholder>
 			) }
 
