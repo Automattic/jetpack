@@ -203,6 +203,7 @@ class WPCOM_Features {
 	public const EMAIL_SUBSCRIPTION            = 'email-subscription';
 	public const FREE_BLOG                     = 'free-blog';
 	public const GOOGLE_ANALYTICS              = 'google-analytics';
+	public const GOOGLE_MY_BUSINESS            = 'google-my-business';
 	public const INSTALL_PLUGINS               = 'install-plugins';
 	public const INSTALL_THEMES                = 'install-themes';
 	public const LEGACY_UNLIMITED_SPACE_2019   = 'legacy-unlimited-space-2019';
@@ -588,6 +589,15 @@ class WPCOM_Features {
 		// Represents having at least one product providing email
 		self::EMAIL_SUBSCRIPTION            => array(
 			self::WPCOM_EMAIL_PRODUCTS,
+		),
+		self::GOOGLE_MY_BUSINESS            => array(
+			self::WPCOM_PRO_PLANS,
+			self::WPCOM_BUSINESS_AND_HIGHER_PLANS,
+			self::JETPACK_BUSINESS_PLANS,
+			self::JETPACK_SECURITY_REALTIME_PLANS,
+			self::JETPACK_COMPLETE_PLANS,
+			self::JETPACK_SECURITY_T1_PLANS,
+			self::JETPACK_SECURITY_T2_PLANS,
 		),
 	);
 
