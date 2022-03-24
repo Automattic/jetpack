@@ -1,0 +1,4 @@
+Significance: minor
+Type: other
+
+Refactor Jetpack class to move some functions into Modules and File packages
