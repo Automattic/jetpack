@@ -3,15 +3,24 @@
 		"clientId": "_clientId_0",
 		"name": "jetpack/recurring-payments",
 		"isValid": true,
-		"attributes": {},
+		"attributes": {
+			"style": {
+				"spacing": {
+					"blockGap": "20px"
+				}
+			},
+			"layout": {
+				"type": "flex",
+				"justifyContent": "center"
+			}
+		},
 		"innerBlocks": [
 			{
 				"clientId": "_clientId_0",
 				"name": "jetpack/recurring-payments-button",
 				"isValid": true,
 				"attributes": {
-					"planId": 12,
-					"align": "right"
+					"planId": 762
 				},
 				"innerBlocks": [
 					{
@@ -21,17 +30,52 @@
 						"attributes": {
 							"element": "a",
 							"saveInPostContent": false,
-							"uniqueId": "recurring-payments-12",
+							"uniqueId": "recurring-payments-762",
+							"passthroughAttributes": {
+								"uniqueId": "uniqueId",
+								"url": "url"
+							},
 							"text": "Payment",
-							"url": "?open_payment_plan=12",
+							"url": "?recurring_payments=762",
 							"borderRadius": 0
 						},
 						"innerBlocks": [],
 						"originalContent": ""
 					}
-				]
+				],
+				"originalContent": "<div class=\"wp-block-jetpack-recurring-payments-button\"></div>"
+			},
+			{
+				"clientId": "_clientId_1",
+				"name": "jetpack/recurring-payments-button",
+				"isValid": true,
+				"attributes": {
+					"planId": 758
+				},
+				"innerBlocks": [
+					{
+						"clientId": "_clientId_0",
+						"name": "jetpack/button",
+						"isValid": true,
+						"attributes": {
+							"element": "a",
+							"saveInPostContent": false,
+							"uniqueId": "recurring-payments-758",
+							"passthroughAttributes": {
+								"uniqueId": "uniqueId",
+								"url": "url"
+							},
+							"text": "Payment two",
+							"url": "?recurring_payments=758",
+							"borderRadius": 10
+						},
+						"innerBlocks": [],
+						"originalContent": ""
+					}
+				],
+				"originalContent": "<div class=\"wp-block-jetpack-recurring-payments-button\"></div>"
 			}
 		],
-		"originalContent": "<div class=\"wp-block-jetpack-recurring-payments\"></div>"
+		"originalContent": "<div class=\"wp-block-jetpack-recurring-payments\">\n\n\t</div>"
 	}
 ]
