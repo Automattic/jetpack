@@ -23,7 +23,8 @@ export default function getRecordInfo( data ) {
 	if (
 		'object' !== typeof data ||
 		'object' !== typeof data.post_type_breakdown ||
-		'number' !== typeof data.tier
+		'number' !== typeof data.tier ||
+		'string' !== typeof data.last_indexed_date
 	) {
 		hasValidData = false;
 	}
