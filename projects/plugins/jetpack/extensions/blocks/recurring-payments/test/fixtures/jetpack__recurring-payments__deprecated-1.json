@@ -7,14 +7,22 @@
 		"innerBlocks": [
 			{
 				"clientId": "_clientId_0",
-				"name": "jetpack/button",
+				"name": "jetpack/recurring-payments-button",
 				"isValid": true,
-				"attributes": {
-					"element": "a",
-					"saveInPostContent": false,
-					"uniqueId": "recurring-payments-id"
-				},
-				"innerBlocks": []
+				"attributes": {},
+				"innerBlocks": [
+					{
+						"clientId": "_clientId_0",
+						"name": "jetpack/button",
+						"isValid": true,
+						"attributes": {
+							"element": "a",
+							"saveInPostContent": false,
+							"uniqueId": "recurring-payments-id"
+						},
+						"innerBlocks": []
+					}
+				]
 			}
 		],
 		"originalContent": ""

@@ -3,26 +3,32 @@
 		"clientId": "_clientId_0",
 		"name": "jetpack/recurring-payments",
 		"isValid": true,
-		"attributes": {
-			"planId": 12,
-			"align": "right",
-			"uniqueId": "id",
-			"url": "#"
-		},
+		"attributes": {},
 		"innerBlocks": [
 			{
 				"clientId": "_clientId_0",
-				"name": "jetpack/button",
+				"name": "jetpack/recurring-payments-button",
 				"isValid": true,
 				"attributes": {
-					"element": "a",
-					"saveInPostContent": false,
-					"text": "Payment",
-					"borderRadius": 0,
-					"uniqueId": "recurring-payments-id"
+					"planId": 12,
+					"align": "right"
 				},
-				"innerBlocks": [],
-				"originalContent": ""
+				"innerBlocks": [
+					{
+						"clientId": "_clientId_0",
+						"name": "jetpack/button",
+						"isValid": true,
+						"attributes": {
+							"element": "a",
+							"saveInPostContent": false,
+							"uniqueId": "recurring-payments-id",
+							"text": "Payment",
+							"borderRadius": 0
+						},
+						"innerBlocks": [],
+						"originalContent": ""
+					}
+				]
 			}
 		],
 		"originalContent": "<div class=\"wp-block-jetpack-recurring-payments\"></div>"
