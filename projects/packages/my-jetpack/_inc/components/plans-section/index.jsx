@@ -94,7 +94,7 @@ export default function PlansSection() {
 		<div className={ styles.container }>
 			<PlanSectionHeader purchases={ purchases } />
 
-			<div className="jp-plans-section__purchases-section">
+			<div className={ styles.purchasesSection }>
 				{ purchases.map( purchase => (
 					<PlanSection key={ `purchase-${ purchase.product_name }` } purchase={ purchase } />
 				) ) }

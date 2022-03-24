@@ -1,4 +1,4 @@
-import { test, expect } from '../../fixtures/base-test.js';
+import { test, expect } from 'jetpack-e2e-commons/fixtures/base-test.js';
 import { execWpCommand } from 'jetpack-e2e-commons/helpers/utils-helper.cjs';
 import {
 	enableSync,
@@ -53,7 +53,7 @@ test.describe( 'Sync', () => {
 		} );
 
 		await test.step( 'Assert post is synced', async () => {
-			await waitTillSyncQueueIsEmpty();
+			await expect( waitTillSyncQueueIsEmpty() ).resolves.toBeTruthy();
 			wpcomPostsResponse = await page.request.get( wpcomForcedPostsUrl );
 			expect( wpcomPostsResponse.ok() ).toBeTruthy();
 
@@ -106,7 +106,7 @@ test.describe( 'Sync', () => {
 		} );
 
 		await test.step( 'Assert post is synced', async () => {
-			await waitTillSyncQueueIsEmpty();
+			await expect( waitTillSyncQueueIsEmpty( 1000, 20 ) ).resolves.toBeTruthy();
 			wpcomPostsResponse = await page.request.get( wpcomForcedPostsUrl );
 			expect( wpcomPostsResponse.ok() ).toBeTruthy();
 
