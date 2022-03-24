@@ -63,6 +63,19 @@ export const mapStateToSummaryFeatureProps = ( state, featureSlug ) => {
 	}
 };
 
+export const mapStateToSummaryResourceProps = ( state, resourceSlug ) => {
+	switch ( resourceSlug ) {
+		case 'security-plan':
+			return {
+				displayName: __( 'Site Security', 'jetpack' ),
+				ctaLabel: __( 'Read More', 'jetpack' ),
+				ctaLink: getRedirectUrl( 'jetpack-blog-wordpress-security-for-beginners' ),
+			};
+		default:
+			throw `Unknown resource slug in mapStateToSummaryResourceProps() recommendations/feature-utils.js: ${ resourceSlug }`;
+	}
+};
+
 export const mapDispatchToProps = ( dispatch, featureSlug ) => {
 	switch ( featureSlug ) {
 		case 'creative-mail':

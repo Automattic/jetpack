@@ -5,6 +5,7 @@ import React, { useEffect, useCallback } from 'react';
 import { connect } from 'react-redux';
 import { ProgressBar } from '@automattic/components';
 import { createInterpolateElement } from '@wordpress/element';
+import { ExternalLink } from '@wordpress/components';
 import { __ } from '@wordpress/i18n';
 
 /**
@@ -18,7 +19,6 @@ import {
 import analytics from 'lib/analytics';
 import { PromptLayout } from '../prompt-layout';
 import { getStepContent } from '../../feature-utils';
-import { ExternalLink } from '@wordpress/components';
 
 /**
  * Provide a recommendation step that gives a resource.
