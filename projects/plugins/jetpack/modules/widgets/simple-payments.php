@@ -160,7 +160,7 @@ if ( ! class_exists( 'Jetpack_Simple_Payments_Widget' ) ) {
 				'jetpack-simple-payments-widget-customizer',
 				plugins_url( 'simple-payments/customizer.css', __FILE__ ),
 				array(),
-				JETPACK_VERSION
+				JETPACK__VERSION
 			);
 		}
 

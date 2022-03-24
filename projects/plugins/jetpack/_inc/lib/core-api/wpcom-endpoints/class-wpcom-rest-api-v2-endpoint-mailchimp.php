@@ -1,4 +1,10 @@
 <?php
+/**
+ * API endpoints to interact with WordPress.com
+ * to get info from the Mailchimp API for use with the Mailchimp block.
+ *
+ * @package automattic/jetpack
+ */
 
 use Automattic\Jetpack\Connection\Client;
 use Automattic\Jetpack\Redirect;
@@ -11,6 +17,9 @@ use Automattic\Jetpack\Redirect;
  * @since 7.1
  */
 class WPCOM_REST_API_V2_Endpoint_Mailchimp extends WP_REST_Controller {
+	/**
+	 * Constructor.
+	 */
 	public function __construct() {
 		$this->namespace                    = 'wpcom/v2';
 		$this->rest_base                    = 'mailchimp';

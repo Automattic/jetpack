@@ -4,6 +4,7 @@
 import { useSelect } from '@wordpress/data';
 import { useState } from '@wordpress/element';
 import { store as coreStore } from '@wordpress/core-data';
+import { applyFilters } from '@wordpress/hooks';
 
 /**
  * React hook that returns the site logo data.
@@ -12,7 +13,7 @@ import { store as coreStore } from '@wordpress/core-data';
  * @param {boolean} params.generateDataUrl - Whether to convert the data URL to a blob. Default: false.
  * @returns {object} Site Logo object data.
  */
-export default function useSiteLogo( { generateDataUrl = false } ) {
+export default function useSiteLogo( { generateDataUrl = false } = {} ) {
 	const [ dataUrl, setDataUrl ] = useState();
 	const { id, mediaItemData } = useSelect( select => {
 		const { canUser, getEntityRecord, getEditedEntityRecord } = select( coreStore );
@@ -48,18 +49,45 @@ export default function useSiteLogo( { generateDataUrl = false } ) {
 
 	const image = new Image();
 
+	/*
+	 * Apply image crossorigin attribute to prevent CORS errors.
+	 * https://developer.wordpress.org/block-editor/reference-guides/filters/editor-filters/#media-crossorigin
+	 */
+	const imgCrossOrigin = applyFilters( 'media.crossOrigin', undefined, mediaItemData.url );
+
+	if ( typeof imgCrossOrigin === 'string' ) {
+		image.crossOrigin = imgCrossOrigin;
+	}
+
+	// Convert image to data URL.
 	image.onload = function () {
+		// Create and set canvas size.
 		const canvas = document.createElement( 'canvas' );
 		const context = canvas.getContext( '2d' );
 		canvas.height = this.naturalHeight;
 		canvas.width = this.naturalWidth;
-		context.drawImage( this, 0, 0 );
+
+		// Paint canvas with a white background.
+		context.fillStyle = 'white';
+		context.lineJoin = 'round';
+		context.fillRect( 0, 0, canvas.width, canvas.height );
+
+		// Add a border/padding to the canvas, scaling the image.
+		const borderWidth = canvas.width * 0.08; // 8% of the canvas width.
+		context.drawImage(
+			this,
+			borderWidth,
+			borderWidth,
+			canvas.width - borderWidth * 2,
+			canvas.height - borderWidth * 2
+		);
+
 		try {
 			setDataUrl( canvas.toDataURL( 'image/png' ) );
 		} catch ( error ) {
 			/* eslint-disable no-console */
-			console.error( 'Error generating QR code image:', error );
-			console.error(
+			console.warn( 'Error generating QR code extensions post-publish-qr-post-panel: ', error );
+			console.warn(
 				"In case it's a cross-origin issue, take a look at https://developer.wordpress.org/block-editor/reference-guides/filters/editor-filters/#media-crossorigin"
 			);
 			/* eslint-enable no-console */
@@ -68,7 +96,7 @@ export default function useSiteLogo( { generateDataUrl = false } ) {
 		}
 	};
 
-	image.src = mediaItemData?.url;
+	image.src = mediaItemData.url;
 
 	return { id, ...mediaItemData, dataUrl };
 }

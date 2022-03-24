@@ -10,7 +10,7 @@ import PropTypes from 'prop-types';
 import ProductCard from '../connected-product-card';
 
 const ScanCard = ( { admin } ) => {
-	return <ProductCard admin={ admin } showDeactivate={ false } slug="scan" />;
+	return <ProductCard admin={ admin } slug="scan" />;
 };
 
 ScanCard.propTypes = {
