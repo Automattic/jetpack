@@ -70,7 +70,7 @@ class WPCOM_REST_API_V2_Endpoint_VideoPress extends WP_REST_Controller {
 						'sanitize_callback' => 'rest_sanitize_boolean',
 					),
 					'privacy_setting' => array(
-						'description'       => __( 'Requires the user to be a member of the site to view the video', 'jetpack' ),
+						'description'       => __( 'How to determine if the video should be public or private', 'jetpack' ),
 						'type'              => 'int',
 						'required'          => false,
 						'validate_callback' => function ( $param ) {
