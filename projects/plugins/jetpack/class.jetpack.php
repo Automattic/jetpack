@@ -18,11 +18,15 @@ use Automattic\Jetpack\Connection\Secrets;
 use Automattic\Jetpack\Connection\Tokens;
 use Automattic\Jetpack\Connection\Utils as Connection_Utils;
 use Automattic\Jetpack\Constants;
+use Automattic\Jetpack\CookieState;
 use Automattic\Jetpack\Device_Detection\User_Agent_Info;
+use Automattic\Jetpack\Errors;
 use Automattic\Jetpack\Identity_Crisis;
 use Automattic\Jetpack\Licensing;
+use Automattic\Jetpack\Modules;
 use Automattic\Jetpack\My_Jetpack\Initializer as My_Jetpack_Initializer;
 use Automattic\Jetpack\Partner;
+use Automattic\Jetpack\Paths;
 use Automattic\Jetpack\Plugin\Tracking as Plugin_Tracking;
 use Automattic\Jetpack\Redirect;
 use Automattic\Jetpack\Status;
@@ -2725,17 +2729,7 @@ class Jetpack {
 	 * @static
 	 */
 	public static function catch_errors( $catch ) {
-		static $display_errors, $error_reporting;
-
-		if ( $catch ) {
-			$display_errors  = @ini_set( 'display_errors', 1 );
-			$error_reporting = @error_reporting( E_ALL );
-			add_action( 'shutdown', array( 'Jetpack', 'catch_errors_on_shutdown' ), 0 );
-		} else {
-			@ini_set( 'display_errors', $display_errors );
-			@error_reporting( $error_reporting );
-			remove_action( 'shutdown', array( 'Jetpack', 'catch_errors_on_shutdown' ), 0 );
-		}
+		return ( new Errors() )->catch_errors( $catch );
 	}
 
 	/**
@@ -2961,96 +2955,7 @@ class Jetpack {
 	 * @return bool|void
 	 */
 	public static function activate_module( $module, $exit = true, $redirect = true ) {
-		/**
-		 * Fires before a module is activated.
-		 *
-		 * @since 2.6.0
-		 *
-		 * @param string $module Module slug.
-		 * @param bool $exit Should we exit after the module has been activated. Default to true.
-		 * @param bool $redirect Should the user be redirected after module activation? Default to true.
-		 */
-		do_action( 'jetpack_pre_activate_module', $module, $exit, $redirect );
-
-		$jetpack = self::init();
-
-		if ( ! strlen( $module ) ) {
-			return false;
-		}
-
-		if ( ! self::is_module( $module ) ) {
-			return false;
-		}
-
-		// If it's already active, then don't do it again.
-		$active = self::get_active_modules();
-		foreach ( $active as $act ) {
-			if ( $act == $module ) {
-				return true;
-			}
-		}
-
-		$module_data = self::get_module( $module );
-
-		$is_offline_mode = ( new Status() )->is_offline_mode();
-		if ( ! self::is_connection_ready() ) {
-			if ( ! $is_offline_mode && ! self::is_onboarding() ) {
-				return false;
-			}
-
-			// If we're not connected but in offline mode, make sure the module doesn't require a connection.
-			if ( $is_offline_mode && $module_data['requires_connection'] ) {
-				return false;
-			}
-		}
-
-		// Check and see if the old plugin is active.
-		if ( isset( $jetpack->plugins_to_deactivate[ $module ] ) ) {
-			// Deactivate the old plugin.
-			if ( Jetpack_Client_Server::deactivate_plugin( $jetpack->plugins_to_deactivate[ $module ][0], $jetpack->plugins_to_deactivate[ $module ][1] ) ) {
-				// If we deactivated the old plugin, remembere that with ::state() and redirect back to this page to activate the module
-				// We can't activate the module on this page load since the newly deactivated old plugin is still loaded on this page load.
-				self::state( 'deactivated_plugins', $module );
-				wp_safe_redirect( add_query_arg( 'jetpack_restate', 1 ) );
-				exit;
-			}
-		}
-
-		// Protect won't work with mis-configured IPs.
-		if ( 'protect' === $module ) {
-			include_once JETPACK__PLUGIN_DIR . 'modules/protect/shared-functions.php';
-			if ( ! jetpack_protect_get_ip() ) {
-				self::state( 'message', 'protect_misconfigured_ip' );
-				return false;
-			}
-		}
-
-		if ( ! Jetpack_Plan::supports( $module ) ) {
-			return false;
-		}
-
-		// Check the file for fatal errors, a la wp-admin/plugins.php::activate.
-		self::state( 'module', $module );
-		self::state( 'error', 'module_activation_failed' ); // we'll override this later if the plugin can be included without fatal error.
-
-		self::catch_errors( true );
-		ob_start();
-		require self::get_module_path( $module ); // phpcs:ignore WordPressVIPMinimum.Files.IncludingFile.NotAbsolutePath
-
-		$active[] = $module;
-		self::update_active_modules( $active );
-
-		self::state( 'error', false ); // the override.
-		ob_end_clean();
-		self::catch_errors( false );
-
-		if ( $redirect ) {
-			wp_safe_redirect( self::admin_url( 'page=jetpack' ) );
-		}
-		if ( $exit ) {
-			exit;
-		}
-		return true;
+		return ( new Modules() )->activate( $module, $exit, $redirect );
 	}
 
 	/**
@@ -5124,9 +5029,7 @@ endif;
 	 * @return string Jetpack admin URL.
 	 */
 	public static function admin_url( $args = null ) {
-		$args = wp_parse_args( $args, array( 'page' => 'jetpack' ) );
-		$url  = add_query_arg( $args, admin_url( 'admin.php' ) );
-		return $url;
+		return ( new Paths() )->admin_url( $args );
 	}
 
 	/**
@@ -5556,61 +5459,7 @@ endif;
 	 * @param bool   $restate Reset the cookie (private).
 	 */
 	public static function state( $key = null, $value = null, $restate = false ) {
-		static $state = array();
-		static $path, $domain;
-		if ( ! isset( $path ) ) {
-			require_once ABSPATH . 'wp-admin/includes/plugin.php';
-			$admin_url = self::admin_url();
-			$bits      = wp_parse_url( $admin_url );
-
-			if ( is_array( $bits ) ) {
-				$path   = ( isset( $bits['path'] ) ) ? dirname( $bits['path'] ) : null;
-				$domain = ( isset( $bits['host'] ) ) ? $bits['host'] : null;
-			} else {
-				$path   = null;
-				$domain = null;
-			}
-		}
-
-		// Extract state from cookies and delete cookies.
-		if ( isset( $_COOKIE['jetpackState'] ) && is_array( $_COOKIE['jetpackState'] ) ) {
-			$yum = wp_unslash( $_COOKIE['jetpackState'] );
-			unset( $_COOKIE['jetpackState'] );
-			foreach ( $yum as $k => $v ) {
-				if ( strlen( $v ) ) {
-					$state[ $k ] = $v;
-				}
-				setcookie( "jetpackState[$k]", false, 0, $path, $domain );
-			}
-		}
-
-		if ( $restate ) {
-			foreach ( $state as $k => $v ) {
-				setcookie( "jetpackState[$k]", $v, 0, $path, $domain );
-			}
-			return;
-		}
-
-		// Get a state variable.
-		if ( isset( $key ) && ! isset( $value ) ) {
-			if ( array_key_exists( $key, $state ) ) {
-				return $state[ $key ];
-			}
-			return null;
-		}
-
-		// Set a state variable.
-		if ( isset( $key ) && isset( $value ) ) {
-			if ( is_array( $value ) && isset( $value[0] ) ) {
-				$value = $value[0];
-			}
-			$state[ $key ] = $value;
-			if ( ! headers_sent() ) {
-				if ( self::should_set_cookie( $key ) ) {
-					setcookie( "jetpackState[$key]", $value, 0, $path, $domain );
-				}
-			}
-		}
+		return ( new CookieState() )->state( $key, $value, $restate );
 	}
 
 	/**
@@ -5631,14 +5480,7 @@ endif;
 	 * @return boolean Whether the value should be added to the cookie.
 	 */
 	public static function should_set_cookie( $key ) {
-		global $current_screen;
-		$page = isset( $current_screen->base ) ? $current_screen->base : null;
-
-		if ( 'toplevel_page_jetpack' === $page && 'display_update_modal' === $key ) {
-			return false;
-		}
-
-		return true;
+		return ( new CookieState() )->should_set_cookie( $key );
 	}
 
 	/**

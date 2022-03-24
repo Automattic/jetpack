@@ -277,7 +277,7 @@ class Modules {
 	 * @param boolean $active - true to activate, false to deactivate.
 	 */
 	public function update_status( $module, $active ) {
-		return $active ? $this->activate( $module ) : $this->deactivate();
+		return $active ? $this->activate( $module ) : $this->deactivate( $module );
 	}
 
 	/**
@@ -320,7 +320,9 @@ class Modules {
 		$module_data = $this->get( $module );
 
 		$status = new Status();
-		if ( ! self::is_connection_ready() ) {
+		$state  = new CookieState();
+
+		if ( class_exists( 'Jetpack' ) && ! \Jetpack::is_connection_ready() ) {
 			if ( ! $status->is_offline_mode() && ! $status->is_onboarding() ) {
 				return false;
 			}
@@ -330,36 +332,54 @@ class Modules {
 				return false;
 			}
 		}
+
+		if ( class_exists( 'Jetpack' ) && class_exists( 'Jetpack_Client_Server' ) ) {
+			$jetpack = \Jetpack::init();
+
+			// Check and see if the old plugin is active.
+			if ( isset( $jetpack->plugins_to_deactivate[ $module ] ) ) {
+				// Deactivate the old plugin.
+				if ( \Jetpack_Client_Server::deactivate_plugin( $jetpack->plugins_to_deactivate[ $module ][0], $jetpack->plugins_to_deactivate[ $module ][1] ) ) {
+					// If we deactivated the old plugin, remembere that with ::state() and redirect back to this page to activate the module
+					// We can't activate the module on this page load since the newly deactivated old plugin is still loaded on this page load.
+					$state->state( 'deactivated_plugins', $module );
+					wp_safe_redirect( add_query_arg( 'jetpack_restate', 1 ) );
+					exit;
+				}
+			}
+		}
+
 		// Protect won't work with mis-configured IPs.
 		if ( 'protect' === $module ) {
 			include_once JETPACK__PLUGIN_DIR . 'modules/protect/shared-functions.php';
 			if ( ! jetpack_protect_get_ip() ) {
-				self::state( 'message', 'protect_misconfigured_ip' );
+				$state->state( 'message', 'protect_misconfigured_ip' );
 				return false;
 			}
 		}
 
-		if ( ! Jetpack_Plan::supports( $module ) ) {
+		if ( class_exists( 'Jetpack_Plan' ) && ! \Jetpack_Plan::supports( $module ) ) {
 			return false;
 		}
 
 		// Check the file for fatal errors, a la wp-admin/plugins.php::activate.
-		self::state( 'module', $module );
-		self::state( 'error', 'module_activation_failed' ); // we'll override this later if the plugin can be included without fatal error.
+		$errors = new Errors();
+		$state->state( 'module', $module );
+		$state->state( 'error', 'module_activation_failed' ); // we'll override this later if the plugin can be included without fatal error.
 
-		self::catch_errors( true );
+		$errors->catch_errors( true );
 		ob_start();
 		require $this->get_path( $module ); // phpcs:ignore WordPressVIPMinimum.Files.IncludingFile.NotAbsolutePath
 
 		$active[] = $module;
 		$this->update_active( $active );
 
-		self::state( 'error', false ); // the override.
+		$state->state( 'error', false ); // the override.
 		ob_end_clean();
-		self::catch_errors( false );
+		$errors->catch_errors( false );
 
 		if ( $redirect ) {
-			wp_safe_redirect( self::admin_url( 'page=jetpack' ) );
+			wp_safe_redirect( ( new Paths() )->admin_url( 'page=jetpack' ) );
 		}
 		if ( $exit ) {
 			exit;
@@ -417,7 +437,7 @@ class Modules {
 	 */
 	public function update_active( $modules ) {
 		$current_modules      = \Jetpack_Options::get_option( 'active_modules', array() );
-		$active_modules       = self::get_active_modules();
+		$active_modules       = $this->get_active();
 		$new_active_modules   = array_diff( $modules, $current_modules );
 		$new_inactive_modules = array_diff( $active_modules, $modules );
 		$new_current_modules  = array_diff( array_merge( $current_modules, $new_active_modules ), $new_inactive_modules );
