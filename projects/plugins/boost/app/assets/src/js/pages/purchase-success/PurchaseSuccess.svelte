@@ -3,6 +3,7 @@
 	 * Internal dependencies
 	 */
 	import BackButton from '../../elements/BackButton.svelte';
+	import { Button } from '@wordpress/components';
 
 	import Logo from '../../svg/jetpack-green.svg';
 	import BoostImage from '../../svg/boost.svg';
@@ -11,6 +12,12 @@
 	 * WordPress dependencies
 	 */
 	import { __ } from '@wordpress/i18n';
+	import ReactComponent from '../../elements/ReactComponent.svelte';
+
+	function onCtaClick() {
+		/* eslint-disable no-console */
+		console.log( 'CTA clicked' );
+	}
 </script>
 
 <div id="jb-settings" class="jb-settings">
@@ -31,6 +38,13 @@
 					<li>{__( 'Performance scores are recalculated after each change', 'jetpack-boost' )}</li>
 					<li>{__( 'Dedicated email support', 'jetpack-boost' )}</li>
 				</ul>
+				<ReactComponent
+					this={Button}
+					label={__( 'Continue', 'jetpack-boost' )}
+					onClick={onCtaClick()}
+					className="jp-action-button--button jb-button--primary"
+					children={__( 'Continue', 'jetpack-boost' )}
+				/>
 			</div>
 
 			<div class="jb-card__cta px-1">

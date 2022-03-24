@@ -43,7 +43,7 @@
 				</ul>
 			</div>
 
-			<div class="jb-card__cta px-2 mt-3">
+			<div class="jb-card__cta px-2 my-4">
 				<ReactComponent
 					this={PricingCard}
 					title={'Jetpack Boost'}

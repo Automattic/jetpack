@@ -28,3 +28,9 @@
 		margin-right: 20px;
 	}
 }
+
+.jb-button {
+  &--primary {
+  	color: var(--jp-white)!important
+  }
+}
