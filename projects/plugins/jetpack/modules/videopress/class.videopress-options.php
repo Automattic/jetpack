@@ -13,14 +13,14 @@ class VideoPress_Options {
 	/**
 	 * Option name.
 	 *
-	 * @var string
+	 * @var string $option_name The 'videopress' option name
 	 */
 	public static $option_name = 'videopress';
 
 	/**
 	 * VideoPress Options.
 	 *
-	 * @var array
+	 * @var array $options An array of associated VideoPress options (default empty)
 	 */
 	protected static $options = array();
 

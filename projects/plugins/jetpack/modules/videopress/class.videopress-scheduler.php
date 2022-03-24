@@ -18,7 +18,7 @@ class VideoPress_Scheduler {
 	/**
 	 * Singleton instance.
 	 *
-	 * @var VideoPress_Scheduler
+	 * @var VideoPress_Scheduler $instance A VideoPress_Scheduler singleton instance (default null)
 	 **/
 	private static $instance = null;
 
