@@ -117,11 +117,7 @@ class Module_Control {
 	 */
 	public function deactivate() {
 		/**
-		 * Fires when a module is deactivated.
-		 *
-		 * @since 1.9.0
-		 *
-		 * @param string $module Module slug.
+		 * This action is already documented in class.jetpack-admin.php
 		 */
 		do_action( 'jetpack_pre_deactivate_module', self::JETPACK_SEARCH_MODULE_SLUG, false );
 
@@ -131,21 +127,11 @@ class Module_Control {
 		$success = Jetpack_Options::update_option( self::JETPACK_ACTIVE_MODULES_OPTION_KEY, $active_modules );
 
 		/**
-		 * Fired after a module has been deactivated.
-		 *
-		 * @since 4.2.0
-		 *
-		 * @param string $module Module slug.
-		 * @param boolean $success whether the module was deactivated.
+		 * This action is already documented in class.jetpack-admin.php
 		 */
 		do_action( 'jetpack_deactivate_module', self::JETPACK_SEARCH_MODULE_SLUG, $success );
 		/**
-		 * Fires when a module is deactivated.
-		 * The dynamic part of the filter, $module, is the module slug.
-		 *
-		 * @since 1.9.0
-		 *
-		 * @param string $module Module slug.
+		 * This action is already documented in class.jetpack-admin.php
 		 */
 		do_action( 'jetpack_deactivate_module_' . self::JETPACK_SEARCH_MODULE_SLUG );
 
