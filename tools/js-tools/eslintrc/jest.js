@@ -7,7 +7,7 @@
 require( '@rushstack/eslint-patch/modern-module-resolution' );
 
 module.exports = {
-	extends: [ 'plugin:jest/recommended' ],
+	extends: [ './base', 'plugin:jest/recommended' ],
 	env: { jest: true },
 	rules: {
 		'jsdoc/check-tag-names': [
