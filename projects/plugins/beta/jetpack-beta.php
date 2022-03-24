@@ -6,6 +6,7 @@
  * Version: 3.1.2-alpha
  * Author: Automattic
  * Author URI: https://jetpack.com/
+ * Update URI: https://jetpack.com/download-jetpack-beta/
  * License: GPLv2 or later
  * Text Domain: jetpack-beta
  *
