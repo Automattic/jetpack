@@ -82,6 +82,7 @@ class VideoPress_Shortcode {
 			'flashonly'       => false, // Whether to support the Flash player exclusively
 			'defaultlangcode' => false, // Default language code
 			'cover'           => true,  // Whether to scale the video to its container.
+			'muted'           => false, // Whether the video should start without sound.
 		);
 
 		$attr = shortcode_atts( $defaults, $attr, 'videopress' );
@@ -139,7 +140,8 @@ class VideoPress_Shortcode {
 				'permalink'       => $attr['permalink'],
 				'force_flash'     => (bool) $attr['flashonly'],
 				'defaultlangcode' => $attr['defaultlangcode'],
-				'forcestatic'     => false, // This used to be a displayed option, but now is only
+				'forcestatic'     => false, // This used to be a displayed option, but now is only.
+				'muted'           => $attr['muted'],
 			// accessible via the `videopress_shortcode_options` filter.
 			)
 		);
