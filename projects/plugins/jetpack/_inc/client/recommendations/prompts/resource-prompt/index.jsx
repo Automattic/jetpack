@@ -41,6 +41,7 @@ const ResourcePromptComponent = props => {
 		ctaText,
 		ctaLink,
 		illustrationPath,
+		rnaIllustration,
 		stepSlug,
 		updateRecommendationsStep,
 		addViewedRecommendation,
@@ -112,6 +113,7 @@ const ResourcePromptComponent = props => {
 				</div>
 			}
 			illustrationPath={ illustrationPath }
+			rna={ rnaIllustration }
 		/>
 	);
 };

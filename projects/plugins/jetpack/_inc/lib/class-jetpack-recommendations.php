@@ -21,11 +21,13 @@ use Automattic\Jetpack\Status\Host;
  */
 class Jetpack_Recommendations {
 
-	const PUBLICIZE_RECOMMENDATION = 'publicize';
+	const PUBLICIZE_RECOMMENDATION     = 'publicize';
+	const SECURITY_PLAN_RECOMMENDATION = 'security-plan';
 
 	const CONDITIONAL_RECOMMENDATIONS_OPTION = 'recommendations_conditional';
 	const CONDITIONAL_RECOMMENDATIONS        = array(
 		self::PUBLICIZE_RECOMMENDATION,
+		self::SECURITY_PLAN_RECOMMENDATION,
 	);
 
 	/**
@@ -121,7 +123,7 @@ class Jetpack_Recommendations {
 		add_action( 'jetpack_activate_module', array( get_called_class(), 'jetpack_module_activated' ), 10, 2 );
 
 		// Monitor for activating a new plugin.
-		add_action( 'activated_plugin', array( 'Jetpack_Recommendations', 'recommendations_activated_plugin' ), 10 );
+		add_action( 'activated_plugin', array( get_called_class(), 'plugin_activated' ), 10 );
 	}
 
 	/**
@@ -157,11 +159,17 @@ class Jetpack_Recommendations {
 	 *
 	 * @param string $plugin Path to the plugins file relative to the plugins directory.
 	 */
-	public static function recommendations_activated_plugin( $plugin ) {
+	public static function plugin_activated( $plugin ) {
 		// If the plugin is in this list, don't enable the recommendation.
 		$plugin_whitelist = array(
 			'jetpack.php',
 			'akismet.php',
+			'creative-mail.php',
+			'jetpack-backup.php',
+			'jetpack-boost.php',
+			'crowdsignal.php',
+			'vaultpress.php',
+			'woocommerce.php',
 		);
 
 		$path_parts  = explode( '/', $plugin );
@@ -191,7 +199,7 @@ class Jetpack_Recommendations {
 
 			// This site does not have backup, scan or anti-spam.
 			if ( ! $has_scan && ! $has_backup && ! $has_anti_spam ) {
-				self::enable_conditional_recommendation( 'security-plan' );
+				self::enable_conditional_recommendation( self::SECURITY_PLAN_RECOMMENDATION );
 			}
 		}
 	}

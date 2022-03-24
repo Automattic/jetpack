@@ -208,8 +208,9 @@ export const getStepContent = stepSlug => {
 					'jetpack'
 				),
 				ctaText: __( 'Read WordPress Security for Beginners', 'jetpack' ),
-				ctaLink: 'https://jetpack.com/2021/10/15/wordpress-security-for-beginners-2/',
-				illustrationPath: '/recommendations/site-accelerator-illustration.svg',
+				ctaLink: getRedirectUrl( 'jetpack-blog-wordpress-security-for-beginners' ),
+				illustrationPath: '/recommendations/general-illustration.png',
+				rnaIllustration: true,
 			};
 		case 'woocommerce':
 			return {
