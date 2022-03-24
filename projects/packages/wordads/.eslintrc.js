@@ -17,13 +17,4 @@ module.exports = {
 			},
 		],
 	},
-	overrides: [
-		{
-			files: './src/customberg/**/*',
-			rules: {
-				// Customberg uses @wordpress/babel-preset-default, which auto-imports React as necessary.
-				'react/react-in-jsx-scope': 0,
-			},
-		},
-	],
 };
