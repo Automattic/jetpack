@@ -60,12 +60,13 @@ module.exports = {
 			jetpackWebpackConfig.CssRule( {
 				extensions: [ 'css', 'sass', 'scss' ],
 				extraLoaders: [
-					{
-						loader: 'postcss-loader',
-						options: {
-							postcssOptions: { config: path.join( __dirname, '../postcss.config.js' ) },
-						},
-					},
+					// see: https://github.com/Automattic/jetpack/pull/23587#discussion_r833871786
+					// {
+					// 	loader: 'postcss-loader',
+					// 	options: {
+					// 		postcssOptions: { config: path.join( __dirname, '../postcss.config.js' ) },
+					// 	},
+					// },
 					'sass-loader',
 				],
 			} ),
