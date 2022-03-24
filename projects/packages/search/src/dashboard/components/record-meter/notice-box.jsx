@@ -82,7 +82,7 @@ export function NoticeBox( props ) {
 	}
 
 	const noticeBoxClassName = notices[ 0 ].isImportant
-		? 'jp-search-notice-box__red'
+		? 'jp-search-notice-box__important'
 		: 'jp-search-notice-box';
 
 	return (
