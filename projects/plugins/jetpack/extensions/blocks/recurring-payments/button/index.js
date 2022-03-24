@@ -58,22 +58,24 @@ export const settings = {
 };
 
 /**
- * Removes products with prices below their minimums.
+ * A membership product
  *
- * TS compatible typedef, but JSDoc lint doesn't like it.
- * typedef {{
- *   buyer_can_change_amount: ?boolean
- *   connected_account_product_id: string
- *   connected_destination_account_id: string
- *   currency: string
- *   description: string
- *   id: number
- *   interval: string
- *   multiple_per_user: ?boolean
- *   price: string
- *   site_id: string
- *   title: string
- * }} Product
+ * @typedef {object} Product
+ * @property {?boolean} buyer_can_change_amount
+ * @property {string} connected_account_product_id
+ * @property {string} connected_destination_account_id
+ * @property {string} currency
+ * @property {string} description
+ * @property {number} id
+ * @property {string} interval
+ * @property {?boolean} multiple_per_user
+ * @property {string} price
+ * @property {string} site_id
+ * @property {string} title
+ */
+
+/**
+ * Removes products with prices below their minimums.
  *
  * @param {Array<Product>} products - List of membership products.
  * @returns {Array<Product>} List of products with invalid products removed.
