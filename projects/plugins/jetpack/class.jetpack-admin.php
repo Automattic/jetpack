@@ -70,7 +70,7 @@ class Jetpack_Admin {
 
 		// Add redirect to current page for activation/deactivation of modules.
 		add_action( 'jetpack_pre_activate_module', array( $this, 'fix_redirect' ), 10, 2 );
-		add_action( 'jetpack_pre_deactivate_module', array( $this, 'fix_redirect' ) );
+		add_action( 'jetpack_pre_deactivate_module', array( $this, 'fix_redirect' ), 10, 2 );
 
 		// Add module bulk actions handler.
 		add_action( 'jetpack_unrecognized_action', array( $this, 'handle_unrecognized_action' ) );

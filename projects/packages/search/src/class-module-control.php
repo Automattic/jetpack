@@ -123,7 +123,7 @@ class Module_Control {
 		 *
 		 * @param string $module Module slug.
 		 */
-		do_action( 'jetpack_pre_deactivate_module', self::JETPACK_SEARCH_MODULE_SLUG );
+		do_action( 'jetpack_pre_deactivate_module', self::JETPACK_SEARCH_MODULE_SLUG, false );
 
 		$active_modules = $this->get_active_modules();
 		$active_modules = array_values( array_diff( $active_modules, array( self::JETPACK_SEARCH_MODULE_SLUG ) ) );
