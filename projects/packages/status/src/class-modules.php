@@ -271,6 +271,16 @@ class Modules {
 	}
 
 	/**
+	 * Update module status.
+	 *
+	 * @param string  $module - module slug.
+	 * @param boolean $active - true to activate, false to deactivate.
+	 */
+	public function update_status( $module, $active ) {
+		return $active ? $this->activate( $module ) : $this->deactivate();
+	}
+
+	/**
 	 * Activate a module.
 	 *
 	 * @param string $module Module slug.
@@ -355,6 +365,29 @@ class Modules {
 			exit;
 		}
 		return true;
+	}
+
+	/**
+	 * Deactivate module.
+	 *
+	 * @param string $module Module slug.
+	 *
+	 * @return bool
+	 */
+	public function deactivate( $module ) {
+		/**
+		 * Fires when a module is deactivated.
+		 *
+		 * @since 1.9.0
+		 *
+		 * @param string $module Module slug.
+		 */
+		do_action( 'jetpack_pre_deactivate_module', $module );
+
+		$active = $this->get_active();
+		$new    = array_filter( array_diff( $active, (array) $module ) );
+
+		return $this->update_active( $new );
 	}
 
 	/**

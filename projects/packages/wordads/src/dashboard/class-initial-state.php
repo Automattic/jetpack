@@ -8,6 +8,7 @@
 namespace Automattic\Jetpack\WordAds;
 
 use Automattic\Jetpack\Connection\Manager as Connection_Manager;
+use Automattic\Jetpack\Modules;
 use Automattic\Jetpack\Status;
 use Jetpack_Options;
 

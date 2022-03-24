@@ -20,7 +20,7 @@ import 'scss/rna-styles.scss';
 import './style.scss';
 
 const SEARCH_DESCRIPTION = __(
-	'WordAds is an incredibly powerful and customizable replacement for the search capability built into WordPress that helps your visitors find the right content.',
+	'Earn income by allowing Jetpack to display high quality ads.',
 	'jetpack-wordads-pkg'
 );
 
@@ -31,7 +31,6 @@ const SEARCH_DESCRIPTION = __(
  * @param {Function} props.updateOptions - function to update settings.
  * @param {boolean} props.isSavingOptions - true if Saving options.
  * @param {boolean} props.isModuleEnabled - true if WordAds module is enabled.
- * @param {boolean} props.supportsWordAds - true if site supports WordAds
  * @param {boolean} props.isTogglingModule - true if toggling WordAds module.
  * @returns {React.Component}	Search settings component.
  */
@@ -39,7 +38,6 @@ export default function WordAdsModuleControl( {
 	updateOptions,
 	isSavingOptions,
 	isModuleEnabled,
-	supportsWordAds,
 	isTogglingModule,
 } ) {
 	const toggleSearchModule = useCallback( () => {
@@ -56,8 +54,8 @@ export default function WordAdsModuleControl( {
 				<div className="jp-wordads-dashboard-row">
 					<div className="lg-col-span-2 md-col-span-1 sm-col-span-0"></div>
 					<CompactFormToggle
-						checked={ isModuleEnabled && supportsWordAds }
-						disabled={ isSavingOptions || ! supportsWordAds }
+						checked={ isModuleEnabled }
+						disabled={ isSavingOptions }
 						onChange={ toggleSearchModule }
 						toggling={ isTogglingModule }
 						className="is-wordads-admin"

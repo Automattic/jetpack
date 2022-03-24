@@ -34,7 +34,6 @@ export default function WordAdsDashboard() {
 	const aboutPageUrl = siteAdminUrl + 'admin.php?page=jetpack_about';
 
 	const updateOptions = useDispatch( STORE_ID ).updateJetpackSettings;
-	const supportsWordAds = useSelect( select => select( STORE_ID ).supportsWordAds() );
 	const isModuleEnabled = useSelect( select => select( STORE_ID ).isModuleEnabled() );
 	const isSavingOptions = useSelect( select => select( STORE_ID ).isUpdatingJetpackSettings() );
 	const isTogglingModule = useSelect( select => select( STORE_ID ).isTogglingModule() );
@@ -89,7 +88,6 @@ export default function WordAdsDashboard() {
 			<div className="jp-wordads-dashboard-bottom">
 				<ModuleControl
 					updateOptions={ updateOptions }
-					supportsWordAds={ supportsWordAds }
 					isModuleEnabled={ isModuleEnabled }
 					isSavingOptions={ isSavingOptions }
 					isTogglingModule={ isTogglingModule }

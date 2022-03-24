@@ -2,6 +2,14 @@
 
 Earn income by allowing Jetpack to display high quality ads.
 
+## Building
+
+```
+jetpack watch packages/wordads
+```
+
+Reload whenever you make changes.
+
 ## How to install wordads
 
 ### Installation From Git Repo
