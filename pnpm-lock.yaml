@@ -904,7 +904,6 @@ importers:
       rollup: 2.56.3
       rollup-plugin-copy: 3.4.0
       rollup-plugin-css-only: 3.1.0
-      rollup-plugin-inline-svg: 2.0.0
       rollup-plugin-node-builtins: 2.1.2
       rollup-plugin-node-globals: 1.4.0
       rollup-plugin-postcss: 4.0.2
@@ -953,7 +952,6 @@ importers:
       rollup: 2.56.3
       rollup-plugin-copy: 3.4.0
       rollup-plugin-css-only: 3.1.0_rollup@2.56.3
-      rollup-plugin-inline-svg: 2.0.0_rollup@2.56.3
       rollup-plugin-node-builtins: 2.1.2
       rollup-plugin-node-globals: 1.4.0
       rollup-plugin-postcss: 4.0.2_postcss@8.4.8
@@ -9793,7 +9791,7 @@ packages:
       loader-utils: 1.4.0
       make-dir: 3.1.0
       schema-utils: 2.7.1
-      webpack: 5.65.0
+      webpack: 5.65.0_webpack-cli@4.9.1
 
   /babel-plugin-add-react-displayname/0.0.5:
     resolution: {integrity: sha1-M51M3be2X9YtHfnbn+BN4TQSK9U=}
@@ -21354,14 +21352,6 @@ packages:
       rollup: 1 || 2
     dependencies:
       '@rollup/pluginutils': 4.2.0
-      rollup: 2.56.3
-    dev: true
-
-  /rollup-plugin-inline-svg/2.0.0_rollup@2.56.3:
-    resolution: {integrity: sha512-lU1bKuKtej+zf3ZJuOyLNfEelKcw2y9dRhXo5Gs1Fn43EnL6HtpNFIIIepHGxnQZL74oVXL1V9oNFuT8MHnQtQ==}
-    peerDependencies:
-      rollup: '*'
-    dependencies:
       rollup: 2.56.3
     dev: true
 

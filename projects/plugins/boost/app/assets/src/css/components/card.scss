@@ -13,6 +13,12 @@
 	font-weight: 500;
   }
 
+  & &__cta {
+	svg, img {
+	  max-width: 100%;
+	}
+  }
+
   .jp-components__pricing-card {
 	.jp-components__pricing-card__icon img {
 	  width: 16px;
@@ -21,7 +27,7 @@
 
 	.jp-components__pricing-card__title {
 	  font-weight: 600;
-	  @extend .my-3;
+	  @extend .my-2;
 	}
 
 	.jp-components__pricing-card__pricing {
@@ -36,17 +42,7 @@
   }
 
   @include breakpoint( lg ) {
-	position: relative;
-
-	& &__content {
-	  width: 70%;
-	}
-
-	& &__cta {
-	  position: absolute;
-	  top: 14%;
-	  left: 65%;
-	  max-width: 350px;
-	}
+	display: grid;
+	grid-template-columns: auto 400px;
   }
 }
