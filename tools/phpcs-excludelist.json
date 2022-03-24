@@ -73,7 +73,6 @@
 	"projects/plugins/jetpack/modules/custom-css/migrate-to-core.php",
 	"projects/plugins/jetpack/modules/custom-post-types/comics.php",
 	"projects/plugins/jetpack/modules/custom-post-types/nova.php",
-	"projects/plugins/jetpack/modules/custom-post-types/portfolios.php",
 	"projects/plugins/jetpack/modules/custom-post-types/testimonial.php",
 	"projects/plugins/jetpack/modules/google-analytics.php",
 	"projects/plugins/jetpack/modules/google-analytics/classes/wp-google-analytics-legacy.php",
