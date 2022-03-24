@@ -7,23 +7,12 @@
 require( '@rushstack/eslint-patch/modern-module-resolution' );
 
 module.exports = {
-	parser: '@babel/eslint-parser',
 	extends: [ 'plugin:jest/recommended' ],
-	plugins: [ 'jest' ],
-	env: {
-		browser: true,
-		es6: true,
-		mocha: true,
-		node: true,
-		jquery: true,
-		jest: true,
+	env: { jest: true },
+	rules: {
+		'jsdoc/check-tag-names': [
+			1, // Recommended
+			{ definedTags: [ 'jest-environment' ] },
+		],
 	},
-	parserOptions: {
-		ecmaVersion: 2019,
-		ecmaFeatures: {
-			jsx: true,
-		},
-		requireConfigFile: false,
-	},
-	settings: {},
 };

@@ -1,7 +1,7 @@
 const loadIgnorePatterns = require( '../../../../tools/js-tools/load-eslint-ignore.js' );
 
 module.exports = {
-	extends: [ '../.eslintrc.js', '../../../../tools/js-tools/eslintrc/tests' ],
+	extends: [ '../../../../tools/js-tools/eslintrc/tests' ],
 	ignorePatterns: loadIgnorePatterns( __dirname ),
 	env: { jest: true },
 	rules: {
