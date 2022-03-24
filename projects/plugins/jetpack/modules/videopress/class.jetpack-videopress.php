@@ -68,7 +68,7 @@ class Jetpack_VideoPress {
 			);
 
 			wp_enqueue_script(
-				'media-video-widget-extensions',
+				'media-video-jwt-bridge',
 				$bridge_url,
 				array(),
 				$this->version,
