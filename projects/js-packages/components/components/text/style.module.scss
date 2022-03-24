@@ -1,0 +1,71 @@
+// as soon start to use Text,
+// we reset all text elements
+:global {
+	p, h1, h2, h3, h4, h5, h6 {
+		margin: 0;
+		padding: 0;
+	}
+}
+
+/* Emerald Typography/Headline Medium */
+.headline-medium {
+	font-size: var(--font-headline-medium);
+	font-weight: 700;
+	line-height: 52px;
+}
+
+/* Emerald Typography/Headline Small */
+.headline-small {
+	font-size: var(--font-headline-small);
+	font-weight: 700;
+	line-height: 40px;
+}
+
+/* Emerald Typography/Headline Small Regular */
+.headline-small-regular {
+	font-size: var(--font-headline-small);
+	font-weight: 400;
+	line-height: 40px;
+}
+
+/* Emerald Typography/Title Medium */
+.title-medium {
+	font-size: var(--font-title-medium);
+	font-weight: 500;
+	line-height: 32px;
+}
+
+/* Emerald Typography/Title Small */
+.title-small {
+	font-size: var(--font-title-small);
+	font-weight: 500;
+	line-height: 30px;
+}
+
+/* Emerald Typography/Body */
+.body {
+	font-size: var(--font-body);
+	font-weight: 400;
+	line-height: 24px;
+}
+
+/* Emerald Typography/Body Small */
+.body-small {
+	font-size: var(--font-body-small);
+	font-weight: 400;
+	line-height: 24px;
+}
+
+/* Emerald Typography/Body Extra Small */
+.body-extra-small {
+	font-size: var(--font-body-extra-small);
+	font-weight: 400;
+	line-height: 20px;
+}
+
+/* Emerald Typography/Body Extra Small Label */
+.label {
+	font-size: var(--font-body-extra-small);
+	font-weight: 600;
+	line-height: 16px;
+}

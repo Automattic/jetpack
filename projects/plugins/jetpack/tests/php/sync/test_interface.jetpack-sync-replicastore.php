@@ -235,24 +235,31 @@ class WP_Test_IJetpack_Sync_Replicastore extends TestCase {
 	 * @dataProvider store_provider
 	 */
 	function test_strips_non_ascii_chars_for_checksum( $store ) {
-		$utf8_post = self::$factory->post( 1, array( 'post_content' => 'Panamá' ) );
-		$ascii_post = self::$factory->post( 1, array( 'post_content' => 'Panam' ) );
-		$utf8_comment = self::$factory->comment( 1, 1, array( 'comment_content' => 'Panamá' ) );
+		$utf8_post     = self::$factory->post( 1, array( 'post_content' => 'Panamá' ) );
+		$ascii_post    = self::$factory->post( 1, array( 'post_content' => 'Panam' ) );
+		$utf8_comment  = self::$factory->comment( 1, 1, array( 'comment_content' => 'Panamá' ) );
 		$ascii_comment = self::$factory->comment( 1, 1, array( 'comment_content' => 'Panam' ) );
 
-		// generate checksums just for utf8 content
+		// Generate checksums just for utf8 content.
 		$store->upsert_post( $utf8_post );
 		$store->upsert_comment( $utf8_comment );
 
-		$utf8_post_checksum = $store->posts_checksum();
+		$utf8_post_checksum    = $store->posts_checksum();
 		$utf8_comment_checksum = $store->comments_checksum();
 
-		// generate checksums just for ascii content
+		// Generate checksums just for ascii content.
+		// We need to set the $ascii_post post_modified field
+		// same as the $utf8_post post_modified, as post checksums take it into account, in order
+		// to avoid any flakiness caused by those two posts having different post_modified fields (defaults to now).
+		$ascii_post->post_modified = $utf8_post->post_modified;
 		$store->upsert_post( $ascii_post );
 		$store->upsert_comment( $ascii_comment );
 
-		$this->assertEquals( $utf8_post_checksum, $store->posts_checksum() );
-		$this->assertEquals( $utf8_comment_checksum, $store->comments_checksum() );
+		$ascii_post_checksum    = $store->posts_checksum();
+		$ascii_comment_checksum = $store->comments_checksum();
+
+		$this->assertEquals( $utf8_post_checksum, $ascii_post_checksum );
+		$this->assertEquals( $utf8_comment_checksum, $ascii_comment_checksum );
 	}
 
 	/**
@@ -271,10 +278,10 @@ class WP_Test_IJetpack_Sync_Replicastore extends TestCase {
 		$generated_post_ids    = array();
 		$generated_comment_ids = array();
 
-		for ( $i = 1; $i <= 20; $i += 1 ) {
+		for ( $i = 1; $i <= 20; $i++ ) {
 			do {
-				$post_id = rand( 1, 1000000 );
-			} while ( in_array( $post_id, $generated_post_ids ) );
+				$post_id = wp_rand( 1, 1000000 );
+			} while ( in_array( $post_id, $generated_post_ids, true ) );
 
 			$generated_post_ids[] = $post_id;
 
@@ -289,8 +296,8 @@ class WP_Test_IJetpack_Sync_Replicastore extends TestCase {
 			}
 
 			do {
-				$comment_id = rand( 1, 1000000 );
-			} while ( in_array( $post_id, $generated_comment_ids ) );
+				$comment_id = wp_rand( 1, 1000000 );
+			} while ( in_array( $comment_id, $generated_comment_ids, true ) );
 
 			$generated_comment_ids[] = $comment_id;
 
@@ -304,7 +311,6 @@ class WP_Test_IJetpack_Sync_Replicastore extends TestCase {
 			if ( $max_comment_id < $comment_id ) {
 				$max_comment_id = $comment_id;
 			}
-
 		}
 
 		foreach ( array( 'posts', 'comments' ) as $object_type ) {

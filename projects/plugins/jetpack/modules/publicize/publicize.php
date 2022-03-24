@@ -1151,7 +1151,7 @@ abstract class Publicize_Base {
 			! empty( $admin_page );
 
 		// phpcs:ignore WordPress.Security.NonceVerification.Missing
-		$title = isset( $_POST['wpas_title'] ) ? sanitize_text_field( wp_unslash( $_POST['wpas_title'] ) ) : null;
+		$title = isset( $_POST['wpas_title'] ) ? sanitize_textarea_field( wp_unslash( $_POST['wpas_title'] ) ) : null;
 
 		if ( ( $from_web || defined( 'POST_BY_EMAIL' ) ) && $title ) {
 			if ( empty( $title ) ) {

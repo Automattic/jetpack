@@ -2,6 +2,26 @@
 
 ### This is a list detailing changes for the Jetpack RNA Components package releases.
 
+## 0.10.11 - 2022-03-23
+### Added
+- Components: Add Text component
+- Introduced SplitButton component
+
+### Changed
+- Updated package dependencies
+
+## 0.10.10 - 2022-03-15
+### Added
+- My Jetpack: Add new values to ThemeProvider
+
+### Changed
+- Bump version
+- Updated dependencies
+
+## 0.10.9 - 2022-03-09
+### Added
+- RNA: Add ThemeProvider
+
 ## 0.10.8 - 2022-03-08
 ### Added
 - Add optional link to the Module name in the JetpackFooter component
