@@ -76,7 +76,7 @@ class Jetpack_VideoPress {
 			);
 
 			wp_localize_script(
-				'media-video-widget-extensions',
+				'media-video-jwt-bridge',
 				'videopressAjax',
 				array(
 					'ajaxUrl'   => admin_url( 'admin-ajax.php' ),
