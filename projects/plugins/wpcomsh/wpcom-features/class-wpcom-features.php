@@ -51,6 +51,8 @@ class WPCOM_Features {
 	private const WOOTHEMES_SENSEI_MONTHLY                    = 'woothemes_sensei_monthly'; // 925
 	private const VALUE_BUNDLE                                = 'value_bundle'; // 1003
 	private const BUNDLE_PRO                                  = 'bundle_pro'; // 1004
+	private const BUNDLE_SUPER                                = 'bundle_super'; // 1005
+	private const BUNDLE_ENTERPRISE                           = 'wpcom-enterprise'; // 1007
 	private const BUSINESS_BUNDLE                             = 'business-bundle'; // 1008
 	private const PERSONAL_BUNDLE                             = 'personal-bundle'; // 1009
 	private const BLOGGER_BUNDLE                              = 'blogger-bundle'; // 1010
@@ -196,6 +198,7 @@ class WPCOM_Features {
 	public const CORE_AUDIO                    = 'core/audio';
 	public const CORE_COVER                    = 'core/cover';
 	public const CORE_VIDEO                    = 'core/video';
+	public const CREDIT_VOUCHERS               = 'credit-vouchers';
 	public const CUSTOM_DESIGN                 = 'custom-design';
 	public const CUSTOM_DOMAIN                 = 'custom-domain';
 	public const DONATIONS                     = 'donations';
@@ -398,6 +401,12 @@ class WPCOM_Features {
 			self::WPCOM_PRO_PLANS,
 			self::WPCOM_BUSINESS_AND_HIGHER_PLANS,
 			self::WPCOM_MARKETPLACE_PLANS,
+		),
+		self::CREDIT_VOUCHERS               => array(
+			self::BUNDLE_PRO,
+			self::BUNDLE_SUPER,
+			self::BUNDLE_ENTERPRISE,
+			self::WPCOM_PREMIUM_AND_HIGHER_PLANS,
 		),
 		/*
 		 * `wordads-jetpack` is maintained as a legacy alias of `wordads` which was used to gate
