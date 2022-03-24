@@ -43,6 +43,7 @@ const Admin = () => {
 									'jetpack-protect'
 								) }
 							</h1>
+							<h3>{ __( 'Jetpack’s security features include', 'jetpack-protect' ) }</h3>
 							<ul className={ styles[ 'jp-product-promote' ] }>
 								<li>{ __( 'Brute Force Attack Protection', 'jetpack-protect' ) }</li>
 								<li>
@@ -76,12 +77,12 @@ const ConnectionSection = () => {
 	const { apiNonce, apiRoot, registrationNonce } = window.jetpackProtectInitialState;
 	return (
 		<ConnectScreenRequiredPlan
-			buttonLabel={ __( 'Get Jetpack Protect', 'jetpack-protect' ) }
-			priceAfter={ 4.5 }
-			priceBefore={ 9 }
-			pricingTitle={ __( 'Jetpack Protect', 'jetpack-protect' ) }
+			buttonLabel={ __( 'Get Jetpack Security', 'jetpack-protect' ) }
+			priceBefore={ 24.95 }
+			priceAfter={ 8.95 }
+			pricingTitle={ __( 'Jetpack Security', 'jetpack-protect' ) }
 			title={ __(
-				'state-of-the-art security tools that keep your site safe and sound, from posts to plugins.',
+				'Security tools that keep your site safe and sound, from posts to plugins.',
 				'jetpack-protect'
 			) }
 			apiRoot={ apiRoot }
@@ -90,11 +91,10 @@ const ConnectionSection = () => {
 			from="jetpack-protect"
 			redirectUri="admin.php?page=jetpack-protect"
 		>
-			<h3>{ __( 'Connection screen title', 'jetpack-protect' ) }</h3>
+			<h3>{ __( 'Jetpack’s security features include', 'jetpack-protect' ) }</h3>
 			<ul>
-				<li>{ __( 'Amazing feature 1', 'jetpack-protect' ) }</li>
-				<li>{ __( 'Amazing feature 2', 'jetpack-protect' ) }</li>
-				<li>{ __( 'Amazing feature 3', 'jetpack-protect' ) }</li>
+				<li>{ __( 'Brute Force Attack Protection', 'jetpack-protect' ) }</li>
+				<li>{ __( 'Scan for known plugin & theme vulnerabilities', 'jetpack-protect' ) }</li>
 			</ul>
 		</ConnectScreenRequiredPlan>
 	);
