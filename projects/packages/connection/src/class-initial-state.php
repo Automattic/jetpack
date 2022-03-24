@@ -31,6 +31,7 @@ class Initial_State {
 			'registrationNonce'  => wp_create_nonce( 'jetpack-registration-nonce' ),
 			'connectionStatus'   => REST_Connector::connection_status( false ),
 			'userConnectionData' => REST_Connector::get_user_connection_data( false ),
+			'connectedPlugins'   => self::get_connected_plugins(),
 		);
 	}
 
@@ -45,6 +46,28 @@ class Initial_State {
 		}
 		self::$rendered = true;
 		return 'var JP_CONNECTION_INITIAL_STATE=JSON.parse(decodeURIComponent("' . rawurlencode( wp_json_encode( self::get_data() ) ) . '"));';
+	}
+
+	/**
+	 * Get the list of plugins actively using the Connection
+	 *
+	 * @return array The list of plugins.
+	 */
+	private static function get_connected_plugins() {
+		$plugins = ( new Manager() )->get_connected_plugins();
+
+		if ( is_wp_error( $plugins ) ) {
+			return array();
+		}
+
+		array_walk(
+			$plugins,
+			function ( &$data, $slug ) {
+				$data['slug'] = $slug;
+			}
+		);
+
+		return $plugins;
 	}
 
 }

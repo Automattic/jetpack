@@ -32,9 +32,6 @@ const connectionResolvers = {
 			yield actions.setAuthorizationUrl( response.authorizeUrl );
 		},
 	},
-	*getConnectedPlugins() {
-		yield actions.fetchConnectedPlugins();
-	},
 };
 
 export default {

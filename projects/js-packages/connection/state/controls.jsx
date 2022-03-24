@@ -39,11 +39,8 @@ const CONNECT_USER = createRegistryControl(
 
 const FETCH_AUTHORIZATION_URL = ( { redirectUri } ) => restApi.fetchAuthorizationUrl( redirectUri );
 
-const FETCH_CONNECTED_PLUGINS = () => restApi.fetchConnectedPlugins();
-
 export default {
 	FETCH_AUTHORIZATION_URL,
 	REGISTER_SITE,
 	CONNECT_USER,
-	FETCH_CONNECTED_PLUGINS,
 };

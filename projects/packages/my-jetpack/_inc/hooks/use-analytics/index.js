@@ -7,9 +7,8 @@ import jetpackAnalytics from '@automattic/jetpack-analytics';
 import useMyJetpackConnection from '../use-my-jetpack-connection';
 
 const useAnalytics = () => {
-	const { isUserConnected, userConnectionData = {} } = useMyJetpackConnection();
+	const { isUserConnected, connectedPlugins, userConnectionData = {} } = useMyJetpackConnection();
 	const { login, ID } = userConnectionData.currentUser?.wpcomUser || {};
-	const { connectedPlugins } = myJetpackInitialState;
 
 	/**
 	 * Initialize tracks with user data.
