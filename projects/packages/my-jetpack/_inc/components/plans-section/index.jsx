@@ -4,15 +4,16 @@
 import React from 'react';
 import { __, _n } from '@wordpress/i18n';
 import { ExternalLink } from '@wordpress/components';
+import { Text } from '@automattic/jetpack-components';
 
 /**
  * Internal dependencies
  */
+import { H2, Title } from '../heading';
 import usePurchases from '../../hooks/use-purchases';
 import getManageYourPlanUrl from '../../utils/get-manage-your-plan-url';
 import getPurchasePlanUrl from '../../utils/get-purchase-plan-url';
 import styles from './style.module.scss';
-import { H2, Title2 } from '../heading';
 
 /**
  * Basic plan section component.
@@ -25,8 +26,10 @@ function PlanSection( { purchase = {} } ) {
 	const { product_name, expiry_message } = purchase;
 	return (
 		<>
-			<Title2>{ product_name }</Title2>
-			<p>{ expiry_message }</p>
+			<Title>{ product_name }</Title>
+			<Text variant="body" className={ styles[ 'expire-date' ] }>
+				{ expiry_message }
+			</Text>
 		</>
 	);
 }

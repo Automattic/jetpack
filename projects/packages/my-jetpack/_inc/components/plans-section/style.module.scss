@@ -2,20 +2,16 @@
 	a, a:active, a:hover {
 		color: var( --jp-black );
 	}
-
-	p {
-		margin: 16px 0;
-		color: var( --jp-black );
-	}
-
-	p, a, li {
-		font-size: var( --font-body );
-		line-height: 24px;
-	}
 }
 
+.expire-date {
+	margin-bottom: calc( var(--spacing-base ) * 3 );
+}
 
-.external-link:hover {
-	color: var(--jp-black);
-	text-decoration-thickness: var(--jp-underline-thickness);
+.external-link {
+	font-size: var( --font-body );
+	&:hover {
+		color: var( --jp-black );
+		text-decoration-thickness: var( --jp-underline-thickness );
+	}
 }
