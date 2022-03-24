@@ -45,13 +45,12 @@ export function NoticeBox( props ) {
 	if ( props.recordCount > props.planRecordLimit ) {
 		notices.push( {
 			message: sprintf(
-				// translators: %1$d: site's current plan record limit, %2$d: record limit of the next plan up
+				// translators: %d: site's current plan record limit
 				__(
-					'You recently surpassed %1$d records and will be automatically upgraded to the next billing tier', //TODO: add a link to the tier pricing/upgrade info page
+					'You recently surpassed %d records and will be automatically upgraded to the next billing tier', //TODO: add a link to the tier pricing/upgrade info page
 					'jetpack-search-pkg'
 				),
-				props.planRecordLimit,
-				props.planRecordLimit * 10 //TODO: this is currently hard coded & incorrect. Needs to have the next tier plan record limit added
+				props.planRecordLimit
 			),
 		} );
 	}
