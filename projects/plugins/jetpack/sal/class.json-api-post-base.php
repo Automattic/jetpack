@@ -404,27 +404,25 @@ abstract class SAL_Post {
 	 * @return array
 	 */
 	public function get_publicize_urls() {
-		// phpcs:disable WordPress.NamingConventions.ValidVariableName
-		$publicize_URLs = array();
+		$publicize_urls = array();
 		$publicize      = get_post_meta( $this->post->ID, 'publicize_results', true );
 		if ( $publicize ) {
 			foreach ( $publicize as $service => $data ) {
 				switch ( $service ) {
 					case 'twitter':
 						foreach ( $data as $datum ) {
-							$publicize_URLs[] = esc_url_raw( "https://twitter.com/{$datum['user_id']}/status/{$datum['post_id']}" );
+							$publicize_urls[] = esc_url_raw( "https://twitter.com/{$datum['user_id']}/status/{$datum['post_id']}" );
 						}
 						break;
 					case 'fb':
 						foreach ( $data as $datum ) {
-							$publicize_URLs[] = esc_url_raw( "https://www.facebook.com/permalink.php?story_fbid={$datum['post_id']}&id={$datum['user_id']}" );
+							$publicize_urls[] = esc_url_raw( "https://www.facebook.com/permalink.php?story_fbid={$datum['post_id']}&id={$datum['user_id']}" );
 						}
 						break;
 				}
 			}
 		}
-		return (array) $publicize_URLs;
-		// phpcs:enable WordPress.NamingConventions.ValidVariableName
+		return (array) $publicize_urls;
 	}
 
 	/**
