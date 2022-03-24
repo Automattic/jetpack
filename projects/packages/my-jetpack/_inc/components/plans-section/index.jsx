@@ -37,11 +37,32 @@ function PlanSection( { purchase = {} } ) {
  * @returns {object} PlanSectionHeader react component.
  */
 function PlanSectionHeader( { purchases } ) {
+	return (
+		<>
+			<h3>
+				{ purchases.length <= 1
+					? __( 'Your plan', 'jetpack-my-jetpack' )
+					: __( 'Your plans', 'jetpack-my-jetpack' ) }
+			</h3>
+			{ purchases.length === 0 && (
+				<p>{ __( 'The extra power you added to your Jetpack.', 'jetpack-my-jetpack' ) }</p>
+			) }
+		</>
+	);
+}
+
+/**
+ * Plan section Footer component.
+ *
+ * @param {object} props          - Component props.
+ * @param {Array} props.purchases - Purchases array.
+ * @returns {object} PlanSectionFooter react component.
+ */
+function PlanSectionFooter( { purchases } ) {
 	let planLinkDescription = __( 'Purchase a plan', 'jetpack-my-jetpack' );
-	if ( purchases.length > 1 ) {
-		/* translators: %d: number of site plans. */
+	if ( purchases.length >= 1 ) {
 		planLinkDescription = _n(
-			'Manage your plan.',
+			'Manage your plan',
 			'Manage your plans',
 			purchases.length,
 			'jetpack-my-jetpack'
@@ -49,19 +70,11 @@ function PlanSectionHeader( { purchases } ) {
 	}
 
 	return (
-		<>
-			<h3>
-				{ purchases.length <= 1
-					? __( 'My plan', 'jetpack-my-jetpack' )
-					: __( 'My plans', 'jetpack-my-jetpack' ) }
-			</h3>
-			<p>{ __( 'The extra power you added to your Jetpack.', 'jetpack-my-jetpack' ) }</p>
-			<p>
-				<ExternalLink className={ styles[ 'external-link' ] } href={ getManageYourPlanUrl() }>
-					{ planLinkDescription }
-				</ExternalLink>
-			</p>
-		</>
+		<p>
+			<ExternalLink className={ styles[ 'external-link' ] } href={ getManageYourPlanUrl() }>
+				{ planLinkDescription }
+			</ExternalLink>
+		</p>
 	);
 }
 
@@ -77,11 +90,13 @@ export default function PlansSection() {
 		<div className={ styles.container }>
 			<PlanSectionHeader purchases={ purchases } />
 
-			<div className="jp-plans-section__purchases-section">
+			<div className={ styles.purchasesSection }>
 				{ purchases.map( purchase => (
 					<PlanSection key={ `purchase-${ purchase.product_name }` } purchase={ purchase } />
 				) ) }
 			</div>
+
+			<PlanSectionFooter purchases={ purchases } />
 		</div>
 	);
 }
