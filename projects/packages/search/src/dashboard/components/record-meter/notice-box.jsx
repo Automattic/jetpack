@@ -4,6 +4,8 @@
 import React from 'react';
 import { __, sprintf } from '@wordpress/i18n';
 
+const CLOSE_TO_LIMIT_PERCENT = 0.8; //TODO: currently 'close' is defined as 80%. This has not been decided/finalised to be the best number here yet
+
 /**
  * Returns a notice box for displaying notices about record count and plan limits
  *
@@ -12,7 +14,6 @@ import { __, sprintf } from '@wordpress/i18n';
  */
 export function NoticeBox( props ) {
 	const notices = [];
-	const CLOSE_TO_LIMIT_PERCENT = 0.8; //TODO: currently 'close' is defined as 80%. This has not been decided/finalised to be the best number here yet
 
 	// check data is valid
 	if ( props.hasValidData === false ) {
