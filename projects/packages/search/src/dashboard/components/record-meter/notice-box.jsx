@@ -42,7 +42,7 @@ export function NoticeBox( props ) {
 	if ( props.hasItems === false ) {
 		notices.push( {
 			message: __(
-				"We weren't able to locate any content to Search to index. Perhaps you don't yet have any posts or pages?",
+				"We weren't able to locate any content for Search to index. Perhaps you don't yet have any posts or pages?",
 				'jetpack-search-pkg'
 			),
 		} );
