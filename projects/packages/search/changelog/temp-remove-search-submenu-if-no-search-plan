@@ -1,0 +1,5 @@
+Significance: patch
+Type: removed
+Comment: Temp: temporary fix for Jetpack 10.8-a.9 release to prevent Search submenu item from showing on sites without eligible Search plans. Removing this since sites w/out Search plan won't be able to interact with the Search page.
+
+
