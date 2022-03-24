@@ -1,4 +1,5 @@
 #!/bin/sh
 . "$(dirname "$0")/_/husky.sh"
 
+exec < /dev/tty
 node tools/js-tools/git-hooks/pre-push-hook.js
