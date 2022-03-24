@@ -613,7 +613,7 @@ class Tokens {
 	 */
 	public function set_site_lock( $timespan = HOUR_IN_SECONDS ) {
 		try {
-			$expires = ( new DateTime() )->add( new DateInterval( (int) $timespan . 'S' ) );
+			$expires = ( new DateTime() )->add( DateInterval::createFromDateString( (int) $timespan . ' seconds' ) );
 		} catch ( Exception $e ) {
 			return false;
 		}

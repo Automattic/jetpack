@@ -2497,9 +2497,31 @@ class Manager {
 	 * @return void
 	 */
 	public function setup_migration_hooks() {
-		$tokens = $this->get_tokens();
+		add_filter( 'ai1wm_export', array( $this, 'aiowpm_before_export' ), 5 );
+		add_filter( 'ai1wm_export', array( $this, 'aiowpm_after_export' ), 250 );
+	}
 
-		add_filter( 'ai1wm_export', array( $tokens, 'set_site_lock' ), 1 );
-		add_filter( 'ai1wm_export', array( $tokens, 'remove_site_lock' ), 290 );
+	/**
+	 * Run before the AIOWPM export.
+	 *
+	 * @param mixed $params The parameters coming from the plugin.
+	 *
+	 * @return mixed
+	 */
+	public function aiowpm_before_export( $params ) {
+		$this->get_tokens()->set_site_lock();
+		return $params;
+	}
+
+	/**
+	 * Run after the AIOWPM export.
+	 *
+	 * @param mixed $params The parameters coming from the plugin.
+	 *
+	 * @return mixed
+	 */
+	public function aiowpm_after_export( $params ) {
+		$this->get_tokens()->remove_site_lock();
+		return $params;
 	}
 }
