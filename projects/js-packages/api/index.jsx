@@ -487,6 +487,16 @@ function JetpackRestApiClient( root, nonce ) {
 			getRequest( `${ apiRoot }jetpack/v4/search/stats`, getParams )
 				.then( checkStatus )
 				.then( parseJsonResponse ),
+		fetchWordAdsSettings: () =>
+			getRequest( `${ apiRoot }jetpack/v4/wordads/settings`, getParams )
+				.then( checkStatus )
+				.then( parseJsonResponse ),
+		updateWordAdsSettings: newSettings =>
+			postRequest( `${ apiRoot }jetpack/v4/wordads/settings`, postParams, {
+				body: JSON.stringify( newSettings ),
+			} )
+				.then( checkStatus )
+				.then( parseJsonResponse ),
 	};
 
 	/**
