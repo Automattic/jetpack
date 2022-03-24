@@ -275,9 +275,11 @@ class Modules {
 	 *
 	 * @param string  $module - module slug.
 	 * @param boolean $active - true to activate, false to deactivate.
+	 * @param bool    $exit Should exit be called after deactivation.
+	 * @param bool    $redirect Should there be a redirection after activation.
 	 */
-	public function update_status( $module, $active ) {
-		return $active ? $this->activate( $module ) : $this->deactivate( $module );
+	public function update_status( $module, $active, $exit = true, $redirect = true ) {
+		return $active ? $this->activate( $module, $exit, $redirect ) : $this->deactivate( $module );
 	}
 
 	/**
@@ -366,8 +368,8 @@ class Modules {
 		$errors = new Errors();
 		$state->state( 'module', $module );
 		$state->state( 'error', 'module_activation_failed' ); // we'll override this later if the plugin can be included without fatal error.
-
 		$errors->catch_errors( true );
+
 		ob_start();
 		require $this->get_path( $module ); // phpcs:ignore WordPressVIPMinimum.Files.IncludingFile.NotAbsolutePath
 
