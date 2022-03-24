@@ -177,17 +177,4 @@ module.exports = {
 		// Disabled pending #16099.
 		'inclusive-language/use-inclusive-words': 0,
 	},
-	overrides: [
-		{
-			files: [ '**/test/**/*' ],
-			env: { jest: true },
-			extends: [ 'plugin:jest/recommended' ],
-			rules: {
-				'jsdoc/check-tag-names': [
-					1, // Recommended
-					{ definedTags: [ 'jest-environment' ] },
-				],
-			},
-		},
-	],
 };
