@@ -212,13 +212,11 @@ class VideoPress_Edit_Attachment {
 			'html'  => $this->display_rating( $info ),
 		);
 
-		if ( 1 !== 1 /* Temporarily disabled. */ ) {
-			$fields['privacy_setting'] = array(
-				'label' => _x( 'Privacy Setting', 'A header for the video privacy setting area.', 'jetpack' ),
-				'input' => 'html',
-				'html'  => $this->display_privacy_setting( $info ),
-			);
-		}
+		$fields['privacy_setting'] = array(
+			'label' => _x( 'Privacy Setting', 'A header for the video privacy setting area.', 'jetpack' ),
+			'input' => 'html',
+			'html'  => $this->display_privacy_setting( $info ),
+		);
 
 		return $fields;
 	}
@@ -331,9 +329,9 @@ HTML;
 	 */
 	protected function display_privacy_setting( $info ) {
 		$privacy_settings = array(
-			'2' => __( 'Site Default', 'jetpack' ),
-			'0' => __( 'Public', 'jetpack' ),
-			'1' => __( 'Private', 'jetpack' ),
+			VIDEOPRESS_PRIVACY::SITE_DEFAULT => __( 'Site Default', 'jetpack' ),
+			VIDEOPRESS_PRIVACY::IS_PUBLIC    => __( 'Public', 'jetpack' ),
+			VIDEOPRESS_PRIVACY::IS_PRIVATE   => __( 'Private', 'jetpack' ),
 		);
 
 		$displayed_privacy_setting = intval( isset( $info->privacy_setting ) ? $info->privacy_setting : 2 );
