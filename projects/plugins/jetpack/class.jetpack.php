@@ -3067,8 +3067,9 @@ class Jetpack {
 		 * @since 1.9.0
 		 *
 		 * @param string $module Module slug.
+		 * @param bool $redirect Should there be a redirection after deactivation.
 		 */
-		do_action( 'jetpack_pre_deactivate_module', $module );
+		do_action( 'jetpack_pre_deactivate_module', $module, true );
 
 		$jetpack = self::init();
 
