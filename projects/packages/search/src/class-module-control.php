@@ -141,15 +141,6 @@ class Module_Control {
 	}
 
 	/**
-	 * Update module status
-	 *
-	 * @param boolean $active - true to activate, false to deactivate.
-	 */
-	public function update_status( $active ) {
-		return $active ? $this->activate() : $this->deactivate();
-	}
-
-	/**
 	 * Disable Instant Search Experience
 	 */
 	public function disable_instant_search() {

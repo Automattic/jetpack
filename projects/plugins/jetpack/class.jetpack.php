@@ -3061,22 +3061,7 @@ class Jetpack {
 	 * @return bool
 	 */
 	public static function deactivate_module( $module ) {
-		/**
-		 * Fires when a module is deactivated.
-		 *
-		 * @since 1.9.0
-		 *
-		 * @param string $module Module slug.
-		 * @param bool $redirect Should there be a redirection after deactivation.
-		 */
-		do_action( 'jetpack_pre_deactivate_module', $module, true );
-
-		$jetpack = self::init();
-
-		$active = self::get_active_modules();
-		$new    = array_filter( array_diff( $active, (array) $module ) );
-
-		return self::update_active_modules( $new );
+		return ( new Modules() )->deactivate( $module );
 	}
 
 	/**
