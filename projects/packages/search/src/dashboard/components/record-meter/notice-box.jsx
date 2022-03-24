@@ -9,7 +9,12 @@ const CLOSE_TO_LIMIT_PERCENT = 0.8; //TODO: currently 'close' is defined as 80%.
 /**
  * Returns a notice box for displaying notices about record count and plan limits
  *
- * @param {object} props - record count, record limit, hasbeenindexed, hasvaliddata, hasItems
+ * @param {object} props - Props
+ * @param {number} props.recordCount - Current count of user's total records
+ * @param {number} props.recordLimit - Max number of records allowed in user's current tier
+ * @param {boolean} props.hasBeenIndexed - True if site has a last indexed date
+ * @param {boolean} props.hasValidData - True if data is present and in valid form
+ * @param {boolean} props.hasItems - True if there is at least one indexed record
  * @returns {React.Component} notice box component.
  */
 export function NoticeBox( props ) {
