@@ -34,15 +34,21 @@ function ButtonsEdit( { context, subscribeButton, setSubscribeButtonPlan } ) {
 	const template = [
 		[
 			'jetpack/recurring-payments',
-			{ planId },
+			{},
 			[
 				[
-					'jetpack/button',
-					{
-						element: 'a',
-						uniqueId: 'recurring-payments-id',
-						text: __( 'Subscribe', 'jetpack' ),
-					},
+					'jetpack/recurring-payments-button',
+					{ planId },
+					[
+						[
+							'jetpack/button',
+							{
+								element: 'a',
+								uniqueId: 'recurring-payments-id',
+								text: __( 'Subscribe', 'jetpack' ),
+							},
+						],
+					],
 				],
 			],
 		],
