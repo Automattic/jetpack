@@ -102,21 +102,6 @@ export const extrasProductData = {
 	},
 };
 
-export const monitorProductData = {
-	slug: 'monitor',
-	name: 'Monitor',
-	title: 'Jetpack Monitor',
-	description: 'Know when your site goes offline',
-	long_description:
-		"Jetpack's downtime monitoring will continuously watch your site and alert you the moment that downtime is detected.",
-	status: 'active',
-	features: [],
-	pricingForUi: {
-		available: true,
-		is_free: true,
-	},
-};
-
 export const scanProductData = {
 	slug: 'scan',
 	name: 'Scan',

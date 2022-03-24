@@ -14,7 +14,7 @@ on:
         required: false
         type: boolean
   schedule:
-    - cron: '0/30 * * * *'
+    - cron: '0 0/2 * * *'
 concurrency:
   group: renovate-${{ github.ref }}
 
