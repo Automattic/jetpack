@@ -18,7 +18,8 @@ import { Security } from '../sidebar/security';
 import { MobileApp } from '../sidebar/mobile-app';
 import { ProductCardUpsellNoPrice } from '../sidebar/product-card-upsell-no-price';
 import { ProductCardUpsell } from '../product-card-upsell';
-import { getUpgradeUrl, getSiteTitle } from 'state/initial-state';
+import { generateCheckoutLink } from '../utils';
+import { getSiteTitle, getSiteRawUrl, getSiteAdminUrl } from 'state/initial-state';
 import {
 	getSidebarCardSlug,
 	getSummaryFeatureSlugs,
@@ -39,9 +40,10 @@ const SummaryComponent = props => {
 		isFetchingSidebarData,
 		sidebarCardSlug,
 		siteTitle,
+		siteRawUrl,
+		siteAdminUrl,
 		summaryFeatureSlugs,
 		updateRecommendationsStep,
-		upgradeUrl,
 		upsell,
 	} = props;
 
@@ -49,6 +51,9 @@ const SummaryComponent = props => {
 		updateRecommendationsStep( 'summary' );
 	}, [ updateRecommendationsStep ] );
 
+	const upgradeUrl = upsell.product_slug
+		? generateCheckoutLink( upsell.product_slug, siteAdminUrl, siteRawUrl )
+		: null;
 	const mainContent = isFetchingMainData ? (
 		<JetpackLoadingIcon altText={ __( 'Loading recommendations', 'jetpack' ) } />
 	) : (
@@ -164,8 +169,9 @@ const Summary = connect(
 			isFetchingSidebarData,
 			sidebarCardSlug: getSidebarCardSlug( state ),
 			siteTitle: getSiteTitle( state ),
+			siteRawUrl: getSiteRawUrl( state ),
+			siteAdminUrl: getSiteAdminUrl( state ),
 			summaryFeatureSlugs: getSummaryFeatureSlugs( state ),
-			upgradeUrl: getUpgradeUrl( state, 'jetpack-recommendations-backups' ),
 			upsell,
 		};
 	},
