@@ -20,9 +20,15 @@ import './style.scss';
  * @param {object} props - Props
  * @param {object} props.postTypeBreakdown - Post type breakdown (post type => number of posts)
  * @param {number} props.tierMaximumRecords - Max number of records allowed in user's current tier
+ * @param {Date} props.lastIndexedDate - The date on which the site was last indexed
  * @returns {React.Component} RecordMeter React component
  */
-export default function RecordMeter( { /*postCount,*/ postTypeBreakdown, tierMaximumRecords } ) {
+export default function RecordMeter( {
+	postCount,
+	postTypeBreakdown,
+	tierMaximumRecords,
+	lastIndexedDate,
+} ) {
 	// TODO: use setRecordInfo var
 	// eslint-disable-next-line no-unused-vars
 	const [ recordInfo, setRecordInfo ] = useState(
@@ -54,6 +60,16 @@ export default function RecordMeter( { /*postCount,*/ postTypeBreakdown, tierMax
 								hasItems={ recordInfo.hasItems }
 							></NoticeBox>
 						</div>
+					) }
+					{ lastIndexedDate && (
+						<p>
+							last indexed date: <strong>{ lastIndexedDate }</strong>
+						</p>
+					) }
+					{ postCount && (
+						<p>
+							Post count: <strong>{ postCount }</strong>
+						</p>
 					) }
 				</div>
 				<div className="lg-col-span-2 md-col-span-1 sm-col-span-0"></div>
