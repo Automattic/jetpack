@@ -4,7 +4,7 @@
 import { __, sprintf } from '@wordpress/i18n';
 import React, { useState, useEffect, useCallback, useRef, useMemo } from 'react';
 
-const Timer = ( { className, expiryDate } ) => {
+const Timer = ( { label, timeClassName, expiryDate } ) => {
 	const date = useMemo( () => new Date( expiryDate ), [ expiryDate ] );
 	const [ duration, setDuration ] = useState( date - Date.now() );
 	const intervalRef = useRef();
@@ -26,12 +26,12 @@ const Timer = ( { className, expiryDate } ) => {
 			parts.push( sprintf( __( '%dd', 'jetpack' ), days ) );
 		}
 
-		if ( hours > 0 ) {
+		if ( days > 0 || hours > 0 ) {
 			// translators: %d is the number of hours, h an abbreviation for hours (e.g. 23h). Only translate the latter.
 			parts.push( sprintf( __( '%dh', 'jetpack' ), hours ) );
 		}
 
-		if ( minutes > 0 ) {
+		if ( days > 0 || hours > 0 || minutes > 0 ) {
 			// translators: %d is the number of minutes, m an abbreviation for minutes (e.g. 59m). Only translate the latter.
 			parts.push( sprintf( __( '%dm', 'jetpack' ), minutes ) );
 		}
@@ -53,7 +53,14 @@ const Timer = ( { className, expiryDate } ) => {
 		// eslint-disable-next-line react-hooks/exhaustive-deps
 	}, [] );
 
-	return <span className={ className }>{ format( duration ) }</span>;
+	return duration > 0 ? (
+		<>
+			{ label }
+			<span className={ timeClassName }>{ format( duration ) }</span>
+		</>
+	) : (
+		__( 'Discount offer has ended', 'jetpack' )
+	);
 };
 
 export default Timer;
