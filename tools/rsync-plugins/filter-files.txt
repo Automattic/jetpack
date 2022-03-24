@@ -1,8 +1,0 @@
-+ /vendor/
-- vendor/**/vendor
-- jetpack_vendor/**/vendor
-- wordpress
-- .git
-- node_modules
-- .cache
-- *.css*map
