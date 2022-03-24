@@ -622,29 +622,27 @@ const VideoPressEdit = CoreVideoEdit =>
 								checked={ allowDownload }
 								disabled={ isFetchingMedia || isUpdatingAllowDownload }
 							/>
-							{ !! window.jetpackFeatureVideoPrivacyEnabled && (
-								<SelectControl
-									label={ __( 'Privacy', 'jetpack' ) }
-									help={ __( 'Restrict views to members of this site', 'jetpack' ) }
-									onChange={ this.onChangePrivacySetting }
-									value={ privacySetting }
-									options={ [
-										{
-											value: VIDEO_PRIVACY.SITE_DEFAULT,
-											label: _x( 'Site Default', 'VideoPress privacy setting', 'jetpack' ),
-										},
-										{
-											value: VIDEO_PRIVACY.PUBLIC,
-											label: _x( 'Public', 'VideoPress privacy setting', 'jetpack' ),
-										},
-										{
-											value: VIDEO_PRIVACY.PRIVATE,
-											label: _x( 'Private', 'VideoPress privacy setting', 'jetpack' ),
-										},
-									] }
-									disabled={ isFetchingMedia || isUpdatingPrivacySetting }
-								/>
-							) }
+							<SelectControl
+								label={ __( 'Privacy', 'jetpack' ) }
+								help={ __( 'Restrict views to members of this site', 'jetpack' ) }
+								onChange={ this.onChangePrivacySetting }
+								value={ privacySetting }
+								options={ [
+									{
+										value: VIDEO_PRIVACY.SITE_DEFAULT,
+										label: _x( 'Site Default', 'VideoPress privacy setting', 'jetpack' ),
+									},
+									{
+										value: VIDEO_PRIVACY.PUBLIC,
+										label: _x( 'Public', 'VideoPress privacy setting', 'jetpack' ),
+									},
+									{
+										value: VIDEO_PRIVACY.PRIVATE,
+										label: _x( 'Private', 'VideoPress privacy setting', 'jetpack' ),
+									},
+								] }
+								disabled={ isFetchingMedia || isUpdatingPrivacySetting }
+							/>
 						</PanelBody>
 					</InspectorControls>
 				</Fragment>
@@ -874,7 +872,6 @@ export default createHigherOrderComponent(
 				guid,
 				loop,
 				muted,
-				playbackJwt,
 				playsinline,
 				poster,
 				preload,
@@ -886,7 +883,7 @@ export default createHigherOrderComponent(
 			} = ownProps.attributes;
 			const { getEmbedPreview, isRequestingEmbedPreview } = select( 'core' );
 
-			let url = getVideoPressUrl( guid, {
+			const url = getVideoPressUrl( guid, {
 				autoplay,
 				controls,
 				loop,
@@ -899,10 +896,6 @@ export default createHigherOrderComponent(
 				seekbarPlayedColor,
 				useAverageColor,
 			} );
-
-			if ( null !== playbackJwt ) {
-				url = `${ url }&metadata_token=${ playbackJwt }`;
-			}
 
 			const preview = !! url && getEmbedPreview( url );
 
