@@ -63,7 +63,12 @@ export default {
 			} ),
 		];
 
-		return [ newAttributes, newInnerBlocks ];
+		const buttonWrapper = createBlock(
+			'jetpack/recurring-payments-button',
+			newAttributes,
+			newInnerBlocks
+		);
+		return [ {}, [ buttonWrapper ] ];
 	},
 	isEligible: ( attributes, innerBlocks ) =>
 		isEmpty( innerBlocks ) || some( pick( attributes, deprecatedAttributes ), Boolean ),
