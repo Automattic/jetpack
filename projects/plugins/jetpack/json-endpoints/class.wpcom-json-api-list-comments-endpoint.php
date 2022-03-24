@@ -130,15 +130,34 @@ new WPCOM_JSON_API_List_Comments_Endpoint(
 	)
 );
 
-// @todo permissions
-class WPCOM_JSON_API_List_Comments_Endpoint extends WPCOM_JSON_API_Comment_Endpoint {
+/**
+ * List comment endpoint.
+ *
+ * /sites/%s/comments/            -> $blog_id
+ * /sites/%s/posts/%d/replies/    -> $blog_id, $post_id
+ * /sites/%s/comments/%d/replies/ -> $blog_id, $comment_id
+ *
+ * @todo permissions
+ */
+class WPCOM_JSON_API_List_Comments_Endpoint extends WPCOM_JSON_API_Comment_Endpoint { // phpcs:ignore
+
+	/**
+	 * The response format.
+	 *
+	 * @var array
+	 */
 	public $response_format = array(
 		'found'    => '(int) The total number of comments found that match the request (ignoring limits, offsets, and pagination).',
 		'site_ID'  => '(int) The site ID',
 		'comments' => '(array:comment) An array of comment objects.',
 	);
 
-	function __construct( $args ) {
+	/**
+	 * Constructor function.
+	 *
+	 * @param array $args - the arguments.
+	 */
+	public function __construct( $args ) {
 		parent::__construct( $args );
 		$this->query = array_merge(
 			$this->query,
@@ -174,10 +193,14 @@ class WPCOM_JSON_API_List_Comments_Endpoint extends WPCOM_JSON_API_Comment_Endpo
 		);
 	}
 
-	// /sites/%s/comments/            -> $blog_id
-	// /sites/%s/posts/%d/replies/    -> $blog_id, $post_id
-	// /sites/%s/comments/%d/replies/ -> $blog_id, $comment_id
-	function callback( $path = '', $blog_id = 0, $object_id = 0 ) {
+	/**
+	 * The callback.
+	 *
+	 * @param string $path - the path.
+	 * @param int    $blog_id - the blog ID.
+	 * @param int    $object_id - the object ID.
+	 */
+	public function callback( $path = '', $blog_id = 0, $object_id = 0 ) {
 		$blog_id = $this->api->switch_to_blog_and_validate_user( $this->api->get_blog_id( $blog_id ) );
 		if ( is_wp_error( $blog_id ) ) {
 			return $blog_id;
@@ -192,21 +215,21 @@ class WPCOM_JSON_API_List_Comments_Endpoint extends WPCOM_JSON_API_Comment_Endpo
 		}
 
 		if ( false !== strpos( $path, '/posts/' ) ) {
-			// We're looking for comments of a particular post
+			// We're looking for comments of a particular post.
 			$post_id    = $object_id;
 			$comment_id = 0;
 		} else {
-			// We're looking for comments for the whole blog, or replies to a single comment
+			// We're looking for comments for the whole blog, or replies to a single comment.
 			$comment_id = $object_id;
 			$post_id    = 0;
 		}
 
-		// We can't efficiently get the number of replies to a single comment
+		// We can't efficiently get the number of replies to a single comment.
 		$count = false;
 		$found = -1;
 
 		if ( ! $comment_id ) {
-			// We can get comment counts for the whole site or for a single post, but only for certain queries
+			// We can get comment counts for the whole site or for a single post, but only for certain queries.
 			if ( 'any' === $args['type'] && ! isset( $args['after'] ) && ! isset( $args['before'] ) ) {
 				$count = $this->api->wp_count_comments( $post_id );
 			}
@@ -230,7 +253,7 @@ class WPCOM_JSON_API_List_Comments_Endpoint extends WPCOM_JSON_API_Comment_Endpo
 					$status       = 'all';
 					$count_status = 'total_comments';
 				} else {
-					$status = $count_status = $args['status'];
+					$status = $count_status = $args['status']; // phpcs:ignore Squiz.PHP.DisallowMultipleAssignments.Found
 				}
 				if ( $count ) {
 					$found = $count->$count_status;
