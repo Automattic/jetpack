@@ -244,6 +244,7 @@ class WPCOM_REST_API_V2_Endpoint_Memberships extends WP_REST_Controller {
 					array(
 						'type'   => $product_type,
 						'source' => $source,
+						'public' => $public,
 					),
 					$path
 				);
