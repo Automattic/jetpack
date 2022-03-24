@@ -63,7 +63,7 @@ export default function RecordMeter( {
 					) }
 					{ lastIndexedDate && (
 						<p>
-							last indexed date: <strong>{ lastIndexedDate }</strong>
+							Last indexed date: <strong>{ lastIndexedDate }</strong>
 						</p>
 					) }
 					{ postCount && (
