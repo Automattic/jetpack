@@ -67,7 +67,7 @@ const DiscountCard = ( { discount, expiryDate } ) => {
 				<div className="jp-recommendations-discount-card__timer">
 					<Timer
 						timeClassName="jp-recommendations-discount-card__time"
-						label={ __( 'Discounts ends in:', 'jetpack' ) }
+						label={ __( 'Discount ends in:', 'jetpack' ) }
 						expiryDate={ expiryDate }
 					/>
 				</div>
