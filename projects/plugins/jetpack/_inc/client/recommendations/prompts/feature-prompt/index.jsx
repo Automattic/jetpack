@@ -43,8 +43,11 @@ const FeaturePromptComponent = props => {
 	} = props;
 
 	useEffect( () => {
-		updateRecommendationsStep( stepSlug );
-		addViewedRecommendation( stepSlug );
+		// These calls both update the underlying jetpack_options option.
+		// The second waits for the first to avoid trying to write the same option with two simultaneous requests.
+		updateRecommendationsStep( stepSlug ).then( () => {
+			addViewedRecommendation( stepSlug );
+		} );
 	}, [ stepSlug, updateRecommendationsStep, addViewedRecommendation ] );
 
 	const onExternalLinkClick = useCallback( () => {
