@@ -197,8 +197,7 @@ class Jetpack_Recommendations {
 			}
 			$has_scan = $plan_supports_scan || $has_scan_product;
 
-			// This site does not have backup, scan or anti-spam.
-			if ( ! $has_scan && ! $has_backup && ! $has_anti_spam ) {
+			if ( ! $has_scan || ! $has_backup || ! $has_anti_spam ) {
 				self::enable_conditional_recommendation( self::SECURITY_PLAN_RECOMMENDATION );
 			}
 		}
