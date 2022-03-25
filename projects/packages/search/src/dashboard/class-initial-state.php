@@ -8,7 +8,6 @@
 namespace Automattic\Jetpack\Search;
 
 use Automattic\Jetpack\Connection\Manager as Connection_Manager;
-use Automattic\Jetpack\My_Jetpack\Wpcom_Products;
 use Automattic\Jetpack\Status;
 use Jetpack_Options;
 
@@ -72,7 +71,11 @@ class Initial_State {
 				'blogId'            => Jetpack_Options::get_option( 'id', 0 ),
 				'version'           => Package::VERSION,
 				'calypsoSlug'       => ( new Status() )->get_site_suffix(),
-				'pricing'           => Wpcom_Products::get_product_pricing( 'jetpack_search' ),
+				'pricing'           => array(
+					'currency_code'  => 'USD',
+					'discount_price' => '30',
+					'full_price'     => '60',
+				),
 			),
 			'userData'        => array(
 				'currentUser' => $this->current_user_data(),
