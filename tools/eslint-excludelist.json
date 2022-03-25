@@ -90,7 +90,6 @@
 	"projects/plugins/jetpack/_inc/lib/debugger/jetpack-debugger-site-health.js",
 	"projects/plugins/jetpack/_inc/polldaddy-shortcode.js",
 	"projects/plugins/jetpack/_inc/twitter-timeline.js",
-	"projects/plugins/jetpack/extensions/blocks/contact-form/components/jetpack-newsletter-integration-settings-creativemail.js",
 	"projects/plugins/jetpack/extensions/blocks/donations/edit.js",
 	"projects/plugins/jetpack/extensions/blocks/eventbrite/index.js",
 	"projects/plugins/jetpack/extensions/blocks/eventbrite/utils.js",
