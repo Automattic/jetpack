@@ -918,9 +918,9 @@ class csstidy { // phpcs:ignore
 
 						$this->status = array_pop( $this->from );
 
-						if ( ! preg_match( '|[' . implode( '', $GLOBALS['csstidy']['whitespace'] ) . ']|uis', $_cur_string ) && $this->property !== 'content' ) {
+						if ( ! preg_match( '|[' . implode( '', $GLOBALS['csstidy']['whitespace'] ) . ']|uis', $_cur_string ) && 'content' !== $this->property ) {
 							if ( ! $_quoted_string ) {
-								if ( $_str_char !== ')' ) {
+								if ( ')' !== $_str_char ) {
 									// Convert properties like
 									// font-family: 'Arial';
 									// to
@@ -928,7 +928,7 @@ class csstidy { // phpcs:ignore
 									// or
 									// url("abc")
 									// to
-									// url(abc)
+									// url(abc).
 									$_cur_string = substr( $_cur_string, 1, -1 );
 								}
 							} else {
@@ -939,25 +939,25 @@ class csstidy { // phpcs:ignore
 						array_pop( $this->cur_string );
 						array_pop( $this->str_char );
 
-						if ( $_str_char === ')' ) {
+						if ( ')' === $_str_char ) {
 							$_cur_string = '(' . trim( substr( $_cur_string, 1, -1 ) ) . ')';
 						}
 
-						if ( $this->status === 'iv' ) {
+						if ( 'iv' === $this->status ) {
 							if ( ! $_quoted_string ) {
 								if ( strpos( $_cur_string, ',' ) !== false ) {
-									// we can on only remove space next to ','
+									// we can on only remove space next to ','.
 									$_cur_string = implode( ',', array_map( 'trim', explode( ',', $_cur_string ) ) );
 								}
-								// and multiple spaces (too expensive)
+								// and multiple spaces (too expensive).
 								if ( strpos( $_cur_string, '  ' ) !== false ) {
 									$_cur_string = preg_replace( ',\s+,', ' ', $_cur_string );
 								}
 							}
 							$this->sub_value .= $_cur_string;
-						} elseif ( $this->status === 'is' ) {
+						} elseif ( 'is' === $this->status ) {
 							$this->selector .= $_cur_string;
-						} elseif ( $this->status === 'instr' ) {
+						} elseif ( 'instr' === $this->status ) {
 							$this->cur_string[ count( $this->cur_string ) - 1 ] .= $_cur_string;
 						}
 					} else {
@@ -967,7 +967,7 @@ class csstidy { // phpcs:ignore
 
 				/* Case in-comment */
 				case 'ic':
-					if ( $string[ $i ] === '*' && $string[ $i + 1 ] === '/' ) {
+					if ( '*' === $string[ $i ] && '/' === $string[ $i + 1 ] ) {
 						$this->status = array_pop( $this->from );
 						$i++;
 						$this->_add_token( COMMENT, $cur_comment );
@@ -983,7 +983,8 @@ class csstidy { // phpcs:ignore
 
 		$this->print->_reset();
 
-		@setlocale( LC_ALL, $old ); // Set locale back to original setting
+		// phpcs:ignore WordPress.PHP.NoSilencedErrors.Discouraged
+		@setlocale( LC_ALL, $old ); // Set locale back to original setting.
 
 		return ! ( empty( $this->css ) && empty( $this->import ) && empty( $this->charset ) && empty( $this->tokens ) && empty( $this->namespace ) );
 	}
@@ -994,15 +995,15 @@ class csstidy { // phpcs:ignore
 	 * @access private
 	 * @version 1.0
 	 */
-	function explode_selectors() {
-		// Explode multiple selectors
+	public function explode_selectors() {
+		// Explode multiple selectors.
 		if ( $this->get_cfg( 'merge_selectors' ) === 1 ) {
 			$new_sels             = array();
 			$lastpos              = 0;
 			$this->sel_separate[] = strlen( $this->selector );
 			foreach ( $this->sel_separate as $num => $pos ) {
-				if ( $num == count( $this->sel_separate ) - 1 ) {
-					$pos += 1;
+				if ( count( $this->sel_separate ) - 1 == $num ) { // phpcs:ignore Universal.Operators.StrictComparisons.LooseEqual
+					$pos += 1; // phpcs:ignore Squiz.Operators.IncrementDecrementUsage.Found
 				}
 
 				$new_sels[] = substr( $this->selector, $lastpos, $pos - $lastpos - 1 );
@@ -1024,28 +1025,28 @@ class csstidy { // phpcs:ignore
 	/**
 	 * Checks if a character is escaped (and returns true if it is)
 	 *
-	 * @param string  $string
-	 * @param integer $pos
+	 * @param string  $string - the string.
+	 * @param integer $pos - the position.
 	 * @access public
 	 * @return bool
 	 * @version 1.02
 	 */
-	static function escaped( &$string, $pos ) {
-		return ! ( @( $string[ $pos - 1 ] !== '\\' ) || self::escaped( $string, $pos - 1 ) );
+	public static function escaped( &$string, $pos ) {
+		return ! ( @( '\\' !== $string[ $pos - 1 ] ) || self::escaped( $string, $pos - 1 ) ); // phpcs:ignore WordPress.PHP.NoSilencedErrors.Discouraged
 	}
 
 	/**
 	 * Adds a property with value to the existing CSS code
 	 *
-	 * @param string $media
-	 * @param string $selector
-	 * @param string $property
-	 * @param string $new_val
+	 * @param string $media - the media.
+	 * @param string $selector - the selector.
+	 * @param string $property - the property.
+	 * @param string $new_val - new value.
 	 * @access private
 	 * @version 1.2
 	 */
-	function css_add_property( $media, $selector, $property, $new_val ) {
-		if ( $this->get_cfg( 'preserve_css' ) || trim( $new_val ) == '' ) {
+	public function css_add_property( $media, $selector, $property, $new_val ) {
+		if ( $this->get_cfg( 'preserve_css' ) || '' == trim( $new_val ) ) { // phpcs:ignore Universal.Operators.StrictComparisons.LooseEqual
 			return;
 		}
 
@@ -1065,22 +1066,21 @@ class csstidy { // phpcs:ignore
 	 * else rename it with extra spaces
 	 * to avoid merging
 	 *
-	 * @param string $media
+	 * @param string $media - the media.
 	 * @return string
 	 */
-	function css_new_media_section( $media ) {
+	public function css_new_media_section( $media ) {
 		if ( $this->get_cfg( 'preserve_css' ) ) {
 			return $media;
 		}
 
-		// if the last @media is the same as this
-		// keep it
-		if ( ! $this->css or ! is_array( $this->css ) or empty( $this->css ) ) {
+		// if the last @media is the same as this keep it.
+		if ( ! $this->css || ! is_array( $this->css ) || empty( $this->css ) ) {
 			return $media;
 		}
 		end( $this->css );
 		$at = current( $this->css );
-		if ( $at == $media ) {
+		if ( $at === $media ) {
 			return $media;
 		}
 		while ( isset( $this->css[ $media ] ) ) {
@@ -1100,30 +1100,30 @@ class csstidy { // phpcs:ignore
 	 * except if merging is required,
 	 * or last selector is the same (merge siblings)
 	 *
-	 * never merge @font-face
+	 * Never merge @font-face
 	 *
-	 * @param string $media
-	 * @param string $selector
+	 * @param string $media - the media.
+	 * @param string $selector - the selector.
 	 * @return string
 	 */
-	function css_new_selector( $media, $selector ) {
+	public function css_new_selector( $media, $selector ) {
 		if ( $this->get_cfg( 'preserve_css' ) ) {
 			return $selector;
 		}
 		$selector = trim( $selector );
-		if ( strncmp( $selector, '@font-face', 10 ) != 0 ) {
-			if ( $this->settings['merge_selectors'] != false ) {
+		if ( strncmp( $selector, '@font-face', 10 ) != 0 ) { // phpcs:ignore Universal.Operators.StrictComparisons.LooseNotEqual
+			if ( false != $this->settings['merge_selectors'] ) { // phpcs:ignore Universal.Operators.StrictComparisons.LooseNotEqual
 				return $selector;
 			}
 
-			if ( ! $this->css or ! isset( $this->css[ $media ] ) or ! $this->css[ $media ] ) {
+			if ( ! $this->css || ! isset( $this->css[ $media ] ) || ! $this->css[ $media ] ) {
 				return $selector;
 			}
 
-			// if last is the same, keep it
+			// if last is the same, keep it.
 			end( $this->css[ $media ] );
 			$sel = current( $this->css[ $media ] );
-			if ( $sel == $selector ) {
+			if ( $sel === $selector ) {
 				return $selector;
 			}
 		}
@@ -1139,16 +1139,16 @@ class csstidy { // phpcs:ignore
 	 * If already references in this selector,
 	 * rename it with extra space to avoid override
 	 *
-	 * @param string $media
-	 * @param string $selector
-	 * @param string $property
+	 * @param string $media - the media.
+	 * @param string $selector - the selector.
+	 * @param string $property - the property.
 	 * @return string
 	 */
-	function css_new_property( $media, $selector, $property ) {
+	public function css_new_property( $media, $selector, $property ) {
 		if ( $this->get_cfg( 'preserve_css' ) ) {
 			return $property;
 		}
-		if ( ! $this->css or ! isset( $this->css[ $media ][ $selector ] ) or ! $this->css[ $media ][ $selector ] ) {
+		if ( ! $this->css || ! isset( $this->css[ $media ][ $selector ] ) || ! $this->css[ $media ][ $selector ] ) {
 			return $property;
 		}
 
@@ -1162,13 +1162,13 @@ class csstidy { // phpcs:ignore
 	/**
 	 * Adds CSS to an existing media/selector
 	 *
-	 * @param string $media
-	 * @param string $selector
-	 * @param array  $css_add
+	 * @param string $media - the media.
+	 * @param string $selector - the selector.
+	 * @param array  $css_add - css being added.
 	 * @access private
 	 * @version 1.1
 	 */
-	function merge_css_blocks( $media, $selector, $css_add ) {
+	public function merge_css_blocks( $media, $selector, $css_add ) {
 		foreach ( $css_add as $property => $value ) {
 			$this->css_add_property( $media, $selector, $property, $value, false );
 		}
@@ -1177,24 +1177,24 @@ class csstidy { // phpcs:ignore
 	/**
 	 * Checks if $value is !important.
 	 *
-	 * @param string $value
+	 * @param string $value - the value.
 	 * @return bool
 	 * @access public
 	 * @version 1.0
 	 */
-	static function is_important( &$value ) {
+	public static function is_important( &$value ) {
 		return ( ! strcasecmp( substr( str_replace( $GLOBALS['csstidy']['whitespace'], '', $value ), -10, 10 ), '!important' ) );
 	}
 
 	/**
 	 * Returns a value without !important
 	 *
-	 * @param string $value
+	 * @param string $value - the value.
 	 * @return string
 	 * @access public
 	 * @version 1.0
 	 */
-	static function gvw_important( $value ) {
+	public static function gvw_important( $value ) {
 		if ( self::is_important( $value ) ) {
 			$value = trim( $value );
 			$value = substr( $value, 0, -9 );
@@ -1209,17 +1209,17 @@ class csstidy { // phpcs:ignore
 	/**
 	 * Checks if the next word in a string from pos is a CSS property
 	 *
-	 * @param string  $istring
-	 * @param integer $pos
+	 * @param string  $istring - if it's a string.
+	 * @param integer $pos - position.
 	 * @return bool
 	 * @access private
 	 * @version 1.2
 	 */
-	function property_is_next( $istring, $pos ) {
+	public function property_is_next( $istring, $pos ) {
 		$all_properties = & $GLOBALS['csstidy']['all_properties'];
 		$istring        = substr( $istring, $pos, strlen( $istring ) - $pos );
 		$pos            = strpos( $istring, ':' );
-		if ( $pos === false ) {
+		if ( false === $pos ) {
 			return false;
 		}
 		$istring = strtolower( trim( substr( $istring, 0, $pos ) ) );
@@ -1233,14 +1233,14 @@ class csstidy { // phpcs:ignore
 	/**
 	 * Checks if a property is valid
 	 *
-	 * @param string $property
+	 * @param string $property - the property.
 	 * @return bool;
 	 * @access public
 	 * @version 1.0
 	 */
-	function property_is_valid( $property ) {
+	public function property_is_valid( $property ) {
 		$property = strtolower( $property );
-		if ( in_array( trim( $property ), $GLOBALS['csstidy']['multiple_properties'] ) ) {
+		if ( in_array( trim( $property ), $GLOBALS['csstidy']['multiple_properties'], true ) ) {
 			$property = trim( $property );
 		}
 		$all_properties = & $GLOBALS['csstidy']['all_properties'];
@@ -1251,21 +1251,20 @@ class csstidy { // phpcs:ignore
 	 * Accepts a list of strings (e.g., the argument to format() in a @font-face src property)
 	 * and returns a list of the strings.  Converts things like:
 	 *
-	 * format(abc) => format("abc")
+	 * Format(abc) => format("abc")
 	 * format(abc def) => format("abc","def")
 	 * format(abc "def") => format("abc","def")
 	 * format(abc, def, ghi) => format("abc","def","ghi")
 	 * format("abc",'def') => format("abc","def")
 	 * format("abc, def, ghi") => format("abc, def, ghi")
 	 *
-	 * @param string
+	 * @param string $value - the value.
 	 * @return array
 	 */
-
-	function parse_string_list( $value ) {
+	public function parse_string_list( $value ) {
 		$value = trim( $value );
 
-		// Case: empty
+		// Case: if it's empty.
 		if ( ! $value ) {
 			return array();
 		}
@@ -1276,11 +1275,11 @@ class csstidy { // phpcs:ignore
 		$current_string = '';
 
 		for ( $i = 0, $_len = strlen( $value ); $i < $_len; $i++ ) {
-			if ( ( $value[ $i ] == ',' || $value[ $i ] === ' ' ) && $in_str === true ) {
+			if ( ( ',' === $value[ $i ] || ' ' === $value[ $i ] ) && true === $in_str ) {
 				$in_str         = false;
 				$strings[]      = $current_string;
 				$current_string = '';
-			} elseif ( $value[ $i ] == '"' || $value[ $i ] == "'" ) {
+			} elseif ( '"' === $value[ $i ] || "'" === $value[ $i ] ) {
 				if ( $in_str === $value[ $i ] ) {
 					$strings[]      = $current_string;
 					$in_str         = false;
