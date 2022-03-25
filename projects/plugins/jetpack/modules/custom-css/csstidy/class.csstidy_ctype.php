@@ -1,4 +1,4 @@
-<?php
+<?php // phpcs:ignore WordPress.Files.FileName.InvalidClassFileName
 
 /**
  * CSSTidy - CSS Parser and Optimiser
@@ -27,20 +27,27 @@
  * @author Nikolay Matsievsky (speed at webo dot name) 2009-2010
  * @version 1.0
  */
-/* ctype_space  Check for whitespace character(s) */
-if (!function_exists('ctype_space')) {
+if ( ! function_exists( 'ctype_space' ) ) {
 
-	function ctype_space($text) {
-		return!preg_match("/[^\s\r\n\t\f]/", $text);
+	/**
+	 * Check for whitespace character(s).
+	 *
+	 * @param string $text - the text.
+	 */
+	function ctype_space( $text ) {
+		return ! preg_match( "/[^\s\r\n\t\f]/", $text );
 	}
-
 }
-/* ctype_alpha  Check for alphabetic character(s) */
-if (!function_exists('ctype_alpha')) {
 
-	function ctype_alpha($text) {
-		return preg_match("/[a-zA-Z]/", $text);
+if ( ! function_exists( 'ctype_alpha' ) ) {
+
+	/**
+	 * Check for alphabetic character(s)
+	 *
+	 * @param string $text - the text.
+	 */
+	function ctype_alpha( $text ) {
+		return preg_match( '/[a-zA-Z]/', $text );
 	}
-
 }
-?>
+
