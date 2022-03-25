@@ -1,3 +1,6 @@
+/**
+ * @type {import("eslint").Linter.Config}
+ */
 module.exports = {
 	extends: [ '../../../tools/js-tools/eslintrc/react.js' ],
 	parserOptions: {

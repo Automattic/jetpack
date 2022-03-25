@@ -1,5 +1,8 @@
 // Additional eslint config for react-using projects.
 
+/**
+ * @type {import("eslint").Linter.Config}
+ */
 module.exports = {
 	extends: [
 		'wpcalypso/react',
