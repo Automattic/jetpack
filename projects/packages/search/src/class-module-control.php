@@ -126,7 +126,7 @@ class Module_Control {
 		 */
 		do_action( 'jetpack_pre_deactivate_module', self::JETPACK_SEARCH_MODULE_SLUG );
 
-		$active_modules = $this->get_active_modules();
+		$active_modules = ( new Modules() )->get_active();
 		$active_modules = array_values( array_diff( $active_modules, array( self::JETPACK_SEARCH_MODULE_SLUG ) ) );
 
 		$success = Jetpack_Options::update_option( self::JETPACK_ACTIVE_MODULES_OPTION_KEY, $active_modules );
