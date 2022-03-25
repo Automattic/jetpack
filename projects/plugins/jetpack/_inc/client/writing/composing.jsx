@@ -42,9 +42,16 @@ export class Composing extends React.Component {
 		const foundCopyPost = this.props.isModuleFound( 'copy-post' ),
 			foundLatex = this.props.isModuleFound( 'latex' ),
 			foundMarkdown = this.props.isModuleFound( 'markdown' ),
-			foundShortcodes = this.props.isModuleFound( 'shortcodes' );
+			foundShortcodes = this.props.isModuleFound( 'shortcodes' ),
+			foundBlocks = this.props.isModuleFound( 'blocks' );
 
-		if ( ! foundCopyPost && ! foundLatex && ! foundMarkdown && ! foundShortcodes ) {
+		if (
+			! foundCopyPost &&
+			! foundLatex &&
+			! foundMarkdown &&
+			! foundShortcodes &&
+			! foundBlocks
+		) {
 			return null;
 		}
 
@@ -195,6 +202,7 @@ export class Composing extends React.Component {
 				{ foundShortcodes && shortcodeSettings }
 				{ ! this.props.isFetchingPluginsData &&
 					! this.props.isPluginActive( 'classic-editor/classic-editor.php' ) &&
+					foundBlocks &&
 					blocks }
 			</SettingsCard>
 		);
