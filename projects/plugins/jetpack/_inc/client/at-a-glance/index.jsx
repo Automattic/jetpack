@@ -21,6 +21,7 @@ import DashMonitor from './monitor';
 import DashScan from './scan';
 import DashAkismet from './akismet';
 import DashBackups from './backups';
+import DashBlocks from './blocks';
 import DashPhoton from './photon';
 import DashSearch from './search';
 import DashSecurityBundle from './security-bundle';
@@ -157,6 +158,9 @@ class AtAGlance extends Component {
 					<DashCRM siteAdminUrl={ this.props.siteAdminUrl } />
 				);
 			}
+
+			// Add Blocks card.
+			performanceCards.push( <DashBlocks /> );
 
 			const redeemPartnerCoupon = ! this.props.isOfflineMode && this.props.partnerCoupon && (
 				<PartnerCouponRedeem
