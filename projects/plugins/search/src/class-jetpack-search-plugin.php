@@ -18,14 +18,6 @@ use Automattic\Jetpack\My_Jetpack\Initializer as My_Jetpack_Initializer;
  */
 class Jetpack_Search_Plugin {
 	/**
-	 * List of Constants to sync
-	 *
-	 * @var array
-	 */
-	protected static $constants_to_sync = array(
-		'JETPACK_SEARCH_PLUGIN__VERSION',
-	);
-	/**
 	 * Register hooks to initialize the plugin
 	 */
 	public static function bootstrap() {
@@ -63,21 +55,5 @@ class Jetpack_Search_Plugin {
 		Connection_Rest_Authentication::init();
 		// Ininitialize My Jetpack.
 		My_Jetpack_Initializer::init();
-		// Merge a list of constant we want to sync to shadow DB.
-		add_filter( 'jetpack_sync_constants_whitelist', array( self::class, 'sync_constants' ) );
-	}
-
-	/**
-	 * Merge a list of constant we want to sync to shadow DB.
-	 *
-	 * @param array $constants_whitelist Array of constant names.
-	 *
-	 * @return array
-	 */
-	public static function sync_constants( $constants_whitelist ) {
-		if ( is_array( $constants_whitelist ) ) {
-			return array_merge( $constants_whitelist, self::$constants_to_sync );
-		}
-		return $constants_whitelist;
 	}
 }
