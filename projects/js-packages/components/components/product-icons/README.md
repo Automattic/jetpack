@@ -16,7 +16,7 @@ Available slugs are:
 * star
 * videopress
 
-```js
+```es6
 import {
 	getIconByslug
 } from '@automattic/jetpack-components';
@@ -41,7 +41,7 @@ return (
 * StarIcon
 * VideopressIcon
 
-```js
+```es6
 import {
 	AntiSpamIcon,
 	BackupIcon,
@@ -53,7 +53,6 @@ import {
 	StarIcon,
 	VideoPressIcon
 } from '@automattic/jetpack-components';
-
 
 return (
 	<div>
@@ -68,5 +67,4 @@ return (
 		<VideoPressIcon />
 	</div>
 )
-
 ```
