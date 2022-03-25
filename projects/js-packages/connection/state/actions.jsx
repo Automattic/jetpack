@@ -54,10 +54,6 @@ const fetchAuthorizationUrl = redirectUri => {
 	return { type: FETCH_AUTHORIZATION_URL, redirectUri };
 };
 
-const fetchConnectedPlugins = () => {
-	return { type: FETCH_CONNECTED_PLUGINS };
-};
-
 const setConnectedPlugins = connectedPlugins => {
 	return { type: SET_CONNECTED_PLUGINS, connectedPlugins };
 };
@@ -141,7 +137,6 @@ const actions = {
 	setAuthorizationUrl,
 	registerSite,
 	connectUser,
-	fetchConnectedPlugins,
 	setConnectedPlugins,
 	refreshConnectedPlugins,
 };
@@ -158,7 +153,6 @@ export {
 	REGISTER_SITE,
 	SET_AUTHORIZATION_URL,
 	CONNECT_USER,
-	FETCH_CONNECTED_PLUGINS,
 	SET_CONNECTED_PLUGINS,
 	REFRESH_CONNECTED_PLUGINS,
 	actions as default,
