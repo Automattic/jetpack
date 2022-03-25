@@ -1,0 +1,4 @@
+Significance: minor
+Type: compat
+
+Added support for the `muted`, `controls` and `playsinline` properties on the wpvideo and videopress shortcodes.
