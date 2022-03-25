@@ -1,4 +1,0 @@
-Significance: patch
-Type: fixed
-
-Deactivation: Do not attempt to redirect on a behind-the-scene deactivation.
