@@ -30,7 +30,6 @@ const ProductSuggestionComponent = props => {
 	return (
 		<ProductCardUpsell
 			{ ...product }
-			product_slug={ product.slug }
 			price={ product.cost }
 			upgradeUrl={ generateCheckoutLink( product.slug, siteAdminUrl, siteRawUrl ) }
 			isRecommended={ product.slug === recommendedProductSlug }

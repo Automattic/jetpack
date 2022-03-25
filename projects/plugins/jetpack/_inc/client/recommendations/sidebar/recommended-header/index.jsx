@@ -8,7 +8,7 @@ import React from 'react';
 /**
  * Internal dependencies
  */
-import { imagePath } from 'constants/urls';
+import Gridicon from 'components/gridicon';
 
 /**
  * Style dependencies
@@ -17,7 +17,7 @@ import './style.scss';
 
 const RecommendedHeader = ( { className } ) => (
 	<div className={ classNames( 'jp-recommendations-recommended-header', className ) }>
-		<img src={ imagePath + '/star.svg' } alt="" />
+		<Gridicon size="18" icon="star" />
 		{ __( 'Recommended premium product', 'jetpack' ) }
 	</div>
 );

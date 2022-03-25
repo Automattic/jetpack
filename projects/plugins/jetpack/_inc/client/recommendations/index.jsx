@@ -21,6 +21,7 @@ import QueryRecommendationsUpsell from 'components/data/query-recommendations-up
 import QueryRewindStatus from 'components/data/query-rewind-status';
 import QuerySite from 'components/data/query-site';
 import QuerySitePlugins from 'components/data/query-site-plugins';
+import QuerySiteDiscount from 'components/data/query-site-discount';
 import { getStep, isRecommendationsDataLoaded } from 'state/recommendations';
 import { JetpackLoadingIcon } from 'components/jetpack-loading-icon';
 import { RECOMMENDATION_WIZARD_STEP } from './constants';
@@ -70,6 +71,7 @@ const RecommendationsComponent = props => {
 			<QueryRewindStatus />
 			<QuerySite />
 			<QuerySitePlugins />
+			<QuerySiteDiscount />
 			{ isLoading ? (
 				<div className="jp-recommendations__loading">
 					<JetpackLoadingIcon altText={ __( 'Loading recommendations', 'jetpack' ) } />

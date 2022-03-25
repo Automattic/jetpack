@@ -1,55 +1,65 @@
 /**
  * External dependencies
  */
+import classNames from 'classnames';
 import PropTypes from 'prop-types';
-import React, { useCallback, useEffect } from 'react';
-import { __, sprintf } from '@wordpress/i18n';
+import React, { useEffect } from 'react';
+import { connect } from 'react-redux';
 import { getCurrencyObject } from '@automattic/format-currency';
+import { __, sprintf } from '@wordpress/i18n';
 
 /**
  * Internal dependencies
  */
 import Button from 'components/button';
-import analytics from 'lib/analytics';
+import { isFetchingSiteDiscount, getSiteDiscount } from 'state/site/reducer';
+import DiscountBadge from '../discount-badge';
 import RecommendedHeader from '../sidebar/recommended-header';
 
 /**
  * Style dependencies
  */
 import './style.scss';
-import classNames from 'classnames';
 
-const ProductCardUpsell = ( {
+const Price = ( { className, integer, fraction, symbol } ) => (
+	<div className={ className }>
+		<sup className="jp-recommendations-product-card-upsell__currency-symbol">{ symbol }</sup>
+		<span className="jp-recommendations-product-card-upsell__price-integer">{ integer }</span>
+		<sup className="jp-recommendations-product-card-upsell__price-fraction">{ fraction }</sup>
+	</div>
+);
+
+const ProductCardUpsellComponent = ( {
+	title,
+	description,
 	billing_timeframe,
 	cost_timeframe,
 	currency_code,
-	description,
-	features,
+	upgradeUrl,
 	price,
 	isRecommended,
-	product_slug,
-	title,
-	upgradeUrl,
+	features,
 	onClick,
+	onMount,
+	isLoadingDiscount,
+	discountData,
 } ) => {
-	useEffect( () => {
-		analytics.tracks.recordEvent( 'jetpack_recommendations_summary_sidebar_display', {
-			type: 'upsell_with_price',
-			product_slug,
-		} );
-	}, [ product_slug ] );
+	const { discount } = discountData || {};
+	const rawPrice = ( price * 12 ) / 0.4 / 12; // TODO: get from API
+	const finalPrice = discount ? price * ( 1 - discount / 100 ) : price;
+	const totalDiscount = ( ( rawPrice - finalPrice ) / rawPrice ) * 100;
+	const rawCurrencyObject = getCurrencyObject( rawPrice, currency_code );
+	const currencyObject = getCurrencyObject( finalPrice, currency_code );
 
-	const onUpsellClick = useCallback( () => {
-		analytics.tracks.recordEvent( 'jetpack_recommendations_summary_sidebar_click', {
-			type: 'upsell_with_price',
-			product_slug,
-		} );
-	}, [ product_slug ] );
-
-	const currencyObject = getCurrencyObject( price, currency_code );
 	const header = isRecommended && (
 		<RecommendedHeader className="jp-recommendations-product-card-upsell__header" />
 	);
+
+	useEffect( () => {
+		if ( onMount ) {
+			onMount();
+		}
+	}, [ onMount ] );
 
 	return (
 		<div
@@ -65,48 +75,69 @@ const ProductCardUpsell = ( {
 					<li key={ feature }>{ feature }</li>
 				) ) }
 			</ul>
-			<div className="jp-recommendations-product-card-upsell__price">
-				<div className="jp-recommendations-product-card-upsell__raw-price">
-					<h2>
-						<sup className="jp-recommendations-product-card-upsell__currency-symbol">
-							{ currencyObject.symbol }
-						</sup>
-						<span className="jp-recommendations-product-card-upsell__price-integer">
-							{ currencyObject.integer }
-						</span>
-						<sup className="jp-recommendations-product-card-upsell__price-fraction">
-							{ currencyObject.fraction }
-						</sup>
-					</h2>
-				</div>
-				<div className="jp-recommendations-product-card-upsell__billing-time-frame">
-					{ `${ cost_timeframe }, ${ billing_timeframe }` }
-				</div>
-			</div>
+			{ ! isLoadingDiscount && (
+				<>
+					<div className="jp-recommendations-product-card-upsell__price-container">
+						<div className="jp-recommendations-product-card-upsell__price">
+							{ discount && (
+								<Price
+									className="jp-recommendations-product-card-upsell__raw-price"
+									{ ...rawCurrencyObject }
+								/>
+							) }
+							<Price
+								className="jp-recommendations-product-card-upsell__final-price"
+								{ ...currencyObject }
+							/>
+							{ discount && (
+								<DiscountBadge
+									className="jp-recommendations-product-card-upsell__discount"
+									discount={ totalDiscount }
+									suffix="*"
+								/>
+							) }
+						</div>
+						<div className="jp-recommendations-product-card-upsell__billing-time-frame">
+							{ `${ cost_timeframe }, ${ billing_timeframe }` }
+						</div>
+					</div>
+				</>
+			) }
 			<Button
 				className="jp-recommendations-product-card-upsell__cta-button"
 				primary={ ! isRecommended }
 				rna
 				href={ upgradeUrl }
-				onClick={ onClick || onUpsellClick }
+				onClick={ onClick }
 				target="_blank"
 				rel="noopener noreferrer"
 			>
 				{
 					/* translators: %s: Jetpack product name. */
-					sprintf( __( 'Continue with %s', 'jetpack' ), title )
+					sprintf( __( 'Get %s', 'jetpack' ), title )
 				}
 			</Button>
 		</div>
 	);
 };
 
-ProductCardUpsell.propTypes = {
+ProductCardUpsellComponent.propTypes = {
 	title: PropTypes.string.isRequired,
 	description: PropTypes.string.isRequired,
+	billing_timeframe: PropTypes.string.isRequired,
+	cost_timeframe: PropTypes.string.isRequired,
+	currency_code: PropTypes.string.isRequired,
 	upgradeUrl: PropTypes.string.isRequired,
-	features: PropTypes.arrayOf( PropTypes.string ),
+	features: PropTypes.arrayOf( PropTypes.string ).isRequired,
+	price: PropTypes.number.isRequired,
+	isRecommended: PropTypes.bool,
 	onClick: PropTypes.func,
+	onMount: PropTypes.func,
 };
+
+const ProductCardUpsell = connect( state => ( {
+	isLoadingDiscount: isFetchingSiteDiscount( state ),
+	discountData: getSiteDiscount( state ),
+} ) )( ProductCardUpsellComponent );
 
 export { ProductCardUpsell };
