@@ -114,7 +114,7 @@ function requestAndUpdateConnectedPlugins( { dispatch } ) {
 	return new Promise( resolve => {
 		// Fetch.
 		return restApi.fetchConnectedPlugins().then( data => {
-			dispatch( setAuthorizationUrl( data ) );
+			dispatch( setConnectedPlugins( data ) );
 			resolve( data );
 		} );
 	} );
