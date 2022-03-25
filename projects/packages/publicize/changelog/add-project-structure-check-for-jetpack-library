@@ -1,0 +1,4 @@
+Significance: patch
+Type: added
+
+Set composer package type to "jetpack-library" so i18n will work.
