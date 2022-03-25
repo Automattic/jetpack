@@ -1829,7 +1829,7 @@
             "dist": {
                 "type": "path",
                 "url": "../../packages/waf",
-                "reference": "197c7b0f14c78ac0a4a1ae1f96e52173e010a72a"
+                "reference": "8a7b20f20a0927d28f1f3baeda050f6c4e779ccb"
             },
             "require": {
                 "wikimedia/aho-corasick": "^1.0"
@@ -1838,7 +1838,7 @@
                 "automattic/jetpack-changelogger": "^3.0",
                 "yoast/phpunit-polyfills": "1.0.3"
             },
-            "type": "library",
+            "type": "jetpack-library",
             "extra": {
                 "autotagger": true,
                 "mirror-repo": "Automattic/jetpack-waf",

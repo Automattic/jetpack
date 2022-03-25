@@ -1,7 +1,7 @@
 {
 	"name": "automattic/jetpack-waf",
 	"description": "Tools to assist with the Jetpack Web Application Firewall",
-	"type": "library",
+	"type": "jetpack-library",
 	"license": "GPL-2.0-or-later",
 	"require": {
 		"wikimedia/aho-corasick": "^1.0"

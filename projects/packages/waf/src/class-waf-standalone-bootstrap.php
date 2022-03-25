@@ -7,6 +7,7 @@
 
 namespace Automattic\Jetpack\Waf;
 
+use Composer\InstalledVersions;
 use Exception;
 
 /**
@@ -56,6 +57,50 @@ class WafStandaloneBootstrap {
 	}
 
 	/**
+	 * Finds the path to the autoloader, which can then be used to require the autoloader in the generated boostrap file.
+	 *
+	 * @return string|null
+	 * @throws Exception In case the autoloader file can not be found.
+	 */
+	private function locate_autoloader_file() {
+		global $jetpack_autoloader_loader;
+
+		$autoload_file = null;
+
+		// Try the Jetpack autoloader.
+		if ( isset( $jetpack_autoloader_loader ) ) {
+			$class_file = $jetpack_autoloader_loader->find_class_file( WafRunner::class );
+			if ( $class_file ) {
+				$autoload_file = dirname( dirname( dirname( dirname( dirname( $class_file ) ) ) ) ) . '/vendor/autoload.php';
+			}
+		}
+
+		// Try Composer's autoloader.
+		if ( null === $autoload_file
+			&& is_callable( array( InstalledVersions::class, 'getInstallPath' ) )
+			&& InstalledVersions::isInstalled( 'automattic/jetpack-waf' )
+		) {
+			$package_file  = InstalledVersions::getInstallPath( 'automattic/jetpack-waf' );
+			$autoload_file = dirname( dirname( dirname( realpath( $package_file ) ) ) ) . '/vendor/autoload.php';
+		}
+
+		// Guess. First look for being in a `vendor/automattic/jetpack-waf/src/', then see if we're standalone with our own vendor dir.
+		if ( null === $autoload_file ) {
+			$autoload_file = dirname( dirname( dirname( dirname( __DIR__ ) ) ) ) . '/vendor/autoload.php';
+			if ( ! file_exists( $autoload_file ) ) {
+				$autoload_file = dirname( __DIR__ ) . '/vendor/autoload.php';
+			}
+		}
+
+		// Check that the determined file actually exists.
+		if ( ! file_exists( $autoload_file ) ) {
+			throw new Exception( 'Can not find autoloader, and the WAF standalone boostrap will not work without it.' );
+		}
+
+		return $autoload_file;
+	}
+
+	/**
 	 * Generates the bootstrap file.
 	 *
 	 * @return string Absolute path to the bootstrap file.
@@ -77,7 +122,7 @@ class WafStandaloneBootstrap {
 		$code = "<?php\n"
 			. sprintf( "define( 'JETPACK_WAF_MODE', %s );\n", var_export( $mode_option ? $mode_option : 'silent', true ) )
 			. sprintf( "define( 'JETPACK_WAF_DIR', %s );\n", var_export( JETPACK_WAF_DIR, true ) )
-			. 'require_once ' . var_export( trailingslashit( WP_CONTENT_DIR ) . 'plugins/jetpack/vendor/autoload.php', true ) . ";\n"
+			. 'require_once ' . var_export( $this->locate_autoloader_file(), true ) . ";\n"
 			. 'include ' . var_export( dirname( __DIR__ ) . '/run.php', true ) . ";\n";
 		// phpcs:enable
 
