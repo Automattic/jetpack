@@ -904,6 +904,7 @@ importers:
       '@tsconfig/svelte': 2.0.1
       '@wordpress/e2e-test-utils': 6.0.2
       '@wordpress/i18n': 4.3.1
+      eslint-plugin-import: 2.25.4
       eslint-plugin-svelte3: 3.2.1
       jetpack-boost-critical-css-gen: github:automattic/jetpack-boost-critical-css-gen#release-0.0.4
       node-wp-i18n: 1.2.6
@@ -927,10 +928,11 @@ importers:
       '@rollup/plugin-commonjs': 19.0.2_rollup@2.56.3
       '@rollup/plugin-node-resolve': 13.0.6_rollup@2.56.3
       '@rollup/plugin-typescript': 8.2.5_fb60d1099d0f1062e1f455c5bc85cce0
-      '@sveltejs/eslint-config': github.com/sveltejs/eslint-config/8a67624e4080bd7997606eb34981aa3346bc8de2_761f901dbddc18bf005b6ed6dfed240f
+      '@sveltejs/eslint-config': github.com/sveltejs/eslint-config/8a67624e4080bd7997606eb34981aa3346bc8de2_cb8384c5cf2994fc1dc8e53430d6f98d
       '@tsconfig/svelte': 2.0.1
       '@wordpress/e2e-test-utils': 6.0.2
       '@wordpress/i18n': 4.3.1
+      eslint-plugin-import: 2.25.4
       eslint-plugin-svelte3: 3.2.1_svelte@3.42.4
       node-wp-i18n: 1.2.6
       npm-run-all: 4.1.5
@@ -1609,7 +1611,6 @@ importers:
       eslint-config-wpcalypso: 6.1.0
       eslint-plugin-es: 4.1.0
       eslint-plugin-es5: 1.5.0
-      eslint-plugin-import: 2.25.4
       eslint-plugin-inclusive-language: 2.2.0
       eslint-plugin-jest: 26.0.0
       eslint-plugin-jsdoc: 37.7.0
@@ -1641,7 +1642,7 @@ importers:
       '@rushstack/eslint-patch': 1.1.1
       '@typescript-eslint/eslint-plugin': 5.16.0_64b579c655ba1f8c39afc110229f83ae
       '@typescript-eslint/parser': 5.16.0_eslint@8.8.0+typescript@4.3.5
-      '@wordpress/eslint-plugin': 10.0.2_eb4905e3b31fdb83b15cc58eec4b0dd2
+      '@wordpress/eslint-plugin': 10.0.2_276889e51cbd8b9445787e62fc9f1f7f
       chalk: 4.1.2
       debug: 4.3.3
       eslint: 8.8.0
@@ -1649,7 +1650,6 @@ importers:
       eslint-config-wpcalypso: 6.1.0_11dfa443dfb9bfd86a5486c959f4047a
       eslint-plugin-es: 4.1.0_eslint@8.8.0
       eslint-plugin-es5: 1.5.0_eslint@8.8.0
-      eslint-plugin-import: 2.25.4_eslint@8.8.0
       eslint-plugin-inclusive-language: 2.2.0
       eslint-plugin-jest: 26.0.0_3af42c85f66c3dfc4779ef230e2ba99e
       eslint-plugin-jsdoc: 37.7.0_eslint@8.8.0
@@ -8359,7 +8359,7 @@ packages:
     dependencies:
       '@babel/runtime': 7.17.8
 
-  /@wordpress/eslint-plugin/10.0.2_eb4905e3b31fdb83b15cc58eec4b0dd2:
+  /@wordpress/eslint-plugin/10.0.2_276889e51cbd8b9445787e62fc9f1f7f:
     resolution: {integrity: sha512-KL9bjxEXw46aMAC0UFkHXdQHy5ZrRQSSfOinv9rElM/k2SUS9piRnGC6vymAtVn+ZsO8HMF8AMy2NSV94Ls/iQ==}
     engines: {node: '>=12', npm: '>=6.9'}
     peerDependencies:
@@ -8389,7 +8389,6 @@ packages:
       cosmiconfig: 7.0.1
       eslint: 8.8.0
       eslint-config-prettier: 8.3.0_eslint@8.8.0
-      eslint-plugin-import: 2.25.4_eslint@8.8.0
       eslint-plugin-jest: 26.0.0_3af42c85f66c3dfc4779ef230e2ba99e
       eslint-plugin-jsdoc: 37.7.0_eslint@8.8.0
       eslint-plugin-jsx-a11y: 6.5.1_eslint@8.8.0
@@ -12509,7 +12508,7 @@ packages:
       eslint: 8.8.0
     dev: true
 
-  /eslint-plugin-import/2.25.4_eslint@8.8.0:
+  /eslint-plugin-import/2.25.4:
     resolution: {integrity: sha512-/KJBASVFxpu0xg1kIBn9AUa8hQVnszpwgE7Ld0lKAlx7Ie87yzEzCgSkekt+le/YVhiaosO4Y14GDAOc41nfxA==}
     engines: {node: '>=4'}
     peerDependencies:
@@ -12522,7 +12521,6 @@ packages:
       array.prototype.flat: 1.2.5
       debug: 2.6.9
       doctrine: 2.1.0
-      eslint: 8.8.0
       eslint-import-resolver-node: 0.3.6
       eslint-module-utils: 2.7.3
       has: 1.0.3
@@ -23459,7 +23457,7 @@ packages:
       - encoding
     dev: false
 
-  github.com/sveltejs/eslint-config/8a67624e4080bd7997606eb34981aa3346bc8de2_761f901dbddc18bf005b6ed6dfed240f:
+  github.com/sveltejs/eslint-config/8a67624e4080bd7997606eb34981aa3346bc8de2_cb8384c5cf2994fc1dc8e53430d6f98d:
     resolution: {tarball: https://codeload.github.com/sveltejs/eslint-config/tar.gz/8a67624e4080bd7997606eb34981aa3346bc8de2}
     id: github.com/sveltejs/eslint-config/8a67624e4080bd7997606eb34981aa3346bc8de2
     name: '@sveltejs/eslint-config'
@@ -23475,6 +23473,7 @@ packages:
       eslint:
         optional: true
     dependencies:
+      eslint-plugin-import: 2.25.4
       eslint-plugin-svelte3: 3.2.1_svelte@3.42.4
       typescript: 4.3.5
     dev: true

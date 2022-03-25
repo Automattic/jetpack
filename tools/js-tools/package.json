@@ -29,7 +29,6 @@
 		"eslint-plugin-es": "4.1.0",
 		"eslint-plugin-es5": "1.5.0",
 		"eslint-plugin-inclusive-language": "2.2.0",
-		"eslint-plugin-import": "2.25.4",
 		"eslint-plugin-jest": "26.0.0",
 		"eslint-plugin-jsdoc": "37.7.0",
 		"eslint-plugin-jsx-a11y": "6.5.1",
