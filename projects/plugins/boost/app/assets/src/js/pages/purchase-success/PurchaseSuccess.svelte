@@ -4,6 +4,7 @@
 	 */
 	import BackButton from '../../elements/BackButton.svelte';
 	import { Button } from '@wordpress/components';
+	import routerHistory from '../../utils/router-history';
 
 	import Logo from '../../svg/jetpack-green.svg';
 	import BoostImage from '../../svg/boost.svg';
@@ -14,15 +15,12 @@
 	import { __ } from '@wordpress/i18n';
 	import ReactComponent from '../../elements/ReactComponent.svelte';
 
-	function onCtaClick() {
-		/* eslint-disable no-console */
-		console.log( 'CTA clicked' );
-	}
+	const { navigate } = routerHistory;
 </script>
 
 <div id="jb-settings" class="jb-settings">
 	<div class="jb-container jb-container--fixed mt-2">
-		<BackButton route="/" />
+		<BackButton />
 		<div class="jb-card">
 			<div class="jb-card__content">
 				<Logo class="my-2" />
@@ -41,7 +39,7 @@
 				<ReactComponent
 					this={Button}
 					label={__( 'Continue', 'jetpack-boost' )}
-					onClick={onCtaClick()}
+					onClick={() => navigate( '/' )}
 					className="jp-action-button--button jb-button--primary"
 					children={__( 'Continue', 'jetpack-boost' )}
 				/>
