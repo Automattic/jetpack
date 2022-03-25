@@ -13,8 +13,8 @@ import { Icon, external } from '@wordpress/icons';
 import CloseLink from '../close-link';
 import useMyJetpackConnection from '../../hooks/use-my-jetpack-connection';
 import wordpressLogo from './wordpress.png';
-import googleLogo from './google.png';
-import appleLogo from './apple.png';
+import googleLogo from './google.svg';
+import appleLogo from './apple.svg';
 import connectImage from './connect.png';
 import styles from './styles.module.scss';
 
@@ -35,7 +35,11 @@ const ConnectionScreenFooter = () => {
 					className={ styles.wordpress }
 					alt={ __( 'Wordpress Logo', 'jetpack-my-jetpack' ) }
 				/>
-				<img src={ googleLogo } alt={ __( 'Google Logo', 'jetpack-my-jetpack' ) } />
+				<img
+					src={ googleLogo }
+					className={ styles.google }
+					alt={ __( 'Google Logo', 'jetpack-my-jetpack' ) }
+				/>
 				<img
 					src={ appleLogo }
 					className={ styles.apple }
