@@ -28,6 +28,7 @@ import {
 	isRecommendationsConditionalLoaded,
 } from 'state/recommendations';
 import { getNewRecommendations } from 'state/initial-state';
+import QuerySiteDiscount from 'components/data/query-site-discount';
 import { JetpackLoadingIcon } from 'components/jetpack-loading-icon';
 import { RECOMMENDATION_WIZARD_STEP } from './constants';
 import { ResourcePrompt } from './prompts/resource-prompt';
@@ -96,6 +97,7 @@ const RecommendationsComponent = props => {
 			<QueryRewindStatus />
 			<QuerySite />
 			<QuerySitePlugins />
+			<QuerySiteDiscount />
 			{ isLoading ? (
 				<div className="jp-recommendations__loading">
 					<JetpackLoadingIcon altText={ __( 'Loading recommendations', 'jetpack' ) } />

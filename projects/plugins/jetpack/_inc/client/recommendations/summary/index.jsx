@@ -4,7 +4,7 @@
 import { __, sprintf } from '@wordpress/i18n';
 import classNames from 'classnames';
 import { isEmpty } from 'lodash';
-import React, { useEffect } from 'react';
+import React, { useEffect, useCallback } from 'react';
 import { connect } from 'react-redux';
 
 /**
@@ -13,6 +13,7 @@ import { connect } from 'react-redux';
 import { FeatureSummary } from '../feature-summary';
 import { JetpackLoadingIcon } from 'components/jetpack-loading-icon';
 import { MoneyBackGuarantee } from 'components/money-back-guarantee';
+import analytics from 'lib/analytics';
 import { OneClickRestores } from '../sidebar/one-click-restores';
 import { Security } from '../sidebar/security';
 import { MobileApp } from '../sidebar/mobile-app';
@@ -55,13 +56,26 @@ const SummaryComponent = props => {
 		updateRecommendationsStep( 'summary' );
 	}, [ updateRecommendationsStep ] );
 
-	const upgradeUrl = upsell.product_slug
-		? generateCheckoutLink( upsell.product_slug, siteAdminUrl, siteRawUrl )
+	const { product_slug: productSlug } = upsell || {};
+	const upgradeUrl = productSlug
+		? generateCheckoutLink( productSlug, siteAdminUrl, siteRawUrl )
 		: null;
 
 	const isNew = stepSlug => {
 		return newRecommendations.includes( stepSlug );
 	};
+	const onUpsellClick = useCallback( () => {
+		analytics.tracks.recordEvent( 'jetpack_recommendations_summary_sidebar_click', {
+			type: 'upsell_with_price',
+			product_slug: productSlug,
+		} );
+	}, [ productSlug ] );
+	const onUpsellMount = useCallback( () => {
+		analytics.tracks.recordEvent( 'jetpack_recommendations_summary_sidebar_display', {
+			type: 'upsell_with_price',
+			product_slug: productSlug,
+		} );
+	}, [ productSlug ] );
 
 	const mainContent = isFetchingMainData ? (
 		<JetpackLoadingIcon altText={ __( 'Loading recommendations', 'jetpack' ) } />
@@ -131,7 +145,13 @@ const SummaryComponent = props => {
 					<ProductCardUpsellNoPrice upgradeUrl={ upgradeUrl } />
 				) : (
 					<>
-						<ProductCardUpsell { ...upsell } isRecommended upgradeUrl={ upgradeUrl } />
+						<ProductCardUpsell
+							{ ...upsell }
+							isRecommended
+							upgradeUrl={ upgradeUrl }
+							onClick={ onUpsellClick }
+							onMount={ onUpsellMount }
+						/>
 						<div className="jp-recommendations-summary__footer">
 							<MoneyBackGuarantee text={ __( '14-day money-back guarantee', 'jetpack' ) } />
 							<div className="jp-recommendations-summary__footnote">
