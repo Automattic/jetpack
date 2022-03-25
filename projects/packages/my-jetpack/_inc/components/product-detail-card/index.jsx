@@ -21,7 +21,8 @@ import {
 	getIconBySlug,
 	AntiSpamIcon,
 	CheckmarkIcon,
-} from '../icons';
+} from '@automattic/jetpack-components';
+
 import ProductDetailButton from '../product-detail-button';
 
 /**
