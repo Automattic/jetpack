@@ -195,6 +195,13 @@ for PROJECT in projects/*/*; do
 		check_composer_no_dev_deps "Project $SLUG" "$PROJECT/composer.json" require-dev true
 	fi
 
+	# - Packages setting textdomain must have type set to "jetpack-library".
+	if [[ "$TYPE" == "packages" ]] && jq -e '.extra["textdomain"] and .type != "jetpack-library"' "$PROJECT/composer.json" >/dev/null; then
+		EXIT=1
+		LINE=$(jq --stream -r 'if length == 1 then .[0][:-1] else .[0] end | if . == ["type"] then ",line=\( input_line_number )" else empty end' "$PROJECT/composer.json")
+		echo "::error file=$PROJECT/composer.json$LINE::Package $SLUG uses i18n (i.e. it sets \`.extra.textdomain\`), but does not set \`.type\` to \`jetpack-library\` in composer.json.%0AThis will prevent it from being translated when used in plugins."
+	fi
+
 done
 
 # - Monorepo root composer.json must also use dev deps appropriately.
