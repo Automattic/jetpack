@@ -28,7 +28,7 @@ jobs:
           npm ci
           npm run build
 
-      - uses: actions/cache@v2
+      - uses: actions/cache@v3
         with:
           path: ~/.npm
           key: ${{ runner.os }}-node-${{ hashFiles('gutenberg/**/package-lock.json') }}
@@ -69,6 +69,8 @@ jobs:
         continue-on-error: true
         run: |
           pnpm run tunnel:off
+          # Update permissions to workaround https://github.com/actions/cache/issues/753
+          sudo chown -R runner:docker "$GITHUB_WORKSPACE/tools/docker"
 
       - name: Upload test artifacts
         if: ${{ always() }}

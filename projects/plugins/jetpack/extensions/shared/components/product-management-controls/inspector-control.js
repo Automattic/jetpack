@@ -21,18 +21,22 @@ import { lock } from '@wordpress/icons';
  * Internal dependencies
  */
 import { API_STATE_NOT_REQUESTING, API_STATE_REQUESTING } from './constants';
+import { getMessageByProductType } from './utils';
 import { CURRENCY_OPTIONS } from '../../currencies';
 import { store as membershipProductsStore } from '../../../store/membership-products';
 
 export default function ProductManagementInspectorControl( {
 	allowCreateOneTimeInterval,
+	productType,
 	setSelectedProductId,
 } ) {
 	const siteSlug = useSelect( select => select( membershipProductsStore ).getSiteSlug() );
 	const { saveProduct } = useDispatch( membershipProductsStore );
 
 	const [ apiState, setApiState ] = useState( API_STATE_NOT_REQUESTING );
-	const [ title, setTitle ] = useState( __( 'Monthly Subscription', 'jetpack' ) );
+	const [ title, setTitle ] = useState(
+		getMessageByProductType( 'default new product title', productType )
+	);
 	const [ currency, setCurrency ] = useState( 'USD' );
 	const [ price, setPrice ] = useState( 5 );
 	const [ interval, setInterval ] = useState( '1 month' );
@@ -48,34 +52,41 @@ export default function ProductManagementInspectorControl( {
 	const handleSubmit = event => {
 		event.preventDefault();
 		setApiState( API_STATE_REQUESTING );
-		saveProduct( { title, currency, price, interval }, setSelectedProductId, success => {
-			setApiState( API_STATE_NOT_REQUESTING );
-			if ( success ) {
-				setPrice( 5 );
-				setTitle( '' );
+		saveProduct(
+			{ title, currency, price, interval },
+			productType,
+			setSelectedProductId,
+			success => {
+				setApiState( API_STATE_NOT_REQUESTING );
+				if ( success ) {
+					setPrice( 5 );
+					setTitle( '' );
+				}
 			}
-		} );
+		);
 	};
 
 	return (
 		<InspectorControls>
 			{ siteSlug && (
 				<PanelBody>
-					<ExternalLink href={ `https://wordpress.com/earn/payments/${ siteSlug }` }>
-						{ __( 'Manage your subscriptions.', 'jetpack' ) }
+					<ExternalLink
+						href={ `https://wordpress.com/earn/payments/${ siteSlug }` }
+						className={ 'product-management-control-inspector__link-to-earn' }
+					>
+						{ getMessageByProductType( 'manage your products', productType ) }
 					</ExternalLink>
 				</PanelBody>
 			) }
 			<PanelBody
-				title={ __( 'Add a new subscription', 'jetpack' ) }
+				title={ getMessageByProductType( 'add a new product', productType ) }
 				initialOpen={ true }
 				className={ 'product-management-control-inspector__add-plan' }
 			>
 				{ apiState === API_STATE_REQUESTING && (
 					<Placeholder
 						icon={ lock }
-						label={ __( 'Premium Content', 'jetpack' ) }
-						instructions={ __( 'Saving plan…', 'jetpack' ) }
+						label={ getMessageByProductType( 'saving product', productType ) }
 					>
 						<Spinner />
 					</Placeholder>
@@ -119,7 +130,7 @@ export default function ProductManagementInspectorControl( {
 						</PanelRow>
 						<PanelRow>
 							<Button onClick={ handleSubmit } variant="secondary">
-								{ __( 'Add subscription', 'jetpack' ) }
+								{ getMessageByProductType( 'add product', productType ) }
 							</Button>
 						</PanelRow>
 					</>
