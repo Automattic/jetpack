@@ -206,7 +206,8 @@ class Jetpack_Recommendations {
 		$recommendations_data        = Jetpack_Options::get_option( 'recommendations_data', array() );
 		$viewed_recommendations      = isset( $recommendations_data['viewedRecommendations'] ) ? $recommendations_data['viewedRecommendations'] : array();
 
-		return array_diff( $conditional_recommendations, $viewed_recommendations );
+		// array_diff returns a keyed array - reduce to unique values.
+		return array_unique( array_values( array_diff( $conditional_recommendations, $viewed_recommendations ) ) );
 	}
 
 	/**
