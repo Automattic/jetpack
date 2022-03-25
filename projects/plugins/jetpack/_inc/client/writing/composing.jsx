@@ -10,6 +10,7 @@ import { getRedirectUrl } from '@automattic/jetpack-components';
  * Internal dependencies
  */
 import CompactCard from 'components/card/compact';
+import CompactFormToggle from 'components/form/form-toggle/compact';
 import { FormFieldset } from 'components/forms';
 import { isModuleFound as _isModuleFound } from 'state/search';
 import { ModuleToggle } from 'components/module-toggle';
@@ -20,6 +21,10 @@ import SettingsCard from 'components/settings-card';
 import SettingsGroup from 'components/settings-group';
 
 export class Composing extends React.Component {
+	toggleBlocks = value => {
+		this.props.updateOptions( { blocks_disabled: !! value } );
+	};
+
 	/**
 	 * If markdown module is inactive and this is toggling markdown for posts on, activate module.
 	 * If markdown for comments is off and this is toggling markdown for posts off, deactivate module.
@@ -42,16 +47,26 @@ export class Composing extends React.Component {
 		const foundCopyPost = this.props.isModuleFound( 'copy-post' ),
 			foundLatex = this.props.isModuleFound( 'latex' ),
 			foundMarkdown = this.props.isModuleFound( 'markdown' ),
-			foundShortcodes = this.props.isModuleFound( 'shortcodes' );
+			foundShortcodes = this.props.isModuleFound( 'shortcodes' ),
+			foundBlocks = this.props.isModuleFound( 'blocks' );
 
-		if ( ! foundCopyPost && ! foundLatex && ! foundMarkdown && ! foundShortcodes ) {
+		if (
+			! foundCopyPost &&
+			! foundLatex &&
+			! foundMarkdown &&
+			! foundShortcodes &&
+			! foundBlocks
+		) {
 			return null;
 		}
+
+		const blocksDisabled = !! this.props.getOptionValue( 'blocks_disabled', 'blocks' );
 
 		const markdown = this.props.module( 'markdown' ),
 			latex = this.props.module( 'latex' ),
 			copyPost = this.props.module( 'copy-post' ),
 			shortcodes = this.props.module( 'shortcodes' ),
+			blocks = this.props.module( 'blocks' ),
 			copyPostSettings = (
 				<SettingsGroup
 					module={ copyPost }
@@ -155,30 +170,38 @@ export class Composing extends React.Component {
 					</FormFieldset>
 				</SettingsGroup>
 			),
-			blocks = (
+			blocksSettings = (
 				<>
 					<SettingsGroup
+						module={ blocks }
 						support={ {
-							text: __(
-								'Jetpack includes some blocks which can help you create your pages exactly the way you want them.',
-								'jetpack'
-							),
+							text: blocks.description,
 							link: getRedirectUrl( 'jetpack-support-blocks' ),
 						} }
 					>
-						<p className="jp-settings-card__blocks-description">
-							{ __(
-								'Jetpack blocks give you the power to deliver quality content that hooks website visitors without needing to hire a developer or learn a single line of code.',
-								'jetpack'
-							) }
-						</p>
+						<FormFieldset>
+							<CompactFormToggle
+								checked={ ! blocksDisabled }
+								disabled={ this.props.isSavingAnyOption( [ 'blocks_disabled' ] ) }
+								onChange={ this.toggleBlocks }
+							>
+								<span className="jp-form-toggle-explanation">
+									{ __(
+										'Jetpack blocks give you the power to deliver quality content that hooks website visitors without needing to hire a developer or learn a single line of code.',
+										'jetpack'
+									) }
+								</span>
+							</CompactFormToggle>
+						</FormFieldset>
 					</SettingsGroup>
-					<CompactCard
-						className="jp-settings-card__configure-link"
-						href={ `${ this.props.siteAdminUrl }post-new.php` }
-					>
-						{ __( 'Discover Jetpack tools in the block editor', 'jetpack' ) }
-					</CompactCard>
+					{ ! blocksDisabled && (
+						<CompactCard
+							className="jp-settings-card__configure-link"
+							href={ `${ this.props.siteAdminUrl }post-new.php` }
+						>
+							{ __( 'Discover Jetpack tools in the block editor', 'jetpack' ) }
+						</CompactCard>
+					) }
 				</>
 			);
 
@@ -195,7 +218,8 @@ export class Composing extends React.Component {
 				{ foundShortcodes && shortcodeSettings }
 				{ ! this.props.isFetchingPluginsData &&
 					! this.props.isPluginActive( 'classic-editor/classic-editor.php' ) &&
-					blocks }
+					foundBlocks &&
+					blocksSettings }
 			</SettingsCard>
 		);
 	}
