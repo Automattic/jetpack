@@ -1,42 +1,59 @@
-<?php
+<?php // phpcs:ignore WordPress.Files.FileName.InvalidClassFileName
 
-new WPCOM_JSON_API_List_Terms_Endpoint( array(
-	'description' => 'Get a list of a site\'s terms by taxonomy.',
-	'group'       => 'taxonomy',
-	'stat'        => 'terms',
-	'method'      => 'GET',
-	'path'        => '/sites/%s/taxonomies/%s/terms',
-	'path_labels' => array(
-		'$site'     => '(int|string) Site ID or domain',
-		'$taxonomy' => '(string) Taxonomy',
-	),
-	'query_parameters' => array(
-		'number'   => '(int=100) The number of terms to return. Limit: 1000.',
-		'offset'   => '(int=0) 0-indexed offset.',
-		'page'     => '(int) Return the Nth 1-indexed page of terms. Takes precedence over the <code>offset</code> parameter.',
-		'search'   => '(string) Limit response to include only terms whose names or slugs match the provided search query.',
-		'order'    => array(
-			'ASC'  => 'Return terms in ascending order.',
-			'DESC' => 'Return terms in descending order.',
+/**
+ * List terms endpoint.
+ */
+new WPCOM_JSON_API_List_Terms_Endpoint(
+	array(
+		'description'                          => 'Get a list of a site\'s terms by taxonomy.',
+		'group'                                => 'taxonomy',
+		'stat'                                 => 'terms',
+		'method'                               => 'GET',
+		'path'                                 => '/sites/%s/taxonomies/%s/terms',
+		'path_labels'                          => array(
+			'$site'     => '(int|string) Site ID or domain',
+			'$taxonomy' => '(string) Taxonomy',
 		),
-		'order_by' => array(
-			'name'  => 'Order by the name of each tag.',
-			'count' => 'Order by the number of posts in each tag.',
+		'query_parameters'                     => array(
+			'number'   => '(int=100) The number of terms to return. Limit: 1000.',
+			'offset'   => '(int=0) 0-indexed offset.',
+			'page'     => '(int) Return the Nth 1-indexed page of terms. Takes precedence over the <code>offset</code> parameter.',
+			'search'   => '(string) Limit response to include only terms whose names or slugs match the provided search query.',
+			'order'    => array(
+				'ASC'  => 'Return terms in ascending order.',
+				'DESC' => 'Return terms in descending order.',
+			),
+			'order_by' => array(
+				'name'  => 'Order by the name of each tag.',
+				'count' => 'Order by the number of posts in each tag.',
+			),
 		),
-	),
 
-	'allow_fallback_to_jetpack_blog_token' => true,
+		'allow_fallback_to_jetpack_blog_token' => true,
 
-	'response_format' => array(
-		'found' => '(int) The number of terms returned.',
-		'terms' => '(array) Array of tag objects.',
-	),
-	'example_request'  => 'https://public-api.wordpress.com/rest/v1/sites/en.blog.wordpress.com/taxonomies/post_tags/terms?number=5'
-) );
+		'response_format'                      => array(
+			'found' => '(int) The number of terms returned.',
+			'terms' => '(array) Array of tag objects.',
+		),
+		'example_request'                      => 'https://public-api.wordpress.com/rest/v1/sites/en.blog.wordpress.com/taxonomies/post_tags/terms?number=5',
+	)
+);
 
+/**
+ * List terms endpoint class.
+ *
+ * /sites/%s/taxonomies/%s/terms -> $blog_id, $taxonomy
+ */
 class WPCOM_JSON_API_List_Terms_Endpoint extends WPCOM_JSON_API_Endpoint {
-	// /sites/%s/taxonomies/%s/terms -> $blog_id, $taxonomy
-	function callback( $path = '', $blog_id = 0, $taxonomy = 'category' ) {
+
+	/**
+	 * API callback.
+	 *
+	 * @param string $path - the path.
+	 * @param string $blog_id - the blog ID.
+	 * @param string $taxonomy - the taxonomy.
+	 */
+	public function callback( $path = '', $blog_id = 0, $taxonomy = 'category' ) {
 		$blog_id = $this->api->switch_to_blog_and_validate_user( $this->api->get_blog_id( $blog_id ) );
 		if ( is_wp_error( $blog_id ) ) {
 			return $blog_id;
@@ -64,11 +81,16 @@ class WPCOM_JSON_API_List_Terms_Endpoint extends WPCOM_JSON_API_Endpoint {
 
 		return array(
 			'found' => (int) $this->get_found( $taxonomy, $args ),
-			'terms' => (array) $formatted_terms
+			'terms' => (array) $formatted_terms,
 		);
 	}
 
-	function process_args( $args ) {
+	/**
+	 * Process args.
+	 *
+	 * @param array $args - the arguments.
+	 */
+	public function process_args( $args ) {
 		$args['get'] = 'all';
 
 		if ( $args['number'] < 1 ) {
@@ -97,12 +119,24 @@ class WPCOM_JSON_API_List_Terms_Endpoint extends WPCOM_JSON_API_Endpoint {
 		return $args;
 	}
 
-	function get_found( $taxonomy, $args ) {
+	/**
+	 * Get found taxonomy term count.
+	 *
+	 * @param string $taxonomy - the taxonomy.
+	 * @param array  $args - the arguments.
+	 */
+	public function get_found( $taxonomy, $args ) {
 		unset( $args['offset'] );
 		return wp_count_terms( $taxonomy, $args );
 	}
 
-	function get_formatted_terms( $taxonomy, $args ) {
+	/**
+	 * Format the taxonomy terms.
+	 *
+	 * @param string $taxonomy - the taxonomy.
+	 * @param array  $args - the arguments.
+	 */
+	public function get_formatted_terms( $taxonomy, $args ) {
 		$terms = get_terms( $taxonomy, $args );
 
 		$formatted_terms = array();
