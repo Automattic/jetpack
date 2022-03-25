@@ -45,7 +45,7 @@ export const mapStateToSummaryFeatureProps = ( state, featureSlug ) => {
 		case 'publicize':
 			return {
 				configureButtonLabel: __( 'Settings', 'jetpack' ),
-				displayName: __( 'Publicize', 'jetpack' ),
+				displayName: __( 'Social Media Sharing', 'jetpack' ),
 				summaryActivateButtonLabel: __( 'Enable', 'jetpack' ),
 				configLink: getRedirectUrl( 'calypso-marketing-connections', {
 					site: getSiteRawUrl( state ),
@@ -187,7 +187,7 @@ export const getStepContent = stepSlug => {
 					'jetpack'
 				),
 				descriptionLink: getRedirectUrl( 'jetpack-blog-social-sharing' ),
-				ctaText: __( 'Enable social media sharing', 'jetpack' ),
+				ctaText: __( 'Enable Social Media Sharing', 'jetpack' ),
 				illustrationPath: '/recommendations/general-illustration.png',
 				rnaIllustration: true,
 			};
