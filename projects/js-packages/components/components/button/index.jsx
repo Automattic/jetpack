@@ -29,10 +29,13 @@ const Button = ( { children, variant, size, icon, disabled } ) => {
 Button.propTypes = {
 	variant: PropTypes.oneOf( [ 'primary', 'secondary', 'link' ] ),
 	size: PropTypes.oneOf( [ BUTTON_SIZES.NORMAL, BUTTON_SIZES.SMALL ] ),
+	disabled: PropTypes.bool,
 };
 
 Button.defaultProps = {
+	variant: 'primary',
 	size: BUTTON_SIZES.NORMAL,
+	disabled: false,
 };
 
 export default Button;

@@ -23,9 +23,16 @@ export default {
 	},
 };
 
+const VariantDisabled = {
+	variant: {
+		control: false,
+	},
+};
+
 const Template = args => <Button { ...args } />;
 
 export const ButtonPrimary = Template.bind( {} );
+ButtonPrimary.argTypes = VariantDisabled;
 ButtonPrimary.args = {
 	size: 'normal',
 	children: 'Jetpack Button',
@@ -33,6 +40,7 @@ ButtonPrimary.args = {
 };
 
 export const ButtonSecondary = Template.bind( {} );
+ButtonSecondary.argTypes = VariantDisabled;
 ButtonSecondary.args = {
 	size: 'normal',
 	children: 'Jetpack Button',
@@ -40,6 +48,7 @@ ButtonSecondary.args = {
 };
 
 export const ButtonLink = Template.bind( {} );
+ButtonLink.argTypes = VariantDisabled;
 ButtonLink.args = {
 	size: 'normal',
 	children: 'Jetpack Button',
@@ -65,6 +74,11 @@ Icon.args = {
 };
 
 export const Disabled = Template.bind( {} );
+Disabled.argTypes = {
+	disabled: {
+		control: false,
+	},
+};
 Disabled.args = {
 	size: 'normal',
 	children: 'Jetpack Button',
