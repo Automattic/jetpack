@@ -18,6 +18,7 @@ import './style.scss';
  * Generate Record Meter showing how many records the user has indexed
  *
  * @param {object} props - Props
+ * @param {number} props.postCount - Post count number of posts in total
  * @param {object} props.postTypeBreakdown - Post type breakdown (post type => number of posts)
  * @param {number} props.tierMaximumRecords - Max number of records allowed in user's current tier
  * @param {string} props.lastIndexedDate - The date on which the site was last indexed in ISO 8601 format
