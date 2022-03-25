@@ -59,6 +59,7 @@ export class Composing extends React.Component {
 			latex = this.props.module( 'latex' ),
 			copyPost = this.props.module( 'copy-post' ),
 			shortcodes = this.props.module( 'shortcodes' ),
+			blocks = this.props.module( 'blocks' ),
 			copyPostSettings = (
 				<SettingsGroup
 					module={ copyPost }
@@ -162,9 +163,10 @@ export class Composing extends React.Component {
 					</FormFieldset>
 				</SettingsGroup>
 			),
-			blocks = (
+			blocksSettings = (
 				<>
 					<SettingsGroup
+						module={ blocks }
 						support={ {
 							text: __(
 								'Jetpack includes some blocks which can help you create your pages exactly the way you want them.',
@@ -173,12 +175,17 @@ export class Composing extends React.Component {
 							link: getRedirectUrl( 'jetpack-support-blocks' ),
 						} }
 					>
-						<p className="jp-settings-card__blocks-description">
-							{ __(
-								'Jetpack blocks give you the power to deliver quality content that hooks website visitors without needing to hire a developer or learn a single line of code.',
-								'jetpack'
-							) }
-						</p>
+						<FormFieldset>
+							<ModuleToggle
+								slug="blocks"
+								activated={ !! this.props.getOptionValue( 'blocks' ) }
+								toggling={ this.props.isSavingAnyOption( [ 'blocks' ] ) }
+								disabled={ this.props.isSavingAnyOption( [ 'blocks' ] ) }
+								toggleModule={ this.props.toggleModuleNow }
+							>
+								<span className="jp-form-toggle-explanation">{ blocks.description }</span>
+							</ModuleToggle>
+						</FormFieldset>
 					</SettingsGroup>
 					<CompactCard
 						className="jp-settings-card__configure-link"
@@ -203,7 +210,7 @@ export class Composing extends React.Component {
 				{ ! this.props.isFetchingPluginsData &&
 					! this.props.isPluginActive( 'classic-editor/classic-editor.php' ) &&
 					foundBlocks &&
-					blocks }
+					blocksSettings }
 			</SettingsCard>
 		);
 	}
