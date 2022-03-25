@@ -1,0 +1,4 @@
+Significance: patch
+Type: enhancement
+
+Dashboard: add a new toggle to disable editor extensions (blocks and plugins) from the Jetpack dashboard.
