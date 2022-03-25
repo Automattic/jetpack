@@ -6,7 +6,17 @@ import classnames from 'classnames';
 import { Icon, check, plus } from '@wordpress/icons';
 import { getCurrencyObject } from '@automattic/format-currency';
 import { __, sprintf } from '@wordpress/i18n';
-import { Text, Container, Col } from '@automattic/jetpack-components';
+import {
+	AntiSpamIcon,
+	BackupIcon,
+	CheckmarkIcon,
+	Col,
+	getIconBySlug,
+	Container,
+	ScanIcon,
+	StarIcon,
+	Text,
+} from '@automattic/jetpack-components';
 
 /**
  * Internal dependencies
@@ -15,14 +25,7 @@ import styles from './style.module.scss';
 import getProductCheckoutUrl from '../../utils/get-product-checkout-url';
 import useMyJetpackConnection from '../../hooks/use-my-jetpack-connection';
 import { useProduct } from '../../hooks/use-product';
-import {
-	BackupIcon,
-	ScanIcon,
-	StarIcon,
-	getIconBySlug,
-	AntiSpamIcon,
-	CheckmarkIcon,
-} from '../icons';
+
 import ProductDetailButton from '../product-detail-button';
 
 /**
