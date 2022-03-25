@@ -70,10 +70,7 @@ export default function ProductManagementInspectorControl( {
 		<InspectorControls>
 			{ siteSlug && (
 				<PanelBody>
-					<ExternalLink
-						href={ `https://wordpress.com/earn/payments/${ siteSlug }` }
-						className={ 'product-management-control-inspector__link-to-earn' }
-					>
+					<ExternalLink href={ `https://wordpress.com/earn/payments/${ siteSlug }` }>
 						{ getMessageByProductType( 'manage your products', productType ) }
 					</ExternalLink>
 				</PanelBody>
