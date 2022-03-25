@@ -1,0 +1,5 @@
+Significance: patch
+Type: added
+Comment: Tests only: Give a better error message if the test fails due to failure to download a file.
+
+

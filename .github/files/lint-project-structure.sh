@@ -195,6 +195,13 @@ for PROJECT in projects/*/*; do
 		check_composer_no_dev_deps "Project $SLUG" "$PROJECT/composer.json" require-dev true
 	fi
 
+	# - Packages setting textdomain must have type set to "jetpack-library".
+	if [[ "$TYPE" == "packages" ]] && jq -e '.extra["textdomain"] and .type != "jetpack-library"' "$PROJECT/composer.json" >/dev/null; then
+		EXIT=1
+		LINE=$(jq --stream -r 'if length == 1 then .[0][:-1] else .[0] end | if . == ["type"] then ",line=\( input_line_number )" else empty end' "$PROJECT/composer.json")
+		echo "::error file=$PROJECT/composer.json$LINE::Package $SLUG uses i18n (i.e. it sets \`.extra.textdomain\`), but does not set \`.type\` to \`jetpack-library\` in composer.json.%0AThis will prevent it from being translated when used in plugins."
+	fi
+
 done
 
 # - Monorepo root composer.json must also use dev deps appropriately.
@@ -294,13 +301,13 @@ fi
 # - package.json engines should be satisfied by .github/versions.sh.
 debug "Checking .github/versions.sh vs package.json engines"
 RANGE="$(jq -r '.engines.node' package.json)"
-if ! pnpx semver --range "$RANGE" "$NODE_VERSION" &>/dev/null; then
+if ! pnpx --no-install semver --range "$RANGE" "$NODE_VERSION" &>/dev/null; then
 	EXIT=1
 	LINE=$(jq --stream 'if length == 1 then .[0][:-1] else .[0] end | if . == ["engines","node"] then input_line_number - 1 else empty end' package.json)
 	echo "::error file=package.json,line=$LINE::Node version $NODE_VERSION in .github/versions.sh does not satisfy requirement $RANGE from package.json"
 fi
 RANGE="$(jq -r '.engines.pnpm' package.json)"
-if ! pnpx semver --range "$RANGE" "$PNPM_VERSION" &>/dev/null; then
+if ! pnpx --no-install semver --range "$RANGE" "$PNPM_VERSION" &>/dev/null; then
 	EXIT=1
 	LINE=$(jq --stream 'if length == 1 then .[0][:-1] else .[0] end | if . == ["engines","pnpm"] then input_line_number - 1 else empty end' package.json)
 	echo "::error file=package.json,line=$LINE::Pnpm version $PNPM_VERSION in .github/versions.sh does not satisfy requirement $RANGE from package.json"
