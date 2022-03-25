@@ -107,17 +107,6 @@ class AtAGlance extends Component {
 			);
 		}
 
-		if ( ! this.props.multisite ) {
-			securityCards.push(
-				<DashBackups
-					{ ...settingsProps }
-					siteRawUrl={ this.props.siteRawUrl }
-					rewindStatus={ rewindStatus }
-					rewindStatusReason={ rewindStatusReason }
-					trackUpgradeButtonView={ this.trackUpgradeButtonView( 'backups' ) }
-				/>
-			);
-		}
 		securityCards.push(
 			<DashAkismet
 				{ ...urls }
@@ -187,6 +176,19 @@ class AtAGlance extends Component {
 				/>
 			);
 
+			const pinnedBundle = canDisplaybundleCard ? (
+				<div className="jp-at-a-glance__pinned-bundle">
+					<DashSecurityBundle />
+					<DashBackups
+						{ ...settingsProps }
+						siteRawUrl={ this.props.siteRawUrl }
+						rewindStatus={ rewindStatus }
+						rewindStatusReason={ rewindStatusReason }
+						trackUpgradeButtonView={ this.trackUpgradeButtonView( 'backups' ) }
+					/>
+				</div>
+			) : null;
+
 			return (
 				<div className="jp-at-a-glance">
 					<QuerySitePlugins />
@@ -197,7 +199,7 @@ class AtAGlance extends Component {
 					<Section
 						header={ securityHeader }
 						cards={ securityCards }
-						pinnedBundle={ canDisplaybundleCard ? <DashSecurityBundle /> : null }
+						pinnedBundle={ pinnedBundle }
 					/>
 					<Section
 						header={ <DashSectionHeader label={ __( 'Performance and Growth', 'jetpack' ) } /> }

@@ -13,8 +13,8 @@
 	"license": "GPL-2.0-or-later",
 	"author": "Automattic",
 	"scripts": {
-		"cli-link": "pnpm jetpack cli link",
-		"cli-setup": "pnpm install && pnpm jetpack cli link",
+		"cli-link": "pnpx jetpack cli link",
+		"cli-setup": "pnpm install && pnpx jetpack cli link",
 		"cli-unlink": "jetpack cli unlink",
 		"lint": "pnpm run lint-file -- .",
 		"lint-changed": "eslint-changed --ext .js,.jsx,.cjs,.mjs,.ts,.tsx,.svelte --git",
@@ -36,5 +36,12 @@
 		"node": "^14.18.3 || ^16.13.2",
 		"pnpm": "^6.23.6",
 		"yarn": "use pnpm instead - see docs/yarn-upgrade.md"
+	},
+	"pnpm": {
+		"peerDependencyRules": {
+			"ignoreMissing": [
+				"eslint"
+			]
+		}
 	}
 }

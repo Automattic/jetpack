@@ -624,9 +624,10 @@ class WP_Test_Jetpack_Sync_Sender extends WP_Test_Jetpack_Sync_Base {
 	 * Test do_sync will NOT spawn a dedicated Sync request when the corresponding setting is enabled if the Sync queue is empty.
 	 */
 	public function test_do_sync_will_not_spawn_dedicated_sync_request_with_empty_queue() {
-		$this->sender->get_sync_queue()->reset();
-
 		Settings::update_settings( array( 'dedicated_sync_enabled' => 1 ) );
+		// Empty the queue after updating dedicated_sync_enabled, otherwise
+		// a corresponding Sync action will be added as we are syncing this setting as well.
+		$this->sender->get_sync_queue()->reset();
 
 		add_filter( 'pre_http_request', array( $this, 'pre_http_sync_request_spawned' ), 10, 3 );
 		$result = $this->sender->do_sync();

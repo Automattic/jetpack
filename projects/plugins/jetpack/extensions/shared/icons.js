@@ -51,6 +51,19 @@ export const GooglePhotosIcon = props => (
 	</SVG>
 );
 
+export const OpenverseIcon = props => (
+	<SVG xmlns="http://www.w3.org/2000/svg" width="24" height="22" viewBox="0 0 24 22" { ...props }>
+		<G id="icon" fill="currentColor">
+			<Path d="M 0 4.921875 C 0 7.632812 2.175781 9.84375 4.871094 9.84375 L 4.871094 0 C 2.175781 0 0 2.199219 0 4.921875 Z M 0 4.921875 " />
+			<Path d="M 7.101562 4.921875 C 7.101562 7.632812 9.277344 9.84375 11.972656 9.84375 L 11.972656 0 C 9.292969 0 7.101562 2.199219 7.101562 4.921875 Z M 7.101562 4.921875 " />
+			<Path d="M 19.074219 9.84375 C 21.765625 9.84375 23.945312 7.640625 23.945312 4.921875 C 23.945312 2.203125 21.765625 0 19.074219 0 C 16.382812 0 14.203125 2.203125 14.203125 4.921875 C 14.203125 7.640625 16.382812 9.84375 19.074219 9.84375 Z M 19.074219 9.84375 " />
+			<Path d="M 0 17.078125 C 0 19.800781 2.175781 22 4.871094 22 L 4.871094 12.167969 C 2.175781 12.167969 0 14.367188 0 17.078125 Z M 0 17.078125 " />
+			<Path d="M 7.101562 17.035156 C 7.101562 19.746094 9.277344 21.957031 11.972656 21.957031 L 11.972656 12.128906 C 9.292969 12.128906 7.101562 14.328125 7.101562 17.035156 Z M 7.101562 17.035156 " />
+			<Path d="M 19.074219 21.957031 C 21.765625 21.957031 23.945312 19.753906 23.945312 17.035156 C 23.945312 14.316406 21.765625 12.113281 19.074219 12.113281 C 16.382812 12.113281 14.203125 14.316406 14.203125 17.035156 C 14.203125 19.753906 16.382812 21.957031 19.074219 21.957031 Z M 19.074219 21.957031 " />
+		</G>
+	</SVG>
+);
+
 export const PexelsIcon = props => (
 	<SVG xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" { ...props }>
 		<Path d="M14 7H9v10h3.9v-3.8H14c1.7 0 3.1-1.4 3.1-3.1C17.2 8.4 15.8 7 14 7z" />
@@ -184,22 +197,38 @@ export const GooglePhotosLogo = () => {
 	);
 };
 
-export const JetpackLogo = ( { size = 24, className } ) => (
-	<SVG
-		className={ classNames( 'jetpack-logo', className ) }
-		width={ size }
-		height={ size }
-		viewBox="0 0 32 32"
-	>
-		<Path
-			className="jetpack-logo__icon-circle"
-			fill={ COLOR_JETPACK }
-			d="M16,0C7.2,0,0,7.2,0,16s7.2,16,16,16s16-7.2,16-16S24.8,0,16,0z"
-		/>
-		<Polygon className="jetpack-logo__icon-triangle" fill="#fff" points="15,19 7,19 15,3 " />
-		<Polygon className="jetpack-logo__icon-triangle" fill="#fff" points="17,29 17,13 25,13 " />
-	</SVG>
-);
+export const JetpackLogo = ( { size = 24, border = 0, className, color = COLOR_JETPACK } ) => {
+	const borderOffset = border ? ( -border / size ) * 32 : 0;
+
+	return (
+		<SVG
+			className={ classNames( 'jetpack-logo', className ) }
+			width={ size }
+			height={ size }
+			viewBox={ `${ borderOffset } ${ borderOffset } ${ 32 - borderOffset * 2 } ${
+				32 - borderOffset * 2
+			}` }
+		>
+			<Path
+				className="jetpack-logo__icon-circle"
+				fill={ color }
+				stroke={ border ? '#fff' : 'transparent' }
+				strokeWidth={ border }
+				d="M16,0C7.2,0,0,7.2,0,16s7.2,16,16,16s16-7.2,16-16S24.8,0,16,0z"
+			/>
+			<Polygon
+				className="jetpack-logo__icon-triangle"
+				fill="#fff"
+				points={ `15,19 ${ 7 - borderOffset * 0.5 },19 15,${ 3 - borderOffset }` }
+			/>
+			<Polygon
+				className="jetpack-logo__icon-triangle"
+				fill="#fff"
+				points={ `17,${ 29 + borderOffset } 17,13 ${ 25 + borderOffset * 0.5 },13` }
+			/>
+		</SVG>
+	);
+};
 
 // @TODO: Import those from https://github.com/Automattic/social-logos when that's possible.
 // Currently we can't directly import icons from there, because all icons are bundled in a single file.
