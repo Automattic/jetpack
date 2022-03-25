@@ -686,32 +686,32 @@ class csstidy { // phpcs:ignore
 						} elseif ( $this->invalid_at && ';' === $string[ $i ] ) {
 							$this->invalid_at = false;
 							$this->status     = 'is';
-						} elseif ( $string[ $i ] === '{' ) {
+						} elseif ( '{' === $string[ $i ] ) {
 							$this->status = 'ip';
-							if ( $this->at == '' ) {
+							if ( '' == $this->at ) { // phpcs:ignore Universal.Operators.StrictComparisons.LooseEqual
 								$this->at = $this->css_new_media_section( DEFAULT_AT );
 							}
 							$this->selector = $this->css_new_selector( $this->at, $this->selector );
 							$this->_add_token( SEL_START, $this->selector );
 							$this->added = false;
-						} elseif ( $string[ $i ] === '}' ) {
+						} elseif ( '}' === $string[ $i ] ) {
 							$this->_add_token( AT_END, $this->at );
 							$this->at           = '';
 							$this->selector     = '';
 							$this->sel_separate = array();
-						} elseif ( $string[ $i ] === ',' ) {
+						} elseif ( ',' === $string[ $i ] ) {
 							$this->selector       = trim( $this->selector ) . ',';
 							$this->sel_separate[] = strlen( $this->selector );
-						} elseif ( $string[ $i ] === '\\' ) {
+						} elseif ( '\\' === $string[ $i ] ) {
 							$this->selector .= $this->_unicode( $string, $i );
-						} elseif ( $string[ $i ] === '*' && @in_array( $string[ $i + 1 ], array( '.', '#', '[', ':' ) ) ) {
-							// remove unnecessary universal selector, FS#147
+						} elseif ( '*' === $string[ $i ] && @in_array( $string[ $i + 1 ], array( '.', '#', '[', ':' ), true ) ) { // phpcs:ignore Generic.CodeAnalysis.EmptyStatement.DetectedElseif, WordPress.PHP.NoSilencedErrors.Discouraged
+							// remove unnecessary universal selector, FS#147.
 						} else {
 							$this->selector .= $string[ $i ];
 						}
 					} else {
 						$lastpos = strlen( $this->selector ) - 1;
-						if ( $lastpos == -1 || ! ( ( ctype_space( $this->selector[ $lastpos ] ) || self::is_token( $this->selector, $lastpos ) && $this->selector[ $lastpos ] === ',' ) && ctype_space( $string[ $i ] ) ) ) {
+						if ( -1 == $lastpos || ! ( ( ctype_space( $this->selector[ $lastpos ] ) || self::is_token( $this->selector, $lastpos ) && ',' === $this->selector[ $lastpos ] ) && ctype_space( $string[ $i ] ) ) ) { // phpcs:ignore Universal.Operators.StrictComparisons.LooseEqual
 							$this->selector .= $string[ $i ];
 						} elseif ( ctype_space( $string[ $i ] ) && $this->get_cfg( 'preserve_css' ) && ! $this->get_cfg( 'merge_selectors' ) ) {
 							$this->selector .= $string[ $i ];
@@ -722,30 +722,29 @@ class csstidy { // phpcs:ignore
 				/* Case in-property */
 				case 'ip':
 					if ( self::is_token( $string, $i ) ) {
-						if ( ( $string[ $i ] === ':' || $string[ $i ] === '=' ) && $this->property != '' ) {
+						if ( ( ':' === $string[ $i ] || '=' === $string[ $i ] ) && '' != $this->property ) { // phpcs:ignore  Universal.Operators.StrictComparisons.LooseNotEqual
 							$this->status = 'iv';
 							if ( ! $this->get_cfg( 'discard_invalid_properties' ) || self::property_is_valid( $this->property ) ) {
 								$this->property = $this->css_new_property( $this->at, $this->selector, $this->property );
 								$this->_add_token( PROPERTY, $this->property );
 							}
-						} elseif ( $string[ $i ] === '/' && @$string[ $i + 1 ] === '*' && $this->property == '' ) {
+						} elseif ( '/' === $string[ $i ] && '*' === @$string[ $i + 1 ] && '' == $this->property ) { // phpcs:ignore Universal.Operators.StrictComparisons.LooseEqual, WordPress.PHP.NoSilencedErrors.Discouraged
 							$this->status = 'ic';
 							++$i;
 							$this->from[] = 'ip';
-						} elseif ( $string[ $i ] === '}' ) {
+						} elseif ( '}' === $string[ $i ] ) {
 							$this->explode_selectors();
 							$this->status     = 'is';
 							$this->invalid_at = false;
 							$this->_add_token( SEL_END, $this->selector );
 							$this->selector = '';
 							$this->property = '';
-						} elseif ( $string[ $i ] === ';' ) {
+						} elseif ( ';' === $string[ $i ] ) {
 							$this->property = '';
-						} elseif ( $string[ $i ] === '\\' ) {
+						} elseif ( '\\' === $string[ $i ] ) {
 							$this->property .= $this->_unicode( $string, $i );
-						}
-						// else this is dumb IE a hack, keep it
-						elseif ( $this->property == '' and ! ctype_space( $string[ $i ] ) ) {
+						} elseif ( '' == $this->property && ! ctype_space( $string[ $i ] ) ) { // phpcs:ignore Universal.Operators.StrictComparisons.LooseEqual
+							// else this is dumb IE a hack, keep it.
 							$this->property .= $string[ $i ];
 						}
 					} elseif ( ! ctype_space( $string[ $i ] ) ) {
@@ -755,24 +754,24 @@ class csstidy { // phpcs:ignore
 
 				/* Case in-value */
 				case 'iv':
-					$pn = ( ( $string[ $i ] === "\n" || $string[ $i ] === "\r" ) && $this->property_is_next( $string, $i + 1 ) || $i == strlen( $string ) - 1 );
-					if ( ( self::is_token( $string, $i ) || $pn ) && ( ! ( $string[ $i ] == ',' && ! ctype_space( $string[ $i + 1 ] ) ) ) ) {
-						if ( $string[ $i ] === '/' && @$string[ $i + 1 ] === '*' ) {
+					$pn = ( ( "\n" === $string[ $i ] || "\r" === $string[ $i ] ) && $this->property_is_next( $string, $i + 1 ) || strlen( $string ) - 1 == $i ); // phpcs:ignore Universal.Operators.StrictComparisons.LooseEqual
+					if ( ( self::is_token( $string, $i ) || $pn ) && ( ! ( ',' === $string[ $i ] && ! ctype_space( $string[ $i + 1 ] ) ) ) ) {
+						if ( '/' === $string[ $i ] && '*' === @$string[ $i + 1 ] ) { // phpcs:ignore WordPress.PHP.NoSilencedErrors.Discouraged
 							$this->status = 'ic';
 							++$i;
 							$this->from[] = 'iv';
-						} elseif ( ( $string[ $i ] === '"' || $string[ $i ] === "'" || $string[ $i ] === '(' ) ) {
+						} elseif ( ( '"' === $string[ $i ] || "'" === $string[ $i ] || '(' === $string[ $i ] ) ) {
 							$this->cur_string[]    = $string[ $i ];
-							$this->str_char[]      = ( $string[ $i ] === '(' ) ? ')' : $string[ $i ];
+							$this->str_char[]      = ( '(' === $string[ $i ] ) ? ')' : $string[ $i ];
 							$this->status          = 'instr';
 							$this->from[]          = 'iv';
-							$this->quoted_string[] = in_array( strtolower( $this->property ), $quoted_string_properties );
-						} elseif ( $string[ $i ] === ',' ) {
+							$this->quoted_string[] = in_array( strtolower( $this->property ), $quoted_string_properties, true );
+						} elseif ( ',' === $string[ $i ] ) {
 							$this->sub_value = trim( $this->sub_value ) . ',';
-						} elseif ( $string[ $i ] === '\\' ) {
+						} elseif ( '\\' === $string[ $i ] ) {
 							$this->sub_value .= $this->_unicode( $string, $i );
-						} elseif ( $string[ $i ] === ';' || $pn ) {
-							if ( $this->selector[0] === '@' && isset( $at_rules[ substr( $this->selector, 1 ) ] ) && $at_rules[ substr( $this->selector, 1 ) ] === 'iv' ) {
+						} elseif ( ';' === $string[ $i ] || $pn ) {
+							if ( '@' === $this->selector[0] && isset( $at_rules[ substr( $this->selector, 1 ) ] ) && 'iv' === $at_rules[ substr( $this->selector, 1 ) ] ) {
 								$this->status = 'is';
 
 								switch ( $this->selector ) {
@@ -791,8 +790,8 @@ class csstidy { // phpcs:ignore
 
 										if ( empty( $this->sub_value_arr ) ) {
 											// Quote URLs in imports only if they're not already inside url() and not already quoted.
-											if ( substr( $this->sub_value, 0, 4 ) != 'url(' ) {
-												if ( ! ( $this->sub_value[0] == substr( $this->sub_value, -1 ) && in_array( $this->sub_value[0], array( "'", '"' ) ) ) ) {
+											if ( substr( $this->sub_value, 0, 4 ) !== 'url(' ) {
+												if ( ! ( substr( $this->sub_value, -1 ) == $this->sub_value[0] && in_array( $this->sub_value[0], array( "'", '"' ), true ) ) ) { // phpcs:ignore Universal.Operators.StrictComparisons.LooseEqual
 													$this->sub_value = '"' . $this->sub_value . '"';
 												}
 											}
@@ -810,23 +809,23 @@ class csstidy { // phpcs:ignore
 							} else {
 								$this->status = 'ip';
 							}
-						} elseif ( $string[ $i ] !== '}' ) {
+						} elseif ( '}' !== $string[ $i ] ) {
 							$this->sub_value .= $string[ $i ];
 						}
-						if ( ( $string[ $i ] === '}' || $string[ $i ] === ';' || $pn ) && ! empty( $this->selector ) ) {
-							if ( $this->at == '' ) {
+						if ( ( '}' === $string[ $i ] || ';' === $string[ $i ] || $pn ) && ! empty( $this->selector ) ) {
+							if ( '' == $this->at ) { // phpcs:ignore Universal.Operators.StrictComparisons.LooseEqual
 								$this->at = $this->css_new_media_section( DEFAULT_AT );
 							}
 
-							// case settings
+							// case settings.
 							if ( $this->get_cfg( 'lowercase_s' ) ) {
 								$this->selector = strtolower( $this->selector );
 							}
 							$this->property = strtolower( $this->property );
 
 							$this->optimise->subvalue();
-							if ( $this->sub_value != '' ) {
-								if ( substr( $this->sub_value, 0, 6 ) == 'format' ) {
+							if ( '' != $this->sub_value ) { // phpcs:ignore Universal.Operators.StrictComparisons.LooseNotEqual
+								if ( substr( $this->sub_value, 0, 6 ) === 'format' ) {
 									$format_strings = self::parse_string_list( substr( $this->sub_value, 7, -1 ) );
 									if ( ! $format_strings ) {
 										$this->sub_value = '';
@@ -840,15 +839,14 @@ class csstidy { // phpcs:ignore
 										$this->sub_value = substr( $this->sub_value, 0, -1 ) . ')';
 									}
 								}
-								if ( $this->sub_value != '' ) {
+								if ( '' != $this->sub_value ) { // phpcs:ignore Universal.Operators.StrictComparisons.LooseNotEqual
 									$this->sub_value_arr[] = $this->sub_value;
 								}
 								$this->sub_value = '';
 							}
 
 							$this->value = array_shift( $this->sub_value_arr );
-							while ( count( $this->sub_value_arr ) ) {
-								// $this->value .= (substr($this->value,-1,1)==','?'':' ').array_shift($this->sub_value_arr);
+							while ( count( $this->sub_value_arr ) ) { // phpcs:ignore Squiz.PHP.DisallowSizeFunctionsInLoops.Found
 								$this->value .= ' ' . array_shift( $this->sub_value_arr );
 							}
 
@@ -872,7 +870,7 @@ class csstidy { // phpcs:ignore
 							$this->sub_value_arr = array();
 							$this->value         = '';
 						}
-						if ( $string[ $i ] === '}' ) {
+						if ( '}' === $string[ $i ] ) {
 							$this->explode_selectors();
 							$this->_add_token( SEL_END, $this->selector );
 							$this->status     = 'is';
@@ -882,9 +880,9 @@ class csstidy { // phpcs:ignore
 					} elseif ( ! $pn ) {
 						$this->sub_value .= $string[ $i ];
 
-						if ( ctype_space( $string[ $i ] ) || $string[ $i ] == ',' ) {
+						if ( ctype_space( $string[ $i ] ) || ',' === $string[ $i ] ) {
 							$this->optimise->subvalue();
-							if ( $this->sub_value != '' ) {
+							if ( '' != $this->sub_value ) { // phpcs:ignore Universal.Operators.StrictComparisons.LooseNotEqual
 								$this->sub_value_arr[] = $this->sub_value;
 								$this->sub_value       = '';
 							}
@@ -900,15 +898,15 @@ class csstidy { // phpcs:ignore
 
 					// Add another string to the stack. Strings can't be nested inside of quotes, only parentheses, but
 					// parentheticals can be nested more than once.
-					if ( $_str_char === ')' && ( $string[ $i ] === '(' || $string[ $i ] === '"' || $string[ $i ] === '\'' ) && ! self::escaped( $string, $i ) ) {
+					if ( ')' === $_str_char && ( '(' === $string[ $i ] || '"' === $string[ $i ] || '\'' === $string[ $i ] ) && ! self::escaped( $string, $i ) ) {
 						$this->cur_string[]    = $string[ $i ];
-						$this->str_char[]      = $string[ $i ] == '(' ? ')' : $string[ $i ];
+						$this->str_char[]      = $string[ $i ] === '(' ? ')' : $string[ $i ]; // phpcs:ignore WordPress.PHP.YodaConditions.NotYoda
 						$this->from[]          = 'instr';
-						$this->quoted_string[] = ! ( $string[ $i ] === '(' );
+						$this->quoted_string[] = ! ( '(' === $string[ $i ] );
 						continue 2;
 					}
 
-					if ( $_str_char !== ')' && ( $string[ $i ] === "\n" || $string[ $i ] === "\r" ) && ! ( $string[ $i - 1 ] === '\\' && ! self::escaped( $string, $i - 1 ) ) ) {
+					if ( ')' !== $_str_char && ( "\n" === $string[ $i ] || "\r" === $string[ $i ] ) && ! ( '\\' === $string[ $i - 1 ] && ! self::escaped( $string, $i - 1 ) ) ) {
 						$temp_add = '\\A';
 						$this->log( 'Fixed incorrect newline in string', 'Warning' );
 					}
