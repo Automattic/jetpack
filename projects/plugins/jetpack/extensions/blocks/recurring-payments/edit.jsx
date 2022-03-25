@@ -23,21 +23,25 @@ import { store as membershipProductsStore } from '../../store/membership-product
 export default function Edit( { attributes, clientId, context, setAttributes } ) {
 	const { planId } = attributes;
 	const { isPremiumContentChild } = context;
-	const postLink = useSelect(
-		select => new URL( select( editorStore ).getCurrentPost().link ),
-		[]
-	);
+	const postLink = useSelect( select => select( editorStore )?.getCurrentPost()?.link, [] );
 	const upgradeUrl = useSelect( select => select( membershipProductsStore ).getUpgradeUrl() );
 
-	const updateSubscriptionPlan = newPlanId => {
-		postLink.searchParams.set( 'recurring_payments', newPlanId );
-		return setAttributes( {
+	const resolvePaymentUrl = newPlanId => {
+		if ( postLink ) {
+			const postUrl = new URL( postLink );
+			postUrl.searchParams.set( 'recurring_payments', newPlanId );
+			return postUrl.toString();
+		}
+		// When we aren't in an editing post context.
+		return '#';
+	};
+
+	const updateSubscriptionPlan = newPlanId =>
+		setAttributes( {
 			planId: newPlanId,
-			// We need to use an absolute URL otherwise the reader won't be able to open the post.
-			url: postLink.toString(),
+			url: resolvePaymentUrl( newPlanId ),
 			uniqueId: `recurring-payments-${ newPlanId }`,
 		} );
-	};
 
 	/**
 	 * Filters the flag that determines if the Recurring Payments block controls should be shown in the inspector.
