@@ -220,7 +220,7 @@ class WPCOM_JSON_API_List_Media_v1_1_Endpoint extends WPCOM_JSON_API_Endpoint { 
 	/**
 	 * Handle figuring out the page handler is.
 	 *
-	 * @param string $where - where the handler is.
+	 * @param string $where - sql where clause.
 	 */
 	public function handle_where_for_page_handle( $where ) {
 		global $wpdb;
@@ -288,7 +288,7 @@ class WPCOM_JSON_API_List_Media_v1_1_Endpoint extends WPCOM_JSON_API_Endpoint { 
 	/**
 	 * Handle date range.
 	 *
-	 * @param string $where - where in the databse.
+	 * @param string $where - sql where clause.
 	 */
 	public function handle_date_range( $where ) {
 		global $wpdb;
