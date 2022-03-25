@@ -14,18 +14,6 @@ const ALLOWED_BLOCKS = [ containedBlockName ];
 
 const DEFAULT_BLOCK = {
 	name: containedBlockName,
-	attributesToCopy: [
-		// TODO: Do all of these make sense? Are there more that make sense?
-		'backgroundColor',
-		'border',
-		'className',
-		'fontFamily',
-		'fontSize',
-		'gradient',
-		'style',
-		'textColor',
-		'width',
-	],
 };
 
 function RecurringPaymentsEdit() {
