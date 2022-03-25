@@ -37,4 +37,5 @@ export { default as Button } from './components/button';
 export { default as ProductPrice } from './components/product-price';
 export { default as ProductOffer } from './components/product-offer';
 export { default as Dialog } from './components/dialog';
+export { default as RecordMeterBar } from './components/record-meter-bar';
 export { getUserLocale, cleanLocale } from './lib/locale';

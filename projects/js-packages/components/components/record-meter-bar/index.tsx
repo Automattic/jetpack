@@ -5,27 +5,39 @@ import React, { useMemo } from 'react';
 
 import './style.scss';
 
-/**
- * Record meter item props
- *
- * @typedef {object} RecordMeterBarItem
- * @property {number} count - Count for the given item
- * @property {string} label - Label to be used for the given item
- * @property {string} backgroundColor - Color code for the background color for the item
- *
- * Record meter props
- * @typedef {object} RecordMeterBarProps
- * @property {number} [totalCount] - Total number of items for the record meter
- * @property {RecordMeterBarItem[]} items - The items to display in Record meter
- */
+type RecordMeterBarItem = {
+	/**
+	 * Count for the given item
+	 */
+	count: number;
+	/**
+	 * Label to be used for the given item
+	 */
+	label: string;
+	/**
+	 * Color code for the background color for the item
+	 */
+	backgroundColor: string;
+};
+
+export type RecordMeterBarProps = {
+	/**
+	 * Total number of items for the record meter. If not provided, its is the sum of item.count of all items.
+	 */
+	totalCount?: number;
+	/**
+	 * The items to display in Record meter.
+	 */
+	items: Array< RecordMeterBarItem >;
+};
 
 /**
  * Generate Record Meter bar
  *
  * @param {RecordMeterBarProps} props - Props
- * @returns {React.ReactElement} RecordMeter React component
+ * @returns {React.ReactElement} - JSX element
  */
-export default function RecordMeterBar( { totalCount, items = [] } ) {
+const RecordMeterBar: React.FC< RecordMeterBarProps > = ( { totalCount, items = [] } ) => {
 	const total = useMemo( () => {
 		// If total count is not given, then compute it from items' count
 		return (
@@ -64,4 +76,6 @@ export default function RecordMeterBar( { totalCount, items = [] } ) {
 			</div>
 		</div>
 	) : null;
-}
+};
+
+export default RecordMeterBar;
