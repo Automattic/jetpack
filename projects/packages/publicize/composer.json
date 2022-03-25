@@ -1,7 +1,7 @@
 {
 	"name": "automattic/jetpack-publicize",
 	"description": "Publicize makes it easy to share your site’s posts on several social media networks automatically when you publish a new post.",
-	"type": "library",
+	"type": "jetpack-library",
 	"license": "GPL-2.0-or-later",
 	"require": {},
 	"require-dev": {
