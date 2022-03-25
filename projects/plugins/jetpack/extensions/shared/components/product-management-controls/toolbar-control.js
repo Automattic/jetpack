@@ -16,6 +16,7 @@ import { check, update, warning } from '@wordpress/icons';
 /**
  * Internal dependencies
  */
+import { getMessageByProductType } from './utils';
 import { store as membershipProductsStore } from '../../../store/membership-products';
 
 function getProductDescription( product ) {
@@ -64,7 +65,7 @@ function Product( { onClose, product, selectedProductId, setSelectedProductId } 
 	);
 }
 
-function NewProduct( { onClose } ) {
+function NewProduct( { onClose, productType } ) {
 	const isEditorSidebarOpened = useSelect( select =>
 		select( editPostStore ).isEditorSidebarOpened()
 	);
@@ -84,11 +85,16 @@ function NewProduct( { onClose } ) {
 		onClose();
 	};
 
-	return <MenuItem onClick={ handleClick }>{ __( 'Add a new subscription', 'jetpack' ) }</MenuItem>;
+	return (
+		<MenuItem onClick={ handleClick }>
+			{ getMessageByProductType( 'add a new product', productType ) }
+		</MenuItem>
+	);
 }
 
 export default function ProductManagementToolbarControl( {
 	products,
+	productType,
 	selectedProductId,
 	setSelectedProductId,
 } ) {
@@ -103,7 +109,7 @@ export default function ProductManagementToolbarControl( {
 		productDescription = getProductDescription( selectedProduct );
 	}
 	if ( selectedProductId && ! selectedProduct ) {
-		productDescription = __( 'Subscription not found', 'jetpack' );
+		productDescription = getMessageByProductType( 'product not found', productType );
 		subscriptionIcon = warning;
 	}
 
@@ -112,7 +118,7 @@ export default function ProductManagementToolbarControl( {
 			<ToolbarDropdownMenu
 				className="product-management-control-toolbar__dropdown-button"
 				icon={ subscriptionIcon }
-				label={ __( 'Select a plan', 'jetpack' ) }
+				label={ getMessageByProductType( 'select a product', productType ) }
 				text={ productDescription }
 			>
 				{ ( { onClose } ) => (
@@ -129,7 +135,7 @@ export default function ProductManagementToolbarControl( {
 							) ) }
 						</MenuGroup>
 						<MenuGroup>
-							<NewProduct onClose={ onClose } />
+							<NewProduct onClose={ onClose } productType={ productType } />
 						</MenuGroup>
 					</>
 				) }

@@ -1,4 +1,0 @@
-Significance: patch
-Type: fixed
-
-My Jetpack: jetpack_my_jetpack_should_initialize filter now respected when set to true.
