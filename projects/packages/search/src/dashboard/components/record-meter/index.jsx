@@ -20,7 +20,7 @@ import './style.scss';
  * @param {object} props - Props
  * @param {object} props.postTypeBreakdown - Post type breakdown (post type => number of posts)
  * @param {number} props.tierMaximumRecords - Max number of records allowed in user's current tier
- * @param {Date} props.lastIndexedDate - The date on which the site was last indexed
+ * @param {string} props.lastIndexedDate - The date on which the site was last indexed in ISO 8601 format
  * @returns {React.Component} RecordMeter React component
  */
 export default function RecordMeter( {
