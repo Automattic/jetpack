@@ -1,18 +1,18 @@
-<?php
+<?php // phpcs:ignore WordPress.Files.FileName.InvalidClassFileName: This is necessary to ensure that PHPUnit runs these tests.
 /**
  * Instant Search test cases
  *
  * @package automattic/jetpack
  */
 
-if ( defined( 'IS_WPCOM' ) && IS_WPCOM ) {
-	require_once WPMU_PLUGIN_DIR . '/jetpack-plugin/vendor/autoload_packages.php';
-}
+namespace Automattic\Jetpack\Search;
+
+use PHPUnit\Framework\TestCase;
 
 /**
  * Jetpack_Instant_Search test cases
  */
-class WP_Test_Instant_Search extends WP_UnitTestCase {
+class Test_Instant_Search extends TestCase {
 
 	/**
 	 * Jetpack Instant Search instance
@@ -23,10 +23,11 @@ class WP_Test_Instant_Search extends WP_UnitTestCase {
 
 	/**
 	 * Setup test instance
+	 *
+	 * @before
 	 */
 	public function set_up() {
-		parent::set_up();
-		static::$instant_search = Automattic\Jetpack\Search\Instant_Search::instance( get_current_blog_id() );
+		static::$instant_search = Instant_Search::instance( get_current_blog_id() );
 	}
 
 	/**
@@ -110,7 +111,7 @@ class WP_Test_Instant_Search extends WP_UnitTestCase {
 	 * @return mixed The value of the private member.
 	 */
 	private function get_private_member_value( $object, $member_name ) {
-		$ref = new ReflectionObject( $object );
+		$ref = new \ReflectionObject( $object );
 		$m   = $ref->getProperty( $member_name );
 		$m->setAccessible( true );
 		return $m->getValue( $object );
@@ -126,7 +127,7 @@ class WP_Test_Instant_Search extends WP_UnitTestCase {
 	 * @param mixed  $value Value of the private member.
 	 */
 	private function set_private_member_value( $object, $member_name, $value = null ) {
-		$ref = new ReflectionObject( $object );
+		$ref = new \ReflectionObject( $object );
 		$m   = $ref->getProperty( $member_name );
 		$m->setAccessible( true );
 		$m->setValue( $object, $value );
