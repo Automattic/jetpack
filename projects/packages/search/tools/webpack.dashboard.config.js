@@ -40,7 +40,7 @@ module.exports = {
 	],
 	externals: {
 		jetpackConfig: JSON.stringify( {
-			consumer_slug: 'jetpack-search-package',
+			consumer_slug: 'jetpack-search',
 		} ),
 	},
 	module: {
