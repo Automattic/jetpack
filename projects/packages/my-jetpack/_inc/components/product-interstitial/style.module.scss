@@ -1,13 +1,9 @@
 .container {
 	// Card main wrapper
-	--product-card-bg-color: white;
-	--product-card-border-color: #d5d5d5;
 	--product-card-shadow: rgb(0 0 0 / 3%);
-	--product-card-border-radius: 4px;
-
-	background-color: var(--product-card-bg-color);
-	border: 1px solid var(--product-card-border-color);
-	border-radius: var(--product-card-border-radius);
+	background-color: var(--jp-white);
+	border: 1px solid var(--jp-gray);
+	border-radius: var(--jp-border-radius);
 	box-shadow: 0 2px 6px var(--product-card-shadow), 0 1px 2px var(--product-card-shadow);
 }
 
