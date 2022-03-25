@@ -902,7 +902,6 @@ importers:
       '@rollup/plugin-typescript': 8.2.5
       '@sveltejs/eslint-config': github:sveltejs/eslint-config
       '@tsconfig/svelte': 2.0.1
-      '@wordpress/e2e-test-utils': 6.0.2
       '@wordpress/i18n': 4.3.1
       eslint-plugin-import: 2.25.4
       eslint-plugin-svelte3: 3.2.1
@@ -930,7 +929,6 @@ importers:
       '@rollup/plugin-typescript': 8.2.5_fb60d1099d0f1062e1f455c5bc85cce0
       '@sveltejs/eslint-config': github.com/sveltejs/eslint-config/8a67624e4080bd7997606eb34981aa3346bc8de2_cb8384c5cf2994fc1dc8e53430d6f98d
       '@tsconfig/svelte': 2.0.1
-      '@wordpress/e2e-test-utils': 6.0.2
       '@wordpress/i18n': 4.3.1
       eslint-plugin-import: 2.25.4
       eslint-plugin-svelte3: 3.2.1_svelte@3.42.4
@@ -8223,24 +8221,6 @@ packages:
       '@babel/runtime': 7.17.8
       lodash: 4.17.21
 
-  /@wordpress/e2e-test-utils/6.0.2:
-    resolution: {integrity: sha512-0Vz/DcneaVreuVhtZ0ecfv/tKg/q0FflnQ3MnnRlqmf4tZNnkKPuBj6l/XbzRsH61NzQbhYnHV7gYV4o+UIVLQ==}
-    engines: {node: '>=12'}
-    peerDependencies:
-      jest: '>=27'
-      puppeteer-core: '>=11'
-    dependencies:
-      '@babel/runtime': 7.17.8
-      '@wordpress/api-fetch': 6.0.1
-      '@wordpress/keycodes': 3.3.1
-      '@wordpress/url': 3.4.1
-      form-data: 4.0.0
-      lodash: 4.17.21
-      node-fetch: 2.6.7
-    transitivePeerDependencies:
-      - encoding
-    dev: true
-
   /@wordpress/edit-post/6.0.2_978f344c876a57c1143ffe356b90df31:
     resolution: {integrity: sha512-LWDJI6fxxJblu5S4MC9/EYFXYYVdr5trNocSDsqLkScY1Cn+4lb+BnmcDV6qj1xW2rWQYxQjEfvud6EkaGL4Kw==}
     engines: {node: '>=12'}
@@ -13595,6 +13575,7 @@ packages:
       asynckit: 0.4.0
       combined-stream: 1.0.8
       mime-types: 2.1.34
+    dev: false
 
   /format/0.2.2:
     resolution: {integrity: sha1-1hcBB+nv3E7TDJ3DkBbflCtctYs=}
