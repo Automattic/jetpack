@@ -43,10 +43,6 @@ module.exports = {
 				allowedTextDomain: 'jetpack',
 			},
 		],
-		'jsdoc/check-tag-names': [
-			1, // Recommended
-			{ definedTags: [ 'jest-environment' ] },
-		],
 	},
 	settings: {
 		jsdoc: {
