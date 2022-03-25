@@ -18,14 +18,14 @@ Available slugs are:
 
 ```js
 import {
-    getIconByslug
+	getIconByslug
 } from '@automattic/jetpack-components';
 
 const Icon = getIconBySlug( 'boost' );
 return (
-    <div>
-        <Icon />
-    </div>
+	<div>
+		<Icon />
+	</div>
 )
 ```
 
@@ -45,28 +45,28 @@ return (
 import {
 	AntiSpamIcon,
 	BackupIcon,
-    BoostIcon,
+	BoostIcon,
 	CheckmarkIcon,
-    CrmIcon,
+	CrmIcon,
 	ScanIcon,
-    SearchIcon,
+	SearchIcon,
 	StarIcon,
-    VideoPressIcon
+	VideoPressIcon
 } from '@automattic/jetpack-components';
 
 
 return (
-    <div>
-	    <AntiSpamIcon />
-	    <BackupIcon />
-        <BoostIcon />
-	    <CheckmarkIcon />
-        <CrmIcon />
-	    <ScanIcon />
-        <SearchIcon />
-	    <StarIcon />
-        <VideoPressIcon />
-    </div>
+	<div>
+		<AntiSpamIcon />
+		<BackupIcon />
+		<BoostIcon />
+		<CheckmarkIcon />
+		<CrmIcon />
+		<ScanIcon />
+		<SearchIcon />
+		<StarIcon />
+		<VideoPressIcon />
+	</div>
 )
 
 ```
