@@ -42,7 +42,7 @@
 	height: 100%;
 }
 
-.font-instances-wrapper {
+.instances-wrapper {
 	display: flex;
 	flex-direction: column;
 }
@@ -52,6 +52,10 @@
 	padding: 20px 30px;
 	background-color: var( --jp-white );
 	border: 1px dotted var( --jp-gray-10 );
+	position: relative;
+	&:hover .copy-button {
+		opacity: 1;
+	}
 }
 
 .color-instance {
@@ -61,4 +65,15 @@
 	line-height: 60px;
 	padding: 10px;
 	margin: 10px 0;
+	position: relative;
+	&:hover .copy-button {
+		opacity: 1;
+	}
+}
+
+.copy-button {
+	opacity: 0.3;
+	position: absolute;
+	top: 5px;
+	right: 5px;
 }

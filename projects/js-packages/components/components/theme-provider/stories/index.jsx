@@ -2,6 +2,7 @@
  * External dependencies
  */
 import React from 'react';
+import { ClipboardButton } from '@wordpress/components';
 
 /**
  * Internal dependencies
@@ -58,6 +59,8 @@ export default {
 	],
 };
 
+const noop = () => {};
+
 const Section = ( { title, data, children } ) => (
 	<div className={ styles.section }>
 		<h1 className={ styles.title }>{ title }</h1>
@@ -99,10 +102,20 @@ export const Tokens = () => (
 );
 
 export const Typographies = args => (
-	<div className={ styles[ 'font-instances-wrapper' ] }>
+	<div className={ styles[ 'instances-wrapper' ] }>
 		{ Object.keys( typography ).map( key => (
 			<div className={ styles[ 'font-instance' ] } style={ { fontSize: typography[ key ] } }>
 				{ args?.[ 'Text Instance' ] || `${ key } (${ typography[ key ] } )` }
+
+				<ClipboardButton
+					variant="tertiary"
+					text={ key }
+					isSecondary
+					onCopy={ noop }
+					className={ styles[ 'copy-button' ] }
+				>
+					Copy
+				</ClipboardButton>
 			</div>
 		) ) }
 	</div>
@@ -120,6 +133,17 @@ export const Colors = () => (
 				style={ { backgroundColor: colors[ key ], color: getContrast( colors[ key ] ) } }
 			>
 				{ `${ key } (${ colors[ key ].toUpperCase() } )` }
+
+				<ClipboardButton
+					variant="tertiary"
+					text={ key }
+					isSecondary
+					onCopy={ noop }
+					className={ styles[ 'copy-button' ] }
+					style={ { color: getContrast( colors[ key ] ) } }
+				>
+					Copy
+				</ClipboardButton>
 			</div>
 		) ) }
 	</div>
