@@ -2261,6 +2261,15 @@ class Jetpack_Core_Json_Api_Endpoints {
 
 		$options = array(
 
+			// Blocks.
+			'blocks_disabled'                      => array(
+				'description'       => esc_html__( 'Force disable all editor extensions (plugins and blocks).', 'jetpack' ),
+				'type'              => 'boolean',
+				'default'           => 0,
+				'validate_callback' => __CLASS__ . '::validate_boolean',
+				'jp_group'          => 'blocks',
+			),
+
 			// Carousel
 			'carousel_background_color'            => array(
 				'description'       => esc_html__( 'Color scheme.', 'jetpack' ),
