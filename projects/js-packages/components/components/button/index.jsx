@@ -12,7 +12,7 @@ export const BUTTON_SIZES = {
 	SMALL: 'small',
 };
 
-const Button = ( { children, variant, size, icon, disabled } ) => {
+const Button = ( { children, variant, size, icon, disabled, isDestructive } ) => {
 	const className = classNames( styles.button, {
 		[ styles.normal ]: size === BUTTON_SIZES.NORMAL,
 		[ styles.small ]: size === BUTTON_SIZES.SMALL,
@@ -20,7 +20,13 @@ const Button = ( { children, variant, size, icon, disabled } ) => {
 	} );
 
 	return (
-		<WPButton variant={ variant } className={ className } icon={ icon } disabled={ disabled }>
+		<WPButton
+			variant={ variant }
+			className={ className }
+			icon={ icon }
+			disabled={ disabled }
+			isDestructive={ isDestructive }
+		>
 			{ children }
 		</WPButton>
 	);
@@ -30,12 +36,14 @@ Button.propTypes = {
 	variant: PropTypes.oneOf( [ 'primary', 'secondary', 'link' ] ),
 	size: PropTypes.oneOf( [ BUTTON_SIZES.NORMAL, BUTTON_SIZES.SMALL ] ),
 	disabled: PropTypes.bool,
+	isDestructive: PropTypes.bool,
 };
 
 Button.defaultProps = {
 	variant: 'primary',
 	size: BUTTON_SIZES.NORMAL,
 	disabled: false,
+	isDestructive: false,
 };
 
 export default Button;

@@ -85,3 +85,16 @@ Disabled.args = {
 	variant: 'primary',
 	disabled: true,
 };
+
+export const Destructive = Template.bind( {} );
+Destructive.argTypes = {
+	isDestructive: {
+		control: false,
+	},
+};
+Destructive.args = {
+	size: 'normal',
+	children: 'Jetpack Button',
+	variant: 'primary',
+	isDestructive: true,
+};
