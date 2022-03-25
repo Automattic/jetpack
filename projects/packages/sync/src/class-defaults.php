@@ -26,6 +26,7 @@ class Defaults {
 		'advanced_seo_title_formats', // Jetpack_SEO_Titles::TITLE_FORMATS_OPTION.
 		'avatar_default',
 		'avatar_rating',
+		'blocks_disabled',
 		'blog_charset',
 		'blog_public',
 		'blogdescription',

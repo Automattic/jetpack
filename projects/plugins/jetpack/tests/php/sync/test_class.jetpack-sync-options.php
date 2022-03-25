@@ -65,6 +65,7 @@ class WP_Test_Jetpack_Sync_Options extends WP_Test_Jetpack_Sync_Base {
 		// check that these values exists in the whitelist options
 		$options = array(
 			'stylesheet'                                   => 'test',
+			'blocks_disabled'                              => false,
 			'blogname'                                     => 'test',
 			'blogdescription'                              => 'banana',
 			'blog_charset'                                 => 'stuffs',
