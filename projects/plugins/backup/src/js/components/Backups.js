@@ -2,7 +2,7 @@
  * External dependencies
  */
 import { getDate, date, dateI18n } from '@wordpress/date';
-import { __ } from '@wordpress/i18n';
+import { __, sprintf } from '@wordpress/i18n';
 import apiFetch from '@wordpress/api-fetch';
 import { createInterpolateElement, useState, useEffect } from '@wordpress/element';
 import { useSelect } from '@wordpress/data';
@@ -37,6 +37,7 @@ const Backups = () => {
 		themes: 0,
 	} );
 	const domain = useSelect( select => select( STORE_ID ).getCalypsoSlug(), [] );
+	const siteTitle = useSelect( select => select( STORE_ID ).getSiteTitle(), '' );
 
 	const BACKUP_STATE = {
 		LOADING: 0,
@@ -121,7 +122,13 @@ const Backups = () => {
 					{ showProgressBar && (
 						<div className="backup__progress">
 							<div className="backup__progress-info">
-								<p>{ __( 'Backing up Your Groovy Site…', 'jetpack-backup' ) }</p>
+								<p>
+									{ sprintf(
+										/* translators: placeholder is the Site Title */
+										__( 'Backing up %s', 'jetpack-backup' ),
+										siteTitle
+									) }
+								</p>
 								<p className="backup__progress-info-percentage">{ progress }%</p>
 							</div>
 							<div className="backup__progress-bar">
