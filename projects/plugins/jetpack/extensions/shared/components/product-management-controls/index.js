@@ -25,7 +25,11 @@ export default function ProductManagementControls( {
 } ) {
 	const products = useSelect(
 		select =>
-			select( membershipProductsStore ).getProducts( selectedProductId, setSelectedProductId ),
+			select( membershipProductsStore ).getProducts(
+				productType,
+				selectedProductId,
+				setSelectedProductId
+			),
 		[]
 	);
 	const { connectUrl, isApiConnected, isSelectedProductInvalid, shouldUpgrade } = useSelect(
