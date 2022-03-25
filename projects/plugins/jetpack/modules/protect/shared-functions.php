@@ -1,7 +1,10 @@
 <?php
 /**
  * These functions are shared by the Protect module and its related json-endpoints
+ *
+ * @package automattic/jetpack
  */
+
 /**
  * Returns an array of IP objects that will never be blocked by the Protect module
  *
@@ -12,7 +15,7 @@
  */
 function jetpack_protect_format_whitelist() {
 	$local_whitelist = jetpack_protect_get_local_whitelist();
-	$formatted = array(
+	$formatted       = array(
 		'local' => array(),
 	);
 	foreach ( $local_whitelist as $item ) {
@@ -201,7 +204,7 @@ function jetpack_clean_ip( $ip ) {
 
 	// Some misconfigured servers give back extra info, which comes after "unless".
 	$ips = explode( ' unless ', $ip );
-	$ip = $ips[0];
+	$ip  = $ips[0];
 
 	$ip = strtolower( trim( $ip ) );
 
@@ -243,7 +246,7 @@ function jetpack_protect_ip_is_private( $ip ) {
 		'169.254.0.0|169.254.255.255', // Link-local address also referred to as Automatic Private IP Addressing.
 		'127.0.0.0|127.255.255.255',    // localhost.
 	);
-	$long_ip = ip2long( $ip );
+	$long_ip               = ip2long( $ip );
 	if ( -1 !== $long_ip ) {
 		foreach ( $private_ip4_addresses as $pri_addr ) {
 			list ( $start, $end ) = explode( '|', $pri_addr );

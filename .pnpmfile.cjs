@@ -13,12 +13,20 @@
 function fixDeps( pkg ) {
 	// Why do they not publish new versions from their monorepo?
 	if ( pkg.name === '@automattic/format-currency' ) {
-		// 1.0.0-alpha.0 published 3 years ago
+		// 1.0.0-alpha.0 published 2019-03-21
 		pkg.dependencies[ 'i18n-calypso' ] = '^5';
 	}
 	if ( pkg.name === 'i18n-calypso' && pkg.dependencies[ 'interpolate-components' ] ) {
-		// 5.0.0 published 2 years ago
+		// 5.0.0 published 2020-07-01
 		pkg.dependencies[ 'interpolate-components' ] = 'npm:@automattic/interpolate-components@^1.2.0';
+	}
+	if ( pkg.name === '@automattic/social-previews' ) {
+		// 1.1.1 published 2021-04-08
+		if ( pkg.dependencies[ '@wordpress/components' ] === '^12.0.8' ) {
+			// Update to avoid a dep on @emotion/native that wants react-native.
+			// This dep update is in their monorepo as of 2022-03-10 with no code changes.
+			pkg.dependencies[ '@wordpress/components' ] = '^19.2.0';
+		}
 	}
 
 	// Even though Storybook works with webpack 5, they still have a bunch of deps on webpack4.
@@ -78,6 +86,11 @@ function fixPeerDeps( pkg ) {
 		) {
 			pkg.peerDependencies[ p ] += ' || ^17';
 		}
+	}
+
+	// @sveltejs/eslint-config peer-depends on eslint-plugin-node but doesn't seem to actually use it.
+	if ( pkg.name === '@sveltejs/eslint-config' ) {
+		delete pkg.peerDependencies?.[ 'eslint-plugin-node' ];
 	}
 
 	// Outdated. Looks like they're going to drop the eslint-config-wpcalypso package entirely with
