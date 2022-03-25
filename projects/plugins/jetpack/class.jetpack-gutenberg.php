@@ -463,6 +463,12 @@ class Jetpack_Gutenberg {
 			return false;
 		}
 
+		// Allow disabling all extensions via a toggle in the Jetpack dashboard.
+		$blocks_disabled_in_ui = (bool) Jetpack_Options::get_option( 'blocks_disabled', false );
+		if ( true === $blocks_disabled_in_ui ) {
+			return false;
+		}
+
 		/**
 		 * Filter to disable Gutenberg blocks
 		 *
