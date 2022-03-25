@@ -3,7 +3,6 @@ const loadIgnorePatterns = require( '../../../../tools/js-tools/load-eslint-igno
 module.exports = {
 	extends: [ '../../../../tools/js-tools/eslintrc/jest' ],
 	ignorePatterns: loadIgnorePatterns( __dirname ),
-	env: { jest: true },
 	rules: {
 		'react/forbid-elements': [
 			'error',
