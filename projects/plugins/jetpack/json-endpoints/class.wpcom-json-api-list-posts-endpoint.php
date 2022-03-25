@@ -365,7 +365,7 @@ class WPCOM_JSON_API_List_Posts_Endpoint extends WPCOM_JSON_API_Post_Endpoint {
 	/**
 	 * Handle the date range.
 	 *
-	 * @param string $where - where in the database.
+	 * @param string $where - SQL where clause.
 	 */
 	public function handle_date_range( $where ) {
 		global $wpdb;
