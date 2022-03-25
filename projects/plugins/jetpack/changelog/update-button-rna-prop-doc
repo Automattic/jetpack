@@ -1,0 +1,4 @@
+Significance: patch
+Type: other
+
+Documented the `rna` prop of the Button component

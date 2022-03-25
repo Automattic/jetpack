@@ -6,7 +6,6 @@
  */
 
 use Automattic\Jetpack\Waf\WafOperators;
-use Automattic\Jetpack\Waf\WafRuleCompiler;
 
 /**
  * Operators test suite.
@@ -474,21 +473,30 @@ final class WafOperatorsTest extends PHPUnit\Framework\TestCase {
 			'TestCase',
 		);
 
-		$a2i = ord( 'a' ) . '-' . ord( 'i' );
+		$zero_to_255_range = array(
+			'min'   => 0,
+			'max'   => 255,
+			'range' => array( array( 0, 255 ) ),
+		);
+		$a_to_i_range      = array(
+			'min'   => ord( 'a' ),
+			'max'   => ord( 'i' ),
+			'range' => array( array( ord( 'a' ), ord( 'i' ) ) ),
+		);
 		yield array(
 			'validate_byte_range',
 			// input, paramToMatch, expected_return.
 			'',
-			WafRuleCompiler::parse_byte_range( array( '0-255' ) ),
+			$zero_to_255_range,
 			false,
 			'abcdefghi',
-			WafRuleCompiler::parse_byte_range( array( '0-255' ) ),
+			$zero_to_255_range,
 			false,
 			'abcdefghi',
-			WafRuleCompiler::parse_byte_range( array( $a2i ) ),
+			$a_to_i_range,
 			false,
 			'abcdefghij',
-			WafRuleCompiler::parse_byte_range( array( $a2i ) ),
+			$a_to_i_range,
 			'j',
 		);
 
