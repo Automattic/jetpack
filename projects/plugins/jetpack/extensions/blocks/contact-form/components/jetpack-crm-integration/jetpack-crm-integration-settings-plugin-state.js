@@ -60,18 +60,23 @@ const CRMPluginIsInstalling = ( { isActivating } ) => {
 	);
 };
 
-const CRMPluginIsNotInstalled = ( installAndActivateCRMPlugin, isInstalling ) => {
+const CRMPluginIsNotInstalled = ( { installAndActivateCRMPlugin, isInstalling } ) => {
+	let button = (
+		<Button variant="secondary" onClick={ installAndActivateCRMPlugin }>
+			{ __( 'Install Jetpack CRM', 'jetpack' ) }
+		</Button>
+	);
+
+	if ( isInstalling ) {
+		button = <CRMPluginIsInstalling />;
+	}
+
 	return (
 		<p className="jetpack-contact-form__crm_text">
 			<em style={ { color: 'rgba(38, 46, 57, 0.7)' } }>
 				{ __( 'You can save contacts from Jetpack contact forms in Jetpack CRM.', 'jetpack' ) }
 				<br />
-				{ isInstalling && <CRMPluginIsInstalling /> }
-				{ ! isInstalling && (
-					<Button variant="secondary" onClick={ installAndActivateCRMPlugin }>
-						{ __( 'Install Jetpack CRM', 'jetpack' ) }
-					</Button>
-				) }
+				{ button }
 			</em>
 		</p>
 	);
