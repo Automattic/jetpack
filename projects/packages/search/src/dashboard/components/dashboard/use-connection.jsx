@@ -43,7 +43,7 @@ export default function useConnection() {
 				apiRoot={ APIRoot }
 				apiNonce={ APINonce }
 				registrationNonce={ registrationNonce }
-				from="search"
+				from="jetpack-search"
 				redirectUri="admin.php?page=jetpack-search"
 			>
 				<h3>
