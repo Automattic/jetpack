@@ -463,13 +463,14 @@ jobs:
     runs-on: ubuntu-latest
     needs: changed_files
     if: needs.changed_files.outputs.lockfiles == 'true' || needs.changed_files.outputs.misc == 'true'
-    timeout-minutes: 1  # 2021-01-18: Successful runs take just a few seconds
+    timeout-minutes: 5  # 2022-03-25: The pnpm install will probably take a minute or so.
     steps:
       - uses: actions/checkout@v3
       - name: Setup tools
         uses: ./.github/actions/tool-setup
         with:
           php: false
+      - run: pnpm install
       - run: tools/check-intra-monorepo-deps.sh -v
       - run: .github/files/check-monorepo-package-repos.sh
 
