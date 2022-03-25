@@ -3,6 +3,8 @@
  */
 import apiFetch from '@wordpress/api-fetch';
 import { __, sprintf } from '@wordpress/i18n';
+import { dispatch as globalDispatch } from '@wordpress/data';
+import { CONNECTION_STORE_ID } from '@automattic/jetpack-connection';
 
 /**
  * Internal dependencies
@@ -109,6 +111,9 @@ function requestProductStatus( productId, data, { select, dispatch } ) {
 			.then( freshProduct => {
 				dispatch( setIsFetchingProduct( productId, false ) );
 				dispatch( setProduct( freshProduct ) );
+				if ( 'POST' === method ) {
+					globalDispatch( CONNECTION_STORE_ID ).refreshConnectedPlugins();
+				}
 				resolve( freshProduct?.status );
 			} )
 			.catch( error => {

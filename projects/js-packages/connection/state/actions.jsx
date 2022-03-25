@@ -1,3 +1,8 @@
+/**
+ * External dependencies
+ */
+import restApi from '@automattic/jetpack-api';
+
 const SET_CONNECTION_STATUS = 'SET_CONNECTION_STATUS';
 const SET_CONNECTION_STATUS_IS_FETCHING = 'SET_CONNECTION_STATUS_IS_FETCHING';
 const FETCH_CONNECTION_STATUS = 'FETCH_CONNECTION_STATUS';
@@ -11,6 +16,7 @@ const CONNECT_USER = 'CONNECT_USER';
 const FETCH_AUTHORIZATION_URL = 'FETCH_AUTHORIZATION_URL';
 const FETCH_CONNECTED_PLUGINS = 'FETCH_CONNECTED_PLUGINS';
 const SET_CONNECTED_PLUGINS = 'SET_CONNECTED_PLUGINS';
+const REFRESH_CONNECTED_PLUGINS = 'REFRESH_CONNECTED_PLUGINS';
 
 const setConnectionStatus = connectionStatus => {
 	return { type: SET_CONNECTION_STATUS, connectionStatus };
@@ -97,6 +103,32 @@ function* registerSite( { registrationNonce, redirectUri } ) {
 	}
 }
 
+/**
+ * Side effect action which will fetch a new list of connectedPlugins from the server
+ *
+ * @param {object}   store - Redux store.
+ * @param store.dispatch
+ * @returns {Promise}      - Promise which resolves when connectedPlugins is updated.
+ */
+function requestAndUpdateConnectedPlugins( { dispatch } ) {
+	return new Promise( resolve => {
+		// Fetch.
+		return restApi.fetchConnectedPlugins().then( data => {
+			dispatch( setAuthorizationUrl( data ) );
+			resolve( data );
+		} );
+	} );
+}
+
+/**
+ * Side effect action which will fetch a new list of connectedPlugins from the server
+ *
+ * @returns {Promise} - Promise which resolves when the product status is activated.
+ */
+const refreshConnectedPlugins = () => async store => {
+	return await requestAndUpdateConnectedPlugins( store );
+};
+
 const actions = {
 	setConnectionStatus,
 	setConnectionStatusIsFetching,
@@ -111,6 +143,7 @@ const actions = {
 	connectUser,
 	fetchConnectedPlugins,
 	setConnectedPlugins,
+	refreshConnectedPlugins,
 };
 
 export {
@@ -127,5 +160,6 @@ export {
 	CONNECT_USER,
 	FETCH_CONNECTED_PLUGINS,
 	SET_CONNECTED_PLUGINS,
+	REFRESH_CONNECTED_PLUGINS,
 	actions as default,
 };
