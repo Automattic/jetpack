@@ -58,7 +58,7 @@ async function rsyncToDest( source, dest ) {
 }
 
 /**
- * Prompts for the destination path. Should end in wp-content/plugins
+ * Prompts for the destination path.
  *
  * @param {object} argv - Passthrough of the argv object.
  * @returns {object} argv object with the project property.
@@ -69,7 +69,7 @@ async function promptForDest( argv ) {
 	}
 	const response = await inquirer.prompt( {
 		name: 'dest',
-		message: 'Input destination path to the wp-content/plugins dir: ',
+		message: 'Input destination path to the plugins dir: ',
 		validate: input => validateDest( input ),
 	} );
 	argv.dest = response.dest;
@@ -79,7 +79,7 @@ async function promptForDest( argv ) {
 /**
  * The destination path for the rsync.
  *
- * @param {string} dest - Destination path ending with wp-content/plugins
+ * @param {string} dest - Destination path.
  * @returns {boolean} - If it's valid.
  */
 function validateDest( dest ) {
@@ -87,9 +87,9 @@ function validateDest( dest ) {
 		return false;
 	}
 
-	if ( dest.length > 0 && ! dest.endsWith( 'wp-content/plugins' ) ) {
+	if ( dest.length > 0 && ! ( dest.endsWith( 'plugins' ) || dest.endsWith( 'plugins/' ) ) ) {
 		console.log(
-			chalk.yellow( 'Destination path is expected to end with wp-content/plugins. Got: ' + dest )
+			chalk.yellow( 'Destination path is expected to end in a /plugins dir. Got: ' + dest )
 		);
 		return false;
 	}
