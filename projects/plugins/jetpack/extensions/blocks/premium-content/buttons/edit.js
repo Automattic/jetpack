@@ -104,11 +104,12 @@ function ButtonsEdit( { context, subscribeButton, setSubscribeButtonPlan } ) {
 
 export default compose( [
 	withSelect( ( select, props ) => {
-		// Only first block is assumed to be a subscribe button (users can add additional Recurring Payments blocks for
-		// other plans).
+		// Only first block of the first block is assumed to be a subscribe button (users can add additional
+		// Recurring Payments blocks for other plans).
 		const subscribeButton = select( 'core/block-editor' )
 			.getBlock( props.clientId )
-			.innerBlocks.find( block => block.name === 'jetpack/recurring-payments' );
+			.innerBlocks.find( block => block.name === 'jetpack/recurring-payments' )
+			.innerBlocks.find( block => block.name === 'jetpack/recurring-payments-button' );
 
 		return { subscribeButton };
 	} ),
