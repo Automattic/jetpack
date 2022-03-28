@@ -14,4 +14,7 @@
 
 # We never want .gitkeep in production mirrors. The deploy-to-svn.sh script strips out
 # the kept directories anyway, so there's no point to keeping them in the first place.
-.gitkeep production-exclude
+.gitkeep      production-exclude
+
+# We don't need these files in any production mirror.
+.eslintrc.js  production-exclude

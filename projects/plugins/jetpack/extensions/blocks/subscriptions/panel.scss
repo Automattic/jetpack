@@ -1,0 +1,11 @@
+.jetpack-subscribe-pre-publish-panel,
+.jetpack-subscribe-post-publish-panel {
+	.jetpack-inspector-notice {
+		margin: 0;
+	}
+
+	.jetpack-subscribe-reader-count {
+		text-decoration: underline;
+		white-space: nowrap; // Prevent reader counts from being broken into separate lines.
+	}
+}

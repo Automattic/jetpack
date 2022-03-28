@@ -39,15 +39,11 @@ export const settings = {
 		_x( 'embed', 'block search term', 'jetpack' ),
 	],
 	supports: {
-		/*
-		 * Support for block's alignment (left, center, right, wide, full). When
-		 * true, it adds block controls to change block’s alignment.
-		 */
-		align: false, // [ 'left', 'right', 'full' ]
-		/*
-		 * Support for wide alignment, that requires additional support in themes.
-		 */
-		alignWide: true,
+		align: [ 'wide', 'full' ],
+		spacing: {
+			padding: true,
+			margin: true,
+		},
 		/*
 		 * When true, a new field in the block sidebar allows to define an id for
 		 * the block and a button to copy the direct link.

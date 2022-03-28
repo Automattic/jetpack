@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Ensure that WP CLI is present before extending the class.

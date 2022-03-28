@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Resync PHPUnitTestTrait hack and have it detect "Testcase" in addition to "TestCase".

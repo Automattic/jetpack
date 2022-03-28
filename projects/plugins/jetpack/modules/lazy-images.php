@@ -1,5 +1,4 @@
 <?php
-
 /**
  * Module Name: Lazy Images
  * Module Description: Speed up your site and create a smoother viewing experience by loading images as visitors scroll down the screen, instead of all at once.
@@ -11,13 +10,14 @@
  * Module Tags: Appearance, Recommended
  * Feature: Appearance
  * Additional Search Queries: mobile, theme, fast images, fast image, image, lazy, lazy load, lazyload, images, lazy images, thumbnail, image lazy load, lazy loading, load, loading
+ *
+ * @package automattic/jetpack
  */
 
 /**
+ * The core of this module has been migrated to an standalone reusable package.
  *
  * @since 8.8
- *
- * The core of this module has been migrated to an standalone reusable package.
  */
 
 /*

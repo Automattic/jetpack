@@ -1,11 +1,14 @@
 {
 	"name": "automattic/action-pr-is-up-to-date",
-	"description": "GitHub Action to check that PRs are up to date with respect to a tag.",
+	"description": "GitHub Action to check that Pull Requests are up to date with respect to a git tag.",
 	"type": "library",
 	"license": "GPL-2.0-or-later",
 	"require": {},
 	"require-dev": {
 		"automattic/jetpack-changelogger": "3.0.x-dev"
+	},
+	"scripts": {
+		"test-js": "tests/run-tests.sh"
 	},
 	"repositories": [
 		{

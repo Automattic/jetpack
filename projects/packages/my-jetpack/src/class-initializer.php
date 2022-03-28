@@ -23,14 +23,24 @@ use Automattic\Jetpack\Tracking;
 class Initializer {
 
 	/**
+	 * My Jetpack package version
+	 *
+	 * @var string
+	 */
+	const PACKAGE_VERSION = '0.6.12-alpha';
+
+	/**
 	 * Initialize My Jetapack
 	 *
 	 * @return void
 	 */
 	public static function init() {
-		if ( ! self::should_initialize() ) {
+		if ( ! self::should_initialize() || did_action( 'my_jetpack_init' ) ) {
 			return;
 		}
+
+		// Extend jetpack plugins action links.
+		Products::extend_plugins_action_links();
 
 		// Set up the REST authentication hooks.
 		Connection_Rest_Authentication::init();
@@ -52,7 +62,7 @@ class Initializer {
 		/**
 		 * Fires after the My Jetpack package is initialized
 		 *
-		 * @since $$next_version$$
+		 * @since 0.1.0
 		 */
 		do_action( 'my_jetpack_init' );
 	}
@@ -64,6 +74,10 @@ class Initializer {
 	 */
 	public static function admin_init() {
 		add_action( 'admin_enqueue_scripts', array( __CLASS__, 'enqueue_scripts' ) );
+		// Product statuses are constantly changing, so we never want to cache the page.
+		header( 'Cache-Control: no-cache, no-store, must-revalidate' );
+		header( 'Pragma: no-cache' );
+		header( 'Expires: 0' );
 	}
 
 	/**
@@ -103,9 +117,12 @@ class Initializer {
 				'purchases'             => array(
 					'items' => array(),
 				),
-				'redirectUrl'           => admin_url( '?page=my-jetpack' ),
+				'redirectUrl'           => admin_url( 'admin.php?page=my-jetpack' ),
 				'topJetpackMenuItemUrl' => Admin_Menu::get_top_level_menu_item_url(),
 				'siteSuffix'            => ( new Status() )->get_site_suffix(),
+				'myJetpackVersion'      => self::PACKAGE_VERSION,
+				'fileSystemWriteAccess' => self::has_file_system_write_access(),
+				'connectedPlugins'      => self::get_connected_plugins(),
 			)
 		);
 
@@ -125,6 +142,28 @@ class Initializer {
 		if ( self::can_use_analytics() ) {
 			Tracking::register_tracks_functions_scripts( true );
 		}
+	}
+
+	/**
+	 * Get the list of plugins actively using the Connection
+	 *
+	 * @return array The list of plugins.
+	 */
+	private static function get_connected_plugins() {
+		$plugins = ( new Connection_Manager() )->get_connected_plugins();
+
+		if ( is_wp_error( $plugins ) ) {
+			return array();
+		}
+
+		array_walk(
+			$plugins,
+			function ( &$data, $slug ) {
+				$data['slug'] = $slug;
+			}
+		);
+
+		return $plugins;
 	}
 
 	/**
@@ -169,33 +208,28 @@ class Initializer {
 	}
 
 	/**
-	 * Return true if we should initialize the My Jetpack
+	 * Return true if we should initialize the My Jetpack admin page.
 	 */
 	public static function should_initialize() {
-		if ( did_action( 'my_jetpack_init' ) ) {
-			return false;
+		$should = true;
+
+		if ( is_multisite() ) {
+			$should = false;
+		}
+
+		// Do not initialize My Jetpack if site is not connected.
+		if ( ! ( new Connection_Manager() )->is_connected() ) {
+			$should = false;
 		}
 
 		/**
-		 * Allows filtering whether My Jetpack should be initialized
+		 * Allows filtering whether My Jetpack should be initialized.
 		 *
 		 * @since 0.5.0-alpha
 		 *
 		 * @param bool $shoud_initialize Should we initialize My Jetpack?
 		 */
-		$should = apply_filters( 'jetpack_my_jetpack_should_initialize', true );
-
-		// Feature flag while we are developing it.
-		if ( ! defined( 'JETPACK_ENABLE_MY_JETPACK' ) || ! JETPACK_ENABLE_MY_JETPACK ) {
-			return false;
-		}
-
-		// Do not initialize My Jetpack if site is not connected.
-		if ( ! ( new Connection_Manager() )->is_connected() ) {
-			return false;
-		}
-
-		return $should;
+		return apply_filters( 'jetpack_my_jetpack_should_initialize', $should );
 	}
 
 	/**
@@ -216,6 +250,47 @@ class Initializer {
 		}
 
 		return rest_ensure_response( $body, 200 );
+	}
+
+	/**
+	 * Returns true if the site has file write access to the plugins folder, false otherwise.
+	 *
+	 * @return bool
+	 **/
+	public static function has_file_system_write_access() {
+
+		$cache = get_transient( 'my_jetpack_write_access' );
+
+		if ( false !== $cache ) {
+			return $cache;
+		}
+
+		if ( ! function_exists( 'get_filesystem_method' ) ) {
+			require_once ABSPATH . 'wp-admin/includes/file.php';
+		}
+
+		require_once ABSPATH . 'wp-admin/includes/template.php';
+
+		$write_access = 'no';
+
+		$filesystem_method = get_filesystem_method( array(), WP_PLUGIN_DIR );
+		if ( 'direct' === $filesystem_method ) {
+			$write_access = 'yes';
+		}
+
+		if ( ! $write_access ) {
+			ob_start();
+			$filesystem_credentials_are_stored = request_filesystem_credentials( self_admin_url() );
+			ob_end_clean();
+
+			if ( $filesystem_credentials_are_stored ) {
+				$write_access = 'yes';
+			}
+		}
+
+		set_transient( 'my_jetpack_write_access', $write_access, 30 * MINUTE_IN_SECONDS );
+
+		return $write_access;
 	}
 
 }

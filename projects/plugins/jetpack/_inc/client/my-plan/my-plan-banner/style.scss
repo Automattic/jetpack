@@ -1,0 +1,17 @@
+@import '../../scss/calypso-colors';
+
+.jp-my-plan-banner__card {
+	background-color: $white;
+	background-position: 100%;
+	background-size: 50% 100%;
+	background-repeat: no-repeat;
+}
+
+.jp-my-plan-banner .my-plan-card__icon {
+	margin-top: 8px;
+	margin-bottom: 8px;
+}
+
+.jp-my-plan-banner .my-plan-card__header {
+	align-self: center;
+}

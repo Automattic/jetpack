@@ -2,8 +2,8 @@
 
 namespace Automattic\Jetpack_Boost\REST_API\Endpoints;
 
-use Automattic\Jetpack_Boost\Features\Optimizations\Critical_CSS\Critical_CSS_Storage;
-use Automattic\Jetpack_Boost\Features\Optimizations\Critical_CSS\Generate\Generator;
+use Automattic\Jetpack_Boost\Features\Optimizations\Critical_CSS\Generator;
+use Automattic\Jetpack_Boost\Lib\Critical_CSS\Critical_CSS_Storage;
 use Automattic\Jetpack_Boost\Lib\Nonce;
 use Automattic\Jetpack_Boost\REST_API\Contracts\Endpoint;
 use Automattic\Jetpack_Boost\REST_API\Permissions\Current_User_Admin;
@@ -20,10 +20,9 @@ class Generator_Error implements Endpoint {
 	 * @param \WP_REST_Request $request The request object.
 	 *
 	 * @return \WP_REST_Response|\WP_Error The response.
-	 * @todo: Figure out what to do in the JavaScript when responding with the error status.
+	 * @todo Figure out what to do in the JavaScript when responding with the error status.
 	 */
 	public function response( $request ) {
-
 		$cache_key = $request['cacheKey'];
 		$params    = $request->get_params();
 

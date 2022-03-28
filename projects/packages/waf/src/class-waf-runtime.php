@@ -237,7 +237,8 @@ class WafRuntime {
 		if ( ! $reason ) {
 			$reason = "rule $rule_id";
 		}
-		jpwaf_write_blocklog( $rule_id, $reason );
+		// ToDo: This needs to be re-introduced.
+		// jpwaf_write_blocklog( $rule_id, $reason );.
 		error_log( "Jetpack WAF Blocked Request\t$action\t$rule_id\t$status_code\t$reason" );
 		header( "X-JetpackWAF-Blocked: $status_code $reason" );
 		if ( defined( 'JETPACK_WAF_MODE' ) && 'normal' === JETPACK_WAF_MODE ) {
@@ -365,7 +366,7 @@ class WafRuntime {
 					foreach ( $_SERVER as $k => $v ) {
 						$k = strtolower( $k );
 						if ( 'http_' === substr( $k, 0, 5 ) ) {
-							$value[ $this->normalizeHeaderName( substr( $k, 0, 5 ) ) ] = $v;
+							$value[ $this->normalize_header_name( substr( $k, 5 ) ) ] = $v;
 						} elseif ( 'content_type' === $k ) {
 							$value['content-type'] = $v;
 						} elseif ( 'content_length' === $k ) {

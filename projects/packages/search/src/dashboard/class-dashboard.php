@@ -9,6 +9,7 @@ namespace Automattic\Jetpack\Search;
 
 use Automattic\Jetpack\Admin_UI\Admin_Menu;
 use Automattic\Jetpack\Assets;
+use Automattic\Jetpack\Connection\Initial_State as Connection_Initial_State;
 use Automattic\Jetpack\Connection\Manager as Connection_Manager;
 use Automattic\Jetpack\Status;
 use Automattic\Jetpack\Tracking;
@@ -47,9 +48,8 @@ class Dashboard {
 	 * @param Automattic\Jetpack\Search\Module_Control $module_control - Module_Control instance.
 	 */
 	public function __construct( $plan = null, $connection_manager = null, $module_control = null ) {
-		$this->plan = $plan ? $plan : new Plan();
-		// TODO: 'jetpack-search' better to be the current plugin where the package is running.
-		$this->connection_manager = $connection_manager ? $connection_manager : new Connection_Manager( 'jetpack-search' );
+		$this->plan               = $plan ? $plan : new Plan();
+		$this->connection_manager = $connection_manager ? $connection_manager : new Connection_Manager( Package::SLUG );
 		$this->module_control     = $module_control ? $module_control : new Module_Control( $this->plan );
 		$this->plan->init_hooks();
 	}
@@ -101,16 +101,25 @@ class Dashboard {
 	 * @return {boolean} Show search sub menu or not.
 	 */
 	protected function should_add_search_submenu() {
-		if ( ! current_user_can( 'manage_options' ) ) {
+		/**
+		 * Todo: temporary fix for Jetpack 10.8-a.9 release to prevent Search submenu item from showing on
+		 * sites without eligible Search plans.
+		 *
+		 * Currently sites without a Search plan will not be able to interact with the Search page toggles,
+		 * so that could lead to user confusion/frustration.
+		 */
+		if ( ! $this->plan->supports_search() ) {
 			return false;
 		}
 
-		// If site is in Offline Mode or not connected yet.
-		if ( ( new Status() )->is_offline_mode() || ! $this->connection_manager->is_connected() ) {
-			return false;
-		}
-
-		return $this->plan->ever_supported_search();
+		/**
+		 * The filter allows to ommit adding a submenu item for Jetpack Search.
+		 *
+		 * @since 0.11.2
+		 *
+		 * @param boolean $should_add_search_submenu Default value is true.
+		 */
+		return apply_filters( 'jetpack_search_should_add_search_submenu', current_user_can( 'manage_options' ) );
 	}
 
 	/**
@@ -145,6 +154,13 @@ class Dashboard {
 		wp_add_inline_script(
 			'jp-search-dashboard',
 			( new Initial_State() )->render(),
+			'before'
+		);
+
+		// Connection initial state.
+		wp_add_inline_script(
+			'jp-search-dashboard',
+			Connection_Initial_State::render(),
 			'before'
 		);
 	}

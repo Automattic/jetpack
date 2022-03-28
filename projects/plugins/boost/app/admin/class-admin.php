@@ -10,7 +10,6 @@ namespace Automattic\Jetpack_Boost\Admin;
 
 use Automattic\Jetpack\Admin_UI\Admin_Menu;
 use Automattic\Jetpack\Status;
-use Automattic\Jetpack_Boost\Features\Optimizations\Critical_CSS\Critical_CSS;
 use Automattic\Jetpack_Boost\Features\Optimizations\Optimizations;
 use Automattic\Jetpack_Boost\Features\Speed_Score\Speed_Score;
 use Automattic\Jetpack_Boost\Jetpack_Boost;
@@ -250,13 +249,10 @@ class Admin {
 	/**
 	 * Returns a list of admin notices to show. Asks each module to provide admin notices the user needs to see.
 	 *
-	 * @TODO: This is still a code smell. We're carrying the whole modules instance just to get a list of admin notices.
-	 *
 	 * @return \Automattic\Jetpack_Boost\Admin\Admin_Notice[]
 	 */
 	public function get_admin_notices() {
-		$critical_css = new Critical_CSS();
-		return $critical_css->get_admin_notices();
+		return apply_filters( 'jetpack_boost_admin_notices', array() );
 	}
 
 	/**

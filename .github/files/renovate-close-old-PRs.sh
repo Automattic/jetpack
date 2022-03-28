@@ -38,7 +38,7 @@ while :; do
 	) || { echo "$JSON"; exit 1; }
 	echo "::endgroup::"
 
-	for PR in $(jq '.[] | select( .user.login == "renovate[bot]" ) | .number' <<<"$JSON"); do
+	for PR in $(jq '.[] | select( ( .head.ref | startswith( "renovate/" ) ) and ( .user.login == "renovate[bot]" or .user.login == "matticbot" ) ) | .number' <<<"$JSON"); do
 		if [[ $PR -ge $MIN_PR ]]; then
 			echo "PR #$PR is ok"
 			continue

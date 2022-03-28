@@ -8,6 +8,7 @@
  */
 import { debounce } from 'lodash';
 import PageVisibility from 'react-page-visibility';
+import { getSiteFragment } from '@automattic/jetpack-shared-extension-utils';
 
 /**
  * WordPress dependencies
@@ -18,7 +19,6 @@ import { ExternalLink } from '@wordpress/components';
 /**
  * Internal dependencies
  */
-import getSiteFragment from '../../../../shared/get-site-fragment';
 import useSelectSocialMediaConnections from '../../hooks/use-social-media-connections';
 
 const refreshThreshold = 2000;

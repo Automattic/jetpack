@@ -1,0 +1,11 @@
+.icon {
+	--gray-90: #1E1E1E;
+	fill: var(--gray-90);
+	width: 24px;
+}
+
+.link {
+	display: flex;
+	text-decoration: none;
+	align-items: center;
+}

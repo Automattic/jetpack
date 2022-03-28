@@ -3,7 +3,6 @@
  */
 import { __, _x } from '@wordpress/i18n';
 import { Placeholder, Button } from '@wordpress/components';
-import { BlockIcon } from '@wordpress/block-editor';
 
 /**
  * Internal dependencies
@@ -20,11 +19,7 @@ export default function EditUrlForm( { className, onSubmit, noticeUI, url, setUr
 
 	return (
 		<div className={ className }>
-			<Placeholder
-				label={ __( 'Pinterest', 'jetpack' ) }
-				icon={ <BlockIcon icon={ icon } /> }
-				notices={ noticeUI }
-			>
+			<Placeholder label={ __( 'Pinterest', 'jetpack' ) } icon={ icon } notices={ noticeUI }>
 				<form onSubmit={ onSubmitForm }>
 					<input
 						type="url"
@@ -34,7 +29,7 @@ export default function EditUrlForm( { className, onSubmit, noticeUI, url, setUr
 						placeholder={ __( 'Enter URL to embed here…', 'jetpack' ) }
 						onChange={ onChange }
 					/>
-					<Button isSecondary type="submit">
+					<Button variant="secondary" type="submit">
 						{ _x( 'Embed', 'button label', 'jetpack' ) }
 					</Button>
 				</form>

@@ -39,12 +39,12 @@ class REST_Purchases {
 	 */
 	public static function permissions_callback() {
 		$connection        = new Connection_Manager();
-		$is_user_connected = $connection->is_connected();
+		$is_site_connected = $connection->is_connected();
 
-		if ( ! $is_user_connected ) {
+		if ( ! $is_site_connected ) {
 			return new \WP_Error(
 				'not_connected',
-				__( 'You are not connected to Jetpack.', 'jetpack-my-jetpack' ),
+				__( 'Your site is not connected to Jetpack.', 'jetpack-my-jetpack' ),
 				array(
 					'status' => 400,
 				)
@@ -61,7 +61,7 @@ class REST_Purchases {
 	 */
 	public static function get_site_current_purchases() {
 		$site_id           = \Jetpack_Options::get_option( 'id' );
-		$wpcom_endpoint    = sprintf( '/sites/%d/purchases', $site_id );
+		$wpcom_endpoint    = sprintf( '/sites/%1$d/purchases?locale=%2$s', $site_id, get_user_locale() );
 		$wpcom_api_version = '1.1';
 		$response          = Client::wpcom_json_api_request_as_blog( $wpcom_endpoint, $wpcom_api_version );
 		$response_code     = wp_remote_retrieve_response_code( $response );

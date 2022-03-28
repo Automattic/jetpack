@@ -13,13 +13,17 @@ import { __ } from '@wordpress/i18n';
  * Internal dependencies
  */
 import PortalSidecar from './utilities/portal-sidecar';
+import { getApiRootUrl, getApiNonce } from '../state/initial-state';
 import {
-	getApiRootUrl,
-	getApiNonce,
-	getInitialStateConnectedPlugins,
-	getInitialStateJetpackBenefits,
-	getTracksUserData,
-} from '../state/initial-state';
+	fetchConnectedPlugins as actionFetchConnectedPlugins,
+	fetchSiteBenefits as actionFetchSiteBenefits,
+	getConnectedPluginsMap,
+	getSiteBenefits,
+} from 'state/site';
+import {
+	fetchUserConnectionData as actionFetchUserConnectionData,
+	getConnectedWpComUser,
+} from 'state/connection';
 import restApi from '@automattic/jetpack-api';
 import { DisconnectDialog } from '@automattic/jetpack-connection';
 import JetpackBenefits from '../components/jetpack-benefits';
@@ -36,8 +40,23 @@ import JetpackBenefits from '../components/jetpack-benefits';
  * @returns {React.Component} - The PluginDeactivation component.
  */
 const PluginDeactivation = props => {
-	const { apiRoot, apiNonce, connectedPlugins, siteBenefits, tracksUserData } = props;
+	const {
+		apiRoot,
+		apiNonce,
+		connectedPlugins,
+		siteBenefits,
+		connectionUserData,
+		fetchConnectedPlugins,
+		fetchSiteBenefits,
+		fetchUserConnectionData,
+	} = props;
 	const [ modalOpen, setModalOpen ] = useState( false );
+
+	useEffect( () => {
+		fetchSiteBenefits();
+		fetchConnectedPlugins();
+		fetchUserConnectionData();
+	}, [ fetchSiteBenefits, fetchConnectedPlugins, fetchUserConnectionData ] );
 
 	// Modify the deactivation link.
 	const deactivationLink = document.querySelector( '#deactivate-jetpack, #deactivate-jetpack-dev' ); // ID set by WP on the deactivation link.
@@ -78,6 +97,10 @@ const PluginDeactivation = props => {
 		window.location.href = deactivationLink.getAttribute( 'href' );
 	}, [ deactivationLink ] );
 
+	const disconnectStepComponent = siteBenefits ? (
+		<JetpackBenefits siteBenefits={ siteBenefits } />
+	) : null;
+
 	return (
 		<PortalSidecar>
 			<DisconnectDialog
@@ -85,25 +108,34 @@ const PluginDeactivation = props => {
 				apiNonce={ apiNonce }
 				connectedPlugins={ connectedPlugins }
 				connectedUser={ {
-					ID: tracksUserData.userid,
-					login: tracksUserData.username,
+					ID: connectionUserData?.ID,
+					login: connectionUserData?.login,
 				} }
 				context={ 'plugins' }
 				isOpen={ modalOpen }
 				onClose={ toggleVisibility }
 				pluginScreenDisconnectCallback={ handleDeactivate }
-				disconnectStepComponent={ <JetpackBenefits siteBenefits={ siteBenefits } /> }
+				disconnectStepComponent={ disconnectStepComponent }
 			/>
 		</PortalSidecar>
 	);
 };
 
-export default connect( state => {
-	return {
-		apiRoot: getApiRootUrl( state ),
-		apiNonce: getApiNonce( state ),
-		connectedPlugins: getInitialStateConnectedPlugins( state ),
-		siteBenefits: getInitialStateJetpackBenefits( state ),
-		tracksUserData: getTracksUserData( state ),
-	};
-} )( PluginDeactivation );
+export default connect(
+	state => {
+		return {
+			apiRoot: getApiRootUrl( state ),
+			apiNonce: getApiNonce( state ),
+			connectedPlugins: getConnectedPluginsMap( state ),
+			siteBenefits: getSiteBenefits( state ),
+			connectionUserData: getConnectedWpComUser( state ),
+		};
+	},
+	dispatch => {
+		return {
+			fetchConnectedPlugins: () => dispatch( actionFetchConnectedPlugins() ),
+			fetchSiteBenefits: () => dispatch( actionFetchSiteBenefits() ),
+			fetchUserConnectionData: () => dispatch( actionFetchUserConnectionData() ),
+		};
+	}
+)( PluginDeactivation );

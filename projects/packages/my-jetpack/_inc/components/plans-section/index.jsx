@@ -2,14 +2,17 @@
  * External dependencies
  */
 import React from 'react';
-import { __ } from '@wordpress/i18n';
+import { __, _n } from '@wordpress/i18n';
 import { ExternalLink } from '@wordpress/components';
+import { Text } from '@automattic/jetpack-components';
 
 /**
  * Internal dependencies
  */
+import { H2, Title } from '../heading';
 import usePurchases from '../../hooks/use-purchases';
 import getManageYourPlanUrl from '../../utils/get-manage-your-plan-url';
+import getPurchasePlanUrl from '../../utils/get-purchase-plan-url';
 import styles from './style.module.scss';
 
 /**
@@ -23,8 +26,10 @@ function PlanSection( { purchase = {} } ) {
 	const { product_name, expiry_message } = purchase;
 	return (
 		<>
-			<h4>{ product_name }</h4>
-			<p>{ expiry_message }</p>
+			<Title>{ product_name }</Title>
+			<Text variant="body" className={ styles[ 'expire-date' ] }>
+				{ expiry_message }
+			</Text>
 		</>
 	);
 }
@@ -39,20 +44,45 @@ function PlanSection( { purchase = {} } ) {
 function PlanSectionHeader( { purchases } ) {
 	return (
 		<>
-			<h3>
+			<H2>
 				{ purchases.length <= 1
-					? __( 'My plan', 'jetpack-my-jetpack' )
-					: __( 'My plans', 'jetpack-my-jetpack' ) }
-			</h3>
-			<p>{ __( 'The extra power you added to your Jetpack.', 'jetpack-my-jetpack' ) }</p>
-			<p>
-				<ExternalLink href={ getManageYourPlanUrl() }>
-					{ purchases.length <= 1
-						? __( 'Manage your plan', 'jetpack-my-jetpack' )
-						: __( 'Manage your plans', 'jetpack-my-jetpack' ) }
-				</ExternalLink>
-			</p>
+					? __( 'Your plan', 'jetpack-my-jetpack' )
+					: __( 'Your plans', 'jetpack-my-jetpack' ) }
+			</H2>
+			{ purchases.length === 0 && (
+				<p>{ __( 'The extra power you added to your Jetpack.', 'jetpack-my-jetpack' ) }</p>
+			) }
 		</>
+	);
+}
+
+/**
+ * Plan section Footer component.
+ *
+ * @param {object} props          - Component props.
+ * @param {Array} props.purchases - Purchases array.
+ * @returns {object} PlanSectionFooter react component.
+ */
+function PlanSectionFooter( { purchases } ) {
+	let planLinkDescription = __( 'Purchase a plan', 'jetpack-my-jetpack' );
+	if ( purchases.length >= 1 ) {
+		planLinkDescription = _n(
+			'Manage your plan',
+			'Manage your plans',
+			purchases.length,
+			'jetpack-my-jetpack'
+		);
+	}
+
+	return (
+		<p>
+			<ExternalLink
+				className={ styles[ 'external-link' ] }
+				href={ purchases.length ? getManageYourPlanUrl() : getPurchasePlanUrl() }
+			>
+				{ planLinkDescription }
+			</ExternalLink>
+		</p>
 	);
 }
 
@@ -68,11 +98,13 @@ export default function PlansSection() {
 		<div className={ styles.container }>
 			<PlanSectionHeader purchases={ purchases } />
 
-			<div className="jp-plans-section__purchases-section">
+			<div className={ styles.purchasesSection }>
 				{ purchases.map( purchase => (
 					<PlanSection key={ `purchase-${ purchase.product_name }` } purchase={ purchase } />
 				) ) }
 			</div>
+
+			<PlanSectionFooter purchases={ purchases } />
 		</div>
 	);
 }

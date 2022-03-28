@@ -27,14 +27,14 @@ The Jetpack repo uses the following "reserved" branch name conventions:
 
 There are two ways to update your branch with changes to `master` or a parent PR.
 
-1. **Merge:** After a `git fetch`, execute `git merge origin/master` to pull in the latest changes. If there are conflicts, you'll need to resolve them by hand and then commit manually.
+1. **Merge:** After a `git fetch`, execute `git merge origin/master` (or `git merge origin/yourbranchname` for a parent PR) to pull in the latest changes. If there are conflicts, you'll need to resolve them by hand and then commit manually.
    * Pro: GitHub deals with this much better.
    * Pro: Collaborators can just `git pull` to update their local copy of the branch.
    * Con: Can lead to a messy-looking history while the branch is in progress. Since we use "squash and merge" to commit PRs, though, this isn't an issue once the PR is finally accepted.
    * Con: If there's a conflict while merging, you might wind up having to commit the merge commit with `--no-verify` to avoid our pre-commit hook complaining about things.
    * Note: To get a clean view of the branch's history, use `git log --first-parent`.
    * Note: To get a clean diff of the branch versus master, like what GitHub shows, use `git diff origin/master...HEAD` (note the three dots).
-2. **[Rebase](https://github.com/edx/edx-platform/wiki/How-to-Rebase-a-Pull-Request):** Execute `git pull --rebase origin master`, or do a `git fetch` then execute `git rebase origin/master`. It will reapply each patch, and if there are conflicts at any step you'll have to resolve them by hand and then `git rebase --continue`.
+2. **[Rebase](https://github.com/edx/edx-platform/wiki/How-to-Rebase-a-Pull-Request):** Execute `git pull --rebase origin master` (or `git pull --rebase origin yourbranchname` for a parent PR), or do a `git fetch` then execute `git rebase origin/master` (or `git rebase origin/yourbranchname`). It will reapply each patch, and if there are conflicts at any step you'll have to resolve them by hand and then `git rebase --continue`.
    * Pro: Keeps the branch's history cleaner.
    * Con: GitHub doesn't handle it very well. It may lose inline comments on the pre-rebase commits, and it will remove the old commit entries from the conversation (making it harder to determine the state of the PR when earlier comments were left) and instead show every one in the rebase as being "added" again at the time that the rebase was pushed.
    * Con: Anyone else who has checked out your branch pre-rebase can't just `git pull`.

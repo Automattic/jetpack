@@ -1,0 +1,4 @@
+Significance: patch
+Type: enhancement
+
+Removed unneeded calls to Atomic_Plan_Manager

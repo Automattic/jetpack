@@ -2,6 +2,25 @@
 
 ### This is a list detailing changes for the Jetpack RNA Components package releases.
 
+## 0.10.0 - 2022-03-23
+### Added
+- New API which returns the list of licenses from WPCOM
+
+## 0.9.1 - 2022-03-02
+### Changed
+- Updated package dependencies
+
+## 0.9.0 - 2022-02-22
+### Added
+- API: add Jetpack Search stats endpoint
+
+### Removed
+- Removed testing dependency on `chai-fetch-mock`. It was unused.
+
+## 0.8.4 - 2022-02-09
+### Changed
+- Updated package dependencies
+
 ## 0.8.3 - 2022-01-25
 ### Changed
 - Updated package dependencies.

@@ -239,7 +239,7 @@ class Plugin_Storage {
 	 * This is a fallback to ensure this option is always up to date on WPCOM in case
 	 * Sync is not present or disabled.
 	 *
-	 * @since $$next_version$$
+	 * @since 1.34.0
 	 */
 	private static function update_active_plugins_wpcom_no_sync_fallback() {
 		$connection = new Manager();

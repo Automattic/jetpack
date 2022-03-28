@@ -1,0 +1,14 @@
+.icon {
+	width: 16px;
+	margin-right: 4px;
+}
+
+.link {
+	--gray-70: #3C434A;
+
+	font-size: 14px;
+	color: var(--gray-70);
+	display: flex;
+	text-decoration: none;
+	align-items: center;
+}

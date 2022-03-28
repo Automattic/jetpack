@@ -26,7 +26,7 @@ const MyPlanCard = ( { productSlug, action, isError, isPlaceholder, details, tag
 		<div className={ cardClassNames }>
 			<div className="my-plan-card__primary">
 				<div className="my-plan-card__icon">
-					<PlanIcon plan={ productSlug } alt={ title } />
+					{ productSlug && <PlanIcon plan={ productSlug } alt={ title } /> }
 				</div>
 				<div className="my-plan-card__header">
 					{ title && <h2 className="my-plan-card__title">{ title }</h2> }

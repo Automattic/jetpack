@@ -477,6 +477,7 @@ async function checkDescription( payload, octokit ) {
 	const {
 		number,
 		user: { login: author },
+		head: { ref: ref },
 	} = payload.pull_request;
 	const { name: repo, owner } = payload.repository;
 	const ownerLogin = owner.login;
@@ -484,8 +485,8 @@ async function checkDescription( payload, octokit ) {
 
 	debug( `check-description: Status checks: ${ JSON.stringify( statusChecks ) }` );
 
-	if ( author === 'renovate[bot]' ) {
-		debug( `check-description: PR was created by ${ author }, skipping` );
+	if ( ref.startsWith( 'renovate/' ) && ( author === 'renovate[bot]' || author === 'matticbot' ) ) {
+		debug( `check-description: Renovate PR, skipping` );
 		return;
 	}
 

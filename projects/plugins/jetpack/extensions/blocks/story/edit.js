@@ -11,7 +11,7 @@ import { Fragment } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 import { isBlobURL } from '@wordpress/blob';
 import { useDispatch } from '@wordpress/data';
-import { BlockIcon, MediaPlaceholder } from '@wordpress/block-editor';
+import { MediaPlaceholder } from '@wordpress/block-editor';
 import { withNotices } from '@wordpress/components';
 
 /**
@@ -101,7 +101,7 @@ export default withNotices( function StoryEdit( {
 			isAppender={ hasImages }
 			className={ className }
 			disableMediaButtons={ hasImages && ! isSelected }
-			icon={ ! hasImages && <BlockIcon icon={ icon } /> }
+			icon={ ! hasImages && icon }
 			labels={ {
 				title: ! hasImages && __( 'Story', 'jetpack' ),
 				instructions:

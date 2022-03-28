@@ -7,12 +7,7 @@ import { compose } from '@wordpress/compose';
 import { filter, get, map, pick } from 'lodash';
 import { isBlobURL } from '@wordpress/blob';
 import { withDispatch, withSelect } from '@wordpress/data';
-import {
-	BlockIcon,
-	MediaPlaceholder,
-	BlockControls,
-	InspectorControls,
-} from '@wordpress/block-editor';
+import { MediaPlaceholder, BlockControls, InspectorControls } from '@wordpress/block-editor';
 import { mediaUpload } from '@wordpress/editor';
 import { DropZone, FormFileUpload, withNotices } from '@wordpress/components';
 
@@ -155,7 +150,7 @@ export class SlideshowEdit extends Component {
 				<Fragment>
 					{ controls }
 					<MediaPlaceholder
-						icon={ <BlockIcon icon={ icon } /> }
+						icon={ icon }
 						className={ className }
 						labels={ {
 							title: __( 'Slideshow', 'jetpack' ),

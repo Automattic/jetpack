@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Fix documentation of the token parameter in README.md.

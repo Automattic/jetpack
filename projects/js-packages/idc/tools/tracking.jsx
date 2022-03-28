@@ -4,6 +4,34 @@
 import analytics from '@automattic/jetpack-analytics';
 
 /**
+ * Initialize the analytics object.
+ *
+ * @param {object} tracksEventData - Tracks data.
+ * @param {object} tracksUserData - User data.
+ */
+export function initializeAnalytics( tracksEventData, tracksUserData ) {
+	if (
+		tracksUserData &&
+		tracksUserData.hasOwnProperty( 'userid' ) &&
+		tracksUserData.hasOwnProperty( 'username' )
+	) {
+		analytics.initialize( tracksUserData.userid, tracksUserData.username );
+	}
+
+	if ( tracksEventData ) {
+		if ( tracksEventData.hasOwnProperty( 'blogID' ) ) {
+			analytics.assignSuperProps( { blog_id: tracksEventData.blogID } );
+		}
+
+		if ( tracksEventData.hasOwnProperty( 'platform' ) ) {
+			analytics.assignSuperProps( { platform: tracksEventData.platform } );
+		}
+	}
+
+	analytics.setMcAnalyticsEnabled( true );
+}
+
+/**
  * This function will fire both a Tracks and MC stat.
  * It will make sure to format the event name properly for the given stat home.
  *

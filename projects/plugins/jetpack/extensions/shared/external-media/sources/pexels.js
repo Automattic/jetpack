@@ -91,7 +91,7 @@ function PexelsMedia( props ) {
 					disabled={ !! isCopying }
 				/>
 				<Button
-					isPrimary
+					variant="primary"
 					onClick={ onSearch }
 					type="submit"
 					disabled={

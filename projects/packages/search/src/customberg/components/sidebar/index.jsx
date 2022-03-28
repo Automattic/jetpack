@@ -28,14 +28,14 @@ export default function Sidebar( props ) {
 		<div className="interface-complementary-area jp-search-configure-sidebar">
 			<div
 				className="components-panel__header interface-complementary-area-header jp-search-configure-sidebar__panel-tabs"
-				tabindex="-1"
+				tabIndex="-1"
 			>
 				<Tabs enabledSidebarName={ enabledSidebarName } enableSidebar={ enableSidebar } />
 				<SaveButton />
 				<Button
 					aria-label={ __( 'Show preview', 'jetpack-search-pkg' ) }
 					className="jp-search-configure-sidebar__hide-settings-button"
-					isSecondary
+					variant="secondary"
 					onClick={ disableSidebar }
 				>
 					<Icon icon={ image } />

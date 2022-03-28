@@ -7,10 +7,10 @@ import { useSelect, useDispatch } from '@wordpress/data';
  * Internal dependencies
  */
 import { STORE_ID } from '../../state/store';
-import { mapObjectKeysToCamel } from '../../utils/to-camel';
 
 /**
- * React custom hook to deal with a My Jetpack product.
+ * React custom hook that exposes data about Product,
+ * as well as methods to manipulate it.
  *
  * @param {string} productId - My Jetpack product ID.
  * @returns {object}         - Site product data.
@@ -23,7 +23,7 @@ export function useProduct( productId ) {
 		activate: () => activateProduct( productId ),
 		deactivate: () => deactivateProduct( productId ),
 		productsList: useSelect( select => select( STORE_ID ).getProducts() ),
-		detail: mapObjectKeysToCamel( detail, true ),
+		detail,
 		isActive: detail.status === 'active',
 		isFetching: useSelect( select => select( STORE_ID ).isFetching( productId ) ),
 		status: detail.status, // shorthand. Consider to remove.

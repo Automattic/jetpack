@@ -40,6 +40,14 @@ class WP_Test_Jetpack_Sync_Functions extends WP_Test_Jetpack_Sync_Base {
 	protected static $admin_id; // used in mock_xml_rpc_request
 
 	/**
+	 * Placeholder for reverting $_SERVER['HTTP_HOST'] to it's default value.
+	 * User in mock_xml_rpc_request.
+	 *
+	 * @var string
+	 */
+	protected static $http_host;
+
+	/**
 	 * Set up.
 	 */
 	public function set_up() {
@@ -1008,6 +1016,7 @@ class WP_Test_Jetpack_Sync_Functions extends WP_Test_Jetpack_Sync_Base {
 			),
 		);
 
+		add_filter( 'pre_http_request', array( 'WP_Test_Jetpack_Sync_Base', 'pre_http_request_wordpress_org_updates' ), 10, 3 );
 		do_action(
 			'upgrader_process_complete',
 			$upgrader,
@@ -1018,6 +1027,7 @@ class WP_Test_Jetpack_Sync_Functions extends WP_Test_Jetpack_Sync_Base {
 				'plugins' => array( 'the/the.php' ),
 			)
 		);
+		remove_filter( 'pre_http_request', array( 'WP_Test_Jetpack_Sync_Base', 'pre_http_request_wordpress_org_updates' ) );
 
 		$this->sender->do_sync();
 		$synced_value3           = $this->server_replica_storage->get_callable( 'jetpack_foo' );
@@ -1055,6 +1065,7 @@ class WP_Test_Jetpack_Sync_Functions extends WP_Test_Jetpack_Sync_Base {
 		self::$admin_id = $this->factory->user->create( array(
 			'role' => 'administrator',
 		) );
+		self::$http_host = $_SERVER['HTTP_HOST'];
 
 		add_filter( 'pre_option_jetpack_private_options', array( $this, 'mock_jetpack_private_options' ), 10, 2 );
 		$_GET['token']     = 'pretend_this_is_valid:1:' . self::$admin_id;
@@ -1062,6 +1073,7 @@ class WP_Test_Jetpack_Sync_Functions extends WP_Test_Jetpack_Sync_Base {
 		$_GET['nonce']     = 'testing123';
 
 		$_SERVER['REQUEST_URI']        = '/xmlrpc.php';
+		$_SERVER['HTTP_HOST']          = 'example.org';
 		$_GET['body']                  = 'abc';
 		$_GET['body-hash']             = base64_encode( sha1( 'abc', true ) ); // phpcs:ignore WordPress.PHP.DiscouragedPHPFunctions.obfuscation_base64_encode
 		$GLOBALS['HTTP_RAW_POST_DATA'] = 'abc'; // phpcs:ignore WordPress.WP.GlobalVariablesOverride.Prohibited
@@ -1105,6 +1117,7 @@ class WP_Test_Jetpack_Sync_Functions extends WP_Test_Jetpack_Sync_Base {
 		unset( $_GET['timestamp'] );
 		unset( $_GET['nonce'] );
 		$_SERVER['REQUEST_URI'] = '';
+		$_SERVER['HTTP_HOST']   = self::$http_host;
 		unset( $_GET['body'] );
 		unset( $_GET['body-hash'] );
 		unset( $GLOBALS['HTTP_RAW_POST_DATA'] );

@@ -6,7 +6,7 @@ import { __ } from '@wordpress/i18n';
 export default {
 	subscribePlaceholder: {
 		type: 'string',
-		default: __( 'Email Address', 'jetpack' ),
+		default: __( 'Type your email…', 'jetpack' ),
 	},
 	showSubscribersTotal: {
 		type: 'boolean',

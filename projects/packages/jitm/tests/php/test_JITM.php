@@ -22,6 +22,7 @@ class Test_Jetpack_JITM extends TestCase {
 	public function set_up() {
 		Monkey\setUp();
 
+		Functions\when( 'get_current_blog_id' )->justReturn( 1 );
 		Functions\when( 'get_current_screen' )->justReturn( new \stdClass() );
 		Functions\when( 'site_url' )->justReturn( 'unit-test' );
 		Functions\when( 'wp_get_environment_type' )->justReturn( '' );

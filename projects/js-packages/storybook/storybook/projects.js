@@ -1,8 +1,8 @@
 // List of projects paths that contains stories
+// When adding something here, also add the project slug to .extra.dependencies.build in composer.json.
 const path = require( 'path' );
 
 const projects = [
-	'../../base-styles',
 	'../../components/components',
 	'../../connection/components',
 	'../../idc/components',

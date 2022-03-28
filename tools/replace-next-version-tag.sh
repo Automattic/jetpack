@@ -17,6 +17,10 @@ function usage {
 		 - `@since $$next-version$$`
 		 - `@deprecated $$next-version$$`
 		 - `@deprecated since $$next-version$$`
+		 - `_deprecated_function( ..., 'prefix-$$next-version$$' )`
+		   Other WordPress deprecation functions also work. The call must be on one
+		   line, indented with tabs, and the '$$next-version$$' token must be in a
+		   single-quoted string.
 	EOH
 	exit 1
 }
@@ -80,6 +84,8 @@ for FILE in $(git ls-files "projects/$SLUG/"); do
 	debug "Processing $FILE"
 
 	sed -i.bak -E -e 's!(@since|@deprecated( +[sS]ince)?)( +)\$\$next-version\$\$!\1\3'"$VE"'!g' "$FILE"
+	rm "$FILE.bak" # We need a backup file because macOS requires it.
+	sed -i.bak -E -e $'s!(^\t*_deprecated_(function|constructor|file|argument|hook)\\( .*, \'[^\']*)\\$\\$next-version\\$\\$\'!\\1'"$VE"$'\'!g' "$FILE"
 	rm "$FILE.bak" # We need a backup file because macOS requires it.
 
 	if grep -F -q '$$next-version$$' "$FILE"; then

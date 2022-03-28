@@ -30,6 +30,7 @@ function MediaButton( props ) {
 		}
 
 		setSelectedSource( null );
+		mediaProps.onClose?.();
 	};
 
 	return (
@@ -44,7 +45,7 @@ function MediaButton( props ) {
 				hasImage={ mediaProps.value > 0 }
 			/>
 
-			{ ExternalLibrary && <ExternalLibrary onClose={ closeLibrary } { ...mediaProps } /> }
+			{ ExternalLibrary && <ExternalLibrary { ...mediaProps } onClose={ closeLibrary } /> }
 		</div>
 	);
 }

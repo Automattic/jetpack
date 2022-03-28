@@ -6,7 +6,6 @@ import { Component, Fragment } from '@wordpress/element';
 import { filter, get, pick } from 'lodash';
 import {
 	BlockControls,
-	BlockIcon,
 	InspectorControls,
 	MediaPlaceholder,
 	MediaUpload,
@@ -260,7 +259,7 @@ class TiledGalleryEdit extends Component {
 				<Fragment>
 					{ controls }
 					<MediaPlaceholder
-						icon={ <BlockIcon icon={ icon } /> }
+						icon={ icon }
 						className={ className }
 						labels={ {
 							title: __( 'Tiled Gallery', 'jetpack' ),

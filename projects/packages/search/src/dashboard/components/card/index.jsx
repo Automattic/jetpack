@@ -12,8 +12,7 @@ import omit from 'lodash/omit';
 /**
  * Internal dependencies
  */
-// TODO change to our own gridicon component, when instant search is migrated.
-import Gridicon from 'gridicons';
+import Gridicon from 'instant-search/components/gridicon';
 
 import './style.scss';
 

@@ -61,6 +61,7 @@ class SearchApp extends Component {
 		super( ...arguments );
 
 		this.state = {
+			// TODO: Migrate visibility state to Redux.
 			isVisible: !! this.props.initialIsVisible, // initialIsVisible can be undefined
 			overlayOptionsCustomizerOverride: {},
 		};

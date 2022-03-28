@@ -58,7 +58,8 @@ async function addMilestone( payload, octokit ) {
 	const nextMilestone = await getNextValidMilestone( octokit, ownerLogin, repo, plugins[ 0 ] );
 
 	if ( ! nextMilestone ) {
-		throw new Error( `Could not find a valid milestone for ${ plugins[ 0 ] }` );
+		debug( `add-milestone: Could not find a valid milestone for ${ plugins[ 0 ] }. Aborting.` );
+		return;
 	}
 
 	debug( `add-milestone: Adding PR #${ prNumber } to milestone #${ nextMilestone.number }` );

@@ -114,7 +114,8 @@ describe( 'useConnection', () => {
 		result.current.handleRegisterSite();
 
 		setTimeout( () => {
-			expect( stubConnectUser.calledOnceWith( { from: 'JETPACK' } ) ).to.be.true;
+			expect( stubConnectUser.calledOnceWith( { from: 'JETPACK', redirectUri: 'REDIRECT' } ) ).to.be
+				.true;
 			done();
 		}, 100 );
 	} );
@@ -126,6 +127,7 @@ describe( 'useConnection', () => {
 		} );
 		result.current.handleRegisterSite();
 		expect( stubRegisterSite.called ).to.be.false;
-		expect( stubConnectUser.calledOnceWith( { from: 'JETPACK' } ) ).to.be.true;
+		expect( stubConnectUser.calledOnceWith( { from: 'JETPACK', redirectUri: undefined } ) ).to.be
+			.true;
 	} );
 } );

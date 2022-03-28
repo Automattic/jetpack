@@ -43,7 +43,7 @@ export default function SaveButton() {
 			className="jp-search-configure-save-button"
 			disabled={ ! hasUnsavedEdits }
 			isBusy={ isSaving }
-			isPrimary
+			variant="primary"
 			onClick={ onClick }
 		>
 			{ isSaving

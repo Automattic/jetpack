@@ -16,8 +16,11 @@ import { registerFormatType, unregisterFormatType } from '@wordpress/rich-text';
 
 const name = 'premium-content/logged-out-view';
 const settings = {
-	title: __( 'Logged Out View', 'jetpack' ),
-	description: __( 'The container for all content shown to site visitors who are not subscribers.', 'jetpack' ),
+	title: __( 'Guest View', 'jetpack' ),
+	description: __(
+		'The container for all content shown to site visitors who are not subscribers.',
+		'jetpack'
+	),
 	icon,
 	category: 'grow',
 	parent: [ 'premium-content/container' ],
@@ -52,13 +55,13 @@ const unsubscribe = subscribe( () => {
 
 	// Use the existing link button functionality but limit it so that it doesn't run inside this view.
 	const newLinkButton = compose(
-		withSelect( ( composeSelect ) => {
+		withSelect( composeSelect => {
 			return {
 				selectedBlock: composeSelect( 'core/block-editor' ).getSelectedBlock(),
 			};
 		} ),
 		// @ts-ignore
-		ifCondition( ( props ) => {
+		ifCondition( props => {
 			// @ts-ignore
 			return props.selectedBlock && props.selectedBlock.name !== name;
 		} )

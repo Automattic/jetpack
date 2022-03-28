@@ -281,20 +281,3 @@ a.dops-notice__action {
 		}
 	}
 }
-
-// TODO: remove after switching to our own fork of gridicon.
-.gridicon {
-	fill: currentColor;
-
-	&.needs-offset g {
-		transform: translate( 1px, 1px );	/* translates to .5px because it's in a child element */
-	}
-
-	&.needs-offset-x g {
-		transform: translate( 1px, 0 );		/* only nudges horizontally */
-	}
-
-	&.needs-offset-y g {
-		transform: translate( 0, 1px );		/* only nudges vertically */
-	}
-}

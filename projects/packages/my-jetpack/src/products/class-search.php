@@ -7,7 +7,11 @@
 
 namespace Automattic\Jetpack\My_Jetpack\Products;
 
+use Automattic\Jetpack\Connection\Client;
 use Automattic\Jetpack\My_Jetpack\Module_Product;
+use Automattic\Jetpack\My_Jetpack\Wpcom_Products;
+use Jetpack_Options;
+use WP_Error;
 
 /**
  * Class responsible for handling the Search product
@@ -43,7 +47,7 @@ class Search extends Module_Product {
 	 * @return string
 	 */
 	public static function get_title() {
-		return ''; // @todo title
+		return __( 'Jetpack Site Search', 'jetpack-my-jetpack' );
 	}
 
 	/**
@@ -61,7 +65,7 @@ class Search extends Module_Product {
 	 * @return string
 	 */
 	public static function get_long_description() {
-		return ''; // @todo Add long description
+		return __( 'Help your site visitors find answers instantly so they keep reading and buying. Great for sites with a lot of content.', 'jetpack-my-jetpack' );
 	}
 
 	/**
@@ -70,7 +74,12 @@ class Search extends Module_Product {
 	 * @return array Boost features list
 	 */
 	public static function get_features() {
-		return array();
+		return array(
+			__( 'Instant search and indexing', 'jetpack-my-jetpack' ),
+			__( 'Powerful filtering', 'jetpack-my-jetpack' ),
+			__( 'Supports 29 languages', 'jetpack-my-jetpack' ),
+			__( 'Spelling correction', 'jetpack-my-jetpack' ),
+		);
 	}
 
 	/**
@@ -79,11 +88,88 @@ class Search extends Module_Product {
 	 * @return array Pricing details
 	 */
 	public static function get_pricing_for_ui() {
-		return array(
-			'available'            => true,
-			'currency_code'        => 'EUR',
-			'full_price'           => '4.50',
-			'promotion_percentage' => '50',
+		return array_merge(
+			array(
+				'available'          => true,
+				'wpcom_product_slug' => static::get_wpcom_product_slug(),
+			),
+			Wpcom_Products::get_product_pricing( static::get_wpcom_product_slug() )
 		);
+	}
+
+	/**
+	 * Get the WPCOM product slug used to make the purchase
+	 *
+	 * @return ?string
+	 */
+	public static function get_wpcom_product_slug() {
+		return 'jetpack_search';
+	}
+
+	/**
+	 * Hits the wpcom api to check Search status.
+	 *
+	 * @todo Maybe add caching.
+	 *
+	 * @return Object|WP_Error
+	 */
+	private static function get_state_from_wpcom() {
+		static $status = null;
+
+		if ( ! is_null( $status ) ) {
+			return $status;
+		}
+
+		$blog_id = Jetpack_Options::get_option( 'id' );
+
+		$response = Client::wpcom_json_api_request_as_blog(
+			'/sites/' . $blog_id . '/jetpack-search/plan',
+			'2',
+			array(),
+			null,
+			'wpcom'
+		);
+
+		if ( 200 !== wp_remote_retrieve_response_code( $response ) ) {
+			return new WP_Error( 'search_state_fetch_failed' );
+		}
+
+		$body   = wp_remote_retrieve_body( $response );
+		$status = json_decode( $body );
+		return $status;
+	}
+
+	/**
+	 * Checks whether the current plan of the site already supports the product
+	 *
+	 * Returns true if it supports. Return false if a purchase is still required.
+	 *
+	 * Free products will always return true.
+	 *
+	 * @return boolean
+	 */
+	public static function has_required_plan() {
+		$search_state = static::get_state_from_wpcom();
+		return ! empty( $search_state->supports_search ) || ! empty( $search_state->supports_instant_search );
+	}
+
+	/**
+	 * Get the URL the user is taken after activating the product
+	 *
+	 * @return ?string
+	 */
+	public static function get_post_activation_url() {
+		return ''; // stay in My Jetpack page or continue the purchase flow if needed.
+	}
+
+	/**
+	 * Get the URL where the user manages the product
+	 *
+	 * @return ?string
+	 */
+	public static function get_manage_url() {
+		if ( static::is_active() ) {
+			return admin_url( 'admin.php?page=jetpack-search-configure' );
+		}
 	}
 }

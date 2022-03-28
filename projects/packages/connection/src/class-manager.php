@@ -116,6 +116,7 @@ class Manager {
 		if ( defined( 'JETPACK__SANDBOX_DOMAIN' ) && JETPACK__SANDBOX_DOMAIN ) {
 			( new Server_Sandbox() )->init();
 		}
+
 	}
 
 	/**
@@ -2004,6 +2005,13 @@ class Manager {
 
 		( new Nonce_Handler() )->clean_all();
 
+		/**
+		 * Fires when a site is disconnected.
+		 *
+		 * @since 1.36.3
+		 */
+		do_action( 'jetpack_site_before_disconnected' );
+
 		// If the site is in an IDC because sync is not allowed,
 		// let's make sure to not disconnect the production site.
 		if ( $disconnect_wpcom ) {
@@ -2481,4 +2489,5 @@ class Manager {
 		}
 		return $stats;
 	}
+
 }

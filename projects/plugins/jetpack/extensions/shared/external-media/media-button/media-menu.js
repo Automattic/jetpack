@@ -13,9 +13,7 @@ import MediaSources from './media-sources';
 function MediaButtonMenu( props ) {
 	const { mediaProps, open, setSelectedSource, isFeatured, isReplace, hasImage } = props;
 	const originalComponent = mediaProps.render;
-	let isPrimary = isFeatured;
-	let isSecondary = false;
-	let isTertiary = ! isFeatured;
+	let variant = 'tertiary';
 
 	if ( isReplace ) {
 		return (
@@ -39,9 +37,7 @@ function MediaButtonMenu( props ) {
 
 	if ( isFeatured ) {
 		label = __( 'Replace Image', 'jetpack' );
-		isPrimary = false;
-		isTertiary = false;
-		isSecondary = true;
+		variant = 'secondary';
 	}
 
 	return (
@@ -60,9 +56,7 @@ function MediaButtonMenu( props ) {
 					}
 					return (
 						<Button
-							isPrimary={ isPrimary }
-							isSecondary={ isSecondary }
-							isTertiary={ isTertiary }
+							variant={ variant }
 							className="jetpack-external-media-button-menu"
 							aria-haspopup="true"
 							aria-expanded={ isOpen }

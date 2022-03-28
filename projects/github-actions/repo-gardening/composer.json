@@ -1,6 +1,6 @@
 {
 	"name": "automattic/action-repo-gardening",
-	"description": "GitHub Action to push built versions of projects from a monorepo to mirror repos.",
+	"description": "GitHub Action to manage Pull Requests and issues in your Open Source project (automate labelling, milestones, feedback to PR authors, ...).",
 	"type": "project",
 	"license": "GPL-2.0-or-later",
 	"require": {},

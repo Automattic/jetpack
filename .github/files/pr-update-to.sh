@@ -10,15 +10,18 @@ function die {
 [[ "$GITHUB_EVENT_NAME" == "push" ]] || die "Must be a push event"
 [[ "$GITHUB_REF" == "refs/heads/master" ]] || die "Must be a push to master"
 
+export GIT_AUTHOR_NAME=matticbot
+export GIT_AUTHOR_EMAIL=matticbot@users.noreply.github.com
+export GIT_COMMITTER_NAME=matticbot
+export GIT_COMMITTER_EMAIL=matticbot@users.noreply.github.com
+
+declare -A TAGS
 function update_tag {
-	echo 'Updating tag!'
-	export GIT_AUTHOR_NAME=matticbot
-	export GIT_AUTHOR_EMAIL=matticbot@users.noreply.github.com
-	export GIT_COMMITTER_NAME=matticbot
-	export GIT_COMMITTER_EMAIL=matticbot@users.noreply.github.com
-	git tag --force pr-update-to HEAD
-	git push --force origin pr-update-to
-	exit 0
+	if [[ -z "${TAGS[$1]}" ]]; then
+		echo "Updating tag $1!"
+		git tag --force "$1" HEAD
+		TAGS[$1]=1
+	fi
 }
 
 cd $(dirname "${BASH_SOURCE[0]}")/../..
@@ -33,10 +36,23 @@ for FILE in projects/*/*/composer.json; do
 	FILES+=( "$(realpath -m --relative-to="$BASE" "$(jq -r '.extra.changelogger.changelog // "CHANGELOG.md"' composer.json)")" )
 done
 cd "$BASE"
-git diff --exit-code --name-only HEAD^..HEAD "${FILES[@]}" || update_tag
+for F in $(git -c core.quotepath=off diff --name-only HEAD^..HEAD "${FILES[@]}"); do
+	update_tag "pr-update-to-${F%/*}"
+done
 
 # If this commit changed tool versions, update the tag so PRs get rechecked with the new versions.
 echo "Checking for changes to .github/versions.sh..."
-git diff --exit-code --name-only HEAD^..HEAD .github/versions.sh || update_tag
+git diff --exit-code --name-only HEAD^..HEAD .github/versions.sh || update_tag "pr-update-to"
 
-echo 'Done, no tag update needed.'
+if [[ ${#TAGS[*]} -le 0 ]]; then
+	echo 'Done, no tag updates needed.'
+	exit 0
+fi
+
+echo "Pushing tag updates..."
+# Push one at a time, as per https://docs.github.com/en/actions/using-workflows/events-that-trigger-workflows#push
+# "Note: An event will not be created when you push more than three tags at once."
+for TAG in "${!TAGS[@]}"; do
+	git push --force origin "$TAG"
+done
+echo 'Done!'

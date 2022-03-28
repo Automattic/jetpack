@@ -2,6 +2,7 @@
  * External dependencies
  */
 import { compact } from 'lodash';
+import { isSimpleSite } from '@automattic/jetpack-shared-extension-utils';
 
 /**
  * WordPress dependencies
@@ -12,7 +13,6 @@ import { Path } from '@wordpress/components';
 /**
  * Internal dependencies
  */
-import { isSimpleSite } from '../../shared/site-type-utils';
 import renderMaterialIcon from '../../shared/render-material-icon';
 import { getIconColor } from '../../shared/block-icons';
 

@@ -75,7 +75,7 @@ function render_block( $attributes, $content ) {
 	}
 
 	// We don't use FEATURE_NAME here because styles are not in /container folder.
-	Jetpack_Gutenberg::load_styles_as_required( 'premium-content' );
+	Jetpack_Gutenberg::load_assets_as_required( 'premium-content' );
 	return $content;
 }
 

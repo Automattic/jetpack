@@ -11,16 +11,29 @@ import ignore from 'ignore';
 import { getDependencies, filterDeps, getBuildOrder } from '../helpers/dependencyAnalysis.js';
 
 // Files that mean --git-changed should report all projects as changed.
-const infrastructureFiles = new Set( [
+const infrastructureFileSets = {};
+infrastructureFileSets.base = new Set( [
 	'tools/cli/commands/dependencies.js',
 	'tools/cli/helpers/dependencyAnalysis.js',
 	'.github/actions/tool-setup/action.yml',
 	'.github/files/list-changed-projects.sh',
+	'.github/versions.sh',
+	// If pnpm stuff changed, we should build/test everything since we can't know what the change will affect.
+	'pnpm-lock.yaml',
+] );
+infrastructureFileSets.test = new Set( [
+	...infrastructureFileSets.base,
 	'.github/files/generate-ci-matrix.php',
 	'.github/files/process-coverage.sh',
 	'.github/files/setup-wordpress-env.sh',
-	'.github/versions.sh',
 	'.github/workflows/tests.yml',
+] );
+infrastructureFileSets.build = new Set( [
+	...infrastructureFileSets.base,
+	'tools/cli/commands/build.js',
+	'tools/cli/helpers/install.js',
+	'tools/cli/helpers/projectHelpers.js',
+	'.github/workflows/build.yml',
 ] );
 
 // Files to ignore for --git-changed.
@@ -115,6 +128,7 @@ export async function handler( argv ) {
 			);
 		} );
 
+		const infrastructureFiles = infrastructureFileSets[ argv.extra ] || infrastructureFileSets.base;
 		const projset = new Set( argv.projects );
 		const ig = ignore().add( ignoreFiles );
 		const debug = argv.v ? m => console.error( chalk.stderr.blue( m ) ) : () => {};

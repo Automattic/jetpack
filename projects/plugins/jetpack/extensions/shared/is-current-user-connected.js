@@ -1,12 +1,8 @@
 /**
  * External dependencies
  */
+import { getJetpackData } from '@automattic/jetpack-shared-extension-utils';
 import { get } from 'lodash';
-
-/**
- * Internal dependencies
- */
-import getJetpackData from './get-jetpack-data';
 
 /**
  * Return whether the current user is connected to WP.com.

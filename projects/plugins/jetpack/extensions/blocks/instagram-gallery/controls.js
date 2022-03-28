@@ -60,7 +60,11 @@ export default function InstagramGalleryInspectorControls( {
 				</PanelRow>
 				{ currentUserConnected && (
 					<PanelRow>
-						<Button isDestructive isLink onClick={ () => disconnectFromService( accessToken ) }>
+						<Button
+							isDestructive
+							variant="link"
+							onClick={ () => disconnectFromService( accessToken ) }
+						>
 							{ __( 'Disconnect your account', 'jetpack' ) }
 						</Button>
 					</PanelRow>

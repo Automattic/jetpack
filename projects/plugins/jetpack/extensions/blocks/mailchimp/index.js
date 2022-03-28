@@ -53,6 +53,16 @@ export const settings = {
 		_x( 'subscription', 'block search term', 'jetpack' ),
 		_x( 'newsletter', 'block search term', 'jetpack' ),
 	],
+	supports: {
+		align: [ 'wide', 'full' ],
+		color: {
+			gradients: true,
+		},
+		spacing: {
+			padding: true,
+			margin: true,
+		},
+	},
 	attributes: {
 		emailPlaceholder: {
 			type: 'string',

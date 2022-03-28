@@ -234,6 +234,8 @@ abstract class Token_Subscription_Service implements Subscription_Service {
 	 * @return string URL of the JWT endpoint.
 	 */
 	private function get_rest_api_token_url( $site_id, $redirect_url ) {
+		// The redirect url might have a part URL encoded but not the whole URL.
+		$redirect_url = rawurldecode( $redirect_url );
 		return sprintf( '%smemberships/jwt?site_id=%d&redirect_url=%s', self::REST_URL_ORIGIN, $site_id, rawurlencode( $redirect_url ) );
 	}
 

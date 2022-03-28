@@ -17,6 +17,7 @@ use Automattic\Jetpack\Connection\Plugin;
 use Automattic\Jetpack\JITM as JITM;
 use Automattic\Jetpack\JITMS\JITM as JITMS_JITM;
 use Automattic\Jetpack\Post_List\Post_List as Post_List;
+use Automattic\Jetpack\Search\Initializer as Jetpack_Search_Main;
 use Automattic\Jetpack\Sync\Main as Sync_Main;
 
 /**
@@ -39,6 +40,7 @@ class Config {
 		'sync'            => false,
 		'post_list'       => false,
 		'identity_crisis' => false,
+		'search'          => false,
 	);
 
 	/**
@@ -105,6 +107,11 @@ class Config {
 		if ( $this->config['identity_crisis'] ) {
 			$this->ensure_class( 'Automattic\Jetpack\Identity_Crisis' )
 				&& $this->ensure_feature( 'identity_crisis' );
+		}
+
+		if ( $this->config['search'] ) {
+			$this->ensure_class( 'Automattic\Jetpack\Search\Initializer' )
+				&& $this->ensure_feature( 'search' );
 		}
 	}
 
@@ -220,6 +227,13 @@ class Config {
 	}
 
 	/**
+	 * Enables the search feature.
+	 */
+	protected function enable_search() {
+		Jetpack_Search_Main::init();
+	}
+
+	/**
 	 * Setup the Connection options.
 	 */
 	protected function ensure_options_connection() {
@@ -258,6 +272,18 @@ class Config {
 					return $consumers;
 				}
 			);
+		}
+
+		return true;
+	}
+
+	/**
+	 * Setup the Sync options.
+	 */
+	protected function ensure_options_sync() {
+		$options = $this->get_feature_options( 'sync' );
+		if ( method_exists( 'Automattic\Jetpack\Sync\Main', 'set_sync_data_options' ) ) {
+			Sync_Main::set_sync_data_options( $options );
 		}
 
 		return true;

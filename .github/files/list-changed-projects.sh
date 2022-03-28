@@ -20,7 +20,7 @@ ARGS=( --add-dependents )
 # Code coverage probably needs to run all tests to avoid confusing metrics.
 # @todo Switch it to use codecov.io's carryforward: https://about.codecov.io/blog/new-product-test-only-what-you-change-with-carryforward-flags/
 if [[ "$TEST_SCRIPT" == "test-coverage" ]]; then
-	debug "TEST_SCRIPT is test-coverage, considering all projects changed."
+	debug "TEST_SCRIPT is test-coverage, so running coverage calculation on all projects to avoid confusing metrics."
 elif [[ "${GITHUB_EVENT_NAME:?}" == "pull_request" ]]; then
 	[[ -f "${GITHUB_EVENT_PATH:?}" ]] || die "GITHUB_EVENT_PATH file $GITHUB_EVENT_PATH does not exist"
 	DIFF="$(jq -r '"\( .pull_request.base.sha )..\( .pull_request.head.sha )"' "$GITHUB_EVENT_PATH")"
@@ -32,4 +32,11 @@ else
 	die "Unsupported GITHUB_EVENT_NAME \"$GITHUB_EVENT_NAME\""
 fi
 
-pnpx jetpack dependencies list "${ARGS[@]}" | jq -ncR 'reduce inputs as $i ({}; .[$i] |= true)'
+if [[ -n "$EXTRA" ]]; then
+	ARGS+=( --extra="$EXTRA" )
+	if [[ "$EXTRA" == "build" ]]; then
+		ARGS+=( --ignore-root )
+	fi
+fi
+
+pnpx --no-install jetpack dependencies list "${ARGS[@]}" | jq -ncR 'reduce inputs as $i ({}; .[$i] |= true)'

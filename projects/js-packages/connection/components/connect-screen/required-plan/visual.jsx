@@ -56,11 +56,11 @@ const ConnectScreenRequiredPlanVisual = props => {
 	);
 
 	const withSubscription = createInterpolateElement(
-		__( 'Already have a subscription? <connectButton/> to get started.', 'jetpack' ),
+		__( 'Already have a subscription? <connectButton/>', 'jetpack' ),
 		{
 			connectButton: (
 				<ActionButton
-					label={ __( 'Log in', 'jetpack' ) }
+					label={ __( 'Log in to get started', 'jetpack' ) }
 					onClick={ handleButtonClick }
 					isLoading={ buttonIsLoading }
 				/>

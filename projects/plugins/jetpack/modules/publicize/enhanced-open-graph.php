@@ -1,6 +1,12 @@
 <?php
+/**
+ * Enhanced Open Graph for Jetpack.
+ *
+ * @package automattic/jetpack
+ */
+
 if ( ! class_exists( 'Jetpack_Media_Summary' ) ) {
-	if ( defined('IS_WPCOM') && IS_WPCOM ) {
+	if ( defined( 'IS_WPCOM' ) && IS_WPCOM ) {
 		include WP_CONTENT_DIR . '/lib/class.wpcom-media-summary.php';
 	} else {
 		jetpack_require_lib( 'class.media-summary' );
@@ -9,10 +15,13 @@ if ( ! class_exists( 'Jetpack_Media_Summary' ) ) {
 
 /**
  * Better OG Image Tags for Image Post Formats
+ *
+ * @param array $tags Array of Open Graph tags.
  */
 function enhanced_og_image( $tags ) {
-	if ( !is_singular() || post_password_required() )
+	if ( ! is_singular() || post_password_required() ) {
 		return $tags;
+	}
 
 	global $post;
 
@@ -22,15 +31,17 @@ function enhanced_og_image( $tags ) {
 	}
 
 	// Always favor featured images.
-	if ( enhanced_og_has_featured_image( $post->ID ) )
+	if ( enhanced_og_has_featured_image( $post->ID ) ) {
 		return $tags;
+	}
 
 	$summary = Jetpack_Media_Summary::get( $post->ID );
 
-	if ( 'image' != $summary['type'] )
+	if ( 'image' !== $summary['type'] ) {
 		return $tags;
+	}
 
-	$tags['og:image'] = $summary['image'];
+	$tags['og:image']            = $summary['image'];
 	$tags['og:image:secure_url'] = $summary['secure']['image'];
 
 	return $tags;
@@ -39,10 +50,13 @@ add_filter( 'jetpack_open_graph_tags', 'enhanced_og_image' );
 
 /**
  * Better OG Image Tags for Gallery Post Formats
+ *
+ * @param array $tags Array of Open Graph tags.
  */
 function enhanced_og_gallery( $tags ) {
-	if ( !is_singular() || post_password_required() )
+	if ( ! is_singular() || post_password_required() ) {
 		return $tags;
+	}
 
 	global $post;
 
@@ -52,24 +66,29 @@ function enhanced_og_gallery( $tags ) {
 	}
 
 	// Always favor featured images.
-	if ( enhanced_og_has_featured_image( $post->ID ) )
+	if ( enhanced_og_has_featured_image( $post->ID ) ) {
 		return $tags;
+	}
 
 	$summary = Jetpack_Media_Summary::get( $post->ID );
 
-	if ( 'gallery' != $summary['type'] )
+	if ( 'gallery' !== $summary['type'] ) {
 		return $tags;
-
-	if( !isset( $summary['images'] ) || !is_array( $summary['images'] ) || empty( $summary['images'] ) )
-		return $tags;
-
-	$images = $secures = array();
-	foreach ( $summary['images'] as $i => $image ) {
-		$images[] = $image['url'];
-		$secures[] = $summary['secure']['images'][$i]['url'];
 	}
 
-	$tags['og:image'] = $images;
+	if ( ! isset( $summary['images'] ) || ! is_array( $summary['images'] ) || empty( $summary['images'] ) ) {
+		return $tags;
+	}
+
+	$images  = array();
+	$secures = array();
+
+	foreach ( $summary['images'] as $i => $image ) {
+		$images[]  = $image['url'];
+		$secures[] = $summary['secure']['images'][ $i ]['url'];
+	}
+
+	$tags['og:image']            = $images;
 	$tags['og:image:secure_url'] = $secures;
 
 	return $tags;
@@ -78,10 +97,13 @@ add_filter( 'jetpack_open_graph_tags', 'enhanced_og_gallery' );
 
 /**
  * Allows VideoPress, YouTube, and Vimeo videos to play inline on Facebook
+ *
+ * @param array $tags Array of Open Graph tags.
  */
 function enhanced_og_video( $tags ) {
-	if ( !is_singular() || post_password_required() )
+	if ( ! is_singular() || post_password_required() ) {
 		return $tags;
+	}
 
 	global $post;
 
@@ -91,12 +113,13 @@ function enhanced_og_video( $tags ) {
 	}
 
 	// Always favor featured images.
-	if ( enhanced_og_has_featured_image( $post->ID ) )
+	if ( enhanced_og_has_featured_image( $post->ID ) ) {
 		return $tags;
+	}
 
 	$summary = Jetpack_Media_Summary::get( $post->ID );
 
-	if ( 'video' != $summary['type'] ) {
+	if ( 'video' !== $summary['type'] ) {
 		if ( $summary['count']['video'] > 0 && $summary['count']['image'] < 1 ) {
 			$tags['og:image']            = $summary['image'];
 			$tags['og:image:secure_url'] = $summary['secure']['image'];
@@ -115,13 +138,13 @@ function enhanced_og_video( $tags ) {
 
 	if ( preg_match( '/((youtube|vimeo)\.com|youtu.be)/', $video_url ) ) {
 		if ( strstr( $video_url, 'youtube' ) ) {
-			$id = jetpack_get_youtube_id( $video_url );
-			$video_url = 'http://www.youtube.com/embed/' . $id;
+			$id               = jetpack_get_youtube_id( $video_url );
+			$video_url        = 'http://www.youtube.com/embed/' . $id;
 			$secure_video_url = 'https://www.youtube.com/embed/' . $id;
-		} else if ( strstr( $video_url, 'vimeo' ) ) {
+		} elseif ( strstr( $video_url, 'vimeo' ) ) {
 			preg_match( '|vimeo\.com/(\d+)/?$|i', $video_url, $match );
-			$id = (int) $match[1];
-			$video_url = 'http://vimeo.com/moogaloop.swf?clip_id=' . $id;
+			$id               = (int) $match[1];
+			$video_url        = 'http://vimeo.com/moogaloop.swf?clip_id=' . $id;
 			$secure_video_url = 'https://vimeo.com/moogaloop.swf?clip_id=' . $id;
 		}
 	}
@@ -129,16 +152,21 @@ function enhanced_og_video( $tags ) {
 	$tags['og:video']            = $video_url;
 	$tags['og:video:secure_url'] = $secure_video_url;
 
-	if ( empty( $post->post_title ) )
+	if ( empty( $post->post_title ) ) {
+		/* translators: %s is the name of the site */
 		$tags['og:title'] = sprintf( __( 'Video on %s', 'jetpack' ), get_option( 'blogname' ) );
+	}
 
 	return $tags;
 }
 add_filter( 'jetpack_open_graph_tags', 'enhanced_og_video' );
 
+/**
+ * Check if a post has a suitable featured image.
+ *
+ * @param int $post_id The post ID to check.
+ * @return bool True if the post has a suitable featured image, false otherwise.
+ */
 function enhanced_og_has_featured_image( $post_id ) {
-	$featured = Jetpack_PostImages::from_thumbnail( $post_id, 200, 200 );
-	if ( !empty( $featured ) && count( $featured ) > 0 )
-		return true;
-	return false;
+	return ! empty( Jetpack_PostImages::from_thumbnail( $post_id ) );
 }

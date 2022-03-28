@@ -1,5 +1,8 @@
-name: Required review
-description: Check that a PR has reviews from required teams.
+name: Required Review
+description: Check that a Pull Request has reviews from required teams.
+branding:
+  icon: 'user-check'
+  color: 'green'
 inputs:
   requirements:
     description: >
@@ -23,8 +26,5 @@ inputs:
     required: false
     default: ${{ github.token }}
 runs:
-  using: node12
+  using: node16
   main: dist/index.js
-branding:
-  color: green
-  icon: user-check

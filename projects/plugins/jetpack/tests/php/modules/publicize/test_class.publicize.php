@@ -605,6 +605,21 @@ class WP_Test_Publicize extends WP_UnitTestCase {
 	}
 
 	/**
+	 * Test that newlines are not stripped from multiline custom messages
+	 * in the classic editor interface.
+	 */
+	public function test_newlines_preserved_with_custom_message() {
+		$_SERVER['REQUEST_METHOD'] = 'post';
+		$test_message              = "This is\na multiline\nmessage";
+		$_POST['wpas_title']       = $test_message;
+		$_POST['wpas']             = 'submit';
+
+		$this->post->post_status = 'publish';
+		$post_id                 = wp_insert_post( $this->post->to_array() );
+
+		$this->assertEquals( $test_message, get_post_meta( $post_id, $this->publicize->POST_MESS, true ) );
+	}
+	/**
 	 * Filter callback to uncheck checkbox for 'facebook' connection.
 	 *
 	 * Filter callback interface is the same for all filters within

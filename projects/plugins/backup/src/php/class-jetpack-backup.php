@@ -75,6 +75,8 @@ class Jetpack_Backup {
 			}
 		);
 
+		add_action( 'plugins_loaded', array( $this, 'maybe_upgrade_db' ), 20 );
+
 		My_Jetpack_Initializer::init();
 	}
 
@@ -83,6 +85,17 @@ class Jetpack_Backup {
 	 */
 	public function admin_init() {
 		add_action( 'admin_enqueue_scripts', array( $this, 'enqueue_admin_scripts' ) );
+	}
+
+	/**
+	 * Checks current version against version in code and run upgrades if we are running a new version
+	 */
+	public function maybe_upgrade_db() {
+		$current_db_version = get_option( 'jetpack_backup_db_version' );
+		if ( version_compare( $current_db_version, JETPACK_BACKUP_DB_VERSION, '<' ) ) {
+			update_option( 'jetpack_backup_db_version', JETPACK_BACKUP_DB_VERSION );
+			Jetpack_Backup_Upgrades::upgrade();
+		}
 	}
 
 	/**
@@ -303,7 +316,8 @@ class Jetpack_Backup {
 	 */
 	public static function plugin_deactivation() {
 		$manager = new Connection_Manager( 'jetpack-backup' );
-		$manager->remove_connection();
+		$manager->disconnect_site_wpcom();
+		$manager->delete_all_connection_tokens();
 	}
 
 	/**

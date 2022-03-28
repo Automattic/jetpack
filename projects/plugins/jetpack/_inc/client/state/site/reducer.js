@@ -425,6 +425,25 @@ export function getConnectedPlugins( state ) {
 }
 
 /**
+ * Returns Jetpack connected plugins converted to obj keyed by slug
+ * [ { name, slug }, ... ] -> { slug: { name }, ... }
+ *
+ * @param   {object} state - Global state tree
+ * @returns {object} Connected plugins
+ */
+export function getConnectedPluginsMap( state ) {
+	const plugins = getConnectedPlugins( state );
+
+	return (
+		plugins &&
+		plugins.reduce( ( map, plugin ) => {
+			map[ plugin.slug ] = { name: plugin.name };
+			return map;
+		}, {} )
+	);
+}
+
+/**
  * Returns true if the site has a subscription to a Backup product or to a plan that includes Backup.
  *
  * @param   {object} state - Global state tree

@@ -233,7 +233,7 @@ class Jetpack_Recommendations_Banner {
 						<?php esc_html_e( 'Continue', 'jetpack' ); ?>
 					</a>
 					<div class="jp-recommendations-banner__continue-description">
-						<?php esc_html_e( 'The following Jetpack recommendations are available to you later in the Jetpack dashboard.', 'jetpack' ); ?>
+						<?php esc_html_e( 'All Jetpack’s great features await you and we’ll recommend some of our favorites', 'jetpack' ); ?>
 					</div>
 				</div>
 			</div>

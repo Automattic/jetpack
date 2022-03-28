@@ -38,4 +38,8 @@ class Jetpack {
 		self::$active_modules = $new;
 		return true;
 	}
+
+	public static function admin_url() {
+		return 'admin_url';
+	}
 }

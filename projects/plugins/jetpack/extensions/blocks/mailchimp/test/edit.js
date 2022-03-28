@@ -3,6 +3,7 @@
  */
 import '@testing-library/jest-dom/extend-expect';
 import { render, screen, act, waitFor } from '@testing-library/react';
+import { JETPACK_DATA_PATH } from '@automattic/jetpack-shared-extension-utils';
 
 // We need to mock InnerBlocks before importing our edit component as it requires the Gutenberg store setup
 // to operate
@@ -14,7 +15,6 @@ jest.mock( '@wordpress/block-editor', () => ( {
 /**
  * Internal dependencies
  */
-import { JETPACK_DATA_PATH } from '../../../shared/get-jetpack-data';
 import MailchimpSubscribeEdit from '../edit';
 import { settings } from '../../button';
 import { registerBlocks } from '../../../shared/test/block-fixtures';

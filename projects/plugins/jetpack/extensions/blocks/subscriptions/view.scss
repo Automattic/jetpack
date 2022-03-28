@@ -1,3 +1,20 @@
+.is-style-compact {
+	.wp-block-jetpack-subscriptions__button,
+	.wp-block-button__link {
+		margin-left: 0 !important;
+		border-top-left-radius: 0 !important;
+		border-bottom-left-radius: 0 !important;
+	}
+	.components-text-control__input,
+	p#subscribe-email input[type=email] {
+		border-top-right-radius: 0 !important;
+		border-bottom-right-radius: 0 !important;
+	}
+	&:not(.wp-block-jetpack-subscriptions__use-newline) .components-text-control__input {
+		border-right-width: 0 !important;
+	}
+}
+
 .wp-block-jetpack-subscriptions.wp-block-jetpack-subscriptions__supports-newline {
 	position: relative;
 
@@ -11,6 +28,8 @@
 		input[type="email"],
 		button {
 			line-height: 1.3;
+			box-sizing: border-box;
+			white-space: nowrap;
 		}
 
 		input[type="email"]::placeholder {

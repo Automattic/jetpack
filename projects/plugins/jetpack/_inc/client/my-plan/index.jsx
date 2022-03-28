@@ -20,6 +20,7 @@ import { getSiteConnectionStatus } from 'state/connection';
 
 import MyPlanHeader from './my-plan-header';
 import MyPlanBody from './my-plan-body';
+import MyPlanPartnerCoupon from './my-plan-partner-coupon';
 
 export function MyPlan( props ) {
 	let sitePlan = props.sitePlan.product_slug || '',
@@ -34,6 +35,7 @@ export function MyPlan( props ) {
 	return (
 		<React.Fragment>
 			<QuerySite />
+			<MyPlanPartnerCoupon siteRawUrl={ props.siteRawUrl } />
 			<MyPlanHeader
 				activeProducts={ props.activeProducts }
 				plan={ sitePlan }

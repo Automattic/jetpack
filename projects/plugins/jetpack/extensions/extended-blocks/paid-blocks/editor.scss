@@ -38,6 +38,7 @@ $icon-background-color: #fff;
 			height: 28px;
 
 			&.is-primary {
+				text-decoration: none;
 				background: $studio-pink-40;
 				color: $studio-white;
 
@@ -76,6 +77,12 @@ $icon-background-color: #fff;
 // Tweak Banner: Inspector Controls.
 .editor-styles-wrapper [data-block].is-upgradable,
 .block-editor-block-list__block.is-upgradable {
+	margin-top: 0;
+	padding-top: $banner-height;
+}
+
+// Tweak Banner: More specific selector needed for Inspector Controls.
+.editor-styles-wrapper .block-editor-block-list__layout.is-root-container .is-upgradable {
 	margin-top: 0;
 	padding-top: $banner-height;
 }

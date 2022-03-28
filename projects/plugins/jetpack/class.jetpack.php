@@ -17,7 +17,6 @@ use Automattic\Jetpack\Connection\Rest_Authentication as Connection_Rest_Authent
 use Automattic\Jetpack\Connection\Secrets;
 use Automattic\Jetpack\Connection\Tokens;
 use Automattic\Jetpack\Connection\Utils as Connection_Utils;
-use Automattic\Jetpack\Connection\Webhooks as Connection_Webhooks;
 use Automattic\Jetpack\Constants;
 use Automattic\Jetpack\Device_Detection\User_Agent_Info;
 use Automattic\Jetpack\Identity_Crisis;
@@ -596,6 +595,18 @@ class Jetpack {
 		$new_current_modules  = array_diff( array_merge( $current_modules, $new_active_modules ), $new_inactive_modules );
 		$reindexed_modules    = array_values( $new_current_modules );
 		$success              = Jetpack_Options::update_option( 'active_modules', array_unique( $reindexed_modules ) );
+		// Let's take `pre_update_option_jetpack_active_modules` filter into account
+		// and actually decide for which modules we need to fire hooks by comparing
+		// the 'active_modules' option before and after the update.
+		$current_modules_post_update = Jetpack_Options::get_option( 'active_modules', array() );
+
+		$new_inactive_modules = array_diff( $current_modules, $current_modules_post_update );
+		$new_inactive_modules = array_unique( $new_inactive_modules );
+		$new_inactive_modules = array_values( $new_inactive_modules );
+
+		$new_active_modules = array_diff( $current_modules_post_update, $current_modules );
+		$new_active_modules = array_unique( $new_active_modules );
+		$new_active_modules = array_values( $new_active_modules );
 
 		foreach ( $new_active_modules as $module ) {
 			/**
@@ -889,6 +900,8 @@ class Jetpack {
 				'admin_page' => '/wp-admin/admin.php?page=jetpack',
 			)
 		);
+
+		$config->ensure( 'search' );
 
 		if ( ! $this->connection_manager ) {
 			$this->connection_manager = new Connection_Manager( 'jetpack' );
@@ -3023,8 +3036,7 @@ class Jetpack {
 		self::catch_errors( true );
 		ob_start();
 		require self::get_module_path( $module ); // phpcs:ignore WordPressVIPMinimum.Files.IncludingFile.NotAbsolutePath
-		/** This action is documented in class.jetpack.php */
-		do_action( 'jetpack_activate_module', $module );
+
 		$active[] = $module;
 		self::update_active_modules( $active );
 
@@ -3055,8 +3067,9 @@ class Jetpack {
 		 * @since 1.9.0
 		 *
 		 * @param string $module Module slug.
+		 * @param bool $redirect Should there be a redirection after deactivation.
 		 */
-		do_action( 'jetpack_pre_deactivate_module', $module );
+		do_action( 'jetpack_pre_deactivate_module', $module, true );
 
 		$jetpack = self::init();
 
@@ -3902,6 +3915,23 @@ p {
 			return new WP_Error( 'unknown_token', 'Unknown Jetpack token', 403 );
 		}
 
+		/**
+		 * Optionally block uploads processed through Jetpack's upload_handler().
+		 * The filter may return false or WP_Error to block this particular upload.
+		 *
+		 * @since 10.8
+		 *
+		 * @param bool|WP_Error $allowed If false or WP_Error, block the upload. If true, allow the upload.
+		 * @param mixed $_FILES The $_FILES attempting to be uploaded.
+		 */
+		$can_upload = apply_filters( 'jetpack_upload_handler_can_upload', true, $_FILES );
+		if ( ! $can_upload || is_wp_error( $can_upload ) ) {
+			if ( is_wp_error( $can_upload ) ) {
+				return $can_upload;
+			}
+			return new WP_Error( 'handler_cannot_upload', __( 'The upload handler cannot upload files', 'jetpack' ), 400 );
+		}
+
 		$uploaded_files = array();
 		$global_post    = isset( $GLOBALS['post'] ) ? $GLOBALS['post'] : null;
 		unset( $GLOBALS['post'] );
@@ -4090,20 +4120,17 @@ p {
 	 * @return array
 	 */
 	public function plugin_action_links( $actions ) {
-
-		$jetpack_home = array( 'jetpack-home' => sprintf( '<a href="%s">%s</a>', self::admin_url( 'page=jetpack' ), __( 'My Jetpack', 'jetpack' ) ) );
 		$support_link = ( new Host() )->is_woa_site() ? 'https://wordpress.com/help/contact/' : self::admin_url( 'page=jetpack-debugger' );
 
 		if ( current_user_can( 'jetpack_manage_modules' ) && ( self::is_connection_ready() || ( new Status() )->is_offline_mode() ) ) {
 			return array_merge(
-				$jetpack_home,
 				array( 'settings' => sprintf( '<a href="%s">%s</a>', self::admin_url( 'page=jetpack#/settings' ), __( 'Settings', 'jetpack' ) ) ),
 				array( 'support' => sprintf( '<a href="%s">%s</a>', $support_link, __( 'Support', 'jetpack' ) ) ),
 				$actions
 			);
 		}
 
-		return array_merge( $jetpack_home, $actions );
+		return $actions;
 	}
 
 	/**
@@ -4140,7 +4167,7 @@ p {
 
 			// Add objects to be passed to the initial state of the app.
 			// Use wp_add_inline_script instead of wp_localize_script, see https://core.trac.wordpress.org/ticket/25280.
-			wp_add_inline_script( 'jetpack-plugins-page-js', 'var Initial_State=JSON.parse(decodeURIComponent("' . rawurlencode( wp_json_encode( Jetpack_Redux_State_Helper::get_initial_state() ) ) . '"));', 'before' );
+			wp_add_inline_script( 'jetpack-plugins-page-js', 'var Initial_State=JSON.parse(decodeURIComponent("' . rawurlencode( wp_json_encode( Jetpack_Redux_State_Helper::get_minimal_state() ) ) . '"));', 'before' );
 
 			add_action( 'admin_footer', array( $this, 'jetpack_plugin_portal_containers' ) );
 		}
@@ -4273,55 +4300,12 @@ p {
 
 		if ( isset( $_GET['action'] ) ) {
 			switch ( $_GET['action'] ) {
+				/**
+				 * Cases authorize and authorize_redirect are now handled by Connection package Webhooks
+				 */
 				case 'authorize_redirect':
-					self::log( 'authorize_redirect' );
-
-					add_filter(
-						'allowed_redirect_hosts',
-						function ( $domains ) {
-							$domains[] = 'jetpack.com';
-							$domains[] = 'jetpack.wordpress.com';
-							$domains[] = 'wordpress.com';
-							$domains[] = wp_parse_url( static::get_calypso_host(), PHP_URL_HOST ); // May differ from `wordpress.com`.
-							return array_unique( $domains );
-						}
-					);
-
-					// phpcs:ignore WordPress.Security.NonceVerification.Recommended
-					$dest_url = empty( $_GET['dest_url'] ) ? null : $_GET['dest_url'];
-
-					if ( ! $dest_url || ( 0 === stripos( $dest_url, 'https://jetpack.com/' ) && 0 === stripos( $dest_url, 'https://wordpress.com/' ) ) ) {
-						// The destination URL is missing or invalid, nothing to do here.
-						exit;
-					}
-
-					if ( static::connection()->is_connected() && static::connection()->is_user_connected() ) {
-						// The user is either already connected, or finished the connection process.
-						wp_safe_redirect( $dest_url );
-						exit;
-					} elseif ( ! empty( $_GET['done'] ) ) { // phpcs:ignore WordPress.Security.NonceVerification.Recommended
-						// The user decided not to proceed with setting up the connection.
-						wp_safe_redirect( self::admin_url( 'page=jetpack' ) );
-						exit;
-					}
-
-					$redirect_args = array(
-						'page'     => 'jetpack',
-						'action'   => 'authorize_redirect',
-						'dest_url' => rawurlencode( $dest_url ),
-						'done'     => '1',
-					);
-
-					if ( ! empty( $_GET['from'] ) && 'jetpack_site_only_checkout' === $_GET['from'] ) {
-						$redirect_args['from'] = 'jetpack_site_only_checkout';
-					}
-
-					wp_safe_redirect( static::build_authorize_url( self::admin_url( $redirect_args ) ) );
-					exit;
 				case 'authorize':
-					_doing_it_wrong( __METHOD__, 'The `page=jetpack&action=authorize` webhook is deprecated. Use `handler=jetpack-connection-webhooks&action=authorize` instead', 'Jetpack 9.5.0' );
-					( new Connection_Webhooks( $this->connection_manager ) )->handle_authorize();
-					exit;
+					break;
 				case 'register':
 					if ( ! current_user_can( 'jetpack_connect' ) ) {
 						$error = 'cheatin';
@@ -7239,7 +7223,7 @@ endif;
 	/**
 	 * Register product descriptions for partner coupon usage.
 	 *
-	 * @since $$next_version$$
+	 * @since 10.4.0
 	 *
 	 * @param array $products An array of registered products.
 	 *

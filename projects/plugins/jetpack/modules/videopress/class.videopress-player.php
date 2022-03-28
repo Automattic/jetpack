@@ -643,6 +643,9 @@ class VideoPress_Player {
 				case 'loop':
 				case 'permalink':
 				case 'cover':
+				case 'muted':
+				case 'controls':
+				case 'playsinline':
 					if ( in_array( $value, array( 1, 'true' ) ) ) {
 						$videopress_options[ $option ] = true;
 					} elseif ( in_array( $value, array( 0, 'false' ) ) ) {
@@ -671,7 +674,9 @@ class VideoPress_Player {
 
 			$js_url = 'https://s0.wp.com/wp-content/plugins/video/assets/js/next/videopress-iframe.js';
 
-			return "<iframe width='" . esc_attr( $videopress_options['width'] )
+			return "<iframe title='" . __( 'VideoPress Video Player', 'jetpack' )
+				. "' aria-label='" . __( 'VideoPress Video Player', 'jetpack' )
+				. "' width='" . esc_attr( $videopress_options['width'] )
 				. "' height='" . esc_attr( $videopress_options['height'] )
 				. "' src='" . esc_attr( $iframe_url )
 				. "' frameborder='0' allowfullscreen></iframe>"

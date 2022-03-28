@@ -11,6 +11,9 @@
 		"automattic/jetpack-changelogger": "^3.0"
 	},
 	"autoload": {
+		"files": [
+			"actions.php"
+		],
 		"classmap": [
 			"src/"
 		]

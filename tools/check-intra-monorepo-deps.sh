@@ -11,7 +11,7 @@ BASE=$PWD
 # Print help and exit.
 function usage {
 	cat <<-EOH
-		usage: $0 [-a] [-v] [-U|-u] [<slug> ...]
+		usage: $0 [-a] [-n <name>] [-v] [-U|-u] [<slug> ...]
 
 		Check that all composer and pnpm dependencies between monorepo projects are up to date.
 
@@ -24,6 +24,7 @@ function usage {
 
 		Other options:
 		 -a: Pass --filename-auto-suffix to changelogger (avoids "file already exists" errors).
+		 -n: Set changelogger filename.
 		 -v: Output debug information.
 	EOH
 	exit 1
@@ -34,7 +35,8 @@ UPDATE=false
 VERBOSE=false
 DOCL_EVER=true
 AUTO_SUFFIX=false
-while getopts ":uUvha" opt; do
+CL_FILENAME=
+while getopts ":uUvhan:" opt; do
 	case ${opt} in
 		u)
 			UPDATE=true
@@ -45,6 +47,9 @@ while getopts ":uUvha" opt; do
 			;;
 		a)
 			AUTO_SUFFIX=true
+			;;
+		n)
+			CL_FILENAME="$OPTARG"
 			;;
 		v)
 			VERBOSE=true
@@ -93,7 +98,7 @@ DO_PNPM_LOCK=true
 SLUGS=()
 if [[ $# -le 0 ]]; then
 	# Use a temp variable so pipefail works
-	TMP="$(pnpx jetpack dependencies build-order --pretty)"
+	TMP="$(pnpx --no-install jetpack dependencies build-order --pretty)" || { echo "$TMP"; exit 1; }
 	mapfile -t SLUGS <<<"$TMP"
 	TMP="$(git ls-files '**/composer.json' '**/package.json' | sed -E -n -e '\!^projects/[^/]*/[^/]*/(composer|package)\.json$! d' -e 's!/(composer|package)\.json$!!' -e 's/^/nonproject:/p' | sort -u)"
 	mapfile -t -O ${#SLUGS[@]} SLUGS <<<"$TMP"
@@ -125,6 +130,9 @@ if $UPDATE; then
 			ARGS+=( "--type=$CLTYPE" )
 		fi
 
+		if [[ -n "$CL_FILENAME" ]]; then
+			ARGS+=( --filename="$CL_FILENAME" )
+		fi
 		if $AUTO_SUFFIX; then
 			ARGS+=( --filename-auto-suffix )
 		fi
@@ -176,6 +184,15 @@ for SLUG in "${SLUGS[@]}"; do
 		fi
 		DOCL=$DOCL_EVER
 		DIR="projects/$SLUG"
+	fi
+	if [[ ! -d "$DIR" ]]; then
+		EXIT=1
+		if [[ -n "$CI" ]]; then
+			echo "::error::Cannot check $SLUG, as $DIR does not exist."
+		else
+			error "Cannot check $SLUG, as $DIR does not exist."
+		fi
+		continue
 	fi
 	PHPFILE="$DIR/composer.json"
 	JSFILE="$DIR/package.json"

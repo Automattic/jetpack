@@ -1,0 +1,4 @@
+Significance: patch
+Type: removed
+
+Remove unneeded dependency on `@babel/preset-react`.

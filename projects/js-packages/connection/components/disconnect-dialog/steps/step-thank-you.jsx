@@ -40,7 +40,7 @@ const StepThankYou = props => {
 					) }
 				</p>
 				<Button
-					isPrimary
+					variant="primary"
 					onClick={ onExit }
 					className="jp-connection__disconnect-dialog__btn-back-to-wp"
 				>

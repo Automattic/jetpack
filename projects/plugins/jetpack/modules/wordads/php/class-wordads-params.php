@@ -38,8 +38,9 @@ class WordAds_Params {
 			'wordads_ccpa_privacy_policy_url' => get_option( 'wp_page_for_privacy_policy' ) ? get_permalink( (int) get_option( 'wp_page_for_privacy_policy' ) ) : '',
 		);
 
-		// grab settings, or set as default if it doesn't exist.
+		// Grab settings, or set as default if it doesn't exist.
 		$this->options = array();
+
 		foreach ( $settings as $setting => $default ) {
 			$option = get_option( $setting, null );
 
@@ -50,7 +51,10 @@ class WordAds_Params {
 					$default = get_option( 'wordads_custom_adstxt' ) !== '';
 				}
 
-				update_option( $setting, $default, true );
+				// Convert boolean options to string first to work around update_option not setting the option if the value is false.
+				// This sets the option to either '1' if true or '' if false.
+				update_option( $setting, (string) $default, true );
+
 				$option = $default;
 			}
 

@@ -7,6 +7,7 @@ const GettextEntries = require( './GettextEntries.js' );
 const GettextExtractor = require( './GettextExtractor.js' );
 
 const debug = require( 'debug' )( PLUGIN_NAME + ':plugin' );
+const debugtiming = require( 'debug' )( PLUGIN_NAME + ':timing' );
 
 const schema = {
 	title: `${ PLUGIN_NAME } plugin options`,
@@ -193,11 +194,14 @@ class I18nCheckPlugin {
 					additionalAssets: true,
 				},
 				assets => {
+					const t0 = Date.now();
 					const promises = [];
 					for ( const filename of Object.keys( assets ) ) {
 						promises.push( this.#processAsset( compilation, filename, moduleCache ) );
 					}
-					return Promise.all( promises );
+					return Promise.all( promises ).finally( () => {
+						debugtiming( `Processed all assets in ${ Date.now() - t0 }ms` );
+					} );
 				}
 			);
 		} );
@@ -211,6 +215,7 @@ class I18nCheckPlugin {
 	 * @param {Map} moduleCache - Cache for processed modules.
 	 */
 	async #processAsset( compilation, filename, moduleCache ) {
+		const t0 = Date.now();
 		const asset = compilation.getAsset( filename );
 
 		// Detemine if we even need to process this asset. JavaScript assets seem to always
@@ -226,28 +231,36 @@ class I18nCheckPlugin {
 
 		// Extract strings from the source resources.
 		const sourceEntries = new Set();
+		const promises = [];
 		for ( const resource of asset.info.resources ) {
 			if ( ! moduleCache.has( resource ) ) {
-				const promise = new Promise( resolve => {
-					this.#extractor
-						.extractFromFile( resource, {
-							filename: npath.relative( compilation.compiler.context, resource ),
-						} )
-						.then( resolve );
+				const promise = this.#extractor.extractFromFile( resource, {
+					filename: npath.relative( compilation.compiler.context, resource ),
 				} );
 				moduleCache.set( resource, promise );
 			}
-			const resourceEntries = await moduleCache.get( resource );
-			resourceEntries.forEach( e => sourceEntries.add( e ) );
+			promises.push(
+				moduleCache.get( resource ).then( resourceEntries => {
+					resourceEntries.forEach( e => sourceEntries.add( e ) );
+				} )
+			);
 		}
 
 		// Extract strings from the asset.
 		const lintLogger = s => {
 			compilation[ this.#reportkey ].push( new Error( s ) );
 		};
-		const source = asset.source.source();
-		const babelFile = await this.#extractor.parse( source, { filename, lintLogger } );
-		const assetEntries = this.#extractor.extractFromAst( babelFile, { filename, lintLogger } );
+		let babelFile, assetEntries;
+		promises.push(
+			( async () => {
+				const source = asset.source.source();
+				babelFile = await this.#extractor.parse( source, { filename, lintLogger } );
+				assetEntries = this.#extractor.extractFromAst( babelFile, { filename, lintLogger } );
+			} )()
+		);
+
+		// Wait for all the extractions to complete.
+		await Promise.all( promises );
 
 		// Analyze. First, collect the missing entries and report any entries with lost translator comments.
 		const missingEntries = new GettextEntries();
@@ -348,6 +361,7 @@ class I18nCheckPlugin {
 				)
 			);
 		}
+		debugtiming( `Processed asset ${ filename } in ${ Date.now() - t0 }ms` );
 	}
 }
 

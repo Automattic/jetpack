@@ -1,26 +1,38 @@
-<?php
+<?php // phpcs:ignore WordPress.Files.FileName.InvalidClassFileName
+/**
+ * Endpoint: /sites/%s/comment-history/%d
+ */
+new WPCOM_JSON_API_GET_Comment_History_Endpoint(
+	array(
+		'description'     => 'Get the audit history for given comment',
+		'group'           => 'comments',
+		'stat'            => 'comments:1:comment-history',
+		'method'          => 'GET',
+		'path'            => '/sites/%s/comment-history/%d',
+		'path_labels'     => array(
+			'$site'       => '(int|string) Site ID or domain',
+			'$comment_ID' => '(int) The comment ID',
+		),
 
-new WPCOM_JSON_API_GET_Comment_History_Endpoint( array(
-	'description'   => 'Get the audit history for given comment',
-	'group'         => 'comments',
-	'stat'          => 'comments:1:comment-history',
-	'method'        => 'GET',
-	'path'          => '/sites/%s/comment-history/%d',
-	'path_labels'   => array(
-		'$site'       => '(int|string) Site ID or domain',
-		'$comment_ID' => '(int) The comment ID'
-	),
+		'example_request' => 'https://public-api.wordpress.com/rest/v1/sites/en.blog.wordpress.com/comment-history/11',
 
-	'example_request' => 'https://public-api.wordpress.com/rest/v1/sites/en.blog.wordpress.com/comment-history/11',
-
-	'response_format' => array(
-		'comment_history' => '(array) Array of arrays representing the comment history objects.'
+		'response_format' => array(
+			'comment_history' => '(array) Array of arrays representing the comment history objects.',
+		),
 	)
-) );
-
+);
+/**
+ * GET Comment History endpoint.
+ */
 class WPCOM_JSON_API_GET_Comment_History_Endpoint extends WPCOM_JSON_API_Endpoint {
-
-	// /sites/%s/comment-history/%d
+	/**
+	 *
+	 * API callback.
+	 *
+	 * @param string $path - the path.
+	 * @param int    $blog_id - the blog ID.
+	 * @param int    $comment_id - the comment ID.
+	 */
 	public function callback( $path = '', $blog_id = 0, $comment_id = 0 ) {
 		$blog_id = $this->api->switch_to_blog_and_validate_user( $this->api->get_blog_id( $blog_id ) );
 

@@ -67,6 +67,14 @@ class SupportCard extends React.Component {
 		} );
 	};
 
+	trackGettingStartedClick = () => {
+		analytics.tracks.recordJetpackClick( {
+			target: 'support-card',
+			button: 'getting-started',
+			page: this.props.path,
+		} );
+	};
+
 	render() {
 		if (
 			'undefined' === typeof this.props.sitePlan.product_slug &&
@@ -98,6 +106,16 @@ class SupportCard extends React.Component {
 								  ) }
 						</p>
 						<p className="jp-support-card__description">
+							<Button
+								onClick={ this.trackGettingStartedClick }
+								href={
+									this.props.isAtomicSite
+										? getRedirectUrl( 'calypso-help' )
+										: getRedirectUrl( 'jetpack-support-getting-started' )
+								}
+							>
+								{ __( 'Getting started with Jetpack', 'jetpack' ) }
+							</Button>
 							<Button
 								onClick={ this.trackSearchClick }
 								href={

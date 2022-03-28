@@ -19,7 +19,7 @@ jobs:
     outputs:
       matrix: ${{ steps.create-matrix.outputs.matrix }}
     steps:
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v3
       - id: create-matrix
         run: |
           MATRIX="$(.github/files/generate-ci-matrix.php)"
@@ -51,7 +51,7 @@ jobs:
         include: ${{ fromJson( needs.create-matrix.outputs.matrix ) }}
 
     steps:
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v3
         with:
           # codecov.io requires a fetch depth > 1.
           fetch-depth: 2
@@ -80,7 +80,7 @@ jobs:
       - name: Detect changed projects
         id: changed
         run: |
-          CHANGED="$(.github/files/list-changed-projects.sh)"
+          CHANGED="$(EXTRA=test .github/files/list-changed-projects.sh)"
           ANY_PLUGINS="$(jq --argjson changed "$CHANGED" -n '$changed | with_entries( select( .key | startswith( "plugins/" ) ) ) | any')"
           echo "::set-output name=projects::${CHANGED}"
           echo "::set-output name=any-plugins::${ANY_PLUGINS}"
@@ -183,7 +183,7 @@ jobs:
           fi
       - name: Upload artifacts
         if: always() && steps.check-artifacts.outputs.any == 'true'
-        uses: actions/upload-artifact@v2
+        uses: actions/upload-artifact@v3
         with:
           name: ${{ matrix.artifact }}
           path: artifacts

@@ -478,6 +478,15 @@ class Queue {
 	}
 
 	/**
+	 * Checks if the queue is locked.
+	 *
+	 * @return bool
+	 */
+	public function is_locked() {
+		return (bool) $this->get_checkout_id();
+	}
+
+	/**
 	 * Locks checkouts from the queue
 	 * tries to wait up to $timeout seconds for the queue to be empty.
 	 *

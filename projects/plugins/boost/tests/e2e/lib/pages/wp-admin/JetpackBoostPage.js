@@ -137,6 +137,7 @@ export default class JetpackBoostPage extends WpPage {
 	async currentPageTitleIs( expected ) {
 		const actualTitle = await this.page.evaluate( () => {
 			const selector = '.jb-site-score__top h2';
+			// eslint-disable-next-line no-undef
 			return document.querySelector( selector ).textContent;
 		} );
 

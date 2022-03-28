@@ -13,11 +13,11 @@ import { Component } from '@wordpress/element';
 import { Disabled, Notice, ExternalLink } from '@wordpress/components';
 import { withSelect } from '@wordpress/data';
 import { includes } from 'lodash';
+import { getSiteFragment } from '@automattic/jetpack-shared-extension-utils';
 
 /**
  * Internal dependencies
  */
-import getSiteFragment from '../../../../shared/get-site-fragment';
 import ConnectionToggle from '../connection-toggle';
 
 class PublicizeConnection extends Component {

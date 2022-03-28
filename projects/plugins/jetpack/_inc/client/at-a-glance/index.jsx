@@ -14,12 +14,14 @@ import { withModuleSettingsFormHelpers } from 'components/module-settings/with-m
 import DashSectionHeader from 'components/dash-section-header';
 import DashActivity from './activity';
 import DashBoost from './boost';
+import DashCRM from './crm';
 import DashStats from './stats/index.jsx';
 import DashProtect from './protect';
 import DashMonitor from './monitor';
 import DashScan from './scan';
 import DashAkismet from './akismet';
 import DashBackups from './backups';
+import DashBlocks from './blocks';
 import DashPhoton from './photon';
 import DashSearch from './search';
 import DashSecurityBundle from './security-bundle';
@@ -29,15 +31,23 @@ import QuerySitePlugins from 'components/data/query-site-plugins';
 import QuerySite from 'components/data/query-site';
 import QueryScanStatus from 'components/data/query-scan-status';
 import {
+	isAtomicSite,
+	getApiNonce,
+	getApiRootUrl,
+	getPartnerCoupon,
+	getPluginBaseUrl,
+	getRegistrationNonce,
+	getTracksUserData,
 	isMultisite,
 	userCanManageModules,
 	userCanManagePlugins,
 	userCanViewStats,
 	userIsSubscriber,
 } from 'state/initial-state';
-import { isOfflineMode, hasConnectedOwner } from 'state/connection';
+import { isOfflineMode, hasConnectedOwner, getConnectionStatus } from 'state/connection';
 import { getModuleOverride } from 'state/modules';
 import { getScanStatus, isFetchingScanStatus } from 'state/scan';
+import { PartnerCouponRedeem } from '@automattic/jetpack-partner-coupon';
 
 class AtAGlance extends Component {
 	trackSecurityClick = () => analytics.tracks.recordJetpackClick( 'aag_manage_security_wpcom' );
@@ -87,7 +97,7 @@ class AtAGlance extends Component {
 		// Backup won't work with multi-sites, but Scan does if VaultPress is enabled
 		const hasVaultPressScanning =
 			! this.props.fetchingScanStatus && this.props.scanStatus?.reason === 'vp_active_on_site';
-		if ( ! this.props.multisite || hasVaultPressScanning ) {
+		if ( ! this.props.isAtomicSite && ( ! this.props.multisite || hasVaultPressScanning ) ) {
 			securityCards.push(
 				<DashScan
 					{ ...settingsProps }
@@ -97,17 +107,6 @@ class AtAGlance extends Component {
 			);
 		}
 
-		if ( ! this.props.multisite ) {
-			securityCards.push(
-				<DashBackups
-					{ ...settingsProps }
-					siteRawUrl={ this.props.siteRawUrl }
-					rewindStatus={ rewindStatus }
-					rewindStatusReason={ rewindStatusReason }
-					trackUpgradeButtonView={ this.trackUpgradeButtonView( 'backups' ) }
-				/>
-			);
-		}
 		securityCards.push(
 			<DashAkismet
 				{ ...urls }
@@ -154,19 +153,53 @@ class AtAGlance extends Component {
 			}
 
 			if ( this.props.userCanManagePlugins ) {
-				performanceCards.push( <DashBoost siteAdminUrl={ this.props.siteAdminUrl } /> );
+				performanceCards.push(
+					<DashBoost siteAdminUrl={ this.props.siteAdminUrl } />,
+					<DashCRM siteAdminUrl={ this.props.siteAdminUrl } />
+				);
 			}
+
+			// Add Blocks card.
+			performanceCards.push( <DashBlocks /> );
+
+			const redeemPartnerCoupon = ! this.props.isOfflineMode && this.props.partnerCoupon && (
+				<PartnerCouponRedeem
+					apiNonce={ this.props.apiNonce }
+					registrationNonce={ this.props.registrationNonce }
+					apiRoot={ this.props.apiRoot }
+					assetBaseUrl={ this.props.pluginBaseUrl }
+					connectionStatus={ this.props.connectionStatus }
+					partnerCoupon={ this.props.partnerCoupon }
+					siteRawUrl={ this.props.siteRawUrl }
+					tracksUserData={ !! this.props.tracksUserData }
+					analytics={ analytics }
+				/>
+			);
+
+			const pinnedBundle = canDisplaybundleCard ? (
+				<div className="jp-at-a-glance__pinned-bundle">
+					<DashSecurityBundle />
+					<DashBackups
+						{ ...settingsProps }
+						siteRawUrl={ this.props.siteRawUrl }
+						rewindStatus={ rewindStatus }
+						rewindStatusReason={ rewindStatusReason }
+						trackUpgradeButtonView={ this.trackUpgradeButtonView( 'backups' ) }
+					/>
+				</div>
+			) : null;
 
 			return (
 				<div className="jp-at-a-glance">
 					<QuerySitePlugins />
 					<QuerySite />
 					<QueryScanStatus />
+					{ redeemPartnerCoupon }
 					<DashStats { ...settingsProps } { ...urls } />
 					<Section
 						header={ securityHeader }
 						cards={ securityCards }
-						pinnedBundle={ canDisplaybundleCard ? <DashSecurityBundle /> : null }
+						pinnedBundle={ pinnedBundle }
 					/>
 					<Section
 						header={ <DashSectionHeader label={ __( 'Performance and Growth', 'jetpack' ) } /> }
@@ -210,12 +243,20 @@ export default connect( state => {
 		userCanViewStats: userCanViewStats( state ),
 		userCanManagePlugins: userCanManagePlugins( state ),
 		userIsSubscriber: userIsSubscriber( state ),
+		isAtomicSite: isAtomicSite( state ),
 		isOfflineMode: isOfflineMode( state ),
 		getModuleOverride: module_name => getModuleOverride( state, module_name ),
 		multisite: isMultisite( state ),
 		scanStatus: getScanStatus( state ),
 		fetchingScanStatus: isFetchingScanStatus( state ),
 		hasConnectedOwner: hasConnectedOwner( state ),
+		connectionStatus: getConnectionStatus( state ),
+		partnerCoupon: getPartnerCoupon( state ),
+		pluginBaseUrl: getPluginBaseUrl( state ),
+		tracksUserData: getTracksUserData( state ),
+		apiRoot: getApiRootUrl( state ),
+		apiNonce: getApiNonce( state ),
+		registrationNonce: getRegistrationNonce( state ),
 	};
 } )( withModuleSettingsFormHelpers( AtAGlance ) );
 

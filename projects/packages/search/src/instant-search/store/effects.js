@@ -131,6 +131,7 @@ function updateSearchQueryString( action ) {
 
 	// Uses a debounced version of the setQuery, which ensures we're not spamming the user's browser history
 	// with partly typed queries.
+	// TODO: Flush debounce before changing SearchApp visibility.
 	debouncedSetQuery( queryObject );
 }
 

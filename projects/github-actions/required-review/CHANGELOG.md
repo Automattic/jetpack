@@ -5,6 +5,11 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [2.2.2] - 2022-02-09
+### Changed
+- Core: update description and metadata before to publish to marketplace.
+- General: update required node version to v16.13.2
+
 ## [2.2.1] - 2021-11-02
 ### Changed
 - Allow Node ^14.17.6 to be used in this project. This shouldn't change the behavior of the code itself.
@@ -34,6 +39,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - Initial release
 
+[2.2.2]: https://github.com/Automattic/action-required-review/compare/v2.2.1...v2.2.2
 [2.2.1]: https://github.com/Automattic/action-required-review/compare/v2.2.0...v2.2.1
 [2.2.0]: https://github.com/Automattic/action-required-review/compare/v2.1.0...v2.2.0
 [2.1.0]: https://github.com/Automattic/action-required-review/compare/v2.0.0...v2.1.0

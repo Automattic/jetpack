@@ -46,12 +46,6 @@ async function resetWordpressInstall() {
 	execSyncShellCommand( cmd );
 }
 
-async function prepareUpdaterTest() {
-	const cmd = `${ BASE_DOCKER_CMD } -v exec-silent /usr/local/src/jetpack-monorepo/tools/e2e-commons/bin/prep.sh`;
-
-	await execShellCommand( cmd );
-}
-
 /**
  * Provisions Jetpack plan and connects the site through Jetpack Start flow
  *
@@ -121,6 +115,10 @@ async function execWpCommand( wpCmd, sendUrl = true ) {
 	}
 
 	return result;
+}
+
+async function execContainerShellCommand( cmd ) {
+	return execShellCommand( `${ BASE_DOCKER_CMD } -v exec-silent ${ cmd }` );
 }
 
 async function logDebugLog() {
@@ -338,8 +336,9 @@ async function getJetpackVersion() {
 module.exports = {
 	execShellCommand,
 	execSyncShellCommand,
+	execContainerShellCommand,
 	resetWordpressInstall,
-	prepareUpdaterTest,
+	BASE_DOCKER_CMD,
 	provisionJetpackStartConnection,
 	activateModule,
 	execWpCommand,

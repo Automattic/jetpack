@@ -282,6 +282,24 @@ else
 	version_range 'Composer' "$BIN" 'composer' "$VER" "$VX.0" "$COMPOSER_VERSION" "$VX.9999999" true
 fi
 
+checking 'Required extensions are installed'
+MISSING_EXTENSIONS=()
+BIN="$(command -v php)"
+if [[ -z "$BIN" ]]; then
+	failure "no php found, skipping check" 'php'
+else
+	for extension in mbstring xml libxml; do
+		if php -r "exit( in_array( '$extension', get_loaded_extensions() ) ? 1 : 0 );"; then
+			MISSING_EXTENSIONS+=( "$extension" )
+		fi
+	done
+	if [[ ${#MISSING_EXTENSIONS[@]} -gt 0 ]]; then
+		failure 'no' '' "The following extensions are not installed: ${MISSING_EXTENSIONS[*]}"
+	else
+		success 'yes'
+	fi
+fi
+
 echo ""
 echo "JavaScript tools"
 echo "================"

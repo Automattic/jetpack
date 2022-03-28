@@ -4,6 +4,7 @@ use Automattic\Jetpack\Connection\Manager as Connection_Manager;
 use Automattic\Jetpack\Constants;
 use Automattic\Jetpack\Partner;
 use Automattic\Jetpack\Status;
+use Automattic\Jetpack\Status\Cache as StatusCache;
 
 // Extend with a public constructor so that can be mocked in tests
 class MockJetpack extends Jetpack {
@@ -77,11 +78,20 @@ class WP_Test_Jetpack extends WP_UnitTestCase {
 	}
 
 	/**
+	 * Set up.
+	 */
+	public function set_up() {
+		parent::set_up();
+		StatusCache::clear();
+	}
+
+	/**
 	 * Tear down.
 	 */
 	public function tear_down() {
 		parent::tear_down();
 		Constants::clear_constants();
+		StatusCache::clear();
 	}
 
 	/**
@@ -276,6 +286,28 @@ EXPECTED;
 
 		remove_action( 'jetpack_activate_module_stats', array( __CLASS__, 'track_activated_modules' ) );
 		remove_action( 'jetpack_deactivate_module_stats', array( __CLASS__, 'track_deactivated_modules' ) );
+	}
+	/**
+	 * Test Jetpack::update_active_modules with pre_update_option_jetpack_active_modules filter.
+	 *
+	 * @author fgiannar
+	 */
+	public function test_activating_deactivating_modules_with_pre_update_filter() {
+		self::reset_tracking_of_module_activation();
+
+		add_action( 'jetpack_activate_module', array( __CLASS__, 'track_activated_modules' ) );
+		add_action( 'jetpack_deactivate_module', array( __CLASS__, 'track_deactivated_modules' ) );
+		add_filter( 'pre_update_option_jetpack_active_modules', array( __CLASS__, 'filter_pre_update_option_jetpack_active_modules' ), 10, 2 );
+
+		Jetpack::update_active_modules( array( 'json-api' ) );
+		Jetpack::update_active_modules( array( 'json-api' ) );
+
+		$this->assertEquals( self::$activated_modules, array( 'json-api', 'stats' ) );
+		$this->assertEmpty( self::$deactivated_modules );
+
+		remove_filter( 'pre_update_option_jetpack_active_modules', array( __CLASS__, 'filter_pre_update_option_jetpack_active_modules' ) );
+		remove_action( 'jetpack_activate_module', array( __CLASS__, 'track_activated_modules' ) );
+		remove_action( 'jetpack_deactivate_module', array( __CLASS__, 'track_deactivated_modules' ) );
 	}
 
 	public function test_active_modules_filter_restores_state() {
@@ -704,6 +736,22 @@ EXPECTED;
 	 */
 	public static function track_deactivated_modules( $module ) {
 		self::$deactivated_modules[] = $module;
+	}
+
+	/**
+	 * Hooks the WP pre_update filter on the jetpack_active_modules option to
+	 * add 'stats' module to the array.
+	 *
+	 * @param array $modules An array of Jetpack module slugs.
+	 *
+	 * @return array An array of Jetpack module slugs
+	 */
+	public static function filter_pre_update_option_jetpack_active_modules( $modules ) {
+		$modules = array_merge( $modules, array( 'stats' ) );
+		$modules = array_unique( $modules );
+		$modules = array_values( $modules );
+
+		return $modules;
 	}
 
 	/**

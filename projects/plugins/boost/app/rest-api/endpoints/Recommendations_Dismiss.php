@@ -2,7 +2,7 @@
 
 namespace Automattic\Jetpack_Boost\REST_API\Endpoints;
 
-use Automattic\Jetpack_Boost\Features\Optimizations\Critical_CSS\Recommendations;
+use Automattic\Jetpack_Boost\Lib\Critical_CSS\Recommendations;
 use Automattic\Jetpack_Boost\REST_API\Contracts\Endpoint;
 use Automattic\Jetpack_Boost\REST_API\Permissions\Current_User_Admin;
 use Automattic\Jetpack_Boost\REST_API\Permissions\Nonce;
@@ -14,7 +14,7 @@ class Recommendations_Dismiss implements Endpoint {
 	}
 
 	public function response( $request ) {
-		$provider_key = filter_var( $request['providerKey'], FILTER_SANITIZE_STRING );
+		$provider_key = sanitize_title( $request['providerKey'] );
 		if ( empty( $provider_key ) ) {
 			wp_send_json_error();
 		}

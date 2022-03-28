@@ -75,7 +75,7 @@ export const connectUrl = ( state = '', action ) => {
 	}
 };
 
-export const user = ( state = window.Initial_State.userData, action ) => {
+export const user = ( state = window.Initial_State.userData || {}, action ) => {
 	switch ( action.type ) {
 		case USER_CONNECTION_DATA_FETCH_SUCCESS:
 			return assign( {}, state, action.userConnectionData );
@@ -256,7 +256,7 @@ export function getConnectUrl( state ) {
  * @return {object}       Returns an object with information about the connected user
  */
 export function getConnectedWpComUser( state ) {
-	return state.jetpack.connection.user.currentUser.wpcomUser;
+	return state.jetpack.connection.user.currentUser?.wpcomUser;
 }
 
 /**

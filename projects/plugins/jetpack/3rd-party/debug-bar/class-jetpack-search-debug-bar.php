@@ -93,11 +93,17 @@ class Jetpack_Search_Debug_Bar extends Debug_Bar_Panel {
 	 * @return void
 	 */
 	public function render() {
-		$jetpack_search  = (
+		$jetpack_search = (
 			Jetpack_Search\Options::is_instant_enabled() ?
 			Jetpack_Search\Instant_Search::instance() :
 			Jetpack_Search\Classic_Search::instance()
 		);
+
+		// Search hasn't been initialized. Exit early and do not display the debug bar.
+		if ( ! method_exists( $jetpack_search, 'get_last_query_info' ) ) {
+			return;
+		}
+
 		$last_query_info = $jetpack_search->get_last_query_info();
 
 		// If not empty, let's reshuffle the order of some things.

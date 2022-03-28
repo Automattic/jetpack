@@ -447,7 +447,9 @@ class WP_Test_Jetpack_Sync_Users extends WP_Test_Jetpack_Sync_Base {
 		// $result = wp_signon( array( 'user_login' => 'foobar', 'user_password' => 'pw', 'remember' => false ) );
 		// error_log(print_r($result, 1));
 
+		add_filter( 'pre_http_request', array( 'WP_Test_Jetpack_Sync_Base', 'pre_http_request_bruteprotect_api' ), 10, 3 );
 		do_action( 'wp_login', 'foobar', get_user_by( 'ID', $user_id ) );
+		remove_filter( 'pre_http_request', array( 'WP_Test_Jetpack_Sync_Base', 'pre_http_request_bruteprotect_api' ) );
 
 		$this->sender->do_sync();
 
@@ -758,7 +760,10 @@ class WP_Test_Jetpack_Sync_Users extends WP_Test_Jetpack_Sync_Base {
 		$user = get_user_by( 'ID', $this->user_id );
 
 		do_action( 'authenticate', $user, $user->user_login, 'admin' );
+
+		add_filter( 'pre_http_request', array( 'WP_Test_Jetpack_Sync_Base', 'pre_http_request_bruteprotect_api' ), 10, 3 );
 		do_action( 'wp_login', $user->user_login, $user );
+		remove_filter( 'pre_http_request', array( 'WP_Test_Jetpack_Sync_Base', 'pre_http_request_bruteprotect_api' ) );
 
 		$this->sender->do_sync();
 
@@ -772,7 +777,10 @@ class WP_Test_Jetpack_Sync_Users extends WP_Test_Jetpack_Sync_Base {
 		$user = get_user_by( 'ID', $this->user_id );
 
 		do_action( 'authenticate', $user, $user->user_login, wp_generate_password( 25 ) );
+
+		add_filter( 'pre_http_request', array( 'WP_Test_Jetpack_Sync_Base', 'pre_http_request_bruteprotect_api' ), 10, 3 );
 		do_action( 'wp_login', $user->user_login, $user );
+		remove_filter( 'pre_http_request', array( 'WP_Test_Jetpack_Sync_Base', 'pre_http_request_bruteprotect_api' ) );
 
 		$this->sender->do_sync();
 
