@@ -13,7 +13,7 @@
  */
 class WPCOM_Features {
 	/*
-	 * Private const for every mapped purchase.
+	 * Private const for every mapped purchase, sorted by product_id.
 	 */
 	private const SPACE_10GB                                  = '1gb_space_upgrade'; // 9
 	private const SPACE_25GB                                  = '5gb_space_upgrade'; // 10
@@ -24,6 +24,11 @@ class WPCOM_Features {
 	private const SPACE_3GB                                   = '3gb_space_upgrade'; // 21
 	private const WPCOM_VIDEOPRESS_PRO                        = 'videopress-pro'; // 47
 	private const SPACE_UNLIMITED                             = 'unlimited_space'; // 48
+	private const GAPPS                                       = 'gapps'; // 69
+	private const GAPPS_UNLIMITED                             = 'gapps_unlimited'; // 70
+	private const WP_TITAN_MAIL_MONTHLY                       = 'wp_titan_mail_monthly'; // 400
+	private const WP_TITAN_MAIL_YEARLY                        = 'wp_titan_mail_yearly'; // 401
+	private const WP_GOOGLE_WORKSPACE_BUSINESS_STARTER_YEARLY = 'wp_google_workspace_business_starter_yearly'; // 690
 	private const WPCOM_SEARCH                                = 'wpcom_search'; // 800
 	private const WPCOM_SEARCH_MONTHLY                        = 'wpcom_search_monthly'; // 801
 	private const YOAST_PREMIUM                               = 'yoast_premium'; // 900
@@ -95,11 +100,6 @@ class WPCOM_Features {
 	private const JETPACK_BACKUP_T2_MONTHLY                   = 'jetpack_backup_t2_monthly'; // 2115
 	private const JETPACK_VIDEOPRESS                          = 'jetpack_videopress'; // 2116
 	private const JETPACK_VIDEOPRESS_MONTHLY                  = 'jetpack_videopress_monthly'; // 2117
-	private const GAPPS                                       = 'gapps'; // 69
-	private const GAPPS_UNLIMITED                             = 'gapps_unlimited'; // 70
-	private const WP_TITAN_MAIL_MONTHLY                       = 'wp_titan_mail_monthly'; // 400
-	private const WP_TITAN_MAIL_YEARLY                        = 'wp_titan_mail_yearly'; // 401
-	private const WP_GOOGLE_WORKSPACE_BUSINESS_STARTER_YEARLY = 'wp_google_workspace_business_starter_yearly'; // 690
 
 	// WPCOM "Level 2": Groups of level 1s
 	private const WPCOM_BLOGGER_PLANS       = [ self::BLOGGER_BUNDLE, self::BLOGGER_BUNDLE_2Y ];
@@ -171,7 +171,7 @@ class WPCOM_Features {
 		self::JETPACK_SECURITY_T1_PLANS,
 		self::JETPACK_SECURITY_T2_PLANS,
 	];
-	private const JETPACK_PREMIUM_AND_HIGHER = [
+	private const JETPACK_PREMIUM_AND_HIGHER  = [
 		self::JETPACK_PREMIUM_PLANS,
 		self::JETPACK_BUSINESS_PLANS,
 		self::JETPACK_COMPLETE_PLANS,
@@ -249,13 +249,32 @@ class WPCOM_Features {
 	public const WORDADS_JETPACK               = 'wordads-jetpack';
 
 	/*
-	 * Private const array of features with sub-array of purchases that include that feature.
+	 * Private const array of features with sub-array of purchases that include that feature. Sorted alphabetically.
 	 */
 	private const FEATURES_MAP = array(
-		self::FREE_BLOG                     => array(
-			self::WPCOM_ALL_SITES,
+		/*
+		 * ADVANCED_SEO - Called seo-tools in Jetpack.
+		 *
+		 * Active for:
+		 * - Simple and Atomic sites with Business or up plan.
+		 * - Jetpack sites with any plan.
+		 * - Not VIP sites.
+		 */
+		self::ADVANCED_SEO                  => array(
+			self::WPCOM_PRO_PLANS,
+			self::WPCOM_BUSINESS_AND_HIGHER_PLANS,
+			self::JETPACK_ALL_SITES,
 		),
-		// Site has *any* kind of backups.
+		// AKISMET - @todo Jetpack free plans do not support Akismet.
+		self::AKISMET                       => array(
+			self::JETPACK_ALL_SITES,
+		),
+		self::ATOMIC                        => array(
+			self::WPCOM_PRO_PLANS,
+			self::WPCOM_BUSINESS_AND_HIGHER_PLANS,
+			self::WPCOM_MARKETPLACE_PLANS,
+		),
+		// BACKUPS - Site has *any* kind of backups.
 		self::BACKUPS                       => array(
 			self::JETPACK_BACKUP_DAILY_PLANS,
 			self::JETPACK_BACKUP_REALTIME_PLANS,
@@ -264,6 +283,138 @@ class WPCOM_Features {
 			self::JETPACK_PERSONAL_AND_HIGHER,
 			self::WPCOM_BUSINESS_AND_HIGHER_PLANS,
 			self::WPCOM_PRO_PLANS,
+		),
+		self::CALENDLY                      => array(
+			self::WPCOM_PREMIUM_AND_HIGHER_PLANS,
+			self::JETPACK_BUSINESS_PLANS,
+			self::JETPACK_PREMIUM_PLANS,
+			self::WP_P2_PLUS_MONTHLY,
+		),
+		self::CONCIERGE                     => array(
+			self::WPCOM_BUSINESS_PLANS,
+			self::WPCOM_ECOMMERCE_PLANS,
+		),
+		self::CONCIERGE_BUSINESS            => array(
+			self::WPCOM_BUSINESS_PLANS,
+		),
+		// CORE_AUDIO - core/audio requires a paid plan for uploading audio files.
+		self::CORE_AUDIO                    => array(
+			self::WP_P2_PLUS_MONTHLY,
+			self::WPCOM_PERSONAL_AND_HIGHER_PLANS,
+			self::JETPACK_PERSONAL_AND_HIGHER,
+		),
+		// CORE_COVER - core/cover requires a paid plan for uploading video files.
+		self::CORE_COVER                    => array(
+			self::WP_P2_PLUS_MONTHLY,
+			self::WPCOM_PREMIUM_AND_HIGHER_PLANS,
+			self::JETPACK_BUSINESS_PLANS,
+			self::JETPACK_PREMIUM_PLANS,
+		),
+		// CORE_VIDEO - core/video requires a paid plan.
+		self::CORE_VIDEO                    => array(
+			self::WP_P2_PLUS_MONTHLY,
+			self::WPCOM_PREMIUM_AND_HIGHER_PLANS,
+			self::JETPACK_BUSINESS_PLANS,
+			self::JETPACK_PREMIUM_PLANS,
+		),
+		self::CREDIT_VOUCHERS               => array(
+			self::BUNDLE_PRO,
+			self::BUNDLE_SUPER,
+			self::BUNDLE_ENTERPRISE,
+			self::WPCOM_PREMIUM_AND_HIGHER_PLANS,
+		),
+		self::CUSTOM_DESIGN                 => array(
+			self::WPCOM_PREMIUM_AND_HIGHER_PLANS,
+		),
+		self::CUSTOM_DOMAIN                 => array(
+			self::WPCOM_BLOGGER_AND_HIGHER_PLANS,
+		),
+		self::DONATIONS                     => array(
+			self::WPCOM_PERSONAL_AND_HIGHER_PLANS,
+			self::JETPACK_PERSONAL_AND_HIGHER,
+		),
+		// ECOMMERCE_MANAGED_PLUGINS - Can install the plugin bundle that comes with eCommerce plans.
+		self::ECOMMERCE_MANAGED_PLUGINS     => array(
+			self::WPCOM_ECOMMERCE_PLANS,
+		),
+		// EMAIL_SUBSCRIPTION - Represents having at least one product providing email
+		self::EMAIL_SUBSCRIPTION            => array(
+			self::WPCOM_EMAIL_PRODUCTS,
+		),
+		self::FREE_BLOG                     => array(
+			self::WPCOM_ALL_SITES,
+		),
+		self::GOOGLE_ANALYTICS              => array(
+			self::WPCOM_PREMIUM_AND_HIGHER_PLANS,
+			self::JETPACK_PREMIUM_AND_HIGHER,
+		),
+		self::GOOGLE_MY_BUSINESS            => array(
+			self::WPCOM_PRO_PLANS,
+			self::WPCOM_BUSINESS_AND_HIGHER_PLANS,
+			self::JETPACK_BUSINESS_PLANS,
+			self::JETPACK_SECURITY_REALTIME_PLANS,
+			self::JETPACK_COMPLETE_PLANS,
+			self::JETPACK_SECURITY_T1_PLANS,
+			self::JETPACK_SECURITY_T2_PLANS,
+		),
+		self::INSTALL_PLUGINS               => array(
+			self::WPCOM_BUSINESS_AND_HIGHER_PLANS,
+			self::WPCOM_PRO_PLANS,
+		),
+		self::INSTALL_THEMES                => array(
+			self::WPCOM_BUSINESS_AND_HIGHER_PLANS,
+			self::WPCOM_PRO_PLANS,
+		),
+		/*
+		 * LEGACY_UNLIMITED_SPACE_2019 - Provides unlimited upload space if initially purchased
+		 * before 2019-08-01. See mu-plugins/legacy-unlimited-space-plans.php
+		 */
+		self::LEGACY_UNLIMITED_SPACE_2019   => array(
+			self::WPCOM_BUSINESS_PLANS,
+			self::WPCOM_ECOMMERCE_PLANS,
+		),
+		self::LIVE_SUPPORT                  => array(
+			self::WPCOM_PREMIUM_AND_HIGHER_PLANS,
+		),
+		// MANAGE_PLUGINS - Atomic only feature. Can upload, install, and activate any 3rd party plugin.
+		self::MANAGE_PLUGINS                => array(
+			self::WPCOM_PRO_PLANS,
+			self::WPCOM_BUSINESS_AND_HIGHER_PLANS,
+		),
+		self::NO_ADVERTS_NO_ADVERTS_PHP     => array(
+			self::WPCOM_PREMIUM_AND_HIGHER_PLANS,
+		),
+		// NO_WPCOM_BRANDING - Enable the ability to hide the WP.com branding in the site footer.
+		self::NO_WPCOM_BRANDING             => array(
+			self::WPCOM_PRO_PLANS,
+			self::WPCOM_BUSINESS_AND_HIGHER_PLANS,
+		),
+		self::OPENTABLE                     => array(
+			self::WPCOM_PREMIUM_AND_HIGHER_PLANS,
+			self::JETPACK_BUSINESS_PLANS,
+			self::JETPACK_PREMIUM_PLANS,
+		),
+		// OPTIONS_PERMALINK - Atomic only feature. Enables Settings -> Permalinks menu item & options-permalink page.
+		self::OPTIONS_PERMALINK             => array(
+			self::WPCOM_PRO_PLANS,
+			self::WPCOM_BUSINESS_AND_HIGHER_PLANS,
+		),
+		self::POLLDADDY                     => array(
+			self::JETPACK_BUSINESS_PLANS,
+		),
+		// PREMIUM_CONTENT_CONTAINER - premium-content requires a paid plan.
+		self::PREMIUM_CONTENT_CONTAINER     => array(
+			self::WPCOM_PERSONAL_AND_HIGHER_PLANS,
+			self::WP_P2_PLUS_MONTHLY,
+			self::JETPACK_PERSONAL_AND_HIGHER,
+		),
+		self::PREMIUM_THEMES                => array(
+			self::WPCOM_PRO_PLANS,
+			self::WPCOM_BUSINESS_AND_HIGHER_PLANS,
+			self::JETPACK_BUSINESS_PLANS,
+		),
+		self::PRIVATE_WHOIS                 => array(
+			self::WPCOM_PREMIUM_AND_HIGHER_PLANS,
 		),
 		self::REAL_TIME_BACKUPS             => array(
 			self::JETPACK_BACKUP_REALTIME_PLANS,
@@ -277,70 +428,28 @@ class WPCOM_Features {
 			self::WPCOM_BUSINESS_AND_HIGHER_PLANS,
 			self::WPCOM_PRO_PLANS,
 		),
-		self::CUSTOM_DOMAIN                 => array(
-			self::WPCOM_BLOGGER_AND_HIGHER_PLANS,
+		self::RECURRING_PAYMENTS            => array(
+			self::WPCOM_PERSONAL_AND_HIGHER_PLANS,
 		),
 		/*
-		 * Set custom domain as primary.
-		 * It allows to set a custom domain of the site as primary.
+		 * REPUBLICIZE
 		 *
 		 * Active for:
 		 * - Simple and Atomic sites with Premium or up plan.
-		 * - Blogger plans
-		 * - Personal plans
+		 * - Jetpack sites with Premium or up plan.
 		 */
-		self::SET_PRIMARY_CUSTOM_DOMAIN     => array(
-			self::WPCOM_BLOGGER_AND_HIGHER_PLANS,
-			self::YOAST_PREMIUM,
-		),
-		self::SPACE                         => array(
-			self::WPCOM_ALL_SITES,
-		),
-		/*
-		 * These plans provide unlimited upload space if initially purchased
-		 * before 2019-08-01. See mu-plugins/legacy-unlimited-space-plans.php
-		 */
-		self::LEGACY_UNLIMITED_SPACE_2019   => array(
-			self::WPCOM_BUSINESS_PLANS,
-			self::WPCOM_ECOMMERCE_PLANS,
-		),
-		self::NO_ADVERTS_NO_ADVERTS_PHP     => array(
-			self::WPCOM_PREMIUM_AND_HIGHER_PLANS,
-		),
-		self::CUSTOM_DESIGN                 => array(
-			self::WPCOM_PREMIUM_AND_HIGHER_PLANS,
-		),
-		self::VIDEOPRESS                    => array(
-			self::WPCOM_PREMIUM_AND_HIGHER_PLANS,
+		self::REPUBLICIZE                   => array(
 			self::WP_P2_PLUS_MONTHLY,
-			self::JETPACK_PERSONAL_AND_HIGHER,
-			self::WPCOM_VIDEOPRESS,
-			self::WPCOM_VIDEOPRESS_PRO,
-			self::JETPACK_VIDEOPRESS,
-			self::JETPACK_VIDEOPRESS_MONTHLY,
-		),
-		self::UNLIMITED_THEMES              => array(
-			self::WPCOM_PREMIUM_AND_HIGHER_PLANS,
-		),
-		self::LIVE_SUPPORT                  => array(
-			self::WPCOM_PREMIUM_AND_HIGHER_PLANS,
-		),
-		self::PRIVATE_WHOIS                 => array(
-			self::WPCOM_PREMIUM_AND_HIGHER_PLANS,
-		),
-		self::PREMIUM_THEMES                => array(
-			self::WPCOM_PRO_PLANS,
-			self::WPCOM_BUSINESS_AND_HIGHER_PLANS,
-			self::JETPACK_BUSINESS_PLANS,
-		),
-		self::GOOGLE_ANALYTICS              => array(
 			self::WPCOM_PREMIUM_AND_HIGHER_PLANS,
 			self::JETPACK_PREMIUM_AND_HIGHER,
 		),
+		self::SEARCH                        => array(
+			self::WPCOM_SEARCH,
+			self::WPCOM_SEARCH_MONTHLY,
+			self::WP_P2_PLUS_MONTHLY,
+		),
 		/*
-		 * `security settings` feature.
-		 *
-		 * Initially added to determine whether to show /settings/security.
+		 * SECURITY_SETTINGS - Initially added to determine whether to show /settings/security.
 		 * More info: https://github.com/Automattic/wp-calypso/issues/51820
 		 *
 		 * Active for:
@@ -352,97 +461,22 @@ class WPCOM_Features {
 			self::WPCOM_BUSINESS_AND_HIGHER_PLANS,
 			self::JETPACK_ALL_SITES,
 		),
-		/*
-		 * `advanced-seo` feature.
-		 * Called seo-tools in Jetpack.
-		 *
-		 * Active for:
-		 * - Simple and Atomic sites with Business or up plan.
-		 * - Jetpack sites with any plan.
-		 * - Not VIP sites.
-		 */
-		self::ADVANCED_SEO                  => array(
-			self::WPCOM_PRO_PLANS,
-			self::WPCOM_BUSINESS_AND_HIGHER_PLANS,
+		self::SEND_A_MESSAGE                => array(
+			self::WPCOM_PREMIUM_AND_HIGHER_PLANS,
 			self::JETPACK_ALL_SITES,
 		),
 		/*
-		 * `upload-video-files` feature.
-		 *
-		 * This feature is linked to the ability to upload video files to the website.
+		 * SET_PRIMARY_CUSTOM_DOMAIN - Set custom domain as primary.
+		 * It allows to set a custom domain of the site as primary.
 		 *
 		 * Active for:
 		 * - Simple and Atomic sites with Premium or up plan.
-		 * - Jetpack sites with any plan.
+		 * - Blogger plans
+		 * - Personal plans
 		 */
-		self::UPLOAD_VIDEO_FILES            => array(
-			self::WPCOM_PREMIUM_AND_HIGHER_PLANS,
-			self::JETPACK_ALL_SITES,
-		),
-		/*
-		 * `video-hosting` feature.
-		 *
-		 * Host video effortlessly and deliver it at high speeds to your viewers.
-		 * https://jetpack.com/features/design/video-hosting/
-		 *
-		 * Active for:
-		 * - Simple and Atomic sites with Premium or up plan.
-		 * - Jetpack sites with Premium or up plan.
-		 */
-		self::VIDEO_HOSTING                 => array(
-			self::WPCOM_PREMIUM_AND_HIGHER_PLANS,
-			self::JETPACK_PREMIUM_AND_HIGHER,
-		),
-		self::WORDADS                       => array(
-			self::WPCOM_PREMIUM_AND_HIGHER_PLANS,
-			self::JETPACK_PREMIUM_AND_HIGHER,
-		),
-		self::ATOMIC                        => array(
-			self::WPCOM_PRO_PLANS,
-			self::WPCOM_BUSINESS_AND_HIGHER_PLANS,
-			self::WPCOM_MARKETPLACE_PLANS,
-		),
-		self::CREDIT_VOUCHERS               => array(
-			self::BUNDLE_PRO,
-			self::BUNDLE_SUPER,
-			self::BUNDLE_ENTERPRISE,
-			self::WPCOM_PREMIUM_AND_HIGHER_PLANS,
-		),
-		/*
-		 * `wordads-jetpack` is maintained as a legacy alias of `wordads` which was used to gate
-		 * the feature in old versions of Jetpack.
-		 * @see https://github.com/Automattic/jetpack/blob/c4f8fe120e1286e85f49e20e0f7fe22e44641449/projects/plugins/jetpack/class.jetpack-plan.php#L330.
-		 */
-		self::WORDADS_JETPACK               => array(
-			self::WPCOM_PREMIUM_AND_HIGHER_PLANS,
-			self::JETPACK_PREMIUM_AND_HIGHER,
-		),
-		// Jetpack all the things
-		// @todo Jetpack free plans do not support Akismet.
-		self::AKISMET                       => array(
-			self::JETPACK_ALL_SITES,
-		),
-		self::VAULTPRESS_BACKUPS            => array(
-			self::JETPACK_PREMIUM_PLANS,
-			self::JETPACK_BUSINESS_PLANS,
-		),
-		self::VAULTPRESS_BACKUP_ARCHIVE     => array(
-			self::JETPACK_PREMIUM_PLANS,
-			self::JETPACK_BUSINESS_PLANS,
-		),
-		self::VAULTPRESS_STORAGE_SPACE      => array(
-			self::JETPACK_PREMIUM_PLANS,
-			self::JETPACK_BUSINESS_PLANS,
-		),
-		self::VAULTPRESS_AUTOMATED_RESTORES => array(
-			self::JETPACK_PREMIUM_PLANS,
-			self::JETPACK_BUSINESS_PLANS,
-		),
-		self::VAULTPRESS_SECURITY_SCANNING  => array(
-			self::JETPACK_BUSINESS_PLANS,
-		),
-		self::POLLDADDY                     => array(
-			self::JETPACK_BUSINESS_PLANS,
+		self::SET_PRIMARY_CUSTOM_DOMAIN     => array(
+			self::WPCOM_BLOGGER_AND_HIGHER_PLANS,
+			self::YOAST_PREMIUM,
 		),
 		self::SIMPLE_PAYMENTS               => array(
 			self::WPCOM_PREMIUM_AND_HIGHER_PLANS,
@@ -452,130 +486,18 @@ class WPCOM_Features {
 			self::JETPACK_SECURITY_DAILY_PLANS,
 			self::JETPACK_SECURITY_REALTIME_PLANS,
 		),
-		self::CALENDLY                      => array(
-			self::WPCOM_PREMIUM_AND_HIGHER_PLANS,
-			self::JETPACK_BUSINESS_PLANS,
-			self::JETPACK_PREMIUM_PLANS,
-			self::WP_P2_PLUS_MONTHLY,
-		),
-		self::OPENTABLE                     => array(
-			self::WPCOM_PREMIUM_AND_HIGHER_PLANS,
-			self::JETPACK_BUSINESS_PLANS,
-			self::JETPACK_PREMIUM_PLANS,
-		),
-		self::SEND_A_MESSAGE                => array(
-			self::WPCOM_PREMIUM_AND_HIGHER_PLANS,
-			self::JETPACK_ALL_SITES,
-		),
-		self::WHATSAPP_BUTTON               => array(
-			self::WPCOM_PREMIUM_AND_HIGHER_PLANS,
-			self::JETPACK_ALL_SITES,
-		),
 		self::SOCIAL_PREVIEWS               => array(
 			self::WPCOM_PRO_PLANS,
 			self::WPCOM_BUSINESS_AND_HIGHER_PLANS,
 			self::JETPACK_ALL_SITES,
 		),
-		self::DONATIONS                     => array(
-			self::WPCOM_PERSONAL_AND_HIGHER_PLANS,
-			self::JETPACK_PERSONAL_AND_HIGHER,
+		self::SPACE                         => array(
+			self::WPCOM_ALL_SITES,
 		),
-		// core/video requires a paid plan.
-		self::CORE_VIDEO                    => array(
-			self::WP_P2_PLUS_MONTHLY,
-			self::WPCOM_PREMIUM_AND_HIGHER_PLANS,
-			self::JETPACK_BUSINESS_PLANS,
-			self::JETPACK_PREMIUM_PLANS,
-		),
-		// core/cover requires a paid plan for uploading video files.
-		self::CORE_COVER                    => array(
-			self::WP_P2_PLUS_MONTHLY,
-			self::WPCOM_PREMIUM_AND_HIGHER_PLANS,
-			self::JETPACK_BUSINESS_PLANS,
-			self::JETPACK_PREMIUM_PLANS,
-		),
-		// core/audio requires a paid plan for uploading audio files.
-		self::CORE_AUDIO                    => array(
-			self::WP_P2_PLUS_MONTHLY,
-			self::WPCOM_PERSONAL_AND_HIGHER_PLANS,
-			self::JETPACK_PERSONAL_AND_HIGHER,
-		),
-		/*
-		 * // RePublicize feature. feature.
-		 *
-		 * Active for:
-		 * - Simple and Atomic sites with Premium or up plan.
-		 * - Jetpack sites with Premium or up plan.
-		 */
-		self::REPUBLICIZE                   => array(
-			self::WP_P2_PLUS_MONTHLY,
-			self::WPCOM_PREMIUM_AND_HIGHER_PLANS,
-			self::JETPACK_PREMIUM_AND_HIGHER,
-		),
-		// premium-content requires a paid plan.
-		self::PREMIUM_CONTENT_CONTAINER     => array(
-			self::WPCOM_PERSONAL_AND_HIGHER_PLANS,
-			self::WP_P2_PLUS_MONTHLY,
-			self::JETPACK_PERSONAL_AND_HIGHER,
-		),
-		// Everybody needs somebody
+		// SUPPORT - Everybody needs somebody
 		self::SUPPORT                       => array(
 			self::WPCOM_ALL_SITES,
 			self::JETPACK_PERSONAL_AND_HIGHER,
-		),
-		/*
-		 * WooCommerce on all Plans is available to install.
-		 *
-		 * Active for:
-		 * - Simple and Atomic sites with Business or up plan.
-		 * - Not Jetpack sites
-		 */
-		self::WOOP                          => array(
-			self::WPCOM_PRO_PLANS,
-			self::WPCOM_BUSINESS_AND_HIGHER_PLANS,
-		),
-		// Enable the ability to hide the WP.com branding in the site footer.
-		self::NO_WPCOM_BRANDING             => array(
-			self::WPCOM_PRO_PLANS,
-			self::WPCOM_BUSINESS_AND_HIGHER_PLANS,
-		),
-		// Atomic only feature. Enable the Settings -> Permalinks menu item and options-permalink page.
-		self::OPTIONS_PERMALINK             => array(
-			self::WPCOM_PRO_PLANS,
-			self::WPCOM_BUSINESS_AND_HIGHER_PLANS,
-		),
-		// Atomic only feature. Can upload, install, and activate any 3rd party plugin.
-		self::MANAGE_PLUGINS                => array(
-			self::WPCOM_PRO_PLANS,
-			self::WPCOM_BUSINESS_AND_HIGHER_PLANS,
-		),
-		self::INSTALL_PLUGINS                => array(
-			self::WPCOM_BUSINESS_AND_HIGHER_PLANS,
-			self::WPCOM_PRO_PLANS,
-		),
-		self::UPLOAD_PLUGINS                => array(
-			self::WPCOM_BUSINESS_AND_HIGHER_PLANS,
-			self::WPCOM_PRO_PLANS,
-		),
-		self::INSTALL_THEMES                => array(
-			self::WPCOM_BUSINESS_AND_HIGHER_PLANS,
-			self::WPCOM_PRO_PLANS,
-		),
-		self::UPLOAD_THEMES                => array(
-			self::WPCOM_BUSINESS_AND_HIGHER_PLANS,
-			self::WPCOM_PRO_PLANS,
-		),
-		// Can install the plugin bundle that comes with eCommerce plans.
-		self::ECOMMERCE_MANAGED_PLUGINS     => array(
-			self::WPCOM_ECOMMERCE_PLANS,
-		),
-		self::RECURRING_PAYMENTS            => array(
-			self::WPCOM_PERSONAL_AND_HIGHER_PLANS,
-		),
-		self::SEARCH                        => array(
-			self::WPCOM_SEARCH,
-			self::WPCOM_SEARCH_MONTHLY,
-			self::WP_P2_PLUS_MONTHLY,
 		),
 		self::UPGRADED_UPLOAD_FILETYPES     => array(
 			self::SPACE_3GB,
@@ -588,25 +510,95 @@ class WPCOM_Features {
 			self::WPCOM_PERSONAL_AND_HIGHER_PLANS,
 			self::WP_P2_PLUS_MONTHLY,
 		),
-		self::CONCIERGE                     => array(
-			self::WPCOM_BUSINESS_PLANS,
-			self::WPCOM_ECOMMERCE_PLANS,
+		self::UNLIMITED_THEMES              => array(
+			self::WPCOM_PREMIUM_AND_HIGHER_PLANS,
 		),
-		self::CONCIERGE_BUSINESS            => array(
-			self::WPCOM_BUSINESS_PLANS,
+		self::UPLOAD_PLUGINS                => array(
+			self::WPCOM_BUSINESS_AND_HIGHER_PLANS,
+			self::WPCOM_PRO_PLANS,
 		),
-		// Represents having at least one product providing email
-		self::EMAIL_SUBSCRIPTION            => array(
-			self::WPCOM_EMAIL_PRODUCTS,
+		self::UPLOAD_THEMES                 => array(
+			self::WPCOM_BUSINESS_AND_HIGHER_PLANS,
+			self::WPCOM_PRO_PLANS,
 		),
-		self::GOOGLE_MY_BUSINESS            => array(
+		/*
+		 * UPLOAD_VIDEO_FILES - This feature is linked to the ability to upload video files to the website.
+		 *
+		 * Active for:
+		 * - Simple and Atomic sites with Premium or up plan.
+		 * - Jetpack sites with any plan.
+		 */
+		self::UPLOAD_VIDEO_FILES            => array(
+			self::WPCOM_PREMIUM_AND_HIGHER_PLANS,
+			self::JETPACK_ALL_SITES,
+		),
+		self::VAULTPRESS_AUTOMATED_RESTORES => array(
+			self::JETPACK_PREMIUM_PLANS,
+			self::JETPACK_BUSINESS_PLANS,
+		),
+		self::VAULTPRESS_BACKUP_ARCHIVE     => array(
+			self::JETPACK_PREMIUM_PLANS,
+			self::JETPACK_BUSINESS_PLANS,
+		),
+		self::VAULTPRESS_BACKUPS            => array(
+			self::JETPACK_PREMIUM_PLANS,
+			self::JETPACK_BUSINESS_PLANS,
+		),
+		self::VAULTPRESS_SECURITY_SCANNING  => array(
+			self::JETPACK_BUSINESS_PLANS,
+		),
+		self::VAULTPRESS_STORAGE_SPACE      => array(
+			self::JETPACK_PREMIUM_PLANS,
+			self::JETPACK_BUSINESS_PLANS,
+		),
+		/*
+		 * VIDEO_HOSTING - Host video effortlessly and deliver it at high speeds to your viewers.
+		 * https://jetpack.com/features/design/video-hosting/
+		 *
+		 * Active for:
+		 * - Simple and Atomic sites with Premium or up plan.
+		 * - Jetpack sites with Premium or up plan.
+		 */
+		self::VIDEO_HOSTING                 => array(
+			self::WPCOM_PREMIUM_AND_HIGHER_PLANS,
+			self::JETPACK_PREMIUM_AND_HIGHER,
+		),
+		self::VIDEOPRESS                    => array(
+			self::WPCOM_PREMIUM_AND_HIGHER_PLANS,
+			self::WP_P2_PLUS_MONTHLY,
+			self::JETPACK_PERSONAL_AND_HIGHER,
+			self::WPCOM_VIDEOPRESS,
+			self::WPCOM_VIDEOPRESS_PRO,
+			self::JETPACK_VIDEOPRESS,
+			self::JETPACK_VIDEOPRESS_MONTHLY,
+		),
+		self::WHATSAPP_BUTTON               => array(
+			self::WPCOM_PREMIUM_AND_HIGHER_PLANS,
+			self::JETPACK_ALL_SITES,
+		),
+		/*
+		 * WOOP - WooCommerce on all Plans is available to install.
+		 *
+		 * Active for:
+		 * - Simple and Atomic sites with Business or up plan.
+		 * - Not Jetpack sites
+		 */
+		self::WOOP                          => array(
 			self::WPCOM_PRO_PLANS,
 			self::WPCOM_BUSINESS_AND_HIGHER_PLANS,
-			self::JETPACK_BUSINESS_PLANS,
-			self::JETPACK_SECURITY_REALTIME_PLANS,
-			self::JETPACK_COMPLETE_PLANS,
-			self::JETPACK_SECURITY_T1_PLANS,
-			self::JETPACK_SECURITY_T2_PLANS,
+		),
+		self::WORDADS                       => array(
+			self::WPCOM_PREMIUM_AND_HIGHER_PLANS,
+			self::JETPACK_PREMIUM_AND_HIGHER,
+		),
+		/*
+		 * WORDADS_JETPACK - `wordads-jetpack` is maintained as a legacy alias of `wordads` which was used to gate
+		 * the feature in old versions of Jetpack.
+		 * @see https://github.com/Automattic/jetpack/blob/c4f8fe120e1286e85f49e20e0f7fe22e44641449/projects/plugins/jetpack/class.jetpack-plan.php#L330.
+		 */
+		self::WORDADS_JETPACK               => array(
+			self::WPCOM_PREMIUM_AND_HIGHER_PLANS,
+			self::JETPACK_PREMIUM_AND_HIGHER,
 		),
 	);
 
