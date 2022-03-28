@@ -10,6 +10,7 @@ import { getRedirectUrl } from '@automattic/jetpack-components';
  * Internal dependencies
  */
 import CompactCard from 'components/card/compact';
+import CompactFormToggle from 'components/form/form-toggle/compact';
 import { FormFieldset } from 'components/forms';
 import { isModuleFound as _isModuleFound } from 'state/search';
 import { ModuleToggle } from 'components/module-toggle';
@@ -36,6 +37,16 @@ export class Composing extends React.Component {
 			'wpcom_publish_posts_with_markdown',
 			true
 		);
+	};
+
+	/**
+	 * Update the option that disables Jetpack Blocks.
+	 *
+	 * @returns {*}           the updated value
+	 */
+	toggleBlocks = () => {
+		const updateValue = ! this.props.getSettingCurrentValue( 'jetpack_blocks_disabled' );
+		return this.props.updateOptions( { jetpack_blocks_disabled: updateValue } );
 	};
 
 	render() {
@@ -176,15 +187,13 @@ export class Composing extends React.Component {
 						} }
 					>
 						<FormFieldset>
-							<ModuleToggle
-								slug="blocks"
-								activated={ !! this.props.getOptionValue( 'blocks' ) }
-								toggling={ this.props.isSavingAnyOption( [ 'blocks' ] ) }
-								disabled={ this.props.isSavingAnyOption( [ 'blocks' ] ) }
-								toggleModule={ this.props.toggleModuleNow }
+							<CompactFormToggle
+								checked={ ! this.props.getOptionValue( 'jetpack_blocks_disabled' ) }
+								disabled={ this.props.isSavingAnyOption( [ 'jetpack_blocks_disabled' ] ) }
+								onChange={ this.toggleBlocks }
 							>
 								<span className="jp-form-toggle-explanation">{ blocks.description }</span>
-							</ModuleToggle>
+							</CompactFormToggle>
 						</FormFieldset>
 					</SettingsGroup>
 					<CompactCard

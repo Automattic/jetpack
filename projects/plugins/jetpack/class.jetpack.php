@@ -713,6 +713,15 @@ class Jetpack {
 			3
 		);
 
+		/**
+		 * Prepare Gutenberg Editor functionality
+		 */
+		require_once JETPACK__PLUGIN_DIR . 'class.jetpack-gutenberg.php';
+		add_action( 'plugins_loaded', array( 'Jetpack_Gutenberg', 'init' ) );
+		add_action( 'plugins_loaded', array( 'Jetpack_Gutenberg', 'load_independent_blocks' ) );
+		add_action( 'plugins_loaded', array( 'Jetpack_Gutenberg', 'load_block_editor_extensions' ), 9 );
+		add_action( 'enqueue_block_editor_assets', array( 'Jetpack_Gutenberg', 'enqueue_block_editor_assets' ) );
+
 		add_action( 'set_user_role', array( $this, 'maybe_clear_other_linked_admins_transient' ), 10, 3 );
 
 		// Unlink user before deleting the user from WP.com.
