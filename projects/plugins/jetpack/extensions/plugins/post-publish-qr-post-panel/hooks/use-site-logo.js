@@ -59,12 +59,29 @@ export default function useSiteLogo( { generateDataUrl = false } = {} ) {
 		image.crossOrigin = imgCrossOrigin;
 	}
 
+	// Convert image to data URL.
 	image.onload = function () {
+		// Create and set canvas size.
 		const canvas = document.createElement( 'canvas' );
 		const context = canvas.getContext( '2d' );
 		canvas.height = this.naturalHeight;
 		canvas.width = this.naturalWidth;
-		context.drawImage( this, 0, 0 );
+
+		// Paint canvas with a white background.
+		context.fillStyle = 'white';
+		context.lineJoin = 'round';
+		context.fillRect( 0, 0, canvas.width, canvas.height );
+
+		// Add a border/padding to the canvas, scaling the image.
+		const borderWidth = canvas.width * 0.08; // 8% of the canvas width.
+		context.drawImage(
+			this,
+			borderWidth,
+			borderWidth,
+			canvas.width - borderWidth * 2,
+			canvas.height - borderWidth * 2
+		);
+
 		try {
 			setDataUrl( canvas.toDataURL( 'image/png' ) );
 		} catch ( error ) {

@@ -98,7 +98,7 @@ DO_PNPM_LOCK=true
 SLUGS=()
 if [[ $# -le 0 ]]; then
 	# Use a temp variable so pipefail works
-	TMP="$(pnpx jetpack dependencies build-order --pretty)"
+	TMP="$(pnpx --no-install jetpack dependencies build-order --pretty)" || { echo "$TMP"; exit 1; }
 	mapfile -t SLUGS <<<"$TMP"
 	TMP="$(git ls-files '**/composer.json' '**/package.json' | sed -E -n -e '\!^projects/[^/]*/[^/]*/(composer|package)\.json$! d' -e 's!/(composer|package)\.json$!!' -e 's/^/nonproject:/p' | sort -u)"
 	mapfile -t -O ${#SLUGS[@]} SLUGS <<<"$TMP"
@@ -130,9 +130,9 @@ if $UPDATE; then
 			ARGS+=( "--type=$CLTYPE" )
 		fi
 
-                if [[ -n "$CL_FILENAME" ]]; then
-                    ARGS+=( --filename="$CL_FILENAME" )
-                fi
+		if [[ -n "$CL_FILENAME" ]]; then
+			ARGS+=( --filename="$CL_FILENAME" )
+		fi
 		if $AUTO_SUFFIX; then
 			ARGS+=( --filename-auto-suffix )
 		fi
@@ -184,6 +184,15 @@ for SLUG in "${SLUGS[@]}"; do
 		fi
 		DOCL=$DOCL_EVER
 		DIR="projects/$SLUG"
+	fi
+	if [[ ! -d "$DIR" ]]; then
+		EXIT=1
+		if [[ -n "$CI" ]]; then
+			echo "::error::Cannot check $SLUG, as $DIR does not exist."
+		else
+			error "Cannot check $SLUG, as $DIR does not exist."
+		fi
+		continue
 	fi
 	PHPFILE="$DIR/composer.json"
 	JSFILE="$DIR/package.json"

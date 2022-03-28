@@ -3,10 +3,21 @@
 	"description": "A cloud-powered replacement for WordPress' search.",
 	"type": "wordpress-plugin",
 	"license": "GPL-2.0-or-later",
-	"require": {},
+	"require": {
+		"automattic/jetpack-autoloader": "2.11.x-dev",
+		"automattic/jetpack-composer-plugin": "1.1.x-dev",
+		"automattic/jetpack-config": "1.7.x-dev",
+		"automattic/jetpack-identity-crisis": "0.8.x-dev",
+		"automattic/jetpack-my-jetpack": "0.6.x-dev",
+		"automattic/jetpack-options": "^1.14",
+		"automattic/jetpack-search": "0.12.x-dev",
+		"automattic/jetpack-status": "^1.12",
+		"automattic/jetpack-sync": "1.30.x-dev",
+		"automattic/jetpack-tracking": "^1.14"
+	},
 	"require-dev": {
-		"yoast/phpunit-polyfills": "1.0.3",
-		"automattic/jetpack-changelogger": "^3.0"
+		"automattic/jetpack-changelogger": "^3.0",
+		"yoast/phpunit-polyfills": "1.0.3"
 	},
 	"autoload": {
 		"classmap": [
@@ -23,8 +34,8 @@
 		"test-php": [
 			"@composer phpunit"
 		],
-		"build-production": "echo 'Add your build step to composer.json, please!'",
-		"build-development": "echo 'Add your build step to composer.json, please!'"
+		"build-production": "pnpm run build-production",
+		"build-development": "pnpm run build"
 	},
 	"repositories": [
 		{
@@ -44,13 +55,18 @@
 		"changelogger": {
 			"link-template": "https://github.com/Automattic/jetpack-search-plugin/compare/v${old}...v${new}"
 		},
-		"autotagger": true
+		"autotagger": true,
+		"version-constants": {
+			"JETPACK_SEARCH_PLUGIN__VERSION": "jetpack-search.php"
+		}
 	},
 	"config": {
+		"sort-packages": true,
+		"autoloader-suffix": "b462338fb66be23595d68a93345c9e3d_jetpack_searchⓥ0_1_0_alpha",
 		"allow-plugins": {
-			"roots/wordpress-core-installer": true,
 			"automattic/jetpack-autoloader": true,
-			"automattic/jetpack-composer-plugin": true
+			"automattic/jetpack-composer-plugin": true,
+			"roots/wordpress-core-installer": true
 		}
 	}
 }

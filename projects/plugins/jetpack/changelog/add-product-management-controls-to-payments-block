@@ -1,0 +1,4 @@
+Significance: minor
+Type: enhancement
+
+Payments block now uses the product management controls to manage subscriptions. Migrated the payments block to a functional component and cleaned up code.

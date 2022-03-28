@@ -17,6 +17,7 @@ use Automattic\Jetpack\Connection\Plugin;
 use Automattic\Jetpack\JITM as JITM;
 use Automattic\Jetpack\JITMS\JITM as JITMS_JITM;
 use Automattic\Jetpack\Post_List\Post_List as Post_List;
+use Automattic\Jetpack\Search\Initializer as Jetpack_Search_Main;
 use Automattic\Jetpack\Sync\Main as Sync_Main;
 
 /**
@@ -39,6 +40,7 @@ class Config {
 		'sync'            => false,
 		'post_list'       => false,
 		'identity_crisis' => false,
+		'search'          => false,
 	);
 
 	/**
@@ -105,6 +107,11 @@ class Config {
 		if ( $this->config['identity_crisis'] ) {
 			$this->ensure_class( 'Automattic\Jetpack\Identity_Crisis' )
 				&& $this->ensure_feature( 'identity_crisis' );
+		}
+
+		if ( $this->config['search'] ) {
+			$this->ensure_class( 'Automattic\Jetpack\Search\Initializer' )
+				&& $this->ensure_feature( 'search' );
 		}
 	}
 
@@ -217,6 +224,13 @@ class Config {
 	 */
 	protected function enable_identity_crisis() {
 		Identity_Crisis::init();
+	}
+
+	/**
+	 * Enables the search feature.
+	 */
+	protected function enable_search() {
+		Jetpack_Search_Main::init();
 	}
 
 	/**

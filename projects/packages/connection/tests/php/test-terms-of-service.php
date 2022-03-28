@@ -2,7 +2,7 @@
 /**
  * Tests the TOS package.
  *
- * @package automattic/jetpack-terms-of-service
+ * @package automattic/jetpack-connection
  */
 
 namespace Automattic\Jetpack;
