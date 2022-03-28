@@ -1,20 +1,18 @@
-<?php
+<?php // phpcs:ignore WordPress.Files.FileName.InvalidClassFileName: This is necessary to ensure that PHPUnit runs these tests.
 /**
- * Instant Search test cases
+ * Classic Search test cases
  *
  * @package automattic/jetpack
  */
 
-if ( defined( 'IS_WPCOM' ) && IS_WPCOM ) {
-	require_once WPMU_PLUGIN_DIR . '/jetpack-plugin/vendor/autoload_packages.php';
-}
+namespace Automattic\Jetpack\Search;
 
-require_jetpack_file( 'modules/search.php' );
+use PHPUnit\Framework\TestCase;
 
 /**
  * Jetpack_Instant_Search test cases
  */
-class WP_Test_Jetpack_Search extends WP_UnitTestCase {
+class Test_Jetpack_Search extends TestCase {
 
 	/**
 	 * Verify deprecated classes still exist.
@@ -22,7 +20,7 @@ class WP_Test_Jetpack_Search extends WP_UnitTestCase {
 	 * @since 10.6.1
 	 */
 	public function test_deprecated_jetpack_search_class() {
-		$search = Jetpack_Search::instance();
+		$search = Classic_Search::instance();
 		self::assertTrue( is_a( $search, 'Automattic\Jetpack\Search\Classic_Search' ) );
 	}
 
