@@ -35,7 +35,7 @@ class Module_Control {
 	 * @param Plan|null $plan - Plan object.
 	 */
 	public function __construct( $plan = null ) {
-		$this->plan = is_null( $plan ) ? new Plan() : $plan;
+		$this->plan = $plan === null ? new Plan() : $plan;
 	}
 
 	/**

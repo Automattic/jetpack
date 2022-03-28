@@ -1486,7 +1486,7 @@ class User_Agent_Info {
 			return false;
 		}
 
-		if ( is_null( $is_bot ) ) {
+		if ( $is_bot === null ) {
 			$is_bot = self::is_bot_user_agent( $_SERVER['HTTP_USER_AGENT'] );
 		}
 
