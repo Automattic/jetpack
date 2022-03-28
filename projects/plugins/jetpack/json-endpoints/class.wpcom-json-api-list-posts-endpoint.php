@@ -218,10 +218,11 @@ class WPCOM_JSON_API_List_Posts_Endpoint extends WPCOM_JSON_API_Post_Endpoint {
 			$query['meta_query'] = array( $meta );
 		}
 
+		$sticky = get_option( 'sticky_posts' );
 		if (
 			isset( $args['sticky'] )
 		&&
-			( $sticky = get_option( 'sticky_posts' ) ) // phpcs:ignore WordPress.CodeAnalysis.AssignmentInCondition.Found, Squiz.PHP.DisallowMultipleAssignments.FoundInControlStructure
+			( $sticky )
 		&&
 			is_array( $sticky )
 		) {
