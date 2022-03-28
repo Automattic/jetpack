@@ -1,7 +1,7 @@
 /**
  * External dependencies
  */
-import React from 'react';
+import React, { useCallback } from 'react';
 import { __, _n } from '@wordpress/i18n';
 import { ExternalLink } from '@wordpress/components';
 import { Text } from '@automattic/jetpack-components';
@@ -10,6 +10,7 @@ import { Text } from '@automattic/jetpack-components';
  * Internal dependencies
  */
 import { H2, Title } from '../heading';
+import useAnalytics from '../../hooks/use-analytics';
 import usePurchases from '../../hooks/use-purchases';
 import getManageYourPlanUrl from '../../utils/get-manage-your-plan-url';
 import getPurchasePlanUrl from '../../utils/get-purchase-plan-url';
@@ -74,10 +75,20 @@ function PlanSectionFooter( { purchases } ) {
 		);
 	}
 
+	const { recordEvent } = useAnalytics();
+
+	const clickHandler = useCallback( () => {
+		const event = purchases.length
+			? 'jetpack_myjetpack_plans_manage_click'
+			: 'jetpack_myjetpack_plans_purchase_click';
+		recordEvent( event );
+	}, [ purchases, recordEvent ] );
+
 	return (
 		<p>
 			<ExternalLink
 				className={ styles[ 'external-link' ] }
+				onClick={ clickHandler }
 				href={ purchases.length ? getManageYourPlanUrl() : getPurchasePlanUrl() }
 			>
 				{ planLinkDescription }
