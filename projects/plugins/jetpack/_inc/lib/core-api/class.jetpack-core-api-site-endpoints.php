@@ -7,7 +7,6 @@
 
 use Automattic\Jetpack\Connection\Client;
 use Automattic\Jetpack\Search\Initializer as Jetpack_Search_Initializer;
-
 /**
  * This is the endpoint class for `/site` endpoints.
  */

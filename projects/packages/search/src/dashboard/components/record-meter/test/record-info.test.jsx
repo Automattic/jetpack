@@ -75,9 +75,9 @@ describe( 'API data is converted into record info ', () => {
 
 	test( 'first letter of string is capitalized', () => {
 		const stringToTest = 'i am a string';
-		const capializedString = capitalizeFirstLetter( stringToTest );
+		const capitalizedString = capitalizeFirstLetter( stringToTest );
 
-		expect( capializedString ).toBe( 'I am a string' );
+		expect( capitalizedString ).toBe( 'I am a string' );
 	} );
 
 	test( 'combine count of remaining items sums', () => {

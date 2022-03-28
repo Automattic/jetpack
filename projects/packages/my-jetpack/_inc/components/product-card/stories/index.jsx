@@ -10,7 +10,7 @@ import React from 'react';
  */
 import ProductCard, { PRODUCT_STATUSES } from '../index.jsx';
 import { initStore } from '../../../state/store';
-import { BackupIcon } from '../../icons/index.jsx';
+import { BackupIcon } from '@automattic/jetpack-components';
 
 // Set myJetpackRest global var.
 window.myJetpackRest = {};

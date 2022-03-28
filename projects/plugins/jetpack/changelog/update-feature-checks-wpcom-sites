@@ -1,4 +1,0 @@
-Significance: minor
-Type: compat
-
-Hijack feature eligibility checks on WP.com sites, since they use an independent gateway system.
