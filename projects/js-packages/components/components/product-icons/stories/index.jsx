@@ -10,7 +10,7 @@ import * as allIcons from '../index.jsx';
 import styles from './style.module.scss';
 
 export default {
-	title: 'Packages/My Jetpack/Icons',
+	title: 'JS Packages/Components/Product Icons',
 	component: allIcons,
 	parameters: {},
 };

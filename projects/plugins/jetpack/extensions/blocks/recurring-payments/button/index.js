@@ -17,11 +17,12 @@ import icon from './icon';
 import { getSupportLink } from '../util';
 
 export const name = 'recurring-payments-button';
+export const title = __( 'Payment Button', 'jetpack' );
 
 const supportLink = getSupportLink();
 
 export const settings = {
-	title: __( 'Payment Button', 'jetpack' ),
+	title,
 	icon: {
 		src: icon,
 		foreground: getIconColor(),
