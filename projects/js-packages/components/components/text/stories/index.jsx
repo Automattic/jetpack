@@ -12,6 +12,9 @@ export default {
 	title: 'JS Packages/Components/Text',
 	component: Text,
 	argTypes: {
+		m: {
+			control: { type: 'select', options: SPACING_VALUES },
+		},
 		mt: {
 			control: { type: 'select', options: SPACING_VALUES },
 		},
@@ -22,6 +25,9 @@ export default {
 			control: { type: 'select', options: SPACING_VALUES },
 		},
 		ml: {
+			control: { type: 'select', options: SPACING_VALUES },
+		},
+		p: {
 			control: { type: 'select', options: SPACING_VALUES },
 		},
 		pt: {
@@ -45,10 +51,12 @@ export const Default = Template.bind( {} );
 
 Default.args = {
 	variant: 'headline-medium',
+	m: 0,
 	mt: 0,
 	mr: 0,
 	mb: 0,
 	ml: 0,
+	p: 0,
 	pt: 0,
 	pr: 0,
 	pb: 0,

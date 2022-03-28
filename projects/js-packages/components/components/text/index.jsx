@@ -39,10 +39,12 @@ const Text = ( {
 	children,
 	component,
 	className,
+	m = 0,
 	mt = 0,
 	mr = 0,
 	mb = 0,
 	ml = 0,
+	p = 0,
 	pt = 0,
 	pr = 0,
 	pb = 0,
@@ -51,10 +53,12 @@ const Text = ( {
 } ) => {
 	const Component = component || VARIANTS_MAPPING[ variant ] || 'span';
 	const componentClassName = classNames( styles[ variant ], className, {
+		[ styles[ `m-${ m }` ] ]: m !== 0 ? styles[ `m-${ m }` ] : null,
 		[ styles[ `mt-${ mt }` ] ]: mt !== 0 ? styles[ `mt-${ mt }` ] : null,
 		[ styles[ `mr-${ mr }` ] ]: mr !== 0 ? styles[ `mr-${ mr }` ] : null,
 		[ styles[ `mb-${ mb }` ] ]: mb !== 0 ? styles[ `mb-${ mb }` ] : null,
 		[ styles[ `ml-${ ml }` ] ]: ml !== 0 ? styles[ `ml-${ ml }` ] : null,
+		[ styles[ `p-${ p }` ] ]: p !== 0 ? styles[ `p-${ p }` ] : null,
 		[ styles[ `pt-${ pt }` ] ]: pt !== 0 ? styles[ `pt-${ pt }` ] : null,
 		[ styles[ `pr-${ pr }` ] ]: pr !== 0 ? styles[ `pr-${ pr }` ] : null,
 		[ styles[ `pb-${ pb }` ] ]: pb !== 0 ? styles[ `pb-${ pb }` ] : null,
@@ -71,6 +75,8 @@ const Text = ( {
 Text.propTypes = {
 	/** Variant name, based on our pre-defined names and design names. */
 	variant: PropTypes.oneOf( Object.keys( VARIANTS_MAPPING ) ),
+	/** margin value, based on --spacing-base  */
+	m: PropTypes.oneOf( SPACING_VALUES ),
 	/** margin-top value, based on --spacing-base  */
 	mt: PropTypes.oneOf( SPACING_VALUES ),
 	/** margin-rigt value, based on --spacing-base  */
@@ -79,6 +85,8 @@ Text.propTypes = {
 	mb: PropTypes.oneOf( SPACING_VALUES ),
 	/** margin-left value, based on --spacing-base  */
 	ml: PropTypes.oneOf( SPACING_VALUES ),
+	/** padding value, based on --spacing-base  */
+	p: PropTypes.oneOf( SPACING_VALUES ),
 	/** padding-top value, based on --spacing-base  */
 	pt: PropTypes.oneOf( SPACING_VALUES ),
 	/** padding-right value, based on --spacing-base  */
@@ -95,6 +103,8 @@ Text.propTypes = {
 
 Text.defaultProps = {
 	variant: 'body',
+	m: 0,
+	p: 0,
 	mt: 0,
 	mr: 0,
 	mb: 0,

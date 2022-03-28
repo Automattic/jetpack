@@ -84,11 +84,17 @@ $sides: (
 );
 
 @each $prop, $p in $props {
-	/* mt, mr, mb, ml */
-	/* pt, pr, pb, pl */
-	@each $side, $s in $sides {
-		$sizes: ( 1, 2, 3, 4, 5, 6 );
-		@each $size in $sizes {
+	$sizes: ( 1, 2, 3, 4, 5, 6 );
+
+	@each $size in $sizes {
+		/* m, p */
+		.#{$p}-#{$size} {
+			#{$prop}: calc( var( --spacing-base ) * #{$size} );
+		}
+
+		/* mt, mr, mb, ml */
+		/* pt, pr, pb, pl */
+		@each $side, $s in $sides {
 			.#{$p}#{$s}-#{$size} {
 				#{$prop}-#{$side}: calc( var( --spacing-base ) * #{$size} );
 			}
