@@ -1,0 +1,4 @@
+Significance: minor
+Type: enhancement
+
+Add a template lock to premium-content buttons. Currently users can add extra payment blocks, which won't unlock the content in question

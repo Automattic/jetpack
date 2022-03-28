@@ -91,6 +91,7 @@ function ButtonsEdit( { context, subscribeButton, setSubscribeButtonPlan } ) {
 				templateInsertUpdatesSelection={ false }
 				__experimentalLayout={ { type: 'default', alignments: [] } }
 				__experimentalMoverDirection="horizontal"
+				templateLock="all"
 			/>
 		</div>
 	);
@@ -98,8 +99,7 @@ function ButtonsEdit( { context, subscribeButton, setSubscribeButtonPlan } ) {
 
 export default compose( [
 	withSelect( ( select, props ) => {
-		// Only first block is assumed to be a subscribe button (users can add additional Recurring Payments blocks for
-		// other plans).
+		// Only first block is assumed to be a subscribe button
 		const subscribeButton = select( 'core/block-editor' )
 			.getBlock( props.clientId )
 			.innerBlocks.find( block => block.name === 'jetpack/recurring-payments' );
