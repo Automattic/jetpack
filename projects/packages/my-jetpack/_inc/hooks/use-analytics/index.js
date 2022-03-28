@@ -1,4 +1,3 @@
-/* global myJetpackInitialState */
 /**
  * External dependencies
  */
