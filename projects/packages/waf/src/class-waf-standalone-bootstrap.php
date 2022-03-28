@@ -80,7 +80,7 @@ class WafStandaloneBootstrap {
 			&& is_callable( array( InstalledVersions::class, 'getInstallPath' ) )
 			&& InstalledVersions::isInstalled( 'automattic/jetpack-waf' )
 		) {
-			$package_file  = InstalledVersions::getInstallPath( 'automattic/jetpack-waf' );
+			$package_file = InstalledVersions::getInstallPath( 'automattic/jetpack-waf' );
 			if ( substr( $package_file, -23 ) === '/automattic/jetpack-waf' ) {
 				$autoload_file = dirname( dirname( dirname( $package_file ) ) ) . '/vendor/autoload.php';
 			}
