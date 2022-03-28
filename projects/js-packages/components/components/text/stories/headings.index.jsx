@@ -10,7 +10,7 @@ import { H2, H3, TIPOGRAPHY_WEIGHTS } from '../index.jsx';
 import styles from './style.module.scss';
 
 export default {
-	title: 'JS Packages/Components/Heading',
+	title: 'JS Packages/Components/Text/Heading',
 	component: H2,
 	argTypes: {
 		children: {

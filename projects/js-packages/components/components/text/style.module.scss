@@ -69,3 +69,18 @@
 	font-weight: 600;
 	line-height: 16px;
 }
+
+/* Headings */
+.headline-medium {
+	margin-bottom: calc( var(--spacing-base ) * 3 );
+}
+
+.headline-small {
+	margin-bottom: var( --spacing-base );
+}
+
+/* Title size variations: medium | small */
+.title-medium,
+.title-small {
+	margin-bottom: var( --spacing-base );
+}

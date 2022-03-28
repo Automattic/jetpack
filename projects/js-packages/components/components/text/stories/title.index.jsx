@@ -10,7 +10,7 @@ import { Title, TIPOGRAPHY_SIZES } from '../index.jsx';
 import styles from './style.module.scss';
 
 export default {
-	title: 'JS Packages/Components/Title',
+	title: 'JS Packages/Components/Text/Title',
 	component: Title,
 	argTypes: {
 		children: {
