@@ -125,14 +125,14 @@ class csstidy_optimise { // phpcs:ignore
 		// optimise shorthand properties.
 		if ( isset( $shorthands[ $this->property ] ) ) {
 			$temp = self::shorthand( $this->value ); // FIXME - move.
-			if ( $temp != $this->value ) {
+			if ( $temp !== $this->value ) {
 				$this->parser->log( 'Optimised shorthand notation (' . $this->property . '): Changed "' . $this->value . '" to "' . $temp . '"', 'Information' );
 			}
 			$this->value = $temp;
 		}
 
 		// Remove whitespace at ! important.
-		if ( $this->value != $this->compress_important( $this->value ) ) {
+		if ( $this->value !== $this->compress_important( $this->value ) ) {
 			$this->parser->log( 'Optimised !important', 'Information' );
 		}
 	}
@@ -176,7 +176,7 @@ class csstidy_optimise { // phpcs:ignore
 		$replace_colors = & $GLOBALS['csstidy']['replace_colors'];
 
 		$this->sub_value = trim( $this->sub_value );
-		if ( $this->sub_value == '' ) { // caution : '0'.
+		if ( $this->sub_value == '' ) { // phpcs:ignore Universal.Operators.StrictComparisons.LooseEqual -- caution : '0'.
 			return;
 		}
 
@@ -240,25 +240,25 @@ class csstidy_optimise { // phpcs:ignore
 		$values = explode( ' ', $values );
 		switch ( count( $values ) ) {
 			case 4:
-				if ( $values[0] == $values[1] && $values[0] == $values[2] && $values[0] == $values[3] ) {
+				if ( $values[0] == $values[1] && $values[0] == $values[2] && $values[0] == $values[3] ) { // phpcs:ignore Universal.Operators.StrictComparisons.LooseEqual
 					return $values[0] . $important;
-				} elseif ( $values[1] == $values[3] && $values[0] == $values[2] ) {
+				} elseif ( $values[1] == $values[3] && $values[0] == $values[2] ) { // phpcs:ignore Universal.Operators.StrictComparisons.LooseEqual
 					return $values[0] . ' ' . $values[1] . $important;
-				} elseif ( $values[1] == $values[3] ) {
+				} elseif ( $values[1] == $values[3] ) { // phpcs:ignore Universal.Operators.StrictComparisons.LooseEqual
 					return $values[0] . ' ' . $values[1] . ' ' . $values[2] . $important;
 				}
 				break;
 
 			case 3:
-				if ( $values[0] == $values[1] && $values[0] == $values[2] ) {
+				if ( $values[0] == $values[1] && $values[0] == $values[2] ) { // phpcs:ignore Universal.Operators.StrictComparisons.LooseEqual
 					return $values[0] . $important;
-				} elseif ( $values[0] == $values[2] ) {
+				} elseif ( $values[0] == $values[2] ) { // phpcs:ignore Universal.Operators.StrictComparisons.LooseEqual
 					return $values[0] . ' ' . $values[1] . $important;
 				}
 				break;
 
 			case 2:
-				if ( $values[0] == $values[1] ) {
+				if ( $values[0] == $values[1] ) { // phpcs:ignore Universal.Operators.StrictComparisons.LooseEqual
 					return $values[0] . $important;
 				}
 				break;
@@ -295,7 +295,7 @@ class csstidy_optimise { // phpcs:ignore
 		if ( strtolower( substr( $color, 0, 4 ) ) === 'rgb(' ) {
 			$color_tmp = substr( $color, 4, strlen( $color ) - 5 );
 			$color_tmp = explode( ',', $color_tmp );
-			for ( $i = 0; $i < count( $color_tmp ); $i++ ) { // phpcs:ignore Squiz.PHP.DisallowSizeFunctionsInLoops.Found
+			for ( $i = 0; $i < count( $color_tmp ); $i++ ) { // phpcs:ignore Squiz.PHP.DisallowSizeFunctionsInLoops.Found, Generic.CodeAnalysis.ForLoopWithTestFunctionCall.NotAllowed
 				$color_tmp[ $i ] = trim( $color_tmp[ $i ] );
 				if ( substr( $color_tmp[ $i ], -1 ) === '%' ) {
 					$color_tmp[ $i ] = round( ( 255 * $color_tmp[ $i ] ) / 100 );
@@ -314,15 +314,15 @@ class csstidy_optimise { // phpcs:ignore
 			}
 		}
 
-		// Fix bad color names
+		// Fix bad color names.
 		if ( isset( $replace_colors[ strtolower( $color ) ] ) ) {
 			$color = $replace_colors[ strtolower( $color ) ];
 		}
 
 		// #aabbcc -> #abc
-		if ( strlen( $color ) == 7 ) {
+		if ( strlen( $color ) == 7 ) { // phpcs:ignore Universal.Operators.StrictComparisons.LooseEqual
 			$color_temp = strtolower( $color );
-			if ( $color_temp[0] === '#' && $color_temp[1] == $color_temp[2] && $color_temp[3] == $color_temp[4] && $color_temp[5] == $color_temp[6] ) {
+			if ( $color_temp[0] === '#' && $color_temp[1] == $color_temp[2] && $color_temp[3] == $color_temp[4] && $color_temp[5] == $color_temp[6] ) { // phpcs:ignore Universal.Operators.StrictComparisons.LooseEqual
 				$color = '#' . $color[1] . $color[3] . $color[5];
 			}
 		}
@@ -367,30 +367,30 @@ class csstidy_optimise { // phpcs:ignore
 	/**
 	 * Compresses numbers (ie. 1.0 becomes 1 or 1.100 becomes 1.1 )
 	 *
-	 * @param string $subvalue
+	 * @param string $subvalue - the subvalue.
 	 * @return string
 	 * @version 1.2
 	 */
-	function compress_numbers( $subvalue ) {
+	public function compress_numbers( $subvalue ) {
 		$unit_values  = & $GLOBALS['csstidy']['unit_values'];
 		$color_values = & $GLOBALS['csstidy']['color_values'];
 
-		// for font:1em/1em sans-serif...;
+		// for font:1em/1em sans-serif...;.
 		if ( $this->property === 'font' ) {
 			$temp = explode( '/', $subvalue );
 		} else {
 			$temp = array( $subvalue );
 		}
-		for ( $l = 0; $l < count( $temp ); $l++ ) {
-			// if we are not dealing with a number at this point, do not optimise anything
+		for ( $l = 0; $l < count( $temp ); $l++ ) { // phpcs:ignore Generic.CodeAnalysis.ForLoopWithTestFunctionCall.NotAllowed
+			// if we are not dealing with a number at this point, do not optimise anything.
 			$number = $this->AnalyseCssNumber( $temp[ $l ] );
 			if ( $number === false ) {
 				return $subvalue;
 			}
 
-			// Fix bad colors
-			if ( in_array( $this->property, $color_values ) ) {
-				if ( strlen( $temp[ $l ] ) == 3 || strlen( $temp[ $l ] ) == 6 ) {
+			// Fix bad colors.
+			if ( in_array( $this->property, $color_values ) ) { // phpcs:ignore WordPress.PHP.StrictInArray.MissingTrueStrict
+				if ( strlen( $temp[ $l ] ) == 3 || strlen( $temp[ $l ] ) == 6 ) { // phpcs:ignore Universal.Operators.StrictComparisons.LooseEqual
 					$temp[ $l ] = '#' . $temp[ $l ];
 				} else {
 					$temp[ $l ] = '0';
@@ -399,7 +399,7 @@ class csstidy_optimise { // phpcs:ignore
 			}
 
 			if ( abs( $number[0] ) > 0 ) {
-				if ( $number[1] == '' && in_array( $this->property, $unit_values, true ) ) {
+				if ( $number[1] == '' && in_array( $this->property, $unit_values, true ) ) { // phpcs:ignore Universal.Operators.StrictComparisons.LooseEqual
 					$number[1] = 'px';
 				}
 			} else {
