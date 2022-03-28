@@ -81,3 +81,15 @@
 .title-small {
 	margin-bottom: var( --spacing-base );
 }
+
+/** Box-Model: Spacing (margin) */
+$sides: ( "top", "right", "bottom", "left" );
+
+@each $side in $sides {
+	$sizes: ( 1, 2, 3, 4, 5, 6 );
+	@each $size in $sizes {
+		.#{$side}-#{$size} {
+			margin-#{$side}: calc( var( --spacing-base ) * #{$size} );
+		}
+	}
+}

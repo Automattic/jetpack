@@ -32,9 +32,27 @@ export const TIPOGRAPHY_SIZES = {
 	small: 'small',
 };
 
-const Text = ( { variant, children, component, className, ...componentProps } ) => {
+export const SPACING_VALUES = [ 0, 1, 2, 3, 4, 5, 6 ];
+
+const Text = ( {
+	variant,
+	children,
+	component,
+	className,
+	top = 0,
+	right = 0,
+	bottom = 0,
+	left = 0,
+	...componentProps
+} ) => {
 	const Component = component || VARIANTS_MAPPING[ variant ] || 'span';
-	const componentClassName = classNames( styles[ variant ], className );
+	const componentClassName = classNames( styles[ variant ], className, {
+		[ styles[ `top-${ top }` ] ]: top !== 0 ? styles[ `top-${ top }` ] : null,
+		[ styles[ `right-${ right }` ] ]: right !== 0 ? styles[ `right-${ right }` ] : null,
+		[ styles[ `bottom-${ bottom }` ] ]: bottom !== 0 ? styles[ `bottom-${ bottom }` ] : null,
+		[ styles[ `left-${ left }` ] ]: left !== 0 ? styles[ `left-${ left }` ] : null,
+	} );
+
 	return (
 		<Component className={ componentClassName } { ...componentProps }>
 			{ children }
@@ -45,6 +63,14 @@ const Text = ( { variant, children, component, className, ...componentProps } ) 
 Text.propTypes = {
 	/** Variant name, based on our pre-defined names and design names. */
 	variant: PropTypes.oneOf( Object.keys( VARIANTS_MAPPING ) ),
+	/** Top spacing  */
+	top: PropTypes.oneOf( SPACING_VALUES ),
+	/** Right spacing  */
+	right: PropTypes.oneOf( SPACING_VALUES ),
+	/** Bottom spacing  */
+	bottom: PropTypes.oneOf( SPACING_VALUES ),
+	/** Left spacing  */
+	left: PropTypes.oneOf( SPACING_VALUES ),
 	/** The text itself that will be rendered. */
 	children: PropTypes.node,
 	/** Force an specific tag (span, div) or use a custom component that will receive className and children */
@@ -53,6 +79,10 @@ Text.propTypes = {
 
 Text.defaultProps = {
 	variant: 'body',
+	top: 0,
+	right: 0,
+	bottom: 0,
+	left: 0,
 	children: null,
 	component: null,
 };
