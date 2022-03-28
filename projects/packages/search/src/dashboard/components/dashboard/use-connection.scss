@@ -1,6 +1,11 @@
 @import '@automattic/jetpack-base-styles/style';
 
-p.jp-search-dashboard-connection-footer__text {
+.jp-search-dashboard-connection-screen {
+	.jp-components__pricing-card .components-spinner {
+		margin: 0;
+	}
+}
+.jp-search-dashboard-connection-footer__text {
 	color: #3C434A;
 	font-size: 10.5px;
 	font-weight: 400;
@@ -8,6 +13,6 @@ p.jp-search-dashboard-connection-footer__text {
 	text-align: center;
 	letter-spacing: -0.02em;
 }
-a.jp-search-dashboard-connection-footer__link {
+.jp-search-dashboard-connection-footer__link {
 	color: #3C434A;
 }
