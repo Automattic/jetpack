@@ -4,12 +4,11 @@
 import React from 'react';
 import { __, _n } from '@wordpress/i18n';
 import { ExternalLink } from '@wordpress/components';
-import { Text } from '@automattic/jetpack-components';
+import { Text, H2, Title } from '@automattic/jetpack-components';
 
 /**
  * Internal dependencies
  */
-import { H2, Title } from '../heading';
 import usePurchases from '../../hooks/use-purchases';
 import getManageYourPlanUrl from '../../utils/get-manage-your-plan-url';
 import getPurchasePlanUrl from '../../utils/get-purchase-plan-url';
