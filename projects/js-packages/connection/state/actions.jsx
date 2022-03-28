@@ -101,27 +101,15 @@ function* registerSite( { registrationNonce, redirectUri } ) {
 /**
  * Side effect action which will fetch a new list of connectedPlugins from the server
  *
- * @param {object}   store - Redux store.
- * @param store.dispatch
- * @returns {Promise}      - Promise which resolves when connectedPlugins is updated.
+ * @returns {Promise} - Promise which resolves when the product status is activated.
  */
-function requestAndUpdateConnectedPlugins( { dispatch } ) {
-	return new Promise( resolve => {
-		// Fetch.
+const refreshConnectedPlugins = () => async ( { dispatch } ) => {
+	return await new Promise( resolve => {
 		return restApi.fetchConnectedPlugins().then( data => {
 			dispatch( setConnectedPlugins( data ) );
 			resolve( data );
 		} );
 	} );
-}
-
-/**
- * Side effect action which will fetch a new list of connectedPlugins from the server
- *
- * @returns {Promise} - Promise which resolves when the product status is activated.
- */
-const refreshConnectedPlugins = () => async store => {
-	return await requestAndUpdateConnectedPlugins( store );
 };
 
 const actions = {
