@@ -48,7 +48,11 @@ module.exports = {
 		},
 		requireConfigFile: false,
 	},
-	settings: {},
+	settings: {
+		jsdoc: {
+			mode: 'typescript',
+		},
+	},
 	plugins: [ 'prettier', 'jsx-a11y', 'lodash', 'jsdoc' ],
 	rules: {
 		// REST API objects include underscores
