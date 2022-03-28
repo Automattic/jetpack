@@ -71,7 +71,7 @@ runs:
         echo "::set-output name=dir::$(composer config cache-files-dir)"
     - name: Use composer cache
       if: steps.versions.outputs.php-version != 'false'
-      uses: actions/cache@v2
+      uses: actions/cache@v3
       with:
         path: ${{ steps.composer-cache.outputs.dir }}
         key: ${{ runner.os }}-composer-${{ hashFiles('**/composer.lock') }}

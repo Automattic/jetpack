@@ -101,9 +101,20 @@ class Dashboard {
 	 */
 	protected function should_add_search_submenu() {
 		/**
+		 * Todo: temporary fix for Jetpack 10.8-a.9 release to prevent Search submenu item from showing on
+		 * sites without eligible Search plans.
+		 *
+		 * Currently sites without a Search plan will not be able to interact with the Search page toggles,
+		 * so that could lead to user confusion/frustration.
+		 */
+		if ( ! $this->plan->supports_search() ) {
+			return false;
+		}
+
+		/**
 		 * The filter allows to ommit adding a submenu item for Jetpack Search.
 		 *
-		 * @since $$next-version$$
+		 * @since 0.11.2
 		 *
 		 * @param boolean $should_add_search_submenu Default value is true.
 		 */

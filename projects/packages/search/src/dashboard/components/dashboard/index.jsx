@@ -64,6 +64,7 @@ export default function SearchDashboard() {
 	const tierMaximumRecords = useSelect( select => select( STORE_ID ).getTierMaximumRecords() );
 	const postCount = useSelect( select => select( STORE_ID ).getPostCount() );
 	const postTypeBreakdown = useSelect( select => select( STORE_ID ).getPostTypeBreakdown() );
+	const lastIndexedDate = useSelect( select => select( STORE_ID ).getLastIndexedDate() );
 
 	const isLoading = useSelect(
 		select =>
@@ -196,6 +197,7 @@ export default function SearchDashboard() {
 							postCount={ postCount }
 							postTypeBreakdown={ postTypeBreakdown }
 							tierMaximumRecords={ tierMaximumRecords }
+							lastIndexedDate={ lastIndexedDate }
 						/>
 					) }
 					{ renderModuleControl() }

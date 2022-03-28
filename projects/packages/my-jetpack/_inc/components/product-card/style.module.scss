@@ -70,20 +70,6 @@
 	text-decoration: underline;
 }
 
-.group {
-	display: flex;
-	height: var(--actions-size);
-	border-radius: var(--jp-border-radius);
-
-	& > .button:first-child {
-		border-radius: var(--jp-border-radius) 0 0 var(--jp-border-radius);
-	}
-
-	& > :global(.components-dropdown) > .button {
-		border-radius: 0 var(--jp-border-radius) var(--jp-border-radius) 0;
-	}
-}
-
 .status {
 	margin-left: var(--spacing-base); // 8px
 	white-space: nowrap;
