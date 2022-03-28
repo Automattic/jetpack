@@ -8,7 +8,7 @@ import { select } from '@wordpress/data';
 /**
  * Internal dependencies
  */
-import ProductDetailCard, { ProductDetail } from '../product-detail-card';
+import ProductDetailCard from '../product-detail-card';
 import styles from './style.module.scss';
 import useAnalytics from '../../hooks/use-analytics';
 import boostImage from './boost.png';
@@ -56,7 +56,6 @@ export default function ProductInterstitial( {
 		recordEvent( 'jetpack_myjetpack_product_interstitial_add_link_click', { product: bundle } );
 	}, [ recordEvent, bundle ] );
 
-	const Product = isUpgradableByBundle ? ProductDetailCard : ProductDetail;
 	const { isUserConnected } = useMyJetpackConnection();
 
 	const navigateToMyJetpackOverviewPage = useMyJetpackNavigate( '/' );
@@ -104,15 +103,20 @@ export default function ProductInterstitial( {
 						fluid
 					>
 						<Col sm={ 4 } md={ 4 } lg={ 7 }>
-							<Product
+							<ProductDetailCard
 								slug={ slug }
 								trackButtonClick={ trackProductClick }
 								onClick={ installsPlugin ? clickHandler : undefined }
+								className={ isUpgradableByBundle ? styles.container : null }
 							/>
 						</Col>
 						<Col sm={ 4 } md={ 4 } lg={ 5 } className={ styles.imageContainer }>
 							{ bundle ? (
-								<ProductDetailCard slug="security" trackButtonClick={ trackBundleClick } />
+								<ProductDetailCard
+									slug="security"
+									trackButtonClick={ trackBundleClick }
+									className={ isUpgradableByBundle ? styles.container : null }
+								/>
 							) : (
 								children
 							) }

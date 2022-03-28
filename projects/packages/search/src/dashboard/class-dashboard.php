@@ -9,6 +9,7 @@ namespace Automattic\Jetpack\Search;
 
 use Automattic\Jetpack\Admin_UI\Admin_Menu;
 use Automattic\Jetpack\Assets;
+use Automattic\Jetpack\Connection\Initial_State as Connection_Initial_State;
 use Automattic\Jetpack\Connection\Manager as Connection_Manager;
 use Automattic\Jetpack\Status;
 use Automattic\Jetpack\Tracking;
@@ -101,6 +102,17 @@ class Dashboard {
 	 */
 	protected function should_add_search_submenu() {
 		/**
+		 * Todo: temporary fix for Jetpack 10.8-a.9 release to prevent Search submenu item from showing on
+		 * sites without eligible Search plans.
+		 *
+		 * Currently sites without a Search plan will not be able to interact with the Search page toggles,
+		 * so that could lead to user confusion/frustration.
+		 */
+		if ( ! $this->plan->supports_search() ) {
+			return false;
+		}
+
+		/**
 		 * The filter allows to ommit adding a submenu item for Jetpack Search.
 		 *
 		 * @since 0.11.2
@@ -142,6 +154,13 @@ class Dashboard {
 		wp_add_inline_script(
 			'jp-search-dashboard',
 			( new Initial_State() )->render(),
+			'before'
+		);
+
+		// Connection initial state.
+		wp_add_inline_script(
+			'jp-search-dashboard',
+			Connection_Initial_State::render(),
 			'before'
 		);
 	}

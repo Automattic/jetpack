@@ -4,12 +4,15 @@
 import React from 'react';
 import { __, _n } from '@wordpress/i18n';
 import { ExternalLink } from '@wordpress/components';
+import { Text } from '@automattic/jetpack-components';
 
 /**
  * Internal dependencies
  */
+import { H2, Title } from '../heading';
 import usePurchases from '../../hooks/use-purchases';
 import getManageYourPlanUrl from '../../utils/get-manage-your-plan-url';
+import getPurchasePlanUrl from '../../utils/get-purchase-plan-url';
 import styles from './style.module.scss';
 
 /**
@@ -23,8 +26,10 @@ function PlanSection( { purchase = {} } ) {
 	const { product_name, expiry_message } = purchase;
 	return (
 		<>
-			<h4>{ product_name }</h4>
-			<p>{ expiry_message }</p>
+			<Title>{ product_name }</Title>
+			<Text variant="body" className={ styles[ 'expire-date' ] }>
+				{ expiry_message }
+			</Text>
 		</>
 	);
 }
@@ -39,11 +44,11 @@ function PlanSection( { purchase = {} } ) {
 function PlanSectionHeader( { purchases } ) {
 	return (
 		<>
-			<h3>
+			<H2>
 				{ purchases.length <= 1
 					? __( 'Your plan', 'jetpack-my-jetpack' )
 					: __( 'Your plans', 'jetpack-my-jetpack' ) }
-			</h3>
+			</H2>
 			{ purchases.length === 0 && (
 				<p>{ __( 'The extra power you added to your Jetpack.', 'jetpack-my-jetpack' ) }</p>
 			) }
@@ -71,7 +76,10 @@ function PlanSectionFooter( { purchases } ) {
 
 	return (
 		<p>
-			<ExternalLink className={ styles[ 'external-link' ] } href={ getManageYourPlanUrl() }>
+			<ExternalLink
+				className={ styles[ 'external-link' ] }
+				href={ purchases.length ? getManageYourPlanUrl() : getPurchasePlanUrl() }
+			>
 				{ planLinkDescription }
 			</ExternalLink>
 		</p>
