@@ -90,7 +90,7 @@ export default function useConnection() {
 						href="https://jetpack.com/support/search/product-pricing/"
 						className="jp-search-dashboard-connection-footer__link"
 					>
-						Learn more
+						{ __( 'Learn more', 'jetpack-search-pkg' ) }
 					</a>
 				</p>
 			</div>
