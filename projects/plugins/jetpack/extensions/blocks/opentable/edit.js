@@ -5,6 +5,7 @@ import 'url-polyfill';
 import classnames from 'classnames';
 import { isEmpty, isEqual, join } from 'lodash';
 import { isAtomicSite, isSimpleSite } from '@automattic/jetpack-shared-extension-utils';
+import { getRedirectUrl } from '@automattic/jetpack-components';
 
 /**
  * WordPress dependencies
@@ -230,8 +231,8 @@ function OpenTableEdit( {
 
 	const supportLink =
 		isSimpleSite() || isAtomicSite()
-			? 'https://en.support.wordpress.com/wordpress-editor/blocks/opentable-block/'
-			: 'https://jetpack.com/support/jetpack-blocks/opentable-block/';
+			? getRedirectUrl( 'wpcom-support-wordpress-editor-blocks-opentable-block' )
+			: getRedirectUrl( 'jetpack-support-jetpack-blocks-opentable-block' );
 
 	const blockPlaceholder = (
 		<Placeholder

@@ -3,6 +3,7 @@
  */
 import { isEqual } from 'lodash';
 import { isAtomicSite, isSimpleSite } from '@automattic/jetpack-shared-extension-utils';
+import { getRedirectUrl } from '@automattic/jetpack-components';
 
 /**
  * WordPress dependencies
@@ -66,8 +67,8 @@ export default function RevueEdit( { attributes, className, setAttributes } ) {
 
 	const supportLink =
 		isSimpleSite() || isAtomicSite()
-			? 'http://support.wordpress.com/wordpress-editor/blocks/revue-block/'
-			: 'https://jetpack.com/support/jetpack-blocks/revue-block/';
+			? getRedirectUrl( 'wpcom-support-wordpress-editor-blocks-revue-block' )
+			: getRedirectUrl( 'jetpack-support-jetpack-blocks-revue-block' );
 
 	return (
 		<div className={ className }>

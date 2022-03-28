@@ -5,6 +5,7 @@ import { __, _x } from '@wordpress/i18n';
 import { ExternalLink, Path, Rect, SVG } from '@wordpress/components';
 import { Fragment } from '@wordpress/element';
 import { isAtomicSite, isSimpleSite } from '@automattic/jetpack-shared-extension-utils';
+import { getRedirectUrl } from '@automattic/jetpack-components';
 
 /**
  * Internal dependencies
@@ -41,8 +42,8 @@ const icon = (
 
 const supportLink =
 	isSimpleSite() || isAtomicSite()
-		? 'https://en.support.wordpress.com/markdown-quick-reference/'
-		: 'https://jetpack.com/support/jetpack-blocks/markdown-block/';
+		? getRedirectUrl( 'wpcom-support-markdown-quick-reference' )
+		: getRedirectUrl( 'jetpack-support-jetpack-blocks-markdown-block' );
 
 export const settings = {
 	title: __( 'Markdown', 'jetpack' ),

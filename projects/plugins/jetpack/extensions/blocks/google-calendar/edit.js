@@ -8,6 +8,7 @@ import { compose } from '@wordpress/compose';
 import { InspectorControls } from '@wordpress/block-editor';
 import { withViewportMatch } from '@wordpress/viewport';
 import { getBlockDefaultClassName } from '@wordpress/blocks';
+import { getRedirectUrl } from '@automattic/jetpack-components';
 import { isAtomicSite, isSimpleSite } from '@automattic/jetpack-shared-extension-utils';
 
 /**
@@ -100,7 +101,7 @@ export function GoogleCalendarEdit( props ) {
 	const html = `<iframe src="${ url }" style="border:0" scrolling="no" frameborder="0" height="${ iframeHeight }"></iframe>`;
 
 	const permissionsLink = (
-		<ExternalLink href="https://en.support.wordpress.com/google-calendar/">
+		<ExternalLink href={ getRedirectUrl( 'wpcom-google-calendar-block-support-permissions' ) }>
 			{ __( 'Enable Permissions for the calendar you want to share', 'jetpack' ) }
 		</ExternalLink>
 	);
@@ -119,8 +120,8 @@ export function GoogleCalendarEdit( props ) {
 	if ( editingUrl || ! url ) {
 		const supportLink =
 			isSimpleSite() || isAtomicSite()
-				? 'https://en.support.wordpress.com/wordpress-editor/blocks/google-calendar/'
-				: 'https://jetpack.com/support/jetpack-blocks/google-calendar/';
+				? getRedirectUrl( 'wpcom-support-wordpress-editor-blocks-google-calendar' )
+				: getRedirectUrl( 'jetpack-support-jetpack-blocks-google-calendar' );
 
 		return (
 			<div className={ className }>

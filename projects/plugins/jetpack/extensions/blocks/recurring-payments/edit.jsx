@@ -20,6 +20,7 @@ import { InspectorControls, InnerBlocks, BlockControls } from '@wordpress/block-
 import { Component } from '@wordpress/element';
 import { applyFilters } from '@wordpress/hooks';
 import { getJetpackExtensionAvailability } from '@automattic/jetpack-shared-extension-utils';
+import { getRedirectUrl } from '@automattic/jetpack-components';
 
 /**
  * Internal dependencies
@@ -366,7 +367,11 @@ export class MembershipsButtonEdit extends Component {
 	renderDisclaimer = () => {
 		return (
 			<div className="membership-button__disclaimer">
-				<ExternalLink href="https://wordpress.com/support/wordpress-editor/blocks/payments/#related-fees">
+				<ExternalLink
+					href={ getRedirectUrl( 'wpcom-support-recurring-payments-button', {
+						anchor: 'related-fees',
+					} ) }
+				>
 					{ __( 'Read more about Payments and related fees.', 'jetpack' ) }
 				</ExternalLink>
 			</div>

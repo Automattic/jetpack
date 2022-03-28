@@ -12,6 +12,7 @@ import {
 	withNotices,
 } from '@wordpress/components';
 import { BlockControls, InnerBlocks } from '@wordpress/block-editor';
+import { getRedirectUrl } from '@automattic/jetpack-components';
 import { isAtomicSite, isSimpleSite } from '@automattic/jetpack-shared-extension-utils';
 
 /**
@@ -165,8 +166,8 @@ export class EventbriteEdit extends Component {
 		const { editedUrl } = this.state;
 		const supportLink =
 			isSimpleSite() || isAtomicSite()
-				? 'http://support.wordpress.com/wordpress-editor/blocks/eventbrite-block/'
-				: 'https://jetpack.com/support/jetpack-blocks/eventbrite-block/';
+				? getRedirectUrl( 'wpcom-eventbrite-block-edit-support' )
+				: getRedirectUrl( 'jetpack-eventbrite-block-edit-support' );
 
 		return (
 			<div className={ className }>
