@@ -6,6 +6,7 @@ import { __ } from '@wordpress/i18n';
 import { Button } from '@wordpress/components';
 import PropTypes from 'prop-types';
 import restApi from '@automattic/jetpack-api';
+import { H2, Text } from '@automattic/jetpack-components';
 import { useSelect, useDispatch } from '@wordpress/data';
 
 /**
@@ -109,9 +110,9 @@ const ConnectionStatusCard = props => {
 
 	return (
 		<div className="jp-connection-status-card">
-			<h3>{ title }</h3>
+			<H2>{ title }</H2>
 
-			<p>{ connectionInfoText }</p>
+			<Text variant="body">{ connectionInfoText }</Text>
 
 			<div className="jp-connection-status-card--status">
 				<div className="jp-connection-status-card--cloud"></div>
