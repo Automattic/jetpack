@@ -41,7 +41,7 @@
 		"@automattic/jetpack-analytics": "workspace:^0.1.8",
 		"@automattic/jetpack-api": "workspace:^0.10.0",
 		"@automattic/jetpack-base-styles": "workspace:^0.1.10",
-		"@automattic/jetpack-components": "workspace:^0.10.11",
+		"@automattic/jetpack-components": "workspace:^0.10.12-alpha",
 		"@automattic/jetpack-connection": "workspace:^0.17.4",
 		"@wordpress/base-styles": "4.1.1",
 		"@wordpress/block-editor": "8.2.0",
