@@ -39,18 +39,18 @@ const Text = ( {
 	children,
 	component,
 	className,
-	top = 0,
-	right = 0,
-	bottom = 0,
-	left = 0,
+	mt = 0,
+	mr = 0,
+	mb = 0,
+	ml = 0,
 	...componentProps
 } ) => {
 	const Component = component || VARIANTS_MAPPING[ variant ] || 'span';
 	const componentClassName = classNames( styles[ variant ], className, {
-		[ styles[ `top-${ top }` ] ]: top !== 0 ? styles[ `top-${ top }` ] : null,
-		[ styles[ `right-${ right }` ] ]: right !== 0 ? styles[ `right-${ right }` ] : null,
-		[ styles[ `bottom-${ bottom }` ] ]: bottom !== 0 ? styles[ `bottom-${ bottom }` ] : null,
-		[ styles[ `left-${ left }` ] ]: left !== 0 ? styles[ `left-${ left }` ] : null,
+		[ styles[ `mt-${ mt }` ] ]: mt !== 0 ? styles[ `mt-${ mt }` ] : null,
+		[ styles[ `mr-${ mr }` ] ]: mr !== 0 ? styles[ `mr-${ mr }` ] : null,
+		[ styles[ `mb-${ mb }` ] ]: mb !== 0 ? styles[ `mb-${ mb }` ] : null,
+		[ styles[ `ml-${ ml }` ] ]: ml !== 0 ? styles[ `ml-${ ml }` ] : null,
 	} );
 
 	return (
@@ -64,13 +64,13 @@ Text.propTypes = {
 	/** Variant name, based on our pre-defined names and design names. */
 	variant: PropTypes.oneOf( Object.keys( VARIANTS_MAPPING ) ),
 	/** Top spacing  */
-	top: PropTypes.oneOf( SPACING_VALUES ),
+	mt: PropTypes.oneOf( SPACING_VALUES ),
 	/** Right spacing  */
-	right: PropTypes.oneOf( SPACING_VALUES ),
+	mr: PropTypes.oneOf( SPACING_VALUES ),
 	/** Bottom spacing  */
-	bottom: PropTypes.oneOf( SPACING_VALUES ),
+	mb: PropTypes.oneOf( SPACING_VALUES ),
 	/** Left spacing  */
-	left: PropTypes.oneOf( SPACING_VALUES ),
+	ml: PropTypes.oneOf( SPACING_VALUES ),
 	/** The text itself that will be rendered. */
 	children: PropTypes.node,
 	/** Force an specific tag (span, div) or use a custom component that will receive className and children */
@@ -79,10 +79,10 @@ Text.propTypes = {
 
 Text.defaultProps = {
 	variant: 'body',
-	top: 0,
-	right: 0,
-	bottom: 0,
-	left: 0,
+	mt: 0,
+	mr: 0,
+	mb: 0,
+	ml: 0,
 	children: null,
 	component: null,
 };
@@ -97,7 +97,7 @@ export default Text;
  * @returns {React.Component}                Headline Medium size instance.
  */
 export const H2 = ( { children } ) => (
-	<Text variant="headline-medium" bottom={ 3 }>
+	<Text variant="headline-medium" mb={ 3 }>
 		{ children }
 	</Text>
 );
@@ -124,7 +124,7 @@ export const H3 = ( { children, weight = 'bold' } ) => {
 	weight = weight === 'bold' ? '' : weight;
 
 	return (
-		<Text variant={ `headline-small${ weight?.length ? `-${ weight }` : '' }` } bottom={ 1 }>
+		<Text variant={ `headline-small${ weight?.length ? `-${ weight }` : '' }` } mb={ 1 }>
 			{ children }
 		</Text>
 	);
@@ -151,7 +151,7 @@ H3.defaultProps = {
  * @returns {React.Component}                Headline level 2 component instance.
  */
 export const Title = ( { children, size = 'medium' } ) => (
-	<Text variant={ `title-${ size }` } bottom={ 1 }>
+	<Text variant={ `title-${ size }` } mb={ 1 }>
 		{ children }
 	</Text>
 );

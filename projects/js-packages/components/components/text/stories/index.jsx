@@ -12,16 +12,16 @@ export default {
 	title: 'JS Packages/Components/Text',
 	component: Text,
 	argTypes: {
-		top: {
+		mt: {
 			control: { type: 'select', options: SPACING_VALUES },
 		},
-		right: {
+		mr: {
 			control: { type: 'select', options: SPACING_VALUES },
 		},
-		bottom: {
+		mb: {
 			control: { type: 'select', options: SPACING_VALUES },
 		},
-		left: {
+		ml: {
 			control: { type: 'select', options: SPACING_VALUES },
 		},
 	},
@@ -33,10 +33,10 @@ export const Default = Template.bind( {} );
 
 Default.args = {
 	variant: 'headline-medium',
-	top: 0,
-	right: 0,
-	bottom: 0,
-	left: 0,
+	mt: 0,
+	mr: 0,
+	mb: 0,
+	ml: 0,
 };
 
 export const CustomTag = Template.bind( {} );

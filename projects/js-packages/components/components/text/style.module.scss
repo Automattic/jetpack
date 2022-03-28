@@ -71,13 +71,24 @@
 }
 
 /** Box-Model: Spacing (margin) */
-$sides: ( "top", "right", "bottom", "left" );
+$props: (
+	"margin": "m",
+);
 
-@each $side in $sides {
-	$sizes: ( 1, 2, 3, 4, 5, 6 );
-	@each $size in $sizes {
-		.#{$side}-#{$size} {
-			margin-#{$side}: calc( var( --spacing-base ) * #{$size} );
+$sides: (
+	"top": "t",
+	"right": "r",
+	"bottom": "b",
+	"left": "l",
+);
+
+@each $prop, $p in $props {
+	@each $side, $s in $sides {
+		$sizes: ( 1, 2, 3, 4, 5, 6 );
+		@each $size in $sizes {
+			.#{$p}#{$s}-#{$size} {
+				#{$prop}-#{$side}: calc( var( --spacing-base ) * #{$size} );
+			}
 		}
 	}
 }
