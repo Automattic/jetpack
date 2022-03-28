@@ -253,7 +253,8 @@ class WPCOM_JSON_API_List_Comments_Endpoint extends WPCOM_JSON_API_Comment_Endpo
 					$status       = 'all';
 					$count_status = 'total_comments';
 				} else {
-					$status = $count_status = $args['status']; // phpcs:ignore Squiz.PHP.DisallowMultipleAssignments.Found
+					$status       = $args['status'];
+					$count_status = $args['status'];
 				}
 				if ( $count ) {
 					$found = $count->$count_status;
