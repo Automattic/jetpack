@@ -749,7 +749,9 @@ importers:
       '@automattic/color-studio': 2.5.0
       '@automattic/jetpack-analytics': workspace:^0.1.8
       '@automattic/jetpack-api': workspace:^0.10.0
+      '@automattic/jetpack-base-styles': workspace:^0.1.10
       '@automattic/jetpack-components': workspace:^0.10.12-alpha
+      '@automattic/jetpack-connection': workspace:^0.17.5-alpha
       '@automattic/jetpack-webpack-config': workspace:^1.1.5
       '@babel/core': 7.17.8
       '@babel/plugin-proposal-nullish-coalescing-operator': 7.16.7
@@ -798,7 +800,9 @@ importers:
       '@automattic/color-studio': 2.5.0
       '@automattic/jetpack-analytics': link:../../js-packages/analytics
       '@automattic/jetpack-api': link:../../js-packages/api
+      '@automattic/jetpack-base-styles': link:../../js-packages/base-styles
       '@automattic/jetpack-components': link:../../js-packages/components
+      '@automattic/jetpack-connection': link:../../js-packages/connection
       '@wordpress/base-styles': 4.1.1
       '@wordpress/block-editor': 8.2.0_978f344c876a57c1143ffe356b90df31
       '@wordpress/data': 6.3.0_react@17.0.2
@@ -4200,6 +4204,7 @@ packages:
 
   /@emotion/is-prop-valid/0.8.8:
     resolution: {integrity: sha512-u5WtneEAr5IDG2Wv65yhunPSMLIpuKsbuOktRojfrEiEvRyC85LgPMZI63cr7NUqT8ZIGdSVg8ZKGxIug4lXcA==}
+    requiresBuild: true
     dependencies:
       '@emotion/memoize': 0.7.4
 
