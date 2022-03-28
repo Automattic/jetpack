@@ -61,5 +61,11 @@
 				</div>
 			</div>
 		</div>
+		<footer class="jb-footer-note">
+			{__(
+				'Special introductory pricing, all renewals are at full price. 14 day money back guarantee.',
+				'jetpack-boost'
+			)}
+		</footer>
 	</div>
 </div>
