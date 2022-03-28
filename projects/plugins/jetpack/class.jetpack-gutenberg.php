@@ -463,6 +463,10 @@ class Jetpack_Gutenberg {
 			return false;
 		}
 
+		if ( get_option( 'jetpack_blocks_disabled', false ) ) {
+			return false;
+		}
+
 		/**
 		 * Filter to disable Gutenberg blocks
 		 *
