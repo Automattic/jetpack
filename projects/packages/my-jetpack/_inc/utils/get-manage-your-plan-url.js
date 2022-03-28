@@ -14,7 +14,7 @@ import { MY_JETPACK_MY_PLANS_MANAGE_SOURCE } from '../constants';
 /**
  * Return the redurect URL, according to the Jetpack redurects source.
  *
- * @returns {string} the redirect URL
+ * @returns {string}            the redirect URL
  */
 export default function () {
 	const site = window?.myJetpackInitialState?.siteSuffix;
