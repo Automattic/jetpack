@@ -33,4 +33,6 @@ export { default as ThemeProvider } from './components/theme-provider';
 export { default as Text } from './components/text';
 export { default as numberFormat } from './components/number-format';
 export { default as QRCode } from './components/qr-code';
+export { H2, H3 } from './components/heading';
+export { Title } from './components/title';
 export { getUserLocale, cleanLocale } from './lib/locale';
