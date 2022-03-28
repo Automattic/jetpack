@@ -43,6 +43,10 @@ const Text = ( {
 	mr = 0,
 	mb = 0,
 	ml = 0,
+	pt = 0,
+	pr = 0,
+	pb = 0,
+	pl = 0,
 	...componentProps
 } ) => {
 	const Component = component || VARIANTS_MAPPING[ variant ] || 'span';
@@ -51,6 +55,10 @@ const Text = ( {
 		[ styles[ `mr-${ mr }` ] ]: mr !== 0 ? styles[ `mr-${ mr }` ] : null,
 		[ styles[ `mb-${ mb }` ] ]: mb !== 0 ? styles[ `mb-${ mb }` ] : null,
 		[ styles[ `ml-${ ml }` ] ]: ml !== 0 ? styles[ `ml-${ ml }` ] : null,
+		[ styles[ `pt-${ pt }` ] ]: pt !== 0 ? styles[ `pt-${ pt }` ] : null,
+		[ styles[ `pr-${ pr }` ] ]: pr !== 0 ? styles[ `pr-${ pr }` ] : null,
+		[ styles[ `pb-${ pb }` ] ]: pb !== 0 ? styles[ `pb-${ pb }` ] : null,
+		[ styles[ `pl-${ pl }` ] ]: pl !== 0 ? styles[ `pl-${ pl }` ] : null,
 	} );
 
 	return (
@@ -63,14 +71,22 @@ const Text = ( {
 Text.propTypes = {
 	/** Variant name, based on our pre-defined names and design names. */
 	variant: PropTypes.oneOf( Object.keys( VARIANTS_MAPPING ) ),
-	/** Top spacing  */
+	/** margin-top value, based on --spacing-base  */
 	mt: PropTypes.oneOf( SPACING_VALUES ),
-	/** Right spacing  */
+	/** margin-rigt value, based on --spacing-base  */
 	mr: PropTypes.oneOf( SPACING_VALUES ),
-	/** Bottom spacing  */
+	/** margin-bottom value, based on --spacing-base  */
 	mb: PropTypes.oneOf( SPACING_VALUES ),
-	/** Left spacing  */
+	/** margin-left value, based on --spacing-base  */
 	ml: PropTypes.oneOf( SPACING_VALUES ),
+	/** padding-top value, based on --spacing-base  */
+	pt: PropTypes.oneOf( SPACING_VALUES ),
+	/** padding-right value, based on --spacing-base  */
+	pr: PropTypes.oneOf( SPACING_VALUES ),
+	/** padding-bottom value, based on --spacing-base  */
+	pb: PropTypes.oneOf( SPACING_VALUES ),
+	/** padding-left value, based on --spacing-base  */
+	pl: PropTypes.oneOf( SPACING_VALUES ),
 	/** The text itself that will be rendered. */
 	children: PropTypes.node,
 	/** Force an specific tag (span, div) or use a custom component that will receive className and children */
@@ -83,6 +99,10 @@ Text.defaultProps = {
 	mr: 0,
 	mb: 0,
 	ml: 0,
+	pt: 0,
+	pr: 0,
+	pb: 0,
+	pl: 0,
 	children: null,
 	component: null,
 };

@@ -73,6 +73,7 @@
 /** Box-Model: Spacing (margin) */
 $props: (
 	"margin": "m",
+	"padding": "p",
 );
 
 $sides: (
@@ -83,6 +84,8 @@ $sides: (
 );
 
 @each $prop, $p in $props {
+	/* mt, mr, mb, ml */
+	/* pt, pr, pb, pl */
 	@each $side, $s in $sides {
 		$sizes: ( 1, 2, 3, 4, 5, 6 );
 		@each $size in $sizes {

@@ -24,6 +24,18 @@ export default {
 		ml: {
 			control: { type: 'select', options: SPACING_VALUES },
 		},
+		pt: {
+			control: { type: 'select', options: SPACING_VALUES },
+		},
+		pr: {
+			control: { type: 'select', options: SPACING_VALUES },
+		},
+		pb: {
+			control: { type: 'select', options: SPACING_VALUES },
+		},
+		pl: {
+			control: { type: 'select', options: SPACING_VALUES },
+		},
 	},
 };
 
@@ -37,6 +49,10 @@ Default.args = {
 	mr: 0,
 	mb: 0,
 	ml: 0,
+	pt: 0,
+	pr: 0,
+	pb: 0,
+	pl: 0,
 };
 
 export const CustomTag = Template.bind( {} );
