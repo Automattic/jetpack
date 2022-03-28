@@ -43,7 +43,7 @@ describe( 'ConnectionStatusCard', () => {
 		} );
 
 		it( 'renders the title', () => {
-			expect( wrapper.find( 'h3' ).first().render().text() ).to.be.equal( 'Connection' );
+			expect( wrapper.find( 'h1' ).first().render().text() ).to.be.equal( 'Connection' );
 		} );
 
 		it( 'renders the connection info', () => {
@@ -121,7 +121,7 @@ describe( 'ConnectionStatusCard', () => {
 		} );
 
 		it( 'renders the title', () => {
-			expect( wrapper.find( 'h3' ).first().render().text() ).to.be.equal( 'Connection' );
+			expect( wrapper.find( 'h1' ).first().render().text() ).to.be.equal( 'Connection' );
 		} );
 
 		it( 'renders the connection info', () => {
