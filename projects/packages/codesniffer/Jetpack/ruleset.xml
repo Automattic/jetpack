@@ -62,7 +62,7 @@
 	</rule>
 
 	<!-- This rule, requiring a full stop at the end of an inline comment, is not useful for Jetpack. -->
-	<rule ref="Squiz.Commenting.InlineComment.InvalidEndChar" />
+	<rule ref="Squiz.Commenting.InlineComment.InvalidEndChar">
 		<exclude name="Squiz.Commenting.InlineComment.InvalidEndChar" />
 	</rule>
 
