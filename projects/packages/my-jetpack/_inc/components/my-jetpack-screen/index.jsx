@@ -1,7 +1,7 @@
 /**
  * External dependencies
  */
-import React, { useEffect } from 'react';
+import React, { useEffect, useRef } from 'react';
 import { __ } from '@wordpress/i18n';
 import { Notice } from '@wordpress/components';
 import { Icon, warning, info } from '@wordpress/icons';
@@ -53,10 +53,14 @@ export default function MyJetpackScreen() {
 	const { message, options, clean } = useGlobalNotice();
 
 	const { recordEvent } = useAnalytics();
+	const initialRender = useRef( true );
 
 	useEffect( () => {
-		recordEvent( 'jetpack_myjetpack_page_view' );
-	}, [ recordEvent ] );
+		if ( initialRender.current ) {
+			recordEvent( 'jetpack_myjetpack_page_view' );
+		}
+		initialRender.current = false;
+	}, [ recordEvent, initialRender ] );
 
 	// No render when site is not connected.
 	const { isSiteConnected } = useMyJetpackConnection();
