@@ -401,7 +401,7 @@ class WPCOM_REST_API_V2_Post_Publicize_Connections_Field extends WPCOM_REST_API_
 			return;
 		}
 		foreach ( $this->get_meta_to_update( $requested_connections, $post->ID ) as $meta_key => $meta_value ) {
-			if ( is_null( $meta_value ) ) {
+			if ( $meta_value === null ) {
 				delete_post_meta( $post->ID, $meta_key );
 			} else {
 				update_post_meta( $post->ID, $meta_key, $meta_value );
