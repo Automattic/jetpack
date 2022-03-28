@@ -56,4 +56,9 @@
 		</properties>
 	</rule>
 
+	<!-- Due to conversation within WPCS, we're disabling this rule for now. See https://github.com/WordPress/WordPress-Coding-Standards/issues/1624 -->
+	<rule ref="WordPress.PHP.YodaConditions.NotYoda">
+		<exclude name="WordPress.PHP.YodaConditions.NotYoda" />
+	</rule>
+
 </ruleset>

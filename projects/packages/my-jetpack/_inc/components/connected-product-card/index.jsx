@@ -3,13 +3,13 @@
  */
 import React, { useCallback } from 'react';
 import PropTypes from 'prop-types';
+import { getIconBySlug } from '@automattic/jetpack-components';
 
 /**
  * Internal dependencies
  */
 import ProductCard from '../product-card';
 import { useProduct } from '../../hooks/use-product';
-import { getIconBySlug } from '../icons';
 import useMyJetpackNavigate from '../../hooks/use-my-jetpack-navigate';
 
 const ConnectedProductCard = ( { admin, slug } ) => {
