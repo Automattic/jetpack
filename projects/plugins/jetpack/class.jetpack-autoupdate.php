@@ -59,7 +59,7 @@ class Jetpack_Autoupdate {
 	 * @return self
 	 */
 	public static function init() {
-		if ( is_null( self::$instance ) ) {
+		if ( self::$instance === null ) {
 			self::$instance = new Jetpack_Autoupdate();
 		}
 

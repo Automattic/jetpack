@@ -54,7 +54,7 @@ class Package {
 	 * @return string
 	 */
 	public static function get_installed_path() {
-		if ( is_null( static::$installed_path ) ) {
+		if ( static::$installed_path === null ) {
 			static::$installed_path = dirname( __DIR__ ) . DIRECTORY_SEPARATOR;
 		}
 		return apply_filters( 'jetpack_search_installed_path', static::$installed_path );

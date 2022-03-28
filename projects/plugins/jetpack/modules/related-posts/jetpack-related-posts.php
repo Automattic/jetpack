@@ -735,7 +735,7 @@ EOT;
 		// only dislay the Related Posts JavaScript on the Reading Settings Admin Page.
 		$current_screen = get_current_screen();
 
-		if ( is_null( $current_screen ) ) {
+		if ( $current_screen === null ) {
 			return;
 		}
 

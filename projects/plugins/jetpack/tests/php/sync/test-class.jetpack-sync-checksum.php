@@ -352,7 +352,7 @@ class WP_Test_Jetpack_Sync_Checksum extends WP_UnitTestCase {
 			} else {
 				// create an allowed post_type post.
 				$post_id = $this->factory->post->create( array( 'post_author' => $user_id ) );
-				if ( is_null( $min_range_expected ) ) {
+				if ( $min_range_expected === null ) {
 					$min_range_expected = $post_id; // set initial post_id.
 				}
 				$max_range_expected = $post_id; // update last post_id.
@@ -476,7 +476,7 @@ class WP_Test_Jetpack_Sync_Checksum extends WP_UnitTestCase {
 
 		for ( $i = 1; $i <= $num_posts; $i ++ ) {
 			$post_id = $this->factory->post->create( array( 'post_author' => $user_id ) );
-			if ( is_null( $min_range_expected ) ) {
+			if ( $min_range_expected === null ) {
 				$min_range_expected = $post_id; // set initial post_id.
 			}
 			$max_range_expected = $post_id; // update last post_id.
@@ -485,10 +485,10 @@ class WP_Test_Jetpack_Sync_Checksum extends WP_UnitTestCase {
 		// Update offsets.
 		$range_from = null;
 		$range_to   = null;
-		if ( ! is_null( $range_from_offset ) ) {
+		if ( $range_from_offset !== null ) {
 			$range_from = $min_range_expected + $range_from_offset;
 		}
-		if ( ! is_null( $range_to_offset ) ) {
+		if ( $range_to_offset !== null ) {
 			$range_to = $max_range_expected + $range_to_offset;
 		}
 
@@ -497,10 +497,10 @@ class WP_Test_Jetpack_Sync_Checksum extends WP_UnitTestCase {
 		$range = $tc->get_range_edges( $range_from, $range_to, $limit );
 
 		$this->assertSame( $expected_item_count, (int) $range['item_count'] );
-		if ( ! is_null( $range_from ) && $expected_item_count > 0 ) {
+		if ( $range_from !== null && $expected_item_count > 0 ) {
 			$this->assertGreaterThanOrEqual( $range_from, (int) $range['min_range'] );
 		}
-		if ( ! is_null( $range_to ) && $expected_item_count > 0 ) {
+		if ( $range_to !== null && $expected_item_count > 0 ) {
 			$this->assertLessThanOrEqual( $range_to, (int) $range['max_range'] );
 		}
 
@@ -521,7 +521,7 @@ class WP_Test_Jetpack_Sync_Checksum extends WP_UnitTestCase {
 		for ( $i = 1; $i <= 10; $i ++ ) {
 			// create an allowed post_type post.
 			$post_id = $this->factory->post->create( array( 'post_author' => $user_id ) );
-			if ( is_null( $min_range_expected ) ) {
+			if ( $min_range_expected === null ) {
 				$min_range_expected = $post_id; // set initial post_id.
 			}
 			$max_range_expected = $post_id; // update last post_id.

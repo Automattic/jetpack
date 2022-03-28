@@ -43,7 +43,7 @@ class Tracking {
 	public function __construct( $product_name = 'jetpack', $connection = null ) {
 		$this->product_name = $product_name;
 		$this->connection   = $connection;
-		if ( is_null( $this->connection ) ) {
+		if ( $this->connection === null ) {
 			// TODO We should always pass a Connection.
 			$this->connection = new Connection\Manager();
 		}
