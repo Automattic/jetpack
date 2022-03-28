@@ -192,7 +192,12 @@ export class Composing extends React.Component {
 								disabled={ this.props.isSavingAnyOption( [ 'jetpack_blocks_disabled' ] ) }
 								onChange={ this.toggleBlocks }
 							>
-								<span className="jp-form-toggle-explanation">{ blocks.description }</span>
+								<span className="jp-form-toggle-explanation">
+									{ __(
+										'Jetpack Blocks give you the power to deliver quality content that hooks website visitors without needing to hire a developer or learn a single line of code.',
+										'jetpack'
+									) }
+								</span>
 							</CompactFormToggle>
 						</FormFieldset>
 					</SettingsGroup>
