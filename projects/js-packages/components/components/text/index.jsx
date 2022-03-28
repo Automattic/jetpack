@@ -96,7 +96,11 @@ export default Text;
  * @param {React.Component} props.children - Heading component children.
  * @returns {React.Component}                Headline Medium size instance.
  */
-export const H2 = ( { children } ) => <Text variant="headline-medium">{ children }</Text>;
+export const H2 = ( { children } ) => (
+	<Text variant="headline-medium" bottom={ 3 }>
+		{ children }
+	</Text>
+);
 
 H2.propTypes = {
 	/** The text itself that will be rendered. */
@@ -120,10 +124,7 @@ export const H3 = ( { children, weight = 'bold' } ) => {
 	weight = weight === 'bold' ? '' : weight;
 
 	return (
-		<Text
-			variant={ `headline-small${ weight?.length ? `-${ weight }` : '' }` }
-			className={ styles[ 'headline-small' ] }
-		>
+		<Text variant={ `headline-small${ weight?.length ? `-${ weight }` : '' }` } bottom={ 1 }>
 			{ children }
 		</Text>
 	);
@@ -150,7 +151,7 @@ H3.defaultProps = {
  * @returns {React.Component}                Headline level 2 component instance.
  */
 export const Title = ( { children, size = 'medium' } ) => (
-	<Text variant={ `title-${ size }` } className={ styles[ `title-${ size }` ] }>
+	<Text variant={ `title-${ size }` } bottom={ 1 }>
 		{ children }
 	</Text>
 );

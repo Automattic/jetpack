@@ -70,18 +70,6 @@
 	line-height: 16px;
 }
 
-/* Headings */
-.headline-medium,
-.headline-small {
-	margin-bottom: calc( var(--spacing-base ) * 3 );
-}
-
-/* Title size variations: medium | small */
-.title-medium,
-.title-small {
-	margin-bottom: var( --spacing-base );
-}
-
 /** Box-Model: Spacing (margin) */
 $sides: ( "top", "right", "bottom", "left" );
 
