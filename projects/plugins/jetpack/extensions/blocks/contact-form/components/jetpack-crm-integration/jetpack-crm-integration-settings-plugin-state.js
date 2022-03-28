@@ -28,7 +28,7 @@ export const pluginStateEnum = Object.freeze( {
 const CRMPluginNoVersion = () => {
 	return (
 		<p className="jetpack-contact-form__crm_text">
-			{ __( 'The Jetpack CRM is installed but has an invalid version.', 'jetpack' ) }
+			{ __( 'The Jetpack CRM plugin is installed but has an invalid version.', 'jetpack' ) }
 		</p>
 	);
 };
@@ -37,7 +37,7 @@ const CRMPluginUpdate = () => {
 	return (
 		<p className="jetpack-contact-form__crm_text">
 			{ __(
-				'The Zero BS CRM plugin is now Jetpack CRM. Update to the latest version to integrate your contact form with your CRM.',
+				'Please update to the latest version of the Jetpack CRM plugin to integrate your contact form with your CRM.',
 				'jetpack'
 			) }
 		</p>
@@ -153,8 +153,10 @@ const CRMPluginState = ( {
 		return <CRMPluginNoVersion />;
 	}
 
-	if ( crmData.crm_installed && semver.lt( crmPluginVersion, '3.0.19' ) ) {
-		// Old versions of Jetpack CRM can't use the form submission data.
+	if ( crmData.crm_installed && semver.lt( crmPluginVersion, '4.9.1' ) ) {
+		// Old versions of Jetpack CRM can't use the form submission data,
+		// or include a welcome wizard that can get in the way.
+		// @see https://github.com/Automattic/jetpack/pull/23618#issuecomment-1079430205
 		return <CRMPluginUpdate />;
 	}
 

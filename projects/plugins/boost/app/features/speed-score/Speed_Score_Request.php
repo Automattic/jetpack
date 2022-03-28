@@ -78,7 +78,7 @@ class Speed_Score_Request extends Cacheable {
 
 		$this->url            = $url;
 		$this->active_modules = $active_modules;
-		$this->created        = is_null( $created ) ? microtime( true ) : $created;
+		$this->created        = $created === null ? microtime( true ) : $created;
 		$this->status         = $status;
 		$this->error          = $error;
 		$this->retry_count    = 0;
