@@ -70,8 +70,6 @@ class WPCOM_JSON_API_List_Post_Types_Endpoint extends WPCOM_JSON_API_Endpoint {
 			$this->load_theme_functions();
 		}
 
-		$args = $this->query_args(); // phpcs:ignore VariableAnalysis.CodeAnalysis.VariableAnalysis.UnusedVariable
-
 		/**
 		 * Whether API responses should be returned in a custom locale.  False
 		 * for Jetpack; may be true for WP.com requests.

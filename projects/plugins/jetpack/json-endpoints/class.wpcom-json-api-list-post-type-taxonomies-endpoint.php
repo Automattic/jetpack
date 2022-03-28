@@ -64,8 +64,6 @@ class WPCOM_JSON_API_List_Post_Type_Taxonomies_Endpoint extends WPCOM_JSON_API_E
 
 		$this->localize_initial_taxonomies( $post_type );
 
-		$args = $this->query_args(); // phpcs:ignore VariableAnalysis.CodeAnalysis.VariableAnalysis.UnusedVariable
-
 		$post_type_object = get_post_type_object( $post_type );
 		if ( ! $post_type_object || ( ! $post_type_object->publicly_queryable && (
 				! current_user_can( $post_type_object->cap->edit_posts ) ) ) ) {
