@@ -1,0 +1,4 @@
+Significance: patch
+Type: enhancement
+
+Slideshow shortcode: adds the Jetpack namespace to slideshow shortcode CSS class names.
