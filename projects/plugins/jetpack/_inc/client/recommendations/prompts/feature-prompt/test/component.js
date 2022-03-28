@@ -47,7 +47,7 @@ describe( 'Recommendations – Feature Prompt', () => {
 	before( function () {
 		updateRecommendationsStepStub = sinon
 			.stub( recommendationsActions, 'updateRecommendationsStep' )
-			.returns( DUMMY_ACTION ); // This action function returns a promise chain from the api middleware.
+			.returns( DUMMY_ACTION );
 
 		addViewedRecommendationStub = sinon
 			.stub( recommendationsActions, 'addViewedRecommendation' )
