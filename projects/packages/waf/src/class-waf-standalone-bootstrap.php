@@ -81,7 +81,9 @@ class WafStandaloneBootstrap {
 			&& InstalledVersions::isInstalled( 'automattic/jetpack-waf' )
 		) {
 			$package_file  = InstalledVersions::getInstallPath( 'automattic/jetpack-waf' );
-			$autoload_file = dirname( dirname( dirname( realpath( $package_file ) ) ) ) . '/vendor/autoload.php';
+			if ( substr( $package_file, -23 ) === '/automattic/jetpack-waf' ) {
+				$autoload_file = dirname( dirname( dirname( $package_file ) ) ) . '/vendor/autoload.php';
+			}
 		}
 
 		// Guess. First look for being in a `vendor/automattic/jetpack-waf/src/', then see if we're standalone with our own vendor dir.
