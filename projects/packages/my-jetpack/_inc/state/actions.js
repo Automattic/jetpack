@@ -111,9 +111,7 @@ function requestProductStatus( productId, data, { select, dispatch } ) {
 			.then( freshProduct => {
 				dispatch( setIsFetchingProduct( productId, false ) );
 				dispatch( setProduct( freshProduct ) );
-				if ( 'POST' === method ) {
-					globalDispatch( CONNECTION_STORE_ID ).refreshConnectedPlugins();
-				}
+				globalDispatch( CONNECTION_STORE_ID ).refreshConnectedPlugins();
 				resolve( freshProduct?.status );
 			} )
 			.catch( error => {
