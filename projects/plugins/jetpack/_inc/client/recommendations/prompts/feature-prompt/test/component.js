@@ -29,6 +29,7 @@ function buildInitialState( { recommendationsStep } = {} ) {
 			},
 			recommendations: {
 				data: {},
+				requests: {},
 				step: recommendationsStep,
 			},
 			settings: {
@@ -46,7 +47,7 @@ describe( 'Recommendations – Feature Prompt', () => {
 	before( function () {
 		updateRecommendationsStepStub = sinon
 			.stub( recommendationsActions, 'updateRecommendationsStep' )
-			.returns( DUMMY_ACTION );
+			.returns( DUMMY_ACTION ); // This action function returns a promise chain from the api middleware.
 
 		addViewedRecommendationStub = sinon
 			.stub( recommendationsActions, 'addViewedRecommendation' )

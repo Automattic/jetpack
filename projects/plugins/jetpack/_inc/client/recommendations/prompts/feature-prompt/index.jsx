@@ -19,8 +19,10 @@ import {
 	addSelectedRecommendation as addSelectedRecommendationAction,
 	addSkippedRecommendation as addSkippedRecommendationAction,
 	addViewedRecommendation as addViewedRecommendationAction,
-	getNextRoute,
 	updateRecommendationsStep as updateRecommendationsStepAction,
+	getNextRoute,
+	getStep,
+	isUpdatingRecommendationsStep,
 } from 'state/recommendations';
 
 const FeaturePromptComponent = props => {
@@ -38,17 +40,27 @@ const FeaturePromptComponent = props => {
 		progressValue,
 		question,
 		stepSlug,
+		stateStepSlug,
+		updatingStep,
 		updateRecommendationsStep,
 		isNew,
 	} = props;
 
 	useEffect( () => {
-		// These calls both update the underlying jetpack_options option.
-		// The second waits for the first to avoid trying to write the same option with two simultaneous requests.
-		updateRecommendationsStep( stepSlug ).then( () => {
+		// Both addViewedRecommendation and updateRecommendationsStep update the same option under the hood.
+		// These actions run with mutually exclusive conditions so they do not over-write one another.
+		if ( stepSlug !== stateStepSlug ) {
+			updateRecommendationsStep( stepSlug );
+		} else if ( stepSlug === stateStepSlug && ! updatingStep ) {
 			addViewedRecommendation( stepSlug );
-		} );
-	}, [ stepSlug, updateRecommendationsStep, addViewedRecommendation ] );
+		}
+	}, [
+		stepSlug,
+		stateStepSlug,
+		updatingStep,
+		updateRecommendationsStep,
+		addViewedRecommendation,
+	] );
 
 	const onExternalLinkClick = useCallback( () => {
 		analytics.tracks.recordEvent( 'jetpack_recommended_feature_learn_more_click', {
@@ -102,6 +114,8 @@ const FeaturePrompt = connect(
 	( state, ownProps ) => ( {
 		nextRoute: getNextRoute( state ),
 		...getStepContent( ownProps.stepSlug ),
+		stateStepSlug: getStep( state ),
+		updatingStep: isUpdatingRecommendationsStep( state ),
 	} ),
 	( dispatch, ownProps ) => ( {
 		addSelectedRecommendation: stepSlug => dispatch( addSelectedRecommendationAction( stepSlug ) ),

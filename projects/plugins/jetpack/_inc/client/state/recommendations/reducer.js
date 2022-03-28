@@ -17,6 +17,8 @@ import {
 	JETPACK_RECOMMENDATIONS_DATA_FETCH_FAIL,
 	JETPACK_RECOMMENDATIONS_DATA_UPDATE,
 	JETPACK_RECOMMENDATIONS_STEP_UPDATE,
+	JETPACK_RECOMMENDATIONS_STEP_UPDATE_SUCCESS,
+	JETPACK_RECOMMENDATIONS_STEP_UPDATE_FAIL,
 	JETPACK_RECOMMENDATIONS_PRODUCT_SUGGESTIONS_FETCH,
 	JETPACK_RECOMMENDATIONS_PRODUCT_SUGGESTIONS_FETCH_RECEIVE,
 	JETPACK_RECOMMENDATIONS_PRODUCT_SUGGESTIONS_FETCH_FAIL,
@@ -126,6 +128,11 @@ const requests = ( state = {}, action ) => {
 			} );
 		case JETPACK_RECOMMENDATIONS_CONDITIONAL_FETCH_FAIL:
 			return assign( {}, state, { isFetchingRecommendationsConditional: false } );
+		case JETPACK_RECOMMENDATIONS_STEP_UPDATE:
+			return assign( {}, state, { isUpdatingRecommendationsStep: true } );
+		case JETPACK_RECOMMENDATIONS_STEP_UPDATE_SUCCESS:
+		case JETPACK_RECOMMENDATIONS_STEP_UPDATE_FAIL:
+			return assign( {}, state, { isUpdatingRecommendationsStep: false } );
 		default:
 			return state;
 	}
@@ -208,6 +215,10 @@ export const isFetchingRecommendationsConditional = state => {
 
 export const isRecommendationsConditionalLoaded = state => {
 	return !! state.jetpack.recommendations.requests.isRecommendationsConditionalLoaded;
+};
+
+export const isUpdatingRecommendationsStep = state => {
+	return !! state.jetpack.recommendations.requests.isUpdatingRecommendationsStep;
 };
 
 export const getDataByKey = ( state, key ) => {
