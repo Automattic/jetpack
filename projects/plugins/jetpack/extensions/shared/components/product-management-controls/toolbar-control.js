@@ -7,8 +7,8 @@ import formatCurrency from '@automattic/format-currency';
  * WordPress dependencies
  */
 import { BlockControls } from '@wordpress/block-editor';
-import { MenuGroup, MenuItem, ToolbarDropdownMenu } from '@wordpress/components';
-import { useSelect } from '@wordpress/data';
+import { ExternalLink, MenuGroup, MenuItem, ToolbarDropdownMenu } from '@wordpress/components';
+import { useSelect, dispatch } from '@wordpress/data';
 import { __, sprintf } from '@wordpress/i18n';
 import { check, update, warning } from '@wordpress/icons';
 
@@ -18,6 +18,15 @@ import { check, update, warning } from '@wordpress/icons';
 import useOpenBlockSidebar from './use-open-block-sidebar';
 import { getMessageByProductType } from './utils';
 import { store as membershipProductsStore } from '../../../store/membership-products';
+
+/**
+ * Check if it's in the context of the customizer.
+ *
+ * @returns {boolean} if we are in the context of Customizer.
+ */
+function isInCustomizer() {
+	return 'function' === typeof window?.wp?.customize;
+}
 
 function getProductDescription( product ) {
 	const { currency, interval, price } = product;
@@ -66,11 +75,33 @@ function Product( { onClose, product, selectedProductId, setSelectedProductId } 
 }
 
 function NewProduct( { onClose, productType } ) {
+	const siteSlug = useSelect( select => select( membershipProductsStore ).getSiteSlug() );
 	const openBlockSidebar = useOpenBlockSidebar();
+
+	const isPublishOpen = useSelect(
+		select => select( 'core/edit-post' ).isPublishSidebarOpened(),
+		[]
+	);
+
+	if ( isInCustomizer() ) {
+		return (
+			<MenuItem>
+				{ siteSlug && (
+					<ExternalLink href={ `https://wordpress.com/earn/payments-plans/${ siteSlug }` }>
+						{ getMessageByProductType( 'add a new product', productType ) }
+					</ExternalLink>
+				) }
+			</MenuItem>
+		);
+	}
 
 	const handleClick = event => {
 		event.preventDefault();
 		openBlockSidebar();
+
+		// We need to close the publish sidebar when the user tries to add a new subscription otherwise the block panel is not visible.
+		isPublishOpen && dispatch( 'core/edit-post' ).closePublishSidebar();
+
 		setTimeout( () => {
 			const input = document.getElementById( 'new-product-title' );
 			if ( input !== null ) {
