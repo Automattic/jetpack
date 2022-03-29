@@ -21,6 +21,9 @@
 		/* eslint-disable no-console */
 		console.log( 'CTA clicked' );
 	}
+
+	// svelte-ignore unused-export-let - Ignored values supplied by svelte-navigator.
+	export let location, navigate;
 </script>
 
 <div id="jb-settings" class="jb-settings">
