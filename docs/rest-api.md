@@ -113,7 +113,7 @@ window.Initial_State.WP_API_root;
 
 All endpoints return and accept JSON. Make sure you add the proper `content-type` header to your PUT/POST requests sending JSON objects.
 
-```
+```json
 'Content-type': 'application/json'
 ```
 
@@ -406,7 +406,7 @@ Activate several modules at a time by their slug
 
 * `modules`: {Array} An array of strings of identifiers of the modules to activate
 
-```
+```json
 {
 	"modules": [ "protect", "monitor", "likes" ]
 }
@@ -427,7 +427,7 @@ Update an option's value for a module
 * Accepts a simple object with the key of the option to update and the new value.
 
 Accepts a JSON object in the body like:
-```
+```json
 {
 	"option-key": "new-option-value"
 }
@@ -469,7 +469,7 @@ The string value in `data` is a stringified JSON object with data coming from th
 
 **Example response**
 
-```
+```json
 {
     "code": "success",
     "message": "Site data correctly received.",
@@ -487,7 +487,7 @@ Get count of blocked attacks by Protect.
 
 **Note**: The response is not an object but a plain string with the number of blocked login attempts.
 
-```
+```json
 "3"
 ```
 
@@ -499,7 +499,7 @@ Get a list of the currently installed plugins on the site.
 
 **Example response**
 
-```
+```json
 {
     "hello.php": {
         "Name": "Hello Dolly",
@@ -538,7 +538,7 @@ Get number of updated available for currently installed WordPress plugins.
 
 **Example response** when all plugins are up to date
 
-```
+```json
 {
 	"code": "success",
 	"message": "All plugins are up-to-date. Keep up the good work!",
@@ -548,7 +548,7 @@ Get number of updated available for currently installed WordPress plugins.
 
 **Example response** when some plugins need to be updated
 
-```
+```json
 {
 	"code": "updates-available",
 	"message": "2 plugins need updating.",
