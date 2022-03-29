@@ -108,16 +108,12 @@ export class Navigation extends React.Component {
 						>
 							{ createInterpolateElement(
 								sprintf(
-									/* translators: %s is a count of how many new (unread) recommendations are available. */
-									_x(
-										'Recommendations <CountWrap><span>%d</span></CountWrap>',
-										'Navigation item.',
-										'jetpack'
-									),
+									/* translators: %d is a count of how many new (unread) recommendations are available. */
+									_x( 'Recommendations <count>%d</count>', 'Navigation item.', 'jetpack' ),
 									this.props.newRecommendationsCount
 								),
 								{
-									CountWrap: (
+									count: (
 										<span
 											className={
 												'dops-section-nav-tab__update-badge count-' +
@@ -125,7 +121,6 @@ export class Navigation extends React.Component {
 											}
 										></span>
 									),
-									span: <span className="update-count"></span>,
 								}
 							) }
 						</NavItem>
