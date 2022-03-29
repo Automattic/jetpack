@@ -20,7 +20,6 @@ class Jetpack_Custom_CSS_Enhancements {
 	 */
 	public static function add_hooks() {
 		add_action( 'init', array( __CLASS__, 'init' ) );
-		add_action( 'admin_menu', array( __CLASS__, 'admin_menu' ) );
 		add_action( 'customize_controls_enqueue_scripts', array( __CLASS__, 'customize_controls_enqueue_scripts' ) );
 		add_action( 'customize_register', array( __CLASS__, 'customize_register' ) );
 		add_filter( 'map_meta_cap', array( __CLASS__, 'map_meta_cap' ), 20, 2 );
@@ -128,33 +127,6 @@ class Jetpack_Custom_CSS_Enhancements {
 			$caps = array( 'edit_theme_options' );
 		}
 		return $caps;
-	}
-
-	/**
-	 * Handle our admin menu item and legacy page declaration.
-	 */
-	public static function admin_menu() {
-		// Add in our legacy page to support old bookmarks and such.
-		add_submenu_page( null, __( 'CSS', 'jetpack' ), __( 'Additional CSS', 'jetpack' ), 'edit_theme_options', 'editcss', array( __CLASS__, 'admin_page' ) );
-
-		// Add in our new page slug that will redirect to the customizer.
-		$hook = add_theme_page( __( 'CSS', 'jetpack' ), __( 'Additional CSS', 'jetpack' ), 'edit_theme_options', 'editcss-customizer-redirect', array( __CLASS__, 'admin_page' ) );
-		add_action( "load-{$hook}", array( __CLASS__, 'customizer_redirect' ) );
-	}
-
-	/**
-	 * Handle the redirect for the customizer.  This is necessary because
-	 * we can't directly add customizer links to the admin menu.
-	 *
-	 * There is a core patch in trac that would make this unnecessary.
-	 *
-	 * @link https://core.trac.wordpress.org/ticket/39050
-	 */
-	public static function customizer_redirect() {
-		wp_safe_redirect( self::customizer_link( array(
-			'return_url' => wp_get_referer(),
-		) ) );
-		exit;
 	}
 
 	/**
