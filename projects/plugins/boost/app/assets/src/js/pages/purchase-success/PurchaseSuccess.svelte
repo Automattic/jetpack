@@ -7,7 +7,6 @@
 	import routerHistory from '../../utils/router-history';
 
 	import Logo from '../../svg/jetpack-green.svg';
-	import BoostImage from '../../svg/boost.svg';
 
 	/**
 	 * WordPress dependencies
@@ -45,8 +44,11 @@
 				/>
 			</div>
 
-			<div class="jb-card__cta px-1">
-				<BoostImage />
+			<div class="jb-card__cta px-1 py-4">
+				<img
+					src={`${ window.Jetpack_Boost.site.assetPath }../static/images/boost.png`}
+					alt={__( 'Optimize with Jetpack Boost', 'jetpack-boost' )}
+				/>
 			</div>
 		</div>
 	</div>
