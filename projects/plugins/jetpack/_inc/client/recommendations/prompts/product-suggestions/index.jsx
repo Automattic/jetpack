@@ -61,13 +61,13 @@ const ProductSuggestionsComponent = props => {
 							) }
 						</span>
 						{ expiryDate && (
-							<span className="jp-recommendations-product-suggestion__timer">
-								<span>{ __( 'Offer ends in:', 'jetpack' ) }</span>
+							<div className="jp-recommendations-product-suggestion__timer">
 								<Timer
-									className="jp-recommendations-product-suggestion__time"
+									timeClassName="jp-recommendations-product-suggestion__time"
+									label={ __( 'Discount ends in:', 'jetpack' ) }
 									expiryDate={ expiryDate }
 								/>
-							</span>
+							</div>
 						) }
 					</>
 				) }
