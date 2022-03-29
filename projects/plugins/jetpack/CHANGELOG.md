@@ -4,27 +4,23 @@
 
 ## 10.8-beta - 2022-03-29
 ### Enhancements
-- Payment Blocks: Added links to manage subscriptions and fees to the Product Management controls.
-- Adding language attributes to code blocks.
-- Dashboard: add a card to highlight the blocks available in Jetpack.
-- Dashboard: add highlight of the Jetpack blocks to the settings page.
+
 - Form Block: offer option to install/activate the Jetpack CRM plugin from the Form Block options.
-- Jetpack Blocks: make settings discoverable and toggleable.
+- Blocks: make settings discoverable and toggleable, and add a card to highlight the blocks available in Jetpack on the dashboard.
 - Payments Block: introduce new Post Publish panel to highlight the options available with Payments blocks.
 - Payments Block now uses the product management controls to manage subscriptions. Migrated the Payments Block to a functional component and cleaned up code.
+- VideoPress: added support for the `muted`, `controls` and `playsinline` properties on the wpvideo and videopress shortcodes.
 
 ### Improved compatibility
-- Added support for the `muted`, `controls` and `playsinline` properties on the wpvideo and videopress shortcodes.
-- Slideshow shortcode: adds the Jetpack namespace to slideshow shortcode CSS class names.
-
-### Bug fixes
-- Assistant: make call-to-actions point to checkout page.
+- Shortcodes: adds the Jetpack namespace to slideshow shortcode CSS class names.
 
 ### Other changes <!-- Non-user-facing changes go here. This section will not be copied to readme.txt. -->
 - Subscriptions Block: make the block messages clearer.
 - Payments Block: we now provide a way in which we can propagate the controls to the child blocks.
+- Payment Blocks: Added links to manage subscriptions and fees to the Product Management controls.
 - Payments Button Block: add back the upgrade nudge.
 - Fix ProductManagementControls not being able to open the block settings sidebar on site and widgets editor.
+- Adding language attributes to code blocks.
 - Search: Add search feature to benefits API.
 - Fix VS Code ESLint and prettier config.
 - Removed unneeded calls to Atomic_Plan_Manager.
@@ -36,6 +32,7 @@
 - Various PHPCS updates.
 - Search: removed migrated tests.
 - Updated package dependencies.
+- Assistant: make call-to-actions point to checkout page.
 - WordPress.com Toolbar: check if function exists before to use it.
 - WordPress.com Toolbar: avoid PHP notices when locale is not defined.
 
