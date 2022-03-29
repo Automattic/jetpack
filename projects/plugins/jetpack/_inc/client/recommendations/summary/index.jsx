@@ -29,6 +29,7 @@ import {
 } from 'state/recommendations';
 import { getSettings } from 'state/settings';
 import { getPluginsData } from 'state/site/plugins';
+import { getSiteDiscount } from 'state/site/reducer';
 
 /**
  * Style dependencies
@@ -46,6 +47,7 @@ const SummaryComponent = props => {
 		summaryFeatureSlugs,
 		updateRecommendationsStep,
 		upsell,
+		discountData,
 	} = props;
 
 	useEffect( () => {
@@ -54,7 +56,7 @@ const SummaryComponent = props => {
 
 	const { product_slug: productSlug } = upsell || {};
 	const upgradeUrl = productSlug
-		? generateCheckoutLink( productSlug, siteAdminUrl, siteRawUrl )
+		? generateCheckoutLink( productSlug, siteAdminUrl, siteRawUrl, discountData?.code )
 		: null;
 
 	const onUpsellClick = useCallback( () => {
@@ -195,6 +197,7 @@ const Summary = connect(
 			siteAdminUrl: getSiteAdminUrl( state ),
 			summaryFeatureSlugs: getSummaryFeatureSlugs( state ),
 			upsell,
+			discountData: getSiteDiscount( state ),
 		};
 	},
 	dispatch => ( {

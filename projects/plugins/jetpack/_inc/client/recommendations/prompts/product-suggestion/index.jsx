@@ -11,13 +11,14 @@ import { connect } from 'react-redux';
 import analytics from 'lib/analytics';
 import { getSiteAdminUrl, getSiteRawUrl } from 'state/initial-state';
 import { addSelectedRecommendation as addSelectedRecommendationAction } from 'state/recommendations';
+import { getSiteDiscount } from 'state/site/reducer';
 import { ProductCardUpsell } from '../../product-card-upsell';
 import { generateCheckoutLink } from '../../utils';
 
 const recommendedProductSlug = 'jetpack_security_t1_yearly';
 
 const ProductSuggestionComponent = props => {
-	const { product, addSelectedRecommendation, siteAdminUrl, siteRawUrl } = props;
+	const { product, addSelectedRecommendation, siteAdminUrl, siteRawUrl, discountData } = props;
 
 	const onPurchaseClick = useCallback( () => {
 		analytics.tracks.recordEvent( 'jetpack_recommendations_product_suggestion_click', {
@@ -31,7 +32,12 @@ const ProductSuggestionComponent = props => {
 		<ProductCardUpsell
 			{ ...product }
 			price={ product.cost }
-			upgradeUrl={ generateCheckoutLink( product.slug, siteAdminUrl, siteRawUrl ) }
+			upgradeUrl={ generateCheckoutLink(
+				product.slug,
+				siteAdminUrl,
+				siteRawUrl,
+				discountData?.code
+			) }
 			isRecommended={ product.slug === recommendedProductSlug }
 			onClick={ onPurchaseClick }
 		/>
@@ -46,6 +52,7 @@ const ProductSuggestion = connect(
 	state => ( {
 		siteAdminUrl: getSiteAdminUrl( state ),
 		siteRawUrl: getSiteRawUrl( state ),
+		discountData: getSiteDiscount( state ),
 	} ),
 	dispatch => ( {
 		addSelectedRecommendation: stepSlug => dispatch( addSelectedRecommendationAction( stepSlug ) ),
