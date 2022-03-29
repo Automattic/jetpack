@@ -7,7 +7,6 @@ use Automattic\Jetpack\Connection\REST_Connector;
 use Automattic\Jetpack\Jetpack_CRM_Data;
 use Automattic\Jetpack\Licensing;
 use Automattic\Jetpack\Plugins_Installer;
-use Automattic\Jetpack\Search\REST_Controller as Search_REST_Controller;
 use Automattic\Jetpack\Status\Host;
 use Automattic\Jetpack\Status\Visitor;
 
@@ -32,9 +31,6 @@ add_action( 'rest_api_init', array( 'Jetpack_Core_Json_Api_Endpoints', 'register
 // Load API endpoints that are synced with WP.com
 // Each of these is a class that will register its own routes on 'rest_api_init'.
 require_once JETPACK__PLUGIN_DIR . '_inc/lib/core-api/load-wpcom-endpoints.php';
-
-// Load Search endpoints when WP REST API is initialized.
-add_action( 'rest_api_init', array( new Search_REST_Controller(), 'register_rest_routes' ) );
 
 /**
  * Class Jetpack_Core_Json_Api_Endpoints
@@ -728,6 +724,18 @@ class Jetpack_Core_Json_Api_Endpoints {
 				),
 			)
 		);
+		/**
+		 * Get Jetpack user licenses.
+		 */
+		register_rest_route(
+			'jetpack/v4',
+			'licensing/user/licenses',
+			array(
+				'methods'             => WP_REST_Server::READABLE,
+				'callback'            => __CLASS__ . '::get_user_licenses',
+				'permission_callback' => __CLASS__ . '::user_licensing_permission_check',
+			)
+		);
 
 		/**
 		 * Get Jetpack user license counts.
@@ -1111,6 +1119,39 @@ class Jetpack_Core_Json_Api_Endpoints {
 		if ( 200 === $response_code ) {
 			$license_counts = json_decode( wp_remote_retrieve_body( $wpcom_request ) );
 			return $license_counts;
+		} else {
+			return new WP_Error(
+				'failed_to_fetch_data',
+				esc_html__( 'Unable to fetch the requested data.', 'jetpack' ),
+				array( 'status' => $response_code )
+			);
+		}
+	}
+
+	/**
+	 * Gets the users licenses.
+	 *
+	 * @since 10.4.0
+	 *
+	 * @return string|WP_Error A JSON object of user licenses if the request was successful, or a WP_Error otherwise.
+	 */
+	public static function get_user_licenses() {
+		$wpcom_request = Client::wpcom_json_api_request_as_user(
+			'/jetpack-licensing/user/licenses',
+			'2',
+			array(
+				'method'  => 'GET',
+				'headers' => array(
+					'Content-Type'    => 'application/json',
+					'X-Forwarded-For' => ( new Visitor() )->get_ip( true ),
+				),
+			)
+		);
+
+		$response_code = wp_remote_retrieve_response_code( $wpcom_request );
+		if ( 200 === $response_code ) {
+			$licenses = json_decode( wp_remote_retrieve_body( $wpcom_request ) );
+			return $licenses;
 		} else {
 			return new WP_Error(
 				'failed_to_fetch_data',
@@ -2219,6 +2260,15 @@ class Jetpack_Core_Json_Api_Endpoints {
 	public static function get_updateable_data_list( $selector = '' ) {
 
 		$options = array(
+
+			// Blocks.
+			'jetpack_blocks_disabled'              => array(
+				'description'       => esc_html__( 'Jetpack Blocks disabled.', 'jetpack' ),
+				'type'              => 'boolean',
+				'default'           => false,
+				'validate_callback' => __CLASS__ . '::validate_boolean',
+				'jp_group'          => 'settings',
+			),
 
 			// Carousel
 			'carousel_background_color'            => array(

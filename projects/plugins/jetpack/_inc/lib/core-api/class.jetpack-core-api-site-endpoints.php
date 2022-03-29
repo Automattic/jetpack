@@ -6,7 +6,7 @@
  */
 
 use Automattic\Jetpack\Connection\Client;
-
+use Automattic\Jetpack\Search\Initializer as Jetpack_Search_Initializer;
 /**
  * This is the endpoint class for `/site` endpoints.
  */
@@ -279,6 +279,14 @@ class Jetpack_Core_API_Site_Endpoint {
 				'title'       => esc_html__( 'Sharing', 'jetpack' ),
 				'description' => esc_html__( 'The number of times visitors have shared your posts with the world using Jetpack', 'jetpack' ),
 				'value'       => absint( $stats->stats->shares ),
+			);
+		}
+
+		if ( Jetpack::is_module_active( 'search' ) && ! Jetpack::is_plugin_active( 'search/jetpack-search.php' ) && class_exists( Jetpack_Search_Initializer::class ) ) {
+			$benefits[] = array(
+				'name'        => 'search',
+				'title'       => esc_html__( 'Jetpack Search', 'jetpack' ),
+				'description' => esc_html__( 'Help your visitors find exactly what they are looking for, fast', 'jetpack' ),
 			);
 		}
 

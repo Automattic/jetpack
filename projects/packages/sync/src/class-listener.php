@@ -240,7 +240,7 @@ class Listener {
 			 */
 			$args        = apply_filters( "jetpack_sync_before_enqueue_$action_name", $args );
 			$action_data = array( $args );
-			if ( ! is_null( $previous_end ) ) {
+			if ( $previous_end !== null ) {
 				$action_data[] = $previous_end;
 			}
 			// allow listeners to abort.

@@ -17,9 +17,9 @@
 		"automattic/jetpack-autoloader": "2.11.x-dev",
 		"automattic/jetpack-backup": "1.2.x-dev",
 		"automattic/jetpack-blocks": "1.4.x-dev",
-		"automattic/jetpack-compat": "1.6.x-dev",
+		"automattic/jetpack-compat": "1.7.x-dev",
 		"automattic/jetpack-composer-plugin": "1.1.x-dev",
-		"automattic/jetpack-config": "1.6.x-dev",
+		"automattic/jetpack-config": "1.7.x-dev",
 		"automattic/jetpack-connection": "1.37.x-dev",
 		"automattic/jetpack-connection-ui": "2.3.x-dev",
 		"automattic/jetpack-constants": "1.6.x-dev",
@@ -38,7 +38,7 @@
 		"automattic/jetpack-plugins-installer": "0.1.x-dev",
 		"automattic/jetpack-redirect": "1.7.x-dev",
 		"automattic/jetpack-roles": "1.4.x-dev",
-		"automattic/jetpack-search": "0.11.x-dev",
+		"automattic/jetpack-search": "0.12.x-dev",
 		"automattic/jetpack-status": "1.12.x-dev",
 		"automattic/jetpack-sync": "1.30.x-dev",
 		"automattic/jetpack-tracking": "1.14.x-dev",
@@ -98,7 +98,7 @@
 		"platform": {
 			"ext-intl": "0.0.0"
 		},
-		"autoloader-suffix": "f11009ded9fc4592b6a05b61ce272b3c_jetpackⓥ10_8_a_8",
+		"autoloader-suffix": "f11009ded9fc4592b6a05b61ce272b3c_jetpackⓥ10_8_a_12",
 		"allow-plugins": {
 			"automattic/jetpack-autoloader": true,
 			"automattic/jetpack-composer-plugin": true

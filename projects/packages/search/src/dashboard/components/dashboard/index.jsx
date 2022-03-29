@@ -1,19 +1,17 @@
 /**
  * External dependencies
  */
-import React, { Fragment, useMemo } from 'react';
+import React, { Fragment } from 'react';
 
 /**
  * WordPress dependencies
  */
-import { useSelect, useDispatch, select as syncSelect } from '@wordpress/data';
+import { useSelect, useDispatch } from '@wordpress/data';
 import { __ } from '@wordpress/i18n';
 
 /**
  * Internal dependencies
  */
-import analytics from '@automattic/jetpack-analytics';
-import restApi from '@automattic/jetpack-api';
 import { JetpackFooter, JetpackLogo, Spinner } from '@automattic/jetpack-components';
 import ModuleControl from 'components/module-control';
 import MockedSearch from 'components/mocked-search';
@@ -21,7 +19,6 @@ import { STORE_ID } from 'store';
 import NoticesList from 'components/global-notices';
 import RecordMeter from 'components/record-meter';
 
-import 'scss/rna-styles.scss';
 import './style.scss';
 
 /**
@@ -45,8 +42,8 @@ export default function SearchDashboard() {
 	const domain = useSelect( select => select( STORE_ID ).getCalypsoSlug() );
 	const upgradeBillPeriod = useSelect( select => select( STORE_ID ).getUpgradeBillPeriod() );
 
-	const supportsOnlyClassicSearch = useSelect(
-		select => select( STORE_ID ).supportsOnlyClassicSearch
+	const supportsOnlyClassicSearch = useSelect( select =>
+		select( STORE_ID ).supportsOnlyClassicSearch()
 	);
 	const supportsSearch = useSelect( select => select( STORE_ID ).supportsSearch() );
 	const supportsInstantSearch = useSelect( select => select( STORE_ID ).supportsInstantSearch() );
@@ -64,6 +61,7 @@ export default function SearchDashboard() {
 	const tierMaximumRecords = useSelect( select => select( STORE_ID ).getTierMaximumRecords() );
 	const postCount = useSelect( select => select( STORE_ID ).getPostCount() );
 	const postTypeBreakdown = useSelect( select => select( STORE_ID ).getPostTypeBreakdown() );
+	const lastIndexedDate = useSelect( select => select( STORE_ID ).getLastIndexedDate() );
 
 	const isLoading = useSelect(
 		select =>
@@ -77,28 +75,6 @@ export default function SearchDashboard() {
 
 	const handleLocalNoticeDismissClick = useDispatch( STORE_ID ).removeNotice;
 	const notices = useSelect( select => select( STORE_ID ).getNotices(), [] );
-
-	const initializeAnalytics = () => {
-		const tracksUser = syncSelect( STORE_ID ).getWpcomUser();
-		const blogId = syncSelect( STORE_ID ).getBlogId();
-
-		if ( tracksUser ) {
-			analytics.initialize( tracksUser.ID, tracksUser.login, {
-				blog_id: blogId,
-			} );
-		}
-	};
-
-	useMemo( () => {
-		const apiRootUrl = syncSelect( STORE_ID ).getAPIRootUrl();
-		const apiNonce = syncSelect( STORE_ID ).getAPINonce();
-		apiRootUrl && restApi.setApiRoot( apiRootUrl );
-		apiNonce && restApi.setApiNonce( apiNonce );
-		initializeAnalytics();
-		analytics.tracks.recordEvent( 'jetpack_search_admin_page_view', {
-			current_version: syncSelect( STORE_ID ).getVersion(),
-		} );
-	}, [] );
 
 	const renderHeader = () => {
 		return (
@@ -196,6 +172,7 @@ export default function SearchDashboard() {
 							postCount={ postCount }
 							postTypeBreakdown={ postTypeBreakdown }
 							tierMaximumRecords={ tierMaximumRecords }
+							lastIndexedDate={ lastIndexedDate }
 						/>
 					) }
 					{ renderModuleControl() }

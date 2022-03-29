@@ -6,10 +6,14 @@ import { createHigherOrderComponent } from '@wordpress/compose';
 import { useContext, useCallback } from '@wordpress/element';
 
 /**
+ * External dependencies
+ */
+import { isUpgradable, getUsableBlockProps } from '@automattic/jetpack-shared-extension-utils';
+
+/**
  * Internal dependencies
  */
 import { isFileOfType } from '../../shared/get-allowed-mime-types';
-import { isUpgradable, getUsableBlockProps } from '../../shared/plan-utils';
 import { PaidBlockContext } from './components';
 
 export default createHigherOrderComponent(

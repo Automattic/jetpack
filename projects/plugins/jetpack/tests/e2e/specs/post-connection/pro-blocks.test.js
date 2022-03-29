@@ -1,4 +1,4 @@
-import { test, expect } from '../../fixtures/base-test.js';
+import { test, expect } from 'jetpack-e2e-commons/fixtures/base-test.js';
 import {
 	BlockEditorPage,
 	MailchimpBlock,

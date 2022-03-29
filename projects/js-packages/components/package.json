@@ -1,6 +1,6 @@
 {
 	"name": "@automattic/jetpack-components",
-	"version": "0.10.11-alpha",
+	"version": "0.10.12-alpha",
 	"description": "Jetpack Components Package",
 	"author": "Automattic",
 	"license": "GPL-2.0-or-later",
@@ -16,9 +16,9 @@
 		"qrcode.react": "2.0.0"
 	},
 	"devDependencies": {
-		"@automattic/jetpack-base-styles": "workspace:^0.1.10",
-		"@babel/core": "7.16.0",
-		"@babel/preset-react": "7.16.0",
+		"@automattic/jetpack-base-styles": "workspace:* || ^0.1",
+		"@babel/core": "7.17.8",
+		"@babel/preset-react": "7.16.7",
 		"jetpack-js-test-runner": "workspace:*",
 		"nyc": "15.1.0",
 		"react": "17.0.2",
