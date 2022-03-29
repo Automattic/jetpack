@@ -442,12 +442,13 @@ class csstidy_optimise { // phpcs:ignore
 
 		// Look for unit and split from value if exists
 		foreach ( $units as $unit ) {
-			$expectUnitAt = strlen( $string ) - strlen( $unit );
-			if ( ! ( $unitInString = stristr( $string, $unit ) ) ) { // mb_strpos() fails with "false"
+			$expect_unit_at = strlen( $string ) - strlen( $unit );
+			$unit_in_string = stristr( $string, $unit );
+			if ( ! $unit_in_string ) { // mb_strpos() fails with "false"
 				continue;
 			}
-			$actualPosition = strpos( $string, $unitInString );
-			if ( $expectUnitAt === $actualPosition ) {
+			$actual_position = strpos( $string, $unit_in_string );
+			if ( $expect_unit_at === $actual_position ) {
 				$return[1] = $unit;
 				$string    = substr( $string, 0, - strlen( $unit ) );
 				break;
@@ -479,7 +480,7 @@ class csstidy_optimise { // phpcs:ignore
 			$keys = array();
 			// PHP bug (?) without $css = $array; here.
 			foreach ( $css as $selector => $vali ) {
-				if ( $selector == $key ) {
+				if ( $selector === $key ) {
 					continue;
 				}
 
@@ -548,6 +549,7 @@ class csstidy_optimise { // phpcs:ignore
 	public static function dissolve_4value_shorthands( $property, $value ) {
 		$shorthands = & $GLOBALS['csstidy']['shorthands'];
 		if ( ! is_array( $shorthands[ $property ] ) ) {
+			$return              = array();
 			$return[ $property ] = $value;
 			return $return;
 		}
@@ -560,18 +562,18 @@ class csstidy_optimise { // phpcs:ignore
 		$values = explode( ' ', $value );
 
 		$return = array();
-		if ( count( $values ) == 4 ) {
+		if ( count( $values ) === 4 ) {
 			for ( $i = 0; $i < 4; $i++ ) {
 				$return[ $shorthands[ $property ][ $i ] ] = $values[ $i ] . $important;
 			}
-		} elseif ( count( $values ) == 3 ) {
+		} elseif ( count( $values ) === 3 ) {
 			$return[ $shorthands[ $property ][0] ] = $values[0] . $important;
 			$return[ $shorthands[ $property ][1] ] = $values[1] . $important;
 			$return[ $shorthands[ $property ][3] ] = $values[1] . $important;
 			$return[ $shorthands[ $property ][2] ] = $values[2] . $important;
-		} elseif ( count( $values ) == 2 ) {
+		} elseif ( count( $values ) === 2 ) {
 			for ( $i = 0; $i < 4; $i++ ) {
-				$return[ $shorthands[ $property ][ $i ] ] = ( ( $i % 2 != 0 ) ) ? $values[1] . $important : $values[0] . $important;
+				$return[ $shorthands[ $property ][ $i ] ] = ( ( $i % 2 != 0 ) ) ? $values[1] . $important : $values[0] . $important; // phpcs:ignore Universal.Operators.StrictComparisons.LooseNotEqual
 			}
 		} else {
 			for ( $i = 0; $i < 4; $i++ ) {
@@ -599,7 +601,7 @@ class csstidy_optimise { // phpcs:ignore
 		for ( $i = 0, $len = strlen( $string ); $i < $len; $i++ ) {
 			switch ( $status ) {
 				case 'st':
-					if ( $string[ $i ] == $sep && ! csstidy::escaped( $string, $i ) ) {
+					if ( $string[ $i ] === $sep && ! csstidy::escaped( $string, $i ) ) {
 						++$num;
 					} elseif ( $string[ $i ] === '"' || $string[ $i ] === '\'' || $string[ $i ] === '(' && ! csstidy::escaped( $string, $i ) ) {
 						$status = 'str';
@@ -611,7 +613,7 @@ class csstidy_optimise { // phpcs:ignore
 					break;
 
 				case 'str':
-					if ( $string[ $i ] == $to && ! csstidy::escaped( $string, $i ) ) {
+					if ( $string[ $i ] === $to && ! csstidy::escaped( $string, $i ) ) {
 						$status = 'st';
 					}
 					( isset( $output[ $num ] ) ) ? $output[ $num ] .= $string[ $i ] : $output[ $num ] = $string[ $i ];
@@ -700,7 +702,7 @@ class csstidy_optimise { // phpcs:ignore
 		}
 
 		$str_value = self::explode_ws( ',', $str_value );
-		for ( $i = 0; $i < count( $str_value ); $i++ ) {
+		for ( $i = 0; $i < count( $str_value ); $i++ ) { // phpcs:ignore Squiz.PHP.DisallowSizeFunctionsInLoops.Found, Generic.CodeAnalysis.ForLoopWithTestFunctionCall.NotAllowed
 			$have['clip']  = false;
 			$have['pos']   = false;
 			$have['color'] = false;
@@ -711,7 +713,7 @@ class csstidy_optimise { // phpcs:ignore
 			}
 			$str_value[ $i ] = self::explode_ws( ' ', trim( $str_value[ $i ] ) );
 
-			for ( $j = 0; $j < count( $str_value[ $i ] ); $j++ ) {
+			for ( $j = 0; $j < count( $str_value[ $i ] ); $j++ ) { // phpcs:ignore Squiz.PHP.DisallowSizeFunctionsInLoops.Found, Generic.CodeAnalysis.ForLoopWithTestFunctionCall.NotAllowed
 				if ( $have['bg'] === false && ( substr( $str_value[ $i ][ $j ], 0, 4 ) === 'url(' || $str_value[ $i ][ $j ] === 'none' ) ) {
 					$return['background-image'] .= $str_value[ $i ][ $j ] . ',';
 					$have['bg']                  = true;
@@ -763,14 +765,14 @@ class csstidy_optimise { // phpcs:ignore
 	public static function merge_bg( $input_css ) {
 		$background_prop_default = & $GLOBALS['csstidy']['background_prop_default'];
 		// Max number of background images. CSS3 not yet fully implemented.
-		$number_of_values = @max( count( self::explode_ws( ',', $input_css['background-image'] ) ), count( self::explode_ws( ',', $input_css['background-color'] ) ), 1 );
+		$number_of_values = @max( count( self::explode_ws( ',', $input_css['background-image'] ) ), count( self::explode_ws( ',', $input_css['background-color'] ) ), 1 ); // phpcs:ignore WordPress.PHP.NoSilencedErrors.Discouraged
 		// Array with background images to check if BG image exists.
-		$bg_img_array = @self::explode_ws( ',', csstidy::gvw_important( $input_css['background-image'] ) );
+		$bg_img_array = @self::explode_ws( ',', csstidy::gvw_important( $input_css['background-image'] ) ); // phpcs:ignore WordPress.PHP.NoSilencedErrors.Discouraged
 		$new_bg_value = '';
 		$important    = '';
 
 		// if background properties is here and not empty, don't try anything.
-		if ( isset( $input_css['background'] ) and $input_css['background'] ) {
+		if ( isset( $input_css['background'] ) && $input_css['background'] ) {
 			return $input_css;
 		}
 
@@ -817,7 +819,7 @@ class csstidy_optimise { // phpcs:ignore
 			}
 
 			$new_bg_value = trim( $new_bg_value );
-			if ( $i != $number_of_values - 1 ) {
+			if ( $i != $number_of_values - 1 ) { // phpcs:ignore Universal.Operators.StrictComparisons.LooseNotEqual
 				$new_bg_value .= ',';
 			}
 		}
@@ -878,14 +880,14 @@ class csstidy_optimise { // phpcs:ignore
 
 		$str_value[0] = self::explode_ws( ' ', trim( $str_value[0] ) );
 
-		for ( $j = 0; $j < count( $str_value[0] ); $j++ ) {
-			if ( $have['weight'] === false && in_array( $str_value[0][ $j ], $font_weight ) ) {
+		for ( $j = 0; $j < count( $str_value[0] ); $j++ ) { // phpcs:ignore Squiz.PHP.DisallowSizeFunctionsInLoops.Found, Generic.CodeAnalysis.ForLoopWithTestFunctionCall.NotAllowed
+			if ( $have['weight'] === false && in_array( $str_value[0][ $j ], $font_weight ) ) { // phpcs:ignore WordPress.PHP.StrictInArray.MissingTrueStrict
 				$return['font-weight'] = $str_value[0][ $j ];
 				$have['weight']        = true;
-			} elseif ( $have['variant'] === false && in_array( $str_value[0][ $j ], $font_variant ) ) {
+			} elseif ( $have['variant'] === false && in_array( $str_value[0][ $j ], $font_variant, true ) ) {
 				$return['font-variant'] = $str_value[0][ $j ];
 				$have['variant']        = true;
-			} elseif ( $have['style'] === false && in_array( $str_value[0][ $j ], $font_style ) ) {
+			} elseif ( $have['style'] === false && in_array( $str_value[0][ $j ], $font_style, true ) ) {
 				$return['font-style'] = $str_value[0][ $j ];
 				$have['style']        = true;
 			} elseif ( $have['size'] === false && ( is_numeric( $str_value[0][ $j ][0] ) || $str_value[0][ $j ][0] === null || $str_value[0][ $j ][0] === '.' ) ) {
@@ -955,8 +957,8 @@ class csstidy_optimise { // phpcs:ignore
 					$family = trim( $family );
 					$len    = strlen( $family );
 					if ( strpos( $family, ' ' ) &&
-									! ( ( $family[0] == '"' && $family[ $len - 1 ] == '"' ) ||
-									( $family[0] == "'" && $family[ $len - 1 ] == "'" ) ) ) {
+									! ( ( $family[0] === '"' && $family[ $len - 1 ] === '"' ) ||
+									( $family[0] === "'" && $family[ $len - 1 ] === "'" ) ) ) {
 						$family = '"' . $family . '"';
 					}
 					$result_families[] = $family;
@@ -993,7 +995,7 @@ class csstidy_optimise { // phpcs:ignore
 
 			// Delete all font-properties.
 			foreach ( $font_prop_default as $font_property => $default_value ) {
-				if ( $font_property !== 'font' or ! $new_font_value ) {
+				if ( $font_property !== 'font' || ! $new_font_value ) {
 					unset( $input_css[ $font_property ] );
 				}
 			}
