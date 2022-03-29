@@ -204,7 +204,7 @@ class Jetpack_Redux_State_Helper {
 			'licensing'                   => array(
 				'error'                   => Licensing::instance()->last_error(),
 				'showLicensingUi'         => Licensing::instance()->is_licensing_input_enabled(),
-				'userCounts'              => Jetpack_Core_Json_Api_Endpoints::get_user_license_counts(),
+				'userCounts'              => Licensing::get_user_license_counts(),
 				'activationNoticeDismiss' => Licensing::instance()->get_license_activation_notice_dismiss(),
 			),
 			'hasSeenWCConnectionModal'    => Jetpack_Options::get_option( 'has_seen_wc_connection_modal', false ),

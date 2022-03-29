@@ -681,78 +681,6 @@ class Jetpack_Core_Json_Api_Endpoints {
 			)
 		);
 
-		/*
-		 * Get and update the last licensing error message.
-		 */
-		register_rest_route(
-			'jetpack/v4',
-			'/licensing/error',
-			array(
-				array(
-					'methods'             => WP_REST_Server::READABLE,
-					'callback'            => __CLASS__ . '::get_licensing_error',
-					'permission_callback' => __CLASS__ . '::view_admin_page_permission_check',
-				),
-				array(
-					'methods'             => WP_REST_Server::EDITABLE,
-					'callback'            => __CLASS__ . '::update_licensing_error',
-					'permission_callback' => __CLASS__ . '::view_admin_page_permission_check',
-					'args'                => array(
-						'error' => array(
-							'required'          => true,
-							'type'              => 'string',
-							'validate_callback' => __CLASS__ . '::validate_string',
-							'sanitize_callback' => 'sanitize_text_field',
-						),
-					),
-				),
-			)
-		);
-
-		// Return all module settings.
-		register_rest_route(
-			'jetpack/v4',
-			'/licensing/set-license',
-			array(
-				'methods'             => WP_REST_Server::EDITABLE,
-				'callback'            => __CLASS__ . '::set_jetpack_license',
-				'permission_callback' => __CLASS__ . '::set_jetpack_license_key_permission_check',
-				'args'                => array(
-					'license' => array(
-						'required'          => true,
-						'type'              => 'string',
-						'validate_callback' => __CLASS__ . '::validate_string',
-						'sanitize_callback' => 'sanitize_text_field',
-					),
-				),
-			)
-		);
-		/**
-		 * Get Jetpack user licenses.
-		 */
-		register_rest_route(
-			'jetpack/v4',
-			'licensing/user/licenses',
-			array(
-				'methods'             => WP_REST_Server::READABLE,
-				'callback'            => __CLASS__ . '::get_user_licenses',
-				'permission_callback' => __CLASS__ . '::user_licensing_permission_check',
-			)
-		);
-
-		/**
-		 * Get Jetpack user license counts.
-		 */
-		register_rest_route(
-			'jetpack/v4',
-			'licensing/user/counts',
-			array(
-				'methods'             => WP_REST_Server::READABLE,
-				'callback'            => __CLASS__ . '::get_user_license_counts',
-				'permission_callback' => __CLASS__ . '::user_licensing_permission_check',
-			)
-		);
-
 		/**
 		 * Update user-licensing activation notice dismiss info.
 		 */
@@ -1104,72 +1032,6 @@ class Jetpack_Core_Json_Api_Endpoints {
 			return json_decode( wp_remote_retrieve_body( $wpcom_request ) );
 		} else {
 			// Something went wrong so we'll just return the response without caching.
-			return new WP_Error(
-				'failed_to_fetch_data',
-				esc_html__( 'Unable to fetch the requested data.', 'jetpack' ),
-				array( 'status' => $response_code )
-			);
-		}
-	}
-
-	/**
-	 * Gets the users licenses counts.
-	 *
-	 * @since 10.4.0
-	 *
-	 * @return string|WP_Error A JSON object of user license counts if the request was successful, or a WP_Error otherwise.
-	 */
-	public static function get_user_license_counts() {
-		$wpcom_request = Client::wpcom_json_api_request_as_user(
-			'/jetpack-licensing/user/licenses/counts',
-			'2',
-			array(
-				'method'  => 'GET',
-				'headers' => array(
-					'Content-Type'    => 'application/json',
-					'X-Forwarded-For' => ( new Visitor() )->get_ip( true ),
-				),
-			)
-		);
-
-		$response_code = wp_remote_retrieve_response_code( $wpcom_request );
-		if ( 200 === $response_code ) {
-			$license_counts = json_decode( wp_remote_retrieve_body( $wpcom_request ) );
-			return $license_counts;
-		} else {
-			return new WP_Error(
-				'failed_to_fetch_data',
-				esc_html__( 'Unable to fetch the requested data.', 'jetpack' ),
-				array( 'status' => $response_code )
-			);
-		}
-	}
-
-	/**
-	 * Gets the users licenses.
-	 *
-	 * @since 10.4.0
-	 *
-	 * @return string|WP_Error A JSON object of user licenses if the request was successful, or a WP_Error otherwise.
-	 */
-	public static function get_user_licenses() {
-		$wpcom_request = Client::wpcom_json_api_request_as_user(
-			'/jetpack-licensing/user/licenses',
-			'2',
-			array(
-				'method'  => 'GET',
-				'headers' => array(
-					'Content-Type'    => 'application/json',
-					'X-Forwarded-For' => ( new Visitor() )->get_ip( true ),
-				),
-			)
-		);
-
-		$response_code = wp_remote_retrieve_response_code( $wpcom_request );
-		if ( 200 === $response_code ) {
-			$licenses = json_decode( wp_remote_retrieve_body( $wpcom_request ) );
-			return $licenses;
-		} else {
 			return new WP_Error(
 				'failed_to_fetch_data',
 				esc_html__( 'Unable to fetch the requested data.', 'jetpack' ),
@@ -4214,17 +4076,6 @@ class Jetpack_Core_Json_Api_Endpoints {
 	}
 
 	/**
-	 * Get the last licensing error message, if any.
-	 *
-	 * @since 9.0.0
-	 *
-	 * @return string Licensing error message or empty string.
-	 */
-	public static function get_licensing_error() {
-		return Licensing::instance()->last_error();
-	}
-
-	/**
 	 * Update the last licensing error message.
 	 *
 	 * @since 9.0.0
@@ -4237,29 +4088,6 @@ class Jetpack_Core_Json_Api_Endpoints {
 		Licensing::instance()->log_error( $request['error'] );
 
 		return true;
-	}
-
-	/**
-	 * Set a Jetpack license
-	 *
-	 * @since 9.6.0
-	 *
-	 * @param WP_REST_Request $request The request.
-	 *
-	 * @return WP_REST_Response|WP_Error A response object if the option was successfully updated, or a WP_Error if it failed.
-	 */
-	public static function set_jetpack_license( $request ) {
-		$license = trim( sanitize_text_field( $request['license'] ) );
-
-		if ( Licensing::instance()->append_license( $license ) ) {
-			return rest_ensure_response( array( 'code' => 'success' ) );
-		}
-
-		return new WP_Error(
-			'setting_license_key_failed',
-			esc_html__( 'Could not set this license key. Please try again.', 'jetpack' ),
-			array( 'status' => 500 )
-		);
 	}
 
 	/**
