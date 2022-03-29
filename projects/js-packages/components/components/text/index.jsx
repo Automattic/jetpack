@@ -44,11 +44,15 @@ const Text = ( {
 	mr = 0,
 	mb = 0,
 	ml = 0,
+	mx = 0,
+	my = 0,
 	p = 0,
 	pt = 0,
 	pr = 0,
 	pb = 0,
 	pl = 0,
+	px = 0,
+	py = 0,
 	...componentProps
 } ) => {
 	const Component = component || VARIANTS_MAPPING[ variant ] || 'span';
@@ -58,11 +62,15 @@ const Text = ( {
 		[ styles[ `mr-${ mr }` ] ]: mr !== 0 ? styles[ `mr-${ mr }` ] : null,
 		[ styles[ `mb-${ mb }` ] ]: mb !== 0 ? styles[ `mb-${ mb }` ] : null,
 		[ styles[ `ml-${ ml }` ] ]: ml !== 0 ? styles[ `ml-${ ml }` ] : null,
+		[ styles[ `mx-${ mx }` ] ]: mx !== 0 ? styles[ `mx-${ mx }` ] : null,
+		[ styles[ `my-${ my }` ] ]: my !== 0 ? styles[ `my-${ my }` ] : null,
 		[ styles[ `p-${ p }` ] ]: p !== 0 ? styles[ `p-${ p }` ] : null,
 		[ styles[ `pt-${ pt }` ] ]: pt !== 0 ? styles[ `pt-${ pt }` ] : null,
 		[ styles[ `pr-${ pr }` ] ]: pr !== 0 ? styles[ `pr-${ pr }` ] : null,
 		[ styles[ `pb-${ pb }` ] ]: pb !== 0 ? styles[ `pb-${ pb }` ] : null,
 		[ styles[ `pl-${ pl }` ] ]: pl !== 0 ? styles[ `pl-${ pl }` ] : null,
+		[ styles[ `px-${ px }` ] ]: px !== 0 ? styles[ `px-${ px }` ] : null,
+		[ styles[ `py-${ py }` ] ]: py !== 0 ? styles[ `py-${ py }` ] : null,
 	} );
 
 	return (
@@ -85,6 +93,10 @@ Text.propTypes = {
 	mb: PropTypes.oneOf( SPACING_VALUES ),
 	/** margin-left value, based on --spacing-base  */
 	ml: PropTypes.oneOf( SPACING_VALUES ),
+	/** margin left ad right value, based on --spacing-base  */
+	mx: PropTypes.oneOf( SPACING_VALUES ),
+	/** margin top ad bottom value, based on --spacing-base  */
+	my: PropTypes.oneOf( SPACING_VALUES ),
 	/** padding value, based on --spacing-base  */
 	p: PropTypes.oneOf( SPACING_VALUES ),
 	/** padding-top value, based on --spacing-base  */
@@ -95,6 +107,10 @@ Text.propTypes = {
 	pb: PropTypes.oneOf( SPACING_VALUES ),
 	/** padding-left value, based on --spacing-base  */
 	pl: PropTypes.oneOf( SPACING_VALUES ),
+	/** padding left ad right value, based on --spacing-base  */
+	px: PropTypes.oneOf( SPACING_VALUES ),
+	/** padding top ad bottom value, based on --spacing-base  */
+	py: PropTypes.oneOf( SPACING_VALUES ),
 	/** The text itself that will be rendered. */
 	children: PropTypes.node,
 	/** Force an specific tag (span, div) or use a custom component that will receive className and children */
@@ -109,10 +125,14 @@ Text.defaultProps = {
 	mr: 0,
 	mb: 0,
 	ml: 0,
+	mx: 0,
+	my: 0,
 	pt: 0,
 	pr: 0,
 	pb: 0,
 	pl: 0,
+	px: 0,
+	py: 0,
 	children: null,
 	component: null,
 };

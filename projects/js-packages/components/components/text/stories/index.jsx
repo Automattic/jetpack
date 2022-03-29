@@ -27,6 +27,12 @@ export default {
 		ml: {
 			control: { type: 'select', options: SPACING_VALUES },
 		},
+		mx: {
+			control: { type: 'select', options: SPACING_VALUES },
+		},
+		my: {
+			control: { type: 'select', options: SPACING_VALUES },
+		},
 		p: {
 			control: { type: 'select', options: SPACING_VALUES },
 		},
@@ -40,6 +46,12 @@ export default {
 			control: { type: 'select', options: SPACING_VALUES },
 		},
 		pl: {
+			control: { type: 'select', options: SPACING_VALUES },
+		},
+		px: {
+			control: { type: 'select', options: SPACING_VALUES },
+		},
+		py: {
 			control: { type: 'select', options: SPACING_VALUES },
 		},
 	},
@@ -56,11 +68,15 @@ Default.args = {
 	mr: 0,
 	mb: 0,
 	ml: 0,
+	mx: 0,
+	my: 0,
 	p: 0,
 	pt: 0,
 	pr: 0,
 	pb: 0,
 	pl: 0,
+	px: 0,
+	py: 0,
 };
 
 export const CustomTag = Template.bind( {} );

@@ -92,6 +92,17 @@ $sides: (
 			#{$prop}: calc( var( --spacing-base ) * #{$size} );
 		}
 
+		/* mx, px */
+		.#{$p}x-#{$size} {
+			#{$prop}-left: calc( var( --spacing-base ) * #{$size} );
+			#{$prop}-right: calc( var( --spacing-base ) * #{$size} );
+		}
+
+		.#{$p}y-#{$size} {
+			#{$prop}-top: calc( var( --spacing-base ) * #{$size} );
+			#{$prop}-bottom: calc( var( --spacing-base ) * #{$size} );
+		}
+
 		/* mt, mr, mb, ml */
 		/* pt, pr, pb, pl */
 		@each $side, $s in $sides {
