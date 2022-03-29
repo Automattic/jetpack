@@ -242,27 +242,71 @@ Jetpack Backup can do a full website migration to a new host, migrate theme file
 4. Promote your newest posts, pages, and products across your social media channels.
 
 == Changelog ==
-### 10.8-a.9 - 2022-03-23
+### 10.8-beta - 2022-03-29
 #### Major Enhancements
 - QR Post: add new feature which automatically generates QR codes for published posts. When scanned, the QR code will link visitors to the post. If a site has a custom logo set, it will be shown in the generated QR code image.
 
 #### Enhancements
-- External Media: add Openverse as an external Media provider.
-- Payment Block: clicking on payment links from email or WordPress.com Notifications/Reader will correctly open the corresponding payment form.
+- Add back the upgrade nudge to the Payment Button block.
+- Adding language attributes to code blocks.
+- Dashboard: add a card to highlight the blocks available in Jetpack.
+- Dashboard: add highlight of the Jetpack blocks to the settings page.
+- Dashboard: add toggle to enable new Google Fonts feature.
 - Dashboard: show Search benefits on the Jetpack disconnection screen.
+- External Media: add Openverse as an external Media provider.
+- Form Block: offer option to install/activate the Jetpack CRM plugin from the Form Block options.
+- Jetpack: add QRPost feature which generates QR codes for published posts. Currently a JETPACK_BETA_BLOCKS feature.
+- Jetpack: assistant style updates and other improvements.
+- Jetpack: using the new Webfont API in Gutenberg, registers a selection of Google fonts for use with block and Global styles.
+- Jetpack Blocks: make settings discoverable and toggleable.
+- Markdown block: add default spacing controls.
+- Masterbar: make the Desktop Switcher look the same between Calypso and wp-admin.
+- Payment Block: clicking on payment links from email or WordPress.com Notifications/Reader will correctly open the corresponding payment form.
+- Payment Blocks: add a unified introduction to payment blocks to make it easier to select the correct one.
+- Payment Blocks: Added links to manage subscriptions and fees to the Product Management controls.
+- Payment Blocks: add more keywords to payments blocks so they're easier to find.
+- Payment Button Block: make Stripe connection button visible from child block elements.
+- Payments Block: adds a link to the support reference page on the block configuration panel.
+- Payments Block: introduce new Post Publish panel to highlight the options available with Payments blocks.
+- Payments Block now uses the product management controls to manage subscriptions. Migrated the Payments Block to a functional component and cleaned up code.
+- Premium Content block: use a drop down menu rather than two buttons to switch between the guest/subscriber views.
+- Slideshow shortcode: adds the Jetpack namespace to slideshow shortcode CSS class names.
+- Subscribe Block: add pre/post-publish notices.
+- Subscribe Block: block setting updates including name change, display of current subscribers, and a new style option.
+- Tiled Gallery: add background color block setting.
+- Various Blocks: update Contact Info, Markdown, and Tiled Gallery blocks to include margin design tools.
+- VideoPress: updated design of resumable uploader block.
 
 #### Improved compatibility
+- Added support for the `muted`, `controls` and `playsinline` properties on the wpvideo and videopress shortcodes.
+- CLI Tools: ensure WP CLI is present before extending the class.
+- General: clean up use of deprecated FILTER_SANITIZE_STRING constant. Also mark WPCom_Markdown::get_post_screen_post_type as deprecated due to lack of use.
+- Premium Content Block: prevent block from being nested inside itself.
 - Sharing: avoid warnings when the feature is not active on a site that uses the AMP plugin.
+- Various Blocks: remove deprecated attributes from Button components.
 
 #### Bug fixes
+- Assistant: make call-to-actions point to checkout page.
 - Calendly Block: ensure it can be displayed inline when using a block enabled theme.
-- VideoPress: fix broken styles on resumable uploader component.
+- Google Analytics: fix showing an upgrade button with the latest Jetpack security plans.
+- Jetpack: fix missing "Connect User" button after restoring a connection.
+- Jetpack: remove the duplicated `jetpack_relatedposts_returned_results filter`.
+- Payment Blocks: fixes an issue with the upgrade banner being obscured from all payment blocks.
+- Payments: swap JETPACK_VERSION for the correct JETPACK__VERSION.
 - Pay with Paypal Block: fix inconsistent currency formatting.
-- WordAds: fix defaulting to "house ad" mode for new activations.
+- Pay with PayPal widget: enable widget to work in block-based widget editor and full site editor.
+- Premium Content Block: login button now redirects to the correct post instead of to a 404 page when the URL contains characters that have been previously encoded.
+- Premium Content block: when a visitor subscribes, they now see the premium content without needing to reload the page.
 - Publicize: prevent newlines from being stripped from a custom Publicize message in the classic editor.
 - QR Post: improve the inner logo sizing.
+- SEO Tools: ensure Twitter cards get correct description when a site has a blank tagline.
 - Shortlinks: display the shortlinks interface in the block editor for all post types that support shortlinks.
 - Top Posts Widget: display a fallback list of posts to admins when there are no popular posts to display.
+- VideoPress: fix broken styles on resumable uploader component.
+- WordAds: fix defaulting to "house ad" mode for new activations.
+
+#### Bug Fixes
+- Fixes an issue preventing WooCommerce from upgrading to 6.3.0.
 
 --------
 
