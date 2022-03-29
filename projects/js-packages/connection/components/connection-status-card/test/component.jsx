@@ -42,16 +42,6 @@ describe( 'ConnectionStatusCard', () => {
 			wrapper = shallow( <ConnectionStatusCard { ...testProps } /> );
 		} );
 
-		it( 'renders the title', () => {
-			expect( wrapper.find( 'h3' ).first().render().text() ).to.be.equal( 'Connection' );
-		} );
-
-		it( 'renders the connection info', () => {
-			expect( wrapper.find( 'p' ).first().render().text() ).to.be.equal(
-				'Leverages the Jetpack Cloud for more features on your side.'
-			);
-		} );
-
 		it( 'renders the "Site connected" success list item', () => {
 			expect(
 				wrapper.find( '.jp-connection-status-card--list-item-success' ).first().render().text()
@@ -118,16 +108,6 @@ describe( 'ConnectionStatusCard', () => {
 				hasConnectedOwner: true,
 			} );
 			wrapper = shallow( <ConnectionStatusCard { ...testProps } /> );
-		} );
-
-		it( 'renders the title', () => {
-			expect( wrapper.find( 'h3' ).first().render().text() ).to.be.equal( 'Connection' );
-		} );
-
-		it( 'renders the connection info', () => {
-			expect( wrapper.find( 'p' ).first().render().text() ).to.be.equal(
-				'Leverages the Jetpack Cloud for more features on your side.'
-			);
 		} );
 
 		it( 'renders the "Site connected" success list item', () => {

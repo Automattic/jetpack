@@ -1,0 +1,4 @@
+Significance: patch
+Type: added
+
+Connection: Use heading components to render status card cmp
