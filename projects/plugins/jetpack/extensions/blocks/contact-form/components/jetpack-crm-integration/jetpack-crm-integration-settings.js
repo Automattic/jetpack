@@ -16,7 +16,8 @@ const fetchCRMData = ( setHasCRMDataError, setCRMData, setIsFetchingCRMData ) =>
 		path: '/jetpack/v4/jetpack_crm',
 	} )
 		.then( result => {
-			if ( result.error ) {
+			if ( result.error || 'success' !== result.code ) {
+				setHasCRMDataError( true );
 				throw result.message;
 			}
 			setHasCRMDataError( false );

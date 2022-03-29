@@ -23,11 +23,13 @@ const useOnExtensionActivationClick = (
 		} )
 			.then( result => {
 				if ( 'success' !== result.code ) {
-					throw new Error( result.code );
+					const errorMessage = __( 'There was an error activating the extension.', 'jetpack' );
+					setExtActivationError( errorMessage );
+				} else {
+					const newCRMData = Object.assign( {}, crmData );
+					newCRMData.jp_form_ext_enabled = true;
+					setCRMData( newCRMData );
 				}
-				const newCRMData = Object.assign( {}, crmData );
-				newCRMData.jp_form_ext_enabled = true;
-				setCRMData( newCRMData );
 			} )
 			.catch( error => {
 				setExtActivationError( error.message );

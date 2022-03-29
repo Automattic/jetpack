@@ -1,0 +1,4 @@
+Significance: patch
+Type: bugfix
+
+Form Block: avoid displaying an empty CRM Integration panel when we get an empty API response.
