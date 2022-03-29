@@ -5,11 +5,10 @@
 ## 10.8-beta - 2022-03-29
 ### Enhancements
 
-- Form Block: offer option to install/activate the Jetpack CRM plugin from the Form Block options.
-- Blocks: make settings discoverable and toggleable, and add a card to highlight the blocks available in Jetpack on the dashboard.
-- Payments Block: introduce new Post Publish panel to highlight the options available with Payments blocks.
-- Payments Block now uses the product management controls to manage subscriptions. Migrated the Payments Block to a functional component and cleaned up code.
-- VideoPress: added support for the `muted`, `controls` and `playsinline` properties on the wpvideo and videopress shortcodes.
+- Blocks: make settings discoverable and toggleable, and add a card to highlight the blocks available from Jetpack on the dashboard.
+- Form Block: offer option to install/activate the Jetpack CRM plugin from the Form block settings panel.
+- Payments Block: introduce new post-publish panel to highlight the options available with Payments blocks.
+- VideoPress: added support for the `muted`, `controls` and `playsinline` properties on the 'wpvideo' and VideoPress shortcodes.
 
 ### Improved compatibility
 - Shortcodes: adds the Jetpack namespace to slideshow shortcode CSS class names.
@@ -35,6 +34,7 @@
 - Assistant: make call-to-actions point to checkout page.
 - WordPress.com Toolbar: check if function exists before to use it.
 - WordPress.com Toolbar: avoid PHP notices when locale is not defined.
+- Payments Block: use the product management controls to manage subscriptions. Migrated the Payments Block to a functional component and cleaned up code.
 
 ## 10.8-a.11 - 2022-03-25
 
