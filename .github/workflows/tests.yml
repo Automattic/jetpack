@@ -95,6 +95,9 @@ jobs:
           CHANGED: ${{ steps.changed.outputs.projects }}
         run: |
           EXIT=0
+          echo "!!!!!!!!!!!!"
+          echo "$CHANGED"
+          echo "!!!!!!!!!!!!"
           mkdir artifacts
           [[ "$TEST_SCRIPT" == "test-coverage" ]] && mkdir coverage
           for P in composer.json projects/*/*/composer.json; do
