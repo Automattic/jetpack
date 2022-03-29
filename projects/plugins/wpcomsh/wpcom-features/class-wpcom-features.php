@@ -216,6 +216,7 @@ class WPCOM_Features {
 	public const NO_WPCOM_BRANDING             = 'no-wpcom-branding';
 	public const OPENTABLE                     = 'opentable';
 	public const OPTIONS_PERMALINK             = 'options-permalink';
+	public const PAYMENTS                      = 'payments';
 	public const POLLDADDY                     = 'polldaddy';
 	public const PREMIUM_CONTENT_CONTAINER     = 'premium-content/container';
 	public const PREMIUM_THEMES                = 'premium-themes';
@@ -399,6 +400,9 @@ class WPCOM_Features {
 			self::WPCOM_PRO_PLANS,
 			self::WPCOM_BUSINESS_AND_HIGHER_PLANS,
 		),
+		self::PAYMENTS                      => array(
+			self::WPCOM_PERSONAL_AND_HIGHER_PLANS,
+		),
 		self::POLLDADDY                     => array(
 			self::JETPACK_BUSINESS_PLANS,
 		),
@@ -410,7 +414,7 @@ class WPCOM_Features {
 		),
 		self::PREMIUM_THEMES                => array(
 			self::WPCOM_PRO_PLANS,
-			self::WPCOM_BUSINESS_AND_HIGHER_PLANS,
+			self::WPCOM_PREMIUM_AND_HIGHER_PLANS,
 			self::JETPACK_BUSINESS_PLANS,
 		),
 		self::PRIVATE_WHOIS                 => array(
@@ -507,7 +511,7 @@ class WPCOM_Features {
 			self::SPACE_100GB,
 			self::SPACE_200GB,
 			self::SPACE_UNLIMITED,
-			self::WPCOM_PERSONAL_AND_HIGHER_PLANS,
+			self::WPCOM_BLOGGER_AND_HIGHER_PLANS,
 			self::WP_P2_PLUS_MONTHLY,
 		),
 		self::UNLIMITED_THEMES              => array(
