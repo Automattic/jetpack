@@ -44,6 +44,7 @@ We've improved the discoverability of Jetpack Blocks in settings and added the a
 - Navigate to `Jetpack > Settings`.
 - Click on the Search icon and search for "blocks".
 - You should see a toggle setting with "Jetpack Blocks give you the power to deliver quality content..."
+- That toggle **must** be active by default.
 - Try checking out the information tooltip/link for the setting.
 - Test that disabling the Jetpack Blocks setting works as expected. If the setting is off for example, you would not be able to insert a Jetpack block such as the Tiled Gallery block.
 
