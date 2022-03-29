@@ -254,8 +254,7 @@ Jetpack Backup can do a full website migration to a new host, migrate theme file
 - Form Block: offer option to install/activate the Jetpack CRM plugin from the Form Block options.
 - Markdown block: add default spacing controls.
 - Payment Block: clicking on payment links from email or WordPress.com Notifications/Reader will correctly open the corresponding payment form. Also add a unified Payment Block selector and introduces a post publish panel for Payment Blocks.
-- Subscribe Block: add pre/post-publish notices.
-- Subscribe Block: block setting updates including name change, display of current subscribers, and a new style option.
+- Subscribe Block: block setting updates including name change, display of current subscribers, and a new style option. Also add pre/post-publish notices.
 - Tiled Gallery: add background color block setting.
 - Various Blocks: update Contact Info, Markdown, and Tiled Gallery blocks to include margin design tools.
 - VideoPress: updated design of resumable uploader block.
