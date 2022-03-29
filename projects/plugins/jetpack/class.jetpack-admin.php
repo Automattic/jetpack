@@ -100,6 +100,9 @@ class Jetpack_Admin {
 			}
 		}
 
+		// Ensure an Additional CSS menu item is added to the Appearance menu whenever Jetpack is connected.
+		add_action( 'admin_menu', array( $this, 'additional_css_menu' ) );
+
 		add_filter( 'jetpack_display_jitms_on_screen', array( $this, 'should_display_jitms_on_screen' ), 10, 2 );
 
 		// Register Jetpack partner coupon hooks.
@@ -117,6 +120,73 @@ class Jetpack_Admin {
 		$logo_base64_url = "data:image/svg+xml;base64,{$logo_base64}";
 		$style           = ".akismet-masthead__logo-container { background: url({$logo_base64_url}) no-repeat .25rem; height: 1.8125rem; } .akismet-masthead__logo { display: none; }";
 		wp_add_inline_style( 'admin-bar', $style );
+	}
+
+	/**
+	 * Handle our Additional CSS menu item and legacy page declaration.
+	 *
+	 * This method was originally located in custom-css-4.7.php until $$next-version$$
+	 */
+	public static function additional_css_menu() {
+		// Add in our legacy page to support old bookmarks and such.
+		add_submenu_page( null, __( 'CSS', 'jetpack' ), __( 'Additional CSS', 'jetpack' ), 'edit_theme_options', 'editcss', array( __CLASS__, 'customizer_redirect' ) );
+
+		// Add in our new page slug that will redirect to the customizer.
+		$hook = add_theme_page( __( 'CSS', 'jetpack' ), __( 'Additional CSS', 'jetpack' ), 'edit_theme_options', 'editcss-customizer-redirect', array( __CLASS__, 'customizer_redirect' ) );
+		add_action( "load-{$hook}", array( __CLASS__, 'customizer_redirect' ) );
+
+	}
+
+	/**
+	 * Handle the redirect for the customizer.  This is necessary because
+	 * we can't directly add customizer links to the admin menu.
+	 *
+	 * This method was originally located in custom-css-4.7.php until $$next-version$$
+	 *
+	 * There is a core patch in trac that would make this unnecessary.
+	 *
+	 * @link https://core.trac.wordpress.org/ticket/39050
+	 */
+	public static function customizer_redirect() {
+		wp_safe_redirect(
+			self::customizer_link(
+				array(
+					'return_url' => wp_get_referer(),
+				)
+			)
+		);
+		exit;
+	}
+
+	/**
+	 * Build the URL to deep link to the Customizer.
+	 *
+	 * You can modify the return url via $args.
+	 *
+	 * This method is also located in custom-css-4.7.php to cover legacy scenarios - duplicated here in $$next-version$$
+	 *
+	 * @param array $args Array of parameters.
+	 * @return string
+	 */
+	public static function customizer_link( $args = array() ) {
+		$args = wp_parse_args(
+			$args,
+			array(
+				'return_url' => rawurlencode( wp_unslash( $_SERVER['REQUEST_URI'] ) ),
+			)
+		);
+
+		return add_query_arg(
+			array(
+				array(
+					'autofocus' => array(
+						'section' => 'custom_css',
+					),
+				),
+				'return' => $args['return_url'],
+			),
+			admin_url( 'customize.php' )
+		);
 	}
 
 	/**
