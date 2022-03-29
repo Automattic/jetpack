@@ -30,7 +30,7 @@ class Jetpack_Keyring_Service_Helper {
 	 * Initialize instance.
 	 */
 	public static function init() {
-		if ( is_null( self::$instance ) ) {
+		if ( self::$instance === null ) {
 			self::$instance = new Jetpack_Keyring_Service_Helper();
 		}
 
