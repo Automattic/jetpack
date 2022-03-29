@@ -44,6 +44,27 @@ class VideoPress_AJAX {
 	}
 
 	/**
+	 * Validate a guid.
+	 *
+	 * @param string $guid The guid to validate.
+	 *
+	 * @return bool
+	 **/
+	private function is_valid_guid( $guid ) {
+		if ( empty( $guid ) ) {
+			return false;
+		}
+
+		preg_match( '/^[a-z0-9]+$/i', $guid, $matches );
+
+		if ( empty( $matches ) ) {
+			return false;
+		}
+
+		return true;
+	}
+
+	/**
 	 * Ajax method that is used by the VideoPress player to get a token to play a video.
 	 *
 	 * This is used for both logged in and logged out users.
@@ -52,7 +73,7 @@ class VideoPress_AJAX {
 	 */
 	public function wp_ajax_videopress_get_playback_jwt() {
 		$guid = filter_input( INPUT_POST, 'guid' );
-		if ( empty( $guid ) ) {
+		if ( ! $this->is_valid_guid( $guid ) ) {
 			wp_send_json_error( array( 'message' => __( 'need a guid', 'jetpack' ) ) );
 			return;
 		}
