@@ -121,7 +121,10 @@ class Atomic_Admin_Menu extends Admin_Menu {
 		$plugins_slug = 'https://wordpress.com/plugins/' . $this->domain;
 
 		// Link to the Marketplace on sites that can't manage plugins.
-		if ( ! wpcom_site_has_feature( \WPCOM_Features::MANAGE_PLUGINS ) ) {
+		if (
+			function_exists( 'wpcom_site_has_feature' ) &&
+			! wpcom_site_has_feature( \WPCOM_Features::MANAGE_PLUGINS )
+		) {
 			add_menu_page( __( 'Plugins', 'jetpack' ), __( 'Plugins', 'jetpack' ), 'manage_options', $plugins_slug, null, 'dashicons-admin-plugins', '65' );
 			return;
 		}
@@ -355,7 +358,10 @@ class Atomic_Admin_Menu extends Admin_Menu {
 
 		add_submenu_page( 'options-general.php', esc_attr__( 'Hosting Configuration', 'jetpack' ), __( 'Hosting Configuration', 'jetpack' ), 'manage_options', 'https://wordpress.com/hosting-config/' . $this->domain, null, 11 );
 
-		if ( wpcom_site_has_feature( \WPCOM_Features::ATOMIC ) ) {
+		if (
+			function_exists( 'wpcom_site_has_feature' ) &&
+			wpcom_site_has_feature( \WPCOM_Features::ATOMIC )
+		) {
 			add_submenu_page( 'options-general.php', esc_attr__( 'Jetpack', 'jetpack' ), __( 'Jetpack', 'jetpack' ), 'manage_options', 'https://wordpress.com/settings/jetpack/' . $this->domain, null, 12 );
 		}
 
