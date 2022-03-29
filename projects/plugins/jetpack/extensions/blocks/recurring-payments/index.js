@@ -1,9 +1,10 @@
 /**
- * External dependencies
+ * WordPress dependencies
  */
 import { __, _x } from '@wordpress/i18n';
 import { ExternalLink } from '@wordpress/components';
 import { Fragment } from '@wordpress/element';
+import { createBlock } from '@wordpress/blocks';
 
 /**
  * Internal dependencies
@@ -13,7 +14,6 @@ import save from './save';
 import icon from './button/icon';
 import { getIconColor } from '../../shared/block-icons';
 import { getSupportLink } from './util';
-import { createBlock } from '@wordpress/blocks';
 import deprecatedV2 from './deprecated/v2';
 import deprecatedV1 from './deprecated/v1';
 
