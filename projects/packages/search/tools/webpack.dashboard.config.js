@@ -40,7 +40,7 @@ module.exports = {
 	],
 	externals: {
 		jetpackConfig: JSON.stringify( {
-			consumer_slug: 'jetpack-search-package',
+			consumer_slug: 'jetpack-search',
 		} ),
 	},
 	module: {
@@ -59,15 +59,7 @@ module.exports = {
 			// Handle CSS.
 			jetpackWebpackConfig.CssRule( {
 				extensions: [ 'css', 'sass', 'scss' ],
-				extraLoaders: [
-					{
-						loader: 'postcss-loader',
-						options: {
-							postcssOptions: { config: path.join( __dirname, '../postcss.config.js' ) },
-						},
-					},
-					'sass-loader',
-				],
+				extraLoaders: [ 'sass-loader' ],
 			} ),
 
 			// Handle images.

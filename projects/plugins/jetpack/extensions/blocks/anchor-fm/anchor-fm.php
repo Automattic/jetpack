@@ -62,7 +62,7 @@ function register_extension() {
 function process_anchor_params() {
 	if (
 		! function_exists( 'get_current_screen' )
-		|| is_null( \get_current_screen() )
+		|| \get_current_screen() === null
 	) {
 		return;
 	}

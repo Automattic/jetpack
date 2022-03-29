@@ -1,0 +1,4 @@
+Significance: patch
+Type: bugfix
+
+Fix VS Code ESLint and prettier config

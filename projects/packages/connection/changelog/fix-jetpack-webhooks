@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Fix regression added to Jetpack webhooks handling

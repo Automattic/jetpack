@@ -247,12 +247,12 @@ class WPCOM_JSON_API {
 	 * @param string|null $post_body POST body. Read from `php://input` if null and method is POST.
 	 */
 	public function setup_inputs( $method = null, $url = null, $post_body = null ) {
-		if ( is_null( $method ) ) {
+		if ( $method === null ) {
 			$this->method = strtoupper( $_SERVER['REQUEST_METHOD'] );
 		} else {
 			$this->method = strtoupper( $method );
 		}
-		if ( is_null( $url ) ) {
+		if ( $url === null ) {
 			$this->url = set_url_scheme( 'http://' . $_SERVER['HTTP_HOST'] . $_SERVER['REQUEST_URI'] );
 		} else {
 			$this->url = $url;
@@ -272,7 +272,7 @@ class WPCOM_JSON_API {
 		}
 
 		if ( 'POST' === $this->method ) {
-			if ( is_null( $post_body ) ) {
+			if ( $post_body === null ) {
 				$this->post_body = file_get_contents( 'php://input' );
 
 				if ( isset( $_SERVER['HTTP_CONTENT_TYPE'] ) && $_SERVER['HTTP_CONTENT_TYPE'] ) {
@@ -627,7 +627,7 @@ class WPCOM_JSON_API {
 			header( 'Access-Control-Allow-Credentials: true' );
 		}
 
-		if ( is_null( $response ) ) {
+		if ( $response === null ) {
 			$response = new stdClass();
 		}
 
@@ -1103,7 +1103,7 @@ class WPCOM_JSON_API {
 			$die_handler = 'wp_die_handler';
 		}
 
-		if ( is_null( $error_code ) ) {
+		if ( $error_code === null ) {
 			$this->trapped_error = null;
 			// Stop trapping.
 			remove_filter( $die_handler, array( $this, 'wp_die_handler_callback' ) );

@@ -15,12 +15,12 @@
 	},
 	"browserslist": "extends @wordpress/browserslist-config",
 	"dependencies": {
-		"@automattic/jetpack-api": "workspace:^0.10.0",
-		"@automattic/jetpack-connection": "workspace:^0.17.5-alpha",
+		"@automattic/jetpack-api": "workspace:* || ^0.10",
+		"@automattic/jetpack-connection": "workspace:* || ^0.17",
 		"@wordpress/data": "6.3.0"
 	},
 	"devDependencies": {
-		"@automattic/jetpack-webpack-config": "workspace:^1.1.5",
+		"@automattic/jetpack-webpack-config": "workspace:* || ^1.1",
 		"@babel/core": "7.17.8",
 		"@babel/preset-env": "7.16.11",
 		"@babel/register": "7.17.7",
