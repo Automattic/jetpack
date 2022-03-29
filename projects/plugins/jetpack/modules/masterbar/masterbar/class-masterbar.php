@@ -439,7 +439,11 @@ class Masterbar {
 			}
 		}
 
-		return $jetpack_locale;
+		if ( isset( $jetpack_locale ) ) {
+			return $jetpack_locale;
+		}
+
+		return 'en_US';
 	}
 
 	/**

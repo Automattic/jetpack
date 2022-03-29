@@ -6,11 +6,11 @@ import React from 'react';
 /**
  * Internal dependencies
  */
-import { H2, H3, Title, TIPOGRAPHY_WEIGHTS, TIPOGRAPHY_SIZES } from '../index.jsx';
+import { H2, H3, TIPOGRAPHY_WEIGHTS } from '../index.jsx';
 import styles from './style.module.scss';
 
 export default {
-	title: 'Packages/My Jetpack/Heading',
+	title: 'JS Packages/Components/Text/Heading',
 	component: H2,
 	argTypes: {
 		children: {
@@ -18,9 +18,6 @@ export default {
 		},
 		weight: {
 			control: { type: 'select', options: Object.values( TIPOGRAPHY_WEIGHTS ) },
-		},
-		size: {
-			control: { type: 'select', options: Object.values( TIPOGRAPHY_SIZES ) },
 		},
 	},
 };
@@ -60,20 +57,11 @@ const TemplateH3 = args => (
 	</Instance>
 );
 
-const TemplateTitle = args => (
-	<Instance>
-		<Title { ...args }>
-			{ args?.children || 'Title Medium - Secure, grow, and increase your site speed' }
-		</Title>
-	</Instance>
-);
-
 const Template = args => {
 	return (
 		<>
 			<TemplateH2 { ...args } />
 			<TemplateH3 { ...args } />
-			<TemplateTitle { ...args } />
 		</>
 	);
 };
@@ -84,9 +72,12 @@ Default.args = DefaultArgs;
 
 export const HeadlineMedium = TemplateH2.bind( {} );
 HeadlineMedium.storyName = 'H2';
+HeadlineMedium.args = {
+	weight: 'bold',
+};
 
 export const HeadlineSmall = TemplateH3.bind( {} );
 HeadlineSmall.storyName = 'H3';
-
-export const TitleInstance = TemplateTitle.bind( {} );
-TitleInstance.storyName = 'Title';
+HeadlineSmall.args = {
+	weight: 'bold',
+};

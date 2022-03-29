@@ -56,8 +56,13 @@ export default function Tabs( { enabledSidebarName, enableSidebar } ) {
  * @returns {Element} component instance
  */
 function Tab( { enableSidebar, identifier, label, isActive } ) {
-	// translators: %s: sidebar label e.g: "Options".
-	const ariaLabel = isActive ? sprintf( __( '%s (selected)', 'jetpack-search-pkg' ), label ) : label;
+	const ariaLabel = isActive
+		? sprintf(
+				// translators: %s: sidebar label e.g: "Options".
+				__( '%s (selected)', 'jetpack-search-pkg' ),
+				label
+		  )
+		: label;
 	return (
 		<Button
 			// eslint-disable-next-line react/jsx-no-bind
