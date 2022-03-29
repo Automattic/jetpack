@@ -88,7 +88,7 @@ class VideoPress_Edit_Attachment {
 		$rating          = isset( $attachment['rating'] ) ? $attachment['rating'] : null;
 		$display_embed   = isset( $attachment['display_embed'] ) ? $attachment['display_embed'] : 0;
 		$allow_download  = isset( $attachment['allow_download'] ) ? $attachment['allow_download'] : 0;
-		$privacy_setting = isset( $attachment['privacy_setting'] ) ? $attachment['privacy_setting'] : 2;
+		$privacy_setting = isset( $attachment['privacy_setting'] ) ? $attachment['privacy_setting'] : VIDEOPRESS_PRIVACY::SITE_DEFAULT;
 
 		$result = Videopress_Attachment_Metadata::persist_metadata(
 			$post['ID'],
@@ -334,7 +334,7 @@ HTML;
 			VIDEOPRESS_PRIVACY::IS_PRIVATE   => __( 'Private', 'jetpack' ),
 		);
 
-		$displayed_privacy_setting = intval( isset( $info->privacy_setting ) ? $info->privacy_setting : 2 );
+		$displayed_privacy_setting = intval( isset( $info->privacy_setting ) ? $info->privacy_setting : VIDEOPRESS_PRIVACY::SITE_DEFAULT );
 
 		$out = "<select name='attachments[{$info->post_id}][privacy_setting]'>";
 		foreach ( $privacy_settings as $r => $label ) {
