@@ -2,6 +2,43 @@
 
 ### This is a list detailing changes for all Jetpack releases.
 
+## 10.8-beta - 2022-03-29
+### Enhancements
+- Add back the upgrade nudge to the Payment Button block.
+- Payment Blocks: Added links to manage subscriptions and fees to the Product Management controls.
+- Adding language attributes to code blocks.
+- Dashboard: add a card to highlight the blocks available in Jetpack.
+- Dashboard: add highlight of the Jetpack blocks to the settings page.
+- Form Block: offer option to install/activate the Jetpack CRM plugin from the Form Block options.
+- Jetpack Blocks: make settings discoverable and toggleable.
+- Payments Block: introduce new Post Publish panel to highlight the options available with Payments blocks.
+- Payments Block now uses the product management controls to manage subscriptions. Migrated the Payments Block to a functional component and cleaned up code.
+- Slideshow shortcode: adds the Jetpack namespace to slideshow shortcode CSS class names.
+
+### Improved compatibility
+- Added support for the `muted`, `controls` and `playsinline` properties on the wpvideo and videopress shortcodes.
+
+### Bug fixes
+- Assistant: make call-to-actions point to checkout page.
+
+### Other changes <!-- Non-user-facing changes go here. This section will not be copied to readme.txt. -->
+- Subscriptions Block: make the block messages clearer.
+- Payments Block: we now provide a way in which we can propagate the controls to the child blocks.
+- Fix ProductManagementControls not being able to open the block settings sidebar on site and widgets editor.
+- Search: Add search feature to benefits API.
+- Fix VS Code ESLint and prettier config.
+- Removed unneeded calls to Atomic_Plan_Manager.
+- Add uloggedin parameter for reporting.
+- Block Form: update required Jetpack CRM version.
+- Documented the `rna` prop of the Button component.
+- E2E tests: improve assertions for sync tests.
+- Jetpack CRM: adjust banner's wording.
+- Various PHPCS updates.
+- Search: removed migrated tests.
+- Updated package dependencies.
+- WordPress.com Toolbar: check if function exists before to use it.
+- WordPress.com Toolbar: avoid PHP notices when locale is not defined.
+
 ## 10.8-a.11 - 2022-03-25
 
 ## 10.8-a.9 - 2022-03-23
