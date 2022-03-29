@@ -152,7 +152,7 @@ export const H3 = ( { children, weight = 'bold' } ) => {
 	weight = weight === 'bold' ? '' : weight;
 
 	return (
-		<Text variant={ `headline-small${ weight?.length ? `-${ weight }` : '' }` } mb={ 1 }>
+		<Text variant={ `headline-small${ weight?.length ? `-${ weight }` : '' }` } mb={ 3 }>
 			{ children }
 		</Text>
 	);
