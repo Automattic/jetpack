@@ -40,6 +40,9 @@ class Initializer {
 			return;
 		}
 
+		// Load compatibility files - at this point all plugins are already loaded.
+		static::include_compatibility_files();
+
 		static::init_before_connection();
 
 		// Check whether Jetpack Search should be initialized in the first place .
@@ -61,9 +64,6 @@ class Initializer {
 			do_action( 'jetpack_search_abort', 'module_inactive', null );
 			return;
 		}
-
-		// Load compatibility files.
-		add_action( 'plugins_loaded', array( static::class, 'include_compatibility_files' ) );
 
 		// Initialize search package.
 		if ( ! static::init_search( $blog_id ) ) {
