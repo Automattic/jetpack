@@ -62,6 +62,9 @@ class Initializer {
 			return;
 		}
 
+		// Load compatibility files.
+		add_action( 'plugins_loaded', array( static::class, 'include_compatibility_files' ) );
+
 		// Initialize search package.
 		if ( ! static::init_search( $blog_id ) ) {
 			/** This filter is documented in search/src/initalizers/class-initalizer.php */
@@ -75,6 +78,15 @@ class Initializer {
 		 * @since 0.11.2
 		 */
 		do_action( 'jetpack_search_loaded' );
+	}
+
+	/**
+	 * Extra tweaks to make Jetpack Search play well with others.
+	 */
+	public static function include_compatibility_files() {
+		if ( class_exists( 'Jetpack' ) ) {
+			require_once Package::get_installed_path() . 'compatibility/jetpack.php';
+		}
 	}
 
 	/**

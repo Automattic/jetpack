@@ -11,7 +11,7 @@ use Automattic\Jetpack\Search\Plan;
 use Jetpack;
 
 /**
- * Override the condition to show Search submenu.
+ * Override the condition to show Search submenu when Jetpack plugin exists.
  */
 function should_show_jetpack_search_submenu() {
 	if ( ! current_user_can( 'manage_options' ) ) {

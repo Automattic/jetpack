@@ -21,3 +21,19 @@ if ( ! function_exists( 'gutenberg_is_fse_theme' ) ) {
 	}
 }
 
+if ( ! function_exists( 'wpcom_site_has_feature' ) ) {
+	/**
+	 * Mock feature support.
+	 *
+	 * @param string $feature The feature to check.
+	 */
+	function wpcom_site_has_feature( $feature ) {
+		switch ( $feature ) {
+			case WPCOM_Features::ATOMIC:
+			case WPCOM_Features::MANAGE_PLUGINS:
+				return true;
+		}
+
+		return false;
+	}
+}

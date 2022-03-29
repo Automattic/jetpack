@@ -636,7 +636,7 @@ class Jetpack_XMLRPC_Server {
 			do_action( 'jetpack_xmlrpc_server_event', $event_name, 'fail', $error, $user );
 		}
 
-		if ( ! is_null( $error ) ) {
+		if ( $error !== null ) {
 			$this->error = $error;
 		}
 

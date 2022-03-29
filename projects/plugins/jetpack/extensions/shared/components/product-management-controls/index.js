@@ -53,7 +53,7 @@ export default function ProductManagementControls( {
 	return (
 		<>
 			{ ! isApiConnected && !! connectUrl && (
-				<BlockControls group="block">
+				<BlockControls __experimentalShareWithChildBlocks group="block">
 					<StripeConnectToolbarButton blockName={ blockName } connectUrl={ connectUrl } />
 				</BlockControls>
 			) }
