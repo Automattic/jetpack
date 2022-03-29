@@ -23,6 +23,7 @@ import {
 	VideoPressInterstitial,
 } from './components/product-interstitial';
 import './style.module.scss';
+import { ActivationScreen } from '@automattic/jetpack-licensing';
 
 initStore();
 
@@ -40,6 +41,20 @@ const MyJetpack = () => (
 				<Route path="/add-scan" element={ <ScanInterstitial /> } />
 				<Route path="/add-search" element={ <SearchInterstitial /> } />
 				<Route path="/add-videopress" element={ <VideoPressInterstitial /> } />
+				<Route
+					path="/license/activation"
+					element={
+						<ActivationScreen
+							assetBaseUrl={ this.props.pluginBaseUrl }
+							lockImage="/images/jetpack-license-activation-with-lock.png"
+							siteRawUrl={ this.props.siteRawUrl }
+							successImage="/images/jetpack-license-activation-with-success.png"
+							onActivationSuccess={ this.onLicenseActivationSuccess }
+							siteAdminUrl={ this.props.siteAdminUrl }
+							currentRecommendationsStep={ this.props.currentRecommendationsStep }
+						/>
+					}
+				/>
 			</Routes>
 		</HashRouter>
 	</ThemeProvider>

@@ -86,9 +86,9 @@ function render() {
 						<Route path="/sharing">
 							<Main routeName={ getRouteName( '/sharing' ) } />
 						</Route>
-						<Route path="/license/activation">
+						{ /* <Route path="/license/activation">
 							<Main routeName={ getRouteName( '/license/activation' ) } />
-						</Route>
+						</Route> */ }
 						<Route path="/wpbody-content" component={ Main } />
 						<Route path="/wp-toolbar" component={ Main } />
 						<Route path="/privacy" component={ Main } />

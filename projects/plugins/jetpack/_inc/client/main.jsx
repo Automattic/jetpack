@@ -87,7 +87,7 @@ import { getRewindStatus } from 'state/rewind';
 import ReconnectModal from 'components/reconnect-modal';
 import { createInterpolateElement } from '@wordpress/element';
 import { imagePath } from 'constants/urls';
-import { ActivationScreen } from '@automattic/jetpack-licensing';
+// import { ActivationScreen } from '@automattic/jetpack-licensing';
 import ContextualizedConnection from 'components/contextualized-connection';
 
 const recommendationsRoutes = [
@@ -467,25 +467,6 @@ class Main extends React.Component {
 						userCanManageModules={ this.props.userCanManageModules }
 					/>
 				);
-				break;
-			case '/license/activation':
-				if ( this.props.isLinked && this.props.isConnectionOwner ) {
-					navComponent = null;
-					pageComponent = (
-						<ActivationScreen
-							assetBaseUrl={ this.props.pluginBaseUrl }
-							lockImage="/images/jetpack-license-activation-with-lock.png"
-							siteRawUrl={ this.props.siteRawUrl }
-							successImage="/images/jetpack-license-activation-with-success.png"
-							onActivationSuccess={ this.onLicenseActivationSuccess }
-							siteAdminUrl={ this.props.siteAdminUrl }
-							currentRecommendationsStep={ this.props.currentRecommendationsStep }
-						/>
-					);
-				} else {
-					this.props.history.replace( '/dashboard' );
-					pageComponent = this.getAtAGlance();
-				}
 				break;
 			case '/recommendations':
 			case '/recommendations/site-type':
