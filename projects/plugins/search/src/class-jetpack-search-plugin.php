@@ -8,6 +8,8 @@
 namespace Automattic\Jetpack\Search_Plugin;
 
 use Automattic\Jetpack\Config;
+use Automattic\Jetpack\Connection\Rest_Authentication as Connection_Rest_Authentication;
+use Automattic\Jetpack\My_Jetpack\Initializer as My_Jetpack_Initializer;
 
 /**
  * Class to bootstrap Jetpack Search Plugin
@@ -16,10 +18,11 @@ use Automattic\Jetpack\Config;
  */
 class Jetpack_Search_Plugin {
 	/**
-	 * Intialize Jetpack Search plugin
+	 * Register hooks to initialize the plugin
 	 */
-	public static function initiallize() {
+	public static function bootstrap() {
 		add_action( 'plugins_loaded', array( self::class, 'ensure_dependencies_configured' ), 1 );
+		add_action( 'plugins_loaded', array( self::class, 'initialize' ) );
 	}
 
 	/**
@@ -42,5 +45,15 @@ class Jetpack_Search_Plugin {
 		$config->ensure( 'identity_crisis' );
 		// Search package.
 		$config->ensure( 'search' );
+	}
+
+	/**
+	 * Initialize the plugin
+	 */
+	public static function initialize() {
+		// Set up the REST authentication hooks.
+		Connection_Rest_Authentication::init();
+		// Ininitialize My Jetpack.
+		My_Jetpack_Initializer::init();
 	}
 }
