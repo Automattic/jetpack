@@ -51,7 +51,7 @@ class Jetpack_Lazy_Images {
 	 * @return object The class instance.
 	 */
 	public static function instance() {
-		if ( is_null( self::$instance ) ) {
+		if ( self::$instance === null ) {
 			self::$instance = new Jetpack_Lazy_Images();
 		}
 

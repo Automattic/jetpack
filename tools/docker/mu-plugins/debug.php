@@ -65,7 +65,7 @@ function l( $stuff = null ) {
 		error_log( sprintf( '[%s-%s => %s]', $pageload, getmypid(), $hint ) );
 	}
 	$pid = $pageload . '-' . getmypid();
-	if ( is_null( $stuff ) ) {
+	if ( $stuff === null ) {
 		// Log the file and line number.
 		$backtrace = debug_backtrace( false ); // phpcs:ignore PHPCompatibility.FunctionUse.ArgumentFunctionsReportCurrentValue.NeedsInspection
 		while ( isset( $backtrace[1]['function'] ) && __FUNCTION__ === $backtrace[1]['function'] ) {

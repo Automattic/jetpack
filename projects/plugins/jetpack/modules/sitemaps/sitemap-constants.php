@@ -147,7 +147,7 @@ if ( ! defined( 'JP_VIDEO_SITEMAP_INDEX_TYPE' ) ) {
  * @return string The filename.
  */
 function jp_sitemap_filename( $type, $number = null ) {
-	if ( is_null( $number ) ) {
+	if ( $number === null ) {
 		return "error-not-int-$type-$number.xml";
 	} elseif ( JP_MASTER_SITEMAP_TYPE === $type ) {
 		return 'sitemap.xml';

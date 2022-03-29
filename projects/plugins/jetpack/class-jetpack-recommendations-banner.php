@@ -25,7 +25,7 @@ class Jetpack_Recommendations_Banner {
 	 * Factory method
 	 */
 	public static function init() {
-		if ( is_null( self::$instance ) ) {
+		if ( self::$instance === null ) {
 			self::$instance = new Jetpack_Recommendations_Banner();
 		}
 

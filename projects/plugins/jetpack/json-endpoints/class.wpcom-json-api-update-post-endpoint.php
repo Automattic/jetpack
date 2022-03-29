@@ -736,7 +736,7 @@ class WPCOM_JSON_API_Update_Post_Endpoint extends WPCOM_JSON_API_Post_Endpoint {
 			}
 		}
 
-		if ( ! is_null( $publicize_custom_message ) ) {
+		if ( $publicize_custom_message !== null ) {
 			if ( empty( $publicize_custom_message ) ) {
 				delete_post_meta( $post_id, $GLOBALS['publicize_ui']->publicize->POST_MESS );
 			} else {
