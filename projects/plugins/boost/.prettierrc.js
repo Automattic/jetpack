@@ -5,4 +5,10 @@ module.exports = {
 	svelteBracketNewLine: true,
 	svelteIndentScriptAndStyle: true,
 	svelteSortOrder: 'options-scripts-styles-markup',
+	overrides: [
+		{
+			files: '*.svelte',
+			options: { parser: 'svelte' },
+		},
+	],
 };

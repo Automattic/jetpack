@@ -900,6 +900,7 @@ importers:
   projects/plugins/boost:
     specifiers:
       '@automattic/jetpack-base-styles': workspace:0.1.10
+      '@automattic/jetpack-components': workspace:^0.10.12-alpha
       '@babel/core': 7.17.8
       '@babel/preset-env': 7.16.11
       '@babel/preset-react': ^7.13.13
@@ -924,7 +925,7 @@ importers:
       node-wp-i18n: 1.2.6
       npm-run-all: 4.1.5
       postcss: '>=8.1.0 <9.0.0'
-      prettier: ^2.0.0
+      prettier: ^2.5.1
       prettier-plugin-svelte: 2.4.0
       react: 17.0.2
       react-dom: '>=17.0.1 <18.0.0'
@@ -949,9 +950,9 @@ importers:
       '@wordpress/element': 4.1.1
       history: 5.3.0
       jetpack-boost-critical-css-gen: github.com/automattic/jetpack-boost-critical-css-gen/91e0ed5e0cf6296fd06f525d1fc016d5d46af86f
-      prettier: 2.5.1
       svelte-navigator: 3.1.5_svelte@3.42.4+typescript@4.3.5
     devDependencies:
+      '@automattic/jetpack-components': link:../../js-packages/components
       '@babel/core': 7.17.8
       '@babel/preset-env': 7.16.11_@babel+core@7.17.8
       '@babel/preset-react': 7.16.7_@babel+core@7.17.8
@@ -972,6 +973,7 @@ importers:
       node-wp-i18n: 1.2.6
       npm-run-all: 4.1.5
       postcss: 8.4.8
+      prettier: 2.5.1
       prettier-plugin-svelte: 2.4.0_prettier@2.5.1+svelte@3.42.4
       react: 17.0.2
       react-dom: 17.0.2_react@17.0.2
@@ -19373,6 +19375,7 @@ packages:
     resolution: {integrity: sha512-vBZcPRUR5MZJwoyi3ZoyQlc1rXeEck8KgeC9AwwOn+exuxLxq5toTRDTSaVrXHxelDMHy9zlicw8u66yxoSUFg==}
     engines: {node: '>=10.13.0'}
     hasBin: true
+    dev: true
 
   /pretty-error/4.0.0:
     resolution: {integrity: sha512-AoJ5YMAcXKYxKhuJGdcvse+Voc6v1RgnsR3nWcYU7q4t6z0Q6T86sv5Zq8VIRbOWWFpvdGE83LtdSMNd+6Y0xw==}
