@@ -32,7 +32,7 @@ export const TIPOGRAPHY_SIZES = {
 	small: 'small',
 };
 
-const BOX_MODEL_VALUES = [
+export const BOX_MODEL_VALUES = [
 	'mt',
 	'mr',
 	'mb',
@@ -48,6 +48,7 @@ const BOX_MODEL_VALUES = [
 	'py',
 	'p',
 ];
+
 export const SPACING_VALUES = [ 0, 1, 2, 3, 4, 5, 6, 7, 8 ];
 
 const Text = ( { variant, children, component, className, ...componentProps } ) => {

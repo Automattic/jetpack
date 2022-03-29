@@ -6,55 +6,22 @@ import React from 'react';
 /**
  * Internal dependencies
  */
-import Text, { SPACING_VALUES } from '../index.jsx';
+import Text, { SPACING_VALUES, BOX_MODEL_VALUES } from '../index.jsx';
 import styles from './style.module.scss';
 
 export default {
 	title: 'JS Packages/Components/Text',
 	component: Text,
 	argTypes: {
-		m: {
-			control: { type: 'select', options: SPACING_VALUES },
-		},
-		mt: {
-			control: { type: 'select', options: SPACING_VALUES },
-		},
-		mr: {
-			control: { type: 'select', options: SPACING_VALUES },
-		},
-		mb: {
-			control: { type: 'select', options: SPACING_VALUES },
-		},
-		ml: {
-			control: { type: 'select', options: SPACING_VALUES },
-		},
-		mx: {
-			control: { type: 'select', options: SPACING_VALUES },
-		},
-		my: {
-			control: { type: 'select', options: SPACING_VALUES },
-		},
-		p: {
-			control: { type: 'select', options: SPACING_VALUES },
-		},
-		pt: {
-			control: { type: 'select', options: SPACING_VALUES },
-		},
-		pr: {
-			control: { type: 'select', options: SPACING_VALUES },
-		},
-		pb: {
-			control: { type: 'select', options: SPACING_VALUES },
-		},
-		pl: {
-			control: { type: 'select', options: SPACING_VALUES },
-		},
-		px: {
-			control: { type: 'select', options: SPACING_VALUES },
-		},
-		py: {
-			control: { type: 'select', options: SPACING_VALUES },
-		},
+		...BOX_MODEL_VALUES.reduce(
+			( obj, cur ) => ( {
+				...obj,
+				[ cur ]: {
+					control: { type: 'select', options: SPACING_VALUES },
+				},
+			} ),
+			{}
+		),
 	},
 };
 
