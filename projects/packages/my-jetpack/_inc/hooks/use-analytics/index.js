@@ -43,16 +43,14 @@ const useAnalytics = () => {
 	 * @param {string} event       - event name
 	 * @param {object} properties  - event propeties
 	 */
-	const recordMyJetpackEvent = useCallback(
-		( event, properties ) => {
-			tracks.recordEvent( event, {
-				...properties,
-				version: window?.myJetpackInitialState?.myJetpackVersion,
-				referring_plugins: connectedPluginsSlugs,
-			} );
-		},
-		[ tracks, connectedPluginsSlugs ]
-	);
+	const recordMyJetpackEvent = useCallback( ( event, properties ) => {
+		tracks.recordEvent( event, {
+			...properties,
+			version: window?.myJetpackInitialState?.myJetpackVersion,
+			referring_plugins: connectedPluginsSlugs,
+		} );
+		// eslint-disable-next-line react-hooks/exhaustive-deps
+	}, [] );
 
 	return {
 		clearedIdentity,
