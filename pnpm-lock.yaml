@@ -925,6 +925,7 @@ importers:
       node-wp-i18n: 1.2.6
       npm-run-all: 4.1.5
       postcss: '>=8.1.0 <9.0.0'
+      prettier: ^2.0.0
       prettier-plugin-svelte: 2.4.0
       react: 17.0.2
       react-dom: '>=17.0.1 <18.0.0'
@@ -949,6 +950,7 @@ importers:
       '@wordpress/element': 4.1.1
       history: 5.3.0
       jetpack-boost-critical-css-gen: github.com/automattic/jetpack-boost-critical-css-gen/91e0ed5e0cf6296fd06f525d1fc016d5d46af86f
+      prettier: 2.5.1
       svelte-navigator: 3.1.5_svelte@3.42.4+typescript@4.3.5
     devDependencies:
       '@automattic/jetpack-components': link:../../js-packages/components
@@ -972,7 +974,7 @@ importers:
       node-wp-i18n: 1.2.6
       npm-run-all: 4.1.5
       postcss: 8.4.12
-      prettier-plugin-svelte: 2.4.0_svelte@3.42.4
+      prettier-plugin-svelte: 2.4.0_prettier@2.5.1+svelte@3.42.4
       react: 17.0.2
       react-dom: 17.0.2_react@17.0.2
       rollup: 2.56.3
@@ -14161,7 +14163,7 @@ packages:
     engines: {node: '>= 10.17.0'}
     hasBin: true
     dependencies:
-      debug: 4.3.3
+      debug: 4.3.4
       get-stream: 5.2.0
       yauzl: 2.10.0
     optionalDependencies:
@@ -14894,7 +14896,7 @@ packages:
     dependencies:
       '@tootallnate/once': 1.1.2
       data-uri-to-buffer: 3.0.1
-      debug: 4.3.3
+      debug: 4.3.4
       file-uri-to-path: 2.0.0
       fs-extra: 8.1.0
       ftp: 0.3.10
@@ -19181,7 +19183,7 @@ packages:
     dependencies:
       '@tootallnate/once': 1.1.2
       agent-base: 6.0.2
-      debug: 4.3.3
+      debug: 4.3.4
       get-uri: 3.0.2
       http-proxy-agent: 4.0.1
       https-proxy-agent: 5.0.0
@@ -20513,12 +20515,13 @@ packages:
       svelte: 3.42.4
     dev: true
 
-  /prettier-plugin-svelte/2.4.0_svelte@3.42.4:
+  /prettier-plugin-svelte/2.4.0_prettier@2.5.1+svelte@3.42.4:
     resolution: {integrity: sha512-JwJ9bOz4XHLQtiLnX4mTSSDUdhu12WH8sTwy/XTDCSyPlah6IcV7NWeYBZscPEcceu2YnW8Y9sJCP40Z2UH9GA==}
     peerDependencies:
       prettier: ^1.16.4 || ^2.0.0
       svelte: ^3.2.0
     dependencies:
+      prettier: 2.5.1
       svelte: 3.42.4
     dev: true
 
@@ -20526,7 +20529,6 @@ packages:
     resolution: {integrity: sha512-vBZcPRUR5MZJwoyi3ZoyQlc1rXeEck8KgeC9AwwOn+exuxLxq5toTRDTSaVrXHxelDMHy9zlicw8u66yxoSUFg==}
     engines: {node: '>=10.13.0'}
     hasBin: true
-    dev: true
 
   /pretty-error/4.0.0:
     resolution: {integrity: sha512-AoJ5YMAcXKYxKhuJGdcvse+Voc6v1RgnsR3nWcYU7q4t6z0Q6T86sv5Zq8VIRbOWWFpvdGE83LtdSMNd+6Y0xw==}
@@ -20705,7 +20707,7 @@ packages:
     engines: {node: '>= 8'}
     dependencies:
       agent-base: 6.0.2
-      debug: 4.3.3
+      debug: 4.3.4
       http-proxy-agent: 4.0.1
       https-proxy-agent: 5.0.0
       lru-cache: 5.1.1
@@ -21897,7 +21899,7 @@ packages:
   /require-in-the-middle/5.1.0:
     resolution: {integrity: sha512-M2rLKVupQfJ5lf9OvqFGIT+9iVLnTmjgbOmpil12hiSQNn5zJTKGPoIisETNjfK+09vP3rpm1zJajmErpr2sEQ==}
     dependencies:
-      debug: 4.3.3
+      debug: 4.3.4
       module-details-from-path: 1.0.3
       resolve: 1.22.0
     transitivePeerDependencies:
@@ -22752,7 +22754,7 @@ packages:
     engines: {node: '>= 6'}
     dependencies:
       agent-base: 6.0.2
-      debug: 4.3.3
+      debug: 4.3.4
       socks: 2.6.2
     transitivePeerDependencies:
       - supports-color
@@ -22763,7 +22765,7 @@ packages:
     engines: {node: '>= 10'}
     dependencies:
       agent-base: 6.0.2
-      debug: 4.3.3
+      debug: 4.3.4
       socks: 2.6.2
     transitivePeerDependencies:
       - supports-color
