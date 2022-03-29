@@ -25,6 +25,7 @@
 		"pnpm": "^6.32.3",
 		"yarn": "use pnpm instead - see docs/yarn-upgrade.md"
 	},
+	"main": "./src/index.js",
 	"exports": {
 		".": "./src/index.js"
 	},
