@@ -7,6 +7,9 @@ const siteDataSelectors = {
 	getBlogId: state => state.siteData?.blogId ?? 0,
 	getVersion: state => state.siteData?.version ?? 'development',
 	getCalypsoSlug: state => state.siteData?.calypsoSlug,
+	getPriceBefore: state => state.siteData.pricing.full_price ?? 0,
+	getPriceAfter: state => state.siteData.pricing.discount_price ?? 0,
+	getPriceCurrencyCode: state => state.siteData.pricing.currency_code ?? 'USD',
 };
 
 export default siteDataSelectors;

@@ -147,14 +147,14 @@ class Jetpack_Options {
 			return empty( $result );
 		}
 
-		if ( is_null( $group ) || 'non_compact' === $group ) {
+		if ( $group === null || 'non_compact' === $group ) {
 			if ( in_array( $name, self::get_option_names( $group ), true ) ) {
 				return true;
 			}
 		}
 
 		foreach ( array_keys( self::$grouped_options ) as $_group ) {
-			if ( is_null( $group ) || $group === $_group ) {
+			if ( $group === null || $group === $_group ) {
 				if ( in_array( $name, self::get_option_names( $_group ), true ) ) {
 					return true;
 				}

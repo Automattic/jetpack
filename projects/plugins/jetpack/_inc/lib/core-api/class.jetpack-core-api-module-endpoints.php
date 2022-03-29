@@ -538,7 +538,7 @@ class Jetpack_Core_API_Data extends Jetpack_Core_API_XMLRPC_Consumer_Endpoint {
 	public function update_data( $request ) {
 
 		// If it's null, we're trying to update many module options from different modules.
-		if ( is_null( $request['slug'] ) ) {
+		if ( $request['slug'] === null ) {
 
 			// Value admitted by Jetpack_Core_Json_Api_Endpoints::get_updateable_data_list that will make it return all module options.
 			// It will not be passed. It's just checked in this method to pass that method a string or array.
@@ -975,6 +975,10 @@ class Jetpack_Core_API_Data extends Jetpack_Core_API_XMLRPC_Consumer_Endpoint {
 					// Convert the false value to 0. This allows the option to be updated if it doesn't exist yet.
 					$sub_value = $value ? $value : 0;
 					$updated   = (string) get_option( $option ) !== (string) $sub_value ? update_option( $option, $sub_value ) : true;
+					break;
+
+				case 'jetpack_blocks_disabled':
+					$updated = (bool) get_option( $option ) !== (bool) $value ? update_option( $option, (bool) $value ) : true;
 					break;
 
 				default:
