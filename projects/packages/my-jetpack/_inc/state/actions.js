@@ -3,8 +3,6 @@
  */
 import apiFetch from '@wordpress/api-fetch';
 import { __, sprintf } from '@wordpress/i18n';
-import { dispatch as globalDispatch } from '@wordpress/data';
-import { CONNECTION_STORE_ID } from '@automattic/jetpack-connection';
 
 /**
  * Internal dependencies
@@ -22,6 +20,7 @@ const SET_PRODUCT = 'SET_PRODUCT';
 const SET_PRODUCT_REQUEST_ERROR = 'SET_PRODUCT_REQUEST_ERROR';
 const ACTIVATE_PRODUCT = 'ACTIVATE_PRODUCT';
 const SET_PRODUCT_STATUS = 'SET_PRODUCT_STATUS';
+const REFRESH_CONNECTED_PLUGINS = 'REFRESH_CONNECTED_PLUGINS';
 
 const SET_GLOBAL_NOTICE = 'SET_GLOBAL_NOTICE';
 const CLEAN_GLOBAL_NOTICE = 'CLEAN_GLOBAL_NOTICE';
@@ -55,6 +54,13 @@ const setGlobalNotice = ( message, options ) => ( {
 	message,
 	options,
 } );
+
+/**
+ *
+ */
+function* refreshConnectedPlugins() {
+	yield { type: REFRESH_CONNECTED_PLUGINS };
+}
 
 const cleanGlobalNotice = () => ( { type: 'CLEAN_GLOBAL_NOTICE' } );
 
@@ -111,7 +117,7 @@ function requestProductStatus( productId, data, { select, dispatch } ) {
 			.then( freshProduct => {
 				dispatch( setIsFetchingProduct( productId, false ) );
 				dispatch( setProduct( freshProduct ) );
-				globalDispatch( CONNECTION_STORE_ID ).refreshConnectedPlugins();
+				dispatch( refreshConnectedPlugins() );
 				resolve( freshProduct?.status );
 			} )
 			.catch( error => {
@@ -147,6 +153,7 @@ const productActions = {
 	setIsFetchingProduct,
 	setRequestProductError,
 	setProductStatus,
+	refreshConnectedPlugins,
 };
 
 const noticeActions = {
@@ -173,5 +180,6 @@ export {
 	SET_PRODUCT_STATUS,
 	SET_GLOBAL_NOTICE,
 	CLEAN_GLOBAL_NOTICE,
+	REFRESH_CONNECTED_PLUGINS,
 	actions as default,
 };
