@@ -69,12 +69,11 @@ export default function ProductManagementInspectorControl( {
 	return (
 		<InspectorControls>
 			{ siteSlug && (
-				<ExternalLink
-					href={ `https://wordpress.com/earn/payments/${ siteSlug }` }
-					className={ 'product-management-control-inspector__link-to-earn' }
-				>
-					{ getMessageByProductType( 'manage your products', productType ) }
-				</ExternalLink>
+				<PanelBody>
+					<ExternalLink href={ `https://wordpress.com/earn/payments/${ siteSlug }` }>
+						{ getMessageByProductType( 'manage your products', productType ) }
+					</ExternalLink>
+				</PanelBody>
 			) }
 			<PanelBody
 				title={ getMessageByProductType( 'add a new product', productType ) }
@@ -120,6 +119,11 @@ export default function ProductManagementInspectorControl( {
 								options={ intervalOptions }
 								value={ interval }
 							/>
+						</PanelRow>
+						<PanelRow>
+							<ExternalLink href="https://wordpress.com/support/wordpress-editor/blocks/payments/#related-fees">
+								{ __( 'Read more about Payments and related fees.', 'jetpack' ) }
+							</ExternalLink>
 						</PanelRow>
 						<PanelRow>
 							<Button onClick={ handleSubmit } variant="secondary">

@@ -589,7 +589,7 @@ class Posts extends Module {
 	 * @param boolean  $update  Whether this is an existing post being updated or not.
 	 */
 	public function wp_insert_post( $post_ID, $post = null, $update = null ) {
-		if ( ! is_numeric( $post_ID ) || is_null( $post ) ) {
+		if ( ! is_numeric( $post_ID ) || $post === null ) {
 			return;
 		}
 
@@ -633,7 +633,7 @@ class Posts extends Module {
 	 * @param \WP_Post $post    Post object.
 	 **/
 	public function wp_after_insert_post( $post_ID, $post ) {
-		if ( ! is_numeric( $post_ID ) || is_null( $post ) ) {
+		if ( ! is_numeric( $post_ID ) || $post === null ) {
 			return;
 		}
 

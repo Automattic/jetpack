@@ -107,7 +107,7 @@ abstract class Product {
 	 * @return array
 	 */
 	public static function get_info() {
-		if ( is_null( static::$slug ) ) {
+		if ( static::$slug === null ) {
 			throw new \Exception( 'Product classes must declare the $slug attribute.' );
 		}
 		return array(
@@ -345,7 +345,7 @@ abstract class Product {
 		if ( is_wp_error( $result ) ) {
 			return $result;
 		}
-		return is_null( $result );
+		return $result === null;
 	}
 
 	/**

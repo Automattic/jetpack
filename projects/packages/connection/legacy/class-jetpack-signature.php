@@ -169,7 +169,7 @@ class Jetpack_Signature {
 		}
 
 		$required_parameters = array( 'token', 'timestamp', 'nonce', 'method', 'url' );
-		if ( ! is_null( $body ) ) {
+		if ( $body !== null ) {
 			$required_parameters[] = 'body_hash';
 			if ( ! is_string( $body ) ) {
 				return new WP_Error( 'invalid_body', 'Body is malformed.', compact( 'signature_details' ) );

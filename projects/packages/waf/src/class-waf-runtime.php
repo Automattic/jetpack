@@ -366,7 +366,7 @@ class WafRuntime {
 					foreach ( $_SERVER as $k => $v ) {
 						$k = strtolower( $k );
 						if ( 'http_' === substr( $k, 0, 5 ) ) {
-							$value[ $this->normalizeHeaderName( substr( $k, 0, 5 ) ) ] = $v;
+							$value[ $this->normalize_header_name( substr( $k, 5 ) ) ] = $v;
 						} elseif ( 'content_type' === $k ) {
 							$value['content-type'] = $v;
 						} elseif ( 'content_length' === $k ) {

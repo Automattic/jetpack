@@ -25,7 +25,11 @@ export default function ProductManagementControls( {
 } ) {
 	const products = useSelect(
 		select =>
-			select( membershipProductsStore ).getProducts( selectedProductId, setSelectedProductId ),
+			select( membershipProductsStore ).getProducts(
+				productType,
+				selectedProductId,
+				setSelectedProductId
+			),
 		[]
 	);
 	const { connectUrl, isApiConnected, isSelectedProductInvalid, shouldUpgrade } = useSelect(
@@ -49,7 +53,7 @@ export default function ProductManagementControls( {
 	return (
 		<>
 			{ ! isApiConnected && !! connectUrl && (
-				<BlockControls group="block">
+				<BlockControls __experimentalShareWithChildBlocks group="block">
 					<StripeConnectToolbarButton blockName={ blockName } connectUrl={ connectUrl } />
 				</BlockControls>
 			) }

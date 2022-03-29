@@ -22,9 +22,9 @@
 	},
 	"dependencies": {
 		"@automattic/format-currency": "1.0.0-alpha.0",
-		"@automattic/jetpack-analytics": "workspace:^0.1.8",
-		"@automattic/jetpack-components": "workspace:^0.10.11",
-		"@automattic/jetpack-connection": "workspace:^0.17.4",
+		"@automattic/jetpack-analytics": "workspace:* || ^0.1",
+		"@automattic/jetpack-components": "workspace:* || ^0.10",
+		"@automattic/jetpack-connection": "workspace:* || ^0.17",
 		"@wordpress/api-fetch": "6.0.1",
 		"@wordpress/components": "19.5.0",
 		"@wordpress/data": "6.3.0",
@@ -39,8 +39,8 @@
 		"*.scss"
 	],
 	"devDependencies": {
-		"@automattic/jetpack-base-styles": "workspace:^0.1.10",
-		"@automattic/jetpack-webpack-config": "workspace:^1.1.5",
+		"@automattic/jetpack-base-styles": "workspace:* || ^0.1",
+		"@automattic/jetpack-webpack-config": "workspace:* || ^1.1",
 		"@babel/core": "7.17.8",
 		"@babel/preset-env": "7.16.11",
 		"@babel/register": "7.17.7",

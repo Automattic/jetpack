@@ -1,0 +1,4 @@
+Significance: minor
+Type: added
+
+Removed requirement for an ending character on inline comments and enabled MediaWiki.Usage.IsNull

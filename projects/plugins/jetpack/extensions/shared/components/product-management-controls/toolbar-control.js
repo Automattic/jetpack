@@ -8,14 +8,14 @@ import formatCurrency from '@automattic/format-currency';
  */
 import { BlockControls } from '@wordpress/block-editor';
 import { MenuGroup, MenuItem, ToolbarDropdownMenu } from '@wordpress/components';
-import { useDispatch, useSelect } from '@wordpress/data';
-import { store as editPostStore } from '@wordpress/edit-post';
+import { useSelect } from '@wordpress/data';
 import { __, sprintf } from '@wordpress/i18n';
 import { check, update, warning } from '@wordpress/icons';
 
 /**
  * Internal dependencies
  */
+import useOpenBlockSidebar from './use-open-block-sidebar';
 import { getMessageByProductType } from './utils';
 import { store as membershipProductsStore } from '../../../store/membership-products';
 
@@ -66,22 +66,18 @@ function Product( { onClose, product, selectedProductId, setSelectedProductId } 
 }
 
 function NewProduct( { onClose, productType } ) {
-	const isEditorSidebarOpened = useSelect( select =>
-		select( editPostStore ).isEditorSidebarOpened()
-	);
-	const { openGeneralSidebar } = useDispatch( editPostStore );
+	const openBlockSidebar = useOpenBlockSidebar();
 
 	const handleClick = event => {
 		event.preventDefault();
-		// Open the sidebar if not open
-		if ( ! isEditorSidebarOpened ) {
-			openGeneralSidebar( 'edit-post/block' );
-		}
-		const input = document.getElementById( 'new-product-title' );
-		if ( input !== null ) {
-			//Focus on the new product title input
-			input.focus();
-		}
+		openBlockSidebar();
+		setTimeout( () => {
+			const input = document.getElementById( 'new-product-title' );
+			if ( input !== null ) {
+				//Focus on the new product title input
+				input.focus();
+			}
+		}, 100 );
 		onClose();
 	};
 
@@ -114,7 +110,7 @@ export default function ProductManagementToolbarControl( {
 	}
 
 	return (
-		<BlockControls group="block">
+		<BlockControls __experimentalShareWithChildBlocks group="block">
 			<ToolbarDropdownMenu
 				className="product-management-control-toolbar__dropdown-button"
 				icon={ subscriptionIcon }

@@ -2313,7 +2313,16 @@ class Jetpack_Core_Json_Api_Endpoints {
 
 		$options = array(
 
-			// Carousel.
+			// Blocks.
+			'jetpack_blocks_disabled'              => array(
+				'description'       => esc_html__( 'Jetpack Blocks disabled.', 'jetpack' ),
+				'type'              => 'boolean',
+				'default'           => false,
+				'validate_callback' => __CLASS__ . '::validate_boolean',
+				'jp_group'          => 'settings',
+			),
+
+			// Carousel
 			'carousel_background_color'            => array(
 				'description'       => esc_html__( 'Color scheme.', 'jetpack' ),
 				'type'              => 'string',

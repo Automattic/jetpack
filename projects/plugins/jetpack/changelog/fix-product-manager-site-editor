@@ -1,0 +1,4 @@
+Significance: patch
+Type: bugfix
+
+Fix ProductManagementControls not being able to open the block settings sidebar on site and widgets editor.
