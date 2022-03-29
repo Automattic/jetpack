@@ -188,7 +188,7 @@ ConnectionStatusCard.propTypes = {
 	/** The redirect admin URI after the user has connected their WordPress.com account. */
 	redirectUri: PropTypes.string,
 	/** An object of the plugins currently using the Jetpack connection. */
-	connectedPlugins: PropTypes.object,
+	connectedPlugins: PropTypes.array,
 	/** ID of the currently connected site. */
 	connectedSiteId: PropTypes.number,
 	/** The Card title. */
