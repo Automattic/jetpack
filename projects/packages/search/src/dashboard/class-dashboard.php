@@ -9,6 +9,7 @@ namespace Automattic\Jetpack\Search;
 
 use Automattic\Jetpack\Admin_UI\Admin_Menu;
 use Automattic\Jetpack\Assets;
+use Automattic\Jetpack\Connection\Initial_State as Connection_Initial_State;
 use Automattic\Jetpack\Connection\Manager as Connection_Manager;
 use Automattic\Jetpack\Status;
 use Automattic\Jetpack\Tracking;
@@ -153,6 +154,13 @@ class Dashboard {
 		wp_add_inline_script(
 			'jp-search-dashboard',
 			( new Initial_State() )->render(),
+			'before'
+		);
+
+		// Connection initial state.
+		wp_add_inline_script(
+			'jp-search-dashboard',
+			Connection_Initial_State::render(),
 			'before'
 		);
 	}

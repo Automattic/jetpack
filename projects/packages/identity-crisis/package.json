@@ -15,11 +15,11 @@
 	},
 	"browserslist": "extends @wordpress/browserslist-config",
 	"dependencies": {
-		"@automattic/jetpack-idc": "workspace:^0.10.4-alpha",
+		"@automattic/jetpack-idc": "workspace:* || ^0.10",
 		"@wordpress/data": "6.3.0"
 	},
 	"devDependencies": {
-		"@automattic/jetpack-webpack-config": "workspace:^1.1.5",
+		"@automattic/jetpack-webpack-config": "workspace:* || ^1.1",
 		"@babel/core": "7.17.8",
 		"@babel/preset-env": "7.16.11",
 		"@babel/register": "7.17.7",

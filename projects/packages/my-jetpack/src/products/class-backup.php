@@ -128,7 +128,7 @@ class Backup extends Hybrid_Product {
 	private static function get_state_from_wpcom() {
 		static $status = null;
 
-		if ( ! is_null( $status ) ) {
+		if ( $status !== null ) {
 			return $status;
 		}
 

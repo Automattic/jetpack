@@ -64,7 +64,7 @@ class Jetpack_SSO {
 	 * @return Jetpack_SSO
 	 **/
 	public static function get_instance() {
-		if ( ! is_null( self::$instance ) ) {
+		if ( self::$instance !== null ) {
 			return self::$instance;
 		}
 

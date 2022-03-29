@@ -23,7 +23,7 @@
 		"validate": "pnpm exec validate-es dist/"
 	},
 	"devDependencies": {
-		"@automattic/jetpack-webpack-config": "workspace:^1.1.5",
+		"@automattic/jetpack-webpack-config": "workspace:* || ^1.1",
 		"copy-webpack-plugin": "10.2.0",
 		"intersection-observer": "0.12.0",
 		"webpack": "5.65.0"

@@ -743,7 +743,7 @@ class Jetpack_Widget_Conditions {
 				}
 
 				// New multi widget (WP_Widget).
-				if ( ! is_null( $widget_number ) ) {
+				if ( $widget_number !== null ) {
 					if ( isset( $settings[ $id_base ][ $widget_number ] ) && false === self::filter_widget( $settings[ $id_base ][ $widget_number ] ) ) {
 						unset( $widget_areas[ $widget_area ][ $position ] );
 					}
