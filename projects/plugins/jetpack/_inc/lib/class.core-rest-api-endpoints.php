@@ -861,6 +861,17 @@ class Jetpack_Core_Json_Api_Endpoints {
 				'permission_callback' => __CLASS__ . '::manage_modules_permission_check',
 			)
 		);
+
+		// Get Jetpack introduction offers
+		register_rest_route(
+			'jetpack/v4',
+			'/intro-offers',
+			array(
+				'methods'             => WP_REST_Server::READABLE,
+				'callback'            => __CLASS__ . '::get_intro_offers',
+				'permission_callback' => __CLASS__ . '::manage_modules_permission_check',
+			)
+		);
 	}
 
 	/**
@@ -4285,6 +4296,65 @@ class Jetpack_Core_Json_Api_Endpoints {
 		$updated_option = Jetpack_Options::update_option( 'has_seen_wc_connection_modal', true );
 
 		return rest_ensure_response( array( 'success' => $updated_option ) );
+	}
+
+	/**
+	 * Fetch introdution offers.
+	 *
+	 * @since 10.9
+	 *
+	 * @return array|WP_Error
+	 */
+	public static function get_intro_offers() {
+		$site_id = Jetpack_Options::get_option( 'id' );
+
+		if ( ! $site_id ) {
+			return new WP_Error(
+				'site_id_missing',
+				esc_html__( 'Site ID is missing.', 'jetpack' ),
+				array( 'status' => 400 )
+			);
+		}
+
+		$response = Client::wpcom_json_api_request_as_user(
+			'/introductory-offers',
+			'2',
+			array(
+				'method'  => 'GET',
+				'headers' => array(
+					'X-Forwarded-For' => ( new Visitor() )->get_ip( true ),
+				),
+			),
+			null,
+			'wpcom'
+		);
+
+		$response_code = wp_remote_retrieve_response_code( $response );
+
+		if ( 200 !== $response_code ) {
+			return new WP_Error(
+				'intro_offers_fetch_failed',
+				esc_html__( 'Could not retrieve intro offers.', 'jetpack' ),
+				array( 'status' => $response_code )
+			);
+		}
+
+		$data = json_decode( wp_remote_retrieve_body( $response ) );
+
+		if ( ! isset( $data ) ) {
+			return new WP_Error(
+				'intro_offers_error',
+				esc_html__( 'Could not parse intro offers.', 'jetpack' ),
+				array( 'status' => 204 ) // no content.
+			);
+		}
+
+		return rest_ensure_response(
+			array(
+				'code' => 'success',
+				'data' => $data,
+			)
+		);
 	}
 
 } // class end
