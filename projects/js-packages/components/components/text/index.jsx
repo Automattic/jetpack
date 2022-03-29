@@ -58,6 +58,7 @@ const Text = ( { variant, children, component, className, ...componentProps } ) 
 	const boxModelClasses = BOX_MODEL_VALUES.reduce( ( acc, value ) => {
 		if ( typeof componentProps[ value ] !== 'undefined' ) {
 			acc += styles[ `${ value }-${ componentProps[ value ] }` ] + ' ';
+			// pick spacing prop. Do not pass down to Component.
 			delete componentProps[ value ];
 		}
 		return acc;
