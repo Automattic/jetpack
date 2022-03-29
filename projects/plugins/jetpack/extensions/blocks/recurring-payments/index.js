@@ -98,6 +98,7 @@ export const settings = {
 			default: 'id',
 		},
 	},
+	apiVersion: 2,
 	edit,
 	save,
 	deprecated: [ deprecatedV2, deprecatedV1 ],
