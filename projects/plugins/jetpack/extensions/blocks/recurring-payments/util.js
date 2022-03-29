@@ -1,5 +1,5 @@
 /**
- * Internal dependencies
+ * WordPress dependencies
  */
 import { isAtomicSite, isSimpleSite } from '@automattic/jetpack-shared-extension-utils';
 
