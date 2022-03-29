@@ -381,9 +381,9 @@ class csstidy_optimise { // phpcs:ignore
 		} else {
 			$temp = array( $subvalue );
 		}
-		for ( $l = 0; $l < count( $temp ); $l++ ) { // phpcs:ignore Generic.CodeAnalysis.ForLoopWithTestFunctionCall.NotAllowed
+		for ( $l = 0; $l < count( $temp ); $l++ ) { // phpcs:ignore Generic.CodeAnalysis.ForLoopWithTestFunctionCall.NotAllowed, Squiz.PHP.DisallowSizeFunctionsInLoops.Found
 			// if we are not dealing with a number at this point, do not optimise anything.
-			$number = $this->AnalyseCssNumber( $temp[ $l ] );
+			$number = $this->analyse_css_number( $temp[ $l ] );
 			if ( $number === false ) {
 				return $subvalue;
 			}
@@ -416,12 +416,12 @@ class csstidy_optimise { // phpcs:ignore
 	 * Checks if a given string is a CSS valid number. If it is,
 	 * an array containing the value and unit is returned
 	 *
-	 * @param string $string
+	 * @param string $string - the string we're checking.
 	 * @return array ('unit' if unit is found or '' if no unit exists, number value) or false if no number
 	 */
-	function AnalyseCssNumber( $string ) {
+	public function analyse_css_number( $string ) {
 		// most simple checks first
-		if ( strlen( $string ) == 0 || ctype_alpha( $string[0] ) ) {
+		if ( strlen( $string ) == 0 || ctype_alpha( $string[0] ) ) { // phpcs:ignore Universal.Operators.StrictComparisons.LooseEqual
 			return false;
 		}
 
