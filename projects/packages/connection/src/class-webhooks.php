@@ -78,13 +78,15 @@ class Webhooks {
 		switch ( $_GET['action'] ) {
 			case 'authorize':
 				$this->handle_authorize();
+				$this->do_exit();
 				break;
 			case 'authorize_redirect':
 				$this->handle_authorize_redirect();
+				$this->do_exit();
 				break;
+			// Class Jetpack::admin_page_load() still handles other cases.
 		}
 
-		$this->do_exit();
 	}
 
 	/**

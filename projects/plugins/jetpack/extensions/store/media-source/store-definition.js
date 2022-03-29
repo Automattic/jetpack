@@ -137,7 +137,7 @@ const selectors = {
 		}
 
 		return document.getElementById( domId );
-	}
+	},
 };
 
 const storeDefinition = {
@@ -145,9 +145,7 @@ const storeDefinition = {
 		// Some actions doesn't have defined the source ID
 		// On this case, we try to get safe getting the default ID.
 		// Othewise, it will try to pick the first fro the souces list.
-		const actionId = action.id ||
-			state.default ||
-			Object.keys( state.sources )?.[ 0 ];
+		const actionId = action.id || state.default || Object.keys( state.sources )?.[ 0 ];
 
 		switch ( action.type ) {
 			case 'REGISTER_MEDIA_SOURCE': {
@@ -171,7 +169,7 @@ const storeDefinition = {
 						[ action.id ]: {
 							...state.sources[ action.id ],
 							...action.data,
-						}
+						},
 					},
 				};
 			}
@@ -218,9 +216,8 @@ const storeDefinition = {
 						...state.sources,
 						[ actionId ]: {
 							...state.sources[ actionId ],
-							state: state.sources[ actionId ].state === STATE_PLAYING
-								? STATE_PAUSED
-								: STATE_PLAYING,
+							state:
+								state.sources[ actionId ].state === STATE_PLAYING ? STATE_PAUSED : STATE_PLAYING,
 						},
 					},
 				};

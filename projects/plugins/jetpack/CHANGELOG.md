@@ -2,6 +2,8 @@
 
 ### This is a list detailing changes for all Jetpack releases.
 
+## 10.8-a.11 - 2022-03-25
+
 ## 10.8-a.9 - 2022-03-23
 ### Major Enhancements
 - QR Post: add new feature which automatically generates QR codes for published posts. When scanned, the QR code will link visitors to the post. If a site has a custom logo set, it will be shown in the generated QR code image.

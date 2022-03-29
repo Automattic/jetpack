@@ -137,7 +137,7 @@ function grofiles_gravatars_to_append( $author = null ) {
 	static $authors = array();
 
 	// Get.
-	if ( is_null( $author ) ) {
+	if ( $author === null ) {
 		return array_keys( $authors );
 	}
 
@@ -393,7 +393,7 @@ function grofiles_hovercards_data( $author ) {
 			continue;
 		}
 		$data = call_user_func( $callback, $author, $key );
-		if ( ! is_null( $data ) ) {
+		if ( $data !== null ) {
 			$r[ $key ] = $data;
 		}
 	}
