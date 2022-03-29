@@ -84,7 +84,7 @@ $sides: (
 );
 
 @each $prop, $p in $props {
-	$sizes: ( 1, 2, 3, 4, 5, 6 );
+	$sizes: ( 0, 1, 2, 3, 4, 5, 6 );
 
 	@each $size in $sizes {
 		/* m, p */
@@ -96,7 +96,7 @@ $sides: (
 		.#{$p}x-#{$size} {
 			#{$prop}-left: calc( var( --spacing-base ) * #{$size} );
 			#{$prop}-right: calc( var( --spacing-base ) * #{$size} );
-		}
+		}	
 
 		.#{$p}y-#{$size} {
 			#{$prop}-top: calc( var( --spacing-base ) * #{$size} );
