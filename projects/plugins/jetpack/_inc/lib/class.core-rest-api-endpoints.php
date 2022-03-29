@@ -3610,7 +3610,7 @@ class Jetpack_Core_Json_Api_Endpoints {
 			$news_sitemap_url = home_url( $location . '/?jetpack-sitemap=news-sitemap.xml' );
 		}
 
-		if ( is_null( $slug ) && isset( $modules['sitemaps'] ) ) {
+		if ( $slug === null && isset( $modules['sitemaps'] ) ) {
 			// Is a list of modules.
 			$modules['sitemaps']['extra']['sitemap_url']      = $sitemap_url;
 			$modules['sitemaps']['extra']['news_sitemap_url'] = $news_sitemap_url;
@@ -3843,7 +3843,7 @@ class Jetpack_Core_Json_Api_Endpoints {
 		}
 
 		// Normalize value to boolean.
-		if ( is_wp_error( $value ) || is_null( $value ) ) {
+		if ( is_wp_error( $value ) || $value === null ) {
 			$value = false;
 		}
 
