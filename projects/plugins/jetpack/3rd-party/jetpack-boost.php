@@ -87,7 +87,7 @@ function activate() {
 	$result = activate_plugin( PLUGIN_FILE );
 
 	// Activate_plugin() returns null on success.
-	return is_null( $result );
+	return $result === null;
 }
 
 /**

@@ -1,88 +1,65 @@
-## 10.7
+## Jetpack 10.8
 
-### Before you start
+### Before you start:
 
 - **At any point during your testing, remember to [check your browser's JavaScript console](https://wordpress.org/support/article/using-your-browser-to-diagnose-javascript-errors/#step-3-diagnosis) and see if there are any errors reported by Jetpack there.**
-- Use "Debug Bar" or "Query Monitor" to help make PHP notices and warnings more noticeable and report anything you see.
+- Use the "Debug Bar" or "Query Monitor" WordPress plugins to help make PHP notices and warnings more noticeable and report anything of note you see.
 
-### My Jetpack
+### QR Post Feature
 
-This release contains the first iteration of My Jetpack, the new dashboard for managing standalone Jetpack plugins on the site. There's a lot to test here!
+QR Post is a new Jetpack feature which automatically generates QR codes for your published posts. When scanned, the QR code will link visitors to the post. Take this feature for a spin by:
 
-For Jetpack, start on a free plan and go to Dashboard > Jetpack > My Dashboard. From there:
+- Open an existing published post on your site (or create a new one).
+- Click on the Jetpack icon in the post editor, then locate the QR Code section.
+- Then click on the "Get QR Code" button to view or download the QR code for the post.
+- With a smartphone, try scanning the QR code to test that it forwards to the published post.
+- If your site has a custom logo set, it will be shown in the generated QR code image instead of the Jetpack logo.
 
-- Check the various links
-- Attempt to activate features and install additional standalone plugins.
-- Check styling on desktop and mobile.
-- Make sure Conntion links work.
+### Openverse Media Support
 
+[Openverse](https://wordpress.org/openverse/) is a search engine for openly-licensed media which we've added as an extneral media provider. This will allow you to search Openverse for media you'd like to use right from the post editor! To see this in action:
 
-### Color, Spacing, and Alignment Options for Various Blocks
+- Open the post editor for a new/existing post.
+- Insert an Image or Gallery block.
+- Click on "Select Image(s)" for the block you inserted, then choose the Openverse option.
+- Search for something you'd like to see images of.
+- Once you have chosen your images and clicked "Select", the images will be inserted into the block.
 
-Color, spacing, and alignment options were added for the following blocks:
+### Google Fonts In Global Styles
 
-- Form 
-- Mailchimp
-- Podcast Player
-- Related Posts
+We've begun adding support for a selection of Google Fonts available from the Global Styles setting. To test this out, try:
 
-Color and spacing options were added for:
+- Have the Gutenberg plugin version 12.8.1 or later installed on your site.
+- Activate a block-based theme such as Twenty Twenty Two.
+- Turn on the the Google Fonts feature from Jetpack settings: `Jetpack > Settings > Writing > Theme enhancements`
+- Next, navigate to the Full Site Editor: `Appearance > Editor`
+- Once in the Site Editor, click on the `Styles` icon which is next to the Settings icon.
+- Clicking on the `Typography` options will show the subset of Google Fonts which are available for selection, such as: Bodoni Moda, Merriweather, Roboto, or Nunito among others.
+- Save your Typography settings and check that the frontend of your site loads content with the selected font.
 
-- Business Hours
+### Jetpack Block Settings Discoverability
 
-Alignment options were also added to:
+We've improved the discoverability of Jetpack Blocks in settings and added the ability to toggle them if desired:
 
-- Repeat Visitor blocks
+- Navigate to `Jetpack > Settings`.
+- Click on the Search icon and search for "blocks".
+- You should see a toggle setting with "Jetpack Blocks give you the power to deliver quality content..."
+- That toggle **must** be active by default.
+- Try checking out the information tooltip/link for the setting.
+- Test that disabling the Jetpack Blocks setting works as expected. If the setting is off for example, you would not be able to insert a Jetpack block such as the Tiled Gallery block.
 
-We can check and make sure those new features work as expected by adding them to posts and block widget areas and playing around with color, spacing and alignment.
+### Jetpack CRM Installable Via Form Block
 
-### At-a-glance Partner Coupon Redemption CTA
+Jetpack CRM is now directly installable from the Form block settings. Follow these steps to test:
 
-We've introduced a new CTA to redeem a coupon that may have been provided by a partner at the top of the At-a-glance page.
-
-- Make sure Jetpack is activated but not connected.
-- Visit `/wp-admin/?jetpack-partner-coupon=PARTNER_COUPON_CODE` to store a partner coupon code. Please reach out to team Avalon to get a coupon code.
-- Confirm you are redirected to `/wp-admin/admin.php?page=jetpack&showCouponRedemption=1#/` which matches screenshot 1 below.
-- For every step, make sure that the Redeem button redirects you to checkout with your partner coupon applied. The "Set up & redeem" buttons should first connect you and then redirect you to checkout instead.
-- Establish a site connection by bailing out of the connection flow before approving the connection to your account.
-- Go to Jetpack Dashboard and confirm it matches screenshot 2 below.
-- Establish a user connection.
-- Go to Jetpack Dashboard and confirm it matches screenshot 3 below.
-- Go to Jetpack Dashboard, add `&showCouponRedemption=1` to your URL and confirm it matches screenshot 4 below.
-
-Screenshot 1) No connection with and without showCouponRedemption=1:
-![Screen Shot 2022-01-20 at 19 28 40](https://user-images.githubusercontent.com/22746396/150391173-39ae5381-a9ce-4fb4-ae70-954a3d28266e.png)
-
-Screenshot 2) Site connection with and without showCouponRedemption=1:
-![Screen Shot 2022-01-20 at 19 29 41](https://user-images.githubusercontent.com/22746396/150391194-e9ce9d7d-a93c-4a4e-9e26-e631c0406517.png)
-
-Screenshot 3) User connection without showCouponRedemption=1:
-![Screen Shot 2022-02-08 at 21 43 14](https://user-images.githubusercontent.com/22746396/153063496-80f4423d-d9d3-456c-a19e-c2c3bb108163.png)
-
-Screenshot 4) User connection and showCouponRedemption=1:
-![Screen Shot 2022-02-08 at 21 43 41](https://user-images.githubusercontent.com/22746396/153063516-8d121e0a-0fb1-4a71-b296-5339965393f7.png)
-
-### At-a-glance Partner Coupon Redemption Backup Banner
-
-We've introduced a new callout to redeem a coupon that may have been provided by a partner replacing the Backup upgrade banner.
-
-- Make sure Jetpack is activated and connected, has Jetpack Free as its plan, and has no other products.
-- Visit `/wp-admin/admin.php?page=jetpack#/dashboard` and confirm the Backup feature section shows what is visible in screenshot 1 below.
-- Visit `/wp-admin/?jetpack-partner-coupon=PARTNER_COUPON_CODE` to store a partner coupon code. Please reach out to team Avalon to get a coupon code.
-- Visit `/wp-admin/admin.php?page=jetpack#/dashboard` and confirm the Backup feature section shows what is visible in screenshot 2 below. Clicking on the Redeem button should redirect you to checkout with your partner coupon applied.
-- Purchase a product to your test site that provides backups.
-- Visit `/wp-admin/admin.php?page=jetpack#/dashboard` and confirm the Backup feature section shows what is visible in screenshot 3 below.
-
-Screenshot 1) No backup product, no partner coupon:
-
-![Screen Shot 2022-02-01 at 19 08 35](https://user-images.githubusercontent.com/22746396/152016113-1da5365c-3f54-40c9-b079-47e97767bd40.png)
-
-Screenshot 2) No backup product, partner coupon available:
-
-![Screen Shot 2022-02-01 at 19 03 52](https://user-images.githubusercontent.com/22746396/152016107-bf474b8b-2970-44f5-b11a-b5f997bb613c.png)
-
-Screenshot 3) Backup product active, partner coupon status is irrelevant:
-
-![Screen Shot 2022-02-01 at 18 57 18](https://user-images.githubusercontent.com/22746396/152016100-6fe4a8f5-4ac4-482e-9501-8ed7f216f592.png)
+- If you already have Jetpack CRM on your test site, uninstall it.
+- Open a post for editing, and in the editor insert a Form block (Contact type will work fine).
+- In the Form block sidebar (ensure you're selecting the parent Form block, and not a child block of the Form block) you will see the "CRM Integration" panel.
+- Expand the CRM Integration panel, and follow the prompt to install Jetpack CRM.
+- For further testing, head over to the Plugins menu, and deactivate (don't uninstall) the Jetpack CRM plugin.
+- Go back to the post editor with your Form block, and you should have an option to activate the plugin which you should do.
+- Test that the toggle option to save form entries to the CRM works; it should get saved properly when saving and refreshing the post.
+- Head to the Plugins menu again, and use a plugin such as WP Rollback to downgrade to Jetpack CRM version 4.9.0 or earlier.
+- Then open your post for editing again, and you should observe a notice that a plugin update is required in the CRM Integration panel section.
 
 **Thank you for all your help!**

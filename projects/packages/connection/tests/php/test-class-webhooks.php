@@ -126,26 +126,31 @@ class Test_Webhooks extends TestCase {
 	public function test_controller() {
 		$webhooks = $this->getMockBuilder( Webhooks::class )
 			->setConstructorArgs( array( new Manager() ) )
-			->setMethods( array( 'do_exit', 'handle_authorize' ) )
+			->setMethods( array( 'do_exit', 'handle_authorize', 'handle_authorize_redirect' ) )
 			->getMock();
 
 		$controller_skipped = $webhooks->controller();
 
-		$webhooks->expects( $this->exactly( 2 ) )
-			->method( 'do_exit' );
-
 		$webhooks->expects( $this->once() )
 			->method( 'handle_authorize' );
+
+		$webhooks->expects( $this->once() )
+			->method( 'handle_authorize_redirect' );
 
 		$_GET['handler'] = 'jetpack-connection-webhooks';
 		$_GET['action']  = 'invalid-action';
 
-		// `do_exit` gets called for the first time.
+		// No callback should be called because action is empty.
 		$webhooks->controller();
 
 		$_GET['action'] = 'authorize';
 
-		// `do_exit` gets called for the second time, and `handle_authorize` - for the first and only time.
+		// `handle_authorize` gets called.
+		$webhooks->controller();
+
+		$_GET['action'] = 'authorize_redirect';
+
+		// `handle_authorize_redirect` gets called.
 		$webhooks->controller();
 
 		static::assertNull( $controller_skipped );
