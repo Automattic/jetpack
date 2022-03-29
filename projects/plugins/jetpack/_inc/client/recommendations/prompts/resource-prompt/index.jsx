@@ -13,8 +13,10 @@ import { __ } from '@wordpress/i18n';
  */
 import {
 	addViewedRecommendation as addViewedRecommendationAction,
-	getNextRoute,
 	updateRecommendationsStep as updateRecommendationsStepAction,
+	getNextRoute,
+	getStep,
+	isUpdatingRecommendationsStep,
 } from 'state/recommendations';
 import analytics from 'lib/analytics';
 import { PromptLayout } from '../prompt-layout';
@@ -43,14 +45,27 @@ const ResourcePromptComponent = props => {
 		illustrationPath,
 		rnaIllustration,
 		stepSlug,
+		stateStepSlug,
+		updatingStep,
 		updateRecommendationsStep,
 		addViewedRecommendation,
 	} = props;
 
 	useEffect( () => {
-		updateRecommendationsStep( stepSlug );
-		addViewedRecommendation( stepSlug );
-	}, [ stepSlug, updateRecommendationsStep, addViewedRecommendation ] );
+		// Both addViewedRecommendation and updateRecommendationsStep update the same option under the hood.
+		// These actions run with mutually exclusive conditions so they do not over-write one another.
+		if ( stepSlug !== stateStepSlug ) {
+			updateRecommendationsStep( stepSlug );
+		} else if ( stepSlug === stateStepSlug && ! updatingStep ) {
+			addViewedRecommendation( stepSlug );
+		}
+	}, [
+		stepSlug,
+		stateStepSlug,
+		updatingStep,
+		updateRecommendationsStep,
+		addViewedRecommendation,
+	] );
 
 	const onExternalLinkClick = useCallback( () => {
 		analytics.tracks.recordEvent( 'jetpack_recommended_resource_learn_more_click', {
@@ -122,6 +137,8 @@ const ResourcePrompt = connect(
 	( state, ownProps ) => ( {
 		nextRoute: getNextRoute( state ),
 		...getStepContent( ownProps.stepSlug ),
+		stateStepSlug: getStep( state ),
+		updatingStep: isUpdatingRecommendationsStep( state ),
 	} ),
 	dispatch => ( {
 		addViewedRecommendation: stepSlug => dispatch( addViewedRecommendationAction( stepSlug ) ),

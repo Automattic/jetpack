@@ -196,7 +196,6 @@ const Summary = connect(
 			siteAdminUrl: getSiteAdminUrl( state ),
 			summaryFeatureSlugs: getSummaryFeatureSlugs( state ),
 			summaryResourceSlugs: getSummaryResourceSlugs( state ),
-			upgradeUrl: getUpgradeUrl( state, 'jetpack-recommendations-backups' ),
 			upsell,
 		};
 	},
