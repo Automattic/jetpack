@@ -1,0 +1,4 @@
+Significance: patch
+Type: bugfix
+
+WordPress.com Toolbar: avoid PHP notices when locale is not defined.
