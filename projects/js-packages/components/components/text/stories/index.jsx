@@ -63,20 +63,6 @@ export const Default = Template.bind( {} );
 
 Default.args = {
 	variant: 'headline-medium',
-	m: 0,
-	mt: 0,
-	mr: 0,
-	mb: 0,
-	ml: 0,
-	mx: 0,
-	my: 0,
-	p: 0,
-	pt: 0,
-	pr: 0,
-	pb: 0,
-	pl: 0,
-	px: 0,
-	py: 0,
 };
 
 export const CustomTag = Template.bind( {} );

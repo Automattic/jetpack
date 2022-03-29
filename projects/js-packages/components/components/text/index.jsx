@@ -32,49 +32,41 @@ export const TIPOGRAPHY_SIZES = {
 	small: 'small',
 };
 
+const BOX_MODEL_VALUES = [
+	'mt',
+	'mr',
+	'mb',
+	'ml',
+	'mx',
+	'my',
+	'm',
+	'pt',
+	'pr',
+	'pb',
+	'pl',
+	'px',
+	'py',
+	'p',
+];
 export const SPACING_VALUES = [ 0, 1, 2, 3, 4, 5, 6 ];
 
-const Text = ( {
-	variant,
-	children,
-	component,
-	className,
-	m,
-	mt,
-	mr,
-	mb,
-	ml,
-	mx,
-	my,
-	p,
-	pt,
-	pr,
-	pb,
-	pl,
-	px,
-	py,
-	...componentProps
-} ) => {
+const Text = ( { variant, children, component, className, ...componentProps } ) => {
 	const Component = component || VARIANTS_MAPPING[ variant ] || 'span';
-	const componentClassName = classNames( styles[ variant ], className, {
-		[ styles[ `m-${ m }` ] ]: typeof m !== 'undefined' ? styles[ `m-${ m }` ] : null,
-		[ styles[ `mt-${ mt }` ] ]: typeof mt !== 'undefined' ? styles[ `mt-${ mt }` ] : null,
-		[ styles[ `mr-${ mr }` ] ]: typeof mr !== 'undefined' ? styles[ `mr-${ mr }` ] : null,
-		[ styles[ `mb-${ mb }` ] ]: typeof mb !== 'undefined' ? styles[ `mb-${ mb }` ] : null,
-		[ styles[ `ml-${ ml }` ] ]: typeof ml !== 'undefined' ? styles[ `ml-${ ml }` ] : null,
-		[ styles[ `mx-${ mx }` ] ]: typeof mx !== 'undefined' ? styles[ `mx-${ mx }` ] : null,
-		[ styles[ `my-${ my }` ] ]: typeof my !== 'undefined' ? styles[ `my-${ my }` ] : null,
-		[ styles[ `p-${ p }` ] ]: typeof p !== 'undefined' ? styles[ `p-${ p }` ] : null,
-		[ styles[ `pt-${ pt }` ] ]: typeof pt !== 'undefined' ? styles[ `pt-${ pt }` ] : null,
-		[ styles[ `pr-${ pr }` ] ]: typeof pr !== 'undefined' ? styles[ `pr-${ pr }` ] : null,
-		[ styles[ `pb-${ pb }` ] ]: typeof pb !== 'undefined' ? styles[ `pb-${ pb }` ] : null,
-		[ styles[ `pl-${ pl }` ] ]: typeof pl !== 'undefined' ? styles[ `pl-${ pl }` ] : null,
-		[ styles[ `px-${ px }` ] ]: typeof px !== 'undefined' ? styles[ `px-${ px }` ] : null,
-		[ styles[ `py-${ py }` ] ]: typeof py !== 'undefined' ? styles[ `py-${ py }` ] : null,
-	} );
+
+	// Build Styles module CSS classnames.
+	const boxModelClasses = BOX_MODEL_VALUES.reduce( ( acc, value ) => {
+		if ( typeof componentProps[ value ] !== 'undefined' ) {
+			acc += styles[ `${ value }-${ componentProps[ value ] }` ] + ' ';
+			delete componentProps[ value ];
+		}
+		return acc;
+	}, '' );
 
 	return (
-		<Component className={ componentClassName } { ...componentProps }>
+		<Component
+			className={ classNames( styles[ variant ], className, boxModelClasses ) }
+			{ ...componentProps }
+		>
 			{ children }
 		</Component>
 	);
@@ -83,33 +75,33 @@ const Text = ( {
 Text.propTypes = {
 	/** Variant name, based on our pre-defined names and design names. */
 	variant: PropTypes.oneOf( Object.keys( VARIANTS_MAPPING ) ),
-	/** margin value, based on --spacing-base  */
+	/** margin */
 	m: PropTypes.oneOf( SPACING_VALUES ),
-	/** margin-top value, based on --spacing-base  */
+	/** margin-top */
 	mt: PropTypes.oneOf( SPACING_VALUES ),
-	/** margin-rigt value, based on --spacing-base  */
+	/** margin-right */
 	mr: PropTypes.oneOf( SPACING_VALUES ),
-	/** margin-bottom value, based on --spacing-base  */
+	/** margin-bottom */
 	mb: PropTypes.oneOf( SPACING_VALUES ),
-	/** margin-left value, based on --spacing-base  */
+	/** margin-left */
 	ml: PropTypes.oneOf( SPACING_VALUES ),
-	/** margin left ad right value, based on --spacing-base  */
+	/** margin left and right */
 	mx: PropTypes.oneOf( SPACING_VALUES ),
-	/** margin top ad bottom value, based on --spacing-base  */
+	/** margin top and bottom */
 	my: PropTypes.oneOf( SPACING_VALUES ),
-	/** padding value, based on --spacing-base  */
+	/** padding */
 	p: PropTypes.oneOf( SPACING_VALUES ),
-	/** padding-top value, based on --spacing-base  */
+	/** padding-top */
 	pt: PropTypes.oneOf( SPACING_VALUES ),
-	/** padding-right value, based on --spacing-base  */
+	/** padding-right */
 	pr: PropTypes.oneOf( SPACING_VALUES ),
-	/** padding-bottom value, based on --spacing-base  */
+	/** padding-bottom */
 	pb: PropTypes.oneOf( SPACING_VALUES ),
-	/** padding-left value, based on --spacing-base  */
+	/** padding-left */
 	pl: PropTypes.oneOf( SPACING_VALUES ),
-	/** padding left ad right value, based on --spacing-base  */
+	/** padding left and right */
 	px: PropTypes.oneOf( SPACING_VALUES ),
-	/** padding top ad bottom value, based on --spacing-base  */
+	/** padding top and bottom */
 	py: PropTypes.oneOf( SPACING_VALUES ),
 	/** The text itself that will be rendered. */
 	children: PropTypes.node,
