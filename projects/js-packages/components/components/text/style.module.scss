@@ -71,12 +71,9 @@
 }
 
 /* Headings */
-.headline-medium {
-	margin-bottom: calc( var(--spacing-base ) * 3 );
-}
-
+.headline-medium,
 .headline-small {
-	margin-bottom: var( --spacing-base );
+	margin-bottom: calc( var(--spacing-base ) * 3 );
 }
 
 /* Title size variations: medium | small */

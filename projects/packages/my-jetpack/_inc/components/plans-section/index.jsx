@@ -4,7 +4,7 @@
 import React from 'react';
 import { __, _n } from '@wordpress/i18n';
 import { ExternalLink } from '@wordpress/components';
-import { Text, H2, Title } from '@automattic/jetpack-components';
+import { Text, H3, Title } from '@automattic/jetpack-components';
 
 /**
  * Internal dependencies
@@ -43,11 +43,11 @@ function PlanSection( { purchase = {} } ) {
 function PlanSectionHeader( { purchases } ) {
 	return (
 		<>
-			<H2>
+			<H3>
 				{ purchases.length <= 1
 					? __( 'Your plan', 'jetpack-my-jetpack' )
 					: __( 'Your plans', 'jetpack-my-jetpack' ) }
-			</H2>
+			</H3>
 			{ purchases.length === 0 && (
 				<p>{ __( 'The extra power you added to your Jetpack.', 'jetpack-my-jetpack' ) }</p>
 			) }
