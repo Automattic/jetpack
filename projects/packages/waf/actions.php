@@ -31,7 +31,7 @@ register_activation_hook(
 add_action(
 	'plugin_loaded',
 	function () {
-		WafRunner::update();
+		Waf::update();
 		require_once __DIR__ . '/run.php';
 	}
 );

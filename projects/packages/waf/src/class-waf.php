@@ -10,7 +10,7 @@ namespace Automattic\Jetpack\Waf;
 /**
  * Executes the WAF.
  */
-class WafRunner {
+class Waf {
 
 	const MODE_OPTION_NAME = 'jetpack_waf_mode';
 	const RULES_FILE       = __DIR__ . '/../rules/rules.php';

@@ -36,7 +36,7 @@ class CLI extends WP_CLI_Command {
 			return WP_CLI::error( __( 'Only one mode may be specified.', 'jetpack-waf' ) );
 		}
 		if ( count( $args ) === 1 ) {
-			if ( ! WafRunner::is_allowed_mode( $args[0] ) ) {
+			if ( ! Waf::is_allowed_mode( $args[0] ) ) {
 
 				return WP_CLI::error(
 					sprintf(
@@ -47,7 +47,7 @@ class CLI extends WP_CLI_Command {
 				);
 			}
 
-			update_option( WafRunner::MODE_OPTION_NAME, $args[0] );
+			update_option( Waf::MODE_OPTION_NAME, $args[0] );
 
 			try {
 				( new WafStandaloneBootstrap() )->generate();
@@ -65,7 +65,7 @@ class CLI extends WP_CLI_Command {
 				sprintf(
 					/* translators: %1$s is the name of the mode that was just switched to. */
 					__( 'Jetpack WAF mode switched to "%1$s".', 'jetpack-waf' ),
-					get_option( WafRunner::MODE_OPTION_NAME )
+					get_option( Waf::MODE_OPTION_NAME )
 				)
 			);
 		}
@@ -73,7 +73,7 @@ class CLI extends WP_CLI_Command {
 			sprintf(
 				/* translators: %1$s is the name of the mode that the waf is currently running in. */
 				__( 'Jetpack WAF is running in "%1$s" mode.', 'jetpack-waf' ),
-				get_option( WafRunner::MODE_OPTION_NAME )
+				get_option( Waf::MODE_OPTION_NAME )
 			)
 		);
 	}

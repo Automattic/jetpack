@@ -69,7 +69,7 @@ class WafStandaloneBootstrap {
 
 		// Try the Jetpack autoloader.
 		if ( isset( $jetpack_autoloader_loader ) ) {
-			$class_file = $jetpack_autoloader_loader->find_class_file( WafRunner::class );
+			$class_file = $jetpack_autoloader_loader->find_class_file( Waf::class );
 			if ( $class_file ) {
 				$autoload_file = dirname( dirname( dirname( dirname( dirname( $class_file ) ) ) ) ) . '/vendor/autoload.php';
 			}
@@ -118,7 +118,7 @@ class WafStandaloneBootstrap {
 		}
 
 		$bootstrap_file = trailingslashit( JETPACK_WAF_DIR ) . 'bootstrap.php';
-		$mode_option    = get_option( WafRunner::MODE_OPTION_NAME, false );
+		$mode_option    = get_option( Waf::MODE_OPTION_NAME, false );
 
 		// phpcs:disable WordPress.PHP.DevelopmentFunctions
 		$code = "<?php\n"
