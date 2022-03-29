@@ -7,6 +7,7 @@ import React from 'react';
  * Internal dependencies
  */
 import Text, { SPACING_VALUES } from '../index.jsx';
+import styles from './style.module.scss';
 
 export default {
 	title: 'JS Packages/Components/Text',
@@ -82,3 +83,17 @@ CustomComponent.args = {
 	variant: 'headline-small',
 	component: Custom,
 };
+
+const BoxModelTemplate = args => (
+	<div className={ styles[ 'box-model-wrapper' ] }>
+		<div className={ styles[ 'box-model-side-left' ] } />
+		<div className={ styles[ 'box-model-side-center' ] }>
+			<Text { ...args }>
+				<div className={ styles[ 'box-model-inner' ] }>Box Model</div>
+			</Text>
+		</div>
+		<div className={ styles[ 'box-model-side-right' ] } />
+	</div>
+);
+
+export const BoxModel = BoxModelTemplate.bind( {} );
