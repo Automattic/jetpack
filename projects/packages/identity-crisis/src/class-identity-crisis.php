@@ -28,7 +28,7 @@ class Identity_Crisis {
 	/**
 	 * Package Version
 	 */
-	const PACKAGE_VERSION = '0.8.4-alpha';
+	const PACKAGE_VERSION = '0.8.4';
 
 	/**
 	 * Instance of the object.

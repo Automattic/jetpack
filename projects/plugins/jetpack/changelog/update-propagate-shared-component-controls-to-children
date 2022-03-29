@@ -1,4 +1,0 @@
-Significance: minor
-Type: enhancement
-
-We now provide a way in which we can propagate the controls to the child blocks.
