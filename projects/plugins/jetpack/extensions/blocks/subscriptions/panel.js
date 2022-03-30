@@ -3,7 +3,10 @@
  */
 import { PluginPrePublishPanel, PluginPostPublishPanel } from '@wordpress/edit-post';
 import { createInterpolateElement, useEffect, useState } from '@wordpress/element';
+import { useSelect } from '@wordpress/data';
+import { store as editorStore } from '@wordpress/editor';
 import { __, _n, sprintf } from '@wordpress/i18n';
+import { isAtomicSite, isPrivateSite } from '@automattic/jetpack-shared-extension-utils';
 
 /**
  * Internal dependencies
@@ -18,7 +21,23 @@ export default function SubscribePanels() {
 		getSubscriberCount( count => setSubscriberCount( count ) );
 	}, [] );
 
-	return ! Number.isFinite( subscriberCount ) || subscriberCount <= 0 ? null : (
+	// Only show this for posts for now (subscriptions are only available on posts).
+	const postType = useSelect( select => select( editorStore ).getCurrentPostType(), [] );
+	if ( 'post' !== postType ) {
+		return null;
+	}
+
+	// Subscriptions will not be triggered on WoA's private sites.
+	if ( isAtomicSite() && isPrivateSite() ) {
+		return null;
+	}
+
+	// Do not show any panels when we have no info about the subscriber count, or it is too low.
+	if ( ! Number.isFinite( subscriberCount ) || subscriberCount <= 0 ) {
+		return null;
+	}
+
+	return (
 		<>
 			<PluginPrePublishPanel
 				className="jetpack-subscribe-pre-publish-panel"
