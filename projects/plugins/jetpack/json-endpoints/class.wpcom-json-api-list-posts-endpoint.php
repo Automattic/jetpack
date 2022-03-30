@@ -222,7 +222,7 @@ class WPCOM_JSON_API_List_Posts_Endpoint extends WPCOM_JSON_API_Post_Endpoint {
 		if (
 			isset( $args['sticky'] )
 		&&
-			( $sticky )
+			$sticky
 		&&
 			is_array( $sticky )
 		) {
