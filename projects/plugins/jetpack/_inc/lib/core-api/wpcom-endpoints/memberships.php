@@ -81,9 +81,6 @@ class WPCOM_REST_API_V2_Endpoint_Memberships extends WP_REST_Controller {
 							'type'     => 'string',
 							'required' => true,
 						),
-						'public'   => array(
-							'type' => 'boolean',
-						),
 					),
 				),
 			)
@@ -230,12 +227,10 @@ class WPCOM_REST_API_V2_Endpoint_Memberships extends WP_REST_Controller {
 	public function get_status( \WP_REST_Request $request ) {
 		$product_type = $request['type'];
 		$source       = $request['source'];
-		$public       = ! isset( $request['public'] ) ? null : (bool) $request['public'];
-
 		if ( ( defined( 'IS_WPCOM' ) && IS_WPCOM ) ) {
 			jetpack_require_lib( 'memberships' );
 			$blog_id = get_current_blog_id();
-			return (array) get_memberships_settings_for_site( $blog_id, $product_type, $public );
+			return (array) get_memberships_settings_for_site( $blog_id, $product_type );
 		} else {
 			$blog_id = Jetpack_Options::get_option( 'id' );
 			$path    = "/sites/$blog_id/{$this->rest_base}/status";
@@ -244,7 +239,6 @@ class WPCOM_REST_API_V2_Endpoint_Memberships extends WP_REST_Controller {
 					array(
 						'type'   => $product_type,
 						'source' => $source,
-						'public' => $public,
 					),
 					$path
 				);
