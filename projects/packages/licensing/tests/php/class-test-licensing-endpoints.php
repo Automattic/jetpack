@@ -61,11 +61,11 @@ class Test_Licensing_Endpoints extends BaseTestCase {
 	 *
 	 * @since 4.4.0
 	 *
-	 * @param string $role
+	 * @param string $role The role to assign the created user.
 	 *
 	 * @return WP_User
 	 */
-	protected function create_and_get_user( $role = '' ) {
+	protected function create_and_get_user( $role = 'subscriber' ) {
 		$username = str_replace( '.', '', 'licensing_user_' . microtime( true ) );
 
 		$user_id = wp_insert_user(
@@ -73,6 +73,7 @@ class Test_Licensing_Endpoints extends BaseTestCase {
 				'user_login' => $username,
 				'user_pass'  => $username,
 				'user_email' => $username . '@example.com',
+				'role'       => $role,
 			)
 		);
 
@@ -88,10 +89,10 @@ class Test_Licensing_Endpoints extends BaseTestCase {
 	 *
 	 * @since 4.4.0
 	 *
-	 * @param string $route       REST API path to be append to /jetpack/v4/
-	 * @param array  $json_params When present, parameters are added to request in JSON format
-	 * @param string $method      Request method to use, GET or POST
-	 * @param array  $params      Parameters to add to endpoint
+	 * @param string $route       REST API path to be append to /jetpack/v4/.
+	 * @param array  $json_params When present, parameters are added to request in JSON format.
+	 * @param string $method      Request method to use, GET or POST.
+	 * @param array  $params      Parameters to add to endpoint.
 	 *
 	 * @return WP_REST_Response
 	 */
@@ -102,7 +103,7 @@ class Test_Licensing_Endpoints extends BaseTestCase {
 			$request->set_header( 'content-type', 'application/json' );
 		}
 		if ( ! empty( $json_params ) ) {
-			$request->set_body( json_encode( $json_params ) );
+			$request->set_body( wp_json_encode( $json_params ) );
 		}
 		if ( ! empty( $params ) && is_array( $params ) ) {
 			foreach ( $params as $key => $value ) {
@@ -117,8 +118,8 @@ class Test_Licensing_Endpoints extends BaseTestCase {
 	 *
 	 * @since 4.4.0
 	 *
-	 * @param integer          $status
-	 * @param WP_REST_Response $response
+	 * @param integer          $status   The expected status.
+	 * @param WP_REST_Response $response The response object.
 	 */
 	protected function assertResponseStatus( $status, $response ) {
 		$this->assertEquals( $status, $response->get_status() );
