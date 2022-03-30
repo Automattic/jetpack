@@ -116,8 +116,6 @@ class Manager {
 		if ( defined( 'JETPACK__SANDBOX_DOMAIN' ) && JETPACK__SANDBOX_DOMAIN ) {
 			( new Server_Sandbox() )->init();
 		}
-
-		$manager->setup_migration_hooks();
 	}
 
 	/**
@@ -2489,39 +2487,5 @@ class Manager {
 			}
 		}
 		return $stats;
-	}
-
-	/**
-	 * Initialize the site migration hooks.
-	 *
-	 * @return void
-	 */
-	public function setup_migration_hooks() {
-		add_filter( 'ai1wm_export', array( $this, 'aiowpm_before_export' ), 5 );
-		add_filter( 'ai1wm_export', array( $this, 'aiowpm_after_export' ), 250 );
-	}
-
-	/**
-	 * Run before the AIOWPM export.
-	 *
-	 * @param mixed $params The parameters coming from the plugin.
-	 *
-	 * @return mixed
-	 */
-	public function aiowpm_before_export( $params ) {
-		$this->get_tokens()->set_site_lock();
-		return $params;
-	}
-
-	/**
-	 * Run after the AIOWPM export.
-	 *
-	 * @param mixed $params The parameters coming from the plugin.
-	 *
-	 * @return mixed
-	 */
-	public function aiowpm_after_export( $params ) {
-		$this->get_tokens()->remove_site_lock();
-		return $params;
 	}
 }
