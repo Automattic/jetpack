@@ -15,16 +15,13 @@ tar --owner=0 --group=0 --xz -cvvf artifacts/coverage.tar.xz coverage
 echo '::endgroup::'
 
 curl -Os https://uploader.codecov.io/latest/linux/codecov
-
 chmod +x codecov
 
-
 for SLUG in $(echo $CHANGED | jq -r 'keys[]'); do
-if [[ -d "./coverage/$SLUG" ]]
-FLAG=$(echo $SLUG | tr / _)
-then
-		echo "::group::Send $SLUG coverage to codecov.io"
-		./codecov -s ./coverage/$SLUG -F $FLAG || echo "Codecov failed to upload $FLAG"
-		echo '::endgroup::'
-fi
+	FLAG=$(echo $SLUG | tr / _)
+	if [[ -d "./coverage/$SLUG" ]]; then
+			echo "::group::Send $SLUG coverage to codecov.io"
+			./codecov -s ./coverage/$SLUG -F $FLAG || echo "Codecov failed to upload $FLAG"
+			echo '::endgroup::'
+	fi
 done
