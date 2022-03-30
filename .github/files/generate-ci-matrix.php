@@ -95,7 +95,7 @@ $matrix[] = array(
 	'name'    => 'Code coverage',
 	'script'  => 'test-coverage',
 	'wp'      => 'latest',
-	'timeout' => 50, // 2021-01-18: Successful runs seem to take ~20 minutes
+	'timeout' => 30, // 2021-01-18: Successful runs seem to take ~20 minutes
 );
 
 // END matrix definitions.
