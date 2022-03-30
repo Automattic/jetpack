@@ -58,7 +58,7 @@ class WPCOM_JSON_API_List_Embeds_Endpoint extends WPCOM_JSON_API_Endpoint {
 		global $wp_embed;
 		$oembed = _wp_oembed_get_object();
 
-		foreach ( $wp_embed->handlers as $priority => $handlers ) { // phpcs:ignore VariableAnalysis.CodeAnalysis.VariableAnalysis.UnusedVariable
+		foreach ( $wp_embed->handlers as $handlers ) {
 			foreach ( $handlers as $handler ) {
 				if ( ! empty( $handler['regex'] ) ) {
 					$output['embeds'][] = $handler['regex'];
