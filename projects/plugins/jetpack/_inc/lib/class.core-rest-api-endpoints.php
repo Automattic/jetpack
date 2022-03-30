@@ -10,7 +10,6 @@ use Automattic\Jetpack\Connection\Manager as Connection_Manager;
 use Automattic\Jetpack\Connection\Rest_Authentication;
 use Automattic\Jetpack\Connection\REST_Connector;
 use Automattic\Jetpack\Jetpack_CRM_Data;
-use Automattic\Jetpack\Licensing;
 use Automattic\Jetpack\Plugins_Installer;
 use Automattic\Jetpack\Status\Host;
 use Automattic\Jetpack\Status\Visitor;
@@ -681,48 +680,6 @@ class Jetpack_Core_Json_Api_Endpoints {
 			)
 		);
 
-		/**
-		 * Update user-licensing activation notice dismiss info.
-		 */
-		register_rest_route(
-			'jetpack/v4',
-			'licensing/user/activation-notice-dismiss',
-			array(
-				'methods'             => WP_REST_Server::EDITABLE,
-				'callback'            => __CLASS__ . '::update_licensing_activation_notice_dismiss',
-				'permission_callback' => __CLASS__ . '::user_licensing_permission_check',
-				'args'                => array(
-					'last_detached_count' => array(
-						'required'          => true,
-						'type'              => 'integer',
-						'validate_callback' => __CLASS__ . '::validate_non_neg_int',
-					),
-				),
-			)
-		);
-
-		/**
-		 * Attach licenses to user account
-		 */
-		register_rest_route(
-			'jetpack/v4',
-			'/licensing/attach-licenses',
-			array(
-				'methods'             => WP_REST_Server::EDITABLE,
-				'callback'            => __CLASS__ . '::attach_jetpack_licenses',
-				'permission_callback' => __CLASS__ . '::user_licensing_permission_check',
-				'args'                => array(
-					'licenses' => array(
-						'required' => true,
-						'type'     => 'array',
-						'items'    => array(
-							'type' => 'string',
-						),
-					),
-				),
-			)
-		);
-
 		/*
 		 * Manage the Jetpack CRM plugin's integration with Jetpack contact forms.
 		 */
@@ -1038,42 +995,6 @@ class Jetpack_Core_Json_Api_Endpoints {
 				array( 'status' => $response_code )
 			);
 		}
-	}
-
-	/**
-	 * Update the user-licenses activation notice dismissal data.
-	 *
-	 * @since 10.4.0
-	 *
-	 * @param WP_REST_Request $request The request sent to the WP REST API.
-	 *
-	 * @return array|WP_Error
-	 */
-	public static function update_licensing_activation_notice_dismiss( $request ) {
-
-		if ( ! isset( $request['last_detached_count'] ) ) {
-			return new WP_Error( 'invalid_param', esc_html__( 'Missing parameter "last_detached_count".', 'jetpack' ), array( 'status' => 404 ) );
-		}
-
-		$default             = array(
-			'last_detached_count' => null,
-			'last_dismissed_time' => null,
-		);
-		$last_detached_count = ( '' === $request['last_detached_count'] )
-			? $default['last_detached_count']
-			: $request['last_detached_count'];
-		$last_dismissed_time = ( '' === $request['last_detached_count'] )
-			? $default['last_dismissed_time']
-			// Use UTC timezone and convert to ISO8601 format(DateTime::W3C) for best compatibility with JavaScript Date in all browsers.
-			: ( new DateTime( 'NOW', new DateTimeZone( 'UTC' ) ) )->format( DateTime::W3C );
-
-		$notice_data = array(
-			'last_detached_count' => $last_detached_count,
-			'last_dismissed_time' => $last_dismissed_time,
-		);
-
-		Jetpack_Options::update_option( 'licensing_activation_notice_dismiss', $notice_data, true );
-		return rest_ensure_response( $notice_data );
 	}
 
 	/**
@@ -1440,25 +1361,6 @@ class Jetpack_Core_Json_Api_Endpoints {
 
 		return new WP_Error(
 			'invalid_permission_manage_purchase_token',
-			REST_Connector::get_user_permissions_error_msg(),
-			array( 'status' => rest_authorization_required_code() )
-		);
-	}
-
-	/**
-	 * Verify that user can view and update user-licensing data.
-	 *
-	 * @return bool Whether the user is currently connected and they are the connection owner.
-	 */
-	public static function user_licensing_permission_check() {
-		$connection_manager = new Connection_Manager( 'jetpack' );
-
-		if ( $connection_manager->is_user_connected() && $connection_manager->is_connection_owner() ) {
-			return true;
-		}
-
-		return new WP_Error(
-			'invalid_permission_manage_user_licenses',
 			REST_Connector::get_user_permissions_error_msg(),
 			array( 'status' => rest_authorization_required_code() )
 		);
@@ -4076,40 +3978,6 @@ class Jetpack_Core_Json_Api_Endpoints {
 	}
 
 	/**
-	 * Update the last licensing error message.
-	 *
-	 * @since 9.0.0
-	 *
-	 * @param WP_REST_Request $request The request.
-	 *
-	 * @return bool true.
-	 */
-	public static function update_licensing_error( $request ) {
-		Licensing::instance()->log_error( $request['error'] );
-
-		return true;
-	}
-
-	/**
-	 * Attach Jetpack licenses
-	 *
-	 * @since 10.4.0
-	 *
-	 * @param WP_REST_Request $request The request.
-	 *
-	 * @return WP_REST_Response|WP_Error A response object
-	 */
-	public static function attach_jetpack_licenses( $request ) {
-		$licenses = array_map(
-			function ( $license ) {
-				return trim( sanitize_text_field( $license ) );
-			},
-			$request['licenses']
-		);
-		return rest_ensure_response( Licensing::instance()->attach_licenses( $licenses ) );
-	}
-
-	/**
 	 * Returns the Jetpack CRM data.
 	 *
 	 * @return WP_REST_Response A response object containing the Jetpack CRM data.
@@ -4171,26 +4039,6 @@ class Jetpack_Core_Json_Api_Endpoints {
 			REST_Connector::get_user_permissions_error_msg(),
 			array( 'status' => rest_authorization_required_code() )
 		);
-	}
-
-	/**
-	 * Verify that the user can set a Jetpack license key
-	 *
-	 * @since 9.5.0
-	 *
-	 * @return bool|WP_Error True if user is able to set a Jetpack license key
-	 */
-	public static function set_jetpack_license_key_permission_check() {
-		if ( Licensing::instance()->is_licensing_input_enabled() ) {
-			return true;
-		}
-
-		return new WP_Error(
-			'invalid_user_permission_set_jetpack_license_key',
-			REST_Connector::get_user_permissions_error_msg(),
-			array( 'status' => rest_authorization_required_code() )
-		);
-
 	}
 
 	/**
