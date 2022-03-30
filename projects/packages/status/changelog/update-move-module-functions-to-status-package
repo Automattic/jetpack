@@ -1,0 +1,4 @@
+Significance: patch
+Type: changed
+
+Janitorial: Moving plugin code into a shared package.
